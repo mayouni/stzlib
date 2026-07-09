@@ -75,62 +75,62 @@ class stzCCode from stzObject
 	 #  GETTING A COPY OF THE CCODE OBJECT  #
 	#--------------------------------------#
 
-	def Update(cNewCode)
+	def Update(_cNewCode_)
 		if CheckingParams() = 1
-			if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
-				cNewCode = cNewCode[2]
+			if isList(_cNewCode_) and Q(_cNewCode_).IsWithOrByOrUsingNamedParam()
+				_cNewCode_ = _cNewCode_[2]
 			ok
 
-			if NOT isString(cNewCode)
+			if NOT isString(_cNewCode_)
 				StzRaise("Incorrect param type! cNewCode must be a string.")
 			ok
 		ok
 
-		@cContent = cNewCode
+		@cContent = _cNewCode_
 
 		#< @FunctionFluentForm
 
-		def UpdateQ(cNewCode)
-			This.Update(cNewCode)
+		def UpdateQ(_cNewCode_)
+			This.Update(_cNewCode_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def UpdateWith(cNewCode)
-			This.Update(cNewCode)
+		def UpdateWith(_cNewCode_)
+			This.Update(_cNewCode_)
 
-			def UpdateWithQ(cNewCode)
-				return This.UpdateQ(cNewCode)
+			def UpdateWithQ(_cNewCode_)
+				return This.UpdateQ(_cNewCode_)
 	
-		def UpdateBy(cNewCode)
-			This.Update(cNewCode)
+		def UpdateBy(_cNewCode_)
+			This.Update(_cNewCode_)
 
-			def UpdateByQ(cNewCode)
-				return This.UpdateQ(cNewCode)
+			def UpdateByQ(_cNewCode_)
+				return This.UpdateQ(_cNewCode_)
 
-		def UpdateUsing(cNewCode)
-			This.Update(cNewCode)
+		def UpdateUsing(_cNewCode_)
+			This.Update(_cNewCode_)
 
-			def UpdateUsingQ(cNewCode)
-				return This.UpdateQ(cNewCode)
+			def UpdateUsingQ(_cNewCode_)
+				return This.UpdateQ(_cNewCode_)
 
 		#>
 
-	def Updated(cNewCode)
-		return cNewCode
+	def Updated(_cNewCode_)
+		return _cNewCode_
 
 		#< @FunctionAlternativeForms
 
-		def UpdatedWith(cNewCode)
-			return This.Updated(cNewCode)
+		def UpdatedWith(_cNewCode_)
+			return This.Updated(_cNewCode_)
 
-		def UpdatedBy(cNewCode)
-			return This.Updated(cNewCode)
+		def UpdatedBy(_cNewCode_)
+			return This.Updated(_cNewCode_)
 
-		def UpdatedUsing(cNewCode)
-			return This.Updated(cNewCode)
+		def UpdatedUsing(_cNewCode_)
+			return This.Updated(_cNewCode_)
 
 		#>
 
@@ -228,9 +228,9 @@ class stzCCode from stzObject
 			
 		], 0)
 
-		oResult = StzStringQ(" " + cCode + " ")
+		_oResult_ = StzStringQ(" " + cCode + " ")
 
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @items ","@allItems",
 							
 			" @chars ","@allChars",
@@ -247,14 +247,14 @@ class stzCCode from stzObject
 
 			" This.Content() ", 0)
 
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @position ", " @CurrentPosition ",
 			" @Current@i ", " @CurrentI ",
 			" @EachPosition ", " @EachI " ],
 
 			" @i ", 0)
 
-		oResult.ReplaceManyCS([				
+		_oResult_.ReplaceManyCS([				
 			" @item ", " @EachItem ", " @CurrentItem ",
 			" @char ", " @EachChar ", " @CurrentChar ",
 			" @string", " @EachString ", " @CurrentString ",
@@ -273,14 +273,14 @@ class stzCCode from stzObject
 
 			" This[@i] ", 0 )
 			
-		oResult.ReplaceCS(" -@Number ", " - This[@i] ", 0)
+		_oResult_.ReplaceCS(" -@Number ", " - This[@i] ", 0)
 
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @NextPosition ", " @NextI "],
 
 			" @i + 1 ", 0)
 			
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @NextItem ",
 			" @NextChar ", " @NextString ", " @NextSubString ",
 			" @NextLine ",
@@ -292,12 +292,12 @@ class stzCCode from stzObject
 
 			" This[@i + 1] ", 0)
 
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @PreviousPosition ", " @PreviousI "],
 
 			" @i - 1 ", 0)
 
-		oResult.ReplaceManyCS([
+		_oResult_.ReplaceManyCS([
 			" @PreviousItem ",
 			" @PreviousChar ",
 			" @PreviousString ", " @PreviousSubString ",
@@ -314,24 +314,24 @@ class stzCCode from stzObject
 		# Undo the "( " / " )" / "[ " / " ]" padding the normalization added (and
 		# collapse the double-spaces left where a keyword was expanded next to a
 		# bracket), so the transpiled code reads cleanly: Q(This[@i + 1]).Foo().
-		oResult.ReplaceCS("  ", " ", 1)
-		oResult.ReplaceCS("  ", " ", 1)
-		oResult.ReplaceCS("( ", "(", 1)
-		oResult.ReplaceCS(" )", ")", 1)
-		oResult.ReplaceCS("[ ", "[", 1)
-		oResult.ReplaceCS(" ]", "]", 1)
+		_oResult_.ReplaceCS("  ", " ", 1)
+		_oResult_.ReplaceCS("  ", " ", 1)
+		_oResult_.ReplaceCS("( ", "(", 1)
+		_oResult_.ReplaceCS(" )", ")", 1)
+		_oResult_.ReplaceCS("[ ", "[", 1)
+		_oResult_.ReplaceCS(" ]", "]", 1)
 
-		cResult = oResult.Trimmed()
+		_cResult_ = _oResult_.Trimmed()
 
-		@cContent = cResult
+		@cContent = _cResult_
 
 		def TranspileQ()
 			This.Transpile()
 			return This
 
 	def Transpiled()
-		cResult = This.Copy().TranspileQ().Content()
-		return cResult
+		_cResult_ = This.Copy().TranspileQ().Content()
+		return _cResult_
 
 	  #-----------------------------------------------------#
 	 #  IDENTIFIYING THE EXECUTABLE SECTION FROM THE CODE  #
@@ -366,64 +366,64 @@ class stzCCode from stzObject
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 
-		acSubStr = _oCode_.WithoutSpacesQ().SubStringsBoundedBy([ "[","]" ])
+		_acSubStr_ = _oCode_.WithoutSpacesQ().SubStringsBoundedBy([ "[","]" ])
 
 		# Getting the indexs after the @i
 
-		rx = new stzRegex("(?<=@i)([+-]\d+)")
-		rx.Match(Join(acsubStr))
+		_rx_ = new stzRegex("(?<=@i)([+-]\d+)")
+		_rx_.Match(Join(_acSubStr_))
 
-		acNumbersAfter = rx.Matches()
-		nLenAfter = len(acNumbersAfter)
+		_acNumbersAfter_ = _rx_.Matches()
+		_nLenAfter_ = len(_acNumbersAfter_)
 
-		if nLenAfter = 0
+		if _nLenAfter_ = 0
 			return [ 1, :Last ]
 		ok
 
-		anNumbers = []
-		for i = 1 to nLenAfter
-			anNumbers + (0+ acNumbersAfter[i])
+		_anNumbers_ = []
+		for i = 1 to _nLenAfter_
+			_anNumbers_ + (0+ _acNumbersAfter_[i])
 		next
 
-		oNumbers = new stzList(anNumbers)
+		_oNumbers_ = new stzList(_anNumbers_)
 
-		anResult = [ 1, :Last ]
+		_anResult_ = [ 1, :Last ]
 
-		if nLenAfter = 1
-			n =  anNumbers[1]
+		if _nLenAfter_ = 1
+			_n_ =  _anNumbers_[1]
 
-			if n > 0
-				anResult = [ 1, -n ]
+			if _n_ > 0
+				_anResult_ = [ 1, -_n_ ]
 
-			but n < 0
-				anResult = [ Abs(n) + 1, :Last ]
+			but _n_ < 0
+				_anResult_ = [ Abs(_n_) + 1, :Last ]
 
 			ok
 		else
-			nMin = 0+ oNumbers.Smallest()
-			nMax = 0+ oNumbers.Greatest()
+			_nMin_ = 0+ _oNumbers_.Smallest()
+			_nMax_ = 0+ _oNumbers_.Greatest()
 	
-			if BothAreNegative( nMin, nMax )
-				nMin = Abs( nMin )
-				nMax = :Last
+			if BothAreNegative( _nMin_, _nMax_ )
+				_nMin_ = Abs( _nMin_ )
+				_nMax_ = :Last
 	
-			but BothArePositive( nMin, nMax )
-				nMin = 1
-				nMax = - nMax
+			but BothArePositive( _nMin_, _nMax_ )
+				_nMin_ = 1
+				_nMax_ = - _nMax_
 
-			but nMin < 0 and nMax > 0
-				nMin = Abs(nMin) + 1
-				nMax = - nMax
+			but _nMin_ < 0 and _nMax_ > 0
+				_nMin_ = Abs(_nMin_) + 1
+				_nMax_ = - _nMax_
 	
 			else
-				nMin = 1
-				nMax = :Last
+				_nMin_ = 1
+				_nMax_ = :Last
 			ok
 	
-			anResult = [ nMin, nMax ]
+			_anResult_ = [ _nMin_, _nMax_ ]
 		ok
 
-		return anResult
+		return _anResult_
 
 		#NOTE
 		# A small but important detail: in WXT() you can bound
@@ -448,8 +448,8 @@ class stzCCode from stzObject
 
 		/* EXAMPLE
 
-		o1 = new stzCCode('{ @CurrentItem = This[ @i + 3 ] }')
-		? o1.ExecutableSection()
+		_o1_ = new stzCCode('{ @CurrentItem = This[ @i + 3 ] }')
+		? _o1_.ExecutableSection()
 		#--> [ 1, -4 ]
 
 		*/
@@ -469,61 +469,61 @@ class stzCCode from stzObject
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 
-		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
+		_acSubStr_ = _oCode_.SubStringsBoundedBy([ "[","]" ])
 
 		# Getting the indexs after the @i
 
-		rx = new stzRegex("(?<=@i)([+-]\d+)")
-		rx.Match(Join(acsubStr))
+		_rx_ = new stzRegex("(?<=@i)([+-]\d+)")
+		_rx_.Match(Join(_acSubStr_))
 
-		acNumbersAfter = rx.Matches()
-		nLenAfter = len(acNumbersAfter)
+		_acNumbersAfter_ = _rx_.Matches()
+		_nLenAfter_ = len(_acNumbersAfter_)
 
-		if nLenAfter = 0
+		if _nLenAfter_ = 0
 			return [ 1, :Last ]
 		ok
 
-		anNumbers = []
-		for i = 1 to nLenAfter
-			anNumbers + (0+ acNumbersAfter[i])
+		_anNumbers_ = []
+		for i = 1 to _nLenAfter_
+			_anNumbers_ + (0+ _acNumbersAfter_[i])
 		next
 
-		oNumbers = new stzList(anNumbers)
+		_oNumbers_ = new stzList(_anNumbers_)
 
-		anResult = [ 1, :Last ]
+		_anResult_ = [ 1, :Last ]
 
-		if nLenAfter = 1
-			n =  anNumbers[1]
+		if _nLenAfter_ = 1
+			_n_ =  _anNumbers_[1]
 
-			if n > 0
-				anResult = [ 1, -n ]
+			if _n_ > 0
+				_anResult_ = [ 1, -_n_ ]
 
-			but n < 0
-				anResult = [ Abs(n) + 1, :Last ]
+			but _n_ < 0
+				_anResult_ = [ Abs(_n_) + 1, :Last ]
 
 			ok
 		else
-			nMin = 0+ oNumbers.Smallest()
-			nMax = 0+ oNumbers.Greatest()
+			_nMin_ = 0+ _oNumbers_.Smallest()
+			_nMax_ = 0+ _oNumbers_.Greatest()
 	
-			if BothAreNegative( nMin, nMax )
-				nMin = Abs( nMin )
-				nMax = :Last
+			if BothAreNegative( _nMin_, _nMax_ )
+				_nMin_ = Abs( _nMin_ )
+				_nMax_ = :Last
 	
-			but BothArePositive( nMin, nMax )
-				nMin = 1
-				nMax = - nMax
+			but BothArePositive( _nMin_, _nMax_ )
+				_nMin_ = 1
+				_nMax_ = - _nMax_
 
-			but nMin < 0 and nMax > 0
-				nMin = Abs(nMin) + 1
-				nMax = - nMax
+			but _nMin_ < 0 and _nMax_ > 0
+				_nMin_ = Abs(_nMin_) + 1
+				_nMax_ = - _nMax_
 	
 			else
-				nMin = 1
-				nMax = :Last
+				_nMin_ = 1
+				_nMax_ = :Last
 			ok
 	
-			anResult = [ nMin, nMax ]
+			_anResult_ = [ _nMin_, _nMax_ ]
 		ok
 
-		return anResult
+		return _anResult_

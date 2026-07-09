@@ -68,19 +68,19 @@ class stzStringCaseChanger from stzObject
 	#======================================================#
 
 	def Capitalize()
-		cStr = @oString.Content()
-		if StzLen(cStr) > 0
+		_cStr_ = @oString.Content()
+		if StzLen(_cStr_) > 0
 			# Engine-backed: first char uppercase, rest lowercase
-			cFirst = StzUpper(StzLeft(cStr, 1))
-			if StzLen(cStr) > 1
-				pH = StzEngineString(cStr)
-				pRest = StzEngineStringSlice(pH, 2, StzLen(cStr) - 1)
-				cRest = StzLower(StzEngineStringData(pRest))
+			_cFirst_ = StzUpper(StzLeft(_cStr_, 1))
+			if StzLen(_cStr_) > 1
+				pH = StzEngineString(_cStr_)
+				pRest = StzEngineStringSlice(pH, 2, StzLen(_cStr_) - 1)
+				_cRest_ = StzLower(StzEngineStringData(pRest))
 				StzEngineStringFree(pRest)
 				StzEngineStringFree(pH)
-				@oString.Update(cFirst + cRest)
+				@oString.Update(_cFirst_ + _cRest_)
 			else
-				@oString.Update(cFirst)
+				@oString.Update(_cFirst_)
 			ok
 		ok
 
@@ -89,9 +89,9 @@ class stzStringCaseChanger from stzObject
 			return This
 
 	def Capitalized()
-		oCopy = new stzStringCaseChanger(@oString.Content())
-		oCopy.Capitalize()
-		return oCopy.Content()
+		_oCopy_ = new stzStringCaseChanger(@oString.Content())
+		_oCopy_.Capitalize()
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   CAPITALIZE EACH WORD                               #
@@ -106,9 +106,9 @@ class stzStringCaseChanger from stzObject
 			return This
 
 	def EachWordCapitalized()
-		oCopy = new stzStringCaseChanger(@oString.Content())
-		oCopy.CapitalizeEachWord()
-		return oCopy.Content()
+		_oCopy_ = new stzStringCaseChanger(@oString.Content())
+		_oCopy_.CapitalizeEachWord()
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   CASE CHECKING                                      #
@@ -121,12 +121,12 @@ class stzStringCaseChanger from stzObject
 		return StzIsLower(@oString.Content())
 
 	def IsCapitalized()
-		cStr = @oString.Content()
-		if StzLen(cStr) = 0
+		_cStr_ = @oString.Content()
+		if StzLen(_cStr_) = 0
 			return 0
 		ok
-		cFirst = StzLeft(cStr, 1)
-		return cFirst = StzUpper(cFirst)
+		_cFirst_ = StzLeft(_cStr_, 1)
+		return _cFirst_ = StzUpper(_cFirst_)
 
 	  #======================================================#
 	 #   TOGGLE CASE                                        #
@@ -146,10 +146,10 @@ class stzStringCaseChanger from stzObject
 	def CaseToggled()
 		pH = StzEngineString(@oString.Content())
 		pR = StzEngineStringSwapCase(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
-		return c
+		return _c_
 
 	  #======================================================#
 	 #   FORCE CASE                                         #
@@ -175,15 +175,15 @@ class stzStringCaseChanger from stzObject
 	def DecapitalizeFirst()
 		pH = @oString.Engine()
 		pR = StzEngineStringDecapitalizeFirst(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def DecapitalizeFirstQ()
 			This.DecapitalizeFirst()
 			return This
 
 	def FirstDecapitalized()
-		oCopy = new stzStringCaseChanger(@oString.Content())
-		oCopy.DecapitalizeFirst()
-		return oCopy.Content()
+		_oCopy_ = new stzStringCaseChanger(@oString.Content())
+		_oCopy_.DecapitalizeFirst()
+		return _oCopy_.Content()

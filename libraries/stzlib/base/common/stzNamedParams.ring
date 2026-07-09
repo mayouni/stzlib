@@ -221,16 +221,16 @@ func StzCheckParam(pValue, p2, p3)
 	ok
 
 	if isList(p3) and len(p3) = 2 and isString(p3[1]) and p3[1] = :MustBe
-		cMustBe = p3[2]
+		_cMustBe_ = p3[2]
 	else
-		cMustBe = p3
+		_cMustBe_ = p3
 	ok
 
 	if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
-		cKey = StzLower(pValue[1])
-		nLen = len(pacSkipping)
-		for i = 1 to nLen
-			if cKey = StzLower(pacSkipping[i])
+		_cKey_ = StzLower(pValue[1])
+		_nLen_ = len(pacSkipping)
+		for i = 1 to _nLen_
+			if _cKey_ = StzLower(pacSkipping[i])
 				pValue = pValue[2]
 				exit
 			ok
@@ -238,10 +238,10 @@ func StzCheckParam(pValue, p2, p3)
 	ok
 
 	if CheckingParams()
-		bOk = _CheckType(pValue, cMustBe)
-		if NOT bOk
+		_bOk_ = _CheckType(pValue, _cMustBe_)
+		if NOT _bOk_
 			StzRaise("Incorrect param type! " +
-				 "Expected " + cMustBe + ".")
+				 "Expected " + _cMustBe_ + ".")
 		ok
 	ok
 
@@ -256,8 +256,8 @@ func StzCheckParam(pValue, p2, p3)
 
 func StzCheckParamCS(pValue)
 	if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
-		cKey = StzLower(pValue[1])
-		if cKey = "casesensitive" or cKey = "cs"
+		_cKey_ = StzLower(pValue[1])
+		if _cKey_ = "casesensitive" or _cKey_ = "cs"
 			pValue = pValue[2]
 		ok
 	ok
@@ -332,11 +332,11 @@ func StzIsOneOfTheseNamedParamsList(paList, pacKeywords)
 		return 0
 	ok
 
-	cParam = StzLower(paList[1])
-	nLen = len(pacKeywords)
+	_cParam_ = StzLower(paList[1])
+	_nLen_ = len(pacKeywords)
 
-	for i = 1 to nLen
-		if cParam = StzLower(pacKeywords[i])
+	for i = 1 to _nLen_
+		if _cParam_ = StzLower(pacKeywords[i])
 			return 1
 		ok
 	next
@@ -412,8 +412,8 @@ func StzIsWithOrByNamedParamList(paList)
 	if NOT isList(paList) return 0 ok
 	if len(paList) != 2 return 0 ok
 	if NOT isString(paList[1]) return 0 ok
-	cKey = paList[1]
-	return cKey = :With or cKey = :With@ or cKey = :By or cKey = :By@
+	_cKey_ = paList[1]
+	return _cKey_ = :With or _cKey_ = :With@ or _cKey_ = :By or _cKey_ = :By@
 
 	func IsWithOrByNamedParamList(paList)
 		return StzIsWithOrByNamedParamList(paList)

@@ -58,8 +58,8 @@ class stzEngineTimeline from stzObject
 			ok
 		ok
 
-		nResult = StzEngineTimelineAddEvent(cLabel, nTimestamp)
-		if nResult < 0
+		_nResult_ = StzEngineTimelineAddEvent(cLabel, nTimestamp)
+		if _nResult_ < 0
 			StzRaise("Can't add event! Event slots full.")
 		ok
 
@@ -102,8 +102,8 @@ class stzEngineTimeline from stzObject
 	#-------------------------------#
 
 	def RemoveEvent(cLabel)
-		nResult = StzEngineTimelineRemove(cLabel)
-		if nResult < 0
+		_nResult_ = StzEngineTimelineRemove(cLabel)
+		if _nResult_ < 0
 			StzRaise("Event '" + cLabel + "' not found!")
 		ok
 

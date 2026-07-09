@@ -61,8 +61,8 @@ class stzStringReplacer from stzObject
 			ok
 
 			if isList(pcNewSubStr) and len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
-				cPN = StzCaseFold(pcNewSubStr[1])
-				if cPN = "with" or cPN = "using" or cPN = "by" or cPN = "withmany" or cPN = "usingmany" or cPN = "bymany"
+				_cPN_ = StzCaseFold(pcNewSubStr[1])
+				if _cPN_ = "with" or _cPN_ = "using" or _cPN_ = "by" or _cPN_ = "withmany" or _cPN_ = "usingmany" or _cPN_ = "bymany"
 					pcNewSubStr = pcNewSubStr[2]
 				ok
 			ok
@@ -82,9 +82,9 @@ class stzStringReplacer from stzObject
 			return This
 
 		def ReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-			oCopy = new stzStringReplacer(This.Content())
-			oCopy.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-			return oCopy.Content()
+			_oCopy_ = new stzStringReplacer(This.Content())
+			_oCopy_.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return _oCopy_.Content()
 
 	def Replace(pcSubStr, pcNewSubStr)
 		This.ReplaceCS(pcSubStr, pcNewSubStr, 1)
@@ -94,9 +94,9 @@ class stzStringReplacer from stzObject
 			return This
 
 		def Replaced(pcSubStr, pcNewSubStr)
-			oCopy = new stzStringReplacer(This.Content())
-			oCopy.Replace(pcSubStr, pcNewSubStr)
-			return oCopy.Content()
+			_oCopy_ = new stzStringReplacer(This.Content())
+			_oCopy_.Replace(pcSubStr, pcNewSubStr)
+			return _oCopy_.Content()
 
 	#-- ReplaceByMany: replace successive occurrences of pcSubStr
 	#   with a list of distinct replacements; the i-th occurrence is
@@ -184,24 +184,24 @@ class stzStringReplacer from stzObject
 	 #     REPLACE NTH OCCURRENCE            #
 	#========================================#
 
-	def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def ReplaceNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceNthCS(pH, pcSubStr, pcNewSubStr, n, _bCase_)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringReplaceNthCS(pH, pcSubStr, pcNewSubStr, _n_, _bCase_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 		@TraceObjectHistory(This)
 
-		def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceNthCSQ(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-	def ReplaceNth(n, pcSubStr, pcNewSubStr)
-		This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, 1)
+	def ReplaceNth(_n_, pcSubStr, pcNewSubStr)
+		This.ReplaceNthCS(_n_, pcSubStr, pcNewSubStr, 1)
 
-		def ReplaceNthQ(n, pcSubStr, pcNewSubStr)
-			This.ReplaceNth(n, pcSubStr, pcNewSubStr)
+		def ReplaceNthQ(_n_, pcSubStr, pcNewSubStr)
+			This.ReplaceNth(_n_, pcSubStr, pcNewSubStr)
 			return This
 
 	  #========================================#
@@ -212,9 +212,9 @@ class stzStringReplacer from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceFirstCS(pH, pcSubStr, pcNewSubStr, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 		@TraceObjectHistory(This)
 
 		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -236,9 +236,9 @@ class stzStringReplacer from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceLastCS(pH, pcSubStr, pcNewSubStr, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 		@TraceObjectHistory(This)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -261,8 +261,8 @@ class stzStringReplacer from stzObject
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
-		for i = 1 to nLen
+		_nLen_ = len(pacSubStrings)
+		for i = 1 to _nLen_
 			This.ReplaceCS(pacSubStrings[i], pcNewSubStr, pCaseSensitive)
 		next
 
@@ -284,9 +284,9 @@ class stzStringReplacer from stzObject
 	def RemoveCS(pSubStr, pCaseSensitive)
 		if CheckingParams()
 			if isList(pSubStr)
-				oParam = new stzList(pSubStr)
+				_oParam_ = new stzList(pSubStr)
 
-				if oParam.IsListOfStrings()
+				if _oParam_.IsListOfStrings()
 					This.RemoveManyCS(pSubStr, pCaseSensitive)
 				ok
 				return
@@ -300,9 +300,9 @@ class stzStringReplacer from stzObject
 			return This
 
 		def RemovedCS(pSubStr, pCaseSensitive)
-			oCopy = new stzStringReplacer(This.Content())
-			oCopy.RemoveCS(pSubStr, pCaseSensitive)
-			return oCopy.Content()
+			_oCopy_ = new stzStringReplacer(This.Content())
+			_oCopy_.RemoveCS(pSubStr, pCaseSensitive)
+			return _oCopy_.Content()
 
 	def Remove(pcSubStr)
 		This.RemoveCS(pcSubStr, 1)
@@ -312,9 +312,9 @@ class stzStringReplacer from stzObject
 			return This
 
 		def Removed(pcSubStr)
-			oCopy = new stzStringReplacer(This.Content())
-			oCopy.Remove(pcSubStr)
-			return oCopy.Content()
+			_oCopy_ = new stzStringReplacer(This.Content())
+			_oCopy_.Remove(pcSubStr)
+			return _oCopy_.Content()
 
 	  #===============================#
 	 #     REMOVE MANY              #
@@ -325,8 +325,8 @@ class stzStringReplacer from stzObject
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
-		for i = 1 to nLen
+		_nLen_ = len(pacSubStrings)
+		for i = 1 to _nLen_
 			This.RemoveCS(pacSubStrings[i], pCaseSensitive)
 		next
 
@@ -354,26 +354,26 @@ class stzStringReplacer from stzObject
 	# StzEngineStringRemoveNthCI once it lands on the engine side;
 	# until then it falls back to ReplaceNthCS for pCaseSensitive=0.)
 
-	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
+	def RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 		if pCaseSensitive = 1
 			pH = @oString.Engine()
-			pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
-			c = StzEngineStringData(pR)
+			pR = StzEngineStringRemoveNth(pH, pcSubStr, _n_)
+			_c_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			@oString.Update(c)
+			@oString.Update(_c_)
 		else
-			This.ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
+			This.ReplaceNthCS(_n_, pcSubStr, "", pCaseSensitive)
 		ok
 
-		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
-			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
+		def RemoveNthCSQ(_n_, pcSubStr, pCaseSensitive)
+			This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemoveNth(n, pcSubStr)
-		This.RemoveNthCS(n, pcSubStr, 1)
+	def RemoveNth(_n_, pcSubStr)
+		This.RemoveNthCS(_n_, pcSubStr, 1)
 
-		def RemoveNthQ(n, pcSubStr)
-			This.RemoveNth(n, pcSubStr)
+		def RemoveNthQ(_n_, pcSubStr)
+			This.RemoveNth(_n_, pcSubStr)
 			return This
 
 		# Softanza universal naming: RemoveNthOccurrence{,CS} are
@@ -381,11 +381,11 @@ class stzStringReplacer from stzObject
 		# used to exist (RemoveNthOccurrenceEngine) has been
 		# folded into RemoveNthCS itself -- callers should never
 		# need to know whether the work lives in Ring or Zig.
-		def RemoveNthOccurrence(n, pcSubStr)
-			This.RemoveNth(n, pcSubStr)
+		def RemoveNthOccurrence(_n_, pcSubStr)
+			This.RemoveNth(_n_, pcSubStr)
 
-		def RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
-			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
+		def RemoveNthOccurrenceCS(_n_, pcSubStr, pCaseSensitive)
+			This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
 		This.RemoveNthCS(1, pcSubStr, pCaseSensitive)
@@ -394,9 +394,9 @@ class stzStringReplacer from stzObject
 		This.RemoveFirstCS(pcSubStr, 1)
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
-		oFinder = new stzStringFinder(@oString)
-		n = oFinder.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-		This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		_n_ = _oFinder_.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 
 	def RemoveLast(pcSubStr)
 		This.RemoveLastCS(pcSubStr, 1)
@@ -418,16 +418,16 @@ class stzStringReplacer from stzObject
 			return
 		ok
 
-		nLen = @oString.NumberOfChars()
-		cBefore = ""
-		cAfter = ""
+		_nLen_ = @oString.NumberOfChars()
+		_cBefore_ = ""
+		_cAfter_ = ""
 		if nPos > 1
-			cBefore = @oString.Section(1, nPos - 1)
+			_cBefore_ = @oString.Section(1, nPos - 1)
 		ok
-		if nPos <= nLen
-			cAfter = @oString.Section(nPos, nLen)
+		if nPos <= _nLen_
+			_cAfter_ = @oString.Section(nPos, _nLen_)
 		ok
-		@oString.Update(cBefore + pcSubStr + cAfter)
+		@oString.Update(_cBefore_ + pcSubStr + _cAfter_)
 
 		def InsertBeforeQ(nPos, pcSubStr)
 			This.InsertBefore(nPos, pcSubStr)
@@ -447,9 +447,9 @@ class stzStringReplacer from stzObject
 	def Surround(pcBefore, pcAfter)
 		pH = @oString.Engine()
 		pR = StzEngineStringSurround(pH, pcBefore, pcAfter)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def SurroundQ(pcBefore, pcAfter)
 			This.Surround(pcBefore, pcAfter)
@@ -467,9 +467,9 @@ class stzStringReplacer from stzObject
 	def StripTags()
 		pH = @oString.Engine()
 		pR = StzEngineStringStripTags(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def StripTagsQ()
 			This.StripTags()
@@ -487,9 +487,9 @@ class stzStringReplacer from stzObject
 	def RemoveWhitespace()
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveWhitespace(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveWhitespaceQ()
 			This.RemoveWhitespace()
@@ -508,12 +508,12 @@ class stzStringReplacer from stzObject
 		pH = @oString.Engine()
 		# Convert char string to codepoint number for the engine
 		pHChar = StzEngineString(pcChar)
-		nCp = StzEngineStringCharAt(pHChar, 1)
+		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		pR = StzEngineStringSqueezeChar(pH, nCp)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringSqueezeChar(pH, _nCp_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def SqueezeCharQ(pcChar)
 			This.SqueezeChar(pcChar)
@@ -531,15 +531,15 @@ class stzStringReplacer from stzObject
 	def ReplaceCharCP(pcOldChar, pcNewChar)
 		pH = @oString.Engine()
 		pHOld = StzEngineString(pcOldChar)
-		nOldCp = StzEngineStringCharAt(pHOld, 1)
+		_nOldCp_ = StzEngineStringCharAt(pHOld, 1)
 		StzEngineStringFree(pHOld)
 		pHNew = StzEngineString(pcNewChar)
-		nNewCp = StzEngineStringCharAt(pHNew, 1)
+		_nNewCp_ = StzEngineStringCharAt(pHNew, 1)
 		StzEngineStringFree(pHNew)
-		pR = StzEngineStringReplaceChar(pH, nOldCp, nNewCp)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringReplaceChar(pH, _nOldCp_, _nNewCp_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceCharCPQ(pcOldChar, pcNewChar)
 			This.ReplaceCharCP(pcOldChar, pcNewChar)
@@ -557,9 +557,9 @@ class stzStringReplacer from stzObject
 	def ReplaceAnyChar(pcCharsToReplace, pcReplacement)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceAnyChar(pH, pcCharsToReplace, pcReplacement)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceAnyCharQ(pcCharsToReplace, pcReplacement)
 			This.ReplaceAnyChar(pcCharsToReplace, pcReplacement)
@@ -577,9 +577,9 @@ class stzStringReplacer from stzObject
 	def ReplaceAt(nCpPos, nCpCount, pcReplacement)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceAt(pH, nCpPos, nCpCount, pcReplacement)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceAtQ(nCpPos, nCpCount, pcReplacement)
 			This.ReplaceAt(nCpPos, nCpCount, pcReplacement)
@@ -634,9 +634,9 @@ class stzStringReplacer from stzObject
 	def ReplaceSubstring(nFrom, nTo, pcReplacement)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceSubstring(pH, nFrom, nTo, pcReplacement)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceSubstringQ(nFrom, nTo, pcReplacement)
 			This.ReplaceSubstring(nFrom, nTo, pcReplacement)
@@ -649,9 +649,9 @@ class stzStringReplacer from stzObject
 	def Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplace2(pH, pcOld1, pcNew1, pcOld2, pcNew2)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def Replace2Q(pcOld1, pcNew1, pcOld2, pcNew2)
 			This.Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
@@ -664,9 +664,9 @@ class stzStringReplacer from stzObject
 	def ReplaceCharAt(nCpPos, pcNewStr)
 		pH = @oString.Engine()
 		pR = StzEngineStringReplaceCharAt(pH, nCpPos, pcNewStr)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceCharAtQ(nCpPos, pcNewStr)
 			This.ReplaceCharAt(nCpPos, pcNewStr)
@@ -684,9 +684,9 @@ class stzStringReplacer from stzObject
 	def Spacify()
 		pH = @oString.Engine()
 		pR = StzEngineStringSpacify(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def SpacifyQ()
 			This.Spacify()
@@ -695,9 +695,9 @@ class stzStringReplacer from stzObject
 	def Spacified()
 		pH = @oString.Engine()
 		pR = StzEngineStringSpacify(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     STRIP MARKS                #
@@ -706,9 +706,9 @@ class stzStringReplacer from stzObject
 	def StripMarks()
 		pH = @oString.Engine()
 		pR = StzEngineStringStripMarks(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def StripMarksQ()
 			This.StripMarks()
@@ -717,9 +717,9 @@ class stzStringReplacer from stzObject
 	def MarksStripped()
 		pH = @oString.Engine()
 		pR = StzEngineStringStripMarks(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 		def StrippedOfMarks()
 			return This.MarksStripped()
@@ -732,9 +732,9 @@ class stzStringReplacer from stzObject
 		pH = @oString.Engine()
 		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, 0)
 		if pR = NULL return ok
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceAllRegexQ(pcPattern, pcReplacement)
 			This.ReplaceAllRegex(pcPattern, pcReplacement)
@@ -747,9 +747,9 @@ class stzStringReplacer from stzObject
 		pH = @oString.Engine()
 		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, 0)
 		if pR = NULL return @oString.Content() ok
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 		def RegexReplaced(pcPattern, pcReplacement)
 			return This.AllRegexReplaced(pcPattern, pcReplacement)
@@ -763,9 +763,9 @@ class stzStringReplacer from stzObject
 		pH = @oString.Engine()
 		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, _nFlags_)
 		if pR = NULL return ok
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ReplaceAllRegexCSQ(pcPattern, pcReplacement, pCaseSensitive)
 			This.ReplaceAllRegexCS(pcPattern, pcReplacement, pCaseSensitive)

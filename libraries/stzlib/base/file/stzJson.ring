@@ -14,84 +14,84 @@ func StzJsonIsValid(cJson)
 	if pH = NULL
 		return FALSE
 	ok
-	nValid = StzEngineJsonIsValid(pH)
+	_nValid_ = StzEngineJsonIsValid(pH)
 	StzEngineJsonFree(pH)
-	return nValid = 1
+	return _nValid_ = 1
 
 func StzJsonPretty(cJson)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineJsonToStringPretty(pH)
+	_cResult_ = StzEngineJsonToStringPretty(pH)
 	StzEngineJsonFree(pH)
-	return cResult
+	return _cResult_
 
 func StzJsonCompact(cJson)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineJsonToString(pH)
+	_cResult_ = StzEngineJsonToString(pH)
 	StzEngineJsonFree(pH)
-	return cResult
+	return _cResult_
 
 func StzJsonGet(cJson, cKey)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineJsonGetString(pH, cKey)
+	_cResult_ = StzEngineJsonGetString(pH, cKey)
 	StzEngineJsonFree(pH)
-	return cResult
+	return _cResult_
 
 func StzJsonGetInt(cJson, cKey)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return 0
 	ok
-	nResult = StzEngineJsonGetInt(pH, cKey)
+	_nResult_ = StzEngineJsonGetInt(pH, cKey)
 	StzEngineJsonFree(pH)
-	return nResult
+	return _nResult_
 
 func StzJsonHasKey(cJson, cKey)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return FALSE
 	ok
-	nResult = StzEngineJsonHasKey(pH, cKey)
+	_nResult_ = StzEngineJsonHasKey(pH, cKey)
 	StzEngineJsonFree(pH)
-	return nResult = 1
+	return _nResult_ = 1
 
 func StzJsonKeys(cJson)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return []
 	ok
-	cKeys = StzEngineJsonKeys(pH)
+	_cKeys_ = StzEngineJsonKeys(pH)
 	StzEngineJsonFree(pH)
-	if StzLen(cKeys) = 0
+	if StzLen(_cKeys_) = 0
 		return []
 	ok
-	return split(cKeys, nl)
+	return split(_cKeys_, nl)
 
 func StzJsonSize(cJson)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return 0
 	ok
-	nResult = StzEngineJsonSize(pH)
+	_nResult_ = StzEngineJsonSize(pH)
 	StzEngineJsonFree(pH)
-	return nResult
+	return _nResult_
 
 func StzJsonIsArray(cJson)
 	pH = StzEngineJsonParse(cJson)
 	if pH = NULL
 		return FALSE
 	ok
-	nResult = StzEngineJsonIsArray(pH)
+	_nResult_ = StzEngineJsonIsArray(pH)
 	StzEngineJsonFree(pH)
-	return nResult = 1
+	return _nResult_ = 1
 
 Class stzJson from stzObject
 
@@ -157,8 +157,8 @@ def init(p)
 			_SetError("Cannot check key on array")
 			return FALSE
 		ok
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
 				return TRUE
 			ok
@@ -170,22 +170,22 @@ def init(p)
 			_SetError("Cannot get keys from array")
 			return []
 		ok
-		acKeys = []
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_acKeys_ = []
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) >= 1
-				acKeys + @aData[i][1]
+				_acKeys_ + @aData[i][1]
 			ok
 		next
-		return acKeys
+		return _acKeys_
 
 	def Value(cKey)
 		if @bIsArray
 			_SetError("Cannot get value by key from array")
 			return NULL
 		ok
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
 				return @aData[i][2]
 			ok
@@ -197,8 +197,8 @@ def init(p)
 			_SetError("Cannot set value by key on array")
 			return This
 		ok
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
 				@aData[i][2] = value
 				return This
@@ -212,15 +212,15 @@ def init(p)
 			_SetError("Cannot remove key from array")
 			return This
 		ok
-		aNew = []
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_aNew_ = []
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
 				loop
 			ok
-			aNew + @aData[i]
+			_aNew_ + @aData[i]
 		next
-		@aData = aNew
+		@aData = _aNew_
 		return This
 
 	def TakeKey(cKey)
@@ -228,18 +228,18 @@ def init(p)
 			_SetError("Cannot take key from array")
 			return NULL
 		ok
-		result = NULL
-		aNew = []
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_result_ = NULL
+		_aNew_ = []
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
-				result = @aData[i][2]
+				_result_ = @aData[i][2]
 				loop
 			ok
-			aNew + @aData[i]
+			_aNew_ + @aData[i]
 		next
-		@aData = aNew
-		return result
+		@aData = _aNew_
+		return _result_
 
 	# Array Operations
 	def At(nIndex)
@@ -351,17 +351,17 @@ def init(p)
 			_SetError("Index out of range")
 			return NULL
 		ok
-		result = @aData[nIndex]
+		_result_ = @aData[nIndex]
 		del(@aData, nIndex)
-		return result
+		return _result_
 
 	def Contains(value)
 		if not @bIsArray
 			_SetError("Cannot check contains on object")
 			return FALSE
 		ok
-		nLen = len(@aData)
-		for i = 1 to nLen
+		_nLen_ = len(@aData)
+		for i = 1 to _nLen_
 			if @aData[i] = value
 				return TRUE
 			ok
@@ -386,8 +386,8 @@ def init(p)
 		return @aData
 
 	def Copy()
-		oCopy = new stzJson(This.ToString())
-		return oCopy
+		_oCopy_ = new stzJson(This.ToString())
+		return _oCopy_
 
 	# Utility Methods
 	def Clear()

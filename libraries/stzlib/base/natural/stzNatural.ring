@@ -387,10 +387,10 @@ class stzNaturalEngine from stzObject
 				_nDepth_ = 1
 				
 				while _nEnd_ <= _nLen_ and _nDepth_ > 0
-					cChar = @StzMid(_cCode_, _nEnd_, _nEnd_)
-					if cChar = "{"
+					_cChar_ = @StzMid(_cCode_, _nEnd_, _nEnd_)
+					if _cChar_ = "{"
 						_nDepth_++
-					but cChar = "}"
+					but _cChar_ = "}"
 						_nDepth_--
 					ok
 					_nEnd_++
@@ -609,11 +609,11 @@ class stzNaturalEngine from stzObject
 		if StzLeft(_cVal_, 1) = "[" and StzRight(_cVal_, 1) = "]"
 			return 1
 		ok
-		nPos = StzFindFirst(_cVal_, ":")
-		if nPos > 1 and nPos < StzLen(_cVal_)
-			cL = StzLeft(_cVal_, nPos - 1)
-			cR = StzRight(_cVal_, StzLen(_cVal_) - nPos)
-			if isdigit(cL) and isdigit(cR)
+		_nPos_ = StzFindFirst(_cVal_, ":")
+		if _nPos_ > 1 and _nPos_ < StzLen(_cVal_)
+			_cL_ = StzLeft(_cVal_, _nPos_ - 1)
+			_cR_ = StzRight(_cVal_, StzLen(_cVal_) - _nPos_)
+			if isdigit(_cL_) and isdigit(_cR_)
 				return 1
 			ok
 		ok
@@ -798,9 +798,9 @@ class stzNaturalEngine from stzObject
 	def FindLanguageDefinition(_cCode_)
 		_nLen_ = len($aLanguageDefinitions)
 		for _i_ = 1 to _nLen_
-			aLang = $aLanguageDefinitions[_i_]
-			if aLang[:code] = _cCode_ or aLang[:name] = _cCode_
-				return aLang
+			_aLang_ = $aLanguageDefinitions[_i_]
+			if _aLang_[:code] = _cCode_ or _aLang_[:name] = _cCode_
+				return _aLang_
 			ok
 		next
 		return []
@@ -968,9 +968,9 @@ class stzNaturalEngine from stzObject
 		ok
 
 		if _aLast_[:type] = "literal" and _nLen_ >= 2
-			aBeforeLast = _aTokens_[_nLen_-1]
-			if aBeforeLast[:type] = "semantic" and StzLeft(aBeforeLast[:value], 7) = "METHOD_"
-				_aOp_ = This.GetSemanticOperation(aBeforeLast[:value])
+			_aBeforeLast_ = _aTokens_[_nLen_-1]
+			if _aBeforeLast_[:type] = "semantic" and StzLeft(_aBeforeLast_[:value], 7) = "METHOD_"
+				_aOp_ = This.GetSemanticOperation(_aBeforeLast_[:value])
 				if len(_aOp_) > 0 and HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
 					return 1
 				ok
@@ -1017,25 +1017,25 @@ class stzNaturalEngine from stzObject
 		return StzFindFirst(@aIgnoredWords, StzLower(cWord)) > 0
 	
 	def ToSemantic(cWord)
-		cLower = StzLower(cWord)
+		_cLower_ = StzLower(cWord)
 
-		bDefine = StzLeft(cLower, 1) = "@"
-		bRecall = StzRight(cLower, 1) = "@"
+		_bDefine_ = StzLeft(_cLower_, 1) = "@"
+		_bRecall_ = StzRight(_cLower_, 1) = "@"
 		
-		if bDefine
-			cLower = @StzMid(cLower, 2, stzlen(cLower) - 1)
-		but bRecall
-			cLower = StzLeft(cLower, stzlen(cLower) - 1)
+		if _bDefine_
+			_cLower_ = @StzMid(_cLower_, 2, stzlen(_cLower_) - 1)
+		but _bRecall_
+			_cLower_ = StzLeft(_cLower_, stzlen(_cLower_) - 1)
 		ok
 		
 		_nLen_ = len(@aMappings)
 		for _i_ = 1 to _nLen_
-			aMap = @aMappings[_i_]
-			if aMap[:natural] = cLower
-				_cSemantic_ = aMap[:semantic]
-				if bDefine
+			_aMap_ = @aMappings[_i_]
+			if _aMap_[:natural] = _cLower_
+				_cSemantic_ = _aMap_[:semantic]
+				if _bDefine_
 					return "@" + _cSemantic_
-				but bRecall
+				but _bRecall_
 					return _cSemantic_ + "@"
 				ok
 				return _cSemantic_
@@ -1057,18 +1057,18 @@ class stzNaturalEngine from stzObject
 			
 			if _aToken_[:type] = "semantic"
 				_cSemantic_ = _aToken_[:value]
-				nLenSem = stzLen(_cSemantic_)
+				_nLenSem_ = stzLen(_cSemantic_)
 
 				if StzLeft(_cSemantic_, 1) = "@"
-					cClean = @StzMid(_cSemantic_, 2, nLenSem - 1)
-					@aDefineRecallState + [:semantic = cClean, :index = _i_]
+					_cClean_ = @StzMid(_cSemantic_, 2, _nLenSem_ - 1)
+					@aDefineRecallState + [:semantic = _cClean_, :index = _i_]
 					_i_++
 					loop
 				ok
 				
 				if StzRight(_cSemantic_, 1) = "@"
-					cClean = StzLeft(_cSemantic_, nLenSem - 1)
-					_aResult_ = This.ProcessMethodWithModifiers(_i_, cClean)
+					_cClean_ = StzLeft(_cSemantic_, _nLenSem_ - 1)
+					_aResult_ = This.ProcessMethodWithModifiers(_i_, _cClean_)
 					if stzlen(_aResult_[:code]) > 0
 						_aCodeLines_ + _aResult_[:code]
 					ok
@@ -1163,10 +1163,10 @@ class stzNaturalEngine from stzObject
 				ok
 			next
 			for _j_ = nIndex - 1 to 1 step -1
-				aNextToken = @aSemanticTokens[_j_]
-				if aNextToken[:type] = "literal" and
+				_aNextToken_ = @aSemanticTokens[_j_]
+				if _aNextToken_[:type] = "literal" and
 				   ring_find(@aConsumedTokens, _j_) = 0
-					_cValue_ = aNextToken[:value]
+					_cValue_ = _aNextToken_[:value]
 					@aConsumedTokens + _j_
 					exit
 				ok
@@ -1179,9 +1179,9 @@ class stzNaturalEngine from stzObject
 					_cObjectType_ = _aToken_[:value]
 
 					for _j_ = _i_+1 to _nLen_
-						aNextToken = @aSemanticTokens[_j_]
-						if aNextToken[:type] = "literal"
-							_cValue_ = aNextToken[:value]
+						_aNextToken_ = @aSemanticTokens[_j_]
+						if _aNextToken_[:type] = "literal"
+							_cValue_ = _aNextToken_[:value]
 							@aConsumedTokens + _j_
 							_nNextIndex_ = _j_ + 1
 							exit 2

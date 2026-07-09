@@ -51,14 +51,14 @@ class stzListSections from stzObject
 	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
 	#================================================#
 
-	def SectionCS(n1, n2, pCaseSensitive)
+	def SectionCS(_n1_, _n2_, pCaseSensitive)
 
 		_nScLen_ = This.NumberOfItems()
 
 		if CheckingParams()
 
-			if isList(n1) and
-			   IsOneOfTheseNamedParamsList(n1, [
+			if isList(_n1_) and
+			   IsOneOfTheseNamedParamsList(_n1_, [
 					:From, :FromPosition, :FromItemAt, :FromItemAtPosition,
 					:StartingAt, :StartingAtPosition,
 					:StartingAtItemAt, :StartingAtItemAtPosition,
@@ -67,11 +67,11 @@ class stzListSections from stzObject
 					:BetweenPositions, :BetweenItemsAtPosition
 					])
 
-				n1 = n1[2]
+				_n1_ = _n1_[2]
 			ok
 
-			if isList(n2) and
-			   IsOneOfTheseNamedParamsList(n2, [
+			if isList(_n2_) and
+			   IsOneOfTheseNamedParamsList(_n2_, [
 					:To, :ToPosition, :ToItemAt, :ToItemAtPosition,
 					:Until, :UntilPosition, :UntilItemAt, :UntilItemAtPosition,
 					:UpTo, :UpToPosition, :UpToItemAt, :UpToItemAtPosition,
@@ -79,56 +79,56 @@ class stzListSections from stzObject
 					:StartingAt, :StartingAtPosition, :StartingAtItemAt, :StartingAtItemAtPosition
 					])
 
-				n2 = n2[2]
+				_n2_ = _n2_[2]
 			ok
 
-			if isString(n1) and (n1 = :First or n1 = :FirstItem or
-			   n1 = :Start or n1 = :StartOfList)
-				n1 = 1
+			if isString(_n1_) and (_n1_ = :First or _n1_ = :FirstItem or
+			   _n1_ = :Start or _n1_ = :StartOfList)
+				_n1_ = 1
 			ok
 
-			if isString(n2) and (n2 = :Last or n2 = :LastItem or
-			   n2 = :End or n2 = :EndOfList)
-				n2 = _nScLen_
+			if isString(_n2_) and (_n2_ = :Last or _n2_ = :LastItem or
+			   _n2_ = :End or _n2_ = :EndOfList)
+				_n2_ = _nScLen_
 			ok
 
-			if NOT (isNumber(n1) and isNumber(n2))
+			if NOT (isNumber(_n1_) and isNumber(_n2_))
 				StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 			ok
 		ok
 
-		if n1 < 0
-			n1 = _nScLen_ + n1 + 1
+		if _n1_ < 0
+			_n1_ = _nScLen_ + _n1_ + 1
 		ok
 
-		if n2 < 0
-			n2 = _nScLen_ + n2 + 1
+		if _n2_ < 0
+			_n2_ = _nScLen_ + _n2_ + 1
 		ok
 
-		if n1 = 0
-			n1 = 1
+		if _n1_ = 0
+			_n1_ = 1
 		ok
 
-		if n2 = 0
-			n2 = 1
+		if _n2_ = 0
+			_n2_ = 1
 		ok
 
-		if n1 > _nScLen_
-			n1 = _nScLen_
+		if _n1_ > _nScLen_
+			_n1_ = _nScLen_
 		ok
 
-		if n2 > _nScLen_
-			n2 = _nScLen_
+		if _n2_ > _nScLen_
+			_n2_ = _nScLen_
 		ok
 
-		if n1 > n2
-			_nScTemp_ = n1
-			n1 = n2
-			n2 = _nScTemp_
+		if _n1_ > _n2_
+			_nScTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nScTemp_
 		ok
 
 		_pScList_ = @oList._EngineListFromContent()
-		_pScSection_ = StzEngineListSection(_pScList_, n1, n2)
+		_pScSection_ = StzEngineListSection(_pScList_, _n1_, _n2_)
 		if _pScSection_ != NULL
 			_aScResult_ = StzEngineListContentToRingList(_pScSection_)
 			StzEngineListFree(_pScSection_)
@@ -138,82 +138,82 @@ class stzListSections from stzObject
 		StzEngineListFree(_pScList_)
 		return _aScResult_
 
-		def SectionCSQ(n1, n2, pCaseSensitive)
-			return new stzList( This.SectionCS(n1, n2, pCaseSensitive) )
+		def SectionCSQ(_n1_, _n2_, pCaseSensitive)
+			return new stzList( This.SectionCS(_n1_, _n2_, pCaseSensitive) )
 
-		def SliceCS(n1, n2, pCaseSensitive)
-			return This.SectionCS(n1, n2, pCaseSensitive)
+		def SliceCS(_n1_, _n2_, pCaseSensitive)
+			return This.SectionCS(_n1_, _n2_, pCaseSensitive)
 
-			def SliceCSQ(n1, n2, pCaseSensitive)
-				return This.SectionCSQ(n1, n2, pCaseSensitive)
+			def SliceCSQ(_n1_, _n2_, pCaseSensitive)
+				return This.SectionCSQ(_n1_, _n2_, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def Section(n1, n2)
-		return This.SectionCS(n1, n2, 1)
+	def Section(_n1_, _n2_)
+		return This.SectionCS(_n1_, _n2_, 1)
 
-		def SectionQ(n1, n2)
-			return new stzList(This.Section(n1, n2))
+		def SectionQ(_n1_, _n2_)
+			return new stzList(This.Section(_n1_, _n2_))
 
-		def Slice(n1, n2)
-			return This.Section(n1, n2)
+		def Slice(_n1_, _n2_)
+			return This.Section(_n1_, _n2_)
 
-			def SliceQ(n1, n2)
-				return new stzList(This.Slice(n1, n2))
+			def SliceQ(_n1_, _n2_)
+				return new stzList(This.Slice(_n1_, _n2_))
 
 	  #------------------------------------------------------------#
 	 #   GETTING A SECTION (OR SLICE) OF THE LIST -- Z/EXTENDED   #
 	#------------------------------------------------------------#
 
-	def SectionCSZ(n1, n2, pCaseSensitive)
+	def SectionCSZ(_n1_, _n2_, pCaseSensitive)
 		if CheckingParams()
-			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
-				n1 = 1
+			if isString(_n1_) and (_n1_ = :Start or _n1_ = :StartOfList)
+				_n1_ = 1
 			ok
 
-			if NOT isNumber(n1)
+			if NOT isNumber(_n1_)
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 		ok
 
-		_aSczResult_ = [ This.SectionCS(n1, n2, pCaseSensitive), n1 ]
+		_aSczResult_ = [ This.SectionCS(_n1_, _n2_, pCaseSensitive), _n1_ ]
 		return _aSczResult_
 
-		def SliceCSZ(n1, n2, pCaseSensitive)
-			return This.SectionCSZ(n1, n2, pCaseSensitive)
+		def SliceCSZ(_n1_, _n2_, pCaseSensitive)
+			return This.SectionCSZ(_n1_, _n2_, pCaseSensitive)
 
-	def SectionZ(n1, n2)
-		return This.SectionCSZ(n1, n2, 1)
+	def SectionZ(_n1_, _n2_)
+		return This.SectionCSZ(_n1_, _n2_, 1)
 
-		def SliceZ(n1, n2)
-			return SectionZ(n1, n2)
+		def SliceZ(_n1_, _n2_)
+			return SectionZ(_n1_, _n2_)
 
 	  #------------------------------------------------------------#
 	 #   GETTING A SECTION (OR SLICE) OF THE LIST -- ZZ/EXTENDED  #
 	#------------------------------------------------------------#
 
-	def SectionCSZZ(n1, n2, pCaseSensitive)
+	def SectionCSZZ(_n1_, _n2_, pCaseSensitive)
 		if CheckingParams()
-			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
-				n1 = 1
+			if isString(_n1_) and (_n1_ = :Start or _n1_ = :StartOfList)
+				_n1_ = 1
 			ok
 
-			if NOT isNumber(n1)
+			if NOT isNumber(_n1_)
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 		ok
 
-		_aSczzResult_ = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
+		_aSczzResult_ = [ This.SectionCS(_n1_, _n2_, pCaseSensitive), [_n1_, _n2_] ]
 		return _aSczzResult_
 
-		def SliceCSZZ(n1, n2, pCaseSensitive)
-			return This.SectionCSZZ(n1, n2, pCaseSensitive)
+		def SliceCSZZ(_n1_, _n2_, pCaseSensitive)
+			return This.SectionCSZZ(_n1_, _n2_, pCaseSensitive)
 
-	def SectionZZ(n1, n2)
-		return This.SectionCSZZ(n1, n2, 1)
+	def SectionZZ(_n1_, _n2_)
+		return This.SectionCSZZ(_n1_, _n2_, 1)
 
-		def SliceZZ(n1, n2)
-			return This.SectionZZ(n1, n2)
+		def SliceZZ(_n1_, _n2_)
+			return This.SectionZZ(_n1_, _n2_)
 
 	  #======================================#
 	 #   GETTING MANY SECTIONS (SLICES)     #
@@ -245,21 +245,21 @@ class stzListSections from stzObject
 	 #   FINDING THE ANTI-SECTION(S) OF GIVEN SECTION(S)      #
 	#========================================================#
 
-	def FindAntiSection(n1, n2)
-		if NOT ( isNumber(n1) and isNumber(n2) )
+	def FindAntiSection(_n1_, _n2_)
+		if NOT ( isNumber(_n1_) and isNumber(_n2_) )
 			StzRaise("Incorrect param types! n1 and n2 must be both Numbers.")
 		ok
 
-		return @oList.FindAntiSections([ [n1, n2 ] ])
+		return @oList.FindAntiSections([ [_n1_, _n2_ ] ])
 
-		def FindAntiSectionZZ(n1, n2)
-			return This.FindAntiSection(n1, n2)
+		def FindAntiSectionZZ(_n1_, _n2_)
+			return This.FindAntiSection(_n1_, _n2_)
 
-		def AntiSectionZZ(n1, n2)
-			return This.FindAntiSection(n1, n2)
+		def AntiSectionZZ(_n1_, _n2_)
+			return This.FindAntiSection(_n1_, _n2_)
 
-	def AntiSection(n1, n2)
-		_aAsResult_ = This.Section( This.FindAntiSection(n1, n2) )
+	def AntiSection(_n1_, _n2_)
+		_aAsResult_ = This.Section( This.FindAntiSection(_n1_, _n2_) )
 		return _aAsResult_
 
 		def AntiSectionQ(paSections)
@@ -269,21 +269,21 @@ class stzListSections from stzObject
 	 #   FINDING THE ANTI-SECTIONS -- INCLUDING BOUNDS            #
 	#------------------------------------------------------------#
 
-	def FindAntiSectionIB(n1, n2)
-		if NOT ( isNumber(n1) and isNumber(n2) )
+	def FindAntiSectionIB(_n1_, _n2_)
+		if NOT ( isNumber(_n1_) and isNumber(_n2_) )
 			StzRaise("Incorrect param types! n1 and n2 must be both Numbers.")
 		ok
 
-		return @oList.FindAntiSectionsIB([ [n1, n2 ] ])
+		return @oList.FindAntiSectionsIB([ [_n1_, _n2_ ] ])
 
-		def FindAntiSectionIBZZ(n1, n2)
-			return This.FindAntiSectionIB(n1, n2)
+		def FindAntiSectionIBZZ(_n1_, _n2_)
+			return This.FindAntiSectionIB(_n1_, _n2_)
 
-		def AntiSectionIBZZ(n1, n2)
-			return This.FindAntiSectionIB(n1, n2)
+		def AntiSectionIBZZ(_n1_, _n2_)
+			return This.FindAntiSectionIB(_n1_, _n2_)
 
-	def AntiSectionIB(n1, n2)
-		_aAsiResult_ = This.Section( This.FindAntiSectionIB(n1, n2) )
+	def AntiSectionIB(_n1_, _n2_)
+		_aAsiResult_ = This.Section( This.FindAntiSectionIB(_n1_, _n2_) )
 		return _aAsiResult_
 
 		def AntiSectionIBQ(paSections)

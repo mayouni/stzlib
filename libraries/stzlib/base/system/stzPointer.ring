@@ -7,11 +7,11 @@ func StzPointerQ(pParams)
 func StzNullPointerQ()
     return new stzPointer(NULL)
 
-func StzStringPointerQ(cString, nBufferSize)
-	if IsNull(nBufferSize)
-		nBufferSize = 0
+func StzStringPointerQ(cString, _nBufferSize_)
+	if IsNull(_nBufferSize_)
+		_nBufferSize_ = 0
 	ok
-    return new stzPointer([cString, "char", [nBufferSize, true, "utf8"]])
+    return new stzPointer([cString, "char", [_nBufferSize_, true, "utf8"]])
 
 func StzObjectPointerQ(pObject)
     return new stzPointer([pObject, "object"])

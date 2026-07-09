@@ -1,5 +1,5 @@
 ﻿# Systematic adverb transformation rules
-AdverbRules = [
+_AdverbRules_ = [
     # [pattern, replacement, type, priority, category]
     
     # Irregulars (priority 1)
@@ -66,66 +66,66 @@ AdverbRules = [
 
 func Adverb(str)
 
-    cWord = StzLower(trim(str))
+    _cWord_ = StzLower(trim(str))
     
     # Sort rules by priority
-    aSortedRules = SortAdverbRulesByPriority(AdverbRules)
-    nLenRules = len(aSortedRules)
+    _aSortedRules_ = SortAdverbRulesByPriority(_AdverbRules_)
+    _nLenRules_ = len(_aSortedRules_)
 
-	for i = 1 to nLenRules
-		rule = aSortedRules[i]
+	for i = 1 to _nLenRules_
+		_rule_ = _aSortedRules_[i]
         
-        if rule[3] = "exact"
-            oRule1 = new stzString(rule[1])
-            cPattern = oRule1.Section(2, StzLen(rule[1])-1)
-            if cWord = cPattern
-                return rule[2]
+        if _rule_[3] = "exact"
+            _oRule1_ = new stzString(_rule_[1])
+            _cPattern_ = _oRule1_.Section(2, StzLen(_rule_[1])-1)
+            if _cWord_ = _cPattern_
+                return _rule_[2]
             ok
 
-		but rule[3] = "regex"
-            rx = new stzRegex(rule[1])
-            if rx.Match(cWord)
-                aCaptured = rx.CapturedValues()
+		but _rule_[3] = "regex"
+            _rx_ = new stzRegex(_rule_[1])
+            if _rx_.Match(_cWord_)
+                _aCaptured_ = _rx_.CapturedValues()
                 # \1 maps to the first CAPTURE GROUP (aCaptured[2]), not the
                 # full match (aCaptured[1]). See stzPlural for the same fix.
-                nLen = len(aCaptured)
-                if nLen > 1
-                    cResult = rule[2]
-                    for j = 1 to nLen - 1
-                        cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
+                _nLen_ = len(_aCaptured_)
+                if _nLen_ > 1
+                    _cResult_ = _rule_[2]
+                    for j = 1 to _nLen_ - 1
+                        _cPlaceholder_ = "\\" + j
+                        _cResult_ = StzReplace(_cResult_, _cPlaceholder_, _aCaptured_[j+1])
                     next
-                    return cResult
+                    return _cResult_
                 else
-                    return rule[2]
+                    return _rule_[2]
                 ok
             ok
 
-        but rule[3] = "keep"
-            rx = new stzRegex(rule[1])
-            if rx.Match(cWord)
-                return cWord
+        but _rule_[3] = "keep"
+            _rx_ = new stzRegex(_rule_[1])
+            if _rx_.Match(_cWord_)
+                return _cWord_
             ok
 
-        but rule[3] = "default"
-            return cWord + rule[2]
+        but _rule_[3] = "default"
+            return _cWord_ + _rule_[2]
         ok
     next
     
-    return cWord + "ly"
+    return _cWord_ + "ly"
 
 	func AdverbOf(str)
 		return Adverb(str)
 
 func SortAdverbRulesByPriority(rules)
     # Simple bubble sort by priority (index 4)
-    n = len(rules)
-    for i = 1 to n-1
-        for j = 1 to n-i
+    _n_ = len(rules)
+    for i = 1 to _n_-1
+        for j = 1 to _n_-i
             if rules[j][4] > rules[j+1][4]
-                temp = rules[j]
+                _temp_ = rules[j]
                 rules[j] = rules[j+1]
-                rules[j+1] = temp
+                rules[j+1] = _temp_
             ok
         next
     next
@@ -133,18 +133,18 @@ func SortAdverbRulesByPriority(rules)
 
 # Enhanced helper functions
 func AddAdverbRule(pattern, replacement, type, priority, category)
-    AdverbRules + [pattern, replacement, type, priority, category]
+    _AdverbRules_ + [pattern, replacement, type, priority, category]
 
 func LoadAdverbRulesFromFile(filename)
     # Load rules from external file for easy maintenance
     
 func GetAdverbRulesByCategory(category) 
-    result = []
-    _nAdverbRules1Len_ = len(AdverbRules)
+    _result_ = []
+    _nAdverbRules1Len_ = len(_AdverbRules_)
     for _iLoopAdverbRules1_ = 1 to _nAdverbRules1Len_
-    	rule = AdverbRules[_iLoopAdverbRules1_]
-        if rule[5] = category
-            result + rule
+    	_rule_ = _AdverbRules_[_iLoopAdverbRules1_]
+        if _rule_[5] = category
+            _result_ + _rule_
         ok
     next
-    return result
+    return _result_

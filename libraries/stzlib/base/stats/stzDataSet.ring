@@ -901,24 +901,24 @@ func StzMissingValues()
 		return StzMissingValues()
 
 func StzDataSetTemplates()
-    aResult = $aEmptyInsightTemplates
+    _aResult_ = $aEmptyInsightTemplates
 
-    nLen = len($aNumericInsightTemplates)
-    for i = 1 to nLen
-        aResult + $aNumericInsightTemplates[i]
+    _nLen_ = len($aNumericInsightTemplates)
+    for i = 1 to _nLen_
+        _aResult_ + $aNumericInsightTemplates[i]
     next
 
-    nLen = len($aCategoricalInsightTemplates)
-    for i = 1 to nLen
-        aResult + $aCategoricalInsightTemplates[i]
+    _nLen_ = len($aCategoricalInsightTemplates)
+    for i = 1 to _nLen_
+        _aResult_ + $aCategoricalInsightTemplates[i]
     next
 
-    nLen = len($aMixedInsightTemplates)
-    for i = 1 to nLen
-        aResult + $aMixedInsightTemplates[i]
+    _nLen_ = len($aMixedInsightTemplates)
+    for i = 1 to _nLen_
+        _aResult_ + $aMixedInsightTemplates[i]
     next
 
-    return aResult
+    return _aResult_
 
 	func DataSetTemplates()
 		return StzDataSetTemplates()
@@ -954,22 +954,22 @@ func StzTrend(panDataSet)
 		return StzTrend(panDataSet)
 
 func StzGeneratePlanFor(paData, cGoal)
-    oStats = new stzDataSet(paData)
-    return oStats.GeneratePlan(cGoal)
+    _oStats_ = new stzDataSet(paData)
+    return _oStats_.GeneratePlan(cGoal)
 
 	func GeneratePlanFor(paData, cGoal)
 		return StzGeneratePlanFor(paData, cGoal)
 
 func StzExecutePlanFor(paData, cGoal)
-    oStats = new stzDataSet(paData)
-    return oStats.ExecutePlan(cGoal, TRUE)
+    _oStats_ = new stzDataSet(paData)
+    return _oStats_.ExecutePlan(cGoal, TRUE)
 
 	func ExecutePlanFor(paData, cGoal)
 		return StzExecutePlanFor(paData, cGoal)
 
 func StzPlanSummaryFor(paData, cGoal)
-    oStats = new stzDataSet(paData)
-    return oStats.PlanSummary(cGoal)
+    _oStats_ = new stzDataSet(paData)
+    return _oStats_.PlanSummary(cGoal)
 
 	func PlanSummaryFor(paData, cGoal)
 		return StzPlanSummaryFor(paData, cGoal)
@@ -978,9 +978,9 @@ func StzDataSetQ(paData)
 	return new stzDataSet(paData)
 
 func StzCompareDatasets(paData1, paData2)
-	oStats1 = new stzDataSet(paData1)
-	oStats2 = new stzDataSet(paData2)
-	return oStats1.CompareWith(oStats2)
+	_oStats1_ = new stzDataSet(paData1)
+	_oStats2_ = new stzDataSet(paData2)
+	return _oStats1_.CompareWith(_oStats2_)
 
 	func CompareDatasets(paData1, paData2)
 		return StzCompareDatasets(paData1, paData2)
@@ -1023,16 +1023,16 @@ class stzDataSet from stzObject
 
     def _CleanData(paData)
         # Remove missing values and prepare data
-        aCleanData = []
-        nLen = len(paData)
+        _aCleanData_ = []
+        _nLen_ = len(paData)
 
-        for i = 1 to nLen
+        for i = 1 to _nLen_
             if NOT This._IsMissing(paData[i])
-                aCleanData + paData[i]
+                _aCleanData_ + paData[i]
             ok
         next
         
-        return aCleanData
+        return _aCleanData_
 
     def _IsMissing(item)
         if isNull(item)
@@ -1045,8 +1045,8 @@ class stzDataSet from stzObject
             return FALSE
         ok
 
-        cStr = "" + item
-        return StzFindFirst($aSTAT_MISSING_VALUES, cStr) > 0
+        _cStr_ = "" + item
+        return StzFindFirst($aSTAT_MISSING_VALUES, _cStr_) > 0
 
     def _DetectDataType()
         if len(@anData) = 0
@@ -1054,21 +1054,21 @@ class stzDataSet from stzObject
             return
         ok
 
-        nNumeric = 0
-        nCategorical = 0
-        nLen = len(@anData)
+        _nNumeric_ = 0
+        _nCategorical_ = 0
+        _nLen_ = len(@anData)
 
-        for i = 1 to nLen
+        for i = 1 to _nLen_
             if IsNumber(@anData[i])
-                nNumeric++
+                _nNumeric_++
             else
-                nCategorical++
+                _nCategorical_++
             ok
         next
 
-        if nNumeric = nLen
+        if _nNumeric_ = _nLen_
             @cDataType = "numeric"
-        but nCategorical = nLen
+        but _nCategorical_ = _nLen_
             @cDataType = "categorical"
         else
             @cDataType = "mixed"
@@ -1092,12 +1092,12 @@ class stzDataSet from stzObject
         if This._EngineAvailable()
             return StzEngineStatsMean(@pEngineStats)
         ok
-        nSum = 0
-        nLen = len(@anData)
-        for i = 1 to nLen
-            nSum += @anData[i]
+        _nSum_ = 0
+        _nLen_ = len(@anData)
+        for i = 1 to _nLen_
+            _nSum_ += @anData[i]
         next
-        return nSum / nLen
+        return _nSum_ / _nLen_
 
 		def Average()
 			return This.Mean()
@@ -1114,11 +1114,11 @@ class stzDataSet from stzObject
             return StzEngineStatsMedian(@pEngineStats)
         ok
         This._SortIfNeeded()
-        nLen = len(@anSortedData)
-        if nLen % 2 = 1
-            return @anSortedData[ceil(nLen/2)]
+        _nLen_ = len(@anSortedData)
+        if _nLen_ % 2 = 1
+            return @anSortedData[ceil(_nLen_/2)]
         else
-            return (@anSortedData[nLen/2] + @anSortedData[nLen/2 + 1]) / 2
+            return (@anSortedData[_nLen_/2] + @anSortedData[_nLen_/2 + 1]) / 2
         ok
 
 
@@ -1127,49 +1127,49 @@ class stzDataSet from stzObject
 	        return NULL
 	    ok
 	
-	    cKey = "mode"
-	    cached = This._GetCached(cKey)
+	    _cKey_ = "mode"
+	    _cached_ = This._GetCached(_cKey_)
 	
-	    if NOT isNull(cached)
-	        return cached
+	    if NOT isNull(_cached_)
+	        return _cached_
 	    ok
 	
-	    nLen = len(@anData)
-	    aFreqHash = []
+	    _nLen_ = len(@anData)
+	    _aFreqHash_ = []
 	
-	    for i = 1 to nLen
-	        cItemKey = "" + @anData[i]
-	        bFound = FALSE
+	    for i = 1 to _nLen_
+	        _cItemKey_ = "" + @anData[i]
+	        _bFound_ = FALSE
 	        
 	        # Search for existing key in frequency list
-		nLenFreq = len(aFreqHash)
-	        for j = 1 to nLenFreq
-	            if aFreqHash[j][1] = cItemKey
-	                aFreqHash[j][2]++
-	                bFound = TRUE
+		_nLenFreq_ = len(_aFreqHash_)
+	        for j = 1 to _nLenFreq_
+	            if _aFreqHash_[j][1] = _cItemKey_
+	                _aFreqHash_[j][2]++
+	                _bFound_ = TRUE
 	                exit
 	            ok
 	        next
 	        
 	        # Add new key if not found
-	        if NOT bFound
-	            aFreqHash + [cItemKey, 1]
+	        if NOT _bFound_
+	            _aFreqHash_ + [_cItemKey_, 1]
 	        ok
 	    next
 	
-	    nMaxFreq = 0
-	    cModeKey = ""
-	    nLenFreq = len(aFreqHash)
+	    _nMaxFreq_ = 0
+	    _cModeKey_ = ""
+	    _nLenFreq_ = len(_aFreqHash_)
 	
-	    for i = 1 to nLenFreq
-	        if aFreqHash[i][2] > nMaxFreq
-	            nMaxFreq = aFreqHash[i][2]
-	            cModeKey = aFreqHash[i][1]
+	    for i = 1 to _nLenFreq_
+	        if _aFreqHash_[i][2] > _nMaxFreq_
+	            _nMaxFreq_ = _aFreqHash_[i][2]
+	            _cModeKey_ = _aFreqHash_[i][1]
 	        ok
 	    next
 	
-	    This._SetCache(cKey, cModeKey)
-	    return cModeKey
+	    This._SetCache(_cKey_, _cModeKey_)
+	    return _cModeKey_
 
 	    def MostFrequentValue()
 		return This.Mode()
@@ -1181,14 +1181,14 @@ class stzDataSet from stzObject
         if This._EngineAvailable()
             return StzEngineStatsStdDev(@pEngineStats)
         ok
-        nMean = This.Mean()
-        nSumSquares = 0
-        nLen = len(@anData)
-        for i = 1 to nLen
-            nDiff = @anData[i] - nMean
-            nSumSquares += (nDiff * nDiff)
+        _nMean_ = This.Mean()
+        _nSumSquares_ = 0
+        _nLen_ = len(@anData)
+        for i = 1 to _nLen_
+            _nDiff_ = @anData[i] - _nMean_
+            _nSumSquares_ += (_nDiff_ * _nDiff_)
         next
-        return sqrt(nSumSquares / (nLen - 1))
+        return sqrt(_nSumSquares_ / (_nLen_ - 1))
 
 		def StdDev()
 			return This.StandardDeviation()
@@ -1201,14 +1201,14 @@ class stzDataSet from stzObject
 	    if This._EngineAvailable()
 	        return StzEngineStatsVariance(@pEngineStats)
 	    ok
-	    nMean = This.Mean()
-	    nSumSquares = 0
-	    nLen = len(@anData)
-	    for i = 1 to nLen
-	        nDiff = @anData[i] - nMean
-	        nSumSquares += (nDiff * nDiff)
+	    _nMean_ = This.Mean()
+	    _nSumSquares_ = 0
+	    _nLen_ = len(@anData)
+	    for i = 1 to _nLen_
+	        _nDiff_ = @anData[i] - _nMean_
+	        _nSumSquares_ += (_nDiff_ * _nDiff_)
 	    next
-	    return nSumSquares / (nLen - 1)
+	    return _nSumSquares_ / (_nLen_ - 1)
 
 		def Var()
 			return This.Variance()
@@ -1251,12 +1251,12 @@ class stzDataSet from stzObject
         if This._EngineAvailable()
             return StzEngineStatsSum(@pEngineStats)
         ok
-        nLen = len(@anData)
-        nSum = 0
-        for i = 1 to nLen
-            nSum += @anData[i]
+        _nLen_ = len(@anData)
+        _nSum_ = 0
+        for i = 1 to _nLen_
+            _nSum_ += @anData[i]
         next
-        return nSum
+        return _nSum_
 
 
     def Count()
@@ -1270,17 +1270,17 @@ class stzDataSet from stzObject
         if This._EngineAvailable()
             return StzEngineStatsGeometricMean(@pEngineStats)
         ok
-        nLen = len(@anData)
-        for i = 1 to nLen
+        _nLen_ = len(@anData)
+        for i = 1 to _nLen_
             if @anData[i] <= 0
                 return 0
             ok
         next
-        nProduct = 1
-        for i = 1 to nLen
-            nProduct *= @anData[i]
+        _nProduct_ = 1
+        for i = 1 to _nLen_
+            _nProduct_ *= @anData[i]
         next
-        return pow(nProduct, 1/nLen)
+        return pow(_nProduct_, 1/_nLen_)
 
 		#< @FunctionAlternativeForms
 
@@ -1315,15 +1315,15 @@ class stzDataSet from stzObject
         if This._EngineAvailable()
             return StzEngineStatsHarmonicMean(@pEngineStats)
         ok
-        nSum = 0
-        nLen = len(@anData)
-        for i = 1 to nLen
+        _nSum_ = 0
+        _nLen_ = len(@anData)
+        for i = 1 to _nLen_
             if @anData[i] = 0
                 return 0
             ok
-            nSum += (1 / @anData[i])
+            _nSum_ += (1 / @anData[i])
         next
-        return nLen / nSum
+        return _nLen_ / _nSum_
 
 		#< @FunctionAlternativeForms
 
@@ -1372,116 +1372,116 @@ class stzDataSet from stzObject
 
 	#---
 
-    def CompareWith(oOtherStats)
+    def CompareWith(_oOtherStats_)
         # Comprehensive comparison with another dataset
-        if oOtherStats.Count() = 0 or This.Count() = 0
+        if _oOtherStats_.Count() = 0 or This.Count() = 0
             return "Cannot compare with empty dataset"
         ok
         
-        aComparison = []
+        _aComparison_ = []
         
-        if @cDataType = "numeric" and oOtherStats.DataType() = "numeric"
+        if @cDataType = "numeric" and _oOtherStats_.DataType() = "numeric"
             # Numeric comparison
-            nMean1 = This.Mean()
-            nMean2 = oOtherStats.Mean()
-            nMeanDiff = ((nMean1 - nMean2) / nMean2) * 100
+            _nMean1_ = This.Mean()
+            _nMean2_ = _oOtherStats_.Mean()
+            _nMeanDiff_ = ((_nMean1_ - _nMean2_) / _nMean2_) * 100
             
-            aComparison + ("Mean difference: " + nMeanDiff + "%")
+            _aComparison_ + ("Mean difference: " + _nMeanDiff_ + "%")
             
-            nStd1 = This.StandardDeviation()
-            nStd2 = oOtherStats.StandardDeviation()
+            _nStd1_ = This.StandardDeviation()
+            _nStd2_ = _oOtherStats_.StandardDeviation()
             
-            if nStd1 > nStd2 * 1.5
-                aComparison + "Dataset 1 shows higher variability"
-            but nStd2 > nStd1 * 1.5
-                aComparison + "Dataset 2 shows higher variability"
+            if _nStd1_ > _nStd2_ * 1.5
+                _aComparison_ + "Dataset 1 shows higher variability"
+            but _nStd2_ > _nStd1_ * 1.5
+                _aComparison_ + "Dataset 2 shows higher variability"
             else
-                aComparison + "Similar variability patterns"
+                _aComparison_ + "Similar variability patterns"
             ok
             
             # Correlation if same size
-            if This.Count() = oOtherStats.Count()
-                nCorr = This.CorrelationWith(oOtherStats)
-                if abs(nCorr) > 0.7
-                    cDirection = iff(nCorr > 0, "positive", "negative")
-                    aComparison + ( "Strong " + cDirection + " correlation (" + nCorr + ")" )
+            if This.Count() = _oOtherStats_.Count()
+                _nCorr_ = This.CorrelationWith(_oOtherStats_)
+                if abs(_nCorr_) > 0.7
+                    _cDirection_ = iff(_nCorr_ > 0, "positive", "negative")
+                    _aComparison_ + ( "Strong " + _cDirection_ + " correlation (" + _nCorr_ + ")" )
                 ok
             ok
         else
             # Categorical or mixed comparison
-            nDiv1 = This.Diversity()
-            nDiv2 = oOtherStats.Diversity()
+            _nDiv1_ = This.Diversity()
+            _nDiv2_ = _oOtherStats_.Diversity()
             
-            if abs(nDiv1 - nDiv2) > 0.2
-                cHigher = iff(nDiv1 > nDiv2, "Dataset 1", "Dataset 2")
-                aComparison + ( cHigher + " shows higher diversity" )
+            if abs(_nDiv1_ - _nDiv2_) > 0.2
+                _cHigher_ = iff(_nDiv1_ > _nDiv2_, "Dataset 1", "Dataset 2")
+                _aComparison_ + ( _cHigher_ + " shows higher diversity" )
             else
-                aComparison + "Similar diversity levels"
+                _aComparison_ + "Similar diversity levels"
             ok
         ok
         
-        return aComparison
+        return _aComparison_
 
-		def CompareTo(oOtherStats)
-			return This.CompareWith(oOtherStats)
+		def CompareTo(_oOtherStats_)
+			return This.CompareWith(_oOtherStats_)
 
-		def Compare(oOtherStats)
-			if isList(oOtherStats) and IsWithOrToNamedParamList(oOtherStats)
-				oOtherStats = oOtherStats[2]
+		def Compare(_oOtherStats_)
+			if isList(_oOtherStats_) and IsWithOrToNamedParamList(_oOtherStats_)
+				_oOtherStats_ = _oOtherStats_[2]
 			ok
 
-			return This.CompareWith(oOtherStats)
+			return This.CompareWith(_oOtherStats_)
 
 
-    def SimilarityScore(oOtherStats)
+    def SimilarityScore(_oOtherStats_)
         # Calculate similarity score between datasets (0-1 scale)
-        if oOtherStats.Count() = 0 or This.Count() = 0
+        if _oOtherStats_.Count() = 0 or This.Count() = 0
             return 0
         ok
         
-        if @cDataType != oOtherStats.DataType()
+        if @cDataType != _oOtherStats_.DataType()
             return 0  # Different data types
         ok
         
         if @cDataType = "numeric"
             # Numeric similarity based on statistical properties
-            nMeanSim = 1 - abs(This.Mean() - oOtherStats.Mean()) / (abs(This.Mean()) + abs(oOtherStats.Mean()) + 1)
-            nStdSim = 1 - abs(This.StandardDeviation() - oOtherStats.StandardDeviation()) / (This.StandardDeviation() + oOtherStats.StandardDeviation() + 1)
+            _nMeanSim_ = 1 - abs(This.Mean() - _oOtherStats_.Mean()) / (abs(This.Mean()) + abs(_oOtherStats_.Mean()) + 1)
+            _nStdSim_ = 1 - abs(This.StandardDeviation() - _oOtherStats_.StandardDeviation()) / (This.StandardDeviation() + _oOtherStats_.StandardDeviation() + 1)
             
-            return (nMeanSim + nStdSim) / 2
+            return (_nMeanSim_ + _nStdSim_) / 2
 
         else
             # Categorical similarity based on overlap
-            aUnique1 = This.UniqueValues()
-            aUnique2 = oOtherStats.UniqueValues()
+            _aUnique1_ = This.UniqueValues()
+            _aUnique2_ = _oOtherStats_.UniqueValues()
             
-            nIntersection = 0
-			nLen = len(aUnique1)
+            _nIntersection_ = 0
+			_nLen_ = len(_aUnique1_)
 
-            for i = 1 to nLen
-                if StzFindFirst(aUnique2, aUnique1[i]) > 0
-                    nIntersection++
+            for i = 1 to _nLen_
+                if StzFindFirst(_aUnique2_, _aUnique1_[i]) > 0
+                    _nIntersection_++
                 ok
             next
             
-            nUnion = len(aUnique1) + len(aUnique2) - nIntersection
-            return nIntersection / nUnion
+            _nUnion_ = len(_aUnique1_) + len(_aUnique2_) - _nIntersection_
+            return _nIntersection_ / _nUnion_
         ok
 
-		def SimilarityScoreWith(oOtherStats)
-			return This.SimilarityScore(oOtherStats)
+		def SimilarityScoreWith(_oOtherStats_)
+			return This.SimilarityScore(_oOtherStats_)
 
-		def SimScore(oOtherStats)
-			return This.SimilarityScore(oOtherStats)
+		def SimScore(_oOtherStats_)
+			return This.SimilarityScore(_oOtherStats_)
 
-		def SimScoreWith(oOtherStats)
-			return SimilarityScore(oOtherStats)
+		def SimScoreWith(_oOtherStats_)
+			return SimilarityScore(_oOtherStats_)
 
 	#---
 
-    def ConfidenceInterval(nConfidence)
-        if nConfidence = 0
-            nConfidence = 95
+    def ConfidenceInterval(_nConfidence_)
+        if _nConfidence_ = 0
+            _nConfidence_ = 95
         ok
 
         # Calculate confidence interval for the mean
@@ -1489,24 +1489,24 @@ class stzDataSet from stzObject
             return [0, 0]
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
-        nLen = len(@anData)
+        _nMean_ = This.Mean()
+        _nStdDev_ = This.StandardDeviation()
+        _nLen_ = len(@anData)
         
         # Using t-distribution approximation
-        nAlpha = (100 - nConfidence) / 100
-        nTValue = 1.96  # Approximation for 95% confidence
+        _nAlpha_ = (100 - _nConfidence_) / 100
+        _nTValue_ = 1.96  # Approximation for 95% confidence
         
-        if nConfidence = 90
-            nTValue = 1.645
+        if _nConfidence_ = 90
+            _nTValue_ = 1.645
 
-        but nConfidence = 99
-            nTValue = 2.576
+        but _nConfidence_ = 99
+            _nTValue_ = 2.576
         ok
         
-        nMarginError = nTValue * (nStdDev / sqrt(nLen))
+        _nMarginError_ = _nTValue_ * (_nStdDev_ / sqrt(_nLen_))
         
-        return [nMean - nMarginError, nMean + nMarginError]
+        return [_nMean_ - _nMarginError_, _nMean_ + _nMarginError_]
 
 		def ConfInt()
 			return This.ConfidentialInterval()
@@ -1523,29 +1523,29 @@ class stzDataSet from stzObject
 	        StzRaise("Weights must be a list with same length as data")
 	    ok
 	    
-	    cKey = "weightedmean_" + This._HashList(aWeights)
-	    nCached = This._GetCached(cKey)
+	    _cKey_ = "weightedmean_" + This._HashList(aWeights)
+	    _nCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(nCached)
-	        return nCached
+	    if NOT IsNull(_nCached_)
+	        return _nCached_
 	    ok
 	    
-	    nWeightedSum = 0
-	    nWeightSum = 0
-	    nLen = len(@anData)
+	    _nWeightedSum_ = 0
+	    _nWeightSum_ = 0
+	    _nLen_ = len(@anData)
 	    
-	    for i = 1 to nLen
-	        nWeightedSum += @anData[i] * aWeights[i]
-	        nWeightSum += aWeights[i]
+	    for i = 1 to _nLen_
+	        _nWeightedSum_ += @anData[i] * aWeights[i]
+	        _nWeightSum_ += aWeights[i]
 	    next
 	    
-	    if nWeightSum = 0
+	    if _nWeightSum_ = 0
 	        return 0
 	    ok
 	    
-	    nResult = nWeightedSum / nWeightSum
-	    This._SetCache(cKey, nResult)
-	    return nResult
+	    _nResult_ = _nWeightedSum_ / _nWeightSum_
+	    This._SetCache(_cKey_, _nResult_)
+	    return _nResult_
 
 		def WMean(aWeights)
 			return This.WMean(aWeights)
@@ -1564,32 +1564,32 @@ class stzDataSet from stzObject
 	        return StzEngineStatsTrimmedMean(@pEngineStats, nTrimPercent)
 	    ok
 
-	    cKey = "trimmedmean_" + nTrimPercent
-	    nCached = This._GetCached(cKey)
+	    _cKey_ = "trimmedmean_" + nTrimPercent
+	    _nCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(nCached)
-	        return nCached
+	    if NOT IsNull(_nCached_)
+	        return _nCached_
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
-	    nTrimCount = floor((nLen * nTrimPercent) / 100)
+	    _nLen_ = len(@anSortedData)
+	    _nTrimCount_ = floor((_nLen_ * nTrimPercent) / 100)
 	    
-	    if nTrimCount * 2 >= nLen
+	    if _nTrimCount_ * 2 >= _nLen_
 	        return This.Median()
 	    ok
 	    
-	    nSum = 0
-	    nStart = nTrimCount + 1
-	    nEnd = nLen - nTrimCount
+	    _nSum_ = 0
+	    _nStart_ = _nTrimCount_ + 1
+	    _nEnd_ = _nLen_ - _nTrimCount_
 	    
-	    for i = nStart to nEnd
-	        nSum += @anSortedData[i]
+	    for i = _nStart_ to _nEnd_
+	        _nSum_ += @anSortedData[i]
 	    next
 	    
-	    nResult = nSum / (nEnd - nStart + 1)
-	    This._SetCache(cKey, nResult)
-	    return nResult
+	    _nResult_ = _nSum_ / (_nEnd_ - _nStart_ + 1)
+	    This._SetCache(_cKey_, _nResult_)
+	    return _nResult_
 	
 		def TMean(nTrimPercent)
 			return This.TrimmedMean(nTrimPercent)
@@ -1601,19 +1601,19 @@ class stzDataSet from stzObject
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
-	    nBelow = 0
-	    nEqual = 0
+	    _nLen_ = len(@anSortedData)
+	    _nBelow_ = 0
+	    _nEqual_ = 0
 	    
-	    for i = 1 to nLen
+	    for i = 1 to _nLen_
 	        if @anSortedData[i] < nValue
-	            nBelow++
+	            _nBelow_++
 	        but @anSortedData[i] = nValue
-	            nEqual++
+	            _nEqual_++
 	        ok
 	    next
 	    
-	    return ((nBelow + (nEqual / 2)) / nLen) * 100
+	    return ((_nBelow_ + (_nEqual_ / 2)) / _nLen_) * 100
 
 		def PRank(nValue)
 			return This.PercentileRank(nValue)
@@ -1624,56 +1624,56 @@ class stzDataSet from stzObject
     #============================================================#
 
 	def FrequencyTable()
-	    cKey = "freq_table"
-	    cached = This._GetCached(cKey)
+	    _cKey_ = "freq_table"
+	    _cached_ = This._GetCached(_cKey_)
 
-	    if NOT isNull(cached)
-	        return cached
+	    if NOT isNull(_cached_)
+	        return _cached_
 	    ok
 	
-	    aFreqHash = []
-	    nLen = len(@anData)
+	    _aFreqHash_ = []
+	    _nLen_ = len(@anData)
 	
-	    for i = 1 to nLen
-	        cItemKey = "" + @anData[i]
+	    for i = 1 to _nLen_
+	        _cItemKey_ = "" + @anData[i]
 	
-	        if isNumber(aFreqHash[cItemKey])
-	            aFreqHash[cItemKey]++
+	        if isNumber(_aFreqHash_[_cItemKey_])
+	            _aFreqHash_[_cItemKey_]++
 	        else
-	            aFreqHash[cItemKey] = 1
+	            _aFreqHash_[_cItemKey_] = 1
 	        ok
 	    next
 	
 	    # Convert hash to array of pairs
-	    aFreqTable = []
-	    _aKeysaFreqHash1_ = keys(aFreqHash)
+	    _aFreqTable_ = []
+	    _aKeysaFreqHash1_ = keys(_aFreqHash_)
 	    _nKeysaFreqHash1Len_ = len(_aKeysaFreqHash1_)
 	    for _iLoopKeysaFreqHash1_ = 1 to _nKeysaFreqHash1Len_
-	    	cKey = _aKeysaFreqHash1_[_iLoopKeysaFreqHash1_]
-	        aFreqTable + [cKey, aFreqHash[cKey]]
+	    	_cKey_ = _aKeysaFreqHash1_[_iLoopKeysaFreqHash1_]
+	        _aFreqTable_ + [_cKey_, _aFreqHash_[_cKey_]]
 	    next
 	
-	    This._SetCache(cKey, aFreqTable)
-	    return aFreqTable
+	    This._SetCache(_cKey_, _aFreqTable_)
+	    return _aFreqTable_
 	
 		def FreqTable()
 			return This.FrequencyTable()
 
 
 	def RelativeFrequency()
-	    aFreqTable = This.FrequencyTable()
+	    _aFreqTable_ = This.FrequencyTable()
 	
-	    nTotal = This.Count()
-	    aRelFreq = []
+	    _nTotal_ = This.Count()
+	    _aRelFreq_ = []
 	
-	    nLen = len(aFreqTable)
+	    _nLen_ = len(_aFreqTable_)
 	
-	    for i = 1 to nLen
-	        nRelativeFreq = aFreqTable[i][2] / nTotal
-	        aRelFreq + [aFreqTable[i][1], nRelativeFreq]
+	    for i = 1 to _nLen_
+	        _nRelativeFreq_ = _aFreqTable_[i][2] / _nTotal_
+	        _aRelFreq_ + [_aFreqTable_[i][1], _nRelativeFreq_]
 	    next
 	    
-	    return aRelFreq
+	    return _aRelFreq_
 	
 		def RelFreq()
 		    return This.RelativeFrequency()
@@ -1681,17 +1681,17 @@ class stzDataSet from stzObject
 
     def PercentageFrequency()
 
-        aRelFreq = This.RelativeFrequency()
-        aPercFreq = []
+        _aRelFreq_ = This.RelativeFrequency()
+        _aPercFreq_ = []
 
-        nLen = len(aRelFreq)
+        _nLen_ = len(_aRelFreq_)
 
-        for i = 1 to nLen
-            nPercentage = aRelFreq[i][2] * 100
-            aPercFreq + [aRelFreq[i][1], nPercentage]
+        for i = 1 to _nLen_
+            _nPercentage_ = _aRelFreq_[i][2] * 100
+            _aPercFreq_ + [_aRelFreq_[i][1], _nPercentage_]
         next
         
-        return aPercFreq
+        return _aPercFreq_
 
 		def PercentFreq()
 			return This.PercentageFrequency()
@@ -1705,24 +1705,24 @@ class stzDataSet from stzObject
 
 
     def UniqueValues()
-        cKey = "unique_values"
-        cached = This._GetCached(cKey)
+        _cKey_ = "unique_values"
+        _cached_ = This._GetCached(_cKey_)
 
-        if NOT isNull(cached)
-            return cached
+        if NOT isNull(_cached_)
+            return _cached_
         ok
 
-		nLen = len(@anData)
-        aUnique = []
+		_nLen_ = len(@anData)
+        _aUnique_ = []
 
-        for i = 1 to nLen
-            if StzFindFirst(aUnique, @anData[i]) = 0
-                aUnique + @anData[i]
+        for i = 1 to _nLen_
+            if StzFindFirst(_aUnique_, @anData[i]) = 0
+                _aUnique_ + @anData[i]
             ok
         next
         
-        This._SetCache(cKey, aUnique)
-        return aUnique
+        This._SetCache(_cKey_, _aUnique_)
+        return _aUnique_
 
 
 		def UVals()
@@ -1734,11 +1734,11 @@ class stzDataSet from stzObject
 
     def Diversity()
         # Unique values / Total values
-        nTotal = This.Count()
-        if nTotal = 0
+        _nTotal_ = This.Count()
+        if _nTotal_ = 0
             return 0
         ok
-        return This.UniqueCount() / nTotal
+        return This.UniqueCount() / _nTotal_
 
 		def DiversityIndex()
 			return This.Diversity()
@@ -1750,20 +1750,20 @@ class stzDataSet from stzObject
             return 0
         ok
         
-        aFreqTable = This.FrequencyTable()
-        nTotal = This.Count()
-        nEntropy = 0
+        _aFreqTable_ = This.FrequencyTable()
+        _nTotal_ = This.Count()
+        _nEntropy_ = 0
         
-		nLen = len(aFreqTable)
+		_nLen_ = len(_aFreqTable_)
 
-        for i = 1 to nLen
-            nProbability = aFreqTable[i][2] / nTotal
-            if nProbability > 0
-                nEntropy -= nProbability * log(nProbability) / log(2)
+        for i = 1 to _nLen_
+            _nProbability_ = _aFreqTable_[i][2] / _nTotal_
+            if _nProbability_ > 0
+                _nEntropy_ -= _nProbability_ * log(_nProbability_) / log(2)
             ok
         next
         
-        return nEntropy
+        return _nEntropy_
 
 		def Entropy()
 			return This.EntropyIndex()
@@ -1776,40 +1776,40 @@ class stzDataSet from stzObject
 	        StzRaise("ContingencyTable requires another stzDataSet object")
 	    ok
 	    
-	    aData1 = @anData
-	    aData2 = oOtherDataSet.Data()
+	    _aData1_ = @anData
+	    _aData2_ = oOtherDataSet.Data()
 	    
-	    if len(aData1) != len(aData2)
+	    if len(_aData1_) != len(_aData2_)
 	        StzRaise("Both datasets must have same length")
 	    ok
 	    
-	    aUniqueX = This.UniqueValues()
-	    aUniqueY = oOtherDataSet.UniqueValues()
-	    aTable = []
+	    _aUniqueX_ = This.UniqueValues()
+	    _aUniqueY_ = oOtherDataSet.UniqueValues()
+	    _aTable_ = []
 	    
 	    # Initialize table
-		nLenX = len(aUniqueX)
-		nLenY = len(aUniqueY)
+		_nLenX_ = len(_aUniqueX_)
+		_nLenY_ = len(_aUniqueY_)
 
-	    for i = 1 to nLenX
-	        aRow = []
-	        for j = 1 to nLenY
-	            aRow + 0
+	    for i = 1 to _nLenX_
+	        _aRow_ = []
+	        for j = 1 to _nLenY_
+	            _aRow_ + 0
 	        next
-	        aTable + [aUniqueX[i], aRow]
+	        _aTable_ + [_aUniqueX_[i], _aRow_]
 	    next
 	    
 	    # Count occurrences
-	    nLen = len(aData1)
-	    for k = 1 to nLen
-	        nXIndex = StzFindFirst(aUniqueX, aData1[k])
-	        nYIndex = StzFindFirst(aUniqueY, aData2[k])
-	        if nXIndex > 0 and nYIndex > 0
-	            aTable[nXIndex][2][nYIndex]++
+	    _nLen_ = len(_aData1_)
+	    for k = 1 to _nLen_
+	        _nXIndex_ = StzFindFirst(_aUniqueX_, _aData1_[k])
+	        _nYIndex_ = StzFindFirst(_aUniqueY_, _aData2_[k])
+	        if _nXIndex_ > 0 and _nYIndex_ > 0
+	            _aTable_[_nXIndex_][2][_nYIndex_]++
 	        ok
 	    next
 	    
-	    return [aUniqueY, aTable]
+	    return [_aUniqueY_, _aTable_]
 	
 		def ContingTable()
 			return This.ContingencyTable()
@@ -1820,29 +1820,29 @@ class stzDataSet from stzObject
 	        return 0
 	    ok
 	    
-	    cKey = "modecount"
-	    nCached = This._GetCached(cKey)
+	    _cKey_ = "modecount"
+	    _nCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(nCached)
-	        return nCached
+	    if NOT IsNull(_nCached_)
+	        return _nCached_
 	    ok
 	    
-	    aFreqTable = This.FrequencyTable()
-	    if len(aFreqTable) = 0
+	    _aFreqTable_ = This.FrequencyTable()
+	    if len(_aFreqTable_) = 0
 	        return 0
 	    ok
 	    
-	    nMaxFreq = 0
-	    nLen = len(aFreqTable)
+	    _nMaxFreq_ = 0
+	    _nLen_ = len(_aFreqTable_)
 	    
-	    for i = 1 to nLen
-	        if aFreqTable[i][2] > nMaxFreq
-	            nMaxFreq = aFreqTable[i][2]
+	    for i = 1 to _nLen_
+	        if _aFreqTable_[i][2] > _nMaxFreq_
+	            _nMaxFreq_ = _aFreqTable_[i][2]
 	        ok
 	    next
 	    
-	    This._SetCache(cKey, nMaxFreq)
-	    return nMaxFreq
+	    This._SetCache(_cKey_, _nMaxFreq_)
+	    return _nMaxFreq_
 
 
     #====================================================#
@@ -1867,52 +1867,52 @@ class stzDataSet from stzObject
 		return This.PercentileXT(nPercent, "interpolation")
 
 
-	def PercentileXT(nPercent, cMethod) # interpolation or nearest
+	def PercentileXT(nPercent, _cMethod_) # interpolation or nearest
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return 0
 	    ok
 	    
 	    # Default to interpolation method
-	    if cMethod = NULL
-	        cMethod = "interpolation"
+	    if _cMethod_ = NULL
+	        _cMethod_ = "interpolation"
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
+	    _nLen_ = len(@anSortedData)
 	    
-	    if cMethod = "nearest" or cMethod = "nearestrank"
-	        nRank = ceil((nLen * nPercent) / 100)
+	    if _cMethod_ = "nearest" or _cMethod_ = "nearestrank"
+	        _nRank_ = ceil((_nLen_ * nPercent) / 100)
 	        
-	        if nRank < 1
-	            nRank = 1
-	        but nRank > nLen
-	            nRank = nLen
+	        if _nRank_ < 1
+	            _nRank_ = 1
+	        but _nRank_ > _nLen_
+	            _nRank_ = _nLen_
 	        ok
 	        
-	        return @anSortedData[nRank]
+	        return @anSortedData[_nRank_]
 
 	    else
 	        # Linear interpolation method (default)
-	        nPosition = ((nLen - 1) * nPercent) / 100 + 1
+	        _nPosition_ = ((_nLen_ - 1) * nPercent) / 100 + 1
 	        
-	        if nPosition <= 1
+	        if _nPosition_ <= 1
 	            return @anSortedData[1]
-	        but nPosition >= nLen
-	            return @anSortedData[nLen]
+	        but _nPosition_ >= _nLen_
+	            return @anSortedData[_nLen_]
 	        ok
 	        
 	        # Linear interpolation
-	        nLower = floor(nPosition)
-	        nUpper = nLower + 1
-	        nFraction = nPosition - nLower
+	        _nLower_ = floor(_nPosition_)
+	        _nUpper_ = _nLower_ + 1
+	        _nFraction_ = _nPosition_ - _nLower_
 	        
-	        if nUpper > nLen
-	            return @anSortedData[nLower]
+	        if _nUpper_ > _nLen_
+	            return @anSortedData[_nLower_]
 	        ok
 	        
-	        nLowerVal = @anSortedData[nLower]
-	        nUpperVal = @anSortedData[nUpper]
-	        return nLowerVal + (nFraction * (nUpperVal - nLowerVal))
+	        _nLowerVal_ = @anSortedData[_nLower_]
+	        _nUpperVal_ = @anSortedData[_nUpper_]
+	        return _nLowerVal_ + (_nFraction_ * (_nUpperVal_ - _nLowerVal_))
 	    ok
 
 
@@ -1922,8 +1922,8 @@ class stzDataSet from stzObject
 		ok
 		return This.Percentile(25)
 
-		def Q1XT(cMethod)
-		    return This.PercentileXT(25, cMethod)
+		def Q1XT(_cMethod_)
+		    return This.PercentileXT(25, _cMethod_)
 	
 	def Q2()
 		if This._EngineAvailable()
@@ -1931,7 +1931,7 @@ class stzDataSet from stzObject
 		ok
 		return This.Median()
 
-		def Q2XT(cMethod)
+		def Q2XT(_cMethod_)
 		    # Median is typically the same regardless of method
 		    return This.Median()
 	
@@ -1941,8 +1941,8 @@ class stzDataSet from stzObject
 		ok
 		return This.Percentile(75)
 
-		def Q3XT(cMethod)
-		    return This.PercentileXT(75, cMethod)
+		def Q3XT(_cMethod_)
+		    return This.PercentileXT(75, _cMethod_)
 	
 	def IQR()
 		if This._EngineAvailable()
@@ -1950,15 +1950,15 @@ class stzDataSet from stzObject
 		ok
 		return This.Q3() - This.Q1()
 
-		def IQRXT(cMethod)
-		    return This.Q3XT(cMethod) - This.Q1XT(cMethod)
+		def IQRXT(_cMethod_)
+		    return This.Q3XT(_cMethod_) - This.Q1XT(_cMethod_)
 	
 
 	def Quartiles()
 		return [This.Q1(), This.Q2(), This.Q3()]
 
-	def QuartilesXT(cMethod)
-	    return [This.Q1XT(cMethod), This.Q2XT(cMethod), This.Q3XT(cMethod)]
+	def QuartilesXT(_cMethod_)
+	    return [This.Q1XT(_cMethod_), This.Q2XT(_cMethod_), This.Q3XT(_cMethod_)]
 
 
 	#---
@@ -1972,31 +1972,31 @@ class stzDataSet from stzObject
             return StzEngineStatsSkewness(@pEngineStats)
         ok
 
-        cKey = "skewness"
-        nCached = This._GetCached(cKey)
+        _cKey_ = "skewness"
+        _nCached_ = This._GetCached(_cKey_)
 
-        if NOT isNull(nCached)
-            return nCached
+        if NOT isNull(_nCached_)
+            return _nCached_
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
+        _nMean_ = This.Mean()
+        _nStdDev_ = This.StandardDeviation()
         
-        if nStdDev = 0
+        if _nStdDev_ = 0
             return 0
         ok
         
-        nLen = len(@anData)
-        nSum = 0
+        _nLen_ = len(@anData)
+        _nSum_ = 0
         
-        for i = 1 to nLen
-            nStandardized = (@anData[i] - nMean) / nStdDev
-            nSum += (nStandardized * nStandardized * nStandardized)
+        for i = 1 to _nLen_
+            _nStandardized_ = (@anData[i] - _nMean_) / _nStdDev_
+            _nSum_ += (_nStandardized_ * _nStandardized_ * _nStandardized_)
         next
         
-        nSkew = nSum / ((nLen - 1) * (nLen - 2))
-        This._SetCache(cKey, nSkew)
-        return nSkew
+        _nSkew_ = _nSum_ / ((_nLen_ - 1) * (_nLen_ - 2))
+        This._SetCache(_cKey_, _nSkew_)
+        return _nSkew_
 
 		def Skewness()
 			return Skew()
@@ -2011,34 +2011,34 @@ class stzDataSet from stzObject
             return StzEngineStatsKurtosis(@pEngineStats)
         ok
 
-        cKey = "kurtosis"
-        nCached = This._GetCached(cKey)
+        _cKey_ = "kurtosis"
+        _nCached_ = This._GetCached(_cKey_)
 
-        if NOT isNull(nCached)
-            return nCached
+        if NOT isNull(_nCached_)
+            return _nCached_
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
+        _nMean_ = This.Mean()
+        _nStdDev_ = This.StandardDeviation()
         
-        if nStdDev = 0
+        if _nStdDev_ = 0
             return 0
         ok
         
-        nLen = len(@anData)
-        nSum = 0
+        _nLen_ = len(@anData)
+        _nSum_ = 0
         
-        for i = 1 to nLen
-            nStandardized = (@anData[i] - nMean) / nStdDev
-            nSum += (nStandardized * nStandardized * nStandardized * nStandardized)
+        for i = 1 to _nLen_
+            _nStandardized_ = (@anData[i] - _nMean_) / _nStdDev_
+            _nSum_ += (_nStandardized_ * _nStandardized_ * _nStandardized_ * _nStandardized_)
         next
         
-        nKurt = (nSum / nLen) * (nLen * (nLen + 1)) / ((nLen - 1) * (nLen - 2) * (nLen - 3))
-        nAdjustment = (3 * (nLen - 1) * (nLen - 1)) / ((nLen - 2) * (nLen - 3))
+        _nKurt_ = (_nSum_ / _nLen_) * (_nLen_ * (_nLen_ + 1)) / ((_nLen_ - 1) * (_nLen_ - 2) * (_nLen_ - 3))
+        _nAdjustment_ = (3 * (_nLen_ - 1) * (_nLen_ - 1)) / ((_nLen_ - 2) * (_nLen_ - 3))
         
-        nResult = nKurt - nAdjustment
-        This._SetCache(cKey, nResult)
-        return nResult
+        _nResult_ = _nKurt_ - _nAdjustment_
+        This._SetCache(_cKey_, _nResult_)
+        return _nResult_
 
 		def Kurtos()
 			return Kurtosis()
@@ -2055,34 +2055,34 @@ class stzDataSet from stzObject
             return []
         ok
         
-        cKey = "outliers"
-        cached = This._GetCached(cKey)
+        _cKey_ = "outliers"
+        _cached_ = This._GetCached(_cKey_)
 
-        if NOT IsNull(cached)
-            return cached
+        if NOT IsNull(_cached_)
+            return _cached_
         ok
         
-        nQ1 = This.Q1()
-        nQ3 = This.Q3()
-        nIQR = This.IQR()
+        _nQ1_ = This.Q1()
+        _nQ3_ = This.Q3()
+        _nIQR_ = This.IQR()
         
-        nLowerBound = nQ1 - (1.5 * nIQR)
-        nUpperBound = nQ3 + (1.5 * nIQR)
+        _nLowerBound_ = _nQ1_ - (1.5 * _nIQR_)
+        _nUpperBound_ = _nQ3_ + (1.5 * _nIQR_)
         
-        aOutliers = []
-        nLen = len(@anData)
-        for i = 1 to nLen
-            if @anData[i] < nLowerBound or @anData[i] > nUpperBound
-                aOutliers + @anData[i]
+        _aOutliers_ = []
+        _nLen_ = len(@anData)
+        for i = 1 to _nLen_
+            if @anData[i] < _nLowerBound_ or @anData[i] > _nUpperBound_
+                _aOutliers_ + @anData[i]
             ok
         next
         
-        This._SetCache(cKey, aOutliers)
-        return aOutliers
+        This._SetCache(_cKey_, _aOutliers_)
+        return _aOutliers_
 
     def IsOutlier(nValue)
-        aOutliers = This.Outliers()
-        return StzFindFirst(aOutliers, nValue) > 0
+        _aOutliers_ = This.Outliers()
+        return StzFindFirst(_aOutliers_, nValue) > 0
 
 
     def ZScores()
@@ -2090,48 +2090,48 @@ class stzDataSet from stzObject
             return []
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
+        _nMean_ = This.Mean()
+        _nStdDev_ = This.StandardDeviation()
         
-        if nStdDev = 0
+        if _nStdDev_ = 0
             return @anData  # No variation
         ok
         
-        aZScores = []
-		nLen = len(@anData)
-        for i = 1 to nLen
-            nZScore = (@anData[i] - nMean) / nStdDev
-            aZScores + nZScore
+        _aZScores_ = []
+		_nLen_ = len(@anData)
+        for i = 1 to _nLen_
+            _nZScore_ = (@anData[i] - _nMean_) / _nStdDev_
+            _aZScores_ + _nZScore_
         next
         
-        return aZScores
+        return _aZScores_
 
 
-    def MovingAverage(nWindow)
-        if nWindow = 0
-            nWindow = 3
+    def MovingAverage(_nWindow_)
+        if _nWindow_ = 0
+            _nWindow_ = 3
         ok
         # Calculate moving average with specified window
-        if @cDataType != "numeric" or nWindow <= 0
+        if @cDataType != "numeric" or _nWindow_ <= 0
             return @anData
         ok
         
-        if len(@anData) < nWindow
+        if len(@anData) < _nWindow_
             return @anData
         ok
         
-        aMovingAvg = []
-        nLen = len(@anData)
+        _aMovingAvg_ = []
+        _nLen_ = len(@anData)
         
-        for i = 1 to (nLen - nWindow + 1)
-            nSum = 0
-            for j = i to (i + nWindow - 1)
-                nSum += @anData[j]
+        for i = 1 to (_nLen_ - _nWindow_ + 1)
+            _nSum_ = 0
+            for j = i to (i + _nWindow_ - 1)
+                _nSum_ += @anData[j]
             next
-            aMovingAvg + (nSum / nWindow)
+            _aMovingAvg_ + (_nSum_ / _nWindow_)
         next
         
-        return aMovingAvg
+        return _aMovingAvg_
 
 		def MovAvrg()
 			return This.MovingAverage()
@@ -2151,100 +2151,100 @@ class stzDataSet from stzObject
 	        return [ ["insufficient_data", len(@anData)] ]
 	    ok
 	    
-	    nLenData = len(@anData)
+	    _nLenData_ = len(@anData)
 	    
 	    # For simple cases (2-3 points), use basic trend
-	    if nLenData <= 3
+	    if _nLenData_ <= 3
 	        return This._SimpleSeriesTrend()
 	    ok
 	    
 	    # Calculate consecutive differences
-	    aDifferences = []
-	    for i = 2 to nLenData
-	        aDifferences + (@anData[i] - @anData[i-1])
+	    _aDifferences_ = []
+	    for i = 2 to _nLenData_
+	        _aDifferences_ + (@anData[i] - @anData[i-1])
 	    next
 	    
 	    # Classify each difference
-	    aTrends = []
-	    nTolerance = This._CalculateTolerance()
-		nLenDiff = len(aDifferences)
-	    for i = 1 to nLenDiff
-	        aTrends + This._ClassifyDifference(aDifferences[i], nTolerance)
+	    _aTrends_ = []
+	    _nTolerance_ = This._CalculateTolerance()
+		_nLenDiff_ = len(_aDifferences_)
+	    for i = 1 to _nLenDiff_
+	        _aTrends_ + This._ClassifyDifference(_aDifferences_[i], _nTolerance_)
 	    next
 	    
 	    # Build segments - walker visits data positions without overlap
-	    aTrendSegments = []
-	    cCurrentTrend = aTrends[1]
-	    nSegmentStart = 1  # Start at first data position
-	    nLenTrends = len(aTrends)
+	    _aTrendSegments_ = []
+	    _cCurrentTrend_ = _aTrends_[1]
+	    _nSegmentStart_ = 1  # Start at first data position
+	    _nLenTrends_ = len(_aTrends_)
 
-	    for i = 2 to nLenTrends
-	        if aTrends[i] != cCurrentTrend
+	    for i = 2 to _nLenTrends_
+	        if _aTrends_[i] != _cCurrentTrend_
 	            # Trend change detected at difference i
 	            # Previous segment covers from nSegmentStart to position i
-	            nSegmentLength = i - nSegmentStart + 1
-	            aTrendSegments + [cCurrentTrend, nSegmentLength]
-	            cCurrentTrend = aTrends[i]
-	            nSegmentStart = i + 1  # Next segment starts AFTER transition point
+	            _nSegmentLength_ = i - _nSegmentStart_ + 1
+	            _aTrendSegments_ + [_cCurrentTrend_, _nSegmentLength_]
+	            _cCurrentTrend_ = _aTrends_[i]
+	            _nSegmentStart_ = i + 1  # Next segment starts AFTER transition point
 	        ok
 	    next
 	    
 	    # Add final segment
-	    nFinalLength = nLenData - nSegmentStart + 1
-	    aTrendSegments + [cCurrentTrend, nFinalLength]
+	    _nFinalLength_ = _nLenData_ - _nSegmentStart_ + 1
+	    _aTrendSegments_ + [_cCurrentTrend_, _nFinalLength_]
 	    
-	    return aTrendSegments
+	    return _aTrendSegments_
 
 	    def Trend()
 		return This.TrendAnalysis()
 
 
 	def _SimpleSeriesTrend()
-	    nLen = len(@anData)
-	    if nLen = 2
-	        nDiff = @anData[2] - @anData[1]
-	        nTolerance = This._CalculateTolerance()
-	        cTrend = This._ClassifyDifference(nDiff, nTolerance)
-	        return [[cTrend, 2]]
+	    _nLen_ = len(@anData)
+	    if _nLen_ = 2
+	        _nDiff_ = @anData[2] - @anData[1]
+	        _nTolerance_ = This._CalculateTolerance()
+	        _cTrend_ = This._ClassifyDifference(_nDiff_, _nTolerance_)
+	        return [[_cTrend_, 2]]
 	    ok
 	    
 	    # For 3 points, check if consistent trend
-	    nDiff1 = @anData[2] - @anData[1]
-	    nDiff2 = @anData[3] - @anData[2]
-	    nTolerance = This._CalculateTolerance()
+	    _nDiff1_ = @anData[2] - @anData[1]
+	    _nDiff2_ = @anData[3] - @anData[2]
+	    _nTolerance_ = This._CalculateTolerance()
 	    
-	    cTrend1 = This._ClassifyDifference(nDiff1, nTolerance)
-	    cTrend2 = This._ClassifyDifference(nDiff2, nTolerance)
+	    _cTrend1_ = This._ClassifyDifference(_nDiff1_, _nTolerance_)
+	    _cTrend2_ = This._ClassifyDifference(_nDiff2_, _nTolerance_)
 	    
-	    if cTrend1 = cTrend2
-	        return [[cTrend1, 3]]
+	    if _cTrend1_ = _cTrend2_
+	        return [[_cTrend1_, 3]]
 	    else
-	        return [[cTrend1, 2], [cTrend2, 2]]
+	        return [[_cTrend1_, 2], [_cTrend2_, 2]]
 	    ok
 	
 	def _CalculateTolerance()
 	    # Calculate tolerance based on data scale and variability
-	    nRange = This.Range()
-	    nStdDev = This.StandardDeviation()
+	    _nRange_ = This.Range()
+	    _nStdDev_ = This.StandardDeviation()
 	    
 	    # Use smaller of 1% of range or 10% of standard deviation
-	    nRangeTolerance = nRange * 0.01
-	    nStdTolerance = nStdDev * 0.1
+	    _nRangeTolerance_ = _nRange_ * 0.01
+	    _nStdTolerance_ = _nStdDev_ * 0.1
 	    
-	    nTolerance = iff(nRangeTolerance < nStdTolerance and nRangeTolerance > 0, 
-	                    nRangeTolerance, nStdTolerance)
+	    _nTolerance_ = iff(_nRangeTolerance_ < _nStdTolerance_ and _nRangeTolerance_ > 0, 
+	                    _nRangeTolerance_, _nStdTolerance_)
 	    
 	    # Ensure minimum tolerance to avoid over-sensitivity
-	    if nTolerance < 0.001
-	        nTolerance = 0.001
+	    if _nTolerance_ < 0.001
+	        _nTolerance_ = 0.001
 	    ok
 	    
-	    return nTolerance
+	    return _nTolerance_
 	
-	def _ClassifyDifference(nDiff, nTolerance)
-	    if abs(nDiff) <= nTolerance
+	def _ClassifyDifference(_nDiff_, _nTolerance_)
+	    if abs(_nDiff_) <= _nTolerance_
 	        return "stable"
-	    but nDiff > 0
+	    but _nDiff_ > 0
 	        return "up"
 	    else
 	        return "down"
@@ -2258,20 +2258,20 @@ class stzDataSet from stzObject
 	        return []
 	    ok
 	    
-	    cKey = "deciles"
-	    aCached = This._GetCached(cKey)
+	    _cKey_ = "deciles"
+	    _aCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(aCached)
-	        return aCached
+	    if NOT IsNull(_aCached_)
+	        return _aCached_
 	    ok
 	    
-	    aDeciles = []
+	    _aDeciles_ = []
 	    for i = 10 to 90 step 10
-	        aDeciles + This.Percentile(i)
+	        _aDeciles_ + This.Percentile(i)
 	    next
 	    
-	    This._SetCache(cKey, aDeciles)
-	    return aDeciles
+	    This._SetCache(_cKey_, _aDeciles_)
+	    return _aDeciles_
 	
 
 	def BoxPlotStats() # Prepare data series for stzBoxPlot
@@ -2280,54 +2280,54 @@ class stzDataSet from stzObject
 	        return []
 	    ok
 	    
-	    cKey = "boxplotstats"
-	    aCached = This._GetCached(cKey)
+	    _cKey_ = "boxplotstats"
+	    _aCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(aCached)
-	        return aCached
+	    if NOT IsNull(_aCached_)
+	        return _aCached_
 	    ok
 	    
-	    nQ1 = This.Q1()
-	    nQ2 = This.Q2()
-	    nQ3 = This.Q3()
-	    nIQR = This.IQR()
+	    _nQ1_ = This.Q1()
+	    _nQ2_ = This.Q2()
+	    _nQ3_ = This.Q3()
+	    _nIQR_ = This.IQR()
 	    
-	    nLowerFence = nQ1 - (1.5 * nIQR)
-	    nUpperFence = nQ3 + (1.5 * nIQR)
+	    _nLowerFence_ = _nQ1_ - (1.5 * _nIQR_)
+	    _nUpperFence_ = _nQ3_ + (1.5 * _nIQR_)
 	    
 	    This._SortIfNeeded()
-	    nWhiskerLow = @anSortedData[1]
-	    nWhiskerHigh = @anSortedData[len(@anSortedData)]
+	    _nWhiskerLow_ = @anSortedData[1]
+	    _nWhiskerHigh_ = @anSortedData[len(@anSortedData)]
 	    
 	    # Find actual whisker values within fences
-	    nLen = len(@anSortedData)
-	    for i = 1 to nLen
-	        if @anSortedData[i] >= nLowerFence
-	            nWhiskerLow = @anSortedData[i]
+	    _nLen_ = len(@anSortedData)
+	    for i = 1 to _nLen_
+	        if @anSortedData[i] >= _nLowerFence_
+	            _nWhiskerLow_ = @anSortedData[i]
 	            exit
 	        ok
 	    next
 	    
-	    for i = nLen to 1 step -1
-	        if @anSortedData[i] <= nUpperFence
-	            nWhiskerHigh = @anSortedData[i]
+	    for i = _nLen_ to 1 step -1
+	        if @anSortedData[i] <= _nUpperFence_
+	            _nWhiskerHigh_ = @anSortedData[i]
 	            exit
 	        ok
 	    next
 	    
-	    aResult = [
+	    _aResult_ = [
 	        [:min, This.Min()],
-	        [:q1, nQ1],
-	        [:median, nQ2],
-	        [:q3, nQ3],
+	        [:q1, _nQ1_],
+	        [:median, _nQ2_],
+	        [:q3, _nQ3_],
 	        [:max, This.Max()],
-	        [:whisker_low, nWhiskerLow],
-	        [:whisker_high, nWhiskerHigh],
-	        [:iqr, nIQR]
+	        [:whisker_low, _nWhiskerLow_],
+	        [:whisker_high, _nWhiskerHigh_],
+	        [:iqr, _nIQR_]
 	    ]
 	    
-	    This._SetCache(cKey, aResult)
-	    return aResult
+	    This._SetCache(_cKey_, _aResult_)
+	    return _aResult_
 	
 		def BoxPlotData()
 			return This.BoxPlot()
@@ -2339,47 +2339,47 @@ class stzDataSet from stzObject
 	        return [["test", "insufficient_data"], ["p_value", 0], ["is_normal", 0]]
 	    ok
 	    
-	    cKey = "normalitytest"
-	    aCached = This._GetCached(cKey)
+	    _cKey_ = "normalitytest"
+	    _aCached_ = This._GetCached(_cKey_)
 	    
-	    if NOT IsNull(aCached)
-	        return aCached
+	    if NOT IsNull(_aCached_)
+	        return _aCached_
 	    ok
 	    
-	    nSkew = This.Skewness()
-	    nKurt = This.Kurtosis()  # Already excess kurtosis (normal = 0)
+	    _nSkew_ = This.Skewness()
+	    _nKurt_ = This.Kurtosis()  # Already excess kurtosis (normal = 0)
 	    
 	    # Normal distribution: skewness ≈ 0, excess kurtosis ≈ 0
 	    # Use stricter thresholds since your data shows high deviations
-	    bIsNormal = (abs(nSkew) < 1) and (abs(nKurt) < 1)
+	    _bIsNormal_ = (abs(_nSkew_) < 1) and (abs(_nKurt_) < 1)
 	    
 	    # Calculate p-value based on combined deviation
-	    nSkewDev = abs(nSkew)
-	    nKurtDev = abs(nKurt) 
-	    nCombinedDev = sqrt(nSkewDev * nSkewDev + nKurtDev * nKurtDev)
+	    _nSkewDev_ = abs(_nSkew_)
+	    _nKurtDev_ = abs(_nKurt_) 
+	    _nCombinedDev_ = sqrt(_nSkewDev_ * _nSkewDev_ + _nKurtDev_ * _nKurtDev_)
 	    
 	    # Exponential decay for p-value
-	    nPValue = exp(-nCombinedDev)
+	    _nPValue_ = exp(-_nCombinedDev_)
 	    
-	    if nPValue > 1
-	        nPValue = 1
+	    if _nPValue_ > 1
+	        _nPValue_ = 1
 	    ok
 	    
-	    nIsNormalFlag = 0
-	    if bIsNormal
-	        nIsNormalFlag = 1
+	    _nIsNormalFlag_ = 0
+	    if _bIsNormal_
+	        _nIsNormalFlag_ = 1
 	    ok
 	    
-	    aResult = [
+	    _aResult_ = [
 	        ["test", "heuristic"],
-	        ["skewness", nSkew],
-	        ["kurtosis", nKurt],
-	        ["p_value", nPValue],
-	        ["is_normal", nIsNormalFlag]
+	        ["skewness", _nSkew_],
+	        ["kurtosis", _nKurt_],
+	        ["p_value", _nPValue_],
+	        ["is_normal", _nIsNormalFlag_]
 	    ]
 	    
-	    This._SetCache(cKey, aResult)
-	    return aResult
+	    This._SetCache(_cKey_, _aResult_)
+	    return _aResult_
 
 		def Normality()
 			return This.NormalityTest()
@@ -2389,233 +2389,233 @@ class stzDataSet from stzObject
     #  PILLAR 4: RELATION - Correlation & Association Analysis  #
     #===========================================================#
 
-    def CorrelationWith(oOtherStats)
-        if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
+    def CorrelationWith(_oOtherStats_)
+        if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
         ok
 
-        aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        _aOtherData_ = _oOtherStats_.Data()
+        if len(@anData) != len(_aOtherData_) or len(@anData) < 2
             return 0
         ok
 
-        if This._EngineAvailable() and oOtherStats._EngineAvailable()
-            return StzEngineStatsCorrelation(@pEngineStats, oOtherStats._EngineHandle())
+        if This._EngineAvailable() and _oOtherStats_._EngineAvailable()
+            return StzEngineStatsCorrelation(@pEngineStats, _oOtherStats_._EngineHandle())
         ok
 
-        nMean1 = This.Mean()
-        nMean2 = oOtherStats.Mean()
-        nLen = len(@anData)
-        nSumProduct = 0
-        nSumSq1 = 0
-        nSumSq2 = 0
+        _nMean1_ = This.Mean()
+        _nMean2_ = _oOtherStats_.Mean()
+        _nLen_ = len(@anData)
+        _nSumProduct_ = 0
+        _nSumSq1_ = 0
+        _nSumSq2_ = 0
         
-        for i = 1 to nLen
-            nDiff1 = @anData[i] - nMean1
-            nDiff2 = aOtherData[i] - nMean2
-            nSumProduct += nDiff1 * nDiff2
-            nSumSq1 += nDiff1 * nDiff1
-            nSumSq2 += nDiff2 * nDiff2
+        for i = 1 to _nLen_
+            _nDiff1_ = @anData[i] - _nMean1_
+            _nDiff2_ = _aOtherData_[i] - _nMean2_
+            _nSumProduct_ += _nDiff1_ * _nDiff2_
+            _nSumSq1_ += _nDiff1_ * _nDiff1_
+            _nSumSq2_ += _nDiff2_ * _nDiff2_
         next
         
-        if nSumSq1 = 0 or nSumSq2 = 0
+        if _nSumSq1_ = 0 or _nSumSq2_ = 0
             return 0
         ok
         
-        return nSumProduct / sqrt(nSumSq1 * nSumSq2)
+        return _nSumProduct_ / sqrt(_nSumSq1_ * _nSumSq2_)
 
-		def CorelWith(oOtherStats)
-			return This.CorrelationWith(oOtherStats)
+		def CorelWith(_oOtherStats_)
+			return This.CorrelationWith(_oOtherStats_)
 
-		def Corel(oOtherStats)
-			return This.CorrelationWith(oOtherStats)
+		def Corel(_oOtherStats_)
+			return This.CorrelationWith(_oOtherStats_)
 
-		def Cor(oOtherStats)
-			return This.CorrelationWith(oOtherStats)
+		def Cor(_oOtherStats_)
+			return This.CorrelationWith(_oOtherStats_)
 
 
-    def CovarianceWith(oOtherStats)
-        if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
+    def CovarianceWith(_oOtherStats_)
+        if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
         ok
 
-        aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        _aOtherData_ = _oOtherStats_.Data()
+        if len(@anData) != len(_aOtherData_) or len(@anData) < 2
             return 0
         ok
 
-        if This._EngineAvailable() and oOtherStats._EngineAvailable()
-            return StzEngineStatsCovariance(@pEngineStats, oOtherStats._EngineHandle())
+        if This._EngineAvailable() and _oOtherStats_._EngineAvailable()
+            return StzEngineStatsCovariance(@pEngineStats, _oOtherStats_._EngineHandle())
         ok
 
-        nMean1 = This.Mean()
-        nMean2 = oOtherStats.Mean()
-        nLen = len(@anData)
-        nSum = 0
+        _nMean1_ = This.Mean()
+        _nMean2_ = _oOtherStats_.Mean()
+        _nLen_ = len(@anData)
+        _nSum_ = 0
         
-        for i = 1 to nLen
-            nSum += (@anData[i] - nMean1) * (aOtherData[i] - nMean2)
+        for i = 1 to _nLen_
+            _nSum_ += (@anData[i] - _nMean1_) * (_aOtherData_[i] - _nMean2_)
         next
         
-        return nSum / (nLen - 1)
+        return _nSum_ / (_nLen_ - 1)
 
-		def CovarWith(oOtherStats)
-			return This.CovarianceWith(oOtherStats)
+		def CovarWith(_oOtherStats_)
+			return This.CovarianceWith(_oOtherStats_)
 
-		def CVWith(oOtherStats)
-			return This.CovarianceWith(oOtherStats)
+		def CVWith(_oOtherStats_)
+			return This.CovarianceWith(_oOtherStats_)
 
-    def RankCorrelationWith(oOtherStats)
-        if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
+    def RankCorrelationWith(_oOtherStats_)
+        if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
         ok
 
-        aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        _aOtherData_ = _oOtherStats_.Data()
+        if len(@anData) != len(_aOtherData_) or len(@anData) < 2
             return 0
         ok
 
-        if This._EngineAvailable() and oOtherStats._EngineAvailable()
-            return StzEngineStatsRankCorrelation(@pEngineStats, oOtherStats._EngineHandle())
+        if This._EngineAvailable() and _oOtherStats_._EngineAvailable()
+            return StzEngineStatsRankCorrelation(@pEngineStats, _oOtherStats_._EngineHandle())
         ok
 
         # Create rankings
-        aRanks1 = This._GetRanks(@anData)
-        aRanks2 = This._GetRanks(aOtherData)
+        _aRanks1_ = This._GetRanks(@anData)
+        _aRanks2_ = This._GetRanks(_aOtherData_)
         
         # Calculate correlation of ranks
-        oRank1 = new stzDataSet(aRanks1)
-        oRank2 = new stzDataSet(aRanks2)
+        _oRank1_ = new stzDataSet(_aRanks1_)
+        _oRank2_ = new stzDataSet(_aRanks2_)
         
-        return oRank1.CorrelationWith(oRank2)
+        return _oRank1_.CorrelationWith(_oRank2_)
 
-		def RankCorelWith(oOtherStats)
-			return This.RankCorrelationWith(oOtherStats)
+		def RankCorelWith(_oOtherStats_)
+			return This.RankCorrelationWith(_oOtherStats_)
 
 		def NonParametricCorrelation()
-			return This.RankCorrelationWith(oOtherStats)
+			return This.RankCorrelationWith(_oOtherStats_)
 
 
     def _GetRanks(aData)
-        aIndexed = []
-        nLen = len(aData)
+        _aIndexed_ = []
+        _nLen_ = len(aData)
         
         # Create value-index pairs
-        for i = 1 to nLen
-            aIndexed + [aData[i], i]
+        for i = 1 to _nLen_
+            _aIndexed_ + [aData[i], i]
         next
         
         # Sort by value
 
-        aIndexed = @SortOn(1, aIndexed)
+        _aIndexed_ = @SortOn(1, _aIndexed_)
         
         # Assign ranks
-        aRanks = []
-        for i = 1 to nLen
-            aRanks + 0  # Initialize
+        _aRanks_ = []
+        for i = 1 to _nLen_
+            _aRanks_ + 0  # Initialize
         next
         
-        for i = 1 to nLen
-            nOriginalIndex = aIndexed[i][2]
-            aRanks[nOriginalIndex] = i
+        for i = 1 to _nLen_
+            _nOriginalIndex_ = _aIndexed_[i][2]
+            _aRanks_[_nOriginalIndex_] = i
         next
         
-        return aRanks
+        return _aRanks_
 
-	def ChiSquareWith(oOtherStats)
+	def ChiSquareWith(_oOtherStats_)
 	    # Chi-square test for independence (categorical data)
-	    if @cDataType != "categorical" or oOtherStats.DataType() != "categorical"
+	    if @cDataType != "categorical" or _oOtherStats_.DataType() != "categorical"
 	        return 0
 	    ok
 	    
-	    aOtherData = oOtherStats.Data()
-	    if len(@anData) != len(aOtherData) or len(@anData) < 2
+	    _aOtherData_ = _oOtherStats_.Data()
+	    if len(@anData) != len(_aOtherData_) or len(@anData) < 2
 	        return 0
 	    ok
 	    
 	    # Create cache key using stringified list
-	    cKey = "chi_square_" + @@(oOtherStats.Data())
-	    nCached = This._GetCached(cKey)
+	    _cKey_ = "chi_square_" + @@(_oOtherStats_.Data())
+	    _nCached_ = This._GetCached(_cKey_)
 
-	    if NOT isNull(nCached)
-	        return nCached
+	    if NOT isNull(_nCached_)
+	        return _nCached_
 	    ok
 	    
 	    # Get unique categories for both datasets
-	    aUnique1 = This.UniqueValues()
-	    aUnique2 = oOtherStats.UniqueValues()
+	    _aUnique1_ = This.UniqueValues()
+	    _aUnique2_ = _oOtherStats_.UniqueValues()
 	    
-	    if len(aUnique1) = 0 or len(aUnique2) = 0
+	    if len(_aUnique1_) = 0 or len(_aUnique2_) = 0
 	        return 0
 	    ok
 	    
 	    # Initialize contingency table
-	    nRows = len(aUnique1)
-	    nCols = len(aUnique2)
-	    aContingency = []
-	    for i = 1 to nRows
-	        aRow = []
-	        for j = 1 to nCols
-	            aRow + 0
+	    _nRows_ = len(_aUnique1_)
+	    _nCols_ = len(_aUnique2_)
+	    _aContingency_ = []
+	    for i = 1 to _nRows_
+	        _aRow_ = []
+	        for j = 1 to _nCols_
+	            _aRow_ + 0
 	        next
-	        aContingency + aRow
+	        _aContingency_ + _aRow_
 	    next
 	    
 	    # Populate contingency table with observed frequencies
-	    nLen = len(@anData)
-	    for i = 1 to nLen
-	        nRow = StzFindFirst(aUnique1, @anData[i])
-	        nCol = StzFindFirst(aUnique2, aOtherData[i])
-	        if nRow > 0 and nCol > 0
-	            aContingency[nRow][nCol]++
+	    _nLen_ = len(@anData)
+	    for i = 1 to _nLen_
+	        _nRow_ = StzFindFirst(_aUnique1_, @anData[i])
+	        _nCol_ = StzFindFirst(_aUnique2_, _aOtherData_[i])
+	        if _nRow_ > 0 and _nCol_ > 0
+	            _aContingency_[_nRow_][_nCol_]++
 	        ok
 	    next
 	    
 	    # Calculate row and column totals
-	    aRowTotals = []
-	    aColTotals = []
-	    nGrandTotal = 0
+	    _aRowTotals_ = []
+	    _aColTotals_ = []
+	    _nGrandTotal_ = 0
 	    
-	    for i = 1 to nRows
-	        nRowTotal = 0
-	        for j = 1 to nCols
-	            nRowTotal += aContingency[i][j]
+	    for i = 1 to _nRows_
+	        _nRowTotal_ = 0
+	        for j = 1 to _nCols_
+	            _nRowTotal_ += _aContingency_[i][j]
 	        next
-	        aRowTotals + nRowTotal
-	        nGrandTotal += nRowTotal
+	        _aRowTotals_ + _nRowTotal_
+	        _nGrandTotal_ += _nRowTotal_
 	    next
 	    
-	    for j = 1 to nCols
-	        nColTotal = 0
-	        for i = 1 to nRows
-	            nColTotal += aContingency[i][j]
+	    for j = 1 to _nCols_
+	        _nColTotal_ = 0
+	        for i = 1 to _nRows_
+	            _nColTotal_ += _aContingency_[i][j]
 	        next
-	        aColTotals + nColTotal
+	        _aColTotals_ + _nColTotal_
 	    next
 	    
 	    # Check for zero totals
-	    if nGrandTotal = 0
+	    if _nGrandTotal_ = 0
 	        return 0
 	    ok
 	    
 	    # Calculate chi-square statistic
-	    nChiSquare = 0
-	    for i = 1 to nRows
-	        for j = 1 to nCols
-	            nObserved = aContingency[i][j]
-	            nExpected = (aRowTotals[i] * aColTotals[j]) / nGrandTotal
-	            if nExpected > 0
-	                nChiSquare += ((nObserved - nExpected) * (nObserved - nExpected)) / nExpected
+	    _nChiSquare_ = 0
+	    for i = 1 to _nRows_
+	        for j = 1 to _nCols_
+	            _nObserved_ = _aContingency_[i][j]
+	            _nExpected_ = (_aRowTotals_[i] * _aColTotals_[j]) / _nGrandTotal_
+	            if _nExpected_ > 0
+	                _nChiSquare_ += ((_nObserved_ - _nExpected_) * (_nObserved_ - _nExpected_)) / _nExpected_
 	            ok
 	        next
 	    next
 	    
-	    nResult = nChiSquare
-	    This._SetCache(cKey, nResult)
-	    return nResult
+	    _nResult_ = _nChiSquare_
+	    This._SetCache(_cKey_, _nResult_)
+	    return _nResult_
 
-		def CategoricalAssociationWith(oOtherStats)
-			return This.ChiSquareWith(oOtherStats)
+		def CategoricalAssociationWith(_oOtherStats_)
+			return This.ChiSquareWith(_oOtherStats_)
 
 	#---
 
@@ -2624,34 +2624,34 @@ class stzDataSet from stzObject
 	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
 	    ok
 	    
-	    aOtherData = oOtherDataSet.Data()
-	    if len(@anData) != len(aOtherData) or len(@anData) < 2
+	    _aOtherData_ = oOtherDataSet.Data()
+	    if len(@anData) != len(_aOtherData_) or len(@anData) < 2
 	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
 	    ok
 	    
-	    nMeanX = This.Mean()
-	    nMeanY = oOtherDataSet.Mean()
-	    nLen = len(@anData)
-	    nSumXY = 0
-	    nSumXX = 0
+	    _nMeanX_ = This.Mean()
+	    _nMeanY_ = oOtherDataSet.Mean()
+	    _nLen_ = len(@anData)
+	    _nSumXY_ = 0
+	    _nSumXX_ = 0
 	    
-	    for i = 1 to nLen
-	        nDiffX = @anData[i] - nMeanX
-	        nDiffY = aOtherData[i] - nMeanY
-	        nSumXY += nDiffX * nDiffY
-	        nSumXX += nDiffX * nDiffX
+	    for i = 1 to _nLen_
+	        _nDiffX_ = @anData[i] - _nMeanX_
+	        _nDiffY_ = _aOtherData_[i] - _nMeanY_
+	        _nSumXY_ += _nDiffX_ * _nDiffY_
+	        _nSumXX_ += _nDiffX_ * _nDiffX_
 	    next
 	    
-	    if nSumXX = 0
-	        return [[:slope, 0], [:intercept, nMeanY], [:r_squared, 0]]
+	    if _nSumXX_ = 0
+	        return [[:slope, 0], [:intercept, _nMeanY_], [:r_squared, 0]]
 	    ok
 	    
-	    nSlope = nSumXY / nSumXX
-	    nIntercept = nMeanY - (nSlope * nMeanX)
-	    nCorr = This.CorrelationWith(oOtherDataSet)
-	    nRSquared = nCorr * nCorr
+	    _nSlope_ = _nSumXY_ / _nSumXX_
+	    _nIntercept_ = _nMeanY_ - (_nSlope_ * _nMeanX_)
+	    _nCorr_ = This.CorrelationWith(oOtherDataSet)
+	    _nRSquared_ = _nCorr_ * _nCorr_
 	    
-	    return [[:slope, nSlope], [:intercept, nIntercept], [:r_squared, nRSquared]]
+	    return [[:slope, _nSlope_], [:intercept, _nIntercept_], [:r_squared, _nRSquared_]]
 	
 		def RCoefficients(oOtherDataSet)
 			return This.RegressionCoefficients(oOtherDataSet)
@@ -2663,17 +2663,17 @@ class stzDataSet from stzObject
 	        return 0
 	    ok
 	    
-	    nRxy = This.CorrelationWith(oDataSetY)
-	    nRxz = This.CorrelationWith(oDataSetZ)
-	    nRyz = oDataSetY.CorrelationWith(oDataSetZ)
+	    _nRxy_ = This.CorrelationWith(oDataSetY)
+	    _nRxz_ = This.CorrelationWith(oDataSetZ)
+	    _nRyz_ = oDataSetY.CorrelationWith(oDataSetZ)
 	    
-	    nDenom = sqrt((1 - nRxz * nRxz) * (1 - nRyz * nRyz))
+	    _nDenom_ = sqrt((1 - _nRxz_ * _nRxz_) * (1 - _nRyz_ * _nRyz_))
 	    
-	    if nDenom = 0
+	    if _nDenom_ = 0
 	        return 0
 	    ok
 	    
-	    return (nRxy - nRxz * nRyz) / nDenom
+	    return (_nRxy_ - _nRxz_ * _nRyz_) / _nDenom_
 	
 		def PCorrelation(oDataSetY, oDataSetZ)
 			return This.PartialCorrelation(oDataSetY, oDataSetZ)
@@ -2687,52 +2687,52 @@ class stzDataSet from stzObject
 
 	def MutualInformation(oOtherDataSet)
 	    # Simplified mutual information for categorical data
-	    aData1 = @anData
-	    aData2 = oOtherDataSet.Data()
+	    _aData1_ = @anData
+	    _aData2_ = oOtherDataSet.Data()
 	    
-	    if len(aData1) != len(aData2) or len(aData1) = 0
+	    if len(_aData1_) != len(_aData2_) or len(_aData1_) = 0
 	        return 0
 	    ok
 	    
 	    # Create joint frequency table
-	    aJointFreq = []
-	    nTotal = len(aData1)
+	    _aJointFreq_ = []
+	    _nTotal_ = len(_aData1_)
 	    
-	    for i = 1 to nTotal
-	        cPair = "" + aData1[i] + "_" + aData2[i]
-	        nIndex = This._FindInFreqList(aJointFreq, cPair)
-	        if nIndex = 0
-	            aJointFreq + [cPair, 1]
+	    for i = 1 to _nTotal_
+	        _cPair_ = "" + _aData1_[i] + "_" + _aData2_[i]
+	        _nIndex_ = This._FindInFreqList(_aJointFreq_, _cPair_)
+	        if _nIndex_ = 0
+	            _aJointFreq_ + [_cPair_, 1]
 	        else
-	            aJointFreq[nIndex][2]++
+	            _aJointFreq_[_nIndex_][2]++
 	        ok
 	    next
 	    
 	    # Calculate marginal frequencies
-	    aFreq1 = This.FrequencyTable()
-	    aFreq2 = oOtherDataSet.FrequencyTable()
+	    _aFreq1_ = This.FrequencyTable()
+	    _aFreq2_ = oOtherDataSet.FrequencyTable()
 	    
 	    # Calculate mutual information
-	    nMI = 0
-	    nJointLen = len(aJointFreq)
+	    _nMI_ = 0
+	    _nJointLen_ = len(_aJointFreq_)
 	    
-	    for i = 1 to nJointLen
-	        nJointProb = aJointFreq[i][2] / nTotal
+	    for i = 1 to _nJointLen_
+	        _nJointProb_ = _aJointFreq_[i][2] / _nTotal_
 	        
 	        # Extract individual values from pair
-	        aPair = split(aJointFreq[i][1], "_")
-	        cVal1 = aPair[1]
-	        cVal2 = aPair[2]
+	        _aPair_ = split(_aJointFreq_[i][1], "_")
+	        _cVal1_ = _aPair_[1]
+	        _cVal2_ = _aPair_[2]
 	        
-	        nMarg1 = This._GetFreqValue(aFreq1, cVal1) / nTotal
-	        nMarg2 = This._GetFreqValue(aFreq2, cVal2) / nTotal
+	        _nMarg1_ = This._GetFreqValue(_aFreq1_, _cVal1_) / _nTotal_
+	        _nMarg2_ = This._GetFreqValue(_aFreq2_, _cVal2_) / _nTotal_
 	        
-	        if nJointProb > 0 and nMarg1 > 0 and nMarg2 > 0
-	            nMI += nJointProb * log(nJointProb / (nMarg1 * nMarg2)) / log(2)
+	        if _nJointProb_ > 0 and _nMarg1_ > 0 and _nMarg2_ > 0
+	            _nMI_ += _nJointProb_ * log(_nJointProb_ / (_nMarg1_ * _nMarg2_)) / log(2)
 	        ok
 	    next
 	    
-	    return nMI
+	    return _nMI_
 	
 	    #< @FunctionAlternativeForms
 
@@ -2750,27 +2750,27 @@ class stzDataSet from stzObject
 	# Helper methods for new functionality
 	
 	def _HashList(aList)
-	    cHash = ""
-	    nLen = len(aList)
-	    for i = 1 to nLen
-	        cHash += "" + aList[i] + "_"
+	    _cHash_ = ""
+	    _nLen_ = len(aList)
+	    for i = 1 to _nLen_
+	        _cHash_ += "" + aList[i] + "_"
 	    next
-	    return cHash
+	    return _cHash_
 	
-	def _FindInFreqList(aFreqList, cValue)
-	    nLen = len(aFreqList)
-	    for i = 1 to nLen
-	        if aFreqList[i][1] = cValue
+	def _FindInFreqList(aFreqList, _cValue_)
+	    _nLen_ = len(aFreqList)
+	    for i = 1 to _nLen_
+	        if aFreqList[i][1] = _cValue_
 	            return i
 	        ok
 	    next
 	    return 0
 	
-	def _GetFreqValue(aFreqTable, cValue)
-	    nLen = len(aFreqTable)
-	    for i = 1 to nLen
-	        if aFreqTable[i][1] = cValue
-	            return aFreqTable[i][2]
+	def _GetFreqValue(_aFreqTable_, _cValue_)
+	    _nLen_ = len(_aFreqTable_)
+	    for i = 1 to _nLen_
+	        if _aFreqTable_[i][1] = _cValue_
+	            return _aFreqTable_[i][2]
 	        ok
 	    next
 	    return 0
@@ -2786,23 +2786,23 @@ class stzDataSet from stzObject
             return @anData
         ok
         
-        nMin = This.Min()
-        nMax = This.Max()
-        nRange = nMax - nMin
+        _nMin_ = This.Min()
+        _nMax_ = This.Max()
+        _nRange_ = _nMax_ - _nMin_
         
-        if nRange = 0
+        if _nRange_ = 0
             return @anData  # All values are the same
         ok
         
-        aNormalized = []
-		nLen = len(@anData)
+        _aNormalized_ = []
+		_nLen_ = len(@anData)
 
-        for i = 1 to nLen
-            nNormalized = (@anData[i] - nMin) / nRange
-            aNormalized + nNormalized
+        for i = 1 to _nLen_
+            _nNormalized_ = (@anData[i] - _nMin_) / _nRange_
+            _aNormalized_ + _nNormalized_
         next
         
-        return aNormalized
+        return _aNormalized_
 
 
     def Standardize()
@@ -2811,22 +2811,22 @@ class stzDataSet from stzObject
             return @anData
         ok
         
-        nMean = This.Mean()
-        nStdDev = This.StandardDeviation()
+        _nMean_ = This.Mean()
+        _nStdDev_ = This.StandardDeviation()
         
-        if nStdDev = 0
+        if _nStdDev_ = 0
             return @anData  # No variation
         ok
         
-        aStandardized = []
-		nLen = len(@anData)
+        _aStandardized_ = []
+		_nLen_ = len(@anData)
 
-        for i = 1 to nLen
-            nStandardized = (@anData[i] - nMean) / nStdDev
-            aStandardized + nStandardized
+        for i = 1 to _nLen_
+            _nStandardized_ = (@anData[i] - _nMean_) / _nStdDev_
+            _aStandardized_ + _nStandardized_
         next
         
-        return aStandardized
+        return _aStandardized_
  
 		def Standardise()
 			return This.Standardize()
@@ -2838,22 +2838,22 @@ class stzDataSet from stzObject
             return @anData
         ok
         
-        nMedian = This.Median()
-        nIQR = This.IQR()
+        _nMedian_ = This.Median()
+        _nIQR_ = This.IQR()
         
-        if nIQR = 0
+        if _nIQR_ = 0
             return @anData
         ok
         
-        aScaled = []
-		nLen = len(@anData)
+        _aScaled_ = []
+		_nLen_ = len(@anData)
 
-        for i = 1 to nLen
-            nScaled = (@anData[i] - nMedian) / nIQR
-            aScaled + nScaled
+        for i = 1 to _nLen_
+            _nScaled_ = (@anData[i] - _nMedian_) / _nIQR_
+            _aScaled_ + _nScaled_
         next
         
-        return aScaled
+        return _aScaled_
 
 
 		def RScale()
@@ -2865,17 +2865,17 @@ class stzDataSet from stzObject
 
     def ValidateData()
         # Validate data integrity and quality
-        acIssues = []
+        _acIssues_ = []
 
         if len(@anData) = 0
-            acIssues + "Dataset is empty"
-            return acIssues
+            _acIssues_ + "Dataset is empty"
+            return _acIssues_
         ok
         
         if @cDataType = "numeric"
             # Check for infinite or NaN values
-			nLen = len(@anData)
-            for i = 1 to nLen
+			_nLen_ = len(@anData)
+            for i = 1 to _nLen_
                 if isNull(@anData[i])
                     aIssues + "Contains null values"
                     exit
@@ -2883,22 +2883,22 @@ class stzDataSet from stzObject
             next
 
             # Check for extreme outliers
-            aOutliers = This.Outliers()
-            if len(aOutliers) > (This.Count() * 0.2)
-                acIssues + "High proportion of outliers detected"
+            _aOutliers_ = This.Outliers()
+            if len(_aOutliers_) > (This.Count() * 0.2)
+                _acIssues_ + "High proportion of outliers detected"
             ok
             
             # Check for variance
             if This.StandardDeviation() = 0
-                acIssues + "No variance in data (all values identical)"
+                _acIssues_ + "No variance in data (all values identical)"
             ok
         ok
         
-        if len(acIssues) = 0
-            acIssues + "Data quality appears good"
+        if len(_acIssues_) = 0
+            _acIssues_ + "Data quality appears good"
         ok
         
-        return acIssues
+        return _acIssues_
 
 		def Validate()
 			return This.ValidateData()
@@ -2912,30 +2912,30 @@ class stzDataSet from stzObject
     #=============================#
 
     def _GenerateInsights()
-        aTemplates = DataSetTemplates()
-        nLen = len(aTemplates)
-        acInsights = []
+        _aTemplates_ = DataSetTemplates()
+        _nLen_ = len(_aTemplates_)
+        _acInsights_ = []
         
-        for i = 1 to nLen
-            if This._EvaluateCondition(aTemplates[i][:condition])
-                acInsights + This._InterpolateTemplate(aTemplates[i][:template])
+        for i = 1 to _nLen_
+            if This._EvaluateCondition(_aTemplates_[i][:condition])
+                _acInsights_ + This._InterpolateTemplate(_aTemplates_[i][:template])
             ok
         next
         
-        return acInsights
+        return _acInsights_
 
     def _GenerateInsightXT(cType)
-        aTemplates = DataSetTemplatesXT(cType)
-        nLen = len(aTemplates)
-        acInsights = []
+        _aTemplates_ = DataSetTemplatesXT(cType)
+        _nLen_ = len(_aTemplates_)
+        _acInsights_ = []
         
-        for i = 1 to nLen
-            if This._EvaluateCondition(aTemplates[i][:condition])
-                acInsights + This._InterpolateTemplate(aTemplates[i][:template])
+        for i = 1 to _nLen_
+            if This._EvaluateCondition(_aTemplates_[i][:condition])
+                _acInsights_ + This._InterpolateTemplate(_aTemplates_[i][:template])
             ok
         next
         
-        return acInsights
+        return _acInsights_
 
     def Insights()
         return This._GenerateInsights()
@@ -2950,61 +2950,61 @@ class stzDataSet from stzObject
             return This._GenerateInsights()
 
     def InsightsXT()
-        acResults = This.Insights()
+        _acResults_ = This.Insights()
         
-        nLen = len($aDomainInsightRules)
+        _nLen_ = len($aDomainInsightRules)
         
-        for i = 1 to nLen
-            cDomain = $aDomainInsightRules[i][1]
-            aDomain = $aDomainInsightRules[i][2]
-            nLenDomain = len(aDomain)
+        for i = 1 to _nLen_
+            _cDomain_ = $aDomainInsightRules[i][1]
+            _aDomain_ = $aDomainInsightRules[i][2]
+            _nLenDomain_ = len(_aDomain_)
             
-            for j = 1 to nLenDomain
-                if This._EvaluateCondition(aDomain[j][:condition])
-                    acResults + This._InterpolateTemplate(aDomain[j][:template])
+            for j = 1 to _nLenDomain_
+                if This._EvaluateCondition(_aDomain_[j][:condition])
+                    _acResults_ + This._InterpolateTemplate(_aDomain_[j][:template])
                 ok
             next
         next
         
-        return acResults
+        return _acResults_
 
-    def InsightsOfDomain(cDomain)
-        acResults = []
+    def InsightsOfDomain(_cDomain_)
+        _acResults_ = []
         
-        if HasKey($aDomainInsightRules, cDomain)
-            nLen = len($aDomainInsightRules[cDomain])
+        if HasKey($aDomainInsightRules, _cDomain_)
+            _nLen_ = len($aDomainInsightRules[_cDomain_])
             
-            for i = 1 to nLen
-                if This._EvaluateCondition($aDomainInsightRules[cDomain][i][:condition])
-                    acResults + This._InterpolateTemplate($aDomainInsightRules[cDomain][i][:template])
+            for i = 1 to _nLen_
+                if This._EvaluateCondition($aDomainInsightRules[_cDomain_][i][:condition])
+                    _acResults_ + This._InterpolateTemplate($aDomainInsightRules[_cDomain_][i][:template])
                 ok
             next
         ok
         
-        return acResults
+        return _acResults_
 
-	def InsightsForDomain(cDomain)
-		return This.InsightsOfDomain(cDomain)
+	def InsightsForDomain(_cDomain_)
+		return This.InsightsOfDomain(_cDomain_)
 
     #===============================#
     #  RECOMMENDATIONS SYSTEM       #
     #===============================#
 
     def RecommendAnalysis()
-        nLen = len($aRecommendations)
-        aResults = []
+        _nLen_ = len($aRecommendations)
+        _aResults_ = []
         
-        for i = 1 to nLen
-            aTemplate = $aRecommendations[i]
+        for i = 1 to _nLen_
+            _aTemplate_ = $aRecommendations[i]
             
-            if This._EvaluateCondition(aTemplate[:condition])
-                cRecommendation = This._InterpolateTemplate(aTemplate[:recommendation])
+            if This._EvaluateCondition(_aTemplate_[:condition])
+                _cRecommendation_ = This._InterpolateTemplate(_aTemplate_[:recommendation])
                 
-                aResults + cRecommendation
+                _aResults_ + _cRecommendation_
             ok
         next
         
-        return aResults
+        return _aResults_
 
         def Recommendations()
             return This.RecommendAnalysis()
@@ -3029,70 +3029,70 @@ class stzDataSet from stzObject
         def ReportXT()
             return This.SummaryXT()
 
-    def _GenerateReport(aTemplate)
-        cFormat = aTemplate[:format]
-        aSections = aTemplate[:sections]
+    def _GenerateReport(_aTemplate_)
+        _cFormat_ = _aTemplate_[:format]
+        _aSections_ = _aTemplate_[:sections]
 
-        cReport = ""
+        _cReport_ = ""
         
-        _nSections1Len_ = len(aSections)
+        _nSections1Len_ = len(_aSections_)
         for _iLoopSections1_ = 1 to _nSections1Len_
-        	aSection = aSections[_iLoopSections1_]
+        	_aSection_ = _aSections_[_iLoopSections1_]
             # Check for inheritance (first element is :inherit)
-            if len(aSection) >= 2 and aSection[1] = :inherit
+            if len(_aSection_) >= 2 and _aSection_[1] = :inherit
 
                 # Handle inheritance
-                cInheritedTemplate = aSection[2]
-                eval("aInheritedSections = " + cInheritedTemplate + "[:sections]")
+                _cInheritedTemplate_ = _aSection_[2]
+                eval("aInheritedSections = " + _cInheritedTemplate_ + "[:sections]")
            
                 _nInheritedSections1Len_ = len(aInheritedSections)
                 for _iLoopInheritedSections1_ = 1 to _nInheritedSections1Len_
-                	aInheritedSection = aInheritedSections[_iLoopInheritedSections1_]
-                    cReport += This._ProcessSection(aInheritedSection, cFormat)
+                	_aInheritedSection_ = aInheritedSections[_iLoopInheritedSections1_]
+                    _cReport_ += This._ProcessSection(_aInheritedSection_, _cFormat_)
                 next
 
             else
-                cReport += This._ProcessSection(aSection, cFormat)
+                _cReport_ += This._ProcessSection(_aSection_, _cFormat_)
             ok
         next
         
-        return @trim(cReport)
+        return @trim(_cReport_)
 
 
-	def _ProcessSection(aSection, cFormat)
-	    cSectionContent = ""
+	def _ProcessSection(_aSection_, _cFormat_)
+	    _cSectionContent_ = ""
 	    
-	    cKey = aSection[1][1]
-	    if cKey = :condition
-	        if NOT This._EvaluateCondition(aSection[2][2])
+	    _cKey_ = _aSection_[1][1]
+	    if _cKey_ = :condition
+	        if NOT This._EvaluateCondition(_aSection_[2][2])
 	            return ""
 	        ok
 	    ok
-	    if cKey = :title
-	        cTitle = aSection[1][2]
-	        if cFormat = "text"
-	            cSectionContent += (NL + BoxifyRound(cTitle) + NL)
+	    if _cKey_ = :title
+	        _cTitle_ = _aSection_[1][2]
+	        if _cFormat_ = "text"
+	            _cSectionContent_ += (NL + BoxifyRound(_cTitle_) + NL)
 	        ok
 	    ok
 	    
-	    vContent = aSection[2][2]
-	    if isString(vContent)
-	        cSectionContent += This._InterpolateContent(vContent) + NL
+	    _vContent_ = _aSection_[2][2]
+	    if isString(_vContent_)
+	        _cSectionContent_ += This._InterpolateContent(_vContent_) + NL
 	
-	    but isList(vContent)
-	        if cFormat = "text"
-				nLen = len(vContent)
-				for i = 1 to nlen
-					cItem = vContent[i]
-	                cSectionContent += "• " + @trim(This._InterpolateContent(cItem)) + NL
-					if i < nLen
-						cSectionContent += NL
+	    but isList(_vContent_)
+	        if _cFormat_ = "text"
+				_nLen_ = len(_vContent_)
+				for i = 1 to _nLen_
+					_cItem_ = _vContent_[i]
+	                _cSectionContent_ += "• " + @trim(This._InterpolateContent(_cItem_)) + NL
+					if i < _nLen_
+						_cSectionContent_ += NL
 					ok
 	            next
 	        ok
 	    ok
 	    
-	    return cSectionContent
+	    return _cSectionContent_
 
 
     #===============================#
@@ -3105,15 +3105,15 @@ class stzDataSet from stzObject
         ok
         
         try
-            cCode = 'bResult = (' + cCondition + ')'
-            eval(cCode)
-            return bResult
+            _cCode_ = '_bResult_ = (' + cCondition + ')'
+            eval(_cCode_)
+            return _bResult_
         catch
             return FALSE
         done
 
-    def _InterpolateTemplate(cTemplate)
-        return This._InterpolateContent(cTemplate)
+    def _InterpolateTemplate(_cTemplate_)
+        return This._InterpolateContent(_cTemplate_)
 
 
 	def _InterpolateContent(cContent)
@@ -3121,62 +3121,62 @@ class stzDataSet from stzObject
 	        return cContent
 	    ok
 	    
-	    oTempStr = new stzString(cContent)
+	    _oTempStr_ = new stzString(cContent)
 	    
 	    # Handle special cases first
-	    if oTempStr.Contains("{Insights()}")
-	        acInsights = This.Insights()
-	        cInsightText = ""
-	        nLen = len(acInsights)
+	    if _oTempStr_.Contains("{Insights()}")
+	        _acInsights_ = This.Insights()
+	        _cInsightText_ = ""
+	        _nLen_ = len(_acInsights_)
 	
-	        for i = 1 to nLen
-	            cInsightText += "• " + acInsights[i]
-	            if i < nLen
-	                cInsightText += NL + NL  # Added extra NL
+	        for i = 1 to _nLen_
+	            _cInsightText_ += "• " + _acInsights_[i]
+	            if i < _nLen_
+	                _cInsightText_ += NL + NL  # Added extra NL
 	            ok
 	        next
-	        oTempStr.Replace("{Insights()}", cInsightText)
+	        _oTempStr_.Replace("{Insights()}", _cInsightText_)
 	    ok
 	    
-	    if oTempStr.Contains("{Recommendations()}")
-	        acRecommendations = This.Recommendations()
-		nLen = len(acRecommendations)
-	        cRecommendText = ""
-	        for i = 1 to nLen
-	            cRecommendText += "• " + acRecommendations[i] + NL + NL  # Added extra NL
+	    if _oTempStr_.Contains("{Recommendations()}")
+	        _acRecommendations_ = This.Recommendations()
+		_nLen_ = len(_acRecommendations_)
+	        _cRecommendText_ = ""
+	        for i = 1 to _nLen_
+	            _cRecommendText_ += "• " + _acRecommendations_[i] + NL + NL  # Added extra NL
 	        next
-	        oTempStr.Replace("{Recommendations()}", cRecommendText)
+	        _oTempStr_.Replace("{Recommendations()}", _cRecommendText_)
 	    ok
 	  
 	    # Find all remaining method calls and replace them one by one
-	    nMaxIterations = 50
-	    nIterations = 0
+	    _nMaxIterations_ = 50
+	    _nIterations_ = 0
 	    
-	    while oTempStr.Contains("{") and oTempStr.Contains("}") and nIterations < nMaxIterations
-	        nIterations++
+	    while _oTempStr_.Contains("{") and _oTempStr_.Contains("}") and _nIterations_ < _nMaxIterations_
+	        _nIterations_++
 	        
-	        nStart = oTempStr.FindFirst("{")
-	        nEnd = oTempStr.FindNext("}", nStart)
+	        _nStart_ = _oTempStr_.FindFirst("{")
+	        _nEnd_ = _oTempStr_.FindNext("}", _nStart_)
 	        
-	        if nEnd = 0
+	        if _nEnd_ = 0
 	            break
 	        ok
 	        
 	        # Extract method name without braces
-	        cMethod = oTempStr.Section(nStart + 1, nEnd - 1)
-	        cCode = 'value = ' + cMethod
-			eval(cCode)
-	        cValue = This._FormatValue(value)
-	        oTempStr.ReplaceSection(nStart, nEnd, cValue)
+	        _cMethod_ = _oTempStr_.Section(_nStart_ + 1, _nEnd_ - 1)
+	        _cCode_ = '_value_ = ' + _cMethod_
+			eval(_cCode_)
+	        _cValue_ = This._FormatValue(_value_)
+	        _oTempStr_.ReplaceSection(_nStart_, _nEnd_, _cValue_)
 
 	    end
 	    
-	    return oTempStr.Content()
+	    return _oTempStr_.Content()
 	
 
-    def _FormatValue(value)
-        if isNumber(value)
-            if value = floor(value)
+    def _FormatValue(_value_)
+        if isNumber(_value_)
+            if _value_ = floor(_value_)
                 return "" + value
             else
                 return @@(value)
@@ -3186,16 +3186,16 @@ class stzDataSet from stzObject
             return value
 
         but isList(value)
-            cResult = "["
+            _cResult_ = "["
             _nValueLen_ = len(value)
             for i = 1 to _nValueLen_
-                cResult += This._FormatValue(value[i])
+                _cResult_ += This._FormatValue(value[i])
                 if i < len(value)
-                    cResult += ", "
+                    _cResult_ += ", "
                 ok
             next
-            cResult += "]"
-            return cResult
+            _cResult_ += "]"
+            return _cResult_
         else
             return "" + value
         ok
@@ -3205,48 +3205,48 @@ class stzDataSet from stzObject
     #  RULE MANAGEMENT METHODS      #
     #===============================#
 
-    def AddInsightRule(cDomain, cCondition, cInsight)
-        if NOT HasKey($aDomainInsightRules, cDomain)
-            $aDomainInsightRules[cDomain] = []
+    def AddInsightRule(_cDomain_, cCondition, _cInsight_)
+        if NOT HasKey($aDomainInsightRules, _cDomain_)
+            $aDomainInsightRules[_cDomain_] = []
         ok
-        $aDomainInsightRules[cDomain] + [:condition = cCondition, :template = cInsight]
+        $aDomainInsightRules[_cDomain_] + [:condition = cCondition, :template = _cInsight_]
 
-    def AddRule(cDomain, cCondition, cInsight)
-        This.AddInsightRule(cDomain, cCondition, cInsight)
+    def AddRule(_cDomain_, cCondition, _cInsight_)
+        This.AddInsightRule(_cDomain_, cCondition, _cInsight_)
 
-    def AddWeightedRule(cDomain, cCondition, cInsight, nWeight)
-        if nWeight = NULL nWeight = 1 ok
-        if NOT HasKey($aDomainInsightRules, cDomain)
-            $aDomainInsightRules[cDomain] = []
+    def AddWeightedRule(_cDomain_, cCondition, _cInsight_, _nWeight_)
+        if _nWeight_ = NULL _nWeight_ = 1 ok
+        if NOT HasKey($aDomainInsightRules, _cDomain_)
+            $aDomainInsightRules[_cDomain_] = []
         ok
-        $aDomainInsightRules[cDomain] + [:condition = cCondition, :template = cInsight, :weight = nWeight]
+        $aDomainInsightRules[_cDomain_] + [:condition = cCondition, :template = _cInsight_, :weight = _nWeight_]
 
-    def PrioritizedInsights(cDomain)
-        aResults = []
+    def PrioritizedInsights(_cDomain_)
+        _aResults_ = []
         
-        if HasKey($aDomainInsightRules, cDomain)
-            aRules = $aDomainInsightRules[cDomain]
+        if HasKey($aDomainInsightRules, _cDomain_)
+            _aRules_ = $aDomainInsightRules[_cDomain_]
             
-            _nRules1Len_ = len(aRules)
+            _nRules1Len_ = len(_aRules_)
             for _iLoopRules1_ = 1 to _nRules1Len_
-            	aRule = aRules[_iLoopRules1_]
-                if This._EvaluateCondition(aRule[:condition])
-                    cInsight = This._InterpolateTemplate(aRule[:template])
-                    nWeight = 1
+            	_aRule_ = _aRules_[_iLoopRules1_]
+                if This._EvaluateCondition(_aRule_[:condition])
+                    _cInsight_ = This._InterpolateTemplate(_aRule_[:template])
+                    _nWeight_ = 1
                     
-                    if HasKey(aRule, :weight)
-                        nWeight = aRule[:weight]
+                    if HasKey(_aRule_, :weight)
+                        _nWeight_ = _aRule_[:weight]
                     ok
                     
-                    aResults + [cInsight, nWeight]
+                    _aResults_ + [_cInsight_, _nWeight_]
                 ok
             next
             
             # Sort by weight descending
-            aResults = SortOnXT(2, aResults, :Descending)
+            _aResults_ = SortOnXT(2, _aResults_, :Descending)
         ok
         
-        return aResults
+        return _aResults_
 
     #======================================#
     #  Plan (Workflow) GENERATION SYSTEM   #
@@ -3261,28 +3261,28 @@ class stzDataSet from stzObject
         @return: Plan object with steps and execution plan
         */
 
-        cTemplate = This._ResolvePlanTemplate(cNameOrGoalOrTemplate)
+        _cTemplate_ = This._ResolvePlanTemplate(cNameOrGoalOrTemplate)
 
-        if cTemplate = NULL
+        if _cTemplate_ = NULL
             StzRaise("Unknown Plan name, goal or template: " + cNameOrGoalOrTemplate)
         ok
 
-		n = StzFindFirst(This._PlanNames(), cTemplate)
+		_n_ = StzFindFirst(This._PlanNames(), _cTemplate_)
 
-		if n = 0
+		if _n_ = 0
 			StzRaise("Inexistant Plan template name!")
 		ok
 
-        aTemplate = $aPlanTemplates[n][2]
-        aExecutableSteps = This._FilterPlanSteps(aTemplate[:steps])
+        _aTemplate_ = $aPlanTemplates[_n_][2]
+        _aExecutableSteps_ = This._FilterPlanSteps(_aTemplate_[:steps])
 
         return [
-            :template = cTemplate,
-			:name = aTemplate[:name],
-            :title = aTemplate[:title],
-            :description = aTemplate[:description],
-            :steps = aExecutableSteps,
-            :total_steps = len(aExecutableSteps),
+            :template = _cTemplate_,
+			:name = _aTemplate_[:name],
+            :title = _aTemplate_[:title],
+            :description = _aTemplate_[:description],
+            :steps = _aExecutableSteps_,
+            :total_steps = len(_aExecutableSteps_),
         ]
     
 		def GeneratePlan(cNameOrGoalOrTemplate)
@@ -3299,8 +3299,8 @@ class stzDataSet from stzObject
 			ok
 		ok
 		@bChain = TRUE
-		nLen = len(acPlans)
-		for i = 1 to nLen
+		_nLen_ = len(acPlans)
+		for i = 1 to _nLen_
 			if i = 1
 				@bFirstChain = TRUE
 			else
@@ -3339,50 +3339,50 @@ class stzDataSet from stzObject
         @return: Plan execution results
         */
 
-	nTime = clock()
+	_nTime_ = clock()
 
         if bVerbose = NULL bVerbose = TRUE ok
         
-        aPlan = This.GeneratePlan(cNameOrGoalOrTemplate)
-        aResults = []
-        aErrors = []
+        _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
+        _aResults_ = []
+        _aErrors_ = []
         
         if bVerbose
-            ? BoxRound("Executing Plan: " + aPlan[:title])
+            ? BoxRound("Executing Plan: " + _aPlan_[:title])
 
-		? "• Name: {" + aPlan[:name] + "}"
-           	? "• Goal: " + aPlan[:description]
-            	? "• Steps: " + aPlan[:total_steps] + NL
+		? "• Name: {" + _aPlan_[:name] + "}"
+           	? "• Goal: " + _aPlan_[:description]
+            	? "• Steps: " + _aPlan_[:total_steps] + NL
         ok
         
-        nStepNum = 1
-        _aPlansteps2_ = aPlan[:steps]
+        _nStepNum_ = 1
+        _aPlansteps2_ = _aPlan_[:steps]
         _nPlansteps2Len_ = len(_aPlansteps2_)
         for _iLoopPlansteps2_ = 1 to _nPlansteps2Len_
-        	aStep = _aPlansteps2_[_iLoopPlansteps2_]
+        	_aStep_ = _aPlansteps2_[_iLoopPlansteps2_]
             if bVerbose
-                ? "✅ Step " + nStepNum + "/" + aPlan[:total_steps] + ": " + aStep[:description]
+                ? "✅ Step " + _nStepNum_ + "/" + _aPlan_[:total_steps] + ": " + _aStep_[:description]
             ok
             
             try
-                vResult = This._ExecutePlanStep(aStep)
-                aResults + [
-                    :step = nStepNum,
-                    :function = aStep[:function],
-                    :description = aStep[:description],
-                    :result = vResult,
+                _vResult_ = This._ExecutePlanStep(_aStep_)
+                _aResults_ + [
+                    :step = _nStepNum_,
+                    :function = _aStep_[:function],
+                    :description = _aStep_[:description],
+                    :result = _vResult_,
                     :status = "success"
                 ]
                 
                 if bVerbose
-                    ? "╰─> " + This._FormatStepResult(aStep[:function], vResult) + NL
+                    ? "╰─> " + This._FormatStepResult(_aStep_[:function], _vResult_) + NL
                 ok
                 
 
             catch
-                aErrors + [
-                    :step = nStepNum,
-                    :function = aStep[:function],
+                _aErrors_ + [
+                    :step = _nStepNum_,
+                    :function = _aStep_[:function],
                     :error = CatchError()
                 ]
                 
@@ -3391,19 +3391,19 @@ class stzDataSet from stzObject
                 ok
             done
             
-            nStepNum++
+            _nStepNum_++
         next
         
         if bVerbose
-	    nTime = (clock() - nTime) / clockspersecond()
-            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful step(s), " + len(aErrors) + " error(s) )"
+	    _nTime_ = (clock() - _nTime_) / clockspersecond()
+            ? "( Plan completed in " + _nTime_ + "s : " + len(_aResults_) + " successful step(s), " + len(_aErrors_) + " error(s) )"
         ok
         
         return [
-            :plan = aPlan,
-            :results = aResults,
-            :errors = aErrors,
-            :success_rate = (len(aResults) / aPlan[:total_steps]) * 100
+            :plan = _aPlan_,
+            :results = _aResults_,
+            :errors = _aErrors_,
+            :success_rate = (len(_aResults_) / _aPlan_[:total_steps]) * 100
         ]
     
 	def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
@@ -3420,64 +3420,64 @@ class stzDataSet from stzObject
         @return: Formatted Plan summary
         */
 
-        aPlan = This.GeneratePlan(cNameOrGoalOrTemplate)
-        cSummary = BoxifyRound("Plan: " + oPlan[:title]) + NL
+        _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
+        _cSummary_ = BoxifyRound("Plan: " + oPlan[:title]) + NL
 
 		if @bChain = FALSE or
 			(@bChain = TRUE and @bFirstChain)
 
-			cSummary += "• Data: " + @@(This.Content()) + NL
+			_cSummary_ += "• Data: " + @@(This.Content()) + NL
 		ok
 
-		cSummary += "• Name: {" + aPlan[:name] + "}" + NL
-        cSummary += "• Goal: " + aPlan[:description] + NL
-        cSummary += "• Steps (" + aPlan[:total_steps] + "):" + NL
+		_cSummary_ += "• Name: {" + _aPlan_[:name] + "}" + NL
+        _cSummary_ += "• Goal: " + _aPlan_[:description] + NL
+        _cSummary_ += "• Steps (" + _aPlan_[:total_steps] + "):" + NL
         
-        nStep = 1
-        _aPlansteps1_ = aPlan[:steps]
+        _nStep_ = 1
+        _aPlansteps1_ = _aPlan_[:steps]
         _nPlansteps1Len_ = len(_aPlansteps1_)
         for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
-        	aStep = _aPlansteps1_[_iLoopPlansteps1_]
-            cSummary += "  " + nStep + ". " + aStep[:description]
-            if HasKey(aStep, :condition)
-                cSummary += " (conditional)"
+        	_aStep_ = _aPlansteps1_[_iLoopPlansteps1_]
+            _cSummary_ += "  " + _nStep_ + ". " + _aStep_[:description]
+            if HasKey(_aStep_, :condition)
+                _cSummary_ += " (conditional)"
             ok
-            if HasKey(aStep, :args)
-                cSummary += " [params: " + This._FormatArgs(aStep[:args]) + "]"
+            if HasKey(_aStep_, :args)
+                _cSummary_ += " [params: " + This._FormatArgs(_aStep_[:args]) + "]"
             ok
-            cSummary += NL
-            nStep++
+            _cSummary_ += NL
+            _nStep_++
         next
         
-        return cSummary
+        return _cSummary_
     
     
-    def AddPlan(cName, cTitle, cDescription, aSteps)
+    def AddPlan(cName, _cTitle_, cDescription, aSteps)
         /*
         Create a custom Plan template
-        @param cTitle: Plan title
+        @param _cTitle_: Plan title
         @param cDescription: Plan description  
         @param aSteps: Array of step definitions
         */
  
 		
-        cKey = "custom_" + StzLower(cName)
+        _cKey_ = "custom_" + StzLower(cName)
 
         $aPlanTemplates[cName] = [
 			:name = cName,
-            :title = cTitle,
+            :title = _cTitle_,
             :description = cDescription,
             :steps = aSteps
         ]
         
-        return cKey
+        return _cKey_
     
 
 	def SuggestPlan()
-	    cDataType = This.DataType()
-	    nCount = This.Count()
+	    _cDataType_ = This.DataType()
+	    _nCount_ = This.Count()
 	    
-	    if nCount < 3 or cDataType != "numeric"
+	    if _nCount_ < 3 or _cDataType_ != "numeric"
 	        return :EDA
 	    ok
 	    
@@ -3488,35 +3488,35 @@ class stzDataSet from stzObject
 	    
 	    # Check outliers first
 	    if This.ContainsOutliers()
-	        nOutlierPct = (len(This.Outliers()) / nCount) * 100
-	        if nOutlierPct > 5
+	        _nOutlierPct_ = (len(This.Outliers()) / _nCount_) * 100
+	        if _nOutlierPct_ > 5
 	            return :OUTLIERS
 	        ok
 	    ok
 	    
 	    # High variability
-	    nCV = This.CoefficientOfVariation()
-	    if nCV > 50
+	    _nCV_ = This.CoefficientOfVariation()
+	    if _nCV_ > 50
 	        return :QUALITY
 	    ok
 	    
 	    # Trending data detection
-	    if nCount >= 5
-	        aTrend = This.TrendAnalysis()
-	        if len(aTrend) = 1 and aTrend[1][1] != "stable"
+	    if _nCount_ >= 5
+	        _aTrend_ = This.TrendAnalysis()
+	        if len(_aTrend_) = 1 and _aTrend_[1][1] != "stable"
 	            return :TRENDS
 	        ok
 	    ok
 	    
 	    # Check normality
-	    if nCount >= 8
-	        nSkew = abs(This.Skewness())
-	        nKurt = abs(This.Kurtosis())
+	    if _nCount_ >= 8
+	        _nSkew_ = abs(This.Skewness())
+	        _nKurt_ = abs(This.Kurtosis())
 	        
-	        nSkewLimit = iff(nCount < 30, 1.0, 0.75)
-	        nKurtLimit = iff(nCount < 30, 5.0, 2.0)
+	        _nSkewLimit_ = iff(_nCount_ < 30, 1.0, 0.75)
+	        _nKurtLimit_ = iff(_nCount_ < 30, 5.0, 2.0)
 	        
-	        if nSkew < nSkewLimit and nKurt < nKurtLimit
+	        if _nSkew_ < _nSkewLimit_ and _nKurt_ < _nKurtLimit_
 	            return :NORMALITY
 	        ok
 	    ok
@@ -3559,8 +3559,8 @@ class stzDataSet from stzObject
 	    
 	    # Stage 5: Detect trends if sequential data
 	    if This.Count() >= 5
-	        aTrend = This.TrendAnalysis()
-	        if len(aTrend) >= 2 or (len(aTrend) = 1 and aTrend[1][1] != "stable")
+	        _aTrend_ = This.TrendAnalysis()
+	        if len(_aTrend_) >= 2 or (len(_aTrend_) = 1 and _aTrend_[1][1] != "stable")
 	            ? ""
 	            ? "~> Trend pattern identified, analyzing temporal behavior..."
 	            ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -3578,182 +3578,182 @@ class stzDataSet from stzObject
     #===============================#
     
 	def _PlanNames()
-		nLen = len($aPlanTemplates)
-		acResult = []
+		_nLen_ = len($aPlanTemplates)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			acResult + $aPlanTemplates[i][1]
+		for i = 1 to _nLen_
+			_acResult_ + $aPlanTemplates[i][1]
 		next
 
-		return acResult
+		return _acResult_
 
 	def _PlanTemplates()
-		nLen = len($aPlanTemplates)
-		acResult = []
+		_nLen_ = len($aPlanTemplates)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			acResult + $aPlanTemplates[i][2]
+		for i = 1 to _nLen_
+			_acResult_ + $aPlanTemplates[i][2]
 		next
 
-		return acResult
+		return _acResult_
 
 	def _PlanGoals()
-		nLen = len($aPlanGoals)
-		acResult = []
+		_nLen_ = len($aPlanGoals)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			acResult + $aPlanGoals[i][1]
+		for i = 1 to _nLen_
+			_acResult_ + $aPlanGoals[i][1]
 		next
 
-		return acResult
+		return _acResult_
 
-    def _ResolvePlanTemplate(cInput)
-        cInput = Lower(@trim(cInput))
+    def _ResolvePlanTemplate(_cInput_)
+        _cInput_ = Lower(@trim(_cInput_))
 
 		# Check if it's a Plan name
-		if StzFindFirst(_PlanNames(), cInput)
-			return cInput
+		if StzFindFirst(_PlanNames(), _cInput_)
+			return _cInput_
 		ok
 
         # Check if it's a direct template key
-		if StzFindFirst(_PlanTemplates(), cInput)
-			return cInput
+		if StzFindFirst(_PlanTemplates(), _cInput_)
+			return _cInput_
 		ok
         
         # Check goal mappings
-		if StzFindFirst(_PlanGoals(), cInput)
-			return $aPlanGoals[cInput]
+		if StzFindFirst(_PlanGoals(), _cInput_)
+			return $aPlanGoals[_cInput_]
 		ok
         
         return NULL
     
     def _FilterPlanSteps(aSteps)
 
-        aFiltered = []
+        _aFiltered_ = []
         
         _nSteps1Len_ = len(aSteps)
         for _iLoopSteps1_ = 1 to _nSteps1Len_
-        	aStep = aSteps[_iLoopSteps1_]
-            bInclude = TRUE
+        	_aStep_ = aSteps[_iLoopSteps1_]
+            _bInclude_ = TRUE
         
             # Check if step has condition
-            if HasKey(aStep, :condition)
-                bInclude = This._EvaluateCondition(aStep[:condition])
+            if HasKey(_aStep_, :condition)
+                _bInclude_ = This._EvaluateCondition(_aStep_[:condition])
             ok
             
             # Check if required step
-            if HasKey(aStep, :required) and aStep[:required] = TRUE
-                bInclude = TRUE
+            if HasKey(_aStep_, :required) and _aStep_[:required] = TRUE
+                _bInclude_ = TRUE
             ok
             
-            if bInclude
-                aFiltered + aStep
+            if _bInclude_
+                _aFiltered_ + _aStep_
             ok
         next
 
-        return aFiltered
+        return _aFiltered_
     
-    def _ExecutePlanStep(aStep)
-        cFunction = aStep[:function]
-        aArgs = []
+    def _ExecutePlanStep(_aStep_)
+        _cFunction_ = _aStep_[:function]
+        _aArgs_ = []
 
-        if HasKey(aStep, :args)
-            aArgs = aStep[:args]
+        if HasKey(_aStep_, :args)
+            _aArgs_ = _aStep_[:args]
         ok
 
         # Correlation/pairwise steps need a SECOND dataset. A single-dataset
         # ExecutePlan can't supply one, so skip them gracefully instead of
         # eval-calling a 1-arg method with 0 args (R19, "too few params").
-        if len(aArgs) = 0 and This._NeedsPairedDataset(cFunction)
+        if len(_aArgs_) = 0 and This._NeedsPairedDataset(_cFunction_)
             return "skipped (needs a second dataset)"
         ok
 
         # Build execution code
-        cCode = "result = " + cFunction + "("
-        if len(aArgs) > 0
-            _nArgsLen_2 = len(aArgs)
+        _cCode_ = "_result_ = " + _cFunction_ + "("
+        if len(_aArgs_) > 0
+            _nArgsLen_2 = len(_aArgs_)
             for i = 1 to _nArgsLen_2
-                cCode += aArgs[i]
-                if i < len(aArgs)
-                    cCode += ", "
+                _cCode_ += _aArgs_[i]
+                if i < len(_aArgs_)
+                    _cCode_ += ", "
                 ok
             next
         ok
-        cCode += ")"
+        _cCode_ += ")"
         
-        eval(cCode)
+        eval(_cCode_)
         return result
 
     # Functions that require a second/paired dataset as an argument.
-    def _NeedsPairedDataset(cFunction)
-        aPaired = [ "CorrelationWith", "RankCorrelationWith", "PartialCorrelation",
+    def _NeedsPairedDataset(_cFunction_)
+        _aPaired_ = [ "CorrelationWith", "RankCorrelationWith", "PartialCorrelation",
                     "CovarianceWith", "CompareWith", "CompareTo" ]
-        nLen = len(aPaired)
-        for i = 1 to nLen
-            if cFunction = aPaired[i]
+        _nLen_ = len(_aPaired_)
+        for i = 1 to _nLen_
+            if _cFunction_ = _aPaired_[i]
                 return TRUE
             ok
         next
         return FALSE
 
-    def _FormatStepResult(cFunction, vResult)
-        switch cFunction
+    def _FormatStepResult(_cFunction_, _vResult_)
+        switch _cFunction_
         on "DataType"
-            return "Data type: " + vResult
+            return "Data type: " + _vResult_
 
         on "Count"
-            return "Sample size: " + vResult
+            return "Sample size: " + _vResult_
 
         on "Mean"
-            return "Mean: " + @@(vResult)
+            return "Mean: " + @@(_vResult_)
 
         on "Median" 
-            return "Median: " + @@(vResult)
+            return "Median: " + @@(_vResult_)
 
         on "StandardDeviation"
-            return "Std Dev: " + @@(vResult)
+            return "Std Dev: " + @@(_vResult_)
 
         on "ContainsOutliers"
-            return "Outliers present: " + vResult
+            return "Outliers present: " + _vResult_
 
         on "NormalityTest"
-            return "Normality p-value: " + @@(vResult[2])
+            return "Normality p-value: " + @@(_vResult_[2])
 
         on "TrendAnalysis"
             # TrendAnalysis returns a list of [trend, length] segments;
             # "string + list" raises R21, so summarise the segment count.
-            if isList(vResult)
-                return "Trend: " + len(vResult) + " segment(s)"
+            if isList(_vResult_)
+                return "Trend: " + len(_vResult_) + " segment(s)"
             ok
-            return "Trend: " + @@(vResult)
+            return "Trend: " + @@(_vResult_)
 
         other
 
-            if isNumber(vResult)
-                return cFunction + ": " + @@(vResult)
+            if isNumber(_vResult_)
+                return _cFunction_ + ": " + @@(_vResult_)
 
-            but isString(vResult)
-                return cFunction + ": " + vResult
+            but isString(_vResult_)
+                return _cFunction_ + ": " + _vResult_
 
-            but isList(vResult)
-                return cFunction + ": " + len(vResult) + " value(s)"
+            but isList(_vResult_)
+                return _cFunction_ + ": " + len(_vResult_) + " value(s)"
 
             else
-                return cFunction + ": completed"
+                return _cFunction_ + ": completed"
             ok
 
         off
     
-    def _FormatArgs(aArgs)
-        cResult = ""
-        _nArgsLen_ = len(aArgs)
+    def _FormatArgs(_aArgs_)
+        _cResult_ = ""
+        _nArgsLen_ = len(_aArgs_)
         for i = 1 to _nArgsLen_
-            cResult += aArgs[i]
-            if i < len(aArgs)
-                cResult += ", "
+            _cResult_ += _aArgs_[i]
+            if i < len(_aArgs_)
+                _cResult_ += ", "
             ok
         next
-        return cResult
+        return _cResult_
 
 
 	#=======================#
@@ -3774,53 +3774,53 @@ class stzDataSet from stzObject
 	def _EngineHandle()
 	    return @pEngineStats
 	
-	def _GetCached(cKey)
-	    return @aCache[cKey]
+	def _GetCached(_cKey_)
+	    return @aCache[_cKey_]
 
 	def _CacheKeys()
-		nLen = len(@aCache)
-		acKeys = []
+		_nLen_ = len(@aCache)
+		_acKeys_ = []
 
-		for i = 1 to nLen
-			acKeys = @aCache[i]
+		for i = 1 to _nLen_
+			_acKeys_ = @aCache[i]
 		next
 
-		return acKeys
+		return _acKeys_
 
-	def _KeyIsCached(cKey)
+	def _KeyIsCached(_cKey_)
 
-		if NOT (isString(cKey) and @trim(cKey) != "")
+		if NOT (isString(_cKey_) and @trim(_cKey_) != "")
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
 		ok
 
-		if StzFindFirst( This._CacheKeys(), StzLower(cKey))
+		if StzFindFirst( This._CacheKeys(), StzLower(_cKey_))
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def _RemoveFromCache(cKey)
+	def _RemoveFromCache(_cKey_)
 
-		if NOT isString(cKey)
+		if NOT isString(_cKey_)
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
 		ok
 
-		if @trim(cKey) = ""
+		if @trim(_cKey_) = ""
 			return
 		ok
 
-		n = StzFindFirst(This._CacheKeys(), StzLower(cKey))
-		if n > 0
-			del(@aCache, n)
+		_n_ = StzFindFirst(This._CacheKeys(), StzLower(_cKey_))
+		if _n_ > 0
+			del(@aCache, _n_)
 		ok
 
-	def _SetCache(cKey, value)
+	def _SetCache(_cKey_, value)
 	    
 	    # Remove existing key if present
-		_RemoveFromCache(cKey)
+		_RemoveFromCache(_cKey_)
 	    
 	    # Add new cache entry
-	    @aCache + [cKey, value]
+	    @aCache + [_cKey_, value]
 	
 	def ClearCache()
 	    @aCache = []
@@ -3850,36 +3850,36 @@ class stzDataSet from stzObject
 
     def Export()
         # Export statistical results as structured data
-        oExport = new stzHashList([])
-        aExport = []
+        _oExport_ = new stzHashList([])
+        _aExport_ = []
 
-        aExport + ["data_type", @cDataType]
-        aExport + ["count", This.Count()]
-        aExport + ["unique_count", This.UniqueCount()]
+        _aExport_ + ["data_type", @cDataType]
+        _aExport_ + ["count", This.Count()]
+        _aExport_ + ["unique_count", This.UniqueCount()]
         
         if @cDataType = "numeric"
-            aExport + ["mean", This.Mean()]
-            aExport + ["median", This.Median()]
-            aExport + ["mode", This.Mode()]
-            aExport + ["standard_deviation", This.StandardDeviation()]
-            aExport + ["variance", This.Variance()]
-            aExport + ["range", This.Range()]
-            aExport + ["min", This.Min()]
-            aExport + ["max", This.Max()]
-            aExport + ["quartiles", This.Quartiles()]
-            aExport + ["skewness", This.Skewness()]
-            aExport + ["kurtosis", This.Kurtosis()]
-            aExport + ["outliers", This.Outliers()]
+            _aExport_ + ["mean", This.Mean()]
+            _aExport_ + ["median", This.Median()]
+            _aExport_ + ["mode", This.Mode()]
+            _aExport_ + ["standard_deviation", This.StandardDeviation()]
+            _aExport_ + ["variance", This.Variance()]
+            _aExport_ + ["range", This.Range()]
+            _aExport_ + ["min", This.Min()]
+            _aExport_ + ["max", This.Max()]
+            _aExport_ + ["quartiles", This.Quartiles()]
+            _aExport_ + ["skewness", This.Skewness()]
+            _aExport_ + ["kurtosis", This.Kurtosis()]
+            _aExport_ + ["outliers", This.Outliers()]
 
         else
-            aExport + ["mode", This.Mode()]
-            aExport + ["diversity", This.Diversity()]
-            aExport + ["entropy", This.EntropyIndex()]
-            aExport + ["frequency_table", This.FrequencyTable()]
+            _aExport_ + ["mode", This.Mode()]
+            _aExport_ + ["diversity", This.Diversity()]
+            _aExport_ + ["entropy", This.EntropyIndex()]
+            _aExport_ + ["frequency_table", This.FrequencyTable()]
 
         ok
         
-        return aExport
+        return _aExport_
 
 
 	def Values()

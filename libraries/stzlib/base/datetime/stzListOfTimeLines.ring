@@ -98,29 +98,29 @@ class stzListOfTimeLines from stzObject
 
 		// Initialize each lane as a stzTimeLine with global bounds
 		# Removed stray debug print: `? @@([@cGlobalStart, @cGlobalEnd])`
-		nLen = len(@aLanes)
-		for i = 1 to nLen
-			oLaneTL = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
-			@aTimeLines + oLaneTL
+		_nLen_ = len(@aLanes)
+		for i = 1 to _nLen_
+			_oLaneTL_ = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
+			@aTimeLines + _oLaneTL_
 		next
 
 	def Content()
-		aResult = [
+		_aResult_ = [
 			:Start = @cGlobalStart,
 			:End = @cGlobalEnd,
 			:Lanes = @aLanes,
 			:TimeLines = []
 		]
 
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
-			aResult[:TimeLines] + [
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
+			_aResult_[:TimeLines] + [
 				:Lane = @aLanes[i],
 				:Content = @aTimeLines[i].Content()
 			]
 		next
 
-		return aResult
+		return _aResult_
 
 	// Global Boundaries
 
@@ -159,8 +159,8 @@ class stzListOfTimeLines from stzObject
 			return This
 
 	def _updateAllLanesBounds()
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
 			@aTimeLines[i].SetStart(@cGlobalStart)
 			@aTimeLines[i].SetEnd(@cGlobalEnd)
 		next
@@ -183,9 +183,9 @@ class stzListOfTimeLines from stzObject
 		return len(@aLanes)
 
 	def Lane(pcLane)
-		nIndex = StzFindFirst(@aLanes, StzUpper(pcLane))
-		if nIndex > 0
-			return @aTimeLines[nIndex]
+		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		if _nIndex_ > 0
+			return @aTimeLines[_nIndex_]
 		else
 			StzRaise("No lane found with name: " + pcLane)
 		ok
@@ -201,18 +201,18 @@ class stzListOfTimeLines from stzObject
 			StzRaise("Lane already exists: " + pcLane)
 		ok
 		@aLanes + StzUpper(pcLane)
-		oNewTL = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
-		@aTimeLines + oNewTL
+		_oNewTL_ = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
+		@aTimeLines + _oNewTL_
 
 		def AddLaneQ(pcLane)
 			This.AddLane(pcLane)
 			return This
 
 	def RemoveLane(pcLane)
-		nIndex = StzFindFirst(@aLanes, StzUpper(pcLane))
-		if nIndex > 0
-			del(@aLanes, nIndex)
-			del(@aTimeLines, nIndex)
+		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		if _nIndex_ > 0
+			del(@aLanes, _nIndex_)
+			del(@aTimeLines, _nIndex_)
 		ok
 
 		def RemoveLaneQ(pcLane)
@@ -227,11 +227,11 @@ class stzListOfTimeLines from stzObject
 		# indexing, so the mutation never persisted back into
 		# @aTimeLines. Index directly so the in-place AddPoint
 		# writes to the stored timeline.
-		nIndex = StzFindFirst(@aLanes, StzUpper(pcLane))
-		if nIndex = 0
+		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		if _nIndex_ = 0
 			StzRaise("No lane found with name: " + pcLane)
 		ok
-		@aTimeLines[nIndex].AddPoint(pcLabel, pDateTime)
+		@aTimeLines[_nIndex_].AddPoint(pcLabel, pDateTime)
 
 		def AddPointToLaneQ(pcLane, pcLabel, pDateTime)
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
@@ -241,12 +241,12 @@ class stzListOfTimeLines from stzObject
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
 
 	def AddPointsToLane(pcLane, paPoints)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddPoints(paPoints)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.AddPoints(paPoints)
 
 	def AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddSpan(pcLabel, pStart, pEnd)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.AddSpan(pcLabel, pStart, pEnd)
 
 		def AddSpanToLaneQ(pcLane, pcLabel, pStart, pEnd)
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
@@ -256,90 +256,90 @@ class stzListOfTimeLines from stzObject
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 
 	def AddSpansToLane(pcLane, paSpans)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddSpans(paSpans)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.AddSpans(paSpans)
 
 	// Blocking in Lanes
 
 	def AddBlockedSpanToLane(pcLane, pcLabel, pStart, pEnd)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddBlockedSpan(pcLabel, pStart, pEnd)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.AddBlockedSpan(pcLabel, pStart, pEnd)
 
 	def AddBlockedPointToLane(pcLane, pDateTime)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddBlockedPoint(pDateTime)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.AddBlockedPoint(pDateTime)
 
 	def BlockSpanInLane(pcLane, pcLabel)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.BlockSpan(pcLabel)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.BlockSpan(pcLabel)
 
 	def BlockPointInLane(pcLane, pcLabel)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.BlockPoint(pcLabel)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.BlockPoint(pcLabel)
 
 	def IsBlockedInLane(pcLane, p)
-		oLaneTL = This.Lane(pcLane)
-		return oLaneTL.IsBlocked(p)
+		_oLaneTL_ = This.Lane(pcLane)
+		return _oLaneTL_.IsBlocked(p)
 
 	// Querying Across Lanes
 
 	def WhatsAt(pDateTime)
-		cDateTime = This._normalizeDateTime(pDateTime)
-		aResult = []
+		_cDateTime_ = This._normalizeDateTime(pDateTime)
+		_aResult_ = []
 
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
-			aLaneEvents = @aTimeLines[i].WhatsAt(cDateTime)
-			if len(aLaneEvents) > 0
-				aResult + [ :Lane = @aLanes[i], :Events = aLaneEvents ]
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
+			_aLaneEvents_ = @aTimeLines[i].WhatsAt(_cDateTime_)
+			if len(_aLaneEvents_) > 0
+				_aResult_ + [ :Lane = @aLanes[i], :Events = _aLaneEvents_ ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def HasOverlapsInLane(pcLane)
-		oLaneTL = This.Lane(pcLane)
-		return oLaneTL.HasOverlaps()
+		_oLaneTL_ = This.Lane(pcLane)
+		return _oLaneTL_.HasOverlaps()
 
 	def CrossLaneOverlaps()
 		// Detect overlaps between events in different lanes at the same time
-		aResult = []
-		nLen = len(@aTimeLines)
+		_aResult_ = []
+		_nLen_ = len(@aTimeLines)
 
-		for i = 1 to nLen - 1
-			aSpansI = @aTimeLines[i].Spans()
-			for j = i + 1 to nLen
-				aSpansJ = @aTimeLines[j].Spans()
+		for i = 1 to _nLen_ - 1
+			_aSpansI_ = @aTimeLines[i].Spans()
+			for j = i + 1 to _nLen_
+				_aSpansJ_ = @aTimeLines[j].Spans()
 				// Check for overlapping spans between lane i and j
-				_nSpansI1Len_ = len(aSpansI)
+				_nSpansI1Len_ = len(_aSpansI_)
 				for _iLoopSpansI1_ = 1 to _nSpansI1Len_
-					s1 = aSpansI[_iLoopSpansI1_]
-					oStart1 = new stzDateTime(s1[2])
-					oEnd1 = new stzDateTime(s1[3])
-					_nSpansJ1Len_ = len(aSpansJ)
+					_s1_ = _aSpansI_[_iLoopSpansI1_]
+					_oStart1_ = new stzDateTime(_s1_[2])
+					_oEnd1_ = new stzDateTime(_s1_[3])
+					_nSpansJ1Len_ = len(_aSpansJ_)
 					for _iLoopSpansJ1_ = 1 to _nSpansJ1Len_
-						s2 = aSpansJ[_iLoopSpansJ1_]
-						oStart2 = new stzDateTime(s2[2])
-						oEnd2 = new stzDateTime(s2[3])
-						if oStart1 < oEnd2 and oStart2 < oEnd1
-							nOverlapDur = min([oEnd1.Seconds(), oEnd2.Seconds()]) - max([oStart1.Seconds(), oStart2.Seconds()])
-							aResult + [ [@aLanes[i], @aLanes[j]], s1[1], s2[1], nOverlapDur ]
+						_s2_ = _aSpansJ_[_iLoopSpansJ1_]
+						_oStart2_ = new stzDateTime(_s2_[2])
+						_oEnd2_ = new stzDateTime(_s2_[3])
+						if _oStart1_ < _oEnd2_ and _oStart2_ < _oEnd1_
+							_nOverlapDur_ = min([_oEnd1_.Seconds(), _oEnd2_.Seconds()]) - max([_oStart1_.Seconds(), _oStart2_.Seconds()])
+							_aResult_ + [ [@aLanes[i], @aLanes[j]], _s1_[1], _s2_[1], _nOverlapDur_ ]
 						ok
 					next
 				next
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 	def UncoveredPeriodsPerLane()
-		aResult = []
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
-			aUncovered = @aTimeLines[i].UncoveredPeriods()
-			aResult + [ :Lane = @aLanes[i], :Uncovered = aUncovered ]
+		_aResult_ = []
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
+			_aUncovered_ = @aTimeLines[i].UncoveredPeriods()
+			_aResult_ + [ :Lane = @aLanes[i], :Uncovered = _aUncovered_ ]
 		next
-		return aResult
+		return _aResult_
 
 	// Visualization (Multi-Lane)
 
@@ -373,60 +373,60 @@ class stzListOfTimeLines from stzObject
 		@acVizCanvas = []
 
 		// Calculate global layout
-		oGlobalLayout = This._calculateGlobalLayout()
+		_oGlobalLayout_ = This._calculateGlobalLayout()
 
 		// For each lane, build its timepoints and draw
-		nLenLanes = len(@aLanes)
-		nCurrentRow = 1  // Start row for first lane
+		_nLenLanes_ = len(@aLanes)
+		_nCurrentRow_ = 1  // Start row for first lane
 
-		for i = 1 to nLenLanes
+		for i = 1 to _nLenLanes_
 			// Add lane label on the left
-			This._addLaneLabelToCanvas(nCurrentRow, @aLanes[i])
+			This._addLaneLabelToCanvas(_nCurrentRow_, @aLanes[i])
 
 			// Get lane's timepoints
-			aTimepoints = @aTimeLines[i]._buildSortedTimepoints()
+			_aTimepoints_ = @aTimeLines[i]._buildSortedTimepoints()
 
 			// Draw axis for this lane
-			This._drawAxisForLane(nCurrentRow + @nVizLaneHeight / 2, oGlobalLayout)  // Middle of lane height
+			This._drawAxisForLane(_nCurrentRow_ + @nVizLaneHeight / 2, _oGlobalLayout_)  // Middle of lane height
 
 			// Draw points, spans, etc., offset to lane's section
-			This._drawForLane(i, nCurrentRow, aTimepoints, pcMode)
+			This._drawForLane(i, _nCurrentRow_, _aTimepoints_, pcMode)
 
-			nCurrentRow += @nVizLaneHeight + 1  // +1 for separator
+			_nCurrentRow_ += @nVizLaneHeight + 1  // +1 for separator
 		next
 
 	def _addLaneLabelToCanvas(nRow, pcLane)
 		// Pad label to @nLabelWidth and add to canvas rows
-		cPaddedLabel = pcLane + Q(" " * (@nLabelWidth - len(pcLane)))
+		_cPaddedLabel_ = pcLane + Q(" " * (@nLabelWidth - len(pcLane)))
 		// Assume canvas rows are built vertically; integrate into @acVizCanvas
 
 	def _calculateGlobalLayout()
 		// Similar to stzTimeLine's _calculateRequiredVizHeight but global
-		nMaxHeight = 0
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
-			nLaneHeight = @aTimeLines[i]._calculateRequiredVizHeight()
-			if nLaneHeight > nMaxHeight
-				nMaxHeight = nLaneHeight
+		_nMaxHeight_ = 0
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
+			_nLaneHeight_ = @aTimeLines[i]._calculateRequiredVizHeight()
+			if _nLaneHeight_ > _nMaxHeight_
+				_nMaxHeight_ = _nLaneHeight_
 			ok
 		next
-		@nVizLaneHeight = nMaxHeight
+		@nVizLaneHeight = _nMaxHeight_
 
 		return [ :width = @nVizWidth, :lane_height = @nVizLaneHeight ]
 
-	def _drawAxisForLane(nRow, oLayout)
+	def _drawAxisForLane(nRow, _oLayout_)
 		// Adapted from stzTimeLine's _drawAxis, but at specific row
 
-	def _drawForLane(nLaneIndex, nStartRow, aTimepoints, pcMode)
-		oLaneTL = @aTimeLines[nLaneIndex]
-		oLayout = [ :axis_row = nStartRow + 2 ]  // Example offset
+	def _drawForLane(nLaneIndex, nStartRow, _aTimepoints_, pcMode)
+		_oLaneTL_ = @aTimeLines[nLaneIndex]
+		_oLayout_ = [ :axis_row = nStartRow + 2 ]  // Example offset
 
 		// Delegate drawing to adapted stzTimeLine methods, but offset rows
-		oLaneTL._drawSpans(oLayout, aTimepoints)
-		oLaneTL._drawPoints(oLayout, aTimepoints)
+		_oLaneTL_._drawSpans(_oLayout_, _aTimepoints_)
+		_oLaneTL_._drawPoints(_oLayout_, _aTimepoints_)
 		if pcMode = :Uncovered
-			aUncovered = oLaneTL.UncoveredPeriods()
-			oLaneTL._drawUncoveredRegions(oLayout, aUncovered)
+			_aUncovered_ = _oLaneTL_.UncoveredPeriods()
+			_oLaneTL_._drawUncoveredRegions(_oLayout_, _aUncovered_)
 		ok
 		// etc. for blocks, highlights
 
@@ -444,42 +444,42 @@ class stzListOfTimeLines from stzObject
 		# _normalizeDateTime") -- every call returned NULL, so init's
 		# @cGlobalStart and @cGlobalEnd both wound up empty and the
 		# class could not construct. Ported the impl from stzTimeLine.
-		cDateTime = ""
+		_cDateTime_ = ""
 
 		if isString(pDateTime)
-			cDateTime = trim(pDateTime)
-			if cDateTime = ""
+			_cDateTime_ = trim(pDateTime)
+			if _cDateTime_ = ""
 				StzRaise("Invalid format! Empty strings are not allowed for datevalue!")
 			ok
 		else
-			cDateTime = new stzDateTime(pDateTime).ToString()
+			_cDateTime_ = new stzDateTime(pDateTime).ToString()
 		ok
 
-		if This._isTimeOnly(cDateTime)
+		if This._isTimeOnly(_cDateTime_)
 			StzRaise("Invalid format! Time specified without a date")
-		but This._isDateOnly(cDateTime)
-			cDateTime += " 00:00:00"
+		but This._isDateOnly(_cDateTime_)
+			_cDateTime_ += " 00:00:00"
 		ok
 
 		try
-			new stzDateTime(cDateTime)
+			new stzDateTime(_cDateTime_)
 		catch
-			StzRaise("Invalid datetime format (" + cDateTime + ")!")
+			StzRaise("Invalid datetime format (" + _cDateTime_ + ")!")
 		done
 
-		return cDateTime
+		return _cDateTime_
 
-		def _isDateOnly(cDateTime)
+		def _isDateOnly(_cDateTime_)
 			# Was an empty stub. Ported from stzTimeLine.
-			if StzLen(cDateTime) = 10 and StzMid(cDateTime, 5, 1) = "-" and StzMid(cDateTime, 8, 1) = "-"
+			if StzLen(_cDateTime_) = 10 and StzMid(_cDateTime_, 5, 1) = "-" and StzMid(_cDateTime_, 8, 1) = "-"
 				return 1
 			else
 				return 0
 			ok
 
-		def _isTimeOnly(cDateTime)
+		def _isTimeOnly(_cDateTime_)
 			# Was an empty stub. Ported from stzTimeLine.
-			if StzLen(cDateTime) = 8 and StzMid(cDateTime, 3, 1) = ":" and StzMid(cDateTime, 6, 1) = ":"
+			if StzLen(_cDateTime_) = 8 and StzMid(_cDateTime_, 3, 1) = ":" and StzMid(_cDateTime_, 6, 1) = ":"
 				return 1
 			else
 				return 0
@@ -489,12 +489,12 @@ class stzListOfTimeLines from stzObject
 
 	// For example:
 	def RemovePointFromLane(pcLane, pcLabelOrDateTime)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.RemovePoint(pcLabelOrDateTime)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.RemovePoint(pcLabelOrDateTime)
 
 	def RenameLabelInLane(pcLane, pcLabel, pcNewLabel)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.RenameLabel(pcLabel, pcNewLabel)
+		_oLaneTL_ = This.Lane(pcLane)
+		_oLaneTL_.RenameLabel(pcLabel, pcNewLabel)
 
 	// Add more as needed, following the pattern
 
@@ -506,27 +506,27 @@ class stzListOfTimeLines from stzObject
 
 		// Merge all lanes into a single stzTimeLine
 		// Strategy: :MergeAll (combine points/spans with lane prefixes), :SelectLane = "Name", etc.
-		oMerged = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
-			aPoints = @aTimeLines[i].Points()
-			_nPoints1Len_ = len(aPoints)
+		_oMerged_ = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
+			_aPoints_ = @aTimeLines[i].Points()
+			_nPoints1Len_ = len(_aPoints_)
 			for _iLoopPoints1_ = 1 to _nPoints1Len_
-				p = aPoints[_iLoopPoints1_]
-				oMerged.AddPoint(@aLanes[i] + "-" + p[1], p[2])
+				p = _aPoints_[_iLoopPoints1_]
+				_oMerged_.AddPoint(@aLanes[i] + "-" + p[1], p[2])
 			next
-			aSpans = @aTimeLines[i].Spans()
-			_nSpans1Len_ = len(aSpans)
+			_aSpans_ = @aTimeLines[i].Spans()
+			_nSpans1Len_ = len(_aSpans_)
 			for _iLoopSpans1_ = 1 to _nSpans1Len_
-				s = aSpans[_iLoopSpans1_]
-				oMerged.AddSpan(@aLanes[i] + "-" + s[1], s[2], s[3])
+				_s_ = _aSpans_[_iLoopSpans1_]
+				_oMerged_.AddSpan(@aLanes[i] + "-" + _s_[1], _s_[2], _s_[3])
 			next
 		next
-		return oMerged
+		return _oMerged_
 
 	def Clear()
-		nLen = len(@aTimeLines)
-		for i = 1 to nLen
+		_nLen_ = len(@aTimeLines)
+		for i = 1 to _nLen_
 			@aTimeLines[i].Clear()
 		next
 

@@ -17,8 +17,8 @@ class stzListInString from stzString
 			StzRaise("Syntax error! The list is not correct.")
 		else
 			@cListInString = pcListInString
-			cCode = '@aList = ' + pcListInString
-			eval(cCode)
+			_cCode_ = '@aList = ' + pcListInString
+			eval(_cCode_)
 		ok
 
 	
@@ -39,9 +39,9 @@ class stzListInString from stzString
 				pcType = pcType[2]
 			ok
 
-			cCode = "oResult = new " + pcType + "(This.List())"
-			eval(cCode)
-			return oResult
+			_cCode_ = "_oResult_ = new " + pcType + "(This.List())"
+			eval(_cCode_)
+			return _oResult_
 
 	def Content()
 		return This.List()
@@ -64,43 +64,43 @@ class stzListInString from stzString
 		return StzStringQ(This.ListInString()).RemoveAllQ([ "[", "]" ]).RemoveSpacesQ().SplitQ(",").Content()
 		
 	def ItemsXT()
-		aResult = []
+		_aResult_ = []
 
-		aoStzStr = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
+		_aoStzStr_ = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
 
-		_nAoStzStr2Len_ = len(aoStzStr)
+		_nAoStzStr2Len_ = len(_aoStzStr_)
 		for _iLoopAoStzStr2_ = 1 to _nAoStzStr2Len_
-			oStzStr = aoStzStr[_iLoopAoStzStr2_]
-			if oStzStr.IsBoundedBy('"') or
-			   oStzStr.IsBoundedBy("'") or
-			   oStzStr.IsBoundedBy([ ':', "" ])
-				aResult + [
+			_oStzStr_ = _aoStzStr_[_iLoopAoStzStr2_]
+			if _oStzStr_.IsBoundedBy('"') or
+			   _oStzStr_.IsBoundedBy("'") or
+			   _oStzStr_.IsBoundedBy([ ':', "" ])
+				_aResult_ + [
 
-					oStzStr.RemoveTheseBoundsQ('"', '"').
+					_oStzStr_.RemoveTheseBoundsQ('"', '"').
 						RemoveTheseBoundsQ("'", "'").Content(),
 
 					:IsValue,
 					:IsString
 				]
 
-			but oStzStr.IsNumberInString()
-				aResult + [
-					oStzStr.Content(),
+			but _oStzStr_.IsNumberInString()
+				_aResult_ + [
+					_oStzStr_.Content(),
 					:IsValue,
 					:IsNumber
 				]
 
 			else
 				# The item is a variable name
-				cVarName = oStzStr.RemoveTheseBoundsQ('"', '"').
+				_cVarName_ = _oStzStr_.RemoveTheseBoundsQ('"', '"').
 						RemoveTheseBoundsQ("'", "'").
 						Content()
 
-				cCode = 'cType = StzLower(type(' + cVarName + '))'
-				eval(cCode)
+				_cCode_ = '_cType_ = StzLower(type(' + _cVarName_ + '))'
+				eval(_cCode_)
 
-				aResult + [
-					oStzStr.Content(),
+				_aResult_ + [
+					_oStzStr_.Content(),
 					:IsVarName,
 					:Is + cType
 				]
@@ -108,80 +108,80 @@ class stzListInString from stzString
 
 		next
 
-		return aResult
+		return _aResult_
 
 	def Values()
-		aResult = []
+		_aResult_ = []
 
-		aItems = This.ItemsXT()
-		_nItems1Len_ = len(aItems)
+		_aItems_ = This.ItemsXT()
+		_nItems1Len_ = len(_aItems_)
 		for _iLoopItems1_ = 1 to _nItems1Len_
-			aItem = aItems[_iLoopItems1_]
-			if aItem[2] = :IsValue
-				aResult + aItem[1]
+			_aItem_ = _aItems_[_iLoopItems1_]
+			if _aItem_[2] = :IsValue
+				_aResult_ + _aItem_[1]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def VarNames()
 
-		aResult = []
+		_aResult_ = []
 
-		aoStzStr = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
+		_aoStzStr_ = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
 
-		_nAoStzStr1Len_ = len(aoStzStr)
+		_nAoStzStr1Len_ = len(_aoStzStr_)
 		for _iLoopAoStzStr1_ = 1 to _nAoStzStr1Len_
-			oStzStr = aoStzStr[_iLoopAoStzStr1_]
-			if NOT ( oStzStr.IsBoundedBy('"') or
-			   oStzStr.IsBoundedBy("'") or
-			   oStzStr.IsBoundedBy([ ':', "" ]) or
-			   oStzStr.IsNumberInString() )
+			_oStzStr_ = _aoStzStr_[_iLoopAoStzStr1_]
+			if NOT ( _oStzStr_.IsBoundedBy('"') or
+			   _oStzStr_.IsBoundedBy("'") or
+			   _oStzStr_.IsBoundedBy([ ':', "" ]) or
+			   _oStzStr_.IsNumberInString() )
 	
 				# The item is a variable name
-				cVarName = oStzStr.RemoveTheseBoundsQ('"', '"').
+				_cVarName_ = _oStzStr_.RemoveTheseBoundsQ('"', '"').
 						RemoveTheseBoundsQ("'", "'").
 						Content()
 
-				cCode = 'cType = StzLower(type(' + cVarName + '))'
-				eval(cCode)
+				_cCode_ = '_cType_ = StzLower(type(' + _cVarName_ + '))'
+				eval(_cCode_)
 
-				aResult + oStzStr.Content()
+				_aResult_ + _oStzStr_.Content()
 			
 			ok
 
 		next
 
-		return aResult
+		return _aResult_
 
 		def Variables()
 			return This.VarNames()
 
 
 	def Types()
-		acResult = []
+		_acResult_ = []
 		_aThisVarNames1_ = This.VarNames()
 		_nThisVarNames1Len_ = len(_aThisVarNames1_)
 		for _iLoopThisVarNames1_ = 1 to _nThisVarNames1Len_
-			cVarName = _aThisVarNames1_[_iLoopThisVarNames1_]
-			cCode = 'cType = ring_type('+ cVarName +')'
-			eval(cCode)
-			acResult + cType
+			_cVarName_ = _aThisVarNames1_[_iLoopThisVarNames1_]
+			_cCode_ = '_cType_ = ring_type('+ _cVarName_ +')'
+			eval(_cCode_)
+			_acResult_ + _cType_
 		next
 
-		return acResult
+		return _acResult_
 
 	def VariablesAndTheirTypes()
-		aResult = []
+		_aResult_ = []
 
-		aVarNames = This.VarNames()
-		aTypes = This.Types()
+		_aVarNames_ = This.VarNames()
+		_aTypes_ = This.Types()
 
-		for i = 1 to stlen(aVarNames)
-			aResult + [ aVarNames[i], aTypes[i] ]
+		for i = 1 to stlen(_aVarNames_)
+			_aResult_ + [ _aVarNames_[i], _aTypes_[i] ]
 		next i
 
-		return aResult
+		return _aResult_
 
 		def VarNamesAndTheirTypes()
 			return This.VariablesAndTheirTypes()

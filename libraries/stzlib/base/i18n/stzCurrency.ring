@@ -13,65 +13,65 @@ func NumberOfCurrencies()
 	return StzEngineRefCountryCount()
 
 func Currencies()
-	aResult = []
+	_aResult_ = []
 	_aLocaleCountriesXT6_ = LocaleCountriesXT()
 	_nLocaleCountriesXT6Len_ = len(_aLocaleCountriesXT6_)
 	for _iLoopLocaleCountriesXT6_ = 1 to _nLocaleCountriesXT6Len_
-		aCountryInfo = _aLocaleCountriesXT6_[_iLoopLocaleCountriesXT6_]
+		_aCountryInfo_ = _aLocaleCountriesXT6_[_iLoopLocaleCountriesXT6_]
 		# Column layout: [7]=currency name, [8]=fractional unit, [9]=base.
-		aResult + aCountryInfo[7]
+		_aResult_ + _aCountryInfo_[7]
 	next
 
-	return aResult
+	return _aResult_
 	
 func LocaleCurrencies()
 	return Currencies()
 
 func CountriesOrRegionsAndTheirCurrenciesXT()
-	aResult = []
+	_aResult_ = []
 	_aLocaleCountriesXT5_ = LocaleCountriesXT()
 	_nLocaleCountriesXT5Len_ = len(_aLocaleCountriesXT5_)
 	for _iLoopLocaleCountriesXT5_ = 1 to _nLocaleCountriesXT5Len_
-		aCountryInfo = _aLocaleCountriesXT5_[_iLoopLocaleCountriesXT5_]
+		_aCountryInfo_ = _aLocaleCountriesXT5_[_iLoopLocaleCountriesXT5_]
 		# Currency info is the triple [ name, fractional unit, base ]
 		# built from columns [7],[8],[9] of the country row.
-		aResult + [ aCountryInfo[2], [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ] ]
+		_aResult_ + [ _aCountryInfo_[2], [ _aCountryInfo_[7], _aCountryInfo_[8], _aCountryInfo_[9] ] ]
 	next
 	
-	return aResult
+	return _aResult_
 
 func CountriesOrRegionsAndTheirCurrencies()
-		aResult = []
+		_aResult_ = []
 		_aLocaleCountriesXT4_ = LocaleCountriesXT()
 		_nLocaleCountriesXT4Len_ = len(_aLocaleCountriesXT4_)
 		for _iLoopLocaleCountriesXT4_ = 1 to _nLocaleCountriesXT4Len_
-			aCountryInfo = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
-			aResult + [ aCountryInfo[2], aCountryInfo[7] ]
+			_aCountryInfo_ = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
+			_aResult_ + [ _aCountryInfo_[2], _aCountryInfo_[7] ]
 		next
 	
-		return aResult
+		return _aResult_
 
 func CurrenciesAndTheirCountriesOrRegionsXT()
-	aResult = []
+	_aResult_ = []
 	_aLocaleCountriesXT3_ = LocaleCountriesXT()
 	_nLocaleCountriesXT3Len_ = len(_aLocaleCountriesXT3_)
 	for _iLoopLocaleCountriesXT3_ = 1 to _nLocaleCountriesXT3Len_
-		aCountryInfo = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
-		aResult + [ [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ], aCountryInfo[2] ]
+		_aCountryInfo_ = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
+		_aResult_ + [ [ _aCountryInfo_[7], _aCountryInfo_[8], _aCountryInfo_[9] ], _aCountryInfo_[2] ]
 	next
 	
-	return aResult
+	return _aResult_
 
 func CurrenciesAndTheirCountriesOrRegions()
-	aResult = []
+	_aResult_ = []
 	_aLocaleCountriesXT2_ = LocaleCountriesXT()
 	_nLocaleCountriesXT2Len_ = len(_aLocaleCountriesXT2_)
 	for _iLoopLocaleCountriesXT2_ = 1 to _nLocaleCountriesXT2Len_
-		aCountryInfo = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
-		aResult + [ aCountryInfo[7], aCountryInfo[2] ]
+		_aCountryInfo_ = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
+		_aResult_ + [ _aCountryInfo_[7], _aCountryInfo_[2] ]
 	next
 	
-	return aResult
+	return _aResult_
 
 class stzCurrency from stzObject
 
@@ -90,16 +90,16 @@ class stzCurrency from stzObject
 			_aCountriesOrRegionsAndThe1_ = CountriesOrRegionsAndTheirCurrenciesXT()
 			_nCountriesOrRegionsAndThe1Len_ = len(_aCountriesOrRegionsAndThe1_)
 			for _iLoopCountriesOrRegionsAndThe1_ = 1 to _nCountriesOrRegionsAndThe1Len_
-				aCountryInfo = _aCountriesOrRegionsAndThe1_[_iLoopCountriesOrRegionsAndThe1_]
-				if StzLower(aCountryInfo[1]) = StzLower(pcCurrencyIdentifier)
+				_aCountryInfo_ = _aCountriesOrRegionsAndThe1_[_iLoopCountriesOrRegionsAndThe1_]
+				if StzLower(_aCountryInfo_[1]) = StzLower(pcCurrencyIdentifier)
 
-					@aCurrencyInfo@ = aCountryInfo[2]
+					@aCurrencyInfo@ = _aCountryInfo_[2]
 					# Remember the originating country so Country() and the
 					# locale-abbreviation lookup stay exact. Without this,
 					# Country() reverse-maps currency->country, which is
 					# ambiguous for shared currencies (e.g. euro -> many
 					# countries) and crashed Abbreviation() with R2.
-					@cCountry@ = StzLower(aCountryInfo[1])
+					@cCountry@ = StzLower(_aCountryInfo_[1])
 					exit
 				ok
 			next
@@ -111,9 +111,9 @@ class stzCurrency from stzObject
 			_aLocaleCountriesXTCur_ = LocaleCountriesXT()
 			_nLocaleCountriesXTCurLen_ = len(_aLocaleCountriesXTCur_)
 			for _iLoopCur_ = 1 to _nLocaleCountriesXTCurLen_
-				aCountryInfo = _aLocaleCountriesXTCur_[_iLoopCur_]
-				if StzLower(aCountryInfo[7]) = StzLower(pcCurrencyIdentifier)
-					@aCurrencyInfo@ = [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ]
+				_aCountryInfo_ = _aLocaleCountriesXTCur_[_iLoopCur_]
+				if StzLower(_aCountryInfo_[7]) = StzLower(pcCurrencyIdentifier)
+					@aCurrencyInfo@ = [ _aCountryInfo_[7], _aCountryInfo_[8], _aCountryInfo_[9] ]
 					exit
 				ok
 			next
@@ -185,9 +185,9 @@ class stzCurrency from stzObject
 		_aLocaleCountriesXT1_ = LocaleCountriesXT()
 		_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
 		for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
-			aCountryInfo = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
-			if StzLower(aCountryInfo[7]) = StzLower(This.Currency())
-				return aCountryInfo[2]
+			_aCountryInfo_ = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
+			if StzLower(_aCountryInfo_[7]) = StzLower(This.Currency())
+				return _aCountryInfo_[2]
 			ok
 		next
 		StzRaise(stzCurrencyError(:UnknowanCountry))

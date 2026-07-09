@@ -39,9 +39,9 @@ class stzStringExtractor from stzObject
 	#======================================================#
 
 	def ExtractSection(n1, n2)
-		cResult = @oString.Section(n1, n2)
+		_cResult_ = @oString.Section(n1, n2)
 		@oString.RemoveSection(n1, n2)
-		return cResult
+		return _cResult_
 
 	  #======================================================#
 	 #   EXTRACTING A RANGE                                 #
@@ -55,10 +55,10 @@ class stzStringExtractor from stzObject
 	#======================================================#
 
 	def ExtractCS(pcSubStr, pCaseSensitive)
-		cResult = @oString.Content()
+		_cResult_ = @oString.Content()
 		_oReplacer_ = new stzStringReplacer(@oString)
 		_oReplacer_.ReplaceCS(pcSubStr, "", pCaseSensitive)
-		return cResult
+		return _cResult_
 
 		def ExtractCSQ(pcSubStr, pCaseSensitive)
 			This.ExtractCS(pcSubStr, pCaseSensitive)
@@ -82,14 +82,14 @@ class stzStringExtractor from stzObject
 			ok
 		ok
 
-		acResult = []
-		nLen = len(paSubStr)
-		for i = 1 to nLen
-			acResult + paSubStr[i]
+		_acResult_ = []
+		_nLen_ = len(paSubStr)
+		for i = 1 to _nLen_
+			_acResult_ + paSubStr[i]
 			_oReplacer_ = new stzStringReplacer(@oString)
 			_oReplacer_.ReplaceCS(paSubStr[i], "", pCaseSensitive)
 		next
-		return acResult
+		return _acResult_
 
 	def ExtractMany(paSubStr)
 		return This.ExtractManyCS(paSubStr, 1)
@@ -99,19 +99,19 @@ class stzStringExtractor from stzObject
 	#======================================================#
 
 	def ExtractAll()
-		cResult = @oString.Content()
+		_cResult_ = @oString.Content()
 		@oString.Update("")
-		return cResult
+		return _cResult_
 
 	  #======================================================#
 	 #   EXTRACTING CHAR AT POSITION                        #
 	#======================================================#
 
-	def ExtractAt(n)
-		return This.ExtractSection(n, n)
+	def ExtractAt(_n_)
+		return This.ExtractSection(_n_, _n_)
 
-		def ExtractCharAt(n)
-			return This.ExtractAt(n)
+		def ExtractCharAt(_n_)
+			return This.ExtractAt(_n_)
 
 	  #======================================================#
 	 #   EXTRACTING FIRST / LAST CHAR                       #
@@ -127,17 +127,17 @@ class stzStringExtractor from stzObject
 	 #   EXTRACTING NTH OCCURRENCE                          #
 	#======================================================#
 
-	def ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+	def ExtractNthOccurrenceCS(_n_, pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
-		if nPos = 0
+		_nPos_ = _oFinder_.FindNthCS(_n_, pcSubStr, pCaseSensitive)
+		if _nPos_ = 0
 			return ""
 		ok
-		nLen = StzLen(pcSubStr)
-		return This.ExtractSection(nPos, nPos + nLen - 1)
+		_nLen_ = StzLen(pcSubStr)
+		return This.ExtractSection(_nPos_, _nPos_ + _nLen_ - 1)
 
-	def ExtractNthOccurrence(n, pcSubStr)
-		return This.ExtractNthOccurrenceCS(n, pcSubStr, 1)
+	def ExtractNthOccurrence(_n_, pcSubStr)
+		return This.ExtractNthOccurrenceCS(_n_, pcSubStr, 1)
 
 	  #======================================================#
 	 #   EXTRACTING FIRST / LAST OCCURRENCE                 #
@@ -145,24 +145,24 @@ class stzStringExtractor from stzObject
 
 	def ExtractFirstCS(pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		n = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
-		if n = 0
+		_n_ = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
+		if _n_ = 0
 			return ""
 		ok
-		nLen = StzLen(pcSubStr)
-		return This.ExtractSection(n, n + nLen - 1)
+		_nLen_ = StzLen(pcSubStr)
+		return This.ExtractSection(_n_, _n_ + _nLen_ - 1)
 
 	def ExtractFirst(pcSubStr)
 		return This.ExtractFirstCS(pcSubStr, 1)
 
 	def ExtractLastCS(pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		n = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
-		if n = 0
+		_n_ = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
+		if _n_ = 0
 			return ""
 		ok
-		nLen = StzLen(pcSubStr)
-		return This.ExtractSection(n, n + nLen - 1)
+		_nLen_ = StzLen(pcSubStr)
+		return This.ExtractSection(_n_, _n_ + _nLen_ - 1)
 
 	def ExtractLast(pcSubStr)
 		return This.ExtractLastCS(pcSubStr, 1)
@@ -173,12 +173,12 @@ class stzStringExtractor from stzObject
 
 	def ExtractCharsWCS(pcCondition, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
-		acResult = []
-		for i = len(anPos) to 1 step -1
-			acResult + This.ExtractAt(anPos[i])
+		_anPos_ = _oFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
+		_acResult_ = []
+		for i = len(_anPos_) to 1 step -1
+			_acResult_ + This.ExtractAt(_anPos_[i])
 		next
-		return ListReversed(acResult)
+		return ListReversed(_acResult_)
 
 	def ExtractCharsW(pcCondition)
 		return This.ExtractCharsWCS(pcCondition, 1)

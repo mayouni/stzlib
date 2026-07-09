@@ -7,17 +7,17 @@ func ArePointers(paPointers)
 		return FALSE
 	ok
 
-	bResult = TRUE
-	nLen = len(paPointers)
+	_bResult_ = TRUE
+	_nLen_ = len(paPointers)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if NOT isPointer(paPointers[i])
-			bResult = FALSE
+			_bResult_ = FALSE
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func @ArePointers(paPointers)
 		return ArePointers(paPointers)

@@ -75,33 +75,33 @@ func StzHasRerankerModel()
 # second stage.
 func StzRerank(pcQuery, paDocs)
 	if NOT (isString(pcQuery) and isList(paDocs)) return [] ok
-	bXEnc = StzHasRerankerModel()
-	aScored = []
-	nD = len(paDocs)
-	for i = 1 to nD
+	_bXEnc_ = StzHasRerankerModel()
+	_aScored_ = []
+	_nD_ = len(paDocs)
+	for i = 1 to _nD_
 		if isString(paDocs[i])
-			if bXEnc
-				nS = StzEngineNeuralRerank(pcQuery, paDocs[i])
+			if _bXEnc_
+				_nS_ = StzEngineNeuralRerank(pcQuery, paDocs[i])
 			else
-				nS = StzSemanticSimilarity(pcQuery, paDocs[i])
+				_nS_ = StzSemanticSimilarity(pcQuery, paDocs[i])
 			ok
-			aScored + [ paDocs[i], nS ]
+			_aScored_ + [ paDocs[i], _nS_ ]
 		ok
 	next
 	# selection sort by descending score (doc count is small)
-	nSc = len(aScored)
-	for i = 1 to nSc - 1
-		iMax = i
-		for j = i + 1 to nSc
-			if aScored[j][2] > aScored[iMax][2] iMax = j ok
+	_nSc_ = len(_aScored_)
+	for i = 1 to _nSc_ - 1
+		_iMax_ = i
+		for j = i + 1 to _nSc_
+			if _aScored_[j][2] > _aScored_[_iMax_][2] _iMax_ = j ok
 		next
-		if iMax != i
-			tmp = aScored[i]
-			aScored[i] = aScored[iMax]
-			aScored[iMax] = tmp
+		if _iMax_ != i
+			_tmp_ = _aScored_[i]
+			_aScored_[i] = _aScored_[_iMax_]
+			_aScored_[_iMax_] = _tmp_
 		ok
 	next
-	return aScored
+	return _aScored_
 
 # StzSemanticSimilarity(cA, cB) -- similarity of two texts in [-1, 1]. Uses the
 # loaded model's sentence embeddings (cosine == dot, since L2-normalized) when a
@@ -110,28 +110,28 @@ func StzRerank(pcQuery, paDocs)
 func StzSemanticSimilarity(pcA, pcB)
 	if NOT (isString(pcA) and isString(pcB)) return 0 ok
 	if StzHasNeuralModel()
-		aA = _StzEmbedInto(pcA)
-		aB = _StzEmbedInto(pcB)
-		nLen = len(aA)
-		if nLen = 0 or len(aB) != nLen return 0 ok
-		nDot = 0
-		for i = 1 to nLen
-			nDot += aA[i] * aB[i]
+		_aA_ = _StzEmbedInto(pcA)
+		_aB_ = _StzEmbedInto(pcB)
+		_nLen_ = len(_aA_)
+		if _nLen_ = 0 or len(_aB_) != _nLen_ return 0 ok
+		_nDot_ = 0
+		for i = 1 to _nLen_
+			_nDot_ += _aA_[i] * _aB_[i]
 		next
-		return nDot
+		return _nDot_
 	ok
-	oA = new stzString(pcA)
-	return oA.CosineSimilarityWith(pcB)
+	_oA_ = new stzString(pcA)
+	return _oA_.CosineSimilarityWith(pcB)
 
 # Run one forward pass and copy the embedding out of the engine's single g_emb
 # buffer into a fresh Ring list (so a second embed doesn't clobber the first).
 func _StzEmbedInto(pcText)
-	nDim = StzEngineNeuralEmbed(pcText)
-	aVec = []
-	for i = 0 to nDim - 1
-		aVec + StzEngineNeuralEmbedAt(i)
+	_nDim_ = StzEngineNeuralEmbed(pcText)
+	_aVec_ = []
+	for i = 0 to _nDim_ - 1
+		_aVec_ + StzEngineNeuralEmbedAt(i)
 	next
-	return aVec
+	return _aVec_
 
 class stzNeuralModel from stzNeural
 
@@ -227,13 +227,13 @@ class stzNeuralModel from stzNeural
 		# sentence-embedding vector as a list of EmbeddingDim() floats (DATA).
 		def EmbeddingOf(pcText)
 			if NOT isString(pcText) return [] ok
-			nDim = StzEngineNeuralEmbed(pcText)
-			if nDim = 0 return [] ok
-			aVec = []
-			for i = 0 to nDim - 1
-				aVec + StzEngineNeuralEmbedAt(i)
+			_nDim_ = StzEngineNeuralEmbed(pcText)
+			if _nDim_ = 0 return [] ok
+			_aVec_ = []
+			for i = 0 to _nDim_ - 1
+				_aVec_ + StzEngineNeuralEmbedAt(i)
 			next
-			return aVec
+			return _aVec_
 
 			def Embedding(pcText)
 				return This.EmbeddingOf(pcText)
@@ -241,22 +241,22 @@ class stzNeuralModel from stzNeural
 		# WordPiece token ids for cText (with [CLS]..[SEP]) -- DATA.
 		def Tokenize(pcText)
 			if NOT isString(pcText) return [] ok
-			nCount = StzEngineNeuralTokenize(pcText)
-			aIds = []
-			for i = 0 to nCount - 1
-				aIds + StzEngineNeuralTokenAt(i)
+			_nCount_ = StzEngineNeuralTokenize(pcText)
+			_aIds_ = []
+			for i = 0 to _nCount_ - 1
+				_aIds_ + StzEngineNeuralTokenAt(i)
 			next
-			return aIds
+			return _aIds_
 
 		# Cosine similarity of two texts' embeddings, in [-1, 1] (DATA). The
 		# vectors are already L2-normalized, so cosine = dot product.
 		def SemanticSimilarityBetween(pcA, pcB)
-			aA = This.EmbeddingOf(pcA)
-			aB = This.EmbeddingOf(pcB)
-			nLen = len(aA)
-			if nLen = 0 or len(aB) != nLen return 0 ok
-			nDot = 0
-			for i = 1 to nLen
-				nDot += aA[i] * aB[i]
+			_aA_ = This.EmbeddingOf(pcA)
+			_aB_ = This.EmbeddingOf(pcB)
+			_nLen_ = len(_aA_)
+			if _nLen_ = 0 or len(_aB_) != _nLen_ return 0 ok
+			_nDot_ = 0
+			for i = 1 to _nLen_
+				_nDot_ += _aA_[i] * _aB_[i]
 			next
-			return nDot
+			return _nDot_

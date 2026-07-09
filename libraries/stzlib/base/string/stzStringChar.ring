@@ -18,17 +18,17 @@
 
 #-- Unicode character property helpers (engine wrappers)
 
-func _CharIsSpace(nUnicode)
-	return StzEngineUnicodeIsSpace(nUnicode)
+func _CharIsSpace(_nUnicode_)
+	return StzEngineUnicodeIsSpace(_nUnicode_)
 
-func _CharCategoryNumber(nUnicode)
-	return StzEngineUnicodeCategory(nUnicode)
+func _CharCategoryNumber(_nUnicode_)
+	return StzEngineUnicodeCategory(_nUnicode_)
 
-func _CharBidiClass(nUnicode)
-	return StzEngineUnicodeBidiClass(nUnicode)
+func _CharBidiClass(_nUnicode_)
+	return StzEngineUnicodeBidiClass(_nUnicode_)
 
-func _CharMirrored(nUnicode)
-	switch nUnicode
+func _CharMirrored(_nUnicode_)
+	switch _nUnicode_
 	on 0x28 return 0x29
 	on 0x29 return 0x28
 	on 0x3C return 0x3E
@@ -52,51 +52,51 @@ func _CharMirrored(nUnicode)
 	on 0x0F3C return 0x0F3D
 	on 0x0F3D return 0x0F3C
 	off
-	return nUnicode
+	return _nUnicode_
 
-func _CharUnicodeVersion(nUnicode)
-	if nUnicode <= 0x7F return 1 ok
-	if nUnicode <= 0xFF return 1 ok
-	if nUnicode <= 0x24F return 1 ok
-	if nUnicode >= 0x0300 and nUnicode <= 0x036F return 1 ok
-	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 1 ok
-	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 1 ok
-	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 1 ok
-	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 1 ok
-	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 1 ok
-	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 2 ok
-	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 1 ok
-	if nUnicode >= 0x1F600 and nUnicode <= 0x1F64F return 6 ok
-	if nUnicode >= 0x1F300 and nUnicode <= 0x1F5FF return 6 ok
+func _CharUnicodeVersion(_nUnicode_)
+	if _nUnicode_ <= 0x7F return 1 ok
+	if _nUnicode_ <= 0xFF return 1 ok
+	if _nUnicode_ <= 0x24F return 1 ok
+	if _nUnicode_ >= 0x0300 and _nUnicode_ <= 0x036F return 1 ok
+	if _nUnicode_ >= 0x0370 and _nUnicode_ <= 0x03FF return 1 ok
+	if _nUnicode_ >= 0x0400 and _nUnicode_ <= 0x04FF return 1 ok
+	if _nUnicode_ >= 0x0590 and _nUnicode_ <= 0x05FF return 1 ok
+	if _nUnicode_ >= 0x0600 and _nUnicode_ <= 0x06FF return 1 ok
+	if _nUnicode_ >= 0x4E00 and _nUnicode_ <= 0x9FFF return 1 ok
+	if _nUnicode_ >= 0xAC00 and _nUnicode_ <= 0xD7AF return 2 ok
+	if _nUnicode_ >= 0x0900 and _nUnicode_ <= 0x097F return 1 ok
+	if _nUnicode_ >= 0x1F600 and _nUnicode_ <= 0x1F64F return 6 ok
+	if _nUnicode_ >= 0x1F300 and _nUnicode_ <= 0x1F5FF return 6 ok
 	return 1
 
-func _CharScriptCode(nUnicode)
+func _CharScriptCode(_nUnicode_)
 	# Codes index _aUnicodeScriptsXT (stzCharData.ring): 3 Latin, 4 Greek,
 	# 5 Cyrillic, 6 Armenian, 7 Hebrew, 8 Arabic, 11 Devanagari, 21 Thai,
 	# 26 Hangul, 34 Hiragana, 35 Katakana, 37 Han.
 # Common script (code 2) first: spaces, digits, punctuation and
 	# symbols are script-neutral, NOT Latin (UAX #24).
-	if nUnicode <= 0x40 return 2 ok					# space, digits, punctuation
-	if nUnicode >= 0x5B and nUnicode <= 0x60 return 2 ok		# [ \ ] ^ _ `
-	if nUnicode >= 0x7B and nUnicode <= 0xBF return 2 ok		# { | } ~ + Latin-1 symbols
-	if nUnicode = 0xD7 or nUnicode = 0xF7 return 2 ok		# multiply / divide signs
-	if nUnicode >= 0x300 and nUnicode <= 0x36F return 1 ok		# combining marks -> Inherited
-	if nUnicode <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
-	if nUnicode >= 0x2160 and nUnicode <= 0x217F return 3 ok	# Roman numerals -> Latin (UAX #24)
-	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 4 ok		# Greek
-	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 5 ok		# Cyrillic
-	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 6 ok		# Armenian
-	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 7 ok		# Hebrew
-	if nUnicode >= 0x064B and nUnicode <= 0x065F return 1 ok	# Arabic diacritics -> Inherited
-	if nUnicode = 0x0670 return 1 ok				# superscript alef -> Inherited
-	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok		# Arabic
-	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 11 ok	# Devanagari
-	if nUnicode >= 0x0A80 and nUnicode <= 0x0AFF return 14 ok	# Gujarati
-	if nUnicode >= 0x0E00 and nUnicode <= 0x0E7F return 21 ok	# Thai
-	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 34 ok	# Hiragana
-	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 35 ok	# Katakana
-	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han
-	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 26 ok	# Hangul syllables
+	if _nUnicode_ <= 0x40 return 2 ok					# space, digits, punctuation
+	if _nUnicode_ >= 0x5B and _nUnicode_ <= 0x60 return 2 ok		# [ \ ] ^ _ `
+	if _nUnicode_ >= 0x7B and _nUnicode_ <= 0xBF return 2 ok		# { | } ~ + Latin-1 symbols
+	if _nUnicode_ = 0xD7 or _nUnicode_ = 0xF7 return 2 ok		# multiply / divide signs
+	if _nUnicode_ >= 0x300 and _nUnicode_ <= 0x36F return 1 ok		# combining marks -> Inherited
+	if _nUnicode_ <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
+	if _nUnicode_ >= 0x2160 and _nUnicode_ <= 0x217F return 3 ok	# Roman numerals -> Latin (UAX #24)
+	if _nUnicode_ >= 0x0370 and _nUnicode_ <= 0x03FF return 4 ok		# Greek
+	if _nUnicode_ >= 0x0400 and _nUnicode_ <= 0x04FF return 5 ok		# Cyrillic
+	if _nUnicode_ >= 0x0530 and _nUnicode_ <= 0x058F return 6 ok		# Armenian
+	if _nUnicode_ >= 0x0590 and _nUnicode_ <= 0x05FF return 7 ok		# Hebrew
+	if _nUnicode_ >= 0x064B and _nUnicode_ <= 0x065F return 1 ok	# Arabic diacritics -> Inherited
+	if _nUnicode_ = 0x0670 return 1 ok				# superscript alef -> Inherited
+	if _nUnicode_ >= 0x0600 and _nUnicode_ <= 0x06FF return 8 ok		# Arabic
+	if _nUnicode_ >= 0x0900 and _nUnicode_ <= 0x097F return 11 ok	# Devanagari
+	if _nUnicode_ >= 0x0A80 and _nUnicode_ <= 0x0AFF return 14 ok	# Gujarati
+	if _nUnicode_ >= 0x0E00 and _nUnicode_ <= 0x0E7F return 21 ok	# Thai
+	if _nUnicode_ >= 0x3040 and _nUnicode_ <= 0x309F return 34 ok	# Hiragana
+	if _nUnicode_ >= 0x30A0 and _nUnicode_ <= 0x30FF return 35 ok	# Katakana
+	if _nUnicode_ >= 0x4E00 and _nUnicode_ <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han
+	if _nUnicode_ >= 0xAC00 and _nUnicode_ <= 0xD7AF return 26 ok	# Hangul syllables
 	return 0
 
 #-- Public standalone functions
@@ -123,14 +123,14 @@ func StzIsInvisibleChar(c)
 	func @IsInvisibleChar(c)
 		return StzIsInvisibleChar(c)
 
-func StzSpace(n)
-	return Copy(" ", n)
+func StzSpace(_n_)
+	return Copy(" ", _n_)
 
-	func Space(n)
-		return StzSpace(n)
+	func Space(_n_)
+		return StzSpace(_n_)
 
-	func @Space(n)
-		return StzSpace(n)
+	func @Space(_n_)
+		return StzSpace(_n_)
 
 func StzCharQ(p)
 	return new stzStringChar(p)
@@ -138,18 +138,18 @@ func StzCharQ(p)
 	func CQ(p)
 		return StzCharQ(p)
 
-func StzCharObj(n)
-	nMax = MaxUnicodeNumber()
-	if NOT ( isNumber(n) and n <= nMax )
-		StzRaise("Incorrect param type! p must be a number less then " + nMax + "!")
+func StzCharObj(_n_)
+	_nMax_ = MaxUnicodeNumber()
+	if NOT ( isNumber(_n_) and _n_ <= _nMax_ )
+		StzRaise("Incorrect param type! p must be a number less then " + _nMax_ + "!")
 	ok
-	return StzCharQ(n).Content()
+	return StzCharQ(_n_).Content()
 
-	func UnicodeChar(n)
-		return StzChar(n)
+	func UnicodeChar(_n_)
+		return StzChar(_n_)
 
-	func UChar(n)
-		return StzChar(n)
+	func UChar(_n_)
+		return StzChar(_n_)
 
 func StzCharMethods()
 	return Stz(:Char, :Methods)
@@ -197,12 +197,12 @@ func StzIsChar(pStrOrNbr)
 		ok
 
 	but isNumber(pStrOrNbr)
-		cStringified = ""+ pStrOrNbr
-		if ring_substr1(cStringified, ".") > 0
+		_cStringified_ = ""+ pStrOrNbr
+		if ring_substr1(_cStringified_, ".") > 0
 			return 0
 		ok
-		n = 0+ cStringified
-		if n < 0 or n > 9
+		_n_ = 0+ _cStringified_
+		if _n_ < 0 or _n_ > 9
 			return 0
 		ok
 		return 1
@@ -262,16 +262,16 @@ func StzCharName(c)
 	func @Name(c)
 		return StzCharName(c)
 
-func StzUnicodeToHexUnicode(n)
-	oChar = new stzStringChar(n)
-	return oChar.HexUnicode()
+func StzUnicodeToHexUnicode(_n_)
+	_oChar_ = new stzStringChar(_n_)
+	return _oChar_.HexUnicode()
 
-	func UnicodeToHexUnicode(n)
-		return StzUnicodeToHexUnicode(n)
+	func UnicodeToHexUnicode(_n_)
+		return StzUnicodeToHexUnicode(_n_)
 
 func StzHexUnicodeToUnicode(cHex)
-	oChar = new stzStringChar(cHex)
-	return oChar.Unicode()
+	_oChar_ = new stzStringChar(cHex)
+	return _oChar_.Unicode()
 
 	func HexUnicodeToUnicode(cHex)
 		return StzHexUnicodeToUnicode(cHex)
@@ -288,32 +288,32 @@ func StzCharToUnicode(c)
 	def CharUnicode(c)
 		return StzCharToUnicode(c)
 
-func StzUnicodeToChar(nUnicode)
-	oChar = new stzStringChar(nUnicode)
-	return oChar.Content()
+func StzUnicodeToChar(_nUnicode_)
+	_oChar_ = new stzStringChar(_nUnicode_)
+	return _oChar_.Content()
 
-	func UnicodeToChar(nUnicode)
-		return StzUnicodeToChar(nUnicode)
+	func UnicodeToChar(_nUnicode_)
+		return StzUnicodeToChar(_nUnicode_)
 
-	func @Char(nUnicode)
-		return StzUnicodeToChar(nUnicode)
+	func @Char(_nUnicode_)
+		return StzUnicodeToChar(_nUnicode_)
 
 func StzUnicodeSectionToListOfChars(nUnicode1, nUnicode2)
-	aResult = []
-	for nUnicode = nUnicode1 to nUnicode2
-		aResult + StzUnicodeToChar( nUnicode )
+	_aResult_ = []
+	for _nUnicode_ = nUnicode1 to nUnicode2
+		_aResult_ + StzUnicodeToChar( _nUnicode_ )
 	next
-	return aResult
+	return _aResult_
 
 	func UnicodeSectionToListOfChars(nUnicode1, nUnicode2)
 		return StzUnicodeSectionToListOfChars(nUnicode1, nUnicode2)
 
 func StzUnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
-	aResult = []
-	for nUnicode = nUnicode1 to nUnicode2
-		aResult + new stzStringChar( nUnicode )
+	_aResult_ = []
+	for _nUnicode_ = nUnicode1 to nUnicode2
+		_aResult_ + new stzStringChar( _nUnicode_ )
 	next
-	return aResult
+	return _aResult_
 
 	func UnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
 		return StzUnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
@@ -337,22 +337,22 @@ func StzUnicodeCharName(c)
 		return StzUnicodeCharName(c)
 
 func StzCharScript(c)
-	oTempChar = new stzStringChar(c)
-	return oTempChar.Script()
+	_oTempChar_ = new stzStringChar(c)
+	return _oTempChar_.Script()
 
 	func CharScript(c)
 		return StzCharScript(c)
 
 func StzCharIsArabicShaddah(c)
-	oChar = new stzStringChar(c)
-	return oChar.IsArabicShaddah()
+	_oChar_ = new stzStringChar(c)
+	return _oChar_.IsArabicShaddah()
 
 	func CharIsArabicShaddah(c)
 		return StzCharIsArabicShaddah(c)
 
 func StzCharIsArabic7arakah(c)
-	oChar = new stzStringChar(c)
-	return oChar.IsArabic7arakah()
+	_oChar_ = new stzStringChar(c)
+	return _oChar_.IsArabic7arakah()
 
 	func CharIsArabic7arakah(c)
 		return StzCharIsArabic7arakah(c)
@@ -391,10 +391,10 @@ func StzRemoveDiacritic(pcChar)
 		return StzRemoveDiacritic(pcChar)
 
 func StzACharOtherThan(pcChar)
-	nUnicode = Unicode(pcChar)
-	n = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThan(nUnicode)
-	cResult = StzCharQ(n).Content()
-	return cResult
+	_nUnicode_ = Unicode(pcChar)
+	_n_ = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThan(_nUnicode_)
+	_cResult_ = StzCharQ(_n_).Content()
+	return _cResult_
 
 	func ACharOtherThan(pcChar)
 		return StzACharOtherThan(pcChar)
@@ -540,8 +540,8 @@ func StzRomanNumber@(pcChar)
 		return StzRomanNumber@(pcChar)
 
 func StzFirstCharOf(pcStr)
-	oTemp = new stzString(pcStr)
-	return oTemp.NthChar(1)
+	_oTemp_ = new stzString(pcStr)
+	return _oTemp_.NthChar(1)
 
 	func FirstCharOf(pcStr)
 		return StzFirstCharOf(pcStr)
@@ -550,8 +550,8 @@ func StzFirstCharOf(pcStr)
 		return StzFirstCharOf(pcStr)
 
 func StzLastCharOf(pcStr)
-	oTemp = new stzString(pcStr)
-	return oTemp.NthChar(oTemp.NumberOfChars())
+	_oTemp_ = new stzString(pcStr)
+	return _oTemp_.NthChar(_oTemp_.NumberOfChars())
 
 	func LastCharOf(pcStr)
 		return StzLastCharOf(pcStr)
@@ -560,10 +560,10 @@ func StzLastCharOf(pcStr)
 		return StzLastCharOf(pcStr)
 
 func StzFirstLetterOf(pcStr)
-	oStzStr = new stzString(pcStr)
-	for i = 1 to oStzStr.NumberOfChars()
-		if StzCharQ(oStzStr[i]).IsLetter()
-			return oStzStr[i]
+	_oStzStr_ = new stzString(pcStr)
+	for i = 1 to _oStzStr_.NumberOfChars()
+		if StzCharQ(_oStzStr_[i]).IsLetter()
+			return _oStzStr_[i]
 		ok
 	next
 
@@ -574,12 +574,12 @@ func StzFirstLetterOf(pcStr)
 		return StzFirstLetterOf(pcStr)
 
 func StzLastLetterOf(pcStr)
-	oTemp = new stzString(pcStr)
-	nLen = oTemp.NumberOfChars()
-	for _i = nLen to 1 step -1
-		cChar = oTemp.NthChar(_i)
-		if StzCharQ(cChar).IsLetter()
-			return cChar
+	_oTemp_ = new stzString(pcStr)
+	_nLen_ = _oTemp_.NumberOfChars()
+	for _i = _nLen_ to 1 step -1
+		_cChar_ = _oTemp_.NthChar(_i)
+		if StzCharQ(_cChar_).IsLetter()
+			return _cChar_
 		ok
 	next
 	return ""
@@ -617,27 +617,27 @@ func StzNumberOfChineseLetters()
 	func HowManyChineseLetters()
 		return StzNumberOfChineseLetters()
 
-func StzNthChar(n, str)
-	if isString(n) and isNumber(str)
-		temp = n
-		n = str
-		str = temp
+func StzNthChar(_n_, _str_)
+	if isString(_n_) and isNumber(_str_)
+		_temp_ = _n_
+		_n_ = _str_
+		_str_ = _temp_
 	ok
 
 	if CheckingParams()
-		if NOT ( isNumber(n) and isString(str) )
+		if NOT ( isNumber(_n_) and isString(_str_) )
 			StzRaise("Incorrect param type! n must be a number and str must be a string.")
 		ok
 	ok
 
-	oTemp = new stzString(str)
-	return oTemp.NthChar(n)
+	_oTemp_ = new stzString(_str_)
+	return _oTemp_.NthChar(_n_)
 
-	func NthChar(n, str)
-		return StzNthChar(n, str)
+	func NthChar(_n_, _str_)
+		return StzNthChar(_n_, _str_)
 
-	func @NthChar(n, str)
-		return StzNthChar(n, str)
+	func @NthChar(_n_, _str_)
+		return StzNthChar(_n_, _str_)
 
 func StzIsVowel(p)
 	if CheckingParams()
@@ -651,22 +651,22 @@ func StzIsVowel(p)
 			return ring_isvowel(p)
 		ok
 
-		acChars = StzStringQ(p).Chars()
+		_acChars_ = StzStringQ(p).Chars()
 	else
-		acChars = p
+		_acChars_ = p
 	ok
 
-	nLen = len(acChars)
-	bResult = 1
+	_nLen_ = len(_acChars_)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT StzIsVowel(acChars[i])
-			bResult = 0
+	for i = 1 to _nLen_
+		if NOT StzIsVowel(_acChars_[i])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func IsAVowel(p)
 		return StzIsVowel(p)
@@ -683,18 +683,18 @@ func StzIsVowel(p)
 	func @AreVowels(p)
 		return StzIsVowel(p)
 
-func StzCharByName(cName)
-	_nCp_ = StzCodepointByName(cName)
+func StzCharByName(_cName_)
+	_nCp_ = StzCodepointByName(_cName_)
 	if _nCp_ < 0
-		StzRaise("Character name not found: " + cName)
+		StzRaise("Character name not found: " + _cName_)
 	ok
 	return StzChar(_nCp_)
 
-	func CharByName(cName)
-		return StzCharByName(cName)
+	func CharByName(_cName_)
+		return StzCharByName(_cName_)
 
-	func @CharByName(cName)
-		return StzCharByName(cName)
+	func @CharByName(_cName_)
+		return StzCharByName(_cName_)
 
 
   /////////////////
@@ -721,26 +721,26 @@ class stzStringChar from stzString
 				StzRaise("Can't create char from empty string!")
 			ok
 
-			oStr = StzStringQ(pChar)
+			_oStr_ = StzStringQ(pChar)
 
-			if oStr.NumberOfChars() = 1
+			if _oStr_.NumberOfChars() = 1
 				@oString = new stzString(pChar)
 
-			but oStr.RepresentsNumberInUnicodeHexForm()
+			but _oStr_.RepresentsNumberInUnicodeHexForm()
 				# "U+06A2" -- drop the 2-char "U+" prefix before hex->decimal.
 				# ToDecimal() returns a STRING -- coerce to a number, else
 				# StzEngineCharToUtf8 mis-encodes it (1-byte garbage).
-				_nLenU_ = oStr.NumberOfChars()
-				_cHexU_ = oStr.Section(3, _nLenU_)
+				_nLenU_ = _oStr_.NumberOfChars()
+				_cHexU_ = _oStr_.Section(3, _nLenU_)
 				_oHexU_ = StzHexNumberQ(_cHexU_)
 				_nCiUni_ = 0 + _oHexU_.ToDecimal()
 				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
 
-			but oStr.RepresentsNumberInHexForm()
+			but _oStr_.RepresentsNumberInHexForm()
 				_nCiUni_ = 0 + StzHexNumberQ(pChar).ToDecimal()
 				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
 
-			but oStr.IsCharName()
+			but _oStr_.IsCharName()
 				_nCnUni_ = StzCodepointByName(pChar)
 				@oString = new stzString(StzEngineCharToUtf8(_nCnUni_))
 
@@ -786,17 +786,17 @@ class stzStringChar from stzString
 		return "" + This.Unicode()
 
 	def HexUnicode()
-		nDecUnicode = This.Unicode()
-		acHexDigits = "0123456789ABCDEF"
-		cResult = ""
+		_nDecUnicode_ = This.Unicode()
+		_acHexDigits_ = "0123456789ABCDEF"
+		_cResult_ = ""
 
 		for i = 1 to 4
-			nDigit = 0+ Q(nDecUnicode % 16).IntegerPart() + 1
-			cResult = acHexDigits[nDigit] + cResult
-			nDecUnicode = nDecUnicode / 16
+			_nDigit_ = 0+ Q(_nDecUnicode_ % 16).IntegerPart() + 1
+			_cResult_ = _acHexDigits_[_nDigit_] + _cResult_
+			_nDecUnicode_ = _nDecUnicode_ / 16
 		next
 
-		return "U+" + cResult
+		return "U+" + _cResult_
 
 	def IsEmpty()
 		return 0	# stzStringChar can never host an empty char
@@ -848,9 +848,9 @@ class stzStringChar from stzString
 			@oString = new stzString(pChar)
 
 		but ring_Type(pChar) = "NUMBER"
-			cBuf = space(4)
-			nLen = StzEngineCharToUtf8(pChar, cBuf, 4)
-			@oString = new stzString(StzLeft(cBuf, nLen))
+			_cBuf_ = space(4)
+			_nLen_ = StzEngineCharToUtf8(pChar, _cBuf_, 4)
+			@oString = new stzString(StzLeft(_cBuf_, _nLen_))
 		else
 			StzRaise("Can't update the char!")
 		ok
@@ -924,8 +924,8 @@ class stzStringChar from stzString
 		if NOT isString(pcName)
 			return 0
 		ok
-		cName = This.Name()
-		return BothStringsAreEqualCS(pcName, cName, 0)
+		_cName_ = This.Name()
+		return BothStringsAreEqualCS(pcName, _cName_, 0)
 
 	def AsciiCode()
 		try
@@ -1003,8 +1003,8 @@ class stzStringChar from stzString
 		_aIndianDigits2_ = IndianDigits()
 		_nIndianDigits2Len_ = len(_aIndianDigits2_)
 		for _iLoopIndianDigits2_ = 1 to _nIndianDigits2Len_
-			cDigit = _aIndianDigits2_[_iLoopIndianDigits2_]
-			if cDigit = This.Content()
+			_cDigit_ = _aIndianDigits2_[_iLoopIndianDigits2_]
+			if _cDigit_ = This.Content()
 				return 1
 			ok
 		end
@@ -1079,8 +1079,8 @@ class stzStringChar from stzString
 		return _CharCategoryNumber(This.Unicode())
 
 	def UnicodeCategory()
-		n = This.UnicodeCategoryNumber()
-		return UnicodeCategoriesXT()[ ""+n ]
+		_n_ = This.UnicodeCategoryNumber()
+		return UnicodeCategoriesXT()[ ""+_n_ ]
 
 		def CharType()
 			return This.UnicodeCategory()
@@ -1110,8 +1110,8 @@ class stzStringChar from stzString
 
 	def IsLetter()
 		# Use engine for the primary check
-		nUnicode = This.Unicode()
-		if StzEngineCharIsLetter(nUnicode) = 1
+		_nUnicode_ = This.Unicode()
+		if StzEngineCharIsLetter(_nUnicode_) = 1
 			return 1
 		ok
 		# Fallback: Arabic shaddah is considered a letter in Softanza
@@ -1187,8 +1187,8 @@ class stzStringChar from stzString
 		return _CharIsSpace(This.Unicode())
 
 	def IsUnicodeNumber()
-		nCat = _CharCategoryNumber(This.Unicode())
-		if nCat = 3 or nCat = 4 or nCat = 5 or
+		_nCat_ = _CharCategoryNumber(This.Unicode())
+		if _nCat_ = 3 or _nCat_ = 4 or _nCat_ = 5 or
 		   This.IsRomanNumber() or
 		   This.IsMandarinNumber() or
 		   This.IsIndianNumber()
@@ -1256,12 +1256,12 @@ class stzStringChar from stzString
 		return StzEngineUnicodeIsSymbol(This.Unicode())
 
 	def IsNonChar()
-		nU = This.Unicode()
-		if nU >= 0xFDD0 and nU <= 0xFDEF
+		_nU_ = This.Unicode()
+		if _nU_ >= 0xFDD0 and _nU_ <= 0xFDEF
 			return 1
 		ok
-		nLow = nU & 0xFFFF
-		if nLow = 0xFFFE or nLow = 0xFFFF
+		_nLow_ = _nU_ & 0xFFFF
+		if _nLow_ = 0xFFFE or _nLow_ = 0xFFFF
 			return 1
 		ok
 		return 0
@@ -1319,16 +1319,16 @@ class stzStringChar from stzString
 	#==================#
 
 	def IsMirrored()
-		nMirror = _CharMirrored(This.Unicode())
-		return nMirror != This.Unicode()
+		_nMirror_ = _CharMirrored(This.Unicode())
+		return _nMirror_ != This.Unicode()
 
 	def UnicodeOfMirrored()
 		return _CharMirrored(This.Unicode())
 
 	def Mirrored()
-		nMirrorUnicode = _CharMirrored(This.Unicode())
-		cChar = CharFromUnicode(nMirrorUnicode)
-		return cChar
+		_nMirrorUnicode_ = _CharMirrored(This.Unicode())
+		_cChar_ = CharFromUnicode(_nMirrorUnicode_)
+		return _cChar_
 
 	  #=========================#
 	 #   LATIN CHAR VARIANTS  #
@@ -1338,8 +1338,8 @@ class stzStringChar from stzString
 		return StzEngineUnicodeIsLatin(This.Unicode())
 
 	def IsLatinLetter()
-		nCp = This.Unicode()
-		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsLatin(nCp)
+		_nCp_ = This.Unicode()
+		return StzEngineUnicodeIsLetter(_nCp_) AND StzEngineUnicodeIsLatin(_nCp_)
 
 	def IsBasicLatin()
 		return ring_find(_anBasicLatinUnicodes, This.Unicode()) > 0
@@ -1373,8 +1373,8 @@ class stzStringChar from stzString
 		return StzEngineUnicodeIsArabic(This.Unicode())
 
 	def IsArabicLetter()
-		nCp = This.Unicode()
-		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsArabic(nCp)
+		_nCp_ = This.Unicode()
+		return StzEngineUnicodeIsLetter(_nCp_) AND StzEngineUnicodeIsArabic(_nCp_)
 
 	def IsBasicArabic()
 		return ring_find(_anBasicArabicUnicodes, This.Unicode()) > 0
@@ -1439,8 +1439,8 @@ class stzStringChar from stzString
 	#==============================#
 
 	def IsPrintable()
-		nCat = _CharCategoryNumber(This.Unicode())
-		if nCat = 9 or nCat = 10 or nCat = 11 or nCat = 12 or nCat = 13
+		_nCat_ = _CharCategoryNumber(This.Unicode())
+		if _nCat_ = 9 or _nCat_ = 10 or _nCat_ = 11 or _nCat_ = 12 or _nCat_ = 13
 			return 0
 		ok
 		return 1
@@ -1469,9 +1469,9 @@ class stzStringChar from stzString
 	#======================#
 
 	def IntroducedInUnicodeVersion()
-		n = _CharUnicodeVersion(This.Unicode())
-		if n > 0 and n <= len(_acUnicodeVersions)
-			return _acUnicodeVersions[ n ]
+		_n_ = _CharUnicodeVersion(This.Unicode())
+		if _n_ > 0 and _n_ <= len(_acUnicodeVersions)
+			return _acUnicodeVersions[ _n_ ]
 		else
 			StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
 		ok
@@ -1522,8 +1522,8 @@ class stzStringChar from stzString
 	#================#
 
 	def DefaultLanguage()
-		cResult = StzScriptQ(This.Script()).DefaultLanguage()
-		return cResult
+		_cResult_ = StzScriptQ(This.Script()).DefaultLanguage()
+		return _cResult_
 
 		def Language()
 			return This.DefaultLanguage()
@@ -1536,19 +1536,19 @@ class stzStringChar from stzString
 	#============#
 
 	def Script()
-		nCode = _CharScriptCode(This.Unicode())
-		nLen = len(_aUnicodeScriptsXT)
+		_nCode_ = _CharScriptCode(This.Unicode())
+		_nLen_ = len(_aUnicodeScriptsXT)
 
-		cResult = :Undefined
+		_cResult_ = :Undefined
 
-		for i = 1 to nLen
-			if _aUnicodeScriptsXT[i][1] = ""+nCode
-				cResult = _aUnicodeScriptsXT[i][2]
+		for i = 1 to _nLen_
+			if _aUnicodeScriptsXT[i][1] = ""+_nCode_
+				_cResult_ = _aUnicodeScriptsXT[i][2]
 				exit
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 		def UnicodeScript()
 			return Script()

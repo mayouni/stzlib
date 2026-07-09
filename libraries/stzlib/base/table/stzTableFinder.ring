@@ -35,8 +35,8 @@ class stzTableFinder from stzTable
 		ok
 
 		pcColName = StzLower(pcColName)
-		n = StzFindFirst( This.Header(), pcColName)
-		return n
+		_n_ = StzFindFirst( This.Header(), pcColName)
+		return _n_
 
 		#< @FunctionAlternativeForm
 
@@ -59,8 +59,8 @@ class stzTableFinder from stzTable
 				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 			ok
 
-			nLen = len(pacColNames)
-			for i = 1 to nLen
+			_nLen_ = len(pacColNames)
+			for i = 1 to _nLen_
 				if pacColNames[i] = :First 	 or
 				   pacColNames[i] = :FirstCol	 or
 				   pacColNames[i] = :FirstColumn
@@ -77,8 +77,8 @@ class stzTableFinder from stzTable
 
 		ok
 
-		anResult = Q( This.ColNames() ).FindMany(pacColNames)
-		return anResult
+		_anResult_ = Q( This.ColNames() ).FindMany(pacColNames)
+		return _anResult_
 
 		#< @FunctionAlternativeForm
 
@@ -134,8 +134,8 @@ class stzTableFinder from stzTable
 			ok
 		ok
 
-		anResult = This.ToStzHashList().FindValueCS(paColData, pCaseSensitive)
-		return anResult
+		_anResult_ = This.ToStzHashList().FindValueCS(paColData, pCaseSensitive)
+		return _anResult_
 
 		def FindColumnByValueCS(paColData, pCaseSensitive)
 			return This.FindColByValueCS(paColData, pCaseSensitive)
@@ -164,19 +164,19 @@ class stzTableFinder from stzTable
 
 		paManyColData = U( paManyColData ) # Duplicates are removed
 
-		nLen = len(paManyColData)
-		anResult = []
+		_nLen_ = len(paManyColData)
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anPos = This.FindColByValueCS(paManyColData[i], pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+		for i = 1 to _nLen_
+			_anPos_ = This.FindColByValueCS(paManyColData[i], pCaseSensitive)
+			_nLenPos_ = len(_anPos_)
+			for j = 1 to _nLenPos_
+				_anResult_ + _anPos_[j]
 			next
 		next
 
-		anResult = new stzList(anResult).Sorted()
-		return anResult
+		_anResult_ = new stzList(_anResult_).Sorted()
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -248,18 +248,18 @@ class stzTableFinder from stzTable
 			ok
 		ok
 
-		anColNumbers = U(panColNumbers)
-		nLen = len(@aContent)
+		_anColNumbers_ = U(panColNumbers)
+		_nLen_ = len(@aContent)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if StzFindFirst(anColNumbers, i) = 0
-				anResult + i
+		for i = 1 to _nLen_
+			if StzFindFirst(_anColNumbers_, i) = 0
+				_anResult_ + i
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		def FindColumnsExceptAt(panColNumbers)
 			return This.FindColsExceptAt(panColNumbers)
@@ -283,10 +283,10 @@ class stzTableFinder from stzTable
 			ok
 		ok
 
-		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
+		_anResult_ = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
 		// #TODO Make a more performant solution!
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -333,10 +333,10 @@ class stzTableFinder from stzTable
 
 	def FindColsByValueExceptCS(paCols, pCaseSensitive)
 
-		anResult = Q(1:This.NumberOfCols()) -
+		_anResult_ = Q(1:This.NumberOfCols()) -
 			   These( This.FindColsByValueCS(paCols, pCaseSensitive) )
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -386,8 +386,8 @@ class stzTableFinder from stzTable
 	#==============================#
 
 	def FindRowCS(paRow, pCaseSensitive)
-		anResult = Q(This.Rows()).FindAllCS(paRow, pCaseSensitive)
-		return anResult
+		_anResult_ = Q(This.Rows()).FindAllCS(paRow, pCaseSensitive)
+		return _anResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -399,8 +399,8 @@ class stzTableFinder from stzTable
 	#----------------------------------#
 
 	def FindNthRowCS(paRow, pCaseSensitive)
-		nPos = Q(This.Rows()).FindNthCS(parow, pCaseSensitive)
-		return nPos
+		_nPos_ = Q(This.Rows()).FindNthCS(parow, pCaseSensitive)
+		return _nPos_
 
 		def FindNthOccurrenceOfRowCS(paRow, pCaseSensitive)
 			return This.FindNthRowCS(paRow, pCaseSensitive)
@@ -418,8 +418,8 @@ class stzTableFinder from stzTable
 	#----------------------------------------#
 
 	def FindRowsCS(paRows, pCaseSensitive)
-		anResult = Q(This.Rows()).FindManyCS(paRows, pCaseSensitive)
-		return anResult
+		_anResult_ = Q(This.Rows()).FindManyCS(paRows, pCaseSensitive)
+		return _anResult_
 
 		def FindManyRowsCS(paRows, pCaseSensitive)
 			return This.FindRowsCS(paRows, pCaseSensitive)
@@ -479,18 +479,18 @@ class stzTableFinder from stzTable
 			ok
 		ok
 
-		anPos = This.FindRowsCS(paRows, pCaseSensitive)
-		nRows = This.NumberOfRows()
+		_anPos_ = This.FindRowsCS(paRows, pCaseSensitive)
+		_nRows_ = This.NumberOfRows()
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nRows
-			if StzFindFirst(anPos, i) = 0 and StzFindFirst(anResult, i) = 0
-				anResult +i
+		for i = 1 to _nRows_
+			if StzFindFirst(_anPos_, i) = 0 and StzFindFirst(_anResult_, i) = 0
+				_anResult_ +i
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		def FindAllRowsExceptTheseCS(paRows, pCaseSensitive)
 			return This.FindRowsExceptTheseCS(paRows, pCaseSensitive)
@@ -520,17 +520,17 @@ class stzTableFinder from stzTable
 			ok
 		ok
 
-		nRows = This.NumberOfRows()
+		_nRows_ = This.NumberOfRows()
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nRows
-			if StzFindFirst(panRowNumbers, i) = 0 and StzFindFirst(anResult, i) = 0
-				anResult + i
+		for i = 1 to _nRows_
+			if StzFindFirst(panRowNumbers, i) = 0 and StzFindFirst(_anResult_, i) = 0
+				_anResult_ + i
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		def FindAllRowsExceptAtCS(panRowNumbers, pCaseSensitive)
 			return This.FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)

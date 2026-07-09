@@ -77,8 +77,8 @@ class stzStringFinder from stzObject
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
-		for i = 1 to nLen
+		_nLen_ = len(pacSubStrings)
+		for i = 1 to _nLen_
 			if NOT This.ContainsCS(pacSubStrings[i], pCaseSensitive)
 				return FALSE
 			ok
@@ -101,8 +101,8 @@ class stzStringFinder from stzObject
 			ok
 
 			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1])
-				cPN = StzCaseFold(pcSubStr[1])
-				if cPN = "of" or cPN = "ofsubstring"
+				_cPN_ = StzCaseFold(pcSubStr[1])
+				if _cPN_ = "of" or _cPN_ = "ofsubstring"
 					pcSubStr = pcSubStr[2]
 				ok
 			ok
@@ -125,17 +125,17 @@ class stzStringFinder from stzObject
 		# fragility; the drain is correct and findall is Ring-list-bound
 		# anyway, so bulk gave no real gain here.)
 		pResult = StzEngineStringFindCS(@oString.Engine(), pcSubStr, _bCase_)
-		nCount = StzEngineFindResultCount(pResult)
-		if nCount = 0
+		_nCount_ = StzEngineFindResultCount(pResult)
+		if _nCount_ = 0
 			StzEngineFindResultFree(pResult)
 			return []
 		ok
-		anResult = []
-		for i = 1 to nCount
-			anResult + StzEngineFindResultGet(pResult, i)
+		_anResult_ = []
+		for i = 1 to _nCount_
+			_anResult_ + StzEngineFindResultGet(pResult, i)
 		next
 		StzEngineFindResultFree(pResult)
-		return anResult
+		return _anResult_
 
 	def Find(pcSubStr)
 		return This.FindCS(pcSubStr, 1)
@@ -144,7 +144,7 @@ class stzStringFinder from stzObject
 	 #     FIND NTH                  #
 	#===============================#
 
-	def FindNthCS(n, pcSubstr, pCaseSensitive)
+	def FindNthCS(_n_, pcSubstr, pCaseSensitive)
 
 		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
@@ -166,26 +166,26 @@ class stzStringFinder from stzObject
 			return 0
 		ok
 
-		if isString(n)
-			cNLowercased = StzCaseFold(n)
-			if cNLowercased = :First or cNLowercased = :FirstOccurrence
-				n = 1
+		if isString(_n_)
+			_cNLowercased_ = StzCaseFold(_n_)
+			if _cNLowercased_ = :First or _cNLowercased_ = :FirstOccurrence
+				_n_ = 1
 
-			but cNLowercased = :Last or cNLowercased = :LastOccurrence
-				n = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+			but _cNLowercased_ = :Last or _cNLowercased_ = :LastOccurrence
+				_n_ = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
 			else
-				n = 0
+				_n_ = 0
 			ok
 		ok
 
 		# Direct engine call — single FFI instead of N iterated find-next
 		pH = @oString.Engine()
-		nResult = StzEngineStringFindNthCS(pH, pcSubStr, n, pCaseSensitive)
-		return nResult
+		_nResult_ = StzEngineStringFindNthCS(pH, pcSubStr, _n_, pCaseSensitive)
+		return _nResult_
 
-	def FindNth(n, pcSubstr)
-		return This.FindNthCS(n, pcSubstr, 1)
+	def FindNth(_n_, pcSubstr)
+		return This.FindNthCS(_n_, pcSubstr, 1)
 
 	  #===============================#
 	 #     FIND FIRST                #
@@ -204,9 +204,9 @@ class stzStringFinder from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		nResult = @oString._FindSubStr(pcSubStr, 1, _bCase_)
+		_nResult_ = @oString._FindSubStr(pcSubStr, 1, _bCase_)
 
-		return nResult
+		return _nResult_
 
 	def FindFirst(pcSubstr)
 		return This.FindFirstCS(pcSubstr, 1)
@@ -222,10 +222,10 @@ class stzStringFinder from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		nResult = StzEngineStringFindLastCS(@oString.Engine(), pcSubStr, _bCase_)
+		_nResult_ = StzEngineStringFindLastCS(@oString.Engine(), pcSubStr, _bCase_)
 		# Engine returns 1-based (INDEX_BASE=1), -1 for not found
-		if nResult > 0
-			return nResult
+		if _nResult_ > 0
+			return _nResult_
 		else
 			return 0
 		ok
@@ -256,27 +256,27 @@ class stzStringFinder from stzObject
 		# Per the original monolith: the FLAT, ascending-sorted list of
 		# every substring's positions (the grouped [sub, positions]
 		# shape is the Z-family's job).
-		aResult = []
-		nLen = len(pacSubStrings)
-		for i = 1 to nLen
-			anPositions = This.FindCS(pacSubStrings[i], pCaseSensitive)
-			nPL = len(anPositions)
-			for j = 1 to nPL
-				aResult + anPositions[j]
+		_aResult_ = []
+		_nLen_ = len(pacSubStrings)
+		for i = 1 to _nLen_
+			_anPositions_ = This.FindCS(pacSubStrings[i], pCaseSensitive)
+			_nPL_ = len(_anPositions_)
+			for _j_ = 1 to _nPL_
+				_aResult_ + _anPositions_[_j_]
 			next
 		next
 		# Ascending insertion sort (the lists are small).
-		nRL = len(aResult)
-		for i = 2 to nRL
-			nV = aResult[i]
-			j = i - 1
-			while j >= 1 and aResult[j] > nV
-				aResult[j + 1] = aResult[j]
-				j--
+		_nRL_ = len(_aResult_)
+		for i = 2 to _nRL_
+			_nV_ = _aResult_[i]
+			_j_ = i - 1
+			while _j_ >= 1 and _aResult_[_j_] > _nV_
+				_aResult_[_j_ + 1] = _aResult_[_j_]
+				_j_--
 			end
-			aResult[j + 1] = nV
+			_aResult_[_j_ + 1] = _nV_
 		next
-		return aResult
+		return _aResult_
 
 	def FindMany(pacSubStrings)
 		return This.FindManyCS(pacSubStrings, 1)
@@ -310,21 +310,21 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
-		anFirstPos = This.FindCS(pcSubStr, pCaseSensitive)
-		nLen = len(anFirstPos)
+		_anFirstPos_ = This.FindCS(pcSubStr, pCaseSensitive)
+		_nLen_ = len(_anFirstPos_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		aResult = []
-		nLenSubStr = StzLen(pcSubStr)
+		_aResult_ = []
+		_nLenSubStr_ = StzLen(pcSubStr)
 
-		for i = 1 to nLen
-			aResult + [ anFirstPos[i], anFirstPos[i] + nLenSubStr - 1 ]
+		for i = 1 to _nLen_
+			_aResult_ + [ _anFirstPos_[i], _anFirstPos_[i] + _nLenSubStr_ - 1 ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def FindAsSections(pcSubStr)
 		return This.FindAsSectionsCS(pcSubStr, 1)
@@ -335,27 +335,27 @@ class stzStringFinder from stzObject
 
 	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
-		nLen1 = StzLen(pcBound1)
-		n1 = This.FindFirstCS(pcBound1, pCaseSensitive)
-		if n1 = 0
+		_nLen1_ = StzLen(pcBound1)
+		_n1_ = This.FindFirstCS(pcBound1, pCaseSensitive)
+		if _n1_ = 0
 			return [0, 0]
 		ok
-		n1 = n1 + nLen1
+		_n1_ = _n1_ + _nLen1_
 
-		n2 = This.FindLastCS(pcBound2, pCaseSensitive)
-		if n2 = 0
+		_n2_ = This.FindLastCS(pcBound2, pCaseSensitive)
+		if _n2_ = 0
 			return [0, 0]
 		ok
-		n2 = n2 - 1
+		_n2_ = _n2_ - 1
 
-		if n2 < n1
-			nTemp = n2
-			n2 = n1
-			n1 = nTemp
+		if _n2_ < _n1_
+			_nTemp_ = _n2_
+			_n2_ = _n1_
+			_n1_ = _nTemp_
 		ok
 
-		aResult = [ n1, n2 ]
-		return aResult
+		_aResult_ = [ _n1_, _n2_ ]
+		return _aResult_
 
 		def FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
@@ -376,31 +376,31 @@ class stzStringFinder from stzObject
 			StzRaise("Incorrect param! pacBounds must be a pair of strings.")
 		ok
 
-		cBound1 = pacBounds[1]
-		cBound2 = pacBounds[2]
+		_cBound1_ = pacBounds[1]
+		_cBound2_ = pacBounds[2]
 
-		anPos1 = This.FindCS(cBound1, pCaseSensitive)
-		anPos2 = This.FindCS(cBound2, pCaseSensitive)
+		_anPos1_ = This.FindCS(_cBound1_, pCaseSensitive)
+		_anPos2_ = This.FindCS(_cBound2_, pCaseSensitive)
 
-		nLen1 = StzLen(cBound1)
+		_nLen1_ = StzLen(_cBound1_)
 
-		aResult = []
+		_aResult_ = []
 
 		# For each bound1 occurrence, find the next bound2 after it
-		_nPos1Len_ = len(anPos1)
+		_nPos1Len_ = len(_anPos1_)
 		for i = 1 to _nPos1Len_
-			nAfter = anPos1[i] + nLen1
+			_nAfter_ = _anPos1_[i] + _nLen1_
 			# Find the nearest bound2 that starts after bound1 ends
-			_nPos2Len_ = len(anPos2)
-			for j = 1 to _nPos2Len_
-				if anPos2[j] > anPos1[i] + nLen1 - 1
-					aResult + [ nAfter, anPos2[j] - 1 ]
+			_nPos2Len_ = len(_anPos2_)
+			for _j_ = 1 to _nPos2Len_
+				if _anPos2_[_j_] > _anPos1_[i] + _nLen1_ - 1
+					_aResult_ + [ _nAfter_, _anPos2_[_j_] - 1 ]
 					exit
 				ok
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 		def FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
@@ -416,18 +416,18 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def SubStringsCS(pCaseSensitive)
-		cStr = @oString.Content()
-		if cStr = ""
+		_cStr_ = @oString.Content()
+		if _cStr_ = ""
 			return []
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		pResult = StzEngineStringAllSubstringsCS(@oString.Engine(), _bCase_)
-		cJoined = StzEngineStringData(pResult)
+		_cJoined_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
-		return _SplitNullDelimited(cJoined)
+		return _SplitNullDelimited(_cJoined_)
 
 	def SubStrings()
 		return This.SubStringsCS(1)
@@ -440,46 +440,46 @@ class stzStringFinder from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringDuplicateSubstringsCS(pH, _bCase_)
-		cJoined = StzEngineStringData(pR)
+		_cJoined_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if cJoined = ""
+		if _cJoined_ = ""
 			return []
 		ok
-		return _SplitNullDelimited(cJoined)
+		return _SplitNullDelimited(_cJoined_)
 
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
-		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		nLen = len(acDuplicates)
+		_acDuplicates_ = This.DuplicatesCS(pCaseSensitive)
+		_nLen_ = len(_acDuplicates_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aSections = This.FindAsSectionsCS(acDuplicates[i], pCaseSensitive)
+		for i = 1 to _nLen_
+			_aSections_ = This.FindAsSectionsCS(_acDuplicates_[i], pCaseSensitive)
 			# Remove first occurrence — keep only duplicates
-			if len(aSections) > 1
-				_nSectionsLen_ = len(aSections)
-				for j = 2 to _nSectionsLen_
-					aResult + aSections[j]
+			if len(_aSections_) > 1
+				_nSectionsLen_ = len(_aSections_)
+				for _j_ = 2 to _nSectionsLen_
+					_aResult_ + _aSections_[_j_]
 				next
 			ok
 		next
 
 		# Sort by start position
-		nLenR = len(aResult)
-		for i = 1 to nLenR - 1
-			for j = 1 to nLenR - i
-				if aResult[j][1] > aResult[j+1][1]
-					temp = aResult[j]
-					aResult[j] = aResult[j+1]
-					aResult[j+1] = temp
+		_nLenR_ = len(_aResult_)
+		for i = 1 to _nLenR_ - 1
+			for _j_ = 1 to _nLenR_ - i
+				if _aResult_[_j_][1] > _aResult_[_j_+1][1]
+					_temp_ = _aResult_[_j_]
+					_aResult_[_j_] = _aResult_[_j_+1]
+					_aResult_[_j_+1] = _temp_
 				ok
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 	def FindDuplicatesAsSections()
 		return This.FindDuplicatesAsSectionsCS(1)
@@ -502,9 +502,9 @@ class stzStringFinder from stzObject
 
 	def FindWCS(pcCondition, pCaseSensitive)
 		# Dispatch: @substring -> substring-level W; @char (or default) -> char-level.
-		cLower = StzCaseFold(pcCondition)
-		oTmp = new stzStringFinder(cLower)
-		if oTmp.Contains("@substring")
+		_cLower_ = StzCaseFold(pcCondition)
+		_oTmp_ = new stzStringFinder(_cLower_)
+		if _oTmp_.Contains("@substring")
 			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 		ok
 		return This.FindCharsWCS(pcCondition, pCaseSensitive)
@@ -562,20 +562,20 @@ class stzStringFinder from stzObject
 	def FindAllChar(pcChar)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
-		nCp = StzEngineStringCharAt(pHChar, 1)
+		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		pResult = StzEngineStringFindChar(pH, nCp)
-		nCount = StzEngineFindResultCount(pResult)
-		if nCount = 0
+		pResult = StzEngineStringFindChar(pH, _nCp_)
+		_nCount_ = StzEngineFindResultCount(pResult)
+		if _nCount_ = 0
 			StzEngineFindResultFree(pResult)
 			return []
 		ok
-		anResult = []
-		for i = 1 to nCount
-			anResult + StzEngineFindResultGet(pResult, i)
+		_anResult_ = []
+		for i = 1 to _nCount_
+			_anResult_ + StzEngineFindResultGet(pResult, i)
 		next
 		StzEngineFindResultFree(pResult)
-		return anResult
+		return _anResult_
 
 	  #===============================#
 	 #     STARTS/ENDS WITH ANY      #
@@ -620,13 +620,13 @@ class stzStringFinder from stzObject
 	 #     BETWEEN NTH               #
 	#===============================#
 
-	def BetweenNth(pcOpen, pcClose, n)
+	def BetweenNth(pcOpen, pcClose, _n_)
 		pH = @oString.Engine()
 		# Engine uses 0-based nth; Softanza uses 1-based
-		pR = StzEngineStringBetweenNth(pH, pcOpen, pcClose, n - 1)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringBetweenNth(pH, pcOpen, pcClose, _n_ - 1)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     CHARS BETWEEN POSITIONS   #
@@ -635,9 +635,9 @@ class stzStringFinder from stzObject
 	def CharsBetween(nFrom, nTo)
 		pH = @oString.Engine()
 		pR = StzEngineStringCharsBetween(pH, nFrom, nTo)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     REGEX FIND               #

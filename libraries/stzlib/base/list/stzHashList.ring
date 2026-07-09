@@ -2,12 +2,12 @@
 
 /*
 	Example 1:
-		o1 = new stzHashList(4)
-		o1 { SetKeyValue[ :name = "mansour" ] Show() }
+		_o1_ = new stzHashList(4)
+		_o1_ { SetKeyValue[ :name = "mansour" ] Show() }
 
 	Example 2:
- 		o1 = new stzHashList([ :name = "mansour", :age = 44, :job = "programmer" ])
-		o1 { Show() }
+ 		_o1_ = new stzHashList([ :name = "mansour", :age = 44, :job = "programmer" ])
+		_o1_ { Show() }
 */
 
 func StzHashListQ(paList)
@@ -20,9 +20,9 @@ func StzNamedHashList(paNamed)
 		ok
 	ok
 
-	oStzHashList = StzHashListQ(paNamed[2])
-	oStzHashList.SetName(paNamed[1])
-	return oStzHashList
+	_oStzHashList_ = StzHashListQ(paNamed[2])
+	_oStzHashList_.SetName(paNamed[1])
+	return _oStzHashList_
 
 	func StzNamedHashListQ(paNamed)
 		return StzNamedHashList(paNamed)
@@ -35,8 +35,8 @@ func IsHashList(paList)
 		return FALSE
 	ok
 
-	oTempList = new stzList(paList)
-	return oTempList.IsHashList()
+	_oTempList_ = new stzList(paList)
+	return _oTempList_.IsHashList()
 
 	#< @FunctionAlternativeForms
 
@@ -356,38 +356,38 @@ func ShowHL(pValue)
 
 	#>
 
-func HashRemove(paHash, cKey)
+func HashRemove(paHash, _cKey_)
 	if CheckParams()
 		if NOT (isList(paHash) and IsHashList(paHash))
 			StzRaise("Incorrect param type! paHash must be a hashlist.")
 		ok
-		if NOT isString(cKey)
+		if NOT isString(_cKey_)
 			StzRaise("Incorrect param type! cKey must be a string.")
 		ok
 	ok
 
-	nLen = len(paHash)
-	cKey = StzLower(cKey)
-	n = 0
+	_nLen_ = len(paHash)
+	_cKey_ = StzLower(_cKey_)
+	_n_ = 0
 
-	for i = 1 to nLen
-		if paHash[i][1] = cKey
-			n = 1
+	for i = 1 to _nLen_
+		if paHash[i][1] = _cKey_
+			_n_ = 1
 			exit
 		ok
 	next
 
-	if n > 0
-		del(paHash, n)
+	if _n_ > 0
+		del(paHash, _n_)
 	ok
 
 	return paHash
 
-	func HashDel(paHash, cKey)
-		return HashRemove(paHash, cKey)
+	func HashDel(paHash, _cKey_)
+		return HashRemove(paHash, _cKey_)
 
-	func HashDelete(paHash, cKey)
-		return HashRemove(paHash, cKey)
+	func HashDelete(paHash, _cKey_)
+		return HashRemove(paHash, _cKey_)
 
 func StzAssociativeListQ(paList)
 	return new stzAssociativeList(paList)
@@ -718,73 +718,73 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aVakResult_
 
-	def NthKey(n)
-		if isString(n)
-			if n = :First or n = :FirstKey
-				n = 1
+	def NthKey(_n_)
+		if isString(_n_)
+			if _n_ = :First or _n_ = :FirstKey
+				_n_ = 1
 
-			but n = :Last or n = :LastKey
-				n = This.NumberOfKeys()
+			but _n_ = :Last or _n_ = :LastKey
+				_n_ = This.NumberOfKeys()
 			ok
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		if n > 0
-			return This.Content()[n][1]
+		if _n_ > 0
+			return This.Content()[_n_][1]
 		ok
 
-		def NthKeyQ(n)
+		def NthKeyQ(_n_)
 			return new stzString(This.NthKey())
 
-	def Key(n)
-		return This.NthKey(n)
+	def Key(_n_)
+		return This.NthKey(_n_)
 
-		def KeyQ(n)
-			return new stzString(This.Key(n))
+		def KeyQ(_n_)
+			return new stzString(This.Key(_n_))
 	
-		def KeyAtPosition(n)
-			return This.Key(n)
+		def KeyAtPosition(_n_)
+			return This.Key(_n_)
 	
-	def NthValue(n)
+	def NthValue(_n_)
 
 		if checkParams()
 
-			if isString(n)
-				if n = :First or n = :FirstValue
-					n = 1
+			if isString(_n_)
+				if _n_ = :First or _n_ = :FirstValue
+					_n_ = 1
 	
-				but n = :Last or n = :LastValue
-					n = This.NumberOfValues()
+				but _n_ = :Last or _n_ = :LastValue
+					_n_ = This.NumberOfValues()
 				ok
 			ok
 	
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
 		ok
 
 		_nNvLen_ = len(This.Content())
-		if n > _nNvLen_ or n < 1
-			StzRaise("Can't access item " + n + " in the hashlist! The hashlist contains only " + _nNvLen_ + "pairs.")
+		if _n_ > _nNvLen_ or _n_ < 1
+			StzRaise("Can't access item " + _n_ + " in the hashlist! The hashlist contains only " + _nNvLen_ + "pairs.")
 		ok
 
-		return This.Content()[n][2]
+		return This.Content()[_n_][2]
 
-		def NthValueQ(n)
+		def NthValueQ(_n_)
 			return Q(This.NthValue())
 
-		def Value(n)
-			return This.NthValue(n)
+		def Value(_n_)
+			return This.NthValue(_n_)
 
-			def ValueQ(n)
-				return Q( This.Value(n) )
+			def ValueQ(_n_)
+				return Q( This.Value(_n_) )
 
-		def ValueAtPosition(n)
-			return This.Value(n)
+		def ValueAtPosition(_n_)
+			return This.Value(_n_)
 
 	def FirstValue()
 		return This.NthValue(1)
@@ -798,28 +798,28 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def LastValueQ()
 			return Q( This.LastValue() )
 	
-	def NthPair(n)
-		if isString(n)
-			if n = :First or n = :FirstPair
-				n = 1
+	def NthPair(_n_)
+		if isString(_n_)
+			if _n_ = :First or _n_ = :FirstPair
+				_n_ = 1
 
-			but n = :Last or n = :LastPair
-				n = This.NumberOfPairs()
+			but _n_ = :Last or _n_ = :LastPair
+				_n_ = This.NumberOfPairs()
 			ok
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		return This.Content()[n]
+		return This.Content()[_n_]
 
 		#< @FunctionFluentForm
 
-		def NthPairQ(n)
-			return This.NthPairQRT(n, :stzList)
+		def NthPairQ(_n_)
+			return This.NthPairQRT(_n_, :stzList)
 
-		def NthPairQRT(n, pcReturnType)
+		def NthPairQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -830,9 +830,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.NthPair(n))
+				return new stzList(This.NthPair(_n_))
 			on :stzPair
-				return new stzpair(This.NthPair(n))
+				return new stzpair(This.NthPair(_n_))
 			other
 				StzRaise("Unsupported return type!")
 			off
@@ -841,19 +841,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForm
 	
-		def Pair(n)
-			return This.NthPair(n)
+		def Pair(_n_)
+			return This.NthPair(_n_)
 	
-			def PairQ(n)
-				return This.NthPairQ(n)
+			def PairQ(_n_)
+				return This.NthPairQ(_n_)
 
-			def PairQRT(n, pcReturnType)
-				return This.NthPairQRT(n, pcReturnType)
+			def PairQRT(_n_, pcReturnType)
+				return This.NthPairQRT(_n_, pcReturnType)
 	
 		#>
 	
 	def FirstPair()
-		return This.NthPair(n)
+		return This.NthPair(_n_)
 
 		def FirstPairQ()
 			return This.NthPairQ(1)
@@ -864,7 +864,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FirstPair()
 
 	def LastPair()
-		return This.LastPair(n)
+		return This.LastPair(_n_)
 
 		def LastPairQ()
 			return This.NthPairQ(This.NumberOfPairs())
@@ -904,17 +904,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ValueInThisPairQ(paPair)
 				return This.ValueInPairQ(paPair)
 
-	def KeyInNthPair(n)
-		return This.NthPair(n)[1]
+	def KeyInNthPair(_n_)
+		return This.NthPair(_n_)[1]
 
-		def KeyInNthPairQ(n)
-			return new stzString( This.KeyInNthPair(n) )
+		def KeyInNthPairQ(_n_)
+			return new stzString( This.KeyInNthPair(_n_) )
 	
-	def ValueInInNthPair(n)
-		return This.NthPair(n)[2]
+	def ValueInInNthPair(_n_)
+		return This.NthPair(_n_)[2]
 
-	def ValueInNthPairQ(n)
-		return Q( This.ValueInNthPair(n) )
+	def ValueInNthPairQ(_n_)
+		return Q( This.ValueInNthPair(_n_) )
 
 	def ValueByKey(pcKey)
 		# Ring's hashlist[key] indexer is the canonical fast path -- it does
@@ -1100,18 +1100,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#---
 
-	def UpdateNthPair(n, paNewPair)
+	def UpdateNthPair(_n_, paNewPair)
 
-		if n = :First
-			n = 1
-		but n = :Last
-			n = This.NumberOfPairs()
+		if _n_ = :First
+			_n_ = 1
+		but _n_ = :Last
+			_n_ = This.NumberOfPairs()
 		ok
 
 		if isList(paNewPair) and @IsPairAndKeyIsString(paNewPair)
 
-			This.UpdateNthKey(n, paNewPair[1])
-			This.UpdateNthValue(n, paNewPair[2])
+			This.UpdateNthKey(_n_, paNewPair[1])
+			This.UpdateNthValue(_n_, paNewPair[2])
 		else
 			StzRaise("Key must be a string!")
 		ok
@@ -1127,23 +1127,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Key must be a string!")
 		ok
 
-	def UpdateNthKey(n, pcValue)
-		if isList(n) and isNumber(pcValue)
-			_unkTemp_ = n
-			n = pcValue
+	def UpdateNthKey(_n_, pcValue)
+		if isList(_n_) and isNumber(pcValue)
+			_unkTemp_ = _n_
+			_n_ = pcValue
 			pcValue = _unkTemp_
 		ok
 
-		if n = :First
-			n = 1
-		but n = :Last
-			n = This.NumberOfKeys()
+		if _n_ = :First
+			_n_ = 1
+		but _n_ = :Last
+			_n_ = This.NumberOfKeys()
 		ok
 
 		# Now, let's do the job
 
 		_aUnkContent_ = This.Content()
-		_aUnkContent_[n][1] = pcValue
+		_aUnkContent_[_n_][1] = pcValue
 		This.UpdateWith(_aUnkContent_)
 
 	def UpdateKey(pcKey, pcNewKey)
@@ -1162,16 +1162,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next _iUks_
 		ok
 
-	def UpdateNthValue(n, pValue)
+	def UpdateNthValue(_n_, pValue)
 
-		if n = :First
-			n = 1
-		but n = :Last
-			n = This.NumberOfValues()
+		if _n_ = :First
+			_n_ = 1
+		but _n_ = :Last
+			_n_ = This.NumberOfValues()
 		ok
 
 		_aUnvContent_ = This.Content()
-		_aUnvContent_[n][2] = pValue
+		_aUnvContent_[_n_][2] = pValue
 		This.UpdateWith(_aUnvContent_)
 
 		def UpdateNthOccurrenceOfValue(pValue)
@@ -1301,29 +1301,29 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INSERTING    #
 	#------------------#
 
-	def InsertBefore(n, paPair)
-		if n > 1 and n <= This.NumberOfPairs()
-			insert( This.HashList, n-1, paPair)
+	def InsertBefore(_n_, paPair)
+		if _n_ > 1 and _n_ <= This.NumberOfPairs()
+			insert( This.HashList, _n_-1, paPair)
 			This._InvalidateEngineMap()
 		ok
 
-		def InsertBeforeQ(n, paPair)
-			This.InsertBefore(n, paPair)
+		def InsertBeforeQ(_n_, paPair)
+			This.InsertBefore(_n_, paPair)
 			return This
 
-	def InsertAfter(n, paPair)
-		insert( This.HashList, n, paPair)
+	def InsertAfter(_n_, paPair)
+		insert( This.HashList, _n_, paPair)
 		This._InvalidateEngineMap()
 
-		def InsertAfterQ(n, paPair)
-			This.InsertAfter(n, paPair)
+		def InsertAfterQ(_n_, paPair)
+			This.InsertAfter(_n_, paPair)
 			return This
 
 	  #------------------#
 	 #     REMOVING     #
 	#------------------#
 
-	def RemoveNthPair(n)
+	def RemoveNthPair(_n_)
 
 		#NOTE // As a general guideline, and after introducing the
 		# object history feature through QH() small function, we
@@ -1345,11 +1345,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#TODO // Review all the library according to this.
 
 		_aRnpContent_ = This.Content()
-		del(_aRnpContent_, n)
+		del(_aRnpContent_, _n_)
 		This.UpdateWith(_aRnpContent_)
 
-		def RemoveNthPairQ(n)
-			This.RemovePair(n)
+		def RemoveNthPairQ(_n_)
+			This.RemovePair(_n_)
 			return This
 
 	def RemovePair(paPair)
@@ -1427,18 +1427,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceKey(pcKey, pcNewKey)
 			return this
 
-	def ReplaceNthKey(n, pcNewKey)
+	def ReplaceNthKey(_n_, pcNewKey)
 		if CheckingParam()
 			if isList(pcNewKey) and Q(pcNewKey).IsWithOrByNamedParam()
 				pcNewKey = pcNewKey[2]
 			ok
 		ok
 
-		This.NthPair(n)[1] = pcNewKey
+		This.NthPair(_n_)[1] = pcNewKey
 		This._InvalidateEngineMap()
 
-		def ReplaceNthKeyQ(n, pcNewKey)
-			This.ReplaceNthKey(n, pcNewKey)
+		def ReplaceNthKeyQ(_n_, pcNewKey)
+			This.ReplaceNthKey(_n_, pcNewKey)
 			return This
 
 	def ReplaceFirstKey(pcNewKey)
@@ -1467,12 +1467,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceValue(pValue, pNewValue)
 			return this
 
-	def ReplaceNthValue(n, pNewValue)
+	def ReplaceNthValue(_n_, pNewValue)
 
 		if CheckingParam()
-			if NOT isNumber(n) and isNumber(pNewValue)
-				_rnvTemp_ = n
-				n = pNewValue
+			if NOT isNumber(_n_) and isNumber(pNewValue)
+				_rnvTemp_ = _n_
+				_n_ = pNewValue
 				pNewValue = _rnvTemp_
 			ok
 
@@ -1481,25 +1481,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		This.NthPair(n)[2] = pNewValue
+		This.NthPair(_n_)[2] = pNewValue
 		This._InvalidateEngineMap()
 
 		#NOTE // Normally Set... does not belong to Softanza semantics,
 		# we use Replace instead. Here I use to cope with AI-generated
 		# code which tend to be alligned with the Set keyword
-		def SetValueAt(n, pNewValue)
-			This.ReplaceNthValue(n, pNewValue)
+		def SetValueAt(_n_, pNewValue)
+			This.ReplaceNthValue(_n_, pNewValue)
 
-		def ReplaceNthValueQ(n, pNewValue)
-			This.ReplaceNthValue(n, pNewValue)
+		def ReplaceNthValueQ(_n_, pNewValue)
+			This.ReplaceNthValue(_n_, pNewValue)
 			return This
 
-		def SetValueAtQ(n, pNewValue)
-			return This.ReplaceNthValueQ(n, pNewValue)
+		def SetValueAtQ(_n_, pNewValue)
+			return This.ReplaceNthValueQ(_n_, pNewValue)
 
 
 	def ReplaceFirstValue(pNewValue)
@@ -1602,9 +1602,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		
 	def HasKeys(pacKeys)
 
-		oKeys = new stzList(pacKeys)
-		if oKeys.IsListOfStrings() and
-		   oKeys.IsEqualTo(This.Keys())
+		_oKeys_ = new stzList(pacKeys)
+		if _oKeys_.IsListOfStrings() and
+		   _oKeys_.IsEqualTo(This.Keys())
 
 			return 1
 		else
@@ -1837,46 +1837,46 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE NTH OCCURRENCE OF A VALUE   #
 	#-------------------------------------------#
 
-	def FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+	def FindNthOccurrenceOfValueCS(_n_, pValue, pCaseSensitive)
 
 		if CheckingParams()
 
-			if n = :First
-				n = 1
-			but n = :Last
-				n = This.NumberOfOccurreceOfValueCS(pValue, pCaseSensitive)
+			if _n_ = :First
+				_n_ = 1
+			but _n_ = :Last
+				_n_ = This.NumberOfOccurreceOfValueCS(pValue, pCaseSensitive)
 			ok
 	
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
 		ok
 
-		return This.FindValueCS(pValue, pCaseSensitive)[n]
+		return This.FindValueCS(pValue, pCaseSensitive)[_n_]
 
 		#< @FunctionAlternativeForms
 
-		def FindNthValueCS(n, pValue, pCaseSensitive)
-			return This.FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+		def FindNthValueCS(_n_, pValue, pCaseSensitive)
+			return This.FindNthOccurrenceOfValueCS(_n_, pValue, pCaseSensitive)
 
-		def FindNthCS(n, pValue, pCaseSensitive)
-			return This.FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
+		def FindNthCS(_n_, pValue, pCaseSensitive)
+			return This.FindNthOccurrenceOfValueCS(_n_, pValue, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthOccurrenceOfValue(n, pValue)
-		return This.FindNthOccurrenceOfValueCS(n, pValue, 1)
+	def FindNthOccurrenceOfValue(_n_, pValue)
+		return This.FindNthOccurrenceOfValueCS(_n_, pValue, 1)
 
 		#< @FunctionAlternativeForms
 
-		def FindNthValue(n, pValue)
-			return This.FindNthOccurrenceOfValue(n, pValue)
+		def FindNthValue(_n_, pValue)
+			return This.FindNthOccurrenceOfValue(_n_, pValue)
 
-		def FindNth(n, pValue)
-			return This.FindNthOccurrenceOfValue(n, pValue)
+		def FindNth(_n_, pValue)
+			return This.FindNthOccurrenceOfValue(_n_, pValue)
 
 		#>
 
@@ -1947,15 +1947,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING NTH KEY BY VALUE   #TODO // Add case sensitivity
 	#------------------------------#
 
-	def FindNthKeyByValue(n, pValue)
+	def FindNthKeyByValue(_n_, pValue)
 		# FindKeysByValue searches INSIDE list-valued entries via .Contains,
 		# but ContainsValue compares the whole value -- so guarding on
 		# ContainsValue would always return 0 for sub-item lookups.
 		# Guard directly on the result of FindKeysByValue instead.
 		_nFnkbvResult_ = 0
 		_anFnkbvPos_ = This.FindKeysByValue(pValue)
-		if len(_anFnkbvPos_) >= n
-			_nFnkbvResult_ = _anFnkbvPos_[n]
+		if len(_anFnkbvPos_) >= _n_
+			_nFnkbvResult_ = _anFnkbvPos_[_n_]
 		ok
 		return _nFnkbvResult_
 
@@ -2614,13 +2614,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ContainsItem(pItem) #TODO // Add case sensitivity
 		/* EXAMPLE
 	
-		o1 = new stzHashList([
+		_o1_ = new stzHashList([
 			:Positive	= :NONE,
 			:Neutral  	= [ :is, :will, :can, :some ],
 			:Negative	= :NONE
 		])
 	
-		? o1.ContainsItem(:nice) #--> TRUE
+		? _o1_.ContainsItem(:nice) #--> TRUE
 		*/
 
 		# See EXAMPLE in FindItemInList()
@@ -2659,7 +2659,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindItem(pItem)
 		/* EXAMPLE
 
-		o1 = new stzHashList([
+		_o1_ = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2667,7 +2667,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( o1.FindItem(:can) )
+		? @@( _o1_.FindItem(:can) )
 		#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
 		*/
 
@@ -2721,7 +2721,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindTheseItems(paItems)
 		/* EXAMPLE
 
-		o1 = new stzHashList([
+		_o1_ = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2729,7 +2729,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( o1.FindTheseItems([ :can, :will ]) )
+		? @@( _o1_.FindTheseItems([ :can, :will ]) )
 		#--> [
 		#	[ 2, [ 2, 3, 5 ] ],
 		#	[ 4, [ 1, 2 ] ],
@@ -2798,7 +2798,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def TheseItemsZ(paItems)
 		/* EXAMPLE
 
-		o1 = new stzHashList([
+		_o1_ = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2806,7 +2806,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? o1.TheseItemsZ([ :can, :will ])
+		? _o1_.TheseItemsZ([ :can, :will ])
 		#--> [
 		#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
 		#	[ :will, [ [2, [1]   ], [ 4, [2] ], [ 5, [1] ] ]
@@ -2908,12 +2908,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------------------------------------------#
 	#TODO // Add case sensitivity
 
-	def FindNthItem(n, pItem)
+	def FindNthItem(_n_, pItem)
 
-		if n = :First
-			n = 1
-		but n = :Last
-			n = This.NumberOfOccurreceOfItemInList(pItem)
+		if _n_ = :First
+			_n_ = 1
+		but _n_ = :Last
+			_n_ = This.NumberOfOccurreceOfItemInList(pItem)
 		ok
 
 		_anFniPos_ = This.FindItem(pItem)
@@ -2921,13 +2921,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_nFniResult_ = 0
 		if _nFniLen_ > 0
-			_nFniResult_ = _anFniPos_[n]
+			_nFniResult_ = _anFniPos_[_n_]
 		ok
 
 		return _nFniResult_
 
-		def FindNthOccurrenceOfItemInList(n, pItem)
-			return This.FindNthItem(n, pItem)
+		def FindNthOccurrenceOfItemInList(_n_, pItem)
+			return This.FindNthItem(_n_, pItem)
 
 	  #---------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE FIRST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
@@ -2978,8 +2978,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindLastItem(pItem)
-		n = This.NumberOfOccurreceOfItemInList(pItem)
-		return This.FindNthItem(n, pItem)
+		_n_ = This.NumberOfOccurreceOfItemInList(pItem)
+		return This.FindNthItem(_n_, pItem)
 
 		#< @FunctionAlternativeForms
 
@@ -3874,7 +3874,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE N STRONGEST CLASSES   #
 	#=====================================#
 
-	def NStrongestClasses(n)
+	def NStrongestClasses(_n_)
 		# Avoid `new stzList(...).Reversed()` chain (Ring 1.26 parses
 		# the dot as binding to the arg expression, not the new
 		# object, raising R13). Bind first.
@@ -3882,11 +3882,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aNscXT_ = _oNscTmp_.Reversed()
 		_nNscLen_ = len(_aNscXT_)
 
-		n = @Min([ n, _nNscLen_ ])
+		_n_ = @Min([ _n_, _nNscLen_ ])
 
 		_aNscResult_ = []
 
-		for _iNsc_ = 1 to n
+		for _iNsc_ = 1 to _n_
 			@AddItem(_aNscResult_, _aNscXT_[_iNsc_][1])
 		next
 
@@ -3894,34 +3894,34 @@ class stzHashList from stzList # Also called stzAssociativeList
 		
 		#< @FunctionAlternativeForms
 
-		def NStrongestKlasses(n)
-			return This.NStrongestClasses(n)
+		def NStrongestKlasses(_n_)
+			return This.NStrongestClasses(_n_)
 
-		def StrongestNClasses(n)
-			return This.NStrongestClasses(n)
+		def StrongestNClasses(_n_)
+			return This.NStrongestClasses(_n_)
 
-		def StrongestNKlasses(n)
-			return This.NStrongestClasses(n)
+		def StrongestNKlasses(_n_)
+			return This.NStrongestClasses(_n_)
 
 		#--
 
-		def TopNClasses(n)
-			return This.NStrongestClasses(n)
+		def TopNClasses(_n_)
+			return This.NStrongestClasses(_n_)
 
-		def NTopClasses(n)
-			return This.NStrongestClasses(n)
+		def NTopClasses(_n_)
+			return This.NStrongestClasses(_n_)
 
 		#>
 
-	def NStrongestClassesXT(n)
+	def NStrongestClassesXT(_n_)
 		_oNscxTmp_ = new stzList( SortListsOn( This.ClassesXT(), 2 ) )
 		_aNscxXT_ = _oNscxTmp_.Reversed()
 		_nNscxLen_ = len(_aNscxXT_)
-		n = @Min([ n, _nNscxLen_ ])
+		_n_ = @Min([ _n_, _nNscxLen_ ])
 
 		_aNscxResult_ = []
 
-		for _iNscx_ = 1 to n
+		for _iNscx_ = 1 to _n_
 			@AddItem(_aNscxResult_, _aNscxXT_[_iNscx_])
 		next
 
@@ -3929,39 +3929,39 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def NStrongestKlassesXT(n)
-			return This.NStrongestClassesXT(n)
+		def NStrongestKlassesXT(_n_)
+			return This.NStrongestClassesXT(_n_)
 
-		def StrongestNClassesXT(n)
-			return This.NStrongestClassesXT(n)
+		def StrongestNClassesXT(_n_)
+			return This.NStrongestClassesXT(_n_)
 
-		def StrongestNKlassesXT(n)
-			return This.NStrongestClassesXT(n)
-
-		#--
-
-		def NStrongestKlassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNClassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNKlassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
+		def StrongestNKlassesXT(_n_)
+			return This.NStrongestClassesXT(_n_)
 
 		#--
 
-		def TopNClassesXT(n)
-			return This.NStrongestClassesXT(n)
+		def NStrongestKlassesAndTheirFrequencies(_n_)
+			return This.NStrongestClassesXT(_n_)
 
-		def NTopClassesXT(n)
-			return This.NStrongestClassesXT(n)
+		def StrongestNClassesAndTheirFrequencies(_n_)
+			return This.NStrongestClassesXT(_n_)
 
-		def TopNClassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
+		def StrongestNKlassesAndTheirFrequencies(_n_)
+			return This.NStrongestClassesXT(_n_)
 
-		def NTopClassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
+		#--
+
+		def TopNClassesXT(_n_)
+			return This.NStrongestClassesXT(_n_)
+
+		def NTopClassesXT(_n_)
+			return This.NStrongestClassesXT(_n_)
+
+		def TopNClassesAndTheirFrequencies(_n_)
+			return This.NStrongestClassesXT(_n_)
+
+		def NTopClassesAndTheirFrequencies(_n_)
+			return This.NStrongestClassesXT(_n_)
 
 		#>
 
@@ -4020,14 +4020,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3StrongestKlasses(n)
-			return This.Top3Classes(n)
+		def 3StrongestKlasses(_n_)
+			return This.Top3Classes(_n_)
 
 		def Strongest3Classes()
-			return This.Top3Classes(n)
+			return This.Top3Classes(_n_)
 
-		def Strongest3Klasses(n)
-			return This.Top3Classes(n)
+		def Strongest3Klasses(_n_)
+			return This.Top3Classes(_n_)
 
 		#>
 
@@ -4036,28 +4036,28 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3StrongestKlassesXT(n)
-			return This.Top3ClassesXT(n)
+		def 3StrongestKlassesXT(_n_)
+			return This.Top3ClassesXT(_n_)
 
 		def Strongest3ClassesXT()
-			return This.Top3ClassesXT(n)
+			return This.Top3ClassesXT(_n_)
 
-		def Strongest3KlassesXT(n)
-			return This.Top3ClassesXT(n)
+		def Strongest3KlassesXT(_n_)
+			return This.Top3ClassesXT(_n_)
 
 		#--
 
-		def Top3ClassesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
+		def Top3ClassesAndTheirFrequencies(_n_)
+			return This.Top3ClassesXT(_n_)
 
-		def 3StrongestKlassesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
+		def 3StrongestKlassesAndTheirFrequencies(_n_)
+			return This.Top3ClassesXT(_n_)
 
 		def Strongest3ClassesAndTheirFrequencies()
-			return This.Top3ClassesXT(n)
+			return This.Top3ClassesXT(_n_)
 
-		def Strongest3KlassesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
+		def Strongest3KlassesAndTheirFrequencies(_n_)
+			return This.Top3ClassesXT(_n_)
 
 		#>
 
@@ -4065,14 +4065,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE N WEAKEST CLASSES   #
 	#===================================#
 
-	def NWeakestClasses(n)
+	def NWeakestClasses(_n_)
 		_aNwcXT_ = SortListsOn( ClassesXT(), 2 )
 		_nNwcLen_ = len(_aNwcXT_)
-		n = @Min([ n, _nNwcLen_ ])
+		_n_ = @Min([ _n_, _nNwcLen_ ])
 
 		_aNwcResult_ = []
 
-		for _iNwc_ = 1 to n
+		for _iNwc_ = 1 to _n_
 			@AddItem(_aNwcResult_, _aNwcXT_[_iNwc_][1])
 		next
 
@@ -4080,33 +4080,33 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def NWeakestKlasses(n)
-			return This.NWeakestClasses(n)
+		def NWeakestKlasses(_n_)
+			return This.NWeakestClasses(_n_)
 
-		def WeakestNClasses(n)
-			return This.NWeakestClasses(n)
+		def WeakestNClasses(_n_)
+			return This.NWeakestClasses(_n_)
 
-		def WeakestNKlasses(n)
-			return This.NWeakestClasses(n)
+		def WeakestNKlasses(_n_)
+			return This.NWeakestClasses(_n_)
 
 		#--
 
-		def BottomNClasses(n)
-			return This.NWeakestClasses(n)
+		def BottomNClasses(_n_)
+			return This.NWeakestClasses(_n_)
 
-		def NBottomClasses(n)
-			return This.NWeakestClasses(n)
+		def NBottomClasses(_n_)
+			return This.NWeakestClasses(_n_)
 
 		#>
 
-	def NWeakestClassesXT(n)
+	def NWeakestClassesXT(_n_)
 		_aNwcxXT_ = SortListsOn( ClassesXT(), 2 )
 		_nNwcxLen_ = len(_aNwcxXT_)
-		n = @Min([ n, _nNwcxLen_ ])
+		_n_ = @Min([ _n_, _nNwcxLen_ ])
 
 		_aNwcxResult_ = []
 
-		for _iNwcx_ = 1 to n
+		for _iNwcx_ = 1 to _n_
 			@AddItem(_aNwcxResult_, _aNwcxXT_[_iNwcx_])
 		next
 
@@ -4114,42 +4114,42 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def NWeakestKlassesXT(n)
-			return This.NWeakestClassesXT(n)
+		def NWeakestKlassesXT(_n_)
+			return This.NWeakestClassesXT(_n_)
 
-		def WeakestNClassesXT(n)
-			return This.NWeakestClassesXT(n)
+		def WeakestNClassesXT(_n_)
+			return This.NWeakestClassesXT(_n_)
 
-		def WeakestNKlassesXT(n)
-			return This.NWeakestClassesXT(n)
-
-		#--
-
-		def NWeakestClassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNClassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def NWeakestKlassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNKlassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
+		def WeakestNKlassesXT(_n_)
+			return This.NWeakestClassesXT(_n_)
 
 		#--
 
-		def BottomNClassesXT(n)
-			return This.NWeakestClassesXT(n)
+		def NWeakestClassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
 
-		def NBottomClassesXT(n)
-			return This.NWeakestClassesXT(n)
+		def WeakestNClassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
 
-		def BottomNClassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
+		def NWeakestKlassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
 
-		def NBottomClassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
+		def WeakestNKlassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
+
+		#--
+
+		def BottomNClassesXT(_n_)
+			return This.NWeakestClassesXT(_n_)
+
+		def NBottomClassesXT(_n_)
+			return This.NWeakestClassesXT(_n_)
+
+		def BottomNClassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
+
+		def NBottomClassesAndTheirFrequencies(_n_)
+			return This.NWeakestClassesXT(_n_)
 
 		#>
 
@@ -4187,11 +4187,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#--
 
-		def WeakestClassAndItsFrequency(n)
-			return This.WeakestClassXT(n)
+		def WeakestClassAndItsFrequency(_n_)
+			return This.WeakestClassXT(_n_)
 
-		def WeakestKlassAndItsFrequency(n)
-			return This.WeakestClassXT(n)
+		def WeakestKlassAndItsFrequency(_n_)
+			return This.WeakestClassXT(_n_)
 
 		#>
 
@@ -4202,14 +4202,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3WeakestKlasses(n)
-			return This.Bottom3Classes(n)
+		def 3WeakestKlasses(_n_)
+			return This.Bottom3Classes(_n_)
 
 		def Weakest3Classes()
-			return This.Bottom3Classes(n)
+			return This.Bottom3Classes(_n_)
 
-		def Weakest3Klasses(n)
-			return This.Bottom3Classes(n)
+		def Weakest3Klasses(_n_)
+			return This.Bottom3Classes(_n_)
 		#>
 
 	def Bottom3ClassesXT()
@@ -4217,25 +4217,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3WeakestKlassesXT(n)
-			return This.Bottom3ClassesXT(n)
+		def 3WeakestKlassesXT(_n_)
+			return This.Bottom3ClassesXT(_n_)
 
 		def Weakest3ClassesXT()
-			return This.Bottom3ClassesXT(n)
+			return This.Bottom3ClassesXT(_n_)
 
-		def Weakest3KlassesXT(n)
-			return This.Bottom3ClassesXT(n)
+		def Weakest3KlassesXT(_n_)
+			return This.Bottom3ClassesXT(_n_)
 
 		#--
 
-		def 3WeakestKlassesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
+		def 3WeakestKlassesAndTheirFrequencies(_n_)
+			return This.Bottom3ClassesXT(_n_)
 
 		def Weakest3ClassesAndTheirFrequencies()
-			return This.Bottom3ClassesXT(n)
+			return This.Bottom3ClassesXT(_n_)
 
-		def Weakest3KlassesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
+		def Weakest3KlassesAndTheirFrequencies(_n_)
+			return This.Bottom3ClassesXT(_n_)
 
 		#>
 

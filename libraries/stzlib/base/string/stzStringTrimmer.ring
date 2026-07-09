@@ -42,9 +42,9 @@ class stzStringTrimmer from stzObject
 	def Trim()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrim(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimQ()
 			This.Trim()
@@ -53,9 +53,9 @@ class stzStringTrimmer from stzObject
 	def Trimmed()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimmed(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #======================================================#
 	 #   TRIMMING LEFT / RIGHT                              #
@@ -64,9 +64,9 @@ class stzStringTrimmer from stzObject
 	def TrimLeft()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimLeft(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimLeftQ()
 			This.TrimLeft()
@@ -75,16 +75,16 @@ class stzStringTrimmer from stzObject
 	def TrimmedLeft()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimLeft(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def TrimRight()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimRight(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimRightQ()
 			This.TrimRight()
@@ -93,9 +93,9 @@ class stzStringTrimmer from stzObject
 	def TrimmedRight()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimRight(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #======================================================#
 	 #   TRIMMING START / END                               #
@@ -125,115 +125,115 @@ class stzStringTrimmer from stzObject
 	 #   TRIMMING A SPECIFIC CHAR                           #
 	#======================================================#
 
-	def TrimCharCS(c, pCaseSensitive)
-		This.TrimCharFromStartCS(c, pCaseSensitive)
-		This.TrimCharFromEndCS(c, pCaseSensitive)
+	def TrimCharCS(_c_, pCaseSensitive)
+		This.TrimCharFromStartCS(_c_, pCaseSensitive)
+		This.TrimCharFromEndCS(_c_, pCaseSensitive)
 
-		def TrimCharCSQ(c, pCaseSensitive)
-			This.TrimCharCS(c, pCaseSensitive)
+		def TrimCharCSQ(_c_, pCaseSensitive)
+			This.TrimCharCS(_c_, pCaseSensitive)
 			return This
 
-	def CharTrimmedCS(c, pCaseSensitive)
-		oCopy = new stzStringTrimmer(@oString.Content())
-		oCopy.TrimCharCS(c, pCaseSensitive)
-		return oCopy.Content()
+	def CharTrimmedCS(_c_, pCaseSensitive)
+		_oCopy_ = new stzStringTrimmer(@oString.Content())
+		_oCopy_.TrimCharCS(_c_, pCaseSensitive)
+		return _oCopy_.Content()
 
-	def TrimChar(c)
-		This.TrimCharCS(c, 1)
+	def TrimChar(_c_)
+		This.TrimCharCS(_c_, 1)
 
-		def TrimCharQ(c)
-			This.TrimChar(c)
+		def TrimCharQ(_c_)
+			This.TrimChar(_c_)
 			return This
 
-	def CharTrimmed(c)
-		return This.CharTrimmedCS(c, 1)
+	def CharTrimmed(_c_)
+		return This.CharTrimmedCS(_c_, 1)
 
 	  #======================================================#
 	 #   TRIMMING CHAR FROM START / END                     #
 	#======================================================#
 
-	def TrimCharFromStartCS(c, pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		nStart = 1
-		for i = 1 to nLen
-			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
-				nStart = i + 1
+	def TrimCharFromStartCS(_c_, pCaseSensitive)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_nStart_ = 1
+		for i = 1 to _nLen_
+			if BothStringsAreEqualCS(_acChars_[i], _c_, pCaseSensitive)
+				_nStart_ = i + 1
 			else
 				exit
 			ok
 		next
-		if nStart > nLen
+		if _nStart_ > _nLen_
 			@oString.Update("")
 		else
-			@oString.Update(@oString.Section(nStart, nLen))
+			@oString.Update(@oString.Section(_nStart_, _nLen_))
 		ok
 
-		def TrimCharFromStartCSQ(c, pCaseSensitive)
-			This.TrimCharFromStartCS(c, pCaseSensitive)
+		def TrimCharFromStartCSQ(_c_, pCaseSensitive)
+			This.TrimCharFromStartCS(_c_, pCaseSensitive)
 			return This
 
-		def RemoveThisCharFromStartCS(c, pCaseSensitive)
-			This.TrimCharFromStartCS(c, pCaseSensitive)
+		def RemoveThisCharFromStartCS(_c_, pCaseSensitive)
+			This.TrimCharFromStartCS(_c_, pCaseSensitive)
 
-	def TrimCharFromStart(c)
-		This.TrimCharFromStartCS(c, 1)
+	def TrimCharFromStart(_c_)
+		This.TrimCharFromStartCS(_c_, 1)
 
-		def RemoveThisCharFromStart(c)
-			This.TrimCharFromStart(c)
+		def RemoveThisCharFromStart(_c_)
+			This.TrimCharFromStart(_c_)
 
 	#--
 
-	def TrimCharFromEndCS(c, pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		nEnd = nLen
-		for i = nLen to 1 step -1
-			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
-				nEnd = i - 1
+	def TrimCharFromEndCS(_c_, pCaseSensitive)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_nEnd_ = _nLen_
+		for i = _nLen_ to 1 step -1
+			if BothStringsAreEqualCS(_acChars_[i], _c_, pCaseSensitive)
+				_nEnd_ = i - 1
 			else
 				exit
 			ok
 		next
-		if nEnd < 1
+		if _nEnd_ < 1
 			@oString.Update("")
 		else
-			@oString.Update(@oString.Section(1, nEnd))
+			@oString.Update(@oString.Section(1, _nEnd_))
 		ok
 
-		def TrimCharFromEndCSQ(c, pCaseSensitive)
-			This.TrimCharFromEndCS(c, pCaseSensitive)
+		def TrimCharFromEndCSQ(_c_, pCaseSensitive)
+			This.TrimCharFromEndCS(_c_, pCaseSensitive)
 			return This
 
-		def RemoveThisCharFromEndCS(c, pCaseSensitive)
-			This.TrimCharFromEndCS(c, pCaseSensitive)
+		def RemoveThisCharFromEndCS(_c_, pCaseSensitive)
+			This.TrimCharFromEndCS(_c_, pCaseSensitive)
 
-	def TrimCharFromEnd(c)
-		This.TrimCharFromEndCS(c, 1)
+	def TrimCharFromEnd(_c_)
+		This.TrimCharFromEndCS(_c_, 1)
 
-		def RemoveThisCharFromEnd(c)
-			This.TrimCharFromEnd(c)
+		def RemoveThisCharFromEnd(_c_)
+			This.TrimCharFromEnd(_c_)
 
 	  #======================================================#
 	 #   TRIMMING CHAR FROM LEFT / RIGHT                    #
 	#======================================================#
 
-	def TrimCharFromLeftCS(c, pCaseSensitive)
+	def TrimCharFromLeftCS(_c_, pCaseSensitive)
 		if @oString.IsLeftToRight()
-			This.TrimCharFromStartCS(c, pCaseSensitive)
+			This.TrimCharFromStartCS(_c_, pCaseSensitive)
 		else
-			This.TrimCharFromEndCS(c, pCaseSensitive)
+			This.TrimCharFromEndCS(_c_, pCaseSensitive)
 		ok
 
-	def TrimCharFromLeft(c)
-		This.TrimCharFromLeftCS(c, 1)
+	def TrimCharFromLeft(_c_)
+		This.TrimCharFromLeftCS(_c_, 1)
 
-	def TrimCharFromRightCS(c, pCaseSensitive)
+	def TrimCharFromRightCS(_c_, pCaseSensitive)
 		if @oString.IsLeftToRight()
-			This.TrimCharFromEndCS(c, pCaseSensitive)
+			This.TrimCharFromEndCS(_c_, pCaseSensitive)
 		else
-			This.TrimCharFromStartCS(c, pCaseSensitive)
+			This.TrimCharFromStartCS(_c_, pCaseSensitive)
 		ok
 
-	def TrimCharFromRight(c)
-		This.TrimCharFromRightCS(c, 1)
+	def TrimCharFromRight(_c_)
+		This.TrimCharFromRightCS(_c_, 1)

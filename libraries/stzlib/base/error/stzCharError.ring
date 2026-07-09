@@ -1,37 +1,37 @@
 func stzCharError(pcError)
-	cErrorMsg = "in file stzChar.ring:" + NL
+	_cErrorMsg_ = "in file stzChar.ring:" + NL
 	switch pcError
 
 	on :CanNotCreateCharObjectForLongString
-		cErrorMsg += "   What : Can't create the character object!" + NL
-		cErrorMsg += "   Why  : The string you provided is not a char." + NL
-		cErrorMsg += "   Todo : Provide a string with only one char and it will be fine ;)."
+		_cErrorMsg_ += "   What : Can't create the character object!" + NL
+		_cErrorMsg_ += "   Why  : The string you provided is not a char." + NL
+		_cErrorMsg_ += "   Todo : Provide a string with only one char and it will be fine ;)."
 
 	on :CanNotCreateCharObjectForThisType
-		cErrorMsg += "   What : Can't create the character object!" + NL
-		cErrorMsg += "   Why  : The type of the value you provided is not correct." + NL
-		cErrorMsg += "   Todo : Provide the character as a string or as decimal number corresponding to its unicode code point."
+		_cErrorMsg_ += "   What : Can't create the character object!" + NL
+		_cErrorMsg_ += "   Why  : The type of the value you provided is not correct." + NL
+		_cErrorMsg_ += "   Todo : Provide the character as a string or as decimal number corresponding to its unicode code point."
 
 	on :CanNotGuessNumberOfBytes
-		cErrorMsg += "   What : Can't define the number of bytes for this character!" + NL
-		cErrorMsg += "   Why  : The decimal unicode value of the chracters must fit in the range [0,1114111]."
-		cErrorMsg += "   Todo : Provide a char with a valid unicode and it will be fine ;)"
+		_cErrorMsg_ += "   What : Can't define the number of bytes for this character!" + NL
+		_cErrorMsg_ += "   Why  : The decimal unicode value of the chracters must fit in the range [0,1114111]."
+		_cErrorMsg_ += "   Todo : Provide a char with a valid unicode and it will be fine ;)"
 
 	on :CanNotDefineUnicodeVersion
-		cErrorMsg += "   What : Can't define the unicode version of this character!" + NL
-		cErrorMsg += "   Why  : The number returned by the engine does not fit in the range of the _acUnicodeVersions global list." + NL
-		cErrorMsg += "   Todo : Verify if that list needs an update. If the engine returned 0, the data is unavailable."
+		_cErrorMsg_ += "   What : Can't define the unicode version of this character!" + NL
+		_cErrorMsg_ += "   Why  : The number returned by the engine does not fit in the range of the _acUnicodeVersions global list." + NL
+		_cErrorMsg_ += "   Todo : Verify if that list needs an update. If the engine returned 0, the data is unavailable."
 
 	on :CanNotTransformCharToString
-		cErrorMsg += "   What : Can't transform the character to a Ring string!" + NL
-		cErrorMsg += "   Why  : The value you provided is not a valid character." + NL
-		cErrorMsg += "   Todo : Provide a valid character value."
+		_cErrorMsg_ += "   What : Can't transform the character to a Ring string!" + NL
+		_cErrorMsg_ += "   Why  : The value you provided is not a valid character." + NL
+		_cErrorMsg_ += "   Todo : Provide a valid character value."
 
 	on :CanNotGetAsciiCodeForNonAsciiChar
-		cErrorMsg += "   What : Can't get ASCII code for this character!" + NL
-		cErrorMsg += "   Why  : The character you provided is not an ASCII character." + NL
-		cErrorMsg += "   Todo : Provide an ASCII character it will be fine ;)"
+		_cErrorMsg_ += "   What : Can't get ASCII code for this character!" + NL
+		_cErrorMsg_ += "   Why  : The character you provided is not an ASCII character." + NL
+		_cErrorMsg_ += "   Todo : Provide an ASCII character it will be fine ;)"
 
 	off
 
-	return cErrorMsg + NL
+	return _cErrorMsg_ + NL

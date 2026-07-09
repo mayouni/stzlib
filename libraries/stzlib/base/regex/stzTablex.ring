@@ -2,14 +2,14 @@
 # A regex-like pattern language for stzTable structures
 
 # Quick constructor functions
-func StzTablexQ(cPattern)
-	return new stzTablex(cPattern)
+func StzTablexQ(_cPattern_)
+	return new stzTablex(_cPattern_)
 
-func Tablex(cPattern)
-	return new stzTablex(cPattern)
+func Tablex(_cPattern_)
+	return new stzTablex(_cPattern_)
 
-func Tbx(cPattern)
-	return new stzTablex(cPattern)
+func Tbx(_cPattern_)
+	return new stzTablex(_cPattern_)
 
 func IsStzTablex(pObj)
 	if isObject(pObj) and classname(pObj) = "stztablex"
@@ -47,421 +47,421 @@ class stzTablex from stzObject
 			? "Tokens parsed: " + len(@aTokens)
 		ok
 
-	def NormalizePattern(cPattern)
-		cPattern = trim(cPattern)
-		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
-			cPattern = "{" + cPattern + "}"
+	def NormalizePattern(_cPattern_)
+		_cPattern_ = trim(_cPattern_)
+		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
+			_cPattern_ = "{" + _cPattern_ + "}"
 		ok
-		return cPattern
+		return _cPattern_
 
 	  #--------------------#
 	 #  PATTERN PARSING   #
 	#--------------------#
 
-	def ParsePattern(cPattern)
+	def ParsePattern(_cPattern_)
 		# Remove outer braces
-		cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
-		cInner = trim(cInner)
+		_cInner_ = @StzMid(_cPattern_, 2, len(_cPattern_) - 1)
+		_cInner_ = trim(_cInner_)
 
 		if @bDebugMode
-			? "Parsing inner pattern: " + cInner
+			? "Parsing inner pattern: " + _cInner_
 		ok
 
 		# Split by logical operators -> (sequence), & (and), | (or)
-		aParts = This.SplitByOperator(cInner, "->")
-		aTokens = []
-		nLen = len(aParts)
+		_aParts_ = This.SplitByOperator(_cInner_, "->")
+		_aTokens_ = []
+		_nLen_ = len(_aParts_)
 
-		for i = 1 to nLen
-			cPart = trim(aParts[i])
+		for _i_ = 1 to _nLen_
+			_cPart_ = trim(_aParts_[_i_])
 
-			if cPart = ""
+			if _cPart_ = ""
 				loop
 			ok
 
-			if StzFindFirst(cPart, "|") > 0
-				aToken = This.ParseAlternation(cPart)
+			if StzFindFirst(_cPart_, "|") > 0
+				_aToken_ = This.ParseAlternation(_cPart_)
 
-			but StzFindFirst(cPart, "&") > 0
-				aToken = This.ParseConjunction(cPart)
+			but StzFindFirst(_cPart_, "&") > 0
+				_aToken_ = This.ParseConjunction(_cPart_)
 
 			else
-				aToken = This.ParseSingleToken(cPart)
+				_aToken_ = This.ParseSingleToken(_cPart_)
 			ok
 
-			aTokens + aToken
+			_aTokens_ + _aToken_
 		next
 
-		return aTokens
+		return _aTokens_
 
 	def SplitByOperator(cStr, cOperator)
-		aParts = []
-		cCurrent = ""
-		nDepth = 0
-		nLen = len(cStr)
-		nOpLen = len(cOperator)
+		_aParts_ = []
+		_cCurrent_ = ""
+		_nDepth_ = 0
+		_nLen_ = len(cStr)
+		_nOpLen_ = len(cOperator)
 
-		for i = 1 to nLen
-			cChar = @StzMid(cStr, i, i)
+		for _i_ = 1 to _nLen_
+			_cChar_ = @StzMid(cStr, _i_, _i_)
 	
-			if cChar = "(" or cChar = "{"
-				nDepth++
-				cCurrent += cChar
-			but cChar = ")" or cChar = "}"
-				nDepth--
-				cCurrent += cChar
-			but nDepth = 0 and @StzMid(cStr, i, i + nOpLen - 1) = cOperator
-				aParts + trim(cCurrent)
-				cCurrent = ""
-				i += nOpLen - 1
+			if _cChar_ = "(" or _cChar_ = "{"
+				_nDepth_++
+				_cCurrent_ += _cChar_
+			but _cChar_ = ")" or _cChar_ = "}"
+				_nDepth_--
+				_cCurrent_ += _cChar_
+			but _nDepth_ = 0 and @StzMid(cStr, _i_, _i_ + _nOpLen_ - 1) = cOperator
+				_aParts_ + trim(_cCurrent_)
+				_cCurrent_ = ""
+				_i_ += _nOpLen_ - 1
 			else
-				cCurrent += cChar
+				_cCurrent_ += _cChar_
 			ok
 		next
 
-		if len(cCurrent) > 0
-			aParts + trim(cCurrent)
+		if len(_cCurrent_) > 0
+			_aParts_ + trim(_cCurrent_)
 		ok
 
-		return aParts
+		return _aParts_
 
-	def ParseAlternation(cTokenStr)
-		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
+	def ParseAlternation(_cTokenStr_)
+		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+			_cTokenStr_ = @StzMid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 		ok
 
-		aParts = This.SplitByOperator(cTokenStr, "|")
-		aAlternatives = []
-		nLen = len(aParts)
+		_aParts_ = This.SplitByOperator(_cTokenStr_, "|")
+		_aAlternatives_ = []
+		_nLen_ = len(_aParts_)
 
-		for i = 1 to nLen
-			cPart = trim(aParts[i])
-			if cPart != ""
-				aToken = This.ParseSingleToken(cPart)
-				if len(aToken) > 0
-					aAlternatives + aToken
+		for _i_ = 1 to _nLen_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ != ""
+				_aToken_ = This.ParseSingleToken(_cPart_)
+				if len(_aToken_) > 0
+					_aAlternatives_ + _aToken_
 				ok
 			ok
 		next
 
 		return [
 			["type", "alternation"],
-			["alternatives", aAlternatives],
+			["alternatives", _aAlternatives_],
 			["negated", FALSE]
 		]
 
-	def ParseConjunction(cTokenStr)
-		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
+	def ParseConjunction(_cTokenStr_)
+		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+			_cTokenStr_ = @StzMid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 		ok
 
-		aParts = This.SplitByOperator(cTokenStr, "&")
-		nLen = len(aParts)
-		aConditions = []
+		_aParts_ = This.SplitByOperator(_cTokenStr_, "&")
+		_nLen_ = len(_aParts_)
+		_aConditions_ = []
 
-		for i = 1 to nLen
-			cPart = trim(aParts[i])
-			if cPart != ""
-				aToken = This.ParseSingleToken(cPart)
-				aConditions + aToken
+		for _i_ = 1 to _nLen_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ != ""
+				_aToken_ = This.ParseSingleToken(_cPart_)
+				_aConditions_ + _aToken_
 			ok
 		next
 
 		return [
 			["type", "conjunction"],
-			["conditions", aConditions],
+			["conditions", _aConditions_],
 			["negated", FALSE]
 		]
 
-	def ParseSingleToken(cTokenStr)
-		cTokenStr = trim(cTokenStr)
-		if cTokenStr = ""
+	def ParseSingleToken(_cTokenStr_)
+		_cTokenStr_ = trim(_cTokenStr_)
+		if _cTokenStr_ = ""
 			return []
 		ok
 
 		if @bDebugMode
 			? "=== ParseSingleToken ==="
-			? "Input: " + cTokenStr
+			? "Input: " + _cTokenStr_
 		ok
 
-		bNegated = FALSE
-		bCaseSensitive = FALSE
+		_bNegated_ = FALSE
+		_bCaseSensitive_ = FALSE
 
 		# Check for negation
-		if startsWith(StzLower(cTokenStr), "@!")
-			bNegated = TRUE
-			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
+		if startsWith(StzLower(_cTokenStr_), "@!")
+			_bNegated_ = TRUE
+			_cTokenStr_ = @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
 		ok
 
 		# Check for case sensitivity flag
-		if startsWith(StzLower(cTokenStr), "@cs:")
-			bCaseSensitive = TRUE
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+		if startsWith(StzLower(_cTokenStr_), "@cs:")
+			_bCaseSensitive_ = TRUE
+			_cTokenStr_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
 		ok
 
-		cType = ""
-		cValue = ""
-		aConstraints = []
-		nMin = 1
-		nMax = 1
+		_cType_ = ""
+		_cValue_ = ""
+		_aConstraints_ = []
+		_nMin_ = 1
+		_nMax_ = 1
 
 		# Extract and preserve content in parentheses BEFORE lowercasing
-		cPreservedValue = ""
-		nOpenParen = StzFindFirst(cTokenStr, "(")
-		if nOpenParen > 0
-			nCloseParen = StzFindFirst(cTokenStr, ")")
-			if nCloseParen > nOpenParen
-				cPreservedValue = @StzMid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+		_cPreservedValue_ = ""
+		_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
+		if _nOpenParen_ > 0
+			_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+			if _nCloseParen_ > _nOpenParen_
+				_cPreservedValue_ = @StzMid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
 				if @bDebugMode
-					? "Preserved value: " + cPreservedValue
+					? "Preserved value: " + _cPreservedValue_
 				ok
 			ok
 		ok
 
 		# NOW lowercase the token string for type detection
-		cTokenStr = StzLower(cTokenStr)
+		_cTokenStr_ = StzLower(_cTokenStr_)
 		
 		if @bDebugMode
-			? "After lowercase: " + cTokenStr
+			? "After lowercase: " + _cTokenStr_
 		ok
 
 		# Parse token types (same as before...)
 		#WARNING// The order is imprtant, for example:
 		# all col* variants mustappear before the generic col check.
 
-		if startsWith(cTokenStr, "@cols") or startsWith(cTokenStr, "cols")
-			cType = "cols"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@cols", "cols"])
+		if startsWith(_cTokenStr_, "@cols") or startsWith(_cTokenStr_, "cols")
+			_cType_ = "cols"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@cols", "cols"])
 	
-		but startsWith(cTokenStr, "@rows") or startsWith(cTokenStr, "rows")
-			cType = "rows"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@rows", "rows"])
+		but startsWith(_cTokenStr_, "@rows") or startsWith(_cTokenStr_, "rows")
+			_cType_ = "rows"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@rows", "rows"])
 	
-		but startsWith(cTokenStr, "@hascol") or startsWith(cTokenStr, "hascol")
-			cType = "hascol"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@hascol", "hascol"])
+		but startsWith(_cTokenStr_, "@hascol") or startsWith(_cTokenStr_, "hascol")
+			_cType_ = "hascol"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@hascol", "hascol"])
 
-		but startsWith(cTokenStr, "@coltype") or startsWith(cTokenStr, "coltype")
-			cType = "coltype"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@coltype", "coltype"])
+		but startsWith(_cTokenStr_, "@coltype") or startsWith(_cTokenStr_, "coltype")
+			_cType_ = "coltype"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@coltype", "coltype"])
 
-		but startsWith(cTokenStr, "@colpattern") or startsWith(cTokenStr, "colpattern")
-			cType = "colpattern"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@colpattern", "colpattern"])
+		but startsWith(_cTokenStr_, "@colpattern") or startsWith(_cTokenStr_, "colpattern")
+			_cType_ = "colpattern"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@colpattern", "colpattern"])
 
-		but startsWith(cTokenStr, "@colname") or startsWith(cTokenStr, "colname")
-			cType = "colname"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@colname", "colname"])
+		but startsWith(_cTokenStr_, "@colname") or startsWith(_cTokenStr_, "colname")
+			_cType_ = "colname"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@colname", "colname"])
 
-		but startsWith(cTokenStr, "@sumcol") or startsWith(cTokenStr, "sumcol")
-			cType = "sumcol"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@sumcol", "sumcol"])
+		but startsWith(_cTokenStr_, "@sumcol") or startsWith(_cTokenStr_, "sumcol")
+			_cType_ = "sumcol"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@sumcol", "sumcol"])
 	
-		but startsWith(cTokenStr, "@avgcol") or startsWith(cTokenStr, "avgcol")
-			cType = "avgcol"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@avgcol", "avgcol"])
+		but startsWith(_cTokenStr_, "@avgcol") or startsWith(_cTokenStr_, "avgcol")
+			_cType_ = "avgcol"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@avgcol", "avgcol"])
 	
-		but startsWith(cTokenStr, "@mincol") or startsWith(cTokenStr, "mincol")
-			cType = "mincol"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@mincol", "mincol"])
+		but startsWith(_cTokenStr_, "@mincol") or startsWith(_cTokenStr_, "mincol")
+			_cType_ = "mincol"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@mincol", "mincol"])
 	
-		but startsWith(cTokenStr, "@maxcol") or startsWith(cTokenStr, "maxcol")
-			cType = "maxcol"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@maxcol", "maxcol"])
+		but startsWith(_cTokenStr_, "@maxcol") or startsWith(_cTokenStr_, "maxcol")
+			_cType_ = "maxcol"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@maxcol", "maxcol"])
 	
-		but startsWith(cTokenStr, "@col") or startsWith(cTokenStr, "col")
-			cType = "col"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@col", "col"])
+		but startsWith(_cTokenStr_, "@col") or startsWith(_cTokenStr_, "col")
+			_cType_ = "col"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@col", "col"])
 	
-		but startsWith(cTokenStr, "@row") or startsWith(cTokenStr, "row")
-			cType = "row"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@row", "row"])
+		but startsWith(_cTokenStr_, "@row") or startsWith(_cTokenStr_, "row")
+			_cType_ = "row"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@row", "row"])
 	
-		but startsWith(cTokenStr, "@cell") or startsWith(cTokenStr, "cell")
-			cType = "cell"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@cell", "cell"])
+		but startsWith(_cTokenStr_, "@cell") or startsWith(_cTokenStr_, "cell")
+			_cType_ = "cell"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@cell", "cell"])
 			
-		but startsWith(cTokenStr, "@property") or startsWith(cTokenStr, "property")
-			cType = "property"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@property", "property"])
+		but startsWith(_cTokenStr_, "@property") or startsWith(_cTokenStr_, "property")
+			_cType_ = "property"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@property", "property"])
 	
-		but startsWith(cTokenStr, "@contains") or startsWith(cTokenStr, "contains")
-			cType = "contains"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@contains", "contains"])
+		but startsWith(_cTokenStr_, "@contains") or startsWith(_cTokenStr_, "contains")
+			_cType_ = "contains"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@contains", "contains"])
 	
-		but startsWith(cTokenStr, "@sorted") or startsWith(cTokenStr, "sorted")
-			cType = "sorted"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@sorted", "sorted"])
+		but startsWith(_cTokenStr_, "@sorted") or startsWith(_cTokenStr_, "sorted")
+			_cType_ = "sorted"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@sorted", "sorted"])
 	
-		but startsWith(cTokenStr, "@unique") or startsWith(cTokenStr, "unique")
-			cType = "unique"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@unique", "unique"])
+		but startsWith(_cTokenStr_, "@unique") or startsWith(_cTokenStr_, "unique")
+			_cType_ = "unique"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@unique", "unique"])
 	
-		but startsWith(cTokenStr, "@duplicates") or startsWith(cTokenStr, "duplicates")
-			cType = "duplicates"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@duplicates", "duplicates"])
+		but startsWith(_cTokenStr_, "@duplicates") or startsWith(_cTokenStr_, "duplicates")
+			_cType_ = "duplicates"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@duplicates", "duplicates"])
 	
-		but startsWith(cTokenStr, "@grouped") or startsWith(cTokenStr, "grouped")
-			cType = "grouped"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@grouped", "grouped"])
+		but startsWith(_cTokenStr_, "@grouped") or startsWith(_cTokenStr_, "grouped")
+			_cType_ = "grouped"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@grouped", "grouped"])
 	
-		but startsWith(cTokenStr, "@filtered") or startsWith(cTokenStr, "filtered")
-			cType = "filtered"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@filtered", "filtered"])
+		but startsWith(_cTokenStr_, "@filtered") or startsWith(_cTokenStr_, "filtered")
+			_cType_ = "filtered"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@filtered", "filtered"])
 
-		but startsWith(cTokenStr, "@aggregated") or startsWith(cTokenStr, "aggregated")
-			cType = "aggregated"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@aggregated", "aggregated"])
+		but startsWith(_cTokenStr_, "@aggregated") or startsWith(_cTokenStr_, "aggregated")
+			_cType_ = "aggregated"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@aggregated", "aggregated"])
 	
-		but startsWith(cTokenStr, "@transposed") or startsWith(cTokenStr, "transposed")
-			cType = "transposed"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@transposed", "transposed"])
+		but startsWith(_cTokenStr_, "@transposed") or startsWith(_cTokenStr_, "transposed")
+			_cType_ = "transposed"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@transposed", "transposed"])
 
-		but startsWith(cTokenStr, "@calculated") or startsWith(cTokenStr, "calculated")
-			cType = "calculated"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@calculated", "calculated"])
+		but startsWith(_cTokenStr_, "@calculated") or startsWith(_cTokenStr_, "calculated")
+			_cType_ = "calculated"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@calculated", "calculated"])
 
-		but startsWith(cTokenStr, "@nulls") or startsWith(cTokenStr, "nulls")
-			cType = "nulls"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@nulls", "nulls"])
+		but startsWith(_cTokenStr_, "@nulls") or startsWith(_cTokenStr_, "nulls")
+			_cType_ = "nulls"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@nulls", "nulls"])
 
-		but startsWith(cTokenStr, "@completeness") or startsWith(cTokenStr, "completeness")
-			cType = "completeness"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@completeness", "completeness"])
+		but startsWith(_cTokenStr_, "@completeness") or startsWith(_cTokenStr_, "completeness")
+			_cType_ = "completeness"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@completeness", "completeness"])
 
-		but startsWith(cTokenStr, "@numeric") or startsWith(cTokenStr, "numeric")
-			cType = "numeric"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@numeric", "numeric"])
+		but startsWith(_cTokenStr_, "@numeric") or startsWith(_cTokenStr_, "numeric")
+			_cType_ = "numeric"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@numeric", "numeric"])
 
-		but startsWith(cTokenStr, "@alphabetic") or startsWith(cTokenStr, "alphabetic")
-			cType = "alphabetic"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@alphabetic", "alphabetic"])
+		but startsWith(_cTokenStr_, "@alphabetic") or startsWith(_cTokenStr_, "alphabetic")
+			_cType_ = "alphabetic"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@alphabetic", "alphabetic"])
 
-		but startsWith(cTokenStr, "@format") or startsWith(cTokenStr, "format")
-			cType = "format"
-			cTokenStr = This.RemovePrefix(cTokenStr, ["@format", "format"])
+		but startsWith(_cTokenStr_, "@format") or startsWith(_cTokenStr_, "format")
+			_cType_ = "format"
+			_cTokenStr_ = This.RemovePrefix(_cTokenStr_, ["@format", "format"])
 
 		else
 			return [
 				["type", "ERROR"],
-				["value", cTokenStr],
+				["value", _cTokenStr_],
 				["message", "Unrecognized token type"]
 			]
 		ok
 
 		if @bDebugMode
-			? "Detected type: " + cType
+			? "Detected type: " + _cType_
 		ok
 
 		# Parse parentheses content - use preserved value
-		nOpenParen = StzFindFirst(cTokenStr, "(")
-		if nOpenParen > 0
-			nCloseParen = StzFindFirst(cTokenStr, ")")
-			if nCloseParen > nOpenParen
-				cContent = cPreservedValue
+		_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
+		if _nOpenParen_ > 0
+			_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+			if _nCloseParen_ > _nOpenParen_
+				_cContent_ = _cPreservedValue_
 
-				if cType = "property" or cType = "colname" or 
-				   cType = "contains" or cType = "sorted" or 
-				   cType = "unique" or cType = "duplicates" or cType = "hascol" or 
-				   cType = "grouped" or cType = "filtered" or cType = "calculated" or
-				   cType = "nulls" or cType = "numeric" or cType = "alphabetic" or
-				   cType = "coltype" or cType = "colpattern" or 
-				   cType = "sumcol" or cType = "avgcol" or cType = "mincol" or cType = "maxcol" or
-				   cType = "completeness" or cType = "format"
-					cValue = cContent
+				if _cType_ = "property" or _cType_ = "colname" or 
+				   _cType_ = "contains" or _cType_ = "sorted" or 
+				   _cType_ = "unique" or _cType_ = "duplicates" or _cType_ = "hascol" or 
+				   _cType_ = "grouped" or _cType_ = "filtered" or _cType_ = "calculated" or
+				   _cType_ = "nulls" or _cType_ = "numeric" or _cType_ = "alphabetic" or
+				   _cType_ = "coltype" or _cType_ = "colpattern" or 
+				   _cType_ = "sumcol" or _cType_ = "avgcol" or _cType_ = "mincol" or _cType_ = "maxcol" or
+				   _cType_ = "completeness" or _cType_ = "format"
+					_cValue_ = _cContent_
 
 					if @bDebugMode
-						? "Assigned cValue: " + cValue
+						? "Assigned cValue: " + _cValue_
 					ok
 				else
-					aConstraints = This.ParseConstraints(cContent, cType)
+					_aConstraints_ = This.ParseConstraints(_cContent_, _cType_)
 					if @bDebugMode
-						? "Parsed constraints: " + @@(aConstraints)
+						? "Parsed constraints: " + @@(_aConstraints_)
 					ok
 				ok
 			ok
 		ok
 
 		# Parse quantifiers (same as before...)
-		cQuantPart = ""
-		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
-			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, len(cTokenStr))
+		_cQuantPart_ = ""
+		if _nCloseParen_ > 0 and _nCloseParen_ < len(_cTokenStr_)
+			_cQuantPart_ = @StzMid(_cTokenStr_, _nCloseParen_ + 1, len(_cTokenStr_))
 		ok
 
-		cQuantPart = trim(cQuantPart)
+		_cQuantPart_ = trim(_cQuantPart_)
 
-		if len(cQuantPart) > 0
-			if StzFindFirst(cQuantPart, "-") > 0
-				aSection = @split(cQuantPart, "-")
-				if len(aSection) = 2
-					nMin = 0 + trim(aSection[1])
-					nMax = 0 + trim(aSection[2])
+		if len(_cQuantPart_) > 0
+			if StzFindFirst(_cQuantPart_, "-") > 0
+				_aSection_ = @split(_cQuantPart_, "-")
+				if len(_aSection_) = 2
+					_nMin_ = 0 + trim(_aSection_[1])
+					_nMax_ = 0 + trim(_aSection_[2])
 				ok
 			else
-				cLastChar = StzRight(cQuantPart, 1)
-				if cLastChar = "+"
-					nMin = 1
-					nMax = 999999
-				but cLastChar = "*"
-					nMin = 0
-					nMax = 999999
-				but cLastChar = "?"
-					nMin = 0
-					nMax = 1
-				but This.IsNumeric(cQuantPart)
-					nMin = 0 + cQuantPart
-					nMax = nMin
+				_cLastChar_ = StzRight(_cQuantPart_, 1)
+				if _cLastChar_ = "+"
+					_nMin_ = 1
+					_nMax_ = 999999
+				but _cLastChar_ = "*"
+					_nMin_ = 0
+					_nMax_ = 999999
+				but _cLastChar_ = "?"
+					_nMin_ = 0
+					_nMax_ = 1
+				but This.IsNumeric(_cQuantPart_)
+					_nMin_ = 0 + _cQuantPart_
+					_nMax_ = _nMin_
 				ok
 			ok
 		ok
 
-		aResult = [
-			["type", cType],
-			["value", cValue],
-			["constraints", aConstraints],
-			["min", nMin],
-			["max", nMax],
-			["negated", bNegated],
-			["casesensitive", bCaseSensitive]
+		_aResult_ = [
+			["type", _cType_],
+			["value", _cValue_],
+			["constraints", _aConstraints_],
+			["min", _nMin_],
+			["max", _nMax_],
+			["negated", _bNegated_],
+			["casesensitive", _bCaseSensitive_]
 		]
 
 		if @bDebugMode
-			? "Result token: " + @@(aResult)
+			? "Result token: " + @@(_aResult_)
 		ok
 
-		return aResult
+		return _aResult_
 
 	def RemovePrefix(cStr, aPrefixes)
-		nLen = len(aPrefixes)
-		for i = 1 to nLen
-			if startsWith(cStr, aPrefixes[i])
-				return @StzMid(cStr, len(aPrefixes[i]) + 1, len(cStr))
+		_nLen_ = len(aPrefixes)
+		for _i_ = 1 to _nLen_
+			if startsWith(cStr, aPrefixes[_i_])
+				return @StzMid(cStr, len(aPrefixes[_i_]) + 1, len(cStr))
 			ok
 		next
 		return cStr
 
-	def ParseConstraints(cConstraintStr, cType)
-		aConstraints = []
+	def ParseConstraints(cConstraintStr, _cType_)
+		_aConstraints_ = []
 
 		if cConstraintStr = ""
-			return aConstraints
+			return _aConstraints_
 		ok
 
 		# Parse based on type
-		switch cType
+		switch _cType_
 		on "cols"
 			if This.IsNumeric(cConstraintStr)
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
 			but startsWith(cConstraintStr, ">")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "greater"],
 					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "less"],
 					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
@@ -469,17 +469,17 @@ class stzTablex from stzObject
 
 		on "rows"
 			if This.IsNumeric(cConstraintStr)
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
 			but startsWith(cConstraintStr, ">")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "greater"],
 					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "less"],
 					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
@@ -487,27 +487,27 @@ class stzTablex from stzObject
 
 		on "cell"
 			if StzFindFirst(cConstraintStr, "..") > 0
-				aParts = @split(cConstraintStr, "..")
-				if len(aParts) = 2
-					aConstraints + [
+				_aParts_ = @split(cConstraintStr, "..")
+				if len(_aParts_) = 2
+					_aConstraints_ + [
 						["type", "range"],
-						["start", trim(aParts[1])],
-						["end", trim(aParts[2])]
+						["start", trim(_aParts_[1])],
+						["end", trim(_aParts_[2])]
 					]
 				ok
 			but StzFindFirst(cConstraintStr, "{") > 0
-				nStart = StzFindFirst(cConstraintStr, "{")
-				nEnd = StzFindFirst(cConstraintStr, "}")
-				cSet = @StzMid(cConstraintStr, nStart + 1, nEnd - 1)
-				aValues = @split(cSet, ";")
-				aConstraints + [
+				_nStart_ = StzFindFirst(cConstraintStr, "{")
+				_nEnd_ = StzFindFirst(cConstraintStr, "}")
+				_cSet_ = @StzMid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
+				_aValues_ = @split(_cSet_, ";")
+				_aConstraints_ + [
 					["type", "set"],
-					["values", aValues]
+					["values", _aValues_]
 				]
 			ok
 		off
 
-		return aConstraints
+		return _aConstraints_
 
 	  #--------------------#
 	 #  MATCHING LOGIC    #
@@ -519,71 +519,71 @@ class stzTablex from stzObject
 		ok
 
 		# Check cache
-		cTableSig = This.TableSignature(poTable)
-		cCacheKey = @cPattern + "|" + cTableSig
-		nLen = len(@aMatchCache)
+		_cTableSig_ = This.TableSignature(poTable)
+		_cCacheKey_ = @cPattern + "|" + _cTableSig_
+		_nLen_ = len(@aMatchCache)
 
-		for i = 1 to nLen
-			if @aMatchCache[i][1] = cCacheKey
+		for _i_ = 1 to _nLen_
+			if @aMatchCache[_i_][1] = _cCacheKey_
 				if @bDebugMode
 					? "Cache hit!"
 				ok
-				return @aMatchCache[i][2]
+				return @aMatchCache[_i_][2]
 			ok
 		next
 
 		# Not cached - compute
 		@oTable = poTable
-		bResult = This.MatchTokens(@aTokens, @oTable)
+		_bResult_ = This.MatchTokens(@aTokens, @oTable)
 
-		if bResult
+		if _bResult_
 			This.ExtractParts(@oTable)
 		ok
 
 		# Store in cache
-		@aMatchCache + [cCacheKey, bResult]
+		@aMatchCache + [_cCacheKey_, _bResult_]
 		if len(@aMatchCache) > @nMaxCacheSize
 			del(@aMatchCache, 1)  # Remove oldest
 		ok
 
-		return bResult
+		return _bResult_
 
-	def MatchTokens(aTokens, oTable)
-		nLen = len(aTokens)
-		for i = 1 to nLen
-			aToken = aTokens[i]
+	def MatchTokens(_aTokens_, oTable)
+		_nLen_ = len(_aTokens_)
+		for _i_ = 1 to _nLen_
+			_aToken_ = _aTokens_[_i_]
 
-			if HasKey(aToken, "type") and aToken["type"] = "alternation"
-				bMatched = FALSE
-				if HasKey(aToken, "alternatives")
-					aAlternatives = aToken["alternatives"]
-					nLenAlt = len(aAlternatives)
+			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
+				_bMatched_ = FALSE
+				if HasKey(_aToken_, "alternatives")
+					_aAlternatives_ = _aToken_["alternatives"]
+					_nLenAlt_ = len(_aAlternatives_)
 
-					for j = 1 to nLenAlt
-						if This.MatchSingleToken(aAlternatives[j], oTable)
-							bMatched = TRUE
+					for j = 1 to _nLenAlt_
+						if This.MatchSingleToken(_aAlternatives_[j], oTable)
+							_bMatched_ = TRUE
 							exit
 						ok
 					next
 				ok
-				if not bMatched
+				if not _bMatched_
 					return FALSE
 				ok
 
-			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
-				if HasKey(aToken, "conditions")
-					aConditions = aToken["conditions"]
-					nLenCond = len(aConditions)
+			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
+				if HasKey(_aToken_, "conditions")
+					_aConditions_ = _aToken_["conditions"]
+					_nLenCond_ = len(_aConditions_)
 
-					for j = 1 to nLenCond
-						if not This.MatchSingleToken(aConditions[j], oTable)
+					for j = 1 to _nLenCond_
+						if not This.MatchSingleToken(_aConditions_[j], oTable)
 							return FALSE
 						ok
 					next
 				ok
 
 			else
-				if not This.MatchSingleToken(aToken, oTable)
+				if not This.MatchSingleToken(_aToken_, oTable)
 					return FALSE
 				ok
 			ok
@@ -591,131 +591,131 @@ class stzTablex from stzObject
 
 		return TRUE
 
-	def MatchSingleToken(aToken, oTable)
-		bResult = FALSE
+	def MatchSingleToken(_aToken_, oTable)
+		_bResult_ = FALSE
 
-		if HasKey(aToken, "type")
-			cType = aToken["type"]
+		if HasKey(_aToken_, "type")
+			_cType_ = _aToken_["type"]
 
-			if cType = "cols"
-				bResult = This.CheckCols(aToken, oTable)
+			if _cType_ = "cols"
+				_bResult_ = This.CheckCols(_aToken_, oTable)
 
-			but cType = "rows"
-				bResult = This.CheckRows(aToken, oTable)
+			but _cType_ = "rows"
+				_bResult_ = This.CheckRows(_aToken_, oTable)
 
-			but cType = "col"
-				bResult = This.CheckCol(aToken, oTable)
+			but _cType_ = "col"
+				_bResult_ = This.CheckCol(_aToken_, oTable)
 
-			but cType = "row"
-				bResult = This.CheckRow(aToken, oTable)
+			but _cType_ = "row"
+				_bResult_ = This.CheckRow(_aToken_, oTable)
 
-			but cType = "cell"
-				bResult = This.CheckCell(aToken, oTable)
+			but _cType_ = "cell"
+				_bResult_ = This.CheckCell(_aToken_, oTable)
 
-			but cType = "colname"
-				bResult = This.CheckColName(aToken, oTable)
+			but _cType_ = "colname"
+				_bResult_ = This.CheckColName(_aToken_, oTable)
 
-			but cType = "property"
-				bResult = This.CheckProperty(aToken, oTable)
+			but _cType_ = "property"
+				_bResult_ = This.CheckProperty(_aToken_, oTable)
 
-			but cType = "contains"
-				bResult = This.CheckContains(aToken, oTable)
+			but _cType_ = "contains"
+				_bResult_ = This.CheckContains(_aToken_, oTable)
 
-			but cType = "sorted"
-				bResult = This.CheckSorted(aToken, oTable)
+			but _cType_ = "sorted"
+				_bResult_ = This.CheckSorted(_aToken_, oTable)
 
-			but cType = "unique"
-				bResult = This.CheckUnique(aToken, oTable)
+			but _cType_ = "unique"
+				_bResult_ = This.CheckUnique(_aToken_, oTable)
 
-			but cType = "duplicates"
-				bResult = This.CheckDuplicates(aToken, oTable)
+			but _cType_ = "duplicates"
+				_bResult_ = This.CheckDuplicates(_aToken_, oTable)
 
-			but cType = "grouped"
-				bResult = This.CheckGrouped(aToken, oTable)
+			but _cType_ = "grouped"
+				_bResult_ = This.CheckGrouped(_aToken_, oTable)
 
-			but cType = "filtered"
-				bResult = This.CheckFiltered(aToken, oTable)
+			but _cType_ = "filtered"
+				_bResult_ = This.CheckFiltered(_aToken_, oTable)
 
-			but cType = "aggregated"
-				bResult = This.CheckAggregated(aToken, oTable)
+			but _cType_ = "aggregated"
+				_bResult_ = This.CheckAggregated(_aToken_, oTable)
 
-			but cType = "transposed"
-				bResult = This.CheckTransposed(aToken, oTable)
+			but _cType_ = "transposed"
+				_bResult_ = This.CheckTransposed(_aToken_, oTable)
 
-			but cType = "calculated"
-				bResult = This.CheckCalculated(aToken, oTable)
+			but _cType_ = "calculated"
+				_bResult_ = This.CheckCalculated(_aToken_, oTable)
 
-			but cType = "hascol"
-				bResult = This.CheckHasCol(aToken, oTable)
+			but _cType_ = "hascol"
+				_bResult_ = This.CheckHasCol(_aToken_, oTable)
 
-			but cType = "coltype"
-				bResult = This.CheckColType(aToken, oTable)
+			but _cType_ = "coltype"
+				_bResult_ = This.CheckColType(_aToken_, oTable)
 
-			but cType = "colpattern"
-				bResult = This.CheckColPattern(aToken, oTable)
+			but _cType_ = "colpattern"
+				_bResult_ = This.CheckColPattern(_aToken_, oTable)
 
-			but cType = "sumcol"
-				bResult = This.CheckSumCol(aToken, oTable)
+			but _cType_ = "sumcol"
+				_bResult_ = This.CheckSumCol(_aToken_, oTable)
 
-			but cType = "avgcol"
-				bResult = This.CheckAvgCol(aToken, oTable)
+			but _cType_ = "avgcol"
+				_bResult_ = This.CheckAvgCol(_aToken_, oTable)
 
-			but cType = "mincol"
-				bResult = This.CheckMinCol(aToken, oTable)
+			but _cType_ = "mincol"
+				_bResult_ = This.CheckMinCol(_aToken_, oTable)
 
-			but cType = "maxcol"
-				bResult = This.CheckMaxCol(aToken, oTable)
+			but _cType_ = "maxcol"
+				_bResult_ = This.CheckMaxCol(_aToken_, oTable)
 
-			but cType = "nulls"
-				bResult = This.CheckNulls(aToken, oTable)
+			but _cType_ = "nulls"
+				_bResult_ = This.CheckNulls(_aToken_, oTable)
 
-			but cType = "completeness"
-				bResult = This.CheckCompleteness(aToken, oTable)
+			but _cType_ = "completeness"
+				_bResult_ = This.CheckCompleteness(_aToken_, oTable)
 
-			but cType = "numeric"
-				bResult = This.CheckNumeric(aToken, oTable)
+			but _cType_ = "numeric"
+				_bResult_ = This.CheckNumeric(_aToken_, oTable)
 
-			but cType = "alphabetic"
-				bResult = This.CheckAlphabetic(aToken, oTable)
+			but _cType_ = "alphabetic"
+				_bResult_ = This.CheckAlphabetic(_aToken_, oTable)
 
-			but cType = "format"
-				bResult = This.CheckFormat(aToken, oTable)
+			but _cType_ = "format"
+				_bResult_ = This.CheckFormat(_aToken_, oTable)
 			ok
 		ok
 
 		# Apply negation
-		if HasKey(aToken, "negated") and aToken["negated"] = TRUE
-			bResult = not bResult
+		if HasKey(_aToken_, "negated") and _aToken_["negated"] = TRUE
+			_bResult_ = not _bResult_
 		ok
 
-		return bResult
+		return _bResult_
 
 	  #------------------------#
 	 #  CHECKING METHODS      #
 	#------------------------#
 
-	def CheckCols(aToken, oTable)
-		nCols = oTable.NumberOfColumns()
+	def CheckCols(_aToken_, oTable)
+		_nCols_ = oTable.NumberOfColumns()
 
-		if HasKey(aToken, "constraints")
-			aConstraints = aToken["constraints"]
-			nLen = len(aConstraints)
+		if HasKey(_aToken_, "constraints")
+			_aConstraints_ = _aToken_["constraints"]
+			_nLen_ = len(_aConstraints_)
 
-			for i = 1 to nLen
-				aConstraint = aConstraints[i]
+			for _i_ = 1 to _nLen_
+				_aConstraint_ = _aConstraints_[_i_]
 
-				if HasKey(aConstraint, "type")
-					switch aConstraint["type"]
+				if HasKey(_aConstraint_, "type")
+					switch _aConstraint_["type"]
 					on "exact"
-						if nCols = aConstraint["value"]
+						if _nCols_ = _aConstraint_["value"]
 							return TRUE
 						ok
 					on "greater"
-						if nCols >= aConstraint["value"]
+						if _nCols_ >= _aConstraint_["value"]
 							return TRUE
 						ok
 					on "less"
-						if nCols <= aConstraint["value"]
+						if _nCols_ <= _aConstraint_["value"]
 							return TRUE
 						ok
 					off
@@ -725,27 +725,27 @@ class stzTablex from stzObject
 
 		return FALSE
 
-	def CheckRows(aToken, oTable)
-		nRows = oTable.NumberOfRows()
-		aConstraints = aToken["constraints"]
-		nLen = len(aConstraints)
+	def CheckRows(_aToken_, oTable)
+		_nRows_ = oTable.NumberOfRows()
+		_aConstraints_ = _aToken_["constraints"]
+		_nLen_ = len(_aConstraints_)
 
-		if HasKey(aToken, "constraints")
-			for i = 1 to nLen
-				aConstraint = aConstraints[i]
+		if HasKey(_aToken_, "constraints")
+			for _i_ = 1 to _nLen_
+				_aConstraint_ = _aConstraints_[_i_]
 
-				if HasKey(aConstraint, "type")
-					switch aConstraint["type"]
+				if HasKey(_aConstraint_, "type")
+					switch _aConstraint_["type"]
 					on "exact"
-						if nRows = aConstraint["value"]
+						if _nRows_ = _aConstraint_["value"]
 							return TRUE
 						ok
 					on "greater"
-						if nRows >= aConstraint["value"]
+						if _nRows_ >= _aConstraint_["value"]
 							return TRUE
 						ok
 					on "less"
-						if nRows <= aConstraint["value"]
+						if _nRows_ <= _aConstraint_["value"]
 							return TRUE
 						ok
 					off
@@ -755,38 +755,38 @@ class stzTablex from stzObject
 
 		return FALSE
 
-	def CheckCol(aToken, oTable)
+	def CheckCol(_aToken_, oTable)
 		# Check specific column properties
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			return oTable.HasColumn(cColName)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			return oTable.HasColumn(_cColName_)
 		ok
 		return FALSE
 
-	def CheckRow(aToken, oTable)
+	def CheckRow(_aToken_, oTable)
 		# Check specific column properties
-		if HasKey(aToken, "value")
-			aRow = aToken["value"]
-			return oTable.HasRow(aRow)
+		if HasKey(_aToken_, "value")
+			_aRow_ = _aToken_["value"]
+			return oTable.HasRow(_aRow_)
 		ok
 		return FALSE
 
-	def CheckCell(aToken, oTable)
+	def CheckCell(_aToken_, oTable)
 		# Check cell value constraints across table
-		if HasKey(aToken, "constraints")
-			aConstraints = aToken["constraints"]
-			nLen = len(aConstraints)
+		if HasKey(_aToken_, "constraints")
+			_aConstraints_ = _aToken_["constraints"]
+			_nLen_ = len(_aConstraints_)
 
-			for i = 1 to nLen
-				aConstraint = aConstraints[i]
+			for _i_ = 1 to _nLen_
+				_aConstraint_ = _aConstraints_[_i_]
 
-				if HasKey(aConstraint, "type")
-					if aConstraint["type"] = "range"
-						aRange = aToken["range"]
-						if HasKey(aToken, "casesensitive")
-							return oTable.ContainsInSectionCS(aRange[1], aRange[2], aToken["value"], TRUE)
+				if HasKey(_aConstraint_, "type")
+					if _aConstraint_["type"] = "range"
+						_aRange_ = _aToken_["range"]
+						if HasKey(_aToken_, "casesensitive")
+							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], TRUE)
 						else
-							return oTable.ContainsInSectionCS(aRange[1], aRange[2], aToken["value"], FALSE)
+							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], FALSE)
 						ok
 					ok
 				ok
@@ -794,18 +794,18 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckColName(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			return oTable.HasColName(cColName)
+	def CheckColName(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			return oTable.HasColName(_cColName_)
 		ok
 		return FALSE
 
-	def CheckProperty(aToken, oTable)
-		if HasKey(aToken, "value")
-			cProperty = StzLower(trim(aToken["value"]))
+	def CheckProperty(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cProperty_ = StzLower(trim(_aToken_["value"]))
 
-			switch cProperty
+			switch _cProperty_
 			on "empty"
 				return oTable.IsEmpty()
 			on "nonempty"
@@ -821,22 +821,22 @@ class stzTablex from stzObject
 		ok
 		return TRUE
 
-	def CheckContains(aToken, oTable)
-		if HasKey(aToken, "value")
-			cValue = aToken["value"]
-			_value_ = cValue
+	def CheckContains(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cValue_ = _aToken_["value"]
+			_value_ = _cValue_
 
-			bCaseSensitive = FALSE
-			if HasKey(aToken, "casesensitive")
-				bCaseSensitive = aToken["casesensitive"]
+			_bCaseSensitive_ = FALSE
+			if HasKey(_aToken_, "casesensitive")
+				_bCaseSensitive_ = _aToken_["casesensitive"]
 			ok
 
-			if IsNumberInString(cValue)
-				_value_ = 0+ cValue
+			if IsNumberInString(_cValue_)
+				_value_ = 0+ _cValue_
 
-			but IsListInString(cValue)
-				cCode = "_value_ = " + cValue
-				eval(cCode)
+			but IsListInString(_cValue_)
+				_cCode_ = "_value_ = " + _cValue_
+				eval(_cCode_)
 			ok
 
 			# WARNING: The pattern does not understand values
@@ -844,47 +844,47 @@ class stzTablex from stzObject
 			# TODO: Clarify this in the documentation
 
 			# Check with case sensitivity
-			if bCaseSensitive
-				bResult = oTable.ContainsCellCS(_value_, TRUE)
+			if _bCaseSensitive_
+				_bResult_ = oTable.ContainsCellCS(_value_, TRUE)
 			else
-				bResult = oTable.ContainsCellCS(_value_, FALSE)
+				_bResult_ = oTable.ContainsCellCS(_value_, FALSE)
 			ok
 
-			return bResult
+			return _bResult_
 		ok
 
 		return FALSE
 
-	def CheckSorted(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				bCaseSensitive = TRUE  # Default to case-sensitive
-				if HasKey(aToken, "casesensitive")
-					bCaseSensitive = aToken["casesensitive"]
+	def CheckSorted(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_bCaseSensitive_ = TRUE  # Default to case-sensitive
+				if HasKey(_aToken_, "casesensitive")
+					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
 
-				aCol = oTable.Col(cColName)
-				nLen = len(aCol)
+				_aCol_ = oTable.Col(_cColName_)
+				_nLen_ = len(_aCol_)
 
 				# Check if sorted ascending
-				for i = 1 to nLen - 1
-					xCurrent = aCol[i]
-					xNext = aCol[i+1]
+				for _i_ = 1 to _nLen_ - 1
+					_xCurrent_ = _aCol_[_i_]
+					_xNext_ = _aCol_[_i_+1]
 
-					if isString(xCurrent) and isString(xNext)
-						if bCaseSensitive
-							if strcmp(xCurrent, xNext) > 0
+					if isString(_xCurrent_) and isString(_xNext_)
+						if _bCaseSensitive_
+							if strcmp(_xCurrent_, _xNext_) > 0
 								return FALSE
 							ok
 						else
-							if strcmp(StzLower(xCurrent), StzLower(xNext)) > 0
+							if strcmp(StzLower(_xCurrent_), StzLower(_xNext_)) > 0
 								return FALSE
 							ok
 						ok
 	
-					but isNumber(xCurrent) and isNumber(xNext)
-						if xCurrent > xNext
+					but isNumber(_xCurrent_) and isNumber(_xNext_)
+						if _xCurrent_ > _xNext_
 							return FALSE
 						ok
 					ok
@@ -894,148 +894,148 @@ class stzTablex from stzObject
 		ok
 		return TRUE
 
-	def CheckUnique(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				bCaseSensitive = TRUE  # Default to case-sensitive for unique
-				if HasKey(aToken, "casesensitive")
-					bCaseSensitive = aToken["casesensitive"]
+	def CheckUnique(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_bCaseSensitive_ = TRUE  # Default to case-sensitive for unique
+				if HasKey(_aToken_, "casesensitive")
+					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
 
-				aCol = oTable.Col(cColName)
+				_aCol_ = oTable.Col(_cColName_)
 
-				if bCaseSensitive
-					return len(aCol) = len(U(aCol))
+				if _bCaseSensitive_
+					return len(_aCol_) = len(U(_aCol_))
 				else
 					# Case-insensitive: lowercase all values first
-					aLower = []
-					nLen = len(aCol)
-					for i = 1 to nLen
-						if isString(aCol[i])
-							aLower + StzLower(aCol[i])
+					_aLower_ = []
+					_nLen_ = len(_aCol_)
+					for _i_ = 1 to _nLen_
+						if isString(_aCol_[_i_])
+							_aLower_ + StzLower(_aCol_[_i_])
 						else
-							aLower + aCol[i]
+							_aLower_ + _aCol_[_i_]
 						ok
 					next
-					return len(aLower) = len(U(aLower))
+					return len(_aLower_) = len(U(_aLower_))
 				ok
 			ok
 		ok
 		return TRUE
 
-	def CheckDuplicates(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				bCaseSensitive = FALSE
-				if HasKey(aToken, "casesensitive")
-					bCaseSensitive = aToken["casesensitive"]
+	def CheckDuplicates(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_bCaseSensitive_ = FALSE
+				if HasKey(_aToken_, "casesensitive")
+					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
 
-				aCol = oTable.Col(cColName)
-				if bCaseSensitive
-					return len(aCol) > len(U(aCol))
+				_aCol_ = oTable.Col(_cColName_)
+				if _bCaseSensitive_
+					return len(_aCol_) > len(U(_aCol_))
 				else
 					# Case-insensitive duplicates check
-					aLower = []
-					nLen = len(aCol)
-					for i = 1 to nLen
-						if isString(aCol[i])
-							aLower + StzLower(aCol[i])
+					_aLower_ = []
+					_nLen_ = len(_aCol_)
+					for _i_ = 1 to _nLen_
+						if isString(_aCol_[_i_])
+							_aLower_ + StzLower(_aCol_[_i_])
 						else
-							aLower + aCol[i]
+							_aLower_ + _aCol_[_i_]
 						ok
 					next
-					return len(aLower) > len(U(aLower))
+					return len(_aLower_) > len(U(_aLower_))
 				ok
 			ok
 		ok
 		return FALSE
 
-	def CheckGrouped(aToken, oTable)
+	def CheckGrouped(_aToken_, oTable)
 		if @bDebugMode
 			? "=== CheckGrouped ==="
-			? "Token: " + @@(aToken)
+			? "Token: " + @@(_aToken_)
 		ok
 
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
 
 			if @bDebugMode
-				? "Column name: " + cColName
-				? "Has column: " + oTable.HasColumn(cColName)
+				? "Column name: " + _cColName_
+				? "Has column: " + oTable.HasColumn(_cColName_)
 			ok
 
-			if oTable.HasColumn(cColName)
-				bCaseSensitive = FALSE
-				if HasKey(aToken, "casesensitive")
-					bCaseSensitive = aToken["casesensitive"]
+			if oTable.HasColumn(_cColName_)
+				_bCaseSensitive_ = FALSE
+				if HasKey(_aToken_, "casesensitive")
+					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
 
 				if @bDebugMode
-					? "Case sensitive: " + bCaseSensitive
+					? "Case sensitive: " + _bCaseSensitive_
 				ok
 
-				aCol = oTable.Col(cColName)
-				nConsecutiveDups = 0
-				nLen = len(aCol)
+				_aCol_ = oTable.Col(_cColName_)
+				_nConsecutiveDups_ = 0
+				_nLen_ = len(_aCol_)
 
 				if @bDebugMode
-					? "Column data: " + @@(aCol)
+					? "Column data: " + @@(_aCol_)
 				ok
 
-				for i = 1 to nLen - 1
-					xCurrent = aCol[i]
-					xNext = aCol[i+1]
+				for _i_ = 1 to _nLen_ - 1
+					_xCurrent_ = _aCol_[_i_]
+					_xNext_ = _aCol_[_i_+1]
 
-					bMatch = FALSE
-					if isString(xCurrent) and isString(xNext)
-						if bCaseSensitive
-							bMatch = (xCurrent = xNext)
+					_bMatch_ = FALSE
+					if isString(_xCurrent_) and isString(_xNext_)
+						if _bCaseSensitive_
+							_bMatch_ = (_xCurrent_ = _xNext_)
 						else
-							bMatch = (StzLower(xCurrent) = StzLower(xNext))
+							_bMatch_ = (StzLower(_xCurrent_) = StzLower(_xNext_))
 						ok
 					else
-						bMatch = (xCurrent = xNext)
+						_bMatch_ = (_xCurrent_ = _xNext_)
 					ok
 					
 					if @bDebugMode
-						? "Comparing [" + i + "] '" + xCurrent + "' vs [" + (i+1) + "] '" + xNext + "': " + bMatch
+						? "Comparing [" + _i_ + "] '" + _xCurrent_ + "' vs [" + (_i_+1) + "] '" + _xNext_ + "': " + _bMatch_
 					ok
 					
-					if bMatch
-						nConsecutiveDups++
+					if _bMatch_
+						_nConsecutiveDups_++
 					ok
 				next
 
 				if @bDebugMode
-					? "Consecutive duplicates found: " + nConsecutiveDups
+					? "Consecutive duplicates found: " + _nConsecutiveDups_
 				ok
 
-				return nConsecutiveDups > 0
+				return _nConsecutiveDups_ > 0
 			ok
 		ok
 		return FALSE
 
-	def CheckFiltered(aToken, oTable)
+	def CheckFiltered(_aToken_, oTable)
 		# Check if table shows signs of filtering (non-sequential IDs, gaps in data)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				aCol = oTable.Col(cColName)
-				nLen = len(aCol)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_aCol_ = oTable.Col(_cColName_)
+				_nLen_ = len(_aCol_)
 
 				# Check for gaps in numeric sequence
-				if nLen > 1
-					for i = 1 to nLen
-						if NOT isNumber(aCol[i])
+				if _nLen_ > 1
+					for _i_ = 1 to _nLen_
+						if NOT isNumber(_aCol_[_i_])
 							return FALSE
 						ok
 					next
 					# Check for non-sequential numbers
-					for i = 1 to nLen - 1
-						if aCol[i+1] - aCol[i] > 1
+					for _i_ = 1 to _nLen_ - 1
+						if _aCol_[_i_+1] - _aCol_[_i_] > 1
 							return TRUE
 						ok
 					next
@@ -1044,22 +1044,22 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckAggregated(aToken, oTable)
+	def CheckAggregated(_aToken_, oTable)
 		# Check if table contains aggregated data (calculated rows/cols)
 		return len(oTable.FindCalculatedRows()) > 0 or 
 		       len(oTable.FindCalculatedCols()) > 0
 
-	def CheckTransposed(aToken, oTable)
+	def CheckTransposed(_aToken_, oTable)
 		# Check if table structure suggests it's transposed (more cols than rows)
 		return oTable.NumberOfColumns() > oTable.NumberOfRows()
 
-	def CheckCalculated(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				anCalcCols = oTable.FindCalculatedCols()
-				nColPos = oTable.FindCol(cColName)
-				return StzFindFirst(anCalcCols, nColPos) > 0
+	def CheckCalculated(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_anCalcCols_ = oTable.FindCalculatedCols()
+				_nColPos_ = oTable.FindCol(_cColName_)
+				return StzFindFirst(_anCalcCols_, _nColPos_) > 0
 			ok
 		else
 			# Check if any calculated columns exist
@@ -1067,48 +1067,48 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckHasCol(aToken, poTable)
+	def CheckHasCol(_aToken_, poTable)
 
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			return poTable.HasColumn(cColName)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			return poTable.HasColumn(_cColName_)
 		ok
 		return FALSE
 
-	def CheckColType(aToken, oTable)
-		if HasKey(aToken, "value")
+	def CheckColType(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
 			# Format: colname:type (e.g., "salary:number")
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cType = StzLower(trim(aParts[2]))
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cType_ = StzLower(trim(_aParts_[2]))
 					
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nLen = len(aCol)
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nLen_ = len(_aCol_)
 
-						switch cType
+						switch _cType_
 						on "number"
-							for i = 1 to nLen
-								if NOT isNumber(aCol[i])
+							for _i_ = 1 to _nLen_
+								if NOT isNumber(_aCol_[_i_])
 									return FALSE
 								ok
 							next
 							return TRUE
 
 						on "string"
-							for i = 1 to nLen
-								if NOT isString(aCol[i])
+							for _i_ = 1 to _nLen_
+								if NOT isString(_aCol_[_i_])
 									return FALSE
 								ok
 							next
 							return TRUE
 							
 						on "list"
-							for i = 1 to nLen
-								if NOT isList(aCol[i])
+							for _i_ = 1 to _nLen_
+								if NOT isList(_aCol_[_i_])
 									return FALSE
 								ok
 							next
@@ -1120,24 +1120,24 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckColPattern(aToken, oTable)
-		if HasKey(aToken, "value")
+	def CheckColPattern(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
 			# Format: colname:pattern (e.g., "email:@EMAIL")
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cPattern = trim(aParts[2])
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cPattern_ = trim(_aParts_[2])
 					
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nLen = len(aCol)
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nLen_ = len(_aCol_)
 
 						# Check if all values match the pattern
-						for i = 1 to nLen
-							if isString(aCol[i])
-								if NOT Q(aCol[i]).MatchesRX(cPattern)
+						for _i_ = 1 to _nLen_
+							if isString(_aCol_[_i_])
+								if NOT Q(_aCol_[_i_]).MatchesRX(_cPattern_)
 									return FALSE
 								ok
 							ok
@@ -1149,33 +1149,33 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckSumCol(aToken, oTable)
-		if HasKey(aToken, "value")
+	def CheckSumCol(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
 			# Format: colname:value or colname:>value or colname:<value
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cConstraint = trim(aParts[2])
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cConstraint_ = trim(_aParts_[2])
 					
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nSum = 0
-						nLen = len(aCol)
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nSum_ = 0
+						_nLen_ = len(_aCol_)
 
-						for i = 1 to nLen
-							if isNumber(aCol[i])
-								nSum += aCol[i]
+						for _i_ = 1 to _nLen_
+							if isNumber(_aCol_[_i_])
+								_nSum_ += _aCol_[_i_]
 							ok
 						next
 
-						if startsWith(cConstraint, ">")
-							return nSum > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-						but startsWith(cConstraint, "<")
-							return nSum < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-						but This.IsNumeric(cConstraint)
-							return nSum = (0 + cConstraint)
+						if startsWith(_cConstraint_, ">")
+							return _nSum_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+						but startsWith(_cConstraint_, "<")
+							return _nSum_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+						but This.IsNumeric(_cConstraint_)
+							return _nSum_ = (0 + _cConstraint_)
 						ok
 					ok
 				ok
@@ -1183,36 +1183,36 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckAvgCol(aToken, oTable)
-		if HasKey(aToken, "value")
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cConstraint = trim(aParts[2])
+	def CheckAvgCol(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cConstraint_ = trim(_aParts_[2])
 
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nSum = 0
-						nCount = 0
-						nLen = len(aCol)
-						for i = 1 to nLen
-							if isNumber(aCol[i])
-								nSum += aCol[i]
-								nCount++
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nSum_ = 0
+						_nCount_ = 0
+						_nLen_ = len(_aCol_)
+						for _i_ = 1 to _nLen_
+							if isNumber(_aCol_[_i_])
+								_nSum_ += _aCol_[_i_]
+								_nCount_++
 							ok
 						next
 
-						if nCount > 0
-							nAvg = nSum / nCount
+						if _nCount_ > 0
+							_nAvg_ = _nSum_ / _nCount_
 							
-							if startsWith(cConstraint, ">")
-								return nAvg > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but startsWith(cConstraint, "<")
-								return nAvg < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but This.IsNumeric(cConstraint)
-								return nAvg = (0 + cConstraint)
+							if startsWith(_cConstraint_, ">")
+								return _nAvg_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but startsWith(_cConstraint_, "<")
+								return _nAvg_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but This.IsNumeric(_cConstraint_)
+								return _nAvg_ = (0 + _cConstraint_)
 							ok
 						ok
 					ok
@@ -1221,35 +1221,35 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckMinCol(aToken, oTable)
-		if HasKey(aToken, "value")
-			if StzFindFirst(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cConstraint = trim(aParts[2])
+	def CheckMinCol(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			if StzFindFirst(_aToken_["value"], ":") > 0
+				_aParts_ = @split(_aToken_["value"], ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cConstraint_ = trim(_aParts_[2])
 
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nMin = NULL
-						nLen = len(aCol)
-						for i = 1 to nLen
-							if isNumber(aCol[i])
-								if nMin = NULL
-									nMin = aCol[i]
-								but aCol[i] < nMin
-									nMin = aCol[i]
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nMin_ = NULL
+						_nLen_ = len(_aCol_)
+						for _i_ = 1 to _nLen_
+							if isNumber(_aCol_[_i_])
+								if _nMin_ = NULL
+									_nMin_ = _aCol_[_i_]
+								but _aCol_[_i_] < _nMin_
+									_nMin_ = _aCol_[_i_]
 								ok
 							ok
 						next
 
-						if nMin != NULL
-							if startsWith(cConstraint, ">")
-								return nMin > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but startsWith(cConstraint, "<")
-								return nMin < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but This.IsNumeric(cConstraint)
-								return nMin = (0 + cConstraint)
+						if _nMin_ != NULL
+							if startsWith(_cConstraint_, ">")
+								return _nMin_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but startsWith(_cConstraint_, "<")
+								return _nMin_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but This.IsNumeric(_cConstraint_)
+								return _nMin_ = (0 + _cConstraint_)
 							ok
 						ok
 					ok
@@ -1258,36 +1258,36 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckMaxCol(aToken, oTable)
-		if HasKey(aToken, "value")
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cConstraint = trim(aParts[2])
+	def CheckMaxCol(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cConstraint_ = trim(_aParts_[2])
 
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nMax = NULL
-						nLen = len(aCol)
-						for i = 1 to nLen
-							if isNumber(aCol[i])
-								if nMax = NULL
-									nMax = aCol[i]
-								but aCol[i] > nMax
-									nMax = aCol[i]
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nMax_ = NULL
+						_nLen_ = len(_aCol_)
+						for _i_ = 1 to _nLen_
+							if isNumber(_aCol_[_i_])
+								if _nMax_ = NULL
+									_nMax_ = _aCol_[_i_]
+								but _aCol_[_i_] > _nMax_
+									_nMax_ = _aCol_[_i_]
 								ok
 							ok
 						next
 
-						if nMax != NULL
-							if startsWith(cConstraint, ">")
-								return nMax > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but startsWith(cConstraint, "<")
-								return nMax < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
-							but This.IsNumeric(cConstraint)
-								return nMax = (0 + cConstraint)
+						if _nMax_ != NULL
+							if startsWith(_cConstraint_, ">")
+								return _nMax_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but startsWith(_cConstraint_, "<")
+								return _nMax_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							but This.IsNumeric(_cConstraint_)
+								return _nMax_ = (0 + _cConstraint_)
 							ok
 						ok
 					ok
@@ -1296,14 +1296,14 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckNulls(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				aCol = oTable.Col(cColName)
-				nLen = len(aCol)
-				for i = 1 to nLen
-					if aCol[i] = NULL or aCol[i] = "" or aCol[i] = 0
+	def CheckNulls(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_aCol_ = oTable.Col(_cColName_)
+				_nLen_ = len(_aCol_)
+				for _i_ = 1 to _nLen_
+					if _aCol_[_i_] = NULL or _aCol_[_i_] = "" or _aCol_[_i_] = 0
 						return TRUE
 					ok
 				next
@@ -1311,41 +1311,41 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckCompleteness(aToken, oTable)
-		if HasKey(aToken, "value")
+	def CheckCompleteness(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
 			# Format: colname:percentage (e.g., "email:90" means 90% complete)
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cPercent = trim(aParts[2])
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cPercent_ = trim(_aParts_[2])
 
-					if oTable.HasColumn(cColName) and This.IsNumeric(cPercent)
-						aCol = oTable.Col(cColName)
-						nNonEmpty = 0
-						nLenCol = len(aCol)
-						for i = 1 to nLenCol
-							if aCol[i] != NULL and aCol[i] != "" and aCol[i] != 0
-								nNonEmpty++
+					if oTable.HasColumn(_cColName_) and This.IsNumeric(_cPercent_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nNonEmpty_ = 0
+						_nLenCol_ = len(_aCol_)
+						for _i_ = 1 to _nLenCol_
+							if _aCol_[_i_] != NULL and _aCol_[_i_] != "" and _aCol_[_i_] != 0
+								_nNonEmpty_++
 							ok
 						next
-						nCompleteness = (nNonEmpty * 100.0) / nLenCol
-						return nCompleteness >= (0 + cPercent)
+						_nCompleteness_ = (_nNonEmpty_ * 100.0) / _nLenCol_
+						return _nCompleteness_ >= (0 + _cPercent_)
 					ok
 				ok
 			ok
 		ok
 		return FALSE
 
-	def CheckNumeric(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				aCol = oTable.Col(cColName)
-				nLen = len(aCol)
-				for i = 1 to nLen
-					if NOT isNumber(aCol[i])
+	def CheckNumeric(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_aCol_ = oTable.Col(_cColName_)
+				_nLen_ = len(_aCol_)
+				for _i_ = 1 to _nLen_
+					if NOT isNumber(_aCol_[_i_])
 						return FALSE
 					ok
 				next
@@ -1354,15 +1354,15 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckAlphabetic(aToken, oTable)
-		if HasKey(aToken, "value")
-			cColName = aToken["value"]
-			if oTable.HasColumn(cColName)
-				aCol = oTable.Col(cColName)
-				nLen = len(aCol)
-				for i = 1 to nLen
-					if isString(aCol[i])
-						if NOT Q(aCol[i]).IsAlphabetic()
+	def CheckAlphabetic(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
+			_cColName_ = _aToken_["value"]
+			if oTable.HasColumn(_cColName_)
+				_aCol_ = oTable.Col(_cColName_)
+				_nLen_ = len(_aCol_)
+				for _i_ = 1 to _nLen_
+					if isString(_aCol_[_i_])
+						if NOT Q(_aCol_[_i_]).IsAlphabetic()
 							return FALSE
 						ok
 					else
@@ -1374,24 +1374,24 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def CheckFormat(aToken, oTable)
-		if HasKey(aToken, "value")
+	def CheckFormat(_aToken_, oTable)
+		if HasKey(_aToken_, "value")
 			# Format: colname:format (e.g., "date:YYYY-MM-DD")
-			cValue = aToken["value"]
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				if len(aParts) = 2
-					cColName = trim(aParts[1])
-					cFormat = trim(aParts[2])
+			_cValue_ = _aToken_["value"]
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				if len(_aParts_) = 2
+					_cColName_ = trim(_aParts_[1])
+					_cFormat_ = trim(_aParts_[2])
 
-					if oTable.HasColumn(cColName)
-						aCol = oTable.Col(cColName)
-						nLen = len(aCol)
+					if oTable.HasColumn(_cColName_)
+						_aCol_ = oTable.Col(_cColName_)
+						_nLen_ = len(_aCol_)
 						# Check if values match the format pattern
-						for i = 1 to nLen
-							if isString(aCol[i])
+						for _i_ = 1 to _nLen_
+							if isString(_aCol_[_i_])
 								# Simple format check - could be enhanced
-								if NOT This.MatchesFormat(aCol[i], cFormat)
+								if NOT This.MatchesFormat(_aCol_[_i_], _cFormat_)
 									return FALSE
 								ok
 							ok
@@ -1403,10 +1403,10 @@ class stzTablex from stzObject
 		ok
 		return FALSE
 
-	def MatchesFormat(cValue, cFormat)
+	def MatchesFormat(_cValue_, _cFormat_)
 
-		oRegex = new stzRegex(cFormat)
-		if oRegex.Match(pat(cValue)) or oRegex.Match(cValue)
+		_oRegex_ = new stzRegex(_cFormat_)
+		if _oRegex_.Match(pat(_cValue_)) or _oRegex_.Match(_cValue_)
 			return TRUE
 		else
 			return FALSE
@@ -1423,18 +1423,18 @@ class stzTablex from stzObject
 		@aMatchedParts + ["rows", oTable.NumberOfRows()]
 		@aMatchedParts + ["colnames", oTable.Columns()]
 
-		aProps = []
+		_aProps_ = []
 		if oTable.IsEmpty()
-			aProps + "empty"
+			_aProps_ + "empty"
 		else
-			aProps + "nonempty"
+			_aProps_ + "nonempty"
 		ok
 
 		if len(oTable.FindCalculatedCols()) > 0
-			aProps + "hasclculated"
+			_aProps_ + "hasclculated"
 		ok
 
-		@aMatchedParts + ["properties", aProps]
+		@aMatchedParts + ["properties", _aProps_]
 
 	  #----------------------#
 	 #  QUERY METHODS       #
@@ -1484,14 +1484,14 @@ class stzTablex from stzObject
 			paTables = paTables[2]
 		ok
 
-		aMatching = []
-		nLen = len(paTables)
-		for i = 1 to nLen
-			if This.Match(paTables[i])
-				aMatching + paTables[i]
+		_aMatching_ = []
+		_nLen_ = len(paTables)
+		for _i_ = 1 to _nLen_
+			if This.Match(paTables[_i_])
+				_aMatching_ + paTables[_i_]
 			ok
 		next
-		return aMatching
+		return _aMatching_
 
 		def MatchingTablesIn(paTables)
 			return This.MatchingTables(paTables)
@@ -1501,14 +1501,14 @@ class stzTablex from stzObject
 			paTables = paTables[2]
 		ok
 
-		nCount = 0
-		nLen = len(paTables)
-		for i = 1 to nLen
-			if This.Match(paTables[i])
-				nCount++
+		_nCount_ = 0
+		_nLen_ = len(paTables)
+		for _i_ = 1 to _nLen_
+			if This.Match(paTables[_i_])
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def CountMatchingTablesIn(paTables)
 			return This.CountMatchingTables(paTables)
@@ -1535,10 +1535,10 @@ class stzTablex from stzObject
 			return FALSE
 		ok
 
-		nLen = len(cStr)
-		for i = 1 to nLen
-			cChar = @StzMid(cStr, i, i)
-			if not isDigit(cChar) and cChar != "-" and cChar != "."
+		_nLen_ = len(cStr)
+		for _i_ = 1 to _nLen_
+			_cChar_ = @StzMid(cStr, _i_, _i_)
+			if not isDigit(_cChar_) and _cChar_ != "-" and _cChar_ != "."
 				return FALSE
 			ok
 		next
@@ -1554,31 +1554,31 @@ class stzTablex from stzObject
 			StzRaise("Incorrect param! oOtherTablex must be a stzTablex object.")
 		ok
 
-		cCombined = "{" + 
+		_cCombined_ = "{" + 
 		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " & " + 
 		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
-		return new stzTablex(cCombined)
+		return new stzTablex(_cCombined_)
 
 	def Or_(oOtherTablex)
 		if NOT IsStzTablex(oOtherTablex)
 			StzRaise("Incorrect param! oOtherTablex must be a stzTablex object.")
 		ok
 
-		cCombined = "{" + 
+		_cCombined_ = "{" + 
 		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " | " + 
 		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
-		return new stzTablex(cCombined)
+		return new stzTablex(_cCombined_)
 
 	def Not_()
-		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
-		cNegated = "{@!" + cInner + "}"
-		return new stzTablex(cNegated)
+		_cInner_ = @StzMid(@cPattern, 2, len(@cPattern) - 1)
+		_cNegated_ = "{@!" + _cInner_ + "}"
+		return new stzTablex(_cNegated_)
 
 	  #-----------------#
 	 #  CACHE UTILITY  #
@@ -1586,20 +1586,20 @@ class stzTablex from stzObject
 
 	def TableSignature(poTable)
 		# Use content checksum for efficiency
-		cContent = @@(poTable.Content())
-		nChecksum = 0
-		nLen = len(cContent)
+		_cContent_ = @@(poTable.Content())
+		_nChecksum_ = 0
+		_nLen_ = len(_cContent_)
 
-		for i = 1 to nLen
-			nChecksum += ascii(cContent[i])
+		for _i_ = 1 to _nLen_
+			_nChecksum_ += ascii(_cContent_[_i_])
 		next
 
-		cResult = '' + poTable.NumberOfColumns() + ":" + 
+		_cResult_ = '' + poTable.NumberOfColumns() + ":" + 
 		       poTable.NumberOfRows() + ":" + 
 		       @@(poTable.ColNames()) + ":" +
-		       nChecksum
+		       _nChecksum_
 
-		return cResult
+		return _cResult_
 
 	def ClearCache()
 		@aMatchCache = []

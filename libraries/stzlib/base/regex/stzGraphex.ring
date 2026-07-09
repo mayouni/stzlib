@@ -19,14 +19,14 @@ class stzGraphex from stzGraph
 	# Enhanced alternation pattern to handle nested parentheses better
 	@cAlternationPattern = '^\((.*)\)$'
 
-	def init(cPattern, oTargetGraph)
+	def init(_cPattern_, oTargetGraph)
 		super.init("PatternGraph")
 		
-		if NOT isString(cPattern) or NOT @IsStzGraph(oTargetGraph)
+		if NOT isString(_cPattern_) or NOT @IsStzGraph(oTargetGraph)
 			raise("Error: Pattern must be a string and graph must be stzGraph")
 		ok
 		
-		@cPattern = This.NormalizePattern(cPattern)
+		@cPattern = This.NormalizePattern(_cPattern_)
 		@oTargetGraph = oTargetGraph
 
 		try
@@ -36,280 +36,280 @@ class stzGraphex from stzGraph
 		done
 
 
-	def NormalizePattern(cPattern)
-		cPattern = trim(cPattern)
+	def NormalizePattern(_cPattern_)
+		_cPattern_ = trim(_cPattern_)
 		
-		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
-			cPattern = "{" + cPattern + "}"
+		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
+			_cPattern_ = "{" + _cPattern_ + "}"
 		ok
 		
-		return cPattern
+		return _cPattern_
 
 	# Build the pattern as a graph: Nodes = tokens, Edges = sequences or alternates
-	def BuildPatternGraph(cPattern)
+	def BuildPatternGraph(_cPattern_)
 
 		
 		@aPendingAlternationBranches = []
-		aTokens = This.ParsePattern(cPattern)
+		_aTokens_ = This.ParsePattern(_cPattern_)
 		
 		
-		if len(aTokens) = 0
+		if len(_aTokens_) = 0
 			return
 		ok
 		
-		nNodeCounter = 0
-		nPrevNodeId = NULL
-		nLenTokens = len(aTokens)
+		_nNodeCounter_ = 0
+		_nPrevNodeId_ = NULL
+		_nLenTokens_ = len(_aTokens_)
 		
-		for i = 1 to nLenTokens
-			aToken = aTokens[i]
+		for i = 1 to _nLenTokens_
+			_aToken_ = _aTokens_[i]
 			
 			
 			# Check if token is valid before accessing [:type]
-			if NOT isList(aToken) or len(aToken) = 0
+			if NOT isList(_aToken_) or len(_aToken_) = 0
 				loop
 			ok
 			
 			# Safe key access using HasKey
-			if NOT HasKey(aToken, :type)
+			if NOT HasKey(_aToken_, :type)
 				loop
 			ok
 			
-			if aToken[:type] = "alternation"
-				aAltNodes = []
-				nLenAlternatives = len(aToken[:alternatives])
+			if _aToken_[:type] = "alternation"
+				_aAltNodes_ = []
+				_nLenAlternatives_ = len(_aToken_[:alternatives])
 				
-				for j = 1 to nLenAlternatives
-					nNodeCounter++
-					cAltNodeId = ":p" + nNodeCounter
-					aAltToken = aToken[:alternatives][j]
-					cLabel = aAltToken[:type] + iff(HasKey(aAltToken, :label) and aAltToken[:label] != "", "(" + aAltToken[:label] + ")", "")
-					acProps = [ :min = aAltToken[:min], :max = aAltToken[:max],
-							:negated = iff(aAltToken[:negated], "TRUE", "FALSE"),
-							:cs = iff(HasKey(aAltToken, :cs) and aAltToken[:cs], "TRUE", "FALSE") ]
-					if HasKey(aAltToken, :setvalues) and len(aAltToken[:setvalues]) > 0
-						acProps + [ "set", "{" + JoinXT(aAltToken[:setvalues], ";") + "}" + iff(aAltToken[:unique], "U", "") ]
+				for j = 1 to _nLenAlternatives_
+					_nNodeCounter_++
+					_cAltNodeId_ = ":p" + _nNodeCounter_
+					_aAltToken_ = _aToken_[:alternatives][j]
+					_cLabel_ = _aAltToken_[:type] + iff(HasKey(_aAltToken_, :label) and _aAltToken_[:label] != "", "(" + _aAltToken_[:label] + ")", "")
+					_acProps_ = [ :min = _aAltToken_[:min], :max = _aAltToken_[:max],
+							:negated = iff(_aAltToken_[:negated], "TRUE", "FALSE"),
+							:cs = iff(HasKey(_aAltToken_, :cs) and _aAltToken_[:cs], "TRUE", "FALSE") ]
+					if HasKey(_aAltToken_, :setvalues) and len(_aAltToken_[:setvalues]) > 0
+						_acProps_ + [ "set", "{" + JoinXT(_aAltToken_[:setvalues], ";") + "}" + iff(_aAltToken_[:unique], "U", "") ]
 					ok
-					This.AddNodeXTT(cAltNodeId, cLabel, acProps)
+					This.AddNodeXTT(_cAltNodeId_, _cLabel_, _acProps_)
 					
 					# Connect to previous node
-					if nPrevNodeId != NULL
-						This.AddEdgeXT(nPrevNodeId, cAltNodeId, "sequences")
+					if _nPrevNodeId_ != NULL
+						This.AddEdgeXT(_nPrevNodeId_, _cAltNodeId_, "sequences")
 					ok
 					
-					aAltNodes + cAltNodeId
+					_aAltNodes_ + _cAltNodeId_
 				next
 				
 				# Store all alternation branches - next node will connect from ALL of them
-				@aPendingAlternationBranches = aAltNodes
-				nPrevNodeId = NULL  # Signal that we need to connect from multiple nodes
+				@aPendingAlternationBranches = _aAltNodes_
+				_nPrevNodeId_ = NULL  # Signal that we need to connect from multiple nodes
 			
 			else
 				# Regular node processing
-				nNodeCounter++
-				cNodeId = ":p" + nNodeCounter
-				cLabel = aToken[:type]
-				if HasKey(aToken, :label) and aToken[:label] != ""
-					cLabel += "(" + aToken[:label] + ")"
+				_nNodeCounter_++
+				_cNodeId_ = ":p" + _nNodeCounter_
+				_cLabel_ = _aToken_[:type]
+				if HasKey(_aToken_, :label) and _aToken_[:label] != ""
+					_cLabel_ += "(" + _aToken_[:label] + ")"
 				ok
-				acProps = [ :min = aToken[:min], :max = aToken[:max],
-						:negated = iff(aToken[:negated], "TRUE", "FALSE"),
-						:cs = iff(HasKey(aToken, :cs) and aToken[:cs], "TRUE", "FALSE") ]
-				if HasKey(aToken, :setvalues) and len(aToken[:setvalues]) > 0
-					acProps + [ "set", "{" + JoinXT(aToken[:setvalues], ";") + "}" + iff(aToken[:unique], "U", "") ]
+				_acProps_ = [ :min = _aToken_[:min], :max = _aToken_[:max],
+						:negated = iff(_aToken_[:negated], "TRUE", "FALSE"),
+						:cs = iff(HasKey(_aToken_, :cs) and _aToken_[:cs], "TRUE", "FALSE") ]
+				if HasKey(_aToken_, :setvalues) and len(_aToken_[:setvalues]) > 0
+					_acProps_ + [ "set", "{" + JoinXT(_aToken_[:setvalues], ";") + "}" + iff(_aToken_[:unique], "U", "") ]
 				ok
-				This.AddNodeXTT(cNodeId, cLabel, acProps)
+				This.AddNodeXTT(_cNodeId_, _cLabel_, _acProps_)
 				
 				# Connect from previous node
-				if nPrevNodeId != NULL
-					This.AddEdgeXT(nPrevNodeId, cNodeId, "sequences")
+				if _nPrevNodeId_ != NULL
+					This.AddEdgeXT(_nPrevNodeId_, _cNodeId_, "sequences")
 				ok
 				
 				# Connect from all pending alternation branches
 				if len(@aPendingAlternationBranches) > 0
-					nLenPending = len(@aPendingAlternationBranches)
-					for k = 1 to nLenPending
-						This.AddEdgeXT(@aPendingAlternationBranches[k], cNodeId, "sequences")
+					_nLenPending_ = len(@aPendingAlternationBranches)
+					for k = 1 to _nLenPending_
+						This.AddEdgeXT(@aPendingAlternationBranches[k], _cNodeId_, "sequences")
 					next
 					@aPendingAlternationBranches = []
 				ok
 				
-				nPrevNodeId = cNodeId
+				_nPrevNodeId_ = _cNodeId_
 			ok
 		next
 		
 
 	# FIXED: Alternation parsing now correctly strips outer parentheses
 	# before processing alternation groups
-	def ParsePattern(cPattern)
+	def ParsePattern(_cPattern_)
 		
-		oPattern = new stzString(cPattern)
-		cInner = oPattern.RemoveFirstAndLastCharsQ().Content()
-		
-		
-		aParts = split(cInner, "->")
+		_oPattern_ = new stzString(_cPattern_)
+		_cInner_ = _oPattern_.RemoveFirstAndLastCharsQ().Content()
 		
 		
-		aTokens = []
-		nLenParts = len(aParts)
+		_aParts_ = split(_cInner_, "->")
 		
-		for i = 1 to nLenParts
-			cPart = trim(aParts[i])
+		
+		_aTokens_ = []
+		_nLenParts_ = len(_aParts_)
+		
+		for i = 1 to _nLenParts_
+			_cPart_ = trim(_aParts_[i])
 			
 			
 			# Skip empty parts
-			if cPart = ""
+			if _cPart_ = ""
 				loop
 			ok
 			
 			# Check for alternation group wrapped in parentheses
 			# Strip outer parentheses first, then check for pipe
-			if startsWith(cPart, "(") and endsWith(cPart, ")")
+			if startsWith(_cPart_, "(") and endsWith(_cPart_, ")")
 				# Strip outer parentheses to get the inner content
-				cInnerPart = @StzMid(cPart, 2, len(cPart) - 1)
+				_cInnerPart_ = @StzMid(_cPart_, 2, len(_cPart_) - 1)
 				
 				
 				# Now check if the inner content contains alternation
-				if contains(cInnerPart, "|")
+				if contains(_cInnerPart_, "|")
 					# Process as alternation without outer parentheses
-					aAltTokens = []
-					aAltParts = @split(cInnerPart, "|")
-					nLenAltParts = len(aAltParts)
-					bValidAlt = TRUE
+					_aAltTokens_ = []
+					_aAltParts_ = @split(_cInnerPart_, "|")
+					_nLenAltParts_ = len(_aAltParts_)
+					_bValidAlt_ = TRUE
 					
-					for j = 1 to nLenAltParts
-						cAlt = trim(aAltParts[j])
-						if cAlt != ""
-							aToken = This.ParseSingleToken(cAlt)
-							if isList(aToken) and len(aToken) > 0
-								aAltTokens + aToken
+					for j = 1 to _nLenAltParts_
+						_cAlt_ = trim(_aAltParts_[j])
+						if _cAlt_ != ""
+							_aToken_ = This.ParseSingleToken(_cAlt_)
+							if isList(_aToken_) and len(_aToken_) > 0
+								_aAltTokens_ + _aToken_
 							else
-								bValidAlt = FALSE
+								_bValidAlt_ = FALSE
 								exit
 							ok
 						else
 						ok
 					next
 					
-					if bValidAlt and len(aAltTokens) > 0
-						aTokens + [ [ "type", "alternation" ], [ "alternatives", aAltTokens ] ]
+					if _bValidAlt_ and len(_aAltTokens_) > 0
+						_aTokens_ + [ [ "type", "alternation" ], [ "alternatives", _aAltTokens_ ] ]
 					else
-						if len(aAltTokens) > 0
-							aTokens + aAltTokens[1]
+						if len(_aAltTokens_) > 0
+							_aTokens_ + _aAltTokens_[1]
 						else
-							aFallback = This.ParseSingleToken(cPart)
-							if isList(aFallback) and len(aFallback) > 0
-								aTokens + aFallback
+							_aFallback_ = This.ParseSingleToken(_cPart_)
+							if isList(_aFallback_) and len(_aFallback_) > 0
+								_aTokens_ + _aFallback_
 							ok
 						ok
 					ok
 				else
-					aResult = This.ParseSingleToken(cInnerPart)
-					if isList(aResult) and len(aResult) > 0
-						aTokens + aResult
+					_aResult_ = This.ParseSingleToken(_cInnerPart_)
+					if isList(_aResult_) and len(_aResult_) > 0
+						_aTokens_ + _aResult_
 					else
 					ok
 				ok
 			else
-				aResult = This.ParseSingleToken(cPart)
-				if isList(aResult) and len(aResult) > 0
-					aTokens + aResult
+				_aResult_ = This.ParseSingleToken(_cPart_)
+				if isList(_aResult_) and len(_aResult_) > 0
+					_aTokens_ + _aResult_
 				else
 				ok
 			ok
 		next
 		
-		return aTokens
+		return _aTokens_
 
 
-	def ParseSingleToken(cTokenStr)
-		cTokenStr = @trim(cTokenStr)
+	def ParseSingleToken(_cTokenStr_)
+		_cTokenStr_ = @trim(_cTokenStr_)
 		
 		
-		if cTokenStr = ""
+		if _cTokenStr_ = ""
 			return []
 		ok
 		
-		bNegated = StartsWith(cTokenStr, "@!")
-		if bNegated
+		_bNegated_ = StartsWith(_cTokenStr_, "@!")
+		if _bNegated_
 			# Remove @! (positions 1-2), keep from position 3 onwards
-			cTokenStr = "@" + @StzMid(cTokenStr, 3, len(cTokenStr))
+			_cTokenStr_ = "@" + @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
 		ok
 
 		# Per-token case-sensitivity marker: a leading "@cs:" makes this
 		# token match the target label case-sensitively. Default (no
 		# marker) is case-insensitive. Strip it before type detection,
 		# else startsWith(.., "@node") never fires on "@cs:@Node(..)".
-		bCaseSensitive = FALSE
-		if StartsWith(StzLower(cTokenStr), "@cs:")
-			bCaseSensitive = TRUE
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+		_bCaseSensitive_ = FALSE
+		if StartsWith(StzLower(_cTokenStr_), "@cs:")
+			_bCaseSensitive_ = TRUE
+			_cTokenStr_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
 		ok
 
 		# Now process cTokenStr normally with bNegated flag set...
 		
-		nMin = 1
-		nMax = 1
-		aSetValues = []
-		bRequireUnique = FALSE
-		cLabel = ""
-		cProps = ""
+		_nMin_ = 1
+		_nMax_ = 1
+		_aSetValues_ = []
+		_bRequireUnique_ = FALSE
+		_cLabel_ = ""
+		_cProps_ = ""
 	
 		# Process quantifiers - look for +, *, ? at the end
-		cLastChar = Right(cTokenStr, 1)
-		if cLastChar = "+" or cLastChar = "*" or cLastChar = "?"
-			switch cLastChar
+		_cLastChar_ = Right(_cTokenStr_, 1)
+		if _cLastChar_ = "+" or _cLastChar_ = "*" or _cLastChar_ = "?"
+			switch _cLastChar_
 			on "+"
-				nMin = 1
-				nMax = 999999
+				_nMin_ = 1
+				_nMax_ = 999999
 			on "*"
-				nMin = 0
-				nMax = 999999
+				_nMin_ = 0
+				_nMax_ = 999999
 			on "?"
-				nMin = 0
-				nMax = 1
+				_nMin_ = 0
+				_nMax_ = 1
 			off
-			cTokenStr = Left(cTokenStr, len(cTokenStr) - 1)
+			_cTokenStr_ = Left(_cTokenStr_, len(_cTokenStr_) - 1)
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
-		nBraceStart = StzFindFirst(cTokenStr, "{")
-		if nBraceStart > 0
-			nBraceEnd = StzFindFirst(cTokenStr, "}")
-			if nBraceEnd > nBraceStart
+		_nBraceStart_ = StzFindFirst(_cTokenStr_, "{")
+		if _nBraceStart_ > 0
+			_nBraceEnd_ = StzFindFirst(_cTokenStr_, "}")
+			if _nBraceEnd_ > _nBraceStart_
 	
 				# span BETWEEN the braces, not the absolute end index
 				# (the old nBraceEnd count leaked the '}' into the set).
-				cSetContent = @StzMid(cTokenStr, nBraceStart + 1, nBraceEnd - nBraceStart - 1)
+				_cSetContent_ = @StzMid(_cTokenStr_, _nBraceStart_ + 1, _nBraceEnd_ - _nBraceStart_ - 1)
 
 				# Check for U after closing brace (single char lookahead)
-				if nBraceEnd < len(cTokenStr) and @StzMid(cTokenStr, nBraceEnd + 1, 1) = "U"
-					bRequireUnique = TRUE
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @StzMid(cTokenStr, nBraceEnd + 2, len(cTokenStr))
+				if _nBraceEnd_ < len(_cTokenStr_) and @StzMid(_cTokenStr_, _nBraceEnd_ + 1, 1) = "U"
+					_bRequireUnique_ = TRUE
+					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 2, len(_cTokenStr_))
 				else
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @StzMid(cTokenStr, nBraceEnd + 1, len(cTokenStr))
+					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 1, len(_cTokenStr_))
 				ok
 				
 				# Parse set values
-				if contains(cSetContent, ";")
-					aSetValues = @split(cSetContent, ";")
+				if contains(_cSetContent_, ";")
+					_aSetValues_ = @split(_cSetContent_, ";")
 				else
-					aSetValues = [cSetContent]
+					_aSetValues_ = [_cSetContent_]
 				ok
 			ok
 		ok
 	
 		# Parse token type
-		cTokenLower = StzLower(cTokenStr)
+		_cTokenLower_ = StzLower(_cTokenStr_)
 		
-		if startsWith(cTokenLower, "@node")
+		if startsWith(_cTokenLower_, "@node")
 			
 			# Manual extraction: @Node(label){props}
-			nParenStart = StzFindFirst(cTokenStr, "(")
-			if nParenStart > 0
-				nParenEnd = StzFindFirst(cTokenStr, ")")
-				if nParenEnd > nParenStart
-					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
+			_nParenStart_ = StzFindFirst(_cTokenStr_, "(")
+			if _nParenStart_ > 0
+				_nParenEnd_ = StzFindFirst(_cTokenStr_, ")")
+				if _nParenEnd_ > _nParenStart_
+					_cLabel_ = @StzMid(_cTokenStr_, _nParenStart_ + 1, _nParenEnd_ - _nParenStart_ - 1)
 				ok
 			ok
 
@@ -318,64 +318,64 @@ class stzGraphex from stzGraph
 
 			return [
 				[ "type", "node" ],
-				[ "label", cLabel ],
-				[ "properties", cProps ],
-				[ "min", nMin ],
-				[ "max", nMax ],
-				[ "setvalues", aSetValues ],
-				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ],
-				[ "cs", bCaseSensitive ]
+				[ "label", _cLabel_ ],
+				[ "properties", _cProps_ ],
+				[ "min", _nMin_ ],
+				[ "max", _nMax_ ],
+				[ "setvalues", _aSetValues_ ],
+				[ "unique", _bRequireUnique_ ],
+				[ "negated", _bNegated_ ],
+				[ "cs", _bCaseSensitive_ ]
 			]
 			
-		but startsWith(cTokenLower, "@edge")
+		but startsWith(_cTokenLower_, "@edge")
 			
 			# Manual extraction: @Edge(label){props}
-			nParenStart = StzFindFirst(cTokenStr, "(")
-			if nParenStart > 0
-				nParenEnd = StzFindFirst(cTokenStr, ")")
-				if nParenEnd > nParenStart
-					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
+			_nParenStart_ = StzFindFirst(_cTokenStr_, "(")
+			if _nParenStart_ > 0
+				_nParenEnd_ = StzFindFirst(_cTokenStr_, ")")
+				if _nParenEnd_ > _nParenStart_
+					_cLabel_ = @StzMid(_cTokenStr_, _nParenStart_ + 1, _nParenEnd_ - _nParenStart_ - 1)
 				ok
 			ok
 
 
 			return [
 				[ "type", "edge" ],
-				[ "label", cLabel ],
-				[ "properties", cProps ],
-				[ "min", nMin ],
-				[ "max", nMax ],
-				[ "setvalues", aSetValues ],
-				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ],
-				[ "cs", bCaseSensitive ]
+				[ "label", _cLabel_ ],
+				[ "properties", _cProps_ ],
+				[ "min", _nMin_ ],
+				[ "max", _nMax_ ],
+				[ "setvalues", _aSetValues_ ],
+				[ "unique", _bRequireUnique_ ],
+				[ "negated", _bNegated_ ],
+				[ "cs", _bCaseSensitive_ ]
 			]
 			
-		but startsWith(cTokenLower, "@cycle")
+		but startsWith(_cTokenLower_, "@cycle")
 			return [
 				[ "type", "cycle" ],
 				[ "label", "" ],
 				[ "properties", "" ],
-				[ "min", nMin ],
-				[ "max", nMax ],
-				[ "setvalues", aSetValues ],
-				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ],
-				[ "cs", bCaseSensitive ]
+				[ "min", _nMin_ ],
+				[ "max", _nMax_ ],
+				[ "setvalues", _aSetValues_ ],
+				[ "unique", _bRequireUnique_ ],
+				[ "negated", _bNegated_ ],
+				[ "cs", _bCaseSensitive_ ]
 			]
 			
-		but startsWith(cTokenLower, "@path")
+		but startsWith(_cTokenLower_, "@path")
 			return [
 				[ "type", "path" ],
 				[ "label", "" ],
 				[ "properties", "" ],
-				[ "min", nMin ],
-				[ "max", nMax ],
-				[ "setvalues", aSetValues ],
-				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ],
-				[ "cs", bCaseSensitive ]
+				[ "min", _nMin_ ],
+				[ "max", _nMax_ ],
+				[ "setvalues", _aSetValues_ ],
+				[ "unique", _bRequireUnique_ ],
+				[ "negated", _bNegated_ ],
+				[ "cs", _bCaseSensitive_ ]
 			]
 			
 		else
@@ -384,72 +384,72 @@ class stzGraphex from stzGraph
 
 
 	def ListifyGraph(oGraph)
-		aBranches = []
-		acNodes = oGraph.Nodes()
-		nLenNodes = len(acNodes)
+		_aBranches_ = []
+		_acNodes_ = oGraph.Nodes()
+		_nLenNodes_ = len(_acNodes_)
 		
 		# Handle single isolated nodes
-		for i = 1 to nLenNodes
-			aNode = acNodes[i]
-			cNodeId = aNode[:id]
-			acNeighbors = oGraph.Neighbors(cNodeId)
-			acIncoming = oGraph.Incoming(cNodeId)
+		for i = 1 to _nLenNodes_
+			_aNode_ = _acNodes_[i]
+			_cNodeId_ = _aNode_[:id]
+			_acNeighbors_ = oGraph.Neighbors(_cNodeId_)
+			_acIncoming_ = oGraph.Incoming(_cNodeId_)
 			
 			# If node has no connections, add it as single-node branch
-			if len(acNeighbors) = 0 and len(acIncoming) = 0
-				aBranches + [aNode[:label]]
+			if len(_acNeighbors_) = 0 and len(_acIncoming_) = 0
+				_aBranches_ + [_aNode_[:label]]
 			ok
 		next
 		
 		# Process paths between connected nodes
-		for i = 1 to nLenNodes
-			aNode = acNodes[i]
-			cStartId = aNode[:id]
-			acReachable = oGraph.ReachableFrom(cStartId)
-			nLenReachable = len(acReachable)
-			for j = 1 to nLenReachable
-				cEndId = acReachable[j]
-				if cEndId != cStartId
-					acPaths = oGraph.PathsXT(cStartId, cEndId)
-					nLenPaths = len(acPaths)
-					for k = 1 to nLenPaths
-						aPath = acPaths[k]
-						aBranch = []
-						nLenPath = len(aPath)
-						for m = 1 to nLenPath-1
-							cFrom = aPath[m]
-							cTo = aPath[m+1]
+		for i = 1 to _nLenNodes_
+			_aNode_ = _acNodes_[i]
+			_cStartId_ = _aNode_[:id]
+			_acReachable_ = oGraph.ReachableFrom(_cStartId_)
+			_nLenReachable_ = len(_acReachable_)
+			for j = 1 to _nLenReachable_
+				_cEndId_ = _acReachable_[j]
+				if _cEndId_ != _cStartId_
+					_acPaths_ = oGraph.PathsXT(_cStartId_, _cEndId_)
+					_nLenPaths_ = len(_acPaths_)
+					for k = 1 to _nLenPaths_
+						_aPath_ = _acPaths_[k]
+						_aBranch_ = []
+						_nLenPath_ = len(_aPath_)
+						for m = 1 to _nLenPath_-1
+							_cFrom_ = _aPath_[m]
+							_cTo_ = _aPath_[m+1]
 							# Get node by ID
-							aNodeFrom = NULL
-							nLenNodes = len(oGraph.Nodes())
-							for n = 1 to nLenNodes
-								if oGraph.Nodes()[n][:id] = cFrom
-									aNodeFrom = oGraph.Nodes()[n]
+							_aNodeFrom_ = NULL
+							_nLenNodes_ = len(oGraph.Nodes())
+							for n = 1 to _nLenNodes_
+								if oGraph.Nodes()[n][:id] = _cFrom_
+									_aNodeFrom_ = oGraph.Nodes()[n]
 									exit
 								ok
 							next
-							if aNodeFrom != NULL
-								aBranch + aNodeFrom[:label]
+							if _aNodeFrom_ != NULL
+								_aBranch_ + _aNodeFrom_[:label]
 							ok
-							aEdge = oGraph.Edge(cFrom, cTo)
-							if aEdge != ""
-								aBranch + aEdge[:label]
+							_aEdge_ = oGraph.Edge(_cFrom_, _cTo_)
+							if _aEdge_ != ""
+								_aBranch_ + _aEdge_[:label]
 							ok
 						next
 						# Add final node
-						aNodeTo = NULL
-						nLenNodes = len(oGraph.Nodes())
-						for n = 1 to nLenNodes
-							if oGraph.Nodes()[n][:id] = aPath[nLenPath]
-								aNodeTo = oGraph.Nodes()[n]
+						_aNodeTo_ = NULL
+						_nLenNodes_ = len(oGraph.Nodes())
+						for n = 1 to _nLenNodes_
+							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
+								_aNodeTo_ = oGraph.Nodes()[n]
 								exit
 							ok
 						next
-						if aNodeTo != NULL
-							aBranch + aNodeTo[:label]
+						if _aNodeTo_ != NULL
+							_aBranch_ + _aNodeTo_[:label]
 						ok
-						if len(aBranch) > 0
-							aBranches + aBranch
+						if len(_aBranch_) > 0
+							_aBranches_ + _aBranch_
 						ok
 					next
 				ok
@@ -458,67 +458,67 @@ class stzGraphex from stzGraph
 		
 		# Handle cycles
 		if oGraph.HasCyclicDependencies()
-			acCyclicNodes = oGraph.CyclicNodes()
-			nLenCyclic = len(acCyclicNodes)
+			_acCyclicNodes_ = oGraph.CyclicNodes()
+			_nLenCyclic_ = len(_acCyclicNodes_)
 
-			for i = 1 to nLenCyclic
-				cNode = acCyclicNodes[i]
-				acCyclePaths = oGraph.PathsXT(cNode, cNode)
-				nLenCyclePaths = len(acCyclePaths)
+			for i = 1 to _nLenCyclic_
+				_cNode_ = _acCyclicNodes_[i]
+				_acCyclePaths_ = oGraph.PathsXT(_cNode_, _cNode_)
+				_nLenCyclePaths_ = len(_acCyclePaths_)
 
-				for j = 1 to nLenCyclePaths
-					aPath = acCyclePaths[j]
+				for j = 1 to _nLenCyclePaths_
+					_aPath_ = _acCyclePaths_[j]
 
-					if len(aPath) > 1
-						aBranch = ["@Cycle"]
-						nLenPath = len(aPath)
+					if len(_aPath_) > 1
+						_aBranch_ = ["@Cycle"]
+						_nLenPath_ = len(_aPath_)
 
-						for k = 1 to nLenPath-1
-							cFrom = aPath[k]
-							cTo = aPath[k+1]
+						for k = 1 to _nLenPath_-1
+							_cFrom_ = _aPath_[k]
+							_cTo_ = _aPath_[k+1]
 							# Get node by ID
-							aNodeFrom = NULL
-							nLenNodes = len(oGraph.Nodes())
+							_aNodeFrom_ = NULL
+							_nLenNodes_ = len(oGraph.Nodes())
 
-							for n = 1 to nLenNodes
-								if oGraph.Nodes()[n][:id] = cFrom
-									aNodeFrom = oGraph.Nodes()[n]
+							for n = 1 to _nLenNodes_
+								if oGraph.Nodes()[n][:id] = _cFrom_
+									_aNodeFrom_ = oGraph.Nodes()[n]
 									exit
 								ok
 							next
 
-							if aNodeFrom != NULL
-								aBranch + aNodeFrom[:label]
+							if _aNodeFrom_ != NULL
+								_aBranch_ + _aNodeFrom_[:label]
 							ok
 
-							aEdge = oGraph.Edge(cFrom, cTo)
-							if aEdge != ""
-								aBranch + aEdge[:label]
+							_aEdge_ = oGraph.Edge(_cFrom_, _cTo_)
+							if _aEdge_ != ""
+								_aBranch_ + _aEdge_[:label]
 							ok
 
 						next
 
 						# Add final node
-						aNodeTo = NULL
-						nLenNodes = len(oGraph.Nodes())
-						for n = 1 to nLenNodes
-							if oGraph.Nodes()[n][:id] = aPath[nLenPath]
-								aNodeTo = oGraph.Nodes()[n]
+						_aNodeTo_ = NULL
+						_nLenNodes_ = len(oGraph.Nodes())
+						for n = 1 to _nLenNodes_
+							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
+								_aNodeTo_ = oGraph.Nodes()[n]
 								exit
 							ok
 						next
 
-						if aNodeTo != NULL
-							aBranch + aNodeTo[:label]
+						if _aNodeTo_ != NULL
+							_aBranch_ + _aNodeTo_[:label]
 						ok
 
-						aBranches + aBranch
+						_aBranches_ + _aBranch_
 					ok
 				next
 			next
 		ok
 
-		return aBranches
+		return _aBranches_
 
 	def Match(oTargetGraph)
 		@oTargetGraph = oTargetGraph
@@ -534,13 +534,13 @@ class stzGraphex from stzGraph
 			ok
 		next
 
-		aPatternBranches = This.ListifyPatternGraph()
-		aTargetBranches = This.ListifyGraph(oTargetGraph)
+		_aPatternBranches_ = This.ListifyPatternGraph()
+		_aTargetBranches_ = This.ListifyGraph(oTargetGraph)
 
 		if @bDebugMode
 		ok
 
-		_result_ = This.MatchBranches(aPatternBranches, aTargetBranches)
+		_result_ = This.MatchBranches(_aPatternBranches_, _aTargetBranches_)
 
 		# Property constraints (e.g. @Node{age:>:25}) are not expressible
 		# as label subsequences -- enforce them on the actual target nodes
@@ -590,129 +590,129 @@ class stzGraphex from stzGraph
 
 	# Special listification for pattern graph that handles alternations
 	def ListifyPatternGraph()
-		aBranches = []
-		acNodes = This.Nodes()
-		nLenNodes = len(acNodes)
+		_aBranches_ = []
+		_acNodes_ = This.Nodes()
+		_nLenNodes_ = len(_acNodes_)
 		
-		if nLenNodes = 0
+		if _nLenNodes_ = 0
 			return []
 		ok
 		
 		# Find root nodes (no incoming edges)
-		acRoots = []
-		for i = 1 to nLenNodes
-			aNode = acNodes[i]
-			acIncoming = This.Incoming(aNode[:id])
-			if len(acIncoming) = 0
-				acRoots + aNode[:id]
+		_acRoots_ = []
+		for i = 1 to _nLenNodes_
+			_aNode_ = _acNodes_[i]
+			_acIncoming_ = This.Incoming(_aNode_[:id])
+			if len(_acIncoming_) = 0
+				_acRoots_ + _aNode_[:id]
 			ok
 		next
 		
-		if len(acRoots) = 0
-			acRoots + acNodes[1][:id]
+		if len(_acRoots_) = 0
+			_acRoots_ + _acNodes_[1][:id]
 		ok
 		
 		if @bDebugMode
 		ok
 		
 		# Traverse from each root
-		nLenRoots = len(acRoots)
-		for i = 1 to nLenRoots
-			cRoot = acRoots[i]
-			This.TraversePatternNode(cRoot, [], aBranches, [])
+		_nLenRoots_ = len(_acRoots_)
+		for i = 1 to _nLenRoots_
+			_cRoot_ = _acRoots_[i]
+			This.TraversePatternNode(_cRoot_, [], _aBranches_, [])
 		next
 		
-		return aBranches
+		return _aBranches_
 	
-	def TraversePatternNode(cNodeId, aCurrentPath, aBranches, acVisited)
-		aNode = This.Node(cNodeId)
+	def TraversePatternNode(_cNodeId_, aCurrentPath, _aBranches_, acVisited)
+		_aNode_ = This.Node(_cNodeId_)
 		
-		if aNode = ""
+		if _aNode_ = ""
 			return
 		ok
 		
-		cLabel = aNode[:label]
+		_cLabel_ = _aNode_[:label]
 		
 		# Handle alternation nodes specially
-		if cLabel = "Alternation"
+		if _cLabel_ = "Alternation"
 			# Get alternation branches and continuation
-			acNeighbors = This.Neighbors(cNodeId)
-			nLenNeighbors = len(acNeighbors)
+			_acNeighbors_ = This.Neighbors(_cNodeId_)
+			_nLenNeighbors_ = len(_acNeighbors_)
 			
 			# Find alternation branches (edges labeled "alternates")
-			acAltBranches = []
-			cContinuation = NULL
+			_acAltBranches_ = []
+			_cContinuation_ = NULL
 			
-			for i = 1 to nLenNeighbors
-				cNeighbor = acNeighbors[i]
-				aEdge = This.Edge(cNodeId, cNeighbor)
-				if aEdge[:label] = "alternates"
-					acAltBranches + cNeighbor
-				but aEdge[:label] = "sequences"
-					cContinuation = cNeighbor
+			for i = 1 to _nLenNeighbors_
+				_cNeighbor_ = _acNeighbors_[i]
+				_aEdge_ = This.Edge(_cNodeId_, _cNeighbor_)
+				if _aEdge_[:label] = "alternates"
+					_acAltBranches_ + _cNeighbor_
+				but _aEdge_[:label] = "sequences"
+					_cContinuation_ = _cNeighbor_
 				ok
 			next
 			
 			# Process each alternation branch
-			nLenAlt = len(acAltBranches)
-			for i = 1 to nLenAlt
-				cAltNode = acAltBranches[i]
-				aAltNode = This.Node(cAltNode)
+			_nLenAlt_ = len(_acAltBranches_)
+			for i = 1 to _nLenAlt_
+				_cAltNode_ = _acAltBranches_[i]
+				_aAltNode_ = This.Node(_cAltNode_)
 				
-				if aAltNode != ""
+				if _aAltNode_ != ""
 					# Create path with alternation branch
-					aNewPath = []
-					nLenPath = len(aCurrentPath)
-					for j = 1 to nLenPath
-						aNewPath + aCurrentPath[j]
+					_aNewPath_ = []
+					_nLenPath_ = len(aCurrentPath)
+					for j = 1 to _nLenPath_
+						_aNewPath_ + aCurrentPath[j]
 					next
-					aNewPath + aAltNode[:label]
+					_aNewPath_ + _aAltNode_[:label]
 					
 					# Continue to the node after alternation if exists
-					if cContinuation != NULL
-						This.TraversePatternNode(cContinuation, aNewPath, aBranches, [])
+					if _cContinuation_ != NULL
+						This.TraversePatternNode(_cContinuation_, _aNewPath_, _aBranches_, [])
 					else
 						# No continuation, this is the end
-						if len(aNewPath) > 0
-							aBranches + aNewPath
+						if len(_aNewPath_) > 0
+							_aBranches_ + _aNewPath_
 						ok
 					ok
 				ok
 			next
 		else
 			# Regular node - add label to path
-			aNewPath = []
-			nLenPath = len(aCurrentPath)
-			for j = 1 to nLenPath
-				aNewPath + aCurrentPath[j]
+			_aNewPath_ = []
+			_nLenPath_ = len(aCurrentPath)
+			for j = 1 to _nLenPath_
+				_aNewPath_ + aCurrentPath[j]
 			next
-			aNewPath + cLabel
+			_aNewPath_ + _cLabel_
 			
 			# Get neighbors
-			acNeighbors = This.Neighbors(cNodeId)
+			_acNeighbors_ = This.Neighbors(_cNodeId_)
 			
-			if len(acNeighbors) = 0
+			if len(_acNeighbors_) = 0
 				# End of path
-				if len(aNewPath) > 0
-					aBranches + aNewPath
+				if len(_aNewPath_) > 0
+					_aBranches_ + _aNewPath_
 				ok
 			else
 				# Continue traversal
-				nLenNeighbors = len(acNeighbors)
-				for i = 1 to nLenNeighbors
-					This.TraversePatternNode(acNeighbors[i], aNewPath, aBranches, acVisited)
+				_nLenNeighbors_ = len(_acNeighbors_)
+				for i = 1 to _nLenNeighbors_
+					This.TraversePatternNode(_acNeighbors_[i], _aNewPath_, _aBranches_, acVisited)
 				next
 			ok
 		ok
 
-	def MatchBranches(aPatternBranches, aTargetBranches)
-		nLenPatternBranches = len(aPatternBranches)
+	def MatchBranches(_aPatternBranches_, _aTargetBranches_)
+		_nLenPatternBranches_ = len(_aPatternBranches_)
 		
 		if @bDebugMode
 		ok
 		
-		for i = 1 to nLenPatternBranches
-			aPatternBranch = aPatternBranches[i]
+		for i = 1 to _nLenPatternBranches_
+			_aPatternBranch_ = _aPatternBranches_[i]
 			
 			if @bDebugMode
 			ok
@@ -720,51 +720,51 @@ class stzGraphex from stzGraph
 			# Extract labels with per-token case-sensitivity + negation.
 			# aPatternCS[j] / aForbiddenCS[j] carry whether that label
 			# must match case-sensitively (the token had a @cs: marker).
-			aPatternLabels = []
-			aPatternCS = []
-			aForbiddenLabels = []
-			aForbiddenCS = []
-			nLenPattern = len(aPatternBranch)
+			_aPatternLabels_ = []
+			_aPatternCS_ = []
+			_aForbiddenLabels_ = []
+			_aForbiddenCS_ = []
+			_nLenPattern_ = len(_aPatternBranch_)
 
-			for j = 1 to nLenPattern
-				cToken = aPatternBranch[j]
-				cLabel = ""
+			for j = 1 to _nLenPattern_
+				_cToken_ = _aPatternBranch_[j]
+				_cLabel_ = ""
 
-				nParenPos = StzFindFirst(cToken, "(")
-				if nParenPos > 0
-					nClosePos = StzFindFirst(cToken, ")")
-					if nClosePos > nParenPos
+				_nParenPos_ = StzFindFirst(_cToken_, "(")
+				if _nParenPos_ > 0
+					_nClosePos_ = StzFindFirst(_cToken_, ")")
+					if _nClosePos_ > _nParenPos_
 						# count is the span BETWEEN the parens, not nClosePos-1
 						# (which leaked the ')' into the label -> "start)").
-						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
+						_cLabel_ = @StzMid(_cToken_, _nParenPos_ + 1, _nClosePos_ - _nParenPos_ - 1)
 					ok
 				ok
 
 				# Read the pattern node's :negated / :cs flags from its
 				# properties hashlist (the props are [ :min, :max,
 				# :negated, :cs ], not "key=value" strings).
-				bIsNegated = FALSE
-				bIsCS = FALSE
-				aNodeFromPattern = This.Node(":p" + j)
-				if isList(aNodeFromPattern) and HasKey(aNodeFromPattern, :properties)
-					acProps = aNodeFromPattern[:properties]
-					if isList(acProps)
-						if HasKey(acProps, :negated) and acProps[:negated] = "TRUE"
-							bIsNegated = TRUE
+				_bIsNegated_ = FALSE
+				_bIsCS_ = FALSE
+				_aNodeFromPattern_ = This.Node(":p" + j)
+				if isList(_aNodeFromPattern_) and HasKey(_aNodeFromPattern_, :properties)
+					_acProps_ = _aNodeFromPattern_[:properties]
+					if isList(_acProps_)
+						if HasKey(_acProps_, :negated) and _acProps_[:negated] = "TRUE"
+							_bIsNegated_ = TRUE
 						ok
-						if HasKey(acProps, :cs) and acProps[:cs] = "TRUE"
-							bIsCS = TRUE
+						if HasKey(_acProps_, :cs) and _acProps_[:cs] = "TRUE"
+							_bIsCS_ = TRUE
 						ok
 					ok
 				ok
 
-				if cLabel != ""
-					if bIsNegated
-						aForbiddenLabels + cLabel
-						aForbiddenCS + bIsCS
+				if _cLabel_ != ""
+					if _bIsNegated_
+						_aForbiddenLabels_ + _cLabel_
+						_aForbiddenCS_ + _bIsCS_
 					else
-						aPatternLabels + cLabel
-						aPatternCS + bIsCS
+						_aPatternLabels_ + _cLabel_
+						_aPatternCS_ + _bIsCS_
 					ok
 				ok
 			next
@@ -773,37 +773,37 @@ class stzGraphex from stzGraph
 			ok
 
 			# Check each target branch
-			nLenTargetBranches = len(aTargetBranches)
-			for k = 1 to nLenTargetBranches
-				aTargetBranch = aTargetBranches[k]
+			_nLenTargetBranches_ = len(_aTargetBranches_)
+			for k = 1 to _nLenTargetBranches_
+				_aTargetBranch_ = _aTargetBranches_[k]
 
 				if @bDebugMode
 				ok
 
 				# First check forbidden labels - if any exist in target, skip this branch
-				bHasForbidden = FALSE
-				_nForbiddenLabelsLen_ = len(aForbiddenLabels)
+				_bHasForbidden_ = FALSE
+				_nForbiddenLabelsLen_ = len(_aForbiddenLabels_)
 				for m = 1 to _nForbiddenLabelsLen_
-					_nTargetBranchLen_ = len(aTargetBranch)
+					_nTargetBranchLen_ = len(_aTargetBranch_)
 					for n = 1 to _nTargetBranchLen_
-						if This._LabelEq(aForbiddenLabels[m], aTargetBranch[n], aForbiddenCS[m])
-							bHasForbidden = TRUE
+						if This._LabelEq(_aForbiddenLabels_[m], _aTargetBranch_[n], _aForbiddenCS_[m])
+							_bHasForbidden_ = TRUE
 							exit
 						ok
 					next
-					if bHasForbidden
+					if _bHasForbidden_
 						exit
 					ok
 				next
 
-				if bHasForbidden
+				if _bHasForbidden_
 					if @bDebugMode
 					ok
 					loop
 				ok
 
 				# Check if pattern labels appear as subsequence in target
-				if This.IsSubsequenceCS(aPatternLabels, aPatternCS, aTargetBranch)
+				if This.IsSubsequenceCS(_aPatternLabels_, _aPatternCS_, _aTargetBranch_)
 					if @bDebugMode
 					ok
 					return TRUE
@@ -819,8 +819,8 @@ class stzGraphex from stzGraph
 	# Codepoint-safe label equality. Case-sensitive when bCS is TRUE
 	# (Ring's = is already case-sensitive); otherwise fold both sides
 	# with StzLower (engine-backed, Unicode-correct).
-	def _LabelEq(c1, c2, bCS)
-		if bCS
+	def _LabelEq(c1, c2, _bCS_)
+		if _bCS_
 			return (c1 = c2)
 		ok
 		return (StzLower(c1) = StzLower(c2))
@@ -833,42 +833,42 @@ class stzGraphex from stzGraph
 	# constraints.
 
 	def _CheckPropertyConstraints(oTargetGraph)
-		aPatNodes = This.Nodes()
-		aTgtNodes = oTargetGraph.Nodes()
-		nLenPat = len(aPatNodes)
+		_aPatNodes_ = This.Nodes()
+		_aTgtNodes_ = oTargetGraph.Nodes()
+		_nLenPat_ = len(_aPatNodes_)
 
-		for i = 1 to nLenPat
-			aPat = aPatNodes[i]
-			if NOT (isList(aPat) and HasKey(aPat, :properties))
+		for i = 1 to _nLenPat_
+			_aPat_ = _aPatNodes_[i]
+			if NOT (isList(_aPat_) and HasKey(_aPat_, :properties))
 				loop
 			ok
-			aProps = aPat[:properties]
-			if NOT (isList(aProps) and HasKey(aProps, :set))
-				loop
-			ok
-
-			aConstraints = This._ParseSetConstraints(aProps[:set])
-			if len(aConstraints) = 0
+			_aProps_ = _aPat_[:properties]
+			if NOT (isList(_aProps_) and HasKey(_aProps_, :set))
 				loop
 			ok
 
-			cPatLabel = This._BareLabel(aPat[:label])
-			bCS = (HasKey(aProps, :cs) and aProps[:cs] = "TRUE")
+			_aConstraints_ = This._ParseSetConstraints(_aProps_[:set])
+			if len(_aConstraints_) = 0
+				loop
+			ok
 
-			bFound = FALSE
-			nLenTgt = len(aTgtNodes)
-			for j = 1 to nLenTgt
-				aTgt = aTgtNodes[j]
-				if cPatLabel != "" and NOT This._LabelEq(cPatLabel, aTgt[:label], bCS)
+			_cPatLabel_ = This._BareLabel(_aPat_[:label])
+			_bCS_ = (HasKey(_aProps_, :cs) and _aProps_[:cs] = "TRUE")
+
+			_bFound_ = FALSE
+			_nLenTgt_ = len(_aTgtNodes_)
+			for j = 1 to _nLenTgt_
+				_aTgt_ = _aTgtNodes_[j]
+				if _cPatLabel_ != "" and NOT This._LabelEq(_cPatLabel_, _aTgt_[:label], _bCS_)
 					loop
 				ok
-				if This._NodeSatisfiesConstraints(aTgt[:properties], aConstraints)
-					bFound = TRUE
+				if This._NodeSatisfiesConstraints(_aTgt_[:properties], _aConstraints_)
+					_bFound_ = TRUE
 					exit
 				ok
 			next
 
-			if NOT bFound
+			if NOT _bFound_
 				return FALSE
 			ok
 		next
@@ -876,124 +876,124 @@ class stzGraphex from stzGraph
 		return TRUE
 
 	# "node(Alice)" -> "Alice"; "node" (no parens) -> "".
-	def _BareLabel(cLabel)
-		if NOT isString(cLabel)
+	def _BareLabel(_cLabel_)
+		if NOT isString(_cLabel_)
 			return ""
 		ok
-		np = StzFindFirst(cLabel, "(")
-		if np > 0
-			nc = StzFindFirst(cLabel, ")")
-			if nc > np
-				return @StzMid(cLabel, np + 1, nc - np - 1)
+		_np_ = StzFindFirst(_cLabel_, "(")
+		if _np_ > 0
+			_nc_ = StzFindFirst(_cLabel_, ")")
+			if _nc_ > _np_
+				return @StzMid(_cLabel_, _np_ + 1, _nc_ - _np_ - 1)
 			ok
 		ok
 		return ""
 
 	# "{age:>:25;score:>:80}U" -> [ ["age",">","25"], ["score",">","80"] ]
 	def _ParseSetConstraints(cSet)
-		aOut = []
+		_aOut_ = []
 		if NOT isString(cSet)
-			return aOut
+			return _aOut_
 		ok
-		c = cSet
-		if StartsWith(c, "{")
-			c = @StzMid(c, 2, len(c))
+		_c_ = cSet
+		if StartsWith(_c_, "{")
+			_c_ = @StzMid(_c_, 2, len(_c_))
 		ok
-		if EndsWith(c, "U")
-			c = StzLeft(c, len(c) - 1)
+		if EndsWith(_c_, "U")
+			_c_ = StzLeft(_c_, len(_c_) - 1)
 		ok
-		if EndsWith(c, "}")
-			c = StzLeft(c, len(c) - 1)
+		if EndsWith(_c_, "}")
+			_c_ = StzLeft(_c_, len(_c_) - 1)
 		ok
-		if c = ""
-			return aOut
+		if _c_ = ""
+			return _aOut_
 		ok
 
-		aParts = StzSplit(c, ";")
-		nP = len(aParts)
-		for i = 1 to nP
-			aC = This._ParseOneConstraint(aParts[i])
-			if len(aC) > 0
-				aOut + aC
+		_aParts_ = StzSplit(_c_, ";")
+		_np_ = len(_aParts_)
+		for i = 1 to _np_
+			_aC_ = This._ParseOneConstraint(_aParts_[i])
+			if len(_aC_) > 0
+				_aOut_ + _aC_
 			ok
 		next
-		return aOut
+		return _aOut_
 
 	# "age:>:25" -> ["age",">","25"]; a plain value (no comparator) -> [].
-	def _ParseOneConstraint(cPart)
-		if len(StzFindCS(":", cPart, TRUE)) = 0
+	def _ParseOneConstraint(_cPart_)
+		if len(StzFindCS(":", _cPart_, TRUE)) = 0
 			return []
 		ok
-		aSeg = StzSplit(cPart, ":")
-		if len(aSeg) < 3
+		_aSeg_ = StzSplit(_cPart_, ":")
+		if len(_aSeg_) < 3
 			return []
 		ok
-		return [ aSeg[1], aSeg[2], aSeg[3] ]
+		return [ _aSeg_[1], _aSeg_[2], _aSeg_[3] ]
 
-	def _NodeSatisfiesConstraints(aNodeProps, aConstraints)
+	def _NodeSatisfiesConstraints(aNodeProps, _aConstraints_)
 		if NOT isList(aNodeProps)
 			return FALSE
 		ok
-		nC = len(aConstraints)
-		for i = 1 to nC
-			aC = aConstraints[i]
-			cKey = aC[1]
-			cOp  = aC[2]
-			cVal = aC[3]
-			if NOT HasKey(aNodeProps, cKey)
+		_nc_ = len(_aConstraints_)
+		for i = 1 to _nc_
+			_aC_ = _aConstraints_[i]
+			_cKey_ = _aC_[1]
+			_cOp_  = _aC_[2]
+			_cVal_ = _aC_[3]
+			if NOT HasKey(aNodeProps, _cKey_)
 				return FALSE
 			ok
-			if NOT This._CompareValues(aNodeProps[cKey], cOp, cVal)
+			if NOT This._CompareValues(aNodeProps[_cKey_], _cOp_, _cVal_)
 				return FALSE
 			ok
 		next
 		return TRUE
 
-	def _CompareValues(vActual, cOp, cExpected)
+	def _CompareValues(vActual, _cOp_, cExpected)
 		# Node property values are stored as real numbers (e.g. [:age = 30]);
 		# do a numeric compare when the actual value is numeric, else fall
 		# back to (case-insensitive) string (in)equality.
 		if isNumber(vActual)
-			nA = vActual
-			nE = number("" + cExpected)
-			switch cOp
-			on ">"  return nA > nE
-			on "<"  return nA < nE
-			on "="  return nA = nE
-			on ">=" return nA >= nE
-			on "<=" return nA <= nE
-			on "!=" return nA != nE
+			_nA_ = vActual
+			_nE_ = number("" + cExpected)
+			switch _cOp_
+			on ">"  return _nA_ > _nE_
+			on "<"  return _nA_ < _nE_
+			on "="  return _nA_ = _nE_
+			on ">=" return _nA_ >= _nE_
+			on "<=" return _nA_ <= _nE_
+			on "!=" return _nA_ != _nE_
 			off
 			return FALSE
 		ok
 
-		cA = "" + vActual
-		switch cOp
-		on "="  return This._LabelEq(cA, cExpected, FALSE)
-		on "!=" return NOT This._LabelEq(cA, cExpected, FALSE)
+		_cA_ = "" + vActual
+		switch _cOp_
+		on "="  return This._LabelEq(_cA_, cExpected, FALSE)
+		on "!=" return NOT This._LabelEq(_cA_, cExpected, FALSE)
 		off
 		return FALSE
 
 	# Subsequence test with a parallel per-element case-sensitivity
 	# vector. Default graphex matching is case-insensitive.
-	def IsSubsequenceCS(aPattern, aPatternCS, aTarget)
-		nPatternLen = len(aPattern)
-		nTargetLen = len(aTarget)
+	def IsSubsequenceCS(_aPattern_, _aPatternCS_, aTarget)
+		_nPatternLen_ = len(_aPattern_)
+		_nTargetLen_ = len(aTarget)
 
-		if nPatternLen = 0
+		if _nPatternLen_ = 0
 			return TRUE
 		ok
 
-		if nPatternLen > nTargetLen
+		if _nPatternLen_ > _nTargetLen_
 			return FALSE
 		ok
 
-		nPatternIdx = 1
+		_nPatternIdx_ = 1
 
-		for i = 1 to nTargetLen
-			if This._LabelEq(aPattern[nPatternIdx], aTarget[i], aPatternCS[nPatternIdx])
-				nPatternIdx++
-				if nPatternIdx > nPatternLen
+		for i = 1 to _nTargetLen_
+			if This._LabelEq(_aPattern_[_nPatternIdx_], aTarget[i], _aPatternCS_[_nPatternIdx_])
+				_nPatternIdx_++
+				if _nPatternIdx_ > _nPatternLen_
 					return TRUE
 				ok
 			ok
@@ -1001,24 +1001,24 @@ class stzGraphex from stzGraph
 
 		return FALSE
 
-	def IsSubsequenceSimple(aPattern, aTarget)
-		nPatternLen = len(aPattern)
-		nTargetLen = len(aTarget)
+	def IsSubsequenceSimple(_aPattern_, aTarget)
+		_nPatternLen_ = len(_aPattern_)
+		_nTargetLen_ = len(aTarget)
 
-		if nPatternLen = 0
+		if _nPatternLen_ = 0
 			return TRUE
 		ok
 
-		if nPatternLen > nTargetLen
+		if _nPatternLen_ > _nTargetLen_
 			return FALSE
 		ok
 
-		nPatternIdx = 1
+		_nPatternIdx_ = 1
 
-		for i = 1 to nTargetLen
-			if aPattern[nPatternIdx] = aTarget[i]
-				nPatternIdx++
-				if nPatternIdx > nPatternLen
+		for i = 1 to _nTargetLen_
+			if _aPattern_[_nPatternIdx_] = aTarget[i]
+				_nPatternIdx_++
+				if _nPatternIdx_ > _nPatternLen_
 					return TRUE
 				ok
 			ok
@@ -1026,69 +1026,69 @@ class stzGraphex from stzGraph
 
 		return FALSE
 	
-	def IsSubsequence(aPattern, aTarget, aPatternNegations)
-		nPatternLen = len(aPattern)
-		nTargetLen = len(aTarget)
+	def IsSubsequence(_aPattern_, aTarget, aPatternNegations)
+		_nPatternLen_ = len(_aPattern_)
+		_nTargetLen_ = len(aTarget)
 		
-		if nPatternLen = 0
+		if _nPatternLen_ = 0
 			return TRUE
 		ok
 		
-		nPatternIdx = 1
+		_nPatternIdx_ = 1
 		
-		for i = 1 to nTargetLen
-			if nPatternIdx <= nPatternLen
-				bNegated = aPatternNegations[nPatternIdx]
-				bMatches = (aPattern[nPatternIdx] = aTarget[i])
+		for i = 1 to _nTargetLen_
+			if _nPatternIdx_ <= _nPatternLen_
+				_bNegated_ = aPatternNegations[_nPatternIdx_]
+				_bMatches_ = (_aPattern_[_nPatternIdx_] = aTarget[i])
 				
-				if bNegated
+				if _bNegated_
 					# Negated: if this label appears anywhere in target, fail
-					if bMatches
+					if _bMatches_
 						return FALSE
 					ok
 					# Skip to next pattern element (negation doesn't consume target element)
-					nPatternIdx++
+					_nPatternIdx_++
 				else
 					# Normal: advance when matched
-					if bMatches
-						nPatternIdx++
+					if _bMatches_
+						_nPatternIdx_++
 					ok
 				ok
 			ok
 		next
 		
 		# Success if we processed all pattern elements
-		return nPatternIdx > nPatternLen
+		return _nPatternIdx_ > _nPatternLen_
 
 
 	# Enhanced: Better handling of token conversion to stzListex patterns
-	def TokensToListexPattern(aBranch)
-		aPattern = []
-		nLenBranch = len(aBranch)
+	def TokensToListexPattern(_aBranch_)
+		_aPattern_ = []
+		_nLenBranch_ = len(_aBranch_)
 		
-		for i = 1 to nLenBranch
-			cToken = aBranch[i]
+		for i = 1 to _nLenBranch_
+			_cToken_ = _aBranch_[i]
 			
-			if isString(cToken)
+			if isString(_cToken_)
 				# Extract label from "edge(flows)" -> "flows"
-				nParenPos = StzFindFirst(cToken, "(")
-				if nParenPos > 0
-					nClosePos = StzFindFirst(cToken, ")")
-					if nClosePos > nParenPos
-						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
-						aPattern + cLabel
+				_nParenPos_ = StzFindFirst(_cToken_, "(")
+				if _nParenPos_ > 0
+					_nClosePos_ = StzFindFirst(_cToken_, ")")
+					if _nClosePos_ > _nParenPos_
+						_cLabel_ = @StzMid(_cToken_, _nParenPos_ + 1, _nClosePos_ - _nParenPos_ - 1)
+						_aPattern_ + _cLabel_
 					else
-						aPattern + :Any
+						_aPattern_ + :Any
 					ok
 				else
-					aPattern + :Any
+					_aPattern_ + :Any
 				ok
 			else
-				aPattern + :Any
+				_aPattern_ + :Any
 			ok
 		next
 		
-		return aPattern
+		return _aPattern_
 
 	def ShowPatternGraph()
 		This.Show()

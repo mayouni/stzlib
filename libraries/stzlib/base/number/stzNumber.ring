@@ -27,23 +27,23 @@
 
 	This may generate a loss of precision like in the following example:
 
-	o1 = new stzNumber(12.234)
-	? o1.Content() #--> "12.23" # if the current round was left at its
+	_o1_ = new stzNumber(12.234)
+	? _o1_.Content() #--> "12.23" # if the current round was left at its
 				    # default Ring value or has been set
 				    # explicitly to decimals(2)
 
 	Therefore, if you want to force a precise round, (and that's why the
 	class is made), you should provide a number in string like this:
 
-	o1 = new stzNumber("12.234")
-	? o1.Content() #--> "12.234"
+	_o1_ = new stzNumber("12.234")
+	? _o1_.Content() #--> "12.234"
 
 	 NOTE
 	------
 
 	Double is a 64 bit IEEE 754 double precision Floating Point
 	Number (1 bit for the sign, 11 bits for the exponent, and 52* bits
-	for the value), i.e. double has 15 decimal digits of precision.
+	for the value), _i_.e. double has 15 decimal digits of precision.
 	
 	Double range is '2.2250738585072014 Eâ€“308' to '1.7976931348623158 E+308'.
 	Subsequently the size and length varies accordingly.
@@ -112,17 +112,17 @@
  ///    FUNCTIONS   ///
 //////////////////////
 
-func StzNumberQ(cNumber)
-	return new stzNumber(cNumber)
+func StzNumberQ(_cNumber_)
+	return new stzNumber(_cNumber_)
 
 func StzNamedNumber(paNamed)
 	if CheckingParams()
 
 	ok
 
-	oNumber = new stzNumber(paNamed[2])
-	oNumber.SetName(paNamed[1])
-	return oNumber
+	_oNumber_ = new stzNumber(paNamed[2])
+	_oNumber_.SetName(paNamed[1])
+	return _oNumber_
 
 	func StzNamedNumberQ(paNamed)
 		return StzNamedNumber(paNamed)
@@ -213,11 +213,11 @@ func MaxNumberOfDigitsInSignedRealNumber()
 	return MaxNumberOfDigitsInUnsignedRealNumber() - 1
 	
 func MaxCalculableNumber()
-	oStr = new stzString(_cMaxCalculableInteger)
-	oStr.Remove("_")
-	cMax = oStr.content()
+	_oStr_ = new stzString(_cMaxCalculableInteger)
+	_oStr_.Remove("_")
+	_cMax_ = _oStr_.content()
 
-	return 0+ cMax
+	return 0+ _cMax_
 	/*
 	Be aware that if you use directly this:
 	0+ _cMaxCalculableInteger
@@ -396,11 +396,11 @@ func MinCalculableInteger()
 	#>
 
 func MaxCalculableRealNumber()
-	oStr = new stzString(_cMaxCalculableRealNumber)
-	cMax - "_"
-	cMax = oStr.Content()
+	_oStr_ = new stzString(_cMaxCalculableRealNumber)
+	_cMax_ - "_"
+	_cMax_ = _oStr_.Content()
 
-	return 0+ cMax
+	return 0+ _cMax_
 
 	#< @FunctionAlternativeForms
 
@@ -490,21 +490,21 @@ func DefaultFractionalSeparator()
 		return This.DefaultFractionalSeparator()
 
 
-func StringRepresentsInteger(cNumber)
-	oStr = new stzString(cNumber)
-	return oStr.RepresentsInteger()
+func StringRepresentsInteger(_cNumber_)
+	_oStr_ = new stzString(_cNumber_)
+	return _oStr_.RepresentsInteger()
 
-func StringRepresentsCalculableNumber(cNumber)
-	oStr = new stzString(cNumber)
-	return oStr.RepresentsCalculableNumber()
+func StringRepresentsCalculableNumber(_cNumber_)
+	_oStr_ = new stzString(_cNumber_)
+	return _oStr_.RepresentsCalculableNumber()
 			
-func StringRepresentsRealNumber(cNumber)
-	oStr = new stzString(cNumber)
-	return oStr.RepresentsRealNumber()
+func StringRepresentsRealNumber(_cNumber_)
+	_oStr_ = new stzString(_cNumber_)
+	return _oStr_.RepresentsRealNumber()
 
-func StringRepresentsSignedNumber(cNumber)
-	oStr = new stzString(cNumber)
-	return oStr.RepresentsSignedNumber()
+func StringRepresentsSignedNumber(_cNumber_)
+	_oStr_ = new stzString(_cNumber_)
+	return _oStr_.RepresentsSignedNumber()
 
 /*func IsInteger(n)
 	if isNumber(n) and Q(n).IsInteger()
@@ -595,8 +595,8 @@ func IsRGBColor(anColor)
 		StzRaise("Incorrect param value! anColor must contain 3 numbers.")
 	ok
 
-	for i = 1 to 3
-		n = anColor[i]
+	for _i_ = 1 to 3
+		n = anColor[_i_]
 
 		if n != floor(n)
 			return 0
@@ -891,18 +891,18 @@ func StzRound(p) # TODO use Round() from SoftanzaCore
 			p[2] = p[2][2]
 		ok
 
-		nNumber = p[1]
-		nRound = p[2]
+		_nNumber_ = p[1]
+		_nRound_ = p[2]
 	else
-		nNumber = p
-		nRound = CurrentRound()
+		_nNumber_ = p
+		_nRound_ = CurrentRound()
 	ok
 
 
-	return StzNumberQ(nNumber).RoundedTo(nRound)
+	return StzNumberQ(_nNumber_).RoundedTo(_nRound_)
 
-func RoundN(nNumber, nRound)
-	return StzNumberQ(nNumber).RoundedTo(nRound)
+func RoundN(_nNumber_, _nRound_)
+	return StzNumberQ(_nNumber_).RoundedTo(_nRound_)
 
 func StzRoundXT(p)
 	if isList(p) and IsPair(p)
@@ -910,14 +910,14 @@ func StzRoundXT(p)
 			p[2] = p[2][2]
 		ok
 
-		nNumber = p[1]
-		nRound = p[2]
+		_nNumber_ = p[1]
+		_nRound_ = p[2]
 	else
-		nNumber = p
-		nRound = CurrentRound()
+		_nNumber_ = p
+		_nRound_ = CurrentRound()
 	ok
 
-	return StzNumberQ(nNumber).RoundedToXT(nRound)
+	return StzNumberQ(_nNumber_).RoundedToXT(_nRound_)
 
 	func RoundXT(p)
 		return StzRoundXT(p)
@@ -949,54 +949,54 @@ func GetActiveRound()
 
 	#>
 	
-func NumberIsCalculable(nNumber)
+func NumberIsCalculable(_nNumber_)
 	if CheckingParams()
-		if NOT isString(nNumber)
+		if NOT isString(_nNumber_)
 			StzRaise("Incorrect param type! nNumber must be a number.")
 		ok
 	ok
 
-	oStr = new stzString(""+ nNumber)
-	return oStr.RepresentsCalculableNumber()
+	_oStr_ = new stzString(""+ _nNumber_)
+	return _oStr_.RepresentsCalculableNumber()
 
 
-func StringToNumber(cNumber) # TESTING IN PROGESS
-	if isNumber(cNumber)
-		return cNumber
+func StringToNumber(_cNumber_) # TESTING IN PROGESS
+	if isNumber(_cNumber_)
+		return _cNumber_
 	ok
 
-	if NOt isString(cNumber)
+	if NOt isString(_cNumber_)
 		StzRaise("Incorrect param type! cNumber must be a string.")
 	ok
 
 	# Deletig unnecessary spaces
 
-	cNumber = Q(cNumber).Trimmed()
-	if cNumber = ""
-		cNumber = "0"
+	_cNumber_ = Q(_cNumber_).Trimmed()
+	if _cNumber_ = ""
+		_cNumber_ = "0"
 	ok
 
 	# Setting the decimal number depending on the form provided
 
-	if StringRepresentsNumberInDecimalForm(cNumber)
+	if StringRepresentsNumberInDecimalForm(_cNumber_)
 
-		oNumber = new stzNumber(cNumber)
-		return oNumber.NumericValue()
+		_oNumber_ = new stzNumber(_cNumber_)
+		return _oNumber_.NumericValue()
 			
-	but StringRepresentsNumberInBinaryForm(cNumber)
+	but StringRepresentsNumberInBinaryForm(_cNumber_)
 
-		oBinNumber = new stzBinaryNumber(cNumber)
-		return oBinNumber.ToStzNumber().NumericValue()
+		_oBinNumber_ = new stzBinaryNumber(_cNumber_)
+		return _oBinNumber_.ToStzNumber().NumericValue()
 
-	but StringRepresentsNumberInHexForm(cNumber)
-		oHexNumber = new stzHexNumber(cNumber)
-		return oHexNumber.ToStzNumber().NumericValue()
+	but StringRepresentsNumberInHexForm(_cNumber_)
+		_oHexNumber_ = new stzHexNumber(_cNumber_)
+		return _oHexNumber_.ToStzNumber().NumericValue()
 
-	but StringRepresentsNumberInOctalForm(cNumber)
-		oOctNumber = new stzOctalNumber(cNumber)
-		return oOctNumber.ToStzNumber().NumericValue()
+	but StringRepresentsNumberInOctalForm(_cNumber_)
+		_oOctNumber_ = new stzOctalNumber(_cNumber_)
+		return _oOctNumber_.ToStzNumber().NumericValue()
 
-	but StringRepresentsNumberInScientificNotation(cNumber)
+	but StringRepresentsNumberInScientificNotation(_cNumber_)
 		// TODO
 		StzRaise("Feature not implemented yet!")
 	other
@@ -1005,20 +1005,20 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 
 	#< @FunctionAlternativeForms
 
-	func ToNumber(cNumber)
-		return StringToNumber(cNumber)
+	func ToNumber(_cNumber_)
+		return StringToNumber(_cNumber_)
 
-	func @ToNumber(cNumber)
-		return StringToNumber(cNumber)
+	func @ToNumber(_cNumber_)
+		return StringToNumber(_cNumber_)
 
-	func String2Number(cNumber)
-		return StringToNumber(cNumber)
+	func String2Number(_cNumber_)
+		return StringToNumber(_cNumber_)
 
-	func StrToNbr(cNumber)
-		return StringToNumber(cNumber)
+	func StrToNbr(_cNumber_)
+		return StringToNumber(_cNumber_)
 
-	func Str2Nbr(cNumber)
-		return StringToNumber(cNumber)
+	func Str2Nbr(_cNumber_)
+		return StringToNumber(_cNumber_)
 
 	#>
 
@@ -1159,25 +1159,25 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 	ok
 
 	// Constructing the microstructure of the number (units, dozens, and hundreds)
-	cUnits = "0"
-	cDozens = "0"
-	cHundreds = "0"
+	_cUnits_ = "0"
+	_cDozens_ = "0"
+	_cHundreds_ = "0"
 	
 	switch StzLen(pcNumber)
 	on 1
-		cUnits = pcNumber
+		_cUnits_ = pcNumber
 
 	on 2
-		cUnits = StzRight(pcNumber,1)
-		cDozens = StzLeft(pcNumber,1)
+		_cUnits_ = StzRight(pcNumber,1)
+		_cDozens_ = StzLeft(pcNumber,1)
 
 	on 3
-		cUnits = StzRight(pcNumber,1)
-		cDozens = StzStringQ(pcNumber).Section(2, 1)
-		cHundreds = StzLeft(pcNumber,1)
+		_cUnits_ = StzRight(pcNumber,1)
+		_cDozens_ = StzStringQ(pcNumber).Section(2, 1)
+		_cHundreds_ = StzLeft(pcNumber,1)
 	off
 
-	return [ :Units = cUnits, :Dozens = cDozens, :Hundreds = cHundreds ]
+	return [ :Units = _cUnits_, :Dozens = _cDozens_, :Hundreds = _cHundreds_ ]
 
 func GetMicroStructure(pNumber)
 	return GetUnitsDozensAndHundreds(pNumber)
@@ -1188,16 +1188,16 @@ func ZeroIfEmpty(pcStr)
 	ok
 
 func Derivative(pFunction)
-	nTemp = call pFunction(n1)
-	return nTemp * (1 - nTemp)
+	_nTemp_ = call pFunction(_n1_)
+	return _nTemp_ * (1 - _nTemp_)
 		
 func NumberIsDividorOf(pNumber,pOf)
-	oStzNumber = new stzNumber(pNumber)
-	return oStzNumber.IsDividorOf(pOf)
+	_oStzNumber_ = new stzNumber(pNumber)
+	return _oStzNumber_.IsDividorOf(pOf)
 
 func NumberIsDividableBy(pNumber, pBy)
-	oStzNumber = new stzNumber(pNumber)
-	return oStzNumber.IsDividableBy(pBy)
+	_oStzNumber_ = new stzNumber(pNumber)
+	return _oStzNumber_.IsDividableBy(pBy)
 
 func NumberConvert(pNumber, pcFrom, pcTo)
 	pcNumber = ""+ pNumber
@@ -1208,20 +1208,20 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			StzRaise(stzNumberError(:CanNotConvertNumberFromDecimalInThisForm))
 		ok
 
-		oStzNumber = new stzNumber(pcNumber)
+		_oStzNumber_ = new stzNumber(pcNumber)
 		switch pcTo
 		on :ToDecimalForm
 			return pcNumber
 		on :ToBinaryForm
-			return oStzNumber.ToBinaryForm()
+			return _oStzNumber_.ToBinaryForm()
 		on :ToHexform
-			return oStzNumber.ToHexForm()
+			return _oStzNumber_.ToHexForm()
 
 		on :ToUnicodeHexForm
-			return oStzNumber.ToUnicodeHexForm()
+			return _oStzNumber_.ToUnicodeHexForm()
 
 		on :ToOctalForm
-			return oStzNumber.ToOctalForm()
+			return _oStzNumber_.ToOctalForm()
 		other
 			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm1))
 		off
@@ -1231,21 +1231,21 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			StzRaise(stzNumberError(:CanNotConvertNumberFromBinaryInThisForm))
 		ok
 
-		oBinNumber = new stzBinaryNumber(pcNumber)
+		_oBinNumber_ = new stzBinaryNumber(pcNumber)
 
 		switch pcTo
 		on :ToDecimalForm
-			return oBinNumber.ToDecimalForm()
+			return _oBinNumber_.ToDecimalForm()
 		on :ToBinaryForm
 			return pcNumber
 		on :ToHexForm
-			return oBinNumber.ToHexForm()
+			return _oBinNumber_.ToHexForm()
 
 		on :ToUnicodeHexForm
-			return oBinNumber.ToUnicodeHexForm()
+			return _oBinNumber_.ToUnicodeHexForm()
 
 		on :ToOctalForm
-			return oBinNumber.ToOctalForm()
+			return _oBinNumber_.ToOctalForm()
 		other
 			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
@@ -1255,20 +1255,20 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			StzRaise(stzNumberError(:CanNotConvertNumberFromHexInThisForm))
 		ok
 
-		oHexNumber = new stzHexNumber(pcNumber)
+		_oHexNumber_ = new stzHexNumber(pcNumber)
 		switch pcTo
 		on :ToDecimalForm
-			return oHexNumber.ToDecimalForm()
+			return _oHexNumber_.ToDecimalForm()
 		on :ToBinaryForm
-			return oHexNumber.ToBinaryForm()
+			return _oHexNumber_.ToBinaryForm()
 		on :ToHexForm
 			return pcNumber
 
 		on :ToUnicodeHexForm
-			return oHexNumber.ToUnicodeHexNumber()
+			return _oHexNumber_.ToUnicodeHexNumber()
 
 		on :ToOctalForm
-			return oHexNumber.ToOctalForm()
+			return _oHexNumber_.ToOctalForm()
 		other
 			StzRaise(stzNumberError(:UnsupportedNumberConversionTargetForm))
 		off
@@ -1278,20 +1278,20 @@ func NumberConvert(pNumber, pcFrom, pcTo)
 			StzRaise(stzNumberError(:CanNotConvertNumberFromOctalInThisForm))
 		ok
 
-		oOctalNumber = new stzOctalNumber(pcNumber)
+		_oOctalNumber_ = new stzOctalNumber(pcNumber)
 
 		switch pcTo
 		on :ToDecimalForm
-			return oOctalNumber.ToDecimalForm()
+			return _oOctalNumber_.ToDecimalForm()
 
 		on :ToBinaryForm
-			return oOctalNumber.ToBinaryForm()
+			return _oOctalNumber_.ToBinaryForm()
 
 		on :ToHexForm
-			return oOctalNumber.ToHexForm()
+			return _oOctalNumber_.ToHexForm()
 
 		on :ToUnicodeHexForm
-			return oOctalNumber.ToUnicodeHexForm()
+			return _oOctalNumber_.ToUnicodeHexForm()
 
 		on :ToOctalForm
 			return pcNumber
@@ -1318,22 +1318,22 @@ func DecimalToHexUnicode(n)
 
 #--
 
-func BothArePositive(n1, n2)
-	if BothAreNumbers(n1, n2) and n1 > 0 and n2 > 0
+func BothArePositive(_n1_, _n2_)
+	if BothAreNumbers(_n1_, _n2_) and _n1_ > 0 and _n2_ > 0
 		return 1
 	else
 		return 0
 	ok
 
-func BothAreNegative(n1, n2)
-	if BothAreNumbers(n1, n2) and n1 < 0 and n2 < 0
+func BothAreNegative(_n1_, _n2_)
+	if BothAreNumbers(_n1_, _n2_) and _n1_ < 0 and _n2_ < 0
 		return 1
 	else
 		return 0
 	ok
 
-func BothAreZeros(n1, n2)
-	if BothAreNumbers(n1, n2) and n1 = 0 and n2 = 0
+func BothAreZeros(_n1_, _n2_)
+	if BothAreNumbers(_n1_, _n2_) and _n1_ = 0 and _n2_ = 0
 		return 1
 	else
 		return 0
@@ -1405,22 +1405,22 @@ func Add(p, value)
 func MostSquareLikeFactors(n)
 	if n <= 0 return [0, 0] ok
 
-	bestA = 1
-	bestB = n
-	bestRatio = n
+	_bestA_ = 1
+	_bestB_ = n
+	_bestRatio_ = n
 
 	for a = 1 to floor(sqrt(n))
-		b = ceil(n / a)
-		ratio = ring_max([ b / a, a / b ])
+		_b_ = ceil(n / a)
+		_ratio_ = ring_max([ _b_ / a, a / _b_ ])
 
-		if ratio < bestRatio
-			bestRatio = ratio
-			bestA = a
-			bestB = b
+		if _ratio_ < _bestRatio_
+			_bestRatio_ = _ratio_
+			_bestA_ = a
+			_bestB_ = _b_
 		ok
 	next
 
-	return [bestA, bestB]
+	return [_bestA_, _bestB_]
 
 	#< @FunctionAlternativeForms
 
@@ -1478,13 +1478,13 @@ func NPercentOf(n, p)
 		return p * n / 100
 
 	but isList(p)
-		nItems = ceil( len(p) * n / 100 )
-		return NRandomItemsIn(nItems, p)
+		_nItems_ = ceil( len(p) * n / 100 )
+		return NRandomItemsIn(_nItems_, p)
 
 	but isString(p)
-		oStr = new stzString(p)
-		nLen = ceil( oStr.Size() * n / 100 )
-		return oStr.FirstNChars(nLen)
+		_oStr_ = new stzString(p)
+		_nLen_ = ceil( _oStr_.Size() * n / 100 )
+		return _oStr_.FirstNChars(_nLen_)
 
 	ok
 
@@ -1604,23 +1604,23 @@ func 100PercentOf(p)
 func StzIsPrime(n)
 	return StzEngineNumberIsPrime(n)
 
-func StzGCD(n1, n2)
-	return StzEngineNumberGcd(n1, n2)
+func StzGCD(_n1_, _n2_)
+	return StzEngineNumberGcd(_n1_, _n2_)
 
-func StzLCM(n1, n2)
-	return StzEngineNumberLcm(n1, n2)
+func StzLCM(_n1_, _n2_)
+	return StzEngineNumberLcm(_n1_, _n2_)
 
 func StzFactorial(n)
 	pBigInt = StzEngineNumberFactorial(n)
-	cResult = StzEngineBigIntToString(pBigInt)
+	_cResult_ = StzEngineBigIntToString(pBigInt)
 	StzEngineBigIntFree(pBigInt)
-	return cResult
+	return _cResult_
 
 func StzFibonacci(n)
 	pBigInt = StzEngineNumberFibonacci(n)
-	cResult = StzEngineBigIntToString(pBigInt)
+	_cResult_ = StzEngineBigIntToString(pBigInt)
 	StzEngineBigIntFree(pBigInt)
-	return cResult
+	return _cResult_
 
 func StzIsPerfectNumber(n)
 	return StzEngineNumberIsPerfect(n)
@@ -1653,8 +1653,8 @@ class stzNumber from stzObject
 
 	@cReturnType = :Number # Or :String depending on the type of the input
 
-	These
-	Those
+	_These_
+	_Those_
 
 	  #------------#
 	 #    INIT    #
@@ -1723,15 +1723,15 @@ class stzNumber from stzObject
 				if StringRepresentsNumberInDecimalForm(pNumber)
 		
 					if StringRepresentsCalculableNumber(pNumber)
-						oString = new stzString(pNumber)
-						if oString.Contains("_")
-							@cContent = oString.RemoveQ("_").Content()
+						_oString_ = new stzString(pNumber)
+						if _oString_.Contains("_")
+							@cContent = _oString_.RemoveQ("_").Content()
 						else
 							@cContent = pNumber
 						ok
 
-						if oString.Contains(".")
-							@nRound = oString.Size() - oString.FindFirst(".")
+						if _oString_.Contains(".")
+							@nRound = _oString_.Size() - _oString_.FindFirst(".")
 						else
 							@nRound = StzCurrentRound()
 						ok
@@ -1775,10 +1775,10 @@ class stzNumber from stzObject
 
 				@cReturnType = :Number
 
-				nCurrentRound = StzCurrentRound()
+				_nCurrentRound_ = StzCurrentRound()
 				StzDecimals(@nRound)
 				@cContent = "" + pNumber[1]
-				StzDecimals(nCurrentRound)
+				StzDecimals(_nCurrentRound_)
 
 			but isString(pNumber[1])
 				@cContent = pNumber[1]
@@ -1788,8 +1788,8 @@ class stzNumber from stzObject
 
 		ok
 
-		These = This
-		Those = This
+		_These_ = This
+		_Those_ = This
 
 	  #-------------------------#
 	 #    CONTENT AND VALUE    #
@@ -1811,42 +1811,42 @@ class stzNumber from stzObject
 		return pNumber		 
 
 	def Copy()
-		oCopy = new stzNumber( This.Content() )
-		return oCopy
+		_oCopy_ = new stzNumber( This.Content() )
+		return _oCopy_
 
 	def ReturnType()
 		return @cReturnType
 
-	def SetReturnType(cType)
+	def SetReturnType(_cType_)
 		if CheckingParams()
-			if isList(cType) and Q(cType).IsToOrAsNamedParams()
-				cType = cType[2]
+			if isList(_cType_) and Q(_cType_).IsToOrAsNamedParams()
+				_cType_ = _cType_[2]
 			ok
 
-			if NOT isString(cType)
+			if NOT isString(_cType_)
 				StzRaise("Incorrect param type! cType must be a string.")
 			ok
 		ok
 
-		if NOT ( cType = :Number or cType = :String )
+		if NOT ( _cType_ = :Number or _cType_ = :String )
 			StzRaise("Incorrect value! cType must be equal to :Number or :String.")
 		ok
 
-		@cReturnType = cType
+		@cReturnType = _cType_
 
 		#< @FunctionAlternativeForms
 
-		def SetReturnTypeTo(cType)
+		def SetReturnTypeTo(_cType_)
 			if CheckingParams()
-				if NOT isString(cType)
+				if NOT isString(_cType_)
 					StzRaise("Incorrect param type! cType must be a string.")
 				ok
 			ok
 
-			This.SetReturnType(cType)
+			This.SetReturnType(_cType_)
 
-		def SetReturnTypeAs(cType)
-			SetReturnTypeTo(cType)
+		def SetReturnTypeAs(_cType_)
+			SetReturnTypeTo(_cType_)
 
 		#>
 
@@ -1876,7 +1876,7 @@ class stzNumber from stzObject
 
 		# Memorizing the current round (to reset it before leaving)
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		# Activating the round of the number as saved in the object
 
@@ -1888,7 +1888,7 @@ class stzNumber from stzObject
 
 		# Resetting the round active in the program
 
-		StzDecimals(nCurrentRound)
+		StzDecimals(_nCurrentRound_)
 
 		# Returning the string form of the number
 
@@ -1904,8 +1904,8 @@ class stzNumber from stzObject
 	def IsChar()
 
 		if This.IsInteger()
-			nTemp = This.NumericValue()
-			if nTemp >= 0 and nTemp <= 9
+			_nTemp_ = This.NumericValue()
+			if _nTemp_ >= 0 and _nTemp_ <= 9
 				return 1
 			ok
 		ok
@@ -1936,13 +1936,13 @@ class stzNumber from stzObject
 
 			@cReturnType = :String
 
-			oStr = new stzString(pNumber)
-			@cContent = oStr.RemoveQ("_").Content()
+			_oStr_ = new stzString(pNumber)
+			@cContent = _oStr_.RemoveQ("_").Content()
 
 			@nRound = StzCurrentRound()
 
-			if oStr.Contains(".")
-				@nRound = oStr.NumberOfChars() - oStr.FindFirst(".") + 1
+			if _oStr_.Contains(".")
+				@nRound = _oStr_.NumberOfChars() - _oStr_.FindFirst(".") + 1
 			ok
 
 		else # isNumber(pNumber)
@@ -2024,9 +2024,9 @@ class stzNumber from stzObject
 		ok
 
 	def Unicodes()
-		acChars = This.StringValueQ().ToChars()
-		anResult = StzListOfCharsQ(acChars).Unicodes()
-		return anResult
+		_acChars_ = This.StringValueQ().ToChars()
+		_anResult_ = StzListOfCharsQ(_acChars_).Unicodes()
+		return _anResult_
 
 	  #-----------------------------------#
 	 #  CHECKING IF THE NUMBER IS DIGIT  #
@@ -2309,37 +2309,37 @@ class stzNumber from stzObject
 	 #    BOUNDNESS    #
 	#-----------------#
 
-	def IsBoundedBy(n1, n2)
+	def IsBoundedBy(_n1_, _n2_)
 		if CheckingParams()
-			if NOT ( @IsStringOrNumber(n1) and @IsStringOrNumber(n2) )
+			if NOT ( @IsStringOrNumber(_n1_) and @IsStringOrNumber(_n2_) )
 				StzRaise("Incorrect param type! n1 and n2 must be numbers or strings.")
 			ok
 
-			if isString(n1) and NOT Q(n1).IsDecimalNumberInString()
+			if isString(_n1_) and NOT Q(_n1_).IsDecimalNumberInString()
 				StzRaise("Incorrect value! The string n1 must contain a decimal number.")
 			ok
 
-			if isString(n2) and NOT Q(n2).IsDecimalNumberInString()
+			if isString(_n2_) and NOT Q(_n2_).IsDecimalNumberInString()
 				StzRaise("Incorrect value! The string n2 must contain a decimal number.")
 			ok
 
 		ok
 
-		if isString(n1)
-			n1 = StzNumberQ(n1).NumericValue()
+		if isString(_n1_)
+			_n1_ = StzNumberQ(_n1_).NumericValue()
 		ok
 
-		if isString(n2)
-			n2 = StzNumberQ(n2).NumericValue()
+		if isString(_n2_)
+			_n2_ = StzNumberQ(_n2_).NumericValue()
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
  
-		if This.NumericValue() >= n1 and This.NumericValue() <= n2
+		if This.NumericValue() >= _n1_ and This.NumericValue() <= _n2_
 			return 1
 		else
 			return 0
@@ -2476,7 +2476,7 @@ class stzNumber from stzObject
 			return This.IsPrime()
 
 	def isWeiferich(s)
-		bResult = @isWeiferich(This.NumericValue())
+		_bResult_ = @isWeiferich(This.NumericValue())
 
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
@@ -2548,26 +2548,26 @@ class stzNumber from stzObject
 	
 	def Sign()
 
-		oStr = new stzString(This.Content())
-		cLeft = oStr.LeftChar()
+		_oStr_ = new stzString(This.Content())
+		_cLeft_ = _oStr_.LeftChar()
 
-		if cLeft = "+"
+		if _cLeft_ = "+"
 			return "+"
 
-		but cLeft = "-"
+		but _cLeft_ = "-"
 			return "-"
 
 		ok
 
 	def RemoveSign()
-		cNumber = This.Content()
-		nLenNumber = len(cNumber)
+		_cNumber_ = This.Content()
+		_nLenNumber_ = len(_cNumber_)
 
-		cSign = This.Sign()
+		_cSign_ = This.Sign()
 
-		if cSign = "+" or cSign = "-"
+		if _cSign_ = "+" or _cSign_ = "-"
 
-			This.Update( StzReplace(cNumber, 2, nLenNumber -2 ) )
+			This.Update( StzReplace(_cNumber_, 2, _nLenNumber_ -2 ) )
 		ok
 
 		def RemoveSignQ()
@@ -2575,8 +2575,8 @@ class stzNumber from stzObject
 				return This
 
 	def SignRemoved()
-		cResult = This.Copy().RemoveSignQ().Content()
-		return cResult
+		_cResult_ = This.Copy().RemoveSignQ().Content()
+		return _cResult_
 
 	def IsSigned()
 		if This.Sign() != ""
@@ -2617,14 +2617,14 @@ class stzNumber from stzObject
 			return FALSE
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
 
-		bResult = (This.NumericValue() = 0+ pOtherNumber)
-		StzDecimals(nCurrentRound)
+		_bResult_ = (This.NumericValue() = 0+ pOtherNumber)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2704,38 +2704,38 @@ class stzNumber from stzObject
 
 	#=====
 
-	def IsNeither(n1, n2)
+	def IsNeither(_n1_, _n2_)
 		if CheckingParams()
-			if isList(n1) and Q(n1).IsEqualToNamedParam()
-				n1 = n1[2]
+			if isList(_n1_) and Q(_n1_).IsEqualToNamedParam()
+				_n1_ = _n1_[2]
 			ok
 
-			if isList(n2) and Q(n2).IsNorNamedParam()
-				n2 = n2[2]
+			if isList(_n2_) and Q(_n2_).IsNorNamedParam()
+				_n2_ = _n2_[2]
 			ok
 
-			if @BothAreStrings(n1, n2) and
-			   NOT @BothAreNumbersInStrings(n1, n2)
+			if @BothAreStrings(_n1_, _n2_) and
+			   NOT @BothAreNumbersInStrings(_n1_, _n2_)
 
-				return This.@IsNeither(n1, n2)
+				return This.@IsNeither(_n1_, _n2_)
 			ok
 
-			if NOT ( @BothAreNumbers(n1, n2) or @BothAreNumbersInStrings(n1, n2) )
+			if NOT ( @BothAreNumbers(_n1_, _n2_) or @BothAreNumbersInStrings(_n1_, _n2_) )
 				StzRaise("Incorrect param type! n1 and n2 must both be numbers or numbers in strings.")
 			ok
 		ok
 
-		bEqualToN1 = This.IsEqualTo(n1)
-		bEqualToN2 = This.IsEqualTo(n2)
+		_bEqualToN1_ = This.IsEqualTo(_n1_)
+		_bEqualToN2_ = This.IsEqualTo(_n2_)
 
-		if NOT bEqualToN1 and NOT bEqualToN2
+		if NOT _bEqualToN1_ and NOT _bEqualToN2_
 			return 1
 		else
 			return 0
 		ok
 
-		def IsNeitherEqualTo(n1, n2)
-			return This.IsNeither(n1, n2)
+		def IsNeitherEqualTo(_n1_, _n2_)
+			return This.IsNeither(_n1_, _n2_)
 
 	def IsLess(pOtherNumber)
 		if CheckingParams()
@@ -2744,13 +2744,13 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		bResult = (This.NumericValue() <= 0+ pOtherNumber)
-		StzDecimals(nCurrentRound)
+		_bResult_ = (This.NumericValue() <= 0+ pOtherNumber)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2781,13 +2781,13 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		bResult = (This.NumericValue() < 0+ pOtherNumber)
-		StzDecimals(nCurrentRound)
+		_bResult_ = (This.NumericValue() < 0+ pOtherNumber)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2818,13 +2818,13 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		bResult = (This.NumericValue() >= 0+ pOtherNumber)
-		StzDecimals(nCurrentRound)
+		_bResult_ = (This.NumericValue() >= 0+ pOtherNumber)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2858,13 +2858,13 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		bResult = (This.NumericValue() > 0+ pOtherNumber)
-		StzDecimals(nCurrentRound)
+		_bResult_ = (This.NumericValue() > 0+ pOtherNumber)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2903,18 +2903,18 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		n1 = 0+ pNumber1
-		n2 = 0+ pNumber2
+		_n1_ = 0+ pNumber1
+		_n2_ = 0+ pNumber2
 
 		n = This.NumericValue()
 
-		bResult = 1
+		_bResult_ = 1
 
-		if NOT ( n1 < n and n < n2 )
-			bResult  = 0
+		if NOT ( _n1_ < n and n < _n2_ )
+			_bResult_  = 0
 		ok
 
-		return bResult
+		return _bResult_
 
 	def IsBetweenIB(pNumber1, pNumber2)
 
@@ -2928,18 +2928,18 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		n1 = 0+ pNumber1
-		n2 = 0+ pNumber2
+		_n1_ = 0+ pNumber1
+		_n2_ = 0+ pNumber2
 
 		n = This.NumericValue()
 
-		bResult = 1
+		_bResult_ = 1
 
-		if NOT ( n1 <= n and n <= n2 )
-			bResult  = 0
+		if NOT ( _n1_ <= n and n <= _n2_ )
+			_bResult_  = 0
 		ok
 
-		return bResult
+		return _bResult_
 
 		def IsBetweenXT(pNumber1, pNumber2)
 			return This.IsBetweenIB(pNumber1, pNumber2)
@@ -2955,15 +2955,15 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 		StzDecimals(This.Round())
 
-		bResult = ( This.NumericValue() > 0+ pNumber1 and
+		_bResult_ = ( This.NumericValue() > 0+ pNumber1 and
 			    This.NumericValue() < 0+ pNumber2 )
 
-		StzDecimals(nCurrentRound)
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 	def IsQuietEqualTo(pOtherNumber)
 
@@ -2971,13 +2971,13 @@ class stzNumber from stzObject
 			StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 		ok
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		bResult = ( fabs( (This - pOtherNumber).NumericValue() ) <= QuietEqualityRatio() )
-		StzDecimals(nCurrentRound)
+		_bResult_ = ( fabs( (This - pOtherNumber).NumericValue() ) <= QuietEqualityRatio() )
+		StzDecimals(_nCurrentRound_)
 
-		return bResult
+		return _bResult_
 
 		def IsQuietEqual(pOtherNumber)
 			return This.IsQuietEqualTo(pOtherNumber)
@@ -3209,24 +3209,24 @@ class stzNumber from stzObject
 			return This.NumberOfDigitsInFractionalPart()
 
 	def MaxNumberOfDigits() # Maximum number of digits the number can contain
-		nMaxDigits = 0
+		_nMaxDigits_ = 0
 		switch This.IsIntegerOrReal()
 		on "INTEGER"
 			if This.IsSigned()
-				nMaxDigits = MaxNumberOfDigitsInSignedInteger()
+				_nMaxDigits_ = MaxNumberOfDigitsInSignedInteger()
 			else
-				nMaxDigits = MaxNumberOfDigitsInUnsignedInteger()
+				_nMaxDigits_ = MaxNumberOfDigitsInUnsignedInteger()
 			ok
 		
 		on "REAL"
 			if This.IsSigned()
-				nMaxDigits = MaxNumberOfDigitsInSignedRealNumber()
+				_nMaxDigits_ = MaxNumberOfDigitsInSignedRealNumber()
 			else
-				nMaxDigits = MaxNumberOfDigitsInUnsignedRealNumber()
+				_nMaxDigits_ = MaxNumberOfDigitsInUnsignedRealNumber()
 			ok
 		off
 		
-		return nMaxDigits
+		return _nMaxDigits_
 
 		#< @FunctionAlternativeForm
 
@@ -3250,8 +3250,8 @@ class stzNumber from stzObject
 		#>
 
 	def Integers()
-		anResult = This.IntegerPartWithoutSignQ().CharsQ().Numberified()
-		return anResult
+		_anResult_ = This.IntegerPartWithoutSignQ().CharsQ().Numberified()
+		return _anResult_
 
 		#< @FunctionFluentFroms
 
@@ -3286,11 +3286,11 @@ class stzNumber from stzObject
 		#>
 
 	def Decimals()
-		anResult = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
+		_anResult_ = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
 		#NOTE // This is a misspelled form in Wihtout (sould be Without)
 		# But Softanza recognises it understands what you meant!
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionFluentFroms
 
@@ -3312,12 +3312,12 @@ class stzNumber from stzObject
 		#>
 
 	def SumOfIntegers()
-		nResult = This.IntegersQRT(:stzListOfNumbers).Sum()
-		return nResult
+		_nResult_ = This.IntegersQRT(:stzListOfNumbers).Sum()
+		return _nResult_
 
 	def SumOfDecimals()
-		nResult = This.DecimalsQRT(:stzListOfNumbers).Sum()
-		return nResult
+		_nResult_ = This.DecimalsQRT(:stzListOfNumbers).Sum()
+		return _nResult_
 
 	  #--------------#
 	 #    ROUNDS    #
@@ -3327,7 +3327,7 @@ class stzNumber from stzObject
 	TODO: Actually, softanza rounds numbers using the native rounding service
 	      provided by Ring decimals() standard function.
 
-	      In the future, Study and reflect on enabling those rounding modes:
+	      In the future, Study and reflect on enabling _Those_ rounding modes:
 	      	- RoundCeiling: see if it is same as RoundUp()?
 	       	- RoundFloor: see if it is same as RoundDown()?
 	       	- RoundDown,
@@ -3339,20 +3339,20 @@ class stzNumber from stzObject
 	*/
 
 	def MaxRound()
-		nResult = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
+		_nResult_ = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
 
 		if This.ContainsDecimalPart()
-			nResult -= (1 + This.NumberOfDecimals())
+			_nResult_ -= (1 + This.NumberOfDecimals())
 		ok
 
-		return nResult
+		return _nResult_
 
 	def NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 
-		nResult =  This.MaxNumberOfDigitsTheNumberCanContain() -
+		_nResult_ =  This.MaxNumberOfDigitsTheNumberCanContain() -
 		      	   This.NumberOfDigitsTheNumberActuallyContains()
 
-		return nResult
+		return _nResult_
 
 	#@ aka  round to nearest, nearest whole number, round off
 	def Round()
@@ -3373,35 +3373,35 @@ class stzNumber from stzObject
 
 		#>
 
-	def RoundToXT(nRound)
+	def RoundToXT(_nRound_)
 		if CheckingParams()
-			if isString(nRound) and nRound = :Max
-				nRound = MaxRoundInRing()
+			if isString(_nRound_) and _nRound_ = :Max
+				_nRound_ = MaxRoundInRing()
 			ok
 
-			if NOT isNumber(nRound)
+			if NOT isNumber(_nRound_)
 				StzRaise("Incorrect param type! nRound must be a number.")
 			ok
 		ok
 
-		if nRound > MaxRoundInRing()
+		if _nRound_ > MaxRoundInRing()
 			StzRaise("Incorrect round! nRound can't exceed the maxround in Ring, " + MaxRound() + ".")
 		ok
 
-		@nRound = nRound
+		@nRound = _nRound_
 
-		nCurrentRound = StzCurrentRound()
-		StzDecimals(nRound)
+		_nCurrentRound_ = StzCurrentRound()
+		StzDecimals(_nRound_)
 		@cContent = ""+ This.NumericValue()
 
-		if This.IsInteger() and nRound > 0
+		if This.IsInteger() and _nRound_ > 0
 			@cContent += "."
-			for i = 1 to nRound
+			for _i_ = 1 to _nRound_
 				@cContent += "0"
 			next
 		ok
 
-		StzDecimals(nCurrentRound)
+		StzDecimals(_nCurrentRound_)
 
 		#< @FunctionFluentForm
 
@@ -3413,17 +3413,17 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SetRoundXT(nRound)
-			This.RoundToXT(nRound)
+		def SetRoundXT(_nRound_)
+			This.RoundToXT(_nRound_)
 
-			def SetRoundXTQ(nRound)
-				return This.RoundToXTQ(nRound)
+			def SetRoundXTQ(_nRound_)
+				return This.RoundToXTQ(_nRound_)
 
 		#>
 
 	def RoundedToXT(pRound)
-		cResult = This.Copy().RoundToXTQ(pRound).Content()
-		return cResult
+		_cResult_ = This.Copy().RoundToXTQ(pRound).Content()
+		return _cResult_
 
 	#--
 
@@ -3436,13 +3436,13 @@ class stzNumber from stzObject
 
 	#---
 
-	def RoundTo(nRound)
-		cResult = This.RoundToXTQ(nRound).
+	def RoundTo(_nRound_)
+		_cResult_ = This.RoundToXTQ(_nRound_).
 			       ToStzString().
 			       RemoveThisTrailingCharQ("0"). # XT ~> All 0s are removed
 			       RemovedFromEnd(".")
 
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		#< @FunctionFluentForm
 
@@ -3454,17 +3454,17 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SetRound(nRound)
-			This.RoundTo(nRound)
+		def SetRound(_nRound_)
+			This.RoundTo(_nRound_)
 
-			def SetRoundQ(nRound)
-				return This.RoundToQ(nRound)
+			def SetRoundQ(_nRound_)
+				return This.RoundToQ(_nRound_)
 
 		#>
 
 	def RoundedTo(pRound)
-		cResult = This.Copy().RoundToQ(pRound).Content()
-		return cResult
+		_cResult_ = This.Copy().RoundToQ(pRound).Content()
+		return _cResult_
 
 	#--
 
@@ -3483,43 +3483,43 @@ class stzNumber from stzObject
 		return This.pvtCalculate( "ceil", "" )
 			
 	def RoundToSameRoundAs(pOtherNumber)
-		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.Round()
+		_oOtherNumber_ = new stzNumber(pOtherNumber)
+		_nRoundOtherNumber_ = _oOtherNumber_.Round()
 
-		This.RoundTo(nRoundOtherNumber)
+		This.RoundTo(_nRoundOtherNumber_)
 
 	def RoundIsGreaterThanRoundOf(pOtherNumber)
 
-		nRound = This.Round()
+		_nRound_ = This.Round()
 
-		oOtherNumber = new stzNumber(pOtherNumber)
-		nOtherRound = oOtherNumber.NumberOfDigits()
+		_oOtherNumber_ = new stzNumber(pOtherNumber)
+		_nOtherRound_ = _oOtherNumber_.NumberOfDigits()
 
-		if nRound > nOtherRound
+		if _nRound_ > _nOtherRound_
 			return 1
 		else
 			return 0
 		ok
 
 	def RoundIsLessThanRoundOf(pOtherNumber)
-		nRound = This.Round()
+		_nRound_ = This.Round()
 
-		oOtherNumber = new stzNumber(pOtherNumber)
-		nOtherRound = oOtherNumber.NumberOfDigits()
+		_oOtherNumber_ = new stzNumber(pOtherNumber)
+		_nOtherRound_ = _oOtherNumber_.NumberOfDigits()
 
-		if nRound < nOtherRound
+		if _nRound_ < _nOtherRound_
 			return 1
 		else
 			return 0
 		ok
 	
 	def RoundIsSameAsRoundOf(pOtherNumber)
-		nRound = This.Round()
+		_nRound_ = This.Round()
 
-		oOtherNumber = new stzNumber(pOtherNumber)
-		nOtherRound = oOtherNumber.NumberOfDigits()
+		_oOtherNumber_ = new stzNumber(pOtherNumber)
+		_nOtherRound_ = _oOtherNumber_.NumberOfDigits()
 
-		if nRound = nOtherRound
+		if _nRound_ = _nOtherRound_
 			return 1
 		else
 			return 0
@@ -3556,8 +3556,8 @@ class stzNumber from stzObject
 	#-- @FunctionPassiveForm
 
 	def Added(pOtherNumber)
-		nResult = This.Copy().AddQ(pOtherNumber).NumericValue()
-		return nResult
+		_nResult_ = This.Copy().AddQ(pOtherNumber).NumericValue()
+		return _nResult_
 
 
 	def AddMany(paOtherNumbers)
@@ -3585,8 +3585,8 @@ class stzNumber from stzObject
 	#-- @FunctionPassiveForm
 
 	def AddedMany(pOtherNumbers)
-		nResult = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
-		return nResult
+		_nResult_ = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
+		return _nResult_
 
 
 		def ManyAdded(pOtherNumbers)
@@ -3625,24 +3625,24 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		bReturnIntermediateResults = 0
+		_bReturnIntermediateResults_ = 0
 
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
 		   paReturnIntermediateResults[2] = 1
 
-			bReturnIntermediateResults = 1
+			_bReturnIntermediateResults_ = 1
 		ok
 
-		nLen = len(paOtherNumbers)
-		aIntermediateResults = []
+		_nLen_ = len(paOtherNumbers)
+		_aIntermediateResults_ = []
 
-		for i = 1 to nLen
-			This.Add(paOtherNumbers[i])
-			aIntermediateResults + This.Content()
+		for _i_ = 1 to _nLen_
+			This.Add(paOtherNumbers[_i_])
+			_aIntermediateResults_ + This.Content()
 		next
 
-		if bReturnIntermediateResults
-			return aIntermediateResults
+		if _bReturnIntermediateResults_
+			return _aIntermediateResults_
 		ok
 
 		#< @FunctionFluentForm
@@ -3713,8 +3713,8 @@ class stzNumber from stzObject
 		#< @FunctionPassiveForm
 
 		def Substructed(pOtherNumber)
-			nResult = This.Copy().SubstructQ(pOtherNumber).NumericValue()
-			return nResult
+			_nResult_ = This.Copy().SubstructQ(pOtherNumber).NumericValue()
+			return _nResult_
 
 			def Retrieved(pOtherNumber)
 				return This.Substructed(pOtherNumber)
@@ -3759,8 +3759,8 @@ class stzNumber from stzObject
 		#< @FunctionPassiveForms
 
 		def SubstructedMany(pOtherNumbers)
-			nResult = This.Copy().SubStructManyQ(pOtherNumbers).Content()
-			return nResult
+			_nResult_ = This.Copy().SubStructManyQ(pOtherNumbers).Content()
+			return _nResult_
 
 		def SubstractedMany(pOtherNumber)
 			return This.SubStructedMany(pOtherNumbers)
@@ -3785,23 +3785,23 @@ class stzNumber from stzObject
 			ok
 		ok
 	
-		bReturnIntermediateResults = 0
+		_bReturnIntermediateResults_ = 0
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
 		   paReturnIntermediateResults[2] = 1
 
-			bReturnIntermediateResults = 1
+			_bReturnIntermediateResults_ = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
-		aIntermediateResults = []
+		_nLen_ = len(paOtherNumbers)
+		_aIntermediateResults_ = []
 
-		for i = 1 to nLen
-			This.SubStruct(paOtherNumbers[i])
-			aIntermediateResults + This.Content()
+		for _i_ = 1 to _nLen_
+			This.SubStruct(paOtherNumbers[_i_])
+			_aIntermediateResults_ + This.Content()
 		next
 	
-		if bReturnIntermediateResults
-			return aIntermediateResults
+		if _bReturnIntermediateResults_
+			return _aIntermediateResults_
 		ok
 
 		#< @FunctionFluentForm
@@ -3845,7 +3845,7 @@ class stzNumber from stzObject
 			return This
 
 	def Incremented()
-		nResult = This.NumericValue() + 1
+		_nResult_ = This.NumericValue() + 1
 
 	#--
 
@@ -3857,7 +3857,7 @@ class stzNumber from stzObject
 			return This
 
 	def Decremented()
-		nResult = This.NumericValue() - 1
+		_nResult_ = This.NumericValue() - 1
 
 	  #-------------------------------------------------#
 	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
@@ -3898,8 +3898,8 @@ class stzNumber from stzObject
 		#>
 
 	def MultipliedBy(pOtherNumber)
-		nResult = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
-		return nResult
+		_nResult_ = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
+		return _nResult_
 
 		def Multiplied(pOtherNumber)
 			return This.MultipliedBy(pOtherNumber)
@@ -3925,8 +3925,8 @@ class stzNumber from stzObject
 		#>
 	
 		def MultipliedByMany(paOtherNumbers)
-			nResult = This.Copy().MultiplyByManyQ(paOtherNumbers).NumericValue()
-			return nResult
+			_nResult_ = This.Copy().MultiplyByManyQ(paOtherNumbers).NumericValue()
+			return _nResult_
 
 	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
 		#TODO // Add "These" as alternative of "Many"
@@ -3937,26 +3937,26 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		aIntermediateResults = []
+		_aIntermediateResults_ = []
 	
-		bReturnIntermediateResults = 0
+		_bReturnIntermediateResults_ = 0
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
 		   paReturnIntermediateResults[2] = 1
 	
-			bReturnIntermediateResults = 1
+			_bReturnIntermediateResults_ = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
-		aIntermediateResults = []
+		_nLen_ = len(paOtherNumbers)
+		_aIntermediateResults_ = []
 
-		for i = 1 to nLen
-			This.MultiplyBy(paOtherNumbers[i])
-			aIntermediateResults + This.Content()
+		for _i_ = 1 to _nLen_
+			This.MultiplyBy(paOtherNumbers[_i_])
+			_aIntermediateResults_ + This.Content()
 		next
 	
-		if bReturnIntermediateResults
-			return aIntermediateResults
+		if _bReturnIntermediateResults_
+			return _aIntermediateResults_
 		ok		
 
 	  #----------------#
@@ -3985,8 +3985,8 @@ class stzNumber from stzObject
 		#< @FunctionPassiveForm
 
 		def Divided(pOtherNumber)
-			nResult = This.Copy().DivideQ(pOtherNumber).NumericValue()
-			return nResult
+			_nResult_ = This.Copy().DivideQ(pOtherNumber).NumericValue()
+			return _nResult_
 
 		#>
 
@@ -4006,8 +4006,8 @@ class stzNumber from stzObject
 		#< @FunctionPassiveForm
 
 		def DividedBy(pOtherNumber)
-			nResult = This.Copy().DivideByQ(pOtherNumber).NumericValue()
-			return nResult
+			_nResult_ = This.Copy().DivideByQ(pOtherNumber).NumericValue()
+			return _nResult_
 
 		#>
 	
@@ -4025,8 +4025,8 @@ class stzNumber from stzObject
 		#>
 
 		def DividedByMany(paOtherNumbers)
-			nResult = This.Copy().DivideByManyQ(paOtherNumbers).NumericValue()
-			return nResult
+			_nResult_ = This.Copy().DivideByManyQ(paOtherNumbers).NumericValue()
+			return _nResult_
 
 	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
 		#TODO // Add "These" as alternative of "Many"
@@ -4037,26 +4037,26 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		aIntermediateResults = []
+		_aIntermediateResults_ = []
 	
-		bReturnIntermediateResults = 0
+		_bReturnIntermediateResults_ = 0
 	
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
 		   paReturnIntermediateResults[2] = 1
 	
-			bReturnIntermediateResults = 1
+			_bReturnIntermediateResults_ = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
-		aIntermediateResults = []
+		_nLen_ = len(paOtherNumbers)
+		_aIntermediateResults_ = []
 
-		for i = 1 to nLen
-			This.DivideBy(paOtherNumbers[i])
-			aIntermediateResults + This.Content()
+		for _i_ = 1 to _nLen_
+			This.DivideBy(paOtherNumbers[_i_])
+			_aIntermediateResults_ + This.Content()
 		next
 	
-		if bReturnIntermediateResults
-			return aIntermediateResults
+		if _bReturnIntermediateResults_
+			return _aIntermediateResults_
 		ok
 	
 	  #-------------#
@@ -4204,11 +4204,11 @@ class stzNumber from stzObject
 				return n
 			ok
 		else
-			oStrNumber = new stzString(This.Content())
-			if oStrNumber.FirstChar() = "-"
-				return oStrNumber.FirstCharRemoved()
+			_oStrNumber_ = new stzString(This.Content())
+			if _oStrNumber_.FirstChar() = "-"
+				return _oStrNumber_.FirstCharRemoved()
 			else
-				return oStrNumber.Content()
+				return _oStrNumber_.Content()
 			ok
 		ok
 
@@ -4242,9 +4242,9 @@ class stzNumber from stzObject
 			StzRaise("Can't compute factorial of a negative number!")
 		ok
 		pBigInt = StzEngineNumberFactorial(n)
-		cResult = StzEngineBigIntToString(pBigInt)
+		_cResult_ = StzEngineBigIntToString(pBigInt)
 		StzEngineBigIntFree(pBigInt)
-		return cResult
+		return _cResult_
 
 		def FactorialQ()
 				return new stzNumber(This.Factorial())
@@ -4372,15 +4372,15 @@ class stzNumber from stzObject
 		#>
 
 	def FactorsXT()
-		anFactors = This.Factors()
-		nLen = len(anFactors)
+		_anFactors_ = This.Factors()
+		_nLen_ = len(_anFactors_)
 
-		aResult = []
-		for i = 1 to nLen
-			aResult + [ anFactors[i], This.IntegerPartValue() / anFactors[i] ]
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_aResult_ + [ _anFactors_[_i_], This.IntegerPartValue() / _anFactors_[_i_] ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -4417,20 +4417,20 @@ class stzNumber from stzObject
 		#>
 
 	def PrimeFactors()
-		aResult = []
+		_aResult_ = []
 
 		_aThisFactors1_ = This.Factors()
 		_nThisFactors1Len_ = len(_aThisFactors1_)
 		for _iLoopThisFactors1_ = 1 to _nThisFactors1Len_
 			n = _aThisFactors1_[_iLoopThisFactors1_]
-			oTempNumber = new stzNumber(n)
+			_oTempNumber_ = new stzNumber(n)
 
-			if oTempNumber.IsPrimeNumber()
-				aResult + n
+			if _oTempNumber_.IsPrimeNumber()
+				_aResult_ + n
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 
 		#< @FunctionFluentForm
@@ -4468,14 +4468,14 @@ class stzNumber from stzObject
 		#>
 
 	def PrimeFactorsXT()
-		aResult = []
+		_aResult_ = []
 		_aThisPrimeFactors1_ = This.PrimeFactors()
 		_nThisPrimeFactors1Len_ = len(_aThisPrimeFactors1_)
 		for _iLoopThisPrimeFactors1_ = 1 to _nThisPrimeFactors1Len_
 			n = _aThisPrimeFactors1_[_iLoopThisPrimeFactors1_]
-			aResult + [ n, This.IntegerPartValue() / n ]
+			_aResult_ + [ n, This.IntegerPartValue() / n ]
 		next
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -4550,8 +4550,8 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nOtherNumber = StzNumberQ(pOtherNumber).NumericValue()
-		if nOtherNumber <= This.NumericValue()
+		_nOtherNumber_ = StzNumberQ(pOtherNumber).NumericValue()
+		if _nOtherNumber_ <= This.NumericValue()
 			StzRaise("Can't proceed! pOtherNumber must be >= your main number.")
 		ok
 
@@ -4559,50 +4559,50 @@ class stzNumber from stzObject
 		# (actuated by StzDecimals() that you should
 		# use instead of the standard Ring decimals()
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		# Getting the round of the other number
 
-		nOtherRound = nCurrentRound
+		_nOtherRound_ = _nCurrentRound_
 		if isString(pOtherNumber)
-			nOtherRound = StzNumberQ(n).Round()
+			_nOtherRound_ = StzNumberQ(n).Round()
 		ok
 
 		# Applying the max between the two rounds
 		# (becausse we want the calculation to be
 		# as precise as possiblle)
 
-		StzDecimals( @Max([ This.Round(), nOtherRound ]) )
+		StzDecimals( @Max([ This.Round(), _nOtherRound_ ]) )
 
 		# Doing the job under that round
 
-		bInteger = 0
+		_bInteger_ = 0
 		if This.IsInteger() and Q(pOtherNumber).IsInteger()
-			bInteger = 1
+			_bInteger_ = 1
 		ok
 
-		aResult = []
-		bContinue = 1
-		i = 0
-		while bContinue
-			i++
-			n = This.MultipliedBy(i)
-			if bInteger
+		_aResult_ = []
+		_bContinue_ = 1
+		_i_ = 0
+		while _bContinue_
+			_i_++
+			n = This.MultipliedBy(_i_)
+			if _bInteger_
 				n = 0+ n
 			ok
 
-			if n <= nOtherNumber
-				aResult + n
+			if n <= _nOtherNumber_
+				_aResult_ + n
 			else
-				bContinue = 0
+				_bContinue_ = 0
 			ok
 		end
 
-		return aResult
+		return _aResult_
 
 		# Resetting the current round
 
-		StzDecimals( nCurrentRound )
+		StzDecimals( _nCurrentRound_ )
 
 		def MultiplesUntilQ(pOtherNumber)
 			return This.MultiplesUntilQRT(pOtherNumber, :stzList)
@@ -4623,35 +4623,35 @@ class stzNumber from stzObject
 
 			on :stzListOfNumbers
 
-				anMultiples = This.MultiplesUntil(pOtherNumber)
+				_anMultiples_ = This.MultiplesUntil(pOtherNumber)
 
-				anNumbers = []
-				_nAnMultiples1Len_ = len(anMultiples)
+				_anNumbers_ = []
+				_nAnMultiples1Len_ = len(_anMultiples_)
 				for _iLoopAnMultiples1_ = 1 to _nAnMultiples1Len_
-					n = anMultiples[_iLoopAnMultiples1_]
+					n = _anMultiples_[_iLoopAnMultiples1_]
 					if isString(n)
-						anNumbers + ( 0+ n )
+						_anNumbers_ + ( 0+ n )
 					else
-						anNumbers + n
+						_anNumbers_ + n
 					ok
 				next
 
-				return new stzListOfNumbers( anNumbers )
+				return new stzListOfNumbers( _anNumbers_ )
 
 			on :stzListOfStrings
-				acNumbers = []
+				_acNumbers_ = []
 				_aThisMultiplesUntilpOther1_ = This.MultiplesUntil(pOtherNumber)
 				_nThisMultiplesUntilpOther1Len_ = len(_aThisMultiplesUntilpOther1_)
 				for _iLoopThisMultiplesUntilpOther1_ = 1 to _nThisMultiplesUntilpOther1Len_
 					n = _aThisMultiplesUntilpOther1_[_iLoopThisMultiplesUntilpOther1_]
 					if isNumber(n)
-						acNumbers + ( ""+ n )
+						_acNumbers_ + ( ""+ n )
 					else
-						acNumbers + n
+						_acNumbers_ + n
 					ok
 				next
 
-				return new stzListOfNumbers( anNumbers )
+				return new stzListOfNumbers( _anNumbers_ )
 
 			other
 				StzRaise("Unssupported return type!")
@@ -4681,39 +4681,39 @@ class stzNumber from stzObject
 		# (actuated by StzDecimals() that you should
 		# use instead of the standard Ring decimals()
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 
 		# Getting the round of the other number
 
-		nOtherRound = nCurrentRound
+		_nOtherRound_ = _nCurrentRound_
 		if isString(n)
-			nOtherRound = StzNumberQ(n).Round()
+			_nOtherRound_ = StzNumberQ(n).Round()
 		ok
 
 		# Applying the max between the two rounds
 		# (becausse we want the calculation to be
 		# as precise as possiblle)
 
-		StzDecimals( @Max([ This.Round(), nOtherRound ]) )
+		StzDecimals( @Max([ This.Round(), _nOtherRound_ ]) )
 
 		# Doing the job under that round
 
 		n = StzNumberQ(n).NumericValue()
 
-		oTempList = new stzList( This.Factors() )
-		bResult = 0
+		_oTempList_ = new stzList( This.Factors() )
+		_bResult_ = 0
 
-		if oTempList.Contains(n)
-			bResult = 1
+		if _oTempList_.Contains(n)
+			_bResult_ = 1
 		ok
 
 		# Resetting the current round
 
-		StzDecimals(nCurrentRound)
+		StzDecimals(_nCurrentRound_)
 
 		# Returning the result
 
-		return bResult
+		return _bResult_
 
 		def IsDivisibleBy(n)
 			return This.IsDividableBy(n)
@@ -4722,9 +4722,9 @@ class stzNumber from stzObject
 			return This.IsDividableBy(n)
 			
 	def IsDividorOf(n)	// Main Number and n must be integers!
-		oNumber = new stzNumber(n)
+		_oNumber_ = new stzNumber(n)
 
-		return oNumber.IsDividableBy(This.IntegerPartValue())
+		return _oNumber_.IsDividableBy(This.IntegerPartValue())
 
 	def IntegerPartValue()
 		return 0+ This.IntegerPart()
@@ -4754,8 +4754,8 @@ class stzNumber from stzObject
 	# Converting decimal to hex form
 	
 	def ToHexForm()
-		cResult = HexNumberPrefix() + This.ToHexFormWithoutPrefix()
-		return cResult
+		_cResult_ = HexNumberPrefix() + This.ToHexFormWithoutPrefix()
+		return _cResult_
 
 		#< @FunctionFluentForm
 
@@ -4792,13 +4792,13 @@ class stzNumber from stzObject
 		#>
 
 	def ToHexFormWithoutPrefix()
-		cResult = This.IntegerPartToHexForm()
+		_cResult_ = This.IntegerPartToHexForm()
 
 		if This.HasFractionalPart()
-			cResult += "." + This.FractionalPartToHexForm()
+			_cResult_ += "." + This.FractionalPartToHexForm()
 		ok
 
-		return cResult
+		return _cResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4811,7 +4811,7 @@ class stzNumber from stzObject
 		return StzUpper(StzEngineNumberToBase(This.IntegerPartValue(), 16))
 
 	def FractionalPartToHexForm()
-		cFraction = This.FractionalPart()
+		_cFraction_ = This.FractionalPart()
 
 		def DecimalPartToHexForm()
 			return This.FractionalPartToHexForm()
@@ -4819,8 +4819,8 @@ class stzNumber from stzObject
 	# Converting decimal to binary form
 
 	def ToBinaryForm()
-		oConversion = new stzDecimalToBinary(This.Content())
-		return oConversion.ToBinaryForm()
+		_oConversion_ = new stzDecimalToBinary(This.Content())
+		return _oConversion_.ToBinaryForm()
 
 		#@ aka  binary, base 2, bits, binary representation
 		def ToBinary()
@@ -4871,28 +4871,28 @@ class stzNumber from stzObject
 			return new stzOctalNumber( This.ToOctalForm() )
 	
 	def ToOctalFormWithoutPrefix()
-		cResult = This.IntegerPartToOctalForm()
+		_cResult_ = This.IntegerPartToOctalForm()
 
 		if This.FractionalPart() != ""
-			cResult += "." + This.FractionalPartToOctalForm()
+			_cResult_ += "." + This.FractionalPartToOctalForm()
 		ok
 
-		return cResult
+		return _cResult_
 
 	// Returns a string containing the equivalent of the interger part
 	// in the specified base n (between 2 and 36)
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
-			nVal = This.IntegerValue()
-			if nVal = 0
+			_nVal_ = This.IntegerValue()
+			if _nVal_ = 0
 				return "0"
 			ok
-			cPrefix = ""
-			if nVal < 0
-				cPrefix = "-"
-				nVal = -nVal
+			_cPrefix_ = ""
+			if _nVal_ < 0
+				_cPrefix_ = "-"
+				_nVal_ = -_nVal_
 			ok
-			return cPrefix + StzEngineNumberToBase(nVal, n)
+			return _cPrefix_ + StzEngineNumberToBase(_nVal_, n)
 		else
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
@@ -4933,7 +4933,7 @@ class stzNumber from stzObject
 		Given a number, the method returns its structure in a hashlist
 		taking the following form:
 			 
-			aStructure = [ :aHundreds , :aThousands , :aMillions , :aBillions , :aTrillions ]
+			_aStructure_ = [ :aHundreds , :aThousands , :aMillions , :aBillions , :aTrillions ]
 			where each inner list takes the form :
 				       [ :Units, :Dozens, :Hundreds ]
 			
@@ -4959,60 +4959,60 @@ class stzNumber from stzObject
 
 		*/
 
-		oStzIntegerPart = new stzString(This.IntegerPart())
-		oStzFractionalPart = new stzString(This.FractionalPart())
+		_oStzIntegerPart_ = new stzString(This.IntegerPart())
+		_oStzFractionalPart_ = new stzString(This.FractionalPart())
 
 		// Initializing the structure containers and the required variables
-		aHundreds  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cHundreds = ""
-		aThousands = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cThousands = ""
-		aMillions  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cMillions = ""
-		aBillions  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] cBillions = ""
-		aTrillions = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] cTrillions = ""
+		_aHundreds_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cHundreds_ = ""
+		_aThousands_ = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cThousands_ = ""
+		_aMillions_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cMillions_ = ""
+		_aBillions_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] _cBillions_ = ""
+		_aTrillions_ = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] _cTrillions_ = ""
 			
-		aStructure = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
+		_aStructure_ = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
+		_aTemp_ = _oStzIntegerPart_.SplitToNPartsQ(3).Reversed()
 
-		switch len(aTemp)
+		switch len(_aTemp_)
 		on 0
 			// Nothing
 
 		on 1
-			cHundreds  = aTemp[1]
+			_cHundreds_  = _aTemp_[1]
 
 		on 2
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
 
 		on 3
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
 
 		on 4
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
-			cBillions  = aTemp[4]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
+			_cBillions_  = _aTemp_[4]
 
 		on 5
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
-			cBillions  = aTemp[4]
-			cTrillions = aTemp[5]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
+			_cBillions_  = _aTemp_[4]
+			_cTrillions_ = _aTemp_[5]
 
 		off
 
-		aStructure = [ 	
-			:aTrillions = GetMicroStructure(cTrillions),
-			:aBillions  = GetMicroStructure(cBillions),
-			:aMillions  = GetMicroStructure(cMillions),
-			:aThousands = GetMicroStructure(cThousands),
-			:aHundreds  = GetMicroStructure(cHundreds)
+		_aStructure_ = [ 	
+			:aTrillions = GetMicroStructure(_cTrillions_),
+			:aBillions  = GetMicroStructure(_cBillions_),
+			:aMillions  = GetMicroStructure(_cMillions_),
+			:aThousands = GetMicroStructure(_cThousands_),
+			:aHundreds  = GetMicroStructure(_cHundreds_)
 		]
 
-		return aStructure
+		return _aStructure_
 
 	def Structure()
 		# Given a number, the function returns its structure in a hashlist
@@ -5022,65 +5022,65 @@ class stzNumber from stzObject
 		# 	where each key contains a string with the relevant number hosted in it.
 		#NOTE that the sign is not included in the analysis, but we have it in This.Sign()
 
-		oStzIntegerPart = new stzString(This.IntegerPartWithoutSign())
-		oStzFractionalPart = new stzString(This.FractionalPart())
+		_oStzIntegerPart_ = new stzString(This.IntegerPartWithoutSign())
+		_oStzFractionalPart_ = new stzString(This.FractionalPart())
 
 		// Initializing the structure containers and the required variables
-		aHundreds  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cHundreds = ""
-		aThousands = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cThousands = ""
-		aMillions  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	cMillions = ""
-		aBillions  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] cBillions = ""
-		aTrillions = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] cTrillions = ""
+		_aHundreds_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cHundreds_ = ""
+		_aThousands_ = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cThousands_ = ""
+		_aMillions_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ]	_cMillions_ = ""
+		_aBillions_  = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] _cBillions_ = ""
+		_aTrillions_ = [ :Units = 0, :Dozens = 0, :Hundreds = 0 ] _cTrillions_ = ""
 			
-		aStructure = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
+		_aStructure_ = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
+		_aTemp_ = _oStzIntegerPart_.SplitToNPartsQ(3).Reversed()
 
-		switch len(aTemp)
+		switch len(_aTemp_)
 		on 0
 			// Nothing
 
 		on 1
-			cHundreds  = aTemp[1]
+			_cHundreds_  = _aTemp_[1]
 
 		on 2
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
 
 		on 3
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
 
 		on 4
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
-			cBillions  = aTemp[4]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
+			_cBillions_  = _aTemp_[4]
 
 		on 5
-			cHundreds  = aTemp[1]
-			cThousands = aTemp[2]
-			cMillions  = aTemp[3]
-			cBillions  = aTemp[4]
-			cTrillions = aTemp[5]
+			_cHundreds_  = _aTemp_[1]
+			_cThousands_ = _aTemp_[2]
+			_cMillions_  = _aTemp_[3]
+			_cBillions_  = _aTemp_[4]
+			_cTrillions_ = _aTemp_[5]
 		off
 					
-		cNumber = cTrillions + cBillions + cMillions + cThousands + cHundreds
+		_cNumber_ = _cTrillions_ + _cBillions_ + _cMillions_ + _cThousands_ + _cHundreds_
 
 		// Removing zeros from the left	
-		oNumber = new stzNumber(cNumber)
-		cNumber = oNumber.RemoveZeros()
+		_oNumber_ = new stzNumber(_cNumber_)
+		_cNumber_ = _oNumber_.RemoveZeros()
 
-		astructure = [ 	
-			:cTrillions = cTrillions,
-			:cBillions  = cBillions,
-			:cMillions  = cMillions,
-			:cThousands = cThousands,
-			:cHundreds  = cHundreds
+		_aStructure_ = [ 	
+			:cTrillions = _cTrillions_,
+			:cBillions  = _cBillions_,
+			:cMillions  = _cMillions_,
+			:cThousands = _cThousands_,
+			:cHundreds  = _cHundreds_
 		]
 
-		return aStructure
+		return _aStructure_
 
 	#-- HUNDREDS --#
 	def Hundreds()
@@ -5105,10 +5105,10 @@ class stzNumber from stzObject
 		return This.HundredsXT()[ :Hundreds ]
 
 	def HasHundreds()
-		oNumber = new stzNumber(This.Content())
+		_oNumber_ = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 0 and
-		   oNumber.NumericValue() != 0
+		if len(_oNumber_.IntegerPart()) > 0 and
+		   _oNumber_.NumericValue() != 0
 
 				return 1
 		else
@@ -5135,9 +5135,9 @@ class stzNumber from stzObject
 		return This.ThousandsXT()[ :Hundreds ]
 
 	def HasThousands()
-		oNumber = new stzNumber(This.Content())
+		_oNumber_ = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 3
+		if len(_oNumber_.IntegerPart()) > 3
 			return 1
 
 		else
@@ -5164,9 +5164,9 @@ class stzNumber from stzObject
 		return This.MillionsXT()[ :Hundreds ]
 
 	def HasMillions()
-		oNumber = new stzNumber(This.Content())
+		_oNumber_ = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 6
+		if len(_oNumber_.IntegerPart()) > 6
 			return 1
 
 		else
@@ -5193,9 +5193,9 @@ class stzNumber from stzObject
 		return This.BillionsXT()[ :Hundreds ]
 
 	def HasBillions()
-		oNumber = new stzNumber(This.Content())
+		_oNumber_ = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 9
+		if len(_oNumber_.IntegerPart()) > 9
 			return 1
 		else
 			return 0
@@ -5221,9 +5221,9 @@ class stzNumber from stzObject
 		return This.TrillionsXT()[ :Hundreds ]
 
 	def HasTrillions()
-		oNumber = new stzNumber(This.Content())
+		_oNumber_ = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 12
+		if len(_oNumber_.IntegerPart()) > 12
 			return 1
 
 		else
@@ -5602,8 +5602,8 @@ class stzNumber from stzObject
 		return This
 
 	def SpacesRemoved()
-		cResult = This.Copy().RemoveSpacesQ().Content()
-		return cResult
+		_cResult_ = This.Copy().RemoveSpacesQ().Content()
+		return _cResult_
 
 	def RemoveLeadingSpaces()
 		This.Update( This.ToStzString().LeadingSpacesRemoved() )
@@ -5613,8 +5613,8 @@ class stzNumber from stzObject
 			return This
 
 	def LeadingSpacesRemoved()
-		cResult = This.Copy().RemoveLeadingSpacesQ().Content()
-		return cResult
+		_cResult_ = This.Copy().RemoveLeadingSpacesQ().Content()
+		return _cResult_
 
 	def RemoveTrailingSpaces()
 		This.Update( This.ToStzString().TrailingSpacesRemoved() )
@@ -5624,50 +5624,50 @@ class stzNumber from stzObject
 			return This
 
 	def TrailingSpacesRemoved()
-		cResult = This.Copy().RemoveTrailingSpacesQ().Content()
-		return cResult
+		_cResult_ = This.Copy().RemoveTrailingSpacesQ().Content()
+		return _cResult_
 
 	  #---------------------------------#
 	 #    REMOVING ZEROS FROM NUMBER   #
 	#---------------------------------#
 
 	def RemoveZerosFromLeft()
-		oStzStr = This.ToStzString()
+		_oStzStr_ = This.ToStzString()
 
-		if oStzStr.RepeatedLeadingcharIs("0")
-			This.Update( oStzStr.RemoveThisRepeatedLeadingCharQ("0").Content() )
+		if _oStzStr_.RepeatedLeadingcharIs("0")
+			This.Update( _oStzStr_.RemoveThisRepeatedLeadingCharQ("0").Content() )
 		ok
 
 		if This.IsReal()
-			if oStzStr.RepeatedTrailingCharIs("0")
-				This.Update( oStzStr.RemoveRepeatedTrailingCharQ("0").Content() )
+			if _oStzStr_.RepeatedTrailingCharIs("0")
+				This.Update( _oStzStr_.RemoveRepeatedTrailingCharQ("0").Content() )
 			ok
 		ok
 
 	def RemoveZerosFromRight()
-		oStzStr = This.ToStzString()
+		_oStzStr_ = This.ToStzString()
 
-		if oStzStr.RepeatedTrailingcharIs("0") and This.IsReal()
-			This.Update( oStzStr.RemoveThisRepeatedtrailingCharQ("0").Content() )
+		if _oStzStr_.RepeatedTrailingcharIs("0") and This.IsReal()
+			This.Update( _oStzStr_.RemoveThisRepeatedtrailingCharQ("0").Content() )
 		ok
 
 	def RemoveZeros()
-		oStzStr = This.ToStzString()
+		_oStzStr_ = This.ToStzString()
 
-		if oStzStr.RepeatedTrailingcharIs("0")
-			This.Update( oStzStr.RemoveThisRepeatedtrailingCharQ("0").Content() )
+		if _oStzStr_.RepeatedTrailingcharIs("0")
+			This.Update( _oStzStr_.RemoveThisRepeatedtrailingCharQ("0").Content() )
 		ok
 
 		if This.IsReal()
-			if oStzStr.RepeatedTrailingCharIs("0")
-				This.Update( oStzStr.RemoveRepeatedTrailingCharQ("0").Content() )
+			if _oStzStr_.RepeatedTrailingCharIs("0")
+				This.Update( _oStzStr_.RemoveRepeatedTrailingCharQ("0").Content() )
 			ok
 		ok
 		
 
 	def ZerosRemoved()
-		cResult = This.Copy().RemoveZerosQ().Content()
-		return cResult
+		_cResult_ = This.Copy().RemoveZerosQ().Content()
+		return _cResult_
 
 	  #------------------#
 	 #    FORMATTING    #
@@ -5690,294 +5690,294 @@ class stzNumber from stzObject
 		# Setting default configs
 
 			# Precision
-			bRestrictFractionalPart = 0
-			nNumberOfDigitsInFractionalPart = 0
-			bRoundItWhenRestricted = 0
+			_bRestrictFractionalPart_ = 0
+			_nNumberOfDigitsInFractionalPart_ = 0
+			_bRoundItWhenRestricted_ = 0
 			
 			# Round
-			bRounded = 0
-			nRoundTo = 0
+			_bRounded_ = 0
+			_nRoundTo_ = 0
 			
 			# Alignment
-			bApplyAlignment = 0
+			_bApplyAlignment_ = 0
 
-			nWidth = 0
-			cFillBlanksWith = " "
+			_nWidth_ = 0
+			_cFillBlanksWith_ = " "
 			
-			cAlignTo = :Left
-			bFixPrefixToLeft = 0
-			bFixSuffixToRight = 0
+			_cAlignTo_ = :Left
+			_bFixPrefixToLeft_ = 0
+			_bFixSuffixToRight_ = 0
 				
 			# Sign
-			bShowSign = 1
-			bPutNegativeBetweenParentheses = 0
+			_bShowSign_ = 1
+			_bPutNegativeBetweenParentheses_ = 0
 			
 			# Prefix, separators, and suffix
-			cPrefix = ""
+			_cPrefix_ = ""
 			
-			cThousandsSeparator = "."
+			_cThousandsSeparator_ = "."
 
-			cFractionalSeparator = ","
+			_cFractionalSeparator_ = ","
 			
-			cSuffix = ""
+			_cSuffix_ = ""
 			
 			# Conversion
-			bToPercentage = 0
-			bToScientificNotation = 0
+			_bToPercentage_ = 0
+			_bToScientificNotation_ = 0
 			
-			bToHex = 0
-			bToBinary = 0
-			bToOctal = 0
-			nToBase = 10
+			_bToHex_ = 0
+			_bToBinary_ = 0
+			_bToOctal_ = 0
+			_nToBase_ = 10
 			
-			bToIndian = 0
-			bToRoman = 0
+			_bToIndian_ = 0
+			_bToRoman_ = 0
 
 		# Reading provided configs
 
 			# Precision
 
 			if HasKey(paFormat, :RestrictFractionalPart)
-				bRestrictFractionalPart = paFormat[ :RestrictFractionalPart ]
+				_bRestrictFractionalPart_ = paFormat[ :RestrictFractionalPart ]
 			ok
 
 			if HasKey(paFormat, :NumberOfDigitsInFractionalPart)
-				nNumberOfDigitsInFractionalPart = paFormat[ :NumberOfDigitsInFractionalPart ]
+				_nNumberOfDigitsInFractionalPart_ = paFormat[ :NumberOfDigitsInFractionalPart ]
 			ok
 
 			if HasKey(paFormat, :RoundItWhenRestricted)
-				bRoundItWhenRestricted = paFormat[ :RoundItWhenRestricted ]
+				_bRoundItWhenRestricted_ = paFormat[ :RoundItWhenRestricted ]
 			ok
 		
 			# Round
 
 			if HasKey(paFormat, :ApplyRound)
-				bRounded = paFormat[ :ApplyRound ]
+				_bRounded_ = paFormat[ :ApplyRound ]
 			ok
 
 			if HasKey(paFormat, :RoundTo)
-				nRoundTo = paFormat[ :RoundTo ]
+				_nRoundTo_ = paFormat[ :RoundTo ]
 			ok
 			
 			# Alignment
 				
 			if HasKey(paFormat, :ApplyAlignment)
-				bApplyAlignment = paFormat[ :ApplyAlignment ]
+				_bApplyAlignment_ = paFormat[ :ApplyAlignment ]
 			ok
 
 			if HasKey(paFormat, :Width)
-				nWidth = paFormat[ :Width ]
+				_nWidth_ = paFormat[ :Width ]
 			ok
 
 			if HasKey(paFormat, :FillBlanksWith)
-				cFillBlanksWith = paFormat[ :FillBlanksWith ]
+				_cFillBlanksWith_ = paFormat[ :FillBlanksWith ]
 			ok
 
 			if HasKey(paFormat, :AlignTo)		
-				cAlignTo = paFormat[ :AlignTo ]
+				_cAlignTo_ = paFormat[ :AlignTo ]
 			ok
 
 			if HasKey(paFormat, :FixPrefixToLeft)
-				bFixPrefixToLeft = paFormat[ :FixPrefixToLeft ]
+				_bFixPrefixToLeft_ = paFormat[ :FixPrefixToLeft ]
 			ok
 
 			if HasKey(paFormat, :FixSuffixToRight)
-				bFixSuffixToRight = paFormat[ :FixSuffixToRight ]
+				_bFixSuffixToRight_ = paFormat[ :FixSuffixToRight ]
 			ok
 				
 			# Sign
 
 			if HasKey(paFormat, :ShowSign)
-				bShowSign = paFormat[ :ShowSign ]
+				_bShowSign_ = paFormat[ :ShowSign ]
 			ok
 
 			if HasKey(paFormat, :PutNegativeBetweenParentheses)
-				bPutNegativeBetweenParentheses = paFormat[ :PutNegativeBetweenParentheses ]
+				_bPutNegativeBetweenParentheses_ = paFormat[ :PutNegativeBetweenParentheses ]
 			ok
 			
 			# Prefix, separators, and suffix
 
 			if HasKey(paFormat, :Prefix)
-				cPrefix = paFormat[ :Prefix ]
+				_cPrefix_ = paFormat[ :Prefix ]
 			ok
 			
 			if HasKey(paFormat, :ThousandsSeparator)
-				cThousandsSeparator = paFormat[ :ThousandsSeparator ]
+				_cThousandsSeparator_ = paFormat[ :ThousandsSeparator ]
 			ok
 
 			if HasKey(paFormat, :FractionalSeparator)
-				cFractionalSeparator = paFormat[ :FractionalSeparator ]
+				_cFractionalSeparator_ = paFormat[ :FractionalSeparator ]
 			ok
 			
 			if HasKey(paFormat, :Suffix)
-				cSuffix = paFormat[ :Suffix ]
+				_cSuffix_ = paFormat[ :Suffix ]
 			ok
 			
 			# Conversion
 
 			if HasKey(paFormat, :ToPercentage)
-				bToPercentage = paFormat[ :ToPercentage ]
+				_bToPercentage_ = paFormat[ :ToPercentage ]
 			ok
 
 			if HasKey(paFormat, :ToScientificNotation)
-				bToScientificNotation = paFormat[ :ToScientificNotation ]
+				_bToScientificNotation_ = paFormat[ :ToScientificNotation ]
 			ok
 
 			if HasKey(paFormat, :ToHex)
-				bToHex = paFormat[ :ToHex ]
+				_bToHex_ = paFormat[ :ToHex ]
 			ok
 
 			if HasKey(paFormat, :ToBinary)
-				bToBinary = paFormat[ :ToBinary ]
+				_bToBinary_ = paFormat[ :ToBinary ]
 			ok
 
 			if HasKey(paFormat, :ToOctal)
-				bToOctal = paFormat[ :ToOctal ]
+				_bToOctal_ = paFormat[ :ToOctal ]
 			ok
 
 			if HasKey(paFormat, :ToBase)
-				nToBase = paFormat[ :ToBase ]
+				_nToBase_ = paFormat[ :ToBase ]
 			ok
 			
 			if HasKey(paFormat, :ToIndian)
-				bToIndian = paFormat[ :ToIndian ]
+				_bToIndian_ = paFormat[ :ToIndian ]
 			ok
 
 			if HasKey(paFormat, :ToRoman)
-				bToRoman = paFormat[ :ToRoman ]
+				_bToRoman_ = paFormat[ :ToRoman ]
 			ok
 
 		# Computing the required formatting
 	
-		cFormattedNumber = ""
-		cIntegerPart = This.IntegerPartWithoutSign()
-		cFractionalPart = ""
+		_cFormattedNumber_ = ""
+		_cIntegerPart_ = This.IntegerPartWithoutSign()
+		_cFractionalPart_ = ""
 
 		# Managing precision by computing the fractional part
 
-		if bRestrictFractionalPart = 0
-			cFractionalPart = This.FractionalPartWithoutZerodot()
+		if _bRestrictFractionalPart_ = 0
+			_cFractionalPart_ = This.FractionalPartWithoutZerodot()
 		else
-			cCurrentFractionalPart = This.FractionalPartWithoutZerodot()
+			_cCurrentFractionalPart_ = This.FractionalPartWithoutZerodot()
 				
-			cFractionalPart = ""
-			for i = 1 to nNumberOfDigitsInFractionalPart
-				cFractionalPart += cCurrentFractionalPart[i]
+			_cFractionalPart_ = ""
+			for _i_ = 1 to _nNumberOfDigitsInFractionalPart_
+				_cFractionalPart_ += _cCurrentFractionalPart_[_i_]
 			next
 
-			if bRoundItWhenRestricted = 1
+			if _bRoundItWhenRestricted_ = 1
 
 				# Memorise the active round
-				nCurrentRound = GetActiveRound()
+				_nCurrentRound_ = GetActiveRound()
 
 				# Setting the rounding system to the number of restricted digits
-				decimals(nNumberOfDigitsInFractionalPart)
+				decimals(_nNumberOfDigitsInFractionalPart_)
 
 				# Composing a dummy number with the restricted fraction part
-				cTempNumber = "0." + cFractionalPart
+				_cTempNumber_ = "0." + _cFractionalPart_
 
 				# Rounding that number
-				nTempNumber = 0+ cTempNumber
+				_nTempNumber_ = 0+ _cTempNumber_
 				# Saving the rounded number in a string
-				cTempNumber = ""+ nTempNumber
+				_cTempNumber_ = ""+ _nTempNumber_
 
 				# Reading the rounded fraction part
-				cFractionalPart = ""
-				_nTempNumberLen_ = len(cTempNumber)
-				for i = StzFindFirst(cTempNumber, ".") + 1 to _nTempNumberLen_
-					cFractionalPart += cTempNumber[i]
+				_cFractionalPart_ = ""
+				_nTempNumberLen_ = len(_cTempNumber_)
+				for _i_ = StzFindFirst(_cTempNumber_, ".") + 1 to _nTempNumberLen_
+					_cFractionalPart_ += _cTempNumber_[_i_]
 				next
 			ok
 		ok
 
 		# Managing Sign
 			
-		if bShowSign and This.Sign() = ""
-			cFormattedNumber += "+"
+		if _bShowSign_ and This.Sign() = ""
+			_cFormattedNumber_ += "+"
 		ok
 
 		if This.Sign() = "-"
 				
-			if NOT bPutNegativeBetweenParentheses
-				cFormattedNumber += "-"
+			if NOT _bPutNegativeBetweenParentheses_
+				_cFormattedNumber_ += "-"
 			else
-				cFormattedNumber += "("
+				_cFormattedNumber_ += "("
 			ok	
 		ok
 
 		# Managing prefix
 
-		if cPrefix != ""
-			cFormattedNumber += cPrefix
+		if _cPrefix_ != ""
+			_cFormattedNumber_ += _cPrefix_
 		ok
 
 		# Managing separators
 
 		if This.Trillions() != ""
-			cFormattedNumber += This.Trillions() + cThousandsSeparator
+			_cFormattedNumber_ += This.Trillions() + _cThousandsSeparator_
 		ok
 
 		if This.Billions() != ""
-			cFormattedNumber += This.Billions() + cThousandsSeparator
+			_cFormattedNumber_ += This.Billions() + _cThousandsSeparator_
 		ok
 
 		if This.Millions() != ""
-			cFormattedNumber += This.Millions() + cThousandsSeparator
+			_cFormattedNumber_ += This.Millions() + _cThousandsSeparator_
 		ok
 
 		if This.Thousands() != ""
-			cFormattedNumber += This.Thousands() + cThousandsSeparator
+			_cFormattedNumber_ += This.Thousands() + _cThousandsSeparator_
 		ok
 
 		if This.Hundreds() != ""
-			cFormattedNumber += This.Hundreds()
+			_cFormattedNumber_ += This.Hundreds()
 		ok
 
 		# Defining fractional part
 
-		cCurrentFractionalPart = This.FractionalPartWithoutZeroDot()
-		nCurrentNumberOfDigitsInFractionalPart = len(cCurrentFractionalPart)
+		_cCurrentFractionalPart_ = This.FractionalPartWithoutZeroDot()
+		_nCurrentNumberOfDigitsInFractionalPart_ = len(_cCurrentFractionalPart_)
 
-		cNewFractionalPart = ""
+		_cNewFractionalPart_ = ""
 
-		if nNumberOfDigitsInFractionalPart <= nCurrentNumberOfDigitsInFractionalPart
-			for i = 1 to nNumberOfDigitsInFractionalPart
-				cNewFractionalPart += cCurrentFractionalPart[i]
+		if _nNumberOfDigitsInFractionalPart_ <= _nCurrentNumberOfDigitsInFractionalPart_
+			for _i_ = 1 to _nNumberOfDigitsInFractionalPart_
+				_cNewFractionalPart_ += _cCurrentFractionalPart_[_i_]
 			next
 
 		else
-			nDiff = nNumberOfDigitsInFractionalPart - nCurrentNumberOfDigitsInFractionalPart
+			_nDiff_ = _nNumberOfDigitsInFractionalPart_ - _nCurrentNumberOfDigitsInFractionalPart_
 
-			for i = 1 to nDiff
-				cNewFractionalPart += "0"
+			for _i_ = 1 to _nDiff_
+				_cNewFractionalPart_ += "0"
 			next
 		ok
 
 		# Managing round
 
-		cFractionalPart = cNewFractionalPart
+		_cFractionalPart_ = _cNewFractionalPart_
 
-		if NOT bRounded #TODO // review the round() mechanism! #DONE
-			if cFractionalPart != ""
-				cFormattedNumber += (cFractionalSep + cFractionalPart)
+		if NOT _bRounded_ #TODO // review the round() mechanism! #DONE
+			if _cFractionalPart_ != ""
+				_cFormattedNumber_ += (cFractionalSep + _cFractionalPart_)
 			ok
 		else
-			oTempNumber = new stzNumber(This.RoundTo(nRoundTo))
+			_oTempNumber_ = new stzNumber(This.RoundTo(_nRoundTo_))
 
-			if oTempNumber.FractionalPartWithoutZerodot() != ""
+			if _oTempNumber_.FractionalPartWithoutZerodot() != ""
 
-				cFormattedNumber += cFractionalSep
+				_cFormattedNumber_ += cFractionalSep
 
-				if nNumberOfDigitsInFractionalPart <= len(oTempNumber.FractionalPartWithoutZerodot())
-					for i = 1 to nNumberOfDigitsInFractionalPart
-						cFormattedNumber += oTempNumber.FractionalPartWithoutZerodot()[i]
+				if _nNumberOfDigitsInFractionalPart_ <= len(_oTempNumber_.FractionalPartWithoutZerodot())
+					for _i_ = 1 to _nNumberOfDigitsInFractionalPart_
+						_cFormattedNumber_ += _oTempNumber_.FractionalPartWithoutZerodot()[_i_]
 					next
 
 				else 
-					nDiff = nNumberOfDigitsInFractionalPart - len(oTempNumber.FractionalPartWithoutZerodot())
+					_nDiff_ = _nNumberOfDigitsInFractionalPart_ - len(_oTempNumber_.FractionalPartWithoutZerodot())
 		
-					for i = 1 to nDiff
-						cFormattedNumber += "0"
+					for _i_ = 1 to _nDiff_
+						_cFormattedNumber_ += "0"
 					next
 				ok				
 					
@@ -5986,81 +5986,81 @@ class stzNumber from stzObject
 
 		# Managing suffix
 
-		if cSuffix != ""
-			cFormattedNumber += cSuffix
+		if _cSuffix_ != ""
+			_cFormattedNumber_ += _cSuffix_
 		ok
 
 		# Adding the closing parenthese if required
-		if bPutNegativeBetweenParentheses
-			cFormattedNumber += ")"
+		if _bPutNegativeBetweenParentheses_
+			_cFormattedNumber_ += ")"
 		ok
 
-		return cFormattedNumber
+		return _cFormattedNumber_
 
-		oNumber = This
+		_oNumber_ = This
 		if bPercent = 1
-			cNumber = oNumber.InPercentage()
-			oNumber = new stzNumber(cNumber)
+			_cNumber_ = _oNumber_.InPercentage()
+			_oNumber_ = new stzNumber(_cNumber_)
 		ok
 	
-		cNumber = cPrefix
-		if bShowSign
-			cSign = ""
+		_cNumber_ = _cPrefix_
+		if _bShowSign_
+			_cSign_ = ""
 
 			if This.IsPositive()
-				cSign = "+"
+				_cSign_ = "+"
 
 			but This.IsNegative()
-					cSign = "-"
+					_cSign_ = "-"
 
 			but This.IsZero()
-					cSign = ""
+					_cSign_ = ""
 			ok
 
-			cNumber += cSign
+			_cNumber_ += _cSign_
 		ok
 
-		if oNumber.Trillions() != ""
-			cNumber += oNumber.Trillions() + cThousandsSep
+		if _oNumber_.Trillions() != ""
+			_cNumber_ += _oNumber_.Trillions() + cThousandsSep
 		ok
 
-		if oNumber.Billions() != ""
-			cNumber += oNumber.Billions() + cThousandsSep
+		if _oNumber_.Billions() != ""
+			_cNumber_ += _oNumber_.Billions() + cThousandsSep
 		ok
 
-		if oNumber.Millions() != ""
-			cNumber += oNumber.Millions() + cThousandsSep
+		if _oNumber_.Millions() != ""
+			_cNumber_ += _oNumber_.Millions() + cThousandsSep
 		ok
 
-		if oNumber.Thousands() != ""
-			cNumber += oNumber.Thousands() + cThousandsSep
+		if _oNumber_.Thousands() != ""
+			_cNumber_ += _oNumber_.Thousands() + cThousandsSep
 		ok
 
-		if oNumber.Hundreds() != ""
-			cNumber += oNumber.Hundreds()
+		if _oNumber_.Hundreds() != ""
+			_cNumber_ += _oNumber_.Hundreds()
 		ok
 
-		if oNumber.FractionalPart() != ""
-			cNumber += cFractionalSep + oNumber.FractionalPartWithoutZerodot()
+		if _oNumber_.FractionalPart() != ""
+			_cNumber_ += cFractionalSep + _oNumber_.FractionalPartWithoutZerodot()
 		ok
 
 		if bPercent = 1
-			cNumber += "%"
+			_cNumber_ += "%"
 		ok
 
-		return cNumber
+		return _cNumber_
 
 
 	def CompactForm()
-		nNumber = This.Value()
-	    if nNumber >= 1000 and nNumber < 1_000_000
-			return '' + RoundN(nNumber/1000, 1) + "K"
+		_nNumber_ = This.Value()
+	    if _nNumber_ >= 1000 and _nNumber_ < 1_000_000
+			return '' + RoundN(_nNumber_/1000, 1) + "K"
 
-		but nNumber >= 1_000_000 and nNumber < 1_000_000_000
-			return '' + RoundN(nNumber/1_000_000, 1) + "M"
+		but _nNumber_ >= 1_000_000 and _nNumber_ < 1_000_000_000
+			return '' + RoundN(_nNumber_/1_000_000, 1) + "M"
 
-		but nNumber > 1_000_000_000
-			return '' + RoundN(nNumber/1000_000_000, 1) + "B"
+		but _nNumber_ > 1_000_000_000
+			return '' + RoundN(_nNumber_/1000_000_000, 1) + "B"
 		ok
 
 		def ToCompactForm()
@@ -6068,9 +6068,9 @@ class stzNumber from stzObject
 
 
 	def KForm()
-		nNumber = This.Value()
-	    if nNumber >= 1000
-	        return '' + RoundN(nNumber/1000, 1) + "K"
+		_nNumber_ = This.Value()
+	    if _nNumber_ >= 1000
+	        return '' + RoundN(_nNumber_/1000, 1) + "K"
 	    else
 	        return This.Content()
 	    ok
@@ -6080,9 +6080,9 @@ class stzNumber from stzObject
 
 
 	def MForm()
-		nNumber = This.Value()
-	    if nNumber >= 1_000_000
-	        return '' + RoundN(nNumber/1_000_000, 1) + "M"
+		_nNumber_ = This.Value()
+	    if _nNumber_ >= 1_000_000
+	        return '' + RoundN(_nNumber_/1_000_000, 1) + "M"
 	    else
 	        return This.Content()
 	    ok
@@ -6091,9 +6091,9 @@ class stzNumber from stzObject
 			return This.MForm()
 
 	def BForm()
-		nNumber = This.Value()
-	    if nNumber >= 1000_000_000
-	        return '' + RoundN(nNumber/1000_000_000, 1) + "B"
+		_nNumber_ = This.Value()
+	    if _nNumber_ >= 1000_000_000
+	        return '' + RoundN(_nNumber_/1000_000_000, 1) + "B"
 	    else
 	        return This.Content()
 	    ok
@@ -6222,8 +6222,8 @@ class stzNumber from stzObject
 				return This.dividedByMany(pValue)
 
 			but @IsStzList(pValue)
-				aResult = Q( This.DivideByMany(pValue.Content()) )
-				return aResult
+				_aResult_ = Q( This.DivideByMany(pValue.Content()) )
+				return _aResult_
 		
 			ok
 
@@ -6232,8 +6232,8 @@ class stzNumber from stzObject
 			   (@IsStzString(pValue) and Q(pValue).IsNumberInString())
 
 				
-				cPower = This.Power()
-				This.UpdateWith(cPower)
+				_cPower_ = This.Power()
+				This.UpdateWith(_cPower_)
 
 			else
 
@@ -6271,16 +6271,16 @@ class stzNumber from stzObject
 				# ? Q(345)['// 100'] #--> 3
 
 			if isString(pValue) and Q(pValue).StartsWith("//") 
-				oStr = new stzString(pValue)
-				nLen = oStr.NumberOfChars()
-				cRemainingPart = oStr.SectionQ(3, nLen).Trimmed()
+				_oStr_ = new stzString(pValue)
+				_nLen_ = _oStr_.NumberOfChars()
+				_cRemainingPart_ = _oStr_.SectionQ(3, _nLen_).Trimmed()
 
-				if Q(cRemainingPart).IsNumberInString()
-					n = 0+ cRemainingPart
-					nResult = floor( This.NumbericValue() / n )
+				if Q(_cRemainingPart_).IsNumberInString()
+					n = 0+ _cRemainingPart_
+					_nResult_ = floor( This.NumbericValue() / n )
 					#NOTE this a misspelled form of NumericValue()!
 
-					return nResult
+					return _nResult_
 				ok
 
 			ok
@@ -6462,14 +6462,14 @@ class stzNumber from stzObject
 
 	def UpTo(pnOtherNumber)
 		if pnOtherNumber > This.Value()
-			anResult = This.Value() : pnOtherNumber
-			return anResult
+			_anResult_ = This.Value() : pnOtherNumber
+			return _anResult_
 		ok
 	
 	def DownTo(pnOtherNumber)
 		if This.Value() > pnOtherNumber
-			anResult = This.Value() : pnOtherNumber
-			return anResult
+			_anResult_ = This.Value() : pnOtherNumber
+			return _anResult_
 		ok
 
 	# Swapping the content of the stzNumber with an other stzNumber
@@ -6484,11 +6484,11 @@ class stzNumber from stzObject
 	
 		ok
 
-		nThis = This.Content()
-		nOther = pOtherStzNumber.Content()
+		_nThis_ = This.Content()
+		_nOther_ = pOtherStzNumber.Content()
 
-		This.UpdateWith(nOther)
-		pOtherStzNumber.UpdateWith(nThis)
+		This.UpdateWith(_nOther_)
+		pOtherStzNumber.UpdateWith(_nThis_)
 
 
 		def SwapWithQ(pOtherStzNumber)
@@ -6571,9 +6571,9 @@ class stzNumber from stzObject
 			StzRaise("Can't compute Fibonacci of a negative number!")
 		ok
 		pBigInt = StzEngineNumberFibonacci(n)
-		cResult = StzEngineBigIntToString(pBigInt)
+		_cResult_ = StzEngineBigIntToString(pBigInt)
 		StzEngineBigIntFree(pBigInt)
-		return cResult
+		return _cResult_
 
 		def FibonacciQ()
 			return new stzNumber(This.Fibonacci())
@@ -6605,21 +6605,21 @@ class stzNumber from stzObject
 			StzRaise("Incorrect param type! n must be a number or string.")
 		ok
 		
-		nResult = This.ToStzString().HowMany(n)
-		return nResult
+		_nResult_ = This.ToStzString().HowMany(n)
+		return _nResult_
 
 	def Digits()
-		acChars = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
-		nLen = len(acChars)
+		_acChars_ = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
+		_nLen_ = len(_acChars_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + (0+ acChars[i])
+		for _i_ = 1 to _nLen_
+			_anResult_ + (0+ _acChars_[_i_])
 
 		next
 
-		return anResult
+		return _anResult_
 
 		def DigitsQ()
 			return new stzList( This.Digits() )
@@ -6661,11 +6661,11 @@ class stzNumber from stzObject
 		# effective number of the decimals.
 	
 		# First, string values are converted to number values
-		n1 = This.NumericValue()
+		_n1_ = This.NumericValue()
 		if isString(pOtherNumber)
-			n2 = StringToNumber(pOtherNumber)
+			_n2_ = StringToNumber(pOtherNumber)
 		else
-			n2 = pOtherNumber
+			_n2_ = pOtherNumber
 		ok
 	
 
@@ -6673,108 +6673,108 @@ class stzNumber from stzObject
 		# the nResult variable
 		switch pcOperation
 		on "+"
-			nResult = n1 + n2
+			_nResult_ = _n1_ + _n2_
 
 		on "-"
-			nResult = n1 - n2
+			_nResult_ = _n1_ - _n2_
 	
 		on "*"
-			nResult = n1 * n2
+			_nResult_ = _n1_ * _n2_
 	
 		on "/"
-			nResult = n1 / n2
+			_nResult_ = _n1_ / _n2_
 	
 		on "%"
-			oTemp1 = new stzNumber(n1)
-			oTemp2 = new stzNumber(n2)
+			_oTemp1_ = new stzNumber(_n1_)
+			_oTemp2_ = new stzNumber(_n2_)
 
-			if oTemp1.IsInteger() and oTemp2.IsInteger()
-				nResult = n1 % n2
+			if _oTemp1_.IsInteger() and _oTemp2_.IsInteger()
+				_nResult_ = _n1_ % _n2_
 			else
 				StzRaise("Can't calculate the modulo. The two numbers must be integers!")
 			ok
 	
 		on "^"
-			nResult = ring_pow(n1, n2)
+			_nResult_ = ring_pow(_n1_, _n2_)
 	
 		on "sin"
-			nResult = ring_sin(n1)
+			_nResult_ = ring_sin(_n1_)
 	
 		on "cos"
-			nResult = ring_cos(n1)
+			_nResult_ = ring_cos(_n1_)
 	
 		on "tan"
-			nResult = ring_tan(n1)
+			_nResult_ = ring_tan(_n1_)
 	
 		on "cotan"
-			nResult = 1 / ring_tan(n1)
+			_nResult_ = 1 / ring_tan(_n1_)
 	
 		on "asin"
-			nResult = ring_asin(n1)
+			_nResult_ = ring_asin(_n1_)
 	
 		on "acos"
-			nResult = ring_acos(n1)
+			_nResult_ = ring_acos(_n1_)
 	
 		on "atan2"
-			nResult = ring_atan2(n1)
+			_nResult_ = ring_atan2(_n1_)
 	
 		on "sinh"
-			nResult = ring_sinh(n1)
+			_nResult_ = ring_sinh(_n1_)
 	
 		on "cosh"
-			nResult = ring_cosh(n1)
+			_nResult_ = ring_cosh(_n1_)
 	
 		on "tanh"
-			nResult = ring_tanhh(n1)
+			_nResult_ = ring_tanhh(_n1_)
 	
 		on "exp"
-			nResult = ring_exp(n1)
+			_nResult_ = ring_exp(_n1_)
 	
 		on "log"
-			nResult = ring_log(n1)
+			_nResult_ = ring_log(_n1_)
 	
 		on "log10"
-			nResult = ring_log10(n1)
+			_nResult_ = ring_log10(_n1_)
 	
 		on "fabs"
-			nResult = fabs(n1)
+			_nResult_ = fabs(_n1_)
 
 		on "sigmoid"
-			nResult = 1 / (1 + ring_exp(-n1))
+			_nResult_ = 1 / (1 + ring_exp(-_n1_))
 	
 		on "DerivativeSigmoid"
-			nSigmoid = 1 / (1 + ring_exp(-n1))
-			nResult = nSigmoid * ( 1 - nSigmoid)
+			_nSigmoid_ = 1 / (1 + ring_exp(-_n1_))
+			_nResult_ = _nSigmoid_ * ( 1 - _nSigmoid_)
 
 		on "LCM"
-			nResult = StzEngineNumberLcm(n1, n2)
+			_nResult_ = StzEngineNumberLcm(_n1_, _n2_)
 
 		on "GCD"
-			nResult = StzEngineNumberGcd(n1, n2)
+			_nResult_ = StzEngineNumberGcd(_n1_, _n2_)
 
 		on "inverse"
-			nResult = 1 / n1
+			_nResult_ = 1 / _n1_
 
 		on "sqrt"
-			nResult = sqrt(n1)
+			_nResult_ = sqrt(_n1_)
 
 		# Special case: the result is a list of integers!
 		#--> Nothing to round: return the list of factors directly
 		on "factors"
-			return ring_factors(n1)		
+			return ring_factors(_n1_)		
 
 		off
 
 		/*
-		Now, and before it is returned back, nResult must be put in
+		Now, and before it is returned back, _nResult_ must be put in
 		a string to preserve the round expressed in its effective
 		round and hosted in a whatever the active round is in
 		the program (made using decimals())
 		*/
 
-		nCurrentRound = StzCurrentRound()
+		_nCurrentRound_ = StzCurrentRound()
 		StzDecimals(This.Round())
-		cResult = ""+ nResult
-		StzDecimals(nCurrentRound)
+		_cResult_ = ""+ _nResult_
+		StzDecimals(_nCurrentRound_)
 
-		return cResult
+		return _cResult_

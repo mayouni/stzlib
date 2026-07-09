@@ -10,18 +10,18 @@ class stkMemory
             raise("Allocation size must be positive")
         ok
         
-        cBuffer = space(nSize)
-        @aAllocatedBuffers + cBuffer # Track allocation
-        return cBuffer
+        _cBuffer_ = space(nSize)
+        @aAllocatedBuffers + _cBuffer_ # Track allocation
+        return _cBuffer_
 
     def Deallocate(pBuffer)
         if IsNull(pBuffer)
             raise("Cannot deallocate a null pointer")
         ok
         
-        nIndex = find(@aAllocatedBuffers, pBuffer)
-        if nIndex > 0
-            del(@aAllocatedBuffers, nIndex)
+        _nIndex_ = find(@aAllocatedBuffers, pBuffer)
+        if _nIndex_ > 0
+            del(@aAllocatedBuffers, _nIndex_)
         	# In Ring, memory is automatically managed
         	# This method exists for API compatibility
             return TRUE
@@ -35,8 +35,8 @@ class stkMemory
 	        return FALSE
 	    ok
 	    
-	    nIndex = find(@aAllocatedBuffers, pBuffer)
-	    return nIndex > 0
+	    _nIndex_ = find(@aAllocatedBuffers, pBuffer)
+	    return _nIndex_ > 0
 
 	def Copy(pSrc, pDest, nSize)
 	    if IsNull(pSrc)
@@ -55,8 +55,8 @@ class stkMemory
         
         # Ring string-based copy
         if IsString(pSrc)
-            cSrcData = left(pSrc, nSize)
-            return cSrcData
+            _cSrcData_ = left(pSrc, nSize)
+            return _cSrcData_
         else
             raise("Unsupported source type for copy")
         ok
@@ -66,16 +66,16 @@ class stkMemory
 	        return pBuffer
 	    ok
 	    
-	    cFillChar = char(nValue)
-	    cFilledBuffer = @copy(cFillChar, nSize)
+	    _cFillChar_ = char(nValue)
+	    _cFilledBuffer_ = @copy(_cFillChar_, nSize)
 	    
 	    # Update the buffer in our tracking array
-	    nIndex = find(@aAllocatedBuffers, pBuffer)
-	    if nIndex > 0
-	        @aAllocatedBuffers[nIndex] = cFilledBuffer
+	    _nIndex_ = find(@aAllocatedBuffers, pBuffer)
+	    if _nIndex_ > 0
+	        @aAllocatedBuffers[_nIndex_] = _cFilledBuffer_
 	    ok
 	    
-	    return cFilledBuffer
+	    return _cFilledBuffer_
 
 	def Read(pBuffer, nSize)
 	    if IsNull(pBuffer)
@@ -97,12 +97,12 @@ class stkMemory
             return 0
         ok
         
-        cStr1 = left(pBuffer1, nSize)
-        cStr2 = left(pBuffer2, nSize)
+        _cStr1_ = left(pBuffer1, nSize)
+        _cStr2_ = left(pBuffer2, nSize)
         
-        if cStr1 = cStr2
+        if _cStr1_ = _cStr2_
             return 0
-        but cStr1 < cStr2
+        but _cStr1_ < _cStr2_
             return -1
         else
             return 1

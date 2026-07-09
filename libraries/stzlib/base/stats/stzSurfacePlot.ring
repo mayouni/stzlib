@@ -56,20 +56,20 @@ def init(paData)
 	# In case a list of numbers is provided (the dataset
 	# contains no labels ~> Added automatically as :1, :2, etc.
 	if IsListOfNumbers(paData)
-		aTemp = []
-		nLen = len(paData)
+		_aTemp_ = []
+		_nLen_ = len(paData)
 
-		for i = 1 to nLen
-			aTemp + [ ""+i, paData[i] ]
+		for i = 1 to _nLen_
+			_aTemp_ + [ ""+i, paData[i] ]
 		next
 
-		paData = aTemp
+		paData = _aTemp_
 	ok
 
 	# Forming the object container attributes from the hashlist
-	oHash = new stzHashList(paData)
-	@anValues = oHash.Values()
-	@acLabels = oHash.Keys()
+	_oHash_ = new stzHashList(paData)
+	@anValues = _oHash_.Values()
+	@acLabels = _oHash_.Keys()
 
 	if NOT IsListOfPositiveNumbers(@anValues)
 		raise("Incorrect param value! You must provide only positive numbers.")
@@ -79,19 +79,19 @@ def init(paData)
 	_calculateSquaremap()
 
 	def Sum(anNumbers)
-		nResult = 0
+		_nResult_ = 0
 		_nAnNumbers1Len_ = len(anNumbers)
 		for _iLoopAnNumbers1_ = 1 to _nAnNumbers1Len_
-			n = anNumbers[_iLoopAnNumbers1_]
-			nResult += n
+			_n_ = anNumbers[_iLoopAnNumbers1_]
+			_nResult_ += _n_
 		next
-		return nResult
+		return _nResult_
 
 	def IsListOfNumbers(aList)
 		_nList3Len_ = len(aList)
 		for _iLoopList3_ = 1 to _nList3Len_
-			item = aList[_iLoopList3_]
-			if NOT isNumber(item)
+			_item_ = aList[_iLoopList3_]
+			if NOT isNumber(_item_)
 				return FALSE
 			ok
 		next
@@ -100,8 +100,8 @@ def init(paData)
 	def IsListOfPositiveNumbers(aList)
 		_nList2Len_ = len(aList)
 		for _iLoopList2_ = 1 to _nList2Len_
-			item = aList[_iLoopList2_]
-			if NOT (isNumber(item) and item > 0)
+			_item_ = aList[_iLoopList2_]
+			if NOT (isNumber(_item_) and _item_ > 0)
 				return FALSE
 			ok
 		next
@@ -113,8 +113,8 @@ def init(paData)
 		ok
 		_nList1Len_ = len(aList)
 		for _iLoopList1_ = 1 to _nList1Len_
-			item = aList[_iLoopList1_]
-			if NOT (isList(item) and len(item) = 2)
+			_item_ = aList[_iLoopList1_]
+			if NOT (isList(_item_) and len(_item_) = 2)
 				return FALSE
 			ok
 		next
@@ -241,279 +241,279 @@ def init(paData)
 
 	def _autoResize()
 		# Calculate minimum size needed for labels
-		nMaxLabelLen = 0
-		nLen = len(@acLabels)
-		for i = 1 to nLen
-			nLenLabel = StzLen(@acLabels[i])
-			if nLenLabel > nMaxLabelLen
-				nMaxLabelLen = nLenLabel
+		_nMaxLabelLen_ = 0
+		_nLen_ = len(@acLabels)
+		for i = 1 to _nLen_
+			_nLenLabel_ = StzLen(@acLabels[i])
+			if _nLenLabel_ > _nMaxLabelLen_
+				_nMaxLabelLen_ = _nLenLabel_
 			ok
 		next
 		
 		# Calculate minimum width needed
-		nMinNeededWidth = max([@nMinWidth, nMaxLabelLen + 4])  # +4 for borders and spacing
-		if @nWidth < nMinNeededWidth
-			@nWidth = min([nMinNeededWidth, @nMaxWidth])
+		_nMinNeededWidth_ = max([@nMinWidth, _nMaxLabelLen_ + 4])  # +4 for borders and spacing
+		if @nWidth < _nMinNeededWidth_
+			@nWidth = min([_nMinNeededWidth_, @nMaxWidth])
 		ok
 		
 	def _initCanvas()
 		@acCanvas = []
 		for i = 1 to @nHeight
-			aRow = []
+			_aRow_ = []
 			for j = 1 to @nWidth
-				aRow + " "
+				_aRow_ + " "
 			next
-			@acCanvas + aRow
+			@acCanvas + _aRow_
 		next
 		
 	def _finalizeCanvas()
-		cResult = ""
+		_cResult_ = ""
 		for i = 1 to @nHeight
 			for j = 1 to @nWidth
-				cResult += @acCanvas[i][j]
+				_cResult_ += @acCanvas[i][j]
 			next
 			if i < @nHeight
-				cResult += nl
+				_cResult_ += nl
 			ok
 		next
-		return cResult
+		return _cResult_
 
 	def _calculateSquaremap()
 		@aRectangles = []
-		nValues = len(@anValues)
+		_nValues_ = len(@anValues)
 		
-		if nValues = 0
+		if _nValues_ = 0
 			return
 		ok
 		
 		# Sort values by size (descending) for better layout
-		aSorted = []
-		for i = 1 to nValues
-			aSorted + [@anValues[i], @acLabels[i], i]
+		_aSorted_ = []
+		for i = 1 to _nValues_
+			_aSorted_ + [@anValues[i], @acLabels[i], i]
 		next
 		
 		# Simple bubble sort (descending)
-		nLenSorted = len(aSorted)
-		for i = 1 to nLenSorted - 1
-			for j = i + 1 to nLenSorted
-				if aSorted[i][1] < aSorted[j][1]
-					temp = aSorted[i]
-					aSorted[i] = aSorted[j]
-					aSorted[j] = temp
+		_nLenSorted_ = len(_aSorted_)
+		for i = 1 to _nLenSorted_ - 1
+			for j = i + 1 to _nLenSorted_
+				if _aSorted_[i][1] < _aSorted_[j][1]
+					_temp_ = _aSorted_[i]
+					_aSorted_[i] = _aSorted_[j]
+					_aSorted_[j] = _temp_
 				ok
 			next
 		next
 		
 		# Calculate available area (excluding borders if shown)
-		nAvailWidth = @nWidth
-		nAvailHeight = @nHeight
+		_nAvailWidth_ = @nWidth
+		_nAvailHeight_ = @nHeight
 		
 		if @bShowBorders
-			nAvailWidth -= 2
-			nAvailHeight -= 2
+			_nAvailWidth_ -= 2
+			_nAvailHeight_ -= 2
 		ok
 		
-		nTotalArea = nAvailWidth * nAvailHeight
+		_nTotalArea_ = _nAvailWidth_ * _nAvailHeight_
 		
 		# Calculate rectangles using squarified treemap algorithm (simplified)
-		_squarifyLayout(aSorted, 1, 1, nAvailWidth, nAvailHeight, nTotalArea)
+		_squarifyLayout(_aSorted_, 1, 1, _nAvailWidth_, _nAvailHeight_, _nTotalArea_)
 
-	def _squarifyLayout(aSorted, nH, nV, nWidth, nHeight, nTotalArea)
+	def _squarifyLayout(_aSorted_, _nH_, _nV_, nWidth, nHeight, _nTotalArea_)
 		
-		nLen = len(aSorted)
-		if nLen = 0
+		_nLen_ = len(_aSorted_)
+		if _nLen_ = 0
 			return
 		ok
 		
-		if nLen = 1
+		if _nLen_ = 1
 			# Single rectangle fills the space
-			nValue = aSorted[1][1]
-			cLabel = aSorted[1][2]
-			nIndex = aSorted[1][3]
+			_nValue_ = _aSorted_[1][1]
+			_cLabel_ = _aSorted_[1][2]
+			_nIndex_ = _aSorted_[1][3]
 			
-			@aRectangles + [nH, nV, nWidth, nHeight, nValue, cLabel, nIndex]
+			@aRectangles + [_nH_, _nV_, nWidth, nHeight, _nValue_, _cLabel_, _nIndex_]
 			return
 		ok
 		
 		# Improved treemap layout - better space utilization
-		if nLen <= 4
+		if _nLen_ <= 4
 			# Small number of rectangles - create a 2x2 or similar grid
-			_createGridLayout(aSorted, nH, nV, nWidth, nHeight)
+			_createGridLayout(_aSorted_, _nH_, _nV_, nWidth, nHeight)
 		else
 			# Larger number - use recursive division
-			_recursiveDivision(aSorted, nH, nV, nWidth, nHeight)
+			_recursiveDivision(_aSorted_, _nH_, _nV_, nWidth, nHeight)
 		ok
 
-	def _createGridLayout(aSorted, nH, nV, nWidth, nHeight)
-		nLen = len(aSorted)
+	def _createGridLayout(_aSorted_, _nH_, _nV_, nWidth, nHeight)
+		_nLen_ = len(_aSorted_)
 		
-		if nLen = 2
+		if _nLen_ = 2
 			# Two rectangles - divide by larger dimension
 			if nWidth > nHeight
 				# Split horizontally
-				nValue1 = aSorted[1][1]
-				nValue2 = aSorted[2][1]
-				nTotal = nValue1 + nValue2
-				nWidth1 = max([1, floor((nValue1 / nTotal) * nWidth)])
-				nWidth2 = nWidth - nWidth1
+				_nValue1_ = _aSorted_[1][1]
+				_nValue2_ = _aSorted_[2][1]
+				_nTotal_ = _nValue1_ + _nValue2_
+				_nWidth1_ = max([1, floor((_nValue1_ / _nTotal_) * nWidth)])
+				_nWidth2_ = nWidth - _nWidth1_
 				
-				@aRectangles + [nH, nV, nWidth1, nHeight, nValue1, aSorted[1][2], aSorted[1][3]]
-				@aRectangles + [nH + nWidth1, nV, nWidth2, nHeight, nValue2, aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [_nH_, _nV_, _nWidth1_, nHeight, _nValue1_, _aSorted_[1][2], _aSorted_[1][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_, _nWidth2_, nHeight, _nValue2_, _aSorted_[2][2], _aSorted_[2][3]]
 			else
 				# Split vertically
-				nValue1 = aSorted[1][1]
-				nValue2 = aSorted[2][1]
-				nTotal = nValue1 + nValue2
-				nHeight1 = max([1, floor((nValue1 / nTotal) * nHeight)])
-				nHeight2 = nHeight - nHeight1
+				_nValue1_ = _aSorted_[1][1]
+				_nValue2_ = _aSorted_[2][1]
+				_nTotal_ = _nValue1_ + _nValue2_
+				_nHeight1_ = max([1, floor((_nValue1_ / _nTotal_) * nHeight)])
+				_nHeight2_ = nHeight - _nHeight1_
 				
-				@aRectangles + [nH, nV, nWidth, nHeight1, nValue1, aSorted[1][2], aSorted[1][3]]
-				@aRectangles + [nH, nV + nHeight1, nWidth, nHeight2, nValue2, aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [_nH_, _nV_, nWidth, _nHeight1_, _nValue1_, _aSorted_[1][2], _aSorted_[1][3]]
+				@aRectangles + [_nH_, _nV_ + _nHeight1_, nWidth, _nHeight2_, _nValue2_, _aSorted_[2][2], _aSorted_[2][3]]
 			ok
 			
-		but nLen = 3
+		but _nLen_ = 3
 			# Three rectangles - one large, two smaller
-			nLargest = aSorted[1][1]
-			nSecond = aSorted[2][1]
-			nThird = aSorted[3][1]
-			nTotal = nLargest + nSecond + nThird
+			_nLargest_ = _aSorted_[1][1]
+			_nSecond_ = _aSorted_[2][1]
+			_nThird_ = _aSorted_[3][1]
+			_nTotal_ = _nLargest_ + _nSecond_ + _nThird_
 			
 			if nWidth > nHeight
 				# Horizontal layout: largest left, two on right
-				nWidth1 = max([1, floor((nLargest / nTotal) * nWidth)])
-				nWidth2 = nWidth - nWidth1
+				_nWidth1_ = max([1, floor((_nLargest_ / _nTotal_) * nWidth)])
+				_nWidth2_ = nWidth - _nWidth1_
 				
 				# Largest rectangle on left
-				@aRectangles + [nH, nV, nWidth1, nHeight, nLargest, aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [_nH_, _nV_, _nWidth1_, nHeight, _nLargest_, _aSorted_[1][2], _aSorted_[1][3]]
 				
 				# Two smaller on right, split vertically
-				nSubTotal = nSecond + nThird
-				nHeight1 = max([1, floor((nSecond / nSubTotal) * nHeight)])
-				nHeight2 = nHeight - nHeight1
+				_nSubTotal_ = _nSecond_ + _nThird_
+				_nHeight1_ = max([1, floor((_nSecond_ / _nSubTotal_) * nHeight)])
+				_nHeight2_ = nHeight - _nHeight1_
 				
-				@aRectangles + [nH + nWidth1, nV, nWidth2, nHeight1, nSecond, aSorted[2][2], aSorted[2][3]]
-				@aRectangles + [nH + nWidth1, nV + nHeight1, nWidth2, nHeight2, nThird, aSorted[3][2], aSorted[3][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_, _nWidth2_, _nHeight1_, _nSecond_, _aSorted_[2][2], _aSorted_[2][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_ + _nHeight1_, _nWidth2_, _nHeight2_, _nThird_, _aSorted_[3][2], _aSorted_[3][3]]
 			else
 				# Vertical layout: largest top, two below
-				nHeight1 = max([1, floor((nLargest / nTotal) * nHeight)])
-				nHeight2 = nHeight - nHeight1
+				_nHeight1_ = max([1, floor((_nLargest_ / _nTotal_) * nHeight)])
+				_nHeight2_ = nHeight - _nHeight1_
 				
 				# Largest rectangle on top
-				@aRectangles + [nH, nV, nWidth, nHeight1, nLargest, aSorted[1][2], aSorted[1][3]]
+				@aRectangles + [_nH_, _nV_, nWidth, _nHeight1_, _nLargest_, _aSorted_[1][2], _aSorted_[1][3]]
 				
 				# Two smaller below, split horizontally
-				nSubTotal = nSecond + nThird
-				nWidth1 = max([1, floor((nSecond / nSubTotal) * nWidth)])
-				nWidth2 = nWidth - nWidth1
+				_nSubTotal_ = _nSecond_ + _nThird_
+				_nWidth1_ = max([1, floor((_nSecond_ / _nSubTotal_) * nWidth)])
+				_nWidth2_ = nWidth - _nWidth1_
 				
-				@aRectangles + [nH, nV + nHeight1, nWidth1, nHeight2, nSecond, aSorted[2][2], aSorted[2][3]]
-				@aRectangles + [nH + nWidth1, nV + nHeight1, nWidth2, nHeight2, nThird, aSorted[3][2], aSorted[3][3]]
+				@aRectangles + [_nH_, _nV_ + _nHeight1_, _nWidth1_, _nHeight2_, _nSecond_, _aSorted_[2][2], _aSorted_[2][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_ + _nHeight1_, _nWidth2_, _nHeight2_, _nThird_, _aSorted_[3][2], _aSorted_[3][3]]
 			ok
 			
 		else # nLen = 4
 			# Four rectangles - 2x2 grid
-			nSum1 = aSorted[1][1] + aSorted[2][1]
-			nSum2 = aSorted[3][1] + aSorted[4][1]
-			nTotal = nSum1 + nSum2
+			_nSum1_ = _aSorted_[1][1] + _aSorted_[2][1]
+			_nSum2_ = _aSorted_[3][1] + _aSorted_[4][1]
+			_nTotal_ = _nSum1_ + _nSum2_
 			
 			if nWidth >= nHeight
 				# Split horizontally first
-				nWidth1 = max([1, floor((nSum1 / nTotal) * nWidth)])
-				nWidth2 = nWidth - nWidth1
+				_nWidth1_ = max([1, floor((_nSum1_ / _nTotal_) * nWidth)])
+				_nWidth2_ = nWidth - _nWidth1_
 				
 				# Left column
-				nSubTotal1 = aSorted[1][1] + aSorted[2][1]
-				nHeight1 = max([1, floor((aSorted[1][1] / nSubTotal1) * nHeight)])
-				nHeight2 = nHeight - nHeight1
+				_nSubTotal1_ = _aSorted_[1][1] + _aSorted_[2][1]
+				_nHeight1_ = max([1, floor((_aSorted_[1][1] / _nSubTotal1_) * nHeight)])
+				_nHeight2_ = nHeight - _nHeight1_
 				
-				@aRectangles + [nH, nV, nWidth1, nHeight1, aSorted[1][1], aSorted[1][2], aSorted[1][3]]
-				@aRectangles + [nH, nV + nHeight1, nWidth1, nHeight2, aSorted[2][1], aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [_nH_, _nV_, _nWidth1_, _nHeight1_, _aSorted_[1][1], _aSorted_[1][2], _aSorted_[1][3]]
+				@aRectangles + [_nH_, _nV_ + _nHeight1_, _nWidth1_, _nHeight2_, _aSorted_[2][1], _aSorted_[2][2], _aSorted_[2][3]]
 				
 				# Right column
-				nSubTotal2 = aSorted[3][1] + aSorted[4][1]
-				nHeight3 = max([1, floor((aSorted[3][1] / nSubTotal2) * nHeight)])
-				nHeight4 = nHeight - nHeight3
+				_nSubTotal2_ = _aSorted_[3][1] + _aSorted_[4][1]
+				_nHeight3_ = max([1, floor((_aSorted_[3][1] / _nSubTotal2_) * nHeight)])
+				_nHeight4_ = nHeight - _nHeight3_
 				
-				@aRectangles + [nH + nWidth1, nV, nWidth2, nHeight3, aSorted[3][1], aSorted[3][2], aSorted[3][3]]
-				@aRectangles + [nH + nWidth1, nV + nHeight3, nWidth2, nHeight4, aSorted[4][1], aSorted[4][2], aSorted[4][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_, _nWidth2_, _nHeight3_, _aSorted_[3][1], _aSorted_[3][2], _aSorted_[3][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_ + _nHeight3_, _nWidth2_, _nHeight4_, _aSorted_[4][1], _aSorted_[4][2], _aSorted_[4][3]]
 			else
 				# Split vertically first
-				nHeight1 = max([1, floor((nSum1 / nTotal) * nHeight)])
-				nHeight2 = nHeight - nHeight1
+				_nHeight1_ = max([1, floor((_nSum1_ / _nTotal_) * nHeight)])
+				_nHeight2_ = nHeight - _nHeight1_
 				
 				# Top row
-				nSubTotal1 = aSorted[1][1] + aSorted[2][1]
-				nWidth1 = max([1, floor((aSorted[1][1] / nSubTotal1) * nWidth)])
-				nWidth2 = nWidth - nWidth1
+				_nSubTotal1_ = _aSorted_[1][1] + _aSorted_[2][1]
+				_nWidth1_ = max([1, floor((_aSorted_[1][1] / _nSubTotal1_) * nWidth)])
+				_nWidth2_ = nWidth - _nWidth1_
 				
-				@aRectangles + [nH, nV, nWidth1, nHeight1, aSorted[1][1], aSorted[1][2], aSorted[1][3]]
-				@aRectangles + [nH + nWidth1, nV, nWidth2, nHeight1, aSorted[2][1], aSorted[2][2], aSorted[2][3]]
+				@aRectangles + [_nH_, _nV_, _nWidth1_, _nHeight1_, _aSorted_[1][1], _aSorted_[1][2], _aSorted_[1][3]]
+				@aRectangles + [_nH_ + _nWidth1_, _nV_, _nWidth2_, _nHeight1_, _aSorted_[2][1], _aSorted_[2][2], _aSorted_[2][3]]
 				
 				# Bottom row
-				nSubTotal2 = aSorted[3][1] + aSorted[4][1]
-				nWidth3 = max([1, floor((aSorted[3][1] / nSubTotal2) * nWidth)])
-				nWidth4 = nWidth - nWidth3
+				_nSubTotal2_ = _aSorted_[3][1] + _aSorted_[4][1]
+				_nWidth3_ = max([1, floor((_aSorted_[3][1] / _nSubTotal2_) * nWidth)])
+				_nWidth4_ = nWidth - _nWidth3_
 				
-				@aRectangles + [nH, nV + nHeight1, nWidth3, nHeight2, aSorted[3][1], aSorted[3][2], aSorted[3][3]]
-				@aRectangles + [nH + nWidth3, nV + nHeight1, nWidth4, nHeight2, aSorted[4][1], aSorted[4][2], aSorted[4][3]]
+				@aRectangles + [_nH_, _nV_ + _nHeight1_, _nWidth3_, _nHeight2_, _aSorted_[3][1], _aSorted_[3][2], _aSorted_[3][3]]
+				@aRectangles + [_nH_ + _nWidth3_, _nV_ + _nHeight1_, _nWidth4_, _nHeight2_, _aSorted_[4][1], _aSorted_[4][2], _aSorted_[4][3]]
 			ok
 		ok
 
-	def _recursiveDivision(aSorted, nH, nV, nWidth, nHeight)
+	def _recursiveDivision(_aSorted_, _nH_, _nV_, nWidth, nHeight)
 		# For larger numbers, use simple recursive division
-		nLen = len(aSorted)
-		nMid = floor(nLen / 2)
+		_nLen_ = len(_aSorted_)
+		_nMid_ = floor(_nLen_ / 2)
 		
 		# Calculate sum for first half
-		nSum1 = 0
-		for i = 1 to nMid
-			nSum1 += aSorted[i][1]
+		_nSum1_ = 0
+		for i = 1 to _nMid_
+			_nSum1_ += _aSorted_[i][1]
 		next
 		
 		# Calculate sum for second half
-		nSum2 = 0
-		for i = nMid + 1 to nLen
-			nSum2 += aSorted[i][1]
+		_nSum2_ = 0
+		for i = _nMid_ + 1 to _nLen_
+			_nSum2_ += _aSorted_[i][1]
 		next
 		
-		nTotal = nSum1 + nSum2
+		_nTotal_ = _nSum1_ + _nSum2_
 		
 		if nWidth >= nHeight
 			# Divide horizontally
-			nWidth1 = max([1, floor((nSum1 / nTotal) * nWidth)])
-			nWidth2 = nWidth - nWidth1
+			_nWidth1_ = max([1, floor((_nSum1_ / _nTotal_) * nWidth)])
+			_nWidth2_ = nWidth - _nWidth1_
 			
 			# First half
-			aFirst = []
-			for i = 1 to nMid
-				aFirst + aSorted[i]
+			_aFirst_ = []
+			for i = 1 to _nMid_
+				_aFirst_ + _aSorted_[i]
 			next
-			_squarifyLayout(aFirst, nH, nV, nWidth1, nHeight, nWidth1 * nHeight)
+			_squarifyLayout(_aFirst_, _nH_, _nV_, _nWidth1_, nHeight, _nWidth1_ * nHeight)
 			
 			# Second half
-			aSecond = []
-			for i = nMid + 1 to nLen
-				aSecond + aSorted[i]
+			_aSecond_ = []
+			for i = _nMid_ + 1 to _nLen_
+				_aSecond_ + _aSorted_[i]
 			next
-			_squarifyLayout(aSecond, nH + nWidth1, nV, nWidth2, nHeight, nWidth2 * nHeight)
+			_squarifyLayout(_aSecond_, _nH_ + _nWidth1_, _nV_, _nWidth2_, nHeight, _nWidth2_ * nHeight)
 		else
 			# Divide vertically
-			nHeight1 = max([1, floor((nSum1 / nTotal) * nHeight)])
-			nHeight2 = nHeight - nHeight1
+			_nHeight1_ = max([1, floor((_nSum1_ / _nTotal_) * nHeight)])
+			_nHeight2_ = nHeight - _nHeight1_
 			
 			# First half
-			aFirst = []
-			for i = 1 to nMid
-				aFirst + aSorted[i]
+			_aFirst_ = []
+			for i = 1 to _nMid_
+				_aFirst_ + _aSorted_[i]
 			next
-			_squarifyLayout(aFirst, nH, nV, nWidth, nHeight1, nWidth * nHeight1)
+			_squarifyLayout(_aFirst_, _nH_, _nV_, nWidth, _nHeight1_, nWidth * _nHeight1_)
 			
 			# Second half
-			aSecond = []
-			for i = nMid + 1 to nLen
-				aSecond + aSorted[i]
+			_aSecond_ = []
+			for i = _nMid_ + 1 to _nLen_
+				_aSecond_ + _aSorted_[i]
 			next
-			_squarifyLayout(aSecond, nH, nV + nHeight1, nWidth, nHeight2, nWidth * nHeight2)
+			_squarifyLayout(_aSecond_, _nH_, _nV_ + _nHeight1_, nWidth, _nHeight2_, nWidth * _nHeight2_)
 		ok
 
 	def _drawBorders()
@@ -575,39 +575,39 @@ def init(paData)
 
 	def _drawInternalBorders()
 	    
-	    nLen = len(@aRectangles)
+	    _nLen_ = len(@aRectangles)
 	    
 	    # First pass: draw all borders without intersections
-	    for i = 1 to nLen
-	        aRect = @aRectangles[i]
-	        nH = aRect[1]
-	        nV = aRect[2] 
-	        nW = aRect[3]
-	        nHt = aRect[4]
+	    for i = 1 to _nLen_
+	        _aRect_ = @aRectangles[i]
+	        _nH_ = _aRect_[1]
+	        _nV_ = _aRect_[2] 
+	        _nW_ = _aRect_[3]
+	        _nHt_ = _aRect_[4]
 	        
 	        # Adjust for outer border offset
 	        if @bShowBorders
-	            nH++
-	            nV++
+	            _nH_++
+	            _nV_++
 	        ok
 	        
 	        # Draw right border if not at edge
-	        if nH + nW < @nWidth
-	            for j = nV to nV + nHt - 1
+	        if _nH_ + _nW_ < @nWidth
+	            for j = _nV_ to _nV_ + _nHt_ - 1
 	                if j >= 1 and j <= @nHeight
-	                    if @acCanvas[j][nH + nW] = " "
-	                        @acCanvas[j][nH + nW] = @cVertical
+	                    if @acCanvas[j][_nH_ + _nW_] = " "
+	                        @acCanvas[j][_nH_ + _nW_] = @cVertical
 	                    ok
 	                ok
 	            next
 	        ok
 	        
 	        # Draw bottom border if not at edge
-	        if nV + nHt < @nHeight and nV + nHt > 1
-	            for j = nH to nH + nW - 1
+	        if _nV_ + _nHt_ < @nHeight and _nV_ + _nHt_ > 1
+	            for j = _nH_ to _nH_ + _nW_ - 1
 	                if j >= 1 and j <= @nWidth
-	                    if @acCanvas[nV + nHt][j] = " "
-	                        @acCanvas[nV + nHt][j] = @cHorizontal
+	                    if @acCanvas[_nV_ + _nHt_][j] = " "
+	                        @acCanvas[_nV_ + _nHt_][j] = @cHorizontal
 	                    ok
 	                ok
 	            next
@@ -622,67 +622,67 @@ def init(paData)
 		for i = 1 to @nHeight
 			for j = 1 to @nWidth
 				
-				cCurrent = @acCanvas[i][j]
+				_cCurrent_ = @acCanvas[i][j]
 				
 				# Only process positions that have border characters
-				if cCurrent = @cVertical or cCurrent = @cHorizontal
+				if _cCurrent_ = @cVertical or _cCurrent_ = @cHorizontal
 				
 					# Check all four directions for connections
-					bUp = FALSE
-					bDown = FALSE
-					bLeft = FALSE
-					bRight = FALSE
+					_bUp_ = FALSE
+					_bDown_ = FALSE
+					_bLeft_ = FALSE
+					_bRight_ = FALSE
 					
 					# Check up
 					if i > 1
-						cUp = @acCanvas[i-1][j]
-						bUp = (cUp = @cVertical or cUp = @cTeeDown or cUp = @cTeeUp or cUp = @cCross or cUp = @cTeeLeft or cUp = @cTeeRight)
+						_cUp_ = @acCanvas[i-1][j]
+						_bUp_ = (_cUp_ = @cVertical or _cUp_ = @cTeeDown or _cUp_ = @cTeeUp or _cUp_ = @cCross or _cUp_ = @cTeeLeft or _cUp_ = @cTeeRight)
 					ok
 					
 					# Check down
 					if i < @nHeight
-						cDown = @acCanvas[i+1][j]
-						bDown = (cDown = @cVertical or cDown = @cTeeDown or cDown = @cTeeUp or cDown = @cCross or cDown = @cTeeLeft or cDown = @cTeeRight)
+						_cDown_ = @acCanvas[i+1][j]
+						_bDown_ = (_cDown_ = @cVertical or _cDown_ = @cTeeDown or _cDown_ = @cTeeUp or _cDown_ = @cCross or _cDown_ = @cTeeLeft or _cDown_ = @cTeeRight)
 					ok
 					
 					# Check left
 					if j > 1
-						cLeft = @acCanvas[i][j-1]
-						bLeft = (cLeft = @cHorizontal or cLeft = @cTeeLeft or cLeft = @cTeeRight or cLeft = @cCross or cLeft = @cTeeDown or cLeft = @cTeeUp)
+						_cLeft_ = @acCanvas[i][j-1]
+						_bLeft_ = (_cLeft_ = @cHorizontal or _cLeft_ = @cTeeLeft or _cLeft_ = @cTeeRight or _cLeft_ = @cCross or _cLeft_ = @cTeeDown or _cLeft_ = @cTeeUp)
 					ok
 					
 					# Check right
 					if j < @nWidth
-						cRight = @acCanvas[i][j+1]
-						bRight = (cRight = @cHorizontal or cRight = @cTeeLeft or cRight = @cTeeRight or cRight = @cCross or cRight = @cTeeDown or cRight = @cTeeUp)
+						_cRight_ = @acCanvas[i][j+1]
+						_bRight_ = (_cRight_ = @cHorizontal or _cRight_ = @cTeeLeft or _cRight_ = @cTeeRight or _cRight_ = @cCross or _cRight_ = @cTeeDown or _cRight_ = @cTeeUp)
 					ok
 					
 					# Determine proper intersection character
-					nConnections = 0
-					if bUp: nConnections++ ok
-					if bDown: nConnections++ ok
-					if bLeft: nConnections++ ok
-					if bRight: nConnections++ ok
+					_nConnections_ = 0
+					if _bUp_: _nConnections_++ ok
+					if _bDown_: _nConnections_++ ok
+					if _bLeft_: _nConnections_++ ok
+					if _bRight_: _nConnections_++ ok
 					
 					# Apply appropriate intersection character
-					if nConnections >= 2
-						if bUp and bDown and bLeft and bRight
+					if _nConnections_ >= 2
+						if _bUp_ and _bDown_ and _bLeft_ and _bRight_
 							@acCanvas[i][j] = @cCross
-						but bUp and bDown and bRight and not bLeft
+						but _bUp_ and _bDown_ and _bRight_ and not _bLeft_
 							@acCanvas[i][j] = @cTeeRight
-						but bUp and bDown and bLeft and not bRight
+						but _bUp_ and _bDown_ and _bLeft_ and not _bRight_
 							@acCanvas[i][j] = @cTeeLeft
-						but bLeft and bRight and bDown and not bUp
+						but _bLeft_ and _bRight_ and _bDown_ and not _bUp_
 							@acCanvas[i][j] = @cTeeDown
-						but bLeft and bRight and bUp and not bDown
+						but _bLeft_ and _bRight_ and _bUp_ and not _bDown_
 							@acCanvas[i][j] = @cTeeUp
-						but bUp and bRight and not bDown and not bLeft
+						but _bUp_ and _bRight_ and not _bDown_ and not _bLeft_
 							@acCanvas[i][j] = @cBottomLeft
-						but bUp and bLeft and not bDown and not bRight
+						but _bUp_ and _bLeft_ and not _bDown_ and not _bRight_
 							@acCanvas[i][j] = @cBottomRight
-						but bDown and bRight and not bUp and not bLeft
+						but _bDown_ and _bRight_ and not _bUp_ and not _bLeft_
 							@acCanvas[i][j] = @cTopLeft
-						but bDown and bLeft and not bUp and not bRight
+						but _bDown_ and _bLeft_ and not _bUp_ and not _bRight_
 							@acCanvas[i][j] = @cTopRight
 						ok
 					ok
@@ -690,146 +690,146 @@ def init(paData)
 			next
 		next
 
-	def _truncateLabel(cLabel, nMaxWidth)
-		if StzLen(cLabel) <= nMaxWidth
-			return cLabel
+	def _truncateLabel(_cLabel_, nMaxWidth)
+		if StzLen(_cLabel_) <= nMaxWidth
+			return _cLabel_
 		ok
 
 		if nMaxWidth <= @nMinLabelWidth
-			return StzLeft(cLabel, max([1, nMaxWidth - 1])) + "."
+			return StzLeft(_cLabel_, max([1, nMaxWidth - 1])) + "."
 		ok
 
-		return StzLeft(cLabel, nMaxWidth - 1) + "."
+		return StzLeft(_cLabel_, nMaxWidth - 1) + "."
 
 	def _drawContent()
 	    
-	    nLen = len(@aRectangles)
+	    _nLen_ = len(@aRectangles)
 	    
-	    for i = 1 to nLen
-	        aRect = @aRectangles[i]
-	        nH = aRect[1]
-	        nV = aRect[2]
-	        nW = aRect[3]
-	        nHt = aRect[4]
-	        nValue = aRect[5]
-	        cLabel = Capitalise(aRect[6])
-	        nOrigIndex = aRect[7]
+	    for i = 1 to _nLen_
+	        _aRect_ = @aRectangles[i]
+	        _nH_ = _aRect_[1]
+	        _nV_ = _aRect_[2]
+	        _nW_ = _aRect_[3]
+	        _nHt_ = _aRect_[4]
+	        _nValue_ = _aRect_[5]
+	        _cLabel_ = Capitalise(_aRect_[6])
+	        _nOrigIndex_ = _aRect_[7]
 	        
 	        # Adjust for border offset
 	        if @bShowBorders
-	            nH++
-	            nV++
+	            _nH_++
+	            _nV_++
 	        ok
 	        
 	        # Calculate usable content area (avoiding borders)
-	        nContentH = nH
-	        nContentV = nV
-	        nContentW = nW
-	        nContentHt = nHt
+	        _nContentH_ = _nH_
+	        _nContentV_ = _nV_
+	        _nContentW_ = _nW_
+	        _nContentHt_ = _nHt_
 
 	        if @bShowBorders
 	            # Shrink content area to avoid internal borders
-	            if nH + nW < @nWidth
-	                nContentW -= 1  # Avoid right border
+	            if _nH_ + _nW_ < @nWidth
+	                _nContentW_ -= 1  # Avoid right border
 	            ok
-	            if nV + nHt < @nHeight
-	                nContentHt -= 1  # Avoid bottom border
+	            if _nV_ + _nHt_ < @nHeight
+	                _nContentHt_ -= 1  # Avoid bottom border
 	            ok
 	        ok
 
 	        # Only proceed if we have reasonable space
-	        if nContentW < 3 or nContentHt < 1
+	        if _nContentW_ < 3 or _nContentHt_ < 1
 	            loop  # Skip this rectangle - too small for meaningful content
 	        ok
 
 	        # Build content lines
-	        aContentLines = []
+	        _aContentLines_ = []
 
 	        # Prepare label and value content
-	        cMainContent = ""
-	        cSubContent = ""
+	        _cMainContent_ = ""
+	        _cSubContent_ = ""
 
-	        if @bShowLabels and StzLen(cLabel) > 0
-	            cMainContent = _truncateLabel(cLabel, nContentW)
+	        if @bShowLabels and StzLen(_cLabel_) > 0
+	            _cMainContent_ = _truncateLabel(_cLabel_, _nContentW_)
 	        ok
 
 	        # Build value/percent string
-	        cValueStr = ""
+	        _cValueStr_ = ""
 	        if @bShowValues
-	            cValueStr = ""+ RoundN(nValue, 1)
-				cValueStr = StzReplace(cValueStr, ".0", "")
+	            _cValueStr_ = ""+ RoundN(_nValue_, 1)
+				_cValueStr_ = StzReplace(_cValueStr_, ".0", "")
 	        ok
 
 	        if @bShowPercent
-	            cPercentStr = ""+ RoundN((nValue / @nSum) * 100, 1)
-				cPercentStr = StzReplace(cPercentStr, ".0", "")
-	            cPercentStr += "%"
+	            _cPercentStr_ = ""+ RoundN((_nValue_ / @nSum) * 100, 1)
+				_cPercentStr_ = StzReplace(_cPercentStr_, ".0", "")
+	            _cPercentStr_ += "%"
 
-	            if StzLen(cValueStr) > 0
-	                cSubContent = cValueStr + " (" + cPercentStr + ")"
+	            if StzLen(_cValueStr_) > 0
+	                _cSubContent_ = _cValueStr_ + " (" + _cPercentStr_ + ")"
 	            else
-	                cSubContent = cPercentStr
+	                _cSubContent_ = _cPercentStr_
 	            ok
-	        but StzLen(cValueStr) > 0
-	            cSubContent = cValueStr
+	        but StzLen(_cValueStr_) > 0
+	            _cSubContent_ = _cValueStr_
 	        ok
 
 	        # Ensure sub-content fits
-	        if StzLen(cSubContent) > nContentW
-	            if nContentW > 3
-	                cSubContent = StzLeft(cSubContent, nContentW - 1) + "."
+	        if StzLen(_cSubContent_) > _nContentW_
+	            if _nContentW_ > 3
+	                _cSubContent_ = StzLeft(_cSubContent_, _nContentW_ - 1) + "."
 	            else
-	                cSubContent = StzLeft(cSubContent, nContentW)
+	                _cSubContent_ = StzLeft(_cSubContent_, _nContentW_)
 	            ok
 	        ok
 
 	        # Determine layout - prioritize compact, clean display
-	        bShowMain = (StzLen(cMainContent) > 0 and StzLen(cMainContent) <= nContentW)
-	        bShowSub = (StzLen(cSubContent) > 0 and StzLen(cSubContent) <= nContentW)
+	        _bShowMain_ = (StzLen(_cMainContent_) > 0 and StzLen(_cMainContent_) <= _nContentW_)
+	        _bShowSub_ = (StzLen(_cSubContent_) > 0 and StzLen(_cSubContent_) <= _nContentW_)
 	        
-	        if bShowMain and bShowSub
-	            if nContentHt >= 2
+	        if _bShowMain_ and _bShowSub_
+	            if _nContentHt_ >= 2
 	                # Multi-line: label on top, value below
-	                aContentLines + cMainContent
-	                aContentLines + cSubContent
-	            but nContentW >= (StzLen(cMainContent) + StzLen(cSubContent) + 1)
+	                _aContentLines_ + _cMainContent_
+	                _aContentLines_ + _cSubContent_
+	            but _nContentW_ >= (StzLen(_cMainContent_) + StzLen(_cSubContent_) + 1)
 	                # Single line if they fit together
-	                aContentLines + cMainContent + " " + cSubContent
+	                _aContentLines_ + _cMainContent_ + " " + _cSubContent_
 	            else
 	                # Prioritize more important content
 	                if @bShowPercent or @bShowValues
-	                    aContentLines + cSubContent  # Values/percentages more important in compact view
+	                    _aContentLines_ + _cSubContent_  # Values/percentages more important in compact view
 	                else
-	                    aContentLines + cMainContent
+	                    _aContentLines_ + _cMainContent_
 	                ok
 	            ok
-	        but bShowMain
-	            aContentLines + cMainContent
-	        but bShowSub
-	            aContentLines + cSubContent
+	        but _bShowMain_
+	            _aContentLines_ + _cMainContent_
+	        but _bShowSub_
+	            _aContentLines_ + _cSubContent_
 	        ok
 	        
 			# Draw content lines centered in available space
-			nLenLines = len(aContentLines)
-	        if nLenLines > 0
+			_nLenLines_ = len(_aContentLines_)
+	        if _nLenLines_ > 0
 	            # Vertical centering
-	            nStartV = nContentV + max([0, floor((nContentHt - len(aContentLines)) / 2)])
+	            _nStartV_ = _nContentV_ + max([0, floor((_nContentHt_ - len(_aContentLines_)) / 2)])
 	
-	            for k = 1 to nLenLines
-	                cLine = aContentLines[k]
-	                nLineLen = StzLen(cLine)
-	                nCurrentV = nStartV + k - 1
+	            for k = 1 to _nLenLines_
+	                _cLine_ = _aContentLines_[k]
+	                _nLineLen_ = StzLen(_cLine_)
+	                _nCurrentV_ = _nStartV_ + k - 1
 	
 	                # Horizontal centering
-	                nCenterH = nContentH + max([0, floor((nContentW - nLineLen) / 2)])
+	                _nCenterH_ = _nContentH_ + max([0, floor((_nContentW_ - _nLineLen_) / 2)])
 	
 	                # Draw the line
-	                if nCurrentV >= nContentV and nCurrentV < nContentV + nContentHt and nCurrentV >= 1 and nCurrentV <= @nHeight
-	                    for j = 1 to nLineLen
-	                        nCol = nCenterH + j - 1
-	                        if nCol >= nContentH and nCol < nContentH + nContentW and nCol >= 1 and nCol <= @nWidth
-	                            if @acCanvas[nCurrentV][nCol] = " "
-	                                @acCanvas[nCurrentV][nCol] = cLine[j]
+	                if _nCurrentV_ >= _nContentV_ and _nCurrentV_ < _nContentV_ + _nContentHt_ and _nCurrentV_ >= 1 and _nCurrentV_ <= @nHeight
+	                    for j = 1 to _nLineLen_
+	                        _nCol_ = _nCenterH_ + j - 1
+	                        if _nCol_ >= _nContentH_ and _nCol_ < _nContentH_ + _nContentW_ and _nCol_ >= 1 and _nCol_ <= @nWidth
+	                            if @acCanvas[_nCurrentV_][_nCol_] = " "
+	                                @acCanvas[_nCurrentV_][_nCol_] = _cLine_[j]
 	                            ok
 	                        ok
 	                    next

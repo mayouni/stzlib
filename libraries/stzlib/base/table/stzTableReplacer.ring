@@ -31,11 +31,11 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		aContent = @aContent
-		cCol = This.ColToName(pCol)
-		aContent[cCol][pnRow] = pNewCellValue
+		_aContent_ = @aContent
+		_cCol_ = This.ColToName(pCol)
+		_aContent_[_cCol_][pnRow] = pNewCellValue
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionAlternativeForms
 
@@ -282,11 +282,11 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		nLenCells  = len(paCellsPos)
-		nLenValues = len(paNewValues)
-		nMin = @Min([ nLenCells, nLenValues ])
+		_nLenCells_  = len(paCellsPos)
+		_nLenValues_ = len(paNewValues)
+		_nMin_ = @Min([ _nLenCells_, _nLenValues_ ])
 
-		for i = 1 to nMin
+		for i = 1 to _nMin_
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewValues[i])
 		next
 
@@ -503,13 +503,13 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		nLenPos = len(paCellsPos)
-		nLenNew = len(paNewValues)
+		_nLenPos_ = len(paCellsPos)
+		_nLenNew_ = len(paNewValues)
 
-		if nLenNew < nLenPos
-			paNewValues = Q(paNewValues).ExtendXTQ(:To = nLenPos, :ByRepeatingItems).Content()
+		if _nLenNew_ < _nLenPos_
+			paNewValues = Q(paNewValues).ExtendXTQ(:To = _nLenPos_, :ByRepeatingItems).Content()
 
-		but nLenNew > nLenPos
+		but _nLenNew_ > _nLenPos_
 			This.ExtendTo( QRT(paCellsPos, :stzListOfPairs).Max() )
 		ok
 
@@ -710,8 +710,8 @@ class stzTableReplacer from stzTable
 	#=================================================================#
 
 	def ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
-		aPos = This.FindCellCS(pCellValue, pCaseSensitive)
-		This.ReplaceCellsByPositions(aPos, pNewCellValue)
+		_aPos_ = This.FindCellCS(pCellValue, pCaseSensitive)
+		This.ReplaceCellsByPositions(_aPos_, pNewCellValue)
 
 		#< @FunctionAlternativeForms
 
@@ -878,15 +878,15 @@ class stzTableReplacer from stzTable
 	#=============================================================#
 
 	def ReplaceCol(pCol, paCol)
-		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthCol(nCol, paCol)
+		_nCol_ = This.ColToColNumber(pCol)
+		This.ReplaceNthCol(_nCol_, paCol)
 
 		def ReplaceColumn(pCol, paCol)
 			This.ReplaceCol(pCol, paCol)
 
-	def ReplaceNthCol(n, paCol)
+	def ReplaceNthCol(_n_, paCol)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
@@ -904,7 +904,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		if isString(paCol)
-			This.ReplaceColName(n, paCol)
+			This.ReplaceColName(_n_, paCol)
 			return
 		ok
 
@@ -912,51 +912,51 @@ class stzTableReplacer from stzTable
 			paCol = This.Col(paCol)
 		ok
 
-		nRows = This.NumberOfRows()
-		nLen = len(paCol)
+		_nRows_ = This.NumberOfRows()
+		_nLen_ = len(paCol)
 
-		if nLen > nRows
-			nLen = nRows
+		if _nLen_ > _nRows_
+			_nLen_ = _nRows_
 		ok
 
-		aCol = []
-		aContent = @aContent
+		_aCol_ = []
+		_aContent_ = @aContent
 
-		for i = 1 to nRows
-			if i <= nLen
-				aCol + paCol[i]
+		for i = 1 to _nRows_
+			if i <= _nLen_
+				_aCol_ + paCol[i]
 			else
-				aCol + aContent[n][2][i]
+				_aCol_ + _aContent_[_n_][2][i]
 			ok
 		next
 
-		aContent[n][2] = aCol
-		This.UpdateWith(aContent)
+		_aContent_[_n_][2] = _aCol_
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumn(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceNthColumn(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
-		def ReplaceColN(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColN(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
-		def ReplaceColumnN(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColumnN(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
 		#--
 
-		def ReplaceColAt(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColAt(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
-		def ReplaceColAtPosition(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColAtPosition(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
-		def ReplaceColumnAt(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColumnAt(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
-		def ReplaceColumnAtPosition(n, paCol)
-			This.ReplaceNthCol(n, paCol)
+		def ReplaceColumnAtPosition(_n_, paCol)
+			This.ReplaceNthCol(_n_, paCol)
 
 		#>
 
@@ -967,15 +967,15 @@ class stzTableReplacer from stzTable
 	# supplemented with its items starting from the first one.
 
 	def ReplaceColXT(pCol, paCol)
-		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthColXT(nCol, paCol)
+		_nCol_ = This.ColToColNumber(pCol)
+		This.ReplaceNthColXT(_nCol_, paCol)
 
 		def ReplaceColumnXT(pCol, paCol)
 			This.ReplaceColXT(pCol, paCol)
 
-	def ReplaceNthColXT(n, paCol)
+	def ReplaceNthColXT(_n_, paCol)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
@@ -988,56 +988,56 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nRows = This.NumberOfRows()
-		nLen = len(paCol)
+		_nRows_ = This.NumberOfRows()
+		_nLen_ = len(paCol)
 
-		if nLen > nRows
-			nLen = nRows
+		if _nLen_ > _nRows_
+			_nLen_ = _nRows_
 		ok
 
-		aCol = []
-		j = 0
+		_aCol_ = []
+		_j_ = 0
 
-		for i = 1 to nRows
-			if i <= nLen
-				aCol + paCol[i]
+		for i = 1 to _nRows_
+			if i <= _nLen_
+				_aCol_ + paCol[i]
 			else
-				j++
-				if j > nLen
-					j = 1
+				_j_++
+				if _j_ > _nLen_
+					_j_ = 1
 				ok
-				aCol + paCol[j]
+				_aCol_ + paCol[_j_]
 			ok
 		next
 
-		aContent = @aContent
-		aContent[n][2] = aCol
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		_aContent_[_n_][2] = _aCol_
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceNthColumnXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
-		def ReplaceColNXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColNXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
-		def ReplaceColumnNXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColumnNXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
 		#--
 
-		def ReplaceColAtXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColAtXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
-		def ReplaceColAtPositionXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColAtPositionXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
-		def ReplaceColumnAtXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColumnAtXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
-		def ReplaceColumnAtPositionXT(n, paCol)
-			This.ReplaceNthColXT(n, paCol)
+		def ReplaceColumnAtPositionXT(_n_, paCol)
+			This.ReplaceNthColXT(_n_, paCol)
 
 		#>
 
@@ -1050,11 +1050,11 @@ class stzTableReplacer from stzTable
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		anPosU = U(panPos)
-		nLen = len(anPosU)
+		_anPosU_ = U(panPos)
+		_nLen_ = len(_anPosU_)
 
-		for i = 1 to nLen
-			This.ReplaceColAt(anPosU[i], paCol)
+		for i = 1 to _nLen_
+			This.ReplaceColAt(_anPosU_[i], paCol)
 		next
 
 		#< @FunctionAlternativeForms
@@ -1085,11 +1085,11 @@ class stzTableReplacer from stzTable
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		anPosU = U(panPos)
-		nLen = len(anPosU)
+		_anPosU_ = U(panPos)
+		_nLen_ = len(_anPosU_)
 
-		for i = 1 to nLen
-			This.ReplaceColAtXT(anPosU[i], paCol)
+		for i = 1 to _nLen_
+			This.ReplaceColAtXT(_anPosU_[i], paCol)
 		next
 
 		#< @FunctionAlternativeForms
@@ -1120,8 +1120,8 @@ class stzTableReplacer from stzTable
 			paNewCol = paNewCol[2]
 		ok
 
-		anPos = This.ColsToColNumbers(paCols)
-		This.ReplaceColsAtPositions(anPos, paNewCol)
+		_anPos_ = This.ColsToColNumbers(paCols)
+		This.ReplaceColsAtPositions(_anPos_, paNewCol)
 
 		def ReplaceTheseColumns(paCols, paNewCol)
 			This.ReplaceTheseCols(paCols, paNewCol)
@@ -1136,8 +1136,8 @@ class stzTableReplacer from stzTable
 			paNewCol = paNewCol[2]
 		ok
 
-		anPos = This.ColsToColNumbers(paCols)
-		This.ReplaceColsAtPositionsXT(anPos, paNewCol)
+		_anPos_ = This.ColsToColNumbers(paCols)
+		This.ReplaceColsAtPositionsXT(_anPos_, paNewCol)
 
 		def ReplaceTheseColumnsXT(paCols, paNewCol)
 			This.ReplaceTheseColsXT(paCols, paNewCol)
@@ -1147,9 +1147,9 @@ class stzTableReplacer from stzTable
 	#===============================================================================#
 
 	def ReplaceColNameAndData(pCol, pcColName, paColData)
-		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthColName(nCol, pcColName)
-		This.ReplaceNthCol(nCol, paColData)
+		_nCol_ = This.ColToColNumber(pCol)
+		This.ReplaceNthColName(_nCol_, pcColName)
+		This.ReplaceNthCol(_nCol_, paColData)
 
 		#< @FunctionAlternativeForm
 
@@ -1158,9 +1158,9 @@ class stzTableReplacer from stzTable
 
 		#>
 
-	def ReplaceNthColNamedAndData(n, pcColName, paColData)
+	def ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
@@ -1181,29 +1181,29 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nMin = @Min([ len(paColData), This.NumberOfRows() ])
-		aTemp = []
-		for i = 1 to nMin
-			aTemp + paColData[i]
+		_nMin_ = @Min([ len(paColData), This.NumberOfRows() ])
+		_aTemp_ = []
+		for i = 1 to _nMin_
+			_aTemp_ + paColData[i]
 		next
 
-		aContent = @aContent
-		aContent[n][1] = pcColName
-		aContent[n][2] = aTemp
+		_aContent_ = @aContent
+		_aContent_[_n_][1] = pcColName
+		_aContent_[_n_][2] = _aTemp_
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnNamedAndData(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
+		def ReplaceNthColumnNamedAndData(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
-		def ReplaceColNNamedAndData(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
+		def ReplaceColNNamedAndData(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
-		def ReplaceColumnNNamedAndData(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
+		def ReplaceColumnNNamedAndData(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
 		#>
 
@@ -1214,9 +1214,9 @@ class stzTableReplacer from stzTable
 	# supplemented with its items starting from the first one.
 
 	def ReplaceColNameAndDataXT(pCol, pcColName, paColData)
-		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthColName(nCol, pcColName)
-		This.ReplaceNthColXT(nCol, paColData)
+		_nCol_ = This.ColToColNumber(pCol)
+		This.ReplaceNthColName(_nCol_, pcColName)
+		This.ReplaceNthColXT(_nCol_, paColData)
 
 		#< @FunctionAlternativeForm
 
@@ -1225,20 +1225,20 @@ class stzTableReplacer from stzTable
 
 		#>
 
-	def ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
-		This.ReplaceNthColName(n, pcColName)
-		This.ReplaceNthColXT(n, paColData)
+	def ReplaceNthColNamedAndDataXT(_n_, pcColName, paColData)
+		This.ReplaceNthColName(_n_, pcColName)
+		This.ReplaceNthColXT(_n_, paColData)
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnNamedAndDataXT(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+		def ReplaceNthColumnNamedAndDataXT(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(_n_, pcColName, paColData)
 
-		def ReplaceColNNamedAndDataXT(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+		def ReplaceColNNamedAndDataXT(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(_n_, pcColName, paColData)
 
-		def ReplaceColumnNNamedAndDataXT(n, pcColName, paColData)
-			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+		def ReplaceColumnNNamedAndDataXT(_n_, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(_n_, pcColName, paColData)
 
 		#>
 
@@ -1253,15 +1253,15 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nCol = This.ColToColNumber(pCol)
-		nRows = This.NumberOfRows()
-		aContent = @aContent
+		_nCol_ = This.ColToColNumber(pCol)
+		_nRows_ = This.NumberOfRows()
+		_aContent_ = @aContent
 
-		for i = 1 to nRows
-			aContent[nCol][2][i] = pCell
+		for i = 1 to _nRows_
+			_aContent_[_nCol_][2][i] = pCell
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def ReplaceCellsInColumn(pCol, pCell)
@@ -1285,9 +1285,9 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			This.ReplaceCol(i, paNewCol)
 		next
 
@@ -1322,9 +1322,9 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			This.ReplaceColXT(i, paNewCol)
 		next
 
@@ -1390,14 +1390,14 @@ class stzTableReplacer from stzTable
 	#===================================================================#
 
 	def ReplaceCellsInRow(pnRow, pCell)
-		aNewRow = []
-		nLen = This.NumberOfCols()
+		_aNewRow_ = []
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
-			aNewRow + pCell
+		for i = 1 to _nLen_
+			_aNewRow_ + pCell
 		next
 
-		This.ReplaceRow(pnRow, aNewRow)
+		This.ReplaceRow(pnRow, _aNewRow_)
 
 	  #-----------------------------------------------------------------------------------------#
 	 #  REPLACING A ROW (DEFINED BY ITS NUMBER) BY AN OTHER ONE (PROVIDED AS A LIST OF CELLS)  #
@@ -1420,8 +1420,8 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		aRowCells = This.RowAsPositions(pnRow)
-		This.ReplaceCellsByMany(aRowCells, paNewRow)
+		_aRowCells_ = This.RowAsPositions(pnRow)
+		This.ReplaceCellsByMany(_aRowCells_, paNewRow)
 
 		#< @FunctionAlternativeForm
 
@@ -1442,23 +1442,23 @@ class stzTableReplacer from stzTable
 	#-- EXTENDED FORM
 
 	def ReplaceRowXT(pnRow, paNewRow)
-		nNew  = len(paNewRow)
-		nRows = This.NumberOfRows()
+		_nNew_  = len(paNewRow)
+		_nRows_ = This.NumberOfRows()
 
-		n = 0
+		_n_ = 0
 
-		if nNew < nRows
-			for i = nNew + 1 to nRows
-				n++
-				if n > nNew
-					n = 1
+		if _nNew_ < _nRows_
+			for i = _nNew_ + 1 to _nRows_
+				_n_++
+				if _n_ > _nNew_
+					_n_ = 1
 				ok
 
-				paNewRow + paNewRow[n]
+				paNewRow + paNewRow[_n_]
 			next
 
-		but nNew > nRows
-			for i = nNew to nRows + 1 step -1
+		but _nNew_ > _nRows_
+			for i = _nNew_ to _nRows_ + 1 step -1
 				ring_remove(paNewRow, i)
 			next
 		ok
@@ -1497,17 +1497,17 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nLenCols = @Min([ len(paNewRow), len(@aContent) ])
-		nLenRows = This.NumberOfRows()
-		aContent = @aContent
+		_nLenCols_ = @Min([ len(paNewRow), len(@aContent) ])
+		_nLenRows_ = This.NumberOfRows()
+		_aContent_ = @aContent
 
-		for i = 1 to nLenCols
-			for j = 1 to nLenRows
-				aContent[i][2][j] = paNewRow[i]
+		for i = 1 to _nLenCols_
+			for _j_ = 1 to _nLenRows_
+				_aContent_[i][2][_j_] = paNewRow[i]
 			next
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionAlternativeForms
 
@@ -1527,9 +1527,9 @@ class stzTableReplacer from stzTable
 	#--------------------------------------------------------------------------------------------#
 
 	def ReplaceAllRowsXT(paNewRow)
-		nRows = This.NumberOfRows()
+		_nRows_ = This.NumberOfRows()
 
-		for i = 1 to nRows
+		for i = 1 to _nRows_
 			This.ReplaceRowXT(i, paNewRow)
 		next
 
@@ -1555,11 +1555,11 @@ class stzTableReplacer from stzTable
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		anPosU = U(panPos)
-		nLen = len(anPosU)
+		_anPosU_ = U(panPos)
+		_nLen_ = len(_anPosU_)
 
-		for i = 1 to nLen
-			This.ReplaceRowAt(anPosU[i], paRow)
+		for i = 1 to _nLen_
+			This.ReplaceRowAt(_anPosU_[i], paRow)
 		next
 
 		#< @FunctionAlternativeForms
@@ -1590,11 +1590,11 @@ class stzTableReplacer from stzTable
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		anPosU = U(panPos)
-		nLen = len(anPosU)
+		_anPosU_ = U(panPos)
+		_nLen_ = len(_anPosU_)
 
-		for i = 1 to nLen
-			This.ReplaceRowAtXT(anPosU[i], paRow)
+		for i = 1 to _nLen_
+			This.ReplaceRowAtXT(_anPosU_[i], paRow)
 		next
 
 		#< @FunctionAlternativeForms
@@ -1653,8 +1653,8 @@ class stzTableReplacer from stzTable
 			paNewrows = paNewrows[2]
 		ok
 
-		aCells = This.CellsInTheseRowsAsPositions(paRows)
-		This.ReplaceCells(aCells, pCell)
+		_aCells_ = This.CellsInTheseRowsAsPositions(paRows)
+		This.ReplaceCells(_aCells_, pCell)
 
 
 		def ReplaceTheseRowsWith(paRows, pCell)
@@ -1669,8 +1669,8 @@ class stzTableReplacer from stzTable
 	#===================================================#
 
 	def ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
-		aCellsPos = This.FindAllCS(pCellValue, pCaseSensitive)
-		This.ReplaceCells(aCellsPos, pNewCellValue)
+		_aCellsPos_ = This.FindAllCS(pCellValue, pCaseSensitive)
+		This.ReplaceCells(_aCellsPos_, pNewCellValue)
 
 		#< @FunctionAlternatives
 
@@ -1729,14 +1729,14 @@ class stzTableReplacer from stzTable
 	 #  REPLACING NTH OCCURRENCE OF A CELL IN THE TABLE  #
 	#---------------------------------------------------#
 
-	def ReplaceNthCS(n, pValue, pNewCellValue, pCaseSensitive)
-		aCellPos = This.FindNthCS(n, pValue, pCaseSensitive)
-		This.ReplaceCell(aCellPos, pNewCellValue)
+	def ReplaceNthCS(_n_, pValue, pNewCellValue, pCaseSensitive)
+		_aCellPos_ = This.FindNthCS(_n_, pValue, pCaseSensitive)
+		This.ReplaceCell(_aCellPos_, pNewCellValue)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceNth(n, pValue, pNewCellValue)
-		This.ReplaceNthCS(n, pValue, pNewCellValue, 1)
+	def ReplaceNth(_n_, pValue, pNewCellValue)
+		This.ReplaceNthCS(_n_, pValue, pNewCellValue, 1)
 
 	  #-----------------------------------------------------#
 	 #  REPLACING FIRST OCCURRENCE OF A CELL IN THE TABLE  #

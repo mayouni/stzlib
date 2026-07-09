@@ -47,140 +47,140 @@ class stzTableDisplay from stzTable
 
     def _displayFullTable()
         # Get column names and content
-        acColNames = This.ColNames()
-        aContent = @aContent
+        _acColNames_ = This.ColNames()
+        _aContent_ = @aContent
 
         # Calculate column widths
-        aColWidths = []
-        nCols = len(acColNames)
+        _aColWidths_ = []
+        _nCols_ = len(_acColNames_)
 
         # First pass: calculate max width for each column header
-        for i = 1 to nCols
-            nMaxWidth = len(acColNames[i])
+        for i = 1 to _nCols_
+            _nMaxWidth_ = len(_acColNames_[i])
 
             # Check column values
 
-            aColData = aContent[i][2]
-			nLenCol = len(aColData)
+            _aColData_ = _aContent_[i][2]
+			_nLenCol_ = len(_aColData_)
 
-            for j = 1 to nLenCol
+            for j = 1 to _nLenCol_
 
-				if isNumber(aColData[j]) or isString(aColData[j])
-                	cellValue = "" + aColData[j]
+				if isNumber(_aColData_[j]) or isString(_aColData_[j])
+                	_cellValue_ = "" + _aColData_[j]
 				else
-					cellValue = @@(aColData[j])
+					_cellValue_ = @@(_aColData_[j])
 				ok
 
-                if stzlen(cellValue) > nMaxWidth
-                    nMaxWidth = stzlen(cellValue)
+                if stzlen(_cellValue_) > _nMaxWidth_
+                    _nMaxWidth_ = stzlen(_cellValue_)
                 ok
 
             next
 
-            aColWidths + (nMaxWidth + 2)  # Add padding
+            _aColWidths_ + (_nMaxWidth_ + 2)  # Add padding
 
         next
 
         # Build output string
-        cOutput = ""
+        _cOutput_ = ""
 
         # Top border
 
-        cLine = @aBorder[:TopLeft]
+        _cLine_ = @aBorder[:TopLeft]
 
-        for i = 1 to nCols
+        for i = 1 to _nCols_
 
-            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+            _cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
 
-			if i < nCols
-				cLine += @aBorder[:TeeDown]
+			if i < _nCols_
+				_cLine_ += @aBorder[:TeeDown]
 			else
-				cLine += @aBorder[:TopRight]
+				_cLine_ += @aBorder[:TopRight]
 			ok
 
         next
 
-        cOutput += cLine + NL
+        _cOutput_ += _cLine_ + NL
 
         # Header row
 
-        cLine = @aBorder[:Vertical]
+        _cLine_ = @aBorder[:Vertical]
 
-        for i = 1 to nCols
-            cLine += CenterText(@Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+        for i = 1 to _nCols_
+            _cLine_ += CenterText(@Capitalise(_acColNames_[i]), _aColWidths_[i]) + @aBorder[:Vertical]
         next
 
-        cOutput += cLine + NL
+        _cOutput_ += _cLine_ + NL
 
         # Separator
 
-        cLine = @aBorder[:TeeRight]
+        _cLine_ = @aBorder[:TeeRight]
 
-        for i = 1 to nCols
+        for i = 1 to _nCols_
 
-            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+            _cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
 
-			if i < nCols
-				cLine += @aBorder[:Cross]
+			if i < _nCols_
+				_cLine_ += @aBorder[:Cross]
 			else
-				cLine += @aBorder[:TeeLeft]
+				_cLine_ += @aBorder[:TeeLeft]
 			ok
 
         next
 
-        cOutput += cLine + NL
+        _cOutput_ += _cLine_ + NL
 
         # Data rows
 
-        nRows = This.NumberOfRows()
+        _nRows_ = This.NumberOfRows()
 
-        for r = 1 to nRows
+        for r = 1 to _nRows_
 
-            cLine = @aBorder[:Vertical]
+            _cLine_ = @aBorder[:Vertical]
 
-            for i = 1 to nCols
+            for i = 1 to _nCols_
 
-				cellValue = ""
-                val = This.Content()[i][2][r]
-				if isNumber(val) or isString(val)
-                	cellValue = "" + val
+				_cellValue_ = ""
+                _val_ = This.Content()[i][2][r]
+				if isNumber(_val_) or isString(_val_)
+                	_cellValue_ = "" + _val_
 				else
-					cellValue = @@(val)
+					_cellValue_ = @@(_val_)
 				ok
 
                 # Right-align numbers, left-align strings
 
-                if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
-                    cLine += " " + PadLeft(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+                if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
+                    _cLine_ += " " + PadLeft(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
                 else
-                    cLine += " " + PadRight(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+                    _cLine_ += " " + PadRight(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
                 ok
 
             next
 
-            cOutput += cLine + NL
+            _cOutput_ += _cLine_ + NL
 
         next
 
         # Bottom border
 
-        cLine = @aBorder[:BottomLeft]
+        _cLine_ = @aBorder[:BottomLeft]
 
-        for i = 1 to nCols
+        for i = 1 to _nCols_
 
-            cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
+            _cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
 
-			if i < nCols
-				cLine += @aBorder[:TeeUp]
+			if i < _nCols_
+				_cLine_ += @aBorder[:TeeUp]
 			else
-				cLine += @aBorder[:BottomRight]
+				_cLine_ += @aBorder[:BottomRight]
 			ok
 
         next
 
-        cOutput += cLine
+        _cOutput_ += _cLine_
 
-        return cOutput
+        return _cOutput_
 
     # Internal method to display filtered table
 
@@ -188,11 +188,11 @@ class stzTableDisplay from stzTable
 
         # Create a filtered copy of the table
 
-        oFilteredTable = This.FilterQ(paFilterCriteria)
+        _oFilteredTable_ = This.FilterQ(paFilterCriteria)
 
         # Use the full table display method on the filtered table
 
-        return oFilteredTable.Display(NULL)
+        return _oFilteredTable_.Display(NULL)
 
 	  #----------------------------------------#
 	 #  DISPLAYING THE TABLE - EXTENDED FORM  #
@@ -201,34 +201,34 @@ class stzTableDisplay from stzTable
 	# Master method orchestrating the submethods
 	def ShowXT(pParams) #AI // Refactored to small methods using GrockAI
 		# Initialize flags
-		bRowNumber = FALSE
-		bSubTotal = FALSE
-		bGrandTotal = FALSE
+		_bRowNumber_ = FALSE
+		_bSubTotal_ = FALSE
+		_bGrandTotal_ = FALSE
 
 		# Process parameters and ensure boolean values
-		processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal)
-		bRowNumber = @if(not isNull(pParams[:RowNumber]), pParams[:RowNumber], FALSE)
-		bSubTotal = @if(not isNull(pParams[:SubTotal]), pParams[:SubTotal], FALSE)
-		bGrandTotal = @if(not isNull(pParams[:GrandTotal]), pParams[:GrandTotal], FALSE)
+		processParameters(pParams, _bRowNumber_, _bSubTotal_, _bGrandTotal_)
+		_bRowNumber_ = @if(not isNull(pParams[:RowNumber]), pParams[:RowNumber], FALSE)
+		_bSubTotal_ = @if(not isNull(pParams[:SubTotal]), pParams[:SubTotal], FALSE)
+		_bGrandTotal_ = @if(not isNull(pParams[:GrandTotal]), pParams[:GrandTotal], FALSE)
 
 		# Get column names and content
-		acColNames = This.ColNames()
-		aContent = @aContent
+		_acColNames_ = This.ColNames()
+		_aContent_ = @aContent
 
 		# Calculate column widths
-		aColWidths = calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
+		_aColWidths_ = calculateColumnWidths(_acColNames_, _aContent_, _bRowNumber_, _bGrandTotal_)
 
 		# Adjust for row numbers if needed
-		adjustForRowNumbers(bRowNumber, aColWidths, acColNames)
+		adjustForRowNumbers(_bRowNumber_, _aColWidths_, _acColNames_)
 
 		# Build and return the output string
-		cOutput = buildOutput(acColNames, aContent, aColWidths, bRowNumber, bSubTotal, bGrandTotal)
+		_cOutput_ = buildOutput(_acColNames_, _aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_)
 
-		? cOutput
+		? _cOutput_
 
 	# Submethod to process parameters and set flags
 	#TODO // Redesign this method the Softanza way!
-	def processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal, bCleanDesign)
+	def processParameters(pParams, _bRowNumber_, _bSubTotal_, _bGrandTotal_, bCleanDesign)
 		if pParams = NULL
 			# Use defaults
 		else
@@ -236,28 +236,28 @@ class stzTableDisplay from stzTable
 				if len(pParams) = 0
 					# Use defaults
 				else
-					nLenP = len(pParams)
-					for i = 1 to nLenP
+					_nLenP_ = len(pParams)
+					for i = 1 to _nLenP_
 						if isList(pParams[i])
-							cParamName = StzLower(string(pParams[i][1]))
+							_cParamName_ = StzLower(string(pParams[i][1]))
 							if len(pParams[i]) >= 2
-								if StzLower(cParamName) = "rownumber"
-									bRowNumber = pParams[i][2]
-								but StzLower(cParamName) = "subtotal"
-									bSubTotal = pParams[i][2]
-								but StzLower(cParamName) = "grandtotal"
-									bGrandTotal = pParams[i][2]
+								if StzLower(_cParamName_) = "rownumber"
+									_bRowNumber_ = pParams[i][2]
+								but StzLower(_cParamName_) = "subtotal"
+									_bSubTotal_ = pParams[i][2]
+								but StzLower(_cParamName_) = "grandtotal"
+									_bGrandTotal_ = pParams[i][2]
 
 								ok
 							ok
 						but isString(pParams[i])
-							cParam = pParams[i]
-							if @StzMid(cParam, 1, 9) = "rownumber"
-								bRowNumber = TRUE
-							but @StzMid(cParam, 1, 8) = "subtotal"
-								bSubTotal = TRUE
-							but @StzMid(cParam, 1, 10) = "grandtotal"
-								bGrandTotal = TRUE
+							_cParam_ = pParams[i]
+							if @StzMid(_cParam_, 1, 9) = "rownumber"
+								_bRowNumber_ = TRUE
+							but @StzMid(_cParam_, 1, 8) = "subtotal"
+								_bSubTotal_ = TRUE
+							but @StzMid(_cParam_, 1, 10) = "grandtotal"
+								_bGrandTotal_ = TRUE
 							ok
 						ok
 					next
@@ -265,285 +265,285 @@ class stzTableDisplay from stzTable
 
 			but IsHashList(pParams)
 				if HasKey(pParams, :RowNumber)
-					bRowNumber = pParams[:RowNumber]
+					_bRowNumber_ = pParams[:RowNumber]
 				ok
 
 				if HasKey(pParams, :SubTotal)
-					bSubTotal = pParams[:SubTotal]
+					_bSubTotal_ = pParams[:SubTotal]
 				ok
 
 				if HasKey(pParams, :GrandTotal)
-					bGrandTotal = pParams[:GrandTotal]
+					_bGrandTotal_ = pParams[:GrandTotal]
 				ok
 			ok
 		ok
 
 		# Ensure boolean values
-		bRowNumber = @if(IsBoolean(bRowNumber), bRowNumber, FALSE)
-		bSubTotal = @if(IsBoolean(bSubTotal), bSubTotal, FALSE)
-		bGrandTotal = @if(IsBoolean(bGrandTotal), bGrandTotal, FALSE)
+		_bRowNumber_ = @if(IsBoolean(_bRowNumber_), _bRowNumber_, FALSE)
+		_bSubTotal_ = @if(IsBoolean(_bSubTotal_), _bSubTotal_, FALSE)
+		_bGrandTotal_ = @if(IsBoolean(_bGrandTotal_), _bGrandTotal_, FALSE)
 
 	# Submethod to calculate column widths
-	def calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
-		aColWidths = []
-		nCols = len(acColNames)
+	def calculateColumnWidths(_acColNames_, _aContent_, _bRowNumber_, _bGrandTotal_)
+		_aColWidths_ = []
+		_nCols_ = len(_acColNames_)
 
-		for i = 1 to nCols
-			nMaxWidth = len(acColNames[i])
-			aColData = aContent[i][2]
-			nLenCol = len(aColData)
+		for i = 1 to _nCols_
+			_nMaxWidth_ = len(_acColNames_[i])
+			_aColData_ = _aContent_[i][2]
+			_nLenCol_ = len(_aColData_)
 
-			for j = 1 to nLenCol
-				if isString(aColData[j]) or isNumber(aColData[j])
-					cellValue = "" + aColData[j]
+			for j = 1 to _nLenCol_
+				if isString(_aColData_[j]) or isNumber(_aColData_[j])
+					_cellValue_ = "" + _aColData_[j]
 				else
-					cellValue = @@(aColData[j])
+					_cellValue_ = @@(_aColData_[j])
 				ok
-				nLenCell = stzlen(cellValue)
-				if nLenCell > nMaxWidth
-					nMaxWidth = nLenCell
+				_nLenCell_ = stzlen(_cellValue_)
+				if _nLenCell_ > _nMaxWidth_
+					_nMaxWidth_ = _nLenCell_
 				ok
 			next
 
-			nLenTemp = len("Product X Total")
+			_nLenTemp_ = len("Product X Total")
 			if i = 1
-				if nMaxWidth < nLenTemp
-					nMaxWidth = nLenTemp
+				if _nMaxWidth_ < _nLenTemp_
+					_nMaxWidth_ = _nLenTemp_
 				ok
 			ok
 
-			nLenTemp = len("GRAND-TOTAL")
-			if i = 1 and bGrandTotal
-				if nMaxWidth < nLenTemp
-					nMaxWidth = nLenTemp
+			_nLenTemp_ = len("GRAND-TOTAL")
+			if i = 1 and _bGrandTotal_
+				if _nMaxWidth_ < _nLenTemp_
+					_nMaxWidth_ = _nLenTemp_
 				ok
 			ok
 
-			aColWidths + (nMaxWidth + 2)
+			_aColWidths_ + (_nMaxWidth_ + 2)
 		next
 
-		return aColWidths
+		return _aColWidths_
 
 	# Submethod to adjust column widths and names for row numbers
-	def adjustForRowNumbers(bRowNumber, aColWidths, acColNames)
+	def adjustForRowNumbers(_bRowNumber_, _aColWidths_, _acColNames_)
 
-		if bRowNumber
-			nRowNumWidth = len("" + This.NumberOfRows()) + 2
-			aColWidths = ring_insert(aColWidths, 1, nRowNumWidth)
-			acColNames = ring_insert(acColNames, 1, "#")
+		if _bRowNumber_
+			_nRowNumWidth_ = len("" + This.NumberOfRows()) + 2
+			_aColWidths_ = ring_insert(_aColWidths_, 1, _nRowNumWidth_)
+			_acColNames_ = ring_insert(_acColNames_, 1, "#")
 		ok
 
 	# Submethod to build the output string
-	def buildOutput(acColNames, aContent, aColWidths, bRowNumber, bSubTotal, bGrandTotal)
-		cOutput = ""
-		nCols = len(acColNames)
+	def buildOutput(_acColNames_, _aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_)
+		_cOutput_ = ""
+		_nCols_ = len(_acColNames_)
 
 		# Top border
-		cLine = @aBorder[:TopLeft]
-		for i = 1 to nCols
-			cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-			if i < nCols
-				cLine += @aBorder[:TeeDown]
+		_cLine_ = @aBorder[:TopLeft]
+		for i = 1 to _nCols_
+			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
+			if i < _nCols_
+				_cLine_ += @aBorder[:TeeDown]
 			else
-				cLine += @aBorder[:TopRight]
+				_cLine_ += @aBorder[:TopRight]
 			ok
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
 		# Header row
-		cLine = @aBorder[:Vertical]
-		for i = 1 to nCols
-			cLine += CenterText(@Capitalise(acColNames[i]), aColWidths[i]) + @aBorder[:Vertical]
+		_cLine_ = @aBorder[:Vertical]
+		for i = 1 to _nCols_
+			_cLine_ += CenterText(@Capitalise(_acColNames_[i]), _aColWidths_[i]) + @aBorder[:Vertical]
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
 		# Separator
-		cLine = @aBorder[:TeeRight]
-		for i = 1 to nCols
-			cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-			if i < nCols
-				cLine += @aBorder[:Cross]
+		_cLine_ = @aBorder[:TeeRight]
+		for i = 1 to _nCols_
+			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
+			if i < _nCols_
+				_cLine_ += @aBorder[:Cross]
 			else
-				cLine += @aBorder[:TeeLeft]
+				_cLine_ += @aBorder[:TeeLeft]
 			ok
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
 		# Data rows with aggregation
-		cOutput += buildDataRows(aContent, aColWidths, bRowNumber, bSubTotal, bGrandTotal, nCols)
+		_cOutput_ += buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
 
 		# Grand total
-		if bGrandTotal
-			cOutput += buildGrandTotal(aColWidths, bRowNumber, nCols)
+		if _bGrandTotal_
+			_cOutput_ += buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
 		ok
 
 		# Bottom border
-		cLine = @aBorder[:BottomLeft]
-		for i = 1 to nCols
-			cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-			if i < nCols
-				cLine += @aBorder[:TeeUp]
+		_cLine_ = @aBorder[:BottomLeft]
+		for i = 1 to _nCols_
+			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
+			if i < _nCols_
+				_cLine_ += @aBorder[:TeeUp]
 			else
-				cLine += @aBorder[:BottomRight]
+				_cLine_ += @aBorder[:BottomRight]
 			ok
 		next
-		cOutput += cLine
+		_cOutput_ += _cLine_
 
-		return cOutput
+		return _cOutput_
 
 	# Submethod to build data rows with subtotals
-	def buildDataRows(aContent, aColWidths, bRowNumber, bSubTotal, bGrandTotal, nCols)
-		cOutput = ""
-		nRows = This.NumberOfRows()
-		nGroupCol = @if(bRowNumber, 2, 1)
-		cCurrentGroup = ""
-		aGroups = []
-		aGroupTotals = []
-		aGrandTotals = []
+	def buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
+		_cOutput_ = ""
+		_nRows_ = This.NumberOfRows()
+		_nGroupCol_ = @if(_bRowNumber_, 2, 1)
+		_cCurrentGroup_ = ""
+		_aGroups_ = []
+		_aGroupTotals_ = []
+		_aGrandTotals_ = []
 
-		for i = 1 to nCols
-			aGrandTotals + 0
+		for i = 1 to _nCols_
+			_aGrandTotals_ + 0
 		next
 
 		# First pass: gather groups and calculate totals
-		for r = 1 to nRows
+		for r = 1 to _nRows_
 
-			cGroup = "" + aContent[nGroupCol][2][r]
+			_cGroup_ = "" + _aContent_[_nGroupCol_][2][r]
 
-			if NOT StzFindFirst(aGroups, cGroup) > 0
-				aGroups + cGroup
-				aGroupTotals[cGroup] = []
-				for i = 1 to nCols
-					aGroupTotals[cGroup] + 0
+			if NOT StzFindFirst(_aGroups_, _cGroup_) > 0
+				_aGroups_ + _cGroup_
+				_aGroupTotals_[_cGroup_] = []
+				for i = 1 to _nCols_
+					_aGroupTotals_[_cGroup_] + 0
 				next
 			ok
 
-			for i = 1 to nCols
-				if bRowNumber and i = 1
+			for i = 1 to _nCols_
+				if _bRowNumber_ and i = 1
 					loop
 				ok
-				nDataCol = @if(bRowNumber, i - 1, i)
-				if nDataCol > 0 and nDataCol <= len(aContent)
-					cellValue = aContent[nDataCol][2][r]
-					if not (isNumber(cellValue) or isString(cellValue))
-						cellValue = @@(cellValue)
+				_nDataCol_ = @if(_bRowNumber_, i - 1, i)
+				if _nDataCol_ > 0 and _nDataCol_ <= len(_aContent_)
+					_cellValue_ = _aContent_[_nDataCol_][2][r]
+					if not (isNumber(_cellValue_) or isString(_cellValue_))
+						_cellValue_ = @@(_cellValue_)
 					ok
-					if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
-						aGroupTotals[cGroup][i] += (0 + cellValue)
-						aGrandTotals[i] += (0 + cellValue)
+					if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
+						_aGroupTotals_[_cGroup_][i] += (0 + _cellValue_)
+						_aGrandTotals_[i] += (0 + _cellValue_)
 					ok
 				ok
 			next
 		next
 
 		# Second pass: display data with totals
-		cCurrentGroup = ""
-		for r = 1 to nRows
-			cGroup = "" + aContent[nGroupCol][2][r]
+		_cCurrentGroup_ = ""
+		for r = 1 to _nRows_
+			_cGroup_ = "" + _aContent_[_nGroupCol_][2][r]
 
-			if bSubTotal and cCurrentGroup != "" and cGroup != cCurrentGroup
-				cOutput += buildSubTotalRow(aColWidths, nCols, bRowNumber, nGroupCol, cCurrentGroup, aGroupTotals)
+			if _bSubTotal_ and _cCurrentGroup_ != "" and _cGroup_ != _cCurrentGroup_
+				_cOutput_ += buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
 			ok
 
-			cCurrentGroup = cGroup
-			cLine = @aBorder[:Vertical]
-			for i = 1 to nCols
-				if bRowNumber and i = 1
-					cLine += " " + PadLeft("" + r, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+			_cCurrentGroup_ = _cGroup_
+			_cLine_ = @aBorder[:Vertical]
+			for i = 1 to _nCols_
+				if _bRowNumber_ and i = 1
+					_cLine_ += " " + PadLeft("" + r, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				else
-					nDataCol = @if(bRowNumber, i - 1, i)
-					if nDataCol > 0 and nDataCol <= len(aContent)
-						cellValue = aContent[nDataCol][2][r]
-						if NOT (isNumber(cellValue) or isString(cellValue))
-							cellValue = @@(cellValue)
+					_nDataCol_ = @if(_bRowNumber_, i - 1, i)
+					if _nDataCol_ > 0 and _nDataCol_ <= len(_aContent_)
+						_cellValue_ = _aContent_[_nDataCol_][2][r]
+						if NOT (isNumber(_cellValue_) or isString(_cellValue_))
+							_cellValue_ = @@(_cellValue_)
 						ok
-						if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
-							cLine += " " + PadLeft(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+						if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
+							_cLine_ += " " + PadLeft(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 						else
-							cLine += " " + PadRight(cellValue, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+							_cLine_ += " " + PadRight(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 						ok
 					else
-						cLine += " " + PadRight("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+						_cLine_ += " " + PadRight("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 					ok
 				ok
 			next
-			cOutput += cLine + NL
+			_cOutput_ += _cLine_ + NL
 
-			if bSubTotal and r = nRows
-				cOutput += buildSubTotalRow(aColWidths, nCols, bRowNumber, nGroupCol, cCurrentGroup, aGroupTotals)
+			if _bSubTotal_ and r = _nRows_
+				_cOutput_ += buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
 			ok
 		next
 
-		return cOutput
+		return _cOutput_
 
 	# Submethod to build subtotal row
-	def buildSubTotalRow(aColWidths, nCols, bRowNumber, nGroupCol, cCurrentGroup, aGroupTotals)
-		cOutput = ""
-		cLine = @aBorder[:Vertical]
-		for i = 1 to nCols
-			cLine += " " + RepeatChar("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+	def buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
+		_cOutput_ = ""
+		_cLine_ = @aBorder[:Vertical]
+		for i = 1 to _nCols_
+			_cLine_ += " " + RepeatChar("-", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
-		cLine = @aBorder[:Vertical]
-		for i = 1 to nCols
-			if bRowNumber and i = 1
-				cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-			but i = nGroupCol
-				cLine += " " + PadLeft(" Sub-total", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-			but (i = nGroupCol + 1 and not bRowNumber) or (i = nGroupCol + 1 and bRowNumber)
-				cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+		_cLine_ = @aBorder[:Vertical]
+		for i = 1 to _nCols_
+			if _bRowNumber_ and i = 1
+				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+			but i = _nGroupCol_
+				_cLine_ += " " + PadLeft(" Sub-total", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+			but (i = _nGroupCol_ + 1 and not _bRowNumber_) or (i = _nGroupCol_ + 1 and _bRowNumber_)
+				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 			else
-				if isNumber(aGroupTotals[cCurrentGroup][i]) and aGroupTotals[cCurrentGroup][i] != 0
-					cLine += " " + PadLeft("" + aGroupTotals[cCurrentGroup][i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+				if isNumber(_aGroupTotals_[_cCurrentGroup_][i]) and _aGroupTotals_[_cCurrentGroup_][i] != 0
+					_cLine_ += " " + PadLeft("" + _aGroupTotals_[_cCurrentGroup_][i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				else
-					cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				ok
 			ok
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
-		cLine = @aBorder[:Vertical]
-		for i = 1 to nCols
-			cLine += " " + RepeatChar(" ", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+		_cLine_ = @aBorder[:Vertical]
+		for i = 1 to _nCols_
+			_cLine_ += " " + RepeatChar(" ", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
-		return cOutput
+		return _cOutput_
 
 	# Submethod to build grand total
-	def buildGrandTotal(aColWidths, bRowNumber, nCols)
-		cOutput = ""
-		cLine = @aBorder[:TeeRight]
-		for i = 1 to nCols
-			cLine += StrFill(aColWidths[i], @aBorder[:Horizontal])
-			if i < nCols
-				cLine += @aBorder[:Cross]
+	def buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
+		_cOutput_ = ""
+		_cLine_ = @aBorder[:TeeRight]
+		for i = 1 to _nCols_
+			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
+			if i < _nCols_
+				_cLine_ += @aBorder[:Cross]
 			else
-				cLine += @aBorder[:TeeLeft]
+				_cLine_ += @aBorder[:TeeLeft]
 			ok
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
-		cLine = @aBorder[:Vertical]
-		for i = 1 to nCols
-			if bRowNumber and i = 1
-				cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
-			but i = @if(bRowNumber, 2, 1)
-				cLine += PadLeft("GRAND-TOTAL ", aColWidths[i]) + @aBorder[:Vertical]
-			but i = @if(bRowNumber, 3, 2)
-				cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+		_cLine_ = @aBorder[:Vertical]
+		for i = 1 to _nCols_
+			if _bRowNumber_ and i = 1
+				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+			but i = @if(_bRowNumber_, 2, 1)
+				_cLine_ += PadLeft("GRAND-TOTAL ", _aColWidths_[i]) + @aBorder[:Vertical]
+			but i = @if(_bRowNumber_, 3, 2)
+				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 			else
-				if isNumber(aGrandTotals[i]) and aGrandTotals[i] != 0
-					cLine += " " + PadLeft("" + aGrandTotals[i], aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+				if isNumber(_aGrandTotals_[i]) and _aGrandTotals_[i] != 0
+					_cLine_ += " " + PadLeft("" + _aGrandTotals_[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				else
-					cLine += " " + PadLeft("", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				ok
 			ok
 		next
-		cOutput += cLine + NL
+		_cOutput_ += _cLine_ + NL
 
-		return cOutput
+		return _cOutput_
 
 	#---------------------------------#
 	#  TRANSPOSINT THE TABLE CONTENT  #
@@ -553,36 +553,36 @@ class stzTableDisplay from stzTable
 	def Transpose()
 
 	    # Get dimensions directly from @aContent
-	    nCols = len(@aContent)
-	    if nCols = 0
+	    _nCols_ = len(@aContent)
+	    if _nCols_ = 0
 	        return
 	    ok
-	    nRows = len(@aContent[1][2])
+	    _nRows_ = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
 	    @bTransposedWithHeaders = FALSE
 	    @aOriginalColNames = []
-	    for i = 1 to nCols
+	    for i = 1 to _nCols_
 	        @aOriginalColNames + @aContent[i][1]
 	    next
 
 	    # Generate new column names
-	    acNewColNames = []
-	    for i = 1 to nRows
-	        acNewColNames + ("COL" + i)
+	    _acNewColNames_ = []
+	    for i = 1 to _nRows_
+	        _acNewColNames_ + ("COL" + i)
 	    next
 
 	    # Build new content directly in target format
-	    aNewContent = []
-	    for i = 1 to nRows
-	        aNewRow = []
-	        for j = 1 to nCols
-	            aNewRow + @aContent[j][2][i]
+	    _aNewContent_ = []
+	    for i = 1 to _nRows_
+	        _aNewRow_ = []
+	        for j = 1 to _nCols_
+	            _aNewRow_ + @aContent[j][2][i]
 	        next
-	        aNewContent + [acNewColNames[i], aNewRow]
+	        _aNewContent_ + [_acNewColNames_[i], _aNewRow_]
 	    next
 
-	    This.UpdateWith(aNewContent)
+	    This.UpdateWith(_aNewContent_)
 
 	    # Reset calculated data
 	    @anCalculatedCols = []
@@ -613,45 +613,45 @@ class stzTableDisplay from stzTable
 	def TransposeXT() # Keeps original colnames
 
 	    # Get dimensions and column names directly from @aContent
-	    nCols = len(@aContent)
-	    if nCols = 0
+	    _nCols_ = len(@aContent)
+	    if _nCols_ = 0
 	        return
 	    ok
-	    nRows = len(@aContent[1][2])
+	    _nRows_ = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
 	    @bTransposedWithHeaders = True
 	    @aOriginalColNames = []
-	    for i = 1 to nCols
+	    for i = 1 to _nCols_
 	        @aOriginalColNames + @aContent[i][1]
 	    next
 
 	    # Generate new column names (all follow COL pattern)
-	    acNewColNames = []
-	    for i = 1 to nRows
-	        acNewColNames + ("COL" + i)
+	    _acNewColNames_ = []
+	    for i = 1 to _nRows_
+	        _acNewColNames_ + ("COL" + i)
 	    next
 
 	    # Build new content
-	    aNewContent = []
+	    _aNewContent_ = []
 
 	    # First column contains original headers
-	    aFirstColumn = []
-	    for i = 1 to nCols
-	        aFirstColumn + @aContent[i][1]
+	    _aFirstColumn_ = []
+	    for i = 1 to _nCols_
+	        _aFirstColumn_ + @aContent[i][1]
 	    next
-	    aNewContent + [acNewColNames[1], aFirstColumn]
+	    _aNewContent_ + [_acNewColNames_[1], _aFirstColumn_]
 
 	    # Remaining columns contain transposed data
-	    for i = 1 to nRows
-	        aNewRow = []
-	        for j = 1 to nCols
-	            aNewRow + @aContent[j][2][i]
+	    for i = 1 to _nRows_
+	        _aNewRow_ = []
+	        for j = 1 to _nCols_
+	            _aNewRow_ + @aContent[j][2][i]
 	        next
-	        aNewContent + [("COL" + (i+1)), aNewRow]
+	        _aNewContent_ + [("COL" + (i+1)), _aNewRow_]
 	    next
 
-	    This.UpdateWith(aNewContent)
+	    This.UpdateWith(_aNewContent_)
 
 	    # Reset calculated data
 	    @anCalculatedCols = []
@@ -667,26 +667,26 @@ class stzTableDisplay from stzTable
 	    ok
 
 	    # Get data columns (skip first column which contains headers)
-	    aDataColumns = []
+	    _aDataColumns_ = []
 	    _nContentLen_ = len(@aContent)
 	    for i = 2 to _nContentLen_
-	        aDataColumns + @aContent[i][2]
+	        _aDataColumns_ + @aContent[i][2]
 	    next
 
 	    # Transpose back
-	    nOriginalCols = len(@aOriginalColNames)
-	    nOriginalRows = len(aDataColumns)
+	    _nOriginalCols_ = len(@aOriginalColNames)
+	    _nOriginalRows_ = len(_aDataColumns_)
 
-	    aNewContent = []
-	    for i = 1 to nOriginalCols
-	        aNewRow = []
-	        for j = 1 to nOriginalRows
-	            aNewRow + aDataColumns[j][i]
+	    _aNewContent_ = []
+	    for i = 1 to _nOriginalCols_
+	        _aNewRow_ = []
+	        for j = 1 to _nOriginalRows_
+	            _aNewRow_ + _aDataColumns_[j][i]
 	        next
-	        aNewContent + [@aOriginalColNames[i], aNewRow]
+	        _aNewContent_ + [@aOriginalColNames[i], _aNewRow_]
 	    next
 
-	    This.UpdateWith(aNewContent)
+	    This.UpdateWith(_aNewContent_)
 
 	    # Clear transpose flags
 	    @bTransposedWithHeaders = False
@@ -704,59 +704,59 @@ class stzTableDisplay from stzTable
 	 #  UTILITY FUNCTIONS  #
 	#---------------------#
 
-	def PadRight(cText, nWidth)
-		if NOT (isNumber(cText) or isString(cText))
-			cText = @@(cText)
+	def PadRight(_cText_, nWidth)
+		if NOT (isNumber(_cText_) or isString(_cText_))
+			_cText_ = @@(_cText_)
 		ok
 
 		# Pad text to the right
-		cStr = "" + cText
-		nPad = nWidth - stzlen(cStr)
-		if nPad > 0
-			return cStr + RepeatChar(" ", nPad)
+		_cStr_ = "" + _cText_
+		_nPad_ = nWidth - stzlen(_cStr_)
+		if _nPad_ > 0
+			return _cStr_ + RepeatChar(" ", _nPad_)
 		else
-			return cStr
+			return _cStr_
 		ok
 
-	def PadLeft(cText, nWidth)
-		if NOT (isNumber(cText) or isString(cText))
-			text = @@(cText)
+	def PadLeft(_cText_, nWidth)
+		if NOT (isNumber(_cText_) or isString(_cText_))
+			_text_ = @@(_cText_)
 		ok
 
 		# Pad text to the left
-		cStr = "" + cText
-		nPad = nWidth - stzlen(cStr)
-		if nPad > 0
-			return RepeatChar(" ", nPad) + cStr
+		_cStr_ = "" + _cText_
+		_nPad_ = nWidth - stzlen(_cStr_)
+		if _nPad_ > 0
+			return RepeatChar(" ", _nPad_) + _cStr_
 		else
-			return cStr
+			return _cStr_
 		ok
 
-	def CenterText(cText, nWidth)
-		if NOT (isNumber(cText) or isString(cText))
-			cText = Q(cText).Stringified()
+	def CenterText(_cText_, nWidth)
+		if NOT (isNumber(_cText_) or isString(_cText_))
+			_cText_ = Q(_cText_).Stringified()
 		ok
 
 		# Center text within width
-		cStr = "" + cText
-		nPadTotal = nWidth - stzlen(cStr)
-		if nPadTotal <= 0
-			return cStr
+		_cStr_ = "" + _cText_
+		_nPadTotal_ = nWidth - stzlen(_cStr_)
+		if _nPadTotal_ <= 0
+			return _cStr_
 		ok
 
-		nPadLeft = floor(nPadTotal / 2)
-		nPadRight = nPadTotal - nPadLeft
+		_nPadLeft_ = floor(_nPadTotal_ / 2)
+		_nPadRight_ = _nPadTotal_ - _nPadLeft_
 
-		return RepeatChar(" ", nPadLeft) + cStr + RepeatChar(" ", nPadRight)
+		return RepeatChar(" ", _nPadLeft_) + _cStr_ + RepeatChar(" ", _nPadRight_)
 
 	def StrFill(nCount, cChar)
 
 		# Create string of repeated character
-		cResult = ""
+		_cResult_ = ""
 		for i = 1 to nCount
-			cResult += cChar
+			_cResult_ += cChar
 		next
-		return cResult
+		return _cResult_
 
 	  #======================================================================#
 	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV, JSON OR HTML)  #
@@ -799,12 +799,12 @@ class stzTableDisplay from stzTable
 			StzRaise("Can't proceed! This string you provided is not in JSON.")
 		ok
 
-		aData = JsonToList(pcJsonStr)
-		if Not ( @IsHashList(aData) and @IsTable(aData) )
+		_aData_ = JsonToList(pcJsonStr)
+		if Not ( @IsHashList(_aData_) and @IsTable(_aData_) )
 			StzRaise("Can't proceed! The Json structure does not correspond to a stzTable structure.")
 		ok
 
-		This.UpdateWith(aData)
+		This.UpdateWith(_aData_)
 
 	#---
 
@@ -815,63 +815,63 @@ class stzTableDisplay from stzTable
 			return This.ToHtml()
 
 	def ToHtmlXT()
-	    aContent = @aContent
-	    if len(aContent) = 0
+	    _aContent_ = @aContent
+	    if len(_aContent_) = 0
 	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
 	    ok
 
 	    # Ensure all columns have exactly the same number of values
 	    # This is critical for the buggy parser
-	    nLen = len(aContent)
-	    nRows = 0
-	    for i = 1 to nLen
-	        if len(aContent[i][2]) > nRows
-	            nRows = len(aContent[i][2])
+	    _nLen_ = len(_aContent_)
+	    _nRows_ = 0
+	    for i = 1 to _nLen_
+	        if len(_aContent_[i][2]) > _nRows_
+	            _nRows_ = len(_aContent_[i][2])
 	        ok
 	    next
 
 	    # Pad shorter columns with empty strings to match longest column
-	    for i = 1 to nLen
-	        while len(aContent[i][2]) < nRows
-	            aContent[i][2] + ""
+	    for i = 1 to _nLen_
+	        while len(_aContent_[i][2]) < _nRows_
+	            _aContent_[i][2] + ""
 	        end
 	    next
 
-	    cHtml = '<table class="data" id="products">' + nl
-	    cHtml += '<thead>' + nl
-	    cHtml += nl
-	    cHtml += '<tr>' + nl
+	    _cHtml_ = '<table class="data" id="products">' + nl
+	    _cHtml_ += '<thead>' + nl
+	    _cHtml_ += nl
+	    _cHtml_ += '<tr>' + nl
 
 	    # Generate header row - ensure format matches parser expectations
-	    for i = 1 to nLen
-	        cHtml += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
+	    for i = 1 to _nLen_
+	        _cHtml_ += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
 	    next
 
-	    cHtml += '</tr>' + nl
-	    cHtml += nl
-	    cHtml += '</thead>' + nl
-	    cHtml += nl
-	    cHtml += '<tbody>' + nl
-	    cHtml += nl
+	    _cHtml_ += '</tr>' + nl
+	    _cHtml_ += nl
+	    _cHtml_ += '</thead>' + nl
+	    _cHtml_ += nl
+	    _cHtml_ += '<tbody>' + nl
+	    _cHtml_ += nl
 
 	    # Generate body rows - use exact format the parser expects
-	    for nRowIndex = 1 to nRows
-	        cHtml += '<tr class="row">' + nl
+	    for nRowIndex = 1 to _nRows_
+	        _cHtml_ += '<tr class="row">' + nl
 
 	        # For each column, get the value at this row index
-	        for nColIndex = 1 to nLen
-	            cValue = aContent[nColIndex][2][nRowIndex]
-	            cHtml += '        ' + '<td>' + cValue + '</td>' + nl
+	        for nColIndex = 1 to _nLen_
+	            _cValue_ = _aContent_[nColIndex][2][nRowIndex]
+	            _cHtml_ += '        ' + '<td>' + _cValue_ + '</td>' + nl
 	        next
 
-	        cHtml += nl
-	        cHtml += '</tr>' + nl
-	        cHtml += nl
+	        _cHtml_ += nl
+	        _cHtml_ += '</tr>' + nl
+	        _cHtml_ += nl
 	    next
 
-	    cHtml += '</tbody>' + nl
-	    cHtml += '</table>' + nl
-			return cHtml
+	    _cHtml_ += '</tbody>' + nl
+	    _cHtml_ += '</table>' + nl
+			return _cHtml_
 
 		def ToHtmlTableXT()
 			return This.ToHtmlXT()

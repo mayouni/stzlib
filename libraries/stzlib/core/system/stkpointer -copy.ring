@@ -43,43 +43,43 @@ class stkPointer
     def CreateFromParams(aParams)
 
         pValue = aParams[1]
-        cType = aParams[2]
-        nSize = 0
+        _cType_ = aParams[2]
+        _nSize_ = 0
 
         if len(aParams) > 2
-			nSize = aParams[3]
+			_nSize_ = aParams[3]
 		ok
         
-        This.CreateFromValue([ pValue, cType, nSize ])
+        This.CreateFromValue([ pValue, _cType_, _nSize_ ])
 
 
     def CreateFromValue(pParams)
 
         pValue = NULL
-        cType = NULL
-        nSize = 0
+        _cType_ = NULL
+        _nSize_ = 0
         
         if isList(pParams) and len(pParams) >= 2
 
             pValue = pParams[1]
-            cType = pParams[2]
+            _cType_ = pParams[2]
 
             if len(pParams) > 2
-				nSize = pParams[3]
+				_nSize_ = pParams[3]
 			ok
 
         else
             pValue = pParams
-            cType = This.DetectType(pValue)
+            _cType_ = This.DetectType(pValue)
 
         ok
         
-        @cLogicalType = cType
+        @cLogicalType = _cType_
         
-        switch cType
+        switch _cType_
 
             on "string"
-                This.CreateStringPointer(pValue, nSize)
+                This.CreateStringPointer(pValue, _nSize_)
 
             on "int"
                 This.CreateIntPointer(pValue)
@@ -94,7 +94,7 @@ class stkPointer
                 This.CreateObjectPointer(pValue)
 
             other
-                raise("Unsupported type: " + cType)
+                raise("Unsupported type: " + _cType_)
 
         off
         
@@ -102,21 +102,21 @@ class stkPointer
         @bIsManaged = TRUE
 
 
-	def CreateStringPointer(cString, nSize)
-	    if nSize = 0
-	        nSize = len(cString) + 1
+	def CreateStringPointer(cString, _nSize_)
+	    if _nSize_ = 0
+	        _nSize_ = len(cString) + 1
 	    ok
 	    
-	    @nBufferSize = nSize
+	    @nBufferSize = _nSize_
 	    
 	    # Use memory allocation
-	    @buffer = @oMemory.Allocate(nSize)
-	    @oMemory.Fill(@buffer, 0, nSize)  # Initialize with zeros
+	    @buffer = @oMemory.Allocate(_nSize_)
+	    @oMemory.Fill(@buffer, 0, _nSize_)  # Initialize with zeros
 	    
 	    # Copy string data
 	    if len(cString) > 0
-	        nCopySize = min([len(cString), nSize - 1])
-	        for i = 1 to nCopySize
+	        _nCopySize_ = min([len(cString), _nSize_ - 1])
+	        for i = 1 to _nCopySize_
 	            @buffer[i] = cString[i]
 	        next
 	    ok
@@ -181,65 +181,65 @@ class stkPointer
 
     # Proper CopyFrom implementation
 
-	def CopyFrom(pSource, nSize)
+	def CopyFrom(pSource, _nSize_)
 	    This.ValidatePointer()
 	    
-	    if IsNull(nSize)
-	        nSize = @nBufferSize
+	    if IsNull(_nSize_)
+	        _nSize_ = @nBufferSize
 	    ok
 	    
 	    # Get source data properly
-	    cSourceData = ""
+	    _cSourceData_ = ""
 	    
 	    if isObject(pSource) and classname(pSource) = "stkpointer"
-	        cSourceData = pSource.RingValue()
+	        _cSourceData_ = pSource.RingValue()
 	    else
-	        cSourceData = pointer2string(pSource, 0, nSize)
+	        _cSourceData_ = pointer2string(pSource, 0, _nSize_)
 	    ok
 	    
 	    # For string pointers, merge with existing buffer
 	    if @cLogicalType = "string"
-	        cCurrentBuffer = @buffer
-	        cNewBuffer = ""
+	        _cCurrentBuffer_ = @buffer
+	        _cNewBuffer_ = ""
 	        
 	        # Copy specified bytes from source to beginning of buffer
-	        for i = 1 to nSize
-	            if i <= len(cSourceData)
-	                cNewBuffer += cSourceData[i]
+	        for i = 1 to _nSize_
+	            if i <= len(_cSourceData_)
+	                _cNewBuffer_ += _cSourceData_[i]
 	            else
-	                cNewBuffer += char(0)
+	                _cNewBuffer_ += char(0)
 	            ok
 	        next
 	        
 	        # Append remaining original data after the copied portion
-	        if len(cCurrentBuffer) > nSize
-	            cNewBuffer += right(cCurrentBuffer, len(cCurrentBuffer) - nSize)
+	        if len(_cCurrentBuffer_) > _nSize_
+	            _cNewBuffer_ += right(_cCurrentBuffer_, len(_cCurrentBuffer_) - _nSize_)
 	        ok
 	        
-	        @buffer = cNewBuffer
+	        @buffer = _cNewBuffer_
 	        @pointer = varptr("@buffer", "char")
 	    else
 	        # For other types, use Ring's built-in memory functions
-	        memcpy(@pointer, pSource, nSize)
+	        memcpy(@pointer, pSource, _nSize_)
 	    ok
 	
 	
-	def CopyTo(pDest, nSize)
+	def CopyTo(pDest, _nSize_)
 	    This.ValidatePointer()
 	    
-	    if IsNull(nSize)
-	        nSize = @nBufferSize
+	    if IsNull(_nSize_)
+	        _nSize_ = @nBufferSize
 	    ok
 	    
 	    if isObject(pDest) and classname(pDest) = "stkpointer"
-	        pDest.CopyFrom(This, nSize)
+	        pDest.CopyFrom(This, _nSize_)
 	    else
 	        # Use memory copy for Ring types
 	        if @cLogicalType = "string"
-	            cData = @oMemory.Copy(@buffer, NULL, nSize)
-	            memcpy(pDest, varptr("cData", "char"), nSize)
+	            _cData_ = @oMemory.Copy(@buffer, NULL, _nSize_)
+	            memcpy(pDest, varptr("cData", "char"), _nSize_)
 	        else
-	            memcpy(pDest, @pointer, nSize)
+	            memcpy(pDest, @pointer, _nSize_)
 	        ok
 	    ok
 	

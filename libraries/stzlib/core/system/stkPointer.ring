@@ -13,7 +13,7 @@ class stkPointer
     #  INITIALIZATION AND CREATION  #
     #-------------------------------#
 
-    def init(oMemory, cBufferId, cAccessMode, nOffset, nLength, nPointerId)
+    def init(oMemory, cBufferId, cAccessMode, _nOffset_, _nLength_, nPointerId)
         # Can only be created by stkMemory - no standalone creation
         if IsNull(oMemory) or not IsObject(oMemory)
             raise("ERROR: stkPointer must be created by stkMemory container")
@@ -31,7 +31,7 @@ class stkPointer
             raise("ERROR: Access mode must be 'read' or 'write'")
         ok
         
-        if nOffset < 0 or nLength < 0
+        if _nOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Offset and length must be non-negative")
         ok
         
@@ -42,8 +42,8 @@ class stkPointer
         @oMemory = oMemory
         @cBufferId = cBufferId
         @cAccessMode = cAccessMode
-        @nOffset = nOffset
-        @nLength = nLength
+        @nOffset = _nOffset_
+        @nLength = _nLength_
         @nPointerId = nPointerId
         @bIsValid = TRUE
         
@@ -54,103 +54,103 @@ class stkPointer
     #  READING AND WRITING  #
     #-----------------------#
 
-    def Read(nOffset, nLength)
+    def Read(_nOffset_, _nLength_)
         This.ValidatePointer()
         
-        if IsNull(nOffset)
-            nOffset = 0
+        if IsNull(_nOffset_)
+            _nOffset_ = 0
         ok
         
-        if IsNull(nLength)
-            nLength = @nLength - nOffset
+        if IsNull(_nLength_)
+            _nLength_ = @nLength - _nOffset_
         ok
         
-        if nOffset < 0 or nLength < 0
+        if _nOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @nLength
+        if _nOffset_ + _nLength_ > @nLength
             raise("ERROR: Read beyond pointer view bounds")
         ok
         
         # Calculate absolute buffer position
-        nAbsoluteOffset = @nOffset + nOffset
+        _nAbsoluteOffset_ = @nOffset + _nOffset_
         
         # Delegate to memory container
-        return @oMemory.ReadFromBuffer(@cBufferId, nAbsoluteOffset, nLength)
+        return @oMemory.ReadFromBuffer(@cBufferId, _nAbsoluteOffset_, _nLength_)
 
-    def Read0(nOffset, nLength)
-        return This.Read(nOffset, nLength)
+    def Read0(_nOffset_, _nLength_)
+        return This.Read(_nOffset_, _nLength_)
 
-    def Read1(nOffset, nLength)
-        return This.Read(nOffset-1, nLength)
+    def Read1(_nOffset_, _nLength_)
+        return This.Read(_nOffset_-1, _nLength_)
 
     def ReadAll()
         return This.Read(0, @nLength)
 
-    def ReadByte(nOffset)
+    def ReadByte(_nOffset_)
         This.ValidatePointer()
         
-        if nOffset < 0 or nOffset >= @nLength
+        if _nOffset_ < 0 or _nOffset_ >= @nLength
             raise("ERROR: Byte offset out of bounds")
         ok
         
-        cData = This.Read(nOffset, 1)
-        if len(cData) > 0
-            return ascii(cData[1])
+        _cData_ = This.Read(_nOffset_, 1)
+        if len(_cData_) > 0
+            return ascii(_cData_[1])
         else
             return 0
         ok
 
-    def ReadByte0(nOffset)
-        return This.ReadByte(nOffset)
+    def ReadByte0(_nOffset_)
+        return This.ReadByte(_nOffset_)
 
-    def ReadByte1(nOffset)
-        return This.ReadByte(nOffset-1)
+    def ReadByte1(_nOffset_)
+        return This.ReadByte(_nOffset_-1)
 
     # Enhanced: Direct memory reading using low-level pointers
-    def ReadDirect(nOffset, nLength)
+    def ReadDirect(_nOffset_, _nLength_)
         This.ValidatePointer()
         
-        if IsNull(nOffset)
-            nOffset = 0
+        if IsNull(_nOffset_)
+            _nOffset_ = 0
         ok
         
-        if IsNull(nLength)
-            nLength = @nLength - nOffset
+        if IsNull(_nLength_)
+            _nLength_ = @nLength - _nOffset_
         ok
         
-        if nOffset < 0 or nLength < 0
+        if _nOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @nLength
+        if _nOffset_ + _nLength_ > @nLength
             raise("ERROR: Read beyond pointer view bounds")
         ok
         
         if @pLowLevelPtr = NULL
             # Fallback to regular read
-            return This.Read(nOffset, nLength)
+            return This.Read(_nOffset_, _nLength_)
         ok
         
         # Use low-level pointer for direct memory access
-        nTargetAddress = @nBaseAddress + @nOffset + nOffset
-        pTempPtr = setptr(@pLowLevelPtr, nTargetAddress)
-        cResult = ptr2str(pTempPtr, 0, nLength)
+        _nTargetAddress_ = @nBaseAddress + @nOffset + _nOffset_
+        pTempPtr = setptr(@pLowLevelPtr, _nTargetAddress_)
+        _cResult_ = ptr2str(pTempPtr, 0, _nLength_)
         
-        return cResult
+        return _cResult_
 
-    def Write(nOffset, pData)
+    def Write(_nOffset_, pData)
         
         if @cAccessMode != "write"
             raise("ERROR: Write operation not allowed - pointer is read-only")
         ok
         
-        if IsNull(nOffset)
-            nOffset = 0
+        if IsNull(_nOffset_)
+            _nOffset_ = 0
         ok
         
-        if nOffset < 0
+        if _nOffset_ < 0
             raise("ERROR: Negative offset not allowed")
         ok
         
@@ -158,41 +158,41 @@ class stkPointer
             raise("ERROR: Cannot write null data")
         ok
         
-        cData = ""
+        _cData_ = ""
         if IsString(pData)
-            cData = pData
+            _cData_ = pData
         else
-            cData = string(pData)
+            _cData_ = string(pData)
         ok
         
-        if nOffset + len(cData) > @nLength
+        if _nOffset_ + len(_cData_) > @nLength
             raise("ERROR: Write would exceed pointer view bounds")
         ok
         
         # Calculate absolute buffer position
-        nAbsoluteOffset = @nOffset + nOffset
+        _nAbsoluteOffset_ = @nOffset + _nOffset_
         
 		# Write directly to buffer to avoid circular call
-		oBuffer = @oMemory.GetBufferById(@cBufferId)
-		if IsNull(oBuffer)
+		_oBuffer_ = @oMemory.GetBufferById(@cBufferId)
+		if IsNull(_oBuffer_)
 		    raise("ERROR: Buffer not found")
 		ok
-		oBuffer.Write(nAbsoluteOffset, cData)
+		_oBuffer_.Write(_nAbsoluteOffset_, _cData_)
 
-    def Write0(nOffset, pData)
-        This.Write(nOffset, pData)
+    def Write0(_nOffset_, pData)
+        This.Write(_nOffset_, pData)
 
-    def Write1(nOffset, pData)
-        This.Write(nOffset-1, pData)
+    def Write1(_nOffset_, pData)
+        This.Write(_nOffset_-1, pData)
 
-    def WriteByte(nOffset, nByte)
+    def WriteByte(_nOffset_, nByte)
         This.ValidatePointer()
         
         if @cAccessMode != "write"
             raise("ERROR: Write operation not allowed - pointer is read-only")
         ok
         
-        if nOffset < 0 or nOffset >= @nLength
+        if _nOffset_ < 0 or _nOffset_ >= @nLength
             raise("ERROR: Byte offset out of bounds")
         ok
         
@@ -200,34 +200,34 @@ class stkPointer
             raise("ERROR: Byte value must be between 0 and 255")
         ok
         
-        This.Write(nOffset, char(nByte))
+        This.Write(_nOffset_, char(nByte))
 
-    def WriteByte0(nOffset, nByte)
-        This.WriteByte(nOffset, nByte)
+    def WriteByte0(_nOffset_, nByte)
+        This.WriteByte(_nOffset_, nByte)
 
-    def WriteByte1(nOffset, nByte)
-        This.WriteByte(nOffset-1, nByte)
+    def WriteByte1(_nOffset_, nByte)
+        This.WriteByte(_nOffset_-1, nByte)
 
-    def Fill(nByte, nStart, nLength)
+    def Fill(nByte, _nStart_, _nLength_)
         This.ValidatePointer()
         
         if @cAccessMode != "write"
             raise("ERROR: Fill operation not allowed - pointer is read-only")
         ok
         
-        if IsNull(nStart)
-            nStart = 0
+        if IsNull(_nStart_)
+            _nStart_ = 0
         ok
         
-        if IsNull(nLength)
-            nLength = @nLength - nStart
+        if IsNull(_nLength_)
+            _nLength_ = @nLength - _nStart_
         ok
         
-        if nStart < 0 or nLength < 0
+        if _nStart_ < 0 or _nLength_ < 0
             raise("ERROR: Negative start or length not allowed")
         ok
         
-        if nStart + nLength > @nLength
+        if _nStart_ + _nLength_ > @nLength
             raise("ERROR: Fill would exceed pointer view bounds")
         ok
         
@@ -236,27 +236,27 @@ class stkPointer
         ok
         
         # Create fill data
-        cFillData = @copy(char(nByte), nLength)
-        This.Write(nStart, cFillData)
+        _cFillData_ = @copy(char(nByte), _nLength_)
+        This.Write(_nStart_, _cFillData_)
 
-    def Fill0(nByte, nStart, nLength)
-        This.Fill(nByte, nStart, nLength)
+    def Fill0(nByte, _nStart_, _nLength_)
+        This.Fill(nByte, _nStart_, _nLength_)
 
-    def Fill1(nByte, nStart, nLength)
-        This.Fill(nByte, nStart-1, nLength)
+    def Fill1(nByte, _nStart_, _nLength_)
+        This.Fill(nByte, _nStart_-1, _nLength_)
 
     #--------------------------#
     #  SEARCHING AND INDEXING  #
     #--------------------------#
 
-    def IndexOf(pPattern, nStartPos)
+    def IndexOf(pPattern, _nStartPos_)
         This.ValidatePointer()
         
-        if IsNull(nStartPos)
-            nStartPos = 0
+        if IsNull(_nStartPos_)
+            _nStartPos_ = 0
         ok
         
-        if nStartPos < 0 or nStartPos >= @nLength
+        if _nStartPos_ < 0 or _nStartPos_ >= @nLength
             return -1
         ok
         
@@ -264,36 +264,36 @@ class stkPointer
             return -1
         ok
         
-        cPattern = ""
+        _cPattern_ = ""
         if IsString(pPattern)
-            cPattern = pPattern
+            _cPattern_ = pPattern
         else
-            cPattern = string(pPattern)
+            _cPattern_ = string(pPattern)
         ok
         
-        if len(cPattern) = 0
-            return nStartPos
+        if len(_cPattern_) = 0
+            return _nStartPos_
         ok
         
         # Read view data and search within it
-        cViewData = This.Read(nStartPos, @nLength - nStartPos)
-        nPos = substr(cViewData, cPattern)
+        _cViewData_ = This.Read(_nStartPos_, @nLength - _nStartPos_)
+        _nPos_ = substr(_cViewData_, _cPattern_)
         
-        if nPos > 0
-            return nStartPos + nPos - 1
+        if _nPos_ > 0
+            return _nStartPos_ + _nPos_ - 1
         else
             return -1
         ok
 
-    def IndexOf0(pPattern, nStartPos)
-        return This.IndexOf(pPattern, nStartPos)
+    def IndexOf0(pPattern, _nStartPos_)
+        return This.IndexOf(pPattern, _nStartPos_)
 
-    def IndexOf1(pPattern, nStartPos)
-        nResult = This.IndexOf(pPattern, nStartPos)
-        if nResult = -1
+    def IndexOf1(pPattern, _nStartPos_)
+        _nResult_ = This.IndexOf(pPattern, _nStartPos_)
+        if _nResult_ = -1
             return 0  # Ring convention: 0 means not found
         else
-            return nResult + 1
+            return _nResult_ + 1
         ok
 
     def Contains(pPattern)
@@ -303,61 +303,61 @@ class stkPointer
     #  VIEW MANIPULATION    #
     #-----------------------#
 
-    def CreateSubView(nOffset, nLength)
+    def CreateSubView(_nOffset_, _nLength_)
         This.ValidatePointer()
         
-        if nOffset < 0 or nLength < 0
+        if _nOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @nLength
+        if _nOffset_ + _nLength_ > @nLength
             raise("ERROR: Sub-view exceeds current view bounds")
         ok
         
         # Calculate absolute offset
-        nAbsoluteOffset = @nOffset + nOffset
+        _nAbsoluteOffset_ = @nOffset + _nOffset_
         
         # Create new pointer through memory container
-        return @oMemory.CreatePointerView(@cBufferId, @cAccessMode, nAbsoluteOffset, nLength)
+        return @oMemory.CreatePointerView(@cBufferId, @cAccessMode, _nAbsoluteOffset_, _nLength_)
 
-    def CreateSubView0(nOffset, nLength)
-        return This.CreateSubView(nOffset, nLength)
+    def CreateSubView0(_nOffset_, _nLength_)
+        return This.CreateSubView(_nOffset_, _nLength_)
 
-    def CreateSubView1(nOffset, nLength)
-        return This.CreateSubView(nOffset-1, nLength)
+    def CreateSubView1(_nOffset_, _nLength_)
+        return This.CreateSubView(_nOffset_-1, _nLength_)
 
-    def Slice(nOffset, nLength)
+    def Slice(_nOffset_, _nLength_)
         This.ValidatePointer()
         
-        if IsNull(nOffset)
-            nOffset = 0
+        if IsNull(_nOffset_)
+            _nOffset_ = 0
         ok
         
-        if IsNull(nLength)
-            nLength = @nLength - nOffset
+        if IsNull(_nLength_)
+            _nLength_ = @nLength - _nOffset_
         ok
         
-        if nOffset < 0 or nLength < 0
+        if _nOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Negative offset or length not allowed")
         ok
         
-        if nOffset + nLength > @nLength
+        if _nOffset_ + _nLength_ > @nLength
             raise("ERROR: Slice exceeds view bounds")
         ok
         
-        return This.Read(nOffset, nLength)
+        return This.Read(_nOffset_, _nLength_)
 
-    def Slice0(nOffset, nLength)
-        return This.Slice(nOffset, nLength)
+    def Slice0(_nOffset_, _nLength_)
+        return This.Slice(_nOffset_, _nLength_)
 
-    def Slice1(nOffset, nLength)
-        return This.Slice(nOffset-1, nLength)
+    def Slice1(_nOffset_, _nLength_)
+        return This.Slice(_nOffset_-1, _nLength_)
 
     #-----------------------#
     #  COPYING AND MOVING   #
     #-----------------------#
 
-    def CopyFrom(oSourcePointer, nSourceOffset, nDestOffset, nLength)
+    def CopyFrom(oSourcePointer, _nSourceOffset_, _nDestOffset_, _nLength_)
         This.ValidatePointer()
         
         if @cAccessMode != "write"
@@ -376,41 +376,41 @@ class stkPointer
             raise("ERROR: Source pointer is invalid")
         ok
         
-        if IsNull(nSourceOffset)
-            nSourceOffset = 0
+        if IsNull(_nSourceOffset_)
+            _nSourceOffset_ = 0
         ok
         
-        if IsNull(nDestOffset)
-            nDestOffset = 0
+        if IsNull(_nDestOffset_)
+            _nDestOffset_ = 0
         ok
         
-        if IsNull(nLength)
-            nLength = min([oSourcePointer.Length() - nSourceOffset, @nLength - nDestOffset])
+        if IsNull(_nLength_)
+            _nLength_ = min([oSourcePointer.Length() - _nSourceOffset_, @nLength - _nDestOffset_])
         ok
         
-        if nSourceOffset < 0 or nDestOffset < 0 or nLength < 0
+        if _nSourceOffset_ < 0 or _nDestOffset_ < 0 or _nLength_ < 0
             raise("ERROR: Negative offsets or length not allowed")
         ok
         
-        if nSourceOffset + nLength > oSourcePointer.Length()
+        if _nSourceOffset_ + _nLength_ > oSourcePointer.Length()
             raise("ERROR: Copy would exceed source bounds")
         ok
         
-        if nDestOffset + nLength > @nLength
+        if _nDestOffset_ + _nLength_ > @nLength
             raise("ERROR: Copy would exceed destination bounds")
         ok
         
         # Read from source and write to destination
-        cData = oSourcePointer.Read(nSourceOffset, nLength)
-        This.Write(nDestOffset, cData)
+        _cData_ = oSourcePointer.Read(_nSourceOffset_, _nLength_)
+        This.Write(_nDestOffset_, _cData_)
 
-    def CopyFrom0(oSourcePointer, nSourceOffset, nDestOffset, nLength)
-        This.CopyFrom(oSourcePointer, nSourceOffset, nDestOffset, nLength)
+    def CopyFrom0(oSourcePointer, _nSourceOffset_, _nDestOffset_, _nLength_)
+        This.CopyFrom(oSourcePointer, _nSourceOffset_, _nDestOffset_, _nLength_)
 
-    def CopyFrom1(oSourcePointer, nSourceOffset, nDestOffset, nLength)
-        This.CopyFrom(oSourcePointer, nSourceOffset-1, nDestOffset-1, nLength)
+    def CopyFrom1(oSourcePointer, _nSourceOffset_, _nDestOffset_, _nLength_)
+        This.CopyFrom(oSourcePointer, _nSourceOffset_-1, _nDestOffset_-1, _nLength_)
 
-    def CopyTo(oDestPointer, nSourceOffset, nDestOffset, nLength)
+    def CopyTo(oDestPointer, _nSourceOffset_, _nDestOffset_, _nLength_)
         This.ValidatePointer()
         
         if IsNull(oDestPointer) or not IsObject(oDestPointer)
@@ -426,13 +426,13 @@ class stkPointer
         ok
         
         # Use destination's CopyFrom method
-        oDestPointer.CopyFrom(This, nSourceOffset, nDestOffset, nLength)
+        oDestPointer.CopyFrom(This, _nSourceOffset_, _nDestOffset_, _nLength_)
 
-    def CopyTo0(oDestPointer, nSourceOffset, nDestOffset, nLength)
-        This.CopyTo(oDestPointer, nSourceOffset, nDestOffset, nLength)
+    def CopyTo0(oDestPointer, _nSourceOffset_, _nDestOffset_, _nLength_)
+        This.CopyTo(oDestPointer, _nSourceOffset_, _nDestOffset_, _nLength_)
 
-    def CopyTo1(oDestPointer, nSourceOffset, nDestOffset, nLength)
-        This.CopyTo(oDestPointer, nSourceOffset-1, nDestOffset-1, nLength)
+    def CopyTo1(oDestPointer, _nSourceOffset_, _nDestOffset_, _nLength_)
+        This.CopyTo(oDestPointer, _nSourceOffset_-1, _nDestOffset_-1, _nLength_)
 
     #----------------------------------#
     #  LOW-LEVEL POINTER OPERATIONS    #
@@ -492,8 +492,8 @@ class stkPointer
         ok
         
         if @pLowLevelPtr != NULL
-            nNewAddress = @nBaseAddress + @nOffset + nNewOffset
-            setptr(@pLowLevelPtr, nNewAddress)
+            _nNewAddress_ = @nBaseAddress + @nOffset + nNewOffset
+            setptr(@pLowLevelPtr, _nNewAddress_)
         ok
 
     def CreatePointerReference()
@@ -511,11 +511,11 @@ class stkPointer
         ok
         
         try
-            oPointer = ptr2obj(pReference)
-            if ClassName(oPointer) != "stkpointer"
+            _oPointer_ = ptr2obj(pReference)
+            if ClassName(_oPointer_) != "stkpointer"
                 raise("ERROR: Reference does not point to stkPointer")
             ok
-            return oPointer
+            return _oPointer_
         catch cError
             raise("ERROR: Cannot restore pointer from reference: " + cError)
         done
@@ -529,9 +529,9 @@ class stkPointer
         ok
         
         # Use pointer2string for direct memory access
-        nViewAddress = This.GetViewAddress()
+        _nViewAddress_ = This.GetViewAddress()
         pTempPtr = nullptr()
-        setptr(pTempPtr, nViewAddress)
+        setptr(pTempPtr, _nViewAddress_)
         
         try
             return ptr2str(pTempPtr, 0, @nLength)
@@ -540,7 +540,7 @@ class stkPointer
             return This.ReadAll()
         done
 
-    def FromBinaryString(cBinaryData, nOffset)
+    def FromBinaryString(cBinaryData, _nOffset_)
         # Write binary data directly to pointer location
         This.ValidatePointer()
         
@@ -548,20 +548,20 @@ class stkPointer
             raise("ERROR: Write operation not allowed - pointer is read-only")
         ok
         
-        if IsNull(nOffset)
-            nOffset = 0
+        if IsNull(_nOffset_)
+            _nOffset_ = 0
         ok
         
-        if nOffset < 0
+        if _nOffset_ < 0
             raise("ERROR: Negative offset not allowed")
         ok
         
-        if nOffset + len(cBinaryData) > @nLength
+        if _nOffset_ + len(cBinaryData) > @nLength
             raise("ERROR: Binary data would exceed pointer view bounds")
         ok
         
         # Use regular write method for safety
-        This.Write(nOffset, cBinaryData)
+        This.Write(_nOffset_, cBinaryData)
 
     #-----------------------------#
     #  INFORMATION AND METADATA   #
@@ -713,10 +713,10 @@ class stkPointer
         # Initialize low-level pointer access if possible
         try
             # Try to get buffer data and create pointer to it
-            oBuffer = @oMemory.GetBufferById(@cBufferId)
-            if not IsNull(oBuffer)
-                cBufferData = oBuffer.Content()
-                if len(cBufferData) > 0
+            _oBuffer_ = @oMemory.GetBufferById(@cBufferId)
+            if not IsNull(_oBuffer_)
+                _cBufferData_ = _oBuffer_.Content()
+                if len(_cBufferData_) > 0
                     @pLowLevelPtr = varptr(:cBufferData, :char)
                     @nBaseAddress = getptr(@pLowLevelPtr)
                 ok
@@ -737,9 +737,9 @@ class stkPointer
 	        raise("ERROR: Pointer has invalid memory container reference")
 	    ok
 
-	    oBufferInfo = @oMemory.GetBufferInfo(@cBufferId)
+	    _oBufferInfo_ = @oMemory.GetBufferInfo(@cBufferId)
 
-	    if IsNull(oBufferInfo)
+	    if IsNull(_oBufferInfo_)
 	        raise("ERROR: Referenced buffer no longer exists")
 	    ok
 
@@ -747,6 +747,6 @@ class stkPointer
 	        raise("ERROR: Invalid offset or length")
 	    ok
 
-	    if @nOffset + @nLength > oBufferInfo[:capacity]
+	    if @nOffset + @nLength > _oBufferInfo_[:capacity]
 	        raise("ERROR: Pointer view exceeds buffer bounds")
 	    ok

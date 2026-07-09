@@ -80,13 +80,13 @@ class stzListInserter from stzObject
 		def InsertItem(pItem, pWhere)
 			This.Insert(pItem, pWhere)
 
-	def InsertBeforePosition(n, pItem)
-		if isList(n) and IsPositionNamedParamList(n)
-			n = n[2]
+	def InsertBeforePosition(_n_, pItem)
+		if isList(_n_) and IsPositionNamedParamList(_n_)
+			_n_ = _n_[2]
 		ok
 
-		if isList(n) and IsListOfNumbers(n)
-			This.InsertBeforePositions(n, pItem)
+		if isList(_n_) and IsListOfNumbers(_n_)
+			This.InsertBeforePositions(_n_, pItem)
 			return
 		ok
 
@@ -94,55 +94,55 @@ class stzListInserter from stzObject
 			pItem = pItem[2]
 		ok
 
-		if n >= 1 and n <= This.NumberOfItems()
-			ring_insert(@oList.List(), n-1, pItem)
+		if _n_ >= 1 and _n_ <= This.NumberOfItems()
+			ring_insert(@oList.List(), _n_-1, pItem)
 
-		but n > This.NumberofItems()
-			@oList.ExtendToN(n)
-			ring_insert(@oList.List(), n-1, pItem)
+		but _n_ > This.NumberofItems()
+			@oList.ExtendToN(_n_)
+			ring_insert(@oList.List(), _n_-1, pItem)
 		ok
 
-		def InsertBeforePositionQ(n, pItem)
-			This.InsertBeforePosition(n, pItem)
+		def InsertBeforePositionQ(_n_, pItem)
+			This.InsertBeforePosition(_n_, pItem)
 			return This
 
-		def InsertBefore(n, pItem)
-			This.InsertBeforePosition(n, pItem)
+		def InsertBefore(_n_, pItem)
+			This.InsertBeforePosition(_n_, pItem)
 
-		def InsertAt(n, pItem)
-			if isList(n) and IsOneOfTheseNamedParamsList(n, [ :Position, :ItemAt, :ItemAtPosition ])
-				n = n[2]
+		def InsertAt(_n_, pItem)
+			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_, [ :Position, :ItemAt, :ItemAtPosition ])
+				_n_ = _n_[2]
 			ok
 
 			_aIatContent_ = @oList.Content()
-			ring_insert(_aIatContent_, n, pItem)
+			ring_insert(_aIatContent_, _n_, pItem)
 			@oList.UpdateWith(_aIatContent_)
 
-			def InsertAtQ(n, pItem)
-				This.InsertAt(n, pItem)
+			def InsertAtQ(_n_, pItem)
+				This.InsertAt(_n_, pItem)
 				return This
 
 	  #----------------------------------------------------#
 	 #     INSERTING AN ITEM AFTER A GIVEN POSITION      #
 	#----------------------------------------------------#
 
-	def InsertAfterPosition(n, pItem)
+	def InsertAfterPosition(_n_, pItem)
 
-		if isList(n) and IsListOfNumbers(n)
-			This.InsertAfterPositions(n, pItem)
+		if isList(_n_) and IsListOfNumbers(_n_)
+			This.InsertAfterPositions(_n_, pItem)
 			return
 		ok
 
-		if n > 0 and n < This.NumberOfItems()
-			ring_insert(@oList.List(), n, pItem)
+		if _n_ > 0 and _n_ < This.NumberOfItems()
+			ring_insert(@oList.List(), _n_, pItem)
 		ok
 
-		def InsertAfterPositionQ(n, pItem)
-			This.InsertAfterPosition(n, pItem)
+		def InsertAfterPositionQ(_n_, pItem)
+			This.InsertAfterPosition(_n_, pItem)
 			return This
 
-		def InsertAfter(n, pItem)
-			This.InsertAfterPosition(n, pItem)
+		def InsertAfter(_n_, pItem)
+			This.InsertAfterPosition(_n_, pItem)
 
 	  #---------------------------------------------#
 	 #  INSERTING BEFORE MANY POSITIONS            #
@@ -170,73 +170,73 @@ class stzListInserter from stzObject
 	 #  MOVING ITEM AT POSITION N1 TO POSITION N2 #
 	#=============================================#
 
-	def MoveItem(n1, n2)
+	def MoveItem(_n1_, _n2_)
 
-		if isList(n1) and IsFromNamedParamList(n1)
-			n1 = n1[2]
+		if isList(_n1_) and IsFromNamedParamList(_n1_)
+			_n1_ = _n1_[2]
 		ok
 
-		if isList(n2) and IsToNamedParamList(n2)
-			n2 = n2[2]
+		if isList(_n2_) and IsToNamedParamList(_n2_)
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT (isNumber(n1) and isNumber(n2))
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
-		if n1 < 1 or n1 > This.NumberOfItems() or
-		   n2 < 1 or n2 > This.NumberOfItems()
+		if _n1_ < 1 or _n1_ > This.NumberOfItems() or
+		   _n2_ < 1 or _n2_ > This.NumberOfItems()
 			StzRaise("Position out of range!")
 		ok
 
-		_pMiItem_ = @oList.Item(n1)
-		@oList.RemoveItemAtPosition(n1)
+		_pMiItem_ = @oList.Item(_n1_)
+		@oList.RemoveItemAtPosition(_n1_)
 
-		if n2 > n1
-			n2 = n2 - 1
+		if _n2_ > _n1_
+			_n2_ = _n2_ - 1
 		ok
 
-		This.InsertBeforePosition(n2, _pMiItem_)
+		This.InsertBeforePosition(_n2_, _pMiItem_)
 
-		def MoveItemQ(n1, n2)
-			This.MoveItem(n1, n2)
+		def MoveItemQ(_n1_, _n2_)
+			This.MoveItem(_n1_, _n2_)
 			return This
 
 	  #=========================================#
 	 #  SWAPPING ITEMS AT TWO GIVEN POSITIONS  #
 	#=========================================#
 
-	def SwapItems(n1, n2)
+	def SwapItems(_n1_, _n2_)
 
-		if isList(n1) and IsBetweenNamedParamList(n1)
-			n1 = n1[2]
+		if isList(_n1_) and IsBetweenNamedParamList(_n1_)
+			_n1_ = _n1_[2]
 		ok
 
-		if isList(n2) and IsAndNamedParamList(n2)
-			n2 = n2[2]
+		if isList(_n2_) and IsAndNamedParamList(_n2_)
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT (isNumber(n1) and isNumber(n2))
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
 		_pSwpList_ = @oList._EngineListFromContent()
 		if _pSwpList_ != NULL
-			StzEngineListSwap(_pSwpList_, n1, n2)
+			StzEngineListSwap(_pSwpList_, _n1_, _n2_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwpList_))
 			StzEngineListFree(_pSwpList_)
 			return
 		ok
 
 		_aSwpContent_ = This.Content()
-		_swpTemp_ = _aSwpContent_[n1]
-		_aSwpContent_[n1] = _aSwpContent_[n2]
-		_aSwpContent_[n2] = _swpTemp_
+		_swpTemp_ = _aSwpContent_[_n1_]
+		_aSwpContent_[_n1_] = _aSwpContent_[_n2_]
+		_aSwpContent_[_n2_] = _swpTemp_
 		@oList.UpdateWith(_aSwpContent_)
 
-		def SwapItemsQ(n1, n2)
-			This.SwapItems(n1, n2)
+		def SwapItemsQ(_n1_, _n2_)
+			This.SwapItems(_n1_, _n2_)
 			return This
 
-		def Swap(n1, n2)
-			This.SwapItems(n1, n2)
+		def Swap(_n1_, _n2_)
+			This.SwapItems(_n1_, _n2_)

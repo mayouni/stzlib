@@ -3,14 +3,14 @@
 # FINAL VERSION - All bugs fixed
 
 # Quick constructor functions
-func StzNumbrexQ(cPattern)
-	return new stzNumbrex(cPattern)
+func StzNumbrexQ(_cPattern_)
+	return new stzNumbrex(_cPattern_)
 
-func Numbrex(cPattern)
-	return new stzNumbrex(cPattern)
+func Numbrex(_cPattern_)
+	return new stzNumbrex(_cPattern_)
 
-func Nx(cPattern)
-	return new stzNumbrex(cPattern)
+func Nx(_cPattern_)
+	return new stzNumbrex(_cPattern_)
 
 class stzNumbrex from stzObject
 	
@@ -47,479 +47,479 @@ class stzNumbrex from stzObject
 	def _Mid(s, n1, n2)
 		return @StzMid(s, n1, n2 - n1 + 1)
 
-	def NormalizePattern(cPattern)
-		cPattern = trim(cPattern)
-		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
-			cPattern = "{" + cPattern + "}"
+	def NormalizePattern(_cPattern_)
+		_cPattern_ = trim(_cPattern_)
+		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
+			_cPattern_ = "{" + _cPattern_ + "}"
 		ok
-		return cPattern
+		return _cPattern_
 	
 	  #--------------------#
 	 #  PATTERN PARSING   #
 	#--------------------#
 	
-	def ParsePattern(cPattern)
+	def ParsePattern(_cPattern_)
 
-		cInner = This._Mid(cPattern, 2, len(cPattern) - 1)
-		cInner = trim(cInner)
+		_cInner_ = This._Mid(_cPattern_, 2, len(_cPattern_) - 1)
+		_cInner_ = trim(_cInner_)
 		
 		if @bDebugMode
-			? "Parsing inner pattern: " + cInner
+			? "Parsing inner pattern: " + _cInner_
 		ok
 		
-		aParts = This.SplitByOperator(cInner, "->")
+		_aParts_ = This.SplitByOperator(_cInner_, "->")
 
-		aTokens = []
-		nLenParts = len(aParts)
+		_aTokens_ = []
+		_nLenParts_ = len(_aParts_)
 		
-		for i = 1 to nLenParts
-			cPart = trim(aParts[i])
-			if cPart = ""
+		for _i_ = 1 to _nLenParts_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ = ""
 				loop
 			ok
 			
-			if StzFindFirst(cPart, "|") > 0
-				aToken = This.ParseAlternation(cPart)
-			but StzFindFirst(cPart, "&") > 0
-				aToken = This.ParseConjunction(cPart)
+			if StzFindFirst(_cPart_, "|") > 0
+				_aToken_ = This.ParseAlternation(_cPart_)
+			but StzFindFirst(_cPart_, "&") > 0
+				_aToken_ = This.ParseConjunction(_cPart_)
 			else
-				aToken = This.ParseSingleToken(cPart)
+				_aToken_ = This.ParseSingleToken(_cPart_)
 			ok
 			
-			if len(aToken) > 0
-				aTokens + aToken
+			if len(_aToken_) > 0
+				_aTokens_ + _aToken_
 			ok
 		next
 		
-		return aTokens
+		return _aTokens_
 	
-	def SplitByOperator(cStr, cOperator)
-		aParts = []
-		cCurrent = ""
-		nDepth = 0
-		nLen = len(cStr)
-		nOpLen = len(cOperator)
+	def SplitByOperator(_cStr_, cOperator)
+		_aParts_ = []
+		_cCurrent_ = ""
+		_nDepth_ = 0
+		_nLen_ = len(_cStr_)
+		_nOpLen_ = len(cOperator)
 		
-		for i = 1 to nLen
-			cChar = This._Mid(cStr, i, i)
+		for _i_ = 1 to _nLen_
+			_cChar_ = This._Mid(_cStr_, _i_, _i_)
 			
-			if cChar = "(" or cChar = "{"
-				nDepth++
-				cCurrent += cChar
-			but cChar = ")" or cChar = "}"
-				nDepth--
-				cCurrent += cChar
-			but nDepth = 0 and This._Mid(cStr, i, i + nOpLen - 1) = cOperator
-				aParts + trim(cCurrent)
-				cCurrent = ""
-				i += nOpLen - 1
+			if _cChar_ = "(" or _cChar_ = "{"
+				_nDepth_++
+				_cCurrent_ += _cChar_
+			but _cChar_ = ")" or _cChar_ = "}"
+				_nDepth_--
+				_cCurrent_ += _cChar_
+			but _nDepth_ = 0 and This._Mid(_cStr_, _i_, _i_ + _nOpLen_ - 1) = cOperator
+				_aParts_ + trim(_cCurrent_)
+				_cCurrent_ = ""
+				_i_ += _nOpLen_ - 1
 			else
-				cCurrent += cChar
+				_cCurrent_ += _cChar_
 			ok
 		next
 		
-		if len(cCurrent) > 0
-			aParts + trim(cCurrent)
+		if len(_cCurrent_) > 0
+			_aParts_ + trim(_cCurrent_)
 		ok
 		
-		return aParts
+		return _aParts_
 	
-	def ParseAlternation(cTokenStr)
-		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
+	def ParseAlternation(_cTokenStr_)
+		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 		ok
 		
-		aParts = This.SplitByOperator(cTokenStr, "|")
-		aAlternatives = []
-		nLenParts = len(aParts)
+		_aParts_ = This.SplitByOperator(_cTokenStr_, "|")
+		_aAlternatives_ = []
+		_nLenParts_ = len(_aParts_)
 		
-		for i = 1 to nLenParts
-			cPart = trim(aParts[i])
-			if cPart != ""
-				aToken = This.ParseSingleToken(cPart)
-				if len(aToken) > 0
-					aAlternatives + aToken
+		for _i_ = 1 to _nLenParts_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ != ""
+				_aToken_ = This.ParseSingleToken(_cPart_)
+				if len(_aToken_) > 0
+					_aAlternatives_ + _aToken_
 				ok
 			ok
 		next
 		
 		return [
 			["type", "alternation"],
-			["alternatives", aAlternatives],
+			["alternatives", _aAlternatives_],
 			["negated", 0]
 		]
 	
-	def ParseConjunction(cTokenStr)
-		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
+	def ParseConjunction(_cTokenStr_)
+		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 		ok
 		
-		aParts = This.SplitByOperator(cTokenStr, "&")
-		aConditions = []
-		nLenParts = len(aParts)
+		_aParts_ = This.SplitByOperator(_cTokenStr_, "&")
+		_aConditions_ = []
+		_nLenParts_ = len(_aParts_)
 		
-		for i = 1 to nLenParts
-			cPart = trim(aParts[i])
-			if cPart != ""
-				aToken = This.ParseSingleToken(cPart)
-				if len(aToken) > 0
-					aConditions + aToken
+		for _i_ = 1 to _nLenParts_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ != ""
+				_aToken_ = This.ParseSingleToken(_cPart_)
+				if len(_aToken_) > 0
+					_aConditions_ + _aToken_
 				ok
 			ok
 		next
 		
 		return [
 			["type", "conjunction"],
-			["conditions", aConditions],
+			["conditions", _aConditions_],
 			["negated", 0]
 		]
 	
 
-def ParseSingleToken(cTokenStr)
-	cTokenStr = trim(cTokenStr)
-	if cTokenStr = ""
+def ParseSingleToken(_cTokenStr_)
+	_cTokenStr_ = trim(_cTokenStr_)
+	if _cTokenStr_ = ""
 		return []
 	ok
 	
-	cOriginal = cTokenStr
-	bNegated = 0
+	_cOriginal_ = _cTokenStr_
+	_bNegated_ = 0
 	
-	if startsWith(StzLower(cTokenStr), "@!")
-		bNegated = 1
-		cTokenStr = This._Mid(cTokenStr, 3, len(cTokenStr))
+	if startsWith(StzLower(_cTokenStr_), "@!")
+		_bNegated_ = 1
+		_cTokenStr_ = This._Mid(_cTokenStr_, 3, len(_cTokenStr_))
 
 		if @bDebugMode
-			? "Negation detected! Remaining: " + cTokenStr
+			? "Negation detected! Remaining: " + _cTokenStr_
 		ok
 	ok
 	
-	cType = ""
-	cValue = ""
-	aConstraints = []
-	nMin = 1
-	nMax = 1
+	_cType_ = ""
+	_cValue_ = ""
+	_aConstraints_ = []
+	_nMin_ = 1
+	_nMax_ = 1
 	
-	cTokenStr = StzLower(cTokenStr)
+	_cTokenStr_ = StzLower(_cTokenStr_)
 
-	if startsWith(cTokenStr, "@digit")
-		cType = "digit"
-		cTokenStr = This._Mid(cTokenStr, 7, len(cTokenStr))
+	if startsWith(_cTokenStr_, "@digit")
+		_cType_ = "digit"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 7, len(_cTokenStr_))
 
-	but startsWith(cTokenStr, "digit")
-		cType = "digit"
-		cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
-
-	#--
-
-	but startsWith(cTokenStr, "@factor")
-		cType = "factor"
-		cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
-
-	but startsWith(cTokenStr, "factor")
-		cType = "factor"
-		cTokenStr = This._Mid(cTokenStr, 7, len(cTokenStr))
+	but startsWith(_cTokenStr_, "digit")
+		_cType_ = "digit"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 6, len(_cTokenStr_))
 
 	#--
 
-	but startsWith(cTokenStr, "@property")
-		cType = "property"
-		cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
+	but startsWith(_cTokenStr_, "@factor")
+		_cType_ = "factor"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 8, len(_cTokenStr_))
 
-	but StartsWith(cTokenStr, "property")
-		cType = "property"
-		cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
-
-	#--
-
-	but startsWith(cTokenStr, "@part")
-		cType = "part"
-		cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
-
-	but startsWith(cTokenStr, "part")
-		cType = "part"
-		cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
+	but startsWith(_cTokenStr_, "factor")
+		_cType_ = "factor"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 7, len(_cTokenStr_))
 
 	#--
 
-	but startsWith(cTokenStr, "@relation")
-		cType = "relation"
-		cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
+	but startsWith(_cTokenStr_, "@property")
+		_cType_ = "property"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 10, len(_cTokenStr_))
 
-	but startsWith(cTokenStr, "relation")
-		cType = "relation"
-		cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
-
-	#--
-
-	but startsWith(cTokenStr, "@approx")
-		cType = "approx"
-		cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
-
-	but startsWith(cTokenStr, "approx")
-		cType = "approx"
-		cTokenStr = This._Mid(cTokenStr, 7, len(cTokenStr))
+	but StartsWith(_cTokenStr_, "property")
+		_cType_ = "property"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
 
 	#--
 
-	but startsWith(cTokenStr, "@divisor")
-		cType = "divisor"
-		cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
+	but startsWith(_cTokenStr_, "@part")
+		_cType_ = "part"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 6, len(_cTokenStr_))
 
-	but startsWith(cTokenStr, "divisor")
-		cType = "divisor"
-		cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
+	but startsWith(_cTokenStr_, "part")
+		_cType_ = "part"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 5, len(_cTokenStr_))
 
 	#--
 
-	but startsWith(cTokenStr, "@multiple")
-		cType = "multiple"
-		cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
+	but startsWith(_cTokenStr_, "@relation")
+		_cType_ = "relation"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 10, len(_cTokenStr_))
 
-	but startsWith(cTokenStr, "multiple")
-		cType = "multiple"
-		cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
+	but startsWith(_cTokenStr_, "relation")
+		_cType_ = "relation"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
+
+	#--
+
+	but startsWith(_cTokenStr_, "@approx")
+		_cType_ = "approx"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 8, len(_cTokenStr_))
+
+	but startsWith(_cTokenStr_, "approx")
+		_cType_ = "approx"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 7, len(_cTokenStr_))
+
+	#--
+
+	but startsWith(_cTokenStr_, "@divisor")
+		_cType_ = "divisor"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
+
+	but startsWith(_cTokenStr_, "divisor")
+		_cType_ = "divisor"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 8, len(_cTokenStr_))
+
+	#--
+
+	but startsWith(_cTokenStr_, "@multiple")
+		_cType_ = "multiple"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 10, len(_cTokenStr_))
+
+	but startsWith(_cTokenStr_, "multiple")
+		_cType_ = "multiple"
+		_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
 
 	#--
 
 	else
 		if @bDebugMode
-			? "Unknown token type: " + cTokenStr
+			? "Unknown token type: " + _cTokenStr_
 		ok
 		return []
 	ok
 	
-	nOpenParen = StzFindFirst(cTokenStr, "(")
+	_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
 
-	nCloseParen = 0
-	if nOpenParen > 0
-		nCloseParen = StzFindFirst(cTokenStr, ")")
-		if nCloseParen > nOpenParen
-			cContent = This._Mid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+	_nCloseParen_ = 0
+	if _nOpenParen_ > 0
+		_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+		if _nCloseParen_ > _nOpenParen_
+			_cContent_ = This._Mid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
 
 			if @bDebugMode
-				? ">> cContent: " + cContent
-				? ">> cType: " + cType
+				? ">> cContent: " + _cContent_
+				? ">> cType: " + _cType_
 			ok
 
-			if cType = "property" or cType = "approx" or
-			   cType = "relation" or cType = "part" or
-			   cType = "divisor" or cType = "multiple"
+			if _cType_ = "property" or _cType_ = "approx" or
+			   _cType_ = "relation" or _cType_ = "part" or
+			   _cType_ = "divisor" or _cType_ = "multiple"
 
-				cValue = cContent
+				_cValue_ = _cContent_
 
 			else
-				aConstraints = This.ParseConstraints(cContent, cType)
+				_aConstraints_ = This.ParseConstraints(_cContent_, _cType_)
 			ok
 		ok
 	ok
 	
 	# Parse quantifier
-	cQuantPart = ""
-	if nCloseParen > 0
+	_cQuantPart_ = ""
+	if _nCloseParen_ > 0
 		# Extract everything after closing parenthesis
-		if nCloseParen < len(cTokenStr)
-			cQuantPart = This._Mid(cTokenStr, nCloseParen + 1, len(cTokenStr))
+		if _nCloseParen_ < len(_cTokenStr_)
+			_cQuantPart_ = This._Mid(_cTokenStr_, _nCloseParen_ + 1, len(_cTokenStr_))
 		ok
 	else
 		# No parentheses - extract after token type name from original string
-		nTypeLen = 0
-		cLowerOriginal = StzLower(cOriginal)
+		_nTypeLen_ = 0
+		_cLowerOriginal_ = StzLower(_cOriginal_)
 		
-		if startsWith(cLowerOriginal, "@digit")
-			nTypeLen = 6
-		but startsWith(cLowerOriginal, "digit")
-			nTypeLen = 5
-		but startsWith(cLowerOriginal, "@factor")
-			nTypeLen = 7
-		but startsWith(cLowerOriginal, "factor")
-			nTypeLen = 6
-		but startsWith(cLowerOriginal, "@property")
-			nTypeLen = 9
-		but startsWith(cLowerOriginal, "property")
-			nTypeLen = 8
-		but startsWith(cLowerOriginal, "@part")
-			nTypeLen = 5
-		but startsWith(cLowerOriginal, "part")
-			nTypeLen = 4
-		but startsWith(cLowerOriginal, "@relation")
-			nTypeLen = 9
-		but startsWith(cLowerOriginal, "relation")
-			nTypeLen = 8
-		but startsWith(cLowerOriginal, "@approx")
-			nTypeLen = 7
-		but startsWith(cLowerOriginal, "approx")
-			nTypeLen = 6
-		but startsWith(cLowerOriginal, "@divisor")
-			nTypeLen = 8
-		but startsWith(cLowerOriginal, "divisor")
-			nTypeLen = 7
-		but startsWith(cLowerOriginal, "@multiple")
-			nTypeLen = 9
-		but startsWith(cLowerOriginal, "multiple")
-			nTypeLen = 8
+		if startsWith(_cLowerOriginal_, "@digit")
+			_nTypeLen_ = 6
+		but startsWith(_cLowerOriginal_, "digit")
+			_nTypeLen_ = 5
+		but startsWith(_cLowerOriginal_, "@factor")
+			_nTypeLen_ = 7
+		but startsWith(_cLowerOriginal_, "factor")
+			_nTypeLen_ = 6
+		but startsWith(_cLowerOriginal_, "@property")
+			_nTypeLen_ = 9
+		but startsWith(_cLowerOriginal_, "property")
+			_nTypeLen_ = 8
+		but startsWith(_cLowerOriginal_, "@part")
+			_nTypeLen_ = 5
+		but startsWith(_cLowerOriginal_, "part")
+			_nTypeLen_ = 4
+		but startsWith(_cLowerOriginal_, "@relation")
+			_nTypeLen_ = 9
+		but startsWith(_cLowerOriginal_, "relation")
+			_nTypeLen_ = 8
+		but startsWith(_cLowerOriginal_, "@approx")
+			_nTypeLen_ = 7
+		but startsWith(_cLowerOriginal_, "approx")
+			_nTypeLen_ = 6
+		but startsWith(_cLowerOriginal_, "@divisor")
+			_nTypeLen_ = 8
+		but startsWith(_cLowerOriginal_, "divisor")
+			_nTypeLen_ = 7
+		but startsWith(_cLowerOriginal_, "@multiple")
+			_nTypeLen_ = 9
+		but startsWith(_cLowerOriginal_, "multiple")
+			_nTypeLen_ = 8
 		ok
 		
 		# Account for negation prefix
-		if bNegated = 1
-			nTypeLen += 2
+		if _bNegated_ = 1
+			_nTypeLen_ += 2
 		ok
 		
-		if nTypeLen > 0 and nTypeLen < len(cOriginal)
-			cQuantPart = This._Mid(cOriginal, nTypeLen + 1, len(cOriginal))
+		if _nTypeLen_ > 0 and _nTypeLen_ < len(_cOriginal_)
+			_cQuantPart_ = This._Mid(_cOriginal_, _nTypeLen_ + 1, len(_cOriginal_))
 		ok
 	ok
 	
-	cQuantPart = trim(cQuantPart)
+	_cQuantPart_ = trim(_cQuantPart_)
 	
 	if @bDebugMode
-		? "Quantifier part: [" + cQuantPart + "]"
+		? "Quantifier part: [" + _cQuantPart_ + "]"
 	ok
 	
-	if len(cQuantPart) > 0
+	if len(_cQuantPart_) > 0
 		# Check for colon (constraints like :unique)
-		if StzFindFirst(cQuantPart, ":") > 0
-			nColon = StzFindFirst(cQuantPart, ":")
-			cBeforeColon = This._Mid(cQuantPart, 1, nColon - 1)
-			cAfterColon = This._Mid(cQuantPart, nColon + 1, len(cQuantPart))
+		if StzFindFirst(_cQuantPart_, ":") > 0
+			_nColon_ = StzFindFirst(_cQuantPart_, ":")
+			_cBeforeColon_ = This._Mid(_cQuantPart_, 1, _nColon_ - 1)
+			_cAfterColon_ = This._Mid(_cQuantPart_, _nColon_ + 1, len(_cQuantPart_))
 			
 			if @bDebugMode
-				? "Before colon: [" + cBeforeColon + "]"
-				? "After colon: [" + cAfterColon + "]"
+				? "Before colon: [" + _cBeforeColon_ + "]"
+				? "After colon: [" + _cAfterColon_ + "]"
 			ok
 			
-			cBeforeColon = trim(cBeforeColon)
-			if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-				if StzFindFirst(cBeforeColon, "-") > 0
-					aSection = @split(cBeforeColon, "-")
-					if len(aSection) = 2
-						nMin = 0 + trim(aSection[1])
-						nMax = 0 + trim(aSection[2])
+			_cBeforeColon_ = trim(_cBeforeColon_)
+			if len(_cBeforeColon_) > 0 and This.IsNumeric(_cBeforeColon_)
+				if StzFindFirst(_cBeforeColon_, "-") > 0
+					_aSection_ = @split(_cBeforeColon_, "-")
+					if len(_aSection_) = 2
+						_nMin_ = 0 + trim(_aSection_[1])
+						_nMax_ = 0 + trim(_aSection_[2])
 					ok
 				else
-					nMin = 0 + cBeforeColon
-					nMax = nMin
+					_nMin_ = 0 + _cBeforeColon_
+					_nMax_ = _nMin_
 				ok
 			ok
 			
-			aMoreConstraints = This.ParseConstraints(":" + cAfterColon, cType)
-			nLenMore = len(aMoreConstraints)
-			for i = 1 to nLenMore
-				aConstraints + aMoreConstraints[i]
+			_aMoreConstraints_ = This.ParseConstraints(":" + _cAfterColon_, _cType_)
+			_nLenMore_ = len(_aMoreConstraints_)
+			for _i_ = 1 to _nLenMore_
+				_aConstraints_ + _aMoreConstraints_[_i_]
 			next
 		else
 			# No colon - check for simple quantifiers
-			cLastChar = StzRight(cQuantPart, 1)
-			if cLastChar = "+"
+			_cLastChar_ = StzRight(_cQuantPart_, 1)
+			if _cLastChar_ = "+"
 				# Check if there's a number before the +
-				cBeforePlus = StzLeft(cQuantPart, len(cQuantPart) - 1)
-				if len(cBeforePlus) > 0 and This.IsNumeric(cBeforePlus)
-					nMin = 0 + cBeforePlus
-					nMax = 999999
+				_cBeforePlus_ = StzLeft(_cQuantPart_, len(_cQuantPart_) - 1)
+				if len(_cBeforePlus_) > 0 and This.IsNumeric(_cBeforePlus_)
+					_nMin_ = 0 + _cBeforePlus_
+					_nMax_ = 999999
 				else
-					nMin = 1
-					nMax = 999999
+					_nMin_ = 1
+					_nMax_ = 999999
 				ok
-			but cLastChar = "*"
+			but _cLastChar_ = "*"
 				# Check if there's a number before the *
-				cBeforeStar = StzLeft(cQuantPart, len(cQuantPart) - 1)
-				if len(cBeforeStar) > 0 and This.IsNumeric(cBeforeStar)
-					nMin = 0 + cBeforeStar
-					nMax = 999999
+				_cBeforeStar_ = StzLeft(_cQuantPart_, len(_cQuantPart_) - 1)
+				if len(_cBeforeStar_) > 0 and This.IsNumeric(_cBeforeStar_)
+					_nMin_ = 0 + _cBeforeStar_
+					_nMax_ = 999999
 				else
-					nMin = 0
-					nMax = 999999
+					_nMin_ = 0
+					_nMax_ = 999999
 				ok
-			but cLastChar = "?"
-				nMin = 0
-				nMax = 1
-			but This.IsNumeric(cQuantPart)
-				if StzFindFirst(cQuantPart, "-") > 0
-					aSection = @split(cQuantPart, "-")
-					if len(aSection) = 2
-						nMin = 0 + trim(aSection[1])
-						nMax = 0 + trim(aSection[2])
+			but _cLastChar_ = "?"
+				_nMin_ = 0
+				_nMax_ = 1
+			but This.IsNumeric(_cQuantPart_)
+				if StzFindFirst(_cQuantPart_, "-") > 0
+					_aSection_ = @split(_cQuantPart_, "-")
+					if len(_aSection_) = 2
+						_nMin_ = 0 + trim(_aSection_[1])
+						_nMax_ = 0 + trim(_aSection_[2])
 					ok
 				else
-					nMin = 0 + cQuantPart
-					nMax = nMin
+					_nMin_ = 0 + _cQuantPart_
+					_nMax_ = _nMin_
 				ok
 			ok
 		ok
 	ok
 	
 	return [
-		["type", cType],
-		["value", cValue],
-		["constraints", aConstraints],
-		["min", nMin],
-		["max", nMax],
-		["negated", bNegated]
+		["type", _cType_],
+		["value", _cValue_],
+		["constraints", _aConstraints_],
+		["min", _nMin_],
+		["max", _nMax_],
+		["negated", _bNegated_]
 	]
 
-	def ParseConstraints(cConstraintStr, cType)
-		aConstraints = []
+	def ParseConstraints(cConstraintStr, _cType_)
+		_aConstraints_ = []
 		
 		if cConstraintStr = ""
-			return aConstraints
+			return _aConstraints_
 		ok
 		
-		if cType = "digit"
+		if _cType_ = "digit"
 			if StzFindFirst(StzLower(cConstraintStr), ":unique") > 0
-				aConstraints + [["type", "unique"]]
+				_aConstraints_ + [["type", "unique"]]
 			but StzFindFirst(cConstraintStr, "..") > 0
-				aParts = @split(cConstraintStr, "..")
-				if len(aParts) = 2
-					aConstraints + [
+				_aParts_ = @split(cConstraintStr, "..")
+				if len(_aParts_) = 2
+					_aConstraints_ + [
 						["type", "Section"],
-						["start", 0 + trim(aParts[1])],
-						["end", 0 + trim(aParts[2])]
+						["start", 0 + trim(_aParts_[1])],
+						["end", 0 + trim(_aParts_[2])]
 					]
 				ok
 			but StzFindFirst(cConstraintStr, "{") > 0
-				nStart = StzFindFirst(cConstraintStr, "{")
-				nEnd = StzFindFirst(cConstraintStr, "}")
-				cSet = This._Mid(cConstraintStr, nStart + 1, nEnd - 1)
-				aValues = @split(cSet, ";")
-				aConstraints + [
+				_nStart_ = StzFindFirst(cConstraintStr, "{")
+				_nEnd_ = StzFindFirst(cConstraintStr, "}")
+				_cSet_ = This._Mid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
+				_aValues_ = @split(_cSet_, ";")
+				_aConstraints_ + [
 					["type", "set"],
-					["values", aValues]
+					["values", _aValues_]
 				]
 			but StzFindFirst(cConstraintStr, ":step") > 0
-				cStep = This._Mid(cConstraintStr, 6, len(cConstraintStr))
-				aConstraints + [
+				_cStep_ = This._Mid(cConstraintStr, 6, len(cConstraintStr))
+				_aConstraints_ + [
 					["type", "step"],
-					["value", 0 + cStep]
+					["value", 0 + _cStep_]
 				]
 			but isDigit(cConstraintStr)
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
 			but StzFindFirst(cConstraintStr, "-") > 0
-				aParts = @split(cConstraintStr, "-")
-				if len(aParts) = 2
-					aConstraints + [
+				_aParts_ = @split(cConstraintStr, "-")
+				if len(_aParts_) = 2
+					_aConstraints_ + [
 						["type", "Section"],
-						["start", 0 + trim(aParts[1])],
-						["end", 0 + trim(aParts[2])]
+						["start", 0 + trim(_aParts_[1])],
+						["end", 0 + trim(_aParts_[2])]
 					]
 				ok
 			ok
 		
-		but cType = "factor"
+		but _cType_ = "factor"
 			if StzLower(cConstraintStr) = "prime"
-				aConstraints + [["type", "prime"]]
+				_aConstraints_ + [["type", "prime"]]
 			but StzLower(cConstraintStr) = "unique"
-				aConstraints + [["type", "unique"]]
+				_aConstraints_ + [["type", "unique"]]
 			but isDigit(cConstraintStr)
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "count"],
 					["value", 0 + cConstraintStr]
 				]
 			ok
 		ok
 		
-		return aConstraints
+		return _aConstraints_
 	
 	  #--------------------#
 	 #  MATCHING LOGIC    #
@@ -537,50 +537,50 @@ def ParseSingleToken(cTokenStr)
 			? "=== Matching " + pnNumber + " ==="
 		ok
 
-		bResult = This.MatchTokens(@aTokens, @nNumber)
+		_bResult_ = This.MatchTokens(@aTokens, @nNumber)
 		
-		if bResult
+		if _bResult_
 			This.ExtractParts(@nNumber)
 		ok
 		
 		if @bDebugMode
-			? "Result: " + bResult
+			? "Result: " + _bResult_
 		ok
 		
-		return bResult
+		return _bResult_
 	
-	def MatchTokens(aTokens, nNum)
-		nLenTokens = len(aTokens)
-		for i = 1 to nLenTokens
-			aToken = aTokens[i]
+	def MatchTokens(_aTokens_, _nNum_)
+		_nLenTokens_ = len(_aTokens_)
+		for _i_ = 1 to _nLenTokens_
+			_aToken_ = _aTokens_[_i_]
 			
-			if HasKey(aToken, "type") and aToken["type"] = "alternation"
-				bMatched = FALSE
-				if HasKey(aToken, "alternatives")
-					nLenAlt = len(aToken["alternatives"])
-					for j = 1 to nLenAlt
-						if This.MatchSingleToken(aToken["alternatives"][j], nNum)
-							bMatched = TRUE
+			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
+				_bMatched_ = FALSE
+				if HasKey(_aToken_, "alternatives")
+					_nLenAlt_ = len(_aToken_["alternatives"])
+					for j = 1 to _nLenAlt_
+						if This.MatchSingleToken(_aToken_["alternatives"][j], _nNum_)
+							_bMatched_ = TRUE
 							exit
 						ok
 					next
 				ok
-				if not bMatched
+				if not _bMatched_
 					return FALSE
 				ok
 			
-			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
-				if HasKey(aToken, "conditions")
-					nLenCond = len(aToken["conditions"])
-					for j = 1 to nLenCond
-						if not This.MatchSingleToken(aToken["conditions"][j], nNum)
+			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
+				if HasKey(_aToken_, "conditions")
+					_nLenCond_ = len(_aToken_["conditions"])
+					for j = 1 to _nLenCond_
+						if not This.MatchSingleToken(_aToken_["conditions"][j], _nNum_)
 							return FALSE
 						ok
 					next
 				ok
 			
 			else
-				if not This.MatchSingleToken(aToken, nNum)
+				if not This.MatchSingleToken(_aToken_, _nNum_)
 					return FALSE
 				ok
 			ok
@@ -588,306 +588,306 @@ def ParseSingleToken(cTokenStr)
 		
 		return TRUE
 	
-	def MatchSingleToken(aToken, nNum)
-		bResult = FALSE
+	def MatchSingleToken(_aToken_, _nNum_)
+		_bResult_ = FALSE
 		
 		if @bDebugMode
-			? "Checking token type: " + aToken["type"]
-			if HasKey(aToken, "negated")
-				? "Negated value: " + aToken["negated"]
+			? "Checking token type: " + _aToken_["type"]
+			if HasKey(_aToken_, "negated")
+				? "Negated value: " + _aToken_["negated"]
 			ok
 		ok
 		
-		if HasKey(aToken, "type")
-			cType = aToken["type"]
+		if HasKey(_aToken_, "type")
+			_cType_ = _aToken_["type"]
 			
-			if cType = "property"
-				if HasKey(aToken, "value")
-					bResult = This.CheckProperty(aToken["value"], nNum)
+			if _cType_ = "property"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckProperty(_aToken_["value"], _nNum_)
 				ok
 			
-			but cType = "digit"
-				bResult = This.CheckDigits(aToken, nNum)
+			but _cType_ = "digit"
+				_bResult_ = This.CheckDigits(_aToken_, _nNum_)
 			
-			but cType = "factor"
-				bResult = This.CheckFactors(aToken, nNum)
+			but _cType_ = "factor"
+				_bResult_ = This.CheckFactors(_aToken_, _nNum_)
 			
-			but cType = "relation"
-				if HasKey(aToken, "value")
-					bResult = This.CheckRelation(aToken["value"], nNum)
+			but _cType_ = "relation"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckRelation(_aToken_["value"], _nNum_)
 				ok
 			
-			but cType = "approx"
-				if HasKey(aToken, "value")
-					bResult = This.CheckApprox(aToken["value"], nNum)
+			but _cType_ = "approx"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckApprox(_aToken_["value"], _nNum_)
 				ok
 			
-			but cType = "part"
-				if HasKey(aToken, "value")
-					bResult = This.CheckPart(aToken["value"], nNum)
+			but _cType_ = "part"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckPart(_aToken_["value"], _nNum_)
 				ok
 			
-			but cType = "divisor"
-				if HasKey(aToken, "value")
-					bResult = This.CheckDivisor(aToken["value"], nNum)
+			but _cType_ = "divisor"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckDivisor(_aToken_["value"], _nNum_)
 				ok
 			
-			but cType = "multiple"
-				if HasKey(aToken, "value")
-					bResult = This.CheckMultiple(aToken["value"], nNum)
+			but _cType_ = "multiple"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckMultiple(_aToken_["value"], _nNum_)
 				ok
 			ok
 		ok
 		
 		if @bDebugMode
-			? "Result before negation: " + bResult
+			? "Result before negation: " + _bResult_
 		ok
 		
-		if HasKey(aToken, "negated") and aToken["negated"] = 1
+		if HasKey(_aToken_, "negated") and _aToken_["negated"] = 1
 			if @bDebugMode
 				? "Applying negation"
 			ok
-			bResult = not bResult
+			_bResult_ = not _bResult_
 		ok
 		
 		if @bDebugMode
-			? "Final result: " + bResult
+			? "Final result: " + _bResult_
 		ok
 		
-		return bResult
+		return _bResult_
 	
 	  #-----------------------#
 	 #  PROPERTY CHECKING    #
 	#-----------------------#
 	
-	def CheckProperty(cProperty, nNum)
-		cProperty = StzLower(trim(cProperty))
+	def CheckProperty(_cProperty_, _nNum_)
+		_cProperty_ = StzLower(trim(_cProperty_))
 		
-		if cProperty = "prime"
-			return This.IsPrime(nNum)
-		but cProperty = "even"
-			return (nNum % 2) = 0
-		but cProperty = "odd"
-			return (nNum % 2) != 0
-		but cProperty = "perfect"
-			return This.IsPerfect(nNum)
-		but cProperty = "fibonacci"
-			return This.IsFibonacci(nNum)
-		but cProperty = "palindrome"
-			return This.IsPalindrome(nNum)
-		but cProperty = "square"
-			return This.IsSquare(nNum)
-		but cProperty = "positive"
-			return nNum > 0
-		but cProperty = "negative"
-			return nNum < 0
-		but cProperty = "zero"
-			return nNum = 0
-		but cProperty = "composite"
-			return nNum > 1 and not This.IsPrime(nNum)
-		but cProperty = "abundant"
-			return This.IsAbundant(nNum)
-		but cProperty = "deficient"
-			return This.IsDeficient(nNum)
-		but cProperty = "triangular"
-			return This.IsTriangular(nNum)
-		but cProperty = "cube"
-			return This.IsCube(nNum)
+		if _cProperty_ = "prime"
+			return This.IsPrime(_nNum_)
+		but _cProperty_ = "even"
+			return (_nNum_ % 2) = 0
+		but _cProperty_ = "odd"
+			return (_nNum_ % 2) != 0
+		but _cProperty_ = "perfect"
+			return This.IsPerfect(_nNum_)
+		but _cProperty_ = "fibonacci"
+			return This.IsFibonacci(_nNum_)
+		but _cProperty_ = "palindrome"
+			return This.IsPalindrome(_nNum_)
+		but _cProperty_ = "square"
+			return This.IsSquare(_nNum_)
+		but _cProperty_ = "positive"
+			return _nNum_ > 0
+		but _cProperty_ = "negative"
+			return _nNum_ < 0
+		but _cProperty_ = "zero"
+			return _nNum_ = 0
+		but _cProperty_ = "composite"
+			return _nNum_ > 1 and not This.IsPrime(_nNum_)
+		but _cProperty_ = "abundant"
+			return This.IsAbundant(_nNum_)
+		but _cProperty_ = "deficient"
+			return This.IsDeficient(_nNum_)
+		but _cProperty_ = "triangular"
+			return This.IsTriangular(_nNum_)
+		but _cProperty_ = "cube"
+			return This.IsCube(_nNum_)
 		ok
 		
 		return FALSE
 	
-	def IsPrime(nNum)
-		if nNum < 2
+	def IsPrime(_nNum_)
+		if _nNum_ < 2
 			return FALSE
 		ok
-		if nNum = 2
+		if _nNum_ = 2
 			return TRUE
 		ok
-		if (nNum % 2) = 0
+		if (_nNum_ % 2) = 0
 			return FALSE
 		ok
 		
-		nSqrt = sqrt(nNum)
-		for i = 3 to nSqrt step 2
-			if (nNum % i) = 0
+		_nSqrt_ = sqrt(_nNum_)
+		for _i_ = 3 to _nSqrt_ step 2
+			if (_nNum_ % _i_) = 0
 				return FALSE
 			ok
 		next
 		
 		return TRUE
 	
-	def IsPerfect(nNum)
-		if nNum < 2
+	def IsPerfect(_nNum_)
+		if _nNum_ < 2
 			return FALSE
 		ok
 		
-		nSum = 1
-		nSqrt = sqrt(nNum)
-		for i = 2 to nSqrt
-			if (nNum % i) = 0
-				nSum += i
-				if i != (nNum / i)
-					nSum += (nNum / i)
+		_nSum_ = 1
+		_nSqrt_ = sqrt(_nNum_)
+		for _i_ = 2 to _nSqrt_
+			if (_nNum_ % _i_) = 0
+				_nSum_ += _i_
+				if _i_ != (_nNum_ / _i_)
+					_nSum_ += (_nNum_ / _i_)
 				ok
 			ok
 		next
 		
-		return nSum = nNum
+		return _nSum_ = _nNum_
 	
-	def IsFibonacci(nNum)
-		return This.IsSquare(5 * nNum * nNum + 4) or This.IsSquare(5 * nNum * nNum - 4)
+	def IsFibonacci(_nNum_)
+		return This.IsSquare(5 * _nNum_ * _nNum_ + 4) or This.IsSquare(5 * _nNum_ * _nNum_ - 4)
 	
-	def IsSquare(nNum)
-		if nNum < 0
+	def IsSquare(_nNum_)
+		if _nNum_ < 0
 			return FALSE
 		ok
-		nSqrt = sqrt(nNum)
-		return nSqrt = floor(nSqrt)
+		_nSqrt_ = sqrt(_nNum_)
+		return _nSqrt_ = floor(_nSqrt_)
 	
-	def IsPalindrome(nNum)
-		cStr = "" + abs(nNum)
-		cReversed = ""
-		nLen = len(cStr)
-		for i = nLen to 1 step -1
-			cReversed += This._Mid(cStr, i, i)
+	def IsPalindrome(_nNum_)
+		_cStr_ = "" + abs(_nNum_)
+		_cReversed_ = ""
+		_nLen_ = len(_cStr_)
+		for _i_ = _nLen_ to 1 step -1
+			_cReversed_ += This._Mid(_cStr_, _i_, _i_)
 		next
-		return cStr = cReversed
+		return _cStr_ = _cReversed_
 	
-	def IsAbundant(nNum)
-		if nNum < 1
+	def IsAbundant(_nNum_)
+		if _nNum_ < 1
 			return FALSE
 		ok
-		aFactors = This.GetProperDivisors(nNum)
-		nSum = 0
-		nLen = len(aFactors)
-		for i = 1 to nLen
-			nSum += aFactors[i]
+		_aFactors_ = This.GetProperDivisors(_nNum_)
+		_nSum_ = 0
+		_nLen_ = len(_aFactors_)
+		for _i_ = 1 to _nLen_
+			_nSum_ += _aFactors_[_i_]
 		next
-		return nSum > nNum
+		return _nSum_ > _nNum_
 	
-	def IsDeficient(nNum)
-		if nNum < 1
+	def IsDeficient(_nNum_)
+		if _nNum_ < 1
 			return FALSE
 		ok
-		aFactors = This.GetProperDivisors(nNum)
-		nSum = 0
-		nLen = len(aFactors)
-		for i = 1 to nLen
-			nSum += aFactors[i]
+		_aFactors_ = This.GetProperDivisors(_nNum_)
+		_nSum_ = 0
+		_nLen_ = len(_aFactors_)
+		for _i_ = 1 to _nLen_
+			_nSum_ += _aFactors_[_i_]
 		next
-		return nSum < nNum
+		return _nSum_ < _nNum_
 	
-	def IsTriangular(nNum)
-		return This.IsSquare(8 * nNum + 1)
+	def IsTriangular(_nNum_)
+		return This.IsSquare(8 * _nNum_ + 1)
 	
-	def IsCube(nNum)
-		if nNum < 0
+	def IsCube(_nNum_)
+		if _nNum_ < 0
 			return FALSE
 		ok
-		if nNum = 0 or nNum = 1
+		if _nNum_ = 0 or _nNum_ = 1
 			return TRUE
 		ok
 		# Robust cube root check with floating point tolerance
-		nCubeRoot = pow(nNum, 1.0/3.0)
-		nLower = floor(nCubeRoot)
-		nUpper = ceil(nCubeRoot)
-		return (nLower * nLower * nLower = nNum) or (nUpper * nUpper * nUpper = nNum)
+		_nCubeRoot_ = pow(_nNum_, 1.0/3.0)
+		_nLower_ = floor(_nCubeRoot_)
+		_nUpper_ = ceil(_nCubeRoot_)
+		return (_nLower_ * _nLower_ * _nLower_ = _nNum_) or (_nUpper_ * _nUpper_ * _nUpper_ = _nNum_)
 	
-	def GetProperDivisors(nNum)
-		aFactors = This.GetFactors(nNum)
-		aResult = []
-		nLen = len(aFactors)
-		for i = 1 to nLen
-			if aFactors[i] != nNum
-				aResult + aFactors[i]
+	def GetProperDivisors(_nNum_)
+		_aFactors_ = This.GetFactors(_nNum_)
+		_aResult_ = []
+		_nLen_ = len(_aFactors_)
+		for _i_ = 1 to _nLen_
+			if _aFactors_[_i_] != _nNum_
+				_aResult_ + _aFactors_[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 	
 	  #--------------------#
 	 #  DIGIT CHECKING    #
 	#--------------------#
 	
-def CheckDigits(aToken, nNum)
-	aDigits = This.GetDigits(nNum)
-	nCount = len(aDigits)
-	nMin = 1
-	nMax = 1
+def CheckDigits(_aToken_, _nNum_)
+	_aDigits_ = This.GetDigits(_nNum_)
+	_nCount_ = len(_aDigits_)
+	_nMin_ = 1
+	_nMax_ = 1
 	
-	if HasKey(aToken, "min")
-		nMin = aToken["min"]
+	if HasKey(_aToken_, "min")
+		_nMin_ = _aToken_["min"]
 	ok
-	if HasKey(aToken, "max")
-		nMax = aToken["max"]
+	if HasKey(_aToken_, "max")
+		_nMax_ = _aToken_["max"]
 	ok
 	
 	if @bDebugMode
-		? "CheckDigits: count=" + nCount + " min=" + nMin + " max=" + nMax
+		? "CheckDigits: count=" + _nCount_ + " min=" + _nMin_ + " max=" + _nMax_
 	ok
 	
-	if nCount < nMin or nCount > nMax
+	if _nCount_ < _nMin_ or _nCount_ > _nMax_
 		return FALSE
 	ok
 	
-	if HasKey(aToken, "constraints")
-		nLenConstr = len(aToken["constraints"])
-		for i = 1 to nLenConstr
-			aConstraint = aToken["constraints"][i]
+	if HasKey(_aToken_, "constraints")
+		_nLenConstr_ = len(_aToken_["constraints"])
+		for _i_ = 1 to _nLenConstr_
+			_aConstraint_ = _aToken_["constraints"][_i_]
 			
-			if HasKey(aConstraint, "type")
-				cConstrType = aConstraint["type"]
+			if HasKey(_aConstraint_, "type")
+				_cConstrType_ = _aConstraint_["type"]
 				
-				if cConstrType = "Section"
-					nLenDigits = len(aDigits)
-					for j = 1 to nLenDigits
-						nDigit = aDigits[j]
-						nStart = 0
-						nEnd = 9
+				if _cConstrType_ = "Section"
+					_nLenDigits_ = len(_aDigits_)
+					for j = 1 to _nLenDigits_
+						_nDigit_ = _aDigits_[j]
+						_nStart_ = 0
+						_nEnd_ = 9
 						
-						if HasKey(aConstraint, "start")
-							nStart = aConstraint["start"]
+						if HasKey(_aConstraint_, "start")
+							_nStart_ = _aConstraint_["start"]
 						ok
-						if HasKey(aConstraint, "end")
-							nEnd = aConstraint["end"]
+						if HasKey(_aConstraint_, "end")
+							_nEnd_ = _aConstraint_["end"]
 						ok
 						
-						if nDigit < nStart or nDigit > nEnd
+						if _nDigit_ < _nStart_ or _nDigit_ > _nEnd_
 							return FALSE
 						ok
 					next
 				
-				but cConstrType = "set"
-					if HasKey(aConstraint, "values")
-						nLenDigits = len(aDigits)
-						for j = 1 to nLenDigits
-							bFound = FALSE
-							nLenValues = len(aConstraint["values"])
-							for k = 1 to nLenValues
-								if aDigits[j] = (0 + trim(aConstraint["values"][k]))
-									bFound = TRUE
+				but _cConstrType_ = "set"
+					if HasKey(_aConstraint_, "values")
+						_nLenDigits_ = len(_aDigits_)
+						for j = 1 to _nLenDigits_
+							_bFound_ = FALSE
+							_nLenValues_ = len(_aConstraint_["values"])
+							for k = 1 to _nLenValues_
+								if _aDigits_[j] = (0 + trim(_aConstraint_["values"][k]))
+									_bFound_ = TRUE
 									exit
 								ok
 							next
-							if not bFound
+							if not _bFound_
 								return FALSE
 							ok
 						next
 					ok
 				
-				but cConstrType = "unique"
-					nLenDigits = len(aDigits)
-					for j = 1 to nLenDigits
-						for k = j + 1 to nLenDigits
-							if aDigits[j] = aDigits[k]
+				but _cConstrType_ = "unique"
+					_nLenDigits_ = len(_aDigits_)
+					for j = 1 to _nLenDigits_
+						for k = j + 1 to _nLenDigits_
+							if _aDigits_[j] = _aDigits_[k]
 								return FALSE
 							ok
 						next
 					next
 				
-				but cConstrType = "exact"
-					if HasKey(aConstraint, "value")
-						if nCount != aConstraint["value"]
+				but _cConstrType_ = "exact"
+					if HasKey(_aConstraint_, "value")
+						if _nCount_ != _aConstraint_["value"]
 							return FALSE
 						ok
 					ok
@@ -898,68 +898,68 @@ def CheckDigits(aToken, nNum)
 	
 	return TRUE
 	
-	def GetDigits(nNum)
-		cStr = "" + abs(nNum)
-		aDigits = []
-		nLen = len(cStr)
-		for i = 1 to nLen
-			cChar = This._Mid(cStr, i, i)
-			if isDigit(cChar)
-				aDigits + (0 + cChar)
+	def GetDigits(_nNum_)
+		_cStr_ = "" + abs(_nNum_)
+		_aDigits_ = []
+		_nLen_ = len(_cStr_)
+		for _i_ = 1 to _nLen_
+			_cChar_ = This._Mid(_cStr_, _i_, _i_)
+			if isDigit(_cChar_)
+				_aDigits_ + (0 + _cChar_)
 			ok
 		next
-		return aDigits
+		return _aDigits_
 	
 	  #---------------------#
 	 #  FACTOR CHECKING    #
 	#---------------------#
 	
-	def CheckFactors(aToken, nNum)
-		aFactors = This.GetFactors(nNum)
-		nCount = len(aFactors)
-		nMin = 1
-		nMax = 1
+	def CheckFactors(_aToken_, _nNum_)
+		_aFactors_ = This.GetFactors(_nNum_)
+		_nCount_ = len(_aFactors_)
+		_nMin_ = 1
+		_nMax_ = 1
 		
-		if HasKey(aToken, "min")
-			nMin = aToken["min"]
+		if HasKey(_aToken_, "min")
+			_nMin_ = _aToken_["min"]
 		ok
-		if HasKey(aToken, "max")
-			nMax = aToken["max"]
+		if HasKey(_aToken_, "max")
+			_nMax_ = _aToken_["max"]
 		ok
 		
-		if nCount < nMin or nCount > nMax
+		if _nCount_ < _nMin_ or _nCount_ > _nMax_
 			return FALSE
 		ok
 		
-		if HasKey(aToken, "constraints")
-			nLenConstr = len(aToken["constraints"])
-			for i = 1 to nLenConstr
-				aConstraint = aToken["constraints"][i]
+		if HasKey(_aToken_, "constraints")
+			_nLenConstr_ = len(_aToken_["constraints"])
+			for _i_ = 1 to _nLenConstr_
+				_aConstraint_ = _aToken_["constraints"][_i_]
 				
-				if HasKey(aConstraint, "type")
-					cConstrType = aConstraint["type"]
+				if HasKey(_aConstraint_, "type")
+					_cConstrType_ = _aConstraint_["type"]
 					
-					if cConstrType = "prime"
-						nLenFactors = len(aFactors)
-						for j = 1 to nLenFactors
-							if not This.IsPrime(aFactors[j])
+					if _cConstrType_ = "prime"
+						_nLenFactors_ = len(_aFactors_)
+						for j = 1 to _nLenFactors_
+							if not This.IsPrime(_aFactors_[j])
 								return FALSE
 							ok
 						next
 					
-					but cConstrType = "unique"
-						nLenFactors = len(aFactors)
-						for j = 1 to nLenFactors
-							for k = j + 1 to nLenFactors
-								if aFactors[j] = aFactors[k]
+					but _cConstrType_ = "unique"
+						_nLenFactors_ = len(_aFactors_)
+						for j = 1 to _nLenFactors_
+							for k = j + 1 to _nLenFactors_
+								if _aFactors_[j] = _aFactors_[k]
 									return FALSE
 								ok
 							next
 						next
 					
-					but cConstrType = "count"
-						if HasKey(aConstraint, "value")
-							if nCount != aConstraint["value"]
+					but _cConstrType_ = "count"
+						if HasKey(_aConstraint_, "value")
+							if _nCount_ != _aConstraint_["value"]
 								return FALSE
 							ok
 						ok
@@ -970,129 +970,129 @@ def CheckDigits(aToken, nNum)
 		
 		return TRUE
 	
-	def GetFactors(nNum)
-		nNum = abs(nNum)
-		aFactors = []
+	def GetFactors(_nNum_)
+		_nNum_ = abs(_nNum_)
+		_aFactors_ = []
 		
-		if nNum = 0
-			return aFactors
+		if _nNum_ = 0
+			return _aFactors_
 		ok
 		
-		nSqrt = sqrt(nNum)
-		for i = 1 to nSqrt
-			if (nNum % i) = 0
-				aFactors + i
-				if i != (nNum / i)
-					aFactors + (nNum / i)
+		_nSqrt_ = sqrt(_nNum_)
+		for _i_ = 1 to _nSqrt_
+			if (_nNum_ % _i_) = 0
+				_aFactors_ + _i_
+				if _i_ != (_nNum_ / _i_)
+					_aFactors_ + (_nNum_ / _i_)
 				ok
 			ok
 		next
 		
 		# Sort factors
-		nLen = len(aFactors)
-		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				if aFactors[i] > aFactors[j]
-					temp = aFactors[i]
-					aFactors[i] = aFactors[j]
-					aFactors[j] = temp
+		_nLen_ = len(_aFactors_)
+		for _i_ = 1 to _nLen_ - 1
+			for j = _i_ + 1 to _nLen_
+				if _aFactors_[_i_] > _aFactors_[j]
+					_temp_ = _aFactors_[_i_]
+					_aFactors_[_i_] = _aFactors_[j]
+					_aFactors_[j] = _temp_
 				ok
 			next
 		next
 		
-		return aFactors
+		return _aFactors_
 	
 	  #-----------------------#
 	 #  RELATION CHECKING    #
 	#-----------------------#
 	
-	def CheckRelation(cRelation, nNum)
+	def CheckRelation(cRelation, _nNum_)
 		if StzFindFirst(StzLower(cRelation), "mod:") > 0
-			cRest = This._Mid(cRelation, 5, len(cRelation))
-			nEquals = StzFindFirst(cRest, "=")
-			if nEquals > 0
-				cMod = This._Mid(cRest, 1, nEquals - 1)
-				cExpected = This._Mid(cRest, nEquals + 1, len(cRest))
-				nMod = 0 + cMod
-				nExpected = 0 + cExpected
-				return (nNum % nMod) = nExpected
+			_cRest_ = This._Mid(cRelation, 5, len(cRelation))
+			_nEquals_ = StzFindFirst(_cRest_, "=")
+			if _nEquals_ > 0
+				_cMod_ = This._Mid(_cRest_, 1, _nEquals_ - 1)
+				_cExpected_ = This._Mid(_cRest_, _nEquals_ + 1, len(_cRest_))
+				_nMod_ = 0 + _cMod_
+				_nExpected_ = 0 + _cExpected_
+				return (_nNum_ % _nMod_) = _nExpected_
 			ok
 		ok
 		return FALSE
 	
-	def CheckApprox(cApprox, nNum)
+	def CheckApprox(cApprox, _nNum_)
 		if startsWith(cApprox, "~")
-			cValue = This._Mid(cApprox, 2, len(cApprox))
-			nDecimals = 2
+			_cValue_ = This._Mid(cApprox, 2, len(cApprox))
+			_nDecimals_ = 2
 			
-			if StzFindFirst(cValue, ":") > 0
-				aParts = @split(cValue, ":")
-				cValue = aParts[1]
-				if len(aParts) > 1 and StzFindFirst(StzLower(aParts[2]), "decimal") > 0
-					nLenPart = len(aParts[2])
-					for i = 1 to nLenPart
-						if isDigit(This._Mid(aParts[2], i, i))
-							nDecimals = 0 + This._Mid(aParts[2], i, i)
+			if StzFindFirst(_cValue_, ":") > 0
+				_aParts_ = @split(_cValue_, ":")
+				_cValue_ = _aParts_[1]
+				if len(_aParts_) > 1 and StzFindFirst(StzLower(_aParts_[2]), "decimal") > 0
+					_nLenPart_ = len(_aParts_[2])
+					for _i_ = 1 to _nLenPart_
+						if isDigit(This._Mid(_aParts_[2], _i_, _i_))
+							_nDecimals_ = 0 + This._Mid(_aParts_[2], _i_, _i_)
 							exit
 						ok
 					next
 				ok
 			ok
 			
-			nTarget = 0 + cValue
-			nFactor = pow(10, nDecimals)
-			return floor(nNum * nFactor) = floor(nTarget * nFactor)
+			_nTarget_ = 0 + _cValue_
+			_nFactor_ = pow(10, _nDecimals_)
+			return floor(_nNum_ * _nFactor_) = floor(_nTarget_ * _nFactor_)
 		ok
 		return FALSE
 	
-	def CheckPart(cPart, nNum)
-		cPart = StzLower(trim(cPart))
+	def CheckPart(_cPart_, _nNum_)
+		_cPart_ = StzLower(trim(_cPart_))
 		
-		if cPart = "integer"
+		if _cPart_ = "integer"
 			# Check if number has no fractional part (with floating point tolerance)
-			nFrac = nNum - floor(nNum)
-			return (nFrac >= -0.0000001 and nFrac <= 0.0000001)
+			_nFrac_ = _nNum_ - floor(_nNum_)
+			return (_nFrac_ >= -0.0000001 and _nFrac_ <= 0.0000001)
 		
-		but cPart = "fractional"
+		but _cPart_ = "fractional"
 			# Check if number has a fractional part
-			nFrac = nNum - floor(nNum)
-			return not (nFrac >= -0.0000001 and nFrac <= 0.0000001)
+			_nFrac_ = _nNum_ - floor(_nNum_)
+			return not (_nFrac_ >= -0.0000001 and _nFrac_ <= 0.0000001)
 		
-		but startsWith(cPart, "integer:")
-			cPattern = This._Mid(cPart, 9, len(cPart))
-			nIntPart = floor(nNum)
-			oNx = new stzNumbrex("{" + cPattern + "}")
-			return oNx.Match(nIntPart)
+		but startsWith(_cPart_, "integer:")
+			_cPattern_ = This._Mid(_cPart_, 9, len(_cPart_))
+			_nIntPart_ = floor(_nNum_)
+			_oNx_ = new stzNumbrex("{" + _cPattern_ + "}")
+			return _oNx_.Match(_nIntPart_)
 		
-		but startsWith(cPart, "fractional:")
-			cPattern = This._Mid(cPart, 12, len(cPart))
-			nFracPart = nNum - floor(nNum)
-			nFracInt = floor(nFracPart * 1000000)
-			oNx = new stzNumbrex("{" + cPattern + "}")
-			return oNx.Match(nFracInt)
+		but startsWith(_cPart_, "fractional:")
+			_cPattern_ = This._Mid(_cPart_, 12, len(_cPart_))
+			_nFracPart_ = _nNum_ - floor(_nNum_)
+			_nFracInt_ = floor(_nFracPart_ * 1000000)
+			_oNx_ = new stzNumbrex("{" + _cPattern_ + "}")
+			return _oNx_.Match(_nFracInt_)
 		ok
 		
 		return TRUE
 	
-	def CheckDivisor(cValue, nNum)
-		cValue = trim(cValue)
-		if This.IsNumeric(cValue)
-			nDivisor = 0 + cValue
-			if nDivisor = 0
+	def CheckDivisor(_cValue_, _nNum_)
+		_cValue_ = trim(_cValue_)
+		if This.IsNumeric(_cValue_)
+			_nDivisor_ = 0 + _cValue_
+			if _nDivisor_ = 0
 				return FALSE
 			ok
-			return (nNum % nDivisor) = 0
+			return (_nNum_ % _nDivisor_) = 0
 		ok
 		return FALSE
 	
-	def CheckMultiple(cValue, nNum)
-		cValue = trim(cValue)
-		if This.IsNumeric(cValue)
-			nBase = 0 + cValue
-			if nBase = 0
+	def CheckMultiple(_cValue_, _nNum_)
+		_cValue_ = trim(_cValue_)
+		if This.IsNumeric(_cValue_)
+			_nBase_ = 0 + _cValue_
+			if _nBase_ = 0
 				return FALSE
 			ok
-			return (nNum % nBase) = 0
+			return (_nNum_ % _nBase_) = 0
 		ok
 		return FALSE
 	
@@ -1100,54 +1100,54 @@ def CheckDigits(aToken, nNum)
 	 #  PART EXTRACTION     #
 	#----------------------#
 	
-	def ExtractParts(nNum)
+	def ExtractParts(_nNum_)
 		@aMatchedParts = []
 		
-		aDigits = This.GetDigits(nNum)
-		@aMatchedParts + ["Digits", aDigits]
+		_aDigits_ = This.GetDigits(_nNum_)
+		@aMatchedParts + ["Digits", _aDigits_]
 		
-		aFactors = This.GetFactors(nNum)
-		@aMatchedParts + ["Factors", aFactors]
+		_aFactors_ = This.GetFactors(_nNum_)
+		@aMatchedParts + ["Factors", _aFactors_]
 		
-		aProps = []
-		if This.IsPrime(nNum)
-			aProps + "Prime"
+		_aProps_ = []
+		if This.IsPrime(_nNum_)
+			_aProps_ + "Prime"
 		ok
-		if (nNum % 2) = 0
-			aProps + "Even"
+		if (_nNum_ % 2) = 0
+			_aProps_ + "Even"
 		else
-			aProps + "Odd"
+			_aProps_ + "Odd"
 		ok
-		if This.IsPerfect(nNum)
-			aProps + "Perfect"
+		if This.IsPerfect(_nNum_)
+			_aProps_ + "Perfect"
 		ok
-		if This.IsFibonacci(nNum)
-			aProps + "Fibonacci"
+		if This.IsFibonacci(_nNum_)
+			_aProps_ + "Fibonacci"
 		ok
-		if This.IsPalindrome(nNum)
-			aProps + "Palindrome"
+		if This.IsPalindrome(_nNum_)
+			_aProps_ + "Palindrome"
 		ok
-		if This.IsSquare(nNum)
-			aProps + "Square"
+		if This.IsSquare(_nNum_)
+			_aProps_ + "Square"
 		ok
-		if This.IsTriangular(nNum)
-			aProps + "Triangular"
+		if This.IsTriangular(_nNum_)
+			_aProps_ + "Triangular"
 		ok
-		if This.IsCube(nNum)
-			aProps + "Cube"
+		if This.IsCube(_nNum_)
+			_aProps_ + "Cube"
 		ok
-		if This.IsAbundant(nNum)
-			aProps + "Abundant"
+		if This.IsAbundant(_nNum_)
+			_aProps_ + "Abundant"
 		ok
-		if This.IsDeficient(nNum)
-			aProps + "Deficient"
+		if This.IsDeficient(_nNum_)
+			_aProps_ + "Deficient"
 		ok
-		if nNum > 1 and not This.IsPrime(nNum)
-			aProps + "Composite"
+		if _nNum_ > 1 and not This.IsPrime(_nNum_)
+			_aProps_ + "Composite"
 		ok
 		
-		@aMatchedParts + ["Properties", aProps]
-		@aMatchedParts + ["Value", nNum]
+		@aMatchedParts + ["Properties", _aProps_]
+		@aMatchedParts + ["Value", _nNum_]
 	
 	  #----------------------#
 	 #  QUERY METHODS       #
@@ -1190,119 +1190,119 @@ def CheckDigits(aToken, nNum)
 		@nNumber = pnNumber
 	
 	def Explain()
-		aExplanation = [
+		_aExplanation_ = [
 			["Pattern", @cPattern],
 			["TokenCount", len(@aTokens)],
 			["Tokens", @aTokens]
 		]
 		
 		if @nNumber != NULL
-			aExplanation + ["Target", @nNumber]
+			_aExplanation_ + ["Target", @nNumber]
 		ok
 		
 		if len(@aMatchedParts) > 0
-			aExplanation + ["MatchedParts", @aMatchedParts]
+			_aExplanation_ + ["MatchedParts", @aMatchedParts]
 		ok
 		
-		return aExplanation
+		return _aExplanation_
 	
 	  #---------------------------#
 	 #  ADVANCED QUERY METHODS   #
 	#---------------------------#
 	
-	def MatchingNumberAfter(nStart)
-		nCurrent = nStart
-		nMaxAttempts = 100000
+	def MatchingNumberAfter(_nStart_)
+		_nCurrent_ = _nStart_
+		_nMaxAttempts_ = 100000
 		
-		for i = 1 to nMaxAttempts
-			if This.Match(nCurrent)
-				return nCurrent
+		for _i_ = 1 to _nMaxAttempts_
+			if This.Match(_nCurrent_)
+				return _nCurrent_
 			ok
-			nCurrent++
+			_nCurrent_++
 		next
 		
 		return NULL
 
-		def MatchingNumberNextTo(nStart)
-			return This.MatchingNumberAfter(nStart)
+		def MatchingNumberNextTo(_nStart_)
+			return This.MatchingNumberAfter(_nStart_)
 
-	def MatchingNumberBefore(nStart)
-		nCurrent = nStart
-		nMaxAttempts = 100000
+	def MatchingNumberBefore(_nStart_)
+		_nCurrent_ = _nStart_
+		_nMaxAttempts_ = 100000
 		
-		for i = 1 to nMaxAttempts
-			if This.Match(nCurrent)
-				return nCurrent
+		for _i_ = 1 to _nMaxAttempts_
+			if This.Match(_nCurrent_)
+				return _nCurrent_
 			ok
-			nCurrent--
+			_nCurrent_--
 		next
 		
 		return NULL
 	
-		def MatchingNumberPreviousTo(nStart)
-			return This.MatchingNumberBefore(nStart)
+		def MatchingNumberPreviousTo(_nStart_)
+			return This.MatchingNumberBefore(_nStart_)
 
-	def MatchingNumbersBetween(nStart, nEnd)
+	def MatchingNumbersBetween(_nStart_, _nEnd_)
 		if CheckParams()
-			if NOT isNumber(nStart)
+			if NOT isNumber(_nStart_)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
-				nEnd = nEnd[2]
+			if isList(_nEnd_) and len(_nEnd_) = 2 and isString(_nEnd_[1]) and StzLower(_nEnd_[1]) = "and"
+				_nEnd_ = _nEnd_[2]
 			ok
 
-			if NOT isNumber(nEnd)
+			if NOT isNumber(_nEnd_)
 				StzRaise("Incorrect param type! nEnd mustr be a number.")
 			ok
 		ok
 
-		aResults = []
+		_aResults_ = []
 		
-		for nNum = nStart to nEnd
-			if This.Match(nNum)
-				aResults + nNum
+		for _nNum_ = _nStart_ to _nEnd_
+			if This.Match(_nNum_)
+				_aResults_ + _nNum_
 			ok
 		next
 		
-		return aResults
+		return _aResults_
 	
-		def MatchingBetween(nStart, nEnd)
-			return This. MatchingNumbersBetween(nStart, nEnd)
+		def MatchingBetween(_nStart_, _nEnd_)
+			return This. MatchingNumbersBetween(_nStart_, _nEnd_)
 
-	def CountMatchingBetween(nStart, nEnd)
+	def CountMatchingBetween(_nStart_, _nEnd_)
 		if CheckParams()
-			if NOT isNumber(nStart)
+			if NOT isNumber(_nStart_)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
-				nEnd = nEnd[2]
+			if isList(_nEnd_) and len(_nEnd_) = 2 and isString(_nEnd_[1]) and StzLower(_nEnd_[1]) = "and"
+				_nEnd_ = _nEnd_[2]
 			ok
 
-			if NOT isNumber(nEnd)
+			if NOT isNumber(_nEnd_)
 				StzRaise("Incorrect param type! nEnd mustr be a number.")
 			ok
 		ok
 
-		nCount = 0
+		_nCount_ = 0
 		
-		for nNum = nStart to nEnd
-			if This.Match(nNum)
-				nCount++
+		for _nNum_ = _nStart_ to _nEnd_
+			if This.Match(_nNum_)
+				_nCount_++
 			ok
 		next
 		
-		return nCount
+		return _nCount_
 
-		def CountMatchingNumbersBetween(nStart, nEnd)
-			return This.CountMatchingBetween(nStart, nEnd)
+		def CountMatchingNumbersBetween(_nStart_, _nEnd_)
+			return This.CountMatchingBetween(_nStart_, _nEnd_)
 
-		def HowManyMatchingNumbersBetween(nStart, nEnd)
-			return This.CountMatchingBetween(nStart, nEnd)
+		def HowManyMatchingNumbersBetween(_nStart_, _nEnd_)
+			return This.CountMatchingBetween(_nStart_, _nEnd_)
 
-		def NumberOfMatchingNumbersBetween(nStart, nEnd)
-			return This.CountMatchingBetween(nStart, nEnd)
+		def NumberOfMatchingNumbersBetween(_nStart_, _nEnd_)
+			return This.CountMatchingBetween(_nStart_, _nEnd_)
 	
 	  #----------------------#
 	 #  DEBUG METHODS       #
@@ -1321,15 +1321,15 @@ def CheckDigits(aToken, nNum)
 	 #  HELPER METHODS      #
 	#----------------------#
 	
-	def IsNumeric(cStr)
-		if cStr = ""
+	def IsNumeric(_cStr_)
+		if _cStr_ = ""
 			return FALSE
 		ok
 		
-		nLen = len(cStr)
-		for i = 1 to nLen
-			cChar = This._Mid(cStr, i, i)
-			if not isDigit(cChar) and cChar != "-"
+		_nLen_ = len(_cStr_)
+		for _i_ = 1 to _nLen_
+			_cChar_ = This._Mid(_cStr_, _i_, _i_)
+			if not isDigit(_cChar_) and _cChar_ != "-"
 				return FALSE
 			ok
 		next

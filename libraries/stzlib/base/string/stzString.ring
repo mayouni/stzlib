@@ -29,8 +29,8 @@ class stzString from stzObject
 	@aRedoStack = []
 	@bUndoTracking = 1
 
-	These
-	Those
+	_These_
+	_Those_
 
 	  #===================#
 	 #   OPERATOR OVERLOAD #
@@ -302,8 +302,8 @@ class stzString from stzObject
 
 		@pEngine = StzEngineString(pcStr)
 
-		These = This
-		Those = This
+		_These_ = This
+		_Those_ = This
 
 	  #=======================================#
 	 #     GETTING CONTENT OF THE STRING     #
@@ -785,8 +785,8 @@ class stzString from stzObject
 		return _acResult_
 
 	#@ aka  substring, slice, part, portion, extract, characters between two positions
-	def Section(n1, n2)
-		nLen = This.NumberOfChars()
+	def Section(_n1_, _n2_)
+		_nLen_ = This.NumberOfChars()
 		# Narrative aliases: Section(:From = pcA, :To = pcB). A string
 		# pcA/pcB may be a SYMBOL (:FirstChar/:LastChar/:EndOfString/
 		# :EndOfLine/:@) -- passed through to the symbolic resolution
@@ -796,60 +796,60 @@ class stzString from stzObject
 		_acSecSyms_ = [ "@", "first", "firstchar", "last", "lastchar",
 		                "middle", "endofstring", "endofline",
 		                "endofword", "endofsentence" ]
-		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		   lower(n1[1]) = "from"
-			_vF_ = n1[2]
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		   lower(_n1_[1]) = "from"
+			_vF_ = _n1_[2]
 			if isString(_vF_) and ring_find(_acSecSyms_, lower(_vF_)) = 0
 				# Codepoint-aware first-occurrence find.
-				n1 = StzEngineStringFindFirstFromCS(This.Engine(), _vF_, 1, 1)
+				_n1_ = StzEngineStringFindFirstFromCS(This.Engine(), _vF_, 1, 1)
 			else
-				n1 = _vF_
+				_n1_ = _vF_
 			ok
-		but isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		    lower(n1[1]) = "nthtolast" and isNumber(n1[2])
-			n1 = nLen - n1[2]
+		but isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		    lower(_n1_[1]) = "nthtolast" and isNumber(_n1_[2])
+			_n1_ = _nLen_ - _n1_[2]
 		ok
-		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
-		   lower(n2[1]) = "to"
-			_vT_ = n2[2]
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
+		   lower(_n2_[1]) = "to"
+			_vT_ = _n2_[2]
 			if isString(_vT_) and ring_find(_acSecSyms_, lower(_vT_)) = 0
 				# The :To anchor closes at its LAST occurrence.
 				_aTo_ = This.Find(_vT_)
-				n2 = 0
+				_n2_ = 0
 				if len(_aTo_) > 0
-					n2 = _aTo_[len(_aTo_)] + This._EngineCount(_vT_) - 1
+					_n2_ = _aTo_[len(_aTo_)] + This._EngineCount(_vT_) - 1
 				ok
 			else
-				n2 = _vT_
+				_n2_ = _vT_
 			ok
-		but isList(n2) and len(n2) = 2 and isString(n2[1]) and
-		    lower(n2[1]) = "nthtolast" and isNumber(n2[2])
-			n2 = nLen - n2[2]
+		but isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
+		    lower(_n2_[1]) = "nthtolast" and isNumber(_n2_[2])
+			_n2_ = _nLen_ - _n2_[2]
 		ok
 		# The :@ symbol mirrors the OTHER param (both :@ = whole string),
 		# per the original SectionCS.
-		if isString(n1) and n1 = "@" and isString(n2) and n2 = "@"
-			n1 = 1
-			n2 = nLen
-		but isString(n1) and n1 = "@"
-			n1 = n2
-		but isString(n2) and n2 = "@"
-			n2 = n1
+		if isString(_n1_) and _n1_ = "@" and isString(_n2_) and _n2_ = "@"
+			_n1_ = 1
+			_n2_ = _nLen_
+		but isString(_n1_) and _n1_ = "@"
+			_n1_ = _n2_
+		but isString(_n2_) and _n2_ = "@"
+			_n2_ = _n1_
 		ok
 		# Symbolic positions: :First / :Last / :LastChar / :Middle,
 		# plus :EndOfString (the last char) and :EndOfLine (the char
 		# before the next newline after n1, or the end).
-		if isString(n1) and lower(n1) = "endofstring"
-			n1 = nLen
+		if isString(_n1_) and lower(_n1_) = "endofstring"
+			_n1_ = _nLen_
 		ok
-		if isString(n2) and lower(n2) = "endofstring"
-			n2 = nLen
+		if isString(_n2_) and lower(_n2_) = "endofstring"
+			_n2_ = _nLen_
 		ok
-		n1 = This._ResolveSymPos(n1, nLen)
-		if isString(n2) and lower(n2) = "endofline"
-			n2 = nLen
-			if isNumber(n1)
-				_nEolFrom_ = n1
+		_n1_ = This._ResolveSymPos(_n1_, _nLen_)
+		if isString(_n2_) and lower(_n2_) = "endofline"
+			_n2_ = _nLen_
+			if isNumber(_n1_)
+				_nEolFrom_ = _n1_
 				if _nEolFrom_ < 1 _nEolFrom_ = 1 ok
 				_nEolCR_ = This._FindFrom(This.Content(), char(13), _nEolFrom_)
 				_nEolLF_ = This._FindFrom(This.Content(), char(10), _nEolFrom_)
@@ -858,7 +858,7 @@ class stzString from stzObject
 					_nEol_ = _nEolCR_
 				ok
 				if _nEol_ > 0
-					n2 = _nEol_ - 1
+					_n2_ = _nEol_ - 1
 				ok
 			ok
 		ok
@@ -866,37 +866,37 @@ class stzString from stzObject
 		# runs to the next space, punctuation included -- "back!");
 		# no space left -> end of string. :EndOfSentence = the next
 		# full stop after n1 (inclusive), else the end.
-		if isString(n2) and lower(n2) = "endofword"
-			n2 = nLen
-			if isNumber(n1)
-				_nEowSp_ = This._FindFrom(This.Content(), " ", n1)
-				if _nEowSp_ > 0 n2 = _nEowSp_ - 1 ok
+		if isString(_n2_) and lower(_n2_) = "endofword"
+			_n2_ = _nLen_
+			if isNumber(_n1_)
+				_nEowSp_ = This._FindFrom(This.Content(), " ", _n1_)
+				if _nEowSp_ > 0 _n2_ = _nEowSp_ - 1 ok
 			ok
 		ok
-		if isString(n2) and lower(n2) = "endofsentence"
-			n2 = nLen
-			if isNumber(n1)
-				_nEosDot_ = This._FindFrom(This.Content(), ".", n1)
-				if _nEosDot_ > 0 n2 = _nEosDot_ ok
+		if isString(_n2_) and lower(_n2_) = "endofsentence"
+			_n2_ = _nLen_
+			if isNumber(_n1_)
+				_nEosDot_ = This._FindFrom(This.Content(), ".", _n1_)
+				if _nEosDot_ > 0 _n2_ = _nEosDot_ ok
 			ok
 		ok
-		n2 = This._ResolveSymPos(n2, nLen)
-		if NOT (isNumber(n1) and isNumber(n2))
+		_n2_ = This._ResolveSymPos(_n2_, _nLen_)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("Section: n1 and n2 must be numbers (or symbolic positions).")
 		ok
 		# Auto-order (Section(5,3) == Section(3,5)).
-		if n1 > n2
-			temp = n1
-			n1 = n2
-			n2 = temp
+		if _n1_ > _n2_
+			_temp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _temp_
 		ok
 		# STRICT range check, per the original: out-of-range RAISES. Use SectionXT
 		# (or SliceXT) for negative / out-of-range / count-from-the-end indexing.
-		if NOT ( n1 >= 1 and n1 <= nLen and n2 >= 1 and n2 <= nLen )
+		if NOT ( _n1_ >= 1 and _n1_ <= _nLen_ and _n2_ >= 1 and _n2_ <= _nLen_ )
 			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
 		ok
 		pH = This.Engine()
-		pR = StzEngineStringSlice(pH, n1, n2 - n1 + 1)
+		pR = StzEngineStringSlice(pH, _n1_, _n2_ - _n1_ + 1)
 		if pR != NULL
 			c = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
@@ -906,23 +906,23 @@ class stzString from stzObject
 
 	# _SectionLenient(n1, n2): resolve negatives, CLAMP to [1,len], auto-order.
 	# The forgiving slice used internally and by SectionXT so they never raise.
-	def _SectionLenient(n1, n2)
-		nLen = This.NumberOfChars()
-		if NOT (isNumber(n1) and isNumber(n2)) return "" ok
-		if n1 < 0 n1 = nLen + n1 + 1 ok
-		if n2 < 0 n2 = nLen + n2 + 1 ok
-		if n1 < 1 n1 = 1 ok
-		if n2 < 1 n2 = 1 ok
-		if n1 > nLen n1 = nLen ok
-		if n2 > nLen n2 = nLen ok
-		if n1 > n2
-			temp = n1
-			n1 = n2
-			n2 = temp
+	def _SectionLenient(_n1_, _n2_)
+		_nLen_ = This.NumberOfChars()
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return "" ok
+		if _n1_ < 0 _n1_ = _nLen_ + _n1_ + 1 ok
+		if _n2_ < 0 _n2_ = _nLen_ + _n2_ + 1 ok
+		if _n1_ < 1 _n1_ = 1 ok
+		if _n2_ < 1 _n2_ = 1 ok
+		if _n1_ > _nLen_ _n1_ = _nLen_ ok
+		if _n2_ > _nLen_ _n2_ = _nLen_ ok
+		if _n1_ > _n2_
+			_temp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _temp_
 		ok
-		if nLen = 0 return "" ok
+		if _nLen_ = 0 return "" ok
 		pH = This.Engine()
-		pR = StzEngineStringSlice(pH, n1, n2 - n1 + 1)
+		pR = StzEngineStringSlice(pH, _n1_, _n2_ - _n1_ + 1)
 		if pR != NULL
 			c = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
@@ -934,52 +934,52 @@ class stzString from stzObject
 	# meaning "count from the end". So Q("abcdef").SectionXT(3, -3)
 	# returns chars from position 3 to position 6-3+1 = 4 = "cd".
 	# Negative n means (nLen + n + 1).
-	def SectionXT(n1, n2)
+	def SectionXT(_n1_, _n2_)
 		_nLen_ = This._EngineCount(This.Content())
 
 		# Named form: SectionXT(pos, :UpToNChars = count) -- take `count`
 		# chars starting at `pos`.
-		if isList(n2) and len(n2) = 2 and isString(n2[1])
-			if lower(n2[1]) = "uptonchars"
-				if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
-				return This._SectionLenient(n1, n1 + n2[2] - 1)
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1])
+			if lower(_n2_[1]) = "uptonchars"
+				if isNumber(_n1_) and _n1_ < 0 _n1_ = _nLen_ + _n1_ + 1 ok
+				return This._SectionLenient(_n1_, _n1_ + _n2_[2] - 1)
 			ok
 		ok
 
-		if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
-		if isNumber(n2) and n2 < 0 n2 = _nLen_ + n2 + 1 ok
+		if isNumber(_n1_) and _n1_ < 0 _n1_ = _nLen_ + _n1_ + 1 ok
+		if isNumber(_n2_) and _n2_ < 0 _n2_ = _nLen_ + _n2_ + 1 ok
 
 		# Bounds given high-to-low -> reverse the span ("543", "876").
-		if isNumber(n1) and isNumber(n2) and n1 > n2
-			_cSxtFwd_ = This._SectionLenient(n2, n1)
+		if isNumber(_n1_) and isNumber(_n2_) and _n1_ > _n2_
+			_cSxtFwd_ = This._SectionLenient(_n2_, _n1_)
 			_oSxtRev_ = new stzString(_cSxtFwd_)
 			return _oSxtRev_.Reversed()
 		ok
 
-		return This._SectionLenient(n1, n2)
+		return This._SectionLenient(_n1_, _n2_)
 
-		def SectionXTQ(n1, n2)
-			return new stzString( This.SectionXT(n1, n2) )
+		def SectionXTQ(_n1_, _n2_)
+			return new stzString( This.SectionXT(_n1_, _n2_) )
 
 	# SectionQ(n1, n2): fluent form -- return the section wrapped in
 	# stzString so subsequent .CharsReversed() / .Uppercase() etc
 	# resolve on the string class.
-	def SectionQ(n1, n2)
-		return new stzString( This._SectionLenient(n1, n2) )
+	def SectionQ(_n1_, _n2_)
+		return new stzString( This._SectionLenient(_n1_, _n2_) )
 
 	# Slice is an alias of Section (strict); SliceXT of SectionXT (lenient).
 	# Per the original (Slice/SliceQ = Section/SectionQ).
-	def Slice(n1, n2)
-		return This.Section(n1, n2)
+	def Slice(_n1_, _n2_)
+		return This.Section(_n1_, _n2_)
 
-		def SliceQ(n1, n2)
-			return new stzString( This._SectionLenient(n1, n2) )
+		def SliceQ(_n1_, _n2_)
+			return new stzString( This._SectionLenient(_n1_, _n2_) )
 
-	def SliceXT(n1, n2)
-		return This.SectionXT(n1, n2)
+	def SliceXT(_n1_, _n2_)
+		return This.SectionXT(_n1_, _n2_)
 
-		def SliceXTQ(n1, n2)
-			return new stzString( This.SectionXT(n1, n2) )
+		def SliceXTQ(_n1_, _n2_)
+			return new stzString( This.SectionXT(_n1_, _n2_) )
 
 	# FirstHalf / SecondHalf -- split the content in two equal halves
 	# (rounded down on odd length). FirstHalfXT returns trailing char.
@@ -1064,8 +1064,8 @@ class stzString from stzObject
 	#   (~line 84916), kept minimal: pure numeric positions only.
 	#   Symbolic forms (:First/:Last) are not yet supported.
 
-	def ReplaceSection(n1, n2, pcNewSubStr)
-		if NOT (isNumber(n1) and isNumber(n2))
+	def ReplaceSection(_n1_, _n2_, pcNewSubStr)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("ReplaceSection: n1 and n2 must be numbers")
 		ok
 		# Accept :With = pcNew named-param form too.
@@ -1078,69 +1078,69 @@ class stzString from stzObject
 		ok
 		_cStr_ = This.Content()
 		_nLen_ = This._EngineCount(_cStr_)
-		if n1 < 1
-			n1 = 1
+		if _n1_ < 1
+			_n1_ = 1
 		ok
-		if n2 > _nLen_
-			n2 = _nLen_
+		if _n2_ > _nLen_
+			_n2_ = _nLen_
 		ok
-		if n1 > n2
-			_t_ = n1
-			n1 = n2
-			n2 = _t_
+		if _n1_ > _n2_
+			_t_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _t_
 		ok
 		_cBefore_ = ""
-		if n1 > 1
-			_cBefore_ = This._EngineSlice(_cStr_, 1, n1 - 1)
+		if _n1_ > 1
+			_cBefore_ = This._EngineSlice(_cStr_, 1, _n1_ - 1)
 		ok
 		_cAfter_ = ""
-		if n2 < _nLen_
-			_cAfter_ = This._EngineSliceFrom(_cStr_, n2 + 1)
+		if _n2_ < _nLen_
+			_cAfter_ = This._EngineSliceFrom(_cStr_, _n2_ + 1)
 		ok
 		This.Update(_cBefore_ + pcNewSubStr + _cAfter_)
 
-		def ReplaceSectionQ(n1, n2, pcNewSubStr)
-			This.ReplaceSection(n1, n2, pcNewSubStr)
+		def ReplaceSectionQ(_n1_, _n2_, pcNewSubStr)
+			This.ReplaceSection(_n1_, _n2_, pcNewSubStr)
 			return This
 
-	def Sections(aSections)
+	def Sections(_aSections_)
 		# Accept :Of = pcSub / :OfSubString = pcSub named-param: returns
 		# every occurrence's [n1, n2] section.
-		if isList(aSections) and len(aSections) = 2 and
-		   isString(aSections[1]) and
-		   (lower(aSections[1]) = "of" or lower(aSections[1]) = "ofsubstring")
-			return This.FindAsSections(aSections[2])
+		if isList(_aSections_) and len(_aSections_) = 2 and
+		   isString(_aSections_[1]) and
+		   (lower(_aSections_[1]) = "of" or lower(_aSections_[1]) = "ofsubstring")
+			return This.FindAsSections(_aSections_[2])
 		ok
-		if NOT isList(aSections) return [] ok
-		acResult = []
-		nCharCount = This.NumberOfChars()
-		nLen = len(aSections)
-		for i = 1 to nLen
-			_sec_ = aSections[i]
+		if NOT isList(_aSections_) return [] ok
+		_acResult_ = []
+		_nCharCount_ = This.NumberOfChars()
+		_nLen_ = len(_aSections_)
+		for i = 1 to _nLen_
+			_sec_ = _aSections_[i]
 			if NOT (isList(_sec_) and len(_sec_) >= 2 and
 			        isNumber(_sec_[1]) and isNumber(_sec_[2]))
 				loop
 			ok
-			n1 = _sec_[1]
-			n2 = _sec_[2]
-			if n1 >= 1 and n2 >= n1 and n2 <= nCharCount
-				acResult + This._SectionLenient(n1, n2)
+			_n1_ = _sec_[1]
+			_n2_ = _sec_[2]
+			if _n1_ >= 1 and _n2_ >= _n1_ and _n2_ <= _nCharCount_
+				_acResult_ + This._SectionLenient(_n1_, _n2_)
 			ok
 		next
-		return acResult
+		return _acResult_
 
 		# Z / ZZ suffixed companions: the input sections list IS the
 		# coordinate set, so 'SectionsZZ' just hands it back (modulo
 		# normalisation) and 'SectionsZ' returns the first one. These
 		# exist for naming symmetry with the AntiSections family.
-		def SectionsZZ(aSections)
-			return aSections
+		def SectionsZZ(_aSections_)
+			return _aSections_
 
-		def SectionsZ(aSections)
-			if len(aSections) = 0
+		def SectionsZ(_aSections_)
+			if len(_aSections_) = 0
 				return []
 			ok
-			return aSections[1]
+			return _aSections_[1]
 
 	# AntiSections: given a list of sections [[s1,e1],[s2,e2],...] on
 	# a string, return the complementary parts -- the substrings (or
@@ -1148,10 +1148,10 @@ class stzString from stzObject
 	# the interesting bits with Sections; now give me what's around
 	# them."
 
-	def AntiSectionsZZ(aSections)
+	def AntiSectionsZZ(_aSections_)
 		# Compute the complement section list.
 		_nLen_ = This.NumberOfChars()
-		_aSorted_ = This._SortSections(aSections)
+		_aSorted_ = This._SortSections(_aSections_)
 		_aGaps_ = []
 		_nCursor_ = 1
 		_nN_ = len(_aSorted_)
@@ -1172,8 +1172,8 @@ class stzString from stzObject
 
 		# AntiSectionsZ: each gap substring paired with its START position
 		# -> [ [substr, start], ... ].
-		def AntiSectionsZ(aSections)
-			_aZZ_ = This.AntiSectionsZZ(aSections)
+		def AntiSectionsZ(_aSections_)
+			_aZZ_ = This.AntiSectionsZZ(_aSections_)
 			_aRes_ = []
 			_cTxt_ = This.Content()
 			_nL_ = len(_aZZ_)
@@ -1183,14 +1183,14 @@ class stzString from stzObject
 			next
 			return _aRes_
 
-	def AntiSections(aSections)
-		return This.Sections( This.AntiSectionsZZ(aSections) )
+	def AntiSections(_aSections_)
+		return This.Sections( This.AntiSectionsZZ(_aSections_) )
 
 	# Internal helper: stable-sort a section list by start coordinate.
 	# Used by AntiSectionsZZ to make the complement well-defined for
 	# unsorted input.
-	def _SortSections(aSections)
-		_aSorted_ = aSections
+	def _SortSections(_aSections_)
+		_aSorted_ = _aSections_
 		_nN_ = len(_aSorted_)
 		for _iSs_ = 1 to _nN_ - 1
 			for _jSs_ = 1 to _nN_ - _iSs_
@@ -1235,8 +1235,8 @@ class stzString from stzObject
 		def AntiFindAsSectionsZ(pcSubStr)
 			return This.FindAntiSectionsZ(pcSubStr)
 
-	def Range(nStart, nRange)
-		return This._SectionLenient(nStart, nStart + nRange - 1)
+	def Range(_nStart_, _nRange_)
+		return This._SectionLenient(_nStart_, _nStart_ + _nRange_ - 1)
 
 	def IsLeftToRight()
 		return TRUE
@@ -1245,44 +1245,44 @@ class stzString from stzObject
 	 #     INTERNAL ENGINE PRIMITIVES         #
 	#========================================#
 
-	def _FindSubStr(pcSubStr, nStartAt, bCaseSensitive)
-		if pcSubStr = "" or nStartAt < 1
+	def _FindSubStr(pcSubStr, _nStartAt_, bCaseSensitive)
+		if pcSubStr = "" or _nStartAt_ < 1
 			return 0
 		ok
 
 		# Engine uses INDEX_BASE=1 (1-based), CS pattern (case=1 sensitive, case=0 insensitive)
-		nResult = StzEngineStringFindFirstFromCS(@pEngine, pcSubStr, nStartAt, bCaseSensitive)
+		_nResult_ = StzEngineStringFindFirstFromCS(@pEngine, pcSubStr, _nStartAt_, bCaseSensitive)
 
 		# Engine returns 1-based position, -1 for not found
-		if nResult > 0
-			return nResult
+		if _nResult_ > 0
+			return _nResult_
 		else
 			return 0
 		ok
 
-	def _ReplaceRange(n1, nRange, pcNew)
+	def _ReplaceRange(_n1_, _nRange_, pcNew)
 		# Engine uses INDEX_BASE=1 (1-based codepoint positions)
-		pResult = StzEngineStringReplaceRange(@pEngine, n1, nRange, pcNew)
+		pResult = StzEngineStringReplaceRange(@pEngine, _n1_, _nRange_, pcNew)
 		if pResult = NULL
 			return This.Content()
 		ok
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def _SplitByStrCS(cSep, bCaseSensitive)
 		# ENGINE-BACKED one-pass (StzEngineStringSplitAllCS): splits the whole
 		# string in a single scan (fixed the old O(n^2) count+get) and drains
 		# all parts. (A Zig-side newlist/retlist bulk return was tried but
 		# loses the list through deep Ring call chains -- a VM-level fragility.)
-		aResult = This._DrainStrList( StzEngineStringSplitAllCS(@pEngine, cSep, bCaseSensitive) )
-		while len(aResult) > 0 and aResult[1] = ""
-			del(aResult, 1)
+		_aResult_ = This._DrainStrList( StzEngineStringSplitAllCS(@pEngine, cSep, bCaseSensitive) )
+		while len(_aResult_) > 0 and _aResult_[1] = ""
+			del(_aResult_, 1)
 		end
-		while len(aResult) > 0 and aResult[len(aResult)] = ""
-			del(aResult, len(aResult))
+		while len(_aResult_) > 0 and _aResult_[len(_aResult_)] = ""
+			del(_aResult_, len(_aResult_))
 		end
-		return aResult
+		return _aResult_
 
 	def _SplitByStr(cSep)
 		return This._SplitByStrCS(cSep, 1)
@@ -1375,40 +1375,40 @@ class stzString from stzObject
 	#   both case-sensitive and case-insensitive search without pulling
 	#   in engine-level changes.
 
-	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
+	def FindNextCS(pcSubStr, _nStart_, pCaseSensitive)
 		# Accept :StartingAt = N named-param for nStart.
-		if isList(nStart) and len(nStart) = 2 and isString(nStart[1]) and
-		   lower(nStart[1]) = "startingat"
-			nStart = nStart[2]
+		if isList(_nStart_) and len(_nStart_) = 2 and isString(_nStart_[1]) and
+		   lower(_nStart_[1]) = "startingat"
+			_nStart_ = _nStart_[2]
 		ok
 		if NOT isString(pcSubStr)
 			return 0
 		ok
-		if NOT isNumber(nStart)
+		if NOT isNumber(_nStart_)
 			return 0
 		ok
 		if pcSubStr = ""
 			return 0
 		ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		if nStart < 0
-			nStart = 0
+		if _nStart_ < 0
+			_nStart_ = 0
 		ok
 		# First occurrence at a codepoint position > nStart. Delegate to the
 		# engine find-from primitive (codepoint-aware + correct case folding,
 		# incl. multibyte). The old Ring body mixed byte len()/lower() with a
 		# StzMidToEnd tail walk and returned 0 even for ASCII
 		# (FindNextCS("abc",2) on "abcabc" missed the match at 4).
-		return This._FindSubStr(pcSubStr, nStart + 1, _bCase_)
+		return This._FindSubStr(pcSubStr, _nStart_ + 1, _bCase_)
 
-	def FindNext(pcSubStr, nStart)
-		return This.FindNextCS(pcSubStr, nStart, 1)
+	def FindNext(pcSubStr, _nStart_)
+		return This.FindNextCS(pcSubStr, _nStart_, 1)
 
-		def FindNextSubString(pcSubStr, nStart)
-			return This.FindNext(pcSubStr, nStart)
+		def FindNextSubString(pcSubStr, _nStart_)
+			return This.FindNext(pcSubStr, _nStart_)
 
-	def FindNextNthCS(n, pcSubStr, nStart, pCaseSensitive)
-		_pos_ = nStart
+	def FindNextNthCS(n, pcSubStr, _nStart_, pCaseSensitive)
+		_pos_ = _nStart_
 		for _k_ = 1 to n
 			_pos_ = This.FindNextCS(pcSubStr, _pos_, pCaseSensitive)
 			if _pos_ = 0 return 0 ok
@@ -1416,8 +1416,8 @@ class stzString from stzObject
 		next
 		return _pos_
 
-	def FindNextNth(n, pcSubStr, nStart)
-		return This.FindNextNthCS(n, pcSubStr, nStart, 1)
+	def FindNextNth(n, pcSubStr, _nStart_)
+		return This.FindNextNthCS(n, pcSubStr, _nStart_, 1)
 
 	#-- Numbers: extract every number literal embedded in the string
 	#   as a list of strings, preserving signs and decimal points.
@@ -1635,12 +1635,12 @@ class stzString from stzObject
 
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
-	def ContainsInSection(pcSubStr, n1, n2)
+	def ContainsInSection(pcSubStr, _n1_, _n2_)
 		# Does pcSubStr occur inside the section? (haystack = section, needle = sub.)
-		return StzFindFirst(This._SectionLenient(n1, n2), pcSubStr) > 0
+		return StzFindFirst(This._SectionLenient(_n1_, _n2_), pcSubStr) > 0
 
-		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
-			_cSec_ = This._SectionLenient(n1, n2)
+		def ContainsInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
+			_cSec_ = This._SectionLenient(_n1_, _n2_)
 			_aP_ = StzFindCS(pcSubStr, _cSec_, pCaseSensitive)
 			return isList(_aP_) and len(_aP_) > 0
 
@@ -1698,10 +1698,10 @@ class stzString from stzObject
 
 	# UppercaseSubStringXT(n1, n2): positional range form (kept distinct
 	# from the 1-arg dispatcher to satisfy Ring's strict arity).
-	def UppercaseSubStringXT(n1, n2)
-		This._UppercaseSubStringRange(n1, n2)
+	def UppercaseSubStringXT(_n1_, _n2_)
+		This._UppercaseSubStringRange(_n1_, _n2_)
 
-	def _UppercaseSubStringRange(n1, n2)
+	def _UppercaseSubStringRange(_n1_, _n2_)
 		_cAll_ = This.Content()
 		# Codepoint length + codepoint-aware uppercase: n1/n2 are codepoint
 		# positions, and Ring's len()/upper() are byte-oriented (wrong on
@@ -1709,13 +1709,13 @@ class stzString from stzObject
 		# lowercased). Use StzLen + StzUpper.
 		_nTL_ = StzLen(_cAll_)
 		_cBefore_ = ""
-		if n1 > 1
-			_cBefore_ = This._EngineSlice(_cAll_, 1, n1 - 1)
+		if _n1_ > 1
+			_cBefore_ = This._EngineSlice(_cAll_, 1, _n1_ - 1)
 		ok
-		_cMid_ = This._EngineSlice(_cAll_, n1, n2 - n1 + 1)
+		_cMid_ = This._EngineSlice(_cAll_, _n1_, _n2_ - _n1_ + 1)
 		_cAfter_ = ""
-		if n2 < _nTL_
-			_cAfter_ = This._EngineSliceFrom(_cAll_, n2 + 1)
+		if _n2_ < _nTL_
+			_cAfter_ = This._EngineSliceFrom(_cAll_, _n2_ + 1)
 		ok
 		This.Update( _cBefore_ + StzUpper(_cMid_) + _cAfter_ )
 
@@ -2228,39 +2228,39 @@ class stzString from stzObject
 	# FindInSection: find occurrences of pcSubStr restricted to the
 	# character range [n1, n2]. Returns positions in the FULL string
 	# (not relative to the section). No match -> [].
-	def FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
-		if NOT (isNumber(n1) and isNumber(n2))
+	def FindInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("FindInSection: n1 and n2 must be numbers.")
 		ok
 		# Auto-order the bounds like Section() does, so FindInSection(sub, 12, 3)
 		# == FindInSection(sub, 3, 12).
-		if n1 > n2
-			_nFisTmp_ = n1 ; n1 = n2 ; n2 = _nFisTmp_
+		if _n1_ > _n2_
+			_nFisTmp_ = _n1_ ; _n1_ = _n2_ ; _n2_ = _nFisTmp_
 		ok
 		_nFisLen_ = This.NumberOfChars()
-		if n1 < 1
-			n1 = 1
+		if _n1_ < 1
+			_n1_ = 1
 		ok
-		if n2 > _nFisLen_
-			n2 = _nFisLen_
+		if _n2_ > _nFisLen_
+			_n2_ = _nFisLen_
 		ok
-		_cFisSection_ = This._SectionLenient(n1, n2)
+		_cFisSection_ = This._SectionLenient(_n1_, _n2_)
 		_aFisRel_ = StzStringQ(_cFisSection_).FindCS(pcSubStr, pCaseSensitive)
 		_aFisAbs_ = []
 		_nFisRelLen_ = len(_aFisRel_)
 		for _iFis_ = 1 to _nFisRelLen_
-			_aFisAbs_ + (_aFisRel_[_iFis_] + n1 - 1)
+			_aFisAbs_ + (_aFisRel_[_iFis_] + _n1_ - 1)
 		next
 		return _aFisAbs_
 
-	def FindInSection(pcSubStr, n1, n2)
-		return This.FindInSectionCS(pcSubStr, n1, n2, 1)
+	def FindInSection(pcSubStr, _n1_, _n2_)
+		return This.FindInSectionCS(pcSubStr, _n1_, _n2_, 1)
 
-		def FindAllInSection(pcSubStr, n1, n2)
-			return This.FindInSection(pcSubStr, n1, n2)
+		def FindAllInSection(pcSubStr, _n1_, _n2_)
+			return This.FindInSection(pcSubStr, _n1_, _n2_)
 
-		def FindAllInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
-			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		def FindAllInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
 
 	def FindNthCS(n, pcSubStr, pCaseSensitive)
 		_oFnFinder_ = new stzStringFinder(This)
@@ -3040,10 +3040,10 @@ class stzString from stzObject
 	# nFrom (1-based, inclusive). Engine-backed (codepoint-aware,
 	# so Unicode chars like ♥ count as 1 position even though they
 	# occupy 3 UTF-8 bytes). Returns absolute position or 0.
-	def _FindFrom(pcHay, pcNeedle, nFrom)
-		if nFrom < 1 nFrom = 1 ok
+	def _FindFrom(pcHay, pcNeedle, _nFrom_)
+		if _nFrom_ < 1 _nFrom_ = 1 ok
 		_pH_ = StzEngineString(pcHay)
-		_nRes_ = StzEngineStringFindFirstFromCS(_pH_, pcNeedle, nFrom, 1)
+		_nRes_ = StzEngineStringFindFirstFromCS(_pH_, pcNeedle, _nFrom_, 1)
 		StzEngineStringFree(_pH_)
 		if _nRes_ < 1 return 0 ok
 		return _nRes_
@@ -3051,25 +3051,25 @@ class stzString from stzObject
 	# Helper: slice pcHay by codepoint -- start codepoint position
 	# (1-based) and codepoint count. Returns the substring.
 	# Engine-backed; codepoint-aware.
-	def _EngineSlice(pcHay, nStart, nCount)
-		if nStart < 1 or nCount <= 0 return "" ok
+	def _EngineSlice(pcHay, _nStart_, nCount)
+		if _nStart_ < 1 or nCount <= 0 return "" ok
 		_pH_ = StzEngineString(pcHay)
-		_pSlc_ = StzEngineStringSlice(_pH_, nStart, nCount)
+		_pSlc_ = StzEngineStringSlice(_pH_, _nStart_, nCount)
 		_cRes_ = StzEngineStringData(_pSlc_)
 		StzEngineStringFree(_pSlc_)
 		StzEngineStringFree(_pH_)
 		return _cRes_
 
 	# Helper: slice pcHay from codepoint nStart to the end.
-	def _EngineSliceFrom(pcHay, nStart)
+	def _EngineSliceFrom(pcHay, _nStart_)
 		_pH_ = StzEngineString(pcHay)
 		_nLen_ = StzEngineStringCount(_pH_)
-		if nStart < 1 nStart = 1 ok
-		if nStart > _nLen_
+		if _nStart_ < 1 _nStart_ = 1 ok
+		if _nStart_ > _nLen_
 			StzEngineStringFree(_pH_)
 			return ""
 		ok
-		_pSlc_ = StzEngineStringSlice(_pH_, nStart, _nLen_ - nStart + 1)
+		_pSlc_ = StzEngineStringSlice(_pH_, _nStart_, _nLen_ - _nStart_ + 1)
 		_cRes_ = StzEngineStringData(_pSlc_)
 		StzEngineStringFree(_pSlc_)
 		StzEngineStringFree(_pH_)
@@ -3078,14 +3078,14 @@ class stzString from stzObject
 	# Helper: resolve a symbolic position (:First/:Last/:LastChar/:Middle)
 	# or numeric value to a 1-based codepoint index. Returns the input
 	# unchanged when it cannot be resolved so callers can decide.
-	def _ResolveSymPos(p, nLen)
+	def _ResolveSymPos(p, _nLen_)
 		if isNumber(p) return p ok
 		if isString(p)
 			_kw_ = lower(p)
 			if StzMid(_kw_, 1, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "first" or _kw_ = "firstchar" return 1 ok
-			if _kw_ = "last" or _kw_ = "lastchar" return nLen ok
-			if _kw_ = "middle" or _kw_ = "middlechar" return floor((nLen + 1) / 2) ok
+			if _kw_ = "last" or _kw_ = "lastchar" return _nLen_ ok
+			if _kw_ = "middle" or _kw_ = "middlechar" return floor((_nLen_ + 1) / 2) ok
 		ok
 		return p
 
@@ -5122,8 +5122,8 @@ class stzString from stzObject
 		if This.IsLeftToRight()
 			return This._SectionLenient(1, n)
 		else
-			nLen = This.NumberOfChars()
-			return This._SectionLenient(nLen - n + 1, nLen)
+			_nLen_ = This.NumberOfChars()
+			return This._SectionLenient(_nLen_ - n + 1, _nLen_)
 		ok
 
 		def NLeftCharsAsString(n)
@@ -5134,8 +5134,8 @@ class stzString from stzObject
 
 	def NRightChars(n)
 		if This.IsLeftToRight()
-			nLen = This.NumberOfChars()
-			return This._SectionLenient(nLen - n + 1, nLen)
+			_nLen_ = This.NumberOfChars()
+			return This._SectionLenient(_nLen_ - n + 1, _nLen_)
 		else
 			return This._SectionLenient(1, n)
 		ok
@@ -5150,83 +5150,83 @@ class stzString from stzObject
 		return This._SectionLenient(1, n)
 
 	def NLastChars(n)
-		nLen = This.NumberOfChars()
-		return This._SectionLenient(nLen - n + 1, nLen)
+		_nLen_ = This.NumberOfChars()
+		return This._SectionLenient(_nLen_ - n + 1, _nLen_)
 
 	  #========================================#
 	 #     MUTATION PRIMITIVES                #
 	#========================================#
 
-	def RemoveSection(n1, n2)
+	def RemoveSection(_n1_, _n2_)
 		_nLen_ = This.NumberOfChars()
-		n1 = This._ResolveSymPos(n1, _nLen_)
-		n2 = This._ResolveSymPos(n2, _nLen_)
-		if NOT (isNumber(n1) and isNumber(n2)) return ok
+		_n1_ = This._ResolveSymPos(_n1_, _nLen_)
+		_n2_ = This._ResolveSymPos(_n2_, _nLen_)
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return ok
 		pH = This.Engine()
-		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
+		pR = StzEngineStringRemoveRange(pH, _n1_, _n2_ - _n1_ + 1)
 		if pR != 0
 			This.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
 		ok
 
-	def RemoveSections(aSections)
-		if len(aSections) = 0
+	def RemoveSections(_aSections_)
+		if len(_aSections_) = 0
 			return
 		ok
 
 		# Merge inclusive/overlapping sections first (the original
 		# monolith merges before removing), then remove from the end
 		# to preserve positions.
-		_oSec_ = new stzListOfSections(aSections)
+		_oSec_ = new stzListOfSections(_aSections_)
 		_oSec_.MergeOverlapping()
-		aSections = _oSec_.Content()
-		nLen = len(aSections)
+		_aSections_ = _oSec_.Content()
+		_nLen_ = len(_aSections_)
 
-		for i = nLen to 1 step -1
-			This.RemoveSection(aSections[i][1], aSections[i][2])
+		for i = _nLen_ to 1 step -1
+			This.RemoveSection(_aSections_[i][1], _aSections_[i][2])
 		next
 
-	def ReplaceSections(aSections, pcNewSubStr)
+	def ReplaceSections(_aSections_, pcNewSubStr)
 		# Replace sections from end to start to preserve positions
-		nLen = len(aSections)
-		for i = 1 to nLen - 1
-			for j = 1 to nLen - i
-				if aSections[j][1] < aSections[j+1][1]
-					temp = aSections[j]
-					aSections[j] = aSections[j+1]
-					aSections[j+1] = temp
+		_nLen_ = len(_aSections_)
+		for i = 1 to _nLen_ - 1
+			for j = 1 to _nLen_ - i
+				if _aSections_[j][1] < _aSections_[j+1][1]
+					_temp_ = _aSections_[j]
+					_aSections_[j] = _aSections_[j+1]
+					_aSections_[j+1] = _temp_
 				ok
 			next
 		next
 
-		for i = 1 to nLen
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
-			nRange = n2 - n1 + 1
-			cResult = This._ReplaceRange(n1, nRange, pcNewSubStr)
-			This.Update(cResult)
+		for i = 1 to _nLen_
+			_n1_ = _aSections_[i][1]
+			_n2_ = _aSections_[i][2]
+			_nRange_ = _n2_ - _n1_ + 1
+			_cResult_ = This._ReplaceRange(_n1_, _nRange_, pcNewSubStr)
+			This.Update(_cResult_)
 		next
 
 	# ReplaceSectionsByMany(aSections, paReplacements): replace each
 	# [n1, n2] section in aSections with the corresponding replacement
 	# from paReplacements. Walks sections in reverse so earlier
 	# positions stay valid as later ones shift.
-	def ReplaceSectionsByMany(aSections, paReplacements)
+	def ReplaceSectionsByMany(_aSections_, paReplacements)
 		if NOT isList(paReplacements)
 			StzRaise("Incorrect param type! pacSubStr must be a list.")
 		ok
-		if NOT isList(aSections) return ok
-		_nL_ = len(aSections)
+		if NOT isList(_aSections_) return ok
+		_nL_ = len(_aSections_)
 		_nR_ = len(paReplacements)
 		if _nL_ = 0 or _nR_ = 0 return ok
 		# Validate: pairs of numbers, ascending starts, no overlap.
 		for _i_ = 1 to _nL_
-			if NOT ( isList(aSections[_i_]) and len(aSections[_i_]) = 2 and
-			         isNumber(aSections[_i_][1]) and isNumber(aSections[_i_][2]) )
+			if NOT ( isList(_aSections_[_i_]) and len(_aSections_[_i_]) = 2 and
+			         isNumber(_aSections_[_i_][1]) and isNumber(_aSections_[_i_][2]) )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
 			ok
 			if _i_ > 1
-				if aSections[_i_][1] <= aSections[_i_ - 1][2]
+				if _aSections_[_i_][1] <= _aSections_[_i_ - 1][2]
 					StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
 				ok
 			ok
@@ -5234,7 +5234,7 @@ class stzString from stzObject
 		# Build [origIdx, section] pairs and sort by section start desc.
 		_aWork_ = []
 		for _i_ = 1 to _nL_
-			_aWork_ + [ _i_, aSections[_i_] ]
+			_aWork_ + [ _i_, _aSections_[_i_] ]
 		next
 		# Insertion sort, descending by section start.
 		for _i_ = 2 to _nL_
@@ -5264,8 +5264,8 @@ class stzString from stzObject
 		next
 		This.Update(_cTxt_)
 
-		def ReplaceSectionsByManyQ(aSections, paReplacements)
-			This.ReplaceSectionsByMany(aSections, paReplacements)
+		def ReplaceSectionsByManyQ(_aSections_, paReplacements)
+			This.ReplaceSectionsByMany(_aSections_, paReplacements)
 			return This
 
 	  #========================================#
@@ -5800,9 +5800,9 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	def FindTheseOccurrencesSTZZ(anN, pNamedOf, pStartingAt)
+	def FindTheseOccurrencesSTZZ(_anN_, pNamedOf, pStartingAt)
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
-		_aPos_ = This._PickTheseOf(anN, This.FindST(_cSub_, pStartingAt))
+		_aPos_ = This._PickTheseOf(_anN_, This.FindST(_cSub_, pStartingAt))
 		_nSubLen_ = This._EngineCount(_cSub_)
 		_aRes_ = []
 		_nL_ = len(_aPos_)
@@ -8358,10 +8358,10 @@ class stzString from stzObject
 		next
 		return _cDbB_ = pcBound
 
-	def _DeepSlice(nStart, nEnd)
+	def _DeepSlice(_nStart_, nEnd)
 		_aDsC_ = This.Chars()
 		_cDs_ = ""
-		for _kDs_ = nStart to nEnd
+		for _kDs_ = _nStart_ to nEnd
 			if _kDs_ >= 1 and _kDs_ <= len(_aDsC_)
 				_cDs_ += _aDsC_[_kDs_]
 			ok
@@ -8789,7 +8789,7 @@ class stzString from stzObject
 	# of pcSub, return the ones at the supplied ordinal indices in
 	# the chosen direction.
 	# Example: FindTheseOccurrencesD([1, 2], :Of = "♥♥♥", :Backward).
-	def FindTheseOccurrencesD(anN, pNamedOf, pDir)
+	def FindTheseOccurrencesD(_anN_, pNamedOf, pDir)
 		_pSub_ = pNamedOf
 		if isList(pNamedOf) and len(pNamedOf) = 2 and
 		   isString(pNamedOf[1]) and lower(pNamedOf[1]) = "of"
@@ -8798,9 +8798,9 @@ class stzString from stzObject
 		_aAll_ = This.FindD(_pSub_, pDir)
 		_nT_ = len(_aAll_)
 		_aRes_ = []
-		_nNL_ = len(anN)
+		_nNL_ = len(_anN_)
 		for _i_ = 1 to _nNL_
-			_n_ = anN[_i_]
+			_n_ = _anN_[_i_]
 			if _n_ >= 1 and _n_ <= _nT_
 				_aRes_ + _aAll_[_n_]
 			ok
@@ -8823,14 +8823,14 @@ class stzString from stzObject
 	def HowManyCS(pcSub, pCaseSensitive)
 		return StzEngineStringCountOfCS(@pEngine, pcSub, pCaseSensitive)
 
-	def HowManyST(pcSub, nStartAt)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def HowManyST(pcSub, _nStartAt_)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
 		_nCount_ = 0
 		_nSubLen_ = This._EngineCount(pcSub)
-		_nPos_ = nStartAt
+		_nPos_ = _nStartAt_
 		while TRUE
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, 1)
 			if _nFound_ < 1 exit ok
@@ -9214,18 +9214,18 @@ class stzString from stzObject
 			return This
 
 	# Find the position of the next n-th marker after nFrom.
-	def FindNextNthMarquer(n, nFrom)
+	def FindNextNthMarquer(n, _nFrom_)
 		_aP_ = This.MarquersPositions()
 		_aA_ = []
 		_nL_ = len(_aP_)
 		for _i_ = 1 to _nL_
-			if _aP_[_i_] > nFrom _aA_ + _aP_[_i_] ok
+			if _aP_[_i_] > _nFrom_ _aA_ + _aP_[_i_] ok
 		next
 		if n < 1 or n > len(_aA_) return 0 ok
 		return _aA_[n]
 
-	def FindNextNthMarker(n, nFrom)
-		return This.FindNextNthMarquer(n, nFrom)
+	def FindNextNthMarker(n, _nFrom_)
+		return This.FindNextNthMarquer(n, _nFrom_)
 
 	# SubStringBoundsXT(pcSub, n): per occurrence, the [startBefore,
 	# endBefore] + [startAfter, endAfter] cap-n-char sections (alias
@@ -9316,27 +9316,27 @@ class stzString from stzObject
 	# FindStD (case-insensitively = FindSTD): ALL the candidate
 	# positions -- forward: starting at/after nStartAt; backward:
 	# ending at/before nStartAt, nearest first.
-	def FindStD(pcSub, nStartAt, pDir)
+	def FindStD(pcSub, _nStartAt_, pDir)
 		if NOT This._IsBackwardDir(pDir)
-			return This.FindST(pcSub, nStartAt)
+			return This.FindST(pcSub, _nStartAt_)
 		ok
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_nStartAt_ = This._ResolveSymPos(_nStartAt_, This.NumberOfChars())
 		_aAll_ = This.Find(pcSub)
 		_nSubLen_ = This._EngineCount(pcSub)
 		_aRes_ = []
 		_nL_ = len(_aAll_)
 		for _i_ = _nL_ to 1 step -1
-			if _aAll_[_i_] + _nSubLen_ - 1 <= nStartAt _aRes_ + _aAll_[_i_] ok
+			if _aAll_[_i_] + _nSubLen_ - 1 <= _nStartAt_ _aRes_ + _aAll_[_i_] ok
 		next
 		return _aRes_
 
 	# (Ring is case-insensitive; one method name covers StD / STD.)
-	def FindAsSectionsStD(pcSub, nStartAt, pDir)
-		_aPos_ = This.FindStD(pcSub, nStartAt, pDir)
+	def FindAsSectionsStD(pcSub, _nStartAt_, pDir)
+		_aPos_ = This.FindStD(pcSub, _nStartAt_, pDir)
 		_nSubLen_ = This._EngineCount(pcSub)
 		_aRes_ = []
 		_nL_ = len(_aPos_)
@@ -9345,8 +9345,8 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	def FindTheseOccurrencesAsSectionsD(anN, pNamedOf, pDir)
-		_aPos_ = This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+	def FindTheseOccurrencesAsSectionsD(_anN_, pNamedOf, pDir)
+		_aPos_ = This.FindTheseOccurrencesD(_anN_, pNamedOf, pDir)
 		_pSub_ = pNamedOf
 		if isList(pNamedOf) and len(pNamedOf) = 2 and
 		   isString(pNamedOf[1]) and lower(pNamedOf[1]) = "of"
@@ -9412,18 +9412,18 @@ class stzString from stzObject
 	# SpacifySections(aSections [, pcSep]): insert pcSep between every
 	# pair of consecutive chars inside each [n1, n2] section. pcSep
 	# defaults to " " when the second arg is omitted.
-	def SpacifySections(aSections)
-		This._SpacifySectionsWithSep(aSections, " ")
+	def SpacifySections(_aSections_)
+		This._SpacifySectionsWithSep(_aSections_, " ")
 
-	def SpacifySectionsXT(aSections, pcSep)
-		This._SpacifySectionsWithSep(aSections, pcSep)
+	def SpacifySectionsXT(_aSections_, pcSep)
+		This._SpacifySectionsWithSep(_aSections_, pcSep)
 
-	def _SpacifySectionsWithSep(aSections, pcSep)
-		if NOT isList(aSections) return ok
-		_nL_ = len(aSections)
+	def _SpacifySectionsWithSep(_aSections_, pcSep)
+		if NOT isList(_aSections_) return ok
+		_nL_ = len(_aSections_)
 		if _nL_ = 0 return ok
 		# Sort sections descending so positions stay valid.
-		_aSorted_ = _ListCopy(aSections)
+		_aSorted_ = _ListCopy(_aSections_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
 			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
@@ -9487,10 +9487,10 @@ class stzString from stzObject
 		This.Update(_cOut_)
 
 	# Helper: is codepoint position n inside any of the sections?
-	def _InSections(n, aSections)
-		_nL_ = len(aSections)
+	def _InSections(n, _aSections_)
+		_nL_ = len(_aSections_)
 		for _i_ = 1 to _nL_
-			_s_ = aSections[_i_]
+			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				if n >= _s_[1] and n <= _s_[2]
 					return TRUE
@@ -9538,10 +9538,10 @@ class stzString from stzObject
 
 	# ContainsInSections(pcSub, aSections): TRUE if pcSub appears
 	# inside ANY of the listed sections.
-	def ContainsInSections(pcSub, aSections)
-		_nL_ = len(aSections)
+	def ContainsInSections(pcSub, _aSections_)
+		_nL_ = len(_aSections_)
 		for _i_ = 1 to _nL_
-			_s_ = aSections[_i_]
+			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				if This.ContainsInSection(pcSub, _s_[1], _s_[2])
 					return TRUE
@@ -9550,8 +9550,8 @@ class stzString from stzObject
 		next
 		return FALSE
 
-	def ContainsBetweenPositions(pcSub, n1, n2)
-		return This.ContainsInSection(pcSub, n1, n2)
+	def ContainsBetweenPositions(pcSub, _n1_, _n2_)
+		return This.ContainsInSection(pcSub, _n1_, _n2_)
 
 	# ContainsBefore(pcSub, pcAnchor | :Position = n | :SubString = s):
 	# TRUE iff pcSub appears in the content BEFORE the anchor.
@@ -9740,12 +9740,12 @@ class stzString from stzObject
 	# SplitAtSections(aSections): split AT the sections -- return the
 	# COMPLEMENT parts between them (the original monolith routes the
 	# complement computation through stzSplitter).
-	def SplitAtSections(aSections)
-		if NOT isList(aSections) return [] ok
+	def SplitAtSections(_aSections_)
+		if NOT isList(_aSections_) return [] ok
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
 		if _nLen_ = 0 return [] ok
-		_aComp_ = StzSplitterQ(_nLen_).SplitAtSections(aSections)
+		_aComp_ = StzSplitterQ(_nLen_).SplitAtSections(_aSections_)
 		_aRes_ = []
 		_nL_ = len(_aComp_)
 		for _i_ = 1 to _nL_
@@ -9990,34 +9990,34 @@ class stzString from stzObject
 
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.
-	def NextOccurrence(pcSub, nFrom)
+	def NextOccurrence(pcSub, _nFrom_)
 		# Accept :Of = pcSub for the first arg.
 		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
 		   lower(pcSub[1]) = "of"
 			pcSub = pcSub[2]
 		ok
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
-		if NOT isString(pcSub) or NOT isNumber(nFrom) return 0 ok
+		if NOT isString(pcSub) or NOT isNumber(_nFrom_) return 0 ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
-		       nFrom + 1, 1)
+		       _nFrom_ + 1, 1)
 
 	# PreviousOccurrence(sub, nFrom): the last occurrence lying ENTIRELY
 	# before nFrom (the original searches Section(1, nFrom-1), so an
 	# occurrence overlapping nFrom does not count).
-	def PreviousOccurrence(pcSub, nFrom)
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+	def PreviousOccurrence(pcSub, _nFrom_)
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_nL_ = len(_aAll_)
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nBest_ = 0
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] + _nSubLen_ - 1 < nFrom _nBest_ = _aAll_[_i_] ok
+			if _aAll_[_i_] + _nSubLen_ - 1 < _nFrom_ _nBest_ = _aAll_[_i_] ok
 		next
 		return _nBest_
 
@@ -10449,27 +10449,27 @@ class stzString from stzObject
 
 	# FindPrevious(pcSub, nFrom): mirror of NextOccurrence -- highest
 	# position strictly before nFrom.
-	def FindPrevious(pcSub, nFrom)
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+	def FindPrevious(pcSub, _nFrom_)
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
-		return This.PreviousOccurrence(pcSub, nFrom)
+		return This.PreviousOccurrence(pcSub, _nFrom_)
 
-	def FindPreviousNth(n, pcSub, nFrom)
+	def FindPreviousNth(n, pcSub, _nFrom_)
 		# STRICTLY BEFORE the :StartingAt position -- the ORIGINAL
 		# counts occurrences in Section(1, nStart - 1) (block #989;
 		# block #863's inclusive line contradicted the original impl
 		# and was re-ruled).
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
 		_aFpn_ = This.FindAll(pcSub)
 		_nFpnL_ = len(_aFpn_)
 		_nFpnCnt_ = 0
 		for _iFpn_ = _nFpnL_ to 1 step -1
-			if _aFpn_[_iFpn_] < nFrom
+			if _aFpn_[_iFpn_] < _nFrom_
 				_nFpnCnt_++
 				if _nFpnCnt_ = n return _aFpn_[_iFpn_] ok
 			ok
@@ -10966,18 +10966,18 @@ class stzString from stzObject
 			This.InsertXT(p1, p2)
 			return This
 
-	def FindNthNext(n, pcSub, nFrom)
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+	def FindNthNext(n, pcSub, _nFrom_)
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
-		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
-		if NOT isNumber(nFrom) return 0 ok
+		_nFrom_ = This._ResolveSymPos(_nFrom_, This.NumberOfChars())
+		if NOT isNumber(_nFrom_) return 0 ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_aAfter_ = []
 		_nL_ = len(_aAll_)
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] > nFrom _aAfter_ + _aAll_[_i_] ok
+			if _aAll_[_i_] > _nFrom_ _aAfter_ + _aAll_[_i_] ok
 		next
 		_nAL_ = len(_aAfter_)
 		if isString(n)
@@ -10992,19 +10992,19 @@ class stzString from stzObject
 		return _aAfter_[n]
 
 	# FindNthPrevious / FindNthNext on stzString.
-	def FindNthPrevious(n, pcSub, nFrom)
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+	def FindNthPrevious(n, pcSub, _nFrom_)
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_nL_ = len(_aAll_)
-		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
-		if NOT isNumber(nFrom) return 0 ok
+		_nFrom_ = This._ResolveSymPos(_nFrom_, This.NumberOfChars())
+		if NOT isNumber(_nFrom_) return 0 ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_aBefore_ = []
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] + _nSubLen_ - 1 < nFrom _aBefore_ + _aAll_[_i_] ok
+			if _aAll_[_i_] + _nSubLen_ - 1 < _nFrom_ _aBefore_ + _aAll_[_i_] ok
 		next
 		_nBL_ = len(_aBefore_)
 		# Symbolic n, counting BACKWARD from nFrom: the :First previous
@@ -11251,30 +11251,30 @@ class stzString from stzObject
 
 	# FirstSTDZ(pcSub, nStartAt, pDir): pos only (no section).
 	# The STDZ/STDZZ forms carry the [sub, pos] / [sub, span] grouping.
-	def FirstSTDZ(pcSub, nStartAt, pDir)
-		_p_ = This.FindFirstSTD(pcSub, nStartAt, pDir)
+	def FirstSTDZ(pcSub, _nStartAt_, pDir)
+		_p_ = This.FindFirstSTD(pcSub, _nStartAt_, pDir)
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
-	def FirstSTDZZ(pcSub, nStartAt, pDir)
-		_aSec_ = This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+	def FirstSTDZZ(pcSub, _nStartAt_, pDir)
+		_aSec_ = This.FindFirstSTDZZ(pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
-	def FindFirstAsSectionST(pcSub, nStartAt)
-		_nP_ = This.FindFirstST(pcSub, nStartAt)
+	def FindFirstAsSectionST(pcSub, _nStartAt_)
+		_nP_ = This.FindFirstST(pcSub, _nStartAt_)
 		if _nP_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
 
 	# CharsInSection(n1, n2): the chars in the [n1, n2] section as
 	# a list.
-	def CharsInSection(n1, n2)
+	def CharsInSection(_n1_, _n2_)
 		_nLen_ = This._EngineCount(This.Content())
-		if n1 < 1 n1 = 1 ok
-		if n2 > _nLen_ n2 = _nLen_ ok
-		if n1 > n2 return [] ok
-		_cSlice_ = This._EngineSlice(This.Content(), n1, n2 - n1 + 1)
+		if _n1_ < 1 _n1_ = 1 ok
+		if _n2_ > _nLen_ _n2_ = _nLen_ ok
+		if _n1_ > _n2_ return [] ok
+		_cSlice_ = This._EngineSlice(This.Content(), _n1_, _n2_ - _n1_ + 1)
 		return (new stzString(_cSlice_)).Chars()
 
 	# FindFirstD(pcSub, pDir): first position in the chosen direction.
@@ -11309,19 +11309,19 @@ class stzString from stzObject
 	# ReplaceInSections(aSections, pcOld, pcNew): apply Replace only
 	# inside the given sections. Walks sections descending so
 	# positions stay valid.
-	def ReplaceInSections(aSections, pcOld, pcNew)
+	def ReplaceInSections(_aSections_, pcOld, pcNew)
 		# Accept the narrative order (pcOld, pcNew, aSections) too.
-		if isString(aSections) and isString(pcOld) and isList(pcNew)
-			_tmp_ = aSections
-			aSections = pcNew
+		if isString(_aSections_) and isString(pcOld) and isList(pcNew)
+			_tmp_ = _aSections_
+			_aSections_ = pcNew
 			_tmp2_ = pcOld
 			pcOld = _tmp_
 			pcNew = _tmp2_
 		ok
-		if NOT isList(aSections) return ok
-		_nL_ = len(aSections)
+		if NOT isList(_aSections_) return ok
+		_nL_ = len(_aSections_)
 		if _nL_ = 0 return ok
-		_aSorted_ = _ListCopy(aSections)
+		_aSorted_ = _ListCopy(_aSections_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
 			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
@@ -11356,8 +11356,8 @@ class stzString from stzObject
 			This.Update(_cBefore_ + _cMidNew_ + _cAfter_)
 		next
 
-		def ReplaceInSectionsQ(aSections, pcOld, pcNew)
-			This.ReplaceInSections(aSections, pcOld, pcNew)
+		def ReplaceInSectionsQ(_aSections_, pcOld, pcNew)
+			This.ReplaceInSections(_aSections_, pcOld, pcNew)
 			return This
 
 	# ReplaceCharsWXT(pcCondition, pcNewChar): replace every char
@@ -11515,13 +11515,13 @@ class stzString from stzObject
 
 	# LastSTDZ / LastSTDZZ: positional / sectional last-occurrence
 	# directional search from a starting position.
-	def LastSTDZ(pcSub, nStartAt, pDir)
-		_p_ = This.FindLastSTD(pcSub, nStartAt, pDir)
+	def LastSTDZ(pcSub, _nStartAt_, pDir)
+		_p_ = This.FindLastSTD(pcSub, _nStartAt_, pDir)
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
-	def LastSTDZZ(pcSub, nStartAt, pDir)
-		_aSec_ = This.FindLastSTDZZ(pcSub, nStartAt, pDir)
+	def LastSTDZZ(pcSub, _nStartAt_, pDir)
+		_aSec_ = This.FindLastSTDZZ(pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
@@ -11539,24 +11539,24 @@ class stzString from stzObject
 
 	# FindST(pcSub, nStartAt): ALL the positions of occurrences starting
 	# at or after :StartingAt.
-	def FindST(pcSub, nStartAt)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindST(pcSub, _nStartAt_)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_nStartAt_ = This._ResolveSymPos(_nStartAt_, This.NumberOfChars())
 		_aAll_ = This.Find(pcSub)
 		_aRes_ = []
 		_nL_ = len(_aAll_)
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] >= nStartAt _aRes_ + _aAll_[_i_] ok
+			if _aAll_[_i_] >= _nStartAt_ _aRes_ + _aAll_[_i_] ok
 		next
 		return _aRes_
 
 	# FindSTDZ: the [sub, positions] grouping of the directional
 	# starting-at find.
-	def FindSTDZ(pcSub, nStartAt, pDir)
-		return [ pcSub, This.FindStD(pcSub, nStartAt, pDir) ]
+	def FindSTDZ(pcSub, _nStartAt_, pDir)
+		return [ pcSub, This.FindStD(pcSub, _nStartAt_, pDir) ]
 
 	# FindOccurrences(pcSub | anN, :Of = pcSub): all positions, or
 	# select positions of nth-occurrences from a list.
@@ -11599,12 +11599,12 @@ class stzString from stzObject
 
 	# FindTheseOccurrencesSD(anN, :Of=pcSub, :StartingAt=N, pDir):
 	# typo-tolerant alias accepting optional :StartingAt.
-	def FindTheseOccurrencesSD(anN, pNamedOf, pStartingAt, pDir)
+	def FindTheseOccurrencesSD(_anN_, pNamedOf, pStartingAt, pDir)
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
-		return This._PickTheseOf(anN, This.FindStD(_cSub_, pStartingAt, pDir))
+		return This._PickTheseOf(_anN_, This.FindStD(_cSub_, pStartingAt, pDir))
 
-	def FindTheseOccurrencesSDXT(anN, pNamedOf, pDir)
-		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+	def FindTheseOccurrencesSDXT(_anN_, pNamedOf, pDir)
+		return This.FindTheseOccurrencesD(_anN_, pNamedOf, pDir)
 
 	# NthStzS(n, pcSub[, :StartingAt = N]): start position of the n-th
 	# occurrence of pcSub, optionally starting from a given position.
@@ -11731,13 +11731,13 @@ class stzString from stzObject
 		return This.FindTheseOccurrencesAsSections(p1, pNamedOf)
 
 	# _PickTheseOf(anN, aAll): the aAll entries at the 1-based indices anN.
-	def _PickTheseOf(anN, aAll)
+	def _PickTheseOf(_anN_, aAll)
 		_aRes_ = []
 		_nT_ = len(aAll)
-		_nNL_ = len(anN)
+		_nNL_ = len(_anN_)
 		for _i_ = 1 to _nNL_
-			if anN[_i_] >= 1 and anN[_i_] <= _nT_
-				_aRes_ + aAll[anN[_i_]]
+			if _anN_[_i_] >= 1 and _anN_[_i_] <= _nT_
+				_aRes_ + aAll[_anN_[_i_]]
 			ok
 		next
 		return _aRes_
@@ -11751,13 +11751,13 @@ class stzString from stzObject
 
 	# The occurrence-index selectors with :StartingAt (+ direction):
 	# candidates come from FindST / FindStD, then anN picks by index.
-	def FindTheseOccurrencesST(anN, pNamedOf, pStartingAt)
+	def FindTheseOccurrencesST(_anN_, pNamedOf, pStartingAt)
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
-		return This._PickTheseOf(anN, This.FindST(_cSub_, pStartingAt))
+		return This._PickTheseOf(_anN_, This.FindST(_cSub_, pStartingAt))
 
-	def FindTheseOccurrencesAsSectionsSTD(anN, pNamedOf, pStartingAt, pDir)
+	def FindTheseOccurrencesAsSectionsSTD(_anN_, pNamedOf, pStartingAt, pDir)
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
-		_aPos_ = This._PickTheseOf(anN, This.FindStD(_cSub_, pStartingAt, pDir))
+		_aPos_ = This._PickTheseOf(_anN_, This.FindStD(_cSub_, pStartingAt, pDir))
 		_nSubLen_ = This._EngineCount(_cSub_)
 		_aRes_ = []
 		_nL_ = len(_aPos_)
@@ -12018,22 +12018,22 @@ class stzString from stzObject
 	# (AntiFindAsSections already exists earlier as nested alias.)
 
 	# NthSTDZ / NthSTDZZ: nth-occurrence directional variants.
-	def NthSTDZ(n, pcSub, nStartAt, pDir)
-		_p_ = This.FindNthSTD(n, pcSub, nStartAt, pDir)
+	def NthSTDZ(n, pcSub, _nStartAt_, pDir)
+		_p_ = This.FindNthSTD(n, pcSub, _nStartAt_, pDir)
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
-	def NthSTDZZ(n, pcSub, nStartAt, pDir)
-		_aSec_ = This.FindNthSTDZZ(n, pcSub, nStartAt, pDir)
+	def NthSTDZZ(n, pcSub, _nStartAt_, pDir)
+		_aSec_ = This.FindNthSTDZZ(n, pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
 	# FindSTZ / FindSTDZZ: list aliases.
-	def FindSTZ(pcSub, nStartAt)
-		return This.FindST(pcSub, nStartAt)
+	def FindSTZ(pcSub, _nStartAt_)
+		return This.FindST(pcSub, _nStartAt_)
 
-	def FindSTDZZ(pcSub, nStartAt, pDir)
-		return This.FindAsSectionsStD(pcSub, nStartAt, pDir)
+	def FindSTDZZ(pcSub, _nStartAt_, pDir)
+		return This.FindAsSectionsStD(pcSub, _nStartAt_, pDir)
 
 	# TheseSubstringsZZ(pacSubStr): sections of first occurrences.
 	# TheseSubstringsZZ([subs]): each substring grouped with ALL its
@@ -12704,24 +12704,24 @@ class stzString from stzObject
 
 	# RandomPositionAfter(nFrom): a random codepoint position
 	# strictly after nFrom (inclusive of the last position).
-	def RandomPositionAfter(nFrom)
+	def RandomPositionAfter(_nFrom_)
 		_nLen_ = This._EngineCount(This.Content())
-		if nFrom < 1 nFrom = 0 ok
-		if nFrom >= _nLen_ return 0 ok
-		_nSpan_ = _nLen_ - nFrom
-		return nFrom + 1 + (random(_nSpan_ - 1))
+		if _nFrom_ < 1 _nFrom_ = 0 ok
+		if _nFrom_ >= _nLen_ return 0 ok
+		_nSpan_ = _nLen_ - _nFrom_
+		return _nFrom_ + 1 + (random(_nSpan_ - 1))
 
 	# FindNextSTCS(pcSub, nStartAt, pCaseSensitive): forward search
 	# from nStartAt with case flag.
-	def FindNextSTCS(pcSub, nStartAt, pCaseSensitive)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindNextSTCS(pcSub, _nStartAt_, pCaseSensitive)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
 		_bCase_ = 1
 		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
-		       nStartAt + 1, _bCase_)
+		       _nStartAt_ + 1, _bCase_)
 
 	# ContainsMoreThenN(n, pcSub) or (pcSub, n): TRUE iff content
 	# contains pcSub strictly more than n times.
@@ -12853,29 +12853,29 @@ class stzString from stzObject
 
 	# Move(n1, n2): move char from position n1 to position n2.
 	# Accepts named-param form Move(:CharFromPosition = N, :To = M).
-	def Move(n1, n2)
-		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		   (lower(n1[1]) = "charfromposition" or lower(n1[1]) = "fromposition" or lower(n1[1]) = "from")
-			n1 = n1[2]
+	def Move(_n1_, _n2_)
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		   (lower(_n1_[1]) = "charfromposition" or lower(_n1_[1]) = "fromposition" or lower(_n1_[1]) = "from")
+			_n1_ = _n1_[2]
 		ok
-		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
-		   (lower(n2[1]) = "to" or lower(n2[1]) = "toposition")
-			n2 = n2[2]
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
+		   (lower(_n2_[1]) = "to" or lower(_n2_[1]) = "toposition")
+			_n2_ = _n2_[2]
 		ok
-		if NOT (isNumber(n1) and isNumber(n2)) return ok
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return ok
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
-		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
-		if n1 = n2 return ok
-		_cChar_ = This._EngineSlice(_cTxt_, n1, 1)
+		if _n1_ < 1 or _n1_ > _nLen_ or _n2_ < 1 or _n2_ > _nLen_ return ok
+		if _n1_ = _n2_ return ok
+		_cChar_ = This._EngineSlice(_cTxt_, _n1_, 1)
 		# Remove the char at n1 first.
 		_cBefore1_ = ""
-		if n1 > 1 _cBefore1_ = This._EngineSlice(_cTxt_, 1, n1 - 1) ok
-		_cAfter1_ = This._EngineSliceFrom(_cTxt_, n1 + 1)
+		if _n1_ > 1 _cBefore1_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1) ok
+		_cAfter1_ = This._EngineSliceFrom(_cTxt_, _n1_ + 1)
 		_cTmp_ = _cBefore1_ + _cAfter1_
 		# Adjust n2 if it was after n1.
-		_n2adj_ = n2
-		if n2 > n1 _n2adj_ = n2 - 1 ok
+		_n2adj_ = _n2_
+		if _n2_ > _n1_ _n2adj_ = _n2_ - 1 ok
 		# Insert at adjusted position.
 		_cBefore2_ = ""
 		if _n2adj_ > 1
@@ -12884,28 +12884,28 @@ class stzString from stzObject
 		_cAfter2_ = This._EngineSliceFrom(_cTmp_, _n2adj_)
 		This.Update(_cBefore2_ + _cChar_ + _cAfter2_)
 
-		def MoveQ(n1, n2)
-			This.Move(n1, n2)
+		def MoveQ(_n1_, _n2_)
+			This.Move(_n1_, _n2_)
 			return This
 
 	# Swap(n1, n2): swap chars at positions n1 and n2.
 	# Also accepts Swap(:Positions = n1, :And = n2) and
 	# Swap(pcA, :And = pcB) to swap two substrings.
-	def Swap(n1, n2)
-		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		   (lower(n1[1]) = "positions" or lower(n1[1]) = "position") and
-		   isNumber(n1[2])
-			n1 = n1[2]
+	def Swap(_n1_, _n2_)
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		   (lower(_n1_[1]) = "positions" or lower(_n1_[1]) = "position") and
+		   isNumber(_n1_[2])
+			_n1_ = _n1_[2]
 		ok
-		if isNumber(n1) and isList(n2) and len(n2) = 2 and
-		   isString(n2[1]) and lower(n2[1]) = "and" and isNumber(n2[2])
-			n2 = n2[2]
+		if isNumber(_n1_) and isList(_n2_) and len(_n2_) = 2 and
+		   isString(_n2_[1]) and lower(_n2_[1]) = "and" and isNumber(_n2_[2])
+			_n2_ = _n2_[2]
 		ok
 		# Substring-swap form: Swap("TWO", :And = "ONE")
-		if isString(n1) and isList(n2) and len(n2) = 2 and
-		   isString(n2[1]) and lower(n2[1]) = "and" and isString(n2[2])
-			_cA_ = n1
-			_cB_ = n2[2]
+		if isString(_n1_) and isList(_n2_) and len(_n2_) = 2 and
+		   isString(_n2_[1]) and lower(_n2_[1]) = "and" and isString(_n2_[2])
+			_cA_ = _n1_
+			_cB_ = _n2_[2]
 			_p1_ = This._FindFrom(This.Content(), _cA_, 1)
 			_p2_ = This._FindFrom(This.Content(), _cB_, 1)
 			if _p1_ < 1 or _p2_ < 1 return ok
@@ -12920,18 +12920,18 @@ class stzString from stzObject
 		ok
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
-		if NOT (isNumber(n1) and isNumber(n2)) return ok
-		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
-		if n1 = n2 return ok
-		_c1_ = This._EngineSlice(_cTxt_, n1, 1)
-		_c2_ = This._EngineSlice(_cTxt_, n2, 1)
-		_lo_ = n1
-		_hi_ = n2
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return ok
+		if _n1_ < 1 or _n1_ > _nLen_ or _n2_ < 1 or _n2_ > _nLen_ return ok
+		if _n1_ = _n2_ return ok
+		_c1_ = This._EngineSlice(_cTxt_, _n1_, 1)
+		_c2_ = This._EngineSlice(_cTxt_, _n2_, 1)
+		_lo_ = _n1_
+		_hi_ = _n2_
 		_cLo_ = _c2_
 		_cHi_ = _c1_
-		if n1 > n2
-			_lo_ = n2
-			_hi_ = n1
+		if _n1_ > _n2_
+			_lo_ = _n2_
+			_hi_ = _n1_
 			_cLo_ = _c1_
 			_cHi_ = _c2_
 		ok
@@ -12947,8 +12947,8 @@ class stzString from stzObject
 		ok
 		This.Update(_cBefore_ + _cLo_ + _cMid_ + _cHi_ + _cAfter_)
 
-		def SwapQ(n1, n2)
-			This.Swap(n1, n2)
+		def SwapQ(_n1_, _n2_)
+			This.Swap(_n1_, _n2_)
 			return This
 
 	# NthToLast(n): the n-th-to-last char ("1st to last" = last).
@@ -13738,9 +13738,9 @@ class stzString from stzObject
 		next
 		return TRUE
 
-	def RemoveManySections(aSections)
-		if NOT isList(aSections) return ok
-		_aSorted_ = _ListCopy(aSections)
+	def RemoveManySections(_aSections_)
+		if NOT isList(_aSections_) return ok
+		_aSorted_ = _ListCopy(_aSections_)
 		_nL_ = len(_aSorted_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
@@ -13754,8 +13754,8 @@ class stzString from stzObject
 			This.RemoveSection(_sec_[1], _sec_[2])
 		next
 
-		def RemoveManySectionsQ(aSections)
-			This.RemoveManySections(aSections)
+		def RemoveManySectionsQ(_aSections_)
+			This.RemoveManySections(_aSections_)
 			return This
 
 	# _ResolveOfWithFrom(p2, p3, p4): the three trailing args of the
@@ -13795,14 +13795,14 @@ class stzString from stzObject
 		next
 		return [ _cSub_, _cNew_, _nFrom_ ]
 
-	def ReplaceNextNthOccurrence(n, pcSub, pcNew, nFrom)
-		_aRno_ = This._ResolveOfWithFrom(pcSub, pcNew, nFrom)
+	def ReplaceNextNthOccurrence(n, pcSub, pcNew, _nFrom_)
+		_aRno_ = This._ResolveOfWithFrom(pcSub, pcNew, _nFrom_)
 		pcSub = _aRno_[1]
 		pcNew = _aRno_[2]
-		nFrom = _aRno_[3]
+		_nFrom_ = _aRno_[3]
 		if pcSub = "" return ok
 		_nSubLen_ = This._EngineCount(pcSub)
-		_nPos_ = nFrom; _nCount_ = 0
+		_nPos_ = _nFrom_; _nCount_ = 0
 		while TRUE
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, 1)
@@ -13822,21 +13822,21 @@ class stzString from stzObject
 			_nPos_ = _nFound_ + _nSubLen_
 		end
 
-		def ReplaceNextNthOccurrenceQ(n, pcSub, pcNew, nFrom)
-			This.ReplaceNextNthOccurrence(n, pcSub, pcNew, nFrom)
+		def ReplaceNextNthOccurrenceQ(n, pcSub, pcNew, _nFrom_)
+			This.ReplaceNextNthOccurrence(n, pcSub, pcNew, _nFrom_)
 			return This
 
-	def ReplacePreviousNthOccurrence(n, pcSub, pcNew, nFrom)
-		_aRpo_ = This._ResolveOfWithFrom(pcSub, pcNew, nFrom)
+	def ReplacePreviousNthOccurrence(n, pcSub, pcNew, _nFrom_)
+		_aRpo_ = This._ResolveOfWithFrom(pcSub, pcNew, _nFrom_)
 		pcSub = _aRpo_[1]
 		pcNew = _aRpo_[2]
-		nFrom = _aRpo_[3]
+		_nFrom_ = _aRpo_[3]
 		if pcSub = "" return ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_aBefore_ = []
 		_nAL_ = len(_aAll_)
 		for _i_ = 1 to _nAL_
-			if _aAll_[_i_] < nFrom _aBefore_ + _aAll_[_i_] ok
+			if _aAll_[_i_] < _nFrom_ _aBefore_ + _aAll_[_i_] ok
 		next
 		_nBL_ = len(_aBefore_)
 		if n < 1 or n > _nBL_ return ok
@@ -13850,8 +13850,8 @@ class stzString from stzObject
 		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
 		This.Update(_cBefore_ + pcNew + _cAfter_)
 
-		def ReplacePreviousNthOccurrenceQ(n, pcSub, pcNew, nFrom)
-			This.ReplacePreviousNthOccurrence(n, pcSub, pcNew, nFrom)
+		def ReplacePreviousNthOccurrenceQ(n, pcSub, pcNew, _nFrom_)
+			This.ReplacePreviousNthOccurrence(n, pcSub, pcNew, _nFrom_)
 			return This
 
 	def IsLowercaseOf(pcOther)
@@ -13878,11 +13878,11 @@ class stzString from stzObject
 		if _c_ = StzUpper(_c_) and _c_ != StzLower(_c_) return :Uppercase ok
 		return :Mixed
 
-	def CountInSections(pcSub, aSections)
+	def CountInSections(pcSub, _aSections_)
 		_nT_ = 0
-		_nL_ = len(aSections)
+		_nL_ = len(_aSections_)
 		for _i_ = 1 to _nL_
-			_s_ = aSections[_i_]
+			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
@@ -14226,15 +14226,15 @@ class stzString from stzObject
 
 	# FindInSections(pcSub, aSections): positions of pcSub inside
 	# NumberOfOccurrencesInSections alias for CountInSections.
-	def NumberOfOccurrencesInSections(pcSub, aSections)
-		return This.CountInSections(pcSub, aSections)
+	def NumberOfOccurrencesInSections(pcSub, _aSections_)
+		return This.CountInSections(pcSub, _aSections_)
 
 	# the given sections (codepoint absolute positions).
-	def FindInSections(pcSub, aSections)
+	def FindInSections(pcSub, _aSections_)
 		_aRes_ = []
-		_nL_ = len(aSections)
+		_nL_ = len(_aSections_)
 		for _i_ = 1 to _nL_
-			_s_ = aSections[_i_]
+			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
@@ -14953,11 +14953,11 @@ class stzString from stzObject
 	def SubStringComesAfterSubString(pcSub, pcOther)
 		return This.SubStringComesAfter(pcSub, pcOther)
 
-	def SubStringComesBetweenPositions(pcSub, n1, n2)
+	def SubStringComesBetweenPositions(pcSub, _n1_, _n2_)
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
 		if _p_ < 1 return FALSE ok
-		if NOT (isNumber(n1) and isNumber(n2)) return FALSE ok
-		return _p_ >= n1 and _p_ <= n2
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return FALSE ok
+		return _p_ >= _n1_ and _p_ <= _n2_
 
 	# Narrative-sub accessor used by SubStringQ(["sub", :In = "host"]).
 	# Stored as the LAST line of the wrapped content separated by
@@ -15056,10 +15056,10 @@ class stzString from stzObject
 		_o_ = new stzString(_pair_[2])
 		return _o_.SubStringComesAfter(_pair_[1], pcOther)
 
-	def ComesBetweenPositions(n1, n2)
+	def ComesBetweenPositions(_n1_, _n2_)
 		_pair_ = This._NarrativeSubAndHost()
 		_o_ = new stzString(_pair_[2])
-		return _o_.SubStringComesBetweenPositions(_pair_[1], n1, n2)
+		return _o_.SubStringComesBetweenPositions(_pair_[1], _n1_, _n2_)
 
 	def ComesBeforePosition(n)
 		_pair_ = This._NarrativeSubAndHost()
@@ -15089,8 +15089,8 @@ class stzString from stzObject
 		if _p_ < 1 or _pL_ < 1 or _pR_ < 1 return FALSE ok
 		return _p_ > _pL_ and _p_ < _pR_
 
-	def FindSSZZ(pcSub, n1, n2)
-		_a_ = This.FindSSZ(pcSub, n1, n2)
+	def FindSSZZ(pcSub, _n1_, _n2_)
+		_a_ = This.FindSSZ(pcSub, _n1_, _n2_)
 		_nSubLen_ = This._EngineCount(pcSub)
 		_aR_ = []
 		_nL_ = len(_a_)
@@ -15117,57 +15117,57 @@ class stzString from stzObject
 
 	# SectionBounds(n1, n2, nLeftMax, nRightMax): the [open, close]
 	# bound substrings just before n1 and just after n2.
-	def SectionBounds(n1, n2, nLeftMax, nRightMax)
+	def SectionBounds(_n1_, _n2_, nLeftMax, nRightMax)
 		_cAll_ = This.Content()
 		_nLen_ = This.NumberOfChars()
 		_cLeft_ = ""
 		_cRight_ = ""
-		if n1 > 1
-			_start_ = n1 - nLeftMax
+		if _n1_ > 1
+			_start_ = _n1_ - nLeftMax
 			if _start_ < 1 _start_ = 1 ok
-			_cLeft_ = This._EngineSlice(_cAll_, _start_, n1 - _start_)
+			_cLeft_ = This._EngineSlice(_cAll_, _start_, _n1_ - _start_)
 		ok
-		if n2 < _nLen_
+		if _n2_ < _nLen_
 			_count_ = nRightMax
-			if n2 + _count_ > _nLen_ _count_ = _nLen_ - n2 ok
-			_cRight_ = This._EngineSlice(_cAll_, n2 + 1, _count_)
+			if _n2_ + _count_ > _nLen_ _count_ = _nLen_ - _n2_ ok
+			_cRight_ = This._EngineSlice(_cAll_, _n2_ + 1, _count_)
 		ok
 		return [ _cLeft_, _cRight_ ]
 
 	# IB ("inclusive-bounds"): n1, n2 are the bound-inclusive positions, so the
 	# inner section is (n1+1 .. n2-1) -- harvest the bounds around THAT.
-	def SectionBoundsIB(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBounds(n1 + 1, n2 - 1, nLeftMax, nRightMax)
+	def SectionBoundsIB(_n1_, _n2_, nLeftMax, nRightMax)
+		return This.SectionBounds(_n1_ + 1, _n2_ - 1, nLeftMax, nRightMax)
 
-	def SectionBoundsZ(n1, n2, nLeftMax, nRightMax)
-		_a_ = This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+	def SectionBoundsZ(_n1_, _n2_, nLeftMax, nRightMax)
+		_a_ = This.SectionBounds(_n1_, _n2_, nLeftMax, nRightMax)
 		if len(_a_) < 2 return [] ok
 		_cLeft_ = _a_[1]; _cRight_ = _a_[2]
 		_nLLen_ = This._EngineCount(_cLeft_)
-		return [ [ _cLeft_, n1 - _nLLen_ ], [ _cRight_, n2 + 1 ] ]
+		return [ [ _cLeft_, _n1_ - _nLLen_ ], [ _cRight_, _n2_ + 1 ] ]
 
-	def SectionBoundsZZ(n1, n2, nLeftMax, nRightMax)
-		_a_ = This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+	def SectionBoundsZZ(_n1_, _n2_, nLeftMax, nRightMax)
+		_a_ = This.SectionBounds(_n1_, _n2_, nLeftMax, nRightMax)
 		if len(_a_) < 2 return [] ok
 		_cLeft_ = _a_[1]; _cRight_ = _a_[2]
 		_nLLen_ = This._EngineCount(_cLeft_)
 		_nRLen_ = This._EngineCount(_cRight_)
 		return [
-		    [ _cLeft_, [ n1 - _nLLen_, n1 - 1 ] ],
-		    [ _cRight_, [ n2 + 1, n2 + _nRLen_ ] ]
+		    [ _cLeft_, [ _n1_ - _nLLen_, _n1_ - 1 ] ],
+		    [ _cRight_, [ _n2_ + 1, _n2_ + _nRLen_ ] ]
 		]
 
-	def FindInSectionZZ(pcSub, n1, n2)
-		return This.FindSSZZ(pcSub, n1, n2)
+	def FindInSectionZZ(pcSub, _n1_, _n2_)
+		return This.FindSSZZ(pcSub, _n1_, _n2_)
 
-	def SectionBoundsIBZ(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBoundsZ(n1 + 1, n2 - 1, nLeftMax, nRightMax)
+	def SectionBoundsIBZ(_n1_, _n2_, nLeftMax, nRightMax)
+		return This.SectionBoundsZ(_n1_ + 1, _n2_ - 1, nLeftMax, nRightMax)
 
-	def SectionBoundsIBZZ(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBoundsZZ(n1 + 1, n2 - 1, nLeftMax, nRightMax)
+	def SectionBoundsIBZZ(_n1_, _n2_, nLeftMax, nRightMax)
+		return This.SectionBoundsZZ(_n1_ + 1, _n2_ - 1, nLeftMax, nRightMax)
 
-	def FindBetweenZZ(pcSub, n1, n2)
-		return This.FindSSZZ(pcSub, n1, n2)
+	def FindBetweenZZ(pcSub, _n1_, _n2_)
+		return This.FindSSZZ(pcSub, _n1_, _n2_)
 
 	def EachCharBoxRounded()
 		return This.EachCharBoxedRounded()
@@ -15242,47 +15242,47 @@ class stzString from stzObject
 	# content gets multiplied / divided / added / subtracted by the
 	# corresponding entry in anN (cycling through). Stub helpers used
 	# by the regex narrative tests.
-	def MultiplyByNXT(anN)
-		This._ApplyNumberTransform(anN, "mul")
+	def MultiplyByNXT(_anN_)
+		This._ApplyNumberTransform(_anN_, "mul")
 
-		def MultiplyByNXTQ(anN)
-			This.MultiplyByNXT(anN)
+		def MultiplyByNXTQ(_anN_)
+			This.MultiplyByNXT(_anN_)
 			return This
 
-	def DivideByNXT(anN)
-		This._ApplyNumberTransform(anN, "div")
+	def DivideByNXT(_anN_)
+		This._ApplyNumberTransform(_anN_, "div")
 
-	def AddNXT(anN)
-		This._ApplyNumberTransform(anN, "add")
+	def AddNXT(_anN_)
+		This._ApplyNumberTransform(_anN_, "add")
 
-	def RetrieveNXT(anN)
-		This._ApplyNumberTransform(anN, "sub")
+	def RetrieveNXT(_anN_)
+		This._ApplyNumberTransform(_anN_, "sub")
 
-	def SubtractNXT(anN)
-		This._ApplyNumberTransform(anN, "sub")
+	def SubtractNXT(_anN_)
+		This._ApplyNumberTransform(_anN_, "sub")
 
-	def _ApplyNumberTransform(anN, pcOp)
+	def _ApplyNumberTransform(_anN_, pcOp)
 		# Widen a bare number to a single-factor list via a FRESH
 		# variable (the single-clause type-widening `if` can no-op --
 		# CLAUDE.md note 6).
 		_bAntAll_ = 0
 		_aAntN_ = []
-		if isNumber(anN)
+		if isNumber(_anN_)
 			_bAntAll_ = 1
-			_aAntN_ + anN
-		but isList(anN)
-			_aAntN_ = anN
+			_aAntN_ + _anN_
+		but isList(_anN_)
+			_aAntN_ = _anN_
 		else
 			return
 		ok
-		anN = _aAntN_
-		if NOT isList(anN) return ok
+		_anN_ = _aAntN_
+		if NOT isList(_anN_) return ok
 		_cIn_ = This.Content()
 		_nLen_ = len(_cIn_)
 		_cOut_ = ""
 		_i_ = 1
 		_nIdx_ = 1
-		_nNL_ = len(anN)
+		_nNL_ = len(_anN_)
 		while _i_ <= _nLen_
 			if isDigit(_cIn_[_i_])
 				# Read full number
@@ -15292,13 +15292,13 @@ class stzString from stzObject
 					_i_++
 				end
 				if _bAntAll_ = 1 _nIdx_ = 1 ok
-				if _nIdx_ <= _nNL_ and isNumber(anN[_nIdx_])
+				if _nIdx_ <= _nNL_ and isNumber(_anN_[_nIdx_])
 					_n_ = 0 + _num_
 					_op_ = pcOp
-					if _op_ = "mul" _n_ = _n_ * anN[_nIdx_]
-					but _op_ = "div" and anN[_nIdx_] != 0 _n_ = floor(_n_ / anN[_nIdx_])
-					but _op_ = "add" _n_ = _n_ + anN[_nIdx_]
-					but _op_ = "sub" _n_ = _n_ - anN[_nIdx_]
+					if _op_ = "mul" _n_ = _n_ * _anN_[_nIdx_]
+					but _op_ = "div" and _anN_[_nIdx_] != 0 _n_ = floor(_n_ / _anN_[_nIdx_])
+					but _op_ = "add" _n_ = _n_ + _anN_[_nIdx_]
+					but _op_ = "sub" _n_ = _n_ - _anN_[_nIdx_]
 					ok
 					_cOut_ += "" + _n_
 					_nIdx_++
@@ -15552,7 +15552,7 @@ class stzString from stzObject
 		_c_ = ring_trim(This.Content())
 		return len(_c_) = 1 and isDigit(_c_[1])
 
-	def FindSSZ(pcSub, n1, n2)
+	def FindSSZ(pcSub, _n1_, _n2_)
 		# Section-bounded find; n1/n2 bound the search range.
 		if NOT isString(pcSub) or pcSub = "" return [] ok
 		_a_ = This.AllPositionsOf(pcSub)
@@ -15560,8 +15560,8 @@ class stzString from stzObject
 		_nL_ = len(_a_)
 		for _i_ = 1 to _nL_
 			_p_ = _a_[_i_]
-			if isNumber(n1) and isNumber(n2) and n2 >= n1 and n1 >= 1
-				if _p_ < n1 or _p_ > n2 loop ok
+			if isNumber(_n1_) and isNumber(_n2_) and _n2_ >= _n1_ and _n1_ >= 1
+				if _p_ < _n1_ or _p_ > _n2_ loop ok
 			ok
 			_aR_ + _p_
 		next
@@ -15640,10 +15640,10 @@ class stzString from stzObject
 		ok
 		return ""
 
-	def SplitAroundSections(aSections)
-		if NOT isList(aSections) return [ This.Content() ] ok
+	def SplitAroundSections(_aSections_)
+		if NOT isList(_aSections_) return [ This.Content() ] ok
 		# Sort sections ascending by start.
-		_aSorted_ = _ListCopy(aSections)
+		_aSorted_ = _ListCopy(_aSections_)
 		_nL_ = len(_aSorted_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
@@ -15670,10 +15670,10 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
-	def SplitAroundSectionsIB(aSections)
+	def SplitAroundSectionsIB(_aSections_)
 		# Inclusive-bounds variant: each piece includes the bound char.
-		if NOT isList(aSections) return [ This.Content() ] ok
-		_aSorted_ = _ListCopy(aSections)
+		if NOT isList(_aSections_) return [ This.Content() ] ok
+		_aSorted_ = _ListCopy(_aSections_)
 		_nL_ = len(_aSorted_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
@@ -15730,10 +15730,10 @@ class stzString from stzObject
 	# Accept either ([n1, n2]) or (n1, n2) -- the widening uses a fresh
 	# var via if/but/else (the single-clause param-reassign no-ops,
 	# CLAUDE.md note 6).
-	def SplitAroundSectionIB(aSection, n2)
+	def SplitAroundSectionIB(aSection, _n2_)
 		_aSasSec_ = []
-		if isNumber(aSection) and isNumber(n2)
-			_aSasSec_ = [ aSection, n2 ]
+		if isNumber(aSection) and isNumber(_n2_)
+			_aSasSec_ = [ aSection, _n2_ ]
 		but isList(aSection) and len(aSection) = 2
 			_aSasSec_ = aSection
 		else
@@ -15741,10 +15741,10 @@ class stzString from stzObject
 		ok
 		return This.SplitAroundSectionsIB([ _aSasSec_ ])
 
-	def SplitAroundSection(aSection, n2)
+	def SplitAroundSection(aSection, _n2_)
 		_aSasSec_ = []
-		if isNumber(aSection) and isNumber(n2)
-			_aSasSec_ = [ aSection, n2 ]
+		if isNumber(aSection) and isNumber(_n2_)
+			_aSasSec_ = [ aSection, _n2_ ]
 		but isList(aSection) and len(aSection) = 2
 			_aSasSec_ = aSection
 		else
@@ -15903,15 +15903,15 @@ class stzString from stzObject
 		return This.StartsWithCS(pcSub, pCaseSensitive)
 
 	# FindNextNthOccurrence(n, pcSub, nFrom).
-	def FindNextNthOccurrence(n, pcSub, nFrom)
+	def FindNextNthOccurrence(n, pcSub, _nFrom_)
 		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and lower(pcSub[1]) = "of"
 			pcSub = pcSub[2]
 		ok
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
 		_nSubLen_ = This._EngineCount(pcSub)
-		_nPos_ = nFrom; _nC_ = 0
+		_nPos_ = _nFrom_; _nC_ = 0
 		while TRUE
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, 1)
@@ -15922,18 +15922,18 @@ class stzString from stzObject
 		end
 		return 0
 
-	def NthPreviousOccurrence(n, pcSub, nFrom)
-		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
-		   lower(nFrom[1]) = "startingat"
-			nFrom = nFrom[2]
+	def NthPreviousOccurrence(n, pcSub, _nFrom_)
+		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
+		   lower(_nFrom_[1]) = "startingat"
+			_nFrom_ = _nFrom_[2]
 		ok
-		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
-		if NOT isNumber(nFrom) return 0 ok
+		_nFrom_ = This._ResolveSymPos(_nFrom_, This.NumberOfChars())
+		if NOT isNumber(_nFrom_) return 0 ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_aB_ = []
 		_nAL_ = len(_aAll_)
 		for _i_ = 1 to _nAL_
-			if _aAll_[_i_] < nFrom _aB_ + _aAll_[_i_] ok
+			if _aAll_[_i_] < _nFrom_ _aB_ + _aAll_[_i_] ok
 		next
 		_nBL_ = len(_aB_)
 		if n < 1 or n > _nBL_ return 0 ok
@@ -15998,11 +15998,11 @@ class stzString from stzObject
 		ok
 		return pStartingAt
 
-	def _DistFind(paTN, nStart)
+	def _DistFind(paTN, _nStart_)
 		if paTN[3] = "previous"
-			return This.NthPreviousOccurrence(paTN[2], paTN[1], nStart)
+			return This.NthPreviousOccurrence(paTN[2], paTN[1], _nStart_)
 		ok
-		return This.FindNextNthOccurrence(paTN[2], paTN[1], nStart + 1)
+		return This.FindNextNthOccurrence(paTN[2], paTN[1], _nStart_ + 1)
 
 	def DistanceTo(pTarget, pStartingAt)
 		_aDtTN_ = This._DistTargetN(pTarget)
@@ -16754,8 +16754,8 @@ class stzString from stzObject
 		This.RemoveAll(pcSub)
 		return This
 
-	def RemoveSectionQ(n1, n2)
-		This.RemoveSection(n1, n2)
+	def RemoveSectionQ(_n1_, _n2_)
+		This.RemoveSection(_n1_, _n2_)
 		return This
 
 	# ReplaceWithMany / ReplaceManyWithMany TODO placeholders.
@@ -17516,9 +17516,9 @@ class stzString from stzObject
 
 	# --- CharsBetween ---
 
-	def CharsBetween(nFrom, nTo)
+	def CharsBetween(_nFrom_, nTo)
 		_oCbFinder_ = new stzStringFinder(This)
-		return _oCbFinder_.CharsBetween(nFrom, nTo)
+		return _oCbFinder_.CharsBetween(_nFrom_, nTo)
 
 	# --- Regex find ---
 
@@ -18040,12 +18040,12 @@ class stzString from stzObject
 	# RemoveSpacesInSections(aSections): remove every space inside the
 	# given [n1, n2] sections. Walks sections in descending start-pos
 	# order so earlier sections stay valid after later edits.
-	def RemoveSpacesInSections(aSections)
-		if NOT isList(aSections) return ok
-		_nL_ = len(aSections)
+	def RemoveSpacesInSections(_aSections_)
+		if NOT isList(_aSections_) return ok
+		_nL_ = len(_aSections_)
 		if _nL_ = 0 return ok
 		# Sort sections descending by start.
-		_aSorted_ = _ListCopy(aSections)
+		_aSorted_ = _ListCopy(_aSections_)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
 			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
@@ -18084,8 +18084,8 @@ class stzString from stzObject
 			This.Update(_cBefore_ + _cMidClean_ + _cAfter_)
 		next
 
-		def RemoveSpacesInSectionsQ(aSections)
-			This.RemoveSpacesInSections(aSections)
+		def RemoveSpacesInSectionsQ(_aSections_)
+			This.RemoveSpacesInSections(_aSections_)
 			return This
 
 	def RemoveLeadingSpaces()
@@ -18660,37 +18660,37 @@ class stzString from stzObject
 	def RemoveFromRight(pcSubStr)
 		This.RemoveFromRightCS(pcSubStr, 1)
 
-	def RemoveRange(nStart, nRange)
-		This.RemoveSection(nStart, nStart + nRange - 1)
+	def RemoveRange(_nStart_, _nRange_)
+		This.RemoveSection(_nStart_, _nStart_ + _nRange_ - 1)
 
 	  #========================================#
 	 #     FIND FIRST STARTING AT            #
 	#========================================#
 
-	def FindFirstSTCS(pcSubStr, nStartAt, pCaseSensitive)
+	def FindFirstSTCS(pcSubStr, _nStartAt_, pCaseSensitive)
 		# :StartingAt = n normalisation.
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
 		_bFstCase_ = @CaseSensitive(pCaseSensitive)
-		return This._FindSubStr(pcSubStr, nStartAt, _bFstCase_)
+		return This._FindSubStr(pcSubStr, _nStartAt_, _bFstCase_)
 
-	def FindFirstST(pcSubStr, nStartAt)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindFirstST(pcSubStr, _nStartAt_)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		return This.FindFirstSTCS(pcSubStr, nStartAt, 1)
+		return This.FindFirstSTCS(pcSubStr, _nStartAt_, 1)
 
 	# FindLastST: forward to the engine's "find from end" path.
-	def FindLastST(pcSubStr, nStartAt)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindLastST(pcSubStr, _nStartAt_)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
 		# Walk forward and remember the last hit at or after nStartAt.
-		_nPos_ = nStartAt; _nLast_ = 0
+		_nPos_ = _nStartAt_; _nLast_ = 0
 		while TRUE
 			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
 			if _nFound_ = 0 exit ok
@@ -18699,12 +18699,12 @@ class stzString from stzObject
 		end
 		return _nLast_
 
-	def FindNthST(n, pcSubStr, nStartAt)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindNthST(n, pcSubStr, _nStartAt_)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		_nPos_ = nStartAt; _nCount_ = 0
+		_nPos_ = _nStartAt_; _nCount_ = 0
 		while TRUE
 			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
 			if _nFound_ = 0 return 0 ok
@@ -18735,19 +18735,19 @@ class stzString from stzObject
 	# Backward candidates are the occurrences ENDING at or before the
 	# starting position (per the original archive blocks), the "first"
 	# being the nearest one going backward.
-	def FindFirstSTD(pcSubStr, nStartAt, pDir)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindFirstSTD(pcSubStr, _nStartAt_, pDir)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_nStartAt_ = This._ResolveSymPos(_nStartAt_, This.NumberOfChars())
 		_cTxt_ = This.Content()
 		if NOT This._IsBackwardDir(pDir)
-			return This._FindFrom(_cTxt_, pcSubStr, nStartAt)
+			return This._FindFrom(_cTxt_, pcSubStr, _nStartAt_)
 		ok
 		# Backward: highest start whose occurrence ends <= nStartAt.
 		_nSubLen_ = This._EngineCount(pcSubStr)
-		_nMax_ = nStartAt - _nSubLen_ + 1
+		_nMax_ = _nStartAt_ - _nSubLen_ + 1
 		if _nMax_ > This._EngineCount(_cTxt_) - _nSubLen_ + 1
 			_nMax_ = This._EngineCount(_cTxt_) - _nSubLen_ + 1
 		ok
@@ -18760,41 +18760,41 @@ class stzString from stzObject
 
 	# FindFirstSTDZZ: same as FindFirstSTD but returns [start, end]
 	# instead of just start.
-	def FindFirstSTDZZ(pcSubStr, nStartAt, pDir)
-		_nPos_ = This.FindFirstSTD(pcSubStr, nStartAt, pDir)
+	def FindFirstSTDZZ(pcSubStr, _nStartAt_, pDir)
+		_nPos_ = This.FindFirstSTD(pcSubStr, _nStartAt_, pDir)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
 	# FindFirstSTZZ: section form of FindFirstST.
-	def FindFirstSTZZ(pcSubStr, nStartAt)
-		_nPos_ = This.FindFirstST(pcSubStr, nStartAt)
+	def FindFirstSTZZ(pcSubStr, _nStartAt_)
+		_nPos_ = This.FindFirstST(pcSubStr, _nStartAt_)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
 	# Mirror forms: FindLastST / FindLastSTZZ / FindLastSTD aliases.
-	def FindLastSTZZ(pcSubStr, nStartAt)
-		_nPos_ = This.FindLastST(pcSubStr, nStartAt)
+	def FindLastSTZZ(pcSubStr, _nStartAt_)
+		_nPos_ = This.FindLastST(pcSubStr, _nStartAt_)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
-	def FindLastSTD(pcSubStr, nStartAt, pDir)
+	def FindLastSTD(pcSubStr, _nStartAt_, pDir)
 		# Forward: FindLastST starting forward from nStartAt.
 		# Backward: the FARTHEST occurrence going backward (the lowest
 		# start whose occurrence ends <= nStartAt).
 		if NOT This._IsBackwardDir(pDir)
-			return This.FindLastST(pcSubStr, nStartAt)
+			return This.FindLastST(pcSubStr, _nStartAt_)
 		ok
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
-		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_nStartAt_ = This._ResolveSymPos(_nStartAt_, This.NumberOfChars())
 		_cTxt_ = This.Content()
 		_nSubLen_ = This._EngineCount(pcSubStr)
-		_nMax_ = nStartAt - _nSubLen_ + 1
+		_nMax_ = _nStartAt_ - _nSubLen_ + 1
 		if _nMax_ > This._EngineCount(_cTxt_) - _nSubLen_ + 1
 			_nMax_ = This._EngineCount(_cTxt_) - _nSubLen_ + 1
 		ok
@@ -18805,8 +18805,8 @@ class stzString from stzObject
 		next
 		return 0
 
-	def FindLastSTDZZ(pcSubStr, nStartAt, pDir)
-		_nPos_ = This.FindLastSTD(pcSubStr, nStartAt, pDir)
+	def FindLastSTDZZ(pcSubStr, _nStartAt_, pDir)
+		_nPos_ = This.FindLastSTD(pcSubStr, _nStartAt_, pDir)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
@@ -19222,26 +19222,26 @@ class stzString from stzObject
 
 	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
 	# variants used by narratives. Reuse the singular forms.
-	def FindNthSTZZ(n, pcSubStr, nStartAt)
-		_nPos_ = This.FindNthST(n, pcSubStr, nStartAt)
+	def FindNthSTZZ(n, pcSubStr, _nStartAt_)
+		_nPos_ = This.FindNthST(n, pcSubStr, _nStartAt_)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
-	def FindNthSTD(n, pcSubStr, nStartAt, pDir)
-		if isList(nStartAt) and len(nStartAt) = 2 and
-		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
-			nStartAt = nStartAt[2]
+	def FindNthSTD(n, pcSubStr, _nStartAt_, pDir)
+		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
+		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
+			_nStartAt_ = _nStartAt_[2]
 		ok
 		if NOT This._IsBackwardDir(pDir)
-			return This.FindNthST(n, pcSubStr, nStartAt)
+			return This.FindNthST(n, pcSubStr, _nStartAt_)
 		ok
-		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_nStartAt_ = This._ResolveSymPos(_nStartAt_, This.NumberOfChars())
 		# Backward: walk down over the occurrences ending <= nStartAt,
 		# nearest first; return the n-th.
 		_cTxt_ = This.Content()
 		_nSubLen_ = This._EngineCount(pcSubStr)
-		_nMax_ = nStartAt - _nSubLen_ + 1
+		_nMax_ = _nStartAt_ - _nSubLen_ + 1
 		_nTxtLen_ = This._EngineCount(_cTxt_)
 		if _nMax_ > _nTxtLen_ - _nSubLen_ + 1
 			_nMax_ = _nTxtLen_ - _nSubLen_ + 1
@@ -19255,8 +19255,8 @@ class stzString from stzObject
 		next
 		return 0
 
-	def FindNthSTDZZ(n, pcSubStr, nStartAt, pDir)
-		_nPos_ = This.FindNthSTD(n, pcSubStr, nStartAt, pDir)
+	def FindNthSTDZZ(n, pcSubStr, _nStartAt_, pDir)
+		_nPos_ = This.FindNthSTD(n, pcSubStr, _nStartAt_, pDir)
 		if _nPos_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
@@ -19963,9 +19963,9 @@ class stzString from stzObject
 		if isList(pcStr2) and IsNorNamedParamList(pcStr2)
 			pcStr2 = pcStr2[2]
 		ok
-		bEqualToStr1 = This.IsEqualToCS(pcStr1, pCaseSensitive)
-		bEqualToStr2 = This.IsEqualToCS(pcStr2, pCaseSensitive)
-		if NOT bEqualToStr1 and NOT bEqualToStr2
+		_bEqualToStr1_ = This.IsEqualToCS(pcStr1, pCaseSensitive)
+		_bEqualToStr2_ = This.IsEqualToCS(pcStr2, pCaseSensitive)
+		if NOT _bEqualToStr1_ and NOT _bEqualToStr2_
 			return 1
 		else
 			return 0

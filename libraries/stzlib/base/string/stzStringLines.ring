@@ -80,9 +80,9 @@ class stzStringLines from stzObject
 		pH = @oString.Engine()
 		pR = StzEngineStringLineAt(pH, n)
 		if pR != NULL
-			c = StzEngineStringData(pR)
+			_c_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			return c
+			return _c_
 		ok
 		StzRaise("Index out of range!")
 
@@ -104,12 +104,12 @@ class stzStringLines from stzObject
 
 		pH = @oString.Engine()
 		pR = StzEngineStringUniqueLinesCS(pH, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if c = ""
+		if _c_ = ""
 			return []
 		ok
-		return @SplitCS(c, NL, 1)
+		return @SplitCS(_c_, NL, 1)
 
 		def LinesCSU(pCaseSensitive)
 			return This.UniqueLinesCS(pCaseSensitive)
@@ -127,9 +127,9 @@ class stzStringLines from stzObject
 	def RemoveEmptyLines()
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveBlankLines(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveEmptyLinesQ()
 			This.RemoveEmptyLines()
@@ -138,18 +138,18 @@ class stzStringLines from stzObject
 	def EmptyLinesRemoved()
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveBlankLines(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def NumberOfEmptyLines()
 		return This.NumberOfLines() - len(This.EmptyLinesRemoved())
 
 	def HasEmptyLines()
-		acLines = This.Lines()
-		nLen = len(acLines)
-		for i = 1 to nLen
-			if trim(acLines[i]) = ""
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		for i = 1 to _nLen_
+			if trim(_acLines_[i]) = ""
 				return 1
 			ok
 		next
@@ -160,106 +160,106 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def NFirstLines(n)
-		acLines = This.Lines()
-		nLen = len(acLines)
-		acResult = []
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		_acResult_ = []
 
-		nLimit = n
-		if nLimit > nLen
-			nLimit = nLen
+		_nLimit_ = n
+		if _nLimit_ > _nLen_
+			_nLimit_ = _nLen_
 		ok
 
-		for i = 1 to nLimit
-			acResult + acLines[i]
+		for i = 1 to _nLimit_
+			_acResult_ + _acLines_[i]
 		next
 
-		return acResult
+		return _acResult_
 
 	def NLastLines(n)
-		acLines = This.Lines()
-		nLen = len(acLines)
-		acResult = []
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		_acResult_ = []
 
-		nStart = nLen - n + 1
-		if nStart < 1
-			nStart = 1
+		_nStart_ = _nLen_ - n + 1
+		if _nStart_ < 1
+			_nStart_ = 1
 		ok
 
-		for i = nStart to nLen
-			acResult + acLines[i]
+		for i = _nStart_ to _nLen_
+			_acResult_ + _acLines_[i]
 		next
 
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     LONGEST / SHORTEST LINE   #
 	#===============================#
 
 	def LongestLine()
-		acLines = This.Lines()
-		nLen = len(acLines)
-		if nLen = 0
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		cLongest = acLines[1]
-		nMax = StzLen(cLongest)
+		_cLongest_ = _acLines_[1]
+		_nMax_ = StzLen(_cLongest_)
 
-		for i = 2 to nLen
-			nLineLen = StzLen(acLines[i])
-			if nLineLen > nMax
-				nMax = nLineLen
-				cLongest = acLines[i]
+		for i = 2 to _nLen_
+			_nLineLen_ = StzLen(_acLines_[i])
+			if _nLineLen_ > _nMax_
+				_nMax_ = _nLineLen_
+				_cLongest_ = _acLines_[i]
 			ok
 		next
 
-		return cLongest
+		return _cLongest_
 
 	def ShortestLine()
-		acLines = This.Lines()
-		nLen = len(acLines)
-		if nLen = 0
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		cShortest = ""
-		nMin = 0
-		bFirst = 1
+		_cShortest_ = ""
+		_nMin_ = 0
+		_bFirst_ = 1
 
-		for i = 1 to nLen
-			cLine = acLines[i]
-			if trim(cLine) != ""
-				nLineLen = StzLen(cLine)
-				if bFirst
-					cShortest = cLine
-					nMin = nLineLen
-					bFirst = 0
-				but nLineLen < nMin
-					nMin = nLineLen
-					cShortest = cLine
+		for i = 1 to _nLen_
+			_cLine_ = _acLines_[i]
+			if trim(_cLine_) != ""
+				_nLineLen_ = StzLen(_cLine_)
+				if _bFirst_
+					_cShortest_ = _cLine_
+					_nMin_ = _nLineLen_
+					_bFirst_ = 0
+				but _nLineLen_ < _nMin_
+					_nMin_ = _nLineLen_
+					_cShortest_ = _cLine_
 				ok
 			ok
 		next
 
-		return cShortest
+		return _cShortest_
 
 	  #===============================#
 	 #     AVERAGE LINE LENGTH       #
 	#===============================#
 
 	def AverageLineLength()
-		acLines = This.Lines()
-		nLen = len(acLines)
-		if nLen = 0
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		if _nLen_ = 0
 			return 0
 		ok
 
-		nTotal = 0
-		for i = 1 to nLen
-			nTotal += StzLen(acLines[i])
+		_nTotal_ = 0
+		for i = 1 to _nLen_
+			_nTotal_ += StzLen(_acLines_[i])
 		next
 
-		return nTotal / nLen
+		return _nTotal_ / _nLen_
 
 	  #===============================#
 	 #     SORT LINES                #
@@ -269,9 +269,9 @@ class stzStringLines from stzObject
 		pH = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pR = StzEngineStringSortLinesCS(pH, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def SortLinesCSQ(pCaseSensitive)
 			This.SortLinesCS(pCaseSensitive)
@@ -288,9 +288,9 @@ class stzStringLines from stzObject
 		pH = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pR = StzEngineStringSortLinesCS(pH, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def LinesSorted()
 		return This.LinesSortedCS(1)
@@ -310,9 +310,9 @@ class stzStringLines from stzObject
 			return This
 
 	def LinesOrderReversed()
-		oCopy = new stzStringLines(@oString.Content())
-		oCopy.ReverseLinesOrder()
-		return oCopy.Content()
+		_oCopy_ = new stzStringLines(@oString.Content())
+		_oCopy_.ReverseLinesOrder()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     INDENT LINES              #
@@ -321,9 +321,9 @@ class stzStringLines from stzObject
 	def IndentLines(n)
 		pH = @oString.Engine()
 		pR = StzEngineStringIndent(pH, n)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def IndentLinesQ(n)
 			This.IndentLines(n)
@@ -332,9 +332,9 @@ class stzStringLines from stzObject
 	def LinesIndented(n)
 		pH = @oString.Engine()
 		pR = StzEngineStringIndent(pH, n)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     REMOVE DUPLICATE LINES    #
@@ -344,9 +344,9 @@ class stzStringLines from stzObject
 		pH = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveDuplicateLinesCSQ(pCaseSensitive)
 			This.RemoveDuplicateLinesCS(pCaseSensitive)
@@ -363,9 +363,9 @@ class stzStringLines from stzObject
 		pH = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def DuplicateLinesRemoved()
 		return This.DuplicateLinesRemovedCS(1)
@@ -375,29 +375,29 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def LineContainingCS(pcSubStr, pCaseSensitive)
-		acLines = This.Lines()
-		nLen = len(acLines)
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			if StringContainsCS(acLines[i], pcSubStr, pCaseSensitive)
-				return acLines[i]
+		for i = 1 to _nLen_
+			if StringContainsCS(_acLines_[i], pcSubStr, pCaseSensitive)
+				return _acLines_[i]
 			ok
 		next
 
 		return ""
 
 	def LinesContainingCS(pcSubStr, pCaseSensitive)
-		acLines = This.Lines()
-		nLen = len(acLines)
-		acResult = []
+		_acLines_ = This.Lines()
+		_nLen_ = len(_acLines_)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			if StringContainsCS(acLines[i], pcSubStr, pCaseSensitive)
-				acResult + acLines[i]
+		for i = 1 to _nLen_
+			if StringContainsCS(_acLines_[i], pcSubStr, pCaseSensitive)
+				_acResult_ + _acLines_[i]
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 	def LineContaining(pcSubStr)
 		return This.LineContainingCS(pcSubStr, @CaseSensitive(1))

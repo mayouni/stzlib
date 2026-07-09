@@ -27,9 +27,9 @@ class stzTableAggregator from stzTable
 
 		EXAMPLE 1:
 
-		o1 = new stzTable([3, 3])
-		o1.Fill( :With = "A" )	# or ( :WithCell = "A" )
-		o1.Show()
+		_o1_ = new stzTable([3, 3])
+		_o1_.Fill( :With = "A" )	# or ( :WithCell = "A" )
+		_o1_.Show()
 		#-->
 		# #	:COL1	:COL2	:COL3
 		# 1	  "A"	  "A"	  "A"
@@ -38,8 +38,8 @@ class stzTableAggregator from stzTable
 
 		EXAMPLE 2:
 
-		o1 = new stzTable([3, 3])
-		o1.Fill( :WithCol = [ "A", "B", "C" ])
+		_o1_ = new stzTable([3, 3])
+		_o1_.Fill( :WithCol = [ "A", "B", "C" ])
 		#-->
 		# #	:COL1	:COL2	:COL3
 		# 1	  "A"	  "A"	  "A"
@@ -48,8 +48,8 @@ class stzTableAggregator from stzTable
 
 		EXAMPLE 3:
 
-		o1 = new stzTable([3, 3])
-		o1.Fill( :WithRow = [ "A", "B", "C" ])
+		_o1_ = new stzTable([3, 3])
+		_o1_.Fill( :WithRow = [ "A", "B", "C" ])
 		#-->
 		# #	:COL1	:COL2	:COL3
 		# 1	  "A"	  "B"	  "C"
@@ -58,18 +58,18 @@ class stzTableAggregator from stzTable
 
 		*/
 
-		cFill = :WithCell
+		_cFill_ = :WithCell
 
 		if isList(pValue) and
 		   IsOneOfTheseNamedParamsList(pValue,[
 			:With, :WithCell, :WithCol, :WithColumn, :WithRow,
 			:Using, :UsingCell, :UsingCol, :UsingColumn, :UsingRow ])
 
-			cFill  = pValue[1]
+			_cFill_  = pValue[1]
 			pValue = pValue[2]
 		ok
 
-		if cFill = :With or cFill = :WithCell
+		if _cFill_ = :With or _cFill_ = :WithCell
 
 			_nLenCol_ = This.NumberOfCols()
 			_nLenRow_ = This.NumberOfRows()
@@ -84,11 +84,11 @@ class stzTableAggregator from stzTable
 			This.UpdateWith( _oCopy_.Content() )
 
 		but StzFindFirst([
-			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], cFill) > 0
+			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], _cFill_) > 0
 
 			This.ReplaceCols(:With = pValue)
 
-		but cFill = :WithRow or cFill = :UsingRow
+		but _cFill_ = :WithRow or _cFill_ = :UsingRow
 
 			This.ReplaceRows(:By = pValue)
 
@@ -107,8 +107,8 @@ class stzTableAggregator from stzTable
 			return This.Copy().FillQ(pValue)
 
 	def Filled(pValue)
-		aResult = This.Copy().FillQ(pValue).Content()
-		return aResult
+		_aResult_ = This.Copy().FillQ(pValue).Content()
+		return _aResult_
 
 	  #=================================#
 	 #  MISC. : SOME USEFUL UTILITIES  #
@@ -147,8 +147,8 @@ class stzTableAggregator from stzTable
 			ok
 		ok
 
-		cResult = This.ColName(p)
-		return cResult
+		_cResult_ = This.ColName(p)
+		return _cResult_
 
 		def ColumnToColumnName(p)
 			return This.ColToColName(p)
@@ -170,14 +170,14 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
-		nLen = len(paCols)
-		acResult = []
+		_nLen_ = len(paCols)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			acResult + This.ColToColName(paCols[i])
+		for i = 1 to _nLen_
+			_acResult_ + This.ColToColName(paCols[i])
 		next
 
-		return acResult
+		return _acResult_
 
 		#< @FunctionAlternativeForms
 
@@ -259,8 +259,8 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect value! n must correspond to a valid number of column.")
 		ok
 
-		nResult = p
-		return nResult
+		_nResult_ = p
+		return _nResult_
 
 		#< @functionAlternativeForms
 
@@ -295,14 +295,14 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
-		nLen = len(paCols)
-		anResult = []
+		_nLen_ = len(paCols)
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + This.ColToColNumber(paCols[i])
+		for i = 1 to _nLen_
+			_anResult_ + This.ColToColNumber(paCols[i])
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -382,14 +382,14 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paRows must be a list of lists.")
 		ok
 
-		nLen = len(paRows)
-		aResult = []
+		_nLen_ = len(paRows)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + This.RowToNumber(paRows[i])
+		for i = 1 to _nLen_
+			_aResult_ + This.RowToNumber(paRows[i])
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -432,42 +432,42 @@ class stzTableAggregator from stzTable
 
 		if isString(pacColNames)
 			if This.IsAColName(pacColNames)
-				n = This.ColToColNumber(pacColNames)
-				return '( This.Cell(' + n + ', j) )'
+				_n_ = This.ColToColNumber(pacColNames)
+				return '( This.Cell(' + _n_ + ', j) )'
 			else
 				return pacColNames
 			ok
 		ok
 
-		nLen = len(pacColNames)
-		acColNames = []
+		_nLen_ = len(pacColNames)
+		_acColNames_ = []
 
 		if Q(pacColNames).IsListOfStrings()
-			for i = 1 to nLen
-				acColNames + [ pacColNames[i], [ "" ] ]
+			for i = 1 to _nLen_
+				_acColNames_ + [ pacColNames[i], [ "" ] ]
 			next
 
 		else // IsHashList()
-			for i = 1 to nLen
-				acColNames + [ pacColNames[i][1], [ "" ] ]
+			for i = 1 to _nLen_
+				_acColNames_ + [ pacColNames[i][1], [ "" ] ]
 			next
 		ok
 
-		This.AddCols(acColNames)
+		This.AddCols(_acColNames_)
 		This.RemoveCol(1)
 
-		aRow = []
-		for i = 1 to nLen
-			aRow + ""
+		_aRow_ = []
+		for i = 1 to _nLen_
+			_aRow_ + ""
 		next
 
-		This.AddRow(aRow)
+		This.AddRow(_aRow_)
 
 	  #==============================#
 	 #  ADDING A CALCULATED COLUMN  #
 	#==============================#
 
-	def InsertCalculatedCol(n, pcColName, pcFormula)
+	def InsertCalculatedCol(_n_, pcColName, pcFormula)
 		if CheckingParams()
 			if NOT @BothAreStrings(pcColName, pcFormula)
 				StzRaise("Incorrect param types! pcColName and pcFormula must be both strings.")
@@ -486,45 +486,45 @@ class stzTableAggregator from stzTable
 			ok
 		ok
 
-		aColData = []
-		nCols = This.NumberOfCols()
-		nRows = This.NumberOfRows()
+		_aColData_ = []
+		_nCols_ = This.NumberOfCols()
+		_nRows_ = This.NumberOfRows()
 
 		# Preparing the formula expression
 
-		oForumla = new stzString(pcFormula)
-		for i = 1 to nCols
-			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', 0)
+		_oForumla_ = new stzString(pcFormula)
+		for i = 1 to _nCols_
+			_oForumla_.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', 0)
 		next
 
-		pcFormula = oForumla.Content()
-		cCode = "value = " + pcFormula
+		pcFormula = _oForumla_.Content()
+		_cCode_ = "_value_ = " + pcFormula
 
-		@NumberOfRows = nRows
-		@NumberOfCols = nCols
-		@NumberOfColumns = nCols
+		@NumberOfRows = _nRows_
+		@NumberOfCols = _nCols_
+		@NumberOfColumns = _nCols_
 
-		for i = 1 to nRows
-			eval(cCode)
-			aColData + value
+		for i = 1 to _nRows_
+			eval(_cCode_)
+			_aColData_ + _value_
 
 		next
 
-		aContent = @aContent
-		aContent = ring_insert(aContent, n, [ pcColName, aColData ])
-		This.UpdateWith(aContent)
-		@anCalculatedCols + n
+		_aContent_ = @aContent
+		_aContent_ = ring_insert(_aContent_, _n_, [ pcColName, _aColData_ ])
+		This.UpdateWith(_aContent_)
+		@anCalculatedCols + _n_
 
 		#< @FunctionAlternativeForms
 
-		def InsertCalculatedColAt(n, pcColName, pcFormula)
-			This.InsertCalculatedCol(n, pcColName, pcFormula)
+		def InsertCalculatedColAt(_n_, pcColName, pcFormula)
+			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
-		def InsertCalculatedColumn(n, pcColName, pcFormula)
-			This.InsertCalculatedCol(n, pcColName, pcFormula)
+		def InsertCalculatedColumn(_n_, pcColName, pcFormula)
+			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
-		def InsertCalculatedColumnAt(n, pcColName, pcFormula)
-			This.InsertCalculatedCol(n, pcColName, pcFormula)
+		def InsertCalculatedColumnAt(_n_, pcColName, pcFormula)
+			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
 		#>
 
@@ -543,8 +543,8 @@ class stzTableAggregator from stzTable
 	#-----------------------------------------------#
 
 	def FindCalculatedCols()
-		anResult = new stzList(@anCalculatedCols).Sorted()
-		return anResult
+		_anResult_ = new stzList(@anCalculatedCols).Sorted()
+		return _anResult_
 
 		def FindCalculatedColumns()
 			return This.FindcalculatedCols()
@@ -554,9 +554,9 @@ class stzTableAggregator from stzTable
 	#-------------------------------------------------#
 
 	def CalculatedCols()
-		anPos = This.FindCalculatedCols()
-		aResult = This.TheseCols(anPos)
-		return aResult
+		_anPos_ = This.FindCalculatedCols()
+		_aResult_ = This.TheseCols(_anPos_)
+		return _aResult_
 
 		def CalculatedColumns()
 			return This.CalculatedCols()
@@ -566,9 +566,9 @@ class stzTableAggregator from stzTable
 	#-----------------------------------------------#
 
 	def CalculatedColNames()
-		anPos = This.FindCalculatedCols()
-		acResult = This.TheseColNames(anPos)
-		return acResult
+		_anPos_ = This.FindCalculatedCols()
+		_acResult_ = This.TheseColNames(_anPos_)
+		return _acResult_
 
 		def CalculatedColsNams()
 			return This.CalculatedColNames()
@@ -583,54 +583,54 @@ class stzTableAggregator from stzTable
 	 #  ADDING A CALCULATED ROW  #
 	#===========================#
 
-	def InsertCalculatedRow(n, pacFormulas)
+	def InsertCalculatedRow(_n_, pacFormulas)
 		if CheckingParams()
 			if NOT ( isList(pacFormulas) and @IsListOfStrings(pacFormulas) )
 				StzRaise("Incorrect param type! pacFormulas must be a list of strings.")
 			ok
 		ok
 
-		aRowData = []
-		nLen = len(pacFormulas)
-		nCols = This.NumberOfCols()
-		nRows = This.NumberOfRows()
-		nMin = @Min([ nRows, nLen ])
+		_aRowData_ = []
+		_nLen_ = len(pacFormulas)
+		_nCols_ = This.NumberOfCols()
+		_nRows_ = This.NumberOfRows()
+		_nMin_ = @Min([ _nRows_, _nLen_ ])
 
 		# Preparing the list of formulas
 
-		aoForumlas = StzListQ(pacFormulas).ToListOfStzStrings()
-		acCodes = []
-		for i = 1 to nMin
-			cColName = This.ColName(i)
-			aoForumlas[i].ReplaceCS( ('@(:'+ cColName +')'), 'This.Col(:' + cColName + ')', 0)
-			cCode =  aoForumlas[i].Content()
-			if cCode != ""
-				cCode = 'value = ' + cCode
+		_aoForumlas_ = StzListQ(pacFormulas).ToListOfStzStrings()
+		_acCodes_ = []
+		for i = 1 to _nMin_
+			_cColName_ = This.ColName(i)
+			_aoForumlas_[i].ReplaceCS( ('@(:'+ _cColName_ +')'), 'This.Col(:' + _cColName_ + ')', 0)
+			_cCode_ =  _aoForumlas_[i].Content()
+			if _cCode_ != ""
+				_cCode_ = '_value_ = ' + _cCode_
 			ok
-			acCodes + cCode
+			_acCodes_ + _cCode_
 		next
 
-		@NumberOfRows = nRows
-		@NumberOfCols = nCols
-		@NumberOfColumns = nCols
+		@NumberOfRows = _nRows_
+		@NumberOfCols = _nCols_
+		@NumberOfColumns = _nCols_
 
-		for i = 1 to nMin
-			if acCodes[i] != ""
-				eval(acCodes[i])
-				aRowData + value
+		for i = 1 to _nMin_
+			if _acCodes_[i] != ""
+				eval(_acCodes_[i])
+				_aRowData_ + _value_
 			else
-				aRowData + " "
+				_aRowData_ + " "
 			ok
 		next
 
-		if nMin < nCols
-			for i = nMin+1 to nCols
-				aRowData + ""
+		if _nMin_ < _nCols_
+			for i = _nMin_+1 to _nCols_
+				_aRowData_ + ""
 			next
 		ok
 
-		This.InsertRow(n, aRowData)
-		@anCalculatedRows + n
+		This.InsertRow(_n_, _aRowData_)
+		@anCalculatedRows + _n_
 
 	def AddCalculatedRow(pacFormulas)
 		This.InsertCalculatedRow( This.NumberOfRows() + 1, pacFormulas)
@@ -640,118 +640,118 @@ class stzTableAggregator from stzTable
 	#--------------------------------------------#
 
 	def FindCalculatedRows()
-		anResult = new stzList( @anCalculatedRows ).Sorted()
-		return anResult
+		_anResult_ = new stzList( @anCalculatedRows ).Sorted()
+		return _anResult_
 
 	  #------------------------------------------#
 	 #  GETTING THE CONTENT OF CALCULATED ROWS  #
 	#------------------------------------------#
 
 	def CalculatedRows()
-		aResult = This.TheseRows(This.FindCalculatedRows())
-		return aResult
+		_aResult_ = This.TheseRows(This.FindCalculatedRows())
+		return _aResult_
 
 	  #======================================================#
 	 #  EXCEL-LIKE FUNCTIONS APPLIED TO A SECTION OF CELLS  #
 	#=====================================================#
 
 	def SUM(paCell1, paCell2)
-		aCells = This.CellsInSection(paCell1, paCell2)
+		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
-		if NOT @IsListOfNumbers(aCells)
+		if NOT @IsListOfNumbers(_aCells_)
 			return 0
 		ok
 
-		nLen = len(aCells)
+		_nLen_ = len(_aCells_)
 
-		nResult = 0
+		_nResult_ = 0
 
-		for i = 1 to nLen
-			nResult += aCells[i]
+		for i = 1 to _nLen_
+			_nResult_ += _aCells_[i]
 		next
 
-		return nResult
+		return _nResult_
 
 	def PRODUCT(paCell1, paCell2)
-		aCells = This.CellsInSection(paCell1, paCell2)
+		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
-		if NOT @IsListOfNumbers(aCells)
+		if NOT @IsListOfNumbers(_aCells_)
 			return 0
 		ok
 
-		nLen = len(aCells)
+		_nLen_ = len(_aCells_)
 
-		nResult = 1
+		_nResult_ = 1
 
-		for i = 1 to nLen
-			nResult *= aCells[i]
+		for i = 1 to _nLen_
+			_nResult_ *= _aCells_[i]
 		next
 
-		return nResult
+		return _nResult_
 
 	def AVERAGE(paCell1, paCell2)
-		aCells = This.CellsInSection(paCell1, paCell2)
+		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
-		if NOT @IsListOfNumbers(aCells)
+		if NOT @IsListOfNumbers(_aCells_)
 			return 0
 		ok
 
-		nLen = len(aCells)
+		_nLen_ = len(_aCells_)
 
-		nSum = 0
+		_nSum_ = 0
 
-		for i = 1 to nLen
-			nSum += aCells[i]
+		for i = 1 to _nLen_
+			_nSum_ += _aCells_[i]
 		next
 
-		nResult = nSum / nLen
-		return nResult
+		_nResult_ = _nSum_ / _nLen_
+		return _nResult_
 
 		def MEAN(paCell1, paCell2)
 			return AVERAGE(paCell1, paCell2)
 
 	def KOUNT(paCell1, paCell2)
-		nResult = len( This.CellsInSection(paCell1, paCell2) )
-		return nResult
+		_nResult_ = len( This.CellsInSection(paCell1, paCell2) )
+		return _nResult_
 
 	def MAX(paCell1, paCell2)
-		aCells = This.CellsInSection(paCell1, paCell2)
+		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
-		if NOT @IsListOfNumbers(aCells)
+		if NOT @IsListOfNumbers(_aCells_)
 			return 0
 		ok
 
-		nResult = @Max(aCells)
+		_nResult_ = @Max(_aCells_)
 
-		return nResult
+		return _nResult_
 
 	def MIN(paCell1, paCell2)
-		aCells = This.CellsInSection(paCell1, paCell2)
+		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
-		if NOT @IsListOfNumbers(aCells)
+		if NOT @IsListOfNumbers(_aCells_)
 			return 0
 		ok
 
-		nResult = @Min(aCells)
+		_nResult_ = @Min(_aCells_)
 
-		return nResult
+		return _nResult_
 
 	  #==========================================================#
 	 #  ENGINE-BACKED COLUMN AGGREGATION (whole-column, fast)    #
 	#==========================================================#
 
 	def SumCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableSumCol(@pEngine, nCol-1)
+		return StzEngineTableSumCol(@pEngine, _nCol_-1)
 
 		def SumColumn(pCol)
 			return This.SumCol(pCol)
 
 	def AvgCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableAvgCol(@pEngine, nCol-1)
+		return StzEngineTableAvgCol(@pEngine, _nCol_-1)
 
 		def AvgColumn(pCol)
 			return This.AvgCol(pCol)
@@ -769,33 +769,33 @@ class stzTableAggregator from stzTable
 			return This.AvgCol(pCol)
 
 	def MinCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableMinCol(@pEngine, nCol-1)
+		return StzEngineTableMinCol(@pEngine, _nCol_-1)
 
 		def MinColumn(pCol)
 			return This.MinCol(pCol)
 
 	def MaxCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableMaxCol(@pEngine, nCol-1)
+		return StzEngineTableMaxCol(@pEngine, _nCol_-1)
 
 		def MaxColumn(pCol)
 			return This.MaxCol(pCol)
 
 	def ProductCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableProductCol(@pEngine, nCol-1)
+		return StzEngineTableProductCol(@pEngine, _nCol_-1)
 
 		def ProductColumn(pCol)
 			return This.ProductCol(pCol)
 
 	def CountNonNullInCol(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
-		return StzEngineTableCountNonNull(@pEngine, nCol-1)
+		return StzEngineTableCountNonNull(@pEngine, _nCol_-1)
 
 		def CountNonNullInColumn(pCol)
 			return This.CountNonNullInCol(pCol)
@@ -826,92 +826,92 @@ class stzTableAggregator from stzTable
 
         # Validate column existence and prepare filtering
 
-		nLen = len(paColValues)
+		_nLen_ = len(paColValues)
 
-		for i = 1 to nLen
-            cColName = paColValues[i][1]
+		for i = 1 to _nLen_
+            _cColName_ = paColValues[i][1]
 
             # Check if column exists (case-insensitive)
 
-            nColIndex = This.FindCol(cColName)
-            if nColIndex = 0
-                StzRaise("Column '" + cColName + "' not found in the table")
+            _nColIndex_ = This.FindCol(_cColName_)
+            if _nColIndex_ = 0
+                StzRaise("Column '" + _cColName_ + "' not found in the table")
             ok
         next
 
         # Perform filtering
 
-        nRows = This.NumberOfRows()
-        aRowsToKeep = []
+        _nRows_ = This.NumberOfRows()
+        _aRowsToKeep_ = []
 
-        for nRow = 1 to nRows
-            bKeepRow = 1
-			nLenValues = len(paColValues)
+        for nRow = 1 to _nRows_
+            _bKeepRow_ = 1
+			_nLenValues_ = len(paColValues)
 
-			for v = 1 to nLenValues
-                cColName = paColValues[v][1]
-                aFilterValues = paColValues[v][2]
+			for v = 1 to _nLenValues_
+                _cColName_ = paColValues[v][1]
+                _aFilterValues_ = paColValues[v][2]
 
                 # Get column index
-                nColIndex = This.FindCol(cColName)
+                _nColIndex_ = This.FindCol(_cColName_)
 
                 # Get cell value
-                cellValue = This.Cell(nColIndex, nRow)
+                _cellValue_ = This.Cell(_nColIndex_, nRow)
 
                 # Check if cell value matches filter conditions
                 # Support both single value and list of values
 
-                if isList(aFilterValues)
+                if isList(_aFilterValues_)
 
-                    bValueMatches = 0
-					nLenFilterValues = len(aFilterValues)
+                    _bValueMatches_ = 0
+					_nLenFilterValues_ = len(_aFilterValues_)
 
-					for j = 1 to nLenFilterValues
+					for j = 1 to _nLenFilterValues_
 
-                        if cellValue = aFilterValues[j]
-                            bValueMatches = 1
+                        if _cellValue_ = _aFilterValues_[j]
+                            _bValueMatches_ = 1
                             exit
                         ok
 
 					next
 
                 else
-                    bValueMatches = (cellValue = aFilterValues)
+                    _bValueMatches_ = (_cellValue_ = _aFilterValues_)
                 ok
 
                 # If any condition fails, exclude the row
-                if NOT bValueMatches
-                    bKeepRow = 0
+                if NOT _bValueMatches_
+                    _bKeepRow_ = 0
                     exit
                 ok
             next
 
-            if bKeepRow
-                aRowsToKeep + This.Row(nRow)
+            if _bKeepRow_
+                _aRowsToKeep_ + This.Row(nRow)
             ok
         next
 
         # Rebuild the table with filtered rows
 
-        aResult = []
+        _aResult_ = []
 
         # Recreate columns with filtered data
 
-        nCols = This.NumberOfCols()
+        _nCols_ = This.NumberOfCols()
 
-        for nCol = 1 to nCols
-            cColName = This.ColName(nCol)
-            colData = []
+        for _nCol_ = 1 to _nCols_
+            _cColName_ = This.ColName(_nCol_)
+            _colData_ = []
 
-			nLenRowsToKeep = len(aRowsToKeep)
-            for nRow = 1 to nLenRowsToKeep
-                colData + aRowsToKeep[nRow][nCol]
+			_nLenRowsToKeep_ = len(_aRowsToKeep_)
+            for nRow = 1 to _nLenRowsToKeep_
+                _colData_ + _aRowsToKeep_[nRow][_nCol_]
             next
 
-            aResult + [cColName, colData]
+            _aResult_ + [_cColName_, _colData_]
         next
 
-        @aContent = aResult
+        @aContent = _aResult_
 
     #< @FunctionFluentForm
 
@@ -920,9 +920,9 @@ class stzTableAggregator from stzTable
         return This
 
 	def FilterCQ(paColValues)
-			oCopy = This.Copy()
-			oCopy.Filter(paColValues)
-			return oCopy
+			_oCopy_ = This.Copy()
+			_oCopy_.Filter(paColValues)
+			return _oCopy_
 	#>
 
 	#< @FunctionAlternativeForm
@@ -957,58 +957,58 @@ class stzTableAggregator from stzTable
 
 		# Early check for complex condition
 
-		oCondition = new stzString(pcCondition)
-		if oCondition.NumberOfOccurrence('@(') > 1
+		_oCondition_ = new stzString(pcCondition)
+		if _oCondition_.NumberOfOccurrence('@(') > 1
 			This.FilterWXT(pcCondition)
 			return
 		ok
 
 		# Prepare the condition expression
 
-		nCols = This.NumberOfCols()
+		_nCols_ = This.NumberOfCols()
 
-		for i = 1 to nCols
-			cColName = This.ColName(i)
-			oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', 0)
+		for i = 1 to _nCols_
+			_cColName_ = This.ColName(i)
+			_oCondition_.ReplaceCS('@(:' + _cColName_ + ')', 'This.Cell(' + i + ', nRow)', 0)
 		next
 
-		cCondition = oCondition.Content()
+		_cCondition_ = _oCondition_.Content()
 
 		# Prepare evaluation code
-		cCode = "bResult = " + cCondition
+		_cCode_ = "_bResult_ = " + _cCondition_
 
 		# Perform filtering
-		nRows = This.NumberOfRows()
-		aRowsToKeep = []
+		_nRows_ = This.NumberOfRows()
+		_aRowsToKeep_ = []
 
-		for nRow = 1 to nRows
+		for nRow = 1 to _nRows_
 			# Evaluate the condition for the current row
-			eval(cCode)
-			if bResult
-				aRowsToKeep + This.Row(nRow)
+			eval(_cCode_)
+			if _bResult_
+				_aRowsToKeep_ + This.Row(nRow)
 			ok
 		next
-		nLenRowsToKeep = len(aRowsToKeep)
+		_nLenRowsToKeep_ = len(_aRowsToKeep_)
 
 		# Rebuild the table with filtered rows
-		aResult = []
-		nCols = This.NumberOfCols()
+		_aResult_ = []
+		_nCols_ = This.NumberOfCols()
 
-		for nCol = 1 to nCols
+		for _nCol_ = 1 to _nCols_
 
-			cColName = This.ColName(nCol)
-			colData = []
+			_cColName_ = This.ColName(_nCol_)
+			_colData_ = []
 
 
-			for nRow = 1 to nLenRowsToKeep
-				colData + aRowsToKeep[nRow][nCol]
+			for nRow = 1 to _nLenRowsToKeep_
+				_colData_ + _aRowsToKeep_[nRow][_nCol_]
 			next
 
-			aResult + [cColName, colData]
+			_aResult_ + [_cColName_, _colData_]
 
 		next
 
-		@aContent = aResult
+		@aContent = _aResult_
 
 		#< @FunctionFluentForm
 
@@ -1017,9 +1017,9 @@ class stzTableAggregator from stzTable
 			return This
 
 		def FilterWCQ(pcCondition)
-			oCopy = This.Copy()
-			oCopy.FilterW(pcCondition)
-			return oCopy
+			_oCopy_ = This.Copy()
+			_oCopy_.FilterW(pcCondition)
+			return _oCopy_
 
 		#>
 
@@ -1052,15 +1052,15 @@ class stzTableAggregator from stzTable
 
 		# Validate that all referenced column names exist
 
-		oConditionTemp = new stzString(pcCondition)
-		acColNames = This.ColNames()
-		nLenCols = len(acColNames)
+		_oConditionTemp_ = new stzString(pcCondition)
+		_acColNames_ = This.ColNames()
+		_nLenCols_ = len(_acColNames_)
 
-		for i = 1 to nLenCols
+		for i = 1 to _nLenCols_
 
-			if oConditionTemp.ContainsCS('@(:' + acColNames[i] + ')', 0)
-				if NOT This.IsColName(acColNames[i])
-					StzRaise("Invalid column name! The column '@(:" + acColNames[i] + ")' does not exist in the table.")
+			if _oConditionTemp_.ContainsCS('@(:' + _acColNames_[i] + ')', 0)
+				if NOT This.IsColName(_acColNames_[i])
+					StzRaise("Invalid column name! The column '@(:" + _acColNames_[i] + ")' does not exist in the table.")
 				ok
 			ok
 
@@ -1068,62 +1068,62 @@ class stzTableAggregator from stzTable
 
 		# Prepare the condition expression
 
-		oCondition = new stzString(pcCondition)
-		nCols = This.NumberOfCols()
+		_oCondition_ = new stzString(pcCondition)
+		_nCols_ = This.NumberOfCols()
 
-		for i = 1 to nCols
-			cColName = This.ColName(i)
-			oCondition.ReplaceCS('@(:' + cColName + ')', 'This.Cell(' + i + ', nRow)', 0)
+		for i = 1 to _nCols_
+			_cColName_ = This.ColName(i)
+			_oCondition_.ReplaceCS('@(:' + _cColName_ + ')', 'This.Cell(' + i + ', nRow)', 0)
 		next
 
-		cCondition = oCondition.Content()
+		_cCondition_ = _oCondition_.Content()
 
 		# Verify that no '@(:...)' patterns remain
 
-		if Q(cCondition).Contains('@(:')
-			StzRaise("Invalid condition! Unresolved column reference found in: " + cCondition)
+		if Q(_cCondition_).Contains('@(:')
+			StzRaise("Invalid condition! Unresolved column reference found in: " + _cCondition_)
 		ok
 
 		# Prepare evaluation code
 
-		cCode = "bOk = " + cCondition
+		_cCode_ = "_bOk_ = " + _cCondition_
 
 		# Perform filtering
 
-		nRows = This.NumberOfRows()
-		aRowsToKeep = []
+		_nRows_ = This.NumberOfRows()
+		_aRowsToKeep_ = []
 
-		for nRow = 1 to nRows
+		for nRow = 1 to _nRows_
 			try
-				eval(cCode)
-				if bOk
-					aRowsToKeep + This.Row(nRow)
+				eval(_cCode_)
+				if _bOk_
+					_aRowsToKeep_ + This.Row(nRow)
 				ok
 			catch
-				StzRaise("Error evaluating condition: " + cCondition + " at row " + nRow)
+				StzRaise("Error evaluating condition: " + _cCondition_ + " at row " + nRow)
 			done
 		next
 
 		# Rebuild the table with filtered rows
 
-		aResult = []
-		nCols = This.NumberOfCols()
+		_aResult_ = []
+		_nCols_ = This.NumberOfCols()
 
-		for nCol = 1 to nCols
+		for _nCol_ = 1 to _nCols_
 
-			cColName = This.ColName(nCol)
-			colData = []
-			nLenRowsToKeep = len(aRowsToKeep)
+			_cColName_ = This.ColName(_nCol_)
+			_colData_ = []
+			_nLenRowsToKeep_ = len(_aRowsToKeep_)
 
-			for nRow = 1 to nLenRowsToKeep
-				colData + aRowsToKeep[nRow][nCol]
+			for nRow = 1 to _nLenRowsToKeep_
+				_colData_ + _aRowsToKeep_[nRow][_nCol_]
 			next
 
-			aResult + [cColName, colData]
+			_aResult_ + [_cColName_, _colData_]
 
 		next
 
-		@aContent = aResult
+		@aContent = _aResult_
 
 		#< @FunctionFluentForm
 
@@ -1132,9 +1132,9 @@ class stzTableAggregator from stzTable
 			return This
 
 		def FilterWXTCQ(pcCondition)
-			oCopy = This.Copy()
-			oCopy.FilterWXT(pcCondition)
-			return oCopy
+			_oCopy_ = This.Copy()
+			_oCopy_.FilterWXT(pcCondition)
+			return _oCopy_
 
 		#>
 
@@ -1162,7 +1162,7 @@ class stzTableAggregator from stzTable
 		ok
 
 		# Predefined aggregation methods
-		aValidMethods = [
+		_aValidMethods_ = [
 			:Sum,
 			:Average,
 			:Count,
@@ -1173,101 +1173,101 @@ class stzTableAggregator from stzTable
 		]
 
 		# Validate and process aggregations
-		aProcessedAggs = []
-		nLen = len(paAggregations)
+		_aProcessedAggs_ = []
+		_nLen_ = len(paAggregations)
 
-		for i = 1 to nLen
-			cColName = paAggregations[i][1]
-			cAggMethod = StzLower(paAggregations[i][2])
+		for i = 1 to _nLen_
+			_cColName_ = paAggregations[i][1]
+			_cAggMethod_ = StzLower(paAggregations[i][2])
 
 			# Validate column existence
-			nColIndex = This.FindCol(cColName)
-			if nColIndex = 0
-				StzRaise("Column '" + cColName + "' not found in the table")
+			_nColIndex_ = This.FindCol(_cColName_)
+			if _nColIndex_ = 0
+				StzRaise("Column '" + _cColName_ + "' not found in the table")
 			ok
 
 			# Validate aggregation method
-			if StzFindFirst(aValidMethods, cAggMethod) = 0
-				StzRaise("Invalid aggregation method: " + cAggMethod)
+			if StzFindFirst(_aValidMethods_, _cAggMethod_) = 0
+				StzRaise("Invalid aggregation method: " + _cAggMethod_)
 			ok
 
-			aProcessedAggs + [cColName, cAggMethod]
+			_aProcessedAggs_ + [_cColName_, _cAggMethod_]
 		next
 
 		# Perform aggregation
-		aResult = []
+		_aResult_ = []
 
 		# Add columns for aggregation results
-		nLen = len(aProcessedAggs)
+		_nLen_ = len(_aProcessedAggs_)
 
-		for i = 1 to nLen
-			cColName = aProcessedAggs[i][1]
-			cAggMethod = aProcessedAggs[i][2]
+		for i = 1 to _nLen_
+			_cColName_ = _aProcessedAggs_[i][1]
+			_cAggMethod_ = _aProcessedAggs_[i][2]
 
 			# Create aggregated column name
-			cAggColName = cAggMethod + "(" + cColName + ")"
+			_cAggColName_ = _cAggMethod_ + "(" + _cColName_ + ")"
 
 			# Perform aggregation
-			nColIndex = This.FindCol(cColName)
-			aColData = This.Col(nColIndex)
-			nLenData = len(aColData)
+			_nColIndex_ = This.FindCol(_cColName_)
+			_aColData_ = This.Col(_nColIndex_)
+			_nLenData_ = len(_aColData_)
 
-			nResult = 0
+			_nResult_ = 0
 
-			switch cAggMethod
+			switch _cAggMethod_
 
 			on :Sum
 
-				for v = 1 to nLenData
-					nResult += aColData[v]
+				for v = 1 to _nLenData_
+					_nResult_ += _aColData_[v]
 				next
 
 			on :Average
 
-				nSum = 0
+				_nSum_ = 0
 
-				for v = 1 to nLenData
-					nSum += aColData[v]
+				for v = 1 to _nLenData_
+					_nSum_ += _aColData_[v]
 				next
 
-				nResult = nSum / nLenData
+				_nResult_ = _nSum_ / _nLenData_
 
 			on :Count
-				nResult = nLenData
+				_nResult_ = _nLenData_
 
 			on :Max
 
-				nResult = aColData[1]
+				_nResult_ = _aColData_[1]
 
-				for v = 2 to nLenData
-					if aColData[v] > nResult
-						nResult = aColData[v]
+				for v = 2 to _nLenData_
+					if _aColData_[v] > _nResult_
+						_nResult_ = _aColData_[v]
 					ok
 				next
 
 			on :Min
 
-				nResult = aColData[1]
+				_nResult_ = _aColData_[1]
 
-				for v = 2 to nLenData
-					if aColData[v] < nResult
-						nResult = aColData[v]
+				for v = 2 to _nLenData_
+					if _aColData_[v] < _nResult_
+						_nResult_ = _aColData_[v]
 					ok
 				next
 
 			on :First
-				nResult = aColData[1]
+				_nResult_ = _aColData_[1]
 
 			on :Last
-				nResult = aColData[nLenData]
+				_nResult_ = _aColData_[_nLenData_]
 			off
 
 			# Add aggregated column
-			aResult + [ cAggColName, [nResult] ]
+			_aResult_ + [ _cAggColName_, [_nResult_] ]
 
 		next
 
-		@aContent = aResult
+		@aContent = _aResult_
 
 		#< @FunctionFluentForm
 
@@ -1298,8 +1298,8 @@ class stzTableAggregator from stzTable
 				return
 			ok
 
-			aTemp = [] + paCols
-			paCols = aTemp
+			_aTemp_ = [] + paCols
+			paCols = _aTemp_
 		ok
 
 		# Validate input is a list of column names
@@ -1308,75 +1308,75 @@ class stzTableAggregator from stzTable
 		ok
 
 		# Validate column existence
-		nLen = len(paCols)
-		for i = 1 to nLen
+		_nLen_ = len(paCols)
+		for i = 1 to _nLen_
 			if This.FindCol(paCols[i]) = 0
 				StzRaise("Column '" + paCols[i] + "' not found in the table")
 			ok
 		next
 
 		# Prepare to group rows
-		nRows = This.NumberOfRows()
-		aGroupedRows = []
-		aGroupKeys = []
-		aUniqueGroups = []
+		_nRows_ = This.NumberOfRows()
+		_aGroupedRows_ = []
+		_aGroupKeys_ = []
+		_aUniqueGroups_ = []
 
 		# Iterate through rows to create groups
-		nLenCols = len(paCols)
-		for nRow = 1 to nRows
+		_nLenCols_ = len(paCols)
+		for nRow = 1 to _nRows_
 			# Create group key from specified columns
-			aGroupKey = []
-			for i = 1 to nLenCols
-				nColIndex = This.FindCol(paCols[i])
-				aGroupKey + This.Cell(nColIndex, nRow)
+			_aGroupKey_ = []
+			for i = 1 to _nLenCols_
+				_nColIndex_ = This.FindCol(paCols[i])
+				_aGroupKey_ + This.Cell(_nColIndex_, nRow)
 			next
 
 			# Convert group key to string for easy comparison
-			cGroupKey = ""
-			_nGroupKeyLen_ = len(aGroupKey)
+			_cGroupKey_ = ""
+			_nGroupKeyLen_ = len(_aGroupKey_)
 			for i = 1 to _nGroupKeyLen_
-				cGroupKey += ""+ aGroupKey[i] + '|'
+				_cGroupKey_ += ""+ _aGroupKey_[i] + '|'
 			next
 
 			# Check if this group key exists
-			nGroupIndex = StzFindFirst(aGroupKeys, cGroupKey)
-			if nGroupIndex = 0
+			_nGroupIndex_ = StzFindFirst(_aGroupKeys_, _cGroupKey_)
+			if _nGroupIndex_ = 0
 				# New group, add to groups
-				aGroupKeys + cGroupKey
-				aUniqueGroups + aGroupKey
-				aGroupedRows + [ This.Row(nRow) ]
+				_aGroupKeys_ + _cGroupKey_
+				_aUniqueGroups_ + _aGroupKey_
+				_aGroupedRows_ + [ This.Row(nRow) ]
 			else
 				# Existing group, append row
-				aGroupedRows[nGroupIndex] + This.Row(nRow)
+				_aGroupedRows_[_nGroupIndex_] + This.Row(nRow)
 			ok
 		next
 
 		# Build result table structure
-		aResult = []
-		acColNames = This.ColNames()
+		_aResult_ = []
+		_acColNames_ = This.ColNames()
 
 		# Add all columns to result
-		_nColNamesLen_3 = len(acColNames)
+		_nColNamesLen_3 = len(_acColNames_)
 		for i = 1 to _nColNamesLen_3
-			aResult + [ acColNames[i], [] ]
+			_aResult_ + [ _acColNames_[i], [] ]
 		next
 
 		# Add rows from each group to result
-		nLenGroups = len(aUniqueGroups)
-		for i = 1 to nLenGroups
-			aRows = aGroupedRows[i]
-			_nRowsLen_ = len(aRows)
+		_nLenGroups_ = len(_aUniqueGroups_)
+		for i = 1 to _nLenGroups_
+			_aRows_ = _aGroupedRows_[i]
+			_nRowsLen_ = len(_aRows_)
 			for j = 1 to _nRowsLen_
-				aRow = aRows[j]
+				_aRow_ = _aRows_[j]
 				# Add each value to its column
-				_nRowLen_ = len(aRow)
+				_nRowLen_ = len(_aRow_)
 				for k = 1 to _nRowLen_
-					aResult[k][2] + aRow[k]
+					_aResult_[k][2] + _aRow_[k]
 				next
 			next
 		next
 
-		@aContent = aResult
+		@aContent = _aResult_
 
 
 		#< @FunctionFluentForm
@@ -1405,9 +1405,9 @@ class stzTableAggregator from stzTable
 
 		# Validate column existence
 
-		nLen = len(paCols)
+		_nLen_ = len(paCols)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if This.FindCol(paCols[i]) = 0
 				StzRaise("Column '" + paCols[i] + "' not found in the table")
 			ok
@@ -1421,16 +1421,16 @@ class stzTableAggregator from stzTable
 
 		# Default aggregation if none provided: First value for non-grouped columns
 
-		nLenAgg = len(paAggregations)
+		_nLenAgg_ = len(paAggregations)
 
-		if nLenAgg = 0
+		if _nLenAgg_ = 0
 
-			acColNames = This.ColNames()
+			_acColNames_ = This.ColNames()
 
-			for i = 1 to nLenAgg
+			for i = 1 to _nLenAgg_
 
-				if NOT StzFindFirst(paCols, acColNames[i]) > 0
-					paAggregations + [cColName, :First]
+				if NOT StzFindFirst(paCols, _acColNames_[i]) > 0
+					paAggregations + [_cColName_, :First]
 				ok
 
 			next
@@ -1438,35 +1438,35 @@ class stzTableAggregator from stzTable
 
 		# Lowercase all the aggregation functions
 
-		for i = 1 to nLenAgg
+		for i = 1 to _nLenAgg_
 			paAggregations[i][2] = StzLower(paAggregations[i][2])
 		next
 
 		# Valid aggregation methods
 
-		aValidMethods = [ :Sum, :Average, :Count, :Max, :Min, :First, :Last ]
+		_aValidMethods_ = [ :Sum, :Average, :Count, :Max, :Min, :First, :Last ]
 
-		for i = 1 to nLenAgg
+		for i = 1 to _nLenAgg_
 
-			cColName = paAggregations[i][1]
-			cAggMethod = paAggregations[i][2]
+			_cColName_ = paAggregations[i][1]
+			_cAggMethod_ = paAggregations[i][2]
 
 			# Validate column exists
 
-			if This.FindCol(cColName) = 0
-				StzRaise("Column '" + cColName + "' not found in the table")
+			if This.FindCol(_cColName_) = 0
+				StzRaise("Column '" + _cColName_ + "' not found in the table")
 			ok
 
 			# Validate method is supported
 
-			if NOT StzFindFirst(aValidMethods, cAggMethod)
-				StzRaise("Invalid aggregation method: " + cAggMethod)
+			if NOT StzFindFirst(_aValidMethods_, _cAggMethod_)
+				StzRaise("Invalid aggregation method: " + _cAggMethod_)
 			ok
 
 			# Validate column is not in grouping columns
 
-			if StzFindFirst(paCols, cColName) > 0
-				StzRaise("Cannot aggregate grouping column: " + cColName)
+			if StzFindFirst(paCols, _cColName_) > 0
+				StzRaise("Cannot aggregate grouping column: " + _cColName_)
 			ok
 
 		next
@@ -1474,170 +1474,170 @@ class stzTableAggregator from stzTable
 
 	# Prepare to group rows
 
-	nRows = This.NumberOfRows()
-	aGroupedRows = []
-	aGroupKeys = []
-	aUniqueGroups = []
+	_nRows_ = This.NumberOfRows()
+	_aGroupedRows_ = []
+	_aGroupKeys_ = []
+	_aUniqueGroups_ = []
 
 	# Iterate through rows to create groups
 
-	nLenCols = len(paCols)
+	_nLenCols_ = len(paCols)
 
-	for nRow = 1 to nRows
+	for nRow = 1 to _nRows_
 
 		# Create group key from specified columns
 
-		aGroupKey = []
+		_aGroupKey_ = []
 
-		for i = 1 to nLenCols
-			nColIndex = This.FindCol(paCols[i])
-			aGroupKey + This.Cell(nColIndex, nRow)
+		for i = 1 to _nLenCols_
+			_nColIndex_ = This.FindCol(paCols[i])
+			_aGroupKey_ + This.Cell(_nColIndex_, nRow)
 		next
-		nLenKeys = len(aGroupKey)
+		_nLenKeys_ = len(_aGroupKey_)
 
 		# Convert group key to string for easy comparison
 
-		cGroupKey = ""
+		_cGroupKey_ = ""
 
-		for i = 1 to nLenKeys
-			cGroupKey += ""+ aGroupKey[i] + '|'
+		for i = 1 to _nLenKeys_
+			_cGroupKey_ += ""+ _aGroupKey_[i] + '|'
 		next
 
 		# Check if this group key exists
 
-		nGroupIndex = StzFindFirst(aGroupKeys, cGroupKey)
+		_nGroupIndex_ = StzFindFirst(_aGroupKeys_, _cGroupKey_)
 
-		if nGroupIndex = 0
+		if _nGroupIndex_ = 0
 
 			# New group, add to groups
 
-			aGroupKeys + cGroupKey
-			aUniqueGroups + aGroupKey
-			aGroupRows = [ This.Row(nRow) ]
-			aGroupedRows + aGroupRows
+			_aGroupKeys_ + _cGroupKey_
+			_aUniqueGroups_ + _aGroupKey_
+			_aGroupRows_ = [ This.Row(nRow) ]
+			_aGroupedRows_ + _aGroupRows_
 
 		else
 			# Existing group, append row
-			aGroupedRows[nGroupIndex] + This.Row(nRow)
+			_aGroupedRows_[_nGroupIndex_] + This.Row(nRow)
 		ok
 	next
 
 	# Build result table structure
 
-	aResult = []
+	_aResult_ = []
 
 	# Add grouping columns first
 
-	for i = 1 to nLenCols
-		aResult + [ paCols[i], [] ]
+	for i = 1 to _nLenCols_
+		_aResult_ + [ paCols[i], [] ]
 	next
 
 	# Process aggregations and add aggregated columns
 
-	for i = 1 to nLenAgg
-		cColName = paAggregations[i][1]
-		cAggMethod = paAggregations[i][2]
-		cAggColName = cAggMethod + "(" + cColName + ")"
-		aResult + [ cAggColName, [] ]
+	for i = 1 to _nLenAgg_
+		_cColName_ = paAggregations[i][1]
+		_cAggMethod_ = paAggregations[i][2]
+		_cAggColName_ = _cAggMethod_ + "(" + _cColName_ + ")"
+		_aResult_ + [ _cAggColName_, [] ]
 	next
 
 	# Perform aggregations for each group
 
-	nLenGroups = len(aUniqueGroups)
+	_nLenGroups_ = len(_aUniqueGroups_)
 
-	for i = 1 to nLenGroups
+	for i = 1 to _nLenGroups_
 
-		aGroupKey = aUniqueGroups[i]
-		aRows = aGroupedRows[i]
-		nLenRows = len(aRows)
+		_aGroupKey_ = _aUniqueGroups_[i]
+		_aRows_ = _aGroupedRows_[i]
+		_nLenRows_ = len(_aRows_)
 
 		# Add group key values to result
 
-		for j = 1 to nLenCols
-			aResult[j][2] + aGroupKey[j]
+		for j = 1 to _nLenCols_
+			_aResult_[j][2] + _aGroupKey_[j]
 		next
 
 		# Calculate aggregations for this group
 
-		nColOffset = nLenCols + 1
+		_nColOffset_ = _nLenCols_ + 1
 
-		for j = 1 to nLenAgg
+		for j = 1 to _nLenAgg_
 
-			cColName = paAggregations[j][1]
-			cAggMethod = paAggregations[j][2]
-			nColIndex = This.FindCol(cColName)
+			_cColName_ = paAggregations[j][1]
+			_cAggMethod_ = paAggregations[j][2]
+			_nColIndex_ = This.FindCol(_cColName_)
 
 			# Extract values for this column from group rows
 
-			aValues = []
+			_aValues_ = []
 
-			for r = 1 to nLenRows
-				aValues + aRows[r][nColIndex]
+			for r = 1 to _nLenRows_
+				_aValues_ + _aRows_[r][_nColIndex_]
 			next
 
 			# Apply aggregation method
 
-			nResult = NULL
-			nLenVal = len(aValues)
+			_nResult_ = NULL
+			_nLenVal_ = len(_aValues_)
 
-			switch cAggMethod
+			switch _cAggMethod_
 
 				on :Sum
 
-					nResult = 0
+					_nResult_ = 0
 
-					for v = 1 to nLenVal
-						nResult += aValues[v]
+					for v = 1 to _nLenVal_
+						_nResult_ += _aValues_[v]
 					next
 
 				on :Average
 
-						nSum = 0
+						_nSum_ = 0
 
-						for v = 1 to nLenVal
-							nSum += aValues[v]
+						for v = 1 to _nLenVal_
+							_nSum_ += _aValues_[v]
 						next
 
-						nResult = nSum / nLenVal
+						_nResult_ = _nSum_ / _nLenVal_
 
 				on :Count
-					nResult = nLenVal
+					_nResult_ = _nLenVal_
 
 				on :Max
-					nResult = aValues[1]
+					_nResult_ = _aValues_[1]
 
-					for v = 2 to nLenVal
-						if aValues[v] > nResult
-							nResult = aValues[v]
+					for v = 2 to _nLenVal_
+						if _aValues_[v] > _nResult_
+							_nResult_ = _aValues_[v]
 						ok
 					next
 
 				on :Min
-					nResult = aValues[1]
+					_nResult_ = _aValues_[1]
 
-					for v = 2 to nLenVal
-						if aValues[v] < nResult
-							nResult = aValues[v]
+					for v = 2 to _nLenVal_
+						if _aValues_[v] < _nResult_
+							_nResult_ = _aValues_[v]
 						ok
 					next
 
 				on :First
-					nResult = aValues[1]
+					_nResult_ = _aValues_[1]
 
 				on :Last
-					nResult = aValues[nLenVal]
+					_nResult_ = _aValues_[_nLenVal_]
 				off
 
 				# Add result to output
 
-				aResult[nColOffset][2] + nResult
-				nColOffset++
+				_aResult_[_nColOffset_][2] + _nResult_
+				_nColOffset_++
 
 			next
 
 		next
 
-		@aContent = aResult
+		@aContent = _aResult_
 
 
 		#< @FunctionFluentForm
@@ -1664,8 +1664,8 @@ class stzTableAggregator from stzTable
 
 	def GroupByListItems(paCols) #TODO // check why there is a dependance with "HOBBY"!
 		if NOT isList(paCols)
-			aTemp = [] + paCols
-			paCols = aTemp
+			_aTemp_ = [] + paCols
+			paCols = _aTemp_
 		ok
 	    # Validate input is a list of column names
 	    if NOT (isList(paCols) and len(paCols) > 0)
@@ -1673,111 +1673,111 @@ class stzTableAggregator from stzTable
 	    ok
 
 	    # Validate column existence
-	    nLen = len(paCols)
-	    for i = 1 to nLen
+	    _nLen_ = len(paCols)
+	    for i = 1 to _nLen_
 	        if This.FindCol(paCols[i]) = 0
 	            StzRaise("Column '" + paCols[i] + "' not found in the table")
 	        ok
 	    next
 
 	    # Get the lists column we're grouping by
-	    cListColumn = paCols[1]  # Use the first column as the list column
-	    nListColIndex = This.FindCol(cListColumn)
+	    _cListColumn_ = paCols[1]  # Use the first column as the list column
+	    _nListColIndex_ = This.FindCol(_cListColumn_)
 
 	    # Prepare to collect unique hobby values and associated rows
-	    nRows = This.NumberOfRows()
-	    aHobbyMap = []  # Will be a list of [hobby, [row1, row2, ...]] pairs
+	    _nRows_ = This.NumberOfRows()
+	    _aHobbyMap_ = []  # Will be a list of [hobby, [row1, row2, ...]] pairs
 
 	    # Process each row and collect unique hobby values
-	    for nRow = 1 to nRows
-	        vCellValue = This.Cell(nListColIndex, nRow)
+	    for nRow = 1 to _nRows_
+	        _vCellValue_ = This.Cell(_nListColIndex_, nRow)
 
 	        # Skip if not a list
-	        if NOT isList(vCellValue)
+	        if NOT isList(_vCellValue_)
 	            loop
 	        ok
 
 	        # Process each hobby in the list
-	        _nVCellValueLen_ = len(vCellValue)
+	        _nVCellValueLen_ = len(_vCellValue_)
 	        for j = 1 to _nVCellValueLen_
-	            cHobby = vCellValue[j]
+	            _cHobby_ = _vCellValue_[j]
 
 	            # Find this hobby in our map
-	            nHobbyIndex = 0
-	            _nHobbyMapLen_2 = len(aHobbyMap)
+	            _nHobbyIndex_ = 0
+	            _nHobbyMapLen_2 = len(_aHobbyMap_)
 	            for k = 1 to _nHobbyMapLen_2
-	                if aHobbyMap[k][1] = cHobby
-	                    nHobbyIndex = k
+	                if _aHobbyMap_[k][1] = _cHobby_
+	                    _nHobbyIndex_ = k
 	                    exit
 	                ok
 	            next
 
-	            if nHobbyIndex = 0
+	            if _nHobbyIndex_ = 0
 	                # New hobby, add it with this row
-	                aHobbyMap + [cHobby, [nRow]]
+	                _aHobbyMap_ + [_cHobby_, [nRow]]
 	            else
 	                # Existing hobby, check if row already exists
-	                bFound = FALSE
-	                _nHobbyMapnHobbyIndex2Len_ = len(aHobbyMap[nHobbyIndex][2])
+	                _bFound_ = FALSE
+	                _nHobbyMapnHobbyIndex2Len_ = len(_aHobbyMap_[_nHobbyIndex_][2])
 	                for r = 1 to _nHobbyMapnHobbyIndex2Len_
-	                    if aHobbyMap[nHobbyIndex][2][r] = nRow
-	                        bFound = TRUE
+	                    if _aHobbyMap_[_nHobbyIndex_][2][r] = nRow
+	                        _bFound_ = TRUE
 	                        exit
 	                    ok
 	                next
 
 	                # Add row if not found
-	                if NOT bFound
-	                    aHobbyMap[nHobbyIndex][2] + nRow
+	                if NOT _bFound_
+	                    _aHobbyMap_[_nHobbyIndex_][2] + nRow
 	                ok
 	            ok
 	        next
 	    next
 
 	    # Build the new table structure with hobbies as the first column
-	    aNewColumns = [cListColumn]
-	    acColNames = This.ColNames()
+	    _aNewColumns_ = [_cListColumn_]
+	    _acColNames_ = This.ColNames()
 
 	    # Add all other columns except the list column
-	    _nColNamesLen_2 = len(acColNames)
+	    _nColNamesLen_2 = len(_acColNames_)
 	    for i = 1 to _nColNamesLen_2
-	        if acColNames[i] != cListColumn
-	            aNewColumns + acColNames[i]
+	        if _acColNames_[i] != _cListColumn_
+	            _aNewColumns_ + _acColNames_[i]
 	        ok
 	    next
 
 	    # Create the result table structure
-	    aResult = []
-	    _nNewColumnsLen_ = len(aNewColumns)
+	    _aResult_ = []
+	    _nNewColumnsLen_ = len(_aNewColumns_)
 	    for i = 1 to _nNewColumnsLen_
-	        aResult + [aNewColumns[i], []]
+	        _aResult_ + [_aNewColumns_[i], []]
 	    next
 
 	    # Fill in the data for each hobby group
-	    _nHobbyMapLen_ = len(aHobbyMap)
+	    _nHobbyMapLen_ = len(_aHobbyMap_)
 	    for i = 1 to _nHobbyMapLen_
-	        cHobby = aHobbyMap[i][1]
-	        aRowIndices = aHobbyMap[i][2]
+	        _cHobby_ = _aHobbyMap_[i][1]
+	        _aRowIndices_ = _aHobbyMap_[i][2]
 
 	        # For each row that has this hobby
-	        _nRowIndicesLen_ = len(aRowIndices)
+	        _nRowIndicesLen_ = len(_aRowIndices_)
 	        for j = 1 to _nRowIndicesLen_
-	            nRowIndex = aRowIndices[j]
+	            _nRowIndex_ = _aRowIndices_[j]
 
 	            # Add the hobby as the first column value
-	            aResult[1][2] + cHobby
+	            _aResult_[1][2] + _cHobby_
 
 	            # Add all other columns from the original row
-	            nColOffset = 2  # Start from second column
-	            _nColNamesLen_ = len(acColNames)
+	            _nColOffset_ = 2  # Start from second column
+	            _nColNamesLen_ = len(_acColNames_)
 	            for k = 1 to _nColNamesLen_
-	                if acColNames[k] != cListColumn
-	                    nColIndex = This.FindCol(acColNames[k])
-	                    aResult[nColOffset][2] + This.Cell(nColIndex, nRowIndex)
-	                    nColOffset++
+	                if _acColNames_[k] != _cListColumn_
+	                    _nColIndex_ = This.FindCol(_acColNames_[k])
+	                    _aResult_[_nColOffset_][2] + This.Cell(_nColIndex_, _nRowIndex_)
+	                    _nColOffset_++
 	                ok
 	            next
 	        next
 	    next
 
-	    @aContent = aResult
+	    @aContent = _aResult_

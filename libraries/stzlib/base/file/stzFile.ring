@@ -115,43 +115,43 @@ func StzPathDirname(pcPath)
 		return StzPathDirname(pcPath)
 
 
-func FileExists(cFullPath)
-    return StzFileExists(cFullPath)
+func FileExists(_cFullPath_)
+    return StzFileExists(_cFullPath_)
 
-	func @FileExists(cFullPath)
-		return StzFileExists(cFullPath)
+	func @FileExists(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func IsFile(cFullPath)
-		return StzFileExists(cFullPath)
+	func IsFile(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func @IsFile(cFullPath)
-		return StzFileExists(cFullPath)
+	func @IsFile(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func IsValidFile(cFullPath)
-		return StzFileExists(cFullPath)
+	func IsValidFile(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func @IsValidFile(cFullPath)
-		return StzFileExists(cFullPath)
+	func @IsValidFile(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
 	#--
 
-	func FilePathExists(cFullPath)
-		return StzFileExists(cFullPath)
+	func FilePathExists(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func @FilePathExists(cFullPath)
-		return StzFileExists(cFullPath)
+	func @FilePathExists(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func IsFilePath(cFullPath)
-		return StzFileExists(cFullPath)
+	func IsFilePath(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func @IsFilePath(cFullPath)
-		return StzFileExists(cFullPath)
+	func @IsFilePath(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func IsValidFilePath(cFullPath)
-		return StzFileExists(cFullPath)
+	func IsValidFilePath(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
-	func @IsValidFilePath(cFullPath)
-		return StzFileExists(cFullPath)
+	func @IsValidFilePath(_cFullPath_)
+		return StzFileExists(_cFullPath_)
 
 	#>
 
@@ -205,38 +205,38 @@ func StzCopyFileContent(cSource, cDest)
 	ok
 
 	# Extract and create destination directory if needed
-	cDestDir = ""
+	_cDestDir_ = ""
 	for i = StzLen(cDest) to 1 step -1
 		if cDest[i] = "/" or cDest[i] = "\"
-			cDestDir = StzLeft(cDest, i - 1)
+			_cDestDir_ = StzLeft(cDest, i - 1)
 			exit
 		ok
 	next
 
-	if cDestDir != "" and NOT isdir(cDestDir)
-		if StzEngineDirCreatePath(cDestDir) = 0
-			stzraise("Cannot create destination directory: " + cDestDir)
+	if _cDestDir_ != "" and NOT isdir(_cDestDir_)
+		if StzEngineDirCreatePath(_cDestDir_) = 0
+			stzraise("Cannot create destination directory: " + _cDestDir_)
 		ok
 	ok
 
-	cContent = read(cSource)
-	write(cDest, cContent)
+	_cContent_ = read(cSource)
+	write(cDest, _cContent_)
 
 	func CopyFileContent(cSource, cDest)
 		return StzCopyFileContent(cSource, cDest)
 
 func StzListFiles(cDir)
-	aFiles = []
+	_aFiles_ = []
 	_aList_ = @dir(cDir)
-	nLen = len(_aList_)
+	_nLen_ = len(_aList_)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if _aList_[i][2] = 0  # Files only
-			aFiles + _aList_[i][1]
+			_aFiles_ + _aList_[i][1]
 		ok
 	next
 
-	return aFiles
+	return _aFiles_
 
 	func ListFiles(cDir)
 		return StzListFiles(cDir)
@@ -305,8 +305,8 @@ func StzFileCreate(cFileName)
 		StzRaise("Can't proceed! The file already exists: " + cFileName)
 	ok
 
-	oFile = new stzFileCreator(cFileName)
-	oFile.Close()
+	_oFile_ = new stzFileCreator(cFileName)
+	_oFile_.Close()
 	return 1
 
 	#< @FunctionFluentForm
@@ -315,8 +315,8 @@ func StzFileCreate(cFileName)
 		if StzFileExists(cFileName)
 			StzRaise("Can't proceed! The file already exists: " + cFileName)
 		ok
-		oFile = new stzFileCreator(cFileName)
-		return oFile
+		_oFile_ = new stzFileCreator(cFileName)
+		return _oFile_
 	#>
 
 	#< @FunctionAlternativeForms
@@ -346,43 +346,43 @@ func StzFileCreate(cFileName)
 			return StzFileCreate(cFileName)
 	#>
 
-func StzFileOverwrite(cFileName, cNewContent)
-    oFile = StzFileOverwiteQ(cFileName, cNewContent)
-	oFile.Close()
+func StzFileOverwrite(cFileName, _cNewContent_)
+    _oFile_ = StzFileOverwiteQ(cFileName, _cNewContent_)
+	_oFile_.Close()
 	return 1
 
 	#< @FunctionAlternativeForms
 
-	func FileOverwrite(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func FileOverwrite(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
-	func FileOverrite(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func FileOverrite(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
-	func OverwriteFile(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func OverwriteFile(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
 	#--
 
-	func @FileOverwrite(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func @FileOverwrite(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
-	func @FileOverrite(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func @FileOverrite(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
-	func @OverwriteFile(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
+	func @OverwriteFile(cFileName, _cNewContent_)
+		return StzFileOverwrite(cFileName, _cNewContent_)
 
 	#>
 
 
-func StzFileOverwiteQ(cFileName, cNewContent)
+func StzFileOverwiteQ(cFileName, _cNewContent_)
     # Immediate operation - replaces entire file content
     if not StzFileExists(cFileName)
         StzRaise("Cannot overwrite content of non-existent file: " + cFileName)
     ok
 
-    StzEngineFileWrite(cFileName, cNewContent)
+    StzEngineFileWrite(cFileName, _cNewContent_)
     return NULL
 
 	# NOTE: the old 2-arg "Q returns a value" overwrite aliases were removed.
@@ -452,8 +452,8 @@ func StzFileErase(cFileName)
     if not StzFileExists(cFileName)
         StzRaise("Cannot erase non-existent file: " + cFileName)
     ok
-	oFile = new stzFileEraser(cFileName)
-	oFile.Erase()
+	_oFile_ = new stzFileEraser(cFileName)
+	_oFile_.Erase()
 	return 1
 
 	#< @FunctionFluentForm
@@ -462,8 +462,8 @@ func StzFileErase(cFileName)
 	    if not StzFileExists(cFileName)
 	        StzRaise("Cannot erase non-existent file: " + cFileName)
 	    ok
-		oFile = new stzFileEraser(cFileName)
-		oFile.Erase()
+		_oFile_ = new stzFileEraser(cFileName)
+		_oFile_.Erase()
 		return StzFileAppend(cFileName)
 
 	#>
@@ -506,8 +506,8 @@ func StzFileSafeErase(cFileName)
 
 	StzFileBackup(cFileName)
 
-	oFile = new stzFileEraser(cFileName)
-	oFile.Erase()
+	_oFile_ = new stzFileEraser(cFileName)
+	_oFile_.Erase()
 	return 1
 
 	#< @FunctionFluentForm
@@ -520,8 +520,8 @@ func StzFileSafeErase(cFileName)
 
 		StzFileBackup(cFileName)
 
-		oFile = new stzFileEraser(cFileName)
-		oFile.Erase()
+		_oFile_ = new stzFileEraser(cFileName)
+		_oFile_.Erase()
 		return StzFileAppend(cFileName)
 	#>
 
@@ -560,8 +560,8 @@ func StzFileBackup(cFileName)
 		StzRaise("Cannot backup a non-existent file: " + cFileName)
 	ok
 
-    ofileManager = new stz FileManager(cFileName)
-	oFileManager.Backup()
+    _ofileManager_ = new stz FileManager(cFileName)
+	_ofileManager_.Backup()
 	return 1
 
 	func FileBackup(cFileName)
@@ -576,62 +576,62 @@ func StzFileBackup(cFileName)
 	func @BackupFile(cFileName)
 		return StzFileBackup(cFileName)
 
-func StzFileSafeOverwrite(cFileName, cNewContent)
+func StzFileSafeOverwrite(cFileName, _cNewContent_)
     # Creates timestamped backup before overwriting
 	StzFileBackup(cFileName)
-    StzFileOverwrite(cFileName, cNewContent)
+    StzFileOverwrite(cFileName, _cNewContent_)
 	return 1
 
 	#< @FunctionAlternativeForms
 
-	func FileSafeOverwrite(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func FileSafeOverwrite(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func SafeOverwriteFile(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func SafeOverwriteFile(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func FileSafeOverrite(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func FileSafeOverrite(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func SafeOverriteFile(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func SafeOverriteFile(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
 	#--
 
-	func @FileSafeOverwrite(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func @FileSafeOverwrite(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func @SafeOverwriteFile(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func @SafeOverwriteFile(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func @FileSafeOverrite(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func @FileSafeOverrite(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
-	func @SafeOverriteFile(cFileName, cNewContent)
-		return StzFileSafeOverwrite(cFileName, cNewContent)
+	func @SafeOverriteFile(cFileName, _cNewContent_)
+		return StzFileSafeOverwrite(cFileName, _cNewContent_)
 
 	#>
 
-func StzFileModify(cFileName, cOldContent, cNewContent)
+func StzFileModify(cFileName, cOldContent, _cNewContent_)
     if NOT StzFileExists(cFileName)
 		StzRaise("Cannot modify a non-existent file: " + cFileName)
 	ok
 
-	oFileModifier = new stzFileModifier(cFileName)
-	oFileModifier.Modify(cOldContent, cNewContent)
+	_oFileModifier_ = new stzFileModifier(cFileName)
+	_oFileModifier_.Modify(cOldContent, _cNewContent_)
 	return 1
 
-	func FileModify(cFileName, cOldContent, cNewContent)
-		return StzFileModify(cFileName, cOldContent, cNewContent)
+	func FileModify(cFileName, cOldContent, _cNewContent_)
+		return StzFileModify(cFileName, cOldContent, _cNewContent_)
 
-	func ModifyFile(cFileName, cOldContent, cNewContent)
-		return StzFileModify(cFileName, cOldContent, cNewContent)
+	func ModifyFile(cFileName, cOldContent, _cNewContent_)
+		return StzFileModify(cFileName, cOldContent, _cNewContent_)
 
-	func @FileModify(cFileName, cOldContent, cNewcontent)
-		return StzFileModify(cFileName, cOldContent, cNewContent)
+	func @FileModify(cFileName, cOldContent, _cNewContent_)
+		return StzFileModify(cFileName, cOldContent, _cNewContent_)
 
-	func @ModifyFile(cFileName, cOldContent, cNewContent)
-		return StzFileModify(cFileName, cOldContent, cNewContent)
+	func @ModifyFile(cFileName, cOldContent, _cNewContent_)
+		return StzFileModify(cFileName, cOldContent, _cNewContent_)
 
 
 func FileCopy(cSource, cDestination)
@@ -717,8 +717,8 @@ func FileSize(cFileName)
 
 func StzFileCreateIfInexistant(cFilePath)
     if NOT fexists(cFilePath)
-        fp = fopen(cFilePath, "w")
-        fclose(fp)
+        _fp_ = fopen(cFilePath, "w")
+        fclose(_fp_)
     ok
 
 	func FileCreateIfInexistant(cFilePath)
@@ -737,47 +737,47 @@ func StzFileCreateIfInexistant(cFilePath)
 #---
 
 # Short form - relative/normalized paths
-func StzNormalizeFilePath(cName)
+func StzNormalizeFilePath(_cName_)
 	if CheckParams()
-		if NOT ( isString(cName) and trim(cName) != "" )
+		if NOT ( isString(_cName_) and trim(_cName_) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
 	ok
 
-	cResult = StzLower(trim(cName))
-	cResult = StzReplace(cResult, "\", "/")
-	cResult = StzReplace(cResult, "//", "/")
-	return cResult
+	_cResult_ = StzLower(trim(_cName_))
+	_cResult_ = StzReplace(_cResult_, "\", "/")
+	_cResult_ = StzReplace(_cResult_, "//", "/")
+	return _cResult_
 
-	func NormalizeFilePath(cName)
-		return StzNormalizeFilePath(cName)
+	func NormalizeFilePath(_cName_)
+		return StzNormalizeFilePath(_cName_)
 
-	func NormaliseFilePath(cName)
-		return StzNormalizeFilePath(cName)
+	func NormaliseFilePath(_cName_)
+		return StzNormalizeFilePath(_cName_)
 
-func StzNormalizeFilePathXT(cName)
+func StzNormalizeFilePathXT(_cName_)
 	if CheckParams()
-		if NOT ( isString(cName) and trim(cName) != "" )
+		if NOT ( isString(_cName_) and trim(_cName_) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
 	ok
 
-	cName = trim(cName)
+	_cName_ = trim(_cName_)
 
-	if StzLeft(cName, 1) != "/" and StzFindFirst(cName, ":/") = 0
-		cName = currentdir() + "/" + cName
+	if StzLeft(_cName_, 1) != "/" and StzFindFirst(_cName_, ":/") = 0
+		_cName_ = currentdir() + "/" + _cName_
 	ok
 
-	cResult = StzLower(cName)
-	cResult = StzReplace(cResult, "\", "/")
-	cResult = StzReplace(cResult, "//", "/")
-	return cResult
+	_cResult_ = StzLower(_cName_)
+	_cResult_ = StzReplace(_cResult_, "\", "/")
+	_cResult_ = StzReplace(_cResult_, "//", "/")
+	return _cResult_
 
-	func NormalizeFilePathXT(cName)
-		return StzNormalizeFilePathXT(cName)
+	func NormalizeFilePathXT(_cName_)
+		return StzNormalizeFilePathXT(_cName_)
 
-	func NormaliseFilePathXT(cName)
-		return StzNormalizeFilePathXT(cName)
+	func NormaliseFilePathXT(_cName_)
+		return StzNormalizeFilePathXT(_cName_)
 
 class stzFileXT from stzObject
 
@@ -820,58 +820,58 @@ class stzFileXT from stzObject
 #==============================#
 
 func _FileName(cPath)
-	nPos = 0
+	_nPos_ = 0
 	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/" or cPath[i] = "\"
-			nPos = i
+			_nPos_ = i
 			exit
 		ok
 	next
-	if nPos > 0
-		return StzRight(cPath, StzLen(cPath) - nPos)
+	if _nPos_ > 0
+		return StzRight(cPath, StzLen(cPath) - _nPos_)
 	ok
 	return cPath
 
 func _FileDirPath(cPath)
-	nPos = 0
+	_nPos_ = 0
 	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/" or cPath[i] = "\"
-			nPos = i
+			_nPos_ = i
 			exit
 		ok
 	next
-	if nPos > 0
-		return StzLeft(cPath, nPos - 1)
+	if _nPos_ > 0
+		return StzLeft(cPath, _nPos_ - 1)
 	ok
 	return "."
 
 func _FileExtension(cPath)
-	cName = _FileName(cPath)
-	nDot = 0
-	for i = StzLen(cName) to 1 step -1
-		if cName[i] = "."
-			nDot = i
+	_cName_ = _FileName(cPath)
+	_nDot_ = 0
+	for i = StzLen(_cName_) to 1 step -1
+		if _cName_[i] = "."
+			_nDot_ = i
 			exit
 		ok
 	next
-	if nDot > 0
-		return StzRight(cName, StzLen(cName) - nDot)
+	if _nDot_ > 0
+		return StzRight(_cName_, StzLen(_cName_) - _nDot_)
 	ok
 	return ""
 
 func _FileCompleteBaseName(cPath)
-	cName = _FileName(cPath)
-	nDot = 0
-	for i = StzLen(cName) to 1 step -1
-		if cName[i] = "."
-			nDot = i
+	_cName_ = _FileName(cPath)
+	_nDot_ = 0
+	for i = StzLen(_cName_) to 1 step -1
+		if _cName_[i] = "."
+			_nDot_ = i
 			exit
 		ok
 	next
-	if nDot > 1
-		return StzLeft(cName, nDot - 1)
+	if _nDot_ > 1
+		return StzLeft(_cName_, _nDot_ - 1)
 	ok
-	return cName
+	return _cName_
 
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
@@ -989,12 +989,12 @@ class stzFileInfo from stzObject
         return 0
 
     def IsExecutable()
-        cExt = StzLower(StzEnginePathExtension(@cFileName))
-        return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
+        _cExt_ = StzLower(StzEnginePathExtension(@cFileName))
+        return _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
 
     def IsHidden()
-        cBase = StzEnginePathBasename(@cFileName)
-        if len(cBase) > 0 and StzLeft(cBase, 1) = "."
+        _cBase_ = StzEnginePathBasename(@cFileName)
+        if len(_cBase_) > 0 and StzLeft(_cBase_, 1) = "."
             return 1
         ok
         return 0
@@ -1005,19 +1005,19 @@ class stzFileInfo from stzObject
     def LastModificationTime()
         # Unix epoch SECONDS of the last modification (via the Softanza Zig
         # engine's stat()). Returns 0 if the file is missing.
-        nSecs = StzEngineFileMTime(@cFileName)
-        if nSecs < 0 return 0 ok
-        return nSecs
+        _nSecs_ = StzEngineFileMTime(@cFileName)
+        if _nSecs_ < 0 return 0 ok
+        return _nSecs_
 
         def LastModifiedSeconds()
             return This.LastModificationTime()
 
         def LastModified()
             # Human-readable form, formatted from the epoch via stzDateTime.
-            nSecs = This.LastModificationTime()
-            if nSecs = 0 return "" ok
-            oDT = new stzDateTime([ :FromEpochSeconds = nSecs ])
-            return oDT.ToString()
+            _nSecs_ = This.LastModificationTime()
+            if _nSecs_ = 0 return "" ok
+            _oDT_ = new stzDateTime([ :FromEpochSeconds = _nSecs_ ])
+            return _oDT_.ToString()
 
     def LastReadingTime()
         StzRaise("Unsupported feature! Use OS-level tools for file timestamps.")
@@ -1038,12 +1038,12 @@ class stzFileInfo from stzObject
         return StzEnginePathDirname(@cFileName)
 
     def BaseName()
-        cBase = StzEnginePathBasename(@cFileName)
-        nDot = StzFindFirst(cBase, ".")
-        if nDot > 0
-            return StzLeft(cBase, nDot - 1)
+        _cBase_ = StzEnginePathBasename(@cFileName)
+        _nDot_ = StzFindFirst(_cBase_, ".")
+        if _nDot_ > 0
+            return StzLeft(_cBase_, _nDot_ - 1)
         ok
-        return cBase
+        return _cBase_
 
     def CompleteBaseName()
         return StzEnginePathBasename(@cFileName)
@@ -1098,8 +1098,8 @@ class stzFileReadingMixin from stzObject
         return This.Line(1)
     
     def LastLine()
-        aLines = This.Lines()
-        return aLines[StzLen(aLines)]
+        _aLines_ = This.Lines()
+        return _aLines_[StzLen(_aLines_)]
     
     def NumberOfLines()
         return len(This.Lines())
@@ -1127,8 +1127,8 @@ class stzFileReadingMixin from stzObject
     
     def FindText(cSearchText)
         # Returns position of text in file, or 0 if not found
-        cContent = This.Content()
-        return StzFindFirst(cContent, cSearchText)
+        _cContent_ = This.Content()
+        return StzFindFirst(_cContent_, cSearchText)
     
     def ContainsText(cSearchText)
         return This.FindText(cSearchText) > 0
@@ -1143,22 +1143,22 @@ class stzFileReadingMixin from stzObject
 			return This.CountOccurrences(cSearchText)
 
     def LinesContaining(cSearchText)
-        aLines = This.Lines()
-        aResult = []
-	   nLen = len(aLines)
-        for i = 1 to nLen
-            if StzFindFirst(aLines[i], cSearchText) > 0
-                aResult + [i, aLines[i]]
+        _aLines_ = This.Lines()
+        _aResult_ = []
+	   _nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            if StzFindFirst(_aLines_[i], cSearchText) > 0
+                _aResult_ + [i, _aLines_[i]]
             ok
         next
-        return aResult
+        return _aResult_
     
     def LineNumber(cSearchText)
         # Returns line number containing the text
-        aLines = This.Lines()
-	   nLen = len(aLines)
-        for i = 1 to nLen
-            if StzFindFirst(aLines[i], cSearchText) > 0
+        _aLines_ = This.Lines()
+	   _nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            if StzFindFirst(_aLines_[i], cSearchText) > 0
                 return i
             ok
         next
@@ -1263,20 +1263,20 @@ class stzFileAppender from stzFileReadingMixin
 			This.WriteLine(cText)
 			return This
 
-    def WriteLines(aLines)
-	   nLen = len(aLines)
-        for i = 1 to nLen
-            This.WriteLine(aLines[i])
+    def WriteLines(_aLines_)
+	   _nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            This.WriteLine(_aLines_[i])
         next
         return 1
 
-	   def WrtiteLinesQ(aLines)
-			This.WriteLines(aLines)
+	   def WrtiteLinesQ(_aLines_)
+			This.WriteLines(_aLines_)
 			return This
     
     def WriteTimestamp()
-        cTimeStamp = StzTimeStamp()
-        This.Write(cTimeStamp + ": ")
+        _cTimeStamp_ = StzTimeStamp()
+        This.Write(_cTimeStamp_ + ": ")
     	return 1
 
 	   def WriteTimeStampQ()
@@ -1284,32 +1284,32 @@ class stzFileAppender from stzFileReadingMixin
 		return This
 
     def WriteLogEntry(cMessage)
-        cTimeStamp = StzTimeStamp()
-        This.WriteLine(cTimeStamp + " - " + cMessage)
+        _cTimeStamp_ = StzTimeStamp()
+        This.WriteLine(_cTimeStamp_ + " - " + cMessage)
     	return 1
 
 	   def WriteLogEntryQ(cMessage)
 		This.WriteLogEntryQ(cMessage)
 		return This
 
-    def WriteSeparator(cChar)
-        if cChar = NULL
-            cChar = "-"
+    def WriteSeparator(_cChar_)
+        if _cChar_ = NULL
+            _cChar_ = "-"
         ok
-        This.WriteLine(RepeatChar(cChar, 50))
+        This.WriteLine(RepeatChar(_cChar_, 50))
     	return 1
 
-	   def WriteSeparatorQ(cChar)
-		This.WriteSeparator(cChar)
+	   def WriteSeparatorQ(_cChar_)
+		This.WriteSeparator(_cChar_)
 		return This
 
 	   #-- @Misspelled
 
-	   def WriteSeperator(cChar)
-		This.WriteSeparator(cChar)
+	   def WriteSeperator(_cChar_)
+		This.WriteSeparator(_cChar_)
 
-		def WriteSeperatorQ(cChar)
-			return This.WriteSeparatorQ(cChar)
+		def WriteSeperatorQ(_cChar_)
+			return This.WriteSeparatorQ(_cChar_)
 
     def WriteBlankLine()
         This.WriteLine("")
@@ -1389,15 +1389,15 @@ class stzFileCreator from stzFileReadingMixin
 		This.WriteLine(cText)
 		return This
 
-    def WriteLines(aLines)
-	   	nLen = len(aLines)
-        for i = 1 to nLen
-            This.WriteLine(aLines[i])
+    def WriteLines(_aLines_)
+	   	_nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            This.WriteLine(_aLines_[i])
         next
 		return 1
 
-	  def WriteLinesQ(aLines)
-		This.WriteLines(aLines)
+	  def WriteLinesQ(_aLines_)
+		This.WriteLines(_aLines_)
 		return This
     
     def WriteHeader(cTitle)
@@ -1539,15 +1539,15 @@ class stzFileOverwriter from stzFileReadingMixin
 			This.WriteLine(cText)
 			return This
 
-    def WriteLines(aLines)
-		nLen = len(aLines)
-        for i = 1 to nLen
-            This.WriteLine(aLines[i])
+    def WriteLines(_aLines_)
+		_nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            This.WriteLine(_aLines_[i])
         next
 		return 1
 
-		def WriteLinesQ(aLines)
-			This.WriteLines(aLines)
+		def WriteLinesQ(_aLines_)
+			This.WriteLines(_aLines_)
 			return This
     
     def WriteHeader(cTitle)
@@ -1716,79 +1716,79 @@ class stzFileModifier from stzFileReadingMixin
         return This.OriginalLineCount()
 
     # SOPHISTICATED UPDATE METHODS
-    def ModifyAllContent(cNewContent)
-        StzEngineFileWrite(@cFileName, cNewContent)
+    def ModifyAllContent(_cNewContent_)
+        StzEngineFileWrite(@cFileName, _cNewContent_)
 		# Re-read so subsequent OriginalContent()/OriginalLines()
 		# reflect the new on-disk state. Modifier methods chain on
 		# the in-memory snapshot, so keeping it in sync is required
 		# for ReplaceLineContaining + InsertLineAtEnd + Remove* etc.
-		@cOriginalContent = cNewContent
-		@aOriginalLines = @Lines(cNewContent)
+		@cOriginalContent = _cNewContent_
+		@aOriginalLines = @Lines(_cNewContent_)
 		return 1
 
-	    def ModifyAllContentQ(cNewContent)
-	        This.ModifyAllContent(cNewContent)
+	    def ModifyAllContentQ(_cNewContent_)
+	        This.ModifyAllContent(_cNewContent_)
 	        return This
 
 	    # Word-order alias used by sophisticated-update narratives.
-	    def ReplaceAllContent(cNewContent)
-	        return This.ModifyAllContent(cNewContent)
+	    def ReplaceAllContent(_cNewContent_)
+	        return This.ModifyAllContent(_cNewContent_)
 
-		    def ReplaceAllContentQ(cNewContent)
-		        This.ModifyAllContent(cNewContent)
+		    def ReplaceAllContentQ(_cNewContent_)
+		        This.ModifyAllContent(_cNewContent_)
 		        return This
 
-    def ModifyAllContentWith(cNewContent)
-        This.ModifyAllContent(cNewContent)
+    def ModifyAllContentWith(_cNewContent_)
+        This.ModifyAllContent(_cNewContent_)
 
-	    def ModifyAllContentWithQ(cNewContent)
-	        return This.ModifyAllContentQ(cNewContent)
+	    def ModifyAllContentWithQ(_cNewContent_)
+	        return This.ModifyAllContentQ(_cNewContent_)
 
     def ModifyLine(nLineNumber, cNewLine)
-        aLines = This.OriginalLines()
-        aLines[nLineNumber] = cNewLine
-        cNewContent = JoinXT(aLines, NL)
-        This.ModifyAllContent(cNewContent)
+        _aLines_ = This.OriginalLines()
+        _aLines_[nLineNumber] = cNewLine
+        _cNewContent_ = JoinXT(_aLines_, NL)
+        This.ModifyAllContent(_cNewContent_)
     	return 1
 
 	    def ModifyLineQ(nLineNumber, cNewLine)
 	        This.ModifyLine(nLineNumber, cNewLine)
 	        return This
 
-	def InsertLineAt(nPos, cNewLine)
-	    aLines = @aOriginalLines
-	    nLen = len(aLines)
+	def InsertLineAt(_nPos_, cNewLine)
+	    _aLines_ = @aOriginalLines
+	    _nLen_ = len(_aLines_)
 
 	    # Handle empty file case
-	    if nLen = 0
+	    if _nLen_ = 0
 	        StzRaise("Cannot insert line in empty file - use ReplaceAllContent() instead")
 	    ok
 	    
 	    # Ensure position is valid for non-empty files
-	    if nPos < 1
-	        nPos = 1
+	    if _nPos_ < 1
+	        _nPos_ = 1
 	    ok
 
-	    if nPos > nLen
-	        aLines + cNewLine
+	    if _nPos_ > _nLen_
+	        _aLines_ + cNewLine
 		else
-		   ring_insert(aLines, nPos, cNewLine)
+		   ring_insert(_aLines_, _nPos_, cNewLine)
 
 		ok
 	    
-	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
-	    This.ModifyAllContent(cNewContent)
+	    _cNewContent_ = JoinXT(_aLines_, NL)  # Add newline separator
+	    This.ModifyAllContent(_cNewContent_)
 		return 1
 
-	    def InsertLineAtQ(nPos, cNewLine)
-	        This.InsertLineAt(nPos, cNewLine)
+	    def InsertLineAtQ(_nPos_, cNewLine)
+	        This.InsertLineAt(_nPos_, cNewLine)
 	        return This
 
-		def InsertLine(nPos, cNewLine)
-			This.InsertLineAt(nPos, nNewLine)
+		def InsertLine(_nPos_, cNewLine)
+			This.InsertLineAt(_nPos_, nNewLine)
 
-			def InertLineQ(nPos, cNewLine)
-				return This.InsertLineAtQ(nPos, cNewLine)
+			def InertLineQ(_nPos_, cNewLine)
+				return This.InsertLineAtQ(_nPos_, cNewLine)
 
 
     def InsertLineAtStart(cNewLine)
@@ -1800,14 +1800,14 @@ class stzFileModifier from stzFileReadingMixin
 	        return This
 	 
 	def InsertLineAtEnd(cNewLine)
-	    aLines = @aOriginalLines
+	    _aLines_ = @aOriginalLines
   
 	    # Handle empty file case
-	    if len(aLines) = 0
+	    if len(_aLines_) = 0
 	        StzRaise("Cannot insert line in empty file - use ReplaceAllContent() instead")
 	    ok
 	    
-	    This.InsertLineAt(len(aLines) + 1, cNewLine)
+	    This.InsertLineAt(len(_aLines_) + 1, cNewLine)
 		return 1
 
 		#< @FunctionFluentForm
@@ -1845,11 +1845,11 @@ class stzFileModifier from stzFileReadingMixin
 	        return This
 
     def RemoveLine(nLineNumber)
-        aLines = @aOriginalLines
-        if nLineNumber >= 1 and nLineNumber <= len(aLines)
-            del(aLines, nLineNumber)
-            cNewContent = JoinXT(aLines, NL)
-            This.ModifyAllContent(cNewContent)
+        _aLines_ = @aOriginalLines
+        if nLineNumber >= 1 and nLineNumber <= len(_aLines_)
+            del(_aLines_, nLineNumber)
+            _cNewContent_ = JoinXT(_aLines_, NL)
+            This.ModifyAllContent(_cNewContent_)
 			return 1
         ok
     	return 0
@@ -1893,45 +1893,45 @@ class stzFileModifier from stzFileReadingMixin
 			return This.RemoveLastLineQ()
 
 	def FindLinesContaining(cSearchText)
-        aLines = @aOriginalLines
-        nLen = len(aLines)
+        _aLines_ = @aOriginalLines
+        _nLen_ = len(_aLines_)
 
-        anResult = []
-        for i = 1 to nLen
-            if StzFindFirst(aLines[i], cSearchText) > 0
-                anResult + i
+        _anResult_ = []
+        for i = 1 to _nLen_
+            if StzFindFirst(_aLines_[i], cSearchText) > 0
+                _anResult_ + i
             ok
         next
 
-		return anResult
+		return _anResult_
 
 	def LinesContaining(cSearchText)
-        acLines = @aOriginalLines
-        nLen = len(acLines)
+        _acLines_ = @aOriginalLines
+        _nLen_ = len(_acLines_)
 
-        acResult = []
-        for i = 1 to nLen
-            if StzFindFirst(acLines[i], cSearchText) > 0
-                acResult + acLines[i]
+        _acResult_ = []
+        for i = 1 to _nLen_
+            if StzFindFirst(_acLines_[i], cSearchText) > 0
+                _acResult_ + _acLines_[i]
             ok
         next
 
-		return acResult
+		return _acResult_
 
 
     def RemoveLinesContaining(cSearchText)
-        aLines = @aOriginalLines
-        nLen = len(aLines)
+        _aLines_ = @aOriginalLines
+        _nLen_ = len(_aLines_)
 
-        aNewLines = []
-        for i = 1 to nLen
-            if StzFindFirst(aLines[i], cSearchText) = 0
-                aNewLines + aLines[i]
+        _aNewLines_ = []
+        for i = 1 to _nLen_
+            if StzFindFirst(_aLines_[i], cSearchText) = 0
+                _aNewLines_ + _aLines_[i]
             ok
         next
 
-        cNewContent = JoinXT(aNewLines, NL)
-        This.ModifyAllContent(cNewContent)
+        _cNewContent_ = JoinXT(_aNewLines_, NL)
+        This.ModifyAllContent(_cNewContent_)
     	return 1
 
 	    def RemoveLinesContainingQ(cSearchText)
@@ -1951,7 +1951,7 @@ class stzFileModifier from stzFileReadingMixin
 			ok
 
 			if isList(cNewText) and IsWithNamedParamList(cNewText)
-				cNexText = cNewText[2]
+				_cNexText_ = cNewText[2]
 			ok
 
 			if NoT isString(cNewText)
@@ -1959,8 +1959,8 @@ class stzFileModifier from stzFileReadingMixin
 			ok
 		ok
 
-        cNewContent = StzReplace(@cOriginalContent, cOldText, cNewText)
-        This.ModifyAllContent(cNewContent)
+        _cNewContent_ = StzReplace(@cOriginalContent, cOldText, cNewText)
+        This.ModifyAllContent(_cNewContent_)
 		return 1
 
 	    def ModifyQ(cOldText, cNewText)
@@ -1973,10 +1973,10 @@ class stzFileModifier from stzFileReadingMixin
 
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
-        aLines = This.OriginalLines()
-        aLines[nLineNumber] = StzReplace(aLines[nLineNumber], cOldText, cNewText)
-        cNewContent = JoinXT(aLines, NL)
-        This.ReplaceAllContent(cNewContent)
+        _aLines_ = This.OriginalLines()
+        _aLines_[nLineNumber] = StzReplace(_aLines_[nLineNumber], cOldText, cNewText)
+        _cNewContent_ = JoinXT(_aLines_, NL)
+        This.ReplaceAllContent(_cNewContent_)
 
 	    def ReplaceInLineQ(nLineNumber, cOldText, cNewText)
 	        This.ReplaceInLine(nLineNumber, cOldText, cNewText)
@@ -1984,18 +1984,18 @@ class stzFileModifier from stzFileReadingMixin
 
 	def ReplaceLineContaining(cSubstr, cNewLine)
 	    # Update first line that contains the substring
-	    aLines = @aOriginalLines
-	    nLen = len(aLines)
+	    _aLines_ = @aOriginalLines
+	    _nLen_ = len(_aLines_)
 
-	    for i = 1 to nLen
-	        if StzFindFirst(aLines[i], cSubstr) > 0
-	            aLines[i] = cNewLine
+	    for i = 1 to _nLen_
+	        if StzFindFirst(_aLines_[i], cSubstr) > 0
+	            _aLines_[i] = cNewLine
 	            exit
 	        ok
 	    next
 
-	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
-	    This.ReplaceAllContent(cNewContent)
+	    _cNewContent_ = JoinXT(_aLines_, NL)  # Add newline separator
+	    This.ReplaceAllContent(_cNewContent_)
     
 	    def ReplaceLineContainingQ(cSubStr, cNewLine)
 	        This.ReplaceLineContaining(cSubStr, cNewLine)
@@ -2051,223 +2051,223 @@ class stzFileManager from stzObject
 
     # COPY OPERATIONS
 
-    def CopyTo(cDestinationPath)
-        if not StzRight(cDestinationPath, 1) = "/"
-            cDestinationPath = cDestinationPath + "/"
+    def CopyTo(_cDestinationPath_)
+        if not StzRight(_cDestinationPath_, 1) = "/"
+            _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
-        cDestFile = cDestinationPath + _FileName(@cFileName)
-        return StzEngineFileCopy(@cFileName, cDestFile)
+        _cDestFile_ = _cDestinationPath_ + _FileName(@cFileName)
+        return StzEngineFileCopy(@cFileName, _cDestFile_)
 
-        def CopyToQ(cDestinationPath)
-            This.CopyTo(cDestinationPath)
+        def CopyToQ(_cDestinationPath_)
+            This.CopyTo(_cDestinationPath_)
             return This
 
-    def CopyAs(cNewFileName)
-        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
-        return StzEngineFileCopy(@cFileName, cDestFile)
+    def CopyAs(_cNewFileName_)
+        _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
+        return StzEngineFileCopy(@cFileName, _cDestFile_)
 
-        def CopyAsQ(cNewFileName)
-            This.CopyAs(cNewFileName)
+        def CopyAsQ(_cNewFileName_)
+            This.CopyAs(_cNewFileName_)
             return This
 
-    def CopyToAs(cDestinationPath, cNewFileName)
-        if not StzRight(cDestinationPath, 1) = "/"
-            cDestinationPath = cDestinationPath + "/"
+    def CopyToAs(_cDestinationPath_, _cNewFileName_)
+        if not StzRight(_cDestinationPath_, 1) = "/"
+            _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
-        cDestFile = cDestinationPath + cNewFileName
-        return StzEngineFileCopy(@cFileName, cDestFile)
+        _cDestFile_ = _cDestinationPath_ + _cNewFileName_
+        return StzEngineFileCopy(@cFileName, _cDestFile_)
     
-        def CopyToAsQ(cDestinationPath, cNewFileName)
-            This.CopyToAs(cDestinationPath, cNewFileName)
+        def CopyToAsQ(_cDestinationPath_, _cNewFileName_)
+            This.CopyToAs(_cDestinationPath_, _cNewFileName_)
             return This
     
     # MOVE OPERATIONS
 
-    def MoveTo(cDestinationPath)
-        if not StzRight(cDestinationPath, 1) = "/"
-            cDestinationPath = cDestinationPath + "/"
+    def MoveTo(_cDestinationPath_)
+        if not StzRight(_cDestinationPath_, 1) = "/"
+            _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
-        cDestFile = cDestinationPath + _FileName(@cFileName)
-        bResult = StzEngineFileCopy(@cFileName, cDestFile)
-        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
-        return bResult
+        _cDestFile_ = _cDestinationPath_ + _FileName(@cFileName)
+        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
+        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
+        return _bResult_
 
-        def MoveToQ(cDestinationPath)
-            This.MoveTo(cDestinationPath)
+        def MoveToQ(_cDestinationPath_)
+            This.MoveTo(_cDestinationPath_)
             return This
 
-    def MoveAs(cNewFileName)
-        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
-        bResult = StzEngineFileCopy(@cFileName, cDestFile)
-        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
-        return bResult
+    def MoveAs(_cNewFileName_)
+        _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
+        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
+        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
+        return _bResult_
 
-        def MoveAsQ(cNewFileName)
-            This.MoveAs(cNewFileName)
+        def MoveAsQ(_cNewFileName_)
+            This.MoveAs(_cNewFileName_)
             return This
 
-    def MoveToAs(cDestinationPath, cNewFileName)
-        if not StzRight(cDestinationPath, 1) = "/"
-            cDestinationPath = cDestinationPath + "/"
+    def MoveToAs(_cDestinationPath_, _cNewFileName_)
+        if not StzRight(_cDestinationPath_, 1) = "/"
+            _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
-        cDestFile = cDestinationPath + cNewFileName
-        bResult = StzEngineFileCopy(@cFileName, cDestFile)
-        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
-        return bResult
+        _cDestFile_ = _cDestinationPath_ + _cNewFileName_
+        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
+        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
+        return _bResult_
     
-        def MoveToAsQ(cDestinationPath, cNewFileName)
-            This.MoveToAs(cDestinationPath, cNewFileName)
+        def MoveToAsQ(_cDestinationPath_, _cNewFileName_)
+            This.MoveToAs(_cDestinationPath_, _cNewFileName_)
             return This
     
     # RENAME OPERATIONS
 
-    def RenameAs(cNewFileName)
-        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
-        bResult = StzEngineFileCopy(@cFileName, cDestFile)
-        if bResult
+    def RenameAs(_cNewFileName_)
+        _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
+        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
+        if _bResult_
             StzEngineFileDelete(@cFileName)
-            @cFileName = cDestFile
+            @cFileName = _cDestFile_
         ok
-        return bResult
+        return _bResult_
     
-        def RenameAsQ(cNewFileName)
-            This.RenameAs(cNewFileName)
+        def RenameAsQ(_cNewFileName_)
+            This.RenameAs(_cNewFileName_)
             return This
     
 	# BACKUP OPERATION
 
 	def Backup()
-        cBackup = @cFileName + ".backup." + StzTimeStamp()
-        StzFileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
+        _cBackup_ = @cFileName + ".backup." + StzTimeStamp()
+        StzFileCopy(@cFileName, _cBackup_) #TODO // use internal methods to the object
 		return 1
 
     # SPLIT OPERATIONS
 
     def SplitByLines(nLinesPerFile)
-        oReader = StzFileRead(@cFileName)
-        aLines = oReader.Lines()
-        oReader.Close()
+        _oReader_ = StzFileRead(@cFileName)
+        _aLines_ = _oReader_.Lines()
+        _oReader_.Close()
         
-        nTotalLines = len(aLines)
-        nFileCount = ceil(nTotalLines / nLinesPerFile)
+        _nTotalLines_ = len(_aLines_)
+        _nFileCount_ = ceil(_nTotalLines_ / nLinesPerFile)
         
-        cBaseName = _FileCompleteBaseName(@cFileName)
-        cSuffix = _FileExtension(@cFileName)
-        cDirPath = _FileDirPath(@cFileName)
+        _cBaseName_ = _FileCompleteBaseName(@cFileName)
+        _cSuffix_ = _FileExtension(@cFileName)
+        _cDirPath_ = _FileDirPath(@cFileName)
         
-        aCreatedFiles = []
+        _aCreatedFiles_ = []
         
-        for nFile = 1 to nFileCount
-            nStartLine = ((nFile - 1) * nLinesPerFile) + 1
-            nEndLine = min(nFile * nLinesPerFile, nTotalLines)
+        for nFile = 1 to _nFileCount_
+            _nStartLine_ = ((nFile - 1) * nLinesPerFile) + 1
+            _nEndLine_ = min(nFile * nLinesPerFile, _nTotalLines_)
             
-            cNewFileName = cBaseName + "_" + nFile + "." + cSuffix
-            cFullPath = cDirPath + "/" + cNewFileName
+            _cNewFileName_ = _cBaseName_ + "_" + nFile + "." + _cSuffix_
+            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
             
-            oCreator = StzFileCreate(cFullPath)
-            for nLine = nStartLine to nEndLine
-                oCreator.WriteLine(aLines[nLine])
+            _oCreator_ = StzFileCreate(_cFullPath_)
+            for nLine = _nStartLine_ to _nEndLine_
+                _oCreator_.WriteLine(_aLines_[nLine])
             next
-            oCreator.Close()
+            _oCreator_.Close()
             
-            aCreatedFiles + cFullPath
+            _aCreatedFiles_ + _cFullPath_
         next
         
-        return aCreatedFiles
+        return _aCreatedFiles_
     
         def SplitByLinesQ(nLinesPerFile)
             This.SplitByLines(nLinesPerFile)
             return This
     
     def SplitBySize(nBytesPerFile)
-        oReader = StzFileRead(@cFileName)
-        cContent = oReader.Content()
-        oReader.Close()
+        _oReader_ = StzFileRead(@cFileName)
+        _cContent_ = _oReader_.Content()
+        _oReader_.Close()
 
-        nTotalSize = len(cContent)
-        nFileCount = ceil(nTotalSize / nBytesPerFile)
+        _nTotalSize_ = len(_cContent_)
+        _nFileCount_ = ceil(_nTotalSize_ / nBytesPerFile)
 
-        cBaseName = _FileCompleteBaseName(@cFileName)
-        cSuffix = _FileExtension(@cFileName)
-        cDirPath = _FileDirPath(@cFileName)
+        _cBaseName_ = _FileCompleteBaseName(@cFileName)
+        _cSuffix_ = _FileExtension(@cFileName)
+        _cDirPath_ = _FileDirPath(@cFileName)
 
-        aCreatedFiles = []
+        _aCreatedFiles_ = []
 
-        for nFile = 1 to nFileCount
-            nStartPos = ((nFile - 1) * nBytesPerFile) + 1
-            nEndPos = min(nFile * nBytesPerFile, nTotalSize)
+        for nFile = 1 to _nFileCount_
+            _nStartPos_ = ((nFile - 1) * nBytesPerFile) + 1
+            _nEndPos_ = min(nFile * nBytesPerFile, _nTotalSize_)
 
-            cChunk = StzMid(cContent, nStartPos, nEndPos - nStartPos + 1)
+            _cChunk_ = StzMid(_cContent_, _nStartPos_, _nEndPos_ - _nStartPos_ + 1)
             
-            cNewFileName = cBaseName + "_" + nFile + "." + cSuffix
-            cFullPath = cDirPath + "/" + cNewFileName
+            _cNewFileName_ = _cBaseName_ + "_" + nFile + "." + _cSuffix_
+            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
             
-            oCreator = StzFileCreate(cFullPath)
-            oCreator.Write(cChunk)
-            oCreator.Close()
+            _oCreator_ = StzFileCreate(_cFullPath_)
+            _oCreator_.Write(_cChunk_)
+            _oCreator_.Close()
             
-            aCreatedFiles + cFullPath
+            _aCreatedFiles_ + _cFullPath_
         next
         
-        return aCreatedFiles
+        return _aCreatedFiles_
     
         def SplitBySizeQ(nBytesPerFile)
             This.SplitBySize(nBytesPerFile)
             return This
     
     def SplitByPattern(cPattern)
-        oReader = StzFileRead(@cFileName)
-        aLines = oReader.Lines()
-        oReader.Close()
+        _oReader_ = StzFileRead(@cFileName)
+        _aLines_ = _oReader_.Lines()
+        _oReader_.Close()
 
-        cBaseName = _FileCompleteBaseName(@cFileName)
-        cSuffix = _FileExtension(@cFileName)
-        cDirPath = _FileDirPath(@cFileName)
+        _cBaseName_ = _FileCompleteBaseName(@cFileName)
+        _cSuffix_ = _FileExtension(@cFileName)
+        _cDirPath_ = _FileDirPath(@cFileName)
 
-        aCreatedFiles = []
-        aCurrentChunk = []
-        nFileNum = 1
+        _aCreatedFiles_ = []
+        _aCurrentChunk_ = []
+        _nFileNum_ = 1
 
-        nLen = len(aLines)
-        for i = 1 to nLen
-            if StzFindFirst(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
-                cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
-                cFullPath = cDirPath + "/" + cNewFileName
+        _nLen_ = len(_aLines_)
+        for i = 1 to _nLen_
+            if StzFindFirst(_aLines_[i], cPattern) > 0 and len(_aCurrentChunk_) > 0
+                _cNewFileName_ = _cBaseName_ + "_" + _nFileNum_ + "." + _cSuffix_
+                _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
                 
-                oCreator = StzFileCreate(cFullPath)
-                nChunkLen = len(aCurrentChunk)
-                for j = 1 to nChunkLen
-                    oCreator.WriteLine(aCurrentChunk[j])
+                _oCreator_ = StzFileCreate(_cFullPath_)
+                _nChunkLen_ = len(_aCurrentChunk_)
+                for j = 1 to _nChunkLen_
+                    _oCreator_.WriteLine(_aCurrentChunk_[j])
                 next
-                oCreator.Close()
+                _oCreator_.Close()
                 
-                aCreatedFiles + cFullPath
-                nFileNum = nFileNum + 1
-                aCurrentChunk = []
+                _aCreatedFiles_ + _cFullPath_
+                _nFileNum_ = _nFileNum_ + 1
+                _aCurrentChunk_ = []
             ok
             
-            aCurrentChunk + aLines[i]
+            _aCurrentChunk_ + _aLines_[i]
         next
         
-        if len(aCurrentChunk) > 0
-            cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
-            cFullPath = cDirPath + "/" + cNewFileName
+        if len(_aCurrentChunk_) > 0
+            _cNewFileName_ = _cBaseName_ + "_" + _nFileNum_ + "." + _cSuffix_
+            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
             
-            oCreator = StzFileCreate(cFullPath)
-            nChunkLen = len(aCurrentChunk)
-            for j = 1 to nChunkLen
-                oCreator.WriteLine(aCurrentChunk[j])
+            _oCreator_ = StzFileCreate(_cFullPath_)
+            _nChunkLen_ = len(_aCurrentChunk_)
+            for j = 1 to _nChunkLen_
+                _oCreator_.WriteLine(_aCurrentChunk_[j])
             next
-            oCreator.Close()
+            _oCreator_.Close()
             
-            aCreatedFiles + cFullPath
+            _aCreatedFiles_ + _cFullPath_
         ok
         
-        return aCreatedFiles
+        return _aCreatedFiles_
     
         def SplitByPatternQ(cPattern)
             This.SplitByPattern(cPattern)
@@ -2275,88 +2275,88 @@ class stzFileManager from stzObject
     
     # ZIP OPERATIONS (Delegated to stzZipFile)
 
-    def ZipAs(cZipFileName)
+    def ZipAs(_cZipFileName_)
         # Create zip containing this file
-        oZip = new stzZipFile(cZipFileName)
-        return oZip.CreateFromSingleFile(@cFileName)
+        _oZip_ = new stzZipFile(_cZipFileName_)
+        return _oZip_.CreateFromSingleFile(@cFileName)
     
-        def ZipAsQ(cZipFileName)
-            This.ZipAs(cZipFileName)
+        def ZipAsQ(_cZipFileName_)
+            This.ZipAs(_cZipFileName_)
             return This
     
-    def ZipWith(aFiles, cZipFileName)
+    def ZipWith(_aFiles_, _cZipFileName_)
         # Create zip with this file + additional files
-        oZip = new stzZipFile(cZipFileName)
-        aAllFiles = [@cFileName] + aFiles
-        return oZip.CreateFrom(aAllFiles)
+        _oZip_ = new stzZipFile(_cZipFileName_)
+        _aAllFiles_ = [@cFileName] + _aFiles_
+        return _oZip_.CreateFrom(_aAllFiles_)
     
-        def ZipWithQ(aFiles, cZipFileName)
-            This.ZipWith(aFiles, cZipFileName)
+        def ZipWithQ(_aFiles_, _cZipFileName_)
+            This.ZipWith(_aFiles_, _cZipFileName_)
             return This
     
-    def ZipToDirectory(cZipFileName, cTargetDir)
+    def ZipToDirectory(_cZipFileName_, _cTargetDir_)
         # Create zip in specified directory
-        if not StzRight(cTargetDir, 1) = "/"
-            cTargetDir = cTargetDir + "/"
+        if not StzRight(_cTargetDir_, 1) = "/"
+            _cTargetDir_ = _cTargetDir_ + "/"
         ok
 
-        cFullZipPath = cTargetDir + cZipFileName
-        return This.ZipAs(cFullZipPath)
+        _cFullZipPath_ = _cTargetDir_ + _cZipFileName_
+        return This.ZipAs(_cFullZipPath_)
     
-        def ZipToDirectoryQ(cZipFileName, cTargetDir)
-            This.ZipToDirectory(cZipFileName, cTargetDir)
+        def ZipToDirectoryQ(_cZipFileName_, _cTargetDir_)
+            This.ZipToDirectory(_cZipFileName_, _cTargetDir_)
             return This
     
-    def AddToZip(cZipFileName)
+    def AddToZip(_cZipFileName_)
         # Add this file to existing zip
-        oZip = new stzZipFile(cZipFileName)
-        return oZip.AddFile(@cFileName)
+        _oZip_ = new stzZipFile(_cZipFileName_)
+        return _oZip_.AddFile(@cFileName)
     
-        def AddToZipQ(cZipFileName)
-            This.AddToZip(cZipFileName)
+        def AddToZipQ(_cZipFileName_)
+            This.AddToZip(_cZipFileName_)
             return This
     
-    def ZipSplitFiles(aFiles, cZipFileName)
+    def ZipSplitFiles(_aFiles_, _cZipFileName_)
         # Create zip containing this file and its split files
-        oZip = new stzZipFile(cZipFileName)
-        aAllFiles = [@cFileName] + aFiles
-        return oZip.CreateFrom(aAllFiles)
+        _oZip_ = new stzZipFile(_cZipFileName_)
+        _aAllFiles_ = [@cFileName] + _aFiles_
+        return _oZip_.CreateFrom(_aAllFiles_)
     
-        def ZipSplitFilesQ(aFiles, cZipFileName)
-            This.ZipSplitFiles(aFiles, cZipFileName)
+        def ZipSplitFilesQ(_aFiles_, _cZipFileName_)
+            This.ZipSplitFiles(_aFiles_, _cZipFileName_)
             return This
     
-    def ZipBackup(cZipFileName)
+    def ZipBackup(_cZipFileName_)
         # Create zip backup with timestamp
-        if cZipFileName = ""
-            cBaseName = _FileCompleteBaseName(@cFileName)
-            cTimeStamp = StzTimeStamp()
-            cZipFileName = cBaseName + "_backup_" + cTimeStamp + ".zip"
+        if _cZipFileName_ = ""
+            _cBaseName_ = _FileCompleteBaseName(@cFileName)
+            _cTimeStamp_ = StzTimeStamp()
+            _cZipFileName_ = _cBaseName_ + "_backup_" + _cTimeStamp_ + ".zip"
         ok
         
-        cDirPath = _FileDirPath(@cFileName)
-        cFullZipPath = cDirPath + "/" + cZipFileName
+        _cDirPath_ = _FileDirPath(@cFileName)
+        _cFullZipPath_ = _cDirPath_ + "/" + _cZipFileName_
         
-        return This.ZipAs(cFullZipPath)
+        return This.ZipAs(_cFullZipPath_)
     
-        def ZipBackupQ(cZipFileName)
-            This.ZipBackup(cZipFileName)
+        def ZipBackupQ(_cZipFileName_)
+            This.ZipBackup(_cZipFileName_)
             return This
     
     # BACKUP OPERATIONS
 
     def CreateBackup()
-        cBaseName = _FileCompleteBaseName(@cFileName)
-        cSuffix = _FileExtension(@cFileName)
-        cDirPath = _FileDirPath(@cFileName)
+        _cBaseName_ = _FileCompleteBaseName(@cFileName)
+        _cSuffix_ = _FileExtension(@cFileName)
+        _cDirPath_ = _FileDirPath(@cFileName)
         
-        cTimeStamp = StzTimeStamp()
-        cBackupName = cBaseName + "_backup_" + cTimeStamp + "." + cSuffix
-        cBackupPath = cDirPath + "/" + cBackupName
+        _cTimeStamp_ = StzTimeStamp()
+        _cBackupName_ = _cBaseName_ + "_backup_" + _cTimeStamp_ + "." + _cSuffix_
+        _cBackupPath_ = _cDirPath_ + "/" + _cBackupName_
         
-        bResult = StzEngineFileCopy(@cFileName, cBackupPath)
-        if bResult
-            return cBackupPath
+        _bResult_ = StzEngineFileCopy(@cFileName, _cBackupPath_)
+        if _bResult_
+            return _cBackupPath_
         else
             return ""
         ok
@@ -2365,19 +2365,19 @@ class stzFileManager from stzObject
             This.CreateBackup()
             return This
 
-    def CreateBackupAs(cBackupName)
-        cDirPath = _FileDirPath(@cFileName)
-        cBackupPath = cDirPath + "/" + cBackupName
+    def CreateBackupAs(_cBackupName_)
+        _cDirPath_ = _FileDirPath(@cFileName)
+        _cBackupPath_ = _cDirPath_ + "/" + _cBackupName_
 
-        bResult = StzEngineFileCopy(@cFileName, cBackupPath)
-        if bResult
-            return cBackupPath
+        _bResult_ = StzEngineFileCopy(@cFileName, _cBackupPath_)
+        if _bResult_
+            return _cBackupPath_
         else
             return ""
         ok
     
-        def CreateBackupAsQ(cBackupName)
-            This.CreateBackupAs(cBackupName)
+        def CreateBackupAsQ(_cBackupName_)
+            This.CreateBackupAs(_cBackupName_)
             return This
     
     # DELETE OPERATIONS
@@ -2386,9 +2386,9 @@ class stzFileManager from stzObject
         # Deleting the file ends the management session: there is nothing left
         # to manage, so the manager is auto-closed. A following Close() is then
         # a harmless no-op (Close() automatic after Delete()).
-        bResult = StzEngineFileDelete(@cFileName)
+        _bResult_ = StzEngineFileDelete(@cFileName)
         @bClosed = TRUE
-        return bResult
+        return _bResult_
 
         def DeleteQ()
             This.Delete()
@@ -2401,8 +2401,8 @@ class stzFileManager from stzObject
 				return This.DeleteQ()
 
     def SafeDelete()
-        cBackupPath = This.CreateBackup()
-        if cBackupPath != ""
+        _cBackupPath_ = This.CreateBackup()
+        if _cBackupPath_ != ""
             return StzEngineFileDelete(@cFileName)
         else
             StzRaise("Cannot create backup before deletion")
@@ -2476,9 +2476,9 @@ class stzFileManager from stzObject
 
     def IsWritable()
         try
-            fp = fopen(@cFileName, "a")
-            if fp != NULL
-                fclose(fp)
+            _fp_ = fopen(@cFileName, "a")
+            if _fp_ != NULL
+                fclose(_fp_)
                 return TRUE
             ok
         catch
@@ -2486,9 +2486,9 @@ class stzFileManager from stzObject
         return FALSE
 
     def IsExecutable()
-        cExt = StzLower(_FileExtension(@cFileName))
+        _cExt_ = StzLower(_FileExtension(@cFileName))
         if isWindows()
-            return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
+            return _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
         ok
         return FALSE
 

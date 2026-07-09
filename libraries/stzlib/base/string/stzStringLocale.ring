@@ -40,12 +40,12 @@ class stzStringLocale from stzObject
 	#===============================#
 
 	def LowercasedInLocale(pcLocale)
-		oLocale = new stzLocale(pcLocale)
-		return oLocale.ToLowercase(@oString.Content())
+		_oLocale_ = new stzLocale(pcLocale)
+		return _oLocale_.ToLowercase(@oString.Content())
 
 	def UppercasedInLocale(pcLocale)
-		oLocale = new stzLocale(pcLocale)
-		return oLocale.ToUppercase(@oString.Content())
+		_oLocale_ = new stzLocale(pcLocale)
+		return _oLocale_.ToUppercase(@oString.Content())
 
 	  #======================================#
 	 #     SCRIPT DETECTION (Engine-backed) #
@@ -58,9 +58,9 @@ class stzStringLocale from stzObject
 	def ScriptName()
 		pH = @oString.Engine()
 		pR = StzEngineStringScriptName(pH)
-		lcName = StzEngineStringData(pR)
+		_lcName_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return lcName
+		return _lcName_
 
 	def Script()
 		return This.ScriptName()
@@ -107,9 +107,9 @@ class stzStringLocale from stzObject
 	def DirectionName()
 		pH = @oString.Engine()
 		pR = StzEngineStringDirectionName(pH)
-		lcDir = StzEngineStringData(pR)
+		_lcDir_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return lcDir
+		return _lcDir_
 
 	def Direction()
 		return This.DirectionName()
@@ -147,9 +147,9 @@ class stzStringLocale from stzObject
 	def LocaleCompare(pcOther)
 		pH1 = @oString.Engine()
 		pH2 = StzEngineString(pcOther)
-		lcResult = StzEngineStringLocaleCompare(pH1, pH2)
+		_lcResult_ = StzEngineStringLocaleCompare(pH1, pH2)
 		StzEngineStringFree(pH2)
-		return lcResult
+		return _lcResult_
 
 	def LocaleEquals(pcOther)
 		return This.LocaleCompare(pcOther) = 0

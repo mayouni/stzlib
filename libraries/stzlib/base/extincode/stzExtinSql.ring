@@ -1,7 +1,7 @@
 # Functions and classes for porting SQL code to Ring
 
-SMALLINT = :SMALLINT
-TABLE = :TABLE
+_SMALLINT_ = :SMALLINT
+_TABLE_ = :TABLE
 
 _oInitialTable = new stzTable([])
 _oIntermediateTable = new stzTable([])
@@ -10,29 +10,29 @@ _aINSERT_INTO_VALUES = []
 
 _aSELECT_FROM_WHERE = []
 
-func VARCHAR(n)
+func VARCHAR(_n_)
 	# Does nothing now --> TODO (future)
 	
 	#< @FunctionAlternativeForms
-	func _VARCHAR(n)
-		return VARCHAR(n)
-	func VARCHAR_(n)
-		return VARCHAR(n)
-	func _VARCHAR_(n)
-		return VARCHAR(n)
-	func @VARCHAR(n)
-		return VARCHAR(n)
-	func VARCHAR@(n)
-		return VARCHAR(n)
-	func @VARCHAR@(n)
-		return VARCHAR(n)
+	func _VARCHAR(_n_)
+		return VARCHAR(_n_)
+	func VARCHAR_(_n_)
+		return VARCHAR(_n_)
+	func _VARCHAR_(_n_)
+		return VARCHAR(_n_)
+	func @VARCHAR(_n_)
+		return VARCHAR(_n_)
+	func VARCHAR@(_n_)
+		return VARCHAR(_n_)
+	func @VARCHAR@(_n_)
+		return VARCHAR(_n_)
 	#>
 
 func CREATE_TABLE(pcName)
-	oTable = new stzTable([])
-	oTable.SetName(pcName)
-	oTable.@aContent = []
-	Vr(pcName) '=' Vl(oTable)
+	_oTable_ = new stzTable([])
+	_oTable_.SetName(pcName)
+	_oTable_.@aContent = []
+	Vr(pcName) '=' Vl(_oTable_)
 	return v(pcName)
 	
 	#< @FunctionAlternativeForms
@@ -86,21 +86,21 @@ func VALUES(paValues)
 		ok
 	ok
 	_aINSERT_INTO_VALUES + paValues
-	cTableName = _aINSERT_INTO_VALUES[1]
-	oStzTable  = v(_aINSERT_INTO_VALUES[1])
-	nLen = len(paValues)
-	if nLen > 0
-		if oStzTable.NumberOfRows() = 1 AND oStzTable.IsEmpty()
-			oStzTable.ReplaceRow(1, paValues[1])
-			if nLen > 1
+	_cTableName_ = _aINSERT_INTO_VALUES[1]
+	_oStzTable_  = v(_aINSERT_INTO_VALUES[1])
+	_nLen_ = len(paValues)
+	if _nLen_ > 0
+		if _oStzTable_.NumberOfRows() = 1 AND _oStzTable_.IsEmpty()
+			_oStzTable_.ReplaceRow(1, paValues[1])
+			if _nLen_ > 1
 				ring_remove(paValues, 1)
-				oStzTable.AddRows(paValues)
+				_oStzTable_.AddRows(paValues)
 			ok
 		else
-			oStzTable.AddRows(paValues)
+			_oStzTable_.AddRows(paValues)
 		ok
 	ok
-	_aVars[cTableName] = oStzTable
+	_aVars[_cTableName_] = _oStzTable_
 	
 	#< @FunctionAlternativeForms
 	func _VALUES(paValues)
@@ -187,27 +187,27 @@ func WHERE_(pcCondition)
 		ok
 	ok
 	_aSELECT_FROM_WHERE + pcCondition
-	acColNames  = _aSELECT_FROM_WHERE[1]
-	cTableName = _aSELECT_FROM_WHERE[2]
-	cCondition  = _aSELECT_FROM_WHERE[3]
-	aRows = _oIntermediateTable.Rows()
-	nLen = len(aRows)
-	acColNames = _oIntermediateTable.ColNames()
-	nLenCols = len(acColNames)
-	for i = 1 to nLenCols
-		cColName = acColNames[i]
-		cCondition = Q(cCondition).ReplaceQ( cColName,  'v(cTableName).cell(:' + cColName + ', i)' ).Content()
-		cCode = 'bOk = ' + cCondition
+	_acColNames_  = _aSELECT_FROM_WHERE[1]
+	_cTableName_ = _aSELECT_FROM_WHERE[2]
+	_cCondition_  = _aSELECT_FROM_WHERE[3]
+	_aRows_ = _oIntermediateTable.Rows()
+	_nLen_ = len(_aRows_)
+	_acColNames_ = _oIntermediateTable.ColNames()
+	_nLenCols_ = len(_acColNames_)
+	for i = 1 to _nLenCols_
+		_cColName_ = _acColNames_[i]
+		_cCondition_ = Q(_cCondition_).ReplaceQ( _cColName_,  'v(cTableName).cell(:' + _cColName_ + ', i)' ).Content()
+		_cCode_ = '_bOk_ = ' + _cCondition_
 	next
-	anPos = []
-	for i = 1 to nLen
-		eval(cCode)
-		if NOT bOk
-			anPos + i
+	_anPos_ = []
+	for i = 1 to _nLen_
+		eval(_cCode_)
+		if NOT _bOk_
+			_anPos_ + i
 		ok
 	next
-	_oIntermediateTable.RemoveRows(anPos)
-	_aVars[cTableName] = _oInitialTable
+	_oIntermediateTable.RemoveRows(_anPos_)
+	_aVars[_cTableName_] = _oInitialTable
 	return _oIntermediateTable
 	
 	#< @FunctionAlternativeForms
@@ -266,14 +266,14 @@ func ORDER_BY(pcColName, pcSortOrder)
 	#>
 
 class WITH
-	cSQL
+	_cSQL_
 	def init(pcSQL)
 		if CheckingParams()
 			if NOT isString(pcSQL)
 				StzRaise("Incorrect param type! pcSQL must be a string.")
 			ok
 		ok
-		cSQL = pcSQL
+		_cSQL_ = pcSQL
 	def As(paParams)
 		if CheckingParams()
 			if NOT ( isList(paParams) and
@@ -281,15 +281,15 @@ class WITH
 				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
 			ok
 		ok
-		n = StzHashListQ(_aVars).FindKey(cSQL)
-		if n = 0
-			_aVars + [ cSQL, _oIntermediateTable.rows() ]
-			_aVars + [ cSQL + 'Data', _oIntermediateTable.rows() ]
-			_aVars + [ cSQL + 'Table', _oIntermediateTable ]
-			_aVars + [ cSQL + 'Object', _oIntermediateTable ]
+		_n_ = StzHashListQ(_aVars).FindKey(_cSQL_)
+		if _n_ = 0
+			_aVars + [ _cSQL_, _oIntermediateTable.rows() ]
+			_aVars + [ _cSQL_ + 'Data', _oIntermediateTable.rows() ]
+			_aVars + [ _cSQL_ + 'Table', _oIntermediateTable ]
+			_aVars + [ _cSQL_ + 'Object', _oIntermediateTable ]
 		else
-			_aVars[n] = [ cSQL, _oIntermediateTable.rows() ]
-			_aVars[n] = [ cSQL + 'Data', _oIntermediateTable.rows() ]
-			_aVars[n] = [ cSQL + 'Table', _oIntermediateTable ]
-			_aVars[n] = [ cSQL + 'Object', _oIntermediateTable ]
+			_aVars[_n_] = [ _cSQL_, _oIntermediateTable.rows() ]
+			_aVars[_n_] = [ _cSQL_ + 'Data', _oIntermediateTable.rows() ]
+			_aVars[_n_] = [ _cSQL_ + 'Table', _oIntermediateTable ]
+			_aVars[_n_] = [ _cSQL_ + 'Object', _oIntermediateTable ]
 		ok

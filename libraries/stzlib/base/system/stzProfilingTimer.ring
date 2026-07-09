@@ -64,19 +64,19 @@ func StzElapsedTimeXT(pIn)
 		return clock() - _time0 + " clocks"
 
 	on :Seconds
-		nTime = ( clock() - _time0 ) / clockspersecond()
-		cTime = "" + nTime
-		return cTime + " second(s)"
+		_nTime_ = ( clock() - _time0 ) / clockspersecond()
+		_cTime_ = "" + _nTime_
+		return _cTime_ + " second(s)"
 
 	on :Minutes
-		nTime = ( clock() - _time0 ) / clockspersecond() / 60
-		cTime = "" + nTime
-		return cTime + " minute(s)"
+		_nTime_ = ( clock() - _time0 ) / clockspersecond() / 60
+		_cTime_ = "" + _nTime_
+		return _cTime_ + " minute(s)"
 
 	on :Hours
-		nTime = ( clock() - _time0 ) / clockspersecond() / 3600
-		cTime = "" + nTime
-		return cTime + " hour(s)"
+		_nTime_ = ( clock() - _time0 ) / clockspersecond() / 3600
+		_cTime_ = "" + _nTime_
+		return _cTime_ + " hour(s)"
 
 	off
 	

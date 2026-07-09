@@ -63,47 +63,47 @@ class stzImgToAscii from stzObject
 
         if @cImage = "" { stzraise("No image set") }
 
-        aArgs     = This.BuildArgs()
-        cArgsStr  = ""
-        _aArgscArgsStrx1_ = aArgs { cArgsStr += x + " " }
+        _aArgs_     = This.BuildArgs()
+        _cArgsStr_  = ""
+        _aArgscArgsStrx1_ = _aArgs_ { _cArgsStr_ += _x_ + " " }
         _nArgscArgsStrx1Len_ = len(_aArgscArgsStrx1_)
         for _iLoopArgscArgsStrx1_ = 1 to _nArgscArgsStrx1Len_
-        	x = _aArgscArgsStrx1_[_iLoopArgscArgsStrx1_]
-        cArgsStr  = rtrim(cArgsStr," ")
+        	_x_ = _aArgscArgsStrx1_[_iLoopArgscArgsStrx1_]
+        _cArgsStr_  = rtrim(_cArgsStr_," ")
 
-        cCmd = @@(@cExe) + " " + cArgsStr
+        _cCmd_ = @@(@cExe) + " " + _cArgsStr_
 
         # ───── Determine output destination ─────
-        cDestFile = @cOutFile
+        _cDestFile_ = @cOutFile
 
-        if cDestFile = "" and @cFormat in ["svg","html"]
-            cExt = (@cFormat="html" ? "html" : "svg")
-            cDestFile = @cOutDir + "/img2ansi_" + clock() + "." + cExt
+        if _cDestFile_ = "" and @cFormat in ["svg","html"]
+            _cExt_ = (@cFormat="html" ? "html" : "svg")
+            _cDestFile_ = @cOutDir + "/img2ansi_" + clock() + "." + _cExt_
         ok
 
-        if @bVerbose { ? "CMD: " + cCmd ; if cDestFile!="" ? " → " + cDestFile ok }
+        if @bVerbose { ? "CMD: " + _cCmd_ ; if _cDestFile_!="" ? " → " + _cDestFile_ ok }
 
-        if cDestFile != ""
+        if _cDestFile_ != ""
             # output to real file
-            cCmd += " -o " + @@(cDestFile)
-            nExit = system(cCmd)
-            if nExit != 0 or NOT fexists(cDestFile)
-                stzraise("im2ansi failed (exit " + nExit + ")")
+            _cCmd_ += " -o " + @@(_cDestFile_)
+            _nExit_ = system(_cCmd_)
+            if _nExit_ != 0 or NOT fexists(_cDestFile_)
+                stzraise("im2ansi failed (exit " + _nExit_ + ")")
             ok
-            @cFile    = cDestFile
+            @cFile    = _cDestFile_
             @cContent = ""
         else
             # capture stdout (ansi / ascii)
-            cTemp = @cTempDir + "/_tmp_" + clock() + ".txt"
-            cCmd += " > " + @@(cTemp) + " 2>&1"
-            nExit = system(cCmd)
-            if nExit != 0
-                cErr = read(cTemp)
-                remove(cTemp)
-                stzraise("im2ansi error: " + cErr)
+            _cTemp_ = @cTempDir + "/_tmp_" + clock() + ".txt"
+            _cCmd_ += " > " + @@(_cTemp_) + " 2>&1"
+            _nExit_ = system(_cCmd_)
+            if _nExit_ != 0
+                _cErr_ = read(_cTemp_)
+                remove(_cTemp_)
+                stzraise("im2ansi error: " + _cErr_)
             ok
-            @cContent = read(cTemp)
-            remove(cTemp)
+            @cContent = read(_cTemp_)
+            remove(_cTemp_)
             @cFile = ""
         ok
 
@@ -145,16 +145,16 @@ class stzImgToAscii from stzObject
     private
 
     def BuildArgs()
-        a = [ "-p", @@(@cImage) ]
+        _a_ = [ "-p", @@(@cImage) ]
 
-        if @cFormat != "ansi"   { a + "-f" + @cFormat }
-        a + "-s" + @nHeight
-        if isNumber(@nWidth)    { a + "-w" + @nWidth }
-        if @bInvert             { a + "-i" }
-        if @bNoColor            { a + "--no-color" }
-        if isNumber(@nSeed)     { a + "--seed" + @nSeed }
-        if @cChars != NULL      { a + "-c" + @@(@cChars) }
-        if @cFormat = "ascii"   { a + "-r" + @nRamp }
+        if @cFormat != "ansi"   { _a_ + "-f" + @cFormat }
+        _a_ + "-s" + @nHeight
+        if isNumber(@nWidth)    { _a_ + "-w" + @nWidth }
+        if @bInvert             { _a_ + "-i" }
+        if @bNoColor            { _a_ + "--no-color" }
+        if isNumber(@nSeed)     { _a_ + "--seed" + @nSeed }
+        if @cChars != NULL      { _a_ + "-c" + @@(@cChars) }
+        if @cFormat = "ascii"   { _a_ + "-r" + @nRamp }
 
-        return a
+        return _a_
     end

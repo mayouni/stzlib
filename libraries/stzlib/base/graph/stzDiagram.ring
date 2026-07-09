@@ -130,8 +130,8 @@ $aPolygonShapes = [
 
 func IsStzDiagram(pObj)
 	if isObject(pObj)
-		cClass = StzLower(classname(pObj))
-		if cClass = "stzdiagram"
+		_cClass_ = StzLower(classname(pObj))
+		if _cClass_ = "stzdiagram"
 			return TRUE
 		ok
 	ok
@@ -140,14 +140,14 @@ func IsStzDiagram(pObj)
 # STYLE RESOLUTION
 
 func StzResolveEdgeStyle(pStyle)
-	cStyleKey = StzLower("" + pStyle)
+	_cStyleKey_ = StzLower("" + pStyle)
 
-	if HasKey($acEdgeStyles, cStyleKey)
-		return $acEdgeStyles[cStyleKey]
+	if HasKey($acEdgeStyles, _cStyleKey_)
+		return $acEdgeStyles[_cStyleKey_]
 	ok
 
-	if StzFindFirst(["solid", "dashed", "dotted", "bold"], cStyleKey)
-		return cStyleKey
+	if StzFindFirst(["solid", "dashed", "dotted", "bold"], _cStyleKey_)
+		return _cStyleKey_
 	ok
 
 	return $cDefaultEdgeStyle
@@ -156,17 +156,17 @@ func StzResolveEdgeStyle(pStyle)
 		return StzResolveEdgeStyle(pStyle)
 
 func StzResolveNodeType(pcType)
-	cTypeKey = StzLower("" + pcType)
+	_cTypeKey_ = StzLower("" + pcType)
 
-	if StzFindFirst($acDotShapes, cTypeKey) > 0
-		return cTypeKey
+	if StzFindFirst($acDotShapes, _cTypeKey_) > 0
+		return _cTypeKey_
 	ok
 
-	if StzFindFirst($acNodeTypes, cTypeKey)
-		return cTypeKey
+	if StzFindFirst($acNodeTypes, _cTypeKey_)
+		return _cTypeKey_
 	ok
 
-	aVisualMap = [
+	_aVisualMap_ = [
 		:box = "process",
 		:diamond = "decision",
 		:ellipse = "start",
@@ -175,11 +175,11 @@ func StzResolveNodeType(pcType)
 		:doublecircle = "endpoint"
 	]
 
-	if HasKey(aVisualMap, cTypeKey)
-		return aVisualMap[cTypeKey]
+	if HasKey(_aVisualMap_, _cTypeKey_)
+		return _aVisualMap_[_cTypeKey_]
 	ok
 
-	aShapeMap = [
+	_aShapeMap_ = [
 		:square = "box",
 		:rect = "box",
 		:egg = "ellipse",
@@ -190,8 +190,8 @@ func StzResolveNodeType(pcType)
 		:ellpise = "ellipse"
 	]
 
-	if HasKey(aShapeMap, cTypeKey)
-		return aShapeMap[cTypeKey]
+	if HasKey(_aShapeMap_, _cTypeKey_)
+		return _aShapeMap_[_cTypeKey_]
 	ok
 
 	return $cDefaultNodeType
@@ -324,15 +324,15 @@ class stzDiagram from stzGraph
 		return super.Id()
 
 	def SetTheme(pTheme)
-	    cThemeKey = StzLower(pTheme)
+	    _cThemeKey_ = StzLower(pTheme)
 	    
-	    if HasKey($aPalette, cThemeKey)
-	        @cTheme = cThemeKey
+	    if HasKey($aPalette, _cThemeKey_)
+	        @cTheme = _cThemeKey_
 	        
 	        # Only apply theme fonts if not customized by user
-	        if NOT @bFontCustomized and HasKey($aThemeFonts, cThemeKey)
-	            @cFont = $aThemeFonts[cThemeKey][:font]
-	            @nFontSize = $aThemeFonts[cThemeKey][:size]
+	        if NOT @bFontCustomized and HasKey($aThemeFonts, _cThemeKey_)
+	            @cFont = $aThemeFonts[_cThemeKey_][:font]
+	            @nFontSize = $aThemeFonts[_cThemeKey_][:size]
 	        ok
 	    ok
 	
@@ -386,10 +386,10 @@ class stzDiagram from stzGraph
 		@cEdgePenStyle = This._NormalizeStyle(pcStyle)
 	
 	def _NormalizeStyle(pcStyle)
-		cStyle = StzLower(pcStyle)
+		_cStyle_ = StzLower(pcStyle)
 		# Replace + with ,
-		cStyle = StzReplace(cStyle, "+", ",")
-		return cStyle
+		_cStyle_ = StzReplace(_cStyle_, "+", ",")
+		return _cStyle_
 	
 	def SetArrowHead(pcStyle)
 		@cArrowHead = StzLower(pcStyle)
@@ -399,9 +399,9 @@ class stzDiagram from stzGraph
 
 	def SetSplines(pcType)
 
-	    cType = StzLower(pcType)
-	    if StzFindFirst($acSplineTypes, cType) > 0
-	        @cSplineType = cType
+	    _cType_ = StzLower(pcType)
+	    if StzFindFirst($acSplineTypes, _cType_) > 0
+	        @cSplineType = _cType_
 	    else
 		@cSplineType = $cDefaultSplineType
 	    ok
@@ -571,29 +571,29 @@ class stzDiagram from stzGraph
 	#--------------------#
 
 	def ResolveFontColor(pBgColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ResolveFontColor(pBgColor)
-		return cResult
+		_oResolver_ = new stzColorResolver()
+		_cResult_ = _oResolver_.ResolveFontColor(pBgColor)
+		return _cResult_
 	
-	def ContrastingTextColor(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ContrastingTextColor(cColor)
-		return cResult
+	def ContrastingTextColor(_cColor_)
+		_oResolver_ = new stzColorResolver()
+		_cResult_ = _oResolver_.ContrastingTextColor(_cColor_)
+		return _cResult_
 	
-	def ColorToRGB(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ColorToRGB(cColor)
-		return cResult
+	def ColorToRGB(_cColor_)
+		_oResolver_ = new stzColorResolver()
+		_cResult_ = _oResolver_.ColorToRGB(_cColor_)
+		return _cResult_
 
-	def NodeStrokeColorForTheme(cTheme)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.NodeStrokeColorForTheme(cTheme)
-		return cResult
+	def NodeStrokeColorForTheme(_cTheme_)
+		_oResolver_ = new stzColorResolver()
+		_cResult_ = _oResolver_.NodeStrokeColorForTheme(_cTheme_)
+		return _cResult_
 
-	def ConvertColorTogray(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ConvertColorTogray(cColor)
-		return cResult
+	def ConvertColorTogray(_cColor_)
+		_oResolver_ = new stzColorResolver()
+		_cResult_ = _oResolver_.ConvertColorTogray(_cColor_)
+		return _cResult_
 
 	#--------------------------------------------------------------------------------#
 	# ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE)  #
@@ -951,13 +951,13 @@ class stzDiagram from stzGraph
 		This.AddClusterXTT(pClusterId, pLabel, aNodeIds, @cClusterColor)
 
 	def AddClusterXTT(pClusterId, pLabel, aNodeIds, pColor)
-		aCluster = [
+		_aCluster_ = [
 			:id = pClusterId,
 			:label = pLabel,
 			:nodes = aNodeIds,
 			:color = ResolveColor(pColor)
 		]
-		@aClusters + aCluster
+		@aClusters + _aCluster_
 
 	def Clusters()
 		return @aClusters
@@ -970,15 +970,15 @@ class stzDiagram from stzGraph
 		@aoAnnotations + oAnnotation
 
 	def AnnotationsByType(pcType)
-		aoFiltered = []
-		nLen = len(@aoAnnotations)
+		_aoFiltered_ = []
+		_nLen_ = len(@aoAnnotations)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if @aoAnnotations[i].Type() = pcType
-				aoFiltered + @aoAnnotations[i]
+				_aoFiltered_ + @aoAnnotations[i]
 			ok
 		end
-		return aoFiltered
+		return _aoFiltered_
 
 	def Annotations()
 		return @aoAnnotations
@@ -991,8 +991,8 @@ class stzDiagram from stzGraph
 		@aoTemplates + oTemplate
 
 	def ApplyTemplates()
-		nLen = len(@aoTemplates)
-		for i = 1 to nLen
+		_nLen_ = len(@aoTemplates)
+		for i = 1 to _nLen_
 			@aoTemplates[i].Apply(This)
 		end
 
@@ -1005,61 +1005,61 @@ class stzDiagram from stzGraph
 
 	def RegisterVisualRule(pcRuleName, paDefinition)
 		# Store visual rule as data structure
-		aRule = [
+		_aRule_ = [
 			:name = pcRuleName,
 			:conditionType = paDefinition[:conditionType],
 			:conditionParams = paDefinition[:conditionParams],
 			:effects = paDefinition[:effects]
 		]
-		@aoVisualRules + aRule
+		@aoVisualRules + _aRule_
 	
 	def ApplyVisualRules()
 		@aNodeRulesEffects = []
 		@aEdgesRulesEffects = []
 		
 		# Apply to nodes
-		aNodes = This.Nodes()
-		_nNodes4Len_ = len(aNodes)
+		_aNodes_ = This.Nodes()
+		_nNodes4Len_ = len(_aNodes_)
 		for _iLoopNodes4_ = 1 to _nNodes4Len_
-			aNode = aNodes[_iLoopNodes4_]
-			aEnhancements = This._ApplyRulesToElement(aNode, "node")
-			if len(aEnhancements) > 0
-				@aNodeRulesEffects[aNode[:id]] = aEnhancements
+			_aNode_ = _aNodes_[_iLoopNodes4_]
+			_aEnhancements_ = This._ApplyRulesToElement(_aNode_, "node")
+			if len(_aEnhancements_) > 0
+				@aNodeRulesEffects[_aNode_[:id]] = _aEnhancements_
 			ok
 		end
 		
 		# Apply to edges
-		aEdges = This.Edges()
-		_nEdges3Len_ = len(aEdges)
+		_aEdges_ = This.Edges()
+		_nEdges3Len_ = len(_aEdges_)
 		for _iLoopEdges3_ = 1 to _nEdges3Len_
-			aEdge = aEdges[_iLoopEdges3_]
-			aEnhancements = This._ApplyRulesToElement(aEdge, "edge")
-			cKey = aEdge[:from] + "->" + aEdge[:to]
-			if len(aEnhancements) > 0
-				@aEdgesRulesEffects[cKey] = aEnhancements
+			_aEdge_ = _aEdges_[_iLoopEdges3_]
+			_aEnhancements_ = This._ApplyRulesToElement(_aEdge_, "edge")
+			_cKey_ = _aEdge_[:from] + "->" + _aEdge_[:to]
+			if len(_aEnhancements_) > 0
+				@aEdgesRulesEffects[_cKey_] = _aEnhancements_
 			ok
 		end
 	
-	def _ApplyRulesToElement(aElement, cType)
-	    aEnhancements = []
+	def _ApplyRulesToElement(aElement, _cType_)
+	    _aEnhancements_ = []
 	    
 	    _nAoVisualRules3Len_ = len(@aoVisualRules)
 	    for _iLoopAoVisualRules3_ = 1 to _nAoVisualRules3Len_
-	    	aRule = @aoVisualRules[_iLoopAoVisualRules3_]
-	        aContext = This._BuildRuleContext(aElement)
+	    	_aRule_ = @aoVisualRules[_iLoopAoVisualRules3_]
+	        _aContext_ = This._BuildRuleContext(aElement)
 	        
-	        if This._RuleMatches(aRule, aContext)
+	        if This._RuleMatches(_aRule_, _aContext_)
 	            # DEBUG
 	            # ? "Rule '" + aRule[:name] + "' matched node: " + aElement[:id]
 	            # ? "  Effects: " + @@(aRule[:effects])
 	            
-	            aEffects = aRule[:effects]
+	            _aEffects_ = _aRule_[:effects]
 	            
 	            # Merge effects
-	            _nEffects2Len_ = len(aEffects)
+	            _nEffects2Len_ = len(_aEffects_)
 	            for _iLoopEffects2_ = 1 to _nEffects2Len_
-	            	aEffect = aEffects[_iLoopEffects2_]
-	                aEnhancements[aEffect[1]] = aEffect[2]
+	            	_aEffect_ = _aEffects_[_iLoopEffects2_]
+	                _aEnhancements_[_aEffect_[1]] = _aEffect_[2]
 	            end
 	        ok
 	    end
@@ -1069,112 +1069,112 @@ class stzDiagram from stzGraph
 	    #     ? "Final enhancements for " + aElement[:id] + ": " + @@(aEnhancements)
 	    # ok
 	    
-	    return aEnhancements
+	    return _aEnhancements_
 
 	
-	def _RuleMatches(aRule, aContext)
-		cType = aRule[:conditionType]
-		aParams = aRule[:conditionParams]
+	def _RuleMatches(_aRule_, _aContext_)
+		_cType_ = _aRule_[:conditionType]
+		_aParams_ = _aRule_[:conditionParams]
 		
-		switch cType
+		switch _cType_
 		on "property_range"
-			return This._MatchRange(aContext, aParams)
+			return This._MatchRange(_aContext_, _aParams_)
 		on "property_equals"
-			return This._MatchEquals(aContext, aParams)
+			return This._MatchEquals(_aContext_, _aParams_)
 		on "property_exists"
-			return This._MatchExists(aContext, aParams)
+			return This._MatchExists(_aContext_, _aParams_)
 		on "tag_exists"
-			return This._MatchTag(aContext, aParams)
+			return This._MatchTag(_aContext_, _aParams_)
 		off
 		
 		return FALSE
 	
-	def _MatchRange(aContext, aParams)
-		if NOT HasKey(aContext, :properties)
+	def _MatchRange(_aContext_, _aParams_)
+		if NOT HasKey(_aContext_, :properties)
 			return FALSE
 		ok
 		
-		cKey = aParams[1]
-		nMin = aParams[2]
-		nMax = aParams[3]
+		_cKey_ = _aParams_[1]
+		_nMin_ = _aParams_[2]
+		_nMax_ = _aParams_[3]
 		
-		if NOT HasKey(aContext[:properties], cKey)
+		if NOT HasKey(_aContext_[:properties], _cKey_)
 			return FALSE
 		ok
 		
-		pValue = aContext[:properties][cKey]
+		pValue = _aContext_[:properties][_cKey_]
 		if NOT isNumber(pValue)
 			return FALSE
 		ok
 		
-		return (pValue >= nMin and pValue <= nMax)
+		return (pValue >= _nMin_ and pValue <= _nMax_)
 	
-	def _MatchEquals(aContext, aParams)
-		if NOT HasKey(aContext, :properties)
+	def _MatchEquals(_aContext_, _aParams_)
+		if NOT HasKey(_aContext_, :properties)
 			return FALSE
 		ok
 		
-		cKey = aParams[1]
-		pExpected = aParams[2]
+		_cKey_ = _aParams_[1]
+		pExpected = _aParams_[2]
 		
-		if NOT HasKey(aContext[:properties], cKey)
+		if NOT HasKey(_aContext_[:properties], _cKey_)
 			return FALSE
 		ok
 		
-		return (aContext[:properties][cKey] = pExpected)
+		return (_aContext_[:properties][_cKey_] = pExpected)
 	
-	def _MatchExists(aContext, aParams)
-		if NOT HasKey(aContext, :properties)
+	def _MatchExists(_aContext_, _aParams_)
+		if NOT HasKey(_aContext_, :properties)
 			return FALSE
 		ok
 		
-		cKey = aParams[1]
-		return HasKey(aContext[:properties], cKey)
+		_cKey_ = _aParams_[1]
+		return HasKey(_aContext_[:properties], _cKey_)
 	
-	def _MatchTag(aContext, aParams)
-		if NOT HasKey(aContext, :tags)
+	def _MatchTag(_aContext_, _aParams_)
+		if NOT HasKey(_aContext_, :tags)
 			return FALSE
 		ok
 		
-		cTag = aParams[1]
-		return StzFindFirst(aContext[:tags], cTag) > 0
+		_cTag_ = _aParams_[1]
+		return StzFindFirst(_aContext_[:tags], _cTag_) > 0
 	
 	def _BuildRuleContext(aElement)
-		aContext = aElement
+		_aContext_ = aElement
 		
 		if HasKey(aElement, :properties) and aElement[:properties] != NULL
-			aContext[:properties] = aElement[:properties]
-			aContext[:tags] = []
+			_aContext_[:properties] = aElement[:properties]
+			_aContext_[:tags] = []
 			if HasKey(aElement[:properties], :tags)
-				aContext[:tags] = aElement[:properties][:tags]
+				_aContext_[:tags] = aElement[:properties][:tags]
 			ok
 		ok
 		
-		return aContext
+		return _aContext_
 	
 
 	def NodesAffectedByVisualRules()
-	    acResult = []
-	    acKeys = keys(@aNodeRulesEffects)
-	    _nAcKeys2Len_ = len(acKeys)
+	    _acResult_ = []
+	    _acKeys_ = keys(@aNodeRulesEffects)
+	    _nAcKeys2Len_ = len(_acKeys_)
 	    for _iLoopAcKeys2_ = 1 to _nAcKeys2Len_
-	    	cKey = acKeys[_iLoopAcKeys2_]
-	        acResult + cKey
+	    	_cKey_ = _acKeys_[_iLoopAcKeys2_]
+	        _acResult_ + _cKey_
 	    next
-	    return acResult
+	    return _acResult_
 	
 	def VisualRulesApplied()
-	    aResult = []
+	    _aResult_ = []
 	    _nAoVisualRules2Len_ = len(@aoVisualRules)
 	    for _iLoopAoVisualRules2_ = 1 to _nAoVisualRules2Len_
-	    	aRule = @aoVisualRules[_iLoopAoVisualRules2_]
-	        aResult + [
-	            :name = aRule[:name],
-	            :conditionType = aRule[:conditionType],
-	            :effectsCount = len(aRule[:effects])
+	    	_aRule_ = @aoVisualRules[_iLoopAoVisualRules2_]
+	        _aResult_ + [
+	            :name = _aRule_[:name],
+	            :conditionType = _aRule_[:conditionType],
+	            :effectsCount = len(_aRule_[:effects])
 	        ]
 	    next
-	    return aResult
+	    return _aResult_
 
 	#-----------------#
 	#  QUERY METHODS  #
@@ -1182,145 +1182,145 @@ class stzDiagram from stzGraph
 	
 	# properties-based queries
 	def NodesWithProperty(pcProp)
-		acResult = []
-		aNodes = This.Nodes()
+		_acResult_ = []
+		_aNodes_ = This.Nodes()
 		
-		_nNodes3Len_ = len(aNodes)
+		_nNodes3Len_ = len(_aNodes_)
 		for _iLoopNodes3_ = 1 to _nNodes3Len_
-			aNode = aNodes[_iLoopNodes3_]
-			if HasKey(aNode, :properties) and 
-			   HasKey(aNode[:properties], pcProp)
-				acResult + aNode[:id]
+			_aNode_ = _aNodes_[_iLoopNodes3_]
+			if HasKey(_aNode_, :properties) and 
+			   HasKey(_aNode_[:properties], pcProp)
+				_acResult_ + _aNode_[:id]
 			ok
 		end
 		
-		return acResult
+		return _acResult_
 	
 	def NodesWith(pcProp, pcOp, pValue)
 		# Reuse graph query system
-		oQuery = new stzGraphQuery(This, "nodes")
-		oQuery.Where(pcProp, pcOp, pValue)
-		return oQuery.Run()
+		_oQuery_ = new stzGraphQuery(This, "nodes")
+		_oQuery_.Where(pcProp, pcOp, pValue)
+		return _oQuery_.Run()
 	
 	def NodesWithTag(pcTag)
-		acResult = []
-		aNodes = This.Nodes()
+		_acResult_ = []
+		_aNodes_ = This.Nodes()
 		
-		_nNodes2Len_ = len(aNodes)
+		_nNodes2Len_ = len(_aNodes_)
 		for _iLoopNodes2_ = 1 to _nNodes2Len_
-			aNode = aNodes[_iLoopNodes2_]
-			if HasKey(aNode, :properties) and 
-			   HasKey(aNode[:properties], :tags) and
-			   StzFindFirst(aNode[:properties][:tags], pcTag) > 0
-				acResult + aNode[:id]
+			_aNode_ = _aNodes_[_iLoopNodes2_]
+			if HasKey(_aNode_, :properties) and 
+			   HasKey(_aNode_[:properties], :tags) and
+			   StzFindFirst(_aNode_[:properties][:tags], pcTag) > 0
+				_acResult_ + _aNode_[:id]
 			ok
 		end
 		
-		return acResult
+		return _acResult_
 	
 	def EdgesWithProperty(pcProp)
-		acResult = []
-		aEdges = This.Edges()
+		_acResult_ = []
+		_aEdges_ = This.Edges()
 		
-		_nEdges2Len_ = len(aEdges)
+		_nEdges2Len_ = len(_aEdges_)
 		for _iLoopEdges2_ = 1 to _nEdges2Len_
-			aEdge = aEdges[_iLoopEdges2_]
-			if HasKey(aEdge, :properties) and 
-			   HasKey(aEdge[:properties], pcProp)
-				acResult + (aEdge[:from] + "->" + aEdge[:to])
+			_aEdge_ = _aEdges_[_iLoopEdges2_]
+			if HasKey(_aEdge_, :properties) and 
+			   HasKey(_aEdge_[:properties], pcProp)
+				_acResult_ + (_aEdge_[:from] + "->" + _aEdge_[:to])
 			ok
 		end
 		
-		return acResult
+		return _acResult_
 	
 	def EdgesWithPropertyValue(pcProp, pValue)
-		acResult = []
-		aEdges = This.Edges()
+		_acResult_ = []
+		_aEdges_ = This.Edges()
 		
-		_nEdges1Len_ = len(aEdges)
+		_nEdges1Len_ = len(_aEdges_)
 		for _iLoopEdges1_ = 1 to _nEdges1Len_
-			aEdge = aEdges[_iLoopEdges1_]
-			if HasKey(aEdge, :properties) and 
-			   HasKey(aEdge[:properties], pcProp) and
-			   aEdge[:properties][pcProp] = pValue
-				acResult + (aEdge[:from] + "->" + aEdge[:to])
+			_aEdge_ = _aEdges_[_iLoopEdges1_]
+			if HasKey(_aEdge_, :properties) and 
+			   HasKey(_aEdge_[:properties], pcProp) and
+			   _aEdge_[:properties][pcProp] = pValue
+				_acResult_ + (_aEdge_[:from] + "->" + _aEdge_[:to])
 			ok
 		end
 		
-		return acResult
+		return _acResult_
 	
 	#---------------------#
 	#  properties LEGEND  # #TODO Should be abstarcted in stzGraph!!
 	#---------------------#
 	
 	def propertiesLegend()
-		acLegend = ["=== properties LEGEND ===", ""]
+		_acLegend_ = ["=== properties LEGEND ===", ""]
 		
 		_nAoVisualRules1Len_ = len(@aoVisualRules)
 		for _iLoopAoVisualRules1_ = 1 to _nAoVisualRules1Len_
-			oRule = @aoVisualRules[_iLoopAoVisualRules1_]
-			cCondition = oRule.@cConditionType
-			aParams = oRule.@aConditionParams
-			aEffects = oRule.Effects()
+			_oRule_ = @aoVisualRules[_iLoopAoVisualRules1_]
+			_cCondition_ = _oRule_.@cConditionType
+			_aParams_ = _oRule_.@aConditionParams
+			_aEffects_ = _oRule_.Effects()
 			
-			acLegend + "When: " + cCondition
-			if len(aParams) > 0
-				acLegend + "  Params: " + @@(aParams)
+			_acLegend_ + "When: " + _cCondition_
+			if len(_aParams_) > 0
+				_acLegend_ + "  Params: " + @@(_aParams_)
 			ok
 			
-			_nEffects1Len_ = len(aEffects)
+			_nEffects1Len_ = len(_aEffects_)
 			for _iLoopEffects1_ = 1 to _nEffects1Len_
-				aEffect = aEffects[_iLoopEffects1_]
-				acLegend + "  ÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢ " + aEffect[1] + ": " + aEffect[2]
+				_aEffect_ = _aEffects_[_iLoopEffects1_]
+				_acLegend_ + "  ÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢ " + _aEffect_[1] + ": " + _aEffect_[2]
 			next
 			
-			acLegend + ""
+			_acLegend_ + ""
 		end
 		
-		return acLegend
+		return _acLegend_
 
 	#-----------#
 	#  METRICS  # #TODO Should be abstracted in stzGraph!
 	#-----------#
 
 	def ComputeMetrics()
-		aMetrics = []
-		anAllPaths = []
-		aNodes = This.Nodes()
-		nLenNodes = len(aNodes)
+		_aMetrics_ = []
+		_anAllPaths_ = []
+		_aNodes_ = This.Nodes()
+		_nLenNodes_ = len(_aNodes_)
 
-		for i = 1 to nLenNodes
-			aReachable = This.ReachableFrom(aNodes[i]["id"])
-			nLen = len(aReachable)
-			if nLen > 1
-				anAllPaths + (nLen - 1)
+		for i = 1 to _nLenNodes_
+			_aReachable_ = This.ReachableFrom(_aNodes_[i]["id"])
+			_nLen_ = len(_aReachable_)
+			if _nLen_ > 1
+				_anAllPaths_ + (_nLen_ - 1)
 			ok
 		end
 
-		nAvg = 0
-		nLen = len(anAllPaths)
+		_nAvg_ = 0
+		_nLen_ = len(_anAllPaths_)
 
-		nSum = 0
-		for i = 1 to nLen
-			nSum += anAllPaths[i]
+		_nSum_ = 0
+		for i = 1 to _nLen_
+			_nSum_ += _anAllPaths_[i]
 		end
-		nAvg = nSum / nLen
+		_nAvg_ = _nSum_ / _nLen_
 
-		nMax = 0
-		for i = 1 to nLen
-			if anAllPaths[i] > nMax
-				nMax = anAllPaths[i]
+		_nMax_ = 0
+		for i = 1 to _nLen_
+			if _anAllPaths_[i] > _nMax_
+				_nMax_ = _anAllPaths_[i]
 			ok
 		end
 
-		aMetrics[:avgPathLength] = nAvg
-		aMetrics[:maxPathLength] = nMax
-		aMetrics[:bottlenecks] = This.BottleneckNodes()
-		aMetrics[:density] = This.NodeDensity()
-		aMetrics[:nodeCount] = This.NodeCount()
-		aMetrics[:edgeCount] = This.EdgeCount()
+		_aMetrics_[:avgPathLength] = _nAvg_
+		_aMetrics_[:maxPathLength] = _nMax_
+		_aMetrics_[:bottlenecks] = This.BottleneckNodes()
+		_aMetrics_[:density] = This.NodeDensity()
+		_aMetrics_[:nodeCount] = This.NodeCount()
+		_aMetrics_[:edgeCount] = This.EdgeCount()
 
-		return aMetrics
+		return _aMetrics_
 
 	#-----------------#
 	#  VISUALIZATION  #
@@ -1329,13 +1329,13 @@ class stzDiagram from stzGraph
 	def View()
 
 		# Generate DOT code
-		cDotCode = This.Dot()
+		_cDotCode_ = This.Dot()
 
 		# Create stzDotCode instance and execute
-		oDotExec = new stzDotCode()
-		oDotExec.SetCode(cDotCode)
-		oDotExec.SetOutputFormat(@cOutputFormat)
-		oDotExec.ExecuteAndView()
+		_oDotExec_ = new stzDotCode()
+		_oDotExec_.SetCode(_cDotCode_)
+		_oDotExec_.SetOutputFormat(@cOutputFormat)
+		_oDotExec_.ExecuteAndView()
 		
 		def Display()
 			This.View()
@@ -1345,17 +1345,17 @@ class stzDiagram from stzGraph
 	#----------#
 
 	def ToHashlist()
-		aBase = super.ToHashlist()
-		aBase["theme"] = @cTheme
-		aBase["layout"] = @cLayout
-		aBase["clusters"] = @aClusters
-		aBase["annotations"] = @aoAnnotations
-		aBase["templates"] = @aoTemplates
-		return aBase
+		_aBase_ = super.ToHashlist()
+		_aBase_["theme"] = @cTheme
+		_aBase_["layout"] = @cLayout
+		_aBase_["clusters"] = @aClusters
+		_aBase_["annotations"] = @aoAnnotations
+		_aBase_["templates"] = @aoTemplates
+		return _aBase_
 
 	def stzdiag()
-		oConv = new stzDiagramToStzDiag(This)
-		return oConv.stzdiag()
+		_oConv_ = new stzDiagramToStzDiag(This)
+		return _oConv_.stzdiag()
 
 		def ToStzDiag()
 			return This.stzdiag()
@@ -1376,9 +1376,9 @@ class stzDiagram from stzGraph
 			return This.stzdiag()
 
 	def Dot()
-		oConv = new stzDiagramToDot(This)
-		cResult = oConv.Code()
-		return cResult
+		_oConv_ = new stzDiagramToDot(This)
+		_cResult_ = _oConv_.Code()
+		return _cResult_
 
 		def ToDot()
 			return This.Dot()
@@ -1396,15 +1396,15 @@ class stzDiagram from stzGraph
 			return This.Dot()
 
 	def Json()
-		oConv = new stzDiagramToJson(This)
-		return oConv.Code()
+		_oConv_ = new stzDiagramToJson(This)
+		return _oConv_.Code()
 
 		def ToJson()
 			return This.Json()
 
 	def Mermaid()
-		oConv = new stzDiagramToMermaid(This)
-		return oConv.Code()
+		_oConv_ = new stzDiagramToMermaid(This)
+		return _oConv_.Code()
 
 		def ToMermaid()
 			return This.Mermaid()
@@ -1414,9 +1414,9 @@ class stzDiagram from stzGraph
 	#-----------------#
 
 	def WriteToFile()
-		oConv = new stzDiagramToStzDiag(This)
-		bSuccess = oConv.WriteToFile(This.Name() + ".stzdiag")
-		return bSuccess
+		_oConv_ = new stzDiagramToStzDiag(This)
+		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".stzdiag")
+		return _bSuccess_
 
 		def SaveToFile()
 			return This.WritetoFile()
@@ -1480,9 +1480,9 @@ class stzDiagram from stzGraph
 		pcFolder = StzReplace(pcFolder, "/", "")
 		pcFolder = StzReplace(pcFolder, "\", "")
 
-		oConv = new stzDiagramToStzDiag(This)
-		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".stzdiag")
-		return bSuccess
+		_oConv_ = new stzDiagramToStzDiag(This)
+		_bSuccess_ = _oConv_.WriteToFile(pcFolder + "/" + This.Name() + ".stzdiag")
+		return _bSuccess_
 
 		#< @FunctionAlternativeForms
 
@@ -1595,9 +1595,9 @@ class stzDiagram from stzGraph
 	#---
 
 	def WriteToDotFile()
-		oConv = new stzDiagramToDot(This)
-		bSuccess = oConv.WriteToFile(This.Name() + ".dot")
-		return bSuccess
+		_oConv_ = new stzDiagramToDot(This)
+		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".dot")
+		return _bSuccess_
 
 		def WriteInDotFile()
 			return This.WriteToDotFile()
@@ -1620,9 +1620,9 @@ class stzDiagram from stzGraph
 		pcFolder = StzReplace(pcFolder, "/", "")
 		pcFolder = StzReplace(pcFolder, "\", "")
 
-		oConv = new stzDiagramToDot(This)
-		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".dot")
-		return bSuccess
+		_oConv_ = new stzDiagramToDot(This)
+		_bSuccess_ = _oConv_.WriteToFile(pcFolder + "/" + This.Name() + ".dot")
+		return _bSuccess_
 
 		#< @FunctionAlternativeForms
 
@@ -1666,9 +1666,9 @@ class stzDiagram from stzGraph
 	#---
 
 	def WriteToMermaidFile()
-		oConv = new stzDiagramToMermaid(This)
-		bSuccess = oConv.WriteToFile(This.Name() + ".mmd")
-		return bSuccess
+		_oConv_ = new stzDiagramToMermaid(This)
+		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".mmd")
+		return _bSuccess_
 
 		def WriteInMermaidFile()
 			return This.WriteToMermaidFile()
@@ -1691,9 +1691,9 @@ class stzDiagram from stzGraph
 		pcFolder = StzReplace(pcFolder, "/", "")
 		pcFolder = StzReplace(pcFolder, "\", "")
 
-		oConv = new stzDiagramToMermaid(This)
-		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".mmd")
-		return bSuccess
+		_oConv_ = new stzDiagramToMermaid(This)
+		_bSuccess_ = _oConv_.WriteToFile(pcFolder + "/" + This.Name() + ".mmd")
+		return _bSuccess_
 
 
 		#< @FunctionAlternativeForms
@@ -1738,9 +1738,9 @@ class stzDiagram from stzGraph
 	#--
 
 	def WriteToJsonFile(pcFileName)
-		oConv = new stzDiagramToJson(This)
-		bSuccess = oConv.WriteToFile(This.Name() + ".json")
-		return bSuccess
+		_oConv_ = new stzDiagramToJson(This)
+		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".json")
+		return _bSuccess_
 
 		def WriteInJsonFile()
 			return This.WriteToJsonFile()
@@ -1763,9 +1763,9 @@ class stzDiagram from stzGraph
 		pcFolder = StzReplace(pcFolder, "/", "")
 		pcFolder = StzReplace(pcFolder, "\", "")
 
-		oConv = new stzDiagramToJson(This)
-		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".json")
-		return bSuccess
+		_oConv_ = new stzDiagramToJson(This)
+		_bSuccess_ = _oConv_.WriteToFile(pcFolder + "/" + This.Name() + ".json")
+		return _bSuccess_
 
 
 		#< @FunctionAlternativeForms
@@ -1814,51 +1814,51 @@ class stzDiagram from stzGraph
 	#NOTE // There also is an Explain() at the parent stzGraph level
 
 	def Explain()
-		aExplanation = [
+		_aExplanation_ = [
 			:diagram = @cId,
 			:structure = "",
 			:rules = "",
 			:effects = ""
 		]
 		
-		nNodes = This.NodeCount()
-		nEdges = This.EdgeCount()
-		aExplanation[:structure] = "Diagram '" + @cId + "' contains " + nNodes + " nodes and " + nEdges + " edges."
+		_nNodes_ = This.NodeCount()
+		_nEdges_ = This.EdgeCount()
+		_aExplanation_[:structure] = "Diagram '" + @cId + "' contains " + _nNodes_ + " nodes and " + _nEdges_ + " edges."
 		
-		nRules = len(@aoVisualRules)
-		if nRules = 0
-			aExplanation[:rules] = "No visual rules defined."
+		_nRules_ = len(@aoVisualRules)
+		if _nRules_ = 0
+			_aExplanation_[:rules] = "No visual rules defined."
 		else
-			cRules = "Applied " + nRules + " visual rule(s): "
-			for i = 1 to nRules
-				cRules += @aoVisualRules[i].@cRuleId
-				if i < nRules
-					cRules += ", "
+			_cRules_ = "Applied " + _nRules_ + " visual rule(s): "
+			for i = 1 to _nRules_
+				_cRules_ += @aoVisualRules[i].@cRuleId
+				if i < _nRules_
+					_cRules_ += ", "
 				ok
 			end
-			aExplanation[:rules] = cRules
+			_aExplanation_[:rules] = _cRules_
 		ok
 		
-		nNodesAffected = len(@aNodeRulesEffects)
-		nEdgesAffected = len(@aEdgesRulesEffects)
+		_nNodesAffected_ = len(@aNodeRulesEffects)
+		_nEdgesAffected_ = len(@aEdgesRulesEffects)
 		
-		if nNodesAffected = 0 and nEdgesAffected = 0
-			aExplanation[:effects] = "No rules matched any elements."
+		if _nNodesAffected_ = 0 and _nEdgesAffected_ = 0
+			_aExplanation_[:effects] = "No rules matched any elements."
 		else
-			cEffects = ""
-			if nNodesAffected > 0
-				cEffects += ""+ nNodesAffected + " node(s) enhanced"
+			_cEffects_ = ""
+			if _nNodesAffected_ > 0
+				_cEffects_ += ""+ _nNodesAffected_ + " node(s) enhanced"
 			ok
-			if nEdgesAffected > 0
-				if cEffects != ""
-					cEffects += ", "
+			if _nEdgesAffected_ > 0
+				if _cEffects_ != ""
+					_cEffects_ += ", "
 				ok
-				cEffects += ""+ nEdgesAffected + " edge(s) enhanced"
+				_cEffects_ += ""+ _nEdgesAffected_ + " edge(s) enhanced"
 			ok
-			aExplanation[:effects] = cEffects + "."
+			_aExplanation_[:effects] = _cEffects_ + "."
 		ok
 		
-		return aExplanation
+		return _aExplanation_
 
 	#----------------------------------#
 	#  IMPORT WITH SUBDIAGRAM SUPPORT  #
@@ -1866,21 +1866,21 @@ class stzDiagram from stzGraph
 
 	def ImportDiag(cDiagString)
 		# Parse first node of imported diagram
-		cFirstNodeId = This.ExtractFirstNodeId(cDiagString)
+		_cFirstNodeId_ = This.ExtractFirstNodeId(cDiagString)
 		
-		if cFirstNodeId = ""
+		if _cFirstNodeId_ = ""
 			StzRaise("Cannot parse imported diagram - no nodes found")
 		ok
 		
 		# Check if current diagram has nodes
 		if This.NodeCount() > 0
 			# Check if first node exists in current diagram
-			if This.HasNode(cFirstNodeId)
+			if This.HasNode(_cFirstNodeId_)
 				# Import as subdiagram under this node
-				This.ImportAsSubdiagram(cDiagString, cFirstNodeId)
+				This.ImportAsSubdiagram(cDiagString, _cFirstNodeId_)
 			else
-				StzRaise("Import failed: First node '" + cFirstNodeId + "' not found in current diagram. " +
-					"Either add node '" + cFirstNodeId + "', or clear the diagram with RemoveAllNodes()")
+				StzRaise("Import failed: First node '" + _cFirstNodeId_ + "' not found in current diagram. " +
+					"Either add node '" + _cFirstNodeId_ + "', or clear the diagram with RemoveAllNodes()")
 			ok
 		else
 			# Empty diagram - do normal import
@@ -1888,141 +1888,141 @@ class stzDiagram from stzGraph
 		ok
 
 	def ExtractFirstNodeId(cDiagString)
-		acLines = @split(cDiagString, NL)
-		nLen = len(acLines)
-		bInNodesSection = FALSE
+		_acLines_ = @split(cDiagString, NL)
+		_nLen_ = len(_acLines_)
+		_bInNodesSection_ = FALSE
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if cLine = "nodes"
-				bInNodesSection = TRUE
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if _cLine_ = "nodes"
+				_bInNodesSection_ = TRUE
 				loop
 			ok
 			
-			if bInNodesSection and cLine != "" and
-			   NOT StzFindFirst(cLine, "label:") and
-			   NOT StzFindFirst(cLine, "type:") and
-			   NOT StzFindFirst(cLine, "color:")
-				return cLine
+			if _bInNodesSection_ and _cLine_ != "" and
+			   NOT StzFindFirst(_cLine_, "label:") and
+			   NOT StzFindFirst(_cLine_, "type:") and
+			   NOT StzFindFirst(_cLine_, "color:")
+				return _cLine_
 			ok
 			
-			if bInNodesSection and (cLine = "edges" or cLine = "clusters")
+			if _bInNodesSection_ and (_cLine_ = "edges" or _cLine_ = "clusters")
 				exit
 			ok
 		end
 	
 	def ImportAsSubdiagram(cDiagString, cParentNodeId)
-		oTemp = new stzDiagram("temp")
-		oTemp.ParseAndImport(cDiagString)
+		_oTemp_ = new stzDiagram("temp")
+		_oTemp_.ParseAndImport(cDiagString)
 		
-		acNodes = oTemp.Nodes()
-		nLenNodes = len(acNodes)
+		_acNodes_ = _oTemp_.Nodes()
+		_nLenNodes_ = len(_acNodes_)
 
-		acEdges = oTemp.Edges()
-		nLenEdges = len(acEdges)
+		_acEdges_ = _oTemp_.Edges()
+		_nLenEdges_ = len(_acEdges_)
 		
 		# Add all nodes EXCEPT the parent (which already exists)
 
-		for i = 1 to nLenNodes
-			if acNodes[i]["id"] != cParentNodeId
-				This.AddNodeXTT(acNodes[i]["id"], acNodes[i]["label"], [
-					:type = acNodes[i]["properties"]["type"], 
-					:color = acNodes[i]["properties"]["color"]
+		for i = 1 to _nLenNodes_
+			if _acNodes_[i]["id"] != cParentNodeId
+				This.AddNodeXTT(_acNodes_[i]["id"], _acNodes_[i]["label"], [
+					:type = _acNodes_[i]["properties"]["type"], 
+					:color = _acNodes_[i]["properties"]["color"]
 				])
 			ok
 		end
 
 		# Add all edges
-		for i = 1 to nLenEdges
-			cFrom = acEdges[i]["from"]
-			cTo = acEdges[i]["to"]
+		for i = 1 to _nLenEdges_
+			_cFrom_ = _acEdges_[i]["from"]
+			_cTo_ = _acEdges_[i]["to"]
 			
 			# All edges are added normally since parent node exists
-			This.Connect(cFrom, cTo)
+			This.Connect(_cFrom_, _cTo_)
 		end
 
 	def ParseAndImport(cDiagString)
-		acLines = @split(cDiagString, NL)
-		cCurrentSection = ""
-		cCurrentNode = ""
-		cLabel = ""
-		cType = ""
-		cColor = ""
-		aEdgesToAdd = []  # Store edges for later
+		_acLines_ = @split(cDiagString, NL)
+		_cCurrentSection_ = ""
+		_cCurrentNode_ = ""
+		_cLabel_ = ""
+		_cType_ = ""
+		_cColor_ = ""
+		_aEdgesToAdd_ = []  # Store edges for later
 
-		nLen = len(acLines)
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if cLine = "" or
-			   StzLeft(cLine, 1) = "#"
+		_nLen_ = len(_acLines_)
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if _cLine_ = "" or
+			   StzLeft(_cLine_, 1) = "#"
 				loop
 			ok
 			
-			if StzFindFirst(cLine, "diagram ")
-				cTitle = trim(StzMid(cLine, 10, stzlen(cLine) - 10))
-				@cId = cTitle
+			if StzFindFirst(_cLine_, "diagram ")
+				_cTitle_ = trim(StzMid(_cLine_, 10, stzlen(_cLine_) - 10))
+				@cId = _cTitle_
 
-			but cLine = "properties"
-				cCurrentSection = "properties"
+			but _cLine_ = "properties"
+				_cCurrentSection_ = "properties"
 
-			but cLine = "nodes"
-				cCurrentSection = "nodes"
+			but _cLine_ = "nodes"
+				_cCurrentSection_ = "nodes"
 
-			but cLine = "edges"
-				cCurrentSection = "edges"
+			but _cLine_ = "edges"
+				_cCurrentSection_ = "edges"
 
-			but cCurrentSection = "properties" and StzFindFirst(cLine, ":")
-				aParts = @split(cLine, ":")
-				cKey = trim(aParts[1])
-				cValue = trim(aParts[2])
+			but _cCurrentSection_ = "properties" and StzFindFirst(_cLine_, ":")
+				_aParts_ = @split(_cLine_, ":")
+				_cKey_ = trim(_aParts_[1])
+				_cValue_ = trim(_aParts_[2])
 
-				if cKey = "theme"
-					This.SetTheme(cValue)
-				but cKey = "layout"
-					This.SetLayout(cValue)
+				if _cKey_ = "theme"
+					This.SetTheme(_cValue_)
+				but _cKey_ = "layout"
+					This.SetLayout(_cValue_)
 				ok
 
-			but cCurrentSection = "nodes"
-				if NOT StzFindFirst(cLine, "label:") and NOT StzFindFirst(cLine, "type:") and NOT StzFindFirst(cLine, "color:")
-					if cCurrentNode != "" and cLabel != ""
-						if cType = "" cType = $cDefaultNodeType ok
-						if cColor = "" cColor = $cDefaultNodeColor ok
-						This.AddNodeXTT(cCurrentNode, cLabel, [ :type = cType, :color = cColor ])
+			but _cCurrentSection_ = "nodes"
+				if NOT StzFindFirst(_cLine_, "label:") and NOT StzFindFirst(_cLine_, "type:") and NOT StzFindFirst(_cLine_, "color:")
+					if _cCurrentNode_ != "" and _cLabel_ != ""
+						if _cType_ = "" _cType_ = $cDefaultNodeType ok
+						if _cColor_ = "" _cColor_ = $cDefaultNodeColor ok
+						This.AddNodeXTT(_cCurrentNode_, _cLabel_, [ :type = _cType_, :color = _cColor_ ])
 					ok
-					cCurrentNode = cLine
-					cLabel = ""
-					cType = ""
-					cColor = ""
+					_cCurrentNode_ = _cLine_
+					_cLabel_ = ""
+					_cType_ = ""
+					_cColor_ = ""
 
-				but StzFindFirst(cLine, "label:")
-					cLabel = StzMid(cLine, 9, stzlen(cLine) - 9)
+				but StzFindFirst(_cLine_, "label:")
+					_cLabel_ = StzMid(_cLine_, 9, stzlen(_cLine_) - 9)
 
-				but StzFindFirst(cLine, "type:")
-					cType = trim(StzMid(cLine, 7, stzlen(cLine) - 6))
+				but StzFindFirst(_cLine_, "type:")
+					_cType_ = trim(StzMid(_cLine_, 7, stzlen(_cLine_) - 6))
 
-				but StzFindFirst(cLine, "color:")
-					cColor = trim(StzMid(cLine, 8, stzlen(cLine) - 7))
+				but StzFindFirst(_cLine_, "color:")
+					_cColor_ = trim(StzMid(_cLine_, 8, stzlen(_cLine_) - 7))
 				ok
 
-			but cCurrentSection = "edges" and StzFindFirst(cLine, "->")
-				aEdgeParts = @split(cLine, "->")
-				cFrom = trim(aEdgeParts[1])
-				cTo = trim(aEdgeParts[2])
-				aEdgesToAdd + [cFrom, cTo]  # Store for later
+			but _cCurrentSection_ = "edges" and StzFindFirst(_cLine_, "->")
+				_aEdgeParts_ = @split(_cLine_, "->")
+				_cFrom_ = trim(_aEdgeParts_[1])
+				_cTo_ = trim(_aEdgeParts_[2])
+				_aEdgesToAdd_ + [_cFrom_, _cTo_]  # Store for later
 			ok
 		end
 
 		# Add last node
-		if cCurrentNode != "" and cLabel != ""
-			if cType = "" cType = $cDefaultNodeType ok
-			if cColor = "" cColor = $cDefaultNodeColor ok
-			This.AddNodeXTT(cCurrentNode, cLabel, [ :type = cType, :color = cColor ])
+		if _cCurrentNode_ != "" and _cLabel_ != ""
+			if _cType_ = "" _cType_ = $cDefaultNodeType ok
+			if _cColor_ = "" _cColor_ = $cDefaultNodeColor ok
+			This.AddNodeXTT(_cCurrentNode_, _cLabel_, [ :type = _cType_, :color = _cColor_ ])
 		ok
 
 		# Now add all edges
-		nLen = len(aEdgesToAdd)
-		for i = 1 to nLen
-			This.Connect(aEdgesToAdd[i][1], aEdgesToAdd[i][2])
+		_nLen_ = len(_aEdgesToAdd_)
+		for i = 1 to _nLen_
+			This.Connect(_aEdgesToAdd_[i][1], _aEdgesToAdd_[i][2])
 		end
 	
 	#--------------------#
@@ -2034,17 +2034,17 @@ class stzDiagram from stzGraph
 	    This.ResetAllNodeColors()
 	    
 	    # Apply focus to specified nodes
-	    nLen = len(acNodeIds)
-	    for i = 1 to nLen
+	    _nLen_ = len(acNodeIds)
+	    for i = 1 to _nLen_
 	        This.SetNodeProperty(acNodeIds[i], "color", @cFocusColor)
 	    end
 	
 	def ResetAllNodeColors()
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    for i = 1 to nLen
-	        cNodeId = aNodes[i]["id"]
-	        This.SetNodeProperty(cNodeId, "color", @cNodeColor)
+	    _aNodes_ = This.Nodes()
+	    _nLen_ = len(_aNodes_)
+	    for i = 1 to _nLen_
+	        _cNodeId_ = _aNodes_[i]["id"]
+	        This.SetNodeProperty(_cNodeId_, "color", @cNodeColor)
 	    end
 
 	#-------------------------#
@@ -2054,105 +2054,105 @@ class stzDiagram from stzGraph
 	def LoadStyle(pSource)
 		if isString(pSource)
 			if StzRight(pSource, 8) = ".stzstyl"
-				oParser = new stzStylParser()
-				aStyle = oParser.ParseFile(pSource)
+				_oParser_ = new stzStylParser()
+				_aStyle_ = _oParser_.ParseFile(pSource)
 			else
-				oParser = new stzStylParser()
-				aStyle = oParser.Parse(pSource)
+				_oParser_ = new stzStylParser()
+				_aStyle_ = _oParser_.Parse(pSource)
 			ok
 			
-			This._ApplyStyle(aStyle)
-			@aLoadedStyles + aStyle[:name]
+			This._ApplyStyle(_aStyle_)
+			@aLoadedStyles + _aStyle_[:name]
 		ok
 	
-	def _ApplyStyle(aStyle)
+	def _ApplyStyle(_aStyle_)
 		# Apply theme
-		if HasKey(aStyle, :theme) and aStyle[:theme] != ""
-			This.SetTheme(aStyle[:theme])
+		if HasKey(_aStyle_, :theme) and _aStyle_[:theme] != ""
+			This.SetTheme(_aStyle_[:theme])
 		ok
 		
 		# Apply layout
-		if HasKey(aStyle, :layout) and aStyle[:layout] != ""
-			This.SetLayout(aStyle[:layout])
+		if HasKey(_aStyle_, :layout) and _aStyle_[:layout] != ""
+			This.SetLayout(_aStyle_[:layout])
 		ok
 		
 		# Apply colors
-		if HasKey(aStyle, :colors) and len(aStyle[:colors]) > 0
-			nLen = len(aStyle[:colors])
-			for i = 1 to nLen step 2
-				cKey = aStyle[:colors][i]
-				cValue = aStyle[:colors][i + 1]
+		if HasKey(_aStyle_, :colors) and len(_aStyle_[:colors]) > 0
+			_nLen_ = len(_aStyle_[:colors])
+			for i = 1 to _nLen_ step 2
+				_cKey_ = _aStyle_[:colors][i]
+				_cValue_ = _aStyle_[:colors][i + 1]
 				
 				# Update color palette
-				if HasKey(@aPalette[@cTheme], cKey)
-					@aPalette[@cTheme][cKey] = cValue
+				if HasKey(@aPalette[@cTheme], _cKey_)
+					@aPalette[@cTheme][_cKey_] = _cValue_
 				ok
 			end
 		ok
 		
 		# Apply fonts
-		if HasKey(aStyle, :fonts) and len(aStyle[:fonts]) > 0
-			nLen = len(aStyle[:fonts])
-			for i = 1 to nLen step 2
-				cKey = aStyle[:fonts][i]
-				pValue = aStyle[:fonts][i + 1]
+		if HasKey(_aStyle_, :fonts) and len(_aStyle_[:fonts]) > 0
+			_nLen_ = len(_aStyle_[:fonts])
+			for i = 1 to _nLen_ step 2
+				_cKey_ = _aStyle_[:fonts][i]
+				pValue = _aStyle_[:fonts][i + 1]
 				
-				if cKey = "default"
+				if _cKey_ = "default"
 					This.SetFont(pValue)
-				but cKey = "size"
+				but _cKey_ = "size"
 					This.SetFontSize(pValue)
 				ok
 			end
 		ok
 		
 		# Apply edge settings
-		if HasKey(aStyle, :edges) and len(aStyle[:edges]) > 0
-			nLen = len(aStyle[:edges])
-			for i = 1 to nLen step 2
-				cKey = aStyle[:edges][i]
-				pValue = aStyle[:edges][i + 1]
+		if HasKey(_aStyle_, :edges) and len(_aStyle_[:edges]) > 0
+			_nLen_ = len(_aStyle_[:edges])
+			for i = 1 to _nLen_ step 2
+				_cKey_ = _aStyle_[:edges][i]
+				pValue = _aStyle_[:edges][i + 1]
 				
-				if cKey = "style"
+				if _cKey_ = "style"
 					This.SetEdgeStyle(pValue)
-				but cKey = "color"
+				but _cKey_ = "color"
 					This.SetEdgeColor(pValue)
-				but cKey = "spline"
+				but _cKey_ = "spline"
 					This.SetSplines(pValue)
-				but cKey = "penwidth"
+				but _cKey_ = "penwidth"
 					This.SetEdgePenWidth(pValue)
 				ok
 			end
 		ok
 		
 		# Apply node settings
-		if HasKey(aStyle, :nodes) and len(aStyle[:nodes]) > 0
-			nLen = len(aStyle[:nodes])
-			for i = 1 to nLen step 2
-				cKey = aStyle[:nodes][i]
-				pValue = aStyle[:nodes][i + 1]
+		if HasKey(_aStyle_, :nodes) and len(_aStyle_[:nodes]) > 0
+			_nLen_ = len(_aStyle_[:nodes])
+			for i = 1 to _nLen_ step 2
+				_cKey_ = _aStyle_[:nodes][i]
+				pValue = _aStyle_[:nodes][i + 1]
 				
-				if cKey = "penwidth"
+				if _cKey_ = "penwidth"
 					This.SetNodePenWidth(pValue)
-				but cKey = "penstyle"
+				but _cKey_ = "penstyle"
 					This.SetNodePenStyle(pValue)
-				but cKey = "color"
+				but _cKey_ = "color"
 					This.SetNodeColor(pValue)
-				but cKey = "strokecolor"
+				but _cKey_ = "strokecolor"
 					This.SetStrokeColor(pValue)
 				ok
 			end
 		ok
 		
 		# Apply focus settings
-		if HasKey(aStyle, :focus) and len(aStyle[:focus]) > 0
-			nLen = len(aStyle[:focus])
-			for i = 1 to nLen step 2
-				cKey = aStyle[:focus][i]
-				pValue = aStyle[:focus][i + 1]
+		if HasKey(_aStyle_, :focus) and len(_aStyle_[:focus]) > 0
+			_nLen_ = len(_aStyle_[:focus])
+			for i = 1 to _nLen_ step 2
+				_cKey_ = _aStyle_[:focus][i]
+				pValue = _aStyle_[:focus][i + 1]
 				
-				if cKey = "color"
+				if _cKey_ = "color"
 					This.SetFocusColor(pValue)
-				but cKey = "penwidth"
+				but _cKey_ = "penwidth"
 					@nFocusPenWidth = pValue
 				ok
 			end
@@ -2162,44 +2162,44 @@ class stzDiagram from stzGraph
 		return @aLoadedStyles
 	
 	def ExportToStyl()
-		cStyl = 'style "' + @cId + '_style"' + NL
-		cStyl += '    theme: ' + @cTheme + NL
-		cStyl += '    layout: ' + @cLayout + NL + NL
+		_cStyl_ = 'style "' + @cId + '_style"' + NL
+		_cStyl_ += '    theme: ' + @cTheme + NL
+		_cStyl_ += '    layout: ' + @cLayout + NL + NL
 		
-		cStyl += 'colors' + NL
+		_cStyl_ += 'colors' + NL
 		if HasKey(@aPalette, @cTheme)
-			acKeys = keys(@aPalette[@cTheme])
-			_nAcKeys1Len_ = len(acKeys)
+			_acKeys_ = keys(@aPalette[@cTheme])
+			_nAcKeys1Len_ = len(_acKeys_)
 			for _iLoopAcKeys1_ = 1 to _nAcKeys1Len_
-				cKey = acKeys[_iLoopAcKeys1_]
-				cStyl += '    ' + cKey + ': ' + @aPalette[@cTheme][cKey] + NL
+				_cKey_ = _acKeys_[_iLoopAcKeys1_]
+				_cStyl_ += '    ' + _cKey_ + ': ' + @aPalette[@cTheme][_cKey_] + NL
 			end
 		ok
-		cStyl += NL
+		_cStyl_ += NL
 		
-		cStyl += 'fonts' + NL
-		cStyl += '    default: ' + @cFont + NL
-		cStyl += '    size: ' + @nFontSize + NL + NL
+		_cStyl_ += 'fonts' + NL
+		_cStyl_ += '    default: ' + @cFont + NL
+		_cStyl_ += '    size: ' + @nFontSize + NL + NL
 		
-		cStyl += 'edges' + NL
-		cStyl += '    style: ' + @cEdgeStyle + NL
-		cStyl += '    color: ' + @cEdgeColor + NL
-		cStyl += '    spline: ' + @cSplineType + NL
-		cStyl += '    penwidth: ' + @nEdgePenWidth + NL + NL
+		_cStyl_ += 'edges' + NL
+		_cStyl_ += '    style: ' + @cEdgeStyle + NL
+		_cStyl_ += '    color: ' + @cEdgeColor + NL
+		_cStyl_ += '    spline: ' + @cSplineType + NL
+		_cStyl_ += '    penwidth: ' + @nEdgePenWidth + NL + NL
 		
-		cStyl += 'nodes' + NL
-		cStyl += '    penwidth: ' + @nNodePenWidth + NL
-		cStyl += '    penstyle: ' + @cNodePenStyle + NL
-		cStyl += '    color: ' + @cNodeColor + NL
+		_cStyl_ += 'nodes' + NL
+		_cStyl_ += '    penwidth: ' + @nNodePenWidth + NL
+		_cStyl_ += '    penstyle: ' + @cNodePenStyle + NL
+		_cStyl_ += '    color: ' + @cNodeColor + NL
 		if @cNodeStrokeColor != ""
-			cStyl += '    strokecolor: ' + @cNodeStrokeColor + NL
+			_cStyl_ += '    strokecolor: ' + @cNodeStrokeColor + NL
 		ok
-		cStyl += NL
+		_cStyl_ += NL
 		
-		cStyl += 'focus' + NL
-		cStyl += '    color: ' + @cFocusColor + NL
+		_cStyl_ += 'focus' + NL
+		_cStyl_ += '    color: ' + @cFocusColor + NL
 		
-		return cStyl
+		return _cStyl_
 	
 	def WriteToStylFile(pcFilename)
 		if NOT StzRight(pcFileName, 8) = ".stzstyl"
@@ -2225,14 +2225,14 @@ class stzDiagramAnnotator from stzObject
 	def Type()
 		return @cType
 
-	def Annotate(pNodeId, aData)
+	def Annotate(pNodeId, _aData_)
 		if CheckParams()
-			if isList(aData) and IsWithNamedParamList(aData)
-				aData = aData[2]
+			if isList(_aData_) and IsWithNamedParamList(_aData_)
+				_aData_ = _aData_[2]
 			ok
 		ok
 
-		@aNodeData[pNodeId] = aData
+		@aNodeData[pNodeId] = _aData_
 
 	def NodeData(pNodeId)
 		if HasKey(@aNodeData, pNodeId)
@@ -2267,123 +2267,123 @@ class stzDiagramToStzDiag from stzObject
 		This._Generate()
 
 	def _Generate()
-		cOutput = ""
+		_cOutput_ = ""
 
 		# Generating diagram attributes
 
-		cOutput += 'diagram "' +
+		_cOutput_ += 'diagram "' +
 			   @oDiagram.Id() + '"' + NL + NL
 
-		cOutput += "properties" + NL
-		cOutput += "    theme: " + Lower(@oDiagram.@cTheme) + NL
-		cOutput += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
+		_cOutput_ += "properties" + NL
+		_cOutput_ += "    theme: " + Lower(@oDiagram.@cTheme) + NL
+		_cOutput_ += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
 
 		# Generating the diagram title
 
 		if @oDiagram.Title() != ""
-		    cTitle = @oDiagram.Title()
-		    cSubtitle = @oDiagram.Subtitle()
-		    if trim(cSubtitle) != ""
-			cTitle += " : " + cSubTitle
+		    _cTitle_ = @oDiagram.Title()
+		    _cSubtitle_ = @oDiagram.Subtitle()
+		    if trim(_cSubtitle_) != ""
+			_cTitle_ += " : " + _cSubtitle_
 		    ok
 
-		    cOutput += '    labelloc="t";' + NL
+		    _cOutput_ += '    labelloc="t";' + NL
 
-		    cOutput += '    label="' + cTitle
-		    cOutput += '";'
-		    cOutput += '    fontsize=16;'
+		    _cOutput_ += '    label="' + _cTitle_
+		    _cOutput_ += '";'
+		    _cOutput_ += '    fontsize=16;'
 		ok
 
 		# Generating nodes
 
-		cOutput += "nodes" + NL
-		aNodes = @oDiagram.Nodes()
-		nLen = len(aNodes)
+		_cOutput_ += "nodes" + NL
+		_aNodes_ = @oDiagram.Nodes()
+		_nLen_ = len(_aNodes_)
 
-		for i = 1 to nLen
-			aNode = aNodes[i]
-			cOutput += "    " + aNode["id"] + NL
-			cOutput += "        label: " + This.EscapeString(aNode["label"]) + NL
+		for i = 1 to _nLen_
+			_aNode_ = _aNodes_[i]
+			_cOutput_ += "    " + _aNode_["id"] + NL
+			_cOutput_ += "        label: " + This.EscapeString(_aNode_["label"]) + NL
 
-			if aNode["properties"]["type"] != ""
-				cOutput += "        type: " + Lower(aNode["properties"]["type"]) + NL
+			if _aNode_["properties"]["type"] != ""
+				_cOutput_ += "        type: " + Lower(_aNode_["properties"]["type"]) + NL
 			ok
 
-			if aNode["properties"]["color"] != ""
-				cOutput += "        color: " + aNode["properties"]["color"] + NL
+			if _aNode_["properties"]["color"] != ""
+				_cOutput_ += "        color: " + _aNode_["properties"]["color"] + NL
 			ok
 
-			cOutput += NL
+			_cOutput_ += NL
 		end
 
 		# Generating edges
 
-		aEdges = @oDiagram.Edges()
-		nLen = len(aEdges)
+		_aEdges_ = @oDiagram.Edges()
+		_nLen_ = len(_aEdges_)
 
-		if nLen > 0
-			cOutput += "edges" + NL
-			for i = 1 to nLen
-				aEdge = aEdges[i]
-				cOutput += "    " + aEdge["from"] + " -> " + aEdge["to"] + NL
+		if _nLen_ > 0
+			_cOutput_ += "edges" + NL
+			for i = 1 to _nLen_
+				_aEdge_ = _aEdges_[i]
+				_cOutput_ += "    " + _aEdge_["from"] + " -> " + _aEdge_["to"] + NL
 
-				cLabel = aEdge["label"]
-				if cLabel != ""
-					cOutput += "        label: " + This.EscapeString(cLabel) + NL
+				_cLabel_ = _aEdge_["label"]
+				if _cLabel_ != ""
+					_cOutput_ += "        label: " + This.EscapeString(_cLabel_) + NL
 				ok
 
-				cOutput += NL
+				_cOutput_ += NL
 			end
 
 		ok
 
 		# Generating clusters
 
-		aClusters = @oDiagram.Clusters()
-		nLen = len(aClusters)
-		if nLen > 0
-			cOutput += "clusters" + NL
+		_aClusters_ = @oDiagram.Clusters()
+		_nLen_ = len(_aClusters_)
+		if _nLen_ > 0
+			_cOutput_ += "clusters" + NL
 
-			for i = 1 to nLen
-				aCluster = aClusters[i]
-				cOutput += "    " + aCluster["id"] + NL
-				cOutput += "        label: " + This.EscapeString(aCluster["label"]) + NL
-				cNodeList = This.NodeListToString(aCluster["nodes"])
-				cOutput += "        nodes: [" + cNodeList + "]" + NL
-				cOutput += "        color: " + aCluster["color"] + NL
-				cOutput += NL
+			for i = 1 to _nLen_
+				_aCluster_ = _aClusters_[i]
+				_cOutput_ += "    " + _aCluster_["id"] + NL
+				_cOutput_ += "        label: " + This.EscapeString(_aCluster_["label"]) + NL
+				_cNodeList_ = This.NodeListToString(_aCluster_["nodes"])
+				_cOutput_ += "        nodes: [" + _cNodeList_ + "]" + NL
+				_cOutput_ += "        color: " + _aCluster_["color"] + NL
+				_cOutput_ += NL
 			end
 		ok
 
 		# Generating annotations
 
-		aAnnotations = @oDiagram.Annotations()
-		nLen = len(aAnnotations)
+		_aAnnotations_ = @oDiagram.Annotations()
+		_nLen_ = len(_aAnnotations_)
 
-		if nLen > 0
-			cOutput += "annotations" + NL
-			for i = 1 to nLen
-				aAnnot = aAnnotations[i]
-				cOutput += "    " + Lower(aAnnot.Type()) + NL
+		if _nLen_ > 0
+			_cOutput_ += "annotations" + NL
+			for i = 1 to _nLen_
+				_aAnnot_ = _aAnnotations_[i]
+				_cOutput_ += "    " + Lower(_aAnnot_.Type()) + NL
 
-				aAnnotData = aAnnot.NodesData()
+				_aAnnotData_ = _aAnnot_.NodesData()
 
-				acKeys = Keys(aAnnotData)
-				nLenK = len(acKeys)
+				_acKeys_ = Keys(_aAnnotData_)
+				_nLenK_ = len(_acKeys_)
 
-				for j = 1 to nLenK
-					cNodeId = acKeys[j] 
-					cData = aAnnotData[cNodeId]
-					cOutput += "        " + String(cNodeId) + ": "
-					cOutput += This.DataToString(cData) + NL
+				for j = 1 to _nLenK_
+					_cNodeId_ = _acKeys_[j] 
+					_cData_ = _aAnnotData_[_cNodeId_]
+					_cOutput_ += "        " + String(_cNodeId_) + ": "
+					_cOutput_ += This.DataToString(_cData_) + NL
 				end
-				cOutput += NL
+				_cOutput_ += NL
 			end
 		ok
 
 		# Setting the DOT code
 
-		@cStzDiagCode = cOutput
+		@cStzDiagCode = _cOutput_
 
 	def stzdiag()
 		return @cStzDiagCode
@@ -2395,49 +2395,49 @@ class stzDiagramToStzDiag from stzObject
 			return @cStzDiagCode
 
 	def WriteToFile(pFilename)
-		oFile = fopen(pFilename, "w")
-		fwrite(oFile, This.stzdiag())
-		fclose(oFile)
+		_oFile_ = fopen(pFilename, "w")
+		fwrite(_oFile_, This.stzdiag())
+		fclose(_oFile_)
 		return TRUE
 
 	def EscapeString(pStr)
 		return '"' +
 			Replace(pStr, '"', '\"') + '"'
 
-	def NodeListToString(aNodes)
-		cResult = ""
-		_nNodes1Len_ = len(aNodes)
+	def NodeListToString(_aNodes_)
+		_cResult_ = ""
+		_nNodes1Len_ = len(_aNodes_)
 		for _iLoopNodes1_ = 1 to _nNodes1Len_
-			cNode = aNodes[_iLoopNodes1_]
-			cResult += cNode + ", "
+			_cNode_ = _aNodes_[_iLoopNodes1_]
+			_cResult_ += _cNode_ + ", "
 		end
-		if cResult != ""
-			cResult = Left(cResult, stzlen(cResult) - 2)
+		if _cResult_ != ""
+			_cResult_ = Left(_cResult_, stzlen(_cResult_) - 2)
 		ok
-		return cResult
+		return _cResult_
 
-	def DataToString(aData)
-		if NOT @IsHashList(aData)
+	def DataToString(_aData_)
+		if NOT @IsHashList(_aData_)
 			return "null"
 		ok
 
-		cResult = "{"
-		_aKeysaData1_ = Keys(aData)
+		_cResult_ = "{"
+		_aKeysaData1_ = Keys(_aData_)
 		_nKeysaData1Len_ = len(_aKeysaData1_)
 		for _iLoopKeysaData1_ = 1 to _nKeysaData1Len_
-			cKey = _aKeysaData1_[_iLoopKeysaData1_]
-			cValue = aData[cKey]
-			if isString(cValue)
-				cResult += cKey + ": " + This.EscapeString(cValue) + ", "
+			_cKey_ = _aKeysaData1_[_iLoopKeysaData1_]
+			_cValue_ = _aData_[_cKey_]
+			if isString(_cValue_)
+				_cResult_ += _cKey_ + ": " + This.EscapeString(_cValue_) + ", "
 			else
-				cResult += cKey + ": " + String(cValue) + ", "
+				_cResult_ += _cKey_ + ": " + String(_cValue_) + ", "
 			ok
 		end
-		if cResult != "{"
-			cResult = Left(cResult, stzlen(cResult) - 2)
+		if _cResult_ != "{"
+			_cResult_ = Left(_cResult_, stzlen(_cResult_) - 2)
 		ok
-		cResult += "}"
-		return cResult
+		_cResult_ += "}"
+		return _cResult_
 
 
 #==================================#
@@ -2464,7 +2464,7 @@ class stzDiagramToDot from stzObject
 
 	def _Generate()
 	
-		cOutput = ""
+		_cOutput_ = ""
 		
 		# Apply visual rules if any
 		if len(@oDiagram.@aoVisualRules) > 0
@@ -2472,91 +2472,91 @@ class stzDiagramToDot from stzObject
 		ok
 		
 		# Get theme
-		cTheme = This._GetTheme()
+		_cTheme_ = This._GetTheme()
 		
 		# Start digraph
-		cOutput += 'digraph "' + @oDiagram.Id() + '" {' + NL
+		_cOutput_ += 'digraph "' + @oDiagram.Id() + '" {' + NL
 		
 		# Graph attributes
-		cOutput += This._GenerateGraphAttributes(cTheme)
+		_cOutput_ += This._GenerateGraphAttributes(_cTheme_)
 		
 		# Add title/subtitle if present
 		if @oDiagram.Title() != ""
-		    cOutput += '    labelloc="t";' + NL
-		    cTitle = NL + @oDiagram.Title()
+		    _cOutput_ += '    labelloc="t";' + NL
+		    _cTitle_ = NL + @oDiagram.Title()
 		    if @oDiagram.Subtitle() != ""
-		        cTitle += NL + @oDiagram.Subtitle() + NL
+		        _cTitle_ += NL + @oDiagram.Subtitle() + NL
 		    ok
-		    cTitle += NL + NL
-		    cOutput += '    label="' + cTitle + '";' + NL
-		    cOutput += '    fontsize=16;' + NL + NL
+		    _cTitle_ += NL + NL
+		    _cOutput_ += '    label="' + _cTitle_ + '";' + NL
+		    _cOutput_ += '    fontsize=16;' + NL + NL
 		ok
 	
 		# Node attributes  
-		cOutput += This._GenerateNodeAttributes(cTheme)
+		_cOutput_ += This._GenerateNodeAttributes(_cTheme_)
 		
 		# Edge attributes
-		cOutput += This._GenerateEdgeAttributes(cTheme)
+		_cOutput_ += This._GenerateEdgeAttributes(_cTheme_)
 		
-		cOutput += NL
+		_cOutput_ += NL
 		
 		# Generate nodes
-		cOutput += This._GenerateNodes(cTheme)
-		cOutput += NL
+		_cOutput_ += This._GenerateNodes(_cTheme_)
+		_cOutput_ += NL
 		
 		# Generate clusters (subgraphs)
 		if len(@oDiagram.Clusters()) > 0
-			cOutput += NL
+			_cOutput_ += NL
 			
 			_aDiagramClusters1_ = @oDiagram.Clusters()
 			_nDiagramClusters1Len_ = len(_aDiagramClusters1_)
 			for _iLoopDiagramClusters1_ = 1 to _nDiagramClusters1Len_
-				aCluster = _aDiagramClusters1_[_iLoopDiagramClusters1_]
-				cClusterId = "cluster_" + aCluster["id"]
-				cLabel = aCluster["label"]
-				cColor = aCluster["color"]
+				_aCluster_ = _aDiagramClusters1_[_iLoopDiagramClusters1_]
+				_cClusterId_ = "cluster_" + _aCluster_["id"]
+				_cLabel_ = _aCluster_["label"]
+				_cColor_ = _aCluster_["color"]
 				
-				cOutput += '    subgraph ' + cClusterId + ' {' + NL
-				cOutput += '        label="' + cLabel + '";' + NL
-				cOutput += '        style=filled;' + NL
-				cOutput += '        color="' + cColor + '";' + NL
-				cOutput += '        fillcolor="' + cColor + '20";' + NL  # 20 = transparency
+				_cOutput_ += '    subgraph ' + _cClusterId_ + ' {' + NL
+				_cOutput_ += '        label="' + _cLabel_ + '";' + NL
+				_cOutput_ += '        style=filled;' + NL
+				_cOutput_ += '        color="' + _cColor_ + '";' + NL
+				_cOutput_ += '        fillcolor="' + _cColor_ + '20";' + NL  # 20 = transparency
 				
 				# List nodes in cluster
-				_aClusternodes1_ = aCluster["nodes"]
+				_aClusternodes1_ = _aCluster_["nodes"]
 				_nClusternodes1Len_ = len(_aClusternodes1_)
 				for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
-					cNodeId = _aClusternodes1_[_iLoopClusternodes1_]
-					cOutput += '        ' + This._SanitizeNodeId(cNodeId) + ';' + NL
+					_cNodeId_ = _aClusternodes1_[_iLoopClusternodes1_]
+					_cOutput_ += '        ' + This._SanitizeNodeId(_cNodeId_) + ';' + NL
 				end
 				
-				cOutput += '    }' + NL
+				_cOutput_ += '    }' + NL
 			end
 		ok
 	
 		# Generate edges
-		cOutput += This._GenerateEdges(cTheme)
+		_cOutput_ += This._GenerateEdges(_cTheme_)
 		
-		cOutput += NL + "}"
+		_cOutput_ += NL + "}"
 		
-		@cDotCode = cOutput
+		@cDotCode = _cOutput_
 	
 	def _GetTheme()
-		cTheme = StzLower(@oDiagram.@cTheme)
-		if cTheme = ""
-			cTheme = $cDefaultColorTheme
+		_cTheme_ = StzLower(@oDiagram.@cTheme)
+		if _cTheme_ = ""
+			_cTheme_ = $cDefaultColorTheme
 		ok
-		return cTheme
+		return _cTheme_
 
-	def _GenerateGraphAttributes(cTheme)
-	    cRankDir = This._GetRankDir()
-	    cFont = This._GetFont()
-	    nFontSize = This._GetFontSize()
+	def _GenerateGraphAttributes(_cTheme_)
+	    _cRankDir_ = This._GetRankDir()
+	    _cFont_ = This._GetFont()
+	    _nFontSize_ = This._GetFontSize()
 	    
-	    cResult = '    graph [rankdir=' + cRankDir + 
+	    _cResult_ = '    graph [rankdir=' + _cRankDir_ + 
 	               ', bgcolor=white' +
-	               ', fontname="' + cFont + '"' +
-	               ', fontsize=' + nFontSize +
+	               ', fontname="' + _cFont_ + '"' +
+	               ', fontsize=' + _nFontSize_ +
 	               ', splines=' + @oDiagram.@cSplineType +
 	               ', nodesep=' + @oDiagram.@nNodeSep +
 	               ', ranksep=' + @oDiagram.@nRankSep +
@@ -2564,231 +2564,231 @@ class stzDiagramToDot from stzObject
 	               ', tooltip=" "'  #TODO // Has no effect
 	    
 	    if @oDiagram.@bConcentrate
-	        cResult += ', concentrate=true'
+	        _cResult_ += ', concentrate=true'
 	    ok
 	    
-	    cResult += ']' + NL
-	    return cResult
+	    _cResult_ += ']' + NL
+	    return _cResult_
 
-	def _GenerateNodeAttributes(cTheme)
-		cFont = This._GetFont()
-		nFontSize = This._GetFontSize()
+	def _GenerateNodeAttributes(_cTheme_)
+		_cFont_ = This._GetFont()
+		_nFontSize_ = This._GetFontSize()
 		
-		cResult = '    node [fontname="' + cFont + '", fontsize=' + nFontSize + ']' + NL
+		_cResult_ = '    node [fontname="' + _cFont_ + '", fontsize=' + _nFontSize_ + ']' + NL
 	
-		return cResult
+		return _cResult_
 
-	def _GenerateEdgeAttributes(cTheme)
-		cFont = This._GetFont()
-		nFontSize = This._GetFontSize()
-		cEdgeColor = This._GetEdgeColor(cTheme)
-		cEdgeStyle = This._GetEdgeStyle()
+	def _GenerateEdgeAttributes(_cTheme_)
+		_cFont_ = This._GetFont()
+		_nFontSize_ = This._GetFontSize()
+		_cEdgeColor_ = This._GetEdgeColor(_cTheme_)
+		_cEdgeStyle_ = This._GetEdgeStyle()
 
-		cResult = '    edge [fontname="' + cFont + '", fontsize=' + nFontSize + 
-		          ', color="' + cEdgeColor + '", style=' + cEdgeStyle +
+		_cResult_ = '    edge [fontname="' + _cFont_ + '", fontsize=' + _nFontSize_ + 
+		          ', color="' + _cEdgeColor_ + '", style=' + _cEdgeStyle_ +
 		          ', penwidth=' + @oDiagram.@nEdgePenWidth + 
 		          ', arrowhead=' + @oDiagram.@cArrowHead + 
 		          ', arrowtail=' + @oDiagram.@cArrowTail + ']' + NL
 
-		return cResult
+		return _cResult_
 	
 	def _GetRankDir()
-		cLayout = StzLower(@oDiagram.@cLayout)
+		_cLayout_ = StzLower(@oDiagram.@cLayout)
 		
 		# Handle empty/null layout
-		if cLayout = ""
-			cLayout = $cDefaultLayout
+		if _cLayout_ = ""
+			_cLayout_ = $cDefaultLayout
 		ok
 		
-		cRankDir = "TB"
+		_cRankDir_ = "TB"
 
-		if cLayout = "topdown" or StzFindFirst($acLayouts[:TopDown], cLayout)
-			cRankDir = "TB"
+		if _cLayout_ = "topdown" or StzFindFirst($acLayouts[:TopDown], _cLayout_)
+			_cRankDir_ = "TB"
 	
-		but cLayout = "bottomup" or StzFindFirst($acLayouts[:BottomUp], cLayout)
-			cRankDir = "BT"
+		but _cLayout_ = "bottomup" or StzFindFirst($acLayouts[:BottomUp], _cLayout_)
+			_cRankDir_ = "BT"
 	
-		but cLayout = "leftright" or StzFindFirst($acLayouts[:LeftRight], cLayout)
-			cRankDir = "LR"
+		but _cLayout_ = "leftright" or StzFindFirst($acLayouts[:LeftRight], _cLayout_)
+			_cRankDir_ = "LR"
 	
-		but cLayout = "rightleft" or StzFindFirst($acLayouts[:RightLeft], cLayout)
-			cRankDir = "RL"
+		but _cLayout_ = "rightleft" or StzFindFirst($acLayouts[:RightLeft], _cLayout_)
+			_cRankDir_ = "RL"
 		ok
 	
-		return cRankDir
+		return _cRankDir_
 	
 	def _GetFont()
-		cFont = @oDiagram.@cFont
-		if cFont = ""
-			cFont = $cDefaultFont
+		_cFont_ = @oDiagram.@cFont
+		if _cFont_ = ""
+			_cFont_ = $cDefaultFont
 		ok
 
-		return cFont
+		return _cFont_
 	
 	def _GetFontSize()
-		nFontSize = @oDiagram.@nFontSize
-		if nFontSize = 0 or nFontSize = ""
-			nFontSize = $cDefaultFontSize
+		_nFontSize_ = @oDiagram.@nFontSize
+		if _nFontSize_ = 0 or _nFontSize_ = ""
+			_nFontSize_ = $cDefaultFontSize
 		ok
 
-		return nFontSize
+		return _nFontSize_
 	
-	def _GetEdgeColor(cTheme)
+	def _GetEdgeColor(_cTheme_)
 		# Use resolved color from diagram, default to black
-		cEdgeColor = @oDiagram.@cEdgeColor
+		_cEdgeColor_ = @oDiagram.@cEdgeColor
 		
-		if cEdgeColor = ""
-			cEdgeColor = ResolveColor("black")  # Changed from using @cDefaultEdgeColor
+		if _cEdgeColor_ = ""
+			_cEdgeColor_ = ResolveColor("black")  # Changed from using @cDefaultEdgeColor
 		else
-			cEdgeColor = ResolveColor(cEdgeColor)
+			_cEdgeColor_ = ResolveColor(_cEdgeColor_)
 		ok
 		
 		# Theme-specific edge colors
-		if cTheme = "print"
-			cEdgeColor = ResolveColor(:black)
-		but cTheme = "gray" or cTheme = "lightgray" or cTheme = "darkgray"
-			cEdgeColor = ResolveColor(:black)
-		but cTheme = "dark"
-			cEdgeColor = ResolveColor("gray-")
+		if _cTheme_ = "print"
+			_cEdgeColor_ = ResolveColor(:black)
+		but _cTheme_ = "gray" or _cTheme_ = "lightgray" or _cTheme_ = "darkgray"
+			_cEdgeColor_ = ResolveColor(:black)
+		but _cTheme_ = "dark"
+			_cEdgeColor_ = ResolveColor("gray-")
 		ok
 		
-		return cEdgeColor
+		return _cEdgeColor_
 	
 	def _GetEdgeStyle()
-		cEdgeStyle = "solid"
+		_cEdgeStyle_ = "solid"
 
 		if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
-			cEdgeStyle = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
+			_cEdgeStyle_ = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
 		ok
 
-		return cEdgeStyle
+		return _cEdgeStyle_
 	
-	def _GenerateNodes(cTheme)
-		cOutput = ""
+	def _GenerateNodes(_cTheme_)
+		_cOutput_ = ""
 		
 		_aDiagramNodes1_ = @oDiagram.Nodes()
 		_nDiagramNodes1Len_ = len(_aDiagramNodes1_)
 		for _iLoopDiagramNodes1_ = 1 to _nDiagramNodes1Len_
-			aNode = _aDiagramNodes1_[_iLoopDiagramNodes1_]
-			cOutput += This._GenerateNode(aNode, cTheme)
+			_aNode_ = _aDiagramNodes1_[_iLoopDiagramNodes1_]
+			_cOutput_ += This._GenerateNode(_aNode_, _cTheme_)
 		end
 		
-		return cOutput
+		return _cOutput_
 	
-	def _GenerateNode(aNode, cTheme)
-	    cNodeId = This._SanitizeNodeId(aNode["id"])
+	def _GenerateNode(_aNode_, _cTheme_)
+	    _cNodeId_ = This._SanitizeNodeId(_aNode_["id"])
 	    
 	    # Handle helper nodes
-	    if HasKey(aNode, "properties") and HasKey(aNode["properties"], "ishelper") and aNode["properties"]["ishelper"] = TRUE
-	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
-	        return cOutput
+	    if HasKey(_aNode_, "properties") and HasKey(_aNode_["properties"], "ishelper") and _aNode_["properties"]["ishelper"] = TRUE
+	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        return _cOutput_
 	    ok
 	    
-	    if StzLeft(cNodeId, 8) = "_helper_"
-	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
-	        return cOutput
+	    if StzLeft(_cNodeId_, 8) = "_helper_"
+	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        return _cOutput_
 	    ok
 	    
-	    cLabel = aNode["label"]
+	    _cLabel_ = _aNode_["label"]
 	    
 	    # Get visual rule effects FIRST
-	    aAppliedRules = []
-	    if HasKey(@oDiagram.@aNodeRulesEffects, aNode["id"])
-	        aAppliedRules = @oDiagram.@aNodeRulesEffects[aNode["id"]]
+	    _aAppliedRules_ = []
+	    if HasKey(@oDiagram.@aNodeRulesEffects, _aNode_["id"])
+	        _aAppliedRules_ = @oDiagram.@aNodeRulesEffects[_aNode_["id"]]
 	    ok
 	    
 	    # Apply effects to override defaults
-	    cShape = This._GetNodeShape(aNode, aAppliedRules)
-	    cStyle = This._GetNodeStyle(aNode, aAppliedRules)
-	    cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
+	    _cShape_ = This._GetNodeShape(_aNode_, _aAppliedRules_)
+	    _cStyle_ = This._GetNodeStyle(_aNode_, _aAppliedRules_)
+	    _cFillColor_ = This._GetNodeFillColor(_aNode_, _aAppliedRules_, _cTheme_)
 	    
 	    # Check if visual rules set penwidth
-	    nPenWidth = @oDiagram.@nNodePenWidth
-	    if HasKey(aAppliedRules, "penwidth")
-	        nPenWidth = aAppliedRules["penwidth"]
+	    _nPenWidth_ = @oDiagram.@nNodePenWidth
+	    if HasKey(_aAppliedRules_, "penwidth")
+	        _nPenWidth_ = _aAppliedRules_["penwidth"]
 	    ok
 	    
 	    # Ensure filled is always present (visual rules already merged in _GetNodeStyle)
-	    if NOT StzFindFirst(cStyle, "filled")
-	        if cStyle = ""
-	            cStyle = "filled"
+	    if NOT StzFindFirst(_cStyle_, "filled")
+	        if _cStyle_ = ""
+	            _cStyle_ = "filled"
 	        else
-	            cStyle += ",filled"
+	            _cStyle_ += ",filled"
 	        ok
 	    ok
 	    
-	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
-	    cOutput += ', shape=' + cShape
-	    cOutput += ', style="' + cStyle + '"'
-	    cOutput += ', fillcolor="' + cFillColor + '"'
-	    cOutput += ', penwidth=' + nPenWidth
+	    _cOutput_ = '    ' + _cNodeId_ + ' [label="' + _cLabel_ + '"'
+	    _cOutput_ += ', shape=' + _cShape_
+	    _cOutput_ += ', style="' + _cStyle_ + '"'
+	    _cOutput_ += ', fillcolor="' + _cFillColor_ + '"'
+	    _cOutput_ += ', penwidth=' + _nPenWidth_
 	    
 	    # Add contrasting font color
-	    cFontColor = @oDiagram.ResolveFontColor(cFillColor)
-	    cOutput += ', fontcolor="' + cFontColor + '"'
+	    _cFontColor_ = @oDiagram.ResolveFontColor(_cFillColor_)
+	    _cOutput_ += ', fontcolor="' + _cFontColor_ + '"'
 	    
 	    # ORG CHART POSITION NODES
-	    if HasKey(aNode["properties"], "positiontype") and 
-	        aNode["properties"]["positiontype"] = "position"
+	    if HasKey(_aNode_["properties"], "positiontype") and 
+	        _aNode_["properties"]["positiontype"] = "position"
 	        
-	        cFillColor = ResolveColor(aNode["properties"]["color"])
-	        cOutput += ', fillcolor="' + cFillColor + '"'
-	        cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
+	        _cFillColor_ = ResolveColor(_aNode_["properties"]["color"])
+	        _cOutput_ += ', fillcolor="' + _cFillColor_ + '"'
+	        _cOutput_ += ', fontcolor="' + @oDiagram.ResolveFontColor(_cFillColor_) + '"'
 	        
 	        # Use diagram's stroke color setting
-	        cStrokeColor = @oDiagram.@cNodeStrokeColor
-	        if cStrokeColor = '' or cStrokeColor = "invisible"
-	            cStrokeColor = cFillColor
+	        _cStrokeColor_ = @oDiagram.@cNodeStrokeColor
+	        if _cStrokeColor_ = '' or _cStrokeColor_ = "invisible"
+	            _cStrokeColor_ = _cFillColor_
 	        ok
-	        cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
+	        _cOutput_ += ', color="' + ResolveColor(_cStrokeColor_) + '"'
 	    ok
 	    
 	    # Generate tooltip
-	    cTooltip = This._GenerateTooltip(aNode)
-	    if cTooltip != ""
-	        cOutput += ', tooltip="' + This._EscapeTooltip(cTooltip) + '"'
+	    _cTooltip_ = This._GenerateTooltip(_aNode_)
+	    if _cTooltip_ != ""
+	        _cOutput_ += ', tooltip="' + This._EscapeTooltip(_cTooltip_) + '"'
 	    else
 	        # Explicitly disable default tooltip
-	        cOutput += ', tooltip=" "'
+	        _cOutput_ += ', tooltip=" "'
 	    ok
 	    
-	    cOutput += ']' + NL
+	    _cOutput_ += ']' + NL
 	    
-	    return cOutput
+	    return _cOutput_
 
-	def _SanitizeNodeId(cNodeId)
-		if StzLeft(cNodeId, 1) = "@"
-			return StzMid(cNodeId, 2, stzlen(cNodeId) - 1)
+	def _SanitizeNodeId(_cNodeId_)
+		if StzLeft(_cNodeId_, 1) = "@"
+			return StzMid(_cNodeId_, 2, stzlen(_cNodeId_) - 1)
 		ok
 
-		return cNodeId
+		return _cNodeId_
 	
-	def _GetNodeShape(aNode, aEnhancements)
+	def _GetNodeShape(_aNode_, _aEnhancements_)
 		# Check enhancements FIRST (from visual rules)
-		if HasKey(aEnhancements, "shape")
-			return aEnhancements["shape"]
+		if HasKey(_aEnhancements_, "shape")
+			return _aEnhancements_["shape"]
 		ok
 		
 		# Check node properties for explicit shape
-		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-		   HasKey(aNode["properties"], "shape") and aNode["properties"]["shape"] != NULL
-			return aNode["properties"]["shape"]
+		if HasKey(_aNode_, "properties") and _aNode_["properties"] != NULL and 
+		   HasKey(_aNode_["properties"], "shape") and _aNode_["properties"]["shape"] != NULL
+			return _aNode_["properties"]["shape"]
 		ok
 		
 		# Get type for semantic mapping
-		cType = ""
-		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-		   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
-			cType = StzLower("" + aNode["properties"]["type"])
+		_cType_ = ""
+		if HasKey(_aNode_, "properties") and _aNode_["properties"] != NULL and 
+		   HasKey(_aNode_["properties"], "type") and _aNode_["properties"]["type"] != NULL
+			_cType_ = StzLower("" + _aNode_["properties"]["type"])
 		ok
 		
 		# Direct DOT shape (bypasses semantic mapping)
-		if StzFindFirst($acDotShapes, cType) > 0
-			return cType
+		if StzFindFirst($acDotShapes, _cType_) > 0
+			return _cType_
 		ok
 		
 		# Semantic to shape mapping
-		switch cType
+		switch _cType_
 		on "process"
 			return "box"
 
@@ -2817,249 +2817,249 @@ class stzDiagramToDot from stzObject
 			return "box"
 		off
 	
-	def _GetNodeStyle(aNode, aEnhancements)
+	def _GetNodeStyle(_aNode_, _aEnhancements_)
 		# Get the actual shape that will be rendered
-		cShape = This._GetNodeShape(aNode, aEnhancements)
+		_cShape_ = This._GetNodeShape(_aNode_, _aEnhancements_)
 		
 		# Start with global node pen style
-		cBaseStyle = @oDiagram.@cNodePenStyle
+		_cBaseStyle_ = @oDiagram.@cNodePenStyle
 		
 		# If visual rule sets style, merge with base
-		if HasKey(aEnhancements, "style")
-			cRuleStyle = aEnhancements["style"]
+		if HasKey(_aEnhancements_, "style")
+			_cRuleStyle_ = _aEnhancements_["style"]
 			# Merge: ensure filled + rounded (for boxes) + rule style
-			if NOT StzFindFirst(cRuleStyle, "filled")
-				cRuleStyle += ",filled"
+			if NOT StzFindFirst(_cRuleStyle_, "filled")
+				_cRuleStyle_ += ",filled"
 			ok
-			if cShape = "box" and NOT StzFindFirst(cRuleStyle, "rounded")
-				cRuleStyle = "rounded," + cRuleStyle
+			if _cShape_ = "box" and NOT StzFindFirst(_cRuleStyle_, "rounded")
+				_cRuleStyle_ = "rounded," + _cRuleStyle_
 			ok
-			return cRuleStyle
+			return _cRuleStyle_
 		ok
 		
 		# Polygon shapes don't support rounded
 		
-		if StzFindFirst($aPolygonShapes, cShape) > 0
+		if StzFindFirst($aPolygonShapes, _cShape_) > 0
 			# Add filled if not already there
-			if NOT StzFindFirst(cBaseStyle, "filled")
-				return cBaseStyle + ",filled"
+			if NOT StzFindFirst(_cBaseStyle_, "filled")
+				return _cBaseStyle_ + ",filled"
 			ok
-			return cBaseStyle
+			return _cBaseStyle_
 		ok
 
 		# For box-like shapes, add rounded and filled
-		if NOT StzFindFirst(cBaseStyle, "filled")
-			cBaseStyle += ",filled"
+		if NOT StzFindFirst(_cBaseStyle_, "filled")
+			_cBaseStyle_ += ",filled"
 		ok
-		if NOT StzFindFirst(cBaseStyle, "rounded") and cShape = "box"
-			cBaseStyle = "rounded," + cBaseStyle
+		if NOT StzFindFirst(_cBaseStyle_, "rounded") and _cShape_ = "box"
+			_cBaseStyle_ = "rounded," + _cBaseStyle_
 		ok
 		
-		return cBaseStyle
+		return _cBaseStyle_
 	
-	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
-	    cColor = ""
+	def _GetNodeFillColor(_aNode_, _aEnhancements_, _cTheme_)
+	    _cColor_ = ""
 	    
-	    if HasKey(aEnhancements, "color")
-	        cColor = aEnhancements["color"]
+	    if HasKey(_aEnhancements_, "color")
+	        _cColor_ = _aEnhancements_["color"]
 	    ok
 	    
-	    if cColor = "" and HasKey(aNode, "properties") and 
-	       HasKey(aNode["properties"], "color")
-	        cColor = aNode["properties"]["color"]
+	    if _cColor_ = "" and HasKey(_aNode_, "properties") and 
+	       HasKey(_aNode_["properties"], "color")
+	        _cColor_ = _aNode_["properties"]["color"]
 	    ok
 	    
 	    # Use theme's primary color when no color specified
-	    if cColor = ''
-	        if HasKey($aPalette, cTheme)
-	            cColor = $aPalette[cTheme]["primary"]
+	    if _cColor_ = ''
+	        if HasKey($aPalette, _cTheme_)
+	            _cColor_ = $aPalette[_cTheme_]["primary"]
 	        else
-	            cColor = $cDefaultNodeColor
+	            _cColor_ = $cDefaultNodeColor
 	        ok
 	    ok
 	    
 	    # If already hex, return after theme transforms
-	    if StzFindFirst(cColor, "#")
-	        if cTheme = "gray"
-	            return @oDiagram.ConvertColorTogray(cColor)
-	        but cTheme = "print"
+	    if StzFindFirst(_cColor_, "#")
+	        if _cTheme_ = "gray"
+	            return @oDiagram.ConvertColorTogray(_cColor_)
+	        but _cTheme_ = "print"
 	            return ResolveColor(:white)
 	        ok
-	        return cColor
+	        return _cColor_
 	    ok
 	    
 	    # Resolve through theme palette for semantic colors
-	    cLowerColor = StzLower(cColor)
-	    if HasKey($aPalette, cTheme) and HasKey($aPalette[cTheme], cLowerColor)
-	        cColor = $aPalette[cTheme][cLowerColor]
+	    _cLowerColor_ = StzLower(_cColor_)
+	    if HasKey($aPalette, _cTheme_) and HasKey($aPalette[_cTheme_], _cLowerColor_)
+	        _cColor_ = $aPalette[_cTheme_][_cLowerColor_]
 	    ok
 	    
 	    # Resolve to hex
-	    cColor = ResolveColor(cColor)
+	    _cColor_ = ResolveColor(_cColor_)
 	    
 	    # Final theme transforms
-	    if cTheme = "gray"
-	        cColor = @oDiagram.ConvertColorTogray(cColor)
-	    but cTheme = "print"
-	        cColor = ResolveColor(:white)
+	    if _cTheme_ = "gray"
+	        _cColor_ = @oDiagram.ConvertColorTogray(_cColor_)
+	    but _cTheme_ = "print"
+	        _cColor_ = ResolveColor(:white)
 	    ok
 	    
-	    return cColor
+	    return _cColor_
 	
-	def _GetNodeStrokeColor(cTheme)
+	def _GetNodeStrokeColor(_cTheme_)
 		if @oDiagram.@cNodeStrokeColor != "" and @oDiagram.@cNodeStrokeColor != NULL
 			return @oDiagram.@cNodeStrokeColor
 		ok
 		
-		if cTheme = "print" or cTheme = "gray"
+		if _cTheme_ = "print" or _cTheme_ = "gray"
 			return "black"
 		ok
 		
 		return ""
 	
-	def _GenerateEdges(cTheme)
-		cOutput = ""
+	def _GenerateEdges(_cTheme_)
+		_cOutput_ = ""
 		
 		# Add invisible edges to force vertical layout when no real edges exist
 		if len(@oDiagram.Edges()) = 0
-			acNodes = @oDiagram.Nodes()
-			nLen = len(acNodes)
-			for i = 1 to nLen - 1
-				cFrom = This._SanitizeNodeId(acNodes[i]["id"])
-				cTo = This._SanitizeNodeId(acNodes[i+1]["id"])
-				cOutput += '    ' + cFrom + ' -> ' + cTo + ' [style=invis]' + NL
+			_acNodes_ = @oDiagram.Nodes()
+			_nLen_ = len(_acNodes_)
+			for i = 1 to _nLen_ - 1
+				_cFrom_ = This._SanitizeNodeId(_acNodes_[i]["id"])
+				_cTo_ = This._SanitizeNodeId(_acNodes_[i+1]["id"])
+				_cOutput_ += '    ' + _cFrom_ + ' -> ' + _cTo_ + ' [style=invis]' + NL
 			end
 		ok
 		
 		_aDiagramEdges1_ = @oDiagram.Edges()
 		_nDiagramEdges1Len_ = len(_aDiagramEdges1_)
 		for _iLoopDiagramEdges1_ = 1 to _nDiagramEdges1Len_
-			aEdge = _aDiagramEdges1_[_iLoopDiagramEdges1_]
-			cOutput += This._GenerateEdge(aEdge, cTheme)
+			_aEdge_ = _aDiagramEdges1_[_iLoopDiagramEdges1_]
+			_cOutput_ += This._GenerateEdge(_aEdge_, _cTheme_)
 		end
 		
-		return cOutput
+		return _cOutput_
 
-	def _GenerateEdge(aEdge, cTheme)
-	    cFrom = This._SanitizeNodeId(aEdge["from"])
-	    cTo = This._SanitizeNodeId(aEdge["to"])
-	    cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+	def _GenerateEdge(_aEdge_, _cTheme_)
+	    _cFrom_ = This._SanitizeNodeId(_aEdge_["from"])
+	    _cTo_ = This._SanitizeNodeId(_aEdge_["to"])
+	    _cEdgeKey_ = _aEdge_["from"] + "->" + _aEdge_["to"]
 	    
-	    cOutput = '    ' + cFrom + ' -> ' + cTo
-	    aAttrs = []
+	    _cOutput_ = '    ' + _cFrom_ + ' -> ' + _cTo_
+	    _aAttrs_ = []
 	    
 	    # Check if this is a supervisorÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢helper edge
-	    if StzLeft(cTo, 8) = "_helper_"
-	        aAttrs + 'arrowhead=none'
-	        aAttrs + 'weight=10'
+	    if StzLeft(_cTo_, 8) = "_helper_"
+	        _aAttrs_ + 'arrowhead=none'
+	        _aAttrs_ + 'weight=10'
 	    ok
 	    
 	    # Handle edge label with spacing fix for TB layout
-	    if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
-	        cLabel = aEdge["label"]
-	        cRankDir = This._GetRankDir()
+	    if HasKey(_aEdge_, "label") and _aEdge_["label"] != "" and _aEdge_["label"] != NULL
+	        _cLabel_ = _aEdge_["label"]
+	        _cRankDir_ = This._GetRankDir()
 	        
 	        # Add leading space for TB/BT layouts to prevent label collapse
-	        if cRankDir = "TB" or cRankDir = "BT"
-	            cLabel = " " + cLabel
+	        if _cRankDir_ = "TB" or _cRankDir_ = "BT"
+	            _cLabel_ = " " + _cLabel_
 	        ok
 	        
-	        aAttrs + ('label="' + cLabel + '"')
+	        _aAttrs_ + ('label="' + _cLabel_ + '"')
 	    ok
 	    
 	    # Check edge properties
-	    if HasKey(aEdge, "properties")
-	        if HasKey(aEdge["properties"], "arrowhead")
-	            aAttrs + ('arrowhead=' + aEdge["properties"]["arrowhead"])
+	    if HasKey(_aEdge_, "properties")
+	        if HasKey(_aEdge_["properties"], "arrowhead")
+	            _aAttrs_ + ('arrowhead=' + _aEdge_["properties"]["arrowhead"])
 	        ok
-	        if HasKey(aEdge["properties"], "weight")
-	            aAttrs + ('weight=' + aEdge["properties"]["weight"])
+	        if HasKey(_aEdge_["properties"], "weight")
+	            _aAttrs_ + ('weight=' + _aEdge_["properties"]["weight"])
 	        ok
 	    ok
 	    
 	    # Check rule effects from parent
-	    if HasKey(@oDiagram.@aEdgesAffectedByRules, cEdgeKey)
-	        aAppliedRules = @oDiagram.@aEdgesAffectedByRules[cEdgeKey]
+	    if HasKey(@oDiagram.@aEdgesAffectedByRules, _cEdgeKey_)
+	        _aAppliedRules_ = @oDiagram.@aEdgesAffectedByRules[_cEdgeKey_]
 	        
-	        if HasKey(aAppliedRules, "style")
-	            aAttrs + ('style="' + aAppliedRules["style"] + '"')
+	        if HasKey(_aAppliedRules_, "style")
+	            _aAttrs_ + ('style="' + _aAppliedRules_["style"] + '"')
 	        ok
 	        
-	        if HasKey(aAppliedRules, "color")
-	            cColor = ResolveColor(aAppliedRules["color"])
-	            aAttrs + ('color="' + cColor + '"')
+	        if HasKey(_aAppliedRules_, "color")
+	            _cColor_ = ResolveColor(_aAppliedRules_["color"])
+	            _aAttrs_ + ('color="' + _cColor_ + '"')
 	        ok
 	        
-	        if HasKey(aAppliedRules, "penwidth")
-	            aAttrs + ('penwidth=' + aAppliedRules["penwidth"])
+	        if HasKey(_aAppliedRules_, "penwidth")
+	            _aAttrs_ + ('penwidth=' + _aAppliedRules_["penwidth"])
 	        ok
 	    ok
 	    
-	    if len(aAttrs) > 0
-	        cOutput += ' [' + This._JoinAttributes(aAttrs) + ']'
+	    if len(_aAttrs_) > 0
+	        _cOutput_ += ' [' + This._JoinAttributes(_aAttrs_) + ']'
 	    ok
 	    
-	    cOutput += NL
-	    return cOutput
+	    _cOutput_ += NL
+	    return _cOutput_
 	
-	def _GenerateTooltip(aNode)
-	    aConfig = @oDiagram.@aTooltipConfig
+	def _GenerateTooltip(_aNode_)
+	    _aConfig_ = @oDiagram.@aTooltipConfig
 	    
-	    if len(aConfig) = 0
+	    if len(_aConfig_) = 0
 	        return ""  # Explicitly no tooltip
 	    ok
 	    
-	    cTooltip = ""
+	    _cTooltip_ = ""
 	    
-	    _nConfig1Len_ = len(aConfig)
+	    _nConfig1Len_ = len(_aConfig_)
 	    for _iLoopConfig1_ = 1 to _nConfig1Len_
-	    	item = aConfig[_iLoopConfig1_]
-	        cKey = StzLower("" + item)
+	    	_item_ = _aConfig_[_iLoopConfig1_]
+	        _cKey_ = StzLower("" + _item_)
 	        
-	        if cKey = "nodeid"
-	            cTooltip += "ID: " + aNode["id"] + "\n"
+	        if _cKey_ = "nodeid"
+	            _cTooltip_ += "ID: " + _aNode_["id"] + "\n"
 	            
-	        but cKey = "label"
-	            cTooltip += "Label: " + aNode["label"] + "\n"
+	        but _cKey_ = "label"
+	            _cTooltip_ += "Label: " + _aNode_["label"] + "\n"
 	            
-	        but cKey = "type"
-	            if HasKey(aNode["properties"], "type")
-	                cTooltip += "Type: " + aNode["properties"]["type"] + "\n"
+	        but _cKey_ = "type"
+	            if HasKey(_aNode_["properties"], "type")
+	                _cTooltip_ += "Type: " + _aNode_["properties"]["type"] + "\n"
 	            ok
 	            
-	        but cKey = "color"
-	            if HasKey(aNode["properties"], "color")
-	                cTooltip += "Color: " + aNode["properties"]["color"] + "\n"
+	        but _cKey_ = "color"
+	            if HasKey(_aNode_["properties"], "color")
+	                _cTooltip_ += "Color: " + _aNode_["properties"]["color"] + "\n"
 	            ok
 	            
 	        else
 	            # Custom property
-	            if HasKey(aNode["properties"], cKey)
-	                cValue = aNode["properties"][cKey]
-	                cTooltip += cKey + ": " + cValue + "\n"
+	            if HasKey(_aNode_["properties"], _cKey_)
+	                _cValue_ = _aNode_["properties"][_cKey_]
+	                _cTooltip_ += _cKey_ + ": " + _cValue_ + "\n"
 	            ok
 	        ok
 	    end
 	    
-	    return cTooltip
+	    return _cTooltip_
 	
-	def _EscapeTooltip(cText)
-	    cText = StzReplace(cText, '"', '\"')
-	    cText = StzReplace(cText, "\n", "&#10;")  # HTML entity for newline
-	    return cText
+	def _EscapeTooltip(_cText_)
+	    _cText_ = StzReplace(_cText_, '"', '\"')
+	    _cText_ = StzReplace(_cText_, "\n", "&#10;")  # HTML entity for newline
+	    return _cText_
 
-	def _JoinAttributes(aAttrs)
-		cResult = ""
-		nLen = len(aAttrs)
+	def _JoinAttributes(_aAttrs_)
+		_cResult_ = ""
+		_nLen_ = len(_aAttrs_)
 
-		for i = 1 to nLen
-			cResult += aAttrs[i]
-			if i < nLen
-				cResult += ', '
+		for i = 1 to _nLen_
+			_cResult_ += _aAttrs_[i]
+			if i < _nLen_
+				_cResult_ += ', '
 			ok
 		end
 
-		return cResult
+		return _cResult_
 
 	def DotCode()
 		return @cDotCode
@@ -3072,9 +3072,9 @@ class stzDiagramToDot from stzObject
 
 
 	def WriteToFile(pFilename)
-		oFile = fopen(pFilename, "w")
-		fwrite(oFile, This.DotCode())
-		fclose(oFile)
+		_oFile_ = fopen(pFilename, "w")
+		fwrite(_oFile_, This.DotCode())
+		fclose(_oFile_)
 		return TRUE
 
 #====================================#
@@ -3099,70 +3099,70 @@ class stzDiagramToMermaid from stzObject
 		This._Generate()
 
 	def _Generate()
-		cOutput = "graph TD" + NL
+		_cOutput_ = "graph TD" + NL
 		
 		# Mermaid reserved keywords
-		aReservedWords = ["end", "start", "subgraph", "graph", "style", "class", 
+		_aReservedWords_ = ["end", "start", "subgraph", "graph", "style", "class", 
 		                  "click", "call", "direction", "flowchart", "stateDiagram",
 		                  "state", "note", "default", "loop", "alt", "par", "and"]
 	
-		aNodes = @oDiagram.Nodes()
-		nLen = len(aNodes)
-		for i = 1 to nLen
-			aNode = aNodes[i]
-			cNodeId = aNode["id"]
-			cLabel = aNode["label"]
+		_aNodes_ = @oDiagram.Nodes()
+		_nLen_ = len(_aNodes_)
+		for i = 1 to _nLen_
+			_aNode_ = _aNodes_[i]
+			_cNodeId_ = _aNode_["id"]
+			_cLabel_ = _aNode_["label"]
 	
 			# Escape reserved keywords
-			cSafeNodeId = cNodeId
-			if StzFindFirst(aReservedWords, StzLower(cNodeId)) > 0
-				cSafeNodeId = "node_" + cNodeId
+			_cSafeNodeId_ = _cNodeId_
+			if StzFindFirst(_aReservedWords_, StzLower(_cNodeId_)) > 0
+				_cSafeNodeId_ = "node_" + _cNodeId_
 			ok
 	
-			cType = aNode["properties"]["type"]
-			if cType = "start"
-				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
+			_cType_ = _aNode_["properties"]["type"]
+			if _cType_ = "start"
+				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + NL
 	
-			but cType = "endpoint"
-				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
+			but _cType_ = "endpoint"
+				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + NL
 	
-			but cType = "decision"
-				cOutput += '    ' + cSafeNodeId + '{{"' + cLabel + '"}}' + NL
+			but _cType_ = "decision"
+				_cOutput_ += '    ' + _cSafeNodeId_ + '{{"' + _cLabel_ + '"}}' + NL
 	
-			but cType = "process"
-				cOutput += '    ' + cSafeNodeId + '["' + cLabel + '"]' + NL
+			but _cType_ = "process"
+				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + NL
 	
 			else
-				cOutput += '    ' + cSafeNodeId + '["' + cLabel + '"]' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + NL
 			ok
 		end
 	
-		cOutput += NL
+		_cOutput_ += NL
 	
-		aEdges =  @oDiagram.Edges()
-		nLen = len(aEdges)
+		_aEdges_ =  @oDiagram.Edges()
+		_nLen_ = len(_aEdges_)
 
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cFromId = aEdge["from"]
-			cToId = aEdge["to"]
+		for i = 1 to _nLen_
+			_aEdge_ = _aEdges_[i]
+			_cFromId_ = _aEdge_["from"]
+			_cToId_ = _aEdge_["to"]
 			
 			# Escape reserved keywords in edges
-			if StzFindFirst(aReservedWords, StzLower(cFromId)) > 0
-				cFromId = "node_" + cFromId
+			if StzFindFirst(_aReservedWords_, StzLower(_cFromId_)) > 0
+				_cFromId_ = "node_" + _cFromId_
 			ok
-			if StzFindFirst(aReservedWords, StzLower(cToId)) > 0
-				cToId = "node_" + cToId
+			if StzFindFirst(_aReservedWords_, StzLower(_cToId_)) > 0
+				_cToId_ = "node_" + _cToId_
 			ok
 			
-			if aEdge["label"] != "" and aEdge["label"] != NULL
-				cOutput += '    ' + cFromId + ' -->|' + aEdge["label"] + '| ' + cToId + NL
+			if _aEdge_["label"] != "" and _aEdge_["label"] != NULL
+				_cOutput_ += '    ' + _cFromId_ + ' -->|' + _aEdge_["label"] + '| ' + _cToId_ + NL
 			else
-				cOutput += '    ' + cFromId + ' --> ' + cToId + NL
+				_cOutput_ += '    ' + _cFromId_ + ' --> ' + _cToId_ + NL
 			ok
 		end
 	
-		@cMermaidCode = cOutput
+		@cMermaidCode = _cOutput_
 	
 	def Code()
 		return @cMermaidCode
@@ -3174,9 +3174,9 @@ class stzDiagramToMermaid from stzObject
 			return @cMermaidCode
 
 	def WriteToFile(pFilename)
-		oFile = fopen(pFilename, "w")
-		fwrite(oFile, This.Code())
-		fclose(oFile)
+		_oFile_ = fopen(pFilename, "w")
+		fwrite(_oFile_, This.Code())
+		fclose(_oFile_)
 		return TRUE
 
 #==================================#
@@ -3196,8 +3196,8 @@ class stzDiagramToJSON from stzObject
 		This._Generate()
 
 	def _Generate()
-		aData = @oDiagram.ToHashlist()
-		@cJsonCode = ToJSONXT(aData)
+		_aData_ = @oDiagram.ToHashlist()
+		@cJsonCode = ToJSONXT(_aData_)
 
 	def Json()
 		return @cJsonCode
@@ -3212,9 +3212,9 @@ class stzDiagramToJSON from stzObject
 			return @cJsonCode
 
 	def WriteToFile(pFilename)
-		oFile = fopen(pFilename, "w")
-		fwrite(oFile, This.JsonCode())
-		fclose(oFile)
+		_oFile_ = fopen(pFilename, "w")
+		fwrite(_oFile_, This.JsonCode())
+		fclose(_oFile_)
 		return TRUE
 
 #========================#
@@ -3227,50 +3227,50 @@ class stzColorResolver from stzObject
 
 	def ResolveFontColor(pBgColor)
 		# Get actual resolved background color
-		cBgColor = ResolveColor(pBgColor)
+		_cBgColor_ = ResolveColor(pBgColor)
 		
 		# Always use luminance calculation for consistent contrast
-		return This.ContrastingTextColor(cBgColor)
+		return This.ContrastingTextColor(_cBgColor_)
 	
-	def ContrastingTextColor(cColor)
+	def ContrastingTextColor(_cColor_)
 		# Convert color to RGB
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
+		_aRGB_ = This.ColorToRGB(_cColor_)
+		_nR_ = _aRGB_[1]
+		_nG_ = _aRGB_[2]
+		_nB_ = _aRGB_[3]
 		
 		# Simple perceptual brightness formula (ITU BT.709)
-		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
+		_nBrightness_ = (0.299 * _nR_ + 0.587 * _nG_ + 0.114 * _nB_)
 		
 		# Threshold at 150 for better contrast
-		if nBrightness < 150
+		if _nBrightness_ < 150
 			return "white"
 		else
 			return "black"
 		ok
 	
-	def ColorToRGB(cColor)
+	def ColorToRGB(_cColor_)
 		# First resolve to hex, then convert
-		cHex = ResolveColor(cColor)
-		return HexToRGB(cHex)
+		_cHex_ = ResolveColor(_cColor_)
+		return HexToRGB(_cHex_)
 
-	def NodeStrokeColorForTheme(cTheme)
-		if cTheme = "print" or cTheme = "gray"
+	def NodeStrokeColorForTheme(_cTheme_)
+		if _cTheme_ = "print" or _cTheme_ = "gray"
 			return "black"
 		ok
 		return ""
 
-	def ConvertColorToGray(cColor)
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
+	def ConvertColorToGray(_cColor_)
+		_aRGB_ = This.ColorToRGB(_cColor_)
+		_nR_ = _aRGB_[1]
+		_nG_ = _aRGB_[2]
+		_nB_ = _aRGB_[3]
 		
 		# Use perceptual brightness formula
-		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
+		_nGray_ = floor(0.299 * _nR_ + 0.587 * _nG_ + 0.114 * _nB_)
 		
 		# Use global helper
-		return RGBToHex(nGray, nGray, nGray)
+		return RGBToHex(_nGray_, _nGray_, _nGray_)
 
 	def ResolveWithPalette(pcColor, pacPalette)
 
@@ -3278,40 +3278,40 @@ class stzColorResolver from stzObject
 			return pcColor
 		ok
 
-		cColorKey = StzLower("" + pcColor)
+		_cColorKey_ = StzLower("" + pcColor)
 
 		# Extract intensity modifier (++, +, --, -)
-		cIntensity = ""
-		cBaseKey = cColorKey
+		_cIntensity_ = ""
+		_cBaseKey_ = _cColorKey_
 
-		if StzRight(cColorKey, 2) = "++" or StzRight(cColorKey, 2) = "--"
-			cIntensity = StzRight(cColorKey, 2)
-			cBaseKey = StzLeft(cColorKey, stzlen(cColorKey) - 2)
+		if StzRight(_cColorKey_, 2) = "++" or StzRight(_cColorKey_, 2) = "--"
+			_cIntensity_ = StzRight(_cColorKey_, 2)
+			_cBaseKey_ = StzLeft(_cColorKey_, stzlen(_cColorKey_) - 2)
 
-		but StzRight(cColorKey, 1) = "+" or StzRight(cColorKey, 1) = "-"
-			cIntensity = StzRight(cColorKey, 1)
-			cBaseKey = StzLeft(cColorKey, stzlen(cColorKey) - 1)
+		but StzRight(_cColorKey_, 1) = "+" or StzRight(_cColorKey_, 1) = "-"
+			_cIntensity_ = StzRight(_cColorKey_, 1)
+			_cBaseKey_ = StzLeft(_cColorKey_, stzlen(_cColorKey_) - 1)
 		ok
 		
 		# Try direct palette lookup
-		if HasKey(pacPalette, cColorKey)
-			return pacPalette[cColorKey]
+		if HasKey(pacPalette, _cColorKey_)
+			return pacPalette[_cColorKey_]
 		ok
 		
 		# Try semantic meaning
-		if HasKey($acColorsBySemanticMeaning, cBaseKey)
-			cBaseColor = "" + $acColorsBySemanticMeaning[cBaseKey]
-			return ResolveColor(cBaseColor + cIntensity)
+		if HasKey($acColorsBySemanticMeaning, _cBaseKey_)
+			_cBaseColor_ = "" + $acColorsBySemanticMeaning[_cBaseKey_]
+			return ResolveColor(_cBaseColor_ + _cIntensity_)
 		ok
 		
 		# Try node type
-		if HasKey($acColorsByNodeType, cBaseKey)
-			cBaseColor = "" + $acColorsByNodeType[cBaseKey]
-			return ResolveColor(cBaseColor + cIntensity)
+		if HasKey($acColorsByNodeType, _cBaseKey_)
+			_cBaseColor_ = "" + $acColorsByNodeType[_cBaseKey_]
+			return ResolveColor(_cBaseColor_ + _cIntensity_)
 		ok
 		
 		# Legacy map #TODO Shoud it be global?
-		aLegacyMap = [
+		_aLegacyMap_ = [
 			:lightblue = "blue+",
 			:lightgreen = "green+",
 			:lightyellow = "yellow+",
@@ -3324,8 +3324,8 @@ class stzColorResolver from stzObject
 			:darkred = "red-"
 		]
 		
-		if HasKey(aLegacyMap, cColorKey)
-			return ResolveColor(aLegacyMap[cColorKey])
+		if HasKey(_aLegacyMap_, _cColorKey_)
+			return ResolveColor(_aLegacyMap_[_cColorKey_])
 		ok
 		
 		return pacPalette[:blue]
@@ -3340,11 +3340,11 @@ class stzStylParser from stzObject
 	def init()
 
 	def ParseFile(pcFilename)
-		cContent = read(pcFilename)
-		return This.Parse(cContent)
+		_cContent_ = read(pcFilename)
+		return This.Parse(_cContent_)
 	
 	def Parse(pcContent)
-		aStyle = [
+		_aStyle_ = [
 			:name = "",
 			:theme = $cDefaultColorTheme,
 			:layout = $cDefaultLayout,
@@ -3356,82 +3356,82 @@ class stzStylParser from stzObject
 			:custom = []
 		]
 		
-		acLines = split(pcContent, NL)
-		cSection = ""
+		_acLines_ = split(pcContent, NL)
+		_cSection_ = ""
 		
-		_nAcLines1Len_ = len(acLines)
+		_nAcLines1Len_ = len(_acLines_)
 		for _iLoopAcLines1_ = 1 to _nAcLines1Len_
-			cLine = acLines[_iLoopAcLines1_]
-			cLine = trim(cLine)
+			_cLine_ = _acLines_[_iLoopAcLines1_]
+			_cLine_ = trim(_cLine_)
 			
-			if cLine = "" or StzLeft(cLine, 1) = "#"
+			if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
 				loop
 			ok
 
 			# Style header
-			if StzFindFirst(cLine, "style ")
-				aStyle[:name] = This._ExtractQuoted(cLine)
+			if StzFindFirst(_cLine_, "style ")
+				_aStyle_[:name] = This._ExtractQuoted(_cLine_)
 
-			but StzFindFirst(cLine, "theme:")
-				aStyle[:theme] = This._ExtractValue(cLine)
+			but StzFindFirst(_cLine_, "theme:")
+				_aStyle_[:theme] = This._ExtractValue(_cLine_)
 
-			but StzFindFirst(cLine, "layout:")
-				aStyle[:layout] = This._ExtractValue(cLine)
+			but StzFindFirst(_cLine_, "layout:")
+				_aStyle_[:layout] = This._ExtractValue(_cLine_)
 
 			# Sections
-			but cLine = "colors"
-				cSection = "colors"
+			but _cLine_ = "colors"
+				_cSection_ = "colors"
 
-			but cLine = "fonts"
-				cSection = "fonts"
+			but _cLine_ = "fonts"
+				_cSection_ = "fonts"
 
-			but cLine = "edges"
-				cSection = "edges"
+			but _cLine_ = "edges"
+				_cSection_ = "edges"
 
-			but cLine = "nodes"
-				cSection = "nodes"
+			but _cLine_ = "nodes"
+				_cSection_ = "nodes"
 
-			but cLine = "focus"
-				cSection = "focus"
+			but _cLine_ = "focus"
+				_cSection_ = "focus"
 
-			but cLine = "custom"
-				cSection = "custom"
+			but _cLine_ = "custom"
+				_cSection_ = "custom"
 
 			# Parse section content
-			but cSection != "" and StzFindFirst(cLine, ":")
-				aParts = split(cLine, ":")
-				cKey = trim(aParts[1])
-				cValue = trim(aParts[2])
+			but _cSection_ != "" and StzFindFirst(_cLine_, ":")
+				_aParts_ = split(_cLine_, ":")
+				_cKey_ = trim(_aParts_[1])
+				_cValue_ = trim(_aParts_[2])
 				
-				aStyle[cSection] + [cKey, This._ParseValue(cValue)]
+				_aStyle_[_cSection_] + [_cKey_, This._ParseValue(_cValue_)]
 			ok
 		end
 		
 
-		return aStyle
+		return _aStyle_
 	
-	def _ParseValue(cValue)
+	def _ParseValue(_cValue_)
 		# Try number
-		if isdigit(cValue)
-			return 0 + cValue
+		if isdigit(_cValue_)
+			return 0 + _cValue_
 		ok
 		
 		# Remove quotes
-		if StzLeft(cValue, 1) = '"' and StzRight(cValue, 1) = '"'
-			return StzMid(cValue, 2, StzLen(cValue) - 2)
+		if StzLeft(_cValue_, 1) = '"' and StzRight(_cValue_, 1) = '"'
+			return StzMid(_cValue_, 2, StzLen(_cValue_) - 2)
 		ok
 
-		return cValue
+		return _cValue_
 
-	def _ExtractValue(cLine)
-		nPos = StzFindFirst(cLine, ":")
-		if nPos = 0 return "" ok
-		cValue = trim(StzMid(cLine, nPos + 1, StzLen(cLine) - nPos))
-		return This._ParseValue(cValue)
+	def _ExtractValue(_cLine_)
+		_nPos_ = StzFindFirst(_cLine_, ":")
+		if _nPos_ = 0 return "" ok
+		_cValue_ = trim(StzMid(_cLine_, _nPos_ + 1, StzLen(_cLine_) - _nPos_))
+		return This._ParseValue(_cValue_)
 
-	def _ExtractQuoted(cLine)
-		nStart = StzFindFirst(cLine, '"')
-		if nStart = 0 return "" ok
-		nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-		nEnd = StzFindFirst(nEnd, '"')
-		return StzMid(cLine, nStart + 1, nEnd - 1)
+	def _ExtractQuoted(_cLine_)
+		_nStart_ = StzFindFirst(_cLine_, '"')
+		if _nStart_ = 0 return "" ok
+		_nEnd_ = StzMid(_cLine_, _nStart_ + 1, StzLen(_cLine_) - _nStart_)
+		_nEnd_ = StzFindFirst(_nEnd_, '"')
+		return StzMid(_cLine_, _nStart_ + 1, _nEnd_ - 1)

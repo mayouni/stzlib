@@ -21,67 +21,67 @@
 class stzReactiveObject from stzReactive
 
 	# Core reactive infrastructure
-	wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
-	engine = NULL
+	_wrappedObject_ = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
+	_engine_ = NULL
 
 	# Attribute watching system
-	aAttributeWatchers = []     # [attr, callback] pairs
-	aComputedAttributes = []   # [Attribute, computer_func, dependencies]
-	aAttributeBindings = []     # [source_attr, target_obj, target_attr]
-	aAsyncOperations = []      # Pending async Attribute operations
+	_aAttributeWatchers_ = []     # [attr, callback] pairs
+	_aComputedAttributes_ = []   # [Attribute, computer_func, dependencies]
+	_aAttributeBindings_ = []     # [source_attr, target_obj, target_attr]
+	_aAsyncOperations_ = []      # Pending async Attribute operations
 	
 	# State management
-	bReactiveMode = DEFAULT_REACTIVE_MODE
-	bBatchMode = DEFAULT_BATCH_MODE
-	aPendingChanges = []       # Changes accumulated during batch mode
+	_bReactiveMode_ = DEFAULT_REACTIVE_MODE
+	_bBatchMode_ = DEFAULT_BATCH_MODE
+	_aPendingChanges_ = []       # Changes accumulated during batch mode
 	
 	# Change tracking
-	aCachedAttributeValues = []       # Cache of current Attribute values for change detection
+	_aCachedAttributeValues_ = []       # Cache of current Attribute values for change detection
 	
 	# Attribute storage - for standalone objects
-	aAttributesOfStandaloneObjects = []           # Internal Attribute storage: [name, value] pairs
+	_aAttributesOfStandaloneObjects_ = []           # Internal Attribute storage: [name, value] pairs
 
 	def Init(existingObject, reactiveEngine)
 	    if existingObject != NULL
-	        wrappedObject = existingObject
+	        _wrappedObject_ = existingObject
 	    else
-	        wrappedObject = OBJECT_STANDALONE
+	        _wrappedObject_ = OBJECT_STANDALONE
 	    ok
-	    engine = reactiveEngine
+	    _engine_ = reactiveEngine
 
    
 	# Initialize attribute cache with wrapped object's current values
-	if wrappedObject != OBJECT_STANDALONE
-	    aObjectAttrs = AttributesXT(wrappedObject)
-	    nLen = len(aObjectAttrs)
+	if _wrappedObject_ != OBJECT_STANDALONE
+	    _aObjectAttrs_ = AttributesXT(_wrappedObject_)
+	    _nLen_ = len(_aObjectAttrs_)
 	
-	    for i = 1 to nLen
-	            SetAttributeInStorage(aObjectAttrs[i][1], aObjectAttrs[i][2])
-	            UpdateAttributeCache(aObjectAttrs[i][1], aObjectAttrs[i][2])
+	    for i = 1 to _nLen_
+	            SetAttributeInStorage(_aObjectAttrs_[i][1], _aObjectAttrs_[i][2])
+	            UpdateAttributeCache(_aObjectAttrs_[i][1], _aObjectAttrs_[i][2])
 	    next
 	ok
 
 	# Ring's object access hooks - integrate with reactive system
 	def BraceStart()
-		if bReactiveMode = REACTIVE_ON
+		if _bReactiveMode_ = REACTIVE_ON
 			# Notify reactive system of object access start
 		ok
 
 	def BraceEnd()
-		if bReactiveMode = REACTIVE_ON
+		if _bReactiveMode_ = REACTIVE_ON
 			ProcessPendingReactions()
 		ok
 
 	def BraceError()
-		cError = cCatchError
+		_cError_ = cCatchError
 		
 		# Handle errors in async operations
-		nLenOp = len(aAsyncOperations)
-		for i = 1 to nLenOp
-			if len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != ""
+		_nLenOp_ = len(_aAsyncOperations_)
+		for i = 1 to _nLenOp_
+			if len(_aAsyncOperations_[i]) >= 5 and _aAsyncOperations_[i][5] != ""
 				try
-					f = aAsyncOperations[i][5]
-					call f(cError)
+					f = _aAsyncOperations_[i][5]
+					call f(_cError_)
 				catch
 					# Error in error handler - just log it (#tODO)
 				done
@@ -89,25 +89,25 @@ class stzReactiveObject from stzReactive
 		next
 
 	# Universal Attribute setter
-	def SetAttribute(cAttribute, newValue)
-		cAttribute = StzLower(cAttribute)
+	def SetAttribute(_cAttribute_, _newValue_)
+		_cAttribute_ = StzLower(_cAttribute_)
 
 		# Get old value
-		cOldValue = GetAttributeValue(cAttribute)
+		_cOldValue_ = GetAttributeValue(_cAttribute_)
 		
 		# Set the new value
-		SetAttributeValue(cAttribute, newValue)
+		SetAttributeValue(_cAttribute_, _newValue_)
 		
-		if This.bReactiveMode = REACTIVE_ON and cOldValue != newValue
+		if This.bReactiveMode = REACTIVE_ON and _cOldValue_ != _newValue_
 			# Update Attribute cache
-			This.UpdateAttributeCache(cAttribute, newValue)
+			This.UpdateAttributeCache(_cAttribute_, _newValue_)
 			
 			if this.bBatchMode = BATCH_MODE_ON
 				# Accumulate change for batch processing
-				this.aPendingChanges + [cAttribute, cOldValue, newValue]
+				this.aPendingChanges + [_cAttribute_, _cOldValue_, _newValue_]
 			else
 				# Process change immediately
-				This.ProcessAttributeChange(cAttribute, cOldValue, newValue)
+				This.ProcessAttributeChange(_cAttribute_, _cOldValue_, _newValue_)
 			ok
 		ok
 
@@ -115,125 +115,125 @@ class stzReactiveObject from stzReactive
 		This.SetAttribute(paAttr[1], paAttr[2])
 
 	# Universal Attribute getter
-	def GetAttribute(cAttribute)
-		cAttribute = StzLower(cAttribute)
-		value = GetAttributeValue(cAttribute)
+	def GetAttribute(_cAttribute_)
+		_cAttribute_ = StzLower(_cAttribute_)
+		_value_ = GetAttributeValue(_cAttribute_)
 		
-		if bReactiveMode = REACTIVE_ON
+		if _bReactiveMode_ = REACTIVE_ON
 			# Notify reactive system of Attribute access
 		ok
 		
-		return value
+		return _value_
 
 	# Core Attribute access methods
-	def GetAttributeValue(cAttribute)
-	    cAttribute = StzLower(cAttribute)
+	def GetAttributeValue(_cAttribute_)
+	    _cAttribute_ = StzLower(_cAttribute_)
 	    
 	    # Check cache first
-	    nIndex = FindAttributeInCache(cAttribute)
-	    if nIndex > 0
-	        return aCachedAttributeValues[nIndex][2]
+	    _nIndex_ = FindAttributeInCache(_cAttribute_)
+	    if _nIndex_ > 0
+	        return _aCachedAttributeValues_[_nIndex_][2]
 	    ok
 	    
-	    if wrappedObject != OBJECT_STANDALONE
+	    if _wrappedObject_ != OBJECT_STANDALONE
 	        # Wrapper mode: get from wrapped object
-	        if hasattribute(wrappedObject, cAttribute)
-	            return eval("wrappedObject." + cAttribute)
+	        if hasattribute(_wrappedObject_, _cAttribute_)
+	            return eval("wrappedObject." + _cAttribute_)
 	        else
 	            # Try storage if not on wrapped object
-	            return GetAttributeFromStorage(cAttribute)
+	            return GetAttributeFromStorage(_cAttribute_)
 	        ok
 	    else
 	        # Standalone mode: get from internal storage
-	        return GetAttributeFromStorage(cAttribute)
+	        return GetAttributeFromStorage(_cAttribute_)
 	    ok
 	
-	def SetAttributeValue(cAttribute, value)
-		cAttribute = StzLower(cAttribute)
+	def SetAttributeValue(_cAttribute_, _value_)
+		_cAttribute_ = StzLower(_cAttribute_)
 		
-		if wrappedObject != OBJECT_STANDALONE
+		if _wrappedObject_ != OBJECT_STANDALONE
 			# Wrapper mode: set on wrapped object
-			addattribute(wrappedObject, cAttribute)
-			eval("wrappedObject." + cAttribute + " = value")
+			addattribute(_wrappedObject_, _cAttribute_)
+			eval("wrappedObject." + _cAttribute_ + " = value")
 		ok
 		
 		# Always set in internal storage for consistency
-		SetAttributeInStorage(cAttribute, value)
+		SetAttributeInStorage(_cAttribute_, _value_)
 		
 		# Also set as object attribute for compatibility
-		AddAttribute(this, cAttribute)
-		eval("this." + cAttribute + " = value")
+		AddAttribute(this, _cAttribute_)
+		eval("this." + _cAttribute_ + " = value")
 
 	#-----------------------#
 	#  PUBLIC REACTIVE API  #
 	#-----------------------#
 
 	# Watch Attribute changes
-	def Watch(cAttribute, fCallback)
-		cAttribute = StzLower(cAttribute)
-		aAttributeWatchers + [cAttribute, fCallback]
+	def Watch(_cAttribute_, fCallback)
+		_cAttribute_ = StzLower(_cAttribute_)
+		_aAttributeWatchers_ + [_cAttribute_, fCallback]
 		return self
 
 	# Create computed Attribute that auto-updates
-	def Computed(cAttribute, fnComputer, aDependencies)
-	    cAttribute = StzLower(cAttribute)
-	    aComputedAttributes + [cAttribute, fnComputer, aDependencies]
+	def Computed(_cAttribute_, _fnComputer_, _aDependencies_)
+	    _cAttribute_ = StzLower(_cAttribute_)
+	    _aComputedAttributes_ + [_cAttribute_, _fnComputer_, _aDependencies_]
 	    
 	    # Initial computation
-	    ComputeAttribute(cAttribute)
+	    ComputeAttribute(_cAttribute_)
 	    return self
 
 	# Bind Attribute to another reactive object
-	def BindTo(oTargetObject, cSourceAttribute, cTargetAttribute)
-		if cTargetAttribute = NULL
-			cTargetAttribute = cSourceAttribute
+	def BindTo(oTargetObject, _cSourceAttribute_, _cTargetAttribute_)
+		if _cTargetAttribute_ = NULL
+			_cTargetAttribute_ = _cSourceAttribute_
 		ok
 
-		cSourceAttribute = StzLower(cSourceAttribute)
-		cTargetAttribute = StzLower(cTargetAttribute)
+		_cSourceAttribute_ = StzLower(_cSourceAttribute_)
+		_cTargetAttribute_ = StzLower(_cTargetAttribute_)
 
-		aAttributeBindings + [cSourceAttribute, oTargetObject, cTargetAttribute]
+		_aAttributeBindings_ + [_cSourceAttribute_, oTargetObject, _cTargetAttribute_]
 		
 		# Initial sync with immediate binding
-		sourceValue = GetAttributeValue(cSourceAttribute)
+		_sourceValue_ = GetAttributeValue(_cSourceAttribute_)
 		if DEFAULT_SYNC_MODE = BIND_AUTO_SYNC
-			oTargetObject.SetAttributeValue(cTargetAttribute, sourceValue)
+			oTargetObject.SetAttributeValue(_cTargetAttribute_, _sourceValue_)
 		ok
 
 	# Async Attribute update
-	def SetAsync(cAttribute, newValue, fnSuccess, fnError)
-		cAttribute = StzLower(cAttribute)
-		taskId = "attr_" + cAttribute + "_" + string(random(999999))
+	def SetAsync(_cAttribute_, _newValue_, fnSuccess, fnError)
+		_cAttribute_ = StzLower(_cAttribute_)
+		_taskId_ = "attr_" + _cAttribute_ + "_" + string(random(999999))
 		
 		# Ensure fnError has a value for error handling
-		fnErrorCallback = fnError
-		if fnErrorCallback = NULL
-			fnErrorCallback = func(error) { }
+		_fnErrorCallback_ = fnError
+		if _fnErrorCallback_ = NULL
+			_fnErrorCallback_ = func(error) { }
 		ok
 		
-		task = new stzReactiveTask(taskId, func {
-			return newValue
+		_task_ = new stzReactiveTask(_taskId_, func {
+			return _newValue_
 		}, this)
 		
-		task.Then_(func result {
-			SetAttribute(cAttribute, result)
+		_task_.Then_(func result {
+			SetAttribute(_cAttribute_, result)
 			if fnSuccess != NULL
 				call fnSuccess(result)
 			ok
 		})
 		
-		task.Catch_(func error {
-			call fnErrorCallback(error)
+		_task_.Catch_(func error {
+			call _fnErrorCallback_(error)
 		})
 		
-		aAsyncOperations + [cAttribute, newValue, fnSuccess, task, fnErrorCallback]
-		task.Execute()
-		return task
+		_aAsyncOperations_ + [_cAttribute_, _newValue_, fnSuccess, _task_, _fnErrorCallback_]
+		_task_.Execute()
+		return _task_
 
 	# Batch multiple Attribute updates
 	def Batch(fnUpdates)
-		bBatchMode = BATCH_MODE_ON
-		aPendingChanges = []
+		_bBatchMode_ = BATCH_MODE_ON
+		_aPendingChanges_ = []
 		
 		try
 			call fnUpdates()
@@ -241,51 +241,51 @@ class stzReactiveObject from stzReactive
 			# Handle batch error with default error handling
 		done
 		
-		bBatchMode = BATCH_MODE_OFF
+		_bBatchMode_ = BATCH_MODE_OFF
 		
 		# Process all accumulated changes at once
 		ProcessBatchChanges()
 		return self
 
 	# Create reactive stream from Attribute changes
-	def StreamAttribute(cAttribute)
-		cAttribute = StzLower(cAttribute)
+	def StreamAttribute(_cAttribute_)
+		_cAttribute_ = StzLower(_cAttribute_)
 		
-		streamId = StzLower(classname(self)) + "_" + cAttribute + "_" + random(999999)
-		stream = this.engine.CreateStream(streamId)
+		_streamId_ = StzLower(classname(self)) + "_" + _cAttribute_ + "_" + random(999999)
+		_stream_ = this.engine.CreateStream(_streamId_)
 		
-		Watch(cAttribute, func(attr, oldVal, newVal) {
-			aData = []
-			aData + ["Attribute", attr]
-			aData + ["oldValue", oldVal] 
-			aData + ["newValue", newVal]
-			aData + ["changeType", CHANGE_TYPE_VALUE]
-			stream.Emit(aData)
+		Watch(_cAttribute_, func(attr, oldVal, newVal) {
+			_aData_ = []
+			_aData_ + ["Attribute", attr]
+			_aData_ + ["oldValue", oldVal] 
+			_aData_ + ["newValue", newVal]
+			_aData_ + ["changeType", CHANGE_TYPE_VALUE]
+			_stream_.Emit(_aData_)
 		})
 		
-		return stream
+		return _stream_
 
 	# The method waits for the attribute to stop changing (settle) before executing the callback
-	def WaitForAttributetoSettle(cAttribute, nDelay, fCallback)
-		cAttribute = StzLower(cAttribute)
+	def WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
+		_cAttribute_ = StzLower(_cAttribute_)
 		
-		currentTimer = NULL
+		_currentTimer_ = NULL
 		
-		Watch(cAttribute, func(attr, oldVal, newVal) {
-			if currentTimer != NULL
-				StopTimer(currentTimer)
+		Watch(_cAttribute_, func(attr, oldVal, newVal) {
+			if _currentTimer_ != NULL
+				StopTimer(_currentTimer_)
 			ok
 			
-			currentTimer = RunAfter(func {
+			_currentTimer_ = RunAfter(func {
 				call fCallback(attr, oldVal, newVal)
-				currentTimer = NULL
+				_currentTimer_ = NULL
 			}, nDelay)
 		})
 		
 		return self
 
-		def DebounceAttribute(cAttribute, nDelay, fCallback)
-			return This.WaitForAttributetoSettle(cAttribute, nDelay, fCallback)
+		def DebounceAttribute(_cAttribute_, nDelay, fCallback)
+			return This.WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
 
 	# Factory method for creating reactive objects
 	def Reactivate(existingObject)
@@ -295,99 +295,99 @@ class stzReactiveObject from stzReactive
 	#  UTILITY METHODS  #
 	#-------------------#
 
-	def GetAttributeFromStorage(cAttribute)
-		cAttribute = StzLower(cAttribute)
+	def GetAttributeFromStorage(_cAttribute_)
+		_cAttribute_ = StzLower(_cAttribute_)
 
 		# Find in internal storage
-		nLenAttr = len(aAttributesOfStandaloneObjects)
+		_nLenAttr_ = len(_aAttributesOfStandaloneObjects_)
 
-		for i = 1 to nLenAttr
-			if aAttributesOfStandaloneObjects[i][1] = cAttribute
-				return aAttributesOfStandaloneObjects[i][2]
+		for i = 1 to _nLenAttr_
+			if _aAttributesOfStandaloneObjects_[i][1] = _cAttribute_
+				return _aAttributesOfStandaloneObjects_[i][2]
 			ok
 		next
 		
 		return ""  # Default empty value
 
-	def SetAttributeInStorage(cAttribute, value)
-		cAttribute = StzLower(cAttribute)
+	def SetAttributeInStorage(_cAttribute_, _value_)
+		_cAttribute_ = StzLower(_cAttribute_)
 
 		# Find existing Attribute
-		nLenAttr = len(aAttributesOfStandaloneObjects)
-		for i = 1 to nLenAttr
-			if aAttributesOfStandaloneObjects[i][1] = cAttribute
-				aAttributesOfStandaloneObjects[i][2] = value
+		_nLenAttr_ = len(_aAttributesOfStandaloneObjects_)
+		for i = 1 to _nLenAttr_
+			if _aAttributesOfStandaloneObjects_[i][1] = _cAttribute_
+				_aAttributesOfStandaloneObjects_[i][2] = _value_
 				return
 			ok
 		next
 		# Attribute doesn't exist, add it
-		aAttributesOfStandaloneObjects + [cAttribute, value]
+		_aAttributesOfStandaloneObjects_ + [_cAttribute_, _value_]
 
-	def UpdateAttributeCache(cAttribute, value)
-	    cAttribute = StzLower(cAttribute)
-	    nIndex = FindAttributeInCache(cAttribute)
-	    if nIndex > 0
-	        aCachedAttributeValues[nIndex][2] = value
+	def UpdateAttributeCache(_cAttribute_, _value_)
+	    _cAttribute_ = StzLower(_cAttribute_)
+	    _nIndex_ = FindAttributeInCache(_cAttribute_)
+	    if _nIndex_ > 0
+	        _aCachedAttributeValues_[_nIndex_][2] = _value_
 	    else
-	        aCachedAttributeValues + [cAttribute, value]
+	        _aCachedAttributeValues_ + [_cAttribute_, _value_]
 	    ok
 
-	def FindAttributeInCache(cAttribute)
-	    cAttribute = StzLower(cAttribute)
-	    nLenCacheAttr = len(aCachedAttributeValues)
-	    for i = 1 to nLenCacheAttr
-	        if aCachedAttributeValues[i][1] = cAttribute
+	def FindAttributeInCache(_cAttribute_)
+	    _cAttribute_ = StzLower(_cAttribute_)
+	    _nLenCacheAttr_ = len(_aCachedAttributeValues_)
+	    for i = 1 to _nLenCacheAttr_
+	        if _aCachedAttributeValues_[i][1] = _cAttribute_
 	            return i
 	        ok
 	    next
 	    return 0
 
-	def ProcessAttributeChange(cAttribute, oldValue, newValue)
-		cAttribute = StzLower(cAttribute)
+	def ProcessAttributeChange(_cAttribute_, oldValue, _newValue_)
+		_cAttribute_ = StzLower(_cAttribute_)
 
 		# Notify watchers with immediate processing
 		if DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
-			TriggerAttributeWatchers(cAttribute, oldValue, newValue)
+			TriggerAttributeWatchers(_cAttribute_, oldValue, _newValue_)
 		ok
 		
 		# Update computed Attributes
-		UpdateDependentComputedAttributes(cAttribute)
+		UpdateDependentComputedAttributes(_cAttribute_)
 		
 		# Update bound Attributes
-		UpdateBoundAttributes(cAttribute, newValue)
+		UpdateBoundAttributes(_cAttribute_, _newValue_)
 
 	def ProcessPendingReactions()
-		if len(aPendingChanges) > 0
+		if len(_aPendingChanges_) > 0
 			ProcessBatchChanges()
 		ok
 
 	def ProcessBatchChanges()
-		aProcessedAttrs = []
-		nLenPend = len(aPendingChanges)
+		_aProcessedAttrs_ = []
+		_nLenPend_ = len(_aPendingChanges_)
 
-		for i = 1 to nLenPend
-			cAttribute = aPendingChanges[i][1]
-			cOldValue = aPendingChanges[i][2] 
-			newValue = aPendingChanges[i][3]
+		for i = 1 to _nLenPend_
+			_cAttribute_ = _aPendingChanges_[i][1]
+			_cOldValue_ = _aPendingChanges_[i][2] 
+			_newValue_ = _aPendingChanges_[i][3]
 			
-			if find(aProcessedAttrs, cAttribute) = 0
-				aProcessedAttrs + cAttribute
-				ProcessAttributeChange(cAttribute, cOldValue, newValue)
+			if find(_aProcessedAttrs_, _cAttribute_) = 0
+				_aProcessedAttrs_ + _cAttribute_
+				ProcessAttributeChange(_cAttribute_, _cOldValue_, _newValue_)
 			ok
 		next
 		
-		aPendingChanges = []
+		_aPendingChanges_ = []
 
 
-	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
-	    cAttribute = StzLower(cAttribute)
-	    nLenAttr = len(aAttributeWatchers)
+	def TriggerAttributeWatchers(_cAttribute_, oldValue, _newValue_)
+	    _cAttribute_ = StzLower(_cAttribute_)
+	    _nLenAttr_ = len(_aAttributeWatchers_)
 	
-	    for i = 1 to nLenAttr
-	        if aAttributeWatchers[i][1] = cAttribute
+	    for i = 1 to _nLenAttr_
+	        if _aAttributeWatchers_[i][1] = _cAttribute_
 	            try
-	                f = aAttributeWatchers[i][2]
-	                call f(this, cAttribute, oldValue, newValue)  # Pass 'this' as first parameter
+	                f = _aAttributeWatchers_[i][2]
+	                call f(this, _cAttribute_, oldValue, _newValue_)  # Pass 'this' as first parameter
 	            catch
 	                # Handle watcher error based on error handling mode
 	                if DEFAULT_ERROR_HANDLING = ERROR_LOG
@@ -398,33 +398,33 @@ class stzReactiveObject from stzReactive
 	    next
 
 
-	def UpdateDependentComputedAttributes(cChangedAttribute)
-		cChangedAttribute = StzLower(cChangedAttribute)
-		nLenAttr = len(aComputedAttributes)
+	def UpdateDependentComputedAttributes(_cChangedAttribute_)
+		_cChangedAttribute_ = StzLower(_cChangedAttribute_)
+		_nLenAttr_ = len(_aComputedAttributes_)
 
-		for i = 1 to nLenAttr
-			cAttribute = aComputedAttributes[i][1]
-			fnComputer = aComputedAttributes[i][2]
-			aDependencies = aComputedAttributes[i][3]
+		for i = 1 to _nLenAttr_
+			_cAttribute_ = _aComputedAttributes_[i][1]
+			_fnComputer_ = _aComputedAttributes_[i][2]
+			_aDependencies_ = _aComputedAttributes_[i][3]
 			
-			if find(aDependencies, cChangedAttribute) > 0
-				ComputeAttribute(cAttribute)
+			if find(_aDependencies_, _cChangedAttribute_) > 0
+				ComputeAttribute(_cAttribute_)
 			ok
 		next
 
-	def UpdateBoundAttributes(cAttribute, newValue)
-		cAttribute = StzLower(cAttribute)
-		nLenAttr = len(aAttributeBindings)
+	def UpdateBoundAttributes(_cAttribute_, _newValue_)
+		_cAttribute_ = StzLower(_cAttribute_)
+		_nLenAttr_ = len(_aAttributeBindings_)
 
-		for i = 1 to nLenAttr
-			cSourceAttr = aAttributeBindings[i][1]
-			oTargetObj = aAttributeBindings[i][2]
-			cTargetAttr = aAttributeBindings[i][3]
+		for i = 1 to _nLenAttr_
+			_cSourceAttr_ = _aAttributeBindings_[i][1]
+			_oTargetObj_ = _aAttributeBindings_[i][2]
+			_cTargetAttr_ = _aAttributeBindings_[i][3]
 
-			if StzLower(cSourceAttr) = StzLower(cAttribute)
+			if StzLower(_cSourceAttr_) = StzLower(_cAttribute_)
 				try
 					if DEFAULT_BINDING_MODE = BIND_ONE_WAY
-						oTargetObj.SetAttributeValue(cTargetAttr, newValue)
+						_oTargetObj_.SetAttributeValue(_cTargetAttr_, _newValue_)
 					ok
 				catch
 					# Handle binding error based on error handling mode
@@ -436,27 +436,27 @@ class stzReactiveObject from stzReactive
 		next
 
 
-	def ComputeAttribute(cAttribute)
-	    cAttribute = StzLower(cAttribute)
-	    nLenAttr = len(aComputedAttributes)
+	def ComputeAttribute(_cAttribute_)
+	    _cAttribute_ = StzLower(_cAttribute_)
+	    _nLenAttr_ = len(_aComputedAttributes_)
 	
-	    for i = 1 to nLenAttr
-	        if aComputedAttributes[i][1] = cAttribute
-	            fnComputer = aComputedAttributes[i][2]
+	    for i = 1 to _nLenAttr_
+	        if _aComputedAttributes_[i][1] = _cAttribute_
+	            _fnComputer_ = _aComputedAttributes_[i][2]
 	            try
-	                cOldValue = GetAttributeValue(cAttribute)
-	                newValue = call fnComputer(this)  # Pass 'this' as parameter
+	                _cOldValue_ = GetAttributeValue(_cAttribute_)
+	                _newValue_ = call _fnComputer_(this)  # Pass 'this' as parameter
 	
 	                # Set the computed value directly without triggering change processing
-	                SetAttributeInStorage(cAttribute, newValue)
-	                UpdateAttributeCache(cAttribute, newValue)
+	                SetAttributeInStorage(_cAttribute_, _newValue_)
+	                UpdateAttributeCache(_cAttribute_, _newValue_)
 	                
 	                # Set as object attribute for compatibility
-	                AddAttribute(this, cAttribute)
-	                eval("this." + cAttribute + " = newValue")
+	                AddAttribute(this, _cAttribute_)
+	                eval("this." + _cAttribute_ + " = newValue")
 	
 	                # Only trigger watchers for computed attributes (no duplicate processing)
-	                TriggerAttributeWatchers(cAttribute, cOldValue, newValue)
+	                TriggerAttributeWatchers(_cAttribute_, _cOldValue_, _newValue_)
 	
 	            catch
 	                # Handle computation error based on error handling mode

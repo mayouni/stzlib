@@ -16,68 +16,68 @@ func MaxNumber()
 
 #-- Even or odd
 
-func IsEven(n)
-	if EvenOrOdd(n) = 2
+func IsEven(_n_)
+	if EvenOrOdd(_n_) = 2
 		return TRUE
 	else
 		return FALSE
 	ok
 
-	func @IsEven(n)
-		return IsEven(n)
+	func @IsEven(_n_)
+		return IsEven(_n_)
 
-func IsOdd(n)
-	return NOT IsEven(n)
+func IsOdd(_n_)
+	return NOT IsEven(_n_)
 
-	func @IsOdd(n)
-		return IsOdd(n)
+	func @IsOdd(_n_)
+		return IsOdd(_n_)
 
 #-- Number type
 
-func IsInt(n)
-	if ring_substr1( ""+ n, '.') = 0
+func IsInt(_n_)
+	if ring_substr1( ""+ _n_, '.') = 0
 		return TRUE
 	else
 		return FALSE
 	ok
 
-	func IsInteger(n)
-		return IsInt(n)
+	func IsInteger(_n_)
+		return IsInt(_n_)
 
-	func @IsInt(n)
-		return IsInt(n)
+	func @IsInt(_n_)
+		return IsInt(_n_)
 
-	func @IsInteger(n)
-		return IsInt(n)
+	func @IsInteger(_n_)
+		return IsInt(_n_)
 
-func IsFractNumber(n)
-	return NOT IsInt(n)
+func IsFractNumber(_n_)
+	return NOT IsInt(_n_)
 
-	func @IsFractNumber(n)
-		return NOT IsInt(n)
+	func @IsFractNumber(_n_)
+		return NOT IsInt(_n_)
 
-func IsBigNumber(n)
+func IsBigNumber(_n_)
 	raise("todo")
 
-	func @IsBigNumber(n)
-		return IsBigNumber(n)
+	func @IsBigNumber(_n_)
+		return IsBigNumber(_n_)
 
-func IsSafeNumber(n)
-	return NOT IsBigNumber(n)
+func IsSafeNumber(_n_)
+	return NOT IsBigNumber(_n_)
 
-	func @IsSafeNumber(n)
-		return NOT IsBigNumber(n)
+	func @IsSafeNumber(_n_)
+		return NOT IsBigNumber(_n_)
 
 #-- Rounds staff
 
 func CurrentRound() # Current round in Ring actuated by decimals() function
 
-	cStringified = ""+ 0.1234567890123456789
-	nPos = ring_substr1(cStringified, ".")
-	nLen = len(cStringified)
+	_cStringified_ = ""+ 0.1234567890123456789
+	_nPos_ = ring_substr1(_cStringified_, ".")
+	_nLen_ = len(_cStringified_)
 
-	nResult = nLen - nPos
-	return nResult
+	_nResult_ = _nLen_ - _nPos_
+	return _nResult_
 
 	func @CurrentRound()
 		return CurrentRound()
@@ -94,84 +94,84 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 
 		# Store the current round in the program
 
-		nCurrentRound = CurrentRound()
+		_nCurrentRound_ = CurrentRound()
 
 		# We have a number with a fractional part, stringify it
 
-		nMax = $MAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
-		decimals(nMax)
-		cTempStr = ""+ pNumber
+		_nMax_ = $MAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
+		decimals(_nMax_)
+		_cTempStr_ = ""+ pNumber
 
 		# Rounding the number to the most possible round depending
 		# on the positions taken by the decimal digits and the sign
 
-		nLen = len(cTempStr)
-		nDotPos = ring_substr1(cTempStr, ".")
+		_nLen_ = len(_cTempStr_)
+		_nDotPos_ = ring_substr1(_cTempStr_, ".")
 
-		nMaxPossibleRound = nMax - nDotPos
+		_nMaxPossibleRound_ = _nMax_ - _nDotPos_
 
 		if pNumber < 0
-			nMaxPossibleRound--
+			_nMaxPossibleRound_--
 		ok
 
-		if nMaxPossibleRound < 0
+		if _nMaxPossibleRound_ < 0
 			raise("ERR-" + StkError(:OutOfRangeValue) + NL)
 		ok
 	
-		decimals(nMaxPossibleRound)
-		cTempStr = ""+ pNumber
+		decimals(_nMaxPossibleRound_)
+		_cTempStr_ = ""+ pNumber
 
 		# Restoring the current round in the program
 
-		decimals(nCurrentRound)
+		decimals(_nCurrentRound_)
 	
 		# Doing the job
 
-		nLen = len(cTempStr)
-		nResult = nLen - nDotPos
+		_nLen_ = len(_cTempStr_)
+		_nResult_ = _nLen_ - _nDotPos_
 
-		if cTempStr[nLen] != "0" and cTempStr[nLen] != "9"
-			return nResult
+		if _cTempStr_[_nLen_] != "0" and _cTempStr_[_nLen_] != "9"
+			return _nResult_
 		ok
 
-		for i = nLen-1 to nDotPos+1 step - 1
+		for i = _nLen_-1 to _nDotPos_+1 step - 1
 
-			if cTempStr[i] = cTempStr[i+1] and
-			   (cTempStr[i] = "0" or cTempStr[i] = "9")
+			if _cTempStr_[i] = _cTempStr_[i+1] and
+			   (_cTempStr_[i] = "0" or _cTempStr_[i] = "9")
 
-				nResult--
+				_nResult_--
 			else
 				exit
 			ok
 		
 		next
 
-		nResult--
+		_nResult_--
 
-		return nResult
+		return _nResult_
 
 	but isString(pNumber)
 
-		cTempStr = trim( ring_substr2(pNumber, "_", "") )
-		nValue = 0+ cTempStr
+		_cTempStr_ = trim( ring_substr2(pNumber, "_", "") )
+		_nValue_ = 0+ _cTempStr_
 
-		if not isNumber(nValue)
+		if not isNumber(_nValue_)
 			raise("ERR-" + StkError(:IncorrectParamValue) + NL)
 		ok
 
-		nRound = 0
-		nDotPos = ring_substr1(cTempStr, ".")
+		_nRound_ = 0
+		_nDotPos_ = ring_substr1(_cTempStr_, ".")
 
-		nRoundMax = $MAX_NUMBER_SIZE - (nDotPos - 1)
+		_nRoundMax_ = $MAX_NUMBER_SIZE - (_nDotPos_ - 1)
 
-		if nDotPos > 0
-			nRound = len(cTempStr) - nDotPos
+		if _nDotPos_ > 0
+			_nRound_ = len(_cTempStr_) - _nDotPos_
 		ok
 
-		if nRound > nRoundMax
-			return nRoundMax
+		if _nRound_ > _nRoundMax_
+			return _nRoundMax_
 		else
-			return nRound
+			return _nRound_
 		ok
 
 	else
@@ -181,161 +181,161 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 	func @Round(pNumber)
 		return Round(pNumber)
 
-func MaxInt(n) # Maximum number of digits n can have in its integer part
-	if n = 0 return ok
+func MaxInt(_n_) # Maximum number of digits n can have in its integer part
+	if _n_ = 0 return ok
 
-	nMaxRound = MaxRound(n)
-	nResult = $MAX_NUMBER_SIZE - nMaxRound
+	_nMaxRound_ = MaxRound(_n_)
+	_nResult_ = $MAX_NUMBER_SIZE - _nMaxRound_
 
-	return nResult
+	return _nResult_
 
-	func @MaxInt(n)
-		return MaxInt(n)
+	func @MaxInt(_n_)
+		return MaxInt(_n_)
 
-func MaxRound(n) # Maximum number of digits n can have in its fractional part
-	if n = 0 return $MAX_NUMBER_SIZE ok  // Special case for zero
+func MaxRound(_n_) # Maximum number of digits n can have in its fractional part
+	if _n_ = 0 return $MAX_NUMBER_SIZE ok  // Special case for zero
 	    
-	nIntPart   = floor(Abs(n))
-	nIntDigits = len(""+ intPart)
+	_nIntPart_   = floor(Abs(_n_))
+	_nIntDigits_ = len(""+ intPart)
 
-	if nIntDigits >= $MAX_NUMBER_SIZE
+	if _nIntDigits_ >= $MAX_NUMBER_SIZE
 		return 0
 	ok
 
-	nMaxFractDigits = $MAX_NUMBER_SIZE - nIntDigits
+	_nMaxFractDigits_ = $MAX_NUMBER_SIZE - _nIntDigits_
 	    
 	// Ensure we have at least 1 fractional digit and no more than $MAX_NUMBER_SIZE
 
-	if nMaxFractDigits > $MAX_NUMBER_SIZE
-		nMaxFractDigits = $MAX_NUMBER_SIZE
+	if _nMaxFractDigits_ > $MAX_NUMBER_SIZE
+		_nMaxFractDigits_ = $MAX_NUMBER_SIZE
 	ok
 
-	if nMaxFractDigits < 1
-		nMaxFractDigits = 1
+	if _nMaxFractDigits_ < 1
+		_nMaxFractDigits_ = 1
 	ok
 
-	return nMaxFractDigits
+	return _nMaxFractDigits_
 	
 	func @MaxRound(paNumbers)
 		return MaxRound(paNumbers)
 
 #-- Absolute value of a number
 
-func Abs(n)
-	if n < 0
-		n = -n
+func Abs(_n_)
+	if _n_ < 0
+		_n_ = -_n_
 	ok
 
-	return n
+	return _n_
 
-	func @Abs(n)
-		return Abs(n)
+	func @Abs(_n_)
+		return Abs(_n_)
 
 #-- Number value from a string
 
-func Val(cNumberInStr)
-	if NOT isString(cNumberInStr)
+func Val(_cNumberInStr_)
+	if NOT isString(_cNumberInStr_)
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	if ring_substr1(cNumberInStr, "_") > 0
-		cNumberInStr = @trim( ring_substr2(cNumberInStr, "_", "") )
+	if ring_substr1(_cNumberInStr_, "_") > 0
+		_cNumberInStr_ = @trim( ring_substr2(_cNumberInStr_, "_", "") )
 	ok
 
-	nResult = 0+ cNumberInStr
+	_nResult_ = 0+ _cNumberInStr_
 
-	if NOT isNumber(nResult)
+	if NOT isNumber(_nResult_)
 		raise("ERR-" + StkErrror(:IncorrectParamType) + NL )
 	ok
 
-	return nResult
+	return _nResult_
 
-	func @Val(cNumberInStr)
-		return Val(cNumberInStr)
+	func @Val(_cNumberInStr_)
+		return Val(_cNumberInStr_)
 
 #-- Stringifying a number with given round and spacification char
 
-func NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
+func NStringify(nNumber, cSpaceChar, nSpaceStep, _nRound_)
 
-	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound) )
+	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(_nRound_) )
 		raise("ERR-" + StkError(:IncorrectParamType) + NL)
 	ok
 
-	cStringified = ""+ nNumber
+	_cStringified_ = ""+ nNumber
 
 	# Spacifying the integer part
 
-	nDotPos = ring_substr1(cStringified, ".")
+	_nDotPos_ = ring_substr1(_cStringified_, ".")
 
-	cIntPart = ""
+	_cIntPart_ = ""
 
-	if nDotPos = 0
-		cIntPart = cStringified
+	if _nDotPos_ = 0
+		_cIntPart_ = _cStringified_
 
 	else
-		for i = 1 to nDotPos-1
-			cIntPart += cStringified[i] 
+		for i = 1 to _nDotPos_-1
+			_cIntPart_ += _cStringified_[i] 
 		next
 	ok
 
 	if nNumber < 0
-		cIntPart = ring_substr2(cIntPart, "-", "")
+		_cIntPart_ = ring_substr2(_cIntPart_, "-", "")
 	ok
 
-	nLen = len(cIntPart)
+	_nLen_ = len(_cIntPart_)
 
-	cIntPartRev = reverse(cIntPart)
+	_cIntPartRev_ = reverse(_cIntPart_)
 
-	cResult = ""
-	j = 0
+	_cResult_ = ""
+	_j_ = 0
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 	
-		cResult += cIntPartRev[i]
+		_cResult_ += _cIntPartRev_[i]
 
-		j++
-		if j = nSpaceStep and i < nLen
-			cResult += cSpaceChar
-			j = 0
+		_j_++
+		if _j_ = nSpaceStep and i < _nLen_
+			_cResult_ += cSpaceChar
+			_j_ = 0
 		ok
 
 	next
 
-	cResult = reverse(cResult)
+	_cResult_ = reverse(_cResult_)
 
 	# Compositing the spacified number in a string
 
 	if nNumber < 0
-		cResult = "-" + cResult
+		_cResult_ = "-" + _cResult_
 	ok
 
-	if nDotPos > 0
-		cFractPart = ""
-		nLen = len(cStringified)
+	if _nDotPos_ > 0
+		_cFractPart_ = ""
+		_nLen_ = len(_cStringified_)
 
-		nLenFract = nLen - nDotPos
+		_nLenFract_ = _nLen_ - _nDotPos_
 
-		nMin = 0
-		if nLenFract < nRound
-			nMin = nLenFract
+		_nMin_ = 0
+		if _nLenFract_ < _nRound_
+			_nMin_ = _nLenFract_
 		else
-			nMin = nRound
+			_nMin_ = _nRound_
 		ok
 
-		nDotPos++
+		_nDotPos_++
 
-		for i = nDotPos to nLen
-			cFractPart += cStringified[i]
+		for i = _nDotPos_ to _nLen_
+			_cFractPart_ += _cStringified_[i]
 		next
 
-		cResult += ( "." + cFractPart )
+		_cResult_ += ( "." + _cFractPart_ )
 	ok
 
-	return cResult
+	return _cResult_
 
 	#< @FunctionAlternativeForm
 
-	func @NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
-		return NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
+	func @NStringify(nNumber, cSpaceChar, nSpaceStep, _nRound_)
+		return NStringify(nNumber, cSpaceChar, nSpaceStep, _nRound_)
 
 	#>

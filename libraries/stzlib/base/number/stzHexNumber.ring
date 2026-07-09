@@ -10,23 +10,23 @@ They are base16 numbers -> formed of 16 bits -> the digits
 _cHexNumberPrefix = "0x"
 _acHexPrefixes = [ "x", "0x", "U+" ]
 
-func StzHexNumberQ(cHex)
-	return new stzHexNumber(cHex)
+func StzHexNumberQ(_cHex_)
+	return new stzHexNumber(_cHex_)
 
-func HexToDecimalForm(cHex)
-	return StzHexNumberQ(cHex).ToDecimalForm()
+func HexToDecimalForm(_cHex_)
+	return StzHexNumberQ(_cHex_).ToDecimalForm()
 
-	func HexToDecimal(cHex)
-		return HexToDecimalForm(cHex)
+	func HexToDecimal(_cHex_)
+		return HexToDecimalForm(_cHex_)
 
-	func HexToUnicode(cHex)
-		return HexToDecimalForm(cHex)
+	func HexToUnicode(_cHex_)
+		return HexToDecimalForm(_cHex_)
 
 func UnicodeHexToDecimalForm(cUnicodeHex)
 	if IsUnicodeHex(cUnicodeHex)
-		cHex = StzMid(cUnicodeHex, 3, StzLen(cUnicodeHex) - 2)
-		cHex = HexPrefix() + cHex
-		return HexToDecimal(cHex).ToDecimalForm()
+		_cHex_ = StzMid(cUnicodeHex, 3, StzLen(cUnicodeHex) - 2)
+		_cHex_ = HexPrefix() + _cHex_
+		return HexToDecimal(_cHex_).ToDecimalForm()
 	ok
 
 	#< @FunctionAlternativeForm
@@ -78,8 +78,8 @@ func IsUnicodeHexNumber(cNumber)
 
 	#>
 
-func HexToDec(cHex)
-	return dec(cHex)
+func HexToDec(_cHex_)
+	return dec(_cHex_)
 
 func DecToHex(nDec)
 	return hex(nDec)
@@ -123,18 +123,18 @@ class stzHexNumber from stzObject
 
 		but StringRepresentsNumberInHexForm(cNumber)
 
-			cTemp = cNumber
-			acHexPrefix = HexPrefixes()
-			nLen = len(acHexPrefix)
+			_cTemp_ = cNumber
+			_acHexPrefix_ = HexPrefixes()
+			_nLen_ = len(_acHexPrefix_)
 
-			for i = 1 to nLen
-				nPrefLen = StzLen(acHexPrefix[i])
-				if StzLeft(cTemp, nPrefLen) = acHexPrefix[i]
-					cTemp = StzMid(cTemp, nPrefLen + 1, StzLen(cTemp) - nPrefLen)
+			for i = 1 to _nLen_
+				_nPrefLen_ = StzLen(_acHexPrefix_[i])
+				if StzLeft(_cTemp_, _nPrefLen_) = _acHexPrefix_[i]
+					_cTemp_ = StzMid(_cTemp_, _nPrefLen_ + 1, StzLen(_cTemp_) - _nPrefLen_)
 				ok
 			next
 
-			@cHexNumber = cTemp
+			@cHexNumber = _cTemp_
 
 		but StringRepresentsNumberInUnicodeHexForm(cNumber)
 			@cHexNumber = StzReplace(StzReplace(cNumber, "U+", ""), "u+", "")
@@ -161,12 +161,12 @@ class stzHexNumber from stzObject
 
 	def IntegerPart()
 
-		oStzStr = new stzString(This.HexNumber())
+		_oStzStr_ = new stzString(This.HexNumber())
 
-		if oStzStr.Contains(".")
-			return oStzStr.Splitted(".")[1]
+		if _oStzStr_.Contains(".")
+			return _oStzStr_.Splitted(".")[1]
 		else
-			return oStzStr.Content()
+			return _oStzStr_.Content()
 		ok
 
 		def IntPart()
@@ -182,20 +182,20 @@ class stzHexNumber from stzObject
 
 		// #TODO // Generalize this to all number classes
 
-		oStrTemp = new stzString(THis.IntegerPart())
-		oStrTemp.RemoveMany(HexPrefixes())
+		_oStrTemp_ = new stzString(THis.IntegerPart())
+		_oStrTemp_.RemoveMany(HexPrefixes())
 
-		cResult = oStrTemp.Content()
-		return cResult
+		_cResult_ = _oStrTemp_.Content()
+		return _cResult_
 
 		def IntPartWithoutPrefix()
 			return This.IntegerPartWithoutPrefix()
 
 	def FractionalPart()
-		oStzStr = new stzString(This.HexNumberWithoutPrefix())
+		_oStzStr_ = new stzString(This.HexNumberWithoutPrefix())
 
-		if oStzStr.Contains(".")
-			return oStzStr.SplittedUsing(".")[2]
+		if _oStzStr_.Contains(".")
+			return _oStzStr_.SplittedUsing(".")[2]
 		ok
 
 		def FractPart()
@@ -283,17 +283,17 @@ class stzHexNumber from stzObject
 		def FromBinary(n)
 			This.FromBinaryForm(n)
 
-	def _StripHexPrefix(cHex)
-		acHexPrefix = HexPrefixes()
-		nLen = len(acHexPrefix)
-		for i = 1 to nLen
-			nPrefLen = StzLen(acHexPrefix[i])
-			if StzLeft(cHex, nPrefLen) = acHexPrefix[i]
-				cHex = StzMid(cHex, nPrefLen + 1, StzLen(cHex) - nPrefLen)
+	def _StripHexPrefix(_cHex_)
+		_acHexPrefix_ = HexPrefixes()
+		_nLen_ = len(_acHexPrefix_)
+		for i = 1 to _nLen_
+			_nPrefLen_ = StzLen(_acHexPrefix_[i])
+			if StzLeft(_cHex_, _nPrefLen_) = _acHexPrefix_[i]
+				_cHex_ = StzMid(_cHex_, _nPrefLen_ + 1, StzLen(_cHex_) - _nPrefLen_)
 				exit
 			ok
 		next
-		return cHex
+		return _cHex_
 
 	  #-----------#
 	 #   MISC.   #

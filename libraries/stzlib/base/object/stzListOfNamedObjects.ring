@@ -8,17 +8,17 @@ func StzIsListOfNamedObjects(paList)
 		ok
 	ok
 
-	bResult = 1
-	nLen = len(paList)
+	_bResult_ = 1
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if NOT IsNamedObject(paList[i])
-			bResult = 0
+			_bResult_ = 0
 			exit
 		ok
 	next i
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -48,9 +48,9 @@ class stzListOfNamedObjects from stzList
 			StzRaise("Incorrect param type! paNamedObjects must be a list of named objects.")
 		ok
 
-		nLen = len(paNamedObjects)
+		_nLen_ = len(paNamedObjects)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			@aContent + new stzNamedObject(paNamedObjects[i])
 		next
 
@@ -65,12 +65,12 @@ class stzListOfNamedObjects from stzList
 
 	def NamedObject(p)
 		if isString(p)
-			result = This.Content()[p]
-			if result = ""
+			_result_ = This.Content()[p]
+			if _result_ = ""
 				StzRaise("Named Object Inexistant!")
 			ok
 
-			return result
+			return _result_
 
 		but isNumber(n)
 			return This.Content()[n]

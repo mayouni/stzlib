@@ -119,49 +119,49 @@ class stzListRemover from stzObject
 	 #   REMOVING AN ITEM BY SPECIFYING ITS POSITION    #
 	#--------------------------------------------------#
 
-	def RemoveItemAtPosition(n)
+	def RemoveItemAtPosition(_n_)
 
-		if isString(n)
-			if StzFindFirst([ :First, :FirstPosition, :FirstItem ], n) > 0
-				n = 1
-			but StzFindFirst([ :Last, :LastPosition, :LastItem ], n) > 0
-				n = This.NumberOfItems()
+		if isString(_n_)
+			if StzFindFirst([ :First, :FirstPosition, :FirstItem ], _n_) > 0
+				_n_ = 1
+			but StzFindFirst([ :Last, :LastPosition, :LastItem ], _n_) > 0
+				_n_ = This.NumberOfItems()
 			ok
 		ok
 
-		if NOT (isNumber(n) and n != 0 )
+		if NOT (isNumber(_n_) and _n_ != 0 )
 			StzRaise("Incorrect param! n must be a number different from zero.")
 		ok
 
-		if n <= This.NumberOfItems()
+		if _n_ <= This.NumberOfItems()
 			_pRipList_ = @oList._EngineListFromContent()
 			if _pRipList_ != NULL
-				StzEngineListRemove(_pRipList_, n)
+				StzEngineListRemove(_pRipList_, _n_)
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pRipList_))
 				StzEngineListFree(_pRipList_)
 				return
 			ok
 
 			_aRipContent_ = This.Content()
-			ring_del( _aRipContent_, n )
+			ring_del( _aRipContent_, _n_ )
 			@oList.UpdateWith(_aRipContent_)
 		ok
 
-		def RemoveItemAtPositionQ(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveItemAtPositionQ(_n_)
+			This.RemoveItemAtPosition(_n_)
 			return This
 
-		def RemoveAt(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveAt(_n_)
+			This.RemoveItemAtPosition(_n_)
 
-		def RemoveAtPosition(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveAtPosition(_n_)
+			This.RemoveItemAtPosition(_n_)
 
-		def RemoveNthItem(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveNthItem(_n_)
+			This.RemoveItemAtPosition(_n_)
 
-	def NthItemRemoved(n)
-		_aNirResult_ = @oList.Copy().RemoveItemAtPositionQ(n).Content()
+	def NthItemRemoved(_n_)
+		_aNirResult_ = @oList.Copy().RemoveItemAtPositionQ(_n_).Content()
 		return _aNirResult_
 
 	  #--------------------------------------#
@@ -310,18 +310,18 @@ class stzListRemover from stzObject
 	 #   REMOVING NTH OCCURRENCE         #
 	#------------------------------------#
 
-	def RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
-		_nRnoPos_ = @oList.FindNthCS(n, pItem, pCaseSensitive)
+	def RemoveNthOccurrenceCS(_n_, pItem, pCaseSensitive)
+		_nRnoPos_ = @oList.FindNthCS(_n_, pItem, pCaseSensitive)
 		if _nRnoPos_ > 0
 			This.RemoveItemAtPosition(_nRnoPos_)
 		ok
 
-		def RemoveNthOccurrenceCSQ(n, pItem, pCaseSensitive)
-			This.RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
+		def RemoveNthOccurrenceCSQ(_n_, pItem, pCaseSensitive)
+			This.RemoveNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 			return This
 
-	def RemoveNthOccurrence(n, pItem)
-		This.RemoveNthOccurrenceCS(n, pItem, 1)
+	def RemoveNthOccurrence(_n_, pItem)
+		This.RemoveNthOccurrenceCS(_n_, pItem, 1)
 
 	  #--------------------------------------------#
 	 #   REMOVING FIRST OCCURRENCE OF AN ITEM    #

@@ -31,15 +31,15 @@ func StzUnicodesToString(anUnicodes)
 	func UnicodesToString(anUnicodes)
 		return StzUnicodesToString(anUnicodes)
 
-func StzIsUnicode(n)
-	if isNumber(n) and n >= 0 and n <= 1114111
+func StzIsUnicode(_n_)
+	if isNumber(_n_) and _n_ >= 0 and _n_ <= 1114111
 		return 1
 	else
 		return 0
 	ok
 
-	func IsUnicode(n)
-		return StzIsUnicode(n)
+	func IsUnicode(_n_)
+		return StzIsUnicode(_n_)
 
 
   /////////////////
@@ -56,8 +56,8 @@ class stzStringUnicodeList from stzObject
 		ok
 
 		# Validate: all items must be numbers in unicode range
-		nLen = len(aList)
-		for i = 1 to nLen
+		_nLen_ = len(aList)
+		for i = 1 to _nLen_
 			if NOT isNumber(aList[i])
 				StzRaise("Can't create stzStringUnicodeList! All items must be numbers.")
 			ok
@@ -78,11 +78,11 @@ class stzStringUnicodeList from stzObject
 	def NumberOfItems()
 		return len(@anUnicodes)
 
-	def NthUnicode(n)
-		if n < 1 or n > len(@anUnicodes)
+	def NthUnicode(_n_)
+		if _n_ < 1 or _n_ > len(@anUnicodes)
 			StzRaise("Out of range!")
 		ok
-		return @anUnicodes[n]
+		return @anUnicodes[_n_]
 
 	def Copy()
 		return new stzStringUnicodeList(@anUnicodes)
@@ -92,46 +92,46 @@ class stzStringUnicodeList from stzObject
 	#===============================#
 
 	def Chars()
-		aResult = []
+		_aResult_ = []
 		_nAnUnicodes6Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes6_ = 1 to _nAnUnicodes6Len_
-			n = @anUnicodes[_iLoopAnUnicodes6_]
-			aResult + StzChar(n)
+			_n_ = @anUnicodes[_iLoopAnUnicodes6_]
+			_aResult_ + StzChar(_n_)
 		next
-		return aResult
+		return _aResult_
 
 		def ToChars()
 			return This.Chars()
 
 	def ToString()
-		cResult = ""
+		_cResult_ = ""
 		_nAnUnicodes5Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes5_ = 1 to _nAnUnicodes5Len_
-			n = @anUnicodes[_iLoopAnUnicodes5_]
-			cResult += StzChar(n)
+			_n_ = @anUnicodes[_iLoopAnUnicodes5_]
+			_cResult_ += StzChar(_n_)
 		next
-		return cResult
+		return _cResult_
 
 		def String()
 			return This.ToString()
 
 	def UnicodesAndChars()
-		aResult = []
+		_aResult_ = []
 		_nAnUnicodes4Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes4_ = 1 to _nAnUnicodes4Len_
-			n = @anUnicodes[_iLoopAnUnicodes4_]
-			aResult + [ n, StzChar(n) ]
+			_n_ = @anUnicodes[_iLoopAnUnicodes4_]
+			_aResult_ + [ _n_, StzChar(_n_) ]
 		next
-		return aResult
+		return _aResult_
 
 	def CharsAndUnicodes()
-		aResult = []
+		_aResult_ = []
 		_nAnUnicodes3Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes3_ = 1 to _nAnUnicodes3Len_
-			n = @anUnicodes[_iLoopAnUnicodes3_]
-			aResult + [ StzChar(n), n ]
+			_n_ = @anUnicodes[_iLoopAnUnicodes3_]
+			_aResult_ + [ StzChar(_n_), _n_ ]
 		next
-		return aResult
+		return _aResult_
 
 	  #===============================#
 	 #     CHECKING                 #
@@ -143,8 +143,8 @@ class stzStringUnicodeList from stzObject
 	def Contains(nUnicode)
 		_nAnUnicodes2Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes2_ = 1 to _nAnUnicodes2Len_
-			n = @anUnicodes[_iLoopAnUnicodes2_]
-			if n = nUnicode
+			_n_ = @anUnicodes[_iLoopAnUnicodes2_]
+			if _n_ = nUnicode
 				return 1
 			ok
 		next
@@ -156,146 +156,146 @@ class stzStringUnicodeList from stzObject
 
 	def AllAreLetters()
 		# Build a string from these unicodes and check via engine
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsAlpha(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsAlpha(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreDigits()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsDigit(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsDigit(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllArePunctuation()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsPunctuation(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsPunctuation(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreSymbols()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsSymbol(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsSymbol(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreMarks()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsMark(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsMark(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreArabic()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsArabic(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsArabic(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreLatin()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsLatin(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsLatin(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreGreek()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsGreek(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsGreek(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreCyrillic()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsCyrillic(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsCyrillic(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	def AllAreHebrew()
-		cStr = This.ToString()
-		if cStr = ""
+		_cStr_ = This.ToString()
+		if _cStr_ = ""
 			return 0
 		ok
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringIsHebrew(pHandle)
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringIsHebrew(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	  #===============================#
 	 #     OPERATIONS               #
 	#===============================#
 
 	def Unique()
-		aResult = []
+		_aResult_ = []
 		_nAnUnicodes1Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes1_ = 1 to _nAnUnicodes1Len_
-			n = @anUnicodes[_iLoopAnUnicodes1_]
-			bFound = 0
-			_nResult1Len_ = len(aResult)
+			_n_ = @anUnicodes[_iLoopAnUnicodes1_]
+			_bFound_ = 0
+			_nResult1Len_ = len(_aResult_)
 			for _iLoopResult1_ = 1 to _nResult1Len_
-				existing = aResult[_iLoopResult1_]
-				if existing = n
-					bFound = 1
+				_existing_ = _aResult_[_iLoopResult1_]
+				if _existing_ = _n_
+					_bFound_ = 1
 					exit
 				ok
 			next
-			if bFound = 0
-				aResult + n
+			if _bFound_ = 0
+				_aResult_ + _n_
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def Sorted()
-		aResult = @anUnicodes
-		nLen = len(aResult)
-		for i = 1 to nLen - 1
-			for j = 1 to nLen - i
-				if aResult[j] > aResult[j+1]
-					temp = aResult[j]
-					aResult[j] = aResult[j+1]
-					aResult[j+1] = temp
+		_aResult_ = @anUnicodes
+		_nLen_ = len(_aResult_)
+		for i = 1 to _nLen_ - 1
+			for j = 1 to _nLen_ - i
+				if _aResult_[j] > _aResult_[j+1]
+					_temp_ = _aResult_[j]
+					_aResult_[j] = _aResult_[j+1]
+					_aResult_[j+1] = _temp_
 				ok
 			next
 		next
-		return aResult
+		return _aResult_
 
 	def Reversed()
-		aResult = []
+		_aResult_ = []
 		for i = len(@anUnicodes) to 1 step -1
-			aResult + @anUnicodes[i]
+			_aResult_ + @anUnicodes[i]
 		next
-		return aResult
+		return _aResult_

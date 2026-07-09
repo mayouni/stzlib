@@ -90,7 +90,7 @@ _bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 _nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
 			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
 
-cCacheFileName = "stzcache.txt"
+_cCacheFileName_ = "stzcache.txt"
 _CacheFileHandler = ""
 
 _cCacheMemoryString = ""
@@ -467,14 +467,14 @@ func StzFindAllCS(pContainer, pVal, pCaseSensitive)
 		ok
 
 		# Fallback for non-string items
-		aResult = []
-		nLen = len(pContainer)
-		for i = 1 to nLen
+		_aResult_ = []
+		_nLen_ = len(pContainer)
+		for i = 1 to _nLen_
 			if BothAreEqualCS(pContainer[i], pVal, pCaseSensitive)
-				aResult + i
+				_aResult_ + i
 			ok
 		next
-		return aResult
+		return _aResult_
 	ok
 
 	func FindCS(pContainer, pVal, pCaseSensitive)
@@ -527,34 +527,34 @@ func StzKeepingTime()
 	func KeepingObjectTime()
 		return StzKeepingTime()
 
-func StzSetKeepingTimeTo(bTrueOrFalse)
+func StzSetKeepingTimeTo(_bTrueOrFalse_)
 	if CheckParams()
-		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
+		if NOT (isNumber(_bTrueOrFalse_) and isNumber(_bTrueOrFalse_) )
 			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
 		ok
 
-		if NOT ( bTrueOrFalse = 0 or bTrueOrFalse = 1 )
+		if NOT ( _bTrueOrFalse_ = 0 or _bTrueOrFalse_ = 1 )
 			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
 		ok
 	ok
 
-	_bKeepTime = bTrueOrFalse
+	_bKeepTime = _bTrueOrFalse_
 	_nStartTimeInClocks = clock()
 
-	func SetKeepingTimeTo(bTrueOrFalse)
-		StzSetKeepingTimeTo(bTrueOrFalse)
+	func SetKeepingTimeTo(_bTrueOrFalse_)
+		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
-	func SetKeepingTime(bTrueOrFalse)
-		StzSetKeepingTimeTo(bTrueOrFalse)
+	func SetKeepingTime(_bTrueOrFalse_)
+		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
-	func SetKeepTime(bTrueOrFalse)
-		StzSetKeepingTimeTo(bTrueOrFalse)
+	func SetKeepTime(_bTrueOrFalse_)
+		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
-	func SetObjectKeepingTimeTo(bTrueOrFalse)
-		StzSetKeepingTimeTo(bTrueOrFalse)
+	func SetObjectKeepingTimeTo(_bTrueOrFalse_)
+		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
-	func SetKeepingObjectTimeTo(bTrueOrFalse)
-		StzSetKeepingTimeTo(bTrueOrFalse)
+	func SetKeepingObjectTimeTo(_bTrueOrFalse_)
+		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
 func StzStartObjectTime()
 	_nStartTimeInClocks = clock()
@@ -621,15 +621,15 @@ func StzTempNumber()
 	func TempNumber()
 		return StzTempNumber()
 
-func StzSetTempNumber(n)
-	if NOT isNumber(n)
+func StzSetTempNumber(_n_)
+	if NOT isNumber(_n_)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
-	$TEMP_NUMBER = n
+	$TEMP_NUMBER = _n_
 
-	func SetTempNumber(n)
-		StzSetTempNumber(n)
+	func SetTempNumber(_n_)
+		StzSetTempNumber(_n_)
 
 func StzEraseTempNumber()
 	$TEMP_NUMBER = 0
@@ -668,35 +668,35 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 		Raise("Incorrect param type! pObject must be an object.")
 	ok
 
-	aResult = []
+	_aResult_ = []
 
-	acAttributes = attributes(pObject)
-	nLen = len(acAttributes)
+	_acAttributes_ = attributes(pObject)
+	_nLen_ = len(_acAttributes_)
 
-	for i = 1 to nLen
-		cCode = 'value = pObject.' + acAttributes[i]
-		eval(cCode)
-		aResult + value
+	for i = 1 to _nLen_
+		_cCode_ = '_value_ = pObject.' + _acAttributes_[i]
+		eval(_cCode_)
+		_aResult_ + _value_
 	next
 
-	return aResult
+	return _aResult_
 
 	func @AttributesValues(pObject)
 		return AttributesValues(pObject)
 
 #====== REPEATING A VALUE N TIMES
 
-func @N(n, item)
+func @N(_n_, item)
 	# EXAMPLE
 	# ? @N(3 ,"A")	#--> [ "A", "A", "A" ]
 
 	if CheckParams()
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 	ok
 
-	return @NXT(n, item, :InAList)
+	return @NXT(_n_, item, :InAList)
 
 	#< @FunctionSpecificForms
 
@@ -762,13 +762,13 @@ func @N(n, item)
 
 	#>
 
-func @NXT(n, pStrOrItem, pcInStrOrList)
+func @NXT(_n_, pStrOrItem, pcInStrOrList)
 	# EXAMPLES
 	# ? @NXT(3 ,"A", :InAString)	#--> "AAA"
 	# ? @NXT(3, "A", :InAList)	#--> [ "A", "A", "A" ]
 
 	if CheckParams()
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -783,7 +783,7 @@ func @NXT(n, pStrOrItem, pcInStrOrList)
 
 		_aResult_ = []
 	
-		for @i = 1 to n
+		for @i = 1 to _n_
 			_aResult_ + pStrOrItem
 		next
 	
@@ -793,7 +793,7 @@ func @NXT(n, pStrOrItem, pcInStrOrList)
 	    pcInStrOrList = :AsString or pcInStrOrList = :AsAString or
 	    pcInStrOrList = :String
 
-		_cResult_ = copy(pStrOrItem, n)
+		_cResult_ = copy(pStrOrItem, _n_)
 		return _cResult_
 
 	else
@@ -1089,16 +1089,16 @@ func TheseNumbers(p)
 		ok
 	ok
 
-	nLen = len(p)
-	anResult = []
+	_nLen_ = len(p)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(p[i])
-			anResult + p[i]
+			_anResult_ + p[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 	# Must be reset to FALSE everytime TheseNumbers() is used.
 
 	#< @FunctionAlternativeForms
@@ -1145,16 +1145,16 @@ func TheseChars(p)
 		ok
 	ok
 
-	nLen = len(p)
-	acResult = []
+	_nLen_ = len(p)
+	_acResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			acResult + p[i]
+			_acResult_ + p[i]
 		ok
 	next
 
-	return acResult
+	return _acResult_
 	# Must be reset to FALSE everytime TheseChars() is used.
 
 	#< @FunctionAlternativeForms
@@ -1201,16 +1201,16 @@ func TheseStrings(p)
 		ok
 	ok
 
-	nLen = len(p)
-	acResult = []
+	_nLen_ = len(p)
+	_acResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			acResult + p[i]
+			_acResult_ + p[i]
 		ok
 	next
 
-	return acResult
+	return _acResult_
 	# Must be reset to FALSE everytime TheseStrings() is used.
 
 	#< @FunctionAlternativeForms
@@ -1257,16 +1257,16 @@ func TheseLists(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aResult = []
+	_nLen_ = len(p)
+	_aResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			aResult + p[i]
+			_aResult_ + p[i]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 	# Must be reset to FALSE everytime TheseLists() is used.
 
 	#< @FunctionAlternativeForms
@@ -1313,16 +1313,16 @@ func TheseObjects(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseObjects() is used.
 
 	#< @FunctionAlternativeForms
@@ -1371,16 +1371,16 @@ func TheseStzNumbers(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzNumber(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseStzNumbers() is used.
 
 	#< @FunctionAlternativeForms
@@ -1427,16 +1427,16 @@ func TheseStzChars(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzChar(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseStzChars() is used.
 
 	#< @FunctionAlternativeForms
@@ -1483,16 +1483,16 @@ func TheseStzStrings(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzString(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseStzStrings() is used.
 
 	#< @FunctionAlternativeForms
@@ -1539,16 +1539,16 @@ func TheseStzLists(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzList(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseStzLists() is used.
 
 	#< @FunctionAlternativeForms
@@ -1595,16 +1595,16 @@ func TheseStzObjects(p)
 		ok
 	ok
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzObject(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# Must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
@@ -1760,16 +1760,16 @@ func TheseNumbersQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	anResult = []
+	_nLen_ = len(p)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(p[i])
-			anResult + p[i]
+			_anResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfNumbers(anResult)
+	return new stzListOfNumbers(_anResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseNumbers() is used.
 
 	#< @FunctionAlternativeForms
@@ -1816,16 +1816,16 @@ func TheseCharsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	acResult = []
+	_nLen_ = len(p)
+	_acResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			acResult + p[i]
+			_acResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfChars(acResult)
+	return new stzListOfChars(_acResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseChars() is used.
 
 	#< @FunctionAlternativeForms
@@ -1872,16 +1872,16 @@ func TheseStringsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	acResult = []
+	_nLen_ = len(p)
+	_acResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			acResult + p[i]
+			_acResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfStrings(acResult)
+	return new stzListOfStrings(_acResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseStrings() is used.
 
 	#< @FunctionAlternativeForms
@@ -1928,16 +1928,16 @@ func TheseListsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aResult = []
+	_nLen_ = len(p)
+	_aResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isString(p[i])
-			aResult + p[i]
+			_aResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfLists(aResult)
+	return new stzListOfLists(_aResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseLists() is used.
 
 	#< @FunctionAlternativeForms
@@ -1984,16 +1984,16 @@ func TheseObjectsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfObjects(aoResult)
+	return new stzListOfObjects(_aoResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseObjects() is used.
 
 	#< @FunctionAlternativeForms
@@ -2040,16 +2040,16 @@ func TheseStzNumbersQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzNumber(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfNumbers(aoResult)
+	return new stzListOfNumbers(_aoResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseStzNumbers() is used.
 
 	#< @FunctionAlternativeForms
@@ -2096,16 +2096,16 @@ func TheseStzCharsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzChar(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return aoResult
+	return _aoResult_
 	# _bTheseQ Must be reset to FALSE everytime TheseStzChars() is used.
 
 	#< @FunctionAlternativeForms
@@ -2152,16 +2152,16 @@ func TheseStzStringsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzString(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfStrings(aoResult)
+	return new stzListOfStrings(_aoResult_)
 	# Must be reset to FALSE everytime TheseStzStrings() is used.
 
 	#< @FunctionAlternativeForms
@@ -2208,16 +2208,16 @@ func TheseStzListsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzList(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfLists(aoResult)
+	return new stzListOfLists(_aoResult_)
 	# _bTheseQ Must be reset to FALSE everytime TheseStzLists() is used.
 
 	#< @FunctionAlternativeForms
@@ -2264,16 +2264,16 @@ func TheseStzObjectsQ(p)
 	_bTheseQ = 1
 	_bThese = 0
 
-	nLen = len(p)
-	aoResult = []
+	_nLen_ = len(p)
+	_aoResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(p[i]) and IsStzObject(p[i])
-			aoResult + p[i]
+			_aoResult_ + p[i]
 		ok
 	next
 
-	return new stzListOfObjects(aoResult)
+	return new stzListOfObjects(_aoResult_)
 	# _bTheseQ = 1 must be reset to FALSE everytime TheseStzObjects() is used.
 
 	#< @FunctionAlternativeForms
@@ -2354,54 +2354,54 @@ func @ForEach(p, pIn)
 
 	#< @FunctionAlternatives
 
-	func SetCheckParamTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetCheckParamTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
-	func SetCheckingParamTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetCheckingParamTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
 	#--
 
-	func SetParamsCheckTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetParamsCheckTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
-	func SetParamsCheckingTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetParamsCheckingTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
  
-	func SetCheckParamsTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetCheckParamsTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
-	func SetCheckingParamsTo(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetCheckingParamsTo(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
 	#==
 
-	func SetParamChecking(bTrueOrFalse)
-		if isList(bTrueOrFalse) and Q(bTrueOrFalse).IsToNamedParam()
-			bTrueOrFalse = bTrueOrFalse[2]
+	func SetParamChecking(_bTrueOrFalse_)
+		if isList(_bTrueOrFalse_) and Q(_bTrueOrFalse_).IsToNamedParam()
+			_bTrueOrFalse_ = _bTrueOrFalse_[2]
 		ok
 
-		SetParamCheckingTo(bTrueOrFalse)
+		SetParamCheckingTo(_bTrueOrFalse_)
 
-	func SetCheckParam(bTrueOrFalse)
-		SetParamChecking(bTrueOrFalse)
+	func SetCheckParam(_bTrueOrFalse_)
+		SetParamChecking(_bTrueOrFalse_)
 
-	func SetCheckingParam(bTrueOrFalse)
-		SetParamChecking(bTrueOrFalse)
+	func SetCheckingParam(_bTrueOrFalse_)
+		SetParamChecking(_bTrueOrFalse_)
 
 	#--
 
-	func SetParamsCheck(bTrueOrFalse)
-		SetParamChecking(bTrueOrFalse)
+	func SetParamsCheck(_bTrueOrFalse_)
+		SetParamChecking(_bTrueOrFalse_)
 
-	func SetParamsChecking(bTrueOrFalse)
-		SetParamCheckingTo(bTrueOrFalse)
+	func SetParamsChecking(_bTrueOrFalse_)
+		SetParamCheckingTo(_bTrueOrFalse_)
  
-	func SetCheckParams(bTrueOrFalse)
-		SetParamChecking(bTrueOrFalse)
+	func SetCheckParams(_bTrueOrFalse_)
+		SetParamChecking(_bTrueOrFalse_)
 
-	func SetCheckingParams(bTrueOrFalse)
-		SetParamChecking(bTrueOrFalse)
+	func SetCheckingParams(_bTrueOrFalse_)
+		SetParamChecking(_bTrueOrFalse_)
 
 	#>
 
@@ -2564,25 +2564,25 @@ func DefaultVizWidth()
 	func GetVizWidth()
 		return _nVizWidth
 
-func SetVizWidth(n)
-	if isList(n) and len(n) = 2 and isString(n[1])
-		n = n[2]
+func SetVizWidth(_n_)
+	if isList(_n_) and len(_n_) = 2 and isString(_n_[1])
+		_n_ = _n_[2]
 	ok
-	if NOT isNumber(n)
+	if NOT isNumber(_n_)
 		StzRaise("Can't set the Viz width! n must be a number.")
 	ok
-	n = floor(n)
-	if n < 1
-		n = 50
+	_n_ = floor(_n_)
+	if _n_ < 1
+		_n_ = 50
 	ok
-	_nVizWidth = n
+	_nVizWidth = _n_
 	return _nVizWidth
 
-	func SetVizWidthTo(n)
-		return SetVizWidth(n)
+	func SetVizWidthTo(_n_)
+		return SetVizWidth(_n_)
 
-	func SetDefaultVizWidth(n)
-		return SetVizWidth(n)
+	func SetDefaultVizWidth(_n_)
+		return SetVizWidth(_n_)
 
 func ResetVizWidth()
 	_nVizWidth = 50
@@ -2881,14 +2881,14 @@ func StzDoubleSpace()
 	func DoubleBlankSpace()
 		return StzDoubleSpace()
 
-func StzNSpaces(n)
-	return copy(" ", n)
+func StzNSpaces(_n_)
+	return copy(" ", _n_)
 
-	func NSpaces(n)
-		return StzNSpaces(n)
+	func NSpaces(_n_)
+		return StzNSpaces(_n_)
 
-	def NBlankSpaces(n)
-		return StzNSpaces(n)
+	def NBlankSpaces(_n_)
+		return StzNSpaces(_n_)
 
 func StzQuietEqualityRatio()
 	return _nQuietEqualityRatio
@@ -2902,23 +2902,23 @@ func StzQuietEqualityRatio()
 	func ApproximativeEqualityRatio()
 		return StzQuietEqualityRatio()
 
-func StzSetQuietEqualityRatio(n)
-	if NOT isNumber(n)
+func StzSetQuietEqualityRatio(_n_)
+	if NOT isNumber(_n_)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
-	if n >= 0 and n <= 1
-		_nQuietEqualityRatio = n
+	if _n_ >= 0 and _n_ <= 1
+		_nQuietEqualityRatio = _n_
 	ok
 
-	func SetQuietEqualityRatio(n)
-		StzSetQuietEqualityRatio(n)
+	func SetQuietEqualityRatio(_n_)
+		StzSetQuietEqualityRatio(_n_)
 
-	def SetApproximateEqualityRatio(n)
-		StzSetQuietEqualityRatio(n)
+	def SetApproximateEqualityRatio(_n_)
+		StzSetQuietEqualityRatio(_n_)
 
-	def SetApproximativeEqualityRation(n)
-		StzSetQuietEqualityRatio(n)
+	def SetApproximativeEqualityRation(_n_)
+		StzSetQuietEqualityRatio(_n_)
 
 func StzRingTypes()
 	return _aRingTypes
@@ -2959,55 +2959,55 @@ func StzRaise(paMessage)
 
 	# The hash form: a list of [key, value] pairs with keys among
 	# :Where / :What / :Why / :Todo.
-	bRaiseHash = FALSE
+	_bRaiseHash_ = FALSE
 	if isList(paMessage) and len(paMessage) > 0
-		bRaiseHash = TRUE
+		_bRaiseHash_ = TRUE
 		for iRhk = 1 to len(paMessage)
 			if NOT ( isList(paMessage[iRhk]) and len(paMessage[iRhk]) = 2 and
 			         isString(paMessage[iRhk][1]) and
 			         ring_find([ "where", "what", "why", "todo" ],
 			                   lower(paMessage[iRhk][1])) > 0 )
-				bRaiseHash = FALSE
+				_bRaiseHash_ = FALSE
 				exit
 			ok
 		next
 	ok
-	if bRaiseHash
-		cWhere = paMessage[ :Where  ]
-		cWhat  = paMessage[ :What   ]
-		cWhy   = paMessage[ :Why    ]
-		cTodo  = paMessage[ :Todo   ]
+	if _bRaiseHash_
+		_cWhere_ = paMessage[ :Where  ]
+		_cWhat_  = paMessage[ :What   ]
+		_cWhy_   = paMessage[ :Why    ]
+		_cTodo_  = paMessage[ :Todo   ]
 
 	
 
-		if NOT IsListOfStrings([ cWhere, cWhat, cWhy, cTodo ])
+		if NOT IsListOfStrings([ _cWhere_, _cWhat_, _cWhy_, _cTodo_ ])
 			raise("Error in StzRaise param type!")
 		ok
 	
-		cFile = StzReplace(cWhere, " ", "")
-		if isNull(cWhere)
+		_cFile_ = StzReplace(_cWhere_, " ", "")
+		if isNull(_cWhere_)
 			raise("Error in StzRaise --> Where the error happened!")
 		ok
 	
-		cWhat = StringSimplified(cWhat)
-		cwhay = StringSimplified(cWhy)
-		cTodo = StringSimplified(cTodo)
+		_cWhat_ = StringSimplified(_cWhat_)
+		_cwhay_ = StringSimplified(_cWhy_)
+		_cTodo_ = StringSimplified(_cTodo_)
 	
-		cErrorMsg = "in file " + paMessage[:Where] + ":" + NL
+		_cErrorMsg_ = "in file " + paMessage[:Where] + ":" + NL
 	
-		if cWhat != ""
-			cErrorMsg += "   What : " + paMessage[:What] + NL
+		if _cWhat_ != ""
+			_cErrorMsg_ += "   What : " + paMessage[:What] + NL
 		ok
 	
-		if cWhy != ""
-			cErrorMsg += "   Why  : " + paMessage[:Why]  + NL
+		if _cWhy_ != ""
+			_cErrorMsg_ += "   Why  : " + paMessage[:Why]  + NL
 		ok
 	
-		if cTodo != ""
-			cErrorMsg += "   Todo : " + paMessage[:Todo] + NL
+		if _cTodo_ != ""
+			_cErrorMsg_ += "   Todo : " + paMessage[:Todo] + NL
 		ok
 
-		raise(cErrorMsg)
+		raise(_cErrorMsg_)
 	else
 		raise("Error in StzRaise > Incorrect param type!")
 	ok
@@ -3031,8 +3031,8 @@ func StzIsClassName(cStr)
 		ok
 	ok
 
-	bResult = find( ClassesNames(), cStr)
-	return bResult
+	_bResult_ = find( ClassesNames(), cStr)
+	return _bResult_
 
 	func IsClassName(cStr)
 		return StzIsClassName(cStr)
@@ -3050,8 +3050,8 @@ func StzIsPackageName(cStr)
 		ok
 	ok
 
-	bResult = find( packages(), StzLower(cStr))
-	return bResult
+	_bResult_ = find( packages(), StzLower(cStr))
+	return _bResult_
 
 	func IsPackageName(cStr)
 		return StzIsPackageName(cStr)
@@ -4279,23 +4279,23 @@ func StzBothAreCharsInComputableForm(p1, p2)
 		p2 = p2[2]
 	ok
 
-	bResult = 0
+	_bResult_ = 0
 
 	if BothAreStringsInComputableForm(p1, p2)
-		c1 = '"'
-		c2 = "'"
+		_c1_ = '"'
+		_c2_ = "'"
 
-		cClean1 = StzReplace(StzReplace(p1, c1, ""), c2, "")
-		bOk1 = (len(cClean1) = 1)
-		cClean2 = StzReplace(StzReplace(p2, c1, ""), c2, "")
-		bOk2 = (len(cClean2) = 1)
+		_cClean1_ = StzReplace(StzReplace(p1, _c1_, ""), _c2_, "")
+		_bOk1_ = (len(_cClean1_) = 1)
+		_cClean2_ = StzReplace(StzReplace(p2, _c1_, ""), _c2_, "")
+		_bOk2_ = (len(_cClean2_) = 1)
 
-		if bOk1 and bOk2
-			bResult = 1
+		if _bOk1_ and _bOk2_
+			_bResult_ = 1
 		ok
 	ok
 
-	return bResult
+	return _bResult_
 
 	func BothAreCharsInComputableForm(p1, p2)
 		return StzBothAreCharsInComputableForm(p1, p2)
@@ -4314,16 +4314,16 @@ func StzBothAreStringsInComputableForm(p1, p2)
 		p2 = p2[2]
 	ok
 
-	c1 = '"'
-	c2 = "'"
+	_c1_ = '"'
+	_c2_ = "'"
 
 	if BothAreStrings(p1, p2) and
 
-	   ( ( Q(p1).FirstChar() = c1 and Q(p1).LastChar() = c1 ) or
-	     ( Q(p1).LastChar()  = c2 and Q(p1).LastChar() = c2 ) ) and
+	   ( ( Q(p1).FirstChar() = _c1_ and Q(p1).LastChar() = _c1_ ) or
+	     ( Q(p1).LastChar()  = _c2_ and Q(p1).LastChar() = _c2_ ) ) and
 
-	   ( ( Q(p2).FirstChar() = c1 and Q(p2).LastChar() = c1 ) or
-	     ( Q(p2).LastChar()  = c2 and Q(p2).LastChar() = c2 ) )
+	   ( ( Q(p2).FirstChar() = _c1_ and Q(p2).LastChar() = _c1_ ) or
+	     ( Q(p2).LastChar()  = _c2_ and Q(p2).LastChar() = _c2_ ) )
 
 		return 1
 
@@ -4538,9 +4538,9 @@ func IsStzType(pcStr)
 		StzRaise("Incorrect param type! pcStr must be a string.")
 	ok
 
-	acTypes = StzTypes() # Assumes they are lowercase strings
+	_acTypes_ = StzTypes() # Assumes they are lowercase strings
 
-	if find(acTypes, pcStr) > 0
+	if find(_acTypes_, pcStr) > 0
 		return 1
 	else
 		return 0
@@ -4595,7 +4595,7 @@ func IsRingType(pcStr)
 	ok
 
 	pcStr = StzLower(pcStr)
-	acRingTypes = RingTypes()
+	_acRingTypes_ = RingTypes()
 
 	if find( RingTypes(), pcStr) > 0
 		return 1
@@ -4678,12 +4678,12 @@ func StzUnicode(p)
 	ok
 
 	if isString(p)
-		nResult = StzStringQ(p).Unicode()
-		return nResult
+		_nResult_ = StzStringQ(p).Unicode()
+		return _nResult_
 
 	but isList(p)
-		anResult = StzListQ(p).Unicode()
-		return anResult
+		_anResult_ = StzListQ(p).Unicode()
+		return _anResult_
 
 	else
 		StzRaise("Incorrect param type! p must be either a string or list.")
@@ -4707,12 +4707,12 @@ func StzHexUnicode(p)
 	ok
 
 	if isString(p)
-		nResult = StzStringQ(p).HexUnicode()
-		return nResult
+		_nResult_ = StzStringQ(p).HexUnicode()
+		return _nResult_
 
 	but isList(p)
-		anResult = StzListQ(p).HexUnicode()
-		return anResult
+		_anResult_ = StzListQ(p).HexUnicode()
+		return _anResult_
 
 	else
 		StzRaise("Incorrect param type! p must be either a string or list.")
@@ -4736,12 +4736,12 @@ func StzUnicodes(p)
 	ok
 
 	if isString(p)
-		anResult = StzStringQ(p).Unicodes()
-		return anResult
+		_anResult_ = StzStringQ(p).Unicodes()
+		return _anResult_
 
 	but isList(p)
-		anResult = StzListQ(p).Unicodes()
-		return anResult
+		_anResult_ = StzListQ(p).Unicodes()
+		return _anResult_
 
 	else
 		StzRaise("Incorrect param type! p must be either a string or list.")
@@ -4765,12 +4765,12 @@ func StzHexUnicodes(p)
 	ok
 
 	if isString(p)
-		anResult = StzStringQ(p).HexUnicodes()
-		return anResult
+		_anResult_ = StzStringQ(p).HexUnicodes()
+		return _anResult_
 
 	but isList(p)
-		anResult = StzListQ(p).HexUnicodes()
-		return anResult
+		_anResult_ = StzListQ(p).HexUnicodes()
+		return _anResult_
 
 	else
 		StzRaise("Incorrect param type! p must be either a string or list.")
@@ -4801,11 +4801,11 @@ func YaMuhammed()
 func SalatNabee()
 	return "صلّى الله على نبيّه الأكرم"
 
-func StzNHearts(n)
-	return Q(Heart()).RepeatedNTimes(n)
+func StzNHearts(_n_)
+	return Q(Heart()).RepeatedNTimes(_n_)
 
-	func NHearts(n)
-		return StzNHearts(n)
+	func NHearts(_n_)
+		return StzNHearts(_n_)
 
 	func 2Hearts()
 		return NHearts(2)
@@ -4822,11 +4822,11 @@ func StzNHearts(n)
 	func 9Hearts()
 		return NHearts(9)
 
-func StzNStars(n)
-	return Q(Star()).RepeatedNTimes(n)
+func StzNStars(_n_)
+	return Q(Star()).RepeatedNTimes(_n_)
 
-	func NStars(n)
-		return StzNStars(n)
+	func NStars(_n_)
+		return StzNStars(_n_)
 
 	func 2Stars()
 		return NStars(2)
@@ -4958,26 +4958,26 @@ func StzSwap(p1, p2)
 	func @Swap(p1, p2)
 		return StzSwap(p1, p2)
 
-func new_stz(cType, p)
+func new_stz(_cType_, p)
 	
-	if NOT isString(cType)
+	if NOT isString(_cType_)
 		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 	
-	cCode = 'oObject = new stz' + cType + '(' + @@(p) + ')'
+	_cCode_ = '_oObject_ = new stz' + _cType_ + '(' + @@(p) + ')'
 
-	eval(cCode)
+	eval(_cCode_)
 
-	return oObject
+	return _oObject_
 
-	func StzTypedQ(cType, p)
-		return stz(cType, p)
+	func StzTypedQ(_cType_, p)
+		return stz(_cType_, p)
 
-	func stz@(cType, p)
-		return stz(cType, p)
+	func stz@(_cType_, p)
+		return stz(_cType_, p)
 
-	func new@stz(cType, p)
-		return stz(cType, p)
+	func new@stz(_cType_, p)
+		return stz(_cType_, p)
 
 func StzSoftanzify(p)
 	return Q(p)
@@ -4985,30 +4985,30 @@ func StzSoftanzify(p)
 	func Softanzify(p)
 		return StzSoftanzify(p)
 
-func StzTheNumberQ(n)
-	if NOT isNumber(n)
+func StzTheNumberQ(_n_)
+	if NOT isNumber(_n_)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
-	obj = new stzNumber(n)
+	obj = new stzNumber(_n_)
 	return obj
 
-	func TheNumberQ(n)
-		return StzTheNumberQ(n)
+	func TheNumberQ(_n_)
+		return StzTheNumberQ(_n_)
 
-	func NumberQ(n)
-		return StzTheNumberQ(n)
+	func NumberQ(_n_)
+		return StzTheNumberQ(_n_)
 
-func StzTheNumberQM(n)
-	obj = StzTheNumberQ(n)
+func StzTheNumberQM(_n_)
+	obj = StzTheNumberQ(_n_)
 	SetMainObject(obj)
 	return obj
 
-	func TheNumberQM(n)
-		return StzTheNumberQM(n)
+	func TheNumberQM(_n_)
+		return StzTheNumberQM(_n_)
 
-	def NumberQM(n)
-		return StzTheNumberQM(n)
+	def NumberQM(_n_)
+		return StzTheNumberQM(_n_)
 
 func StzTheListQ(aList)
 	if NOT isList(aList)
@@ -5261,30 +5261,30 @@ func StzAreBothListsOfObjects(aList1, aList2)
 	func AreBothListsOfObjects(aList1, aList2)
 		return StzAreBothListsOfObjects(aList1, aList2)
 
-func StzEuclideanDistance(anNumbers1, anNumbers2)
+func StzEuclideanDistance(_anNumbers1_, _anNumbers2_)
 
 	if CheckParams()
-		if isList(anNumbers1) and IsBetweenNamedParamList(anNumbers1)
-			anNumbers1 = anNumbers1[1]
+		if isList(_anNumbers1_) and IsBetweenNamedParamList(_anNumbers1_)
+			_anNumbers1_ = _anNumbers1_[1]
 		ok
-		if isList(anNumbers2) and IsAndNamedParamList(anNumbers2)
-			anNumbers2 = anNumbers2[1]
+		if isList(_anNumbers2_) and IsAndNamedParamList(_anNumbers2_)
+			_anNumbers2_ = _anNumbers2_[1]
 		ok
 		
-		if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
+		if NOT AreBothListsOfNumbers(_anNumbers1_, _anNumbers2_)
 			StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
 		ok
 		
-		if len(anNumbers1) != len(anNumbers2)
+		if len(_anNumbers1_) != len(_anNumbers2_)
 			StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
 		ok
 	ok
 
-	nResult = euc_dist(anNumbers1, anNumbers2)
-	return nResult
+	_nResult_ = euc_dist(_anNumbers1_, _anNumbers2_)
+	return _nResult_
 
-	func EuclideanDistance(anNumbers1, anNumbers2)
-		return StzEuclideanDistance(anNumbers1, anNumbers2)
+	func EuclideanDistance(_anNumbers1_, _anNumbers2_)
+		return StzEuclideanDistance(_anNumbers1_, _anNumbers2_)
 
 func euc_dist(a,b)
 
@@ -5294,16 +5294,16 @@ func euc_dist(a,b)
 		ok
 	ok
 
-	s = 0
-	n = len(a)
+	_s_ = 0
+	_n_ = len(a)
 
-	for i = 1 to n
+	for i = 1 to _n_
 
-		dist = a[i] - b[i]
-		s += dist * dist
+		_dist_ = a[i] - b[i]
+		_s_ += _dist_ * _dist_
 	next
 
-	return sqrt(s)
+	return sqrt(_s_)
 
 func @IsList(paList)
 	if isList(paList)
@@ -5318,18 +5318,18 @@ func @IsList(paList)
 	func @IsAList(paList)
 		return isList(paList)
 
-func @IsNumber(n)
-	if isNumber(n)
+func @IsNumber(_n_)
+	if isNumber(_n_)
 		return 1
 	else
 		return 0
 	ok
 
-	func IsANumber(n)
-		return isNumber(n)
+	func IsANumber(_n_)
+		return isNumber(_n_)
 
-	func @IsANumber(n)
-		return isNumber(n)
+	func @IsANumber(_n_)
+		return isNumber(_n_)
 
 func @IsString(str)
 	if isString(str)
@@ -5464,26 +5464,26 @@ func StzNumberOfStzFindableTypes()
 	func NumberOfStzFindableTypes()
 		return StzNumberOfStzFindableTypes()
 
-func IsStzFindableType(cType)
-	if NOT isString(cType)
+func IsStzFindableType(_cType_)
+	if NOT isString(_cType_)
 		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 
-	cType = StzLower(cType)
-	if StzFindFirst( StzFindableTypes(), cType) > 0
+	_cType_ = StzLower(_cType_)
+	if StzFindFirst( StzFindableTypes(), _cType_) > 0
 		return 1
 	else
 		return 0
 	ok
 
-	func IsAStzFindableType(cType)
-		return IsStzFindableType(cType)
+	func IsAStzFindableType(_cType_)
+		return IsStzFindableType(_cType_)
 
-	func @IsStzFindableType(cType)
-		return IsStzFindableType(cType)
+	func @IsStzFindableType(_cType_)
+		return IsStzFindableType(_cType_)
 
-	func @IsAStzFindableType(cType)
-		return IsStzFindableType(cType)
+	func @IsAStzFindableType(_cType_)
+		return IsStzFindableType(_cType_)
 
 func StzFindableTypes()
 	return _aStzFindableTypes
@@ -5493,8 +5493,8 @@ func IsStzFindable(p)
 		return 0
 	ok
 
-	cStzType = p.StzType()
-	if StzFindFirst( StzFindableTypes(), cStzType ) > 0
+	_cStzType_ = p.StzType()
+	if StzFindFirst( StzFindableTypes(), _cStzType_ ) > 0
 		return 1
 	else
 		return 0
@@ -5507,15 +5507,15 @@ func IsStzFindable(p)
 
 
 func StzClasses()
-	aResult = []
-	acStzClassesXT = StzClassesXT()
-	nLen = len(acStzClassesXT)
+	_aResult_ = []
+	_acStzClassesXT_ = StzClassesXT()
+	_nLen_ = len(_acStzClassesXT_)
 
-	for i = 1 to nLen
-		aResult + acStzClassesXT[i][1]
+	for i = 1 to _nLen_
+		_aResult_ + _acStzClassesXT_[i][1]
 	next
 
-	return aResult
+	return _aResult_
 
 	func StzTypes()
 		return StzClasses()
@@ -5528,7 +5528,7 @@ func NumberOfStzClasses()
 
 func StzClassesXT()
 	#TODO // Update this list!
-	aStzClassesXT = [
+	_aStzClassesXT_ = [
 		# [ :Singular,			:Plural			]
 		[ :stzObject, 			:stzObjects 		],
 		[ :stzListOfObjects, 		:stzListsOfObjects 	],
@@ -5619,7 +5619,7 @@ func StzClassesXT()
 		[ :stzFalseObjects,		:stzFalseObjects	]
 	]
 
-	return aStzClassesXT
+	return _aStzClassesXT_
 
 	func StzTypesXT()
 		return StzClassesXT()
@@ -5639,35 +5639,35 @@ func StzType(oStzObj)
 	func @StzType(oStzObj)
 		return StzType(oStzObj)
 
-func StzInfereType(cType)
-	return StzStringQ(cType).InfereType()
+func StzInfereType(_cType_)
+	return StzStringQ(_cType_).InfereType()
 
-	func InfereType(cType)
-		return StzInfereType(cType)
+	func InfereType(_cType_)
+		return StzInfereType(_cType_)
 
-	func @InfereType(cType)
-		return StzInfereType(cType)
+	func @InfereType(_cType_)
+		return StzInfereType(_cType_)
 
 # File-scope worker for stzString.InfereType() (kept out of the class so
 # StartsWith / StzFind / StzReplaceCS resolve to globals, not methods).
 func @StzInfereTypeName(cStr)
-	c = StzLower(cStr)
+	_c_ = StzLower(cStr)
 
-	if c = "number" or c = "numbers"   return :Number ok
-	if c = "string" or c = "strings"   return :String ok
-	if c = "char"   or c = "chars"     return :Char   ok
+	if _c_ = "number" or _c_ = "numbers"   return :Number ok
+	if _c_ = "string" or _c_ = "strings"   return :String ok
+	if _c_ = "char"   or _c_ = "chars"     return :Char   ok
 
-	if c = "stznumber" or c = "stznumbers" return :StzNumber ok
-	if c = "stzstring" or c = "stzstrings" return :StzString ok
-	if c = "stzchar"   or c = "stzchars"   return :StzChar   ok
+	if _c_ = "stznumber" or _c_ = "stznumbers" return :StzNumber ok
+	if _c_ = "stzstring" or _c_ = "stzstrings" return :StzString ok
+	if _c_ = "stzchar"   or _c_ = "stzchars"   return :StzChar   ok
 
-	if StartsWith(c, "stzlist")
-		cR = StzReplaceCS(cStr, "Lists", "List", TRUE)
-		cR = StzReplaceCS(cR, "lists", "list", TRUE)
-		return cR
+	if StartsWith(_c_, "stzlist")
+		_cR_ = StzReplaceCS(cStr, "Lists", "List", TRUE)
+		_cR_ = StzReplaceCS(_cR_, "lists", "list", TRUE)
+		return _cR_
 	ok
 
-	if StzFindFirst(c, "list") > 0 or StzFindFirst(c, "pair") > 0
+	if StzFindFirst(_c_, "list") > 0 or StzFindFirst(_c_, "pair") > 0
 		return :List
 	ok
 
@@ -5685,8 +5685,8 @@ func StzView(cFileName)
 	ok
 
 	if fexists(cFileName)
-		osysCall = new stzSystemCall("")
-		oSysCall.OpenFile(cFileName)
+		_osysCall_ = new stzSystemCall("")
+		_osysCall_.OpenFile(cFileName)
 
 	else
 		stzraise("Can't proceed! The file you provided does not exist.")
@@ -5733,13 +5733,13 @@ class stzForEachObjectOld from stzObject
 		ok
 	
 		if isList(p)
-			nLen = len(p)
+			_nLen_ = len(p)
 			
 			if NOT IsListOfLists(pIn)
-				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + _nLen_ + " items in each list.")
 			ok
 	
-			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(nLen)
+			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(_nLen_)
 	
 				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
 			ok
@@ -5747,17 +5747,17 @@ class stzForEachObjectOld from stzObject
 		ok
 	
 		if isString(p)
-			aTemp = []
-			aTemp + p
-			p = aTemp
+			_aTemp_ = []
+			_aTemp_ + p
+			p = _aTemp_
 
 			if isList(pIn)
-				nLen = len(pIn)
-				aTemp = []
-				for i = 1 to nLen
-					aTemp + [ pIn[i] ]
+				_nLen_ = len(pIn)
+				_aTemp_ = []
+				for i = 1 to _nLen_
+					_aTemp_ + [ pIn[i] ]
 				next
-				pIn = aTemp
+				pIn = _aTemp_
 			ok
 		ok
 
@@ -5816,8 +5816,8 @@ class stzForEachObjectOld from stzObject
 
 			_nValuesiLen_3 = len(@aValues[i])
 			for j = 1 to _nValuesiLen_3
-				cCode = @acVars[j] + ' = @aValues[i][j]'
-				eval(cCode)
+				_cCode_ = @acVars[j] + ' = @aValues[i][j]'
+				eval(_cCode_)
 			next
 
 			eval(pcCode)
@@ -5857,13 +5857,13 @@ class stzForEachObject from stzObject
 		ok
 	
 		if isList(p)
-			nLen = len(p)
+			_nLen_ = len(p)
 
 			if NOT IsListOfLists(pIn)
-				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + _nLen_ + " items in each list.")
 			ok
 	
-			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(nLen)
+			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(_nLen_)
 	
 				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
 			ok
@@ -5873,9 +5873,9 @@ class stzForEachObject from stzObject
 		if isString(p)
 			@Iterations = 1 : len(pIn)
 
-			aTemp = []
-			aTemp + [ p, pIn ]
-			p = aTemp
+			_aTemp_ = []
+			_aTemp_ + [ p, pIn ]
+			p = _aTemp_
 			@aDataVars = p
 
 			@aValues = @aDataVars[1][2]
@@ -5991,25 +5991,25 @@ class stzForEachObject from stzObject
 			return
 		ok
 
-		nLen = len(@Iterations)
+		_nLen_ = len(@Iterations)
 
 		if This.@NumberOfVars() = 1
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 				@i = @Iterations[i]
-				cCode = @acVars[1] + ' = @aValues[' + @Iterations[i] + ']'
-				eval(cCode)
+				_cCode_ = @acVars[1] + ' = @aValues[' + @Iterations[i] + ']'
+				eval(_cCode_)
 				eval(pcCode)
 			next
 
 		else
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 				@i = @Iterations[i]
 				_nValuesiLen_2 = len(@aValues[@i])
 				for j = 1 to _nValuesiLen_2
-					cCode = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
-					eval(cCode)
+					_cCode_ = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
+					eval(_cCode_)
 				next
 	
 				eval(pcCode)
@@ -6032,35 +6032,35 @@ class stzForEachObject from stzObject
 		def X(pcCode)
 			This.Exec(pcCode)
 
-	def ExecN(n, pcCode)
-		anPos = []
+	def ExecN(_n_, pcCode)
+		_anPos_ = []
 
-		if isNumber(n)
-			anPos + n
+		if isNumber(_n_)
+			_anPos_ + _n_
 
-		but isList(n) and Q(n).IsListOfNumbers()
-			anPos = n
+		but isList(_n_) and Q(_n_).IsListOfNumbers()
+			_anPos_ = _n_
 		ok
 
-		nLen = len(anPos)
+		_nLen_ = len(_anPos_)
 
 		if This.@NumberOfVars() = 1
 
-			for i = 1 to nLen
-				@i = anPos[i]
-				cCode = @acVars[1] + ' = @aValues[' + anPos[i] + ']'
-				eval(cCode)
+			for i = 1 to _nLen_
+				@i = _anPos_[i]
+				_cCode_ = @acVars[1] + ' = @aValues[' + _anPos_[i] + ']'
+				eval(_cCode_)
 				eval(pcCode)
 			next
 
 		else
 
-			for i = 1 to nLen
-				@i = anPos[i]
+			for i = 1 to _nLen_
+				@i = _anPos_[i]
 				_nValuesiLen_ = len(@aValues[@i])
 				for j = 1 to _nValuesiLen_
-					cCode = @acVars[j] + ' = @aValues[' + anPos[i] + '][' + j + ']'
-					eval(cCode)
+					_cCode_ = @acVars[j] + ' = @aValues[' + _anPos_[i] + '][' + j + ']'
+					eval(_cCode_)
 				next
 	
 				eval(pcCode)
@@ -6068,20 +6068,20 @@ class stzForEachObject from stzObject
 
 		ok
 
-		def ExecuteN(n, pcCode)
-			This.ExecN(n, pcCode)
+		def ExecuteN(_n_, pcCode)
+			This.ExecN(_n_, pcCode)
 
-		def RunN(n, pcCode)
-			This.ExecN(n, pcCode)
+		def RunN(_n_, pcCode)
+			This.ExecN(_n_, pcCode)
 
-		def @n(n, pcCode)
-			This.ExecN(n, pcCode)
+		def @n(_n_, pcCode)
+			This.ExecN(_n_, pcCode)
 
-		def _n(n, pcCode)
-			This.ExecN(n, pcCode)
+		def _n(_n_, pcCode)
+			This.ExecN(_n_, pcCode)
 
-		def Xn(n, pcCode)
-			This.ExecN(n, pcCode)
+		def Xn(_n_, pcCode)
+			This.ExecN(_n_, pcCode)
 
 	def v(pcVar)
 

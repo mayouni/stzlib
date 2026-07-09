@@ -7,13 +7,13 @@
 	concurrent connections. Ring stays synchronous -- submit a batch, then
 	await the results.
 
-		oPool = new stzReactorPool(4)         # 4 loops / threads
-		aReqs = [
+		_oPool_ = new stzReactorPool(4)         # 4 loops / threads
+		_aReqs_ = [
 		    ["example.com", 80, cReq],
 		    ["example.org", 80, cReq2]
 		]
-		aBodies = oPool.FetchAll(aReqs, 15000) # all run in parallel
-		oPool.Destroy()
+		_aBodies_ = _oPool_.FetchAll(_aReqs_, 15000) # all run in parallel
+		_oPool_.Destroy()
 
 	Note on scale: confirm your workload actually needs many thousands of
 	concurrent connections before sizing the pool large -- for most uses a
@@ -26,8 +26,8 @@ func StzReactorPool(nWorkers)
 
 class stzReactorPool from stzObject
 
-	aReactors = []
-	nNext = 1
+	_aReactors_ = []
+	_nNext_ = 1
 
 	def init(nWorkers)
 		_n_ = nWorkers
@@ -35,18 +35,18 @@ class stzReactorPool from stzObject
 			_n_ = 1
 		ok
 		for _i_ = 1 to _n_
-			aReactors + new stzReactor()
+			_aReactors_ + new stzReactor()
 		next
 
 	def Count()
-		return len(aReactors)
+		return len(_aReactors_)
 
 	# Round-robin pick of the next loop.
 	def _Pick()
-		_oR_ = aReactors[nNext]
-		nNext++
-		if nNext > len(aReactors)
-			nNext = 1
+		_oR_ = _aReactors_[_nNext_]
+		_nNext_++
+		if _nNext_ > len(_aReactors_)
+			_nNext_ = 1
 		ok
 		return _oR_
 
@@ -70,10 +70,10 @@ class stzReactorPool from stzObject
 		return _aBodies_
 
 	def Destroy()
-		_nL_ = len(aReactors)
+		_nL_ = len(_aReactors_)
 		for _i_ = 1 to _nL_
-			aReactors[_i_].Destroy()
+			_aReactors_[_i_].Destroy()
 		next
-		aReactors = []
-		nNext = 1
+		_aReactors_ = []
+		_nNext_ = 1
 		return This

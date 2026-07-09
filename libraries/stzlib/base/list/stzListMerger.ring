@@ -79,8 +79,8 @@ class stzListMerger from stzObject
 			return This
 
 	def Merged()
-		aResult = This.Copy().MergeQ().Content()
-		return aResult
+		_aResult_ = This.Copy().MergeQ().Content()
+		return _aResult_
 
 	def MergeWith(paOtherList)
 		_nMwLen_ = len(paOtherList)
@@ -93,8 +93,8 @@ class stzListMerger from stzObject
 			return This
 
 	def MergedWith(paOtherList)
-		aResult = This.Copy().MergeWithQ(paOtherList).Content()
-		return aResult
+		_aResult_ = This.Copy().MergeWithQ(paOtherList).Content()
+		return _aResult_
 
 	def AssociateWith(paOtherList)
 		_aAwContent_ = This.Content()
@@ -121,21 +121,21 @@ class stzListMerger from stzObject
 	#======================================================#
 
 	def Flatten()
-		aResult = []
-		This._FlattenHelper(This.Content(), aResult)
-		This.UpdateWith(aResult)
+		_aResult_ = []
+		This._FlattenHelper(This.Content(), _aResult_)
+		This.UpdateWith(_aResult_)
 
 		def FlattenQ()
 			This.Flatten()
 			return This
 
-	def _FlattenHelper(aList, aResult)
+	def _FlattenHelper(aList, _aResult_)
 		_nFhLen_ = len(aList)
 		for _iFh_ = 1 to _nFhLen_
 			if isList(aList[_iFh_])
-				This._FlattenHelper(aList[_iFh_], aResult)
+				This._FlattenHelper(aList[_iFh_], _aResult_)
 			else
-				@AddItem(aResult, aList[_iFh_])
+				@AddItem(_aResult_, aList[_iFh_])
 			ok
 		next
 
@@ -165,13 +165,13 @@ class stzListMerger from stzObject
 
 	def InterleaveWith(paOtherList)
 		pList1 = @oList._Engine()
-		oTemp = new stzList(paOtherList)
-		pList2 = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pList2 = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListInterleave(pList1, pList2)
 		StzEngineListFree(pList2)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 		def InterleaveWithQ(paOtherList)
 			This.InterleaveWith(paOtherList)
@@ -186,13 +186,13 @@ class stzListMerger from stzObject
 
 	def ZipWith(paOtherList)
 		pList1 = @oList._Engine()
-		oTemp = new stzList(paOtherList)
-		pList2 = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pList2 = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListZip(pList1, pList2)
 		StzEngineListFree(pList2)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def ZipWithQ(paOtherList)
 			return new stzList(This.ZipWith(paOtherList))
@@ -256,17 +256,17 @@ class stzListMerger from stzObject
 	# Ring method-return of the list would incur.
 	def _DiffHandle(paOtherList)
 		pList1 = @oList._Engine()
-		oTemp = new stzList(paOtherList)
-		pList2 = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pList2 = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListDifferenceCS(pList1, pList2, 1)
 		StzEngineListFree(pList2)
 		return pResult
 
 	def DiffWith(paOtherList)
 		pResult = This._DiffHandle(paOtherList)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def DiffWithQ(paOtherList)
 			return new stzList(This.DiffWith(paOtherList))
@@ -280,17 +280,17 @@ class stzListMerger from stzObject
 
 	def _IntersectHandle(paOtherList)
 		pList1 = @oList._Engine()
-		oTemp = new stzList(paOtherList)
-		pList2 = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pList2 = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListIntersectionCS(pList1, pList2, 1)
 		StzEngineListFree(pList2)
 		return pResult
 
 	def IntersectWith(paOtherList)
 		pResult = This._IntersectHandle(paOtherList)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def IntersectWithQ(paOtherList)
 			return new stzList(This.IntersectWith(paOtherList))
@@ -304,17 +304,17 @@ class stzListMerger from stzObject
 
 	def _UnionHandle(paOtherList)
 		pList1 = @oList._Engine()
-		oTemp = new stzList(paOtherList)
-		pList2 = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pList2 = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListUnionCS(pList1, pList2, 1)
 		StzEngineListFree(pList2)
 		return pResult
 
 	def UnionWith(paOtherList)
 		pResult = This._UnionHandle(paOtherList)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def UnionWithQ(paOtherList)
 			return new stzList(This.UnionWith(paOtherList))
@@ -326,9 +326,9 @@ class stzListMerger from stzObject
 	def Partition(n)
 		pList = @oList._Engine()
 		pResult = StzEngineListPartition(pList, n)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def PartitionQ(n)
 			return new stzList(This.Partition(n))

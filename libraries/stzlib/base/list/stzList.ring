@@ -30,7 +30,7 @@ class stzList from stzObject
 	@aWalkers = []
 
 	These
-	Those
+	_Those_
 
 	  #--------------#
 	 #     INIT     #
@@ -47,7 +47,7 @@ class stzList from stzObject
 
 		This._SetContent(paList)
 		These = This
-		Those = This
+		_Those_ = This
 
 		StartObjectTime()
 		TraceObjectHistory(This)
@@ -82,17 +82,17 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! pCaseSensitive must be 1 (1) or 0 (0).")
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		if pCaseSensitive = 1
-			aResult = @aContent
+			_aResult_ = @aContent
 
 		else
-			aResult = This.WithoutDuplicationCS(0)
+			_aResult_ = This.WithoutDuplicationCS(0)
 
 		ok
 
-		return aResult
+		return _aResult_
 
 		def ContentCSQ(pCaseSensitive)
 			return new stzList(This.Content())
@@ -134,8 +134,8 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def NumberOfItemsCS(pCaseSensitive)
-		nResult = len( This.ContentCS(pCaseSensitive) )
-		return nResult
+		_nResult_ = len( This.ContentCS(pCaseSensitive) )
+		return _nResult_
 
 		def NumberOfItemsCSQ(pCaseSensitive)
 			return new stzNumber( This.NumberOfItemsCS(pCaseSensitive) )
@@ -155,8 +155,8 @@ class stzList from stzObject
 				ok
 
 	def NumberOfItems()
-		nResult = len(@aContent)
-		return nResult
+		_nResult_ = len(@aContent)
+		return _nResult_
 
 		def NumberOfItemsQ()
 			return new stzNumber( This.NumberOfItems() )
@@ -199,52 +199,52 @@ class stzList from stzObject
 	 #  GETTING THE NTH ITEM IN THE LIST  #
 	#------------------------------------#
 
-	def Item(n)
+	def Item(_n_)
 
 		if CheckingParams()
 
-			if isString(n)
-				if n = "first"
-					n = 1
+			if isString(_n_)
+				if _n_ = "first"
+					_n_ = 1
 
-				but n = "last"
-					n = This.NumberOfItems()
+				but _n_ = "last"
+					_n_ = This.NumberOfItems()
 
 				ok
 			ok
 
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n should be a number.")
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if n > nLen
+		if _n_ > _nLen_
 			StzRaise("Index outside the list!" + NL +
-			 "Trying to access position " + n + " in a list of "  + nLen + " items!")
-		but n < 0
-			n = nLen + n + 1
+			 "Trying to access position " + _n_ + " in a list of "  + _nLen_ + " items!")
+		but _n_ < 0
+			_n_ = _nLen_ + _n_ + 1
 		ok
 
-		return @aContent[n]
+		return @aContent[_n_]
 
-		def ItemQ(n)
-			return Q(This.Item(n))
+		def ItemQ(_n_)
+			return Q(This.Item(_n_))
 
 		#@ aka  item at position, element at, get by index, the nth one
-		def NthItem(n)
-			return This.Item(n)
+		def NthItem(_n_)
+			return This.Item(_n_)
 
-			def NthItemQ(n)
-				return This.ItemQ(n)
+			def NthItemQ(_n_)
+				return This.ItemQ(_n_)
 
-		def ItemAtPosition(n)
-			return This.Item(n)
+		def ItemAtPosition(_n_)
+			return This.Item(_n_)
 
-		def ItemAt(n)
-			return This.Item(n)
+		def ItemAt(_n_)
+			return This.Item(_n_)
 
 	  #--------------------------------------#
 	 #  GETTING THE FIRST ITEM IN THE LIST  #
@@ -273,21 +273,21 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def FirstAndLastItems()
-		aResult = [ This.FirstItem(), This.LastItem() ]
-		return aResult
+		_aResult_ = [ This.FirstItem(), This.LastItem() ]
+		return _aResult_
 
 	def LastAndFirstItems()
-		aResult = [ This.LastItem(), FirstItem() ]
-		return aResult
+		_aResult_ = [ This.LastItem(), FirstItem() ]
+		return _aResult_
 
 	  #--------------------------------------------#
 	 #  GETTING THE CENTRAL POSITION IN THE LIST  #
 	#--------------------------------------------#
 
 	def CentralPosition()
-		oTemp = new stzNumber( (This.NumberOfItems()/2) )
-		n = oTemp.IntegerPartValue()
-		return n
+		_oTemp_ = new stzNumber( (This.NumberOfItems()/2) )
+		_n_ = _oTemp_.IntegerPartValue()
+		return _n_
 
 		def CentralItemPosition()
 			return This.CentralPosition()
@@ -316,20 +316,20 @@ class stzList from stzObject
 	 #  GETTING THE LIST OF N FIRST ITEMS  #
 	#-------------------------------------#
 
-	def NFirstItems(n)
-		aContent = This.Content()
-		aResult = []
+	def NFirstItems(_n_)
+		_aContent_ = This.Content()
+		_aResult_ = []
 
-		for i = 1 to n
-			aResult + aContent[i]
+		for _i_ = 1 to _n_
+			_aResult_ + _aContent_[_i_]
 		next
 
-		return aResult
+		return _aResult_
 
-		def NFirstItemsQ(n)
-			return NFirstItemsQRT(n, :stzList)
+		def NFirstItemsQ(_n_)
+			return NFirstItemsQRT(_n_, :stzList)
 
-		def NFirstItemsQRT(n, pcReturnType)
+		def NFirstItemsQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 
@@ -342,13 +342,13 @@ class stzList from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NFirstItems(n) )
+				return new stzList( This.NFirstItems(_n_) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.NFirstItems(n) )
+				return new stzListOfStrings( This.NFirstItems(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NFirstItems(n) )
+				return new stzListOfNumbers( This.NFirstItems(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -358,24 +358,24 @@ class stzList from stzObject
 	 #  GETTING THE LIST OF N LAST ITEMS  #
 	#------------------------------------#
 
-	def NLastItems(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		n1 = nLen - n + 1
-		n2 = nLen
+	def NLastItems(_n_)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_n1_ = _nLen_ - _n_ + 1
+		_n2_ = _nLen_
 
-		aResult = []
+		_aResult_ = []
 
-		for i = n1 to n2
-			aResult + aContent[i]
+		for _i_ = _n1_ to _n2_
+			_aResult_ + _aContent_[_i_]
 		next
 
-		return aResult
+		return _aResult_
 
-		def NLastItemsQ(n)
-			return NLastItemsQRT(n, :stzList)
+		def NLastItemsQ(_n_)
+			return NLastItemsQRT(_n_, :stzList)
 
-		def NLastItemsQRT(n, pcReturnType)
+		def NLastItemsQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and
 			   Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
@@ -387,13 +387,13 @@ class stzList from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NLastItems(n) )
+				return new stzList( This.NLastItems(_n_) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.NLastItems(n) )
+				return new stzListOfStrings( This.NLastItems(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NLastItems(n) )
+				return new stzListOfNumbers( This.NLastItems(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -403,9 +403,9 @@ class stzList from stzObject
 	 #  GETTING NEXT/PREVIOUS N ITEMS FROM A POSITION  #
 	#-------------------------------------------------#
 
-	def NextNItems(n, pnStartingAt)
+	def NextNItems(_n_, pnStartingAt)
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -430,23 +430,23 @@ class stzList from stzObject
 			pnStartingAt = This.NumberOfItems() - Abs(pnStartingAt) + 1
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
 		# The n items AFTER the starting position (exclusive), matching
 		# the string-side NextNChars(:StartingAt) semantics.
-		n1 = pnStartingAt + 1
-		n2 = pnStartingAt + n
-		if n2 > nLen
-			n2 = nLen
+		_n1_ = pnStartingAt + 1
+		_n2_ = pnStartingAt + _n_
+		if _n2_ > _nLen_
+			_n2_ = _nLen_
 		ok
 
-		aResult = []
-		for i = n1 to n2
-			aResult + aContent[i]
+		_aResult_ = []
+		for _i_ = _n1_ to _n2_
+			_aResult_ + _aContent_[_i_]
 		next
 
-		return aResult
+		return _aResult_
 
 	  #--------------------#
 	 #      UPDATING      #
@@ -499,9 +499,9 @@ class stzList from stzObject
 	#----------------------#
 
 	def AddItem(pItem)
-		aCopy = This.Content()
-		aCopy + pItem
-		This.UpdateWith(aCopy)
+		_aCopy_ = This.Content()
+		_aCopy_ + pItem
+		This.UpdateWith(_aCopy_)
 
 		def AddItemQ(pItem)
 			This.AddItem(pItem)
@@ -527,16 +527,16 @@ class stzList from stzObject
 				return This
 
 	def ItemAdded(pItem)
-		aResult = This.Copy().AddItemQ(pItem).Content()
-		return aResult
+		_aResult_ = This.Copy().AddItemQ(pItem).Content()
+		return _aResult_
 
 		def Added(pItem)
 			return This.ItemAdded(pItem)
 
 	def ManyAdded(paItems)
 		# Non-mutating: append each item of paItems to a copy.
-		aResult = This.Copy().AddManyQ(paItems).Content()
-		return aResult
+		_aResult_ = This.Copy().AddManyQ(paItems).Content()
+		return _aResult_
 
 	  #-----------------------------------#
 	 #  MERGING WITH ANOTHER LIST        #
@@ -564,22 +564,22 @@ class stzList from stzObject
 	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
 	#-----------------------------------------------------------#
 
-	def AddItemAt(n, pItem)
+	def AddItemAt(_n_, pItem)
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if n <= This.NumberOfItems()
-			This.InsertAt(n, pItem)
+		if _n_ <= This.NumberOfItems()
+			This.InsertAt(_n_, pItem)
 
 		else
-			This.ExtendToPositionXT(n - 1, :With = "")
+			This.ExtendToPositionXT(_n_ - 1, :With = "")
 			This.Add(pItem)
 		ok
 
-		def AddItemAtQ(n, pItem)
-			This.AddItemAt(n, pItem)
+		def AddItemAtQ(_n_, pItem)
+			This.AddItemAt(_n_, pItem)
 			return This
 
 	  #-----------------------------------------#
@@ -591,9 +591,9 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
 
-		nLen = len(paItems)
-		for i = 1 to nLen
-			This.AddItem(paItems[i])
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			This.AddItem(paItems[_i_])
 		next
 
 		def AddManyQ(paItems)
@@ -848,9 +848,9 @@ class stzList from stzObject
 	# Case-sensitivity applies only when items are strings.
 	def AllItemsAreEqualCS(pCaseSensitive)
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListAllItemsEqualCS(pList, pCaseSensitive)
+		_nResult_ = StzEngineListAllItemsEqualCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def AllItemsAreEqual()
 			return This.AllItemsAreEqualCS(1)
@@ -906,8 +906,8 @@ class stzList from stzObject
 	def ShowShort()
 		? @@S( This.Content() )
 
-	def ShowShortN(n)
-		? ComputableShortFormXT( This.Content(), n )
+	def ShowShortN(_n_)
+		? ComputableShortFormXT( This.Content(), _n_ )
 
 	def ShowShortXT(nItems)
 		# nItems may be a number (symmetric N first + N last)
@@ -936,18 +936,18 @@ class stzList from stzObject
 	def Replace(pItem, pNewItem)
 		This.ReplaceCS(pItem, pNewItem, 1)
 
-	def ReplaceNthCS(n, pItem, pNewItem, pCaseSensitive)
+	def ReplaceNthCS(_n_, pItem, pNewItem, pCaseSensitive)
 		_oRplN_ = new stzListReplacer(This)
-		_oRplN_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+		_oRplN_.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplN_.Content())
 
-	def ReplaceNth(n, pItem, pNewItem)
-		This.ReplaceNthCS(n, pItem, pNewItem, 1)
+	def ReplaceNth(_n_, pItem, pNewItem)
+		This.ReplaceNthCS(_n_, pItem, pNewItem, 1)
 
 	# Occurrence-replace delegation, accepting the named-param call
 	# form ReplaceNthOccurrence(n, :Of = item, :With = newItem).
 
-	def ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+	def ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, pCaseSensitive)
 		if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and
 		   (pItem[1] = :of or pItem[1] = :Of or pItem[1] = :For or pItem[1] = :for)
 			pItem = pItem[2]
@@ -958,17 +958,17 @@ class stzList from stzObject
 			pNewItem = pNewItem[2]
 		ok
 		_oRplNO_ = new stzListReplacer(This)
-		_oRplNO_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+		_oRplNO_.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplNO_.Content())
 
-	def ReplaceNthOccurrence(n, pItem, pNewItem)
-		This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, 1)
+	def ReplaceNthOccurrence(_n_, pItem, pNewItem)
+		This.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, 1)
 
 	# Replace the nth occurrence of an item counting backward from a
 	# given position. Named form:
 	#   ReplacePreviousNthOccurrence(n, :Of=item, :By=new, :StartingAt=p)
 
-	def ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+	def ReplacePreviousNthOccurrenceCS(_n_, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
 		   (pItem[1] = :of or pItem[1] = :Of)
 			pItem = pItem[2]
@@ -982,13 +982,13 @@ class stzList from stzObject
 		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
-		oRpvSec = This.SectionQ(1, pnStartingAt)
-		anRpvPos = oRpvSec.FindAllCS(pItem, pCaseSensitive)
-		nRpvPos = anRpvPos[ ring_len(anRpvPos) - n + 1 ]
-		This.ReplaceAt(nRpvPos, pNewItem)
+		_oRpvSec_ = This.SectionQ(1, pnStartingAt)
+		_anRpvPos_ = _oRpvSec_.FindAllCS(pItem, pCaseSensitive)
+		_nRpvPos_ = _anRpvPos_[ ring_len(_anRpvPos_) - _n_ + 1 ]
+		This.ReplaceAt(_nRpvPos_, pNewItem)
 
-	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
+	def ReplacePreviousNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
+		This.ReplacePreviousNthOccurrenceCS(_n_, pItem, pNewItem, pnStartingAt, 1)
 
 	# Plural "ST" forms: panList holds INDICES into the list of an
 	# item's previous/next occurrences (relative to :StartingAt). E.g.
@@ -1004,14 +1004,14 @@ class stzList from stzObject
 		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
-		oFpnSec = This.SectionQ(1, pnStartingAt - 1)
-		anFpnAll = oFpnSec.FindAllCS(pItem, pCaseSensitive)
-		anFpnRes = []
-		nFpnL = ring_len(panList)
-		for iFpn = 1 to nFpnL
-			anFpnRes + anFpnAll[ panList[iFpn] ]
+		_oFpnSec_ = This.SectionQ(1, pnStartingAt - 1)
+		_anFpnAll_ = _oFpnSec_.FindAllCS(pItem, pCaseSensitive)
+		_anFpnRes_ = []
+		_nFpnL_ = ring_len(panList)
+		for iFpn = 1 to _nFpnL_
+			_anFpnRes_ + _anFpnAll_[ panList[iFpn] ]
 		next
-		return anFpnRes
+		return _anFpnRes_
 
 	def FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
@@ -1022,27 +1022,27 @@ class stzList from stzObject
 		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
-		oFnnSec = This.SectionQ(pnStartingAt + 1, This.NumberOfItems())
-		anFnnRel = oFnnSec.FindAllCS(pItem, pCaseSensitive)
-		anFnnAll = []
-		nFnnRel = ring_len(anFnnRel)
-		for iFnn = 1 to nFnnRel
-			anFnnAll + ( anFnnRel[iFnn] + pnStartingAt )
+		_oFnnSec_ = This.SectionQ(pnStartingAt + 1, This.NumberOfItems())
+		_anFnnRel_ = _oFnnSec_.FindAllCS(pItem, pCaseSensitive)
+		_anFnnAll_ = []
+		_nFnnRel_ = ring_len(_anFnnRel_)
+		for iFnn = 1 to _nFnnRel_
+			_anFnnAll_ + ( _anFnnRel_[iFnn] + pnStartingAt )
 		next
-		anFnnRes = []
-		nFnnL = ring_len(panList)
-		for iFnn = 1 to nFnnL
-			anFnnRes + anFnnAll[ panList[iFnn] ]
+		_anFnnRes_ = []
+		_nFnnL_ = ring_len(panList)
+		for iFnn = 1 to _nFnnL_
+			_anFnnRes_ + _anFnnAll_[ panList[iFnn] ]
 		next
-		return anFnnRes
+		return _anFnnRes_
 
 	def ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
 		if isList(pNewItem) and ring_len(pNewItem) = 2 and isString(pNewItem[1]) and
 		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
 			pNewItem = pNewItem[2]
 		ok
-		anRpnPos = This.FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
-		This.ReplaceItemsAtPositions(anRpnPos, pNewItem)
+		_anRpnPos_ = This.FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
+		This.ReplaceItemsAtPositions(_anRpnPos_, pNewItem)
 
 		def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
@@ -1052,8 +1052,8 @@ class stzList from stzObject
 		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
 			pNewItem = pNewItem[2]
 		ok
-		anRnnPos = This.FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
-		This.ReplaceItemsAtPositions(anRnnPos, pNewItem)
+		_anRnnPos_ = This.FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
+		This.ReplaceItemsAtPositions(_anRnnPos_, pNewItem)
 
 		def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
@@ -1061,14 +1061,14 @@ class stzList from stzObject
 	# Passive (non-mutating) forms: return a fresh content list.
 
 	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
-		oNnrCopy = This.Copy()
-		oNnrCopy.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
-		return oNnrCopy.Content()
+		_oNnrCopy_ = This.Copy()
+		_oNnrCopy_.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+		return _oNnrCopy_.Content()
 
 	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
-		oPnrCopy = This.Copy()
-		oPnrCopy.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
-		return oPnrCopy.Content()
+		_oPnrCopy_ = This.Copy()
+		_oPnrCopy_.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+		return _oPnrCopy_.Content()
 
 	# Replace every item by a single new one:
 	# ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
@@ -1115,64 +1115,64 @@ class stzList from stzObject
 		_oRplMxt_.ReplaceManyByManyXT(paItems, paNewItems)
 		This._SetContent(_oRplMxt_.Content())
 
-	def ReplaceSection(n1, n2, pNewItem)
+	def ReplaceSection(_n1_, _n2_, pNewItem)
 		_oRpS_ = new stzListReplacer(This)
-		_oRpS_.ReplaceSection(n1, n2, pNewItem)
+		_oRpS_.ReplaceSection(_n1_, _n2_, pNewItem)
 		This._SetContent(_oRpS_.Content())
 
-		def ReplaceSectionQ(n1, n2, pNewItem)
-			This.ReplaceSection(n1, n2, pNewItem)
+		def ReplaceSectionQ(_n1_, _n2_, pNewItem)
+			This.ReplaceSection(_n1_, _n2_, pNewItem)
 			return This
 
-	def ReplaceSectionByMany(n1, n2, paNewItems)
+	def ReplaceSectionByMany(_n1_, _n2_, paNewItems)
 		_oRpSM_ = new stzListReplacer(This)
-		_oRpSM_.ReplaceSectionByMany(n1, n2, paNewItems)
+		_oRpSM_.ReplaceSectionByMany(_n1_, _n2_, paNewItems)
 		This._SetContent(_oRpSM_.Content())
 
-		def ReplaceSectionByManyQ(n1, n2, paNewItems)
-			This.ReplaceSectionByMany(n1, n2, paNewItems)
+		def ReplaceSectionByManyQ(_n1_, _n2_, paNewItems)
+			This.ReplaceSectionByMany(_n1_, _n2_, paNewItems)
 			return This
 
 	# Positional replace: swap whatever lives at position n with pNewItem.
 	# Mirrors AddItemAt / InsertAt / RemoveAt naming.
 
-	def ReplaceAt(n, pNewItem)
+	def ReplaceAt(_n_, pNewItem)
 		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
 		   (pNewItem[1] = :by or pNewItem[1] = :By or pNewItem[1] = :with or
 		    pNewItem[1] = :With or pNewItem[1] = :using or pNewItem[1] = :Using)
 			pNewItem = pNewItem[2]
 		ok
 		# A LIST of positions replaces each of those positions (ReplaceAnyAt).
-		if isList(n)
-			_nRaLen_ = len(n)
+		if isList(_n_)
+			_nRaLen_ = len(_n_)
 			for _iRa_ = 1 to _nRaLen_
-				if n[_iRa_] >= 1 and n[_iRa_] <= len(@aContent)
+				if _n_[_iRa_] >= 1 and _n_[_iRa_] <= len(@aContent)
 					This._InvalidateEngine()   # in-place @aContent mutation below
-					@aContent[ n[_iRa_] ] = pNewItem
+					@aContent[ _n_[_iRa_] ] = pNewItem
 				ok
 			next
 			return
 		ok
-		if n >= 1 and n <= len(@aContent)
+		if _n_ >= 1 and _n_ <= len(@aContent)
 			This._InvalidateEngine()   # in-place @aContent mutation below
-			@aContent[n] = pNewItem
+			@aContent[_n_] = pNewItem
 		ok
 
-		def ReplaceAtQ(n, pNewItem)
-			This.ReplaceAt(n, pNewItem)
+		def ReplaceAtQ(_n_, pNewItem)
+			This.ReplaceAt(_n_, pNewItem)
 			return This
 
-		def UpdateAt(n, pNewItem)
-			This.ReplaceAt(n, pNewItem)
+		def UpdateAt(_n_, pNewItem)
+			This.ReplaceAt(_n_, pNewItem)
 
-		def SetItemAt(n, pNewItem)
-			This.ReplaceAt(n, pNewItem)
+		def SetItemAt(_n_, pNewItem)
+			This.ReplaceAt(_n_, pNewItem)
 
-		def ReplaceAnyItemAt(n, pNewItem)
-			This.ReplaceAt(n, pNewItem)
+		def ReplaceAnyItemAt(_n_, pNewItem)
+			This.ReplaceAt(_n_, pNewItem)
 
-		def ReplaceItemAtPosition(n, pNewItem)
-			This.ReplaceAt(n, pNewItem)
+		def ReplaceItemAtPosition(_n_, pNewItem)
+			This.ReplaceAt(_n_, pNewItem)
 
 	  #=============================================#
 	 #  POSITIONAL REPLACE DELEGATIONS (Replacer)  #
@@ -1197,9 +1197,9 @@ class stzList from stzObject
 		_o_.ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
 		This._SetContent(_o_.Content())
 
-	def ReplaceThisItemAt(n, pItem, pNewItem)
+	def ReplaceThisItemAt(_n_, pItem, pNewItem)
 		_o_ = new stzListReplacer(This)
-		_o_.ReplaceThisItemAt(n, pItem, pNewItem)
+		_o_.ReplaceThisItemAt(_n_, pItem, pNewItem)
 		This._SetContent(_o_.Content())
 
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
@@ -1284,16 +1284,16 @@ class stzList from stzObject
 		def ReplaceItemsW(pWhere, pBy)
 			This.ReplaceW(pWhere, pBy)
 
-	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+	def ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 		_o_ = new stzListReplacer(This)
-		_o_.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		_o_.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 		This._SetContent(_o_.Content())
 
-		def ReplaceNextNthOccurrenceST(n, pItem, pNewItem, pnStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		def ReplaceNextNthOccurrenceST(_n_, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 
-		def ReplaceNthNextOccurrenceST(n, pItem, pNewItem, pnStartingAt)
-			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		def ReplaceNthNextOccurrenceST(_n_, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 
 	  #=============================================#
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
@@ -1471,9 +1471,9 @@ class stzList from stzObject
 			if isList(pItem2) and IsOrNamedParamList(pItem2)
 				pItem2 = pItem2[2]
 			ok
-			b1 = This.ContainsCS(pItem1, pCaseSensitive)
-			b2 = This.ContainsCS(pItem2, pCaseSensitive)
-			if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
+			_b1_ = This.ContainsCS(pItem1, pCaseSensitive)
+			_b2_ = This.ContainsCS(pItem2, pCaseSensitive)
+			if (_b1_ = 1 and _b2_ = 0) or (_b1_ = 0 and _b2_ = 1)
 				return 1
 			else
 				return 0
@@ -1725,9 +1725,9 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListSortCS(pList, pCaseSensitive)
-		aResult = StzEngineListContentToRingList(pList)
+		_aResult_ = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
-		return aResult
+		return _aResult_
 
 	def Sorted()
 		return This.SortedCS(1)
@@ -1763,9 +1763,9 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListSortDescendingCS(pList, pCaseSensitive)
-		aResult = StzEngineListContentToRingList(pList)
+		_aResult_ = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
-		return aResult
+		return _aResult_
 
 	def SortedInDescending()
 		return This.SortedInDescendingCS(1)
@@ -1791,9 +1791,9 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListReverse(pList)
-		aResult = StzEngineListContentToRingList(pList)
+		_aResult_ = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
-		return aResult
+		return _aResult_
 
 		def ItemsReversed()
 			return This.Reversed()
@@ -1808,33 +1808,33 @@ class stzList from stzObject
 
 	# Every item except those equal to p (p may be a single item).
 	def AllItemsExcept(p)
-		aResult = []
-		nLen = len(@aContent)
-		for _i_ = 1 to nLen
+		_aResult_ = []
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
 			# content compare so a list-valued p is matched (raw != can't
 			# compare sub-lists -> would wrongly keep an equal list item).
 			if NOT BothAreEqualCS(@aContent[_i_], p, 1)
-				aResult + @aContent[_i_]
+				_aResult_ + @aContent[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 		def ItemsExcept(p)
 			return This.AllItemsExcept(p)
 
 	# First n items (clamped to the list length; n<=0 -> empty).
-	def FirstNItems(n)
-		if NOT isNumber(n) or n <= 0
+	def FirstNItems(_n_)
+		if NOT isNumber(_n_) or _n_ <= 0
 			return []
 		ok
-		if n > len(@aContent)
-			n = len(@aContent)
+		if _n_ > len(@aContent)
+			_n_ = len(@aContent)
 		ok
-		aResult = []
-		for _i_ = 1 to n
-			aResult + @aContent[_i_]
+		_aResult_ = []
+		for _i_ = 1 to _n_
+			_aResult_ + @aContent[_i_]
 		next
-		return aResult
+		return _aResult_
 
 	# Max nesting depth (a flat list is 1 level).
 	def NumberOfLevels()
@@ -1843,23 +1843,23 @@ class stzList from stzObject
 		def NestingDepth()
 			return This.NumberOfLevels()
 
-	def _DepthOf(aList)
-		nMax = 1
-		nLen = len(aList)
-		for _i_ = 1 to nLen
-			if isList(aList[_i_])
-				_nD_ = 1 + This._DepthOf(aList[_i_])
-				if _nD_ > nMax
-					nMax = _nD_
+	def _DepthOf(_aList_)
+		_nMax_ = 1
+		_nLen_ = len(_aList_)
+		for _i_ = 1 to _nLen_
+			if isList(_aList_[_i_])
+				_nD_ = 1 + This._DepthOf(_aList_[_i_])
+				if _nD_ > _nMax_
+					_nMax_ = _nD_
 				ok
 			ok
 		next
-		return nMax
+		return _nMax_
 
 	# TRUE if any two adjacent items are equal.
 	def ContainsDupSecutiveItems()
-		nLen = len(@aContent)
-		for _i_ = 2 to nLen
+		_nLen_ = len(@aContent)
+		for _i_ = 2 to _nLen_
 			if @aContent[_i_] = @aContent[_i_ - 1]
 				return TRUE
 			ok
@@ -1874,22 +1874,22 @@ class stzList from stzObject
 		if NOT isList(paItems)
 			paItems = [ paItems ]
 		ok
-		aResult = []
-		nLen = len(@aContent)
-		nP = len(paItems)
-		for _i_ = 1 to nLen
-			bRemove = FALSE
-			for _j_ = 1 to nP
+		_aResult_ = []
+		_nLen_ = len(@aContent)
+		_nP_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			_bRemove_ = FALSE
+			for _j_ = 1 to _nP_
 				if BothAreEqualCS(@aContent[_i_], paItems[_j_], 1)
-					bRemove = TRUE
+					_bRemove_ = TRUE
 					exit
 				ok
 			next
-			if NOT bRemove
-				aResult + @aContent[_i_]
+			if NOT _bRemove_
+				_aResult_ + @aContent[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	# TRUE if this list's items appear inside paOther in the same relative
 	# order (i.e. this list is an order-preserving subsequence of paOther).
@@ -1897,15 +1897,15 @@ class stzList from stzObject
 		if NOT isList(paOther)
 			return FALSE
 		ok
-		nThis = len(@aContent)
-		nOther = len(paOther)
-		nIdx = 1
-		for _i_ = 1 to nOther
-			if nIdx <= nThis and paOther[_i_] = @aContent[nIdx]
-				nIdx++
+		_nThis_ = len(@aContent)
+		_nOther_ = len(paOther)
+		_nIdx_ = 1
+		for _i_ = 1 to _nOther_
+			if _nIdx_ <= _nThis_ and paOther[_i_] = @aContent[_nIdx_]
+				_nIdx_++
 			ok
 		next
-		return nIdx > nThis
+		return _nIdx_ > _nThis_
 
 	  #----------------------------------------------#
 	 #  FINDING ITEMS (engine-backed, first match)  #
@@ -1924,9 +1924,9 @@ class stzList from stzObject
 		pList = This._Engine()
 		if pList = NULL return 0 ok
 
-		nResult = 0
+		_nResult_ = 0
 		if isString(pItem)
-			nResult = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
+			_nResult_ = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
 		else
 			# Non-string items (lists, numbers): go through the engine-backed
 			# FindAllOccurrencesCS so Contains stays CONSISTENT with Find and
@@ -1934,11 +1934,11 @@ class stzList from stzObject
 			# missed sub-list items -> Contains disagreed with Find).
 			_anFfe_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 			if ring_len(_anFfe_) > 0
-				nResult = _anFfe_[1]
+				_nResult_ = _anFfe_[1]
 			ok
 		ok
 
-		return nResult
+		return _nResult_
 
 	  #----------------------------------------------#
 	 #  CONTAINS (engine-backed)                    #
@@ -2028,12 +2028,12 @@ class stzList from stzObject
 		if pList = NULL return @aContent ok
 
 		pUnique = StzEngineListUniqueCS(pList, pCaseSensitive)
-		aResult = @aContent
+		_aResult_ = @aContent
 		if pUnique != NULL
-			aResult = StzEngineListContentToRingList(pUnique)
+			_aResult_ = StzEngineListContentToRingList(pUnique)
 			StzEngineListFree(pUnique)
 		ok
-		return aResult
+		return _aResult_
 
 	def WithoutDuplication()
 		return This.WithoutDuplicationCS(1)
@@ -2159,35 +2159,35 @@ class stzList from stzObject
 	# AFTER pos (pos+n). Find* returns the position (0 if out of range);
 	# the NextNthItem accessor returns the item there. :StartingAt accepts
 	# the bare integer or the named-param form.
-	def FindNextNthItem(n, pnStartingAt)
+	def FindNextNthItem(_n_, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		_nIdx_ = pnStartingAt + n
+		_nIdx_ = pnStartingAt + _n_
 		if _nIdx_ < 1 or _nIdx_ > This.NumberOfItems()
 			return 0
 		ok
 		return _nIdx_
 
-		def NextNthItem(n, pnStartingAt)
-			_nP_ = This.FindNextNthItem(n, pnStartingAt)
+		def NextNthItem(_n_, pnStartingAt)
+			_nP_ = This.FindNextNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return NULL ok
 			return This.Content()[_nP_]
 
 	# FindPreviousNthItem(n, :StartingAt = pos): the POSITION of the n-th
 	# item counting BACK from pos inclusive (pos-n+1).
-	def FindPreviousNthItem(n, pnStartingAt)
+	def FindPreviousNthItem(_n_, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		_nIdx_ = pnStartingAt - n + 1
+		_nIdx_ = pnStartingAt - _n_ + 1
 		if _nIdx_ < 1 or _nIdx_ > This.NumberOfItems()
 			return 0
 		ok
 		return _nIdx_
 
-		def PreviousNthItem(n, pnStartingAt)
-			_nP_ = This.FindPreviousNthItem(n, pnStartingAt)
+		def PreviousNthItem(_n_, pnStartingAt)
+			_nP_ = This.FindPreviousNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return NULL ok
 			return This.Content()[_nP_]
 
@@ -2253,17 +2253,17 @@ class stzList from stzObject
 		def NumberOfDuplicatesOfItem(pItem)
 			return This.NumberOfDuplicatesOfStringCS(pItem, 1)
 
-	def StringIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
-		return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive) = n
+	def StringIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
+		return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive) = _n_
 
-	def StringIsDuplicatedNTimes(pItem, n)
-		return This.StringIsDuplicatedNTimesCS(pItem, n, 1)
+	def StringIsDuplicatedNTimes(pItem, _n_)
+		return This.StringIsDuplicatedNTimesCS(pItem, _n_, 1)
 
-		def ItemIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
-			return This.StringIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
+		def ItemIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
+			return This.StringIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
 
-		def ItemIsDuplicatedNTimes(pItem, n)
-			return This.StringIsDuplicatedNTimesCS(pItem, n, 1)
+		def ItemIsDuplicatedNTimes(pItem, _n_)
+			return This.StringIsDuplicatedNTimesCS(pItem, _n_, 1)
 
 	# ALL positions of an item -- but only when it actually IS duplicated
 	# (appears more than once); a non-duplicated item yields the empty list.
@@ -2401,12 +2401,12 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		pFlat = StzEngineListFlatten(pList)
-		aResult = []
+		_aResult_ = []
 		if pFlat != NULL
-			aResult = StzEngineListContentToRingList(pFlat)
+			_aResult_ = StzEngineListContentToRingList(pFlat)
 			StzEngineListFree(pFlat)
 		ok
-		return aResult
+		return _aResult_
 
 	  #-------------------------------------------#
 	 #  EQUALITY CHECK (set-based, engine-backed) #
@@ -2522,10 +2522,10 @@ class stzList from stzObject
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListMapExpr(pList, pcExpr)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def MapQ(pcExpr)
 			return new stzList(This.Map(pcExpr))
@@ -2537,10 +2537,10 @@ class stzList from stzObject
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListFilterExpr(pList, pcExpr)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 
 		StzEngineListFree(pResult)
-		return aResult
+		return _aResult_
 
 		def FilterQ(pcExpr)
 			return new stzList(This.Filter(pcExpr))
@@ -2583,27 +2583,27 @@ class stzList from stzObject
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
-		result = StzEngineListReduceExpr(pList, pcExpr, pInitValue)
+		_result_ = StzEngineListReduceExpr(pList, pcExpr, pInitValue)
 
-		return result
+		return _result_
 
 	def ReduceNoInit(pcExpr)
 		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
-		result = StzEngineListReduceExprNoInit(pList, pcExpr)
+		_result_ = StzEngineListReduceExprNoInit(pList, pcExpr)
 
-		return result
+		return _result_
 
 	def CountW(pcCondition)
 		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		pcCondition = _StzStripBraces(pcCondition)
-		nResult = StzEngineListCountW(pList, pcCondition)
+		_nResult_ = StzEngineListCountW(pList, pcCondition)
 
-		return nResult
+		return _nResult_
 
 		def CountWhere(pcCondition)
 			return This.CountW(pcCondition)
@@ -2689,27 +2689,27 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def IsHashList()
-		bResult = 1
-		aTempKeys = []
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT ( isList(@aContent[i]) and len(@aContent[i]) = 2 and
-				 isString(@aContent[i][1]) )
-				bResult = 0
+		_bResult_ = 1
+		_aTempKeys_ = []
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			if NOT ( isList(@aContent[_i_]) and len(@aContent[_i_]) = 2 and
+				 isString(@aContent[_i_][1]) )
+				_bResult_ = 0
 				exit
 			else
-				cKey = @aContent[i][1]
-				nKeyLen = len(aTempKeys)
-				for j = 1 to nKeyLen
-					if aTempKeys[j] = cKey
-						bResult = 0
+				_cKey_ = @aContent[_i_][1]
+				_nKeyLen_ = len(_aTempKeys_)
+				for _j_ = 1 to _nKeyLen_
+					if _aTempKeys_[_j_] = _cKey_
+						_bResult_ = 0
 						exit 2
 					ok
 				next
-				aTempKeys + cKey
+				_aTempKeys_ + _cKey_
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def IsAHashList()
 			return This.IsHashList()
@@ -2738,9 +2738,9 @@ class stzList from stzObject
 	def IsListOfStrings()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-strings (monolith semantics)
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListIsAllStrings(pList)
+		_nResult_ = StzEngineListIsAllStrings(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def IsAListOfStrings()
 			return This.IsListOfStrings()
@@ -2748,9 +2748,9 @@ class stzList from stzObject
 	def IsListOfNumbers()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListIsAllNumbers(pList)
+		_nResult_ = StzEngineListIsAllNumbers(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
@@ -2764,8 +2764,8 @@ class stzList from stzObject
 	# Polymorphic membership test: IsListOf(:Numbers/:Strings/:Chars/
 	# :Lists/:StzNumbers/:StzStrings/:ListsOfNumbers/:PairsOfNumbers).
 	def IsListOf(pType)
-		cType = StzLower("" + pType)
-		switch cType
+		_cType_ = StzLower("" + pType)
+		switch _cType_
 		on "numbers"
 			return This.IsListOfNumbers()
 		on "number"
@@ -2813,15 +2813,15 @@ class stzList from stzObject
 
 	# All items are stz objects whose StzType() matches (e.g. stznumber).
 	def _AllItemsHaveStzType(cStzType)
-		nLen = len(@aContent)
-		if nLen = 0
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
 			return FALSE
 		ok
-		for i = 1 to nLen
-			if NOT isObject(@aContent[i])
+		for _i_ = 1 to _nLen_
+			if NOT isObject(@aContent[_i_])
 				return FALSE
 			ok
-			if StzLower("" + @aContent[i].StzType()) != StzLower(cStzType)
+			if StzLower("" + @aContent[_i_].StzType()) != StzLower(cStzType)
 				return FALSE
 			ok
 		next
@@ -2829,12 +2829,12 @@ class stzList from stzObject
 
 	# All items are lists of numbers (optionally each a 2-element pair).
 	def _AllItemsAreNumberLists(bPairsOnly)
-		nLen = len(@aContent)
-		if nLen = 0
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
 			return FALSE
 		ok
-		for i = 1 to nLen
-			_it_ = @aContent[i]
+		for _i_ = 1 to _nLen_
+			_it_ = @aContent[_i_]
 			if NOT isList(_it_)
 				return FALSE
 			ok
@@ -2842,8 +2842,8 @@ class stzList from stzObject
 				return FALSE
 			ok
 			_m_ = len(_it_)
-			for j = 1 to _m_
-				if NOT isNumber(_it_[j])
+			for _j_ = 1 to _m_
+				if NOT isNumber(_it_[_j_])
 					return FALSE
 				ok
 			next
@@ -2852,29 +2852,29 @@ class stzList from stzObject
 
 	# All items are lists of strings.
 	def _AllItemsAreStringLists()
-		nLen = len(@aContent)
-		if nLen = 0 return FALSE ok
-		for i = 1 to nLen
-			_it_ = @aContent[i]
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			_it_ = @aContent[_i_]
 			if NOT isList(_it_) return FALSE ok
 			_m_ = len(_it_)
-			for j = 1 to _m_
-				if NOT isString(_it_[j]) return FALSE ok
+			for _j_ = 1 to _m_
+				if NOT isString(_it_[_j_]) return FALSE ok
 			next
 		next
 		return TRUE
 
 	# All items are lists whose items are stz objects of the given stztype.
 	def _AllItemsAreStzTypeLists(cStzType)
-		nLen = len(@aContent)
-		if nLen = 0 return FALSE ok
-		for i = 1 to nLen
-			_it_ = @aContent[i]
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			_it_ = @aContent[_i_]
 			if NOT isList(_it_) return FALSE ok
 			_m_ = len(_it_)
-			for j = 1 to _m_
-				if NOT isObject(_it_[j]) return FALSE ok
-				if StzLower("" + _it_[j].StzType()) != StzLower(cStzType) return FALSE ok
+			for _j_ = 1 to _m_
+				if NOT isObject(_it_[_j_]) return FALSE ok
+				if StzLower("" + _it_[_j_].StzType()) != StzLower(cStzType) return FALSE ok
 			next
 		next
 		return TRUE
@@ -2882,9 +2882,9 @@ class stzList from stzObject
 	def IsListOfLists()
 		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListIsAllLists(pList)
+		_nResult_ = StzEngineListIsAllLists(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def IsAListOfLists()
 			return This.IsListOfLists()
@@ -2920,9 +2920,9 @@ class stzList from stzObject
 
 	def IsListOfListsOfSameSize()
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListIsAllListsSameSize(pList)
+		_nResult_ = StzEngineListIsAllListsSameSize(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def ItemsAreListsOfSameSize()
 			return This.IsListOfListsOfSameSize()
@@ -2943,9 +2943,9 @@ class stzList from stzObject
 	def IsListOfPairs()
 		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListIsAllPairs(pList)
+		_nResult_ = StzEngineListIsAllPairs(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
@@ -2953,17 +2953,17 @@ class stzList from stzObject
 	# True iff the list of numbers is sorted ascending with consecutive
 	# values (e.g. [3,4,5] -> TRUE, [3,5,6] -> FALSE).
 	def IsContiguous()
-		nLen = len(@aContent)
-		if nLen < 2
+		_nLen_ = len(@aContent)
+		if _nLen_ < 2
 			return TRUE
 		ok
-		for i = 1 to nLen
-			if NOT isNumber(@aContent[i])
+		for _i_ = 1 to _nLen_
+			if NOT isNumber(@aContent[_i_])
 				return FALSE
 			ok
 		next
-		for i = 2 to nLen
-			if @aContent[i] != @aContent[i-1] + 1
+		for _i_ = 2 to _nLen_
+			if @aContent[_i_] != @aContent[_i_-1] + 1
 				return FALSE
 			ok
 		next
@@ -2973,9 +2973,9 @@ class stzList from stzObject
 			return This.IsContiguous()
 
 	def IsListOfPairsOfNumbers()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			p = @aContent[i]
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			p = @aContent[_i_]
 			if NOT (isList(p) and len(p) = 2 and isNumber(p[1]) and isNumber(p[2]))
 				return FALSE
 			ok
@@ -2986,9 +2986,9 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumbers()
 
 	def IsListOfPairsOfStrings()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			p = @aContent[i]
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			p = @aContent[_i_]
 			if NOT (isList(p) and len(p) = 2 and isString(p[1]) and isString(p[2]))
 				return FALSE
 			ok
@@ -3009,10 +3009,10 @@ class stzList from stzObject
 			StzEngineListFree(_pSetList_)
 			return _nSet_
 		ok
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			for j = i + 1 to nLen
-				if @aContent[i] = @aContent[j]
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ + 1 to _nLen_
+				if @aContent[_i_] = @aContent[_j_]
 					return FALSE
 				ok
 			next
@@ -3036,53 +3036,53 @@ class stzList from stzObject
 
 	  #-- Section: extract items between two positions
 
-	def SectionCS(n1, n2, pCaseSensitive)
+	def SectionCS(_n1_, _n2_, pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		nLen = This.NumberOfItems()
+		_nLen_ = This.NumberOfItems()
 
 		if CheckingParams()
-			n1 = This._SectionResolveBound(n1, TRUE)
-			n2 = This._SectionResolveBound(n2, FALSE)
+			_n1_ = This._SectionResolveBound(_n1_, TRUE)
+			_n2_ = This._SectionResolveBound(_n2_, FALSE)
 
 			# :@ mirrors the partner index (Section(3,:@)==Section(3,3));
 			# :@ on both sides spans the whole list.
-			if n1 = :@ and n2 = :@
-				n1 = 1
-				n2 = nLen
-			but n1 = :@ and isNumber(n2)
-				n1 = n2
-			but n2 = :@ and isNumber(n1)
-				n2 = n1
+			if _n1_ = :@ and _n2_ = :@
+				_n1_ = 1
+				_n2_ = _nLen_
+			but _n1_ = :@ and isNumber(_n2_)
+				_n1_ = _n2_
+			but _n2_ = :@ and isNumber(_n1_)
+				_n2_ = _n1_
 			ok
 
-			if NOT @BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(_n1_, _n2_)
 				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 		ok
 
-		if (n1 < 1 or n1 > nLen) or (n2 < 1 or n2 > nLen)
+		if (_n1_ < 1 or _n1_ > _nLen_) or (_n2_ < 1 or _n2_ > _nLen_)
 			StzRaise("Indexes out of range!")
 		ok
 
-		if n2 < n1
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n2_ < _n1_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
 
-		aContent = This.Content()
-		aResult = []
-		for i = n1 to n2
-			aResult + aContent[i]
+		_aContent_ = This.Content()
+		_aResult_ = []
+		for _i_ = _n1_ to _n2_
+			_aResult_ + _aContent_[_i_]
 		next
 
-		return aResult
+		return _aResult_
 
-		def SectionCSQ(n1, n2, pCaseSensitive)
-			return new stzList(This.SectionCS(n1, n2, pCaseSensitive))
+		def SectionCSQ(_n1_, _n2_, pCaseSensitive)
+			return new stzList(This.SectionCS(_n1_, _n2_, pCaseSensitive))
 
 	# Resolve one Section() boundary to a numeric position. Accepts a number;
 	# the named anchors :First(Item)/:Last(Item)/:End/:EndOfList; a value present
@@ -3119,11 +3119,11 @@ class stzList from stzObject
 		ok
 		return px
 
-	def Section(n1, n2)
-		return This.SectionCS(n1, n2, 1)
+	def Section(_n1_, _n2_)
+		return This.SectionCS(_n1_, _n2_, 1)
 
-		def SectionQ(n1, n2)
-			return new stzList(This.Section(n1, n2))
+		def SectionQ(_n1_, _n2_)
+			return new stzList(This.Section(_n1_, _n2_))
 
 	  #-- Range: extract items from a start position for a given count
 
@@ -3149,9 +3149,9 @@ class stzList from stzObject
 		if pnRange > 0
 			return This.Section(pnStart, pnStart + pnRange - 1)
 		else
-			n1 = pnStart + pnRange + 1
-			if n1 > 0
-				return This.Section(n1, pnStart)
+			_n1_ = pnStart + pnRange + 1
+			if _n1_ > 0
+				return This.Section(_n1_, pnStart)
 			ok
 			return []
 		ok
@@ -3180,49 +3180,49 @@ class stzList from stzObject
 
 	  #-- InsertAt: insert an item at a given position
 
-	def InsertAt(n, pItem)
-		if isList(n) and IsOneOfTheseNamedParamsList(n, [ :Position, :ItemAt, :ItemAtPosition ])
-			n = n[2]
+	def InsertAt(_n_, pItem)
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_, [ :Position, :ItemAt, :ItemAtPosition ])
+			_n_ = _n_[2]
 		ok
 
-		aContent = @aContent
-		ring_insert(aContent, n, pItem)
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		ring_insert(_aContent_, _n_, pItem)
+		This.UpdateWith(_aContent_)
 
-		def InsertBefore(n, pItem)
-			This.InsertAt(n, pItem)
+		def InsertBefore(_n_, pItem)
+			This.InsertAt(_n_, pItem)
 
-		def InsertAtQ(n, pItem)
-			This.InsertAt(n, pItem)
+		def InsertAtQ(_n_, pItem)
+			This.InsertAt(_n_, pItem)
 			return This
 
 	  #-- RemoveItemAtPosition: remove item at a specific position
 
-	def RemoveItemAtPosition(n)
-		if isString(n)
-			if StzFindFirst([:First, :FirstPosition, :FirstItem], n) > 0
-				n = 1
-			but StzFindFirst([:Last, :LastPosition, :LastItem], n) > 0
-				n = This.NumberOfItems()
+	def RemoveItemAtPosition(_n_)
+		if isString(_n_)
+			if StzFindFirst([:First, :FirstPosition, :FirstItem], _n_) > 0
+				_n_ = 1
+			but StzFindFirst([:Last, :LastPosition, :LastItem], _n_) > 0
+				_n_ = This.NumberOfItems()
 			ok
 		ok
 
-		if NOT (isNumber(n) and n != 0)
+		if NOT (isNumber(_n_) and _n_ != 0)
 			StzRaise("Incorrect param! n must be a number different from zero.")
 		ok
 
-		if n <= This.NumberOfItems()
-			aContent = This.Content()
-			ring_del(aContent, n)
-			This.UpdateWith(aContent)
+		if _n_ <= This.NumberOfItems()
+			_aContent_ = This.Content()
+			ring_del(_aContent_, _n_)
+			This.UpdateWith(_aContent_)
 		ok
 
-		def RemoveItemAtPositionQ(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveItemAtPositionQ(_n_)
+			This.RemoveItemAtPosition(_n_)
 			return This
 
-		def RemoveAt(n)
-			This.RemoveItemAtPosition(n)
+		def RemoveAt(_n_)
+			This.RemoveItemAtPosition(_n_)
 
 	  #-- RemoveItemsAtPositions: remove items at multiple positions
 
@@ -3234,10 +3234,10 @@ class stzList from stzObject
 		_oChain_ = new stzList(panPos)
 
 		panSorted = _oChain_.Sorted()
-		nLen = len(panSorted)
+		_nLen_ = len(panSorted)
 
-		for i = nLen to 1 step -1
-			This.RemoveItemAtPosition(panSorted[i])
+		for _i_ = _nLen_ to 1 step -1
+			This.RemoveItemAtPosition(panSorted[_i_])
 		next
 
 		def RemoveItemsAtPositionsQ(panPos)
@@ -3253,62 +3253,62 @@ class stzList from stzObject
 
 	  #-- RemoveSection: remove items between two positions
 
-	def RemoveSection(n1, n2)
-		nLen = This.NumberOfItems()
+	def RemoveSection(_n1_, _n2_)
+		_nLen_ = This.NumberOfItems()
 
 		if CheckingParams()
-			if isString(n1)
-				if StzFindFirst([:First, :FirstPosition, :FirstItem], n1) > 0
-					n1 = 1
+			if isString(_n1_)
+				if StzFindFirst([:First, :FirstPosition, :FirstItem], _n1_) > 0
+					_n1_ = 1
 				ok
 			ok
 
-			if isString(n2)
-				if StzFindFirst([:Last, :LastPosition, :LastItem], n2) > 0
-					n2 = nLen
+			if isString(_n2_)
+				if StzFindFirst([:Last, :LastPosition, :LastItem], _n2_) > 0
+					_n2_ = _nLen_
 				ok
 			ok
 
-			if NOT @BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(_n1_, _n2_)
 				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 			ok
 
-			if n2 < n1
-				nTemp = n1
-				n1 = n2
-				n2 = nTemp
+			if _n2_ < _n1_
+				_nTemp_ = _n1_
+				_n1_ = _n2_
+				_n2_ = _nTemp_
 			ok
 		ok
 
-		if nLen = 0
+		if _nLen_ = 0
 			return
 		ok
 
-		if n1 = 1 and n2 = nLen
+		if _n1_ = 1 and _n2_ = _nLen_
 			This.UpdateWith([])
 			return
 		ok
 
-		if n1 = n2
-			This.RemoveItemAtPosition(n1)
+		if _n1_ = _n2_
+			This.RemoveItemAtPosition(_n1_)
 			return
 		ok
 
-		aContent = This.Content()
-		aResult = []
+		_aContent_ = This.Content()
+		_aResult_ = []
 
-		for i = 1 to n1 - 1
-			aResult + aContent[i]
+		for _i_ = 1 to _n1_ - 1
+			_aResult_ + _aContent_[_i_]
 		next
 
-		for i = n2 + 1 to nLen
-			aResult + aContent[i]
+		for _i_ = _n2_ + 1 to _nLen_
+			_aResult_ + _aContent_[_i_]
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
-		def RemoveSectionQ(n1, n2)
-			This.RemoveSection(n1, n2)
+		def RemoveSectionQ(_n1_, _n2_)
+			This.RemoveSection(_n1_, _n2_)
 			return This
 
 	  #-- RemoveW / RemoveW: drop items where the eval'd predicate
@@ -3411,13 +3411,13 @@ class stzList from stzObject
 
 	  #-- RemoveRange: remove items from start for a count
 
-	def RemoveRange(nStart, nRange)
+	def RemoveRange(_nStart_, nRange)
 		if nRange > 0
-			This.RemoveSection(nStart, nStart + nRange - 1)
+			This.RemoveSection(_nStart_, _nStart_ + nRange - 1)
 		but nRange < 0
-			n1 = nStart + nRange + 1
-			if n1 > 0
-				This.RemoveSection(n1, nStart)
+			_n1_ = _nStart_ + nRange + 1
+			if _n1_ > 0
+				This.RemoveSection(_n1_, _nStart_)
 			ok
 		ok
 
@@ -3549,13 +3549,13 @@ class stzList from stzObject
 	# pcType examples: :stzList, :stzListOfStrings, :stzListOfNumbers.
 	# Returns an object wrapping the last-n slice so callers can
 	# chain .AddedToEach() etc. without first wrapping themselves.
-	def LastNItemsQRT(n, pcType)
+	def LastNItemsQRT(_n_, pcType)
 		_l_ = This.List()
 		_nL_ = len(_l_)
-		if n < 1 return new stzList([]) ok
-		if n > _nL_ n = _nL_ ok
+		if _n_ < 1 return new stzList([]) ok
+		if _n_ > _nL_ _n_ = _nL_ ok
 		_a_ = []
-		for _i_ = _nL_ - n + 1 to _nL_
+		for _i_ = _nL_ - _n_ + 1 to _nL_
 			_a_ + _l_[_i_]
 		next
 		# Wrap the slice so callers can chain methods.
@@ -3566,36 +3566,36 @@ class stzList from stzObject
 		ok
 		return new stzList(_a_)
 
-	def LastNItems(n)
-		_o_ = This.LastNItemsQRT(n, :stzList)
+	def LastNItems(_n_)
+		_o_ = This.LastNItemsQRT(_n_, :stzList)
 		if isObject(_o_) return _o_.List() ok
 		return _o_
 
 	# AddedToEach(n): add n to every numeric item; return a new list.
-	def AddedToEach(n)
+	def AddedToEach(_n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
 			if isNumber(_v_)
-				_aR_ + (_v_ + n)
+				_aR_ + (_v_ + _n_)
 			else
 				_aR_ + _v_
 			ok
 		next
 		return _aR_
 
-	def AddToEach(n)
+	def AddToEach(_n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		for _i_ = 1 to _nL_
-			if isNumber(_l_[_i_]) _l_[_i_] = _l_[_i_] + n ok
+			if isNumber(_l_[_i_]) _l_[_i_] = _l_[_i_] + _n_ ok
 		next
 		This._SetContent(_l_)
 
-	def LastNItemsQ(n)
-		return new stzList( This.LastNItems(n) )
+	def LastNItemsQ(_n_)
+		return new stzList( This.LastNItems(_n_) )
 
 	# SectionsOfSameItems(): group consecutive equal items into runs.
 	# "AABBCCAA" -> [["A","A"], ["B","B"], ["C","C"], ["A","A"]]
@@ -3620,16 +3620,16 @@ class stzList from stzObject
 
 	# FindInSections(pItem, aSections): absolute-position occurrences of
 	# pItem inside any of the given sections.
-	def FindInSections(pItem, aSections)
+	def FindInSections(pItem, _aSections_)
 		_aRes_ = []
-		if NOT isList(aSections) return _aRes_ ok
+		if NOT isList(_aSections_) return _aRes_ ok
 		_aAll_ = This.FindAllOccurrencesCS(pItem, 1)
 		_nP_ = len(_aAll_)
-		_nS_ = len(aSections)
+		_nS_ = len(_aSections_)
 		for _i_ = 1 to _nP_
 			_pos_ = _aAll_[_i_]
 			for _j_ = 1 to _nS_
-				_s_ = aSections[_j_]
+				_s_ = _aSections_[_j_]
 				if isList(_s_) and len(_s_) >= 2 and isNumber(_s_[1]) and isNumber(_s_[2]) and
 				   _pos_ >= _s_[1] and _pos_ <= _s_[2]
 					_aRes_ + _pos_
@@ -3639,11 +3639,11 @@ class stzList from stzObject
 		next
 		return _aRes_
 
-	def CountInSections(pItem, aSections)
-		return len(This.FindInSections(pItem, aSections))
+	def CountInSections(pItem, _aSections_)
+		return len(This.FindInSections(pItem, _aSections_))
 
-	def NumberOfOccurrencesInSections(pItem, aSections)
-		return This.CountInSections(pItem, aSections)
+	def NumberOfOccurrencesInSections(pItem, _aSections_)
+		return This.CountInSections(pItem, _aSections_)
 
 	# HexUnicodes(): hex code-points of every char of every string-item.
 	def HexUnicodes()
@@ -3715,22 +3715,22 @@ class stzList from stzObject
 	#   PreviousNItems(n, :StartingAt/:StartingAtPosition = p): the n
 	#   items strictly BEFORE position p;
 	#   PreviousNItems(pcAnchor, n): the n items before the anchor item.
-	def PreviousNItems(pcAnchor, n)
+	def PreviousNItems(pcAnchor, _n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		_pos_ = 0
-		if isNumber(pcAnchor) and isList(n) and len(n) = 2 and
-		   isString(n[1]) and
-		   (lower(n[1]) = "startingat" or lower(n[1]) = "startingatposition")
-			_pos_ = n[2]
-			n = pcAnchor
+		if isNumber(pcAnchor) and isList(_n_) and len(_n_) = 2 and
+		   isString(_n_[1]) and
+		   (lower(_n_[1]) = "startingat" or lower(_n_[1]) = "startingatposition")
+			_pos_ = _n_[2]
+			_n_ = pcAnchor
 		else
 			for _i_ = 1 to _nL_
 				if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
 			next
 		ok
 		if _pos_ <= 1 return [] ok
-		_start_ = _pos_ - n
+		_start_ = _pos_ - _n_
 		if _start_ < 1 _start_ = 1 ok
 		_aR_ = []
 		for _i_ = _start_ to _pos_ - 1
@@ -4238,8 +4238,8 @@ class stzList from stzObject
 			ok
 		next
 
-	def ReplaceItemsAtPositionsByMany(anPos, paNewList)
-		if NOT (isList(anPos) and isList(paNewList)) return ok
+	def ReplaceItemsAtPositionsByMany(_anPos_, paNewList)
+		if NOT (isList(_anPos_) and isList(paNewList)) return ok
 		# Flatten :And.
 		_aNew_ = []
 		_nNL_ = len(paNewList)
@@ -4252,14 +4252,14 @@ class stzList from stzObject
 				_aNew_ + _v_
 			ok
 		next
-		_nPL_ = len(anPos)
+		_nPL_ = len(_anPos_)
 		_nAL_ = len(_aNew_)
 		_nMax_ = _nPL_
 		if _nAL_ < _nMax_ _nMax_ = _nAL_ ok
 		_l_ = This.List()
 		_nLL_ = len(_l_)
 		for _i_ = 1 to _nMax_
-			_p_ = anPos[_i_]
+			_p_ = _anPos_[_i_]
 			if isNumber(_p_) and _p_ >= 1 and _p_ <= _nLL_
 				_l_[_p_] = _aNew_[_i_]
 			ok
@@ -4271,30 +4271,30 @@ class stzList from stzObject
 		if NOT isList(pOther) return FALSE ok
 		pList = This._EngineListFromContent()
 		pOth = StzEngineMarshalList(pOther)
-		nResult = This.IsContainedInCS(pOther, 1)  # singular = whole-list-as-element (ExistsIn); AreIncludedIn = subset
+		_nResult_ = This.IsContainedInCS(pOther, 1)  # singular = whole-list-as-element (ExistsIn); AreIncludedIn = subset
 		StzEngineListFree(pList)
 		StzEngineListFree(pOth)
-		return nResult
+		return _nResult_
 
 	def NumberOfLeadingItems()
-		nLen = len(@aContent)
-		if nLen <= 1 return nLen ok		#-- engine reports 0 for n<2
+		_nLen_ = len(@aContent)
+		if _nLen_ <= 1 return _nLen_ ok		#-- engine reports 0 for n<2
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListLeadingCountCS(pList, 1)
+		_nResult_ = StzEngineListLeadingCountCS(pList, 1)
 		StzEngineListFree(pList)
 		#-- engine returns 0 when the first item isn't repeated (run length 1);
 		#-- our contract counts the first item itself, so map 0 -> 1.
-		if nResult = 0 return 1 ok
-		return nResult
+		if _nResult_ = 0 return 1 ok
+		return _nResult_
 
 	def NumberOfTrailingItems()
-		nLen = len(@aContent)
-		if nLen <= 1 return nLen ok		#-- engine reports 0 for n<2
+		_nLen_ = len(@aContent)
+		if _nLen_ <= 1 return _nLen_ ok		#-- engine reports 0 for n<2
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListTrailingCountCS(pList, 1)
+		_nResult_ = StzEngineListTrailingCountCS(pList, 1)
 		StzEngineListFree(pList)
-		if nResult = 0 return 1 ok
-		return nResult
+		if _nResult_ = 0 return 1 ok
+		return _nResult_
 
 	def ReplaceLeadingItems(p1)
 		_new_ = p1
@@ -4476,7 +4476,7 @@ class stzList from stzObject
 		next
 		return _aR_
 
-	def NextNItemsAfter(pcAnchor, n)
+	def NextNItemsAfter(pcAnchor, _n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		_pos_ = 0
@@ -4484,7 +4484,7 @@ class stzList from stzObject
 			if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
 		next
 		if _pos_ = 0 or _pos_ >= _nL_ return [] ok
-		_end_ = _pos_ + n
+		_end_ = _pos_ + _n_
 		if _end_ > _nL_ _end_ = _nL_ ok
 		_aR_ = []
 		for _i_ = _pos_ + 1 to _end_
@@ -4514,13 +4514,13 @@ class stzList from stzObject
 
 	  #-- FindNthOccurrenceCS: find nth occurrence
 
-	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+	def FindNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 		if CheckingParams()
-			if isString(n)
-				if n = :First or n = :FirstOccurrence
-					n = 1
-				but n = :Last or n = :LastOccurrence
-					n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+			if isString(_n_)
+				if _n_ = :First or _n_ = :FirstOccurrence
+					_n_ = 1
+				but _n_ = :Last or _n_ = :LastOccurrence
+					_n_ = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 				ok
 			ok
 
@@ -4533,29 +4533,29 @@ class stzList from stzObject
 			ok
 		ok
 
-		anPositions = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLen = len(anPositions)
+		_anPositions_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		_nLen_ = len(_anPositions_)
 
-		if n < 1 or n > nLen
+		if _n_ < 1 or _n_ > _nLen_
 			return 0
 		ok
 
-		return anPositions[n]
+		return _anPositions_[_n_]
 
-		def FindNthCS(n, pItem, pCaseSensitive)
-			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		def FindNthCS(_n_, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 
-		def NthOccurrenceCS(n, pItem, pCaseSensitive)
-			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		def NthOccurrenceCS(_n_, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 
 	# Case-insensitive word-order aliases used by narrative tests.
 	# (Cannot live inside FindNthOccurrenceCS as nested defs because
 	# they take a different arity -- top-level methods instead.)
-	def FindNth(n, pItem)
-		return This.FindNthOccurrenceCS(n, pItem, 1)
+	def FindNth(_n_, pItem)
+		return This.FindNthOccurrenceCS(_n_, pItem, 1)
 
-		def FindNthOccurrence(n, pItem)
-			return This.FindNthOccurrenceCS(n, pItem, 1)
+		def FindNthOccurrence(_n_, pItem)
+			return This.FindNthOccurrenceCS(_n_, pItem, 1)
 
 	# FindNumbersAsSections: scan content, return [[startPos,endPos],...]
 	# for each contiguous run of numeric items. Each section endpoint is
@@ -4599,12 +4599,12 @@ class stzList from stzObject
 			return This.FindFirstOccurrenceCS(pItem, 1)
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
-		anAll = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLen = len(anAll)
-		if nLen = 0
+		_anAll_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		_nLen_ = len(_anAll_)
+		if _nLen_ = 0
 			return 0
 		ok
-		return anAll[nLen]
+		return _anAll_[_nLen_]
 
 		def FindLastCS(pItem, pCaseSensitive)
 			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
@@ -4619,20 +4619,20 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		anResult = []
-		nLen = len(paItems)
-		for i = 1 to nLen
-			anPos = This.FindAllOccurrencesCS(paItems[i], pCaseSensitive)
-			_nPosLen_ = len(anPos)
-			for j = 1 to _nPosLen_
-				anResult + anPos[j]
+		_anResult_ = []
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			_anPos_ = This.FindAllOccurrencesCS(paItems[_i_], pCaseSensitive)
+			_nPosLen_ = len(_anPos_)
+			for _j_ = 1 to _nPosLen_
+				_anResult_ + _anPos_[_j_]
 			next
 		next
 
 		# Ring 1.26 parser dislikes `new X(...).Sorted()` chaining
 		# (raises R13 "Object is required" at the dot). Bind to a
 		# local first.
-		_oFmcsTmp_ = new stzList(anResult)
+		_oFmcsTmp_ = new stzList(_anResult_)
 		return _oFmcsTmp_.Sorted()
 
 		def FindMany(paItems)
@@ -4653,9 +4653,9 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			if NOT This.ContainsCS(paItems[_i_], pCaseSensitive)
 				return 0
 			ok
 		next
@@ -4690,11 +4690,11 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		anPos = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLenPos = len(anPos)
+		_anPos_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		_nLenPos_ = len(_anPos_)
 
-		for i = nLenPos to 1 step -1
-			This.RemoveItemAtPosition(anPos[i])
+		for _i_ = _nLenPos_ to 1 step -1
+			This.RemoveItemAtPosition(_anPos_[_i_])
 		next
 
 		def RemoveAllCSQ(pItem, pCaseSensitive)
@@ -4735,19 +4735,19 @@ class stzList from stzObject
 			pcCondition = pcCondition[2]
 		ok
 
-		nLen = This.NumberOfItems()
-		if nLen = 0 return [] ok
+		_nLen_ = This.NumberOfItems()
+		if _nLen_ = 0 return [] ok
 
 		#-- Transpile the expressive navigation keywords (@NextItem -> This[@i+1],
 		#-- etc.) only when present, so the simple path stays free of parse cost.
 		#-- Using a navigation keyword also opts in to executable-section
 		#-- bounding below (so neighbour access never steps out of range);
 		#-- raw This[@i+k] index math stays unbounded (you own the bounds).
-		bNavKeyword = 0
+		_bNavKeyword_ = 0
 		if ring_len( StzFindCS("@Next", pcCondition, 1) ) > 0 or
 		   ring_len( StzFindCS("@Previous", pcCondition, 1) ) > 0
 			pcCondition = StzCCodeQ(pcCondition).Transpiled()
-			bNavKeyword = 1
+			_bNavKeyword_ = 1
 		ok
 
 		pcCondition = _StzStripBraces(pcCondition)
@@ -4761,44 +4761,44 @@ class stzList from stzObject
 		#-- Executable-section bounds: keep neighbour indices in range (e.g. a
 		#-- +1 look-ahead excludes the last position, which has no successor).
 		#-- Applied only when an expressive navigation keyword was used.
-		nStart = 1
-		nEnd = nLen
-		if bNavKeyword and ring_len( StzFindCS("@i", pcCondition, 1) ) > 0
-			anSec = StzCCodeQ("{ " + pcCondition + " }").ExecutableSection()
-			nStart = anSec[1]
-			nEnd   = anSec[2]
+		_nStart_ = 1
+		_nEnd_ = _nLen_
+		if _bNavKeyword_ and ring_len( StzFindCS("@i", pcCondition, 1) ) > 0
+			_anSec_ = StzCCodeQ("{ " + pcCondition + " }").ExecutableSection()
+			_nStart_ = _anSec_[1]
+			_nEnd_   = _anSec_[2]
 
-			if isString(nEnd)
-				nEnd = nLen
-			but isNumber(nEnd) and nEnd < 0
-				nEnd += nLen
+			if isString(_nEnd_)
+				_nEnd_ = _nLen_
+			but isNumber(_nEnd_) and _nEnd_ < 0
+				_nEnd_ += _nLen_
 			ok
-			if isString(nStart)
-				nStart = 1
+			if isString(_nStart_)
+				_nStart_ = 1
 			ok
-			if nStart < 1 nStart = 1 ok
-			if nEnd > nLen nEnd = nLen ok
+			if _nStart_ < 1 _nStart_ = 1 ok
+			if _nEnd_ > _nLen_ _nEnd_ = _nLen_ ok
 		ok
 
 		pList = This._Engine()
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
-		anAll = StzEngineListFindAllW(pList, pcCondition)
+		_anAll_ = StzEngineListFindAllW(pList, pcCondition)
 
 		#-- Fast path: no bounding needed.
-		if nStart = 1 and nEnd = nLen
-			return anAll
+		if _nStart_ = 1 and _nEnd_ = _nLen_
+			return _anAll_
 		ok
 
-		anResult = []
-		nA = len(anAll)
-		for i = 1 to nA
-			p = anAll[i]
-			if p >= nStart and p <= nEnd
-				anResult + p
+		_anResult_ = []
+		_nA_ = len(_anAll_)
+		for _i_ = 1 to _nA_
+			p = _anAll_[_i_]
+			if p >= _nStart_ and p <= _nEnd_
+				_anResult_ + p
 			ok
 		next
-		return anResult
+		return _anResult_
 
 		def FindW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
@@ -4928,9 +4928,9 @@ class stzList from stzObject
 		return _StzUniqueItems(This.ItemsW(pcCondition))
 
 	#-- the n-th / first / last item matching the function
-	def NthItemWF(n, pFunc)
+	def NthItemWF(_n_, pFunc)
 		_aWf_ = This.ItemsWF(pFunc)
-		if n >= 1 and n <= ring_len(_aWf_) return _aWf_[n] ok
+		if _n_ >= 1 and _n_ <= ring_len(_aWf_) return _aWf_[_n_] ok
 		return NULL
 
 	def FirstItemWF(pFunc)
@@ -4989,15 +4989,15 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! panPos must be a list.")
 		ok
 
-		aContent = This.Content()
-		nLen = len(panPos)
-		aResult = []
+		_aContent_ = This.Content()
+		_nLen_ = len(panPos)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + aContent[panPos[i]]
+		for _i_ = 1 to _nLen_
+			_aResult_ + _aContent_[panPos[_i_]]
 		next
 
-		return aResult
+		return _aResult_
 
 		def ItemsAtPositionsQ(panPos)
 			return new stzList(This.ItemsAtPositions(panPos))
@@ -5007,36 +5007,36 @@ class stzList from stzObject
 
 	  #-- ExtendToPositionXT: extend list to a given position
 
-	def ExtendToPositionXT(n, pWith)
+	def ExtendToPositionXT(_n_, pWith)
 		if isList(pWith) and IsWithOrByOrUsingNamedParamList(pWith)
 			pWith = pWith[2]
 		ok
 
-		nLen = This.NumberOfItems()
-		if n > nLen
-			for i = nLen + 1 to n
+		_nLen_ = This.NumberOfItems()
+		if _n_ > _nLen_
+			for _i_ = _nLen_ + 1 to _n_
 				This.AddItem(pWith)
 			next
 		ok
 
-		def ExtendToPositionWith(n, pWith)
-			This.ExtendToPositionXT(n, pWith)
+		def ExtendToPositionWith(_n_, pWith)
+			This.ExtendToPositionXT(_n_, pWith)
 
 	# Sugar aliases over ExtendToPositionXT: the same operation
 	# but using the more natural "ExtendTo" / "Extend" naming.
 	# Default filler is the empty string.
 
-	def ExtendTo(n)
+	def ExtendTo(_n_)
 		# Type-aware padding: 0 for an all-number list, "" otherwise
 		# (ExtendToPosition decides). Use ExtendToXT(n, :With=v) to choose.
-		This.ExtendToPosition(n)
+		This.ExtendToPosition(_n_)
 
-		def ExtendToQ(n)
-			This.ExtendTo(n)
+		def ExtendToQ(_n_)
+			This.ExtendTo(_n_)
 			return This
 
-		def ExtendToWith(n, pWith)
-			This.ExtendToPositionXT(n, pWith)
+		def ExtendToWith(_n_, pWith)
+			This.ExtendToPositionXT(_n_, pWith)
 
 	# DifferenceWithXT: structured diff against another list.
 	# Returns [ :added = [...], :removed = [...], :modified = [...] ].
@@ -5087,29 +5087,29 @@ class stzList from stzObject
 
 	# Shrink: truncate the list to the first n items (in place).
 
-	def ShrinkTo(n)
+	def ShrinkTo(_n_)
 		_nShLen_ = len(@aContent)
-		if n < 0
-			n = 0
+		if _n_ < 0
+			_n_ = 0
 		ok
-		if n >= _nShLen_
+		if _n_ >= _nShLen_
 			return
 		ok
 		_aShNew_ = []
-		for _iSh_ = 1 to n
+		for _iSh_ = 1 to _n_
 			_aShNew_ + @aContent[_iSh_]
 		next
 		This._SetContent(_aShNew_)
 
-		def ShrinkToQ(n)
-			This.ShrinkTo(n)
+		def ShrinkToQ(_n_)
+			This.ShrinkTo(_n_)
 			return This
 
-		def TruncateTo(n)
-			This.ShrinkTo(n)
+		def TruncateTo(_n_)
+			This.ShrinkTo(_n_)
 
-		def KeepFirst(n)
-			This.ShrinkTo(n)
+		def KeepFirst(_n_)
+			This.ShrinkTo(_n_)
 
 	# ExtendXT: named-param Extend DSL used by narrative tests.
 	# Supported forms:
@@ -5200,18 +5200,18 @@ class stzList from stzObject
 
 	def PerformOn(panPos, pcAction)
 		pcAction = _StzStripBraces(pcAction)
-		nLen = len(panPos)
+		_nLen_ = len(panPos)
 		pList = This._EngineListFromContent()
 		if pList = NULL return ok
 
 		pResult = StzEngineListMapExpr(pList, pcAction)
-		aNew = StzEngineListContentToRingList(pResult)
+		_aNew_ = StzEngineListContentToRingList(pResult)
 
-		for i = 1 to nLen
-			nPos = panPos[i]
-			if nPos >= 1 and nPos <= len(@aContent)
+		for _i_ = 1 to _nLen_
+			_nPos_ = panPos[_i_]
+			if _nPos_ >= 1 and _nPos_ <= len(@aContent)
 				This._InvalidateEngine()   # in-place @aContent mutation below
-				@aContent[nPos] = aNew[nPos]
+				@aContent[_nPos_] = _aNew_[_nPos_]
 			ok
 		next
 
@@ -5236,9 +5236,9 @@ class stzList from stzObject
 
 		# Engine-backed O(n) min
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListMin(pList)
+		_nResult_ = StzEngineListMin(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def Smallest()
 			return This.Min()
@@ -5254,9 +5254,9 @@ class stzList from stzObject
 
 		# Engine-backed O(n) max
 		pList = This._EngineListFromContent()
-		nResult = StzEngineListMax(pList)
+		_nResult_ = StzEngineListMax(pList)
 		StzEngineListFree(pList)
-		return nResult
+		return _nResult_
 
 		def Greatest()
 			return This.Max()
@@ -5319,52 +5319,52 @@ class stzList from stzObject
 		_nMdResult_ = StzEngineListMedian(_pMdList_)
 		return _nMdResult_
 
-	def NthSmallest(n)
+	def NthSmallest(_n_)
 		# The n-th smallest DISTINCT value (dedup, then ascending rank),
 		# matching the monolith. (The engine NthSmallest ranks with
 		# duplicates; dedup first so [3,3,7,8,8,10] -> 3rd smallest = 8.)
 		if len(@aContent) = 0 return 0 ok
 		_oNs_ = This.Copy()
 		_oNs_.RemoveDuplicates()
-		return _oNs_.Sorted()[n]
+		return _oNs_.Sorted()[_n_]
 
-	def NthLargest(n)
+	def NthLargest(_n_)
 		if len(@aContent) = 0 return 0 ok
 		_oNl_ = This.Copy()
 		_oNl_.RemoveDuplicates()
-		return _oNl_.SortedInDescending()[n]
+		return _oNl_.SortedInDescending()[_n_]
 
 	  #-- Repeat (engine-backed)
 
-	def Repeat(n)
+	def Repeat(_n_)
 		if CheckParams()
-			if isList(n) and len(n) = 2 and
-			   isNumber(n[1]) and isString(n[2]) and
-			   (n[2] = :NTimes or n[2] = :Times)
+			if isList(_n_) and len(_n_) = 2 and
+			   isNumber(_n_[1]) and isString(_n_[2]) and
+			   (_n_[2] = :NTimes or _n_[2] = :Times)
 
-				n = n[1]
+				_n_ = _n_[1]
 			ok
 		ok
 
 		# Mutating, nesting (in place): [1,2].Repeat(3) -> [ [1,2], [1,2], [1,2] ].
 		_aRptContent_ = This.Content()
 		_aRptRes_ = []
-		for _iRpt_ = 1 to n
+		for _iRpt_ = 1 to _n_
 			_aRptRes_ + _aRptContent_
 		next
 		This._SetContent(_aRptRes_)
 
-		def RepeatQ(n)
-			This.Repeat(n)
+		def RepeatQ(_n_)
+			This.Repeat(_n_)
 			return This
 
-	def Repeated(n)
+	def Repeated(_n_)
 		if CheckParams()
-			if isList(n) and len(n) = 2 and
-			   isNumber(n[1]) and isString(n[2]) and
-			   n[2] = :Times
+			if isList(_n_) and len(_n_) = 2 and
+			   isNumber(_n_[1]) and isString(_n_[2]) and
+			   _n_[2] = :Times
 
-				n = n[1]
+				_n_ = _n_[1]
 			ok
 		ok
 
@@ -5373,20 +5373,20 @@ class stzList from stzObject
 		# is the (*) operator's job: o1 * 3 -> [1,2,1,2,1,2].)
 		_aRpdContent_ = This.Content()
 		_aRpdOut_ = []
-		for _iRpd_ = 1 to n
+		for _iRpd_ = 1 to _n_
 			_aRpdOut_ + _aRpdContent_
 		next
 		return _aRpdOut_
 
-		def RepeatedNTimes(n)
-			return This.Repeated(n)
+		def RepeatedNTimes(_n_)
+			return This.Repeated(_n_)
 
-		def RepeatNTimes(n)
-			return This.Repeated(n)
+		def RepeatNTimes(_n_)
+			return This.Repeated(_n_)
 
 	  #-- SplitAt (engine-backed)
 
-	def SplitAt(n)
+	def SplitAt(_n_)
 		# The engine's stz_list_split_at takes the cut positions as an ENGINE
 		# LIST handle (0-based cut indices), NOT a bare integer -- passing the
 		# integer made the bridge read a bogus handle and the engine returned
@@ -5394,7 +5394,7 @@ class stzList from stzObject
 		# positions list at the 0-based cut (n-1) for the 1-based SplitAt(n).
 		_pSaList_ = This._EngineListFromContent()
 		if _pSaList_ = NULL return [[], []] ok
-		_pSaPos_ = (new stzList([ n - 1 ]))._EngineListFromContent()
+		_pSaPos_ = (new stzList([ _n_ - 1 ]))._EngineListFromContent()
 		_pSaResult_ = StzEngineListSplitAt(_pSaList_, _pSaPos_)
 		StzEngineListFree(_pSaList_)
 		if _pSaPos_ != NULL StzEngineListFree(_pSaPos_) ok
@@ -5453,10 +5453,10 @@ class stzList from stzObject
 	def IsMadeOfSome(paValues)
 		pList = This._EngineListFromContent()
 		pVals = StzEngineMarshalList(paValues)
-		nResult = StzEngineListIsSubsetCS(pList, pVals, 1)
+		_nResult_ = StzEngineListIsSubsetCS(pList, pVals, 1)
 		StzEngineListFree(pList)
 		StzEngineListFree(pVals)
-		return nResult
+		return _nResult_
 
 	def IsPairOfStrings()
 		_aIpContent_ = This.Content()
@@ -5499,16 +5499,16 @@ class stzList from stzObject
 		def AntiFindZZCS(pItem, pCaseSensitive)
 			return This.AntiFindAsSectionsCS(pItem, pCaseSensitive)
 
-	def AntiPositions(anPos)
+	def AntiPositions(_anPos_)
 		_oApFinder_ = new stzListFinder(This)
-		return _oApFinder_.AntiPositions(anPos)
+		return _oApFinder_.AntiPositions(_anPos_)
 
 	# AntiPositionsZZ: the complement of anPos as [start, end] sections.
 	# Walks 1..NumberOfItems, grouping consecutive positions not in anPos.
-	def AntiPositionsZZ(anPos)
+	def AntiPositionsZZ(_anPos_)
 		_aRes_ = []
 		_nLen_ = This.NumberOfItems()
-		_aIn_ = anPos
+		_aIn_ = _anPos_
 		_nStart_ = 0
 		for _i_ = 1 to _nLen_
 			_bInPos_ = FALSE
@@ -5530,12 +5530,12 @@ class stzList from stzObject
 		ok
 		return _aRes_
 
-	def FindNOccurrencesCS(n, pItem, pCaseSensitive)
+	def FindNOccurrencesCS(_n_, pItem, pCaseSensitive)
 		_oFnoFinder_ = new stzListFinder(This)
-		return _oFnoFinder_.FindNOccurrencesCS(n, pItem, pCaseSensitive)
+		return _oFnoFinder_.FindNOccurrencesCS(_n_, pItem, pCaseSensitive)
 
-	def FindNOccurrences(n, pItem)
-		return This.FindNOccurrencesCS(n, pItem, 1)
+	def FindNOccurrences(_n_, pItem)
+		return This.FindNOccurrencesCS(_n_, pItem, 1)
 
 	# FindFirstCS/FindFirst/FindLastCS/FindLast already defined above as aliases
 
@@ -5560,12 +5560,12 @@ class stzList from stzObject
 	def FindAllExceptLast(pItem)
 		return This.FindAllExceptLastCS(pItem, 1)
 
-	def FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+	def FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 		_oFnnoFinder_ = new stzListFinder(This)
-		return _oFnnoFinder_.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+		return _oFnnoFinder_.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	def FindNextNthOccurrence(n, pItem, pnStartingAt)
-		return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+	def FindNextNthOccurrence(_n_, pItem, pnStartingAt)
+		return This.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
 	def FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 		_oFnoFinder2_ = new stzListFinder(This)
@@ -5603,37 +5603,37 @@ class stzList from stzObject
 	# FindNthPrevious(n, pItem, pnStartingAt): word-order alias over
 	# FindPreviousNthOccurrence -- find the Nth occurrence of pItem
 	# walking backwards from pnStartingAt. Accepts :StartingAt = n.
-	def FindNthPrevious(n, pItem, pnStartingAt)
+	def FindNthPrevious(_n_, pItem, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+		return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
-		def FindNthPreviousCS(n, pItem, pnStartingAt, pCaseSensitive)
+		def FindNthPreviousCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 			if isList(pnStartingAt) and len(pnStartingAt) = 2
 				pnStartingAt = pnStartingAt[2]
 			ok
-			return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
 	# FindNthNext(n, pItem, pnStartingAt): symmetric forward variant.
-	def FindNthNext(n, pItem, pnStartingAt)
+	def FindNthNext(_n_, pItem, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+		return This.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
-		def FindNthNextCS(n, pItem, pnStartingAt, pCaseSensitive)
+		def FindNthNextCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 			if isList(pnStartingAt) and len(pnStartingAt) = 2
 				pnStartingAt = pnStartingAt[2]
 			ok
-			return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+	def FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 		_oFpnoFinder_ = new stzListFinder(This)
-		return _oFpnoFinder_.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+		return _oFpnoFinder_.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	def FindPreviousNthOccurrence(n, pItem, pnStartingAt)
-		return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+	def FindPreviousNthOccurrence(_n_, pItem, pnStartingAt)
+		return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
 	def FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 		_oFpoFinder_ = new stzListFinder(This)
@@ -5644,13 +5644,13 @@ class stzList from stzObject
 
 	#-- Missing name-variants for the next/previous occurrence family
 	#-- (delegating to stzListFinder; strictly-after / strictly-before).
-	def FindNthNextOccurrence(n, pItem, pnStartingAt)
+	def FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
-		return _oFnx_.FindNthNextOccurrence(n, pItem, pnStartingAt)
+		return _oFnx_.FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 
-	def FindNextNth(n, pItem, pnStartingAt)
+	def FindNextNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
-		return _oFnx_.FindNextNth(n, pItem, pnStartingAt)
+		return _oFnx_.FindNextNth(_n_, pItem, pnStartingAt)
 
 	def FindNextOccurrences(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
@@ -5687,17 +5687,17 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindItem(pItem)
 
-	def FindPreviousNth(n, pItem, pnStartingAt)
+	def FindPreviousNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
-		return _oFnx_.FindPreviousNth(n, pItem, pnStartingAt)
+		return _oFnx_.FindPreviousNth(_n_, pItem, pnStartingAt)
 
-	def NthNextOccurrence(n, pItem, pnStartingAt)
+	def NthNextOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
-		return _oFnx_.NthNextOccurrence(n, pItem, pnStartingAt)
+		return _oFnx_.NthNextOccurrence(_n_, pItem, pnStartingAt)
 
-	def NextNthOccurrence(n, pItem, pnStartingAt)
+	def NextNthOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
-		return _oFnx_.NextNthOccurrence(n, pItem, pnStartingAt)
+		return _oFnx_.NextNthOccurrence(_n_, pItem, pnStartingAt)
 
 	  #=========================================================#
 	 #  SMALLEST/LARGEST POSITIONS, ITEMS-WITH-POSITIONS, etc. #
@@ -5803,11 +5803,11 @@ class stzList from stzObject
 	def RemoveDupSecutiveItem(pItem)
 		This.RemoveDupSecutiveItemCS(pItem, 1)
 
-	def FindNthSmallest(n)
-		return This.Find(This.NthSmallest(n))
+	def FindNthSmallest(_n_)
+		return This.Find(This.NthSmallest(_n_))
 
-	def FindNthLargest(n)
-		return This.Find(This.NthLargest(n))
+	def FindNthLargest(_n_)
+		return This.Find(This.NthLargest(_n_))
 
 	#-- contiguous runs of strings / lists as [start,end] sections
 	def FindStringsAsSections()
@@ -5855,9 +5855,9 @@ class stzList from stzObject
 		This.RemoveAllCS(pItem, 1)
 
 	def RemoveMany(paItems)
-		nLen = ring_len(paItems)
-		for i = 1 to nLen
-			This.RemoveAllCS(paItems[i], 1)
+		_nLen_ = ring_len(paItems)
+		for _i_ = 1 to _nLen_
+			This.RemoveAllCS(paItems[_i_], 1)
 		next
 
 		def RemoveTheseItems(paItems)
@@ -5889,19 +5889,19 @@ class stzList from stzObject
 		This._SetContent(_StzRemoveNonDuplicates(This.Content()))
 
 	#-- remove the n-th occurrence of pItem
-	def RemoveThisNthItem(n, pItem)
+	def RemoveThisNthItem(_n_, pItem)
 		_pos_ = This.FindAllCS(pItem, 1)
-		if n >= 1 and ring_len(_pos_) >= n
-			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[n] ]))
+		if _n_ >= 1 and ring_len(_pos_) >= _n_
+			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[_n_] ]))
 		ok
 
-		def RemoveNth(n, pItem)
-			This.RemoveThisNthItem(n, pItem)
+		def RemoveNth(_n_, pItem)
+			This.RemoveThisNthItem(_n_, pItem)
 
 	#-- occurrence removal relative to a position (Next strictly after,
 	#-- Previous strictly before; the Nth index is forward into that run)
-	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
-		_p_ = This.FindNthNextOccurrence(n, pItem, pnStartingAt)
+	def RemoveNextNthOccurrence(_n_, pItem, pnStartingAt)
+		_p_ = This.FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 		if _p_ > 0
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _p_ ]))
 		ok
@@ -5914,8 +5914,8 @@ class stzList from stzObject
 			_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 			return _StzRemoveAtPositions(This.Content(), _ps_)
 
-	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
-		_ps_ = This.FindPreviousNthOccurrences([ n ], pItem, pnStartingAt)
+	def RemovePreviousNthOccurrence(_n_, pItem, pnStartingAt)
+		_ps_ = This.FindPreviousNthOccurrences([ _n_ ], pItem, pnStartingAt)
 		if ring_len(_ps_) > 0
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _ps_[1] ]))
 		ok
@@ -5945,15 +5945,15 @@ class stzList from stzObject
 		ok
 
 	#-- remove the item at position n; accepts :First / :Last
-	def RemoveNthItem(n)
-		if isString(n)
-			if n = :Last or n = :LastItem
-				n = This.NumberOfItems()
-			but n = :First or n = :FirstItem
-				n = 1
+	def RemoveNthItem(_n_)
+		if isString(_n_)
+			if _n_ = :Last or _n_ = :LastItem
+				_n_ = This.NumberOfItems()
+			but _n_ = :First or _n_ = :FirstItem
+				_n_ = 1
 			ok
 		ok
-		This.RemoveItemAtPosition(n)
+		This.RemoveItemAtPosition(_n_)
 
 	  #=========================================================#
 	 #  CONTAINS predicates (no / both / each / only-one / by-type) #
@@ -6042,29 +6042,29 @@ class stzList from stzObject
 		return _StzTheseItemsZ(This.Content(), paItems)
 
 	#-- distinct items by occurrence count (>= n by default)
-	def ItemsOccurringNTimes(n)
-		return _StzItemsByCountOp(This.Content(), n, "ge")
+	def ItemsOccurringNTimes(_n_)
+		return _StzItemsByCountOp(This.Content(), _n_, "ge")
 
-		def ItemsOccuringNTimes(n)
-			return This.ItemsOccurringNTimes(n)
+		def ItemsOccuringNTimes(_n_)
+			return This.ItemsOccurringNTimes(_n_)
 
-		def ItemsOccurringNTimesOrMore(n)
-			return This.ItemsOccurringNTimes(n)
+		def ItemsOccurringNTimesOrMore(_n_)
+			return This.ItemsOccurringNTimes(_n_)
 
-	def ItemsOccurringExactlyNTimes(n)
-		return _StzItemsByCountOp(This.Content(), n, "eq")
+	def ItemsOccurringExactlyNTimes(_n_)
+		return _StzItemsByCountOp(This.Content(), _n_, "eq")
 
-		def ItemsOccuringExactlyNTimes(n)
-			return This.ItemsOccurringExactlyNTimes(n)
+		def ItemsOccuringExactlyNTimes(_n_)
+			return This.ItemsOccurringExactlyNTimes(_n_)
 
-	def ItemsOccurringLessThanNTimes(n)
-		return _StzItemsByCountOp(This.Content(), n, "lt")
+	def ItemsOccurringLessThanNTimes(_n_)
+		return _StzItemsByCountOp(This.Content(), _n_, "lt")
 
-	def ItemsOccurringNTimesOrLess(n)
-		return _StzItemsByCountOp(This.Content(), n, "le")
+	def ItemsOccurringNTimesOrLess(_n_)
+		return _StzItemsByCountOp(This.Content(), _n_, "le")
 
-	def ItemsOccurringMoreThanNTimes(n)
-		return _StzItemsByCountOp(This.Content(), n, "gt")
+	def ItemsOccurringMoreThanNTimes(_n_)
+		return _StzItemsByCountOp(This.Content(), _n_, "gt")
 
 	def ItemsHaveSameType()
 		return _StzAllSameType(This.Content())
@@ -6203,21 +6203,21 @@ class stzList from stzObject
 		_oSdapzzSplitter_ = new stzListSplits(This)
 		return _oSdapzzSplitter_.SplittedAtPositionsZZ(panPos)
 
-	def SplitAtPosition(n)
+	def SplitAtPosition(_n_)
 		_oSaposSplitter_ = new stzListSplits(This)
-		return _oSaposSplitter_.SplitAtPosition(n)
+		return _oSaposSplitter_.SplitAtPosition(_n_)
 
-	def SplittedAtPosition(n)
+	def SplittedAtPosition(_n_)
 		_oSdaposSplitter_ = new stzListSplits(This)
-		return _oSdaposSplitter_.SplittedAtPosition(n)
+		return _oSdaposSplitter_.SplittedAtPosition(_n_)
 
-	def SplitAtPositionZZ(n)
+	def SplitAtPositionZZ(_n_)
 		_oSapozzSplitter_ = new stzListSplits(This)
-		return _oSapozzSplitter_.SplitAtPositionZZ(n)
+		return _oSapozzSplitter_.SplitAtPositionZZ(_n_)
 
-	def SplittedAtPositionZZ(n)
+	def SplittedAtPositionZZ(_n_)
 		_oSdapozzSplitter_ = new stzListSplits(This)
-		return _oSdapozzSplitter_.SplittedAtPositionZZ(n)
+		return _oSdapozzSplitter_.SplittedAtPositionZZ(_n_)
 
 	def SplitAtCS(pItem, pCaseSensitive)
 		_oSacsSplitter_ = new stzListSplits(This)
@@ -6244,13 +6244,13 @@ class stzList from stzObject
 	def SplittedAtZZ(pItem)
 		return This.SplittedAtCSZZ(pItem, 1)
 
-	def SplitBeforePosition(n)
+	def SplitBeforePosition(_n_)
 		_oSbpSplitter_ = new stzListSplits(This)
-		return _oSbpSplitter_.SplitBeforePosition(n)
+		return _oSbpSplitter_.SplitBeforePosition(_n_)
 
-	def SplittedBeforePosition(n)
+	def SplittedBeforePosition(_n_)
 		_oSdbpSplitter_ = new stzListSplits(This)
-		return _oSdbpSplitter_.SplittedBeforePosition(n)
+		return _oSdbpSplitter_.SplittedBeforePosition(_n_)
 
 	def SplitBeforeCS(pItem, pCaseSensitive)
 		_oSbcsSplitter_ = new stzListSplits(This)
@@ -6259,13 +6259,13 @@ class stzList from stzObject
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
-	def SplitAfterPosition(n)
+	def SplitAfterPosition(_n_)
 		_oSafpSplitter_ = new stzListSplits(This)
-		return _oSafpSplitter_.SplitAfterPosition(n)
+		return _oSafpSplitter_.SplitAfterPosition(_n_)
 
-	def SplittedAfterPosition(n)
+	def SplittedAfterPosition(_n_)
 		_oSdafpSplitter_ = new stzListSplits(This)
-		return _oSdafpSplitter_.SplittedAfterPosition(n)
+		return _oSdafpSplitter_.SplittedAfterPosition(_n_)
 
 	def SplitAfterCS(pItem, pCaseSensitive)
 		_oSafcsSplitter_ = new stzListSplits(This)
@@ -6274,40 +6274,40 @@ class stzList from stzObject
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
-	def SplitToNParts(n)
+	def SplitToNParts(_n_)
 		_oStnpSplitter_ = new stzListSplits(This)
-		return _oStnpSplitter_.SplitToNParts(n)
+		return _oStnpSplitter_.SplitToNParts(_n_)
 
-		def SplitToNPartsQ(n)
-			return new stzList( This.SplitToNParts(n) )
+		def SplitToNPartsQ(_n_)
+			return new stzList( This.SplitToNParts(_n_) )
 
-	def SplittedToNParts(n)
+	def SplittedToNParts(_n_)
 		_oSdtnpSplitter_ = new stzListSplits(This)
-		return _oSdtnpSplitter_.SplittedToNParts(n)
+		return _oSdtnpSplitter_.SplittedToNParts(_n_)
 
-	def SplitToPartsOfNItems(n)
+	def SplitToPartsOfNItems(_n_)
 		# Mutator: delegating to new stzListSplits(This) would mutate a COPY of
 		# This (Ring copies objects passed to a constructor), so the change was
 		# lost. Write back through This itself using the returning form.
-		This.UpdateWith( This.SplittedToPartsOfNItems(n) )
+		This.UpdateWith( This.SplittedToPartsOfNItems(_n_) )
 
-		def SplitToPartsOf(n)
-			This.SplitToPartsOfNItems(n)
+		def SplitToPartsOf(_n_)
+			This.SplitToPartsOfNItems(_n_)
 
-	def SplittedToPartsOfNItems(n)
+	def SplittedToPartsOfNItems(_n_)
 		_oSdtponiSplitter_ = new stzListSplits(This)
-		return _oSdtponiSplitter_.SplittedToPartsOfNItems(n)
+		return _oSdtponiSplitter_.SplittedToPartsOfNItems(_n_)
 
-		def SplittedToPartsOf(n)
-			return This.SplittedToPartsOfNItems(n)
+		def SplittedToPartsOf(_n_)
+			return This.SplittedToPartsOfNItems(_n_)
 
-	def SplitAtPacer(nPace, nStart)
+	def SplitAtPacer(nPace, _nStart_)
 		_oSapcrSplitter_ = new stzListSplits(This)
-		return _oSapcrSplitter_.SplitAtPacer(nPace, nStart)
+		return _oSapcrSplitter_.SplitAtPacer(nPace, _nStart_)
 
-	def SplittedAtPacer(nPace, nStart)
+	def SplittedAtPacer(nPace, _nStart_)
 		_oSdapcrSplitter_ = new stzListSplits(This)
-		return _oSdapcrSplitter_.SplittedAtPacer(nPace, nStart)
+		return _oSdapcrSplitter_.SplittedAtPacer(nPace, _nStart_)
 
 	# SplitW MUTATES the content into the list of parts (the matching
 	# items are dropped; SplittedW is the passive twin).
@@ -6407,11 +6407,11 @@ class stzList from stzObject
 		This.UpdateWith(_oEaExt_.Content())
 		return _aContent_
 
-	def ExtractNth(n)
+	def ExtractNth(_n_)
 		_oEnExt_ = new stzListExtractor(This)
-		_oEnExt_.ExtractNth(n)
+		_oEnExt_.ExtractNth(_n_)
 		This.UpdateWith(_oEnExt_.Content())
-		return This.Content()[n]
+		return This.Content()[_n_]
 
 	def ExtractFirst(pItem)
 		# Extract = remove the FIRST occurrence of pItem from the list and
@@ -6422,12 +6422,12 @@ class stzList from stzObject
 		# Remove the LAST occurrence of pItem and return it.
 		return This.ExtractLastCS(pItem, 1)
 
-	def ExtractSection(n1, n2)
+	def ExtractSection(_n1_, _n2_)
 		# Capture the section BEFORE removing it (afterwards the list is shorter,
 		# so This.Section(n1,n2) would go out of range).
-		_aEsSection_ = This.Section(n1, n2)
+		_aEsSection_ = This.Section(_n1_, _n2_)
 		_oEsExt_ = new stzListExtractor(This)
-		_oEsExt_.ExtractSection(n1, n2)
+		_oEsExt_.ExtractSection(_n1_, _n2_)
 		This.UpdateWith(_oEsExt_.Content())
 		return _aEsSection_
 
@@ -6442,23 +6442,23 @@ class stzList from stzObject
 	def ExtractW(pcCondition)
 		# Remove every item matching the W-condition and RETURN them all
 		# (find the matching positions, collect the items, then drop them).
-		anPos = This.FindW(pcCondition)
-		aResult = This.ItemsAtPositions(anPos)
-		This.RemoveItemsAtPositions(anPos)
-		return aResult
+		_anPos_ = This.FindW(pcCondition)
+		_aResult_ = This.ItemsAtPositions(_anPos_)
+		This.RemoveItemsAtPositions(_anPos_)
+		return _aResult_
 
 		def ExtractWQ(pcCondition)
 			return new stzList( This.ExtractW(pcCondition) )
 
-	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
+	def ExtractNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 		# Remove the nth occurrence of pItem and RETURN it (the extracted
 		# value), per the monolith's authoritative Extract semantics.
-		nPos = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
-		This.RemoveItemAtPosition(nPos)
+		_nPos_ = This.FindNthOccurrenceCS(_n_, pItem, pCaseSensitive)
+		This.RemoveItemAtPosition(_nPos_)
 		return pItem
 
-	def ExtractNthOccurrence(n, pItem)
-		return This.ExtractNthOccurrenceCS(n, pItem, 1)
+	def ExtractNthOccurrence(_n_, pItem)
+		return This.ExtractNthOccurrenceCS(_n_, pItem, 1)
 
 	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
 		_oEfocsExt_ = new stzListExtractor(This)
@@ -6522,15 +6522,15 @@ class stzList from stzObject
 		This.RemoveFirstItem()
 		return _pPfItem_
 
-	def Take(n)
+	def Take(_n_)
 		_oTkExt_ = new stzListExtractor(This)
-		_aTkResult_ = _oTkExt_.Take(n)
+		_aTkResult_ = _oTkExt_.Take(_n_)
 		This.UpdateWith(_oTkExt_.Content())
 		return _aTkResult_
 
-	def TakeLast(n)
+	def TakeLast(_n_)
 		_oTlExt_ = new stzListExtractor(This)
-		_aTlResult_ = _oTlExt_.TakeLast(n)
+		_aTlResult_ = _oTlExt_.TakeLast(_n_)
 		This.UpdateWith(_oTlExt_.Content())
 		return _aTlResult_
 
@@ -6627,14 +6627,14 @@ class stzList from stzObject
 		_oNsTr_ = new stzListTrimmer(This)
 		return _oNsTr_.NullsStripped()
 
-	def TrimToSize(n)
+	def TrimToSize(_n_)
 		_oTtsTr_ = new stzListTrimmer(This)
-		_oTtsTr_.TrimToSize(n)
+		_oTtsTr_.TrimToSize(_n_)
 		This.UpdateWith(_oTtsTr_.Content())
 
-	def TrimmedToSize(n)
+	def TrimmedToSize(_n_)
 		_oTdtsTr_ = new stzListTrimmer(This)
-		return _oTdtsTr_.TrimmedToSize(n)
+		return _oTdtsTr_.TrimmedToSize(_n_)
 
 	def TrimW(pcCondition)
 		_oTwTr_ = new stzListTrimmer(This)
@@ -6660,20 +6660,20 @@ class stzList from stzObject
 		_oRiGt_ = new stzListGetter(This)
 		return _oRiGt_.RandomItem()
 
-	def NRandomItems(n)
+	def NRandomItems(_n_)
 		_oNriGt_ = new stzListGetter(This)
-		return _oNriGt_.NRandomItems(n)
+		return _oNriGt_.NRandomItems(_n_)
 
 	#-- rnd* : terse random helpers (the "give me some random cards" idiom).
 	#   rndItems() returns a random NUMBER of random items; rndNItems(n) a
 	#   fixed n. The rndRemove* forms are the MUTATING counterparts -- they
 	#   drop random items from the list in place and return This for chaining.
 
-	def rndNItems(n)
-		return This.NRandomItems(n)
+	def rndNItems(_n_)
+		return This.NRandomItems(_n_)
 
-		def RandomNItems(n)
-			return This.NRandomItems(n)
+		def RandomNItems(_n_)
+			return This.NRandomItems(_n_)
 
 	def rndItems()
 		_nRiN_ = This.NumberOfItems()
@@ -6684,10 +6684,10 @@ class stzList from stzObject
 		def RandomItems()
 			return This.rndItems()
 
-	def rndRemoveNItems(n)
+	def rndRemoveNItems(_n_)
 		_nRrN_ = This.NumberOfItems()
-		if n <= 0 or _nRrN_ = 0 return This ok
-		if n > _nRrN_ n = _nRrN_ ok
+		if _n_ <= 0 or _nRrN_ = 0 return This ok
+		if _n_ > _nRrN_ _n_ = _nRrN_ ok
 		#-- shuffle the positions 1.._nRrN_ and remove the first n of them
 		_anRrIdx_ = 1 : _nRrN_
 		for _iRr_ = _nRrN_ to 2 step -1
@@ -6697,17 +6697,17 @@ class stzList from stzObject
 			_anRrIdx_[_jRr_] = _xRr_
 		next
 		_anRrPick_ = []
-		for _kRr_ = 1 to n
+		for _kRr_ = 1 to _n_
 			_anRrPick_ + _anRrIdx_[_kRr_]
 		next
 		This.RemoveItemsAtPositions(_anRrPick_)
 		return This
 
-		def rndRemoveNItemsQ(n)
-			return This.rndRemoveNItems(n)
+		def rndRemoveNItemsQ(_n_)
+			return This.rndRemoveNItems(_n_)
 
-		def RandomRemoveNItems(n)
-			return This.rndRemoveNItems(n)
+		def RandomRemoveNItems(_n_)
+			return This.rndRemoveNItems(_n_)
 
 	def rndRemoveItems()
 		_nRr2N_ = This.NumberOfItems()
@@ -6721,21 +6721,21 @@ class stzList from stzObject
 		def RandomRemoveItems()
 			return This.rndRemoveItems()
 
-	def ItemsBetween(n1, n2)
+	def ItemsBetween(_n1_, _n2_)
 		_oIbGt_ = new stzListGetter(This)
-		return _oIbGt_.ItemsBetween(n1, n2)
+		return _oIbGt_.ItemsBetween(_n1_, _n2_)
 
-	def EveryNthItem(n)
+	def EveryNthItem(_n_)
 		_oEniGt_ = new stzListGetter(This)
-		return _oEniGt_.EveryNthItem(n)
+		return _oEniGt_.EveryNthItem(_n_)
 
-	def Head(n)
+	def Head(_n_)
 		_oHdGt_ = new stzListGetter(This)
-		return _oHdGt_.Head(n)
+		return _oHdGt_.Head(_n_)
 
-	def Tail(n)
+	def Tail(_n_)
 		_oTlGt_ = new stzListGetter(This)
-		return _oTlGt_.Tail(n)
+		return _oTlGt_.Tail(_n_)
 
 	def OnlyStrings()
 		_oOsGt_ = new stzListGetter(This)
@@ -6783,9 +6783,9 @@ class stzList from stzObject
 		_oTrGt_ = new stzListGetter(This)
 		return _oTrGt_.Triplets()
 
-	def SlidingWindow(n)
+	def SlidingWindow(_n_)
 		_oSwGt_ = new stzListGetter(This)
-		return _oSwGt_.SlidingWindow(n)
+		return _oSwGt_.SlidingWindow(_n_)
 
 	  #-------------------------------#
 	 #  WALKER DELEGATIONS           #
@@ -6801,12 +6801,12 @@ class stzList from stzObject
 	#-- The walker is stored on THIS list (@aWalkers) and queried later with
 	#-- WalkedItems/WalkedPositions/... ( :By = <name> ).
 	def AddWalker(p1, p2, p3, p4)
-		cAwName = ""
-		nAwStart = 1
-		nAwEnd = This.NumberOfItems()
-		nAwStep = 1
-		nAwMoves = 0
-		cAwMode = :Step
+		_cAwName_ = ""
+		_nAwStart_ = 1
+		_nAwEnd_ = This.NumberOfItems()
+		_nAwStep_ = 1
+		_nAwMoves_ = 0
+		_cAwMode_ = :Step
 
 		_aAwArgs_ = [ p1, p2, p3, p4 ]
 		_nAwPos_ = 0
@@ -6816,31 +6816,31 @@ class stzList from stzObject
 				_k_ = lower(_a_[1])
 				_v_ = _a_[2]
 				if _k_ = "named" or _k_ = "name"
-					cAwName = _v_
+					_cAwName_ = _v_
 				but _k_ = "startingat"
-					nAwStart = _v_
+					_nAwStart_ = _v_
 				but _k_ = "endingat"
-					nAwEnd = _v_
+					_nAwEnd_ = _v_
 				but _k_ = "nstep" or _k_ = "nstepsatime"
-					nAwStep = _v_ cAwMode = :Step
+					_nAwStep_ = _v_ _cAwMode_ = :Step
 				but _k_ = "nequalmoves"
-					nAwMoves = _v_ cAwMode = :EqualMoves
+					_nAwMoves_ = _v_ _cAwMode_ = :EqualMoves
 				ok
 			but isString(_a_) or isNumber(_a_)
 				_nAwPos_++
 				if _nAwPos_ = 1
-					cAwName = _a_
+					_cAwName_ = _a_
 				but _nAwPos_ = 2
-					nAwStart = _a_
+					_nAwStart_ = _a_
 				but _nAwPos_ = 3
-					nAwEnd = _a_
+					_nAwEnd_ = _a_
 				but _nAwPos_ = 4
-					nAwStep = _a_
+					_nAwStep_ = _a_
 				ok
 			ok
 		next
 
-		@aWalkers + [ cAwName, [ nAwStart, nAwEnd, nAwStep, cAwMode, nAwMoves ] ]
+		@aWalkers + [ _cAwName_, [ _nAwStart_, _nAwEnd_, _nAwStep_, _cAwMode_, _nAwMoves_ ] ]
 
 	def Walkers()
 		return @aWalkers
@@ -6921,50 +6921,50 @@ class stzList from stzObject
 		_oYwfSub_ = new stzList(_aYwfSub_)
 		return _oYwfSub_.MapWF(pFunc)
 
-	def WalkNForward(n)
+	def WalkNForward(_n_)
 		_oWnfWk_ = new stzListWalker(This)
-		return _oWnfWk_.WalkNForward(n)
+		return _oWnfWk_.WalkNForward(_n_)
 
-	def WalkNBackward(n)
+	def WalkNBackward(_n_)
 		_oWnbWk_ = new stzListWalker(This)
-		return _oWnbWk_.WalkNBackward(n)
+		return _oWnbWk_.WalkNBackward(_n_)
 
 	# Walk the inclusive range n1..n2 (descending if n1 > n2). The IB
 	# form takes a return type (:WalkedPositions default / :WalkedItems).
 
-	def WalkBetweenIB(n1, n2, pReturn)
-		anWbPos = n1 : n2
-		cWbRet = pReturn
+	def WalkBetweenIB(_n1_, _n2_, pReturn)
+		_anWbPos_ = _n1_ : _n2_
+		_cWbRet_ = pReturn
 		if isList(pReturn) and ring_len(pReturn) = 2 and isString(pReturn[1])
-			cWbRet = pReturn[2]
+			_cWbRet_ = pReturn[2]
 		ok
-		if cWbRet = :WalkedItems or cWbRet = :Items
-			return This.ItemsAtPositions(anWbPos)
+		if _cWbRet_ = :WalkedItems or _cWbRet_ = :Items
+			return This.ItemsAtPositions(_anWbPos_)
 		ok
-		return anWbPos
+		return _anWbPos_
 
-	def WalkBetween(n1, n2)
-		return This.WalkBetweenIB(n1, n2, :WalkedPositions)
+	def WalkBetween(_n1_, _n2_)
+		return This.WalkBetweenIB(_n1_, _n2_, :WalkedPositions)
 
 	# Walk forward 1..n then back n-1..1.
 
 	def WalkForthAndBackXT(pReturn)
-		nWfLen = This.NumberOfItems()
-		anWfPos = []
-		for iWf = 1 to nWfLen
-			anWfPos + iWf
+		_nWfLen_ = This.NumberOfItems()
+		_anWfPos_ = []
+		for iWf = 1 to _nWfLen_
+			_anWfPos_ + iWf
 		next
-		for iWf = nWfLen - 1 to 1 step -1
-			anWfPos + iWf
+		for iWf = _nWfLen_ - 1 to 1 step -1
+			_anWfPos_ + iWf
 		next
-		cWfRet = pReturn
+		_cWfRet_ = pReturn
 		if isList(pReturn) and ring_len(pReturn) = 2 and isString(pReturn[1])
-			cWfRet = pReturn[2]
+			_cWfRet_ = pReturn[2]
 		ok
-		if cWfRet = :WalkedItems or cWfRet = :Items
-			return This.ItemsAtPositions(anWfPos)
+		if _cWfRet_ = :WalkedItems or _cWfRet_ = :Items
+			return This.ItemsAtPositions(_anWfPos_)
 		ok
-		return anWfPos
+		return _anWfPos_
 
 	def WalkForthAndBack()
 		return This.WalkForthAndBackXT(:WalkedPositions)
@@ -6972,9 +6972,9 @@ class stzList from stzObject
 	# Walk forward up to and including the first occurrence of pItem.
 
 	def WalkUntilItem(pItem)
-		nWuiPos = This.FindFirst(pItem)
-		if nWuiPos > 0
-			return 1 : nWuiPos
+		_nWuiPos_ = This.FindFirst(pItem)
+		if _nWuiPos_ > 0
+			return 1 : _nWuiPos_
 		ok
 		return []
 
@@ -6990,13 +6990,13 @@ class stzList from stzObject
 		_oWwhWk_ = new stzListWalker(This)
 		return _oWwhWk_.WalkWhile(pcCondition)
 
-	def WalkZigZag(nStep)
+	def WalkZigZag(_nStep_)
 		_oWzzWk_ = new stzListWalker(This)
-		return _oWzzWk_.WalkZigZag(nStep)
+		return _oWzzWk_.WalkZigZag(_nStep_)
 
-	def WalkEveryNth(n)
+	def WalkEveryNth(_n_)
 		_oWenWk_ = new stzListWalker(This)
-		return _oWenWk_.WalkEveryNth(n)
+		return _oWenWk_.WalkEveryNth(_n_)
 
 	# PositionsWhere already defined above as alias of FindAllItemsW
 
@@ -7004,9 +7004,9 @@ class stzList from stzObject
 		_oWftWk_ = new stzListWalker(This)
 		return _oWftWk_.WalkFromTo(nFrom, nTo)
 
-	def WalkSkipping(n)
+	def WalkSkipping(_n_)
 		_oWsWk_ = new stzListWalker(This)
-		return _oWsWk_.WalkSkipping(n)
+		return _oWsWk_.WalkSkipping(_n_)
 
 	def WalkAccumulating(pcExpr)
 		_oWaWk_ = new stzListWalker(This)
@@ -7040,52 +7040,52 @@ class stzList from stzObject
 	# Move / Swap accept the named-param spellings
 	# Move(:ItemFromPosition = a, :To = b), Swap(:Positions = a, :And = b),
 	# and the value form Swap(item1, :And = item2).
-	def Move(n1, n2)
-		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		   (lower(n1[1]) = "itemfromposition" or lower(n1[1]) = "fromposition" or
-		    lower(n1[1]) = "from") and isNumber(n1[2])
-			n1 = n1[2]
+	def Move(_n1_, _n2_)
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		   (lower(_n1_[1]) = "itemfromposition" or lower(_n1_[1]) = "fromposition" or
+		    lower(_n1_[1]) = "from") and isNumber(_n1_[2])
+			_n1_ = _n1_[2]
 		ok
-		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
-		   (lower(n2[1]) = "to" or lower(n2[1]) = "toposition") and isNumber(n2[2])
-			n2 = n2[2]
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
+		   (lower(_n2_[1]) = "to" or lower(_n2_[1]) = "toposition") and isNumber(_n2_[2])
+			_n2_ = _n2_[2]
 		ok
 		_oMvMvr_ = new stzListMover(This)
-		_oMvMvr_.Move(n1, n2)
+		_oMvMvr_.Move(_n1_, _n2_)
 		This.UpdateWith(_oMvMvr_.Content())
 
 	#@ aka  exchange, swap positions, interchange two items
-	def Swap(n1, n2)
-		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
-		   (lower(n1[1]) = "positions" or lower(n1[1]) = "position") and
-		   isNumber(n1[2])
-			n1 = n1[2]
+	def Swap(_n1_, _n2_)
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
+		   (lower(_n1_[1]) = "positions" or lower(_n1_[1]) = "position") and
+		   isNumber(_n1_[2])
+			_n1_ = _n1_[2]
 		ok
-		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
-		   lower(n2[1]) = "and"
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
+		   lower(_n2_[1]) = "and"
 			# Swap(item1, :And = item2) -- swap the two VALUES' positions.
-			if NOT isNumber(n1)
-				_nSw1_ = This.FindFirst(n1)
-				_nSw2_ = This.FindFirst(n2[2])
+			if NOT isNumber(_n1_)
+				_nSw1_ = This.FindFirst(_n1_)
+				_nSw2_ = This.FindFirst(_n2_[2])
 				if _nSw1_ < 1 or _nSw2_ < 1 return ok
-				n1 = _nSw1_
-				n2 = _nSw2_
-			but isNumber(n2[2])
-				n2 = n2[2]
+				_n1_ = _nSw1_
+				_n2_ = _nSw2_
+			but isNumber(_n2_[2])
+				_n2_ = _n2_[2]
 			ok
 		ok
 		_oSwMvr_ = new stzListMover(This)
-		_oSwMvr_.Swap(n1, n2)
+		_oSwMvr_.Swap(_n1_, _n2_)
 		This.UpdateWith(_oSwMvr_.Content())
 
-	def MoveToStart(n)
+	def MoveToStart(_n_)
 		_oMtsMvr_ = new stzListMover(This)
-		_oMtsMvr_.MoveToStart(n)
+		_oMtsMvr_.MoveToStart(_n_)
 		This.UpdateWith(_oMtsMvr_.Content())
 
-	def MoveToEnd(n)
+	def MoveToEnd(_n_)
 		_oMteMvr_ = new stzListMover(This)
-		_oMteMvr_.MoveToEnd(n)
+		_oMteMvr_.MoveToEnd(_n_)
 		This.UpdateWith(_oMteMvr_.Content())
 
 	def SwapFirstAndLast()
@@ -7098,23 +7098,23 @@ class stzList from stzObject
 		_oMmMvr_.MoveMany(panPositions, nTo)
 		This.UpdateWith(_oMmMvr_.Content())
 
-	def RotateLeft(n)
+	def RotateLeft(_n_)
 		_oRlMvr_ = new stzListMover(This)
-		_oRlMvr_.RotateLeft(n)
+		_oRlMvr_.RotateLeft(_n_)
 		This.UpdateWith(_oRlMvr_.Content())
 
-	def RotatedLeft(n)
+	def RotatedLeft(_n_)
 		_oRdlMvr_ = new stzListMover(This)
-		return _oRdlMvr_.RotatedLeft(n)
+		return _oRdlMvr_.RotatedLeft(_n_)
 
-	def RotateRight(n)
+	def RotateRight(_n_)
 		_oRrMvr_ = new stzListMover(This)
-		_oRrMvr_.RotateRight(n)
+		_oRrMvr_.RotateRight(_n_)
 		This.UpdateWith(_oRrMvr_.Content())
 
-	def RotatedRight(n)
+	def RotatedRight(_n_)
 		_oRdrMvr_ = new stzListMover(This)
-		return _oRdrMvr_.RotatedRight(n)
+		return _oRdrMvr_.RotatedRight(_n_)
 
 	def Shuffle()
 		_oShMvr_ = new stzListMover(This)
@@ -7140,39 +7140,39 @@ class stzList from stzObject
 	 #  SECTIONS DELEGATIONS         #
 	#-------------------------------#
 
-	def SectionCSZ(n1, n2, pCaseSensitive)
+	def SectionCSZ(_n1_, _n2_, pCaseSensitive)
 		_oScszSec_ = new stzListSections(This)
-		return _oScszSec_.SectionCSZ(n1, n2, pCaseSensitive)
+		return _oScszSec_.SectionCSZ(_n1_, _n2_, pCaseSensitive)
 
-	def SectionZ(n1, n2)
-		return This.SectionCSZ(n1, n2, 1)
+	def SectionZ(_n1_, _n2_)
+		return This.SectionCSZ(_n1_, _n2_, 1)
 
-	def SectionCSZZ(n1, n2, pCaseSensitive)
+	def SectionCSZZ(_n1_, _n2_, pCaseSensitive)
 		_oScszzSec_ = new stzListSections(This)
-		return _oScszzSec_.SectionCSZZ(n1, n2, pCaseSensitive)
+		return _oScszzSec_.SectionCSZZ(_n1_, _n2_, pCaseSensitive)
 
-	def SectionZZ(n1, n2)
-		return This.SectionCSZZ(n1, n2, 1)
+	def SectionZZ(_n1_, _n2_)
+		return This.SectionCSZZ(_n1_, _n2_, 1)
 
 	def Sections(paSections)
 		_oSsSec_ = new stzListSections(This)
 		return _oSsSec_.Sections(paSections)
 
-	def FindAntiSection(n1, n2)
+	def FindAntiSection(_n1_, _n2_)
 		_oFasSec_ = new stzListSections(This)
-		return _oFasSec_.FindAntiSection(n1, n2)
+		return _oFasSec_.FindAntiSection(_n1_, _n2_)
 
-	def AntiSection(n1, n2)
+	def AntiSection(_n1_, _n2_)
 		_oAsSec_ = new stzListSections(This)
-		return _oAsSec_.AntiSection(n1, n2)
+		return _oAsSec_.AntiSection(_n1_, _n2_)
 
-	def FindAntiSectionIB(n1, n2)
+	def FindAntiSectionIB(_n1_, _n2_)
 		_oFasibSec_ = new stzListSections(This)
-		return _oFasibSec_.FindAntiSectionIB(n1, n2)
+		return _oFasibSec_.FindAntiSectionIB(_n1_, _n2_)
 
-	def AntiSectionIB(n1, n2)
+	def AntiSectionIB(_n1_, _n2_)
 		_oAsibSec_ = new stzListSections(This)
-		return _oAsibSec_.AntiSectionIB(n1, n2)
+		return _oAsibSec_.AntiSectionIB(_n1_, _n2_)
 
 	def FindAntiSections(paSections)
 		if isList(paSections) and StzLen(paSections) = 2 and
@@ -7315,32 +7315,32 @@ class stzList from stzObject
 	# each list-class key is rendered as "min:max" (e.g. "1:5").
 
 	def ClassesSF()
-		aCsfC = This.Classes()
-		aCsfR = []
-		nCsfL = ring_len(aCsfC)
-		for iCsf = 1 to nCsfL
-			aCsfR + _StzListKeyToShortForm(aCsfC[iCsf])
+		_aCsfC_ = This.Classes()
+		_aCsfR_ = []
+		_nCsfL_ = ring_len(_aCsfC_)
+		for iCsf = 1 to _nCsfL_
+			_aCsfR_ + _StzListKeyToShortForm(_aCsfC_[iCsf])
 		next
-		return aCsfR
+		return _aCsfR_
 
 	def ClassifySF()
-		aClsfC = This.Classify()
-		aClsfR = []
-		nClsfL = ring_len(aClsfC)
-		for iClsf = 1 to nClsfL
-			aClsfR + [ _StzListKeyToShortForm(aClsfC[iClsf][1]), aClsfC[iClsf][2] ]
+		_aClsfC_ = This.Classify()
+		_aClsfR_ = []
+		_nClsfL_ = ring_len(_aClsfC_)
+		for iClsf = 1 to _nClsfL_
+			_aClsfR_ + [ _StzListKeyToShortForm(_aClsfC_[iClsf][1]), _aClsfC_[iClsf][2] ]
 		next
-		return aClsfR
+		return _aClsfR_
 
 		def ClassifiedSF()
 			return This.ClassifySF()
 
 	def KlassSF(pcShortForm)
-		aKsfC = This.ClassifySF()
-		nKsfL = ring_len(aKsfC)
-		for iKsf = 1 to nKsfL
-			if aKsfC[iKsf][1] = pcShortForm
-				return aKsfC[iKsf][2]
+		_aKsfC_ = This.ClassifySF()
+		_nKsfL_ = ring_len(_aKsfC_)
+		for iKsf = 1 to _nKsfL_
+			if _aKsfC_[iKsf][1] = pcShortForm
+				return _aKsfC_[iKsf][2]
 			ok
 		next
 		return []
@@ -7373,17 +7373,17 @@ class stzList from stzObject
 		_oHgClf_ = new stzListClassifier(This)
 		return _oHgClf_.Histogram()
 
-	def ItemsAppearingNTimes(n)
+	def ItemsAppearingNTimes(_n_)
 		_oIantClf_ = new stzListClassifier(This)
-		return _oIantClf_.ItemsAppearingNTimes(n)
+		return _oIantClf_.ItemsAppearingNTimes(_n_)
 
-	def ItemsAppearingMoreThanNTimes(n)
+	def ItemsAppearingMoreThanNTimes(_n_)
 		_oIamtntClf_ = new stzListClassifier(This)
-		return _oIamtntClf_.ItemsAppearingMoreThanNTimes(n)
+		return _oIamtntClf_.ItemsAppearingMoreThanNTimes(_n_)
 
-	def ItemsAppearingLessThanNTimes(n)
+	def ItemsAppearingLessThanNTimes(_n_)
 		_oIaltntClf_ = new stzListClassifier(This)
-		return _oIaltntClf_.ItemsAppearingLessThanNTimes(n)
+		return _oIaltntClf_.ItemsAppearingLessThanNTimes(_n_)
 
 	def FrequencyOf(pItem)
 		_oFoClf_ = new stzListClassifier(This)
@@ -7406,16 +7406,16 @@ class stzList from stzObject
 	def SecondHalf()
 		# The SECOND half is everything from floor(n/2)+1 onward -- so for
 		# an odd list it carries the middle item (mirror of FirstHalf).
-		nLen = This.NumberOfItems()
-		return This.Section(floor(nLen / 2) + 1, nLen)
+		_nLen_ = This.NumberOfItems()
+		return This.Section(floor(_nLen_ / 2) + 1, _nLen_)
 
 	def PartitionW(pcCondition)
 		_oPwClf_ = new stzListClassifier(This)
 		return _oPwClf_.PartitionW(pcCondition)
 
-	def Chunks(n)
+	def Chunks(_n_)
 		_oChClf_ = new stzListClassifier(This)
-		return _oChClf_.Chunks(n)
+		return _oChClf_.Chunks(_n_)
 
 	  #-------------------------------#
 	 #  RANDOM DELEGATIONS           #
@@ -7458,25 +7458,25 @@ class stzList from stzObject
 		def AnySection()
 			return This.RandomSection()
 
-	def RandomPositionGreaterThan(n)
+	def RandomPositionGreaterThan(_n_)
 		_oRpgtRnd_ = new stzListRandom(This)
-		return _oRpgtRnd_.RandomPositionGreaterThan(n)
+		return _oRpgtRnd_.RandomPositionGreaterThan(_n_)
 
-	def RandomPositionLessThan(n)
+	def RandomPositionLessThan(_n_)
 		_oRpltRnd_ = new stzListRandom(This)
-		return _oRpltRnd_.RandomPositionLessThan(n)
+		return _oRpltRnd_.RandomPositionLessThan(_n_)
 
-	def RandomPositionExcept(n)
+	def RandomPositionExcept(_n_)
 		_oRpeRnd_ = new stzListRandom(This)
-		return _oRpeRnd_.RandomPositionExcept(n)
+		return _oRpeRnd_.RandomPositionExcept(_n_)
 
 	def RandomPositionExceptPositions(panPos)
 		_oRpepRnd_ = new stzListRandom(This)
 		return _oRpepRnd_.RandomPositionExceptPositions(panPos)
 
-	def NRandomPositions(n)
+	def NRandomPositions(_n_)
 		_oNrpRnd_ = new stzListRandom(This)
-		return _oNrpRnd_.NRandomPositions(n)
+		return _oNrpRnd_.NRandomPositions(_n_)
 
 	def RandomItemExceptCS(pItem, pCaseSensitive)
 		_oRiecsRnd_ = new stzListRandom(This)
@@ -7485,9 +7485,9 @@ class stzList from stzObject
 	def RandomItemExcept(pItem)
 		return This.RandomItemExceptCS(pItem, 1)
 
-	def RandomItemExceptPosition(n)
+	def RandomItemExceptPosition(_n_)
 		_oRiepRnd_ = new stzListRandom(This)
-		return _oRiepRnd_.RandomItemExceptPosition(n)
+		return _oRiepRnd_.RandomItemExceptPosition(_n_)
 
 	def Randomize()
 		_oRzRnd_ = new stzListRandom(This)
@@ -7520,14 +7520,14 @@ class stzList from stzObject
 		def ShuffleStrings()
 			This.RandomizeStrings()
 
-	def RandomizeSection(n1, n2)
+	def RandomizeSection(_n1_, _n2_)
 		_oRzsRnd_ = new stzListRandom(This)
-		_oRzsRnd_.RandomizeSection(n1, n2)
+		_oRzsRnd_.RandomizeSection(_n1_, _n2_)
 		This.UpdateWith(_oRzsRnd_.Content())
 
-	def SectionRandomized(n1, n2)
+	def SectionRandomized(_n1_, _n2_)
 		_oSrRnd_ = new stzListRandom(This)
-		return _oSrRnd_.SectionRandomized(n1, n2)
+		return _oSrRnd_.SectionRandomized(_n1_, _n2_)
 
 	  #-------------------------------#
 	 #  PERFORMER DELEGATIONS        #
@@ -7562,8 +7562,8 @@ class stzList from stzObject
 	#--                                    item satisfying the W-condition c.
 	#--   :StartingAt = a, :UntilXT = c-> same, but INCLUDE that stop item.
 	def YieldXT(pcYielder, p2, p3)
-		nLen = This.NumberOfItems()
-		aC = This.Content()
+		_nLen_ = This.NumberOfItems()
+		_aC_ = This.Content()
 
 		_nFrom_ = 0 _nTo_ = 0 _bRange_ = 0
 		_nStart_ = 0 _cUntil_ = "" _bUntil_ = 0 _bInc_ = 0
@@ -7593,32 +7593,32 @@ class stzList from stzObject
 		if _bRange_
 			_a_ = _nFrom_
 			_b_ = _nTo_
-			if _b_ < 0 _b_ = nLen + _b_ + 1 ok
+			if _b_ < 0 _b_ = _nLen_ + _b_ + 1 ok
 			if _a_ < 1 _a_ = 1 ok
-			if _b_ > nLen _b_ = nLen ok
+			if _b_ > _nLen_ _b_ = _nLen_ ok
 			for _i_ = _a_ to _b_
-				_aRes_ + aC[_i_]
+				_aRes_ + _aC_[_i_]
 			next
 			return _aRes_
 		ok
 
 		if _bUntil_
 			if _nStart_ < 1 _nStart_ = 1 ok
-			for _i_ = _nStart_ to nLen
+			for _i_ = _nStart_ to _nLen_
 				# does aC[_i_] satisfy the until-condition?
-				_oOne_ = new stzList([ aC[_i_] ])
+				_oOne_ = new stzList([ _aC_[_i_] ])
 				_bHit_ = ( len(_oOne_.FindAllItemsW(_cUntil_)) > 0 )
 				if _bHit_
-					if _bInc_ _aRes_ + aC[_i_] ok
+					if _bInc_ _aRes_ + _aC_[_i_] ok
 					exit
 				ok
-				_aRes_ + aC[_i_]
+				_aRes_ + _aC_[_i_]
 			next
 			return _aRes_
 		ok
 
 		# no window -> yield every item
-		return aC
+		return _aC_
 
 	# YieldW(pcCondition, pcYielder): the @item-syntax form of YieldW
 	# -- for items matching pcCondition, yield the value of pcYielder.
@@ -7628,8 +7628,8 @@ class stzList from stzObject
 	# YieldAtW / YieldAtW: restrict to the given positions first,
 	# then yield over those.
 	def YieldAtW(panPos, pcCondition, pcYielder)
-		oYawSub = This.ItemsAtPositionsQ(panPos)
-		return oYawSub.YieldW(pcCondition, pcYielder)
+		_oYawSub_ = This.ItemsAtPositionsQ(panPos)
+		return _oYawSub_.YieldW(pcCondition, pcYielder)
 
 
 	# ItemsW / ItemsW / ItemsWXTQ: filter the list by an evaluated
@@ -7769,14 +7769,14 @@ class stzList from stzObject
 		_oIIns_.Insert(pItem, pWhere)
 		This.UpdateWith(_oIIns_.Content())
 
-	def InsertBeforePosition(n, pItem)
+	def InsertBeforePosition(_n_, pItem)
 		_oIbpIns_ = new stzListInserter(This)
-		_oIbpIns_.InsertBeforePosition(n, pItem)
+		_oIbpIns_.InsertBeforePosition(_n_, pItem)
 		This.UpdateWith(_oIbpIns_.Content())
 
-	def InsertAfterPosition(n, pItem)
+	def InsertAfterPosition(_n_, pItem)
 		_oIapIns_ = new stzListInserter(This)
-		_oIapIns_.InsertAfterPosition(n, pItem)
+		_oIapIns_.InsertAfterPosition(_n_, pItem)
 		This.UpdateWith(_oIapIns_.Content())
 
 	def InsertBeforePositions(panPositions, pItem)
@@ -7807,9 +7807,9 @@ class stzList from stzObject
 	 #  BOUNDER DELEGATIONS          #
 	#-------------------------------#
 
-	def SectionXT(n1, n2)
+	def SectionXT(_n1_, _n2_)
 		_oSxtBnd_ = new stzListBounder(This)
-		return _oSxtBnd_.SectionXT(n1, n2)
+		return _oSxtBnd_.SectionXT(_n1_, _n2_)
 
 	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
 		_oAbocsBnd_ = new stzListBounder(This)
@@ -7825,9 +7825,9 @@ class stzList from stzObject
 	def IsBoundedBy(paBounds)
 		return This.IsBoundedByCS(paBounds, 1)
 
-	def BoundsUpToNItems(n)
+	def BoundsUpToNItems(_n_)
 		_oButniBnd_ = new stzListBounder(This)
-		return _oButniBnd_.BoundsUpToNItems(n)
+		return _oButniBnd_.BoundsUpToNItems(_n_)
 
 	def Bounds()
 		_oBsBnd_ = new stzListBounder(This)
@@ -7849,22 +7849,22 @@ class stzList from stzObject
 		_oMdBnd_ = new stzListBounder(This)
 		return _oMdBnd_.Middle()
 
-	def ClampedTo(nMin, nMax)
+	def ClampedTo(nMin, _nMax_)
 		_oCtBnd_ = new stzListBounder(This)
-		return _oCtBnd_.ClampedTo(nMin, nMax)
+		return _oCtBnd_.ClampedTo(nMin, _nMax_)
 
-	def ClampTo(nMin, nMax)
+	def ClampTo(nMin, _nMax_)
 		_oCltBnd_ = new stzListBounder(This)
-		_oCltBnd_.ClampTo(nMin, nMax)
+		_oCltBnd_.ClampTo(nMin, _nMax_)
 		This.UpdateWith(_oCltBnd_.Content())
 
-	def IsWithinBounds(n)
+	def IsWithinBounds(_n_)
 		_oIwbBnd_ = new stzListBounder(This)
-		return _oIwbBnd_.IsWithinBounds(n)
+		return _oIwbBnd_.IsWithinBounds(_n_)
 
-	def ItemsBetweenPositions(n1, n2)
+	def ItemsBetweenPositions(_n1_, _n2_)
 		_oIbpBnd_ = new stzListBounder(This)
-		return _oIbpBnd_.ItemsBetweenPositions(n1, n2)
+		return _oIbpBnd_.ItemsBetweenPositions(_n1_, _n2_)
 
 	  #-------------------------------#
 	 #  EACH-ITEM-IS-EITHER MINI-DSL #
@@ -8091,8 +8091,8 @@ class stzList from stzObject
 	# Engine-backed via the stzDeepList wrapper (stz_list_deep_find).
 
 	def DeepFind(pItem)
-		oDfDl = This.DeepList()
-		return oDfDl.DeepFind(pItem)
+		_oDfDl_ = This.DeepList()
+		return _oDfDl_.DeepFind(pItem)
 
 		def DeepFindAll(pItem)
 			return This.DeepFind(pItem)
@@ -8106,8 +8106,8 @@ class stzList from stzObject
 	# same all-node format as the reference GeneratePaths() in stzListPaths.
 
 	def Paths()
-		oPthDl = This.DeepList()
-		return oPthDl.Paths()
+		_oPthDl_ = This.DeepList()
+		return _oPthDl_.Paths()
 
 		def AllPaths()
 			return This.Paths()
@@ -8343,22 +8343,22 @@ class stzList from stzObject
 	# (numbers / strings), forwards to descending sort on the
 	# whole list. When the list is a list-of-lists, forwards to the
 	# stzListOfLists.SortOnDown(n) which sorts on column n.
-	def SortOnDown(n)
+	def SortOnDown(_n_)
 		if This.IsListOfLists()
 			_oLol_ = new stzListOfLists(@aContent)
-			_oLol_.SortOnDown(n)
+			_oLol_.SortOnDown(_n_)
 			This._SetContent(_oLol_.Content())
 		else
 			This.SortInDescending()
 		ok
 
-		def SortOnDownQ(n)
-			This.SortOnDown(n)
+		def SortOnDownQ(_n_)
+			This.SortOnDown(_n_)
 			return This
 
-		def SortedOnDown(n)
+		def SortedOnDown(_n_)
 			_oLolc_ = This.Copy()
-			_oLolc_.SortOnDown(n)
+			_oLolc_.SortOnDown(_n_)
 			return _oLolc_.Content()
 
 	# IsMadeOf*: predicates that answer "is every item one of the
@@ -8400,8 +8400,8 @@ class stzList from stzObject
 	#-- Unique list of the item types (Types() with duplicates removed)
 
 	def UniqueTypes()
-		oTypes = new stzList( This.Types() )
-		return oTypes.Unique()
+		_oTypes_ = new stzList( This.Types() )
+		return _oTypes_.Unique()
 
 		def TypesU()
 			return This.UniqueTypes()
@@ -8490,18 +8490,18 @@ class stzList from stzObject
 	#-- The nth item counted from the end: NthToLast(1) is the item
 	#-- before the last, NthToLast(2) the one before it, and so on.
 
-	def NthToLast(n)
-		return @aContent[ ring_len(@aContent) - n ]
+	def NthToLast(_n_)
+		return @aContent[ ring_len(@aContent) - _n_ ]
 
 	#-- Shrink the list down to its first n items (mutating).
 	#-- Accepts Shrink(n) or the named form Shrink(:ToPosition = n).
 
 	def Shrink(p)
-		n = p
+		_n_ = p
 		if isList(p) and ring_len(p) = 2
-			n = p[2]
+			_n_ = p[2]
 		ok
-		This._SetContent(This.Section(1, n))
+		This._SetContent(This.Section(1, _n_))
 		return This
 
 		def ShrinkQ(p)
@@ -8512,15 +8512,15 @@ class stzList from stzObject
 	#-- or the named form SwapItems(:AtPositions = n1, :And = n2).
 
 	def SwapItems(p1, p2)
-		n1 = p1
-		n2 = p2
+		_n1_ = p1
+		_n2_ = p2
 		if isList(p1) and ring_len(p1) = 2
-			n1 = p1[2]
+			_n1_ = p1[2]
 		ok
 		if isList(p2) and ring_len(p2) = 2
-			n2 = p2[2]
+			_n2_ = p2[2]
 		ok
-		This.Swap(n1, n2)
+		This.Swap(_n1_, _n2_)
 		return This
 
 		def SwapItemsQ(p1, p2)
@@ -8626,15 +8626,15 @@ class stzList from stzObject
 		if isString(paItems)
 			paItems = [ paItems ]
 		ok
-		bResult = 0
-		nLen = ring_len(paItems)
-		for i = 1 to nLen
-			if This.ContainsCS(paItems[i], pCaseSensitive)
-				bResult = 1
+		_bResult_ = 0
+		_nLen_ = ring_len(paItems)
+		for _i_ = 1 to _nLen_
+			if This.ContainsCS(paItems[_i_], pCaseSensitive)
+				_bResult_ = 1
 				exit
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def ContainsSome(paItems)
 			return This.ContainsSomeCS(paItems, 1)
@@ -8651,23 +8651,23 @@ class stzList from stzObject
 	#-- IsMadeOfUniformLists  -> all items are lists with the same size.
 
 	def ContainsOnlyListsWithSameNumberOfItems()
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		if nLen = 0
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		if _nLen_ = 0
 			return 0
 		ok
-		if NOT isList(aContent[1])
+		if NOT isList(_aContent_[1])
 			return 0
 		ok
-		nLenFirst = ring_len(aContent[1])
-		bResult = 1
-		for i = 2 to nLen
-			if NOT ( isList(aContent[i]) and ring_len(aContent[i]) = nLenFirst )
-				bResult = 0
+		_nLenFirst_ = ring_len(_aContent_[1])
+		_bResult_ = 1
+		for _i_ = 2 to _nLen_
+			if NOT ( isList(_aContent_[_i_]) and ring_len(_aContent_[_i_]) = _nLenFirst_ )
+				_bResult_ = 0
 				exit
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def IsMadeOfUniformLists()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
@@ -8693,32 +8693,32 @@ class stzList from stzObject
 		if isList(pUpTo) and len(pUpTo) = 2 and isString(pUpTo[1])
 			pUpTo = pUpTo[2]
 		ok
-		nLenList = ring_len(@aContent)
-		anPos = This.FindCS(pItem, pCaseSensitive)
-		nLenPos = ring_len(anPos)
+		_nLenList_ = ring_len(@aContent)
+		_anPos_ = This.FindCS(pItem, pCaseSensitive)
+		_nLenPos_ = ring_len(_anPos_)
 		if isNumber(pUpTo)
-			nLenBound1 = pUpTo
-			nLenBound2 = pUpTo
+			_nLenBound1_ = pUpTo
+			_nLenBound2_ = pUpTo
 		else
-			nLenBound1 = pUpTo[1]
-			nLenBound2 = pUpTo[2]
+			_nLenBound1_ = pUpTo[1]
+			_nLenBound2_ = pUpTo[2]
 		ok
-		aResult = []
-		for i = 1 to nLenPos
-			aBounds = []
-			if anPos[i] - nLenBound1 > 0
-				aBounds + This.Section(anPos[i] - nLenBound1, anPos[i] - 1)
+		_aResult_ = []
+		for _i_ = 1 to _nLenPos_
+			_aBounds_ = []
+			if _anPos_[_i_] - _nLenBound1_ > 0
+				_aBounds_ + This.Section(_anPos_[_i_] - _nLenBound1_, _anPos_[_i_] - 1)
 			else
-				aBounds + []
+				_aBounds_ + []
 			ok
-			if nLenList - anPos[i] >= nLenBound2
-				aBounds + This.Section(anPos[i] + 1, anPos[i] + nLenBound2)
+			if _nLenList_ - _anPos_[_i_] >= _nLenBound2_
+				_aBounds_ + This.Section(_anPos_[_i_] + 1, _anPos_[_i_] + _nLenBound2_)
 			else
-				aBounds + []
+				_aBounds_ + []
 			ok
-			aResult + aBounds
+			_aResult_ + _aBounds_
 		next
-		return aResult
+		return _aResult_
 
 	def BoundsOf(pItem, pUpTo)
 		return This.BoundsCS(pItem, pUpTo, 1)
@@ -8733,8 +8733,8 @@ class stzList from stzObject
 	def FindItemsW(pCondition)
 		return This.FindAllItemsW(pCondition)
 
-	def FirstNItemsQRT(n, pcReturnType)
-		return This.NFirstItemsQRT(n, pcReturnType)
+	def FirstNItemsQRT(_n_, pcReturnType)
+		return This.NFirstItemsQRT(_n_, pcReturnType)
 
 	def HowManyDuplicates()
 		return This.NumberOfDuplicates()
@@ -8791,19 +8791,19 @@ class stzList from stzObject
 		   (pItem2[1] = :and or pItem2[1] = :And)
 			pItem2 = pItem2[2]
 		ok
-		anSbPos1 = This.FindAllCS(pItem1, pCaseSensitive)
-		anSbPos2 = This.FindAllCS(pItem2, pCaseSensitive)
-		anSbPairs = []
-		nSb1 = ring_len(anSbPos1)
-		nSb2 = ring_len(anSbPos2)
-		for iSb = 1 to nSb1
-			for jSb = 1 to nSb2
-				if anSbPos1[iSb] < anSbPos2[jSb]
-					anSbPairs + [ anSbPos1[iSb], anSbPos2[jSb] ]
+		_anSbPos1_ = This.FindAllCS(pItem1, pCaseSensitive)
+		_anSbPos2_ = This.FindAllCS(pItem2, pCaseSensitive)
+		_anSbPairs_ = []
+		_nSb1_ = ring_len(_anSbPos1_)
+		_nSb2_ = ring_len(_anSbPos2_)
+		for iSb = 1 to _nSb1_
+			for jSb = 1 to _nSb2_
+				if _anSbPos1_[iSb] < _anSbPos2_[jSb]
+					_anSbPairs_ + [ _anSbPos1_[iSb], _anSbPos2_[jSb] ]
 				ok
 			next
 		next
-		return This.Sections(anSbPairs)
+		return This.Sections(_anSbPairs_)
 
 	def SectionsBetween(pItem1, pItem2)
 		return This.SectionsBetweenCS(pItem1, pItem2, 1)
@@ -8816,67 +8816,67 @@ class stzList from stzObject
 	#-- as evenly as possible (remainder to the first ones); the XT form
 	#-- takes an explicit per-beneficiary share via :Using = [n1, n2, ...].
 
-	def DistributeOverXT(acBeneficiaryItems, anShareOfEachItem)
-		if isList(anShareOfEachItem) and ring_len(anShareOfEachItem) = 2 and
-		   isString(anShareOfEachItem[1]) and
-		   (anShareOfEachItem[1] = :using or anShareOfEachItem[1] = :Using)
-			anShareOfEachItem = anShareOfEachItem[2]
+	def DistributeOverXT(acBeneficiaryItems, _anShareOfEachItem_)
+		if isList(_anShareOfEachItem_) and ring_len(_anShareOfEachItem_) = 2 and
+		   isString(_anShareOfEachItem_[1]) and
+		   (_anShareOfEachItem_[1] = :using or _anShareOfEachItem_[1] = :Using)
+			_anShareOfEachItem_ = _anShareOfEachItem_[2]
 		ok
 		if NOT ( isList(acBeneficiaryItems) and ring_len(acBeneficiaryItems) > 0 )
 			StzRaise("Can't distribute the items of the main list over the items of the provided list!")
 		ok
-		nDoSum = 0
-		nDoSL = ring_len(anShareOfEachItem)
-		for kDo = 1 to nDoSL
-			nDoSum += anShareOfEachItem[kDo]
+		_nDoSum_ = 0
+		_nDoSL_ = ring_len(_anShareOfEachItem_)
+		for kDo = 1 to _nDoSL_
+			_nDoSum_ += _anShareOfEachItem_[kDo]
 		next
-		if NOT nDoSum = This.NumberOfItems()
+		if NOT _nDoSum_ = This.NumberOfItems()
 			StzRaise("Can't distribute the items of the main list over the items of the provided list!")
 		ok
-		aDoResult = []
-		nDoLen = ring_len(acBeneficiaryItems)
-		nDo1 = 1
-		for iDo = 1 to nDoLen
-			cDoBenef = acBeneficiaryItems[iDo]
-			nDoRange = anShareOfEachItem[iDo]
-			nDo2 = nDo1 + nDoRange - 1
-			aDoShare = []
-			for jDo = nDo1 to nDo2
-				aDoShare + @aContent[jDo]
+		_aDoResult_ = []
+		_nDoLen_ = ring_len(acBeneficiaryItems)
+		_nDo1_ = 1
+		for iDo = 1 to _nDoLen_
+			_cDoBenef_ = acBeneficiaryItems[iDo]
+			_nDoRange_ = _anShareOfEachItem_[iDo]
+			_nDo2_ = _nDo1_ + _nDoRange_ - 1
+			_aDoShare_ = []
+			for jDo = _nDo1_ to _nDo2_
+				_aDoShare_ + @aContent[jDo]
 			next
-			aDoResult + [ cDoBenef, aDoShare ]
-			nDo1 = nDo2 + 1
+			_aDoResult_ + [ _cDoBenef_, _aDoShare_ ]
+			_nDo1_ = _nDo2_ + 1
 		next
-		return aDoResult
+		return _aDoResult_
 
 	def DistributeOver(acBeneficiaryItems)
-		nDoLenList = This.NumberOfItems()
-		nDoLenBenef = ring_len(acBeneficiaryItems)
-		anDoShare = []
-		if nDoLenBenef >= nDoLenList
-			for iDo = 1 to nDoLenList
-				anDoShare + 1
+		_nDoLenList_ = This.NumberOfItems()
+		_nDoLenBenef_ = ring_len(acBeneficiaryItems)
+		_anDoShare_ = []
+		if _nDoLenBenef_ >= _nDoLenList_
+			for iDo = 1 to _nDoLenList_
+				_anDoShare_ + 1
 			next
 		else
-			nDoN = floor( nDoLenList / nDoLenBenef )
-			for iDo = 1 to nDoLenBenef
-				anDoShare + nDoN
+			_nDoN_ = floor( _nDoLenList_ / _nDoLenBenef_ )
+			for iDo = 1 to _nDoLenBenef_
+				_anDoShare_ + _nDoN_
 			next
-			nDoRest = nDoLenList - ( nDoN * nDoLenBenef )
-			if nDoRest > 0
-				for iDo = 1 to nDoRest
-					anDoShare[iDo]++
+			_nDoRest_ = _nDoLenList_ - ( _nDoN_ * _nDoLenBenef_ )
+			if _nDoRest_ > 0
+				for iDo = 1 to _nDoRest_
+					_anDoShare_[iDo]++
 				next
 			ok
 		ok
-		return This.DistributeOverXT(acBeneficiaryItems, anDoShare)
+		return This.DistributeOverXT(acBeneficiaryItems, _anDoShare_)
 
 	#-- A copy with all occurrences of an item removed (non-mutating).
 
 	def ItemRemoved(pItem)
-		oIrCopy = This.Copy()
-		oIrCopy.RemoveAllCS(pItem, 1)
-		return oIrCopy.Content()
+		_oIrCopy_ = This.Copy()
+		_oIrCopy_.RemoveAllCS(pItem, 1)
+		return _oIrCopy_.Content()
 
 		def AllOccurrencesOfThisItemRemoved(pItem)
 			return This.ItemRemoved(pItem)
@@ -8884,40 +8884,40 @@ class stzList from stzObject
 	#-- A copy with the items matching a W condition removed (engine DSL).
 
 	def ItemRemovedW(pcCondition)
-		anIrwMatch = This.FindAllItemsW(pcCondition)
-		aIrwC = This.Content()
-		nIrwLen = ring_len(aIrwC)
-		aIrwRes = []
-		for iIrw = 1 to nIrwLen
-			bIrwIn = 0
-			nIrwM = ring_len(anIrwMatch)
-			for jIrw = 1 to nIrwM
-				if anIrwMatch[jIrw] = iIrw
-					bIrwIn = 1
+		_anIrwMatch_ = This.FindAllItemsW(pcCondition)
+		_aIrwC_ = This.Content()
+		_nIrwLen_ = ring_len(_aIrwC_)
+		_aIrwRes_ = []
+		for iIrw = 1 to _nIrwLen_
+			_bIrwIn_ = 0
+			_nIrwM_ = ring_len(_anIrwMatch_)
+			for jIrw = 1 to _nIrwM_
+				if _anIrwMatch_[jIrw] = iIrw
+					_bIrwIn_ = 1
 					exit
 				ok
 			next
-			if bIrwIn = 0
-				aIrwRes + aIrwC[iIrw]
+			if _bIrwIn_ = 0
+				_aIrwRes_ + _aIrwC_[iIrw]
 			ok
 		next
-		return aIrwRes
+		return _aIrwRes_
 
 	#-- True if EVERY given position holds an item matching a W condition.
 
 	def ContainsItemsAtW(panPos, pcCondition)
-		anCiwMatch = This.FindAllItemsW(pcCondition)
-		nCiwP = ring_len(panPos)
-		for iCiw = 1 to nCiwP
-			bCiwIn = 0
-			nCiwM = ring_len(anCiwMatch)
-			for jCiw = 1 to nCiwM
-				if anCiwMatch[jCiw] = panPos[iCiw]
-					bCiwIn = 1
+		_anCiwMatch_ = This.FindAllItemsW(pcCondition)
+		_nCiwP_ = ring_len(panPos)
+		for iCiw = 1 to _nCiwP_
+			_bCiwIn_ = 0
+			_nCiwM_ = ring_len(_anCiwMatch_)
+			for jCiw = 1 to _nCiwM_
+				if _anCiwMatch_[jCiw] = panPos[iCiw]
+					_bCiwIn_ = 1
 					exit
 				ok
 			next
-			if bCiwIn = 0
+			if _bCiwIn_ = 0
 				return 0
 			ok
 		next
@@ -8929,22 +8929,22 @@ class stzList from stzObject
 	#-- EachContains: every item (string or sub-list) contains pItem.
 
 	def EachContainsCS(pItem, pCaseSensitive)
-		bResult = 1
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult = 0
+		_bResult_ = 1
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT ( isList(_aContent_[_i_]) or isString(_aContent_[_i_]) )
+				_bResult_ = 0
 				exit
 			else
-				oEcItm = Q(aContent[i])
-				bResult = oEcItm.ContainsCS(pItem, pCaseSensitive)
-				if bResult = 0
+				_oEcItm_ = Q(_aContent_[_i_])
+				_bResult_ = _oEcItm_.ContainsCS(pItem, pCaseSensitive)
+				if _bResult_ = 0
 					exit
 				ok
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def EachContains(pItem)
 			return This.EachContainsCS(pItem, 1)
@@ -8958,22 +8958,22 @@ class stzList from stzObject
 	#-- EachContainsThese: every item contains all the given items.
 
 	def EachContainsTheseCS(paItems, pCaseSensitive)
-		bResult = 1
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
-				bResult = 0
+		_bResult_ = 1
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT ( isList(_aContent_[_i_]) or isString(_aContent_[_i_]) )
+				_bResult_ = 0
 				exit
 			else
-				oEctItm = Q(aContent[i])
-				bResult = oEctItm.ContainsTheseCS(paItems, pCaseSensitive)
-				if bResult = 0
+				_oEctItm_ = Q(_aContent_[_i_])
+				_bResult_ = _oEctItm_.ContainsTheseCS(paItems, pCaseSensitive)
+				if _bResult_ = 0
 					exit
 				ok
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def EachContainsThese(paItems)
 			return This.EachContainsTheseCS(paItems, 1)
@@ -9020,35 +9020,35 @@ class stzList from stzObject
 			return _aDiwR_
 		ok
 		# Fallback (non-marshalable content): same symmetric semantics.
-		aDiwR = []
-		aDiwThis = This.Content()
-		nDiw1 = ring_len(aDiwThis)
-		nDiwO = ring_len(paOtherList)
-		for iDiw = 1 to nDiw1
-			bDiwIn = 0
-			for jDiw = 1 to nDiwO
-				if BothAreEqualCS(aDiwThis[iDiw], paOtherList[jDiw], pCaseSensitive)
-					bDiwIn = 1
+		_aDiwR_ = []
+		_aDiwThis_ = This.Content()
+		_nDiw1_ = ring_len(_aDiwThis_)
+		_nDiwO_ = ring_len(paOtherList)
+		for iDiw = 1 to _nDiw1_
+			_bDiwIn_ = 0
+			for jDiw = 1 to _nDiwO_
+				if BothAreEqualCS(_aDiwThis_[iDiw], paOtherList[jDiw], pCaseSensitive)
+					_bDiwIn_ = 1
 					exit
 				ok
 			next
-			if bDiwIn = 0
-				aDiwR + aDiwThis[iDiw]
+			if _bDiwIn_ = 0
+				_aDiwR_ + _aDiwThis_[iDiw]
 			ok
 		next
-		for jDiw = 1 to nDiwO
-			bDiwIn = 0
-			for iDiw = 1 to nDiw1
-				if BothAreEqualCS(paOtherList[jDiw], aDiwThis[iDiw], pCaseSensitive)
-					bDiwIn = 1
+		for jDiw = 1 to _nDiwO_
+			_bDiwIn_ = 0
+			for iDiw = 1 to _nDiw1_
+				if BothAreEqualCS(paOtherList[jDiw], _aDiwThis_[iDiw], pCaseSensitive)
+					_bDiwIn_ = 1
 					exit
 				ok
 			next
-			if bDiwIn = 0
-				aDiwR + paOtherList[jDiw]
+			if _bDiwIn_ = 0
+				_aDiwR_ + paOtherList[jDiw]
 			ok
 		next
-		return aDiwR
+		return _aDiwR_
 
 	def DifferentItemsWith(paOtherList)
 		return This.DifferentItemsWithCS(paOtherList, 1)
@@ -9062,8 +9062,8 @@ class stzList from stzObject
 		if NOT This.EachItemExistsInCS(paOtherList, pCaseSensitive)
 			return 0
 		ok
-		oCsiOther = new stzList(paOtherList)
-		return oCsiOther.EachItemExistsInCS(This.Content(), pCaseSensitive)
+		_oCsiOther_ = new stzList(paOtherList)
+		return _oCsiOther_.EachItemExistsInCS(This.Content(), pCaseSensitive)
 
 	def ContainsSameItemsAs(paOtherList)
 		return This.ContainsSameItemsAsCS(paOtherList, 1)
@@ -9075,9 +9075,9 @@ class stzList from stzObject
 		if NOT ( isString(p) or isList(p) )
 			return 0
 		ok
-		oCip = Q(p)
-		anPos = oCip.FindAllCS(This.Content(), pCaseSensitive)
-		if ring_len(anPos) > 0
+		_oCip_ = Q(p)
+		_anPos_ = _oCip_.FindAllCS(This.Content(), pCaseSensitive)
+		if ring_len(_anPos_) > 0
 			return 1
 		else
 			return 0
@@ -9099,24 +9099,24 @@ class stzList from stzObject
 	#-- somewhere in the other list (element-wise membership).
 
 	def EachItemExistsInCS(paOtherList, pCaseSensitive)
-		bResult = 1
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		nOther = ring_len(paOtherList)
-		for _k = 1 to nLen
-			bFound = 0
-			for _j = 1 to nOther
-				if BothAreEqualCS(aContent[_k], paOtherList[_j], pCaseSensitive)
-					bFound = 1
+		_bResult_ = 1
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_nOther_ = ring_len(paOtherList)
+		for _k = 1 to _nLen_
+			_bFound_ = 0
+			for _j = 1 to _nOther_
+				if BothAreEqualCS(_aContent_[_k], paOtherList[_j], pCaseSensitive)
+					_bFound_ = 1
 					exit
 				ok
 			next
-			if bFound = 0
-				bResult = 0
+			if _bFound_ = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def EachItemExistsIn(paOtherList)
 			return This.EachItemExistsInCS(paOtherList, 1)
@@ -9169,15 +9169,15 @@ class stzList from stzObject
 	#-- Objects: the items that are objects.
 
 	def Objects()
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isObject(aContent[i])
-				aResult + aContent[i]
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if isObject(_aContent_[_i_])
+				_aResult_ + _aContent_[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 		def OnlyObjects()
 			return This.Objects()
@@ -9186,29 +9186,29 @@ class stzList from stzObject
 	#-- The Z form pairs each with its 1-based position.
 
 	def NumbersAndStrings()
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isNumber(aContent[i]) or isString(aContent[i])
-				aResult + aContent[i]
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if isNumber(_aContent_[_i_]) or isString(_aContent_[_i_])
+				_aResult_ + _aContent_[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 		def StringsAndNumbers()
 			return This.NumbersAndStrings()
 
 	def NumbersAndStringsZ()
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isNumber(aContent[i]) or isString(aContent[i])
-				aResult + [ aContent[i], i ]
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if isNumber(_aContent_[_i_]) or isString(_aContent_[_i_])
+				_aResult_ + [ _aContent_[_i_], _i_ ]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 		def StringsAndNumbersZ()
 			return This.NumbersAndStringsZ()
@@ -9217,33 +9217,33 @@ class stzList from stzObject
 	#-- engine-backed StzLower/StzUpper); non-string items pass through.
 
 	def Lowercased()
-		aLcC = This.Content()
-		nLcL = ring_len(aLcC)
-		aLcR = []
-		for iLc = 1 to nLcL
-			if isString(aLcC[iLc])
-				aLcR + StzLower(aLcC[iLc])
+		_aLcC_ = This.Content()
+		_nLcL_ = ring_len(_aLcC_)
+		_aLcR_ = []
+		for iLc = 1 to _nLcL_
+			if isString(_aLcC_[iLc])
+				_aLcR_ + StzLower(_aLcC_[iLc])
 			else
-				aLcR + aLcC[iLc]
+				_aLcR_ + _aLcC_[iLc]
 			ok
 		next
-		return aLcR
+		return _aLcR_
 
 		def StringsLowercased()
 			return This.Lowercased()
 
 	def Uppercased()
-		aUcC = This.Content()
-		nUcL = ring_len(aUcC)
-		aUcR = []
-		for iUc = 1 to nUcL
-			if isString(aUcC[iUc])
-				aUcR + StzUpper(aUcC[iUc])
+		_aUcC_ = This.Content()
+		_nUcL_ = ring_len(_aUcC_)
+		_aUcR_ = []
+		for iUc = 1 to _nUcL_
+			if isString(_aUcC_[iUc])
+				_aUcR_ + StzUpper(_aUcC_[iUc])
 			else
-				aUcR + aUcC[iUc]
+				_aUcR_ + _aUcC_[iUc]
 			ok
 		next
-		return aUcR
+		return _aUcR_
 
 		def StringsUppercased()
 			return This.Uppercased()
@@ -9264,9 +9264,9 @@ class stzList from stzObject
 		def VizFindCS(pItem, pCaseSensitive)
 			# Base form: code + a single unlabelled marker row, wrapped.
 			# Shallow: only top-level occurrences are marked (see VizDeepFind).
-			cCode = This._VizCodeStr()
-			cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 0)
-			return This._VizWrap(cCode, [ [ "", cMark, "" ] ], This._VizWidth())
+			_cCode_ = This._VizCodeStr()
+			_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 0)
+			return This._VizWrap(_cCode_, [ [ "", _cMark_, "" ] ], This._VizWidth())
 
 		def VizFindAll(pItem)
 			return This.VizFindCS(pItem, 1)
@@ -9277,8 +9277,8 @@ class stzList from stzObject
 	#-- item in paOthers, "-" everywhere else. Works for ANY string value,
 	#-- not only single chars (long values just span more columns).
 	def _VizCodeStr()
-		oVfc = new stzString(This.ToCode())
-		return oVfc.Simplified()
+		_oVfc_ = new stzString(This.ToCode())
+		return _oVfc_.Simplified()
 
 	#-- Default wrap width: long renderings are split into lines this wide,
 	#-- each with its marker row(s) underneath.
@@ -9288,8 +9288,8 @@ class stzList from stzObject
 	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive, bDeep)
 		# Depth filter: a SHALLOW viz (bDeep=0) marks only TOP-LEVEL occurrences
 		# (bracket depth 1); a DEEP viz (bDeep=1) marks occurrences at any depth.
-		oVfm = new stzString(pcCode)
-		aVfmDepth = This._VizDepthMap(pcCode)
+		_oVfm_ = new stzString(pcCode)
+		_aVfmDepth_ = This._VizDepthMap(pcCode)
 		_nVfmLen_ = StzLen(pcCode)
 
 		# One marker cell per code column. The opening "[" (col 1) keeps a blank
@@ -9302,9 +9302,9 @@ class stzList from stzObject
 
 		_nVfmO_ = len(paOthers)
 		for _iVfmO_ = 1 to _nVfmO_
-			This._VizPaint(_aVfmCell_, oVfm, paOthers[_iVfmO_], pCaseSensitive, aVfmDepth, bDeep, ".")
+			This._VizPaint(_aVfmCell_, _oVfm_, paOthers[_iVfmO_], pCaseSensitive, _aVfmDepth_, bDeep, ".")
 		next
-		This._VizPaint(_aVfmCell_, oVfm, pItem, pCaseSensitive, aVfmDepth, bDeep, "^")
+		This._VizPaint(_aVfmCell_, _oVfm_, pItem, pCaseSensitive, _aVfmDepth_, bDeep, "^")
 
 		_cVfmRes_ = ""
 		for _iVfmJ_ = 1 to _nVfmLen_
@@ -9374,23 +9374,23 @@ class stzList from stzObject
 	#-- the suffix (e.g. a "(count)") is appended only after the LAST window.
 	#-- An empty line separates wrapped blocks (none after the last block).
 	def _VizWrap(pcCode, paRows, nWidth)
-		nLen = StzLen(pcCode)
-		oVwCode = new stzString(pcCode)
+		_nLen_ = StzLen(pcCode)
+		_oVwCode_ = new stzString(pcCode)
 
 		# pad each marker to the code length so windows line up, and track the
 		# widest row LABEL: the marker lines carry that label as a prefix, so the
 		# code line must be indented by the same width or the "^" carets drift
 		# right of the items they point at.
-		aPad = []
+		_aPad_ = []
 		_nVwR_ = len(paRows)
 		_nLblW_ = 0
 		for _rVw_ = 1 to _nVwR_
 			_cM_ = paRows[_rVw_][2]
 			_nM_ = StzLen(_cM_)
-			for _pVw_ = _nM_ + 1 to nLen
+			for _pVw_ = _nM_ + 1 to _nLen_
 				_cM_ += "-"
 			next
-			aPad + [ paRows[_rVw_][1], _cM_, paRows[_rVw_][3] ]
+			_aPad_ + [ paRows[_rVw_][1], _cM_, paRows[_rVw_][3] ]
 			_nLW_ = StzLen(paRows[_rVw_][1])
 			if _nLW_ > _nLblW_ _nLblW_ = _nLW_ ok
 		next
@@ -9398,61 +9398,61 @@ class stzList from stzObject
 		# right-justify every label to the common width (so the markers -- and the
 		# " : " separators -- all start at the same column), and build the matching
 		# indent for the code line above them.
-		cVwIndent = ""
-		for _iVwI_ = 1 to _nLblW_ cVwIndent += " " next
+		_cVwIndent_ = ""
+		for _iVwI_ = 1 to _nLblW_ _cVwIndent_ += " " next
 		for _rVwL_ = 1 to _nVwR_
-			_cL_ = aPad[_rVwL_][1]
+			_cL_ = _aPad_[_rVwL_][1]
 			_cLpad_ = ""
 			for _pLp_ = StzLen(_cL_) + 1 to _nLblW_
 				_cLpad_ += " "
 			next
-			aPad[_rVwL_][1] = _cLpad_ + _cL_
+			_aPad_[_rVwL_][1] = _cLpad_ + _cL_
 		next
 
-		cRes = ""
-		nStart = 1
-		bFirst = 1
-		while nStart <= nLen
-			nEnd = nStart + nWidth - 1
-			if nEnd > nLen nEnd = nLen ok
-			bLastWin = ( nEnd = nLen )
+		_cRes_ = ""
+		_nStart_ = 1
+		_bFirst_ = 1
+		while _nStart_ <= _nLen_
+			_nEnd_ = _nStart_ + nWidth - 1
+			if _nEnd_ > _nLen_ _nEnd_ = _nLen_ ok
+			_bLastWin_ = ( _nEnd_ = _nLen_ )
 
-			if NOT bFirst cRes += (NL + NL) ok
-			bFirst = 0
+			if NOT _bFirst_ _cRes_ += (NL + NL) ok
+			_bFirst_ = 0
 
-			cRes += cVwIndent + oVwCode.Section(nStart, nEnd)
+			_cRes_ += _cVwIndent_ + _oVwCode_.Section(_nStart_, _nEnd_)
 			for _rVw2_ = 1 to _nVwR_
-				oVwM = new stzString(aPad[_rVw2_][2])
-				cSeg = oVwM.Section(nStart, nEnd)
-				cRes += NL + aPad[_rVw2_][1] + cSeg
-				if bLastWin
-					cRes += aPad[_rVw2_][3]
+				_oVwM_ = new stzString(_aPad_[_rVw2_][2])
+				_cSeg_ = _oVwM_.Section(_nStart_, _nEnd_)
+				_cRes_ += NL + _aPad_[_rVw2_][1] + _cSeg_
+				if _bLastWin_
+					_cRes_ += _aPad_[_rVw2_][3]
 				ok
 			next
-			nStart = nEnd + 1
+			_nStart_ = _nEnd_ + 1
 		end
-		return cRes
+		return _cRes_
 
 	#-- VizFindXT: like VizFind, plus a "<item> :" label and a "(count)" tally.
 	def VizFindXT(pItem)
 		return This.VizFindXTCS(pItem, 1)
 
 	def VizFindXTCS(pItem, pCaseSensitive)
-		cCode = This._VizCodeStr()
-		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 0)
+		_cCode_ = This._VizCodeStr()
+		_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 0)
 		# (count) = the SHALLOW count -- exactly what Find returns (top-level
 		# items), so it matches the number of "^" carets drawn.
-		nCount = len( This.FindAllCS(pItem, pCaseSensitive) )
-		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
-		return This._VizWrap(cCode, _aRow_, This._VizWidth())
+		_nCount_ = len( This.FindAllCS(pItem, pCaseSensitive) )
+		_aRow_ = [ [ @@(pItem) + " : ", _cMark_, " (" + _nCount_ + ")" ] ]
+		return This._VizWrap(_cCode_, _aRow_, This._VizWidth())
 
 	#-- VizDeepFind* : like VizFind*, but the markers ALSO cover occurrences
 	#-- nested inside sub-lists (any bracket depth), not just top-level ones.
 	#-- The "(count)" is the total occurrences, same as the deep markers.
 	def VizDeepFindCS(pItem, pCaseSensitive)
-		cCode = This._VizCodeStr()
-		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 1)
-		return This._VizWrap(cCode, [ [ "", cMark, "" ] ], This._VizWidth())
+		_cCode_ = This._VizCodeStr()
+		_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 1)
+		return This._VizWrap(_cCode_, [ [ "", _cMark_, "" ] ], This._VizWidth())
 
 	def VizDeepFind(pItem)
 		return This.VizDeepFindCS(pItem, 1)
@@ -9461,12 +9461,12 @@ class stzList from stzObject
 			return This.VizDeepFindCS(pItem, 1)
 
 	def VizDeepFindXTCS(pItem, pCaseSensitive)
-		cCode = This._VizCodeStr()
-		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 1)
-		oVdxCnt = new stzString(cCode)
-		nCount = len( oVdxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
-		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
-		return This._VizWrap(cCode, _aRow_, This._VizWidth())
+		_cCode_ = This._VizCodeStr()
+		_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 1)
+		_oVdxCnt_ = new stzString(_cCode_)
+		_nCount_ = len( _oVdxCnt_.FindAllCS(@@(pItem), pCaseSensitive) )
+		_aRow_ = [ [ @@(pItem) + " : ", _cMark_, " (" + _nCount_ + ")" ] ]
+		return This._VizWrap(_cCode_, _aRow_, This._VizWidth())
 
 	def VizDeepFindXT(pItem)
 		return This.VizDeepFindXTCS(pItem, 1)
@@ -9480,18 +9480,18 @@ class stzList from stzObject
 		if NOT isList(paItems)
 			StzRaise("Can't proceed! paItems must be a list.")
 		ok
-		cCode = This._VizCodeStr()
-		aRows = []
-		nN = len(paItems)
-		for iM = 1 to nN
-			aOthers = []
-			for jM = 1 to nN
-				if jM != iM aOthers + paItems[jM] ok
+		_cCode_ = This._VizCodeStr()
+		_aRows_ = []
+		_nN_ = len(paItems)
+		for iM = 1 to _nN_
+			_aOthers_ = []
+			for jM = 1 to _nN_
+				if jM != iM _aOthers_ + paItems[jM] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode, pCaseSensitive, 0)
-			aRows + [ @@(paItems[iM]) + " : ", cMark, "" ]
+			_cMark_ = This._VizMarkerLine(paItems[iM], _aOthers_, _cCode_, pCaseSensitive, 0)
+			_aRows_ + [ @@(paItems[iM]) + " : ", _cMark_, "" ]
 		next
-		return This._VizWrap(cCode, aRows, This._VizWidth())
+		return This._VizWrap(_cCode_, _aRows_, This._VizWidth())
 
 	#-- VizFindManyXT: VizFindMany plus a "(count)" tally on each row.
 	def VizFindManyXT(paItems)
@@ -9501,151 +9501,151 @@ class stzList from stzObject
 		if NOT isList(paItems)
 			StzRaise("Can't proceed! paItems must be a list.")
 		ok
-		cCode = This._VizCodeStr()
-		aRows = []
-		nN = len(paItems)
-		for iMx = 1 to nN
-			aOthers = []
-			for jMx = 1 to nN
-				if jMx != iMx aOthers + paItems[jMx] ok
+		_cCode_ = This._VizCodeStr()
+		_aRows_ = []
+		_nN_ = len(paItems)
+		for iMx = 1 to _nN_
+			_aOthers_ = []
+			for jMx = 1 to _nN_
+				if jMx != iMx _aOthers_ + paItems[jMx] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode, pCaseSensitive, 0)
+			_cMark_ = This._VizMarkerLine(paItems[iMx], _aOthers_, _cCode_, pCaseSensitive, 0)
 			# shallow count = what Find returns (top-level items), matching the carets
-			nCount = len( This.FindAllCS(paItems[iMx], pCaseSensitive) )
-			aRows + [ @@(paItems[iMx]) + " : ", cMark, " (" + nCount + ")" ]
+			_nCount_ = len( This.FindAllCS(paItems[iMx], pCaseSensitive) )
+			_aRows_ + [ @@(paItems[iMx]) + " : ", _cMark_, " (" + _nCount_ + ")" ]
 		next
-		return This._VizWrap(cCode, aRows, This._VizWidth())
+		return This._VizWrap(_cCode_, _aRows_, This._VizWidth())
 
 	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
 	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
 	#-- (StzLen=1); Letter = a single ASCII letter.
 
 	def Numbers()
-		aTfC = This.Content()
-		nTfL = ring_len(aTfC)
-		aTfR = []
-		for iTf = 1 to nTfL
-			if isNumber(aTfC[iTf])
-				aTfR + aTfC[iTf]
+		_aTfC_ = This.Content()
+		_nTfL_ = ring_len(_aTfC_)
+		_aTfR_ = []
+		for iTf = 1 to _nTfL_
+			if isNumber(_aTfC_[iTf])
+				_aTfR_ + _aTfC_[iTf]
 			ok
 		next
-		return aTfR
+		return _aTfR_
 
 		def NumbersZ()
-			aTfC = This.Content()
-			nTfL = ring_len(aTfC)
-			aTfR = []
-			for iTf = 1 to nTfL
-				if isNumber(aTfC[iTf])
-					aTfR + [ aTfC[iTf], iTf ]
+			_aTfC_ = This.Content()
+			_nTfL_ = ring_len(_aTfC_)
+			_aTfR_ = []
+			for iTf = 1 to _nTfL_
+				if isNumber(_aTfC_[iTf])
+					_aTfR_ + [ _aTfC_[iTf], iTf ]
 				ok
 			next
-			return aTfR
+			return _aTfR_
 
 		def NumberOfNumbers()
 			return ring_len(This.Numbers())
 
 	def Strings()
-		aTfC = This.Content()
-		nTfL = ring_len(aTfC)
-		aTfR = []
-		for iTf = 1 to nTfL
-			if isString(aTfC[iTf])
-				aTfR + aTfC[iTf]
+		_aTfC_ = This.Content()
+		_nTfL_ = ring_len(_aTfC_)
+		_aTfR_ = []
+		for iTf = 1 to _nTfL_
+			if isString(_aTfC_[iTf])
+				_aTfR_ + _aTfC_[iTf]
 			ok
 		next
-		return aTfR
+		return _aTfR_
 
 		def StringsZ()
-			aTfC = This.Content()
-			nTfL = ring_len(aTfC)
-			aTfR = []
-			for iTf = 1 to nTfL
-				if isString(aTfC[iTf])
-					aTfR + [ aTfC[iTf], iTf ]
+			_aTfC_ = This.Content()
+			_nTfL_ = ring_len(_aTfC_)
+			_aTfR_ = []
+			for iTf = 1 to _nTfL_
+				if isString(_aTfC_[iTf])
+					_aTfR_ + [ _aTfC_[iTf], iTf ]
 				ok
 			next
-			return aTfR
+			return _aTfR_
 
 		def NumberOfStrings()
 			return ring_len(This.Strings())
 
 	def Chars()
-		aTfC = This.Content()
-		nTfL = ring_len(aTfC)
-		aTfR = []
-		for iTf = 1 to nTfL
-			if isString(aTfC[iTf]) and StzLen(aTfC[iTf]) = 1
-				aTfR + aTfC[iTf]
+		_aTfC_ = This.Content()
+		_nTfL_ = ring_len(_aTfC_)
+		_aTfR_ = []
+		for iTf = 1 to _nTfL_
+			if isString(_aTfC_[iTf]) and StzLen(_aTfC_[iTf]) = 1
+				_aTfR_ + _aTfC_[iTf]
 			ok
 		next
-		return aTfR
+		return _aTfR_
 
 		def CharsZ()
-			aTfC = This.Content()
-			nTfL = ring_len(aTfC)
-			aTfR = []
-			for iTf = 1 to nTfL
-				if isString(aTfC[iTf]) and StzLen(aTfC[iTf]) = 1
-					aTfR + [ aTfC[iTf], iTf ]
+			_aTfC_ = This.Content()
+			_nTfL_ = ring_len(_aTfC_)
+			_aTfR_ = []
+			for iTf = 1 to _nTfL_
+				if isString(_aTfC_[iTf]) and StzLen(_aTfC_[iTf]) = 1
+					_aTfR_ + [ _aTfC_[iTf], iTf ]
 				ok
 			next
-			return aTfR
+			return _aTfR_
 
 	def Letters()
-		aTfC = This.Content()
-		nTfL = ring_len(aTfC)
-		aTfR = []
-		for iTf = 1 to nTfL
-			_xTf = aTfC[iTf]
+		_aTfC_ = This.Content()
+		_nTfL_ = ring_len(_aTfC_)
+		_aTfR_ = []
+		for iTf = 1 to _nTfL_
+			_xTf = _aTfC_[iTf]
 			if isString(_xTf) and ring_len(_xTf) = 1
 				_nTfA = ascii(_xTf)
 				if (_nTfA >= 97 and _nTfA <= 122) or (_nTfA >= 65 and _nTfA <= 90)
-					aTfR + _xTf
+					_aTfR_ + _xTf
 				ok
 			ok
 		next
-		return aTfR
+		return _aTfR_
 
 		def LettersZ()
-			aTfC = This.Content()
-			nTfL = ring_len(aTfC)
-			aTfR = []
-			for iTf = 1 to nTfL
-				_xTf = aTfC[iTf]
+			_aTfC_ = This.Content()
+			_nTfL_ = ring_len(_aTfC_)
+			_aTfR_ = []
+			for iTf = 1 to _nTfL_
+				_xTf = _aTfC_[iTf]
 				if isString(_xTf) and ring_len(_xTf) = 1
 					_nTfA = ascii(_xTf)
 					if (_nTfA >= 97 and _nTfA <= 122) or (_nTfA >= 65 and _nTfA <= 90)
-						aTfR + [ _xTf, iTf ]
+						_aTfR_ + [ _xTf, iTf ]
 					ok
 				ok
 			next
-			return aTfR
+			return _aTfR_
 
 		def NumberOfLetters()
 			return ring_len(This.Letters())
 
 	def Lists()
-		aTfC = This.Content()
-		nTfL = ring_len(aTfC)
-		aTfR = []
-		for iTf = 1 to nTfL
-			if isList(aTfC[iTf])
-				aTfR + aTfC[iTf]
+		_aTfC_ = This.Content()
+		_nTfL_ = ring_len(_aTfC_)
+		_aTfR_ = []
+		for iTf = 1 to _nTfL_
+			if isList(_aTfC_[iTf])
+				_aTfR_ + _aTfC_[iTf]
 			ok
 		next
-		return aTfR
+		return _aTfR_
 
 		def ListsZ()
-			aTfC = This.Content()
-			nTfL = ring_len(aTfC)
-			aTfR = []
-			for iTf = 1 to nTfL
-				if isList(aTfC[iTf])
-					aTfR + [ aTfC[iTf], iTf ]
+			_aTfC_ = This.Content()
+			_nTfL_ = ring_len(_aTfC_)
+			_aTfR_ = []
+			for iTf = 1 to _nTfL_
+				if isList(_aTfC_[iTf])
+					_aTfR_ + [ _aTfC_[iTf], iTf ]
 				ok
 			next
-			return aTfR
+			return _aTfR_
 
 		def NumberOfLists()
 			return ring_len(This.Lists())
@@ -9657,49 +9657,49 @@ class stzList from stzObject
 	#-- (number lists) or "" ; the WithItemsIn/Repeated forms pad by
 	#-- cycling through a given list (or the list's own items).
 
-	def ExtendToPosition(n)
-		nLen = This.NumberOfItems()
-		aContent = This.Content()
-		if n > nLen
+	def ExtendToPosition(_n_)
+		_nLen_ = This.NumberOfItems()
+		_aContent_ = This.Content()
+		if _n_ > _nLen_
 			value = ""
 			if This.IsListOfNumbers()
 				value = 0
 			ok
-			nExtend = n - nLen
-			for i = 1 to nExtend
-				aContent + value
+			_nExtend_ = _n_ - _nLen_
+			for _i_ = 1 to _nExtend_
+				_aContent_ + value
 			next
 		ok
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
-	def ExtendToPositionWithItemsIn(n, paItems)
-		nLen = ring_len(paItems)
+	def ExtendToPositionWithItemsIn(_n_, paItems)
+		_nLen_ = ring_len(paItems)
 		# fill (target - CURRENT length) slots; cycle the pool (length nLen)
-		nTemp = n - This.NumberOfItems()
-		aTemp = []
-		if nTemp > 0
-			j = 0
-			for i = 1 to nTemp
-				j++
-				if j > nLen
-					j = 1
+		_nTemp_ = _n_ - This.NumberOfItems()
+		_aTemp_ = []
+		if _nTemp_ > 0
+			_j_ = 0
+			for _i_ = 1 to _nTemp_
+				_j_++
+				if _j_ > _nLen_
+					_j_ = 1
 				ok
-				aTemp + paItems[j]
+				_aTemp_ + paItems[_j_]
 			next
 		ok
-		This.ExtendWith(aTemp)
+		This.ExtendWith(_aTemp_)
 
-		def ExtendToWithItemsIn(n, paItems)
-			This.ExtendToPositionWithItemsIn(n, paItems)
+		def ExtendToWithItemsIn(_n_, paItems)
+			This.ExtendToPositionWithItemsIn(_n_, paItems)
 
-	def ExtendToPositionWithItemsRepeated(n)
-		This.ExtendToPositionWithItemsIn(n, This.List())
+	def ExtendToPositionWithItemsRepeated(_n_)
+		This.ExtendToPositionWithItemsIn(_n_, This.List())
 
-		def ExtendToWithItemsRepeated(n)
-			This.ExtendToPositionWithItemsRepeated(n)
+		def ExtendToWithItemsRepeated(_n_)
+			This.ExtendToPositionWithItemsRepeated(_n_)
 
-		def ExtendToByRepeatingItems(n)
-			This.ExtendToPositionWithItemsRepeated(n)
+		def ExtendToByRepeatingItems(_n_)
+			This.ExtendToPositionWithItemsRepeated(_n_)
 
 	#-- Size comparison with another list. Accept the named form
 	#-- IsLarger(:Than = otherList) or the raw list.
@@ -9750,20 +9750,20 @@ class stzList from stzObject
 	#-- IsListOfEmptyLists: every item is an empty list.
 
 	def IsListOfEmptyLists()
-		aContent = This.Content()
-		nLen = ring_len(aContent)
-		bResult = 1
-		for i = 1 to nLen
-			if NOT isList(aContent[i])
-				bResult = 0
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_bResult_ = 1
+		for _i_ = 1 to _nLen_
+			if NOT isList(_aContent_[_i_])
+				_bResult_ = 0
 				exit
 			ok
-			if NOT ring_len(aContent[i]) = 0
-				bResult = 0
+			if NOT ring_len(_aContent_[_i_]) = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
-		return bResult
+		return _bResult_
 
 		def AllItemsAreEmptyLists()
 			return This.IsListOfEmptyLists()
@@ -9778,13 +9778,13 @@ class stzList from stzObject
 	#-- monolith's O(n^2) StzFind loop (whose arg order is ambiguous now).
 
 	def FindFirstDuplicatesCS(pCaseSensitive)
-		aDups = This.DuplicatedItemsCS(pCaseSensitive)
-		aRes = []
-		nLen = ring_len(aDups)
-		for i = 1 to nLen
-			aRes + This.FindFirstCS(aDups[i], pCaseSensitive)
+		_aDups_ = This.DuplicatedItemsCS(pCaseSensitive)
+		_aRes_ = []
+		_nLen_ = ring_len(_aDups_)
+		for _i_ = 1 to _nLen_
+			_aRes_ + This.FindFirstCS(_aDups_[_i_], pCaseSensitive)
 		next
-		return ring_sort(aRes)
+		return ring_sort(_aRes_)
 
 		def FindFirstDuplicates()
 			return This.FindFirstDuplicatesCS(1)
@@ -10075,66 +10075,66 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = [ acStr[1] ]
-		anPos = [ [] ]
+		_acSeen_ = [ _acStr_[1] ]
+		_anPos_ = [ [] ]
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				anPos + [ i ]
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_anPos_ + [ _i_ ]
 			else
-				anPos[ n ] + i
+				_anPos_[ _n_ ] + _i_
 			ok
 		next
 
-		aResult = []
-		nLen = len(acSeen)
+		_aResult_ = []
+		_nLen_ = len(_acSeen_)
 
-		for i = 1 to nLen
-			if len(anPos[i]) > 1
-				aResult + aContent[anPos[i][1]]
+		for _i_ = 1 to _nLen_
+			if len(_anPos_[_i_]) > 1
+				_aResult_ + _aContent_[_anPos_[_i_][1]]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def DuplicatesCSZ(pCaseSensitive)
 
@@ -10146,67 +10146,67 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = [ acStr[1] ]
-		anPos = [ [] ]
+		_acSeen_ = [ _acStr_[1] ]
+		_anPos_ = [ [] ]
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				anPos + [ i ]
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_anPos_ + [ _i_ ]
 			else
-				anPos[ n ] + i
+				_anPos_[ _n_ ] + _i_
 			ok
 		next
 
-		aResult = []
-		nLen = len(acSeen)
+		_aResult_ = []
+		_nLen_ = len(_acSeen_)
 
-		for i = 1 to nLen
-			del(anPos[i], 1)
-			if len(anPos[i]) > 0
-				aResult + [ aContent[anPos[i][1]], anPos[i] ]
+		for _i_ = 1 to _nLen_
+			del(_anPos_[_i_], 1)
+			if len(_anPos_[_i_]) > 0
+				_aResult_ + [ _aContent_[_anPos_[_i_][1]], _anPos_[_i_] ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def DuplicatesCSXTZ(pCaseSensitive)
 
@@ -10218,64 +10218,64 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = []
-		anSeen = []
-		anPos = []
-		aResult = []
+		_acSeen_ = []
+		_anSeen_ = []
+		_anPos_ = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				anSeen + i
-				aResult + [ aContent[i], [i] ]
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_anSeen_ + _i_
+				_aResult_ + [ _aContent_[_i_], [_i_] ]
 			else
-				if StzFindFirst(anPos, anSeen[n]) = 0
-					anPos + anSeen[n]
+				if StzFindFirst(_anPos_, _anSeen_[_n_]) = 0
+					_anPos_ + _anSeen_[_n_]
 				ok
-				anPos + i
-				aResult[n][2] + i
+				_anPos_ + _i_
+				_aResult_[_n_][2] + _i_
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def DuplicatesXTZ()
 		return This.DuplicatesCSXTZ(1)
@@ -10290,56 +10290,56 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = []
-		anPos = []
+		_acSeen_ = []
+		_anPos_ = []
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
 			else
-				anPos + i
+				_anPos_ + _i_
 			ok
 		next
 
-		return anPos
+		return _anPos_
 
 	def FindDuplicatesCSXT(pCaseSensitive)
 
@@ -10351,62 +10351,62 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = []
-		anSeen = []
-		anPos = []
+		_acSeen_ = []
+		_anSeen_ = []
+		_anPos_ = []
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				anSeen + i
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_anSeen_ + _i_
 			else
-				if StzFindFirst(anPos, anSeen[n]) = 0
-					anPos + anSeen[n]
+				if StzFindFirst(_anPos_, _anSeen_[_n_]) = 0
+					_anPos_ + _anSeen_[_n_]
 				ok
-				anPos + i
+				_anPos_ + _i_
 			ok
 		next
 
-		anPos = ring_sort(anPos)
-		return anPos
+		_anPos_ = ring_sort(_anPos_)
+		return _anPos_
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
 		return len( This.FindDuplicatesCS(pCaseSensitive) )
@@ -10438,9 +10438,9 @@ class stzList from stzObject
 	#-- NON-DUPLICATED ITEMS
 
 	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
-		anPos = This.FindDuplicatesCSXT(pCaseSensitive)
-		nLen = This.NumberOfItems()
-		if NOT Q(anPos).IsEqualTo(1:nLen)
+		_anPos_ = This.FindDuplicatesCSXT(pCaseSensitive)
+		_nLen_ = This.NumberOfItems()
+		if NOT Q(_anPos_).IsEqualTo(1:nLen)
 			return 1
 		else
 			return 0
@@ -10468,69 +10468,69 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return 0
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = []
-		acResult = []
-		anPos = []
+		_acSeen_ = []
+		_acResult_ = []
+		_anPos_ = []
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				acResult + acStr[i]
-				anPos + i
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_acResult_ + _acStr_[_i_]
+				_anPos_ + _i_
 			else
-				nPos = StzFindFirst(acResult, acStr[i])
-				if nPos > 0
-					ring_del(acResult, nPos)
-					ring_del(anPos, nPos)
+				_nPos_ = StzFindFirst(_acResult_, _acStr_[_i_])
+				if _nPos_ > 0
+					ring_del(_acResult_, _nPos_)
+					ring_del(_anPos_, _nPos_)
 				ok
 			ok
 		next
 
-		aResult = []
-		nLen = len(anPos)
-		for i = 1 to nLen
-			aResult + aContent[anPos[i]]
+		_aResult_ = []
+		_nLen_ = len(_anPos_)
+		for _i_ = 1 to _nLen_
+			_aResult_ + _aContent_[_anPos_[_i_]]
 		next
 
-		return aResult
+		return _aResult_
 
 	def NonDuplicatedItems()
 		return This.NonDuplicatedItemsCS(1)
@@ -10551,76 +10551,76 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return 0
 		ok
 
-		acStr = []
+		_acStr_ = []
 
 		if pCaseSensitive = 1
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + cItem
+				_acStr_ + _cItem_
 			next
 		else
-			for i = 1 to nLen
-				if isNumber(aContent[i])
-					cItem = "" + aContent[i]
-				but isString(aContent[i])
-					cItem = @@(aContent[i])
-				but isList(aContent[i])
-					cItem = @@(aContent[i])
-				but isObject(aContent[i])
-					cItem = @ObjectVarName(aContent[i])
+			for _i_ = 1 to _nLen_
+				if isNumber(_aContent_[_i_])
+					_cItem_ = "" + _aContent_[_i_]
+				but isString(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isList(_aContent_[_i_])
+					_cItem_ = @@(_aContent_[_i_])
+				but isObject(_aContent_[_i_])
+					_cItem_ = @ObjectVarName(_aContent_[_i_])
 				ok
-				acStr + StzLower(cItem)
+				_acStr_ + StzLower(_cItem_)
 			next
 		ok
 
-		acSeen = []
-		acResult = []
-		anResult = []
+		_acSeen_ = []
+		_acResult_ = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			n = StzFindFirst(acSeen, acStr[i])
-			if n = 0
-				acSeen + acStr[i]
-				acResult + acStr[i]
-				anResult + i
+		for _i_ = 1 to _nLen_
+			_n_ = StzFindFirst(_acSeen_, _acStr_[_i_])
+			if _n_ = 0
+				_acSeen_ + _acStr_[_i_]
+				_acResult_ + _acStr_[_i_]
+				_anResult_ + _i_
 			else
-				nPos = StzFindFirst(acResult, acStr[i])
-				if nPos > 0
-					ring_del(acResult, nPos)
-					ring_del(anResult, nPos)
+				_nPos_ = StzFindFirst(_acResult_, _acStr_[_i_])
+				if _nPos_ > 0
+					ring_del(_acResult_, _nPos_)
+					ring_del(_anResult_, _nPos_)
 				ok
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 	def FindNonDuplicatedItems()
 		return This.FindNonDuplicatedItemsCS(1)
 
 	def NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
-		aNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
-		nLen = len(aNonDuplicated)
-		aResult = []
-		for i = 1 to nLen
-			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
-			aResult + [ aNonDuplicated[i], nPos ]
+		_aNonDuplicated_ = This.NonDuplicatedItemsCS(pCaseSensitive)
+		_nLen_ = len(_aNonDuplicated_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_nPos_ = This.FindFirstCS(_aNonDuplicated_[_i_], pCaseSensitive)
+			_aResult_ + [ _aNonDuplicated_[_i_], _nPos_ ]
 		next
-		return aResult
+		return _aResult_
 
 	def NonDuplicatedItemsAndTheirPositions()
 		return This.NonDuplicatedItemsAndTheirPositionsCS(1)
@@ -10640,105 +10640,105 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		aList = @aContent
+		_aList_ = @aContent
 
 		if pCaseSensitive = 0
-			aList = This.Lowercased()
+			_aList_ = This.Lowercased()
 		ok
 
-		nLenList = len(aList)
+		_nLenList_ = len(_aList_)
 
-		if nLenList = 0
+		if _nLenList_ = 0
 			return []
 		ok
 
-		acListStringified = []
-		for i = 1 to nLenList
-			acListStringified + @@(aList[i])
+		_acListStringified_ = []
+		for _i_ = 1 to _nLenList_
+			_acListStringified_ + @@(_aList_[_i_])
 		next
 
-		aResult = []
-		acSeen = []
-		for i = 1 to nLenList
-			if StzFindFirst(acSeen, acListStringified[i])
+		_aResult_ = []
+		_acSeen_ = []
+		for _i_ = 1 to _nLenList_
+			if StzFindFirst(_acSeen_, _acListStringified_[_i_])
 				loop
 			ok
 
-			anPos = []
-			for j = 1 to nLenList
-				if acListStringified[i] = acListStringified[j]
-					anPos + j
+			_anPos_ = []
+			for _j_ = 1 to _nLenList_
+				if _acListStringified_[_i_] = _acListStringified_[_j_]
+					_anPos_ + _j_
 				ok
 			next
 
-			aResult + [ aList[i], anPos ]
-			acSeen + acListStringified[i]
+			_aResult_ + [ _aList_[_i_], _anPos_ ]
+			_acSeen_ + _acListStringified_[_i_]
 		next
 
-		return aResult
+		return _aResult_
 
 	def IndexCS(pCaseSensitive)
 		return This.FindItemsCS(pCaseSensitive)
 
 	#-- ITEMS OCCURRING N TIMES (case-sensitive dial)
 
-	def ItemsOccurringNTimesCS(n, pCaseSensitive)
-		aIndex = This.IndexCS(pCaseSensitive)
-		nLen = len(aIndex)
-		aResult = []
-		for i = 1 to nLen
-			if len(aIndex[i][2]) >= n
-				aResult + aIndex[i][1]
+	def ItemsOccurringNTimesCS(_n_, pCaseSensitive)
+		_aIndex_ = This.IndexCS(pCaseSensitive)
+		_nLen_ = len(_aIndex_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if len(_aIndex_[_i_][2]) >= _n_
+				_aResult_ + _aIndex_[_i_][1]
 			ok
 		next
-		return aResult
+		return _aResult_
 
-	def ItemsOccuringNTimesCS(n, pCaseSensitive)
-		return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+	def ItemsOccuringNTimesCS(_n_, pCaseSensitive)
+		return This.ItemsOccurringNTimesCS(_n_, pCaseSensitive)
 
 	#-- N-LISTIFY (pad each item into an n-element sublist)
 
-	def NListify(n)
-		aContent = This.Content()
-		nLen = len(aContent)
+	def NListify(_n_)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aList = []
-			if NOT isList(aContent[i])
-				aList + aContent[i]
-				if n > 1
-					for j = 1 to n-1
-						aList + ""
+		for _i_ = 1 to _nLen_
+			_aList_ = []
+			if NOT isList(_aContent_[_i_])
+				_aList_ + _aContent_[_i_]
+				if _n_ > 1
+					for _j_ = 1 to _n_-1
+						_aList_ + ""
 					next
 				ok
 			else
-				nLenList = len(aContent[i])
-				if n = nLenList
-					aList = aContent[i]
-				but n > nLenList
-					aList = aContent[i]
-					for j = 1 to n - nLenList
-						aList + ""
+				_nLenList_ = len(_aContent_[_i_])
+				if _n_ = _nLenList_
+					_aList_ = _aContent_[_i_]
+				but _n_ > _nLenList_
+					_aList_ = _aContent_[_i_]
+					for _j_ = 1 to _n_ - _nLenList_
+						_aList_ + ""
 					next
-				but n < nLenList
-					for j = 1 to n
-						aList + aContent[i][j]
+				but _n_ < _nLenList_
+					for _j_ = 1 to _n_
+						_aList_ + _aContent_[_i_][_j_]
 					next
 				ok
 			ok
-			aResult + aList
+			_aResult_ + _aList_
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
-	def NListifyQ(n)
-		This.NListify(n)
+	def NListifyQ(_n_)
+		This.NListify(_n_)
 		return This
 
-	def NListified(n)
-		return This.Copy().NListifyQ(n).Content()
+	def NListified(_n_)
+		return This.Copy().NListifyQ(_n_).Content()
 
 	#-- IsAPairQ (alias of IsPairQ)
 
@@ -10758,13 +10758,13 @@ class stzList from stzObject
 	#-- HALVES family (XT = include the middle item on the first half)
 
 	def FirstHalfXT()
-		nPos = ceil(This.NumberOfItems() / 2)
-		return This.Section(1, nPos)
+		_nPos_ = ceil(This.NumberOfItems() / 2)
+		return This.Section(1, _nPos_)
 
 	def SecondHalfXT()
-		nLen = This.NumberOfItems()
-		nPos = ceil(nLen / 2) + 1
-		return This.Section(nPos, nLen)
+		_nLen_ = This.NumberOfItems()
+		_nPos_ = ceil(_nLen_ / 2) + 1
+		return This.Section(_nPos_, _nLen_)
 
 	def FirstHalfAndPosition()
 		return [ This.FirstHalf(), 1 ]
@@ -10779,24 +10779,24 @@ class stzList from stzObject
 		return [ This.FirstHalfXT(), [1, ceil(This.NumberOfItems() / 2)] ]
 
 	def SecondHalfAndPosition()
-		nLen = This.NumberOfItems()
-		nPos = floor(nLen / 2) + 1
-		return [ This.SecondHalf(), nPos ]
+		_nLen_ = This.NumberOfItems()
+		_nPos_ = floor(_nLen_ / 2) + 1
+		return [ This.SecondHalf(), _nPos_ ]
 
 	def SecondHalfAndSection()
-		nLen = This.NumberOfItems()
-		nPos = floor(nLen / 2) + 1
-		return [ This.SecondHalf(), [ nPos, nLen ] ]
+		_nLen_ = This.NumberOfItems()
+		_nPos_ = floor(_nLen_ / 2) + 1
+		return [ This.SecondHalf(), [ _nPos_, _nLen_ ] ]
 
 	def SecondHalfAndPositionXT()
-		nLen = This.NumberOfItems()
-		nPos = ceil(nLen / 2) + 1
-		return [ This.SecondHalfXT(), nPos ]
+		_nLen_ = This.NumberOfItems()
+		_nPos_ = ceil(_nLen_ / 2) + 1
+		return [ This.SecondHalfXT(), _nPos_ ]
 
 	def SecondHalfAndSectionXT()
-		nLen = This.NumberOfItems()
-		nPos = ceil(nLen / 2) + 1
-		return [ This.SecondHalfXT(), [ nPos, nLen ] ]
+		_nLen_ = This.NumberOfItems()
+		_nPos_ = ceil(_nLen_ / 2) + 1
+		return [ This.SecondHalfXT(), [ _nPos_, _nLen_ ] ]
 
 	def FirstHalfAndItsPosition()
 		return This.FirstHalfAndPosition()
@@ -10823,14 +10823,14 @@ class stzList from stzObject
 		return This.SecondHalfAndSectionXT()
 
 	def Halves()
-		acResult = []
-		acResult + This.FirstHalf() + This.SecondHalf()
-		return acResult
+		_acResult_ = []
+		_acResult_ + This.FirstHalf() + This.SecondHalf()
+		return _acResult_
 
 	def HalvesXT()
-		acResult = []
-		acResult + This.FirstHalfXT() + This.SecondHalfXT()
-		return acResult
+		_acResult_ = []
+		_acResult_ + This.FirstHalfXT() + This.SecondHalfXT()
+		return _acResult_
 
 	def HalvesAndPositions()
 		return [ This.FirstHalfAndPosition(), This.SecondHalfAndPosition() ]
@@ -10850,21 +10850,21 @@ class stzList from stzObject
 	#  removed" -- the destructive counterpart of Find.      #
 	#========================================================#
 
-	def ExtractAt(n)
-		TempItem = This.ItemAt(n)
-		This.RemoveAt(n)
-		return TempItem
+	def ExtractAt(_n_)
+		_TempItem_ = This.ItemAt(_n_)
+		This.RemoveAt(_n_)
+		return _TempItem_
 
 	def ExtractFirstCS(pItem, pCaseSensitive)
 		return This.ExtractNthOccurrenceCS(1, pItem, pCaseSensitive)
 
 	def ExtractLastCS(pItem, pCaseSensitive)
-		nLast = This.NumberOfOccurrencesCS(pItem, pCaseSensitive)
-		return This.ExtractNthOccurrenceCS(nLast, pItem, pCaseSensitive)
+		_nLast_ = This.NumberOfOccurrencesCS(pItem, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(_nLast_, pItem, pCaseSensitive)
 
 
-	def FindNextSTCS(pItem, nStart, pCaseSensitive)
-		return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+	def FindNextSTCS(pItem, _nStart_, pCaseSensitive)
+		return This.FindNextOccurrenceCS(pItem, _nStart_, pCaseSensitive)
 
 	def FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
 		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
@@ -10873,11 +10873,11 @@ class stzList from stzObject
 		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
-		nPos = This.FindNextSTCS(pItem, pnStartingAt, pCaseSensitive)
-		if nPos = 0
+		_nPos_ = This.FindNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if _nPos_ = 0
 			return
 		ok
-		This.RemoveItemAtPosition(nPos)
+		This.RemoveItemAtPosition(_nPos_)
 		return pItem
 
 	def ExtractNextST(item, pnStartingAt)
@@ -10893,11 +10893,11 @@ class stzList from stzObject
 		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
-		nPos = This.FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
-		if nPos = 0
+		_nPos_ = This.FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if _nPos_ = 0
 			return
 		ok
-		This.RemoveItemAtPosition(nPos)
+		This.RemoveItemAtPosition(_nPos_)
 		return pItem
 
 	def ExtractPreviousST(item, pnStartingAt)
@@ -10926,10 +10926,10 @@ class stzList from stzObject
 			paList2 = paList2[2]
 		ok
 
-		bEqualToList1 = This.IsEqualToCS(paList1, pCaseSensitive)
-		bEqualToList2 = This.IsEqualToCS(paList2, pCaseSensitive)
+		_bEqualToList1_ = This.IsEqualToCS(paList1, pCaseSensitive)
+		_bEqualToList2_ = This.IsEqualToCS(paList2, pCaseSensitive)
 
-		if NOT bEqualToList1 and NOT bEqualToList2
+		if NOT _bEqualToList1_ and NOT _bEqualToList2_
 			return 1
 		else
 			return 0
@@ -10957,24 +10957,24 @@ class stzList from stzObject
 		ok
 
 		# Case-insensitive: compare lowercased, stringified multisets.
-		aThis = This.Content()
-		n1 = len(aThis)
-		n2 = len(paOtherList)
-		if n1 != n2
+		_aThis_ = This.Content()
+		_n1_ = len(_aThis_)
+		_n2_ = len(paOtherList)
+		if _n1_ != _n2_
 			return FALSE
 		ok
-		ac1 = []
-		for i = 1 to n1
-			ac1 + StzLower("" + aThis[i])
+		_ac1_ = []
+		for _i_ = 1 to _n1_
+			_ac1_ + StzLower("" + _aThis_[_i_])
 		next
-		ac2 = []
-		for i = 1 to n2
-			ac2 + StzLower("" + paOtherList[i])
+		_ac2_ = []
+		for _i_ = 1 to _n2_
+			_ac2_ + StzLower("" + paOtherList[_i_])
 		next
-		ac1 = ring_sort(ac1)
-		ac2 = ring_sort(ac2)
-		for i = 1 to n1
-			if NOT ac1[i] = ac2[i]
+		_ac1_ = ring_sort(_ac1_)
+		_ac2_ = ring_sort(_ac2_)
+		for _i_ = 1 to _n1_
+			if NOT _ac1_[_i_] = _ac2_[_i_]
 				return FALSE
 			ok
 		next
@@ -10997,34 +10997,34 @@ class stzList from stzObject
 	#-- First sublist (item that is itself a list) and its position.
 
 	def FindFirstList()
-		aC = This.Content()
-		n = len(aC)
-		for i = 1 to n
-			if isList(aC[i])
-				return i
+		_aC_ = This.Content()
+		_n_ = len(_aC_)
+		for _i_ = 1 to _n_
+			if isList(_aC_[_i_])
+				return _i_
 			ok
 		next
 		return 0
 
 	def FirstList()
-		nPos = This.FindFirstList()
-		if nPos = 0
+		_nPos_ = This.FindFirstList()
+		if _nPos_ = 0
 			return []
 		ok
-		aC = This.Content()
-		return aC[nPos]
+		_aC_ = This.Content()
+		return _aC_[_nPos_]
 
 	#-- AllItemsAreEqualTo: every item equals pItem (content-compare, so
 	#-- sublists match too).
 
 	def AllItemsAreEqualToCS(pItem, pCaseSensitive)
-		aC = This.Content()
-		n = len(aC)
-		if n = 0
+		_aC_ = This.Content()
+		_n_ = len(_aC_)
+		if _n_ = 0
 			return FALSE
 		ok
-		for i = 1 to n
-			if NOT BothAreEqualCS(aC[i], pItem, pCaseSensitive)
+		for _i_ = 1 to _n_
+			if NOT BothAreEqualCS(_aC_[_i_], pItem, pCaseSensitive)
 				return FALSE
 			ok
 		next
@@ -11039,26 +11039,26 @@ class stzList from stzObject
 	#========================================================#
 
 	def FindNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				aResult + i
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if isNumber(_aContent_[_i_])
+				_aResult_ + _i_
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def FindNonNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if NOT isNumber(aContent[i])
-				aResult + i
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			if NOT isNumber(_aContent_[_i_])
+				_aResult_ + _i_
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def RemoveNumbers()
 		This.RemoveItemsAtPositions( This.FindNumbers() )
@@ -11092,32 +11092,32 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		aList = @aContent
+		_aList_ = @aContent
 		if pCaseSensitive = 0
-			aList = This.Lowercased()
+			_aList_ = This.Lowercased()
 		ok
 
-		nLenList = len(aList)
-		if nLenList = 0
+		_nLenList_ = len(_aList_)
+		if _nLenList_ = 0
 			return []
 		ok
 
-		aItems = This.WithoutDuplicationCS(pCaseSensitive)
-		nLenItems = len(aItems)
+		_aItems_ = This.WithoutDuplicationCS(pCaseSensitive)
+		_nLenItems_ = len(_aItems_)
 
-		aResult = []
-		for i = 1 to nLenItems
-			n = 0
-			for j = 1 to nLenList
-				if ring_type(aItems[i]) = ring_type(aList[j]) and
-				   aItems[i] = aList[j]
-					n++
+		_aResult_ = []
+		for _i_ = 1 to _nLenItems_
+			_n_ = 0
+			for _j_ = 1 to _nLenList_
+				if ring_type(_aItems_[_i_]) = ring_type(_aList_[_j_]) and
+				   _aItems_[_i_] = _aList_[_j_]
+					_n_++
 				ok
 			next
-			aResult + [ aItems[i], n ]
+			_aResult_ + [ _aItems_[_i_], _n_ ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def NumberOfOccurrenceOfItems()
 		return This.NumberOfOccurrenceOfItemsCS(1)
@@ -11135,10 +11135,10 @@ class stzList from stzObject
 		# Each item must be a number, or a 2-element list of two numbers.
 		# (Pair check inlined: the class also has a 0-arg IsPairOfNumbers
 		# method, which would shadow the global func form inside the class.)
-		aC = This.Content()
-		n = len(aC)
-		for i = 1 to n
-			_x_ = aC[i]
+		_aC_ = This.Content()
+		_n_ = len(_aC_)
+		for _i_ = 1 to _n_
+			_x_ = _aC_[_i_]
 			if isNumber(_x_)
 				loop
 			ok
@@ -11152,20 +11152,20 @@ class stzList from stzObject
 	#-- Splitting into parts (mutating Split*, fluent Split*Q, and
 	#-- non-mutating Splitted* that return a fresh list of parts).
 
-	def SplitToPartsOfNItemsXT(n)
-		aSections = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItemsXT(n)
-		This.UpdateWith( This.Sections(aSections) )
+	def SplitToPartsOfNItemsXT(_n_)
+		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItemsXT(_n_)
+		This.UpdateWith( This.Sections(_aSections_) )
 
-	def SplitToPartsOfNItemsXTQ(n)
-		This.SplitToPartsOfNItemsXT(n)
+	def SplitToPartsOfNItemsXTQ(_n_)
+		This.SplitToPartsOfNItemsXT(_n_)
 		return This
 
-	def SplittedToPartsOfNItemsXT(n)
-		return This.Copy().SplitToPartsOfNItemsXTQ(n).Content()
+	def SplittedToPartsOfNItemsXT(_n_)
+		return This.Copy().SplitToPartsOfNItemsXTQ(_n_).Content()
 
 	def SplitAfterPositions(panPos)
-		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
-		This.UpdateWith( This.Sections(aSections) )
+		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
+		This.UpdateWith( This.Sections(_aSections_) )
 
 	def SplitAfterPositionsQ(panPos)
 		This.SplitAfterPositions(panPos)
@@ -11175,8 +11175,8 @@ class stzList from stzObject
 		return This.Copy().SplitAfterPositionsQ(panPos).Content()
 
 	def SplitBeforePositions(panPos)
-		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
-		This.UpdateWith( This.Sections(aSections) )
+		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
+		This.UpdateWith( This.Sections(_aSections_) )
 
 	def SplitBeforePositionsQ(panPos)
 		This.SplitBeforePositions(panPos)
@@ -11187,72 +11187,72 @@ class stzList from stzObject
 
 	#-- Nth previous occurrence (scanning backward from a start position).
 
-	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+	def FindNthPreviousOccurrenceCS(_n_, pItem, _nStart_, pCaseSensitive)
 		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
-		if isList(nStart) and IsStartingAtNamedParamList(nStart)
-			nStart = nStart[2]
+		if isList(_nStart_) and IsStartingAtNamedParamList(_nStart_)
+			_nStart_ = _nStart_[2]
 		ok
-		if isString(nStart) and ( nStart = :Last or nStart = :LastItem )
-			nStart = This.NumberOfItems()
+		if isString(_nStart_) and ( _nStart_ = :Last or _nStart_ = :LastItem )
+			_nStart_ = This.NumberOfItems()
 		ok
-		if isString(n)
-			if n = :First or n = :FirstOccurrence
-				n = 1
-			but n = :Last or n = :LastOccurrence
-				n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pItem, pCaseSensitive)
+		if isString(_n_)
+			if _n_ = :First or _n_ = :FirstOccurrence
+				_n_ = 1
+			but _n_ = :Last or _n_ = :LastOccurrence
+				_n_ = This.SectionQ(1, _nStart_).NumberOfOccurrenceCS(pItem, pCaseSensitive)
 			ok
 		ok
 
-		nLen = This.NumberOfItems()
+		_nLen_ = This.NumberOfItems()
 
-		if nStart = 1
+		if _nStart_ = 1
 			return 0
 		ok
-		if nStart < 0 or nStart > nLen
+		if _nStart_ < 0 or _nStart_ > _nLen_
 			return 0
 		ok
 		if NOT This.ContainsCS(pItem, pCaseSensitive)
 			return 0
 		ok
-		if This.SectionQ(1, nStart - 1).NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+		if This.SectionQ(1, _nStart_ - 1).NumberOfOccurrenceCS(pItem, pCaseSensitive) < _n_
 			return 0
 		ok
 
-		bCase = CaseSensitive(pCaseSensitive)
+		_bCase_ = CaseSensitive(pCaseSensitive)
 		# Current FindPreviousCS is exclusive (strictly before nPos), so we
 		# seed nPos with nStart itself to count the occurrence at nStart-1.
-		nPos = nStart
-		nFound = 0
-		i = 0
+		_nPos_ = _nStart_
+		_nFound_ = 0
+		_i_ = 0
 
 		while 1
-			i++
-			if i > nLen
+			_i_++
+			if _i_ > _nLen_
 				exit
 			ok
-			nPos = This.FindPreviousCS(pItem, nPos, bCase)
-			if nPos = 0
+			_nPos_ = This.FindPreviousCS(pItem, _nPos_, _bCase_)
+			if _nPos_ = 0
 				exit
 			else
-				nFound++
-				if nFound = n
-					return nPos
+				_nFound_++
+				if _nFound_ = _n_
+					return _nPos_
 				ok
 			ok
 		end
 
 		return 0
 
-	def FindNthPreviousOccurrence(n, pItem, nStart)
-		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, 1)
+	def FindNthPreviousOccurrence(_n_, pItem, _nStart_)
+		return This.FindNthPreviousOccurrenceCS(_n_, pItem, _nStart_, 1)
 
-	def PreviousNthOccurrenceCS(n, pItem, nStart, pCaseSensitive)
-		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+	def PreviousNthOccurrenceCS(_n_, pItem, _nStart_, pCaseSensitive)
+		return This.FindNthPreviousOccurrenceCS(_n_, pItem, _nStart_, pCaseSensitive)
 
-	def PreviousNthOccurrence(n, pItem, nStart)
-		return This.FindNthPreviousOccurrence(n, pItem, nStart)
+	def PreviousNthOccurrence(_n_, pItem, _nStart_)
+		return This.FindNthPreviousOccurrence(_n_, pItem, _nStart_)
 
 	#-- Remove a matching opening/closing bound pair (e.g. "{" ... "}").
 	#-- TheseBoundsRemoved returns a fresh list; RemoveTheseBounds mutates.
@@ -11282,58 +11282,58 @@ class stzList from stzObject
 		switch ring_type(p)
 		on "NUMBER"
 			if p = 0
-				aResult = []
+				_aResult_ = []
 			but p = 1
-				aResult = @aContent
+				_aResult_ = @aContent
 			else
-				aResult = []
-				for i = 1 to p
-					aResult + @aContent
+				_aResult_ = []
+				for _i_ = 1 to p
+					_aResult_ + @aContent
 				next
 			ok
-			This.Update( aResult )
+			This.Update( _aResult_ )
 
 		on "STRING"
-			nLen = len(@aContent)
-			for i = 1 to nLen
-				if isString(@aContent[i])
-					@aContent[i] += p
+			_nLen_ = len(@aContent)
+			for _i_ = 1 to _nLen_
+				if isString(@aContent[_i_])
+					@aContent[_i_] += p
 				ok
 			next
 
 		on "LIST"
 			# Pair each item with the given list:
 			# [ "V1","V2" ] * [ 1,2 ] -> [ [ "V1",[1,2] ], [ "V2",[1,2] ] ]
-			nLen = len(@aContent)
-			for i = 1 to nLen
-				item = @aContent[i]
+			_nLen_ = len(@aContent)
+			for _i_ = 1 to _nLen_
+				item = @aContent[_i_]
 				This._InvalidateEngine()   # in-place @aContent mutation below
-				@aContent[i] = [ item, p ]
+				@aContent[_i_] = [ item, p ]
 			next
 
 		other
 			StzRaise("Can't multiply the list by an object!")
 		off
 
-	def ExtendToXT(n, pValue)
-		This.ExtendToPositionWith(n, pValue)
+	def ExtendToXT(_n_, pValue)
+		This.ExtendToPositionWith(_n_, pValue)
 
 	def TypesXT()
 		return This.ListQ().AssociatedWith( This.Types() )
 
 	def FindStzNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		anResult = []
-		for i = 1 to nLen
-			if @IsStzNumber(aContent[i])
-				anResult + i
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_anResult_ = []
+		for _i_ = 1 to _nLen_
+			if @IsStzNumber(_aContent_[_i_])
+				_anResult_ + _i_
 			ok
 		next
-		return anResult
+		return _anResult_
 
-	def ReplaceThisAt(n, pItem, pNewItem)
-		This.ReplaceThisItemAt(n, pItem, pNewItem)
+	def ReplaceThisAt(_n_, pItem, pNewItem)
+		This.ReplaceThisItemAt(_n_, pItem, pNewItem)
 
 	def ReplaceAnyAt(pPos, pNewItem)
 		This.ReplaceAt(pPos, pNewItem)
@@ -11341,26 +11341,26 @@ class stzList from stzObject
 	#-- Positions of items that are stz objects of a given kind.
 
 	def FindStzStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-		anResult = []
-		for i = 1 to nLen
-			if @IsStzString(aContent[i])
-				anResult + i
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_anResult_ = []
+		for _i_ = 1 to _nLen_
+			if @IsStzString(_aContent_[_i_])
+				_anResult_ + _i_
 			ok
 		next
-		return anResult
+		return _anResult_
 
 	def FindStzLists()
-		aContent = This.Content()
-		nLen = len(aContent)
-		anResult = []
-		for i = 1 to nLen
-			if @IsStzList(aContent[i])
-				anResult + i
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_anResult_ = []
+		for _i_ = 1 to _nLen_
+			if @IsStzList(_aContent_[_i_])
+				_anResult_ + _i_
 			ok
 		next
-		return anResult
+		return _anResult_
 
 	#-- Convert to a stzListOfStrings (for string-oriented chaining like
 	#-- ConcatenatedUsing / Joined). Needed by the ..Q() chain idioms.
@@ -11412,21 +11412,21 @@ class stzList from stzObject
 		_pBic_ = StzEngineMarshalList(paOtherList)
 		if _pAic_ != NULL and _pBic_ != NULL
 			_pDic_ = StzEngineListDifferenceCS(_pBic_, _pAic_, pCaseSensitive)
-			aResult = StzEngineListContentToRingList(_pDic_)
+			_aResult_ = StzEngineListContentToRingList(_pDic_)
 			StzEngineListFree(_pDic_)
 			StzEngineListFree(_pAic_)
 			StzEngineListFree(_pBic_)
-			return aResult
+			return _aResult_
 		ok
 		# Fallback (non-marshalable content, e.g. objects)
-		aResult = []
-		nLen = len(paOtherList)
-		for i = 1 to nLen
-			if NOT This.ContainsCS(paOtherList[i], pCaseSensitive)
-				aResult + paOtherList[i]
+		_aResult_ = []
+		_nLen_ = len(paOtherList)
+		for _i_ = 1 to _nLen_
+			if NOT This.ContainsCS(paOtherList[_i_], pCaseSensitive)
+				_aResult_ + paOtherList[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
@@ -11437,23 +11437,23 @@ class stzList from stzObject
 		_pBric_ = StzEngineMarshalList(paOtherList)
 		if _pAric_ != NULL and _pBric_ != NULL
 			_pDric_ = StzEngineListDifferenceCS(_pAric_, _pBric_, pCaseSensitive)
-			aResult = StzEngineListContentToRingList(_pDric_)
+			_aResult_ = StzEngineListContentToRingList(_pDric_)
 			StzEngineListFree(_pDric_)
 			StzEngineListFree(_pAric_)
 			StzEngineListFree(_pBric_)
-			return aResult
+			return _aResult_
 		ok
 		# Fallback (non-marshalable content)
-		aResult = []
-		oOtherList = new stzList(paOtherList)
-		nLen = This.NumberOfItems()
-		aContent = This.Content()
-		for i = 1 to nLen
-			if NOT oOtherList.ContainsCS(aContent[i], pCaseSensitive)
-				aResult + aContent[i]
+		_aResult_ = []
+		_oOtherList_ = new stzList(paOtherList)
+		_nLen_ = This.NumberOfItems()
+		_aContent_ = This.Content()
+		for _i_ = 1 to _nLen_
+			if NOT _oOtherList_.ContainsCS(_aContent_[_i_], pCaseSensitive)
+				_aResult_ + _aContent_[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
@@ -11468,22 +11468,22 @@ class stzList from stzObject
 		_pBmi_ = StzEngineMarshalList(paOtherList)
 		if _pAmi_ != NULL and _pBmi_ != NULL
 			_pMmi_ = StzEngineListModifiedItemsCS(_pAmi_, _pBmi_, pCaseSensitive)
-			aResult = StzEngineListContentToRingList(_pMmi_)
+			_aResult_ = StzEngineListContentToRingList(_pMmi_)
 			StzEngineListFree(_pMmi_)
 			StzEngineListFree(_pAmi_)
 			StzEngineListFree(_pBmi_)
-			return aResult
+			return _aResult_
 		ok
 
 		# Fallback (non-marshalable content): same semantics in Ring.
-		aResult = []
-		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
-		aoThisListU = @Objectify(aThisListU)
+		_aResult_ = []
+		_aThisListU_ = @UniqueCS(This.Content(), pCaseSensitive)
+		_aoThisListU_ = @Objectify(_aThisListU_)
 		_aFiltered = []
 		for _k = 1 to len(paOtherList)
 			_bInThis = 0
-			for _j = 1 to len(aThisListU)
-				if BothAreEqualCS(paOtherList[_k], aThisListU[_j], pCaseSensitive)
+			for _j = 1 to len(_aThisListU_)
+				if BothAreEqualCS(paOtherList[_k], _aThisListU_[_j], pCaseSensitive)
 					_bInThis = 1
 					exit
 				ok
@@ -11492,45 +11492,45 @@ class stzList from stzObject
 				_aFiltered + paOtherList[_k]
 			ok
 		next
-		aOtherListU = @UniqueCS(_aFiltered, pCaseSensitive)
-		aoOtherListU = @Objectify(aOtherListU)
-		nLenThis = len(aThisListU)
-		nLenOther = len(aOtherListU)
-		for i = 1 to nLenThis
-			if isString(aThisListU[i])
-				for j = 1 to nLenOther
-					if isString(aOtherListU[j])
-						if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
-						   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
-							aResult + [ aThisListU[i], aOtherListU[j] ]
+		_aOtherListU_ = @UniqueCS(_aFiltered, pCaseSensitive)
+		_aoOtherListU_ = @Objectify(_aOtherListU_)
+		_nLenThis_ = len(_aThisListU_)
+		_nLenOther_ = len(_aOtherListU_)
+		for _i_ = 1 to _nLenThis_
+			if isString(_aThisListU_[_i_])
+				for _j_ = 1 to _nLenOther_
+					if isString(_aOtherListU_[_j_])
+						if _aoThisListU_[_i_].ContainsCS(_aOtherListU_[_j_], pCaseSensitive) or
+						   _aoOtherListU_[_j_].ContainsCS(_aThisListU_[_i_], pCaseSensitive)
+							_aResult_ + [ _aThisListU_[_i_], _aOtherListU_[_j_] ]
 						ok
 					ok
 				next
-			but isList(aThisListU[i])
-				for j = 1 to nLenOther
-					if isList(aOtherListU[j])
-						if aoThisListU[i].ContainsOneOfTheseCS(aOtherListU[j], pCaseSensitive) or
-						   aoOtherListU[j].ContainsOneOfTheseCS(aThisListU[i], pCaseSensitive)
-							aResult + [ aThisListU[i], aOtherListU[j] ]
+			but isList(_aThisListU_[_i_])
+				for _j_ = 1 to _nLenOther_
+					if isList(_aOtherListU_[_j_])
+						if _aoThisListU_[_i_].ContainsOneOfTheseCS(_aOtherListU_[_j_], pCaseSensitive) or
+						   _aoOtherListU_[_j_].ContainsOneOfTheseCS(_aThisListU_[_i_], pCaseSensitive)
+							_aResult_ + [ _aThisListU_[_i_], _aOtherListU_[_j_] ]
 						ok
 					ok
 				next
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)
 		_aAddedItems_ = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive)
 		_aRemovedItems_ = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
 		_aModifiedItems_ = This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
-		nLen = len(_aModifiedItems_)
+		_nLen_ = len(_aModifiedItems_)
 
 		_oAdded_ = new stzList(_aAddedItems_)
 		_oRemoved_ = new stzList(_aRemovedItems_)
 
-		for i = 1 to nLen
-			_oRemoved_.Remove(_aModifiedItems_[i][1])
-			_oAdded_.RemoveAll(_aModifiedItems_[i][2])
+		for _i_ = 1 to _nLen_
+			_oRemoved_.Remove(_aModifiedItems_[_i_][1])
+			_oAdded_.RemoveAll(_aModifiedItems_[_i_][2])
 		next
 
 		return [
@@ -11553,13 +11553,13 @@ class stzList from stzObject
 	#-- similarity matching.
 
 	def Objectify()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			aResult + Q(aContent[i])
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_aResult_ + Q(_aContent_[_i_])
 		next
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 	def ObjectifyQ()
 		This.Objectify()
@@ -11580,9 +11580,9 @@ class stzList from stzObject
 		if This.IsEqualTo(paOtherList)
 			return 1
 		ok
-		nDif = abs(This.NumberOfItems() - len(paOtherList))
-		n = nDif / This.NumberOfItems()
-		if n < QuietEqualityRatio()
+		_nDif_ = abs(This.NumberOfItems() - len(paOtherList))
+		_n_ = _nDif_ / This.NumberOfItems()
+		if _n_ < QuietEqualityRatio()
 			return 1
 		ok
 		return 0
@@ -11592,9 +11592,9 @@ class stzList from stzObject
 	#-- loop over the small QUERY list, not the data -- so no data-loop.
 
 	def DeepContainsManyCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if NOT This.DeepContainsCS(paItems[i], pCaseSensitive)
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			if NOT This.DeepContainsCS(paItems[_i_], pCaseSensitive)
 				return 0
 			ok
 		next
@@ -11616,9 +11616,9 @@ class stzList from stzObject
 		return This.DeepContainsBothCS(pItem1, pItem2, 1)
 
 	def DeepContainsOneOfTheseCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if This.DeepContainsCS(paItems[i], pCaseSensitive)
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			if This.DeepContainsCS(paItems[_i_], pCaseSensitive)
 				return 1
 			ok
 		next
@@ -11627,21 +11627,21 @@ class stzList from stzObject
 	def DeepContainsOneOfThese(paItems)
 		return This.DeepContainsOneOfTheseCS(paItems, 1)
 
-	def DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
-		v = 0
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if This.DeepContainsCS(paItems[i], pCaseSensitive)
-				v++
-				if v = n
+	def DeepContainsNOfTheseCS(_n_, paItems, pCaseSensitive)
+		_v_ = 0
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			if This.DeepContainsCS(paItems[_i_], pCaseSensitive)
+				_v_++
+				if _v_ = _n_
 					return 1
 				ok
 			ok
 		next
 		return 0
 
-	def DeepContainsNOfThese(n, paItems)
-		return This.DeepContainsNOfTheseCS(n, paItems, 1)
+	def DeepContainsNOfThese(_n_, paItems)
+		return This.DeepContainsNOfTheseCS(_n_, paItems, 1)
 
 	#========================================================#
 	#  Locale-shaped list predicates (i18n). Thin orchestra- #
@@ -11652,69 +11652,69 @@ class stzList from stzObject
 		if NOT This.IsListOfStrings()
 			StzRaise("Can't proceed! All items must be strings.")
 		ok
-		acContent = This.Content()
-		nLen = len(acContent)
-		aoResult = []
-		for i = 1 to nLen
-			aoResult + new stzString(acContent[i])
+		_acContent_ = This.Content()
+		_nLen_ = len(_acContent_)
+		_aoResult_ = []
+		for _i_ = 1 to _nLen_
+			_aoResult_ + new stzString(_acContent_[_i_])
 		next
-		return aoResult
+		return _aoResult_
 
 	def AreLanguageAbbreviations()
 		if NOT @IsListOfStrings(@aContent)
 			return 0
 		ok
-		nLen = len(@aContent)
-		aoStzStr = This.ToListOfStzStrings()
-		for i = 1 to nLen
-			if NOT aoStzStr[i].IsLanguageAbbreviation()
+		_nLen_ = len(@aContent)
+		_aoStzStr_ = This.ToListOfStzStrings()
+		for _i_ = 1 to _nLen_
+			if NOT _aoStzStr_[_i_].IsLanguageAbbreviation()
 				return 0
 			ok
 		next
 		return 1
 
 	def IsLocaleList()
-		nLen = len(@aContent)
+		_nLen_ = len(@aContent)
 
-		if nLen = 1 and isString(@aContent[1]) and
+		if _nLen_ = 1 and isString(@aContent[1]) and
 		   StzFindFirst([ :Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
 			return 1
 		ok
 
-		if nLen > 3
+		if _nLen_ > 3
 			return 0
 		ok
 		if NOT This.IsHashList()
 			return 0
 		ok
 
-		acKeys = []
-		for i = 1 to nLen
-			acKeys + @aContent[i][1]
+		_acKeys_ = []
+		for _i_ = 1 to _nLen_
+			_acKeys_ + @aContent[_i_][1]
 		next
-		bLanguage = StzFindFirst(acKeys, "language")
-		bScript = StzFindFirst(acKeys, "script")
-		bCountry = StzFindFirst(acKeys, "country")
-		if bLanguage = 0 and bScript = 0 and bCountry = 0
+		_bLanguage_ = StzFindFirst(_acKeys_, "language")
+		_bScript_ = StzFindFirst(_acKeys_, "script")
+		_bCountry_ = StzFindFirst(_acKeys_, "country")
+		if _bLanguage_ = 0 and _bScript_ = 0 and _bCountry_ = 0
 			return 0
 		ok
 
-		cLanguage = @aContent[ :Language ]
-		cScript   = @aContent[ :Script   ]
-		cCountry  = @aContent[ :Country  ]
-		if NOT ( isString(cLanguage) and isString(cScript) and isString(cCountry) )
+		_cLanguage_ = @aContent[ :Language ]
+		_cScript_   = @aContent[ :Script   ]
+		_cCountry_  = @aContent[ :Country  ]
+		if NOT ( isString(_cLanguage_) and isString(_cScript_) and isString(_cCountry_) )
 			return 0
 		ok
-		if cLanguage = "" and cScript = "" and cCountry = ""
+		if _cLanguage_ = "" and _cScript_ = "" and _cCountry_ = ""
 			return 0
 		ok
-		if cLanguage != "" and NOT StzStringQ(cLanguage).IsLanguageIdentifier()
+		if _cLanguage_ != "" and NOT StzStringQ(_cLanguage_).IsLanguageIdentifier()
 			return 0
 		ok
-		if cScript != "" and NOT StzStringQ(cScript).IsScriptIdentifier()
+		if _cScript_ != "" and NOT StzStringQ(_cScript_).IsScriptIdentifier()
 			return 0
 		ok
-		if cCountry != "" and NOT StzStringQ(cCountry).IsCountryIdentifier()
+		if _cCountry_ != "" and NOT StzStringQ(_cCountry_).IsCountryIdentifier()
 			return 0
 		ok
 		return 1
@@ -11723,18 +11723,18 @@ class stzList from stzObject
 		if NOT This.IsHashlist()
 			return 0
 		ok
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT isString(@aContent[i][2])
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			if NOT isString(@aContent[_i_][2])
 				return 0
 			ok
 		next
-		aoKeys = []
-		for i = 1 to nLen
-			aoKeys + StzStringQ(@aContent[i][1])
+		_aoKeys_ = []
+		for _i_ = 1 to _nLen_
+			_aoKeys_ + StzStringQ(@aContent[_i_][1])
 		next
-		for i = 1 to nLen
-			if NOT aoKeys[i].IsLanguageNameOrAbbreviation()
+		for _i_ = 1 to _nLen_
+			if NOT _aoKeys_[_i_].IsLanguageNameOrAbbreviation()
 				return 0
 			ok
 		next
@@ -11762,159 +11762,159 @@ class stzList from stzObject
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
 		ok
-		nLen = This.NumberOfItems()
-		anPos = nLen : 1
-		for i = 2 to nLen
-			anPos + i
+		_nLen_ = This.NumberOfItems()
+		_anPos_ = _nLen_ : 1
+		for _i_ = 2 to _nLen_
+			_anPos_ + _i_
 		next
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 		else
-			return anPos
+			return _anPos_
 		ok
 
 	#-- N-step (every nth item)
 
-	def WalkNItemsForwardXT(n, pReturn)
+	def WalkNItemsForwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
 		ok
-		anPos = []
-		nLen = This.NumberOfItems()
-		for i = 1 to nLen step n
-			anPos + i
+		_anPos_ = []
+		_nLen_ = This.NumberOfItems()
+		for _i_ = 1 to _nLen_ step _n_
+			_anPos_ + _i_
 		next
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 		else
-			return anPos
+			return _anPos_
 		ok
 
-	def WalkNItemsBackwardXT(n, pReturn)
+	def WalkNItemsBackwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
 		ok
-		anPos = []
-		for i = This.NumberOfItems() to 1 step -n
-			anPos + i
+		_anPos_ = []
+		for _i_ = This.NumberOfItems() to 1 step -_n_
+			_anPos_ + _i_
 		next
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 		else
-			return anPos
+			return _anPos_
 		ok
 
-	def WalkNForwardXT(n, pReturn)
-		return This.WalkNItemsForwardXT(n, pReturn)
+	def WalkNForwardXT(_n_, pReturn)
+		return This.WalkNItemsForwardXT(_n_, pReturn)
 
-	def WalkNBackwardXT(n, pReturn)
-		return This.WalkNItemsBackwardXT(n, pReturn)
+	def WalkNBackwardXT(_n_, pReturn)
+		return This.WalkNItemsBackwardXT(_n_, pReturn)
 
 	#-- Progressive N-step (gap grows by n each step)
 
-	def WalkNProgressiveItemsForwardXT(n, pReturn)
+	def WalkNProgressiveItemsForwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
 		ok
-		nLen = This.NumberOfItems()
-		anPos = []
-		if n < 0
+		_nLen_ = This.NumberOfItems()
+		_anPos_ = []
+		if _n_ < 0
 			StzRaise("Can't proceed. n must be positive!")
-		but n = 0
-			anPos = [1]
+		but _n_ = 0
+			_anPos_ = [1]
 		else
-			anPos = [1]
-			nStep = 1
-			i = 0
-			while nStep <= nLen
-				i++
-				nStep += (n * i)
-				if nStep <= nLen
-					anPos + nStep
+			_anPos_ = [1]
+			_nStep_ = 1
+			_i_ = 0
+			while _nStep_ <= _nLen_
+				_i_++
+				_nStep_ += (_n_ * _i_)
+				if _nStep_ <= _nLen_
+					_anPos_ + _nStep_
 				ok
 			end
 		ok
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 		else
-			return anPos
+			return _anPos_
 		ok
 
-	def WalkNProgressiveItemsBackwardXT(n, pReturn)
+	def WalkNProgressiveItemsBackwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
 		ok
-		nLen = This.NumberOfItems()
-		anPos = []
-		if n < 0
+		_nLen_ = This.NumberOfItems()
+		_anPos_ = []
+		if _n_ < 0
 			StzRaise("Can't proceed. n must be positive!")
-		but n = 0
-			anPos = [ nLen ]
+		but _n_ = 0
+			_anPos_ = [ _nLen_ ]
 		else
-			anPos = [ nLen ]
-			nStep = nLen
-			i = 0
-			while nStep > 0
-				i++
-				nStep -= (n * i)
-				if nStep > 0
-					anPos + nStep
+			_anPos_ = [ _nLen_ ]
+			_nStep_ = _nLen_
+			_i_ = 0
+			while _nStep_ > 0
+				_i_++
+				_nStep_ -= (_n_ * _i_)
+				if _nStep_ > 0
+					_anPos_ + _nStep_
 				ok
 			end
 		ok
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 		else
-			return anPos
+			return _anPos_
 		ok
 
-	def WalkNProgressiveItemsForward(n)
-		return This.WalkNProgressiveItemsForwardXT(n, :Return = :WalkedPositions)
+	def WalkNProgressiveItemsForward(_n_)
+		return This.WalkNProgressiveItemsForwardXT(_n_, :Return = :WalkedPositions)
 
-	def WalkNProgressiveItemsBackward(n)
-		return This.WalkNProgressiveItemsBackwardXT(n, :Return = :WalkedPositions)
+	def WalkNProgressiveItemsBackward(_n_)
+		return This.WalkNProgressiveItemsBackwardXT(_n_, :Return = :WalkedPositions)
 
-	def WalkNMoreForward(n)
-		return This.WalkNProgressiveItemsForward(n)
+	def WalkNMoreForward(_n_)
+		return This.WalkNProgressiveItemsForward(_n_)
 
-	def WalkNMoreForwardXT(n, pReturn)
-		return This.WalkNProgressiveItemsForwardXT(n, pReturn)
+	def WalkNMoreForwardXT(_n_, pReturn)
+		return This.WalkNProgressiveItemsForwardXT(_n_, pReturn)
 
-	def WalkNMoreBackward(n)
-		return This.WalkNProgressiveItemsBackward(n)
+	def WalkNMoreBackward(_n_)
+		return This.WalkNProgressiveItemsBackward(_n_)
 
-	def WalkNMoreBackwardXT(n, pReturn)
-		return This.WalkNProgressiveItemsBackwardXT(n, pReturn)
+	def WalkNMoreBackwardXT(_n_, pReturn)
+		return This.WalkNProgressiveItemsBackwardXT(_n_, pReturn)
 
 	#========================================================#
 	#  WALK zigzag + start/end family (split-dropped).       #
@@ -11953,47 +11953,47 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aList = This.List()
-		nLen = len(aList)
+		_aList_ = This.List()
+		_nLen_ = len(_aList_)
 
 		if pnForward = pnBackward
 			return []
 		ok
 
 		if pnBackward > pnForward
-			nStart = pnBackward - pnForward + 1
+			_nStart_ = pnBackward - pnForward + 1
 		else
-			nStart = 1
+			_nStart_ = 1
 		ok
 
-		i = nStart
-		anPos = [ i ]
+		_i_ = _nStart_
+		_anPos_ = [ _i_ ]
 
-		while (i + pnForward) >= 1 and (i + pnForward) <= nLen and
-		      (i + pnForward - pnBackward) >= 1 and (i + pnForward - pnBackward) <= nLen
+		while (_i_ + pnForward) >= 1 and (_i_ + pnForward) <= _nLen_ and
+		      (_i_ + pnForward - pnBackward) >= 1 and (_i_ + pnForward - pnBackward) <= _nLen_
 
-			i = i + pnForward
-			anPos + i
+			_i_ = _i_ + pnForward
+			_anPos_ + _i_
 
-			i = i - pnBackward
-			anPos + i
+			_i_ = _i_ - pnBackward
+			_anPos_ + _i_
 
 		end
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 
 		else
-			return anPos
+			return _anPos_
 		end
 	
 		#< @FunctionAlternativeForm
@@ -12038,47 +12038,47 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aList = This.List()
-		nLen = len(aList)
+		_aList_ = This.List()
+		_nLen_ = len(_aList_)
 
 		if pnForward = pnBackward
 			return []
 		ok
 
 		if pnForward > pnBackward
-			nStart = nLen - pnBackward
+			_nStart_ = _nLen_ - pnBackward
 		else
-			nStart = nLen
+			_nStart_ = _nLen_
 		ok
 
-		i = nStart
-		anPos = [ nStart ]
+		_i_ = _nStart_
+		_anPos_ = [ _nStart_ ]
 
-		while ( (i - pnBackward) >= 1 and (i - pnBackward) <= nLen ) and
-		      ( (i - pnBackward + pnForward) >= 1 and (i - pnBackward + pnForward) <= nLen )
+		while ( (_i_ - pnBackward) >= 1 and (_i_ - pnBackward) <= _nLen_ ) and
+		      ( (_i_ - pnBackward + pnForward) >= 1 and (_i_ - pnBackward + pnForward) <= _nLen_ )
 
-			i = i - pnBackward
-			anPos + i
+			_i_ = _i_ - pnBackward
+			_anPos_ + _i_
 
-			i = i + pnForward
-			anPos + i
+			_i_ = _i_ + pnForward
+			_anPos_ + _i_
 
 		end
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 
 		else
-			return anPos
+			return _anPos_
 		end
 
 		#< @FunctionAlternativeForm
@@ -12123,37 +12123,37 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aList = This.List()
-		nLen = len(aList)
+		_aList_ = This.List()
+		_nLen_ = len(_aList_)
 
-		anPos = [ 1 ]
+		_anPos_ = [ 1 ]
 
-		for i = 1 to nLen
-			nPosFromStart = i + pnFromStart
-			nPosFromEnd   = nLen - i - pnFromEnd + 1
+		for _i_ = 1 to _nLen_
+			_nPosFromStart_ = _i_ + pnFromStart
+			_nPosFromEnd_   = _nLen_ - _i_ - pnFromEnd + 1
 
-			if nPosFromEnd >= nPosFromStart
-				anPos + nPosFromStart
-				if nPosFromEnd != nPosFromStart
-					anPos + nPosFromEnd
+			if _nPosFromEnd_ >= _nPosFromStart_
+				_anPos_ + _nPosFromStart_
+				if _nPosFromEnd_ != _nPosFromStart_
+					_anPos_ + _nPosFromEnd_
 				ok
 			ok
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 
 		else
-			return anPos
+			return _anPos_
 		end
 	
 		#< @FunctionAlternativeForm
@@ -12198,39 +12198,39 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aList = This.List()
-		nLen = len(aList)
+		_aList_ = This.List()
+		_nLen_ = len(_aList_)
 
-		anPos = [ nLen ]
+		_anPos_ = [ _nLen_ ]
 
-		for i = nLen to 1 step -1
+		for _i_ = _nLen_ to 1 step -1
 
-			nPosFromEnd   = i - pnFromEnd
-			nPosFromStart = nLen - i + 1
+			_nPosFromEnd_   = _i_ - pnFromEnd
+			_nPosFromStart_ = _nLen_ - _i_ + 1
 
-			if nPosFromEnd >= nPosFromStart
-				anPos + nPosFromEnd
+			if _nPosFromEnd_ >= _nPosFromStart_
+				_anPos_ + _nPosFromEnd_
 				
-				if nPosFromStart != nPosFromEnd
-					anPos + nPosFromStart
+				if _nPosFromStart_ != _nPosFromEnd_
+					_anPos_ + _nPosFromStart_
 				ok
 			ok
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
+			return This.ItemsAt(_anPos_)
 
 		but pReturn = :WalkedPositions
-			return anPos
+			return _anPos_
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
+			return This.ItemAt(len(_anPos_))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
+			return _anPos_[len(_anPos_)]
 
 		else
-			return anPos
+			return _anPos_
 		end
 
 		#< @FunctionAlternativeForm

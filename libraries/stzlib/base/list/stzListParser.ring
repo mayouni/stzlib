@@ -159,12 +159,12 @@ class stzListParser from stzParser
 
 	def NextNthPosition(n)
 
-		nPos = StzFindFirst( This.ParsedPositions(), This.CurrentPosition() )
+		_nPos_ = StzFindFirst( This.ParsedPositions(), This.CurrentPosition() )
 
-		if nPos != 0
-			nResult = This.ParsedPositions()[ nPos + n ]
-			This.SetCurrentPosition( nResult )
-			return nResult
+		if _nPos_ != 0
+			_nResult_ = This.ParsedPositions()[ _nPos_ + n ]
+			This.SetCurrentPosition( _nResult_ )
+			return _nResult_
 		else
 			return 0
 		ok
@@ -181,12 +181,12 @@ class stzListParser from stzParser
 
 	def PreviousNthPosition(n)
 
-		nPos = StzFindFirst( This.ParsedPositions(), This.CurrentPosition() )
+		_nPos_ = StzFindFirst( This.ParsedPositions(), This.CurrentPosition() )
 
-		if nPos != 0
-			nResult = This.ParsedPositions()[ nPos - n ]
-			This.SetCurrentPosition( nResult )
-			return nResult
+		if _nPos_ != 0
+			_nResult_ = This.ParsedPositions()[ _nPos_ - n ]
+			This.SetCurrentPosition( _nResult_ )
+			return _nResult_
 		else
 			return 0
 		ok
@@ -203,16 +203,16 @@ class stzListParser from stzParser
 
 	def ParsedItems()
 
-		aResult = []
+		_aResult_ = []
 
 		_aThisParsedPositions1_ = This.ParsedPositions()
 		_nThisParsedPositions1Len_ = len(_aThisParsedPositions1_)
 		for _iLoopThisParsedPositions1_ = 1 to _nThisParsedPositions1Len_
-			nPosition = _aThisParsedPositions1_[_iLoopThisParsedPositions1_]
-			aResult + This.List()[ nPosition ]
+			_nPosition_ = _aThisParsedPositions1_[_iLoopThisParsedPositions1_]
+			_aResult_ + This.List()[ _nPosition_ ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def CurrentItem()
 		return This.List()[ This.CurrentPosition() ]

@@ -70,10 +70,10 @@ class stzChainOfValue from stzObject
 	@cType
 
 	Is
-	IsNot
+	_IsNot_
 	_Not
 	_Do
-	Execute
+	_Execute_
 	Becomes
 
 	@bChainStopped = 0
@@ -103,9 +103,9 @@ class stzChainOfValue from stzObject
 		# in 'stopped' state so the user-facing API (Is / DoThis /
 		# WhyChainStopped) can still report a clean diagnostic
 		# instead of bringing the whole process down.
-		cCode = '@pValue = ' + @cVarName
+		_cCode_ = '@pValue = ' + @cVarName
 		try
-			eval(cCode)
+			eval(_cCode_)
 		catch
 			@pValue = NULL
 			@bChainStopped = 1
@@ -118,10 +118,10 @@ class stzChainOfValue from stzObject
 		@cType = ring_type(@pValue)
 
 		Is = This
-		IsNot = This
-		Not_ = This
+		_IsNot_ = This
+		_Not__ = This
 		Do_ = This
-		Execute = This
+		_Execute_ = This
 		Becomes = This
 
 	#----------------------
@@ -145,7 +145,7 @@ class stzChainOfValue from stzObject
 	def Update(pValue)
 		if CheckingParams() = 1
 			if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
-				cNewCode = cNewCode[2]
+				_cNewCode_ = _cNewCode_[2]
 			ok
 		ok
 
@@ -442,9 +442,9 @@ class stzChainOfValue from stzObject
 
 		#>
 
-	def This_(cCode)
+	def This_(_cCode_)
 		if $bExecuteCode
-			DoThis(cCode)
+			DoThis(_cCode_)
 		ok
 
 	#-----------------

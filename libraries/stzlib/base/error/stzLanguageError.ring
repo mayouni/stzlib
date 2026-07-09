@@ -1,13 +1,13 @@
 func stzLanguageError(pcError)
-	cErrorMsg = "in file stzLanguage.ring:" + NL
+	_cErrorMsg_ = "in file stzLanguage.ring:" + NL
 
 	switch pcError
 	
 	on :UnsupportedLanguageIdentifier
-		cErrorMsg += "   What : Can't create the language object!" + NL
-		cErrorMsg += "   Why  : The identifier you provided, as param, is not supported." + NL
-		cErrorMsg += "   Todo : Provide one of the supported options: a language name, abbreviation, or code, or a country name!"
+		_cErrorMsg_ += "   What : Can't create the language object!" + NL
+		_cErrorMsg_ += "   Why  : The identifier you provided, as param, is not supported." + NL
+		_cErrorMsg_ += "   Todo : Provide one of the supported options: a language name, abbreviation, or code, or a country name!"
 
 	off
 
-	return cErrorMsg + NL
+	return _cErrorMsg_ + NL

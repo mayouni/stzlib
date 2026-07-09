@@ -42,12 +42,12 @@ func StzRegexLookaroundMakerQ()
 		return new stzRegexLookaroundMaker
 
 func StzRxp(pcPattName)
-	cResult = RegexPatterns()[pcPattName]
-	if cResult = ""
+	_cResult_ = RegexPatterns()[pcPattName]
+	if _cResult_ = ""
 		StzRaise("The pattern name you provided does not exist in stzRegexData file.")
 	ok
 
-	return cResult
+	return _cResult_
 
 	func rxp(pcPattName)
 		return StzRxp(pcPattName)
@@ -97,9 +97,9 @@ func NTimes(n)
 #=====================#
 
 class stzRegexMaker from stzObject
-	acFragments = []
-	aSequences = []
-	aGroups = []  	# List of [name, pattern] pairs
+	_acFragments_ = []
+	_aSequences_ = []
+	_aGroups_ = []  	# List of [name, pattern] pairs
 
 	def init()
 
@@ -107,26 +107,26 @@ class stzRegexMaker from stzObject
 	 #  ADDING SEQUENCES  #
 	#--------------------#
 
-	def AddRange(cType, cRange, cQuant, nTimes1, nTimes2)
+	def AddRange(cType, _cRange_, cQuant, nTimes1, _nTimes2_)
 
 		# Checking params
 
-		if isString(nTimes2) and (nTimes2 = :Time or nTimes2 = :Times)
+		if isString(_nTimes2_) and (_nTimes2_ = :Time or _nTimes2_ = :Times)
 			nTimes = 0
 
 		# case of named param like :And = [3, :Times]
 
-		but isList(nTimes2) and len(nTimes2) = 2 and isString(nTimes2[1]) and nTimes2[1] = "and"
-			if isNumber(nTimes2[2])
-				nTimes2 = nTimes2[2]
+		but isList(_nTimes2_) and len(_nTimes2_) = 2 and isString(_nTimes2_[1]) and _nTimes2_[1] = "and"
+			if isNumber(_nTimes2_[2])
+				_nTimes2_ = _nTimes2_[2]
 
-			but isList(nTimes2[2])
+			but isList(_nTimes2_[2])
 
-				if isNumber(nTimes2[2][1]) and
-				   isString(nTimes2[2][2]) and
-				   (nTimes2[2][2] = :Time or nTimes2[2][2] = :Times)
+				if isNumber(_nTimes2_[2][1]) and
+				   isString(_nTimes2_[2][2]) and
+				   (_nTimes2_[2][2] = :Time or _nTimes2_[2][2] = :Times)
 
-					nTimes2 = nTimes2[2][1]
+					_nTimes2_ = _nTimes2_[2][1]
 				else
 					StzRaise("Incorrect param type!")
 				ok
@@ -135,117 +135,117 @@ class stzRegexMaker from stzObject
 
 		# Constrcuting the main pattern string
 
-		cPattern = ""
+		_cPattern_ = ""
 
-		if isList(cRange)
-			cRange = join(cRange)
+		if isList(_cRange_)
+			_cRange_ = join(_cRange_)
 		ok
 
 		if cType = :among
-			cPattern = "[" + StzReplace(cRange, "SPACE", " ") + "]"
+			_cPattern_ = "[" + StzReplace(_cRange_, "SPACE", " ") + "]"
 
 		but cType = :notAmong
-			cPattern = "[^" + StzReplace(cRange, "SPACE", " ") + "]"
+			_cPattern_ = "[^" + StzReplace(_cRange_, "SPACE", " ") + "]"
 
 		else
-			cPattern = "[" + cRange + "]"
+			_cPattern_ = "[" + _cRange_ + "]"
 		ok
 
 		# Constructing the quantifier part of the pattern
 
-        	cQuantifier = ""
+        	_cQuantifier_ = ""
 
 		if cQuant = :repeatedExactly
-			cQuantifier = "{" + nTimes1 + "}"
+			_cQuantifier_ = "{" + nTimes1 + "}"
 
 		but cQuant = :repeatedAtLeast
-			cQuantifier = "{" + nTimes1 + ",}"
+			_cQuantifier_ = "{" + nTimes1 + ",}"
 
 		but cQuant = :repeatedAtMost
-			cQuantifier = "?"
+			_cQuantifier_ = "?"
 
 		but cQuant = :repeatedBetween
-			cQuantifier = "{" + nTimes1 + "," + nTimes2 + "}"
+			_cQuantifier_ = "{" + nTimes1 + "," + _nTimes2_ + "}"
 
 		but cQuant =  :repeatedSeveralTimes or cQuant = :repeatedSeveral
-			cQuantifier = "*"
+			_cQuantifier_ = "*"
 		ok
 
 		# Storing the complete pattern (main string + quantifier part)
 
-        	acFragments + (cPattern + cQuantifier)
+        	_acFragments_ + (_cPattern_ + _cQuantifier_)
 
 		# String the elements of the sequence applied
 
-        	aSequences + [ cType, cRange, cQuant, nTimes1, nTimes2 ]
+        	_aSequences_ + [ cType, _cRange_, cQuant, nTimes1, _nTimes2_ ]
         
 
-	def AddAmongChars(cChars, cQuant, nTimes1, nTimes2)
+	def AddAmongChars(_cChars_, cQuant, nTimes1, _nTimes2_)
 
-		if isString(cChars)
-			cChars = Chars(cChars)
+		if isString(_cChars_)
+			_cChars_ = Chars(_cChars_)
 		ok
         
-		AddRange(:among, cChars, cQuant, nTimes1, nTimes2)
+		AddRange(:among, _cChars_, cQuant, nTimes1, _nTimes2_)
 
-		def AddAmongDigits(cDigits, cQuant, nTimes1, nTimes2)
-			if isString(cDigits)
-				cDigits = Chars(cDigits)
+		def AddAmongDigits(_cDigits_, cQuant, nTimes1, _nTimes2_)
+			if isString(_cDigits_)
+				_cDigits_ = Chars(_cDigits_)
 			ok
 
-			This.AddAmongChars(cDigits, cQuant, nTimes1, nTimes2)
+			This.AddAmongChars(_cDigits_, cQuant, nTimes1, _nTimes2_)
 
-	def AddNotAmongChars(cChars, cQuant, nTimes1, nTimes2)
-		if isString(cChars)
-			cChars = Chars(cChars)
+	def AddNotAmongChars(_cChars_, cQuant, nTimes1, _nTimes2_)
+		if isString(_cChars_)
+			_cChars_ = Chars(_cChars_)
 		ok
         
-		AddRange(:NotAmong, cChars, cQuant, nTimes1, nTimes2)
+		AddRange(:NotAmong, _cChars_, cQuant, nTimes1, _nTimes2_)
 
-		def AddNotAmongDigits(cDigits, cQuant, nTimes1, nTimes2)
-			if isString(cDigits)
-				cDigits = Chars(cDigits)
+		def AddNotAmongDigits(_cDigits_, cQuant, nTimes1, _nTimes2_)
+			if isString(_cDigits_)
+				_cDigits_ = Chars(_cDigits_)
 			ok
 
-			This.AddNotAmongChars(cDigits, cQuant, nTimes1, nTimes2)
+			This.AddNotAmongChars(_cDigits_, cQuant, nTimes1, _nTimes2_)
 
-	def AddCharsRange(cRange, cQuant, nTimes1, nTimes2)
-		This.AddRange(:Between, cRange, cQuant, nTimes1, nTimes2)
+	def AddCharsRange(_cRange_, cQuant, nTimes1, _nTimes2_)
+		This.AddRange(:Between, _cRange_, cQuant, nTimes1, _nTimes2_)
  
-		def AddDigitsRange(cDigits, cQuant, nTimes1, nTimes2)
-			if isString(cDigits)
-				cDigits = Chars(cDigits)
+		def AddDigitsRange(_cDigits_, cQuant, nTimes1, _nTimes2_)
+			if isString(_cDigits_)
+				_cDigits_ = Chars(_cDigits_)
 			ok
 
-			This.AddCharsRange(cDigits, cQuant, nTimes1, nTimes2)
+			This.AddCharsRange(_cDigits_, cQuant, nTimes1, _nTimes2_)
 
 	  #------------------------------------------------#
 	 #  GETTING THE STRING PATTERN ANT ITS FRAGMENTS  #
 	#------------------------------------------------#
 
 	def Pattern()
-		cResult = ""
+		_cResult_ = ""
 
-		_nAcFragments1Len_ = len(acFragments)
+		_nAcFragments1Len_ = len(_acFragments_)
 		for _iLoopAcFragments1_ = 1 to _nAcFragments1Len_
-			cFrag = acFragments[_iLoopAcFragments1_]
-			cResult += cFrag
+			_cFrag_ = _acFragments_[_iLoopAcFragments1_]
+			_cResult_ += _cFrag_
 		next
 
-		return cResult
+		return _cResult_
 
 	  #-----------------------------------------------#
 	 #  GETTING THE FRAGMENTS OF THE PATTERN STRING  #
 	#-----------------------------------------------#
 
 	def Fragments()
-		return acFragments
+		return _acFragments_
 
 		def Frags()
 			return This.Fragments()
 
 	def NumberOfFragements()
-		return len(acFragments)
+		return len(_acFragments_)
 
 		#< @FunctionAlternativeForms
 
@@ -269,13 +269,13 @@ class stzRegexMaker from stzObject
 		#>
 
 	def Fragment(n)
-		return acFragments[n]
+		return _acFragments_[n]
 
 		def Frag(n)
 			return This.Fragment(n)
 
 	def FragmentXT(n)
-		return [ acFragments[n], aSequences[n] ]
+		return [ _acFragments_[n], _aSequences_[n] ]
 
 		#< @FunctionAlternativeForms
 
@@ -323,7 +323,7 @@ class stzRegexMaker from stzObject
 	#-------------------------------------------------------------#
 
 	def Sequences()
-		return aSequences
+		return _aSequences_
 
 		def Seqs()
 			return This.Sequences()
@@ -367,7 +367,7 @@ class stzRegexMaker from stzObject
 		#>
 
 	def Sequence(n)
-		return aSequences[n]
+		return _aSequences_[n]
 
 		def Seq(n)
 			return This.Sequence(n)
@@ -376,7 +376,7 @@ class stzRegexMaker from stzObject
 			return This.Sequence(n)
 
 	def SequenceXT(n)
-		return [ aSequences[n], acFragments[n] ]
+		return [ _aSequences_[n], _acFragments_[n] ]
 
 		#< @FunctionAlternativeForms
 
@@ -429,8 +429,8 @@ class stzRegexMaker from stzObject
 
 	def RepeatSequence(n)
 
-		aSequences + aSequences[n]
-		acFragments + acFragments[n]
+		_aSequences_ + _aSequences_[n]
+		_acFragments_ + _acFragments_[n]
 
 		def RepeatCommand(n)
 			This.RepeatSequence(n)
@@ -703,7 +703,7 @@ class stzRegexMaker from stzObject
 	#----------------------------#
 
 	def AddLiteral(pcStr)
-		acFragments + pcStr
+		_acFragments_ + pcStr
 
 	  #------------------------------#
 	 #     CHARACTER CLASS HELPER    #
@@ -751,7 +751,7 @@ class stzRegexMaker from stzObject
 		# o1.AddCommonPattern(:email)  # Matches email addresses
 		# o1.AddCommonPattern(:phone)  # Matches phone numbers
 	
-		acFragments + rxp(pcType)
+		_acFragments_ + rxp(pcType)
 	
 	  #-------------------------------#
 	 #     BACKREFERENCE HELPER      #
@@ -764,9 +764,9 @@ class stzRegexMaker from stzObject
 		# o1.AddBackreference("tag")  # Matches same tag again
 	
 		if isString(pcGroupName)
-			acFragments + "(?P=" + pcGroupName + ")"
+			_acFragments_ + "(?P=" + pcGroupName + ")"
 		but isNumber(pcGroupName)  
-			acFragments + "\\" + pcGroupName
+			_acFragments_ + "\\" + pcGroupName
 		ok
 	
 	  #-------------------------------#
@@ -781,13 +781,13 @@ class stzRegexMaker from stzObject
 	
 		switch pcCategory
 		on :letter
-			acFragments + "\p{L}"
+			_acFragments_ + "\p{L}"
 		on :number
-			acFragments + "\p{N}" 
+			_acFragments_ + "\p{N}" 
 		on :punctuation 
-			acFragments + "\p{P}"
+			_acFragments_ + "\p{P}"
 		on :symbol
-			acFragments + "\p{S}"
+			_acFragments_ + "\p{S}"
 		off
 	
 	  #-------------------------------#
@@ -803,11 +803,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcType
 		on :start
-			acFragments + "\b"
+			_acFragments_ + "\b"
 		on :end  
-			acFragments + "\b"
+			_acFragments_ + "\b"
 		on :none
-			acFragments + "\B"
+			_acFragments_ + "\B"
 		off
 	
 	  #--------------------------------#
@@ -822,13 +822,13 @@ class stzRegexMaker from stzObject
 		# o1.AddCapturingGroup(:atomic, "[aeiou]+")  	# Atomic group
 	
 		if pcName = :nonCapturing
-			acFragments + "(?:" + pcPattern + ")"
+			_acFragments_ + "(?:" + pcPattern + ")"
 		
 		but pcName = :atomic
-			acFragments + "(?>" + pcPattern + ")"
+			_acFragments_ + "(?>" + pcPattern + ")"
 		
 		but isString(pcName)
-			acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+			_acFragments_ + "(?P<" + pcName + ">" + pcPattern + ")"
 		ok
 	
 	  #-----------------------------------------#
@@ -850,13 +850,13 @@ class stzRegexMaker from stzObject
 	
 		switch pcBehavior
 		on :longest    # Takes longest possible match (formerly 'greedy')
-			acFragments + pcPattern + "+"
+			_acFragments_ + pcPattern + "+"
 	
 		on :shortest   # Takes shortest possible match (formerly 'lazy')
-			acFragments + pcPattern + "+?"
+			_acFragments_ + pcPattern + "+?"
 	
 		on :complete   # Matches everything at once without backtracking (formerly 'possessive')
-			acFragments + pcPattern + "++"
+			_acFragments_ + pcPattern + "++"
 		off
 	
 	  #--------------------------------#
@@ -871,11 +871,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcQuantifier
 		on :possessive
-			acFragments + pcPattern + "++"
+			_acFragments_ + pcPattern + "++"
 		on :lazy
-			acFragments + pcPattern + "+?"
+			_acFragments_ + pcPattern + "+?"
 		on :greedy
-			acFragments + pcPattern + "+"
+			_acFragments_ + pcPattern + "+"
 		off
 	
 	  #----------------------#
@@ -888,7 +888,7 @@ class stzRegexMaker from stzObject
 		# o1.AddComment("Match emails") 
 		# o1.AddCommonPattern(:email)
 	
-		acFragments + "(?#" + pcText + ")"
+		_acFragments_ + "(?#" + pcText + ")"
 	
 	  #--------------------------------#
 	 #     CASE SENSITIVITY HELPER    #
@@ -905,11 +905,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcMode
 		on :insensitive
-			acFragments + "(?i)" + pcPattern
+			_acFragments_ + "(?i)" + pcPattern
 		on :sensitive  
-			acFragments + "(?-i)" + pcPattern
+			_acFragments_ + "(?-i)" + pcPattern
 		on :mixed
-			acFragments + "(?i:" + pcPattern + ")"
+			_acFragments_ + "(?i:" + pcPattern + ")"
 		off
 	
 	  #--------------------------------#
@@ -925,19 +925,19 @@ class stzRegexMaker from stzObject
 	
 		switch pcMode
 		on :and
-			cResult = ""
+			_cResult_ = ""
 			_nPatterns1Len_ = len(paPatterns)
 			for _iLoopPatterns1_ = 1 to _nPatterns1Len_
-				cPattern = paPatterns[_iLoopPatterns1_]
-				cResult += "(?=" + cPattern + ")"
+				_cPattern_ = paPatterns[_iLoopPatterns1_]
+				_cResult_ += "(?=" + _cPattern_ + ")"
 			next
-			acFragments + cResult
+			_acFragments_ + _cResult_
 			
 		on :or
-			acFragments + "(" + join(paPatterns, "|") + ")"
+			_acFragments_ + "(" + join(paPatterns, "|") + ")"
 			
 		on :sequence
-			acFragments + join(paPatterns, "")
+			_acFragments_ + join(paPatterns, "")
 		off
 
 	  #----------------------------------------#
@@ -956,9 +956,9 @@ class stzRegexMaker from stzObject
 			StzRaise("Group name must be a string")
 		ok
 
-		aGroups + [pcName, pcPattern]
-		acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
-		return len(aGroups)
+		_aGroups_ + [pcName, pcPattern]
+		_acFragments_ + "(?P<" + pcName + ">" + pcPattern + ")"
+		return len(_aGroups_)
 
 	def ReuseGroupPattern(pcGroupName)
 		# Reuses the pattern of a previously defined group
@@ -968,12 +968,12 @@ class stzRegexMaker from stzObject
 		# o1.DefineGroup("word", "\w+")
 		# o1.ReuseGroupPattern("word") # Uses same \w+ pattern
 
-		nGroup = FindGroup(pcGroupName)
-		if nGroup = 0
+		_nGroup_ = FindGroup(pcGroupName)
+		if _nGroup_ = 0
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		acFragments + "(?:" + aGroups[nGroup][2] + ")"
+		_acFragments_ + "(?:" + _aGroups_[_nGroup_][2] + ")"
 
 		def ReuseGroup(pcGroupName)
 			This.ReuseGroupPattern(pcGroupName)
@@ -989,12 +989,12 @@ class stzRegexMaker from stzObject
 		# o1.AddCharacterClass(:space)
 		# o1.MatchSameContentAs("word") # Must match same word
 
-		nGroup = FindGroup(pcGroupName)
-		if nGroup = 0
+		_nGroup_ = FindGroup(pcGroupName)
+		if _nGroup_ = 0
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		acFragments + "</(?P=" + pcTagGroupName + ")>"
+		_acFragments_ + "</(?P=" + pcTagGroupName + ")>"
 
 	def MatchOppositeTagAs(pcTagGroupName)
 		# Special case for HTML/XML - matches the closing tag
@@ -1007,12 +1007,12 @@ class stzRegexMaker from stzObject
 		# o1.AddMatchLength(".*", :shortest) 	# Content
 		# o1.MatchOppositeTagAs("tag")      	# Closing tag
 
-		nGroup = FindGroup(pcTagGroupName)
-		if nGroup = 0
+		_nGroup_ = FindGroup(pcTagGroupName)
+		if _nGroup_ = 0
 			StzRaise("No tag group named '" + pcTagGroupName + "' has been defined")
 		ok
 
-		acFragments + "</(?P=" + pcTagGroupName + ")>"
+		_acFragments_ + "</(?P=" + pcTagGroupName + ")>"
 
 	def IsBeforeGroup(pcGroupName)
 		# Positive lookahead - checks if the referenced group pattern
@@ -1024,19 +1024,19 @@ class stzRegexMaker from stzObject
 		# o1.AddCharacterClass(:word)
 		# o1.IsBeforeGroup("num")
 
-		nGroup = FindGroup(pcGroupName)
-		if nGroup = 0
+		_nGroup_ = FindGroup(pcGroupName)
+		if _nGroup_ = 0
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		acFragments + "(?=" + aGroups[nGroup][2] + ")"
+		_acFragments_ + "(?=" + _aGroups_[_nGroup_][2] + ")"
 
 	def FindGroup(pcName)
 		# Returns index of named group or 0 if not found
 
-		_nGroupsLen_ = len(aGroups)
+		_nGroupsLen_ = len(_aGroups_)
 		for i = 1 to _nGroupsLen_
-			if aGroups[i][1] = pcName
+			if _aGroups_[i][1] = pcName
 				return i
 			ok
 		next
@@ -1106,217 +1106,217 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 
 class stzRecursiveRegexMaker from stzObject
 
-	aLevels = []
-	bNamedRecursion = FALSE
-	aParentStack = []  # Tracks current parent levels during declarative setup
-	nParentIndex = 0
+	_aLevels_ = []
+	_bNamedRecursion_ = FALSE
+	_aParentStack_ = []  # Tracks current parent levels during declarative setup
+	_nParentIndex_ = 0
 
 	def init()
 		This.EnableNamedRecursion()
 
-	def AddLevel(cName, cPattern)
-		aLevels + [
+	def AddLevel(cName, _cPattern_)
+		_aLevels_ + [
 			:name    = cName,
-			:pattern = cPattern,
+			:pattern = _cPattern_,
 			:parent  = NULL,
 			:children = [],
 			:quant   = ""
 		]
 
-		nParentIndex = len(aParentStack)
+		_nParentIndex_ = len(_aParentStack_)
 
-	def AddChildLevel(cParentName, cChildName, cPattern)
-		nParent = pvtFindLevelByName(cParentName)
+	def AddChildLevel(cParentName, cChildName, _cPattern_)
+		_nParent_ = pvtFindLevelByName(cParentName)
 		
-		if nParent = 0
+		if _nParent_ = 0
 			StzRaise("Parent level '" + cParentName + "' not found!")
 		ok
 
-		AddLevel(cChildName, cPattern)
+		AddLevel(cChildName, _cPattern_)
 		
-		nChild = len(aLevels)
-		aLevels[nChild][:parent] = nParent
-		aLevels[nParent][:children] + nChild
+		_nChild_ = len(_aLevels_)
+		_aLevels_[_nChild_][:parent] = _nParent_
+		_aLevels_[_nParent_][:children] + _nChild_
 
 	def AddQuantifier(cLevelName, cQuant)
-		nLevel = pvtFindLevelByName(cLevelName)
+		_nLevel_ = pvtFindLevelByName(cLevelName)
 		
-		if nLevel = 0
+		if _nLevel_ = 0
 			StzRaise("Level '" + cLevelName + "' not found!")
 		ok
 
-		aLevels[nLevel][:quant] = cQuant
+		_aLevels_[_nLevel_][:quant] = cQuant
 
 	def EnableNamedRecursion()
-		bNamedRecursion = TRUE
+		_bNamedRecursion_ = TRUE
 		
 	def DisableNamedRecursion()
-		bNamedRecursion = FALSE
+		_bNamedRecursion_ = FALSE
 
 	def Pattern()
-		if len(aLevels) = 0
+		if len(_aLevels_) = 0
 			return ""
 		ok
 
-		cPattern = ""
+		_cPattern_ = ""
 		
 		# Process all root levels (those without parents)
 
-		_nLevelsLen_2 = len(aLevels)
+		_nLevelsLen_2 = len(_aLevels_)
 		for i = 1 to _nLevelsLen_2
-			if aLevels[i][:parent] = NULL
-				cPattern += pvtBuildPattern(i)
+			if _aLevels_[i][:parent] = NULL
+				_cPattern_ += pvtBuildPattern(i)
 			ok
 		next
 
-		return cPattern
+		return _cPattern_
 
 	def SubPattern(cLevelName)
-		nLevel = pvtFindLevelByName(cLevelName)
+		_nLevel_ = pvtFindLevelByName(cLevelName)
 		
-		if nLevel = 0
+		if _nLevel_ = 0
 			return ""
 		ok
 
-		return pvtBuildPattern(nLevel)
+		return pvtBuildPattern(_nLevel_)
 
 	def LevelNames()
-		aResult = []
-		_nLevels2Len_ = len(aLevels)
+		_aResult_ = []
+		_nLevels2Len_ = len(_aLevels_)
 		for _iLoopLevels2_ = 1 to _nLevels2Len_
-			level = aLevels[_iLoopLevels2_]
-			aResult + level[:name]
+			_level_ = _aLevels_[_iLoopLevels2_]
+			_aResult_ + _level_[:name]
 		next
-		return aResult
+		return _aResult_
 
 	def NumberOfLevels()
-		return len(aLevels)
+		return len(_aLevels_)
 
 	def HasLevel(cName)
 		return pvtFindLevelByName(cName) > 0
 
 	def LevelParent(cName)
-		nLevel = pvtFindLevelByName(cName)
-		if nLevel = 0
+		_nLevel_ = pvtFindLevelByName(cName)
+		if _nLevel_ = 0
 			return ""
 		ok
-		nParent = aLevels[nLevel][:parent]
-		if nParent = NULL
+		_nParent_ = _aLevels_[_nLevel_][:parent]
+		if _nParent_ = NULL
 			return ""
 		ok
-		return aLevels[nParent][:name]
+		return _aLevels_[_nParent_][:name]
 
 	def LevelChildren(cName)
 
-		nLevel = pvtFindLevelByName(cName)
+		_nLevel_ = pvtFindLevelByName(cName)
 
-		if nLevel = 0
+		if _nLevel_ = 0
 			return []
 		ok
 
-		aResult = []
+		_aResult_ = []
 
-		_aLevelsnLevelchildren1_ = aLevels[nLevel][:children]
+		_aLevelsnLevelchildren1_ = _aLevels_[_nLevel_][:children]
 		_nLevelsnLevelchildren1Len_ = len(_aLevelsnLevelchildren1_)
 		for _iLoopLevelsnLevelchildren1_ = 1 to _nLevelsnLevelchildren1Len_
-			nChild = _aLevelsnLevelchildren1_[_iLoopLevelsnLevelchildren1_]
-			aResult + aLevels[nChild][:name]
+			_nChild_ = _aLevelsnLevelchildren1_[_iLoopLevelsnLevelchildren1_]
+			_aResult_ + _aLevels_[_nChild_][:name]
 		next
 
-		return aResult
+		return _aResult_
 
 	def Info()
 
-		aResult = []
+		_aResult_ = []
 
-		_nLevels1Len_ = len(aLevels)
+		_nLevels1Len_ = len(_aLevels_)
 		for _iLoopLevels1_ = 1 to _nLevels1Len_
-			level = aLevels[_iLoopLevels1_]
-			aInfo = [
-				:name = level[:name],
-				:pattern = level[:pattern],
-				:parent = level[:parent],
-				:children = level[:children],
-				:quantifier = level[:quant]
+			_level_ = _aLevels_[_iLoopLevels1_]
+			_aInfo_ = [
+				:name = _level_[:name],
+				:pattern = _level_[:pattern],
+				:parent = _level_[:parent],
+				:children = _level_[:children],
+				:quantifier = _level_[:quant]
 			]
 
-			aResult + aInfo
+			_aResult_ + _aInfo_
 		next
 
-		return aResult
+		return _aResult_
 
 	def Reset()
-		aLevels = []
-		bNamedRecursion = FALSE
+		_aLevels_ = []
+		_bNamedRecursion_ = FALSE
 
 	private
 
 	def pvtFindLevelByName(cName)
 
-		_nLevelsLen_ = len(aLevels)
+		_nLevelsLen_ = len(_aLevels_)
 		for i = 1 to _nLevelsLen_
-			if aLevels[i][:name] = cName
+			if _aLevels_[i][:name] = cName
 				return i
 			ok
 		next
 
 		return 0
 
-	def pvtBuildPattern(nLevel)
+	def pvtBuildPattern(_nLevel_)
 
-		if nLevel < 1 or nLevel > len(aLevels)
+		if _nLevel_ < 1 or _nLevel_ > len(_aLevels_)
 			return ""
 		ok
 
-		level = aLevels[nLevel]
-		cPattern = level[:pattern]
+		_level_ = _aLevels_[_nLevel_]
+		_cPattern_ = _level_[:pattern]
 
 		# Process children first to properly nest them
 
-		cChildrenPattern = ""
+		_cChildrenPattern_ = ""
 
-		_aLevelchildren1_ = level[:children]
+		_aLevelchildren1_ = _level_[:children]
 		_nLevelchildren1Len_ = len(_aLevelchildren1_)
 		for _iLoopLevelchildren1_ = 1 to _nLevelchildren1Len_
-			nChild = _aLevelchildren1_[_iLoopLevelchildren1_]
-			cChildPattern = pvtBuildPattern(nChild)
-			cChildrenPattern += cChildPattern
+			_nChild_ = _aLevelchildren1_[_iLoopLevelchildren1_]
+			_cChildPattern_ = pvtBuildPattern(_nChild_)
+			_cChildrenPattern_ += _cChildPattern_
 		next
 
 		# Add children pattern to current level's pattern
 
-		if cChildrenPattern != ""
-			cPattern += cChildrenPattern
+		if _cChildrenPattern_ != ""
+			_cPattern_ += _cChildrenPattern_
 		ok
 
 		# Add quantifier if present
 
-		if HasKey(level[:quant])
+		if HasKey(_level_[:quant])
 
-			if bNamedRecursion
+			if _bNamedRecursion_
 
 				# For named recursion, wrap pattern + children in capture group before quantifier
-				cPattern = "(?P<" + level[:name] + ">" + cPattern + ")" + level[:quant]
+				_cPattern_ = "(?P<" + _level_[:name] + ">" + _cPattern_ + ")" + _level_[:quant]
 			else
 
-				cPattern += level[:quant]
+				_cPattern_ += _level_[:quant]
 			ok
 
 		else
-			if bNamedRecursion
+			if _bNamedRecursion_
 
 				# Wrap in capture group without quantifier
-				cPattern = "(?P<" + level[:name] + ">" + cPattern + ")"
+				_cPattern_ = "(?P<" + _level_[:name] + ">" + _cPattern_ + ")"
 			ok
 		ok
 
 		# Special handling for close pattern
 
-		if StzLower(level[:name]) = "close"
-			return level[:pattern]
+		if StzLower(_level_[:name]) = "close"
+			return _level_[:pattern]
 		ok
 
-		return cPattern
+		return _cPattern_
 
 #=================================#
 #  CONDITIONAL REGEX MAKER CLASS  #
@@ -1366,7 +1366,7 @@ class stzConditionalRegexMaker from stzObject
 
 	def IfCaptured(pcGroupName)
 		if isList(pcGroupName) and len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
-			cGroupName = pGroupName[2]
+			_cGroupName_ = pGroupName[2]
 		ok
 
 		if NOT isString(pcGroupName)
@@ -1476,23 +1476,23 @@ class stzConditionalRegexMaker from stzObject
 			return ""
 		ok
 
-		cResult = @cCondition + @cThenPart
+		_cResult_ = @cCondition + @cThenPart
 
 		if @cElsePart != ""
-			cResult += "|" + @cElsePart
+			_cResult_ += "|" + @cElsePart
 		ok
 
-		return cResult + ")"
+		return _cResult_ + ")"
 
 	def Info()
-		aResult = [
+		_aResult_ = [
 			:condition = @cCondition,
 			:then = @cThenPart,
 			:else = @cElsePart,
 			:pattern = This.Pattern()
 		]
 
-		return aResult
+		return _aResult_
 
 #==================================#
 #  STZ REGEX LOOKING AROUND CLASS  #
@@ -1747,32 +1747,32 @@ class stzRegexLookaroundMaker from stzObject
 			return ""
 		ok
 
-		cResult = ""
+		_cResult_ = ""
 
 		switch @cDirection
 		on "ahead"
 			if @cType = "positive"
-				cResult = "(?=" + @cPattern + ")"
+				_cResult_ = "(?=" + @cPattern + ")"
 			else
-				cResult = "(?!" + @cPattern + ")"
+				_cResult_ = "(?!" + @cPattern + ")"
 			ok
 
 		on "behind"
 			if @cType = "positive"
-				cResult = "(?<=" + @cPattern + ")"
+				_cResult_ = "(?<=" + @cPattern + ")"
 			else
-				cResult = "(?<!" + @cPattern + ")"
+				_cResult_ = "(?<!" + @cPattern + ")"
 			ok
 		off
 
 		if @cMainPattern != ""
-			cResult += @cMainPattern
+			_cResult_ += @cMainPattern
 		ok
 
-		return cResult
+		return _cResult_
 
 	def Info()
-		aResult = [
+		_aResult_ = [
 			:direction = @cDirection,
 			:type = @cType,
 			:lookPattern = @cPattern,
@@ -1780,4 +1780,4 @@ class stzRegexLookaroundMaker from stzObject
 			:pattern = This.Pattern()
 		]
 
-		return aResult
+		return _aResult_

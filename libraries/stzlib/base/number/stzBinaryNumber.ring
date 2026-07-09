@@ -145,34 +145,34 @@ class stzBinaryNumber from stzObject
 	#--------------------------------#
 		
 	def IntegerPart()
-		n = ring_substr1(This.BinaryNumber(), ".")
+		_n_ = ring_substr1(This.BinaryNumber(), ".")
 
-		if n = 0
+		if _n_ = 0
 			return This.BinaryNumber()
 
 		else
-			return oTempStr.Section( 1, n-1 )
+			return _oTempStr_.Section( 1, _n_-1 )
 		ok
 
 	def FractionalPart()
-		cResult = ""
-		oTempStr = new stzString(This.BinaryNumber())
-		n = oTempStr.FindFirstOccurrence(".")
+		_cResult_ = ""
+		_oTempStr_ = new stzString(This.BinaryNumber())
+		_n_ = _oTempStr_.FindFirstOccurrence(".")
 
-		if n > 0
-			nLen = oTempStr.NumberOfchars()
-			cResult = oTempStr.Section( n+1, nLen )
+		if _n_ > 0
+			_nLen_ = _oTempStr_.NumberOfchars()
+			_cResult_ = _oTempStr_.Section( _n_+1, _nLen_ )
 		ok
 
-		return cResult
+		return _cResult_
 
 	def Reversed()
-		cResult = This.IntegerPartReversed()
+		_cResult_ = This.IntegerPartReversed()
 		if This.HasFractionalPart()
-			cResult += "." + This.FractionalPartReversed()
+			_cResult_ += "." + This.FractionalPartReversed()
 		ok
 
-		return cResult
+		return _cResult_
 
 	def HasFractionalPart()
 		If This.FractionalPart() != ""
@@ -185,20 +185,20 @@ class stzBinaryNumber from stzObject
 			return This.HasFractionalPart()
 
 	def FractionalPartReversed()
-		cStr = This.FractionalPart()
-		cRev = ""
-		for i = StzLen(cStr) to 1 step -1
-			cRev += cStr[i]
+		_cStr_ = This.FractionalPart()
+		_cRev_ = ""
+		for i = StzLen(_cStr_) to 1 step -1
+			_cRev_ += _cStr_[i]
 		next
-		return cRev
+		return _cRev_
 
 	def IntegerPartReversed()
-		cStr = This.IntegerPart()
-		cRev = ""
-		for i = StzLen(cStr) to 1 step -1
-			cRev += cStr[i]
+		_cStr_ = This.IntegerPart()
+		_cRev_ = ""
+		for i = StzLen(_cStr_) to 1 step -1
+			_cRev_ += _cStr_[i]
 		next
-		return cRev
+		return _cRev_
 		
 	  #------------------#
 	 #    CONVERSION    #
@@ -211,43 +211,43 @@ class stzBinaryNumber from stzObject
 		return new stzString( This.BinaryNumber() )
 
 	def IntegerPartToDecimalForm()
-		cBinary = This.BinaryNumber()
+		_cBinary_ = This.BinaryNumber()
 
-		nDotPos = ring_substr1(cBinary, ".")
-		if nDotPos > 0
-			cBinary = StzLeft(cBinary, nDotPos-1)
+		_nDotPos_ = ring_substr1(_cBinary_, ".")
+		if _nDotPos_ > 0
+			_cBinary_ = StzLeft(_cBinary_, _nDotPos_-1)
 		ok
 
-		cBinary = StzReplace(cBinary, "0b", "")
-		cBinary = StzReplace(cBinary, "b", "")
+		_cBinary_ = StzReplace(_cBinary_, "0b", "")
+		_cBinary_ = StzReplace(_cBinary_, "b", "")
 
-		return "" + StzEngineNumberFromBase(cBinary, 2)
+		return "" + StzEngineNumberFromBase(_cBinary_, 2)
 
 		def IntegerPartToDecimal()
 			return This.IntegerPartToDecimalForm()
 
 	def FractionalPartToDecimalForm()
-		nCurrentTotal = 0
+		_nCurrentTotal_ = 0
 		
 		_aThisFractionalPartRevers1_ = This.FractionalPartReversed()
 		_nThisFractionalPartRevers1Len_ = len(_aThisFractionalPartRevers1_)
 		for _iLoopThisFractionalPartRevers1_ = 1 to _nThisFractionalPartRevers1Len_
-			bit = _aThisFractionalPartRevers1_[_iLoopThisFractionalPartRevers1_]
-			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2
+			_bit_ = _aThisFractionalPartRevers1_[_iLoopThisFractionalPartRevers1_]
+			_nCurrentTotal_ = ( _nCurrentTotal_ + (0+ _bit_) ) / 2
 		next
 
-		cStr = "" + nCurrentTotal
-		while StzLen(cStr) > 1 and StzRight(cStr, 1) = "0"
-			cStr = StzLeft(cStr, StzLen(cStr) - 1)
+		_cStr_ = "" + _nCurrentTotal_
+		while StzLen(_cStr_) > 1 and StzRight(_cStr_, 1) = "0"
+			_cStr_ = StzLeft(_cStr_, StzLen(_cStr_) - 1)
 		end
-		return cStr
+		return _cStr_
 
 		def FractionalPartToDecimal()
 			return This.FractionalPartToDecimalForm()
 
 	def FractionalPartToDecimalFormWithoutZeroDot()
-		oFractionalPart = new stzString(This.FractionalPartToDecimalForm())
-		return oFractionalPart.Section(3, oFractionalPart.NumberOfChars())
+		_oFractionalPart_ = new stzString(This.FractionalPartToDecimalForm())
+		return _oFractionalPart_.Section(3, _oFractionalPart_.NumberOfChars())
 
 		def FractionalPartToDecimalWithoutZeroDot()
 			return This.FractionalPartToDecimalFormWithoutZeroDot()
@@ -289,12 +289,12 @@ class stzBinaryNumber from stzObject
 		def ToScientificNotation()
 			return This.ToScientificNotationForm()
 
-	def IntegerPartToBaseNForm(n)
+	def IntegerPartToBaseNForm(_n_)
 		# n must be netween 2 to 32
-		return This.ToStzNumber().IntegerPartToBaseNForm(n)
+		return This.ToStzNumber().IntegerPartToBaseNForm(_n_)
 
-		def IntegerPartToBaseN(n)
-			return This.IntegerPartToBaseNForm(n)
+		def IntegerPartToBaseN(_n_)
+			return This.IntegerPartToBaseNForm(_n_)
 
 
 	def ToBytes() #TODO // Should also be turned as stzListOfBytes
@@ -304,11 +304,11 @@ class stzBinaryNumber from stzObject
 	 #    GETTING BINARY NUMBER FROM    #
 	#----------------------------------#
 
-	def FromDecimalForm(n)
-		@cBinaryNumber = StzNumberQ(n).ToBinaryForm()
+	def FromDecimalForm(_n_)
+		@cBinaryNumber = StzNumberQ(_n_).ToBinaryForm()
 
-		def FromDecimal(n)
-			This.FromDecimalForm(n)
+		def FromDecimal(_n_)
+			This.FromDecimalForm(_n_)
 
 	def FromHexForm(cHex)
 		@cBinaryNumber = StzHexNumberQ(cHex).ToBinaryForm()

@@ -41,10 +41,10 @@ class stzStringEncoder from stzObject
 	def ToHex()
 		pHandle = StzEngineString(@oString.Content())
 		pHex = StzEngineStringToHex(pHandle)
-		cResult = StzEngineStringData(pHex)
+		_cResult_ = StzEngineStringData(pHex)
 		StzEngineStringFree(pHex)
 		StzEngineStringFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def ToHexQ()
 			return new stzStringEncoder(This.ToHex())
@@ -56,19 +56,19 @@ class stzStringEncoder from stzObject
 		return "0x" + This.ToHex()
 
 	def FromHex(cHex)
-		cResult = ""
-		oHex = new stzString(cHex)
-		acChars = oHex.Chars()
-		nLen = len(acChars)
-		i = 1
+		_cResult_ = ""
+		_oHex_ = new stzString(cHex)
+		_acChars_ = _oHex_.Chars()
+		_nLen_ = len(_acChars_)
+		_i_ = 1
 
-		while i <= nLen - 1
-			cByte = acChars[i] + acChars[i + 1]
-			cResult += StzChar(dec(cByte))
-			i += 2
+		while _i_ <= _nLen_ - 1
+			_cByte_ = _acChars_[_i_] + _acChars_[_i_ + 1]
+			_cResult_ += StzChar(dec(_cByte_))
+			_i_ += 2
 		end
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def FromHexQ(cHex)
 			This.FromHex(cHex)
@@ -81,10 +81,10 @@ class stzStringEncoder from stzObject
 	def UrlEncoded()
 		pHandle = StzEngineString(@oString.Content())
 		pEnc = StzEngineStringURLEncode(pHandle)
-		cResult = StzEngineStringData(pEnc)
+		_cResult_ = StzEngineStringData(pEnc)
 		StzEngineStringFree(pEnc)
 		StzEngineStringFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def UrlEncode()
 			@oString.Update(This.UrlEncoded())
@@ -92,10 +92,10 @@ class stzStringEncoder from stzObject
 	def UrlDecoded()
 		pHandle = StzEngineString(@oString.Content())
 		pDec = StzEngineStringURLDecode(pHandle)
-		cResult = StzEngineStringData(pDec)
+		_cResult_ = StzEngineStringData(pDec)
 		StzEngineStringFree(pDec)
 		StzEngineStringFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def UrlDecode()
 			@oString.Update(This.UrlDecoded())
@@ -107,18 +107,18 @@ class stzStringEncoder from stzObject
 	def AsciiCodes()
 		# Returns Unicode codepoints for each char (engine-backed)
 		pH = @oString.Engine()
-		nLen = @oString.NumberOfChars()
-		acResult = []
-		for i = 1 to nLen
-			acResult + StzEngineStringCharAt(pH, i)
+		_nLen_ = @oString.NumberOfChars()
+		_acResult_ = []
+		for _i_ = 1 to _nLen_
+			_acResult_ + StzEngineStringCharAt(pH, _i_)
 		next
-		return acResult
+		return _acResult_
 
 	def Unicodes()
 		# Same as AsciiCodes â€” returns Unicode codepoints
 		return This.AsciiCodes()
 
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     BINARY                    #
@@ -126,50 +126,50 @@ class stzStringEncoder from stzObject
 
 	def ToBinary()
 		pH = @oString.Engine()
-		nLen = @oString.NumberOfChars()
-		cResult = ""
+		_nLen_ = @oString.NumberOfChars()
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			if i > 1
-				cResult += " "
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cResult_ += " "
 			ok
-			n = StzEngineStringCharAt(pH, i)
-			cBin = ""
+			_n_ = StzEngineStringCharAt(pH, _i_)
+			_cBin_ = ""
 			for b = 7 to 0 step -1
-				if n & pow(2, b)
-					cBin += "1"
+				if _n_ & pow(2, b)
+					_cBin_ += "1"
 				else
-					cBin += "0"
+					_cBin_ += "0"
 				ok
 			next
-			cResult += cBin
+			_cResult_ += _cBin_
 		next
 
-		return cResult
+		return _cResult_
 
-	def FromBinary(cBin)
-		acParts = @Split(cBin, " ")
-		cResult = ""
-		nLen = len(acParts)
+	def FromBinary(_cBin_)
+		_acParts_ = @Split(_cBin_, " ")
+		_cResult_ = ""
+		_nLen_ = len(_acParts_)
 
-		for i = 1 to nLen
-			cByte = acParts[i]
-			nVal = 0
-			nByteLen = StzLen(cByte)
-			oTmp = new stzString(cByte)
-			acBits = oTmp.Chars()
-			for j = 1 to nByteLen
-				if acBits[j] = "1"
-					nVal += pow(2, nByteLen - j)
+		for _i_ = 1 to _nLen_
+			_cByte_ = _acParts_[_i_]
+			_nVal_ = 0
+			_nByteLen_ = StzLen(_cByte_)
+			_oTmp_ = new stzString(_cByte_)
+			_acBits_ = _oTmp_.Chars()
+			for j = 1 to _nByteLen_
+				if _acBits_[j] = "1"
+					_nVal_ += pow(2, _nByteLen_ - j)
 				ok
 			next
-			cResult += StzChar(nVal)
+			_cResult_ += StzChar(_nVal_)
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
-		def FromBinaryQ(cBin)
-			This.FromBinary(cBin)
+		def FromBinaryQ(_cBin_)
+			This.FromBinary(_cBin_)
 			return This
 
 	  #===============================#
@@ -178,32 +178,32 @@ class stzStringEncoder from stzObject
 
 	def ToOctal()
 		pH = @oString.Engine()
-		nLen = @oString.NumberOfChars()
-		cResult = ""
+		_nLen_ = @oString.NumberOfChars()
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			if i > 1
-				cResult += " "
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cResult_ += " "
 			ok
-			n = StzEngineStringCharAt(pH, i)
-			cOct = ""
-			nTemp = n
-			if nTemp = 0
-				cOct = "0"
+			_n_ = StzEngineStringCharAt(pH, _i_)
+			_cOct_ = ""
+			_nTemp_ = _n_
+			if _nTemp_ = 0
+				_cOct_ = "0"
 			else
-				while nTemp > 0
-					cOct = ("" + (nTemp % 8)) + cOct
-					nTemp = floor(nTemp / 8)
+				while _nTemp_ > 0
+					_cOct_ = ("" + (_nTemp_ % 8)) + _cOct_
+					_nTemp_ = floor(_nTemp_ / 8)
 				end
 			ok
 			# Pad to at least 3 digits
-			while StzLen(cOct) < 3
-				cOct = "0" + cOct
+			while StzLen(_cOct_) < 3
+				_cOct_ = "0" + _cOct_
 			end
-			cResult += cOct
+			_cResult_ += _cOct_
 		next
 
-		return cResult
+		return _cResult_
 
 	  #===============================#
 	 #     CHAR CODES (STRING)       #
@@ -211,28 +211,28 @@ class stzStringEncoder from stzObject
 
 	def ToCharCodes()
 		pH = @oString.Engine()
-		nLen = @oString.NumberOfChars()
-		cResult = ""
+		_nLen_ = @oString.NumberOfChars()
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			if i > 1
-				cResult += " "
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cResult_ += " "
 			ok
-			cResult += ("" + StzEngineStringCharAt(pH, i))
+			_cResult_ += ("" + StzEngineStringCharAt(pH, _i_))
 		next
 
-		return cResult
+		return _cResult_
 
 	def FromCharCodes(cCodes)
-		acParts = @Split(cCodes, " ")
-		cResult = ""
-		nLen = len(acParts)
+		_acParts_ = @Split(cCodes, " ")
+		_cResult_ = ""
+		_nLen_ = len(_acParts_)
 
-		for i = 1 to nLen
-			cResult += StzChar(0 + acParts[i])
+		for _i_ = 1 to _nLen_
+			_cResult_ += StzChar(0 + _acParts_[_i_])
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def FromCharCodesQ(cCodes)
 			This.FromCharCodes(cCodes)
@@ -243,29 +243,29 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	def HtmlEncoded()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cResult = ""
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			c = acChars[i]
+		for _i_ = 1 to _nLen_
+			_c_ = _acChars_[_i_]
 
-			if c = "&"
-				cResult += "&amp;"
-			but c = "<"
-				cResult += "&lt;"
-			but c = ">"
-				cResult += "&gt;"
-			but c = '"'
-				cResult += "&quot;"
-			but c = "'"
-				cResult += "&#39;"
+			if _c_ = "&"
+				_cResult_ += "&amp;"
+			but _c_ = "<"
+				_cResult_ += "&lt;"
+			but _c_ = ">"
+				_cResult_ += "&gt;"
+			but _c_ = '"'
+				_cResult_ += "&quot;"
+			but _c_ = "'"
+				_cResult_ += "&#39;"
 			else
-				cResult += c
+				_cResult_ += _c_
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 		def HtmlEncode()
 			@oString.Update(This.HtmlEncoded())
@@ -275,16 +275,16 @@ class stzStringEncoder from stzObject
 			return This
 
 	def HtmlDecoded()
-		cContent = @oString.Content()
-		cResult = cContent
+		_cContent_ = @oString.Content()
+		_cResult_ = _cContent_
 
-		cResult = StzReplace(cResult, "&amp;", "&")
-		cResult = StzReplace(cResult, "&lt;", "<")
-		cResult = StzReplace(cResult, "&gt;", ">")
-		cResult = StzReplace(cResult, "&quot;", '"')
-		cResult = StzReplace(cResult, "&#39;", "'")
+		_cResult_ = StzReplace(_cResult_, "&amp;", "&")
+		_cResult_ = StzReplace(_cResult_, "&lt;", "<")
+		_cResult_ = StzReplace(_cResult_, "&gt;", ">")
+		_cResult_ = StzReplace(_cResult_, "&quot;", '"')
+		_cResult_ = StzReplace(_cResult_, "&#39;", "'")
 
-		return cResult
+		return _cResult_
 
 		def HtmlDecode()
 			@oString.Update(This.HtmlDecoded())
@@ -298,21 +298,21 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	def EscapedForRegex()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cResult = ""
-		cSpecial = ".*+?^${}[]()|\\"
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cResult_ = ""
+		_cSpecial_ = ".*+?^${}[]()|\\"
 
-		for i = 1 to nLen
-			c = acChars[i]
-			if StzFindFirst(cSpecial, c) > 0
-				cResult += "\" + c
+		for _i_ = 1 to _nLen_
+			_c_ = _acChars_[_i_]
+			if StzFindFirst(_cSpecial_, _c_) > 0
+				_cResult_ += "\" + _c_
 			else
-				cResult += c
+				_cResult_ += _c_
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 		def EscapeForRegex()
 			@oString.Update(This.EscapedForRegex())
@@ -334,9 +334,9 @@ class stzStringEncoder from stzObject
 			return This
 
 	def Reversed()
-		oCopy = new stzStringEncoder(@oString.Content())
-		oCopy.Reverse()
-		return oCopy.Content()
+		_oCopy_ = new stzStringEncoder(@oString.Content())
+		_oCopy_.Reverse()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     UNICODE NORMALIZATION     #
@@ -345,9 +345,9 @@ class stzStringEncoder from stzObject
 	def NormalizeNFC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 0)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def NormalizeNFCQ()
 			This.NormalizeNFC()
@@ -356,16 +356,16 @@ class stzStringEncoder from stzObject
 	def NormalizedNFC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 0)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def NormalizeNFD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 1)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def NormalizeNFDQ()
 			This.NormalizeNFD()
@@ -374,16 +374,16 @@ class stzStringEncoder from stzObject
 	def NormalizedNFD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 1)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def NormalizeNFKC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 2)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def NormalizeNFKCQ()
 			This.NormalizeNFKC()
@@ -392,16 +392,16 @@ class stzStringEncoder from stzObject
 	def NormalizedNFKC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 2)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def NormalizeNFKD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 3)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def NormalizeNFKDQ()
 			This.NormalizeNFKD()
@@ -410,9 +410,9 @@ class stzStringEncoder from stzObject
 	def NormalizedNFKD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 3)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def Normalize()
 		This.NormalizeNFC()

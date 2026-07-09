@@ -3,22 +3,22 @@
 # Returns the softanza object related to the type of p
 func StzQ(p)
 
-	oResult = AFalseObject()
+	_oResult_ = AFalseObject()
 
 	if isString(p)
-		oResult = new stzString(p)
+		_oResult_ = new stzString(p)
 
 	but isNumber(p)
-		oResult = new stzNumber(p)
+		_oResult_ = new stzNumber(p)
 
 	but isList(p)
-		oResult = new stzList(p)
+		_oResult_ = new stzList(p)
 
 	but isObject(p)
-		oResult = new stzObject(p)
+		_oResult_ = new stzObject(p)
 	ok
 
-	return oResult
+	return _oResult_
 
 	func Q(p)
 		return StzQ(p)
@@ -193,14 +193,14 @@ func StzW(cType, paMethodAndFilter)
 		StzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
 	ok
 
-	aTempList = Stz(cType, paMethodAndFilter[1])
-	cCondition = Q(paMethodAndFilter[2][2]).
+	_aTempList_ = Stz(cType, paMethodAndFilter[1])
+	_cCondition_ = Q(paMethodAndFilter[2][2]).
 			ReplaceCSQ("@Method", "@Item", 0).
 			Content()
 
-	aResult = QRT(aTempList, :stzListOfStrings).StringsW(ccondition)
+	_aResult_ = QRT(_aTempList_, :stzListOfStrings).StringsW(_cCondition_)
 
-	return aResult
+	return _aResult_
 
 func Stz(cType, pInfo)
 	/* EXAMPLE
@@ -215,32 +215,32 @@ func Stz(cType, pInfo)
 		return stzW(cType, pInfo)
 	ok
 
-	cInfo = pInfo
+	_cInfo_ = pInfo
 
-	if NOT @BothAreStrings(cType, :And = cInfo)
+	if NOT @BothAreStrings(cType, :And = _cInfo_)
 		StzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
 	ok
 
-	cClass = 'stz' + cType
+	_cClass_ = 'stz' + cType
 
-	if NOT Q(cClass).IsStzClassName()
+	if NOT Q(_cClass_).IsStzClassName()
 		StzRaise("Incorrect param! cType must be a valid softanza type.")
 	ok
 
-	oEmptyObject = Empty(cClass)
+	_oEmptyObject_ = Empty(_cClass_)
 
-	switch cInfo
+	switch _cInfo_
 	on :Class
-		return cClass
+		return _cClass_
 
 	on :ClassName
-		return cClass
+		return _cClass_
 
 	on :Methods
-		return methods(oEmptyObject)
+		return methods(_oEmptyObject_)
 
 	on :Attributes
-		return attributes(oEmptyObject)
+		return attributes(_oEmptyObject_)
 
 	other
 		StzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
@@ -274,23 +274,23 @@ func StzQQ(p)
 
 	if isString(p)
 
-		oParam = new stzString(p)
+		_oParam_ = new stzString(p)
 
 		# QQ elevates a string to its most-specific STRING-FAMILY type. A single
 		# char is one -> stzChar, checked FIRST: "3" is a single char, so QQ("3")
 		# is stzChar (NOT stzNumber -- converting "3" the STRING to 3 the NUMBER is
 		# a coercion, StzN()/ToStzNumber()'s job, not a Q-elevation).
-		if oParam.IsChar() or oParam.IsHexUnicode()
+		if _oParam_.IsChar() or _oParam_.IsHexUnicode()
 			return new stzChar(p)
 
 		# NOTE: these two still COERCE to non-string types (stzNumber / stzList),
 		# which strictly should be stzNumberInString / stzListInString -- but those
 		# classes don't exist yet. Kept as-is (option 1) until they land; then a
 		# multi-char "19" -> stzNumberInString, "[1,2,3]" -> stzListInString.
-		but oParam.IsNumberInString()
+		but _oParam_.IsNumberInString()
 			return new stzNumber(p)
 
-		but oParam.IsListInString()
+		but _oParam_.IsListInString()
 			return new stzList(StzL(p))
 
 		but StzIsDate(p)
@@ -305,24 +305,24 @@ func StzQQ(p)
 
 	but isList(p)
 
-		oQTemp = StzQ(p)
+		_oQTemp_ = StzQ(p)
 
 		# QQ = the FIRST LOGICAL secondary type. A list of chars is a list of
 		# STRINGS here (chars are single-char strings) -> stzListOfStrings; the
 		# more specific stzListOfChars is QQQ's job, not QQ's.
-		if oQTemp.IsListOfNumbers()
+		if _oQTemp_.IsListOfNumbers()
 			return new stzListOfNumbers(p)
 
-		but oQTemp.IsListOfStrings()
+		but _oQTemp_.IsListOfStrings()
 			return new stzListOfStrings(p)
 
-		but oQTemp.IsListOfHashLists()
+		but _oQTemp_.IsListOfHashLists()
 			return new stzListOfHashLists(p)
 
-		but oQTemp.IsListOfPairs()
+		but _oQTemp_.IsListOfPairs()
 			return new stzListOfPairs(p)
 
-		but oQTemp.IsListOfLists()
+		but _oQTemp_.IsListOfLists()
 			return new stzListOfLists(p)
 
 		else
@@ -346,24 +346,24 @@ func StzQQ(p)
 func StzQQQ(p)
 	if isList(p)
 
-		oQTemp = StzQ(p)
+		_oQTemp_ = StzQ(p)
 
-		if oQTemp.IsListOfNumbers()
+		if _oQTemp_.IsListOfNumbers()
 			return new stzListOfNumbers(p)
 
-		but oQTemp.IsListOfChars()
+		but _oQTemp_.IsListOfChars()
 			return new stzListOfChars(p)
 
-		but oQTemp.IsListOfStrings()
+		but _oQTemp_.IsListOfStrings()
 			return new stzListOfStrings(p)
 
-		but oQTemp.IsListOfHashLists()
+		but _oQTemp_.IsListOfHashLists()
 			return new stzListOfHashLists(p)
 
-		but oQTemp.IsListOfPairs()
+		but _oQTemp_.IsListOfPairs()
 			return new stzListOfPairs(p)
 
-		but oQTemp.IsListOfLists()
+		but _oQTemp_.IsListOfLists()
 			return new stzListOfLists(p)
 
 		else
@@ -385,12 +385,12 @@ func StzN(p)
 
 	but isString(p)
 
-		oParam = StzQ(p)
+		_oParam_ = StzQ(p)
 
-		if oParam.IsNumberInString()
+		if _oParam_.IsNumberInString()
 			return 0+ p
 
-		but oParam.IsListInString()
+		but _oParam_.IsListInString()
 			return len( StzQ(p).ToList() )
 
 		else
@@ -461,22 +461,22 @@ func StzUCS(p, pCaseSensitive)
 		ok
 	ok
 
-	aResult = []
-	nLen = len(p)
-	for i = 1 to nLen
-		bFound = 0
-		nResLen = len(aResult)
-		for j = 1 to nResLen
-			if BothAreEqualCS(aResult[j], p[i], pCaseSensitive)
-				bFound = 1
+	_aResult_ = []
+	_nLen_ = len(p)
+	for _i_ = 1 to _nLen_
+		_bFound_ = 0
+		_nResLen_ = len(_aResult_)
+		for j = 1 to _nResLen_
+			if BothAreEqualCS(_aResult_[j], p[_i_], pCaseSensitive)
+				_bFound_ = 1
 				exit
 			ok
 		next
-		if NOT bFound
-			aResult + p[i]
+		if NOT _bFound_
+			_aResult_ + p[_i_]
 		ok
 	next
-	return aResult
+	return _aResult_
 
 	func UCS(p, pCaseSensitive)
 		return StzUCS(p, pCaseSensitive)
@@ -602,9 +602,9 @@ func StzL(p)
 		# 1. A range expression like  "A" : "E"  /  "v1" : "v3"  /  1.02 : 1.05
 		#    (eval-free, codepoint- and decimal-aware).
 
-		aRange = StzParseRange(p)
-		if isList(aRange)
-			return aRange
+		_aRange_ = StzParseRange(p)
+		if isList(_aRange_)
+			return _aRange_
 		ok
 
 		# 2. A Ring list literal written inside the string, e.g. "[ 1, 2, 3 ]"
@@ -615,23 +615,23 @@ func StzL(p)
 
 		# 3. Fallback: split the string into its characters (codepoint-safe)
 
-		aResult = []
-		nLen = StzLen(p)
-		for i = 1 to nLen
-			aResult + StzMid(p, i, 1)
+		_aResult_ = []
+		_nLen_ = StzLen(p)
+		for _i_ = 1 to _nLen_
+			_aResult_ + StzMid(p, _i_, 1)
 		next
-		return aResult
+		return _aResult_
 
 	but isObject(p)
 		return StzObject(p).ObjectAttributesAndValues()
 
 	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + ""
+		_aResult_ = []
+		for _i_ = 1 to p
+			_aResult_ + ""
 		next
 
-		return aResult
+		return _aResult_
 
 	else
 		StzRaise("Incorrect param! Can't tranform param to list.")
@@ -660,9 +660,9 @@ func StzL(p)
 
 func StzParseRange(pcStr)
 
-	cStr = ring_trim(pcStr)
-	nLen = ring_len(cStr)
-	if nLen = 0
+	_cStr_ = ring_trim(pcStr)
+	_nLen_ = ring_len(_cStr_)
+	if _nLen_ = 0
 		return NULL
 	ok
 
@@ -670,55 +670,55 @@ func StzParseRange(pcStr)
 	# ':' and '"' are ASCII single bytes, and every byte of a multibyte
 	# UTF-8 char is >= 0x80, so a raw byte scan is safe here.
 
-	nColon = 0
-	bInQuote = 0
-	for i = 1 to nLen
-		c = cStr[i]
-		if c = '"'
-			if bInQuote = 0 bInQuote = 1 else bInQuote = 0 ok
-		but c = ':' and bInQuote = 0
-			nColon = i
+	_nColon_ = 0
+	_bInQuote_ = 0
+	for _i_ = 1 to _nLen_
+		_c_ = _cStr_[_i_]
+		if _c_ = '"'
+			if _bInQuote_ = 0 _bInQuote_ = 1 else _bInQuote_ = 0 ok
+		but _c_ = ':' and _bInQuote_ = 0
+			_nColon_ = _i_
 			exit
 		ok
 	next
 
-	if nColon = 0
+	if _nColon_ = 0
 		return NULL
 	ok
 
-	cLhs = ring_trim( ring_left(cStr, nColon - 1) )
-	cRhs = ring_trim( ring_right(cStr, nLen - nColon) )
+	_cLhs_ = ring_trim( ring_left(_cStr_, _nColon_ - 1) )
+	_cRhs_ = ring_trim( ring_right(_cStr_, _nLen_ - _nColon_) )
 
-	if ring_len(cLhs) = 0 or ring_len(cRhs) = 0
+	if ring_len(_cLhs_) = 0 or ring_len(_cRhs_) = 0
 		return NULL
 	ok
 
-	bLhsQuoted = _IsQuotedToken(cLhs)
-	bRhsQuoted = _IsQuotedToken(cRhs)
+	_bLhsQuoted_ = _IsQuotedToken(_cLhs_)
+	_bRhsQuoted_ = _IsQuotedToken(_cRhs_)
 
 	# --- Both sides are quoted string tokens ---
 
-	if bLhsQuoted and bRhsQuoted
+	if _bLhsQuoted_ and _bRhsQuoted_
 
-		cA = _Unquote(cLhs)
-		cB = _Unquote(cRhs)
+		_cA_ = _Unquote(_cLhs_)
+		_cB_ = _Unquote(_cRhs_)
 
 		# Single codepoint on each side -> char range
-		if StzLen(cA) = 1 and StzLen(cB) = 1
-			return StzCharsBetween(cA, cB)
+		if StzLen(_cA_) = 1 and StzLen(_cB_) = 1
+			return StzCharsBetween(_cA_, _cB_)
 		ok
 
 		# Numbered tokens: shared prefix + trailing integer
-		aA = _SplitTrailingDigits(cA)
-		aB = _SplitTrailingDigits(cB)
-		if aA[2] != "" and aB[2] != "" and aA[1] = aB[1]
-			anNums = NumbersBetween(0 + aA[2], 0 + aB[2])
-			aResult = []
-			nN = len(anNums)
-			for i = 1 to nN
-				aResult + ( aA[1] + anNums[i] )
+		_aA_ = _SplitTrailingDigits(_cA_)
+		_aB_ = _SplitTrailingDigits(_cB_)
+		if _aA_[2] != "" and _aB_[2] != "" and _aA_[1] = _aB_[1]
+			_anNums_ = NumbersBetween(0 + _aA_[2], 0 + _aB_[2])
+			_aResult_ = []
+			_nN_ = len(_anNums_)
+			for _i_ = 1 to _nN_
+				_aResult_ + ( _aA_[1] + _anNums_[_i_] )
 			next
-			return aResult
+			return _aResult_
 		ok
 
 		return NULL
@@ -726,105 +726,105 @@ func StzParseRange(pcStr)
 
 	# --- Both sides are unquoted -> numeric range ---
 
-	if (not bLhsQuoted) and (not bRhsQuoted) and
-	   _IsNumericToken(cLhs) and _IsNumericToken(cRhs)
+	if (not _bLhsQuoted_) and (not _bRhsQuoted_) and
+	   _IsNumericToken(_cLhs_) and _IsNumericToken(_cRhs_)
 
-		nDec = Max([ _DecimalsOf(cLhs), _DecimalsOf(cRhs) ])
+		_nDec_ = Max([ _DecimalsOf(_cLhs_), _DecimalsOf(_cRhs_) ])
 
-		if nDec = 0
-			return NumbersBetween(0 + cLhs, 0 + cRhs)
+		if _nDec_ = 0
+			return NumbersBetween(0 + _cLhs_, 0 + _cRhs_)
 		ok
 
-		nFactor = pow(10, nDec)
-		nStart = floor( (0 + cLhs) * nFactor + 0.5 )
-		if (0 + cLhs) < 0
-			nStart = ceil( (0 + cLhs) * nFactor - 0.5 )
+		_nFactor_ = pow(10, _nDec_)
+		_nStart_ = floor( (0 + _cLhs_) * _nFactor_ + 0.5 )
+		if (0 + _cLhs_) < 0
+			_nStart_ = ceil( (0 + _cLhs_) * _nFactor_ - 0.5 )
 		ok
-		nEnd = floor( (0 + cRhs) * nFactor + 0.5 )
-		if (0 + cRhs) < 0
-			nEnd = ceil( (0 + cRhs) * nFactor - 0.5 )
+		_nEnd_ = floor( (0 + _cRhs_) * _nFactor_ + 0.5 )
+		if (0 + _cRhs_) < 0
+			_nEnd_ = ceil( (0 + _cRhs_) * _nFactor_ - 0.5 )
 		ok
 
-		nStep = 1
-		if nStart > nEnd nStep = -1 ok
+		_nStep_ = 1
+		if _nStart_ > _nEnd_ _nStep_ = -1 ok
 
-		aResult = []
-		for k = nStart to nEnd step nStep
-			aResult + ( k / nFactor )
+		_aResult_ = []
+		for _k_ = _nStart_ to _nEnd_ step _nStep_
+			_aResult_ + ( _k_ / _nFactor_ )
 		next
-		return aResult
+		return _aResult_
 	ok
 
 	return NULL
 
 #--- range-parser local helpers
 
-func _IsQuotedToken(c)
-	n = ring_len(c)
-	if n >= 2 and c[1] = '"' and c[n] = '"'
+func _IsQuotedToken(_c_)
+	n = ring_len(_c_)
+	if n >= 2 and _c_[1] = '"' and _c_[n] = '"'
 		return TRUE
 	ok
 	return FALSE
 
-func _Unquote(c)
-	n = ring_len(c)
-	if n >= 2 and c[1] = '"' and c[n] = '"'
-		return ring_substr2(c, 2, n - 2)   # n-2 inner bytes between the ASCII quotes; multibyte kept intact
+func _Unquote(_c_)
+	n = ring_len(_c_)
+	if n >= 2 and _c_[1] = '"' and _c_[n] = '"'
+		return ring_substr2(_c_, 2, n - 2)   # n-2 inner bytes between the ASCII quotes; multibyte kept intact
 	ok
-	return c
+	return _c_
 
 # Returns [ prefix, trailingDigitsAsString ]. Digits are ASCII so a
 # backward byte scan stops cleanly at the first non-digit byte, leaving
 # any multibyte prefix untouched.
-func _SplitTrailingDigits(c)
-	n = ring_len(c)
-	nCut = n
-	while nCut >= 1
-		k = ascii(c[nCut])
-		if k >= 48 and k <= 57   # ASCII '0'..'9'
-			nCut--
+func _SplitTrailingDigits(_c_)
+	n = ring_len(_c_)
+	_nCut_ = n
+	while _nCut_ >= 1
+		_k_ = ascii(_c_[_nCut_])
+		if _k_ >= 48 and _k_ <= 57   # ASCII '0'..'9'
+			_nCut_--
 		else
 			exit
 		ok
 	end
-	if nCut = n
-		return [ c, "" ]
+	if _nCut_ = n
+		return [ _c_, "" ]
 	ok
-	cPrefix = ""
-	if nCut >= 1 cPrefix = ring_left(c, nCut) ok
-	cDigits = ring_right(c, n - nCut)
-	return [ cPrefix, cDigits ]
+	_cPrefix_ = ""
+	if _nCut_ >= 1 _cPrefix_ = ring_left(_c_, _nCut_) ok
+	_cDigits_ = ring_right(_c_, n - _nCut_)
+	return [ _cPrefix_, _cDigits_ ]
 
-func _IsNumericToken(c)
-	n = ring_len(c)
+func _IsNumericToken(_c_)
+	n = ring_len(_c_)
 	if n = 0 return FALSE ok
-	i = 1
-	if c[1] = "-" or c[1] = "+"
-		i = 2
+	_i_ = 1
+	if _c_[1] = "-" or _c_[1] = "+"
+		_i_ = 2
 	ok
-	if i > n return FALSE ok
-	bDigitSeen = FALSE
-	bDotSeen = FALSE
-	while i <= n
-		k = ascii(c[i])
-		if k >= 48 and k <= 57   # ASCII '0'..'9'
-			bDigitSeen = TRUE
-		but k = 46               # ASCII '.'
-			if bDotSeen return FALSE ok
-			bDotSeen = TRUE
+	if _i_ > n return FALSE ok
+	_bDigitSeen_ = FALSE
+	_bDotSeen_ = FALSE
+	while _i_ <= n
+		_k_ = ascii(_c_[_i_])
+		if _k_ >= 48 and _k_ <= 57   # ASCII '0'..'9'
+			_bDigitSeen_ = TRUE
+		but _k_ = 46               # ASCII '.'
+			if _bDotSeen_ return FALSE ok
+			_bDotSeen_ = TRUE
 		else
 			return FALSE
 		ok
-		i++
+		_i_++
 	end
-	return bDigitSeen
+	return _bDigitSeen_
 
-func _DecimalsOf(c)
-	nDot = ring_substr1(c, ".")
-	if nDot = 0
+func _DecimalsOf(_c_)
+	_nDot_ = ring_substr1(_c_, ".")
+	if _nDot_ = 0
 		return 0
 	ok
-	return ring_len(c) - nDot
+	return ring_len(_c_) - _nDot_
 
 #---
 
@@ -839,25 +839,25 @@ func StzLN(p)
 		return NumbersBetween(p[1][2], p[2][2])
 
 	but isList(p)
-		aResult = []
-		nLen = len(p)
-		for i = 1 to nLen
-			if isNumber(p[i])
-				aResult + p[i]
+		_aResult_ = []
+		_nLen_ = len(p)
+		for _i_ = 1 to _nLen_
+			if isNumber(p[_i_])
+				_aResult_ + p[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	but isString(p) and StzQ(p).IsListInString()
-		aResult = StzQ(p).ToListQ().OnlyNumbers()
-		return aResult
+		_aResult_ = StzQ(p).ToListQ().OnlyNumbers()
+		return _aResult_
 
 	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + 0
+		_aResult_ = []
+		for _i_ = 1 to p
+			_aResult_ + 0
 		next
-		return aResult
+		return _aResult_
 	ok
 
 	func LN(p)
@@ -885,25 +885,25 @@ func StzLN(p)
 
 func StzLC(p)
 	if isList(p)
-		aResult = []
-		nLen = len(p)
-		for i = 1 to nLen
-			if isString(p[i]) and len(p[i]) = 1
-				aResult + p[i]
+		_aResult_ = []
+		_nLen_ = len(p)
+		for _i_ = 1 to _nLen_
+			if isString(p[_i_]) and len(p[_i_]) = 1
+				_aResult_ + p[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	but isString(p) and StzQ(p).IsListInString()
-		aResult = StzQ(p).ToListQ().OnlyChars()
-		return aResult
+		_aResult_ = StzQ(p).ToListQ().OnlyChars()
+		return _aResult_
 
 	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + ""
+		_aResult_ = []
+		for _i_ = 1 to p
+			_aResult_ + ""
 		next
-		return aResult
+		return _aResult_
 
 	ok
 
@@ -932,25 +932,25 @@ func StzLC(p)
 
 func StzLL(p)
 	if isList(p)
-		aResult = []
-		nLen = len(p)
-		for i = 1 to nLen
-			if isList(p[i])
-				aResult + p[i]
+		_aResult_ = []
+		_nLen_ = len(p)
+		for _i_ = 1 to _nLen_
+			if isList(p[_i_])
+				_aResult_ + p[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	but isString(p) and StzQ(p).IsListInString()
-		aResult = StzQ(p).ToListQ().OnlyLists()
-		return aResult
+		_aResult_ = StzQ(p).ToListQ().OnlyLists()
+		return _aResult_
 
 	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + []
+		_aResult_ = []
+		for _i_ = 1 to p
+			_aResult_ + []
 		next
-		return aResult
+		return _aResult_
 
 	ok
 
@@ -979,25 +979,25 @@ func StzLL(p)
 
 func StzLS(p)
 	if isList(p)
-		aResult = []
-		nLen = len(p)
-		for i = 1 to nLen
-			if isString(p[i])
-				aResult + p[i]
+		_aResult_ = []
+		_nLen_ = len(p)
+		for _i_ = 1 to _nLen_
+			if isString(p[_i_])
+				_aResult_ + p[_i_]
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	but isString(p) and StzQ(p).IsListInString()
-		aResult = StzQ(p).ToListQ().OnlyStrings()
-		return aResult
+		_aResult_ = StzQ(p).ToListQ().OnlyStrings()
+		return _aResult_
 
 	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + ""
+		_aResult_ = []
+		for _i_ = 1 to p
+			_aResult_ + ""
 		next
-		return aResult
+		return _aResult_
 
 	ok
 
@@ -1029,8 +1029,8 @@ func StzWhere(cCode)
 		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
 
-	aResult = [:Where, cCode]
-	return aResult
+	_aResult_ = [:Where, cCode]
+	return _aResult_
 
 	func W(cCode)
 		return StzWhere(cCode)
@@ -1043,8 +1043,8 @@ func StzWhereXT(cCode)
 		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
 
-	aResult = [:WhereXT, cCode]
-	return aResult
+	_aResult_ = [:WhereXT, cCode]
+	return _aResult_
 
 	func WXT(cCode)
 		return StzWhereXT(cCode)
@@ -1060,16 +1060,16 @@ func Join(paList)
 	if NOT isList(paList)
 		StzRaise("Join: paList must be a list")
 	ok
-	cJoined = ""
-	nLen = len(paList)
-	for i = 1 to nLen
-		if isString(paList[i])
-			cJoined += paList[i]
-		but isNumber(paList[i])
-			cJoined += "" + paList[i]
+	_cJoined_ = ""
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if isString(paList[_i_])
+			_cJoined_ += paList[_i_]
+		but isNumber(paList[_i_])
+			_cJoined_ += "" + paList[_i_]
 		ok
 	next
-	return cJoined
+	return _cJoined_
 
 # Global StzSubStr() -- thin alias for Ring's substr() with the
 # (str, start, length) signature. Used by stzRegex.PartialMatchInfo
@@ -1093,17 +1093,17 @@ func StopWordsMustBeRemoved()
 func StopWordsStatus()
 	return _cStopWordsStatus
 
-func StzSubStr(cStr, nStart, nLen)
-	if NOT isString(cStr)
+func StzSubStr(_cStr_, _nStart_, _nLen_)
+	if NOT isString(_cStr_)
 		StzRaise("StzSubStr: cStr must be a string")
 	ok
-	if NOT (isNumber(nStart) and isNumber(nLen))
+	if NOT (isNumber(_nStart_) and isNumber(_nLen_))
 		StzRaise("StzSubStr: nStart and nLen must be numbers")
 	ok
-	if nLen <= 0 or nStart < 1
+	if _nLen_ <= 0 or _nStart_ < 1
 		return ""
 	ok
-	return StzMid(cStr, nStart, nLen)
+	return StzMid(_cStr_, _nStart_, _nLen_)
 
 	func JoinXT(paList, pcSep)
 		if NOT isList(paList)
@@ -1112,19 +1112,19 @@ func StzSubStr(cStr, nStart, nLen)
 		if NOT isString(pcSep)
 			StzRaise("JoinXT: pcSep must be a string")
 		ok
-		cJoinedSep = ""
-		nLn = len(paList)
-		for i = 1 to nLn
-			if isString(paList[i])
-				cJoinedSep += paList[i]
-			but isNumber(paList[i])
-				cJoinedSep += "" + paList[i]
+		_cJoinedSep_ = ""
+		_nLn_ = len(paList)
+		for _i_ = 1 to _nLn_
+			if isString(paList[_i_])
+				_cJoinedSep_ += paList[_i_]
+			but isNumber(paList[_i_])
+				_cJoinedSep_ += "" + paList[_i_]
 			ok
-			if i < nLn
-				cJoinedSep += pcSep
+			if _i_ < _nLn_
+				_cJoinedSep_ += pcSep
 			ok
 		next
-		return cJoinedSep
+		return _cJoinedSep_
 
 # CenterText: pad cText so it occupies nWidth visible columns, with
 # the text centered (extra space biased to the right when nWidth is
@@ -1135,18 +1135,18 @@ func CenterText(cText, nWidth)
 	if nWidth < 1 return "" ok
 	# Visible columns = codepoint count, not bytes; byte len()/left() over-
 	# counted and could split a multibyte char ('café' is 4 cols, 5 bytes).
-	nLen = StzLen(cText)
-	if nLen >= nWidth
+	_nLen_ = StzLen(cText)
+	if _nLen_ >= nWidth
 		return StzLeft(cText, nWidth)
 	ok
-	nLeft = floor((nWidth - nLen) / 2)
-	nRight = nWidth - nLen - nLeft
-	cOut = ""
-	for i = 1 to nLeft
-		cOut += " "
+	_nLeft_ = floor((nWidth - _nLen_) / 2)
+	_nRight_ = nWidth - _nLen_ - _nLeft_
+	_cOut_ = ""
+	for _i_ = 1 to _nLeft_
+		_cOut_ += " "
 	next
-	cOut += cText
-	for i = 1 to nRight
-		cOut += " "
+	_cOut_ += cText
+	for _i_ = 1 to _nRight_
+		_cOut_ += " "
 	next
-	return cOut
+	return _cOut_

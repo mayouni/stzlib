@@ -20,9 +20,9 @@ func StzWordStreamQ()
 		return new stzWordStream()
 
 func StzWordStreamCSQ(pCaseSensitive)
-	oStream = new stzWordStream()
-	oStream.SetCaseSensitive(pCaseSensitive)
-	return oStream
+	_oStream_ = new stzWordStream()
+	_oStream_.SetCaseSensitive(pCaseSensitive)
+	return _oStream_
 
 	func StzWordStreamCS(pCaseSensitive)
 		return StzWordStreamCSQ(pCaseSensitive)
@@ -66,8 +66,8 @@ class stzWordStream from stzObject
 
 	def FeedMany(paChunks)
 		if isList(paChunks)
-			nLen = len(paChunks)
-			for i = 1 to nLen
+			_nLen_ = len(paChunks)
+			for i = 1 to _nLen_
 				if isString(paChunks[i])
 					StzEngineStringWordStreamFeed(@pEngine, paChunks[i])
 				ok
@@ -92,20 +92,20 @@ class stzWordStream from stzObject
 
 	# Just the words of the top-N (drops the counts).
 	def MostFrequentWords(n)
-		aRes = This.TopWords(n)
-		aOut = []
-		nL = len(aRes)
+		_aRes_ = This.TopWords(n)
+		_aOut_ = []
+		nL = len(_aRes_)
 		for i = 1 to nL
-			aOut + aRes[i][1]
+			_aOut_ + _aRes_[i][1]
 		next
-		return aOut
+		return _aOut_
 
 	def MostFrequentWord()
-		aRes = This.TopWords(1)
-		if len(aRes) = 0
+		_aRes_ = This.TopWords(1)
+		if len(_aRes_) = 0
 			return ""
 		ok
-		return aRes[1][1]
+		return _aRes_[1][1]
 
 	# Total tokens fed (with multiplicity).
 	def TotalWords()
@@ -147,13 +147,13 @@ class stzWordStream from stzObject
 	# stzString.WordsAndTheirCounts) and free the result. The accumulator itself
 	# is NOT consumed -- you can keep feeding and re-query.
 	def _Drain(pRes)
-		aOut = []
+		_aOut_ = []
 		n = StzEngineWordFreqCount(pRes)
 		for i = 1 to n
 			pW = StzEngineWordFreqWord(pRes, i)
-			cW = StzEngineStringData(pW)
+			_cW_ = StzEngineStringData(pW)
 			StzEngineStringFree(pW)
-			aOut + [ cW, StzEngineWordFreqNum(pRes, i) ]
+			_aOut_ + [ _cW_, StzEngineWordFreqNum(pRes, i) ]
 		next
 		StzEngineWordFreqFree(pRes)
-		return aOut
+		return _aOut_

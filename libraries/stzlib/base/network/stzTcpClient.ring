@@ -12,12 +12,12 @@
 
 class stzTcpClient from stzNetwork
     @hClient = NULL              # opaque engine TCP handle
-    is_connected = False
-    on_connect_callback = ""
-    on_receive_callback = ""
-    on_close_callback = ""
-    on_error_callback = ""
-    received_data = ""
+    _is_connected_ = False
+    _on_connect_callback_ = ""
+    _on_receive_callback_ = ""
+    _on_close_callback_ = ""
+    _on_error_callback_ = ""
+    _received_data_ = ""
 
     def init()
         # stzNetwork.init takes no args; nothing more to wire up.
@@ -27,32 +27,32 @@ class stzTcpClient from stzNetwork
         # The engine returns a null-pointer (not literal NULL) on
         # failure. Cross-check via LastError -- empty means success.
         if StzEngineTcpLastError() = ""
-            is_connected = True
+            _is_connected_ = True
             ClearErrors()
-            if on_connect_callback != ""
-                call on_connect_callback()
+            if _on_connect_callback_ != ""
+                call _on_connect_callback_()
             ok
         else
-            is_connected = False
-            last_error = StzEngineTcpLastError()
-            error_code = -1
-            if on_error_callback != ""
-                call on_error_callback()
+            _is_connected_ = False
+            _last_error_ = StzEngineTcpLastError()
+            _error_code_ = -1
+            if _on_error_callback_ != ""
+                call _on_error_callback_()
             ok
         ok
         return This
 
     def Send(cData)
-        if not is_connected
-            last_error = "Not connected"
+        if not _is_connected_
+            _last_error_ = "Not connected"
             return This
         ok
-        nSent = StzEngineTcpSend(@hClient, cData)
-        if nSent < 0
-            last_error = StzEngineTcpLastError()
-            error_code = nSent
-            if on_error_callback != ""
-                call on_error_callback()
+        _nSent_ = StzEngineTcpSend(@hClient, cData)
+        if _nSent_ < 0
+            _last_error_ = StzEngineTcpLastError()
+            _error_code_ = _nSent_
+            if _on_error_callback_ != ""
+                call _on_error_callback_()
             ok
         ok
         return This
@@ -61,57 +61,57 @@ class stzTcpClient from stzNetwork
         return This.ReceiveWithMax(8192)
 
     def ReceiveWithMax(nMaxBytes)
-        if not is_connected
-            last_error = "Not connected"
+        if not _is_connected_
+            _last_error_ = "Not connected"
             return This
         ok
-        received_data = StzEngineTcpRecv(@hClient, nMaxBytes)
-        if received_data = ""
+        _received_data_ = StzEngineTcpRecv(@hClient, nMaxBytes)
+        if _received_data_ = ""
             # Either EOF or error -- LastError lets the caller decide.
-            last_error = StzEngineTcpLastError()
-            if last_error != "" and on_error_callback != ""
-                call on_error_callback()
+            _last_error_ = StzEngineTcpLastError()
+            if _last_error_ != "" and _on_error_callback_ != ""
+                call _on_error_callback_()
             ok
         else
             ClearErrors()
-            if on_receive_callback != ""
-                call on_receive_callback()
+            if _on_receive_callback_ != ""
+                call _on_receive_callback_()
             ok
         ok
         return This
 
     def ReceivedData()
-        return received_data
+        return _received_data_
 
     def Close()
-        if is_connected and @hClient != NULL
+        if _is_connected_ and @hClient != NULL
             StzEngineTcpClose(@hClient)
             @hClient = NULL
-            is_connected = False
-            if on_close_callback != ""
-                call on_close_callback()
+            _is_connected_ = False
+            if _on_close_callback_ != ""
+                call _on_close_callback_()
             ok
         ok
         return This
 
     def OnConnect(cCallback)
-        on_connect_callback = cCallback
+        _on_connect_callback_ = cCallback
         return This
 
     def OnReceive(cCallback)
-        on_receive_callback = cCallback
+        _on_receive_callback_ = cCallback
         return This
 
     def OnClose(cCallback)
-        on_close_callback = cCallback
+        _on_close_callback_ = cCallback
         return This
 
     def OnError(cCallback)
-        on_error_callback = cCallback
+        _on_error_callback_ = cCallback
         return This
 
     def IsConnected()
-        return is_connected
+        return _is_connected_
 
     def LocalAddress()
         # std.net doesn't yet expose this through the bridge; engine

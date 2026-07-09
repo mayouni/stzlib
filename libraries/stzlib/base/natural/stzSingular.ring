@@ -1,5 +1,5 @@
 ﻿// Define the aSingularRules list with inverse transformations of stzPlural
-aSingularRules = [
+_aSingularRules_ = [
     // Irregulars (priority 1)
     [ "^children$", "child", "exact", 1, "irregular" ],
     [ "^men$", "man", "exact", 1, "irregular" ],
@@ -37,42 +37,42 @@ func SortSingularRulesByPriority(aRules)
 
 // Function to convert a plural noun to singular
 func Singular(str)
-    cWord = StzLower(trim(str))
-    aSortedRules = SortSingularRulesByPriority(aSingularRules)
-	nLen = len(aSortedRules)
+    _cWord_ = StzLower(trim(str))
+    _aSortedRules_ = SortSingularRulesByPriority(_aSingularRules_)
+	_nLen_ = len(_aSortedRules_)
 
-	for i = 1 to nLen
-		rule = aSortedRules[i]
-        if rule[3] = "exact"
-            oRule1 = new stzString(rule[1])
-            cPattern = oRule1.Section(2, StzLen(rule[1]) - 1)
-            if cWord = cPattern
-                return rule[2]
+	for i = 1 to _nLen_
+		_rule_ = _aSortedRules_[i]
+        if _rule_[3] = "exact"
+            _oRule1_ = new stzString(_rule_[1])
+            _cPattern_ = _oRule1_.Section(2, StzLen(_rule_[1]) - 1)
+            if _cWord_ = _cPattern_
+                return _rule_[2]
             ok
 
-        but rule[3] = "regex"
-            rx = new stzRegex(rule[1])
-            if rx.Match(cWord)
-                aCaptured = rx.CapturedValues()
+        but _rule_[3] = "regex"
+            _rx_ = new stzRegex(_rule_[1])
+            if _rx_.Match(_cWord_)
+                _aCaptured_ = _rx_.CapturedValues()
                 # \1 maps to the first CAPTURE GROUP (aCaptured[2]), not the
                 # full match (aCaptured[1]). See stzPlural for the same fix.
-                nLen = len(aCaptured)
-                if nLen > 1
-                    cResult = rule[2]
-                    for j = 1 to nLen - 1
-                        cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
+                _nLen_ = len(_aCaptured_)
+                if _nLen_ > 1
+                    _cResult_ = _rule_[2]
+                    for j = 1 to _nLen_ - 1
+                        _cPlaceholder_ = "\\" + j
+                        _cResult_ = StzReplace(_cResult_, _cPlaceholder_, _aCaptured_[j+1])
                     next
-                    return cResult
+                    return _cResult_
                 else
-                    return rule[2]
+                    return _rule_[2]
                 ok
             ok
-        but rule[3] = "keep"
-            return cWord
+        but _rule_[3] = "keep"
+            return _cWord_
         ok
     next
-    return cWord  // Fallback, should not reach here due to "keep" rule
+    return _cWord_  // Fallback, should not reach here due to "keep" rule
 
 	func SingularOf(str)
 		return Singular(str)
@@ -85,16 +85,16 @@ func Singular(str)
 
 // Helper function to add a new singular rule
 func AddSingularRule(pattern, replacement, type, priority, category)
-    aSingularRules + [pattern, replacement, type, priority, category]
+    _aSingularRules_ + [pattern, replacement, type, priority, category]
 
 // Helper function to get rules by category
 func GetsingularRulesByCategory(category)
-    result = []
-	nLen = len(aSingularRules)
+    _result_ = []
+	_nLen_ = len(_aSingularRules_)
 
-	for i = 1 to nLen
-        if aSingularRules[i][5] = category
-            result + aSingularRules[i]
+	for i = 1 to _nLen_
+        if _aSingularRules_[i][5] = category
+            _result_ + _aSingularRules_[i]
         ok
     next
-    return result
+    return _result_

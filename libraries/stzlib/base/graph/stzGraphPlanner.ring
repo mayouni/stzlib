@@ -52,10 +52,10 @@ class stzGraphPlanner from stzObject
 			]
 		]
 
-	def Profile(cProfile)
-		cProfile = StzLower(cProfile)
-		if HasKey(@aProfiles, cProfile)
-			return @aProfiles[cProfile]
+	def Profile(_cProfile_)
+		_cProfile_ = StzLower(_cProfile_)
+		if HasKey(@aProfiles, _cProfile_)
+			return @aProfiles[_cProfile_]
 		ok
 		return []
 
@@ -119,8 +119,8 @@ class stzGraphPlanner from stzObject
 			stzraise("Inexistant plan (" + pcPlanName + ")!")
 		ok
 
-		nLen = len(@aPlans)
-		if nLen = 1
+		_nLen_ = len(@aPlans)
+		if _nLen_ = 1
 			stzraise("Can't remove the only plan we have!")
 		ok
 
@@ -128,16 +128,16 @@ class stzGraphPlanner from stzObject
 			stzraise("Can't remove the current plan we are working on! Set another plan as current first.")
 		ok
 
-		n = 0
-		for i = 1 to nLen
+		_n_ = 0
+		for i = 1 to _nLen_
 			if @aPlans[i][1] = pcPlanName
-				n = i
+				_n_ = i
 				exit
 			ok
 		next
 
-		if n > 0
-			del(@aPlans, n)
+		if _n_ > 0
+			del(@aPlans, _n_)
 		ok
 
 	#----------------------#
@@ -169,12 +169,12 @@ class stzGraphPlanner from stzObject
 			ok
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][1] = pcFrom
-		@aPlans[nPos][2][2] = pcTo
+		@aPlans[_nPos_][2][1] = pcFrom
+		@aPlans[_nPos_][2][2] = pcTo
 
 		def WalkIn(pcPlanName, pcFrom, pcTo)
 			This.WalkXT(pcPlanName, pcFrom, pcTo)
@@ -189,11 +189,11 @@ class stzGraphPlanner from stzObject
 			This.From(pcFrom)
 
 	def FromXT(pcPlanName, pcFrom)
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][1] = pcFrom
+		@aPlans[_nPos_][2][1] = pcFrom
 
 		def FromNodeXT(pcPlanName, pcFrom)
 			This.FromXT(pcPlanName, pcFrom)
@@ -210,11 +210,11 @@ class stzGraphPlanner from stzObject
 			return
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][2] = pcTo
+		@aPlans[_nPos_][2][2] = pcTo
 
 		def ToNodeXT(pcPlanName, pcTo)
 			This.ToXT(pcPlanName, pcTo)
@@ -241,11 +241,11 @@ class stzGraphPlanner from stzObject
 			ok
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][3] = pGoalFunc
+		@aPlans[_nPos_][2][3] = pGoalFunc
 
 		def ToReachFXT(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
@@ -289,27 +289,27 @@ class stzGraphPlanner from stzObject
 			ok
 		ok
 
-		aProfileCriteria = []
+		_aProfileCriteria_ = []
 		
 		if isString(pProfile)
-			cProfile = StzLower(pProfile)
-			if StzLeft(cProfile, 1) = ":"
-				cProfile = StzRight(cProfile, StzLen(cProfile) - 1)
+			_cProfile_ = StzLower(pProfile)
+			if StzLeft(_cProfile_, 1) = ":"
+				_cProfile_ = StzRight(_cProfile_, StzLen(_cProfile_) - 1)
 			ok
-			aProfileCriteria = This.Profile(cProfile)
-			if len(aProfileCriteria) = 0
+			_aProfileCriteria_ = This.Profile(_cProfile_)
+			if len(_aProfileCriteria_) = 0
 				stzraise("Unknown profile: " + pProfile)
 			ok
 		but isList(pProfile)
-			aProfileCriteria = pProfile
+			_aProfileCriteria_ = pProfile
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
 		
-		@aPlans[nPos][2][4] = aProfileCriteria
+		@aPlans[_nPos_][2][4] = _aProfileCriteria_
 
 		def UsingProfileXT(pProfile, pcPlanName)
 			This.UsingXT(pProfile, pcPlanName)
@@ -367,11 +367,11 @@ class stzGraphPlanner from stzObject
 			ok
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][4] + [:property = pcProperty, :direction = "minimize", :weight = 1]
+		@aPlans[_nPos_][2][4] + [:property = pcProperty, :direction = "minimize", :weight = 1]
 
 		def MinimiseIn(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
@@ -445,11 +445,11 @@ class stzGraphPlanner from stzObject
 			ok
 		ok
 
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		@aPlans[nPos][2][4] + [:property = pcProperty, :direction = "maximize", :weight = 1]
+		@aPlans[_nPos_][2][4] + [:property = pcProperty, :direction = "maximize", :weight = 1]
 
 		def MaximiseIn(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
@@ -487,43 +487,43 @@ class stzGraphPlanner from stzObject
 			This.Execute()
 
 	def ExecuteXT(pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
 		
-		aPlanData = @aPlans[nPos][2]
-		cStartNode = aPlanData[1]
-		cGoalNode = aPlanData[2]
-		pGoalFunc = aPlanData[3]
-		aOptimize = aPlanData[4]
-		aConstraints = aPlanData[5]
+		_aPlanData_ = @aPlans[_nPos_][2]
+		_cStartNode_ = _aPlanData_[1]
+		_cGoalNode_ = _aPlanData_[2]
+		pGoalFunc = _aPlanData_[3]
+		_aOptimize_ = _aPlanData_[4]
+		_aConstraints_ = _aPlanData_[5]
 		
-		if cStartNode != ""
-			cStartNode = StzLower(cStartNode)
+		if _cStartNode_ != ""
+			_cStartNode_ = StzLower(_cStartNode_)
 		ok
-		if cGoalNode != ""
-			cGoalNode = StzLower(cGoalNode)
+		if _cGoalNode_ != ""
+			_cGoalNode_ = StzLower(_cGoalNode_)
 		ok
 		
-		if cStartNode = "" or NOT @oGraph.NodeExists(cStartNode)
+		if _cStartNode_ = "" or NOT @oGraph.NodeExists(_cStartNode_)
 			stzraise("Invalid start node!")
 		ok
 		
-		aResult = ""
-		if cGoalNode != ""
-			pHeuristic = This._SelectHeuristic(cStartNode, cGoalNode)
-			aResult = This._AStar(cStartNode, cGoalNode, pHeuristic, aOptimize, aConstraints)
+		_aResult_ = ""
+		if _cGoalNode_ != ""
+			pHeuristic = This._SelectHeuristic(_cStartNode_, _cGoalNode_)
+			_aResult_ = This._AStar(_cStartNode_, _cGoalNode_, pHeuristic, _aOptimize_, _aConstraints_)
 		but pGoalFunc != ""
-			aResult = This._GoalSearch(cStartNode, pGoalFunc, aOptimize, aConstraints)
+			_aResult_ = This._GoalSearch(_cStartNode_, pGoalFunc, _aOptimize_, _aConstraints_)
 		else
 			stzraise("Either goal node or goal function must be specified!")
 		ok
 		
-		@aPlans[nPos][2][6] = aResult
+		@aPlans[_nPos_][2][6] = _aResult_
 		
 		# Store in history
-		This._AddToHistory(pcPlanName, aResult, aOptimize)
+		This._AddToHistory(pcPlanName, _aResult_, _aOptimize_)
 		
 		def ExecutePlan(pcPlanName)
 			This.ExecuteXT(pcPlanName)
@@ -548,8 +548,8 @@ class stzGraphPlanner from stzObject
 			return This.CostXT(This.CurrentPlan())
 
 	def CostXT(pcPlanName)
-		aResult = This._GetResult(pcPlanName)
-		return aResult[2]
+		_aResult_ = This._GetResult(pcPlanName)
+		return _aResult_[2]
 
 		def CostOf(pcPlanName)
 			if CheckParams()
@@ -589,8 +589,8 @@ class stzGraphPlanner from stzObject
 			return This.RouteXT(This.CurrentPlan())
 
 	def RouteXT(pcPlanName)
-		aResult = This._GetResult(pcPlanName)
-		return aResult[3]
+		_aResult_ = This._GetResult(pcPlanName)
+		return _aResult_[3]
 
 		def RouteOf(pcPlanName)
 			if CheckParams()
@@ -637,8 +637,8 @@ class stzGraphPlanner from stzObject
 			return This.ActionsXT(This.CurrentPlan())
 
 	def ActionsXT(pcPlanName)
-		aResult = This._GetResult(pcPlanName)
-		return aResult[1]
+		_aResult_ = This._GetResult(pcPlanName)
+		return _aResult_[1]
 	
 		def ActionsIn(pcPlanName)
 			return This.ActionsXT(pcPlanName)
@@ -661,13 +661,13 @@ class stzGraphPlanner from stzObject
 			return This.ExplainXT(This.CurrentPlan())
 
 	def ExplainXT(pcPlanName)
-		aResult = This._GetResult(pcPlanName)
+		_aResult_ = This._GetResult(pcPlanName)
 		return [
 			:plan = pcPlanName,
-			:actions = aResult[1],
-			:total_cost = aResult[2],
-			:route = aResult[3],
-			:steps = len(aResult[1])
+			:actions = _aResult_[1],
+			:total_cost = _aResult_[2],
+			:route = _aResult_[3],
+			:steps = len(_aResult_[1])
 		]
 	
 		def ExplainPlan(pcPlanName)
@@ -684,59 +684,59 @@ class stzGraphPlanner from stzObject
 			return This.CostBreakdown()
 
 	def CostBreakdownXT(pcPlanName)
-		aActions = This.ActionsXT(pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		aOptimize = @aPlans[nPos][2][4]
+		_aActions_ = This.ActionsXT(pcPlanName)
+		_nPos_ = This._FindPlan(pcPlanName)
+		_aOptimize_ = @aPlans[_nPos_][2][4]
 		
-		aBreakdown = []
-		nLen = len(aActions)
-		for i = 1 to nLen
-			aAction = aActions[i]
-			aStep = [
+		_aBreakdown_ = []
+		_nLen_ = len(_aActions_)
+		for i = 1 to _nLen_
+			_aAction_ = _aActions_[i]
+			_aStep_ = [
 				:step = i,
-				:from = aAction[:from],
-				:to = aAction[:to],
+				:from = _aAction_[:from],
+				:to = _aAction_[:to],
 				:criteria = []
 			]
 			
-			nStepTotal = 0
-			if len(aOptimize) > 0
-				nLen2 = len(aOptimize)
-				for j = 1 to nLen2
-					aCriterion = aOptimize[j]
-					cProp = aCriterion[:property]
-					nWeight = aCriterion[:weight]
-					cDir = aCriterion[:direction]
+			_nStepTotal_ = 0
+			if len(_aOptimize_) > 0
+				_nLen2_ = len(_aOptimize_)
+				for j = 1 to _nLen2_
+					_aCriterion_ = _aOptimize_[j]
+					_cProp_ = _aCriterion_[:property]
+					_nWeight_ = _aCriterion_[:weight]
+					_cDir_ = _aCriterion_[:direction]
 					
-					pValue = @oGraph.EdgeProperty(aAction[:from], aAction[:to], cProp)
+					pValue = @oGraph.EdgeProperty(_aAction_[:from], _aAction_[:to], _cProp_)
 					if pValue = ""
 						pValue = 1
 					ok
 					
-					nContribution = 0
-					if cDir = "minimize"
-						nContribution = nWeight * pValue
+					_nContribution_ = 0
+					if _cDir_ = "minimize"
+						_nContribution_ = _nWeight_ * pValue
 					else
-						nContribution = -nWeight * pValue
+						_nContribution_ = -_nWeight_ * pValue
 					ok
 					
-					nStepTotal += nContribution
+					_nStepTotal_ += _nContribution_
 					
-					aStep[:criteria] + [
-						:property = cProp,
+					_aStep_[:criteria] + [
+						:property = _cProp_,
 						:value = pValue,
-						:weight = nWeight,
-						:direction = cDir,
-						:contribution = nContribution
+						:weight = _nWeight_,
+						:direction = _cDir_,
+						:contribution = _nContribution_
 					]
 				next
 			ok
 			
-			aStep + [:total = nStepTotal]
-			aBreakdown + aStep
+			_aStep_ + [:total = _nStepTotal_]
+			_aBreakdown_ + _aStep_
 		next
 		
-		return aBreakdown
+		return _aBreakdown_
 
 		def ExplainCostBreakdownXT(pcPlanName)
 			return This.CostBreakdownXT(pcPlanName)
@@ -748,28 +748,28 @@ class stzGraphPlanner from stzObject
 			return This.Why(cAspect)
 
 	def WhyXT(cAspect, pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		aPlanData = @aPlans[nPos][2]
-		aResult = aPlanData[6]
-		aExplored = aPlanData[7]
-		aOptimize = aPlanData[4]
+		_nPos_ = This._FindPlan(pcPlanName)
+		_aPlanData_ = @aPlans[_nPos_][2]
+		_aResult_ = _aPlanData_[6]
+		_aExplored_ = _aPlanData_[7]
+		_aOptimize_ = _aPlanData_[4]
 		
-		aCriteria = []
-		nLen = len(aOptimize)
-		for i = 1 to nLen
-			aCrit = aOptimize[i]
-			aCriteria + [
-				:direction = aCrit[:direction],
-				:property = aCrit[:property]
+		_aCriteria_ = []
+		_nLen_ = len(_aOptimize_)
+		for i = 1 to _nLen_
+			_aCrit_ = _aOptimize_[i]
+			_aCriteria_ + [
+				:direction = _aCrit_[:direction],
+				:property = _aCrit_[:property]
 			]
 		next
 		
 		return [
 			:plan = pcPlanName,
-			:total_cost = aResult[2],
-			:nodes_explored = len(aExplored),
-			:optimized_for = aCriteria,
-			:route = aResult[3]
+			:total_cost = _aResult_[2],
+			:nodes_explored = len(_aExplored_),
+			:optimized_for = _aCriteria_,
+			:route = _aResult_[3]
 		]
 
 		def ExplainWhyXT(cAspect, pcPlanName)
@@ -782,13 +782,13 @@ class stzGraphPlanner from stzObject
 			return This.Alternatives()
 
 	def AlternativesXT(pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		aPlanData = @aPlans[nPos][2]
-		aAlternatives = aPlanData[8]
+		_nPos_ = This._FindPlan(pcPlanName)
+		_aPlanData_ = @aPlans[_nPos_][2]
+		_aAlternatives_ = _aPlanData_[8]
 		
 		return [
 			:plan = pcPlanName,
-			:decision_points = aAlternatives
+			:decision_points = _aAlternatives_
 		]
 
 		def ExplainAlternativesXT(pcPlanName)
@@ -801,32 +801,32 @@ class stzGraphPlanner from stzObject
 			return This.Efficiency()
 
 	def EfficiencyXT(pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		aPlanData = @aPlans[nPos][2]
-		aResult = aPlanData[6]
-		aExplored = aPlanData[7]
+		_nPos_ = This._FindPlan(pcPlanName)
+		_aPlanData_ = @aPlans[_nPos_][2]
+		_aResult_ = _aPlanData_[6]
+		_aExplored_ = _aPlanData_[7]
 		
-		nPathLength = len(aResult[3])
-		nExplored = len(aExplored)
-		nRatio = nExplored / nPathLength
+		_nPathLength_ = len(_aResult_[3])
+		_nExplored_ = len(_aExplored_)
+		_nRatio_ = _nExplored_ / _nPathLength_
 		
-		cAssessment = ""
-		if nRatio < 1.5
-			cAssessment = "very efficient"
-		but nRatio < 2.5
-			cAssessment = "efficient"
-		but nRatio < 4
-			cAssessment = "moderate"
+		_cAssessment_ = ""
+		if _nRatio_ < 1.5
+			_cAssessment_ = "very efficient"
+		but _nRatio_ < 2.5
+			_cAssessment_ = "efficient"
+		but _nRatio_ < 4
+			_cAssessment_ = "moderate"
 		else
-			cAssessment = "explored many alternatives"
+			_cAssessment_ = "explored many alternatives"
 		ok
 		
 		return [
 			:plan = pcPlanName,
-			:nodes_explored = nExplored,
-			:path_length = nPathLength,
-			:ratio = nRatio,
-			:assessment = cAssessment
+			:nodes_explored = _nExplored_,
+			:path_length = _nPathLength_,
+			:ratio = _nRatio_,
+			:assessment = _cAssessment_
 		]
 
 		def ExplainEfficiencyXT(pcPlanName)
@@ -855,10 +855,10 @@ class stzGraphPlanner from stzObject
 			return This.CompareToXT(pcOtherPlan)
 
 		def CompareToXTQ(pcPlan1, pcPlan2)
-			aResult1 = This._GetResult(pcPlan1)
-			aResult2 = This._GetResult(pcPlan2)
+			_aResult1_ = This._GetResult(pcPlan1)
+			_aResult2_ = This._GetResult(pcPlan2)
 		
-			return new stzPlanComparison(This, pcPlan1, pcPlan2, aResult1, aResult2)
+			return new stzPlanComparison(This, pcPlan1, pcPlan2, _aResult1_, _aResult2_)
 
 			def CompareWithXTQ(pcPlan1, pcPlan2)
 				return This.CompareToXTQ(pcPlan1, pcPlan2)
@@ -876,8 +876,8 @@ class stzGraphPlanner from stzObject
 			return This.Difference(pcOtherPlan)
 
 	def DifferenceXT(pcPlan1, pcPlan2)
-		oComp = This.CompareToXTQ(pcPlan1, pcPlan2)
-		return oComp.Explain()
+		_oComp_ = This.CompareToXTQ(pcPlan1, pcPlan2)
+		return _oComp_.Explain()
 
 		def DifferenceWithXT(pcPlan1, pcPlan2)
 			return This.DifferenceXT(pcPlan1, pcPlan2)
@@ -946,8 +946,8 @@ class stzGraphPlanner from stzObject
 
 
 	def TradeoffsXT(pcPlan1, pcPlan2)
-		oComp = This.CompareToXTQ(pcPlan1, pcPlan2)
-		return oComp.Tradeoffs()
+		_oComp_ = This.CompareToXTQ(pcPlan1, pcPlan2)
+		return _oComp_.Tradeoffs()
 
 		def TradeoffsOfXT(pcPlan1, pcPlan2)
 			return This.TradeoffsXT(pcPlan1, pcPlan2)
@@ -1005,84 +1005,84 @@ class stzGraphPlanner from stzObject
 		return This.WhichIsCheaperXT(This.CurrentPlan(), pcOtherPlan)
 
 	def WhichIsCheaperXT(pcPlan1, pcPlan2)
-		oComp = This.CompareToXTQ(pcPlan1, pcPlan2)
-		return oComp.WhichIsCheaper()
+		_oComp_ = This.CompareToXTQ(pcPlan1, pcPlan2)
+		return _oComp_.WhichIsCheaper()
 
 	def CostSaving(pcOtherPlan)
 		return This.CostSavingXT(This.CurrentPlan(), pcOtherPlan)
 
 	def CostSavingXT(pcPlan1, pcPlan2)
-		oComp = This.CompareToXTQ(pcPlan1, pcPlan2)
-		return oComp.CostSaving()
+		_oComp_ = This.CompareToXTQ(pcPlan1, pcPlan2)
+		return _oComp_.CostSaving()
 
 	#---------------------------------#
 	#  MULTI-PLAN COMPARISON          #
 	#---------------------------------#
 
-	def CompareMany(acPlanNames)
-		return This.CompareManyQ(acPlanNames).CompareAll()
+	def CompareMany(_acPlanNames_)
+		return This.CompareManyQ(_acPlanNames_).CompareAll()
 
-		def CompareAll(acPlanNames)
-			return This.CompareMany(acPlanNames)
+		def CompareAll(_acPlanNames_)
+			return This.CompareMany(_acPlanNames_)
 
-		def CompareMultiple(acPlanNames)
-			return This.CompareMany(acPlanNames)
+		def CompareMultiple(_acPlanNames_)
+			return This.CompareMany(_acPlanNames_)
 
-		def CompareManyQ(acPlanNames)
+		def CompareManyQ(_acPlanNames_)
 			if CheckParams()
-				if isList(acPlanNames) and NOT isList(acPlanNames[1])
+				if isList(_acPlanNames_) and NOT isList(_acPlanNames_[1])
 					# Good - list of plan names
 				else
 					stzraise("Parameter must be a list of plan names!")
 				ok
 			ok
 		
-			aAllResults = []
-			nLen = len(acPlanNames)
-			for i = 1 to nLen
-				cPlan = acPlanNames[i]
+			_aAllResults_ = []
+			_nLen_ = len(_acPlanNames_)
+			for i = 1 to _nLen_
+				_cPlan_ = _acPlanNames_[i]
 				# Check if plan was executed
-				nPos = This._FindPlan(cPlan)
-				if nPos > 0 and @aPlans[nPos][2][6] != ""
-					aResult = This._GetResult(cPlan)
-					aAllResults + [cPlan, aResult]
+				_nPos_ = This._FindPlan(_cPlan_)
+				if _nPos_ > 0 and @aPlans[_nPos_][2][6] != ""
+					_aResult_ = This._GetResult(_cPlan_)
+					_aAllResults_ + [_cPlan_, _aResult_]
 				ok
 			next
 		
-			return new stzMultiPlanComparison(This, acPlanNames, aAllResults)
+			return new stzMultiPlanComparison(This, _acPlanNames_, _aAllResults_)
 		
-			def CompareAllQ(acPlanNames)
-				return This.CompareManyQ(acPlanNames)
+			def CompareAllQ(_acPlanNames_)
+				return This.CompareManyQ(_acPlanNames_)
 	
-			def CompareMultipleQ(acPlanNames)
-				return This.CompareManyQ(acPlanNames)
+			def CompareMultipleQ(_acPlanNames_)
+				return This.CompareManyQ(_acPlanNames_)
 
-	def RankPlansBy(cCriterion)
-		return This.RankPlansByXT(cCriterion, :all)
+	def RankPlansBy(_cCriterion_)
+		return This.RankPlansByXT(_cCriterion_, :all)
 
-	def RankPlansByXT(cCriterion, pPlans)
-		acPlanNames = []
+	def RankPlansByXT(_cCriterion_, pPlans)
+		_acPlanNames_ = []
 		
 		if isString(pPlans) and StzLower(pPlans) = "all"
-			nLen = len(@aPlans)
-			for i = 1 to nLen
-				cPlanName = @aPlans[i][1]
+			_nLen_ = len(@aPlans)
+			for i = 1 to _nLen_
+				_cPlanName_ = @aPlans[i][1]
 				# Only include executed plans
 				if @aPlans[i][2][6] != ""
-					acPlanNames + cPlanName
+					_acPlanNames_ + _cPlanName_
 				ok
 			next
 
 		but isList(pPlans)
-			acPlanNames = pPlans
+			_acPlanNames_ = pPlans
 		ok
 	
-		if len(acPlanNames) = 0
+		if len(_acPlanNames_) = 0
 			return []
 		ok
 	
-		oMultiComp = This.CompareMultipleQ(acPlanNames)
-		return oMultiComp.RankBy(cCriterion)
+		_oMultiComp_ = This.CompareMultipleQ(_acPlanNames_)
+		return _oMultiComp_.RankBy(_cCriterion_)
 
 	#---------------------------------#
 	#  HISTORICAL COMPARISON          #
@@ -1107,111 +1107,111 @@ class stzGraphPlanner from stzObject
 		return This.CompareWithHistoryXTQ(pcPlanName).Explain()
 
 		def CompareWithHistoryXTQ(pcPlanName)
-			aCurrentResult = This._GetResult(pcPlanName)
+			_aCurrentResult_ = This._GetResult(pcPlanName)
 			
 			if len(@aHistory) = 0
 				return "No historical data available for comparison."
 			ok
 	
-			return new stzHistoricalComparison(This, pcPlanName, aCurrentResult, @aHistory)
+			return new stzHistoricalComparison(This, pcPlanName, _aCurrentResult_, @aHistory)
 	
-	def HistoricalAverage(cCriterion)
+	def HistoricalAverage(_cCriterion_)
 		if len(@aHistory) = 0
 			return 0
 		ok
 
-		cCriterion = StzLower(cCriterion)
-		nSum = 0
-		nCount = 0
+		_cCriterion_ = StzLower(_cCriterion_)
+		_nSum_ = 0
+		_nCount_ = 0
 
-		nLen = len(@aHistory)
-		for i = 1 to nLen
-			aHistItem = @aHistory[i]
-			aResult = aHistItem[2]
+		_nLen_ = len(@aHistory)
+		for i = 1 to _nLen_
+			_aHistItem_ = @aHistory[i]
+			_aResult_ = _aHistItem_[2]
 			
-			if cCriterion = "cost"
-				nSum += aResult[2]
-				nCount++
-			but cCriterion = "steps" or cCriterion = "length"
-				nSum += len(aResult[3])
-				nCount++
+			if _cCriterion_ = "cost"
+				_nSum_ += _aResult_[2]
+				_nCount_++
+			but _cCriterion_ = "steps" or _cCriterion_ = "length"
+				_nSum_ += len(_aResult_[3])
+				_nCount_++
 			ok
 		next
 
-		if nCount = 0
+		if _nCount_ = 0
 			return 0
 		ok
 
-		return nSum / nCount
+		return _nSum_ / _nCount_
 
 		def HistoAverage()
 			return This.HistoricalAverage()
 
-	def BestHistoricalPlan(cCriterion)
+	def BestHistoricalPlan(_cCriterion_)
 		if len(@aHistory) = 0
 			return ""
 		ok
 
-		cCriterion = StzLower(cCriterion)
-		cBestPlan = ""
-		nBestValue = 999999
+		_cCriterion_ = StzLower(_cCriterion_)
+		_cBestPlan_ = ""
+		_nBestValue_ = 999999
 
-		nLen = len(@aHistory)
-		for i = 1 to nLen
-			aHistItem = @aHistory[i]
-			cPlanName = aHistItem[1]
-			aResult = aHistItem[2]
+		_nLen_ = len(@aHistory)
+		for i = 1 to _nLen_
+			_aHistItem_ = @aHistory[i]
+			_cPlanName_ = _aHistItem_[1]
+			_aResult_ = _aHistItem_[2]
 			
-			nValue = 0
-			if cCriterion = "cost"
-				nValue = aResult[2]
-			but cCriterion = "steps" or cCriterion = "length"
-				nValue = len(aResult[3])
+			_nValue_ = 0
+			if _cCriterion_ = "cost"
+				_nValue_ = _aResult_[2]
+			but _cCriterion_ = "steps" or _cCriterion_ = "length"
+				_nValue_ = len(_aResult_[3])
 			ok
 
-			if nValue < nBestValue
-				nBestValue = nValue
-				cBestPlan = cPlanName
+			if _nValue_ < _nBestValue_
+				_nBestValue_ = _nValue_
+				_cBestPlan_ = _cPlanName_
 			ok
 		next
 
-		return cBestPlan
+		return _cBestPlan_
 
-		def BestHistoPlan(cCriterion)
-			return This.BestHistoricalPlan(cCriterion)
+		def BestHistoPlan(_cCriterion_)
+			return This.BestHistoricalPlan(_cCriterion_)
 
-	def WorstHistoricalPlan(cCriterion)
+	def WorstHistoricalPlan(_cCriterion_)
 		if len(@aHistory) = 0
 			return ""
 		ok
 	
-		cCriterion = StzLower(cCriterion)
-		cWorstPlan = ""
-		nWorstValue = -999999
+		_cCriterion_ = StzLower(_cCriterion_)
+		_cWorstPlan_ = ""
+		_nWorstValue_ = -999999
 	
-		nLen = len(@aHistory)
-		for i = 1 to nLen
-			aHistItem = @aHistory[i]
-			cPlanName = aHistItem[1]
-			aResult = aHistItem[2]
+		_nLen_ = len(@aHistory)
+		for i = 1 to _nLen_
+			_aHistItem_ = @aHistory[i]
+			_cPlanName_ = _aHistItem_[1]
+			_aResult_ = _aHistItem_[2]
 			
-			nValue = 0
-			if cCriterion = "cost"
-				nValue = aResult[2]
-			but cCriterion = "steps" or cCriterion = "length"
-				nValue = len(aResult[3])
+			_nValue_ = 0
+			if _cCriterion_ = "cost"
+				_nValue_ = _aResult_[2]
+			but _cCriterion_ = "steps" or _cCriterion_ = "length"
+				_nValue_ = len(_aResult_[3])
 			ok
 	
-			if nValue > nWorstValue
-				nWorstValue = nValue
-				cWorstPlan = cPlanName
+			if _nValue_ > _nWorstValue_
+				_nWorstValue_ = _nValue_
+				_cWorstPlan_ = _cPlanName_
 			ok
 		next
 	
-		return cWorstPlan
+		return _cWorstPlan_
 
-		def WortsHistoPlan(cCriterion)
-			return This.WorstHistoricalPlan(cCriterion)
+		def WortsHistoPlan(_cCriterion_)
+			return This.WorstHistoricalPlan(_cCriterion_)
 
 	def ClearHistory()
 		@aHistory = []
@@ -1224,46 +1224,46 @@ class stzGraphPlanner from stzObject
 		return This.FilterPlansQ(paConstraints).Plans()
 
 		def FilterPlansQ(paConstraints)
-			acAllPlans = []
-			nLen = len(@aPlans)
-			for i = 1 to nLen
-				acAllPlans + @aPlans[i][1]
+			_acAllPlans_ = []
+			_nLen_ = len(@aPlans)
+			for i = 1 to _nLen_
+				_acAllPlans_ + @aPlans[i][1]
 			next
 			
-			return This.FilterPlansXTQ(acAllPlans, paConstraints)
+			return This.FilterPlansXTQ(_acAllPlans_, paConstraints)
 	
-	def FilterPlansXT(acPlanNames, paConstraints)
-		return This.FilterPlansXTQ(acPlanNames, paConstraints).Plans()
+	def FilterPlansXT(_acPlanNames_, paConstraints)
+		return This.FilterPlansXTQ(_acPlanNames_, paConstraints).Plans()
 
-		def FilterPlansXTQ(acPlanNames, paConstraints)
-			acFiltered = []
+		def FilterPlansXTQ(_acPlanNames_, paConstraints)
+			_acFiltered_ = []
 	
-			nLen = len(acPlanNames)
-			for i = 1 to nLen
-				cPlan = acPlanNames[i]
+			_nLen_ = len(_acPlanNames_)
+			for i = 1 to _nLen_
+				_cPlan_ = _acPlanNames_[i]
 				
-				if This._PlanMeetsConstraints(cPlan, paConstraints)
-					acFiltered + cPlan
+				if This._PlanMeetsConstraints(_cPlan_, paConstraints)
+					_acFiltered_ + _cPlan_
 				ok
 			next
 	
-			return new stzPlanFilter(This, acFiltered, paConstraints)
+			return new stzPlanFilter(This, _acFiltered_, paConstraints)
 	
-	def PlansWithin(nPercentage, cBasePlan)
-		return This.PlansWithinQ(nPercentage, cBasePlan).Plans()
+	def PlansWithin(nPercentage, _cBasePlan_)
+		return This.PlansWithinQ(nPercentage, _cBasePlan_).Plans()
 
-		def PlansWithinQ(nPercentage, cBasePlan)
+		def PlansWithinQ(nPercentage, _cBasePlan_)
 			if CheckParams()
-				if isList(cBasePlan) and IsOfOrOfPlanNamedParamList(cBasePlan)
-					cBasePlan = cBasePlan[2]
+				if isList(_cBasePlan_) and IsOfOrOfPlanNamedParamList(_cBasePlan_)
+					_cBasePlan_ = _cBasePlan_[2]
 				ok
 			ok
 	
-			aBaseResult = This._GetResult(cBasePlan)
-			nBaseCost = aBaseResult[2]
-			nMaxCost = nBaseCost * (1 + nPercentage/100)
+			_aBaseResult_ = This._GetResult(_cBasePlan_)
+			_nBaseCost_ = _aBaseResult_[2]
+			_nMaxCost_ = _nBaseCost_ * (1 + nPercentage/100)
 	
-			return This.FilterPlansQ([ :maxCost = nMaxCost ])
+			return This.FilterPlansQ([ :maxCost = _nMaxCost_ ])
 
 	def PlansAvoinding(cNode)
 		return This.PlansAvoidingQ(cNode).Plans()
@@ -1301,23 +1301,23 @@ class stzGraphPlanner from stzObject
 
 	def ShowXT(pcPlanName)
 		try
-			aResult = This._GetResult(pcPlanName)
+			_aResult_ = This._GetResult(pcPlanName)
 			? "Plan: " + pcPlanName
-			? "  Total Cost: " + aResult[2]
-			? "  Steps: " + len(aResult[1])
+			? "  Total Cost: " + _aResult_[2]
+			? "  Steps: " + len(_aResult_[1])
 			? ""
 			? "Actions:"
-			nLen = len(aResult[1])
-			for i = 1 to nLen
-				aAction = aResult[1][i]
-				? "  " + aAction[:from] + " -> " + aAction[:to]
-				if HasKey(aAction, :cost)
-					? "    Cost: " + aAction[:cost]
+			_nLen_ = len(_aResult_[1])
+			for i = 1 to _nLen_
+				_aAction_ = _aResult_[1][i]
+				? "  " + _aAction_[:from] + " -> " + _aAction_[:to]
+				if HasKey(_aAction_, :cost)
+					? "    Cost: " + _aAction_[:cost]
 				ok
 			next
 			? ""
 			? "Explanation:"
-			? aResult[4]
+			? _aResult_[4]
 		catch
 			? "Plan '" + pcPlanName + "' not found or not executed."
 		done
@@ -1331,8 +1331,8 @@ class stzGraphPlanner from stzObject
 	
 	def _FindPlan(pcPlanName)
 		pcPlanName = StzLower(pcPlanName)
-		nLen = len(@aPlans)
-		for i = 1 to nLen
+		_nLen_ = len(@aPlans)
+		for i = 1 to _nLen_
 			if StzLower(@aPlans[i][1]) = pcPlanName
 				return i
 			ok
@@ -1340,15 +1340,15 @@ class stzGraphPlanner from stzObject
 		return 0
 	
 	def _GetResult(pcPlanName)
-		nPos = This._FindPlan(pcPlanName)
-		if nPos = 0
+		_nPos_ = This._FindPlan(pcPlanName)
+		if _nPos_ = 0
 			stzraise("Plan not found!")
 		ok
-		aResult = @aPlans[nPos][2][6]
-		if aResult = ""
+		_aResult_ = @aPlans[_nPos_][2][6]
+		if _aResult_ = ""
 			stzraise("Plan has not been executed!")
 		ok
-		return aResult
+		return _aResult_
 	
 	#-----------------------#
 	#  A* ALGORITHM         #
@@ -1363,202 +1363,202 @@ class stzGraphPlanner from stzObject
 	# The engine returns [ route, exploredOrder ] in one search, keeping the
 	# explainability metrics (nodes_explored / efficiency) honest. pHeuristic
 	# and aConstraints are kept for signature compatibility.
-	def _AStar(cStart, cGoal, pHeuristic, aOptimize, aConstraints)
+	def _AStar(cStart, cGoal, pHeuristic, _aOptimize_, _aConstraints_)
 		# 1) push per-optimisation transition costs as engine edge weights
-		aEdges = @oGraph.Edges()
-		nE = len(aEdges)
-		for i = 1 to nE
-			cF = aEdges[i][:from]
-			cT = aEdges[i][:to]
-			@oGraph.SetEdgeWeight(cF, cT, This._CalculateTransitionCost(cF, cT, aOptimize))
+		_aEdges_ = @oGraph.Edges()
+		_nE_ = len(_aEdges_)
+		for i = 1 to _nE_
+			_cF_ = _aEdges_[i][:from]
+			_cT_ = _aEdges_[i][:to]
+			@oGraph.SetEdgeWeight(_cF_, _cT_, This._CalculateTransitionCost(_cF_, _cT_, _aOptimize_))
 		next
 
 		# 2) engine A* search (mode 0 = Dijkstra/UCS, optimal)
-		aPlan = @oGraph.AStarPlan(cStart, cGoal, 0)
-		acRoute = aPlan[1]
-		aExplored = aPlan[2]
+		_aPlan_ = @oGraph.AStarPlan(cStart, cGoal, 0)
+		_acRoute_ = _aPlan_[1]
+		_aExplored_ = _aPlan_[2]
 
 		# 3) decision points along the explored order (explainability metadata)
-		aAlternatives = []
-		nX = len(aExplored)
-		for i = 1 to nX
-			aNb = @oGraph.Neighbors(aExplored[i])
-			nNb = len(aNb)
-			if nNb > 1
-				aAlternatives + [:node = aExplored[i], :chosen = aNb[1], :total_options = nNb]
+		_aAlternatives_ = []
+		_nX_ = len(_aExplored_)
+		for i = 1 to _nX_
+			_aNb_ = @oGraph.Neighbors(_aExplored_[i])
+			_nNb_ = len(_aNb_)
+			if _nNb_ > 1
+				_aAlternatives_ + [:node = _aExplored_[i], :chosen = _aNb_[1], :total_options = _nNb_]
 			ok
 		next
 
-		if len(acRoute) = 0
-			This._StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
+		if len(_acRoute_) = 0
+			This._StoreExplorationData(cStart, cGoal, _aExplored_, _aAlternatives_)
 			return [[], 0, [], "No path found"]
 		ok
 
 		# 4) reconstruct the planner's action list + total cost from the route
-		aActions = []
-		nTotalCost = 0
-		nR = len(acRoute)
-		for i = 1 to nR - 1
-			cFrom = acRoute[i]
-			cTo = acRoute[i + 1]
-			nTransitionCost = This._CalculateTransitionCost(cFrom, cTo, aOptimize)
-			nTotalCost += nTransitionCost
-			aActions + [:from = cFrom, :to = cTo, :cost = nTransitionCost]
+		_aActions_ = []
+		_nTotalCost_ = 0
+		_nR_ = len(_acRoute_)
+		for i = 1 to _nR_ - 1
+			_cFrom_ = _acRoute_[i]
+			_cTo_ = _acRoute_[i + 1]
+			_nTransitionCost_ = This._CalculateTransitionCost(_cFrom_, _cTo_, _aOptimize_)
+			_nTotalCost_ += _nTransitionCost_
+			_aActions_ + [:from = _cFrom_, :to = _cTo_, :cost = _nTransitionCost_]
 		next
 
-		cExplanation = This._GenerateExplanation(aActions)
+		_cExplanation_ = This._GenerateExplanation(_aActions_)
 
-		This._StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
-		return [aActions, nTotalCost, acRoute, cExplanation]
+		This._StoreExplorationData(cStart, cGoal, _aExplored_, _aAlternatives_)
+		return [_aActions_, _nTotalCost_, _acRoute_, _cExplanation_]
 	
-	def _GoalSearch(cStart, pGoalFunc, aOptimize, aConstraints)
-		aOpen = [[cStart, 0]]
-		aClosedSet = []
-		aCostSoFar = [[cStart, 0]]
-		aParent = []
-		aExplored = []
-		aAlternatives = []
+	def _GoalSearch(cStart, pGoalFunc, _aOptimize_, _aConstraints_)
+		_aOpen_ = [[cStart, 0]]
+		_aClosedSet_ = []
+		_aCostSoFar_ = [[cStart, 0]]
+		_aParent_ = []
+		_aExplored_ = []
+		_aAlternatives_ = []
 		
-		while len(aOpen) > 0
-			nMinIdx = 1
-			nMinCost = aOpen[1][2]
-			nLen = len(aOpen)
-			for i = 2 to nLen
-				if aOpen[i][2] < nMinCost
-					nMinCost = aOpen[i][2]
-					nMinIdx = i
+		while len(_aOpen_) > 0
+			_nMinIdx_ = 1
+			_nMinCost_ = _aOpen_[1][2]
+			_nLen_ = len(_aOpen_)
+			for i = 2 to _nLen_
+				if _aOpen_[i][2] < _nMinCost_
+					_nMinCost_ = _aOpen_[i][2]
+					_nMinIdx_ = i
 				ok
 			next
 			
-			cCurrent = aOpen[nMinIdx][1]
-			del(aOpen, nMinIdx)
+			_cCurrent_ = _aOpen_[_nMinIdx_][1]
+			del(_aOpen_, _nMinIdx_)
 			
-			aExplored + cCurrent
+			_aExplored_ + _cCurrent_
 			
-			aNode = @oGraph.Node(cCurrent)
-			if call pGoalFunc(aNode)
-				aResult = This._ReconstructPlan(aParent, cCurrent, aCostSoFar, aOptimize)
-				This._StoreExplorationData(cStart, cCurrent, aExplored, aAlternatives)
-				return aResult
+			_aNode_ = @oGraph.Node(_cCurrent_)
+			if call pGoalFunc(_aNode_)
+				_aResult_ = This._ReconstructPlan(_aParent_, _cCurrent_, _aCostSoFar_, _aOptimize_)
+				This._StoreExplorationData(cStart, _cCurrent_, _aExplored_, _aAlternatives_)
+				return _aResult_
 			ok
 			
-			aClosedSet + cCurrent
+			_aClosedSet_ + _cCurrent_
 			
-			aNeighbors = @oGraph.Neighbors(cCurrent)
-			nLen = len(aNeighbors)
+			_aNeighbors_ = @oGraph.Neighbors(_cCurrent_)
+			_nLen_ = len(_aNeighbors_)
 			
-			if nLen > 1
-				aAlternatives + [:node = cCurrent, :chosen = aNeighbors[1], :total_options = nLen]
+			if _nLen_ > 1
+				_aAlternatives_ + [:node = _cCurrent_, :chosen = _aNeighbors_[1], :total_options = _nLen_]
 			ok
 			
-			for i = 1 to nLen
-				cNeighbor = aNeighbors[i]
-				if StzFindFirst(aClosedSet, cNeighbor) > 0
+			for i = 1 to _nLen_
+				_cNeighbor_ = _aNeighbors_[i]
+				if StzFindFirst(_aClosedSet_, _cNeighbor_) > 0
 					loop
 				ok
 				
-				nCurrentCost = This._GetScore(aCostSoFar, cCurrent)
-				nTransitionCost = This._CalculateTransitionCost(cCurrent, cNeighbor, aOptimize)
-				nNewCost = nCurrentCost + nTransitionCost
+				_nCurrentCost_ = This._GetScore(_aCostSoFar_, _cCurrent_)
+				_nTransitionCost_ = This._CalculateTransitionCost(_cCurrent_, _cNeighbor_, _aOptimize_)
+				_nNewCost_ = _nCurrentCost_ + _nTransitionCost_
 				
-				nNeighborCost = This._GetScore(aCostSoFar, cNeighbor)
-				if nNeighborCost = -1 or nNewCost < nNeighborCost
-					This._SetScore(aCostSoFar, cNeighbor, nNewCost)
-					This._SetParent(aParent, cNeighbor, cCurrent)
+				_nNeighborCost_ = This._GetScore(_aCostSoFar_, _cNeighbor_)
+				if _nNeighborCost_ = -1 or _nNewCost_ < _nNeighborCost_
+					This._SetScore(_aCostSoFar_, _cNeighbor_, _nNewCost_)
+					This._SetParent(_aParent_, _cNeighbor_, _cCurrent_)
 					
-					bInOpen = FALSE
-					nLen2 = len(aOpen)
-					for j = 1 to nLen2
-						aNode = aOpen[j]
-						if aNode[1] = cNeighbor
-							bInOpen = TRUE
-							aNode[2] = nNewCost
+					_bInOpen_ = FALSE
+					_nLen2_ = len(_aOpen_)
+					for j = 1 to _nLen2_
+						_aNode_ = _aOpen_[j]
+						if _aNode_[1] = _cNeighbor_
+							_bInOpen_ = TRUE
+							_aNode_[2] = _nNewCost_
 							exit
 						ok
 					next
 					
-					if NOT bInOpen
-						aOpen + [cNeighbor, nNewCost]
+					if NOT _bInOpen_
+						_aOpen_ + [_cNeighbor_, _nNewCost_]
 					ok
 				ok
 			next
 		end
 		
-		This._StoreExplorationData(cStart, "", aExplored, aAlternatives)
+		This._StoreExplorationData(cStart, "", _aExplored_, _aAlternatives_)
 		return [[], 0, [], "No goal state found"]
 
-	def _StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
-		nPos = This._FindPlan(This.CurrentPlan())
-		if nPos > 0
-			@aPlans[nPos][2][7] = aExplored
-			@aPlans[nPos][2][8] = aAlternatives
+	def _StoreExplorationData(cStart, cGoal, _aExplored_, _aAlternatives_)
+		_nPos_ = This._FindPlan(This.CurrentPlan())
+		if _nPos_ > 0
+			@aPlans[_nPos_][2][7] = _aExplored_
+			@aPlans[_nPos_][2][8] = _aAlternatives_
 		ok
 
-	def _ReconstructPlan(aParent, cGoal, aGScore, aOptimize)
-	    acPath = [cGoal]
-	    cCurrent = cGoal
+	def _ReconstructPlan(_aParent_, cGoal, aGScore, _aOptimize_)
+	    _acPath_ = [cGoal]
+	    _cCurrent_ = cGoal
 	    
 	    while TRUE
-	        cParent = This._GetParent(aParent, cCurrent)
-	        if cParent = ""
+	        _cParent_ = This._GetParent(_aParent_, _cCurrent_)
+	        if _cParent_ = ""
 	            exit
 	        ok
-	        acPath + cParent
-	        cCurrent = cParent
+	        _acPath_ + _cParent_
+	        _cCurrent_ = _cParent_
 	    end
 	    
-	    acReversed = []
-	    nLen = len(acPath)
-	    for i = nLen to 1 step -1
-	        acReversed + acPath[i]
+	    _acReversed_ = []
+	    _nLen_ = len(_acPath_)
+	    for i = _nLen_ to 1 step -1
+	        _acReversed_ + _acPath_[i]
 	    next
 	    
 	    # Get total cost from accumulated g-score (weighted cost from A*)
-	    nTotalCost = This._GetScore(aGScore, cGoal)
+	    _nTotalCost_ = This._GetScore(aGScore, cGoal)
 	    
 	    # Build action list with individual transition costs
-	    aActions = []
-	    nLen = len(acReversed)
-	    for i = 1 to nLen - 1
-	        cFrom = acReversed[i]
-	        cTo = acReversed[i + 1]
+	    _aActions_ = []
+	    _nLen_ = len(_acReversed_)
+	    for i = 1 to _nLen_ - 1
+	        _cFrom_ = _acReversed_[i]
+	        _cTo_ = _acReversed_[i + 1]
 	        
 	        # Calculate this transition's weighted cost
-	        nTransitionCost = This._CalculateTransitionCost(cFrom, cTo, aOptimize)
+	        _nTransitionCost_ = This._CalculateTransitionCost(_cFrom_, _cTo_, _aOptimize_)
 	        
-	        aActions + [:from = cFrom, :to = cTo, :cost = nTransitionCost]
+	        _aActions_ + [:from = _cFrom_, :to = _cTo_, :cost = _nTransitionCost_]
 	    next
 	    
-	    cExplanation = This._GenerateExplanation(aActions)
+	    _cExplanation_ = This._GenerateExplanation(_aActions_)
 	    
-	    return [aActions, nTotalCost, acReversed, cExplanation]
+	    return [_aActions_, _nTotalCost_, _acReversed_, _cExplanation_]
 
-	def _CalculateTransitionCost(cFrom, cTo, aOptimize)
-		if len(aOptimize) = 0
+	def _CalculateTransitionCost(_cFrom_, _cTo_, _aOptimize_)
+		if len(_aOptimize_) = 0
 			return 1
 		ok
 		
-		nCost = 0
-		nLen = len(aOptimize)
-		for i = 1 to nLen
-			aCriterion = aOptimize[i]
-			cProperty = aCriterion[:property]
-			nWeight = iif(HasKey(aCriterion, :weight), aCriterion[:weight], 1)
-			cDirection = aCriterion[:direction]
+		_nCost_ = 0
+		_nLen_ = len(_aOptimize_)
+		for i = 1 to _nLen_
+			_aCriterion_ = _aOptimize_[i]
+			_cProperty_ = _aCriterion_[:property]
+			_nWeight_ = iif(HasKey(_aCriterion_, :weight), _aCriterion_[:weight], 1)
+			_cDirection_ = _aCriterion_[:direction]
 			
-			pValue = @oGraph.EdgeProperty(cFrom, cTo, cProperty)
+			pValue = @oGraph.EdgeProperty(_cFrom_, _cTo_, _cProperty_)
 			if pValue = ""
 				pValue = 1
 			ok
 			
-			if cDirection = "minimize"
-				nCost += nWeight * pValue
+			if _cDirection_ = "minimize"
+				_nCost_ += _nWeight_ * pValue
 			else
-				nCost -= nWeight * pValue
+				_nCost_ -= _nWeight_ * pValue
 			ok
 		next
 		
-		return nCost
+		return _nCost_
 	
 	def _SelectHeuristic(cStart, cGoal)
 		#WARNING // TODO
@@ -1567,138 +1567,138 @@ class stzGraphPlanner from stzObject
 		# falling back to constant heuristic (returns 1).
 		# This affects A* efficiency claims.
 
-		aStartNode = @oGraph.Node(cStart)
-		aGoalNode = @oGraph.Node(cGoal)
+		_aStartNode_ = @oGraph.Node(cStart)
+		_aGoalNode_ = @oGraph.Node(cGoal)
 		
-		if HasKey(aStartNode[:properties], :x) and HasKey(aGoalNode[:properties], :x)
-			return func(poGraph, cFrom, cTo) {
-				aFrom = poGraph.Node(cFrom)
-				aTo = poGraph.Node(cTo)
-				nX1 = aFrom[:properties][:x]
-				nY1 = aFrom[:properties][:y]
-				nX2 = aTo[:properties][:x]
-				nY2 = aTo[:properties][:y]
-				return sqrt(pow(nX2-nX1, 2) + pow(nY2-nY1, 2))
+		if HasKey(_aStartNode_[:properties], :x) and HasKey(_aGoalNode_[:properties], :x)
+			return func(poGraph, _cFrom_, _cTo_) {
+				_aFrom_ = poGraph.Node(_cFrom_)
+				_aTo_ = poGraph.Node(_cTo_)
+				_nX1_ = _aFrom_[:properties][:x]
+				_nY1_ = _aFrom_[:properties][:y]
+				_nX2_ = _aTo_[:properties][:x]
+				_nY2_ = _aTo_[:properties][:y]
+				return sqrt(pow(_nX2_-_nX1_, 2) + pow(_nY2_-_nY1_, 2))
 			}
 		ok
 		
-		return func(poGraph, cFrom, cTo) {
-			if cFrom = cTo
+		return func(poGraph, _cFrom_, _cTo_) {
+			if _cFrom_ = _cTo_
 				return 0
 			ok
 			return 1
 		}
 	
-	def _GenerateExplanation(aActions)
-		if len(aActions) = 0
+	def _GenerateExplanation(_aActions_)
+		if len(_aActions_) = 0
 			return "No actions required"
 		ok
 		
-		cExplanation = ""
-		nLen = len(aActions)
-		for i = 1 to nLen
-			aAction = aActions[i]
-			cExplanation += "Step " + i + ": " + aAction[:from] + " -> " + aAction[:to]
-			if HasKey(aAction, :cost)
-				cExplanation += " (cost: " + aAction[:cost] + ")"
+		_cExplanation_ = ""
+		_nLen_ = len(_aActions_)
+		for i = 1 to _nLen_
+			_aAction_ = _aActions_[i]
+			_cExplanation_ += "Step " + i + ": " + _aAction_[:from] + " -> " + _aAction_[:to]
+			if HasKey(_aAction_, :cost)
+				_cExplanation_ += " (cost: " + _aAction_[:cost] + ")"
 			ok
-			cExplanation += NL
+			_cExplanation_ += NL
 		next
 		
-		return trim(cExplanation)
+		return trim(_cExplanation_)
 	
 	def _GetScore(aScores, cNode)
-		nLen = len(aScores)
-		for i = 1 to nLen
-			aScore = aScores[i]
-			if aScore[1] = cNode
-				return aScore[2]
+		_nLen_ = len(aScores)
+		for i = 1 to _nLen_
+			_aScore_ = aScores[i]
+			if _aScore_[1] = cNode
+				return _aScore_[2]
 			ok
 		next
 		return -1
 	
-	def _SetScore(aScores, cNode, nValue)
-		nLen = len(aScores)
-		for i = 1 to nLen
+	def _SetScore(aScores, cNode, _nValue_)
+		_nLen_ = len(aScores)
+		for i = 1 to _nLen_
 			if aScores[i][1] = cNode
-				aScores[i][2] = nValue
+				aScores[i][2] = _nValue_
 				return
 			ok
 		next
-		aScores + [cNode, nValue]
+		aScores + [cNode, _nValue_]
 	
-	def _GetParent(aParent, cNode)
-		nLen = len(aParent)
-		for i = 1 to nLen
-			aEntry = aParent[i]
-			if aEntry[1] = cNode
-				return aEntry[2]
+	def _GetParent(_aParent_, cNode)
+		_nLen_ = len(_aParent_)
+		for i = 1 to _nLen_
+			_aEntry_ = _aParent_[i]
+			if _aEntry_[1] = cNode
+				return _aEntry_[2]
 			ok
 		next
 		return ""
 	
-	def _SetParent(aParent, cNode, cParentNode)
-		nLen = len(aParent)
-		for i = 1 to nLen
-			if aParent[i][1] = cNode
-				aParent[i][2] = cParentNode
+	def _SetParent(_aParent_, cNode, cParentNode)
+		_nLen_ = len(_aParent_)
+		for i = 1 to _nLen_
+			if _aParent_[i][1] = cNode
+				_aParent_[i][2] = cParentNode
 				return
 			ok
 		next
-		aParent + [cNode, cParentNode]
+		_aParent_ + [cNode, cParentNode]
 
-	def _AddToHistory(cPlanName, aResult, aOptimize)
-		cTimestamp = date() + " " + time()
-		@aHistory + [cPlanName, aResult, aOptimize, cTimestamp]
+	def _AddToHistory(_cPlanName_, _aResult_, _aOptimize_)
+		_cTimestamp_ = date() + " " + time()
+		@aHistory + [_cPlanName_, _aResult_, _aOptimize_, _cTimestamp_]
 
-	def _PlanMeetsConstraints(cPlanName, paConstraints)
-		aResult = []
+	def _PlanMeetsConstraints(_cPlanName_, paConstraints)
+		_aResult_ = []
 		try
-			aResult = This._GetResult(cPlanName)
+			_aResult_ = This._GetResult(_cPlanName_)
 		catch
 			return FALSE
 		done
 ? @@NL(paConstraints)	
-		nLen = len(paConstraints)
-		for i = 1 to nLen
-			aConstraint = paConstraints[i]
+		_nLen_ = len(paConstraints)
+		for i = 1 to _nLen_
+			_aConstraint_ = paConstraints[i]
 			
-			if NOT isList(aConstraint)
+			if NOT isList(_aConstraint_)
 				loop
 			ok
 			
-			cKey = StzLower(aConstraint[1])
-			pValue = aConstraint[2]
+			_cKey_ = StzLower(_aConstraint_[1])
+			pValue = _aConstraint_[2]
 	
-			if cKey = "maxcost"
-				if aResult[2] > pValue
+			if _cKey_ = "maxcost"
+				if _aResult_[2] > pValue
 					return FALSE
 				ok
 	
-			but cKey = "mincost"
-				if aResult[2] < pValue
+			but _cKey_ = "mincost"
+				if _aResult_[2] < pValue
 					return FALSE
 				ok
 	
-			but cKey = "avoid"
-				acStates = aResult[3]
-				cNodeToAvoid = StzLower(pValue)
-				nLen3 = len(acStates)
-				for k = 1 to nLen3
-					if StzLower(acStates[k]) = cNodeToAvoid
+			but _cKey_ = "avoid"
+				_acStates_ = _aResult_[3]
+				_cNodeToAvoid_ = StzLower(pValue)
+				_nLen3_ = len(_acStates_)
+				for k = 1 to _nLen3_
+					if StzLower(_acStates_[k]) = _cNodeToAvoid_
 						return FALSE
 					ok
 				next
 	
-			but cKey = "requires"
-				acStates = aResult[3]
-				cRequiredNode = StzLower(pValue)
-				if StzFindFirst(acStates, cRequiredNode) = 0
+			but _cKey_ = "requires"
+				_acStates_ = _aResult_[3]
+				_cRequiredNode_ = StzLower(pValue)
+				if StzFindFirst(_acStates_, _cRequiredNode_) = 0
 					return FALSE
 				ok
 	
-			but cKey = "maxsteps"
-				if len(aResult[3]) > pValue
+			but _cKey_ = "maxsteps"
+				if len(_aResult_[3]) > pValue
 					return FALSE
 				ok
 			ok
@@ -1725,88 +1725,88 @@ class stzPlanComparison from stzObject
 		@aResult2 = paResult2
 
 	def Explain()
-		aStates1 = @aResult1[3]
-		aStates2 = @aResult2[3]
+		_aStates1_ = @aResult1[3]
+		_aStates2_ = @aResult2[3]
 		
-		bSamePath = (@@(aStates1) = @@(aStates2))
-		nDivergeStep = 0
+		_bSamePath_ = (@@(_aStates1_) = @@(_aStates2_))
+		_nDivergeStep_ = 0
 		
-		if NOT bSamePath
-			nLen = @Min([ len(aStates1), len(aStates2) ])
-			for i = 1 to nLen
-				if aStates1[i] != aStates2[i]
-					nDivergeStep = i
+		if NOT _bSamePath_
+			_nLen_ = @Min([ len(_aStates1_), len(_aStates2_) ])
+			for i = 1 to _nLen_
+				if _aStates1_[i] != _aStates2_[i]
+					_nDivergeStep_ = i
 					exit
 				ok
 			next
 		ok
 		
-		cCheaper = ""
+		_cCheaper_ = ""
 		if @aResult1[2] < @aResult2[2]
-			cCheaper = @cPlan1
+			_cCheaper_ = @cPlan1
 		but @aResult1[2] > @aResult2[2]
-			cCheaper = @cPlan2
+			_cCheaper_ = @cPlan2
 		else
-			cCheaper = "equal"
+			_cCheaper_ = "equal"
 		ok
 		
 		return [
 			:plan1 = @cPlan1,
 			:plan2 = @cPlan2,
-			:same_path = bSamePath,
-			:route1 = aStates1,
-			:route2 = aStates2,
-			:diverge_at_step = nDivergeStep,
+			:same_path = _bSamePath_,
+			:route1 = _aStates1_,
+			:route2 = _aStates2_,
+			:diverge_at_step = _nDivergeStep_,
 			:cost1 = @aResult1[2],
 			:cost2 = @aResult2[2],
-			:cheaper = cCheaper
+			:cheaper = _cCheaper_
 		]
 	
 	def Tradeoffs()
-		nCost1 = @aResult1[2]
-		nCost2 = @aResult2[2]
-		nLen1 = len(@aResult1[3])
-		nLen2 = len(@aResult2[3])
+		_nCost1_ = @aResult1[2]
+		_nCost2_ = @aResult2[2]
+		_nLen1_ = len(@aResult1[3])
+		_nLen2_ = len(@aResult2[3])
 		
-		cCostWinner = ""
-		nCostSaving = 0
-		if nCost1 < nCost2
-			cCostWinner = @cPlan1
-			nCostSaving = nCost2 - nCost1
-		but nCost1 > nCost2
-			cCostWinner = @cPlan2
-			nCostSaving = nCost1 - nCost2
+		_cCostWinner_ = ""
+		_nCostSaving_ = 0
+		if _nCost1_ < _nCost2_
+			_cCostWinner_ = @cPlan1
+			_nCostSaving_ = _nCost2_ - _nCost1_
+		but _nCost1_ > _nCost2_
+			_cCostWinner_ = @cPlan2
+			_nCostSaving_ = _nCost1_ - _nCost2_
 		else
-			cCostWinner = "tie"
+			_cCostWinner_ = "tie"
 		ok
 		
-		cLengthWinner = ""
-		nLengthDiff = 0
-		if nLen1 < nLen2
-			cLengthWinner = @cPlan1
-			nLengthDiff = nLen2 - nLen1
-		but nLen1 > nLen2
-			cLengthWinner = @cPlan2
-			nLengthDiff = nLen1 - nLen2
+		_cLengthWinner_ = ""
+		_nLengthDiff_ = 0
+		if _nLen1_ < _nLen2_
+			_cLengthWinner_ = @cPlan1
+			_nLengthDiff_ = _nLen2_ - _nLen1_
+		but _nLen1_ > _nLen2_
+			_cLengthWinner_ = @cPlan2
+			_nLengthDiff_ = _nLen1_ - _nLen2_
 		else
-			cLengthWinner = "tie"
+			_cLengthWinner_ = "tie"
 		ok
 		
-		cRecommendation = ""
-		if cCostWinner != "tie"
-			cRecommendation = "Choose " + cCostWinner + " for cost optimization"
+		_cRecommendation_ = ""
+		if _cCostWinner_ != "tie"
+			_cRecommendation_ = "Choose " + _cCostWinner_ + " for cost optimization"
 		else
-			cRecommendation = "Plans are equivalent in cost"
+			_cRecommendation_ = "Plans are equivalent in cost"
 		ok
 		
 		return [
 			:plan1 = @cPlan1,
 			:plan2 = @cPlan2,
-			:cost_winner = cCostWinner,
-			:cost_savings = nCostSaving,
-			:length_winner = cLengthWinner,
-			:length_difference = nLengthDiff,
-			:recommendation = cRecommendation
+			:cost_winner = _cCostWinner_,
+			:cost_savings = _nCostSaving_,
+			:length_winner = _cLengthWinner_,
+			:length_difference = _nLengthDiff_,
+			:recommendation = _cRecommendation_
 		]
 
 		def Compromises()
@@ -1834,8 +1834,8 @@ class stzPlanComparison from stzObject
 			return This.WhichIsCheaper()
 
 	def CostSaving()
-		nDiff = abs(@aResult1[2] - @aResult2[2])
-		return nDiff
+		_nDiff_ = abs(@aResult1[2] - @aResult2[2])
+		return _nDiff_
 		
 		def HowMutchCheaper()
 			return This.CostSaving()
@@ -1863,108 +1863,108 @@ class stzMultiPlanComparison from stzObject
 		@acPlanNames = pacPlanNames
 		@aResults = paResults
 
-	def RankBy(cCriterion)
-		cCriterion = StzLower(cCriterion)
-		aRanking = []
+	def RankBy(_cCriterion_)
+		_cCriterion_ = StzLower(_cCriterion_)
+		_aRanking_ = []
 		
-		nLen = len(@aResults)
-		for i = 1 to nLen
-			cPlan = @aResults[i][1]      # First element of pair
-			aResult = @aResults[i][2]    # Second element of pair
+		_nLen_ = len(@aResults)
+		for i = 1 to _nLen_
+			_cPlan_ = @aResults[i][1]      # First element of pair
+			_aResult_ = @aResults[i][2]    # Second element of pair
 			
-			nValue = 0
-			if cCriterion = "cost"
-				nValue = aResult[2]
-			but cCriterion = "steps" or cCriterion = "length"
-				nValue = len(aResult[3])
+			_nValue_ = 0
+			if _cCriterion_ = "cost"
+				_nValue_ = _aResult_[2]
+			but _cCriterion_ = "steps" or _cCriterion_ = "length"
+				_nValue_ = len(_aResult_[3])
 			ok
 	
-			aRanking + [cPlan, nValue]
+			_aRanking_ + [_cPlan_, _nValue_]
 		next
 	
 		# Sort ascending
-		nLen = len(aRanking)
-		for i = 1 to nLen-1
-			for j = i+1 to nLen
-				if aRanking[j][2] < aRanking[i][2]
-					aTemp = aRanking[i]
-					aRanking[i] = aRanking[j]
-					aRanking[j] = aTemp
+		_nLen_ = len(_aRanking_)
+		for i = 1 to _nLen_-1
+			for j = i+1 to _nLen_
+				if _aRanking_[j][2] < _aRanking_[i][2]
+					_aTemp_ = _aRanking_[i]
+					_aRanking_[i] = _aRanking_[j]
+					_aRanking_[j] = _aTemp_
 				ok
 			next
 		next
 	
-		return aRanking
+		return _aRanking_
 
 	def RankingTable()
 	
-		aTable = []
+		_aTable_ = []
 		
 		# Optional header
-		add(aTable, ["Rank", "Plan", "Cost", "Steps"])
+		add(_aTable_, ["Rank", "Plan", "Cost", "Steps"])
 		
-		aRankedByCost = This.RankBy("cost")
-		nLen = len(aRankedByCost)
+		_aRankedByCost_ = This.RankBy("cost")
+		_nLen_ = len(_aRankedByCost_)
 		
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			
-			cPlan = aRankedByCost[i][1]
-			nCost = aRankedByCost[i][2]
+			_cPlan_ = _aRankedByCost_[i][1]
+			_nCost_ = _aRankedByCost_[i][2]
 			
 			# Find steps
-			nSteps = 0
-			nLen2 = len(@aResults)
-			for j = 1 to nLen2
-				if @aResults[j][1] = cPlan
-					nSteps = len(@aResults[j][2][3])
+			_nSteps_ = 0
+			_nLen2_ = len(@aResults)
+			for j = 1 to _nLen2_
+				if @aResults[j][1] = _cPlan_
+					_nSteps_ = len(@aResults[j][2][3])
 					exit
 				ok
 			next
 			
 			# Add row as pure data
-			add(aTable, [i, cPlan, nCost, nSteps])
+			add(_aTable_, [i, _cPlan_, _nCost_, _nSteps_])
 			
 		next
 		
-		return aTable
+		return _aTable_
 
 	def ShowRankingTable()
 		StzTableQ(This.RankingTable()).Show()
 	
-	def BestBy(cCriterion)
-		aRanking = This.RankBy(cCriterion)
-		if len(aRanking) > 0
-			return aRanking[1][1]
+	def BestBy(_cCriterion_)
+		_aRanking_ = This.RankBy(_cCriterion_)
+		if len(_aRanking_) > 0
+			return _aRanking_[1][1]
 		ok
-		stzraise("No ranks returned by this criterion : " + cCriterion + "!")
+		stzraise("No ranks returned by this criterion : " + _cCriterion_ + "!")
 	
-	def WorstBy(cCriterion)
-		aRanking = This.RankBy(cCriterion)
-		nLen = len(aRanking)
-		if nLen > 0
-			return aRanking[nLen][1]
+	def WorstBy(_cCriterion_)
+		_aRanking_ = This.RankBy(_cCriterion_)
+		_nLen_ = len(_aRanking_)
+		if _nLen_ > 0
+			return _aRanking_[_nLen_][1]
 		ok
-		stzraise("No ranks returned by this criterion : " + cCriterion + "!")
+		stzraise("No ranks returned by this criterion : " + _cCriterion_ + "!")
 
 	def CompareAll()
-		aAllPlans = []
+		_aAllPlans_ = []
 		
-		nLen = len(@aResults)
-		for i = 1 to nLen
-			cPlan = @aResults[i][1]
-			aResult = @aResults[i][2]
+		_nLen_ = len(@aResults)
+		for i = 1 to _nLen_
+			_cPlan_ = @aResults[i][1]
+			_aResult_ = @aResults[i][2]
 			
-			aAllPlans + [
-				:plan = cPlan,
-				:cost = aResult[2],
-				:steps = len(aResult[3]),
-				:route = aResult[3]
+			_aAllPlans_ + [
+				:plan = _cPlan_,
+				:cost = _aResult_[2],
+				:steps = len(_aResult_[3]),
+				:route = _aResult_[3]
 			]
 		next
 		
 		return [
 			:total_plans = len(@acPlanNames),
-			:plans = aAllPlans,
+			:plans = _aAllPlans_,
 			:best_by_cost = This.BestBy("cost"),
 			:best_by_steps = This.BestBy("steps")
 		]
@@ -1986,54 +1986,54 @@ class stzHistoricalComparison from stzObject
 		@aHistory = paHistory
 
 	def Explain()
-		nAvgCost = @oPlanner.HistoricalAverage("cost")
-		nAvgSteps = @oPlanner.HistoricalAverage("steps")
-		nCurrentCost = @aCurrentResult[2]
-		nCurrentSteps = len(@aCurrentResult[3])
+		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
+		_nAvgSteps_ = @oPlanner.HistoricalAverage("steps")
+		_nCurrentCost_ = @aCurrentResult[2]
+		_nCurrentSteps_ = len(@aCurrentResult[3])
 		
-		cObservation = ""
-		nPercentDiff = 0
+		_cObservation_ = ""
+		_nPercentDiff_ = 0
 		
-		if nCurrentCost < nAvgCost
-			nPercentDiff = ((nAvgCost - nCurrentCost) / nAvgCost) * 100
-			cObservation = "✓ Current plan is " + nPercentDiff + "% better than average"
-		but nCurrentCost > nAvgCost
-			nPercentDiff = ((nCurrentCost - nAvgCost) / nAvgCost) * 100
-			cObservation = "✗ Current plan is " + nPercentDiff + "% worse than average"
+		if _nCurrentCost_ < _nAvgCost_
+			_nPercentDiff_ = ((_nAvgCost_ - _nCurrentCost_) / _nAvgCost_) * 100
+			_cObservation_ = "✓ Current plan is " + _nPercentDiff_ + "% better than average"
+		but _nCurrentCost_ > _nAvgCost_
+			_nPercentDiff_ = ((_nCurrentCost_ - _nAvgCost_) / _nAvgCost_) * 100
+			_cObservation_ = "✗ Current plan is " + _nPercentDiff_ + "% worse than average"
 		else
-			cObservation = "= Current plan matches historical average"
+			_cObservation_ = "= Current plan matches historical average"
 		ok
 		
 		return [
 			:current_plan = @cCurrentPlan,
-			:cost = nCurrentCost,
-			:steps = nCurrentSteps,
-			:historical_average_cost = nAvgCost,
-			:historical_average_steps = nAvgSteps,
-			:observation = cObservation,
+			:cost = _nCurrentCost_,
+			:steps = _nCurrentSteps_,
+			:historical_average_cost = _nAvgCost_,
+			:historical_average_steps = _nAvgSteps_,
+			:observation = _cObservation_,
 			:best_historical_plan = @oPlanner.BestHistoricalPlan("cost")
 		]
 
 	def IsImprovement()
-		nAvgCost = @oPlanner.HistoricalAverage("cost")
-		return @aCurrentResult[2] < nAvgCost
+		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
+		return @aCurrentResult[2] < _nAvgCost_
 
 	def Improvement()
-		nAvgCost = @oPlanner.HistoricalAverage("cost")
-		if nAvgCost = 0
+		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
+		if _nAvgCost_ = 0
 			return 0
 		ok
-		return ((nAvgCost - @aCurrentResult[2]) / nAvgCost)
+		return ((_nAvgCost_ - @aCurrentResult[2]) / _nAvgCost_)
 
 		def ImprovementRatio()
 			return This.Improvement()
 
 	def ImprovementPercentage()
-		nAvgCost = @oPlanner.HistoricalAverage("cost")
-		if nAvgCost = 0
+		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
+		if _nAvgCost_ = 0
 			return 0
 		ok
-		return ((nAvgCost - @aCurrentResult[2]) / nAvgCost) * 100
+		return ((_nAvgCost_ - @aCurrentResult[2]) / _nAvgCost_) * 100
 
 		def Improvement100()
 			return This.ImprovementPercentage()
@@ -2075,30 +2075,30 @@ class stzPlanFilter from stzObject
 
 	def PlansXT()
 
-		aDetails = []
+		_aDetails_ = []
 
-		nLen = len(@acFilteredPlans)
-		for i = 1 to nLen
-			cPlan = @acFilteredPlans[i]
-			aPlanResult = @oPlanner._GetResult(cPlan)
+		_nLen_ = len(@acFilteredPlans)
+		for i = 1 to _nLen_
+			_cPlan_ = @acFilteredPlans[i]
+			_aPlanResult_ = @oPlanner._GetResult(_cPlan_)
 			
-			aPlanInfo = []
-			aPlanInfo + [ "plan", cPlan ]
-			aPlanInfo + [ "cost", aPlanResult[2] ]
-			aPlanInfo + [ "steps", len(aPlanResult[3]) ]
-			aPlanInfo + [ "route", aPlanResult[3] ]
+			_aPlanInfo_ = []
+			_aPlanInfo_ + [ "plan", _cPlan_ ]
+			_aPlanInfo_ + [ "cost", _aPlanResult_[2] ]
+			_aPlanInfo_ + [ "steps", len(_aPlanResult_[3]) ]
+			_aPlanInfo_ + [ "route", _aPlanResult_[3] ]
 
-			aDetails + aPlanInfo
+			_aDetails_ + _aPlanInfo_
 
 		next
 
-		aResult = [
+		_aResult_ = [
 			:constrains_applied = @aConstraints,
 			:plans_matching_count = len(@acFilteredPlans),
-			:plans_matching_details = aDetails
+			:plans_matching_details = _aDetails_
 		]
 
-		return aResult
+		return _aResult_
 
 		def FilteredPlansXT()
 			return This.PlansXT()
@@ -2107,13 +2107,13 @@ class stzPlanFilter from stzObject
 		? @@NL( This.PlansXT() )
 
 
-	def BestBy(cCriterion)
+	def BestBy(_cCriterion_)
 		if len(@acFilteredPlans) = 0
 			return ""
 		ok
 
-		oMultiComp = @oPlanner.CompareMultipleQ(@acFilteredPlans)
-		return oMultiComp.BestBy(cCriterion)
+		_oMultiComp_ = @oPlanner.CompareMultipleQ(@acFilteredPlans)
+		return _oMultiComp_.BestBy(_cCriterion_)
 
 	def RankingTable()
 		if len(@acFilteredPlans) = 0
@@ -2121,8 +2121,8 @@ class stzPlanFilter from stzObject
 			return
 		ok
 
-		oMultiComp = @oPlanner.CompareManyQ(@acFilteredPlans)
-		return oMultiComp.RankingTable()
+		_oMultiComp_ = @oPlanner.CompareManyQ(@acFilteredPlans)
+		return _oMultiComp_.RankingTable()
 
 	def ShowRankingTable()
 		StzTableQ(This.RankingTable()).Show()

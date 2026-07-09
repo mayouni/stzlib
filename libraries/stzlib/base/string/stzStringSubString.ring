@@ -40,8 +40,8 @@ class stzStringSubStringCS from stzObject
 
 	def init(pcSubStr, pcStr, pCaseSensitive)
 		if isList(pcStr) and len(pcStr) = 2 and isString(pcStr[1])
-			cPN = StzCaseFold(pcStr[1])
-			if cPN = "in" or cPN = "instring"
+			_cPN_ = StzCaseFold(pcStr[1])
+			if _cPN_ = "in" or _cPN_ = "instring"
 				pcStr = pcStr[2]
 			ok
 		ok
@@ -71,30 +71,30 @@ class stzStringSubStringCS from stzObject
 		return @bCaseSensitive
 
 	def NumberOfChars()
-		oSub = new stzString(@cSubStr)
-		return oSub.NumberOfChars()
+		_oSub_ = new stzString(@cSubStr)
+		return _oSub_.NumberOfChars()
 
 	  #===============================#
 	 #     FINDING                   #
 	#===============================#
 
 	def NumberOfOccurrence()
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		return oFinder.NumberOfOccurrenceCS(@cSubStr, @bCaseSensitive)
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		return _oFinder_.NumberOfOccurrenceCS(@cSubStr, @bCaseSensitive)
 
 	def Positions()
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		return oFinder.FindAllCS(@cSubStr, @bCaseSensitive)
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		return _oFinder_.FindAllCS(@cSubStr, @bCaseSensitive)
 
 		def Occurrences()
 			return This.Positions()
 
 	def NthPosition(n)
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		return oFinder.FindNthCS(n, @cSubStr, @bCaseSensitive)
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		return _oFinder_.FindNthCS(n, @cSubStr, @bCaseSensitive)
 
 	def FirstPosition()
 		return This.NthPosition(1)
@@ -103,19 +103,19 @@ class stzStringSubStringCS from stzObject
 		return This.NthPosition(This.NumberOfOccurrence())
 
 	def Sections()
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		return oFinder.FindAsSectionsCS(@cSubStr, @bCaseSensitive)
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		return _oFinder_.FindAsSectionsCS(@cSubStr, @bCaseSensitive)
 
 	  #===============================#
 	 #     REPLACE / REMOVE          #
 	#===============================#
 
 	def ReplacedWith(pcNewSubStr)
-		oStr = new stzString(@cStr)
-		oReplacer = new stzStringReplacer(oStr)
-		oReplacer.ReplaceCS(@cSubStr, pcNewSubStr, @bCaseSensitive)
-		return oReplacer.Content()
+		_oStr_ = new stzString(@cStr)
+		_oReplacer_ = new stzStringReplacer(_oStr_)
+		_oReplacer_.ReplaceCS(@cSubStr, pcNewSubStr, @bCaseSensitive)
+		return _oReplacer_.Content()
 
 		def Replaced(pcNewSubStr)
 			return This.ReplacedWith(pcNewSubStr)
@@ -128,70 +128,70 @@ class stzStringSubStringCS from stzObject
 	#===============================#
 
 	def IsLowercased()
-		oSub = new stzString(@cSubStr)
-		return StzEngineStringIsLowercase(oSub.Engine())
+		_oSub_ = new stzString(@cSubStr)
+		return StzEngineStringIsLowercase(_oSub_.Engine())
 
 	def IsUppercased()
-		oSub = new stzString(@cSubStr)
-		return StzEngineStringIsUppercase(oSub.Engine())
+		_oSub_ = new stzString(@cSubStr)
+		return StzEngineStringIsUppercase(_oSub_.Engine())
 
 	def Uppercased()
-		oStr = new stzString(@cStr)
-		oReplacer = new stzStringReplacer(oStr)
-		oReplacer.ReplaceCS(@cSubStr, StzUpper(@cSubStr), @bCaseSensitive)
-		return oReplacer.Content()
+		_oStr_ = new stzString(@cStr)
+		_oReplacer_ = new stzStringReplacer(_oStr_)
+		_oReplacer_.ReplaceCS(@cSubStr, StzUpper(@cSubStr), @bCaseSensitive)
+		return _oReplacer_.Content()
 
 	def Lowercased()
-		oStr = new stzString(@cStr)
-		oReplacer = new stzStringReplacer(oStr)
-		oReplacer.ReplaceCS(@cSubStr, StzLower(@cSubStr), @bCaseSensitive)
-		return oReplacer.Content()
+		_oStr_ = new stzString(@cStr)
+		_oReplacer_ = new stzStringReplacer(_oStr_)
+		_oReplacer_.ReplaceCS(@cSubStr, StzLower(@cSubStr), @bCaseSensitive)
+		return _oReplacer_.Content()
 
 	  #===============================#
 	 #     POSITION CHECKS           #
 	#===============================#
 
 	def IsBefore(pcOtherSubStr)
-		nMyPos = This.FirstPosition()
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		nOtherPos = oFinder.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
-		if nMyPos = 0 or nOtherPos = 0
+		_nMyPos_ = This.FirstPosition()
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		_nOtherPos_ = _oFinder_.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
+		if _nMyPos_ = 0 or _nOtherPos_ = 0
 			return 0
 		ok
-		return nMyPos < nOtherPos
+		return _nMyPos_ < _nOtherPos_
 
 		def ComesBefore(pcOtherSubStr)
 			return This.IsBefore(pcOtherSubStr)
 
 	def IsAfter(pcOtherSubStr)
-		nMyPos = This.FirstPosition()
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		nOtherPos = oFinder.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
-		if nMyPos = 0 or nOtherPos = 0
+		_nMyPos_ = This.FirstPosition()
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		_nOtherPos_ = _oFinder_.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
+		if _nMyPos_ = 0 or _nOtherPos_ = 0
 			return 0
 		ok
-		return nMyPos > nOtherPos
+		return _nMyPos_ > _nOtherPos_
 
 		def ComesAfter(pcOtherSubStr)
 			return This.IsAfter(pcOtherSubStr)
 
 	def IsBetween(pcBound1, pcBound2)
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		nPos1 = oFinder.FindFirstCS(pcBound1, @bCaseSensitive)
-		nPos2 = oFinder.FindFirstCS(pcBound2, @bCaseSensitive)
-		nMyPos = This.FirstPosition()
-		if nPos1 = 0 or nPos2 = 0 or nMyPos = 0
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		_nPos1_ = _oFinder_.FindFirstCS(pcBound1, @bCaseSensitive)
+		_nPos2_ = _oFinder_.FindFirstCS(pcBound2, @bCaseSensitive)
+		_nMyPos_ = This.FirstPosition()
+		if _nPos1_ = 0 or _nPos2_ = 0 or _nMyPos_ = 0
 			return 0
 		ok
-		if nPos1 > nPos2
-			nTemp = nPos1
-			nPos1 = nPos2
-			nPos2 = nTemp
+		if _nPos1_ > _nPos2_
+			_nTemp_ = _nPos1_
+			_nPos1_ = _nPos2_
+			_nPos2_ = _nTemp_
 		ok
-		return nMyPos > nPos1 and nMyPos < nPos2
+		return _nMyPos_ > _nPos1_ and _nMyPos_ < _nPos2_
 
 		def ComesBetween(pcBound1, pcBound2)
 			return This.IsBetween(pcBound1, pcBound2)
@@ -204,13 +204,13 @@ class stzStringSubStringCS from stzObject
 		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			return 0
 		ok
-		oStr = new stzString(@cStr)
-		oFinder = new stzStringFinder(oStr)
-		aSections = oFinder.FindAnyBoundedByAsSectionsCS(pacBounds, @bCaseSensitive)
-		nLen = len(aSections)
-		for i = 1 to nLen
-			cFound = oStr.Section(aSections[i][1], aSections[i][2])
-			if cFound = @cSubStr
+		_oStr_ = new stzString(@cStr)
+		_oFinder_ = new stzStringFinder(_oStr_)
+		_aSections_ = _oFinder_.FindAnyBoundedByAsSectionsCS(pacBounds, @bCaseSensitive)
+		_nLen_ = len(_aSections_)
+		for i = 1 to _nLen_
+			_cFound_ = _oStr_.Section(_aSections_[i][1], _aSections_[i][2])
+			if _cFound_ = @cSubStr
 				return 1
 			ok
 		next

@@ -35,43 +35,43 @@ PluralRules = [
 
 func Plural(str)
 
-    cWord = StzLower(trim(str))
-    aSortedRules = SortPluralRulesByPriority(PluralRules)
-    _nSortedRules1Len_ = len(aSortedRules)
+    _cWord_ = StzLower(trim(str))
+    _aSortedRules_ = SortPluralRulesByPriority(PluralRules)
+    _nSortedRules1Len_ = len(_aSortedRules_)
     for _iLoopSortedRules1_ = 1 to _nSortedRules1Len_
-    	rule = aSortedRules[_iLoopSortedRules1_]
-        if rule[3] = "exact"
-            oRule1 = new stzString(rule[1])
-            cPattern = oRule1.Section(2, StzLen(rule[1])-1)
-            if cWord = cPattern
-                return rule[2]
+    	_rule_ = _aSortedRules_[_iLoopSortedRules1_]
+        if _rule_[3] = "exact"
+            _oRule1_ = new stzString(_rule_[1])
+            _cPattern_ = _oRule1_.Section(2, StzLen(_rule_[1])-1)
+            if _cWord_ = _cPattern_
+                return _rule_[2]
             ok
-        but rule[3] = "regex"
-            rx = new stzRegex(rule[1])
-            if rx.Match(cWord)
-                aCaptured = rx.CapturedValues()
+        but _rule_[3] = "regex"
+            _rx_ = new stzRegex(_rule_[1])
+            if _rx_.Match(_cWord_)
+                _aCaptured_ = _rx_.CapturedValues()
                 # CapturedValues() returns [ fullMatch, group1, group2, ... ];
                 # the \1 placeholder maps to the first CAPTURE GROUP, i.e.
                 # aCaptured[2]. The old code mapped \1 -> aCaptured[1] (the
                 # full match), so "city" + "ies" became "cityies" instead of
                 # replacing the stem -> "cities".
-                nLen = len(aCaptured)
-                if nLen > 1
-                    cResult = rule[2]
-                    for j = 1 to nLen - 1
-                        cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
+                _nLen_ = len(_aCaptured_)
+                if _nLen_ > 1
+                    _cResult_ = _rule_[2]
+                    for j = 1 to _nLen_ - 1
+                        _cPlaceholder_ = "\\" + j
+                        _cResult_ = StzReplace(_cResult_, _cPlaceholder_, _aCaptured_[j+1])
                     next
-                    return cResult
+                    return _cResult_
                 else
-                    return rule[2]
+                    return _rule_[2]
                 ok
             ok
-        but rule[3] = "default"
-            return cWord + rule[2]
+        but _rule_[3] = "default"
+            return _cWord_ + _rule_[2]
         ok
     next
-    return cWord + "s"  // Fallback, though it should never reach here due to default rule
+    return _cWord_ + "s"  // Fallback, though it should never reach here due to default rule
 
 	func PluralOf(str)
 		return Plural(str)
@@ -83,13 +83,13 @@ func Plural(str)
 		return Plural(str)
 
 func SortPluralRulesByPriority(rules)
-    n = len(rules)
-    for i = 1 to n-1
-        for j = 1 to n-i
+    _n_ = len(rules)
+    for i = 1 to _n_-1
+        for j = 1 to _n_-i
             if rules[j][4] > rules[j+1][4]
-                temp = rules[j]
+                _temp_ = rules[j]
                 rules[j] = rules[j+1]
-                rules[j+1] = temp
+                rules[j+1] = _temp_
             ok
         next
     next
@@ -100,12 +100,12 @@ func AddPluralRule(pattern, replacement, type, priority, category)
     PluralRules + [pattern, replacement, type, priority, category]
 
 func GetPluralRulesByCategory(category)
-    result = []
+    _result_ = []
     _nPluralRules1Len_ = len(PluralRules)
     for _iLoopPluralRules1_ = 1 to _nPluralRules1Len_
-    	rule = PluralRules[_iLoopPluralRules1_]
-        if rule[5] = category
-            result + rule
+    	_rule_ = PluralRules[_iLoopPluralRules1_]
+        if _rule_[5] = category
+            _result_ + _rule_
         ok
     next
-    return result
+    return _result_

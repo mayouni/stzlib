@@ -93,7 +93,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect param format! paTable must be a list.")
 		ok
 
-		oParam = Q(paTable)
+		_oParam_ = Q(paTable)
 
 		if len(paTable) = 0 or @IsPairOfNumbers(paTable)
 
@@ -105,26 +105,26 @@ Class stzTable from stzList
 
 		# Both ways (1 and 2) are made by the following code:
 
-			nCols = 1
-			nRows = 1
+			_nCols_ = 1
+			_nRows_ = 1
 
 			if  @IsPairOfNumbers(paTable)
-				nCols = paTable[1]
-				nRows = paTable[2]
+				_nCols_ = paTable[1]
+				_nRows_ = paTable[2]
 			ok
 
-			aRow = []
-			for i = 1 to nRows
-				aRow + ""
+			_aRow_ = []
+			for _i_ = 1 to _nRows_
+				_aRow_ + ""
 			next
 
-			for i = 1 to nCols
-				@aContent + [ "COL"+i, aRow ]
+			for _i_ = 1 to _nCols_
+				@aContent + [ "COL"+_i_, _aRow_ ]
 			next
 
 			return
 
-		but oParam.ItemsAreListsOfSameSize() and
+		but _oParam_.ItemsAreListsOfSameSize() and
 		    @IsListOfStrings(paTable[1])
 
 		# ~> (the more natural way) The table is described in a
@@ -140,11 +140,11 @@ Class stzTable from stzList
 		# 	[ 30,	 "Han",		25982	],
 		# 	[ 40,	 "Ali",		12870	]
 		# ])
-			nLen = len(paTable[1])
+			_nLen_ = len(paTable[1])
 
-			for i = 1 to nLen
-				cCol = paTable[1][i]
-				@aContent + [ cCol, [] ]
+			for _i_ = 1 to _nLen_
+				_cCol_ = paTable[1][_i_]
+				@aContent + [ _cCol_, [] ]
 			next
 			#--> [
 			# 	:ID       = [],
@@ -154,18 +154,18 @@ Class stzTable from stzList
 
 			_nTableLen_ = len(paTable)
 			for r = 2 to _nTableLen_
-				i = 0
-				nLen = len(paTable[r])
+				_i_ = 0
+				_nLen_ = len(paTable[r])
 
-				for i = 1 to nLen
-					@aContent[i][2] + paTable[r][i]
+				for _i_ = 1 to _nLen_
+					@aContent[_i_][2] + paTable[r][_i_]
 				next
 			next
 
 			return
 
-		but oParam.ItemsAreListsOfSameSize() and
-		    oParam.IsNotHashList()
+		but _oParam_.ItemsAreListsOfSameSize() and
+		    _oParam_.IsNotHashList()
 
 		# ~> Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
@@ -181,20 +181,20 @@ Class stzTable from stzList
 		# 	[ 40,	 "Ali",		12870	]
 		# ])
 
-			aTempTable = []
+			_aTempTable_ = []
 
-			acColNames = []
+			_acColNames_ = []
 			_nTable1Len_ = len(paTable[1])
-			for i = 1 to _nTable1Len_
-				acColNames + ("col" + i)
+			for _i_ = 1 to _nTable1Len_
+				_acColNames_ + ("col" + _i_)
 			next
 
 
-			insert(paTable, 0, acColNames)
+			insert(paTable, 0, _acColNames_)
 			This.Init(paTable)
 			return
 
-		but oParam.IsHashList()
+		but _oParam_.IsHashList()
 		# ~> The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
 		# ~> the most performant way!
@@ -224,16 +224,16 @@ Class stzTable from stzList
 
 			# o1 = new stzTable([ [ "i", [1] ], [ "ring", [4] ], [ "language", [8] ] ])
 
-			nLen = len(paTable)
+			_nLen_ = len(paTable)
 			@aContent = []
 
-			for i = 1 to nLen
-				if isList(paTable[i][2])
-					@aContent + [ paTable[i][1], paTable[i][2] ]
+			for _i_ = 1 to _nLen_
+				if isList(paTable[_i_][2])
+					@aContent + [ paTable[_i_][1], paTable[_i_][2] ]
 				else
-					aTemp = []
-					aTemp + paTable[i][2]
-					@aContent + [ paTable[i][1], aTemp ]
+					_aTemp_ = []
+					_aTemp_ + paTable[_i_][2]
+					@aContent + [ paTable[_i_][1], _aTemp_ ]
 				ok
 			next
 
@@ -271,24 +271,24 @@ Class stzTable from stzList
 	def Copy()
 
 		_aCopy_ = []
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			_aCopy_ + @aContent[i]
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			_aCopy_ + @aContent[_i_]
 		next
 
 		_oCopy_ = new stzTable(_aCopy_)
 		return _oCopy_
 
 	def IsEmpty()
-		nLen = len(@aContent)
-		if nLen = 0
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
 			return 1
 		ok
-		for i = 1 to nLen
-			aCol = @aContent[i][2]
-			_nColLen_ = len(aCol)
+		for _i_ = 1 to _nLen_
+			_aCol_ = @aContent[_i_][2]
+			_nColLen_ = len(_aCol_)
 			for j = 1 to _nColLen_
-				if aCol[j] != NULL
+				if _aCol_[j] != NULL
 					return 0
 				ok
 			next
@@ -309,9 +309,9 @@ Class stzTable from stzList
 		# code lowercased the query then did a case-SENSITIVE Contains,
 		# so it never matched -- HasCol always returned FALSE. Compare
 		# case-insensitively against the stored names instead.
-		bResult = This.ColNamesQ().ContainsCS(pcName, FALSE)
+		_bResult_ = This.ColNamesQ().ContainsCS(pcName, FALSE)
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -335,16 +335,16 @@ Class stzTable from stzList
 		#>
 
 	def HasColumnsNames(pacNames)
-		nLen = len(pacNames)
-		bResult = 1
-		for i = 1 to nLen
-			if NOT This.HasColName(pacNames[i])
-				bResult = 0
+		_nLen_ = len(pacNames)
+		_bResult_ = 1
+		for _i_ = 1 to _nLen_
+			if NOT This.HasColName(pacNames[_i_])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -372,8 +372,8 @@ Class stzTable from stzList
 	#-------------------------------#
 
 	def NumberOfColumns()
-		nResult = len( This.Table() )
-		return nResult
+		_nResult_ = len( This.Table() )
+		return _nResult_
 
 		def NumberOfCols()
 			return This.NumberOfColumns()
@@ -386,12 +386,12 @@ Class stzTable from stzList
 	#---------------------------------#
 
 	def ColumnsNames()
-		aResult = []
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			aResult + @aContent[i][1]
+		_aResult_ = []
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			_aResult_ + @aContent[_i_][1]
 		next
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -518,14 +518,14 @@ Class stzTable from stzList
 			return FALSE
 		ok
 /*
-		cName = StzLower(pcName)
+		_cName_ = StzLower(pcName)
 
-		bResult = 0
+		_bResult_ = 0
 		if This.ColNamesQ().Contains(pcName)
-			bResult = 1
+			_bResult_ = 1
 		ok
 */
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForm
 
@@ -544,25 +544,25 @@ Class stzTable from stzList
 	 #  CHECKING IF THE PROVIDED NUMBER IS A COLUMN NUMBER  #
 	#------------------------------------------------------#
 
-	def IsColNumber(n)
-		if NOT isNumber(n)
+	def IsColNumber(_n_)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if n < 1 or n > This.NumberOfCols()
+		if _n_ < 1 or _n_ > This.NumberOfCols()
 			return 0
 		else
 			return 1
 		ok
 
-		def IsColumnNumber(n)
-			return This.IsColNumber(n)
+		def IsColumnNumber(_n_)
+			return This.IsColNumber(_n_)
 
-		def IsAColNumber(n)
-			return This.IsColNumber(n)
+		def IsAColNumber(_n_)
+			return This.IsColNumber(_n_)
 
-		def IsAColumnNumber(n)
-			return This.IsColNumber(n)
+		def IsAColumnNumber(_n_)
+			return This.IsColNumber(_n_)
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE PROVIDED VALUE IS A COLUMN NUMBER OR NAME  #
@@ -637,27 +637,27 @@ Class stzTable from stzList
 	#---------------------------------------------------------------#
 
 	def AreColNamesOrNumbers(paCols)
-		oTemp = Q(paCols)
+		_oTemp_ = Q(paCols)
 
 		if NOT ( isList(paCols) and
-			( oTemp.IsListOfNumbers() or
-			  oTemp.IsListOfStrings() or
-			  oTemp.IsListOfNumbersAndStrings() ) )
+			( _oTemp_.IsListOfNumbers() or
+			  _oTemp_.IsListOfStrings() or
+			  _oTemp_.IsListOfNumbersAndStrings() ) )
 
 			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
 
-		bResult = 1
-		nLen = len(paCols)
+		_bResult_ = 1
+		_nLen_ = len(paCols)
 
-		for i = 1 to nLen
-			if NOT This.IsColNameOrNumber(paCols[i])
-				bResult = 0
+		for _i_ = 1 to _nLen_
+			if NOT This.IsColNameOrNumber(paCols[_i_])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -727,10 +727,10 @@ Class stzTable from stzList
 
 	def FindColByName(pcColName)
 		pcColName = StzLower(pcColName)
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if StzLower(@aContent[i][1]) = pcColName
-				return i
+		_nLen_ = len(@aContent)
+		for _i_ = 1 to _nLen_
+			if StzLower(@aContent[_i_][1]) = pcColName
+				return _i_
 			ok
 		next
 		return 0
@@ -751,11 +751,11 @@ Class stzTable from stzList
 		return len(@aContent[1][2])
 
 	def Col(pCol)
-		n = This.FindCol(pCol)
-		if n = 0
+		_n_ = This.FindCol(pCol)
+		if _n_ = 0
 			StzRaise("Column not found!")
 		ok
-		return @aContent[n][2]
+		return @aContent[_n_][2]
 
 		def Column(pCol)
 			return This.Col(pCol)
@@ -767,25 +767,25 @@ Class stzTable from stzList
 				return This.ColQ(pCol)
 
 	def Row(pnRow)
-		aResult = []
-		nCols = len(@aContent)
-		for i = 1 to nCols
-			aResult + @aContent[i][2][pnRow]
+		_aResult_ = []
+		_nCols_ = len(@aContent)
+		for _i_ = 1 to _nCols_
+			_aResult_ + @aContent[_i_][2][pnRow]
 		next
-		return aResult
+		return _aResult_
 
 	def Cell(pCol, pnRow)
-		n = This.FindCol(pCol)
-		if n = 0
+		_n_ = This.FindCol(pCol)
+		if _n_ = 0
 			StzRaise("Column not found!")
 		ok
-		return @aContent[n][2][pnRow]
+		return @aContent[_n_][2][pnRow]
 
 	def NumberOfCells()
 		return This.NumberOfColumns() * This.NumberOfRows()
 
-	def NthColName(n)
-		return @aContent[n][1]
+	def NthColName(_n_)
+		return @aContent[_n_][1]
 
 	def FirstColName()
 		return This.NthColName(1)
@@ -797,34 +797,34 @@ Class stzTable from stzList
 		return This.Row(This.NumberOfRows())
 
 	def Rows()
-		aResult = []
-		nRows = This.NumberOfRows()
-		for i = 1 to nRows
-			aResult + This.Row(i)
+		_aResult_ = []
+		_nRows_ = This.NumberOfRows()
+		for _i_ = 1 to _nRows_
+			_aResult_ + This.Row(_i_)
 		next
-		return aResult
+		return _aResult_
 
 	def ReplaceRow(pnRow, paNewRow)
-		nCols = len(@aContent)
-		for i = 1 to nCols
-			@aContent[i][2][pnRow] = paNewRow[i]
+		_nCols_ = len(@aContent)
+		for _i_ = 1 to _nCols_
+			@aContent[_i_][2][pnRow] = paNewRow[_i_]
 		next
 		This._InvalidateEngine()
 
 	def ReplaceCell(pCol, pnRow, pValue)
-		n = This.FindCol(pCol)
-		if n = 0
+		_n_ = This.FindCol(pCol)
+		if _n_ = 0
 			StzRaise("Column not found!")
 		ok
-		@aContent[n][2][pnRow] = pValue
+		@aContent[_n_][2][pnRow] = pValue
 		This._InvalidateEngine()
 
 	def ReplaceCol(pCol, paNewData)
-		n = This.FindCol(pCol)
-		if n = 0
+		_n_ = This.FindCol(pCol)
+		if _n_ = 0
 			StzRaise("Column not found!")
 		ok
-		@aContent[n][2] = paNewData
+		@aContent[_n_][2] = paNewData
 		This._InvalidateEngine()
 
 	  #============================================================#
@@ -900,25 +900,25 @@ Class stzTable from stzList
 
 			@pEngine = StzEngineTableNew()
 
-			nCols = len(@aContent)
-			for i = 1 to nCols
-				StzEngineTableAddCol(@pEngine, @aContent[i][1])
+			_nCols_ = len(@aContent)
+			for _i_ = 1 to _nCols_
+				StzEngineTableAddCol(@pEngine, @aContent[_i_][1])
 			next
 
-			if nCols > 0
-				nRows = len(@aContent[1][2])
-				for r = 1 to nRows
+			if _nCols_ > 0
+				_nRows_ = len(@aContent[1][2])
+				for r = 1 to _nRows_
 					StzEngineTableAddRow(@pEngine)
-					for c = 1 to nCols
-						v = @aContent[c][2][r]
-						if isNumber(v)
-							if floor(v) = v
-								StzEngineTableSetCellInt(@pEngine, c-1, r-1, v)
+					for c = 1 to _nCols_
+						_v_ = @aContent[c][2][r]
+						if isNumber(_v_)
+							if floor(_v_) = _v_
+								StzEngineTableSetCellInt(@pEngine, c-1, r-1, _v_)
 							else
-								StzEngineTableSetCellFloat(@pEngine, c-1, r-1, v)
+								StzEngineTableSetCellFloat(@pEngine, c-1, r-1, _v_)
 							ok
-						but isString(v)
-							StzEngineTableSetCellString(@pEngine, c-1, r-1, v)
+						but isString(_v_)
+							StzEngineTableSetCellString(@pEngine, c-1, r-1, _v_)
 						ok
 					next
 				next
@@ -931,26 +931,26 @@ Class stzTable from stzList
 		@bEngineStale = TRUE
 
 	def _SyncFromEngine()
-		nCols = StzEngineTableNumCols(@pEngine)
-		nRows = StzEngineTableNumRows(@pEngine)
+		_nCols_ = StzEngineTableNumCols(@pEngine)
+		_nRows_ = StzEngineTableNumRows(@pEngine)
 
 		@aContent = []
-		for c = 1 to nCols
-			cName = StzEngineTableColName(@pEngine, c-1)
-			aData = []
-			for r = 1 to nRows
-				nType = StzEngineTableGetCellType(@pEngine, c-1, r-1)
-				if nType = 2
-					aData + StzEngineTableGetCellInt(@pEngine, c-1, r-1)
-				but nType = 3
-					aData + StzEngineTableGetCellFloat(@pEngine, c-1, r-1)
-				but nType = 4
-					aData + StzEngineTableGetCellString(@pEngine, c-1, r-1)
+		for c = 1 to _nCols_
+			_cName_ = StzEngineTableColName(@pEngine, c-1)
+			_aData_ = []
+			for r = 1 to _nRows_
+				_nType_ = StzEngineTableGetCellType(@pEngine, c-1, r-1)
+				if _nType_ = 2
+					_aData_ + StzEngineTableGetCellInt(@pEngine, c-1, r-1)
+				but _nType_ = 3
+					_aData_ + StzEngineTableGetCellFloat(@pEngine, c-1, r-1)
+				but _nType_ = 4
+					_aData_ + StzEngineTableGetCellString(@pEngine, c-1, r-1)
 				else
-					aData + ""
+					_aData_ + ""
 				ok
 			next
-			@aContent + [cName, aData]
+			@aContent + [_cName_, _aData_]
 		next
 		@bEngineStale = FALSE
 
@@ -968,15 +968,15 @@ Class stzTable from stzList
 	 #  STRUCTURAL OPERATIONS (from submodule) #
 	#=========================================#
 
-	def RemoveNthCol(n)
+	def RemoveNthCol(_n_)
 		if This.NumberOfCols() = 1
 			@aContent = [ [ :COL1, [ "" ] ] ]
 			return
 		ok
-		ring_remove(@aContent, n)
+		ring_remove(@aContent, _n_)
 
-		def RemoveColAt(n)
-			This.RemoveNthCol(n)
+		def RemoveColAt(_n_)
+			This.RemoveNthCol(_n_)
 
 	def RemoveColumn(pColNameOrNumber)
 		_nRcCol_ = This.ColToColNumber(pColNameOrNumber)
@@ -1028,15 +1028,15 @@ Class stzTable from stzList
 		if This.IsColName(pacColNameAndData[1])
 			StzRaise("Can't add the column! The name you provided already exists.")
 		ok
-		nLen = len(pacColNameAndData[2])
-		nRows = This.NumberOfRows()
-		if nLen < nRows
-			for i = nLen+1 to nRows
+		_nLen_ = len(pacColNameAndData[2])
+		_nRows_ = This.NumberOfRows()
+		if _nLen_ < _nRows_
+			for _i_ = _nLen_+1 to _nRows_
 				pacColNameAndData[2] + ""
 			next
-		but nLen > nRows
-			for i = nLen to nRows+1 step - 1
-				ring_remove(pacColNameAndData[2], i)
+		but _nLen_ > _nRows_
+			for _i_ = _nLen_ to _nRows_+1 step - 1
+				ring_remove(pacColNameAndData[2], _i_)
 			next
 		ok
 		@aContent + pacColNameAndData
@@ -1046,14 +1046,14 @@ Class stzTable from stzList
 			This.AddColumn(pacColNameAndData)
 
 	# Word-order alias used by narrative tests.
-	def ColName(n)
-		if n < 1 or n > len(@aContent)
+	def ColName(_n_)
+		if _n_ < 1 or _n_ > len(@aContent)
 			StzRaise("Column index out of range.")
 		ok
-		return @aContent[n][1]
+		return @aContent[_n_][1]
 
-		def ColumnName(n)
-			return This.ColName(n)
+		def ColumnName(_n_)
+			return This.ColName(_n_)
 
 	# FindRow / FindRowCS -- look up a row's position by its value
 	# array. Forwarded version of stzTableFinder.FindRow.

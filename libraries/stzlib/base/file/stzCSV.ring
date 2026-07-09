@@ -56,31 +56,31 @@ func ListToCSVXT(aList, cSep)
 		ok
 	ok
 
-    cResult = ""
-    nCols = len(aList)
-    if nCols = 0 return cResult ok
+    _cResult_ = ""
+    _nCols_ = len(aList)
+    if _nCols_ = 0 return _cResult_ ok
     
     # Get number of rows from the first sublist
-    nRows = len(aList[1][2])
+    _nRows_ = len(aList[1][2])
     
     # Add headers
-    for i = 1 to nCols
-        cResult += aList[i][1]
-        if i < nCols cResult += cSep ok
+    for i = 1 to _nCols_
+        _cResult_ += aList[i][1]
+        if i < _nCols_ _cResult_ += cSep ok
     next
 
-    cResult += nl
+    _cResult_ += nl
     
     # Add data rows
-    for j = 1 to nRows
-        for i = 1 to nCols
-            cResult += aList[i][2][j]
-            if i < nCols cResult += cSep ok
+    for j = 1 to _nRows_
+        for i = 1 to _nCols_
+            _cResult_ += aList[i][2][j]
+            if i < _nCols_ _cResult_ += cSep ok
         next
-        if j < nRows cResult += nl ok
+        if j < _nRows_ _cResult_ += nl ok
     next
     
-    return cResult
+    return _cResult_
 
 	func List2DToCSVXT(aList, cSep)
 		# Was `return ListToCSV(aList, cSep)` -- ListToCSV is 1-arg,
@@ -90,97 +90,97 @@ func ListToCSVXT(aList, cSep)
 
 # Function to transform a CSV string to a list
 
-func StringToCSVList(cStr)
-	return StringToCSVListXT(cStr, CSVSeparator())
+func StringToCSVList(_cStr_)
+	return StringToCSVListXT(_cStr_, CSVSeparator())
 
-	func CSVToList(cStr)
-		return StringToCSVListXT(cStr, CSVSeparator())
+	func CSVToList(_cStr_)
+		return StringToCSVListXT(_cStr_, CSVSeparator())
 
-func StringToCSVListXT(cStr, cSep)
+func StringToCSVListXT(_cStr_, cSep)
 
 	if CheckParams()
-		if NOT isString(cStr)
+		if NOT isString(_cStr_)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
 
-		if NOT IsCSV(cStr)
+		if NOT IsCSV(_cStr_)
 			StzRaise("Can't proceed! The string must be in CSV format.")
 		ok
 
 	ok
 
-		cStr = @trim(cStr)
+		_cStr_ = @trim(_cStr_)
 
-		if cStr = ""
+		if _cStr_ = ""
 			return FALSE
 		ok
 
 		# Bug fix: the param cSep was being clobbered by the global
 		# default (cSep = CSVSep()), so XT-form callers with a custom
 		# separator were silently parsing with ';'.
-		acLines = @split(cStr, NL)
-		nLen = len(acLines)
+		_acLines_ = @split(_cStr_, NL)
+		_nLen_ = len(_acLines_)
 
 		# First line
 
-		acItemsInFirstLine = @split(acLines[1], cSep)
-		nCols = len(acItemsInFirstLine)
-		bColNamesProvided = TRUE
+		_acItemsInFirstLine_ = @split(_acLines_[1], cSep)
+		_nCols_ = len(_acItemsInFirstLine_)
+		_bColNamesProvided_ = TRUE
 
-		for i = 1 to nCols
+		for i = 1 to _nCols_
 
-			if @IsNumberInString(acItemsInFirstLine[i]) or
-			   @IsListInString(acItemsInFirstLine[i]) #TODO // Check for perfmance
-				bColNamesProvided = FALSE
+			if @IsNumberInString(_acItemsInFirstLine_[i]) or
+			   @IsListInString(_acItemsInFirstLine_[i]) #TODO // Check for perfmance
+				_bColNamesProvided_ = FALSE
 				exit
 			ok
 
 		next
 
-		aResult = []
+		_aResult_ = []
 
-		if NOT bColNamesProvided
-			for i = 1 to nCols
-				aResult + [ ("COL"+i), acItemsInFirstLine[i] ]
+		if NOT _bColNamesProvided_
+			for i = 1 to _nCols_
+				_aResult_ + [ ("COL"+i), _acItemsInFirstLine_[i] ]
 			next
 
 		else
-			for i = 1 to nCols
-				aResult + [ acItemsInFirstLine[i], []]
+			for i = 1 to _nCols_
+				_aResult_ + [ _acItemsInFirstLine_[i], []]
 			next
 
 		ok
 	
 		# Other lines
 
-		for i = 2 to nLen
+		for i = 2 to _nLen_
 
-			acItems = @Split(acLines[i], cSep)
+			_acItems_ = @Split(_acLines_[i], cSep)
 
-			for j = 1 to nCols
+			for j = 1 to _nCols_
 
-				item = acItems[j]
+				_item_ = _acItems_[j]
 
-				if @IsNumberInString(item)
-					item = 0+ acItems[j]
+				if @IsNumberInString(_item_)
+					_item_ = 0+ _acItems_[j]
 
-				but @IsListInString(item)
-					cCode = 'item = ' + acItems[j]
-					eval(cCode)
+				but @IsListInString(_item_)
+					_cCode_ = '_item_ = ' + _acItems_[j]
+					eval(_cCode_)
 				ok
 
-				aResult[j][2] + item
+				_aResult_[j][2] + _item_
 			next
 
 		next
 
-		return aResult
+		return _aResult_
 
-	func CSVToListXT(cStr, cSep)
-		return StringToCSvlistXT(cStr, cSep)
+	func CSVToListXT(_cStr_, cSep)
+		return StringToCSvlistXT(_cStr_, cSep)
 
-func IsCSV(cStr)
-	return IsCSVXT(cStr, CSVSeparator())
+func IsCSV(_cStr_)
+	return IsCSVXT(_cStr_, CSVSeparator())
 
-func IsCSVXT(cStr, cSep)
-	return StzEngineCSVIsValid(cStr, cSep)
+func IsCSVXT(_cStr_, cSep)
+	return StzEngineCSVIsValid(_cStr_, cSep)

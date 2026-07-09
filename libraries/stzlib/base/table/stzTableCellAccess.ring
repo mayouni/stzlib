@@ -22,8 +22,8 @@ class stzTableCellAccess from stzTable
 	#===============================#
 
 	def NumberOfCells()
-		nResult = This.NumberOfCol() * This.NumberOfRows()
-		return nResult
+		_nResult_ = This.NumberOfCol() * This.NumberOfRows()
+		return _nResult_
 
 	  #-------------------------------------------------------------------#
 	 #  GETIING A CELL VALUE BY ITS POSITION (COLUMN, ROW) IN THE TABLE  #
@@ -59,9 +59,9 @@ class stzTableCellAccess from stzTable
 
 		ok
 
-		nCol   = This.ColToColNumber(pCol)
-		result = @aContent[nCol][2][pnRow]
-		return result
+		_nCol_   = This.ColToColNumber(pCol)
+		_result_ = @aContent[_nCol_][2][pnRow]
+		return _result_
 
 		#< @FunctionFluentForm
 
@@ -91,12 +91,12 @@ class stzTableCellAccess from stzTable
 	#------------------------------------------#
 
 	def CellZ(pCol, pnRow)
-		nCol = This.ColToNumber(pCol)
-		nRow = This.RowToNumber(pnRow)
+		_nCol_ = This.ColToNumber(pCol)
+		_nRow_ = This.RowToNumber(pnRow)
 
-		aResult = [ This.Cell(pCol, nRow), [ nCol, nRow ] ]
+		_aResult_ = [ This.Cell(pCol, _nRow_), [ _nCol_, _nRow_ ] ]
 
-		return aResult
+		return _aResult_
 
 		def CellAndPosition(pCol, pRow)
 			return This.CellZ(pCol, pnRow)
@@ -110,7 +110,7 @@ class stzTableCellAccess from stzTable
 
 	def CellCSXT(pCellCol, pCellRow, pExpr, pValueORSubValue, pCaseSensitive)
 		/*
-		o1 = new stzTable([
+		_o1_ = new stzTable([
 			[ :NAME,	:AGE ],
 			[ "Ali",	24   ],
 			[ "Lio",	25   ],
@@ -149,28 +149,28 @@ class stzTableCellAccess from stzTable
 
 	def TheseCells(paCellsPos)
 		/*
-		o1 = new stzTable([
+		_o1_ = new stzTable([
 			[ :NATION,	:LANGUAGE ],
 			[ "___",	"Arabic"  ],
 			[ "France",	"___"  ],
 			[ "USA",	"___" ]
 		])
 
-		aSomeCells = [ [1, 1], [2, 2], [2, 3] ]
+		_aSomeCells_ = [ [1, 1], [2, 2], [2, 3] ]
 
-		? o1.TheseCells(aSomeCells)
+		? _o1_.TheseCells(_aSomeCells_)
 		#--> [ "___", "___", "___" ]
 		*/
 
-		aResult = []
-		nLen =  len(paCellsPos)
+		_aResult_ = []
+		_nLen_ =  len(paCellsPos)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			aResult + This.Cell( paCellsPos[i][1], paCellsPos[i][2] )
+			_aResult_ + This.Cell( paCellsPos[i][1], paCellsPos[i][2] )
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -240,8 +240,8 @@ class stzTableCellAccess from stzTable
 
 	def Cells()
 
-		aResult = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
-		return aResult
+		_aResult_ = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -293,19 +293,19 @@ class stzTableCellAccess from stzTable
 
 	def CellsAndTheirPositions()
 
-		aResult = []
-		nRows   = This.NumberOfRows()
-		nCols   = This.NumberOfCol()
+		_aResult_ = []
+		_nRows_   = This.NumberOfRows()
+		_nCols_   = This.NumberOfCol()
 
-		for v = 1 to nRows
+		for v = 1 to _nRows_
 
-			for u = 1 to nCols
-				aResult + [ This.Cell(u, v), [u, v ] ]
+			for u = 1 to _nCols_
+				_aResult_ + [ This.Cell(u, v), [u, v ] ]
 			next u
 
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -330,31 +330,31 @@ class stzTableCellAccess from stzTable
 
 	def PositionsAndCells()
 
-		aResult = []
-		nRows   = This.NumberOfRows()
-		nCols   = This.NumberOfCol()
+		_aResult_ = []
+		_nRows_   = This.NumberOfRows()
+		_nCols_   = This.NumberOfCol()
 
-		for v = 1 to nRows
-			for u = 1 to nCols
-				aResult + [ [u, v ], This.Cell(u, v) ]
+		for v = 1 to _nRows_
+			for u = 1 to _nCols_
+				_aResult_ + [ [u, v ], This.Cell(u, v) ]
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 	def CellsAsPositions()
 
-		aResult = []
-		nRows   = This.NumberOfRows()
-		nCols   = This.NumberOfCol()
+		_aResult_ = []
+		_nRows_   = This.NumberOfRows()
+		_nCols_   = This.NumberOfCol()
 
-		for v = 1 to nRows
-			for u = 1 to nCols
-				aResult + [u, v ]
+		for v = 1 to _nRows_
+			for u = 1 to _nCols_
+				_aResult_ + [u, v ]
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 		def AllCellsAsPositions()
 			return This.CellsAsPositions()
@@ -364,15 +364,15 @@ class stzTableCellAccess from stzTable
 	#-----------------------------------------------------------#
 
 	def TheseCellsZ(paCells)
-		aResult = []
-		nCells = len(paCells)
+		_aResult_ = []
+		_nCells_ = len(paCells)
 
-		for i = 1 to nCells
-			aCell = paCells[i]
-			aResult + [ This.Cell(aCell[1], aCell[2]), aCell ]
+		for i = 1 to _nCells_
+			_aCell_ = paCells[i]
+			_aResult_ + [ This.Cell(_aCell_[1], _aCell_[2]), _aCell_ ]
 		next
 
-		return aResult
+		return _aResult_
 
 		def TheseCellsAndTheirPositions(paCells)
 			return This.TheseCellsZ(paCells)
@@ -384,23 +384,23 @@ class stzTableCellAccess from stzTable
 			return This.TheseCellsZ(paCells)
 
 	def PositionsAndTheseCells(paCells)
-		aResult = []
-		nCells = len(paCells)
+		_aResult_ = []
+		_nCells_ = len(paCells)
 
-		for i = 1 to nCells
-			aCell = paCells[i]
-			aResult + [ aCell, This.Cell(paCells[1], paCells[2]) ]
+		for i = 1 to _nCells_
+			_aCell_ = paCells[i]
+			_aResult_ + [ _aCell_, This.Cell(paCells[1], paCells[2]) ]
 		next
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------------#
 	 #  GETIING THE LIST OF ALL CELLS BY TRANSFORMING IT TO A HASHLIST  #
 	#------------------------------------------------------------------#
 
 	def CellsToHashList()
-		aResult = This.TheseCellsToHashList( This.CellsAsPositions() )
-		return aResult
+		_aResult_ = This.TheseCellsToHashList( This.CellsAsPositions() )
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -437,15 +437,15 @@ class stzTableCellAccess from stzTable
 	def TheseCellsToHashList(paCellsPos)
 		#TODO // check if paCells are really cells and belong to the table!
 
-		aResult = []
-		nLen = len(paCellsPos)
+		_aResult_ = []
+		_nLen_ = len(paCellsPos)
 
-		for i = 1 to nLen
-			cellPos = paCellsPos[i]
-			aResult + [ @@(cellPos), This.Cell(cellPos[1], cellPos[2]) ]
+		for i = 1 to _nLen_
+			_cellPos_ = paCellsPos[i]
+			_aResult_ + [ @@(_cellPos_), This.Cell(_cellPos_[1], _cellPos_[2]) ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -484,16 +484,16 @@ class stzTableCellAccess from stzTable
 	#==============================#
 
 	def Section( panCellPos1, panCellPos2 )
-		aCells = This.SectionAsPositions( panCellPos1, panCellPos2 )
-		nCells = len(aCells)
-		aResult = []
+		_aCells_ = This.SectionAsPositions( panCellPos1, panCellPos2 )
+		_nCells_ = len(_aCells_)
+		_aResult_ = []
 
-		for i = 1 to nCells
-			aCell = aCells[i]
-			aResult + This.Cell(aCell[1], aCell[2])
+		for i = 1 to _nCells_
+			_aCell_ = _aCells_[i]
+			_aResult_ + This.Cell(_aCell_[1], _aCell_[2])
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -535,10 +535,10 @@ class stzTableCellAccess from stzTable
 
 	def SectionZ( panCellPos1, panCellPos2 )
 
-		aResult = This.SectionAsPositionsQ(panCellPos1, panCellPos2).
+		_aResult_ = This.SectionAsPositionsQ(panCellPos1, panCellPos2).
 			       AssociatedWith( This.Section(panCellPos1, panCellPos2) )
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForms
 
@@ -685,46 +685,46 @@ class stzTableCellAccess from stzTable
 
 		# Doing the job
 
-		nCol1 = panCellPos1[1]
-		nRow1 = panCellPos1[2]
+		_nCol1_ = panCellPos1[1]
+		_nRow1_ = panCellPos1[2]
 
-		nCol2 = panCellPos2[1]
-		nRow2 = panCellPos2[2]
+		_nCol2_ = panCellPos2[1]
+		_nRow2_ = panCellPos2[2]
 
-		aResult = []
+		_aResult_ = []
 
 		# If only one column is concerned
 
-		if nCol1 = nCol2
-			for j = nRow1 to nRow2
-				aResult + [ nCol1, j ]
+		if _nCol1_ = _nCol2_
+			for j = _nRow1_ to _nRow2_
+				_aResult_ + [ _nCol1_, j ]
 			next
 
-			return aResult
+			return _aResult_
 		ok
 
 		# If the sections span mote then one column
 
-		nRows = This.NumberOfRows()
+		_nRows_ = This.NumberOfRows()
 
 		# Adding the first column
 
-		for j = nRow1 to nRows
-			aResult + [ nCol1, j ]
+		for j = _nRow1_ to _nRows_
+			_aResult_ + [ _nCol1_, j ]
 		next
 
-		nCols = len( @aContent )
-		if nCols = 1
+		_nCols_ = len( @aContent )
+		if _nCols_ = 1
 			return
 		ok
 
 		# Adding all the cells except the first and last columns
 
-		if nCols > 2
+		if _nCols_ > 2
 
-			for i = (nCol1 + 1) to (nCol2 - 1)
-				for j = nRow1 to nRows
-					aResult + [ i, j ]
+			for i = (_nCol1_ + 1) to (_nCol2_ - 1)
+				for j = _nRow1_ to _nRows_
+					_aResult_ + [ i, j ]
 				next
 			next
 
@@ -732,11 +732,11 @@ class stzTableCellAccess from stzTable
 
 		# Adding the remaining cells in the last column
 
-		for j = 1 to nRow2
-			aResult + [ nCol2, j ]
+		for j = 1 to _nRow2_
+			_aResult_ + [ _nCol2_, j ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -785,36 +785,36 @@ class stzTableCellAccess from stzTable
 	 #   COLUMN SECTIONS (SOME CELLS OF A GIVEN COLUMN)  #
 	#===================================================#
 
-	def ColSection(pCol, n1, n2)
+	def ColSection(pCol, _n1_, _n2_)
 
-		aCellsPos =  This.ColSectionAsPositions(pCol, n1, n2)
-		aResult = This.CellsAtPositions(aCellsPos)
+		_aCellsPos_ =  This.ColSectionAsPositions(pCol, _n1_, _n2_)
+		_aResult_ = This.CellsAtPositions(_aCellsPos_)
 
-		return aResult
+		return _aResult_
 
-		def ColumnSection(pCol, n1, n2)
-			return This.ColSection(pCol, n1, n2)
+		def ColumnSection(pCol, _n1_, _n2_)
+			return This.ColSection(pCol, _n1_, _n2_)
 
-	def ColSectionAsPositions(pCol, n1, n2)
+	def ColSectionAsPositions(pCol, _n1_, _n2_)
 		if CheckingParams()
-			if isList(n1)
+			if isList(_n1_)
 
-				if StzListIsOneOfTheseNamedParamsList(n1,[
+				if StzListIsOneOfTheseNamedParamsList(_n1_,[
 					:From, :FromCell, :FromPosition,
 					:FromCellAt, :FromCellAtPosition
 				])
 
-					n1 = n1[2]
+					_n1_ = _n1_[2]
 				ok
 			ok
 
-			if isList(n2)
-				if StzListIsOneOfTheseNamedParamsList(n2,[
+			if isList(_n2_)
+				if StzListIsOneOfTheseNamedParamsList(_n2_,[
 					:To, :ToCell, :ToPosition,
 					:ToCellAt, :ToCellAtPosition
 				])
 
-					n2 = n2[2]
+					_n2_ = _n2_[2]
 				ok
 			ok
 
@@ -834,50 +834,50 @@ class stzTableCellAccess from stzTable
 				StzRaise("Incorrect param type! pCol must be a number.")
 			ok
 
-			if isString(n1)
-				if n1 = :First or n1 = :FirstRow
-					n1 = 1
+			if isString(_n1_)
+				if _n1_ = :First or _n1_ = :FirstRow
+					_n1_ = 1
 				ok
 			ok
 
-			if NOT isNumber(n1)
+			if NOT isNumber(_n1_)
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 
-			if isString(n2)
-				if n2 = :Last or n2 = :LastRow
-					n2 = This.NumberOfRows()
+			if isString(_n2_)
+				if _n2_ = :Last or _n2_ = :LastRow
+					_n2_ = This.NumberOfRows()
 				ok
 			ok
 
-			if NOT isNumber(n2)
+			if NOT isNumber(_n2_)
 				StzRaise("Incorrect param type! n2 must be a number.")
 			ok
 		ok
 
-		aResult = []
-		for i = n1 to n2
-			aResult + [pCol, i]
+		_aResult_ = []
+		for i = _n1_ to _n2_
+			_aResult_ + [pCol, i]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForm
 
-		def ColumnSectionAsPositions(pCol, n1, n2)
-			return This.ColSectionAsPositions(pCol, n1, n2)
+		def ColumnSectionAsPositions(pCol, _n1_, _n2_)
+			return This.ColSectionAsPositions(pCol, _n1_, _n2_)
 
-		def FindColSection(pCol, n1, n2)
-			return This.ColSectionAsPositions(pCol, n1, n2)
+		def FindColSection(pCol, _n1_, _n2_)
+			return This.ColSectionAsPositions(pCol, _n1_, _n2_)
 
-		def FindColumnSection(pCol, n1, n2)
-			return This.ColSectionAsPositions(pCol, n1, n2)
+		def FindColumnSection(pCol, _n1_, _n2_)
+			return This.ColSectionAsPositions(pCol, _n1_, _n2_)
 
-		def FindCellsInColSection(pCol, n1, n2)
-			return This.ColSectionAsPositions(pCol, n1, n2)
+		def FindCellsInColSection(pCol, _n1_, _n2_)
+			return This.ColSectionAsPositions(pCol, _n1_, _n2_)
 
-		def FindCellsColumnSection(pCol, n1, n2)
-			return This.ColSectionAsPositions(pCol, n1, n2)
+		def FindCellsColumnSection(pCol, _n1_, _n2_)
+			return This.ColSectionAsPositions(pCol, _n1_, _n2_)
 
 		#>
 
@@ -885,103 +885,103 @@ class stzTableCellAccess from stzTable
 	 #  GETTING CELLES IN A COL SECTION ALONG WITH THEIR POSITIONS  #
 	#--------------------------------------------------------------#
 
-	def CellsInColSectionZ(nCol, n1, n2)
-		anCellsPos = This.FindCellsInColSection(nCol, n1, n2)
-		aCells = This.CellsAtPositions(anCellsPos)
-		aResult = Association([ aCells, anCellsPos ])
+	def CellsInColSectionZ(_nCol_, _n1_, _n2_)
+		_anCellsPos_ = This.FindCellsInColSection(_nCol_, _n1_, _n2_)
+		_aCells_ = This.CellsAtPositions(_anCellsPos_)
+		_aResult_ = Association([ _aCells_, _anCellsPos_ ])
 
-		return aResult
+		return _aResult_
 
 	  #----------------------------------------------------#
 	 #   HORIZONTAL SECTIONS (SOME CELLS OF A GIVEN ROW)  #
 	#====================================================#
 
-	def RowSection(nRow, n1, n2)
-		aCellsPos =  This.RowSectionAsPositions(nRow, n1, n2)
-		aResult = This.CellsAtPositions(aCellsPos)
+	def RowSection(_nRow_, _n1_, _n2_)
+		_aCellsPos_ =  This.RowSectionAsPositions(_nRow_, _n1_, _n2_)
+		_aResult_ = This.CellsAtPositions(_aCellsPos_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def CellsInRowSection(nRow, n1, n2)
-			return This.RowSection(nRow, n1, n2)
+		def CellsInRowSection(_nRow_, _n1_, _n2_)
+			return This.RowSection(_nRow_, _n1_, _n2_)
 
 		#>
 
-	def RowSectionAsPositions(nRow, n1, n2)
+	def RowSectionAsPositions(_nRow_, _n1_, _n2_)
 		if CheckingParams()
 
-			if isList(n1)
-				if StzListIsOneOfTheseNamedParamsList(n1,[
+			if isList(_n1_)
+				if StzListIsOneOfTheseNamedParamsList(_n1_,[
 					:From, :FromCell, :FromPosition,
 					:FromCellAt, :FromCellAtPosition
 				])
 
-					n1 = n1[2]
+					_n1_ = _n1_[2]
 				ok
 			ok
 
-			if isList(n2)
+			if isList(_n2_)
 
-				if StzListIsOneOfTheseNamedParamsList(n2,[
+				if StzListIsOneOfTheseNamedParamsList(_n2_,[
 					:To, :ToCell, :ToPosition,
 					:ToCellAt, :ToCellAtPosition
 				])
 
-					n2 = n2[2]
+					_n2_ = _n2_[2]
 				ok
 			ok
 
-			if isString(nRow)
+			if isString(_nRow_)
 
-				if StzFindFirst([ :First, :FirstRow], nRow) > 0
-					nRow = 1
+				if StzFindFirst([ :First, :FirstRow], _nRow_) > 0
+					_nRow_ = 1
 
-				but StzFindFirst([ :Last, :LastRow ], nRow) > 0
-					nRow = This.NumberOfRows()
+				but StzFindFirst([ :Last, :LastRow ], _nRow_) > 0
+					_nRow_ = This.NumberOfRows()
 				ok
 			ok
 
-			if NOT isNumber(nRow)
+			if NOT isNumber(_nRow_)
 				StzRaise("Incorrect param type! nRow must be a number.")
 			ok
 
-			if isString(n1)
-				if n1 = :First or n1 = :FirstCol
-					n1 = 1
+			if isString(_n1_)
+				if _n1_ = :First or _n1_ = :FirstCol
+					_n1_ = 1
 				ok
 			ok
 
-			if NOT isNumber(n1)
+			if NOT isNumber(_n1_)
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 
-			if isString(n2)
-				if n2 = :Last or n2 = :LastCol
-					n2 = This.NumberOfCols()
+			if isString(_n2_)
+				if _n2_ = :Last or _n2_ = :LastCol
+					_n2_ = This.NumberOfCols()
 				ok
 			ok
 
-			if NOT isNumber(n2)
+			if NOT isNumber(_n2_)
 				StzRaise("Incorrect param type! n2 must be a number.")
 			ok
 		ok
 
-		aResult = []
-		for i = n1 to n2
-			aResult + [i, nRow]
+		_aResult_ = []
+		for i = _n1_ to _n2_
+			_aResult_ + [i, _nRow_]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForm
 
-		def FindRowSection(nRow, n1, n2)
-			return This.RowSectionAsPositions(nRow, n1, n2)
+		def FindRowSection(_nRow_, _n1_, _n2_)
+			return This.RowSectionAsPositions(_nRow_, _n1_, _n2_)
 
-		def FindCellsInRowSection(nRow, n1, n2)
-			return This.RowSectionAsPositions(nRow, n1, n2)
+		def FindCellsInRowSection(_nRow_, _n1_, _n2_)
+			return This.RowSectionAsPositions(_nRow_, _n1_, _n2_)
 
 		#>
 
@@ -989,20 +989,20 @@ class stzTableCellAccess from stzTable
 	 #  GETTING CELLES IN A ROW SECTION ALONG WITH THEIR POSITIONS  #
 	#--------------------------------------------------------------#
 
-	def CellsInRowSectionZ(nRow, n1, n2)
-		anCellsPos = This.FindCellsInRowSection(nRow, n1, n2)
-		aCells = This.CellsAtPositions(anCellsPos)
-		aResult = Association([ aCells, anCellsPos ])
+	def CellsInRowSectionZ(_nRow_, _n1_, _n2_)
+		_anCellsPos_ = This.FindCellsInRowSection(_nRow_, _n1_, _n2_)
+		_aCells_ = This.CellsAtPositions(_anCellsPos_)
+		_aResult_ = Association([ _aCells_, _anCellsPos_ ])
 
-		return aResult
+		return _aResult_
 
 	  #-------------------------------------------------#
 	 #   CONVERTING A SECTION OF CELLS TO A HASHLIST   #
 	#=================================================#
 
 	def SectionToHashList(panCellPos1, panCell2)
-		aResult = TheseCellsToHashList( This.SectionAsPositions(panCellPos1, panCell2) )
-		return aResult
+		_aResult_ = TheseCellsToHashList( This.SectionAsPositions(panCellPos1, panCell2) )
+		return _aResult_
 
 		def SectionToHashListQ(panCellPos1, panCellPos2)
 			return This.SectionsToHashListQRT(panCellPos1, panCellPos2, :stzList)
@@ -1034,7 +1034,7 @@ class stzTableCellAccess from stzTable
 
 	// TODO
 
-	def SectionToRange(n1, n2) // TODO
+	def SectionToRange(_n1_, _n2_) // TODO
 		StzRaise("Feature not implemented yet!")
 
 	def Range(paPair, paRange) // TODO

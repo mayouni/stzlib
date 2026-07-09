@@ -135,7 +135,7 @@ $aDateTimeFormats = [
 #=================================================================
 
 # Reference points (in milliseconds from Unix epoch)
-aTimeOrigins = [
+_aTimeOrigins_ = [
     :UnixEpoch = 0,                      # 1970-01-01
     :YearOne = -62135596800000,          # 1 CE
     :IslamicHijra = -42521587200000,  # 622 CE (Hijra)
@@ -184,8 +184,8 @@ func StzIsDateTime(str)
         return FALSE
     ok
 
-	Rx = new stzRegex(pat(:DateTime) )
-	return Rx.Match(str)
+	_Rx_ = new stzRegex(pat(:DateTime) )
+	return _Rx_.Match(str)
 
     func IsDateTime(str)
         return StzIsDateTime(str)
@@ -200,9 +200,9 @@ func StzGetDateTimeFormat(cFormatNameOrString)
     if isString(cFormatNameOrString)
         _nDateTimeFormats1Len_ = len($aDateTimeFormats)
         for _iLoopDateTimeFormats1_ = 1 to _nDateTimeFormats1Len_
-        	aFormat = $aDateTimeFormats[_iLoopDateTimeFormats1_]
-            if aFormat[1] = cFormatNameOrString
-                return aFormat[2]
+        	_aFormat_ = $aDateTimeFormats[_iLoopDateTimeFormats1_]
+            if _aFormat_[1] = cFormatNameOrString
+                return _aFormat_[2]
             ok
         next
         return cFormatNameOrString
@@ -213,87 +213,87 @@ func StzGetDateTimeFormat(cFormatNameOrString)
 	func GetDateTimeFormat(cFormatNameOrString)
 		return StzGetDateTimeFormat(cFormatNameOrString)
 
-func StzIs12HourFormat(cFormat)
-    cActualFormat = StzGetDateTimeFormat(cFormat)
+func StzIs12HourFormat(_cFormat_)
+    _cActualFormat_ = StzGetDateTimeFormat(_cFormat_)
 
-    if StzFindFirst(StzUpper(cActualFormat), "AP") > 0
+    if StzFindFirst(StzUpper(_cActualFormat_), "AP") > 0
         return TRUE
     ok
 
-    if isString(cFormat) and StzRight(StzLower(cFormat), 3) = "12h"
+    if isString(_cFormat_) and StzRight(StzLower(_cFormat_), 3) = "12h"
         return TRUE
     ok
 
     return FALSE
 
-	func Is12HourFormat(cFormat)
-		return StzIs12HourFormat(cFormat)
+	func Is12HourFormat(_cFormat_)
+		return StzIs12HourFormat(_cFormat_)
 
-func StzConvertTo12Hour(nHour)
-    nHour12 = nHour % 12
-    if nHour12 = 0
-        nHour12 = 12
+func StzConvertTo12Hour(_nHour_)
+    _nHour12_ = _nHour_ % 12
+    if _nHour12_ = 0
+        _nHour12_ = 12
     ok
-    return nHour12
+    return _nHour12_
 
-	func ConvertTo12Hour(nHour)
-		return StzConvertTo12Hour(nHour)
+	func ConvertTo12Hour(_nHour_)
+		return StzConvertTo12Hour(_nHour_)
 
-func StzGetAmPmText(nHour)
-    oLocale = new stzLocale("")
-    if nHour >= 12
-        return oLocale.pmText()
+func StzGetAmPmText(_nHour_)
+    _oLocale_ = new stzLocale("")
+    if _nHour_ >= 12
+        return _oLocale_.pmText()
     else
-        return oLocale.amText()
+        return _oLocale_.amText()
     ok
 
-	func GetAmPmText(nHour)
-		return StzGetAmPmText(nHour)
+	func GetAmPmText(_nHour_)
+		return StzGetAmPmText(_nHour_)
 
-func _DateTimeFormatString(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs, cFormat)
-    pHandle = StzEngineDateNew(nYear, nMonth, nDay)
-    cDayName = StzEngineDateDayName(pHandle)
-    cMonthName = StzEngineDateMonthName(pHandle)
+func _DateTimeFormatString(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_, _nMs_, _cFormat_)
+    pHandle = StzEngineDateNew(_nYear_, _nMonth_, _nDay_)
+    _cDayName_ = StzEngineDateDayName(pHandle)
+    _cMonthName_ = StzEngineDateMonthName(pHandle)
     StzEngineDateFree(pHandle)
 
-    cResult = cFormat
-    cResult = StzReplace(cResult, "dddd", cDayName)
-    cResult = StzReplace(cResult, "ddd", StzLeft(cDayName, 3))
-    cResult = StzReplace(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
-    cResult = StzReplace(cResult, "MMMM", cMonthName)
-    cResult = StzReplace(cResult, "MMM", StzLeft(cMonthName, 3))
-    cResult = StzReplace(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
-    cResult = StzReplace(cResult, "yyyy", "" + nYear)
-    nYY = nYear % 100
-    cResult = StzReplace(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
-    cResult = StzReplace(cResult, "zzz", _PadLeft("" + nMs, 3, "0"))
-    cResult = StzReplace(cResult, "HH", _PadLeft("" + nHour, 2, "0"))
-    cResult = StzReplace(cResult, "mm", _PadLeft("" + nMinute, 2, "0"))
-    cResult = StzReplace(cResult, "ss", _PadLeft("" + nSecond, 2, "0"))
-    return cResult
+    _cResult_ = _cFormat_
+    _cResult_ = StzReplace(_cResult_, "dddd", _cDayName_)
+    _cResult_ = StzReplace(_cResult_, "ddd", StzLeft(_cDayName_, 3))
+    _cResult_ = StzReplace(_cResult_, "dd", _PadLeft("" + _nDay_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, "MMMM", _cMonthName_)
+    _cResult_ = StzReplace(_cResult_, "MMM", StzLeft(_cMonthName_, 3))
+    _cResult_ = StzReplace(_cResult_, "MM", _PadLeft("" + _nMonth_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, "yyyy", "" + _nYear_)
+    _nYY_ = _nYear_ % 100
+    _cResult_ = StzReplace(_cResult_, "yy", _PadLeft("" + _nYY_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, "zzz", _PadLeft("" + _nMs_, 3, "0"))
+    _cResult_ = StzReplace(_cResult_, "HH", _PadLeft("" + _nHour_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, "mm", _PadLeft("" + _nMinute_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, "ss", _PadLeft("" + _nSecond_, 2, "0"))
+    return _cResult_
 
-func _SetComponentsFromUnixMs(nMs)
-    nSecs = floor(nMs / 1000)
-    nRemMs = nMs % 1000
-    if nRemMs < 0
-        nRemMs += 1000
-        nSecs -= 1
+func _SetComponentsFromUnixMs(_nMs_)
+    _nSecs_ = floor(_nMs_ / 1000)
+    _nRemMs_ = _nMs_ % 1000
+    if _nRemMs_ < 0
+        _nRemMs_ += 1000
+        _nSecs_ -= 1
     ok
-    pHandle = StzEngineDateTimeFromUnix(nSecs)
-    nY = StzEngineDateTimeYear(pHandle)
-    nMo = StzEngineDateTimeMonth(pHandle)
-    nD = StzEngineDateTimeDay(pHandle)
-    nH = StzEngineDateTimeHour(pHandle)
-    nMi = StzEngineDateTimeMinute(pHandle)
-    nS = StzEngineDateTimeSecond(pHandle)
+    pHandle = StzEngineDateTimeFromUnix(_nSecs_)
+    _nY_ = StzEngineDateTimeYear(pHandle)
+    _nMo_ = StzEngineDateTimeMonth(pHandle)
+    _nD_ = StzEngineDateTimeDay(pHandle)
+    _nH_ = StzEngineDateTimeHour(pHandle)
+    _nMi_ = StzEngineDateTimeMinute(pHandle)
+    _nS_ = StzEngineDateTimeSecond(pHandle)
     StzEngineDateTimeFree(pHandle)
-    return [nY, nMo, nD, nH, nMi, nS, nRemMs]
+    return [_nY_, _nMo_, _nD_, _nH_, _nMi_, _nS_, _nRemMs_]
 
-func _ToUnixMs(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs)
-    pHandle = StzEngineDateTimeNew(nYear, nMonth, nDay, nHour, nMinute, nSecond)
-    nUnix = StzEngineDateTimeToUnix(pHandle)
+func _ToUnixMs(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_, _nMs_)
+    pHandle = StzEngineDateTimeNew(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_)
+    _nUnix_ = StzEngineDateTimeToUnix(pHandle)
     StzEngineDateTimeFree(pHandle)
-    return (nUnix * 1000) + nMs
+    return (_nUnix_ * 1000) + _nMs_
 
 
 class stzDateTime from stzObject
@@ -338,14 +338,14 @@ class stzDateTime from stzObject
 	        ok
 
 	    but isNumber(pDateTime)
-	        aComps = _SetComponentsFromUnixMs(pDateTime * 1000)
-	        @nYear = aComps[1]
-	        @nMonth = aComps[2]
-	        @nDay = aComps[3]
-	        @nHour = aComps[4]
-	        @nMinute = aComps[5]
-	        @nSecond = aComps[6]
-	        @nMs = aComps[7]
+	        _aComps_ = _SetComponentsFromUnixMs(pDateTime * 1000)
+	        @nYear = _aComps_[1]
+	        @nMonth = _aComps_[2]
+	        @nDay = _aComps_[3]
+	        @nHour = _aComps_[4]
+	        @nMinute = _aComps_[5]
+	        @nSecond = _aComps_[6]
+	        @nMs = _aComps_[7]
 
 	    but isList(pDateTime)
 	        if len(pDateTime) = 2 and
@@ -385,11 +385,11 @@ class stzDateTime from stzObject
 	                This.SetCountingFrom(pDateTime[:CountingFromAtomicAge], :AtomicAge)
 
 	            but HasKey(pDateTime, :NaturalDuration)
-	                cOrigin = :UnixEpoch
+	                _cOrigin_ = :UnixEpoch
 	                if HasKey(pDateTime, :Origin)
-	                    cOrigin = pDateTime[:Origin]
+	                    _cOrigin_ = pDateTime[:Origin]
 	                ok
-	                This.SetFromNaturalDuration(pDateTime[:NaturalDuration], cOrigin)
+	                This.SetFromNaturalDuration(pDateTime[:NaturalDuration], _cOrigin_)
 
 	            but HasKey(pDateTime, :FromEpochSeconds)
 	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochSeconds] * 1000)
@@ -422,43 +422,43 @@ class stzDateTime from stzObject
 	                This.SetFromEpochDuration(pDateTime[:FromEpochDuration])
 
 	            else
-	                nYear = 2000
-	                nMonth = 1
-	                nDay = 1
-	                nHour = 0
-	                nMinute = 0
-	                nSecond = 0
+	                _nYear_ = 2000
+	                _nMonth_ = 1
+	                _nDay_ = 1
+	                _nHour_ = 0
+	                _nMinute_ = 0
+	                _nSecond_ = 0
 
 	                if HasKey(pDateTime, :Year)
-	                    nYear = 0+ pDateTime[:Year]
+	                    _nYear_ = 0+ pDateTime[:Year]
 	                ok
 
 	                if HasKey(pDateTime, :Month)
-	                    nMonth = 0+ pDateTime[:Month]
+	                    _nMonth_ = 0+ pDateTime[:Month]
 	                ok
 
 	                if HasKey(pDateTime, :Day)
-	                    nDay = 0+ pDateTime[:Day]
+	                    _nDay_ = 0+ pDateTime[:Day]
 	                ok
 
 	                if HasKey(pDateTime, :Hour)
-	                    nHour = 0+ pDateTime[:Hour]
+	                    _nHour_ = 0+ pDateTime[:Hour]
 	                ok
 
 	                if HasKey(pDateTime, :Minute)
-	                    nMinute = 0+ pDateTime[:Minute]
+	                    _nMinute_ = 0+ pDateTime[:Minute]
 	                ok
 
 	                if HasKey(pDateTime, :Second)
-	                    nSecond = 0+ pDateTime[:Second]
+	                    _nSecond_ = 0+ pDateTime[:Second]
 	                ok
 
-	                @nYear = nYear
-	                @nMonth = nMonth
-	                @nDay = nDay
-	                @nHour = nHour
-	                @nMinute = nMinute
-	                @nSecond = nSecond
+	                @nYear = _nYear_
+	                @nMonth = _nMonth_
+	                @nDay = _nDay_
+	                @nHour = _nHour_
+	                @nMinute = _nMinute_
+	                @nSecond = _nSecond_
 	                @nMs = 0
 	            ok
 	        ok
@@ -468,45 +468,45 @@ class stzDateTime from stzObject
 	        StzRaise("Invalid date/time provided!")
 	    ok
 
-    def _SetFromMsSinceEpoch(nMs)
-        aComps = _SetComponentsFromUnixMs(nMs)
-        @nYear = aComps[1]
-        @nMonth = aComps[2]
-        @nDay = aComps[3]
-        @nHour = aComps[4]
-        @nMinute = aComps[5]
-        @nSecond = aComps[6]
-        @nMs = aComps[7]
+    def _SetFromMsSinceEpoch(_nMs_)
+        _aComps_ = _SetComponentsFromUnixMs(_nMs_)
+        @nYear = _aComps_[1]
+        @nMonth = _aComps_[2]
+        @nDay = _aComps_[3]
+        @nHour = _aComps_[4]
+        @nMinute = _aComps_[5]
+        @nSecond = _aComps_[6]
+        @nMs = _aComps_[7]
 
     def _ToMsSinceEpoch()
         return _ToUnixMs(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs)
 
-    def ParseStringDateTime(cDateTime)
-        cDateTime = trim(cDateTime)
+    def ParseStringDateTime(_cDateTime_)
+        _cDateTime_ = trim(_cDateTime_)
 
-        if StzFindFirst(cDateTime, "T") > 0
-            aParts = split(cDateTime, "T")
-            cDatePart = aParts[1]
-            cTimePart = aParts[2]
-            This._ParseDatePart(cDatePart)
-            This._ParseTimePart(cTimePart)
+        if StzFindFirst(_cDateTime_, "T") > 0
+            _aParts_ = split(_cDateTime_, "T")
+            _cDatePart_ = _aParts_[1]
+            _cTimePart_ = _aParts_[2]
+            This._ParseDatePart(_cDatePart_)
+            This._ParseTimePart(_cTimePart_)
             return
         ok
 
-        nSpacePos = StzFindFirst(cDateTime, " ")
-        if nSpacePos > 0
-            cDatePart = StzLeft(cDateTime, nSpacePos - 1)
-            cRest = StzRight(cDateTime, StzLen(cDateTime) - nSpacePos)
+        _nSpacePos_ = StzFindFirst(_cDateTime_, " ")
+        if _nSpacePos_ > 0
+            _cDatePart_ = StzLeft(_cDateTime_, _nSpacePos_ - 1)
+            _cRest_ = StzRight(_cDateTime_, StzLen(_cDateTime_) - _nSpacePos_)
 
-            if This._LooksLikeDatePart(cDatePart)
-                This._ParseDatePart(cDatePart)
-                This._ParseTimePart(cRest)
+            if This._LooksLikeDatePart(_cDatePart_)
+                This._ParseDatePart(_cDatePart_)
+                This._ParseTimePart(_cRest_)
                 return
             ok
         ok
 
-        if StzFindFirst(cDateTime, "-") > 0 or StzFindFirst(cDateTime, "/") > 0
-            This._ParseDatePart(cDateTime)
+        if StzFindFirst(_cDateTime_, "-") > 0 or StzFindFirst(_cDateTime_, "/") > 0
+            This._ParseDatePart(_cDateTime_)
             @nHour = 0
             @nMinute = 0
             @nSecond = 0
@@ -514,48 +514,48 @@ class stzDateTime from stzObject
             return
         ok
 
-        StzRaise("Cannot parse date/time string: " + cDateTime)
+        StzRaise("Cannot parse date/time string: " + _cDateTime_)
 
     def _LooksLikeDatePart(cStr)
         return (StzFindFirst(cStr, "-") > 0 or StzFindFirst(cStr, "/") > 0)
 
-    def _ParseDatePart(cDatePart)
-        aDateParts = []
-        if StzFindFirst(cDatePart, "/") > 0
-            aDateParts = split(cDatePart, "/")
-        but StzFindFirst(cDatePart, "-") > 0
-            aDateParts = split(cDatePart, "-")
+    def _ParseDatePart(_cDatePart_)
+        _aDateParts_ = []
+        if StzFindFirst(_cDatePart_, "/") > 0
+            _aDateParts_ = split(_cDatePart_, "/")
+        but StzFindFirst(_cDatePart_, "-") > 0
+            _aDateParts_ = split(_cDatePart_, "-")
         ok
 
-        if len(aDateParts) != 3
-            StzRaise("Cannot parse date part: " + cDatePart)
+        if len(_aDateParts_) != 3
+            StzRaise("Cannot parse date part: " + _cDatePart_)
         ok
 
-        if StzLen(aDateParts[1]) = 4
-            @nYear = 0+ aDateParts[1]
-            @nMonth = 0+ aDateParts[2]
-            @nDay = 0+ aDateParts[3]
+        if StzLen(_aDateParts_[1]) = 4
+            @nYear = 0+ _aDateParts_[1]
+            @nMonth = 0+ _aDateParts_[2]
+            @nDay = 0+ _aDateParts_[3]
         else
-            @nDay = 0+ aDateParts[1]
-            @nMonth = 0+ aDateParts[2]
-            @nYear = 0+ aDateParts[3]
+            @nDay = 0+ _aDateParts_[1]
+            @nMonth = 0+ _aDateParts_[2]
+            @nYear = 0+ _aDateParts_[3]
         ok
 
-    def _ParseTimePart(cTimePart)
-        cTimePart = trim(cTimePart)
-        bPM = FALSE
-        bAM = FALSE
+    def _ParseTimePart(_cTimePart_)
+        _cTimePart_ = trim(_cTimePart_)
+        _bPM_ = FALSE
+        _bAM_ = FALSE
 
-        if StzUpper(StzRight(cTimePart, 2)) = "PM"
-            bPM = TRUE
-            cTimePart = trim(StzLeft(cTimePart, StzLen(cTimePart) - 2))
-        but StzUpper(StzRight(cTimePart, 2)) = "AM"
-            bAM = TRUE
-            cTimePart = trim(StzLeft(cTimePart, StzLen(cTimePart) - 2))
+        if StzUpper(StzRight(_cTimePart_, 2)) = "PM"
+            _bPM_ = TRUE
+            _cTimePart_ = trim(StzLeft(_cTimePart_, StzLen(_cTimePart_) - 2))
+        but StzUpper(StzRight(_cTimePart_, 2)) = "AM"
+            _bAM_ = TRUE
+            _cTimePart_ = trim(StzLeft(_cTimePart_, StzLen(_cTimePart_) - 2))
         ok
 
-        aTimeParts = split(cTimePart, ":")
-        if len(aTimeParts) < 2
+        _aTimeParts_ = split(_cTimePart_, ":")
+        if len(_aTimeParts_) < 2
             @nHour = 0
             @nMinute = 0
             @nSecond = 0
@@ -563,184 +563,184 @@ class stzDateTime from stzObject
             return
         ok
 
-        @nHour = 0+ aTimeParts[1]
-        @nMinute = 0+ aTimeParts[2]
+        @nHour = 0+ _aTimeParts_[1]
+        @nMinute = 0+ _aTimeParts_[2]
         @nSecond = 0
         @nMs = 0
 
-        if len(aTimeParts) >= 3
-            cSecPart = aTimeParts[3]
-            if StzFindFirst(cSecPart, ".") > 0
-                aSecParts = split(cSecPart, ".")
-                @nSecond = 0+ aSecParts[1]
-                if len(aSecParts) >= 2
-                    @nMs = 0+ aSecParts[2]
+        if len(_aTimeParts_) >= 3
+            _cSecPart_ = _aTimeParts_[3]
+            if StzFindFirst(_cSecPart_, ".") > 0
+                _aSecParts_ = split(_cSecPart_, ".")
+                @nSecond = 0+ _aSecParts_[1]
+                if len(_aSecParts_) >= 2
+                    @nMs = 0+ _aSecParts_[2]
                 ok
             else
-                @nSecond = 0+ cSecPart
+                @nSecond = 0+ _cSecPart_
             ok
         ok
 
-        if bPM and @nHour < 12
+        if _bPM_ and @nHour < 12
             @nHour = @nHour + 12
         ok
-        if bAM and @nHour = 12
+        if _bAM_ and @nHour = 12
             @nHour = 0
         ok
 
-	def GuessDateTimeFormat(cDateTime)
-	    if StzFindFirst(cDateTime, "T") > 0
-	        if StzFindFirst(cDateTime, ".") > 0
+	def GuessDateTimeFormat(_cDateTime_)
+	    if StzFindFirst(_cDateTime_, "T") > 0
+	        if StzFindFirst(_cDateTime_, ".") > 0
 	            return "yyyy-MM-ddTHH:mm:ss.zzz"
-	        but StzFindFirst(cDateTime, ":") > 0
-	            nColons = CountOccurrences(cDateTime, ":")
-	            if nColons = 2
+	        but StzFindFirst(_cDateTime_, ":") > 0
+	            _nColons_ = CountOccurrences(_cDateTime_, ":")
+	            if _nColons_ = 2
 	                return "yyyy-MM-ddTHH:mm:ss"
-	            but nColons = 1
+	            but _nColons_ = 1
 	                return "yyyy-MM-ddTHH:mm"
 	            ok
 	        ok
 	        return "yyyy-MM-dd"
 	    ok
 
-	    cDateSep = ""
-	    if StzFindFirst(cDateTime, "/") > 0
-	        cDateSep = "/"
-	    but StzFindFirst(cDateTime, "-") > 0 and StzFindFirst(cDateTime, " ") = 0
+	    _cDateSep_ = ""
+	    if StzFindFirst(_cDateTime_, "/") > 0
+	        _cDateSep_ = "/"
+	    but StzFindFirst(_cDateTime_, "-") > 0 and StzFindFirst(_cDateTime_, " ") = 0
 	        return "yyyy-MM-dd"
-	    but StzFindFirst(cDateTime, "-") > 0
-	        cDateSep = "-"
+	    but StzFindFirst(_cDateTime_, "-") > 0
+	        _cDateSep_ = "-"
 	    ok
 
-	    if cDateSep = ""
+	    if _cDateSep_ = ""
 	        return NULL
 	    ok
 
-	    aParts = split(cDateTime, " ")
-	    cDatePart = aParts[1]
-	    cTimePart = ""
-	    cAMPM = ""
+	    _aParts_ = split(_cDateTime_, " ")
+	    _cDatePart_ = _aParts_[1]
+	    _cTimePart_ = ""
+	    _cAMPM_ = ""
 
-	    if len(aParts) >= 2
-	        cTimePart = aParts[2]
-	        if len(aParts) >= 3
-	            cAMPM = " AP"
+	    if len(_aParts_) >= 2
+	        _cTimePart_ = _aParts_[2]
+	        if len(_aParts_) >= 3
+	            _cAMPM_ = " AP"
 	        ok
 	    ok
 
-	    aDateParts = split(cDatePart, cDateSep)
-	    if len(aDateParts) != 3
+	    _aDateParts_ = split(_cDatePart_, _cDateSep_)
+	    if len(_aDateParts_) != 3
 	        return NULL
 	    ok
 
-	    cDateFormat = ""
-	    if StzLen(aDateParts[1]) = 4
-	        cDateFormat = "yyyy" + cDateSep + "MM" + cDateSep + "dd"
+	    _cDateFormat_ = ""
+	    if StzLen(_aDateParts_[1]) = 4
+	        _cDateFormat_ = "yyyy" + _cDateSep_ + "MM" + _cDateSep_ + "dd"
 	    else
-	        cDateFormat = "dd" + cDateSep + "MM" + cDateSep + "yyyy"
+	        _cDateFormat_ = "dd" + _cDateSep_ + "MM" + _cDateSep_ + "yyyy"
 	    ok
 
-	    if cTimePart != ""
-	        aTimeParts = split(cTimePart, ":")
-	        cTimeFormat = ""
+	    if _cTimePart_ != ""
+	        _aTimeParts_ = split(_cTimePart_, ":")
+	        _cTimeFormat_ = ""
 
-	        if len(aTimeParts) >= 3
-	            cTimeFormat = "HH:mm:ss"
-	        but len(aTimeParts) = 2
-	            cTimeFormat = "HH:mm"
+	        if len(_aTimeParts_) >= 3
+	            _cTimeFormat_ = "HH:mm:ss"
+	        but len(_aTimeParts_) = 2
+	            _cTimeFormat_ = "HH:mm"
 	        ok
 
-	        if StzFindFirst(cTimePart, ".") > 0
-	            cTimeFormat = cTimeFormat + ".zzz"
+	        if StzFindFirst(_cTimePart_, ".") > 0
+	            _cTimeFormat_ = _cTimeFormat_ + ".zzz"
 	        ok
 
-	        return cDateFormat + " " + cTimeFormat + cAMPM
+	        return _cDateFormat_ + " " + _cTimeFormat_ + _cAMPM_
 	    ok
 
-	    return cDateFormat
+	    return _cDateFormat_
 
-	def TryManualParse(cDateTime)
-	    cDateTime = trim(cDateTime)
+	def TryManualParse(_cDateTime_)
+	    _cDateTime_ = trim(_cDateTime_)
 
-	    nSpacePos = StzFindFirst(cDateTime, " ")
-	    if nSpacePos = 0
-	        return This.TryManualDateParse(cDateTime)
+	    _nSpacePos_ = StzFindFirst(_cDateTime_, " ")
+	    if _nSpacePos_ = 0
+	        return This.TryManualDateParse(_cDateTime_)
 	    ok
 
-	    cDatePart = StzLeft(cDateTime, nSpacePos - 1)
-	    cRest = StzRight(cDateTime, StzLen(cDateTime) - nSpacePos)
+	    _cDatePart_ = StzLeft(_cDateTime_, _nSpacePos_ - 1)
+	    _cRest_ = StzRight(_cDateTime_, StzLen(_cDateTime_) - _nSpacePos_)
 
-	    cTimePart = cRest
-	    bPM = FALSE
-	    if StzUpper(StzRight(cRest, 2)) = "PM"
-	        bPM = TRUE
-	        cTimePart = trim(StzLeft(cRest, StzLen(cRest) - 2))
-	    but StzUpper(StzRight(cRest, 2)) = "AM"
-	        cTimePart = trim(StzLeft(cRest, StzLen(cRest) - 2))
+	    _cTimePart_ = _cRest_
+	    _bPM_ = FALSE
+	    if StzUpper(StzRight(_cRest_, 2)) = "PM"
+	        _bPM_ = TRUE
+	        _cTimePart_ = trim(StzLeft(_cRest_, StzLen(_cRest_) - 2))
+	    but StzUpper(StzRight(_cRest_, 2)) = "AM"
+	        _cTimePart_ = trim(StzLeft(_cRest_, StzLen(_cRest_) - 2))
 	    ok
 
-	    aDateParts = []
-	    if StzFindFirst(cDatePart, "/") > 0
-	        aDateParts = split(cDatePart, "/")
-	    but StzFindFirst(cDatePart, "-") > 0
-	        aDateParts = split(cDatePart, "-")
+	    _aDateParts_ = []
+	    if StzFindFirst(_cDatePart_, "/") > 0
+	        _aDateParts_ = split(_cDatePart_, "/")
+	    but StzFindFirst(_cDatePart_, "-") > 0
+	        _aDateParts_ = split(_cDatePart_, "-")
 	    else
 	        return FALSE
 	    ok
 
-	    if len(aDateParts) != 3
+	    if len(_aDateParts_) != 3
 	        return FALSE
 	    ok
 
-	    nYear = 0
-	    nMonth = 0
-	    nDay = 0
+	    _nYear_ = 0
+	    _nMonth_ = 0
+	    _nDay_ = 0
 
-	    if StzLen(aDateParts[1]) = 4
-	        nYear = 0+ aDateParts[1]
-	        nMonth = 0+ aDateParts[2]
-	        nDay = 0+ aDateParts[3]
+	    if StzLen(_aDateParts_[1]) = 4
+	        _nYear_ = 0+ _aDateParts_[1]
+	        _nMonth_ = 0+ _aDateParts_[2]
+	        _nDay_ = 0+ _aDateParts_[3]
 	    else
-	        nDay = 0+ aDateParts[1]
-	        nMonth = 0+ aDateParts[2]
-	        nYear = 0+ aDateParts[3]
+	        _nDay_ = 0+ _aDateParts_[1]
+	        _nMonth_ = 0+ _aDateParts_[2]
+	        _nYear_ = 0+ _aDateParts_[3]
 	    ok
 
-	    aTimeParts = split(cTimePart, ":")
-	    if len(aTimeParts) < 2
+	    _aTimeParts_ = split(_cTimePart_, ":")
+	    if len(_aTimeParts_) < 2
 	        return FALSE
 	    ok
 
-	    nHour = 0+ aTimeParts[1]
-	    nMinute = 0+ aTimeParts[2]
-	    nSecond = 0
-	    nMs = 0
+	    _nHour_ = 0+ _aTimeParts_[1]
+	    _nMinute_ = 0+ _aTimeParts_[2]
+	    _nSecond_ = 0
+	    _nMs_ = 0
 
-	    if len(aTimeParts) >= 3
-	        cSecPart = aTimeParts[3]
-	        if StzFindFirst(cSecPart, ".") > 0
-	            aSecParts = split(cSecPart, ".")
-	            nSecond = 0+ aSecParts[1]
-	            if len(aSecParts) >= 2
-	                nMs = 0+ aSecParts[2]
+	    if len(_aTimeParts_) >= 3
+	        _cSecPart_ = _aTimeParts_[3]
+	        if StzFindFirst(_cSecPart_, ".") > 0
+	            _aSecParts_ = split(_cSecPart_, ".")
+	            _nSecond_ = 0+ _aSecParts_[1]
+	            if len(_aSecParts_) >= 2
+	                _nMs_ = 0+ _aSecParts_[2]
 	            ok
 	        else
-	            nSecond = 0+ cSecPart
+	            _nSecond_ = 0+ _cSecPart_
 	        ok
 	    ok
 
-	    if bPM and nHour < 12
-	        nHour = nHour + 12
+	    if _bPM_ and _nHour_ < 12
+	        _nHour_ = _nHour_ + 12
 	    ok
 
 	    try
-	        @nYear = nYear
-	        @nMonth = nMonth
-	        @nDay = nDay
-	        @nHour = nHour
-	        @nMinute = nMinute
-	        @nSecond = nSecond
-	        @nMs = nMs
+	        @nYear = _nYear_
+	        @nMonth = _nMonth_
+	        @nDay = _nDay_
+	        @nHour = _nHour_
+	        @nMinute = _nMinute_
+	        @nSecond = _nSecond_
+	        @nMs = _nMs_
 
 	        if This.IsValid()
 	            return TRUE
@@ -752,38 +752,38 @@ class stzDateTime from stzObject
 	    return FALSE
 
 	def TryManualDateParse(cDate)
-	    aDateParts = []
+	    _aDateParts_ = []
 
 	    if StzFindFirst(cDate, "/") > 0
-	        aDateParts = split(cDate, "/")
+	        _aDateParts_ = split(cDate, "/")
 	    but StzFindFirst(cDate, "-") > 0
-	        aDateParts = split(cDate, "-")
+	        _aDateParts_ = split(cDate, "-")
 	    else
 	        return FALSE
 	    ok
 
-	    if len(aDateParts) != 3
+	    if len(_aDateParts_) != 3
 	        return FALSE
 	    ok
 
-	    nYear = 0
-	    nMonth = 0
-	    nDay = 0
+	    _nYear_ = 0
+	    _nMonth_ = 0
+	    _nDay_ = 0
 
-	    if StzLen(aDateParts[1]) = 4
-	        nYear = 0+ aDateParts[1]
-	        nMonth = 0+ aDateParts[2]
-	        nDay = 0+ aDateParts[3]
+	    if StzLen(_aDateParts_[1]) = 4
+	        _nYear_ = 0+ _aDateParts_[1]
+	        _nMonth_ = 0+ _aDateParts_[2]
+	        _nDay_ = 0+ _aDateParts_[3]
 	    else
-	        nDay = 0+ aDateParts[1]
-	        nMonth = 0+ aDateParts[2]
-	        nYear = 0+ aDateParts[3]
+	        _nDay_ = 0+ _aDateParts_[1]
+	        _nMonth_ = 0+ _aDateParts_[2]
+	        _nYear_ = 0+ _aDateParts_[3]
 	    ok
 
 	    try
-	        @nYear = nYear
-	        @nMonth = nMonth
-	        @nDay = nDay
+	        @nYear = _nYear_
+	        @nMonth = _nMonth_
+	        @nDay = _nDay_
 	        @nHour = 0
 	        @nMinute = 0
 	        @nSecond = 0
@@ -798,125 +798,125 @@ class stzDateTime from stzObject
 
 	#--- EPOCH-BASED CREATION METHODS ---#
 
-	def FromSecondsSinceEpoch(nSeconds)
-	    return This.FromSecondsSinceEpochXT(nSeconds, :UnixEpoch)
+	def FromSecondsSinceEpoch(_nSeconds_)
+	    return This.FromSecondsSinceEpochXT(_nSeconds_, :UnixEpoch)
 
-	    def FromSecondsSinceEpochXT(nSeconds, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromSecondsSinceEpochXT(_nSeconds_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
 
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + (nSeconds * 1000))
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + (_nSeconds_ * 1000))
 
-	    def FromEpochSeconds(nSeconds)
-	        return This.FromSecondsSinceEpoch(nSeconds)
+	    def FromEpochSeconds(_nSeconds_)
+	        return This.FromSecondsSinceEpoch(_nSeconds_)
 
-	    def FromUnixTimestamp(nSeconds)
-	        return This.FromSecondsSinceEpoch(nSeconds)
+	    def FromUnixTimestamp(_nSeconds_)
+	        return This.FromSecondsSinceEpoch(_nSeconds_)
 
 	def FromMillisecondsSinceEpoch(nMilliseconds)
 	    return This.FromMillisecondsSinceEpochXT(nMilliseconds, :UnixEpoch)
 
-	    def FromMillisecondsSinceEpochXT(nMilliseconds, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromMillisecondsSinceEpochXT(nMilliseconds, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + nMilliseconds)
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + nMilliseconds)
 
 	    def FromEpochMilliseconds(nMilliseconds)
 	        return This.FromMillisecondsSinceEpoch(nMilliseconds)
 
-	def FromMinutesSinceEpoch(nMinutes)
-	    return This.FromMinutesSinceEpochXT(nMinutes, :UnixEpoch)
+	def FromMinutesSinceEpoch(_nMinutes_)
+	    return This.FromMinutesSinceEpochXT(_nMinutes_, :UnixEpoch)
 
-	    def FromMinutesSinceEpochXT(nMinutes, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromMinutesSinceEpochXT(_nMinutes_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + (nMinutes * 60 * 1000))
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + (_nMinutes_ * 60 * 1000))
 
-	    def FromEpochMinutes(nMinutes)
-	        return This.FromMinutesSinceEpoch(nMinutes)
+	    def FromEpochMinutes(_nMinutes_)
+	        return This.FromMinutesSinceEpoch(_nMinutes_)
 
-	def FromHoursSinceEpoch(nHours)
-	    return This.FromHoursSinceEpochXT(nHours, :UnixEpoch)
+	def FromHoursSinceEpoch(_nHours_)
+	    return This.FromHoursSinceEpochXT(_nHours_, :UnixEpoch)
 
-	    def FromHoursSinceEpochXT(nHours, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromHoursSinceEpochXT(_nHours_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + (nHours * 3600 * 1000))
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + (_nHours_ * 3600 * 1000))
 
-	    def FromEpochHours(nHours)
-	        return This.FromHoursSinceEpoch(nHours)
+	    def FromEpochHours(_nHours_)
+	        return This.FromHoursSinceEpoch(_nHours_)
 
-	def FromDaysSinceEpoch(nDays)
-	    return This.FromDaysSinceEpochXT(nDays, :UnixEpoch)
+	def FromDaysSinceEpoch(_nDays_)
+	    return This.FromDaysSinceEpochXT(_nDays_, :UnixEpoch)
 
-	    def FromDaysSinceEpochXT(nDays, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromDaysSinceEpochXT(_nDays_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + (nDays * 86400 * 1000))
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + (_nDays_ * 86400 * 1000))
 
-	    def FromEpochDays(nDays)
-	        return This.FromDaysSinceEpoch(nDays)
+	    def FromEpochDays(_nDays_)
+	        return This.FromDaysSinceEpoch(_nDays_)
 
-	def FromWeeksSinceEpoch(nWeeks)
-	    return This.FromWeeksSinceEpochXT(nWeeks, :UnixEpoch)
+	def FromWeeksSinceEpoch(_nWeeks_)
+	    return This.FromWeeksSinceEpochXT(_nWeeks_, :UnixEpoch)
 
-	    def FromWeeksSinceEpochXT(nWeeks, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromWeeksSinceEpochXT(_nWeeks_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + (nWeeks * 604800 * 1000))
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + (_nWeeks_ * 604800 * 1000))
 
-	    def FromEpochWeeks(nWeeks)
-	        return This.FromWeeksSinceEpoch(nWeeks)
+	    def FromEpochWeeks(_nWeeks_)
+	        return This.FromWeeksSinceEpoch(_nWeeks_)
 
-	def FromMonthsSinceEpoch(nMonths)
-	    return This.FromMonthsSinceEpochXT(nMonths, :UnixEpoch)
+	def FromMonthsSinceEpoch(_nMonths_)
+	    return This.FromMonthsSinceEpochXT(_nMonths_, :UnixEpoch)
 
-	    def FromMonthsSinceEpochXT(nMonths, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromMonthsSinceEpochXT(_nMonths_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        nYears = floor(nMonths / 12)
-	        nRemainingMonths = nMonths % 12
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        _nYears_ = floor(_nMonths_ / 12)
+	        _nRemainingMonths_ = _nMonths_ % 12
 
-	        @nYear = 1970 + nYears
-	        @nMonth = 1 + nRemainingMonths
+	        @nYear = 1970 + _nYears_
+	        @nMonth = 1 + _nRemainingMonths_
 	        @nDay = 1
 	        @nHour = 0
 	        @nMinute = 0
 	        @nSecond = 0
 	        @nMs = 0
 
-	        if nBaseMs != 0
-	            nCurrentMs = This._ToMsSinceEpoch()
-	            This._SetFromMsSinceEpoch(nCurrentMs + nBaseMs)
+	        if _nBaseMs_ != 0
+	            _nCurrentMs_ = This._ToMsSinceEpoch()
+	            This._SetFromMsSinceEpoch(_nCurrentMs_ + _nBaseMs_)
 	        ok
 
-	    def FromEpochMonths(nMonths)
-	        return This.FromMonthsSinceEpoch(nMonths)
+	    def FromEpochMonths(_nMonths_)
+	        return This.FromMonthsSinceEpoch(_nMonths_)
 
-	def FromYearsSinceEpoch(nYears)
-	    return This.FromYearsSinceEpochXT(nYears, :UnixEpoch)
+	def FromYearsSinceEpoch(_nYears_)
+	    return This.FromYearsSinceEpochXT(_nYears_, :UnixEpoch)
 
-	    def FromYearsSinceEpochXT(nYears, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromYearsSinceEpochXT(_nYears_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nBaseMs = This.GetOriginBase(cOrigin)
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
 
-	        @nYear = 1970 + nYears
+	        @nYear = 1970 + _nYears_
 	        @nMonth = 1
 	        @nDay = 1
 	        @nHour = 0
@@ -924,42 +924,42 @@ class stzDateTime from stzObject
 	        @nSecond = 0
 	        @nMs = 0
 
-	        if nBaseMs != 0
-	            nCurrentMs = This._ToMsSinceEpoch()
-	            This._SetFromMsSinceEpoch(nCurrentMs + nBaseMs)
+	        if _nBaseMs_ != 0
+	            _nCurrentMs_ = This._ToMsSinceEpoch()
+	            This._SetFromMsSinceEpoch(_nCurrentMs_ + _nBaseMs_)
 	        ok
 
-	    def FromEpochYears(nYears)
-	        return This.FromYearsSinceEpoch(nYears)
+	    def FromEpochYears(_nYears_)
+	        return This.FromYearsSinceEpoch(_nYears_)
 
 	#--- NATURAL LANGUAGE EPOCH CREATION ---#
 
-	def FromNaturalEpoch(cNatural)
-	    return This.FromNaturalEpochXT(cNatural, :UnixEpoch)
+	def FromNaturalEpoch(_cNatural_)
+	    return This.FromNaturalEpochXT(_cNatural_, :UnixEpoch)
 
-	    def FromNaturalEpochXT(cNatural, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromNaturalEpochXT(_cNatural_, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nDurationMs = This.ParseNaturalDuration(cNatural)
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+	        _nDurationMs_ = This.ParseNaturalDuration(_cNatural_)
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + _nDurationMs_)
 
-	    def FromNaturalSinceEpoch(cNatural)
-	        return This.FromNaturalEpoch(cNatural)
+	    def FromNaturalSinceEpoch(_cNatural_)
+	        return This.FromNaturalEpoch(_cNatural_)
 
 	#--- COMBINED EPOCH CREATION WITH HASH ---#
 
 	def FromEpochHash(aHash)
 	    return This.FromEpochHashXT(aHash, :UnixEpoch)
 
-	    def FromEpochHashXT(aHash, cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	    def FromEpochHashXT(aHash, _cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nDurationMs = This.HashToMilliseconds(aHash)
-	        nBaseMs = This.GetOriginBase(cOrigin)
-	        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+	        _nDurationMs_ = This.HashToMilliseconds(aHash)
+	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+	        This._SetFromMsSinceEpoch(_nBaseMs_ + _nDurationMs_)
 
 	    def FromEpochDuration(aHash)
 	        return This.FromEpochHash(aHash)
@@ -980,9 +980,9 @@ class stzDateTime from stzObject
 
     #--- ARITHMETIC OPERATIONS ---#
 
-    def AddDays(nDays)
+    def AddDays(_nDays_)
         pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
-        pNew = StzEngineDateTimeAddDays(pHandle, nDays)
+        pNew = StzEngineDateTimeAddDays(pHandle, _nDays_)
         @nYear = StzEngineDateTimeYear(pNew)
         @nMonth = StzEngineDateTimeMonth(pNew)
         @nDay = StzEngineDateTimeDay(pNew)
@@ -993,35 +993,35 @@ class stzDateTime from stzObject
         StzEngineDateTimeFree(pNew)
         return This.ToString()
 
-    def AddDaysQ(nDays)
-        This.AddDays(nDays)
+    def AddDaysQ(_nDays_)
+        This.AddDays(_nDays_)
         return This
 
-    def AddMonths(nMonths)
-        aResult = _DateAddMonths(@nYear, @nMonth, @nDay, nMonths)
-        @nYear = aResult[1]
-        @nMonth = aResult[2]
-        @nDay = aResult[3]
+    def AddMonths(_nMonths_)
+        _aResult_ = _DateAddMonths(@nYear, @nMonth, @nDay, _nMonths_)
+        @nYear = _aResult_[1]
+        @nMonth = _aResult_[2]
+        @nDay = _aResult_[3]
         return This.ToString()
 
-    def AddMonthsQ(nMonths)
-        This.AddMonths(nMonths)
+    def AddMonthsQ(_nMonths_)
+        This.AddMonths(_nMonths_)
         return This
 
-    def AddYears(nYears)
-        aResult = _DateAddYears(@nYear, @nMonth, @nDay, nYears)
-        @nYear = aResult[1]
-        @nMonth = aResult[2]
-        @nDay = aResult[3]
+    def AddYears(_nYears_)
+        _aResult_ = _DateAddYears(@nYear, @nMonth, @nDay, _nYears_)
+        @nYear = _aResult_[1]
+        @nMonth = _aResult_[2]
+        @nDay = _aResult_[3]
         return This.ToString()
 
-    def AddYearsQ(nYears)
-        This.AddYears(nYears)
+    def AddYearsQ(_nYears_)
+        This.AddYears(_nYears_)
         return This
 
-    def AddSeconds(nSeconds)
+    def AddSeconds(_nSeconds_)
         pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
-        pNew = StzEngineDateTimeAddSeconds(pHandle, nSeconds)
+        pNew = StzEngineDateTimeAddSeconds(pHandle, _nSeconds_)
         @nYear = StzEngineDateTimeYear(pNew)
         @nMonth = StzEngineDateTimeMonth(pNew)
         @nDay = StzEngineDateTimeDay(pNew)
@@ -1032,67 +1032,67 @@ class stzDateTime from stzObject
         StzEngineDateTimeFree(pNew)
         return This.ToString()
 
-    def AddSecondsQ(nSeconds)
-        This.AddSeconds(nSeconds)
+    def AddSecondsQ(_nSeconds_)
+        This.AddSeconds(_nSeconds_)
         return This
 
-    def AddMinutes(nMinutes)
-        return This.AddSeconds(nMinutes * 60)
+    def AddMinutes(_nMinutes_)
+        return This.AddSeconds(_nMinutes_ * 60)
 
-    def AddMinutesQ(nMinutes)
-        This.AddMinutes(nMinutes)
+    def AddMinutesQ(_nMinutes_)
+        This.AddMinutes(_nMinutes_)
         return This
 
-    def AddHours(nHours)
-        return This.AddSeconds(nHours * 3600)
+    def AddHours(_nHours_)
+        return This.AddSeconds(_nHours_ * 3600)
 
-    def AddHoursQ(nHours)
-        This.AddHours(nHours)
+    def AddHoursQ(_nHours_)
+        This.AddHours(_nHours_)
         return This
 
     def AddMilliseconds(nMsToAdd)
-        nTotalMs = @nMs + nMsToAdd
-        nExtraSecs = floor(nTotalMs / 1000)
-        @nMs = nTotalMs % 1000
+        _nTotalMs_ = @nMs + nMsToAdd
+        _nExtraSecs_ = floor(_nTotalMs_ / 1000)
+        @nMs = _nTotalMs_ % 1000
         if @nMs < 0
             @nMs += 1000
-            nExtraSecs -= 1
+            _nExtraSecs_ -= 1
         ok
-        if nExtraSecs != 0
-            This.AddSeconds(nExtraSecs)
+        if _nExtraSecs_ != 0
+            This.AddSeconds(_nExtraSecs_)
         ok
         return This.ToStringXT("yyyy-MM-dd HH:mm:ss.zzz")
 
-    def AddMillisecondsQ(nMs)
-        This.AddMilliseconds(nMs)
+    def AddMillisecondsQ(_nMs_)
+        This.AddMilliseconds(_nMs_)
         return This
 
-    def SubtractDays(nDays)
-        return This.AddDays(-nDays)
+    def SubtractDays(_nDays_)
+        return This.AddDays(-_nDays_)
 
-    def SubtractDaysQ(nDays)
-        This.SubtractDays(nDays)
+    def SubtractDaysQ(_nDays_)
+        This.SubtractDays(_nDays_)
         return This
 
-    def SubtractMonths(nMonths)
-        return This.AddMonths(-nMonths)
+    def SubtractMonths(_nMonths_)
+        return This.AddMonths(-_nMonths_)
 
-    def SubtractMonthsQ(nMonths)
-        This.SubtractMonths(nMonths)
+    def SubtractMonthsQ(_nMonths_)
+        This.SubtractMonths(_nMonths_)
         return This
 
-    def SubtractYears(nYears)
-        return This.AddYears(-nYears)
+    def SubtractYears(_nYears_)
+        return This.AddYears(-_nYears_)
 
-    def SubtractYearsQ(nYears)
-        This.SubtractYears(nYears)
+    def SubtractYearsQ(_nYears_)
+        This.SubtractYears(_nYears_)
         return This
 
-    def SubtractSeconds(nSeconds)
-        return This.AddSeconds(-nSeconds)
+    def SubtractSeconds(_nSeconds_)
+        return This.AddSeconds(-_nSeconds_)
 
-    def SubtractSecondsQ(nSeconds)
-        This.SubtractSeconds(nSeconds)
+    def SubtractSecondsQ(_nSeconds_)
+        This.SubtractSeconds(_nSeconds_)
         return This
 
     def SubtractMilliSeconds(nMilliSeconds)
@@ -1102,112 +1102,112 @@ class stzDateTime from stzObject
         This.SubtractMilliSeconds(nMilliSeconds)
         return This
 
-    def SubtractHours(nHours)
-	This.AddHours(-nHours)
+    def SubtractHours(_nHours_)
+	This.AddHours(-_nHours_)
 
-	def SubtractHoursQ(nHours)
-		This.AddHours(-nHours)
+	def SubtractHoursQ(_nHours_)
+		This.AddHours(-_nHours_)
 		return This
 
-    def SubtractMinutes(nMinutes)
-	This.AddMinutes(-nMinutes)
+    def SubtractMinutes(_nMinutes_)
+	This.AddMinutes(-_nMinutes_)
 
-	def SubtractMinutesQ(nMinutes)
-		This.AddMinutes(-nMinutes)
+	def SubtractMinutesQ(_nMinutes_)
+		This.AddMinutes(-_nMinutes_)
 		return This
 
-	def AddNatural(cExpr)
-	    cExpr = StzLower(trim(cExpr))
+	def AddNatural(_cExpr_)
+	    _cExpr_ = StzLower(trim(_cExpr_))
 
-		Rx = new stzRegex(pat(:DateTime))
-	    if Rx.Match(cExpr)
+		_Rx_ = new stzRegex(pat(:DateTime))
+	    if _Rx_.Match(_cExpr_)
 	        return
 	    ok
 
-	    aParts = split(cExpr, " ")
+	    _aParts_ = split(_cExpr_, " ")
 
-	    i = 1
-	    while i <= len(aParts)
-	        if isNumber(0+ aParts[i])
-	            nValue = 0+ aParts[i]
-	            if i < len(aParts)
-	                cUnit = StzLower(aParts[i+1])
+	    _i_ = 1
+	    while _i_ <= len(_aParts_)
+	        if isNumber(0+ _aParts_[_i_])
+	            _nValue_ = 0+ _aParts_[_i_]
+	            if _i_ < len(_aParts_)
+	                _cUnit_ = StzLower(_aParts_[_i_+1])
 
-	                if cUnit = "day" or cUnit = "days"
-	                    This.AddDays(nValue)
+	                if _cUnit_ = "day" or _cUnit_ = "days"
+	                    This.AddDays(_nValue_)
 
-	                but cUnit = "month" or cUnit = "months"
-	                    This.AddMonths(nValue)
+	                but _cUnit_ = "month" or _cUnit_ = "months"
+	                    This.AddMonths(_nValue_)
 
-	                but cUnit = "year" or cUnit = "years"
-	                    This.AddYears(nValue)
+	                but _cUnit_ = "year" or _cUnit_ = "years"
+	                    This.AddYears(_nValue_)
 
-	                but cUnit = "hour" or cUnit = "hours"
-	                    This.AddHours(nValue)
+	                but _cUnit_ = "hour" or _cUnit_ = "hours"
+	                    This.AddHours(_nValue_)
 
-	                but cUnit = "minute" or cUnit = "minutes"
-	                    This.AddMinutes(nValue)
+	                but _cUnit_ = "minute" or _cUnit_ = "minutes"
+	                    This.AddMinutes(_nValue_)
 
-	                but cUnit = "second" or cUnit = "seconds"
-	                    This.AddSeconds(nValue)
+	                but _cUnit_ = "second" or _cUnit_ = "seconds"
+	                    This.AddSeconds(_nValue_)
 
-	                but cUnit = "millisecond" or cUnit = "milliseconds"
-	                    This.AddMilliseconds(nValue)
+	                but _cUnit_ = "millisecond" or _cUnit_ = "milliseconds"
+	                    This.AddMilliseconds(_nValue_)
 	                ok
 
-	                i += 2
+	                _i_ += 2
 	            else
-	                i++
+	                _i_++
 	            ok
 	        else
-	            i++
+	            _i_++
 	        ok
 	    end
 
-	def SubtractNatural(cExpr)
-	    cExpr = StzLower(trim(cExpr))
+	def SubtractNatural(_cExpr_)
+	    _cExpr_ = StzLower(trim(_cExpr_))
 
-	    if StzFindFirst(cExpr, "-") > 0 or StzFindFirst(cExpr, ":") > 0 or StzFindFirst(cExpr, "T") > 0
+	    if StzFindFirst(_cExpr_, "-") > 0 or StzFindFirst(_cExpr_, ":") > 0 or StzFindFirst(_cExpr_, "T") > 0
 	        return
 	    ok
 
-	    aParts = split(cExpr, " ")
+	    _aParts_ = split(_cExpr_, " ")
 
-	    i = 1
-	    while i <= len(aParts)
-	        if isNumber(0+ aParts[i])
-	            nValue = 0+ aParts[i]
-	            if i < len(aParts)
-	                cUnit = StzLower(aParts[i+1])
+	    _i_ = 1
+	    while _i_ <= len(_aParts_)
+	        if isNumber(0+ _aParts_[_i_])
+	            _nValue_ = 0+ _aParts_[_i_]
+	            if _i_ < len(_aParts_)
+	                _cUnit_ = StzLower(_aParts_[_i_+1])
 
-	                if cUnit = "day" or cUnit = "days"
-	                    This.SubtractDays(nValue)
+	                if _cUnit_ = "day" or _cUnit_ = "days"
+	                    This.SubtractDays(_nValue_)
 
-	                but cUnit = "month" or cUnit = "months"
-	                    This.SubtractMonths(nValue)
+	                but _cUnit_ = "month" or _cUnit_ = "months"
+	                    This.SubtractMonths(_nValue_)
 
-	                but cUnit = "year" or cUnit = "years"
-	                    This.SubtractYears(nValue)
+	                but _cUnit_ = "year" or _cUnit_ = "years"
+	                    This.SubtractYears(_nValue_)
 
-	                but cUnit = "hour" or cUnit = "hours"
-	                    This.SubtractHours(nValue)
+	                but _cUnit_ = "hour" or _cUnit_ = "hours"
+	                    This.SubtractHours(_nValue_)
 
-	                but cUnit = "minute" or cUnit = "minutes"
-	                    This.SubtractMinutes(nValue)
+	                but _cUnit_ = "minute" or _cUnit_ = "minutes"
+	                    This.SubtractMinutes(_nValue_)
 
-	                but cUnit = "second" or cUnit = "seconds"
-	                    This.SubtractSeconds(nValue)
+	                but _cUnit_ = "second" or _cUnit_ = "seconds"
+	                    This.SubtractSeconds(_nValue_)
 
-	                but cUnit = "millisecond" or cUnit = "milliseconds"
-	                    This.SubtractMilliSeconds(nValue)
+	                but _cUnit_ = "millisecond" or _cUnit_ = "milliseconds"
+	                    This.SubtractMilliSeconds(_nValue_)
 	                ok
 
-	                i += 2
+	                _i_ += 2
 	            else
-	                i++
+	                _i_++
 	            ok
 	        else
-	            i++
+	            _i_++
 	        ok
 	    end
 
@@ -1234,8 +1234,8 @@ class stzDateTime from stzObject
         ok
         return This.SecsTo(poOtherDateTime) = 0
 
-        def IsEqual(oOtherDateTime)
-            return This.IsEqualTo(oOtherDateTime)
+        def IsEqual(_oOtherDateTime_)
+            return This.IsEqualTo(_oOtherDateTime_)
 
     def IsBetween(poStartDateTime, poEndDateTime)
         if CheckParams()
@@ -1259,13 +1259,13 @@ class stzDateTime from stzObject
 
     def IsNow()
         pNow = StzEngineDateTimeNow()
-        nNowUnix = StzEngineDateTimeToUnix(pNow)
+        _nNowUnix_ = StzEngineDateTimeToUnix(pNow)
         StzEngineDateTimeFree(pNow)
         pThis = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
-        nThisUnix = StzEngineDateTimeToUnix(pThis)
+        _nThisUnix_ = StzEngineDateTimeToUnix(pThis)
         StzEngineDateTimeFree(pThis)
-        nDiff = abs(nThisUnix - nNowUnix)
-        return nDiff < 60
+        _nDiff_ = abs(_nThisUnix_ - _nNowUnix_)
+        return _nDiff_ < 60
 
     def IsToday()
         return This.DateQ().IsToday()
@@ -1280,112 +1280,112 @@ class stzDateTime from stzObject
 
     def ToUnixTimeStamp()
         pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
-        nUnix = StzEngineDateTimeToUnix(pHandle)
+        _nUnix_ = StzEngineDateTimeToUnix(pHandle)
         StzEngineDateTimeFree(pHandle)
-        return nUnix
+        return _nUnix_
 
     def ToUnixTimeStampMs()
         return This._ToMsSinceEpoch()
 
 	#--- EPOCH CONVERSIONS ---#
 
-	def ToSecondsSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToSecondsSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nCurrentMs = This._ToMsSinceEpoch()
-	        nOriginMs = This.GetOriginBase(cOrigin)
-	        return floor((nCurrentMs - nOriginMs) / 1000)
+	        _nCurrentMs_ = This._ToMsSinceEpoch()
+	        _nOriginMs_ = This.GetOriginBase(_cOrigin_)
+	        return floor((_nCurrentMs_ - _nOriginMs_) / 1000)
 
-	def ToMillisecondsSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToMillisecondsSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        nCurrentMs = This._ToMsSinceEpoch()
-	        nOriginMs = This.GetOriginBase(cOrigin)
-	        return nCurrentMs - nOriginMs
+	        _nCurrentMs_ = This._ToMsSinceEpoch()
+	        _nOriginMs_ = This.GetOriginBase(_cOrigin_)
+	        return _nCurrentMs_ - _nOriginMs_
 
-	def ToMinutesSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToMinutesSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 60)
+	        return floor(This.ToSecondsSinceEpochXT(_cOrigin_) / 60)
 
-	def ToHoursSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToHoursSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 3600)
+	        return floor(This.ToSecondsSinceEpochXT(_cOrigin_) / 3600)
 
-	def ToDaysSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToDaysSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 86400)
+	        return floor(This.ToSecondsSinceEpochXT(_cOrigin_) / 86400)
 
-	def ToWeeksSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToWeeksSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 604800)
+	        return floor(This.ToSecondsSinceEpochXT(_cOrigin_) / 604800)
 
-	def ToMonthsSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToMonthsSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        aOriginComps = _SetComponentsFromUnixMs(This.GetOriginBase(cOrigin))
-	        nOriginYear = aOriginComps[1]
-	        nOriginMonth = aOriginComps[2]
+	        _aOriginComps_ = _SetComponentsFromUnixMs(This.GetOriginBase(_cOrigin_))
+	        _nOriginYear_ = _aOriginComps_[1]
+	        _nOriginMonth_ = _aOriginComps_[2]
 
-	        nYears = @nYear - nOriginYear
-	        nMonths = @nMonth - nOriginMonth
+	        _nYears_ = @nYear - _nOriginYear_
+	        _nMonths_ = @nMonth - _nOriginMonth_
 
-	        return (nYears * 12) + nMonths
+	        return (_nYears_ * 12) + _nMonths_
 
-	def ToYearsSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToYearsSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        aOriginComps = _SetComponentsFromUnixMs(This.GetOriginBase(cOrigin))
-	        nOriginYear = aOriginComps[1]
-	        nOriginMonth = aOriginComps[2]
-	        nOriginDay = aOriginComps[3]
+	        _aOriginComps_ = _SetComponentsFromUnixMs(This.GetOriginBase(_cOrigin_))
+	        _nOriginYear_ = _aOriginComps_[1]
+	        _nOriginMonth_ = _aOriginComps_[2]
+	        _nOriginDay_ = _aOriginComps_[3]
 
-	        nYears = @nYear - nOriginYear
+	        _nYears_ = @nYear - _nOriginYear_
 
-	        if @nMonth < nOriginMonth or
-	           (@nMonth = nOriginMonth and @nDay < nOriginDay)
-	            nYears--
+	        if @nMonth < _nOriginMonth_ or
+	           (@nMonth = _nOriginMonth_ and @nDay < _nOriginDay_)
+	            _nYears_--
 	        ok
 
-	        return nYears
+	        return _nYears_
 
-	def ToDecadesSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToDecadesSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToYearsSinceEpochXT(cOrigin) / 10)
+	        return floor(This.ToYearsSinceEpochXT(_cOrigin_) / 10)
 
-	def ToCenturiesSinceEpochXT(cOrigin)
-		if cOrigin = ""
-			cOrigin = :UnixEpoch
+	def ToCenturiesSinceEpochXT(_cOrigin_)
+		if _cOrigin_ = ""
+			_cOrigin_ = :UnixEpoch
 		ok
-	        return floor(This.ToYearsSinceEpochXT(cOrigin) / 100)
+	        return floor(This.ToYearsSinceEpochXT(_cOrigin_) / 100)
 
     #--- TIME ZONE OPERATIONS ---#
 
     def ToUTCQ()
-        oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
-        return oNewDateTime
+        _oNewDateTime_ = new stzDateTime("")
+        _oNewDateTime_.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        return _oNewDateTime_
 
 		def ToUTC()
 			return This.ToUTCQ().Content()
 
     def ToLocalTimeQ()
-        oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
-        return oNewDateTime
+        _oNewDateTime_ = new stzDateTime("")
+        _oNewDateTime_.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        return _oNewDateTime_
 
 		def ToLocalTime()
 			return This.ToLocalTimeQ().Content()
@@ -1453,88 +1453,88 @@ class stzDateTime from stzObject
 		def DateTime()
 			return This.ToStringXT("")
 
-	def ToStringXT(cFormat)
-	    if NOT isString(cFormat)
+	def ToStringXT(_cFormat_)
+	    if NOT isString(_cFormat_)
 	        StzRaise("Incorrect param type! cFormat must be a string.")
 	    ok
 
-	    if cFormat = ""
-	        cFormat = $cDefaultDateTimeFormat
+	    if _cFormat_ = ""
+	        _cFormat_ = $cDefaultDateTimeFormat
 	        if @nMs > 0
-	            cFormat = "yyyy-MM-dd HH:mm:ss.zzz"
+	            _cFormat_ = "yyyy-MM-dd HH:mm:ss.zzz"
 	        ok
 	    ok
 
-	    acNamedPatterns = [
+	    _acNamedPatterns_ = [
 	        "simple", "simple12h", "simple24h",
 	        "long", "long12h", "long24h",
 	        "short", "short12h", "short24h",
 	        "medium", "medium12h", "medium24h",
 	    ]
 
-	    if StzFindFirst(acNamedPatterns, cFormat) > 0
+	    if StzFindFirst(_acNamedPatterns_, _cFormat_) > 0
 
-	        if cFormat = "simple" or cFormat = "simple12h"
+	        if _cFormat_ = "simple" or _cFormat_ = "simple12h"
 	            return This.ToSimple()
 
-	        but cFormat = "simple24h"
+	        but _cFormat_ = "simple24h"
 	            return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, "dd/MM/yyyy HH:mm")
 
-	        but cFormat = "long" or cFormat = "long12h"
+	        but _cFormat_ = "long" or _cFormat_ = "long12h"
 	            return This.ToLong()
 
-	        but cFormat = "long24h"
+	        but _cFormat_ = "long24h"
 	            return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, "dddd, MMMM d, yyyy HH:mm:ss")
 
-	        but cFormat = "short" or cFormat = "short12h"
-	            nHour12 = StzConvertTo12Hour(@nHour)
-	            cAmPm = StzGetAmPmText(@nHour)
-	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + nHour12 + ":" +
-	                   _PadLeft("" + @nMinute, 2, "0") + " " + cAmPm
+	        but _cFormat_ = "short" or _cFormat_ = "short12h"
+	            _nHour12_ = StzConvertTo12Hour(@nHour)
+	            _cAMPM_ = StzGetAmPmText(@nHour)
+	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + _nHour12_ + ":" +
+	                   _PadLeft("" + @nMinute, 2, "0") + " " + _cAMPM_
 
-	        but cFormat = "short24h"
+	        but _cFormat_ = "short24h"
 	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
 
-	        but cFormat = "medium" or cFormat = "medium12h"
-	            nHour12 = StzConvertTo12Hour(@nHour)
-	            cAmPm = StzGetAmPmText(@nHour)
+	        but _cFormat_ = "medium" or _cFormat_ = "medium12h"
+	            _nHour12_ = StzConvertTo12Hour(@nHour)
+	            _cAMPM_ = StzGetAmPmText(@nHour)
 	            pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
-	            cDayName = StzEngineDateDayName(pHandle)
-	            cMonthName = StzEngineDateMonthName(pHandle)
+	            _cDayName_ = StzEngineDateDayName(pHandle)
+	            _cMonthName_ = StzEngineDateMonthName(pHandle)
 	            StzEngineDateFree(pHandle)
-	            return StzLeft(cDayName, 3) + ", " + StzLeft(cMonthName, 3) + " " + @nDay + " " + nHour12 + ":" +
-	                   _PadLeft("" + @nMinute, 2, "0") + " " + cAmPm
+	            return StzLeft(_cDayName_, 3) + ", " + StzLeft(_cMonthName_, 3) + " " + @nDay + " " + _nHour12_ + ":" +
+	                   _PadLeft("" + @nMinute, 2, "0") + " " + _cAMPM_
 
-	        but cFormat = "medium24h"
+	        but _cFormat_ = "medium24h"
 	            pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
-	            cDayName = StzEngineDateDayName(pHandle)
-	            cMonthName = StzEngineDateMonthName(pHandle)
+	            _cDayName_ = StzEngineDateDayName(pHandle)
+	            _cMonthName_ = StzEngineDateMonthName(pHandle)
 	            StzEngineDateFree(pHandle)
-	            return StzLeft(cDayName, 3) + ", " + StzLeft(cMonthName, 3) + " " + @nDay + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
+	            return StzLeft(_cDayName_, 3) + ", " + StzLeft(_cMonthName_, 3) + " " + @nDay + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
 	        ok
 
 	    ok
 
-	    cQtFormat = StzGetDateTimeFormat(cFormat)
+	    _cQtFormat_ = StzGetDateTimeFormat(_cFormat_)
 
-	    if StzFindFirst(StzUpper(cQtFormat), "AP") > 0
-	        cFormatWithout12h = StzReplace(cQtFormat, "AP", "")
-	        cFormatWithout12h = StzReplace(cFormatWithout12h, "ap", "")
-	        cFormatWithout12h = trim(cFormatWithout12h)
+	    if StzFindFirst(StzUpper(_cQtFormat_), "AP") > 0
+	        _cFormatWithout12h_ = StzReplace(_cQtFormat_, "AP", "")
+	        _cFormatWithout12h_ = StzReplace(_cFormatWithout12h_, "ap", "")
+	        _cFormatWithout12h_ = trim(_cFormatWithout12h_)
 
-	        nHour12 = StzConvertTo12Hour(@nHour)
+	        _nHour12_ = StzConvertTo12Hour(@nHour)
 
-	        cFormatFinal = StzReplace(cFormatWithout12h, "hh", _PadLeft("" + nHour12, 2, "0"))
-	        if cFormatFinal = cFormatWithout12h
-	            cFormatFinal = StzReplace(cFormatWithout12h, "h", "" + nHour12)
+	        _cFormatFinal_ = StzReplace(_cFormatWithout12h_, "hh", _PadLeft("" + _nHour12_, 2, "0"))
+	        if _cFormatFinal_ = _cFormatWithout12h_
+	            _cFormatFinal_ = StzReplace(_cFormatWithout12h_, "h", "" + _nHour12_)
 	        ok
 
-	        cResult = _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cFormatFinal)
-	        cAmPm = StzGetAmPmText(@nHour)
+	        _cResult_ = _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, _cFormatFinal_)
+	        _cAMPM_ = StzGetAmPmText(@nHour)
 
-	        return cResult + " " + cAmPm
+	        return _cResult_ + " " + _cAMPM_
 	    else
-	        return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cQtFormat)
+	        return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, _cQtFormat_)
 	    ok
 
 	# Short formats
@@ -1760,21 +1760,21 @@ class stzDateTime from stzObject
         return This.ToStringXT("ddd MMM d HH:mm:ss yyyy")
 
 	def ToSimple()
-	    oLocale = new stzLocale("")
-	    nHour12 = @nHour % 12
-	    if nHour12 = 0
-	        nHour12 = 12
+	    _oLocale_ = new stzLocale("")
+	    _nHour12_ = @nHour % 12
+	    if _nHour12_ = 0
+	        _nHour12_ = 12
 	    ok
 
-	    cResult = _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + "/" + "" + @nYear + " " + nHour12 + ":" +
+	    _cResult_ = _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + "/" + "" + @nYear + " " + _nHour12_ + ":" +
 	              _PadLeft("" + @nMinute, 2, "0")
 
 	    if @nHour >= 12
-	        cResult += " " + oLocale.pmText()
+	        _cResult_ += " " + _oLocale_.pmText()
 	    else
-	        cResult += " " + oLocale.amText()
+	        _cResult_ += " " + _oLocale_.amText()
 	    ok
-	    return cResult
+	    return _cResult_
 
 
 		def ToSimple12h()
@@ -1784,27 +1784,27 @@ class stzDateTime from stzObject
 		    return This.ToStringXT(:Simple24h)
 
 	def ToLong()
-	    oLocale = new stzLocale("")
-	    nHour12 = @nHour % 12
-	    if nHour12 = 0
-	        nHour12 = 12
+	    _oLocale_ = new stzLocale("")
+	    _nHour12_ = @nHour % 12
+	    if _nHour12_ = 0
+	        _nHour12_ = 12
 	    ok
 
 	    pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
-	    cDayName = StzEngineDateDayName(pHandle)
-	    cMonthName = StzEngineDateMonthName(pHandle)
+	    _cDayName_ = StzEngineDateDayName(pHandle)
+	    _cMonthName_ = StzEngineDateMonthName(pHandle)
 	    StzEngineDateFree(pHandle)
 
-	    cResult = cDayName + ", " + cMonthName + " " + @nDay + ", " + @nYear + " " + nHour12 + ":" +
+	    _cResult_ = _cDayName_ + ", " + _cMonthName_ + " " + @nDay + ", " + @nYear + " " + _nHour12_ + ":" +
 	              _PadLeft("" + @nMinute, 2, "0") + ":" +
 	              _PadLeft("" + @nSecond, 2, "0")
 
 	    if @nHour >= 12
-	        cResult += " " + oLocale.pmText()
+	        _cResult_ += " " + _oLocale_.pmText()
 	    else
-	        cResult += " " + oLocale.amText()
+	        _cResult_ += " " + _oLocale_.amText()
 	    ok
-	    return cResult
+	    return _cResult_
 
 		def ToLong12h()
 			return This.ToLong()
@@ -1816,98 +1816,98 @@ class stzDateTime from stzObject
 		return This.ToStringXT(:LongDate)
 
 	def ToString12h()
-	    nHour12 = StzConvertTo12Hour(@nHour)
-	    cAmPm = StzGetAmPmText(@nHour)
+	    _nHour12_ = StzConvertTo12Hour(@nHour)
+	    _cAMPM_ = StzGetAmPmText(@nHour)
 
-	    return _PadLeft("" + @nYear, 4, "0") + "-" + _PadLeft("" + @nMonth, 2, "0") + "-" + _PadLeft("" + @nDay, 2, "0") + " " + nHour12 + ":" +
+	    return _PadLeft("" + @nYear, 4, "0") + "-" + _PadLeft("" + @nMonth, 2, "0") + "-" + _PadLeft("" + @nDay, 2, "0") + " " + _nHour12_ + ":" +
 	           _PadLeft("" + @nMinute, 2, "0") + ":" +
-	           _PadLeft("" + @nSecond, 2, "0") + " " + cAmPm
+	           _PadLeft("" + @nSecond, 2, "0") + " " + _cAMPM_
 
     #--- HUMAN-READABLE ---#
 
     def ToHuman()
-		cDateHuman = This.DateQ().ToHuman()
-        cTimeHuman = This.TimeQ().ToHuman()
+		_cDateHuman_ = This.DateQ().ToHuman()
+        _cTimeHuman_ = This.TimeQ().ToHuman()
 
-        return cDateHuman + " at " + cTimeHuman
+        return _cDateHuman_ + " at " + _cTimeHuman_
 
 	def ToRelative()
-	    oNow = new stzDateTime("")
+	    _oNow_ = new stzDateTime("")
 
 	    pThis = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
-	    nThisUnix = StzEngineDateTimeToUnix(pThis)
+	    _nThisUnix_ = StzEngineDateTimeToUnix(pThis)
 	    StzEngineDateTimeFree(pThis)
 
-	    pNow = StzEngineDateTimeNew(oNow.Year(), oNow.Month(), oNow.Day(), oNow.Hours(), oNow.Minutes(), oNow.Seconds())
-	    nNowUnix = StzEngineDateTimeToUnix(pNow)
+	    pNow = StzEngineDateTimeNew(_oNow_.Year(), _oNow_.Month(), _oNow_.Day(), _oNow_.Hours(), _oNow_.Minutes(), _oNow_.Seconds())
+	    _nNowUnix_ = StzEngineDateTimeToUnix(pNow)
 	    StzEngineDateTimeFree(pNow)
 
-	    nSeconds = nThisUnix - nNowUnix
+	    _nSeconds_ = _nThisUnix_ - _nNowUnix_
 
-	    nAbsSecs = abs(nSeconds)
+	    _nAbsSecs_ = abs(_nSeconds_)
 
-	    if nAbsSecs < 60
+	    if _nAbsSecs_ < 60
 	        return "just now"
 
-	    but nSeconds < 0
-	        if nAbsSecs < 3600
-	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)
-	            return '' + nMinutes + " minute" + Iff(nMinutes=1, "", "s") + " ago"
+	    but _nSeconds_ < 0
+	        if _nAbsSecs_ < 3600
+	            _nMinutes_ = floor(_nAbsSecs_ / 60.0 + 0.5)
+	            return '' + _nMinutes_ + " minute" + Iff(_nMinutes_=1, "", "s") + " ago"
 
-	        but nAbsSecs < 86400
-	            nHours = floor(nAbsSecs / 3600.0 + 0.5)
-	            return '' + nHours + " hour" + Iff(nHours=1, "", "s") + " ago"
+	        but _nAbsSecs_ < 86400
+	            _nHours_ = floor(_nAbsSecs_ / 3600.0 + 0.5)
+	            return '' + _nHours_ + " hour" + Iff(_nHours_=1, "", "s") + " ago"
 
-	        but nAbsSecs < 604800
-	            nDays = floor(nAbsSecs / 86400.0 + 0.5)
-	            return '' + nDays + " day" + Iff(nDays=1, "", "s") + " ago"
+	        but _nAbsSecs_ < 604800
+	            _nDays_ = floor(_nAbsSecs_ / 86400.0 + 0.5)
+	            return '' + _nDays_ + " day" + Iff(_nDays_=1, "", "s") + " ago"
 
-	        but nAbsSecs < 2592000
-	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)
-	            return '' + nWeeks + " week" + Iff(nWeeks=1, "", "s") + " ago"
+	        but _nAbsSecs_ < 2592000
+	            _nWeeks_ = floor(_nAbsSecs_ / 604800.0 + 0.5)
+	            return '' + _nWeeks_ + " week" + Iff(_nWeeks_=1, "", "s") + " ago"
 
-	        but nAbsSecs < 31536000
-	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)
-	            return '' + nMonths + " month" + Iff(nMonths=1, "", "s") + " ago"
+	        but _nAbsSecs_ < 31536000
+	            _nMonths_ = floor(_nAbsSecs_ / 2592000.0 + 0.5)
+	            return '' + _nMonths_ + " month" + Iff(_nMonths_=1, "", "s") + " ago"
 
 	        else
-	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)
-	            return '' + nYears + " year" + Iff(nYears=1, "", "s") + " ago"
+	            _nYears_ = floor(_nAbsSecs_ / 31536000.0 + 0.5)
+	            return '' + _nYears_ + " year" + Iff(_nYears_=1, "", "s") + " ago"
 	        ok
 
 	    else
-	        if nAbsSecs < 3600
-	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)
-	            return "in " + nMinutes + " minute" + Iff(nMinutes=1, "", "s")
+	        if _nAbsSecs_ < 3600
+	            _nMinutes_ = floor(_nAbsSecs_ / 60.0 + 0.5)
+	            return "in " + _nMinutes_ + " minute" + Iff(_nMinutes_=1, "", "s")
 
-	        but nAbsSecs < 86400
-	            nHours = floor(nAbsSecs / 3600.0 + 0.5)
-	            return "in " + nHours + " hour" + Iff(nHours=1, "", "s")
+	        but _nAbsSecs_ < 86400
+	            _nHours_ = floor(_nAbsSecs_ / 3600.0 + 0.5)
+	            return "in " + _nHours_ + " hour" + Iff(_nHours_=1, "", "s")
 
-	        but nAbsSecs < 604800
-	            nDays = floor(nAbsSecs / 86400.0 + 0.5)
-	            return "in " + nDays + " day" + Iff(nDays=1, "", "s")
+	        but _nAbsSecs_ < 604800
+	            _nDays_ = floor(_nAbsSecs_ / 86400.0 + 0.5)
+	            return "in " + _nDays_ + " day" + Iff(_nDays_=1, "", "s")
 
-	        but nAbsSecs < 2592000
-	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)
-	            return "in " + nWeeks + " week" + Iff(nWeeks=1, "", "s")
+	        but _nAbsSecs_ < 2592000
+	            _nWeeks_ = floor(_nAbsSecs_ / 604800.0 + 0.5)
+	            return "in " + _nWeeks_ + " week" + Iff(_nWeeks_=1, "", "s")
 
-	        but nAbsSecs < 31536000
-	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)
-	            return "in " + nMonths + " month" + Iff(nMonths=1, "", "s")
+	        but _nAbsSecs_ < 31536000
+	            _nMonths_ = floor(_nAbsSecs_ / 2592000.0 + 0.5)
+	            return "in " + _nMonths_ + " month" + Iff(_nMonths_=1, "", "s")
 
 	        else
-	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)
-	            return "in " + nYears + " year" + Iff(nYears=1, "", "s")
+	            _nYears_ = floor(_nAbsSecs_ / 31536000.0 + 0.5)
+	            return "in " + _nYears_ + " year" + Iff(_nYears_=1, "", "s")
 	        ok
 	    ok
 
     #--- UTILITY METHODS ---#
 
     def Copy()
-        oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
-        return oNewDateTime
+        _oNewDateTime_ = new stzDateTime("")
+        _oNewDateTime_.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        return _oNewDateTime_
 
     def SetComponents(aComponents)
         if isList(aComponents) and len(aComponents) >= 6
@@ -1957,25 +1957,25 @@ class stzDateTime from stzObject
         return TRUE
 
 	def IsNaturalEpochString(cStr)
-	    cLower = StzLower(cStr)
+	    _cLower_ = StzLower(cStr)
 
-	    if StzFindFirst(cLower, "from epoch") > 0 or
-	       StzFindFirst(cLower, "since epoch") > 0
+	    if StzFindFirst(_cLower_, "from epoch") > 0 or
+	       StzFindFirst(_cLower_, "since epoch") > 0
 	        return TRUE
 	    ok
 
 	    return FALSE
 
-	def ParseNaturalEpoch(cNatural)
-	    nTotalMilliseconds = 0
+	def ParseNaturalEpoch(_cNatural_)
+	    _nTotalMilliseconds_ = 0
 
-	    cNatural = StzLower(cNatural)
+	    _cNatural_ = StzLower(_cNatural_)
 
-	    cNatural = StzReplace(cNatural, "from epoch", "")
-	    cNatural = StzReplace(cNatural, "since epoch", "")
-	    cNatural = trim(cNatural)
+	    _cNatural_ = StzReplace(_cNatural_, "from epoch", "")
+	    _cNatural_ = StzReplace(_cNatural_, "since epoch", "")
+	    _cNatural_ = trim(_cNatural_)
 
-	    aUnits = [
+	    _aUnits_ = [
 	        [:years, 31536000000],
 	        [:year, 31536000000],
 	        [:months, 2628000000],
@@ -2001,44 +2001,44 @@ class stzDateTime from stzObject
 	        [:ms, 1]
 	    ]
 
-	    _nUnits2Len_ = len(aUnits)
+	    _nUnits2Len_ = len(_aUnits_)
 	    for _iLoopUnits2_ = 1 to _nUnits2Len_
-	    	aUnit = aUnits[_iLoopUnits2_]
-	        cUnit = aUnit[1]
-	        nMultiplier = aUnit[2]
+	    	_aUnit_ = _aUnits_[_iLoopUnits2_]
+	        _cUnit_ = _aUnit_[1]
+	        _nMultiplier_ = _aUnit_[2]
 
-	        cPattern = "(\d+\.?\d*)\s*" + cUnit
+	        _cPattern_ = "(\d+\.?\d*)\s*" + _cUnit_
 
-	        nPos = StzFindFirst(cNatural, cUnit)
-	        if nPos > 0
-	            cBefore = StzLeft(cNatural, nPos - 1)
-	            cBefore = trim(cBefore)
+	        _nPos_ = StzFindFirst(_cNatural_, _cUnit_)
+	        if _nPos_ > 0
+	            _cBefore_ = StzLeft(_cNatural_, _nPos_ - 1)
+	            _cBefore_ = trim(_cBefore_)
 
-	            aTokens = split(cBefore, " ")
-	            if len(aTokens) > 0
-	                cNumber = aTokens[len(aTokens)]
-	                nValue = 0+ cNumber
-	                nTotalMilliseconds += (nValue * nMultiplier)
+	            _aTokens_ = split(_cBefore_, " ")
+	            if len(_aTokens_) > 0
+	                _cNumber_ = _aTokens_[len(_aTokens_)]
+	                _nValue_ = 0+ _cNumber_
+	                _nTotalMilliseconds_ += (_nValue_ * _nMultiplier_)
 	            ok
 	        ok
 	    next
 
-	    This._SetFromMsSinceEpoch(nTotalMilliseconds)
+	    This._SetFromMsSinceEpoch(_nTotalMilliseconds_)
 
-	def SetFromEpochMonths(nMonths)
-	    nYears = floor(nMonths / 12)
-	    nRemainingMonths = nMonths % 12
+	def SetFromEpochMonths(_nMonths_)
+	    _nYears_ = floor(_nMonths_ / 12)
+	    _nRemainingMonths_ = _nMonths_ % 12
 
-	    @nYear = 1970 + nYears
-	    @nMonth = 1 + nRemainingMonths
+	    @nYear = 1970 + _nYears_
+	    @nMonth = 1 + _nRemainingMonths_
 	    @nDay = 1
 	    @nHour = 0
 	    @nMinute = 0
 	    @nSecond = 0
 	    @nMs = 0
 
-	def SetFromEpochYears(nYears)
-	    @nYear = 1970 + nYears
+	def SetFromEpochYears(_nYears_)
+	    @nYear = 1970 + _nYears_
 	    @nMonth = 1
 	    @nDay = 1
 	    @nHour = 0
@@ -2047,138 +2047,138 @@ class stzDateTime from stzObject
 	    @nMs = 0
 
 	def SetFromEpochDuration(aHash)
-	    nTotalMs = 0
+	    _nTotalMs_ = 0
 
 	    if HasKey(aHash, :Years)
-	        nTotalMs += (aHash[:Years] * 31536000000)
+	        _nTotalMs_ += (aHash[:Years] * 31536000000)
 	    ok
 
 	    if HasKey(aHash, :Months)
-	        nTotalMs += (aHash[:Months] * 2628000000)
+	        _nTotalMs_ += (aHash[:Months] * 2628000000)
 	    ok
 
 	    if HasKey(aHash, :Weeks)
-	        nTotalMs += (aHash[:Weeks] * 604800000)
+	        _nTotalMs_ += (aHash[:Weeks] * 604800000)
 	    ok
 
 	    if HasKey(aHash, :Days)
-	        nTotalMs += (aHash[:Days] * 86400000)
+	        _nTotalMs_ += (aHash[:Days] * 86400000)
 	    ok
 
 	    if HasKey(aHash, :Hours)
-	        nTotalMs += (aHash[:Hours] * 3600000)
+	        _nTotalMs_ += (aHash[:Hours] * 3600000)
 	    ok
 
 	    if HasKey(aHash, :Minutes)
-	        nTotalMs += (aHash[:Minutes] * 60000)
+	        _nTotalMs_ += (aHash[:Minutes] * 60000)
 	    ok
 
 	    if HasKey(aHash, :Seconds)
-	        nTotalMs += (aHash[:Seconds] * 1000)
+	        _nTotalMs_ += (aHash[:Seconds] * 1000)
 	    ok
 
 	    if HasKey(aHash, :Milliseconds)
-	        nTotalMs += aHash[:Milliseconds]
+	        _nTotalMs_ += aHash[:Milliseconds]
 	    ok
 
-	    This._SetFromMsSinceEpoch(nTotalMs)
+	    This._SetFromMsSinceEpoch(_nTotalMs_)
 
     #--- HELPER METHODS FOR COUNTINGFROM ---#
 
     def IsCountingFromString(cStr)
-        cLower = StzLower(cStr)
-        return (StzFindFirst(cLower, "counting from") > 0) or
-		(StzFindFirst(cLower, "starting from") > 0) or
-		(StzFindFirst(cLower, "since") > 0)
+        _cLower_ = StzLower(cStr)
+        return (StzFindFirst(_cLower_, "counting from") > 0) or
+		(StzFindFirst(_cLower_, "starting from") > 0) or
+		(StzFindFirst(_cLower_, "since") > 0)
 
     def ParseCountingFrom(cStr)
-        cLower = StzLower(cStr)
+        _cLower_ = StzLower(cStr)
 
-        nPos = StzFindFirst(cLower, "counting from")
-        if nPos = 0
-		nPos = StzFindFirst(cLower, "starting from")
+        _nPos_ = StzFindFirst(_cLower_, "counting from")
+        if _nPos_ = 0
+		_nPos_ = StzFindFirst(_cLower_, "starting from")
 	ok
 
-	if nPos = 0
-		nPos = StzFindFirst(cLower, "since")
+	if _nPos_ = 0
+		_nPos_ = StzFindFirst(_cLower_, "since")
 	ok
 
-        if nPos > 0
-            cDuration = StzLeft(cStr, nPos - 1)
-            cOrigin = StzRight(cStr, StzLen(cStr) - nPos - 12)
-            cOrigin = trim(cOrigin)
+        if _nPos_ > 0
+            _cDuration_ = StzLeft(cStr, _nPos_ - 1)
+            _cOrigin_ = StzRight(cStr, StzLen(cStr) - _nPos_ - 12)
+            _cOrigin_ = trim(_cOrigin_)
 
-            cOriginKey = This.MapOriginName(cOrigin)
-            This.SetFromNaturalDuration(cDuration, cOriginKey)
+            _cOriginKey_ = This.MapOriginName(_cOrigin_)
+            This.SetFromNaturalDuration(_cDuration_, _cOriginKey_)
         ok
 
     def MapOriginName(cName)
-        cLower = StzLower(trim(cName))
+        _cLower_ = StzLower(trim(cName))
 
-        if StzFindFirst(cLower, "unix") > 0
+        if StzFindFirst(_cLower_, "unix") > 0
             return :UnixEpoch
 
-        but StzFindFirst(cLower, "year one") > 0 or StzFindFirst(cLower, "common era") > 0
+        but StzFindFirst(_cLower_, "year one") > 0 or StzFindFirst(_cLower_, "common era") > 0
             return :YearOne
 
-        but StzFindFirst(cLower, "islamic") > 0
+        but StzFindFirst(_cLower_, "islamic") > 0
             return :IslamicHijra
 
-        but StzFindFirst(cLower, "space age") > 0
+        but StzFindFirst(_cLower_, "space age") > 0
             return :SpaceAge
 
-        but StzFindFirst(cLower, "atomic age") > 0
+        but StzFindFirst(_cLower_, "atomic age") > 0
             return :AtomicAge
 
-        but StzFindFirst(cLower, "us independence") > 0
+        but StzFindFirst(_cLower_, "us independence") > 0
             return :USIndependence
 
-        but StzFindFirst(cLower, "french revolution") > 0
+        but StzFindFirst(_cLower_, "french revolution") > 0
             return :FrenchRevolution
 
-        but StzFindFirst(cLower, "internet") > 0
+        but StzFindFirst(_cLower_, "internet") > 0
             return :InternetAge
 
         else
             return :UnixEpoch
         ok
 
-    def SetCountingFrom(nValue, cOrigin)
-	if cOrigin = ""
-		cOrigin = :UnixEpoch
+    def SetCountingFrom(_nValue_, _cOrigin_)
+	if _cOrigin_ = ""
+		_cOrigin_ = :UnixEpoch
 	ok
-        nBaseMs = This.GetOriginBase(cOrigin)
+        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
 
-        if isList(nValue) and IsHashList(nValue)
-            nDurationMs = This.HashToMilliseconds(nValue)
-            This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+        if isList(_nValue_) and IsHashList(_nValue_)
+            _nDurationMs_ = This.HashToMilliseconds(_nValue_)
+            This._SetFromMsSinceEpoch(_nBaseMs_ + _nDurationMs_)
         else
-            This._SetFromMsSinceEpoch(nBaseMs + (nValue * 1000))
+            This._SetFromMsSinceEpoch(_nBaseMs_ + (_nValue_ * 1000))
         ok
 
-    def GetOriginBase(cOrigin)
-        _nTimeOrigins1Len_ = len(aTimeOrigins)
+    def GetOriginBase(_cOrigin_)
+        _nTimeOrigins1Len_ = len(_aTimeOrigins_)
         for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
-        	aOrigin = aTimeOrigins[_iLoopTimeOrigins1_]
-            if aOrigin[1] = cOrigin
-                return aOrigin[2]
+        	_aOrigin_ = _aTimeOrigins_[_iLoopTimeOrigins1_]
+            if _aOrigin_[1] = _cOrigin_
+                return _aOrigin_[2]
             ok
         next
         return 0
 
-    def SetFromNaturalDuration(cDuration, cOrigin)
-	if cOrigin = ""
-		cOrigin = :UnixEpoch
+    def SetFromNaturalDuration(_cDuration_, _cOrigin_)
+	if _cOrigin_ = ""
+		_cOrigin_ = :UnixEpoch
 	ok
-        nDurationMs = This.ParseNaturalDuration(cDuration)
-        nBaseMs = This.GetOriginBase(cOrigin)
-        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+        _nDurationMs_ = This.ParseNaturalDuration(_cDuration_)
+        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
+        This._SetFromMsSinceEpoch(_nBaseMs_ + _nDurationMs_)
 
-    def ParseNaturalDuration(cDuration)
-        nTotalMs = 0
-        cDuration = StzLower(trim(cDuration))
+    def ParseNaturalDuration(_cDuration_)
+        _nTotalMs_ = 0
+        _cDuration_ = StzLower(trim(_cDuration_))
 
-        aUnits = [
+        _aUnits_ = [
             ["years", 31536000000],
             ["year", 31536000000],
             ["months", 2628000000],
@@ -2195,58 +2195,58 @@ class stzDateTime from stzObject
             ["second", 1000]
         ]
 
-        aTokens = split(cDuration, " ")
+        _aTokens_ = split(_cDuration_, " ")
 
-        _nUnits1Len_ = len(aUnits)
+        _nUnits1Len_ = len(_aUnits_)
         for _iLoopUnits1_ = 1 to _nUnits1Len_
-        	aUnit = aUnits[_iLoopUnits1_]
-            cUnit = aUnit[1]
-            nMultiplier = aUnit[2]
+        	_aUnit_ = _aUnits_[_iLoopUnits1_]
+            _cUnit_ = _aUnit_[1]
+            _nMultiplier_ = _aUnit_[2]
 
-            _nTokensLen_ = len(aTokens)
-            for i = 1 to _nTokensLen_
-                if StzLower(aTokens[i]) = cUnit and i > 1
-                    nValue = 0+ aTokens[i-1]
-                    nTotalMs += (nValue * nMultiplier)
+            _nTokensLen_ = len(_aTokens_)
+            for _i_ = 1 to _nTokensLen_
+                if StzLower(_aTokens_[_i_]) = _cUnit_ and _i_ > 1
+                    _nValue_ = 0+ _aTokens_[_i_-1]
+                    _nTotalMs_ += (_nValue_ * _nMultiplier_)
                     exit
                 ok
             next
         next
 
-        return nTotalMs
+        return _nTotalMs_
 
     def HashToMilliseconds(aHash)
-        nMs = 0
+        _nMs_ = 0
 
         if HasKey(aHash, :Years)
-            nMs += (aHash[:Years] * 31536000000)
+            _nMs_ += (aHash[:Years] * 31536000000)
         ok
 
         if HasKey(aHash, :Months)
-            nMs += (aHash[:Months] * 2628000000)
+            _nMs_ += (aHash[:Months] * 2628000000)
         ok
 
         if HasKey(aHash, :Weeks)
-            nMs += (aHash[:Weeks] * 604800000)
+            _nMs_ += (aHash[:Weeks] * 604800000)
         ok
 
         if HasKey(aHash, :Days)
-            nMs += (aHash[:Days] * 86400000)
+            _nMs_ += (aHash[:Days] * 86400000)
         ok
 
         if Haskey(aHash, :Hours)
-            nMs += (aHash[:Hours] * 3600000)
+            _nMs_ += (aHash[:Hours] * 3600000)
         ok
 
         if HasKey(aHash, :Minutes)
-            nMs += (aHash[:Minutes] * 60000)
+            _nMs_ += (aHash[:Minutes] * 60000)
         ok
 
         if HasKey(aHash, :Seconds)
-            nMs += (aHash[:Seconds] * 1000)
+            _nMs_ += (aHash[:Seconds] * 1000)
         ok
 
-        return nMs
+        return _nMs_
 
     #--- DURATION CALCULATIONS TO A TARGET DATETIME ---#
 
@@ -2259,73 +2259,73 @@ class stzDateTime from stzObject
 		ok
 	    ok
 
-	    cUnit = StzLower(pcUnit)
+	    _cUnit_ = StzLower(pcUnit)
 
-	    if isString(cUnit) and StzLeft(cUnit, 2) = "in"
-			cUnit = StzRight(cUnit, StzLen(cUnit)-2)
+	    if isString(_cUnit_) and StzLeft(_cUnit_, 2) = "in"
+			_cUnit_ = StzRight(_cUnit_, StzLen(_cUnit_)-2)
 	    ok
 
-	    cTarget = ""
+	    _cTarget_ = ""
 
 	    if isObject(pTarget) and ring_classname(pTarget) = "stzdatetime"
 		_oTarget_ = pTarget
-	        cTarget = pTarget.ToIso()
+	        _cTarget_ = pTarget.ToIso()
 	    else
 	        _oTarget_ = StzDateTimeQ(pTarget)
-		cTarget = _oTarget_.ToIso()
+		_cTarget_ = _oTarget_.ToIso()
 	    ok
 
-	    nThisMs = This._ToMsSinceEpoch()
-	    nTargetMs = _ToUnixMs(_oTarget_.Year(), _oTarget_.Month(), _oTarget_.Day(), _oTarget_.Hours(), _oTarget_.Minutes(), _oTarget_.Seconds(), _oTarget_.MilliSeconds())
-	    nMs = nTargetMs - nThisMs
+	    _nThisMs_ = This._ToMsSinceEpoch()
+	    _nTargetMs_ = _ToUnixMs(_oTarget_.Year(), _oTarget_.Month(), _oTarget_.Day(), _oTarget_.Hours(), _oTarget_.Minutes(), _oTarget_.Seconds(), _oTarget_.MilliSeconds())
+	    _nMs_ = _nTargetMs_ - _nThisMs_
 
-	    if cUnit = NULL
-	        nSec = nMs / 1000
-	        nMin = nSec / 60
-	        nHour = nMin / 60
-	        nDay = floor(nMs / 86400000)
-	        nWeek = floor(nDay / 7.0)
+	    if _cUnit_ = NULL
+	        _nSec_ = _nMs_ / 1000
+	        _nMin_ = _nSec_ / 60
+	        _nHour_ = _nMin_ / 60
+	        _nDay_ = floor(_nMs_ / 86400000)
+	        _nWeek_ = floor(_nDay_ / 7.0)
 
 	        _oThisDate_ = This.DateQ()
 	        _oTargetDate_ = _oTarget_.DateQ()
-	        nMonth = _oThisDate_.MonthsTo(_oTargetDate_)
-	        nYear = _oThisDate_.YearsTo(_oTargetDate_)
-	        nDecade = floor(nYear / 10.0)
-	        nCentury = floor(nYear / 100.0)
+	        _nMonth_ = _oThisDate_.MonthsTo(_oTargetDate_)
+	        _nYear_ = _oThisDate_.YearsTo(_oTargetDate_)
+	        _nDecade_ = floor(_nYear_ / 10.0)
+	        _nCentury_ = floor(_nYear_ / 100.0)
 
 	        return [
-	            :Milliseconds = nMs,
-	            :Seconds = nSec,
-	            :Minutes = nMin,
-	            :Hours = nHour,
-	            :Days = nDay,
-	            :Weeks = nWeek,
-	            :Months = nMonth,
-	            :Years = nYear,
-	            :Decades = nDecade,
-	            :Centuries = nCentury
+	            :Milliseconds = _nMs_,
+	            :Seconds = _nSec_,
+	            :Minutes = _nMin_,
+	            :Hours = _nHour_,
+	            :Days = _nDay_,
+	            :Weeks = _nWeek_,
+	            :Months = _nMonth_,
+	            :Years = _nYear_,
+	            :Decades = _nDecade_,
+	            :Centuries = _nCentury_
 	        ]
 
 	    else
 
-	        switch cUnit
+	        switch _cUnit_
 	        case :milliseconds
-	            return nMs
+	            return _nMs_
 
 	        case :seconds
-	            return nMs / 1000
+	            return _nMs_ / 1000
 
 	        case :minutes
-	            return nMs / 60000
+	            return _nMs_ / 60000
 
 	        case :hours
-	            return nMs / 3600000
+	            return _nMs_ / 3600000
 
 	        case :days
-	            return floor(nMs / 86400000)
+	            return floor(_nMs_ / 86400000)
 
 	        case :weeks
-	            return floor(floor(nMs / 86400000) / 7.0)
+	            return floor(floor(_nMs_ / 86400000) / 7.0)
 
 	        case :months
 	            _oThisDate_ = This.DateQ()
@@ -2348,7 +2348,7 @@ class stzDateTime from stzObject
 	            return floor(_oThisDate_.YearsTo(_oTargetDate_) / 100.0)
 
 	        other
-	            StzRaise("Unsupported unit: " + cUnit + "!")
+	            StzRaise("Unsupported unit: " + _cUnit_ + "!")
 	        off
 	    ok
 
@@ -2432,38 +2432,38 @@ class stzDateTime from stzObject
 		ok
 	ok
 
-        nMs = This.ToMillisecondsSinceEpochXT(pOrigin)
+        _nMs_ = This.ToMillisecondsSinceEpochXT(pOrigin)
 
         if pcUnit = ""
-            nSec = This.ToSecondsSinceEpochXT(pOrigin)
-            nMin = This.ToMinutesSinceEpochXT(pOrigin)
-            nHour = This.ToHoursSinceEpochXT(pOrigin)
-            nDay = This.ToDaysSinceEpochXT(pOrigin)
-            nWeek = This.ToWeeksSinceEpochXT(pOrigin)
-            nMonth = This.ToMonthsSinceEpochXT(pOrigin)
-            nYear = This.ToYearsSinceEpochXT(pOrigin)
-            nDecade = This.ToDecadesSinceEpochXT(pOrigin)
-            nCentury = This.ToCenturiesSinceEpochXT(pOrigin)
+            _nSec_ = This.ToSecondsSinceEpochXT(pOrigin)
+            _nMin_ = This.ToMinutesSinceEpochXT(pOrigin)
+            _nHour_ = This.ToHoursSinceEpochXT(pOrigin)
+            _nDay_ = This.ToDaysSinceEpochXT(pOrigin)
+            _nWeek_ = This.ToWeeksSinceEpochXT(pOrigin)
+            _nMonth_ = This.ToMonthsSinceEpochXT(pOrigin)
+            _nYear_ = This.ToYearsSinceEpochXT(pOrigin)
+            _nDecade_ = This.ToDecadesSinceEpochXT(pOrigin)
+            _nCentury_ = This.ToCenturiesSinceEpochXT(pOrigin)
 
             return [
-                :Milliseconds = nMs,
-                :Seconds = nSec,
-                :Minutes = nMin,
-                :Hours = nHour,
-                :Days = nDay,
-                :Weeks = nWeek,
-                :Months = nMonth,
-                :Years = nYear,
-                :Decades = nDecade,
-                :Centuries = nCentury
+                :Milliseconds = _nMs_,
+                :Seconds = _nSec_,
+                :Minutes = _nMin_,
+                :Hours = _nHour_,
+                :Days = _nDay_,
+                :Weeks = _nWeek_,
+                :Months = _nMonth_,
+                :Years = _nYear_,
+                :Decades = _nDecade_,
+                :Centuries = _nCentury_
             ]
 
         else
-            cUnit = StzLower(pcUnit)
+            _cUnit_ = StzLower(pcUnit)
 
-            switch cUnit
+            switch _cUnit_
             case :milliseconds
-                return nMs
+                return _nMs_
 
             case :seconds
                 return This.ToSecondsSinceEpochXT(pOrigin)
@@ -2493,7 +2493,7 @@ class stzDateTime from stzObject
                 return This.ToCenturiesSinceEpochXT(pOrigin)
 
             other
-                StzRaise("Unsupported unit: " + cUnit)
+                StzRaise("Unsupported unit: " + _cUnit_)
             off
         ok
 
@@ -2622,43 +2622,43 @@ class stzDateTime from stzObject
    #===
 
     def SetFromHash(aHash)
-        nYear = 2000
-        nMonth = 1
-        nDay = 1
-        nHour = 0
-        nMinute = 0
-        nSecond = 0
+        _nYear_ = 2000
+        _nMonth_ = 1
+        _nDay_ = 1
+        _nHour_ = 0
+        _nMinute_ = 0
+        _nSecond_ = 0
 
         if HasKey(aHash, :Year)
-            nYear = 0+ aHash[:Year]
+            _nYear_ = 0+ aHash[:Year]
         ok
 
         if HasKey(aHash, :Month)
-            nMonth = 0+ aHash[:Month]
+            _nMonth_ = 0+ aHash[:Month]
         ok
 
         if HasKey(aHash, :Day)
-            nDay = 0+ aHash[:Day]
+            _nDay_ = 0+ aHash[:Day]
         ok
 
         if HasKey(aHash, :Hour)
-            nHour = 0+ aHash[:Hour]
+            _nHour_ = 0+ aHash[:Hour]
         ok
 
         if HasKey(aHash, :Minute)
-            nMinute = 0+ aHash[:Minute]
+            _nMinute_ = 0+ aHash[:Minute]
         ok
 
         if HasKey(aHash, :Second)
-            nSecond = 0+ aHash[:Second]
+            _nSecond_ = 0+ aHash[:Second]
         ok
 
-        @nYear = nYear
-        @nMonth = nMonth
-        @nDay = nDay
-        @nHour = nHour
-        @nMinute = nMinute
-        @nSecond = nSecond
+        @nYear = _nYear_
+        @nMonth = _nMonth_
+        @nDay = _nDay_
+        @nHour = _nHour_
+        @nMinute = _nMinute_
+        @nSecond = _nSecond_
         @nMs = 0
 
 	# Operator overloading
@@ -2671,13 +2671,13 @@ class stzDateTime from stzObject
 	            return This
 
 	        but isString(v)
-	            cLower = StzLower(trim(v))
-	            bHasDateTime = (StzFindFirst(v, "-") > 0 and StzFindFirst(v, ":") > 0)
-	            bHasUnits = (StzFindFirst(cLower, " day") > 0 or StzFindFirst(cLower, " month") > 0 or
-	                        StzFindFirst(cLower, " year") > 0 or StzFindFirst(cLower, " hour") > 0 or
-	                        StzFindFirst(cLower, " minute") > 0 or StzFindFirst(cLower, " second") > 0)
+	            _cLower_ = StzLower(trim(v))
+	            _bHasDateTime_ = (StzFindFirst(v, "-") > 0 and StzFindFirst(v, ":") > 0)
+	            _bHasUnits_ = (StzFindFirst(_cLower_, " day") > 0 or StzFindFirst(_cLower_, " month") > 0 or
+	                        StzFindFirst(_cLower_, " year") > 0 or StzFindFirst(_cLower_, " hour") > 0 or
+	                        StzFindFirst(_cLower_, " minute") > 0 or StzFindFirst(_cLower_, " second") > 0)
 
-	            if not bHasDateTime and bHasUnits
+	            if not _bHasDateTime_ and _bHasUnits_
 	                This.AddNatural(v)
 	                return This
 	            ok
@@ -2694,19 +2694,19 @@ class stzDateTime from stzObject
 
 		    but isString(v)
 
-		        cLower = StzLower(trim(v))
-		        bHasDateTime = (StzFindFirst(v, "-") > 0 and StzFindFirst(v, ":") > 0)
-		        bHasUnits = (StzFindFirst(cLower, " day") > 0 or StzFindFirst(cLower, " month") > 0 or
-		                    StzFindFirst(cLower, " year") > 0 or StzFindFirst(cLower, " hour") > 0 or
-		                    StzFindFirst(cLower, " minute") > 0 or StzFindFirst(cLower, " second") > 0)
+		        _cLower_ = StzLower(trim(v))
+		        _bHasDateTime_ = (StzFindFirst(v, "-") > 0 and StzFindFirst(v, ":") > 0)
+		        _bHasUnits_ = (StzFindFirst(_cLower_, " day") > 0 or StzFindFirst(_cLower_, " month") > 0 or
+		                    StzFindFirst(_cLower_, " year") > 0 or StzFindFirst(_cLower_, " hour") > 0 or
+		                    StzFindFirst(_cLower_, " minute") > 0 or StzFindFirst(_cLower_, " second") > 0)
 
-		        if not bHasDateTime and bHasUnits
+		        if not _bHasDateTime_ and _bHasUnits_
 		            This.SubtractNatural(v)
 		            return This
 
 		        else
-		            oOtherDateTime = new stzDateTime(v)
-		            return This.SecsTo(oOtherDateTime)
+		            _oOtherDateTime_ = new stzDateTime(v)
+		            return This.SecsTo(_oOtherDateTime_)
 
 		        ok
 		    ok
@@ -2726,8 +2726,8 @@ class stzDateTime from stzObject
 	            return This.IsBefore(v) or This.IsEqualTo(v)
 
 	        but isString(v)
-	            oTemp = new stzDateTime(v)
-	            return This.IsBefore(oTemp) or This.IsEqualTo(oTemp)
+	            _oTemp_ = new stzDateTime(v)
+	            return This.IsBefore(_oTemp_) or This.IsEqualTo(_oTemp_)
 	        ok
 
 	    but op = ">"
@@ -2743,8 +2743,8 @@ class stzDateTime from stzObject
 	            return This.IsAfter(v) or This.IsEqualTo(v)
 
 	        but isString(v)
-	            oTemp = new stzDateTime(v)
-	            return This.IsAfter(oTemp) or This.IsEqualTo(oTemp)
+	            _oTemp_ = new stzDateTime(v)
+	            return This.IsAfter(_oTemp_) or This.IsEqualTo(_oTemp_)
 	        ok
 
 	    but op = "="

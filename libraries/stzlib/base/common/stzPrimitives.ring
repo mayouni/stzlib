@@ -17,10 +17,10 @@
 
 #-- String repetition (pure Ring, no engine needed)
 
-func StzRepeatStr(cStr, nCount)
+func StzRepeatStr(_cStr_, nCount)
 	_cSrResult_ = ""
 	for _iSr_ = 1 to nCount
-		_cSrResult_ += cStr
+		_cSrResult_ += _cStr_
 	next
 	return _cSrResult_
 
@@ -33,18 +33,18 @@ func StzRepeatStr(cStr, nCount)
 # string form so caller code that does e.g. StzLower(1234) gets a
 # usable answer instead of a hard exit.
 
-func StzUpper(cStr)
-	if NOT isString(cStr)
-		cStr = "" + cStr
+func StzUpper(_cStr_)
+	if NOT isString(_cStr_)
+		_cStr_ = "" + _cStr_
 	ok
 	# Unicode SpecialCasing (ß->SS, ﬄ->FFL, ...) is now done ENGINE-SIDE in
 	# stz_unicode_to_upper_str, so no Ring-side ß scan/patch is needed.
-	pH = StzEngineString(cStr)
+	pH = StzEngineString(_cStr_)
 	pR = StzEngineStringToUpper(pH)
-	c = StzEngineStringData(pR)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
 // Group similar strings by edit (Levenshtein) distance -- fuzzy dedup, typo
 // grouping, near-duplicate detection. Greedy "leader" clustering ENGINE-SIDE:
@@ -57,30 +57,30 @@ func StzClusterByEditDistanceCS(paStrings, nThreshold, pCaseSensitive)
 	if NOT isList(paStrings) or len(paStrings) = 0
 		return []
 	ok
-	nLen = len(paStrings)
-	cPacked = ""
-	for i = 1 to nLen
-		cPacked += ("" + paStrings[i])
-		if i < nLen cPacked += char(0) ok
+	_nLen_ = len(paStrings)
+	_cPacked_ = ""
+	for i = 1 to _nLen_
+		_cPacked_ += ("" + paStrings[i])
+		if i < _nLen_ _cPacked_ += char(0) ok
 	next
-	pH = StzEngineString(cPacked)
+	pH = StzEngineString(_cPacked_)
 	pRes = StzEngineStringEditCluster(pH, nThreshold, pCaseSensitive)
-	anIDs = []
-	nC = StzEngineFindResultCount(pRes)
-	for i = 1 to nC
-		anIDs + StzEngineFindResultGet(pRes, i)
+	_anIDs_ = []
+	_nC_ = StzEngineFindResultCount(pRes)
+	for i = 1 to _nC_
+		_anIDs_ + StzEngineFindResultGet(pRes, i)
 	next
 	StzEngineFindResultFree(pRes)
 	StzEngineStringFree(pH)
-	aClusters = []
-	for i = 1 to nLen
-		nCid = anIDs[i]
-		while len(aClusters) < nCid
-			aClusters + []
+	_aClusters_ = []
+	for i = 1 to _nLen_
+		_nCid_ = _anIDs_[i]
+		while len(_aClusters_) < _nCid_
+			_aClusters_ + []
 		end
-		aClusters[nCid] + paStrings[i]
+		_aClusters_[_nCid_] + paStrings[i]
 	next
-	return aClusters
+	return _aClusters_
 
 // TF-IDF keyword extraction across a document corpus. For each document,
 // returns its top-N keywords ranked by tf(term)*ln(Ndocs/df(term)) -- terms
@@ -94,82 +94,82 @@ func StzTFIDFKeywordsCS(paDocs, nTop, pCaseSensitive)
 	if NOT isList(paDocs) or len(paDocs) = 0
 		return []
 	ok
-	nLen = len(paDocs)
-	cPacked = ""
-	for i = 1 to nLen
-		cPacked += ("" + paDocs[i])
-		if i < nLen cPacked += char(0) ok
+	_nLen_ = len(paDocs)
+	_cPacked_ = ""
+	for i = 1 to _nLen_
+		_cPacked_ += ("" + paDocs[i])
+		if i < _nLen_ _cPacked_ += char(0) ok
 	next
-	pH = StzEngineString(cPacked)
+	pH = StzEngineString(_cPacked_)
 	pRes = StzEngineStringTFIDFKeywords(pH, nTop, pCaseSensitive)
-	cOut = StzEngineStringData(pRes)
+	_cOut_ = StzEngineStringData(pRes)
 	StzEngineStringFree(pRes)
 	StzEngineStringFree(pH)
 	# Unpack: documents are separated by char(1), keywords within a doc by
 	# char(0). Split doc-by-doc (there are exactly nLen of them).
-	aResult = []
-	aDocChunks = str2list( StzReplace(cOut, char(1), char(10)) )
-	for i = 1 to nLen
-		if i <= len(aDocChunks) and aDocChunks[i] != ""
-			aResult + str2list( StzReplace(aDocChunks[i], char(0), char(10)) )
+	_aResult_ = []
+	_aDocChunks_ = str2list( StzReplace(_cOut_, char(1), char(10)) )
+	for i = 1 to _nLen_
+		if i <= len(_aDocChunks_) and _aDocChunks_[i] != ""
+			_aResult_ + str2list( StzReplace(_aDocChunks_[i], char(0), char(10)) )
 		else
-			aResult + []
+			_aResult_ + []
 		ok
 	next
-	return aResult
+	return _aResult_
 
-func StzLower(cStr)
-	if NOT isString(cStr)
-		cStr = "" + cStr
+func StzLower(_cStr_)
+	if NOT isString(_cStr_)
+		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(cStr)
+	pH = StzEngineString(_cStr_)
 	pR = StzEngineStringToLower(pH)
-	c = StzEngineStringData(pR)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
-func StzTitle(cStr)
-	if NOT isString(cStr)
-		cStr = "" + cStr
+func StzTitle(_cStr_)
+	if NOT isString(_cStr_)
+		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(cStr)
+	pH = StzEngineString(_cStr_)
 	pR = StzEngineStringToTitle(pH)
-	c = StzEngineStringData(pR)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
-func StzCaseFold(cStr)
-	if NOT isString(cStr)
-		cStr = "" + cStr
+func StzCaseFold(_cStr_)
+	if NOT isString(_cStr_)
+		_cStr_ = "" + _cStr_
 	ok
-	return StzEngineUnicodeCaseFold(cStr)
+	return StzEngineUnicodeCaseFold(_cStr_)
 
 #-- Number parse (engine-backed): leading numeric token -> number, else 0
 
-func StzNumber(cStr)
-	if isNumber(cStr)
-		return cStr
+func StzNumber(_cStr_)
+	if isNumber(_cStr_)
+		return _cStr_
 	ok
-	if NOT isString(cStr)
-		cStr = "" + cStr
+	if NOT isString(_cStr_)
+		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(cStr)
-	n = StzEngineStringToNumber(pH)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringToNumber(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
 #-- Length (codepoint count, not byte count)
 
-func StzLen(cStr)
-	if isList(cStr)
-		return len(cStr)
+func StzLen(_cStr_)
+	if isList(_cStr_)
+		return len(_cStr_)
 	ok
-	pH = StzEngineString(cStr)
-	n = StzEngineStringCount(pH)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringCount(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
 #-- Split null-delimited engine output into Ring list
 #   Used to parse engine functions that return items separated by \0
@@ -178,7 +178,7 @@ func _SplitNullDelimited(cJoined)
 	if cJoined = ""
 		return []
 	ok
-	acResult = []
+	_acResult_ = []
 	# NUL-delimited BYTE buffer whose segments are UTF-8 chars (possibly
 	# multibyte). Walk byte positions and cut each segment with a single
 	# byte-range substr(). The old code used StzMid(cJoined, i, 1) -- a
@@ -186,20 +186,20 @@ func _SplitNullDelimited(cJoined)
 	# multibyte chars and returned "" on multibyte; char-by-char accumulation
 	# of a multibyte segment then also tripped an R31 GC error. Extracting the
 	# whole byte range at once avoids both.
-	nLen = len(cJoined)
-	nStart = 1
-	for i = 1 to nLen
+	_nLen_ = len(cJoined)
+	_nStart_ = 1
+	for i = 1 to _nLen_
 		if ascii(substr(cJoined, i, 1)) = 0
-			if i > nStart
-				acResult + substr(cJoined, nStart, i - nStart)
+			if i > _nStart_
+				_acResult_ + substr(cJoined, _nStart_, i - _nStart_)
 			ok
-			nStart = i + 1
+			_nStart_ = i + 1
 		ok
 	next
-	if nLen >= nStart
-		acResult + substr(cJoined, nStart, nLen - nStart + 1)
+	if _nLen_ >= _nStart_
+		_acResult_ + substr(cJoined, _nStart_, _nLen_ - _nStart_ + 1)
 	ok
-	return acResult
+	return _acResult_
 
 #-- Parse comma-separated numbers from engine output into Ring list
 #   Used for engine functions returning positions as "2,5,8" etc.
@@ -238,110 +238,110 @@ func StzChar(nCodepoint)
 func StzCodepoint(cChar)
 	if NOT isString(cChar) or cChar = "" return 0 ok
 	pH = StzEngineString(cChar)
-	n = StzEngineStringCharAt(pH, 1)
+	_n_ = StzEngineStringCharAt(pH, 1)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
 #-- String reverse (codepoint-aware, not byte-reverse)
 
-func StzReverse(cStr)
-	pH = StzEngineString(cStr)
+func StzReverse(_cStr_)
+	pH = StzEngineString(_cStr_)
 	pR = StzEngineStringReverse(pH)
-	c = StzEngineStringData(pR)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
 #-- Type checking (Unicode-aware)
 
-func StzIsUpper(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsUppercase(pH)
+func StzIsUpper(_cStr_)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsUppercase(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
-func StzIsLower(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsLowercase(pH)
+func StzIsLower(_cStr_)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsLowercase(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
-func StzIsAlpha(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsAlpha(pH)
+func StzIsAlpha(_cStr_)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsAlpha(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
-func StzIsDigit(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsDigit(pH)
+func StzIsDigit(_cStr_)
+	pH = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsDigit(pH)
 	StzEngineStringFree(pH)
-	return n
+	return _n_
 
 #-- Substring extraction (codepoint-aware)
 
-func StzLeft(cStr, n)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringLeft(pH, n)
-	c = StzEngineStringData(pR)
+func StzLeft(_cStr_, _n_)
+	pH = StzEngineString(_cStr_)
+	pR = StzEngineStringLeft(pH, _n_)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
-func StzRight(cStr, n)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringRight(pH, n)
-	c = StzEngineStringData(pR)
+func StzRight(_cStr_, _n_)
+	pH = StzEngineString(_cStr_)
+	pR = StzEngineStringRight(pH, _n_)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
-func StzMid(cStr, nStart, nLen)
+func StzMid(_cStr_, _nStart_, _nLen_)
 	# Defensive bounds: Ring's substr returns "" silently on degenerate
 	# inputs; the engine panics with an integer-OOB. Match the lenient
 	# Ring behaviour.
-	if NOT isString(cStr) cStr = "" + cStr ok
-	if NOT (isNumber(nStart) and isNumber(nLen)) return "" ok
-	if nLen <= 0 return "" ok
-	pH = StzEngineString(cStr)
-	nTotal = StzEngineStringCount(pH)
-	if nStart < 1 nStart = 1 ok
-	if nStart > nTotal
+	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
+	if NOT (isNumber(_nStart_) and isNumber(_nLen_)) return "" ok
+	if _nLen_ <= 0 return "" ok
+	pH = StzEngineString(_cStr_)
+	_nTotal_ = StzEngineStringCount(pH)
+	if _nStart_ < 1 _nStart_ = 1 ok
+	if _nStart_ > _nTotal_
 		StzEngineStringFree(pH)
 		return ""
 	ok
-	if nStart - 1 + nLen > nTotal
-		nLen = nTotal - nStart + 1
+	if _nStart_ - 1 + _nLen_ > _nTotal_
+		_nLen_ = _nTotal_ - _nStart_ + 1
 	ok
-	pR = StzEngineStringMid(pH, nStart - 1, nLen)
-	c = StzEngineStringData(pR)
+	pR = StzEngineStringMid(pH, _nStart_ - 1, _nLen_)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
 	# @-prefixed alias (stzMatrex.ParsePattern and friends call @StzMid;
 	# only the bare StzMid existed, so the class crashed at construction
 	# with R3 "Calling Function without definition: @stzmid").
-	func @StzMid(cStr, nStart, nLen)
-		return StzMid(cStr, nStart, nLen)
+	func @StzMid(_cStr_, _nStart_, _nLen_)
+		return StzMid(_cStr_, _nStart_, _nLen_)
 
 # StzMidToEnd(cStr, nStart): codepoint-correct equivalent of
 # Ring's `substr(cStr, nStart)`. One handle-reuse round (count +
 # slice) instead of a StzMid + separate StzLen.
-func StzMidToEnd(cStr, nStart)
-	if NOT isString(cStr) cStr = "" + cStr ok
-	pH = StzEngineString(cStr)
-	nLen = StzEngineStringCount(pH)
-	if nStart < 1 nStart = 1 ok
-	if nStart > nLen
+func StzMidToEnd(_cStr_, _nStart_)
+	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
+	pH = StzEngineString(_cStr_)
+	_nLen_ = StzEngineStringCount(pH)
+	if _nStart_ < 1 _nStart_ = 1 ok
+	if _nStart_ > _nLen_
 		StzEngineStringFree(pH)
 		return ""
 	ok
-	pR = StzEngineStringMid(pH, nStart - 1, nLen - nStart + 1)
-	c = StzEngineStringData(pR)
+	pR = StzEngineStringMid(pH, _nStart_ - 1, _nLen_ - _nStart_ + 1)
+	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
-	return c
+	return _c_
 
   #------------------------------------------------------#
  #  PADDING, CENTERING, CAPITALIZING                    #
@@ -353,16 +353,16 @@ func StzPadRight(cText, nWidth)
 	func PadRight(cText, nWidth)
 		return StzPadRight(cText, nWidth)
 
-func StzPadRightXT(text, width, c)
+func StzPadRightXT(text, width, _c_)
 	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringLjust(pStr, width, c)
-	cResult = StzEngineStringData(pResult)
+	pResult = StzEngineStringLjust(pStr, width, _c_)
+	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
-	return cResult
+	return _cResult_
 
-	func PadRightXT(text, width, c)
-		return StzPadRightXT(text, width, c)
+	func PadRightXT(text, width, _c_)
+		return StzPadRightXT(text, width, _c_)
 
 func StzPadLeft(cText, nWidth)
 	return StzPadLeftXT(cText, nWidth, " ")
@@ -370,24 +370,24 @@ func StzPadLeft(cText, nWidth)
 	func PadLeft(cText, nWidth)
 		return StzPadLeft(cText, nWidth)
 
-func StzPadLeftXT(text, width, c)
+func StzPadLeftXT(text, width, _c_)
 	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringRjust(pStr, width, c)
-	cResult = StzEngineStringData(pResult)
+	pResult = StzEngineStringRjust(pStr, width, _c_)
+	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
-	return cResult
+	return _cResult_
 
-	func PadLeftXT(text, width, c)
-		return StzPadLeftXT(text, width, c)
+	func PadLeftXT(text, width, _c_)
+		return StzPadLeftXT(text, width, _c_)
 
 func StzCenter(text, width)
 	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringCenterPad(pStr, width, " ")
-	cResult = StzEngineStringData(pResult)
+	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
-	return cResult
+	return _cResult_
 
 	func Center(text, width)
 		return StzCenter(text, width)
@@ -396,10 +396,10 @@ func StzCapitalize(str)
 	if len(str) = 0 return str ok
 	pStr = StzEngineString(str)
 	pResult = StzEngineStringCapitalizeFirst(pStr)
-	cResult = StzEngineStringData(pResult)
+	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
-	return cResult
+	return _cResult_
 
 	func Capitalize(str)
 		return StzCapitalize(str)
@@ -417,55 +417,55 @@ func StzCapitalize(str)
  #  REPLACE (engine-backed, Unicode-safe)               #
 #------------------------------------------------------#
 
-func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+func StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 	if CheckParams()
-		if NOT ( isString(cStr) and isString(cSubStr) and isString(cNewSubStr) )
+		if NOT ( isString(_cStr_) and isString(cSubStr) and isString(cNewSubStr) )
 			StzRaise("Incorrect params types! cStr, cSubStr, and cNewSubStr must all be strings.")
 		ok
 	ok
 
-	if cStr = "" or cSubStr = ''
-		return cStr
+	if _cStr_ = "" or cSubStr = ''
+		return _cStr_
 	ok
 
-	bCase = CaseSensitive(bCaseSensitive)
+	_bCase_ = CaseSensitive(bCaseSensitive)
 
 	# Use Engine for codepoint-safe replace
-	pStr = StzEngineString(cStr)
-	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, bCase)
+	pStr = StzEngineString(_cStr_)
+	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, _bCase_)
 
-	cResult = StzEngineStringData(pStr)
+	_cResult_ = StzEngineStringData(pStr)
 	StzEngineStringFree(pStr)
-	return cResult
+	return _cResult_
 
 	#< @FunctionAlternativeForms
 
-	func @ReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
-		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+	func @ReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
+		return StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 
 	func ReplaceCS(str, cSubStr, cNewSubStr, bCaseSensitive)
-		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+		return StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 
 	#>
 
-func StzReplace(cStr, cSubStr, cNewSubStr)
-	return StzReplaceCS(cStr, cSubStr, cNewSubStr, 1)
+func StzReplace(_cStr_, cSubStr, cNewSubStr)
+	return StzReplaceCS(_cStr_, cSubStr, cNewSubStr, 1)
 
-	func @Replace(cStr, cSubStr, cNewSubStr)
-		return StzReplace(cStr, cSubStr, cNewSubStr)
+	func @Replace(_cStr_, cSubStr, cNewSubStr)
+		return StzReplace(_cStr_, cSubStr, cNewSubStr)
 
-	func Replace(cStr, cSubStr, cNewSubStr)
-		return StzReplace(cStr, cSubStr, cNewSubStr)
+	func Replace(_cStr_, cSubStr, cNewSubStr)
+		return StzReplace(_cStr_, cSubStr, cNewSubStr)
 
   #------------------------------------------------------#
  #  SPLIT (delegates to Core layer StkSplit)            #
 #------------------------------------------------------#
 
-func StzSplitCS(cStr, cSubStr, bCaseSensitive)
-	return StkSplitCS(cStr, cSubStr, bCaseSensitive)
+func StzSplitCS(_cStr_, cSubStr, bCaseSensitive)
+	return StkSplitCS(_cStr_, cSubStr, bCaseSensitive)
 
-func StzSplit(cStr, cSubStr)
-	return StkSplit(cStr, cSubStr)
+func StzSplit(_cStr_, cSubStr)
+	return StkSplit(_cStr_, cSubStr)
 
 
 #-- Global _ListCopy helper (was previously only a method on stzString).

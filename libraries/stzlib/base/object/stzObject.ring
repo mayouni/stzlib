@@ -9,7 +9,7 @@
 
 	All the meta data provided by Ring to objects are provided by this class:
 
-		o1 = new Person { name = "Ali" age = 32 job = "Developer" }
+		_o1_ = new Person { name = "Ali" age = 32 job = "Developer" }
 		
 		StzObjectQ( :o1 ) {
 		
@@ -38,8 +38,8 @@
 			age
 			job
 		
-			def init(cName)
-				name = cName
+			def init(_cName_)
+				name = _cName_
 		
 			def show()
 				? "Name : " + name
@@ -122,10 +122,10 @@ func StzEmptyStringIsConsideredFalse()
 func StzSetEmptyStringIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
-		cLower = StzLower(pnTrueFalse)
-		if cLower = "yes" or cLower = "on"
+		_cLower_ = StzLower(pnTrueFalse)
+		if _cLower_ = "yes" or _cLower_ = "on"
 			pnTrueFalse = 1
-		but cLower = "no" or cLower = "off"
+		but _cLower_ = "no" or _cLower_ = "off"
 			pnTrueFalse = 0
 		else
 			StzRaise("Incorrect param value! Possible values are 0, 1, 'yes', 'no', 'on', and 'off'.")
@@ -178,10 +178,10 @@ func StzEmptyListIsConsideredFalse()
 func StzSetEmptyListIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
-		cLower = StzLower(pnTrueFalse)
-		if cLower = "yes" or cLower = "on"
+		_cLower_ = StzLower(pnTrueFalse)
+		if _cLower_ = "yes" or _cLower_ = "on"
 			pnTrueFalse = 1
-		but cLower = "no" or cLower = "off"
+		but _cLower_ = "no" or _cLower_ = "off"
 			pnTrueFalse = 0
 		else
 			StzRaise("Incorrect param value! Possible values are 0, 1, 'yes', 'no', 'on', and 'off'.")
@@ -291,17 +291,17 @@ func StzAttributesXT(pObj)
 		StzRaise("Incorrect param type! pObj must be an object.")
 	ok
 
-	aResult = []
-	acAttr = attributes(pObj)
-	nLen = len(acAttr)
+	_aResult_ = []
+	_acAttr_ = attributes(pObj)
+	_nLen_ = len(_acAttr_)
 
-	for i = 1 to nLen
-		cCode = "val = pObj." + acAttr[i]
-		eval(cCode)
-		aResult + [ acAttr[i], val ]
+	for i = 1 to _nLen_
+		_cCode_ = "_val_ = pObj." + _acAttr_[i]
+		eval(_cCode_)
+		_aResult_ + [ _acAttr_[i], _val_ ]
 	next
 
-	return aResult
+	return _aResult_
 
 	func AttributesXT(pObj)
 		return StzAttributesXT(pObj)
@@ -332,9 +332,9 @@ func StzHasAttribute(pObject, cAttr)
 		ok
 	ok
 
-	acAttr = attributes(pObject)
-	nPos = find(acAttr, StzLower(cAttr))
-	if nPos > 0
+	_acAttr_ = attributes(pObject)
+	_nPos_ = find(_acAttr_, StzLower(cAttr))
+	if _nPos_ > 0
 		return TRUE
 	else
 		return FALSE
@@ -454,9 +454,9 @@ func StzNamedObject(paNamed)
 		ok
 	ok
 
-	oObject = Q(paNamed[2])
-	oObject.SetName(paNamed[1])
-	return oObject
+	_oObject_ = Q(paNamed[2])
+	_oObject_.SetName(paNamed[1])
+	return _oObject_
 
 	func StzNamedObjectQ(paNamed)
 		return StzNamedObject(paNamed)
@@ -506,12 +506,12 @@ func StzObjectVarName(pObject)
 		StzRaise("Incorrect param type! pObject must be an object.")
 	ok
 
-	cResult = :@NoName
+	_cResult_ = :@NoName
 	if ObjectIsStzObject(pObject)
-		cResult = pObject.VarName()
+		_cResult_ = pObject.VarName()
 	ok
 
-	return cResult
+	return _cResult_
 
 	func ObjectVarName(pObject)
 		return StzObjectVarName(pObject)
@@ -549,48 +549,48 @@ func StzObjectIsUnnamed(pObject)
 
 #--
 
-func StzPluralOfRingType(cType)
+func StzPluralOfRingType(_cType_)
 	if CheckingParams()
-		if NOT IsString(cPlural)
+		if NOT IsString(_cPlural_)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
 	ok
 
-	if NOT IsRingType(cType)
+	if NOT IsRingType(_cType_)
 		StzRaise("Incorrect param! cType is not a valid Ring type.")
 	ok
 
-	cType = StzLower(cType)
-	acRingTypesXT = RingTypesXT()
-	nLen = len(acRingTypesXT)
+	_cType_ = StzLower(_cType_)
+	_acRingTypesXT_ = RingTypesXT()
+	_nLen_ = len(_acRingTypesXT_)
 
-	cResult = ""
-	for i = 1 to nLen
-		if acRingTypesXT[i][1] = cType
-			cResult = acRingTypesXT[i][2]
+	_cResult_ = ""
+	for i = 1 to _nLen_
+		if _acRingTypesXT_[i][1] = _cType_
+			_cResult_ = _acRingTypesXT_[i][2]
 			exit
 		ok
 	next
 
-	if cResult = ""
+	if _cResult_ = ""
 		StzRaise("Can't get a plural of a Ring type form string!")
 	else
-		return cResult
+		return _cResult_
 	ok
 
-	func PluralOfRingType(cType)
-		return StzPluralOfRingType(cType)
+	func PluralOfRingType(_cType_)
+		return StzPluralOfRingType(_cType_)
 
 func StzRingTypesPlurals()
-	acResult = []
-	aRingTypesXT = RingTypesXT()
-	nLen = len(aRingTypesXT)
+	_acResult_ = []
+	_aRingTypesXT_ = RingTypesXT()
+	_nLen_ = len(_aRingTypesXT_)
 
-	for i = 1 to nLen
-		acResult + aRingTypesXT[i][2]
+	for i = 1 to _nLen_
+		_acResult_ + _aRingTypesXT_[i][2]
 	next
 
-	return acResult
+	return _acResult_
 
 	func RingTypesPlurals()
 		return StzRingTypesPlurals()
@@ -598,17 +598,17 @@ func StzRingTypesPlurals()
 	func PluralsOfRingTypes()
 		return StzRingTypesPlurals()
 
-func StzIsPluralOfRingType(cPlural)
+func StzIsPluralOfRingType(_cPlural_)
 	if CheckingParams()
-		if NOT IsString(cPlural)
+		if NOT IsString(_cPlural_)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
 	ok
 
-	cPlural = StzLower(cPlural)
-	acRingTypesPlurals = RingTypesPlurals()
+	_cPlural_ = StzLower(_cPlural_)
+	_acRingTypesPlurals_ = RingTypesPlurals()
 
-	if ring_find(acRingTypesPlurals, cPlural)
+	if ring_find(_acRingTypesPlurals_, _cPlural_)
 		return 1
 	else
 		return 0
@@ -616,41 +616,41 @@ func StzIsPluralOfRingType(cPlural)
 
 	#< @FunctionAlternativeForms
 
-	func IsPluralOfRingType(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsPluralOfRingType(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func IsRingTypePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsRingTypePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func IsPluralOfARingType(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsPluralOfARingType(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func IsARingTypePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsARingTypePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func IsRingTypeInPlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsRingTypeInPlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func IsARingTypInePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func IsARingTypInePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsPluralOfRingType(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsPluralOfRingType(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsRingTypePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsRingTypePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsPluralOfARingType(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsPluralOfARingType(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsARingTypePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsARingTypePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsRingTypeInPlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsRingTypeInPlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
-	func @IsARingTypInePlural(cPlural)
-		return StzIsPluralOfRingType(cPlural)
+	func @IsARingTypInePlural(_cPlural_)
+		return StzIsPluralOfRingType(_cPlural_)
 
 	#>
 
@@ -660,34 +660,34 @@ func StzRingTypesXT()
 	func RingTypesXT()
 		return StzRingTypesXT()
 
-func StzPluralToRingType(cPlural)
+func StzPluralToRingType(_cPlural_)
 	if CheckingParams()
-		if NOT isString(cPlural)
+		if NOT isString(_cPlural_)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
 	ok
 
-	cPlural = StzLower(cPlural)
-	acRingTypesXT = RingTypesXT()
-	nLen = len(acRingTypesXT)
+	_cPlural_ = StzLower(_cPlural_)
+	_acRingTypesXT_ = RingTypesXT()
+	_nLen_ = len(_acRingTypesXT_)
 
-	cResult = ""
+	_cResult_ = ""
 
-	for i = 1 to nLen
-		if acRingTypesXT[i][2] = cPlural
-			cResult = acRingTypesXT[i][1]
+	for i = 1 to _nLen_
+		if _acRingTypesXT_[i][2] = _cPlural_
+			_cResult_ = _acRingTypesXT_[i][1]
 			exit
 		ok
 	next
 
-	if cResult = ""
+	if _cResult_ = ""
 		StzRaise("Plural does not exist or can't be be found!")
 	else
-		return cResult
+		return _cResult_
 	ok
 
-	func PluralToRingType(cPlural)
-		return StzPluralToRingType(cPlural)
+	func PluralToRingType(_cPlural_)
+		return StzPluralToRingType(_cPlural_)
 
 func StzPluralOfStzClassName(cClass)
 
@@ -725,16 +725,16 @@ func StzPluralOfStzClassName(cClass)
 	#>
 
 func StzClassesPlurals()
-	acResult = []
+	_acResult_ = []
 
-	acClassesXT = StzClassesXT()
-	nLen = len(acClassesXT)
+	_acClassesXT_ = StzClassesXT()
+	_nLen_ = len(_acClassesXT_)
 
-	for i = 1 to nLen
-		acResult + acClassesXT[i][2]
+	for i = 1 to _nLen_
+		_acResult_ + _acClassesXT_[i][2]
 	next
 
-	return acResult
+	return _acResult_
 
 	def PluralsOfStzClasses()
 		return StzClassesPlurals()
@@ -748,18 +748,18 @@ func StzClassesPlurals()
 	def PluralsOfStzTypes()
 		return StzClassesPlurals()
 
-func StzIsPluralOfAStzType(cPlural)
+func StzIsPluralOfAStzType(_cPlural_)
 	if CheckingParams()
-		if NOT isString(cPlural)
+		if NOT isString(_cPlural_)
 			StzRaise("Incorrect param! cPlural must be a string.")
 		ok
 	ok
 
-	cPlural = StzLower(cPlural)
-	acPlurals = StzClassesPlurals()
-	nLen = len(acPlurals)
+	_cPlural_ = StzLower(_cPlural_)
+	_acPlurals_ = StzClassesPlurals()
+	_nLen_ = len(_acPlurals_)
 
-	if find(acPlurals, cPlural) > 0
+	if find(_acPlurals_, _cPlural_) > 0
 		return 1
 	else
 		return 0
@@ -767,112 +767,112 @@ func StzIsPluralOfAStzType(cPlural)
 
 	#< @FunctionAlternativeForms
 
-	func IsPluralOfAStzType(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfAStzType(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsPluralOfStzType(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfStzType(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsStzTypePlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsStzTypePlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsPluralOfAStzClass(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfAStzClass(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsPluralOfStzClass(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfStzClass(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsStzClassPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsStzClassPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsPluralOfAStzClassName(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfAStzClassName(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsPluralOfStzClassName(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsPluralOfStzClassName(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsStzClassNamePlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsStzClassNamePlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsStzTypeInPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsStzTypeInPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func IsAStzTypeInPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func IsAStzTypeInPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfAStzType(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfAStzType(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfStzType(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfStzType(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsStzTypePlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsStzTypePlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfAStzClass(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfAStzClass(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfStzClass(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfStzClass(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsStzClassPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsStzClassPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfAStzClassName(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfAStzClassName(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsPluralOfStzClassName(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsPluralOfStzClassName(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsStzClassNamePlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsStzClassNamePlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsStzTypeInPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsStzTypeInPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
-	func @IsAStzTypeInPlural(cPlural)
-		return StzIsPluralOfAStzType(cPlural)
+	func @IsAStzTypeInPlural(_cPlural_)
+		return StzIsPluralOfAStzType(_cPlural_)
 
 	#>
 
-func StzPluralToStzType(cPlural)
+func StzPluralToStzType(_cPlural_)
 	if CheckingParams()
-		if NOT isString(cPlural)
+		if NOT isString(_cPlural_)
 			StzRaise("Incorrect param! cPlural must be a string.")
 		ok
 	ok
 
-	cPlural = StzLower(cPlural)
+	_cPlural_ = StzLower(_cPlural_)
 	
-	acTypesXT = StzTypesXT()
+	_acTypesXT_ = StzTypesXT()
 
-	nLen = len(acTypesXT)
+	_nLen_ = len(_acTypesXT_)
 
-	cResult = ""
+	_cResult_ = ""
 
-	for i = 1 to nLen
-		if acTypesXT[i][2] = cPlural
-			cResult = acTypesXT[i][1]
+	for i = 1 to _nLen_
+		if _acTypesXT_[i][2] = _cPlural_
+			_cResult_ = _acTypesXT_[i][1]
 			exit
 		ok
 	next
 
-	if cResult = ""
+	if _cResult_ = ""
 		StzRaise("Not a plural of a stzType or can't find it!")
 	ok
 
-	return cResult
+	return _cResult_
 
 	#< @FunctionAlternativeForms
 
-	func PluralToStzType(cPlural)
-		return StzPluralToStzType(cPlural)
+	func PluralToStzType(_cPlural_)
+		return StzPluralToStzType(_cPlural_)
 
-	func PluraltoStzClass(cPlural)
-		return StzPluralToStzType(cPlural)
+	func PluraltoStzClass(_cPlural_)
+		return StzPluralToStzType(_cPlural_)
 
-	func PluraltoStzClassName(cPlural)
-		return StzPluralToStzType(cPlural)
+	func PluraltoStzClassName(_cPlural_)
+		return StzPluralToStzType(_cPlural_)
 
 	#>
 
@@ -956,8 +956,8 @@ func StzAreEqualObjects(paObjects)
 		StzRaise("Incorrect param type! paObjects must be a list of named objects.")
 	ok
 
-	acNames = ObjectsNames(paObjects)
-	if len(U(acNames)) = 1
+	_acNames_ = ObjectsNames(paObjects)
+	if len(U(_acNames_)) = 1
 		return 1
 	else
 		return 0
@@ -981,17 +981,17 @@ func StzAreEqualObjects(paObjects)
 
 func StzAreNamedObjects(paObjects)
 	if isList(paObjects) and IsListOfObjects(paObjects)
-		bResult = 1
+		_bResult_ = 1
 
-		nLen = len(paObjects)
-		for i = 1 to nLen
+		_nLen_ = len(paObjects)
+		for i = 1 to _nLen_
 			if NOT IsNamedObject(paObjects[i])
-				bResult = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 	else
 		return 0
 	ok
@@ -1022,16 +1022,16 @@ func StzObjectsNames(paObjects)
 		ok
 	ok
 
-	acResult = []
-	nLen = len(paObjects)
+	_acResult_ = []
+	_nLen_ = len(paObjects)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isObject(paObjects[i])
-			acResult + @@(paObjects[i])
+			_acResult_ + @@(paObjects[i])
 		ok
 	next
 
-	return acResult
+	return _acResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1470,8 +1470,8 @@ func IsStzlistofchars(pObject)
 
 func IsStzlist(pObject)
 	if isObject(pObject)
-		cName = classname(pObject)
-		if cName = "stzlist" or cName = "stzlistnamedparams"
+		_cName_ = classname(pObject)
+		if _cName_ = "stzlist" or _cName_ = "stzlistnamedparams"
 			return 1
 		ok
 	ok
@@ -1995,8 +1995,8 @@ class stzObject
 	@cUuid = ""
 	@cHashedUuid = ""
 
-	These
-	Those
+	_These_
+	_Those_
 
 	def init(pObject)
 
@@ -2007,16 +2007,16 @@ class stzObject
 		# Creating an object from the name of an existing object
 		but IsNonNullString(pObject)
 
-			cCode = 'bOk = isObject(' + pObject + ')'
-			eval(cCode)
-			if NOT bOk
+			_cCode_ = '_bOk_ = isObject(' + pObject + ')'
+			eval(_cCode_)
+			if NOT _bOk_
 				StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")
 			ok
 
 			@cVarName = pObject
 
-			cCode = "@content = " + pObject
-			eval(cCode)
+			_cCode_ = "@content = " + pObject
+			eval(_cCode_)
 
 		but IsNullString(pObject)
 			StzRaise("Can't create a stzObject from an empty string!")
@@ -2029,8 +2029,8 @@ class stzObject
 			StartObjectTime()
 		ok
 
-		These = This
-		Those = This
+		_These_ = This
+		_Those_ = This
 
 	  #==========================================================#
 	 #   SELF-DESCRIPTION (ask/explain this object's methods)   #
@@ -2045,9 +2045,9 @@ class stzObject
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.Ask(pcQuestion)
 
-	def AskFor(pcQuestion, n)
+	def AskFor(pcQuestion, _n_)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
-		return _oSd_.AskFor(pcQuestion, n)
+		return _oSd_.AskFor(pcQuestion, _n_)
 
 	def ExplainMethod(pcName)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
@@ -2249,9 +2249,9 @@ class stzObject
 		ok
 
 	def SetUuid()
-		oUuid = new stzUuid()
-		@cUuid = oUuid.Content()
-		@cHashedUuid = ""+ oUuid.Hashed()
+		_oUuid_ = new stzUuid()
+		@cUuid = _oUuid_.Content()
+		@cHashedUuid = ""+ _oUuid_.Hashed()
 		
 	def Uuid()
 		return @cUuid
@@ -2263,15 +2263,15 @@ class stzObject
 		return new stzObject(@content)
 
 	def Values()
-		aResult = []
-		acAttributes = This.Attributes()
-		nLen = len(acAttributes)
+		_aResult_ = []
+		_acAttributes_ = This.Attributes()
+		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to nLen 
-			cCode = "aResult + This." + acAttributes[i]
-			eval(cCode)
+		for i = 1 to _nLen_ 
+			_cCode_ = "aResult + This." + _acAttributes_[i]
+			eval(_cCode_)
 		next
-		return aResult
+		return _aResult_
 
 		def AttributesValues()
 			return This.Values()
@@ -2280,12 +2280,12 @@ class stzObject
 			return This.Values()
 
 	def AttributesAndValues()
-		aResult = Association([
+		_aResult_ = Association([
 				This.Attributes(),
 				This.Values()
 		])
 
-		return aResult
+		return _aResult_
 
 		def AttributesXT()
 			return This.AttributesAndValues()
@@ -2596,23 +2596,23 @@ class stzObject
 
 		# Checking those functions against the object value
 
-		nLen = len(pacStr)
-		if nLen = 0
+		_nLen_ = len(pacStr)
+		if _nLen_ = 0
 			return 0
 		ok
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			cCode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
+		for i = 1 to _nLen_
+			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
 
-			eval(cCode)
-			if bResult = 0
+			eval(_cCode_)
+			if _bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#-- @FunctionluentForm
 
@@ -2921,10 +2921,10 @@ class stzObject
 			StzRaise("Incorrect param type! pcType must be a Ring type or Softanza type in plural.")
 		ok
 
-		cCode = 'bResult = This.IsListOf'+ pcType + '()'
+		_cCode_ = '_bResult_ = This.IsListOf'+ pcType + '()'
 
-		eval(cCode)
-		return bResult
+		eval(_cCode_)
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2993,14 +2993,14 @@ class stzObject
 			return AFalseObject()
 		ok
 
-		item1 = This.Content()[1]
-		item2 = This.Content()[2]
-		if isList(item2) and IsAndNamedParamList(item2)
+		_item1_ = This.Content()[1]
+		_item2_ = This.Content()[2]
+		if isList(_item2_) and IsAndNamedParamList(_item2_)
 
-			item2 = item2[2]
+			_item2_ = _item2_[2]
 		ok
 
-		This.UpdateWith([ item1, item2 ])
+		This.UpdateWith([ _item1_, _item2_ ])
 
 		return This.IsA(pcType)
 
@@ -3012,14 +3012,14 @@ class stzObject
 				return AFalseObject()
 			ok
 	
-			item1 = This.Content()[1]
-			item2 = This.Content()[2]
-			if isList(item2) and IsAndNamedParamList(item2)
+			_item1_ = This.Content()[1]
+			_item2_ = This.Content()[2]
+			if isList(_item2_) and IsAndNamedParamList(_item2_)
 	
-				item2 = item2[2]
+				_item2_ = _item2_[2]
 			ok
 	
-			This.UpdateWith([ item1, item2 ])
+			This.UpdateWith([ _item1_, _item2_ ])
 
 			return This.AreQ(pcType)
 
@@ -3273,8 +3273,8 @@ class stzObject
 			return MainObject()
 
 	def WhichAreBoth()
-		aContent = This.Content()
-		if NOT (isList(aList) and len(aList) = 2)
+		_aContent_ = This.Content()
+		if NOT (isList(_aList_) and len(_aList_) = 2)
 			return AFalseObject()
 		ok
 
@@ -3976,63 +3976,63 @@ class stzObject
 			SetMainObject(This)
 			return This.HasAQ()
 
-	def HasN(n)
+	def HasN(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		SetLastValue(n)
+		SetLastValue(_n_)
 		return This
 
-		def HasNM(n)
+		def HasNM(_n_)
 			if CheckingParams()
-				if NOT isNumber(n)
+				if NOT isNumber(_n_)
 					StzRaise("Incorrect param type! n must be a number.")
 				ok
 			ok
 			SetMainObject(This)
-			return This.HasN(n)
+			return This.HasN(_n_)
 
 		def HasNMM()
 			if CheckingParams()
-				if NOT isNumber(n)
+				if NOT isNumber(_n_)
 					StzRaise("Incorrect param type! n must be a number.")
 				ok
 			ok
 			return MainObject()
 
-		def HasNQ(n)
-			return This.HasN(n)
+		def HasNQ(_n_)
+			return This.HasN(_n_)
 
-		def HasNQM(n)
+		def HasNQM(_n_)
 			return MainObject()
 
-		def HasNMQ(n)
+		def HasNMQ(_n_)
 			SetMainObject(This)
-			return This.HasNQ(n)
+			return This.HasNQ(_n_)
 
 		#--
 
-		def HasTheNumber(n)
-			return This.HasN(n)
+		def HasTheNumber(_n_)
+			return This.HasN(_n_)
 
-		def HasTheNumberM(n)
+		def HasTheNumberM(_n_)
 			SetMainObject(This)
-			return This.HasTheNumber(n)
+			return This.HasTheNumber(_n_)
 
-		def HasTheNumberMM(n)
+		def HasTheNumberMM(_n_)
 			return MainObject()
 
-		def HasTheNumberQ(n)
-			return This.HasTheNumber(n)
+		def HasTheNumberQ(_n_)
+			return This.HasTheNumber(_n_)
 
-		def HasTheNumberQM(n)
-			return This.HasTheNumberM(n)
+		def HasTheNumberQM(_n_)
+			return This.HasTheNumberM(_n_)
 
-		def HasTheNumberMQ(n)
-			return This.HasTheNumberM(n)
+		def HasTheNumberMQ(_n_)
+			return This.HasTheNumberM(_n_)
 
 	#==
 
@@ -4065,185 +4065,185 @@ class stzObject
 
 	#==
 
-	def OfCS(n, pCaseSensitive)
-		return This.IsEqualToCS(n, pCaseSensitive)
+	def OfCS(_n_, pCaseSensitive)
+		return This.IsEqualToCS(_n_, pCaseSensitive)
 
-		def OfCSM(n, pCaseSensitive)
+		def OfCSM(_n_, pCaseSensitive)
 			SetMainObject(This)
-			return This.OfCS(n, pCaseSensitive)
+			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfCSMM(n, pCaseSensitive)
+		def OfCSMM(_n_, pCaseSensitive)
 			return MainObject()
 
-		def OfCSQ(n, pCaseSensitive)
-			if This.IsEqualToCS(n, pCaseSensitive)
+		def OfCSQ(_n_, pCaseSensitive)
+			if This.IsEqualToCS(_n_, pCaseSensitive)
 				return This
 			else
 				return AFalseObject()
 			ok
 
-		def OfCSQM(n, pCaseSensitive)
+		def OfCSQM(_n_, pCaseSensitive)
 			return MainObject()
 
-		def OfCSMQ(n, pCaseSensitive)
+		def OfCSMQ(_n_, pCaseSensitive)
 			SetMainObject(This)
-			return This.OfCSQ(n, pCaseSensitive)
+			return This.OfCSQ(_n_, pCaseSensitive)
 
-	def Of(n)
-		return This.OfCS(n, 1)
+	def Of(_n_)
+		return This.OfCS(_n_, 1)
 
-		def OfM(n)
-			return This.OfCSM(n, 1)
+		def OfM(_n_)
+			return This.OfCSM(_n_, 1)
 
-		def OfMM(n)
-			return This.OfCSMM(n, 1)
+		def OfMM(_n_)
+			return This.OfCSMM(_n_, 1)
 
-		def OfQ(n)
-			return This.OfCSQ(n, 1)
+		def OfQ(_n_)
+			return This.OfCSQ(_n_, 1)
 
-		def OfQM(n)
+		def OfQM(_n_)
 			return MainObject()
 
-		def OfMQ(n)
-			return This.OfCSMQ(n, pCaseSensitive)
+		def OfMQ(_n_)
+			return This.OfCSMQ(_n_, pCaseSensitive)
 		
 	#--
 
-	def OfCSXT(n, cIgnored, pCaseSensitive)
-		return This.OfCS(n, pCaseSensitive)
+	def OfCSXT(_n_, cIgnored, pCaseSensitive)
+		return This.OfCS(_n_, pCaseSensitive)
 
-		def OfCSXTQ(n, cIgnored, pCaseSensitive)
-			return This.OfCSQ(n, pCaseSensitive)
+		def OfCSXTQ(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSQ(_n_, pCaseSensitive)
 
-		def OfCSXTQM(n, cIgnored, pCaseSensitive)
-			return This.OfCSQM(n, pCaseSensitive)
+		def OfCSXTQM(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSQM(_n_, pCaseSensitive)
 
-		def OfCSXTMQ(n, cIgnored, pCaseSensitive)
-			return This.OfCSMQ(n, pCaseSensitive)
+		def OfCSXTMQ(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSMQ(_n_, pCaseSensitive)
 
-		def OfXTCS(n, cIgnored, pCaseSensitive)
-			return This.OfCS(n, pCaseSensitive)
+		def OfXTCS(_n_, cIgnored, pCaseSensitive)
+			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfXTCSQ(n, cIgnored, pCaseSensitive)
-			return This.OfCS(n, pCaseSensitive)
+		def OfXTCSQ(_n_, cIgnored, pCaseSensitive)
+			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfXTCSQM(n, cIgnored, pCaseSensitive)
-			return This.OfCS(n, pCaseSensitive)
+		def OfXTCSQM(_n_, cIgnored, pCaseSensitive)
+			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfXTCSMQ(n, cIgnored, pCaseSensitive)
-			return This.OfCS(n, pCaseSensitive)
+		def OfXTCSMQ(_n_, cIgnored, pCaseSensitive)
+			return This.OfCS(_n_, pCaseSensitive)
 
-	def OfXT(n, cIgnored)
-		return This.OfCS(n, 1)
+	def OfXT(_n_, cIgnored)
+		return This.OfCS(_n_, 1)
 
-		def OfXTM(n, cIgnored)
-			return This.OfCSM(n, 1)
+		def OfXTM(_n_, cIgnored)
+			return This.OfCSM(_n_, 1)
 
-		def OfXTMM(n, cIgnored)
-			return This.OfCSMM(n, 1)
+		def OfXTMM(_n_, cIgnored)
+			return This.OfCSMM(_n_, 1)
 
-		def OfXTQ(n, cIgnored)
-			return This.OfCSQ(n, 1)
+		def OfXTQ(_n_, cIgnored)
+			return This.OfCSQ(_n_, 1)
 
-		def OfXTQM(n, cIgnored)
-			return This.OfCSXTQM(n, 1)
+		def OfXTQM(_n_, cIgnored)
+			return This.OfCSXTQM(_n_, 1)
 
-		def OfXTMQ(n, cIgnored)
-			return This.OfCSXTMQ(n, 1)
+		def OfXTMQ(_n_, cIgnored)
+			return This.OfCSXTMQ(_n_, 1)
 
 	#==
 
-	def OfCSB(n, pCaseSensitive)
-		if Q(n).IsEqualToCS(LastValue(), pCaseSensitive)
+	def OfCSB(_n_, pCaseSensitive)
+		if Q(_n_).IsEqualToCS(LastValue(), pCaseSensitive)
 			
 			return 1
 		else
 			return 0
 		ok
 
-		def OfCSBM(n, pCaseSensitive)
+		def OfCSBM(_n_, pCaseSensitive)
 			SetMainObject()
-			return This.OfCSB(n, pCaseSensitive)
+			return This.OfCSB(_n_, pCaseSensitive)
 
-		def OfCSBMM(n, pCaseSensitive)
+		def OfCSBMM(_n_, pCaseSensitive)
 			return MainObject()
 
-		def OfCSMB(n, pCaseSensitive)
+		def OfCSMB(_n_, pCaseSensitive)
 			SetMainObject(This)
-			return This.OfCSB(n, pCaseSensitive)
+			return This.OfCSB(_n_, pCaseSensitive)
 
-		def OfCSBQ(n, pCaseSensitive)
-			if This.OfCSB(n, pCaseSensitive) = 1
+		def OfCSBQ(_n_, pCaseSensitive)
+			if This.OfCSB(_n_, pCaseSensitive) = 1
 				return This
 			else
 				return AFalseObject()
 			ok
 
-		def OfCSBQM(n, pCaseSensitive)
+		def OfCSBQM(_n_, pCaseSensitive)
 			SetMainObject(This)
-			return This.OfCSBQ(n, pCaseSensitive)
+			return This.OfCSBQ(_n_, pCaseSensitive)
 
 
-		def OfCSBQMM(n, pCaseSensitive)
+		def OfCSBQMM(_n_, pCaseSensitive)
 			return MainObject()
 
-	def OfBM(n)
-		return This.OfCSBM(n, pCaseSensitive)
+	def OfBM(_n_)
+		return This.OfCSBM(_n_, pCaseSensitive)
 
-		def OfBMM(n)
+		def OfBMM(_n_)
 			return MainObject()
 
-		def OfMB(n)
-			return This.OfCSMB(n, 1)
+		def OfMB(_n_)
+			return This.OfCSMB(_n_, 1)
 
-		def OfBQ(n)
-			return This.OfCSBQ(n, 1)
+		def OfBQ(_n_)
+			return This.OfCSBQ(_n_, 1)
 
-		def OfBQM(n)
-			return This.OfCSBQM(n, 1)
+		def OfBQM(_n_)
+			return This.OfCSBQM(_n_, 1)
 
-		def OfBQMM(n)
+		def OfBQMM(_n_)
 			return MainObject()
 
 	#==
 
-	def OfXTCSB(n, cIgnored, pCaseSensitive)
+	def OfXTCSB(_n_, cIgnored, pCaseSensitive)
 		return This.OfCSB(c, pCaseSensitive)
 
-		def OfXTCSBM(n, cIgnored, pCaseSensitive)
-			return This.OfCSBM(n, pCaseSensitive)
+		def OfXTCSBM(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSBM(_n_, pCaseSensitive)
 
-		def OfXTCSBMM(n, cIgnored, pCaseSensitive)
+		def OfXTCSBMM(_n_, cIgnored, pCaseSensitive)
 			return MainObject()
 
-		def OfXTCSMB(n, cIgnored, pCaseSensitive)
-			return This.OfCSMB(n, pCaseSensitive)
+		def OfXTCSMB(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSMB(_n_, pCaseSensitive)
 
-		def OfXTCSBQ(n, cIgnored, pCaseSensitive)
-			return This.OfCSBQ(n, pCaseSensitive)
+		def OfXTCSBQ(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSBQ(_n_, pCaseSensitive)
 
-		def OfXTCSBQM(n, cIgnored, pCaseSensitive)
-			return This.OfCSBQM(n, pCaseSensitive)
+		def OfXTCSBQM(_n_, cIgnored, pCaseSensitive)
+			return This.OfCSBQM(_n_, pCaseSensitive)
 
-		def OfXTCSBQMM(n, pCaseSensitive)
+		def OfXTCSBQMM(_n_, pCaseSensitive)
 			return MainObject()
 
-	def OfXTBM(n)
-		return This.OfXTCSB(n, cIgnored, 1)
+	def OfXTBM(_n_)
+		return This.OfXTCSB(_n_, cIgnored, 1)
 
-		def OfXTBMM(n)
+		def OfXTBMM(_n_)
 			return MainObject()
 
-		def OfXTMB(n)
-			return This.OfXTCSMB(n, 1)
+		def OfXTMB(_n_)
+			return This.OfXTCSMB(_n_, 1)
 
-		def OfXTBQ(n)
-			return This.OfXTCSBQ(n, 1)
+		def OfXTBQ(_n_)
+			return This.OfXTCSBQ(_n_, 1)
 
-		def OfXTBQM(n)
-			return This.OfXTCSBQM(n, 1)
+		def OfXTBQM(_n_)
+			return This.OfXTCSBQM(_n_, 1)
 
-		def OfXTBQMM(n)
+		def OfXTBQMM(_n_)
 			return MainObject()
 
 	#==
@@ -4430,74 +4430,74 @@ class stzObject
 	 #  REPEATING THE OBJECT VALUE N TIMES  #
 	#======================================#
 
-	def Repeat(n)
+	def Repeat(_n_)
 
-		if isList(n) and len(n) = 2 and
-		   isNumber(n[1]) and isString(n[2]) and n[2] = :Times
-			n = n[1]
+		if isList(_n_) and len(_n_) = 2 and
+		   isNumber(_n_[1]) and isString(_n_[2]) and _n_[2] = :Times
+			_n_ = _n_[1]
 		ok
 
-		return This.RepeatXT(:InList, n)
+		return This.RepeatXT(:InList, _n_)
 
 		#< @FunctionFluentForm
 
-		def RepeatQ(n)
-			return Q(This.Repeat(n))
+		def RepeatQ(_n_)
+			return Q(This.Repeat(_n_))
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RepeatNTimes(n)
-			return This.Repeat(n)
+		def RepeatNTimes(_n_)
+			return This.Repeat(_n_)
 
-			def RepeatNTimesQ(n)
-				return This.RepeatQ(n)
+			def RepeatNTimesQ(_n_)
+				return This.RepeatQ(_n_)
 
-		def Reproduce(n)
-			return This.Repeat(n)
+		def Reproduce(_n_)
+			return This.Repeat(_n_)
 
-			def ReproduceQ(n)
-				This.Reproduce(n)
+			def ReproduceQ(_n_)
+				This.Reproduce(_n_)
 				return This
 
-		def ReproduceNTimes(n)
-			return This.Repeat(n)
+		def ReproduceNTimes(_n_)
+			return This.Repeat(_n_)
 
-			def ReproduceNTimesQ(n)
-				This.ReproduceNTimes(n)
+			def ReproduceNTimesQ(_n_)
+				This.ReproduceNTimes(_n_)
 				return This
 
-		def CopyNTimes(n)
-			return This.Repeat(n)
+		def CopyNTimes(_n_)
+			return This.Repeat(_n_)
 
-			def CopyNTimesQ(n)
-				This.CopyNTimes(n)
+			def CopyNTimesQ(_n_)
+				This.CopyNTimes(_n_)
 				return This
 
 		#>
 
 	#--
 
-	def Repeated(n)
-		return This.Repeat(n)
+	def Repeated(_n_)
+		return This.Repeat(_n_)
 
 		#< @FunctionAlternativeForms
 
-		def RepeatedNTimes(n)
-			return This.Repeated(n)
+		def RepeatedNTimes(_n_)
+			return This.Repeated(_n_)
 
-		def Reproduced(n)
-			return This.Repeated(n)
+		def Reproduced(_n_)
+			return This.Repeated(_n_)
 
-		def ReproducedNTimes(n)
-			return This.Repeated(n)
+		def ReproducedNTimes(_n_)
+			return This.Repeated(_n_)
 
-		def Copied(n)
-			return This.Repeated(n)
+		def Copied(_n_)
+			return This.Repeated(_n_)
 
-		def CopiedNTimes(n)
-			return This.Repeated(n)
+		def CopiedNTimes(_n_)
+			return This.Repeated(_n_)
 
 		#>
 
@@ -4556,11 +4556,11 @@ class stzObject
 	
 	def RepeatXT(pIn, pnSize)
 		/* EXAMPLE
-		o1 = new stzNumber(5)
-		o1.RepeatXT( :InA = :List, :OfSize = 2 )
+		_o1_ = new stzNumber(5)
+		_o1_.RepeatXT( :InA = :List, :OfSize = 2 )
 		#--> [ 5, 5 ]
 
-		o1.RepeatXT( [ 3, :Times ], :InAList )
+		_o1_.RepeatXT( [ 3, :Times ], :InAList )
 
 		*/
 
@@ -4634,101 +4634,101 @@ class stzObject
 
 		# Doing the job
 
-		# Only a real stzNumber repeats its numeric value; a stzString
+		# Only a real stzNumber repeats its numeric _value_; a stzString
 		# holding "5" keeps the STRING "5" (the :ListOfNumbers /
 		# :ListOfStrings kinds do the explicit coercion below).
-		value = ""
+		_value_ = ""
 		if This.StzType() = :stzNumber
 			if This.IsInteger()
-				value = This.NumericValue()
+				_value_ = This.NumericValue()
 			else
-				value = This.StringValue()
+				_value_ = This.StringValue()
 			ok
 		else
-			value = This.Content()
+			_value_ = This.Content()
 		ok
 
 		if StzFindFirst([ :List, :InList, :AList, :InAList ], pIn) > 0
 	
-			aResult = []
+			_aResult_ = []
 			for i = 1 to pnSize
-				aResult + value
+				_aResult_ + _value_
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
 
-			aResult = []
+			_aResult_ = []
 			for i = 1 to 2
-				aResult + value
+				_aResult_ + _value_
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :ListOfNumbers, :InListOfNumbers,
 				:AListOfNumbers, :InAListOfNumbers ], pIn) > 0
 
-			aResult = []
+			_aResult_ = []
 			for i = 1 to pnSize
-				aResult + Q(value).ToNumber()
+				_aResult_ + Q(_value_).ToNumber()
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :ListOfStrings, :InListOfStrings,
 				:AListOfStrings, :InAListOfStrings ], pIn) > 0
 
-			aResult = []
+			_aResult_ = []
 			for i = 1 to pnSize
-				aResult + Q(value).Stringified()
+				_aResult_ + Q(_value_).Stringified()
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :ListOfLists, :InListOfLists,
 				:AListOfLists, :InAListOfLists ], pIn) > 0
 	
-			aResult = []
+			_aResult_ = []
 			for i = 1 to pnSize
-				aResult + [ value ]
+				_aResult_ + [ _value_ ]
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :ListOfPairs, :InListOfPairs,
 				:AListOfPairs, :InAListOfNPairs ], pIn) > 0
 	
-			aResult = []
+			_aResult_ = []
 			for i = 1 to pnSize
-				aResult + [ value, value ]
+				_aResult_ + [ _value_, _value_ ]
 			next
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :String, :InString, :AString, :InAString ], pIn) > 0
 
-			cResult = ""
+			_cResult_ = ""
 			for i = 1 to pnSize
-				cResult += value
+				_cResult_ += _value_
 			next
-			return cResult
+			return _cResult_
 
 		but StzFindFirst([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
 
-			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
-					ReplaceAllQ(:With = value).
+			_aResult_ = StzGridQ([ pnSize[1], pnSize[2] ]).
+					ReplaceAllQ(:With = _value_).
 					Content()
 
-			return aResult
+			return _aResult_
 
 		but StzFindFirst([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
 
-			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
-			return aResult
+			_aResult_ = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(_value_).Content()
+			return _aResult_
 
 		but StzFindFirst([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
 
-			oResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value)
-			return oResult
+			_oResult_ = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(_value_)
+			return _oResult_
 
 		else
 			StzRaise("Unsupported type of container! Allowed containers you can repeat " +
-				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, :Table, and :StzTable.")
+				 "the _value_ in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, :Table, and :StzTable.")
 		ok
 
 		#< @FunctionFluentForm
@@ -4795,8 +4795,8 @@ class stzObject
 
 		but This.IsAString()
 			if This.IsNumberInString()
-				cNumber = StzReplace(This.Content(), "_", "")
-				return 0+ cNumber
+				_cNumber_ = StzReplace(This.Content(), "_", "")
+				return 0+ _cNumber_
 
 			else
 				StzRaise("Incorrect value! The string do not contain a well formed number.")
@@ -4880,19 +4880,19 @@ class stzObject
 			@number = This.Number()
 		ok
 		
-		cCode = Q(pcCode).
+		_cCode_ = Q(pcCode).
 			RemoveBoundsQ('"').
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").
 			Trimmed()
 		
-		if NOT Q(cCode).StartsWithOneOfTheseCS([
+		if NOT Q(_cCode_).StartsWithOneOfTheseCS([
 			"@number =", "@number +=", "@number=", "@number+=" ], 0 )
 
 			StzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
 		ok
 
-		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
+		if Q(_cCode_).StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
 			# EXAMPLE
 			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
 			#--> 3
@@ -4900,7 +4900,7 @@ class stzObject
 			@list = This.Content()
 			@string = This.Content()
 
-			eval(cCode)
+			eval(_cCode_)
 
 		else
 			# CASE += is used on a list of items or a string
@@ -4911,22 +4911,22 @@ class stzObject
 			@number = 0
 
 			if This.IsANumber()
-				eval(cCode)
+				eval(_cCode_)
 
 			but This.IsAString()
-				nLenStr = This.NumberOfChars()
-				for @i = 1 to nLenStr
+				_nLenStr_ = This.NumberOfChars()
+				for @i = 1 to _nLenStr_
 					@char = This.Char(@i)
-					eval(cCode)
+					eval(_cCode_)
 				next
 
 			but This.IsAList()
-				aList = This.List()
-				nLenList = len(aList)
+				_aList_ = This.List()
+				_nLenList_ = len(_aList_)
 
-				for @i = 1 to nLenList 
+				for @i = 1 to _nLenList_ 
 					@item = This.Item(@i)
-					eval(cCode)
+					eval(_cCode_)
 				next
 			ok
 
@@ -4982,91 +4982,91 @@ class stzObject
 
 	#NOTE: I'm not yet decided if this should be generalised. Think about it.
 
-	def FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+	def FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		anResult = This.FindFirstNOccurrencesSTCS(n, pStrOrItem, 1, pCaseSensitive)
-		return anResult
+		_anResult_ = This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, 1, pCaseSensitive)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindNFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindNFirstOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def PositionsOfFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def PositionsOfFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def PositionsOfNFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-
-		#--
-
-		def FirstNCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-
-		def NFirstCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def PositionsOfNFirstOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def FindFirstNCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FirstNCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def FindNFirstCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def NFirstCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def FirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindFirstNCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def NFirstOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindNFirstCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+
+		def NFirstOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstNOccurrences(n, pStrOrItem)
-		return This.FindFirstNOccurrencesCS(n, pStrOrItem, 1)
+	def FindFirstNOccurrences(_n_, pStrOrItem)
+		return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
-		def FindNFirstOccurrences(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def FindNFirstOccurrences(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def PositionsOfFirstNOccurrences(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def PositionsOfFirstNOccurrences(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
-		def PositionsOfNFirstOccurrences(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
-
-		#--
-
-		def FirstN(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
-
-		def NFirst(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def PositionsOfNFirstOccurrences(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def FindFirstN(n, pStrOrItem)
-			return This.FindFirstNOccurrencesCS(n, pStrOrItem)
+		def FirstN(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
-		def FindNFirst(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def NFirst(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def FirstNOccurrences(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def FindFirstN(_n_, pStrOrItem)
+			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem)
 
-		def NFirstOccurrences(n, pStrOrItem)
-			return This.FindFirstNOccurrences(n, pStrOrItem)
+		def FindNFirst(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
+
+		#--
+
+		def FirstNOccurrences(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
+
+		def NFirstOccurrences(_n_, pStrOrItem)
+			return This.FindFirstNOccurrences(_n_, pStrOrItem)
 
 		#>
 
@@ -5075,7 +5075,7 @@ class stzObject
 	 #  STARTING AT A GIVEN POSITION -- EXTENDTED             #
 	#--------------------------------------------------------#
 
-	def FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+	def FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		if isList(pStrOrItem) and
 		   IsOneOfTheseNamedParamsList(pStrOrItem, [ :Of, :OfSubString, :OfItem ])
@@ -5087,96 +5087,96 @@ class stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		anPos = This.SectionQ(pnStartingAt, :Last).
+		_anPos_ = This.SectionQ(pnStartingAt, :Last).
 				FindAllCS(pStrOrItem, pCaseSensitive)
 
-		anResult = []
-		if len(anPos) > 0
-			anResult = Q(anPos).FirstNItemsQRT(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+		_anResult_ = []
+		if len(_anPos_) > 0
+			_anResult_ = Q(_anPos_).FirstNItemsQRT(_n_, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
 		ok
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindNFirstOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindNFirstOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def PositionsOfFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def PositionsOfFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
-		def PositionsOfNFirstOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def FirstNSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt,  pCaseSensitive)
-
-		def NFirstSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def PositionsOfNFirstOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def FindFirstNSTCS(n, pStrOrItem,pnStartingAt,  pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FirstNSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt,  pCaseSensitive)
 
-		def FindNFirstSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def NFirstSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def FirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindFirstNSTCS(_n_, pStrOrItem,pnStartingAt,  pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
-		def NFirstOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindNFirstSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def NFirstOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindFirstNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindFirstNOccurrencesSTCS(n, pcStr, pnStartingAt, 1)
+	def FindFirstNOccurrencesST(_n_, pcStr, pnStartingAt)
+		return This.FindFirstNOccurrencesSTCS(_n_, pcStr, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
-		def FindNFirstOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindNFirstOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def PositionsOfFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def PositionsOfFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def PositionsOfNFirstOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
-
-		#--
-
-		def FirstNST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
-
-		def NFirstST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def PositionsOfNFirstOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def FindFirstNST(n, pStrOrItem,pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FirstNST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def FindNFirstST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def NFirstST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def FirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindFirstNST(_n_, pStrOrItem,pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def NFirstOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindNFirstST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def FirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+
+		def NFirstOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindFirstNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#>
 
@@ -5184,91 +5184,91 @@ class stzObject
 	 #   FINDING THE LAST N OCCURRENCES OF A SUBSTRING   #
 	#---------------------------------------------------#
 
-	def FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+	def FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		anResult = This.FindLastNOccurrencesSTCS(n, pStrOrItem, :StartingAT = 1, pCaseSensitive)
-		return anResult
+		_anResult_ = This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, :StartingAT = 1, pCaseSensitive)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindNLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindNLastOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def PositionsOfLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def PositionsOfLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def PositionsOfNLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-
-		#--
-
-		def LastNCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-
-		def NLastCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def PositionsOfNLastOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def FindLastNCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def LastNCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def FindNLastCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def NLastCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#--
 
-		def LastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindLastNCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
-		def NLastOccurrencesCS(n, pStrOrItem, pCaseSensitive)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
+		def FindNLastCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+
+		def NLastOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastNOccurrences(n, pStrOrItem)
-		return This.FindLastNOccurrencesCS(n, pStrOrItem, 1)
+	def FindLastNOccurrences(_n_, pStrOrItem)
+		return This.FindLastNOccurrencesCS(_n_, pStrOrItem, 1)
 
 		#< @FunctionAlternativeForms
 
-		def FindNLastOccurrences(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def FindNLastOccurrences(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def PositionsOfLastNOccurrences(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def PositionsOfLastNOccurrences(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
-		def PositionsOfNLastOccurrences(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
-
-		#--
-
-		def LastN(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
-
-		def NLast(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def PositionsOfNLastOccurrences(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def FindLastN(n, pStrOrItem)
-			return This.FindLastNOccurrencesCS(n, pStrOrItem)
+		def LastN(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
-		def FindNLast(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def NLast(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
 		#--
 
-		def LastNOccurrences(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def FindLastN(_n_, pStrOrItem)
+			return This.FindLastNOccurrencesCS(_n_, pStrOrItem)
 
-		def NLastOccurrences(n, pStrOrItem)
-			return This.FindLastNOccurrences(n, pStrOrItem)
+		def FindNLast(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
+
+		#--
+
+		def LastNOccurrences(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
+
+		def NLastOccurrences(_n_, pStrOrItem)
+			return This.FindLastNOccurrences(_n_, pStrOrItem)
 
 		#>
 
@@ -5277,7 +5277,7 @@ class stzObject
 	 #  AT A GIVEN POSITION -- EXTENDTED                          #
 	#------------------------------------------------------------#
 
-	def FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+	def FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 			if isList(pStrOrItem) and
 			   IsOneOfTheseNamedParamsList(pStrOrItem, [ :Of, :OfSubString ])
@@ -5290,93 +5290,93 @@ class stzObject
 			ok
 		ok
 
-		anPos = This.SectionQ(pnStartingAt, :Last).
+		_anPos_ = This.SectionQ(pnStartingAt, :Last).
 				FindAllCS(pStrOrItem, pCaseSensitive)
 
-		anResult = Q(anPos).LastNItemsQRT(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
+		_anResult_ = Q(_anPos_).LastNItemsQRT(_n_, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindNLastOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindNLastOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def PositionsOfLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def PositionsOfLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
-		def PositionsOfNLastOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def LastNSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt,  pCaseSensitive)
-
-		def NLastSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def PositionsOfNLastOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def FindLastNSTCS(n, pStrOrItem,pnStartingAt,  pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def LastNSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt,  pCaseSensitive)
 
-		def FindNLastSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def NLastSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def LastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindLastNSTCS(_n_, pStrOrItem,pnStartingAt,  pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
-		def NLastOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
+		def FindNLastSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def LastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+
+		def NLastOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSTCS(_n_, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastNOccurrencesST(n, pcStr, pnStartingAt)
-		return This.FindLastNOccurrencesSTCS(n, pcStr, pnStartingAt, 1)
+	def FindLastNOccurrencesST(_n_, pcStr, pnStartingAt)
+		return This.FindLastNOccurrencesSTCS(_n_, pcStr, pnStartingAt, 1)
 
 		#< @FunctionAlternativeForms
 
-		def FindNLastOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindNLastOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def PositionsOfLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def PositionsOfLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def PositionsOfNLastOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
-
-		#--
-
-		def LastNST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
-
-		def NLastST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def PositionsOfNLastOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def FindLastSTN(n, pStrOrItem,pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def LastNST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def FindNLastST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def NLastST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#--
 
-		def LastNOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindLastSTN(_n_, pStrOrItem,pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
-		def NLastOccurrencesST(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesST(n, pStrOrItem, pnStartingAt)
+		def FindNLastST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+
+		#--
+
+		def LastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+
+		def NLastOccurrencesST(_n_, pStrOrItem, pnStartingAt)
+			return This.FindLastNOccurrencesST(_n_, pStrOrItem, pnStartingAt)
 
 		#>
 
@@ -5445,10 +5445,10 @@ class stzObject
 			StzRaise("Incorrect param type!")
 		ok
 
-		cCode = 'bOk = (' + pcCondition + ')'
-		eval(ccode)
+		_cCode_ = '_bOk_ = (' + pcCondition + ')'
+		eval(_cCode_)
 
-		if bOk
+		if _bOk_
 			return This
 		else
 			# An error message is returned:
@@ -5474,11 +5474,11 @@ class stzObject
 	
 		ok
 
-		oThis = This.Content()
-		oOther = pOtherStzObject.Content()
+		_oThis_ = This.Content()
+		_oOther_ = pOtherStzObject.Content()
 
-		This.UpdateWith(oOther)
-		pOtherStzObject.UpdateWith(oThis)
+		This.UpdateWith(_oOther_)
+		pOtherStzObject.UpdateWith(_oThis_)
 
 		def SwapWithQ(pOtherStzObject)
 			This.SwapWith(pOtherStzObject)
@@ -5507,42 +5507,42 @@ class stzObject
 
 		#TODO // Add other Stz types
 
-		bOfType1 = 0
-		bOfType2 = 0
+		_bOfType1_ = 0
+		_bOfType2_ = 0
 
 		if pcType1 = :String or pcType1 = :AString
-			bOfType1 = This.IsStzString()
+			_bOfType1_ = This.IsStzString()
 
 		but pcType1 = :Char or pcType1 = :AChar
-			bOfType1 = This.IsStzChar()
+			_bOfType1_ = This.IsStzChar()
 
 		but pcType1 = :Number or pcType1 = :ANumber
-			bOfType1 = This.IsStzNumber()
+			_bOfType1_ = This.IsStzNumber()
 
 		but pcType1 = :List or pcType1 = :AList
-			bOfType1 = This.IsStzList()
+			_bOfType1_ = This.IsStzList()
 
 		but pcType1 = :Object or pcType1 = :AnObject
-			bOfType1 = This.IsStzObject()
+			_bOfType1_ = This.IsStzObject()
 		ok
 
 		if pcType2 = :String or pcType2 = :AString
-			bOfType2 = This.IsStzString()
+			_bOfType2_ = This.IsStzString()
 
 		but pcType2 = :Char or pcType2 = :AChar
-			bOfType2 = This.IsStzChar()
+			_bOfType2_ = This.IsStzChar()
 
 		but pcType2 = :Number or pcType2 = :ANumber
-			bOfType2 = This.IsStzNumber()
+			_bOfType2_ = This.IsStzNumber()
 
 		but pcType2 = :List or pcType2 = :AList
-			bOfType2 = This.IsStzList()
+			_bOfType2_ = This.IsStzList()
 
 		but pcType2 = :Object or pcType2 = :AnObject
-			bOfType2 = This.IsStzObject()
+			_bOfType2_ = This.IsStzObject()
 		ok
 
-		if NOT bOfType1 and NOT bOfType2
+		if NOT _bOfType1_ and NOT _bOfType2_
 			return 1
 		else
 			return 0
@@ -5551,13 +5551,13 @@ class stzObject
 		def @IsNeitheOfType(pcType1, pcType2)
 			return This.IsNeither(pcType1, pcType2)
 
-	def LoopNTimes(n)
-		for @i = 1 to n
+	def LoopNTimes(_n_)
+		for @i = 1 to _n_
 			// Do nothing
 		next
 
-		def LoopNTimesQ(n)
-			This.LoopNTimes(n)
+		def LoopNTimesQ(_n_)
+			This.LoopNTimes(_n_)
 			return This
 
 	  #=============================================#
@@ -5585,21 +5585,21 @@ class stzObject
 
 		/* EXAMPLE
 
-		o1 = new stzString("ONE")
+		_o1_ = new stzString("ONE")
 
-		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
-		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
+		? _o1_.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
+		? _o1_.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
 
-		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		? _o1_.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
 		#--> TRUE
-		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		? _o1_.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
 		#--> FALSE
 
 		*/
-		cBeforeOrAfter = ""
+		_cBeforeOrAfter_ = ""
 
 		if isList(pcBeforeOrAfter) and IsBeforeOrAfterNamedParamList(pcBeforeOrAfter)
-			cTemp = pcBeforeOrAfter[1]
+			_cTemp_ = pcBeforeOrAfter[1]
 
 			pcBeforeOrAfter = pcBeforeOrAfter[2]
 		ok
@@ -5612,50 +5612,50 @@ class stzObject
 			StzRaise("Incorrect param type! pcIn must be a string or list.")
 		ok
 	
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		_bCaseSensitive_ = CaseSensitive(pCaseSensitive)
 
 		if isString(pIn)
-			oStr = new stzString(pIn)
+			_oStr_ = new stzString(pIn)
 	
-			nThis  = oStr.FindFirstCS( This.Content(), bCaseSensitive )
-			nOther = oStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
+			_nThis_  = _oStr_.FindFirstCS( This.Content(), _bCaseSensitive_ )
+			_nOther_ = _oStr_.FindFirstCS( pcBeforeOrAfter, _bCaseSensitive_ )
 
 		but isList(pIn)
 			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
+				_oListStr_ = new stzListOfStrings(pIn)
 
-				nThis  = oListStr.FindFirstCS( This.Content(), bCaseSensitive )
-				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
+				_nThis_  = _oListStr_.FindFirstCS( This.Content(), _bCaseSensitive_ )
+				_nOther_ = _oListStr_.FindFirstCS( pcBeforeOrAfter, _bCaseSensitive_ )
 			else
 
-				if bCaseSensitive = 1
-					oList = new stzList(pIn)
+				if _bCaseSensitive_ = 1
+					_oList_ = new stzList(pIn)
 	
-					nThis  = oList.FindFirst( This.Content() )
-					nOther = oList.FindFirst( pcBeforeOrAfter )
+					_nThis_  = _oList_.FindFirst( This.Content() )
+					_nOther_ = _oList_.FindFirst( pcBeforeOrAfter )
 						
 				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
+					_oList_ = new stzList(pIn)
+					_oList_.Lowercase()
 
-					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
-					nOther = oList.FindFirst( pcBeforeOrAfter )
+					_nThis_  = _oList_.FindFirst( This.ContentQ().Lowercased() )
+					_nOther_ = _oList_.FindFirst( pcBeforeOrAfter )
 
 				ok
 			ok
 
 		ok
 
-		bResult = 0
+		_bResult_ = 0
 
-		if cTemp = :After
-			bResult = nThis > nOther
+		if _cTemp_ = :After
+			_bResult_ = _nThis_ > _nOther_
 
-		but cTemp = :Before
-			bResult = nThis < nOther
+		but _cTemp_ = :Before
+			_bResult_ = _nThis_ < _nOther_
 		ok
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -5747,7 +5747,7 @@ class stzObject
 	 #   CHECKING IF OBJECT OCCURES N TIMES IN AN OTHER STRING OR LIST   #
 	#-------------------------------------------------------------------#
 
-	def OccursNTimesCS( n, pIn, pCaseSensitive )
+	def OccursNTimesCS( _n_, pIn, pCaseSensitive )
 
 		if isList(pIn) and IsInNamedParamList(pIn)
 			pIn = pIn[2]
@@ -5757,55 +5757,55 @@ class stzObject
 			StzRaise("Incorrect param type! pcIn must be a string or list.")
 		ok
 	
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		_bCaseSensitive_ = CaseSensitive(pCaseSensitive)
 
-		nOccurrence = 0
+		_nOccurrence_ = 0
 
 		if isString(pIn)
-			oStr = new stzString(pIn)
-			nOccurrence  = oStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
+			_oStr_ = new stzString(pIn)
+			_nOccurrence_  = _oStr_.NumberOfOccurrenceCS( This.Content(), _bCaseSensitive_ )
 
 		but isList(pIn)
 			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
-				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
+				_oListStr_ = new stzListOfStrings(pIn)
+				_nOccurrence_  = _oListStr_.NumberOfOccurrenceCS( This.Content(), _bCaseSensitive_ )
 
 			else
-				if bCaseSensitive = 1
-					oList = new stzList(pIn)
-					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+				if _bCaseSensitive_ = 1
+					_oList_ = new stzList(pIn)
+					_nOccurrence_  = _oList_.NumberOfOccurrence( This.Content() )
 		
 				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
+					_oList_ = new stzList(pIn)
+					_oList_.Lowercase()
 
-					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
-					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+					_nThis_  = _oList_.FindFirst( This.ContentQ().Lowercased() )
+					_nOccurrence_  = _oList_.NumberOfOccurrence( This.Content() )
 		
 				ok
 			ok
 
 		ok
 
-		bResult = 0
+		_bResult_ = 0
 
-		if nOccurrence = n
-			bResult = 1
+		if _nOccurrence_ = _n_
+			_bResult_ = 1
 		ok
 
-		return bResult
+		return _bResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def OccursNTimes( n, pIn )
-		return This.OccursNTimesCS( n, pIn, 1 )
+	def OccursNTimes( _n_, pIn )
+		return This.OccursNTimesCS( _n_, pIn, 1 )
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
 	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
 	#----------------------------------------------------#
 
-	def OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
+	def OccursForTheNthTimeCS(_n_, pIn, pnAt, pCaseSensitive)
 		/* EXAMPLE
 
 		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
@@ -5832,29 +5832,29 @@ class stzObject
 			StzRaise("Incorrect param type! pAt must be a number.")
 		ok
 
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		_bCaseSensitive_ = CaseSensitive(pCaseSensitive)
 
-		nNthOccurrence = 0
+		_nNthOccurrence_ = 0
 
 		if isString(pIn)
-			oStr = new stzString(pIn)
-			nNthOccurrence = oStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
+			_oStr_ = new stzString(pIn)
+			_nNthOccurrence_ = _oStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
 	
 		but isList(pIn)
 			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
-				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
+				_oListStr_ = new stzListOfStrings(pIn)
+				_nNthOccurrence_  = _oListStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
 
 			else
-				if bCaseSensitive = 1
-					oList = new stzList(pIn)
-					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+				if _bCaseSensitive_ = 1
+					_oList_ = new stzList(pIn)
+					_nNthOccurrence_  = _oList_.NthOccurrence( _n_, This.String() )
 		
 				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
+					_oList_ = new stzList(pIn)
+					_oList_.Lowercase()
 
-					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+					_nNthOccurrence_  = _oList_.NthOccurrence( _n_, This.String() )
 		
 				ok
 			ok
@@ -5862,7 +5862,7 @@ class stzObject
 		ok
 
 
-		if nNthOccurrence = pnAt
+		if _nNthOccurrence_ = pnAt
 			return 1
 
 		else
@@ -5871,20 +5871,20 @@ class stzObject
 
 		#< @FunctionAlternativeForm
 
-		def OccursForTheNthTimeAtCS(n, pIn, pnAt, pCaseSensitive)
-			return This.OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
+		def OccursForTheNthTimeAtCS(_n_, pIn, pnAt, pCaseSensitive)
+			return This.OccursForTheNthTimeCS(_n_, pIn, pnAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def OccursForTheNthTime(n, pIn, pnAt)
-		return This.OccursForTheNthTimeCS(n, pIn, pnAt, 1)
+	def OccursForTheNthTime(_n_, pIn, pnAt)
+		return This.OccursForTheNthTimeCS(_n_, pIn, pnAt, 1)
 
 		#< @FunctionAlternativeForm
 
-		def OccursForTheNthTimeAt(n, pIn, pnAt)
-			return This.OccursForTheNthTime(n, pIn, pnAt)
+		def OccursForTheNthTimeAt(_n_, pIn, pnAt)
+			return This.OccursForTheNthTime(_n_, pIn, pnAt)
 
 		#>
 
@@ -5917,11 +5917,11 @@ class stzObject
 			pIn = pIn[2]
 		ok
 
-		obj = Q(pIn)
-		nPos = obj.FindLastCS(This.Content(), pCaseSensitive)
-		nLast = obj.NumberOfOccurrenceCS(This.Content(), pCaseSensitive)
+		_obj_ = Q(pIn)
+		_nPos_ = _obj_.FindLastCS(This.Content(), pCaseSensitive)
+		nLast = _obj_.NumberOfOccurrenceCS(This.Content(), pCaseSensitive)
 
-		return This.OccursForTheNthTimeCS(nLast, pIn, nPos, pCaseSensitive)
+		return This.OccursForTheNthTimeCS(nLast, pIn, _nPos_, pCaseSensitive)
 
 		def OccursForTheLastTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
@@ -5939,36 +5939,36 @@ class stzObject
 	#---------------------------------------------------------------#
 
 	def Size()
-		aContent = This.Content()
-		nResult = 0
+		_aContent_ = This.Content()
+		_nResult_ = 0
 
-		if isNumber(aContent)
-			nResult = StzNumberQ(aContent).Size()
+		if isNumber(_aContent_)
+			_nResult_ = StzNumberQ(_aContent_).Size()
 
-		but isString(aContent)
-			nResult = len(aContent)
+		but isString(_aContent_)
+			_nResult_ = len(_aContent_)
 
-		but isList(aContent)
-			nResult = len(aContent)
+		but isList(_aContent_)
+			_nResult_ = len(_aContent_)
 
 		ok
 
-		return nResult
+		return _nResult_
 
 	def SizeInBytes()
-		aValues = []
-		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		_aValues_ = []
+		_acAttributes_ = ring_attributes(This)
+		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to nLen
-			cCode = 'value = This.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
+		for i = 1 to _nLen_
+			_cCode_ = '_value_ = This.' + _acAttributes_[i]
+			eval(_cCode_)
+			_aValues_ + _value_
 		next
 
-		return @MemorySizeInBytes(aValues)		
+		return @MemorySizeInBytes(_aValues_)		
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -5998,19 +5998,19 @@ class stzObject
 		#>
 
 	def SizeInBytes32()
-		aValues = []
-		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		_aValues_ = []
+		_acAttributes_ = ring_attributes(This)
+		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to nLen
-			cCode = 'value = This.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
+		for i = 1 to _nLen_
+			_cCode_ = '_value_ = This.' + _acAttributes_[i]
+			eval(_cCode_)
+			_aValues_ + _value_
 		next
 
-		return @MemorySizeInBytes32(aValues)		
+		return @MemorySizeInBytes32(_aValues_)		
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -6032,19 +6032,19 @@ class stzObject
 		#>
 
 	def SizeInBytes64()
-		aValues = []
-		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		_aValues_ = []
+		_acAttributes_ = ring_attributes(This)
+		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to nLen
-			cCode = 'value = This.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
+		for i = 1 to _nLen_
+			_cCode_ = '_value_ = This.' + _acAttributes_[i]
+			eval(_cCode_)
+			_aValues_ + _value_
 		next
 
-		return @MemorySizeInBytes64(aValues)		
+		return @MemorySizeInBytes64(_aValues_)		
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -6160,17 +6160,17 @@ class stzObject
 
 
 	def ContentSize()
-		aValues = []
-		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		_aValues_ = []
+		_acAttributes_ = ring_attributes(This)
+		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to nLen
-			cCode = 'value = This.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
+		for i = 1 to _nLen_
+			_cCode_ = '_value_ = This.' + _acAttributes_[i]
+			eval(_cCode_)
+			_aValues_ + _value_
 		next
 
-		return @ContentSizeInBytes(aValues)
+		return @ContentSizeInBytes(_aValues_)
 
 		def ContentSizeInBytes()
 			return This.ContentSize()
@@ -6251,9 +6251,9 @@ class stzObject
 			return This.HistoricValuesXT()
 		ok
 
-		aResult = _aHisto
+		_aResult_ = _aHisto
 		_aHisto = []
-		return aResult
+		return _aResult_
 		
 		def HistValues()
 			return HistoricValues()

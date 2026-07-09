@@ -16,9 +16,9 @@ class stzCoreChar from stzCoreObject
 
 		but isNumber(p)
 			@nUnicode = p
-			cBuf = space(4)
-			nLen = StkEngineCharToUtf8(p, cBuf, 4)
-			@content = left(cBuf, nLen)
+			_cBuf_ = space(4)
+			_nLen_ = StkEngineCharToUtf8(p, _cBuf_, 4)
+			@content = left(_cBuf_, _nLen_)
 
 		else
 			raise( "ERR-" + StkError(:CanNotCreateObject) )
@@ -26,9 +26,9 @@ class stzCoreChar from stzCoreObject
 
 	def Content()
 		if isString(@content) return @content ok
-		cBuf = space(4)
-		nLen = StkEngineCharToUtf8(@nUnicode, cBuf, 4)
-		return left(cBuf, nLen)
+		_cBuf_ = space(4)
+		_nLen_ = StkEngineCharToUtf8(@nUnicode, _cBuf_, 4)
+		return left(_cBuf_, _nLen_)
 
 		def Char()
 			return This.Content()
@@ -43,15 +43,15 @@ class stzCoreChar from stzCoreObject
 		return StkEngineCharIsDigit(@nUnicode) = 1
 
 	def IsUpper()
-		cChar = This.Content()
-		if len(cChar) = 1
-			return upper(cChar) = cChar and lower(cChar) != cChar
+		_cChar_ = This.Content()
+		if len(_cChar_) = 1
+			return upper(_cChar_) = _cChar_ and lower(_cChar_) != _cChar_
 		ok
 		return FALSE
 
 	def IsLower()
-		cChar = This.Content()
-		if len(cChar) = 1
-			return lower(cChar) = cChar and upper(cChar) != cChar
+		_cChar_ = This.Content()
+		if len(_cChar_) = 1
+			return lower(_cChar_) = _cChar_ and upper(_cChar_) != _cChar_
 		ok
 		return FALSE

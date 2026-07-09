@@ -54,9 +54,9 @@ class stzStringCrypto from stzObject
 	def Sha256()
 		pH = @oString.Engine()
 		pR = StzEngineStringSha256(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     MD5 (Engine-backed)       #
@@ -65,9 +65,9 @@ class stzStringCrypto from stzObject
 	def Md5()
 		pH = @oString.Engine()
 		pR = StzEngineStringMd5(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     BLAKE3 (Engine-backed)    #
@@ -76,9 +76,9 @@ class stzStringCrypto from stzObject
 	def Blake3()
 		pH = @oString.Engine()
 		pR = StzEngineStringBlake3(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #=================================#
 	 #     HMAC-SHA256 (Engine-backed) #
@@ -87,9 +87,9 @@ class stzStringCrypto from stzObject
 	def HmacSha256(pcKey)
 		pH = @oString.Engine()
 		pR = StzEngineStringHmacSha256(pH, pcKey)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     XOR CIPHER (Engine)       #
@@ -99,10 +99,10 @@ class stzStringCrypto from stzObject
 		pH = @oString.Engine()
 		pKey = StzEngineString(pcKey)
 		pR = StzEngineStringXorCipher(pH, pKey)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pKey)
-		return c
+		return _c_
 
 		def XorDecrypt(pcKey)
 			return This.XorEncrypt(pcKey)
@@ -113,14 +113,14 @@ class stzStringCrypto from stzObject
 
 	def Checksum()
 		pH = @oString.Engine()
-		nLen = @oString.NumberOfChars()
-		nSum = 0
+		_nLen_ = @oString.NumberOfChars()
+		_nSum_ = 0
 
-		for i = 1 to nLen
-			nSum += StzEngineStringCharAt(pH, i)
+		for i = 1 to _nLen_
+			_nSum_ += StzEngineStringCharAt(pH, i)
 		next
 
-		return nSum
+		return _nSum_
 
 	def ChecksumHex()
 		return hex(This.Checksum())
@@ -132,9 +132,9 @@ class stzStringCrypto from stzObject
 	def Base64Encode()
 		pH = @oString.Engine()
 		pR = StzEngineStringToBase64(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 		def Base64Encoded()
 			return This.Base64Encode()
@@ -142,9 +142,9 @@ class stzStringCrypto from stzObject
 	def Base64Decode()
 		pH = @oString.Engine()
 		pR = StzEngineStringBase64(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 		def Base64Decoded()
 			return This.Base64Decode()
@@ -156,9 +156,9 @@ class stzStringCrypto from stzObject
 	def ROT13()
 		pH = @oString.Engine()
 		pR = StzEngineStringCaesar(pH, 13)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ROT13Q()
 			This.ROT13()
@@ -167,9 +167,9 @@ class stzStringCrypto from stzObject
 	def ROT13ed()
 		pH = @oString.Engine()
 		pR = StzEngineStringCaesar(pH, 13)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     CAESAR CIPHER (Engine)    #
@@ -178,9 +178,9 @@ class stzStringCrypto from stzObject
 	def CaesarEncrypt(nShift)
 		pH = @oString.Engine()
 		pR = StzEngineStringCaesar(pH, nShift)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 	def CaesarDecrypt(nShift)
 		This.CaesarEncrypt(26 - (nShift % 26))
@@ -188,9 +188,9 @@ class stzStringCrypto from stzObject
 	def CaesarEncrypted(nShift)
 		pH = @oString.Engine()
 		pR = StzEngineStringCaesar(pH, nShift)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     VIGENERE CIPHER (Engine)  #
@@ -199,16 +199,16 @@ class stzStringCrypto from stzObject
 	def VigenereEncrypt(pcKey)
 		pH = @oString.Engine()
 		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 	def VigenereEncrypted(pcKey)
 		pH = @oString.Engine()
 		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     ATBASH CIPHER (Engine)    #
@@ -217,16 +217,16 @@ class stzStringCrypto from stzObject
 	def Atbash()
 		pH = @oString.Engine()
 		pR = StzEngineStringAtbash(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 	def Atbashed()
 		pH = @oString.Engine()
 		pR = StzEngineStringAtbash(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     ROT47 CIPHER (Engine)     #
@@ -235,16 +235,16 @@ class stzStringCrypto from stzObject
 	def ROT47()
 		pH = @oString.Engine()
 		pR = StzEngineStringRot47(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 	def ROT47ed()
 		pH = @oString.Engine()
 		pR = StzEngineStringRot47(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     ENCRYPTION DETECTION      #
@@ -252,36 +252,36 @@ class stzStringCrypto from stzObject
 
 	def IsEncrypted()
 		# High entropy suggests encrypted/random data
-		nE = This.Entropy()
-		return nE > 4
+		_nE_ = This.Entropy()
+		return _nE_ > 4
 
 	  #===============================#
 	 #     OBFUSCATION               #
 	#===============================#
 
 	def Obfuscate()
-		cReversed = StzReverse(@oString.Content())
+		_cReversed_ = StzReverse(@oString.Content())
 		# XOR with fixed key "ZiN"
-		pRev = StzEngineString(cReversed)
+		pRev = StzEngineString(_cReversed_)
 		pKey = StzEngineString("ZiN")
 		pR = StzEngineStringXorCipher(pRev, pKey)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pKey)
 		StzEngineStringFree(pRev)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def ObfuscateQ()
 			This.Obfuscate()
 			return This
 
 	def Obfuscated()
-		cReversed = StzReverse(@oString.Content())
-		pRev = StzEngineString(cReversed)
+		_cReversed_ = StzReverse(@oString.Content())
+		pRev = StzEngineString(_cReversed_)
 		pKey = StzEngineString("ZiN")
 		pR = StzEngineStringXorCipher(pRev, pKey)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pKey)
 		StzEngineStringFree(pRev)
-		return c
+		return _c_

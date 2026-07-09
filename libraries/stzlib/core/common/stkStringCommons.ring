@@ -6,8 +6,8 @@ func IsLetter(c)
 	if len(c) != 1
 		return FALSE
 	ok
-	n = ascii(c)
-	if (n >= 65 and n <= 90) or (n >= 97 and n <= 122)
+	_n_ = ascii(c)
+	if (_n_ >= 65 and _n_ <= 90) or (_n_ >= 97 and _n_ <= 122)
 		return TRUE
 	ok
 	return FALSE
@@ -19,8 +19,8 @@ func IsDigit(c)
 	if len(c) != 1
 		return FALSE
 	ok
-	n = ascii(c)
-	return (n >= 48 and n <= 57)
+	_n_ = ascii(c)
+	return (_n_ >= 48 and _n_ <= 57)
 
 	func @IsDigit(c)
 		return IsDigit(c)
@@ -29,8 +29,8 @@ func IsUpperCase(c)
 	if len(c) != 1
 		return FALSE
 	ok
-	n = ascii(c)
-	return (n >= 65 and n <= 90)
+	_n_ = ascii(c)
+	return (_n_ >= 65 and _n_ <= 90)
 
 	func @IsUpperCase(c)
 		return IsUpperCase(c)
@@ -39,8 +39,8 @@ func IsLowerCase(c)
 	if len(c) != 1
 		return FALSE
 	ok
-	n = ascii(c)
-	return (n >= 97 and n <= 122)
+	_n_ = ascii(c)
+	return (_n_ >= 97 and _n_ <= 122)
 
 	func @IsLowerCase(c)
 		return IsLowerCase(c)
@@ -48,22 +48,22 @@ func IsLowerCase(c)
 func StringIsEmpty(str)
 	return (len(str) = 0)
 
-func StringRepeat(str, n)
-	cResult = ""
-	for i = 1 to n
-		cResult += str
+func StringRepeat(str, _n_)
+	_cResult_ = ""
+	for i = 1 to _n_
+		_cResult_ += str
 	next
-	return cResult
+	return _cResult_
 
-	func @StringRepeat(str, n)
-		return StringRepeat(str, n)
+	func @StringRepeat(str, _n_)
+		return StringRepeat(str, _n_)
 
 func StringReverse(str)
-	cResult = ""
+	_cResult_ = ""
 	for i = len(str) to 1 step -1
-		cResult += str[i]
+		_cResult_ += str[i]
 	next
-	return cResult
+	return _cResult_
 
 	func @StringReverse(str)
 		return StringReverse(str)

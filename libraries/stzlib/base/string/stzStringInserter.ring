@@ -38,39 +38,39 @@ class stzStringInserter from stzObject
 	 #   INSERTING BEFORE / AFTER A POSITION                #
 	#======================================================#
 
-	def InsertBefore(n, pcSubStr)
-		nLen = @oString.NumberOfChars()
-		if n < 1 or n > nLen + 1
+	def InsertBefore(_n_, pcSubStr)
+		_nLen_ = @oString.NumberOfChars()
+		if _n_ < 1 or _n_ > _nLen_ + 1
 			return
 		ok
-		if n = 1
+		if _n_ = 1
 			@oString.Update(pcSubStr + @oString.Content())
 			return
 		ok
-		if n = nLen + 1
+		if _n_ = _nLen_ + 1
 			@oString.Update(@oString.Content() + pcSubStr)
 			return
 		ok
-		cLeft = @oString.Section(1, n - 1)
-		cRight = @oString.Section(n, nLen)
-		@oString.Update(cLeft + pcSubStr + cRight)
+		_cLeft_ = @oString.Section(1, _n_ - 1)
+		_cRight_ = @oString.Section(_n_, _nLen_)
+		@oString.Update(_cLeft_ + pcSubStr + _cRight_)
 
-		def InsertBeforeQ(n, pcSubStr)
-			This.InsertBefore(n, pcSubStr)
+		def InsertBeforeQ(_n_, pcSubStr)
+			This.InsertBefore(_n_, pcSubStr)
 			return This
 
-		def InsertBeforePosition(n, pcSubStr)
-			This.InsertBefore(n, pcSubStr)
+		def InsertBeforePosition(_n_, pcSubStr)
+			This.InsertBefore(_n_, pcSubStr)
 
-	def InsertAfter(n, pcSubStr)
-		This.InsertBefore(n + 1, pcSubStr)
+	def InsertAfter(_n_, pcSubStr)
+		This.InsertBefore(_n_ + 1, pcSubStr)
 
-		def InsertAfterQ(n, pcSubStr)
-			This.InsertAfter(n, pcSubStr)
+		def InsertAfterQ(_n_, pcSubStr)
+			This.InsertAfter(_n_, pcSubStr)
 			return This
 
-		def InsertAfterPosition(n, pcSubStr)
-			This.InsertAfter(n, pcSubStr)
+		def InsertAfterPosition(_n_, pcSubStr)
+			This.InsertAfter(_n_, pcSubStr)
 
 	  #======================================================#
 	 #   INSERTING BEFORE / AFTER ALL OCCURRENCES           #
@@ -108,30 +108,30 @@ class stzStringInserter from stzObject
 	 #   INSERTING AFTER NTH OCCURRENCE                     #
 	#======================================================#
 
-	def InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def InsertAfterNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
+		_nPos_ = _oFinder_.FindNthCS(_n_, pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(_nPos_ + StzLen(pcSubStr) - 1, pcNewSubStr)
 
-		def InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def InsertAfterNthCSQ(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertAfterNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-	def InsertedAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def InsertedAfterNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oCopy_ = new stzStringInserter(@oString.Content())
-		_oCopy_.InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		_oCopy_.InsertAfterNthCSQ(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		return _oCopy_.Content()
 
-	def InsertAfterNth(n, pcSubStr, pcNewSubStr)
-		This.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, 1)
+	def InsertAfterNth(_n_, pcSubStr, pcNewSubStr)
+		This.InsertAfterNthCS(_n_, pcSubStr, pcNewSubStr, 1)
 
-		def InsertAfterNthQ(n, pcSubStr, pcNewSubStr)
-			This.InsertAfterNth(n, pcSubStr, pcNewSubStr)
+		def InsertAfterNthQ(_n_, pcSubStr, pcNewSubStr)
+			This.InsertAfterNth(_n_, pcSubStr, pcNewSubStr)
 			return This
 
-	def InsertedAfterNth(n, pcSubStr, pcNewSubStr)
+	def InsertedAfterNth(_n_, pcSubStr, pcNewSubStr)
 		_oCopy_ = new stzStringInserter(@oString.Content())
-		_oCopy_.InsertAfterNthQ(n, pcSubStr, pcNewSubStr)
+		_oCopy_.InsertAfterNthQ(_n_, pcSubStr, pcNewSubStr)
 		return _oCopy_.Content()
 
 	  #======================================================#
@@ -140,8 +140,8 @@ class stzStringInserter from stzObject
 
 	def InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
+		_nPos_ = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(_nPos_ + StzLen(pcSubStr) - 1, pcNewSubStr)
 
 		def InsertAfterFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -166,8 +166,8 @@ class stzStringInserter from stzObject
 
 	def InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
+		_nPos_ = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPosition(_nPos_ + StzLen(pcSubStr) - 1, pcNewSubStr)
 
 		def InsertAfterLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -192,30 +192,30 @@ class stzStringInserter from stzObject
 	 #   INSERTING BEFORE NTH OCCURRENCE                    #
 	#======================================================#
 
-	def InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def InsertBeforeNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
-		This.InsertBefore(nPos, pcNewSubStr)
+		_nPos_ = _oFinder_.FindNthCS(_n_, pcSubStr, pCaseSensitive)
+		This.InsertBefore(_nPos_, pcNewSubStr)
 
-		def InsertBeforeNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def InsertBeforeNthCSQ(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.InsertBeforeNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-	def InsertedBeforeNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def InsertedBeforeNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oCopy_ = new stzStringInserter(@oString.Content())
-		_oCopy_.InsertBeforeNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		_oCopy_.InsertBeforeNthCSQ(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 		return _oCopy_.Content()
 
-	def InsertBeforeNth(n, pcSubStr, pcNewSubStr)
-		This.InsertBeforeNthCS(n, pcSubStr, pcNewSubStr, 1)
+	def InsertBeforeNth(_n_, pcSubStr, pcNewSubStr)
+		This.InsertBeforeNthCS(_n_, pcSubStr, pcNewSubStr, 1)
 
-		def InsertBeforeNthQ(n, pcSubStr, pcNewSubStr)
-			This.InsertBeforeNth(n, pcSubStr, pcNewSubStr)
+		def InsertBeforeNthQ(_n_, pcSubStr, pcNewSubStr)
+			This.InsertBeforeNth(_n_, pcSubStr, pcNewSubStr)
 			return This
 
-	def InsertedBeforeNth(n, pcSubStr, pcNewSubStr)
+	def InsertedBeforeNth(_n_, pcSubStr, pcNewSubStr)
 		_oCopy_ = new stzStringInserter(@oString.Content())
-		_oCopy_.InsertBeforeNthQ(n, pcSubStr, pcNewSubStr)
+		_oCopy_.InsertBeforeNthQ(_n_, pcSubStr, pcNewSubStr)
 		return _oCopy_.Content()
 
 	  #======================================================#
@@ -224,8 +224,8 @@ class stzStringInserter from stzObject
 
 	def InsertBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
-		This.InsertBefore(nPos, pcNewSubStr)
+		_nPos_ = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
+		This.InsertBefore(_nPos_, pcNewSubStr)
 
 		def InsertBeforeFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -250,8 +250,8 @@ class stzStringInserter from stzObject
 
 	def InsertBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		nPos = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
-		This.InsertBefore(nPos, pcNewSubStr)
+		_nPos_ = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
+		This.InsertBefore(_nPos_, pcNewSubStr)
 
 		def InsertBeforeLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -276,32 +276,32 @@ class stzStringInserter from stzObject
 	 #   INSERTING BETWEEN TWO POSITIONS                    #
 	#======================================================#
 
-	def InsertSubStringBetweenPositions(pcSubStr, n1, n2)
+	def InsertSubStringBetweenPositions(pcSubStr, _n1_, _n2_)
 		if CheckingParams()
 			if NOT isString(pcSubStr)
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
-			if isList(n2) and IsAndNamedParamList(n2)
-				n2 = n2[2]
+			if isList(_n2_) and IsAndNamedParamList(_n2_)
+				_n2_ = _n2_[2]
 			ok
-			if NOT (isNumber(n1) and isNumber(n2))
+			if NOT (isNumber(_n1_) and isNumber(_n2_))
 				StzRaise("Incorrect params types! n1 and n2 must be both numbers.")
 			ok
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
 
-		This.InsertAfter(n1, pcSubStr)
+		This.InsertAfter(_n1_, pcSubStr)
 
-		def InsertBetween(pcSubStr, n1, n2)
-			This.InsertSubStringBetweenPositions(pcSubStr, n1, n2)
+		def InsertBetween(pcSubStr, _n1_, _n2_)
+			This.InsertSubStringBetweenPositions(pcSubStr, _n1_, _n2_)
 
-		def InsertBetweenPositions(pcSubStr, n1, n2)
-			This.InsertSubStringBetweenPositions(pcSubStr, n1, n2)
+		def InsertBetweenPositions(pcSubStr, _n1_, _n2_)
+			This.InsertSubStringBetweenPositions(pcSubStr, _n1_, _n2_)
 
 	  #======================================================#
 	 #   INSERTING BETWEEN TWO SUBSTRINGS                   #
@@ -319,8 +319,8 @@ class stzStringInserter from stzObject
 		ok
 
 		_oFinder_ = new stzStringFinder(@oString)
-		aSections = _oFinder_.FindAnyBoundedByAsSectionsCS([pcSubStr1, pcSubStr2], pCaseSensitive)
-		@oString.ReplaceSections(aSections, pcSubStr)
+		_aSections_ = _oFinder_.FindAnyBoundedByAsSectionsCS([pcSubStr1, pcSubStr2], pCaseSensitive)
+		@oString.ReplaceSections(_aSections_, pcSubStr)
 
 		def InsertBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 			This.InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -345,11 +345,11 @@ class stzStringInserter from stzObject
 			ok
 		ok
 
-		aSorted = new stzList(panPos).SortedInDescending()
-		_nSorted2Len_ = len(aSorted)
+		_aSorted_ = new stzList(panPos).SortedInDescending()
+		_nSorted2Len_ = len(_aSorted_)
 		for _iLoopSorted2_ = 1 to _nSorted2Len_
-			n = aSorted[_iLoopSorted2_]
-			This.InsertAfter(n, pcSubStr)
+			_n_ = _aSorted_[_iLoopSorted2_]
+			This.InsertAfter(_n_, pcSubStr)
 		next
 
 		def InsertAfterManyPositionsQ(pcSubStr, panPos)
@@ -366,11 +366,11 @@ class stzStringInserter from stzObject
 			ok
 		ok
 
-		aSorted = new stzList(panPos).SortedInDescending()
-		_nSorted1Len_ = len(aSorted)
+		_aSorted_ = new stzList(panPos).SortedInDescending()
+		_nSorted1Len_ = len(_aSorted_)
 		for _iLoopSorted1_ = 1 to _nSorted1Len_
-			n = aSorted[_iLoopSorted1_]
-			This.InsertBefore(n, pcSubStr)
+			_n_ = _aSorted_[_iLoopSorted1_]
+			This.InsertBefore(_n_, pcSubStr)
 		next
 
 		def InsertBeforeManyPositionsQ(pcSubStr, panPos)

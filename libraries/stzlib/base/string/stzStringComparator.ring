@@ -43,9 +43,9 @@ class stzStringComparator from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		nResult = StzEngineStringEqualsCS(pH, pH2, _bCase_)
+		_nResult_ = StzEngineStringEqualsCS(pH, pH2, _bCase_)
 		StzEngineStringFree(pH2)
-		return nResult
+		return _nResult_
 
 	def IsEqualTo(pcOtherStr)
 		return This.IsEqualToCS(pcOtherStr, 1)
@@ -61,8 +61,8 @@ class stzStringComparator from stzObject
 	#======================================================#
 
 	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
-		nLen = len(pacOtherStr)
-		for i = 1 to nLen
+		_nLen_ = len(pacOtherStr)
+		for i = 1 to _nLen_
 			if This.IsEqualToCS(pacOtherStr[i], pCaseSensitive)
 				return 1
 			ok
@@ -97,9 +97,9 @@ class stzStringComparator from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		nResult = StzEngineStringCompareCS(pH, pH2, _bCase_)
+		_nResult_ = StzEngineStringCompareCS(pH, pH2, _bCase_)
 		StzEngineStringFree(pH2)
-		return nResult
+		return _nResult_
 
 	def Compare(pcOtherStr)
 		return This.CompareCS(pcOtherStr, 1)
@@ -109,24 +109,24 @@ class stzStringComparator from stzObject
 	#======================================================#
 
 	def DiffWith(pcOtherStr)
-		aResult = []
-		nLen = @oString.NumberOfChars()
-		oOther = new stzString(pcOtherStr)
-		nOtherLen = oOther.NumberOfChars()
-		nMax = nLen
-		if nOtherLen > nMax
-			nMax = nOtherLen
+		_aResult_ = []
+		_nLen_ = @oString.NumberOfChars()
+		_oOther_ = new stzString(pcOtherStr)
+		_nOtherLen_ = _oOther_.NumberOfChars()
+		_nMax_ = _nLen_
+		if _nOtherLen_ > _nMax_
+			_nMax_ = _nOtherLen_
 		ok
-		acThisChars = @oString.Chars()
-		acOtherChars = oOther.Chars()
-		for i = 1 to nMax
-			if i > nLen or i > nOtherLen
-				aResult + i
-			but acThisChars[i] != acOtherChars[i]
-				aResult + i
+		_acThisChars_ = @oString.Chars()
+		_acOtherChars_ = _oOther_.Chars()
+		for i = 1 to _nMax_
+			if i > _nLen_ or i > _nOtherLen_
+				_aResult_ + i
+			but _acThisChars_[i] != _acOtherChars_[i]
+				_aResult_ + i
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	  #======================================================#
 	 #   CONTAINS CHECKS                                    #
@@ -140,8 +140,8 @@ class stzStringComparator from stzObject
 		return This.ContainsCS(pcSubStr, 1)
 
 	def ContainsOneOfTheseCS(pacSubStr, pCaseSensitive)
-		nLen = len(pacSubStr)
-		for i = 1 to nLen
+		_nLen_ = len(pacSubStr)
+		for i = 1 to _nLen_
 			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				return 1
 			ok
@@ -152,8 +152,8 @@ class stzStringComparator from stzObject
 		return This.ContainsOneOfTheseCS(pacSubStr, 1)
 
 	def ContainsAllOfTheseCS(pacSubStr, pCaseSensitive)
-		nLen = len(pacSubStr)
-		for i = 1 to nLen
+		_nLen_ = len(pacSubStr)
+		for i = 1 to _nLen_
 			if NOT This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				return 0
 			ok
@@ -172,10 +172,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringCommonPrefixCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def CommonPrefixWith(pcOtherStr)
 		return This.CommonPrefixWithCS(pcOtherStr, 1)
@@ -185,10 +185,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringCommonSuffixCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def CommonSuffixWith(pcOtherStr)
 		return This.CommonSuffixWithCS(pcOtherStr, 1)
@@ -198,10 +198,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringCommonCharsCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def CommonCharsWith(pcOtherStr)
 		return This.CommonCharsWithCS(pcOtherStr, 1)
@@ -210,9 +210,9 @@ class stzStringComparator from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		n = StzEngineStringCommonalityCS(pH, pH2, _bCase_)
+		_n_ = StzEngineStringCommonalityCS(pH, pH2, _bCase_)
 		StzEngineStringFree(pH2)
-		return n
+		return _n_
 
 	def CommonalityWith(pcOtherStr)
 		return This.CommonalityWithCS(pcOtherStr, 1)
@@ -222,10 +222,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringDiffCharsCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def DiffCharsWith(pcOtherStr)
 		return This.DiffCharsWithCS(pcOtherStr, 1)
@@ -237,9 +237,9 @@ class stzStringComparator from stzObject
 	def LevenshteinDistanceWith(pcOtherStr)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		n = StzEngineStringLevenshteinDistance(pH, pH2)
+		_n_ = StzEngineStringLevenshteinDistance(pH, pH2)
 		StzEngineStringFree(pH2)
-		return n
+		return _n_
 
 		def EditDistanceWith(pcOtherStr)
 			return This.LevenshteinDistanceWith(pcOtherStr)
@@ -251,8 +251,8 @@ class stzStringComparator from stzObject
 	def PrefixCountWithCS(pcOtherStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
-		n = StzEngineStringPrefixCountCS(pH, pcOtherStr, _bCase_)
-		return n
+		_n_ = StzEngineStringPrefixCountCS(pH, pcOtherStr, _bCase_)
+		return _n_
 
 	def PrefixCountWith(pcOtherStr)
 		return This.PrefixCountWithCS(pcOtherStr, 1)
@@ -260,8 +260,8 @@ class stzStringComparator from stzObject
 	def SuffixCountWithCS(pcOtherStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
-		n = StzEngineStringSuffixCountCS(pH, pcOtherStr, _bCase_)
-		return n
+		_n_ = StzEngineStringSuffixCountCS(pH, pcOtherStr, _bCase_)
+		return _n_
 
 	def SuffixCountWith(pcOtherStr)
 		return This.SuffixCountWithCS(pcOtherStr, 1)
@@ -275,10 +275,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringLongestCommonPrefixCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def LongestCommonPrefixWith(pcOtherStr)
 		return This.LongestCommonPrefixWithCS(pcOtherStr, 1)
@@ -288,10 +288,10 @@ class stzStringComparator from stzObject
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
 		pR = StzEngineStringLongestCommonSuffixCS(pH, pH2, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH2)
-		return c
+		return _c_
 
 	def LongestCommonSuffixWith(pcOtherStr)
 		return This.LongestCommonSuffixWithCS(pcOtherStr, 1)
@@ -303,16 +303,16 @@ class stzStringComparator from stzObject
 	def Soundex()
 		pH = @oString.Engine()
 		pR = StzEngineStringSoundex(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def Metaphone()
 		pH = @oString.Engine()
 		pR = StzEngineStringMetaphone(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #======================================================#
 	 #   JARO / JARO-WINKLER SIMILARITY                     #
@@ -321,9 +321,9 @@ class stzStringComparator from stzObject
 	def JaroSimilarityWith(pcOtherStr)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		n = StzEngineStringJaro(pH, pH2)
+		_n_ = StzEngineStringJaro(pH, pH2)
 		StzEngineStringFree(pH2)
-		return n
+		return _n_
 
 		def JaroDistanceWith(pcOtherStr)
 			return This.JaroSimilarityWith(pcOtherStr)
@@ -331,9 +331,9 @@ class stzStringComparator from stzObject
 	def JaroWinklerSimilarityWith(pcOtherStr)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		n = StzEngineStringJaroWinkler(pH, pH2)
+		_n_ = StzEngineStringJaroWinkler(pH, pH2)
 		StzEngineStringFree(pH2)
-		return n
+		return _n_
 
 		def JaroWinklerDistanceWith(pcOtherStr)
 			return This.JaroWinklerSimilarityWith(pcOtherStr)

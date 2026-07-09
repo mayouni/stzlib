@@ -25,17 +25,17 @@
 #-----------------#
 
 # Task Status
-TASK_PENDING = "pending"
-TASK_RUNNING = "running"
-TASK_COMPLETED = "completed"
-TASK_ERROR = "error"
-TASK_CANCELLED = "cancelled"
+_TASK_PENDING_ = "pending"
+_TASK_RUNNING_ = "running"
+_TASK_COMPLETED_ = "completed"
+_TASK_ERROR_ = "error"
+_TASK_CANCELLED_ = "cancelled"
 
 # HTTP Tasks
-HTTP_TASK_GET = "http_get"
-HTTP_TASK_POST = "http_post"
-HTTP_TASK_PUT = "http_put"
-HTTP_TASK_DELETE = "http_delete"
+_HTTP_TASK_GET_ = "http_get"
+_HTTP_TASK_POST_ = "http_post"
+_HTTP_TASK_PUT_ = "http_put"
+_HTTP_TASK_DELETE_ = "http_delete"
 
 class stzReactiveTask from stzObject
 
@@ -44,24 +44,24 @@ class stzReactiveTask from stzObject
 	# Stores task metadata, function, status, and
 	# callbacks for asynchronous execution.
 
-	taskId = ""
-	taskFunc = NULL
+	_taskId_ = ""
+	_taskFunc_ = NULL
 	onComplete = NULL
 	onError = NULL
-	status = TASK_PENDING
-	result = NULL
-	engine = NULL
-	errorHandling = DEFAULT_ERROR_HANDLING
+	_status_ = _TASK_PENDING_
+	_result_ = NULL
+	_engine_ = NULL
+	_errorHandling_ = DEFAULT_ERROR_HANDLING
 
-	def init(id, f, engine, errorMode)
+	def init(id, f, _engine_, errorMode)
 		# Initializes a task with an ID, function, and engine reference.
-		taskId = id
-		taskFunc = f
-		this.engine = engine
-		status = TASK_PENDING
+		_taskId_ = id
+		_taskFunc_ = f
+		this.engine = _engine_
+		_status_ = _TASK_PENDING_
 		
 		if errorMode != NULL
-			errorHandling = errorMode
+			_errorHandling_ = errorMode
 		ok
 		
 	def Then_(completeFunc)
@@ -77,27 +77,27 @@ class stzReactiveTask from stzObject
 	def Execute()
 		# Executes the task, handling success and error cases.
 		try
-			status = TASK_RUNNING
-			if isString(taskFunc)
-				result = call taskFunc()
+			_status_ = _TASK_RUNNING_
+			if isString(_taskFunc_)
+				_result_ = call _taskFunc_()
 			else
-				result = taskFunc()
+				_result_ = _taskFunc_()
 			ok
-			status = TASK_COMPLETED
+			_status_ = _TASK_COMPLETED_
 			if onComplete != NULL
-				onComplete(result)
+				onComplete(_result_)
 			ok
 
 		catch
-			status = TASK_ERROR
-			errorMsg = "Task execution failed"
+			_status_ = _TASK_ERROR_
+			_errorMsg_ = "Task execution failed"
 			
-			if errorHandling = ERROR_THROW
-				raise(errorMsg)
-			but errorHandling = ERROR_LOG
-				? errorMsg
-			but errorHandling = ERROR_CALLBACK and onError != NULL
-				onError(errorMsg)
+			if _errorHandling_ = ERROR_THROW
+				raise(_errorMsg_)
+			but _errorHandling_ = ERROR_LOG
+				? _errorMsg_
+			but _errorHandling_ = ERROR_CALLBACK and onError != NULL
+				onError(_errorMsg_)
 			ok
 		done
 		

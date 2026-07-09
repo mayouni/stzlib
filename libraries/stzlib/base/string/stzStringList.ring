@@ -57,8 +57,8 @@ func StzConcatenateXT(pacListOfStr, pcSep)
 	func ConcatenateXT(pacListOfStr, pcSep)
 		return StzConcatenateXT(pacListOfStr, pcSep)
 
-	func ConcatXT(acListOfStr, cSep)
-		return StzConcatenateXT(acListOfStr, cSep)
+	func ConcatXT(acListOfStr, _cSep_)
+		return StzConcatenateXT(acListOfStr, _cSep_)
 
 func StzListOfStrings(paList)
 	if @IsListOfStrings(paList)
@@ -88,8 +88,8 @@ class stzStringList from stzObject
 			StzRaise("Can't create stzStringList! Parameter must be a list of strings.")
 		ok
 
-		nLen = len(paList)
-		for i = 1 to nLen
+		_nLen_ = len(paList)
+		for i = 1 to _nLen_
 			if NOT isString(paList[i])
 				StzRaise("Can't create stzStringList! All items must be strings.")
 			ok
@@ -187,17 +187,17 @@ class stzStringList from stzObject
 		# Engine-backed: build result by concatenating
 		# engine handles pairwise
 
-		nLen = len(@acContent)
-		if nLen = 0
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		if nLen = 1
+		if _nLen_ = 1
 			return @acContent[1]
 		ok
 
 		pResult = StzEngineString(@acContent[1])
-		for i = 2 to nLen
+		for i = 2 to _nLen_
 			pOther = StzEngineString(@acContent[i])
 			pNew = StzEngineStringConcat(pResult, pOther)
 			StzEngineStringFree(pResult)
@@ -205,9 +205,9 @@ class stzStringList from stzObject
 			pResult = pNew
 		next
 
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 		def Concatenated()
 			return This.Concat()
@@ -217,19 +217,19 @@ class stzStringList from stzObject
 	#------------------------------------------------------#
 
 	def ConcatUsing(pcSep)
-		nLen = len(@acContent)
-		if nLen = 0
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		cResult = ""
-		for i = 1 to nLen
+		_cResult_ = ""
+		for i = 1 to _nLen_
 			if i > 1
-				cResult += pcSep
+				_cResult_ += pcSep
 			ok
-			cResult += @acContent[i]
+			_cResult_ += @acContent[i]
 		next
-		return cResult
+		return _cResult_
 
 		def ConcatenatedUsing(pcSep)
 			return This.ConcatUsing(pcSep)
@@ -243,8 +243,8 @@ class stzStringList from stzObject
 			return This.ConcatUsing(p)
 
 		but isList(p)
-			oList = new stzList(p)
-			if oList.IsUsingNamedParam()
+			_oList_ = new stzList(p)
+			if _oList_.IsUsingNamedParam()
 				return This.ConcatUsing(p[2])
 			ok
 		ok
@@ -261,17 +261,17 @@ class stzStringList from stzObject
 	def ContainsCS(pcStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLen = len(@acContent)
+		_nLen_ = len(@acContent)
 		if _bCase_
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 				if @acContent[i] = pcStr
 					return 1
 				ok
 			next
 		else
-			cTarget = StzCaseFold(pcStr)
-			for i = 1 to nLen
-				if StzCaseFold(@acContent[i]) = cTarget
+			_cTarget_ = StzCaseFold(pcStr)
+			for i = 1 to _nLen_
+				if StzCaseFold(@acContent[i]) = _cTarget_
 					return 1
 				ok
 			next
@@ -288,12 +288,12 @@ class stzStringList from stzObject
 	def ContainsSubStringCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLen = len(@acContent)
-		for i = 1 to nLen
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
 			pH = StzEngineString(@acContent[i])
-			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
+			_nFound_ = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
 			StzEngineStringFree(pH)
-			if nFound
+			if _nFound_
 				return 1
 			ok
 		next
@@ -309,42 +309,42 @@ class stzStringList from stzObject
 	def FindCS(pcStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		anResult = []
-		nLen = len(@acContent)
+		_anResult_ = []
+		_nLen_ = len(@acContent)
 
 		if _bCase_
 			# Case-sensitive: direct string comparison (no FFI needed)
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 				if @acContent[i] = pcStr
-					anResult + i
+					_anResult_ + i
 				ok
 			next
 		else
 			# Case-insensitive: use engine casefold comparison
-			cTarget = StzCaseFold(pcStr)
-			for i = 1 to nLen
-				if StzCaseFold(@acContent[i]) = cTarget
-					anResult + i
+			_cTarget_ = StzCaseFold(pcStr)
+			for i = 1 to _nLen_
+				if StzCaseFold(@acContent[i]) = _cTarget_
+					_anResult_ + i
 				ok
 			next
 		ok
-		return anResult
+		return _anResult_
 
 	def Find(pcStr)
 		return This.FindCS(pcStr, 1)
 
 	def FindFirst(pcStr)
-		anAll = This.Find(pcStr)
-		if len(anAll) > 0
-			return anAll[1]
+		_anAll_ = This.Find(pcStr)
+		if len(_anAll_) > 0
+			return _anAll_[1]
 		ok
 		return 0
 
 	def FindLast(pcStr)
-		anAll = This.Find(pcStr)
-		nLen = len(anAll)
-		if nLen > 0
-			return anAll[nLen]
+		_anAll_ = This.Find(pcStr)
+		_nLen_ = len(_anAll_)
+		if _nLen_ > 0
+			return _anAll_[_nLen_]
 		ok
 		return 0
 
@@ -354,30 +354,30 @@ class stzStringList from stzObject
 
 	def SortInAscendingCS(pCaseSensitive)
 		# Engine-backed O(n log n) sort via null-delimited items
-		nLen = len(@acContent)
-		if nLen < 2
+		_nLen_ = len(@acContent)
+		if _nLen_ < 2
 			return
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Join items with null bytes
-		cJoined = ""
-		for i = 1 to nLen
+		_cJoined_ = ""
+		for i = 1 to _nLen_
 			if i > 1
-				cJoined += StzChar(0)
+				_cJoined_ += StzChar(0)
 			ok
-			cJoined += @acContent[i]
+			_cJoined_ += @acContent[i]
 		next
 
 		# Sort via engine
-		pH = StzEngineString(cJoined)
+		pH = StzEngineString(_cJoined_)
 		pR = StzEngineStringSortNullItemsCS(pH, _bCase_)
-		cSorted = StzEngineStringData(pR)
+		_cSorted_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
 
-		@acContent = _SplitNullDelimited(cSorted)
+		@acContent = _SplitNullDelimited(_cSorted_)
 
 		def SortInAscendingCSQ(pCaseSensitive)
 			This.SortInAscendingCS(pCaseSensitive)
@@ -394,9 +394,9 @@ class stzStringList from stzObject
 			This.SortInAscending()
 
 	def SortedInAscendingCS(pCaseSensitive)
-		oCopy = This.Copy()
-		oCopy.SortInAscendingCS(pCaseSensitive)
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.SortInAscendingCS(pCaseSensitive)
+		return _oCopy_.Content()
 
 	def SortedInAscending()
 		return This.SortedInAscendingCS(1)
@@ -449,9 +449,9 @@ class stzStringList from stzObject
 			This.SortInDescending()
 
 	def SortedInDescending()
-		oCopy = This.Copy()
-		oCopy.SortInDescending()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.SortInDescending()
+		return _oCopy_.Content()
 
 	  #------------------------------------------------------#
 	 #   SORT BY EXPRESSION                                 #
@@ -522,30 +522,30 @@ class stzStringList from stzObject
 
 	def UniqueCS(pCaseSensitive)
 		# Engine-backed O(n) dedup via null-delimited items
-		nLen = len(@acContent)
-		if nLen < 2
+		_nLen_ = len(@acContent)
+		if _nLen_ < 2
 			return
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Join items with null bytes
-		cJoined = ""
-		for i = 1 to nLen
+		_cJoined_ = ""
+		for i = 1 to _nLen_
 			if i > 1
-				cJoined += StzChar(0)
+				_cJoined_ += StzChar(0)
 			ok
-			cJoined += @acContent[i]
+			_cJoined_ += @acContent[i]
 		next
 
 		# Unique via engine (hashmap-based O(n))
-		pH = StzEngineString(cJoined)
+		pH = StzEngineString(_cJoined_)
 		pR = StzEngineStringUniqueNullItemsCS(pH, _bCase_)
-		cUnique = StzEngineStringData(pR)
+		_cUnique_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
 
-		@acContent = _SplitNullDelimited(cUnique)
+		@acContent = _SplitNullDelimited(_cUnique_)
 
 		def UniqueCSQ(pCaseSensitive)
 			This.UniqueCS(pCaseSensitive)
@@ -562,9 +562,9 @@ class stzStringList from stzObject
 			This.Unique()
 
 	def UniqueItems()
-		oCopy = This.Copy()
-		oCopy.Unique()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.Unique()
+		return _oCopy_.Content()
 
 		def WithoutDuplicates()
 			return This.UniqueItems()
@@ -576,17 +576,17 @@ class stzStringList from stzObject
 	def FilterCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		acResult = []
-		nLen = len(@acContent)
-		for i = 1 to nLen
+		_acResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
 			pH = StzEngineString(@acContent[i])
-			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
+			_nFound_ = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
 			StzEngineStringFree(pH)
-			if nFound
-				acResult + @acContent[i]
+			if _nFound_
+				_acResult_ + @acContent[i]
 			ok
 		next
-		return acResult
+		return _acResult_
 
 	def Filter(pcSubStr)
 		return This.FilterCS(pcSubStr, 1)
@@ -598,25 +598,25 @@ class stzStringList from stzObject
 	def FilterByStartsWithCS(pcPrefix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		acResult = []
-		nLen = len(@acContent)
-		nPrefixLen = StzLen(pcPrefix)
+		_acResult_ = []
+		_nLen_ = len(@acContent)
+		_nPrefixLen_ = StzLen(pcPrefix)
 		if _bCase_
-			for i = 1 to nLen
-				if StzLeft(@acContent[i], nPrefixLen) = pcPrefix
-					acResult + @acContent[i]
+			for i = 1 to _nLen_
+				if StzLeft(@acContent[i], _nPrefixLen_) = pcPrefix
+					_acResult_ + @acContent[i]
 				ok
 			next
 		else
-			cPrefix = StzCaseFold(pcPrefix)
-			nFoldLen = StzLen(cPrefix)
-			for i = 1 to nLen
-				if StzLeft(StzCaseFold(@acContent[i]), nFoldLen) = cPrefix
-					acResult + @acContent[i]
+			_cPrefix_ = StzCaseFold(pcPrefix)
+			_nFoldLen_ = StzLen(_cPrefix_)
+			for i = 1 to _nLen_
+				if StzLeft(StzCaseFold(@acContent[i]), _nFoldLen_) = _cPrefix_
+					_acResult_ + @acContent[i]
 				ok
 			next
 		ok
-		return acResult
+		return _acResult_
 
 	def FilterByStartsWith(pcPrefix)
 		return This.FilterByStartsWithCS(pcPrefix, 1)
@@ -624,25 +624,25 @@ class stzStringList from stzObject
 	def FilterByEndsWithCS(pcSuffix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		acResult = []
-		nLen = len(@acContent)
-		nSuffixLen = StzLen(pcSuffix)
+		_acResult_ = []
+		_nLen_ = len(@acContent)
+		_nSuffixLen_ = StzLen(pcSuffix)
 		if _bCase_
-			for i = 1 to nLen
-				if StzRight(@acContent[i], nSuffixLen) = pcSuffix
-					acResult + @acContent[i]
+			for i = 1 to _nLen_
+				if StzRight(@acContent[i], _nSuffixLen_) = pcSuffix
+					_acResult_ + @acContent[i]
 				ok
 			next
 		else
-			cSuffix = StzCaseFold(pcSuffix)
-			nFoldLen = StzLen(cSuffix)
-			for i = 1 to nLen
-				if StzRight(StzCaseFold(@acContent[i]), nFoldLen) = cSuffix
-					acResult + @acContent[i]
+			_cSuffix_ = StzCaseFold(pcSuffix)
+			_nFoldLen_ = StzLen(_cSuffix_)
+			for i = 1 to _nLen_
+				if StzRight(StzCaseFold(@acContent[i]), _nFoldLen_) = _cSuffix_
+					_acResult_ + @acContent[i]
 				ok
 			next
 		ok
-		return acResult
+		return _acResult_
 
 	def FilterByEndsWith(pcSuffix)
 		return This.FilterByEndsWithCS(pcSuffix, 1)
@@ -652,38 +652,38 @@ class stzStringList from stzObject
 	#======================================================#
 
 	def ToUpper()
-		acResult = []
-		nLen = len(@acContent)
-		for i = 1 to nLen
-			acResult + StzUpper(@acContent[i])
+		_acResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_acResult_ + StzUpper(@acContent[i])
 		next
-		@acContent = acResult
+		@acContent = _acResult_
 
 		def ToUpperQ()
 			This.ToUpper()
 			return This
 
 	def Uppercased()
-		oCopy = This.Copy()
-		oCopy.ToUpper()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.ToUpper()
+		return _oCopy_.Content()
 
 	def ToLower()
-		acResult = []
-		nLen = len(@acContent)
-		for i = 1 to nLen
-			acResult + StzLower(@acContent[i])
+		_acResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_acResult_ + StzLower(@acContent[i])
 		next
-		@acContent = acResult
+		@acContent = _acResult_
 
 		def ToLowerQ()
 			This.ToLower()
 			return This
 
 	def Lowercased()
-		oCopy = This.Copy()
-		oCopy.ToLower()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.ToLower()
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   SIMILARITY (engine-backed Jaro / JaroWinkler)      #
@@ -693,50 +693,50 @@ class stzStringList from stzObject
 		# Returns the string from the list most similar to pcTarget
 		# Uses engine JaroWinkler for best results
 
-		nLen = len(@acContent)
-		if nLen = 0
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		nBestScore = -1
-		nBestIdx = 1
+		_nBestScore_ = -1
+		_nBestIdx_ = 1
 
 		pTarget = StzEngineString(pcTarget)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			pHandle = StzEngineString(@acContent[i])
-			nScore = StzEngineStringJaroWinkler(pHandle, pTarget)
+			_nScore_ = StzEngineStringJaroWinkler(pHandle, pTarget)
 			StzEngineStringFree(pHandle)
 
-			if nScore > nBestScore
-				nBestScore = nScore
-				nBestIdx = i
+			if _nScore_ > _nBestScore_
+				_nBestScore_ = _nScore_
+				_nBestIdx_ = i
 			ok
 		next
 
 		StzEngineStringFree(pTarget)
-		return @acContent[nBestIdx]
+		return @acContent[_nBestIdx_]
 
 	def SimilarToCS(pcTarget, nThreshold, pCaseSensitive)
 		# Returns all strings with JaroWinkler score >= nThreshold
 		# nThreshold is 0..1000 (engine returns integer scaled)
 
-		acResult = []
-		nLen = len(@acContent)
+		_acResult_ = []
+		_nLen_ = len(@acContent)
 
 		pTarget = StzEngineString(pcTarget)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			pHandle = StzEngineString(@acContent[i])
-			nScore = StzEngineStringJaroWinkler(pHandle, pTarget)
+			_nScore_ = StzEngineStringJaroWinkler(pHandle, pTarget)
 			StzEngineStringFree(pHandle)
-			if nScore >= nThreshold
-				acResult + @acContent[i]
+			if _nScore_ >= nThreshold
+				_acResult_ + @acContent[i]
 			ok
 		next
 
 		StzEngineStringFree(pTarget)
-		return acResult
+		return _acResult_
 
 	def SimilarTo(pcTarget, nThreshold)
 		return This.SimilarToCS(pcTarget, nThreshold, 1)
@@ -749,12 +749,12 @@ class stzStringList from stzObject
 		return This.ConcatUsing(NL)
 
 	def ToListOfStzStrings()
-		aResult = []
-		nLen = len(@acContent)
-		for i = 1 to nLen
-			aResult + new stzString(@acContent[i])
+		_aResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_aResult_ + new stzString(@acContent[i])
 		next
-		return aResult
+		return _aResult_
 
 	def ToStzList()
 		return new stzList(@acContent)
@@ -763,29 +763,29 @@ class stzStringList from stzObject
 	 #   SPLIT EACH STRING                                  #
 	#======================================================#
 
-	def Split(cSep)
-		if isList(cSep) and len(cSep) = 2 and isString(cSep[1]) and
-		   (StzCaseFold(cSep[1]) = "using" or StzCaseFold(cSep[1]) = "with" or StzCaseFold(cSep[1]) = "by")
-			cSep = cSep[2]
+	def Split(_cSep_)
+		if isList(_cSep_) and len(_cSep_) = 2 and isString(_cSep_[1]) and
+		   (StzCaseFold(_cSep_[1]) = "using" or StzCaseFold(_cSep_[1]) = "with" or StzCaseFold(_cSep_[1]) = "by")
+			_cSep_ = _cSep_[2]
 		ok
 
-		aResult = []
-		nLen = len(@acContent)
-		for i = 1 to nLen
-			oStr = new stzString(@acContent[i])
-			aResult + oStr.Split(cSep)
+		_aResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_oStr_ = new stzString(@acContent[i])
+			_aResult_ + _oStr_.Split(_cSep_)
 		next
-		return aResult
+		return _aResult_
 
 	  #======================================================#
 	 #   TRIM EACH STRING                                   #
 	#======================================================#
 
 	def Trim()
-		nLen = len(@acContent)
-		for i = 1 to nLen
-			oStr = new stzString(@acContent[i])
-			@acContent[i] = oStr.Trimmed()
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_oStr_ = new stzString(@acContent[i])
+			@acContent[i] = _oStr_.Trimmed()
 		next
 
 		def TrimQ()
@@ -793,17 +793,17 @@ class stzStringList from stzObject
 			return This
 
 	def Trimmed()
-		oCopy = This.Copy()
-		oCopy.Trim()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.Trim()
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REGEX MATCHING                                     #
 	#======================================================#
 
 	def Matches(pcRegexPatt)
-		nLen = len(@acContent)
-		for i = 1 to nLen
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
 			if rx(pcRegexPatt).Match(@acContent[i]) = 0
 				return 0
 			ok

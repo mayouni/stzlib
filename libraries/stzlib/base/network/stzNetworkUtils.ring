@@ -4,10 +4,10 @@
 
     func ResolveHostname(cHostname)
         # Use curl to resolve hostname
-        client = new stzHttpClient()
+        _client_ = new stzHttpClient()
         try
-            client.Get_("http://" + cHostname)
-            return client.ConnectionInfo()[:primary_ip]
+            _client_.Get_("http://" + cHostname)
+            return _client_.ConnectionInfo()[:primary_ip]
         catch
             return ""
         done
@@ -17,10 +17,10 @@
         return "127.0.0.1"
     
     func GetPublicIP()
-        client = new stzHttpClient()
-        client.Get_("http://ip-api.com/line/?fields=query")
-        if not client.HasError()
-            return trim(client.ResponseBody())
+        _client_ = new stzHttpClient()
+        _client_.Get_("http://ip-api.com/line/?fields=query")
+        if not _client_.HasError()
+            return trim(_client_.ResponseBody())
         ok
         return ""
     
@@ -32,8 +32,8 @@
         for _iLoopParts1_ = 1 to _nParts1Len_
         	part = parts[_iLoopParts1_]
             if not isnumber(part) return False ok
-            num = 0 + part
-            if num < 0 or num > 255 return False ok
+            _num_ = 0 + part
+            if _num_ < 0 or _num_ > 255 return False ok
         next
         return True
     
@@ -42,38 +42,38 @@
     
 
     func UrlEncode(cString)
-        cOut = ""
+        _cOut_ = ""
         _nString1Len_ = len(cString)
         for _iLoopString1_ = 1 to _nString1Len_
-        	x = cString[_iLoopString1_]
-            if isalnum(x)
-                cOut += x
-            but x = " "
-                cOut += "+"
+        	_x_ = cString[_iLoopString1_]
+            if isalnum(_x_)
+                _cOut_ += _x_
+            but _x_ = " "
+                _cOut_ += "+"
             else
-                cOut += "%" + str2hex(x)
+                _cOut_ += "%" + str2hex(_x_)
             ok
         next
-        return cOut
+        return _cOut_
     
     func UrlDecode(cString)
         # Implementation for URL decoding
-        cOut = ""
-        i = 1
-        while i <= StzLen(cString)
-            if cString[i] = "%"
-                hex = StzMid(cString, i+1, 2)
-                cOut += StzChar(hex2dec(hex))
-                i += 3
-            elseif cString[i] = "+"
-                cOut += " "
-                i++
+        _cOut_ = ""
+        _i_ = 1
+        while _i_ <= StzLen(cString)
+            if cString[_i_] = "%"
+                _hex_ = StzMid(cString, _i_+1, 2)
+                _cOut_ += StzChar(hex2dec(_hex_))
+                _i_ += 3
+            elseif cString[_i_] = "+"
+                _cOut_ += " "
+                _i_++
             else
-                cOut += cString[i]
-                i++
+                _cOut_ += cString[_i_]
+                _i_++
             ok
         end
-        return cOut
+        return _cOut_
     
     func Base64Encode(cData)
         # Base64 encoding implementation

@@ -53,27 +53,27 @@ Class stzTile From stzGrid
 
 	def ToString()
 		# Create an empty tile grid
-		aCells = list(@nRows)
+		_aCells_ = list(@nRows)
 	
 		for y = 1 to @nRows
-			aCells[y] = list(@nCols)
+			_aCells_[y] = list(@nCols)
 			for x = 1 to @nCols
-				aCells[y][x] = @cEmptyChar
+				_aCells_[y][x] = @cEmptyChar
 			next
 		next
 	
 		# Add Obstacles (obstacles)
 		if @bShowObstacles
-			nLen = len(@aObstacles)
-			for i = 1 to nLen
-				nObstacleCol = @aObstacles[i][1]
-				nObstacleRow = @aObstacles[i][2]
+			_nLen_ = len(@aObstacles)
+			for i = 1 to _nLen_
+				_nObstacleCol_ = @aObstacles[i][1]
+				_nObstacleRow_ = @aObstacles[i][2]
 	
-				if IsValidPosition(nObstacleCol, nObstacleRow)
+				if IsValidPosition(_nObstacleCol_, _nObstacleRow_)
 					if IsChar(@cObstacleChar) = 1
 						@cObstacleChar = " " + @cObstacleChar + " "
 					ok
-					aCells[nObstacleRow][nObstacleCol] = @cObstacleChar  # Use obstacle character
+					_aCells_[_nObstacleRow_][_nObstacleCol_] = @cObstacleChar  # Use obstacle character
 				ok
 			next
 		ok
@@ -83,13 +83,13 @@ Class stzTile From stzGrid
 			# Mark ALL path cells with the path character
 			_nPathLen_ = len(@aPath)
 			for i = 1 to _nPathLen_
-				nPathCol = @aPath[i][1]
-				nPathRow = @aPath[i][2]
+				_nPathCol_ = @aPath[i][1]
+				_nPathRow_ = @aPath[i][2]
 	
-				if IsValidPosition(nPathCol, nPathRow)
+				if IsValidPosition(_nPathCol_, _nPathRow_)
 					# Skip if it's a Obstacle
-					if NOT This.IsObstacle(nPathCol, nPathRow)
-						aCells[nPathRow][nPathCol] = @cPathChar
+					if NOT This.IsObstacle(_nPathCol_, _nPathRow_)
+						_aCells_[_nPathRow_][_nPathCol_] = @cPathChar
 					ok
 				ok
 			next
@@ -97,165 +97,165 @@ Class stzTile From stzGrid
 	
 		# Mark current cell position
 		if IsValidPosition(@nCurrentCol, @nCurrentRow)
-			aCells[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+			_aCells_[@nCurrentRow][@nCurrentCol] = @cCurrentChar
 		ok
 	
 		# Convert tile grid to string representation
-		cResult = ""
+		_cResult_ = ""
 	
 		# Add X-axis labels if requested
 		if @bShowCoordinates
-			cResult += "    "  # Space for alignment
+			_cResult_ += "    "  # Space for alignment
 			for x = 1 to @nCols
 				if x % 10 = 0
-					cResult += "0   "
+					_cResult_ += "0   "
 				else
-					cResult += ""+ (x % 10) + "   "
+					_cResult_ += ""+ (x % 10) + "   "
 				ok
 			next
-			cResult += NL()
+			_cResult_ += NL()
 		ok
 	
 		# Top border with column indicator for current position
-		cResult += "  ╭"
+		_cResult_ += "  ╭"
 		for x = 1 to @nCols
 			if x = @nCurrentCol
-				cResult += "─v─"
+				_cResult_ += "─v─"
 			else
-				cResult += "───"
+				_cResult_ += "───"
 			ok
 	
 			if x < @nCols
-				cResult += "┬"
+				_cResult_ += "┬"
 			ok
 		next
-		cResult += "╮" + NL()
+		_cResult_ += "╮" + NL()
 	
 		# Rows with cells
 		for y = 1 to @nRows
 			if @bShowCoordinates
 				if y % 10 = 0
-					yLabel = "0"
+					_yLabel_ = "0"
 				else
-					yLabel = ""+ (y % 10)
+					_yLabel_ = ""+ (y % 10)
 				ok
 			else
-				yLabel = " "
+				_yLabel_ = " "
 			ok
 	
 			# Row indicator for current position
 			if y = @nCurrentRow
-				cResult += yLabel + " >"
+				_cResult_ += _yLabel_ + " >"
 			else
-				cResult += yLabel + " │"
+				_cResult_ += _yLabel_ + " │"
 			ok
 			for x = 1 to @nCols
-				if aCells[y][x] = @cObstacleChar
+				if _aCells_[y][x] = @cObstacleChar
 					# Fill the entire cell with the obstacle character
-					cResult += @cObstacleChar
+					_cResult_ += @cObstacleChar
 				else
 					# Normal spacing for other characters
-					cResult += " " + aCells[y][x] + " "
+					_cResult_ += " " + _aCells_[y][x] + " "
 				ok
 	
 				if x < @nCols
-					cResult += "│"
+					_cResult_ += "│"
 				ok
 			next
-			cResult += "│" + NL()
+			_cResult_ += "│" + NL()
 	
 			# Horizontal line between rows
 			if y < @nRows
-				cResult += "  ├"
+				_cResult_ += "  ├"
 				for x = 1 to @nCols
-					cResult += "───"
+					_cResult_ += "───"
 					if x < @nCols
-						cResult += "┼"
+						_cResult_ += "┼"
 					ok
 				next
-				cResult += "┤" + NL()
+				_cResult_ += "┤" + NL()
 			ok
 		next
 	
 		# Bottom border
-		cResult += "  ╰"
+		_cResult_ += "  ╰"
 		for x = 1 to @nCols
-			cResult += "───"
+			_cResult_ += "───"
 			if x < @nCols
-				cResult += "┴"
+				_cResult_ += "┴"
 			ok
 		next
-		cResult += "╯" + NL()
+		_cResult_ += "╯" + NL()
 	
-		return cResult
+		return _cResult_
 
 	def Legend()
 
 		# Create a legend string with all relevant information
 
-		cResult = "Tile: " + @nCols + "x" + @nRows + " | "
-		cResult += "Current: " + @cCurrentChar + " | "
+		_cResult_ = "Tile: " + @nCols + "x" + @nRows + " | "
+		_cResult_ += "Current: " + @cCurrentChar + " | "
 
 		if @bShowObstacles
-			cResult += "Obstacles: " + @cObstacleChar + " | "
+			_cResult_ += "Obstacles: " + @cObstacleChar + " | "
 		ok
 
 		if @bShowPath
-			cResult += "Path: " + @cPathChar + " | "
+			_cResult_ += "Path: " + @cPathChar + " | "
 		ok
 
-		return cResult
+		return _cResult_
 
 
 	def ShowCustomGrid(aCustomGrid)
 		# Display a custom Grid without changing the internal Grid state
-		cResult = ""
+		_cResult_ = ""
 	
 		# Add X-axis labels if requested
 		if @bShowCoordinates
-			cResult += "    "  # Space for alignment
+			_cResult_ += "    "  # Space for alignment
 			for x = 1 to @nCols
 				if x % 10 = 0
-					cResult += "0   "
+					_cResult_ += "0   "
 				else
-					cResult += ""+ (x % 10) + "   "
+					_cResult_ += ""+ (x % 10) + "   "
 				ok
 			next
-			cResult += NL()
+			_cResult_ += NL()
 		ok
 	
 		# Top border with column indicator for current position
-		cResult += "  ╭"
+		_cResult_ += "  ╭"
 		for x = 1 to @nCols
 			if x = @nCurrentCol
-				cResult += "─v─"
+				_cResult_ += "─v─"
 			else
-				cResult += "───"
+				_cResult_ += "───"
 			ok
 	
 			if x < @nCols
-				cResult += "┬"
+				_cResult_ += "┬"
 			ok
 		next
-		cResult += "╮" + NL()
+		_cResult_ += "╮" + NL()
 	
 		# Rows with cells
 		for y = 1 to @nRows
 			if @bShowCoordinates
 				if y % 10 = 0
-					yLabel = "0"
+					_yLabel_ = "0"
 				else
-					yLabel = ""+ (y % 10)
+					_yLabel_ = ""+ (y % 10)
 				ok
 			else
-				yLabel = " "
+				_yLabel_ = " "
 			ok
 	
 			# Row indicator for current position
 			if y = @nCurrentRow
-				cResult += yLabel + " >"
+				_cResult_ += _yLabel_ + " >"
 			else
-				cResult += yLabel + " │"
+				_cResult_ += _yLabel_ + " │"
 			ok
 	
 
@@ -264,39 +264,39 @@ Class stzTile From stzGrid
 
 				if aCustomGrid[y][x] = @cObstacleChar
 					# Fill the entire cell with the obstacle character
-					cResult += @cObstacleChar
+					_cResult_ += @cObstacleChar
 				else
 					# Normal spacing for other characters
-					cResult += " " + aCustomGrid[y][x] + " "
+					_cResult_ += " " + aCustomGrid[y][x] + " "
 				ok
 
 				if x < @nCols
-					cResult += "│"
+					_cResult_ += "│"
 				ok
 			next
-			cResult += "│" + NL()
+			_cResult_ += "│" + NL()
 	
 			# Horizontal line between rows
 			if y < @nRows
-				cResult += "  ├"
+				_cResult_ += "  ├"
 				for x = 1 to @nCols
-					cResult += "───"
+					_cResult_ += "───"
 					if x < @nCols
-						cResult += "┼"
+						_cResult_ += "┼"
 					ok
 				next
-				cResult += "┤" + NL()
+				_cResult_ += "┤" + NL()
 			ok
 		next
 	
 		# Bottom border
-		cResult += "  ╰"
+		_cResult_ += "  ╰"
 		for x = 1 to @nCols
-			cResult += "───"
+			_cResult_ += "───"
 			if x < @nCols
-				cResult += "┴"
+				_cResult_ += "┴"
 			ok
 		next
-		cResult += "╯" + NL()
+		_cResult_ += "╯" + NL()
 	
-		? cResult
+		? _cResult_

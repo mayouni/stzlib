@@ -39,235 +39,235 @@ class stzStringRandomizer from stzObject
 	#===============================#
 
 	def Shuffle()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
 
-		for i = nLen to 2 step -1
-			j = random(i - 1) + 1
-			cTemp = acChars[i]
-			acChars[i] = acChars[j]
-			acChars[j] = cTemp
+		for i = _nLen_ to 2 step -1
+			_j_ = random(i - 1) + 1
+			_cTemp_ = _acChars_[i]
+			_acChars_[i] = _acChars_[_j_]
+			_acChars_[_j_] = _cTemp_
 		next
 
-		cResult = ""
-		for i = 1 to nLen
-			cResult += acChars[i]
+		_cResult_ = ""
+		for i = 1 to _nLen_
+			_cResult_ += _acChars_[i]
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def ShuffleQ()
 			This.Shuffle()
 			return This
 
 	def Shuffled()
-		oCopy = new stzStringRandomizer(@oString.Content())
-		oCopy.Shuffle()
-		return oCopy.Content()
+		_oCopy_ = new stzStringRandomizer(@oString.Content())
+		_oCopy_.Shuffle()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     RANDOM CHAR               #
 	#===============================#
 
 	def RandomChar()
-		nLen = @oString.NumberOfChars()
-		if nLen = 0
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ = 0
 			return ""
 		ok
-		n = random(nLen - 1) + 1
-		return @oString.NthChar(n)
+		_n_ = random(_nLen_ - 1) + 1
+		return @oString.NthChar(_n_)
 
-	def RandomChars(n)
-		acResult = []
-		for i = 1 to n
-			acResult + This.RandomChar()
+	def RandomChars(_n_)
+		_acResult_ = []
+		for i = 1 to _n_
+			_acResult_ + This.RandomChar()
 		next
-		return acResult
+		return _acResult_
 
-	def NRandomChars(n)
+	def NRandomChars(_n_)
 		# Returns n unique random chars (no duplicates)
-		acChars = @oString.Chars()
+		_acChars_ = @oString.Chars()
 
 		# Build list of unique chars in the string
-		acUnique = []
-		nLen = len(acChars)
-		for i = 1 to nLen
-			c = acChars[i]
-			if StzFindFirst(acUnique, c) = 0
-				acUnique + c
+		_acUnique_ = []
+		_nLen_ = len(_acChars_)
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if StzFindFirst(_acUnique_, _c_) = 0
+				_acUnique_ + _c_
 			ok
 		next
 
-		nAvailable = len(acUnique)
-		if n > nAvailable
-			n = nAvailable
+		_nAvailable_ = len(_acUnique_)
+		if _n_ > _nAvailable_
+			_n_ = _nAvailable_
 		ok
 
 		# Shuffle unique chars and take first n
-		for i = nAvailable to 2 step -1
-			j = random(i - 1) + 1
-			cTemp = acUnique[i]
-			acUnique[i] = acUnique[j]
-			acUnique[j] = cTemp
+		for i = _nAvailable_ to 2 step -1
+			_j_ = random(i - 1) + 1
+			_cTemp_ = _acUnique_[i]
+			_acUnique_[i] = _acUnique_[_j_]
+			_acUnique_[_j_] = _cTemp_
 		next
 
-		acResult = []
-		for i = 1 to n
-			acResult + acUnique[i]
+		_acResult_ = []
+		for i = 1 to _n_
+			_acResult_ + _acUnique_[i]
 		next
 
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     RANDOM SECTION            #
 	#===============================#
 
-	def RandomSection(nLen)
-		nMax = @oString.NumberOfChars()
-		if nLen > nMax
-			nLen = nMax
+	def RandomSection(_nLen_)
+		_nMax_ = @oString.NumberOfChars()
+		if _nLen_ > _nMax_
+			_nLen_ = _nMax_
 		ok
-		if nLen <= 0
+		if _nLen_ <= 0
 			return ""
 		ok
 
-		nStart = random(nMax - nLen) + 1
-		return @oString.Section(nStart, nStart + nLen - 1)
+		_nStart_ = random(_nMax_ - _nLen_) + 1
+		return @oString.Section(_nStart_, _nStart_ + _nLen_ - 1)
 
-		def RandomSubString(nLen)
-			return This.RandomSection(nLen)
+		def RandomSubString(_nLen_)
+			return This.RandomSection(_nLen_)
 
 	  #===============================#
 	 #     RANDOM WORD               #
 	#===============================#
 
 	def RandomWord()
-		cContent = @oString.Content()
-		acWords = split(cContent, " ")
-		nLen = len(acWords)
-		if nLen = 0
+		_cContent_ = @oString.Content()
+		_acWords_ = split(_cContent_, " ")
+		_nLen_ = len(_acWords_)
+		if _nLen_ = 0
 			return ""
 		ok
-		n = random(nLen - 1) + 1
-		return acWords[n]
+		_n_ = random(_nLen_ - 1) + 1
+		return _acWords_[_n_]
 
 	  #===============================#
 	 #     SHUFFLE WORDS             #
 	#===============================#
 
 	def ShuffleWords()
-		cContent = @oString.Content()
-		acWords = split(cContent, " ")
-		nLen = len(acWords)
+		_cContent_ = @oString.Content()
+		_acWords_ = split(_cContent_, " ")
+		_nLen_ = len(_acWords_)
 
-		for i = nLen to 2 step -1
-			j = random(i - 1) + 1
-			cTemp = acWords[i]
-			acWords[i] = acWords[j]
-			acWords[j] = cTemp
+		for i = _nLen_ to 2 step -1
+			_j_ = random(i - 1) + 1
+			_cTemp_ = _acWords_[i]
+			_acWords_[i] = _acWords_[_j_]
+			_acWords_[_j_] = _cTemp_
 		next
 
-		cResult = ""
-		for i = 1 to nLen
+		_cResult_ = ""
+		for i = 1 to _nLen_
 			if i > 1
-				cResult += " "
+				_cResult_ += " "
 			ok
-			cResult += acWords[i]
+			_cResult_ += _acWords_[i]
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def ShuffleWordsQ()
 			This.ShuffleWords()
 			return This
 
 	def WordsShuffled()
-		oCopy = new stzStringRandomizer(@oString.Content())
-		oCopy.ShuffleWords()
-		return oCopy.Content()
+		_oCopy_ = new stzStringRandomizer(@oString.Content())
+		_oCopy_.ShuffleWords()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     RANDOM CASE               #
 	#===============================#
 
 	def RandomCase()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cResult = ""
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			c = acChars[i]
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
 			if random(1) = 1
-				cResult += StzUpper(c)
+				_cResult_ += StzUpper(_c_)
 			else
-				cResult += StzLower(c)
+				_cResult_ += StzLower(_c_)
 			ok
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def RandomCaseQ()
 			This.RandomCase()
 			return This
 
 	def RandomCased()
-		oCopy = new stzStringRandomizer(@oString.Content())
-		oCopy.RandomCase()
-		return oCopy.Content()
+		_oCopy_ = new stzStringRandomizer(@oString.Content())
+		_oCopy_.RandomCase()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     RANDOM INSERT             #
 	#===============================#
 
 	def RandomInsert(cStr)
-		nLen = @oString.NumberOfChars()
-		nPos = random(nLen) + 1
+		_nLen_ = @oString.NumberOfChars()
+		_nPos_ = random(_nLen_) + 1
 
-		if nPos > nLen
+		if _nPos_ > _nLen_
 			@oString.Update(@oString.Content() + cStr)
 		else
-			oInserter = new stzStringInserter(@oString)
-			oInserter.InsertBefore(nPos, cStr)
+			_oInserter_ = new stzStringInserter(@oString)
+			_oInserter_.InsertBefore(_nPos_, cStr)
 		ok
 
 	  #===============================#
 	 #     RANDOM REMOVE             #
 	#===============================#
 
-	def RandomRemove(n)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		if n >= nLen
+	def RandomRemove(_n_)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		if _n_ >= _nLen_
 			@oString.Update("")
 			return
 		ok
 
 		# Build list of char indices
-		anIndices = []
-		for i = 1 to nLen
-			anIndices + i
+		_anIndices_ = []
+		for i = 1 to _nLen_
+			_anIndices_ + i
 		next
 
 		# Pick n random indices to remove (shuffle and take first n)
-		for i = nLen to 2 step -1
-			j = random(i - 1) + 1
-			nTemp = anIndices[i]
-			anIndices[i] = anIndices[j]
-			anIndices[j] = nTemp
+		for i = _nLen_ to 2 step -1
+			_j_ = random(i - 1) + 1
+			_nTemp_ = _anIndices_[i]
+			_anIndices_[i] = _anIndices_[_j_]
+			_anIndices_[_j_] = _nTemp_
 		next
 
 		# Collect indices to remove
-		anRemove = []
-		for i = 1 to n
-			anRemove + anIndices[i]
+		_anRemove_ = []
+		for i = 1 to _n_
+			_anRemove_ + _anIndices_[i]
 		next
 
 		# Build result keeping chars not in remove list
-		cResult = ""
-		for i = 1 to nLen
-			if StzFindFirst(anRemove, i) = 0
-				cResult += acChars[i]
+		_cResult_ = ""
+		for i = 1 to _nLen_
+			if StzFindFirst(_anRemove_, i) = 0
+				_cResult_ += _acChars_[i]
 			ok
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)

@@ -50,10 +50,10 @@ class stzUUID from stzObject
 		return @cUuid
 
 	def Copy()
-		oC = new stzUUID()
-		oC.@cUuid = @cUuid
-		oC.@nVersion = @nVersion
-		return oC
+		_oC_ = new stzUUID()
+		_oC_.@cUuid = @cUuid
+		_oC_.@nVersion = @nVersion
+		return _oC_
 
 	def WithoutHyphens()
 		return StzReplace(@cUuid, "-", "")
@@ -61,12 +61,12 @@ class stzUUID from stzObject
 	def WithHyphens()
 		if StzFindFirst(@cUuid, "-") = 0
 			# Standard 8-4-4-4-12 hyphenation.
-			cResult = StzMid(@cUuid, 1, 8)  + "-" +
+			_cResult_ = StzMid(@cUuid, 1, 8)  + "-" +
 			          StzMid(@cUuid, 9, 4)  + "-" +
 			          StzMid(@cUuid, 13, 4) + "-" +
 			          StzMid(@cUuid, 17, 4) + "-" +
 			          StzMid(@cUuid, 21, 12)
-			return cResult
+			return _cResult_
 		ok
 		return @cUuid
 
@@ -83,12 +83,12 @@ class stzUUID from stzObject
 
 	def Variant()
 		if StzLen(@cUuid) >= 19
-			nVariantBits = number("0x" + @cUuid[20])
-			if (nVariantBits & 8) = 0
+			_nVariantBits_ = number("0x" + @cUuid[20])
+			if (_nVariantBits_ & 8) = 0
 				return "Reserved (NCS)"
-			but (nVariantBits & 12) = 8
+			but (_nVariantBits_ & 12) = 8
 				return "RFC 4122"
-			but (nVariantBits & 14) = 12
+			but (_nVariantBits_ & 14) = 12
 				return "Microsoft"
 			else
 				return "Future"
@@ -98,13 +98,13 @@ class stzUUID from stzObject
 
 	def Hashed()
 		# Simple per-codepoint hash on the un-hyphenated form.
-		nHash = 0
-		cClean = This.WithoutHyphens()
-		nLen = StzLen(cClean)
-		for i = 1 to nLen
-			nHash = (nHash * 31 + ascii(cClean[i])) % 2147483647
+		_nHash_ = 0
+		_cClean_ = This.WithoutHyphens()
+		_nLen_ = StzLen(_cClean_)
+		for _i_ = 1 to _nLen_
+			_nHash_ = (_nHash_ * 31 + ascii(_cClean_[_i_])) % 2147483647
 		next
-		return nHash
+		return _nHash_
 
 		def Hash()
 			return This.Hashed()
@@ -115,13 +115,13 @@ class stzUUID from stzObject
 	# ToBytes: hex-decode the 32 hex chars (sans hyphens) into a
 	# list of 16 byte values. Pure Ring -- no engine call needed.
 	def ToBytes()
-		cClean = This.WithoutHyphens()
-		aBytes = []
-		nLen = len(cClean)
-		i = 1
-		while i + 1 <= nLen
-			cPair = StzMid(cClean, i, 2)
-			aBytes + number("0x" + cPair)
-			i += 2
+		_cClean_ = This.WithoutHyphens()
+		_aBytes_ = []
+		_nLen_ = len(_cClean_)
+		_i_ = 1
+		while _i_ + 1 <= _nLen_
+			_cPair_ = StzMid(_cClean_, _i_, 2)
+			_aBytes_ + number("0x" + _cPair_)
+			_i_ += 2
 		end
-		return aBytes
+		return _aBytes_

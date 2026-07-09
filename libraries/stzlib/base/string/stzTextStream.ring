@@ -1,19 +1,19 @@
 
 
 class stzTextStream from stzObject
-	oQTextStream
+	_oQTextStream_
 
-	cSourceOfStream
-	bIsSetFromFile
-	bIsSetFromSocket
-	bIsSetFromProcess
+	_cSourceOfStream_
+	_bIsSetFromFile_
+	_bIsSetFromSocket_
+	_bIsSetFromProcess_
 
 	  #----------#
 	 #   INIT   #
 	#----------#
 
 	def init()
-		oQTextStream = new QTextStream()
+		_oQTextStream_ = new QTextStream()
 
 	  #------------#
 	 #   CREATE   #
@@ -21,20 +21,20 @@ class stzTextStream from stzObject
 
 	# Sets the string from a QFile or QSocket or QProcess
 	def SetFromFile(pcFile)
-		oFile = new stzFile(pcFile, :WriteToEnd)
-		oQTextStream.setDevice(oFile.Pointer())
+		_oFile_ = new stzFile(pcFile, :WriteToEnd)
+		_oQTextStream_.setDevice(_oFile_.Pointer())
 
 		This.SetSourceOfStreamTo(:File)
 
 	def SetFromScocket(poQSocket)
 		// TODO: check this is really a socket
-		oQTextStream.setDevice(poQSocket)
+		_oQTextStream_.setDevice(poQSocket)
 
 		This.SetSourceOfStreamTo(:Socket)
 
 	def SetFromProcess(poQProcess)
 		// TODO: check this is really a process
-		oQTextStream.setDevice(poQProcess)
+		_oQTextStream_.setDevice(poQProcess)
 
 		This.SetSourceOfStreamTo(:Process)
 
@@ -43,13 +43,13 @@ class stzTextStream from stzObject
 	#--------------#
 
 	def SetBOM(bTrueOrFalse)
-		return oQTextStream.setGenerateByteOrderMark(bTrueOrFalse)
+		return _oQTextStream_.setGenerateByteOrderMark(bTrueOrFalse)
 
 	def SetAutoDetectUnicode(bTrueOrFalse)
-		return oQTextStream.setAutodetectUnicode(bTrueOrFalse)
+		return _oQTextStream_.setAutodetectUnicode(bTrueOrFalse)
 
 	def SetEncoding(pcEncodingName)
-		return oQTextStream.setCodec(pcEncodingName)
+		return _oQTextStream_.setCodec(pcEncodingName)
 
 	def SetStatus(pcStatus)
 		switch pcStatus
@@ -64,44 +64,44 @@ class stzTextStream from stzObject
 		return 1
 
 	def SetLocale(pcLocale)
-		return oQTextStream.setLocale(pcLocale)
+		return _oQTextStream_.setLocale(pcLocale)
 
 	  #----------#
 	 #   INFO   #
 	#----------#
 
 	def Pointer()
-		return oQTextStream.ObjectPointer()
+		return _oQTextStream_.ObjectPointer()
 
 	def SourceOfStream()
-		return cSourceOfStream
+		return _cSourceOfStream_
 
 	def IsSetFromFile()
-		return bIsSetFromFile
+		return _bIsSetFromFile_
 
 	def IsSetFromSocket()
-		return bIsSetFromSocket
+		return _bIsSetFromSocket_
 
 	def IsSetFromProcess()
-		reurn bIsSetFromProcess
+		reurn _bIsSetFromProcess_
 
 	def IsUnicodeAutoDetected()
-		return oQTextStream.autoDetectUnicode()
+		return _oQTextStream_.autoDetectUnicode()
 
 	def TextEncoding()
-		return oQTextStream.codec()
+		return _oQTextStream_.codec()
 
 	def FilePointer()
-		return oQTextStream.device()
+		return _oQTextStream_.device()
 
 	def SocketPointer()
-		return oQTextStream.device()
+		return _oQTextStream_.device()
 
 	def ProcessPointer()
-		return oQTextStream.device()
+		return _oQTextStream_.device()
 
 	def Status()
-		switch oQTextStream.status()
+		switch _oQTextStream_.status()
 		on 0	return :Ok
 		on 1	return :ReadPastEnd
 		on 2	return :ReadCorruptData
@@ -109,18 +109,18 @@ class stzTextStream from stzObject
 		off
 
 	def Locale()
-		return oQTextStream.locale()
+		return _oQTextStream_.locale()
 
 	  #----------#
 	 #   READ   #
 	#----------#
 
 	def ReadAll()
-		return oQTextStream.readAll()
+		return _oQTextStream_.readAll()
 
 	def Lines()
-		oStzStr = new stzString(This.ReadAll())
-		return oStzStr.Lines()
+		_oStzStr_ = new stzString(This.ReadAll())
+		return _oStzStr_.Lines()
 
 	def ReadLine(n)
 		return This.Lines()[n]
@@ -131,17 +131,17 @@ class stzTextStream from stzObject
 	#-------------#
 
 	def Delete()
-		oQTextStream.delete()
+		_oQTextStream_.delete()
 
 
 	def Flush()
-		return oQTextStream.flash()
+		return _oQTextStream_.flash()
 
 	def Reset()
-		return oQTextStream.reset()
+		return _oQTextStream_.reset()
 
 	def ResetStatus()
-		return oQTextStream.resetStatus()
+		return _oQTextStream_.resetStatus()
 
 	  #---------------------#
 	 #   PRIVATE KITCHEN   #
@@ -150,19 +150,19 @@ class stzTextStream from stzObject
 	PRIVATE
 
 	def SetSourceOfStreamTo(pcSource)
-		bIsSetFromFile = 0
-		bIsSetFromSocket = 0
-		bIsSetFromProcess = 0
+		_bIsSetFromFile_ = 0
+		_bIsSetFromSocket_ = 0
+		_bIsSetFromProcess_ = 0
 	
 		switch pcSource
 		on :File
-			cSourceOfStream = :File
-			bSetFromFile = 1
+			_cSourceOfStream_ = :File
+			_bSetFromFile_ = 1
 		on :Socket
-			cSourceOfStream = :Socket
-			bSetFromSocket = 1
+			_cSourceOfStream_ = :Socket
+			_bSetFromSocket_ = 1
 		on :Process
-			cSourceOfStream = :Process
-			bSetFromProcess = 1
+			_cSourceOfStream_ = :Process
+			_bSetFromProcess_ = 1
 		off
 	

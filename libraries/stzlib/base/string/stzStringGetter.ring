@@ -47,14 +47,14 @@ class stzStringGetter from stzObject
 	 #   ACCESSING NTH CHAR                                 #
 	#======================================================#
 
-	def NthChar(n)
-		return @oString.NthChar(n)
+	def NthChar(_n_)
+		return @oString.NthChar(_n_)
 
-		def CharAt(n)
-			return This.NthChar(n)
+		def CharAt(_n_)
+			return This.NthChar(_n_)
 
-		def CharAtPosition(n)
-			return This.NthChar(n)
+		def CharAtPosition(_n_)
+			return This.NthChar(_n_)
 
 	  #======================================================#
 	 #   FIRST / LAST / MIDDLE CHAR                         #
@@ -67,61 +67,61 @@ class stzStringGetter from stzObject
 		return This.NthChar(@oString.NumberOfChars())
 
 	def MiddleChar()
-		n = ceil(@oString.NumberOfChars() / 2)
-		return This.NthChar(n)
+		_n_ = ceil(@oString.NumberOfChars() / 2)
+		return This.NthChar(_n_)
 
 	  #======================================================#
 	 #   N FIRST / N LAST CHARS                             #
 	#======================================================#
 
-	def NFirstChars(n)
-		return @oString.Section(1, n)
+	def NFirstChars(_n_)
+		return @oString.Section(1, _n_)
 
-		def NFirstCharsQ(n)
-			return StzStringQ(This.NFirstChars(n))
+		def NFirstCharsQ(_n_)
+			return StzStringQ(This.NFirstChars(_n_))
 
-	def NLastChars(n)
-		nLen = @oString.NumberOfChars()
-		return @oString.Section(nLen - n + 1, nLen)
+	def NLastChars(_n_)
+		_nLen_ = @oString.NumberOfChars()
+		return @oString.Section(_nLen_ - _n_ + 1, _nLen_)
 
-		def NLastCharsQ(n)
-			return StzStringQ(This.NLastChars(n))
+		def NLastCharsQ(_n_)
+			return StzStringQ(This.NLastChars(_n_))
 
 	  #======================================================#
 	 #   N LEFT / N RIGHT CHARS                             #
 	#======================================================#
 
-	def NLeftChars(n)
+	def NLeftChars(_n_)
 		if @oString.IsLeftToRight()
-			return This.NFirstChars(n)
+			return This.NFirstChars(_n_)
 		else
-			return This.NLastChars(n)
+			return This.NLastChars(_n_)
 		ok
 
-		def NLeftCharsQ(n)
-			return StzStringQ(This.NLeftChars(n))
+		def NLeftCharsQ(_n_)
+			return StzStringQ(This.NLeftChars(_n_))
 
-		def NLeftCharsAsString(n)
-			return This.NLeftChars(n)
+		def NLeftCharsAsString(_n_)
+			return This.NLeftChars(_n_)
 
-		def NLeftCharsAsStringQ(n)
-			return StzStringQ(This.NLeftChars(n))
+		def NLeftCharsAsStringQ(_n_)
+			return StzStringQ(This.NLeftChars(_n_))
 
-	def NRightChars(n)
+	def NRightChars(_n_)
 		if @oString.IsLeftToRight()
-			return This.NLastChars(n)
+			return This.NLastChars(_n_)
 		else
-			return This.NFirstChars(n)
+			return This.NFirstChars(_n_)
 		ok
 
-		def NRightCharsQ(n)
-			return StzStringQ(This.NRightChars(n))
+		def NRightCharsQ(_n_)
+			return StzStringQ(This.NRightChars(_n_))
 
-		def NRightCharsAsString(n)
-			return This.NRightChars(n)
+		def NRightCharsAsString(_n_)
+			return This.NRightChars(_n_)
 
-		def NRightCharsAsStringQ(n)
-			return StzStringQ(This.NRightChars(n))
+		def NRightCharsAsStringQ(_n_)
+			return StzStringQ(This.NRightChars(_n_))
 
 	  #======================================================#
 	 #   ALL CHARS AS LIST                                  #
@@ -135,8 +135,8 @@ class stzStringGetter from stzObject
 	#======================================================#
 
 	def UniqueCharsCS(pCaseSensitive)
-		aChars = This.Chars()
-		return UCS(aChars, pCaseSensitive)
+		_aChars_ = This.Chars()
+		return UCS(_aChars_, pCaseSensitive)
 
 	def UniqueChars()
 		return This.UniqueCharsCS(1)
@@ -155,31 +155,31 @@ class stzStringGetter from stzObject
 	 #   CHAR N-GRAMS                                       #
 	#======================================================#
 
-	def CharNgrams(n)
+	def CharNgrams(_n_)
 		pH = @oString.Engine()
-		pR = StzEngineStringCharNgrams(pH, n)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringCharNgrams(pH, _n_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if c = ""
+		if _c_ = ""
 			return []
 		ok
 		# Engine returns pipe-delimited ngrams: "ab|bc|cd"
-		return @Split(c, "|")
+		return @Split(_c_, "|")
 
 	  #======================================================#
 	 #   WORD N-GRAMS                                       #
 	#======================================================#
 
-	def WordNgrams(n)
+	def WordNgrams(_n_)
 		pH = @oString.Engine()
-		pR = StzEngineStringWordNgrams(pH, n)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringWordNgrams(pH, _n_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if c = ""
+		if _c_ = ""
 			return []
 		ok
 		# Engine returns pipe-delimited ngrams: "the quick|quick brown"
-		return @Split(c, "|")
+		return @Split(_c_, "|")
 
 	  #======================================================#
 	 #   BYTES PER CHAR                                     #
@@ -188,6 +188,6 @@ class stzStringGetter from stzObject
 	def BytesPerChar()
 		pH = @oString.Engine()
 		pR = StzEngineStringBytesPerChar(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_

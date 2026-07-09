@@ -539,40 +539,40 @@ func UnicodeBlocksXT()
 		return UnicodeBlocksXT()
 
 func UnicodeBlocks()
-	acResult = []
-	nLen = len($aUnicodeBlocksXT)
+	_acResult_ = []
+	_nLen_ = len($aUnicodeBlocksXT)
 
-	for i = 1 to nLen
-		acResult + $aUnicodeBlocksXT[i][1]
+	for i = 1 to _nLen_
+		_acResult_ + $aUnicodeBlocksXT[i][1]
 	next
 
-	return acResult
+	return _acResult_
 
 	func UnicodeBlocksNames()
 		return UnicodeBlocks()
 
 func UnicodeBlocksRanges()
-	aResult = []
-	nLen = len($aUnicodeBlocksXT)
+	_aResult_ = []
+	_nLen_ = len($aUnicodeBlocksXT)
 
-	for i = 1 to nLen
-		aResult + $aUnicodeBlocksXT[i][2]
+	for i = 1 to _nLen_
+		_aResult_ + $aUnicodeBlocksXT[i][2]
 	next
 
-	return aResult
+	return _aResult_
 
 func UnicodeBlocksContaining(pcStr)
-	acResult = []
-	nLen = len($aUnicodeBlocksXT)
+	_acResult_ = []
+	_nLen_ = len($aUnicodeBlocksXT)
 
-	for i = 1 to nLen
-		str = StzLower($aUnicodeBlocksXT[i][1])
-		if ring_substr1(str, pcStr) > 0
-			acResult + $aUnicodeBlocksXT[i][1]
+	for i = 1 to _nLen_
+		_str_ = StzLower($aUnicodeBlocksXT[i][1])
+		if ring_substr1(_str_, pcStr) > 0
+			_acResult_ + $aUnicodeBlocksXT[i][1]
 		ok
 	next
 
-	return acResult
+	return _acResult_
 
 	#< @FunctionAlternativeForms
 
@@ -602,17 +602,17 @@ func UnicodeBlocksContaining(pcStr)
 	#>
 
 func UnicodeBlocksContainingXT(pcStr)
-	aResult = []
-	nLen = len($aUnicodeBlocksXT)
+	_aResult_ = []
+	_nLen_ = len($aUnicodeBlocksXT)
 
-	for i = 1 to nLen
-		str = StzLower($aUnicodeBlocksXT[i][1])
-		if ring_substr1(str, pcStr) > 0
-			aResult + $aUnicodeBlocksXT[i]
+	for i = 1 to _nLen_
+		_str_ = StzLower($aUnicodeBlocksXT[i][1])
+		if ring_substr1(_str_, pcStr) > 0
+			_aResult_ + $aUnicodeBlocksXT[i]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForms
 

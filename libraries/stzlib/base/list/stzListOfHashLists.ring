@@ -64,34 +64,34 @@ class stzListOfHashLists from stzList
 			return This.ToSetOfHashLists()
 
 	def ToListOfStzHashLists()
-		aResult = []
-		nLen = len(@aContent)
+		_aResult_ = []
+		_nLen_ = len(@aContent)
 
-		for i = 1 to nLen
-			aResult + new stzHashList(@aContent[i])
+		for i = 1 to _nLen_
+			_aResult_ + new stzHashList(@aContent[i])
 		next
 
-		return aResult
+		return _aResult_
 
 	def Show()
 
-		cResult = ""
-		nLen = len(@aContent)
+		_cResult_ = ""
+		_nLen_ = len(@aContent)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			aHashList = @aContent[i]
-			nLenHash = len(aHashList)
+			_aHashList_ = @aContent[i]
+			_nLenHash_ = len(_aHashList_)
 
-			for j = 1 to nLenHash
-				cLine = aHashList[j][1] + " : " + aHashList[j][2]
-				cResult += cLine + NL
+			for j = 1 to _nLenHash_
+				_cLine_ = _aHashList_[j][1] + " : " + _aHashList_[j][2]
+				_cResult_ += _cLine_ + NL
 			next
 
-			cResult += NL
+			_cResult_ += NL
 		next
 
-		? ring_trim(cResult)
+		? ring_trim(_cResult_)
 
 		#< @FuntionMisspelledForm
 

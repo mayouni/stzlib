@@ -104,21 +104,21 @@ class stzGrid From stzObject
 	def CurrentRow()
 		return @nCurrentRow
 		
-	def IsValidPosition(nCol, nRow)
+	def IsValidPosition(_nCol_, _nRow_)
 
-		if nCol >= 1 and nCol <= @nCols and
-		   nRow >= 1 and nRow <= @nRows
+		if _nCol_ >= 1 and _nCol_ <= @nCols and
+		   _nRow_ >= 1 and _nRow_ <= @nRows
 
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsValideNode(nCol, nRow)
-			return This.IsValidPosition(nCol, nRow)
+		def IsValideNode(_nCol_, _nRow_)
+			return This.IsValidPosition(_nCol_, _nRow_)
 
-		def IsValidCell(nCol, nRow)
-			return This.IsValidPosition(nCol, nRow)
+		def IsValidCell(_nCol_, _nRow_)
+			return This.IsValidPosition(_nCol_, _nRow_)
 
 	def IsCurrentPositionValid() # For debugging purposes
 		return IsValidPosition( @nCurrentCol, @nCurrentRow)
@@ -134,58 +134,58 @@ class stzGrid From stzObject
 	def Direction()
 		return @cDirection
 		
-	def SetDirection(cDirection)
-		cDirection = StzLower(cDirection)
+	def SetDirection(_cDirection_)
+		_cDirection_ = StzLower(_cDirection_)
 		
-		if cDirection = :forward or 
-		   cDirection = :backward or 
-		   cDirection = :left or 
-		   cDirection = :right or 
-		   cDirection = :up or 
-		   cDirection = :down
-			@cDirection = cDirection
+		if _cDirection_ = :forward or 
+		   _cDirection_ = :backward or 
+		   _cDirection_ = :left or 
+		   _cDirection_ = :right or 
+		   _cDirection_ = :up or 
+		   _cDirection_ = :down
+			@cDirection = _cDirection_
 
 		else
 			stzRaise("Invalid direction! Valid options are: :forward, :backward, :left, :right, :up, :down")
 		ok
 
-	def SetCurrentNode(nCol, nRow)
+	def SetCurrentNode(_nCol_, _nRow_)
 		if CheckParams()
-			if NOT (isNumber(nCol) and isNumber(nRow))
+			if NOT (isNumber(_nCol_) and isNumber(_nRow_))
 				StzRaise("Incorrect param type! nCol and nRow must be both numbers.")
 			ok
 		ok
 
-		if (nCol < 1 or nCol > @nCols) or (nRow < 1 or nRow > @nRows)
+		if (_nCol_ < 1 or _nCol_ > @nCols) or (_nRow_ < 1 or _nRow_ > @nRows)
 			stzRaise("Incorrect param value! nCol must be in the grid range of " + @nCols + " X " + @nRow + ".")
 		ok
 
-		@nCurrentCol = nCol
-		@nCurrentRow = nRow
+		@nCurrentCol = _nCol_
+		@nCurrentRow = _nRow_
 
-		def SetCurrentPosition(nCol, nRow)
-			This.SetCurrentNode(nCol, nRow)
+		def SetCurrentPosition(_nCol_, _nRow_)
+			This.SetCurrentNode(_nCol_, _nRow_)
 
-		def SetCurrenCell(nCol, nRow)
-			This.SetCurrentNode(nCol, nRow)
+		def SetCurrenCell(_nCol_, _nRow_)
+			This.SetCurrentNode(_nCol_, _nRow_)
 
 	#-- MOVEMENT METHODS
 	
-	def MoveToNode(nCol, nRow)
-		if NOT IsValidPosition(nCol, nRow)
+	def MoveToNode(_nCol_, _nRow_)
+		if NOT IsValidPosition(_nCol_, _nRow_)
 			StzRaise("Can't move! The provided position is not valid.")
 		ok
 
-		if NOT IsObstacle(nCol, nRow)
-			@nCurrentCol = nCol
-			@nCurrentRow = nRow
+		if NOT IsObstacle(_nCol_, _nRow_)
+			@nCurrentCol = _nCol_
+			@nCurrentRow = _nRow_
 		ok
 
-		def Moveto(nCol, nRow)
-			This.MoveToNode(nCol, nRow)
+		def Moveto(_nCol_, _nRow_)
+			This.MoveToNode(_nCol_, _nRow_)
 
-		def MoveToCell(nCol, nRow)
-			This.MoveToNode(nCol, nRow)
+		def MoveToCell(_nCol_, _nRow_)
+			This.MoveToNode(_nCol_, _nRow_)
 
 	def MoveToFirstNode()
 		This.MoveToNode(1, 1)
@@ -314,8 +314,8 @@ class stzGrid From stzObject
 			This.MoveToNthNode(n)
 
 	def MoveToNextNthNode(n)
-		aNode = This.NextNthNode(n)
-		This.MoveToNode(aNode[1], aNode[2])
+		_aNode_ = This.NextNthNode(n)
+		This.MoveToNode(_aNode_[1], _aNode_[2])
 
 		def MoveToNthNextNode(n)
 			This.MoveToNextNthNode(n)
@@ -372,17 +372,17 @@ class stzGrid From stzObject
 
 	def MoveBy(nCols, nRows)
 
-		nNewCols = @nCurrentCol + nCols
-		nNewRows = @nCurrentRow + nRows
+		_nNewCols_ = @nCurrentCol + nCols
+		_nNewRows_ = @nCurrentRow + nRows
 		
 
-		if NOT IsValidPosition(nNewCols, nNewRows)
+		if NOT IsValidPosition(_nNewCols_, _nNewRows_)
 			StzRaise("Can't move! The provided position is not valid.")
 		ok
 
-		if NOT IsObstacle(nNewCols, nNewRows)
-			@nCurrentRow = nNewRows
-			@nCurrentCol = nNewCols
+		if NOT IsObstacle(_nNewCols_, _nNewRows_)
+			@nCurrentRow = _nNewRows_
+			@nCurrentCol = _nNewCols_
 		ok
 
 		def MoveByNColsNRows(nCols, nRows)
@@ -436,26 +436,26 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Forward
-		nNewCol = @nCurrentCol + n
+		_nNewCol_ = @nCurrentCol + n
 
-		nTempCol = @nCurrentCol
-		nTempRow = @nCurrentRow
+		_nTempCol_ = @nCurrentCol
+		_nTempRow_ = @nCurrentRow
 
-		if nNewCol <= @nCols
-			nTempCol  = nNewCol
+		if _nNewCol_ <= @nCols
+			_nTempCol_  = _nNewCol_
 		else
-			nNewRow = @nCurrentRow + n
+			_nNewRow_ = @nCurrentRow + n
 
-			if nNewRow <= @nRows
-				nTempRow = nNewRow
-				nTempCol = 1
+			if _nNewRow_ <= @nRows
+				_nTempRow_ = _nNewRow_
+				_nTempCol_ = 1
 			ok
 
 		ok
 		
-		if NOT IsObstacle(nTempCol, nTempRow)
-			@nCurrentCol = nTempCol
-			@nCurrentRow = nTempRow
+		if NOT IsObstacle(_nTempCol_, _nTempRow_)
+			@nCurrentCol = _nTempCol_
+			@nCurrentRow = _nTempRow_
 		ok
 
 		def MoveForwardNNodes(n)
@@ -484,26 +484,26 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Backward
-		nNewCol = @nCurrentCol - n
+		_nNewCol_ = @nCurrentCol - n
 
-		nTempCol = @nCurrentCol
-		nTempRow = @nCurrentRow
+		_nTempCol_ = @nCurrentCol
+		_nTempRow_ = @nCurrentRow
 
-		if nNewCol >= 1
-			nTempCol = nNewCol
+		if _nNewCol_ >= 1
+			_nTempCol_ = _nNewCol_
 		else
-			nNewRow = @nCurrentRow - n
+			_nNewRow_ = @nCurrentRow - n
 			
-			if nNewRow >= 1
-				nTempRow = nNewRow
-				nTempCol = @nCols
+			if _nNewRow_ >= 1
+				_nTempRow_ = _nNewRow_
+				_nTempCol_ = @nCols
 
 			ok
 		ok
 
-		if NOT IsObstacle(nTempCol, nTempRow)
-			@nCurrentCol = nTempCol
-			@nCurrentRow = nTempRow
+		if NOT IsObstacle(_nTempCol_, _nTempRow_)
+			@nCurrentCol = _nTempCol_
+			@nCurrentRow = _nTempRow_
 		ok
 
 		def MoveBackwardNNodes(n)
@@ -533,10 +533,10 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Right
-		nNewCol = @nCurrentCol + n
+		_nNewCol_ = @nCurrentCol + n
 		
-		if nNewCol <= @nCols and NOT IsObstacle(nNewCol, @nCurrentRow)
-			@nCurrentCol = nNewCol
+		if _nNewCol_ <= @nCols and NOT IsObstacle(_nNewCol_, @nCurrentRow)
+			@nCurrentCol = _nNewCol_
 		ok
 
 		def MoveRightNNodes(n)
@@ -566,10 +566,10 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Left
-		nNewCol = @nCurrentCol - n
+		_nNewCol_ = @nCurrentCol - n
 	
-		if nNewCol >= 1 and NOT IsObstacle(nNewCol, @nCurrentRow)
-			@nCurrentCol = nNewCol
+		if _nNewCol_ >= 1 and NOT IsObstacle(_nNewCol_, @nCurrentRow)
+			@nCurrentCol = _nNewCol_
 		ok
 
 		def MoveLeftNNodes(n)
@@ -599,10 +599,10 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Up
-		nNewRow = @nCurrentRow - n
+		_nNewRow_ = @nCurrentRow - n
 		
-		if nNewRow >= 1 and NOt IsObstacle(@nCurrentCol, nNewRow)
-			@nCurrentRow = nNewRow
+		if _nNewRow_ >= 1 and NOt IsObstacle(@nCurrentCol, _nNewRow_)
+			@nCurrentRow = _nNewRow_
 		ok
 
 		def MoveUpNNodes(n)
@@ -632,10 +632,10 @@ class stzGrid From stzObject
 		ok
 
 		@cDirection = :Down
-		nNewRow = @nCurrentRow + n
+		_nNewRow_ = @nCurrentRow + n
 		
-		if nNewRow <= @nRows and NOT IsObstacle(@nCurrentCol, nNewRow)
-			@nCurrentRow = nNewRow
+		if _nNewRow_ <= @nRows and NOT IsObstacle(@nCurrentCol, _nNewRow_)
+			@nCurrentRow = _nNewRow_
 		ok
 
 		def MoveDownNNodes(n)
@@ -659,15 +659,15 @@ class stzGrid From stzObject
 	#-- TRAVERSAL METHODS
 	
 	def Nodes()
-		aResult = []
+		_aResult_ = []
 		
 		for i = 1 to @nCols
 			for j = 1 to @nRows
-				aResult +  [i, j]
+				_aResult_ +  [i, j]
 			next
 		next
 		
-		return aResult
+		return _aResult_
 		
 		def Positions()
 			return This.Nodes()
@@ -678,24 +678,24 @@ class stzGrid From stzObject
 	#-- NEIGHBORS & RELATIVE POSITIONS
 
 	def Neighbors()
-		aResult = []
+		_aResult_ = []
 		
 		# Check each of the 8 neighbors
 
-		aDirections = [
+		_aDirections_ = [
 			[-1,-1], [-1,0], [-1,1], 
 		      	[0,-1],          [0,1],
 		     	[1,-1],  [1,0],  [1,1]
 		]
 		
-		nLen = len(aDirections)
+		_nLen_ = len(_aDirections_)
 
-		for i = 1 to nLen
-			nRow = @nCurrentRow + aDirections[i][1]
-			nCol = @nCurrentCol + aDirections[i][2]
+		for i = 1 to _nLen_
+			_nRow_ = @nCurrentRow + _aDirections_[i][1]
+			_nCol_ = @nCurrentCol + _aDirections_[i][2]
 
-			if IsValidPosition(nCol, nRow)
-				aResult +  [nCol, nRow]
+			if IsValidPosition(_nCol_, _nRow_)
+				_aResult_ +  [_nCol_, _nRow_]
 			ok
 		next
 
@@ -703,19 +703,19 @@ class stzGrid From stzObject
 		# Ring's `sort()` chokes on lists-of-lists; use a simple
 		# pair-comparison sort. Matches the original narrative tests
 		# which were written when the iteration was column-major.
-		_nResultLen_2 = len(aResult)
+		_nResultLen_2 = len(_aResult_)
 		for _i_ = 1 to _nResultLen_2 - 1
-			_nResultLen_ = len(aResult)
+			_nResultLen_ = len(_aResult_)
 			for _j_ = _i_ + 1 to _nResultLen_
-				if aResult[_i_][1] > aResult[_j_][1] or
-				   (aResult[_i_][1] = aResult[_j_][1] and aResult[_i_][2] > aResult[_j_][2])
-					_t_ = aResult[_i_]
-					aResult[_i_] = aResult[_j_]
-					aResult[_j_] = _t_
+				if _aResult_[_i_][1] > _aResult_[_j_][1] or
+				   (_aResult_[_i_][1] = _aResult_[_j_][1] and _aResult_[_i_][2] > _aResult_[_j_][2])
+					_t_ = _aResult_[_i_]
+					_aResult_[_i_] = _aResult_[_j_]
+					_aResult_[_j_] = _t_
 				ok
 			next
 		next
-		return aResult
+		return _aResult_
 
 		def AdjacentNodes()
 			return This.Neighbors()
@@ -746,11 +746,11 @@ class stzGrid From stzObject
 
 	def NodeUp()
 
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow - 1
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow - 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position above the current position!")
 		ok
@@ -769,11 +769,11 @@ class stzGrid From stzObject
 
 	def NodeUpLeft()
 
-		nCol = @nCurrentCol - 1
-		nRow = @nCurrentRow - 1
+		_nCol_ = @nCurrentCol - 1
+		_nRow_ = @nCurrentRow - 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position above the current position!")
 		ok
@@ -786,11 +786,11 @@ class stzGrid From stzObject
 
 	def NodeUpRight()
 
-		nCol = @nCurrentCol + 1
-		nRow = @nCurrentRow - 1
+		_nCol_ = @nCurrentCol + 1
+		_nRow_ = @nCurrentRow - 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position above the current position!")
 		ok
@@ -803,11 +803,11 @@ class stzGrid From stzObject
 
 	def NodeDown()
 
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow + 1
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow + 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position below the current position!")
 		ok
@@ -826,11 +826,11 @@ class stzGrid From stzObject
 
 	def NodeDownLeft()
 
-		nCol = @nCurrentCol - 1
-		nRow = @nCurrentRow + 1
+		_nCol_ = @nCurrentCol - 1
+		_nRow_ = @nCurrentRow + 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position below the current position!")
 		ok
@@ -843,11 +843,11 @@ class stzGrid From stzObject
 
 	def NodeDownRight()
 
-		nCol = @nCurrentCol + 1
-		nRow = @nCurrentRow + 1
+		_nCol_ = @nCurrentCol + 1
+		_nRow_ = @nCurrentRow + 1
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position below the current position!")
 		ok
@@ -860,11 +860,11 @@ class stzGrid From stzObject
 
 	def NodeLeft()
 
-		nCol = @nCurrentCol - 1
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol - 1
+		_nRow_ = @nCurrentRow
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position to the left of the current position!")
 		ok
@@ -877,11 +877,11 @@ class stzGrid From stzObject
 
 	def NodeRight()
 
-		nCol = @nCurrentCol + 1
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol + 1
+		_nRow_ = @nCurrentRow
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position to the right of the current position!")
 		ok
@@ -892,68 +892,68 @@ class stzGrid From stzObject
 		def CellRight()
 			return This.NodeRight()
 
-	def DistanceTo(nCol, nRow)
+	def DistanceTo(_nCol_, _nRow_)
 		# Manhattan distance (L1 norm)
-		nResult = abs(@nCurrentCol - nCol) + abs(@nCurrentRow - nRow)
-		return nResult
+		_nResult_ = abs(@nCurrentCol - _nCol_) + abs(@nCurrentRow - _nRow_)
+		return _nResult_
 		
-		def DistanceToNode(nCol, nRow)
-			return This.DistanceTo(nCol, nRow)
+		def DistanceToNode(_nCol_, _nRow_)
+			return This.DistanceTo(_nCol_, _nRow_)
 
-		def DistanceToCell(nCol, nRow)
-			return This.DistanceTo(nCol, nRow)
+		def DistanceToCell(_nCol_, _nRow_)
+			return This.DistanceTo(_nCol_, _nRow_)
 
-		def ManhattanDistanceTo(nCol, nRow)
-			return This.DistanceTo(nCol, nRow)
+		def ManhattanDistanceTo(_nCol_, _nRow_)
+			return This.DistanceTo(_nCol_, _nRow_)
 
-		def ManhattanDistanceToNode(nCol, nRow)
-			return This.DistanceTo(nCol, nRow)
+		def ManhattanDistanceToNode(_nCol_, _nRow_)
+			return This.DistanceTo(_nCol_, _nRow_)
 
-	def EuclideanDistanceTo(nCol, nRow)
+	def EuclideanDistanceTo(_nCol_, _nRow_)
     		# Euclidean distance (L2 norm)
 
-		nDeltaCol = nCol - @nCurrentCol
-		nDeltaRow = nRow - @nCurrentRow
+		_nDeltaCol_ = _nCol_ - @nCurrentCol
+		_nDeltaRow_ = _nRow_ - @nCurrentRow
 
 		# Calculate using Pythagorean theorem
-		nResult = ring_sqrt( nDeltaCol * nDeltaCol + nDeltaRow * nDeltaRow )
+		_nResult_ = ring_sqrt( _nDeltaCol_ * _nDeltaCol_ + _nDeltaRow_ * _nDeltaRow_ )
 
-		return nResult
+		return _nResult_
 
-		def EuclideanDistanceToNode(nCol, nRow)
-			return This.EuclideanDistanceTo(nCol, nRow)
+		def EuclideanDistanceToNode(_nCol_, _nRow_)
+			return This.EuclideanDistanceTo(_nCol_, _nRow_)
 
-		def EuclideanDistanceToCell(nCol, nRow)
-			return This.EuclideanDistanceTo(nCol, nRow)
+		def EuclideanDistanceToCell(_nCol_, _nRow_)
+			return This.EuclideanDistanceTo(_nCol_, _nRow_)
 
-		def EucDistanceTo(nCol, nRow)
-			return This.EuclideanDistanceTo(nCol, nRow)
+		def EucDistanceTo(_nCol_, _nRow_)
+			return This.EuclideanDistanceTo(_nCol_, _nRow_)
 
-		def EucDistTo(nCol, nRow)
-			return This.EuclideanDistanceTo(nCol, nRow)
+		def EucDistTo(_nCol_, _nRow_)
+			return This.EuclideanDistanceTo(_nCol_, _nRow_)
 	
 	#-- N-NODE RELATIVE POSITION METHODS
 	
 	def NextNthNode(n)
 		# Save current position
-		nOldCol = @nCurrentCol
-		nOldRow = @nCurrentRow
-		cOldDirection = @cDirection
+		_nOldCol_ = @nCurrentCol
+		_nOldRow_ = @nCurrentRow
+		_cOldDirection_ = @cDirection
 		
 		# Move n steps in current direction
 		This.MoveNNodes(n)
 		
 		# Get the resulting position
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow
 		
 		# Restore original position
-		@nCurrentCol = nOldCol
-		@nCurrentRow = nOldRow
-		@cDirection = cOldDirection
+		@nCurrentCol = _nOldCol_
+		@nCurrentRow = _nOldRow_
+		@cDirection = _cOldDirection_
 		
 		# Return the calculated position
-		return [nCol, nRow]
+		return [_nCol_, _nRow_]
 		
 
 		def NextNthPosition(n)
@@ -973,9 +973,9 @@ class stzGrid From stzObject
 
 	def PreviousNthNode(n)
 		# Save current position
-		nOldCol = @nCurrentCol
-		nOldRow = @nCurrentRow
-		cOldDirection = @cDirection
+		_nOldCol_ = @nCurrentCol
+		_nOldRow_ = @nCurrentRow
+		_cOldDirection_ = @cDirection
 		
 		# Move n steps in reverse direction
 		for i = 1 to n
@@ -983,16 +983,16 @@ class stzGrid From stzObject
 		next
 		
 		# Get the resulting position
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow
 		
 		# Restore original position
-		@nCurrentCol = nOldCol
-		@nCurrentRow = nOldRow
-		@cDirection = cOldDirection
+		@nCurrentCol = _nOldCol_
+		@nCurrentRow = _nOldRow_
+		@cDirection = _cOldDirection_
 		
 		# Return the calculated position
-		return [nCol, nRow]
+		return [_nCol_, _nRow_]
 		
 
 		def PreviousNthPosition(n)
@@ -1012,11 +1012,11 @@ class stzGrid From stzObject
 
 	
 	def NthNodeUp(n)
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow - n
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow - n
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position " + n + " nodes above the current position!")
 		ok
@@ -1028,11 +1028,11 @@ class stzGrid From stzObject
 			return This.NthNodeUp(n)
 
 	def NthNodeDown(n)
-		nCol = @nCurrentCol
-		nRow = @nCurrentRow + n
+		_nCol_ = @nCurrentCol
+		_nRow_ = @nCurrentRow + n
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position " + n + " nodes below the current position!")
 		ok
@@ -1044,11 +1044,11 @@ class stzGrid From stzObject
 			return This.NthNodeDown(n)
 
 	def NthNodeLeft(n)
-		nCol = @nCurrentCol - n
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol - n
+		_nRow_ = @nCurrentRow
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position " + n + " nodes to the left of the current position!")
 		ok
@@ -1060,11 +1060,11 @@ class stzGrid From stzObject
 			return This.NthNodeLeft(n)
 
 	def NthNodeRight(n)
-		nCol = @nCurrentCol + n
-		nRow = @nCurrentRow
+		_nCol_ = @nCurrentCol + n
+		_nRow_ = @nCurrentRow
 		
-		if IsValidPosition(nCol, nRow)
-			return [nCol, nRow]
+		if IsValidPosition(_nCol_, _nRow_)
+			return [_nCol_, _nRow_]
 		else
 			StzRaise("No valid position " + n + " nodes to the right of the current position!")
 		ok
@@ -1077,13 +1077,13 @@ class stzGrid From stzObject
 
 	#-- OBSTACLES MANAGEMENT
 	
-	def AddObstacle(nCol, nRow)
-		if NOT IsValidPosition(nCol, nRow)
+	def AddObstacle(_nCol_, _nRow_)
+		if NOT IsValidPosition(_nCol_, _nRow_)
 			stzRaise("Invalid position for obstacle!")
 		ok
 		
-		if NOT This.IsObstacle(nCol, nRow)
-			@aObstacles + [nCol, nRow]
+		if NOT This.IsObstacle(_nCol_, _nRow_)
+			@aObstacles + [_nCol_, _nRow_]
 		ok
 		
 	def AddObstacles(aPositions)
@@ -1094,10 +1094,10 @@ class stzGrid From stzObject
 			ok
 		next
 		
-	def RemoveObstacle(nCol, nRow)
+	def RemoveObstacle(_nCol_, _nRow_)
 		_nObstaclesLen_4 = len(@aObstacles)
 		for i = 1 to _nObstaclesLen_4
-			if @aObstacles[i][1] = nCol and @aObstacles[i][2] = nRow
+			if @aObstacles[i][1] = _nCol_ and @aObstacles[i][2] = _nRow_
 				del(@aObstacles, i)
 				return
 			ok
@@ -1109,10 +1109,10 @@ class stzGrid From stzObject
 		def RemoveObstacles()
 			@aObstacles = []
 
-	def IsObstacle(nCol, nRow)
+	def IsObstacle(_nCol_, _nRow_)
 		_nObstaclesLen_3 = len(@aObstacles)
 		for i = 1 to _nObstaclesLen_3
-			if @aObstacles[i][1] = nCol and @aObstacles[i][2] = nRow
+			if @aObstacles[i][1] = _nCol_ and @aObstacles[i][2] = _nRow_
 				return TRUE
 			ok
 		next
@@ -1125,27 +1125,27 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nLen = len(panColRow)
-		bResult = TRUE
+		_nLen_ = len(panColRow)
+		_bResult_ = TRUE
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT This.IsObstacle(panColRow[1], panColRow[2])
-				bResult = FALSE
+				_bResult_ = FALSE
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
-	def SetObstacleChar(cChar)
-		if isString(cChar) and @IsChar(cChar)
-			@cObstacleChar = cChar
+	def SetObstacleChar(_cChar_)
+		if isString(_cChar_) and @IsChar(_cChar_)
+			@cObstacleChar = _cChar_
 		else
 			stzRaise("Obstacle character must be a single character!")
 		ok
 
-		def SetObstacleNode(cChar)
-			This.SetObstacleChar(cChar)
+		def SetObstacleNode(_cChar_)
+			This.SetObstacleChar(_cChar_)
 
 	def ObstacleChar()
 		return @cObstacleChar
@@ -1163,9 +1163,9 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nLen = len(panColRow)
+		_nLen_ = len(panColRow)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			@aPath + [ panColRow[i][1], panColRow[i][2] ]
 		next
 
@@ -1175,15 +1175,15 @@ class stzGrid From stzObject
 		def AddPathCells(pancolRow)
 			This.AddPath(panColRow)
 
-	def AddPathNode(nCol, nRow)
-		if NOT IsValidPosition(nCol, nRow)
+	def AddPathNode(_nCol_, _nRow_)
+		if NOT IsValidPosition(_nCol_, _nRow_)
 			stzRaise("Invalid position for path node!")
 		ok
 		
-		@aPath + [nCol, nRow]
+		@aPath + [_nCol_, _nRow_]
 		
-		def AddPathCell(nCol, nRow)
-			This.AddPathNode(nCol, nRow)
+		def AddPathCell(_nCol_, _nRow_)
+			This.AddPathNode(_nCol_, _nRow_)
 
 	def ClearPath()
 		@aPath = []
@@ -1200,9 +1200,9 @@ class stzGrid From stzObject
 		def PathLen()
 			return len(@aPath)
 
-	def SetPathChar(cChar)
-		if isString(cChar) and IsChar(cChar)
-			@cPathChar = cChar
+	def SetPathChar(_cChar_)
+		if isString(_cChar_) and IsChar(_cChar_)
+			@cPathChar = _cChar_
 		else
 			stzRaise("Path character must be a single character!")
 		ok
@@ -1210,9 +1210,9 @@ class stzGrid From stzObject
 	def PathChar()
 		return @cPathChar
 		
-	def SetCurrentChar(cChar)
-		if isString(cChar) and IsChar(cChar)
-			@cCurrentChar = cChar
+	def SetCurrentChar(_cChar_)
+		if isString(_cChar_) and IsChar(_cChar_)
+			@cCurrentChar = _cChar_
 		else
 			stzRaise("Current position character must be a single character!")
 		ok
@@ -1220,9 +1220,9 @@ class stzGrid From stzObject
 	def CurrentChar()
 		return @cCurrentChar
 		
-	def SetEmptyChar(cChar)
-		if isString(cChar) and IsChar(cChar)
-			@cEmptyChar = cChar
+	def SetEmptyChar(_cChar_)
+		if isString(_cChar_) and IsChar(_cChar_)
+			@cEmptyChar = _cChar_
 		else
 			stzRaise("Empty cell character must be a single character!")
 		ok
@@ -1246,115 +1246,115 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 		
 		# Validate positions
 
-		if NOT IsValidPosition(nStartCol, nStartRow)
+		if NOT IsValidPosition(_nStartCol_, _nStartRow_)
 			StzRaise("Invalid start position!")
 		ok
 		
-		if NOT IsValidPosition(nEndCol, nEndRow)
+		if NOT IsValidPosition(_nEndCol_, _nEndRow_)
 			StzRaise("Invalid end position!")
 		ok
 		
 		# Check if start or end is an obstacle
 
-		if This.IsObstacle(nStartCol, nStartRow)
+		if This.IsObstacle(_nStartCol_, _nStartRow_)
 			stzRaise("Start position is an obstacle!")
 		ok
 		
-		if This.IsObstacle(nEndCol, nEndRow)
+		if This.IsObstacle(_nEndCol_, _nEndRow_)
 			stzRaise("End position is an obstacle!")
 		ok
 		
 		# Initialize data structures
 
-		aOpenSet = []          # Nodes to be evaluated
-		aClosedSet = []        # Nodes already evaluated
-		aCameFrom = []         # Map to reconstruct path
-		aGScore = []           # Cost from start to current node
-		aFScore = []           # Estimated total cost from start to goal through current node
+		_aOpenSet_ = []          # Nodes to be evaluated
+		_aClosedSet_ = []        # Nodes already evaluated
+		_aCameFrom_ = []         # Map to reconstruct path
+		_aGScore_ = []           # Cost from start to current node
+		_aFScore_ = []           # Estimated total cost from start to goal through current node
 		
 		# Initialize with start position
 
-		aOpenSet + [nStartCol, nStartRow]
+		_aOpenSet_ + [_nStartCol_, _nStartRow_]
 		
 		# Initialize gScore with infinity for all positions
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				aGScore + [[j, i], 999999]
-				aFScore + [[j, i], 999999]
+				_aGScore_ + [[j, i], 999999]
+				_aFScore_ + [[j, i], 999999]
 			next
 		next
 		
 		# Set scores for start position
 
-		This.SetScoreAt(aGScore, nStartCol, nStartRow, 0)
-		This.SetScoreAt(aFScore, nStartCol, nStartRow, This.HeuristicCost([nStartCol, nStartRow], [nEndCol, nEndRow]))
+		This.SetScoreAt(_aGScore_, _nStartCol_, _nStartRow_, 0)
+		This.SetScoreAt(_aFScore_, _nStartCol_, _nStartRow_, This.HeuristicCost([_nStartCol_, _nStartRow_], [_nEndCol_, _nEndRow_]))
 		
 		# Main loop
 
-		while len(aOpenSet) > 0
+		while len(_aOpenSet_) > 0
 
 			# Get node with lowest fScore
 
-			nCurrentIdx = This.LowestFScore(aOpenSet, aFScore)
-			nCurrentCol = aOpenSet[nCurrentIdx][1]
-			nCurrentRow = aOpenSet[nCurrentIdx][2]
+			_nCurrentIdx_ = This.LowestFScore(_aOpenSet_, _aFScore_)
+			_nCurrentCol_ = _aOpenSet_[_nCurrentIdx_][1]
+			_nCurrentRow_ = _aOpenSet_[_nCurrentIdx_][2]
 			
 			# Check if we reached the goal
 
-			if nCurrentCol = nEndCol and nCurrentRow = nEndRow
+			if _nCurrentCol_ = _nEndCol_ and _nCurrentRow_ = _nEndRow_
 				# Reconstruct path
-				@aPath = This.ReconstructPath(aCameFrom, nCurrentCol, nCurrentRow)
+				@aPath = This.ReconstructPath(_aCameFrom_, _nCurrentCol_, _nCurrentRow_)
 				return @aPath
 			ok
 			
 			# Remove current from open set and add to closed set
 
-			del(aOpenSet, nCurrentIdx)
-			aClosedSet + [nCurrentCol, nCurrentRow]
+			del(_aOpenSet_, _nCurrentIdx_)
+			_aClosedSet_ + [_nCurrentCol_, _nCurrentRow_]
 			
 			# Check all neighbors
 
-			aNeighbors = This.WalkableNeighbors(nCurrentCol, nCurrentRow)
+			_aNeighbors_ = This.WalkableNeighbors(_nCurrentCol_, _nCurrentRow_)
 			
-			_nNeighborsLen_ = len(aNeighbors)
+			_nNeighborsLen_ = len(_aNeighbors_)
 			for i = 1 to _nNeighborsLen_
-				nNeighborCol = aNeighbors[i][1]
-				nNeighborRow = aNeighbors[i][2]
+				_nNeighborCol_ = _aNeighbors_[i][1]
+				_nNeighborRow_ = _aNeighbors_[i][2]
 				
 				# Skip if neighbor is in closed set
 
-				if This.IsInList(aClosedSet, nNeighborCol, nNeighborRow)
+				if This.IsInList(_aClosedSet_, _nNeighborCol_, _nNeighborRow_)
 					loop
 				ok
 				
 				# Calculate tentative gScore
 
-				nTentativeGScore = This.GetScoreAt(aGScore, nCurrentCol, nCurrentRow) + 1
+				_nTentativeGScore_ = This.GetScoreAt(_aGScore_, _nCurrentCol_, _nCurrentRow_) + 1
 				
 				# Check if neighbor is not in open set
 
-				if NOT This.IsInList(aOpenSet, nNeighborCol, nNeighborRow)
-					aOpenSet + [nNeighborCol, nNeighborRow]
+				if NOT This.IsInList(_aOpenSet_, _nNeighborCol_, _nNeighborRow_)
+					_aOpenSet_ + [_nNeighborCol_, _nNeighborRow_]
 
-				but nTentativeGScore >= This.GetScoreAt(aGScore, nNeighborCol, nNeighborRow)
+				but _nTentativeGScore_ >= This.GetScoreAt(_aGScore_, _nNeighborCol_, _nNeighborRow_)
 					# Not a better path
 					loop
 				ok
 				
 				# This path is better, record it
 
-				aCameFrom = This.SetCameFrom(aCameFrom, nNeighborCol, nNeighborRow, nCurrentCol, nCurrentRow)
-				This.SetScoreAt(aGScore, nNeighborCol, nNeighborRow, nTentativeGScore)
-				This.SetScoreAt(aFScore, nNeighborCol, nNeighborRow, 
-					nTentativeGScore + This.HeuristicCost([nNeighborCol, nNeighborRow], [nEndCol, nEndRow]))
+				_aCameFrom_ = This.SetCameFrom(_aCameFrom_, _nNeighborCol_, _nNeighborRow_, _nCurrentCol_, _nCurrentRow_)
+				This.SetScoreAt(_aGScore_, _nNeighborCol_, _nNeighborRow_, _nTentativeGScore_)
+				This.SetScoreAt(_aFScore_, _nNeighborCol_, _nNeighborRow_, 
+					_nTentativeGScore_ + This.HeuristicCost([_nNeighborCol_, _nNeighborRow_], [_nEndCol_, _nEndRow_]))
 			next
 		end
 		
@@ -1391,18 +1391,18 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 
 		# Validate positions
 
-		if NOT IsValidPosition(nStartCol, nStartRow)
+		if NOT IsValidPosition(_nStartCol_, _nStartRow_)
 			stzRaise("Invalid start position!")
 		ok
 		
-		if NOT IsValidPosition(nEndCol, nEndRow)
+		if NOT IsValidPosition(_nEndCol_, _nEndRow_)
 			stzRaise("Invalid end position!")
 		ok
 		
@@ -1412,68 +1412,68 @@ class stzGrid From stzObject
 		
 		# Start from start position
 
-		This.AddPathNode(nStartCol, nStartRow)
+		This.AddPathNode(_nStartCol_, _nStartRow_)
 		
 		# Current position
 
-		nCurrentCol = nStartCol
-		nCurrentRow = nStartRow
+		_nCurrentCol_ = _nStartCol_
+		_nCurrentRow_ = _nStartRow_
 		
 		# First move horizontally
 
-		while nCurrentCol != nEndCol
+		while _nCurrentCol_ != _nEndCol_
 
-			if nCurrentCol < nEndCol
-				nCurrentCol++
+			if _nCurrentCol_ < _nEndCol_
+				_nCurrentCol_++
 			else
-				nCurrentCol--
+				_nCurrentCol_--
 			ok
 			
 			# Check for obstacle
 
-			if This.IsObstacle(nCurrentCol, nCurrentRow)
+			if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 
 				# Try going around by moving vertically first
-				return This.FindManhattanPathVerticalFirst(nStartCol, nStartRow, nEndCol, nEndRow)
+				return This.FindManhattanPathVerticalFirst(_nStartCol_, _nStartRow_, _nEndCol_, _nEndRow_)
 			ok
 			
-			This.AddPathNode(nCurrentCol, nCurrentRow)
+			This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 		end
 		
 		# Then move vertically
 
-		while nCurrentRow != nEndRow
-			if nCurrentRow < nEndRow
-				nCurrentRow++
+		while _nCurrentRow_ != _nEndRow_
+			if _nCurrentRow_ < _nEndRow_
+				_nCurrentRow_++
 			else
-				nCurrentRow--
+				_nCurrentRow_--
 			ok
 			
 			# Check for obstacle
 
-			if This.IsObstacle(nCurrentCol, nCurrentRow)
+			if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 
 				# If we hit an obstacle, use A* algorithm for the rest of the path
 
-				aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
+				_aPartialPath_ = This.ShortestPath(_nCurrentCol_, _nCurrentRow_ - @IF(_nCurrentRow_ > _nEndRow_, 1, -1), _nEndCol_, _nEndRow_)
 				
 				# Remove first node to avoid duplication
 
-				if len(aPartialPath) > 0
-					del(aPartialPath, 1)
+				if len(_aPartialPath_) > 0
+					del(_aPartialPath_, 1)
 				ok
 				
 				# Add the rest of the path
 
-				_nPartialPathLen_5 = len(aPartialPath)
+				_nPartialPathLen_5 = len(_aPartialPath_)
 				for i = 1 to _nPartialPathLen_5
-					This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+					This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 				next
 				
 				return @aPath
 			ok
 			
-			This.AddPathNode(nCurrentCol, nCurrentRow)
+			This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 		end
 		
 		return @aPath
@@ -1493,10 +1493,10 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 		
 		# Clear existing path
 
@@ -1504,74 +1504,74 @@ class stzGrid From stzObject
 		
 		# Start from start position
 
-		This.AddPathNode(nStartCol, nStartRow)
+		This.AddPathNode(_nStartCol_, _nStartRow_)
 		
 		# Current position
 
-		nCurrentCol = nStartCol
-		nCurrentRow = nStartRow
+		_nCurrentCol_ = _nStartCol_
+		_nCurrentRow_ = _nStartRow_
 		
 		# First move vertically
 
-		while nCurrentRow != nEndRow
+		while _nCurrentRow_ != _nEndRow_
 
-			if nCurrentRow < nEndRow
-				nCurrentRow++
+			if _nCurrentRow_ < _nEndRow_
+				_nCurrentRow_++
 			else
-				nCurrentRow--
+				_nCurrentRow_--
 			ok
 			
 			# Check for obstacle
 
-			if This.IsObstacle(nCurrentCol, nCurrentRow)
+			if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 
 				# Try using A* algorithm for the entire path
-				return This.ShortestPath(nStartCol, nStartRow, nEndCol, nEndRow)
+				return This.ShortestPath(_nStartCol_, _nStartRow_, _nEndCol_, _nEndRow_)
 			ok
 			
-			This.AddPathNode(nCurrentCol, nCurrentRow)
+			This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 		end
 		
 		# Then move horizontally
 
-		while nCurrentCol != nEndCol
+		while _nCurrentCol_ != _nEndCol_
 
-			if nCurrentCol < nEndCol
-				nCurrentCol++
+			if _nCurrentCol_ < _nEndCol_
+				_nCurrentCol_++
 			else
-				nCurrentCol--
+				_nCurrentCol_--
 			ok
 			
 			# Check for obstacle
 
-			if This.IsObstacle(nCurrentCol, nCurrentRow)
+			if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 
 				# If we hit an obstacle, use A* algorithm for the rest of the path
-				aPartialPath = This.ShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
+				_aPartialPath_ = This.ShortestPath(_nCurrentCol_ - @IF(_nCurrentCol_ > _nEndCol_, 1, -1), _nCurrentRow_, _nEndCol_, _nEndRow_)
 				
 				# Remove first node to avoid duplication
 
-				nLenPartial = len(aPartialPath)
+				_nLenPartial_ = len(_aPartialPath_)
 
-				if nLenPartial > 0
-					del(aPartialPath, 1)
+				if _nLenPartial_ > 0
+					del(_aPartialPath_, 1)
 				ok
 				
 				# Add the rest of the path
 
-				for i = 1 to nLenPartial
-					This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+				for i = 1 to _nLenPartial_
+					This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 				next
 				
 				return @aPath
 			ok
 			
-			This.AddPathNode(nCurrentCol, nCurrentRow)
+			This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 		end
 		
 		return @aPath
 
-	def SpiralPath(panStartNode, nRings)
+	def SpiralPath(panStartNode, _nRings_)
 		# Creates a spiral path starting from the given position
 
 		if CheckParams()
@@ -1580,66 +1580,66 @@ class stzGrid From stzObject
 				StzRaise("Incorrect param type! panStartNode must be a pair of numbers.")
 			ok
 
-			if isList(nRings) and IsRingsNamedParamList(nRings)
-				nRings = nRings[2]
+			if isList(_nRings_) and IsRingsNamedParamList(_nRings_)
+				_nRings_ = _nRings_[2]
 			ok
 
-			if NOT isNumber(nRings)
+			if NOT isNumber(_nRings_)
 				StzRaise("Incorrect param type! nRings must be a number.")
 			ok
 		ok
 		
-		nStartCol = panStartNode[1]
-		nStartRow = panStartNode[2]
+		_nStartCol_ = panStartNode[1]
+		_nStartRow_ = panStartNode[2]
 
 		# Validate positions
-		if NOT IsValidPosition(nStartCol, nStartRow)
+		if NOT IsValidPosition(_nStartCol_, _nStartRow_)
 			stzRaise("Invalid start position!")
 		ok
 		
 		# Clear existing path
 		This.ClearPath()
-		This.SetCurrentNode(nStartCol, nStartRow)
+		This.SetCurrentNode(_nStartCol_, _nStartRow_)
 
 		# Start from start position
-		This.AddPathNode(nStartCol, nStartRow)
+		This.AddPathNode(_nStartCol_, _nStartRow_)
 		
 		# Define directions: right, down, left, up
-		aDirections = [[1,0], [0,1], [-1,0], [0,-1]]
-		nDirIndex = 0
+		_aDirections_ = [[1,0], [0,1], [-1,0], [0,-1]]
+		_nDirIndex_ = 0
 		
 		# Current position
-		nCurrentCol = nStartCol
-		nCurrentRow = nStartRow
+		_nCurrentCol_ = _nStartCol_
+		_nCurrentRow_ = _nStartRow_
 		
 		# Spiral parameters
-		nSteps = 1
-		nStepCount = 0
-		nTurnCount = 0
+		_nSteps_ = 1
+		_nStepCount_ = 0
+		_nTurnCount_ = 0
 		
 		# Create spiral path
-		for i = 1 to nRings * 8  # Maximum number of steps in a spiral with nRings
+		for i = 1 to _nRings_ * 8  # Maximum number of steps in a spiral with nRings
 			# Move in current direction
-			nCurrentCol += aDirections[nDirIndex + 1][1]
-			nCurrentRow += aDirections[nDirIndex + 1][2]
+			_nCurrentCol_ += _aDirections_[_nDirIndex_ + 1][1]
+			_nCurrentRow_ += _aDirections_[_nDirIndex_ + 1][2]
 			
 			# Check if we're still in bounds
-			if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+			if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 				exit
 			ok
 			
 			# Check for obstacle
-			if This.IsObstacle(nCurrentCol, nCurrentRow)
+			if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 				# Skip this position
-				nCurrentCol -= aDirections[nDirIndex + 1][1]
-				nCurrentRow -= aDirections[nDirIndex + 1][2]
+				_nCurrentCol_ -= _aDirections_[_nDirIndex_ + 1][1]
+				_nCurrentRow_ -= _aDirections_[_nDirIndex_ + 1][2]
 				
 				# Try turning
-				nDirIndex = (nDirIndex + 1) % 4
-				nTurnCount++
+				_nDirIndex_ = (_nDirIndex_ + 1) % 4
+				_nTurnCount_++
 				
 				# If we've tried all directions, stop
-				if nTurnCount >= 4
+				if _nTurnCount_ >= 4
 					exit
 				ok
 				
@@ -1647,29 +1647,29 @@ class stzGrid From stzObject
 			ok
 			
 			# Add to path
-			This.AddPathNode(nCurrentCol, nCurrentRow)
+			This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 			
 			# Reset turn count
-			nTurnCount = 0
+			_nTurnCount_ = 0
 			
 			# Increment step count
-			nStepCount++
+			_nStepCount_++
 			
 			# Check if we need to turn
-			if nStepCount = nSteps
-				nStepCount = 0
-				nDirIndex = (nDirIndex + 1) % 4
+			if _nStepCount_ = _nSteps_
+				_nStepCount_ = 0
+				_nDirIndex_ = (_nDirIndex_ + 1) % 4
 				
 				# Increase steps every 2 turns
-				if nDirIndex % 2 = 0
-					nSteps++
+				if _nDirIndex_ % 2 = 0
+					_nSteps_++
 				ok
 			ok
 		next
 		
 		return @aPath
 
-	def ZigZagPath(panStart, panEnd, nZigZagWidth)
+	def ZigZagPath(panStart, panEnd, _nZigZagWidth_)
 		# Creates a zig-zag path from start to end with the specified width
 
 		if CheckParams()
@@ -1680,193 +1680,193 @@ class stzGrid From stzObject
 
 			ok
 
-			if isList(nZigZagWidth) and IsWidthNamedParamList(nZigZagWidth)
-				nZigZagWidth = nZigZagWidth[2]
+			if isList(_nZigZagWidth_) and IsWidthNamedParamList(_nZigZagWidth_)
+				_nZigZagWidth_ = _nZigZagWidth_[2]
 			ok
 
-			if NOT isNumber(nZigZagWidth)
+			if NOT isNumber(_nZigZagWidth_)
 				StzRaise("Incorrect param type! nZigZagWidth must be a number.")
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 
 		# Validate positions
-		if NOT IsValidPosition(nStartCol, nStartRow)
+		if NOT IsValidPosition(_nStartCol_, _nStartRow_)
 			stzRaise("Invalid start position!")
 		ok
 		
-		if NOT IsValidPosition(nEndCol, nEndRow)
+		if NOT IsValidPosition(_nEndCol_, _nEndRow_)
 			stzRaise("Invalid end position!")
 		ok
 		
 		# Clear existing path
 		This.ClearPath()
-		This.SetCurrentNode(nStartCol, nStartRow)
+		This.SetCurrentNode(_nStartCol_, _nStartRow_)
 
 		# Start from start position
-		This.AddPathNode(nStartCol, nStartRow)
+		This.AddPathNode(_nStartCol_, _nStartRow_)
 		
 		# Current position
-		nCurrentCol = nStartCol
-		nCurrentRow = nStartRow
+		_nCurrentCol_ = _nStartCol_
+		_nCurrentRow_ = _nStartRow_
 		
 		# Calculate direction
-		nDirCol = sign(nEndCol - nStartCol)
-		nDirRow = sign(nEndRow - nStartRow)
+		_nDirCol_ = sign(_nEndCol_ - _nStartCol_)
+		_nDirRow_ = sign(_nEndRow_ - _nStartRow_)
 		
 		# Default to horizontal if no clear direction
-		if nDirCol = 0 and nDirRow = 0
-			return [nStartCol, nStartRow]
+		if _nDirCol_ = 0 and _nDirRow_ = 0
+			return [_nStartCol_, _nStartRow_]
 		ok
 		
 		# Use dominant direction for zig-zag
-		lVerticalDominant = (abs(nEndRow - nStartRow) > abs(nEndCol - nStartCol))
+		_lVerticalDominant_ = (abs(_nEndRow_ - _nStartRow_) > abs(_nEndCol_ - _nStartCol_))
 		
-		if lVerticalDominant
+		if _lVerticalDominant_
 
 			# Vertical zig-zag
-			nZigZag = 0
-			lZigZagRight = TRUE
+			_nZigZag_ = 0
+			_lZigZagRight_ = TRUE
 			
-			while nCurrentRow != nEndRow
+			while _nCurrentRow_ != _nEndRow_
 				# Move vertically
-				nCurrentRow += nDirRow
+				_nCurrentRow_ += _nDirRow_
 				
 				# Check if we're still in bounds
-				if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+				if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 					exit
 				ok
 				
 				# Check for obstacle
-				if This.IsObstacle(nCurrentCol, nCurrentRow)
+				if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 					# Try to go around obstacle
-					if IsValidPosition(nCurrentCol + 1, nCurrentRow) and NOT This.IsObstacle(nCurrentCol + 1, nCurrentRow)
-						nCurrentCol++
-					but IsValidPosition(nCurrentCol - 1, nCurrentRow) and NOT This.IsObstacle(nCurrentCol - 1, nCurrentRow)
-						nCurrentCol--
+					if IsValidPosition(_nCurrentCol_ + 1, _nCurrentRow_) and NOT This.IsObstacle(_nCurrentCol_ + 1, _nCurrentRow_)
+						_nCurrentCol_++
+					but IsValidPosition(_nCurrentCol_ - 1, _nCurrentRow_) and NOT This.IsObstacle(_nCurrentCol_ - 1, _nCurrentRow_)
+						_nCurrentCol_--
 					else
 						# Can't find a way around, use A* for the rest
-						aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - nDirRow, nEndCol, nEndRow)
+						_aPartialPath_ = This.ShortestPath(_nCurrentCol_, _nCurrentRow_ - _nDirRow_, _nEndCol_, _nEndRow_)
 						
 						# Remove first node to avoid duplication
-						if len(aPartialPath) > 0
-							del(aPartialPath, 1)
+						if len(_aPartialPath_) > 0
+							del(_aPartialPath_, 1)
 						ok
 						
 						# Add the rest of the path
-						_nPartialPathLen_4 = len(aPartialPath)
+						_nPartialPathLen_4 = len(_aPartialPath_)
 						for i = 1 to _nPartialPathLen_4
-							This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+							This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 						next
 						
 						return @aPath
 					ok
 				ok
 				
-				This.AddPathNode(nCurrentCol, nCurrentRow)
+				This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 				
 				# Zig-zag horizontally
-				nZigZag++
-				if nZigZag >= nZigZagWidth
-					nZigZag = 0
+				_nZigZag_++
+				if _nZigZag_ >= _nZigZagWidth_
+					_nZigZag_ = 0
 					
 					# Move horizontally in zigzag pattern
-					nHorizontalSteps = @IF(lZigZagRight, 1, -1)
+					_nHorizontalSteps_ = @IF(_lZigZagRight_, 1, -1)
 					
 					for i = 1 to 2  # Move 2 steps horizontally
-						nCurrentCol += nHorizontalSteps
+						_nCurrentCol_ += _nHorizontalSteps_
 						
 						# Check if we're still in bounds
-						if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+						if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 							exit
 						ok
 						
 						# Check for obstacle
-						if This.IsObstacle(nCurrentCol, nCurrentRow)
-							nCurrentCol -= nHorizontalSteps
+						if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
+							_nCurrentCol_ -= _nHorizontalSteps_
 							exit
 						ok
 						
-						This.AddPathNode(nCurrentCol, nCurrentRow)
+						This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 					next
 					
-					lZigZagRight = NOT lZigZagRight
+					_lZigZagRight_ = NOT _lZigZagRight_
 				ok
 			end
 			
 			# Final horizontal movement to reach end position
-			while nCurrentCol != nEndCol
-				if nCurrentCol < nEndCol
-					nCurrentCol++
+			while _nCurrentCol_ != _nEndCol_
+				if _nCurrentCol_ < _nEndCol_
+					_nCurrentCol_++
 				else
-					nCurrentCol--
+					_nCurrentCol_--
 				ok
 				
 				# Check if we're still in bounds
-				if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+				if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 					exit
 				ok
 				
 				# Check for obstacle
-				if This.IsObstacle(nCurrentCol, nCurrentRow)
+				if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 					# Can't find a way around, use A* for the rest
-					aPartialPath = This.ShortestPath(nCurrentCol - @IF(nCurrentCol > nEndCol, 1, -1), nCurrentRow, nEndCol, nEndRow)
+					_aPartialPath_ = This.ShortestPath(_nCurrentCol_ - @IF(_nCurrentCol_ > _nEndCol_, 1, -1), _nCurrentRow_, _nEndCol_, _nEndRow_)
 					
 					# Remove first node to avoid duplication
-					if len(aPartialPath) > 0
-						del(aPartialPath, 1)
+					if len(_aPartialPath_) > 0
+						del(_aPartialPath_, 1)
 					ok
 					
 					# Add the rest of the path
-					_nPartialPathLen_3 = len(aPartialPath)
+					_nPartialPathLen_3 = len(_aPartialPath_)
 					for i = 1 to _nPartialPathLen_3
-						This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+						This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 					next
 					
 					return @aPath
 				ok
 				
-				This.AddPathNode(nCurrentCol, nCurrentRow)
+				This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 			end
 		else
 
 			# Horizontal zig-zag
-			nZigZag = 0
-			lZigZagDown = TRUE
+			_nZigZag_ = 0
+			_lZigZagDown_ = TRUE
 			
-			while nCurrentCol != nEndCol
+			while _nCurrentCol_ != _nEndCol_
 				# Move horizontally
-				nCurrentCol += nDirCol
+				_nCurrentCol_ += _nDirCol_
 				
 				# Check if we're still in bounds
-				if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+				if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 					exit
 				ok
 				
 				# Check for obstacle
-				if This.IsObstacle(nCurrentCol, nCurrentRow)
+				if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 					# Try to go around obstacle
-					if IsValidPosition(nCurrentCol, nCurrentRow + 1) and NOT This.IsObstacle(nCurrentCol, nCurrentRow + 1)
-						nCurrentRow++
-					but IsValidPosition(nCurrentCol, nCurrentRow - 1) and NOT This.IsObstacle(nCurrentCol, nCurrentRow - 1)
-						nCurrentRow--
+					if IsValidPosition(_nCurrentCol_, _nCurrentRow_ + 1) and NOT This.IsObstacle(_nCurrentCol_, _nCurrentRow_ + 1)
+						_nCurrentRow_++
+					but IsValidPosition(_nCurrentCol_, _nCurrentRow_ - 1) and NOT This.IsObstacle(_nCurrentCol_, _nCurrentRow_ - 1)
+						_nCurrentRow_--
 					else
 						# Can't find a way around, use A* for the rest
-						aPartialPath = This.ShortestPath(nCurrentCol - nDirCol, nCurrentRow, nEndCol, nEndRow)
+						_aPartialPath_ = This.ShortestPath(_nCurrentCol_ - _nDirCol_, _nCurrentRow_, _nEndCol_, _nEndRow_)
 						
 						# Remove first node to avoid duplication
-						if len(aPartialPath) > 0
-							del(aPartialPath, 1)
+						if len(_aPartialPath_) > 0
+							del(_aPartialPath_, 1)
 						ok
 						
 						# Add the rest of the path
-						_nPartialPathLen_2 = len(aPartialPath)
+						_nPartialPathLen_2 = len(_aPartialPath_)
 						for i = 1 to _nPartialPathLen_2
-							This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+							This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 						next
 						
 						return @aPath
@@ -1874,70 +1874,70 @@ class stzGrid From stzObject
 
 				ok
 				
-				This.AddPathNode(nCurrentCol, nCurrentRow)
+				This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 				
 				# Zig-zag vertically
-				nZigZag++
-				if nZigZag >= nZigZagWidth
-					nZigZag = 0
+				_nZigZag_++
+				if _nZigZag_ >= _nZigZagWidth_
+					_nZigZag_ = 0
 					
 					# Move vertically in zigzag pattern
-					nVerticalSteps = @if(lZigZagDown, 1, -1)
+					_nVerticalSteps_ = @if(_lZigZagDown_, 1, -1)
 					
 					for i = 1 to 2  # Move 2 steps vertically
-						nCurrentRow += nVerticalSteps
+						_nCurrentRow_ += _nVerticalSteps_
 						
 						# Check if we're still in bounds
-						if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+						if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 							exit
 						ok
 						
 						# Check for obstacle
-						if This.IsObstacle(nCurrentCol, nCurrentRow)
-							nCurrentRow -= nVerticalSteps
+						if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
+							_nCurrentRow_ -= _nVerticalSteps_
 							exit
 						ok
 						
-						This.AddPathNode(nCurrentCol, nCurrentRow)
+						This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 					next
 					
-					lZigZagDown = NOT lZigZagDown
+					_lZigZagDown_ = NOT _lZigZagDown_
 				ok
 			end
 			
 			# Final vertical movement to reach end position
-			while nCurrentRow != nEndRow
-				if nCurrentRow < nEndRow
-					nCurrentRow++
+			while _nCurrentRow_ != _nEndRow_
+				if _nCurrentRow_ < _nEndRow_
+					_nCurrentRow_++
 				else
-					nCurrentRow--
+					_nCurrentRow_--
 				ok
 				
 				# Check if we're still in bounds
-				if NOT IsValidPosition(nCurrentCol, nCurrentRow)
+				if NOT IsValidPosition(_nCurrentCol_, _nCurrentRow_)
 					exit
 				ok
 				
 				# Check for obstacle
-				if This.IsObstacle(nCurrentCol, nCurrentRow)
+				if This.IsObstacle(_nCurrentCol_, _nCurrentRow_)
 					# Can't find a way around, use A* for the rest
-					aPartialPath = This.ShortestPath(nCurrentCol, nCurrentRow - @IF(nCurrentRow > nEndRow, 1, -1), nEndCol, nEndRow)
+					_aPartialPath_ = This.ShortestPath(_nCurrentCol_, _nCurrentRow_ - @IF(_nCurrentRow_ > _nEndRow_, 1, -1), _nEndCol_, _nEndRow_)
 					
 					# Remove first node to avoid duplication
-					if len(aPartialPath) > 0
-						del(aPartialPath, 1)
+					if len(_aPartialPath_) > 0
+						del(_aPartialPath_, 1)
 					ok
 					
 					# Add the rest of the path
-					_nPartialPathLen_ = len(aPartialPath)
+					_nPartialPathLen_ = len(_aPartialPath_)
 					for i = 1 to _nPartialPathLen_
-						This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
+						This.AddPathNode(_aPartialPath_[i][1], _aPartialPath_[i][2])
 					next
 					
 					return @aPath
 				ok
 				
-				This.AddPathNode(nCurrentCol, nCurrentRow)
+				This.AddPathNode(_nCurrentCol_, _nCurrentRow_)
 			end
 		ok
 		
@@ -1947,7 +1947,7 @@ class stzGrid From stzObject
 	def ShowPath(aPathToUse, cCustomChar)
 
 		# Store the original path character
-		cOriginalPathChar = @cPathChar
+		_cOriginalPathChar_ = @cPathChar
 
 		# Set custom path character if provided
 		if cCustomChar != NULL
@@ -1955,7 +1955,7 @@ class stzGrid From stzObject
 		ok
 
 		# Store the original path
-		aOriginalPath = @aPath
+		_aOriginalPath_ = @aPath
 
 		# Use the provided path if given
 		if aPathToUse != NULL
@@ -1963,33 +1963,33 @@ class stzGrid From stzObject
 		ok
 
 		# Instead of calling This.Show() directly, return the string representation
-		cResult = This.ToString()
+		_cResult_ = This.ToString()
 
 		# Restore original path character and path
-		@cPathChar = cOriginalPathChar
-		@aPath = aOriginalPath
+		@cPathChar = _cOriginalPathChar_
+		@aPath = _aOriginalPath_
 
 		# Print the result instead of calling Show()
-		? cResult
+		? _cResult_
 
-		return cResult
+		return _cResult_
 
 
-	def ShowNode(nCol, nRow, cChar)
-		This.ShowNodes([ [nCol, nRow] ], cChar)
+	def ShowNode(_nCol_, _nRow_, _cChar_)
+		This.ShowNodes([ [_nCol_, _nRow_] ], _cChar_)
 
-		def ShowCell(nCol, nRow, cChar)
-			This.ShowNode(nCol, nRow, cChar)
+		def ShowCell(_nCol_, _nRow_, _cChar_)
+			This.ShowNode(_nCol_, _nRow_, _cChar_)
 
-	def ShowNodes(aNodes, cChar)
+	def ShowNodes(aNodes, _cChar_)
 		# Temporarily draw nodes with the specified character
 		
-		if NOT (isString(cChar) and IsChar(cChar))
+		if NOT (isString(_cChar_) and IsChar(_cChar_))
 			stzRaise("Node character must be a single character!")
 		ok
 		
 		# Store current path
-		aOldPath = @aPath
+		_aOldPath_ = @aPath
 		
 		# Clear path and add nodes
 		This.ClearPath()
@@ -1997,46 +1997,46 @@ class stzGrid From stzObject
 		_nNodesLen_ = len(aNodes)
 		for i = 1 to _nNodesLen_
 			if isList(aNodes[i]) and len(aNodes[i]) = 2
-				nCol = aNodes[i][1]
-				nRow = aNodes[i][2]
+				_nCol_ = aNodes[i][1]
+				_nRow_ = aNodes[i][2]
 				
-				if IsValidPosition(nCol, nRow)
-					This.AddPathNode(nCol, nRow)
+				if IsValidPosition(_nCol_, _nRow_)
+					This.AddPathNode(_nCol_, _nRow_)
 				ok
 			ok
 		next
 		
 		# Draw with the specified character
-		This.ShowPath(@aPath, cChar)
+		This.ShowPath(@aPath, _cChar_)
 		
 		# Restore original path
-		@aPath = aOldPath
+		@aPath = _aOldPath_
 
-		def ShowCells(aNodes, cChar)
-			This.ShowNodes(aNodes, cChar)
+		def ShowCells(aNodes, _cChar_)
+			This.ShowNodes(aNodes, _cChar_)
 
 
 	def ShowRegions()
 		# Paint multiple regions with different characters
-		aRegions = This.ConnectedRegions()
-		nLen = len(aRegions)
-		acChars = []
+		_aRegions_ = This.ConnectedRegions()
+		_nLen_ = len(_aRegions_)
+		_acChars_ = []
 	
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			# Use numbers starting from 1 (not modulo)
-			acChars + (""+ i)
+			_acChars_ + (""+ i)
 		next
 	
 		# Store current Grid state
-		aOldPath = @aPath
+		_aOldPath_ = @aPath
 	
 		# Create a temporary Grid with empty cells
-		aGrid = list(@nRows)
+		_aGrid_ = list(@nRows)
 	
 		for y = 1 to @nRows
-			aGrid[y] = list(@nCols)
+			_aGrid_[y] = list(@nCols)
 			for x = 1 to @nCols
-				aGrid[y][x] = @cEmptyChar
+				_aGrid_[y][x] = @cEmptyChar
 			next
 		next
 	
@@ -2044,29 +2044,29 @@ class stzGrid From stzObject
 		if @bShowObstacles
 			_nObstaclesLen_2 = len(@aObstacles)
 			for i = 1 to _nObstaclesLen_2
-				nObsCol = @aObstacles[i][1]
-				nObsRow = @aObstacles[i][2]
+				_nObsCol_ = @aObstacles[i][1]
+				_nObsRow_ = @aObstacles[i][2]
 	
-				if IsValidPosition(nObsCol, nObsRow)
-					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				if IsValidPosition(_nObsCol_, _nObsRow_)
+					_aGrid_[_nObsRow_][_nObsCol_] = @cObstacleChar
 				ok
 			next
 		ok
 	
 		# Add all regions to the Grid
-		for i = 1 to nLen
-			aRegion = aRegions[i]
-			cChar = acChars[i]
+		for i = 1 to _nLen_
+			_aRegion_ = _aRegions_[i]
+			_cChar_ = _acChars_[i]
 	
-			_nRegionLen_3 = len(aRegion)
+			_nRegionLen_3 = len(_aRegion_)
 			for j = 1 to _nRegionLen_3
-				nCol = aRegion[j][1]
-				nRow = aRegion[j][2]
+				_nCol_ = _aRegion_[j][1]
+				_nRow_ = _aRegion_[j][2]
 	
-				if IsValidPosition(nCol, nRow)
+				if IsValidPosition(_nCol_, _nRow_)
 					# Skip if it's an obstacle
-					if NOT This.IsObstacle(nCol, nRow)
-						aGrid[nRow][nCol] = cChar
+					if NOT This.IsObstacle(_nCol_, _nRow_)
+						_aGrid_[_nRow_][_nCol_] = _cChar_
 					ok
 				ok
 			next
@@ -2074,50 +2074,50 @@ class stzGrid From stzObject
 	
 		# Mark current position
 		if IsValidPosition(@nCurrentCol, @nCurrentRow)
-			aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+			_aGrid_[@nCurrentRow][@nCurrentCol] = @cCurrentChar
 		ok
 	
 		# Display the Grid with all regions
-		This.ShowCustomGrid(aGrid)
+		This.ShowCustomGrid(_aGrid_)
 	
 		# Restore original path
-		@aPath = aOldPath
+		@aPath = _aOldPath_
 	
 	def ShowRegionsXT(pacChars)
 		# Paint multiple regions with custom characters
 		# pacChars: List of characters to use for each region (optional)
 		
-		aRegions = This.ConnectedRegions()
-		nLen = len(aRegions)
-		acChars = []
+		_aRegions_ = This.ConnectedRegions()
+		_nLen_ = len(_aRegions_)
+		_acChars_ = []
 		
 		# Use provided characters or generate them
 		if isList(pacChars) and len(pacChars) > 0
 			# Use provided characters (cycling if needed)
-			nLenChars = len(pacChars)
+			_nLenChars_ = len(pacChars)
 			
-			for i = 1 to nLen
-				cChar = pacChars[(i-1) % nLenChars + 1]
+			for i = 1 to _nLen_
+				_cChar_ = pacChars[(i-1) % _nLenChars_ + 1]
 				# Ensure each character is a single character            
-				acChars + cChar
+				_acChars_ + _cChar_
 			next
 		else
 			# Generate default characters (numbers 1-9 cycling)
-			for i = 1 to nLen
-				acChars + (""+ i)
+			for i = 1 to _nLen_
+				_acChars_ + (""+ i)
 			next
 		ok
 		
 		# Store current Grid state
-		aOldPath = @aPath
+		_aOldPath_ = @aPath
 		
 		# Create a temporary Grid with empty cells
-		aGrid = list(@nRows)
+		_aGrid_ = list(@nRows)
 		
 		for y = 1 to @nRows
-			aGrid[y] = list(@nCols)
+			_aGrid_[y] = list(@nCols)
 			for x = 1 to @nCols
-				aGrid[y][x] = @cEmptyChar
+				_aGrid_[y][x] = @cEmptyChar
 			next
 		next
 		
@@ -2125,29 +2125,29 @@ class stzGrid From stzObject
 		if @bShowObstacles
 			_nObstaclesLen_ = len(@aObstacles)
 			for i = 1 to _nObstaclesLen_
-				nObsCol = @aObstacles[i][1]
-				nObsRow = @aObstacles[i][2]
+				_nObsCol_ = @aObstacles[i][1]
+				_nObsRow_ = @aObstacles[i][2]
 				
-				if IsValidPosition(nObsCol, nObsRow)
-					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				if IsValidPosition(_nObsCol_, _nObsRow_)
+					_aGrid_[_nObsRow_][_nObsCol_] = @cObstacleChar
 				ok
 			next
 		ok
 		
 		# Add all regions to the Grid
-		for i = 1 to nLen
-			aRegion = aRegions[i]
-			cChar = acChars[i]
+		for i = 1 to _nLen_
+			_aRegion_ = _aRegions_[i]
+			_cChar_ = _acChars_[i]
 			
-			_nRegionLen_2 = len(aRegion)
+			_nRegionLen_2 = len(_aRegion_)
 			for j = 1 to _nRegionLen_2
-				nCol = aRegion[j][1]
-				nRow = aRegion[j][2]
+				_nCol_ = _aRegion_[j][1]
+				_nRow_ = _aRegion_[j][2]
 				
-				if IsValidPosition(nCol, nRow)
+				if IsValidPosition(_nCol_, _nRow_)
 					# Skip if it's an obstacle
-					if NOT This.IsObstacle(nCol, nRow)
-						aGrid[nRow][nCol] = cChar
+					if NOT This.IsObstacle(_nCol_, _nRow_)
+						_aGrid_[_nRow_][_nCol_] = _cChar_
 					ok
 				ok
 			next
@@ -2155,49 +2155,49 @@ class stzGrid From stzObject
 		
 		# Mark current position
 		if IsValidPosition(@nCurrentCol, @nCurrentRow)
-			aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+			_aGrid_[@nCurrentRow][@nCurrentCol] = @cCurrentChar
 		ok
 		
 		# Display the Grid with all regions
-		This.ShowCustomGrid(aGrid)
+		This.ShowCustomGrid(_aGrid_)
 		
 		# Restore original path
-		@aPath = aOldPath
+		@aPath = _aOldPath_
 	
 	def ShowCustomGrid(aCustomGrid)
 		# Display a custom Grid without changing the internal Grid state
 
-		cResult = ""
+		_cResult_ = ""
 
 		# Add X-axis labels if requested
 
 		if @bShowCoordinates
-			cResult += "    " # Space for alignment with the Grid
+			_cResult_ += "    " # Space for alignment with the Grid
 
 			for x = 1 to @nCols
 				if x % 10 = 0
-					cResult += "0 "
+					_cResult_ += "0 "
 				else
-					cResult += ""+ (x % 10) + " "
+					_cResult_ += ""+ (x % 10) + " "
 				ok
 			next
 
-			cResult += NL()
+			_cResult_ += NL()
 		ok
 
 		# Add top border with rounded corners
 
-		cResult += "  ╭"
+		_cResult_ += "  ╭"
 
 		for x = 1 to @nCols
 			if x = @nCurrentCol
-				cResult += "─v─"
+				_cResult_ += "─v─"
 			else
-				cResult += "──"
+				_cResult_ += "──"
 			ok
 		next
 
-		cResult += "╮" + NL()
+		_cResult_ += "╮" + NL()
 
 		# Add rows with Y-axis labels and borders
 
@@ -2206,38 +2206,38 @@ class stzGrid From stzObject
 
 			if @bShowCoordinates
 				if y % 10 = 0
-					yLabel = "0"
+					_yLabel_ = "0"
 				else
-					yLabel = ""+ (y % 10)
+					_yLabel_ = ""+ (y % 10)
 				ok
 			else
-				yLabel = " "
+				_yLabel_ = " "
 			ok
 
 			if y = @nCurrentRow
-				cResult += yLabel + " > "
+				_cResult_ += _yLabel_ + " > "
 			else
-				cResult += yLabel + " │ "
+				_cResult_ += _yLabel_ + " │ "
 			ok
 
 			for x = 1 to @nCols
-				cResult += ""+ aCustomGrid[y][x] + " "
+				_cResult_ += ""+ aCustomGrid[y][x] + " "
 			next
 
-			cResult += "│" + NL()
+			_cResult_ += "│" + NL()
 		next
 
 		# Add bottom border with rounded corners
 
-		cResult += "  ╰"
+		_cResult_ += "  ╰"
 
 		for x = 1 to @nCols
-			cResult += "──"
+			_cResult_ += "──"
 		next
 
-		cResult += "─╯" + NL()
+		_cResult_ += "─╯" + NL()
     
-		? cResult
+		? _cResult_
 
 	#-- HELPER FUNCTIONS FOR PATHFINDING
 
@@ -2252,291 +2252,291 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 
 		# Manhattan distance heuristic
-		return abs(nStartCol - nEndCol) + abs(nStartRow - nEndRow)
+		return abs(_nStartCol_ - _nEndCol_) + abs(_nStartRow_ - _nEndRow_)
 
-	def WalkableNeighbors(nCol, nRow)
+	def WalkableNeighbors(_nCol_, _nRow_)
 
 		if CheckParams()
-			if NOT (isNumber(nCol) and isNumber(nRow))
+			if NOT (isNumber(_nCol_) and isNumber(_nRow_))
 				StzRaise("Incorrect param type! nCol and nRow must be numbers.")
 			ok
 		ok
 
 		# Get all valid neighbors that are not obstacles
-		aNeighbors = []
+		_aNeighbors_ = []
 		
 		# Check all 4 directions (up, right, down, left)
-		aDirections = [[-1,0], [0,1], [1,0], [0,-1]]
-		nLen = len(aDirections)
+		_aDirections_ = [[-1,0], [0,1], [1,0], [0,-1]]
+		_nLen_ = len(_aDirections_)
 
-		for i = 1 to nLen
-			nNewCol = nCol + aDirections[i][1]
-			nNewRow = nRow + aDirections[i][2]
+		for i = 1 to _nLen_
+			_nNewCol_ = _nCol_ + _aDirections_[i][1]
+			_nNewRow_ = _nRow_ + _aDirections_[i][2]
 			
-			if IsValidPosition(nNewCol, nNewRow) and NOT This.IsObstacle(nNewCol, nNewRow)
-				aNeighbors + [nNewCol, nNewRow]
+			if IsValidPosition(_nNewCol_, _nNewRow_) and NOT This.IsObstacle(_nNewCol_, _nNewRow_)
+				_aNeighbors_ + [_nNewCol_, _nNewRow_]
 			ok
 		next
 		
-		return aNeighbors
+		return _aNeighbors_
 
-		def WalkableNeighborsOfNode(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableNeighborsOfNode(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-		def WalkableNeighborsOfCell(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableNeighborsOfCell(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-		def WalkableNeighborsOf(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableNeighborsOf(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 	
-		def WalkableAdjacents(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableAdjacents(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-		def WalkableAdjacentsOfNode(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableAdjacentsOfNode(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-		def WalkableAdjacentsOfCell(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableAdjacentsOfCell(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-		def WalkableAdjacentsOf(nCol, nRow)
-			return This.WalkableNeighbors(nCol, nRow)
+		def WalkableAdjacentsOf(_nCol_, _nRow_)
+			return This.WalkableNeighbors(_nCol_, _nRow_)
 
-	def IsInList(aList, nCol, nRow)
+	def IsInList(aList, _nCol_, _nRow_)
 
 		if CheckParams()
 			if NOT isList(aList)
 				StzRaise("Incorrect param type! aList must be a list.")
 			ok
 
-			if NOT (isNumber(nCol) and isNumber(nRow))
+			if NOT (isNumber(_nCol_) and isNumber(_nRow_))
 				StzRaise("Incorrect param type! nRow and nCol must be both numbers.")
 			ok
 		ok
 
-		nLen = len(aList)
+		_nLen_ = len(aList)
 
-		for i = 1 to nLen
-			if aList[i][1] = nCol and aList[i][2] = nRow
+		for i = 1 to _nLen_
+			if aList[i][1] = _nCol_ and aList[i][2] = _nRow_
 				return TRUE
 			ok
 		next
 		return FALSE
 
-	def LowestFScore(aOpenSet, aFScore)
+	def LowestFScore(_aOpenSet_, _aFScore_)
 
-		nLowestIdx = 1
-		nLowestScore = This.GetScoreAt(aFScore, aOpenSet[1][1], aOpenSet[1][2])
+		_nLowestIdx_ = 1
+		_nLowestScore_ = This.GetScoreAt(_aFScore_, _aOpenSet_[1][1], _aOpenSet_[1][2])
 		
-		nLen = len(aOpenSet)
+		_nLen_ = len(_aOpenSet_)
 
-		for i = 2 to nLen
-			nScore = This.GetScoreAt(aFScore, aOpenSet[i][1], aOpenSet[i][2])
-			if nScore < nLowestScore
-				nLowestScore = nScore
-				nLowestIdx = i
+		for i = 2 to _nLen_
+			_nScore_ = This.GetScoreAt(_aFScore_, _aOpenSet_[i][1], _aOpenSet_[i][2])
+			if _nScore_ < _nLowestScore_
+				_nLowestScore_ = _nScore_
+				_nLowestIdx_ = i
 			ok
 		next
 		
-		return nLowestIdx
+		return _nLowestIdx_
 
-	def GetScoreAt(aScores, nCol, nRow)
+	def GetScoreAt(aScores, _nCol_, _nRow_)
 
-		nLen = len(aScores)
+		_nLen_ = len(aScores)
 
-		for i = 1 to nLen
-			if aScores[i][1][1] = nCol and aScores[i][1][2] = nRow
+		for i = 1 to _nLen_
+			if aScores[i][1][1] = _nCol_ and aScores[i][1][2] = _nRow_
 				return aScores[i][2]
 			ok
 		next
 		return 999999  # Default to infinity
 
-	def SetScoreAt(aScores, nCol, nRow, nScore)
+	def SetScoreAt(aScores, _nCol_, _nRow_, _nScore_)
 
-		nLen = len(aScores)
+		_nLen_ = len(aScores)
 
-		for i = 1 to nLen
-			if aScores[i][1][1] = nCol and aScores[i][1][2] = nRow
-				aScores[i][2] = nScore
+		for i = 1 to _nLen_
+			if aScores[i][1][1] = _nCol_ and aScores[i][1][2] = _nRow_
+				aScores[i][2] = _nScore_
 				return aScores
 			ok
 		next
 		
 		# If not found, add it
-		aScores + [[nCol, nRow], nScore]
+		aScores + [[_nCol_, _nRow_], _nScore_]
 		return aScores
 
-	def SetCameFrom(aCameFrom, nCol, nRow, nFromCol, nFromRow)
+	def SetCameFrom(_aCameFrom_, _nCol_, _nRow_, nFromCol, nFromRow)
 
-		nLen = len(aCameFrom)
+		_nLen_ = len(_aCameFrom_)
 
-		for i = 1 to nLen
-			if aCameFrom[i][1][1] = nCol and aCameFrom[i][1][2] = nRow
-				aCameFrom[i][2] = [nFromCol, nFromRow]
-				return aCameFrom
+		for i = 1 to _nLen_
+			if _aCameFrom_[i][1][1] = _nCol_ and _aCameFrom_[i][1][2] = _nRow_
+				_aCameFrom_[i][2] = [nFromCol, nFromRow]
+				return _aCameFrom_
 			ok
 		next
 		
 		# If not found, add it
-		aCameFrom + [[nCol, nRow], [nFromCol, nFromRow]]
-		return aCameFrom
+		_aCameFrom_ + [[_nCol_, _nRow_], [nFromCol, nFromRow]]
+		return _aCameFrom_
 
-	def GetCameFrom(aCameFrom, nCol, nRow)
+	def GetCameFrom(_aCameFrom_, _nCol_, _nRow_)
 
-		nLen = len(aCameFrom)
+		_nLen_ = len(_aCameFrom_)
 
-		for i = 1 to nLen
-			if aCameFrom[i][1][1] = nCol and aCameFrom[i][1][2] = nRow
-				return aCameFrom[i][2]
+		for i = 1 to _nLen_
+			if _aCameFrom_[i][1][1] = _nCol_ and _aCameFrom_[i][1][2] = _nRow_
+				return _aCameFrom_[i][2]
 			ok
 		next
 		return NULL
 
-	def ReconstructPath(aCameFrom, nEndCol, nEndRow)
+	def ReconstructPath(_aCameFrom_, _nEndCol_, _nEndRow_)
 
-		aPath = []
-		nCurrentCol = nEndCol
-		nCurrentRow = nEndRow
+		_aPath_ = []
+		_nCurrentCol_ = _nEndCol_
+		_nCurrentRow_ = _nEndRow_
 
 		# Add end position
 
-		aPath + [nCurrentCol, nCurrentRow]
+		_aPath_ + [_nCurrentCol_, _nCurrentRow_]
 
 		# Trace back the path
 
 		while TRUE
 
-			aPrev = This.GetCameFrom(aCameFrom, nCurrentCol, nCurrentRow)
+			_aPrev_ = This.GetCameFrom(_aCameFrom_, _nCurrentCol_, _nCurrentRow_)
 
- 			if aPrev = NULL
+ 			if _aPrev_ = NULL
 				exit
 			ok
 
-			nCurrentCol = aPrev[1]
-			nCurrentRow = aPrev[2]
+			_nCurrentCol_ = _aPrev_[1]
+			_nCurrentRow_ = _aPrev_[2]
 
 			# Add to path (at the beginning)
-			insert(aPath, 1, [nCurrentCol, nCurrentRow])
+			insert(_aPath_, 1, [_nCurrentCol_, _nCurrentRow_])
 		end
 
-		return aPath
+		return _aPath_
 
 	#-- PATH COMPLEXITY ANALYSIS
 
 	def PathComplexity()
 		# Analyze path complexity based on number of turns and direction changes
 		
-		nLen = len(@aPath)
+		_nLen_ = len(@aPath)
 		
-		if nLen <= 2
+		if _nLen_ <= 2
 			return 0  # Straight line or single point
 		ok
 		
-		nTurns = 0
-		nLastDirX = 0
-		nLastDirY = 0
+		_nTurns_ = 0
+		_nLastDirX_ = 0
+		_nLastDirY_ = 0
 		
-		for i = 2 to nLen
+		for i = 2 to _nLen_
 
-			nDirX = @aPath[i][1] - @aPath[i-1][1]
-			nDirY = @aPath[i][2] - @aPath[i-1][2]
+			_nDirX_ = @aPath[i][1] - @aPath[i-1][1]
+			_nDirY_ = @aPath[i][2] - @aPath[i-1][2]
 			
 			# First direction, just store it
 
 			if i = 2
-				nLastDirX = nDirX
-				nLastDirY = nDirY
+				_nLastDirX_ = _nDirX_
+				_nLastDirY_ = _nDirY_
 				loop
 			ok
 			
 			# Direction changed, count as a turn
 
-			if nDirX != nLastDirX or nDirY != nLastDirY
-				nTurns++
-				nLastDirX = nDirX
-				nLastDirY = nDirY
+			if _nDirX_ != _nLastDirX_ or _nDirY_ != _nLastDirY_
+				_nTurns_++
+				_nLastDirX_ = _nDirX_
+				_nLastDirY_ = _nDirY_
 			ok
 		next
 		
-		return nTurns
+		return _nTurns_
 	
 	def PathEfficiency()
 		# Calculate path efficiency compared to direct distance
 		
-		nLen = len(@aPath)
+		_nLen_ = len(@aPath)
 
-		if nLen < 2
+		if _nLen_ < 2
 			return 100  # Perfect efficiency for single point
 		ok
 		
-		nStart = @aPath[1]
-		nEnd = @aPath[nLen]
+		_nStart_ = @aPath[1]
+		_nEnd_ = @aPath[_nLen_]
 		
 		# Calculate direct Manhattan distance
-		nDirectDist = abs(nStart[1] - nEnd[1]) + abs(nStart[2] - nEnd[2])
+		_nDirectDist_ = abs(_nStart_[1] - _nEnd_[1]) + abs(_nStart_[2] - _nEnd_[2])
 		
 		# Calculate efficiency
-		nEfficiency = (nDirectDist / (nLen - 1)) * 100
+		_nEfficiency_ = (_nDirectDist_ / (_nLen_ - 1)) * 100
 		
 		# Cap at 100%
-		if nEfficiency > 100
+		if _nEfficiency_ > 100
 			return 100
 		else
-			return nEfficiency
+			return _nEfficiency_
 		ok
 	
 	#-- REGION MANAGEMENT
 	
-	def Fill(nStartCol, nStartRow)
+	def Fill(_nStartCol_, _nStartRow_)
 		# Perform flood fill from start position, ignoring obstacles
 		# Returns a list of all reachable positions
 		
-		aResult = []
-		aQueue = []
-		aVisited = []
+		_aResult_ = []
+		_aQueue_ = []
+		_aVisited_ = []
 		
 		# Add start position to queue
-		aQueue + [nStartCol, nStartRow]
-		aVisited + [nStartCol, nStartRow]
+		_aQueue_ + [_nStartCol_, _nStartRow_]
+		_aVisited_ + [_nStartCol_, _nStartRow_]
 		
-		while len(aQueue) > 0
+		while len(_aQueue_) > 0
 			# Get next position from queue
-			nCol = aQueue[1][1]
-			nRow = aQueue[1][2]
-			del(aQueue, 1)
+			_nCol_ = _aQueue_[1][1]
+			_nRow_ = _aQueue_[1][2]
+			del(_aQueue_, 1)
 			
 			# Add to result
-			aResult + [nCol, nRow]
+			_aResult_ + [_nCol_, _nRow_]
 			
 			# Check all 4 adjacent positions
-			aDirections = [[0,1], [1,0], [0,-1], [-1,0]]
-			nLen = len(aDirections)
+			_aDirections_ = [[0,1], [1,0], [0,-1], [-1,0]]
+			_nLen_ = len(_aDirections_)
 
-			for i = 1 to nLen
-				nNewCol = nCol + aDirections[i][1]
-				nNewRow = nRow + aDirections[i][2]
+			for i = 1 to _nLen_
+				_nNewCol_ = _nCol_ + _aDirections_[i][1]
+				_nNewRow_ = _nRow_ + _aDirections_[i][2]
 				
 				# Check if valid position that is not an obstacle and not visited
-				if IsValidPosition(nNewCol, nNewRow) and 
-				   NOT This.IsObstacle(nNewCol, nNewRow) and
-				   NOT This.IsInList(aVisited, nNewCol, nNewRow)
+				if IsValidPosition(_nNewCol_, _nNewRow_) and 
+				   NOT This.IsObstacle(_nNewCol_, _nNewRow_) and
+				   NOT This.IsInList(_aVisited_, _nNewCol_, _nNewRow_)
 					
 					# Add to queue and mark as visited
-					aQueue + [nNewCol, nNewRow]
-					aVisited + [nNewCol, nNewRow]
+					_aQueue_ + [_nNewCol_, _nNewRow_]
+					_aVisited_ + [_nNewCol_, _nNewRow_]
 				ok
 			next
 		end
 		
-		return aResult
+		return _aResult_
 
-		def FloodFill(nStartCol, nStartRow)
-			return This.Fill(nStartCol, nStartRow)
+		def FloodFill(_nStartCol_, _nStartRow_)
+			return This.Fill(_nStartCol_, _nStartRow_)
 
 	def AreConnected(panNode1, panNode2)
 		# Check if two positions are connected (can reach each other without hitting obstacles)
@@ -2549,67 +2549,67 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nCol1 = panNode1[1]
-		nRow1 = panNode1[2]
+		_nCol1_ = panNode1[1]
+		_nRow1_ = panNode1[2]
 
-		nCol2 = panNode2[1]
-		nRow2 = panNode2[2]
+		_nCol2_ = panNode2[1]
+		_nRow2_ = panNode2[2]
 
 		# Quick check for invalid positions
-		if NOT IsValidPosition(nCol1, nRow1) or NOT IsValidPosition(nCol2, nRow2)
+		if NOT IsValidPosition(_nCol1_, _nRow1_) or NOT IsValidPosition(_nCol2_, _nRow2_)
 			return FALSE
 		ok
 		
 		# Check if either position is an obstacle
-		if This.IsObstacle(nCol1, nRow1) or This.IsObstacle(nCol2, nRow2)
+		if This.IsObstacle(_nCol1_, _nRow1_) or This.IsObstacle(_nCol2_, _nRow2_)
 			return FALSE
 		ok
 		
 		# Do flood fill from first position
-		aReachable = This.FloodFill(nCol1, nRow1)
+		_aReachable_ = This.FloodFill(_nCol1_, _nRow1_)
 		
 		# Check if second position is in the reachable list
-		return This.IsInList(aReachable, nCol2, nRow2)
+		return This.IsInList(_aReachable_, _nCol2_, _nRow2_)
 
 	def Regions()
 		# Find all connected regions separated by obstacles
 		# Returns a list of lists, each containing the positions in a region
 		
-		aResult = []
-		aVisited = []
+		_aResult_ = []
+		_aVisited_ = []
 		
 		# Check each position
 		for y = 1 to @nRows
 			for x = 1 to @nCols
 				# Skip if obstacle or already visited
-				if This.IsObstacle(x, y) or This.IsInList(aVisited, x, y)
+				if This.IsObstacle(x, y) or This.IsInList(_aVisited_, x, y)
 					loop
 				ok
 				
 				# Flood fill from this position
-				aRegion = This.FloodFill(x, y)
+				_aRegion_ = This.FloodFill(x, y)
 				
 				# Add region to result if not empty
-				if len(aRegion) > 0
-					aResult + aRegion
+				if len(_aRegion_) > 0
+					_aResult_ + _aRegion_
 					
 					# Mark all cells in this region as visited
-					_nRegionLen_ = len(aRegion)
+					_nRegionLen_ = len(_aRegion_)
 					for i = 1 to _nRegionLen_
-						aVisited + [ aRegion[i][1], aRegion[i][2] ]
+						_aVisited_ + [ _aRegion_[i][1], _aRegion_[i][2] ]
 					next
 				ok
 			next
 		next
 		
-		return aResult
+		return _aResult_
 
 		def ConnectedRegions()
 			return This.Regions()
 
 	#-- RANDOM MAZE GENERATION
 	
-	def RandomMaze(nObstacleDensity)
+	def RandomMaze(_nObstacleDensity_)
 		# Generate a random maze with the given obstacle density (0-100%)
 		# 0% = no obstacles, 100% = completely blocked (except current position)
 		
@@ -2617,12 +2617,12 @@ class stzGrid From stzObject
 		This.ClearObstacles()
 		
 		# Cap density
-		if nObstacleDensity < 0
-			nObstacleDensity = 0
+		if _nObstacleDensity_ < 0
+			_nObstacleDensity_ = 0
 		ok
 		
-		if nObstacleDensity > 90
-			nObstacleDensity = 90  # Max 90% to ensure some paths exist
+		if _nObstacleDensity_ > 90
+			_nObstacleDensity_ = 90  # Max 90% to ensure some paths exist
 		ok
 		
 		# Add random obstacles
@@ -2634,7 +2634,7 @@ class stzGrid From stzObject
 				ok
 				
 				# Add obstacle with probability based on density
-				if random(100) < nObstacleDensity
+				if random(100) < _nObstacleDensity_
 					This.AddObstacle(x, y)
 				ok
 			next
@@ -2655,27 +2655,27 @@ class stzGrid From stzObject
 			ok
 		ok
 
-		nStartCol = panStart[1]
-		nStartRow = panStart[2]
-		nEndCol = panEnd[1]
-		nEndRow = panEnd[2]
+		_nStartCol_ = panStart[1]
+		_nStartRow_ = panStart[2]
+		_nEndCol_ = panEnd[1]
+		_nEndRow_ = panEnd[2]
 	
 		# Clear obstacles
 		This.ClearObstacles()
 		
 		# Create a path first
 		This.ClearPath()
-		This.MoveTo(nStartCol, nStartRow)
-		This.ShortestPath([nStartCol, nStartRow], [nEndCol, nEndRow])
+		This.MoveTo(_nStartCol_, _nStartRow_)
+		This.ShortestPath([_nStartCol_, _nStartRow_], [_nEndCol_, _nEndRow_])
 		
 		# Store path positions
-		aPathPositions = @aPath
+		_aPathPositions_ = @aPath
 		
 		# Add random obstacles avoiding the path
 		for y = 1 to @nRows
 			for x = 1 to @nCols
 				# Skip if on path
-				if This.IsInList(aPathPositions, x, y)
+				if This.IsInList(_aPathPositions_, x, y)
 					loop
 				ok
 				
@@ -2696,14 +2696,14 @@ class stzGrid From stzObject
 
 		# Create an empty grid
 
-		aGrid = list(@nRows)
+		_aGrid_ = list(@nRows)
 
 		for y = 1 to @nRows
 
-			aGrid[y] = list(@nCols)
+			_aGrid_[y] = list(@nCols)
 
 			for x = 1 to @nCols
-				aGrid[y][x] = @cEmptyChar
+				_aGrid_[y][x] = @cEmptyChar
 			next
 		next
     
@@ -2711,15 +2711,15 @@ class stzGrid From stzObject
 
 		if @bShowObstacles
 
-			nLen = len(@aObstacles)
+			_nLen_ = len(@aObstacles)
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
-				nObsCol = @aObstacles[i][1]
-				nObsRow = @aObstacles[i][2]
+				_nObsCol_ = @aObstacles[i][1]
+				_nObsRow_ = @aObstacles[i][2]
 
-				if IsValidPosition(nObsCol, nObsRow)
-					aGrid[nObsRow][nObsCol] = @cObstacleChar
+				if IsValidPosition(_nObsCol_, _nObsRow_)
+					_aGrid_[_nObsRow_][_nObsCol_] = @cObstacleChar
 				ok
 			next
 		ok
@@ -2733,14 +2733,14 @@ class stzGrid From stzObject
 			_nPathLen_ = len(@aPath)
 			for i = 1 to _nPathLen_
 
-				nPathCol = @aPath[i][1]
-				nPathRow = @aPath[i][2]
+				_nPathCol_ = @aPath[i][1]
+				_nPathRow_ = @aPath[i][2]
 
-				if IsValidPosition(nPathCol, nPathRow)
+				if IsValidPosition(_nPathCol_, _nPathRow_)
 					# Skip if it's an obstacle
 
-					if NOT This.IsObstacle(nPathCol, nPathRow)
-						aGrid[nPathRow][nPathCol] = @cPathChar
+					if NOT This.IsObstacle(_nPathCol_, _nPathRow_)
+						_aGrid_[_nPathRow_][_nPathCol_] = @cPathChar
 					ok
 				ok
 			next
@@ -2751,45 +2751,45 @@ class stzGrid From stzObject
 		if IsValidPosition(@nCurrentCol, @nCurrentRow)
 
 			# Use the appropriate direction character based on current direction
-			aGrid[@nCurrentRow][@nCurrentCol] = @cCurrentChar
+			_aGrid_[@nCurrentRow][@nCurrentCol] = @cCurrentChar
 		ok
 
 		# Convert grid to string representation
 
-		cResult = ""
+		_cResult_ = ""
 
 		# Add X-axis labels if requested
 
 		if @bShowCoordinates
 
-			cResult += "    " # Space for alignment with the grid
+			_cResult_ += "    " # Space for alignment with the grid
 
 			for x = 1 to @nCols
 
 				if x % 10 = 0
-					cResult += "0 "
+					_cResult_ += "0 "
 				else
-					cResult += ""+ (x % 10) + " "
+					_cResult_ += ""+ (x % 10) + " "
 				ok
 			next
 
-			cResult += NL()
+			_cResult_ += NL()
 		ok
 		
 		# Add top border with rounded corners and indicator for current X position
 
-		cResult += "  ╭"
+		_cResult_ += "  ╭"
 
 		for x = 1 to @nCols
 
 			if x = @nCurrentCol
-				cResult += "─v─"
+				_cResult_ += "─v─"
 			else
-				cResult += "──"
+				_cResult_ += "──"
 			ok
 		next
 
-		cResult += "╮" + NL()
+		_cResult_ += "╮" + NL()
 
 		# Add rows with Y-axis labels and borders
 
@@ -2800,55 +2800,55 @@ class stzGrid From stzObject
 			if @bShowCoordinates
 
 				if y % 10 = 0
-					yLabel = "0"
+					_yLabel_ = "0"
 				else
-					yLabel = ""+ (y % 10)
+					_yLabel_ = ""+ (y % 10)
 				ok
 			else
-				yLabel = " "
+				_yLabel_ = " "
 			ok
 
 			if y = @nCurrentRow
-				cResult += yLabel + " > "
+				_cResult_ += _yLabel_ + " > "
 			else
-				cResult += yLabel + " │ "
+				_cResult_ += _yLabel_ + " │ "
 			ok
 
 			for x = 1 to @nCols
-				cResult += ""+ aGrid[y][x] + " "
+				_cResult_ += ""+ _aGrid_[y][x] + " "
 			next
 
-			cResult += "│" + NL()
+			_cResult_ += "│" + NL()
 		next
 
 		# Add bottom border with rounded corners
 
-		cResult += "  ╰"
+		_cResult_ += "  ╰"
 
 		for x = 1 to @nCols
-			cResult += "──"
+			_cResult_ += "──"
 		next
 
-		cResult += "─╯" + NL()
+		_cResult_ += "─╯" + NL()
 
-		return cResult
+		return _cResult_
 
 	def Legend()
 
 		# Create a legend string with all relevant information
 
-		cResult = "Grid: " + @nCols + "x" + @nRows + " | "
-		cResult += "Current: " + @cCurrentChar + " | "
+		_cResult_ = "Grid: " + @nCols + "x" + @nRows + " | "
+		_cResult_ += "Current: " + @cCurrentChar + " | "
 
 		if @bShowObstacles
-			cResult += "Obstacles: " + @cObstacleChar + " | "
+			_cResult_ += "Obstacles: " + @cObstacleChar + " | "
 		ok
 
 		if @bShowPath
-			cResult += "Path: " + @cPathChar + " | "
+			_cResult_ += "Path: " + @cPathChar + " | "
 		ok
 
-		return cResult
+		return _cResult_
 
 	# ReplaceAll(:With = val): record val as the fill value. The
 	# subsequent Content() call materialises a @nRows x @nCols list

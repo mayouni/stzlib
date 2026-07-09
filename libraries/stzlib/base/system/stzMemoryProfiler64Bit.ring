@@ -1,43 +1,43 @@
-func SizeInBytes64(item)
-	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
-		item = item[2]
+func SizeInBytes64(_item_)
+	if isList(_item_) and len(_item_) = 2 and isString(_item_[1]) and _item_[1] = :Of
+		_item_ = _item_[2]
 	ok
     
-	switch type(item)
+	switch type(_item_)
 	on "NUMBER"
 		return RING_NUMBER_CONTENT_SIZE
 
         on "STRING"
-		nContentSize = len(item)
-		if nContentSize <= RING_STRING_ARRAYSIZE
-			return nContentSize + RING_STRING_ARRAYSIZE
+		_nContentSize_ = len(_item_)
+		if _nContentSize_ <= RING_STRING_ARRAYSIZE
+			return _nContentSize_ + RING_STRING_ARRAYSIZE
 		else
-			return nContentSize + RING_64BIT_STRING_STRUCTURE_SIZE
+			return _nContentSize_ + RING_64BIT_STRING_STRUCTURE_SIZE
 		ok
 
 	on "LIST"
-		nListAdditionalSize      = RING_64BIT_LIST_STRUCTURE_SIZE
-		nItemTotalAdditionalSize = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
+		_nListAdditionalSize_      = RING_64BIT_LIST_STRUCTURE_SIZE
+		_nItemTotalAdditionalSize_ = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
 
-		nLen = len(item)
-		nResult = nListAdditionalSize + (nLen * nItemTotalAdditionalSize)
+		_nLen_ = len(_item_)
+		_nResult_ = _nListAdditionalSize_ + (_nLen_ * _nItemTotalAdditionalSize_)
 		
-		nNum = 0
+		_nNum_ = 0
 
-		for i = 1 to nLen
-			if isNumber(item[i])
-				nNum++ 
+		for i = 1 to _nLen_
+			if isNumber(_item_[i])
+				_nNum_++ 
 			else
-				nResult += ContentSizeInBytes(item[i])
+				_nResult_ += ContentSizeInBytes(_item_[i])
 			ok
 		next
 
-		nResult += RING_NUMBER_CONTENT_SIZE * nNum
+		_nResult_ += RING_NUMBER_CONTENT_SIZE * _nNum_
 
-		return nResult
+		return _nResult_
 
         on "OBJECT"
-		return SizeInBytes64(AttributesValues(item))
+		return SizeInBytes64(AttributesValues(_item_))
 
 	off
 
@@ -143,38 +143,38 @@ func SizeInBytes64(item)
 
 	#>
 
-func SizeInBytes64XT(item)
-    	aResult = []
+func SizeInBytes64XT(_item_)
+    	_aResult_ = []
 
-	switch type(item)
+	switch type(_item_)
 	on "NUMBER"
 		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
 
         on "STRING"
-		nContentSize = len(item)
+		_nContentSize_ = len(_item_)
 
-		if nContentSize <= RING_STRING_ARRAYSIZE
-			aResult + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
-			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+		if _nContentSize_ <= RING_STRING_ARRAYSIZE
+			_aResult_ + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
+			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 	
 		else
-			aResult + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
-			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+			_aResult_ + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
+			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 		ok
 
-		return aResult
+		return _aResult_
 	on "LIST"
-		nLen = len(item)
+		_nLen_ = len(_item_)
 
-		aResult + [ "RING_64BIT_LIST_STRUCTURE_SIZE", RING_64BIT_LIST_STRUCTURE_SIZE ]
-		aResult + [ "RING_64BIT_ITEM_STRUCTURE_SIZE * " + nLen, RING_64BIT_ITEM_STRUCTURE_SIZE * nLen ]
-		aResult + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE * " + nLen, RING_64BIT_ITEMS_STRUCTURE_SIZE * nLen ]
-		aResult + [ "RING_64BIT_ITEMS_CONTENT_SIZE", ContentSize(item) ]
+		_aResult_ + [ "RING_64BIT_LIST_STRUCTURE_SIZE", RING_64BIT_LIST_STRUCTURE_SIZE ]
+		_aResult_ + [ "RING_64BIT_ITEM_STRUCTURE_SIZE * " + _nLen_, RING_64BIT_ITEM_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE * " + _nLen_, RING_64BIT_ITEMS_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_64BIT_ITEMS_CONTENT_SIZE", ContentSize(_item_) ]
 
-		return aResult
+		return _aResult_
 
         on "OBJECT"
-		 return SizeInBytes64XT(AttributesValues(item))		
+		 return SizeInBytes64XT(AttributesValues(_item_))		
 	off
 
 	#< @FunctionAlternativeForms
@@ -287,16 +287,16 @@ func SizeInBytesPerChar(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytes(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytes(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_
 
 func SizeInBytesPerChar32(pacChars)
 	if ChekcParams()
@@ -305,16 +305,16 @@ func SizeInBytesPerChar32(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytes32(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytes32(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_
 
 func SizeInBytesPerChar64(pacChars)
 	if ChekcParams()
@@ -323,16 +323,16 @@ func SizeInBytesPerChar64(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytes64(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytes64(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_
 
 func SizeInBytesPerCharXT(pacChars)
 	if ChekcParams()
@@ -341,16 +341,16 @@ func SizeInBytesPerCharXT(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytesXT(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytesXT(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_
 
 func SizeInBytesPerChar32XT(pacChars)
 	if ChekcParams()
@@ -359,16 +359,16 @@ func SizeInBytesPerChar32XT(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytes32XT(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytes32XT(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_
 
 func SizeInBytesPerChar64XT(pacChars)
 	if ChekcParams()
@@ -377,13 +377,13 @@ func SizeInBytesPerChar64XT(pacChars)
 		ok
 	ok
 
-	acChars = U(pacChars)
-	nLen = len(acChars)
+	_acChars_ = U(pacChars)
+	_nLen_ = len(_acChars_)
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nLen
-		aResult + [ acChars[i], SizeInBytes64XT(acChars[i]) ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _acChars_[i], SizeInBytes64XT(_acChars_[i]) ]
 	next
 
-	return aResult
+	return _aResult_

@@ -73,42 +73,42 @@ class stzListComparator from stzObject
 
 	def CommonItemsCS(paOtherList, pCaseSensitive)
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListIntersectionCS(pA, pB, pCaseSensitive)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return aResult
+		return _aResult_
 
 	def CommonItems(paOtherList)
 		return This.CommonItemsCS(paOtherList, 1)
 
 	def UnionCS(paOtherList, pCaseSensitive)
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListUnionCS(pA, pB, pCaseSensitive)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return aResult
+		return _aResult_
 
 	def Union(paOtherList)
 		return This.UnionCS(paOtherList, 1)
 
 	def DifferenceCS(paOtherList, pCaseSensitive)
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
 		pResult = StzEngineListDifferenceCS(pA, pB, pCaseSensitive)
-		aResult = StzEngineListContentToRingList(pResult)
+		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return aResult
+		return _aResult_
 
 	def Difference(paOtherList)
 		return This.DifferenceCS(paOtherList, 1)
@@ -166,22 +166,22 @@ class stzListComparator from stzObject
 
 	def SymmetricDifferenceCS(paOtherList, pCaseSensitive)
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
 		pDiff1 = StzEngineListDifferenceCS(pA, pB, pCaseSensitive)
 		pDiff2 = StzEngineListDifferenceCS(pB, pA, pCaseSensitive)
-		aDiff1 = StzEngineListContentToRingList(pDiff1)
-		aDiff2 = StzEngineListContentToRingList(pDiff2)
+		_aDiff1_ = StzEngineListContentToRingList(pDiff1)
+		_aDiff2_ = StzEngineListContentToRingList(pDiff2)
 		StzEngineListFree(pDiff2)
 		StzEngineListFree(pDiff1)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		aResult = aDiff1
-		nLen = len(aDiff2)
-		for i = 1 to nLen
-			aResult + aDiff2[i]
+		_aResult_ = _aDiff1_
+		_nLen_ = len(_aDiff2_)
+		for i = 1 to _nLen_
+			_aResult_ + _aDiff2_[i]
 		next
-		return aResult
+		return _aResult_
 
 	def SymmetricDifference(paOtherList)
 		return This.SymmetricDifferenceCS(paOtherList, 1)
@@ -192,24 +192,24 @@ class stzListComparator from stzObject
 
 	def IsSubsetOfCS(paOtherList, pCaseSensitive)
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
-		nResult = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
+		_nResult_ = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return nResult
+		return _nResult_
 
 	def IsSubsetOf(paOtherList)
 		return This.IsSubsetOfCS(paOtherList, 1)
 
 	def IsSupersetOfCS(paOtherList, pCaseSensitive)
-		oTemp = new stzList(paOtherList)
-		pA = oTemp._EngineListFromContent()
+		_oTemp_ = new stzList(paOtherList)
+		pA = _oTemp_._EngineListFromContent()
 		pB = @oList._EngineListFromContent()
-		nResult = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
+		_nResult_ = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return nResult
+		return _nResult_
 
 	def IsSupersetOf(paOtherList)
 		return This.IsSupersetOfCS(paOtherList, 1)
@@ -263,19 +263,19 @@ class stzListComparator from stzObject
 	#======================================================#
 
 	def IsSortedLike(paOtherList)
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLen2 = len(paOtherList)
-		if nLen != nLen2
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nLen2_ = len(paOtherList)
+		if _nLen_ != _nLen2_
 			return 0
 		ok
-		if nLen < 2
+		if _nLen_ < 2
 			return 1
 		ok
-		for i = 1 to nLen - 1
-			bThisAsc = BothAreEqual(aContent[i], aContent[i+1]) or StzFindFirst([""+aContent[i]], ""+aContent[i+1]) >= 0
-			bOtherAsc = BothAreEqual(paOtherList[i], paOtherList[i+1]) or StzFindFirst([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
-			if bThisAsc != bOtherAsc
+		for i = 1 to _nLen_ - 1
+			_bThisAsc_ = BothAreEqual(_aContent_[i], _aContent_[i+1]) or StzFindFirst([""+_aContent_[i]], ""+_aContent_[i+1]) >= 0
+			_bOtherAsc_ = BothAreEqual(paOtherList[i], paOtherList[i+1]) or StzFindFirst([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
+			if _bThisAsc_ != _bOtherAsc_
 				return 0
 			ok
 		next
@@ -326,13 +326,13 @@ class stzListComparator from stzObject
 			return 0
 		ok
 		pA = @oList._EngineListFromContent()
-		oTemp = new stzList(paOtherList)
-		pB = oTemp._EngineListFromContent()
-		nAsubB = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
-		nBsubA = StzEngineListIsSubsetCS(pB, pA, pCaseSensitive)
+		_oTemp_ = new stzList(paOtherList)
+		pB = _oTemp_._EngineListFromContent()
+		_nAsubB_ = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
+		_nBsubA_ = StzEngineListIsSubsetCS(pB, pA, pCaseSensitive)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
-		return nAsubB and nBsubA
+		return _nAsubB_ and _nBsubA_
 
 	def IsPermutationOf(paOtherList)
 		return This.IsPermutationOfCS(paOtherList, 1)

@@ -247,18 +247,18 @@ $aSemanticOperations = [
 
 #-- GLOBAL FUNCTIONS
 
-func NaturallyIn(cLanguageOrCode, cCode)
-	if cCode = ""
+func NaturallyIn(cLanguageOrCode, _cCode_)
+	if _cCode_ = ""
 		return new stzNaturalEngine(cLanguageOrCode, "")
 	else
-		return new stzNaturalEngine(cLanguageOrCode, cCode)
+		return new stzNaturalEngine(cLanguageOrCode, _cCode_)
 	ok
 
-func Naturally(cCode)
-	if cCode = ""
+func Naturally(_cCode_)
+	if _cCode_ = ""
 		return new stzNaturalEngine("en", "")
 	else
-		return new stzNaturalEngine("en", cCode)
+		return new stzNaturalEngine("en", _cCode_)
 	ok
 
 #-- NATURAL ENGINE CLASS
@@ -277,12 +277,12 @@ class stzNaturalEngine from stzObject
 	@result
 	@cNaturalCode = ""
 
-	def init(cLangOrCode, cCode)
+	def init(cLangOrCode, _cCode_)
 		# Handle different initialization patterns
-		if cCode != ""
+		if _cCode_ != ""
 			# Case: Naturally("en", "code here")
 			@cLanguage = lower(cLangOrCode)
-			@cNaturalCode = cCode
+			@cNaturalCode = _cCode_
 		else
 			# Detect if first param is language code or natural code
 			if This.IsLanguageCode(cLangOrCode)
@@ -309,113 +309,113 @@ class stzNaturalEngine from stzObject
 			return 0
 		ok
 		
-		cLower = lower(cStr)
+		_cLower_ = lower(cStr)
 		
 		# Check against known language codes
-		nLen = len($aLanguageDefinitions)
-		for i = 1 to nLen
-			aLang = $aLanguageDefinitions[i]
-			if aLang[:code] = cLower or aLang[:name] = cLower
+		_nLen_ = len($aLanguageDefinitions)
+		for _i_ = 1 to _nLen_
+			_aLang_ = $aLanguageDefinitions[_i_]
+			if _aLang_[:code] = _cLower_ or _aLang_[:name] = _cLower_
 				return 1
 			ok
 		next
 		
 		return 0
 	
-	def Execute(cCode)
-		if cCode = "" or NOT isString(cCode)
+	def Execute(_cCode_)
+		if _cCode_ = "" or NOT isString(_cCode_)
 			return
 		ok
 		
-		@cNaturalCode = cCode
+		@cNaturalCode = _cCode_
 		This.AddToDebugLog("Executing natural code")
-		This.AddToDebugLog("Code length: " + stzlen(cCode) + " chars")
+		This.AddToDebugLog("Code length: " + stzlen(_cCode_) + " chars")
 		
 		# Tokenize the code
-		This.TokenizeCode(cCode)
+		This.TokenizeCode(_cCode_)
 	
 		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
-		nLen = len(@aValues)
-		for i = 1 to nLen
-			val = @aValues[i]
-			This.AddToDebugLog("Value[" + i + "]: type=" + type(val) + ", content=" + @@(val))
+		_nLen_ = len(@aValues)
+		for _i_ = 1 to _nLen_
+			_val_ = @aValues[_i_]
+			This.AddToDebugLog("Value[" + _i_ + "]: type=" + type(_val_) + ", content=" + @@(_val_))
 		next
 		
 		This.Process()
 	
-	def TokenizeCode(cCode)
+	def TokenizeCode(_cCode_)
 		@aValues = []
 		
 		# Clean the code
-		cCode = trim(cCode)
+		_cCode_ = trim(_cCode_)
 		
 		# Split by whitespace while preserving quoted strings
-		aTokens = This.SmartSplit(cCode)
+		_aTokens_ = This.SmartSplit(_cCode_)
 		
-		@aValues = aTokens
+		@aValues = _aTokens_
 	
-	def SmartSplit(cCode)
-	    aResult = []
-	    cCurrent = ""
-	    bInQuote = 0
-	    cQuoteChar = ""
+	def SmartSplit(_cCode_)
+	    _aResult_ = []
+	    _cCurrent_ = ""
+	    _bInQuote_ = 0
+	    _cQuoteChar_ = ""
 	
-	    acChars = Chars(cCode)
-	    nLen = len(acChars)
+	    _acChars_ = Chars(_cCode_)
+	    _nLen_ = len(_acChars_)
 	    
-	    for i = 1 to nLen
-	        cChar = acChars[i]
+	    for _i_ = 1 to _nLen_
+	        _cChar_ = _acChars_[_i_]
 	        
-	        if (cChar = "'" or cChar = '"' or cChar = "`") and NOT bInQuote
-	            bInQuote = 1
-	            cQuoteChar = cChar
+	        if (_cChar_ = "'" or _cChar_ = '"' or _cChar_ = "`") and NOT _bInQuote_
+	            _bInQuote_ = 1
+	            _cQuoteChar_ = _cChar_
 	            loop
 	        ok
 	        
-	        if bInQuote and cChar = cQuoteChar
-	            if cCurrent != ""
-	                aResult + cCurrent
-	                cCurrent = ""
+	        if _bInQuote_ and _cChar_ = _cQuoteChar_
+	            if _cCurrent_ != ""
+	                _aResult_ + _cCurrent_
+	                _cCurrent_ = ""
 	            ok
-	            bInQuote = 0
-	            cQuoteChar = ""
+	            _bInQuote_ = 0
+	            _cQuoteChar_ = ""
 	            loop
 	        ok
 	        
-	        if bInQuote
-	            cCurrent += cChar
+	        if _bInQuote_
+	            _cCurrent_ += _cChar_
 	            loop
 	        ok
 	
-	        if cChar = " " or cChar = TAB or cChar = NL or cChar = CR
-	            if cCurrent != ""
-	                aResult + cCurrent
-	                cCurrent = ""
+	        if _cChar_ = " " or _cChar_ = TAB or _cChar_ = NL or _cChar_ = CR
+	            if _cCurrent_ != ""
+	                _aResult_ + _cCurrent_
+	                _cCurrent_ = ""
 	            ok
 	        else
-	            cCurrent += cChar
+	            _cCurrent_ += _cChar_
 	        ok
 	    next
 	    
-	    if cCurrent != ""
-	        aResult + cCurrent
+	    if _cCurrent_ != ""
+	        _aResult_ + _cCurrent_
 	    ok
 
-	    return aResult
+	    return _aResult_
 	
 	def LoadLanguageData()
-		aLangDef = This.FindLanguageDefinition(@cLanguage)
-		if len(aLangDef) > 0
-			@aIgnoredWords = aLangDef[:ignored_words]
-			@aMappings = aLangDef[:semantic_mappings]
+		_aLangDef_ = This.FindLanguageDefinition(@cLanguage)
+		if len(_aLangDef_) > 0
+			@aIgnoredWords = _aLangDef_[:ignored_words]
+			@aMappings = _aLangDef_[:semantic_mappings]
 		ok
 	
-	def FindLanguageDefinition(cCode)
-		nLen = len($aLanguageDefinitions)
-		for i = 1 to nLen
-			aLang = $aLanguageDefinitions[i]
-			if aLang[:code] = cCode or aLang[:name] = cCode
-				return aLang
+	def FindLanguageDefinition(_cCode_)
+		_nLen_ = len($aLanguageDefinitions)
+		for _i_ = 1 to _nLen_
+			_aLang_ = $aLanguageDefinitions[_i_]
+			if _aLang_[:code] = _cCode_ or _aLang_[:name] = _cCode_
+				return _aLang_
 			ok
 		next
 		return []
@@ -424,83 +424,83 @@ class stzNaturalEngine from stzObject
 		@aSemanticTokens = This.ConvertToSemanticTokens()
 		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
-		cCode = This.GenerateCodeFromSemantics()
+		_cCode_ = This.GenerateCodeFromSemantics()
 		This.AddToDebugLog("Generated code:")
-		This.AddToDebugLog(cCode)
+		This.AddToDebugLog(_cCode_)
 		
-		if cCode != ""
-			eval(cCode)
+		if _cCode_ != ""
+			eval(_cCode_)
 		ok
 	
 	def ConvertToSemanticTokens()
-		aTokens = []
-		nLen = len(@aValues)
+		_aTokens_ = []
+		_nLen_ = len(@aValues)
 		
 		This.AddToDebugLog("Converting to semantic tokens")
 		
-		for i = 1 to nLen
-			cValue = @aValues[i]
+		for _i_ = 1 to _nLen_
+			_cValue_ = @aValues[_i_]
 			
 			# Handle lists
-			if isList(cValue)
-				aTokens + [:type = "literal", :value = cValue]
-				This.AddToDebugLog("List literal: " + stzlen(cValue) + " items")
+			if isList(_cValue_)
+				_aTokens_ + [:type = "literal", :value = _cValue_]
+				This.AddToDebugLog("List literal: " + stzlen(_cValue_) + " items")
 				loop
 			ok
 			
 			# Convert to string
-			if NOT isString(cValue)
-				cValue = "" + cValue
+			if NOT isString(_cValue_)
+				_cValue_ = "" + _cValue_
 			ok
 			
-			This.AddToDebugLog("Processing: '" + cValue + "'")
+			This.AddToDebugLog("Processing: '" + _cValue_ + "'")
 			
 			# Skip ignored
-			if This.IsIgnoredWord(cValue)
+			if This.IsIgnoredWord(_cValue_)
 				This.AddToDebugLog("  Ignored")
 				loop
 			ok
 			
 			# Get semantic
-			cSemantic = This.ToSemantic(cValue)
+			_cSemantic_ = This.ToSemantic(_cValue_)
 			
-			if cSemantic != ""
-				bLiteral = This.ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
+			if _cSemantic_ != ""
+				_bLiteral_ = This.ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
 				
-				if bLiteral
-					aTokens + [:type = "literal", :value = cValue]
+				if _bLiteral_
+					_aTokens_ + [:type = "literal", :value = _cValue_]
 					This.AddToDebugLog("  Literal (context)")
 				else
-					aTokens + [:type = "semantic", :value = cSemantic, :original = cValue]
-					This.AddToDebugLog("  Semantic: " + cSemantic)
+					_aTokens_ + [:type = "semantic", :value = _cSemantic_, :original = _cValue_]
+					This.AddToDebugLog("  Semantic: " + _cSemantic_)
 				ok
 			else
-				aTokens + [:type = "literal", :value = cValue]
+				_aTokens_ + [:type = "literal", :value = _cValue_]
 				This.AddToDebugLog("  Literal")
 			ok
 		next
 		
-		return aTokens
+		return _aTokens_
 	
-	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
-		nLen = len(aTokens)
-		if nLen = 0
+	def ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
+		_nLen_ = len(_aTokens_)
+		if _nLen_ = 0
 			return 0
 		ok
 		
-		aLast = aTokens[nLen]
+		_aLast_ = _aTokens_[_nLen_]
 		
 		# After VALUE_INDICATOR
-		if aLast[:type] = "semantic" and aLast[:value] = "VALUE_INDICATOR"
+		if _aLast_[:type] = "semantic" and _aLast_[:value] = "VALUE_INDICATOR"
 			return 1
 		ok
 		
 		# In parameter collection
-		if aLast[:type] = "literal" and nLen >= 2
-			aBeforeLast = aTokens[nLen-1]
-			if aBeforeLast[:type] = "semantic" and left(aBeforeLast[:value], 7) = "METHOD_"
-				aOp = This.GetSemanticOperation(aBeforeLast[:value])
-				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+		if _aLast_[:type] = "literal" and _nLen_ >= 2
+			_aBeforeLast_ = _aTokens_[_nLen_-1]
+			if _aBeforeLast_[:type] = "semantic" and left(_aBeforeLast_[:value], 7) = "METHOD_"
+				_aOp_ = This.GetSemanticOperation(_aBeforeLast_[:value])
+				if len(_aOp_) > 0 and HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
 					return 1
 				ok
 			ok
@@ -512,90 +512,90 @@ class stzNaturalEngine from stzObject
 		return ring_find(@aIgnoredWords, lower(cWord)) > 0
 	
 	def ToSemantic(cWord)
-		cLower = lower(cWord)
+		_cLower_ = lower(cWord)
 
-		bDefine = left(cLower, 1) = "@"
-		bRecall = right(cLower, 1) = "@"
+		_bDefine_ = left(_cLower_, 1) = "@"
+		_bRecall_ = right(_cLower_, 1) = "@"
 		
-		if bDefine
-			cLower = @StzMid(cLower, 2, stzlen(cLower))
-		but bRecall
-			cLower = left(cLower, stzlen(cLower)-1)
+		if _bDefine_
+			_cLower_ = @StzMid(_cLower_, 2, stzlen(_cLower_))
+		but _bRecall_
+			_cLower_ = left(_cLower_, stzlen(_cLower_)-1)
 		ok
 		
-		nLen = len(@aMappings)
-		for i = 1 to nLen
-			aMap = @aMappings[i]
-			if aMap[:natural] = cLower
-				cSemantic = aMap[:semantic]
-				if bDefine
-					return "@" + cSemantic
-				but bRecall
-					return cSemantic + "@"
+		_nLen_ = len(@aMappings)
+		for _i_ = 1 to _nLen_
+			_aMap_ = @aMappings[_i_]
+			if _aMap_[:natural] = _cLower_
+				_cSemantic_ = _aMap_[:semantic]
+				if _bDefine_
+					return "@" + _cSemantic_
+				but _bRecall_
+					return _cSemantic_ + "@"
 				ok
-				return cSemantic
+				return _cSemantic_
 			ok
 		next
 		return ""
 	
 	def GenerateCodeFromSemantics()
-		aCodeLines = []
-		nLen = len(@aSemanticTokens)
-		i = 1
+		_aCodeLines_ = []
+		_nLen_ = len(@aSemanticTokens)
+		_i_ = 1
 
-		while i <= nLen
-			aToken = @aSemanticTokens[i]
+		while _i_ <= _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
 			
-			if aToken[:type] = "semantic"
-				cSemantic = aToken[:value]
+			if _aToken_[:type] = "semantic"
+				_cSemantic_ = _aToken_[:value]
 				
 				# Define pattern
-				if left(cSemantic, 1) = "@"
-					cClean = @StzMid(cSemantic, 2, stzlen(cSemantic))
-					@aDefineRecallState + [:semantic = cClean, :index = i]
-					i++
+				if left(_cSemantic_, 1) = "@"
+					_cClean_ = @StzMid(_cSemantic_, 2, stzlen(_cSemantic_))
+					@aDefineRecallState + [:semantic = _cClean_, :index = _i_]
+					_i_++
 					loop
 				ok
 				
 				# Recall pattern
-				if right(cSemantic, 1) = "@"
-					cClean = left(cSemantic, stzlen(cSemantic)-1)
-					aResult = This.ProcessMethodWithModifiers(i, cClean)
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+				if right(_cSemantic_, 1) = "@"
+					_cClean_ = left(_cSemantic_, stzlen(_cSemantic_)-1)
+					_aResult_ = This.ProcessMethodWithModifiers(_i_, _cClean_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					loop
 				ok
 				
-				if cSemantic = "CREATE_OBJECT"
+				if _cSemantic_ = "CREATE_OBJECT"
 
-					aResult = This.ProcessObjectCreation(i)
+					_aResult_ = This.ProcessObjectCreation(_i_)
 
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					
-				but left(cSemantic, 7) = "METHOD_"
-					aResult = This.ProcessMethod(i, cSemantic)
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+				but left(_cSemantic_, 7) = "METHOD_"
+					_aResult_ = This.ProcessMethod(_i_, _cSemantic_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					
-				but cSemantic = "OUTPUT_DISPLAY"
-					aOp = This.GetSemanticOperation(cSemantic)
-					if len(aOp) > 0
-						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
-						aCodeLines + cCode
+				but _cSemantic_ = "OUTPUT_DISPLAY"
+					_aOp_ = This.GetSemanticOperation(_cSemantic_)
+					if len(_aOp_) > 0
+						_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
+						_aCodeLines_ + _cCode_
 					ok
-					i++
+					_i_++
 				else
-					i++
+					_i_++
 				ok
 			else
-				i++
+				_i_++
 			ok
 		end
 
@@ -603,146 +603,146 @@ class stzNaturalEngine from stzObject
 			StzRaise('Unsupported object type while processing "CREATE_OBJECT"!')
 		ok
 
-		cCode = JoinXT(aCodeLines, NL) + NL + "@result = " + @cCurrentVariable + ".Content()"
-		return cCode
+		_cCode_ = JoinXT(_aCodeLines_, NL) + NL + "@result = " + @cCurrentVariable + ".Content()"
+		return _cCode_
 	
-	def FindDefineIndex(cSemantic)
-		nLen = len(@aDefineRecallState)
-		for i = 1 to nLen
-			if @aDefineRecallState[i][:semantic] = cSemantic
-				return @aDefineRecallState[i][:index]
+	def FindDefineIndex(_cSemantic_)
+		_nLen_ = len(@aDefineRecallState)
+		for _i_ = 1 to _nLen_
+			if @aDefineRecallState[_i_][:semantic] = _cSemantic_
+				return @aDefineRecallState[_i_][:index]
 			ok
 		next
 		return 0
 	
 	def ProcessObjectCreation(nIndex)
-		nLen = len(@aSemanticTokens)
-		cObjectType = ""
-		cValue = ""
-		nNextIndex = nIndex + 1
+		_nLen_ = len(@aSemanticTokens)
+		_cObjectType_ = ""
+		_cValue_ = ""
+		_nNextIndex_ = nIndex + 1
 		
-		for i = nIndex+1 to nLen
-			aToken = @aSemanticTokens[i]
-			if aToken[:type] = "semantic" and left(aToken[:value], 7) = "OBJECT_"
-				cObjectType = aToken[:value]
+		for _i_ = nIndex+1 to _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
+			if _aToken_[:type] = "semantic" and left(_aToken_[:value], 7) = "OBJECT_"
+				_cObjectType_ = _aToken_[:value]
 				
-				for j = i+1 to nLen
-					aNextToken = @aSemanticTokens[j]
-					if aNextToken[:type] = "literal"
-						cValue = aNextToken[:value]
-						nNextIndex = j + 1
+				for j = _i_+1 to _nLen_
+					_aNextToken_ = @aSemanticTokens[j]
+					if _aNextToken_[:type] = "literal"
+						_cValue_ = _aNextToken_[:value]
+						_nNextIndex_ = j + 1
 						exit 2
 					ok
 				next
 			ok
 		next
 		
-		if cObjectType != ""
-			aOp = This.GetSemanticOperation(cObjectType)
+		if _cObjectType_ != ""
+			_aOp_ = This.GetSemanticOperation(_cObjectType_)
 
-			if len(aOp) > 0
-				@cCurrentObject = aOp[:object_type]
-				@cCurrentVariable = aOp[:variable]
-				cConstructor = aOp[:constructor]
+			if len(_aOp_) > 0
+				@cCurrentObject = _aOp_[:object_type]
+				@cCurrentVariable = _aOp_[:variable]
+				_cConstructor_ = _aOp_[:constructor]
 				
 				# Handle lists
-				if isList(cValue)
-					cListStr = "["
-					nLen = stzlen(cValue)
-					for k = 1 to nLen
+				if isList(_cValue_)
+					_cListStr_ = "["
+					_nLen_ = stzlen(_cValue_)
+					for k = 1 to _nLen_
 						if k > 1
-							cListStr += ", "
+							_cListStr_ += ", "
 						ok
-						cListStr += @@(cValue[k])
+						_cListStr_ += @@(_cValue_[k])
 					next
-					cListStr += "]"
-					cConstructor = StzReplace(cConstructor, "@", cListStr)
+					_cListStr_ += "]"
+					_cConstructor_ = StzReplace(_cConstructor_, "@", _cListStr_)
 				else
-					cConstructor = StzReplace(cConstructor, "@", @@(cValue))
+					_cConstructor_ = StzReplace(_cConstructor_, "@", @@(_cValue_))
 				ok
 				
-				cCode = @cCurrentVariable + " = " + cConstructor
-				return [:code = cCode, :next_index = nNextIndex]
+				_cCode_ = @cCurrentVariable + " = " + _cConstructor_
+				return [:code = _cCode_, :next_index = _nNextIndex_]
 			ok
 		ok
 		
 		return [:code = "", :next_index = nIndex+1]
 	
-	def ProcessMethod(nIndex, cSemantic)
-		This.AddToDebugLog("Processing method: " + cSemantic)
+	def ProcessMethod(nIndex, _cSemantic_)
+		This.AddToDebugLog("Processing method: " + _cSemantic_)
 		
-		aOp = This.GetSemanticOperation(cSemantic)
-		if len(aOp) = 0
+		_aOp_ = This.GetSemanticOperation(_cSemantic_)
+		if len(_aOp_) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
+		_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
 		
-		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
-			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
-			aParams = aResult[:params]
-			nNextIndex = aResult[:next_index]
-			nLen = len(aParams)
+		if HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
+			_aResult_ = This.ExtractMethodParameters(nIndex, _aOp_[:requires_params])
+			_aParams_ = _aResult_[:params]
+			_nNextIndex_ = _aResult_[:next_index]
+			_nLen_ = len(_aParams_)
 
-			for i = 1 to nLen
-				cPlaceholder = "@param" + i
-				cParamValue = @@(aParams[i])
-				cCode = StzReplace(cCode, cPlaceholder, cParamValue)
+			for _i_ = 1 to _nLen_
+				_cPlaceholder_ = "@param" + _i_
+				_cParamValue_ = @@(_aParams_[_i_])
+				_cCode_ = StzReplace(_cCode_, _cPlaceholder_, _cParamValue_)
 			next
 			
-			return [:code = cCode, :next_index = nNextIndex]
+			return [:code = _cCode_, :next_index = _nNextIndex_]
 		ok
 		
-		return [:code = cCode, :next_index = nIndex+1]
+		return [:code = _cCode_, :next_index = nIndex+1]
 	
 	def ExtractMethodParameters(nIndex, nParamCount)
-		aParams = []
-		nLen = len(@aSemanticTokens)
-		nLastIndex = nIndex
+		_aParams_ = []
+		_nLen_ = len(@aSemanticTokens)
+		_nLastIndex_ = nIndex
 		
-		for i = nIndex+1 to nLen
-			aToken = @aSemanticTokens[i]
-			nLastIndex = i
+		for _i_ = nIndex+1 to _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
+			_nLastIndex_ = _i_
 			
-			if aToken[:type] = "semantic" and aToken[:value] = "VALUE_INDICATOR"
+			if _aToken_[:type] = "semantic" and _aToken_[:value] = "VALUE_INDICATOR"
 				loop
 			ok
 			
-			if aToken[:type] = "literal"
-				aParams + aToken[:value]
-				if len(aParams) = nParamCount
+			if _aToken_[:type] = "literal"
+				_aParams_ + _aToken_[:value]
+				if len(_aParams_) = nParamCount
 					exit
 				ok
 			ok
 			
-			if aToken[:type] = "semantic" and 
-			   (left(aToken[:value], 7) = "METHOD_" or aToken[:value] = "OUTPUT_DISPLAY")
-				nLastIndex = i - 1
+			if _aToken_[:type] = "semantic" and 
+			   (left(_aToken_[:value], 7) = "METHOD_" or _aToken_[:value] = "OUTPUT_DISPLAY")
+				_nLastIndex_ = _i_ - 1
 				exit
 			ok
 		next
 		
-		return [:params = aParams, :next_index = nLastIndex + 1]
+		return [:params = _aParams_, :next_index = _nLastIndex_ + 1]
 	
-	def ProcessMethodWithModifiers(nIndex, cSemantic)
-		aOp = This.GetSemanticOperation(cSemantic)
-		if len(aOp) = 0
+	def ProcessMethodWithModifiers(nIndex, _cSemantic_)
+		_aOp_ = This.GetSemanticOperation(_cSemantic_)
+		if len(_aOp_) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
+		_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
 		
-		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
-			nLen = len(@aSemanticTokens)
-			for i = nIndex+1 to nLen
-				aToken = @aSemanticTokens[i]
-				if aToken[:type] = "semantic"
-					nModLen = len(aOp[:modifiers])
-					for j = 1 to nModLen
-						aMod = aOp[:modifiers][j]
-						if aMod[:semantic_id] = aToken[:value]
-							cCode = StzReplace(cCode, aOp[:stz_method], aMod[:stz_method])
-							cCode = StzReplace(cCode, "()", "([" + aMod[:stz_param] + "])")
+		if HasKey(_aOp_, :supports_modifiers) and _aOp_[:supports_modifiers] = 1
+			_nLen_ = len(@aSemanticTokens)
+			for _i_ = nIndex+1 to _nLen_
+				_aToken_ = @aSemanticTokens[_i_]
+				if _aToken_[:type] = "semantic"
+					_nModLen_ = len(_aOp_[:modifiers])
+					for j = 1 to _nModLen_
+						_aMod_ = _aOp_[:modifiers][j]
+						if _aMod_[:semantic_id] = _aToken_[:value]
+							_cCode_ = StzReplace(_cCode_, _aOp_[:stz_method], _aMod_[:stz_method])
+							_cCode_ = StzReplace(_cCode_, "()", "([" + _aMod_[:stz_param] + "])")
 							exit 2
 						ok
 					next
@@ -750,14 +750,14 @@ class stzNaturalEngine from stzObject
 			next
 		ok
 		
-		return [:code = cCode, :next_index = nIndex+1]
+		return [:code = _cCode_, :next_index = nIndex+1]
 	
 	def GetSemanticOperation(cSemanticId)
-		nLen = len($aSemanticOperations)
-		for i = 1 to nLen
-			aOp = $aSemanticOperations[i]
-			if aOp[:semantic_id] = cSemanticId
-				return aOp
+		_nLen_ = len($aSemanticOperations)
+		for _i_ = 1 to _nLen_
+			_aOp_ = $aSemanticOperations[_i_]
+			if _aOp_[:semantic_id] = cSemanticId
+				return _aOp_
 			ok
 		next
 		return []

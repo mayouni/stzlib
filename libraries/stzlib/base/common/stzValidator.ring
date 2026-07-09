@@ -74,13 +74,13 @@ class stzValidator from stzObject
 			ok
 		ok
 
-		nHandle = StzEngineValAddRule(cName, nKind, nThreshold, cMessage)
-		if nHandle < 0
+		_nHandle_ = StzEngineValAddRule(cName, nKind, nThreshold, cMessage)
+		if _nHandle_ < 0
 			StzRaise("Can't add rule! Engine rule slots full.")
 		ok
 
-		@aRuleHandles + nHandle
-		return nHandle
+		@aRuleHandles + _nHandle_
+		return _nHandle_
 
 	def AddMinValueRule(cName, nMin, cMessage)
 		return This.AddRule(cName, $STZ_RULE_MIN_VALUE, nMin, cMessage)
@@ -102,18 +102,18 @@ class stzValidator from stzObject
 	#-------------------------------#
 
 	def CheckInt(cRuleName, nValue)
-		nResult = StzEngineValCheckInt(cRuleName, nValue)
-		if nResult < 0
+		_nResult_ = StzEngineValCheckInt(cRuleName, nValue)
+		if _nResult_ < 0
 			StzRaise("Rule '" + cRuleName + "' not found!")
 		ok
-		return nResult
+		return _nResult_
 
 	def CheckLength(cRuleName, nLength)
-		nResult = StzEngineValCheckLen(cRuleName, nLength)
-		if nResult < 0
+		_nResult_ = StzEngineValCheckLen(cRuleName, nLength)
+		if _nResult_ < 0
 			StzRaise("Rule '" + cRuleName + "' not found!")
 		ok
-		return nResult
+		return _nResult_
 
 		def CheckLen(cRuleName, nLength)
 			return This.CheckLength(cRuleName, nLength)

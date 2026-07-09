@@ -38,55 +38,55 @@ class stzPairOfLists from stzListOfLists
 		return @aList2
 
 	def Alternate()
-		aResult = []
+		_aResult_ = []
 
-		nLen1 = len( This.FirstList() )
-		nlen2 = len( This.SecondList() )
+		_nLen1_ = len( This.FirstList() )
+		_nlen2_ = len( This.SecondList() )
 
-		nMax = @Max([ nLen1, nLen2 ])
+		_nMax_ = @Max([ _nLen1_, _nlen2_ ])
 
-		cBiggerList = ""
-		cOtherList = ""
+		_cBiggerList_ = ""
+		_cOtherList_ = ""
 
-		if nLen1 = nMax
-			cBiggerList = :FirstList
-			cOtherList = :SecondList
+		if _nLen1_ = _nMax_
+			_cBiggerList_ = :FirstList
+			_cOtherList_ = :SecondList
 
 		else
-			cBiggerList = :SecondList
-			cOtherList = :FirstList
+			_cBiggerList_ = :SecondList
+			_cOtherList_ = :FirstList
 		ok
 
-		cBiggerList += "()"
-		cOtherList += "()"
+		_cBiggerList_ += "()"
+		_cOtherList_ += "()"
 
 		cCode =
-			"for i = 1 to len(This." + cBiggerList + ")" + NL +
-			"	aResult + This." + cBiggerList + "[i]" + NL +
-			"	if i <= len(This." + cOtherList + ")" + NL +
-			"		aResult + " + cOtherList + "[i]" + NL +
+			"for i = 1 to len(This." + _cBiggerList_ + ")" + NL +
+			"	aResult + This." + _cBiggerList_ + "[i]" + NL +
+			"	if i <= len(This." + _cOtherList_ + ")" + NL +
+			"		aResult + " + _cOtherList_ + "[i]" + NL +
 			"	ok" + NL +
 			"next"
 		
 		eval(cCode)
 
-		return aResult
+		return _aResult_
 
 		def AlternateQ()
 			return new stzList( This.Alternate() )
 
 	def Associate()
-		aResult = []
-		nLen1 = len( This.FirstList() )
-		nLen2 = len( This.SecondList() )
+		_aResult_ = []
+		_nLen1_ = len( This.FirstList() )
+		_nlen2_ = len( This.SecondList() )
 
-		for i = 1 to nLen1
-			if i <= nLen2
-				aResult + [ This.FirstList()[i], This.SecondList()[i] ]
+		for i = 1 to _nLen1_
+			if i <= _nlen2_
+				_aResult_ + [ This.FirstList()[i], This.SecondList()[i] ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		def AssociateQ()
 			return This.AssociateQRT(:stzList)

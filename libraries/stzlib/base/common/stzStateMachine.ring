@@ -78,9 +78,9 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nResult = StzEngineFsmAddState(@nHandle, cState)
-		if nResult < 0
-			StzRaise("Can't add state! Engine returned error code: " + nResult)
+		_nResult_ = StzEngineFsmAddState(@nHandle, cState)
+		if _nResult_ < 0
+			StzRaise("Can't add state! Engine returned error code: " + _nResult_)
 		ok
 
 		def AddStateQ(cState)
@@ -94,8 +94,8 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nLen = len(paStates)
-		for i = 1 to nLen
+		_nLen_ = len(paStates)
+		for i = 1 to _nLen_
 			This.AddState(paStates[i])
 		next
 
@@ -110,9 +110,9 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nResult = StzEngineFsmAddTransition(@nHandle, cFrom, cEvent, cTo)
-		if nResult < 0
-			StzRaise("Can't add transition! Engine returned error code: " + nResult)
+		_nResult_ = StzEngineFsmAddTransition(@nHandle, cFrom, cEvent, cTo)
+		if _nResult_ < 0
+			StzRaise("Can't add transition! Engine returned error code: " + _nResult_)
 		ok
 
 		def AddTransitionQ(cFrom, cEvent, cTo)
@@ -126,10 +126,10 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nLen = len(paTransitions)
-		for i = 1 to nLen
-			aTr = paTransitions[i]
-			This.AddTransition(aTr[1], aTr[2], aTr[3])
+		_nLen_ = len(paTransitions)
+		for i = 1 to _nLen_
+			_aTr_ = paTransitions[i]
+			This.AddTransition(_aTr_[1], _aTr_[2], _aTr_[3])
 		next
 
 		def AddTransitionsQ(paTransitions)
@@ -147,8 +147,8 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nResult = StzEngineFsmSetState(@nHandle, cState)
-		if nResult < 0
+		_nResult_ = StzEngineFsmSetState(@nHandle, cState)
+		if _nResult_ < 0
 			StzRaise("Can't set state! State may not exist.")
 		ok
 
@@ -173,8 +173,8 @@ class stzStateMachine from stzObject
 			ok
 		ok
 
-		nResult = StzEngineFsmSend(@nHandle, cEvent)
-		if nResult < 0
+		_nResult_ = StzEngineFsmSend(@nHandle, cEvent)
+		if _nResult_ < 0
 			StzRaise("Can't send event '" + cEvent + "'! No matching transition from current state.")
 		ok
 

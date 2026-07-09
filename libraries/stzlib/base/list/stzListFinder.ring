@@ -179,8 +179,8 @@ class stzListFinder from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
-		aResult = This.FindAllOccurrencesCS(pItem, 1)
-		return aResult
+		_aResult_ = This.FindAllOccurrencesCS(pItem, 1)
+		return _aResult_
 
 		def FindAllOccurrencesQ(pItem)
 			return This.FindAllOccurrencesQRT(pItem, :stzList)
@@ -202,9 +202,9 @@ class stzListFinder from stzObject
 	#====================================================#
 
 	def AntiFindCS(pItem, pCaseSensitive)
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
-		anResult = Q(1:This.NumberOfItems()) - These(anPos)
-		return anResult
+		_anPos_ = This.FindAllCS(pItem, pCaseSensitive)
+		_anResult_ = Q(1:This.NumberOfItems()) - These(_anPos_)
+		return _anResult_
 
 	def AntiFind(pItem)
 		return This.AntiFindCS(pItem, 1)
@@ -214,9 +214,9 @@ class stzListFinder from stzObject
 	#--------------------------------------------------#
 
 	def AntiFindAsSectionsCS(pItem, pCaseSensitive)
-		anPos = This.FindCS(pItem, pCaseSensitive)
-		aResult = StzListQ(1:This.NumberOfItems()).AntiPositionsZZ(anPos)
-		return aResult
+		_anPos_ = This.FindCS(pItem, pCaseSensitive)
+		_aResult_ = StzListQ(1:This.NumberOfItems()).AntiPositionsZZ(_anPos_)
+		return _aResult_
 
 		def AntiFindCSZZ(pItem, pCaseSensitive)
 			return This.AntiFindAsSectionsCS(pItem, pCaseSensitive)
@@ -231,27 +231,27 @@ class stzListFinder from stzObject
 	 #  GETTING THE ANTI-POSITIONS OF THE GIVEN POSITIONS IN THE LIST  #
 	#-----------------------------------------------------------------#
 
-	def AntiPositions(anPos)
+	def AntiPositions(_anPos_)
 
 		if CheckingParams()
-			if isList(anPos) and IsOfNamedParamList(anPos)
-				anPos = anPos[2]
+			if isList(_anPos_) and IsOfNamedParamList(_anPos_)
+				_anPos_ = _anPos_[2]
 			ok
 
-			if NOT isList(anPos)
+			if NOT isList(_anPos_)
 				Stzraise("Incorrect param type! anPos must be a list of numbers.")
 			ok
 		ok
 
 		_nApTotal_ = len(@oList.Content())
-		_nApPosLen_ = len(anPos)
+		_nApPosLen_ = len(_anPos_)
 
 		_aApMarked_ = []
 		for _kAp_ = 1 to _nApTotal_
 			@AddItem(_aApMarked_, 0)
 		next
 		for _iAp_ = 1 to _nApPosLen_
-			_nApN_ = anPos[_iAp_]
+			_nApN_ = _anPos_[_iAp_]
 			if _nApN_ >= 1 and _nApN_ <= _nApTotal_
 				_aApMarked_[_nApN_] = 1
 			ok
@@ -586,8 +586,8 @@ class stzListFinder from stzObject
 		return This.ContainsCS(pItem, 1)
 
 	def ContainsManyCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
+		_nLen_ = len(paItems)
+		for i = 1 to _nLen_
 			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
 				return 0
 			ok

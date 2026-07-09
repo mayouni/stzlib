@@ -75,10 +75,10 @@ func AnItemCS(paList, pCaseSensitive)
 		paList = paList[2]
 	ok
 
-	nLen = len(paList)
-	n = ANumberBetween(1, nLen)
-	oResult = new stzItemCS(paList[n], paList, pCaseSensitive)
-	return oResult
+	_nLen_ = len(paList)
+	_n_ = ANumberBetween(1, _nLen_)
+	_oResult_ = new stzItemCS(paList[_n_], paList, pCaseSensitive)
+	return _oResult_
 
 func AnItem(paList)
 	return AnItemCS(paList, 1)
@@ -90,12 +90,12 @@ func SomeItems(paList)
 		paList = paList[2]
 	ok
 
-	nLen = len(paList)
-	anRandom = 3NumbersBetween(1, nLen)
+	_nLen_ = len(paList)
+	_anRandom_ = 3NumbersBetween(1, _nLen_)
 
-	aItems = Q(aList).ItemsAtPositions(anRandom)
-	oResult = new stzList(aItems)
-	return oResult
+	_aItems_ = Q(aList).ItemsAtPositions(_anRandom_)
+	_oResult_ = new stzList(_aItems_)
+	return _oResult_
 
   #-----------#
  #  CLASSES  #
@@ -189,8 +189,8 @@ class stzItemCS from stzObject
 		# Missing `return nResult` -- every caller (including the
 		# nested NumberOfOccurrence / NumberOfOccurrences /
 		# HowManyOccurrence aliases) received NULL silently.
-		nResult = This.ListQ().NumberOfOccurrenceCS(This.Item(), pCaseSensitive)
-		return nResult
+		_nResult_ = This.ListQ().NumberOfOccurrenceCS(This.Item(), pCaseSensitive)
+		return _nResult_
 
 		def NumberOfOccurrencesCS(pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pCaseSensitive)
@@ -212,8 +212,8 @@ class stzItemCS from stzObject
 	def PositionsCS(pCaseSensitive)
 		# FindAllCS requires 2 args (item + case-sensitive flag).
 		# The original call passed only the item -> R19.
-		anResult = This.ListQ().FindAllCS(This.Item(), pCaseSensitive)
-		return anResult
+		_anResult_ = This.ListQ().FindAllCS(This.Item(), pCaseSensitive)
+		return _anResult_
 
 	def Positions()
 		return This.PositionsCS(1)
@@ -224,8 +224,8 @@ class stzItemCS from stzObject
 	#--
 
 	def SectionsCS(pCaseSensitive)
-		aResult = This.ListQ().FindAsSectionsCS(This.Item(), pCaseSensitive)
-		return aResult
+		_aResult_ = This.ListQ().FindAsSectionsCS(This.Item(), pCaseSensitive)
+		return _aResult_
 
 		def PositionsAsSectionsCS(pCaseSensitive)
 			return This.SectionsCS(pCaseSensitive)
@@ -243,16 +243,16 @@ class stzItemCS from stzObject
 			StzRaise("Incorrect param type! anOccurrences must be a list of numbers.")
 		ok
 
-		anResult = []
-		nLen = len(anOccurrences)
+		_anResult_ = []
+		_nLen_ = len(anOccurrences)
 
-		oStr = This.ListQ()
+		_oStr_ = This.ListQ()
 
-		for i = 1 to nLen
-			anResult = oStr.FindNthOccurrenceCS(anOccurrences[i], This.Item(), pCaseSensitive)
+		for i = 1 to _nLen_
+			_anResult_ = _oStr_.FindNthOccurrenceCS(anOccurrences[i], This.Item(), pCaseSensitive)
 		next
 
-		return anResult
+		return _anResult_
 
 		def OccurrencesCSQ(anOccurrences, pCaseSensitive)
 			return new stzOccurrencesCS(anOccurrences, This.Item(), This.List(), pCaseSensitive)
@@ -265,23 +265,23 @@ class stzItemCS from stzObject
 
 	#--
 
-	def NthPositionCS(n, pCaseSensitive)
-		nResult = This.ListQ().FindNthCS(n, This.Item(), pCaseSensitive)
-		return nResult
+	def NthPositionCS(_n_, pCaseSensitive)
+		_nResult_ = This.ListQ().FindNthCS(_n_, This.Item(), pCaseSensitive)
+		return _nResult_
 
-	def NthPosition(n)
-		return This.NthPositionCS(n, 1)
+	def NthPosition(_n_)
+		return This.NthPositionCS(_n_, 1)
 
 	def FirstPositionCS(pCaseSensitive)
-		nResult = This.ListQ().FindFirstCS(This.Item(), pCaseSensitive)
-		return nResult
+		_nResult_ = This.ListQ().FindFirstCS(This.Item(), pCaseSensitive)
+		return _nResult_
 
 	def FirstPosition()
 		return This.FirstPositionCS(1)
 
 	def LastPositionCS(pCaseSensitive)
-		nResult = This.ListQ().FindLastCS(This.Item(), pCaseSensitive)
-		return nResult
+		_nResult_ = This.ListQ().FindLastCS(This.Item(), pCaseSensitive)
+		return _nResult_
 
 	def LastPosition()
 		return This.LastPositionCS(1)
@@ -289,8 +289,8 @@ class stzItemCS from stzObject
 	#--
 
 	def IsBoundedByCS(paBounds, pCaseSensitive)
-		bResult = This.ListQ().ContainsItemBoundedByCS(This.Item(), paBounds, pCaseSensitive)
-		return bResult
+		_bResult_ = This.ListQ().ContainsItemBoundedByCS(This.Item(), paBounds, pCaseSensitive)
+		return _bResult_
 
 	def IsBoundedBy(paBounds)
 		return This.IsBoundedByCS(paBounds, 1)
@@ -298,8 +298,8 @@ class stzItemCS from stzObject
 	#--
 
 	def IsBetweenCS(pBound1, pBound2, pCaseSensitive)
-		bResult = This.ListQ().ContainsItemBetweenCSQ(This.Item(), pBound1, pBound2, pCaseSensitive).Content()
-		return bResult
+		_bResult_ = This.ListQ().ContainsItemBetweenCSQ(This.Item(), pBound1, pBound2, pCaseSensitive).Content()
+		return _bResult_
 
 	def IsBetween(pBound1, pBound2)
 		return This.IsBetweenCS(pBound1, pBound2, 1)
@@ -307,8 +307,8 @@ class stzItemCS from stzObject
 	#--
 
 	def BoundedByCS(paBounds, pCaseSensitive)
-		bResult = This.ListQ().BoundItemByCSQ(This.Item(), pacBounds, pCaseSensitive).Content()
-		return bResult
+		_bResult_ = This.ListQ().BoundItemByCSQ(This.Item(), pacBounds, pCaseSensitive).Content()
+		return _bResult_
 
 	def BoundedBy(paBounds)
 		return This.BoundedByCS(paBounds, 1)
@@ -316,8 +316,8 @@ class stzItemCS from stzObject
 	#--
 
 	def ReplacedWithCS(pOtherItem, pCaseSensitive)
-		cResult = This.ListQ().ReplaceCSQ(This.Item(), pcOtherItem, pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().ReplaceCSQ(This.Item(), pcOtherItem, pCaseSensitive).Content()
+		return _cResult_
 
 		def ReplacedCS(pcOtherItem, pCaseSensitive)
 			return This.ReplacedWithCS(pcOtherItem, pCaseSensitive)
@@ -337,8 +337,8 @@ class stzItemCS from stzObject
 	#--
 
 	def RemovedCS(pCaseSensitive)
-		cResult = This.ListQ().RemoveCSQ(This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().RemoveCSQ(This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 	def Removed()
 		return This.RemovedCS(1)
@@ -371,8 +371,8 @@ class stzItemCS from stzObject
 	#--
 
 	def UppercasedCS(pCaseSensitive)
-		cResult = This.ListQ().UppercaseItemCSQ(This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().UppercaseItemCSQ(This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 	def Uppercased()
 		return This.UppercasedCS(1)
@@ -380,8 +380,8 @@ class stzItemCS from stzObject
 	#--
 
 	def LowercasedCS(pCaseSensitive)
-		cResult = This.ListQ().LowercaseItemCSQ(This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().LowercaseItemCSQ(This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 	def Lowercased()
 		return This.LowercasedCS(1)
@@ -390,8 +390,8 @@ class stzItemCS from stzObject
 	#==
 
 	def InstertedBeforeCS(p, pCaseSensitive)
-		cResult = This.ListQ().InsertBeforeCSQ(p, This.Item(), pCaseSensitive)
-		return cResult
+		_cResult_ = This.ListQ().InsertBeforeCSQ(p, This.Item(), pCaseSensitive)
+		return _cResult_
 
 		def InsertedAtCS(p, pCaseSensitive)
 			return This.InstertedBeforeCS(p, pCaseSensitive)
@@ -404,16 +404,16 @@ class stzItemCS from stzObject
 
 	#--
 
-	def InsertedBeforePosition(n)
-		cResult = This.ListQ().InsertBeofrePositionQ(n, This.Item()).Content()
-		return cResult
+	def InsertedBeforePosition(_n_)
+		_cResult_ = This.ListQ().InsertBeofrePositionQ(_n_, This.Item()).Content()
+		return _cResult_
 
-		def InsertedAtPosition(n)
-			return This.InsertedBeforePosition(n)
+		def InsertedAtPosition(_n_)
+			return This.InsertedBeforePosition(_n_)
 
 	def InsertedBeforePositions(anPos)
-		cResult = This.ListQ().InsertBeofrePositionsQ(anPos, This.Item()).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeofrePositionsQ(anPos, This.Item()).Content()
+		return _cResult_
 
 		def InsertedAtPositions(anPos)
 			return This.InsertedBeforePositions(anPos)
@@ -427,8 +427,8 @@ class stzItemCS from stzObject
 	#--
 
 	def InsertedBeforeItemCS(pItem, pCaseSensitive)
-		cResult = This.ListQ().InsertBeforeItemCSQ(pItem, This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeforeItemCSQ(pItem, This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 	def InsertedBeforeItem(pItem)
 		return This.InsertedBeforeItemCS(pItem, 1)
@@ -436,8 +436,8 @@ class stzItemCS from stzObject
 	#--
 
 	def InsertedBeforeItemsCS(pacItems, pCaseSensitive)
-		cResult = This.ListQ().InsertBeforeItemsCSQ(pacItems, This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeforeItemsCSQ(pacItems, This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 		def InsertedBeforeManyItemsCS(pacItems, pCaseSensitive)
 			return This.InsertedBeforeItemsCS(pacItems, pCaseSensitive)
@@ -449,8 +449,8 @@ class stzItemCS from stzObject
 			return This.InsertedBeforeItems(pacItems)
 
 	def InsertedBeforeW(pcCondition)
-		cResult = This.ListQ().InsertBeforeWQ(pcCondition, This.Item()).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeforeWQ(pcCondition, This.Item()).Content()
+		return _cResult_
 
 		def InsertedAtW(pcCondition)
 			return This.InsertedBeforeW(pcCondition)
@@ -458,21 +458,21 @@ class stzItemCS from stzObject
 	#==
 
 	def InstertedAfterCS(p, pCaseSensitive)
-		cResult = This.ListQ().InsertAfterCSQ(p, This.Item(), pCaseSensitive)
-		return cResult
+		_cResult_ = This.ListQ().InsertAfterCSQ(p, This.Item(), pCaseSensitive)
+		return _cResult_
 
 	def InsertedAfter(p)
 		return This.InsertedAfterCS(p, 1)
 
 	#--
 
-	def InsertedAfterPosition(n)
-		cResult = This.ListQ().InsertBeofrePositionQ(n, This.Item()).Content()
-		return cResult
+	def InsertedAfterPosition(_n_)
+		_cResult_ = This.ListQ().InsertBeofrePositionQ(_n_, This.Item()).Content()
+		return _cResult_
 
 	def InsertedAfterPositions(anPos)
-		cResult = This.ListQ().InsertBeofrePositionsQ(anPos, This.Item()).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeofrePositionsQ(anPos, This.Item()).Content()
+		return _cResult_
 
 		def InsertedAfterManyPositions(anPos)
 			return This.InsertedAfterPositions(anPos)
@@ -480,8 +480,8 @@ class stzItemCS from stzObject
 	#--
 
 	def InsertedAfterItemCS(pItem, pCaseSensitive)
-		cResult = This.ListQ().InsertAfterItemCSQ(pItem, This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertAfterItemCSQ(pItem, This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 	def InsertedAfterItem(pItem)
 		return This.InsertedAfterItemCS(pItem, 1)
@@ -489,8 +489,8 @@ class stzItemCS from stzObject
 	#--
 
 	def InsertedAfterItemsCS(pacItems, pCaseSensitive)
-		cResult = This.ListQ().InsertAfterItemsCSQ(pacItems, This.Item(), pCaseSensitive).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertAfterItemsCSQ(pacItems, This.Item(), pCaseSensitive).Content()
+		return _cResult_
 
 		def InsertedAfterManyItemsCS(pacItems, pCaseSensitive)
 			return This.InsertedAfterItemsCS(pacItems, pCaseSensitive)
@@ -502,5 +502,5 @@ class stzItemCS from stzObject
 			return This.InsertedAfterItems(pacItems)
 
 	def InsertedAfterW(pcCondition)
-		cResult = This.ListQ().InsertBeforeWQ(pcCondition, This.Item()).Content()
-		return cResult
+		_cResult_ = This.ListQ().InsertBeforeWQ(pcCondition, This.Item()).Content()
+		return _cResult_

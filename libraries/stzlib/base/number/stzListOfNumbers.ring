@@ -64,9 +64,9 @@ func IsListOfPositiveNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if not (isNumber(paList[i]) and paList[i] >= 0)
 			return 0
 		ok
@@ -79,9 +79,9 @@ func IsListOfNegativeNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if not (isNumber(paList[i]) and paList[i] <= 0)
 			return 0
 		ok
@@ -89,60 +89,60 @@ func IsListOfNegativeNumbers(paList)
 
 	return 1
 
-func NumbersUnicodes(anNumbers)
-	return StzListOfNumbersQ(anNumbers).Unicodes()
+func NumbersUnicodes(_anNumbers_)
+	return StzListOfNumbersQ(_anNumbers_).Unicodes()
 
-def HaveSameDifference(anNumbers)
-    	if NOT (isList(anNumbers) and IsListOfNumbers(anNumbers))
+def HaveSameDifference(_anNumbers_)
+    	if NOT (isList(_anNumbers_) and IsListOfNumbers(_anNumbers_))
 		return FALSE
 	ok
 
-	nLen = len(anNumbers)
+	_nLen_ = len(_anNumbers_)
 
 	# A list with fewer than 3 elements doesn't have enough information
 	# to determine a true pattern of constant difference
 
-	if nLen < 3
+	if _nLen_ < 3
 		return 0
 	ok
 
-	nDiff = anNumbers[2] - anNumbers[1]
+	_nDiff_ = _anNumbers_[2] - _anNumbers_[1]
 
-	for i = 2 to nLen -1 
-		if anNumbers[i+1] - anNumbers[i] != nDiff
+	for i = 2 to _nLen_ -1 
+		if _anNumbers_[i+1] - _anNumbers_[i] != _nDiff_
 			return 0
 		ok
 	next
 
 	return 1
 
-	func @HaveSameDifference(anNumbers)
-		return HaveSameDifference(anNumbers)
+	func @HaveSameDifference(_anNumbers_)
+		return HaveSameDifference(_anNumbers_)
 
 
-func AreNonZeroNumbers(anNumbers)
-	if NOT isList(anNumbers)
+func AreNonZeroNumbers(_anNumbers_)
+	if NOT isList(_anNumbers_)
 		return FALSE
 	ok
 
-	nLen = len(anNumbers)
+	_nLen_ = len(_anNumbers_)
 
-	for i = 1 to nLen
-		if NOT (isNumber(anNumbers[i]) and anNumbers[i] != 0)
+	for i = 1 to _nLen_
+		if NOT (isNumber(_anNumbers_[i]) and _anNumbers_[i] != 0)
 			return FALSE
 		ok
 	next
 	
 	return TRUE
 
-	func AreNonNullNumbers(anNumbers)
-		return AreNonZeroNumbers(anNumbers)
+	func AreNonNullNumbers(_anNumbers_)
+		return AreNonZeroNumbers(_anNumbers_)
 
-	func @AreNonZeroNumbers(anNumbers)
-		return AreNonZeroNumbers(anNumbers)
+	func @AreNonZeroNumbers(_anNumbers_)
+		return AreNonZeroNumbers(_anNumbers_)
 
-	func @AreNonNullNumbers(anNumbers)
-		return AreNonZeroNumbers(anNumbers)
+	func @AreNonNullNumbers(_anNumbers_)
+		return AreNonZeroNumbers(_anNumbers_)
 
 func MinOf(panNumbers)
 	return Min(panNumbers) # Defined in SoftanzaCore
@@ -181,13 +181,13 @@ func Median(panNumbers)
 		ok
 	ok
 
-	anValuesSorted = @sort(panNumbers)
-	nLen = len(anValuesSorted)
+	_anValuesSorted_ = @sort(panNumbers)
+	_nLen_ = len(_anValuesSorted_)
 	
-	if nLen % 2 = 1
-		return anValuesSorted[ring_ceil(nLen/2)]
+	if _nLen_ % 2 = 1
+		return _anValuesSorted_[ring_ceil(_nLen_/2)]
 	else
-		return (anValuesSorted[nLen/2] + anValuesSorted[(nLen/2)+1]) / 2
+		return (_anValuesSorted_[_nLen_/2] + _anValuesSorted_[(_nLen_/2)+1]) / 2
 	ok
 
 
@@ -206,13 +206,13 @@ func Sum(panNumbers)
 		return 0
 	ok
 
-	nResult = 0
-	nLen = len(panNumbers)
-	for i = 1 to nLen
-		nResult += panNumbers[i]
+	_nResult_ = 0
+	_nLen_ = len(panNumbers)
+	for i = 1 to _nLen_
+		_nResult_ += panNumbers[i]
 	next
 
-	return nResult
+	return _nResult_
 
 	func @Sum(panNumbers)
 		return Sum(panNumbers)
@@ -234,14 +234,14 @@ func Substruct(panNumbers)
 		ok
 	ok
 
-	nLen = len(panNumbers)
-	nResult = panNumbers[1]
+	_nLen_ = len(panNumbers)
+	_nResult_ = panNumbers[1]
 	
-	for i = 2 to nLen
-		nResult = nResult - panNumbers[i]
+	for i = 2 to _nLen_
+		_nResult_ = _nResult_ - panNumbers[i]
 	next
 
-	return nResult
+	return _nResult_
 
 	func @Substruct(panNumbers)
 		return Substruct(panNumbers)
@@ -252,11 +252,11 @@ func Substruct(panNumbers)
 	func @SubstructionOf(panNumbers)
 		return Substruct(panNumbers)
 
-func StzMul(n1, n2) # Used as ExternalCode
-	return n1 * n2
+func StzMul(_n1_, _n2_) # Used as ExternalCode
+	return _n1_ * _n2_
 
-	func mul(n1, n2)
-		return StzMul(n1, n2)
+	func mul(_n1_, _n2_)
+		return StzMul(_n1_, _n2_)
 
 func Product(panNumbers)
 	if CheckingParams()
@@ -273,13 +273,13 @@ func Product(panNumbers)
 		return 0
 	ok
 
-	nResult = 1
-	nLen = len(panNumbers)
-	for i = 1 to nLen
-		nResult *= panNumbers[i]
+	_nResult_ = 1
+	_nLen_ = len(panNumbers)
+	for i = 1 to _nLen_
+		_nResult_ *= panNumbers[i]
 	next
 
-	return nResult
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
@@ -329,14 +329,14 @@ func Divide(panNumbers)
 		return 0
 	ok
 
-	nLen = len(panNumbers)
-	nResult = panNumbers[1]
+	_nLen_ = len(panNumbers)
+	_nResult_ = panNumbers[1]
 	
-	for i = 2 to nLen
-		nResult = nResult / panNumbers[i]
+	for i = 2 to _nLen_
+		_nResult_ = _nResult_ / panNumbers[i]
 	next
 
-	return nResult
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
@@ -374,15 +374,15 @@ func SumXT(panNumbers)
 		return 0
 	ok
 
-	anResult = []
-	nSum = 0
-	nLen = len(panNumbers)
-	for i = 1 to nLen
-		nSum += panNumbers[i]
-		anResult + nSum
+	_anResult_ = []
+	_nSum_ = 0
+	_nLen_ = len(panNumbers)
+	for i = 1 to _nLen_
+		_nSum_ += panNumbers[i]
+		_anResult_ + _nSum_
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -434,16 +434,16 @@ func SubstructXT(panNumbers)
 		ok
 	ok
 
-	anResult = [] + panNumbers[1]
-	nLen = len(panNumbers)
-	nResult = panNumbers[1]
+	_anResult_ = [] + panNumbers[1]
+	_nLen_ = len(panNumbers)
+	_nResult_ = panNumbers[1]
 	
-	for i = 2 to nLen
-		nResult = nResult - panNumbers[i]
-		anResult + nResult
+	for i = 2 to _nLen_
+		_nResult_ = _nResult_ - panNumbers[i]
+		_anResult_ + _nResult_
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -511,15 +511,15 @@ func ProductXT(panNumbers)
 		return 0
 	ok
 
-	anResult = []
-	nProduct = 1
-	nLen = len(panNumbers)
-	for i = 1 to nLen
-		nProduct *= panNumbers[i]
-		anResult + nProduct
+	_anResult_ = []
+	_nProduct_ = 1
+	_nLen_ = len(panNumbers)
+	for i = 1 to _nLen_
+		_nProduct_ *= panNumbers[i]
+		_anResult_ + _nProduct_
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -628,16 +628,16 @@ func DivideXT(panNumbers)
 		return 0
 	ok
 
-	anResult = [] + panNumbers[1]
-	nLen = len(panNumbers)
-	nResult = panNumbers[1]
+	_anResult_ = [] + panNumbers[1]
+	_nLen_ = len(panNumbers)
+	_nResult_ = panNumbers[1]
 	
-	for i = 2 to nLen
-		nResult = nResult / panNumbers[i]
-		anResult + nResult
+	for i = 2 to _nLen_
+		_nResult_ = _nResult_ / panNumbers[i]
+		_anResult_ + _nResult_
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -693,17 +693,17 @@ func Mean(panNumbers)
 		ok
 	ok
 
-	nLen = Len(panNumbers)
-	if nLen = 1
+	_nLen_ = Len(panNumbers)
+	if _nLen_ = 1
 		return panNumbers[1]
 	ok
 
-	nSum = 0
-	for i = 1 to nLen
-		nSum += panNumbers[i]
+	_nSum_ = 0
+	for i = 1 to _nLen_
+		_nSum_ += panNumbers[i]
 	next
 
-	return nSum / nLen
+	return _nSum_ / _nLen_
 
 	#< @FunctionAlternativeForms
 
@@ -732,142 +732,142 @@ func Mean(panNumbers)
 
 	#>
 
-func MultiplicationsYieldingN(n)
-	aResult = []
+func MultiplicationsYieldingN(_n_)
+	_aResult_ = []
 			
-	aFactors = reverse(factors(n))
+	_aFactors_ = reverse(factors(_n_))
 
-	_nFactorsLen_2 = len(aFactors)
+	_nFactorsLen_2 = len(_aFactors_)
 	for i = 1 to _nFactorsLen_2
-		aResult + [ factors(n)[i] , aFactors[i] ]
+		_aResult_ + [ factors(_n_)[i] , _aFactors_[i] ]
 	next i
 
-	return aResult
+	return _aResult_
 
-	func @MultiplicationsYieldingN(n)
-		return MultiplicationsYieldingN(n)
+	func @MultiplicationsYieldingN(_n_)
+		return MultiplicationsYieldingN(_n_)
 
-func MultiplicationsYielding(n)
-	return MultiplicationsYieldingN(n)
+func MultiplicationsYielding(_n_)
+	return MultiplicationsYieldingN(_n_)
 
-	func @MultiplicationsYielding(n)
-		return MultiplicationsYielding(n)
+	func @MultiplicationsYielding(_n_)
+		return MultiplicationsYielding(_n_)
 
-func MultiplicationsYieldingN_WithoutCommutation(n)
-	aResult = []
+func MultiplicationsYieldingN_WithoutCommutation(_n_)
+	_aResult_ = []
 			
-	aFactors = reverse(factors(n))
+	_aFactors_ = reverse(factors(_n_))
 
-	_nFactorsLen_ = len(aFactors)
+	_nFactorsLen_ = len(_aFactors_)
 	for i = 1 to _nFactorsLen_-1
 		if i > 1
-			if factors(n)[i] = aFactors[i-1]
+			if factors(_n_)[i] = _aFactors_[i-1]
 				exit
 			ok
 		ok
-		aResult + [ factors(n)[i] , aFactors[i] ]
+		_aResult_ + [ factors(_n_)[i] , _aFactors_[i] ]
 
 	next i
 
-	return aResult
+	return _aResult_
 
-	func @MultiplicationsYieldingN_WithoutCommutation(n)
-		return MultiplicationsYieldingN_WithoutCommutation(n)
+	func @MultiplicationsYieldingN_WithoutCommutation(_n_)
+		return MultiplicationsYieldingN_WithoutCommutation(_n_)
 
-func NZeros(n)
+func NZeros(_n_)
 	if CheckingParams()
-		if NOT isNumber(n) and n >= 0
+		if NOT isNumber(_n_) and _n_ >= 0
 			StzRaise("Incorrect param type! n must be a postive number.")
 		ok
 	ok
 
-	anResult = []
-	for i = 1 to n
-		anResult + 0
+	_anResult_ = []
+	for i = 1 to _n_
+		_anResult_ + 0
 	next
 
-	return anResult
+	return _anResult_
 
-	func @NZeros(n)
-		return NZeros(n)
+	func @NZeros(_n_)
+		return NZeros(_n_)
 
-func NumbersXT(n1, n2)
-	if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :Between, :From ])
-		n1 = n1[2]
+func NumbersXT(_n1_, _n2_)
+	if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [ :Between, :From ])
+		_n1_ = _n1_[2]
 	ok
 
-	if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :And, :To ])
-		n2 = n2[2]
+	if isList(_n2_) and IsOneOfTheseNamedParamsList(_n2_, [ :And, :To ])
+		_n2_ = _n2_[2]
 	ok
 
-	if NOT @BothAreNumbers(n1, n2)
+	if NOT @BothAreNumbers(_n1_, _n2_)
 		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
-	anResult = n1 : n2
-	return anResult
+	_anResult_ = _n1_ : _n2_
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
-	func NumbersBetweenXT(n1, n2)
-		return NumbersXT(n1, n2)
+	func NumbersBetweenXT(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 	
-	func NumbersIB(n1, n2)
-		return NumbersXT(n1, n2)
+	func NumbersIB(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 	
-	func NumbersBetweenIB(n1, n2)
-		return NumbersXT(n1, n2)
+	func NumbersBetweenIB(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 
 	#--
 
-	func @NumbersXT(n1, n2)
-		return NumbersXT(n1, n2)
+	func @NumbersXT(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 
-	func @NumbersBetweenXT(n1, n2)
-		return NumbersXT(n1, n2)
+	func @NumbersBetweenXT(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 	
-	func @NumbersIB(n1, n2)
-		return NumbersXT(n1, n2)
+	func @NumbersIB(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 	
-	func @NumbersBetweenIB(n1, n2)
-		return NumbersXT(n1, n2)
+	func @NumbersBetweenIB(_n1_, _n2_)
+		return NumbersXT(_n1_, _n2_)
 
 	#>
 
-func NumbersBetween(n1, n2)
+func NumbersBetween(_n1_, _n2_)
 	if CheckingParams()
 
-		if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :Between, :From ])
-			n1 = n1[2]
+		if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [ :Between, :From ])
+			_n1_ = _n1_[2]
 		ok
 	
-		if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :And, :To ])
-			n2 = n2[2]
+		if isList(_n2_) and IsOneOfTheseNamedParamsList(_n2_, [ :And, :To ])
+			_n2_ = _n2_[2]
 		ok
 	
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 	
 	ok
 
-	anResult = []
+	_anResult_ = []
 
-	if n1 = n2
-		anResult + n1
+	if _n1_ = _n2_
+		_anResult_ + _n1_
 
-	but n1 < n2
-		for i = n1 to n2
-			anResult + i
+	but _n1_ < _n2_
+		for i = _n1_ to _n2_
+			_anResult_ + i
 		next
 
 	else
-		for i = n1 to n2 step -1
-			anResult + i
+		for i = _n1_ to _n2_ step -1
+			_anResult_ + i
 		next
 	ok
 
-	return anResult
+	return _anResult_
 
 	func @NumbersBetween(nMin, nMax)
 		return NumbersBetween(nMin, nMax)
@@ -909,16 +909,16 @@ func NumbersIn(pStrOrList)
 
 	# Case where pStrOrList is a list
 
-	nLen = len(pStrOrList)
-	anResult = []
+	_nLen_ = len(pStrOrList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(pStrOrList[i])
-			anResult + pStrOrList[i]
+			_anResult_ + pStrOrList[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForm
 
@@ -947,16 +947,16 @@ func PositiveNumbersIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(paList[i]) and paList[i] > 0
-			anResult + palist[i]
+			_anResult_ + palist[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -980,16 +980,16 @@ func NegativeNumbersIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(paList[i]) and paList[i] < 0
-			anResult + palist[i]
+			_anResult_ + palist[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1006,35 +1006,35 @@ func NegativeNumbersIn(paList)
 
 	#>
 
-func PositiveNumbersBetween(n1, n2)
+func PositiveNumbersBetween(_n1_, _n2_)
 	if CheckingParams()
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 	ok
 
-	return PositiveNumbersIn(n1:n2)
+	return PositiveNumbersIn(_n1_:n2)
 
 	#< @FunctionAlternativeForms
 
-	func @PositiveNumbersBetween(n1, n2)
-		return PositiveNumbersBetween(n1, n2)
+	func @PositiveNumbersBetween(_n1_, _n2_)
+		return PositiveNumbersBetween(_n1_, _n2_)
 
 	#>
 
-func NegativeNumbersBetween(n1, n2)
+func NegativeNumbersBetween(_n1_, _n2_)
 	if CheckingParams()
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 	ok
 
-	return NegativeNumbersIn(n1:n2)
+	return NegativeNumbersIn(_n1_:n2)
 
 	#< @FunctionAlternativeForms
 
-	func @NegativeNumbersBetween(n1, n2)
-		return NegativeNumbersBetween(n1, n2)
+	func @NegativeNumbersBetween(_n1_, _n2_)
+		return NegativeNumbersBetween(_n1_, _n2_)
 
 	#>
 
@@ -1045,16 +1045,16 @@ func EvenNumbersIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(paList[i]) and IsEven(paList[i])
-			anResult + palist[i]
+			_anResult_ + palist[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1078,16 +1078,16 @@ func OddNumbersIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(paList[i]) and IsOdd(paList[i])
-			anResult + palist[i]
+			_anResult_ + palist[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1111,16 +1111,16 @@ func PrimeNumbersIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if isNumber(paList[i]) and IsPrime(paList[i])
-			anResult + palist[i]
+			_anResult_ + palist[i]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1139,21 +1139,21 @@ func PrimeNumbersIn(paList)
 
 #---- Getting the first n prime numbers #ClaudeAI
 
-func FirstNPrimes(n)
+func FirstNPrimes(_n_)
 	/*
-	The Sieve of Eratosthenes Algorithm is used
+	The _sieve_ of Eratosthenes Algorithm is used
 
 	This is an ancient and efficient algorithm for finding prime numbers,
 	discovered by Greek mathematician Eratosthenes (276-194 BC).
 
 	Here's how it works:
 
-	1. Start with a list of numbers from 2 to n
+	1. Start with a list of numbers from 2 to _n_
 	2. Take the first unmarked number (it's prime)
 	3. Mark all its multiples as non-prime (composite)
 	4. Repeat steps 2-3 until you've processed all numbers up to sqrt(n)
 
-	Example for n = 20:
+	Example for _n_ = 20:
 
 	[2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]   #~> Initial list
 	[2 3 X 5 X 7 X 9 X  11 X  13 X  15 X  17 X  19 X ] #~> After marking 2's multiples
@@ -1161,41 +1161,41 @@ func FirstNPrimes(n)
 	[2 3 X 5 X 7 X X X  11 X  13 X  X  X  17 X  19 X ] #~> After marking 5's multiples
 
 	Why it's efficient:
-	- Each composite number is marked exactly once by its smallest prime factor
-	- We only need to check up to sqrt(n) because if n is composite, it must 
-	  have a factor less than or equal to its square root
+	- Each composite number is marked exactly once by its smallest prime _factor_
+	- We only need to check up to sqrt(_n_) because if _n_ is composite, it must 
+	  have a _factor_ less than or equal to its square root
 	*/
 
 
-	if n <= 0 return [] ok
+	if _n_ <= 0 return [] ok
 	    
-	limit = ceil(n * log(n) + n * log(log(n)))
-	if limit < 2 limit = 2 ok
+	_limit_ = ceil(_n_ * log(_n_) + _n_ * log(log(_n_)))
+	if _limit_ < 2 _limit_ = 2 ok
 	    
 	# Create boolean array, initially all marked as potential primes
-	sieve = list(limit)
-	for i = 1 to limit
-		sieve[i] = 1
+	_sieve_ = list(_limit_)
+	for i = 1 to _limit_
+		_sieve_[i] = 1
 	next
     
 	# Start sieving - mark all composite numbers
-	sieve[1] = 0  # 1 is not prime
-	for i = 2 to sqrt(limit)
-		if sieve[i] = 1
+	_sieve_[1] = 0  # 1 is not prime
+	for i = 2 to sqrt(_limit_)
+		if _sieve_[i] = 1
 			# Mark all multiples starting from i*i
 			# (smaller multiples would have been marked by smaller primes)
-			for j = i * i to limit step i
-				sieve[j] = 0
+			for _j_ = i * i to _limit_ step i
+				_sieve_[_j_] = 0
 			next
 		ok
 	next
     
 	# Collect the first n primes from our sieve
 	primes = []
-	for i = 2 to limit
-		if sieve[i] = 1
+	for i = 2 to _limit_
+		if _sieve_[i] = 1
 			add(primes, i)
-			if len(primes) = n
+			if len(primes) = _n_
 				exit
 			ok
 		ok
@@ -1205,19 +1205,19 @@ func FirstNPrimes(n)
 
 	#< @FunctionFluentForms
 
-	func FirstNPRimesQ(n)
-		return new stzList(FirstNPrimes(n))
+	func FirstNPRimesQ(_n_)
+		return new stzList(FirstNPrimes(_n_))
 
-	func FirstNPrimesQRT(n, pcReturnType)
+	func FirstNPrimesQRT(_n_, pcReturnType)
 		if NOT isString(pcReturnType)
 			StzRaise("Incorrect param type! pcReturnType must be a string.")
 		ok
 
 		switch pcReturnType
 		on :stzList
-			return new stzList(FirstNPrimes(n))
+			return new stzList(FirstNPrimes(_n_))
 		on :stzListOfNumbers
-			return new stzListOfNumbers(FirstNPrimes(n))
+			return new stzListOfNumbers(FirstNPrimes(_n_))
 		other
 			StzRaise("Can't transform the list into the provided type.")
 		off
@@ -1226,232 +1226,232 @@ func FirstNPrimes(n)
 
 	#< @FunctionAlternativeForm
 
-	func @FirstNPrimes(n)
-		return FirstNPrimes(n)
+	func @FirstNPrimes(_n_)
+		return FirstNPrimes(_n_)
 
-		func @firstNPrimesQ(n)
-			return FirstNPrimesQ(n)
+		func @firstNPrimesQ(_n_)
+			return FirstNPrimesQ(_n_)
 
-		func @FirstNPrimesQRT(n, pcReturnType)
-			return FirstNPrimesQRT(n, pcReturnType)
+		func @FirstNPrimesQRT(_n_, pcReturnType)
+			return FirstNPrimesQRT(_n_, pcReturnType)
 
 	#>
 
-func NextPrimeST(nbr)
-	return NextNthPrimeST(1, nbr)
+func NextPrimeST(_nbr_)
+	return NextNthPrimeST(1, _nbr_)
 
 	#< @FunctionAlternativeForms
 
 	func NextPrime(Start)
-		return NextPrimeST(nStart)
+		return NextPrimeST(_nStart_)
 
-	func NextPrimeAfter(nStart)
-		return NextPrimeST(nStart)
+	func NextPrimeAfter(_nStart_)
+		return NextPrimeST(_nStart_)
 
 	#--
 
-	func @NextPrimeST(nStart)
-		return NextPrimeST(nStart)
+	func @NextPrimeST(_nStart_)
+		return NextPrimeST(_nStart_)
 
-	func @NextPrime(nStart)
-		return NextPrimeST(nStart)
+	func @NextPrime(_nStart_)
+		return NextPrimeST(_nStart_)
 
-	func @NextPrimeAfter(nStart)
-		return NextPrimeST(nStart)
+	func @NextPrimeAfter(_nStart_)
+		return NextPrimeST(_nStart_)
 
 	#>
 
-func NextNthPrimeST(nth, nbr)
+func NextNthPrimeST(nth, _nbr_)
 	if CheckingParams()
 		if NOT isNumber(nth)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
 	
-		if isList(nbr) and IsStartingAtOrAfterNamedParamList(nbr)
-			nbr = nbr[2]
+		if isList(_nbr_) and IsStartingAtOrAfterNamedParamList(_nbr_)
+			_nbr_ = _nbr_[2]
 		ok
 
-		if NOT isNumber(nbr)
+		if NOT isNumber(_nbr_)
 			StzRaise("Incorrect param type! nbr must be a number.")
 		ok
 	ok
 
 	if nth < 1 return 0 ok
     
-	found = 0
-	num = nbr + 1
+	_found_ = 0
+	_num_ = _nbr_ + 1
     
-	while found < nth
-		if isPrime(num)
-			found++
-			if found = nth
-				return num
+	while _found_ < nth
+		if isPrime(_num_)
+			_found_++
+			if _found_ = nth
+				return _num_
 			ok
         	ok
-       		 num++
+       		 _num_++
     	end
     
-    	return num - 1
+    	return _num_ - 1
 
 	#< @FunctionAlternativeForms
 
-	func NextNthPrime(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func NextNthPrime(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func NextNthPrimeAfter(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func NextNthPrimeAfter(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
 	#--
 
-	func @NextNthPrimeST(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NextNthPrimeST(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func @NextNthPrime(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NextNthPrime(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func @NextNthPrimeAfter(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NextNthPrimeAfter(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
 	#==
 
-	func NthNextprimeST(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func NthNextprimeST(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func NthNextPrime(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func NthNextPrime(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func NthNextPrimeAfter(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func NthNextPrimeAfter(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
 	#--
 
-	func @NthNextPrimeST(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NthNextPrimeST(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func @NthNextPrime(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NthNextPrime(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
-	func @NthNextPrimeAfter(nth, nbr)
-		return NextNthPrimeST(nth, nbr)
+	func @NthNextPrimeAfter(nth, _nbr_)
+		return NextNthPrimeST(nth, _nbr_)
 
 	#>
 
-func PreviousPrimeST(nbr)
-	return PreviousNthPrimeST(1, nbr)
+func PreviousPrimeST(_nbr_)
+	return PreviousNthPrimeST(1, _nbr_)
 
 	#< @FunctionAlternativeForms
 
-	func PreviousPrime(nbr)
-		return PreviousPrimeST(nbr)
+	func PreviousPrime(_nbr_)
+		return PreviousPrimeST(_nbr_)
 
-	func PreviousPrimeBefore(nbr)
-		return PreviousPrimeST(nbr)
+	func PreviousPrimeBefore(_nbr_)
+		return PreviousPrimeST(_nbr_)
 
 	#--
 
-	func @PreviousPrimeST(nbr)
-		return PreviousPrimeST(nbr)
+	func @PreviousPrimeST(_nbr_)
+		return PreviousPrimeST(_nbr_)
 
-	func @PreviousPrime(nbr)
-		return PreviousPrimeST(nbr)
+	func @PreviousPrime(_nbr_)
+		return PreviousPrimeST(_nbr_)
 
-	func @PreviousPrimeBefore(nbr)
-		return PreviousPrimeST(nbr)
+	func @PreviousPrimeBefore(_nbr_)
+		return PreviousPrimeST(_nbr_)
 
 	#>
 
-func PreviousNthPrimeST(nth, nbr)
+func PreviousNthPrimeST(nth, _nbr_)
 	if CheckingParams()
 		if NOT isNumber(nth)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
 	
-		if isList(nbr) and IsStartingAtOrBeforeNamedParamList(nbr)
-			nbr = nbr[2]
+		if isList(_nbr_) and IsStartingAtOrBeforeNamedParamList(_nbr_)
+			_nbr_ = _nbr_[2]
 		ok
 
-		if NOT isNumber(nbr)
+		if NOT isNumber(_nbr_)
 			StzRaise("Incorrect param type! nbr must be a number.")
 		ok
 	ok
 
     	if nth < 1 return 0 ok
-    	if nbr <= 2 return 0 ok  # No primes before 2
+    	if _nbr_ <= 2 return 0 ok  # No primes before 2
     
-    	found = 0
-   	num = nbr - 1
+    	_found_ = 0
+   	_num_ = _nbr_ - 1
     
-   	while found < nth and num >= 2
-        	if isPrime(num)
-          		found++
-            		if found = nth
-                		return num
+   	while _found_ < nth and _num_ >= 2
+        	if isPrime(_num_)
+          		_found_++
+            		if _found_ = nth
+                		return _num_
             		ok
         	ok
-       		 num--
+       		 _num_--
     	end
     
     	# If we couldn't find enough primes before the number
 
-   	 if found < nth
+   	 if _found_ < nth
         	return 0
     	ok
     
-   	return num + 1
+   	return _num_ + 1
 
 	#< @FunctionAlternativeForms
 
-	func PreviousNthPrime(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func PreviousNthPrime(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func PreviousNthPrimeBefore(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func PreviousNthPrimeBefore(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
 	#--
 
-	func @PreviousNthPrimeST(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @PreviousNthPrimeST(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func @PreviousNthPrime(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @PreviousNthPrime(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func @PreviousNthPrimeBefore(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @PreviousNthPrimeBefore(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
 	#==
 
-	func NthPreviousprimeST(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func NthPreviousprimeST(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func NthPreviousPrime(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func NthPreviousPrime(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func NthPreviousPrimeAfter(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func NthPreviousPrimeAfter(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
 	#--
 
-	func @NthPreviousPrimeST(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @NthPreviousPrimeST(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func @NthPreviousPrime(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @NthPreviousPrime(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
-	func @NthPreviousPrimeAfter(nth, nbr)
-		return PreviousNthPrimeST(nth, nbr)
+	func @NthPreviousPrimeAfter(nth, _nbr_)
+		return PreviousNthPrimeST(nth, _nbr_)
 
 	#>
 
-func FirstNPrimesW(n, pcCondition)
+func FirstNPrimesW(_n_, pcCondition)
 	/* EXAMPLE
 
-	o1.FirstNPrimesW(25, ' Q(@number).DigitsQRT(:stzListOfNumbers).ArePrime() ')
+	_o1_.FirstNPrimesW(25, ' Q(@number).DigitsQRT(:stzListOfNumbers).ArePrime() ')
 	#--> [ ... ]
 
 	*/
 	if CheckingParams()
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -1471,83 +1471,83 @@ func FirstNPrimesW(n, pcCondition)
 
 	nMax = MaxRingNumber()
 
-	cCode = 'bOk = (' + _StzStripBraces(pcCondition) + ' )'
+	_cCode_ = 'bOk = (' + _StzStripBraces(pcCondition) + ' )'
 
-	anResult = []
+	_anResult_ = []
 
 	@prime = 0
-	j = 0
+	_j_ = 0
 
 	while 1
-		j++
-		if j > nMax
+		_j_++
+		if _j_ > nMax
 			StzRaise("Can't proceed! Maximum Ring number exceeded.")
 		ok
 
 		@prime = NextPrimeAfter(@prime)
 
-		eval(cCode)
+		eval(_cCode_)
 		if bOk
-			anResult + @prime
-			if len(anResult) = n
+			_anResult_ + @prime
+			if len(_anResult_) = _n_
 				exit
 			ok
 		ok
 
 	end
 
-	return anResult
+	return _anResult_
 
-	func NFirstPrimesW(n, pcCondition)
-		return FirstNPrimesW(n, pcCondition)
+	func NFirstPrimesW(_n_, pcCondition)
+		return FirstNPrimesW(_n_, pcCondition)
 
-func PrimesUnder(n)
-	return PrimesUnderIB(n-1)
+func PrimesUnder(_n_)
+	return PrimesUnderIB(_n_-1)
 
-	func PrimesUnderQ(n)
-		return new stzList(PrimesUnder(n))
+	func PrimesUnderQ(_n_)
+		return new stzList(PrimesUnder(_n_))
 
-	func PrimesUnderQQ(n)
-		return new stzListOfNumbers(PrimesUnder(n))
+	func PrimesUnderQQ(_n_)
+		return new stzListOfNumbers(PrimesUnder(_n_))
 
-func PrimesUnderIB(n)
-	if n < 2 return [] ok
+func PrimesUnderIB(_n_)
+	if _n_ < 2 return [] ok
     
 	# Create a list of boolean values, initially all set to 1
 	# Index i represents whether number i is prime
-	sieve = list(n+1)
-	for i = 1 to n+1
-		sieve[i] = 1
+	_sieve_ = list(_n_+1)
+	for i = 1 to _n_+1
+		_sieve_[i] = 1
 	next
     
 	# 0 and 1 are not prime
-	sieve[1] = 0
+	_sieve_[1] = 0
     
 	# Implement Sieve of Eratosthenes
-	for i = 2 to floor(sqrt(n))
-		if sieve[i]
+	for i = 2 to floor(sqrt(_n_))
+		if _sieve_[i]
 			# Mark all multiples of i as non-prime
-			for j = i * i to n step i
-				sieve[j] = 0
+			for _j_ = i * i to _n_ step i
+				_sieve_[_j_] = 0
 			next
 		ok
 	next
     
 	# Collect all prime numbers
 	primes = []
-	for i = 2 to n
-		if sieve[i]
+	for i = 2 to _n_
+		if _sieve_[i]
 			Add(primes, i)
 		ok
 	next
     
 	return primes
 
-	func PrimesUnderIBQ(n)
-		return new stzList(PrimesUnderIB(n))
+	func PrimesUnderIBQ(_n_)
+		return new stzList(PrimesUnderIB(_n_))
 
-	func PrimesUnderIBQQ(n)
-		return new stzListOfNumbers(PrimesUnderIB(n))
+	func PrimesUnderIBQQ(_n_)
+		return new stzListOfNumbers(PrimesUnderIB(_n_))
 
 func IsListOfNonZeroPositiveNumbers(paList)
 
@@ -1557,21 +1557,21 @@ func IsListOfNonZeroPositiveNumbers(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0
 	ok
 
-	bResult = 1
+	_bResult_ = 1
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if NOT ( isNumber(paList[i]) and paList[i] > 0 )
-			bResult = 0
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func IsListOfStrictlyPositiveNumbers(paList)
 		return IsListOfNonZeroPositiveNumbers(paList)
@@ -1603,9 +1603,9 @@ class stzListOfNumbers from stzList
 	
 		but isString(paList)
 			try
-				aList = Q(paList).ToList()
-				if IsListOfNumbers(aList)
-					@aContent = aList
+				_aList_ = Q(paList).ToList()
+				if IsListOfNumbers(_aList_)
+					@aContent = _aList_
 				else
 					StzRaise("The list in the string you provided is not a list of numbers!")
 				ok
@@ -1622,9 +1622,9 @@ class stzListOfNumbers from stzList
 		ok
 
 	def Content()
-		aResult = @aContent
+		_aResult_ = @aContent
 
-		return aResult
+		return _aResult_
 
 		def Value()
 			return Content()
@@ -1701,22 +1701,22 @@ class stzListOfNumbers from stzList
 		return new stzList(This.Content())
 
 	def ToStzListOfStrings()
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		acStrings = []
+		_acStrings_ = []
 
-		for i = 1 to nLen
-			acStrings + ( ""+ anContent[i] )
+		for i = 1 to _nLen_
+			_acStrings_ + ( ""+ _anContent_[i] )
 		next
 
-		oResult = new stzListOfStrings(acStrings)
-		return oResult
+		_oResult_ = new stzListOfStrings(_acStrings_)
+		return _oResult_
 
 	def NumbersTurnedToStrings()
-		aResult = This.ToStzListOfStrings().Content()
+		_aResult_ = This.ToStzListOfStrings().Content()
 
-		return aResult
+		return _aResult_
 
 		def Stringified()
 			return This.NumbersTurnedToStrings()
@@ -1724,122 +1724,122 @@ class stzListOfNumbers from stzList
 		def AllNumbersTurnedToStrings()
 			return This.NumbersTurnedToStrings()
 
-	def NumberAt(n)
-		return This.ItemAt(n)	# Inherited from stzList
+	def NumberAt(_n_)
+		return This.ItemAt(_n_)	# Inherited from stzList
 
-		def NumberAtPosition(n)
-			return This.NumberAt(n)
+		def NumberAtPosition(_n_)
+			return This.NumberAt(_n_)
 
-		def Number(n)
-			return This.NumberAt(n)
+		def Number(_n_)
+			return This.NumberAt(_n_)
 
 	  #================================#
 	 #  FINDING THE LOWEST N NUMBERS  #
 	#================================#
 
-	def NLowestNumbers(n)
-		anResult = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, n)
-		return anResult
+	def NLowestNumbers(_n_)
+		_anResult_ = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, _n_)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def MinNNumbers(n)
-			return This.NLowestNumbers(n)
+		def MinNNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def NMinNumbers(n)
-			return This.NLowestNumbers(n)
+		def NMinNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def NMin(n)
-			return This.NLowestNumbers(n)
+		def NMin(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def MinN(n)
-			return This.NLowestNumbers(n)
+		def MinN(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def NSmallestNumbers(n)
-			return This.NLowestNumbers(n)
+		def NSmallestNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def SmallestNNumbers(n)
-			return This.NLowestNumbers(n)
+		def SmallestNNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def SmallestN(n)
-			return This.NLowestNumbers(n)
+		def SmallestN(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def LowestNNumbers(n)
-			return This.NLowestNumbers(n)
+		def LowestNNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def LowestN(n)
-			return This.NLowestNumbers(n)
+		def LowestN(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def NSmallest(n)
-			return This.NLowestNumbers(n)
+		def NSmallest(_n_)
+			return This.NLowestNumbers(_n_)
 
 		#--
 
-		def NBottomNumbers(n)
-			return This.NLowestNumbers(n)
+		def NBottomNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def BottomNNumbers(n)
-			return This.NLowestNumbers(n)
+		def BottomNNumbers(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def NBottom(n)
-			return This.NLowestNumbers(n)
+		def NBottom(_n_)
+			return This.NLowestNumbers(_n_)
 
-		def BottomN(n)
-			return This.NLowestNumbers(n)
+		def BottomN(_n_)
+			return This.NLowestNumbers(_n_)
 
 		#>
 
-	def FindNLowestNumbers(n)
-		anNumbers = This.NLowestNumbers(n)
-		anResult  = This.FindMany(anNumbers)
+	def FindNLowestNumbers(_n_)
+		_anNumbers_ = This.NLowestNumbers(_n_)
+		_anResult_  = This.FindMany(_anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindMinNNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindMinNNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindNMinNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindNMinNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindNMin(n)
-			return This.FindNLowestNumbers(n)
+		def FindNMin(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindMinN(n)
-			return This.FindNLowestNumbers(n)
+		def FindMinN(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindNSmallestNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindNSmallestNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindSmallestNNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindSmallestNNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindSmallestN(n)
-			return This.FindNLowestNumbers(n)
+		def FindSmallestN(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindLowestNNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindLowestNNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindLowestN(n)
-			return This.FindNLowestNumbers(n)
+		def FindLowestN(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindNSmallest(n)
-			return This.FindNLowestNumbers(n)
+		def FindNSmallest(_n_)
+			return This.FindNLowestNumbers(_n_)
 
 		#--
 
-		def FindNBottomNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindNBottomNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindBottomNNumbers(n)
-			return This.FindNLowestNumbers(n)
+		def FindBottomNNumbers(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindNBottom(n)
-			return This.FindNLowestNumbers(n)
+		def FindNBottom(_n_)
+			return This.FindNLowestNumbers(_n_)
 
-		def FindBottomN(n)
-			return This.FindNLowestNumbers(n)
+		def FindBottomN(_n_)
+			return This.FindNLowestNumbers(_n_)
 
 		#>
 
@@ -1847,103 +1847,103 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE LOWEST N NUMBERS ALONG WITH THEIR POSITIONS  #
 	#------------------------------------------------------------#
 
-	def NLowestNumbersZ(n)
-		aResult = @Association([ This.NLowestNumbers(n), This.FindNLowestNumbers(n) ])
-		return aResult
+	def NLowestNumbersZ(_n_)
+		_aResult_ = @Association([ This.NLowestNumbers(_n_), This.FindNLowestNumbers(_n_) ])
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def MinNNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def MinNNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NMinNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def NMinNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NMinZ(n)
-			return This.NLowestNumbersZ(n)
+		def NMinZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def MinNZ(n)
-			return This.NLowestNumbersZ(n)
+		def MinNZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NSmallestNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def NSmallestNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def SmallestNNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def SmallestNNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def SmallestNZ(n)
-			return This.NLowestNumbersZ(n)
+		def SmallestNZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def LowestNNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def LowestNNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def LowestNZ(n)
-			return This.NLowestNumbersZ(n)
+		def LowestNZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NSmallestZ(n)
-			return This.NLowestNumbersZ(n)
-
-		#--
+		def NSmallestZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
 		#--
 
-		def NBottomNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		#--
 
-		def BottomNNumbersZ(n)
-			return This.NLowestNumbersZ(n)
+		def NBottomNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NBottomZ(n)
-			return This.NLowestNumbersZ(n)
+		def BottomNNumbersZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def BottomNZ(n)
-			return This.NLowestNumbersZ(n)
+		def NBottomZ(_n_)
+			return This.NLowestNumbersZ(_n_)
+
+		def BottomNZ(_n_)
+			return This.NLowestNumbersZ(_n_)
 
 		#==
 
-		def MinNNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def MinNNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NMinNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NMinNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NMinAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NMinAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def MinNAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def MinNAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NSmallestNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NSmallestNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def SmallestNNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def SmallestNNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def SmallestNAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def SmallestNAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def LowestNNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def LowestNNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def LowestNAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def LowestNAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NSmallestAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NSmallestAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
 		#--
 
-		def NBottomNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NBottomNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def BottomNNumbersAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def BottomNNumbersAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def NBottomAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def NBottomAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
-		def BottomNAndTheirPositions(n)
-			return This.NLowestNumbersZ(n)
+		def BottomNAndTheirPositions(_n_)
+			return This.NLowestNumbersZ(_n_)
 
 		#>
 
@@ -1952,29 +1952,29 @@ class stzListOfNumbers from stzList
 	#==============================#
 
 	def FindMin()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
 		# Early check
 
-		if nLen = 0
+		if _nLen_ = 0
 			return 0
 
-		but nLen = 1
+		but _nLen_ = 1
 			return 1
 		ok
 
-		nResult = 1
-		nTempNumber = aContent[1]
+		_nResult_ = 1
+		_nTempNumber_ = _aContent_[1]
 
-		for i = 2 to nLen
-			if aContent[i] < nTempNumber
-				nResult = i
-				nTempNumber = aContent[i]
+		for i = 2 to _nLen_
+			if _aContent_[i] < _nTempNumber_
+				_nResult_ = i
+				_nTempNumber_ = _aContent_[i]
 			ok
 		next
 
-		return nResult
+		return _nResult_
 
 	def Min()
 		_pMiList = This._EngineListFromContent()
@@ -1984,10 +1984,10 @@ class stzListOfNumbers from stzList
 			return _nMiResult
 		ok
 
-		anContent = This.Content()
-		_oChain_ = new stzList( anContent )
-		nResult = _oChain_.Sorted()[1]
-		return nResult
+		_anContent_ = This.Content()
+		_oChain_ = new stzList( _anContent_ )
+		_nResult_ = _oChain_.Sorted()[1]
+		return _nResult_
 
 		def MinNumber()
 			return This.Min()
@@ -2110,137 +2110,137 @@ class stzListOfNumbers from stzList
 	 #  FINDING THE LARGEST N NUMBERS  #
 	#=================================#
 
-	def NLargestNumbers(n)
-		anResult = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().LastNItems(n)
-		return anResult
+	def NLargestNumbers(_n_)
+		_anResult_ = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().LastNItems(_n_)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def MaxNNumbers(n)
-			return This.NLargestNumbers(n)
+		def MaxNNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NMaxNumbers(n)
-			return This.NLargestNumbers(n)
+		def NMaxNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NMax(n)
-			return This.NLargestNumbers(n)
+		def NMax(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def MaxN(n)
-			return This.NLargestNumbers(n)
+		def MaxN(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NBiggestNumbers(n)
-			return This.NLargestNumbers(n)
+		def NBiggestNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def BiggestNNumbers(n)
-			return This.NLargestNumbers(n)
+		def BiggestNNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def BiggestN(n)
-			return This.NLargestNumbers(n)
+		def BiggestN(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def LargestNNumbers(n)
-			return This.NLargestNumbers(n)
+		def LargestNNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def LargestN(n)
-			return This.NLargestNumbers(n)
+		def LargestN(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NBiggest(n)
-			return This.NLargestNumbers(n)
+		def NBiggest(_n_)
+			return This.NLargestNumbers(_n_)
 
 		#--
 
-		def NGreatestNumbers(n)
-			return This.NLargestNumbers(n)
+		def NGreatestNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def GreatestNNumbers(n)
-			return This.NLargestNumbers(n)
+		def GreatestNNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NGreatest(n)
-			return This.NLargestNumbers(n)
+		def NGreatest(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def GreatestN(n)
-			return This.NLargestNumbers(n)
+		def GreatestN(_n_)
+			return This.NLargestNumbers(_n_)
 
 		#==
 
-		def NTopNumbers(n)
-			return This.NLargestNumbers(n)
+		def NTopNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def TopNNumbers(n)
-			return This.NLargestNumbers(n)
+		def TopNNumbers(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def NTop(n)
-			return This.NLargestNumbers(n)
+		def NTop(_n_)
+			return This.NLargestNumbers(_n_)
 
-		def TopN(n)
-			return This.NLargestNumbers(n)
+		def TopN(_n_)
+			return This.NLargestNumbers(_n_)
 
 		#>
 
-	def FindNLargestNumbers(n)
-		anNumbers = This.NLargestNumbers(n)
-		anResult  = This.FindMany(anNumbers)
+	def FindNLargestNumbers(_n_)
+		_anNumbers_ = This.NLargestNumbers(_n_)
+		_anResult_  = This.FindMany(_anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FindMaxNNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindMaxNNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNMaxNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindNMaxNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNMax(n)
-			return This.FindNLargestNumbers(n)
+		def FindNMax(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindMaxN(n)
-			return This.FindNLargestNumbers(n)
+		def FindMaxN(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNBiggestNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindNBiggestNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindBiggestNNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindBiggestNNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindBiggestN(n)
-			return This.FindNLargestNumbers(n)
+		def FindBiggestN(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindLargestNNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindLargestNNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindLargestN(n)
-			return This.FindNLargestNumbers(n)
+		def FindLargestN(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNBiggest(n)
-			return This.FindNLargestNumbers(n)
+		def FindNBiggest(_n_)
+			return This.FindNLargestNumbers(_n_)
 
 		#--
 
-		def FindNGreatestNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindNGreatestNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindGreatestNNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindGreatestNNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNGreatest(n)
-			return This.FindNLargestNumbers(n)
+		def FindNGreatest(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindGreatestN(n)
-			return This.FindNLargestNumbers(n)
+		def FindGreatestN(_n_)
+			return This.FindNLargestNumbers(_n_)
 
 		#==
 
-		def FindNTopNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindNTopNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindTopNNumbers(n)
-			return This.FindNLargestNumbers(n)
+		def FindTopNNumbers(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindNTop(n)
-			return This.FindNLargestNumbers(n)
+		def FindNTop(_n_)
+			return This.FindNLargestNumbers(_n_)
 
-		def FindTopN(n)
-			return This.FindNLargestNumbers(n)
+		def FindTopN(_n_)
+			return This.FindNLargestNumbers(_n_)
 
 		#>
 
@@ -2248,129 +2248,129 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE LARGEST N NUMBERS ALONG WITH THEIR POSITIONS  #
 	#------------------------------------------------------------#
 
-	def NLargestNumbersZ(n)
-		aResult = Association([ This.NLargestNumbers(n), This.FindNLargestNumbers(n) ])
-		return aResult
+	def NLargestNumbersZ(_n_)
+		_aResult_ = Association([ This.NLargestNumbers(_n_), This.FindNLargestNumbers(_n_) ])
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def MaxNNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def MaxNNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NMaxNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def NMaxNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NMaxZ(n)
-			return This.NLargestNumbersZ(n)
+		def NMaxZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def MaxNZ(n)
-			return This.NLargestNumbersZ(n)
+		def MaxNZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NBiggestNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def NBiggestNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def BiggestNNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def BiggestNNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def BiggestNZ(n)
-			return This.NLargestNumbersZ(n)
+		def BiggestNZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def LargestNNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def LargestNNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def LargestNZ(n)
-			return This.NLargestNumbersZ(n)
+		def LargestNZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NBiggestZ(n)
-			return This.NLargestNumbersZ(n)
+		def NBiggestZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#--
 
-		def NGreatestNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def NGreatestNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def GreatestNNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def GreatestNNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NGreatestZ(n)
-			return This.NLargestNumbersZ(n)
+		def NGreatestZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def GreatestNZ(n)
-			return This.NLargestNumbersZ(n)
+		def GreatestNZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#==
 
-		def MaxNNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def MaxNNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NMaxNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NMaxNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NMaxAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NMaxAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def MaxNAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def MaxNAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NBiggestNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NBiggestNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def BiggestNNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def BiggestNNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def BiggestNAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def BiggestNAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def LargestNNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def LargestNNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def LargestNAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def LargestNAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NBiggestAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NBiggestAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#--
 
-		def NGreatestNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NGreatestNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def GreatestNNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def GreatestNNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NGreatestAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NGreatestAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def GreatestNAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def GreatestNAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#==
 
-		def NTopNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def NTopNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def TopNNumbersZ(n)
-			return This.NLargestNumbersZ(n)
+		def TopNNumbersZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NTopZ(n)
-			return This.NLargestNumbersZ(n)
+		def NTopZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def TopNZ(n)
-			return This.NLargestNumbersZ(n)
+		def TopNZ(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#--
 
-		def NTopNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NTopNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def TopNNumbersAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def TopNNumbersAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def NTopAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def NTopAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
-		def TopNAndTheirPositions(n)
-			return This.NLargestNumbersZ(n)
+		def TopNAndTheirPositions(_n_)
+			return This.NLargestNumbersZ(_n_)
 
 		#>
 
@@ -2379,29 +2379,29 @@ class stzListOfNumbers from stzList
 	#==============================#
 
 	def FindMax()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
 		# Early check
 
-		if nLen = 0
+		if _nLen_ = 0
 			return 0
 
-		but nLen = 1
+		but _nLen_ = 1
 			return 1
 		ok
 
-		nResult = 1
-		nTempNumber = aContent[1]
+		_nResult_ = 1
+		_nTempNumber_ = _aContent_[1]
 
-		for i = 2 to nLen
-			if aContent[i] > nTempNumber
-				nResult = i
-				nTempNumber = aContent[i]
+		for i = 2 to _nLen_
+			if _aContent_[i] > _nTempNumber_
+				_nResult_ = i
+				_nTempNumber_ = _aContent_[i]
 			ok
 		next
 
-		return nResult
+		return _nResult_
 
 	def Max()
 		_pMxList = This._EngineListFromContent()
@@ -2411,10 +2411,10 @@ class stzListOfNumbers from stzList
 			return _nMxResult
 		ok
 
-		anContent = This.Content()
-		_oChain_ = new stzList( anContent )
-		nResult = _oChain_.SortedInDescending()[1]
-		return nResult
+		_anContent_ = This.Content()
+		_oChain_ = new stzList( _anContent_ )
+		_nResult_ = _oChain_.SortedInDescending()[1]
+		return _nResult_
 
 		def MaxNumber()
 			return This.Max()
@@ -2537,15 +2537,15 @@ class stzListOfNumbers from stzList
 	 #  NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #
 	#==========================================================================#
 
-	def NearestXT(n, pcBeforeOrAfter)
+	def NearestXT(_n_, pcBeforeOrAfter)
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -2583,77 +2583,77 @@ class stzListOfNumbers from stzList
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 			], pcBeforeOrAfter) > 0
 
-			nResult = This.NearestTo(n)
+			_nResult_ = This.NearestTo(_n_)
 
 		but StzFindFirst([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
 
-			anPair = This.NeighborsOf(n)
-			nResult = anPair[1]
+			_anPair_ = This.NeighborsOf(_n_)
+			_nResult_ = _anPair_[1]
 
 		but StzFindFirst([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
 
-			anPair = This.NeighborsOf(n)
-			nResult = anPair[2]
+			_anPair_ = This.NeighborsOf(_n_)
+			_nResult_ = _anPair_[2]
 
 		else # Impossible case, but let's deal with it
 			StzRaise("Syntax error!")
 		ok
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForm
 
-		def NearestToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearestToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 		#--
 
-		def NearestNumberXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearestNumberXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
-		def NearestNumberToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearestNumberToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 		#==
 
-		def ClosestXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def ClosestXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
-		def ClosestToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def ClosestToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 		#--
 
-		def ClosestNumberXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def ClosestNumberXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
-		def ClosestNumberToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def ClosestNumberToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 
 		#>
 
 		#< @FunctionMisspelledForm
 
-		def NearstXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearstXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
-		def NearstToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearstToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 		#--
 
-		def NearstNumberXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearstNumberXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
-		def NearstNumberToXT(n, pcBeforeOrAfter)
-			return This.NearestXT(n, pcBeforeOrAfter)
+		def NearstNumberToXT(_n_, pcBeforeOrAfter)
+			return This.NearestXT(_n_, pcBeforeOrAfter)
 
 		#>
 
@@ -2661,15 +2661,15 @@ class stzListOfNumbers from stzList
 	 #  FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #
 	#---------------------------------------------------------------------------#
 
-	def FarthestXT(n, pcBeforeOrAfter)
+	def FarthestXT(_n_, pcBeforeOrAfter)
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -2707,41 +2707,41 @@ class stzListOfNumbers from stzList
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 			], pcBeforeOrAfter) > 0
 
-			nResult = This.FarthestTo(n)
+			_nResult_ = This.FarthestTo(_n_)
 
 		but StzFindFirst([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
 
-			anSorted = This.ToSetQ().Sorted()
-			nLen = len(anSorted)
+			_anSorted_ = This.ToSetQ().Sorted()
+			_nLen_ = len(_anSorted_)
 			
-			if nLen = 0
+			if _nLen_ = 0
 				return ""
 
-			but nLen = 1
-				if anSorted[1] = n
+			but _nLen_ = 1
+				if _anSorted_[1] = _n_
 					return ""
 
 				else
-					return anSorted[1]
+					return _anSorted_[1]
 				ok
 
 			else
-				nPos = StzFindFirst(anSorted, n)
+				_nPos_ = StzFindFirst(_anSorted_, _n_)
 
-				if nPos > 1
-					nFirst = anSorted[1]
-					nLast  = anSorted[nLen]
+				if _nPos_ > 1
+					_nFirst_ = _anSorted_[1]
+					_nLast_  = _anSorted_[_nLen_]
 
-					nDif1 = abs(n - nFirst)
-					nDif2 = abs(n - nLast)
+					_nDif1_ = abs(_n_ - _nFirst_)
+					_nDif2_ = abs(_n_ - _nLast_)
 
-					if nDif1 > nDif2
-						return nLast
+					if _nDif1_ > _nDif2_
+						return _nLast_
 					else
-						return nFirst
+						return _nFirst_
 					ok
 
 				else
@@ -2755,34 +2755,34 @@ class stzListOfNumbers from stzList
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
 
-			anSorted = This.ToSetQ().Sorted()
-			nLen = len(anSorted)
+			_anSorted_ = This.ToSetQ().Sorted()
+			_nLen_ = len(_anSorted_)
 
-			if nLen = 0
+			if _nLen_ = 0
 				return ""
 
-			but nLen = 1
-				if anSorted[1] = n
+			but _nLen_ = 1
+				if _anSorted_[1] = _n_
 					return ""
 
 				else
-					return anSorted[1]
+					return _anSorted_[1]
 				ok
 
 			else
-				nPos = StzFindFirst(anSorted, n)
+				_nPos_ = StzFindFirst(_anSorted_, _n_)
 
-				if nPos > 0 and nPos < nLen
-					nFirst = anSorted[1]
-					nLast  = anSorted[nLen]
+				if _nPos_ > 0 and _nPos_ < _nLen_
+					_nFirst_ = _anSorted_[1]
+					_nLast_  = _anSorted_[_nLen_]
 
-					nDif1 = abs(n - nFirst)
-					nDif2 = abs(n - nLast)
+					_nDif1_ = abs(_n_ - _nFirst_)
+					_nDif2_ = abs(_n_ - _nLast_)
 
-					if nDif1 > nDif2
-						return nFirst
+					if _nDif1_ > _nDif2_
+						return _nFirst_
 					else
-						return nLast
+						return _nLast_
 					ok
 
 				else
@@ -2793,33 +2793,33 @@ class stzListOfNumbers from stzList
 
 		ok
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForm
 
-		def FarthestToXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthestToXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
 		#>
 
 		#< @FunctionMisspelledForm
 
-		def FarthstXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthstXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
-		def FarthstToXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthstToXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
 		#--
 
-		def FarthestNumberXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthestNumberXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
-		def FarthstNumberXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthstNumberXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
-		def FarthstNumberToXT(n, pcBeforeOrAfter)
-			return This.FarthestXT(n, pcBeforeOrAfter)
+		def FarthstNumberToXT(_n_, pcBeforeOrAfter)
+			return This.FarthestXT(_n_, pcBeforeOrAfter)
 
 		#>
 
@@ -2827,7 +2827,7 @@ class stzListOfNumbers from stzList
 	 #     NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
-	def Nearest(n)
+	def Nearest(_n_)
 		/* EXAMPLE
 
 		? Q([ 2, 7, 18, 10, 25, 4 ]).NearestTo(12)
@@ -2837,52 +2837,52 @@ class stzListOfNumbers from stzList
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		# Doing the job
 
-		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		_anSorted_ = This.ToSetQ().Sorted()
+		_nLen_ = len(_anSorted_)
 
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
-		if nLen = 0
+		if _nLen_ = 0
 			return ""
 
-		but nLen = 1
-			if anSorted[1] = n
+		but _nLen_ = 1
+			if _anSorted_[1] = _n_
 				return ""
 			else
-				return anSorted[1]
+				return _anSorted_[1]
 			ok
 		ok
 
 		# Case where n exists in the list
 
-		nPos = StzFindFirst(anSorted, n)
+		_nPos_ = StzFindFirst(_anSorted_, _n_)
 
-		if nPos > 0
-			if nPos = 1
-				return anSorted[2]
+		if _nPos_ > 0
+			if _nPos_ = 1
+				return _anSorted_[2]
 
-			but nPos = nLen
-				return anSorted[nLen - 1]
+			but _nPos_ = _nLen_
+				return _anSorted_[_nLen_ - 1]
 
 			else
-				nDif1 = abs( n - anSorted[nPos-1] )
-				nDif2 = abs( n - anSorted[nPos+1] )
+				_nDif1_ = abs( _n_ - _anSorted_[_nPos_-1] )
+				_nDif2_ = abs( _n_ - _anSorted_[_nPos_+1] )
 
-				if nDif1 < nDif2
-					return anSorted[nPos-1]
+				if _nDif1_ < _nDif2_
+					return _anSorted_[_nPos_-1]
 				else
-					return anSorted[nPos+1]
+					return _anSorted_[_nPos_+1]
 				ok
 			ok
 
@@ -2890,172 +2890,172 @@ class stzListOfNumbers from stzList
 
 		else
 
-			nNearest = anSorted[1]
-			for i = 2 to nLen
+			_nNearest_ = _anSorted_[1]
+			for i = 2 to _nLen_
 	
-				nDif2 = abs(n - anSorted[i])
-				nDif1 = abs(n - anSorted[i-1])
+				_nDif2_ = abs(_n_ - _anSorted_[i])
+				_nDif1_ = abs(_n_ - _anSorted_[i-1])
 	
-				if nDif2 < nDif1
-					nNearest = anSorted[i]
+				if _nDif2_ < _nDif1_
+					_nNearest_ = _anSorted_[i]
 				ok
 						
 			next
 		
-			return nNearest
+			return _nNearest_
 		ok
 
 		#< @FunctionAlternativeForms
 
-		def NearestTo(n)
-			return This.Nearest(n)
+		def NearestTo(_n_)
+			return This.Nearest(_n_)
 
 		#--
 
-		def NearestNumber(n)
-			return This.Nearest(n)
+		def NearestNumber(_n_)
+			return This.Nearest(_n_)
 
-		def NearstNumber(n)
-			return This.Nearest(n)
+		def NearstNumber(_n_)
+			return This.Nearest(_n_)
 
-		def NearstNumberTo(n)
-			return This.Nearest(n)
+		def NearstNumberTo(_n_)
+			return This.Nearest(_n_)
 
 		#==
 
-		def Closest(n)
+		def Closest(_n_)
 			return This.Nearest()
 
 		#--
 
-		def ClosestTo(n)
-			return This.Nearest(n)
+		def ClosestTo(_n_)
+			return This.Nearest(_n_)
 
 		#--
 
-		def ClosestNumber(n)
-			return This.Nearest(n)
+		def ClosestNumber(_n_)
+			return This.Nearest(_n_)
 
-		def ClosestNumberTo(n)
-			return This.Nearest(n)
+		def ClosestNumberTo(_n_)
+			return This.Nearest(_n_)
 
 		#>
 
 		#< @MisspelledForms
 
-		def NearstTo(n)
-			return This.Nearest(n)
+		def NearstTo(_n_)
+			return This.Nearest(_n_)
 
-		def Nearst(n)
-			return This.Nearest(n)
+		def Nearst(_n_)
+			return This.Nearest(_n_)
 
 		#>
 	  #---------------------------------------------------#
 	 #   FARTHEST NUMBER IN THE LIST TO A GIVEN NUMBER   #
 	#---------------------------------------------------#
 
-	def Farthest(n)
+	def Farthest(_n_)
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		# Doing the job
 
-		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		_anSorted_ = This.ToSetQ().Sorted()
+		_nLen_ = len(_anSorted_)
 
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
 
-		if nLen = 0
+		if _nLen_ = 0
 			return ""
 
-		but nLen = 1
-			if anSorted[1] = n
+		but _nLen_ = 1
+			if _anSorted_[1] = _n_
 				return ""
 			else
-				return anSorted[1]
+				return _anSorted_[1]
 			ok
 		ok
 
 		# Case where n exists in the list
 
-		nPos = StzFindFirst(anSorted, n)
+		_nPos_ = StzFindFirst(_anSorted_, _n_)
 
-		if nPos > 0
-			nDif1 = abs( n - anSorted[1] )
-			nDif2 = abs( n - anSorted[nLen] )
+		if _nPos_ > 0
+			_nDif1_ = abs( _n_ - _anSorted_[1] )
+			_nDif2_ = abs( _n_ - _anSorted_[_nLen_] )
 
-			if nDif1 > nDif2
-				return anSorted[1]
+			if _nDif1_ > _nDif2_
+				return _anSorted_[1]
 			else
-				return anSorted[nLen]
+				return _anSorted_[_nLen_]
 			ok
 		
 		# Case where n does not extist in the list
 		else
 
-			nFarthest = anSorted[1]
-			for i = 2 to nLen
+			_nFarthest_ = _anSorted_[1]
+			for i = 2 to _nLen_
 	
-				nDif2 = abs(n - anSorted[1])
-				nDif1 = abs(n - anSorted[nLen])
+				_nDif2_ = abs(_n_ - _anSorted_[1])
+				_nDif1_ = abs(_n_ - _anSorted_[_nLen_])
 	
-				if nDif2 < nDif1
-					nFarthest = anSorted[nLen]
+				if _nDif2_ < _nDif1_
+					_nFarthest_ = _anSorted_[_nLen_]
 				ok
 						
 			next
 		
-			return nFarthest
+			return _nFarthest_
 		ok
 
 		#< @FunctionAlternativeForm
 
-		def FarthestTo(n)
-			return This.Farthest(n)
+		def FarthestTo(_n_)
+			return This.Farthest(_n_)
 
 		#--
 
-		def FarthestNumber(n)
-			return This.Farthest(n)
+		def FarthestNumber(_n_)
+			return This.Farthest(_n_)
 
 		#>
 
 		#< @FunctionMisspelledForms
 
-		def Fartehst(n)
-			return This.Farthest(n)
+		def Fartehst(_n_)
+			return This.Farthest(_n_)
 
-		def FartehstTo(n)
-			return This.Farthest(n)
+		def FartehstTo(_n_)
+			return This.Farthest(_n_)
 
-		def Farthst(n)
-			return This.Farthest(n)
+		def Farthst(_n_)
+			return This.Farthest(_n_)
 
-		def FarthstTo(n)
-			return This.Farthest(n)
+		def FarthstTo(_n_)
+			return This.Farthest(_n_)
 
 		#--
 
-		def FartehstNumber(n)
-			return This.Farthest(n)
+		def FartehstNumber(_n_)
+			return This.Farthest(_n_)
 
-		def FartehstNumberTo(n)
-			return This.Farthest(n)
+		def FartehstNumberTo(_n_)
+			return This.Farthest(_n_)
 
-		def FarthstNumber(n)
-			return This.Farthest(n)
+		def FarthstNumber(_n_)
+			return This.Farthest(_n_)
 
-		def FarthstNumberTo(n)
-			return This.Farthest(n)
+		def FarthstNumberTo(_n_)
+			return This.Farthest(_n_)
 
 		#>
 
@@ -3063,258 +3063,258 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE TWO NIGHBORS (IF ANY) OF A GIVEN NUMBER  #
 	#-------------------------------------------------------#
 
-	def Neighbors(n)
+	def Neighbors(_n_)
 		/* EXAMPLE
 
-		o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
-		? o1.NeighborsOf(5)
+		_o1_ = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
+		? _o1_.NeighborsOf(5)
 		#--> [4, 6]
 		
 		*/
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToOrOfNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToOrOfNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		# Doing the job
 	
-		nLen = len(@aContent)
+		_nLen_ = len(@aContent)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return []
 
-		but nLen = 1
+		but _nLen_ = 1
 			return [ @aContent[1] ]
 		ok
 
-		anSorted = This.ToSetQ().Sorted()
-		nPos = StzFindFirst(anSorted, n)
+		_anSorted_ = This.ToSetQ().Sorted()
+		_nPos_ = StzFindFirst(_anSorted_, _n_)
 
-		if nPos = 0
-			if n < anSorted[1]
-				return [ anSorted[1] ]
+		if _nPos_ = 0
+			if _n_ < _anSorted_[1]
+				return [ _anSorted_[1] ]
 
-			but n > nLen
-				return [ anSorted[nLen] ]
+			but _n_ > _nLen_
+				return [ _anSorted_[_nLen_] ]
 
-			but n = anSorted[1]
-				return [ anSorted[2] ]
+			but _n_ = _anSorted_[1]
+				return [ _anSorted_[2] ]
 
-			but n = anSorted[nLen]
-				return [ anSorted[nLen-1] ]
+			but _n_ = _anSorted_[_nLen_]
+				return [ _anSorted_[_nLen_-1] ]
 
 			else
-				for i = 1 to nLen-1
-					if n > anSorted[i] and n < anSorted[i+1]
-						return [ anSorted[i], anSorted[i+1] ]
+				for i = 1 to _nLen_-1
+					if _n_ > _anSorted_[i] and _n_ < _anSorted_[i+1]
+						return [ _anSorted_[i], _anSorted_[i+1] ]
 					ok
 				next
 			ok
 
-		but nPos = 1
-			return [ anSorted[2] ]
+		but _nPos_ = 1
+			return [ _anSorted_[2] ]
 
-		but nPos = nLen
-			return [ anSorted[nLen-1] ]
+		but _nPos_ = _nLen_
+			return [ _anSorted_[_nLen_-1] ]
 
 		else
-			return [ anSorted[nPos-1], anSorted[nPos+1] ]
+			return [ _anSorted_[_nPos_-1], _anSorted_[_nPos_+1] ]
 		ok
 
 		#< @functionAlternativeForm
 
-		def NeighborsOf(n)
-			return This.Neighbors(n)
+		def NeighborsOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighbors(n)
-			return This.Neighbors(n)
+		def NNeighbors(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighborsOf(n)
-			return This.Neighbors(n)
+		def NNeighborsOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighborsTo(n)
-			return This.Neighbors(n)
+		def NNeighborsTo(_n_)
+			return This.Neighbors(_n_)
 
 		#--
 
-		def NeighboringNumbers(n)
-			return This.Neighbors(n)
+		def NeighboringNumbers(_n_)
+			return This.Neighbors(_n_)
 
-		def NeighboringNumbersOf(n)
-			return This.Neighbors(n)
+		def NeighboringNumbersOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighboringNumbers(n)
-			return This.Neighbors(n)
+		def NNeighboringNumbers(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighboringNumbersOf(n)
-			return This.Neighbors(n)
+		def NNeighboringNumbersOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NNeighboringNumbersTo(n)
-			return This.Neighbors(n)
+		def NNeighboringNumbersTo(_n_)
+			return This.Neighbors(_n_)
 
 		#==
 
-		def NearestNeighbors(n)
-			return This.Neighbors(n)
+		def NearestNeighbors(_n_)
+			return This.Neighbors(_n_)
 
-		def NearestNeighborsOf(n)
-			return This.Neighbors(n)
+		def NearestNeighborsOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NearestNeighborsTo(n)
-			return This.Neighbors(n)
+		def NearestNeighborsTo(_n_)
+			return This.Neighbors(_n_)
 
-		def NearestNeighboringNumbers(n)
-			return This.Neighbors(n)
+		def NearestNeighboringNumbers(_n_)
+			return This.Neighbors(_n_)
 
-		def NearestNeighboringNumbersOf(n)
-			return This.Neighbors(n)
+		def NearestNeighboringNumbersOf(_n_)
+			return This.Neighbors(_n_)
 
-		def NearestNeighboringNumbersTo(n)
-			return This.Neighbors(n)
+		def NearestNeighboringNumbersTo(_n_)
+			return This.Neighbors(_n_)
 
 		#--
 
-		def ClosesestNeighbors(n)
-			return This.Neighbors(n)
+		def ClosesestNeighbors(_n_)
+			return This.Neighbors(_n_)
 
-		def ClosestNeighborsOf(n)
-			return This.Neighbors(n)
+		def ClosestNeighborsOf(_n_)
+			return This.Neighbors(_n_)
 
-		def ClosestNeighborsTo(n)
-			return This.Neighbors(n)
+		def ClosestNeighborsTo(_n_)
+			return This.Neighbors(_n_)
 
-		def ClosestNeighboringNumbers(n)
-			return This.Neighbors(n)
+		def ClosestNeighboringNumbers(_n_)
+			return This.Neighbors(_n_)
 
-		def ClosestNeighboringNumbersOf(n)
-			return This.Neighbors(n)
+		def ClosestNeighboringNumbersOf(_n_)
+			return This.Neighbors(_n_)
 
-		def ClosestNeighboringNumbersTo(n)
-			return This.Neighbors(n)
+		def ClosestNeighboringNumbersTo(_n_)
+			return This.Neighbors(_n_)
 
 		#>
 
 		#< @FunctionMisspelledForms
 
-		def Nighbors(n)
-			return NeighborsOf(n)
+		def Nighbors(_n_)
+			return NeighborsOf(_n_)
 
-		def NearestNighbors(n)
-			return NeighborsOf(n)
+		def NearestNighbors(_n_)
+			return NeighborsOf(_n_)
 
-		def NighborsOf(n)
-			return NeighborsOf(n)
+		def NighborsOf(_n_)
+			return NeighborsOf(_n_)
 
-		def NearestNighborsOf(n)
-			return NeighborsOf(n)
+		def NearestNighborsOf(_n_)
+			return NeighborsOf(_n_)
 
-		def NighborsTo(n)
-			return NeighborsOf(n)
+		def NighborsTo(_n_)
+			return NeighborsOf(_n_)
 
-		def NearestNighborsTo(n)
-			return NeighborsOf(n)
+		def NearestNighborsTo(_n_)
+			return NeighborsOf(_n_)
 
 		#>
 
-	def FarthestNeighbors(n)
+	def FarthestNeighbors(_n_)
 
 		# Checking the n param
 
-		if isList(n) and Q(n).IsToOrOfNamedParam()
-			n = n[2]
+		if isList(_n_) and Q(_n_).IsToOrOfNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
 		# Doing the job
 	
-		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		_anSorted_ = This.ToSetQ().Sorted()
+		_nLen_ = len(_anSorted_)
 			
-		if nLen = 0
+		if _nLen_ = 0
 			return [ "", "" ]
 		ok
 
-		nPos = StzFindFirst( anSorted, n )
+		_nPos_ = StzFindFirst( _anSorted_, _n_ )
 
-		if nPos = 0
+		if _nPos_ = 0
 			return [ "", "" ]
 		ok
 
-		n1 = anSorted[1]
-		n2 = anSorted[nLen]
+		_n1_ = _anSorted_[1]
+		_n2_ = _anSorted_[_nLen_]
 
-		if nPos = 1
-			n1 = ""
+		if _nPos_ = 1
+			_n1_ = ""
 
-		but nPos = nLen
-			n2 = ""
+		but _nPos_ = _nLen_
+			_n2_ = ""
 		ok
 
-		anResult = [ n1, n2 ]
-		return anResult
+		_anResult_ = [ _n1_, _n2_ ]
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def FNeighbors(n)
-			return This.FarthestNeighbors(n)
+		def FNeighbors(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthestNeighborsOf(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNeighborsOf(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNeighborsOf(n)
-			return This.FarthestNeighbors(n)
+		def FNeighborsOf(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthestNeighborsTo(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNeighborsTo(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNeighborsTo(n)
-			return This.FarthestNeighbors(n)
+		def FNeighborsTo(_n_)
+			return This.FarthestNeighbors(_n_)
 
 
 		#--
 
-		def FarthestNeighboringNumbers(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNeighboringNumbers(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNeighboringNumbers(n)
-			return This.FarthestNeighbors(n)
+		def FNeighboringNumbers(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthestNeighboringNumbersOf(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNeighboringNumbersOf(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNeighboringNumbersOf(n)
-			return This.FarthestNeighbors(n)
+		def FNeighboringNumbersOf(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthestNeighboringNumbersTo(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNeighboringNumbersTo(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNeighboringNumbersTo(n)
-			return This.FarthestNeighbors(n)
+		def FNeighboringNumbersTo(_n_)
+			return This.FarthestNeighbors(_n_)
 
 		#>
 
 		#< @FunctionMisspelledForms
 
-		def FarthestNighbors(n)
-			return This.FarthestNeighbors(n)
+		def FarthestNighbors(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FNighbors(n)
-			return This.FarthestNeighbors(n)
+		def FNighbors(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthstNeighbors(n)
-			return This.FarthestNeighbors(n)
+		def FarthstNeighbors(_n_)
+			return This.FarthestNeighbors(_n_)
 
-		def FarthstNighbors(n)
-			return This.FarthestNeighbors(n)
+		def FarthstNighbors(_n_)
+			return This.FarthestNeighbors(_n_)
 
 		#>
 
@@ -3323,17 +3323,17 @@ class stzListOfNumbers from stzList
 	#=====================================================#
 
 	def Diff()
-		anResult = []
-		nLen = len(@aContent)
-		if nLen = 1
+		_anResult_ = []
+		_nLen_ = len(@aContent)
+		if _nLen_ = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
 
-		for i = 2 to nLen
-			anResult + ( @aContent[i] - @aContent[i-1] )
+		for i = 2 to _nLen_
+			_anResult_ + ( @aContent[i] - @aContent[i-1] )
 		next
 
-		return anResult
+		return _anResult_
 
 		def Diffs()
 			return This.Diff()
@@ -3342,17 +3342,17 @@ class stzListOfNumbers from stzList
 			return This.Diff()
 
 	def AbsDiff()
-		anResult = []
-		nLen = len(@aContent)
-		if nLen = 1
+		_anResult_ = []
+		_nLen_ = len(@aContent)
+		if _nLen_ = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
 
-		for i = 2 to nLen
-			anResult + @Abs( @aContent[i] - @aContent[i-1] )
+		for i = 2 to _nLen_
+			_anResult_ + @Abs( @aContent[i] - @aContent[i-1] )
 		next
 
-		return anResult
+		return _anResult_
 
 		def AbsDiffs()
 			return This.AbsDiff()
@@ -3364,53 +3364,53 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE DIFFRERENCES BETWEEN A GIVEN NUMBER AND ALL NUMBERS  #
 	#-------------------------------------------------------------------#
 
-	def DiffWith(n)
+	def DiffWith(_n_)
 
-		if CheckParams() and NOT isNumber(n)
+		if CheckParams() and NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")				
 		ok
 
-		anResult = []
-		nLen = len(@aContent)
-		if nLen = 1
+		_anResult_ = []
+		_nLen_ = len(@aContent)
+		if _nLen_ = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
 
-		for i = 1 to nLen
-			anResult + ( @aContent[i] - n )
+		for i = 1 to _nLen_
+			_anResult_ + ( @aContent[i] - _n_ )
 		next
 
-		return anResult
+		return _anResult_
 
-		def DiffsWith(n)
-			return This.DiffWith(n)
+		def DiffsWith(_n_)
+			return This.DiffWith(_n_)
 
-		def DifferencesWith(n)
-			return This.DiffWith(n)
+		def DifferencesWith(_n_)
+			return This.DiffWith(_n_)
 
-	def AbsDiffWith(n)
+	def AbsDiffWith(_n_)
 
-		if CheckParams() and NOT isNumber(n)
+		if CheckParams() and NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")				
 		ok
 
-		anResult = []
-		nLen = len(@aContent)
-		if nLen = 1
+		_anResult_ = []
+		_nLen_ = len(@aContent)
+		if _nLen_ = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
 
-		for i = 1 to nLen
-			anResult + @Abs( @aContent[i] - n )
+		for i = 1 to _nLen_
+			_anResult_ + @Abs( @aContent[i] - _n_ )
 		next
 
-		return anResult
+		return _anResult_
 
-		def AbsDiffsWith(n)
-			return This.AbsDiffWith(n)
+		def AbsDiffsWith(_n_)
+			return This.AbsDiffWith(_n_)
 
-		def AbsoluteDifferencesWith(n)
-			return This.AbsDiffWith(n)
+		def AbsoluteDifferencesWith(_n_)
+			return This.AbsDiffWith(_n_)
 
 	  #---------------------------------------------------#
 	 #  CLASSIFYING NUMBERS BY NEAREST TO GIVEN NUMBERS  #
@@ -3424,47 +3424,47 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
 		ok
 
-		aResult = []
+		_aResult_ = []
 		panNumbers = U(panNumbers)
-		nLenNumbers = len(panNumbers)
+		_nLenNumbers_ = len(panNumbers)
 
-		for i = 1 to nLenNumbers
-			aResult + [ panNumbers[i], [] ]
+		for i = 1 to _nLenNumbers_
+			_aResult_ + [ panNumbers[i], [] ]
 		next
 
-		nLenContent = len(@aContent)
+		_nLenContent_ = len(@aContent)
 
-		for j = 1 to nLenContent
+		for _j_ = 1 to _nLenContent_
 
-			nNumber = @aContent[j]
-			nMinDiff = NULL
-			nClosestPivot = NULL
+			_nNumber_ = @aContent[_j_]
+			_nMinDiff_ = NULL
+			_nClosestPivot_ = NULL
 
-			for i = 1 to nLenNumbers
+			for i = 1 to _nLenNumbers_
 
-				nPivot = panNumbers[i]
-				nDiff = @abs(nNumber - nPivot)
+				_nPivot_ = panNumbers[i]
+				_nDiff_ = @abs(_nNumber_ - _nPivot_)
 
-				if nMinDiff = NULL or nDiff < nMinDiff
-					nMinDiff = nDiff
-					nClosestPivot = nPivot
+				if _nMinDiff_ = NULL or _nDiff_ < _nMinDiff_
+					_nMinDiff_ = _nDiff_
+					_nClosestPivot_ = _nPivot_
 				ok
 
 			next
 
-			_nResultLen_ = len(aResult)
+			_nResultLen_ = len(_aResult_)
 			for i = 1 to _nResultLen_
 
-				if StzFindFirst(panNumbers, nNumber) = 0 and
-				   aResult[i][1] = nClosestPivot
+				if StzFindFirst(panNumbers, _nNumber_) = 0 and
+				   _aResult_[i][1] = _nClosestPivot_
 
-					aResult[i][2] + nNumber
+					_aResult_[i][2] + _nNumber_
 					exit
 				ok
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 	  #==========================================#
 	 #  GETTING THE STEPS TAKNE BY THE NUMBERS  #
@@ -3489,52 +3489,52 @@ class stzListOfNumbers from stzList
     
 		# Calculate all differences
 
-		anDiffs = []
+		_anDiffs_ = []
 
 		_nContentLen_ = len(@aContent)
 		for i = 2 to _nContentLen_
-			anDiffs + (@aContent[i] - @aContent[i-1])
+			_anDiffs_ + (@aContent[i] - @aContent[i-1])
 		next
 
 		# Find shortest repeating pattern
 
-		nLen = len(anDiffs)
+		_nLen_ = len(_anDiffs_)
 
 		# Special case for [1,2,3,4,5]
 
-		if U(anDiffs) = anDiffs[1]
-			return [ anDiffs[1] ]
+		if U(_anDiffs_) = _anDiffs_[1]
+			return [ _anDiffs_[1] ]
 		ok
     
 		# Try to find the repeating pattern
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
 			# Build pattern from first i elements
 
-			anPattern = []
-			for j = 1 to i
-				anPattern + anDiffs[j]
+			_anPattern_ = []
+			for _j_ = 1 to i
+				_anPattern_ + _anDiffs_[_j_]
 			next
 
 			# Check if this pattern repeats throughout
 
-			bMatches = 1
-			nLenPattern = len(anPattern)
+			_bMatches_ = 1
+			_nLenPattern_ = len(_anPattern_)
 
-			for j = 1 to nLen
-				if anDiffs[j] != anPattern[(j-1) % nLenPattern + 1]
-					bMatches = 0
+			for _j_ = 1 to _nLen_
+				if _anDiffs_[_j_] != _anPattern_[(_j_-1) % _nLenPattern_ + 1]
+					_bMatches_ = 0
 					exit
   				ok
 			next
 
-			if bMatches
-				return anPattern
+			if _bMatches_
+				return _anPattern_
 			ok
 		next
     
-    		return anDiffs
+    		return _anDiffs_
 
 	  #-------------------------------------------------------------------#
 	 #  REVERSE-ENGENEERING THE LIST OF NUMBERS INTO A STZWALKER OBJECT  #
@@ -3571,23 +3571,23 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		anThisSorted = This.SortedInAscending()
-		anOtherSorted = Q(panOtherList).SortedInAscending()
+		_anThisSorted_ = This.SortedInAscending()
+		_anOtherSorted_ = Q(panOtherList).SortedInAscending()
 
-		anMain = []
-		if len(anThisSorted) <= len(anOtherSorted)
-			anMain  = anThisSorted
-			anOther = anOtherSorted
+		_anMain_ = []
+		if len(_anThisSorted_) <= len(_anOtherSorted_)
+			_anMain_  = _anThisSorted_
+			_anOther_ = _anOtherSorted_
 		else
-			anMain  = anOtherSorted
-			anOther = anThisSorted
+			_anMain_  = _anOtherSorted_
+			_anOther_ = _anThisSorted_
 		ok
 
-		nLen = len(anMain)
+		_nLen_ = len(_anMain_)
 
-		for i = 1 to nLen
-			if Q(anOther).FindFirst(anMain[i]) > 0
-				return anMain[i]
+		for i = 1 to _nLen_
+			if Q(_anOther_).FindFirst(_anMain_[i]) > 0
+				return _anMain_[i]
 			ok
 		next
 
@@ -3636,22 +3636,22 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		anThisSorted = This.SortedInDescending()
-		anOtherSorted = Q(panOtherList).SortedInDescending()
+		_anThisSorted_ = This.SortedInDescending()
+		_anOtherSorted_ = Q(panOtherList).SortedInDescending()
 
-		anMain = []
-		if len(anThisSorted) <= len(anOtherSorted)
-			anMain  = anThisSorted
-			anOther = anOtherSorted
+		_anMain_ = []
+		if len(_anThisSorted_) <= len(_anOtherSorted_)
+			_anMain_  = _anThisSorted_
+			_anOther_ = _anOtherSorted_
 		else
-			anMain  = anOtherSorted
-			anOther = anThisSorted
+			_anMain_  = _anOtherSorted_
+			_anOther_ = _anThisSorted_
 		ok
-		nLen = len(anMain)
+		_nLen_ = len(_anMain_)
 
-		for i = 1 to nLen
-			if Q(anOther).FindFirst(anMain[i]) > 0
-				return anMain[i]
+		for i = 1 to _nLen_
+			if Q(_anOther_).FindFirst(_anMain_[i]) > 0
+				return _anMain_[i]
 			ok
 		next
 
@@ -3669,9 +3669,9 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect value! The list must contain at least 2 numbers.")
 		ok
 
-		nResult = 0+ StzNumberQ( This.FirstItem() ).LCM( :With = This.Section(2, :LastItem) )
+		_nResult_ = 0+ StzNumberQ( This.FirstItem() ).LCM( :With = This.Section(2, :LastItem) )
 
-		return nResult
+		return _nResult_
 
 		def LCM()
 			return This.LeastCommonMultiple()
@@ -3681,12 +3681,12 @@ class stzListOfNumbers from stzList
 	#----------------------------------------#
 
 	def Absolute()
-		anContent = This.Content()*
-		nLen = len(anContent)
+		_anContent_ = This.Content()*
+		_nLen_ = len(_anContent_)
 
-		for i = 1 to nLen
-			if anContent[i] < 0
-				anContent[i] = -anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] < 0
+				_anContent_[i] = -_anContent_[i]
 			ok
 		next
 
@@ -3702,12 +3702,12 @@ class stzListOfNumbers from stzList
 	#----------------------------------------#
 
 	def Negate()
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		for i = 1 to nLen
-			if anContent[i] > 0
-				anContent[i] = -anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] > 0
+				_anContent_[i] = -_anContent_[i]
 			ok
 		next
 
@@ -3730,16 +3730,16 @@ class stzListOfNumbers from stzList
 			return _nPrResult
 		ok
 
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		nResult = 1
+		_nResult_ = 1
 
-		for i = 1 to nLen
-			nResult *= anContent[i]
+		for i = 1 to _nLen_
+			_nResult_ *= _anContent_[i]
 		next
 
-		return nResult
+		return _nResult_
 
 	def Sum()
 		_pSmList = This._EngineListFromContent()
@@ -3749,15 +3749,15 @@ class stzListOfNumbers from stzList
 			return _nSmResult
 		ok
 
-		anContent = This.Content()
-		nLen = len(anContent)
-		nResult = 0
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		_nResult_ = 0
 
-		for i = 1 to nLen
-			nResult += anContent[i]
+		for i = 1 to _nLen_
+			_nResult_ += _anContent_[i]
 		next
 
-		return nResult
+		return _nResult_
 
 	def Mean()
 		_pMnList = This._EngineListFromContent()
@@ -3773,13 +3773,13 @@ class stzListOfNumbers from stzList
 			return Mean()
 
 	def Median()
-			aValuesSorted = @sort(This.Content())
-			nLen = len(aValuesSorted)
+			_aValuesSorted_ = @sort(This.Content())
+			_nLen_ = len(_aValuesSorted_)
 			
-			if nLen % 2 = 1
-				return aValuesSorted[ring_ceil(nLen/2)]
+			if _nLen_ % 2 = 1
+				return _aValuesSorted_[ring_ceil(_nLen_/2)]
 			else
-				return (aValuesSorted[nLen/2] + aValuesSorted[(nLen/2)+1]) / 2
+				return (_aValuesSorted_[_nLen_/2] + _aValuesSorted_[(_nLen_/2)+1]) / 2
 			ok
 
 	def MeanByCoefficient(paList)
@@ -3806,10 +3806,10 @@ class stzListOfNumbers from stzList
 	 #     CONTAINING DIVIDABLE NUMBER BY    #
 	#---------------------------------------#
 
-	def ContainsADividableNumberBy(n)
-		oNumber = new stzNumber( This.Product() )
+	def ContainsADividableNumberBy(_n_)
+		_oNumber_ = new stzNumber( This.Product() )
 
-		if oNumber.IsDividableBy(n)
+		if _oNumber_.IsDividableBy(_n_)
 			return 1
 		else
 			return 0
@@ -3819,22 +3819,22 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE NUMBERS DIVIDABLE BY A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
-	def DividableNumbersBy(n)
-		anContent = This.Content()
-		nLen = len(anContent)
+	def DividableNumbersBy(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] % 2 = 0
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] % 2 = 0
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
-		def NumbersDividableBy(n)
-			return This.DividableNumbersBy(n)
+		def NumbersDividableBy(_n_)
+			return This.DividableNumbersBy(_n_)
 
 	  #--------------------------------------#
 	 #     CLIPPING THE LIST OF NUMBERS     #
@@ -3847,14 +3847,14 @@ class stzListOfNumbers from stzList
 
 	def Clip(nMin, nMax)
 		/*
-		o1 = new stzListOfNumbers([1, 2, 3, 4, 5, 6, 7, 8 ])
-		? o1.Clip(3, 5)
+		_o1_ = new stzListOfNumbers([1, 2, 3, 4, 5, 6, 7, 8 ])
+		? _o1_.Clip(3, 5)
 		// --> Should return: [ 3, 3, 3, 4, 5, 5, 5, 5, 5 ])
 		*/
 
-		nLen = len(@aContent)
+		_nLen_ = len(@aContent)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if @aContent[i] < nMin
 				@aContent[i] = nMin
 
@@ -3886,30 +3886,30 @@ class stzListOfNumbers from stzList
 	 #     REPLACING A SECTION OF THE LIST     #
 	#-----------------------------------------#
 
-	def ReplaceSectionWith(n1, n2, n)
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if i >= n1 and i <= n2
-				@aContent[i] = n
+	def ReplaceSectionWith(_n1_, _n2_, _n_)
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if i >= _n1_ and i <= _n2_
+				@aContent[i] = _n_
 			ok
 		next
 
 		#< @FunctionFluentForms
 
-		def ReplaceSectionWithQ(n1, n2, n)
-			return This.ReplaceSectionWithQRT(n1, n2, n, :stzList)
+		def ReplaceSectionWithQ(_n1_, _n2_, _n_)
+			return This.ReplaceSectionWithQRT(_n1_, _n2_, _n_, :stzList)
 
-		def ReplaceSectionWithQRT(n1, n2, n, pcReturnType)
+		def ReplaceSectionWithQRT(_n1_, _n2_, _n_, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.ReplaceSectionWith(n1, n2, n) )
+				return new stzList( This.ReplaceSectionWith(_n1_, _n2_, _n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.ReplaceSectionWith(n1, n2, n) )
+				return new stzListOfNumbers( This.ReplaceSectionWith(_n1_, _n2_, _n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -3917,23 +3917,23 @@ class stzListOfNumbers from stzList
 
 		#>
 
-		def ReplaceNumbersInSectionWith(n1, n2, n)
-			This.ReplaceSectionWith(n1, n2, n)
+		def ReplaceNumbersInSectionWith(_n1_, _n2_, _n_)
+			This.ReplaceSectionWith(_n1_, _n2_, _n_)
 
 	  #----------------------------#
 	 #     CUMULATING NUMBERS     #
 	#----------------------------#
 
 	def Cumulate()
-		aResult = []
-		anContent = This.Content()
-		nLen = len(anContent)
+		_aResult_ = []
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		for i = 3 to nLen
-			anContent[i] += anContent[i-1]
+		for i = 3 to _nLen_
+			_anContent_[i] += _anContent_[i-1]
 		next
 			
-		This.UpdateWith(anContent)
+		This.UpdateWith(_anContent_)
 
 
 		def CumulateQ()
@@ -3949,35 +3949,35 @@ class stzListOfNumbers from stzList
 				return new stzList( This.Cumulate() )
 
 			on :stzListOfNumbers
-				return new stzList( This.Cumulate(n1) )
+				return new stzList( This.Cumulate(_n1_) )
 
 			other
 				StzRaise("Unsupported return type!")
 			off
 
 	def Cumulated()
-		anResult = This.Copy().CumulateQ().Content()
-		return anResult
+		_anResult_ = This.Copy().CumulateQ().Content()
+		return _anResult_
 
 	  #-------------------------------------------------------------#
 	 #  GETTING ONLY UNICODE NUMBERS AMONG THE NUMBER IN THE LIST  #
 	#-------------------------------------------------------------#
 
 	def OnlyUnicodes()
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			n = anContent[i]
+		for i = 1 to _nLen_
+			_n_ = _anContent_[i]
 
-			if IsUnicodeNumber(n)
-				aResult + n
+			if IsUnicodeNumber(_n_)
+				_aResult_ + _n_
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -4006,166 +4006,166 @@ class stzListOfNumbers from stzList
 	 #     ADDING A NUMBER TO EACH NUMBER     #
 	#========================================#
 
-	def AddToEach(n)
+	def AddToEach(_n_)
 		
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + (anContent[i] + n)
+		for i = 1 to _nLen_
+			_anResult_ + (_anContent_[i] + _n_)
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
-		def AddToEachQ(n)
-			This.AddToEach(n)
+		def AddToEachQ(_n_)
+			This.AddToEach(_n_)
 			return This
 
-		def AddToEachNumber(n)
-			This.AddToEach(n)
+		def AddToEachNumber(_n_)
+			This.AddToEach(_n_)
 
-			def AddToEachNumberQ(n)
-				return This.AddToEachQ(n)
+			def AddToEachNumberQ(_n_)
+				return This.AddToEachQ(_n_)
 
-		def AddToEveryNumber(n)
-			This.AddToEach(n)
+		def AddToEveryNumber(_n_)
+			This.AddToEach(_n_)
 
-			def AddToEveryNumberQ(n)
-				return This.AddToEachQ(n)
+			def AddToEveryNumberQ(_n_)
+				return This.AddToEachQ(_n_)
 
-	def AddedToEach(n)
-		anResult = This.Copy().AddToEachQ(n).Content()
-		return anResult
+	def AddedToEach(_n_)
+		_anResult_ = This.Copy().AddToEachQ(_n_).Content()
+		return _anResult_
 
-		def AddedToEachNumber(n)
-			return This.AddedToEach(n)
+		def AddedToEachNumber(_n_)
+			return This.AddedToEach(_n_)
 
-		def AddedToEveryNumber(n)
-			return This.AddedToEach(n)
+		def AddedToEveryNumber(_n_)
+			return This.AddedToEach(_n_)
 
 	  #------------------------------------------------#
 	 #     SubStructING A NUMBER FROM EACH NUMBER     #
 	#------------------------------------------------#
 
-	def SubStructFromEach(n)
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+	def SubStructFromEach(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + (anContent[i] - n)
+		for i = 1 to _nLen_
+			_anResult_ + (_anContent_[i] - _n_)
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
-		def SubStructFromEachQ(n)
-			This.SubStructFromEach(n)
+		def SubStructFromEachQ(_n_)
+			This.SubStructFromEach(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SubStructFromEachNumber(n)
-			This.SubStructFromEach(n)
+		def SubStructFromEachNumber(_n_)
+			This.SubStructFromEach(_n_)
 
-			def SubStructFromEachNumberQ(n)
-				return This.SubStructFromEachQ(n)
+			def SubStructFromEachNumberQ(_n_)
+				return This.SubStructFromEachQ(_n_)
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SubstractFromEach(n)
-			This.SubStructFromEach(n)
+		def SubstractFromEach(_n_)
+			This.SubStructFromEach(_n_)
 
-		def SubStractFromEachNumber(n)
-			This.SubStructFromEach(n)
+		def SubStractFromEachNumber(_n_)
+			This.SubStructFromEach(_n_)
 
-			def SubStractFromEachNumberQ(n)
-				return This.SubStructFromEachQ(n)
-
-		#--
-
-		def SubtractFromEach(n)
-			This.SubStructFromEach(n)
-
-		def SubtractFromEachNumber(n)
-			This.SubStructFromEach(n)
-
-			def SubtractFromEachNumberQ(n)
-				return This.SubStructFromEachQ(n)
+			def SubStractFromEachNumberQ(_n_)
+				return This.SubStructFromEachQ(_n_)
 
 		#--
 
-		def SubtructFromEach(n)
-			This.SubStructFromEach(n)
+		def SubtractFromEach(_n_)
+			This.SubStructFromEach(_n_)
 
-		def SubtructFromEachNumber(n)
-			This.SubStructFromEach(n)
+		def SubtractFromEachNumber(_n_)
+			This.SubStructFromEach(_n_)
 
-			def SubtructFromEachNumberQ(n)
-				return This.SubStructFromEachQ(n)
+			def SubtractFromEachNumberQ(_n_)
+				return This.SubStructFromEachQ(_n_)
+
+		#--
+
+		def SubtructFromEach(_n_)
+			This.SubStructFromEach(_n_)
+
+		def SubtructFromEachNumber(_n_)
+			This.SubStructFromEach(_n_)
+
+			def SubtructFromEachNumberQ(_n_)
+				return This.SubStructFromEachQ(_n_)
 
 		#>
 
-	def SubStructedFromEach(n)
-		anResult = This.Copy().SubStructFromEachQ(n).Content()
-		return anResult
+	def SubStructedFromEach(_n_)
+		_anResult_ = This.Copy().SubStructFromEachQ(_n_).Content()
+		return _anResult_
 
 		#< @FunctionAlternativeForm
 
-		def SubStructedFromEachNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubStructedFromEachNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
-		def SubStructedFromEveryNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubStructedFromEveryNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SubstractedFromEach(n)
-			return This.SubStructFromEach(n)
+		def SubstractedFromEach(_n_)
+			return This.SubStructFromEach(_n_)
 
-		def SubstractedFromEachNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubstractedFromEachNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
-		def SubstractedFromEveryNumber(n)
-			return This.SubStructedFromEach(n)
-
-		#--
-
-		def SubtractedFromEach(n)
-			return This.SubStructFromEach(n)
-
-		def SubtractedFromEachNumber(n)
-			return This.SubStructedFromEach(n)
-
-		def SubtractedFromEveryNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubstractedFromEveryNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
 		#--
 
-		def SubtructedFromEach(n)
-			return This.SubStructFromEach(n)
+		def SubtractedFromEach(_n_)
+			return This.SubStructFromEach(_n_)
 
-		def SubtructedFromEachNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubtractedFromEachNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
-		def SubtructedFromEveryNumber(n)
-			return This.SubStructedFromEach(n)
+		def SubtractedFromEveryNumber(_n_)
+			return This.SubStructedFromEach(_n_)
+
+		#--
+
+		def SubtructedFromEach(_n_)
+			return This.SubStructFromEach(_n_)
+
+		def SubtructedFromEachNumber(_n_)
+			return This.SubStructedFromEach(_n_)
+
+		def SubtructedFromEveryNumber(_n_)
+			return This.SubStructedFromEach(_n_)
 
 		#>
 
@@ -4173,107 +4173,107 @@ class stzListOfNumbers from stzList
 	 #     MULTIPLYING EACH NUMBER BY A NUMBER     #
 	#---------------------------------------------#
 
-	def MultiplyEachBy(n)
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+	def MultiplyEachBy(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + (anContent[i] * n)
+		for i = 1 to _nLen_
+			_anResult_ + (_anContent_[i] * _n_)
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
-		def MultiplyEachByQ(n)
-			This.MultiplyEachBy(n)
+		def MultiplyEachByQ(_n_)
+			This.MultiplyEachBy(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def MultiplyEachNumberBy(n)
-			This.MultiplyEachBy(n)
+		def MultiplyEachNumberBy(_n_)
+			This.MultiplyEachBy(_n_)
 
-			def MultiplyEachNumberByQ(n)
-				return This.MultiplyEachByQ(n)
+			def MultiplyEachNumberByQ(_n_)
+				return This.MultiplyEachByQ(_n_)
 
-		def MultiplyEveryNumberBy(n)
-			This.MultiplyEachBy(n)
+		def MultiplyEveryNumberBy(_n_)
+			This.MultiplyEachBy(_n_)
 
-			def MultiplyEveryNumberByQ(n)
-				return This.MultiplyEachByQ(n)
+			def MultiplyEveryNumberByQ(_n_)
+				return This.MultiplyEachByQ(_n_)
  
 		#>
 
-	def EachMultipliedBy(n)
-		anResult = This.Copy().MultiplyEachByQ(n).Content()
-		return anResult
+	def EachMultipliedBy(_n_)
+		_anResult_ = This.Copy().MultiplyEachByQ(_n_).Content()
+		return _anResult_
 
-		def EachNumberMultipliedBy(n)
-			return This.EachMultipliedBy(n)
+		def EachNumberMultipliedBy(_n_)
+			return This.EachMultipliedBy(_n_)
 
-		def EveryNumberMultipliedBy(n)
-			return This.EachMultipliedBy(n)
+		def EveryNumberMultipliedBy(_n_)
+			return This.EachMultipliedBy(_n_)
 
 	  #------------------------------------------#
 	 #     DIVIDING EACH NUMBER BY A NUMBER     # 
 	#------------------------------------------#
 
-	def DivideEachBy(n)
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+	def DivideEachBy(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			anResult + (anContent[i] / n)
+		for i = 1 to _nLen_
+			_anResult_ + (_anContent_[i] / _n_)
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
-		def DivideEachByQ(n)
-			This.DivideEachBy(n)
+		def DivideEachByQ(_n_)
+			This.DivideEachBy(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def DivideEachNumberBy(n)
-			This.DivideEachBy(n)
+		def DivideEachNumberBy(_n_)
+			This.DivideEachBy(_n_)
 
-			def DivideEachNumberByQ(n)
-				return This.DivideEachByQ(n)
+			def DivideEachNumberByQ(_n_)
+				return This.DivideEachByQ(_n_)
 
-		def DivideEveryNumberBy(n)
-			This.DivideEachBy(n)
+		def DivideEveryNumberBy(_n_)
+			This.DivideEachBy(_n_)
 
-			def DivideEveryNumberByQ(n)
-				return This.DivideEachByQ(n)
+			def DivideEveryNumberByQ(_n_)
+				return This.DivideEachByQ(_n_)
 
 		#>
 
-	def EachDividedBy(n)
-		anResult = This.Copy().DivideEachByQ(n).Content()
-		return anResult
+	def EachDividedBy(_n_)
+		_anResult_ = This.Copy().DivideEachByQ(_n_).Content()
+		return _anResult_
 
-		def EachNumberDividedBy(n)
-			return This.EachDividedBy(n)
+		def EachNumberDividedBy(_n_)
+			return This.EachDividedBy(_n_)
 
-		def EveryNumberDividedBy(n)
-			return This.EachDividedBy(n)
+		def EveryNumberDividedBy(_n_)
+			return This.EachDividedBy(_n_)
 
 	  #====================================#
 	 #   ADDING MANY NUMBERS ONE BY ONE   #
@@ -4285,27 +4285,27 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen1 = This.NumberOfNumbers()
-		if nLen1 = 0
+		_anContent_ = This.Content()
+		_nLen1_ = This.NumberOfNumbers()
+		if _nLen1_ = 0
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		_nLen2_ = len(panNumbers)
 
-		nLen = nLen1
-		if nLen2 < nLen1
-			nLen = nLen2
+		_nLen_ = _nLen1_
+		if _nLen2_ < _nLen1_
+			_nLen_ = _nLen2_
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			nSum = anContent[i] + panNumbers[i]
-			anResult + nSum
+		for i = 1 to _nLen_
+			_nSum_ = _anContent_[i] + panNumbers[i]
+			_anResult_ + _nSum_
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
@@ -4326,8 +4326,8 @@ class stzListOfNumbers from stzList
 		#>
 
 	def ManyAddOneByOne(panNumbers)
-		anResult = This.Copy().AddManyOneByOneQ(panNumbers).Content()
-		return anResult
+		_anResult_ = This.Copy().AddManyOneByOneQ(panNumbers).Content()
+		return _anResult_
 
 		def ManyNumbersAddedOneByOne(panNumbers)
 			return This.ManyAddOneByOne(panNumbers)
@@ -4342,27 +4342,27 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen1 = This.NumberOfNumbers()
-		if nLen1 = 0
+		_anContent_ = This.Content()
+		_nLen1_ = This.NumberOfNumbers()
+		if _nLen1_ = 0
 			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		_nLen2_ = len(panNumbers)
 
-		nLen = nLen1
-		if nLen2 < nLen1
-			nLen = nLen2
+		_nLen_ = _nLen1_
+		if _nLen2_ < _nLen1_
+			_nLen_ = _nLen2_
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			nDif = anContent[i] - panNumbers[i]
-			anResult + nDif
+		for i = 1 to _nLen_
+			_nDif_ = _anContent_[i] - panNumbers[i]
+			_anResult_ + _nDif_
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
@@ -4383,8 +4383,8 @@ class stzListOfNumbers from stzList
 		#>
 
 	def ManySubStructedOneByOne(panNumbers)
-		aResult = This.Copy().SubStructManyOneByOneQ(panNumbers).Content()
-		return aResult
+		_aResult_ = This.Copy().SubStructManyOneByOneQ(panNumbers).Content()
+		return _aResult_
 
 		def ManyNumbersSubStructedOneByOne(panNumbers)
 			return This.ManyAddOneByOne(panNumbers)
@@ -4400,27 +4400,27 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen1 = This.NumberOfNumbers()
-		if nLen1 = 0
+		_anContent_ = This.Content()
+		_nLen1_ = This.NumberOfNumbers()
+		if _nLen1_ = 0
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		_nLen2_ = len(panNumbers)
 
-		nLen = nLen1
-		if nLen2 < nLen1
-			nLen = nLen2
+		_nLen_ = _nLen1_
+		if _nLen2_ < _nLen1_
+			_nLen_ = _nLen2_
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			nProd = anContent[i] * panNumbers[i]
-			anResult + nProd
+		for i = 1 to _nLen_
+			_nProd_ = _anContent_[i] * panNumbers[i]
+			_anResult_ + _nProd_
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		#< @FunctionFluentForm
 
@@ -4453,8 +4453,8 @@ class stzListOfNumbers from stzList
 		#>
 
 	def MultipliedWithManyOneByOne(panNumbers)
-		anResult = This.Copy().MultiplyWithManyOneByOneQ(panNumbers).Content()
-		return anResult
+		_anResult_ = This.Copy().MultiplyWithManyOneByOneQ(panNumbers).Content()
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4479,27 +4479,27 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen1 = This.NumberOfNumbers()
-		if nLen1 = 0
+		_anContent_ = This.Content()
+		_nLen1_ = This.NumberOfNumbers()
+		if _nLen1_ = 0
 			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		_nLen2_ = len(panNumbers)
 
-		nLen = nLen1
-		if nLen2 < nLen1
-			nLen = nLen2
+		_nLen_ = _nLen1_
+		if _nLen2_ < _nLen1_
+			_nLen_ = _nLen2_
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			nDiv = anContent[i] / panNumbers[i]
-			anResult + nDiv
+		for i = 1 to _nLen_
+			_nDiv_ = _anContent_[i] / panNumbers[i]
+			_anResult_ + _nDiv_
 		next
 
-		This.Update(anResult)
+		This.Update(_anResult_)
 
 		def DivideByManyOneByOneQ(panNumbers)
 			This.DivideByManyOneByOne(panNumbers)
@@ -4509,8 +4509,8 @@ class stzListOfNumbers from stzList
 		# Add alternatives
 
 	def DividedByManyOneByOne(panNumbers)
-		anResult = This.Copy().DivideByManyOneByOneQ(panNumbers).Content()
-		return anResult
+		_anResult_ = This.Copy().DivideByManyOneByOneQ(panNumbers).Content()
+		return _anResult_
 
 		#TODO
 		# Add alternatives
@@ -4519,12 +4519,12 @@ class stzListOfNumbers from stzList
 	 #   ADDING NUMBER TO EACH UNDER A GIVEN CONDITION   #
 	#===================================================#
 
-	def AddToEachW(n, pcCondition)
+	def AddToEachW(_n_, pcCondition)
 
 		# Checking params
 
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
@@ -4539,40 +4539,40 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
-		oCCode = StzCCodeQ(pcCondition)
-		aSection = oCCode.ExecutableSection()
+		_oCCode_ = StzCCodeQ(pcCondition)
+		_aSection_ = _oCCode_.ExecutableSection()
 
-		nStart = aSection[1]
+		_nStart_ = _aSection_[1]
 
-		nEnd = aSection[2]
-		if isString(nEnd) and nEnd = :Last
-			nEnd = nLen
+		_nEnd_ = _aSection_[2]
+		if isString(_nEnd_) and _nEnd_ = :Last
+			_nEnd_ = _nLen_
 		ok
 
-		cCode = oCCode.Transpiled()
-		cCode = 'bOk = (' + cCode + ')'
+		_cCode_ = _oCCode_.Transpiled()
+		_cCode_ = 'bOk = (' + _cCode_ + ')'
 
-		anResult = []
+		_anResult_ = []
 
-		for @i = nStart to nEnd
-			eval(cCode)
+		for @i = _nStart_ to _nEnd_
+			eval(_cCode_)
 			if bOk
-				anResult + (anContent[@i] + n)
+				_anResult_ + (_anContent_[@i] + _n_)
 			ok
 		next
 
-		This.Update( anResult )
+		This.Update( _anResult_ )
 
 		#< @FunctionFluentForm
 
-		def AddToEachWQ(n)
-			This.AddToEachW(n)
+		def AddToEachWQ(_n_)
+			This.AddToEachW(_n_)
 			return This
 
 		#>
@@ -4580,9 +4580,9 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add alternatives
 
-	def AddedToEachW(n)
-		aResult = This.Copy().AddToEachWQ(n).Content()
-		return aResult
+	def AddedToEachW(_n_)
+		_aResult_ = This.Copy().AddToEachWQ(_n_).Content()
+		return _aResult_
 
 		#TODO
 		# Add alternatives
@@ -4591,19 +4591,19 @@ class stzListOfNumbers from stzList
 	 #   SubStruct NUMBER FROM EACH UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------#
 
-	def SubStructFromEachW(n, pcCondition)
-		This.AddToEachW(-n, pcCondition)
+	def SubStructFromEachW(_n_, pcCondition)
+		This.AddToEachW(-_n_, pcCondition)
 
-		def SubStructFromEachWQ(n)
-			This.SubStructFromEachW(n)
+		def SubStructFromEachWQ(_n_)
+			This.SubStructFromEachW(_n_)
 			return This
 
 		#TODO
 		# Add alternatives
 
-	def SubStructedFromEachW(n)
-		aResult = This.Copy().SubStructFromEachWQ(n).Content()
-		return aResult
+	def SubStructedFromEachW(_n_)
+		_aResult_ = This.Copy().SubStructFromEachWQ(_n_).Content()
+		return _aResult_
 	
 		#TODO
 		# Add alternatives
@@ -4612,12 +4612,12 @@ class stzListOfNumbers from stzList
 	 #   MULTIPLYING NUMBERS BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
-	def MultiplyEachWithW(n, pcCondition)
+	def MultiplyEachWithW(_n_, pcCondition)
 
 		# Checking params
 
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
@@ -4632,40 +4632,40 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen = 0
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ = 0
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
-		oCCode = StzCCodeQ(pcCondition)
-		aSection = oCCode.ExecutableSection()
+		_oCCode_ = StzCCodeQ(pcCondition)
+		_aSection_ = _oCCode_.ExecutableSection()
 
-		nStart = aSection[1]
+		_nStart_ = _aSection_[1]
 
-		nEnd = aSection[2]
-		if isString(nEnd) and nEnd = :Last
-			nEnd = nLen
+		_nEnd_ = _aSection_[2]
+		if isString(_nEnd_) and _nEnd_ = :Last
+			_nEnd_ = _nLen_
 		ok
 
-		cCode = oCCode.Transpiled()
-		cCode = 'bOk = (' + cCode + ')'
+		_cCode_ = _oCCode_.Transpiled()
+		_cCode_ = 'bOk = (' + _cCode_ + ')'
 
-		anResult = []
+		_anResult_ = []
 
-		for @i = nStart to nEnd
-			eval(cCode)
+		for @i = _nStart_ to _nEnd_
+			eval(_cCode_)
 			if bOk
-				anResult + (anContent[@i] * n)
+				_anResult_ + (_anContent_[@i] * _n_)
 			ok
 		next
 
-		This.Update( anResult )
+		This.Update( _anResult_ )
 
 		#< @FunctionFluentForm
 
-		def MultiplyEachWithWQ(n)
-			This.MultiplyEachWithW(n)
+		def MultiplyEachWithWQ(_n_)
+			This.MultiplyEachWithW(_n_)
 			return This
 
 		#>
@@ -4673,7 +4673,7 @@ class stzListOfNumbers from stzList
 		#< @FunctionAlternativeForm
 
 		def MultiplyEachByW()
-			This.MultiplyEachWithW(n, pcCondition)
+			This.MultiplyEachWithW(_n_, pcCondition)
 
 			def MultiplyEachByWQ()
 				This.MultiplyEachByW()
@@ -4684,12 +4684,12 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add other alternatives
 
-	def EachMultipliedWithW(n)
-		aResult = This.Copy().MultiplyEachWithWQ(n).Content()
-		return aResult
+	def EachMultipliedWithW(_n_)
+		_aResult_ = This.Copy().MultiplyEachWithWQ(_n_).Content()
+		return _aResult_
 
-		def EachMultipliedByW(n)
-			return This.EachMultipliedWithW(n)
+		def EachMultipliedByW(_n_)
+			return This.EachMultipliedWithW(_n_)
 
 		#TODO
 		# Add other alternatives
@@ -4698,25 +4698,25 @@ class stzListOfNumbers from stzList
 	 #   DIVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
-	def DivideEachWithW(n, pcCondition)
-		This.MultiplyEachWithW( 1/n, pcCondition )
+	def DivideEachWithW(_n_, pcCondition)
+		This.MultiplyEachWithW( 1/_n_, pcCondition )
 
-		def DivideEachWithWQ(n)
-			This.DivideEachWithW(n)
+		def DivideEachWithWQ(_n_)
+			This.DivideEachWithW(_n_)
 			return This
 
-		def DivideEachByW(n, pcCondition)
-			This.DivideEachWithW(n, pcCondition)
+		def DivideEachByW(_n_, pcCondition)
+			This.DivideEachWithW(_n_, pcCondition)
 
 		#TODO
 		# Add alternatives
 
-	def EachDividedWithW(n)
-		aResult = This.Copy().DivideEachWithWQ(n).Content()
-		return aResult
+	def EachDividedWithW(_n_)
+		_aResult_ = This.Copy().DivideEachWithWQ(_n_).Content()
+		return _aResult_
 
-		def EachDividedByW(n)
-			return This.EachDividedWithW(n)
+		def EachDividedByW(_n_)
+			return This.EachDividedWithW(_n_)
 	
 		#TODO
 		# Add alternatives
@@ -4796,9 +4796,9 @@ class stzListOfNumbers from stzList
 	 #     REPLACING A NUMBER AT A GIVEN POSITION IN THE LIST    #
 	#-----------------------------------------------------------#
 
-	def ReplaceNumberAtPosition(n, pnNewNumber)
+	def ReplaceNumberAtPosition(_n_, pnNewNumber)
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param! n must be a number.")
 		ok
 
@@ -4810,9 +4810,9 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param! pnNewNumber must be a number.")
 		ok
 
-		anContent = This.Content()
-		anContent[n] = pnNewNumber
-		This.UpdateWith(anContent)
+		_anContent_ = This.Content()
+		_anContent_[_n_] = pnNewNumber
+		This.UpdateWith(_anContent_)
 
 
 	  #---------------------------------------#
@@ -4820,8 +4820,8 @@ class stzListOfNumbers from stzList
 	#---------------------------------------#
 
 	def Reverse()
-		aResult = This.ToStzList().Reversed()
-		This.UpdateWith( aResult )
+		_aResult_ = This.ToStzList().Reversed()
+		This.UpdateWith( _aResult_ )
 
 		def ReverseQ()
 			This.Reverse()
@@ -4835,9 +4835,9 @@ class stzListOfNumbers from stzList
 				return This
 
 	def Reversed()
-		aResult = This.Copy().ReverseQ().Content()
+		_aResult_ = This.Copy().ReverseQ().Content()
 
-		return aResult
+		return _aResult_
 
 		def NumbersReversed()
 			return This.Reversed()
@@ -4849,68 +4849,68 @@ class stzListOfNumbers from stzList
 	def ToSections()
 		/* EXAMPLE
 
-		o1 = new stzListOfNumbers([ 3, 7, 12, 15 ])
+		_o1_ = new stzListOfNumbers([ 3, 7, 12, 15 ])
 		
-		? @@( o1.ToSections() ) # Or Sectioned()
+		? @@( _o1_.ToSections() ) # Or Sectioned()
 		#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ]
 		*/
 
-		anContent = This.Content()
-		nLen = len(anContent)
-		if nLen < 2
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+		if _nLen_ < 2
 			return []
 		ok
 
-		_oChain_ = new stzList(anContent)
+		_oChain_ = new stzList(_anContent_)
 
-		anSorted = _oChain_.Sorted()
-		aSections = []
-		n = 0
+		_anSorted_ = _oChain_.Sorted()
+		_aSections_ = []
+		_n_ = 0
 
-		n1 = 1
+		_n1_ = 1
 
-		if anSorted[1] = 1
-			del(anSorted, 1)
-			nLen--
+		if _anSorted_[1] = 1
+			del(_anSorted_, 1)
+			_nLen_--
 		ok
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			
-			n2 = anSorted[i]
-			aSections + [ n1, n2 ]
-			n1 = anSorted[i] + 1
+			_n2_ = _anSorted_[i]
+			_aSections_ + [ _n1_, _n2_ ]
+			_n1_ = _anSorted_[i] + 1
 
 		next
 
-		return aSections
+		return _aSections_
 
 		def Sectioned()
 			return This.ToSections()
 
 	def ContiguousToSections()
-		anNumbers = @aContent
-		nLen = len(anNumbers)
+		_anNumbers_ = @aContent
+		_nLen_ = len(_anNumbers_)
 
-		aResult = []
-		aSection = [] + anNumbers[1]
+		_aResult_ = []
+		_aSection_ = [] + _anNumbers_[1]
 
-		anNumbers + 0 # A tactical addition to let the algorithm
+		_anNumbers_ + 0 # A tactical addition to let the algorithm
 			      # deel with the last section
 
-		for i = 2 to nLen + 1
+		for i = 2 to _nLen_ + 1
 
-			if anNumbers[i] = anNumbers[i-1] + 1
+			if _anNumbers_[i] = _anNumbers_[i-1] + 1
 				// Do nothing
 
 			else
-				aSection + anNumbers[i-1]
-				aResult + aSection
-				aSection = [] + anNumbers[i]
+				_aSection_ + _anNumbers_[i-1]
+				_aResult_ + _aSection_
+				_aSection_ = [] + _anNumbers_[i]
 
 			ok	
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4951,48 +4951,48 @@ class stzListOfNumbers from stzList
 		return len( This.Content() )
 
 	def IsContiguous()
-		nLen = This.NumberOfNumbers()
+		_nLen_ = This.NumberOfNumbers()
 
-		if nLen = 0 or nLen = 1
+		if _nLen_ = 0 or _nLen_ = 1
 			return 0
 		ok
 
-		aContent = This.Content()
+		_aContent_ = This.Content()
 
-		if nLen = 2
-			if aContent[1] = aContent[2]
+		if _nLen_ = 2
+			if _aContent_[1] = _aContent_[2]
 				return 0
 			ok
 		ok
 
 		# Case nLen > 2 (3 and more)
 
-		n1 = aContent[1]
-		n2 = aContent[2]
+		_n1_ = _aContent_[1]
+		_n2_ = _aContent_[2]
 
-		bResult = 1
+		_bResult_ = 1
 		# Loop must start at i=2 -- starting at i=3 silently skipped
 		# the gap between positions [1] and [2], so e.g. [1, 5, 6]
 		# wrongly returned contiguous (1->5 jump never checked, only
 		# the direction was set by `if n1 < n2`).
-		if n1 < n2
-			for i = 2 to nLen
-				if aContent[i] != aContent[i-1] + 1
-					bResult = 0
+		if _n1_ < _n2_
+			for i = 2 to _nLen_
+				if _aContent_[i] != _aContent_[i-1] + 1
+					_bResult_ = 0
 					exit
 				ok
 			next
 		else // n1 > n2
-			for i = 2 to nLen
-				if aContent[i] != aContent[i-1] - 1
-					bResult = 0
+			for i = 2 to _nLen_
+				if _aContent_[i] != _aContent_[i-1] - 1
+					_bResult_ = 0
 					exit
 				ok
 			next
 
 		ok
 
-		return bResult
+		return _bResult_
 
 		def IsContinuous()
 			return This.IsContiguous()
@@ -5002,10 +5002,10 @@ class stzListOfNumbers from stzList
 	#=========================================#
 
 	def ARandomNumber()
-		nRandom  = ARandomNumberBetween(1, This.NumberOfNumbers())
-		anResult = This.Content()[nRandom]
+		_nRandom_  = ARandomNumberBetween(1, This.NumberOfNumbers())
+		_anResult_ = This.Content()[_nRandom_]
 
-		return anResult
+		return _anResult_
 
 		def ANumber()
 			return ARandomNumber()
@@ -5019,97 +5019,97 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def ARandomNumberZ()
-		nRandom  = ARandomNumberBetween(1, This.NumberOfNumbers())
-		aResult = [ This.Content()[nRandom], nRandom ]
+		_nRandom_  = ARandomNumberBetween(1, This.NumberOfNumbers())
+		_aResult_ = [ This.Content()[_nRandom_], _nRandom_ ]
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------------#
 	 #  GETTING A RANDOM NUMBER FROM THE LIST LESS THAN A GIVEN NUMBER  #
 	#------------------------------------------------------------------#
 
-	def ANumberLessThan(nNumber)
-		nResult = This.NumbersLessThanQRT(nNumber, :stzListOfNumbers).ARandomNumber()
-		return nResult
+	def ANumberLessThan(_nNumber_)
+		_nResult_ = This.NumbersLessThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumber()
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberLessThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def AnyNumberLessThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
-		def NumberLessThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def NumberLessThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
 		#--
 
-		def ARandomNumberLessThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def ARandomNumberLessThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
-		def RandomNumberLessThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def RandomNumberLessThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
 		#==
 
-		def ANumberSmallerThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def ANumberSmallerThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
-		def AnyNumberSmallerThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def AnyNumberSmallerThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
-		def NumberSmallerThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def NumberSmallerThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
 		#--
 
-		def ARandomNumberSmallerThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def ARandomNumberSmallerThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
-		def RandomNumberSmallerThan(nNumber)
-			return This.ANumberLessThan(nNumber)
+		def RandomNumberSmallerThan(_nNumber_)
+			return This.ANumberLessThan(_nNumber_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def ANumberLessThanZ(nNumber)
-		aResult = This.NumbersLessThanQRT(nNumber, :stzListOfNumbers).ARandomNumberZ()
+	def ANumberLessThanZ(_nNumber_)
+		_aResult_ = This.NumbersLessThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberLessThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def AnyNumberLessThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
-		def NumberLessThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def NumberLessThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
 		#--
 
-		def ARandomNumberLessThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def ARandomNumberLessThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
-		def RandomNumberLessThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def RandomNumberLessThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
 		#==
 
-		def ANumberSmallerThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def ANumberSmallerThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
-		def AnyNumberSmallerThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def AnyNumberSmallerThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
-		def NumberSmallerThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def NumberSmallerThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
 		#--
 
-		def ARandomNumberSmallerThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def ARandomNumberSmallerThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
-		def RandomNumberSmallerThanZ(nNumber)
-			return This.ANumberLessThanZ(nNumber)
+		def RandomNumberSmallerThanZ(_nNumber_)
+			return This.ANumberLessThanZ(_nNumber_)
 
 		#>
 
@@ -5117,111 +5117,111 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LIST GREATER THAN A GIVEN NUMBER  #
 	#---------------------------------------------------------------------#
 
-	def ANumberGreaterThan(nNumber)
-		nResult = This.NumbersGreaterThanQRT(nNumber, :stzListOfNumbers).ARandomNumber()
-		return nResult
+	def ANumberGreaterThan(_nNumber_)
+		_nResult_ = This.NumbersGreaterThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumber()
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberGreaterThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def AnyNumberGreaterThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
-		def NumberGreaterThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
-
-		#--
-
-		def ARandomNumberGreaterThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
-
-		def RandomNumberGreaterThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def NumberGreaterThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
 		#--
 
-		def ANumberLargerThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def ARandomNumberGreaterThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
-		def AnyNumberLargerThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
-
-		def NumberLargerThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
-
-		def ARandomNumberLargerThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
-
-		def RandomNumberLargerThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def RandomNumberGreaterThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
 		#--
 
-		def AnyNumberMoreThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def ANumberLargerThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
-		def NumberMoreThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def AnyNumberLargerThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
-		def ARandomNumberMoreThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def NumberLargerThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
-		def RandomNumberMoreThan(nNumber)
-			return This.ANumberGreaterThan(nNumber)
+		def ARandomNumberLargerThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
+
+		def RandomNumberLargerThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
+
+		#--
+
+		def AnyNumberMoreThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
+
+		def NumberMoreThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
+
+		def ARandomNumberMoreThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
+
+		def RandomNumberMoreThan(_nNumber_)
+			return This.ANumberGreaterThan(_nNumber_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def ANumberGreaterThanZ(nNumber)
-		aResult = This.NumbersGreaterThanQRT(nNumber, :stzListOfNumbers).ARandomNumberZ()
-		return aResult
+	def ANumberGreaterThanZ(_nNumber_)
+		_aResult_ = This.NumbersGreaterThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberGreaterThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def AnyNumberGreaterThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
-		def NumberGreaterThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
-
-		#--
-
-		def ARandomNumberGreaterThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
-
-		def RandomNumberGreaterThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def NumberGreaterThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
 		#--
 
-		def ANumberLargerThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def ARandomNumberGreaterThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
-		def AnyNumberLargerThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
-
-		def NumberLargerThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
-
-		def ARandomNumberLargerThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
-
-		def RandomNumberLargerThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def RandomNumberGreaterThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
 		#--
 
-		def AnyNumberMoreThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def ANumberLargerThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
-		def NumberMoreThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def AnyNumberLargerThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
-		def ARandomNumberMoreThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def NumberLargerThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
-		def RandomNumberMoreThanZ(nNumber)
-			return This.ANumberGreaterThanZ(nNumber)
+		def ARandomNumberLargerThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
+
+		def RandomNumberLargerThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
+
+		#--
+
+		def AnyNumberMoreThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
+
+		def NumberMoreThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
+
+		def ARandomNumberMoreThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
+
+		def RandomNumberMoreThanZ(_nNumber_)
+			return This.ANumberGreaterThanZ(_nNumber_)
 
 		#>
 
@@ -5229,66 +5229,66 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER (OTHER THAN)  #
 	#==================================================================#
 
-	def AnyNumberBeforeOrAfter(n) # Or AnyNumberOtherThan()
-		if isList(n) and Q(n).IsPositionNamedParam()
-			n = n[2]
+	def AnyNumberBeforeOrAfter(_n_) # Or AnyNumberOtherThan()
+		if isList(_n_) and Q(_n_).IsPositionNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		nPos = 0
+		_nPos_ = 0
 		if random(1) = 0
-			nPos = This.AnyNumberBefore(n)
+			_nPos_ = This.AnyNumberBefore(_n_)
 
 		else
-			nPos = This.AnyNumberAfter(n)
+			_nPos_ = This.AnyNumberAfter(_n_)
 		ok
 
-		nResult = This.Item(nPos)
-		return nResult
+		_nResult_ = This.Item(_nPos_)
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberAfterOrBefore(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def AnyNumberAfterOrBefore(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def ANumberBeforeOrAfter(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def ANumberBeforeOrAfter(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def ANumberAfterOrBefore(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def ANumberAfterOrBefore(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def NumberBeforeOrAfter(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def NumberBeforeOrAfter(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def NumberAfterOrBefore(n)
-			return This.AnyNumberBeforeOrAfter(n)
-
-		#--
-
-		def AnyNumberOtherThan(n)
-			return This.AnyNumberBeforeOrAfter(n)
-
-		def ANumberOtherThan(n)
-			return This.AnyNumberBeforeOrAfter(n)
-
-		def NumberOtherThan(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def NumberAfterOrBefore(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
 		#--
 
-		def ARandoomNumberAfterOrBefore(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def AnyNumberOtherThan(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def RandomNumberBeforeOrAfter(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def ANumberOtherThan(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def RandomNumberAfterOrBefore(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def NumberOtherThan(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
-		def ARandomNumberOtherThan(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		#--
 
-		def RandomNumberOtherThan(n)
-			return This.AnyNumberBeforeOrAfter(n)
+		def ARandoomNumberAfterOrBefore(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
+
+		def RandomNumberBeforeOrAfter(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
+
+		def RandomNumberAfterOrBefore(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
+
+		def ARandomNumberOtherThan(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
+
+		def RandomNumberOtherThan(_n_)
+			return This.AnyNumberBeforeOrAfter(_n_)
 
 		#--
 	
@@ -5332,66 +5332,66 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBeforeOrAfterZ(n) # Or AnyNumberOtherThan()
-		if isList(n) and Q(n).IsPositionNamedParam()
-			n = n[2]
+	def AnyNumberBeforeOrAfterZ(_n_) # Or AnyNumberOtherThan()
+		if isList(_n_) and Q(_n_).IsPositionNamedParam()
+			_n_ = _n_[2]
 		ok
 
-		nPos = 0
+		_nPos_ = 0
 		if random(1) = 0
-			nPos = This.AnyNumberBefore(n)
+			_nPos_ = This.AnyNumberBefore(_n_)
 
 		else
-			nPos = This.AnyNumberAfter(n)
+			_nPos_ = This.AnyNumberAfter(_n_)
 		ok
 
-		aResult = [ This.Item(nPos), nPos ]
-		return aResult
+		_aResult_ = [ This.Item(_nPos_), _nPos_ ]
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def AnyNumberAfterOrBeforeZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def AnyNumberAfterOrBeforeZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def ANumberBeforeOrAfterZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def ANumberBeforeOrAfterZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def ANumberAfterOrBeforeZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def ANumberAfterOrBeforeZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def NumberBeforeOrAfterZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def NumberBeforeOrAfterZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def NumberAfterOrBeforeZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
-
-		#--
-
-		def AnyNumberOtherThanZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
-
-		def ANumberOtherThanZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
-
-		def NumberOtherThanZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def NumberAfterOrBeforeZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
 		#--
 
-		def ARandoomNumberAfterOrBeforeZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def AnyNumberOtherThanZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def RandomNumberBeforeOrAfterZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def ANumberOtherThanZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def RandomNumberAfterOrBeforeZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def NumberOtherThanZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
-		def ARandomNumberOtherThanZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		#--
 
-		def RandomNumberOtherThanZ(n)
-			return This.AnyNumberBeforeOrAfterZ(n)
+		def ARandoomNumberAfterOrBeforeZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
+
+		def RandomNumberBeforeOrAfterZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
+
+		def RandomNumberAfterOrBeforeZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
+
+		def ARandomNumberOtherThanZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
+
+		def RandomNumberOtherThanZ(_n_)
+			return This.AnyNumberBeforeOrAfterZ(_n_)
 
 		#--
 	
@@ -5437,65 +5437,65 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER BEFORE A GIVEN NUMBER OR POSITION  #
 	#--------------------------------------------------------#
 
-	def AnyNumberBefore(n)
-		if isList(n) and Q(n).IsPositionNamedParam(n)
-			return This.AnyNumberBeforePosition(n)
+	def AnyNumberBefore(_n_)
+		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFindFirst( This.Content(), n)
-		nResult = This.AnyNumberBeforePosition(nPos)
+		_nPos_ = StzFindFirst( This.Content(), _n_)
+		_nResult_ = This.AnyNumberBeforePosition(_nPos_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBefore(n)
-			return This.AnyNumberBefore(n)
+		def ANumberBefore(_n_)
+			return This.AnyNumberBefore(_n_)
 
-		def NumberBefore(n)
-			return This.AnyNumberBefore(n)
+		def NumberBefore(_n_)
+			return This.AnyNumberBefore(_n_)
 
-		def ARandomNumberBefore(n)
-			return This.AnyNumberBefore(n)
+		def ARandomNumberBefore(_n_)
+			return This.AnyNumberBefore(_n_)
 
-		def RandomNumberBefore(n)
-			return This.AnyNumberBefore(n)
+		def RandomNumberBefore(_n_)
+			return This.AnyNumberBefore(_n_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBeforeZ(n)
-		if isList(n) and Q(n).IsPositionNamedParam(n)
-			return This.AnyNumberBeforePosition(n)
+	def AnyNumberBeforeZ(_n_)
+		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFindFirst( This.Content(), n)
-		aResult = This.AnyNumberBeforePositionZ(nPos)
+		_nPos_ = StzFindFirst( This.Content(), _n_)
+		_aResult_ = This.AnyNumberBeforePositionZ(_nPos_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBeforeZ(n)
-			return This.AnyNumberBeforeZ(n)
+		def ANumberBeforeZ(_n_)
+			return This.AnyNumberBeforeZ(_n_)
 
-		def NumberBeforeZ(n)
-			return This.AnyNumberBeforeZ(n)
+		def NumberBeforeZ(_n_)
+			return This.AnyNumberBeforeZ(_n_)
 
-		def ARandomNumberBeforeZ(n)
-			return This.AnyNumberBeforeZ(n)
+		def ARandomNumberBeforeZ(_n_)
+			return This.AnyNumberBeforeZ(_n_)
 
-		def RandomNumberBeforeZ(n)
-			return This.AnyNumberBeforeZ(n)
+		def RandomNumberBeforeZ(_n_)
+			return This.AnyNumberBeforeZ(_n_)
 
 		#>
 
@@ -5503,85 +5503,85 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER BEFORE A GIVEN POSITION  #
 	#----------------------------------------------#
 
-	def AnyNumberBeforePosition(n)
-		if NOT isNumber(n)
+	def AnyNumberBeforePosition(_n_)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfNumbers()
+		_nLen_ = This.NumberOfNumbers()
 		
-		if n <= 1 or n > nLen
+		if _n_ <= 1 or _n_ > _nLen_
 			StzRaise("Index out of range!")
 		ok
 
-		if n = 2
+		if _n_ = 2
 			return This.Number(1)
 		ok
 
-		nRandom = random(n - 1)
-		if nRandom = 0
-			nRandom = 1
+		_nRandom_ = random(_n_ - 1)
+		if _nRandom_ = 0
+			_nRandom_ = 1
 		ok
 
-		nResult = This.Number(nRandom)
+		_nResult_ = This.Number(_nRandom_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBeforePosition(n)
-			return This.AnyNumberBeforePosition(n)
+		def ANumberBeforePosition(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 
-		def NumberBeforePosition(n)
-			return This.AnyNumberBeforePosition(n)
+		def NumberBeforePosition(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 
-		def ARandomNumberBeforePosition(n)
-			return This.AnyNumberBeforePosition(n)
+		def ARandomNumberBeforePosition(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 
-		def RandomNumberBeforePosition(n)
-			return This.AnyNumberBeforePosition(n)
+		def RandomNumberBeforePosition(_n_)
+			return This.AnyNumberBeforePosition(_n_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBeforePositionZ(n)
-		if NOT isNumber(n)
+	def AnyNumberBeforePositionZ(_n_)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfNumbers()
+		_nLen_ = This.NumberOfNumbers()
 		
-		if n <= 1 or n > nLen
+		if _n_ <= 1 or _n_ > _nLen_
 			StzRaise("Index out of range!")
 		ok
 
-		if n = 2
+		if _n_ = 2
 			return This.Number(1)
 		ok
 
-		nRandom = random(n - 1)
-		if nRandom = 0
-			nRandom = 1
+		_nRandom_ = random(_n_ - 1)
+		if _nRandom_ = 0
+			_nRandom_ = 1
 		ok
 
-		aResult = [ This.Number(nRandom), nRandom ]
+		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBeforePositionZ(n)
-			return This.AnyNumberBeforePositionZ(n)
+		def ANumberBeforePositionZ(_n_)
+			return This.AnyNumberBeforePositionZ(_n_)
 
-		def NumberBeforePositionZ(n)
-			return This.AnyNumberBeforePositionZ(n)
+		def NumberBeforePositionZ(_n_)
+			return This.AnyNumberBeforePositionZ(_n_)
 
-		def ARandomNumberBeforePositionZ(n)
-			return This.AnyNumberBeforePositionZ(n)
+		def ARandomNumberBeforePositionZ(_n_)
+			return This.AnyNumberBeforePositionZ(_n_)
 
-		def RandomNumberBeforePositionZ(n)
-			return This.AnyNumberBeforePositionZ(n)
+		def RandomNumberBeforePositionZ(_n_)
+			return This.AnyNumberBeforePositionZ(_n_)
 
 		#>
 
@@ -5589,12 +5589,12 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER AFTER A GIVEN NUMBER OR POSITION  #
 	#-------------------------------------------------------#
 
-	def AnyNumberAfter(n)
-		if isList(n) and Q(n).IsPositionNamedParam(n)
-			return This.AnyNumberAfterPosition(n)
+	def AnyNumberAfter(_n_)
+		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -5605,7 +5605,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't proceed! The list of numbers is empty.")
 		ok
 
-		if ring_find(_anContent_, n) = 0
+		if ring_find(_anContent_, _n_) = 0
 			stzRaise("Can't proceed! The number you provided does not exist in the list.")
 		ok
 
@@ -5615,56 +5615,56 @@ class stzListOfNumbers from stzList
 			_anReverse_ + _anContent_[i]
 		next
 
-		_nPos_ = ring_find( _anReverse_, n )
-		nResult = This.AnyNumberAfterPosition(nPos)
+		_nPos_ = ring_find( _anReverse_, _n_ )
+		_nResult_ = This.AnyNumberAfterPosition(_nPos_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberAfter(n)
-			return This.AnyNumberAfter(n)
+		def ANumberAfter(_n_)
+			return This.AnyNumberAfter(_n_)
 
-		def NumberAfter(n)
-			return This.AnyNumberAfter(n)
+		def NumberAfter(_n_)
+			return This.AnyNumberAfter(_n_)
 
-		def ARandomNumberAfter(n)
-			return This.AnyNumberAfter(n)
+		def ARandomNumberAfter(_n_)
+			return This.AnyNumberAfter(_n_)
 
-		def RandomNumberAfter(n)
-			return This.AnyNumberAfter(n)
+		def RandomNumberAfter(_n_)
+			return This.AnyNumberAfter(_n_)
 
 		#>
 
 	# Z/EXTENDED FORM
 
-	def AnyNumberAfterZ(n)
-		if isList(n) and Q(n).IsPositionNamedParam(n)
-			return This.AnyNumberAfterPosition(n)
+	def AnyNumberAfterZ(_n_)
+		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFindFirst( new stzList(This.Content()).Reversed(), n )
-		aResult = This.AnyNumberAfterPositionZ(nPos)
+		_nPos_ = StzFindFirst( new stzList(This.Content()).Reversed(), _n_ )
+		_aResult_ = This.AnyNumberAfterPositionZ(_nPos_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberAfterZ(n)
-			return This.AnyNumberAfterZ(n)
+		def ANumberAfterZ(_n_)
+			return This.AnyNumberAfterZ(_n_)
 
-		def NumberAfterZ(n)
-			return This.AnyNumberAfterZ(n)
+		def NumberAfterZ(_n_)
+			return This.AnyNumberAfterZ(_n_)
 
-		def ARandomNumberAfterZ(n)
-			return This.AnyNumberAfterZ(n)
+		def ARandomNumberAfterZ(_n_)
+			return This.AnyNumberAfterZ(_n_)
 
-		def RandomNumberAfterZ(n)
-			return This.AnyNumberAfterZ(n)
+		def RandomNumberAfterZ(_n_)
+			return This.AnyNumberAfterZ(_n_)
 
 		#>
 
@@ -5672,88 +5672,88 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER AFETR A GIVEN POSITION  #
 	#---------------------------------------------#
 
-	def AnyNumberAfterPosition(n)
-		if NOT isNumber(n)
+	def AnyNumberAfterPosition(_n_)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfNumbers()
+		_nLen_ = This.NumberOfNumbers()
 
-		if n < 1 or n >= nLen
+		if _n_ < 1 or _n_ >= _nLen_
 			StzRaise("Index out of range!")
 		ok
 
-		if n = nLen - 1
-			return This.Number(nLen)
+		if _n_ = _nLen_ - 1
+			return This.Number(_nLen_)
 		ok
 
-		n--
-		nRandom = random(n)
-		if nRandom = 0
-			nRandom = 1
+		_n_--
+		_nRandom_ = random(_n_)
+		if _nRandom_ = 0
+			_nRandom_ = 1
 		ok
 
-		nResult = This.Number(n + nRandom - 1)
+		_nResult_ = This.Number(_n_ + _nRandom_ - 1)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberAfterPosition(n)
-			return This.AnyNumberAfterPosition(n)
+		def ANumberAfterPosition(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 
-		def NumberAfterPosition(n)
-			return This.AnyNumberAfterPosition(n)
+		def NumberAfterPosition(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 
-		def ARandomNumberAfterPosition(n)
-			return This.AnyNumberAfterPosition(n)
+		def ARandomNumberAfterPosition(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 
-		def RandomNumberAfterPosition(n)
-			return This.AnyNumberAfterPosition(n)
+		def RandomNumberAfterPosition(_n_)
+			return This.AnyNumberAfterPosition(_n_)
 
 		#>
 
 	# Z/EXTENDED FORM
 
-	def AnyNumberAfterPositionZ(n)
-		if NOT isNumber(n)
+	def AnyNumberAfterPositionZ(_n_)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfNumbers()
+		_nLen_ = This.NumberOfNumbers()
 
-		if n < 1 or n >= nLen
+		if _n_ < 1 or _n_ >= _nLen_
 			StzRaise("Index out of range!")
 		ok
 
-		if n = nLen - 1
-			return This.Number(nLen)
+		if _n_ = _nLen_ - 1
+			return This.Number(_nLen_)
 		ok
 
-		n--
-		nRandom = random(n)
-		if nRandom = 0
-			nRandom = 1
+		_n_--
+		_nRandom_ = random(_n_)
+		if _nRandom_ = 0
+			_nRandom_ = 1
 		ok
 
-		nPos = n + nRandom - 1
-		aResult = [ This.Number(nPos), nPos ]
+		_nPos_ = _n_ + _nRandom_ - 1
+		_aResult_ = [ This.Number(_nPos_), _nPos_ ]
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberAfterPositionZ(n)
-			return This.AnyNumberAfterPositionZ(n)
+		def ANumberAfterPositionZ(_n_)
+			return This.AnyNumberAfterPositionZ(_n_)
 
-		def NumberAfterPositionZ(n)
-			return This.AnyNumberAfterPositionZ(n)
+		def NumberAfterPositionZ(_n_)
+			return This.AnyNumberAfterPositionZ(_n_)
 
-		def ARandomNumberAfterPositionZ(n)
-			return This.AnyNumberAfterPositionZ(n)
+		def ARandomNumberAfterPositionZ(_n_)
+			return This.AnyNumberAfterPositionZ(_n_)
 
-		def RandomNumberAfterPositionZ(n)
-			return This.AnyNumberAfterPositionZ(n)
+		def RandomNumberAfterPositionZ(_n_)
+			return This.AnyNumberAfterPositionZ(_n_)
 
 		#>
 
@@ -5761,75 +5761,75 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER NUMBERS  #
 	#--------------------------------------------------------------------#
 
-	def AnyNumberBetween(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberBetween(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersBetween(n1, n2)
-		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
+		_anNumbers_ = This.NumbersBetween(_n1_, _n2_)
+		_nResult_ = ARandomNumberIn(_anNumbers_) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBetween(n1, n2)
-			return This.AnyNumberBetween(n1, n2)
+		def ANumberBetween(_n1_, _n2_)
+			return This.AnyNumberBetween(_n1_, _n2_)
 
-		def NumberBetween(n1, n2)
-			return This.AnyNumberBetween(n1, n2)
+		def NumberBetween(_n1_, _n2_)
+			return This.AnyNumberBetween(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberBetween(n1, n2)
-			return This.AnyNumberBetween(n1, n2)
+		def ARandomNumberBetween(_n1_, _n2_)
+			return This.AnyNumberBetween(_n1_, _n2_)
 
-		def RandomNumberBetween(n1, n2)
-			return This.AnyNumberBetween(n1, n2)
+		def RandomNumberBetween(_n1_, _n2_)
+			return This.AnyNumberBetween(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBetweenZ(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberBetweenZ(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersBetween(n1, n2)
-		aResult = ARandomNumberInZ(anNumbers)
+		_anNumbers_ = This.NumbersBetween(_n1_, _n2_)
+		_aResult_ = ARandomNumberInZ(_anNumbers_)
 		
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBetweenZ(n1, n2)
-			return This.AnyNumberBetweenZ(n1, n2)
+		def ANumberBetweenZ(_n1_, _n2_)
+			return This.AnyNumberBetweenZ(_n1_, _n2_)
 
-		def NumberBetweenZ(n1, n2)
-			return This.AnyNumberBetweenZ(n1, n2)
+		def NumberBetweenZ(_n1_, _n2_)
+			return This.AnyNumberBetweenZ(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberBetweenZ(n1, n2)
-			return This.AnyNumberBetweenZ(n1, n2)
+		def ARandomNumberBetweenZ(_n1_, _n2_)
+			return This.AnyNumberBetweenZ(_n1_, _n2_)
 
-		def RandomNumberBetweenZ(n1, n2)
-			return This.AnyNumberBetweenZ(n1, n2)
+		def RandomNumberBetweenZ(_n1_, _n2_)
+			return This.AnyNumberBetweenZ(_n1_, _n2_)
 
 		#>
 
@@ -5837,109 +5837,109 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER NUMBERS -- INCLUDING BOUNDS #
 	#---------------------------------------------------------------------------------------#
 
-	def AnyNumberBetweenIB(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberBetweenIB(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersBetweenIB(n1, n2)
-		nResult = ARandomNumberIn(anNumbers)
+		_anNumbers_ = This.NumbersBetweenIB(_n1_, _n2_)
+		_nResult_ = ARandomNumberIn(_anNumbers_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBetweenIB(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		def ANumberBetweenIB(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
-		def NumberBetweenIB(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
-
-		#--
-
-		def AnyNumberBetweenXT(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
-
-		def ANumberBetweenXT(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
-
-		def NumberBetweenXT(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		def NumberBetweenIB(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberBetweenIB(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		def AnyNumberBetweenXT(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
-		def RandomNumberBetweenIB(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		def ANumberBetweenXT(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
-		def ARandomNumberBetweenXT(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		def NumberBetweenXT(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
-		def RandomNumberBetweenXT(n1, n2)
-			return This.AnyNumberBetweenIB(n1, n2)
+		#--
+
+		def ARandomNumberBetweenIB(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
+
+		def RandomNumberBetweenIB(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
+
+		def ARandomNumberBetweenXT(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
+
+		def RandomNumberBetweenXT(_n1_, _n2_)
+			return This.AnyNumberBetweenIB(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBetweenIBZ(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberBetweenIBZ(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersBetweenIB(n1, n2)
-		aResult = ARandomNumberInZ(anNumbers)
+		_anNumbers_ = This.NumbersBetweenIB(_n1_, _n2_)
+		_aResult_ = ARandomNumberInZ(_anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberBetweenIBZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		def ANumberBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
-		def NumberBetweenIBZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
-
-		#--
-
-		def AnyNumberBetweenXTZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
-
-		def ANumberBetweenXTZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
-
-		def NumberBetweenXTZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		def NumberBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberBetweenIBZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		def AnyNumberBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
-		def RandomNumberBetweenIBZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		def ANumberBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
-		def ARandomNumberBetweenXTZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		def NumberBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
-		def RandomNumberBetweenXTZ(n1, n2)
-			return This.AnyNumberBetweenIBZ(n1, n2)
+		#--
+
+		def ARandomNumberBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
+
+		def RandomNumberBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
+
+		def ARandomNumberBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
+
+		def RandomNumberBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberBetweenIBZ(_n1_, _n2_)
 
 		#>
 
@@ -5947,75 +5947,75 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER NUMBERS  #
 	#-----------------------------------------------------------------------#
 
-	def AnyNumberNotBetween(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberNotBetween(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersNotBetween(n1, n2) #TODO
-		nResult = ARandomNumberIn(anNumbers)
+		_anNumbers_ = This.NumbersNotBetween(_n1_, _n2_) #TODO
+		_nResult_ = ARandomNumberIn(_anNumbers_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberNotBetween(n1, n2)
-			return This.AnyNumberNotBetween(n1, n2)
+		def ANumberNotBetween(_n1_, _n2_)
+			return This.AnyNumberNotBetween(_n1_, _n2_)
 
-		def NumberNotBetween(n1, n2)
-			return This.AnyNumberNotBetween(n1, n2)
+		def NumberNotBetween(_n1_, _n2_)
+			return This.AnyNumberNotBetween(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberNotBetween(n1, n2)
-			return This.AnyNumberNotBetween(n1, n2)
+		def ARandomNumberNotBetween(_n1_, _n2_)
+			return This.AnyNumberNotBetween(_n1_, _n2_)
 
-		def RandomNumberNotBetween(n1, n2)
-			return This.AnyNumberNotBetween(n1, n2)
+		def RandomNumberNotBetween(_n1_, _n2_)
+			return This.AnyNumberNotBetween(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberNotBetweenZ(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberNotBetweenZ(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersNotBetween(n1, n2)
-		aResult = ARandomNumberInZ(anNumbers)
+		_anNumbers_ = This.NumbersNotBetween(_n1_, _n2_)
+		_aResult_ = ARandomNumberInZ(_anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberNotBetweenZ(n1, n2)
-			return This.AnyNumberNotBetweenZ(n1, n2)
+		def ANumberNotBetweenZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenZ(_n1_, _n2_)
 
-		def NumberNotBetweenZ(n1, n2)
-			return This.AnyNumberNotBetweenZ(n1, n2)
+		def NumberNotBetweenZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenZ(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberNotBetweenZ(n1, n2)
-			return This.AnyNumberNotBetweenZ(n1, n2)
+		def ARandomNumberNotBetweenZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenZ(_n1_, _n2_)
 
-		def RandomNumberNotBetweenZ(n1, n2)
-			return This.AnyNumberNotBetweenZ(n1, n2)
+		def RandomNumberNotBetweenZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenZ(_n1_, _n2_)
 
 		#>
 
@@ -6023,113 +6023,113 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER NUMBERS -- INCLUDING BOUNDS #
 	#-------------------------------------------------------------------------------------------#
 
-	def AnyNumberNotBetweenIB(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberNotBetweenIB(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersNotBetweenIB(n1, n2) #TODO
-		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
+		_anNumbers_ = This.NumbersNotBetweenIB(_n1_, _n2_) #TODO
+		_nResult_ = ARandomNumberIn(_anNumbers_) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberNotBetweenIB(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def ANumberNotBetweenIB(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
-		def NumberNotBetweenIB(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def NumberNotBetweenIB(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
 		#--
 
-		def AnyNumberNotBetweenXT(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def AnyNumberNotBetweenXT(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
-		def ANumberNotBetweenXT(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def ANumberNotBetweenXT(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
-		def NumberNotBetweenXT(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def NumberNotBetweenXT(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
 		#==
 
-		def ARandomNumberNotBetweenIB(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def ARandomNumberNotBetweenIB(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
-		def RandomNumberNotBetweenIB(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def RandomNumberNotBetweenIB(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberNotBetweenXT(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def ARandomNumberNotBetweenXT(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
-		def RandomNumberNotBetweenXT(n1, n2)
-			return This.AnyNumberNotBetweenIB(n1, n2)
+		def RandomNumberNotBetweenXT(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberNotBetweenIBZ(n1, n2)
-		if isList(n1) and Q(n1).IsPositionOrPositionsNamedParam()
-			return AnyNumberBetweenPositions(n1[2], n2)
+	def AnyNumberNotBetweenIBZ(_n1_, _n2_)
+		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
+			return AnyNumberBetweenPositions(_n1_[2], _n2_)
 		ok
 
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anNumbers = This.NumbersNotBetweenIB(n1, n2)
-		aResult   = ARandomNumberInZ(anNumbers)
+		_anNumbers_ = This.NumbersNotBetweenIB(_n1_, _n2_)
+		_aResult_   = ARandomNumberInZ(_anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberNotBetweenIBZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def ANumberNotBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
-		def NumberNotBetweenIBZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def NumberNotBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
 		#--
 
-		def AnyNumberNotBetweenXTZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def AnyNumberNotBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
-		def ANumberNotBetweenXTZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def ANumberNotBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
-		def NumberNotBetweenXTZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def NumberNotBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
 		#==
 
-		def ARandomNumberNotBetweenIBZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def ARandomNumberNotBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
-		def RandomNumberNotBetweenIBZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def RandomNumberNotBetweenIBZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
 		#--
 
-		def ARandomNumberNotBetweenXTZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def ARandomNumberNotBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
-		def RandomNumberNotBetweenXTZ(n1, n2)
-			return This.AnyNumberNotBetweenIBZ(n1, n2)
+		def RandomNumberNotBetweenXTZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
 		#>
 
@@ -6137,107 +6137,107 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS BETWEEN TOW OTHER POSITIONS  #
 	#----------------------------------------------------------------------#
 
-	def AnyNumberBetweenPositions(n1, n2)
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+	def AnyNumberBetweenPositions(_n1_, _n2_)
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = @Min([ n1, n2 ])
-		nMax = @Max([ n1, n2 ])
+		nMin = @Min([ _n1_, _n2_ ])
+		nMax = @Max([ _n1_, _n2_ ])
 
-		anPos = nMin : nMax
-		nRandom = AnyNumberIn(anPos)
-		nResult = This.Number(nRandom)
+		_anPos_ = nMin : nMax
+		_nRandom_ = AnyNumberIn(_anPos_)
+		_nResult_ = This.Number(_nRandom_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNumberBetweenPositions(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def RandomNumberBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def ARandomNumberBetweenPositions(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def ARandomNumberBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def ANumberBetweenPositions(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def ANumberBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def NumberBetweenPositions(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def NumberBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
 		#--
 
-		def RandomNumberInSection(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def RandomNumberInSection(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def ARandomNumberInSection(n1, n2)
-			return This.AnyNumberInSection(n1, n2)
+		def ARandomNumberInSection(_n1_, _n2_)
+			return This.AnyNumberInSection(_n1_, _n2_)
 
-		def ANumberInSection(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def ANumberInSection(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def NumberInSection(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def NumberInSection(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
-		def AnyNumberInSection(n1, n2)
-			return This.AnyNumberBetweenPositions(n1, n2)
+		def AnyNumberInSection(_n1_, _n2_)
+			return This.AnyNumberBetweenPositions(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def AnyNumberBetweenPositionsZ(n1, n2)
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+	def AnyNumberBetweenPositionsZ(_n1_, _n2_)
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = @Min([ n1, n2 ])
-		nMax = @Max([ n1, n2 ])
+		nMin = @Min([ _n1_, _n2_ ])
+		nMax = @Max([ _n1_, _n2_ ])
 
-		anPos = nMin : nMax
-		nRandom = AnyNumberIn(anPos)
-		aResult = [ This.Number(nRandom), nRandom ]
+		_anPos_ = nMin : nMax
+		_nRandom_ = AnyNumberIn(_anPos_)
+		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNumberBetweenPositionsZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def RandomNumberBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def ARandomNumberBetweenPositionsZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def ARandomNumberBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def ANumberBetweenPositionsZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def ANumberBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def NumberBetweenPositionsZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def NumberBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
 		#--
 
-		def RandomNumberInSectionZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def RandomNumberInSectionZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def ARandomNumberInSectionZ(n1, n2)
-			return This.AnyNumberInSectionZ(n1, n2)
+		def ARandomNumberInSectionZ(_n1_, _n2_)
+			return This.AnyNumberInSectionZ(_n1_, _n2_)
 
-		def ANumberInSectionZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def ANumberInSectionZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def NumberInSectionZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def NumberInSectionZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
-		def AnyNumberInSectionZ(n1, n2)
-			return This.AnyNumberBetweenPositionsZ(n1, n2)
+		def AnyNumberInSectionZ(_n1_, _n2_)
+			return This.AnyNumberBetweenPositionsZ(_n1_, _n2_)
 
 		#>
 
@@ -6245,141 +6245,141 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER POSITIONS  #
 	#--------------------------------------------------------------------------#
 
-	def AnyNumberNotBetweenPositions(n1, n2)
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+	def AnyNumberNotBetweenPositions(_n1_, _n2_)
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = @Min([ n1, n2 ])
-		nMax = @Max([ n1, n2 ])
+		nMin = @Min([ _n1_, _n2_ ])
+		nMax = @Max([ _n1_, _n2_ ])
 
-		anPos = nMin : nMax
-		nRandom = AnyNumberNotIn(anPos) #TODO
-		nResult = This.Number(nRandom)
+		_anPos_ = nMin : nMax
+		_nRandom_ = AnyNumberNotIn(_anPos_) #TODO
+		_nResult_ = This.Number(_nRandom_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNumberNotBetweenPositions(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def RandomNumberNotBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def ARandomNumberNotBetweenPositions(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def ARandomNumberNotBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def ANumberNotBetweenPositions(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def ANumberNotBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def NumberNotBetweenPositions(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
-
-		#--
-
-		def RandomNumberNotInSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
-
-		def ARandomNumberNotInSection(n1, n2)
-			return This.AnyNumberNotInSection(n1, n2)
-
-		def ANumberNotInSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
-
-		def NumberNotInSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
-
-		def AnyNumberNotInSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def NumberNotBetweenPositions(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
 		#--
 
-		def RandomNumberOutsideSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def RandomNumberNotInSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def ARandomNumberOutsideSection(n1, n2)
-			return This.AnyNumberNotInSection(n1, n2)
+		def ARandomNumberNotInSection(_n1_, _n2_)
+			return This.AnyNumberNotInSection(_n1_, _n2_)
 
-		def ANumberOutsideSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def ANumberNotInSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def NumberOutsideSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def NumberNotInSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
-		def AnyNumberOutsideSection(n1, n2)
-			return This.AnyNumberNotBetweenPositions(n1, n2)
+		def AnyNumberNotInSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
+
+		#--
+
+		def RandomNumberOutsideSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
+
+		def ARandomNumberOutsideSection(_n1_, _n2_)
+			return This.AnyNumberNotInSection(_n1_, _n2_)
+
+		def ANumberOutsideSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
+
+		def NumberOutsideSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
+
+		def AnyNumberOutsideSection(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositions(_n1_, _n2_)
 
 		#>
 
 	#-- Z/EXTENDED FROM
 
-	def AnyNumberNotBetweenPositionsZ(n1, n2)
-		if isList(n2) and Q(n2).IsAndNamedParam()
-			n2 = n2[2]
+	def AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
+		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+			_n2_ = _n2_[2]
 		ok
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(_n1_, _n2_)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = @Min([ n1, n2 ])
-		nMax = @Max([ n1, n2 ])
+		nMin = @Min([ _n1_, _n2_ ])
+		nMax = @Max([ _n1_, _n2_ ])
 
-		anPos = nMin : nMax
-		nRandom = AnyNumberNotIn(anPos)
-		aResult = [ This.Number(nRandom), nRandom ]
+		_anPos_ = nMin : nMax
+		_nRandom_ = AnyNumberNotIn(_anPos_)
+		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNumberNotBetweenPositionsZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def RandomNumberNotBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def ARandomNumberNotBetweenPositionsZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def ARandomNumberNotBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def ANumberNotBetweenPositionsZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def ANumberNotBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def NumberNotBetweenPositionsZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
-
-		#--
-
-		def RandomNumberNotInSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
-
-		def ARandomNumberNotInSectionZ(n1, n2)
-			return This.AnyNumberNotInSectionZ(n1, n2)
-
-		def ANumberNotInSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
-
-		def NumberNotInSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
-
-		def AnyNumberNotInSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def NumberNotBetweenPositionsZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
 		#--
 
-		def RandomNumberOutsideSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def RandomNumberNotInSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def ARandomNumberOutsideSectionZ(n1, n2)
-			return This.AnyNumberNotInSectionZ(n1, n2)
+		def ARandomNumberNotInSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotInSectionZ(_n1_, _n2_)
 
-		def ANumberOutsideSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def ANumberNotInSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def NumberOutsideSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def NumberNotInSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
-		def AnyNumberOutsideSectionZ(n1, n2)
-			return This.AnyNumberNotBetweenPositionsZ(n1, n2)
+		def AnyNumberNotInSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
+
+		#--
+
+		def RandomNumberOutsideSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
+
+		def ARandomNumberOutsideSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotInSectionZ(_n1_, _n2_)
+
+		def ANumberOutsideSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
+
+		def NumberOutsideSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
+
+		def AnyNumberOutsideSectionZ(_n1_, _n2_)
+			return This.AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 
 		#>
 
@@ -6387,151 +6387,151 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER OUSIDE A GIVEN POSITION  #
 	#---------------------------------------------------#
 
-	def AnyNumberOutsidePosition(n)
-		anPositions = Q(1 : This.NumberOfItems()) - n
-		nRandom = AnyNumberIn(anPos)
-		nResult = This.Number(nRandom)
+	def AnyNumberOutsidePosition(_n_)
+		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
+		_nRandom_ = AnyNumberIn(_anPos_)
+		_nResult_ = This.Number(_nRandom_)
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberOutsidePosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def ANumberOutsidePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def NumberOutsidePosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		#--
-
-		def AnyNumberBeforeOrAfterPosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def AnyNumberAfterOrBeforePosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def ANumberBeforeOrAfterPosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def ANumberAfterOrBeforePosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def NumberBeforeOrAfterPosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def NumberAfterOrBeforePosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def NumberOutsidePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
 		#--
 
-		def ARandomNumberOutsidePosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def AnyNumberBeforeOrAfterPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def RandomNumberOutsidePosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def AnyNumberAfterOrBeforePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def ARandomNumberBeforeOrAfterPosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def ANumberBeforeOrAfterPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def ARandomNumberAfterOrBeforePosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def ANumberAfterOrBeforePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def RandomNumberBeforeOrAfterPosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def NumberBeforeOrAfterPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def RandomNumberAfterOrBeforePosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		#--
-
-		def ARandomNumberNotAtPosition(n)
-			return This.AnyNumberOutsidePosition(n)
-
-		def RandomNumberNotAtPosition(n)
-			return This.AnyNumberOutsidePosition(n)
+		def NumberAfterOrBeforePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
 		#--
 
-		def ARandomNumberNotAt(n)
-			return This.AnyNumberOutsidePosition(n)
+		def ARandomNumberOutsidePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
-		def RandomNumberNotAt(n)
-			return This.AnyNumberOutsidePosition(n)
+		def RandomNumberOutsidePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def ARandomNumberBeforeOrAfterPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def ARandomNumberAfterOrBeforePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def RandomNumberBeforeOrAfterPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def RandomNumberAfterOrBeforePosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		#--
+
+		def ARandomNumberNotAtPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def RandomNumberNotAtPosition(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		#--
+
+		def ARandomNumberNotAt(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
+
+		def RandomNumberNotAt(_n_)
+			return This.AnyNumberOutsidePosition(_n_)
 
 		#>
 
 	# Z/EXTENDED FORM
 
-	def AnyNumberOutsidePositionZ(n)
-		anPositions = Q(1 : This.NumberOfItems()) - n
-		nRandom = AnyNumberIn(anPos)
-		aResult = [ This.Number(nRandom), nRandom ]
+	def AnyNumberOutsidePositionZ(_n_)
+		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
+		_nRandom_ = AnyNumberIn(_anPos_)
+		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def ANumberOutsidePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def ANumberOutsidePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def NumberOutsidePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		#--
-
-		def AnyNumberBeforeOrAfterPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def AnyNumberAfterOrBeforePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def ANumberBeforeOrAfterPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def ANumberAfterOrBeforePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def NumberBeforeOrAfterPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def NumberAfterOrBeforePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def NumberOutsidePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
 		#--
 
-		def ARandomNumberOutsidePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def AnyNumberBeforeOrAfterPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def RandomNumberOutsidePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def AnyNumberAfterOrBeforePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def ARandomNumberBeforeOrAfterPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def ANumberBeforeOrAfterPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def ARandomNumberAfterOrBeforePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def ANumberAfterOrBeforePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def RandomNumberBeforeOrAfterPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def NumberBeforeOrAfterPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def RandomNumberAfterOrBeforePositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		#--
-
-		def ARandomNumberNotAtPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
-
-		def RandomNumberNotAtPositionZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def NumberAfterOrBeforePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
 		#--
 
-		def ARandomNumberNotAtZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def ARandomNumberOutsidePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
-		def RandomNumberNotAtZ(n)
-			return This.AnyNumberOutsidePositionZ(n)
+		def RandomNumberOutsidePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def ARandomNumberBeforeOrAfterPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def ARandomNumberAfterOrBeforePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def RandomNumberBeforeOrAfterPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def RandomNumberAfterOrBeforePositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		#--
+
+		def ARandomNumberNotAtPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def RandomNumberNotAtPositionZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		#--
+
+		def ARandomNumberNotAtZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
+
+		def RandomNumberNotAtZ(_n_)
+			return This.AnyNumberOutsidePositionZ(_n_)
 
 		#>
 
@@ -6539,85 +6539,85 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST  #
 	#------------------------------------------#
 
-	def NRandomNumbers(n)
+	def NRandomNumbers(_n_)
 
 		# Checking param n and the size of the list of numbers
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
-		if n <= 0
+		if _n_ <= 0
 			StzRaise("Can't proceed because n must be a positive number greater then 0!")
 		ok
 
-		nLen = This.NumberOfNumbers()
-		if nLen = 0
+		_nLen_ = This.NumberOfNumbers()
+		if _nLen_ = 0
 			StzRaise("Can't get random numbers because the list is empty!")
 		ok
 
-		if n > nLen
-			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ nLen +")!")
+		if _n_ > _nLen_
+			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ _nLen_ +")!")
 		ok
 
 		# Doing the job
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to n
-			anResult + ARandomNumberBetween(1, nLen)
+		for i = 1 to _n_
+			_anResult_ + ARandomNumberBetween(1, _nLen_)
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNNumbers(n)
-			return This.NRandomNumbers(n)
+		def RandomNNumbers(_n_)
+			return This.NRandomNumbers(_n_)
 
-		def NNumbers(n)
-			return This.NRandomNumbers(n)
+		def NNumbers(_n_)
+			return This.NRandomNumbers(_n_)
 
 		#>
 
 	# Z/EXTENDED FORM
 
-	def NRandomNumbersZ(n)
+	def NRandomNumbersZ(_n_)
 
 		# Checking param n and the size of the list of numbers
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
-		if n <= 0
+		if _n_ <= 0
 			StzRaise("Can't proceed because n must be a positive number greater then 0!")
 		ok
 
-		nLen = This.NumberOfNumbers()
-		if nLen = 0
+		_nLen_ = This.NumberOfNumbers()
+		if _nLen_ = 0
 			StzRaise("Can't get random numbers because the list is empty!")
 		ok
 
-		if n > nLen
-			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ nLen +")!")
+		if _n_ > _nLen_
+			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ _nLen_ +")!")
 		ok
 
 		# Doing the job
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to n
-			aResult + ARandomNumberBetweenZ(1, nLen)
+		for i = 1 to _n_
+			_aResult_ + ARandomNumberBetweenZ(1, _nLen_)
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def RandomNNumbersZ(n)
-			return This.NRandomNumbersZ(n)
+		def RandomNNumbersZ(_n_)
+			return This.NRandomNumbersZ(_n_)
 
-		def NNumbersZ(n)
-			return This.NRandomNumbersZ(n)
+		def NNumbersZ(_n_)
+			return This.NRandomNumbersZ(_n_)
 
 		#>
 
@@ -6631,63 +6631,63 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
 	#------------------------------------------------------#
 
-	def NNumbersOtherThan(n, nNumber)
-		if isList(n)
+	def NNumbersOtherThan(_n_, _nNumber_)
+		if isList(_n_)
 
-			oParam = new stzList(n)
+			_oParam_ = new stzList(_n_)
 
-			if oParam.IsPositionNamedParam()
-				return This.NNumbersOutSidePosition(n[2], nNumber)
+			if _oParam_.IsPositionNamedParam()
+				return This.NNumbersOutSidePosition(_n_[2], _nNumber_)
 
-			but oParam.IsPositionsNamedParam()
-				return This.NNumbersOutsidePositions(n[2], nNumber)
+			but _oParam_.IsPositionsNamedParam()
+				return This.NNumbersOutsidePositions(_n_[2], _nNumber_)
 
 			else
-				return This.NNumbersOutsidePositions(n, nNumber)
+				return This.NNumbersOutsidePositions(_n_, _nNumber_)
 			ok
 		ok
 
-		anPos = This.Find(n)
-		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		_anPos_ = This.Find(_n_)
+		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
 		// #TODO Make a more performant solution!
 
-		anRandoms = NRandomNumbersIn(anPos)
-		anResult = This.ItemsAtPositions(anRandoms)
+		_anRandoms_ = NRandomNumbersIn(_anPos_)
+		_anResult_ = This.ItemsAtPositions(_anRandoms_)
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
-	def NNumbersOtherThanZ(n, nNumber)
-		if isList(n)
+	def NNumbersOtherThanZ(_n_, _nNumber_)
+		if isList(_n_)
 
-			oParam = new stzList(n)
+			_oParam_ = new stzList(_n_)
 
-			if oParam.IsPositionNamedParam()
-				return This.NNumbersOutSidePosition(n[2], nNumber)
+			if _oParam_.IsPositionNamedParam()
+				return This.NNumbersOutSidePosition(_n_[2], _nNumber_)
 
-			but oParam.IsPositionsNamedParam()
-				return This.NNumbersOutsidePositions(n[2], nNumber)
+			but _oParam_.IsPositionsNamedParam()
+				return This.NNumbersOutsidePositions(_n_[2], _nNumber_)
 
 			else
-				return This.NNumbersOutsidePositions(n, nNumber)
+				return This.NNumbersOutsidePositions(_n_, _nNumber_)
 			ok
 		ok
 
-		anPos = This.Find(n)
-		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		_anPos_ = This.Find(_n_)
+		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
 		// #TODO Make a more performant solution!
 
-		anRandoms = NRandomNumbersIn(anPos)
-		nLen = len(anRandoms)
+		_anRandoms_ = NRandomNumbersIn(_anPos_)
+		_nLen_ = len(_anRandoms_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ This.ItemAtPosition(anRandoms[i]), anRandoms[i] ]
+		for i = 1 to _nLen_
+			_aResult_ + [ This.ItemAtPosition(_anRandoms_[i]), _anRandoms_[i] ]
 		next
 
-		return aResult
+		return _aResult_
 
 	# U/EXTENDED FORM (TODO)
 
@@ -6698,39 +6698,39 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
 	#-----------------------------------------------------#
 
-	def NNumbersLessThan(n, nNumber)
-		anResult = This.NumbersLessThanQ(nNumber).NRandomNumbers(n)
-		return anResult
+	def NNumbersLessThan(_n_, _nNumber_)
+		_anResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbers(_n_)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NRandomNumbersLessThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NRandomNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NNumbersSmallerThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NNumbersSmallerThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NRandomNumbersSmallerThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NRandomNumbersSmallerThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NNumbersLessThanZ(n, nNumber)
-		aResult = This.NumbersLessThanQ(nNumber).NRandomNumbersZ(n)
-		return anResult
+	def NNumbersLessThanZ(_n_, _nNumber_)
+		_aResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbersZ(_n_)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NRandomNumbersLessThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NRandomNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NNumbersSmallerThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NNumbersSmallerThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NRandomNumbersSmallerThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NRandomNumbersSmallerThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
 		#>
 
@@ -6743,51 +6743,51 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS GREATER THEN A GIVEN NUMBER  #
 	#--------------------------------------------------------#
 
-	def NNumbersGreaterThan(n, nNumber)
-		anResult = This.NumbersGreaterThanQ(nNumber).NRandomNumbers(n)
-		return anResult
+	def NNumbersGreaterThan(_n_, _nNumber_)
+		_anResult_ = This.NumbersGreaterThanQ(_nNumber_).NRandomNumbers(_n_)
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NRandomNumbersGreaterThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NRandomNumbersGreaterThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NNumbersBiggerThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NNumbersBiggerThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NRandomNumbersBiggerThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NRandomNumbersBiggerThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NNumbersMoreThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NNumbersMoreThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
-		def NRandomNumbersMoreThan(n, nNumber)
-			return This.NNumbersLessThan(n, nNumber)
+		def NRandomNumbersMoreThan(_n_, _nNumber_)
+			return This.NNumbersLessThan(_n_, _nNumber_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NNumbersGreaterThanZ(n, nNumber)
-		aResult = This.NumbersGreaterThanQ(nNumber).NRandomNumbersZ(n)
-		return aResult
+	def NNumbersGreaterThanZ(_n_, _nNumber_)
+		_aResult_ = This.NumbersGreaterThanQ(_nNumber_).NRandomNumbersZ(_n_)
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def NRandomNumbersGreaterThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NRandomNumbersGreaterThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NNumbersBiggerThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NNumbersBiggerThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NRandomNumbersBiggerThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NRandomNumbersBiggerThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NNumbersMoreThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NNumbersMoreThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
-		def NRandomNumbersMoreThanZ(n, nNumber)
-			return This.NNumbersLessThanZ(n, nNumber)
+		def NRandomNumbersMoreThanZ(_n_, _nNumber_)
+			return This.NNumbersLessThanZ(_n_, _nNumber_)
 
 		#>
 
@@ -6802,97 +6802,97 @@ class stzListOfNumbers from stzList
 	
 	// #TODO // Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
-	def NNumbersOtherThanMany(n, anNumbers)
+	def NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
+		_anPos_ = Q( 1 : This.NumberOfItems() ) - These(This.Find(_anNumbers_))
 		// #TODO Make a more performant solution!
 
-		anRandoms = NRandomNumbersIn(anPos)
-		aResult = This.ItemsAtPositions(anRandoms)
+		_anRandoms_ = NRandomNumbersIn(_anPos_)
+		_aResult_ = This.ItemsAtPositions(_anRandoms_)
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NNumbersDifferentFromMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NNumbersDifferentFromMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NNumbersDifferentToMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NNumbersDifferentToMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NNumbersDifferentWithMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NNumbersDifferentWithMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NNumbersDifferentOfMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NNumbersDifferentOfMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
 		#--
 
-		def NRandomNumbersOtherThanMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NRandomNumbersOtherThanMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentFromMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NRandomNumbersDifferentFromMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentToMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NRandomNumbersDifferentToMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentWithMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NRandomNumbersDifferentWithMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentOfMany(n, anNumbers)
-			return This.NNumbersOtherThanMany(n, anNumbers)
+		def NRandomNumbersDifferentOfMany(_n_, _anNumbers_)
+			return This.NNumbersOtherThanMany(_n_, _anNumbers_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NNumbersOtherThanManyZ(n, anNumbers)
+	def NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
+		_anPos_ = Q( 1 : This.NumberOfItems() ) - These(This.Find(_anNumbers_))
 		// #TODO Make a more performant solution!
 
-		anRandoms = NRandomNumbersIn(anPos)
-		nLen = len(aRandoms)
+		_anRandoms_ = NRandomNumbersIn(_anPos_)
+		_nLen_ = len(aRandoms)
 		
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ This.ItemAtPosition(anRandoms[i]), anRandoms[i] ]
+		for i = 1 to _nLen_
+			_aResult_ + [ This.ItemAtPosition(_anRandoms_[i]), _anRandoms_[i] ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def NNumbersDifferentFromManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NNumbersDifferentFromManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NNumbersDifferentToManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NNumbersDifferentToManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NNumbersDifferentWithManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NNumbersDifferentWithManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NNumbersDifferentOfManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NNumbersDifferentOfManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
 		#--
 
-		def NRandomNumbersOtherThanManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NRandomNumbersOtherThanManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentFromManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NRandomNumbersDifferentFromManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentToManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NRandomNumbersDifferentToManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentWithManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NRandomNumbersDifferentWithManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
-		def NRandomNumbersDifferentOfManyZ(n, anNumbers)
-			return This.NNumbersOtherThanManyZ(n, anNumbers)
+		def NRandomNumbersDifferentOfManyZ(_n_, _anNumbers_)
+			return This.NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
 		#>
 
@@ -6906,22 +6906,22 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST BETWEEN TWO GIVEN NUMBERS  #
 	#--------------------------------------------------------------------#
 
-	def NNumbersBetween(n, nMin, nMax)
-		anNumbers = This.NumbersBetween(nMin, nMax)
-		anResult = NRandomNumbersIn(n, anNumbers)
+	def NNumbersBetween(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersBetween(nMin, nMax)
+		_anResult_ = NRandomNumbersIn(_n_, _anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		def NRandomNumbersBetween(nMin, nMax)
 			return This.NNumbersBetween(nMin, nMax)
 
 	#-- Z/EXTENDED FORM
 
-	def NNumbersBetweenZ(n, nMin, nMax)
-		anNumbers = This.NumbersBetween(nMin, nMax)
-		aResult = NRandomNumbersInZ(n, anNumbers)
+	def NNumbersBetweenZ(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersBetween(nMin, nMax)
+		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		def NRandomNumbersBetweenZ(nMin, nMax)
 			return This.NNumbersBetweenZ(nMin, nMax)
@@ -6935,22 +6935,22 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#-----------------------------------------------------------------------------------#
 
-	def NNumbersBetweenIB(n, nMin, nMax)
-		anNumbers = This.NumbersBetweenIB(nMin, nMax)
-		anResult = NRandomNumbersIn(n, anNumbers)
+	def NNumbersBetweenIB(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
+		_anResult_ = NRandomNumbersIn(_n_, _anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		def NRandomNumbersBetweenIB(nMin, nMax)
 			return This.NNumbersBetweenIB(nMin, nMax)
 
 	# Z/EXTENDED FORM
 
-	def NNumbersBetweenIBZ(n, nMin, nMax)
-		anNumbers = This.NumbersBetweenIB(nMin, nMax)
-		aResult = NRandomNumbersInZ(n, anNumbers)
+	def NNumbersBetweenIBZ(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
+		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		def NRandomNumbersBetweenIBZ(nMin, nMax)
 			return This.NNumbersBetweenIBZ(nMin, nMax)
@@ -6966,22 +6966,22 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST NOT BETWEEN TWO GIVEN NUMBERS  #
 	#------------------------------------------------------------------------#
 
-	def NNumbersNotBetween(n, nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		anResult = NRandomNumbersIn(n, anNumbers)
+	def NNumbersNotBetween(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_anResult_ = NRandomNumbersIn(_n_, _anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		def NRandomNumbersNotBetween(nMin, nMax)
 			return This.NNumbersNotBetween(nMin, nMax)
 
 	# Z/EXTENDED FORM
 
-	def NNumbersNotBetweenZ(n, nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		aResult = NRandomNumbersInZ(n, anNumbers)
+	def NNumbersNotBetweenZ(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		def NRandomNumbersNotBetweenZ(nMin, nMax)
 			return This.NNumbersNotBetweenZ(nMin, nMax)
@@ -6996,22 +6996,22 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#---------------------------------------------------------------------------------------#
 
-	def NNumbersNotBetweenIB(n, nMin, nMax)
-		anNumbers = This.NumbersNotBetweenIB(nMin, nMax)
-		anResult = NRandomNumbersIn(n, anNumbers)
+	def NNumbersNotBetweenIB(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersNotBetweenIB(nMin, nMax)
+		_anResult_ = NRandomNumbersIn(_n_, _anNumbers_)
 
-		return anResult
+		return _anResult_
 
 		def NRandomNumbersNotBetweenIB(nMin, nMax)
 			return This.NNumbersNotBetweenIB(nMin, nMax)
 
 	# Z/EXTENDED FORM
 
-	def NNumbersNotBetweenIBZ(n, nMin, nMax)
-		anNumbers = This.NumbersNotBetweenIB(nMin, nMax)
-		aResult = NRandomNumbersInZ(n, anNumbers)
+	def NNumbersNotBetweenIBZ(_n_, nMin, nMax)
+		_anNumbers_ = This.NumbersNotBetweenIB(nMin, nMax)
+		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
 
-		return aResult
+		return _aResult_
 
 		def NRandomNumbersNotBetweenIBZ(nMin, nMax)
 			return This.NNumbersNotBetweenIBZ(nMin, nMax)
@@ -7025,8 +7025,8 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS OUTSIDE A GIVEN POSITION  #
 	#=====================================================#
 
-	def NNumbersOutsidePosition(nPos)
-		return This.NItemsOutsidePosition(nPos)
+	def NNumbersOutsidePosition(_nPos_)
+		return This.NItemsOutsidePosition(_nPos_)
 
 	#-- 2/EXTENDED FORM
 
@@ -7047,8 +7047,8 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
-	def NItemsOutsidePositionZ(anPos)
-		return This.NItemsOutsidePositionZ(anPos)
+	def NItemsOutsidePositionZ(_anPos_)
+		return This.NItemsOutsidePositionZ(_anPos_)
 
 	# U/EXTENDED FORM (TODO)
 
@@ -7060,10 +7060,10 @@ class stzListOfNumbers from stzList
 	#=============================================#
 
 	def SomeRandomNumbers()
-		anPos = SomeRandomNumbersIn(1 : This.NumberOfItems())
-		anResult = This.ItemsAtPositions(anPos)
+		_anPos_ = SomeRandomNumbersIn(1 : This.NumberOfItems())
+		_anResult_ = This.ItemsAtPositions(_anPos_)
 
-		return anResult
+		return _anResult_
 
 		def SomeNumbers()
 			return This.SomeRandomNumbers()
@@ -7071,16 +7071,16 @@ class stzListOfNumbers from stzList
 	# Z/EXTENDED FORM
 
 	def SomeRandomNumbersZ()
-		anPos = SomeRandomNumbersIn(1 : This.NumberOfItems())
-		nLen  = len(anPos)
+		_anPos_ = SomeRandomNumbersIn(1 : This.NumberOfItems())
+		_nLen_  = len(_anPos_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ This.Number(i), anPos[i] ]
+		for i = 1 to _nLen_
+			_aResult_ + [ This.Number(i), _anPos_[i] ]
 		next
 
-		return aResult
+		return _aResult_
 
 	# U/EXTENDED FORM (TODO)
 
@@ -7091,187 +7091,187 @@ class stzListOfNumbers from stzList
 	 #  GETTING SOME RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
 	#---------------------------------------------------------#
 
-	def SomeNumbersOtherThan(n, nNumber)
-		if isList(n)
+	def SomeNumbersOtherThan(_n_, _nNumber_)
+		if isList(_n_)
 
-			oParam = new stzList(n)
+			_oParam_ = new stzList(_n_)
 
-			if oParam.IsPositionNamedParam()
-				return This.SomeNumbersOutSidePosition(n[2], nNumber)
+			if _oParam_.IsPositionNamedParam()
+				return This.SomeNumbersOutSidePosition(_n_[2], _nNumber_)
 
-			but oParam.IsPositionsNamedParam()
-				return This.SomeNumbersOutsidePositions(n[2], nNumber)
+			but _oParam_.IsPositionsNamedParam()
+				return This.SomeNumbersOutsidePositions(_n_[2], _nNumber_)
 
 			else
-				return This.SomeNumbersOutsidePositions(n, nNumber)
+				return This.SomeNumbersOutsidePositions(_n_, _nNumber_)
 			ok
 		ok
 
-		anPos = This.Find(n)
-		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		_anPos_ = This.Find(_n_)
+		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
 		// #TODO Make a more performant solution!
 
-		anRandoms = SomeRandomNumbersIn(anPos)
-		anResult = This.ItemsAtPositions(anRandoms)
+		_anRandoms_ = SomeRandomNumbersIn(_anPos_)
+		_anResult_ = This.ItemsAtPositions(_anRandoms_)
 
-		return anResult
+		return _anResult_
 
 	  #--------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
 	#--------------------------------------------------------#
 
-	def SomeNumbersLessThan(n, nNumber)
-		anNumbers = This.NumbersLessThan(nNumber)
-		anResult = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+	def SomeNumbersLessThan(_n_, _nNumber_)
+		_anNumbers_ = This.NumbersLessThan(_nNumber_)
+		_anResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
-	def SomeNumbersLessThanZ(n, nNumber)
-		anNumbers = This.NumbersLessThan(nNumber)
-		aResult = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+	def SomeNumbersLessThanZ(_n_, _nNumber_)
+		_anNumbers_ = This.NumbersLessThan(_nNumber_)
+		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #----------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS GRATER THEN A GIVEN NUMBER  #
 	#----------------------------------------------------------#
 
-	def SomeNumbersGreaterThan(n, nNumber)
-		anNumbers = This.NumbersGreaterThan(nNumber)
-		anResult = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+	def SomeNumbersGreaterThan(_n_, _nNumber_)
+		_anNumbers_ = This.NumbersGreaterThan(_nNumber_)
+		_anResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
-	def SomeNumbersGreaterThanZ(n, nNumber)
-		anNumbers = This.NumbersGreaterThan(nNumber)
-		aResult = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+	def SomeNumbersGreaterThanZ(_n_, _nNumber_)
+		_anNumbers_ = This.NumbersGreaterThan(_nNumber_)
+		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#------------------------------------------------------------#
 
 	def SomeNumbersOtherThanMany(paNumbers)
-		anNumbers = This.NumbersOtherThanMany(paNumbers)
-		anResult  = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+		_anNumbers_ = This.NumbersOtherThanMany(paNumbers)
+		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersOtherThanManyZ(paNumbers)
-		anNumbers = This.NumbersOtherThanMany(nNumber)
-		aResult   = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+		_anNumbers_ = This.NumbersOtherThanMany(_nNumber_)
+		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #---------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
 	#---------------------------------------------------------#
 
 	func SomeNumbersBetween(nMin, nMax)
-		anNumbers = This.NumbersBetween(nMin, nMax)
-		anResult  = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+		_anNumbers_ = This.NumbersBetween(nMin, nMax)
+		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersBetweenZ(nMin, nMax)
-		anNumbers = This.NumbersBetween(nMin, nMax)
-		aResult   = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+		_anNumbers_ = This.NumbersBetween(nMin, nMax)
+		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #-------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS  #
 	#-------------------------------------------------------------#
 
 	func SomeNumbersNotBetween(nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		anResult  = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersNotBetweenZ(nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		aResult   = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#------------------------------------------------------------------------#
 
 	func SomeNumbersBetweenIB(nMin, nMax)
-		anNumbers = This.NumbersBetweenIB(nMin, nMax)
-		anResult  = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
+		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersBetweenIBZ(nMin, nMax)
-		anNumbers = This.NumbersBetweenIB(nMin, nMax)
-		aResult   = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
+		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #----------------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#----------------------------------------------------------------------------#
 
 	func SomeNumbersNotBetweenIB(nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		anResult  = StzListOfNumbers(anNumbers).SomeRandomNumbers()
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersNotBetweenIBZ(nMin, nMax)
-		anNumbers = This.NumbersNotBetween(nMin, nMax)
-		aResult   = StzListOfNumbers(anNumbers).SomeRandomNumbersZ()
+		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
+		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
-		return aResult
+		return _aResult_
 
 	  #===================================================#
 	 #  GETTING THE NUMBERS SMALLER THAN A GIVEN NUMBER  #
 	#===================================================#
 
-	def NumbersSmallerThan(n)
-		anContent = This.Content()
-		nLen = len(anContent)
+	def NumbersSmallerThan(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] < n
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] < _n_
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionFluentForms
 
-		def NumbersSmallerThanQ(n)
-			return This.NumbersSmallerThanQRT(n, :stzList)
+		def NumbersSmallerThanQ(_n_)
+			return This.NumbersSmallerThanQRT(_n_, :stzList)
 
-		def NumbersSmallerThanQRT(n, pcReturnType)
+		def NumbersSmallerThanQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NumbersSmallerThan(n) )
+				return new stzList( This.NumbersSmallerThan(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NumbersSmallerThan(n) )
+				return new stzListOfNumbers( This.NumbersSmallerThan(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -7281,37 +7281,37 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForm
 
-		def NumbersLessThan(n)
-			return This.NumbersSmallerThan(n)
+		def NumbersLessThan(_n_)
+			return This.NumbersSmallerThan(_n_)
 
-			def NumbersLessThanQ(n)
-				return This.NumbersSmallerThanQ(n)
+			def NumbersLessThanQ(_n_)
+				return This.NumbersSmallerThanQ(_n_)
 
-			def NumbersLessThanQRT(n, pcReturnType)
-				return This.NumbersSmallerThanQRT(n, pcReturnType)
+			def NumbersLessThanQRT(_n_, pcReturnType)
+				return This.NumbersSmallerThanQRT(_n_, pcReturnType)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NumbersSmallerThanZ(n)
-		anContent = This.Content()
-		nLen = len(anContent)
+	def NumbersSmallerThanZ(_n_)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] < n
-				aResult + [ anContent[i], i ]
+		for i = 1 to _nLen_
+			if _anContent_[i] < _n_
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForm
 
-		def NumbersLessThanZ(n)
-			return This.NumbersSmallerThanZ(n)
+		def NumbersLessThanZ(_n_)
+			return This.NumbersSmallerThanZ(_n_)
 
 		#>
 
@@ -7319,36 +7319,36 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE NUMBERS GREATER THAN A GIVEN NUMBER  #
 	#---------------------------------------------------#
 
-	def NumbersGreaterThan(n)
-		if NOT This.Contains(n)
+	def NumbersGreaterThan(_n_)
+		if NOT This.Contains(_n_)
 			return []
 		ok
 	
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] > n
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] > _n_
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionFluentForms
 
-		def NumbersGreaterThanQ(n)
-			return This.NumbersGreaterThanQRT(n, :stzList)
+		def NumbersGreaterThanQ(_n_)
+			return This.NumbersGreaterThanQRT(_n_, :stzList)
 
-		def NumberGreaterThanQRT(n, pcReturnType)
+		def NumberGreaterThanQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NumbersGreaterThan(n) )
+				return new stzList( This.NumbersGreaterThan(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NumbersGreaterThan(n) )
+				return new stzListOfNumbers( This.NumbersGreaterThan(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -7358,65 +7358,65 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForms
 
-		def NumbersLargerThan(n)
-			return This.NumberSmallerThan(n)
+		def NumbersLargerThan(_n_)
+			return This.NumberSmallerThan(_n_)
 
-			def NumbersLargerThanQ(n)
-				return This.NumberSmallerThanQ(n)
+			def NumbersLargerThanQ(_n_)
+				return This.NumberSmallerThanQ(_n_)
 
-			def NumbersLargerThanQRT(n, pcReturnType)
-				return This.NumberSmallerThanQ(n, pcReturnType)
+			def NumbersLargerThanQRT(_n_, pcReturnType)
+				return This.NumberSmallerThanQ(_n_, pcReturnType)
 
-		def NumbersBiggerThan(n)
-			return This.NumberSmallerThan(n)
+		def NumbersBiggerThan(_n_)
+			return This.NumberSmallerThan(_n_)
 
-			def NumbersBiggerThanQ(n)
-				return This.NumberSmallerThanQ(n)
+			def NumbersBiggerThanQ(_n_)
+				return This.NumberSmallerThanQ(_n_)
 
-			def NumbersBiggerThanQRT(n, pcReturnType)
-				return This.NumberSmallerThanQ(n, pcReturnType)
+			def NumbersBiggerThanQRT(_n_, pcReturnType)
+				return This.NumberSmallerThanQ(_n_, pcReturnType)
 
-		def NumbersMoreThan(n)
-			return This.NumberSmallerThan(n)
+		def NumbersMoreThan(_n_)
+			return This.NumberSmallerThan(_n_)
 
-			def NumbersMoreThanQ(n)
-				return This.NumberSmallerThanQ(n)
+			def NumbersMoreThanQ(_n_)
+				return This.NumberSmallerThanQ(_n_)
 
-			def NumbersMoreThanQRT(n, pcReturnType)
-				return This.NumberSmallerThanQ(n, pcReturnType)
+			def NumbersMoreThanQRT(_n_, pcReturnType)
+				return This.NumberSmallerThanQ(_n_, pcReturnType)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NumbersGreaterThanZ(n)
-		if NOT This.Contains(n)
+	def NumbersGreaterThanZ(_n_)
+		if NOT This.Contains(_n_)
 			return []
 		ok
 	
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] > n
-				aResult + [ aContent[i], i ]
+		for i = 1 to _nLen_
+			if _anContent_[i] > _n_
+				_aResult_ + [ _aContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersLargerThanZ(n)
-			return This.NumberSmallerThan(n)
+		def NumbersLargerThanZ(_n_)
+			return This.NumberSmallerThan(_n_)
 
-		def NumbersBiggerThanZ(n)
-			return This.NumberSmallerThan(n)
+		def NumbersBiggerThanZ(_n_)
+			return This.NumberSmallerThan(_n_)
 
-		def NumbersMoreThanZ(n)
-			return This.NumberSmallerThan(n)
+		def NumbersMoreThanZ(_n_)
+			return This.NumberSmallerThan(_n_)
 
 		#>
 
@@ -7424,36 +7424,36 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE NUMBERS OTHER THAN A GIVEN NUMBER  #
 	#-------------------------------------------------#
 
-	def NumbersOtherThan(n)
-		if isList(n)
-			return This.NumbersOtherThanMany(n)
+	def NumbersOtherThan(_n_)
+		if isList(_n_)
+			return This.NumbersOtherThanMany(_n_)
 		ok
 
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] != n
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] != _n_
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionFluentForms
 
-		def NumbersOtherThanQ(n)
-			return new NumbersOtherThanQRT(n, :stzList)
+		def NumbersOtherThanQ(_n_)
+			return new NumbersOtherThanQRT(_n_, :stzList)
 
-		def NumbersOtherThanQRT(n, pcReturnType)
+		def NumbersOtherThanQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NumbersOtherThan(n) )
+				return new stzList( This.NumbersOtherThan(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NumbersOtherThan(n) )
+				return new stzListOfNumbers( This.NumbersOtherThan(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -7463,65 +7463,65 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForms
 
-		def NumbersDifferentFrom(n)
-			return This.NumbersOtherThan(n)
+		def NumbersDifferentFrom(_n_)
+			return This.NumbersOtherThan(_n_)
 
-			def NumbersDifferentFromQ(n)
-				return This.NumbersOtherThanQ(n)
+			def NumbersDifferentFromQ(_n_)
+				return This.NumbersOtherThanQ(_n_)
 
-			def NumbersDifferentFromQRT(n, pcReturnType)
-				return This.NumbersOtherThanQRT(n, pcReturnType)
+			def NumbersDifferentFromQRT(_n_, pcReturnType)
+				return This.NumbersOtherThanQRT(_n_, pcReturnType)
 
-		def NumbersDifferentOf(n)
-			return This.NumbersOtherThan(n)
+		def NumbersDifferentOf(_n_)
+			return This.NumbersOtherThan(_n_)
 
-			def NumbersDifferentOfQ(n)
-				return This.NumbersOtherThanQ(n)
+			def NumbersDifferentOfQ(_n_)
+				return This.NumbersOtherThanQ(_n_)
 
-			def NumbersDifferentOfQRT(n, pcReturnType)
-				return This.NumbersOtherThanQRT(n, pcReturnType)
+			def NumbersDifferentOfQRT(_n_, pcReturnType)
+				return This.NumbersOtherThanQRT(_n_, pcReturnType)
 
-		def NumbersDifferentTo(n)
-			return This.NumbersOtherThan(n)
+		def NumbersDifferentTo(_n_)
+			return This.NumbersOtherThan(_n_)
 
-			def NumbersDifferentToQ(n)
-				return This.NumbersOtherThanQ(n)
+			def NumbersDifferentToQ(_n_)
+				return This.NumbersOtherThanQ(_n_)
 
-			def NumbersDifferentToQRT(n, pcReturnType)
-				return This.NumbersOtherThanQRT(n, pcReturnType)
+			def NumbersDifferentToQRT(_n_, pcReturnType)
+				return This.NumbersOtherThanQRT(_n_, pcReturnType)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NumbersOtherThanZ(n)
-		if isList(n)
-			return This.NumbersOtherThanMany(n)
+	def NumbersOtherThanZ(_n_)
+		if isList(_n_)
+			return This.NumbersOtherThanMany(_n_)
 		ok
 
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] != n
-				aResult + [ aContent[i], i ]
+		for i = 1 to _nLen_
+			if _anContent_[i] != _n_
+				_aResult_ + [ _aContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersDifferentFromZ(n)
-			return This.NumbersOtherThanZ(n)
+		def NumbersDifferentFromZ(_n_)
+			return This.NumbersOtherThanZ(_n_)
 
-		def NumbersDifferentOfZ(n)
-			return This.NumbersOtherThanZ(n)
+		def NumbersDifferentOfZ(_n_)
+			return This.NumbersOtherThanZ(_n_)
 
-		def NumbersDifferentToZ(n)
-			return This.NumbersOtherThanZ(n)
+		def NumbersDifferentToZ(_n_)
+			return This.NumbersOtherThanZ(_n_)
 
 		#>
 
@@ -7529,95 +7529,95 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE NUMBERS OTHER THAN MANY GIVEN NUMBERS  #
 	#-----------------------------------------------------#
 
-	def NumbersOtherThanMany(anNumbers)
-		if NOT (isList(anNumbers) and Q(anNumbers).IsListOfNumbers())
+	def NumbersOtherThanMany(_anNumbers_)
+		if NOT (isList(_anNumbers_) and Q(_anNumbers_).IsListOfNumbers())
 			StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen = len(aContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if NOT StzFindFirst(anNumbers, anContent[i])
-				anResult + aContent[i]
+		for i = 1 to _nLen_
+			if NOT StzFindFirst(_anNumbers_, _anContent_[i])
+				_anResult_ + _aContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersDifferentFromMany(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentFromMany(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
-		def NumbersDifferentOfMany(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentOfMany(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
-		def NumbersDifferentToMany(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentToMany(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
 		#--
 
-		def NumbersOtherThanThese(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersOtherThanThese(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
-		def NumbersDifferentFromThese(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentFromThese(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
-		def NumbersDifferentOfThese(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentOfThese(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
-		def NumbersDifferentThese(anNumbers)
-			return This.NumbersOtherThanMany(anNumbers)
+		def NumbersDifferentThese(_anNumbers_)
+			return This.NumbersOtherThanMany(_anNumbers_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NumbersOtherThanManyZ(anNumbers)
-		if NOT (isList(anNumbers) and Q(anNumbers).IsListOfNumbers())
+	def NumbersOtherThanManyZ(_anNumbers_)
+		if NOT (isList(_anNumbers_) and Q(_anNumbers_).IsListOfNumbers())
 			StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
 		ok
 
-		anContent = This.Content()
-		nLen = len(aContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if NOT StzFindFirst(anNumbers, anContent[i])
-				aResult + [ aContent[i], i ]
+		for i = 1 to _nLen_
+			if NOT StzFindFirst(_anNumbers_, _anContent_[i])
+				_aResult_ + [ _aContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersDifferentFromManyZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentFromManyZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
-		def NumbersDifferentOfManyZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentOfManyZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
-		def NumbersDifferentToManyZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentToManyZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
 		#--
 
-		def NumbersOtherThanTheseZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersOtherThanTheseZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
-		def NumbersDifferentFromTheseZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentFromTheseZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
-		def NumbersDifferentOfTheseZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentOfTheseZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
-		def NumbersDifferentTheseZ(anNumbers)
-			return This.NumbersOtherThanManyZ(anNumbers)
+		def NumbersDifferentTheseZ(_anNumbers_)
+			return This.NumbersOtherThanManyZ(_anNumbers_)
 
 		#>
 
@@ -7625,55 +7625,55 @@ class stzListOfNumbers from stzList
 	 #  GETTING NUMBERS OUTSIDE A GIVEN POSITION  #
 	#--------------------------------------------#
 
-	def NumbersOutsidePosition(n)
-		anPos = Q( 1 : This.NumberOfItems() ) - n
-		anResult = This.ItemsAtPositions(anPos)
+	def NumbersOutsidePosition(_n_)
+		_anPos_ = Q( 1 : This.NumberOfItems() ) - _n_
+		_anResult_ = This.ItemsAtPositions(_anPos_)
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersBeforeAndAfterPosition(n)
-			return This.NumbersOutsidePosition(n)
+		def NumbersBeforeAndAfterPosition(_n_)
+			return This.NumbersOutsidePosition(_n_)
 
-		def NumbersAfterAndBeforePosition(n)
-			return This.NumbersOutsidePosition(n)
+		def NumbersAfterAndBeforePosition(_n_)
+			return This.NumbersOutsidePosition(_n_)
 
-		def NumbersBeforeOrAfterPosition(n)
-			return This.NumbersOutsidePosition(n)
+		def NumbersBeforeOrAfterPosition(_n_)
+			return This.NumbersOutsidePosition(_n_)
 
-		def NumbersAfterOrBeforePosition(n)
-			return This.NumbersOutsidePosition(n)
+		def NumbersAfterOrBeforePosition(_n_)
+			return This.NumbersOutsidePosition(_n_)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
-	def NumbersOutsidePositionZ(n)
-		anPos = Q( 1 : This.NumberOfItems() ) - n
-		nLen = len(anPos)
+	def NumbersOutsidePositionZ(_n_)
+		_anPos_ = Q( 1 : This.NumberOfItems() ) - _n_
+		_nLen_ = len(_anPos_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ This.Item(anPos[i]), anPos[i] ]
+		for i = 1 to _nLen_
+			_aResult_ + [ This.Item(_anPos_[i]), _anPos_[i] ]
 		next
 
-		return nResult
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def NumbersBeforeAndAfterPositionZ(n)
-			return This.NumbersOutsidePositionZ(n)
+		def NumbersBeforeAndAfterPositionZ(_n_)
+			return This.NumbersOutsidePositionZ(_n_)
 
-		def NumbersAfterAndBeforePositionZ(n)
-			return This.NumbersOutsidePositionZ(n)
+		def NumbersAfterAndBeforePositionZ(_n_)
+			return This.NumbersOutsidePositionZ(_n_)
 
-		def NumbersBeforeOrAfterPositionZ(n)
-			return This.NumbersOutsidePositionZ(n)
+		def NumbersBeforeOrAfterPositionZ(_n_)
+			return This.NumbersOutsidePositionZ(_n_)
 
-		def NumbersAfterOrBeforePositionZ(n)
-			return This.NumbersOutsidePositionZ(n)
+		def NumbersAfterOrBeforePositionZ(_n_)
+			return This.NumbersOutsidePositionZ(_n_)
 
 		#>
 
@@ -7682,152 +7682,152 @@ class stzListOfNumbers from stzList
 	#==========================================================#
 
 	def NumbersBetween(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] > nMin and anContent[i] < nMax
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] > nMin and _anContent_[i] < nMax
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def NumbersBetweenZ(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] > nMin and anContent[i] < nMax
-				aResult + [ anContent[i], i ]
+		for i = 1 to _nLen_
+			if _anContent_[i] > nMin and _anContent_[i] < nMax
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------------------#
 	 #  GETTING NUMNBERS IN THE LIST BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#------------------------------------------------------------------------#
 
 	def NumbersBetweenIB(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] >= nMin and anContent[i] <= nMax
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if _anContent_[i] >= nMin and _anContent_[i] <= nMax
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def NumbersBetweenIBZ(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if anContent[i] >= nMin and anContent[i] <= nMax
-				aResult + [ anContent[i], i ]
+		for i = 1 to _nLen_
+			if _anContent_[i] >= nMin and _anContent_[i] <= nMax
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	  #--------------------------------------------------------------#
 	 #  GETTING NUMNBERS IN THE LIST NOT BETWEEN TWO GIVEN NUMBERS  #
 	#===============================================================#
 
 	def NumbersNotBetween(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if NOT( anContent[i] > nMin and anContent[i] < nMax )
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if NOT( _anContent_[i] > nMin and _anContent_[i] < nMax )
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def NumbersNotBetweenZ(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if NOT ( anContent[i] > nMin and anContent[i] < nMax )
-				aResult + [ anContent[i], i ]
+		for i = 1 to _nLen_
+			if NOT ( _anContent_[i] > nMin and _anContent_[i] < nMax )
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	  #-----------------------------------------------------------------------------#
 	 #  GETTING NUMNBERS IN THE LIST NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#-----------------------------------------------------------------------------#
 
 	def NumbersNotBetweenIB(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 1 to nLen
-			if NOT ( anContent[i] >= nMin and anContent[i] <= nMax )
-				anResult + anContent[i]
+		for i = 1 to _nLen_
+			if NOT ( _anContent_[i] >= nMin and _anContent_[i] <= nMax )
+				_anResult_ + _anContent_[i]
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 	#-- Z/EXTENDED FORM
 
 	def NumbersNotBetweenIBZ(nMin, nMax)
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if NOT ( anContent[i] >= nMin and anContent[i] <= nMax )
-				aResult + [ anContent[i], i ]
+		for i = 1 to _nLen_
+			if NOT ( _anContent_[i] >= nMin and _anContent_[i] <= nMax )
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	def AreNegative()
 		
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT (0+ anContent[i]) < 0
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT (0+ _anContent_[i]) < 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionFluentForm
 
@@ -7855,9 +7855,9 @@ class stzListOfNumbers from stzList
 
 		def AreNegativeX()
 	
-			bTruth = TruthStatement()
+			_bTruth_ = TruthStatement()
 	
-			if bTruth = 1
+			if _bTruth_ = 1
 	
 				return This.AreNegative()
 	
@@ -7878,19 +7878,19 @@ class stzListOfNumbers from stzList
 
 	def ArePositive()
 		
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT (0+ anContent[i]) > 0
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT (0+ _anContent_[i]) > 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionFluentForm
 
@@ -7918,9 +7918,9 @@ class stzListOfNumbers from stzList
 
 		def ArePositiveX()
 	
-			bTruth = TruthStatement()
+			_bTruth_ = TruthStatement()
 	
-			if bTruth = 1
+			if _bTruth_ = 1
 	
 				return This.ArePositive()
 	
@@ -7969,9 +7969,9 @@ class stzListOfNumbers from stzList
 
 		return _bResult_
 
-	def AreGreaterThen(n)
+	def AreGreaterThen(_n_)
 		if CheckParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -7982,7 +7982,7 @@ class stzListOfNumbers from stzList
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
-			if _anContent_[@i] < n
+			if _anContent_[@i] < _n_
 				_bResult_ = 0
 				exit
 			ok
@@ -7990,12 +7990,12 @@ class stzListOfNumbers from stzList
 
 		return _bResult_
 
-		def AreOver(n)
-			return This.AreGreaterThen(n)
+		def AreOver(_n_)
+			return This.AreGreaterThen(_n_)
 
-	def AreSmallerThen(n)
+	def AreSmallerThen(_n_)
 		if CheckParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -8006,7 +8006,7 @@ class stzListOfNumbers from stzList
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
-			if _anContent_[@i] > n
+			if _anContent_[@i] > _n_
 				_bResult_ = 0
 				exit
 			ok
@@ -8014,29 +8014,29 @@ class stzListOfNumbers from stzList
 
 		return _bResult_
 
-		def AreUnder(n)
-			return This.AreSmallerThen(n)
+		def AreUnder(_n_)
+			return This.AreSmallerThen(_n_)
 
-	def IsDividableBy(n)
+	def IsDividableBy(_n_)
 		
-		anContent = This.Content()
-		nLen = len(anContent)
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT ( (0+ anContent[i]) % n = 0 )
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT ( (0+ _anContent_[i]) % _n_ = 0 )
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionFluentForm
 
-		def IsDividableByQ(n)
-			if This.IsDividableBy(n)
+		def IsDividableByQ(_n_)
+			if This.IsDividableBy(_n_)
 				return This
 			else
 				return AFalseObject()
@@ -8046,41 +8046,41 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForms
 
-		def DividableBy(n)
-			return This.IsDividableBy(n)
+		def DividableBy(_n_)
+			return This.IsDividableBy(_n_)
 
-			def DividableByQ(n)
-				return This.IsDividableByQ(n)
+			def DividableByQ(_n_)
+				return This.IsDividableByQ(_n_)
 
 		#--
 
-		def IsDivisibleBy(n)
-			return This.IsDividableBy(n)
+		def IsDivisibleBy(_n_)
+			return This.IsDividableBy(_n_)
 
-			def IsDivisibleByD(n)
-				return This.IsDividableByQ(n)
+			def IsDivisibleByD(_n_)
+				return This.IsDividableByQ(_n_)
 
 		#==
 
-		def CanBeDividedBy(n)
-			return This.IsDividableBy(n)
+		def CanBeDividedBy(_n_)
+			return This.IsDividableBy(_n_)
 
-			def CanBiDividedByQ(n)
-				return This.IsDividableByQ(n)
+			def CanBiDividedByQ(_n_)
+				return This.IsDividableByQ(_n_)
 
-		def CanBeDivisedBy(n)
-			return This.IsDividableBy(n)
+		def CanBeDivisedBy(_n_)
+			return This.IsDividableBy(_n_)
 
-			def CanBeDivisedByQ(n)
-				return This.IsDividableByQ(n)	
+			def CanBeDivisedByQ(_n_)
+				return This.IsDividableByQ(_n_)	
 
 	  #==================================================+===============#
 	 #  JSUTIFYING THE LIST OF NUMBERS (RETURNED AS A LIST OF STRINGS)  #
 	#=================================================+================#
 
 	def Adjust()
-		acResult = This.AdjustUsing(" ")
-		return acResult
+		_acResult_ = This.AdjustUsing(" ")
+		return _acResult_
 
 		#< @FunctionFluentForm
 
@@ -8142,40 +8142,40 @@ class stzListOfNumbers from stzList
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		nMaxSize = 0
-		nMaxLeft = 0
-		nMaxRight = 0
+		_nMaxSize_ = 0
+		_nMaxLeft_ = 0
+		_nMaxRight_ = 0
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			cNumber = ""+ aContent[i]
+			_cNumber_ = ""+ _aContent_[i]
 
-			nSize = len(cNumber)
-			if nSize > nMaxSize
-				nMaxSize = nSize
+			_nSize_ = len(_cNumber_)
+			if _nSize_ > _nMaxSize_
+				_nMaxSize_ = _nSize_
 			ok
 
-			nDotPos = ring_substr1( cNumber, "." )
+			_nDotPos_ = ring_substr1( _cNumber_, "." )
 
-			if nDotPos = 0
-				nLenLeft = nSize
-				nLenRight = 0
+			if _nDotPos_ = 0
+				_nLenLeft_ = _nSize_
+				_nLenRight_ = 0
 
 			else
-				nLenLeft = nDotPos - 1
-				nLenRight = nSize - nDotPos
+				_nLenLeft_ = _nDotPos_ - 1
+				_nLenRight_ = _nSize_ - _nDotPos_
 
 			ok
 
-			if nLenLeft > nMaxLeft
-				nMaxLeft = nLenLeft
+			if _nLenLeft_ > _nMaxLeft_
+				_nMaxLeft_ = _nLenLeft_
 			ok
 
-			if nLenRight > nMaxRight
-				nMaxRight = nLenRight
+			if _nLenRight_ > _nMaxRight_
+				_nMaxRight_ = _nLenRight_
 			ok
 
 		next
@@ -8183,54 +8183,54 @@ class stzListOfNumbers from stzList
 		# The number without decimal part are adjusted
 		# first, by adding a dot and some 0s to them
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			cNumber = ""+ aContent[i]
-			nLenNumber = len(cNumber)
-			nPosDot = ring_substr1(cNumber, ".")
+			_cNumber_ = ""+ _aContent_[i]
+			_nLenNumber_ = len(_cNumber_)
+			_nPosDot_ = ring_substr1(_cNumber_, ".")
 			
-			if nPosDot = 0
+			if _nPosDot_ = 0
 				
-				nAddLeft = nMaxLeft - nLenNumber
-				nAddRight = nMaxRight
+				_nAddLeft_ = _nMaxLeft_ - _nLenNumber_
+				_nAddRight_ = _nMaxRight_
 
-				cExtLeft = ""
-				cExtRight = ""
+				_cExtLeft_ = ""
+				_cExtRight_ = ""
 
-				for j = 1 to nAddLeft
-					cExtLeft += c
+				for _j_ = 1 to _nAddLeft_
+					_cExtLeft_ += c
 				next
 
-				for j = 1 to nAddRight
-					cExtRight += "0"
+				for _j_ = 1 to _nAddRight_
+					_cExtRight_ += "0"
 				next
 
-				cNumber = cExtLeft + cNumber + "." + cExtRight
+				_cNumber_ = _cExtLeft_ + _cNumber_ + "." + _cExtRight_
 
 			else
-				nAddLeft = nMaxLeft - (nPosDot - 1)
-				nAddRight = nMaxRight - (nLenNumber - nPosDot)
+				_nAddLeft_ = _nMaxLeft_ - (_nPosDot_ - 1)
+				_nAddRight_ = _nMaxRight_ - (_nLenNumber_ - _nPosDot_)
 
-				cExtLeft = ""
-				cExtRight = ""
+				_cExtLeft_ = ""
+				_cExtRight_ = ""
 
-				for j = 1 to nAddLeft
-					cExtLeft += c
+				for _j_ = 1 to _nAddLeft_
+					_cExtLeft_ += c
 				next
 
-				for j = 1 to nAddRight
-					cExtRight += "0"
+				for _j_ = 1 to _nAddRight_
+					_cExtRight_ += "0"
 				next
 
-				cNumber = cExtLeft + cNumber + cExtRight
+				_cNumber_ = _cExtLeft_ + _cNumber_ + _cExtRight_
 
 			ok
 
-			aContent[i] = cNumber
+			_aContent_[i] = _cNumber_
 
 		next
 
-		return aContent
+		return _aContent_
 
 		#< @FunctionFluentForm
 
@@ -8287,8 +8287,8 @@ class stzListOfNumbers from stzList
 	#-------------------------------------------------------#
 
 	def AdjustXT()
-		acResult = This.AdjustUsing("0")
-		return acResult
+		_acResult_ = This.AdjustUsing("0")
+		return _acResult_
 
 		#< @FunctionFluentForm
 
@@ -8344,8 +8344,8 @@ class stzListOfNumbers from stzList
 	#====================================#
 
 	def SortInAscending()
-		aResult = @Sort(This.Content())
-		This.UpdateWith(aResult)
+		_aResult_ = @Sort(This.Content())
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionAlternativeForms
 
@@ -8362,8 +8362,8 @@ class stzListOfNumbers from stzList
 		#>
 
 	def SortedInAscending()
-		aResult = This.Copy().SortInAscendingQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SortInAscendingQ().Content()
+		return _aResult_
 
 		def SortedUp()
 			return This.SortedInAscending()
@@ -8394,8 +8394,8 @@ class stzListOfNumbers from stzList
 				return This.SortInDescendingQ()
 
 	def SortedInDescending()
-		acResult = This.Copy().SortInDescendingQ().Content()
-		return acResult
+		_acResult_ = This.Copy().SortInDescendingQ().Content()
+		return _acResult_
 
 		def SortedDown()
 			return This.SortedInDescending()
@@ -8412,8 +8412,8 @@ class stzListOfNumbers from stzList
 
 		pcExpr = Q(pcExpr).ReplaceQ("@number", "@item").Content()
 
-		aContent = This.ToStzList().SortedBy(pcExpr)
-		This.UpdateWith(aContent)
+		_aContent_ = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -8440,8 +8440,8 @@ class stzListOfNumbers from stzList
 		#>
 
 	def SortedBy(pcExpr)
-		aResult = This.Copy().SortByQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortByQ(pcExpr).Content()
+		return _aResult_
 
 		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
@@ -8454,8 +8454,8 @@ class stzListOfNumbers from stzList
 	#--------------------------------------------------------#
  
 	def SortByInDescending(pcExpr)
-		aResult = new stzList( This.SortedByInAscending(pcExpr) ).Reversed()
-		This.UpdateWith(aResult)
+		_aResult_ = new stzList( This.SortedByInAscending(pcExpr) ).Reversed()
+		This.UpdateWith(_aResult_)
 
 		def SortByInDescendingQ(pcExpr)
 			This.SortByInDescending(pcExpr)
@@ -8468,8 +8468,8 @@ class stzListOfNumbers from stzList
 				return This.SortByInDescendingQ(pcExpr)
 
 	def SortedByInDescending(pcExpr)
-		aResult = This.Copy().SortByInDescendingQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortByInDescendingQ(pcExpr).Content()
+		return _aResult_
 
 		def SortedByDown(pcExpr)
 			return This.SortedByInDescending(pcExpr)
@@ -8479,24 +8479,24 @@ class stzListOfNumbers from stzList
 	#======================================#
 
 	def SpeedUps()
-		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		_anNumbers_ = This.Content()
+		_nLen_ = len(_anNumbers_)
 
-		if nLen = 1
+		if _nLen_ = 1
 			return [ 1 ]
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 2 to nLen
-			n1 = anNumbers[i-1]
-			n2 = anNumbers[i]
+		for i = 2 to _nLen_
+			_n1_ = _anNumbers_[i-1]
+			_n2_ = _anNumbers_[i]
 
-			factor = n1 / n2
-			anResult + factor
+			_factor_ = _n1_ / _n2_
+			_anResult_ + _factor_
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -8523,24 +8523,24 @@ class stzListOfNumbers from stzList
 
 	def GainsX()
 
-		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		_anNumbers_ = This.Content()
+		_nLen_ = len(_anNumbers_)
 
-		if nLen = 1
+		if _nLen_ = 1
 			return [ 1 ]
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 2 to nLen
-			n1 = anNumbers[i-1]
-			n2 = anNumbers[i]
+		for i = 2 to _nLen_
+			_n1_ = _anNumbers_[i-1]
+			_n2_ = _anNumbers_[i]
 
-			factor = n2 / n1
-			anResult + factor
+			_factor_ = _n2_ / _n1_
+			_anResult_ + _factor_
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -8567,24 +8567,24 @@ class stzListOfNumbers from stzList
 
 	def PerfGains() # In percentage
 
-		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		_anNumbers_ = This.Content()
+		_nLen_ = len(_anNumbers_)
 
-		if nLen = 1
+		if _nLen_ = 1
 			return [ 1 ]
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 2 to nLen
-			n1 = anNumbers[i-1]
-			n2 = anNumbers[i]
+		for i = 2 to _nLen_
+			_n1_ = _anNumbers_[i-1]
+			_n2_ = _anNumbers_[i]
 
-			factor = ( (n1 - n2) / n1) * 100
-			anResult + factor
+			_factor_ = ( (_n1_ - _n2_) / _n1_) * 100
+			_anResult_ + _factor_
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @AlternativeForms
 
@@ -8603,24 +8603,24 @@ class stzListOfNumbers from stzList
 
 	def Gains() # In Percentage
 
-		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		_anNumbers_ = This.Content()
+		_nLen_ = len(_anNumbers_)
 
-		if nLen = 1
+		if _nLen_ = 1
 			return [ 1 ]
 		ok
 
-		anResult = []
+		_anResult_ = []
 
-		for i = 2 to nLen
-			n1 = anNumbers[i-1]
-			n2 = anNumbers[i]
+		for i = 2 to _nLen_
+			_n1_ = _anNumbers_[i-1]
+			_n2_ = _anNumbers_[i]
 
-			factor = ( (n2 - n1) / n2) * 100
-			anResult + factor
+			_factor_ = ( (_n2_ - _n1_) / _n2_) * 100
+			_anResult_ + _factor_
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -8654,34 +8654,34 @@ class stzListOfNumbers from stzList
 	#------------------------------------------#
 
 	def ArePrimes()
-		bResult = 1
-		nLen = len(@aContent)
+		_bResult_ = 1
+		_nLen_ = len(@aContent)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT ring_isprime(@aContent[i])
-				bResult = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	  #---------------------------------------------#
 	 #  CHECKING IF THE NUMBERS ARE ALL WEIFERICH  #
 	#---------------------------------------------#
 
 	def AreWeiferich()
-		bResult = 1
-		nLen = len(@aContent)
+		_bResult_ = 1
+		_nLen_ = len(@aContent)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT @IsWeiferich(@aContent[i])
-				bResult = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	  #-----------------------------------------------------------------#
 	 #  CHECKINg IF THE LISt IS MADE OF POSITIVE NAD NEGATIVE NUMBERS  #
@@ -8724,9 +8724,9 @@ class stzListOfNumbers from stzList
 
 	def AreNonZeroNumbers()
 	
-		nLen = len(@aContent)
+		_nLen_ = len(@aContent)
 	
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if @aContent[i] = 0
 				return FALSE
 			ok

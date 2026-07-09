@@ -49,27 +49,27 @@ class stzStringWalker from stzObject
 	 #     ADD/REMOVE WALKERS        #
 	#===============================#
 
-	def AddWalker(pcWalkerName, nStart, nEnd, nStep)
-		@aWalkers + [ pcWalkerName, new stzWalker(nStart, nEnd, nStep) ]
+	def AddWalker(pcWalkerName, _nStart_, _nEnd_, nStep)
+		@aWalkers + [ pcWalkerName, new stzWalker(_nStart_, _nEnd_, nStep) ]
 
-		def AddWalkerQ(pcWalkerName, nStart, nEnd, nStep)
-			This.AddWalker(pcWalkerName, nStart, nEnd, nStep)
+		def AddWalkerQ(pcWalkerName, _nStart_, _nEnd_, nStep)
+			This.AddWalker(pcWalkerName, _nStart_, _nEnd_, nStep)
 			return This
 
 	def Walker(pcWalkerName)
-		nLen = len(@aWalkers)
-		for i = 1 to nLen
-			if @aWalkers[i][1] = pcWalkerName
-				return @aWalkers[i][2].Walkables()
+		_nLen_ = len(@aWalkers)
+		for _i_ = 1 to _nLen_
+			if @aWalkers[_i_][1] = pcWalkerName
+				return @aWalkers[_i_][2].Walkables()
 			ok
 		next
 		StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
 
 	def WalkerQ(pcWalkerName)
-		nLen = len(@aWalkers)
-		for i = 1 to nLen
-			if @aWalkers[i][1] = pcWalkerName
-				return @aWalkers[i][2]
+		_nLen_ = len(@aWalkers)
+		for _i_ = 1 to _nLen_
+			if @aWalkers[_i_][1] = pcWalkerName
+				return @aWalkers[_i_][2]
 			ok
 		next
 		StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
@@ -78,17 +78,17 @@ class stzStringWalker from stzObject
 		return @aWalkers
 
 	def RemoveWalker(pcWalkerName)
-		nLen = len(@aWalkers)
-		nPos = 0
-		for i = 1 to nLen
-			if @aWalkers[i][1] = pcWalkerName
-				nPos = i
+		_nLen_ = len(@aWalkers)
+		_nPos_ = 0
+		for _i_ = 1 to _nLen_
+			if @aWalkers[_i_][1] = pcWalkerName
+				_nPos_ = _i_
 				exit
 			ok
 		next
 
-		if nPos > 0
-			ring_remove(@aWalkers, nPos)
+		if _nPos_ > 0
+			ring_remove(@aWalkers, _nPos_)
 		ok
 
 	def RemoveWalkers()
@@ -105,25 +105,25 @@ class stzStringWalker from stzObject
 			return new stzList(This.Chars())
 
 	def UniqueChars()
-		acAll = This.Chars()
-		acResult = []
-		nLen = len(acAll)
+		_acAll_ = This.Chars()
+		_acResult_ = []
+		_nLen_ = len(_acAll_)
 
-		for i = 1 to nLen
-			bFound = 0
-			nResLen = len(acResult)
-			for j = 1 to nResLen
-				if acResult[j] = acAll[i]
-					bFound = 1
+		for _i_ = 1 to _nLen_
+			_bFound_ = 0
+			_nResLen_ = len(_acResult_)
+			for j = 1 to _nResLen_
+				if _acResult_[j] = _acAll_[_i_]
+					_bFound_ = 1
 					exit
 				ok
 			next
-			if NOT bFound
-				acResult + acAll[i]
+			if NOT _bFound_
+				_acResult_ + _acAll_[_i_]
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 		def UniqueCharsQ()
 			return new stzList(This.UniqueChars())
@@ -144,67 +144,67 @@ class stzStringWalker from stzObject
 	 #     WALK AND YIELD            #
 	#===============================#
 
-	def WalkAndYield(nStart, nEnd, nStep, pcCode)
-		acResult = []
-		nLen = @oString.NumberOfChars()
+	def WalkAndYield(_nStart_, _nEnd_, nStep, pcCode)
+		_acResult_ = []
+		_nLen_ = @oString.NumberOfChars()
 
-		if nStart < 1
-			nStart = 1
+		if _nStart_ < 1
+			_nStart_ = 1
 		ok
-		if nEnd > nLen
-			nEnd = nLen
+		if _nEnd_ > _nLen_
+			_nEnd_ = _nLen_
 		ok
 
-		i = nStart
-		while i <= nEnd
-			@char = @oString.NthChar(i)
-			@position = i
+		_i_ = _nStart_
+		while _i_ <= _nEnd_
+			@char = @oString.NthChar(_i_)
+			@position = _i_
 
-			cCode = pcCode
-			eval(cCode)
-			acResult + @char
+			_cCode_ = pcCode
+			eval(_cCode_)
+			_acResult_ + @char
 
-			i += nStep
+			_i_ += nStep
 		end
 
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     WALK FORWARD/BACKWARD     #
 	#===============================#
 
 	def CharsFromTo(n1, n2)
-		acResult = []
-		nLen = @oString.NumberOfChars()
+		_acResult_ = []
+		_nLen_ = @oString.NumberOfChars()
 
-		if n1 < 1 or n2 < 1 or n1 > nLen or n2 > nLen
-			return acResult
+		if n1 < 1 or n2 < 1 or n1 > _nLen_ or n2 > _nLen_
+			return _acResult_
 		ok
 
 		if n1 <= n2
-			for i = n1 to n2
-				acResult + @oString.NthChar(i)
+			for _i_ = n1 to n2
+				_acResult_ + @oString.NthChar(_i_)
 			next
 		else
-			for i = n1 to n2 step -1
-				acResult + @oString.NthChar(i)
+			for _i_ = n1 to n2 step -1
+				_acResult_ + @oString.NthChar(_i_)
 			next
 		ok
 
-		return acResult
+		return _acResult_
 
-	def CharsWithStep(nStart, nStep)
-		acResult = []
-		nLen = @oString.NumberOfChars()
+	def CharsWithStep(_nStart_, nStep)
+		_acResult_ = []
+		_nLen_ = @oString.NumberOfChars()
 
-		if nStart < 1 or nStart > nLen
-			return acResult
+		if _nStart_ < 1 or _nStart_ > _nLen_
+			return _acResult_
 		ok
 
-		i = nStart
-		while i >= 1 and i <= nLen
-			acResult + @oString.NthChar(i)
-			i += nStep
+		_i_ = _nStart_
+		while _i_ >= 1 and _i_ <= _nLen_
+			_acResult_ + @oString.NthChar(_i_)
+			_i_ += nStep
 		end
 
-		return acResult
+		return _acResult_

@@ -16,26 +16,26 @@ func StzRxuter()
 class stzRegexuter from stzObject
 
 	# Core data structures
-	aTriggers = []		# Pairs of [cTriggerName, cRegexPattern]
-	aCodesPerTrigger = []	# Pairs of [cTriggerName, cCodeToExecute]
+	_aTriggers_ = []		# Pairs of [cTriggerName, cRegexPattern]
+	_aCodesPerTrigger_ = []	# Pairs of [cTriggerName, cCodeToExecute]
 	
 	# State management
 
-	aState = []			# List of state entries as hashlists
-	aActiveComputations = []	# Track currently active computations
+	_aState_ = []			# List of state entries as hashlists
+	_aActiveComputations_ = []	# Track currently active computations
 	
 	# Results tracking
 
-	aLastTriggers = []
-	aLastMatches = []
-	aLastPositions = []
-	aLastResults = []
-	aLastTextualOrder = []
+	_aLastTriggers_ = []
+	_aLastMatches_ = []
+	_aLastPositions_ = []
+	_aLastResults_ = []
+	_aLastTextualOrder_ = []
 
 	# Performance tracking
 
-	nProcessStartTime = 0
-	nLastProcessDuration = 0
+	_nProcessStartTime_ = 0
+	_nLastProcessDuration_ = 0
 
 	def init()
 		# Do nothing
@@ -49,7 +49,7 @@ class stzRegexuter from stzObject
 			if TriggerNameExists(aTrigger)
 				StzRaise("Can't proceed! Trigger name already exists: " + aTrigger)
 			ok
-			aTriggers + [ aTrigger, pat(aTrigger) ]
+			_aTriggers_ + [ aTrigger, pat(aTrigger) ]
 			return
 		ok
 
@@ -62,15 +62,15 @@ class stzRegexuter from stzObject
 			StzRaise("Can't proceed! Trigger name already exists: " + aTrigger[1])
 		ok
 
-		aTriggers + aTrigger
+		_aTriggers_ + aTrigger
 
 		def Trigger(aTrigger)
 			This.AddTrigger(aTrigger)
 
 	def TriggerNameExists(cName)
-		_nTriggers2Len_ = len(aTriggers)
+		_nTriggers2Len_ = len(_aTriggers_)
 		for _iLoopTriggers2_ = 1 to _nTriggers2Len_
-			trigger = aTriggers[_iLoopTriggers2_]
+			trigger = _aTriggers_[_iLoopTriggers2_]
 			if trigger[1] = cName
 				return TRUE
 			ok
@@ -81,41 +81,41 @@ class stzRegexuter from stzObject
 	# Code Methods  #
 	#---------------#
 
-	def AddCode(cTriggerName, cCode)
-		if isList(cTriggerName) and IsWhenOrIfOrForNamedParamList(cTriggerName)
-			cTriggerName = cTriggerName[2]
+	def AddCode(_cTriggerName_, _cCode_)
+		if isList(_cTriggerName_) and IsWhenOrIfOrForNamedParamList(_cTriggerName_)
+			_cTriggerName_ = _cTriggerName_[2]
 		ok
 
-		if isList(cCode) and IsDoNamedParamList(cCode)
-			cCode = cCode[2]
+		if isList(_cCode_) and IsDoNamedParamList(_cCode_)
+			_cCode_ = _cCode_[2]
 		ok
 
-		if NOT TriggerNameExists(cTriggerName)
-			StzRaise("Can't proceed! Trigger does not exist: " + cTriggerName)
+		if NOT TriggerNameExists(_cTriggerName_)
+			StzRaise("Can't proceed! Trigger does not exist: " + _cTriggerName_)
 		ok
 
-		if NOT isString(cCode)
+		if NOT isString(_cCode_)
 			StzRaise("Invalid code type! Expected string.")
 		ok
 
 		# Verify code contains @value
-		if NOT StringContains(cCode, "@value")
+		if NOT StringContains(_cCode_, "@value")
 			StzRaise("Invalid computation! Code must contain @value keyword.")
 		ok
 
 		# Clean code
-		cCode = trim(cCode)
-		if StzLeft(cCode, 1) = "{" and StzRight(cCode, 1) = "}"
-			cCode = StzMid(cCode, 2, len(cCode)-2)
+		_cCode_ = trim(_cCode_)
+		if StzLeft(_cCode_, 1) = "{" and StzRight(_cCode_, 1) = "}"
+			_cCode_ = StzMid(_cCode_, 2, len(_cCode_)-2)
 		ok
 
-		aCodesPerTrigger + [cTriggerName, cCode]
+		_aCodesPerTrigger_ + [_cTriggerName_, _cCode_]
 
-		def AddComputation(cTriggerName, cCode)
-			This.AddCode(cTriggerName, cCode)
+		def AddComputation(_cTriggerName_, _cCode_)
+			This.AddCode(_cTriggerName_, _cCode_)
 
-		def @C(cTriggerName, cCode)
-			This.AddCode(cTriggerName, cCode)
+		def @C(_cTriggerName_, _cCode_)
+			This.AddCode(_cTriggerName_, _cCode_)
 
 	#------------------#
 	# Process Methods  #
@@ -132,49 +132,49 @@ class stzRegexuter from stzObject
 		ok
 
 		# Reset tracking for this process run
-		aLastMatches = []
-		aLastResults = []
-		aLastTriggers = []
-		aLastPositions = []  # NEW: Reset positions
-		aActiveComputations = []
+		_aLastMatches_ = []
+		_aLastResults_ = []
+		_aLastTriggers_ = []
+		_aLastPositions_ = []  # NEW: Reset positions
+		_aActiveComputations_ = []
 
-		_nTriggers1Len_ = len(aTriggers)
+		_nTriggers1Len_ = len(_aTriggers_)
 		for _iLoopTriggers1_ = 1 to _nTriggers1Len_
-			trigger = aTriggers[_iLoopTriggers1_]
-			cTriggerName = trigger[1]
-			cPattern = trigger[2]
+			trigger = _aTriggers_[_iLoopTriggers1_]
+			_cTriggerName_ = trigger[1]
+			_cPattern_ = trigger[2]
 			
 			# Use AllMatches() instead of regex_getmatches()
-			oRegex = new stzRegex(cPattern)
-			oStzStr = new stzString(cText)
+			_oRegex_ = new stzRegex(_cPattern_)
+			_oStzStr_ = new stzString(cText)
 
-			aMatches = AllMatches(cText, cPattern)
+			_aMatches_ = AllMatches(cText, _cPattern_)
 			
-			if len(aMatches) > 0
-				aActiveComputations + cTriggerName
+			if len(_aMatches_) > 0
+				_aActiveComputations_ + _cTriggerName_
 
-				_nMatchesLen_ = len(aMatches)
+				_nMatchesLen_ = len(_aMatches_)
 				for i = 1 to _nMatchesLen_
-					match = aMatches[i]
+					_match_ = _aMatches_[i]
 					# Get position using MatchAt()
-					nPos = oStzStr.FindFirst(match)
+					_nPos_ = _oStzStr_.FindFirst(_match_)
 
-					aLastMatches + match
-					aLastTriggers + cTriggerName
-					aLastPositions + nPos  # NEW: Store position
+					_aLastMatches_ + _match_
+					_aLastTriggers_ + _cTriggerName_
+					_aLastPositions_ + _nPos_  # NEW: Store position
 
 					# Execute computation and track result
-					computedValue = executeComputation(match, cTriggerName)
-					aLastResults + computedValue
+					_computedValue_ = executeComputation(_match_, _cTriggerName_)
+					_aLastResults_ + _computedValue_
 
 					# Record state change if value was modified
-					if computedValue != match
-						AddStateEntry(cTriggerName, cPattern, match, 
-						            computedValue, nPos)
+					if _computedValue_ != _match_
+						AddStateEntry(_cTriggerName_, _cPattern_, _match_, 
+						            _computedValue_, _nPos_)
 					ok
 				next
 
-				del(aActiveComputations, len(aActiveComputations))
+				del(_aActiveComputations_, len(_aActiveComputations_))
 			ok
 		next
 
@@ -187,40 +187,40 @@ class stzRegexuter from stzObject
 	#-----------------#
 
 	def ResetState()
-		aState = []
-		aActiveComputations = []
+		_aState_ = []
+		_aActiveComputations_ = []
 
-	def AddStateEntry(cTriggerName, cPattern, cMatchedValue, computedValue, nPosition)
+	def AddStateEntry(_cTriggerName_, _cPattern_, cMatchedValue, _computedValue_, nPosition)
 		# Create state entry hashlist
-		entry = [
+		_entry_ = [
 			:timeStamp = date() + " " + time(),
-			:computationOrder = len(aState) + 1,
+			:computationOrder = len(_aState_) + 1,
 
-			:triggerName = cTriggerName,
-			:pattern = cPattern,
+			:triggerName = _cTriggerName_,
+			:pattern = _cPattern_,
 			:matchedValue = cMatchedValue,
-			:computedValue = computedValue,
+			:computedValue = _computedValue_,
 			:position = nPosition,
 
-			:dependsOn = aActiveComputations,
-			:affects = getAffectedTriggers(cTriggerName)
+			:dependsOn = _aActiveComputations_,
+			:affects = getAffectedTriggers(_cTriggerName_)
 		]
 
-		aState + entry
+		_aState_ + _entry_
 
-	def getAffectedTriggers(cTriggerName)
-		aAffected = []
+	def getAffectedTriggers(_cTriggerName_)
+		_aAffected_ = []
 		
 		# Look through state history for triggers affected by this one
-		_nState2Len_ = len(aState)
+		_nState2Len_ = len(_aState_)
 		for _iLoopState2_ = 1 to _nState2Len_
-			entry = aState[_iLoopState2_]
-			if find(entry[:dependsOn], cTriggerName) > 0
-				aAffected + entry[:triggerName] 
+			_entry_ = _aState_[_iLoopState2_]
+			if find(_entry_[:dependsOn], _cTriggerName_) > 0
+				_aAffected_ + _entry_[:triggerName] 
 			ok
 		next
 
-		return unique(aAffected)
+		return unique(_aAffected_)
 
 	def StateByPosition()
 
@@ -231,44 +231,44 @@ class stzRegexuter from stzObject
 		# Return state entries sorted by computation order
 		# TODO
 
-	def GetDependencyChain(cTriggerName)
-		aChain = []
+	def GetDependencyChain(_cTriggerName_)
+		_aChain_ = []
 		
-		_nState1Len_ = len(aState)
+		_nState1Len_ = len(_aState_)
 		for _iLoopState1_ = 1 to _nState1Len_
-			entry = aState[_iLoopState1_]
-			if entry[:triggerName] = cTriggerName
-				aChain + entry[:dependsOn]
+			_entry_ = _aState_[_iLoopState1_]
+			if _entry_[:triggerName] = _cTriggerName_
+				_aChain_ + _entry_[:dependsOn]
 				
-				_aEntrydependsOn1_ = entry[:dependsOn]
+				_aEntrydependsOn1_ = _entry_[:dependsOn]
 				_nEntrydependsOn1Len_ = len(_aEntrydependsOn1_)
 				for _iLoopEntrydependsOn1_ = 1 to _nEntrydependsOn1Len_
-					depTrigger = _aEntrydependsOn1_[_iLoopEntrydependsOn1_]
-					aChain + This.GetDependencyChain(depTrigger)
+					_depTrigger_ = _aEntrydependsOn1_[_iLoopEntrydependsOn1_]
+					_aChain_ + This.GetDependencyChain(_depTrigger_)
 				next
 			ok
 		next
 
-		return unique(aChain)
+		return unique(_aChain_)
 
 	#------------------#
 	# Result Methods   #
 	#------------------#
 
 	def State()
-		return aState
+		return _aState_
 
 	def Triggers()
-		return aLastTriggers
+		return _aLastTriggers_
 
 	def Matches() 
-		return aLastMatches
+		return _aLastMatches_
 
 	def Positions()
-		return aLastPositions
+		return _aLastPositions_
 
 	def Results()
-		return aLastResults
+		return _aLastResults_
 
 	def ResultsXT()
 		return Association([ This.Results(), This.Matches() ])
@@ -300,29 +300,29 @@ class stzRegexuter from stzObject
 
 	private
 
-	def executeComputation(cMatchedValue, cTriggerName)
-		if NOT (isString(cMatchedValue) and isString(cTriggerName))
+	def executeComputation(cMatchedValue, _cTriggerName_)
+		if NOT (isString(cMatchedValue) and isString(_cTriggerName_))
 			return cMatchedValue
 		ok
 
 		# Find computation code for this trigger
-		cCode = ""
-		_nCodesPerTrigger1Len_ = len(aCodesPerTrigger)
+		_cCode_ = ""
+		_nCodesPerTrigger1Len_ = len(_aCodesPerTrigger_)
 		for _iLoopCodesPerTrigger1_ = 1 to _nCodesPerTrigger1Len_
-			pair = aCodesPerTrigger[_iLoopCodesPerTrigger1_]
-			if pair[1] = cTriggerName
-				cCode = pair[2]
+			pair = _aCodesPerTrigger_[_iLoopCodesPerTrigger1_]
+			if pair[1] = _cTriggerName_
+				_cCode_ = pair[2]
 				exit
 			ok
 		next
 
-		if trim(cCode) = ""
+		if trim(_cCode_) = ""
 			return cMatchedValue
 		ok
 
 		try
 			@value = cMatchedValue
-			eval(cCode)
+			eval(_cCode_)
 			return @value
 		catch
 			return cMatchedValue

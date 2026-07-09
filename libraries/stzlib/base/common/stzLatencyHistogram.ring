@@ -6,14 +6,14 @@
 	O(1) memory and record cost. Percentile queries return the upper
 	bound (ms) of the bucket the percentile falls in.
 
-		oH = new stzLatencyHistogram
-		oH.Record(12.5)        # ms
-		oH.Record(48)
-		? oH.P50()             # median bucket upper bound
-		? oH.P99()
-		? oH.Count()
-		oH.Reset()
-		oH.Destroy()
+		_oH_ = new stzLatencyHistogram
+		_oH_.Record(12.5)        # ms
+		_oH_.Record(48)
+		? _oH_.P50()             # median bucket upper bound
+		? _oH_.P99()
+		? _oH_.Count()
+		_oH_.Reset()
+		_oH_.Destroy()
 */
 
 func StzLatencyHistogram()
@@ -22,7 +22,7 @@ func StzLatencyHistogram()
 class stzLatencyHistogram from stzObject
 
 	pHandle = NULL
-	bReady  = FALSE
+	_bReady_  = FALSE
 
 	def init()
 		This._Ensure()
@@ -30,9 +30,9 @@ class stzLatencyHistogram from stzObject
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = FALSE
+		if _bReady_ = FALSE
 			pHandle = StzEngineHistogramCreate()
-			bReady = TRUE
+			_bReady_ = TRUE
 		ok
 
 	def Handle()
@@ -69,9 +69,9 @@ class stzLatencyHistogram from stzObject
 		return This
 
 	def Destroy()
-		if bReady = TRUE
+		if _bReady_ = TRUE
 			StzEngineHistogramDestroy(pHandle)
 			pHandle = NULL
-			bReady = FALSE
+			_bReady_ = FALSE
 		ok
 		return This

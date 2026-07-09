@@ -1,44 +1,44 @@
 #---- Memory profiling functions for 32BIT architecture
 
-func SizeInBytes32(item)
-	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
-		item = item[2]
+func SizeInBytes32(_item_)
+	if isList(_item_) and len(_item_) = 2 and isString(_item_[1]) and _item_[1] = :Of
+		_item_ = _item_[2]
 	ok
     
-	switch type(item)
+	switch type(_item_)
 	on "NUMBER"
 		return RING_NUMBER_CONTENT_SIZE
 
         on "STRING"
-		nContentSize = len(item)
-		if nContentSize <= RING_STRING_ARRAYSIZE
-			return nContentSize + RING_STRING_ARRAYSIZE
+		_nContentSize_ = len(_item_)
+		if _nContentSize_ <= RING_STRING_ARRAYSIZE
+			return _nContentSize_ + RING_STRING_ARRAYSIZE
 		else
-			return nContentSize + RING_32BIT_STRING_STRUCTURE_SIZE
+			return _nContentSize_ + RING_32BIT_STRING_STRUCTURE_SIZE
 		ok
 
 	on "LIST"
-		nListAdditionalSize      = RING_32BIT_LIST_STRUCTURE_SIZE
-		nItemTotalAdditionalSize = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
+		_nListAdditionalSize_      = RING_32BIT_LIST_STRUCTURE_SIZE
+		_nItemTotalAdditionalSize_ = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
 
-		nLen = len(item)
-		nResult = nListAdditionalSize + (nLen * nItemTotalAdditionalSize)
+		_nLen_ = len(_item_)
+		_nResult_ = _nListAdditionalSize_ + (_nLen_ * _nItemTotalAdditionalSize_)
 		
-		nNum = 0
+		_nNum_ = 0
 
-		for i = 1 to nLen
-			if isNumber(item[i])
-				nNum++ 
+		for i = 1 to _nLen_
+			if isNumber(_item_[i])
+				_nNum_++ 
 			else
-				nResult += ContentSizeInBytes(item[i])
+				_nResult_ += ContentSizeInBytes(_item_[i])
 			ok
 		next
 
-		nResult += RING_NUMBER_CONTENT_SIZE * nNum
-		return nResult
+		_nResult_ += RING_NUMBER_CONTENT_SIZE * _nNum_
+		return _nResult_
 
         on "OBJECT"
-		return SizeInBytes32(AttributesValues(item))
+		return SizeInBytes32(AttributesValues(_item_))
 
 	off
 
@@ -144,39 +144,39 @@ func SizeInBytes32(item)
 
 	#>
 
-func SizeInBytes32XT(item)
-    	aResult = []
+func SizeInBytes32XT(_item_)
+    	_aResult_ = []
 
-	switch type(item)
+	switch type(_item_)
 	on "NUMBER"
 		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
 
         on "STRING"
-		nContentSize = len(item)
+		_nContentSize_ = len(_item_)
 
-		if nContentSize <= RING_STRING_ARRAYSIZE
-			aResult + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
-			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+		if _nContentSize_ <= RING_STRING_ARRAYSIZE
+			_aResult_ + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
+			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 	
 		else
-			aResult + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
-			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+			_aResult_ + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
+			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 		ok
 
-		return aResult
+		return _aResult_
 
 	on "LIST"
-		nLen = len(item)
+		_nLen_ = len(_item_)
 
-		aResult + [ "RING_32BIT_LIST_STRUCTURE_SIZE", RING_32BIT_LIST_STRUCTURE_SIZE ]
-		aResult + [ "RING_32BIT_ITEM_STRUCTURE_SIZE * " + nLen, RING_32BIT_ITEM_STRUCTURE_SIZE * nLen ]
-		aResult + [ "RING_32BIT_ITEMS_STRUCTURE_SIZE * " + nLen, RING_32BIT_ITEMS_STRUCTURE_SIZE * nLen ]
-		aResult + [ "RING_32BIT_ITEMS_CONTENT_SIZE", ContentSize(item) ]
+		_aResult_ + [ "RING_32BIT_LIST_STRUCTURE_SIZE", RING_32BIT_LIST_STRUCTURE_SIZE ]
+		_aResult_ + [ "RING_32BIT_ITEM_STRUCTURE_SIZE * " + _nLen_, RING_32BIT_ITEM_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_32BIT_ITEMS_STRUCTURE_SIZE * " + _nLen_, RING_32BIT_ITEMS_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_32BIT_ITEMS_CONTENT_SIZE", ContentSize(_item_) ]
 
-		return aResult
+		return _aResult_
 
         on "OBJECT"
-		 return SizeInBytes32XT(AttributesValues(item))		
+		 return SizeInBytes32XT(AttributesValues(_item_))		
 	off
 
 	#< @FunctionAlternativeForms

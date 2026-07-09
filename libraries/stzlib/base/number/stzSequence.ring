@@ -65,10 +65,10 @@ class stzSequence from stzObject
 		ok
 
 		@cName = cName
-		nResult = StzEngineSeqCreate(cName, nStart, nStep, nMode)
+		_nResult_ = StzEngineSeqCreate(cName, nStart, nStep, nMode)
 
-		if nResult < 0
-			StzRaise("Can't create stzSequence! Engine returned error code: " + nResult)
+		if _nResult_ < 0
+			StzRaise("Can't create stzSequence! Engine returned error code: " + _nResult_)
 		ok
 
 	  #--------------#
@@ -89,8 +89,8 @@ class stzSequence from stzObject
 			ok
 		ok
 
-		nResult = StzEngineSeqSetBounds(@cName, nMin, nMax)
-		if nResult < 0
+		_nResult_ = StzEngineSeqSetBounds(@cName, nMin, nMax)
+		if _nResult_ < 0
 			StzRaise("Can't set bounds! Sequence not found.")
 		ok
 
@@ -127,11 +127,11 @@ class stzSequence from stzObject
 			ok
 		ok
 
-		aResult = []
+		_aResult_ = []
 		for i = 1 to n
-			aResult + This.NextValue()
+			_aResult_ + This.NextValue()
 		next
-		return aResult
+		return _aResult_
 
 	  #-------------------------------#
 	 #     RESET AND CLEANUP         #
