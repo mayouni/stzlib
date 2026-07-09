@@ -431,6 +431,7 @@ ok
     load "natural/stzListOfEntities.ring"
 
     load "natural/stzNaturalCode.ring"
+    load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
     load "natural/stzNaturalMarkup.ring"
 
