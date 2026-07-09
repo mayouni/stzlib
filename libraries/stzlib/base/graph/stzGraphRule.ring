@@ -41,7 +41,7 @@ func StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 		$aGraphRules[pcRuleGroup] = []
 	ok
 
-	aRule = [
+	_aRule_ = [
 		:name = UPPER(pcRuleName),
 		:type = paRuleDefinition[:type],
 		:function = paRuleDefinition[:function],
@@ -50,7 +50,7 @@ func StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 		:severity = paRuleDefinition[:severity]
 	]
 
-	$aGraphRules[pcRuleGroup] + aRule
+	$aGraphRules[pcRuleGroup] + _aRule_
 
 	func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 		StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
@@ -61,11 +61,11 @@ func StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 func StzGetRule(pcRuleGroup, pcRuleName)
 	pcRuleName = UPPER(pcRuleName)
 	if HasKey($aGraphRules, pcRuleGroup)
-		aRules = $aGraphRules[pcRuleGroup]
-		nLen = len(aRules)
-		for i = 1 to nLen
-			if aRules[i][:name] = pcRuleName
-				return aRules[i]
+		_aRules_ = $aGraphRules[pcRuleGroup]
+		_nLen_ = len(_aRules_)
+		for i = 1 to _nLen_
+			if _aRules_[i][:name] = pcRuleName
+				return _aRules_[i]
 			ok
 		next
 	ok
@@ -80,89 +80,89 @@ func StzGetRule(pcRuleGroup, pcRuleName)
 
 func DerivationFunc_Transitivity()
 	return func(oGraph, paRuleParams) {
-		aNewEdges = []
-		aEdges = oGraph.Edges()
-		nLen1 = len(aEdges)
+		_aNewEdges_ = []
+		_aEdges_ = oGraph.Edges()
+		_nLen1_ = len(_aEdges_)
 		
-		for i = 1 to nLen1
-			aEdge1 = aEdges[i]
-			nLen2 = len(aEdges)
+		for i = 1 to _nLen1_
+			_aEdge1_ = _aEdges_[i]
+			_nLen2_ = len(_aEdges_)
 			
-			for j = 1 to nLen2
-				aEdge2 = aEdges[j]
+			for j = 1 to _nLen2_
+				_aEdge2_ = _aEdges_[j]
 				
-				if aEdge1[:to] = aEdge2[:from]
-					cFrom = aEdge1[:from]
-					cTo = aEdge2[:to]
+				if _aEdge1_[:to] = _aEdge2_[:from]
+					_cFrom_ = _aEdge1_[:from]
+					_cTo_ = _aEdge2_[:to]
 					
-					if NOT oGraph.EdgeExists(cFrom, cTo) and cFrom != cTo
-						aNewEdges + [cFrom, cTo, "(transitive)", [:derived = TRUE]]
+					if NOT oGraph.EdgeExists(_cFrom_, _cTo_) and _cFrom_ != _cTo_
+						_aNewEdges_ + [_cFrom_, _cTo_, "(transitive)", [:derived = TRUE]]
 					ok
 				ok
 			next
 		next
 		
-		return aNewEdges
+		return _aNewEdges_
 	}
 
 func DerivationFunc_Symmetry()
 	return func(oGraph, paRuleParams) {
-		aNewEdges = []
-		aEdges = oGraph.Edges()
-		nLen = len(aEdges)
+		_aNewEdges_ = []
+		_aEdges_ = oGraph.Edges()
+		_nLen_ = len(_aEdges_)
 		
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			if NOT oGraph.EdgeExists(aEdge[:to], aEdge[:from])
-				aNewEdges + [aEdge[:to], aEdge[:from], "(symmetric)", [:derived = TRUE]]
+		for i = 1 to _nLen_
+			_aEdge_ = _aEdges_[i]
+			if NOT oGraph.EdgeExists(_aEdge_[:to], _aEdge_[:from])
+				_aNewEdges_ + [_aEdge_[:to], _aEdge_[:from], "(symmetric)", [:derived = TRUE]]
 			ok
 		next
 		
-		return aNewEdges
+		return _aNewEdges_
 	}
 
 func DerivationFunc_Hierarchy()
 	return func(oGraph, paRuleParams) {
-		cProp = paRuleParams[:property]
-		cOrder = paRuleParams[:order]
+		_cProp_ = paRuleParams[:property]
+		_cOrder_ = paRuleParams[:order]
 		
-		aNewEdges = []
-		aEdges = oGraph.Edges()
-		nLen1 = len(aEdges)
+		_aNewEdges_ = []
+		_aEdges_ = oGraph.Edges()
+		_nLen1_ = len(_aEdges_)
 		
-		for i = 1 to nLen1
-			aEdge1 = aEdges[i]
-			nLen2 = len(aEdges)
+		for i = 1 to _nLen1_
+			_aEdge1_ = _aEdges_[i]
+			_nLen2_ = len(_aEdges_)
 			
-			for j = 1 to nLen2
-				aEdge2 = aEdges[j]
+			for j = 1 to _nLen2_
+				_aEdge2_ = _aEdges_[j]
 				
-				if aEdge1[:to] = aEdge2[:from]
-					cFrom = aEdge1[:from]
-					cMid = aEdge1[:to]
-					cTo = aEdge2[:to]
+				if _aEdge1_[:to] = _aEdge2_[:from]
+					_cFrom_ = _aEdge1_[:from]
+					_cMid_ = _aEdge1_[:to]
+					_cTo_ = _aEdge2_[:to]
 					
-					if NOT oGraph.EdgeExists(cFrom, cTo) and cFrom != cTo
-						pFromVal = oGraph.NodeProperty(cFrom, cProp)
-						pMidVal = oGraph.NodeProperty(cMid, cProp)
-						pToVal = oGraph.NodeProperty(cTo, cProp)
+					if NOT oGraph.EdgeExists(_cFrom_, _cTo_) and _cFrom_ != _cTo_
+						pFromVal = oGraph.NodeProperty(_cFrom_, _cProp_)
+						pMidVal = oGraph.NodeProperty(_cMid_, _cProp_)
+						pToVal = oGraph.NodeProperty(_cTo_, _cProp_)
 						
-						bValid = FALSE
-						if cOrder = :ascending
-							bValid = (pFromVal < pMidVal and pMidVal < pToVal)
-						but cOrder = :descending
-							bValid = (pFromVal > pMidVal and pMidVal > pToVal)
+						_bValid_ = FALSE
+						if _cOrder_ = :ascending
+							_bValid_ = (pFromVal < pMidVal and pMidVal < pToVal)
+						but _cOrder_ = :descending
+							_bValid_ = (pFromVal > pMidVal and pMidVal > pToVal)
 						ok
 						
-						if bValid
-							aNewEdges + [cFrom, cTo, "(hierarchy)", [:derived = TRUE]]
+						if _bValid_
+							_aNewEdges_ + [_cFrom_, _cTo_, "(hierarchy)", [:derived = TRUE]]
 						ok
 					ok
 				ok
 			next
 		next
 		
-		return aNewEdges
+		return _aNewEdges_
 	}
 
 #-------------------------------------------#
@@ -181,14 +181,14 @@ func ConstraintFunc_NoSelfLoop()
 
 func ConstraintFunc_MaxDegree()
 	return func(oGraph, paRuleParams, paOperationParams) {
-		nMax = paRuleParams[:max]
+		_nMax_ = paRuleParams[:max]
 		
 		if HasKey(paOperationParams, :node)
-			cNode = paOperationParams[:node]
-			if oGraph.NodeExists(cNode)
-				nDegree = len(oGraph.Neighbors(cNode)) + len(oGraph.Incoming(cNode))
-				if nDegree >= nMax
-					return [TRUE, "Node exceeds max degree of " + nMax]
+			_cNode_ = paOperationParams[:node]
+			if oGraph.NodeExists(_cNode_)
+				_nDegree_ = len(oGraph.Neighbors(_cNode_)) + len(oGraph.Incoming(_cNode_))
+				if _nDegree_ >= _nMax_
+					return [TRUE, "Node exceeds max degree of " + _nMax_]
 				ok
 			ok
 		ok
@@ -198,10 +198,10 @@ func ConstraintFunc_MaxDegree()
 func ConstraintFunc_NoCycles()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
-			cFrom = paOperationParams[:from]
-			cTo = paOperationParams[:to]
+			_cFrom_ = paOperationParams[:from]
+			_cTo_ = paOperationParams[:to]
 			
-			if oGraph.PathExists(cTo, cFrom)
+			if oGraph.PathExists(_cTo_, _cFrom_)
 				return [TRUE, "Would create a cycle"]
 			ok
 		ok
@@ -210,31 +210,31 @@ func ConstraintFunc_NoCycles()
 
 func ConstraintFunc_Separation()
 	return func(oGraph, paRuleParams, paOperationParams) {
-		cProp = paRuleParams[:property]
-		aValues = paRuleParams[:values]
+		_cProp_ = paRuleParams[:property]
+		_aValues_ = paRuleParams[:values]
 		
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
-			cFrom = paOperationParams[:from]
-			cTo = paOperationParams[:to]
+			_cFrom_ = paOperationParams[:from]
+			_cTo_ = paOperationParams[:to]
 			
-			if oGraph.NodeExists(cFrom) and oGraph.NodeExists(cTo)
-				pFromVal = oGraph.NodeProperty(cFrom, cProp)
-				pToVal = oGraph.NodeProperty(cTo, cProp)
+			if oGraph.NodeExists(_cFrom_) and oGraph.NodeExists(_cTo_)
+				pFromVal = oGraph.NodeProperty(_cFrom_, _cProp_)
+				pToVal = oGraph.NodeProperty(_cTo_, _cProp_)
 				
-				nLen = len(aValues)
-				bFromRestricted = FALSE
-				bToRestricted = FALSE
+				_nLen_ = len(_aValues_)
+				_bFromRestricted_ = FALSE
+				_bToRestricted_ = FALSE
 				
-				for i = 1 to nLen
-					if pFromVal = aValues[i]
-						bFromRestricted = TRUE
+				for i = 1 to _nLen_
+					if pFromVal = _aValues_[i]
+						_bFromRestricted_ = TRUE
 					ok
-					if pToVal = aValues[i]
-						bToRestricted = TRUE
+					if pToVal = _aValues_[i]
+						_bToRestricted_ = TRUE
 					ok
 				next
 				
-				if bFromRestricted and bToRestricted
+				if _bFromRestricted_ and _bToRestricted_
 					return [TRUE, "Separation of duties violation"]
 				ok
 			ok
@@ -244,29 +244,29 @@ func ConstraintFunc_Separation()
 
 func ConstraintFunc_PropertyMismatch()
 	return func(oGraph, paRuleParams, paOperationParams) {
-		cProp = paRuleParams[:property]
-		cOp = paRuleParams[:operator]
+		_cProp_ = paRuleParams[:property]
+		_cOp_ = paRuleParams[:operator]
 		pVal = paRuleParams[:value]
 		
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
-			cFrom = paOperationParams[:from]
-			cTo = paOperationParams[:to]
+			_cFrom_ = paOperationParams[:from]
+			_cTo_ = paOperationParams[:to]
 			
-			if oGraph.NodeExists(cFrom)
-				pActual = oGraph.NodeProperty(cFrom, cProp)
+			if oGraph.NodeExists(_cFrom_)
+				pActual = oGraph.NodeProperty(_cFrom_, _cProp_)
 				
-				bMismatch = FALSE
-				if cOp = "!="
-					bMismatch = (pActual = pVal)
-				but cOp = "="
-					bMismatch = (pActual != pVal)
-				but cOp = ">"
-					bMismatch = (pActual <= pVal)
-				but cOp = "<"
-					bMismatch = (pActual >= pVal)
+				_bMismatch_ = FALSE
+				if _cOp_ = "!="
+					_bMismatch_ = (pActual = pVal)
+				but _cOp_ = "="
+					_bMismatch_ = (pActual != pVal)
+				but _cOp_ = ">"
+					_bMismatch_ = (pActual <= pVal)
+				but _cOp_ = "<"
+					_bMismatch_ = (pActual >= pVal)
 				ok
 				
-				if bMismatch
+				if _bMismatch_
 					return [TRUE, "Property constraint violated"]
 				ok
 			ok
@@ -296,48 +296,48 @@ func ValidationFunc_IsConnected()
 
 func ValidationFunc_MaxNodes()
 	return func(oGraph, paRuleParams) {
-		nMax = paRuleParams[:max]
+		_nMax_ = paRuleParams[:max]
 		
-		if oGraph.NodeCount() > nMax
-			return [FALSE, "Exceeds maximum of " + nMax + " nodes"]
+		if oGraph.NodeCount() > _nMax_
+			return [FALSE, "Exceeds maximum of " + _nMax_ + " nodes"]
 		ok
 		return [TRUE, ""]
 	}
 
 func ValidationFunc_DensityRange()
 	return func(oGraph, paRuleParams) {
-		nMin = paRuleParams[:min]
-		nMax = paRuleParams[:max]
+		_nMin_ = paRuleParams[:min]
+		_nMax_ = paRuleParams[:max]
 		
-		nDensity = oGraph.Density()
-		if nDensity < nMin or nDensity > nMax
-			return [FALSE, "Density " + nDensity + " outside range [" + nMin + "," + nMax + "]"]
+		_nDensity_ = oGraph.Density()
+		if _nDensity_ < _nMin_ or _nDensity_ > _nMax_
+			return [FALSE, "Density " + _nDensity_ + " outside range [" + _nMin_ + "," + _nMax_ + "]"]
 		ok
 		return [TRUE, ""]
 	}
 
 func ValidationFunc_NoBottlenecks()
 	return func(oGraph, paRuleParams) {
-		aBottlenecks = oGraph.BottleneckNodes()
-		if len(aBottlenecks) > 0
-			return [FALSE, "Bottlenecks found: " + JoinXT(aBottlenecks, ", ")]
+		_aBottlenecks_ = oGraph.BottleneckNodes()
+		if len(_aBottlenecks_) > 0
+			return [FALSE, "Bottlenecks found: " + JoinXT(_aBottlenecks_, ", ")]
 		ok
 		return [TRUE, ""]
 	}
 
 func ValidationFunc_AllNodesReachable()
 	return func(oGraph, paRuleParams) {
-		cStart = paRuleParams[:start]
+		_cStart_ = paRuleParams[:start]
 		
-		if NOT oGraph.NodeExists(cStart)
+		if NOT oGraph.NodeExists(_cStart_)
 			return [FALSE, "Start node does not exist"]
 		ok
 		
-		aReachable = oGraph.ReachableFrom(cStart)
-		nTotal = oGraph.NodeCount()
+		_aReachable_ = oGraph.ReachableFrom(_cStart_)
+		_nTotal_ = oGraph.NodeCount()
 		
-		if len(aReachable) < nTotal
-			return [FALSE, "Not all nodes reachable from " + cStart]
+		if len(_aReachable_) < _nTotal_
+			return [FALSE, "Not all nodes reachable from " + _cStart_]
 		ok
 		return [TRUE, ""]
 	}

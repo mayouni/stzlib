@@ -43,8 +43,8 @@ class stzStringIO from stzObject
 			StzRaise("File not found! " + pcFilePath)
 		ok
 
-		cContent = read(pcFilePath)
-		@oString.Update(cContent)
+		_cContent_ = read(pcFilePath)
+		@oString.Update(_cContent_)
 
 		def FromFileQ(pcFilePath)
 			This.FromFile(pcFilePath)
@@ -63,44 +63,44 @@ class stzStringIO from stzObject
 			This.ToFile(pcFilePath)
 
 	def AppendToFile(pcFilePath)
-		cExisting = ""
+		_cExisting_ = ""
 		if fexists(pcFilePath)
-			cExisting = read(pcFilePath)
+			_cExisting_ = read(pcFilePath)
 		ok
-		write(pcFilePath, cExisting + @oString.Content())
+		write(pcFilePath, _cExisting_ + @oString.Content())
 
 	def PrependToFile(pcFilePath)
-		cExisting = ""
+		_cExisting_ = ""
 		if fexists(pcFilePath)
-			cExisting = read(pcFilePath)
+			_cExisting_ = read(pcFilePath)
 		ok
-		write(pcFilePath, @oString.Content() + cExisting)
+		write(pcFilePath, @oString.Content() + _cExisting_)
 
 	def FileExists(pcFilePath)
 		return fexists(pcFilePath)
 
 	def IsFilePath()
-		cContent = @oString.Content()
-		nLen = StzLen(cContent)
-		if nLen = 0
+		_cContent_ = @oString.Content()
+		_nLen_ = StzLen(_cContent_)
+		if _nLen_ = 0
 			return 0
 		ok
 
-		acChars = @oString.Chars()
-		bHasSep = 0
-		bHasDot = 0
+		_acChars_ = @oString.Chars()
+		_bHasSep_ = 0
+		_bHasDot_ = 0
 
-		for i = 1 to nLen
-			c = acChars[i]
-			if c = "\" or c = "/"
-				bHasSep = 1
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if _c_ = "\" or _c_ = "/"
+				_bHasSep_ = 1
 			ok
-			if c = "."
-				bHasDot = 1
+			if _c_ = "."
+				_bHasDot_ = 1
 			ok
 		next
 
-		if bHasSep and bHasDot
+		if _bHasSep_ and _bHasDot_
 			return 1
 		else
 			return 0
@@ -111,18 +111,18 @@ class stzStringIO from stzObject
 	#===============================#
 
 	def IsURL()
-		cContent = StzCaseFold(@oString.Content())
-		if StzLeft(cContent, 7) = "http://" or
-		   StzLeft(cContent, 8) = "https://" or
-		   StzLeft(cContent, 6) = "ftp://"
+		_cContent_ = StzCaseFold(@oString.Content())
+		if StzLeft(_cContent_, 7) = "http://" or
+		   StzLeft(_cContent_, 8) = "https://" or
+		   StzLeft(_cContent_, 6) = "ftp://"
 			return 1
 		else
 			return 0
 		ok
 
 	def IsEmail()
-		oFinder = new stzStringFinder(@oString)
-		if oFinder.Contains("@") and oFinder.Contains(".")
+		_oFinder_ = new stzStringFinder(@oString)
+		if _oFinder_.Contains("@") and _oFinder_.Contains(".")
 			return 1
 		else
 			return 0
@@ -133,61 +133,61 @@ class stzStringIO from stzObject
 	#===============================#
 
 	def ToJSON()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cResult = '"'
-		for i = 1 to nLen
-			c = acChars[i]
-			if c = '"'
-				cResult += '\"'
-			but c = "\"
-				cResult += "\\"
-			but c = StzChar(10)
-				cResult += "\n"
-			but c = StzChar(13)
-				cResult += "\r"
-			but c = StzChar(9)
-				cResult += "\t"
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cResult_ = '"'
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if _c_ = '"'
+				_cResult_ += '\"'
+			but _c_ = "\"
+				_cResult_ += "\\"
+			but _c_ = StzChar(10)
+				_cResult_ += "\n"
+			but _c_ = StzChar(13)
+				_cResult_ += "\r"
+			but _c_ = StzChar(9)
+				_cResult_ += "\t"
 			else
-				cResult += c
+				_cResult_ += _c_
 			ok
 		next
-		cResult += '"'
-		return cResult
+		_cResult_ += '"'
+		return _cResult_
 
 	def ToCSV()
-		cContent = @oString.Content()
-		oFinder = new stzStringFinder(cContent)
-		if oFinder.Contains(",") or oFinder.Contains('"') or oFinder.Contains(NL)
-			cContent = @ReplaceCS(cContent, '"', '""', 1)
-			return '"' + cContent + '"'
+		_cContent_ = @oString.Content()
+		_oFinder_ = new stzStringFinder(_cContent_)
+		if _oFinder_.Contains(",") or _oFinder_.Contains('"') or _oFinder_.Contains(NL)
+			_cContent_ = @ReplaceCS(_cContent_, '"', '""', 1)
+			return '"' + _cContent_ + '"'
 		else
-			return cContent
+			return _cContent_
 		ok
 
 	def ToXML()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cResult = ""
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			c = acChars[i]
-			if c = "&"
-				cResult += "&amp;"
-			but c = "<"
-				cResult += "&lt;"
-			but c = ">"
-				cResult += "&gt;"
-			but c = '"'
-				cResult += "&quot;"
-			but c = "'"
-				cResult += "&apos;"
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if _c_ = "&"
+				_cResult_ += "&amp;"
+			but _c_ = "<"
+				_cResult_ += "&lt;"
+			but _c_ = ">"
+				_cResult_ += "&gt;"
+			but _c_ = '"'
+				_cResult_ += "&quot;"
+			but _c_ = "'"
+				_cResult_ += "&apos;"
 			else
-				cResult += c
+				_cResult_ += _c_
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 	def ToHTML()
 		return "<span>" + This.ToXML() + "</span>"
@@ -196,16 +196,16 @@ class stzStringIO from stzObject
 		StzRaise("Clipboard access is not supported in this environment!")
 
 	def IsBase64()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		if nLen = 0
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		if _nLen_ = 0
 			return 0
 		ok
 
-		for i = 1 to nLen
-			c = acChars[i]
-			if isAlpha(c) or isDigit(c) or
-			   c = "+" or c = "/" or c = "="
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if isAlpha(_c_) or isDigit(_c_) or
+			   _c_ = "+" or _c_ = "/" or _c_ = "="
 				# valid base64 character
 			else
 				return 0

@@ -118,18 +118,18 @@ class stzEntity from stzObject
 		ok
 
 	def ContainsValue(pValue)
-		bResult = 0
+		_bResult_ = 0
 		_aThisEntity3_ = This.Entity()
 		_nThisEntity3Len_ = len(_aThisEntity3_)
 		for _iLoopThisEntity3_ = 1 to _nThisEntity3Len_
-			aPair = _aThisEntity3_[_iLoopThisEntity3_]
-			if @AreEqual([ aPair[2], pValue ])
-				bResult = 1
+			_aPair_ = _aThisEntity3_[_iLoopThisEntity3_]
+			if @AreEqual([ _aPair_[2], pValue ])
+				_bResult_ = 1
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	def Property(pcProp)
 		if NOT isString(pcProp)
@@ -157,8 +157,8 @@ class stzEntity from stzObject
 				return
 
 			but IsListOfPairs(p)
-				nLen = len(p)
-				for i = 1 to nLen
+				_nLen_ = len(p)
+				for i = 1 to _nLen_
 					This.SetProperty(p[i][1], p[i][2])
 				next
 				return
@@ -198,8 +198,8 @@ class stzEntity from stzObject
 		if NOT HasKey(@aEntity, pcProp)
 			return 0
 		else
-			nLen = len(@aEntity)
-			for i = 1 to nLen
+			_nLen_ = len(@aEntity)
+			for i = 1 to _nLen_
 				if @aEntity[i][1] = pcProp
 					return i
 				ok
@@ -237,14 +237,14 @@ class stzEntity from stzObject
 			This.RemoveProperty(pcProp)
 
 	def Properties()
-		aResult = []
+		_aResult_ = []
 		_aThisEntity2_ = This.Entity()
 		_nThisEntity2Len_ = len(_aThisEntity2_)
 		for _iLoopThisEntity2_ = 1 to _nThisEntity2Len_
-			aProp = _aThisEntity2_[_iLoopThisEntity2_]
-			aResult + aProp[1]
+			_aProp_ = _aThisEntity2_[_iLoopThisEntity2_]
+			_aResult_ + _aProp_[1]
 		next
-		return aResult
+		return _aResult_
 
 		def Props()
 			return Properties()
@@ -275,8 +275,8 @@ class stzEntity from stzObject
 		_aThisEntity1_ = This.Entity()
 		_nThisEntity1Len_ = len(_aThisEntity1_)
 		for _iLoopThisEntity1_ = 1 to _nThisEntity1Len_
-			aProp = _aThisEntity1_[_iLoopThisEntity1_]
-			if aProp[1] != "name" and aProp[1] != "type"
-				? "  " + aProp[1] + ": " + aProp[2]
+			_aProp_ = _aThisEntity1_[_iLoopThisEntity1_]
+			if _aProp_[1] != "name" and _aProp_[1] != "type"
+				? "  " + _aProp_[1] + ": " + _aProp_[2]
 			ok
 		next

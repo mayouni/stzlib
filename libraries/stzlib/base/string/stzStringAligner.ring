@@ -45,18 +45,18 @@ class stzStringAligner from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringLjust(pH, n, pcChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def AlignLeftQ(n, pcChar)
 			This.AlignLeft(n, pcChar)
 			return This
 
 	def AlignedLeft(n, pcChar)
-		oCopy = new stzStringAligner(@oString.Content())
-		oCopy.AlignLeft(n, pcChar)
-		return oCopy.Content()
+		_oCopy_ = new stzStringAligner(@oString.Content())
+		_oCopy_.AlignLeft(n, pcChar)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   ALIGN RIGHT                                        #
@@ -68,18 +68,18 @@ class stzStringAligner from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringRjust(pH, n, pcChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def AlignRightQ(n, pcChar)
 			This.AlignRight(n, pcChar)
 			return This
 
 	def AlignedRight(n, pcChar)
-		oCopy = new stzStringAligner(@oString.Content())
-		oCopy.AlignRight(n, pcChar)
-		return oCopy.Content()
+		_oCopy_ = new stzStringAligner(@oString.Content())
+		_oCopy_.AlignRight(n, pcChar)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   ALIGN CENTER                                       #
@@ -91,18 +91,18 @@ class stzStringAligner from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringCenterPad(pH, n, pcChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def AlignCenterQ(n, pcChar)
 			This.AlignCenter(n, pcChar)
 			return This
 
 	def AlignedCenter(n, pcChar)
-		oCopy = new stzStringAligner(@oString.Content())
-		oCopy.AlignCenter(n, pcChar)
-		return oCopy.Content()
+		_oCopy_ = new stzStringAligner(@oString.Content())
+		_oCopy_.AlignCenter(n, pcChar)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   PAD LEFT / RIGHT                                   #
@@ -147,25 +147,25 @@ class stzStringAligner from stzObject
 	#======================================================#
 
 	def IsAlignedLeft(n, pcChar)
-		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
-		if nLen >= n
+		_cStr_ = @oString.Content()
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ >= n
 			return 1
 		ok
-		cPad = ""
-		for i = 1 to n - nLen
-			cPad += pcChar
+		_cPad_ = ""
+		for i = 1 to n - _nLen_
+			_cPad_ += pcChar
 		next
-		return StzRight(cStr, n - nLen) = cPad
+		return StzRight(_cStr_, n - _nLen_) = _cPad_
 
 	def IsAlignedRight(n, pcChar)
-		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
-		if nLen >= n
+		_cStr_ = @oString.Content()
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ >= n
 			return 1
 		ok
-		cPad = ""
-		for i = 1 to n - nLen
-			cPad += pcChar
+		_cPad_ = ""
+		for i = 1 to n - _nLen_
+			_cPad_ += pcChar
 		next
-		return StzLeft(cStr, n - nLen) = cPad
+		return StzLeft(_cStr_, n - _nLen_) = _cPad_

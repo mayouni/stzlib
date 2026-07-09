@@ -54,21 +54,21 @@ class stzStringConcat from stzObject
 	#======================================================#
 
 	def ConcatMany(pacStrings)
-		cResult = @oString.Content()
-		nLen = len(pacStrings)
-		for i = 1 to nLen
-			cResult += pacStrings[i]
+		_cResult_ = @oString.Content()
+		_nLen_ = len(pacStrings)
+		for i = 1 to _nLen_
+			_cResult_ += pacStrings[i]
 		next
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def ConcatManyQ(pacStrings)
 			This.ConcatMany(pacStrings)
 			return This
 
 	def ConcatenatedWithMany(pacStrings)
-		oCopy = new stzStringConcat(@oString.Content())
-		oCopy.ConcatMany(pacStrings)
-		return oCopy.Content()
+		_oCopy_ = new stzStringConcat(@oString.Content())
+		_oCopy_.ConcatMany(pacStrings)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   PREPEND / APPEND                                   #
@@ -114,9 +114,9 @@ class stzStringConcat from stzObject
 			This.RepeatNTimes(n)
 
 	def RepeatedNTimes(n)
-		oCopy = new stzStringConcat(@oString.Content())
-		oCopy.RepeatNTimes(n)
-		return oCopy.Content()
+		_oCopy_ = new stzStringConcat(@oString.Content())
+		_oCopy_.RepeatNTimes(n)
+		return _oCopy_.Content()
 
 		def Repeated(n)
 			return This.RepeatedNTimes(n)
@@ -126,22 +126,22 @@ class stzStringConcat from stzObject
 	#======================================================#
 
 	def JoinWith(pcSep)
-		aChars = @oString.Chars()
-		cResult = ""
-		nLen = len(aChars)
-		for i = 1 to nLen
-			cResult += aChars[i]
-			if i < nLen
-				cResult += pcSep
+		_aChars_ = @oString.Chars()
+		_cResult_ = ""
+		_nLen_ = len(_aChars_)
+		for i = 1 to _nLen_
+			_cResult_ += _aChars_[i]
+			if i < _nLen_
+				_cResult_ += pcSep
 			ok
 		next
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def JoinWithQ(pcSep)
 			This.JoinWith(pcSep)
 			return This
 
 	def JoinedWith(pcSep)
-		oCopy = new stzStringConcat(@oString.Content())
-		oCopy.JoinWith(pcSep)
-		return oCopy.Content()
+		_oCopy_ = new stzStringConcat(@oString.Content())
+		_oCopy_.JoinWith(pcSep)
+		return _oCopy_.Content()

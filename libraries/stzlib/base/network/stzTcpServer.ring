@@ -14,12 +14,12 @@
 
 class stzTcpServer from stzNetwork
     @hServer = NULL              # opaque engine TCP server handle
-    clients = []                 # accepted clients (stzTcpClient instances)
-    is_listening = False
-    on_client_connect_callback = ""
-    on_client_disconnect_callback = ""
-    on_client_message_callback = ""
-    on_error_callback = ""
+    _clients_ = []                 # accepted clients (stzTcpClient instances)
+    _is_listening_ = False
+    _on_client_connect_callback_ = ""
+    _on_client_disconnect_callback_ = ""
+    _on_client_message_callback_ = ""
+    _on_error_callback_ = ""
 
     def init()
         # stzNetwork.init takes no args; nothing to wire up here.
@@ -29,14 +29,14 @@ class stzTcpServer from stzNetwork
         @hServer = StzEngineTcpListen(cHost, nPort)
         # Engine returns a null-pointer on failure; LastError tells.
         if StzEngineTcpLastError() = ""
-            is_listening = True
+            _is_listening_ = True
             ClearErrors()
         else
-            is_listening = False
-            last_error = StzEngineTcpLastError()
-            error_code = -1
-            if on_error_callback != ""
-                call on_error_callback()
+            _is_listening_ = False
+            _last_error_ = StzEngineTcpLastError()
+            _error_code_ = -1
+            if _on_error_callback_ != ""
+                call _on_error_callback_()
             ok
         ok
         return This
@@ -45,35 +45,35 @@ class stzTcpServer from stzNetwork
     # (or NULL on listener error). Caller is responsible for closing
     # the client when done.
     def AcceptOne()
-        if not is_listening
-            last_error = "Not listening"
+        if not _is_listening_
+            _last_error_ = "Not listening"
             return NULL
         ok
         pClient = StzEngineTcpAccept(@hServer)
         if StzEngineTcpLastError() != ""
-            last_error = StzEngineTcpLastError()
-            error_code = -1
-            if on_error_callback != ""
-                call on_error_callback()
+            _last_error_ = StzEngineTcpLastError()
+            _error_code_ = -1
+            if _on_error_callback_ != ""
+                call _on_error_callback_()
             ok
             return NULL
         ok
-        oClient = new stzTcpClient
+        _oClient_ = new stzTcpClient
         # Patch the engine handle into the client wrapper so the
         # caller can Send/Receive/Close through the normal API.
-        oClient.@hClient = pClient
-        oClient.is_connected = True
-        clients + oClient
-        if on_client_connect_callback != ""
-            call on_client_connect_callback()
+        _oClient_.@hClient = pClient
+        _oClient_.is_connected = True
+        _clients_ + _oClient_
+        if _on_client_connect_callback_ != ""
+            call _on_client_connect_callback_()
         ok
-        return oClient
+        return _oClient_
 
     def StopListening()
-        if is_listening and @hServer != NULL
+        if _is_listening_ and @hServer != NULL
             StzEngineTcpServerClose(@hServer)
             @hServer = NULL
-            is_listening = False
+            _is_listening_ = False
         ok
         return This
 
@@ -81,23 +81,23 @@ class stzTcpServer from stzNetwork
         return This.StopListening()
 
     def OnClientConnect(cCallback)
-        on_client_connect_callback = cCallback
+        _on_client_connect_callback_ = cCallback
         return This
 
     def OnClientDisconnect(cCallback)
-        on_client_disconnect_callback = cCallback
+        _on_client_disconnect_callback_ = cCallback
         return This
 
     def OnClientMessage(cCallback)
-        on_client_message_callback = cCallback
+        _on_client_message_callback_ = cCallback
         return This
 
     def OnError(cCallback)
-        on_error_callback = cCallback
+        _on_error_callback_ = cCallback
         return This
 
     def IsListening()
-        return is_listening
+        return _is_listening_
 
     def NumberOfClients()
-        return len(clients)
+        return len(_clients_)

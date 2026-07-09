@@ -43,8 +43,8 @@ class stzStringVisualizer from stzObject
 		? @oString.Content()
 
 	def ShowShort()
-		nLen = @oString.NumberOfChars()
-		if nLen <= 50
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ <= 50
 			? @oString.Content()
 		else
 			? @oString.Section(1, 47) + "..."
@@ -57,58 +57,58 @@ class stzStringVisualizer from stzObject
 	 #     VIZFIND                   #
 	#===============================#
 
-	def VizFindCharCS(c, pCaseSensitive)
-		if NOT ( isString(c) and StzLen(c) = 1 )
+	def VizFindCharCS(_c_, pCaseSensitive)
+		if NOT ( isString(_c_) and StzLen(_c_) = 1 )
 			return ""
 		ok
 
-		cResult = @@( @oString.Content() )
-		oFinder = new stzStringFinder(@oString)
-		anPos = oFinder.FindCS(c, pCaseSensitive)
+		_cResult_ = @@( @oString.Content() )
+		_oFinder_ = new stzStringFinder(@oString)
+		_anPos_ = _oFinder_.FindCS(_c_, pCaseSensitive)
 
-		nChars = @oString.NumberOfChars()
+		_nChars_ = @oString.NumberOfChars()
 
-		cViz = " "
-		for i = 1 to nChars
-			if StzFindFirst(anPos, i) > 0
-				cViz += "^"
+		_cViz_ = " "
+		for i = 1 to _nChars_
+			if StzFindFirst(_anPos_, i) > 0
+				_cViz_ += "^"
 			else
-				cViz += "-"
+				_cViz_ += "-"
 			ok
 		next
 
-		return cResult + NL + cViz
+		return _cResult_ + NL + _cViz_
 
-	def VizFindChar(c)
-		return This.VizFindCharCS(c, 1)
+	def VizFindChar(_c_)
+		return This.VizFindCharCS(_c_, 1)
 
 	def VizFindCS(pcSubStr, pCaseSensitive)
-		cResult = @@( @oString.Content() )
-		oFinder = new stzStringFinder(@oString)
-		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
+		_cResult_ = @@( @oString.Content() )
+		_oFinder_ = new stzStringFinder(@oString)
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
 
-		nSubLen = StzLen(pcSubStr)
-		nChars = @oString.NumberOfChars()
+		_nSubLen_ = StzLen(pcSubStr)
+		_nChars_ = @oString.NumberOfChars()
 
-		cViz = " "
-		for i = 1 to nChars
-			bMarked = 0
-			nPosLen = len(anPos)
-			for j = 1 to nPosLen
-				if i >= anPos[j] and i < anPos[j] + nSubLen
-					bMarked = 1
+		_cViz_ = " "
+		for i = 1 to _nChars_
+			_bMarked_ = 0
+			_nPosLen_ = len(_anPos_)
+			for j = 1 to _nPosLen_
+				if i >= _anPos_[j] and i < _anPos_[j] + _nSubLen_
+					_bMarked_ = 1
 					exit
 				ok
 			next
 
-			if bMarked
-				cViz += "^"
+			if _bMarked_
+				_cViz_ += "^"
 			else
-				cViz += "-"
+				_cViz_ += "-"
 			ok
 		next
 
-		return cResult + NL + cViz
+		return _cResult_ + NL + _cViz_
 
 	def VizFind(pcSubStr)
 		return This.VizFindCS(pcSubStr, 1)
@@ -121,27 +121,27 @@ class stzStringVisualizer from stzObject
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
 
 	def BoxedXT(paOptions)
-		cContent = @oString.Content()
-		nLen = @oString.NumberOfChars()
+		_cContent_ = @oString.Content()
+		_nLen_ = @oString.NumberOfChars()
 
-		cCorner = "+"
-		cHLine = "-"
-		cVLine = "|"
+		_cCorner_ = "+"
+		_cHLine_ = "-"
+		_cVLine_ = "|"
 
 		if isList(paOptions)
-			nOptLen = len(paOptions)
-			for i = 1 to nOptLen
+			_nOptLen_ = len(paOptions)
+			for i = 1 to _nOptLen_
 				if isList(paOptions[i])
 					if len(paOptions[i]) = 2
 						if paOptions[i][1] = :AllCorners
 							if paOptions[i][2] = :Round
-								cCorner = "."
+								_cCorner_ = "."
 							ok
 						ok
 						if paOptions[i][1] = :Line
 							if paOptions[i][2] = :Dashed
-								cHLine = "-"
-								cVLine = ":"
+								_cHLine_ = "-"
+								_cVLine_ = ":"
 							ok
 						ok
 					ok
@@ -149,20 +149,20 @@ class stzStringVisualizer from stzObject
 			next
 		ok
 
-		cTop = cCorner + ""
-		for i = 1 to nLen + 2
-			cTop += cHLine
+		_cTop_ = _cCorner_ + ""
+		for i = 1 to _nLen_ + 2
+			_cTop_ += _cHLine_
 		next
-		cTop += cCorner
+		_cTop_ += _cCorner_
 
-		cMid = cVLine + " " + cContent + " " + cVLine
-		cBot = cCorner + ""
-		for i = 1 to nLen + 2
-			cBot += cHLine
+		_cMid_ = _cVLine_ + " " + _cContent_ + " " + _cVLine_
+		_cBot_ = _cCorner_ + ""
+		for i = 1 to _nLen_ + 2
+			_cBot_ += _cHLine_
 		next
-		cBot += cCorner
+		_cBot_ += _cCorner_
 
-		return cTop + NL + cMid + NL + cBot
+		return _cTop_ + NL + _cMid_ + NL + _cBot_
 
 	def BoxedRounded()
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
@@ -172,17 +172,17 @@ class stzStringVisualizer from stzObject
 	#===============================#
 
 	def EachCharBoxed()
-		acResult = []
-		cContent = @oString.Content()
-		nLen = @oString.NumberOfChars()
+		_acResult_ = []
+		_cContent_ = @oString.Content()
+		_nLen_ = @oString.NumberOfChars()
 
-		for i = 1 to nLen
-			c = @oString.NthChar(i)
-			oViz = new stzStringVisualizer(c)
-			acResult + oViz.Boxed()
+		for i = 1 to _nLen_
+			_c_ = @oString.NthChar(i)
+			_oViz_ = new stzStringVisualizer(_c_)
+			_acResult_ + _oViz_.Boxed()
 		next
 
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     STRINGIFICATION           #
@@ -196,9 +196,9 @@ class stzStringVisualizer from stzObject
 	#===============================#
 
 	def HighlightCS(pcSubStr, pcMarker, pCaseSensitive)
-		cContent = @oString.Content()
-		cResult = @ReplaceCS(cContent, pcSubStr, pcMarker + pcSubStr + pcMarker, pCaseSensitive)
-		return cResult
+		_cContent_ = @oString.Content()
+		_cResult_ = @ReplaceCS(_cContent_, pcSubStr, pcMarker + pcSubStr + pcMarker, pCaseSensitive)
+		return _cResult_
 
 	def Highlight(pcSubStr, pcMarker)
 		return This.HighlightCS(pcSubStr, pcMarker, 1)

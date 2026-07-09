@@ -2,24 +2,24 @@
 
 
 class stzListProvidedAsString from stzObject
-	cListAsString
-	aItems
+	_cListAsString_
+	_aItems_
 
-	oStzString
+	_oStzString_
 
 	def init(pcListAsString)
 		// Issuming the provided string is a well formed
 		// list provided inside a string
 
-		cListAsString = pcListAsString
-		oStzString = new stzString(cListAsString)
+		_cListAsString_ = pcListAsString
+		_oStzString_ = new stzString(_cListAsString_)
 
 		// Extracting list items
-		cTempString = oStzString.RemoveTheseBounds("[","]")
-		oTempString = new stzString(cTempString)
-		cTempString = oTempString.RemoveSpaces()
-		oTempString = new stzString(cTempString)
-		aItems = oTempString.Split( :Using = ",")
+		_cTempString_ = _oStzString_.RemoveTheseBounds("[","]")
+		_oTempString_ = new stzString(_cTempString_)
+		_cTempString_ = _oTempString_.RemoveSpaces()
+		_oTempString_ = new stzString(_cTempString_)
+		_aItems_ = _oTempString_.Split( :Using = ",")
 
 	  #------------------------------------#
 	 #     LIST OF VALUES OR VARIABLES    #
@@ -46,7 +46,7 @@ class stzListProvidedAsString from stzObject
 	*/
 
 	def Items()
-		return aItems
+		return _aItems_
 
 	def IsListOfValues()
 		return ContainsOnlyValues()
@@ -58,8 +58,8 @@ class stzListProvidedAsString from stzObject
 		return ContainsValuesAndVariables()
 
 	def ContainsOnlyValues()
-		cListString = list2code(This.List)
-		oListString = new stzString(cListString)
+		_cListString_ = list2code(This.List)
+		_oListString_ = new stzString(_cListString_)
 
 	def ContainsOnlyVariables()
 		// TODO

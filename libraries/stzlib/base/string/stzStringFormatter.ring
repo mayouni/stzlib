@@ -62,10 +62,10 @@ class stzStringFormatter from stzObject
 	def Lowercased()
 		pHandle = StzEngineString(@oString.Content())
 		pLower = StzEngineStringToLower(pHandle)
-		cResult = StzEngineStringData(pLower)
+		_cResult_ = StzEngineStringData(pLower)
 		StzEngineStringFree(pLower)
 		StzEngineStringFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def LowercasedQ()
 			return new stzStringFormatter(This.Lowercased())
@@ -88,10 +88,10 @@ class stzStringFormatter from stzObject
 	def Uppercased()
 		pHandle = StzEngineString(@oString.Content())
 		pUpper = StzEngineStringToUpper(pHandle)
-		cResult = StzEngineStringData(pUpper)
+		_cResult_ = StzEngineStringData(pUpper)
 		StzEngineStringFree(pUpper)
 		StzEngineStringFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def UppercasedQ()
 			return new stzStringFormatter(This.Uppercased())
@@ -101,21 +101,21 @@ class stzStringFormatter from stzObject
 	#===============================#
 
 	def ApplyCapitalcase()
-		cContent = @oString.Content()
-		if StzLen(cContent) = 0
+		_cContent_ = @oString.Content()
+		if StzLen(_cContent_) = 0
 			return
 		ok
 
-		cFirst = StzUpper(StzLeft(cContent, 1))
-		if StzLen(cContent) > 1
-			pH = StzEngineString(cContent)
-			pRest = StzEngineStringSlice(pH, 2, StzLen(cContent) - 1)
-			cRest = StzLower(StzEngineStringData(pRest))
+		_cFirst_ = StzUpper(StzLeft(_cContent_, 1))
+		if StzLen(_cContent_) > 1
+			pH = StzEngineString(_cContent_)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(_cContent_) - 1)
+			_cRest_ = StzLower(StzEngineStringData(pRest))
 			StzEngineStringFree(pRest)
 			StzEngineStringFree(pH)
-			@oString.Update(cFirst + cRest)
+			@oString.Update(_cFirst_ + _cRest_)
 		else
-			@oString.Update(cFirst)
+			@oString.Update(_cFirst_)
 		ok
 
 		def ApplyCapitalcaseQ()
@@ -123,21 +123,21 @@ class stzStringFormatter from stzObject
 			return This
 
 	def Capitalized()
-		cContent = @oString.Content()
-		if StzLen(cContent) = 0
+		_cContent_ = @oString.Content()
+		if StzLen(_cContent_) = 0
 			return ""
 		ok
 
-		cFirst = StzUpper(StzLeft(cContent, 1))
-		if StzLen(cContent) > 1
-			pH = StzEngineString(cContent)
-			pRest = StzEngineStringSlice(pH, 2, StzLen(cContent) - 1)
-			cRest = StzLower(StzEngineStringData(pRest))
+		_cFirst_ = StzUpper(StzLeft(_cContent_, 1))
+		if StzLen(_cContent_) > 1
+			pH = StzEngineString(_cContent_)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(_cContent_) - 1)
+			_cRest_ = StzLower(StzEngineStringData(pRest))
 			StzEngineStringFree(pRest)
 			StzEngineStringFree(pH)
-			return cFirst + cRest
+			return _cFirst_ + _cRest_
 		else
-			return cFirst
+			return _cFirst_
 		ok
 
 		def CapitalizedQ()
@@ -155,9 +155,9 @@ class stzStringFormatter from stzObject
 			return This
 
 	def Titlecased()
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.ApplyTitlecase()
-		return oCopy.Content()
+		_oCopy_ = new stzStringFormatter(@oString.Content())
+		_oCopy_.ApplyTitlecase()
+		return _oCopy_.Content()
 
 		def TitlecasedQ()
 			return new stzStringFormatter(This.Titlecased())
@@ -211,18 +211,18 @@ class stzStringFormatter from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringLjust(pH, nWidth, cChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def LeftAlignXTQ(nWidth, cChar)
 			This.LeftAlignXT(nWidth, cChar)
 			return This
 
 	def LeftAligned(nWidth)
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.LeftAlign(nWidth)
-		return oCopy.Content()
+		_oCopy_ = new stzStringFormatter(@oString.Content())
+		_oCopy_.LeftAlign(nWidth)
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     RIGHT ALIGN               #
@@ -246,18 +246,18 @@ class stzStringFormatter from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringRjust(pH, nWidth, cChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RightAlignXTQ(nWidth, cChar)
 			This.RightAlignXT(nWidth, cChar)
 			return This
 
 	def RightAligned(nWidth)
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.RightAlign(nWidth)
-		return oCopy.Content()
+		_oCopy_ = new stzStringFormatter(@oString.Content())
+		_oCopy_.RightAlign(nWidth)
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     CENTER ALIGN              #
@@ -281,18 +281,18 @@ class stzStringFormatter from stzObject
 		ok
 		pH = @oString.Engine()
 		pR = StzEngineStringCenterPad(pH, nWidth, cChar)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def CenterAlignXTQ(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
 			return This
 
 	def CenterAligned(nWidth)
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.CenterAlign(nWidth)
-		return oCopy.Content()
+		_oCopy_ = new stzStringFormatter(@oString.Content())
+		_oCopy_.CenterAlign(nWidth)
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #     PADDING                   #
@@ -325,18 +325,18 @@ class stzStringFormatter from stzObject
 	def Simplify()
 		pH = @oString.Engine()
 		pR = StzEngineStringSimplify(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def SimplifyQ()
 			This.Simplify()
 			return This
 
 	def Simplified()
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.Simplify()
-		return oCopy.Content()
+		_oCopy_ = new stzStringFormatter(@oString.Content())
+		_oCopy_.Simplify()
+		return _oCopy_.Content()
 
 		def SimplifiedQ()
 			return new stzStringFormatter(This.Simplified())
@@ -348,9 +348,9 @@ class stzStringFormatter from stzObject
 	def Trim()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrim(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimQ()
 			This.Trim()
@@ -359,16 +359,16 @@ class stzStringFormatter from stzObject
 	def Trimmed()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimmed(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def TrimLeft()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimLeft(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimLeftQ()
 			This.TrimLeft()
@@ -377,16 +377,16 @@ class stzStringFormatter from stzObject
 	def TrimmedLeft()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimLeft(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def TrimRight()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimRight(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def TrimRightQ()
 			This.TrimRight()
@@ -395,9 +395,9 @@ class stzStringFormatter from stzObject
 	def TrimmedRight()
 		pH = @oString.Engine()
 		pR = StzEngineStringTrimRight(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     REPEATING                 #
@@ -406,9 +406,9 @@ class stzStringFormatter from stzObject
 	def RepeatNTimes(n)
 		pH = @oString.Engine()
 		pR = StzEngineStringRepeat(pH, n)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
@@ -417,6 +417,6 @@ class stzStringFormatter from stzObject
 	def RepeatedNTimes(n)
 		pH = @oString.Engine()
 		pR = StzEngineStringRepeat(pH, n)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_

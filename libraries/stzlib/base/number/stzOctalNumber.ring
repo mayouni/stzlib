@@ -20,17 +20,17 @@ func OctalPrefix()
 		return OctalPrefix()
 
 func SetOctalPrefix(cPrefix)
-	bFound = 0
+	_bFound_ = 0
 	_aOctalPrefixes1_ = OctalPrefixes()
 	_nOctalPrefixes1Len_ = len(_aOctalPrefixes1_)
 	for _iLoopOctalPrefixes1_ = 1 to _nOctalPrefixes1Len_
 		_item = _aOctalPrefixes1_[_iLoopOctalPrefixes1_]
 		if StzLower(_item) = StzLower(cPrefix)
-			bFound = 1
+			_bFound_ = 1
 			exit
 		ok
 	next
-	if bFound
+	if _bFound_
 		_cOctalPrefix = cPrefix
 	else
 		StzRaise("Incorrect octal prefix!")
@@ -69,11 +69,11 @@ class stzOctalNumber from stzString
 		return new stzString(This.OctalNumber())
 
 	def ToDecimalForm()
-		cOctal = This.OctalNumber()
-		cOctal = StzReplace(cOctal, "0o", "")
-		cOctal = StzReplace(cOctal, "o", "")
+		_cOctal_ = This.OctalNumber()
+		_cOctal_ = StzReplace(_cOctal_, "0o", "")
+		_cOctal_ = StzReplace(_cOctal_, "o", "")
 
-		return StzEngineNumberFromBase(cOctal, 8)
+		return StzEngineNumberFromBase(_cOctal_, 8)
 
 		def ToDecimal()
 			return This.ToDecimalForm()
@@ -94,15 +94,15 @@ class stzOctalNumber from stzString
 			return This.ToBinaryFormWithoutPrefix()
 
 	def ToHexForm()
-		oNumber = new stzNumber(This.ToDecimalForm())
-		return oNumber.ToHexForm()
+		_oNumber_ = new stzNumber(This.ToDecimalForm())
+		return _oNumber_.ToHexForm()
 
 		def ToHex()
 			return This.ToHexForm()
 
 	def ToUnicodeHexForm()
-		oNumber = new stzNumber(This.ToDecimalForm())
-		return oNumber.ToUnicodeHexForm()
+		_oNumber_ = new stzNumber(This.ToDecimalForm())
+		return _oNumber_.ToUnicodeHexForm()
 
 		def ToUnicodeHexFor()
 			return This.ToUnicodeHexForm()

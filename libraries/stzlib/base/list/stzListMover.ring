@@ -49,66 +49,66 @@ class stzListMover from stzObject
 	def IsEmpty()
 		return @oList.IsEmpty()
 
-	def Move(n1, n2)
+	def Move(_n1_, _n2_)
 		# Unconditionally accept named-param forms (the test suite
 		# uses several spellings: :From, :ItemFromPosition,
 		# :CharFromPosition, etc.).
-		if isList(n1) and len(n1) = 2 and isString(n1[1])
-			_kw_ = lower(n1[1])
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1])
+			_kw_ = lower(_n1_[1])
 			if _kw_ = "from" or _kw_ = "fromposition" or _kw_ = "at" or
 			   _kw_ = "atposition" or _kw_ = "itemfromposition" or
 			   _kw_ = "charfromposition" or _kw_ = "position"
-				n1 = n1[2]
+				_n1_ = _n1_[2]
 			ok
 		ok
-		if isList(n2) and len(n2) = 2 and isString(n2[1])
-			_kw_ = lower(n2[1])
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1])
+			_kw_ = lower(_n2_[1])
 			if _kw_ = "to" or _kw_ = "toposition" or _kw_ = "topositon"
-				n2 = n2[2]
+				_n2_ = _n2_[2]
 			ok
 		ok
-		if NOT (isNumber(n1) and isNumber(n2)) return ok
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return ok
 		# Work on a local copy and write back -- Ring returns lists
 		# from methods by value, so mutating This.List() in place is
 		# silently lost.
 		_aMv_ = This.List()
 		_nL_ = len(_aMv_)
-		if n1 < 1 or n1 > _nL_ or n2 < 1 or n2 > _nL_ return ok
-		_mvItem_ = _aMv_[n1]
-		ring_remove(_aMv_, n1)
+		if _n1_ < 1 or _n1_ > _nL_ or _n2_ < 1 or _n2_ > _nL_ return ok
+		_mvItem_ = _aMv_[_n1_]
+		ring_remove(_aMv_, _n1_)
 		# ring_insert places the value AT the given position, and after
 		# the removal the target position needs no further adjustment.
-		ring_insert(_aMv_, n2, _mvItem_)
+		ring_insert(_aMv_, _n2_, _mvItem_)
 		@oList.Update(_aMv_)
 
-		def MoveQ(n1, n2)
-			This.Move(n1, n2)
+		def MoveQ(_n1_, _n2_)
+			This.Move(_n1_, _n2_)
 			return This
 
-	def Swap(n1, n2)
+	def Swap(_n1_, _n2_)
 		if CheckingParams()
-			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [:Between, :BetweenPosition, :Position, :ItemAt])
-				n1 = n1[2]
+			if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [:Between, :BetweenPosition, :Position, :ItemAt])
+				_n1_ = _n1_[2]
 			ok
-			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [:And, :AndPosition, :Position])
-				n2 = n2[2]
+			if isList(_n2_) and IsOneOfTheseNamedParamsList(_n2_, [:And, :AndPosition, :Position])
+				_n2_ = _n2_[2]
 			ok
 		ok
 
 		_pSwList_ = @oList._EngineListFromContent()
 		if _pSwList_ != NULL
-			StzEngineListSwap(_pSwList_, n1, n2)
+			StzEngineListSwap(_pSwList_, _n1_, _n2_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwList_))
 			StzEngineListFree(_pSwList_)
 			return
 		ok
 
-		_swTemp_ = This.List()[n1]
-		This.List()[n1] = This.List()[n2]
-		This.List()[n2] = _swTemp_
+		_swTemp_ = This.List()[_n1_]
+		This.List()[_n1_] = This.List()[_n2_]
+		This.List()[_n2_] = _swTemp_
 
-		def SwapQ(n1, n2)
-			This.Swap(n1, n2)
+		def SwapQ(_n1_, _n2_)
+			This.Swap(_n1_, _n2_)
 			return This
 
 	def MoveToStart(n)

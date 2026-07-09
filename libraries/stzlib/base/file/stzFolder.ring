@@ -66,73 +66,73 @@ func @ExeFolder()
 	func ExeDir()
 		return exeFolder()
 
-func IsFolder(cPath)
-	return dirExists(cPath)
+func IsFolder(_cPath_)
+	return dirExists(_cPath_)
 
 	#< @FunctionAlternativeForms
 
-	func IsDir(cPath)
-		return dirExists(cPath)
+	func IsDir(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsFolder(cPath)
-		return dirExists(cPath)
+	func @IsFolder(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsDir(cPath)
-		return dirExists(cPath)
+	func @IsDir(_cPath_)
+		return dirExists(_cPath_)
 
 	#--
 
-	func IsValidFolder(cPath)
-		return dirExists(cPath)
+	func IsValidFolder(_cPath_)
+		return dirExists(_cPath_)
 
-	func IsValidDir(cPath)
-		return dirExists(cPath)
+	func IsValidDir(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsValidFolder(cPath)
-		return dirExists(cPath)
+	func @IsValidFolder(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsValidDir(cPath)
-		return dirExists(cPath)
+	func @IsValidDir(_cPath_)
+		return dirExists(_cPath_)
 
 	#==
 
-	func dirPathExists(cPath)
-		return dirExists(cPath)
+	func dirPathExists(_cPath_)
+		return dirExists(_cPath_)
 
-	func IsDirPath(cPath)
-		return dirExists(cPath)
+	func IsDirPath(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsFolderPath(cPath)
-		return dirExists(cPath)
+	func @IsFolderPath(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsDirPath(cPath)
-		return dirExists(cPath)
+	func @IsDirPath(_cPath_)
+		return dirExists(_cPath_)
 
 	#--
 
-	func IsValidFolderPath(cPath)
-		return dirExists(cPath)
+	func IsValidFolderPath(_cPath_)
+		return dirExists(_cPath_)
 
-	func IsValidDirPath(cPath)
-		return dirExists(cPath)
+	func IsValidDirPath(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsValidFolderPath(cPath)
-		return dirExists(cPath)
+	func @IsValidFolderPath(_cPath_)
+		return dirExists(_cPath_)
 
-	func @IsValidDirPath(cPath)
-		return dirExists(cPath)
+	func @IsValidDirPath(_cPath_)
+		return dirExists(_cPath_)
 
 	#>
 
-func StzFolderQ(cPath)
-	return new stzFolder(cPath)
+func StzFolderQ(_cPath_)
+	return new stzFolder(_cPath_)
 
-func IsAbsolutePath(cPath)
-	return cDir = StzFolderQ(cPath).AbsolutePath()
+func IsAbsolutePath(_cPath_)
+	return cDir = StzFolderQ(_cPath_).AbsolutePath()
 
-func @dir(cPath) # Same as Ring dir() but in lowercase
+func @dir(_cPath_) # Same as Ring dir() but in lowercase
 	if CheckParams()
-		if NOT ( isString(cPath) and cPath != "" )
+		if NOT ( isString(_cPath_) and _cPath_ != "" )
 			StzRaise("Incorrect param type! cPath must be non-empty string.")
 		ok
 	ok
@@ -144,219 +144,219 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 	# traversal over a real filesystem (C:\Program Files, C:\Windows) WILL
 	# hit such a subdir, so swallow the failure and treat it as empty rather
 	# than aborting the whole walk.
-	aRingResult = []
+	_aRingResult_ = []
 	try
-		aRingResult = dir(cPath)
+		_aRingResult_ = dir(_cPath_)
 	catch
 	done
-	nLen = len(aRingResult)
+	_nLen_ = len(_aRingResult_)
 
 	# Softanza listing convention: child names are presented in lowercase
 	# (Ring's dir() keeps the on-disk case; @dir lowercases it). The folder's
 	# own path/name keep their real case -- only the ENUMERATED children are
 	# folded. Windows' case-insensitive FS means the lowercased names still
 	# resolve when fed back to dir()/read() during a deep walk.
-	aResult = []
-	for i = 1 to nLen
-		aResult + [ StzLower(aRingResult[i][1]), aRingResult[i][2] ]
+	_aResult_ = []
+	for i = 1 to _nLen_
+		_aResult_ + [ StzLower(_aRingResult_[i][1]), _aRingResult_[i][2] ]
 	next
 
-	return aResult
+	return _aResult_
 
-func CreateIfInexistant(cPath)
+func CreateIfInexistant(_cPath_)
     # Check if it has an extension (likely a file)
-    if StzFindFirst(cPath, ".")
-        CreateFileIfInexistant(cPath)
+    if StzFindFirst(_cPath_, ".")
+        CreateFileIfInexistant(_cPath_)
     else
-        CreateFolderIfInexistant(cPath)
+        CreateFolderIfInexistant(_cPath_)
     ok
 
-	func CreateFolder(cPath)
-		CreateIfInexistant(cPath)
+	func CreateFolder(_cPath_)
+		CreateIfInexistant(_cPath_)
 
-	func @CreateFolder(cPath)
-		CreateIfInexistant(cPath)
+	func @CreateFolder(_cPath_)
+		CreateIfInexistant(_cPath_)
 
-	func @CreateIfInexistant(cPath)
-		CreateIfInexistant(cPath)
+	func @CreateIfInexistant(_cPath_)
+		CreateIfInexistant(_cPath_)
 
-func FolderCreateIfInexistant(cFolderPath)
-    if NOT isdir(cFolderPath)
+func FolderCreateIfInexistant(_cFolderPath_)
+    if NOT isdir(_cFolderPath_)
         if isWindows()
-            StzSystemSilentXT("cmd.exe", ["/c", "mkdir", cFolderPath])
+            StzSystemSilentXT("cmd.exe", ["/c", "mkdir", _cFolderPath_])
         else
-            StzSystemSilentXT("mkdir", ["-p", cFolderPath])
+            StzSystemSilentXT("mkdir", ["-p", _cFolderPath_])
         ok
     ok
 
-	func CreateFolderIfInexistant(cFolderPath)
-		FolderCreateIfInexistant(cFolderPath)
+	func CreateFolderIfInexistant(_cFolderPath_)
+		FolderCreateIfInexistant(_cFolderPath_)
 
-	func @FolderCreateIfInexistant(cFolderPath)
-		 FolderCreateIfInexistant(cFolderPath)
+	func @FolderCreateIfInexistant(_cFolderPath_)
+		 FolderCreateIfInexistant(_cFolderPath_)
 
-	func @CreateFolderIfInexistant(cFolderPath)
-		FolderCreateIfInexistant(cFolderPath)
+	func @CreateFolderIfInexistant(_cFolderPath_)
+		FolderCreateIfInexistant(_cFolderPath_)
 
-func RemoveFolderRecursive(cPath)
-	aItems = dir(cPath)
-	nLen = len(aItems)
-	for i = 1 to nLen
-		cName = aItems[i][1]
-		if cName = "." or cName = ".." loop ok
-		cFull = cPath + "/" + cName
-		if aItems[i][2] = 0
-			StzEngineFileDelete(cFull)
+func RemoveFolderRecursive(_cPath_)
+	_aItems_ = dir(_cPath_)
+	_nLen_ = len(_aItems_)
+	for i = 1 to _nLen_
+		_cName_ = _aItems_[i][1]
+		if _cName_ = "." or _cName_ = ".." loop ok
+		_cFull_ = _cPath_ + "/" + _cName_
+		if _aItems_[i][2] = 0
+			StzEngineFileDelete(_cFull_)
 		else
-			RemoveFolderRecursive(cFull)
+			RemoveFolderRecursive(_cFull_)
 		ok
 	next
-	return StzEngineDirDelete(cPath)
+	return StzEngineDirDelete(_cPath_)
 
-	RemoveFolderXT(cPath)
+	RemoveFolderXT(_cPath_)
 		return This.RemoveFolderRecursive()
 
 # Create a directory path (all missing intermediates) via the Softanza Zig
 # engine. The old name QMkdir carried the Qt lineage (Qt's QDir::mkdir);
 # Softanza has no Qt dependency, so the Q is gone. (Plain MakeDir is already a
 # Ring stdlib name, so the Stz-prefixed StzMakeDir is the Softanza form.)
-func StzMakeDir(cPath)
-	return StzEngineDirCreatePath(cPath)
+func StzMakeDir(_cPath_)
+	return StzEngineDirCreatePath(_cPath_)
 
-	func mkdir(cPath)
-		return StzMakeDir(cPath)
+	func mkdir(_cPath_)
+		return StzMakeDir(_cPath_)
 
-func NormalizePath(cPath)
+func NormalizePath(_cPath_)
 	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
+		if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 			StzRaise("Incorrect param type! cPath must be a non-empty string.")
 		ok
 	ok
 	
-	if StzFindFirst(cPath, ".") > 0
-		return NormalizeFilePath(cPath)
+	if StzFindFirst(_cPath_, ".") > 0
+		return NormalizeFilePath(_cPath_)
 	else
-		return NormalizeFolderPath(cPath)
+		return NormalizeFolderPath(_cPath_)
 	ok
 
-	func NormalisePath(cPath)
-		return NormalizePath(cPath)
+	func NormalisePath(_cPath_)
+		return NormalizePath(_cPath_)
 
-func NormalizePathXT(cPath)
+func NormalizePathXT(_cPath_)
 	if CheckParams()
-		if NOT ( isString(cPath) and trim(cPath) != "" )
+		if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 			StzRaise("Incorrect param type! cPath must be a non-empty string.")
 		ok
 	ok
 
 	# Check if it's a file (has extension) or folder
-	if StzFindFirst(cPath, ".") > 0
-		return NormalizeFilePathXT(cPath)
+	if StzFindFirst(_cPath_, ".") > 0
+		return NormalizeFilePathXT(_cPath_)
 	else
-		return NormalizeFolderPathXT(cPath)
+		return NormalizeFolderPathXT(_cPath_)
 	ok
 
-	func NormalisePathXR(cPath)
-		return NormalizePathXT(cPath)
+	func NormalisePathXR(_cPath_)
+		return NormalizePathXT(_cPath_)
 
-func NormalizeFolderPath(cName)
-	cName = NormalizeFilePath(cName)
+func NormalizeFolderPath(_cName_)
+	_cName_ = NormalizeFilePath(_cName_)
 	
-	if StzLeft(cName, 1) != "/"
-		cName = "/" + cName
+	if StzLeft(_cName_, 1) != "/"
+		_cName_ = "/" + _cName_
 	ok
 
-	if StzRight(cName, 1) != "/"
-		cName += "/"
+	if StzRight(_cName_, 1) != "/"
+		_cName_ += "/"
 	ok
 
-	return StzReplace(cName, "//", "/")
+	return StzReplace(_cName_, "//", "/")
 
-	func NormaliseFolderPath(cName)
-		return NormalizeFolderPath(cName)
+	func NormaliseFolderPath(_cName_)
+		return NormalizeFolderPath(_cName_)
 
-func NormalizeFolderPathXT(cName)
-	cName = NormalizeFilePathXT(cName)
+func NormalizeFolderPathXT(_cName_)
+	_cName_ = NormalizeFilePathXT(_cName_)
 
-	if StzRight(cName, 1) != "/"
-		cName += "/"
+	if StzRight(_cName_, 1) != "/"
+		_cName_ += "/"
 	ok
 
-	return StzReplace(cName, "//", "/")
+	return StzReplace(_cName_, "//", "/")
 
-	func NormaliseFolderPathXT(cName)
-		return NormalizeFolderPathXT(cName)
+	func NormaliseFolderPathXT(_cName_)
+		return NormalizeFolderPathXT(_cName_)
 
 #--------------------------#
 #  PURE RING PATH HELPERS  #
 #--------------------------#
 
-func _CleanPath(cPath)
-	cPath = StzReplace(cPath, "\", "/")
-	while StzFindFirst(cPath, "//") > 0
-		cPath = StzReplace(cPath, "//", "/")
+func _CleanPath(_cPath_)
+	_cPath_ = StzReplace(_cPath_, "\", "/")
+	while StzFindFirst(_cPath_, "//") > 0
+		_cPath_ = StzReplace(_cPath_, "//", "/")
 	end
-	if StzLen(cPath) > 1 and StzRight(cPath, 1) = "/"
-		cPath = StzLeft(cPath, StzLen(cPath) - 1)
+	if StzLen(_cPath_) > 1 and StzRight(_cPath_, 1) = "/"
+		_cPath_ = StzLeft(_cPath_, StzLen(_cPath_) - 1)
 	ok
-	return cPath
+	return _cPath_
 
-func _AbsolutePath(cPath)
-	cPath = _CleanPath(cPath)
-	if _IsAbsolutePath(cPath)
-		return cPath
+func _AbsolutePath(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	if _IsAbsolutePath(_cPath_)
+		return _cPath_
 	ok
-	return _CleanPath(currentDir() + "/" + cPath)
+	return _CleanPath(currentDir() + "/" + _cPath_)
 
-func _IsAbsolutePath(cPath)
-	if StzLen(cPath) = 0 return FALSE ok
-	if StzLeft(cPath, 1) = "/" return TRUE ok
-	if StzLen(cPath) >= 2 and isalpha(StzLeft(cPath, 1)) and StzMid(cPath, 2, 1) = ":"
+func _IsAbsolutePath(_cPath_)
+	if StzLen(_cPath_) = 0 return FALSE ok
+	if StzLeft(_cPath_, 1) = "/" return TRUE ok
+	if StzLen(_cPath_) >= 2 and isalpha(StzLeft(_cPath_, 1)) and StzMid(_cPath_, 2, 1) = ":"
 		return TRUE
 	ok
 	return FALSE
 
-func _IsRootPath(cPath)
-	cPath = _CleanPath(cPath)
-	if cPath = "/" return TRUE ok
-	if StzLen(cPath) = 2 and isalpha(StzLeft(cPath, 1)) and StzRight(cPath, 1) = ":"
+func _IsRootPath(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	if _cPath_ = "/" return TRUE ok
+	if StzLen(_cPath_) = 2 and isalpha(StzLeft(_cPath_, 1)) and StzRight(_cPath_, 1) = ":"
 		return TRUE
 	ok
-	if StzLen(cPath) = 3 and isalpha(StzLeft(cPath, 1)) and StzMid(cPath, 2, 1) = ":" and StzRight(cPath, 1) = "/"
+	if StzLen(_cPath_) = 3 and isalpha(StzLeft(_cPath_, 1)) and StzMid(_cPath_, 2, 1) = ":" and StzRight(_cPath_, 1) = "/"
 		return TRUE
 	ok
 	return FALSE
 
-func _DirName(cPath)
-	cPath = _CleanPath(cPath)
-	nPos = 0
-	for i = StzLen(cPath) to 1 step -1
-		if cPath[i] = "/"
-			nPos = i
+func _DirName(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	_nPos_ = 0
+	for i = StzLen(_cPath_) to 1 step -1
+		if _cPath_[i] = "/"
+			_nPos_ = i
 			exit
 		ok
 	next
-	if nPos > 0
-		return StzMid(cPath, nPos + 1, StzLen(cPath) - nPos)
+	if _nPos_ > 0
+		return StzMid(_cPath_, _nPos_ + 1, StzLen(_cPath_) - _nPos_)
 	ok
-	return cPath
+	return _cPath_
 
-func _ParentPath(cPath)
-	cPath = _CleanPath(cPath)
-	nPos = 0
-	for i = StzLen(cPath) to 1 step -1
-		if cPath[i] = "/"
-			nPos = i
+func _ParentPath(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	_nPos_ = 0
+	for i = StzLen(_cPath_) to 1 step -1
+		if _cPath_[i] = "/"
+			_nPos_ = i
 			exit
 		ok
 	next
-	if nPos > 1
-		return StzLeft(cPath, nPos - 1)
+	if _nPos_ > 1
+		return StzLeft(_cPath_, _nPos_ - 1)
 	ok
-	if nPos = 1
+	if _nPos_ = 1
 		return "/"
 	ok
-	return cPath
+	return _cPath_
 
 #-------------#
 #  THE CLASS  #
@@ -418,23 +418,23 @@ class stzFolder from stzObject
 
 		@acPathHistory = []
 
-		cPath = ""
+		_cPath_ = ""
 		if pcDirPath = "" or pcDirPath = NULL
-			cPath = currentDir()
+			_cPath_ = currentDir()
 		else
-			cPath = _CleanPath(pcDirPath)
+			_cPath_ = _CleanPath(pcDirPath)
 		ok
 
 		# A drive/filesystem root (C:, C:/, /) always exists -- _CleanPath
 		# strips its trailing slash to "C:", which dirExists() does not
 		# recognise, so guard against trying to mkdir the drive itself.
-		if NOT dirExists(cPath) and NOT _IsRootPath(cPath)
-			if NOT StzEngineDirCreatePath(cPath)
-				StzRaise("Cannot create directory: " + cPath)
+		if NOT dirExists(_cPath_) and NOT _IsRootPath(_cPath_)
+			if NOT StzEngineDirCreatePath(_cPath_)
+				StzRaise("Cannot create directory: " + _cPath_)
 			ok
 		ok
 
-		@cOriginalPath = _AbsolutePath(cPath)
+		@cOriginalPath = _AbsolutePath(_cPath_)
 		@cCurrentPath = @cOriginalPath
 
 	#===============================#
@@ -467,31 +467,31 @@ class stzFolder from stzObject
 		def PathSeperator()
 			return This.Separator()
 
-	def IsInside(cPath)
+	def IsInside(_cPath_)
 	
-	    if NOT ( isString(cPath) and cPath != "" )
+	    if NOT ( isString(_cPath_) and _cPath_ != "" )
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
 	
-		cMainPath = _CleanPath(@cCurrentPath)
-		cAbsolutePath = _CleanPath(_AbsolutePath(cPath))
+		_cMainPath_ = _CleanPath(@cCurrentPath)
+		_cAbsolutePath_ = _CleanPath(_AbsolutePath(_cPath_))
 
-		if StzRight(cMainPath, 1) != "/"
-			cMainPath += "/"
+		if StzRight(_cMainPath_, 1) != "/"
+			_cMainPath_ += "/"
 		ok
-		if StzRight(cAbsolutePath, 1) != "/"
-			cAbsolutePath += "/"
+		if StzRight(_cAbsolutePath_, 1) != "/"
+			_cAbsolutePath_ += "/"
 		ok
 
 		# Case-insensitive boundary check (Windows/NTFS is case-insensitive,
 		# and we no longer lowercase the stored paths).
-		cMainLow = StzLower(cMainPath)
-		cAbsLow = StzLower(cAbsolutePath)
-		nMainPathLen = Len(cMainLow)
+		_cMainLow_ = StzLower(_cMainPath_)
+		_cAbsLow_ = StzLower(_cAbsolutePath_)
+		_nMainPathLen_ = Len(_cMainLow_)
 
-		if Len(cAbsLow) >= nMainPathLen
-			if Left(cAbsLow, nMainPathLen) = cMainLow
-				if cAbsLow != cMainLow
+		if Len(_cAbsLow_) >= _nMainPathLen_
+			if Left(_cAbsLow_, _nMainPathLen_) = _cMainLow_
+				if _cAbsLow_ != _cMainLow_
 					return True
 				ok
 			ok
@@ -499,20 +499,20 @@ class stzFolder from stzObject
 
 		return False
 	
-		def IsPathInside(cPath)
-			return This.IsInside(cPath)
+		def IsPathInside(_cPath_)
+			return This.IsInside(_cPath_)
 	
-		def PathIsInside(cPath)
-			return This.IsInside(cPath)
+		def PathIsInside(_cPath_)
+			return This.IsInside(_cPath_)
 	
-	def IsOutside(cPath)
-		return NOT This.IsInside(cPath)
+	def IsOutside(_cPath_)
+		return NOT This.IsInside(_cPath_)
 	
-		def IsPathOutside(cPath)
-			return This.IsOutside(cPath)
+		def IsPathOutside(_cPath_)
+			return This.IsOutside(_cPath_)
 	
-		def PathIsOutside(cPath)
-			return This.IsOutside(cPath)
+		def PathIsOutside(_cPath_)
+			return This.IsOutside(_cPath_)
 	
 	
 	# TRUE if cName (any slash form: "name", "/name", "/name/", or a full
@@ -520,264 +520,264 @@ class stzFolder from stzObject
 	# files and "/name/" for folders, all lowercased; the query may be any
 	# case/slash form. Compares the bare basename, case-insensitively, so
 	# membership is robust to the slash convention and the lowercase listing.
-	def _NameInListCI(cName, aList)
-		cTarget = StzLower(_DirName(_CleanPath(cName)))
-		nLen = len(aList)
-		for i = 1 to nLen
-			if StzLower(_DirName(_CleanPath(aList[i]))) = cTarget
+	def _NameInListCI(_cName_, _aList_)
+		_cTarget_ = StzLower(_DirName(_CleanPath(_cName_)))
+		_nLen_ = len(_aList_)
+		for i = 1 to _nLen_
+			if StzLower(_DirName(_CleanPath(_aList_[i]))) = _cTarget_
 				return 1
 			ok
 		next
 		return 0
 
-	def IsFile(cPath)
+	def IsFile(_cPath_)
 	    # Checks if cPath represents a valid existing file within the folder scope
 	
-	    if NOT ( isString(cPath) and cPath != "" )
+	    if NOT ( isString(_cPath_) and _cPath_ != "" )
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
 	
-	    cNormalizedPath = This.NormalizePathXT(cPath)
+	    _cNormalizedPath_ = This.NormalizePathXT(_cPath_)
 	
-		if This._NameInListCI(cPath, This.Files())
+		if This._NameInListCI(_cPath_, This.Files())
 			return 1
 		else
 			return 0
 		ok
 	
-	    def IsValidFile(cPath)
-	        return This.IsFile(cPath)
+	    def IsValidFile(_cPath_)
+	        return This.IsFile(_cPath_)
 	
-	    def IsExistingFile(cPath)
-	        return This.IsFile(cPath)
+	    def IsExistingFile(_cPath_)
+	        return This.IsFile(_cPath_)
 	
-	def IsFolder(cPath)
+	def IsFolder(_cPath_)
 	    # Checks if cPath represents a valid existing folder within the folder scope
 	
-	    if NOT ( isString(cPath) and cPath != "" )
+	    if NOT ( isString(_cPath_) and _cPath_ != "" )
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
 	
-		cPath = This.NormalizeFolderPath(cPath)
+		_cPath_ = This.NormalizeFolderPath(_cPath_)
 	
-		if This._NameInListCI(cPath, This.Folders())
+		if This._NameInListCI(_cPath_, This.Folders())
 			return 1
 		else
 			return 0
 		ok
 	
-	    def IsValidFolder(cPath)
-	        return This.IsFolder(cPath)
+	    def IsValidFolder(_cPath_)
+	        return This.IsFolder(_cPath_)
 	
-	    def IsExistingFolder(cPath)
-	        return This.IsFolder(cPath)
+	    def IsExistingFolder(_cPath_)
+	        return This.IsFolder(_cPath_)
 	
-	    def IsDirectory(cPath)
-	        return This.IsFolder(cPath)
+	    def IsDirectory(_cPath_)
+	        return This.IsFolder(_cPath_)
 	
-	    def IsValidDirectory(cPath)
-	        return This.IsFolder(cPath)
+	    def IsValidDirectory(_cPath_)
+	        return This.IsFolder(_cPath_)
 	
-	    def IsExistingDirectory(cPath)
-	        return This.IsFolder(cPath)
+	    def IsExistingDirectory(_cPath_)
+	        return This.IsFolder(_cPath_)
 	
-	def IsPath(cPath)
+	def IsPath(_cPath_)
 		return This.IsFilePath() or This.IsFolderPath()
 	
-	def IsFilePath(cPath)
+	def IsFilePath(_cPath_)
 		if CHeckParams()
-			if NOT (isString(cPath) and cPath != "")
+			if NOT (isString(_cPath_) and _cPath_ != "")
 				raise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	
 		# Check for path injection attempts
-		if NOT IsSecurePath(cPath)
+		if NOT IsSecurePath(_cPath_)
 			raise("Insecure path with potential injection risks!")
 		ok
 		
-		cPath = This.NormaliseFolderPath(cPath)
+		_cPath_ = This.NormaliseFolderPath(_cPath_)
 	
-		if This._NameInListCI(cPath, This.Files())
+		if This._NameInListCI(_cPath_, This.Files())
 			return 1
 		else
 			return 0
 		ok
 
-	def IsFolderPath(cPath)
+	def IsFolderPath(_cPath_)
 		if CHeckParams()
-			if NOT (isString(cPath) and cPath != "")
+			if NOT (isString(_cPath_) and _cPath_ != "")
 				raise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	
-		cPath = This.NormaliseFolderPath(cPath)
+		_cPath_ = This.NormaliseFolderPath(_cPath_)
 	
 		# Check for path injection attempts
-		if NOT IsSecurePath(cPath)
+		if NOT IsSecurePath(_cPath_)
 			raise("Insecure path with potential injection risks!")
 		ok
 		
-		if This._NameInListCI(cPath, This.Folders())
+		if This._NameInListCI(_cPath_, This.Folders())
 			return 1
 		else
 			return 0
 		ok
 
-	def IsDeep(cPath)
-		if This.IsDeepFile(cPath) or This.IsDeepFolder(cPath)
+	def IsDeep(_cPath_)
+		if This.IsDeepFile(_cPath_) or This.IsDeepFolder(_cPath_)
 			return 1
 		else
 			return 0
 		ok
 	
-		def IsDeepPath(cPath)
-			IsDeep(cPath)
+		def IsDeepPath(_cPath_)
+			IsDeep(_cPath_)
 	
-	def IsDeepFile(cPath)
-		cPath = This.NormalizePath(cPath)
-		cSep = This.Separator()
+	def IsDeepFile(_cPath_)
+		_cPath_ = This.NormalizePath(_cPath_)
+		_cSep_ = This.Separator()
 	
-		if StzRight(cPath, 1) = cSep # It's a folder not a file!
+		if StzRight(_cPath_, 1) = _cSep_ # It's a folder not a file!
 			return 0
 		ok
 	
-		if StringNumberOfOccurrence(cpath, cSep) > 1
+		if StringNumberOfOccurrence(_cPath_, _cSep_) > 1
 			return 1
 		else
 			return 0
 		ok
 	
-		def IsDeepFilePath(cPath)
-			return This.IsDeepFile(cPath)
+		def IsDeepFilePath(_cPath_)
+			return This.IsDeepFile(_cPath_)
 	
-	def IsDeepFolder(cPath)
-		cPath = This.NormalizePath(cPath)
-		cSep = This.Separator()
+	def IsDeepFolder(_cPath_)
+		_cPath_ = This.NormalizePath(_cPath_)
+		_cSep_ = This.Separator()
 	
-		if StzRight(cPath, 1) != cSep # It's a file not a folder!
+		if StzRight(_cPath_, 1) != _cSep_ # It's a file not a folder!
 			return 0
 		ok
 	
-		if StringNumberOfOccurrence(cpath, cSep) > 2
+		if StringNumberOfOccurrence(_cPath_, _cSep_) > 2
 			return 1
 		else
 			return 0
 		ok
 	
-		def IsDeepFolderPath(cPath)
-			return This.IsDeepFolder(cPath)
+		def IsDeepFolderPath(_cPath_)
+			return This.IsDeepFolder(_cPath_)
 
 	#--
 
-	def IsFolderEmpty(cFolderPath)
+	def IsFolderEmpty(_cFolderPath_)
 
-		cFolderName = This.NormalizeFolderPath(cFolderPath)
-		oTempFolder = new stzFolder(cFolderPath)
-		bHasFiles = oTempFolder.CountFiles() > 0
-		bHasFolders = oTempFolder.CountFolders() > 0
+		_cFolderName_ = This.NormalizeFolderPath(_cFolderPath_)
+		_oTempFolder_ = new stzFolder(_cFolderPath_)
+		_bHasFiles_ = _oTempFolder_.CountFiles() > 0
+		_bHasFolders_ = _oTempFolder_.CountFolders() > 0
 
-		return (not bHasFiles and not bHasFolders)
+		return (not _bHasFiles_ and not _bHasFolders_)
 
-		def IsEmptyFolder(cFolderPath)
-			return This.IsFolderEmpty(cFolderPath)
+		def IsEmptyFolder(_cFolderPath_)
+			return This.IsFolderEmpty(_cFolderPath_)
 
 	def IsSubfolderOf(cChildPath, cParentFolder)
 		# Normalize paths for comparison
-		cNormalizedChild = This.NormalizePathXT(cChildPath)
-		cNormalizedParent = This.NormalizePathXT(This.Path() + This.Separator() + cParentFolder)
+		_cNormalizedChild_ = This.NormalizePathXT(cChildPath)
+		_cNormalizedParent_ = This.NormalizePathXT(This.Path() + This.Separator() + cParentFolder)
 		
 		# Check if child path starts with parent path
-		return StzLeft(cNormalizedChild, StzLen(cNormalizedParent)) = cNormalizedParent
+		return StzLeft(_cNormalizedChild_, StzLen(_cNormalizedParent_)) = _cNormalizedParent_
 	
 	#---
 	
-	def Exists(cPath)
+	def Exists(_cPath_)
 	    # Checks if cPath exists (file or folder) within the folder scope
-	    return This.IsFile(cPath) OR This.IsFolder(cPath)
+	    return This.IsFile(_cPath_) OR This.IsFolder(_cPath_)
 	
-	    def PathExists(cPath)
-	        return This.Exists(cPath)
+	    def PathExists(_cPath_)
+	        return This.Exists(_cPath_)
 	
-	    def IsValidPath(cPath)
-	        return This.Exists(cPath)
+	    def IsValidPath(_cPath_)
+	        return This.Exists(_cPath_)
 	
-		def ContainsPath(cPath)
-			return This.Exists(cPath)
+		def ContainsPath(_cPath_)
+			return This.Exists(_cPath_)
 	
 	def FileExists(cFileName)
 	    # Alias for IsFile - checks if file exists
 	    return This.IsFile(cFileName)
 	
-	def FolderExists(cFolderName)
+	def FolderExists(_cFolderName_)
 	    # Alias for IsFolder - checks if folder exists  
-	    return This.IsFolder(cFolderName)
+	    return This.IsFolder(_cFolderName_)
 	
 	#--
 
-	def DeepExists(cPath)
-		return This.IsDeepFile(cPath) OR This.IsDeepFolder(cPath)
+	def DeepExists(_cPath_)
+		return This.IsDeepFile(_cPath_) OR This.IsDeepFolder(_cPath_)
 
-	    def PathDeepExists(cPath)
-	        return This.DeepExists(cPath)
+	    def PathDeepExists(_cPath_)
+	        return This.DeepExists(_cPath_)
 	
-	    def IsValidDeepPath(cPath)
-	        return This.DeepExists(cPath)
+	    def IsValidDeepPath(_cPath_)
+	        return This.DeepExists(_cPath_)
 	
-		def ContainsDeepPath(cPath)
-			return This.DeepExists(cPath)
+		def ContainsDeepPath(_cPath_)
+			return This.DeepExists(_cPath_)
 
 	def DeepFileExists(cFileName)
 	    # Alias for IsFile - checks if file exists
 	    return This.IsDeepFile(cFileName)
 	
-	def DeepFolderExists(cFolderName)
+	def DeepFolderExists(_cFolderName_)
 	    # Alias for IsFolder - checks if folder exists  
-	    return This.IsDeepFolder(cFolderName)
+	    return This.IsDeepFolder(_cFolderName_)
 
 	#=====================#
 	#  NORMALIZING PATHS  #
 	#=====================#
 	
-	def NormalizePath(cPath)
+	def NormalizePath(_cPath_)
 	
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		if This.IsFilePath(cPath)
-			return This.NormalizeFilePath(cPath)
+		if This.IsFilePath(_cPath_)
+			return This.NormalizeFilePath(_cPath_)
 		else
-			return This.NormalizeFolderPath(cPath)
+			return This.NormalizeFolderPath(_cPath_)
 		ok
 
 
-		def NormalisePath(cPath)
-			return THis.NormalizePath(cPath)
+		def NormalisePath(_cPath_)
+			return THis.NormalizePath(_cPath_)
 	
-	def NormalizePathXT(cPath)
+	def NormalizePathXT(_cPath_)
 	
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	   
-		if This.IsFilePath(cPath)
-			return This.NormalizeFilePathXT(cPath)
+		if This.IsFilePath(_cPath_)
+			return This.NormalizeFilePathXT(_cPath_)
 		else
-			return This.NormalizeFolderPathXT(cPath)
+			return This.NormalizeFolderPathXT(_cPath_)
 		ok
 
 
-		def NormalisePathXT(cPath)
-			return This.NormalizeXT(cPAth)
+		def NormalisePathXT(_cPath_)
+			return This.NormalizeXT(_cPath_)
 	
-	def NormalizeFilePath(cName)
+	def NormalizeFilePath(_cName_)
 		if CheckParams()
-			if NOT ( isString(cName) and trim(cName) != "" )
+			if NOT ( isString(_cName_) and trim(_cName_) != "" )
 				StzRaise("Incorrect param type! cName must be a non-empty string.")
 			ok
 		ok
@@ -787,26 +787,26 @@ class stzFolder from stzObject
 	    # lowercased names like "Docs"->"docs" and turned "D:/x" into
 	    # "/d:/x", breaking IsInside boundary checks and the tree display.
 	    # Case-insensitive matching is done at the comparison sites.)
-	    cResult = _CleanPath(trim(cName))
-		cResult = StzReplace(cResult, "//", "/")
-		return cResult
+	    _cResult_ = _CleanPath(trim(_cName_))
+		_cResult_ = StzReplace(_cResult_, "//", "/")
+		return _cResult_
 
-		def NormaliseFilePath(cName)
-			return This.NormalizeFilePath(cName)
+		def NormaliseFilePath(_cName_)
+			return This.NormalizeFilePath(_cName_)
 	
-	def NormalizeFilePathXT(cName)
+	def NormalizeFilePathXT(_cName_)
 		if CheckParams()
-			if NOT ( isString(cName) and trim(cName) != "" )
+			if NOT ( isString(_cName_) and trim(_cName_) != "" )
 				StzRaise("Incorrect param type! cName must be a non-empty string.")
 			ok
 		ok
 	    
-	    cBasePath = @cCurrentPath
-	    cCleanName = _CleanPath(trim(cName))
+	    _cBasePath_ = @cCurrentPath
+	    _cCleanName_ = _CleanPath(trim(_cName_))
 	    
 	    # If not absolute, make it relative to base path
-	    if NOT _IsAbsolutePath(cCleanName)
-	        cCleanName = _CleanPath(cBasePath + "/" + cCleanName)
+	    if NOT _IsAbsolutePath(_cCleanName_)
+	        _cCleanName_ = _CleanPath(_cBasePath_ + "/" + _cCleanName_)
 	    ok
 	    
 	    # A FILE path must NOT end with a separator -- appending one here (the
@@ -814,85 +814,85 @@ class stzFolder from stzObject
 	    # read/write/size/copy all operated on a malformed path and silently
 	    # did nothing. The folder variant (NormalizeFolderPathXT) adds its own
 	    # trailing separator on top of this, so it is unaffected.
-	    cResult = _CleanPath(cCleanName)   # preserve case (was StzLower)
-		cResult = StzReplace(cResult, "//", "/")
-		return cResult
+	    _cResult_ = _CleanPath(_cCleanName_)   # preserve case (was StzLower)
+		_cResult_ = StzReplace(_cResult_, "//", "/")
+		return _cResult_
 
-		def NormaliseFilePathXT(cName)
-			return This.NormalizeFilePathXT(cName)
+		def NormaliseFilePathXT(_cName_)
+			return This.NormalizeFilePathXT(_cName_)
 	
-	def NormalizeFolderPath(cName)
+	def NormalizeFolderPath(_cName_)
 
-	    cName = This.NormalizeFilePath(cName)
-	    cSeparator = This.Separator()
+	    _cName_ = This.NormalizeFilePath(_cName_)
+	    _cSeparator_ = This.Separator()
 
 		# (Removed a forced leading separator here -- it turned Windows
 		# drive paths "D:/x" into "/D:/x". Only the trailing separator
 		# matters for folder semantics.)
-	    if StzRight(cName, 1) != cSeparator
-	        cName += cSeparator
+	    if StzRight(_cName_, 1) != _cSeparator_
+	        _cName_ += _cSeparator_
 	    ok
 
-		cName = StzReplace(cName, "//", "/")
-	    return cName
+		_cName_ = StzReplace(_cName_, "//", "/")
+	    return _cName_
 	
-		def NormaliseFolderPath(cName)
-			return This.NormalizeFolderPath(cName)
+		def NormaliseFolderPath(_cName_)
+			return This.NormalizeFolderPath(_cName_)
 	
-	def NormalizeFolderPathXT(cName)
-	    cName = This.NormalizeFilePathXT(cName)
-	    cSeparator = This.Separator()
+	def NormalizeFolderPathXT(_cName_)
+	    _cName_ = This.NormalizeFilePathXT(_cName_)
+	    _cSeparator_ = This.Separator()
 
-	    if StzRight(cName, 1) != cSeparator
-	        cName += cSeparator
+	    if StzRight(_cName_, 1) != _cSeparator_
+	        _cName_ += _cSeparator_
 	    ok
 
-		cName = StzReplace(cName, "//", "/")
-	    return cName
+		_cName_ = StzReplace(_cName_, "//", "/")
+	    return _cName_
 
-		def NormaliseFolderPathXT(cName)
-			return This.NormalizeFolderPathXT(cName)
+		def NormaliseFolderPathXT(_cName_)
+			return This.NormalizeFolderPathXT(_cName_)
 
 	# Listing-form normalisers: produce the exact shape the Files()/Folders()
 	# listings use -- "/name" for a file, "/name/" for a folder -- with the
 	# child name lowercased (the listing convention). Handy for building a
 	# value to match against those listings.
-	def NormalizeFileName(cName)
-		if NOT ( isString(cName) and trim(cName) != "" )
+	def NormalizeFileName(_cName_)
+		if NOT ( isString(_cName_) and trim(_cName_) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
-		return "/" + StzLower(_DirName(_CleanPath(trim(cName))))
+		return "/" + StzLower(_DirName(_CleanPath(trim(_cName_))))
 
-		def NormaliseFileName(cName)
-			return This.NormalizeFileName(cName)
+		def NormaliseFileName(_cName_)
+			return This.NormalizeFileName(_cName_)
 
-	def NormalizeFolderName(cName)
-		if NOT ( isString(cName) and trim(cName) != "" )
+	def NormalizeFolderName(_cName_)
+		if NOT ( isString(_cName_) and trim(_cName_) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
-		return "/" + StzLower(_DirName(_CleanPath(trim(cName)))) + "/"
+		return "/" + StzLower(_DirName(_CleanPath(trim(_cName_)))) + "/"
 
-		def NormaliseFolderName(cName)
-			return This.NormalizeFolderName(cName)
+		def NormaliseFolderName(_cName_)
+			return This.NormalizeFolderName(_cName_)
 
 	#==========================#
 	#  DETAILED PATH ANALYSIS  #
 	#==========================#
 	
-	def PathType(cPath)
+	def PathType(_cPath_)
 	
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	
 	    # Returns the type of path: "file", "folder", or "none"
 	
-	    if This.IsFile(cPath)
+	    if This.IsFile(_cPath_)
 	        return "file"
 	
-	    but This.IsFolder(cPath)
+	    but This.IsFolder(_cPath_)
 	        return "folder"
 	
 	    else
@@ -900,67 +900,67 @@ class stzFolder from stzObject
 	    ok
 	
 	
-	def PathInfo(cPath)
+	def PathInfo(_cPath_)
 	
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	    
-	    cNormalizedPath = This.NormalizePath(cPath)
+	    _cNormalizedPath_ = This.NormalizePath(_cPath_)
 	
 		# Ensire the provided path exists in the folder
 	
-		if NOT This.Exists(cNormalizedPath)
+		if NOT This.Exists(_cNormalizedPath_)
 			raise("Incorrect path!")
 		ok
 	
 		# Doing the job
 	
-	    cType = This.PathType(cNormalizedPath)
-	    bExists = (cType != "none")
+	    _cType_ = This.PathType(_cNormalizedPath_)
+	    _bExists_ = (_cType_ != "none")
 	    
-	    aInfo = [
-	        :path, cPath,
-	        :normalized_path, cNormalizedPath,
-	        :exists, bExists,
-	        :type, cType,
-	        :is_file, (cType = "file"),
-	        :is_folder, (cType = "folder"),
-	        :is_relative, (StzLeft(cPath, 1) != This.Separator() AND StzFindFirst(cPath, ":/") = 0 AND StzFindFirst(cPath, ":\\") = 0),
-	        :parent_folder, This.ParentFolder(cPath)
+	    _aInfo_ = [
+	        :path, _cPath_,
+	        :normalized_path, _cNormalizedPath_,
+	        :exists, _bExists_,
+	        :type, _cType_,
+	        :is_file, (_cType_ = "file"),
+	        :is_folder, (_cType_ = "folder"),
+	        :is_relative, (StzLeft(_cPath_, 1) != This.Separator() AND StzFindFirst(_cPath_, ":/") = 0 AND StzFindFirst(_cPath_, ":\\") = 0),
+	        :parent_folder, This.ParentFolder(_cPath_)
 	    ]
 	    
-	    return aInfo
+	    return _aInfo_
 	
-	def ParentFolder(cPath)
+	def ParentFolder(_cPath_)
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 	
-	    cNormalizedPath = This.NormalizePath(cPath)
+	    _cNormalizedPath_ = This.NormalizePath(_cPath_)
 	
 		# Ensire the provided path exists in the folder
 	
-		if NOT This.Exists(cNormalizedPath)
+		if NOT This.Exists(_cNormalizedPath_)
 			raise("Incorrect path!")
 		ok
 	
 	    # Find last separator
 	
-	    nLastSep = 0
-	    for i = StzLen(cNormalizedPath) to 1 step -1
-	        if cNormalizedPath[i] = This.Separator()
-	            nLastSep = i
+	    _nLastSep_ = 0
+	    for i = StzLen(_cNormalizedPath_) to 1 step -1
+	        if _cNormalizedPath_[i] = This.Separator()
+	            _nLastSep_ = i
 	            exit
 	        ok
 	    next
 
-	    if nLastSep > 0
-	        return StzLeft(cNormalizedPath, nLastSep - 1)
+	    if _nLastSep_ > 0
+	        return StzLeft(_cNormalizedPath_, _nLastSep_ - 1)
 	    else
 	        return @cCurrentPath
 	    ok
@@ -983,9 +983,9 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = len(acPaths)
+		_nLen_ = len(acPaths)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	        if NOT This.IsFile(acPaths[i])
 	            return FALSE
 	        ok
@@ -1003,9 +1003,9 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = len(acPaths)
+		_nLen_ = len(acPaths)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	        if NOT This.IsFolder(acPaths[i])
 	            return FALSE
 	        ok
@@ -1023,9 +1023,9 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = len(acPaths)
+		_nLen_ = len(acPaths)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	        if NOT This.Exists(acPaths[i])
 	            return FALSE
 	        ok
@@ -1043,17 +1043,17 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    acResult = []
+	    _acResult_ = []
 	
-		nLen = len(acPaths)
+		_nLen_ = len(acPaths)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	        if This.Exists(acPaths[i])
-	            acResult + cPath
+	            _acResult_ + _cPath_
 	        ok
 	    next
 	    
-	    return acResult
+	    return _acResult_
 	
 	
 	def MissingPathsAmong(acPaths)
@@ -1066,16 +1066,16 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    acMissing = []
-		nLen = len(acPaths)
+	    _acMissing_ = []
+		_nLen_ = len(acPaths)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	        if NOT This.Exists(acPaths[i])
-	            acMissing + cPath
+	            _acMissing_ + _cPath_
 	        ok
 	    next
 	    
-	    return acMissing
+	    return _acMissing_
 
 	#======================#
 	#  Folder Information  #
@@ -1134,7 +1134,7 @@ class stzFolder from stzObject
 
 	def Info()
 
-		aInfo = [
+		_aInfo_ = [
 			:Name = This.Name(),
 			:Path = This.Path(),
 			:AbsolutePath = This.AbsolutePath(),
@@ -1146,7 +1146,7 @@ class stzFolder from stzObject
 			:IsRoot = This.IsRoot()
 		]
 
-		return aInfo
+		return _aInfo_
 
 	#=====================#
 	#  Content Management #
@@ -1169,62 +1169,62 @@ class stzFolder from stzObject
 	def FilesXT()
 
 		_aList_ = @dir(@cCurrentPath)
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(_aList_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 0
-				aResult + (@cCurrentPath + This.Separator() + _aList_[i][1])
+				_aResult_ + (@cCurrentPath + This.Separator() + _aList_[i][1])
 			end
 		next
 
-		return aResult
+		return _aResult_
 
 	def FoldersXT()
 
 		_aList_ = @dir(@cCurrentPath)
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(_aList_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				aResult + (@cCurrentPath + This.Separator() + _aList_[i][1] + This.Separator())
+				_aResult_ + (@cCurrentPath + This.Separator() + _aList_[i][1] + This.Separator())
 			end
 		next
 
-		return aResult
+		return _aResult_
 
 	def Files()
 
 		_aList_ = @dir(@cCurrentPath)
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(_aList_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 0
-				aResult + (This.Separator() + _aList_[i][1])
+				_aResult_ + (This.Separator() + _aList_[i][1])
 			end
 		next
 
-		return aResult
+		return _aResult_
 
 	def Folders()
 
 		_aList_ = @dir(@cCurrentPath)
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(_aList_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _alist_[i][1] != ".."
-				aResult + (This.Separator() + _aList_[i][1] + This.Separator())
+				_aResult_ + (This.Separator() + _aList_[i][1] + This.Separator())
 			end
 		next
 
-		return aResult
+		return _aResult_
 
 		def Dirs()
 			return This.Folders()
@@ -1247,32 +1247,32 @@ class stzFolder from stzObject
 		def CountDirs()
 			return This.CountFolders()
 
-	def CountFolder(cFolderName)
-		return len(This.FindFolder(cFolderName))
+	def CountFolder(_cFolderName_)
+		return len(This.FindFolder(_cFolderName_))
 
 	#---
 
-	def Contains(cName)
+	def Contains(_cName_)
 		if CheckParams()
-			if NOT ( isString(cName) and trim(cName) != "" )
+			if NOT ( isString(_cName_) and trim(_cName_) != "" )
 				StzRaise("Incorrect param type! cName must be a non-empty string.")
 			ok
 		ok
 
-		aFiles = This.Files()
-		aFolders = This.Folders()
+		_aFiles_ = This.Files()
+		_aFolders_ = This.Folders()
 
-		return This._NameInListCI(cName, aFiles) or This._NameInListCI(cName, aFolders)
+		return This._NameInListCI(_cName_, _aFiles_) or This._NameInListCI(_cName_, _aFolders_)
 
 
-		def Has(cName)
-			return This.Contains(cName)
+		def Has(_cName_)
+			return This.Contains(_cName_)
 
-		def ContainsFileOrFolder(cName)
-			return This.Contains(cName)
+		def ContainsFileOrFolder(_cName_)
+			return This.Contains(_cName_)
 
-		def ContainsFolderOrFile(cName)
-			return This.Contains(cName)
+		def ContainsFolderOrFile(_cName_)
+			return This.Contains(_cName_)
 
 
 	def ContainsFile(cFileName)
@@ -1284,17 +1284,17 @@ class stzFolder from stzObject
 
 		return This._NameInListCI(cFileName, This.Files())
 
-	def ContainsFolder(cFolderName)
+	def ContainsFolder(_cFolderName_)
 		if CheckParams()
-			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )
 				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
 			ok
 		ok
 
-		return This._NameInListCI(cFolderName, This.Folders())
+		return This._NameInListCI(_cFolderName_, This.Folders())
 
-		def ContainsDir(cFolderName)
-			return This.ContainsFolder(cFolderName)
+		def ContainsDir(_cFolderName_)
+			return This.ContainsFolder(_cFolderName_)
 
 	def ContainsFiles()
 		return This.CountFiles() > 0
@@ -1316,56 +1316,56 @@ class stzFolder from stzObject
 
 	#--
 
-	def FilesIn(cPath)
+	def FilesIn(_cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		if NOT This.Exists(cPath)
+		if NOT This.Exists(_cPath_)
 			StzRaise("Incorrect path!")
 		ok
 
-		acList = @dir(cPath)
-		nLen = len(acList)
+		_acList_ = @dir(_cPath_)
+		_nLen_ = len(_acList_)
 
-		acResult = []
+		_acResult_ = []
 
-		for i = 1 to nLen
-			if This.IsFile(acList[i])
-				acResult + acList[i]
+		for i = 1 to _nLen_
+			if This.IsFile(_acList_[i])
+				_acResult_ + _acList_[i]
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 
-	def FoldersIn(cPath)
+	def FoldersIn(_cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		if NOT This.Exists(cPath)
+		if NOT This.Exists(_cPath_)
 			StzRaise("Incorrect path!")
 		ok
 
-		acList = @dir(cPath)
-		nLen = len(acList)
+		_acList_ = @dir(_cPath_)
+		_nLen_ = len(_acList_)
 
-		acResult = []
+		_acResult_ = []
 
-		for i = 1 to nLen
-			if This.IsFolder(acList[i])
-				acResult + acList[i]
+		for i = 1 to _nLen_
+			if This.IsFolder(_acList_[i])
+				_acResult_ + _acList_[i]
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 	#===========================#
 	#  Deep Content Management  #
@@ -1389,140 +1389,140 @@ class stzFolder from stzObject
 		def DeepCountDirs()
 			return This.DeepCountFolders()
 
-	def DeepCountFolder(cFolderName)
-		return len(This.DeepFindFolder(cFolderName))
+	def DeepCountFolder(_cFolderName_)
+		return len(This.DeepFindFolder(_cFolderName_))
 
 	def DeepFiles() # With simplified paths
 
-		aResult = []
-		aToProcess = [@cCurrentPath]
-		cBasePath = @cCurrentPath
+		_aResult_ = []
+		_aToProcess_ = [@cCurrentPath]
+		_cBasePath_ = @cCurrentPath
 		
-		while len(aToProcess) > 0
+		while len(_aToProcess_) > 0
 
-			cCurrentPath = aToProcess[1]
-			del(aToProcess, 1)
+			_cCurrentPath_ = _aToProcess_[1]
+			del(_aToProcess_, 1)
 			
-			_aList_ = @dir(cCurrentPath)
+			_aList_ = @dir(_cCurrentPath_)
 
-			nLen = len(_aList_)
+			_nLen_ = len(_aList_)
 	
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
 				if _aList_[i][2] = 0  # It's a file
 
-					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1]
-					cRelativePath = StzMid(cFullPath, StzLen(cBasePath) + 1, StzLen(cFullPath) - StzLen(cBasePath))
+					_cFullPath_ = _cCurrentPath_ + This.Separator() + _aList_[i][1]
+					_cRelativePath_ = StzMid(_cFullPath_, StzLen(_cBasePath_) + 1, StzLen(_cFullPath_) - StzLen(_cBasePath_))
 
-					if StzLeft(cRelativePath, 1) != This.Separator()
-						cRelativePath = This.Separator() + cRelativePath
+					if StzLeft(_cRelativePath_, 1) != This.Separator()
+						_cRelativePath_ = This.Separator() + _cRelativePath_
 					end
 
-					aResult + cRelativePath
+					_aResult_ + _cRelativePath_
 
 				but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
+					_aToProcess_ + (_cCurrentPath_ + This.Separator() + _aList_[i][1])
 				end
 
 			next
 
 		end
 		
-		return aResult
+		return _aResult_
 	
 	def DeepFolders() # With simplified paths
 
-		aResult = []
-		aToProcess = [@cCurrentPath]
-		cBasePath = @cCurrentPath
+		_aResult_ = []
+		_aToProcess_ = [@cCurrentPath]
+		_cBasePath_ = @cCurrentPath
 		
-		while len(aToProcess) > 0
+		while len(_aToProcess_) > 0
 
-			cCurrentPath = aToProcess[1]
-			del(aToProcess, 1)
+			_cCurrentPath_ = _aToProcess_[1]
+			del(_aToProcess_, 1)
 			
-			_aList_ = @dir(cCurrentPath)
+			_aList_ = @dir(_cCurrentPath_)
 
-			nLen = len(_aList_)
+			_nLen_ = len(_aList_)
 	
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
 				if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1]
-					cRelativePath = StzMid(cFullPath, StzLen(cBasePath) + 1, StzLen(cFullPath) - StzLen(cBasePath))
+					_cFullPath_ = _cCurrentPath_ + This.Separator() + _aList_[i][1]
+					_cRelativePath_ = StzMid(_cFullPath_, StzLen(_cBasePath_) + 1, StzLen(_cFullPath_) - StzLen(_cBasePath_))
 
-					if StzLeft(cRelativePath, 1) != This.Separator()
-						cRelativePath = This.Separator() + cRelativePath
+					if StzLeft(_cRelativePath_, 1) != This.Separator()
+						_cRelativePath_ = This.Separator() + _cRelativePath_
 					end
 
-					aResult + (cRelativePath + This.Separator())
-					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
+					_aResult_ + (_cRelativePath_ + This.Separator())
+					_aToProcess_ + (_cCurrentPath_ + This.Separator() + _aList_[i][1])
 				end
 
 			next
 		end
 		
-		return aResult
+		return _aResult_
 
 	def DeepFilesXT() # With complete long paths
 
-		aResult = []
-		aToProcess = [@cCurrentPath]
+		_aResult_ = []
+		_aToProcess_ = [@cCurrentPath]
 		
-		while len(aToProcess) > 0
+		while len(_aToProcess_) > 0
 
-			cCurrentPath = aToProcess[1]
-			del(aToProcess, 1)
+			_cCurrentPath_ = _aToProcess_[1]
+			del(_aToProcess_, 1)
 			
-			_aList_ = @dir(cCurrentPath)
+			_aList_ = @dir(_cCurrentPath_)
 
-			nLen = len(_aList_)
+			_nLen_ = len(_aList_)
 	
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
 				if _aList_[i][2] = 0  # It's a file
-					aResult + (cCurrentPath + This.Separator() + _aList_[i][1])
+					_aResult_ + (_cCurrentPath_ + This.Separator() + _aList_[i][1])
 
 				but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
-					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
+					_aToProcess_ + (_cCurrentPath_ + This.Separator() + _aList_[i][1])
 				end
 
 			next
 
 		end
 
-		return aResult
+		return _aResult_
 
 
 	def DeepFoldersXT() # With complete long paths
 
-		aResult = []
-		aToProcess = [@cCurrentPath]
+		_aResult_ = []
+		_aToProcess_ = [@cCurrentPath]
 		
-		while len(aToProcess) > 0
+		while len(_aToProcess_) > 0
 
-			cCurrentPath = aToProcess[1]
-			del(aToProcess, 1)
+			_cCurrentPath_ = _aToProcess_[1]
+			del(_aToProcess_, 1)
 			
-			_aList_ = @dir(cCurrentPath)
+			_aList_ = @dir(_cCurrentPath_)
 
-			nLen = len(_aList_)
+			_nLen_ = len(_aList_)
 	
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
 				if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1] + This.Separator()
-					aResult + cFullPath
-					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
+					_cFullPath_ = _cCurrentPath_ + This.Separator() + _aList_[i][1] + This.Separator()
+					_aResult_ + _cFullPath_
+					_aToProcess_ + (_cCurrentPath_ + This.Separator() + _aList_[i][1])
 
 				end
 
 			next
 		end
 		
-		return aResult
+		return _aResult_
 
 	def DeepCount()
 		return This.DeepCountFiles() + This.DeepCountFolders()
@@ -1533,15 +1533,15 @@ class stzFolder from stzObject
 		def DeepCountFoldersAndFiles()
 			return This.DeepCount()
 
-	def DeepCountFileIn(cFileName, cPath)
-		return len(This.FindFileIn(cFileName, cPath))
+	def DeepCountFileIn(cFileName, _cPath_)
+		return len(This.FindFileIn(cFileName, _cPath_))
 
 	def DeepCountTheseFiles(acFilesNames)
-		return len(This.DeepCountTheseFilesIn(acFilesNames, cPath))
+		return len(This.DeepCountTheseFilesIn(acFilesNames, _cPath_))
 
-	def DeepCountTheseFilesIn(acFilesNames, cPath)
+	def DeepCountTheseFilesIn(acFilesNames, _cPath_)
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 
@@ -1550,35 +1550,35 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		return len(This.SearchTheseFilesIn(acFilesNames, cPath))
+		return len(This.SearchTheseFilesIn(acFilesNames, _cPath_))
 
-	def DeepCountFilesIn(cPath)
+	def DeepCountFilesIn(_cPath_)
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		nCount = 0
-		aList = @dir(cPath)
-		nLen = len(aList)
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 0
-				nCount++
-			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.DeepCountFilesIn(cPath + This.Separator() + aList[i][1])
+			if _aList_[i][2] = 0
+				_nCount_++
+			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
+				_nCount_ += This.DeepCountFilesIn(_cPath_ + This.Separator() + _aList_[i][1])
 			end
 
 		next
 
-		return nCount
+		return _nCount_
 
 
-	def DeepCountFilesWithProgress(cPath, nCurrentLevel, nMaxLevel)
+	def DeepCountFilesWithProgress(_cPath_, nCurrentLevel, nMaxLevel)
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
@@ -1587,117 +1587,117 @@ class stzFolder from stzObject
 			return 0
 		ok
 
-		nCount = 0
-		aList = @dir(cPath)
-		nLen = len(aList)
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 0
-				nCount++
+			if _aList_[i][2] = 0
+				_nCount_++
 
-			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.DeepCountFilesWithProgress(cPath + This.Separator() + aList[i][1], nCurrentLevel + 1, nMaxLevel)
+			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
+				_nCount_ += This.DeepCountFilesWithProgress(_cPath_ + This.Separator() + _aList_[i][1], nCurrentLevel + 1, nMaxLevel)
 			ok
 
 		next
 
-		return nCount
+		return _nCount_
 
 
-	def DeepCountFolderIn(cFolderName, cPath)
+	def DeepCountFolderIn(_cFolderName_, _cPath_)
 		if CheckParams()
-			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )
 				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
 			ok
 
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		return len(This.FindFolderIn(cFolderName, cPath))
+		return len(This.FindFolderIn(_cFolderName_, _cPath_))
 
-	def DeepCountTheseFoldersIn(acFoldersNames, cPath)
-		return len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
+	def DeepCountTheseFoldersIn(acFoldersNames, _cPath_)
+		return len(This.SearchTheseFoldersIn(acFoldersNames, _cPath_))
 
-	def DeepCountFoldersIn(cPath)
+	def DeepCountFoldersIn(_cPath_)
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		nCount = 0
-		aList = @dir(cPath)
-		nLen = len(aList)
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount++
-				nCount += This.DeepCountFoldersIn(cPath + This.Separator() + aList[i][1])
+			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
+				_nCount_++
+				_nCount_ += This.DeepCountFoldersIn(_cPath_ + This.Separator() + _aList_[i][1])
 			end
 
 		next
 
-		return nCount
+		return _nCount_
 
 
-	def DeepContains(cName)
+	def DeepContains(_cName_)
 
-		if This.DeepContainsFileIn(cName, This.Path()) or This.DeepContainsFolderIn(cName, This.Path())
+		if This.DeepContainsFileIn(_cName_, This.Path()) or This.DeepContainsFolderIn(_cName_, This.Path())
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def DeepContainsFileOrFolder(cName)
-			return This.DeepContains(cName)
+		def DeepContainsFileOrFolder(_cName_)
+			return This.DeepContains(_cName_)
 
-		def DeepContainsFolderOrFile(cName)
-			return This.DeepContains(cName)
+		def DeepContainsFolderOrFile(_cName_)
+			return This.DeepContains(_cName_)
 
-	def DeepContainsIn(cName, cPath)
+	def DeepContainsIn(_cName_, _cPath_)
 
-		if This.DeepContainsFileIn(cName, cPath) or This.DeepContainsFolderIn(cName,cPath)
+		if This.DeepContainsFileIn(_cName_, _cPath_) or This.DeepContainsFolderIn(_cName_,_cPath_)
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def DeepContainsFileOrFolderIn(cName, cPath)
-			return This.DeepContainsIn(cName, cPath)
+		def DeepContainsFileOrFolderIn(_cName_, _cPath_)
+			return This.DeepContainsIn(_cName_, _cPath_)
 
-		def DeepContainsFolderOrFileIn(cName, cPath)
-			return This.DeepContainsIn(cName, cPath)
+		def DeepContainsFolderOrFileIn(_cName_, _cPath_)
+			return This.DeepContainsIn(_cName_, _cPath_)
 
 	def DeepContainsFile(cFileName)
 		return This.DeepContainsFileIn(cFileName, This.Path())
 
-	def DeepContainsFileIn(cFileName, cPath)
+	def DeepContainsFileIn(cFileName, _cPath_)
 
 		if CheckParams()
 			if NOT ( isString(cFileName) and trim(cFileName) != "" )
 				StzRaise("Incorrect param type! cFileName must be a non-empty string.")
 			ok
 
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		aList = @dir(cPath)
-		nLen = len(aList)
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 0 and aList[i][1] = cFileName
+			if _aList_[i][2] = 0 and _aList_[i][1] = cFileName
 				return TRUE
 
-			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
+			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 
-				if This.DeepContainsFileIn(cFileName, cPath + This.Separator() + aList[i][1])
+				if This.DeepContainsFileIn(cFileName, _cPath_ + This.Separator() + _aList_[i][1])
 					return TRUE
 				end
 
@@ -1710,10 +1710,10 @@ class stzFolder from stzObject
 	def DeepContainsTheseFiles(acFilesNames)
 		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
 
-	def DeepContainsTheseFilesIn(acFilesNames, cPath)
+	def DeepContainsTheseFilesIn(acFilesNames, _cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 
@@ -1722,28 +1722,28 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = len(acFilesNames)
-		bResult = TRUE
+		_nLen_ = len(acFilesNames)
+		_bResult_ = TRUE
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if NOT This.DeepContainsFileIn(acFilesNames[i], cPath)
-				bResult = FALSE
+			if NOT This.DeepContainsFileIn(acFilesNames[i], _cPath_)
+				_bResult_ = FALSE
 				exit
 			ok
 
 		next
 
-		return bResult
+		return _bResult_
 
 	def DeepContainsOneOfTheseFiles(acFilesNames)
 		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
 
 
-	def DeepContainsOneOfTheseFilesIn(acFilesNames, cPath)
+	def DeepContainsOneOfTheseFilesIn(acFilesNames, _cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 
@@ -1752,47 +1752,47 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = len(acFilesNames)
-		bResult = FALSE
+		_nLen_ = len(acFilesNames)
+		_bResult_ = FALSE
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if This.DeepContainsFileIn(acFilesNames[i], cPath)
-				bResult = TRUE
+			if This.DeepContainsFileIn(acFilesNames[i], _cPath_)
+				_bResult_ = TRUE
 				exit
 			ok
 
 		next
 
-		return bResult
+		return _bResult_
 
-	def DeepContainsFolder(cFolderName)
-		return This.DeepContainsFolderIn(cFolderName, This.Path())
+	def DeepContainsFolder(_cFolderName_)
+		return This.DeepContainsFolderIn(_cFolderName_, This.Path())
 
 
-	def DeepContainsFolderIn(cFolderName, cPath)
+	def DeepContainsFolderIn(_cFolderName_, _cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )
+			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )
 				StzRaise("Incorrect param type! cFolderNAme must be a non-empty string.")
 			ok
 
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		aList = @dir(cPath)
-		nLen = len(aList)
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 1 and aList[i][1] = cFolderName
+			if _aList_[i][2] = 1 and _aList_[i][1] = _cFolderName_
 				return TRUE
 
-			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
+			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 
-				if This.DeepContainsFolderIn(cFolderName, cPath + This.Separator() + aList[i][1])
+				if This.DeepContainsFolderIn(_cFolderName_, _cPath_ + This.Separator() + _aList_[i][1])
 					return TRUE
 				end
 
@@ -1805,10 +1805,10 @@ class stzFolder from stzObject
 	def DeepContainsTheseFolders(acFoldersNames)
 		return This.DeepContainsTheseFoldersIn(acFoldersNames, This.Path())
 
-	def DeepContainsTheseFoldersIn(acFoldersNames, cPath)
+	def DeepContainsTheseFoldersIn(acFoldersNames, _cPath_)
 
 		if CheckParams()
-			if NOT ( isString(cPath) and trim(cPath) != "" )
+			if NOT ( isString(_cPath_) and trim(_cPath_) != "" )
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 
@@ -1817,24 +1817,24 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = len(acFoldersNames)
-		bResult = TRUE
+		_nLen_ = len(acFoldersNames)
+		_bResult_ = TRUE
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if NOT This.DeepContainsFolderIn(acFoldersNames[i], cPath)
-				bResult = FALSE
+			if NOT This.DeepContainsFolderIn(acFoldersNames[i], _cPath_)
+				_bResult_ = FALSE
 				exit
 			ok
 
 		next
 
-		return bResult
+		return _bResult_
 
 	def DeepContainsOneOfTheseFolders(acFoldersNames)
 		return This.DeepContainsTheseFoldersIn(acFoldersNames, This.Path())
 
-	def DeepContainsOneOfTheseFoldersIn(acFoldersNames, cPath)
+	def DeepContainsOneOfTheseFoldersIn(acFoldersNames, _cPath_)
 
 		if CheckParams()
 			if NOT ( isList(acFoldersNames) and @IsListOfStrings(acFoldersNames) )
@@ -1842,19 +1842,19 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = len(acFoldersNames)
-		bResult = FALSE
+		_nLen_ = len(acFoldersNames)
+		_bResult_ = FALSE
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if This.DeepContainsFolderIn(acFoldersNames[i], cPath)
-				bResult = TRUE
+			if This.DeepContainsFolderIn(acFoldersNames[i], _cPath_)
+				_bResult_ = TRUE
 				exit
 			ok
 
 		next
 
-		return bResult
+		return _bResult_
 
 	#==============#
 	#  Navigation  #
@@ -1888,22 +1888,22 @@ class stzFolder from stzObject
 		def pwd()  # Unix-style "print working directory"
 			return This.CurrentPath()
 
-	def GoTo(cPath)
+	def GoTo(_cPath_)
 		if CheckParams()
-			if NOT (isString(cPath) and cPath != "")
+			if NOT (isString(_cPath_) and _cPath_ != "")
 				StzRaise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
 
-		cFullPath = This.NormalizeFolderPathXT(cPath)
-		if This.IsOutside(cFullPath)
+		_cFullPath_ = This.NormalizeFolderPathXT(_cPath_)
+		if This.IsOutside(_cFullPath_)
 			StzRaise("Can't navigate outside the folder!")
 		ok
 
 		# Save current path to history before changing
 		@acPathHistory + @cCurrentPath
 		
-		@cCurrentPath = cFullPath
+		@cCurrentPath = _cFullPath_
 		
 		return TRUE
 
@@ -1953,10 +1953,10 @@ class stzFolder from stzObject
 			raise("No previous location in history!")
 		end
 		
-		cPreviousPath = @acPathHistory[len(@acPathHistory)]
+		_cPreviousPath_ = @acPathHistory[len(@acPathHistory)]
 		del(@acPathHistory, len(@acPathHistory))  # Remove last item
 		
-		@cCurrentPath = cPreviousPath
+		@cCurrentPath = _cPreviousPath_
 		
 		return TRUE
 
@@ -1991,12 +1991,12 @@ class stzFolder from stzObject
 
 	def DistanceFromHome()
 		# Return number of directory levels from home
-		cRelPath = This.RelativePathFromHome()
-		if cRelPath = "."
+		_cRelPath_ = This.RelativePathFromHome()
+		if _cRelPath_ = "."
 			return 0
 		end
 		
-		return len(split(cRelPath, This.Separator()))
+		return len(split(_cRelPath_, This.Separator()))
 
 	def NavigationInfo()
 		return [
@@ -2028,21 +2028,21 @@ class stzFolder from stzObject
 	        pcPath = This.CurrentPath() + pcPath
 	    ok
 
-	    cPath = This.NormalizeFolderPath(pcPath)
+	    _cPath_ = This.NormalizeFolderPath(pcPath)
 
-	    if NOT This.IsInside(cPath)
+	    if NOT This.IsInside(_cPath_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 
 	    # Create the folder first
-	    StzEngineDirCreatePath(cPath)
+	    StzEngineDirCreatePath(_cPath_)
 
 	    # Then navigate there (intelligent navigation)
 	    if not this.IsBatchMode()
-	        This.GoTo(cPath)
+	        This.GoTo(_cPath_)
 	    ok
 
-	    return new stzFolder(cPath)
+	    return new stzFolder(_cPath_)
 
 	def CreateFolder(pcPath)
 	    This.CreateFolderQ(pcPath)
@@ -2062,18 +2062,18 @@ class stzFolder from stzObject
 		if NOT isList(paNames)
 			raise("Incorrect param type! paNames must be a list of folder names.")
 		ok
-		aResult = []
-		cBase = This.Path()
-		nLen = len(paNames)
-		for i = 1 to nLen
-			cName = "" + paNames[i]
+		_aResult_ = []
+		_cBase_ = This.Path()
+		_nLen_ = len(paNames)
+		for i = 1 to _nLen_
+			_cName_ = "" + paNames[i]
 			# Pass the RAW joined path to the constructor (its _CleanPath
 			# handles separators correctly). Do NOT pre-run it through
 			# NormalizeFolderPath -- that helper lowercases and strips the
 			# last char, yielding an invalid path like "/d:/.../doc/".
-			aResult + new stzFolder(cBase + "/" + cName)
+			_aResult_ + new stzFolder(_cBase_ + "/" + _cName_)
 		next
-		return aResult
+		return _aResult_
 
 	def CreateFolders(paNames)
 		This.CreateFoldersQ(paNames)
@@ -2096,18 +2096,18 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		cPath = pcPath
-		if not _IsAbsolutePath(cPath)
-			cPath = This.Path() + "/" + cPath
+		_cPath_ = pcPath
+		if not _IsAbsolutePath(_cPath_)
+			_cPath_ = This.Path() + "/" + _cPath_
 		ok
-		cPath = _CleanPath(cPath)
+		_cPath_ = _CleanPath(_cPath_)
 
-		if NOT This.IsInside(cPath)
+		if NOT This.IsInside(_cPath_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		StzEngineDirCreatePath(cPath)
-		return new stzFolder(cPath)
+		StzEngineDirCreatePath(_cPath_)
+		return new stzFolder(_cPath_)
 
 		def MkPathQ(pcPath)
 			return This.CreatePathQ(pcPath)
@@ -2126,48 +2126,48 @@ class stzFolder from stzObject
 			return This.CreatePath(pcPath)
 
 
-	def DeleteFolder(cFolder)
+	def DeleteFolder(_cFolder_)
 
 	    if CheckParams()
-	        if NOT (isString(cFolder) and cFolder != "")
+	        if NOT (isString(_cFolder_) and _cFolder_ != "")
 	            StzRaise("Incorrect param type! cFolder must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cFolder)
-	        cFolder = This.CurrentPath() + cFolder
+	    if not _IsAbsolutePath(_cFolder_)
+	        _cFolder_ = This.CurrentPath() + _cFolder_
 	    ok
 	
-	    cFolder = This.NormalizeFolderPathXT(cFolder)
+	    _cFolder_ = This.NormalizeFolderPathXT(_cFolder_)
 	
-	    if This.IsPathOutside(cFolder)
+	    if This.IsPathOutside(_cFolder_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cFolder)
+	    if not This.Exists(_cFolder_)
 	        raise("Folder does not exist.")
 	    ok
 	
 	    # Delete the folder first
-	    bResult = RemoveFolderRecursive(cFolder)
+	    _bResult_ = RemoveFolderRecursive(_cFolder_)
 	    
 	    # Then navigate to parent folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cParentDir = This.GetDirectoryPath(cFolder)
-	        This.GoTo(cParentDir)
+	        _cParentDir_ = This.GetDirectoryPath(_cFolder_)
+	        This.GoTo(_cParentDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
-		def FolderDelete(cFolder)
-			return This.DeleteFolder(cFolder)
+		def FolderDelete(_cFolder_)
+			return This.DeleteFolder(_cFolder_)
 
-		def RemoveFolder(cFolder)
-			return This.DeleteFolder(cFolder)
+		def RemoveFolder(_cFolder_)
+			return This.DeleteFolder(_cFolder_)
 
-		def FolderRemove(cFolder)
-			return This.DeleteFolder(cFolder)
+		def FolderRemove(_cFolder_)
+			return This.DeleteFolder(_cFolder_)
 
 	def DeleteAll()
 
@@ -2175,21 +2175,21 @@ class stzFolder from stzObject
 
 	        # Delete all files
 
-	        acFiles = This.FilesXT()
-			nLen = len(acFiles)
+	        _acFiles_ = This.FilesXT()
+			_nLen_ = len(_acFiles_)
 
-	        for i = 1 to nLen
-	            if NOT StzEngineFileDelete(acFiles[i])
-	                raise("Could not remove file '" + acFiles[i] + "'")
+	        for i = 1 to _nLen_
+	            if NOT StzEngineFileDelete(_acFiles_[i])
+	                raise("Could not remove file '" + _acFiles_[i] + "'")
 	            ok
 	        next
 
-	        acFolders = This.FoldersXT()
-			nLen = len(acFolders)
+	        _acFolders_ = This.FoldersXT()
+			_nLen_ = len(_acFolders_)
 
-	        for i = 1 to nLen
-	            if NOT RemoveFolderRecursive(acFolders[i])
-	                raise("Could not remove subfolder '" + acFolders[i] + "'")
+	        for i = 1 to _nLen_
+	            if NOT RemoveFolderRecursive(_acFolders_[i])
+	                raise("Could not remove subfolder '" + _acFolders_[i] + "'")
 	            ok
 	        next
 	
@@ -2246,36 +2246,36 @@ class stzFolder from stzObject
 			return This.DeepRemoveAll()
 
 	def Erase()
-	    nDeleted = 0
-	    acFiles = This.FilesXT()
-		nLen = len(acFiles)
+	    _nDeleted_ = 0
+	    _acFiles_ = This.FilesXT()
+		_nLen_ = len(_acFiles_)
 
-	    for i = 1 to nLen
-	        if StzEngineFileDelete(acFiles[i])
-	            nDeleted++
+	    for i = 1 to _nLen_
+	        if StzEngineFileDelete(_acFiles_[i])
+	            _nDeleted_++
 	        ok
 	    next
 
 	    # Stay in current folder - just cleaned it up
-	    return nDeleted
+	    return _nDeleted_
 	
 		def RemoveFiles()
 			return This.Erase()
 
 
 	def DeepErase()
-	    nDeleted = 0
-	    acFiles = This.DeepFilesXT()
-	    nLen = len(acFiles)
+	    _nDeleted_ = 0
+	    _acFiles_ = This.DeepFilesXT()
+	    _nLen_ = len(_acFiles_)
 
-	    for i = 1 to nLen
-	        if StzEngineFileDelete(acFiles[i])
-	            nDeleted++
+	    for i = 1 to _nLen_
+	        if StzEngineFileDelete(_acFiles_[i])
+	            _nDeleted_++
 	        ok
 	    next
 	    
 	    # Stay in current folder - performed deep operation from here
-	    return nDeleted
+	    return _nDeleted_
 	
 	def DeepDeleteFile(cFileName)
 	    if CheckParams()
@@ -2288,18 +2288,18 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    acFilePaths = This.DeepFindFile(cFileName)
-		nLen = len(acFilePaths)
-	    nDeleted = 0
+	    _acFilePaths_ = This.DeepFindFile(cFileName)
+		_nLen_ = len(_acFilePaths_)
+	    _nDeleted_ = 0
 	
-	    for i = 1 to nLen
-	        if StzEngineFileDelete(acFilePaths[i])
-	            nDeleted++
+	    for i = 1 to _nLen_
+	        if StzEngineFileDelete(_acFilePaths_[i])
+	            _nDeleted_++
 	        ok
 	    next
 	
 		# Stay in current folder - deep operations initiated from here
-	    return nDeleted > 0
+	    return _nDeleted_ > 0
 	
 
 		def FileDeepDelete(cFileName)
@@ -2312,233 +2312,233 @@ class stzFolder from stzObject
 			return This.DeepDeleteFile(cFileName)
 
 
-	def DeepDeleteFolder(cFolderName)
+	def DeepDeleteFolder(_cFolderName_)
 
 		if CheckParams()
-			if NOT ( isString(cFolderName) and trim(cFolderName) != "" )  # Fixed: cFolderNAme typo
+			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )  # Fixed: cFolderNAme typo
 				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
 			ok
 		ok
 
-	    acFolderPaths = This.DeepFindFolder(cFolderName)
-		nLen = len(acFolderPaths)
+	    _acFolderPaths_ = This.DeepFindFolder(_cFolderName_)
+		_nLen_ = len(_acFolderPaths_)
 
 	    # Sort by depth (deepest first) using Ring's sort
-	    aSortedPaths = []
-	    for i = 1 to nLen
-	        nDepth = len(@split(acFolderPaths[i], This.Separator()))
-	        aSortedPaths + [nDepth, acFolderPaths[i]]
+	    _aSortedPaths_ = []
+	    for i = 1 to _nLen_
+	        _nDepth_ = len(@split(_acFolderPaths_[i], This.Separator()))
+	        _aSortedPaths_ + [_nDepth_, _acFolderPaths_[i]]
 	    next
 
 	    # Sort by depth descending (deepest first)
-	    aSortedPaths = @sorton(aSortedPaths, 1)
-	    aSortedPaths = reverse(aSortedPaths)
-		nLen = len(aSortedPaths)
+	    _aSortedPaths_ = @sorton(_aSortedPaths_, 1)
+	    _aSortedPaths_ = reverse(_aSortedPaths_)
+		_nLen_ = len(_aSortedPaths_)
 
 	    # Delete folders
-		bResult = TRUE
+		_bResult_ = TRUE
 
-		for i = 1 to nLen
-	        cFolderPath = aSortedPaths[i][2]
+		for i = 1 to _nLen_
+	        _cFolderPath_ = _aSortedPaths_[i][2]
 
-	        if dirExists(cFolderPath)
-	            if NOT RemoveFolderRecursive(cFolderPath)
-	                bResult = FALSE
+	        if dirExists(_cFolderPath_)
+	            if NOT RemoveFolderRecursive(_cFolderPath_)
+	                _bResult_ = FALSE
 					exit
 	            ok
 	        ok
 	    next
 		
 		# Stay in current folder - deep operation initiated from here
-	    return bResult
+	    return _bResult_
 
-		def DeepRemoveFolder(cFolderName)
-			return This.DeepDeleteFolder(cFolderName)
+		def DeepRemoveFolder(_cFolderName_)
+			return This.DeepDeleteFolder(_cFolderName_)
 	
-		def FolderDeepDelete(cFolderName)
-			return This.DeepDeleteFile(cFolderName)
+		def FolderDeepDelete(_cFolderName_)
+			return This.DeepDeleteFile(_cFolderName_)
 
-		def FolderDeepRemove(cFolderName)
-			return This.DeepRemoveFile(cFolderName)
+		def FolderDeepRemove(_cFolderName_)
+			return This.DeepRemoveFile(_cFolderName_)
 
 	#===================#
 	#  File Operations  #
 	#===================#
 
-	def FileRead(cFile)
+	def FileRead(_cFile_)
 
 	    if CheckParams()
-	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	        if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cFile)
-	        cFile = This.CurrentPath() + cFile
+	    if not _IsAbsolutePath(_cFile_)
+	        _cFile_ = This.CurrentPath() + _cFile_
 	    ok
 	
-	    cFile = This.NormaliseFilePathXT(cFile)
+	    _cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-	    if This.IsPathOutside(cFile)
+	    if This.IsPathOutside(_cFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cFile)
+	    if not This.Exists(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
 	    # Read the file first
-	    cResult = @FileRead(cFile)
+	    _cResult_ = @FileRead(_cFile_)
 	    
 	    # Then navigate to its folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cFileDir = This.GetDirectoryPath(cFile)
-	        This.GoTo(cFileDir)
+	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
+	        This.GoTo(_cFileDir_)
 	    ok
 	
-	    return cResult
+	    return _cResult_
 
 
-		def ReadFile(cFile)
-			return This.FileRead(cFile)
+		def ReadFile(_cFile_)
+			return This.FileRead(_cFile_)
 
 		# Q form -> the reader OBJECT for the folder-relative file.
-		def FileReadQ(cFile)
+		def FileReadQ(_cFile_)
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
-			if not _IsAbsolutePath(cFile)
-				cFile = This.CurrentPath() + cFile
+			if not _IsAbsolutePath(_cFile_)
+				_cFile_ = This.CurrentPath() + _cFile_
 			ok
-			cFile = This.NormaliseFilePathXT(cFile)
-			if This.IsPathOutside(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
+			if This.IsPathOutside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
-			return @FileReadQ(cFile)
+			return @FileReadQ(_cFile_)
 
-			def ReadFileQ(cFile)
-				return This.FileReadQ(cFile)
+			def ReadFileQ(_cFile_)
+				return This.FileReadQ(_cFile_)
 
 	#--
 
 	# OBJECT-ONLY intent (unified Q convention): both FileAppend(file) and
 	# FileAppendQ(file) return the appender OBJECT for the folder-relative
 	# file (append-or-create -- the file is created if missing).
-	def FileAppend(cFile)
-		return This.FileAppendQ(cFile)
+	def FileAppend(_cFile_)
+		return This.FileAppendQ(_cFile_)
 
-		def AppendFile(cFile)
-			return This.FileAppendQ(cFile)
+		def AppendFile(_cFile_)
+			return This.FileAppendQ(_cFile_)
 
-		def FileAppendQ(cFile)
+		def FileAppendQ(_cFile_)
 
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
 
-			if not _IsAbsolutePath(cFile)
-				cFile = This.CurrentPath() + cFile
+			if not _IsAbsolutePath(_cFile_)
+				_cFile_ = This.CurrentPath() + _cFile_
 			ok
-			cFile = This.NormaliseFilePathXT(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-			if NOT This.IsInside(cFile)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
-				cFileDir = This.GetDirectoryPath(cFile)
-				This.GoTo(cFileDir)
+				_cFileDir_ = This.GetDirectoryPath(_cFile_)
+				This.GoTo(_cFileDir_)
 			ok
 
-			return @FileAppendQ(cFile)   # global -> appender object (append-or-create)
+			return @FileAppendQ(_cFile_)   # global -> appender object (append-or-create)
 
-			def AppendFileQ(cFile)
-				return This.FileAppendQ(cFile)
+			def AppendFileQ(_cFile_)
+				return This.FileAppendQ(_cFile_)
 
 	#--
 
-	def FileCreate(cFile) #TODO // Provide also the content FileCreate(cFile, cContent)
+	def FileCreate(_cFile_) #TODO // Provide also the content FileCreate(cFile, cContent)
 
 	    if CheckParams()
-	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	        if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
 
-	    if not _IsAbsolutePath(cFile)
-	        cFile = This.CurrentPath() + cFile
+	    if not _IsAbsolutePath(_cFile_)
+	        _cFile_ = This.CurrentPath() + _cFile_
 	    ok
 	
-	    cFile = This.NormaliseFilePathXT(cFile)
+	    _cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-	    if This.IsPathOutside(cFile)
+	    if This.IsPathOutside(_cFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if This.Exists(cFile)
+	    if This.Exists(_cFile_)
 	        raise("Can't create this file! cFile already exists in the folder.")
 	    ok
 	
 	    # Create the file first
-	    bResult = @FileCreate(cFile)
+	    _bResult_ = @FileCreate(_cFile_)
 	    
 	    # Then navigate to its folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cFileDir = This.GetDirectoryPath(cFile)
-	        This.GoTo(cFileDir)
+	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
+	        This.GoTo(_cFileDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
-		def CreateFile(cFile)
-			return This.FileCreate(cFile)
+		def CreateFile(_cFile_)
+			return This.FileCreate(_cFile_)
 
 
-		def FileCreateQ(cFile)
+		def FileCreateQ(_cFile_)
 	
 		    if CheckParams()
-		        if NOT ( isString(cFile) and trim(cFile) != "" )
+		        if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 		            StzRaise("Incorrect param type! cFile must be a non-empty string.")
 		        ok
 		    ok
 		
 		    # Resolve relative paths against current position
 	
-		    if not _IsAbsolutePath(cFile)
-		        cFile = This.CurrentPath() + cFile
+		    if not _IsAbsolutePath(_cFile_)
+		        _cFile_ = This.CurrentPath() + _cFile_
 		    ok
 		
-		    cFile = This.NormaliseFilePathXT(cFile)
+		    _cFile_ = This.NormaliseFilePathXT(_cFile_)
 		
-		    if This.IsPathOutside(cFile)
+		    if This.IsPathOutside(_cFile_)
 		        raise("Can't navigate outside the folder!")
 		    ok
 		
-		    if This.Exists(cFile)
+		    if This.Exists(_cFile_)
 		        raise("Can't create this file! cFile already exists in the folder.")
 		    ok
 		
 		    # Create the file first
-		    oResult = @FileCreateQ(cFile)
+		    _oResult_ = @FileCreateQ(_cFile_)
 		    
 		    # Then navigate to its folder (intelligent navigation)
 		    if not this.IsBatchMode()
-		        cFileDir = This.GetDirectoryPath(cFile)
-		        This.GoTo(cFileDir)
+		        _cFileDir_ = This.GetDirectoryPath(_cFile_)
+		        This.GoTo(_cFileDir_)
 		    ok
 		
-		    return oResult
+		    return _oResult_
 
-			def CreateFileQ(cFile)
-				return This.FileCreateQ(cFile)
+			def CreateFileQ(_cFile_)
+				return This.FileCreateQ(_cFile_)
 
 	
 	def FilesCreate(acFileNames) #TODO // [ [ cFileName1, cFileContent1 ], [ ]... ]
@@ -2549,30 +2549,30 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = len(acFileNames)
-		acCreated = []
-		acFailed = []
-		cLastSuccessfulDir = ""
+		_nLen_ = len(acFileNames)
+		_acCreated_ = []
+		_acFailed_ = []
+		_cLastSuccessfulDir_ = ""
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			try
 				This.CreateFile(acFileNames[i])
-				acCreated + cFileName
+				_acCreated_ + cFileName
 				# Track last successful creation for intelligent navigation
-				cLastSuccessfulDir = This.GetDirectoryPath(acFileNames[i])
+				_cLastSuccessfulDir_ = This.GetDirectoryPath(acFileNames[i])
 			catch
-				acFailed + [acFileNames[i], CatchError()]
+				_acFailed_ + [acFileNames[i], CatchError()]
 			end
 		next
 
 		# Navigate to last successful creation folder (intelligent navigation)
-		if not this.IsBatchMode() and cLastSuccessfulDir != ""
-			This.GoTo(cLastSuccessfulDir)
+		if not this.IsBatchMode() and _cLastSuccessfulDir_ != ""
+			This.GoTo(_cLastSuccessfulDir_)
 		ok
 
 		return [
-			:Created = acCreated,
-			:Failed = acFailed
+			:Created = _acCreated_,
+			:Failed = _acFailed_
 		]
 
 
@@ -2580,442 +2580,442 @@ class stzFolder from stzObject
 			return This.FilesCreate(acFileNames)
 
 
-	def FileOverwrite(cFile, cNewContent)
+	def FileOverwrite(_cFile_, cNewContent)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't overwrite this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileOverwrite(cFile, cNewContent)
+		return @FileOverwrite(_cFile_, cNewContent)
 
 	
-		def OverwriteFile(cFile, cNewContent)
-			return This.FileOverwrite(cFile, cNewContent)
+		def OverwriteFile(_cFile_, cNewContent)
+			return This.FileOverwrite(_cFile_, cNewContent)
 
 		# Q form -> the overwriter OBJECT (read OriginalContent then replace).
-		def FileOverwriteQ(cFile)
+		def FileOverwriteQ(_cFile_)
 
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
 
-			if not _IsAbsolutePath(cFile)
-				cFile = This.CurrentPath() + cFile
+			if not _IsAbsolutePath(_cFile_)
+				_cFile_ = This.CurrentPath() + _cFile_
 			ok
-			cFile = This.NormaliseFilePathXT(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-			if NOT This.IsInside(cFile)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
 
-			if NOT This.Exists(cFile)
+			if NOT This.Exists(_cFile_)
 				raise("Can't overwrite this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
-				cFileDir = This.GetDirectoryPath(cFile)
-				This.GoTo(cFileDir)
+				_cFileDir_ = This.GetDirectoryPath(_cFile_)
+				This.GoTo(_cFileDir_)
 			ok
 
-			return @FileOverwriteQ(cFile)
+			return @FileOverwriteQ(_cFile_)
 
-			def OverwriteFileQ(cFile)
-				return This.FileOverwriteQ(cFile)
+			def OverwriteFileQ(_cFile_)
+				return This.FileOverwriteQ(_cFile_)
 	
 	
-	def FileErase(cFile)
+	def FileErase(_cFile_)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't erase this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder before erasing (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileErase(cFile)
+		return @FileErase(_cFile_)
 
-		def EraseFile(cFile)
-			return This.FileErase(cFile)
+		def EraseFile(_cFile_)
+			return This.FileErase(_cFile_)
 
 
-		def FileEraseQ(cFile)
+		def FileEraseQ(_cFile_)
 
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
 
-			cFile = This.NormaliseFilePathXT(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-			if NOT This.IsInside(cFile)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(cFile)
+			if NOT This.Exists(_cFile_)
 				raise("Can't erase this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder before erasing (intelligent navigation)
 			if not this.IsBatchMode()
-				cFileDir = This.GetDirectoryPath(cFile)
-				This.GoTo(cFileDir)
+				_cFileDir_ = This.GetDirectoryPath(_cFile_)
+				This.GoTo(_cFileDir_)
 			ok
 
-			return @FileEraseQ(cFile)  # Fixed: was This.cFile
+			return @FileEraseQ(_cFile_)  # Fixed: was This.cFile
 
 
-			def EraseFileQ(cFile)
-				return This.FileEraseQ(cFile)
+			def EraseFileQ(_cFile_)
+				return This.FileEraseQ(_cFile_)
 
 
-	def FileSafeErase(cFile)
+	def FileSafeErase(_cFile_)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't safe-erase this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder before safe-erasing (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileSafeErase(cFile)
+		return @FileSafeErase(_cFile_)
 
 
-		def FileSafeEraseQ(cFile)
+		def FileSafeEraseQ(_cFile_)
 
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
 
-			cFile = This.NormaliseFilePathXT(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-			if NOT This.IsInside(cFile)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(cFile)
+			if NOT This.Exists(_cFile_)
 				raise("Can't safe-erase this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder before safe-erasing (intelligent navigation)
 			if not this.IsBatchMode()
-				cFileDir = This.GetDirectoryPath(cFile)
-				This.GoTo(cFileDir)
+				_cFileDir_ = This.GetDirectoryPath(_cFile_)
+				This.GoTo(_cFileDir_)
 			ok
 
-			return @FileSafeEraseQ(cFile)
+			return @FileSafeEraseQ(_cFile_)
 	
-		def SafeEraseFile(cFile)
-			return This.FileSafeErase(cFile)
+		def SafeEraseFile(_cFile_)
+			return This.FileSafeErase(_cFile_)
 
-		def SafeEraseFileQ(cFile)
-			return This.FileSafeEraseQ(cFile)
+		def SafeEraseFileQ(_cFile_)
+			return This.FileSafeEraseQ(_cFile_)
 
 
-	def FileRemove(cFile)
+	def FileRemove(_cFile_)
 
 	    if CheckParams()
-	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	        if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cFile)
-	        cFile = This.CurrentPath() + cFile
+	    if not _IsAbsolutePath(_cFile_)
+	        _cFile_ = This.CurrentPath() + _cFile_
 	    ok
 	
-	    cFile = This.NormaliseFilePathXT(cFile)
+	    _cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-	    if This.IsPathOutside(cFile)
+	    if This.IsPathOutside(_cFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cFile)
+	    if not This.Exists(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
 	    # Delete the file first
-	    bResult = @FileRemove(cFile)
+	    _bResult_ = @FileRemove(_cFile_)
 	    
 	    # Then navigate to file's containing folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cFileDir = This.GetDirectoryPath(cFile)
-	        This.GoTo(cFileDir)
+	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
+	        This.GoTo(_cFileDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
-		def FileDelete(cFile)
-			return This.FileRemove(cFile)
+		def FileDelete(_cFile_)
+			return This.FileRemove(_cFile_)
 
-		def RemoveFile(cFile)
-			return This.FileRemove(cFile)
+		def RemoveFile(_cFile_)
+			return This.FileRemove(_cFile_)
 
-		def DeleteFile(cFile)
-			return This.FileRemove(cFile)
+		def DeleteFile(_cFile_)
+			return This.FileRemove(_cFile_)
 
 
-	def FileBackup(cFile)
+	def FileBackup(_cFile_)
 
 	    if CheckParams()
-	        if NOT ( isString(cFile) and trim(cFile) != "" )
+	        if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 	            StzRaise("Incorrect param type! cFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cFile)
-	        cFile = This.CurrentPath() + cFile
+	    if not _IsAbsolutePath(_cFile_)
+	        _cFile_ = This.CurrentPath() + _cFile_
 	    ok
 	
-	    cFile = This.NormaliseFilePathXT(cFile)
+	    _cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-	    if This.IsPathOutside(cFile)
+	    if This.IsPathOutside(_cFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cFile)
+	    if not This.Exists(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
 	    # Create backup first
-	    cBackupFile = cFile + ".bak"
-	    bResult = @FileBackup(cFile, cBackupFile)
+	    _cBackupFile_ = _cFile_ + ".bak"
+	    _bResult_ = @FileBackup(_cFile_, _cBackupFile_)
 	    
 	    # Then navigate to file's folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cFileDir = This.GetDirectoryPath(cFile)
-	        This.GoTo(cFileDir)
+	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
+	        This.GoTo(_cFileDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
 
-		def BackupFile(cFile)
-			return This.FileBackup(cFile)
+		def BackupFile(_cFile_)
+			return This.FileBackup(_cFile_)
 
 
-	def FileSafeOverwrite(cFile, cNewContent)
+	def FileSafeOverwrite(_cFile_, cNewContent)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't safe-overwirte this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileSafeOverwrite(cFile, cNewContent)
+		return @FileSafeOverwrite(_cFile_, cNewContent)
 
-		def SafeOverwriteFile(cFile, cNewContent)
-			return This.FileSafeOverwrite(cFile, cNewContent)
+		def SafeOverwriteFile(_cFile_, cNewContent)
+			return This.FileSafeOverwrite(_cFile_, cNewContent)
 
 
-	def FileModify(cFile, cOldContent, cNewContent)
+	def FileModify(_cFile_, cOldContent, cNewContent)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't modify this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileModify(cFile, cOldContent, cNewContent)
+		return @FileModify(_cFile_, cOldContent, cNewContent)
 
-		def ModifyFile(cFile, cOldContent, cNewContent)
-			return This.FileModify(cFile, cOldContent, cNewContent)
+		def ModifyFile(_cFile_, cOldContent, cNewContent)
+			return This.FileModify(_cFile_, cOldContent, cNewContent)
 
 	# OBJECT-ONLY intent: both FileUpdate(file) and FileUpdateQ(file) return
 	# the modifier OBJECT for the folder-relative file (Replace/Insert/Remove
 	# before Close). The one-shot value form is FileModify(file, old, new).
-	def FileUpdate(cFile)
-		return This.FileUpdateQ(cFile)
+	def FileUpdate(_cFile_)
+		return This.FileUpdateQ(_cFile_)
 
-		def FileUpdateQ(cFile)
+		def FileUpdateQ(_cFile_)
 			if CheckParams()
-				if NOT ( isString(cFile) and trim(cFile) != "" )
+				if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
-			if not _IsAbsolutePath(cFile)
-				cFile = This.CurrentPath() + cFile
+			if not _IsAbsolutePath(_cFile_)
+				_cFile_ = This.CurrentPath() + _cFile_
 			ok
-			cFile = This.NormaliseFilePathXT(cFile)
-			if NOT This.IsInside(cFile)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
-			if NOT This.Exists(cFile)
+			if NOT This.Exists(_cFile_)
 				raise("Can't update this file! cFile does not exist in the folder.")
 			ok
-			return @FileUpdate(cFile)
+			return @FileUpdate(_cFile_)
 
-	def FileCopy(cSourceFile, cDestFile)
+	def FileCopy(_cSourceFile_, _cDestFile_)
 	    if CheckParams()
-	        if NOT ( isString(cSourceFile) and trim(cSourceFile) != "" )
+	        if NOT ( isString(_cSourceFile_) and trim(_cSourceFile_) != "" )
 	            StzRaise("Incorrect param type! cSourceFile must be a non-empty string.")
 	        ok
-	        if NOT ( isString(cDestFile) and trim(cDestFile) != "" )
+	        if NOT ( isString(_cDestFile_) and trim(_cDestFile_) != "" )
 	            StzRaise("Incorrect param type! cDestFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cSourceFile)
-	        cSourceFile = This.CurrentPath() + cSourceFile
+	    if not _IsAbsolutePath(_cSourceFile_)
+	        _cSourceFile_ = This.CurrentPath() + _cSourceFile_
 	    ok
-	    if not _IsAbsolutePath(cDestFile)
-	        cDestFile = This.CurrentPath() + cDestFile
+	    if not _IsAbsolutePath(_cDestFile_)
+	        _cDestFile_ = This.CurrentPath() + _cDestFile_
 	    ok
 	
-	    cSourceFile = This.NormaliseFilePathXT(cSourceFile)
-	    cDestFile = This.NormaliseFilePathXT(cDestFile)
+	    _cSourceFile_ = This.NormaliseFilePathXT(_cSourceFile_)
+	    _cDestFile_ = This.NormaliseFilePathXT(_cDestFile_)
 	
-	    if This.IsPathOutside(cSourceFile) or This.IsPathOutside(cDestFile)
+	    if This.IsPathOutside(_cSourceFile_) or This.IsPathOutside(_cDestFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cSourceFile)
+	    if not This.Exists(_cSourceFile_)
 	        raise("Source file does not exist in the folder.")
 	    ok
 	
 	    # Copy the file first
-	    bResult = @FileCopy(cSourceFile, cDestFile)
+	    _bResult_ = @FileCopy(_cSourceFile_, _cDestFile_)
 	    
 	    # Then navigate to destination folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cDestDir = This.GetDirectoryPath(cDestFile)
-	        This.GoTo(cDestDir)
+	        _cDestDir_ = This.GetDirectoryPath(_cDestFile_)
+	        This.GoTo(_cDestDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
 
 		def CopyFile(cSource, cDest)
 			return this.FileCopy(cSource, cDest)
 
 
-	def FileMove(cSourceFile, cDestFile)
+	def FileMove(_cSourceFile_, _cDestFile_)
 	    if CheckParams()
-	        if NOT ( isString(cSourceFile) and trim(cSourceFile) != "" )
+	        if NOT ( isString(_cSourceFile_) and trim(_cSourceFile_) != "" )
 	            StzRaise("Incorrect param type! cSourceFile must be a non-empty string.")
 	        ok
-	        if NOT ( isString(cDestFile) and trim(cDestFile) != "" )
+	        if NOT ( isString(_cDestFile_) and trim(_cDestFile_) != "" )
 	            StzRaise("Incorrect param type! cDestFile must be a non-empty string.")
 	        ok
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not _IsAbsolutePath(cSourceFile)
-	        cSourceFile = This.CurrentPath() + cSourceFile
+	    if not _IsAbsolutePath(_cSourceFile_)
+	        _cSourceFile_ = This.CurrentPath() + _cSourceFile_
 	    ok
-	    if not _IsAbsolutePath(cDestFile)
-	        cDestFile = This.CurrentPath() + cDestFile
+	    if not _IsAbsolutePath(_cDestFile_)
+	        _cDestFile_ = This.CurrentPath() + _cDestFile_
 	    ok
 	
-	    cSourceFile = This.NormaliseFilePathXT(cSourceFile)
-	    cDestFile = This.NormaliseFilePathXT(cDestFile)
+	    _cSourceFile_ = This.NormaliseFilePathXT(_cSourceFile_)
+	    _cDestFile_ = This.NormaliseFilePathXT(_cDestFile_)
 	
-	    if This.IsPathOutside(cSourceFile) or This.IsPathOutside(cDestFile)
+	    if This.IsPathOutside(_cSourceFile_) or This.IsPathOutside(_cDestFile_)
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(cSourceFile)
+	    if not This.Exists(_cSourceFile_)
 	        raise("Source file does not exist in the folder.")
 	    ok
 	
 	    # Move the file first
-	    bResult = @FileMove(cSourceFile, cDestFile)
+	    _bResult_ = @FileMove(_cSourceFile_, _cDestFile_)
 	    
 	    # Then navigate to destination folder (intelligent navigation)
 	    if not this.IsBatchMode()
-	        cDestDir = This.GetDirectoryPath(cDestFile)
-	        This.GoTo(cDestDir)
+	        _cDestDir_ = This.GetDirectoryPath(_cDestFile_)
+	        This.GoTo(_cDestDir_)
 	    ok
 	
-	    return bResult
+	    return _bResult_
 
 
 		def MoveFile(cSource, cDestination)
@@ -3023,108 +3023,108 @@ class stzFolder from stzObject
 
 	#--
 
-	def FileSize(cFile)
+	def FileSize(_cFile_)
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't get size of this file! cFile does not exist in the folder.")  # Fixed: was "modify"
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
 		# No @FileSize global exists; the byte size is the length of the file
 		# content (the codebase's established pattern). ring_len() -- not bare
 		# len() -- because a bare len() inside a class method resolves to a
 		# method and raises R20.
-		return ring_len(read(cFile))
+		return ring_len(read(_cFile_))
 
-		def FileSizeInBytes(cFile)
-			return this.FileSize(cFile)
+		def FileSizeInBytes(_cFile_)
+			return this.FileSize(_cFile_)
 
-	def FileInfo(cFile)
+	def FileInfo(_cFile_)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileInfo(cFile)
+		return @FileInfo(_cFile_)
 
-		def FileInfoQ(cFile)
-			cFile = This.NormaliseFilePathXT(cFile)
+		def FileInfoQ(_cFile_)
+			_cFile_ = This.NormaliseFilePathXT(_cFile_)
 	
-			if NOT This.IsInside(cFile)
+			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(cFile)
+			if NOT This.Exists(_cFile_)
 				raise("Can't read this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
-				cFileDir = This.GetDirectoryPath(cFile)
-				This.GoTo(cFileDir)
+				_cFileDir_ = This.GetDirectoryPath(_cFile_)
+				This.GoTo(_cFileDir_)
 			ok
 
-			return @FileInfoQ(cFile)
+			return @FileInfoQ(_cFile_)
 
-	def FileInfoXT(cFile)
+	def FileInfoXT(_cFile_)
 
 		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
+			if NOT ( isString(_cFile_) and trim(_cFile_) != "" )
 				StzRaise("Incorrect param type! cFile must be a non-empty string.")
 			ok
 		ok
 
-		cFile = This.NormaliseFilePathXT(cFile)
+		_cFile_ = This.NormaliseFilePathXT(_cFile_)
 
-		if NOT This.IsInside(cFile)
+		if NOT This.IsInside(_cFile_)
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(cFile)
+		if NOT This.Exists(_cFile_)
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
+			_cFileDir_ = This.GetDirectoryPath(_cFile_)
+			This.GoTo(_cFileDir_)
 		ok
 
-		return @FileInfoXT(cFile)
+		return @FileInfoXT(_cFile_)
 
 	#======================#
 	#  Finding Operations  #
@@ -3135,14 +3135,14 @@ class stzFolder from stzObject
 		# Polymorphic: a string pattern (with optional "*" wildcard) OR a
 		# list of explicit file names to look for. A list returns the names
 		# (from the list) that actually exist in this folder.
-		acNames = []
+		_acNames_ = []
 		if isList(pPattern)
-			nN = len(pPattern)
-			for k = 1 to nN
-				acNames + ("" + pPattern[k])
+			_nN_ = len(pPattern)
+			for k = 1 to _nN_
+				_acNames_ + ("" + pPattern[k])
 			next
 		but isString(pPattern) and trim(pPattern) != ""
-			acNames + pPattern
+			_acNames_ + pPattern
 		else
 			if CheckParams()
 				StzRaise("Incorrect param type! pPattern must be a non-empty string or a list of names.")
@@ -3150,33 +3150,33 @@ class stzFolder from stzObject
 			return []
 		ok
 
-		acFiles = This.Files()
-		nLen = len(acFiles)
-		acResult = []
+		_acFiles_ = This.Files()
+		_nLen_ = len(_acFiles_)
+		_acResult_ = []
 
-		nNames = len(acNames)
-		for j = 1 to nNames
-			cPattern = This.NormalizeFilePath(acNames[j])
+		_nNames_ = len(_acNames_)
+		for j = 1 to _nNames_
+			_cPattern_ = This.NormalizeFilePath(_acNames_[j])
 
-			if StzFindFirst(cPattern, "*") > 0
-				cPattern = StzReplace(cPattern, "*", "")
-				for i = 1 to nLen
-					if StzFindFirst(StzLower(acFiles[i]), StzLower(cPattern)) > 0
-						acResult + acFiles[i]
+			if StzFindFirst(_cPattern_, "*") > 0
+				_cPattern_ = StzReplace(_cPattern_, "*", "")
+				for i = 1 to _nLen_
+					if StzFindFirst(StzLower(_acFiles_[i]), StzLower(_cPattern_)) > 0
+						_acResult_ + _acFiles_[i]
 					ok
 				next
 			else
 				# Files() yields "/name.ext"; compare on the basename so an
 				# exact name (or a list entry like "test.txt") still matches.
-				for i = 1 to nLen
-					if StzLower(_DirName(acFiles[i])) = StzLower(_DirName(cPattern))
-						acResult + acFiles[i]
+				for i = 1 to _nLen_
+					if StzLower(_DirName(_acFiles_[i])) = StzLower(_DirName(_cPattern_))
+						_acResult_ + _acFiles_[i]
 					ok
 				next
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 		def FindFile(cFileName)
 			return This.FindFiles(cFileName)
@@ -3184,122 +3184,122 @@ class stzFolder from stzObject
 		def FindThisFile(cFileName)
 			return This.FindFiles(cFileName)
 
-	def FindFolders(cPattern)
+	def FindFolders(_cPattern_)
 
 		if CheckParams()
-			if NOT ( isString(cPattern) and trim(cPattern) != "" )
+			if NOT ( isString(_cPattern_) and trim(_cPattern_) != "" )
 				StzRaise("Incorrect param type! cPattern must be a non-empty string.")
 			ok
 		ok
 
-		cPattern = This.NormalizeFilePath(cPattern)
-		acFolders = This.Folders()
-		nLen = len(acFolders)
+		_cPattern_ = This.NormalizeFilePath(_cPattern_)
+		_acFolders_ = This.Folders()
+		_nLen_ = len(_acFolders_)
 
-		acResult = []
+		_acResult_ = []
 
-		if StzFindFirst(cPattern, "*") > 0
+		if StzFindFirst(_cPattern_, "*") > 0
 
-			cPattern = StzReplace(cPattern, "*", "")
+			_cPattern_ = StzReplace(_cPattern_, "*", "")
 
-			for i = 1 to nLen
-				if StzFindFirst(StzLower(acFolders[i]), StzLower(cPattern)) > 0
-					acResult + acFolders[i]
+			for i = 1 to _nLen_
+				if StzFindFirst(StzLower(_acFolders_[i]), StzLower(_cPattern_)) > 0
+					_acResult_ + _acFolders_[i]
 				ok
 			next
 
 		else
 
-			for i = 1 to nLen
-				if StzLower(acFolders[i]) = StzLower(cPattern)
-					acResult + acFolders[i]
+			for i = 1 to _nLen_
+				if StzLower(_acFolders_[i]) = StzLower(_cPattern_)
+					_acResult_ + _acFolders_[i]
 				ok
 			next
 		ok
 
-		return acResult
+		return _acResult_
 
-		def FindFolder(cFolderName)
-			return This.FindFolders(cFolderName)
+		def FindFolder(_cFolderName_)
+			return This.FindFolders(_cFolderName_)
 
-		def FindThisFolder(cFolderName)
-			return This.FindFolders(cFolderName)
+		def FindThisFolder(_cFolderName_)
+			return This.FindFolders(_cFolderName_)
 
 
-	def FindFilesByExtension(cExt)
+	def FindFilesByExtension(_cExt_)
 		if CheckParams()
-			if NOT ( isString(cExt) and trim(cExt) != "" )
+			if NOT ( isString(_cExt_) and trim(_cExt_) != "" )
 				StzRaise("Incorrect param type! cExt must be a non-empty string.")
 			ok
 		ok
 
-		if StzLeft(cExt, 1) != "."
-			cExt = "." + cExt
+		if StzLeft(_cExt_, 1) != "."
+			_cExt_ = "." + _cExt_
 		ok
-		acFound = []
-		acAllFiles = This.Files()
-		nLen = len(acAllFiles)
+		_acFound_ = []
+		_acAllFiles_ = This.Files()
+		_nLen_ = len(_acAllFiles_)
 
-		for i = 1 to nLen
-			if StzRight(StzLower(acAllFiles[i]), StzLen(cExt)) = StzLower(cExt)
-				acFound + acAllFiles[i]
+		for i = 1 to _nLen_
+			if StzRight(StzLower(_acAllFiles_[i]), StzLen(_cExt_)) = StzLower(_cExt_)
+				_acFound_ + _acAllFiles_[i]
 			ok
 		next
-		return acFound
+		return _acFound_
 
-		def FilesByExtension(cExt)
-			return This.FindFilesByExtension(cExt)
+		def FilesByExtension(_cExt_)
+			return This.FindFilesByExtension(_cExt_)
 
 	def FindTheseFiles(acFilesNames)
 		if NOT isList(acFilesNames)
 			StzRaise("Incorrect param type! acFilesNames must be a list.")
 		ok
-		acFound = []
-		nLen = len(acFilesNames)
+		_acFound_ = []
+		_nLen_ = len(acFilesNames)
 
-		for i = 1 to nLen
-			acFileResults = This.FindFiles(acFilesNames[i])
-			nLenR = len(acFileResult)
+		for i = 1 to _nLen_
+			_acFileResults_ = This.FindFiles(acFilesNames[i])
+			_nLenR_ = len(acFileResult)
 
-			for j = 1 to nLenR
-				if find(acFound, acFileResults[j]) = 0
-					acFound + acFileResults[j]
+			for j = 1 to _nLenR_
+				if find(_acFound_, _acFileResults_[j]) = 0
+					_acFound_ + _acFileResults_[j]
 				ok
 			next
 		next
 
-		return acFound
+		return _acFound_
 
 	def FindTheseFolders(acFoldersNames)
 		if NOT isList(acFoldersNames)
 			StzRaise("Incorrect param type! acFoldersNames must be a list.")
 		ok
-		acFound = []
-		nLen = len(acFoldersNames)
+		_acFound_ = []
+		_nLen_ = len(acFoldersNames)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acFolderResults = This.FindFolders(acFoldersNames[i])
-			nLenR = len(acFolderResults)
+			_acFolderResults_ = This.FindFolders(acFoldersNames[i])
+			_nLenR_ = len(_acFolderResults_)
 
-			for j = 1 to nLenR
-				if find(acFound, acFolderResults[j]) = 0
-					acFound + acFolderResults[j]
+			for j = 1 to _nLenR_
+				if find(_acFound_, _acFolderResults_[j]) = 0
+					_acFound_ + _acFolderResults_[j]
 				ok
 			next
 
 		next
 
-		return acFound
+		return _acFound_
 
 
-	def Find(cPattern)
-		acFiles = This.FindFiles(cPattern)
-		acFolders = This.FindFolders(cPattern)
-		return acFiles + acFolders
+	def Find(_cPattern_)
+		_acFiles_ = This.FindFiles(_cPattern_)
+		_acFolders_ = This.FindFolders(_cPattern_)
+		return _acFiles_ + _acFolders_
 
-	def DeepFindFiles(cPattern)
-		if NOT isString(cPattern)
+	def DeepFindFiles(_cPattern_)
+		if NOT isString(_cPattern_)
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
 
@@ -3308,28 +3308,28 @@ class stzFolder from stzObject
 		# (_aEntry_[2]) so it never matched, and it fed DeepFolders()'s
 		# simplified relative paths to @dir() (which needs absolute paths)
 		# while skipping the root folder's own files.
-		acAll = This.DeepFiles()
-		nLen = len(acAll)
-		acFound = []
+		_acAll_ = This.DeepFiles()
+		_nLen_ = len(_acAll_)
+		_acFound_ = []
 
-		bWildcard = (StzFindFirst(cPattern, "*") > 0)
-		if bWildcard
-			cPattern = StzReplace(cPattern, "*", "")
+		_bWildcard_ = (StzFindFirst(_cPattern_, "*") > 0)
+		if _bWildcard_
+			_cPattern_ = StzReplace(_cPattern_, "*", "")
 		ok
 
-		for i = 1 to nLen
-			if bWildcard
-				if StzFindFirst(StzLower(acAll[i]), StzLower(cPattern)) > 0
-					acFound + acAll[i]
+		for i = 1 to _nLen_
+			if _bWildcard_
+				if StzFindFirst(StzLower(_acAll_[i]), StzLower(_cPattern_)) > 0
+					_acFound_ + _acAll_[i]
 				ok
 			else
-				if StzLower(_DirName(acAll[i])) = StzLower(cPattern)
-					acFound + acAll[i]
+				if StzLower(_DirName(_acAll_[i])) = StzLower(_cPattern_)
+					_acFound_ + _acAll_[i]
 				ok
 			ok
 		next
 
-		return acFound
+		return _acFound_
 
 		def DeepFindFile(cFileName)
 			return This.DeepFindFiles(cFileName)
@@ -3337,9 +3337,9 @@ class stzFolder from stzObject
 		def DeepFindThisFile(cFileName)
 			return This.DeepFindFiles(cFileName)
 
-	def DeepFindFolders(cPattern)
+	def DeepFindFolders(_cPattern_)
 
-		if NOT isString(cPattern)
+		if NOT isString(_cPattern_)
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
 
@@ -3347,89 +3347,89 @@ class stzFolder from stzObject
 		# version fed DeepFolders()'s simplified relative paths to @dir()
 		# (which needs absolute paths) -> empty result. DeepFolders() already
 		# returns every folder in the subtree as "/a/b/".
-		acAll = This.DeepFolders()
-		nLen = len(acAll)
-		acFound = []
+		_acAll_ = This.DeepFolders()
+		_nLen_ = len(_acAll_)
+		_acFound_ = []
 
-		bWildcard = (StzFindFirst(cPattern, "*") > 0)
-		if bWildcard
-			cPattern = StzReplace(cPattern, "*", "")
+		_bWildcard_ = (StzFindFirst(_cPattern_, "*") > 0)
+		if _bWildcard_
+			_cPattern_ = StzReplace(_cPattern_, "*", "")
 		ok
 
-		for i = 1 to nLen
-			if bWildcard
-				if StzFindFirst(StzLower(acAll[i]), StzLower(cPattern)) > 0
-					acFound + acAll[i]
+		for i = 1 to _nLen_
+			if _bWildcard_
+				if StzFindFirst(StzLower(_acAll_[i]), StzLower(_cPattern_)) > 0
+					_acFound_ + _acAll_[i]
 				ok
 			else
-				if StzLower(_DirName(_CleanPath(acAll[i]))) = StzLower(cPattern)
-					acFound + acAll[i]
+				if StzLower(_DirName(_CleanPath(_acAll_[i]))) = StzLower(_cPattern_)
+					_acFound_ + _acAll_[i]
 				ok
 			ok
 		next
 
-		return acFound
+		return _acFound_
 
-		def DeepFindFolder(cFolderName)
-			return This.DeepFindFolders(cFolderName)
+		def DeepFindFolder(_cFolderName_)
+			return This.DeepFindFolders(_cFolderName_)
 
-		def DeepFindThisFolder(cFolderName)
-			return This.DeepFindFolders(cFolderName)
+		def DeepFindThisFolder(_cFolderName_)
+			return This.DeepFindFolders(_cFolderName_)
 
 	def DeepFindTheseFiles(acFilesNames)
 		if NOT isList(acFilesNames)
 			StzRaise("Incorrect param type! acFilesNames must be a list.")
 		ok
-		acFound = []
-		nLen = len(acFilesNames)
+		_acFound_ = []
+		_nLen_ = len(acFilesNames)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acFileResults = This.DeepFindFiles(acFilesNames[i])
-			nLenR = len(acFileResults)
+			_acFileResults_ = This.DeepFindFiles(acFilesNames[i])
+			_nLenR_ = len(_acFileResults_)
 
-			for j = 1 to nLenR
-				if StzFindFirst(acFound, acFileResults[j]) = 0
-					acFound + acFileResults[j]
+			for j = 1 to _nLenR_
+				if StzFindFirst(_acFound_, _acFileResults_[j]) = 0
+					_acFound_ + _acFileResults_[j]
 				ok
 			next
 		next
 
-		return acFound
+		return _acFound_
 
 	def DeepFindTheseFolders(acFoldersNames)
 		if NOT isList(acFoldersNames)
 			StzRaise("Incorrect param type! acFoldersNames must be a list.")
 		ok
-		acFound = []
-		nLen = len(acFoldersNames)
+		_acFound_ = []
+		_nLen_ = len(acFoldersNames)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acFolderResults = This.DeepFindFolders(acFoldersNames[i])
-			nLenR = len(acFolderResults)
+			_acFolderResults_ = This.DeepFindFolders(acFoldersNames[i])
+			_nLenR_ = len(_acFolderResults_)
 
-			for j = 1 to nLenR
-				if StzFindFirst(acFound, acFolderResults[j]) = 0
-					acFound + acFolderResults[j]
+			for j = 1 to _nLenR_
+				if StzFindFirst(_acFound_, _acFolderResults_[j]) = 0
+					_acFound_ + _acFolderResults_[j]
 				ok
 			next
 
 		next
 
-		return acFound
+		return _acFound_
 
 
-	def DeepFind(cPattern)
-		acFiles = This.DeepFindFiles(cPattern)
-		acFolders = This.DeepFindFolders(cPattern)
-		return acFiles + acFolders
+	def DeepFind(_cPattern_)
+		_acFiles_ = This.DeepFindFiles(_cPattern_)
+		_acFolders_ = This.DeepFindFolders(_cPattern_)
+		return _acFiles_ + _acFolders_
 
-		def DeepFindFileOrFolder(cPattern)
-			return This.DeepFind(cPattern)
+		def DeepFindFileOrFolder(_cPattern_)
+			return This.DeepFind(_cPattern_)
 
-		def DeepFindThisFileOrFolder(cPattern)
-			return This.DeepFind(cPattern)
+		def DeepFindThisFileOrFolder(_cPattern_)
+			return This.DeepFind(_cPattern_)
 
 	#=====================#
 	#  Search Operations  #
@@ -3442,44 +3442,44 @@ class stzFolder from stzObject
 		return This.SearchInTheseFiles(This.Files(), cContent)
 
 
-	def SearchInFile(cFile, cContent)
-		if NOT isString(cFile) or NOT isString(cContent)
+	def SearchInFile(_cFile_, cContent)
+		if NOT isString(_cFile_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
-		acLineNumbers = []
-		cFullPath = @cCurrentPath + This.Separator() + cFile
-		if fexists(cFullPath)
-			cFileContent = read(cFullPath)
-			acLines = @split(cFileContent, NL)
+		_acLineNumbers_ = []
+		_cFullPath_ = @cCurrentPath + This.Separator() + _cFile_
+		if fexists(_cFullPath_)
+			_cFileContent_ = read(_cFullPath_)
+			_acLines_ = @split(_cFileContent_, NL)
 
-			nLen = len(acLines)
-			for i = 1 to nLen
-				if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
-					acLineNumbers + i
+			_nLen_ = len(_acLines_)
+			for i = 1 to _nLen_
+				if StzFindFirst(StzLower(_acLines_[i]), StzLower(cContent)) > 0
+					_acLineNumbers_ + i
 				ok
 			next
 
 		ok
-		return acLineNumbers
+		return _acLineNumbers_
 
-		def SearchInThisFile(cFile, cContent)
-			return This.SearchInFile(cFile, cContent)
+		def SearchInThisFile(_cFile_, cContent)
+			return This.SearchInFile(_cFile_, cContent)
 
-	def SearchInTheseFiles(acFiles, cContent)
-		if NOT isList(acFiles) or NOT isString(cContent)
+	def SearchInTheseFiles(_acFiles_, cContent)
+		if NOT isList(_acFiles_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! acFiles must be a list and cContent must be a string.")
 		ok
-		acResults = []
-		nLen = len(acFiles)
+		_acResults_ = []
+		_nLen_ = len(_acFiles_)
 
-		for i = 1 to nLen
-			acLineNumbers = This.SearchInFile(acFiles[i], cContent)
-			if len(acLineNumbers) > 0
-				acResults + [acFiles[i], acLineNumbers]
+		for i = 1 to _nLen_
+			_acLineNumbers_ = This.SearchInFile(_acFiles_[i], cContent)
+			if len(_acLineNumbers_) > 0
+				_acResults_ + [_acFiles_[i], _acLineNumbers_]
 			ok
 		next
 
-		return acResults
+		return _acResults_
 
 	def SearchInFolders(cContent)
 		if NOT isString(cContent)
@@ -3487,72 +3487,72 @@ class stzFolder from stzObject
 		ok
 		return This.SearchInTheseFolders(This.Folders(), cContent)
 
-	def SearchInFolder(cFolder, cContent)
+	def SearchInFolder(_cFolder_, cContent)
 
-		if NOT isString(cFolder) or NOT isString(cContent)
+		if NOT isString(_cFolder_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
-		acResults = []
-		cFolderPath = @cCurrentPath + This.Separator() + cFolder
+		_acResults_ = []
+		_cFolderPath_ = @cCurrentPath + This.Separator() + _cFolder_
 
-		if isdir(cFolderPath)
+		if isdir(_cFolderPath_)
 
-			aEntries = @dir(cFolderPath)
-			nLen = len(aEntries)
+			_aEntries_ = @dir(_cFolderPath_)
+			_nLen_ = len(_aEntries_)
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
-				if aEntries[i][2] = 0
+				if _aEntries_[i][2] = 0
 
-					cFilePath = cFolderPath + This.Separator() + aEntries[i][1]
+					_cFilePath_ = _cFolderPath_ + This.Separator() + _aEntries_[i][1]
 
-					if fexists(cFilePath)
+					if fexists(_cFilePath_)
 
-						cFileContent = read(cFilePath)
-						acLines = @split(cFileContent, NL)
-						nLenL = len(acLines)
-						acLineNumbers = []
+						_cFileContent_ = read(_cFilePath_)
+						_acLines_ = @split(_cFileContent_, NL)
+						_nLenL_ = len(_acLines_)
+						_acLineNumbers_ = []
 
-						for i = 1 to nLenL
-							if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
-								acLineNumbers + i
+						for i = 1 to _nLenL_
+							if StzFindFirst(StzLower(_acLines_[i]), StzLower(cContent)) > 0
+								_acLineNumbers_ + i
 							ok
 						next
 
-						if len(acLineNumbers) > 0
-							acResults + [aEntries[i][1], acLineNumbers]
+						if len(_acLineNumbers_) > 0
+							_acResults_ + [_aEntries_[i][1], _acLineNumbers_]
 						ok
 					ok
 				ok
 			next
 		ok
-		return acResults
+		return _acResults_
 
-		def SearchInThisFolder(cFolder, cContent)
-			return This.SearchInFolder(cFolder, cContent)
+		def SearchInThisFolder(_cFolder_, cContent)
+			return This.SearchInFolder(_cFolder_, cContent)
 
-	def SearchInTheseFolders(acFolders, cContent)
+	def SearchInTheseFolders(_acFolders_, cContent)
 
-		if NOT isList(acFolders) or NOT isString(cContent)
+		if NOT isList(_acFolders_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! acFolders must be a list and cContent must be a string.")
 		ok
 
-		acResults = []
-		nLen = len(acFolders)
+		_acResults_ = []
+		_nLen_ = len(_acFolders_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acFolderResults = This.SearchInFolder(acFolders[i], cContent)
-			nLenR = len(acFolderResults)
+			_acFolderResults_ = This.SearchInFolder(_acFolders_[i], cContent)
+			_nLenR_ = len(_acFolderResults_)
 
-			for j = 1 to nLenR
-				acResults + acFolderResults[j]
+			for j = 1 to _nLenR_
+				_acResults_ + _acFolderResults_[j]
 			next
 
 		next
 
-		return acResults
+		return _acResults_
 
 
 	def DeepSearchInFiles(cContent)
@@ -3565,36 +3565,36 @@ class stzFolder from stzObject
 		# appears. The previous walk reused the OUTER loop counter `i` for the
 		# inner line scan (clobbering iteration -> [] result) and iterated its
 		# dir list with an off-by-one. Distinct counters (f / k) fix both.
-		acAll = This.DeepFilesXT()
-		nFiles = len(acAll)
-		acResult = []
+		_acAll_ = This.DeepFilesXT()
+		_nFiles_ = len(_acAll_)
+		_acResult_ = []
 
-		for f = 1 to nFiles
-			cFilePath = acAll[f]
-			if fexists(cFilePath)
-				cFileContent = read(cFilePath)
-				acLines = @split(cFileContent, NL)
-				nLines = len(acLines)
-				acLineNumbers = []
+		for f = 1 to _nFiles_
+			_cFilePath_ = _acAll_[f]
+			if fexists(_cFilePath_)
+				_cFileContent_ = read(_cFilePath_)
+				_acLines_ = @split(_cFileContent_, NL)
+				_nLines_ = len(_acLines_)
+				_acLineNumbers_ = []
 
-				for k = 1 to nLines
-					if StzFindFirst(StzLower(acLines[k]), StzLower(cContent)) > 0
-						acLineNumbers + k
+				for k = 1 to _nLines_
+					if StzFindFirst(StzLower(_acLines_[k]), StzLower(cContent)) > 0
+						_acLineNumbers_ + k
 					ok
 				next
 
-				if len(acLineNumbers) > 0
-					acResult + [cFilePath, acLineNumbers]
+				if len(_acLineNumbers_) > 0
+					_acResult_ + [_cFilePath_, _acLineNumbers_]
 				ok
 			ok
 		next
 
-		return acResult
+		return _acResult_
 
 
-	def DeepSearchInFile(cFile, cContent)
+	def DeepSearchInFile(_cFile_, cContent)
 
-		if NOT isString(cFile) or NOT isString(cContent)
+		if NOT isString(_cFile_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
@@ -3602,94 +3602,94 @@ class stzFolder from stzObject
 		# Uses DeepFilesXT (absolute paths) so read()/fexists() work -- the
 		# old version fed DeepFindFiles' relative paths to fexists (never
 		# found) and reused the outer counter `i` for the inner line scan.
-		acResults = []
-		acAll = This.DeepFilesXT()
-		nFiles = len(acAll)
+		_acResults_ = []
+		_acAll_ = This.DeepFilesXT()
+		_nFiles_ = len(_acAll_)
 
-		for f = 1 to nFiles
+		for f = 1 to _nFiles_
 
-			if StzLower(_DirName(acAll[f])) = StzLower(_DirName(cFile)) and fexists(acAll[f])
+			if StzLower(_DirName(_acAll_[f])) = StzLower(_DirName(_cFile_)) and fexists(_acAll_[f])
 
-				cFileContent = read(acAll[f])
-				acLines = @split(cFileContent, NL)
-				nLines = len(acLines)
-				acLineNumbers = []
+				_cFileContent_ = read(_acAll_[f])
+				_acLines_ = @split(_cFileContent_, NL)
+				_nLines_ = len(_acLines_)
+				_acLineNumbers_ = []
 
-				for k = 1 to nLines
-					if StzFindFirst(StzLower(acLines[k]), StzLower(cContent)) > 0
-						acLineNumbers + k
+				for k = 1 to _nLines_
+					if StzFindFirst(StzLower(_acLines_[k]), StzLower(cContent)) > 0
+						_acLineNumbers_ + k
 					ok
 				next
 
-				if len(acLineNumbers) > 0
-					acResults + [acAll[f], acLineNumbers]
+				if len(_acLineNumbers_) > 0
+					_acResults_ + [_acAll_[f], _acLineNumbers_]
 				ok
 
 			ok
 
 		next
 
-		return acResults
+		return _acResults_
 
 
-	def DeepSearchInTheseFiles(acFiles, cContent)
+	def DeepSearchInTheseFiles(_acFiles_, cContent)
 
-		if NOT isList(acFiles) or NOT isString(cContent)
+		if NOT isList(_acFiles_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! acFiles must be a list and cContent must be string.")
 		ok
 
-		acResults = []
+		_acResults_ = []
 
-		nLen = len(acFiles)
-		for i = 1 to nLen
+		_nLen_ = len(_acFiles_)
+		for i = 1 to _nLen_
 
-			acFileResults = This.DeepSearchInFile(acFiles[i], cContent)
-			nLenR = len(acFileResults)
+			_acFileResults_ = This.DeepSearchInFile(_acFiles_[i], cContent)
+			_nLenR_ = len(_acFileResults_)
 
-			for j = 1 to nLenR
-				acResults + acFileResults[j]
+			for j = 1 to _nLenR_
+				_acResults_ + _acFileResults_[j]
 			next
 
 		next
 
-		return acResults
+		return _acResults_
 
 
-	def DeepSearchInFolder(cFolder, cContent)
-		if NOT isString(cFolder) or NOT isString(cContent)
+	def DeepSearchInFolder(_cFolder_, cContent)
+		if NOT isString(_cFolder_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
-		acResults = []
-		acFolderPaths = This.DeepFindFolders(cFolder)
-		nLen = len(acFolderPaths)
+		_acResults_ = []
+		_acFolderPaths_ = This.DeepFindFolders(_cFolder_)
+		_nLen_ = len(_acFolderPaths_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if isdir(acFolderPaths[i])
-				aEntries = @dir(acFolderPaths[i])
-				nLenE = len(aEntries)
+			if isdir(_acFolderPaths_[i])
+				_aEntries_ = @dir(_acFolderPaths_[i])
+				_nLenE_ = len(_aEntries_)
 
-				for j = 1 to nLenE
+				for j = 1 to _nLenE_
 
-					if aEntries[j][2] = 0
+					if _aEntries_[j][2] = 0
 
-						cFilePath = acFolderPaths[i] + This.Separator() + aEntries[j][1]
+						_cFilePath_ = _acFolderPaths_[i] + This.Separator() + _aEntries_[j][1]
 
-						if fexists(acFolderPaths[i])
-							cFileContent = read(acFolderPaths[i])
-							acLines = @split(cFileContent, NL)
-							nLenL = len(acLines)
-							acLineNumbers = []
+						if fexists(_acFolderPaths_[i])
+							_cFileContent_ = read(_acFolderPaths_[i])
+							_acLines_ = @split(_cFileContent_, NL)
+							_nLenL_ = len(_acLines_)
+							_acLineNumbers_ = []
 
-							for i = 1 to nLenL
-								if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
-									acLineNumbers + i
+							for i = 1 to _nLenL_
+								if StzFindFirst(StzLower(_acLines_[i]), StzLower(cContent)) > 0
+									_acLineNumbers_ + i
 								ok
 							next
 
-							if len(acLineNumbers) > 0
-								acResults + [acFolderPaths[i], acLineNumbers]
+							if len(_acLineNumbers_) > 0
+								_acResults_ + [_acFolderPaths_[i], _acLineNumbers_]
 							ok
 						ok
 					ok
@@ -3699,169 +3699,169 @@ class stzFolder from stzObject
 
 		next
 
-		return acResults
+		return _acResults_
 
 
-	def DeepSearchInFolders(acFolders, cContent)
-		if NOT isList(acFolders) or NOT isString(cContent)
+	def DeepSearchInFolders(_acFolders_, cContent)
+		if NOT isList(_acFolders_) or NOT isString(cContent)
 			StzRaise("Incorrect param types! acFolders must be a list and cContent must be string.")
 		ok
-		acResults = []
-		nLen = len(acFolders)
+		_acResults_ = []
+		_nLen_ = len(_acFolders_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acFolderResults = This.DeepSearchInFolder(acFolders[i], cContent)
-			nLenR = len(acFolderResults)
+			_acFolderResults_ = This.DeepSearchInFolder(_acFolders_[i], cContent)
+			_nLenR_ = len(_acFolderResults_)
 
-			for j = 1 to nLenR
-				acResults + acFolderResults[j]
+			for j = 1 to _nLenR_
+				_acResults_ + _acFolderResults_[j]
 			next
 
 		next
 
-		return acResults
+		return _acResults_
 
 	#-------------#
 	#  MATCHINGS  #
 	#-------------#
 
-	def Matches(cPattern, cName)
+	def Matches(_cPattern_, _cName_)
 
-		if cPattern = "*"
+		if _cPattern_ = "*"
 			return 1
 		ok
 
-		cRegexPattern = cPattern
-		cRegexPattern = StzReplace(cRegexPattern, "*", ".*")
-		cRegexPattern = StzReplace(cRegexPattern, "?", ".")
+		_cRegexPattern_ = _cPattern_
+		_cRegexPattern_ = StzReplace(_cRegexPattern_, "*", ".*")
+		_cRegexPattern_ = StzReplace(_cRegexPattern_, "?", ".")
 
-		if StzLeft(cPattern, 1) = "*" and StzRight(cPattern, 1) = "*"
-			cMiddle = StzMid(cPattern, 2, StzLen(cPattern) - 2)
-			return StzFindFirst(cName, cMiddle) > 0
+		if StzLeft(_cPattern_, 1) = "*" and StzRight(_cPattern_, 1) = "*"
+			_cMiddle_ = StzMid(_cPattern_, 2, StzLen(_cPattern_) - 2)
+			return StzFindFirst(_cName_, _cMiddle_) > 0
 
-		but StzLeft(cPattern, 1) = "*"
-			cSuffix = StzMid(cPattern, 2, StzLen(cPattern) - 1)
-			return StzRight(cName, StzLen(cSuffix)) = cSuffix
+		but StzLeft(_cPattern_, 1) = "*"
+			_cSuffix_ = StzMid(_cPattern_, 2, StzLen(_cPattern_) - 1)
+			return StzRight(_cName_, StzLen(_cSuffix_)) = _cSuffix_
 
-		but StzRight(cPattern, 1) = "*"
-			cPrefix = StzLeft(cPattern, StzLen(cPattern) - 1)
-			return StzLeft(cName, StzLen(cPrefix)) = cPrefix
+		but StzRight(_cPattern_, 1) = "*"
+			_cPrefix_ = StzLeft(_cPattern_, StzLen(_cPattern_) - 1)
+			return StzLeft(_cName_, StzLen(_cPrefix_)) = _cPrefix_
 
 		else
-			return cName = cPattern
+			return _cName_ = _cPattern_
 		ok
 
 
-	def GetFoldersContainingFileMatches(cPath, cPattern)
+	def GetFoldersContainingFileMatches(_cPath_, _cPattern_)
 
-		aAllPaths = This.CollectFoldersWithFileMatches(cPath, cPattern, aAllPaths)
-		nLen = len(aAllPaths)
+		_aAllPaths_ = This.CollectFoldersWithFileMatches(_cPath_, _cPattern_, _aAllPaths_)
+		_nLen_ = len(_aAllPaths_)
 
-		aFolderNames = []
+		_aFolderNames_ = []
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			acPathParts = This.GetPathHierarchy(aAllPaths[i])
-			nLenP = len(acPathParts)
+			_acPathParts_ = This.GetPathHierarchy(_aAllPaths_[i])
+			_nLenP_ = len(_acPathParts_)
 
-			for j = 1 to nLenP
-				if StzFindFirst(aFolderNames, acPathParts[j]) = 0
-					aFolderNames + acPathParts[j]
+			for j = 1 to _nLenP_
+				if StzFindFirst(_aFolderNames_, _acPathParts_[j]) = 0
+					_aFolderNames_ + _acPathParts_[j]
 				end
 			next
 
 		next
 
-		return aFolderNames
+		return _aFolderNames_
 
 
-	def CountFileMatches(cPath, cPattern)
-		nCount = 0
-		aList = @dir(cPath)
-		nLen = len(aList)
+	def CountFileMatches(_cPath_, _cPattern_)
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
-			if aList[i][2] = 0
-				if This.Matches(cPattern, aList[i][1])
-					nCount++
+		for i = 1 to _nLen_
+			if _aList_[i][2] = 0
+				if This.Matches(_cPattern_, _aList_[i][1])
+					_nCount_++
 				end
 			end
 		next
 
-		return nCount
+		return _nCount_
 
-	def CountFolderMatches(cPath, cPattern)
-		nCount = 0
-		aList = @dir(cPath)
-		nLen = len(aList)
-		for i = 1 to nLen
-			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				if This.Matches(cPattern, aList[i][1])
-					nCount++
+	def CountFolderMatches(_cPath_, _cPattern_)
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
+		for i = 1 to _nLen_
+			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
+				if This.Matches(_cPattern_, _aList_[i][1])
+					_nCount_++
 				end
 			end
 		next
-		return nCount
+		return _nCount_
 
 	#======================#
 	# Content Modification #
 	#======================#
 
-	def ModifyInFile(cFile, cContent, cNewContent)
-		if NOT isString(cFile) or NOT isString(cContent) or NOT isString(cNewContent)
+	def ModifyInFile(_cFile_, cContent, cNewContent)
+		if NOT isString(_cFile_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
-		cFullPath = @cCurrentPath + This.Separator() + cFile
-		if fexists(cFullPath)
-			cFileContent = read(cFullPath)
-			cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
-			write(cFullPath, cModifiedContent)
+		_cFullPath_ = @cCurrentPath + This.Separator() + _cFile_
+		if fexists(_cFullPath_)
+			_cFileContent_ = read(_cFullPath_)
+			_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
+			write(_cFullPath_, _cModifiedContent_)
 			return TRUE
 		ok
 		return FALSE
 
-	def ModifyInFiles(acFiles, cContent, cNewContent)
+	def ModifyInFiles(_acFiles_, cContent, cNewContent)
 
-		if NOT isList(acFiles) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isList(_acFiles_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! acFiles must be a list, cContent and cNewContent must be strings.")
 		ok
 
-		nModified = 0
+		_nModified_ = 0
 
-		nLen = len(acFiles)
-		for i = 1 to nLen
-			if This.ModifyInFile(acFiles[i], cContent, cNewContent)
-				nModified++
+		_nLen_ = len(_acFiles_)
+		for i = 1 to _nLen_
+			if This.ModifyInFile(_acFiles_[i], cContent, cNewContent)
+				_nModified_++
 			ok
 		next
 
-		return nModified
+		return _nModified_
 
 
-	def ModifyInFolder(cFolder, cContent, cNewContent)
+	def ModifyInFolder(_cFolder_, cContent, cNewContent)
 
-		if NOT isString(cFolder) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isString(_cFolder_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
 
-		nModified = 0
-		cFolderPath = @cCurrentPath + This.Separator() + cFolder
+		_nModified_ = 0
+		_cFolderPath_ = @cCurrentPath + This.Separator() + _cFolder_
 
-		if isdir(cFolderPath)
-			aEntries = @dir(cFolderPath)
-			nLen = len(aEntries)
+		if isdir(_cFolderPath_)
+			_aEntries_ = @dir(_cFolderPath_)
+			_nLen_ = len(_aEntries_)
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 	
-				if aEntries[i][2] = 0
-					cFilePath = cFolderPath + This.Separator() + aEntries[i][1]
+				if _aEntries_[i][2] = 0
+					_cFilePath_ = _cFolderPath_ + This.Separator() + _aEntries_[i][1]
 
-					if fexists(cFilePath)
-						cFileContent = read(cFilePath)
-						cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
-						write(cFilePath, cModifiedContent)
-						nModified++
+					if fexists(_cFilePath_)
+						_cFileContent_ = read(_cFilePath_)
+						_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
+						write(_cFilePath_, _cModifiedContent_)
+						_nModified_++
 					ok
 
 				ok
@@ -3869,23 +3869,23 @@ class stzFolder from stzObject
 			next
 		ok
 
-		return nModified
+		return _nModified_
 
 
-	def ModifyInFolders(acFolders, cContent, cNewContent)
+	def ModifyInFolders(_acFolders_, cContent, cNewContent)
 
-		if NOT isList(acFolders) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isList(_acFolders_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! acFolders must be a list, cContent and cNewContent must be strings.")
 		ok
 
-		nModified = 0
-		nLen = len(acFolders)
+		_nModified_ = 0
+		_nLen_ = len(_acFolders_)
 
-		for i = 1 to nLen
-			nModified += This.ModifyInFolder(acFolders[i], cContent, cNewContent)
+		for i = 1 to _nLen_
+			_nModified_ += This.ModifyInFolder(_acFolders_[i], cContent, cNewContent)
 		next
 
-		return nModified
+		return _nModified_
 
 
 	def ModifyInRoot(cContent, cNewContent)
@@ -3894,89 +3894,89 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
-		nModified = 0
-		acFiles = This.Files()
-		nLen = len(acFiles)
+		_nModified_ = 0
+		_acFiles_ = This.Files()
+		_nLen_ = len(_acFiles_)
 
-		for i = 1 to nLen
-			if This.ModifyInFile(acFiles[i], cContent, cNewContent)
-				nModified++
+		for i = 1 to _nLen_
+			if This.ModifyInFile(_acFiles_[i], cContent, cNewContent)
+				_nModified_++
 			ok
 		next
-		return nModified
+		return _nModified_
 
 
-	def DeepModifyInFile(cFile, cContent, cNewContent)
+	def DeepModifyInFile(_cFile_, cContent, cNewContent)
 
-		if NOT isString(cFile) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isString(_cFile_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
 
-		nModified = 0
-		acFilePaths = This.DeepFindFile(cFile)
-		nLen = len(acFilePaths)
+		_nModified_ = 0
+		_acFilePaths_ = This.DeepFindFile(_cFile_)
+		_nLen_ = len(_acFilePaths_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 	
-			if fexists(acFilePaths[i])
+			if fexists(_acFilePaths_[i])
 
-				cFileContent = read(acFilePaths[i])
-				cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
+				_cFileContent_ = read(_acFilePaths_[i])
+				_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
 
-				write(acFilePaths[i], cModifiedContent)
-				nModified++
+				write(_acFilePaths_[i], _cModifiedContent_)
+				_nModified_++
 
 			ok
 
 		next
 
-		return nModified
+		return _nModified_
 
 
-	def DeepModifyInFiles(acFiles, cContent, cNewContent)
+	def DeepModifyInFiles(_acFiles_, cContent, cNewContent)
 
-		if NOT isList(acFiles) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isList(_acFiles_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! acFiles must be a list, cContent and cNewContent must be strings.")
 		ok
 
-		nModified = 0
-		nLen = len(acFiles)
+		_nModified_ = 0
+		_nLen_ = len(_acFiles_)
 
-		for i = 1 to nLen
-			nModified += This.DeepModifyInFile(acFiles[i], cContent, cNewContent)
+		for i = 1 to _nLen_
+			_nModified_ += This.DeepModifyInFile(_acFiles_[i], cContent, cNewContent)
 		next
 
-		return nModified
+		return _nModified_
 
 
-	def DeepModifyInFolder(cFolder, cContent, cNewContent)
+	def DeepModifyInFolder(_cFolder_, cContent, cNewContent)
 
-		if NOT isString(cFolder) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isString(_cFolder_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
 
-		nModified = 0
-		acFolderPaths = This.DeepFindFolder(cFolder)
-		nLen = len(acFolderPaths)
+		_nModified_ = 0
+		_acFolderPaths_ = This.DeepFindFolder(_cFolder_)
+		_nLen_ = len(_acFolderPaths_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if isdir(acFolderPaths[i])
+			if isdir(_acFolderPaths_[i])
 
-				aEntries = @dir(cFolderPath)
-				nLenE = len(aEntries)
+				_aEntries_ = @dir(_cFolderPath_)
+				_nLenE_ = len(_aEntries_)
 
-				for j = 1 to nLenE
-					if aEntries[j][2] = 0
-						cFilePath = cFolderPath + This.Separator() + aEntries[j][1]
+				for j = 1 to _nLenE_
+					if _aEntries_[j][2] = 0
+						_cFilePath_ = _cFolderPath_ + This.Separator() + _aEntries_[j][1]
 
-						if fexists(cFilePath)
+						if fexists(_cFilePath_)
 
-							cFileContent = read(cFilePath)
-							cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
+							_cFileContent_ = read(_cFilePath_)
+							_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
 
-							write(cFilePath, cModifiedContent)
-							nModified++
+							write(_cFilePath_, _cModifiedContent_)
+							_nModified_++
 
 						ok
 					ok
@@ -3987,23 +3987,23 @@ class stzFolder from stzObject
 
 		next
 
-		return nModified
+		return _nModified_
 
 
-	def DeepModifyInFolders(acFolders, cContent, cNewContent)
+	def DeepModifyInFolders(_acFolders_, cContent, cNewContent)
 
-		if NOT isList(acFolders) or NOT isString(cContent) or NOT isString(cNewContent)
+		if NOT isList(_acFolders_) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! acFolders must be a list, cContent and cNewContent must be strings.")
 		ok
 
-		nModified = 0
-		nLen = len(acFolders)
+		_nModified_ = 0
+		_nLen_ = len(_acFolders_)
 
-		for i = 1 to nlen
-			nModified += This.DeepModifyInFolder(acFolders[i], cContent, cNewContent)
+		for i = 1 to _nLen_
+			_nModified_ += This.DeepModifyInFolder(_acFolders_[i], cContent, cNewContent)
 		next
 
-		return nModified
+		return _nModified_
 
 	def DeepModifyInRoot(cContent, cNewContent)
 
@@ -4011,27 +4011,27 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
-		nModified = 0
-		acAllDirs = This.DeepFolders()
-		nLen = len(acAllDirs)
+		_nModified_ = 0
+		_acAllDirs_ = This.DeepFolders()
+		_nLen_ = len(_acAllDirs_)
 
-		for i = 1 to nLen
-			aEntries = @dir(acAllDirs[i])
-			nLenE = len(aEntries)
+		for i = 1 to _nLen_
+			_aEntries_ = @dir(_acAllDirs_[i])
+			_nLenE_ = len(_aEntries_)
 
-			for j = 1 to nLenE
+			for j = 1 to _nLenE_
 
-				if aEntries[j][2] = 0
+				if _aEntries_[j][2] = 0
 
-					cFilePath = acAllDirs[i] + This.Separator() + aEntries[j][1]
+					_cFilePath_ = _acAllDirs_[i] + This.Separator() + _aEntries_[j][1]
 
-					if fexists(cFilePath)
+					if fexists(_cFilePath_)
 
-						cFileContent = read(cFilePath)
-						cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
+						_cFileContent_ = read(_cFilePath_)
+						_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
 
-						write(cFilePath, cModifiedContent)
-						nModified++
+						write(_cFilePath_, _cModifiedContent_)
+						_nModified_++
 
 					ok
 				ok
@@ -4039,127 +4039,127 @@ class stzFolder from stzObject
 
 		next
 
-		return nModified
+		return _nModified_
 
 	#=================#
 	#  Visualization  #
 	#=================#
 
-	def VizSearch(cPattern)
-		nFileMatches = This.CountFileMatches(This.Path(), cPattern)
-		nFolderMatches = This.CountFolderMatches(This.Path(), cPattern)
-		nTotalMatches = nFileMatches + nFolderMatches
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizSearch(_cPattern_)
+		_nFileMatches_ = This.CountFileMatches(This.Path(), _cPattern_)
+		_nFolderMatches_ = This.CountFolderMatches(This.Path(), _cPattern_)
+		_nTotalMatches_ = _nFileMatches_ + _nFolderMatches_
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), '', 1, cPattern, "both", 0, 1)
-		return cResult
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + nl
+		_cResult_ += This.GenerateVizTreeString(This.Path(), '', 1, _cPattern_, "both", 0, 1)
+		return _cResult_
 
-		def VizSearchFiles(cPattern)
-			return This.VizFindFiles(cPattern)
+		def VizSearchFiles(_cPattern_)
+			return This.VizFindFiles(_cPattern_)
 
-	def VizFindFiles(cPattern)
-		nTotalMatches = This.CountFileMatches(This.Path(), cPattern)
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizFindFiles(_cPattern_)
+		_nTotalMatches_ = This.CountFileMatches(This.Path(), _cPattern_)
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " file matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, 1)
-		return cResult
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + nl
+		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "files", 0, 1)
+		return _cResult_
 
-		def VizSearchFolders(cPattern)
-			return This.VizFindFolders(cPattern)
+		def VizSearchFolders(_cPattern_)
+			return This.VizFindFolders(_cPattern_)
 
-	def VizFindFolders(cPattern)
-		nTotalMatches = This.CountFolderMatches(This.Path(), cPattern)
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizFindFolders(_cPattern_)
+		_nTotalMatches_ = This.CountFolderMatches(This.Path(), _cPattern_)
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " folder matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "folders", 0, 1)
-		return cResult
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + nl
+		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "folders", 0, 1)
+		return _cResult_
 
-		def VizSearchDirs(cPattern)
-			return This.VizFindFolders(cPattern)
+		def VizSearchDirs(_cPattern_)
+			return This.VizFindFolders(_cPattern_)
 
-	def VizDeepSearch(cPattern)
-		nTotalFileMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
-		nTotalFolderMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
-		nTotalMatches = nTotalFileMatches + nTotalFolderMatches
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizDeepSearch(_cPattern_)
+		_nTotalFileMatches_ = This.CountFileMatchesRecursive(This.Path(), _cPattern_)
+		_nTotalFolderMatches_ = This.CountFolderMatchesRecursive(This.Path(), _cPattern_)
+		_nTotalMatches_ = _nTotalFileMatches_ + _nTotalFolderMatches_
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + nTotalMatches + " matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), '', 1, cPattern, "both", 0, This.MaxDisplayLevel())
-		return cResult
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + nl
+		_cResult_ += This.GenerateVizTreeString(This.Path(), '', 1, _cPattern_, "both", 0, This.MaxDisplayLevel())
+		return _cResult_
 
-		def VizDeepFindFilesAndFolders(cPattern)
-			return This.VizDeepSearch(cPattern)
+		def VizDeepFindFilesAndFolders(_cPattern_)
+			return This.VizDeepSearch(_cPattern_)
 
-	def VizDeepFindFiles(cPattern)
-		nTotalMatches = This.CountFileMatchesRecursive(This.Path(), cPattern)
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizDeepFindFiles(_cPattern_)
+		_nTotalMatches_ = This.CountFileMatchesRecursive(This.Path(), _cPattern_)
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + nTotalMatches + " file matches for '" + cPattern + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + nl
 		This.CollapseAll()
-		acFoldersWithMatches = This.GetFoldersContainingFileMatches(This.Path(), cPattern)
-		if len(acFoldersWithMatches) > 0
-			This.ExpandFolders(acFoldersWithMatches)
+		_acFoldersWithMatches_ = This.GetFoldersContainingFileMatches(This.Path(), _cPattern_)
+		if len(_acFoldersWithMatches_) > 0
+			This.ExpandFolders(_acFoldersWithMatches_)
 		end
-		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, This.MaxDisplayLevel())
-		return cResult
+		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "files", 0, This.MaxDisplayLevel())
+		return _cResult_
 
-	def VizDeepFindFolders(cPattern)
-		nTotalMatches = This.CountFolderMatchesRecursive(This.Path(), cPattern)
-		cFolderName = This.Name()
-		if cFolderName = ""
-			cFolderName = This.Path()
+	def VizDeepFindFolders(_cPattern_)
+		_nTotalMatches_ = This.CountFolderMatchesRecursive(This.Path(), _cPattern_)
+		_cFolderName_ = This.Name()
+		if _cFolderName_ = ""
+			_cFolderName_ = This.Path()
 		end
-		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + + "  " + nTotalMatches + " folder matches for '" + cPattern + "')" + nl
-		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "folders", 0, This.MaxDisplayLevel())
-		return cResult
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + + "  " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + nl
+		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "folders", 0, This.MaxDisplayLevel())
+		return _cResult_
 
-		def VizDeepSearchDirs(cPattern)
-			return This.VizDeepFindFolders(cPattern)
+		def VizDeepSearchDirs(_cPattern_)
+			return This.VizDeepFindFolders(_cPattern_)
 
 	def ToString()
-		cFolderName = This.Name()
-		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + NL
+		_cFolderName_ = This.Name()
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + NL
 
-		cResult += This.GenerateVizTreeString(
+		_cResult_ += This.GenerateVizTreeString(
 			This.Path(), '', 1,
 			'', "", 0, This.MaxDisplayLevel()
 		)
 
-		return cResult
+		return _cResult_
 
 	def Show()
 		? This.ToString()
 
 	def ToStringXT()
-		cStatPattern = This.DisplayStatPattern()
-		if cStatPattern = ""
-			cStatPattern = cStatPattern = "@count"
+		_cStatPattern_ = This.DisplayStatPattern()
+		if _cStatPattern_ = ""
+			_cStatPattern_ = _cStatPattern_ = "@count"
 		ok
 
-		cFolderName = This.Name()
-		cStats = trim(This.FormatStats(This, cStatPattern))
+		_cFolderName_ = This.Name()
+		_cStats_ = trim(This.FormatStats(This, _cStatPattern_))
 
-		cResult = @acDisplayChars[:FolderRootXT] + " " + cFolderName + " " + cStats + NL
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " " + _cStats_ + NL
 
-		cResult += This.GenerateVizTreeString(
-			This.Path(), '', 1, cStatPattern,
+		_cResult_ += This.GenerateVizTreeString(
+			This.Path(), '', 1, _cStatPattern_,
 			"showxt", 0, This.MaxDisplayLevel()
 		)
 
-		return cResult
+		return _cResult_
 
 	def ShowXT()
 		? This.ToStringXT()
@@ -4179,40 +4179,40 @@ class stzFolder from stzObject
 		def ExpandAll()
 			This.Expand()
 
-	def ExpandFolder(cFolder)
-		This.ExpandFolders([cFolder])
+	def ExpandFolder(_cFolder_)
+		This.ExpandFolders([_cFolder_])
 
-		def ExpandThisFolder(cFolder)
-			This.ExpandFolders([cFolder])
+		def ExpandThisFolder(_cFolder_)
+			This.ExpandFolders([_cFolder_])
 
-		def ExpandThis(cFolder)
+		def ExpandThis(_cFolder_)
 			This.ExpandFolders([cFolders])
 
-	def ExpandFolders(acFolders)
+	def ExpandFolders(_acFolders_)
 	    if CheckParams()
-	        if Not (isList(acFolders) and IsListOfStrings(acFolders))
+	        if Not (isList(_acFolders_) and IsListOfStrings(_acFolders_))
 	            StzRaise("Incorrect param type! acFolders must be a list of strings.")
 	        ok
 	    ok
 	
-		nLen = len(acFolders)
+		_nLen_ = len(_acFolders_)
 
-		for i = 1 to nLen
-			cPath = This.NormalizeFolderPath(acFolders[i])
-			if This.IsDeepFolder(cPath)
-				@acDeepExpandFolders + cPath
+		for i = 1 to _nLen_
+			_cPath_ = This.NormalizeFolderPath(_acFolders_[i])
+			if This.IsDeepFolder(_cPath_)
+				@acDeepExpandFolders + _cPath_
 			else
-				@acExpandFolders + cPath
+				@acExpandFolders + _cPath_
 			ok
 		next
 
 	    @bCollapseAll = 0
 	
-		def ExpandTheseFolders(acFolders)
-			This.ExpandFolders(acFolders)
+		def ExpandTheseFolders(_acFolders_)
+			This.ExpandFolders(_acFolders_)
 
-		def ExpandThese(acFolders)
-			This.ExpandTheseFolders(acFolders)
+		def ExpandThese(_acFolders_)
+			This.ExpandTheseFolders(_acFolders_)
 
 	#--
 
@@ -4227,29 +4227,29 @@ class stzFolder from stzObject
 		def DeepExpand()
 			This.DeepExpandAll()
 
-	def DeepExpandFolder(cFolder)
-		This.DeepExpandFolders([cFolder])
+	def DeepExpandFolder(_cFolder_)
+		This.DeepExpandFolders([_cFolder_])
 	
-		def DeepExpandThisFolder(cFolder)
-			This.DeepExpandFolders([cFolder])
+		def DeepExpandThisFolder(_cFolder_)
+			This.DeepExpandFolders([_cFolder_])
 	
-		def DeepExpandThis(cFolder)
-			This.DeepExpandFolders([cFolder])
+		def DeepExpandThis(_cFolder_)
+			This.DeepExpandFolders([_cFolder_])
 	
-	def DeepExpandFolders(acFolders)
-		if isString(acFolders)
-			@acDeepExpandFolders = [acFolders]
+	def DeepExpandFolders(_acFolders_)
+		if isString(_acFolders_)
+			@acDeepExpandFolders = [_acFolders_]
 		else
-			@acDeepExpandFolders = acFolders
+			@acDeepExpandFolders = _acFolders_
 		end
 		@bCollapseAll = 0
 		@bDeepExpandAll = 0
 
-		def DeepExpandTheseFolders(acFolders)
-			This.DeepExpandFolders(acFolders)
+		def DeepExpandTheseFolders(_acFolders_)
+			This.DeepExpandFolders(_acFolders_)
 	
-		def DeepExpandThese(acFolders)
-			This.DeepExpandTheseFolders(acFolders)
+		def DeepExpandThese(_acFolders_)
+			This.DeepExpandTheseFolders(_acFolders_)
 
 	#--
 
@@ -4264,20 +4264,20 @@ class stzFolder from stzObject
 		def Collapse()
 			This.CollapseAll()
 
-	def CollapseFolders(acFolders)
-		if isString(acFolders)
-			@acCollapseFolders = [acFolders]
+	def CollapseFolders(_acFolders_)
+		if isString(_acFolders_)
+			@acCollapseFolders = [_acFolders_]
 		else
-			@acCollapseFolders = acFolders
+			@acCollapseFolders = _acFolders_
 		end
 		@bExpand = 0
 		@bDeepExpandAll = 0
 
-		def CollapseTheseFolders(acFolders)
-			This.CollapseFolders(acFolders)
+		def CollapseTheseFolders(_acFolders_)
+			This.CollapseFolders(_acFolders_)
 
-		def CollapseThese(acFolders)
-			This.CollapseFolders(acFolders)
+		def CollapseThese(_acFolders_)
+			This.CollapseFolders(_acFolders_)
 
 	#---
 
@@ -4296,40 +4296,40 @@ class stzFolder from stzObject
 		def DisplayStat()
 			return @cDisplayStatPattern
 
-	def SetDisplayStat(cPattern)
-		if NOT isString(cPattern)
+	def SetDisplayStat(_cPattern_)
+		if NOT isString(_cPattern_)
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
 
-		if NOT This.IsStatPattern(cPattern)
+		if NOT This.IsStatPattern(_cPattern_)
 			StzRaise("Incorrect start pattern!")
 		ok
 
-		@cDisplayStatPattern = cPattern
+		@cDisplayStatPattern = _cPattern_
 
-		def SetDisplayStartPattern(cPattern)
-			This.SetDisplayStat(cPattern)
+		def SetDisplayStartPattern(_cPattern_)
+			This.SetDisplayStat(_cPattern_)
 
 	def StatKeywords()
 		return @acStatKeywords
 
-	def IsStatPattern(cPattern)
-		if Not isString(cPattern)
+	def IsStatPattern(_cPattern_)
+		if Not isString(_cPattern_)
 			return 0
 		ok
 
-		cPattern = StzLower(cpattern)
-		acKeywords = This.StatKeywords()
-		nLen = len(acKeywords)
-		bResult = 0
+		_cPattern_ = StzLower(_cPattern_)
+		_acKeywords_ = This.StatKeywords()
+		_nLen_ = len(_acKeywords_)
+		_bResult_ = 0
 
-		for i = 1 to nLen
-			if StzFindFirst(cPattern, acKeywords[i]) > 0
-				bResult = 1
+		for i = 1 to _nLen_
+			if StzFindFirst(_cPattern_, _acKeywords_[i]) > 0
+				_bResult_ = 1
 				exit
 			ok
 		next
-		return bResult
+		return _bResult_
 
 	def DisplayOrder()
 		return @cDisplayOrder
@@ -4338,9 +4338,9 @@ class stzFolder from stzObject
 		if NOT isString(cOrder)
 			StzRaise("Incorrect param type! cOrder must be a string.")
 		ok
-		acValidOrders = ["systemorder", "filefirstascending", "filefirstdescending", "folderfirstascending", "folderfirstdescending"]
-		if NOT StzFindFirst(acValidOrders, StzLower(cOrder))
-			StzRaise("Invalid display order! Must be one of: " + @@(acValidOrders))
+		_acValidOrders_ = ["systemorder", "filefirstascending", "filefirstdescending", "folderfirstascending", "folderfirstdescending"]
+		if NOT StzFindFirst(_acValidOrders_, StzLower(cOrder))
+			StzRaise("Invalid display order! Must be one of: " + @@(_acValidOrders_))
 		ok
 		@cDisplayOrder = StzLower(cOrder)
 
@@ -4349,23 +4349,23 @@ class stzFolder from stzObject
 	#==========================#
 	#TODO // Enhance this section
 
-	def IsSecurePath(cPath)
+	def IsSecurePath(_cPath_)
 		# Check for null bytes (path injection attempt)
-		if StzFindFirst(cPath, StzChar(0)) > 0
+		if StzFindFirst(_cPath_, StzChar(0)) > 0
 			return true
 		ok
 
 		# Check for other control characters that could be used for injection
 		for i = 1 to 31
-			if StzFindFirst(cPath, StzChar(i)) > 0
+			if StzFindFirst(_cPath_, StzChar(i)) > 0
 				return false
 			ok
 		next
 		
 		return true
 
-	def HasNoPathInjection(cPath)
-		return This.IsSecurePath(cPath)
+	def HasNoPathInjection(_cPath_)
+		return This.IsSecurePath(_cPath_)
 
 	#===================#
 	#  Utility Methods  #
@@ -4381,73 +4381,73 @@ class stzFolder from stzObject
 		# no-op: directory listing is always fresh via @dir()
 		return This
 
-	def GetParentDirectory(cPath)
-		nPos = 0
-		nLen = StzLen(cPath)
-		for i = nLen to 1 step -1
-			if cPath[i] = This.Separator()
-				nPos = i
+	def GetParentDirectory(_cPath_)
+		_nPos_ = 0
+		_nLen_ = StzLen(_cPath_)
+		for i = _nLen_ to 1 step -1
+			if _cPath_[i] = This.Separator()
+				_nPos_ = i
 				exit
 			ok
 		next
-		if nPos > 1
-			return StzLeft(cPath, nPos - 1)
+		if _nPos_ > 1
+			return StzLeft(_cPath_, _nPos_ - 1)
 		else
 			return This.Path()
 		ok
 
-	def GetPathHierarchy(cPath)
-		acParts = []
-		cRelativePath = StzReplace(cPath, This.Path() + This.Separator(), "")
-		if cRelativePath = cPath
+	def GetPathHierarchy(_cPath_)
+		_acParts_ = []
+		_cRelativePath_ = StzReplace(_cPath_, This.Path() + This.Separator(), "")
+		if _cRelativePath_ = _cPath_
 			return []
 		end
-		acSegments = @split(cRelativePath, This.Separator())
-		nLen = len(acSegments)
+		_acSegments_ = @split(_cRelativePath_, This.Separator())
+		_nLen_ = len(_acSegments_)
 
-		for i = 1 to nLen
-			if acSegments[i] != ""
-				acParts + acSegments[i]
+		for i = 1 to _nLen_
+			if _acSegments_[i] != ""
+				_acParts_ + _acSegments_[i]
 			end
 		next
 
-		return acParts
+		return _acParts_
 
-	def CollectFoldersWithFileMatches(cPath, cPattern, aFoldersWithMatches)
+	def CollectFoldersWithFileMatches(_cPath_, _cPattern_, aFoldersWithMatches)
 
-		_aList_ = @dir(cPath)
-		bHasFileMatches = 0
-		nLen = len(_aList_)
+		_aList_ = @dir(_cPath_)
+		_bHasFileMatches_ = 0
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 0
-				if This.Matches(cPattern, _aList_[i][1])
-					bHasFileMatches = 1
+				if This.Matches(_cPattern_, _aList_[i][1])
+					_bHasFileMatches_ = 1
 					exit
 				end
 			end
 		next
 
-		if bHasFileMatches
-			aFoldersWithMatches + cPath
+		if _bHasFileMatches_
+			aFoldersWithMatches + _cPath_
 		end
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				This.CollectFoldersWithFileMatches(cPath + This.Separator() + _aList_[i][1], cPattern, aFoldersWithMatches)
+				This.CollectFoldersWithFileMatches(_cPath_ + This.Separator() + _aList_[i][1], _cPattern_, aFoldersWithMatches)
 			end
 		next
 
 
-		def GetFolderNameFromPath(cPath)
-			if cPath = This.Path()
+		def GetFolderNameFromPath(_cPath_)
+			if _cPath_ = This.Path()
 				return ""
 			end
-			nPos = max([StzFindFirst(cPath, This.Separator()), StzFindFirst(cPath, "\")])
-			if nPos > 0
-				return StzRight(cPath, StzLen(cPath) - nPos)
+			_nPos_ = max([StzFindFirst(_cPath_, This.Separator()), StzFindFirst(_cPath_, "\")])
+			if _nPos_ > 0
+				return StzRight(_cPath_, StzLen(_cPath_) - _nPos_)
 			end
-			return cPath
+			return _cPath_
 
 
 	#================================#
@@ -4456,157 +4456,157 @@ class stzFolder from stzObject
 
 	PRIVATE
 
-	def SortItemsByDisplayOrder(acFiles, acFolders, cPath)
+	def SortItemsByDisplayOrder(_acFiles_, _acFolders_, _cPath_)
 
-		aItems = []
+		_aItems_ = []
 
 		switch @cDisplayOrder
 
 			case "systemorder"
 
-				aRingEntries = dir(cPath)
-				nLen = len(aRingEntries)
-				for i = 1 to nLen
-					cEntryName = aRingEntries[i][1]
-					if cEntryName != "." and cEntryName != ".."
-						cFullPath = cPath + This.Separator() + cEntryName
-						if isdir(cFullPath)
-							aItems + [cEntryName, "folder"]
+				_aRingEntries_ = dir(_cPath_)
+				_nLen_ = len(_aRingEntries_)
+				for i = 1 to _nLen_
+					_cEntryName_ = _aRingEntries_[i][1]
+					if _cEntryName_ != "." and _cEntryName_ != ".."
+						_cFullPath_ = _cPath_ + This.Separator() + _cEntryName_
+						if isdir(_cFullPath_)
+							_aItems_ + [_cEntryName_, "folder"]
 						else
-							aItems + [cEntryName, "file"]
+							_aItems_ + [_cEntryName_, "file"]
 						end
 					end
 				next
 
 			case "filefirstascending"
 
-				acFilesSorted = sort(acFiles)
-				acFoldersSorted = sort(acFolders)
-				nLen = len(acFilesSorted)
+				_acFilesSorted_ = sort(_acFiles_)
+				_acFoldersSorted_ = sort(_acFolders_)
+				_nLen_ = len(_acFilesSorted_)
 
-				for i = 1 to nLen
-					aItems + [acFilesSorted[i], "file"]
+				for i = 1 to _nLen_
+					_aItems_ + [_acFilesSorted_[i], "file"]
 				next
 
-				nLen = len(acFoldersSorted)
-				for i = 1 to nLen
-					aItems + [acFoldersSorted[i], "folder"]
+				_nLen_ = len(_acFoldersSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFoldersSorted_[i], "folder"]
 				next
 
 			case "filefirstdescending"
 
-				acFilesSorted = reverse(sort(acFiles))
-				acFoldersSorted = reverse(sort(acFolders))
+				_acFilesSorted_ = reverse(sort(_acFiles_))
+				_acFoldersSorted_ = reverse(sort(_acFolders_))
 
-				nLen = len(acFilesSorted)
-				for i = 1 to nLen
-					aItems + [acFilesSorted[i], "file"]
+				_nLen_ = len(_acFilesSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFilesSorted_[i], "file"]
 				next
 
-				nLen = len(acFoldersSorted)
-				for i = 1 to nLen
-					aItems + [acFoldersSorted[i], "folder"]
+				_nLen_ = len(_acFoldersSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFoldersSorted_[i], "folder"]
 				next
 
 			case "folderfirstascending"
 
-				acFilesSorted = sort(acFiles)
-				acFoldersSorted = sort(acFolders)
+				_acFilesSorted_ = sort(_acFiles_)
+				_acFoldersSorted_ = sort(_acFolders_)
 
-				nLen = len(acFoldersSorted)
-				for i = 1 to nLen
-					aItems + [acFoldersSorted[i], "folder"]
+				_nLen_ = len(_acFoldersSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFoldersSorted_[i], "folder"]
 				next
 
-				nLen = len(acFilesSorted)
-				for i = 1 to nLen
-					aItems + [acFilesSorted[i], "file"]
+				_nLen_ = len(_acFilesSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFilesSorted_[i], "file"]
 				next
 
 			case "folderfirstdescending"
 
-				acFilesSorted = reverse(sort(acFiles))
-				acFoldersSorted = reverse(sort(acFolders))
+				_acFilesSorted_ = reverse(sort(_acFiles_))
+				_acFoldersSorted_ = reverse(sort(_acFolders_))
 
-				nLen = len(acFoldersSorted)
-				for i = 1 to nLen
-					aItems + [acFoldersSorted[i], "folder"]
+				_nLen_ = len(_acFoldersSorted_)
+				for i = 1 to _nLen_
+					_aItems_ + [_acFoldersSorted_[i], "folder"]
 				next
 
-				nLen = len(acFilesSorted)
-				for  i = 1 to nLen
-					aItems + [acFilesSorted[i], "file"]
+				_nLen_ = len(_acFilesSorted_)
+				for  i = 1 to _nLen_
+					_aItems_ + [_acFilesSorted_[i], "file"]
 				next
 
 		end
 
-		return aItems
+		return _aItems_
 
-	def OrderFilesFirst(acFiles, acFolders)
+	def OrderFilesFirst(_acFiles_, _acFolders_)
 
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(acFiles)
-		for i = 1 to nLen
-			aResult + [:name = acFiles[i], :type = "file"]
+		_nLen_ = len(_acFiles_)
+		for i = 1 to _nLen_
+			_aResult_ + [:name = _acFiles_[i], :type = "file"]
 		next
 
-		nLen = len(acFolders)
-		for i = 1 to nLen
-			aResult + [:name = acFolders[i], :type = "folder"]
+		_nLen_ = len(_acFolders_)
+		for i = 1 to _nLen_
+			_aResult_ + [:name = _acFolders_[i], :type = "folder"]
 		next
 
-		return aResult
+		return _aResult_
 
 
-	def OrderFoldersFirst(acFiles, acFolders)
+	def OrderFoldersFirst(_acFiles_, _acFolders_)
 
-		aResult = []
+		_aResult_ = []
 
-		nLen = len(acFolders)
-		for i = 1 to nLen
-			aResult + [:name = acFolders[i], :type = "folder"]
+		_nLen_ = len(_acFolders_)
+		for i = 1 to _nLen_
+			_aResult_ + [:name = _acFolders_[i], :type = "folder"]
 		next
 
-		nLen = len(acFiles)
-		for i = 1 to nLen
-			aResult + [:name = acFiles[i], :type = "file"]
+		_nLen_ = len(_acFiles_)
+		for i = 1 to _nLen_
+			_aResult_ + [:name = _acFiles_[i], :type = "file"]
 		next
 
-		return aResult
+		return _aResult_
 
 
-	def GetPhysicalOrder(cPath)
+	def GetPhysicalOrder(_cPath_)
 
-		_aList_ = @dir(cPath)
-		nLen = len(_aList_)
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
 			if _aList_[i][2] = 0
-				aResult + [:name = _aEntry_[1], :type = "file"]
+				_aResult_ + [:name = _aEntry_[1], :type = "file"]
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				aResult + [:name = _aList_[i][1], :type = "folder"]
+				_aResult_ + [:name = _aList_[i][1], :type = "folder"]
 
 			end
 
 		next
 
-		return aResult
+		return _aResult_
 
 
-	def FormatStats(oFolder, cStatPattern)
+	def FormatStats(oFolder, _cStatPattern_)
 		# Handle @count pattern specifically
 
-		if cStatPattern = "@count"
+		if _cStatPattern_ = "@count"
 
-			nTotal = oFolder.CountFiles() + oFolder.CountFolders()
+			_nTotal_ = oFolder.CountFiles() + oFolder.CountFolders()
 
-			if nTotal > 0
-				return "(" + nTotal + ")"
+			if _nTotal_ > 0
+				return "(" + _nTotal_ + ")"
 			else
 				return ""
 			end
@@ -4615,147 +4615,147 @@ class stzFolder from stzObject
 		
 		# Handle custom patterns by replacing tokens
 
-		cResult = StzLower(cStatPattern)
+		_cResult_ = StzLower(_cStatPattern_)
 		
 		# Replace pattern tokens with actual values
 
-		nThisLevelFiles = oFolder.CountFiles()
-		nThisLevelFolders = oFolder.CountFolders()
-		nAllSubLevelFiles = oFolder.DeepCountFiles()
-		nAllSubLevelFolders = oFolder.DeepCountFolders()
+		_nThisLevelFiles_ = oFolder.CountFiles()
+		_nThisLevelFolders_ = oFolder.CountFolders()
+		_nAllSubLevelFiles_ = oFolder.DeepCountFiles()
+		_nAllSubLevelFolders_ = oFolder.DeepCountFolders()
 	
-		if StzFindFirst(cResult, "@countfiles")
-			cResult = StzReplace(cResult, "@countfiles", "" + nThisLevelFiles)
+		if StzFindFirst(_cResult_, "@countfiles")
+			_cResult_ = StzReplace(_cResult_, "@countfiles", "" + _nThisLevelFiles_)
 		ok
 
-		if StzFindFirst(cResult, "@deepcountfiles")
-			cResult = StzReplace(cResult, "@deepcountfiles", "" + nAllSubLevelFiles)
+		if StzFindFirst(_cResult_, "@deepcountfiles")
+			_cResult_ = StzReplace(_cResult_, "@deepcountfiles", "" + _nAllSubLevelFiles_)
 		ok
 
-		if StzFindFirst(cResult, "@countfolders")
-			cResult = StzReplace(cResult, "@countfolders", "" + nThisLevelFolders)
+		if StzFindFirst(_cResult_, "@countfolders")
+			_cResult_ = StzReplace(_cResult_, "@countfolders", "" + _nThisLevelFolders_)
 		ok
 
-		if StzFindFirst(cResult, "@deepcountfolders")
-			cResult = StzReplace(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
+		if StzFindFirst(_cResult_, "@deepcountfolders")
+			_cResult_ = StzReplace(_cResult_, "@deepcountfolders", "" + _nAllSubLevelFolders_)
 		ok
 
 		# If tokens were replaced (custom pattern), handle zero filtering
 
-		if cResult != cStatPattern
+		if _cResult_ != _cStatPattern_
 
 			# Split by comma and filter out zero values
 
-			aTokens = @split(cResult, ",")
-			nLen = len(aTokens)
-			acFiltered = []
+			_aTokens_ = @split(_cResult_, ",")
+			_nLen_ = len(_aTokens_)
+			_acFiltered_ = []
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 
-				cToken = trim(aTokens[i])
+				_cToken_ = trim(_aTokens_[i])
 
 				# Check if this token contains "0 files" or "0 folders"
 
-				if not (StzFindFirst(cToken, "0 files") or StzFindFirst(cToken, "0 folders"))
-					acFiltered + cToken
+				if not (StzFindFirst(_cToken_, "0 files") or StzFindFirst(_cToken_, "0 folders"))
+					_acFiltered_ + _cToken_
 				ok
 			next
 			
 			# Rebuild the result
 
-			cResult = "("
-			nLenF = len(acFiltered)
+			_cResult_ = "("
+			_nLenF_ = len(_acFiltered_)
 
-			for i = 1 to nLenF
-				cResult += acFiltered[i]
-				if i < nLenF
-					cResult += ", "
+			for i = 1 to _nLenF_
+				_cResult_ += _acFiltered_[i]
+				if i < _nLenF_
+					_cResult_ += ", "
 				ok
 			next
 
-			cResult += ")"
+			_cResult_ += ")"
 
 		else
 
 			# If no tokens were replaced, fall back to original logic
 			# Get direct counts for this folder level
 
-			nThisLevelFiles = oFolder.CountFiles()
-			nThisLevelFolders = oFolder.CountFolders()
+			_nThisLevelFiles_ = oFolder.CountFiles()
+			_nThisLevelFolders_ = oFolder.CountFolders()
 			
 			# Get recursive counts for all sublevels
 
-			nAllSubLevelFiles = oFolder.DeepCountFiles()
-			nAllSubLevelFolders = oFolder.DeepCountFolders()
+			_nAllSubLevelFiles_ = oFolder.DeepCountFiles()
+			_nAllSubLevelFolders_ = oFolder.DeepCountFolders()
 	
-			cResult = "("
+			_cResult_ = "("
 			
 			# Files display logic
 
-			if nThisLevelFiles > 0
+			if _nThisLevelFiles_ > 0
 
-				if nAllSubLevelFiles > nThisLevelFiles
-					cResult += ''+ nThisLevelFiles + ":" + nAllSubLevelFiles + " files"
+				if _nAllSubLevelFiles_ > _nThisLevelFiles_
+					_cResult_ += ''+ _nThisLevelFiles_ + ":" + _nAllSubLevelFiles_ + " files"
 				else
-					cResult += ''+ nThisLevelFiles + " files"
+					_cResult_ += ''+ _nThisLevelFiles_ + " files"
 				end
 				
 				# Add comma if we also have folders
 
-				if nThisLevelFolders > 0 or nAllSubLevelFolders > nThisLevelFolders
-					cResult += ", "
+				if _nThisLevelFolders_ > 0 or _nAllSubLevelFolders_ > _nThisLevelFolders_
+					_cResult_ += ", "
 				end
 			end
 			
 			# Folders display logic
 
-			if nThisLevelFolders > 0
-				if nAllSubLevelFolders > nThisLevelFolders
-					cResult += ''+ nThisLevelFolders + ":" + nAllSubLevelFolders + " folders"
+			if _nThisLevelFolders_ > 0
+				if _nAllSubLevelFolders_ > _nThisLevelFolders_
+					_cResult_ += ''+ _nThisLevelFolders_ + ":" + _nAllSubLevelFolders_ + " folders"
 				else
-					cResult += ''+ nThisLevelFolders + " folders"
+					_cResult_ += ''+ _nThisLevelFolders_ + " folders"
 				end
 			end
 			
-			cResult += ")"
+			_cResult_ += ")"
 			
 			# If no files or folders, return empty string to avoid showing "()"
 
-			if nThisLevelFiles = 0 and nThisLevelFolders = 0 and nAllSubLevelFiles = 0 and nAllSubLevelFolders = 0
+			if _nThisLevelFiles_ = 0 and _nThisLevelFolders_ = 0 and _nAllSubLevelFiles_ = 0 and _nAllSubLevelFolders_ = 0
 				return ""
 			end
 		end
 		
-		return cResult
+		return _cResult_
 
 
-	def GetFolderStats(cFolderName)
+	def GetFolderStats(_cFolderName_)
 
 		# Get stats for a specific subfolder
 
-		cFolderPath = @cCurrentPath + This.Separator() + cFolderName
+		_cFolderPath_ = @cCurrentPath + This.Separator() + _cFolderName_
 		
 		if @cDisplayStatPattern = "@count"
 
 			# Simple count for default pattern
 
 			try
-				_aList_ = @dir(cFolderPath)
+				_aList_ = @dir(_cFolderPath_)
 			catch
 				return ""
 			end
 			
-			nCount = 0
-			nLen = len(_aList_)
+			_nCount_ = 0
+			_nLen_ = len(_aList_)
 
-			for i = 1 to nLen
+			for i = 1 to _nLen_
 				if _aList_[i][1] != "." and _aList_[i][1] != ".."
-					nCount++
+					_nCount_++
 				end
 			next
 			
-			if nCount > 0
-				return "" + nCount
+			if _nCount_ > 0
+				return "" + _nCount_
 			else
 				return ""
 			ok
@@ -4763,111 +4763,111 @@ class stzFolder from stzObject
 		else
 			# Use pattern for custom display
 
-			return This.FormatStatsForFolder(cFolderName, @cDisplayStatPattern)
+			return This.FormatStatsForFolder(_cFolderName_, @cDisplayStatPattern)
 		ok
 
 
-	def FormatStatsForFolder(cFolderName, cPattern)
+	def FormatStatsForFolder(_cFolderName_, _cPattern_)
 
 		# Format stats for a specific folder
 
-		cResult = cPattern
-		cFolderPath = @cCurrentPath + This.Separator() + cFolderName
+		_cResult_ = _cPattern_
+		_cFolderPath_ = @cCurrentPath + This.Separator() + _cFolderName_
 		
 		# Get actual counts for this folder
 
-		nFiles = This.CountFilesIn(cFolderPath)
-		nFolders = This.CountFoldersIn(cFolderPath)
-		nDeepFiles = This.DeepCountFilesIn(cFolderPath)
-		nDeepFolders = This.DeepCountFoldersIn(cFolderPath)
+		_nFiles_ = This.CountFilesIn(_cFolderPath_)
+		_nFolders_ = This.CountFoldersIn(_cFolderPath_)
+		_nDeepFiles_ = This.DeepCountFilesIn(_cFolderPath_)
+		_nDeepFolders_ = This.DeepCountFoldersIn(_cFolderPath_)
 		
 		# Replace patterns
 
-		if StzFindFirst(cResult, "@countfiles") or StzFindFirst(cResult, "@countfiles")
-			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
-			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
+		if StzFindFirst(_cResult_, "@countfiles") or StzFindFirst(_cResult_, "@countfiles")
+			_cResult_ = StzReplace(_cResult_, "@countfiles", "" + _nFiles_)
+			_cResult_ = StzReplace(_cResult_, "@countfiles", "" + _nFiles_)
 		ok
 
-		if StzFindFirst(cResult, "@deepcountfiles")
-			cResult = StzReplace(cResult, "@deepcountfiles", "" + nDeepFiles)
+		if StzFindFirst(_cResult_, "@deepcountfiles")
+			_cResult_ = StzReplace(_cResult_, "@deepcountfiles", "" + _nDeepFiles_)
 		ok
 
-		if StzFindFirst(cResult, "@countfolders") or StzFindFirst(cResult, "@countfolders")
-			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
-			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
+		if StzFindFirst(_cResult_, "@countfolders") or StzFindFirst(_cResult_, "@countfolders")
+			_cResult_ = StzReplace(_cResult_, "@countfolders", "" + _nFolders_)
+			_cResult_ = StzReplace(_cResult_, "@countfolders", "" + _nFolders_)
 		ok
 
-		if StzFindFirst(cResult, "@deepcountfolders")
-			cResult = StzReplace(cResult, "@deepcountfolders", "" + nDeepFolders)
+		if StzFindFirst(_cResult_, "@deepcountfolders")
+			_cResult_ = StzReplace(_cResult_, "@deepcountfolders", "" + _nDeepFolders_)
 		ok
 		
-		return cResult
+		return _cResult_
 
-	def CountFileMatchesRecursive(cPath, cPattern)
+	def CountFileMatchesRecursive(_cPath_, _cPattern_)
 
-		nCount = 0
+		_nCount_ = 0
 		try
-			aList = @dir(cPath)
+			_aList_ = @dir(_cPath_)
 		catch
 			return 0
 		end
 
-		nLen = len(aList)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 0
-				if This.Matches(cPattern, aList[i][1])
-					nCount++
+			if _aList_[i][2] = 0
+				if This.Matches(_cPattern_, _aList_[i][1])
+					_nCount_++
 				end
 
-			but aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
-				nCount += This.CountFileMatchesRecursive(cPath + This.Separator() + aList[i][1], cPattern)
+			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
+				_nCount_ += This.CountFileMatchesRecursive(_cPath_ + This.Separator() + _aList_[i][1], _cPattern_)
 			end
 
 		next
 
-		return nCount
+		return _nCount_
 
-	def CountFolderMatchesRecursive(cPath, cPattern)
-		nCount = 0
+	def CountFolderMatchesRecursive(_cPath_, _cPattern_)
+		_nCount_ = 0
 
 		try
-			aList = @dir(cPath)
+			_aList_ = @dir(_cPath_)
 		catch
 			return 0
 		end
 
-		nLen = len(aList)
+		_nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
+			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 
-				if This.Matches(cPattern, aList[i][1])
-					nCount++
+				if This.Matches(_cPattern_, _aList_[i][1])
+					_nCount_++
 				end
 
-				nCount += This.CountFolderMatchesRecursive(cPath + This.Separator() + aList[i][1], cPattern)
+				_nCount_ += This.CountFolderMatchesRecursive(_cPath_ + This.Separator() + _aList_[i][1], _cPattern_)
 			end
 
 		next
 
-		return nCount
+		return _nCount_
 
-	def ShouldExpandFolder(cFolderName)
+	def ShouldExpandFolder(_cFolderName_)
 
 		if @bCollapseAll
 			return 0
 		end
 
-		cFolderName = This.NormalizeFolderPath(cFolderName)
+		_cFolderName_ = This.NormalizeFolderPath(_cFolderName_)
 
 		# If DeepExpandAll is enabled, expand all non-empty folders
 
 		if @bDeepExpandAll
 
-			if This.IsFolderEmpty(cFolderName)
+			if This.IsFolderEmpty(_cFolderName_)
 				return 0
 			else
 				return 1
@@ -4877,14 +4877,14 @@ class stzFolder from stzObject
 
 		if @bExpand
 
-			nLen = len(@acCollapseFolders)
-			for i = 1 to nLen
-				if This.Matches(@acCollapseFolders[i], cFolderName)
+			_nLen_ = len(@acCollapseFolders)
+			for i = 1 to _nLen_
+				if This.Matches(@acCollapseFolders[i], _cFolderName_)
 					return 0
 				end
 			next
 
-			if This.IsFolderEmpty(cFolderName)
+			if This.IsFolderEmpty(_cFolderName_)
 				return 0
 			else
 				return 1
@@ -4892,9 +4892,9 @@ class stzFolder from stzObject
 
 		end
 
-		nLen = len(@acExpandFolders)
-		for i = 1 to nLen 
-			if This.Matches(@acExpandFolders[i], cFolderName)
+		_nLen_ = len(@acExpandFolders)
+		for i = 1 to _nLen_ 
+			if This.Matches(@acExpandFolders[i], _cFolderName_)
 				return 1
 			end
 		next
@@ -4902,166 +4902,166 @@ class stzFolder from stzObject
 		return 0
 
 
-	def GetFolderIconForExpanded(bSubfolderHasMatches, bIsEmpty)
+	def GetFolderIconForExpanded(_bSubfolderHasMatches_, _bIsEmpty_)
 
-		if bSubfolderHasMatches
+		if _bSubfolderHasMatches_
 			return @acDisplayChars[:FolderOpenedFound]
 		else
 			return @acDisplayChars[:FolderOpened]
 		end
 
-	def GetFolderIconForCollapsed(bIsEmpty)
-		if bIsEmpty
+	def GetFolderIconForCollapsed(_bIsEmpty_)
+		if _bIsEmpty_
 			return @acDisplayChars[:FolderClosedEmpty]
 		else
 			return @acDisplayChars[:FolderClosedFull]
 		end
 
-	def ChooseFolderIcon(bShouldExpand, bSubfolderHasMatches, bIsEmpty)
-		if bShouldExpand
-			return This.GetFolderIconForExpanded(bSubfolderHasMatches, bIsEmpty)
+	def ChooseFolderIcon(_bShouldExpand_, _bSubfolderHasMatches_, _bIsEmpty_)
+		if _bShouldExpand_
+			return This.GetFolderIconForExpanded(_bSubfolderHasMatches_, _bIsEmpty_)
 		else
-			return This.GetFolderIconForCollapsed(bIsEmpty)
+			return This.GetFolderIconForCollapsed(_bIsEmpty_)
 		end
 
-	def GenerateVizTreeString(cPath, cPrefix, bIsRoot, cPattern, cSearchType, nCurrentLevel, nMaxLevels)
+	def GenerateVizTreeString(_cPath_, _cPrefix_, bIsRoot, _cPattern_, cSearchType, nCurrentLevel, nMaxLevels)
 	    if nCurrentLevel >= nMaxLevels
 	        return ""
 	    end
 	    
-	    cResult = ""
-	    _aList_ = @dir(cPath)
+	    _cResult_ = ""
+	    _aList_ = @dir(_cPath_)
 
 	    
 	    # Separate files and folders
-	    aFiles = []
-	    aFolders = []
-	    nLen = len(_aList_)
+	    _aFiles_ = []
+	    _aFolders_ = []
+	    _nLen_ = len(_aList_)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
 	        if _aList_[i][2] = 0  # File
-	            aFiles + _aList_[i][1]
+	            _aFiles_ + _aList_[i][1]
 
 	        but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # Folder
-	            aFolders + _aList_[i][1]
+	            _aFolders_ + _aList_[i][1]
 	        end
 
 	    next
 	    
 	    # Apply sorting based on display order
-	    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
-	    nTotalItems = len(aItems)
+	    _aItems_ = This.SortItemsByDisplayOrder(_aFiles_, _aFolders_, _cPath_)
+	    _nTotalItems_ = len(_aItems_)
 	    
 	    # Display items in sorted order
-	    for i = 1 to nTotalItems
-	        aItem = aItems[i]
-	        cItemName = aItem[1]
-	        cItemType = aItem[2]  # "file" or "folder"
-	        bIsLastItem = (i = nTotalItems)
+	    for i = 1 to _nTotalItems_
+	        _aItem_ = _aItems_[i]
+	        _cItemName_ = _aItem_[1]
+	        _cItemType_ = _aItem_[2]  # "file" or "folder"
+	        _bIsLastItem_ = (i = _nTotalItems_)
 	        
-	        if cItemType = "file"
+	        if _cItemType_ = "file"
 	            # Check if file matches the search pattern
-	            bFileMatches = 0
+	            _bFileMatches_ = 0
 	            if cSearchType = "files" or cSearchType = "both"
-	                bFileMatches = This.Matches(cPattern, cItemName)
+	                _bFileMatches_ = This.Matches(_cPattern_, _cItemName_)
 	            end
 	            
 	            # Show ALL files in expanded folders
-	            cIcon = @acDisplayChars[:File]  # Default file icon
+	            _cIcon_ = @acDisplayChars[:File]  # Default file icon
 	            
 	            # Add found indicator if file matches
-	            if bFileMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets the found-file marker
+	            if _bFileMatches_
+	                _cIcon_ += @acDisplayChars[:FileFoundSymbol]  # Found file gets the found-file marker
 	            end
 	            
 	            # Use correct connector based on position
-	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + nl
+	            if _bIsLastItem_
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + nl
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + nl
 	            end
 	            
 	        else  # folder
-	            cItemPath = cPath + This.Separator() + cItemName
-	            oSubFolder = new stzFolder(cItemPath)
+	            _cItemPath_ = _cPath_ + This.Separator() + _cItemName_
+	            _oSubFolder_ = new stzFolder(_cItemPath_)
 	            
 	            # Check if folder matches the search pattern
-	            bFolderMatches = 0
+	            _bFolderMatches_ = 0
 	            if cSearchType = "folders" or cSearchType = "both"
-	                bFolderMatches = This.Matches(cPattern, cItemName)
+	                _bFolderMatches_ = This.Matches(_cPattern_, _cItemName_)
 	            end
 	            
 	            # Check if subfolder contains matches
-	            nSubfolderFileMatches = 0
-	            nSubfolderFolderMatches = 0
-	            bSubfolderHasMatches = 0
+	            _nSubfolderFileMatches_ = 0
+	            _nSubfolderFolderMatches_ = 0
+	            _bSubfolderHasMatches_ = 0
 	            
 	            if cSearchType = "files" or cSearchType = "both"
-	                nSubfolderFileMatches = This.CountFileMatchesRecursive(cItemPath, cPattern)
-	                if nSubfolderFileMatches > 0
-	                    bSubfolderHasMatches = 1
+	                _nSubfolderFileMatches_ = This.CountFileMatchesRecursive(_cItemPath_, _cPattern_)
+	                if _nSubfolderFileMatches_ > 0
+	                    _bSubfolderHasMatches_ = 1
 	                end
 	            end
 	            
 	            if cSearchType = "folders" or cSearchType = "both"
-	                nSubfolderFolderMatches = This.CountFolderMatchesRecursive(cItemPath, cPattern)
-	                if nSubfolderFolderMatches > 0
-	                    bSubfolderHasMatches = 1
+	                _nSubfolderFolderMatches_ = This.CountFolderMatchesRecursive(_cItemPath_, _cPattern_)
+	                if _nSubfolderFolderMatches_ > 0
+	                    _bSubfolderHasMatches_ = 1
 	                end
 	            end
 	            
 	            # Use ShouldExpandFolder for normal display, OR expand if has search matches
-	            bShouldExpand = This.ShouldExpandFolder(cItemName) or bSubfolderHasMatches or This.ShouldDeepExpandFolder(cItemPath)
+	            _bShouldExpand_ = This.ShouldExpandFolder(_cItemName_) or _bSubfolderHasMatches_ or This.ShouldDeepExpandFolder(_cItemPath_)
 	            
-	            bHasFiles = oSubFolder.CountFiles() > 0
-	            bHasFolders = oSubFolder.CountFolders() > 0
-	            bIsEmpty = (not bHasFiles and not bHasFolders)
+	            _bHasFiles_ = _oSubFolder_.CountFiles() > 0
+	            _bHasFolders_ = _oSubFolder_.CountFolders() > 0
+	            _bIsEmpty_ = (not _bHasFiles_ and not _bHasFolders_)
 	            
 	            # Choose correct folder icon using dedicated method
-	            cIcon = This.ChooseFolderIcon(bShouldExpand, bSubfolderHasMatches, bIsEmpty)
+	            _cIcon_ = This.ChooseFolderIcon(_bShouldExpand_, _bSubfolderHasMatches_, _bIsEmpty_)
 	            
 	            # Add found indicator if folder itself matches
-	            if bFolderMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]
+	            if _bFolderMatches_
+	                _cIcon_ += @acDisplayChars[:FileFoundSymbol]
 	            end
 	            
 	            # Build match count display (only for folders with matches)
-	            cMatchCount = ""
-	            nTotalMatches = nSubfolderFileMatches + nSubfolderFolderMatches
-	            if nTotalMatches > 0
-	                cMatchCount = " (" + nTotalMatches + ")"
+	            _cMatchCount_ = ""
+	            _nTotalMatches_ = _nSubfolderFileMatches_ + _nSubfolderFolderMatches_
+	            if _nTotalMatches_ > 0
+	                _cMatchCount_ = " (" + _nTotalMatches_ + ")"
 	            end
 	            
 	            # Add stats for ShowXT mode for non-empty folders
-	            cFolderStats = ""
-	            if cSearchType = "showxt" and not bIsEmpty
-	                cStats = trim(This.FormatStats(oSubFolder, cPattern))
-	                if cStats != ""
-	                    cFolderStats = " " + cStats
+	            _cFolderStats_ = ""
+	            if cSearchType = "showxt" and not _bIsEmpty_
+	                _cStats_ = trim(This.FormatStats(_oSubFolder_, _cPattern_))
+	                if _cStats_ != ""
+	                    _cFolderStats_ = " " + _cStats_
 	                end
 	            end
 	            
 	            # Build the line - use correct connector based on position
-	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
-	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
+	            if _bIsLastItem_
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + nl
+	                _cNewPrefix_ = _cPrefix_ + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
-	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + nl
+	                _cNewPrefix_ = _cPrefix_ + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            
 	            # Recurse into subfolder if should be expanded
-	            if bShouldExpand and nCurrentLevel + 1 < nMaxLevels
-	                cResult += This.GenerateVizTreeString(cItemPath, cNewPrefix, 0, cPattern, cSearchType, nCurrentLevel + 1, nMaxLevels)
+	            if _bShouldExpand_ and nCurrentLevel + 1 < nMaxLevels
+	                _cResult_ += This.GenerateVizTreeString(_cItemPath_, _cNewPrefix_, 0, _cPattern_, cSearchType, nCurrentLevel + 1, nMaxLevels)
 	            end
 	        end
 	    next
 	    
-	    return cResult
+	    return _cResult_
 
 
-	def ShouldDeepExpandFolder(cFolderPath)
+	def ShouldDeepExpandFolder(_cFolderPath_)
 
 		# If DeepExpandAll is enabled, expand all folders
 		if @bDeepExpandAll
@@ -5072,11 +5072,11 @@ class stzFolder from stzObject
 			return 0
 		end
 		
-		nLen = len(@acDeepExpandFolders)
+		_nLen_ = len(@acDeepExpandFolders)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			# Check if current folder is under a deep expand folder
-			if This.IsSubfolderOf(cFolderPath, @acDeepExpandFolders[i])
+			if This.IsSubfolderOf(_cFolderPath_, @acDeepExpandFolders[i])
 				return 1
 			end
 		next

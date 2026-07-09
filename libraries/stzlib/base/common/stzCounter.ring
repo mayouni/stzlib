@@ -7,8 +7,8 @@ func IsCounterNamedParamList(paParams)
 	# (the init() method honours it at line 42 but the validator
 	# rejected it). Length cap was 4 but there are 5 valid keys;
 	# raised to 5.
-	nLen = len(paParams)
-	if nLen >= 1 and nLen <= 5 and
+	_nLen_ = len(paParams)
+	if _nLen_ >= 1 and _nLen_ <= 5 and
 	   IsHashList(paParams) and
 	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :WhenYouReach, :RestartAt, :Step ])
 
@@ -85,31 +85,31 @@ class stzCounter from stzObject
 	# over a billion-element cycle without materialising) can call
 	# the dedicated _Handle accessor below.
 
-	def Counting(nNumber)
-		_pHandle_ = This._CountingHandle(nNumber)
+	def Counting(_nNumber_)
+		_pHandle_ = This._CountingHandle(_nNumber_)
 		_anResult_ = StzEngineIntSeqToRingList(_pHandle_)
 		StzEngineIntSeqFree(_pHandle_)
 		return _anResult_
 
-		def CountingTo(nNumber)
-			return This.Counting(nNumber)
+		def CountingTo(_nNumber_)
+			return This.Counting(_nNumber_)
 
-		def Count(nNumber)
-			return This.Counting(nNumber)
+		def Count(_nNumber_)
+			return This.Counting(_nNumber_)
 
-		def CountTo(nNumber)
-			return This.Counting(nNumber)
+		def CountTo(_nNumber_)
+			return This.Counting(_nNumber_)
 
 	# Internal: build the engine-side IntSeq and return its handle.
 	# Caller is responsible for either materialising via
 	# StzEngineIntSeqToRingList + StzEngineIntSeqFree, OR wrapping
 	# in stzIntSeq which owns the handle and frees it on Release().
 
-	def _CountingHandle(nNumber)
-		if isList(nNumber) and Q(nNumber).IsToNamedParam()
-			nNumber = nNumber[2]
+	def _CountingHandle(_nNumber_)
+		if isList(_nNumber_) and Q(_nNumber_).IsToNamedParam()
+			_nNumber_ = _nNumber_[2]
 		ok
-		if NOT isNumber(nNumber)
+		if NOT isNumber(_nNumber_)
 			StzRaise("Counting: nNumber must be a number.")
 		ok
 
@@ -124,7 +124,7 @@ class stzCounter from stzObject
 		ok
 
 		return StzEngineIntSeqCreateCycle(
-			@nStartAt, @nStep, _nCycleParam_, @nRestartAt, nNumber, _nMode_
+			@nStartAt, @nStep, _nCycleParam_, @nRestartAt, _nNumber_, _nMode_
 		)
 
 	# CountingQ: returns a live stzIntSeq wrapping the engine handle.
@@ -133,35 +133,35 @@ class stzCounter from stzObject
 	# convention for "give me the wrapping object", same as
 	# StzStringQ etc. -- it is NOT engine-flavoured naming.
 
-	def CountingQ(nNumber)
-		return new stzIntSeq( This._CountingHandle(nNumber) )
+	def CountingQ(_nNumber_)
+		return new stzIntSeq( This._CountingHandle(_nNumber_) )
 
-		def CountQ(nNumber)
-			return This.CountingQ(nNumber)
+		def CountQ(_nNumber_)
+			return This.CountingQ(_nNumber_)
 
-		def CountToQ(nNumber)
-			return This.CountingQ(nNumber)
+		def CountToQ(_nNumber_)
+			return This.CountingQ(_nNumber_)
 
-		def CountingToQ(nNumber)
-			return This.CountingQ(nNumber)
+		def CountingToQ(_nNumber_)
+			return This.CountingQ(_nNumber_)
 
-	def CountingXT(nNumber, paReturnNth)
+	def CountingXT(_nNumber_, paReturnNth)
 		/* Example
-		o1 = new stzCounter([
+		_o1_ = new stzCounter([
 			:StartAt = 1,
 			:WhenYouReach = 5,
 			:RestartAt = 1
 		])
 
-		? o1.CountToXT(9, :ReturnNth = 7)
+		? _o1_.CountToXT(9, :ReturnNth = 7)
 		#--> 2
 		*/
 
-		if isList(nNumber) and Q(nNumber).IsToNamedParam()
-			nNumber = nNumber[2]
+		if isList(_nNumber_) and Q(_nNumber_).IsToNamedParam()
+			_nNumber_ = _nNumber_[2]
 		ok
 
-		if NOT isNumber(nNumber)
+		if NOT isNumber(_nNumber_)
 			StzRaise("Incorrect param type! nNumber must be a number.")
 		ok
 
@@ -185,7 +185,7 @@ class stzCounter from stzObject
 				paReturnNth = 1
 
 			but paReturnNth = :Last
-				paReturnNth = nNumber
+				paReturnNth = _nNumber_
 			ok
 		ok
 
@@ -193,18 +193,18 @@ class stzCounter from stzObject
 			StzRaise("Incorrect param type! paReturnNth must be a non null number.")
 		ok
 
-		nResult = This.Counting(nNumber)[ paReturnNth ]
-		return nResult
+		_nResult_ = This.Counting(_nNumber_)[ paReturnNth ]
+		return _nResult_
 
 		#< @FunctionAlternativeForms
 
-		def CountingToXT(nNumber, paReturnNth)
-			return This.CountingXT(nNumber, paReturnNth)
+		def CountingToXT(_nNumber_, paReturnNth)
+			return This.CountingXT(_nNumber_, paReturnNth)
 
-		def CountXT(nNumber, paReturnNth)
-			return This.CountingXT(nNumber, paReturnNth)
+		def CountXT(_nNumber_, paReturnNth)
+			return This.CountingXT(_nNumber_, paReturnNth)
 
-		def CountToXT(nNumber, paReturnNth)
-			return This.CountingXT(nNumber, paReturnNth)
+		def CountToXT(_nNumber_, paReturnNth)
+			return This.CountingXT(_nNumber_, paReturnNth)
 
 		#>

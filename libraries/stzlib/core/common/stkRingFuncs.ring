@@ -114,8 +114,8 @@ func ring_sort(paList)
 		return ring_sort(paList)
 
 func ring_sort2(paList, n)
-	aResult = sort(paList, n)
-	return aResult
+	_aResult_ = sort(paList, n)
+	return _aResult_
 
 	func ring_sortXT(paList, n)
 		return sort(paList, n)
@@ -224,14 +224,14 @@ func ring_substr(paParams)
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	nLen = len(paParams)
+	_nLen_ = len(paParams)
 	if n < 2 or n > 3
 		raise("ERR-" + StkError(:IncorrectNumberOfParams))
 	ok
 
-	if nLen = 2
+	if _nLen_ = 2
 		return ring_substr1(paParams[1], paParams[2])
-	but nLen = 3
+	but _nLen_ = 3
 		return ring_substr2(paParams[1], paParams[2], paParams[2])
 	ok
 

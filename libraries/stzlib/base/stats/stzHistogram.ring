@@ -87,11 +87,11 @@ class stzHistogram from stzObject
 		ok
 		
 		# Calculate bin width
-		nRange = @nMaxValue - @nMinValue
-		if nRange = 0
+		_nRange_ = @nMaxValue - @nMinValue
+		if _nRange_ = 0
 			@nBinRange = 1
 		else
-			@nBinRange = nRange / @nBinCount
+			@nBinRange = _nRange_ / @nBinCount
 		ok
 
 		# Create bin ranges
@@ -99,35 +99,35 @@ class stzHistogram from stzObject
 		@aBinLabels = []
 		
 		for i = 1 to @nBinCount
-			nBinMin = @nMinValue + (i-1) * @nBinRange
-			nBinMax = @nMinValue + i * @nBinRange
+			_nBinMin_ = @nMinValue + (i-1) * @nBinRange
+			_nBinMax_ = @nMinValue + i * @nBinRange
 			
 			# Last bin includes the maximum value
 			if i = @nBinCount
-				nBinMax = @nMaxValue
+				_nBinMax_ = @nMaxValue
 			ok
 			
-			@aBinRanges + [nBinMin, nBinMax]
+			@aBinRanges + [_nBinMin_, _nBinMax_]
 			
 			# Create labels
-			cLabel = _formatNumber(nBinMin) + "-" + _formatNumber(nBinMax)
-			cLabel = StzNumberQ(nBinMin).CompactForm() + "-" + StzNumberQ(nBinMax).ToCompactForm()
-			@aBinLabels + cLabel
+			_cLabel_ = _formatNumber(_nBinMin_) + "-" + _formatNumber(_nBinMax_)
+			_cLabel_ = StzNumberQ(_nBinMin_).CompactForm() + "-" + StzNumberQ(_nBinMax_).ToCompactForm()
+			@aBinLabels + _cLabel_
 		next
 
 	def _findBinIndex(nValue)
-		nLen = len(@aBinRanges)
-		for i = 1 to nLen
-			nMin = @aBinRanges[i][1]
-			nMax = @aBinRanges[i][2]
+		_nLen_ = len(@aBinRanges)
+		for i = 1 to _nLen_
+			_nMin_ = @aBinRanges[i][1]
+			_nMax_ = @aBinRanges[i][2]
 			
 			# Last bin includes maximum value
-			if i = nLen
-				if nValue >= nMin and nValue <= nMax
+			if i = _nLen_
+				if nValue >= _nMin_ and nValue <= _nMax_
 					return i
 				ok
 			else
-				if nValue >= nMin and nValue < nMax
+				if nValue >= _nMin_ and nValue < _nMax_
 					return i
 				ok
 			ok
@@ -332,60 +332,60 @@ class stzHistogram from stzObject
 
 	# Statistical methods for histogram
 	def Mean()
-		nLen = len(@anRawData)
+		_nLen_ = len(@anRawData)
 
-		if nLen = 0
+		if _nLen_ = 0
 			return 0
 		ok
 
-		nSum = 0
+		_nSum_ = 0
 
-		for i = 1 to nLen
-			nSum += @anRawData[i]
+		for i = 1 to _nLen_
+			_nSum_ += @anRawData[i]
 		next
 
-		return nSum / nlen
+		return _nSum_ / _nLen_
 
 	def StandardDeviation()
-		nLen = len(@anRawData)
+		_nLen_ = len(@anRawData)
 
-		if nLen <= 1
+		if _nLen_ <= 1
 			return 0
 		ok
 		
-		nMean = This.Mean()
-		nSumSquares = 0
+		_nMean_ = This.Mean()
+		_nSumSquares_ = 0
 		
-		for i = 1 to nLen
-			nSumSquares += pow(@anRawData[i] - nMean, 2)
+		for i = 1 to _nLen_
+			_nSumSquares_ += pow(@anRawData[i] - _nMean_, 2)
 		next
 		
-		return sqrt(nSumSquares / (nLen - 1))
+		return sqrt(_nSumSquares_ / (_nLen_ - 1))
 
 	def Median()
-		nLen = len(@anRawData)
-		if nLen = 0
+		_nLen_ = len(@anRawData)
+		if _nLen_ = 0
 			return 0
 		ok
 		
-		aSorted = sort(@anRawData)
+		_aSorted_ = sort(@anRawData)
 		
-		if nLen % 2 = 1
-			return aSorted[ceil(nLen/2)]
+		if _nLen_ % 2 = 1
+			return _aSorted_[ceil(_nLen_/2)]
 
 		else
-			nMid1 = aSorted[nLen/2]
-			nMid2 = aSorted[nLen/2 + 1]
-			return (nMid1 + nMid2) / 2
+			_nMid1_ = _aSorted_[_nLen_/2]
+			_nMid2_ = _aSorted_[_nLen_/2 + 1]
+			return (_nMid1_ + _nMid2_) / 2
 		ok
 
 	def Mode()
 		# Find the bin with highest frequency
-		nMaxFreq = max(@aBinCounts)
-		nModeIndex = StzFindFirst(@aBinCounts, nMaxFreq)
+		_nMaxFreq_ = max(@aBinCounts)
+		_nModeIndex_ = StzFindFirst(@aBinCounts, _nMaxFreq_)
 		
-		if nModeIndex > 0
-			return @aBinRanges[nModeIndex]
+		if _nModeIndex_ > 0
+			return @aBinRanges[_nModeIndex_]
 		else
 			return [0, 0]
 		ok
@@ -426,34 +426,34 @@ class stzHistogram from stzObject
 		next
 
 		# Process each data point
-		nLen = len(@anRawData)
-		for i = 1 to nLen
+		_nLen_ = len(@anRawData)
+		for i = 1 to _nLen_
 
-			nBinIndex = _findBinIndex(@anRawData[i])
+			_nBinIndex_ = _findBinIndex(@anRawData[i])
 
-			if nBinIndex > 0
+			if _nBinIndex_ > 0
 
 				switch @cAggregationType
 				on "frequency"
-					@aBinCounts[nBinIndex]++
+					@aBinCounts[_nBinIndex_]++
 
 				on "sum"
-					@aBinCounts[nBinIndex] += @anRawData[i]
+					@aBinCounts[_nBinIndex_] += @anRawData[i]
 
 				on "average"
 					# Store sum first, calculate average later
-					@aBinCounts[nBinIndex] += @anRawData[i]
+					@aBinCounts[_nBinIndex_] += @anRawData[i]
 
 				on "min"
-					if @aBinCounts[nBinIndex] = 0
-						@aBinCounts[nBinIndex] = @anRawData[i]
+					if @aBinCounts[_nBinIndex_] = 0
+						@aBinCounts[_nBinIndex_] = @anRawData[i]
 
 					else
-						@aBinCounts[nBinIndex] = min([@aBinCounts[nBinIndex], @anRawData[i]])
+						@aBinCounts[_nBinIndex_] = min([@aBinCounts[_nBinIndex_], @anRawData[i]])
 					ok
 
 				on "max"
-					@aBinCounts[nBinIndex] = max([@aBinCounts[nBinIndex], @anRawData[i]])
+					@aBinCounts[_nBinIndex_] = max([@aBinCounts[_nBinIndex_], @anRawData[i]])
 
 				off
 			ok
@@ -462,9 +462,9 @@ class stzHistogram from stzObject
 		# Post-process for average
 		if @cAggregationType = "average"
 			for i = 1 to @nBinCount
-				nCount = _getFrequencyForBin(i)
-				if nCount > 0
-					@aBinCounts[i] = @aBinCounts[i] / nCount
+				_nCount_ = _getFrequencyForBin(i)
+				if _nCount_ > 0
+					@aBinCounts[i] = @aBinCounts[i] / _nCount_
 				else
 					@aBinCounts[i] = 0
 				ok
@@ -478,52 +478,52 @@ class stzHistogram from stzObject
 		@nMinValue = min(@aBinCounts)
 	
 	# Helper method to get frequency count for a bin (needed for average calculation)
-	def _getFrequencyForBin(nBinIndex)
+	def _getFrequencyForBin(_nBinIndex_)
 
-		nCount = 0
-		nLen = len(@anRawData)
+		_nCount_ = 0
+		_nLen_ = len(@anRawData)
 
-		for i = 1 to nLen
-			if _findBinIndex(@anRawData[i]) = nBinIndex
-				nCount++
+		for i = 1 to _nLen_
+			if _findBinIndex(@anRawData[i]) = _nBinIndex_
+				_nCount_++
 			ok
 		next
 
-		return nCount
+		return _nCount_
 
 	# Canvas management methods
 	def _initCanvas()
 		@acCanvas = []
 		for i = 1 to @nHeight
-			aRow = []
+			_aRow_ = []
 			for j = 1 to @nWidth
-				aRow + " "
+				_aRow_ + " "
 			next
-			@acCanvas + aRow
+			@acCanvas + _aRow_
 		next
 
 	def _finalizeCanvas()
-		cResult = ""
-		nLen = len(@acCanvas)
-		for i = 1 to nLen
-			cLine = ""
-			nLenCurrent = len(@acCanvas[i])
-			for j = 1 to nLenCurrent
-				cLine += @acCanvas[i][j]
+		_cResult_ = ""
+		_nLen_ = len(@acCanvas)
+		for i = 1 to _nLen_
+			_cLine_ = ""
+			_nLenCurrent_ = len(@acCanvas[i])
+			for j = 1 to _nLenCurrent_
+				_cLine_ += @acCanvas[i][j]
 			next
 			# Trim trailing spaces
-			while StzLen(cLine) > 0 and StzRight(cLine, 1) = " "
-				cLine = StzLeft(cLine, StzLen(cLine) - 1)
+			while StzLen(_cLine_) > 0 and StzRight(_cLine_, 1) = " "
+				_cLine_ = StzLeft(_cLine_, StzLen(_cLine_) - 1)
 			end
-			cResult += cLine + NL
+			_cResult_ += _cLine_ + NL
 		next
 		
 		# Remove final newline
-		if StzLen(cResult) > 0 and StzRight(cResult, 1) = NL
-			cResult = StzLeft(cResult, StzLen(cResult) - 1)
+		if StzLen(_cResult_) > 0 and StzRight(_cResult_, 1) = NL
+			_cResult_ = StzLeft(_cResult_, StzLen(_cResult_) - 1)
 		ok
 		
-		return cResult
+		return _cResult_
 	
 	#--- DISPLAY
 
@@ -533,55 +533,55 @@ class stzHistogram from stzObject
 	def ToString()
 		
 		# Use the same layout logic as bar chart
-		oLayout = _calculateLayout()
+		_oLayout_ = _calculateLayout()
 		
-		@nWidth = oLayout[:total_width]
-		@nHeight = oLayout[:chart_height]
+		@nWidth = _oLayout_[:total_width]
+		@nHeight = _oLayout_[:chart_height]
 		_initCanvas()
 		
 		# Draw components
 		if @bShowVAxis
-			_drawVAxis(oLayout)
+			_drawVAxis(_oLayout_)
 		ok
 		
 		if @bShowHAxis  
-			_drawHAxis(oLayout)
+			_drawHAxis(_oLayout_)
 		ok
 		
-		_drawBars(oLayout)
+		_drawBars(_oLayout_)
 	
 		if @bShowValues
-			_drawValues(oLayout)
+			_drawValues(_oLayout_)
 		but @bShowPercent
-			_drawPercent(oLayout)
+			_drawPercent(_oLayout_)
 		ok
 		
 		if @bShowLabels
-			_drawLabels(oLayout)
+			_drawLabels(_oLayout_)
 		ok
 		
-		cResult = _finalizeCanvas()
+		_cResult_ = _finalizeCanvas()
 
 		# A hack to remove an unnecessary empty line from the top
 		if @bShowHAxis = FALSE
 
-			oStrTemp = new stzString(cResult)
-			nPos = oStrTemp.FindFirst(NL)
-			oStrTemp.RemoveSection(1, nPos)
-			cResult = oStrTemp.Content()
+			_oStrTemp_ = new stzString(_cResult_)
+			_nPos_ = _oStrTemp_.FindFirst(NL)
+			_oStrTemp_.RemoveSection(1, _nPos_)
+			_cResult_ = _oStrTemp_.Content()
 		ok
 
 		# A hack to add an empty at the top of the H Axis
 
-		if ring_substr1(cResult, @cVArrowChar) > 0
+		if ring_substr1(_cResult_, @cVArrowChar) > 0
 
-			oStrTemp = new stzString(cResult)
-			nPos = oStrTemp.FindNth(1, NL)
-			bFirstLineIsEmpty = @trim(oStrTemp.Section(4, nPos-1)) = ""
+			_oStrTemp_ = new stzString(_cResult_)
+			_nPos_ = _oStrTemp_.FindNth(1, NL)
+			_bFirstLineIsEmpty_ = @trim(_oStrTemp_.Section(4, _nPos_-1)) = ""
 
-			if NOT bFirstLineIsEmpty # then add an empty line
-				cResult = StzReplace(cResult, @cVArrowChar, @cVAxisChar)
-				cResult = @cVArrowChar + NL + cResult
+			if NOT _bFirstLineIsEmpty_ # then add an empty line
+				_cResult_ = StzReplace(_cResult_, @cVArrowChar, @cVAxisChar)
+				_cResult_ = @cVArrowChar + NL + _cResult_
 			ok
 
 		ok
@@ -589,420 +589,420 @@ class stzHistogram from stzObject
 		# Add statistics if requested
 		if @bShowStats
 
-			cStats = NL + NL +
+			_cStats_ = NL + NL +
 				"Mean:   " + RoundN(This.Mean(), 2) + NL +
 			    "StdDev: " + RoundN(This.StandardDeviation(), 2) + NL +
 			    "Median: " + RoundN(This.Median(), 2) + NL +
 			    "Count:  " + This.DataCount()
 
-			cResult += cStats
+			_cResult_ += _cStats_
 		ok
 	
-		return cResult
+		return _cResult_
 
 	def _calculateLayout()
 		# Calculate layout for histogram display
-		nBars = len(@anValues)
-		oLayout = new stzHashList([])
+		_nBars_ = len(@anValues)
+		_oLayout_ = new stzHashList([])
 		
 		# First calculate all element widths
-		aElementWidths = []
-		nSum = This.DataCount()  # Total data points for percentage
+		_aElementWidths_ = []
+		_nSum_ = This.DataCount()  # Total data points for percentage
 		
-		for i = 1 to nBars
-		    nBarWidth = @nBarWidth
-		    nLabelWidth = 0
-		    nValueWidth = 0
+		for i = 1 to _nBars_
+		    _nBarWidth_ = @nBarWidth
+		    _nLabelWidth_ = 0
+		    _nValueWidth_ = 0
 		    
 		    if @bShowLabels and i <= len(@acLabels)
 		        # Calculate width for two-line labels (use the longer of the two values)
-		        cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
-		        cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-		        nLabelWidth = max([StzLen(cLabel1), StzLen(cLabel2)])
-		        if nLabelWidth > @nMaxLabelWidth
-		            nLabelWidth = @nMaxLabelWidth
+		        _cLabel1_ = "" + RoundN(@aBinRanges[i][1], 1)
+		        _cLabel2_ = "" + RoundN(@aBinRanges[i][2], 1)
+		        _nLabelWidth_ = max([StzLen(_cLabel1_), StzLen(_cLabel2_)])
+		        if _nLabelWidth_ > @nMaxLabelWidth
+		            _nLabelWidth_ = @nMaxLabelWidth
 		        ok
 		    ok
 		    
 		    if @bShowFrequency
-		        nValueWidth = StzLen("" + @anValues[i])
+		        _nValueWidth_ = StzLen("" + @anValues[i])
 		    but @bShowPercent
-		        cPercent = RoundN((@anValues[i]/nSum)*100, 1)
-		        nValueWidth = StzLen("" + cPercent + '%')
+		        _cPercent_ = RoundN((@anValues[i]/_nSum_)*100, 1)
+		        _nValueWidth_ = StzLen("" + _cPercent_ + '%')
 		    ok
 		    
 		    # Use bar width as minimum, but allow labels to determine spacing
-		    nElementWidth = max([nBarWidth, nLabelWidth, nValueWidth])
-		    aElementWidths + nElementWidth
+		    _nElementWidth_ = max([_nBarWidth_, _nLabelWidth_, _nValueWidth_])
+		    _aElementWidths_ + _nElementWidth_
 		next
 		
 		# Then calculate bar spacing using the calculated element widths
-		aBarSpacing = []
-		for i = 1 to nBars - 1
-		    aBarSpacing + (@nBarInterSpace + @nLabelInterSpace)
+		_aBarSpacing_ = []
+		for i = 1 to _nBars_ - 1
+		    _aBarSpacing_ + (@nBarInterSpace + @nLabelInterSpace)
 		next
 		
-		nBarsAreaWidth = 0
-		nLen = len(aElementWidths)
-		for i = 1 to nLen
-			nBarsAreaWidth += aElementWidths[i]
+		_nBarsAreaWidth_ = 0
+		_nLen_ = len(_aElementWidths_)
+		for i = 1 to _nLen_
+			_nBarsAreaWidth_ += _aElementWidths_[i]
 		next
 
-		nLen = len(aBarSpacing)
-		for i = 1 to nLen
-			nBarsAreaWidth += aBarSpacing[i]
+		_nLen_ = len(_aBarSpacing_)
+		for i = 1 to _nLen_
+			_nBarsAreaWidth_ += _aBarSpacing_[i]
 		next
 		
-		nVAxisStart = 1
-		nVAxisEnd = nVAxisStart + @nVAxisWidth - 1
+		_nVAxisStart_ = 1
+		_nVAxisEnd_ = _nVAxisStart_ + @nVAxisWidth - 1
 		
-		nBarsStart = nVAxisEnd + 1
+		_nBarsStart_ = _nVAxisEnd_ + 1
 		if @bShowVAxis
-			nBarsStart += @nAxisPadding
+			_nBarsStart_ += @nAxisPadding
 		ok
 		
-		nBarsEnd = nBarsStart + nBarsAreaWidth - 1
-		nHAxisStart = nVAxisStart
+		_nBarsEnd_ = _nBarsStart_ + _nBarsAreaWidth_ - 1
+		_nHAxisStart_ = _nVAxisStart_
 		if @bShowVAxis
-			nHAxisStart = nVAxisEnd + @nAxisPadding
+			_nHAxisStart_ = _nVAxisEnd_ + @nAxisPadding
 		ok
-		nHAxisEnd = nBarsEnd + @nAxisPadding
-		nTotalWidth = nHAxisEnd + 1
+		_nHAxisEnd_ = _nBarsEnd_ + @nAxisPadding
+		_nTotalWidth_ = _nHAxisEnd_ + 1
 		
-		if nTotalWidth > @nMaxWidth
-			StzRaise("Histogram width (" + nTotalWidth + ") exceeds maximum (" + @nMaxWidth + ")")
+		if _nTotalWidth_ > @nMaxWidth
+			StzRaise("Histogram width (" + _nTotalWidth_ + ") exceeds maximum (" + @nMaxWidth + ")")
 		ok
 		
 		# Estimate initial height for calculation
-		nEstimatedHeight = @nHeight
-		if nEstimatedHeight = 0
-			nEstimatedHeight = 20  # Default estimate
+		_nEstimatedHeight_ = @nHeight
+		if _nEstimatedHeight_ = 0
+			_nEstimatedHeight_ = 20  # Default estimate
 		ok
 		
 		# Calculate chart height based on requirements
 		if @bShowLabels
-			nChartHeight = nEstimatedHeight + 1  # Add one more row for two-line labels
-			nHAxisRow = nEstimatedHeight - 1
-			nLabelsRow = nEstimatedHeight + 1
+			_nChartHeight_ = _nEstimatedHeight_ + 1  # Add one more row for two-line labels
+			_nHAxisRow_ = _nEstimatedHeight_ - 1
+			_nLabelsRow_ = _nEstimatedHeight_ + 1
 		else
-			nChartHeight = nEstimatedHeight
-			nHAxisRow = nEstimatedHeight - 1  
-			nLabelsRow = nEstimatedHeight
+			_nChartHeight_ = _nEstimatedHeight_
+			_nHAxisRow_ = _nEstimatedHeight_ - 1  
+			_nLabelsRow_ = _nEstimatedHeight_
 		ok
 		
 		# Calculate bars area height
-		nBarsAreaHeight = nHAxisRow - 1
+		_nBarsAreaHeight_ = _nHAxisRow_ - 1
 		if @bShowValues or @bShowPercent
-			nBarsAreaHeight = nHAxisRow - 2
+			_nBarsAreaHeight_ = _nHAxisRow_ - 2
 		ok
 		
 		# Now calculate required height based on actual bar heights
-		nRequiredHeight = This._getRequiredHeight(nBarsAreaHeight)
+		_nRequiredHeight_ = This._getRequiredHeight(_nBarsAreaHeight_)
 		
 		# Recalculate final positions with correct height
 		if @bShowLabels
-			nChartHeight = nRequiredHeight + 1
-			nHAxisRow = nRequiredHeight - 1
-			nLabelsRow = nRequiredHeight + 1
+			_nChartHeight_ = _nRequiredHeight_ + 1
+			_nHAxisRow_ = _nRequiredHeight_ - 1
+			_nLabelsRow_ = _nRequiredHeight_ + 1
 		else
-			nChartHeight = nRequiredHeight
-			nHAxisRow = nRequiredHeight - 1
-			nLabelsRow = nRequiredHeight
+			_nChartHeight_ = _nRequiredHeight_
+			_nHAxisRow_ = _nRequiredHeight_ - 1
+			_nLabelsRow_ = _nRequiredHeight_
 		ok
 		
 		# Update @nHeight to match calculated height
-		@nHeight = nChartHeight
+		@nHeight = _nChartHeight_
 		
 		# Recalculate bars area height with final positions
-		nBarsAreaHeight = nHAxisRow - 1
+		_nBarsAreaHeight_ = _nHAxisRow_ - 1
 		if @bShowValues or @bShowPercent
-			nBarsAreaHeight = nHAxisRow - 2
+			_nBarsAreaHeight_ = _nHAxisRow_ - 2
 		ok
 		
-		oLayout.AddPair([:v_axis_col, nVAxisStart])
-		oLayout.AddPair([:bars_start_col, nBarsStart]) 
-		oLayout.AddPair([:bars_end_col, nBarsEnd])
-		oLayout.AddPair([:h_axis_start_col, nHAxisStart])
-		oLayout.AddPair([:h_axis_end_col, nHAxisEnd])
-		oLayout.AddPair([:h_axis_row, nHAxisRow])
-		oLayout.AddPair([:labels_row, nLabelsRow])
-		oLayout.AddPair([:chart_height, nChartHeight])
-		oLayout.AddPair([:bars_area_height, nBarsAreaHeight])
-		oLayout.AddPair([:total_width, nTotalWidth])
-		oLayout.AddPair([:element_widths, aElementWidths])
-		oLayout.AddPair([:bar_spacing, aBarSpacing])
+		_oLayout_.AddPair([:v_axis_col, _nVAxisStart_])
+		_oLayout_.AddPair([:bars_start_col, _nBarsStart_]) 
+		_oLayout_.AddPair([:bars_end_col, _nBarsEnd_])
+		_oLayout_.AddPair([:h_axis_start_col, _nHAxisStart_])
+		_oLayout_.AddPair([:h_axis_end_col, _nHAxisEnd_])
+		_oLayout_.AddPair([:h_axis_row, _nHAxisRow_])
+		_oLayout_.AddPair([:labels_row, _nLabelsRow_])
+		_oLayout_.AddPair([:chart_height, _nChartHeight_])
+		_oLayout_.AddPair([:bars_area_height, _nBarsAreaHeight_])
+		_oLayout_.AddPair([:total_width, _nTotalWidth_])
+		_oLayout_.AddPair([:element_widths, _aElementWidths_])
+		_oLayout_.AddPair([:bar_spacing, _aBarSpacing_])
 		
-		return oLayout
+		return _oLayout_
 
-	def _drawVAxis(oLayout)
-		nAxisCol = oLayout[:v_axis_col]
-		nAxisRow = oLayout[:h_axis_row]
+	def _drawVAxis(_oLayout_)
+		_nAxisCol_ = _oLayout_[:v_axis_col]
+		_nAxisRow_ = _oLayout_[:h_axis_row]
 		
 		# Draw axis from row 2 to avoid overwriting arrow
-		for i = 2 to nAxisRow - 1
-			@acCanvas[i][nAxisCol] = @cVAxisChar
+		for i = 2 to _nAxisRow_ - 1
+			@acCanvas[i][_nAxisCol_] = @cVAxisChar
 		next
 		
 		# Place arrow at the top (row 1)
-		@acCanvas[1][nAxisCol] = @cVArrowChar
+		@acCanvas[1][_nAxisCol_] = @cVArrowChar
 
-	def _drawHAxis(oLayout)
-		nAxisRow = oLayout[:h_axis_row]
-		nStartCol = oLayout[:h_axis_start_col]
-		nEndCol = oLayout[:h_axis_end_col]
-		nVAxisCol = oLayout[:v_axis_col]
+	def _drawHAxis(_oLayout_)
+		_nAxisRow_ = _oLayout_[:h_axis_row]
+		_nStartCol_ = _oLayout_[:h_axis_start_col]
+		_nEndCol_ = _oLayout_[:h_axis_end_col]
+		_nVAxisCol_ = _oLayout_[:v_axis_col]
 		
-		for i = nStartCol to nEndCol
-			@acCanvas[nAxisRow][i] = @cHAxisChar
+		for i = _nStartCol_ to _nEndCol_
+			@acCanvas[_nAxisRow_][i] = @cHAxisChar
 		next
 		
 		if @bShowVAxis
-			@acCanvas[nAxisRow][nVAxisCol] = @cOriginChar
+			@acCanvas[_nAxisRow_][_nVAxisCol_] = @cOriginChar
 		ok
 		
-		@acCanvas[nAxisRow][nEndCol] = @cHArrowChar
+		@acCanvas[_nAxisRow_][_nEndCol_] = @cHArrowChar
 
-	def _drawBars(oLayout)
+	def _drawBars(_oLayout_)
 		# Same logic as bar chart but with improved height calculation for histograms
-		nBars = len(@anValues)
-		nBarsStartCol = oLayout[:bars_start_col] 
-		nAxisRow = oLayout[:h_axis_row]
-		nBarsAreaHeight = oLayout[:bars_area_height]
-		aElementWidths = oLayout[:element_widths]
-		aBarSpacing = oLayout[:bar_spacing]
+		_nBars_ = len(@anValues)
+		_nBarsStartCol_ = _oLayout_[:bars_start_col] 
+		_nAxisRow_ = _oLayout_[:h_axis_row]
+		_nBarsAreaHeight_ = _oLayout_[:bars_area_height]
+		_aElementWidths_ = _oLayout_[:element_widths]
+		_aBarSpacing_ = _oLayout_[:bar_spacing]
 		
-		nCurrentX = nBarsStartCol
+		_nCurrentX_ = _nBarsStartCol_
 		
-		for i = 1 to nBars
-			nElementWidth = aElementWidths[i]
-			nVal = @anValues[i]  # This is frequency count
+		for i = 1 to _nBars_
+			_nElementWidth_ = _aElementWidths_[i]
+			_nVal_ = @anValues[i]  # This is frequency count
 			
 			# Improved height calculation for histograms
-			if nVal = 0
-				nBarHeight = 0
+			if _nVal_ = 0
+				_nBarHeight_ = 0
 			else
 				# Use 1:1 mapping if frequencies fit within available height
-				if @nMaxValue <= nBarsAreaHeight
-					nBarHeight = nVal  # Direct mapping: frequency 2 = height 2
+				if @nMaxValue <= _nBarsAreaHeight_
+					_nBarHeight_ = _nVal_  # Direct mapping: frequency 2 = height 2
 				else
 					# Only use proportional scaling when frequencies exceed available space
-					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					_nBarHeight_ = max([1, ceil(_nBarsAreaHeight_ * _nVal_ / @nMaxValue)])
 				ok
 			ok
 			
-			nBarStartX = nCurrentX + floor((nElementWidth - @nBarWidth) / 2)
+			_nBarStartX_ = _nCurrentX_ + floor((_nElementWidth_ - @nBarWidth) / 2)
 
-			if nBarHeight > 0
-				for j = 1 to nBarHeight
+			if _nBarHeight_ > 0
+				for j = 1 to _nBarHeight_
 					for k = 1 to @nBarWidth
-						nCol = nBarStartX + k - 1
-						nRow = nAxisRow - j
-						if nCol <= @nWidth and nRow >= 1
-							if j = nBarHeight and @cFinalBarChar != ""
-								@acCanvas[nRow][nCol] = @cFinalBarChar
+						_nCol_ = _nBarStartX_ + k - 1
+						_nRow_ = _nAxisRow_ - j
+						if _nCol_ <= @nWidth and _nRow_ >= 1
+							if j = _nBarHeight_ and @cFinalBarChar != ""
+								@acCanvas[_nRow_][_nCol_] = @cFinalBarChar
 							else
-								@acCanvas[nRow][nCol] = @cBarChar
+								@acCanvas[_nRow_][_nCol_] = @cBarChar
 							ok
 						ok
 					next
 				next
 			ok
 
-			if i < nBars
-				nCurrentX += nElementWidth + aBarSpacing[i]
+			if i < _nBars_
+				_nCurrentX_ += _nElementWidth_ + _aBarSpacing_[i]
 			ok
 		next
 
 	# Helper method to calculate actual required height
-	def _getRequiredHeight(nBarsAreaHeight)
-		nMaxBarHeight = 0
-		nLen = len(@anValues)
-		for i = 1 to nLen
-			nVal = @anValues[i]
-			if nVal > 0
-				if @nMaxValue <= nBarsAreaHeight
-					nBarHeight = nVal
+	def _getRequiredHeight(_nBarsAreaHeight_)
+		_nMaxBarHeight_ = 0
+		_nLen_ = len(@anValues)
+		for i = 1 to _nLen_
+			_nVal_ = @anValues[i]
+			if _nVal_ > 0
+				if @nMaxValue <= _nBarsAreaHeight_
+					_nBarHeight_ = _nVal_
 				else
-					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					_nBarHeight_ = max([1, ceil(_nBarsAreaHeight_ * _nVal_ / @nMaxValue)])
 				ok
-				nMaxBarHeight = max([nMaxBarHeight, nBarHeight])
+				_nMaxBarHeight_ = max([_nMaxBarHeight_, _nBarHeight_])
 			ok
 		next
 		
 		# Add space for values above bars + axis + labels
-		nRequiredHeight = nMaxBarHeight + 2  # +1 for values above, +1 for axis
+		_nRequiredHeight_ = _nMaxBarHeight_ + 2  # +1 for values above, +1 for axis
 		if @bShowLabels
-			nRequiredHeight += 2  # +2 for two-line labels
+			_nRequiredHeight_ += 2  # +2 for two-line labels
 		ok
 		
-		return nRequiredHeight
+		return _nRequiredHeight_
 
-	def _drawValues(oLayout)
-		nBars = len(@anValues)
-		nBarsStartCol = oLayout[:bars_start_col]
-		nAxisRow = oLayout[:h_axis_row] 
-		nBarsAreaHeight = oLayout[:bars_area_height]
-		aElementWidths = oLayout[:element_widths]
-		aBarSpacing = oLayout[:bar_spacing]
+	def _drawValues(_oLayout_)
+		_nBars_ = len(@anValues)
+		_nBarsStartCol_ = _oLayout_[:bars_start_col]
+		_nAxisRow_ = _oLayout_[:h_axis_row] 
+		_nBarsAreaHeight_ = _oLayout_[:bars_area_height]
+		_aElementWidths_ = _oLayout_[:element_widths]
+		_aBarSpacing_ = _oLayout_[:bar_spacing]
 		
-		nCurrentX = nBarsStartCol
+		_nCurrentX_ = _nBarsStartCol_
 		
-		for i = 1 to nBars
-			nElementWidth = aElementWidths[i]
-			nVal = @anValues[i]
+		for i = 1 to _nBars_
+			_nElementWidth_ = _aElementWidths_[i]
+			_nVal_ = @anValues[i]
 			
 			# Use same height calculation as bars
-			if nVal = 0
-				nBarHeight = 0
+			if _nVal_ = 0
+				_nBarHeight_ = 0
 			else
-				if @nMaxValue <= nBarsAreaHeight
-					nBarHeight = nVal
+				if @nMaxValue <= _nBarsAreaHeight_
+					_nBarHeight_ = _nVal_
 				else
-					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					_nBarHeight_ = max([1, ceil(_nBarsAreaHeight_ * _nVal_ / @nMaxValue)])
 				ok
 			ok
 			
 			# Position value above the bar (one row above)
-			nValueRow = nAxisRow - nBarHeight - 1
-			if nValueRow < 1
-				nValueRow = 1
+			_nValueRow_ = _nAxisRow_ - _nBarHeight_ - 1
+			if _nValueRow_ < 1
+				_nValueRow_ = 1
 			ok
 			
 			# Format value based on aggregation type
 			switch @cAggregationType
 			on "frequency"
-			    cValue = "" + nVal
+			    _cValue_ = "" + _nVal_
 			on "sum"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			    _nRounded_ = 0+ RoundN(_nVal_, 1)
+			    _cValue_ = iff(_nRounded_ = floor(_nRounded_), ('' + floor(_nRounded_)), ("" + _nRounded_))
 			on "average"
-			    nRounded = 0+ RoundN(nVal, 2)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			    _nRounded_ = 0+ RoundN(_nVal_, 2)
+			    _cValue_ = iff(_nRounded_ = floor(_nRounded_), ('' + floor(_nRounded_)), ("" + _nRounded_))
 			on "min"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			    _nRounded_ = 0+ RoundN(_nVal_, 1)
+			    _cValue_ = iff(_nRounded_ = floor(_nRounded_), ('' + floor(_nRounded_)), ("" + _nRounded_))
 			on "max"
-			    nRounded = 0+ RoundN(nVal, 1)
-			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
+			    _nRounded_ = 0+ RoundN(_nVal_, 1)
+			    _cValue_ = iff(_nRounded_ = floor(_nRounded_), ('' + floor(_nRounded_)), ("" + _nRounded_))
 			off
 			
-			nValueLen = StzLen(cValue)
-			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			_nValueLen_ = StzLen(_cValue_)
+			_nValueStartX_ = _nCurrentX_ + floor((_nElementWidth_ - _nValueLen_) / 2)
 			
-			for k = 1 to nValueLen
-				nCol = nValueStartX + k - 1
-				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
-					@acCanvas[nValueRow][nCol] = cValue[k]
+			for k = 1 to _nValueLen_
+				_nCol_ = _nValueStartX_ + k - 1
+				if _nCol_ <= @nWidth and _nCol_ >= 1 and _nValueRow_ >= 1
+					@acCanvas[_nValueRow_][_nCol_] = _cValue_[k]
 				ok
 			next
 			
-			if i < nBars
-				nCurrentX += nElementWidth + aBarSpacing[i]
+			if i < _nBars_
+				_nCurrentX_ += _nElementWidth_ + _aBarSpacing_[i]
 			ok
 		next
 
-	def _drawPercent(oLayout)
-		nBars = len(@anValues)
-		nBarsStartCol = oLayout[:bars_start_col]
-		nAxisRow = oLayout[:h_axis_row] 
-		nBarsAreaHeight = oLayout[:bars_area_height]
-		aElementWidths = oLayout[:element_widths]
-		aBarSpacing = oLayout[:bar_spacing]
+	def _drawPercent(_oLayout_)
+		_nBars_ = len(@anValues)
+		_nBarsStartCol_ = _oLayout_[:bars_start_col]
+		_nAxisRow_ = _oLayout_[:h_axis_row] 
+		_nBarsAreaHeight_ = _oLayout_[:bars_area_height]
+		_aElementWidths_ = _oLayout_[:element_widths]
+		_aBarSpacing_ = _oLayout_[:bar_spacing]
 		
-		nTotalCount = This.DataCount()
-		nCurrentX = nBarsStartCol
+		_nTotalCount_ = This.DataCount()
+		_nCurrentX_ = _nBarsStartCol_
 		
-		for i = 1 to nBars
-			nElementWidth = aElementWidths[i]
-			nVal = @anValues[i]
+		for i = 1 to _nBars_
+			_nElementWidth_ = _aElementWidths_[i]
+			_nVal_ = @anValues[i]
 			
 			# Use same height calculation as bars
-			if nVal = 0
-				nBarHeight = 0
+			if _nVal_ = 0
+				_nBarHeight_ = 0
 			else
-				if @nMaxValue <= nBarsAreaHeight
-					nBarHeight = nVal
+				if @nMaxValue <= _nBarsAreaHeight_
+					_nBarHeight_ = _nVal_
 				else
-					nBarHeight = max([1, ceil(nBarsAreaHeight * nVal / @nMaxValue)])
+					_nBarHeight_ = max([1, ceil(_nBarsAreaHeight_ * _nVal_ / @nMaxValue)])
 				ok
 			ok
 			
 			# Position percentage above the bar (one row above)
-			nValueRow = nAxisRow - nBarHeight - 1
-			if nValueRow < 1
-				nValueRow = 1
+			_nValueRow_ = _nAxisRow_ - _nBarHeight_ - 1
+			if _nValueRow_ < 1
+				_nValueRow_ = 1
 			ok
 			
 			# Calculate percentage based on frequency, not scaled bar height
-			nPercent = 0+ RoundN((nVal/nTotalCount)*100, 1)
-			if nPercent = floor(nPercent)
-			    cValue = "" + floor(nPercent) + '%'
+			_nPercent_ = 0+ RoundN((_nVal_/_nTotalCount_)*100, 1)
+			if _nPercent_ = floor(_nPercent_)
+			    _cValue_ = "" + floor(_nPercent_) + '%'
 			else
-			    cValue = "" + nPercent + '%'
+			    _cValue_ = "" + _nPercent_ + '%'
 			ok
 			
-			nValueLen = StzLen(cValue)
-			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
+			_nValueLen_ = StzLen(_cValue_)
+			_nValueStartX_ = _nCurrentX_ + floor((_nElementWidth_ - _nValueLen_) / 2)
 			
-			for k = 1 to nValueLen
-				nCol = nValueStartX + k - 1
-				if nCol <= @nWidth and nCol >= 1 and nValueRow >= 1
-					@acCanvas[nValueRow][nCol] = cValue[k]
+			for k = 1 to _nValueLen_
+				_nCol_ = _nValueStartX_ + k - 1
+				if _nCol_ <= @nWidth and _nCol_ >= 1 and _nValueRow_ >= 1
+					@acCanvas[_nValueRow_][_nCol_] = _cValue_[k]
 				ok
 			next
 			
-			if i < nBars
-				nCurrentX += nElementWidth + aBarSpacing[i]
+			if i < _nBars_
+				_nCurrentX_ += _nElementWidth_ + _aBarSpacing_[i]
 			ok
 		next
 
 
-	def _drawLabels(oLayout)
+	def _drawLabels(_oLayout_)
 		# Draw bin range labels in two rows
-		nBars = len(@anValues)
-		nBarsStartCol = oLayout[:bars_start_col]
-		nLabelsRow = oLayout[:labels_row]
-		aElementWidths = oLayout[:element_widths]
-		aBarSpacing = oLayout[:bar_spacing]
+		_nBars_ = len(@anValues)
+		_nBarsStartCol_ = _oLayout_[:bars_start_col]
+		_nLabelsRow_ = _oLayout_[:labels_row]
+		_aElementWidths_ = _oLayout_[:element_widths]
+		_aBarSpacing_ = _oLayout_[:bar_spacing]
 	
-		nCurrentX = nBarsStartCol
-		nLenCanvas = len(@acCanvas)
+		_nCurrentX_ = _nBarsStartCol_
+		_nLenCanvas_ = len(@acCanvas)
 	
-		for i = 1 to nBars
+		for i = 1 to _nBars_
 			if i <= len(@aBinRanges)
-				nElementWidth = aElementWidths[i]
+				_nElementWidth_ = _aElementWidths_[i]
 				
 				# First row: start values
 				//cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
-				cLabel1 = _formatNumber(@aBinRanges[i][1])
-				cLabel1 = StzNumberQ(@aBinRanges[i][1]).ToCompactForm()
-				nLenLabel1 = StzLen(cLabel1)
-				nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
+				_cLabel1_ = _formatNumber(@aBinRanges[i][1])
+				_cLabel1_ = StzNumberQ(@aBinRanges[i][1]).ToCompactForm()
+				_nLenLabel1_ = StzLen(_cLabel1_)
+				_nLabelStartX1_ = _nCurrentX_ + floor((_nElementWidth_ - _nLenLabel1_) / 2)
 	
-				for j = 1 to nLenLabel1
-					nCol = nLabelStartX1 + j - 1
-					if nCol <= @nWidth and (nLabelsRow - 1) <= nLenCanvas
-						@acCanvas[nLabelsRow - 1][nCol] = cLabel1[j]
+				for j = 1 to _nLenLabel1_
+					_nCol_ = _nLabelStartX1_ + j - 1
+					if _nCol_ <= @nWidth and (_nLabelsRow_ - 1) <= _nLenCanvas_
+						@acCanvas[_nLabelsRow_ - 1][_nCol_] = _cLabel1_[j]
 					ok
 				next
 	
 				# Second row: end values  
 				//cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-				cLabel2 = _formatNumber(@aBinRanges[i][2])
-				cLabel2 = StzNumberQ(@aBinRanges[i][2]).CompactForm()
-				nLenLabel2 = StzLen(cLabel2)
-				nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
+				_cLabel2_ = _formatNumber(@aBinRanges[i][2])
+				_cLabel2_ = StzNumberQ(@aBinRanges[i][2]).CompactForm()
+				_nLenLabel2_ = StzLen(_cLabel2_)
+				_nLabelStartX2_ = _nCurrentX_ + floor((_nElementWidth_ - _nLenLabel2_) / 2)
 	
-				for j = 1 to nLenLabel2
-					nCol = nLabelStartX2 + j - 1
-					if nCol <= @nWidth and nLabelsRow <= nLenCanvas
-						@acCanvas[nLabelsRow][nCol] = cLabel2[j]
+				for j = 1 to _nLenLabel2_
+					_nCol_ = _nLabelStartX2_ + j - 1
+					if _nCol_ <= @nWidth and _nLabelsRow_ <= _nLenCanvas_
+						@acCanvas[_nLabelsRow_][_nCol_] = _cLabel2_[j]
 					ok
 				next
 			ok
 	
-			if i < nBars
-				nCurrentX += aElementWidths[i] + aBarSpacing[i]
+			if i < _nBars_
+				_nCurrentX_ += _aElementWidths_[i] + _aBarSpacing_[i]
 			ok
 		next
 

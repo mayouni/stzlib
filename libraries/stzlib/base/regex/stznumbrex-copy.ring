@@ -1,13 +1,13 @@
 # Softanza Number Regex Engine
 
-func StzNumberRegexQ(cPattern)
-	return new stzNumberex(cPattern)
+func StzNumberRegexQ(_cPattern_)
+	return new stzNumberex(_cPattern_)
 
-func StzNumberexQ(cPattern)
-	return StzNumberRegexQ(cPattern)
+func StzNumberexQ(_cPattern_)
+	return StzNumberRegexQ(_cPattern_)
 
-func Nx(cPattern)
-	return StzNumberRegexQ(cPattern)
+func Nx(_cPattern_)
+	return StzNumberRegexQ(_cPattern_)
 
 class stzNumberex from stzObject
 
@@ -32,355 +32,355 @@ class stzNumberex from stzObject
 	 #  INITIALIZATION   #
 	#-------------------#
 
-	def init(cPattern)
-		if NOT isString(cPattern)
+	def init(_cPattern_)
+		if NOT isString(_cPattern_)
 			stzraise("Error: Pattern must be a string")
 		ok
 
-		@cPattern = This.NormalizePattern(cPattern)
+		@cPattern = This.NormalizePattern(_cPattern_)
 		@aTokens = This.ParsePattern(@cPattern)
 		This.OptimizeTokens()
 
-	def NormalizePattern(cPattern)
-		cPattern = @trim(cPattern)
+	def NormalizePattern(_cPattern_)
+		_cPattern_ = @trim(_cPattern_)
 		
 		# Ensure pattern is enclosed in brackets
-		if NOT (StartsWith(cPattern, "[") and EndsWith(cPattern, "]"))
-			cPattern = "[" + cPattern + "]"
+		if NOT (StartsWith(_cPattern_, "[") and EndsWith(_cPattern_, "]"))
+			_cPattern_ = "[" + _cPattern_ + "]"
 		ok
 		
-		return cPattern
+		return _cPattern_
 
-	def ParsePattern(cPattern)
+	def ParsePattern(_cPattern_)
 		# Remove outer brackets
-		cPattern = @trim(cPattern)
-		cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
-		cInner = @trim(cInner)
+		_cPattern_ = @trim(_cPattern_)
+		_cInner_ = @StzMid(_cPattern_, 2, len(_cPattern_) - 1)
+		_cInner_ = @trim(_cInner_)
 
 		# Split at commas
-		aParts = This.SplitAtCommas(cInner)
+		_aParts_ = This.SplitAtCommas(_cInner_)
 
 		# Parse each token
-		aTokens = []
-		nLen = len(aParts)
-		for i = 1 to nLen
-			aTokens + This.ParseToken(@trim(aParts[i]))
+		_aTokens_ = []
+		_nLen_ = len(_aParts_)
+		for i = 1 to _nLen_
+			_aTokens_ + This.ParseToken(@trim(_aParts_[i]))
 		next
 
-		return aTokens
+		return _aTokens_
 
 	def SplitAtCommas(cStr)
-		aParts = []
-		cCurrent = ""
-		acChars = Chars(cStr)
-		nLen = len(acChars)
+		_aParts_ = []
+		_cCurrent_ = ""
+		_acChars_ = Chars(cStr)
+		_nLen_ = len(_acChars_)
 		
-		for i = 1 to nLen
-			cChar = acChars[i]
+		for i = 1 to _nLen_
+			_cChar_ = _acChars_[i]
 			
-			if cChar = ","
-				aParts + @trim(cCurrent)
-				cCurrent = ""
+			if _cChar_ = ","
+				_aParts_ + @trim(_cCurrent_)
+				_cCurrent_ = ""
 			else
-				cCurrent += cChar
+				_cCurrent_ += _cChar_
 			ok
 		next
 		
-		if len(cCurrent) > 0
-			aParts + @trim(cCurrent)
+		if len(_cCurrent_) > 0
+			_aParts_ + @trim(_cCurrent_)
 		ok
 		
-		return aParts
+		return _aParts_
 
-	def ParseToken(cTokenStr)
+	def ParseToken(_cTokenStr_)
 		# Default values
-		bNegated = false
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		aConstraints = []
+		_bNegated_ = false
+		_nMin_ = 1
+		_nMax_ = 1
+		_nQuantifier_ = 1
+		_aConstraints_ = []
 	
 		# Check for negation
-		if StartsWith(cTokenStr, "@!")
-			bNegated = true
-			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
+		if StartsWith(_cTokenStr_, "@!")
+			_bNegated_ = true
+			_cTokenStr_ = @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
 		ok
 	
 		# Ensure token starts with @
-		if NOT StartsWith(cTokenStr, "@")
-			cTokenStr = "@" + cTokenStr
+		if NOT StartsWith(_cTokenStr_, "@")
+			_cTokenStr_ = "@" + _cTokenStr_
 		ok
 	
 		# Extract keyword (2-3 chars)
-		cKeyword = ""
-		cRemainder = ""
+		_cKeyword_ = ""
+		_cRemainder_ = ""
 		
-		if @StzMid(cTokenStr, 1, 4) = "@DIV"
-			cKeyword = "@DIV"
-			cRemainder = @StzMid(cTokenStr, 5, len(cTokenStr))
-		but @StzMid(cTokenStr, 1, 3) = "@PR"
-			cKeyword = "@PR"
-			cRemainder = @StzMid(cTokenStr, 4, len(cTokenStr))
+		if @StzMid(_cTokenStr_, 1, 4) = "@DIV"
+			_cKeyword_ = "@DIV"
+			_cRemainder_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
+		but @StzMid(_cTokenStr_, 1, 3) = "@PR"
+			_cKeyword_ = "@PR"
+			_cRemainder_ = @StzMid(_cTokenStr_, 4, len(_cTokenStr_))
 		else
-			cKeyword = @StzMid(cTokenStr, 1, 2)
-			cRemainder = @StzMid(cTokenStr, 3, len(cTokenStr))
+			_cKeyword_ = @StzMid(_cTokenStr_, 1, 2)
+			_cRemainder_ = @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
 		ok
 	
 		# Check if remainder has constraints (starts with parenthesis or brace)
-		bHasConstraints = false
-		if len(cRemainder) > 0
-			if cRemainder[1] = "(" or cRemainder[1] = "{"
-				bHasConstraints = true
+		_bHasConstraints_ = false
+		if len(_cRemainder_) > 0
+			if _cRemainder_[1] = "(" or _cRemainder_[1] = "{"
+				_bHasConstraints_ = true
 			ok
 		ok
 	
-		if bHasConstraints
+		if _bHasConstraints_
 			# Parse constraints AND quantifier after them
-			aResult = This.ParseConstraintsAndQuantifier(cRemainder, cKeyword)
-			aConstraints = aResult[1]
-			nMin = aResult[2]
-			nMax = aResult[3]
-			nQuantifier = aResult[4]
+			_aResult_ = This.ParseConstraintsAndQuantifier(_cRemainder_, _cKeyword_)
+			_aConstraints_ = _aResult_[1]
+			_nMin_ = _aResult_[2]
+			_nMax_ = _aResult_[3]
+			_nQuantifier_ = _aResult_[4]
 		else
 			# Parse quantifier directly (no constraints)
-			if len(cRemainder) > 0
-				aQuantInfo = This.ParseQuantifier(cRemainder)
-				nMin = aQuantInfo[1]
-				nMax = aQuantInfo[2]
-				nQuantifier = aQuantInfo[3]
+			if len(_cRemainder_) > 0
+				_aQuantInfo_ = This.ParseQuantifier(_cRemainder_)
+				_nMin_ = _aQuantInfo_[1]
+				_nMax_ = _aQuantInfo_[2]
+				_nQuantifier_ = _aQuantInfo_[3]
 			ok
 		ok
 	
 		# Build token
-		aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
+		_aToken_ = This.BuildToken(_cKeyword_, _nMin_, _nMax_, _nQuantifier_, _aConstraints_, _bNegated_)
 		
-		return aToken
+		return _aToken_
 	
 
 	def ParseQuantifier(cStr)
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		cRemainder = cStr
+		_nMin_ = 1
+		_nMax_ = 1
+		_nQuantifier_ = 1
+		_cRemainder_ = cStr
 	
 		# Check for +, *, ? FIRST
 		if len(cStr) > 0
 			if cStr[1] = "+"
-				nMin = 1
-				nMax = 999999999
-				cRemainder = @StzMid(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
+				_nMin_ = 1
+				_nMax_ = 999999999
+				_cRemainder_ = @StzMid(cStr, 2, len(cStr))
+				return [_nMin_, _nMax_, _nQuantifier_, _cRemainder_]
 	
 			but cStr[1] = "*"
-				nMin = 0
-				nMax = 999999999
-				cRemainder = @StzMid(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
+				_nMin_ = 0
+				_nMax_ = 999999999
+				_cRemainder_ = @StzMid(cStr, 2, len(cStr))
+				return [_nMin_, _nMax_, _nQuantifier_, _cRemainder_]
 	
 			but cStr[1] = "?"
-				nMin = 0
-				nMax = 1
-				cRemainder = @StzMid(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
+				_nMin_ = 0
+				_nMax_ = 1
+				_cRemainder_ = @StzMid(cStr, 2, len(cStr))
+				return [_nMin_, _nMax_, _nQuantifier_, _cRemainder_]
 			ok
 		ok
 	
 		# Check for section pattern WITHOUT parentheses (e.g., "2-5")
-		oSectionMatch = rx('^(\d+)-(\d+)')
-		if oSectionMatch.Match(cStr)
-			aMatches = @split(oSectionMatch.Matches()[1], "-")
-			nMin = 0+ aMatches[1]
-			nMax = 0+ aMatches[2]
+		_oSectionMatch_ = rx('^(\d+)-(\d+)')
+		if _oSectionMatch_.Match(cStr)
+			_aMatches_ = @split(_oSectionMatch_.Matches()[1], "-")
+			_nMin_ = 0+ _aMatches_[1]
+			_nMax_ = 0+ _aMatches_[2]
 			
-			if nMin > nMax
+			if _nMin_ > _nMax_
 				stzraise("Error: Invalid section - min > max")
 			ok
 			
-			nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
-			cRemainder = @StzMid(cStr, nMatchLen + 1, len(cStr))
-			return [nMin, nMax, nQuantifier, cRemainder]
+			_nMatchLen_ = len(_aMatches_[1]) + 1 + len(_aMatches_[2])
+			_cRemainder_ = @StzMid(cStr, _nMatchLen_ + 1, len(cStr))
+			return [_nMin_, _nMax_, _nQuantifier_, _cRemainder_]
 		ok
 	
 		# Check for single number (not in parentheses)
-		oNumberMatch = rx('^\d+')
-		if oNumberMatch.Match(cStr)
-			aMatches = oNumberMatch.Matches()
-			nQuantifier = 0+ aMatches[1]
-			nMin = nQuantifier
-			nMax = nQuantifier
-			cRemainder = @StzMid(cStr, len(aMatches[1]) + 1, len(cStr))
+		_oNumberMatch_ = rx('^\d+')
+		if _oNumberMatch_.Match(cStr)
+			_aMatches_ = _oNumberMatch_.Matches()
+			_nQuantifier_ = 0+ _aMatches_[1]
+			_nMin_ = _nQuantifier_
+			_nMax_ = _nQuantifier_
+			_cRemainder_ = @StzMid(cStr, len(_aMatches_[1]) + 1, len(cStr))
 		ok
 	
-		return [nMin, nMax, nQuantifier, cRemainder]
+		return [_nMin_, _nMax_, _nQuantifier_, _cRemainder_]
 
 
-	def ParseConstraints(cStr, cKeyword)
-		aConstraints = []
+	def ParseConstraints(cStr, _cKeyword_)
+		_aConstraints_ = []
 	
 		# Parse section constraints: (min..max)
-		oSectionMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-		if oSectionMatch.Match(cStr)
-			aMatches = oSectionMatch.Matches()
+		_oSectionMatch_ = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+		if _oSectionMatch_.Match(cStr)
+			_aMatches_ = _oSectionMatch_.Matches()
 			# Extract the content without parentheses and split on ".."
-			cSectionStr = aMatches[1]
-			cSectionContent = @StzMid(cSectionStr, 2, len(cSectionStr) - 1)  # Remove ( and )
-			aParts = @split(cSectionContent, "..")
-			aConstraints + ["section", [0+ aParts[1], 0+ aParts[2]]]
+			_cSectionStr_ = _aMatches_[1]
+			_cSectionContent_ = @StzMid(_cSectionStr_, 2, len(_cSectionStr_) - 1)  # Remove ( and )
+			_aParts_ = @split(_cSectionContent_, "..")
+			_aConstraints_ + ["section", [0+ _aParts_[1], 0+ _aParts_[2]]]
 		ok
 	
 		# Parse set constraints: {val1;val2;val3}
-		oSetMatch = rx('\{([^}]+)\}')
-		if oSetMatch.Match(cStr)
-			aMatches = oSetMatch.Matches()
+		_oSetMatch_ = rx('\{([^}]+)\}')
+		if _oSetMatch_.Match(cStr)
+			_aMatches_ = _oSetMatch_.Matches()
 			# Extract content without braces
-			cSetStr = aMatches[1]
-			cSetContent = StzMid(cSetStr, 2, len(cSetStr) - 2)  # Remove { and }
-			aParts = @split(cSetContent, ";")
+			_cSetStr_ = _aMatches_[1]
+			_cSetContent_ = StzMid(_cSetStr_, 2, len(_cSetStr_) - 2)  # Remove { and }
+			_aParts_ = @split(_cSetContent_, ";")
 			
-			aValues = []
-			nLen = len(aParts)
-			for i = 1 to nLen
-				cVal = @trim(aParts[i])
-				if len(cVal) > 0
-					aValues + (0+ cVal)
+			_aValues_ = []
+			_nLen_ = len(_aParts_)
+			for i = 1 to _nLen_
+				_cVal_ = @trim(_aParts_[i])
+				if len(_cVal_) > 0
+					_aValues_ + (0+ _cVal_)
 				ok
 			next
 			
-			aConstraints + ["set", aValues]
+			_aConstraints_ + ["set", _aValues_]
 		ok
 	
 		# Parse divisible constraint: @DIV(n)
-		if cKeyword = "@DIV"
-			oDivMatch = rx('\((\d+)\)')
-			if oDivMatch.Match(cStr)
-				aMatches = oDivMatch.Matches()
-				cDivStr = aMatches[1]
-				cDivNum = StzMid(cDivStr, 2, len(cDivStr) - 2)  # Remove ( and )
-				aConstraints + ["divisor", 0+ cDivNum]
+		if _cKeyword_ = "@DIV"
+			_oDivMatch_ = rx('\((\d+)\)')
+			if _oDivMatch_.Match(cStr)
+				_aMatches_ = _oDivMatch_.Matches()
+				_cDivStr_ = _aMatches_[1]
+				_cDivNum_ = StzMid(_cDivStr_, 2, len(_cDivStr_) - 2)  # Remove ( and )
+				_aConstraints_ + ["divisor", 0+ _cDivNum_]
 			ok
 		ok
 	
 		# Parse digit count: @D(n)
-		if cKeyword = "@D"
-			oDigitMatch = rx('\((\d+)\)')
-			if oDigitMatch.Match(cStr)
-				aMatches = oDigitMatch.Matches()
-				cDigitStr = aMatches[1]
-				cDigitNum = StzMid(cDigitStr, 2, len(cDigitStr) - 2)  # Remove ( and )
-				aConstraints + ["digits", 0+ cDigitNum]
+		if _cKeyword_ = "@D"
+			_oDigitMatch_ = rx('\((\d+)\)')
+			if _oDigitMatch_.Match(cStr)
+				_aMatches_ = _oDigitMatch_.Matches()
+				_cDigitStr_ = _aMatches_[1]
+				_cDigitNum_ = StzMid(_cDigitStr_, 2, len(_cDigitStr_) - 2)  # Remove ( and )
+				_aConstraints_ + ["digits", 0+ _cDigitNum_]
 			ok
 		ok
 	
-		return aConstraints
+		return _aConstraints_
 
 
-	def ParseConstraintsAndQuantifier(cStr, cKeyword)
-		aConstraints = []
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		cRemainder = cStr
+	def ParseConstraintsAndQuantifier(cStr, _cKeyword_)
+		_aConstraints_ = []
+		_nMin_ = 1
+		_nMax_ = 1
+		_nQuantifier_ = 1
+		_cRemainder_ = cStr
 	
 		# Parse constraints first
-		aConstraints = This.ParseConstraints(cStr, cKeyword)
+		_aConstraints_ = This.ParseConstraints(cStr, _cKeyword_)
 		
 		# Remove constraints from string in order
 		# 1. Remove @DIV(n) or @D(n) - simple single number in parens
-		if cKeyword = "@D" or cKeyword = "@DIV"
-			oSimpleMatch = rx('^\(\d+\)')
-			if oSimpleMatch.Match(cRemainder)
-				aMatches = oSimpleMatch.Matches()
-				cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+		if _cKeyword_ = "@D" or _cKeyword_ = "@DIV"
+			_oSimpleMatch_ = rx('^\(\d+\)')
+			if _oSimpleMatch_.Match(_cRemainder_)
+				_aMatches_ = _oSimpleMatch_.Matches()
+				_cRemainder_ = @StzMid(_cRemainder_, len(_aMatches_[1]) + 1, len(_cRemainder_))
 			ok
 		ok
 		
 		# 2. Remove section constraints: (min..max) 
-		oSectionMatch = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-		if oSectionMatch.Match(cRemainder)
-			aMatches = oSectionMatch.Matches()
-			cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+		_oSectionMatch_ = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+		if _oSectionMatch_.Match(_cRemainder_)
+			_aMatches_ = _oSectionMatch_.Matches()
+			_cRemainder_ = @StzMid(_cRemainder_, len(_aMatches_[1]) + 1, len(_cRemainder_))
 		ok
 		
 		# 3. Remove set constraints: {val1;val2;val3}
-		oSetMatch = rx('^\{([^}]+)\}')
-		if oSetMatch.Match(cRemainder)
-			aMatches = oSetMatch.Matches()
-			cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+		_oSetMatch_ = rx('^\{([^}]+)\}')
+		if _oSetMatch_.Match(_cRemainder_)
+			_aMatches_ = _oSetMatch_.Matches()
+			_cRemainder_ = @StzMid(_cRemainder_, len(_aMatches_[1]) + 1, len(_cRemainder_))
 		ok
 		
 		# Now parse quantifier from remainder
-		if len(cRemainder) > 0
-			aQuantInfo = This.ParseQuantifier(cRemainder)
-			nMin = aQuantInfo[1]
-			nMax = aQuantInfo[2]
-			nQuantifier = aQuantInfo[3]
+		if len(_cRemainder_) > 0
+			_aQuantInfo_ = This.ParseQuantifier(_cRemainder_)
+			_nMin_ = _aQuantInfo_[1]
+			_nMax_ = _aQuantInfo_[2]
+			_nQuantifier_ = _aQuantInfo_[3]
 		ok
 	
-		return [aConstraints, nMin, nMax, nQuantifier]
+		return [_aConstraints_, _nMin_, _nMax_, _nQuantifier_]
 	
 
 
-	def BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
-		aToken = [
-			["keyword", cKeyword],
-			["min", nMin],
-			["max", nMax],
-			["quantifier", nQuantifier],
-			["constraints", aConstraints],
-			["negated", bNegated]
+	def BuildToken(_cKeyword_, _nMin_, _nMax_, _nQuantifier_, _aConstraints_, _bNegated_)
+		_aToken_ = [
+			["keyword", _cKeyword_],
+			["min", _nMin_],
+			["max", _nMax_],
+			["quantifier", _nQuantifier_],
+			["constraints", _aConstraints_],
+			["negated", _bNegated_]
 		]
 
 		# Add type-specific info
-		switch cKeyword
+		switch _cKeyword_
 		on "@I"
-			aToken + ["type", "integer"]
+			_aToken_ + ["type", "integer"]
 		on "@R"
-			aToken + ["type", "real"]
+			_aToken_ + ["type", "real"]
 		on "@P"
-			aToken + ["type", "positive"]
+			_aToken_ + ["type", "positive"]
 		on "@N"
-			aToken + ["type", "negative"]
+			_aToken_ + ["type", "negative"]
 		on "@E"
-			aToken + ["type", "even"]
+			_aToken_ + ["type", "even"]
 		on "@O"
-			aToken + ["type", "odd"]
+			_aToken_ + ["type", "odd"]
 		on "@PR"
-			aToken + ["type", "prime"]
+			_aToken_ + ["type", "prime"]
 		on "@S"
-			aToken + ["type", "section"]
+			_aToken_ + ["type", "section"]
 		on "@$"
-			aToken + ["type", "any"]
+			_aToken_ + ["type", "any"]
 		on "@D"
-			aToken + ["type", "digits"]
+			_aToken_ + ["type", "digits"]
 		on "@DIV"
-			aToken + ["type", "divisible"]
+			_aToken_ + ["type", "divisible"]
 		off
 
-		return aToken
+		return _aToken_
 
 
 	def OptimizeTokens()
 		# Merge adjacent compatible tokens
-		nLen = len(@aTokens)
+		_nLen_ = len(@aTokens)
 		
-		if nLen <= 1
+		if _nLen_ <= 1
 			return
 		ok
 		
-		for i = nLen to 2 step -1
-			aToken1 = @aTokens[i-1]
-			aToken2 = @aTokens[i]
+		for i = _nLen_ to 2 step -1
+			_aToken1_ = @aTokens[i-1]
+			_aToken2_ = @aTokens[i]
 			
 			# Can merge if same type and no constraints
-			if aToken1[:keyword] = aToken2[:keyword] and
-			   len(aToken1[:constraints]) = 0 and
-			   len(aToken2[:constraints]) = 0
+			if _aToken1_[:keyword] = _aToken2_[:keyword] and
+			   len(_aToken1_[:constraints]) = 0 and
+			   len(_aToken2_[:constraints]) = 0
 				
-				nNewMin = @Min([aToken1[:min], aToken2[:min]])
-				nNewMax = aToken1[:max] + aToken2[:max]
+				_nNewMin_ = @Min([_aToken1_[:min], _aToken2_[:min]])
+				_nNewMax_ = _aToken1_[:max] + _aToken2_[:max]
 				
-				@aTokens[i-1][:min] = nNewMin
-				@aTokens[i-1][:max] = nNewMax
+				@aTokens[i-1][:min] = _nNewMin_
+				@aTokens[i-1][:max] = _nNewMax_
 				del(@aTokens, i)
 			ok
 		next
@@ -395,8 +395,8 @@ class stzNumberex from stzObject
 		ok
 
 		# Ensure all elements are numbers
-		nLen = len(paNumbers)
-		for i = 1 to nLen
+		_nLen_ = len(paNumbers)
+		for i = 1 to _nLen_
 			if NOT isNumber(paNumbers[i])
 				return false
 			ok
@@ -412,58 +412,58 @@ class stzNumberex from stzObject
 		done
 
 /*
-def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
+def BacktrackMatch(_aTokens_, aNumbers, nTokenIndex, nNumberIndex)
 
 	# DEBUG
 	? "BacktrackMatch: token " + nTokenIndex + ", number " + nNumberIndex
 
-	nLenTokens = len(aTokens)
-	nLenNumbers = len(aNumbers)
+	_nLenTokens_ = len(_aTokens_)
+	_nLenNumbers_ = len(aNumbers)
 
 	# Base case: processed all tokens
-	if nTokenIndex > nLenTokens
-		return nNumberIndex > nLenNumbers
+	if nTokenIndex > _nLenTokens_
+		return nNumberIndex > _nLenNumbers_
 	ok
 
-	aToken = aTokens[nTokenIndex]
+	_aToken_ = _aTokens_[nTokenIndex]
 
 	# Try different match counts
-	nMax = @Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	_nMax_ = @Min([_aToken_[:max], _nLenNumbers_ - nNumberIndex + 1])
 	
 	# DEBUG
-	? "  Token min: " + aToken[:min] + ", max: " + aToken[:max]
-	? "  Trying matches from " + aToken[:min] + " to " + nMax
+	? "  Token min: " + _aToken_[:min] + ", max: " + _aToken_[:max]
+	? "  Trying matches from " + _aToken_[:min] + " to " + _nMax_
 
-	for nMatchCount = aToken[:min] to nMax
-		bSuccess = true
-		nNumIdx = nNumberIndex
+	for nMatchCount = _aToken_[:min] to _nMax_
+		_bSuccess_ = true
+		_nNumIdx_ = nNumberIndex
 
 		# Try to match nMatchCount numbers
 		for i = 1 to nMatchCount
-			if nNumIdx > nLenNumbers
-				bSuccess = false
+			if _nNumIdx_ > _nLenNumbers_
+				_bSuccess_ = false
 				exit
 			ok
 
-			nNumber = aNumbers[nNumIdx]
+			_nNumber_ = aNumbers[_nNumIdx_]
 			
-			if NOT This.MatchNumber(nNumber, aToken)
-				bSuccess = false
+			if NOT This.MatchNumber(_nNumber_, _aToken_)
+				_bSuccess_ = false
 				exit
 			ok
 
-			nNumIdx++
+			_nNumIdx_++
 		next
 
-		if bSuccess
+		if _bSuccess_
 			# Last token - ensure complete match
-			if nTokenIndex = nLenTokens
-				if nNumIdx = nLenNumbers + 1
+			if nTokenIndex = _nLenTokens_
+				if _nNumIdx_ = _nLenNumbers_ + 1
 					return true
 				ok
 			else
 				# Recurse for remaining tokens
-				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
+				if This.BacktrackMatch(_aTokens_, aNumbers, nTokenIndex + 1, _nNumIdx_)
 					return true
 				ok
 			ok
@@ -471,71 +471,71 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	next
 
 	# Handle optional tokens
-	if aToken[:min] = 0
-		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
+	if _aToken_[:min] = 0
+		if This.BacktrackMatch(_aTokens_, aNumbers, nTokenIndex + 1, nNumberIndex)
 			return true
 		ok
 	ok
 
 	return false
 */
-def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
-	nLenTokens = len(aTokens)
-	nLenNumbers = len(aNumbers)
+def BacktrackMatch(_aTokens_, aNumbers, nTokenIndex, nNumberIndex)
+	_nLenTokens_ = len(_aTokens_)
+	_nLenNumbers_ = len(aNumbers)
 
 	# Base case: processed all tokens
-	if nTokenIndex > nLenTokens
-		return nNumberIndex > nLenNumbers
+	if nTokenIndex > _nLenTokens_
+		return nNumberIndex > _nLenNumbers_
 	ok
 
-	aToken = aTokens[nTokenIndex]
+	_aToken_ = _aTokens_[nTokenIndex]
 
 	# Try different match counts
-	nMax = @Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	_nMax_ = @Min([_aToken_[:max], _nLenNumbers_ - nNumberIndex + 1])
 
 	if @bDebugMode
-		? "BacktrackMatch: token " + nTokenIndex + "/" + nLenTokens + ", number " + nNumberIndex + "/" + nLenNumbers
-		? "  Token: " + aToken[:keyword] + " (min: " + aToken[:min] + ", max: " + aToken[:max] + ")"
-		? "  Trying matches from " + aToken[:min] + " to " + nMax
+		? "BacktrackMatch: token " + nTokenIndex + "/" + _nLenTokens_ + ", number " + nNumberIndex + "/" + _nLenNumbers_
+		? "  Token: " + _aToken_[:keyword] + " (min: " + _aToken_[:min] + ", max: " + _aToken_[:max] + ")"
+		? "  Trying matches from " + _aToken_[:min] + " to " + _nMax_
 	ok
 
-	for nMatchCount = aToken[:min] to nMax
-		bSuccess = true
-		nNumIdx = nNumberIndex
+	for nMatchCount = _aToken_[:min] to _nMax_
+		_bSuccess_ = true
+		_nNumIdx_ = nNumberIndex
 
 		# Try to match nMatchCount numbers
 		for i = 1 to nMatchCount
-			if nNumIdx > nLenNumbers
-				bSuccess = false
+			if _nNumIdx_ > _nLenNumbers_
+				_bSuccess_ = false
 				exit
 			ok
 
-			nNumber = aNumbers[nNumIdx]
+			_nNumber_ = aNumbers[_nNumIdx_]
 			
-			if NOT This.MatchNumber(nNumber, aToken)
+			if NOT This.MatchNumber(_nNumber_, _aToken_)
 				if @bDebugMode
-					? "  Number " + nNumber + " failed to match"
+					? "  Number " + _nNumber_ + " failed to match"
 				ok
-				bSuccess = false
+				_bSuccess_ = false
 				exit
 			ok
 
-			nNumIdx++
+			_nNumIdx_++
 		next
 
-		if bSuccess
+		if _bSuccess_
 			if @bDebugMode
 				? "  Matched " + nMatchCount + " number(s)"
 			ok
 			
 			# Last token - ensure complete match
-			if nTokenIndex = nLenTokens
-				if nNumIdx = nLenNumbers + 1
+			if nTokenIndex = _nLenTokens_
+				if _nNumIdx_ = _nLenNumbers_ + 1
 					return true
 				ok
 			else
 				# Recurse for remaining tokens
-				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
+				if This.BacktrackMatch(_aTokens_, aNumbers, nTokenIndex + 1, _nNumIdx_)
 					return true
 				ok
 			ok
@@ -543,152 +543,152 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	next
 
 	# Handle optional tokens
-	if aToken[:min] = 0
-		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
+	if _aToken_[:min] = 0
+		if This.BacktrackMatch(_aTokens_, aNumbers, nTokenIndex + 1, nNumberIndex)
 			return true
 		ok
 	ok
 
 	return false
 
-	def MatchNumber(nNumber, aToken)
-		bMatch = false
+	def MatchNumber(_nNumber_, _aToken_)
+		_bMatch_ = false
 	
 		# Type checking
-		switch aToken[:keyword]
+		switch _aToken_[:keyword]
 		on "@I"
-			bMatch = This.IsInteger(nNumber)
+			_bMatch_ = This.IsInteger(_nNumber_)
 		on "@R"
-			bMatch = This.IsReal(nNumber)
+			_bMatch_ = This.IsReal(_nNumber_)
 		on "@P"
-			bMatch = nNumber > 0
+			_bMatch_ = _nNumber_ > 0
 		on "@N"
-			bMatch = nNumber < 0
+			_bMatch_ = _nNumber_ < 0
 		on "@E"
-			bMatch = This.IsEven(nNumber)
+			_bMatch_ = This.IsEven(_nNumber_)
 		on "@O"
-			bMatch = This.IsOdd(nNumber)
+			_bMatch_ = This.IsOdd(_nNumber_)
 		on "@PR"
-			bMatch = This.IsPrime(nNumber)
+			_bMatch_ = This.IsPrime(_nNumber_)
 		on "@$"
-			bMatch = true
+			_bMatch_ = true
 		on "@D"
-			bMatch = true
+			_bMatch_ = true
 		on "@DIV"
-			bMatch = true
+			_bMatch_ = true
 		off
 	
 		# If base type already failed and not negated, no need to check constraints
-		if NOT bMatch and NOT aToken[:negated]
+		if NOT _bMatch_ and NOT _aToken_[:negated]
 			return false
 		ok
 	
 		# Check constraints - any failure means no match
-		nLen = len(aToken[:constraints])
-		bConstraintsMet = true
+		_nLen_ = len(_aToken_[:constraints])
+		_bConstraintsMet_ = true
 		
-		for i = 1 to nLen
-			aConstraint = aToken[:constraints][i]
-			cType = aConstraint[1]
+		for i = 1 to _nLen_
+			_aConstraint_ = _aToken_[:constraints][i]
+			_cType_ = _aConstraint_[1]
 	
-			switch cType
+			switch _cType_
 			on "section"
-				aSection = aConstraint[2]
-				if nNumber < aSection[1] or nNumber > aSection[2]
-					bConstraintsMet = false
+				_aSection_ = _aConstraint_[2]
+				if _nNumber_ < _aSection_[1] or _nNumber_ > _aSection_[2]
+					_bConstraintsMet_ = false
 					exit
 				ok
 	
 			on "set"
-				aSet = aConstraint[2]
-				bInSet = false
-				nSetLen = len(aSet)
-				for j = 1 to nSetLen
-					if nNumber = aSet[j]
-						bInSet = true
+				_aSet_ = _aConstraint_[2]
+				_bInSet_ = false
+				_nSetLen_ = len(_aSet_)
+				for j = 1 to _nSetLen_
+					if _nNumber_ = _aSet_[j]
+						_bInSet_ = true
 						exit
 					ok
 				next
-				if NOT bInSet
-					bConstraintsMet = false
+				if NOT _bInSet_
+					_bConstraintsMet_ = false
 					exit
 				ok
 	
 			on "divisor"
-				nDivisor = aConstraint[2]
-				if (nNumber % nDivisor) != 0
-					bConstraintsMet = false
+				_nDivisor_ = _aConstraint_[2]
+				if (_nNumber_ % _nDivisor_) != 0
+					_bConstraintsMet_ = false
 					exit
 				ok
 	
 			on "digits"
-				nDigits = aConstraint[2]
-				if This.CountDigits(nNumber) != nDigits
-					bConstraintsMet = false
+				_nDigits_ = _aConstraint_[2]
+				if This.CountDigits(_nNumber_) != _nDigits_
+					_bConstraintsMet_ = false
 					exit
 				ok
 			off
 		next
 	
 		# Combine base match with constraints
-		bMatch = bMatch and bConstraintsMet
+		_bMatch_ = _bMatch_ and _bConstraintsMet_
 	
 		# Apply negation AFTER all checks
-		if aToken[:negated]
-			bMatch = NOT bMatch
+		if _aToken_[:negated]
+			_bMatch_ = NOT _bMatch_
 		ok
 	
-		return bMatch
+		return _bMatch_
 
 	  #--------------------#
 	 #   HELPER METHODS   #
 	#--------------------#
 
-	def IsInteger(n)
-		return n = floor(n)
+	def IsInteger(_n_)
+		return _n_ = floor(_n_)
 
-	def IsReal(n)
-		return n != floor(n)
+	def IsReal(_n_)
+		return _n_ != floor(_n_)
 
-	def IsEven(n)
-		if NOT This.IsInteger(n)
+	def IsEven(_n_)
+		if NOT This.IsInteger(_n_)
 			return false
 		ok
-		return (n % 2) = 0
+		return (_n_ % 2) = 0
 
-	def IsOdd(n)
-		if NOT This.IsInteger(n)
+	def IsOdd(_n_)
+		if NOT This.IsInteger(_n_)
 			return false
 		ok
-		return (n % 2) != 0
+		return (_n_ % 2) != 0
 
-	def IsPrime(n)
-		if NOT This.IsInteger(n) or n < 2
+	def IsPrime(_n_)
+		if NOT This.IsInteger(_n_) or _n_ < 2
 			return false
 		ok
 
-		if n = 2
+		if _n_ = 2
 			return true
 		ok
 
-		if (n % 2) = 0
+		if (_n_ % 2) = 0
 			return false
 		ok
 
-		for i = 3 to sqrt(n) step 2
-			if (n % i) = 0
+		for i = 3 to sqrt(_n_) step 2
+			if (_n_ % i) = 0
 				return false
 			ok
 		next
 
 		return true
 
-	def CountDigits(n)
-		n = fabs(n)
-		if n = 0
+	def CountDigits(_n_)
+		_n_ = fabs(_n_)
+		if _n_ = 0
 			return 1
 		ok
-		return floor(log10(n)) + 1
+		return floor(log10(_n_)) + 1
 
 	  #---------------------------#
 	 #     DEBUG METHODS         #
@@ -704,14 +704,14 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 		return @aTokens
 
 	def Tokens()
-		acResult = []
-		nLen = len(@aTokens)
+		_acResult_ = []
+		_nLen_ = len(@aTokens)
 
-		for i = 1 to nLen
-			acResult + @aTokens[i][:keyword]
+		for i = 1 to _nLen_
+			_acResult_ + @aTokens[i][:keyword]
 		next
 
-		return acResult
+		return _acResult_
 
 	def TokensU()
 		return U(This.Tokens())
@@ -720,31 +720,31 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 			return This.TokensU()
 
 	def TokensInfo()
-		aInfo = []
+		_aInfo_ = []
 		
 		_nTokensLen_ = len(@aTokens)
 		for i = 1 to _nTokensLen_
-			aToken = @aTokens[i]
-			cInfo = "Token #" + i + ": " + aToken[:keyword]
+			_aToken_ = @aTokens[i]
+			_cInfo_ = "Token #" + i + ": " + _aToken_[:keyword]
 			
-			if aToken[:min] != aToken[:max]
-				cInfo += " (" + aToken[:min] + "-" + aToken[:max] + ")"
-			but aToken[:min] > 1
-				cInfo += aToken[:min]
+			if _aToken_[:min] != _aToken_[:max]
+				_cInfo_ += " (" + _aToken_[:min] + "-" + _aToken_[:max] + ")"
+			but _aToken_[:min] > 1
+				_cInfo_ += _aToken_[:min]
 			ok
 
-			if len(aToken[:constraints]) > 0
-				cInfo += " [constraints: " + len(aToken[:constraints]) + "]"
+			if len(_aToken_[:constraints]) > 0
+				_cInfo_ += " [constraints: " + len(_aToken_[:constraints]) + "]"
 			ok
 
-			if aToken[:negated]
-				cInfo += " [negated]"
+			if _aToken_[:negated]
+				_cInfo_ += " [negated]"
 			ok
 			
-			aInfo + cInfo
+			_aInfo_ + _cInfo_
 		next
 		
-		return aInfo
+		return _aInfo_
 
 	def Pattern()
 		return @cPattern

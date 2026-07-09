@@ -63,9 +63,9 @@ class stzDuration from stzObject
 				@nTotalSeconds = 0
 				@nMilliseconds = 0
 			else
-				nTotal = This.ParseDurationString(p)
-				@nTotalSeconds = floor(nTotal)
-				@nMilliseconds = round((nTotal - floor(nTotal)) * 1000)
+				_nTotal_ = This.ParseDurationString(p)
+				@nTotalSeconds = floor(_nTotal_)
+				@nMilliseconds = round((_nTotal_ - floor(_nTotal_)) * 1000)
 			ok
 			
 		but isNumber(p)
@@ -73,56 +73,56 @@ class stzDuration from stzObject
 			@nMilliseconds = round((p - floor(p)) * 1000)
 			
 		but isList(p) and @IsHashList(p)
-			nSecs = 0
-			nMs = 0
+			_nSecs_ = 0
+			_nMs_ = 0
 			
 			# Days
 			if HasKey(p, "days")
-				nSecs += (p["days"] * 86400)
+				_nSecs_ += (p["days"] * 86400)
 			ok
 
 			if HasKey(p, "day")
-				nSecs += (p["day"] * 86400)
+				_nSecs_ += (p["day"] * 86400)
 			ok
 			
 			# Hours
 			if HasKey(p, "hours")
-				nSecs += (p["hours"] * 3600)
+				_nSecs_ += (p["hours"] * 3600)
 			ok
 
 			if HasKey(p, "hour")
-				nSecs += (p["hour"] * 3600)
+				_nSecs_ += (p["hour"] * 3600)
 			ok
 			
 			# Minutes
 			if HasKey(p, "minutes")
-				nSecs += (p["minutes"] * 60)
+				_nSecs_ += (p["minutes"] * 60)
 			ok
 
 			if HasKey(p, "minute")
-				nSecs += (p["minute"] * 60)
+				_nSecs_ += (p["minute"] * 60)
 			ok
 			
 			# Seconds
 			if HasKey(p, "seconds")
-				nSecs += p["seconds"]
+				_nSecs_ += p["seconds"]
 			ok
 
 			if HasKey(p, "second")
-				nSecs += p["second"]
+				_nSecs_ += p["second"]
 			ok
 			
 			# Milliseconds
 			if HasKey(p, "milliseconds")
-				nMs = p["milliseconds"]
+				_nMs_ = p["milliseconds"]
 			ok
 
 			if HasKey(p, "millisecond")
-				nMs = p["millisecond"]
+				_nMs_ = p["millisecond"]
 			ok
 			
-			@nTotalSeconds = nSecs
-			@nMilliseconds = nMs
+			@nTotalSeconds = _nSecs_
+			@nMilliseconds = _nMs_
 			
 		else
 			@nTotalSeconds = 0
@@ -158,12 +158,12 @@ class stzDuration from stzObject
 		return floor(@nTotalSeconds / 86400)
 
 	def Hours()
-		nRemainder = @nTotalSeconds % 86400
-		return floor(nRemainder / 3600)
+		_nRemainder_ = @nTotalSeconds % 86400
+		return floor(_nRemainder_ / 3600)
 
 	def Minutes()
-		nRemainder = @nTotalSeconds % 3600
-		return floor(nRemainder / 60)
+		_nRemainder_ = @nTotalSeconds % 3600
+		return floor(_nRemainder_ / 60)
 
 	def Seconds()
 		return floor(@nTotalSeconds % 60)
@@ -190,172 +190,172 @@ class stzDuration from stzObject
 			return This.ToString()
 
 def ToStringXT(cFormat)
-	nD = This.Days()
-	nH = This.Hours()
-	nM = This.Minutes()
-	nS = This.Seconds()
-	nMs = This.Milliseconds()
+	_nD_ = This.Days()
+	_nH_ = This.Hours()
+	_nM_ = This.Minutes()
+	_nS_ = This.Seconds()
+	_nMs_ = This.Milliseconds()
 	
-	cResult = ""
-	i = 1
-	nLen = StzLen(cFormat)
+	_cResult_ = ""
+	_i_ = 1
+	_nLen_ = StzLen(cFormat)
 	
-	while i <= nLen
+	while _i_ <= _nLen_
 		# Three-character patterns
-		if i <= nLen - 2 and StzMid(cFormat, i, 3) = "zzz"
-			cResult += PadLeftXT("" + nMs, 3, '0')
-			i += 3
+		if _i_ <= _nLen_ - 2 and StzMid(cFormat, _i_, 3) = "zzz"
+			_cResult_ += PadLeftXT("" + _nMs_, 3, '0')
+			_i_ += 3
 			loop
 		ok
 		
 		# Two-character patterns
-		if i <= nLen - 1
-			cTwo = StzMid(cFormat, i, 2)
-			if cTwo = "dd"
-				cResult += PadLeftXT('' + nD, 2, "0")
-				i += 2
+		if _i_ <= _nLen_ - 1
+			_cTwo_ = StzMid(cFormat, _i_, 2)
+			if _cTwo_ = "dd"
+				_cResult_ += PadLeftXT('' + _nD_, 2, "0")
+				_i_ += 2
 				loop
-			but cTwo = "HH"
-				cResult += PadLeftXT('' + nH, 2, "0")
-				i += 2
+			but _cTwo_ = "HH"
+				_cResult_ += PadLeftXT('' + _nH_, 2, "0")
+				_i_ += 2
 				loop
-			but cTwo = "hh"
-				cResult += PadLeftXT('' + This.TotalHours(), 2, "0")
-				i += 2
+			but _cTwo_ = "hh"
+				_cResult_ += PadLeftXT('' + This.TotalHours(), 2, "0")
+				_i_ += 2
 				loop
-			but cTwo = "mm"
-				cResult += PadLeftXT("" + nM, 2, '0')
-				i += 2
+			but _cTwo_ = "mm"
+				_cResult_ += PadLeftXT("" + _nM_, 2, '0')
+				_i_ += 2
 				loop
-			but cTwo = "ss"
-				cResult += PadLeftXT("" + nS, 2, '0')
-				i += 2
+			but _cTwo_ = "ss"
+				_cResult_ += PadLeftXT("" + _nS_, 2, '0')
+				_i_ += 2
 				loop
 			ok
 		ok
 		
 		# Single-character patterns - check if it's an ISOLATED format char
 		# by verifying previous and next chars aren't letters
-		cOne = cFormat[i]
-		cPrev = ""
-		cNext = ""
-		if i > 1
-			cPrev = cFormat[i-1]
+		_cOne_ = cFormat[_i_]
+		_cPrev_ = ""
+		_cNext_ = ""
+		if _i_ > 1
+			_cPrev_ = cFormat[_i_-1]
 		ok
-		if i < nLen
-			cNext = cFormat[i+1]
+		if _i_ < _nLen_
+			_cNext_ = cFormat[_i_+1]
 		ok
 		
-		bIsolated = (not isalpha(cPrev)) and (not isalpha(cNext))
+		_bIsolated_ = (not isalpha(_cPrev_)) and (not isalpha(_cNext_))
 		
-		if bIsolated
-			if cOne = "d"
-				cResult += ("" + nD)
-				i += 1
+		if _bIsolated_
+			if _cOne_ = "d"
+				_cResult_ += ("" + _nD_)
+				_i_ += 1
 				loop
-			but cOne = "H"
-				cResult += ("" + nH)
-				i += 1
+			but _cOne_ = "H"
+				_cResult_ += ("" + _nH_)
+				_i_ += 1
 				loop
-			but cOne = "h"
-				cResult += ("" + This.TotalHours())
-				i += 1
+			but _cOne_ = "h"
+				_cResult_ += ("" + This.TotalHours())
+				_i_ += 1
 				loop
-			but cOne = "m"
-				cResult += ("" + nM)
-				i += 1
+			but _cOne_ = "m"
+				_cResult_ += ("" + _nM_)
+				_i_ += 1
 				loop
-			but cOne = "s"
-				cResult += ("" + nS)
-				i += 1
+			but _cOne_ = "s"
+				_cResult_ += ("" + _nS_)
+				_i_ += 1
 				loop
-			but cOne = "z"
-				cResult += ("" + nMs)
-				i += 1
+			but _cOne_ = "z"
+				_cResult_ += ("" + _nMs_)
+				_i_ += 1
 				loop
 			ok
 		ok
 		
 		# Literal character
-		cResult += cFormat[i]
-		i += 1
+		_cResult_ += cFormat[_i_]
+		_i_ += 1
 	end
 	
-	return cResult
+	return _cResult_
 
 	def ToHuman()
-		nD = This.Days()
-		nH = This.Hours()
-		nM = This.Minutes()
-		nS = This.Seconds()
+		_nD_ = This.Days()
+		_nH_ = This.Hours()
+		_nM_ = This.Minutes()
+		_nS_ = This.Seconds()
 		
 		# Check against patterns
-		nLen = len($aDurationPatterns)
-		for i = 1 to nLen
-			if nD = $aDurationPatterns[i][1] and nH = $aDurationPatterns[i][2] and 
-			   nM = $aDurationPatterns[i][3] and nS = $aDurationPatterns[i][4]
-				return $aDurationPatterns[i][5]
+		_nLen_ = len($aDurationPatterns)
+		for _i_ = 1 to _nLen_
+			if _nD_ = $aDurationPatterns[_i_][1] and _nH_ = $aDurationPatterns[_i_][2] and 
+			   _nM_ = $aDurationPatterns[_i_][3] and _nS_ = $aDurationPatterns[_i_][4]
+				return $aDurationPatterns[_i_][5]
 			ok
 		next
 		
 		# Build component-based description
-		aParts = []
-		aValues = [nD, nH, nM, nS]
-		nLen = len($aUnitNames)
+		_aParts_ = []
+		_aValues_ = [_nD_, _nH_, _nM_, _nS_]
+		_nLen_ = len($aUnitNames)
 
-		for i = 1 to nLen
-			nValue = aValues[i]
-			if nValue > 0
-				if nValue = 1
-					aParts + ("1 " + $aUnitNames[i][2])
+		for _i_ = 1 to _nLen_
+			_nValue_ = _aValues_[_i_]
+			if _nValue_ > 0
+				if _nValue_ = 1
+					_aParts_ + ("1 " + $aUnitNames[_i_][2])
 				else
-					aParts + ('' + nValue + " " + $aUnitNames[i][3])
+					_aParts_ + ('' + _nValue_ + " " + $aUnitNames[_i_][3])
 				ok
 			ok
 		next
 		
 		# Handle edge case: no time components
-		if len(aParts) = 0
-			aParts + "0 seconds"
+		if len(_aParts_) = 0
+			_aParts_ + "0 seconds"
 		ok
 		
 		# Format output
-		return This.JoinParts(aParts)
+		return This.JoinParts(_aParts_)
 
 	def ToCompact()
-		nD = This.Days()
-		nH = This.Hours()
-		nM = This.Minutes()
-		nS = This.Seconds()
+		_nD_ = This.Days()
+		_nH_ = This.Hours()
+		_nM_ = This.Minutes()
+		_nS_ = This.Seconds()
 		
-		cResult = ""
-		if nD > 0
-			cResult += ("" + nD + "d ")
+		_cResult_ = ""
+		if _nD_ > 0
+			_cResult_ += ("" + _nD_ + "d ")
 		ok
-		if nH > 0
-			cResult += ("" + nH + "h ")
+		if _nH_ > 0
+			_cResult_ += ("" + _nH_ + "h ")
 		ok
-		if nM > 0
-			cResult += ("" + nM + "m ")
+		if _nM_ > 0
+			_cResult_ += ("" + _nM_ + "m ")
 		ok
-		if nS > 0 or cResult = ""
-			cResult += ("" + nS + "s")
+		if _nS_ > 0 or _cResult_ = ""
+			_cResult_ += ("" + _nS_ + "s")
 		ok
 		
-		return trim(cResult)
+		return trim(_cResult_)
 
 	def ToSimple()
-		nH = This.TotalHours()
-		nM = This.Minutes()
-		nS = This.Seconds()
+		_nH_ = This.TotalHours()
+		_nM_ = This.Minutes()
+		_nS_ = This.Seconds()
 		
-		if nH > 0
-			return "" + nH + ":" + 
-			       PadLeftXT('' + nM, 2, " ") + ":" +
-			       PadLeftXT('' + nS, 2, " ")
+		if _nH_ > 0
+			return "" + _nH_ + ":" + 
+			       PadLeftXT('' + _nM_, 2, " ") + ":" +
+			       PadLeftXT('' + _nS_, 2, " ")
 		else
-			return PadLeftXT('' + nM, 2, " ") + ":" +
-			       PadLeftXT('' + nS, 2, " ")
+			return PadLeftXT('' + _nM_, 2, " ") + ":" +
+			       PadLeftXT('' + _nS_, 2, " ")
 		ok
 
 	# Arithmetic operators
@@ -411,19 +411,19 @@ def ToStringXT(cFormat)
 		return NULL
 
 	def Compare(pOther)
-		nOtherSecs = 0
+		_nOtherSecs_ = 0
 		
 		if isNumber(pOther)
-			nOtherSecs = pOther
+			_nOtherSecs_ = pOther
 		but isString(pOther)
-			nOtherSecs = This.ParseDurationString(pOther)
+			_nOtherSecs_ = This.ParseDurationString(pOther)
 		but IsObject(pOther) and ring_classname(pOther) = "stzduration"
-			nOtherSecs = pOther.TotalSeconds()
+			_nOtherSecs_ = pOther.TotalSeconds()
 		ok
 		
-		if @nTotalSeconds < nOtherSecs
+		if @nTotalSeconds < _nOtherSecs_
 			return -1
-		but @nTotalSeconds > nOtherSecs
+		but @nTotalSeconds > _nOtherSecs_
 			return 1
 		else
 			return 0
@@ -508,119 +508,119 @@ def ToStringXT(cFormat)
 
 	# Utility
 	
-	def ParseDurationString(cStr)
-		nTotal = 0
-		cStr = StzLower(trim(cStr))
+	def ParseDurationString(_cStr_)
+		_nTotal_ = 0
+		_cStr_ = StzLower(trim(_cStr_))
 		
 		# Extract all numbers followed by units
 		# Days
-		nPos = StzFindFirst(cStr, "day")
-		if nPos > 0
-			cNum = ""
-			for i = nPos - 1 to 1 step -1
-				c = cStr[i]
-				if isdigit(c) or c = "." or c = "-"
-					cNum = c + cNum
-				but c = " " or c = "	"
+		_nPos_ = StzFindFirst(_cStr_, "day")
+		if _nPos_ > 0
+			_cNum_ = ""
+			for _i_ = _nPos_ - 1 to 1 step -1
+				_c_ = _cStr_[_i_]
+				if isdigit(_c_) or _c_ = "." or _c_ = "-"
+					_cNum_ = _c_ + _cNum_
+				but _c_ = " " or _c_ = "	"
 					# Continue through whitespace
 				else
 					exit
 				ok
 			next
-			if cNum != ""
-				nTotal += (0 + cNum) * 86400
+			if _cNum_ != ""
+				_nTotal_ += (0 + _cNum_) * 86400
 			ok
 		ok
 		
 		# Hours
-		nPos = StzFindFirst(cStr, "hour")
-		if nPos = 0
-			nPos = StzFindFirst(cStr, "hr")
+		_nPos_ = StzFindFirst(_cStr_, "hour")
+		if _nPos_ = 0
+			_nPos_ = StzFindFirst(_cStr_, "hr")
 		ok
-		if nPos > 0
-			cNum = ""
-			for i = nPos - 1 to 1 step -1
-				c = cStr[i]
-				if isdigit(c) or c = "." or c = "-"
-					cNum = c + cNum
-				but c = " " or c = "	"
+		if _nPos_ > 0
+			_cNum_ = ""
+			for _i_ = _nPos_ - 1 to 1 step -1
+				_c_ = _cStr_[_i_]
+				if isdigit(_c_) or _c_ = "." or _c_ = "-"
+					_cNum_ = _c_ + _cNum_
+				but _c_ = " " or _c_ = "	"
 					# Continue through whitespace
 				else
 					exit
 				ok
 			next
-			if cNum != ""
-				nTotal += (0 + cNum) * 3600
+			if _cNum_ != ""
+				_nTotal_ += (0 + _cNum_) * 3600
 			ok
 		ok
 		
 		# Minutes
-		nPos = StzFindFirst(cStr, "minute")
-		if nPos = 0
-			nPos = StzFindFirst(cStr, "min")
+		_nPos_ = StzFindFirst(_cStr_, "minute")
+		if _nPos_ = 0
+			_nPos_ = StzFindFirst(_cStr_, "min")
 		ok
-		if nPos > 0
-			cNum = ""
-			for i = nPos - 1 to 1 step -1
-				c = cStr[i]
-				if isdigit(c) or c = "." or c = "-"
-					cNum = c + cNum
-				but c = " " or c = "	"
+		if _nPos_ > 0
+			_cNum_ = ""
+			for _i_ = _nPos_ - 1 to 1 step -1
+				_c_ = _cStr_[_i_]
+				if isdigit(_c_) or _c_ = "." or _c_ = "-"
+					_cNum_ = _c_ + _cNum_
+				but _c_ = " " or _c_ = "	"
 					# Continue through whitespace
 				else
 					exit
 				ok
 			next
-			if cNum != ""
-				nTotal += (0 + cNum) * 60
+			if _cNum_ != ""
+				_nTotal_ += (0 + _cNum_) * 60
 			ok
 		ok
 		
 		# Seconds
-		nPos = StzFindFirst(cStr, "second")
-		if nPos = 0
-			nPos = StzFindFirst(cStr, "sec")
+		_nPos_ = StzFindFirst(_cStr_, "second")
+		if _nPos_ = 0
+			_nPos_ = StzFindFirst(_cStr_, "sec")
 		ok
-		if nPos > 0
-			cNum = ""
-			for i = nPos - 1 to 1 step -1
-				c = cStr[i]
-				if isdigit(c) or c = "." or c = "-"
-					cNum = c + cNum
-				but c = " " or c = "	"
+		if _nPos_ > 0
+			_cNum_ = ""
+			for _i_ = _nPos_ - 1 to 1 step -1
+				_c_ = _cStr_[_i_]
+				if isdigit(_c_) or _c_ = "." or _c_ = "-"
+					_cNum_ = _c_ + _cNum_
+				but _c_ = " " or _c_ = "	"
 					# Continue through whitespace
 				else
 					exit
 				ok
 			next
-			if cNum != ""
-				nTotal += (0 + cNum)
+			if _cNum_ != ""
+				_nTotal_ += (0 + _cNum_)
 			ok
 		ok
 		
 		# Milliseconds
-		nPos = StzFindFirst(cStr, "millisecond")
-		if nPos = 0
-			nPos = StzFindFirst(cStr, "ms")
+		_nPos_ = StzFindFirst(_cStr_, "millisecond")
+		if _nPos_ = 0
+			_nPos_ = StzFindFirst(_cStr_, "ms")
 		ok
-		if nPos > 0
-			cNum = ""
-			for i = nPos - 1 to 1 step -1
-				c = cStr[i]
-				if isdigit(c) or c = "." or c = "-"
-					cNum = c + cNum
-				but c = " " or c = "	"
+		if _nPos_ > 0
+			_cNum_ = ""
+			for _i_ = _nPos_ - 1 to 1 step -1
+				_c_ = _cStr_[_i_]
+				if isdigit(_c_) or _c_ = "." or _c_ = "-"
+					_cNum_ = _c_ + _cNum_
+				but _c_ = " " or _c_ = "	"
 					# Continue through whitespace
 				else
 					exit
 				ok
 			next
-			if cNum != ""
-				nTotal += (0 + cNum) / 1000.0
+			if _cNum_ != ""
+				_nTotal_ += (0 + _cNum_) / 1000.0
 			ok
 		ok
 		
-		return nTotal
+		return _nTotal_
 
 	def Copy()
 		return new stzDuration(@nTotalSeconds)
@@ -630,17 +630,17 @@ def ToStringXT(cFormat)
 
 	PRIVATE
 	
-	def JoinParts(aParts)
-		nLen = len(aParts)
-		if nLen = 1
-			return aParts[1]
-		but nLen = 2
-			return aParts[1] + " and " + aParts[2]
+	def JoinParts(_aParts_)
+		_nLen_ = len(_aParts_)
+		if _nLen_ = 1
+			return _aParts_[1]
+		but _nLen_ = 2
+			return _aParts_[1] + " and " + _aParts_[2]
 		else
-			cResult = ""
-			for i = 1 to nLen - 1
-				cResult += aParts[i] + ", "
+			_cResult_ = ""
+			for _i_ = 1 to _nLen_ - 1
+				_cResult_ += _aParts_[_i_] + ", "
 			next
-			cResult += "and " + aParts[nLen]
-			return cResult
+			_cResult_ += "and " + _aParts_[_nLen_]
+			return _cResult_
 		ok

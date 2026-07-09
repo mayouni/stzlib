@@ -63,9 +63,9 @@ class stzGridNav from stzObject
 		ok
 
 		@cName = cName
-		nResult = StzEngineGridCreate(cName, nRows, nCols)
+		_nResult_ = StzEngineGridCreate(cName, nRows, nCols)
 
-		if nResult < 0
+		if _nResult_ < 0
 			StzRaise("Can't create stzGridNav! Engine returned error.")
 		ok
 
@@ -80,8 +80,8 @@ class stzGridNav from stzObject
 			ok
 		ok
 
-		nResult = StzEngineGridSetPos(@cName, nRow, nCol)
-		if nResult < 0
+		_nResult_ = StzEngineGridSetPos(@cName, nRow, nCol)
+		if _nResult_ < 0
 			StzRaise("Can't set position! Out of bounds.")
 		ok
 
@@ -112,8 +112,8 @@ class stzGridNav from stzObject
 			ok
 		ok
 
-		nResult = StzEngineGridMove(@cName, nDirection)
-		if nResult < 0
+		_nResult_ = StzEngineGridMove(@cName, nDirection)
+		if _nResult_ < 0
 			StzRaise("Can't move! Would go out of bounds.")
 		ok
 
@@ -160,8 +160,8 @@ class stzGridNav from stzObject
 			return This.NeighborCount()
 
 	def IsValidPosition(nRow, nCol)
-		nResult = StzEngineGridIsValid(@cName, nRow, nCol)
-		if nResult = 1
+		_nResult_ = StzEngineGridIsValid(@cName, nRow, nCol)
+		if _nResult_ = 1
 			return 1
 		else
 			return 0

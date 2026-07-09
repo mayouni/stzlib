@@ -61,17 +61,17 @@ class stzListExtractor from stzObject
 		return This.ExtractCS(pItem, 1)
 
 	def ExtractManyCS(paItems, pCaseSensitive)
-		anPos = @oList.FindManyCS(paItems, pCaseSensitive)
-		@oList.RemoveItemsAtPositions(anPos)
+		_anPos_ = @oList.FindManyCS(paItems, pCaseSensitive)
+		@oList.RemoveItemsAtPositions(_anPos_)
 		return paItems
 
 	def ExtractMany(paItems)
 		return This.ExtractManyCS(paItems, 1)
 
 	def ExtractAll()
-		aResult = This.Content()
+		_aResult_ = This.Content()
 		@oList.RemoveAllItems()
-		return aResult
+		return _aResult_
 
 	def ExtractNth(n)
 		# Was `ring_remove(This.List(), n)` -- This.List() returns a list
@@ -89,31 +89,31 @@ class stzListExtractor from stzObject
 		return This.ExtractNth(This.NumberOfItems())
 
 	def ExtractSection(n1, n2)
-		aResult = @oList.Section(n1, n2)
+		_aResult_ = @oList.Section(n1, n2)
 		@oList.RemoveSection(n1, n2)
-		return aResult
+		return _aResult_
 
 	def ExtractRange(pnStart, pnRange)
-		aResult = @oList.Range(pnStart, pnRange)
+		_aResult_ = @oList.Range(pnStart, pnRange)
 		@oList.RemoveRange(pnStart, pnRange)
-		return aResult
+		return _aResult_
 
 	def ExtractW(pcCondition)
-		anPos = @oList.FindW(pcCondition)
-		aResult = @oList.ItemsAtPositions(anPos)
-		@oList.RemoveItemsAtPositions(anPos)
-		return aResult
+		_anPos_ = @oList.FindW(pcCondition)
+		_aResult_ = @oList.ItemsAtPositions(_anPos_)
+		@oList.RemoveItemsAtPositions(_anPos_)
+		return _aResult_
 
 	  #======================================================#
 	 #   EXTRACT NTH OCCURRENCE                             #
 	#======================================================#
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
-		nPos = @oList.FindNthCS(n, pItem, pCaseSensitive)
-		if nPos = 0
+		_nPos_ = @oList.FindNthCS(n, pItem, pCaseSensitive)
+		if _nPos_ = 0
 			return NULL
 		ok
-		return This.ExtractNth(nPos)
+		return This.ExtractNth(_nPos_)
 
 	def ExtractNthOccurrence(n, pItem)
 		return This.ExtractNthOccurrenceCS(n, pItem, 1)
@@ -129,11 +129,11 @@ class stzListExtractor from stzObject
 		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
-		nPos = @oList.FindLastCS(pItem, pCaseSensitive)
-		if nPos = 0
+		_nPos_ = @oList.FindLastCS(pItem, pCaseSensitive)
+		if _nPos_ = 0
 			return NULL
 		ok
-		return This.ExtractNth(nPos)
+		return This.ExtractNth(_nPos_)
 
 	def ExtractLastOccurrence(pItem)
 		return This.ExtractLastOccurrenceCS(pItem, 1)
@@ -241,5 +241,5 @@ class stzListExtractor from stzObject
 		return This.ExtractSection(1, n)
 
 	def TakeLast(n)
-		nLen = This.NumberOfItems()
-		return This.ExtractSection(nLen - n + 1, nLen)
+		_nLen_ = This.NumberOfItems()
+		return This.ExtractSection(_nLen_ - n + 1, _nLen_)

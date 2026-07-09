@@ -25,7 +25,7 @@ class stzTableStructure from stzTable
 	def AddColumn(pacColNameAndData)
 		/* EXAMPLE
 
-		o1.AddCol( :AGE = [ 12, 28, 32 ] )
+		_o1_.AddCol( :AGE = [ 12, 28, 32 ] )
 
 		*/
 
@@ -41,16 +41,16 @@ class stzTableStructure from stzTable
 			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
 
-		nLen = len(pacColNameAndData[2])
-		nRows = This.NumberOfRows()
+		_nLen_ = len(pacColNameAndData[2])
+		_nRows_ = This.NumberOfRows()
 
-		if nLen < nRows
-			for i = nLen+1 to nRows
+		if _nLen_ < _nRows_
+			for i = _nLen_+1 to _nRows_
 				pacColNameAndData[2] + ""
 			next
 
-		but nLen > nRows
-			for i = nLen to nRows+1 step - 1
+		but _nLen_ > _nRows_
+			for i = _nLen_ to _nRows_+1 step - 1
 				ring_remove(pacColNameAndData[2], i)
 			next
 		ok
@@ -62,9 +62,9 @@ class stzTableStructure from stzTable
 			This.AddColumn(pacColNameAndData)
 
 	def AddColumns(pacColNamesAndData)
-		nLen = len(pacColNamesAndData)
+		_nLen_ = len(pacColNamesAndData)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			This.AddColumn(pacColNamesAndData[i])
 		next
 
@@ -77,14 +77,14 @@ class stzTableStructure from stzTable
 
 	def AddRow(paRow)
 		/*
-		o1 = new stzTable([
+		_o1_ = new stzTable([
 			:ID 	  = [ 10,	20,		30	],
 			:EMPLOYEE = [ "Ali",	"Sam",		"Ben"	],
 			:SALARY	  = [ 14500,	17630,		20345	]
 		])
 
-		o1.AddRow([ 40, "Peter", 12500 ])
-		? o1.Row(4) #--> [ 40, "Peter", 12500 ]
+		_o1_.AddRow([ 40, "Peter", 12500 ])
+		? _o1_.Row(4) #--> [ 40, "Peter", 12500 ]
 
 		*/
 
@@ -92,27 +92,27 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! paRow must be a list.")
 		ok
 
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
 		if NOT len(paRow) = This.NumberOfCols()
 			StzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
 		ok
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		for i = 1 to nLen
-			aContent[i][2] + paRow[i]
+		for i = 1 to _nLen_
+			_aContent_[i][2] + paRow[i]
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 	def AddRows(paRows)
 		if NOT isList(paRows)
 			StzRaise("Incorrect param type! paRows must be a list.")
 		ok
 
-		nLen = len(paRows)
-		for i = 1 to nLen
+		_nLen_ = len(paRows)
+		for i = 1 to _nLen_
 			This.AddRow(paRows[i])
 		next
 
@@ -120,12 +120,12 @@ class stzTableStructure from stzTable
 	 #  EXTANDING THE TABLE  # // TODO
 	#=======================#
 
-	def Extend(nCol, nRow)
+	def Extend(_nCol_, _nRow_)
 
 		/* ... */
 		StzRaise("Unsupported feature in this release!")
 
-		def ExtendTo(nCol, nRow)
+		def ExtendTo(_nCol_, _nRow_)
 
 	  #======================#
 	 #  UPDATING THE TABLE  #
@@ -231,13 +231,13 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! paColsAndTheirNewNames must be a hashlist.")
 		ok
 
-		nLen = len(paColsAndTheirNewNames)
+		_nLen_ = len(paColsAndTheirNewNames)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			This.RenameCol(paColsAndTheirNewNames[i][1], paColsAndTheirNewNames[i][2])
 		next
 
-	def RenameNthCol(n, pcNewName)
+	def RenameNthCol(_n_, pcNewName)
 		if isList(pcNewName) and Q(pcNewName).IsWithOrByNamedParam()
 			pcNewName = pcNewName[2]
 		ok
@@ -246,19 +246,19 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! pcNewName must be a string.")
 		ok
 
-		@aContent[n][1] = pcNewName
+		@aContent[_n_][1] = pcNewName
 
-		def RenameColN(n, pcNewName)
-			This.RenameNthCol(n, pcNewName)
+		def RenameColN(_n_, pcNewName)
+			This.RenameNthCol(_n_, pcNewName)
 
 	def RemnameNthCols(panColsNumbers)
 		if NOT (isList(paColsNumbers) and Q(paColsNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(panColsNumbers)
+		_nLen_ = len(panColsNumbers)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			This.RenameColN(panColsNumbers[i])
 		next
 
@@ -272,37 +272,37 @@ class stzTableStructure from stzTable
 	 #  REMOVING A COLUMN  #
 	#=====================#
 
-	def RemoveNthCol(n)
+	def RemoveNthCol(_n_)
 		if This.NumberOfCols() = 1
 			This.UpdateWith( [ [ :COL1, [ "" ] ] ] )
 			return
 		ok
 
-		aContent = @aContent
-		ring_remove(aContent, n)
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		ring_remove(_aContent_, _n_)
+		This.UpdateWith(_aContent_)
 
 
-		def RemoveColAt(n)
-			This.RemoveNthCol(n)
+		def RemoveColAt(_n_)
+			This.RemoveNthCol(_n_)
 
-		def RemoveNthColumn(n)
-			This.RemoveNthCol(n)
+		def RemoveNthColumn(_n_)
+			This.RemoveNthCol(_n_)
 
-		def RemoveColumnAt(n)
-			This.RemoveNthCol(n)
+		def RemoveColumnAt(_n_)
+			This.RemoveNthCol(_n_)
 
 	def RemoveColumn(pColNameOrNumber)
-		nCol = This.ColToColNumber(pColNameOrNumber)
+		_nCol_ = This.ColToColNumber(pColNameOrNumber)
 
-		if This.NumberOfCols() = 1 and nCol = 1
+		if This.NumberOfCols() = 1 and _nCol_ = 1
 			This.UpdateWith( [ [ :COL1, [ "" ] ] ] )
 			return
 		ok
 
-		aContent = @aContent
-		ring_remove(aContent, nCol)
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		ring_remove(_aContent_, _nCol_)
+		This.UpdateWith(_aContent_)
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
@@ -318,16 +318,16 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		anColNumbers = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
-		nLen = len(anColNumbers)
+		_anColNumbers_ = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
+		_nLen_ = len(_anColNumbers_)
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		for i = nLen to 1 step -1
-			ring_remove(aContent, anColNumbers[i])
+		for i = _nLen_ to 1 step -1
+			ring_remove(_aContent_, _anColNumbers_[i])
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 
@@ -341,20 +341,20 @@ class stzTableStructure from stzTable
 			This.RemoveColumnsAt(panColNumbers)
 
 	def RemoveColumns(pacColNamesOrNumbers)
-		anColNumbers = new stzList( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) ).Sorted()
-		nLen = len(anColNumbers)
+		_anColNumbers_ = new stzList( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) ).Sorted()
+		_nLen_ = len(_anColNumbers_)
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		for i = nLen to 1 step -1
-			ring_remove(aContent, anColNumbers[i])
+		for i = _nLen_ to 1 step -1
+			ring_remove(_aContent_, _anColNumbers_[i])
 		next
 
-		if len(aContent) = 0
-			aContent = [ :COL1 = [ "" ] ]
+		if len(_aContent_) = 0
+			_aContent_ = [ :COL1 = [ "" ] ]
 		ok
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def RemoveCols(pcColNamesOrNumbers)
@@ -415,8 +415,8 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		anPos = This.FindColsExcept(paCols)
-		This.RemoveCols(anPos)
+		_anPos_ = This.FindColsExcept(paCols)
+		This.RemoveCols(_anPos_)
 
 		#< @FunctionAlternativeForms
 
@@ -473,35 +473,35 @@ class stzTableStructure from stzTable
 			This.RemoveNthRow(pRowOrRowNumber)
 
 		else
-			n = This.FindRow(pRowOrRowNumber)[1]
-			This.RemoveNthRow(n)
+			_n_ = This.FindRow(pRowOrRowNumber)[1]
+			This.RemoveNthRow(_n_)
 		ok
 
-	def RemoveNthRow(n)
+	def RemoveNthRow(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		aContent = @aContent
-		nLen = len(aContent)
+		_aContent_ = @aContent
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			ring_remove(aContent[i][2], n)
+		for i = 1 to _nLen_
+			ring_remove(_aContent_[i][2], _n_)
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
-		def RemoveRowAt(n)
-			This.RemoveNthRow(n)
+		def RemoveRowAt(_n_)
+			This.RemoveNthRow(_n_)
 
-		def RemoveRowNumber(n)
-			This.RemoveNthRow(n)
+		def RemoveRowNumber(_n_)
+			This.RemoveNthRow(_n_)
 
-		def RemoveRowN(n)
-			This.RemoveNthRow(n)
+		def RemoveRowN(_n_)
+			This.RemoveNthRow(_n_)
 
 	  #---------------------------#
 	 #  REMOVING THE GIVEN ROWS  #
@@ -515,18 +515,18 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		aContent = @aContent
-		nLen = len(aContent)
-		anPos = new stzList( U(panRows) ).Sorted()
-		nLenPos = len(anPos)
+		_aContent_ = @aContent
+		_nLen_ = len(_aContent_)
+		_anPos_ = new stzList( U(panRows) ).Sorted()
+		_nLenPos_ = len(_anPos_)
 
-		for i = nLen to 1 step -1
-			for j = 1 to nLen
-				ring_remove(aContent[j][2], anPos[i])
+		for i = _nLen_ to 1 step -1
+			for j = 1 to _nLen_
+				ring_remove(_aContent_[j][2], _anPos_[i])
 			next
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def RemoveRowsAt(panRows)
@@ -547,8 +547,8 @@ class stzTableStructure from stzTable
 			This.RemoveRowsAt(pRowsOrRowsNumbers)
 
 		else // @IsListOfLists(pRowsOrRowsNumbers)
-			anPos = This.FindTheseRows(pRowsOrRowsNumbers)
-			This.RemoveRowsAt(anPos)
+			_anPos_ = This.FindTheseRows(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(_anPos_)
 		ok
 
 	  #-----------------------------------------------#
@@ -562,8 +562,8 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		anPos = This.FindRowsExceptAt(panRows)
-		This.RemoveRows(anPos)
+		_anPos_ = This.FindRowsExceptAt(panRows)
+		This.RemoveRows(_anPos_)
 
 		#< @FunctionAlternativeForms
 
@@ -595,8 +595,8 @@ class stzTableStructure from stzTable
 
 		else // @IsListOfLists(pRowsOrRowsNumbers)
 
-			anPos = This.FindRowsExceptThese(pRowsOrRowsNumbers)
-			This.RemoveRowsAt(anPos)
+			_anPos_ = This.FindRowsExceptThese(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(_anPos_)
 		ok
 
 
@@ -622,18 +622,18 @@ class stzTableStructure from stzTable
 		# Only data in cells is erased, columns and
 		# rows remain as they are!
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		nLen = len(aContent)
+		_nLen_ = len(_aContent_)
 
-		for i = 1 to nLen
-			nLenLine = len(aContent[i][2])
-			for j = 1 to nLenLine
-				aContent[i][2][j] = ""
+		for i = 1 to _nLen_
+			_nLenLine_ = len(_aContent_[i][2])
+			for j = 1 to _nLenLine_
+				_aContent_[i][2][j] = ""
 			next
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def EraseTable()
@@ -644,19 +644,19 @@ class stzTableStructure from stzTable
 	#-------------------#
 
 	def EraseColumn(pColNameOrNumber)
-		aCellsPos = This.ColAsPositions(pColNameOrNumber)
-		This.EraseCells(aCellsPos)
+		_aCellsPos_ = This.ColAsPositions(pColNameOrNumber)
+		This.EraseCells(_aCellsPos_)
 
 		def EraseCol(pColNameOrNumber)
 			This.EraseColumn(pColNameOrNumber)
 
 	def EraseColumns(pcColNamesOrNumbers)
-		nCols = This.TheseColsToColsNumbers(pcColNamesOrNumbers)
+		_nCols_ = This.TheseColsToColsNumbers(pcColNamesOrNumbers)
 
-		_nCols1Len_ = len(nCols)
+		_nCols1Len_ = len(_nCols_)
 		for _iLoopCols1_ = 1 to _nCols1Len_
-			n = nCols[_iLoopCols1_]
-			This.EraseCol(n)
+			_n_ = _nCols_[_iLoopCols1_]
+			This.EraseCol(_n_)
 		next
 
 		def EraseCols(pcColNamesOrNumbers)
@@ -666,9 +666,9 @@ class stzTableStructure from stzTable
 	 #  ERASING ROWS  #
 	#----------------#
 
-	def EraseRow(n)
-		aCellsPos = This.RowAsPositions(n)
-		This.EraseCells(aCellsPos)
+	def EraseRow(_n_)
+		_aCellsPos_ = This.RowAsPositions(_n_)
+		This.EraseCells(_aCellsPos_)
 
 	def EraseRows(panRows)
 		if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
@@ -677,8 +677,8 @@ class stzTableStructure from stzTable
 
 		_nPanRows1Len_ = len(panRows)
 		for _iLoopPanRows1_ = 1 to _nPanRows1Len_
-			n = panRows[_iLoopPanRows1_]
-			This.EraseRow(n)
+			_n_ = panRows[_iLoopPanRows1_]
+			This.EraseRow(_n_)
 		next
 
 	  #-----------------#
@@ -694,12 +694,12 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect column name!")
 		ok
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		nCol = This.ColToColNumber(pCol)
-		aContent[nCol][2][pnRow] = ""
+		_nCol_ = This.ColToColNumber(pCol)
+		_aContent_[_nCol_][2][pnRow] = ""
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def EraseCellAtPosition(pCol, pnRow)
@@ -710,16 +710,16 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
 		ok
 
-		aContent = @aContent
-		nLen = len(paCellsPos)
+		_aContent_ = @aContent
+		_nLen_ = len(paCellsPos)
 
-		for i = 1 to nLen
-			nCol = paCellsPos[i][1]
-			nRow = paCellsPos[i][2]
-			aContent[nCol][2][nRow] = ""
+		for i = 1 to _nLen_
+			_nCol_ = paCellsPos[i][1]
+			_nRow_ = paCellsPos[i][2]
+			_aContent_[_nCol_][2][_nRow_] = ""
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		def EraseCellsAtPositions(paCellsPos)
@@ -730,25 +730,25 @@ class stzTableStructure from stzTable
 	#------------------------------#
 
 	def EraseSection(paCellPos1, paCellPos2)
-		aCellsPso = This.SectionAsPositions()
-		This.EraseCells(aCellsPos)
+		_aCellsPso_ = This.SectionAsPositions()
+		This.EraseCells(_aCellsPos_)
 
 	  #======================#
 	 #  INSERTING A COLUMN  #
 	#======================#
 
-	def InsertCol(n, paColData)
+	def InsertCol(_n_, paColData)
 		if CheckingParams()
-			if isList(n) and IsOneOfTheseNamedParamsList(n,[
+			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[
 					:At, :Before,
 					:AtPosition, :BeforePosition,
 					:AtPositions, :BeforePositions
 				])
 
-				n = n[2]
+				_n_ = _n_[2]
 			ok
 
-			if NOT ( isNumber(n) or ( isList(n) and @IsListOfNumbers(n) ) )
+			if NOT ( isNumber(_n_) or ( isList(_n_) and @IsListOfNumbers(_n_) ) )
 				StzRaise("Incorrect param type! n must be a number or a list of numbers.")
 			ok
 
@@ -757,91 +757,91 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		if isList(n)
-			This.InsertColAtPositions(n, paRowData)
+		if isList(_n_)
+			This.InsertColAtPositions(_n_, paRowData)
 			return
 		ok
 
 		# Preparing the column name and data
 
-		cColName = paColData[1]
+		_cColName_ = paColData[1]
 		paColData = paColData[2]
 
-		nLenColData = len(paColData)
-		nRows = This.NumberOfRows()
-		nMin = @Min([ nLenColData, nRows ])
+		_nLenColData_ = len(paColData)
+		_nRows_ = This.NumberOfRows()
+		_nMin_ = @Min([ _nLenColData_, _nRows_ ])
 
-		aColData = []
+		_aColData_ = []
 
-		for i = 1 to nMin
-			aColData + paColData[i]
+		for i = 1 to _nMin_
+			_aColData_ + paColData[i]
 		next
 
-		if nLenColData < nRows
-			for i = nLenColData + 1 to nRows
-				aColData + ""
+		if _nLenColData_ < _nRows_
+			for i = _nLenColData_ + 1 to _nRows_
+				_aColData_ + ""
 			next
 		ok
 
 		# Adding the column
 
-		aContent = @aContent
-		@aContent + [ cColName, aColData ]
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		@aContent + [ _cColName_, _aColData_ ]
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForms
 
-		def InsertColBefore(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColBefore(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
-		def InsertColBeforePosition(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColBeforePosition(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
 		#--
 
-		def insertColAt(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def insertColAt(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
-		def InsertColAtPosition(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColAtPosition(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
 		#==
 
-		def InsertColumn(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColumn(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
-		def InsertColumnBefore(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColumnBefore(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
-		def InsertColumnBeforePosition(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColumnBeforePosition(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
 		#--
 
-		def insertColumnAt(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def insertColumnAt(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
-		def InsertColumnAtPosition(n, paRowData)
-			This.InsertCol(n, paRowData)
+		def InsertColumnAtPosition(_n_, paRowData)
+			This.InsertCol(_n_, paRowData)
 
 		#>
 
-	def InsertColAfter(n, paRowData)
-		This.InsertColAt(n+1, paRowData)
+	def InsertColAfter(_n_, paRowData)
+		This.InsertColAt(_n_+1, paRowData)
 
 		#< @FunctionAlternativeForm
 
-		def InsertColAfterPosition(n, paRowData)
-			This.InsertColAfter(n, paRowData)
+		def InsertColAfterPosition(_n_, paRowData)
+			This.InsertColAfter(_n_, paRowData)
 
 		#--
 
-		def InsertColumnAfter(n, paRowData)
-			This.InsertColAfter(n, paRowData)
+		def InsertColumnAfter(_n_, paRowData)
+			This.InsertColAfter(_n_, paRowData)
 
-		def InsertColumnAfterPosition(n, paRowData)
-			This.InsertColAfter(n, paRowData)
+		def InsertColumnAfterPosition(_n_, paRowData)
+			This.InsertColAfter(_n_, paRowData)
 
 		#>
 
@@ -849,18 +849,18 @@ class stzTableStructure from stzTable
 	 #  INSERTING A ROW  #
 	#===================#
 
-	def InsertRow(n, paRowData)
+	def InsertRow(_n_, paRowData)
 		if CheckingParams()
-			if isList(n) and IsOneOfTheseNamedParamsList(n,[
+			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[
 					:At, :Before,
 					:AtPosition, :BeforePosition,
 					:AtPositions, :BeforePositions
 				])
 
-				n = n[2]
+				_n_ = _n_[2]
 			ok
 
-			if NOT ( isNumber(n) or ( isList(n) and @IsListOfNumbers(n) ) )
+			if NOT ( isNumber(_n_) or ( isList(_n_) and @IsListOfNumbers(_n_) ) )
 				StzRaise("Incorrect param type! n must be a number or a list of numbers.")
 			ok
 
@@ -869,61 +869,61 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		if isList(n)
-			This.InsertRowAtPositions(n, paRowData)
+		if isList(_n_)
+			This.InsertRowAtPositions(_n_, paRowData)
 			return
 		ok
 
-		nCols = This.NumberOfCols()
-		nRows = This.NumberOfRows()
-		nRowData = len(parowData)
-		nMin = @Min([nRowData , nCols ])
+		_nCols_ = This.NumberOfCols()
+		_nRows_ = This.NumberOfRows()
+		_nRowData_ = len(parowData)
+		_nMin_ = @Min([_nRowData_ , _nCols_ ])
 
 		# Filling the missing cells by ""
 
-		if nRowData < nCols
-			for i = nRowData+1 to nCols
+		if _nRowData_ < _nCols_
+			for i = _nRowData_+1 to _nCols_
 				paRowData + ""
 			next
 		ok
 
 		# Doing the job
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
-		for i = 1 to nCols
-			ring_insert(aContent[i][2], n, paRowData[i])
+		for i = 1 to _nCols_
+			ring_insert(_aContent_[i][2], _n_, paRowData[i])
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 
 		#< @FunctionAlternativeForms
 
-		def InsertRowBefore(n, paRowData)
-			This.InsertRow(n, paRowData)
+		def InsertRowBefore(_n_, paRowData)
+			This.InsertRow(_n_, paRowData)
 
-		def InsertRowBeforePosition(n, paRowData)
-			This.InsertRow(n, paRowData)
+		def InsertRowBeforePosition(_n_, paRowData)
+			This.InsertRow(_n_, paRowData)
 
 		#--
 
-		def insertRowAt(n, paRowData)
-			This.InsertRow(n, paRowData)
+		def insertRowAt(_n_, paRowData)
+			This.InsertRow(_n_, paRowData)
 
-		def InsertRowAtPosition(n, paRowData)
-			This.InsertRow(n, paRowData)
+		def InsertRowAtPosition(_n_, paRowData)
+			This.InsertRow(_n_, paRowData)
 
 		#>
 
-	def InsertRowAfter(n, paRowData)
-		This.InsertRowAt(n+1, paRowData)
+	def InsertRowAfter(_n_, paRowData)
+		This.InsertRowAt(_n_+1, paRowData)
 
 		#< @FunctionAlternativeForm
 
-		def InsertRowAfterPosition(n, paRowData)
-			This.InsertRowAfter(n, paRowData)
+		def InsertRowAfterPosition(_n_, paRowData)
+			This.InsertRowAfter(_n_, paRowData)
 
 		#>
 
@@ -938,10 +938,10 @@ class stzTableStructure from stzTable
 			ok
 		ok
 
-		anPos = new stzList( U(panPos) ).Sorted()
-		nLen = len(anPos)
+		_anPos_ = new stzList( U(panPos) ).Sorted()
+		_nLen_ = len(_anPos_)
 
-		for i = nLen to 1 step -1
+		for i = _nLen_ to 1 step -1
 			This.InsertRowAtPosition(panPos[i], paRow)
 		next
 

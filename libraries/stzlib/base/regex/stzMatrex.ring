@@ -3,14 +3,14 @@
 # Companion to stzNumbrex for 2D numerical data
 
 # Quick constructor functions
-func StzMatrexQ(cPattern)
-	return new stzMatrex(cPattern)
+func StzMatrexQ(_cPattern_)
+	return new stzMatrex(_cPattern_)
 
-func Matrex(cPattern)
-	return new stzMatrex(cPattern)
+func Matrex(_cPattern_)
+	return new stzMatrex(_cPattern_)
 
-func Mx(cPattern)
-	return new stzMatrex(cPattern)
+func Mx(_cPattern_)
+	return new stzMatrex(_cPattern_)
 
 func IsStzMatrex(pObj)
 	if isObject(pObj) and classname(pObj) = "stzmatrex"
@@ -52,424 +52,424 @@ class stzMatrex from stzObject
 	def _Mid(s, n1, n2)
 		return @StzMid(s, n1, n2 - n1 + 1)
 
-	def NormalizePattern(cPattern)
-		cPattern = trim(cPattern)
-		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
-			cPattern = "{" + cPattern + "}"
+	def NormalizePattern(_cPattern_)
+		_cPattern_ = trim(_cPattern_)
+		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
+			_cPattern_ = "{" + _cPattern_ + "}"
 		ok
-		return cPattern
+		return _cPattern_
 	
 	  #--------------------#
 	 #  PATTERN PARSING   #
 	#--------------------#
 	
-def ParsePattern(cPattern)
-	cInner = This._Mid(cPattern, 2, len(cPattern) - 1)
-	cInner = trim(cInner)
+def ParsePattern(_cPattern_)
+	_cInner_ = This._Mid(_cPattern_, 2, len(_cPattern_) - 1)
+	_cInner_ = trim(_cInner_)
 	
 	if @bDebugMode
-		? "Parsing inner pattern: " + cInner
+		? "Parsing inner pattern: " + _cInner_
 	ok
 	
-	aParts = This.SplitByOperator(cInner, "->")
-	aTokens = []
-	nLenParts = len(aParts)
+	_aParts_ = This.SplitByOperator(_cInner_, "->")
+	_aTokens_ = []
+	_nLenParts_ = len(_aParts_)
 	
-	for i = 1 to nLenParts
-		cPart = trim(aParts[i])
+	for _i_ = 1 to _nLenParts_
+		_cPart_ = trim(_aParts_[_i_])
 		
 		if @bDebugMode
-			? ">>> Processing part " + i + ": [" + cPart + "]"
+			? ">>> Processing part " + _i_ + ": [" + _cPart_ + "]"
 		ok
 		
-		if cPart = ""
+		if _cPart_ = ""
 			loop
 		ok
 		
-		if StzFindFirst(cPart, "|") > 0
+		if StzFindFirst(_cPart_, "|") > 0
 			if @bDebugMode
 				? ">>> Detected alternation"
 			ok
-			aToken = This.ParseAlternation(cPart)
-		but StzFindFirst(cPart, "&") > 0
+			_aToken_ = This.ParseAlternation(_cPart_)
+		but StzFindFirst(_cPart_, "&") > 0
 			if @bDebugMode
 				? ">>> Detected conjunction"
 			ok
-			aToken = This.ParseConjunction(cPart)
+			_aToken_ = This.ParseConjunction(_cPart_)
 		else
 			if @bDebugMode
 				? ">>> Parsing as single token"
 			ok
-			aToken = This.ParseSingleToken(cPart)
+			_aToken_ = This.ParseSingleToken(_cPart_)
 		ok
 		
 		if @bDebugMode
-			? ">>> Token result: " + @@(aToken)
-			? ">>> Token length: " + len(aToken)
+			? ">>> Token result: " + @@(_aToken_)
+			? ">>> Token length: " + len(_aToken_)
 		ok
 		
 		# Remove this condition - ALWAYS add tokens
-		aTokens + aToken
+		_aTokens_ + _aToken_
 	next
 	
 	if @bDebugMode
-		? ">>> Final token count: " + len(aTokens)
+		? ">>> Final token count: " + len(_aTokens_)
 	ok
 	
-	return aTokens
+	return _aTokens_
 	
 	def SplitByOperator(cStr, cOperator)
-		aParts = []
-		cCurrent = ""
-		nDepth = 0
-		nLen = len(cStr)
-		nOpLen = len(cOperator)
+		_aParts_ = []
+		_cCurrent_ = ""
+		_nDepth_ = 0
+		_nLen_ = len(cStr)
+		_nOpLen_ = len(cOperator)
 		
-		for i = 1 to nLen
-			cChar = This._Mid(cStr, i, i)
+		for _i_ = 1 to _nLen_
+			_cChar_ = This._Mid(cStr, _i_, _i_)
 			
-			if cChar = "(" or cChar = "{"
-				nDepth++
-				cCurrent += cChar
-			but cChar = ")" or cChar = "}"
-				nDepth--
-				cCurrent += cChar
-			but nDepth = 0 and This._Mid(cStr, i, i + nOpLen - 1) = cOperator
-				aParts + trim(cCurrent)
-				cCurrent = ""
-				i += nOpLen - 1
+			if _cChar_ = "(" or _cChar_ = "{"
+				_nDepth_++
+				_cCurrent_ += _cChar_
+			but _cChar_ = ")" or _cChar_ = "}"
+				_nDepth_--
+				_cCurrent_ += _cChar_
+			but _nDepth_ = 0 and This._Mid(cStr, _i_, _i_ + _nOpLen_ - 1) = cOperator
+				_aParts_ + trim(_cCurrent_)
+				_cCurrent_ = ""
+				_i_ += _nOpLen_ - 1
 			else
-				cCurrent += cChar
+				_cCurrent_ += _cChar_
 			ok
 		next
 		
-		if len(cCurrent) > 0
-			aParts + trim(cCurrent)
+		if len(_cCurrent_) > 0
+			_aParts_ + trim(_cCurrent_)
 		ok
 		
-		return aParts
+		return _aParts_
 	
-	def ParseAlternation(cTokenStr)
-		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
+	def ParseAlternation(_cTokenStr_)
+		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 		ok
 		
-		aParts = This.SplitByOperatOr(cTokenStr, "|")
-		aAlternatives = []
-		nLenParts = len(aParts)
+		_aParts_ = This.SplitByOperatOr(_cTokenStr_, "|")
+		_aAlternatives_ = []
+		_nLenParts_ = len(_aParts_)
 		
-		for i = 1 to nLenParts
-			cPart = trim(aParts[i])
-			if cPart != ""
-				aToken = This.ParseSingleToken(cPart)
-				if len(aToken) > 0
-					aAlternatives + aToken
+		for _i_ = 1 to _nLenParts_
+			_cPart_ = trim(_aParts_[_i_])
+			if _cPart_ != ""
+				_aToken_ = This.ParseSingleToken(_cPart_)
+				if len(_aToken_) > 0
+					_aAlternatives_ + _aToken_
 				ok
 			ok
 		next
 		
 		return [
 			["type", "alternation"],
-			["alternatives", aAlternatives],
+			["alternatives", _aAlternatives_],
 			["negated", 0]
 		]
 	
-def ParseConjunction(cTokenStr)
-	if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-		cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
+def ParseConjunction(_cTokenStr_)
+	if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
+		_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
 	ok
 	
-	aParts = This.SplitByOperatOr(cTokenStr, "&")
-	aConditions = []
-	nLenParts = len(aParts)
+	_aParts_ = This.SplitByOperatOr(_cTokenStr_, "&")
+	_aConditions_ = []
+	_nLenParts_ = len(_aParts_)
 	
 	if @bDebugMode
-		? ">>>> ParseConjunction: " + nLenParts + " parts"
+		? ">>>> ParseConjunction: " + _nLenParts_ + " parts"
 	ok
 	
-	for i = 1 to nLenParts
-		cPart = trim(aParts[i])
+	for _i_ = 1 to _nLenParts_
+		_cPart_ = trim(_aParts_[_i_])
 		
 		if @bDebugMode
-			? ">>>> Conjunction part " + i + ": [" + cPart + "]"
+			? ">>>> Conjunction part " + _i_ + ": [" + _cPart_ + "]"
 		ok
 		
-		if cPart != ""
-			aToken = This.ParseSingleToken(cPart)
+		if _cPart_ != ""
+			_aToken_ = This.ParseSingleToken(_cPart_)
 			
 			if @bDebugMode
-				? ">>>> Parsed token: " + @@(aToken)
+				? ">>>> Parsed token: " + @@(_aToken_)
 			ok
 			
 			# ALWAYS add - don't skip errors
-			aConditions + aToken
+			_aConditions_ + _aToken_
 		ok
 	next
 	
 	return [
 		["type", "conjunction"],
-		["conditions", aConditions],
+		["conditions", _aConditions_],
 		["negated", 0]
 	]
 	
-	def ParseSingleToken(cTokenStr)
-		cTokenStr = trim(cTokenStr)
-		if cTokenStr = ""
+	def ParseSingleToken(_cTokenStr_)
+		_cTokenStr_ = trim(_cTokenStr_)
+		if _cTokenStr_ = ""
 			return []
 		ok
 		
-		cOriginal = cTokenStr
-		bNegated = 0
+		_cOriginal_ = _cTokenStr_
+		_bNegated_ = 0
 		
-		if startsWith(StzLower(cTokenStr), "@!")
-			bNegated = 1
-			cTokenStr = This._Mid(cTokenStr, 3, len(cTokenStr))
+		if startsWith(StzLower(_cTokenStr_), "@!")
+			_bNegated_ = 1
+			_cTokenStr_ = This._Mid(_cTokenStr_, 3, len(_cTokenStr_))
 			
 			if @bDebugMode
-				? "Negation detected! Remaining: " + cTokenStr
+				? "Negation detected! Remaining: " + _cTokenStr_
 			ok
 		ok
 		
-		cType = ""
-		cValue = ""
-		aConstraints = []
-		nMin = 1
-		nMax = 1
+		_cType_ = ""
+		_cValue_ = ""
+		_aConstraints_ = []
+		_nMin_ = 1
+		_nMax_ = 1
 		
-		cTokenStr = StzLower(cTokenStr)
+		_cTokenStr_ = StzLower(_cTokenStr_)
 		
 		# Parse token types
-		if startsWith(cTokenStr, "@size")
-			cType = "size"
-			cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
-		but startsWith(cTokenStr, "size")
-			cType = "size"
-			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
+		if startsWith(_cTokenStr_, "@size")
+			_cType_ = "size"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 6, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "size")
+			_cType_ = "size"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 5, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@shape")
-			cType = "shape"
-			cTokenStr = This._Mid(cTokenStr, 7, len(cTokenStr))
-		but startsWith(cTokenStr, "shape")
-			cType = "shape"
-			cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@shape")
+			_cType_ = "shape"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 7, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "shape")
+			_cType_ = "shape"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 6, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@element")
-			cType = "element"
-			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
-		but startsWith(cTokenStr, "element")
-			cType = "element"
-			cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@element")
+			_cType_ = "element"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "element")
+			_cType_ = "element"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 8, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@row")
-			cType = "row"
-			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
-		but startsWith(cTokenStr, "row")
-			cType = "row"
-			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@row")
+			_cType_ = "row"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 5, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "row")
+			_cType_ = "row"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 4, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@col")
-			cType = "col"
-			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
-		but startsWith(cTokenStr, "col")
-			cType = "col"
-			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@col")
+			_cType_ = "col"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 5, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "col")
+			_cType_ = "col"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 4, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@diagonal")
-			cType = "diagonal"
-			cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
-		but startsWith(cTokenStr, "diagonal")
-			cType = "diagonal"
-			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@diagonal")
+			_cType_ = "diagonal"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 10, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "diagonal")
+			_cType_ = "diagonal"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@property")
-			cType = "property"
-			cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
-		but startsWith(cTokenStr, "property")
-			cType = "property"
-			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@property")
+			_cType_ = "property"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 10, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "property")
+			_cType_ = "property"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@pattern")
-			cType = "pattern"
-			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
-		but startsWith(cTokenStr, "pattern")
-			cType = "pattern"
-			cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@pattern")
+			_cType_ = "pattern"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 9, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "pattern")
+			_cType_ = "pattern"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 8, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@determinant")
-			cType = "determinant"
-			cTokenStr = This._Mid(cTokenStr, 13, len(cTokenStr))
-		but startsWith(cTokenStr, "determinant")
-			cType = "determinant"
-			cTokenStr = This._Mid(cTokenStr, 12, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@determinant")
+			_cType_ = "determinant"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 13, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "determinant")
+			_cType_ = "determinant"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 12, len(_cTokenStr_))
 			
-		but startsWith(cTokenStr, "@sum")
-			cType = "sum"
-			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
-		but startsWith(cTokenStr, "sum")
-			cType = "sum"
-			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
+		but startsWith(_cTokenStr_, "@sum")
+			_cType_ = "sum"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 5, len(_cTokenStr_))
+		but startsWith(_cTokenStr_, "sum")
+			_cType_ = "sum"
+			_cTokenStr_ = This._Mid(_cTokenStr_, 4, len(_cTokenStr_))
 			
 		else
 			# UNKNOWN TOKEN - return error marker
 			if @bDebugMode
-				? "Unknown token type: " + cTokenStr
+				? "Unknown token type: " + _cTokenStr_
 			ok
 			return [
 				["type", "ERROR"],
-				["value", cOriginal],
+				["value", _cOriginal_],
 				["message", "Unrecognized token type"]
 			]
 		ok
 		
 		# Parse parentheses content
-		nOpenParen = StzFindFirst(cTokenStr, "(")
-		nCloseParen = 0
+		_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
+		_nCloseParen_ = 0
 
-		if nOpenParen > 0
-			nCloseParen = StzFindFirst(cTokenStr, ")")
-			if nCloseParen > nOpenParen
-				cContent = This._Mid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+		if _nOpenParen_ > 0
+			_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+			if _nCloseParen_ > _nOpenParen_
+				_cContent_ = This._Mid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
 				
 				if @bDebugMode
-					? ">> cContent: " + cContent
-					? ">> cType: " + cType
+					? ">> cContent: " + _cContent_
+					? ">> cType: " + _cType_
 				ok
 				
-				if cType = "property" or cType = "shape" or 
-				   cType = "pattern" or cType = "size"
-					cValue = cContent
+				if _cType_ = "property" or _cType_ = "shape" or 
+				   _cType_ = "pattern" or _cType_ = "size"
+					_cValue_ = _cContent_
 				else
-					aConstraints = This.ParseConstraints(cContent, cType)
+					_aConstraints_ = This.ParseConstraints(_cContent_, _cType_)
 				ok
 			ok
 		ok
 		
 		# Parse quantifiers
-		cQuantPart = ""
-		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
-			cQuantPart = This._Mid(cTokenStr, nCloseParen + 1, len(cTokenStr))
+		_cQuantPart_ = ""
+		if _nCloseParen_ > 0 and _nCloseParen_ < len(_cTokenStr_)
+			_cQuantPart_ = This._Mid(_cTokenStr_, _nCloseParen_ + 1, len(_cTokenStr_))
 		ok
 		
-		cQuantPart = trim(cQuantPart)
+		_cQuantPart_ = trim(_cQuantPart_)
 		
-		if len(cQuantPart) > 0
-			if StzFindFirst(cQuantPart, ":") > 0
-				nColon = StzFindFirst(cQuantPart, ":")
-				cBeforeColon = This._Mid(cQuantPart, 1, nColon - 1)
-				cAfterColon = This._Mid(cQuantPart, nColon + 1, len(cQuantPart))
+		if len(_cQuantPart_) > 0
+			if StzFindFirst(_cQuantPart_, ":") > 0
+				_nColon_ = StzFindFirst(_cQuantPart_, ":")
+				_cBeforeColon_ = This._Mid(_cQuantPart_, 1, _nColon_ - 1)
+				_cAfterColon_ = This._Mid(_cQuantPart_, _nColon_ + 1, len(_cQuantPart_))
 				
-				cBeforeColon = trim(cBeforeColon)
-				if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-					if StzFindFirst(cBeforeColon, "-") > 0
-						aSection = @split(cBeforeColon, "-")
-						if len(aSection) = 2
-							nMin = 0 + trim(aSection[1])
-							nMax = 0 + trim(aSection[2])
+				_cBeforeColon_ = trim(_cBeforeColon_)
+				if len(_cBeforeColon_) > 0 and This.IsNumeric(_cBeforeColon_)
+					if StzFindFirst(_cBeforeColon_, "-") > 0
+						_aSection_ = @split(_cBeforeColon_, "-")
+						if len(_aSection_) = 2
+							_nMin_ = 0 + trim(_aSection_[1])
+							_nMax_ = 0 + trim(_aSection_[2])
 						ok
 					else
-						nMin = 0 + cBeforeColon
-						nMax = nMin
+						_nMin_ = 0 + _cBeforeColon_
+						_nMax_ = _nMin_
 					ok
 				ok
 				
-				aMoreConstraints = This.ParseConstraints(":" + cAfterColon, cType)
-				nLenMore = len(aMoreConstraints)
-				for i = 1 to nLenMore
-					aConstraints + aMoreConstraints[i]
+				_aMoreConstraints_ = This.ParseConstraints(":" + _cAfterColon_, _cType_)
+				_nLenMore_ = len(_aMoreConstraints_)
+				for _i_ = 1 to _nLenMore_
+					_aConstraints_ + _aMoreConstraints_[_i_]
 				next
 			else
-				cLastChar = StzRight(cQuantPart, 1)
-				if cLastChar = "+"
-					nMin = 1
-					nMax = 999999
-				but cLastChar = "*"
-					nMin = 0
-					nMax = 999999
-				but cLastChar = "?"
-					nMin = 0
-					nMax = 1
-				but This.IsNumeric(cQuantPart)
-					if StzFindFirst(cQuantPart, "-") > 0
-						aSection = @split(cQuantPart, "-")
-						if len(aSection) = 2
-							nMin = 0 + trim(aSection[1])
-							nMax = 0 + trim(aSection[2])
+				_cLastChar_ = StzRight(_cQuantPart_, 1)
+				if _cLastChar_ = "+"
+					_nMin_ = 1
+					_nMax_ = 999999
+				but _cLastChar_ = "*"
+					_nMin_ = 0
+					_nMax_ = 999999
+				but _cLastChar_ = "?"
+					_nMin_ = 0
+					_nMax_ = 1
+				but This.IsNumeric(_cQuantPart_)
+					if StzFindFirst(_cQuantPart_, "-") > 0
+						_aSection_ = @split(_cQuantPart_, "-")
+						if len(_aSection_) = 2
+							_nMin_ = 0 + trim(_aSection_[1])
+							_nMax_ = 0 + trim(_aSection_[2])
 						ok
 					else
-						nMin = 0 + cQuantPart
-						nMax = nMin
+						_nMin_ = 0 + _cQuantPart_
+						_nMax_ = _nMin_
 					ok
 				ok
 			ok
 		ok
 		
 		return [
-			["type", cType],
-			["value", cValue],
-			["constraints", aConstraints],
-			["min", nMin],
-			["max", nMax],
-			["negated", bNegated]
+			["type", _cType_],
+			["value", _cValue_],
+			["constraints", _aConstraints_],
+			["min", _nMin_],
+			["max", _nMax_],
+			["negated", _bNegated_]
 		]
 	
-	def ParseConstraints(cConstraintStr, cType)
-		aConstraints = []
+	def ParseConstraints(cConstraintStr, _cType_)
+		_aConstraints_ = []
 		
 		if cConstraintStr = ""
-			return aConstraints
+			return _aConstraints_
 		ok
 		
-		if cType = "element"
+		if _cType_ = "element"
 			if StzFindFirst(cConstraintStr, "..") > 0
-				aParts = @split(cConstraintStr, "..")
-				if len(aParts) = 2
-					aConstraints + [
+				_aParts_ = @split(cConstraintStr, "..")
+				if len(_aParts_) = 2
+					_aConstraints_ + [
 						["type", "range"],
-						["start", 0 + trim(aParts[1])],
-						["end", 0 + trim(aParts[2])]
+						["start", 0 + trim(_aParts_[1])],
+						["end", 0 + trim(_aParts_[2])]
 					]
 				ok
 			but StzFindFirst(cConstraintStr, "{") > 0
-				nStart = StzFindFirst(cConstraintStr, "{")
-				nEnd = StzFindFirst(cConstraintStr, "}")
-				cSet = This._Mid(cConstraintStr, nStart + 1, nEnd - 1)
-				aValues = @split(cSet, ";")
-				aConstraints + [
+				_nStart_ = StzFindFirst(cConstraintStr, "{")
+				_nEnd_ = StzFindFirst(cConstraintStr, "}")
+				_cSet_ = This._Mid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
+				_aValues_ = @split(_cSet_, ";")
+				_aConstraints_ + [
 					["type", "set"],
-					["values", aValues]
+					["values", _aValues_]
 				]
 			but This.IsNumeric(cConstraintStr)
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
 			ok
 		
-		but cType = "size"
+		but _cType_ = "size"
 			# Handle size constraints like "3x3", "mxn", ">4"
 			if StzFindFirst(cConstraintStr, "x") > 0
-				aParts = @split(cConstraintStr, "x")
-				if len(aParts) = 2
-					aConstraints + [
+				_aParts_ = @split(cConstraintStr, "x")
+				if len(_aParts_) = 2
+					_aConstraints_ + [
 						["type", "dimensions"],
-						["rows", trim(aParts[1])],
-						["cols", trim(aParts[2])]
+						["rows", trim(_aParts_[1])],
+						["cols", trim(_aParts_[2])]
 					]
 				ok
 			but startsWith(cConstraintStr, ">")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "greater"],
 					["value", 0 + This._Mid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
-				aConstraints + [
+				_aConstraints_ + [
 					["type", "less"],
 					["value", 0 + This._Mid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			ok
 		ok
 		
-		return aConstraints
+		return _aConstraints_
 	
 	  #--------------------#
 	 #  MATCHING LOGIC    #
@@ -487,50 +487,50 @@ def ParseConjunction(cTokenStr)
 			? "Size: " + len(paMatrix) + "x" + len(paMatrix[1])
 		ok
 		
-		bResult = This.MatchTokens(@aTokens, @aMatrix)
+		_bResult_ = This.MatchTokens(@aTokens, @aMatrix)
 		
-		if bResult
+		if _bResult_
 			This.ExtractParts(@aMatrix)
 		ok
 		
 		if @bDebugMode
-			? "Result: " + bResult
+			? "Result: " + _bResult_
 		ok
 		
-		return bResult
+		return _bResult_
 	
-	def MatchTokens(aTokens, aMatrix)
-		nLenTokens = len(aTokens)
-		for i = 1 to nLenTokens
-			aToken = aTokens[i]
+	def MatchTokens(_aTokens_, aMatrix)
+		_nLenTokens_ = len(_aTokens_)
+		for _i_ = 1 to _nLenTokens_
+			_aToken_ = _aTokens_[_i_]
 			
-			if HasKey(aToken, "type") and aToken["type"] = "alternation"
-				bMatched = FALSE
-				if HasKey(aToken, "alternatives")
-					nLenAlt = len(aToken["alternatives"])
-					for j = 1 to nLenAlt
-						if This.MatchSingleToken(aToken["alternatives"][j], aMatrix)
-							bMatched = TRUE
+			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
+				_bMatched_ = FALSE
+				if HasKey(_aToken_, "alternatives")
+					_nLenAlt_ = len(_aToken_["alternatives"])
+					for j = 1 to _nLenAlt_
+						if This.MatchSingleToken(_aToken_["alternatives"][j], aMatrix)
+							_bMatched_ = TRUE
 							exit
 						ok
 					next
 				ok
-				if not bMatched
+				if not _bMatched_
 					return FALSE
 				ok
 			
-			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
-				if HasKey(aToken, "conditions")
-					nLenCond = len(aToken["conditions"])
-					for j = 1 to nLenCond
-						if not This.MatchSingleToken(aToken["conditions"][j], aMatrix)
+			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
+				if HasKey(_aToken_, "conditions")
+					_nLenCond_ = len(_aToken_["conditions"])
+					for j = 1 to _nLenCond_
+						if not This.MatchSingleToken(_aToken_["conditions"][j], aMatrix)
 							return FALSE
 						ok
 					next
 				ok
 			
 			else
-				if not This.MatchSingleToken(aToken, aMatrix)
+				if not This.MatchSingleToken(_aToken_, aMatrix)
 					return FALSE
 				ok
 			ok
@@ -538,133 +538,133 @@ def ParseConjunction(cTokenStr)
 		
 		return TRUE
 	
-	def MatchSingleToken(aToken, aMatrix)
-		bResult = FALSE
+	def MatchSingleToken(_aToken_, aMatrix)
+		_bResult_ = FALSE
 		
 		if @bDebugMode
-			? "Checking token type: " + aToken["type"]
-			if HasKey(aToken, "negated")
-				? "Negated value: " + aToken["negated"]
+			? "Checking token type: " + _aToken_["type"]
+			if HasKey(_aToken_, "negated")
+				? "Negated value: " + _aToken_["negated"]
 			ok
 		ok
 		
-		if HasKey(aToken, "type")
-			cType = aToken["type"]
+		if HasKey(_aToken_, "type")
+			_cType_ = _aToken_["type"]
 			
-			if cType = "size"
-				bResult = This.CheckSize(aToken, aMatrix)
+			if _cType_ = "size"
+				_bResult_ = This.CheckSize(_aToken_, aMatrix)
 			
-			but cType = "shape"
-				if HasKey(aToken, "value")
-					bResult = This.CheckShape(aToken["value"], aMatrix)
+			but _cType_ = "shape"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckShape(_aToken_["value"], aMatrix)
 				ok
 			
-			but cType = "element"
-				bResult = This.CheckElements(aToken, aMatrix)
+			but _cType_ = "element"
+				_bResult_ = This.CheckElements(_aToken_, aMatrix)
 			
-			but cType = "row"
-				bResult = This.CheckRows(aToken, aMatrix)
+			but _cType_ = "row"
+				_bResult_ = This.CheckRows(_aToken_, aMatrix)
 			
-			but cType = "col"
-				bResult = This.CheckCols(aToken, aMatrix)
+			but _cType_ = "col"
+				_bResult_ = This.CheckCols(_aToken_, aMatrix)
 			
-			but cType = "diagonal"
-				bResult = This.CheckDiagonal(aToken, aMatrix)
+			but _cType_ = "diagonal"
+				_bResult_ = This.CheckDiagonal(_aToken_, aMatrix)
 			
-			but cType = "property"
-				if HasKey(aToken, "value")
-					bResult = This.CheckProperty(aToken["value"], aMatrix)
+			but _cType_ = "property"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckProperty(_aToken_["value"], aMatrix)
 				ok
 			
-			but cType = "pattern"
-				if HasKey(aToken, "value")
-					bResult = This.CheckPattern(aToken["value"], aMatrix)
+			but _cType_ = "pattern"
+				if HasKey(_aToken_, "value")
+					_bResult_ = This.CheckPattern(_aToken_["value"], aMatrix)
 				ok
 			
-			but cType = "determinant"
-				bResult = This.CheckDeterminant(aToken, aMatrix)
+			but _cType_ = "determinant"
+				_bResult_ = This.CheckDeterminant(_aToken_, aMatrix)
 			
-			but cType = "sum"
-				bResult = This.CheckSum(aToken, aMatrix)
+			but _cType_ = "sum"
+				_bResult_ = This.CheckSum(_aToken_, aMatrix)
 			ok
 		ok
 		
 		if @bDebugMode
-			? "Result before negation: " + bResult
+			? "Result before negation: " + _bResult_
 		ok
 		
-		if HasKey(aToken, "negated") and aToken["negated"] = 1
+		if HasKey(_aToken_, "negated") and _aToken_["negated"] = 1
 			if @bDebugMode
 				? "Applying negation"
 			ok
-			bResult = not bResult
+			_bResult_ = not _bResult_
 		ok
 		
 		if @bDebugMode
-			? "Final result: " + bResult
+			? "Final result: " + _bResult_
 		ok
 		
-		return bResult
+		return _bResult_
 	
 	  #------------------------#
 	 #  CHECKING METHODS      #
 	#------------------------#
 	
-	def CheckSize(aToken, aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckSize(_aToken_, aMatrix)
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if HasKey(aToken, "value")
-			cValue = aToken["value"]
+		if HasKey(_aToken_, "value")
+			_cValue_ = _aToken_["value"]
 			
-			if StzFindFirst(cValue, "x") > 0
-				aParts = @split(cValue, "x")
-				if len(aParts) = 2
-					cRowSpec = trim(aParts[1])
-					cColSpec = trim(aParts[2])
+			if StzFindFirst(_cValue_, "x") > 0
+				_aParts_ = @split(_cValue_, "x")
+				if len(_aParts_) = 2
+					_cRowSpec_ = trim(_aParts_[1])
+					_cColSpec_ = trim(_aParts_[2])
 					
-					if This.IsNumeric(cRowSpec) and This.IsNumeric(cColSpec)
-						return nRows = (0 + cRowSpec) and nCols = (0 + cColSpec)
-					but cRowSpec = "m" or cRowSpec = "n"
+					if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
+						return _nRows_ = (0 + _cRowSpec_) and _nCols_ = (0 + _cColSpec_)
+					but _cRowSpec_ = "m" or _cRowSpec_ = "n"
 						return TRUE  # Any size accepted
 					ok
 				ok
 			ok
 		ok
 		
-		if HasKey(aToken, "constraints")
-			nLenConstr = len(aToken["constraints"])
-			for i = 1 to nLenConstr
-				aConstraint = aToken["constraints"][i]
+		if HasKey(_aToken_, "constraints")
+			_nLenConstr_ = len(_aToken_["constraints"])
+			for _i_ = 1 to _nLenConstr_
+				_aConstraint_ = _aToken_["constraints"][_i_]
 				
-				if HasKey(aConstraint, "type")
-					cConstrType = aConstraint["type"]
+				if HasKey(_aConstraint_, "type")
+					_cConstrType_ = _aConstraint_["type"]
 					
-					if cConstrType = "dimensions"
-						cRowSpec = aConstraint["rows"]
-						cColSpec = aConstraint["cols"]
+					if _cConstrType_ = "dimensions"
+						_cRowSpec_ = _aConstraint_["rows"]
+						_cColSpec_ = _aConstraint_["cols"]
 						
-						if This.IsNumeric(cRowSpec) and This.IsNumeric(cColSpec)
-							if nRows != (0 + cRowSpec) or nCols != (0 + cColSpec)
+						if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
+							if _nRows_ != (0 + _cRowSpec_) or _nCols_ != (0 + _cColSpec_)
 								return FALSE
 							ok
 						ok
 					
-					but cConstrType = "greater"
-						nMin = nRows
-						if nCols < nMin
-							nMin = nCols
+					but _cConstrType_ = "greater"
+						_nMin_ = _nRows_
+						if _nCols_ < _nMin_
+							_nMin_ = _nCols_
 						ok
-						if nMin <= aConstraint["value"]
+						if _nMin_ <= _aConstraint_["value"]
 							return FALSE
 						ok
 					
-					but cConstrType = "less"
-						nMax = nRows
-						if nCols > nMax
-							nMax = nCols
+					but _cConstrType_ = "less"
+						_nMax_ = _nRows_
+						if _nCols_ > _nMax_
+							_nMax_ = _nCols_
 						ok
-						if nMax >= aConstraint["value"]
+						if _nMax_ >= _aConstraint_["value"]
 							return FALSE
 						ok
 					ok
@@ -674,76 +674,76 @@ def ParseConjunction(cTokenStr)
 		
 		return TRUE
 	
-	def CheckShape(cShape, aMatrix)
-		cShape = StzLower(trim(cShape))
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckShape(_cShape_, aMatrix)
+		_cShape_ = StzLower(trim(_cShape_))
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if cShape = "square"
-			return nRows = nCols
-		but cShape = "rectangular" or cShape = "rectangle"
-			return nRows != nCols
-		but cShape = "tall"
-			return nRows > nCols
-		but cShape = "wide"
-			return nCols > nRows
-		but cShape = "row" or cShape = "rowvector"
-			return nRows = 1
-		but cShape = "column" or cShape = "colvector"
-			return nCols = 1
+		if _cShape_ = "square"
+			return _nRows_ = _nCols_
+		but _cShape_ = "rectangular" or _cShape_ = "rectangle"
+			return _nRows_ != _nCols_
+		but _cShape_ = "tall"
+			return _nRows_ > _nCols_
+		but _cShape_ = "wide"
+			return _nCols_ > _nRows_
+		but _cShape_ = "row" or _cShape_ = "rowvector"
+			return _nRows_ = 1
+		but _cShape_ = "column" or _cShape_ = "colvector"
+			return _nCols_ = 1
 		ok
 		
 		return FALSE
 	
-	def CheckElements(aToken, aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckElements(_aToken_, aMatrix)
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if HasKey(aToken, "constraints")
-			nLenConstr = len(aToken["constraints"])
-			for i = 1 to nLenConstr
-				aConstraint = aToken["constraints"][i]
+		if HasKey(_aToken_, "constraints")
+			_nLenConstr_ = len(_aToken_["constraints"])
+			for _i_ = 1 to _nLenConstr_
+				_aConstraint_ = _aToken_["constraints"][_i_]
 				
-				if HasKey(aConstraint, "type")
-					cConstrType = aConstraint["type"]
+				if HasKey(_aConstraint_, "type")
+					_cConstrType_ = _aConstraint_["type"]
 					
-					if cConstrType = "range"
-						nStart = aConstraint["start"]
-						nEnd = aConstraint["end"]
+					if _cConstrType_ = "range"
+						_nStart_ = _aConstraint_["start"]
+						_nEnd_ = _aConstraint_["end"]
 						
-						for r = 1 to nRows
-							for c = 1 to nCols
-								nVal = aMatrix[r][c]
-								if nVal < nStart or nVal > nEnd
+						for r = 1 to _nRows_
+							for c = 1 to _nCols_
+								_nVal_ = aMatrix[r][c]
+								if _nVal_ < _nStart_ or _nVal_ > _nEnd_
 									return FALSE
 								ok
 							next
 						next
 					
-					but cConstrType = "set"
-						aValues = aConstraint["values"]
-						for r = 1 to nRows
-							for c = 1 to nCols
-								bFound = FALSE
-								nVal = aMatrix[r][c]
-								nLenValues = len(aValues)
-								for k = 1 to nLenValues
-									if nVal = (0 + trim(aValues[k]))
-										bFound = TRUE
+					but _cConstrType_ = "set"
+						_aValues_ = _aConstraint_["values"]
+						for r = 1 to _nRows_
+							for c = 1 to _nCols_
+								_bFound_ = FALSE
+								_nVal_ = aMatrix[r][c]
+								_nLenValues_ = len(_aValues_)
+								for k = 1 to _nLenValues_
+									if _nVal_ = (0 + trim(_aValues_[k]))
+										_bFound_ = TRUE
 										exit
 									ok
 								next
-								if not bFound
+								if not _bFound_
 									return FALSE
 								ok
 							next
 						next
 					
-					but cConstrType = "exact"
-						nTarget = aConstraint["value"]
-						for r = 1 to nRows
-							for c = 1 to nCols
-								if aMatrix[r][c] != nTarget
+					but _cConstrType_ = "exact"
+						_nTarget_ = _aConstraint_["value"]
+						for r = 1 to _nRows_
+							for c = 1 to _nCols_
+								if aMatrix[r][c] != _nTarget_
 									return FALSE
 								ok
 							next
@@ -755,73 +755,73 @@ def ParseConjunction(cTokenStr)
 		
 		return TRUE
 	
-	def CheckRows(aToken, aMatrix)
+	def CheckRows(_aToken_, aMatrix)
 		# Check row-specific patterns
 		return TRUE
 	
-	def CheckCols(aToken, aMatrix)
+	def CheckCols(_aToken_, aMatrix)
 		# Check column-specific patterns
 		return TRUE
 	
-	def CheckDiagonal(aToken, aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckDiagonal(_aToken_, aMatrix)
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if nRows != nCols
+		if _nRows_ != _nCols_
 			return FALSE  # Only square matrices have proper diagonals
 		ok
 		
 		# Check main diagonal
-		nMin = nRows
-		if nCols < nMin
-			nMin = nCols
+		_nMin_ = _nRows_
+		if _nCols_ < _nMin_
+			_nMin_ = _nCols_
 		ok
 		
 		return TRUE
 	
-	def CheckProperty(cProperty, aMatrix)
-		cProperty = StzLower(trim(cProperty))
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckProperty(_cProperty_, aMatrix)
+		_cProperty_ = StzLower(trim(_cProperty_))
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if cProperty = "symmetric"
-			if nRows != nCols
+		if _cProperty_ = "symmetric"
+			if _nRows_ != _nCols_
 				return FALSE
 			ok
-			for i = 1 to nRows
-				for j = 1 to nCols
-					if aMatrix[i][j] != aMatrix[j][i]
+			for _i_ = 1 to _nRows_
+				for j = 1 to _nCols_
+					if aMatrix[_i_][j] != aMatrix[j][_i_]
 						return FALSE
 					ok
 				next
 			next
 			return TRUE
 		
-		but cProperty = "diagonal"
-			if nRows != nCols
+		but _cProperty_ = "diagonal"
+			if _nRows_ != _nCols_
 				return FALSE
 			ok
-			for i = 1 to nRows
-				for j = 1 to nCols
-					if i != j and aMatrix[i][j] != 0
+			for _i_ = 1 to _nRows_
+				for j = 1 to _nCols_
+					if _i_ != j and aMatrix[_i_][j] != 0
 						return FALSE
 					ok
 				next
 			next
 			return TRUE
 		
-		but cProperty = "identity"
-			if nRows != nCols
+		but _cProperty_ = "identity"
+			if _nRows_ != _nCols_
 				return FALSE
 			ok
-			for i = 1 to nRows
-				for j = 1 to nCols
-					if i = j
-						if aMatrix[i][j] != 1
+			for _i_ = 1 to _nRows_
+				for j = 1 to _nCols_
+					if _i_ = j
+						if aMatrix[_i_][j] != 1
 							return FALSE
 						ok
 					else
-						if aMatrix[i][j] != 0
+						if aMatrix[_i_][j] != 0
 							return FALSE
 						ok
 					ok
@@ -829,36 +829,36 @@ def ParseConjunction(cTokenStr)
 			next
 			return TRUE
 		
-		but cProperty = "zero"
-			for i = 1 to nRows
-				for j = 1 to nCols
-					if aMatrix[i][j] != 0
+		but _cProperty_ = "zero"
+			for _i_ = 1 to _nRows_
+				for j = 1 to _nCols_
+					if aMatrix[_i_][j] != 0
 						return FALSE
 					ok
 				next
 			next
 			return TRUE
 		
-		but cProperty = "upper" or cProperty = "uppertriangular"
-			if nRows != nCols
+		but _cProperty_ = "upper" or _cProperty_ = "uppertriangular"
+			if _nRows_ != _nCols_
 				return FALSE
 			ok
-			for i = 1 to nRows
-				for j = 1 to i-1
-					if aMatrix[i][j] != 0
+			for _i_ = 1 to _nRows_
+				for j = 1 to _i_-1
+					if aMatrix[_i_][j] != 0
 						return FALSE
 					ok
 				next
 			next
 			return TRUE
 		
-		but cProperty = "lower" or cProperty = "lowertriangular"
-			if nRows != nCols
+		but _cProperty_ = "lower" or _cProperty_ = "lowertriangular"
+			if _nRows_ != _nCols_
 				return FALSE
 			ok
-			for i = 1 to nRows
-				for j = i+1 to nCols
-					if aMatrix[i][j] != 0
+			for _i_ = 1 to _nRows_
+				for j = _i_+1 to _nCols_
+					if aMatrix[_i_][j] != 0
 						return FALSE
 					ok
 				next
@@ -868,33 +868,33 @@ def ParseConjunction(cTokenStr)
 		
 		return FALSE
 	
-	def CheckPattern(cPattern, aMatrix)
+	def CheckPattern(_cPattern_, aMatrix)
 		# Check for visual/structural patterns
 		return TRUE
 	
-	def CheckDeterminant(aToken, aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckDeterminant(_aToken_, aMatrix)
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		if nRows != nCols
+		if _nRows_ != _nCols_
 			return FALSE
 		ok
 		
 		# Would call stzMatrix determinant method
 		return TRUE
 	
-	def CheckSum(aToken, aMatrix)
-		nSum = 0
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+	def CheckSum(_aToken_, aMatrix)
+		_nSum_ = 0
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		for i = 1 to nRows
-			for j = 1 to nCols
-				nSum += aMatrix[i][j]
+		for _i_ = 1 to _nRows_
+			for j = 1 to _nCols_
+				_nSum_ += aMatrix[_i_][j]
 			next
 		next
 		
-		if HasKey(aToken, "constraints")
+		if HasKey(_aToken_, "constraints")
 			# Check sum constraints
 		ok
 		
@@ -907,40 +907,40 @@ def ParseConjunction(cTokenStr)
 	def ExtractParts(aMatrix)
 		@aMatchedParts = []
 		
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
 		
-		@aMatchedParts + ["Size", [nRows, nCols]]
+		@aMatchedParts + ["Size", [_nRows_, _nCols_]]
 		@aMatchedParts + ["Matrix", aMatrix]
 		
-		aProps = []
-		if nRows = nCols
-			aProps + "Square"
+		_aProps_ = []
+		if _nRows_ = _nCols_
+			_aProps_ + "Square"
 			
 			if This.IsSymmetric(aMatrix)
-				aProps + "Symmetric"
+				_aProps_ + "Symmetric"
 			ok
 			if This.IsDiagonal(aMatrix)
-				aProps + "Diagonal"
+				_aProps_ + "Diagonal"
 			ok
 			if This.IsIdentity(aMatrix)
-				aProps + "Identity"
+				_aProps_ + "Identity"
 			ok
 		else
-			aProps + "Rectangular"
+			_aProps_ + "Rectangular"
 		ok
 		
-		@aMatchedParts + ["Properties", aProps]
+		@aMatchedParts + ["Properties", _aProps_]
 	
 	def IsSymmetric(aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
-		if nRows != nCols
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
+		if _nRows_ != _nCols_
 			return FALSE
 		ok
-		for i = 1 to nRows
-			for j = 1 to nCols
-				if aMatrix[i][j] != aMatrix[j][i]
+		for _i_ = 1 to _nRows_
+			for j = 1 to _nCols_
+				if aMatrix[_i_][j] != aMatrix[j][_i_]
 					return FALSE
 				ok
 			next
@@ -948,14 +948,14 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def IsDiagonal(aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
-		if nRows != nCols
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
+		if _nRows_ != _nCols_
 			return FALSE
 		ok
-		for i = 1 to nRows
-			for j = 1 to nCols
-				if i != j and aMatrix[i][j] != 0
+		for _i_ = 1 to _nRows_
+			for j = 1 to _nCols_
+				if _i_ != j and aMatrix[_i_][j] != 0
 					return FALSE
 				ok
 			next
@@ -963,19 +963,19 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def IsIdentity(aMatrix)
-		nRows = len(aMatrix)
-		nCols = len(aMatrix[1])
-		if nRows != nCols
+		_nRows_ = len(aMatrix)
+		_nCols_ = len(aMatrix[1])
+		if _nRows_ != _nCols_
 			return FALSE
 		ok
-		for i = 1 to nRows
-			for j = 1 to nCols
-				if i = j
-					if aMatrix[i][j] != 1
+		for _i_ = 1 to _nRows_
+			for j = 1 to _nCols_
+				if _i_ = j
+					if aMatrix[_i_][j] != 1
 						return FALSE
 					ok
 				else
-					if aMatrix[i][j] != 0
+					if aMatrix[_i_][j] != 0
 						return FALSE
 					ok
 				ok
@@ -1018,21 +1018,21 @@ def ParseConjunction(cTokenStr)
 		@aMatrix = paMatrix
 	
 	def Explain()
-		aExplanation = [
+		_aExplanation_ = [
 			["Pattern", @cPattern],
 			["TokenCount", len(@aTokens)],
 			["Tokens", @aTokens]
 		]
 		
 		if len(@aMatrix) > 0
-			aExplanation + ["Target", @aMatrix]
+			_aExplanation_ + ["Target", @aMatrix]
 		ok
 		
 		if len(@aMatchedParts) > 0
-			aExplanation + ["MatchedParts", @aMatchedParts]
+			_aExplanation_ + ["MatchedParts", @aMatchedParts]
 		ok
 		
-		return aExplanation
+		return _aExplanation_
 	
 	  #---------------------------#
 	 #  ADVANCED QUERY METHODS   #
@@ -1048,16 +1048,16 @@ def ParseConjunction(cTokenStr)
 		ok
 
 		# Find all matrices in a list that match the pattern
-		aMatching = []
-		nLen = len(paMatrices)
+		_aMatching_ = []
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				aMatching + paMatrices[i]
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				_aMatching_ + paMatrices[_i_]
 			ok
 		next
 		
-		return aMatching
+		return _aMatching_
 	
 		def MatchingMatricesIn(paMatrices)
 			return THis.MatchingMatrices(paMatrices)
@@ -1074,16 +1074,16 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of lists of numbers.")
 		ok
 
-		anMatching = []
-		nLen = len(paMatrices)
+		_anMatching_ = []
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				anMatching + i
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				_anMatching_ + _i_
 			ok
 		next
 		
-		return anMatching
+		return _anMatching_
 
 		def FindMatchingMatricesIn(paMatrices)
 			return This.FindMatchingMatrices(paMatrices)
@@ -1098,16 +1098,16 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nCount = 0
-		nLen = len(paMatrices)
+		_nCount_ = 0
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				nCount++
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				_nCount_++
 			ok
 		next
 		
-		return nCount
+		return _nCount_
 	
 		def CountMatchingMatricesIn(paMatrices)
 			return This.CountMatchingMatrices(paMatrices)
@@ -1122,11 +1122,11 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = len(paMatrices)
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				return paMatrices[i]
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				return paMatrices[_i_]
 			ok
 		next
 		
@@ -1145,11 +1145,11 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = len(paMatrices)
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				return i
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				return _i_
 			ok
 		next
 		
@@ -1168,10 +1168,10 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = len(paMatrices)
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
 				return TRUE
 			ok
 		next
@@ -1191,10 +1191,10 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of lists of numbers.")
 		ok
 
-		nLen = len(paMatrices)
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if not This.Match(paMatrices[i])
+		for _i_ = 1 to _nLen_
+			if not This.Match(paMatrices[_i_])
 				return FALSE
 			ok
 		next
@@ -1210,13 +1210,13 @@ def ParseConjunction(cTokenStr)
 	
 	def AddConstraint(cConstraint)
 		# Add a new constraint to existing pattern
-		cInner = This._Mid(@cPattern, 2, len(@cPattern) - 1)
-		if len(cInner) > 0
-			cInner += " -> " + cConstraint
+		_cInner_ = This._Mid(@cPattern, 2, len(@cPattern) - 1)
+		if len(_cInner_) > 0
+			_cInner_ += " -> " + cConstraint
 		else
-			cInner = cConstraint
+			_cInner_ = cConstraint
 		ok
-		@cPattern = "{" + cInner + "}"
+		@cPattern = "{" + _cInner_ + "}"
 		@aTokens = This.ParsePattern(@cPattern)
 	
 	def RemoveConstraint(nIndex)
@@ -1233,10 +1233,10 @@ def ParseConjunction(cTokenStr)
 
 		if CheckParams()
 			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "between"
-				aMatix1 = aMatrix1[2]
+				_aMatix1_ = aMatrix1[2]
 			ok
 			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "and"
-				aMatix1 = aMatrix1[2]
+				_aMatix1_ = aMatrix1[2]
 			ok
 		ok
 
@@ -1246,46 +1246,46 @@ def ParseConjunction(cTokenStr)
 
 		# Calculate similarity between two matrices (0-1 scale)
 		
-		nRows1 = len(aMatrix1)
-		nCols1 = len(aMatrix1[1])
-		nRows2 = len(aMatrix2)
-		nCols2 = len(aMatrix2[1])
+		_nRows1_ = len(aMatrix1)
+		_nCols1_ = len(aMatrix1[1])
+		_nRows2_ = len(aMatrix2)
+		_nCols2_ = len(aMatrix2[1])
 		
 		# Different sizes = low similarity
-		if nRows1 != nRows2 or nCols1 != nCols2
+		if _nRows1_ != _nRows2_ or _nCols1_ != _nCols2_
 			return 0.0
 		ok
 		
 		# Calculate element-wise similarity
-		nMatches = 0
-		nTotal = nRows1 * nCols1
+		_nMatches_ = 0
+		_nTotal_ = _nRows1_ * _nCols1_
 		
-		for i = 1 to nRows1
-			for j = 1 to nCols1
-				if aMatrix1[i][j] = aMatrix2[i][j]
-					nMatches++
+		for _i_ = 1 to _nRows1_
+			for j = 1 to _nCols1_
+				if aMatrix1[_i_][j] = aMatrix2[_i_][j]
+					_nMatches_++
 				ok
 			next
 		next
 		
-		return (nMatches * 1.0) / nTotal
+		return (_nMatches_ * 1.0) / _nTotal_
 	
 		def SimilarityScoreBetween(aMatrix1, aMatrix2)
 			return This.SimilarityScore(aMatrix1, aMatrix2)
 
-	def MostSimilarMatrix(aTargetMatrix, paMatrices)
+	def MostSimilarMatrix(_aTargetMatrix_, paMatrices)
 		# Get the matrix in the list most similar to target
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
-				aTargetMatrix = aTargetMatrix[2]
+			if isList(_aTargetMatrix_) and len(_aTargetMatrix_) = 2 and isString(_aTargetMatrix_[1]) and StzLower(_aTargetMatrix_[1]) = "to"
+				_aTargetMatrix_ = _aTargetMatrix_[2]
 			ok
 			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
 
-		if NOT IsMatrix(aTargetMatrix)
+		if NOT IsMatrix(_aTargetMatrix_)
 			StzRaise("Incorrect param type! aTargetMatrix must be a mtrix.")
 		ok
 
@@ -1293,38 +1293,38 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a listy of matrices.")
 		ok
 
-		nBestScore = -1
-		aBestMatrix = []
-		nLen = len(paMatrices)
+		_nBestScore_ = -1
+		_aBestMatrix_ = []
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			nScore = This.SimilarityScore(aTargetMatrix, paMatrices[i])
-			if nScore > nBestScore
-				nBestScore = nScore
-				aBestMatrix = paMatrices[i]
+		for _i_ = 1 to _nLen_
+			_nScore_ = This.SimilarityScore(_aTargetMatrix_, paMatrices[_i_])
+			if _nScore_ > _nBestScore_
+				_nBestScore_ = _nScore_
+				_aBestMatrix_ = paMatrices[_i_]
 			ok
 		next
 		
-		if len(aBestMAtrix) = 0
+		if len(_aBestMatrix_) = 0
 			StzRaise("No simular matrix found!")
 		ok
 
-		return aBestMatrix
+		return _aBestMatrix_
 	
-	def FindMostSimilarMatrix(aTargetMatrix, paMatrices)
+	def FindMostSimilarMatrix(_aTargetMatrix_, paMatrices)
 		# Find the matrix in the list most similar to target
 		# and return its position in paMatrices
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
-				aTargetMatrix = aTargetMatrix[2]
+			if isList(_aTargetMatrix_) and len(_aTargetMatrix_) = 2 and isString(_aTargetMatrix_[1]) and StzLower(_aTargetMatrix_[1]) = "to"
+				_aTargetMatrix_ = _aTargetMatrix_[2]
 			ok
 			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
 
-		if NOT IsMatrix(aTargetMatrix)
+		if NOT IsMatrix(_aTargetMatrix_)
 			StzRaise("Incorrect param type! aTargetMatrix must be a mtrix.")
 		ok
 
@@ -1332,19 +1332,19 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a listy of matrices.")
 		ok
 
-		nBestScore = -1
-		nBestMatrix = 0
-		nLen = len(paMatrices)
+		_nBestScore_ = -1
+		_nBestMatrix_ = 0
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			nScore = This.SimilarityScore(aTargetMatrix, paMatrices[i])
-			if nScore > nBestScore
-				nBestScore = nScore
-				nBestMatrix = i
+		for _i_ = 1 to _nLen_
+			_nScore_ = This.SimilarityScore(_aTargetMatrix_, paMatrices[_i_])
+			if _nScore_ > _nBestScore_
+				_nBestScore_ = _nScore_
+				_nBestMatrix_ = _i_
 			ok
 		next
 		
-		return nBestMatrix
+		return _nBestMatrix_
 
 	  #-------------------------------#
 	 #  FILTERING OPERATION          #
@@ -1361,59 +1361,59 @@ def ParseConjunction(cTokenStr)
 	def AnalyzeMatches(paMatrices)
 		# Provide detailed analysis of matching matrices
 		
-		aAnalysis = []
-		aMatching = []
-		aNonMatching = []
+		_aAnalysis_ = []
+		_aMatching_ = []
+		_aNonMatching_ = []
 		
-		nLen = len(paMatrices)
+		_nLen_ = len(paMatrices)
 		
-		for i = 1 to nLen
-			if This.Match(paMatrices[i])
-				aMatching + paMatrices[i]
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				_aMatching_ + paMatrices[_i_]
 			else
-				aNonMatching + paMatrices[i]
+				_aNonMatching_ + paMatrices[_i_]
 			ok
 		next
 		
-		aAnalysis + ["pattern", @cPattern]
-		aAnalysis + ["totalmatrices", nLen]
-		aAnalysis + ["matchingcount", len(aMatching)]
-		aAnalysis + ["nonmatchingcount", len(aNonMatching)]
-		aAnalysis + ["matchrate", (len(aMatching) * 1.0) / nLen]
-		aAnalysis + ["matching", aMatching]
-		aAnalysis + ["nonmatching", aNonMatching]
+		_aAnalysis_ + ["pattern", @cPattern]
+		_aAnalysis_ + ["totalmatrices", _nLen_]
+		_aAnalysis_ + ["matchingcount", len(_aMatching_)]
+		_aAnalysis_ + ["nonmatchingcount", len(_aNonMatching_)]
+		_aAnalysis_ + ["matchrate", (len(_aMatching_) * 1.0) / _nLen_]
+		_aAnalysis_ + ["matching", _aMatching_]
+		_aAnalysis_ + ["nonmatching", _aNonMatching_]
 		
-		return aAnalysis
+		return _aAnalysis_
 	
 	def CommonProperties(paMatrices)
 		# Find properties common to all matching matrices
 		
-		aCommon = []
-		aAllProps = ["square", "symmetric", "diagonal", "identity", 
+		_aCommon_ = []
+		_aAllProps_ = ["square", "symmetric", "diagonal", "identity", 
 		             "zero", "upper", "lower"]
 		
-		nLenProps = len(aAllProps)
+		_nLenProps_ = len(_aAllProps_)
 		
-		for i = 1 to nLenProps
-			cProp = aAllProps[i]
-			bAll = TRUE
+		for _i_ = 1 to _nLenProps_
+			_cProp_ = _aAllProps_[_i_]
+			_bAll_ = TRUE
 			
-			nLen = len(paMatrices)
-			for j = 1 to nLen
+			_nLen_ = len(paMatrices)
+			for j = 1 to _nLen_
 				if This.Match(paMatrices[j])
-					if not This.CheckProperty(cProp, paMatrices[j])
-						bAll = FALSE
+					if not This.CheckProperty(_cProp_, paMatrices[j])
+						_bAll_ = FALSE
 						exit
 					ok
 				ok
 			next
 			
-			if bAll
-				aCommon + cProp
+			if _bAll_
+				_aCommon_ + _cProp_
 			ok
 		next
 		
-		return aCommon
+		return _aCommon_
 	
 	  #----------------------#
 	 #  DEBUG METHODS       #
@@ -1438,10 +1438,10 @@ def ParseConjunction(cTokenStr)
 			return FALSE
 		ok
 		
-		nLen = len(cStr)
-		for i = 1 to nLen
-			cChar = This._Mid(cStr, i, i)
-			if not isDigit(cChar) and cChar != "-" and cChar != "."
+		_nLen_ = len(cStr)
+		for _i_ = 1 to _nLen_
+			_cChar_ = This._Mid(cStr, _i_, _i_)
+			if not isDigit(_cChar_) and _cChar_ != "-" and _cChar_ != "."
 				return FALSE
 			ok
 		next
@@ -1458,13 +1458,13 @@ def ParseConjunction(cTokenStr)
 		ok
 
 		# Combine two patterns with AND logic
-		cCombined = "{" + 
+		_cCombined_ = "{" + 
 		            This._Mid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " & " + 
 		            This._Mid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
-		return new stzMatrex(cCombined)
+		return new stzMatrex(_cCombined_)
 	
 		def Andd(oOtherMatrex)
 			return THis.And_(oOtherMatriex)
@@ -1475,19 +1475,19 @@ def ParseConjunction(cTokenStr)
 		ok
 
 		# Combine two patterns with OR logic
-		cCombined = "{" + 
+		_cCombined_ = "{" + 
 		            This._Mid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " | " + 
 		            This._Mid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
-		return new stzMatrex(cCombined)
+		return new stzMatrex(_cCombined_)
 	
 	def Not_()
 		# Negate the entire pattern
-		cInner = This._Mid(@cPattern, 2, len(@cPattern) - 1)
-		cNegated = "{@!" + cInner + "}"
-		return new stzMatrex(cNegated)
+		_cInner_ = This._Mid(@cPattern, 2, len(@cPattern) - 1)
+		_cNegated_ = "{@!" + _cInner_ + "}"
+		return new stzMatrex(_cNegated_)
 	
 	
 	  #-------------------------------#
@@ -1496,34 +1496,34 @@ def ParseConjunction(cTokenStr)
 	
 	def ToJSON()
 		# Convert pattern to JSON representation
-		cJSON = '{'
-		cJSON += '"pattern":"' + @cPattern + '",'
-		cJSON += '"tokens":' + This.TokensToJSON()
-		cJSON += '}'
-		return cJSON
+		_cJSON_ = '{'
+		_cJSON_ += '"pattern":"' + @cPattern + '",'
+		_cJSON_ += '"tokens":' + This.TokensToJSON()
+		_cJSON_ += '}'
+		return _cJSON_
 	
 	def TokensToJSON()
 		# Convert tokens to JSON array
-		cJSON = '['
-		nLen = len(@aTokens)
-		for i = 1 to nLen
-			if i > 1
-				cJSON += ','
+		_cJSON_ = '['
+		_nLen_ = len(@aTokens)
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cJSON_ += ','
 			ok
-			cJSON += This.TokenToJSON(@aTokens[i])
+			_cJSON_ += This.TokenToJSON(@aTokens[_i_])
 		next
-		cJSON += ']'
-		return cJSON
+		_cJSON_ += ']'
+		return _cJSON_
 	
-	def TokenToJSON(aToken)
+	def TokenToJSON(_aToken_)
 		# Convert single token to JSON
-		cJSON = '{'
-		nLen = len(aToken)
-		for i = 1 to nLen step 2
-			if i > 1
-				cJSON += ','
+		_cJSON_ = '{'
+		_nLen_ = len(_aToken_)
+		for _i_ = 1 to _nLen_ step 2
+			if _i_ > 1
+				_cJSON_ += ','
 			ok
-			cJSON += '"' + aToken[i] + '":"' + aToken[i+1] + '"'
+			_cJSON_ += '"' + _aToken_[_i_] + '":"' + _aToken_[_i_+1] + '"'
 		next
-		cJSON += '}'
-		return cJSON
+		_cJSON_ += '}'
+		return _cJSON_

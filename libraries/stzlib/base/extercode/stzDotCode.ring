@@ -69,21 +69,21 @@ class stzDotCode from stzObject
 		def @(pcDotCode)
 			This.SetCode(pcDotCode)
 
-	def SetOutputFormat(cFormat)
+	def SetOutputFormat(_cFormat_)
 
-		cFormat = trim(cFormat)
-		if cFormat = "" or StzLower(cFormat) = 'null'
-			cFormat = $cDefaultDotOutputFormat
+		_cFormat_ = trim(_cFormat_)
+		if _cFormat_ = "" or StzLower(_cFormat_) = 'null'
+			_cFormat_ = $cDefaultDotOutputFormat
 		else
-			if StzFindFirst($acDotOutputFormats, cFormat) = 0
+			if StzFindFirst($acDotOutputFormats, _cFormat_) = 0
 				stzraise("Unsupported output formats! Only these are supported: " + @@($acDotOutputFormats) + ".")
 			ok
 		ok
 
-		@cOutputFormat = StzLower(cFormat)
+		@cOutputFormat = StzLower(_cFormat_)
 
-		def SetOutput(cFormat)
-			@cOutputFormat = StzLower(cFormat)
+		def SetOutput(_cFormat_)
+			@cOutputFormat = StzLower(_cFormat_)
 
 	def SetTempDir(cDir)
 		@cTempDir = cDir
@@ -109,27 +109,27 @@ class stzDotCode from stzObject
 		@nStartTime = clock()
 	
 		# Generate unique filename with timestamp IN OUTPUT FOLDER
-		cTimestamp = "" + clock()
-		cOutputFile = NormalizePath(@cOutputDir + "/diagram_" + cTimestamp + "." + @cOutputFormat)
-		cTempDotPath = NormalizePath(@cTempDir + "/" + @cTempDotFile)
+		_cTimestamp_ = "" + clock()
+		_cOutputFile_ = NormalizePath(@cOutputDir + "/diagram_" + _cTimestamp_ + "." + @cOutputFormat)
+		_cTempDotPath_ = NormalizePath(@cTempDir + "/" + @cTempDotFile)
 	
 		# Store for View() to use
-		@cLastOutputFile = cOutputFile
+		@cLastOutputFile = _cOutputFile_
 	
 		# Write dot code to temp file
-		This.WriteToFile(cTempDotPath, @cDotCode)
+		This.WriteToFile(_cTempDotPath_, @cDotCode)
 	
 		# Build arguments list
-		aArgs = [
+		_aArgs_ = [
 			"-T" + @cOutputFormat,
-			cTempDotPath,
+			_cTempDotPath_,
 			"-o",
-			cOutputFile
+			_cOutputFile_
 		]
 	
 		# Execute using stzSystemCall
 		_oCall_ = new stzSystemCall(@cDotPath)
-		_oCall_.SetArgs(aArgs)
+		_oCall_.SetArgs(_aArgs_)
 		_oCall_.HideConsole()
 		_oCall_.WithTimeout(30000)
 		_oCall_.Run()
@@ -139,22 +139,22 @@ class stzDotCode from stzObject
 		if @bVerbose
 			? "Dot path: " + @cDotPath
 			? "Output format: " + @cOutputFormat
-			? "Output file: " + cOutputFile
+			? "Output file: " + _cOutputFile_
 			? "Exit code: " + _oCall_.ExitCode()
 			if _oCall_.HasError()
 				? "Error: " + _oCall_.Error()
 			ok
 		ok
 	
-		if NOT _oCall_.Succeeded() or NOT fexists(cOutputFile)
-			cError = "Graphviz dot command failed."
+		if NOT _oCall_.Succeeded() or NOT fexists(_cOutputFile_)
+			_cError_ = "Graphviz dot command failed."
 			if _oCall_.HasError()
-				cError += " Error: " + _oCall_.Error()
+				_cError_ += " Error: " + _oCall_.Error()
 			ok
-			if NOT fexists(cOutputFile)
-				cError += " Output file not created: " + cOutputFile
+			if NOT fexists(_cOutputFile_)
+				_cError_ += " Output file not created: " + _cOutputFile_
 			ok
-			stzraise(cError)
+			stzraise(_cError_)
 		ok
 	
 		@bWasExtecutedAtLeastOnce = 1
@@ -218,25 +218,25 @@ class stzDotCode from stzObject
 		return 0
 
 	def Log()
-		cLogPath = @cTempDir + "/" + @cLogFile
-		if NOT fexists(cLogPath)
+		_cLogPath_ = @cTempDir + "/" + @cLogFile
+		if NOT fexists(_cLogPath_)
 			return ""
 		ok
-		return This.ReadFile(cLogPath)
+		return This.ReadFile(_cLogPath_)
 
 	def IsVerbose()
 		return @bVerbose
 
 	def Cleanup()
 		try
-			cTempDotPath = @cTempDir + "/" + @cTempDotFile
-			cLogPath = @cTempDir + "/" + @cLogFile
+			_cTempDotPath_ = @cTempDir + "/" + @cTempDotFile
+			_cLogPath_ = @cTempDir + "/" + @cLogFile
 			
-			if fexists(cTempDotPath)
-				remove(cTempDotPath)
+			if fexists(_cTempDotPath_)
+				remove(_cTempDotPath_)
 			ok
-			if fexists(cLogPath)
-				remove(cLogPath)
+			if fexists(_cLogPath_)
+				remove(_cLogPath_)
 			ok
 		catch
 		done
@@ -244,26 +244,26 @@ class stzDotCode from stzObject
 	def CleanupAll()
 		This.Cleanup()
 		try
-			cOutputFile = @cOutputDire + "/" + "diagram." + @cOutputFormat
-			if fexists(cOutputFile)
-				remove(cOutputFile)
+			_cOutputFile_ = @cOutputDire + "/" + "diagram." + @cOutputFormat
+			if fexists(_cOutputFile_)
+				remove(_cOutputFile_)
 			ok
 		catch
 		done
 
-	def WriteToFile(cFile, cContent)
-		fp = fopen(cFile, "w")
-		fwrite(fp, cContent)
-		fclose(fp)
+	def WriteToFile(cFile, _cContent_)
+		_fp_ = fopen(cFile, "w")
+		fwrite(_fp_, _cContent_)
+		fclose(_fp_)
 
 	def ReadFile(cFile)
 		if NOT fexists(cFile)
 			return ""
 		ok
-		fp = fopen(cFile, "r")
-		if fp = NULL
+		_fp_ = fopen(cFile, "r")
+		if _fp_ = NULL
 			return ""
 		ok
-		cContent = fread(fp, fsize(fp))
-		fclose(fp)
-		return cContent
+		_cContent_ = fread(_fp_, fsize(_fp_))
+		fclose(_fp_)
+		return _cContent_

@@ -5,7 +5,7 @@
 
 _aFuture = [] # Stores future actions in natural-coding
 
-WhatEverCaseItHas = FALSE # Used in natural-coding
+_WhatEverCaseItHas_ = FALSE # Used in natural-coding
 
 _oMainObject = ANullObject() # Used for chains of truth
 _MainValue = NULL
@@ -25,9 +25,9 @@ _LastValue = NULL
 #--
 
 func QM(p)
-	obj = Q(p)
-	SetMainObject(obj)
-	return obj
+	_obj_ = Q(p)
+	SetMainObject(_obj_)
+	return _obj_
 
 func QRT(p, pcType)
 	if NOT isString(pcType)
@@ -35,9 +35,9 @@ func QRT(p, pcType)
 	ok
 
 	if Q(pcType).IsStzClassName()
-		cCode = "oResult = new " + pcType + '(' + @@(p) + ')'
+		_cCode_ = "oResult = new " + pcType + '(' + @@(p) + ')'
 
-		eval(cCode)
+		eval(_cCode_)
 
 		return oResult
 	else
@@ -121,10 +121,10 @@ func AddFutureXT(pAction, pcBeforeOrAfter)
 	ok
 
 	if isString(pAction)
-		aTemp = []
-		aTemp + pAction
-		aTemp + []
-		pAction = aTemp
+		_aTemp_ = []
+		_aTemp_ + pAction
+		_aTemp_ + []
+		pAction = _aTemp_
 	ok
 
 	if NOT ( isList(pAction) and len(pAction) = 2 and
@@ -138,13 +138,13 @@ func AddFutureXT(pAction, pcBeforeOrAfter)
 
 	else // Before
 
-		nLen = len(_aFuture)
+		_nLen_ = len(_aFuture)
 
-		if nLen = 0
+		if _nLen_ = 0
 			_aFuture + pAction
 		else
 
-			ring_insert( _aFuture, nLen, pAction)
+			ring_insert( _aFuture, _nLen_, pAction)
 		ok
 	ok
 
@@ -179,27 +179,27 @@ func ExecuteActions(pActions, pStzObj)
 
 	ok
 
-	nLen = len(pActions)
+	_nLen_ = len(pActions)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 
-		cCode = 'pStzObj.' + pActions[i][1]
-		aParams = pActions[i][2]
-		nLenParams = len(aParams)
+		_cCode_ = 'pStzObj.' + pActions[i][1]
+		_aParams_ = pActions[i][2]
+		_nLenParams_ = len(_aParams_)
 
-		cParams = '('
-		for j = 1 to nLenParams
-			cParams += (""+ @@(aParams[j]))
-			if j < nLenParams
-				cParams += ', '
+		_cParams_ = '('
+		for j = 1 to _nLenParams_
+			_cParams_ += (""+ @@(_aParams_[j]))
+			if j < _nLenParams_
+				_cParams_ += ', '
 			ok
 		next
 
-		cParams += ')'
+		_cParams_ += ')'
 
-		cCode += cParams
+		_cCode_ += _cParams_
 
-		eval(cCode)
+		eval(_cCode_)
 
 	next
 
@@ -305,8 +305,8 @@ func MainObject() # Used in Chains of truth
 	func @MainObject()
 		return _oMainObject
 
-func SetMainObject(obj)
-	_oMainObject = obj
+func SetMainObject(_obj_)
+	_oMainObject = _obj_
 
 func MainValue()
 	return _MainValue

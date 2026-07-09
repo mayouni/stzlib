@@ -148,28 +148,28 @@ class stzDataWrangler from stzObject
     def RemoveDuplicates()
         # Remove duplicate rows from the dataset
         # Returns: Number of duplicates removed
-        nOriginalSize = This._GetRowCount()
-        aCleanData = []
+        _nOriginalSize_ = This._GetRowCount()
+        _aCleanData_ = []
         
         if @cDataStructure = "list"
-            aCleanData = unique(@aData)
+            _aCleanData_ = unique(@aData)
         else
             # For tables, compare entire rows
             _nData8Len_ = len(@aData)
             for _iLoopData8_ = 1 to _nData8Len_
-            	row = @aData[_iLoopData8_]
-                if This._FindRowIndex(aCleanData, row) = 0
-                    aCleanData + row
+            	_row_ = @aData[_iLoopData8_]
+                if This._FindRowIndex(_aCleanData_, _row_) = 0
+                    _aCleanData_ + _row_
                 ok
             next
         ok
         
-        @aData = aCleanData
-        nRemoved = nOriginalSize - This._GetRowCount()
-        This._LogTransformation("RemoveDuplicates", "" + nRemoved + " duplicates removed")
-        return nRemoved
+        @aData = _aCleanData_
+        _nRemoved_ = _nOriginalSize_ - This._GetRowCount()
+        This._LogTransformation("RemoveDuplicates", "" + _nRemoved_ + " duplicates removed")
+        return _nRemoved_
 
-    def HandleMissingValues(cStrategy)
+    def HandleMissingValues(_cStrategy_)
         # Handle missing values using specified strategy
         #
         # Strategies:
@@ -179,90 +179,90 @@ class stzDataWrangler from stzObject
         # "fill_zero" - Fill with zero or empty string
         # "interpolate" - Linear interpolation for numeric sequences
 
-		if cStrategy = ""
-			cStrategy = "auto"
+		if _cStrategy_ = ""
+			_cStrategy_ = "auto"
 		ok
 
-        nFilled = 0
+        _nFilled_ = 0
         
         if @cDataStructure = "list"
-            nFilled = This._HandleMissingInList(cStrategy)
+            _nFilled_ = This._HandleMissingInList(_cStrategy_)
         else
-            nFilled = This._HandleMissingInTable(cStrategy)
+            _nFilled_ = This._HandleMissingInTable(_cStrategy_)
         ok
         
-        This._LogTransformation("HandleMissingValues", "" + nFilled + " values processed with strategy: " + cStrategy)
-        return nFilled
+        This._LogTransformation("HandleMissingValues", "" + _nFilled_ + " values processed with strategy: " + _cStrategy_)
+        return _nFilled_
 
-    def _HandleMissingInList(cStrategy)
-        nFilled = 0
-        aCleanData = []
+    def _HandleMissingInList(_cStrategy_)
+        _nFilled_ = 0
+        _aCleanData_ = []
         
         _nData7Len_ = len(@aData)
         for _iLoopData7_ = 1 to _nData7Len_
-        	item = @aData[_iLoopData7_]
-            if This._IsMissing(item)
-                if cStrategy = "remove"
+        	_item_ = @aData[_iLoopData7_]
+            if This._IsMissing(_item_)
+                if _cStrategy_ = "remove"
                     # Skip missing items
                     loop
-                elseif cStrategy = "fill_zero"
-                    aCleanData + 0
-                    nFilled++
+                elseif _cStrategy_ = "fill_zero"
+                    _aCleanData_ + 0
+                    _nFilled_++
                 else
                     # Auto or other strategies
-                    fillValue = This._GetFillValue(@aData, cStrategy)
-                    aCleanData + fillValue
-                    nFilled++
+                    _fillValue_ = This._GetFillValue(@aData, _cStrategy_)
+                    _aCleanData_ + _fillValue_
+                    _nFilled_++
                 ok
             else
-                aCleanData + item
+                _aCleanData_ + _item_
             ok
         next
         
-        @aData = aCleanData
-        return nFilled
+        @aData = _aCleanData_
+        return _nFilled_
 
-    def _HandleMissingInTable(cStrategy)
-        nFilled = 0
+    def _HandleMissingInTable(_cStrategy_)
+        _nFilled_ = 0
         
         _nDataLen_20 = len(@aData)
         for i = 1 to _nDataLen_20
             _nDataiLen_3 = len(@aData[i])
             for j = 1 to _nDataiLen_3
                 if This._IsMissing(@aData[i][j])
-                    if cStrategy = "remove"
+                    if _cStrategy_ = "remove"
                         # Mark row for removal (handled separately)
                         This._AddIssue("missing_value", "Row " + i + ", Col " + j)
                     else
                         # Get column data for context
-						aColumnData = []
+						_aColumnData_ = []
 						_nDataLen_19 = len(@aData)
 						for k = 1 to _nDataLen_19
-                        	aColumnData + @aData[k][j]
+                        	_aColumnData_ + @aData[k][j]
 						next
 
-                        fillValue = This._GetFillValue(aColumnData, cStrategy)
-                        @aData[i][j] = fillValue
-                        nFilled++
+                        _fillValue_ = This._GetFillValue(_aColumnData_, _cStrategy_)
+                        @aData[i][j] = _fillValue_
+                        _nFilled_++
                     ok
                 ok
             next
         next
         
-        return nFilled
+        return _nFilled_
 
     def TrimWhitespace()
         """Remove leading and trailing whitespace from text data"""
-        nCleaned = 0
+        _nCleaned_ = 0
 
         if @cDataStructure = "list"
             _nDataLen_18 = len(@aData)
             for i = 1 to _nDataLen_18
                 if isString(@aData[i])
-                    cOriginal = @aData[i]
+                    _cOriginal_ = @aData[i]
                     @aData[i] = trim(@aData[i])
-                    if strcmp(cOriginal, @aData[i]) != 0
-                        nCleaned++
+                    if strcmp(_cOriginal_, @aData[i]) != 0
+                        _nCleaned_++
                     ok
                 ok
             next
@@ -272,37 +272,37 @@ class stzDataWrangler from stzObject
                 _nDataiLen_2 = len(@aData[i])
                 for j = 1 to _nDataiLen_2
                     if isString(@aData[i][j])
-                        cOriginal = @aData[i][j]
+                        _cOriginal_ = @aData[i][j]
                         @aData[i][j] = trim(@aData[i][j])
-                        if strcmp(cOriginal, @aData[i][j]) != 0
-                            nCleaned++
+                        if strcmp(_cOriginal_, @aData[i][j]) != 0
+                            _nCleaned_++
                         ok
                     ok
                 next
             next
         ok
         
-        This._LogTransformation("TrimWhitespace", "" + nCleaned + " values cleaned")
-        return nCleaned
+        This._LogTransformation("TrimWhitespace", "" + _nCleaned_ + " values cleaned")
+        return _nCleaned_
 
-    def NormalizeCase(cMode)
+    def NormalizeCase(_cMode_)
         # Normalize text case
         # Modes: lower, upper, title, sentence
 
-		if trim(cMode) = ""
-			cMode = "lower"
+		if trim(_cMode_) = ""
+			_cMode_ = "lower"
 		ok
 
-        nNormalized = 0
+        _nNormalized_ = 0
         
         if @cDataStructure = "list"
             _nDataLen_16 = len(@aData)
             for i = 1 to _nDataLen_16
                 if isString(@aData[i])
-                    cOrig = @aData[i]
-                    @aData[i] = This._ApplyCaseNormalization(@aData[i], cMode)
-                    if strcmp(cOrig, @aData[i]) != 0
-                        nNormalized++
+                    _cOrig_ = @aData[i]
+                    @aData[i] = This._ApplyCaseNormalization(@aData[i], _cMode_)
+                    if strcmp(_cOrig_, @aData[i]) != 0
+                        _nNormalized_++
                     ok
                 ok
             next
@@ -312,18 +312,18 @@ class stzDataWrangler from stzObject
                 _nDataiLen_ = len(@aData[i])
                 for j = 1 to _nDataiLen_
                     if isString(@aData[i][j])
-                        cOrig = @aData[i][j]
-                        @aData[i][j] = This._ApplyCaseNormalization(@aData[i][j], cMode)
-                        if strcmp(cOrig, @aData[i][j]) != 0
-                            nNormalized++
+                        _cOrig_ = @aData[i][j]
+                        @aData[i][j] = This._ApplyCaseNormalization(@aData[i][j], _cMode_)
+                        if strcmp(_cOrig_, @aData[i][j]) != 0
+                            _nNormalized_++
                         ok
                     ok
                 next
             next
         ok
         
-        This._LogTransformation("NormalizeCase", "" + nNormalized + " values normalized to " + cMode)
-        return nNormalized
+        This._LogTransformation("NormalizeCase", "" + _nNormalized_ + " values normalized to " + _cMode_)
+        return _nNormalized_
 
     # PILLAR 2: DATA VALIDATION
     # =========================
@@ -331,93 +331,93 @@ class stzDataWrangler from stzObject
     def ValidateDataTypes()
         # Validate data type consistency within columns
         # Returns: List of validation issues found
-        aIssues = []
+        _aIssues_ = []
         
         if @cDataStructure = "table"
             _nHeadersLen_7 = len(@aHeaders)
             for j = 1 to _nHeadersLen_7
-                aColumnTypes = []
+                _aColumnTypes_ = []
                 _nDataLen_14 = len(@aData)
                 for i = 1 to _nDataLen_14
                     if NOT This._IsMissing(@aData[i][j])
-                        cType = This._GetDataType(@aData[i][j])
-                        if StzFindFirst(aColumnTypes, cType) = 0
-                            aColumnTypes + cType
+                        _cType_ = This._GetDataType(@aData[i][j])
+                        if StzFindFirst(_aColumnTypes_, _cType_) = 0
+                            _aColumnTypes_ + _cType_
                         ok
                     ok
                 next
                 
-                if len(aColumnTypes) > 1
-                    cIssue = "Column " + @aHeaders[j] + " has mixed types: " + This._JoinList(aColumnTypes, ", ")
-                    aIssues + cIssue
-                    This._AddIssue("mixed_types", cIssue)
+                if len(_aColumnTypes_) > 1
+                    _cIssue_ = "Column " + @aHeaders[j] + " has mixed types: " + This._JoinList(_aColumnTypes_, ", ")
+                    _aIssues_ + _cIssue_
+                    This._AddIssue("mixed_types", _cIssue_)
                 ok
             next
         ok
         
-        This._LogTransformation("ValidateDataTypes", "" + len(aIssues) + " type issues found")
-        return aIssues
+        This._LogTransformation("ValidateDataTypes", "" + len(_aIssues_) + " type issues found")
+        return _aIssues_
 
     def ValidateRanges(aRangeRules)
         # Validate numeric values against specified ranges
         #
         # Range rules format:
         # [ ["column_name", min_value, max_value], ... ]
-        aIssues = []
+        _aIssues_ = []
         
         if @cDataStructure = "table"
             _nRangeRules1Len_ = len(aRangeRules)
             for _iLoopRangeRules1_ = 1 to _nRangeRules1Len_
-            	rule = aRangeRules[_iLoopRangeRules1_]
-                cColumn = rule[1]
-                nMin = rule[2]
-                nMax = rule[3]
-                nColIndex = StzFindFirst(@aHeaders, cColumn)
+            	_rule_ = aRangeRules[_iLoopRangeRules1_]
+                _cColumn_ = _rule_[1]
+                _nMin_ = _rule_[2]
+                _nMax_ = _rule_[3]
+                _nColIndex_ = StzFindFirst(@aHeaders, _cColumn_)
                 
-                if nColIndex > 0
+                if _nColIndex_ > 0
                     _nDataLen_13 = len(@aData)
                     for i = 1 to _nDataLen_13
-                        value = @aData[i][nColIndex]
-                        if isNumber(value) and (value < nMin or value > nMax)
-                            cIssue = "Row " + i + ", " + cColumn + ": " + value + " outside range [" + nMin + ", " + nMax + "]"
-                            aIssues + cIssue
-                            This._AddIssue("range_violation", cIssue)
+                        _value_ = @aData[i][_nColIndex_]
+                        if isNumber(_value_) and (_value_ < _nMin_ or _value_ > _nMax_)
+                            _cIssue_ = "Row " + i + ", " + _cColumn_ + ": " + _value_ + " outside range [" + _nMin_ + ", " + _nMax_ + "]"
+                            _aIssues_ + _cIssue_
+                            This._AddIssue("range_violation", _cIssue_)
                         ok
                     next
                 ok
             next
         ok
         
-        This._LogTransformation("ValidateRanges", "" + len(aIssues) + " range violations found")
-        return aIssues
+        This._LogTransformation("ValidateRanges", "" + len(_aIssues_) + " range violations found")
+        return _aIssues_
 
-    def DetectOutliers(nThreshold)
+    def DetectOutliers(_nThreshold_)
         # Detect statistical outliers using Z-score method
         # Returns: List of outlier positions
 
-		if IsNull(nThreshold) or nThreshold = 0
-			nThreshold = $nWRANGLE_OUTLIER_THRESHOLD
+		if IsNull(_nThreshold_) or _nThreshold_ = 0
+			_nThreshold_ = $nWRANGLE_OUTLIER_THRESHOLD
 		ok
 
-        aOutliers = []
+        _aOutliers_ = []
         
         if @cDataStructure = "table"
             _nHeadersLen_6 = len(@aHeaders)
             for j = 1 to _nHeadersLen_6
-                aColumnData = This._GetNumericColumnData(j)
-                if len(aColumnData) >= $nWRANGLE_MIN_SAMPLE_SIZE
-                    nMean = This._CalculateMean(aColumnData)
-                    nStdDev = This._CalculateStdDev(aColumnData)
+                _aColumnData_ = This._GetNumericColumnData(j)
+                if len(_aColumnData_) >= $nWRANGLE_MIN_SAMPLE_SIZE
+                    _nMean_ = This._CalculateMean(_aColumnData_)
+                    _nStdDev_ = This._CalculateStdDev(_aColumnData_)
                     
-                    if nStdDev > 0
+                    if _nStdDev_ > 0
                         _nDataLen_12 = len(@aData)
                         for i = 1 to _nDataLen_12
-                            value = @aData[i][j]
-                            if isNumber(value)
-                                nZScore = abs((value - nMean) / nStdDev)
-                                if nZScore > nThreshold
-                                    aOutliers + [i, j, value, nZScore]
-                                    This._AddIssue("outlier", "Row " + i + ", " + @aHeaders[j] + ": " + value + " (Z-score: " + nZScore + ")")
+                            _value_ = @aData[i][j]
+                            if isNumber(_value_)
+                                _nZScore_ = abs((_value_ - _nMean_) / _nStdDev_)
+                                if _nZScore_ > _nThreshold_
+                                    _aOutliers_ + [i, j, _value_, _nZScore_]
+                                    This._AddIssue("outlier", "Row " + i + ", " + @aHeaders[j] + ": " + _value_ + " (Z-score: " + _nZScore_ + ")")
                                 ok
                             ok
                         next
@@ -426,8 +426,8 @@ class stzDataWrangler from stzObject
             next
         ok
         
-        This._LogTransformation("DetectOutliers", "" + len(aOutliers) + " outliers detected")
-        return aOutliers
+        This._LogTransformation("DetectOutliers", "" + len(_aOutliers_) + " outliers detected")
+        return _aOutliers_
 
     # PILLAR 3: DATA TRANSFORMATION
     # =============================
@@ -438,24 +438,24 @@ class stzDataWrangler from stzObject
         # Conversion rules format:
         # [ ["column_name", "target_type"], ... ]
         # Target types: "numeric", "string", "boolean", "date"
-        nConverted = 0
+        _nConverted_ = 0
         
         if @cDataStructure = "table"
             _nConversionRules1Len_ = len(aConversionRules)
             for _iLoopConversionRules1_ = 1 to _nConversionRules1Len_
-            	rule = aConversionRules[_iLoopConversionRules1_]
-                cColumn = rule[1]
-                cTargetType = rule[2]
-                nColIndex = StzFindFirst(@aHeaders, cColumn)
+            	_rule_ = aConversionRules[_iLoopConversionRules1_]
+                _cColumn_ = _rule_[1]
+                _cTargetType_ = _rule_[2]
+                _nColIndex_ = StzFindFirst(@aHeaders, _cColumn_)
                 
-                if nColIndex > 0
+                if _nColIndex_ > 0
                     _nDataLen_11 = len(@aData)
                     for i = 1 to _nDataLen_11
-                        if NOT This._IsMissing(@aData[i][nColIndex])
-                            convertedValue = This._ConvertValue(@aData[i][nColIndex], cTargetType)
-                            if convertedValue != NULL
-                                @aData[i][nColIndex] = convertedValue
-                                nConverted++
+                        if NOT This._IsMissing(@aData[i][_nColIndex_])
+                            _convertedValue_ = This._ConvertValue(@aData[i][_nColIndex_], _cTargetType_)
+                            if _convertedValue_ != NULL
+                                @aData[i][_nColIndex_] = _convertedValue_
+                                _nConverted_++
                             ok
                         ok
                     next
@@ -463,67 +463,67 @@ class stzDataWrangler from stzObject
             next
         ok
         
-        This._LogTransformation("ConvertDataTypes", "" + nConverted + " values converted")
-        return nConverted
+        This._LogTransformation("ConvertDataTypes", "" + _nConverted_ + " values converted")
+        return _nConverted_
 
-    def NormalizeNumeric(cMethod)
+    def NormalizeNumeric(_cMethod_)
         # Normalize numeric columns
         # Methods: "minmax" (0-1), "zscore" (mean=0, std=1), "robust" (median-based)
 
-		if IsNull(cMethod)
-			cMethod = "minmax"
+		if IsNull(_cMethod_)
+			_cMethod_ = "minmax"
 		ok
 
-        nNormalized = 0
+        _nNormalized_ = 0
         
         if @cDataStructure = "table"
             _nHeadersLen_5 = len(@aHeaders)
             for j = 1 to _nHeadersLen_5
-                aColumnData = This._GetNumericColumnData(j)
-                if len(aColumnData) > 0
-                    aNormalizedData = This._NormalizeArray(aColumnData, cMethod)
-                    nDataIndex = 1
+                _aColumnData_ = This._GetNumericColumnData(j)
+                if len(_aColumnData_) > 0
+                    _aNormalizedData_ = This._NormalizeArray(_aColumnData_, _cMethod_)
+                    _nDataIndex_ = 1
                     
                     # Apply normalized values back to original positions
                     _nDataLen_10 = len(@aData)
                     for i = 1 to _nDataLen_10
                         if isNumber(@aData[i][j]) and NOT This._IsMissing(@aData[i][j])
-                            @aData[i][j] = aNormalizedData[nDataIndex]
-                            nDataIndex++
-                            nNormalized++
+                            @aData[i][j] = _aNormalizedData_[_nDataIndex_]
+                            _nDataIndex_++
+                            _nNormalized_++
                         ok
                     next
                 ok
             next
         ok
         
-        This._LogTransformation("NormalizeNumeric", "" + nNormalized + " values normalized using " + cMethod)
-        return nNormalized
+        This._LogTransformation("NormalizeNumeric", "" + _nNormalized_ + " values normalized using " + _cMethod_)
+        return _nNormalized_
 
-    def EncodeCategories(cMethod)
+    def EncodeCategories(_cMethod_)
         # Encode categorical variables for analysis
         # Methods: "label" (0,1,2...), "onehot" (binary columns), "ordinal" (custom order)
 
-		if IsNull(cMethod)
-			cMethod = "label"
+		if IsNull(_cMethod_)
+			_cMethod_ = "label"
 		ok
 
-        nEncoded = 0
+        _nEncoded_ = 0
         
         if @cDataStructure = "table"
             _nHeadersLen_4 = len(@aHeaders)
             for j = 1 to _nHeadersLen_4
                 if This._IsColumnCategorical(j)
-                    aUniqueValues = This._GetUniqueColumnValues(j)
-                    if cMethod = "label"
-                        nEncoded += This._ApplyLabelEncoding(j, aUniqueValues)
+                    _aUniqueValues_ = This._GetUniqueColumnValues(j)
+                    if _cMethod_ = "label"
+                        _nEncoded_ += This._ApplyLabelEncoding(j, _aUniqueValues_)
                     ok
                 ok
             next
         ok
         
-        This._LogTransformation("EncodeCategories", "" + nEncoded + " categorical values encoded")
-        return nEncoded
+        This._LogTransformation("EncodeCategories", "" + _nEncoded_ + " categorical values encoded")
+        return _nEncoded_
 
     # PILLAR 4: PLAN EXECUTION SYSTEM
     # ===============================
@@ -533,8 +533,8 @@ class stzDataWrangler from stzObject
         #
         # Goals: "clean", "validate", "analyze", "export"
         # Templates: "basic_cleanup", "data_validation", etc.
-        cTemplate = This._ResolvePlanTemplate(cGoalOrTemplate)
-        if cTemplate = NULL
+        _cTemplate_ = This._ResolvePlanTemplate(cGoalOrTemplate)
+        if _cTemplate_ = NULL
             This._LogTransformation("GeneratePlan", "Unknown goal/template: " + cGoalOrTemplate)
             return NULL
         ok
@@ -542,14 +542,14 @@ class stzDataWrangler from stzObject
         # Find template definition
         _nWranglingPlanTemplates2Len_ = len($aWranglingPlanTemplates)
         for _iLoopWranglingPlanTemplates2_ = 1 to _nWranglingPlanTemplates2Len_
-        	template = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates2_]
-            if template[2][:name] = cTemplate
+        	_template_ = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates2_]
+            if _template_[2][:name] = _cTemplate_
                 return [
-                    :name = template[2][:name],
-                    :title = template[2][:title],
-                    :description = template[2][:description],
-                    :steps = template[2][:steps],
-                    :estimated_time = This._EstimatePlanTime(template[2][:steps])
+                    :name = _template_[2][:name],
+                    :title = _template_[2][:title],
+                    :description = _template_[2][:description],
+                    :steps = _template_[2][:steps],
+                    :estimated_time = This._EstimatePlanTime(_template_[2][:steps])
                 ]
             ok
         next
@@ -561,44 +561,44 @@ class stzDataWrangler from stzObject
         # Returns: Execution summary with results and any errors
 
         @bVerbose = bVerbose
-        aPlan = This.GeneratePlan(cGoalOrTemplate)
-        if aPlan = NULL return NULL ok
+        _aPlan_ = This.GeneratePlan(cGoalOrTemplate)
+        if _aPlan_ = NULL return NULL ok
         
         if @bVerbose
-            ? "ðŸ”§ Executing Plan: " + aPlan[:title]
-            ? "ðŸ“ " + aPlan[:description]
-            ? "â±ï¸  Estimated time: " + aPlan[:estimated_time] + " seconds"
+            ? "ðŸ”§ Executing Plan: " + _aPlan_[:title]
+            ? "ðŸ“ " + _aPlan_[:description]
+            ? "â±ï¸  Estimated time: " + _aPlan_[:estimated_time] + " seconds"
             ? ""
         ok
         
-        aResults = []
-        nStartTime = clock()
+        _aResults_ = []
+        _nStartTime_ = clock()
         
-        _aPlansteps1_ = aPlan[:steps]
+        _aPlansteps1_ = _aPlan_[:steps]
         _nPlansteps1Len_ = len(_aPlansteps1_)
         for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
-        	stepp = _aPlansteps1_[_iLoopPlansteps1_]
+        	_stepp_ = _aPlansteps1_[_iLoopPlansteps1_]
             if @bVerbose
-                ? "â–¶ï¸  " + stepp[:description] + "..."
+                ? "â–¶ï¸  " + _stepp_[:description] + "..."
             ok
             
             try
-                result = This._ExecutePlanStep(stepp)
-                aResults + [
-                    :function = stepp[:function],
-                    :description = stepp[:description],
-                    :result = result,
+                _result_ = This._ExecutePlanStep(_stepp_)
+                _aResults_ + [
+                    :function = _stepp_[:function],
+                    :description = _stepp_[:description],
+                    :result = _result_,
                     :status = "success"
                 ]
                 
                 if @bVerbose
-                    ? "   âœ… " + result
+                    ? "   âœ… " + _result_
                 ok
                 
             catch
-                aResults + [
-                    :function = stepp[:function],
-                    :description = stepp[:description],
+                _aResults_ + [
+                    :function = _stepp_[:function],
+                    :description = _stepp_[:description],
                     :error = cCatchError,
                     :status = "error"
                 ]
@@ -609,20 +609,20 @@ class stzDataWrangler from stzObject
             done
         next
         
-        nEndTime = clock()
-        nActualTime = (nEndTime - nStartTime)
+        _nEndTime_ = clock()
+        _nActualTime_ = (_nEndTime_ - _nStartTime_)
         
         if @bVerbose
             ? ""
-            ? "ðŸŽ‰ Plan execution completed in " + nActualTime + " seconds"
-            ? "ðŸ“Š " + This._GetExecutionSummary(aResults)
+            ? "ðŸŽ‰ Plan execution completed in " + _nActualTime_ + " seconds"
+            ? "ðŸ“Š " + This._GetExecutionSummary(_aResults_)
         ok
         
         return [
-            :plan = aPlan,
-            :results = aResults,
-            :execution_time = nActualTime,
-            :summary = This._GetExecutionSummary(aResults)
+            :plan = _aPlan_,
+            :results = _aResults_,
+            :execution_time = _nActualTime_,
+            :summary = This._GetExecutionSummary(_aResults_)
         ]
 
     # PILLAR 5: EXPORT AND INTEGRATION
@@ -644,12 +644,12 @@ class stzDataWrangler from stzObject
         if @cDataStructure = "table"
             return [ @aHeaders, @aData ]
         else
-			aItems = []
+			_aItems_ = []
 			_nDataLen_9 = len(@aData)
 			for i = 1 to _nDataLen_9
-				aItems + @aData[i]
+				_aItems_ + @aData[i]
 			next
-            return [ ["Value"], [ aItems ] ]
+            return [ ["Value"], [ _aItems_ ] ]
         ok
 
     def ExportForStzMatrix()
@@ -657,33 +657,33 @@ class stzDataWrangler from stzObject
         # Returns: 2D numeric array
         if @cDataStructure = "table"
             # Extract only numeric columns
-            aNumericData = []
+            _aNumericData_ = []
             _nData6Len_ = len(@aData)
             for _iLoopData6_ = 1 to _nData6Len_
-            	row = @aData[_iLoopData6_]
-                aNumericRow = []
-                _nRow3Len_ = len(row)
+            	_row_ = @aData[_iLoopData6_]
+                _aNumericRow_ = []
+                _nRow3Len_ = len(_row_)
                 for _iLoopRow3_ = 1 to _nRow3Len_
-                	item = row[_iLoopRow3_]
-                    if isNumber(item)
-                        aNumericRow + item
+                	_item_ = _row_[_iLoopRow3_]
+                    if isNumber(_item_)
+                        _aNumericRow_ + _item_
                     else
-                        aNumericRow + 0  # Default for non-numeric
+                        _aNumericRow_ + 0  # Default for non-numeric
                     ok
                 next
-                aNumericData + aNumericRow
+                _aNumericData_ + _aNumericRow_
             next
-            return aNumericData
+            return _aNumericData_
         else
             # Convert list to single column matrix
-			aItems = []
+			_aItems_ = []
 			_nDataLen_8 = len(@aData)
 			for i = 1 to _nDataLen_8
 				if isNumber(@aData[i])
-					aItems + @aData[i]
+					_aItems_ + @aData[i]
 				ok
 			next
-            return [ aItems ]
+            return [ _aItems_ ]
         ok
 
     # REPORTING AND DIAGNOSTICS
@@ -691,7 +691,7 @@ class stzDataWrangler from stzObject
     
     def GetDataProfile()
         """Generate comprehensive data profile report"""
-        aProfile = [
+        _aProfile_ = [
             :structure = @cDataStructure,
             :rows = This._GetRowCount(),
             :columns = len(@aHeaders),
@@ -702,7 +702,7 @@ class stzDataWrangler from stzObject
             :duplicates = This._CountDuplicates()
         ]
         
-        return aProfile
+        return _aProfile_
 
     def GetTransformationLog()
         """Return complete log of all transformations applied"""
@@ -714,22 +714,22 @@ class stzDataWrangler from stzObject
 
     def ShowReport()
         """Display formatted data quality report"""
-        aProfile = This.GetDataProfile()
+        _aProfile_ = This.GetDataProfile()
         
         ? "ðŸ“‹ DATA WRANGLING REPORT"
         ? "========================"
-        ? "Structure: " + aProfile[:structure]
-        ? "Dimensions: " + aProfile[:rows] + " rows Ã— " + aProfile[:columns] + " columns"
-        ? "Issues Found: " + aProfile[:issues_found]
-        ? "Transformations: " + aProfile[:transformations_applied]
+        ? "Structure: " + _aProfile_[:structure]
+        ? "Dimensions: " + _aProfile_[:rows] + " rows Ã— " + _aProfile_[:columns] + " columns"
+        ? "Issues Found: " + _aProfile_[:issues_found]
+        ? "Transformations: " + _aProfile_[:transformations_applied]
         ? ""
         
         if len(@aIssues) > 0
             ? "ðŸš¨ ISSUES DETECTED:"
             _nIssues1Len_ = len(@aIssues)
             for _iLoopIssues1_ = 1 to _nIssues1Len_
-            	issue = @aIssues[_iLoopIssues1_]
-                ? "  â€¢ " + issue[:type] + ": " + issue[:description]
+            	_issue_ = @aIssues[_iLoopIssues1_]
+                ? "  â€¢ " + _issue_[:type] + ": " + _issue_[:description]
             next
             ? ""
         ok
@@ -746,33 +746,33 @@ class stzDataWrangler from stzObject
     # HELPER METHODS
     # ==============
     
-    def _IsMissing(value)
-        return isNull(value) or StzFindFirst($aWRANGLE_MISSING_VALUES, "" + value) > 0
+    def _IsMissing(_value_)
+        return isNull(_value_) or StzFindFirst($aWRANGLE_MISSING_VALUES, "" + _value_) > 0
 
-    def _GetFillValue(aData, cStrategy)
+    def _GetFillValue(aData, _cStrategy_)
         # Determine best fill value based on data and strategy
-        if cStrategy = "fill_zero" return 0 ok
-        if cStrategy = "fill_mean" return This._CalculateMean(This._GetNumericValues(aData)) ok
+        if _cStrategy_ = "fill_zero" return 0 ok
+        if _cStrategy_ = "fill_mean" return This._CalculateMean(This._GetNumericValues(aData)) ok
         
         # Auto strategy - intelligent selection
-        aNumericValues = This._GetNumericValues(aData)
-        if len(aNumericValues) > 0
-            return This._CalculateMean(aNumericValues)  # Use mean for numeric
+        _aNumericValues_ = This._GetNumericValues(aData)
+        if len(_aNumericValues_) > 0
+            return This._CalculateMean(_aNumericValues_)  # Use mean for numeric
         else
             return This._GetMostFrequent(aData)  # Use mode for categorical
         ok
 
 
     def _GetNumericValues(aData)
-		nLen = len(aData)
-		anResult = []
-		for i = 1 to nLen
+		_nLen_ = len(aData)
+		_anResult_ = []
+		for i = 1 to _nLen_
 			if isNumber(aData[i]) and NOT This._IsMissing(aData[i])
-				anResult + aData[i]
+				_anResult_ + aData[i]
 			ok
 		next
 
-        return anResult
+        return _anResult_
 
     def _CalculateMean(aNumbers)
         if len(aNumbers) = 0 return 0 ok
@@ -780,52 +780,52 @@ class stzDataWrangler from stzObject
 
     def _CalculateStdDev(aNumbers)
         if len(aNumbers) < 2 return 0 ok
-        nMean = This._CalculateMean(aNumbers)
+        _nMean_ = This._CalculateMean(aNumbers)
 
-		nSum = 0
-		nLen = len(aNumbers)
-		for i = 1 to nLen
-			x = aNumbers[i]
-			nSum += (x - nMean) * (x - nMean)
+		_nSum_ = 0
+		_nLen_ = len(aNumbers)
+		for i = 1 to _nLen_
+			_x_ = aNumbers[i]
+			_nSum_ += (_x_ - _nMean_) * (_x_ - _nMean_)
 		next
-		nVariance = nSum / (nLen - 1)
+		_nVariance_ = _nSum_ / (_nLen_ - 1)
 
-        return sqrt(nVariance)
+        return sqrt(_nVariance_)
 
     def _GetMostFrequent(aData)
         # Find mode (most frequent value)
-        aFreq = []
+        _aFreq_ = []
         _nData5Len_ = len(aData)
         for _iLoopData5_ = 1 to _nData5Len_
-        	item = aData[_iLoopData5_]
-            if NOT This._IsMissing(item)
-                nIndex = This._FindInFreqArray(aFreq, item)
-                if nIndex = 0
-                    aFreq + [item, 1]
+        	_item_ = aData[_iLoopData5_]
+            if NOT This._IsMissing(_item_)
+                _nIndex_ = This._FindInFreqArray(_aFreq_, _item_)
+                if _nIndex_ = 0
+                    _aFreq_ + [_item_, 1]
                 else
-                    aFreq[nIndex][2]++
+                    _aFreq_[_nIndex_][2]++
                 ok
             ok
         next
         
-        if len(aFreq) = 0 return "" ok
+        if len(_aFreq_) = 0 return "" ok
         
         # Find item with highest frequency
-        nMaxFreq = 0
-        mostFrequent = aFreq[1][1]
-        _nFreq1Len_ = len(aFreq)
+        _nMaxFreq_ = 0
+        _mostFrequent_ = _aFreq_[1][1]
+        _nFreq1Len_ = len(_aFreq_)
         for _iLoopFreq1_ = 1 to _nFreq1Len_
-        	freq = aFreq[_iLoopFreq1_]
-            if freq[2] > nMaxFreq
-                nMaxFreq = freq[2]
-                mostFrequent = freq[1]
+        	_freq_ = _aFreq_[_iLoopFreq1_]
+            if _freq_[2] > _nMaxFreq_
+                _nMaxFreq_ = _freq_[2]
+                _mostFrequent_ = _freq_[1]
             ok
         next
         
-        return mostFrequent
+        return _mostFrequent_
 
-    def _ApplyCaseNormalization(cText, cMode)
-        switch cMode
+    def _ApplyCaseNormalization(cText, _cMode_)
+        switch _cMode_
         on "lower"   return StzLower(cText)
         on "upper"   return StzUpper(cText)
         on "title"   return This._ToTitleCase(cText)
@@ -835,14 +835,14 @@ class stzDataWrangler from stzObject
 
     def _ToTitleCase(cText)
         # Simple title case implementation
-        aWords = split(cText, " ")
-        _nWordsLen_ = len(aWords)
+        _aWords_ = split(cText, " ")
+        _nWordsLen_ = len(_aWords_)
         for i = 1 to _nWordsLen_
-            if len(aWords[i]) > 0
-                aWords[i] = StzUpper(StzLeft(aWords[i], 1)) + StzLower(StzMid(aWords[i], 2, StzLen(aWords[i]) - 1))
+            if len(_aWords_[i]) > 0
+                _aWords_[i] = StzUpper(StzLeft(_aWords_[i], 1)) + StzLower(StzMid(_aWords_[i], 2, StzLen(_aWords_[i]) - 1))
             ok
         next
-        return This._JoinList(aWords, " ")
+        return This._JoinList(_aWords_, " ")
 
     def _ToSentenceCase(cText)
         if len(cText) > 0
@@ -850,46 +850,46 @@ class stzDataWrangler from stzObject
         ok
         return cText
 
-    def _GetDataType(value)
-        if isNumber(value) return "numeric" ok
-        if isString(value) 
-            if This._IsBoolean(value) return "boolean" ok
-            if This._IsDate(value) return "date" ok
+    def _GetDataType(_value_)
+        if isNumber(_value_) return "numeric" ok
+        if isString(_value_) 
+            if This._IsBoolean(_value_) return "boolean" ok
+            if This._IsDate(_value_) return "date" ok
             return "string"
         ok
         return "unknown"
 
-    def _IsBoolean(cValue)
-        return StzFindFirst($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
+    def _IsBoolean(_cValue_)
+        return StzFindFirst($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + _cValue_))) > 0
 
-    def _IsDate(cValue)
+    def _IsDate(_cValue_)
         # Simple date detection - could be enhanced
-        cValue = "" + cValue
-        return (find(cValue, "/") > 0 or find(cValue, "-") > 0) and len(cValue) >= 8
+        _cValue_ = "" + _cValue_
+        return (find(_cValue_, "/") > 0 or find(_cValue_, "-") > 0) and len(_cValue_) >= 8
 
-    def _ConvertValue(value, cTargetType)
-        switch cTargetType
+    def _ConvertValue(_value_, _cTargetType_)
+        switch _cTargetType_
         on "numeric"
-            if isNumber(value) return value ok
-            if isString(value)
+            if isNumber(_value_) return _value_ ok
+            if isString(_value_)
                 try
-                    return 0 + value  # Ring's implicit conversion
+                    return 0 + _value_  # Ring's implicit conversion
                 catch
                     return NULL
                 done
             ok
             
         on "string"
-            return "" + value
+            return "" + _value_
             
         on "boolean"
-            if This._IsBoolean(value)
-                return StzFindFirst($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
+            if This._IsBoolean(_value_)
+                return StzFindFirst($aWRANGLE_TRUE_VALUES, StzLower(trim("" + _value_))) > 0
             ok
             
         on "date"
             # Date conversion would need more sophisticated logic
-            return value
+            return _value_
         off
         
         return NULL
@@ -901,9 +901,9 @@ class stzDataWrangler from stzObject
             :details = cDetails
         ]
 
-    def _AddIssue(cType, cDescription)
+    def _AddIssue(_cType_, cDescription)
         @aIssues + [
-            :type = cType,
+            :type = _cType_,
             :description = cDescription,
             :detected_at = date() + " " + time()
         ]
@@ -915,24 +915,24 @@ class stzDataWrangler from stzObject
             return len(@aData)
         ok
 
-    def _ResolvePlanTemplate(cInput)
-        cInput = StzLower(trim(cInput))
+    def _ResolvePlanTemplate(_cInput_)
+        _cInput_ = StzLower(trim(_cInput_))
         
         # Check if it's a direct template name
         _nWranglingPlanTemplates1Len_ = len($aWranglingPlanTemplates)
         for _iLoopWranglingPlanTemplates1_ = 1 to _nWranglingPlanTemplates1Len_
-        	template = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates1_]
-            if template[2][:name] = cInput
-                return cInput
+        	_template_ = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates1_]
+            if _template_[2][:name] = _cInput_
+                return _cInput_
             ok
 next
         
         # Check if it's a goal that maps to a template
         _nWranglingGoals1Len_ = len($aWranglingGoals)
         for _iLoopWranglingGoals1_ = 1 to _nWranglingGoals1Len_
-        	goal = $aWranglingGoals[_iLoopWranglingGoals1_]
-            if goal[1] = cInput
-                return goal[2]
+        	_goal_ = $aWranglingGoals[_iLoopWranglingGoals1_]
+            if _goal_[1] = _cInput_
+                return _goal_[2]
             ok
         next
         
@@ -940,147 +940,147 @@ next
 
     def _EstimatePlanTime(aSteps)
         # Simple time estimation based on number of steps
-        nBaseTime = len(aSteps) * 0.5  # 0.5 seconds per step
-        nDataSizeFactor = This._GetRowCount() / 1000.0  # Additional time for larger datasets
-        return nBaseTime + nDataSizeFactor
+        _nBaseTime_ = len(aSteps) * 0.5  # 0.5 seconds per step
+        _nDataSizeFactor_ = This._GetRowCount() / 1000.0  # Additional time for larger datasets
+        return _nBaseTime_ + _nDataSizeFactor_
 
     def _ExecutePlanStep(aStep)
-        cFunction = aStep[:function]
+        _cFunction_ = aStep[:function]
         
-        switch cFunction
+        switch _cFunction_
         on "RemoveDuplicates"
-            nRemoved = This.RemoveDuplicates()
-            return "Removed " + nRemoved + " duplicate rows"
+            _nRemoved_ = This.RemoveDuplicates()
+            return "Removed " + _nRemoved_ + " duplicate rows"
             
         on "HandleMissingValues"
-            nFilled = This.HandleMissingValues("")
-            return "Processed " + nFilled + " missing values"
+            _nFilled_ = This.HandleMissingValues("")
+            return "Processed " + _nFilled_ + " missing values"
             
         on "TrimWhitespace"
-            nCleaned = This.TrimWhitespace()
-            return "Cleaned " + nCleaned + " text values"
+            _nCleaned_ = This.TrimWhitespace()
+            return "Cleaned " + _nCleaned_ + " text values"
             
         on "NormalizeCase"
-            nNormalized = This.NormalizeCase("")
-            return "Normalized " + nNormalized + " text values"
+            _nNormalized_ = This.NormalizeCase("")
+            return "Normalized " + _nNormalized_ + " text values"
             
         on "ValidateDataTypes"
-            aIssues = This.ValidateDataTypes()
-            return "Found " + len(aIssues) + " type inconsistencies"
+            _aIssues_ = This.ValidateDataTypes()
+            return "Found " + len(_aIssues_) + " type inconsistencies"
             
         on "ValidateRanges"
-            aIssues = This.ValidateRanges([])
-            return "Validated ranges - " + len(aIssues) + " violations found"
+            _aIssues_ = This.ValidateRanges([])
+            return "Validated ranges - " + len(_aIssues_) + " violations found"
             
         on "ValidateFormats"
             return "Format validation completed"
             
         on "DetectOutliers"
-            aOutliers = This.DetectOutliers(0)
-            return "Detected " + len(aOutliers) + " potential outliers"
+            _aOutliers_ = This.DetectOutliers(0)
+            return "Detected " + len(_aOutliers_) + " potential outliers"
             
         on "ConvertDataTypes"
-            nConverted = This.ConvertDataTypes([])
-            return "Converted " + nConverted + " values"
+            _nConverted_ = This.ConvertDataTypes([])
+            return "Converted " + _nConverted_ + " values"
             
         on "NormalizeNumeric"
-            nNormalized = This.NormalizeNumeric("")
-            return "Normalized " + nNormalized + " numeric values"
+            _nNormalized_ = This.NormalizeNumeric("")
+            return "Normalized " + _nNormalized_ + " numeric values"
             
         on "EncodeCategories"
-            nEncoded = This.EncodeCategories("")
-            return "Encoded " + nEncoded + " categorical values"
+            _nEncoded_ = This.EncodeCategories("")
+            return "Encoded " + _nEncoded_ + " categorical values"
             
         on "StandardizeHeaders"
-            nStandardized = This._StandardizeHeaders()
-            return "Standardized " + nStandardized + " column headers"
+            _nStandardized_ = This._StandardizeHeaders()
+            return "Standardized " + _nStandardized_ + " column headers"
             
         on "FormatDates"
-            nFormatted = This._FormatDates()
-            return "Formatted " + nFormatted + " date values"
+            _nFormatted_ = This._FormatDates()
+            return "Formatted " + _nFormatted_ + " date values"
             
         on "ValidateExport"
-            aIssues = This._ValidateForExport()
-            return "Export validation - " + len(aIssues) + " issues found"
+            _aIssues_ = This._ValidateForExport()
+            return "Export validation - " + len(_aIssues_) + " issues found"
             
         other
-            return "Unknown function: " + cFunction
+            return "Unknown function: " + _cFunction_
         off
 
-    def _GetExecutionSummary(aResults)
-        nSuccessful = 0
-        nErrors = 0
+    def _GetExecutionSummary(_aResults_)
+        _nSuccessful_ = 0
+        _nErrors_ = 0
         
-        _nResults1Len_ = len(aResults)
+        _nResults1Len_ = len(_aResults_)
         for _iLoopResults1_ = 1 to _nResults1Len_
-        	result = aResults[_iLoopResults1_]
-            if result[:status] = "success"
-                nSuccessful++
+        	_result_ = _aResults_[_iLoopResults1_]
+            if _result_[:status] = "success"
+                _nSuccessful_++
             else
-                nErrors++
+                _nErrors_++
             ok
         next
         
-        return "" + nSuccessful + " successful, " + nErrors + " errors"
+        return "" + _nSuccessful_ + " successful, " + _nErrors_ + " errors"
 
     def _GetDataTypesSummary()
         if @cDataStructure != "table" return [] ok
         
-        aTypeSummary = []
+        _aTypeSummary_ = []
         _nHeadersLen_3 = len(@aHeaders)
         for j = 1 to _nHeadersLen_3
-            aTypes = []
+            _aTypes_ = []
             _nDataLen_7 = len(@aData)
             for i = 1 to _nDataLen_7
                 if NOT This._IsMissing(@aData[i][j])
-                    cType = This._GetDataType(@aData[i][j])
-                    if StzFindFirst(aTypes, cType) = 0
-                        aTypes + cType
+                    _cType_ = This._GetDataType(@aData[i][j])
+                    if StzFindFirst(_aTypes_, _cType_) = 0
+                        _aTypes_ + _cType_
                     ok
                 ok
             next
-            aTypeSummary + [@aHeaders[j], aTypes]
+            _aTypeSummary_ + [@aHeaders[j], _aTypes_]
         next
         
-        return aTypeSummary
+        return _aTypeSummary_
 
     def _CountMissingValues()
-        nMissing = 0
+        _nMissing_ = 0
         
         if @cDataStructure = "list"
             _nData4Len_ = len(@aData)
             for _iLoopData4_ = 1 to _nData4Len_
-            	item = @aData[_iLoopData4_]
-                if This._IsMissing(item) nMissing++ ok
+            	_item_ = @aData[_iLoopData4_]
+                if This._IsMissing(_item_) _nMissing_++ ok
             next
         else
             _nData3Len_ = len(@aData)
             for _iLoopData3_ = 1 to _nData3Len_
-            	row = @aData[_iLoopData3_]
-                _nRow2Len_ = len(row)
+            	_row_ = @aData[_iLoopData3_]
+                _nRow2Len_ = len(_row_)
                 for _iLoopRow2_ = 1 to _nRow2Len_
-                	item = row[_iLoopRow2_]
-                    if This._IsMissing(item) nMissing++ ok
+                	_item_ = _row_[_iLoopRow2_]
+                    if This._IsMissing(_item_) _nMissing_++ ok
                 next
             next
         ok
         
-        return nMissing
+        return _nMissing_
 
     def _CountDuplicates()
         if @cDataStructure = "list"
             return len(@aData) - len(unique(@aData))
         else
-            nOriginal = len(@aData)
-            aUnique = []
+            _nOriginal_ = len(@aData)
+            _aUnique_ = []
             _nData2Len_ = len(@aData)
             for _iLoopData2_ = 1 to _nData2Len_
-            	row = @aData[_iLoopData2_]
-                if This._FindRowIndex(aUnique, row) = 0
-                    aUnique + row
+            	_row_ = @aData[_iLoopData2_]
+                if This._FindRowIndex(_aUnique_, _row_) = 0
+                    _aUnique_ + _row_
                 ok
             next
-            return nOriginal - len(aUnique)
+            return _nOriginal_ - len(_aUnique_)
         ok
 
     def _FindRowIndex(aRows, aTargetRow)
@@ -1100,146 +1100,146 @@ next
         next
         return TRUE
 
-    def _GetNumericColumnData(nColIndex)
-        aNumericData = []
+    def _GetNumericColumnData(_nColIndex_)
+        _aNumericData_ = []
         _nDataLen_6 = len(@aData)
         for i = 1 to _nDataLen_6
-            if isNumber(@aData[i][nColIndex]) and NOT This._IsMissing(@aData[i][nColIndex])
-                aNumericData + @aData[i][nColIndex]
+            if isNumber(@aData[i][_nColIndex_]) and NOT This._IsMissing(@aData[i][_nColIndex_])
+                _aNumericData_ + @aData[i][_nColIndex_]
             ok
         next
-        return aNumericData
+        return _aNumericData_
 
-    def _NormalizeArray(aData, cMethod)
-        switch cMethod
+    def _NormalizeArray(aData, _cMethod_)
+        switch _cMethod_
         on "minmax"
-			aResult = []
-            nMin = min(aData)
-            nMax = max(aData)
-            if nMax = nMin return aData ok
+			_aResult_ = []
+            _nMin_ = min(aData)
+            _nMax_ = max(aData)
+            if _nMax_ = _nMin_ return aData ok
 
-			nLen = len(aData)
-			for i = 1 to nLen
-				x = aData[i]
-				aResult + ( (x - nMin) / (nMax - nMin) )
+			_nLen_ = len(aData)
+			for i = 1 to _nLen_
+				_x_ = aData[i]
+				_aResult_ + ( (_x_ - _nMin_) / (_nMax_ - _nMin_) )
 			next
 
-            return aResult
+            return _aResult_
             
         on "zscore"
-            nMean = This._CalculateMean(aData)
-            nStdDev = This._CalculateStdDev(aData)
-            if nStdDev = 0 return aData ok
+            _nMean_ = This._CalculateMean(aData)
+            _nStdDev_ = This._CalculateStdDev(aData)
+            if _nStdDev_ = 0 return aData ok
 
-			aResult = []
-			nLen = len(aData)
-			for i = 1 to nLen
-				x = aData[i]
-				aResult + ( (x - nMean) / nStdDev )
+			_aResult_ = []
+			_nLen_ = len(aData)
+			for i = 1 to _nLen_
+				_x_ = aData[i]
+				_aResult_ + ( (_x_ - _nMean_) / _nStdDev_ )
 			next
 
-            return aResult
+            return _aResult_
             
         on "robust"
             # Median-based normalization
-            nMedian = This._CalculateMedian(aData) 
-            nMAD = This._CalculateMAD(aData, nMedian)  # Median Absolute Deviation
-            if nMAD = 0 return aData ok
+            _nMedian_ = This._CalculateMedian(aData) 
+            _nMAD_ = This._CalculateMAD(aData, _nMedian_)  # Median Absolute Deviation
+            if _nMAD_ = 0 return aData ok
 
-			aResult = []
-			nLen = len(aData)
-			for i = 1 to nLen
-				x = aData[i]
-				aResult + ( (x - nMedian) / nMAD )
+			_aResult_ = []
+			_nLen_ = len(aData)
+			for i = 1 to _nLen_
+				_x_ = aData[i]
+				_aResult_ + ( (_x_ - _nMedian_) / _nMAD_ )
 			next
 
-            return aResult
+            return _aResult_
             
         other
             return aData
         off
 
     def _CalculateMedian(aData)
-        aSorted = sort(aData)
-        nLen = len(aSorted)
-        if nLen % 2 = 1
-            return aSorted[(nLen + 1) / 2]
+        _aSorted_ = sort(aData)
+        _nLen_ = len(_aSorted_)
+        if _nLen_ % 2 = 1
+            return _aSorted_[(_nLen_ + 1) / 2]
         else
-            return (aSorted[nLen / 2] + aSorted[nLen / 2 + 1]) / 2
+            return (_aSorted_[_nLen_ / 2] + _aSorted_[_nLen_ / 2 + 1]) / 2
         ok
 
-    def _CalculateMAD(aData, nMedian)
-		aDeviations = []
-		nLen = len(aData)
-		for i = 1 to nLen
-			x = aData[i]
-			aDeviations + abs(x - nMedian)
+    def _CalculateMAD(aData, _nMedian_)
+		_aDeviations_ = []
+		_nLen_ = len(aData)
+		for i = 1 to _nLen_
+			_x_ = aData[i]
+			_aDeviations_ + abs(_x_ - _nMedian_)
 		next
-        return This._CalculateMedian(aDeviations)
+        return This._CalculateMedian(_aDeviations_)
 
-    def _IsColumnCategorical(nColIndex)
-        aUniqueValues = This._GetUniqueColumnValues(nColIndex)
-        nUniqueCount = len(aUniqueValues)
-        nTotalCount = This._GetNonMissingCount(nColIndex)
+    def _IsColumnCategorical(_nColIndex_)
+        _aUniqueValues_ = This._GetUniqueColumnValues(_nColIndex_)
+        _nUniqueCount_ = len(_aUniqueValues_)
+        _nTotalCount_ = This._GetNonMissingCount(_nColIndex_)
         
         # Consider categorical if:
         # 1. Less than 20 unique values, OR
         # 2. Unique values are less than 50% of total values, OR
         # 3. Contains non-numeric data
-        return (nUniqueCount < 20) or 
-               (nUniqueCount < nTotalCount * 0.5) or
-               This._ContainsNonNumeric(nColIndex)
+        return (_nUniqueCount_ < 20) or 
+               (_nUniqueCount_ < _nTotalCount_ * 0.5) or
+               This._ContainsNonNumeric(_nColIndex_)
 
-    def _GetUniqueColumnValues(nColIndex)
-        aUnique = []
+    def _GetUniqueColumnValues(_nColIndex_)
+        _aUnique_ = []
         _nDataLen_5 = len(@aData)
         for i = 1 to _nDataLen_5
-            value = @aData[i][nColIndex]
-            if NOT This._IsMissing(value) and StzFindFirst(aUnique, value) = 0
-                aUnique + value
+            _value_ = @aData[i][_nColIndex_]
+            if NOT This._IsMissing(_value_) and StzFindFirst(_aUnique_, _value_) = 0
+                _aUnique_ + _value_
             ok
         next
-        return aUnique
+        return _aUnique_
 
-    def _GetNonMissingCount(nColIndex)
-        nCount = 0
+    def _GetNonMissingCount(_nColIndex_)
+        _nCount_ = 0
         _nDataLen_4 = len(@aData)
         for i = 1 to _nDataLen_4
-            if NOT This._IsMissing(@aData[i][nColIndex])
-                nCount++
+            if NOT This._IsMissing(@aData[i][_nColIndex_])
+                _nCount_++
             ok
         next
-        return nCount
+        return _nCount_
 
-    def _ContainsNonNumeric(nColIndex)
+    def _ContainsNonNumeric(_nColIndex_)
         _nDataLen_3 = len(@aData)
         for i = 1 to _nDataLen_3
-            value = @aData[i][nColIndex]
-            if NOT This._IsMissing(value) and NOT isNumber(value)
+            _value_ = @aData[i][_nColIndex_]
+            if NOT This._IsMissing(_value_) and NOT isNumber(_value_)
                 return TRUE
             ok
         next
         return FALSE
 
-    def _ApplyLabelEncoding(nColIndex, aUniqueValues)
-        nEncoded = 0
+    def _ApplyLabelEncoding(_nColIndex_, _aUniqueValues_)
+        _nEncoded_ = 0
         _nDataLen_2 = len(@aData)
         for i = 1 to _nDataLen_2
-            value = @aData[i][nColIndex]
-            if NOT This._IsMissing(value)
-                nLabelIndex = StzFindFirst(aUniqueValues, value)
-                if nLabelIndex > 0
-                    @aData[i][nColIndex] = nLabelIndex - 1  # 0-based encoding
-                    nEncoded++
+            _value_ = @aData[i][_nColIndex_]
+            if NOT This._IsMissing(_value_)
+                _nLabelIndex_ = StzFindFirst(_aUniqueValues_, _value_)
+                if _nLabelIndex_ > 0
+                    @aData[i][_nColIndex_] = _nLabelIndex_ - 1  # 0-based encoding
+                    _nEncoded_++
                 ok
             ok
         next
-        return nEncoded
+        return _nEncoded_
 
-    def _FindInFreqArray(aFreq, item)
-        _nFreqLen_ = len(aFreq)
+    def _FindInFreqArray(_aFreq_, _item_)
+        _nFreqLen_ = len(_aFreq_)
         for i = 1 to _nFreqLen_
-            if aFreq[i][1] = item
+            if _aFreq_[i][1] = _item_
                 return i
             ok
         next
@@ -1247,52 +1247,52 @@ next
 
     def _JoinList(aList, cSeparator)
         if len(aList) = 0 return "" ok
-        cResult = "" + aList[1]
+        _cResult_ = "" + aList[1]
         _nListLen_ = len(aList)
         for i = 2 to _nListLen_
-            cResult += cSeparator + aList[i]
+            _cResult_ += cSeparator + aList[i]
         next
-        return cResult
+        return _cResult_
 
     def _StandardizeHeaders()
         """Standardize column headers for export compatibility"""
-        nStandardized = 0
+        _nStandardized_ = 0
         
         _nHeadersLen_2 = len(@aHeaders)
         for i = 1 to _nHeadersLen_2
-            cOriginal = @aHeaders[i]
-            cStandardized = This._CleanHeaderName(cOriginal)
-            if cOriginal != cStandardized
-                @aHeaders[i] = cStandardized
-                nStandardized++
+            _cOriginal_ = @aHeaders[i]
+            _cStandardized_ = This._CleanHeaderName(_cOriginal_)
+            if _cOriginal_ != _cStandardized_
+                @aHeaders[i] = _cStandardized_
+                _nStandardized_++
             ok
         next
         
-        return nStandardized
+        return _nStandardized_
 
     def _CleanHeaderName(cHeader)
         # Remove special characters, normalize spacing
-        cCleaned = ""
+        _cCleaned_ = ""
         _nHeaderLen_ = len(cHeader)
         for i = 1 to _nHeaderLen_
-            cChar = cHeader[i]
-            if isalnum(cChar) or cChar = "_"
-                cCleaned += cChar
-            elseif cChar = " "
-                cCleaned += "_"
+            _cChar_ = cHeader[i]
+            if isalnum(_cChar_) or _cChar_ = "_"
+                _cCleaned_ += _cChar_
+            elseif _cChar_ = " "
+                _cCleaned_ += "_"
             ok
         next
         
         # Remove double underscores and trim
-        while find(cCleaned, "__") > 0
-            cCleaned = StzReplace(cCleaned, "__", "_")
+        while find(_cCleaned_, "__") > 0
+            _cCleaned_ = StzReplace(_cCleaned_, "__", "_")
         end
         
-        return trim(cCleaned)
+        return trim(_cCleaned_)
 
     def _FormatDates()
         """Standardize date formats across the dataset"""
-        nFormatted = 0
+        _nFormatted_ = 0
         
         if @cDataStructure = "table"
             _nHeadersLen_ = len(@aHeaders)
@@ -1300,63 +1300,63 @@ next
                 _nDataLen_ = len(@aData)
                 for i = 1 to _nDataLen_
                     if This._IsDate(@aData[i][j])
-                        cFormatted = This._StandardizeDateFormat(@aData[i][j])
-                        if cFormatted != @aData[i][j]
-                            @aData[i][j] = cFormatted
-                            nFormatted++
+                        _cFormatted_ = This._StandardizeDateFormat(@aData[i][j])
+                        if _cFormatted_ != @aData[i][j]
+                            @aData[i][j] = _cFormatted_
+                            _nFormatted_++
                         ok
                     ok
                 next
             next
         ok
         
-        return nFormatted
+        return _nFormatted_
 
-    def _StandardizeDateFormat(cDate)
+    def _StandardizeDateFormat(_cDate_)
         # Simple date standardization - could be enhanced with proper date parsing
-        cDate = "" + cDate
+        _cDate_ = "" + _cDate_
         
         # Convert common formats to ISO format (YYYY-MM-DD)
-        if find(cDate, "/") > 0
+        if find(_cDate_, "/") > 0
             # Handle MM/DD/YYYY or DD/MM/YYYY formats
-            aParts = split(cDate, "/")
-            if len(aParts) = 3
+            _aParts_ = split(_cDate_, "/")
+            if len(_aParts_) = 3
                 # Assume MM/DD/YYYY for now
-                return aParts[3] + "-" + This._PadZero(aParts[1]) + "-" + This._PadZero(aParts[2])
+                return _aParts_[3] + "-" + This._PadZero(_aParts_[1]) + "-" + This._PadZero(_aParts_[2])
             ok
         ok
         
-        return cDate
+        return _cDate_
 
-    def _PadZero(cNumber)
-        cNumber = "" + cNumber
-        if len(cNumber) = 1
-            return "0" + cNumber
+    def _PadZero(_cNumber_)
+        _cNumber_ = "" + _cNumber_
+        if len(_cNumber_) = 1
+            return "0" + _cNumber_
         ok
-        return cNumber
+        return _cNumber_
 
     def _ValidateForExport()
         """Final validation before export"""
-        aIssues = []
+        _aIssues_ = []
         
         # Check for remaining missing values
-        nMissing = This._CountMissingValues()
-        if nMissing > 0
-            aIssues + "Missing values detected: " + nMissing
+        _nMissing_ = This._CountMissingValues()
+        if _nMissing_ > 0
+            _aIssues_ + "Missing values detected: " + _nMissing_
         ok
         
         # Check for problematic characters in headers
         if @cDataStructure = "table"
             _nHeaders1Len_ = len(@aHeaders)
             for _iLoopHeaders1_ = 1 to _nHeaders1Len_
-            	header = @aHeaders[_iLoopHeaders1_]
-                if find(header, " ") > 0 or find(header, "-") > 0
-                    aIssues + "Header contains spaces/hyphens: " + header
+            	_header_ = @aHeaders[_iLoopHeaders1_]
+                if find(_header_, " ") > 0 or find(_header_, "-") > 0
+                    _aIssues_ + "Header contains spaces/hyphens: " + _header_
                 ok
             next
         ok
         
-        return aIssues
+        return _aIssues_
 
     # CONVENIENCE METHODS FOR QUICK OPERATIONS
     # =======================================
@@ -1409,9 +1409,9 @@ next
 
     def GetCleanData()
         """Return data with basic cleaning applied"""
-        oTempRangler = new stzDataWrangler(@aData, @aHeaders)
-        oTempRangler.QuickClean()
-        return oTempRangler.GetData()
+        _oTempRangler_ = new stzDataWrangler(@aData, @aHeaders)
+        _oTempRangler_.QuickClean()
+        return _oTempRangler_.GetData()
 
     def SetVerbose(bVerbose)
         """Enable/disable verbose output"""

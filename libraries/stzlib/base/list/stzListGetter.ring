@@ -52,13 +52,13 @@ class stzListGetter from stzObject
 	def ContentCS(pCaseSensitive)
 		return This.List()
 
-	def NthItem(n)
+	def NthItem(_n_)
 		if CheckingParams()
-			if isList(n) and IsOneOfTheseNamedParamsList(n, [:At, :AtPosition, :ItemAt])
-				n = n[2]
+			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_, [:At, :AtPosition, :ItemAt])
+				_n_ = _n_[2]
 			ok
 		ok
-		return This.List()[n]
+		return This.List()[_n_]
 
 	def FirstItem()
 		return This.NthItem(1)
@@ -70,26 +70,26 @@ class stzListGetter from stzObject
 		_nCiN_ = ceil(This.NumberOfItems() / 2)
 		return This.NthItem(_nCiN_)
 
-	def NFirstItems(n)
+	def NFirstItems(_n_)
 		_aNfResult_ = []
-		for _iNf_ = 1 to n
+		for _iNf_ = 1 to _n_
 			_aNfResult_ + This.List()[_iNf_]
 		next
 		return _aNfResult_
 
-		def NFirstItemsQ(n)
-			return new stzList(This.NFirstItems(n))
+		def NFirstItemsQ(_n_)
+			return new stzList(This.NFirstItems(_n_))
 
-	def NLastItems(n)
+	def NLastItems(_n_)
 		_nNlLen_ = This.NumberOfItems()
 		_aNlResult_ = []
-		for _iNl_ = _nNlLen_ - n + 1 to _nNlLen_
+		for _iNl_ = _nNlLen_ - _n_ + 1 to _nNlLen_
 			_aNlResult_ + This.List()[_iNl_]
 		next
 		return _aNlResult_
 
-		def NLastItemsQ(n)
-			return new stzList(This.NLastItems(n))
+		def NLastItemsQ(_n_)
+			return new stzList(This.NLastItems(_n_))
 
 	  #======================================================#
 	 #   ITEMS AT POSITIONS                                 #
@@ -110,18 +110,18 @@ class stzListGetter from stzObject
 	 #   SECTION / RANGE                                    #
 	#======================================================#
 
-	def Section(n1, n2)
+	def Section(_n1_, _n2_)
 		_nScLen_ = This.NumberOfItems()
-		if n1 < 1 n1 = 1 ok
-		if n2 > _nScLen_ n2 = _nScLen_ ok
-		if n1 > n2
-			_nScTemp_ = n1
-			n1 = n2
-			n2 = _nScTemp_
+		if _n1_ < 1 _n1_ = 1 ok
+		if _n2_ > _nScLen_ _n2_ = _nScLen_ ok
+		if _n1_ > _n2_
+			_nScTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nScTemp_
 		ok
 		_pScList_ = @oList._EngineListFromContent()
 		if _pScList_ != NULL
-			_pScResult_ = StzEngineListSection(_pScList_, n1, n2)
+			_pScResult_ = StzEngineListSection(_pScList_, _n1_, _n2_)
 			if _pScResult_ != NULL
 				_aScResult_ = @oList._ContentFromEngineList(_pScResult_)
 				StzEngineListFree(_pScResult_)
@@ -131,7 +131,7 @@ class stzListGetter from stzObject
 			StzEngineListFree(_pScList_)
 		ok
 		_aScFallback_ = []
-		for _iSc_ = n1 to n2
+		for _iSc_ = _n1_ to _n2_
 			_aScFallback_ + This.List()[_iSc_]
 		next
 		return _aScFallback_
@@ -162,10 +162,10 @@ class stzListGetter from stzObject
 		_nRdN_ = random(This.NumberOfItems() - 1) + 1
 		return This.NthItem(_nRdN_)
 
-	def NRandomItems(n)
+	def NRandomItems(_n_)
 		_pNriList_ = @oList._EngineListFromContent()
 		if _pNriList_ != NULL
-			_pNriResult_ = StzEngineListRandomItems(_pNriList_, n)
+			_pNriResult_ = StzEngineListRandomItems(_pNriList_, _n_)
 			if _pNriResult_ != NULL
 				_aNriResult_ = @oList._ContentFromEngineList(_pNriResult_)
 				StzEngineListFree(_pNriResult_)
@@ -176,7 +176,7 @@ class stzListGetter from stzObject
 		ok
 		_aNriContent_ = This.Content()
 		_nNriLen_ = len(_aNriContent_)
-		if n >= _nNriLen_
+		if _n_ >= _nNriLen_
 			_aNriAll_ = []
 			for _iNri_ = 1 to _nNriLen_
 				_aNriAll_ + _aNriContent_[_iNri_]
@@ -191,7 +191,7 @@ class stzListGetter from stzObject
 			_anNriIdx_[_jNri_] = _nNriTmp_
 		next
 		_aNriPick_ = []
-		for _kNri_ = 1 to n
+		for _kNri_ = 1 to _n_
 			_aNriPick_ + _aNriContent_[_anNriIdx_[_kNri_]]
 		next
 		return _aNriPick_
@@ -200,46 +200,46 @@ class stzListGetter from stzObject
 	 #   ITEMS BETWEEN TWO POSITIONS                        #
 	#======================================================#
 
-	def ItemsBetween(n1, n2)
-		return This.Section(n1, n2)
+	def ItemsBetween(_n1_, _n2_)
+		return This.Section(_n1_, _n2_)
 
-		def ItemsBetweenQ(n1, n2)
-			return new stzList(This.ItemsBetween(n1, n2))
+		def ItemsBetweenQ(_n1_, _n2_)
+			return new stzList(This.ItemsBetween(_n1_, _n2_))
 
 	  #======================================================#
 	 #   EVERY NTH ITEM                                     #
 	#======================================================#
 
-	def EveryNthItem(n)
+	def EveryNthItem(_n_)
 		_aEniContent_ = This.Content()
 		_nEniLen_ = len(_aEniContent_)
 		_aEniResult_ = []
-		for _iEni_ = n to _nEniLen_ step n
+		for _iEni_ = _n_ to _nEniLen_ step _n_
 			_aEniResult_ + _aEniContent_[_iEni_]
 		next
 		return _aEniResult_
 
-		def EveryNthItemQ(n)
-			return new stzList(This.EveryNthItem(n))
+		def EveryNthItemQ(_n_)
+			return new stzList(This.EveryNthItem(_n_))
 
-		def EveryNth(n)
-			return This.EveryNthItem(n)
+		def EveryNth(_n_)
+			return This.EveryNthItem(_n_)
 
 	  #======================================================#
 	 #   HEAD / TAIL                                        #
 	#======================================================#
 
-	def Head(n)
-		return This.NFirstItems(n)
+	def Head(_n_)
+		return This.NFirstItems(_n_)
 
-		def HeadQ(n)
-			return new stzList(This.Head(n))
+		def HeadQ(_n_)
+			return new stzList(This.Head(_n_))
 
-	def Tail(n)
-		return This.NLastItems(n)
+	def Tail(_n_)
+		return This.NLastItems(_n_)
 
-		def TailQ(n)
-			return new stzList(This.Tail(n))
+		def TailQ(_n_)
+			return new stzList(This.Tail(_n_))
 
 	  #======================================================#
 	 #   ITEMS OF TYPE                                      #
@@ -317,13 +317,13 @@ class stzListGetter from stzObject
 		def TripletsQ()
 			return new stzList(This.Triplets())
 
-	def SlidingWindow(n)
+	def SlidingWindow(_n_)
 		_pSwList_ = StzEngineMarshalList(@oList.Content())
-		_pSwResult_ = StzEngineListSlidingWindow(_pSwList_, n)
+		_pSwResult_ = StzEngineListSlidingWindow(_pSwList_, _n_)
 		_aSwResult_ = StzEngineListContentToRingList(_pSwResult_)
 		StzEngineListFree(_pSwResult_)
 		StzEngineListFree(_pSwList_)
 		return _aSwResult_
 
-		def SlidingWindowQ(n)
-			return new stzList(This.SlidingWindow(n))
+		def SlidingWindowQ(_n_)
+			return new stzList(This.SlidingWindow(_n_))

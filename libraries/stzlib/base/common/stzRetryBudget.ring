@@ -7,14 +7,14 @@
 	(engine/src/resilience.zig, stz_resilience.dll) with a budget-shaped
 	API: a budget of N retries that refills over a window of W seconds.
 
-		oBudget = new stzRetryBudget(100, 10)   # 100 retries / 10 sec
-		if oBudget.Allow()
+		_oBudget_ = new stzRetryBudget(100, 10)   # 100 retries / 10 sec
+		if _oBudget_.Allow()
 			# spend one retry -- go ahead
 		else
 			# budget exhausted -- escalate to failure instead of retrying
 		ok
 		...
-		oBudget.Destroy()
+		_oBudget_.Destroy()
 
 	Internally: capacity = N, refill = floor(N / W) tokens/sec (min 1).
 	Allow() takes one token; it succeeds while the budget has tokens and
@@ -25,36 +25,36 @@
 	so a `Try` method raises a C27 syntax error.
 */
 
-func StzRetryBudget(nBudget, nWindowSeconds)
-	return new stzRetryBudget(nBudget, nWindowSeconds)
+func StzRetryBudget(_nBudget_, nWindowSeconds)
+	return new stzRetryBudget(_nBudget_, nWindowSeconds)
 
 class stzRetryBudget from stzObject
 
 	pHandle = NULL
-	bReady  = FALSE
-	nBudget = 0
-	nWindow = 1
-	nRefill = 1
+	_bReady_  = FALSE
+	_nBudget_ = 0
+	_nWindow_ = 1
+	_nRefill_ = 1
 
 	def init(pnBudget, pnWindowSeconds)
-		nBudget = pnBudget
+		_nBudget_ = pnBudget
 		if pnWindowSeconds < 1
-			nWindow = 1
+			_nWindow_ = 1
 		else
-			nWindow = pnWindowSeconds
+			_nWindow_ = pnWindowSeconds
 		ok
 		This._Ensure()
 
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = FALSE
-			nRefill = nBudget / nWindow
-			if nRefill < 1
-				nRefill = 1
+		if _bReady_ = FALSE
+			_nRefill_ = _nBudget_ / _nWindow_
+			if _nRefill_ < 1
+				_nRefill_ = 1
 			ok
-			pHandle = StzEngineRateCreate(nBudget, nRefill)
-			bReady = TRUE
+			pHandle = StzEngineRateCreate(_nBudget_, _nRefill_)
+			_bReady_ = TRUE
 		ok
 
 	# Spend one retry. Returns TRUE if the budget allowed it.
@@ -79,18 +79,18 @@ class stzRetryBudget from stzObject
 		return StzEngineRateAvailable(pHandle)
 
 	def Budget()
-		return nBudget
+		return _nBudget_
 
 	def Window()
-		return nWindow
+		return _nWindow_
 
 	def RefillPerSecond()
-		return nRefill
+		return _nRefill_
 
 	def Destroy()
-		if bReady = TRUE
+		if _bReady_ = TRUE
 			StzEngineRateDestroy(pHandle)
 			pHandle = NULL
-			bReady = FALSE
+			_bReady_ = FALSE
 		ok
 		return This

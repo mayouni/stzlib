@@ -27,8 +27,8 @@ class stzPair from stzList
 		@aContent = []
 		_nList1Len_ = len(paList)
 		for _iLoopList1_ = 1 to _nList1Len_
-			item = paList[_iLoopList1_]
-			@aContent + item
+			_item_ = paList[_iLoopList1_]
+			@aContent + _item_
 		next
 
 		if KeepingHistory() = 1
@@ -79,13 +79,13 @@ class stzPair from stzList
 			return This.Item2()
 
 	def Swap()
-		aContent = This.Content()
+		_aContent_ = This.Content()
 
-		temp = aContent[1]
-		aContent[1] = aContent[2]
-		aContent[2] = temp
+		_temp_ = _aContent_[1]
+		_aContent_[1] = _aContent_[2]
+		_aContent_[2] = _temp_
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 		def SwapQ()
 			This.Swap()

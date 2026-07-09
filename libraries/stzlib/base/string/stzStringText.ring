@@ -151,36 +151,36 @@ class stzStringText from stzObject
 			return This.Scripts()[1]
 
 		but This.NumberOfScripts() = 2 and StzFindFirst(This.Scripts(), :Common) > 0
-			cResult = StzListQ(This.Scripts()).AllItemsExcept(:Common)[1]
-			return cResult
+			_cResult_ = StzListQ(This.Scripts()).AllItemsExcept(:Common)[1]
+			return _cResult_
 
 		but This.NumberOfScripts() > 1
-			cResult = :Hybrid
+			_cResult_ = :Hybrid
 
 			if This.NumberOfScripts() <= 3
-				oScripts = StzListQ(This.Scripts())
-				oScripts - [ :Common, :Inherited ]
-				cScript = oScripts[1]
+				_oScripts_ = StzListQ(This.Scripts())
+				_oScripts_ - [ :Common, :Inherited ]
+				_cScript_ = _oScripts_[1]
 
-				if StzListQ(This.Scripts()).EachItemExistsIn([ cScript, :Common, :Inherited ])
-					cResult = cScript
+				if StzListQ(This.Scripts()).EachItemExistsIn([ _cScript_, :Common, :Inherited ])
+					_cResult_ = _cScript_
 				ok
 			ok
 
-			return cResult
+			return _cResult_
 		ok
 
 	def Scripts()
-		acResult = []
-		aoStzChars = @oString.ToListOfStzChars()
-		nLen = len(aoStzChars)
+		_acResult_ = []
+		_aoStzChars_ = @oString.ToListOfStzChars()
+		_nLen_ = len(_aoStzChars_)
 
-		for i = 1 to nLen
-			acResult + aoStzChars[i].Script()
+		for i = 1 to _nLen_
+			_acResult_ + _aoStzChars_[i].Script()
 		next
 
-		acResult = U(acResult)
-		return acResult
+		_acResult_ = U(_acResult_)
+		return _acResult_
 
 	def NumberOfScripts()
 		return len(This.Scripts())
@@ -191,11 +191,11 @@ class stzStringText from stzObject
 	def NumberOfDistinctScripts()
 		return len(This.Scripts())
 
-	def ScriptIs(cScript)
-		return This.Script() = cScript
+	def ScriptIs(_cScript_)
+		return This.Script() = _cScript_
 
-	def ContainsScript(cScript)
-		return StzFindFirst(This.Scripts(), cScript) > 0
+	def ContainsScript(_cScript_)
+		return StzFindFirst(This.Scripts(), _cScript_) > 0
 
 	def ContainsArabicScript()
 		return This.ContainsScript(:Arabic)
@@ -228,22 +228,22 @@ class stzStringText from stzObject
 	def OnlyScript(pcScript)
 		# WF (anonymous function) instead of an eval()'d textual condition --
 		# the function captures pcScript and calls the real stzChar method.
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
 			func c { return StzCharQ(c).Script() = pcScript } )
-		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
-		return cResult
+		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
+		return _cResult_
 
 	def OnlyArabic()
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
 			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsArabic() } )
-		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
-		return cResult
+		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
+		return _cResult_
 
 	def OnlyLatin()
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
 			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsLatin() } )
-		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
-		return cResult
+		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
+		return _cResult_
 
 	  #===============================#
 	 #     WORDS (Engine-backed)     #
@@ -258,38 +258,38 @@ class stzStringText from stzObject
 		def HowManyWords()
 			return This.NumberOfWords()
 
-	def NthWord(n)
+	def NthWord(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
-		pResult = StzEngineStringNthWord(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+		pResult = StzEngineStringNthWord(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
-		def Word(n)
-			return This.NthWord(n)
+		def Word(_n_)
+			return This.NthWord(_n_)
 
 	def FirstWord()
 		pResult = StzEngineStringFirstWord(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def LastWord()
 		pResult = StzEngineStringLastWord(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def Words()
 		pResult = StzEngineStringExtractWords(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
-		if cResult = ""
+		if _cResult_ = ""
 			return []
 		ok
 
-		return StzStringQ(cResult).Split(" ")
+		return StzStringQ(_cResult_).Split(" ")
 
 		def WordsQ()
 			return new stzList(This.Words())
@@ -297,14 +297,14 @@ class stzStringText from stzObject
 	def UniqueWordsCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringUniqueWordsCS(This.Engine(), _bCase_)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
-		if cResult = ""
+		if _cResult_ = ""
 			return []
 		ok
 
-		return StzStringQ(cResult).Split(" ")
+		return StzStringQ(_cResult_).Split(" ")
 
 	def UniqueWords()
 		return This.UniqueWordsCS(1)
@@ -349,20 +349,20 @@ class stzStringText from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		acWords = This.UniqueWordsCS(_bCase_)
+		_acWords_ = This.UniqueWordsCS(_bCase_)
 
 		if _bCase_ = 1
-			nLen = len(acWords)
-			for i = 1 to nLen
-				if acWords[i] = pcWord
+			_nLen_ = len(_acWords_)
+			for i = 1 to _nLen_
+				if _acWords_[i] = pcWord
 					return 1
 				ok
 			next
 		else
-			cLower = StzCaseFold(pcWord)
-			nLen = len(acWords)
-			for i = 1 to nLen
-				if StzCaseFold(acWords[i]) = cLower
+			_cLower_ = StzCaseFold(pcWord)
+			_nLen_ = len(_acWords_)
+			for i = 1 to _nLen_
+				if StzCaseFold(_acWords_[i]) = _cLower_
 					return 1
 				ok
 			next
@@ -376,8 +376,8 @@ class stzStringText from stzObject
 			return NOT This.ContainsWord(pcWord)
 
 	def ContainsEachWordCS(pacWords, pCaseSensitive)
-		nLen = len(pacWords)
-		for i = 1 to nLen
+		_nLen_ = len(pacWords)
+		for i = 1 to _nLen_
 			if NOT This.ContainsWordCS(pacWords[i], pCaseSensitive)
 				return 0
 			ok
@@ -393,9 +393,9 @@ class stzStringText from stzObject
 
 	def ReverseWords()
 		pResult = StzEngineStringReverseWords(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def ReverseWordsQ()
 			This.ReverseWords()
@@ -403,16 +403,16 @@ class stzStringText from stzObject
 
 	def WordsReversed()
 		pResult = StzEngineStringReverseWords(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def SortWordsCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def SortWordsCSQ(pCaseSensitive)
 			This.SortWordsCS(pCaseSensitive)
@@ -428,18 +428,18 @@ class stzStringText from stzObject
 	def WordsSortedCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def WordsSorted()
 		return This.WordsSortedCS(1)
 
 	def ReverseEachWord()
 		pResult = StzEngineStringReverseEachWord(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def ReverseEachWordQ()
 			This.ReverseEachWord()
@@ -447,70 +447,70 @@ class stzStringText from stzObject
 
 	def EachWordReversed()
 		pResult = StzEngineStringReverseEachWord(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
-	def RemoveNthWord(n)
+	def RemoveNthWord(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
-		pResult = StzEngineStringRemoveNthWord(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+		pResult = StzEngineStringRemoveNthWord(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
-		def RemoveNthWordQ(n)
-			This.RemoveNthWord(n)
+		def RemoveNthWordQ(_n_)
+			This.RemoveNthWord(_n_)
 			return This
 
-	def NthWordRemoved(n)
-		pResult = StzEngineStringRemoveNthWord(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+	def NthWordRemoved(_n_)
+		pResult = StzEngineStringRemoveNthWord(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
-	def InsertWordAt(n, pcWord)
+	def InsertWordAt(_n_, pcWord)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
-		pResult = StzEngineStringInsertWordAt(This.Engine(), n, pcWord)
-		cResult = StzEngineStringData(pResult)
+		pResult = StzEngineStringInsertWordAt(This.Engine(), _n_, pcWord)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
-		def InsertWordAtQ(n, pcWord)
-			This.InsertWordAt(n, pcWord)
+		def InsertWordAtQ(_n_, pcWord)
+			This.InsertWordAt(_n_, pcWord)
 			return This
 
 	def SwapWords(n1, n2)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringSwapWords(This.Engine(), n1, n2)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def SwapWordsQ(n1, n2)
 			This.SwapWords(n1, n2)
 			return This
 
-	def TruncateWords(n)
-		pResult = StzEngineStringTruncateWords(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+	def TruncateWords(_n_)
+		pResult = StzEngineStringTruncateWords(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
-		def TruncateWordsQ(n)
-			This.TruncateWords(n)
+		def TruncateWordsQ(_n_)
+			This.TruncateWords(_n_)
 			return This
 
-	def WordsTruncated(n)
-		pResult = StzEngineStringTruncateWords(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+	def WordsTruncated(_n_)
+		pResult = StzEngineStringTruncateWords(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def RemoveDuplicateWords()
 		pResult = StzEngineStringRemoveDuplicateWords(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def RemoveDuplicateWordsQ()
 			This.RemoveDuplicateWords()
@@ -518,9 +518,9 @@ class stzStringText from stzObject
 
 	def DuplicateWordsRemoved()
 		pResult = StzEngineStringRemoveDuplicateWords(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def CountWordsMatching(pcPattern)
 		return StzEngineStringCountWordsMatching(This.Engine(), pcPattern)
@@ -544,27 +544,27 @@ class stzStringText from stzObject
 			return This.NumberOfOccurrenceOfWord(pcWord)
 
 	def WordFrequency(pcWord)
-		n = This.NumberOfWords()
-		if n = 0
+		_n_ = This.NumberOfWords()
+		if _n_ = 0
 			StzRaise("Can't compute WordFrequency()! Text contains no words.")
 		ok
-		return This.NumberOfOccurrenceOfWord(pcWord) / n
+		return This.NumberOfOccurrenceOfWord(pcWord) / _n_
 
 		def FrequencyOfWord(pcWord)
 			return This.WordFrequency(pcWord)
 
 	# Drain an engine word-frequency result into [[word, count], ...].
 	def _DrainWordFreq(pRes)
-		aOut = []
-		n = StzEngineWordFreqCount(pRes)
-		for i = 1 to n
+		_aOut_ = []
+		_n_ = StzEngineWordFreqCount(pRes)
+		for i = 1 to _n_
 			pW = StzEngineWordFreqWord(pRes, i)
-			cW = StzEngineStringData(pW)
+			_cW_ = StzEngineStringData(pW)
 			StzEngineStringFree(pW)
-			aOut + [ cW, StzEngineWordFreqNum(pRes, i) ]
+			_aOut_ + [ _cW_, StzEngineWordFreqNum(pRes, i) ]
 		next
 		StzEngineWordFreqFree(pRes)
-		return aOut
+		return _aOut_
 
 	# [[word, count], ...] in first-appearance order. ENGINE-DIRECT, ONE pass.
 	def WordsAndTheirCountsCS(pCaseSensitive)
@@ -576,120 +576,120 @@ class stzStringText from stzObject
 
 	# The top-N most frequent words as [[word, count], ...], count descending
 	# (ties by first appearance). ENGINE-DIRECT, ONE pass + partial rank.
-	def MostFrequentWordsCS(n, pCaseSensitive)
+	def MostFrequentWordsCS(_n_, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		return This._DrainWordFreq( StzEngineStringWordFreq(This.Engine(), _bCase_, n) )
+		return This._DrainWordFreq( StzEngineStringWordFreq(This.Engine(), _bCase_, _n_) )
 
-	def MostFrequentWords(n)
-		return This.MostFrequentWordsCS(n, 1)
+	def MostFrequentWords(_n_)
+		return This.MostFrequentWordsCS(_n_, 1)
 
 	def WordsAndTheirFrequencies()
 		# ENGINE-DIRECT one-pass: was UniqueWords() then a full-text rescan PER
 		# unique word (NumberOfOccurrenceOfWord), i.e. O(unique x length) --
 		# quadratic on any real document. Now every word is counted in a single
 		# hashmap pass; frequency = count / total. First-appearance order kept.
-		aCounts = This.WordsAndTheirCounts()
-		nTotal = This.NumberOfWords()
-		if nTotal = 0 return [] ok
-		aResult = []
-		nLen = len(aCounts)
-		for i = 1 to nLen
-			aResult + [ aCounts[i][1], aCounts[i][2] / nTotal ]
+		_aCounts_ = This.WordsAndTheirCounts()
+		_nTotal_ = This.NumberOfWords()
+		if _nTotal_ = 0 return [] ok
+		_aResult_ = []
+		_nLen_ = len(_aCounts_)
+		for i = 1 to _nLen_
+			_aResult_ + [ _aCounts_[i][1], _aCounts_[i][2] / _nTotal_ ]
 		next
-		return aResult
+		return _aResult_
 
 	def MostFrequentWord()
-		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
-		if nLen = 0
+		_aWordsFreqs_ = This.WordsAndTheirFrequencies()
+		_nLen_ = len(_aWordsFreqs_)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		cBest = aWordsFreqs[1][1]
-		nBest = aWordsFreqs[1][2]
+		_cBest_ = _aWordsFreqs_[1][1]
+		_nBest_ = _aWordsFreqs_[1][2]
 
-		for i = 2 to nLen
-			if aWordsFreqs[i][2] > nBest
-				nBest = aWordsFreqs[i][2]
-				cBest = aWordsFreqs[i][1]
+		for i = 2 to _nLen_
+			if _aWordsFreqs_[i][2] > _nBest_
+				_nBest_ = _aWordsFreqs_[i][2]
+				_cBest_ = _aWordsFreqs_[i][1]
 			ok
 		next
 
-		return cBest
+		return _cBest_
 
 	def LessFrequentWord()
-		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
-		if nLen = 0
+		_aWordsFreqs_ = This.WordsAndTheirFrequencies()
+		_nLen_ = len(_aWordsFreqs_)
+		if _nLen_ = 0
 			return ""
 		ok
 
-		cBest = aWordsFreqs[1][1]
-		nBest = aWordsFreqs[1][2]
+		_cBest_ = _aWordsFreqs_[1][1]
+		_nBest_ = _aWordsFreqs_[1][2]
 
-		for i = 2 to nLen
-			if aWordsFreqs[i][2] < nBest
-				nBest = aWordsFreqs[i][2]
-				cBest = aWordsFreqs[i][1]
+		for i = 2 to _nLen_
+			if _aWordsFreqs_[i][2] < _nBest_
+				_nBest_ = _aWordsFreqs_[i][2]
+				_cBest_ = _aWordsFreqs_[i][1]
 			ok
 		next
 
-		return cBest
+		return _cBest_
 
-	def NMostFrequentWords(n)
-		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
+	def NMostFrequentWords(_n_)
+		_aWordsFreqs_ = This.WordsAndTheirFrequencies()
+		_nLen_ = len(_aWordsFreqs_)
 
 		# Sort by frequency descending (simple selection sort)
-		for i = 1 to nLen - 1
-			nMaxIdx = i
-			for j = i + 1 to nLen
-				if aWordsFreqs[j][2] > aWordsFreqs[nMaxIdx][2]
-					nMaxIdx = j
+		for i = 1 to _nLen_ - 1
+			_nMaxIdx_ = i
+			for j = i + 1 to _nLen_
+				if _aWordsFreqs_[j][2] > _aWordsFreqs_[_nMaxIdx_][2]
+					_nMaxIdx_ = j
 				ok
 			next
-			if nMaxIdx != i
-				aTemp = aWordsFreqs[i]
-				aWordsFreqs[i] = aWordsFreqs[nMaxIdx]
-				aWordsFreqs[nMaxIdx] = aTemp
+			if _nMaxIdx_ != i
+				_aTemp_ = _aWordsFreqs_[i]
+				_aWordsFreqs_[i] = _aWordsFreqs_[_nMaxIdx_]
+				_aWordsFreqs_[_nMaxIdx_] = _aTemp_
 			ok
 		next
 
-		aResult = []
-		nMax = n
-		if nMax > nLen
-			nMax = nLen
+		_aResult_ = []
+		_nMax_ = _n_
+		if _nMax_ > _nLen_
+			_nMax_ = _nLen_
 		ok
-		for i = 1 to nMax
-			aResult + aWordsFreqs[i][1]
+		for i = 1 to _nMax_
+			_aResult_ + _aWordsFreqs_[i][1]
 		next
 
-		return aResult
+		return _aResult_
 
-		def TopNFrequentWords(n)
-			return This.NMostFrequentWords(n)
+		def TopNFrequentWords(_n_)
+			return This.NMostFrequentWords(_n_)
 
 	  #------------------------------------------#
 	 #     WORD POSITIONS (Ring logic)          #
 	#------------------------------------------#
 
 	def WordsPositions()
-		acWordsU = This.UniqueWords()
-		oTempStr = new stzString(This.Content())
-		anResult = oTempStr.FindMany(acWordsU)
-		return anResult
+		_acWordsU_ = This.UniqueWords()
+		_oTempStr_ = new stzString(This.Content())
+		_anResult_ = _oTempStr_.FindMany(_acWordsU_)
+		return _anResult_
 
 	def WordsAndTheirPositions()
-		aResult = []
-		acWords = This.UniqueWords()
-		oStr = This.ToStzString()
-		nLen = len(acWords)
+		_aResult_ = []
+		_acWords_ = This.UniqueWords()
+		_oStr_ = This.ToStzString()
+		_nLen_ = len(_acWords_)
 
-		for i = 1 to nLen
-			aResult + [ acWords[i], oStr.FindAllCS(acWords[i], 0) ]
+		for i = 1 to _nLen_
+			_aResult_ + [ _acWords_[i], _oStr_.FindAllCS(_acWords_[i], 0) ]
 		next
 
-		return aResult
+		return _aResult_
 
 		def WordsZ()
 			return This.WordsAndTheirPositions()
@@ -699,52 +699,52 @@ class stzStringText from stzObject
 	#------------------------------------------#
 
 	def WordsSortingOrder()
-		cResult = :Unsorted
+		_cResult_ = :Unsorted
 
 		if This.WordsAreSortedInAscending()
-			cResult = :Ascending
+			_cResult_ = :Ascending
 		but This.WordsAreSortedInDescending()
-			cResult = :Descending
+			_cResult_ = :Descending
 		ok
 
-		return cResult
+		return _cResult_
 
 	def WordsAreSorted()
 		return This.WordsAreSortedInAscending() or This.WordsAreSortedInDescending()
 
 	def WordsAreSortedInAscending()
-		acWords = This.Words()
-		nLen = len(acWords)
-		if nLen <= 1
+		_acWords_ = This.Words()
+		_nLen_ = len(_acWords_)
+		if _nLen_ <= 1
 			return 1
 		ok
-		for i = 1 to nLen - 1
-			if strcmp(acWords[i], acWords[i + 1]) > 0
+		for i = 1 to _nLen_ - 1
+			if strcmp(_acWords_[i], _acWords_[i + 1]) > 0
 				return 0
 			ok
 		next
 		return 1
 
 	def WordsAreSortedInDescending()
-		acWords = This.Words()
-		nLen = len(acWords)
-		if nLen <= 1
+		_acWords_ = This.Words()
+		_nLen_ = len(_acWords_)
+		if _nLen_ <= 1
 			return 1
 		ok
-		for i = 1 to nLen - 1
-			if strcmp(acWords[i], acWords[i + 1]) < 0
+		for i = 1 to _nLen_ - 1
+			if strcmp(_acWords_[i], _acWords_[i + 1]) < 0
 				return 0
 			ok
 		next
 		return 1
 
 	def WordsSortedInAscending()
-		acResult = This.Words()
-		return StzListOfStringsQ(acResult).SortedInAscending()
+		_acResult_ = This.Words()
+		return StzListOfStringsQ(_acResult_).SortedInAscending()
 
 	def WordsSortedInDescending()
-		acResult = This.Words()
-		return StzListOfStringsQ(acResult).SortedInDescending()
+		_acResult_ = This.Words()
+		return StzListOfStringsQ(_acResult_).SortedInDescending()
 
 	  #------------------------------------------#
 	 #     WORD EXCLUSION (Ring logic)          #
@@ -755,18 +755,18 @@ class stzStringText from stzObject
 			StzRaise("Incorrect param type!")
 		ok
 
-		acExclude = StzListOfStringsQ(pacWords).Lowercased()
-		acWords = This.Words()
-		aResult = []
-		nLen = len(acWords)
+		_acExclude_ = StzListOfStringsQ(pacWords).Lowercased()
+		_acWords_ = This.Words()
+		_aResult_ = []
+		_nLen_ = len(_acWords_)
 
-		for i = 1 to nLen
-			if StzFindFirst(acExclude, StzCaseFold(acWords[i])) = 0
-				aResult + acWords[i]
+		for i = 1 to _nLen_
+			if StzFindFirst(_acExclude_, StzCaseFold(_acWords_[i])) = 0
+				_aResult_ + _acWords_[i]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 	  #===============================#
 	 #     SENTENCES (Engine-backed) #
@@ -785,48 +785,48 @@ class stzStringText from stzObject
 			return This.NumberOfSentences()
 
 	def Sentences()
-		cContent = This.Content()
-		if cContent = ""
+		_cContent_ = This.Content()
+		if _cContent_ = ""
 			return []
 		ok
 
-		aResult = []
-		cSentence = ""
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		cArabicQM = StzChar(1567) # Arabic question mark
+		_aResult_ = []
+		_cSentence_ = ""
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_cArabicQM_ = StzChar(1567) # Arabic question mark
 
-		for i = 1 to nLen
-			c = acChars[i]
-			if c = "." or c = "!" or c = "?" or c = cArabicQM
-				cSentence += c
-				cTrimmed = trim(cSentence)
-				if cTrimmed != ""
-					aResult + cTrimmed
+		for i = 1 to _nLen_
+			c = _acChars_[i]
+			if c = "." or c = "!" or c = "?" or c = _cArabicQM_
+				_cSentence_ += c
+				_cTrimmed_ = trim(_cSentence_)
+				if _cTrimmed_ != ""
+					_aResult_ + _cTrimmed_
 				ok
-				cSentence = ""
+				_cSentence_ = ""
 			else
-				cSentence += c
+				_cSentence_ += c
 			ok
 		next
 
 		# Remaining text after last separator
-		cTrimmed = trim(cSentence)
-		if cTrimmed != ""
-			aResult + cTrimmed
+		_cTrimmed_ = trim(_cSentence_)
+		if _cTrimmed_ != ""
+			_aResult_ + _cTrimmed_
 		ok
 
-		return aResult
+		return _aResult_
 
-	def NthSentence(n)
-		acSentences = This.Sentences()
-		if n >= 1 and n <= len(acSentences)
-			return acSentences[n]
+	def NthSentence(_n_)
+		_acSentences_ = This.Sentences()
+		if _n_ >= 1 and _n_ <= len(_acSentences_)
+			return _acSentences_[_n_]
 		ok
 		StzRaise("Index out of range!")
 
-		def Sentence(n)
-			return This.NthSentence(n)
+		def Sentence(_n_)
+			return This.NthSentence(_n_)
 
 	def FirstSentence()
 		return This.NthSentence(1)
@@ -848,34 +848,34 @@ class stzStringText from stzObject
 			return This.NumberOfParagraphs()
 
 	def Paragraphs()
-		cContent = This.Content()
-		if cContent = ""
+		_cContent_ = This.Content()
+		if _cContent_ = ""
 			return []
 		ok
 
 		# Split on double newlines (paragraph boundary)
-		aRaw = StzStringQ(cContent).Split(NL + NL)
-		aResult = []
-		nLen = len(aRaw)
+		_aRaw_ = StzStringQ(_cContent_).Split(NL + NL)
+		_aResult_ = []
+		_nLen_ = len(_aRaw_)
 
-		for i = 1 to nLen
-			cTrimmed = trim(aRaw[i])
-			if cTrimmed != ""
-				aResult + cTrimmed
+		for i = 1 to _nLen_
+			_cTrimmed_ = trim(_aRaw_[i])
+			if _cTrimmed_ != ""
+				_aResult_ + _cTrimmed_
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
-	def NthParagraph(n)
-		acParas = This.Paragraphs()
-		if n >= 1 and n <= len(acParas)
-			return acParas[n]
+	def NthParagraph(_n_)
+		_acParas_ = This.Paragraphs()
+		if _n_ >= 1 and _n_ <= len(_acParas_)
+			return _acParas_[_n_]
 		ok
 		StzRaise("Index out of range!")
 
-		def Paragraph(n)
-			return This.NthParagraph(n)
+		def Paragraph(_n_)
+			return This.NthParagraph(_n_)
 
 	def FirstParagraph()
 		return This.NthParagraph(1)
@@ -899,15 +899,15 @@ class stzStringText from stzObject
 	def Lines()
 		return @SplitCS(@oString.Content(), NL, 1)
 
-	def NthLine(n)
+	def NthLine(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
-		pResult = StzEngineStringLineAt(This.Engine(), n)
-		cResult = StzEngineStringData(pResult)
+		pResult = StzEngineStringLineAt(This.Engine(), _n_)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
-		def Line(n)
-			return This.NthLine(n)
+		def Line(_n_)
+			return This.NthLine(_n_)
 
 	def FirstLine()
 		return This.NthLine(1)
@@ -922,9 +922,9 @@ class stzStringText from stzObject
 	def DeduplicateLinesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def DeduplicateLinesCSQ(pCaseSensitive)
 			This.DeduplicateLinesCS(pCaseSensitive)
@@ -940,18 +940,18 @@ class stzStringText from stzObject
 	def LinesDeduplicatedCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def LinesDeduplicated()
 		return This.LinesDeduplicatedCS(1)
 
 	def RemoveBlankLines()
 		pResult = StzEngineStringRemoveBlankLines(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def RemoveBlankLinesQ()
 			This.RemoveBlankLines()
@@ -966,18 +966,18 @@ class stzStringText from stzObject
 
 	def BlankLinesRemoved()
 		pResult = StzEngineStringRemoveBlankLines(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 		def EmptyLinesRemoved()
 			return This.BlankLinesRemoved()
 
 	def NumberLines()
 		pResult = StzEngineStringNumberLines(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def NumberLinesQ()
 			This.NumberLines()
@@ -985,9 +985,9 @@ class stzStringText from stzObject
 
 	def LinesNumbered()
 		pResult = StzEngineStringNumberLines(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	  #===============================#
 	 #     TEXT TRANSFORMS           #
@@ -996,9 +996,9 @@ class stzStringText from stzObject
 
 	def Simplify()
 		pResult = StzEngineStringSimplify(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def SimplifyQ()
 			This.Simplify()
@@ -1006,15 +1006,15 @@ class stzStringText from stzObject
 
 	def Simplified()
 		pResult = StzEngineStringSimplify(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def CollapseSpaces()
 		pResult = StzEngineStringCollapseSpaces(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def CollapseSpacesQ()
 			This.CollapseSpaces()
@@ -1022,15 +1022,15 @@ class stzStringText from stzObject
 
 	def SpacesCollapsed()
 		pResult = StzEngineStringCollapseSpaces(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def NormalizeSpaces()
 		pResult = StzEngineStringNormalizeSpaces(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def NormalizeSpacesQ()
 			This.NormalizeSpaces()
@@ -1038,15 +1038,15 @@ class stzStringText from stzObject
 
 	def SpacesNormalized()
 		pResult = StzEngineStringNormalizeSpaces(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def ToSentenceCase()
 		pResult = StzEngineStringToSentenceCase(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def ToSentenceCaseQ()
 			This.ToSentenceCase()
@@ -1054,15 +1054,15 @@ class stzStringText from stzObject
 
 	def SentenceCased()
 		pResult = StzEngineStringToSentenceCase(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def Pluralize()
 		pResult = StzEngineStringPluralize(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		This.Update(cResult)
+		This.Update(_cResult_)
 
 		def PluralizeQ()
 			This.Pluralize()
@@ -1070,33 +1070,33 @@ class stzStringText from stzObject
 
 	def Pluralized()
 		pResult = StzEngineStringPluralize(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	def ToSlug()
 		pResult = StzEngineStringToSlug(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 		def Slugified()
 			return This.ToSlug()
 
 	def Abbreviate(nMaxLen)
 		pResult = StzEngineStringAbbreviate(This.Engine(), nMaxLen)
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 		def Abbreviated(nMaxLen)
 			return This.Abbreviate(nMaxLen)
 
 	def Initials()
 		pResult = StzEngineStringInitials(This.Engine())
-		cResult = StzEngineStringData(pResult)
+		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
-		return cResult
+		return _cResult_
 
 	# Delegate-thin wrappers so stzText/stzStringText consumers can
 	# reach common stzString helpers without juggling .ToStzString().

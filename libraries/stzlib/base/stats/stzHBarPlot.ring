@@ -108,111 +108,111 @@ class stzHBarPlot from stzBarPlot
 	# --- Horizontal Layout Calculation ---
 
 	def _calculateLayout()
-	    nBars = len(@anValues)
+	    _nBars_ = len(@anValues)
 	    
 	    # Cap the number of bars to @nMaxHeight
-	    nBarsToShow = min([nBars, @nMaxHeight])  # e.g., 3 bars if @nMaxHeight = 3
-	    nBarsHeight = nBarsToShow * @nBarHeight  # Total height for bars
+	    _nBarsToShow_ = min([_nBars_, @nMaxHeight])  # e.g., 3 bars if @nMaxHeight = 3
+	    _nBarsHeight_ = _nBarsToShow_ * @nBarHeight  # Total height for bars
 	    
 	    # Calculate maximum label width
-	    nMaxLabelWidth = 0
+	    _nMaxLabelWidth_ = 0
 	    if @bShowLabels and @bShowAxisLabels
-	        for i = 1 to nBarsToShow  # Only consider shown bars
+	        for i = 1 to _nBarsToShow_  # Only consider shown bars
 	            if i <= len(@acLabels)
-	                nLabelWidth = min([len(@acLabels[i]), @nMaxLabelWidth])
-	                nMaxLabelWidth = max([nMaxLabelWidth, nLabelWidth])
+	                _nLabelWidth_ = min([len(@acLabels[i]), @nMaxLabelWidth])
+	                _nMaxLabelWidth_ = max([_nMaxLabelWidth_, _nLabelWidth_])
 	            ok
 	        next
 	    ok
 	    
 	    # Layout dimensions
-	    nCurrentCol = 1
+	    _nCurrentCol_ = 1
 	    
 	    # Labels column
-	    nLabelsCol = 0
-	    if @bShowLabels and @bShowAxisLabels and nMaxLabelWidth > 0
-	        nLabelsCol = nCurrentCol
-	        nCurrentCol += nMaxLabelWidth + @nAxisPadding
+	    _nLabelsCol_ = 0
+	    if @bShowLabels and @bShowAxisLabels and _nMaxLabelWidth_ > 0
+	        _nLabelsCol_ = _nCurrentCol_
+	        _nCurrentCol_ += _nMaxLabelWidth_ + @nAxisPadding
 	    ok
 	    
 	    # Vertical axis column
-	    nVAxisCol = 0
+	    _nVAxisCol_ = 0
 	    if @bShowVAxis
-	        nVAxisCol = nCurrentCol
-	        nCurrentCol += 1 + @nAxisPadding
+	        _nVAxisCol_ = _nCurrentCol_
+	        _nCurrentCol_ += 1 + @nAxisPadding
 	    ok
 	    
 	    # Bars area
-	    nBarsStart = nCurrentCol
-	    nBarsEnd = nCurrentCol + @nWidth - 1
-	    nCurrentCol = nBarsEnd + 1
+	    _nBarsStart_ = _nCurrentCol_
+	    _nBarsEnd_ = _nCurrentCol_ + @nWidth - 1
+	    _nCurrentCol_ = _nBarsEnd_ + 1
 	    
 	    # Values column
-	    nValuesCol = 0
+	    _nValuesCol_ = 0
 	    if @bShowValues or @bShowPercent
-	        nValuesCol = nCurrentCol + 1
-	        nMaxValueWidth = 0
-	        for i = 1 to nBarsToShow
-	            nValue = @anValues[i]
+	        _nValuesCol_ = _nCurrentCol_ + 1
+	        _nMaxValueWidth_ = 0
+	        for i = 1 to _nBarsToShow_
+	            _nValue_ = @anValues[i]
 	            if @bShowValues
-	                nValueWidth = len("" + nValue)
+	                _nValueWidth_ = len("" + _nValue_)
 	            but @bShowPercent and @nSum > 0
-	                nPercent = (@anValues[i] * 100) / @nSum
-	                nValueWidth = len('' + RoundN(nPercent, 1) + "%")
+	                _nPercent_ = (@anValues[i] * 100) / @nSum
+	                _nValueWidth_ = len('' + RoundN(_nPercent_, 1) + "%")
 	            ok
-	            nMaxValueWidth = max([nMaxValueWidth, nValueWidth])
+	            _nMaxValueWidth_ = max([_nMaxValueWidth_, _nValueWidth_])
 	        next
-	        nCurrentCol += nMaxValueWidth + 1
+	        _nCurrentCol_ += _nMaxValueWidth_ + 1
 	    ok
 	    
 	    # Total width
-	    nTotalWidth = nCurrentCol - 1
+	    _nTotalWidth_ = _nCurrentCol_ - 1
 	    if @bShowAverage
-	        nTotalWidth = max([nTotalWidth, nBarsEnd + 10])
+	        _nTotalWidth_ = max([_nTotalWidth_, _nBarsEnd_ + 10])
 	    ok
 	    
 	    # Row positions
-	    nCurrentRow = 1
+	    _nCurrentRow_ = 1
 	    if @bShowVAxis
-	        nCurrentRow = 2  # Arrow in row 1
+	        _nCurrentRow_ = 2  # Arrow in row 1
 	    ok
 	    
 	    # Bars area
-	    nBarsStartRow = nCurrentRow
-	    nBarsEndRow = nCurrentRow + nBarsHeight - 1
-	    nCurrentRow = nBarsEndRow + 1
+	    _nBarsStartRow_ = _nCurrentRow_
+	    _nBarsEndRow_ = _nCurrentRow_ + _nBarsHeight_ - 1
+	    _nCurrentRow_ = _nBarsEndRow_ + 1
 	    
 	    # Horizontal axis row
-	    nHAxisRow = 0
+	    _nHAxisRow_ = 0
 	    if @bShowHAxis
-	        nHAxisRow = nCurrentRow
-	        nCurrentRow += 1
+	        _nHAxisRow_ = _nCurrentRow_
+	        _nCurrentRow_ += 1
 	    ok
 	    
 	    # Annotation row for average
-	    nAnnotationRow = 0
+	    _nAnnotationRow_ = 0
 	    if @bShowAverage
-	        nAnnotationRow = nCurrentRow
-	        nCurrentRow += 1
+	        _nAnnotationRow_ = _nCurrentRow_
+	        _nCurrentRow_ += 1
 	    ok
 	    
-	    nTotalHeight = nCurrentRow - 1
+	    _nTotalHeight_ = _nCurrentRow_ - 1
 	    
 	    return [
-	        :total_width = nTotalWidth,
-	        :total_height = nTotalHeight,
-	        :bars_start = nBarsStart,
-	        :bars_end = nBarsEnd,
-	        :bars_start_row = nBarsStartRow,
-	        :bars_end_row = nBarsEndRow,
-	        :h_axis_row = nHAxisRow,
-	        :labels_col = nLabelsCol,
-	        :values_col = nValuesCol,
-	        :v_axis_col = nVAxisCol,
-	        :bars_height = nBarsHeight,
-	        :max_label_width = nMaxLabelWidth,
-	        :bars_to_show = nBarsToShow,
-	        :annotation_row = nAnnotationRow
+	        :total_width = _nTotalWidth_,
+	        :total_height = _nTotalHeight_,
+	        :bars_start = _nBarsStart_,
+	        :bars_end = _nBarsEnd_,
+	        :bars_start_row = _nBarsStartRow_,
+	        :bars_end_row = _nBarsEndRow_,
+	        :h_axis_row = _nHAxisRow_,
+	        :labels_col = _nLabelsCol_,
+	        :values_col = _nValuesCol_,
+	        :v_axis_col = _nVAxisCol_,
+	        :bars_height = _nBarsHeight_,
+	        :max_label_width = _nMaxLabelWidth_,
+	        :bars_to_show = _nBarsToShow_,
+	        :annotation_row = _nAnnotationRow_
 	    ]
 	
 	# --- Horizontal Drawing Methods ---
@@ -222,16 +222,16 @@ class stzHBarPlot from stzBarPlot
 			return
 		ok
 		
-		nCol = oLayout[:v_axis_col]
-		nStartRow = 2  # Start after arrow
-		nEndRow = iff(oLayout[:h_axis_row] > 0, oLayout[:h_axis_row], oLayout[:bars_end_row])
+		_nCol_ = oLayout[:v_axis_col]
+		_nStartRow_ = 2  # Start after arrow
+		_nEndRow_ = iff(oLayout[:h_axis_row] > 0, oLayout[:h_axis_row], oLayout[:bars_end_row])
 		
 		# Draw arrow at top
-		_setChar(1, nCol, @cVArrowChar)
+		_setChar(1, _nCol_, @cVArrowChar)
 		
 		# Draw vertical line
-		for i = nStartRow to nEndRow
-			_setChar(i, nCol, @cVAxisChar)
+		for i = _nStartRow_ to _nEndRow_
+			_setChar(i, _nCol_, @cVAxisChar)
 		next
 
 
@@ -239,46 +239,46 @@ class stzHBarPlot from stzBarPlot
 	    if not @bShowHAxis or oLayout[:h_axis_row] = 0
 	        return
 	    ok
-	    nRow = oLayout[:h_axis_row]
-	    nStart = iff(@bShowVAxis, oLayout[:v_axis_col], oLayout[:bars_start])  # e.g., 3
-	    nEnd = oLayout[:total_width]     
+	    _nRow_ = oLayout[:h_axis_row]
+	    _nStart_ = iff(@bShowVAxis, oLayout[:v_axis_col], oLayout[:bars_start])  # e.g., 3
+	    _nEnd_ = oLayout[:total_width]     
 
 	    if @bShowVAxis
-	        _setChar(nRow, nStart, @cOriginChar)
+	        _setChar(_nRow_, _nStart_, @cOriginChar)
 	    else
 			if @bShowHAxis
-				 _setChar(nRow, nStart, @cHAxisChar)
+				 _setChar(_nRow_, _nStart_, @cHAxisChar)
 			ok
 		ok
 
-	    for i = nStart + 1 to nEnd - 1
-	        _setChar(nRow, i, @cHAxisChar)
+	    for i = _nStart_ + 1 to _nEnd_ - 1
+	        _setChar(_nRow_, i, @cHAxisChar)
 	    next
-	    _setChar(nRow, nEnd, @cHArrowChar)
+	    _setChar(_nRow_, _nEnd_, @cHArrowChar)
 
 
 	def _drawBars(oLayout)
-	    nBarsToShow = oLayout[:bars_to_show]
-	    nBarsStartRow = oLayout[:bars_start_row]
-	    nBarsStart = oLayout[:bars_start]
-	    nBarsWidth = oLayout[:bars_end] - oLayout[:bars_start] + 1
+	    _nBarsToShow_ = oLayout[:bars_to_show]
+	    _nBarsStartRow_ = oLayout[:bars_start_row]
+	    _nBarsStart_ = oLayout[:bars_start]
+	    _nBarsWidth_ = oLayout[:bars_end] - oLayout[:bars_start] + 1
 	    
-	    nCurrentRow = nBarsStartRow
+	    _nCurrentRow_ = _nBarsStartRow_
 	    
-	    for i = 1 to nBarsToShow
-	        nValue = @anValues[i]
+	    for i = 1 to _nBarsToShow_
+	        _nValue_ = @anValues[i]
 	        
-	        nBarWidth = 0
-	        if @nMaxValue > 0 and nValue > 0
-	            nBarWidth = max([1, ceil(nBarsWidth * nValue / @nMaxValue)])
+	        _nBarWidth_ = 0
+	        if @nMaxValue > 0 and _nValue_ > 0
+	            _nBarWidth_ = max([1, ceil(_nBarsWidth_ * _nValue_ / @nMaxValue)])
 	        ok
 	        
-	        for k = 1 to nBarWidth
-	            nCol = nBarsStart + k - 1
-	            _setChar(nCurrentRow, nCol, @cBarChar)
+	        for k = 1 to _nBarWidth_
+	            _nCol_ = _nBarsStart_ + k - 1
+	            _setChar(_nCurrentRow_, _nCol_, @cBarChar)
 	        next
 	        
-	        nCurrentRow += 1
+	        _nCurrentRow_ += 1
 	    next
 
 
@@ -287,25 +287,25 @@ class stzHBarPlot from stzBarPlot
 	        return
 	    ok
 	    
-	    nBarsToShow = oLayout[:bars_to_show]
-	    nLabelsCol = oLayout[:labels_col]
-	    nCurrentRow = oLayout[:bars_start_row]
+	    _nBarsToShow_ = oLayout[:bars_to_show]
+	    _nLabelsCol_ = oLayout[:labels_col]
+	    _nCurrentRow_ = oLayout[:bars_start_row]
 	    
-	    for i = 1 to nBarsToShow
+	    for i = 1 to _nBarsToShow_
 	        if i <= len(@acLabels)
-	            cLabel = @acLabels[i]
+	            _cLabel_ = @acLabels[i]
 	            
-	            if len(cLabel) > @nMaxLabelWidth
-	                cLabel = Left(cLabel, @nMaxLabelWidth - 2) + ".."
+	            if len(_cLabel_) > @nMaxLabelWidth
+	                _cLabel_ = Left(_cLabel_, @nMaxLabelWidth - 2) + ".."
 	            ok
 	            
-	            nLabelStart = nLabelsCol + oLayout[:max_label_width] - len(cLabel)
-	            nLen = len(cLabel)
-	            for j = 1 to nLen
-	                _setChar(nCurrentRow, nLabelStart + j - 1, cLabel[j])
+	            _nLabelStart_ = _nLabelsCol_ + oLayout[:max_label_width] - len(_cLabel_)
+	            _nLen_ = len(_cLabel_)
+	            for j = 1 to _nLen_
+	                _setChar(_nCurrentRow_, _nLabelStart_ + j - 1, _cLabel_[j])
 	            next
 	        ok
-	        nCurrentRow += 1
+	        _nCurrentRow_ += 1
 	    next
 	
 
@@ -314,38 +314,38 @@ class stzHBarPlot from stzBarPlot
 	        return
 	    ok
 	    
-	    nBarsToShow = oLayout[:bars_to_show]
-	    nBarsStart = oLayout[:bars_start]
-	    nBarsStartRow = oLayout[:bars_start_row]
-	    nBarsWidth = oLayout[:bars_end] - oLayout[:bars_start] + 1
+	    _nBarsToShow_ = oLayout[:bars_to_show]
+	    _nBarsStart_ = oLayout[:bars_start]
+	    _nBarsStartRow_ = oLayout[:bars_start_row]
+	    _nBarsWidth_ = oLayout[:bars_end] - oLayout[:bars_start] + 1
 	    
-	    for i = 1 to nBarsToShow
-	        nValue = @anValues[i]
+	    for i = 1 to _nBarsToShow_
+	        _nValue_ = @anValues[i]
 	        
-	        nBarWidth = 0
-	        if @nMaxValue > 0 and nValue > 0
-	            nBarWidth = max([1, ceil(nBarsWidth * nValue / @nMaxValue)])
+	        _nBarWidth_ = 0
+	        if @nMaxValue > 0 and _nValue_ > 0
+	            _nBarWidth_ = max([1, ceil(_nBarsWidth_ * _nValue_ / @nMaxValue)])
 	        ok
 	        
-	        nValueStartCol = nBarsStart + nBarWidth + 1
+	        _nValueStartCol_ = _nBarsStart_ + _nBarWidth_ + 1
 	        
-	        cValue = ""
+	        _cValue_ = ""
 	        if @bShowValues
-	            if IsInteger(nValue)
-	                cValue = "" + nValue
+	            if IsInteger(_nValue_)
+	                _cValue_ = "" + _nValue_
 	            else
-	                cValue = "" + RoundN(nValue, 1)
+	                _cValue_ = "" + RoundN(_nValue_, 1)
 	            ok
 	        but @bShowPercent and @nSum > 0
-	            nPercent = RoundN((nValue * 100) / @nSum, 1)
-	            cValue = "" + nPercent + "%"
-				cValue = StzReplace(cValue, ".0%", "%")
+	            _nPercent_ = RoundN((_nValue_ * 100) / @nSum, 1)
+	            _cValue_ = "" + _nPercent_ + "%"
+				_cValue_ = StzReplace(_cValue_, ".0%", "%")
 	        ok
 	        
-	        nRow = nBarsStartRow + (i - 1)
-	        nLen = len(cValue)
-	        for j = 1 to nLen
-	            _setChar(nRow, nValueStartCol + j - 1, cValue[j])
+	        _nRow_ = _nBarsStartRow_ + (i - 1)
+	        _nLen_ = len(_cValue_)
+	        for j = 1 to _nLen_
+	            _setChar(_nRow_, _nValueStartCol_ + j - 1, _cValue_[j])
 	        next
 	    next
 
@@ -355,29 +355,29 @@ class stzHBarPlot from stzBarPlot
 	        return
 	    ok
 	    
-	    nBarsToShow = oLayout[:bars_to_show]
-	    nBarsStart = oLayout[:bars_start]
-	    nBarsWidth = oLayout[:bars_end] - oLayout[:bars_start] + 1
-	    nBarsStartRow = oLayout[:bars_start_row]
-	    nBarsEndRow = nBarsStartRow + nBarsToShow - 1
+	    _nBarsToShow_ = oLayout[:bars_to_show]
+	    _nBarsStart_ = oLayout[:bars_start]
+	    _nBarsWidth_ = oLayout[:bars_end] - oLayout[:bars_start] + 1
+	    _nBarsStartRow_ = oLayout[:bars_start_row]
+	    _nBarsEndRow_ = _nBarsStartRow_ + _nBarsToShow_ - 1
 	    
-	    nAvgCol = nBarsStart
+	    _nAvgCol_ = _nBarsStart_
 	    if @nMaxValue > 0
-	        nAvgWidth = ceil(nBarsWidth * @nAverage / @nMaxValue)
-	        nAvgCol = nBarsStart + nAvgWidth - 1
+	        _nAvgWidth_ = ceil(_nBarsWidth_ * @nAverage / @nMaxValue)
+	        _nAvgCol_ = _nBarsStart_ + _nAvgWidth_ - 1
 	    ok
 	    
-	    for i = nBarsStartRow to nBarsEndRow
-	        if @acCanvas[i][nAvgCol] = " "
-	            _setChar(i, nAvgCol, "|")
+	    for i = _nBarsStartRow_ to _nBarsEndRow_
+	        if @acCanvas[i][_nAvgCol_] = " "
+	            _setChar(i, _nAvgCol_, "|")
 	        ok
 	    next
 	    
 	    if oLayout[:annotation_row] > 0
-	        cAvgValue = "avg: " + RoundN(@nAverage, 1)
-	        nAvgValueStartCol = nAvgCol + 2
-	        nLen = len(cAvgValue)
-	        for j = 1 to nLen
-	            _setChar(oLayout[:annotation_row], nAvgValueStartCol + j - 1, cAvgValue[j])
+	        _cAvgValue_ = "avg: " + RoundN(@nAverage, 1)
+	        _nAvgValueStartCol_ = _nAvgCol_ + 2
+	        _nLen_ = len(_cAvgValue_)
+	        for j = 1 to _nLen_
+	            _setChar(oLayout[:annotation_row], _nAvgValueStartCol_ + j - 1, _cAvgValue_[j])
 	        next
 	    ok

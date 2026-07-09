@@ -46,9 +46,9 @@ class stzStringRemover from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveCS(pH, pcSubStr, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveCS(pcSubStr, pCaseSensitive)
@@ -85,31 +85,31 @@ class stzStringRemover from stzObject
 	 #   REMOVING NTH OCCURRENCE OF A GIVEN SUBSTRING       #
 	#======================================================#
 
-	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
+	def RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringRemoveNth(pH, pcSubStr, _n_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
-		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
-			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
+		def RemoveNthCSQ(_n_, pcSubStr, pCaseSensitive)
+			This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemoveNth(n, pcSubStr)
-		This.RemoveNthCS(n, pcSubStr, 1)
+	def RemoveNth(_n_, pcSubStr)
+		This.RemoveNthCS(_n_, pcSubStr, 1)
 
-		def RemoveNthQ(n, pcSubStr)
-			This.RemoveNth(n, pcSubStr)
+		def RemoveNthQ(_n_, pcSubStr)
+			This.RemoveNth(_n_, pcSubStr)
 			return This
 
-	def NthRemovedCS(n, pcSubStr, pCaseSensitive)
+	def NthRemovedCS(_n_, pcSubStr, pCaseSensitive)
 		_oCopy_ = new stzStringRemover(@oString.Content())
-		_oCopy_.RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
+		_oCopy_.RemoveNthCSQ(_n_, pcSubStr, pCaseSensitive)
 		return _oCopy_.Content()
 
-	def NthRemoved(n, pcSubStr)
-		return This.NthRemovedCS(n, pcSubStr, 1)
+	def NthRemoved(_n_, pcSubStr)
+		return This.NthRemovedCS(_n_, pcSubStr, 1)
 
 	  #======================================================#
 	 #   REMOVING FIRST / LAST OCCURRENCE                   #
@@ -118,9 +118,9 @@ class stzStringRemover from stzObject
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveFirst(pH, pcSubStr)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveFirstCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFirstCS(pcSubStr, pCaseSensitive)
@@ -146,9 +146,9 @@ class stzStringRemover from stzObject
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveLast(pH, pcSubStr)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveLastCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveLastCS(pcSubStr, pCaseSensitive)
@@ -173,12 +173,12 @@ class stzStringRemover from stzObject
 	 #   REMOVING AT A GIVEN POSITION                       #
 	#======================================================#
 
-	def RemoveAtPositionCS(n, pcSubStr, pCaseSensitive)
-		nLen = StzLen(pcSubStr)
-		This.RemoveSection(n, n + nLen - 1)
+	def RemoveAtPositionCS(_n_, pcSubStr, pCaseSensitive)
+		_nLen_ = StzLen(pcSubStr)
+		This.RemoveSection(_n_, _n_ + _nLen_ - 1)
 
-	def RemoveAtPosition(n, pcSubStr)
-		This.RemoveAtPositionCS(n, pcSubStr, 1)
+	def RemoveAtPosition(_n_, pcSubStr)
+		This.RemoveAtPositionCS(_n_, pcSubStr, 1)
 
 	  #======================================================#
 	 #   REMOVING A SECTION                                 #
@@ -187,9 +187,9 @@ class stzStringRemover from stzObject
 	def RemoveSection(n1, n2)
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
@@ -222,9 +222,9 @@ class stzStringRemover from stzObject
 
 	def RemoveW(pcCondition)
 		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindW(pcCondition)
-		for i = len(anPos) to 1 step -1
-			This.RemoveSection(anPos[i], anPos[i])
+		_anPos_ = _oFinder_.FindW(pcCondition)
+		for i = len(_anPos_) to 1 step -1
+			This.RemoveSection(_anPos_[i], _anPos_[i])
 		next
 
 		def RemoveWQ(pcCondition)
@@ -277,8 +277,8 @@ class stzStringRemover from stzObject
 	def RemoveMany(pacSubStr)
 		_nPacSubstr1Len_ = len(pacSubstr)
 		for _iLoopPacSubstr1_ = 1 to _nPacSubstr1Len_
-			cSubstr = pacSubstr[_iLoopPacSubstr1_]
-			This.RemoveAll(cSubstr)
+			_cSubstr_ = pacSubstr[_iLoopPacSubstr1_]
+			This.RemoveAll(_cSubstr_)
 		next
 
 		def RemoveManyQ(pacSubStr)
@@ -305,19 +305,19 @@ class stzStringRemover from stzObject
 
 	def RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		acAll = _oFinder_.SubStringsCS(pCaseSensitive)
-		_nLen_ = len(acAll)
+		_acAll_ = _oFinder_.SubStringsCS(pCaseSensitive)
+		_nLen_ = len(_acAll_)
 
 		for @i = 1 to _nLen_
-			bFound = 0
+			_bFound_ = 0
 			for @j = 1 to len(pacSubStr)
-				if BothStringsAreEqualCS(acAll[@i], pacSubStr[@j], pCaseSensitive)
-					bFound = 1
+				if BothStringsAreEqualCS(_acAll_[@i], pacSubStr[@j], pCaseSensitive)
+					_bFound_ = 1
 					exit
 				ok
 			next
-			if NOT bFound
-				This.RemoveCS(acAll[@i], pCaseSensitive)
+			if NOT _bFound_
+				This.RemoveCS(_acAll_[@i], pCaseSensitive)
 			ok
 		next
 
@@ -407,19 +407,19 @@ class stzStringRemover from stzObject
 
 	def RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		aSection = _oFinder_.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		_aSection_ = _oFinder_.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 		if isList(pcBound2) and IsAndNamedParamList(pcBound2)
 			pcBound2 = pcBound2[2]
 		ok
 
-		nLen1 = StzLen(pcBound1)
-		nLen2 = StzLen(pcBound2)
+		_nLen1_ = StzLen(pcBound1)
+		_nLen2_ = StzLen(pcBound2)
 
-		aSection[1] = aSection[1] - nLen1
-		aSection[2] = aSection[2] + nLen2
+		_aSection_[1] = _aSection_[1] - _nLen1_
+		_aSection_[2] = _aSection_[2] + _nLen2_
 
-		This.RemoveSection(aSection[1], aSection[2])
+		This.RemoveSection(_aSection_[1], _aSection_[2])
 
 		def RemoveAnyBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive)
 			This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
@@ -456,9 +456,9 @@ class stzStringRemover from stzObject
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		aSections = _oFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		if len(aSections) > 0
-			@oString.RemoveSections(aSections)
+		_aSections_ = _oFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
+		if len(_aSections_) > 0
+			@oString.RemoveSections(_aSections_)
 		ok
 		This.UpdateWith(_cResult_)
 
@@ -502,9 +502,9 @@ class stzStringRemover from stzObject
 
 		pH = @oString.Engine()
 		pR = StzEngineStringRemovePrefix(pH, pcSubStr)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
@@ -538,9 +538,9 @@ class stzStringRemover from stzObject
 
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
@@ -644,63 +644,63 @@ class stzStringRemover from stzObject
 	 #   REMOVING N-FIRST / N-LAST OCCURRENCES              #
 	#======================================================#
 
-	def RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+	def RemoveNFirstOccurrencesCS(_n_, pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		if len(anPos) < n
-			n = len(anPos)
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
+		if len(_anPos_) < _n_
+			_n_ = len(_anPos_)
 		ok
-		nLenSubStr = StzLen(pcSubStr)
-		for i = n to 1 step -1
-			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
+		_nLenSubStr_ = StzLen(pcSubStr)
+		for i = _n_ to 1 step -1
+			This.RemoveSection(_anPos_[i], _anPos_[i] + _nLenSubStr_ - 1)
 		next
 
-		def RemoveNFirstOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
-			This.RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		def RemoveNFirstOccurrencesCSQ(_n_, pcSubStr, pCaseSensitive)
+			This.RemoveNFirstOccurrencesCS(_n_, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemoveNFirstOccurrences(n, pcSubStr)
-		This.RemoveNFirstOccurrencesCS(n, pcSubStr, 1)
+	def RemoveNFirstOccurrences(_n_, pcSubStr)
+		This.RemoveNFirstOccurrencesCS(_n_, pcSubStr, 1)
 
 	#--
 
-	def RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+	def RemoveNLastOccurrencesCS(_n_, pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
-		if nLen < n
-			n = nLen
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
+		_nLen_ = len(_anPos_)
+		if _nLen_ < _n_
+			_n_ = _nLen_
 		ok
-		nLenSubStr = StzLen(pcSubStr)
-		for i = nLen to nLen - n + 1 step -1
-			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
+		_nLenSubStr_ = StzLen(pcSubStr)
+		for i = _nLen_ to _nLen_ - _n_ + 1 step -1
+			This.RemoveSection(_anPos_[i], _anPos_[i] + _nLenSubStr_ - 1)
 		next
 
-		def RemoveNLastOccurrencesCSQ(n, pcSubStr, pCaseSensitive)
-			This.RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		def RemoveNLastOccurrencesCSQ(_n_, pcSubStr, pCaseSensitive)
+			This.RemoveNLastOccurrencesCS(_n_, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemoveNLastOccurrences(n, pcSubStr)
-		This.RemoveNLastOccurrencesCS(n, pcSubStr, 1)
+	def RemoveNLastOccurrences(_n_, pcSubStr)
+		This.RemoveNLastOccurrencesCS(_n_, pcSubStr, 1)
 
 	  #======================================================#
 	 #   REMOVING CHAR AT POSITION                          #
 	#======================================================#
 
-	def RemoveCharAt(n)
+	def RemoveCharAt(_n_)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveCharAt(pH, n)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringRemoveCharAt(pH, _n_)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
-		def RemoveCharAtQ(n)
-			This.RemoveCharAt(n)
+		def RemoveCharAtQ(_n_)
+			This.RemoveCharAt(_n_)
 			return This
 
-	def CharRemovedAt(n)
+	def CharRemovedAt(_n_)
 		_oCopy_ = new stzStringRemover(@oString.Content())
-		_oCopy_.RemoveCharAtQ(n)
+		_oCopy_.RemoveCharAtQ(_n_)
 		return _oCopy_.Content()
 
 	  #======================================================#
@@ -708,9 +708,9 @@ class stzStringRemover from stzObject
 	#======================================================#
 
 	def RemoveCharsAtPositions(panPos)
-		aSorted = sort(panPos)
-		for i = len(aSorted) to 1 step -1
-			This.RemoveCharAt(aSorted[i])
+		_aSorted_ = sort(panPos)
+		for i = len(_aSorted_) to 1 step -1
+			This.RemoveCharAt(_aSorted_[i])
 		next
 
 		def RemoveCharsAtPositionsQ(panPos)

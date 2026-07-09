@@ -46,50 +46,50 @@ class stzGraphView from stzGraph
 	
 	def Commit()
 		# Update node properties
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			cId = aNode[:id]
+		_nLen_ = len(@aNodes)
+		for i = 1 to _nLen_
+			_aNode_ = @aNodes[i]
+			_cId_ = _aNode_[:id]
 			
-			if @oParentGraph.NodeExists(cId)
-				if HasKey(aNode, :properties)
-					@oParentGraph.SetNodeProperties(cId, aNode[:properties])
+			if @oParentGraph.NodeExists(_cId_)
+				if HasKey(_aNode_, :properties)
+					@oParentGraph.SetNodeProperties(_cId_, _aNode_[:properties])
 				ok
 			else
-				cLabel = ""
-				if HasKey(aNode, :label)
-					cLabel = aNode[:label]
+				_cLabel_ = ""
+				if HasKey(_aNode_, :label)
+					_cLabel_ = _aNode_[:label]
 				ok
 				
-				aProps = []
-				if HasKey(aNode, :properties)
-					aProps = aNode[:properties]
+				_aProps_ = []
+				if HasKey(_aNode_, :properties)
+					_aProps_ = _aNode_[:properties]
 				ok
 				
-				@oParentGraph.AddNodeXTT(cId, cLabel, aProps)
+				@oParentGraph.AddNodeXTT(_cId_, _cLabel_, _aProps_)
 			ok
 		next
 		
 		# Sync edges
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			cFrom = aEdge[:from]
-			cTo = aEdge[:to]
+		_nLen_ = len(@aEdges)
+		for i = 1 to _nLen_
+			_aEdge_ = @aEdges[i]
+			_cFrom_ = _aEdge_[:from]
+			_cTo_ = _aEdge_[:to]
 			
-			if NOT @oParentGraph.EdgeExists(cFrom, cTo)
-				cLabel = ""
-				if HasKey(aEdge, :label)
-					cLabel = aEdge[:label]
+			if NOT @oParentGraph.EdgeExists(_cFrom_, _cTo_)
+				_cLabel_ = ""
+				if HasKey(_aEdge_, :label)
+					_cLabel_ = _aEdge_[:label]
 				ok
 				
-				aProps = []
-				if HasKey(aEdge, :properties)
-					aProps = aEdge[:properties]
+				_aProps_ = []
+				if HasKey(_aEdge_, :properties)
+					_aProps_ = _aEdge_[:properties]
 				ok
 				
-				if @oParentGraph.NodeExists(cFrom) and @oParentGraph.NodeExists(cTo)
-					@oParentGraph.AddEdgeXTT(cFrom, cTo, cLabel, aProps)
+				if @oParentGraph.NodeExists(_cFrom_) and @oParentGraph.NodeExists(_cTo_)
+					@oParentGraph.AddEdgeXTT(_cFrom_, _cTo_, _cLabel_, _aProps_)
 				ok
 			ok
 		next
@@ -99,95 +99,95 @@ class stzGraphView from stzGraph
 		@aEdges = This._FilteredEdges()
 	
 	def Changes()
-		aChanges = [
+		_aChanges_ = [
 			:nodesModified = [],
 			:nodesAdded = []
 		]
 		
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			cId = aNode[:id]
+		_nLen_ = len(@aNodes)
+		for i = 1 to _nLen_
+			_aNode_ = @aNodes[i]
+			_cId_ = _aNode_[:id]
 			
-			if @oParentGraph.NodeExists(cId)
-				aParentNode = @oParentGraph.Node(cId)
-				if This._NodesDiffer(aNode, aParentNode)
-					aChanges[:nodesModified] + cId
+			if @oParentGraph.NodeExists(_cId_)
+				_aParentNode_ = @oParentGraph.Node(_cId_)
+				if This._NodesDiffer(_aNode_, _aParentNode_)
+					_aChanges_[:nodesModified] + _cId_
 				ok
 			else
-				aChanges[:nodesAdded] + cId
+				_aChanges_[:nodesAdded] + _cId_
 			ok
 		next
 		
-		return aChanges
+		return _aChanges_
 	
 	def _FilteredNodes()
-		aResult = []
-		nLen = len(@acIncludedNodes)
+		_aResult_ = []
+		_nLen_ = len(@acIncludedNodes)
 		
-		for i = 1 to nLen
-			cNodeId = @acIncludedNodes[i]
+		for i = 1 to _nLen_
+			_cNodeId_ = @acIncludedNodes[i]
 			
-			if @oParentGraph.NodeExists(cNodeId)
-				aNode = @oParentGraph.Node(cNodeId)
+			if @oParentGraph.NodeExists(_cNodeId_)
+				_aNode_ = @oParentGraph.Node(_cNodeId_)
 				
-				aNodeCopy = [
-					:id = aNode[:id],
-					:label = aNode[:label],
+				_aNodeCopy_ = [
+					:id = _aNode_[:id],
+					:label = _aNode_[:label],
 					:properties = []
 				]
 				
-				if HasKey(aNode, :properties)
-					acKeys = keys(aNode[:properties])
-					nKeyLen = len(acKeys)
+				if HasKey(_aNode_, :properties)
+					_acKeys_ = keys(_aNode_[:properties])
+					_nKeyLen_ = len(_acKeys_)
 					
-					for j = 1 to nKeyLen
-						cKey = acKeys[j]
-						aNodeCopy[:properties][cKey] = aNode[:properties][cKey]
+					for j = 1 to _nKeyLen_
+						_cKey_ = _acKeys_[j]
+						_aNodeCopy_[:properties][_cKey_] = _aNode_[:properties][_cKey_]
 					next
 				ok
 				
-				aResult + aNodeCopy
+				_aResult_ + _aNodeCopy_
 			ok
 		next
 		
-		return aResult
+		return _aResult_
 	
 	def _FilteredEdges()
-		aResult = []
-		aEdges = @oParentGraph.Edges()
-		nLen = len(aEdges)
+		_aResult_ = []
+		_aEdges_ = @oParentGraph.Edges()
+		_nLen_ = len(_aEdges_)
 		
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cFrom = aEdge[:from]
-			cTo = aEdge[:to]
+		for i = 1 to _nLen_
+			_aEdge_ = _aEdges_[i]
+			_cFrom_ = _aEdge_[:from]
+			_cTo_ = _aEdge_[:to]
 			
-			if StzFindFirst(@acIncludedNodes, cFrom) > 0 and
-			   StzFindFirst(@acIncludedNodes, cTo) > 0
+			if StzFindFirst(@acIncludedNodes, _cFrom_) > 0 and
+			   StzFindFirst(@acIncludedNodes, _cTo_) > 0
 				
-				aEdgeCopy = [
-					:from = cFrom,
-					:to = cTo,
-					:label = aEdge[:label],
+				_aEdgeCopy_ = [
+					:from = _cFrom_,
+					:to = _cTo_,
+					:label = _aEdge_[:label],
 					:properties = []
 				]
 				
-				if HasKey(aEdge, :properties)
-					acKeys = keys(aEdge[:properties])
-					nKeyLen = len(acKeys)
+				if HasKey(_aEdge_, :properties)
+					_acKeys_ = keys(_aEdge_[:properties])
+					_nKeyLen_ = len(_acKeys_)
 					
-					for j = 1 to nKeyLen
-						cKey = acKeys[j]
-						aEdgeCopy[:properties][cKey] = aEdge[:properties][cKey]
+					for j = 1 to _nKeyLen_
+						_cKey_ = _acKeys_[j]
+						_aEdgeCopy_[:properties][_cKey_] = _aEdge_[:properties][_cKey_]
 					next
 				ok
 				
-				aResult + aEdgeCopy
+				_aResult_ + _aEdgeCopy_
 			ok
 		next
 		
-		return aResult
+		return _aResult_
 	
 	def _NodesDiffer(aNode1, aNode2)
 		if aNode1[:label] != aNode2[:label]
@@ -202,24 +202,24 @@ class stzGraphView from stzGraph
 			return TRUE
 		ok
 		
-		aProps1 = aNode1[:properties]
-		aProps2 = aNode2[:properties]
+		_aProps1_ = aNode1[:properties]
+		_aProps2_ = aNode2[:properties]
 		
-		acKeys1 = keys(aProps1)
+		_acKeys1_ = keys(_aProps1_)
 		
-		if len(acKeys1) != len(keys(aProps2))
+		if len(_acKeys1_) != len(keys(_aProps2_))
 			return TRUE
 		ok
 		
-		nLen = len(acKeys1)
-		for i = 1 to nLen
-			cKey = acKeys1[i]
+		_nLen_ = len(_acKeys1_)
+		for i = 1 to _nLen_
+			_cKey_ = _acKeys1_[i]
 			
-			if NOT HasKey(aProps2, cKey)
+			if NOT HasKey(_aProps2_, _cKey_)
 				return TRUE
 			ok
 			
-			if aProps1[cKey] != aProps2[cKey]
+			if _aProps1_[_cKey_] != _aProps2_[_cKey_]
 				return TRUE
 			ok
 		next

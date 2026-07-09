@@ -21,14 +21,14 @@
 	 #  ENGINE MARSHALING (Ring list -> Engine)   #
 	#============================================#
 
-	func StzEngineMarshalList(aList)
-		return StzEngineListMarshalFromRingList(aList)
+	func StzEngineMarshalList(_aList_)
+		return StzEngineListMarshalFromRingList(_aList_)
 
-	func StzEngineMarshalListValue(aList)
+	func StzEngineMarshalListValue(_aList_)
 		pVal = StzEngineValueNewList()
-		nLen = len(aList)
-		for i = 1 to nLen
-			item = aList[i]
+		_nLen_ = len(_aList_)
+		for _i_ = 1 to _nLen_
+			item = _aList_[_i_]
 			if isNumber(item)
 				if floor(item) = item
 					pItem = StzEngineValueNewInt(item)
@@ -42,12 +42,12 @@
 				StzEngineValueListAppend(pVal, pItem)
 				StzEngineValueFree(pItem)
 			but isList(item)
-				aCopy = []
+				_aCopy_ = []
 				_nItemLen_ = len(item)
-				for j = 1 to _nItemLen_
-					aCopy + item[j]
+				for _j_ = 1 to _nItemLen_
+					_aCopy_ + item[_j_]
 				next
-				pSubVal = StzEngineMarshalListValue(aCopy)
+				pSubVal = StzEngineMarshalListValue(_aCopy_)
 				StzEngineValueListAppend(pVal, pSubVal)
 				StzEngineValueFree(pSubVal)
 			ok
@@ -319,16 +319,16 @@ func @AddItem(paList, pItem)
 	return paList
 
 func ListLowercased(paList)
-	aResult = []
-	nLen = len(paList)
-	for i = 1 to nLen
-		if isString(paList[i])
-			aResult + StzLower(paList[i])
+	_aResult_ = []
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if isString(paList[_i_])
+			_aResult_ + StzLower(paList[_i_])
 		else
-			aResult + paList[i]
+			_aResult_ + paList[_i_]
 		ok
 	next
-	return aResult
+	return _aResult_
 
 func StzListQ(paList)
 	return new stzList(paList)
@@ -352,47 +352,47 @@ func StzListQ(paList)
 #===
 
 func _ListSortingOrder(paList)
-	nLen = len(paList)
-	if nLen < 2
+	_nLen_ = len(paList)
+	if _nLen_ < 2
 		return :Unsorted
 	ok
 
-	bAsc = 1
-	bDesc = 1
-	bAnyComparable = 0
+	_bAsc_ = 1
+	_bDesc_ = 1
+	_bAnyComparable_ = 0
 
-	for i = 1 to nLen - 1
-		if isNumber(paList[i]) and isNumber(paList[i+1])
-			bAnyComparable = 1
-			if paList[i] > paList[i+1]
-				bAsc = 0
+	for _i_ = 1 to _nLen_ - 1
+		if isNumber(paList[_i_]) and isNumber(paList[_i_+1])
+			_bAnyComparable_ = 1
+			if paList[_i_] > paList[_i_+1]
+				_bAsc_ = 0
 			ok
-			if paList[i] < paList[i+1]
-				bDesc = 0
+			if paList[_i_] < paList[_i_+1]
+				_bDesc_ = 0
 			ok
-		but isString(paList[i]) and isString(paList[i+1])
-			bAnyComparable = 1
-			if strcmp(paList[i], paList[i+1]) > 0
-				bAsc = 0
+		but isString(paList[_i_]) and isString(paList[_i_+1])
+			_bAnyComparable_ = 1
+			if strcmp(paList[_i_], paList[_i_+1]) > 0
+				_bAsc_ = 0
 			ok
-			if strcmp(paList[i], paList[i+1]) < 0
-				bDesc = 0
+			if strcmp(paList[_i_], paList[_i_+1]) < 0
+				_bDesc_ = 0
 			ok
 		# incomparable pair (mixed/list items): no ordering info, skip it
 		ok
-		if bAsc = 0 and bDesc = 0
+		if _bAsc_ = 0 and _bDesc_ = 0
 			return :Unsorted
 		ok
 	next
 
 	# No comparable adjacent pair -> no ordering established -> Unsorted.
-	if bAnyComparable = 0
+	if _bAnyComparable_ = 0
 		return :Unsorted
 	ok
-	if bAsc = 1
+	if _bAsc_ = 1
 		return :Ascending
 	ok
-	if bDesc = 1
+	if _bDesc_ = 1
 		return :Descending
 	ok
 	return :Unsorted
@@ -421,25 +421,25 @@ func DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
 		ok
 	ok
 
-	nLenList = len(paList)
-	if nLenList = 0
+	_nLenList_ = len(paList)
+	if _nLenList_ = 0
 		return 0
 	ok
 
-	nLenItems = len(paItems)
-	if nLenItems = 0
+	_nLenItems_ = len(paItems)
+	if _nLenItems_ = 0
 		return 0
 	ok
 
-	bResult = 0
-	for i = 1 to nLenItems
-		if DeepContainsCS(paList, paItems[i], pCaseSensitive)
-			bResult = 1
+	_bResult_ = 0
+	for _i_ = 1 to _nLenItems_
+		if DeepContainsCS(paList, paItems[_i_], pCaseSensitive)
+			_bResult_ = 1
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func @DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
 		return DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
@@ -460,10 +460,10 @@ func DeepContainsOneOfThese(paList, paItems)
 
 # Executing a function on each list item
 
-func @Map(aList, cFunc)
+func @Map(_aList_, cFunc)
 
 	if CheckParams()
-		if not isList( aList )
+		if not isList( _aList_ )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
 		If not @IsFunction(cFunc)
@@ -471,19 +471,19 @@ func @Map(aList, cFunc)
 		ok
 	ok
 
-	aListCopy = aList
-	nLen = len(aList)
+	_aListCopy_ = _aList_
+	_nLen_ = len(_aList_)
 
-	for i = 1 to nLen
-		aListCopy[i] = call cFunc(aListCopy[i])
+	for _i_ = 1 to _nLen_
+		_aListCopy_[_i_] = call cFunc(_aListCopy_[_i_])
 	next
-	return aListCopy
+	return _aListCopy_
 
 # Executing a function on each item of the listinorder to filter items
 
-func @Filter(aList, cFunc)
+func @Filter(_aList_, cFunc)
 	if CheckParams()
-		if not isList( aList )
+		if not isList( _aList_ )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
 		If not @IsFunction(cFunc)
@@ -491,26 +491,26 @@ func @Filter(aList, cFunc)
 		ok
 	ok
 
-	nLen = len(aList)
-	aList2 = []
+	_nLen_ = len(_aList_)
+	_aList2_ = []
 
-	for i = 1 to nLen
+	for _i_ = 1 to _nLen_
 
-		if call cFunc(aList[i])
-			aList2 + aList[i]
+		if call cFunc(_aList_[_i_])
+			_aList2_ + _aList_[_i_]
 		ok
 	next
 
-	return aList2
+	return _aList2_
 
 
 # Applying function cFunc to each result xResult from a list aList,
 # and return an accumulated value xResult
 
-func @Reduce(aList, cFunc, xInitial)
+func @Reduce(_aList_, cFunc, _xInitial_)
 
 	if CheckParams()
-		if not isList( aList )
+		if not isList( _aList_ )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
 		If not @IsFunction(cFunc)
@@ -518,52 +518,52 @@ func @Reduce(aList, cFunc, xInitial)
 		ok
 	ok
 
-	nNthElement = 0
-	xNthElement = NULL
-	nStart = 1
-	nLength = 0
-	sNthElementType = NULL
-	sElementType = NULL
+	_nNthElement_ = 0
+	_xNthElement_ = NULL
+	_nStart_ = 1
+	_nLength_ = 0
+	_sNthElementType_ = NULL
+	_sElementType_ = NULL
 
 
-	nLength = Len(aList)
+	_nLength_ = Len(_aList_)
 
 
 
-	if IsNULL(xInitial)
+	if IsNULL(_xInitial_)
 		// If the list is non-empty, then default xInitial to its first element
-		if nLength > 0
-			xInitial = aList[1]
-			nStart = 2
-			sElementType = type(xInitial)
+		if _nLength_ > 0
+			_xInitial_ = _aList_[1]
+			_nStart_ = 2
+			_sElementType_ = type(_xInitial_)
 		else
 			raise("if xInitial is NULL, then Reduce() requires a non-empty list aList!")
 		Ok
 	else
 		// If the List doesn't have at least one member, then return xInitial
-		if nLength < 1
-			xResult = xInitial
-			return xResult
+		if _nLength_ < 1
+			_xResult_ = _xInitial_
+			return _xResult_
 		Ok
 	Ok
 
-	sElementType = type(xInitial)
-	xResult = xInitial
+	_sElementType_ = type(_xInitial_)
+	_xResult_ = _xInitial_
 
 	// Loop through all of aList, and return an accumulated value after successfully applying cFunc to each result.
-	for nElement = nStart to nLength
+	for nElement = _nStart_ to _nLength_
 
-		xNthElement = aList[nElement]
-		sNthElementType = type(xNthElement)
+		_xNthElement_ = _aList_[nElement]
+		_sNthElementType_ = type(_xNthElement_)
 
-		If not sNthElementType = sElementType
-			raise( "At least one of the elements in aList is " + sNthElementType + ".  It should be " + sElementType )
+		If not _sNthElementType_ = _sElementType_
+			raise( "At least one of the elements in aList is " + _sNthElementType_ + ".  It should be " + _sElementType_ )
 		ok
 
-		xResult = call cFunc(xResult, xNthElement)
+		_xResult_ = call cFunc(_xResult_, _xNthElement_)
 	next
 
-	return xResult
+	return _xResult_
 
 #===
 
@@ -578,11 +578,11 @@ func Listify(cStrInList)
 		return StzListQ(cStrInlist).Listified()
 	ok
 
-	oTempStr = new stzString(cStrInList)
-	if oTempStr.IsListInString()
-		cCode = 'aResult = ' + oTempStr.Content()
-		eval(ccode)
-		return aResult
+	_oTempStr_ = new stzString(cStrInList)
+	if _oTempStr_.IsListInString()
+		_cCode_ = '_aResult_ = ' + _oTempStr_.Content()
+		eval(_cCode_)
+		return _aResult_
 	ok
 
 	StzRaise("Can't proceed! cStrInList must be a string containing a well formatted Ring list.")
@@ -599,89 +599,89 @@ func Listify(cStrInList)
 
 #===
 
-func FirstN(n, aList)
+func FirstN(_n_, _aList_)
 	if CheckParams()
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! aList must be a list.")
 		ok
 
-		if NOT isList(aList)
+		if NOT isList(_aList_)
 			StzRaise("Incorrect param type! aList must be a list.")
 		ok
 	ok
 
-	aResult = []
-	nLen = len(aList)
-	if n >= nLen
-		return aList
+	_aResult_ = []
+	_nLen_ = len(_aList_)
+	if _n_ >= _nLen_
+		return _aList_
 	ok
 
-	for i = 1 to n
-		aResult + aList[i]
+	for _i_ = 1 to _n_
+		_aResult_ + _aList_[_i_]
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForms
 
-	func FirstNItems(aList)
-		return FirstN(n, aList)
+	func FirstNItems(_aList_)
+		return FirstN(_n_, _aList_)
 
-	func @FirstN(n, aList)
-		return FirstN(n, aList)
+	func @FirstN(_n_, _aList_)
+		return FirstN(_n_, _aList_)
 
-	func @FirstNItems(n, aList)
-		return FirstN(n, aList)
+	func @FirstNItems(_n_, _aList_)
+		return FirstN(_n_, _aList_)
 
-	func NFirst(n, aList)
-		return FirstN(n, aList)
+	func NFirst(_n_, _aList_)
+		return FirstN(_n_, _aList_)
 
 	#--
 
-	func NFirstItems(aList)
-		return FirstN(n, aList)
+	func NFirstItems(_aList_)
+		return FirstN(_n_, _aList_)
 
-	func @NFirst(n, aList)
-		return FirstN(n, aList)
+	func @NFirst(_n_, _aList_)
+		return FirstN(_n_, _aList_)
 
-	func @NFirstItems(n, aList)
-		return FirstN(n, aList)
+	func @NFirstItems(_n_, _aList_)
+		return FirstN(_n_, _aList_)
 
 	#>
 
-func First3(aList)
-	return FirstN(3, aList)
+func First3(_aList_)
+	return FirstN(3, _aList_)
 
 	#< @FunctionAlternativeForms
 
-	func First3Items(aList)
-		return First3(aList)
+	func First3Items(_aList_)
+		return First3(_aList_)
 
-	func @First3(aList)
-		return First3(aList)
+	func @First3(_aList_)
+		return First3(_aList_)
 
-	func @First3Items(aList)
-		return First3(aList)
+	func @First3Items(_aList_)
+		return First3(_aList_)
 
-	func 3First(aList)
-		return First3(aList)
+	func 3First(_aList_)
+		return First3(_aList_)
 
 	#--
 
-	func 3FirstItems(aList)
-		return First3(aList)
+	func 3FirstItems(_aList_)
+		return First3(_aList_)
 
-	func @3First(aList)
-		return FirstN(n, aList)
+	func @3First(_aList_)
+		return FirstN(_n_, _aList_)
 
-	func @3FirstItems(aList)
-		return First3(aList)
+	func @3FirstItems(_aList_)
+		return First3(_aList_)
 
 	#>
 
 #===
 
-func Slice(pStrOrList, n1, n2)
+func Slice(pStrOrList, _n1_, n2)
 	if CheckParams()
 		if NOT (isString(pStrOrList) or isList(pStrOrList))
 			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
@@ -689,12 +689,12 @@ func Slice(pStrOrList, n1, n2)
 	ok
 
 	if isString(pStrOrList)
-		return StkStringQ(pStrOrList).section(n1, n2)
+		return StkStringQ(pStrOrList).section(_n1_, n2)
 	else
 		_aResult_ = []
 		_nLen_ = len(pStrOrList)
 
-		for @i = n1 to n2
+		for @i = _n1_ to n2
 			_aResult_ + pStrOrList[@i]
 		next
 
@@ -709,13 +709,13 @@ func Repeat(value, nTimes)
 		ok
 	ok
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nTimes
-		aResult + value
+	for _i_ = 1 to nTimes
+		_aResult_ + value
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForms
 
@@ -751,14 +751,14 @@ func SortingOrders(paListOfThings)
 		StzRaise("Incorrect param type! paListOfThings must be a list.")
 	ok
 
-	acResult = []
+	_acResult_ = []
 
-	nLen = len(paListOfThings)
-	for i = 1 to nLen
-		acResult + Q(paListOfThings[i]).SortingOrder()
+	_nLen_ = len(paListOfThings)
+	for _i_ = 1 to _nLen_
+		_acResult_ + Q(paListOfThings[_i_]).SortingOrder()
 	next
 
-	return acResult
+	return _acResult_
 
 func HaveSameSortingOrder(p1, p2)
 	return Q(p1).HasSameSortingOrderAs(p2)
@@ -773,16 +773,16 @@ func SortListsBySize(paLists)
 		ok
 	ok
 
-	nLen = len(paLists)
+	_nLen_ = len(paLists)
 
-	for i = 1 to nLen
-		ring_insert(paLists[i], len(paLists[i]), 1)
+	for _i_ = 1 to _nLen_
+		ring_insert(paLists[_i_], len(paLists[_i_]), 1)
 	next
 
 	SortListsOn(paLists, 1)
 
-	for i = 1 to nLen
-		ring_remove(paLists[i], 1)
+	for _i_ = 1 to _nLen_
+		ring_remove(paLists[_i_], 1)
 	next
 
 	return paLists
@@ -807,23 +807,23 @@ func ListsStringifyXT(paListOfLists)
 		return [ "" ]
 	ok
 
-	aCols = StzListOfListsQ(paListOfLists).Cols()
-	nLen = len(aCols)
+	_aCols_ = StzListOfListsQ(paListOfLists).Cols()
+	_nLen_ = len(_aCols_)
 
-	acColsStringified = []
-	for i = 1 to nLen
-		acColsStringified + ListStringifyXT(aCols[i])
+	_acColsStringified_ = []
+	for _i_ = 1 to _nLen_
+		_acColsStringified_ + ListStringifyXT(_aCols_[_i_])
 	next
 
-	oLoL = StzListOfListsQ([])
+	_oLoL_ = StzListOfListsQ([])
 
-	for i = 1 to nLen
-		oLoL.AddCol(acColsStringified[i])
+	for _i_ = 1 to _nLen_
+		_oLoL_.AddCol(_acColsStringified_[_i_])
 	next
 
-	aResult = oLoL.Content()
+	_aResult_ = _oLoL_.Content()
 
-	return aResult
+	return _aResult_
 
 
 	func @ListsStringifyXT(paListOfLists)
@@ -842,117 +842,117 @@ func ListStringifyXT(paList)
 	# We start by getting the max left and right
 	# number of digits (integer and decimal parts)
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	nMaxSize = 0
-	nMaxLeft = 0
-	nMaxRight = 0
+	_nMaxSize_ = 0
+	_nMaxLeft_ = 0
+	_nMaxRight_ = 0
 
-	anNumbersPos = []
+	_anNumbersPos_ = []
 
-	for i = 1 to nLen
-		if isNumber(paList[i])
+	for _i_ = 1 to _nLen_
+		if isNumber(paList[_i_])
 
-			anNumbersPos + i
+			_anNumbersPos_ + _i_
 
-			cNumber = ""+ paList[i]
+			_cNumber_ = ""+ paList[_i_]
 
-			nSize = StzLen(cNumber)
-			if nSize > nMaxSize
-				nMaxSize = nSize
+			_nSize_ = StzLen(_cNumber_)
+			if _nSize_ > _nMaxSize_
+				_nMaxSize_ = _nSize_
 			ok
 
-			nDotPos = ring_substr1( cNumber, "." )
+			_nDotPos_ = ring_substr1( _cNumber_, "." )
 
-			if nDotPos = 0
-				nLenLeft = nSize
-				nLenRight = 0
+			if _nDotPos_ = 0
+				_nLenLeft_ = _nSize_
+				_nLenRight_ = 0
 
 			else
-				nLenLeft = nDotPos - 1
-				nLenRight = nSize - nDotPos
+				_nLenLeft_ = _nDotPos_ - 1
+				_nLenRight_ = _nSize_ - _nDotPos_
 
 			ok
 
-			if nLenLeft > nMaxLeft
-				nMaxLeft = nLenLeft
+			if _nLenLeft_ > _nMaxLeft_
+				_nMaxLeft_ = _nLenLeft_
 			ok
 
-			if nLenRight > nMaxRight
-				nMaxRight = nLenRight
+			if _nLenRight_ > _nMaxRight_
+				_nMaxRight_ = _nLenRight_
 			ok
 		ok
 	next
 
-	nHowManyNumbers = len(anNumbersPos)
+	_nHowManyNumbers_ = len(_anNumbersPos_)
 
 	# The numbers without decimal part are adjusted
 	# first, by adding a dot and some 0s to them,
 	# and then the numbers with dots are adjusted
 
-	for i = 1 to nHowManyNumbers
-		nPos = anNumbersPos[i]
+	for _i_ = 1 to _nHowManyNumbers_
+		_nPos_ = _anNumbersPos_[_i_]
 
 		# Early check
 
-		if paList[nPos] = 0
-			paList[nPos] = "0."
+		if paList[_nPos_] = 0
+			paList[_nPos_] = "0."
 			loop
 		ok
 
 		# In case where the number is not a zero
 
-		cNumber = ""+ paList[nPos]
-		nLenNumber = StzLen(cNumber)
-		nPosDot = ring_substr1(cNumber, ".")
+		_cNumber_ = ""+ paList[_nPos_]
+		_nLenNumber_ = StzLen(_cNumber_)
+		_nPosDot_ = ring_substr1(_cNumber_, ".")
 			
-		if nPosDot = 0
+		if _nPosDot_ = 0
 				
-			nAddLeft = nMaxLeft - nLenNumber
-			nAddRight = nMaxRight
+			_nAddLeft_ = _nMaxLeft_ - _nLenNumber_
+			_nAddRight_ = _nMaxRight_
 
-			cExtLeft = ""
-			cExtRight = ""
+			_cExtLeft_ = ""
+			_cExtRight_ = ""
 
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
+			for _j_ = 1 to _nAddLeft_
+				_cExtLeft_ += "0"
 			next
 
-			for j = 1 to nAddRight
-				cExtRight += "0"
+			for _j_ = 1 to _nAddRight_
+				_cExtRight_ += "0"
 			next
 
-			cNumber = cExtLeft + cNumber + "." + cExtRight
+			_cNumber_ = _cExtLeft_ + _cNumber_ + "." + _cExtRight_
 
 		else
-			nAddLeft = nMaxLeft - (nPosDot - 1)
-			nAddRight = nMaxRight - (nLenNumber - nPosDot)
+			_nAddLeft_ = _nMaxLeft_ - (_nPosDot_ - 1)
+			_nAddRight_ = _nMaxRight_ - (_nLenNumber_ - _nPosDot_)
 
-			cExtLeft = ""
-			cExtRight = ""
+			_cExtLeft_ = ""
+			_cExtRight_ = ""
 
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
+			for _j_ = 1 to _nAddLeft_
+				_cExtLeft_ += "0"
 			next
 
-			for j = 1 to nAddRight
-				cExtRight += "0"
+			for _j_ = 1 to _nAddRight_
+				_cExtRight_ += "0"
 			next
 
-			cNumber = cExtLeft + cNumber + cExtRight
+			_cNumber_ = _cExtLeft_ + _cNumber_ + _cExtRight_
 
 		ok
 
-		paList[nPos] = cNumber
+		paList[_nPos_] = _cNumber_
 
 	next
 
 	# Now we stringify the items of the column that
 	# are not numbers (usning @@() ~> ComputableForm())
 
-	for i = 1 to nLen
-		if NOT isNumber(paList[i])
-			paList[i] = @@(paList[i])
+	for _i_ = 1 to _nLen_
+		if NOT isNumber(paList[_i_])
+			paList[_i_] = @@(paList[_i_])
 			loop
 		ok
 
@@ -963,7 +963,7 @@ func ListStringifyXT(paList)
 	func @ListStringifyXT(paList)
 		return ListStringifyXT(paList)
 
-func SortListsOn(paLists, n)
+func SortListsOn(paLists, _n_)
 
 	# Sorts a list of lists on a given column by justifying
 	# all the lists and stringifying any list item inf the
@@ -974,75 +974,75 @@ func SortListsOn(paLists, n)
 
 		# Swich params if necessary
 
-		if isNumber(paLists) and isList(n)
-			temp = paLists
-			paLists = n
-			n = temp
+		if isNumber(paLists) and isList(_n_)
+			_temp_ = paLists
+			paLists = _n_
+			_n_ = _temp_
 		ok
 
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paList must be a list of lists.")
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 	ok
 
 	# Early check 1 : If there is no lists or only one list
 
-	nLen = len(paLists)
-	if nLen = 0
+	_nLen_ = len(paLists)
+	if _nLen_ = 0
 		return []
 
-	but nLen = 1
+	but _nLen_ = 1
 		return paLists
 	ok
 
 	# Early check 2 : If One of the lists is empty
 
-	for i = 1 to nLen
-		if len(paLists[i]) = 0
+	for _i_ = 1 to _nLen_
+		if len(paLists[_i_]) = 0
 			return @SortList(paLists)
 		ok
 	next
 
 	# Sort using the engine
 
-	oTemp = new stzList(paLists)
-	pList = oTemp._EngineListFromContent()
-	StzEngineListSortOn(pList, n)
-	aResult = StzEngineContentFromList(pList)
+	_oTemp_ = new stzList(paLists)
+	pList = _oTemp_._EngineListFromContent()
+	StzEngineListSortOn(pList, _n_)
+	_aResult_ = StzEngineContentFromList(pList)
 	StzEngineListFree(pList)
-	return aResult
+	return _aResult_
 
 
 	#< @FunctionAlternativeForms
 
-	func @SortListsOn(paLists, n)
-		return SortListsOn(paLists, n)
+	func @SortListsOn(paLists, _n_)
+		return SortListsOn(paLists, _n_)
 
-	func SortOn(paLists, n)
-		return SortListsOn(paLists, n)
+	func SortOn(paLists, _n_)
+		return SortListsOn(paLists, _n_)
 
-	func @SortOn(paLists, n)
-		return SortListsOn(paLists, n)
+	func @SortOn(paLists, _n_)
+		return SortListsOn(paLists, _n_)
 
 	#>
 
-func SortOnUp(n, paList)
-	return SortOn(n, paList)
+func SortOnUp(_n_, paList)
+	return SortOn(_n_, paList)
 
-	func @SortOnUp(n, paList)
-		return SortOnUp(n, paList)
+	func @SortOnUp(_n_, paList)
+		return SortOnUp(_n_, paList)
 
-func SortOnDown(n, palist)
-	return reverse(SortOn(n, paList))
+func SortOnDown(_n_, palist)
+	return reverse(SortOn(_n_, paList))
 
-	func @SortOnDown(n, palist)
-		return SortOnDown(n, palist)
+	func @SortOnDown(_n_, palist)
+		return SortOnDown(_n_, palist)
 
-func SortOnXT(n, paList, pcDirection)
+func SortOnXT(_n_, paList, pcDirection)
 	if CheckParams()
 		if isList(pcDirection) and IsDirectionOrGoingNamedParamList(pcDirection)
 			pcDirection = pcDirection[2]
@@ -1058,13 +1058,13 @@ func SortOnXT(n, paList, pcDirection)
 	ok
 
 	if pcDirection = "ascending" or pcDirection = "up"
-		return SortOn(n, paList)
+		return SortOn(_n_, paList)
 	else
-		return reverse( SortOn(n, paList) )
+		return reverse( SortOn(_n_, paList) )
 	ok
 
-	func @SortOnXT(n, paList, pcDirection)
-		return SortOnXT(n, paList, pcDirection)
+	func @SortOnXT(_n_, paList, pcDirection)
+		return SortOnXT(_n_, paList, pcDirection)
 
 func @SortList(paList)
 
@@ -1074,13 +1074,13 @@ func @SortList(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return []
 	ok
 
-	oTemp = new stzList(paList)
-	return oTemp.Sorted()
+	_oTemp_ = new stzList(paList)
+	return _oTemp_.Sorted()
 
 
 	func SortList(paList)
@@ -1092,10 +1092,10 @@ func @Sort(p)
 	ok
 
 	if isString(p)
-		oStr = new stzString(p)
-		aChars = oStr.Chars()
-		oTemp = new stzList(aChars)
-		return oTemp.Sorted()
+		_oStr_ = new stzString(p)
+		_aChars_ = _oStr_.Chars()
+		_oTemp_ = new stzList(_aChars_)
+		return _oTemp_.Sorted()
 
 	else
 		return @SortList(p)
@@ -1274,23 +1274,23 @@ func IsSortedListOfPairsOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	anFirst = []
-	for i = 1 to nLen
-		anFirst + paList[i][1]
+	_anFirst_ = []
+	for _i_ = 1 to _nLen_
+		_anFirst_ + paList[_i_][1]
 	next
 
-	anSecond = []
-	for i = 1 to nLen
-		anSecond + paList[i][2]
+	_anSecond_ = []
+	for _i_ = 1 to _nLen_
+		_anSecond_ + paList[_i_][2]
 	next
 
-	oList1 = new stzList(anFirst)
-	oList2 = new stzList(anSecond)
+	_oList1_ = new stzList(_anFirst_)
+	_oList2_ = new stzList(_anSecond_)
 
-	if ( oList1.IsSortedInAscending() and oList2.IsSortedInAscending() ) or
-	   ( oList2.IsSortedInDescending() and oList2.IsSortedInDescending() )
+	if ( _oList1_.IsSortedInAscending() and _oList2_.IsSortedInAscending() ) or
+	   ( _oList2_.IsSortedInDescending() and _oList2_.IsSortedInDescending() )
 
 		return 1
 	else
@@ -1305,22 +1305,22 @@ func IsSortedUpListOfPairsOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	anFirst = []
-	for i = 1 to nLen
-		anFirst + paList[i][1]
+	_anFirst_ = []
+	for _i_ = 1 to _nLen_
+		_anFirst_ + paList[_i_][1]
 	next
 
-	anSecond = []
-	for i = 1 to nLen
-		anSecond + paList[i][2]
+	_anSecond_ = []
+	for _i_ = 1 to _nLen_
+		_anSecond_ + paList[_i_][2]
 	next
 
-	oList1 = new stzList(anFirst)
-	oList2 = new stzList(anSecond)
+	_oList1_ = new stzList(_anFirst_)
+	_oList2_ = new stzList(_anSecond_)
 
-	if oList1.IsSortedInAscending() and oList2.IsSortedInAscending()
+	if _oList1_.IsSortedInAscending() and _oList2_.IsSortedInAscending()
 		return 1
 	else
 		return 0
@@ -1359,22 +1359,22 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	anFirst = []
-	for i = 1 to nLen
-		anFirst + paList[i][1]
+	_anFirst_ = []
+	for _i_ = 1 to _nLen_
+		_anFirst_ + paList[_i_][1]
 	next
 
-	anSecond = []
-	for i = 1 to nLen
-		anSecond + paList[i][2]
+	_anSecond_ = []
+	for _i_ = 1 to _nLen_
+		_anSecond_ + paList[_i_][2]
 	next
 
-	oList1 = new stzList(anFirst)
-	oList2 = new stzList(anSecond)
+	_oList1_ = new stzList(_anFirst_)
+	_oList2_ = new stzList(_anSecond_)
 
-	if oList1.IsSortedInDescending() and oList2.IsSortedInDescending()
+	if _oList1_.IsSortedInDescending() and _oList2_.IsSortedInDescending()
 		return 1
 	else
 		return 0
@@ -1413,13 +1413,13 @@ func IsListOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0   # empty is NOT a list-of-numbers (monolith semantics)
 	ok
 
-	for i = 1 to nLen
-		if not isNumber(paList[i])
+	for _i_ = 1 to _nLen_
+		if not isNumber(paList[_i_])
 			return 0
 		ok
 	next
@@ -1492,16 +1492,16 @@ func IsListOfListsOfNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1525,16 +1525,16 @@ func IsListOfDecimalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsDecimalNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsDecimalNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1558,16 +1558,16 @@ func IsListOfListsOfDecimalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfDecimalNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfDecimalNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1587,16 +1587,16 @@ func IsListOfBinaryNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsBinaryNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsBinaryNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1616,16 +1616,16 @@ func IsListOfListsOfBinaryNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfBinaryNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfBinaryNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1645,16 +1645,16 @@ func IsListOfOctalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsOctalNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsOctalNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1673,16 +1673,16 @@ func IsListOfOctalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfOctalNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfOctalNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1706,16 +1706,16 @@ func IsListOfHexNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsHexNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsHexNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1735,16 +1735,16 @@ func IsListOfListsOfHexNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfHexNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfHexNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1768,20 +1768,20 @@ func IsListOfStrings(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	if nLen = 0
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0   # empty is NOT a list-of-strings (monolith semantics)
 	ok
 
-	for i = 1 to nLen
-		if NOT isString(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT isString(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1808,16 +1808,16 @@ func IsListOfListsOfStrings(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStrings(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStrings(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1837,17 +1837,17 @@ func IsListOfLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
+	_bResult_ = 1
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
-		if NOT isList(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT isList(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1867,16 +1867,16 @@ func IsListOfHybridLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsHybridList(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsHybridList(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1896,16 +1896,16 @@ func IsListOfListsOfHybridLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfHybridLists(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfHybridLists(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -1945,17 +1945,17 @@ func IsListOfObjects(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
+	_bResult_ = 1
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
-		if NOT isObject(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT isObject(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	return IsListOfObjects(paList)
 
@@ -1977,16 +1977,16 @@ func IsListOfListsOfObjects(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfObjects(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfObjects(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2006,16 +2006,16 @@ func IsListOfChars(pacList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(pacList)
-	for i = 1 to nLen
-			if Not IsChar(pacList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(pacList)
+	for _i_ = 1 to _nLen_
+			if Not IsChar(pacList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2035,16 +2035,16 @@ func IsListOfListsOfChars(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfChars(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfChars(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2064,16 +2064,16 @@ func IsListOfPairs(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsPair(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsPair(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2093,16 +2093,16 @@ func IsListOfListsOfPairs(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairs(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairs(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2123,16 +2123,16 @@ func IsListOfListsOfPairsOfNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairsOfNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairsOfNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 func IsListOfListsOfPairsOfStrings(paList)
@@ -2140,16 +2140,16 @@ func IsListOfListsOfPairsOfStrings(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairsOfStrings(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairsOfStrings(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 func IsListOfListsOfPairsOfLists(paList)
@@ -2157,23 +2157,23 @@ func IsListOfListsOfPairsOfLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairsOfLists(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairsOfLists(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 func IsPairOfPairs(paList)
 	if NOT isList(paList)
 		return 0
 	ok
 
-	if IsPair(paList[i][1]) and  IsPair(paList[2])
+	if IsPair(paList[_i_][1]) and  IsPair(paList[2])
 		return 1
 	else
 		return 0
@@ -2185,32 +2185,32 @@ func IsListOfPairsOfPairs(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsPairOfPairs(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsPairOfPairs(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 func IsListOfListsOfPairsOfPairs(paList)
 	if NOT isList(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairsOfPairs(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairsOfPairs(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 func IsListOfListsOfPairsOfObjects(paList)
@@ -2218,16 +2218,16 @@ func IsListOfListsOfPairsOfObjects(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfPairsOfObjects(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfPairsOfObjects(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 func IsListOfSets(paList)
@@ -2235,16 +2235,16 @@ func IsListOfSets(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsSet(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsSet(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2264,16 +2264,16 @@ func IsListOfListsOfSets(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfSets(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfSets(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2293,16 +2293,16 @@ func IsListOfHashLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsHashList(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsHashList(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2322,16 +2322,16 @@ func IsListOfListsOfHashLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfHashLists(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfHashLists(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2351,16 +2351,16 @@ func IsListOfGrids(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsGrid(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsGrid(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2380,16 +2380,16 @@ func IsListOfListsOfGrids(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfGrids(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfGrids(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2410,16 +2410,16 @@ func IsListOfListsOfTables(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfTables(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfTables(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2439,16 +2439,16 @@ func IsListOfTrees(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsTree(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsTree(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2468,16 +2468,16 @@ func IsListOfListsOfTrees(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfTrees(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfTrees(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2497,16 +2497,16 @@ func IsListOfStzNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2526,16 +2526,16 @@ func IsListOfListsOfStzNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2555,16 +2555,16 @@ func IsListOfStzDecimalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzDecimalNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzDecimalNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2584,16 +2584,16 @@ func IsListOfListsOfStzDecimalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzDecimalNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzDecimalNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2613,16 +2613,16 @@ func IsListOfStzBinaryNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzBinaryNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzBinaryNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2642,16 +2642,16 @@ func IsListOfListsOfStzBinaryNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzBinaryNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzBinaryNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2671,16 +2671,16 @@ func IsListOfStzOctalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzOctalNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzOctalNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2700,16 +2700,16 @@ func IsListOfListsOfStzOctalNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzOctalNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzOctalNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2729,16 +2729,16 @@ func IsListOfStzHexNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if NOT IsStzHexNumber(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if NOT IsStzHexNumber(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2758,16 +2758,16 @@ func IsListOfListsOfStzHexNumbers(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzHexNumbers(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzHexNumbers(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2787,16 +2787,16 @@ func IsListOfStzStrings(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzString(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzString(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2816,16 +2816,16 @@ func IsListOfListsOfStzStrings(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzStrings(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzStrings(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2845,16 +2845,16 @@ func IsListOfStzLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzList(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzList(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2874,16 +2874,16 @@ func IsListOfListsOfStzLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzLists(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzLists(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2903,16 +2903,16 @@ func IsListOfStzObjects(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzObject(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzObject(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2932,16 +2932,16 @@ func IsListOfListsOfStzObjects(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzObjects(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzObjects(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2961,16 +2961,16 @@ func IsListOfStzChars(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzChar(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzChar(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -2990,16 +2990,16 @@ func IsListOfListsOfStzChars(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzChars(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzChars(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3019,16 +3019,16 @@ func IsListOfStzPairs(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzPair(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzPair(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3048,16 +3048,16 @@ func IsListOfListsOfStzPairs(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzPairs(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzPairs(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3077,16 +3077,16 @@ func IsListOfStzSets(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzSet(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzSet(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3106,16 +3106,16 @@ func IsListOfListsOfStzSets(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzSets(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzSets(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3135,16 +3135,16 @@ func IsListOfStzHashLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzHashList(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzHashList(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3164,16 +3164,16 @@ func IsListOfListsOfStzHashLists(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzHashLists(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzHashLists(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3193,16 +3193,16 @@ func IsListOfStzGrids(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzGrid(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzGrid(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3222,16 +3222,16 @@ func IsListOfListsOfStzGrids(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzGrids(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzGrids(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3251,16 +3251,16 @@ func IsListOfStzTables(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzTable(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzTable(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3280,16 +3280,16 @@ func IsListOfListsOfStzTables(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzTables(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzTables(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3309,16 +3309,16 @@ func IsListOfStzTrees(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsStzTree(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsStzTree(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3338,16 +3338,16 @@ func IsListOfListsOfStzTrees(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
-	for i = 1 to nLen
-			if Not IsListOfStzTrees(paList[i])
-				bResult = FALSE
+	_bResult_ = 1
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+			if Not IsListOfStzTrees(paList[_i_])
+				_bResult_ = FALSE
 				exit
 			ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3369,27 +3369,27 @@ func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 		return 0
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0
-	but nLen = 1
+	but _nLen_ = 1
 		return 1
 	ok
 
-	aStzObjects = []
-	for i = 1 to nLen
-		aStzObects + Q(paList[i])
+	_aStzObjects_ = []
+	for _i_ = 1 to _nLen_
+		aStzObects + Q(paList[_i_])
 	next
 
-	bResult = 1
-	for i = 2 to nLen
-		if NOT paList[i].IsEqualToCS(paList[1], pCaseSensitive)
-			bResult = 0
+	_bResult_ = 1
+	for _i_ = 2 to _nLen_
+		if NOT paList[_i_].IsEqualToCS(paList[1], pCaseSensitive)
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func IsUniformList(paList)
 		return IsUniformListCS(paList, 1)
@@ -3400,17 +3400,17 @@ func IsDeepList(paList) // Contains at least an inner list
 		return 0
 	ok
 
-	bResult = 0
-	nLen = len(paList)
+	_bResult_ = 0
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
-		if isList(paList[i])
-			bResult = 1
+	for _i_ = 1 to _nLen_
+		if isList(paList[_i_])
+			_bResult_ = 1
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 	#< @FunctionAlternativeForms
@@ -3431,19 +3431,19 @@ func IsHybridList(paList) # Contains at least two different types
 		return 0
 	ok
 
-	nLen = len(paList)
-	if nLen < 1
+	_nLen_ = len(paList)
+	if _nLen_ < 1
 		return _FALSE
 	ok
 
-	bResult = 1
+	_bResult_ = 1
 	_acTypes_ = []
 
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
+	for _i_ = 1 to _nLen_
+		_acTypes_ + type(paList[_i_])
 	next
 
-	if len( U(_acTypes) ) != nLen
+	if len( U(_acTypes) ) != _nLen_
 		return 1
 	else
 		return 0
@@ -3468,16 +3468,16 @@ func IsPureList(paList) # Made of itmes of same type
 		return 0
 	ok
 
-	nLen = len(paList)
-	if nLen < 1
+	_nLen_ = len(paList)
+	if _nLen_ < 1
 		return _FALSE
 	ok
 
-	bResult = 1
+	_bResult_ = 1
 	_acTypes_ = []
 
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
+	for _i_ = 1 to _nLen_
+		_acTypes_ + type(paList[_i_])
 	next
 
 	if len( U(_acTypes) ) = 1
@@ -3572,17 +3572,17 @@ func IsListOfBits(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsBit(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsBit(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3602,17 +3602,17 @@ func IsListOfBoleans(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsBoolean(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsBoolean(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3641,17 +3641,17 @@ func IsListOfLetters(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsLetter(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsLetter(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3671,17 +3671,17 @@ func IsListOfQBytesLists(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsQByteslist(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsQByteslist(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3701,34 +3701,34 @@ func IsListOfStzBytes(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsStzByte(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsStzByte(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 func IsListOfStzListOfBytes(paList)
 	if NOT ( isList(paList) and IsListOfNumbers(paList) )
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsListOfStzBytes(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsListOfStzBytes(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3782,17 +3782,17 @@ func IsListOfNumbersOrStrings(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT (isNumber(paList[i]) or isString(paList[i]))
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT (isNumber(paList[_i_]) or isString(paList[_i_]))
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3812,14 +3812,14 @@ func IsListOfNumbersAndStrings(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	if nLen < 2
+	_nLen_ = len(paList)
+	if _nLen_ < 2
 		return 0
 	ok
 
 	_acTypes_ = []
-	for i = 1 to nLen
-		_acTypes_ + type(paList[i])
+	for _i_ = 1 to _nLen_
+		_acTypes_ + type(paList[_i_])
 	next
 
 	_acTypes_ = U(_acTypes_)
@@ -3886,17 +3886,17 @@ func IsListOfStringsAndPairsOfStrings(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT (isString(paList[i]) or isPairOfStrings(paList[i]))
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT (isString(paList[_i_]) or isPairOfStrings(paList[_i_]))
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3916,17 +3916,17 @@ func IsListOfNumbersAndPairsOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT (isNumber(paList[i]) or isPairOfNumbers(paList[i]))
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT (isNumber(paList[_i_]) or isPairOfNumbers(paList[_i_]))
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3946,17 +3946,17 @@ func IsListOfListsAndPairsOfLists(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT (isList(paList[i]) or IsPairOfLists(paList[i]))
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT (isList(paList[_i_]) or IsPairOfLists(paList[_i_]))
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -3976,17 +3976,17 @@ func IsListOfObjectsAndPairsOfObjects(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT (isObject(paList[i]) or IsPairOfobjects(paList[i]))
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT (isObject(paList[_i_]) or IsPairOfobjects(paList[_i_]))
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4028,17 +4028,17 @@ func IsListOfPairsOfStrings(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStrings(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStrings(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4081,17 +4081,17 @@ func IsListOfPairsOfNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfNumbers(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfNumbers(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4150,17 +4150,17 @@ func IsListOfPairsOfSections(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfSections(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfSections(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4203,17 +4203,17 @@ func IsListOfPairsOfLists(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfLists(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfLists(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4256,17 +4256,17 @@ func IsListOfPairsOfObjects(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfObjects(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfObjects(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4334,17 +4334,17 @@ func IsListOfPairsOfStzObjects(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStzObjects(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStzObjects(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 	#< @FunctionAlternativeForms
 
 	func @IsListOfPairsOfStzObjects(paList)
@@ -4387,17 +4387,17 @@ func IsListOfPairsOfStzNumbers(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStzNumbers(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStzNumbers(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4443,17 +4443,17 @@ func IsListOfPairsOfStzStrings(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStzStings(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStzStings(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 
 	#< @FunctionAlternativeForms
@@ -4499,17 +4499,17 @@ func IsListOfPairsOfStzLists(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStzLists(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStzLists(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4553,17 +4553,17 @@ func IsListOfPairsOfNumberAndString(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfNumberAndString(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfNumberAndString(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4608,17 +4608,17 @@ func IsListOfPairsOfStringAndNumber(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStringAndNumber(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStringAndNumber(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4662,17 +4662,17 @@ func IsListOfPairsOfNumberAndList(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfNumberAndList(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfNumberAndList(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4716,17 +4716,17 @@ func IsListOfPairsOfListAndNumber(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfListAndNumber(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfListAndNumber(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4770,17 +4770,17 @@ func IsListOfPairsOfNumberAndObject(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfNumberAndObject(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfNumberAndObject(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4824,17 +4824,17 @@ func IsListOfPairsOfObjectAndNumber(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfObjectAndNumber(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfObjectAndNumber(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4878,17 +4878,17 @@ func IsListOfPairsOfStringAndList(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStringAndList(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStringAndList(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4932,17 +4932,17 @@ func IsListOfPairsOfListAndString(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfListAndString(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfListAndString(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -4986,17 +4986,17 @@ func IsListOfPairsOfStringAndObject(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfStringAndObject(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfStringAndObject(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -5040,17 +5040,17 @@ func IsListOfPairsOfObjectAndString(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfObjectAndString(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfObjectAndString(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -5095,17 +5095,17 @@ func IsListOfPairsOfListAndObject(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfListAndObject(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfListAndObject(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -5145,17 +5145,17 @@ func IsListOfPairsOfChars(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	bResult = 1
+	_nLen_ = len(paList)
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT IsPairOfChars(paList[i])
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT IsPairOfChars(paList[_i_])
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	#< @FunctionAlternativeForms
 
@@ -5256,21 +5256,21 @@ func IsListOfStringsOrPairsOfStrings(paList)
 		StzRaise("Incorrect param type! paList must be a list.")
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0
 	ok
 
-	bResult = 1
+	_bResult_ = 1
 
-	for i = 1 to nLen
-		if NOT ( isString(paList[i]) or @IsPairOfStrings(paList[i]) )
-			bResult = 0
+	for _i_ = 1 to _nLen_
+		if NOT ( isString(paList[_i_]) or @IsPairOfStrings(paList[_i_]) )
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func @IsListOfStringsOrPairsOfStrings(paList)
 		return IsListOfStringsOrPairsOfStrings(paList)
@@ -5280,11 +5280,11 @@ func IsListOfListsOfSameSize(paList)
 		return 0
 	ok
 
-	nLen = len(paList)
-	anSizes = []
-	for i = 1 to nLen
-		nLenList = len(paList[i])
-		if StzFindFirst(anSizes, nLenList)
+	_nLen_ = len(paList)
+	_anSizes_ = []
+	for _i_ = 1 to _nLen_
+		_nLenList_ = len(paList[_i_])
+		if StzFindFirst(_anSizes_, _nLenList_)
 			return 0
 		ok
 	next
@@ -5305,8 +5305,8 @@ func IsListOfListsOfSameSize(paList)
 	#>
 
 func IsListInString(pcStr)
-	bResult = StzStringQ(pcStr).IsListInString()
-	return bResult
+	_bResult_ = StzStringQ(pcStr).IsListInString()
+	return _bResult_
 
 	func IsAListInString(pcStr)
 		return IsListInString(pcStr)
@@ -5360,9 +5360,9 @@ func StzNamedList(paNamed)
 		ok
 	ok
 
-	oList = new stzList(paNamed[2])
-	oList.SetName(paNamed[1])
-	return oList
+	_oList_ = new stzList(paNamed[2])
+	_oList_.SetName(paNamed[1])
+	return _oList_
 
 	func StzNamedListQ(paNamed)
 		return StzNamedList(paNamed)
@@ -5389,16 +5389,16 @@ func OnlyNumbers(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	anResult = []
+	_nLen_ = len(paList)
+	_anResult_ = []
 
-	for i = 1 to nLen
-		if isNumber(paList[i])
-			anResult + paList[i]
+	for _i_ = 1 to _nLen_
+		if isNumber(paList[_i_])
+			_anResult_ + paList[_i_]
 		ok
 	next
 
-	return anResult
+	return _anResult_
 
 
 	func @OnlyNumbers(paList)
@@ -5419,24 +5419,24 @@ def Flatten(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	aResult = []
-	aTemp = []
+	_nLen_ = len(paList)
+	_aResult_ = []
+	_aTemp_ = []
 
-	for i = 1 to nLen
-		if isList(paList[i])
-			aTemp = Flatten(paList[i]) # A recursive call
-			nLenTemp = len(aTemp)
+	for _i_ = 1 to _nLen_
+		if isList(paList[_i_])
+			_aTemp_ = Flatten(paList[_i_]) # A recursive call
+			_nLenTemp_ = len(_aTemp_)
 
-			for j = 1 to nLenTemp
-				aResult + aTemp[j]
+			for _j_ = 1 to _nLenTemp_
+				_aResult_ + _aTemp_[_j_]
 			next
 		else
-			aResult + paList[i]
+			_aResult_ + paList[_i_]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 
 	func @Flatten(paList)
 		return Flatten(paList)
@@ -5459,8 +5459,8 @@ func @Reverse(p)
 	but isList(p)
 
 		if NOT isPalindrom(p)
-			oTemp = new stzList(p)
-			p = oTemp.Reversed()
+			_oTemp_ = new stzList(p)
+			p = _oTemp_.Reversed()
 		ok
 
 		return p
@@ -5524,27 +5524,27 @@ func ListLastItem(paList)
 	#>
 
 func UpdateLastItem(paList, pValue)
-	oTempList = new stzList(paList)
-	return oTempList.UpdateLastItem(pValue)
+	_oTempList_ = new stzList(paList)
+	return _oTempList_.UpdateLastItem(pValue)
 
 func FirstListIn(paList)
-	oTempList = new stzList(paList)
-	return LastItemIn( oTempList.WalkUntilItemIsList() )
+	_oTempList_ = new stzList(paList)
+	return LastItemIn( _oTempList_.WalkUntilItemIsList() )
 
 func GenerateListAccessCode_FromNameAndPath(pcListName, paPath)
 	// Warining: aPath must contain only numbers!!!
-	cCode = pcListName
+	_cCode_ = pcListName
 	_nPath1Len_ = len(paPath)
 	for _iLoopPath1_ = 1 to _nPath1Len_
-		n = paPath[_iLoopPath1_]
-		cCode += ("["+ n + ']')
+		_n_ = paPath[_iLoopPath1_]
+		_cCode_ += ("["+ _n_ + ']')
 	next
 
-	return cCode
+	return _cCode_
 
 func ListItemsAreAllStrings(paList)
-	oTempList = new stzList(paList)
-	return oTempList.ItemsAreAllStrings()
+	_oTempList_ = new stzList(paList)
+	return _oTempList_.ItemsAreAllStrings()
 
 	func ItemsAreAllStrings(paList)
 		return ListItemsAreAllStrings()
@@ -5587,15 +5587,15 @@ func CallMethod( pcMethod, paOnObjects )
 		StzRaise(stzObjectError(:CanNotProcessMethodCall))
 	ok
 
-	aResult = []
+	_aResult_ = []
 	_aOnObjects21_ = paOnObjects[2]
 	_nOnObjects21Len_ = len(_aOnObjects21_)
 	for _iLoopOnObjects21_ = 1 to _nOnObjects21Len_
-		cObjName = _aOnObjects21_[_iLoopOnObjects21_]
-		cCode = "aResult + " + cObjName + "." + pcMethod
-		eval(cCode)
+		_cObjName_ = _aOnObjects21_[_iLoopOnObjects21_]
+		_cCode_ = "aResult + " + _cObjName_ + "." + pcMethod
+		eval(_cCode_)
 	next
-	return aResult
+	return _aResult_
 
 #====
 
@@ -5695,45 +5695,45 @@ func AreEqualCS(paValues, pCaseSensitive)
 	ok
 
 	# Check if all items are equal (inline without allocation)
-	nLen = len(paValues)
-	if nLen < 2
+	_nLen_ = len(paValues)
+	if _nLen_ < 2
 		return 1
 	ok
 
 	# NAMED objects compare by NAME (the "named objects equality"
 	# narrative): when every value is a named Softanza object, the
 	# names decide.
-	bAllNamed = 1
-	for _k = 1 to nLen
+	_bAllNamed_ = 1
+	for _k = 1 to _nLen_
 		if NOT isObject(paValues[_k])
-			bAllNamed = 0
+			_bAllNamed_ = 0
 			exit
 		ok
-		cNm = ""
+		_cNm_ = ""
 		try
-			cNm = paValues[_k].ObjectName()
+			_cNm_ = paValues[_k].ObjectName()
 		catch
-			bAllNamed = 0
+			_bAllNamed_ = 0
 			exit
 		done
-		if NOT (isString(cNm) and cNm != "" and cNm != "@noname")
-			bAllNamed = 0
+		if NOT (isString(_cNm_) and _cNm_ != "" and _cNm_ != "@noname")
+			_bAllNamed_ = 0
 			exit
 		ok
 	next
-	if bAllNamed = 1
-		cFirstNm = paValues[1].ObjectName()
-		for _k = 2 to nLen
-			if NOT (paValues[_k].ObjectName() = cFirstNm)
+	if _bAllNamed_ = 1
+		_cFirstNm_ = paValues[1].ObjectName()
+		for _k = 2 to _nLen_
+			if NOT (paValues[_k].ObjectName() = _cFirstNm_)
 				return 0
 			ok
 		next
 		return 1
 	ok
 
-	bCaseSensitive = CaseSensitive(pCaseSensitive)
-	for _k = 2 to nLen
-		if bCaseSensitive
+	_bCaseSensitive_ = CaseSensitive(pCaseSensitive)
+	for _k = 2 to _nLen_
+		if _bCaseSensitive_
 			if NOT BothAreEqual(paValues[1], paValues[_k])
 				return 0
 			ok
@@ -5765,58 +5765,58 @@ func AreEqualCS(paValues, pCaseSensitive)
 
 	# Early checks
 
-	nLen = len(paValues)
-	if nLen = 0
+	_nLen_ = len(paValues)
+	if _nLen_ = 0
 		return 0
-	but nLen = 1
+	but _nLen_ = 1
 		return 1
 	ok
 
 	# Doing the job
 
-	bResult = 1
+	_bResult_ = 1
 
 	if IsNumber(paValues[1])
 
-		for i = 2 to nLen
-			if paValues[i] != paValues[1]
-				bResult = 0
+		for _i_ = 2 to _nLen_
+			if paValues[_i_] != paValues[1]
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	but isString(paValues[1])
 		if pCaseSensitive = 0
-			for i = 1 to nLen
-				paValues[i] = StzLower(paValues[i])
+			for _i_ = 1 to _nLen_
+				paValues[_i_] = StzLower(paValues[_i_])
 			next
 		ok
 
-		for i = 2 to nLen
-			if paValues[i] != paValues[1]
-				bResult = 0
+		for _i_ = 2 to _nLen_
+			if paValues[_i_] != paValues[1]
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	but isObject(paValues[1])
 		return @AreEqualObjects(paValues)
 
 	else
 
-		for i = 2 to nLen
+		for _i_ = 2 to _nLen_
 
-			if NOT Q(paValues[i]).IsEqualToCS(paValues[1], pCaseSensitive)
-				bResult = 0
+			if NOT Q(paValues[_i_]).IsEqualToCS(paValues[1], pCaseSensitive)
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	ok
 
@@ -5917,23 +5917,23 @@ func HaveSameType(paItems)
 		StzRaise("Incorrect param type! paItems must be a list.")
 	ok
 
-	nLen = len(paItems)
-	if nLen = 0
+	_nLen_ = len(paItems)
+	if _nLen_ = 0
 		return 0
-	but nLen = 1
+	but _nLen_ = 1
 		return 1
 	ok
 
 	# Case nLen >= 2
 
-	bResult = 1
-	for i = 2 to nLen
-		if ring_type( paItems[1] ) != ring_type( paItems[i] )
-			bResult = 0
+	_bResult_ = 1
+	for _i_ = 2 to _nLen_
+		if ring_type( paItems[1] ) != ring_type( paItems[_i_] )
+			_bResult_ = 0
 			exit
 		ok
 	next
-	return bResult
+	return _bResult_
 
 	func @HaveSameType(paItems)
 		return HaveSameType(paItems)
@@ -5961,16 +5961,16 @@ func HaveSameContent(paItems)
 		return 1
 	ok
 
-	bResult = 1
+	_bResult_ = 1
 	_nItemsLen_ = len(paItems)
-	for i = 2 to _nItemsLen_
-		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
-		if NOT bOk
-			bResult = 0
+	for _i_ = 2 to _nItemsLen_
+		_bOk_ = Q( @@( paItems[_i_] ) ).IsEqualTo( @@( paItems[1] ) )
+		if NOT _bOk_
+			_bResult_ = 0
 			exit
 		ok
 	next
-	return bResult
+	return _bResult_
 
 	func @HaveSameContent(paItems)
 		return HaveSameContent(paItems)
@@ -5999,9 +5999,9 @@ func ListShow(paList)
 	StzListQ(paList).Show()
 
 func AreNumbers(paList)
-	nLen = len(paList)
-	for i = 1 to nLen
-		if NOT isNumber(paList[i])
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if NOT isNumber(paList[_i_])
 			return 0
 		ok
 	next
@@ -6066,9 +6066,9 @@ func AreNumbers(paList)
 	#>
 
 func AreStrings(paList)
-	nLen = len(paList)
-	for i = 1 to nLen
-		if NOT isString(paList[i])
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if NOT isString(paList[_i_])
 			return 0
 		ok
 	next
@@ -6102,9 +6102,9 @@ func AreStrings(paList)
 	#>
 
 func AreLists(paList)
-	nLen = len(paList)
-	for i = 1 to nLen
-		if NOT isList(paList[i])
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if NOT isList(paList[_i_])
 			return 0
 		ok
 	next
@@ -6135,9 +6135,9 @@ func AreLists(paList)
 	#>
 
 func AreObjects(paList)
-	nLen = len(paList)
-	for i = 1 to nLen
-		if NOT isObject(paList[i])
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if NOT isObject(paList[_i_])
 			return 0
 		ok
 	next
@@ -6178,9 +6178,9 @@ func ListToCode(paList)
 
 
 func AllTheseAreNull(paList)
-	nLen = len(paList)
-	for i = 1 to nLen
-		if NOT isNull(paList[i])
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if NOT isNull(paList[_i_])
 			return 0
 		ok
 	next
@@ -6204,17 +6204,17 @@ func AllTheseAreNull(paList)
 		return AllTheseAreNull(paList)
 
 func AllOfTheseAreNotNull(paList)
-	bResult = 1
+	_bResult_ = 1
 	_nList2Len_ = len(paList)
 	for _iLoopList2_ = 1 to _nList2Len_
 		item = paList[_iLoopList2_]
 		if isString(item) and isNull(item)
-			bResult = 0
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func NoOneOfTheseIsNull(paList)
 		return AllOfTheseAreNotNull(paList)
@@ -6246,17 +6246,17 @@ func BothAreNotNull(p1, p2)
 		return BothAreNotNull(p1, p2)
 
 func NoOneOfTheseIsAString(paList)
-	bResult = 1
+	_bResult_ = 1
 	_nList1Len_ = len(paList)
 	for _iLoopList1_ = 1 to _nList1Len_
 		item = paList[_iLoopList1_]
 		if isString(item)
-			bResult = 0
+			_bResult_ = 0
 			exit
 		ok
 	next
 	
-	return bResult
+	return _bResult_
 
 	func @NoOneOfTheseIsAString(paList)
 		return NoOneOfTheseIsAString(paList)
@@ -6267,21 +6267,21 @@ func List@(paList)
 	ok
 
 func ListFindAll(paList, p)
-	aResult = []
-	nLen = len(paList)
-	for i = 1 to nLen
-		if BothAreEqual(paList[i], p)
-			aResult + i
+	_aResult_ = []
+	_nLen_ = len(paList)
+	for _i_ = 1 to _nLen_
+		if BothAreEqual(paList[_i_], p)
+			_aResult_ + _i_
 		ok
 	next
-	return aResult
+	return _aResult_
 
-func ListOfNTimes(n, pItem)
-	aResult = []
-	for i = 1 to n
-		aResult + pItem
+func ListOfNTimes(_n_, pItem)
+	_aResult_ = []
+	for _i_ = 1 to _n_
+		_aResult_ + pItem
 	next
-	return aResult
+	return _aResult_
 
 #--
 
@@ -6306,16 +6306,16 @@ func StringsIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	aResult = []
+	_nLen_ = len(paList)
+	_aResult_ = []
 
-	for i = 1 to nLen
-		if isString(paList[i])
-			aResult + palist[i]
+	for _i_ = 1 to _nLen_
+		if isString(paList[_i_])
+			_aResult_ + palist[_i_]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForm
 
@@ -6331,16 +6331,16 @@ func ListsIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	aResult = []
+	_nLen_ = len(paList)
+	_aResult_ = []
 
-	for i = 1 to nLen
-		if isList(paList[i])
-			aResult + palist[i]
+	for _i_ = 1 to _nLen_
+		if isList(paList[_i_])
+			_aResult_ + palist[_i_]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForm
 
@@ -6356,16 +6356,16 @@ func ObjectsIn(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	aResult = []
+	_nLen_ = len(paList)
+	_aResult_ = []
 
-	for i = 1 to nLen
-		if isObject(paList[i])
-			aResult + palist[i]
+	for _i_ = 1 to _nLen_
+		if isObject(paList[_i_])
+			_aResult_ + palist[_i_]
 		ok
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForms
 
@@ -6377,8 +6377,8 @@ func ObjectsIn(paList)
 #===
 
 func ListContainsCS(paList, pItem, pCaseSensitive)
-	nPos = @FindFirstCS(paList, pItem, pCaseSensitive)
-	if nPos > 0
+	_nPos_ = @FindFirstCS(paList, pItem, pCaseSensitive)
+	if _nPos_ > 0
 		return 1
 	else
 		return 0
@@ -6390,17 +6390,17 @@ func ListContainsCS(paList, pItem, pCaseSensitive)
 #--
 
 func ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
-	nLen = len(paItems)
-	bResult = FALSE
+	_nLen_ = len(paItems)
+	_bResult_ = FALSE
 
-	for i = 1 to nLen
-		if ListContainsCS(paList, paItems[i])
-			bResult = TRUE
+	for _i_ = 1 to _nLen_
+		if ListContainsCS(paList, paItems[_i_])
+			_bResult_ = TRUE
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 	func @ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
 		return ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
@@ -6413,11 +6413,11 @@ func ListContainsOneOfThese(paList, paItems)
 
 #===
 
-func ListCountCS(aList, pItem, pCaseSensitive)
-	nResult = StzListQ(aList).FindAllCS(aList, pItem, pCaseSensitive)
+func ListCountCS(_aList_, pItem, pCaseSensitive)
+	_nResult_ = StzListQ(_aList_).FindAllCS(_aList_, pItem, pCaseSensitive)
 
-func ListCount(aList, pItem)
-	return ListCountCS(aList, pItem, pCaseSensitive)
+func ListCount(_aList_, pItem)
+	return ListCountCS(_aList_, pItem, pCaseSensitive)
 
 
 #=== Enhance Ring+Softanza finding functions #todo #narration
@@ -6516,54 +6516,54 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 	return _anResult_
 
 
-func @FindAll_NbrOrStr(aList, pItem)
-	return @FindAllCS_NbrOrStr(aList, pItem, 1)
+func @FindAll_NbrOrStr(_aList_, pItem)
+	return @FindAllCS_NbrOrStr(_aList_, pItem, 1)
 
 
 #---
 
-func @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
-	nResult = @FindNthSTCS(aList, 1, pStrOrNbr, 1, pCaseSensitive)
-	return nResult
+func @FindFirstCS(_aList_, pStrOrNbr, pCaseSensitive)
+	_nResult_ = @FindNthSTCS(_aList_, 1, pStrOrNbr, 1, pCaseSensitive)
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
-	func FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
-		return @FindFirstCS(aList, pStrOrNbr, pCaseSensitive)
+	func FindFirstCS(_aList_, pStrOrNbr, pCaseSensitive)
+		return @FindFirstCS(_aList_, pStrOrNbr, pCaseSensitive)
 
 	#>
 
-func @FindFirst(aList, pStrOrNbr)
-	return @FindFirstCS(aList, pStrOrNbr, 1)
+func @FindFirst(_aList_, pStrOrNbr)
+	return @FindFirstCS(_aList_, pStrOrNbr, 1)
 
 	#< @FunctionAlternativeForms
 
-	func FindFirst(aList, pStrOrNbr)
-		return @FindFirst(aList, pStrOrNbr)
+	func FindFirst(_aList_, pStrOrNbr)
+		return @FindFirst(_aList_, pStrOrNbr)
 
 
 	#>
 
 #--
 
-func @FindLastCS(aList, pStrOrNbr, pCaseSensitive)
-	nResult = len(aList) - @FindFirstCS( reverse(aList), pStrOrNbr, pCaseSensitive) + 1
-	return nResult
+func @FindLastCS(_aList_, pStrOrNbr, pCaseSensitive)
+	_nResult_ = len(_aList_) - @FindFirstCS( reverse(_aList_), pStrOrNbr, pCaseSensitive) + 1
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
-	func FindLastCS(aList, pStrOrNbr, pCaseSensitive)
-		return @FindLastCS(aList, pStrOrNbr, pCaseSensitive)
+	func FindLastCS(_aList_, pStrOrNbr, pCaseSensitive)
+		return @FindLastCS(_aList_, pStrOrNbr, pCaseSensitive)
 
 	#>
 
-func @FindLast(aList, pStrOrNbr)
-	return @FindLastCS(aList, pStrOrNbr, 1)
+func @FindLast(_aList_, pStrOrNbr)
+	return @FindLastCS(_aList_, pStrOrNbr, 1)
 
 	#< @FunctionAlternativeForms
 
-	func FindLast(aList, pStrOrNbr)
-		return @FindLast(aList, pStrOrNbr)
+	func FindLast(_aList_, pStrOrNbr)
+		return @FindLast(_aList_, pStrOrNbr)
 
 	#>
 
@@ -6628,48 +6628,48 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 
 	_aListCopy_ = paList
 
-	nLen = len(_aListCopy_)
-	nPos = -1
-	n = 0
+	_nLen_ = len(_aListCopy_)
+	_nPos_ = -1
+	_n_ = 0
 
 	while 1
 		try
-			nPos = find(_aListCopy_, pItem)
+			_nPos_ = find(_aListCopy_, pItem)
 		catch
 			return -1
 		done
 
-		if nPos = 0
+		if _nPos_ = 0
 			return 0
 		ok
 
-		n++
-		if n = nth
+		_n_++
+		if _n_ = nth
 			exit
 		ok
 
-		_aListCopy_[nPos] += (""+ _aListCopy_[nPos]+1)
+		_aListCopy_[_nPos_] += (""+ _aListCopy_[_nPos_]+1)
 		
 	end
 
-	return nPos
+	return _nPos_
 
 
-	func @FindNthCS(aList, nth, pItem, pCaseSensitive)
-		return @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
+	func @FindNthCS(_aList_, nth, pItem, pCaseSensitive)
+		return @FindNthOccurrenceCS(_aList_, nth, pItem, pCaseSensitive)
 
-func @FindNthOccurrence(aList, nth, pItem)
-	return @FindNthOccurrenceCS(aList, nth, pItem, 1)
+func @FindNthOccurrence(_aList_, nth, pItem)
+	return @FindNthOccurrenceCS(_aList_, nth, pItem, 1)
 
-	func @FindNth(aList, nth, pItem)
-		return @FindNthOccurrence(aList, nth, pItem)
+	func @FindNth(_aList_, nth, pItem)
+		return @FindNthOccurrence(_aList_, nth, pItem)
 
 #--
 
-func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+func @FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
 	if CheckingParams()
-		if NOT isList(aList)
+		if NOT isList(_aList_)
 			StzRaise("Incorrect param type! aList must be a list.")
 		ok
 
@@ -6681,11 +6681,11 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 			return -1
 		ok
 
-		if isList(nStart) and IsStartingAtNamedParamList(nStart)
-			nStart = nStart[2]
+		if isList(_nStart_) and IsStartingAtNamedParamList(_nStart_)
+			_nStart_ = _nStart_[2]
 		ok
 
-		if NOT isNumber(nStart)
+		if NOT isNumber(_nStart_)
 			StzRaise("Incorrect param type! nStart must be a number.")
 		ok
 
@@ -6703,240 +6703,240 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 			pItem = StzLower(pItem)
 		ok
 
-		aList = ListLowercased(aList)
+		_aList_ = ListLowercased(_aList_)
 	ok
 
-	nLen = len(aList)
-	aContent = []
+	_nLen_ = len(_aList_)
+	_aContent_ = []
 
-	for i = nStart to nLen
-		aContent + aList[i]
+	for _i_ = _nStart_ to _nLen_
+		_aContent_ + _aList_[_i_]
 	next
 
-	nPos = -1
-	n = 0
+	_nPos_ = -1
+	_n_ = 0
 
 	while 1
 		try
-			nPos = find(aContent, pItem)
+			_nPos_ = find(_aContent_, pItem)
 		catch
 			return -1
 		done
 
-		if nPos = 0
+		if _nPos_ = 0
 			exit
 		ok
 
-		n++
-		if n = nth
+		_n_++
+		if _n_ = nth
 			exit
 		ok
 
-		aContent[nPos] += (""+ aContent[nPos]+1)
+		_aContent_[_nPos_] += (""+ _aContent_[_nPos_]+1)
 		
 	end
 
-	nResult = 0
+	_nResult_ = 0
 
-	if nPos > 0
+	if _nPos_ > 0
 
-		nResult = nPos + nStart - 1
+		_nResult_ = _nPos_ + _nStart_ - 1
 	ok
 
-	return nResult
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
-	func FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNthStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
 	#--
 
-	func FindNthCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
 	#>
 
 #-- CS
 
-func @FindNthST(aList, nth, pItem, nStart)
-	return @FindNthSTCS(aList, nth, pItem, nStart, 1)
+func @FindNthST(_aList_, nth, pItem, _nStart_)
+	return @FindNthSTCS(_aList_, nth, pItem, _nStart_, 1)
 
 	#< @FunctionAlternativeForms
 
-	func FindNthST(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+	func FindNthST(_aList_, nth, pItem, _nStart_)
+		return @FindNthST(_aList_, nth, pItem, _nStart_)
 
-	func FindNthStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+	func FindNthStartingAt(_aList_, nth, pItem, _nStart_)
+		return @FindNthST(_aList_, nth, pItem, _nStart_)
 
-	func @FindNthStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+	func @FindNthStartingAt(_aList_, nth, pItem, _nStart_)
+		return @FindNthST(_aList_, nth, pItem, _nStart_)
 
 	#--
 
-	func FindNth(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+	func FindNth(_aList_, nth, pItem, _nStart_)
+		return @FindNthST(_aList_, nth, pItem, _nStart_)
 
 	#>
 
 #===
 
-func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+func FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
 	if CheckingParams() = 1
-		if isList(nStart) and IsStartingAtNamedParamList(nStart)
-			nStart = nStart[2]
+		if isList(_nStart_) and IsStartingAtNamedParamList(_nStart_)
+			_nStart_ = _nStart_[2]
 		ok
 	ok
 
-	return @FindNthSTCS(aList, nth, pItem, nStart+1, pCaseSensitive)
+	return @FindNthSTCS(_aList_, nth, pItem, _nStart_+1, pCaseSensitive)
 
 	#< @FunctionAlternativeForms
 
-	def FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	def FindNextNthCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	def @FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	def @FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	def @FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	def @FindNextNthCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNthNextSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNextNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNextNthSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthNextSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthNextStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNextNthStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNextNthStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNthNextStartingAtCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return FindNthNextCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
 	#>
 
 #-- CS
 
-func FindNthNext(aList, nth, pItem, nStart)
-	return FindNthNextCS(aList, nth, pItem, nStart, 1)
+func FindNthNext(_aList_, nth, pItem, _nStart_)
+	return FindNthNextCS(_aList_, nth, pItem, _nStart_, 1)
 
 	#< @FunctionAlternativeForms
 
-	def FindNextNth(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	def FindNextNth(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	def @FindNthNext(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	def @FindNthNext(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	def @FindNextNth(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	def @FindNextNth(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func @FindNthNextST(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func @FindNthNextST(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func @FindNextNthST(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func @FindNextNthST(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func FindNextNthST(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func FindNextNthST(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func FindNthNextST(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func FindNthNextST(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func FindNthNextStartingAt(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func FindNthNextStartingAt(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func FindNextNthStartingAt(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func FindNextNthStartingAt(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func @FindNextNthStartingAt(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func @FindNextNthStartingAt(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
-	func @FindNthNextStartingAt(aList, nth, pItem, nStart)
-		return FindNthNext(aList, nth, pItem, nStart)
+	func @FindNthNextStartingAt(_aList_, nth, pItem, _nStart_)
+		return FindNthNext(_aList_, nth, pItem, _nStart_)
 
 	#>
 
 #==
 
-func @FindNextCS(aList, pItem, nStart, pCaseSensitive)
-	return @FindNthNextSTCS(aList, 1, pItem, nStart, pCaseSensitive)
+func @FindNextCS(_aList_, pItem, _nStart_, pCaseSensitive)
+	return @FindNthNextSTCS(_aList_, 1, pItem, _nStart_, pCaseSensitive)
 
-	func FindNextCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
+	func FindNextCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindNextCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-	func FindNextSTCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
+	func FindNextSTCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindNextCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNextSTCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
+	func @FindNextSTCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindNextCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-func @FindNext(aList, pItem, nStart)
-	return @FindNextCS(aList, pItem, nStart, 1)
+func @FindNext(_aList_, pItem, _nStart_)
+	return @FindNextCS(_aList_, pItem, _nStart_, 1)
 
-	func FindNext(aList, pItem, nStart)
-		return @FindNext(aList, pItem, nStart)
+	func FindNext(_aList_, pItem, _nStart_)
+		return @FindNext(_aList_, pItem, _nStart_)
 
-	func FindNextST(aList, pItem, nStart)
-		return @FindNext(aList, pItem, nStart)
+	func FindNextST(_aList_, pItem, _nStart_)
+		return @FindNext(_aList_, pItem, _nStart_)
 
-	func @FindNextST(aList, pItem, nStart)
-		return @FindNext(aList, pItem, nStart)
+	func @FindNextST(_aList_, pItem, _nStart_)
+		return @FindNext(_aList_, pItem, _nStart_)
 
 # Renders a stringified list-class key ("[ 1, 2, 3, 4, 5 ]") into its
 # contiguous short form ("1:5") when the items are consecutive integers;
 # otherwise returns the key unchanged. Used by ClassesSF / ClassifySF.
 
 func _StzListKeyToShortForm(pcKey)
-	cSf = ring_trim(pcKey)
-	if ring_left(cSf, 1) = "[" and ring_right(cSf, 1) = "]"
-		cSf = ring_trim(StzMid(cSf, 2, len(cSf) - 2))
+	_cSf_ = ring_trim(pcKey)
+	if ring_left(_cSf_, 1) = "[" and ring_right(_cSf_, 1) = "]"
+		_cSf_ = ring_trim(StzMid(_cSf_, 2, len(_cSf_) - 2))
 	ok
-	if cSf = ""
+	if _cSf_ = ""
 		return pcKey
 	ok
-	aSfParts = StzSplit(cSf, ",")
-	nSfN = len(aSfParts)
-	aSfNums = []
-	for iSf = 1 to nSfN
-		cSfP = ring_trim(aSfParts[iSf])
-		if NOT isNumber(0 + cSfP)
+	_aSfParts_ = StzSplit(_cSf_, ",")
+	_nSfN_ = len(_aSfParts_)
+	_aSfNums_ = []
+	for iSf = 1 to _nSfN_
+		_cSfP_ = ring_trim(_aSfParts_[iSf])
+		if NOT isNumber(0 + _cSfP_)
 			return pcKey
 		ok
-		aSfNums + (0 + cSfP)
+		_aSfNums_ + (0 + _cSfP_)
 	next
-	if nSfN < 2
+	if _nSfN_ < 2
 		return pcKey
 	ok
-	bSfContig = 1
-	for iSf = 2 to nSfN
-		if aSfNums[iSf] != aSfNums[iSf - 1] + 1
-			bSfContig = 0
+	_bSfContig_ = 1
+	for iSf = 2 to _nSfN_
+		if _aSfNums_[iSf] != _aSfNums_[iSf - 1] + 1
+			_bSfContig_ = 0
 			exit
 		ok
 	next
-	if bSfContig
-		return "" + aSfNums[1] + ":" + aSfNums[nSfN]
+	if _bSfContig_
+		return "" + _aSfNums_[1] + ":" + _aSfNums_[_nSfN_]
 	ok
 	return pcKey
 
@@ -6944,19 +6944,19 @@ func _StzListKeyToShortForm(pcKey)
 # Ring objects are excluded naturally: isList() is false for an object.
 
 func _StzCollectDeepLists(paList)
-	aCdlRes = []
-	nCdlLen = len(paList)
-	for iCdl = 1 to nCdlLen
+	_aCdlRes_ = []
+	_nCdlLen_ = len(paList)
+	for iCdl = 1 to _nCdlLen_
 		if isList(paList[iCdl])
-			aCdlRes + paList[iCdl]
-			aCdlSub = _StzCollectDeepLists(paList[iCdl])
-			nCdlSub = len(aCdlSub)
-			for jCdl = 1 to nCdlSub
-				aCdlRes + aCdlSub[jCdl]
+			_aCdlRes_ + paList[iCdl]
+			_aCdlSub_ = _StzCollectDeepLists(paList[iCdl])
+			_nCdlSub_ = len(_aCdlSub_)
+			for jCdl = 1 to _nCdlSub_
+				_aCdlRes_ + _aCdlSub_[jCdl]
 			next
 		ok
 	next
-	return aCdlRes
+	return _aCdlRes_
 
 # Functions used internally with DeepFind method
 
@@ -7258,10 +7258,10 @@ func IsRingSortable(pListOrString)
 
 		# Early check: case where one of the lists is empty
 
-		nLen = len(pListOrString)
+		_nLen_ = len(pListOrString)
 
-		for i = 1 to nLen
-			if len(pListOrString[i]) = 0
+		for _i_ = 1 to _nLen_
+			if len(pListOrString[_i_]) = 0
 				return 0
 			ok
 		next
@@ -7271,41 +7271,41 @@ func IsRingSortable(pListOrString)
 		# strings and containing no dupplications, then
 		# that column make the list of lists sortable
 
-		oLoL = new stzListOfLists(pListOrString)
-		nCols = oLoL.NumberOfCols()
+		_oLoL_ = new stzListOfLists(pListOrString)
+		_nCols_ = _oLoL_.NumberOfCols()
 
 		# Parsing all the columns one by one
 
-		for i = 1 to nCols
+		for _i_ = 1 to _nCols_
 
 			# Assuming the current column is Ring sortable
 
-			bColSortable = 1
+			_bColSortable_ = 1
 
 			# the column must contain only numbers and strings
 			# and should not contain dupplicated items
 
-			aCol = oLoL.Col(i)
+			_aCol_ = _oLoL_.Col(_i_)
 
-			nLenCol = len(aCol)
-			aSeen = []
+			_nLenCol_ = len(_aCol_)
+			_aSeen_ = []
 
-			for j = 1 to nLenCol
+			for _j_ = 1 to _nLenCol_
 
-				if NOT ( isString(aCol[j]) or isNumber(aCol[j]) )
-					bColSortable = 0
+				if NOT ( isString(_aCol_[_j_]) or isNumber(_aCol_[_j_]) )
+					_bColSortable_ = 0
 					exit
 				else
-					if StzFindFirst(aSeen, aCol[j]) = 0
-						aSeen + aCol[j]
+					if StzFindFirst(_aSeen_, _aCol_[_j_]) = 0
+						_aSeen_ + _aCol_[_j_]
 					else
-						bColSortable = 0
+						_bColSortable_ = 0
 						exit
 					ok
 				ok
 			next
 
-			if bColSortable # We've got a ring-sortable column!
+			if _bColSortable_ # We've got a ring-sortable column!
 				return 1
 			ok
 
@@ -7325,7 +7325,7 @@ func IsRingSortable(pListOrString)
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
 
-func IsRingSortableOn(paListOfLists, n)
+func IsRingSortableOn(paListOfLists, _n_)
 
 	# In Ring, with the standard ring() function, to sort a list of
 	# lists on a given column, that column must:
@@ -7339,47 +7339,47 @@ func IsRingSortableOn(paListOfLists, n)
 		return 0
 	ok
 
-	if NOT isNumber(n)
+	if NOT isNumber(_n_)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
 	# Early check : case where at least one list is empty
 
-	nLen = len(paListOfLists)
+	_nLen_ = len(paListOfLists)
 
-	for i = 1 to nLen
-		if len(paListOfLists[i]) = 0
+	for _i_ = 1 to _nLen_
+		if len(paListOfLists[_i_]) = 0
 			return 0
 		ok
 	next
 
 	# getting the items in the column n
 
-	oLoL = StzListOfListsQ(paListOfLists)
-	aCol = oLoL.Col(n)
-	nLen = len(aCol)
+	_oLoL_ = StzListOfListsQ(paListOfLists)
+	_aCol_ = _oLoL_.Col(_n_)
+	_nLen_ = len(_aCol_)
 
 	# Early check: the column of sort should have
 	# the same number of items as the first column
 
-	if n > 1
-		aCol1 = oLoL.Col(1)
-		nLen1 = len(aCol1)
+	if _n_ > 1
+		_aCol1_ = _oLoL_.Col(1)
+		_nLen1_ = len(_aCol1_)
 
-		if nLen != nLen1
+		if _nLen_ != _nLen1_
 			return 0
 		ok
 	ok
 
-	aSeen = []
+	_aSeen_ = []
 
-	for i = 1 to nLen
-		if NOT ( isNumber(aCol[i]) or isString(aCol[i]) )
+	for _i_ = 1 to _nLen_
+		if NOT ( isNumber(_aCol_[_i_]) or isString(_aCol_[_i_]) )
 			return 0
 		ok
 
-		if StzFindFirst(aSeen, aCol[i]) = 0
-			aSeen + aCol[i]
+		if StzFindFirst(_aSeen_, _aCol_[_i_]) = 0
+			_aSeen_ + _aCol_[_i_]
 		else
 			return 0
 		ok
@@ -7387,17 +7387,17 @@ func IsRingSortableOn(paListOfLists, n)
 
 	return 1
 
-	func @IsRingSortableOn(paListOfLists, n)
-		return IsRingSortableOn(paListOfLists, n)
+	func @IsRingSortableOn(paListOfLists, _n_)
+		return IsRingSortableOn(paListOfLists, _n_)
 	
-func Move(paList, n1, n2)
+func Move(paList, _n1_, n2)
 
 	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 
-		if NOT isNumber(n1)
+		if NOT isNumber(_n1_)
 			StzRaise("Incorrect param type! n1 must be a number.")
 		ok
 
@@ -7406,11 +7406,11 @@ func Move(paList, n1, n2)
 		ok
 	ok
 
-	item = paList[n1]
-	ring_remove(paList, n1)
-	n = n2
-	if n1 > n2
-		n++
+	item = paList[_n1_]
+	ring_remove(paList, _n1_)
+	_n_ = n2
+	if _n1_ > n2
+		_n_++
 	ok
 	ring_insert(paList, n2, item)
 	return paList
@@ -7418,14 +7418,14 @@ func Move(paList, n1, n2)
 
 	#< @FunctionAlternativeForms
 
-	func @Move(paList, n1, n2)
-		return Move(paList, n1, n2)
+	func @Move(paList, _n1_, n2)
+		return Move(paList, _n1_, n2)
 
-	func MoveItems(paList, n1, n2)
-		return Move(paList, n1, n2)
+	func MoveItems(paList, _n1_, n2)
+		return Move(paList, _n1_, n2)
 
-	func @MoveItems(paList, n1, n2)
-		return Move(paList, n1, n2)
+	func @MoveItems(paList, _n1_, n2)
+		return Move(paList, _n1_, n2)
 
 	#>
 
@@ -7447,7 +7447,7 @@ func ComputableShortFormQ(paList)
 		return ComputableShortFormQ(paList)
 
 func ComputableFormXTQ(pValue, cSep1, cSep2)
-	return new stzString( ComputableFormXT(pValue, c) )
+	return new stzString( ComputableFormXT(pValue, _c_) )
 
 	func @@XTQ(pValue, cSep1, cSep2)
 		return new stzString( @@XT(pValue, cSep1, cSep2) )
@@ -7554,103 +7554,103 @@ func IsContiguous(paList)
 #== Combinations functions by ClaudeAI #ai
 
 # Helper function to generate combinations recursively
-Func generateCombinationsXT(paList, nLen, nDepth, aCurrent, aResult)
-	if len(aCurrent) = nDepth
-		aResult + aCurrent
+Func generateCombinationsXT(paList, _nLen_, _nDepth_, _aCurrent_, _aResult_)
+	if len(_aCurrent_) = _nDepth_
+		_aResult_ + _aCurrent_
 		return
 	ok
 	
-	for i = 1 to nLen
-		aCurrent + paList[i]
-		generateCombinationsXT(paList, nLen, nDepth, aCurrent, aResult)
-		del(aCurrent, len(aCurrent))
+	for _i_ = 1 to _nLen_
+		_aCurrent_ + paList[_i_]
+		generateCombinationsXT(paList, _nLen_, _nDepth_, _aCurrent_, _aResult_)
+		del(_aCurrent_, len(_aCurrent_))
 	next
 
 # Function to generate all possible combinations including duplicates and inversions
 
-Func CombinationsXT(aList, n)
+Func CombinationsXT(_aList_, _n_)
 	if CheckParams()
-		if NOT isList(aList)
+		if NOT isList(_aList_)
 			StzRaise("Incorrect param type! aList must be a list.")
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 	ok
 
 	# Early check
 
-	_nLen_ = len(aList)
-	if _nLen_ = 0 or n = 0
+	_nLen_ = len(_aList_)
+	if _nLen_ = 0 or _n_ = 0
 		return []
 
-	but _nLen_ = 1 or n = 1
-		return aList
+	but _nLen_ = 1 or _n_ = 1
+		return _aList_
 	ok
 
 	# doing the job
 
-	if n > _nLen_
+	if _n_ > _nLen_
 		StzRaise("Can't proceed! n must be lesser than the size of the list.")
 	ok
 
 	_aResult_ = []
 	_aCurrent_ = []
 	
-	if n > 0 and n <= _nLen_
-		generateCombinationsXT(aList, _nLen_, n, _aCurrent_, _aResult_)
+	if _n_ > 0 and _n_ <= _nLen_
+		generateCombinationsXT(_aList_, _nLen_, _n_, _aCurrent_, _aResult_)
 	ok
 	
 	return _aResult_
 
-	func @CombinationsXT(paList, n)
-		return CombinationsXT(paList, n)
+	func @CombinationsXT(paList, _n_)
+		return CombinationsXT(paList, _n_)
 
 # Function to generate combinations without duplicates or inversions
 
-func Combinations(aList, n)
+func Combinations(_aList_, _n_)
 	if CheckParams()
-		if NOT isList(aList)
+		if NOT isList(_aList_)
 			StzRaise("Incorrect param type! aList must be a list.")
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 	ok
 
 	# Early check
 
-	_nLen_ = len(aList)
-	if _nLen_ = 0 or n = 0
+	_nLen_ = len(_aList_)
+	if _nLen_ = 0 or _n_ = 0
 		return []
 
-	but _nLen_ = 1 or n = 1
-		return aList
+	but _nLen_ = 1 or _n_ = 1
+		return _aList_
 	ok
 
 	# doing the job
 
-	if n > _nLen_
+	if _n_ > _nLen_
 		StzRaise("Can't proceed! n must be lesser than the size of the list.")
 	ok
 
-	_aList_ = aList
+	_aList_ = _aList_
 	_aResult_ = []
 
 	# Main loop for first element
 
-	for @i = 1 to _nLen_ - n + 1
+	for @i = 1 to _nLen_ - _n_ + 1
 
 		# Inner loop for remaining elements
 
-		for @j = @i + 1 to _nLen_ - n + 2
+		for @j = @i + 1 to _nLen_ - _n_ + 2
 			_aCombination_ = []
 			add(_aCombination_, _aList_[@i])
 
 			# Additional loops for n > 2
-			if n > 2
+			if _n_ > 2
 				for @k = @j + 1 to _nLen_
 					_aTempComb_ = _aCombination_
 					add(_aTempComb_, _aList_[@j])
@@ -7667,8 +7667,8 @@ func Combinations(aList, n)
 	return _aResult_
 
 
-	func @Combinations(aList, n)
-		return Combinations(aList, n)
+	func @Combinations(_aList_, _n_)
+		return Combinations(_aList_, _n_)
 
 #===
 
@@ -7682,21 +7682,21 @@ func ListsHaveSameNumberOfItems(paList)
 
 	ok
 
-	nLen = len(paList)
+	_nLen_ = len(paList)
 
-	if nLen = 0
+	if _nLen_ = 0
 		StzRaise("Can't check inner lists! Because the list is empty.")
 	ok
 
-	nLenTemp = 0
+	_nLenTemp_ = 0
 
-	for i = 1 to nLen
-		if isList(paList[i])
-			nLenList = len(paList[i])
-			if nLenTemp = 0
-				nLenTemp = nLenList
+	for _i_ = 1 to _nLen_
+		if isList(paList[_i_])
+			_nLenList_ = len(paList[_i_])
+			if _nLenTemp_ = 0
+				_nLenTemp_ = _nLenList_
 			else
-				if nLenList != nLenTemp
+				if _nLenList_ != _nLenTemp_
 					return 0
 				ok
 			ok
@@ -7737,8 +7737,8 @@ func AnyOf(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		StzRaise("Can't return any item! The list you provided is empty.")
 	ok
 
@@ -7761,41 +7761,41 @@ func HasPath(paList, pacKeys)
 	ok
 
 	# Start with the top-level list
-	aCurrent = paList
-	nLen = len(pacKeys)
+	_aCurrent_ = paList
+	_nLen_ = len(pacKeys)
 	
-	for i = 1 to nLen
-		cKey = pacKeys[i]
+	for _i_ = 1 to _nLen_
+		_cKey_ = pacKeys[_i_]
 		
 		# Check if current level is a list (can be traversed)
-		if not isList(aCurrent)
+		if not isList(_aCurrent_)
 			return FALSE
 		ok
 		
 		# Try to find the key in current level
-		nPos = 0
-		nCurrentLen = len(aCurrent)
+		_nPos_ = 0
+		_nCurrentLen_ = len(_aCurrent_)
 		
-		for j = 1 to nCurrentLen
+		for _j_ = 1 to _nCurrentLen_
 			# Handle hashlist format [key, value]
-			if isList(aCurrent[j]) and len(aCurrent[j]) >= 2
-				if isString(aCurrent[j][1]) and StzLower(aCurrent[j][1]) = StzLower(cKey)
-					nPos = j
+			if isList(_aCurrent_[_j_]) and len(_aCurrent_[_j_]) >= 2
+				if isString(_aCurrent_[_j_][1]) and StzLower(_aCurrent_[_j_][1]) = StzLower(_cKey_)
+					_nPos_ = _j_
 					exit
 				ok
 			ok
 		next
 		
 		# If key not found at this level
-		if nPos = 0
+		if _nPos_ = 0
 			return FALSE
 		ok
 		
 		# Move to the next level (the value of the found key)
 		# Only do this if we're not at the last key
-		if i < nLen
-			if isList(aCurrent[nPos]) and len(aCurrent[nPos]) >= 2
-				aCurrent = aCurrent[nPos][2]
+		if _i_ < _nLen_
+			if isList(_aCurrent_[_nPos_]) and len(_aCurrent_[_nPos_]) >= 2
+				_aCurrent_ = _aCurrent_[_nPos_][2]
 			else
 				return FALSE
 			ok
@@ -7816,425 +7816,425 @@ func HasPath(paList, pacKeys)
 		return FALSE
 
 	func _StzHasItemTyped(paList, pVal)
-		nLen = len(paList)
-		for i = 1 to nLen
-			if _StzItemEqTyped(paList[i], pVal) return TRUE ok
+		_nLen_ = len(paList)
+		for _i_ = 1 to _nLen_
+			if _StzItemEqTyped(paList[_i_], pVal) return TRUE ok
 		next
 		return FALSE
 
 	#-- [[item, [positions...]], ...] in first-appearance order
-	func _StzItemsWithPositions(aContent)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			v = aContent[i]
-			nFound = 0
-			nR = len(aRes)
-			for j = 1 to nR
-				if _StzItemEqTyped(aRes[j][1], v) nFound = j exit ok
+	func _StzItemsWithPositions(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			_v_ = _aContent_[_i_]
+			_nFound_ = 0
+			_nR_ = len(_aRes_)
+			for _j_ = 1 to _nR_
+				if _StzItemEqTyped(_aRes_[_j_][1], _v_) _nFound_ = _j_ exit ok
 			next
-			if nFound > 0
-				add(aRes[nFound][2], i)
+			if _nFound_ > 0
+				add(_aRes_[_nFound_][2], _i_)
 			else
-				add(aRes, [ v, [i] ])
+				add(_aRes_, [ _v_, [_i_] ])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- [[item, count], ...] in first-appearance order (type-sensitive)
-	func _StzItemsCount(aContent)
-		aWith = _StzItemsWithPositions(aContent)
-		aRes = []
-		nLen = len(aWith)
-		for i = 1 to nLen
-			add(aRes, [ aWith[i][1], len(aWith[i][2]) ])
+	func _StzItemsCount(_aContent_)
+		_aWith_ = _StzItemsWithPositions(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aWith_)
+		for _i_ = 1 to _nLen_
+			add(_aRes_, [ _aWith_[_i_][1], len(_aWith_[_i_][2]) ])
 		next
-		return aRes
+		return _aRes_
 
 	#-- first position whose item type-sensitively equals pItem (0 if none)
-	func _StzFindFirstTyped(aContent, pItem)
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if _StzItemEqTyped(aContent[i], pItem) return i ok
+	func _StzFindFirstTyped(_aContent_, pItem)
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if _StzItemEqTyped(_aContent_[_i_], pItem) return _i_ ok
 		next
 		return 0
 
 	#-- positions whose item is NOT a member of paItems (type-sensitive)
-	func _StzFindAllExcept(aContent, paItems)
-		anRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(paItems, aContent[i]) add(anRes, i) ok
+	func _StzFindAllExcept(_aContent_, paItems)
+		_anRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(paItems, _aContent_[_i_]) add(_anRes_, _i_) ok
 		next
-		return anRes
+		return _anRes_
 
 	#-- [[value, [repeat positions]], ...] for items occurring more than once
 	#-- (repeat = every position after the first); first-appearance order
-	func _StzFindDuplicatesOrigins(aContent)
-		aWith = _StzItemsWithPositions(aContent)
-		aRes = []
-		nLen = len(aWith)
-		for i = 1 to nLen
-			nP = len(aWith[i][2])
-			if nP > 1
-				aRep = []
-				for j = 2 to nP add(aRep, aWith[i][2][j]) next
-				add(aRes, [ aWith[i][1], aRep ])
+	func _StzFindDuplicatesOrigins(_aContent_)
+		_aWith_ = _StzItemsWithPositions(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aWith_)
+		for _i_ = 1 to _nLen_
+			_nP_ = len(_aWith_[_i_][2])
+			if _nP_ > 1
+				_aRep_ = []
+				for _j_ = 2 to _nP_ add(_aRep_, _aWith_[_i_][2][_j_]) next
+				add(_aRes_, [ _aWith_[_i_][1], _aRep_ ])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- content with the items at panPos (1-based) removed
-	func _StzRemoveAtPositions(aContent, panPos)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(panPos, i) add(aRes, aContent[i]) ok
+	func _StzRemoveAtPositions(_aContent_, panPos)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(panPos, _i_) add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- keep only items that ARE members of paItems (type-sensitive)
-	func _StzKeepMembers(aContent, paItems)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if _StzHasItemTyped(paItems, aContent[i]) add(aRes, aContent[i]) ok
+	func _StzKeepMembers(_aContent_, paItems)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if _StzHasItemTyped(paItems, _aContent_[_i_]) add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- drop the leading / trailing run equal to pItem
-	func _StzRemoveLeadingRun(aContent, pItem)
-		nLen = len(aContent)
-		nStart = nLen + 1
-		bDone = FALSE
-		for i = 1 to nLen
-			if NOT bDone and _StzItemEqTyped(aContent[i], pItem)
+	func _StzRemoveLeadingRun(_aContent_, pItem)
+		_nLen_ = len(_aContent_)
+		_nStart_ = _nLen_ + 1
+		_bDone_ = FALSE
+		for _i_ = 1 to _nLen_
+			if NOT _bDone_ and _StzItemEqTyped(_aContent_[_i_], pItem)
 				# still in the leading run
 			else
-				nStart = i
-				bDone = TRUE
+				_nStart_ = _i_
+				_bDone_ = TRUE
 				exit
 			ok
 		next
-		aRes = []
-		for i = nStart to nLen add(aRes, aContent[i]) next
-		return aRes
+		_aRes_ = []
+		for _i_ = _nStart_ to _nLen_ add(_aRes_, _aContent_[_i_]) next
+		return _aRes_
 
-	func _StzRemoveTrailingRun(aContent, pItem)
-		nLen = len(aContent)
-		nEnd = 0
-		for i = nLen to 1 step -1
-			if NOT _StzItemEqTyped(aContent[i], pItem)
-				nEnd = i
+	func _StzRemoveTrailingRun(_aContent_, pItem)
+		_nLen_ = len(_aContent_)
+		_nEnd_ = 0
+		for _i_ = _nLen_ to 1 step -1
+			if NOT _StzItemEqTyped(_aContent_[_i_], pItem)
+				_nEnd_ = _i_
 				exit
 			ok
 		next
-		aRes = []
-		for i = 1 to nEnd add(aRes, aContent[i]) next
-		return aRes
+		_aRes_ = []
+		for _i_ = 1 to _nEnd_ add(_aRes_, _aContent_[_i_]) next
+		return _aRes_
 
 	#-- keep only items that occur more than once (remove the singletons)
-	func _StzRemoveNonDuplicates(aContent)
-		aWith = _StzItemsWithPositions(aContent)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			v = aContent[i]
-			nCnt = 0
-			nW = len(aWith)
-			for k = 1 to nW
-				if _StzItemEqTyped(aWith[k][1], v) nCnt = len(aWith[k][2]) exit ok
+	func _StzRemoveNonDuplicates(_aContent_)
+		_aWith_ = _StzItemsWithPositions(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			_v_ = _aContent_[_i_]
+			_nCnt_ = 0
+			_nW_ = len(_aWith_)
+			for _k_ = 1 to _nW_
+				if _StzItemEqTyped(_aWith_[_k_][1], _v_) _nCnt_ = len(_aWith_[_k_][2]) exit ok
 			next
-			if nCnt > 1 add(aRes, v) ok
+			if _nCnt_ > 1 add(_aRes_, _v_) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- pick aAllPos[ panOcc[i] ] for each i (1-based, out-of-range skipped)
 	func _StzPickPositions(panOcc, aAllPos)
-		aRes = []
-		nLen = len(panOcc)
-		nP = len(aAllPos)
-		for i = 1 to nLen
-			if panOcc[i] >= 1 and panOcc[i] <= nP add(aRes, aAllPos[ panOcc[i] ]) ok
+		_aRes_ = []
+		_nLen_ = len(panOcc)
+		_nP_ = len(aAllPos)
+		for _i_ = 1 to _nLen_
+			if panOcc[_i_] >= 1 and panOcc[_i_] <= _nP_ add(_aRes_, aAllPos[ panOcc[_i_] ]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- positions of items that are lists of exactly nWantLen elements
-	func _StzFindListsOfLen(aContent, nWantLen)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if isList(aContent[i]) and len(aContent[i]) = nWantLen add(aRes, i) ok
+	func _StzFindListsOfLen(_aContent_, nWantLen)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if isList(_aContent_[_i_]) and len(_aContent_[_i_]) = nWantLen add(_aRes_, _i_) ok
 		next
-		return aRes
+		return _aRes_
 
-	func _StzItemsAtPos(aContent, panPos)
-		aRes = []
-		nLen = len(panPos)
-		for i = 1 to nLen add(aRes, aContent[ panPos[i] ]) next
-		return aRes
+	func _StzItemsAtPos(_aContent_, panPos)
+		_aRes_ = []
+		_nLen_ = len(panPos)
+		for _i_ = 1 to _nLen_ add(_aRes_, _aContent_[ panPos[_i_] ]) next
+		return _aRes_
 
 	#-- dedup a list structurally, first-appearance order
-	func _StzUniqueItems(aList)
-		aRes = []
-		nLen = len(aList)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(aRes, aList[i]) add(aRes, aList[i]) ok
+	func _StzUniqueItems(_aList_)
+		_aRes_ = []
+		_nLen_ = len(_aList_)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(_aRes_, _aList_[_i_]) add(_aRes_, _aList_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- [[value,[positions]],...] over the given positions, first-appearance
-	func _StzGroupItemsAtPos(aContent, panPos)
-		aRes = []
-		nLen = len(panPos)
-		for i = 1 to nLen
-			v = aContent[ panPos[i] ]
-			nFound = 0
-			nr = len(aRes)
-			for j = 1 to nr
-				if _StzItemEqTyped(aRes[j][1], v) nFound = j exit ok
+	func _StzGroupItemsAtPos(_aContent_, panPos)
+		_aRes_ = []
+		_nLen_ = len(panPos)
+		for _i_ = 1 to _nLen_
+			_v_ = _aContent_[ panPos[_i_] ]
+			_nFound_ = 0
+			_nR_ = len(_aRes_)
+			for _j_ = 1 to _nR_
+				if _StzItemEqTyped(_aRes_[_j_][1], _v_) _nFound_ = _j_ exit ok
 			next
-			if nFound > 0
-				add(aRes[nFound][2], panPos[i])
+			if _nFound_ > 0
+				add(_aRes_[_nFound_][2], panPos[_i_])
 			else
-				add(aRes, [ v, [ panPos[i] ] ])
+				add(_aRes_, [ _v_, [ panPos[_i_] ] ])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- wrap each item as a 1-element list (scalar->[x], list->[firstElem])
-	func _StzSinglified(aContent)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if isList(aContent[i])
-				if len(aContent[i]) >= 1 add(aRes, [ aContent[i][1] ]) else add(aRes, []) ok
+	func _StzSinglified(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if isList(_aContent_[_i_])
+				if len(_aContent_[_i_]) >= 1 add(_aRes_, [ _aContent_[_i_][1] ]) else add(_aRes_, []) ok
 			else
-				add(aRes, [ aContent[i] ])
+				add(_aRes_, [ _aContent_[_i_] ])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- pad each non-pair item into a pair [item, NULL]; keep existing pairs
-	func _StzPairified(aContent)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if isList(aContent[i]) and len(aContent[i]) = 2
-				add(aRes, aContent[i])
+	func _StzPairified(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if isList(_aContent_[_i_]) and len(_aContent_[_i_]) = 2
+				add(_aRes_, _aContent_[_i_])
 			else
-				add(aRes, [ aContent[i], NULL ])
+				add(_aRes_, [ _aContent_[_i_], NULL ])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- positions of items type-sensitively equal to pItem
-	func _StzPositionsOf(aContent, pItem)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if _StzItemEqTyped(aContent[i], pItem) add(aRes, i) ok
+	func _StzPositionsOf(_aContent_, pItem)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if _StzItemEqTyped(_aContent_[_i_], pItem) add(_aRes_, _i_) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- [[item, [positions]], ...] for each item in paItems (incl. empties)
-	func _StzTheseItemsZ(aContent, paItems)
-		aRes = []
-		nLen = len(paItems)
-		for i = 1 to nLen
-			add(aRes, [ paItems[i], _StzPositionsOf(aContent, paItems[i]) ])
+	func _StzTheseItemsZ(_aContent_, paItems)
+		_aRes_ = []
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			add(_aRes_, [ paItems[_i_], _StzPositionsOf(_aContent_, paItems[_i_]) ])
 		next
-		return aRes
+		return _aRes_
 
 	#-- distinct items whose occurrence count satisfies cOp vs nWant
 	#-- (cOp: "ge" >= , "gt" > , "le" <= , "lt" < , "eq" ==); first-appearance
-	func _StzItemsByCountOp(aContent, nWant, cOp)
-		aWith = _StzItemsWithPositions(aContent)
-		aRes = []
-		nLen = len(aWith)
-		for i = 1 to nLen
-			nC = len(aWith[i][2])
-			bKeep = FALSE
+	func _StzItemsByCountOp(_aContent_, nWant, cOp)
+		_aWith_ = _StzItemsWithPositions(_aContent_)
+		_aRes_ = []
+		_nLen_ = len(_aWith_)
+		for _i_ = 1 to _nLen_
+			_nC_ = len(_aWith_[_i_][2])
+			_bKeep_ = FALSE
 			switch cOp
-			on "ge" bKeep = (nC >= nWant)
-			on "gt" bKeep = (nC >  nWant)
-			on "le" bKeep = (nC <= nWant)
-			on "lt" bKeep = (nC <  nWant)
-			on "eq" bKeep = (nC =  nWant)
+			on "ge" _bKeep_ = (_nC_ >= nWant)
+			on "gt" _bKeep_ = (_nC_ >  nWant)
+			on "le" _bKeep_ = (_nC_ <= nWant)
+			on "lt" _bKeep_ = (_nC_ <  nWant)
+			on "eq" _bKeep_ = (_nC_ =  nWant)
 			off
-			if bKeep add(aRes, aWith[i][1]) ok
+			if _bKeep_ add(_aRes_, _aWith_[_i_][1]) ok
 		next
-		return aRes
+		return _aRes_
 
-	func _StzAllEqualCS(aContent, pItem, bCaseSensitive)
-		nLen = len(aContent)
-		if nLen = 0 return TRUE ok
-		for i = 1 to nLen
-			if isString(aContent[i]) and isString(pItem) and bCaseSensitive = 0
-				if StzLower(aContent[i]) != StzLower(pItem) return FALSE ok
+	func _StzAllEqualCS(_aContent_, pItem, _bCaseSensitive_)
+		_nLen_ = len(_aContent_)
+		if _nLen_ = 0 return TRUE ok
+		for _i_ = 1 to _nLen_
+			if isString(_aContent_[_i_]) and isString(pItem) and _bCaseSensitive_ = 0
+				if StzLower(_aContent_[_i_]) != StzLower(pItem) return FALSE ok
 			else
-				if NOT _StzItemEqTyped(aContent[i], pItem) return FALSE ok
+				if NOT _StzItemEqTyped(_aContent_[_i_], pItem) return FALSE ok
 			ok
 		next
 		return TRUE
 
-	func _StzAllSameType(aContent)
-		nLen = len(aContent)
-		if nLen <= 1 return TRUE ok
-		cT = type(aContent[1])
-		for i = 2 to nLen
-			if type(aContent[i]) != cT return FALSE ok
+	func _StzAllSameType(_aContent_)
+		_nLen_ = len(_aContent_)
+		if _nLen_ <= 1 return TRUE ok
+		_cT_ = type(_aContent_[1])
+		for _i_ = 2 to _nLen_
+			if type(_aContent_[_i_]) != _cT_ return FALSE ok
 		next
 		return TRUE
 
-	func _StzAllEmptyLists(aContent)
-		nLen = len(aContent)
-		if nLen = 0 return FALSE ok
-		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 0) return FALSE ok
+	func _StzAllEmptyLists(_aContent_)
+		_nLen_ = len(_aContent_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT (isList(_aContent_[_i_]) and len(_aContent_[_i_]) = 0) return FALSE ok
 		next
 		return TRUE
 
-	func _StzAllEqualTyped(aContent, pItem)
-		nLen = len(aContent)
-		if nLen = 0 return TRUE ok
-		for i = 1 to nLen
-			if NOT _StzItemEqTyped(aContent[i], pItem) return FALSE ok
+	func _StzAllEqualTyped(_aContent_, pItem)
+		_nLen_ = len(_aContent_)
+		if _nLen_ = 0 return TRUE ok
+		for _i_ = 1 to _nLen_
+			if NOT _StzItemEqTyped(_aContent_[_i_], pItem) return FALSE ok
 		next
 		return TRUE
 
 	#-- insert pItem after / before each position in panPos (1-based)
-	func _StzInsertAfterPositions(aContent, panPos, pItem)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			add(aRes, aContent[i])
-			if _StzHasItemTyped(panPos, i) add(aRes, pItem) ok
+	func _StzInsertAfterPositions(_aContent_, panPos, pItem)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			add(_aRes_, _aContent_[_i_])
+			if _StzHasItemTyped(panPos, _i_) add(_aRes_, pItem) ok
 		next
-		return aRes
+		return _aRes_
 
-	func _StzInsertBeforePositions(aContent, panPos, pItem)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if _StzHasItemTyped(panPos, i) add(aRes, pItem) ok
-			add(aRes, aContent[i])
+	func _StzInsertBeforePositions(_aContent_, panPos, pItem)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if _StzHasItemTyped(panPos, _i_) add(_aRes_, pItem) ok
+			add(_aRes_, _aContent_[_i_])
 		next
-		return aRes
+		return _aRes_
 
 	#-- TRUE if any item is of the given type tag (number/string/list/object)
-	func _StzContainsType(aContent, cType)
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if _StzIsTypeTag(aContent[i], cType) return TRUE ok
+	func _StzContainsType(_aContent_, cType)
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if _StzIsTypeTag(_aContent_[_i_], cType) return TRUE ok
 		next
 		return FALSE
 
 	#-- how many DISTINCT members of paItems appear in aContent (type-sensitive)
-	func _StzCountMembersPresent(aContent, paItems)
-		nCount = 0
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if _StzHasItemTyped(aContent, paItems[i]) nCount++ ok
+	func _StzCountMembersPresent(_aContent_, paItems)
+		_nCount_ = 0
+		_nLen_ = len(paItems)
+		for _i_ = 1 to _nLen_
+			if _StzHasItemTyped(_aContent_, paItems[_i_]) _nCount_++ ok
 		next
-		return nCount
+		return _nCount_
 
 	#-- WF (anonymous-function constraint) family. pFunc is a Ring function
 	#-- f(item)->bool, called natively per item (no parsing, no eval). This is
 	#-- the full-Ring-power escape hatch alongside the sandboxed W DSL.
-	func _StzFindWF(aContent, pFunc)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if ( call pFunc(aContent[i]) ) add(aRes, i) ok
+	func _StzFindWF(_aContent_, pFunc)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, _i_) ok
 		next
-		return aRes
+		return _aRes_
 
-	func _StzCheckWF(aContent, pFunc)
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT ( call pFunc(aContent[i]) ) return FALSE ok
+	func _StzCheckWF(_aContent_, pFunc)
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT ( call pFunc(_aContent_[_i_]) ) return FALSE ok
 		next
 		return TRUE
 
 	#-- keep only items for which pFunc is FALSE (remove the matching ones)
-	func _StzRemoveWF(aContent, pFunc)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT ( call pFunc(aContent[i]) ) add(aRes, aContent[i]) ok
+	func _StzRemoveWF(_aContent_, pFunc)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT ( call pFunc(_aContent_[_i_]) ) add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- replace each matching item with pNew
-	func _StzReplaceWF(aContent, pFunc, pNew)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if ( call pFunc(aContent[i]) ) add(aRes, pNew) else add(aRes, aContent[i]) ok
+	func _StzReplaceWF(_aContent_, pFunc, pNew)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, pNew) else add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- map: apply pFunc to every item, collecting the results
-	func _StzMapWF(aContent, pFunc)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			add(aRes, call pFunc(aContent[i]))
+	func _StzMapWF(_aContent_, pFunc)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			add(_aRes_, call pFunc(_aContent_[_i_]))
 		next
-		return aRes
+		return _aRes_
 
 	#-- insert pItem after / before each matching item
-	func _StzInsertAfterWF(aContent, pFunc, pItem)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			add(aRes, aContent[i])
-			if ( call pFunc(aContent[i]) ) add(aRes, pItem) ok
+	func _StzInsertAfterWF(_aContent_, pFunc, pItem)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			add(_aRes_, _aContent_[_i_])
+			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, pItem) ok
 		next
-		return aRes
+		return _aRes_
 
-	func _StzInsertBeforeWF(aContent, pFunc, pItem)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if ( call pFunc(aContent[i]) ) add(aRes, pItem) ok
-			add(aRes, aContent[i])
+	func _StzInsertBeforeWF(_aContent_, pFunc, pItem)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, pItem) ok
+			add(_aRes_, _aContent_[_i_])
 		next
-		return aRes
+		return _aRes_
 
 	#-- Perform an action on the items matching a condition, both given as
 	#-- anonymous functions: pCond(item)->bool selects, pAction(item)->newItem
 	#-- transforms. Non-matching items are kept unchanged. (eval-free.)
-	func _StzPerformWF(aContent, pCond, pAction)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if ( call pCond(aContent[i]) )
-				add(aRes, call pAction(aContent[i]))
+	func _StzPerformWF(_aContent_, pCond, pAction)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if ( call pCond(_aContent_[_i_]) )
+				add(_aRes_, call pAction(_aContent_[_i_]))
 			else
-				add(aRes, aContent[i])
+				add(_aRes_, _aContent_[_i_])
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- WF check restricted to the items at the given positions
-	func _StzCheckItemsAtWF(aContent, panPos, pFunc)
-		nLen = len(panPos)
-		nC = len(aContent)
-		for i = 1 to nLen
-			p = panPos[i]
-			if p >= 1 and p <= nC
-				if NOT ( call pFunc(aContent[p]) ) return FALSE ok
+	func _StzCheckItemsAtWF(_aContent_, panPos, pFunc)
+		_nLen_ = len(panPos)
+		_nC_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			p = panPos[_i_]
+			if p >= 1 and p <= _nC_
+				if NOT ( call pFunc(_aContent_[p]) ) return FALSE ok
 			ok
 		next
 		return TRUE
 
 	#-- TRUE iff every element of panSub is a member of panSet
 	func _StzAllIn(panSub, panSet)
-		nLen = len(panSub)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(panSet, panSub[i]) return FALSE ok
+		_nLen_ = len(panSub)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(panSet, panSub[_i_]) return FALSE ok
 		next
 		return TRUE
 
@@ -8250,26 +8250,26 @@ func HasPath(paList, pacKeys)
 		off
 		return FALSE
 
-	func _StzFindTypeRuns(aContent, cType)
-		aC = []
-		nC = len(aContent)
-		for i = 1 to nC add(aC, aContent[i]) next
-		if cType = "number" add(aC, "X") else add(aC, 0) ok
+	func _StzFindTypeRuns(_aContent_, cType)
+		_aC_ = []
+		_nC_ = len(_aContent_)
+		for _i_ = 1 to _nC_ add(_aC_, _aContent_[_i_]) next
+		if cType = "number" add(_aC_, "X") else add(_aC_, 0) ok
 
-		nLen = len(aC)
-		if nLen <= 1 return [] ok
+		_nLen_ = len(_aC_)
+		if _nLen_ <= 1 return [] ok
 
-		aResult = []
-		n1 = 1
-		for i = 2 to nLen - 1
-			if _StzIsTypeTag(aC[i], cType) and NOT _StzIsTypeTag(aC[i-1], cType)
-				n1 = i
+		_aResult_ = []
+		_n1_ = 1
+		for _i_ = 2 to _nLen_ - 1
+			if _StzIsTypeTag(_aC_[_i_], cType) and NOT _StzIsTypeTag(_aC_[_i_-1], cType)
+				_n1_ = _i_
 			ok
-			if _StzIsTypeTag(aC[i], cType) and NOT _StzIsTypeTag(aC[i+1], cType)
-				add(aResult, [ n1, i ])
+			if _StzIsTypeTag(_aC_[_i_], cType) and NOT _StzIsTypeTag(_aC_[_i_+1], cType)
+				add(_aResult_, [ _n1_, _i_ ])
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	#-- consistent stringification for consecutive-equality comparison
 	func _StzStringifyItem(pItem)
@@ -8277,150 +8277,150 @@ func HasPath(paList, pacKeys)
 		return @@(pItem)
 
 	#-- [[value, [consecutive-dup positions]], ...] first-appearance order
-	func _StzDupSecutiveItemsZ(aContent, bCaseSensitive)
-		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
-		aVals = _StzDupSecutiveValues(aContent, bCaseSensitive)
-		aRes = []
-		nV = len(aVals)
-		for i = 1 to nV
-			cTarget = _StzStringifyItem(aVals[i])
-			if bCaseSensitive = 0 cTarget = StzLower(cTarget) ok
-			aP = []
-			nP = len(anPos)
-			for j = 1 to nP
-				c = _StzStringifyItem(aContent[ anPos[j] ])
-				if bCaseSensitive = 0 c = StzLower(c) ok
-				if c = cTarget add(aP, anPos[j]) ok
+	func _StzDupSecutiveItemsZ(_aContent_, _bCaseSensitive_)
+		_anPos_ = _StzFindDupSecutive(_aContent_, _bCaseSensitive_)
+		_aVals_ = _StzDupSecutiveValues(_aContent_, _bCaseSensitive_)
+		_aRes_ = []
+		_nV_ = len(_aVals_)
+		for _i_ = 1 to _nV_
+			_cTarget_ = _StzStringifyItem(_aVals_[_i_])
+			if _bCaseSensitive_ = 0 _cTarget_ = StzLower(_cTarget_) ok
+			_aP_ = []
+			_nP_ = len(_anPos_)
+			for _j_ = 1 to _nP_
+				_c_ = _StzStringifyItem(_aContent_[ _anPos_[_j_] ])
+				if _bCaseSensitive_ = 0 _c_ = StzLower(_c_) ok
+				if _c_ = _cTarget_ add(_aP_, _anPos_[_j_]) ok
 			next
-			add(aRes, [ aVals[i], aP ])
+			add(_aRes_, [ _aVals_[_i_], _aP_ ])
 		next
-		return aRes
+		return _aRes_
 
 	#-- content with the consecutive-duplicate items removed
-	func _StzRemoveDupSecutive(aContent, bCaseSensitive)
-		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(anPos, i) add(aRes, aContent[i]) ok
+	func _StzRemoveDupSecutive(_aContent_, _bCaseSensitive_)
+		_anPos_ = _StzFindDupSecutive(_aContent_, _bCaseSensitive_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(_anPos_, _i_) add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- content with the consecutive-duplicates of pItem removed
-	func _StzRemoveThisDupSecutive(aContent, pItem, bCaseSensitive)
-		anPos = _StzFindThisDupSecutive(aContent, pItem, bCaseSensitive)
-		aRes = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT _StzHasItemTyped(anPos, i) add(aRes, aContent[i]) ok
+	func _StzRemoveThisDupSecutive(_aContent_, pItem, _bCaseSensitive_)
+		_anPos_ = _StzFindThisDupSecutive(_aContent_, pItem, _bCaseSensitive_)
+		_aRes_ = []
+		_nLen_ = len(_aContent_)
+		for _i_ = 1 to _nLen_
+			if NOT _StzHasItemTyped(_anPos_, _i_) add(_aRes_, _aContent_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- positions i where item[i] equals item[i-1] (consecutive duplicate)
-	func _StzFindDupSecutive(aContent, bCaseSensitive)
-		nLen = len(aContent)
-		if nLen <= 1 return [] ok
-		acItems = []
-		for i = 1 to nLen
-			c = _StzStringifyItem(aContent[i])
-			if bCaseSensitive = 0 c = StzLower(c) ok
-			add(acItems, c)
+	func _StzFindDupSecutive(_aContent_, _bCaseSensitive_)
+		_nLen_ = len(_aContent_)
+		if _nLen_ <= 1 return [] ok
+		_acItems_ = []
+		for _i_ = 1 to _nLen_
+			_c_ = _StzStringifyItem(_aContent_[_i_])
+			if _bCaseSensitive_ = 0 _c_ = StzLower(_c_) ok
+			add(_acItems_, _c_)
 		next
-		anRes = []
-		for i = 2 to nLen
-			if acItems[i-1] = acItems[i] add(anRes, i) ok
+		_anRes_ = []
+		for _i_ = 2 to _nLen_
+			if _acItems_[_i_-1] = _acItems_[_i_] add(_anRes_, _i_) ok
 		next
-		return anRes
+		return _anRes_
 
 	#-- the distinct values (first-appearance) that occur consecutively
 	#-- duplicated; dedup honors case-sensitivity (B and b merge when CS=0)
-	func _StzDupSecutiveValues(aContent, bCaseSensitive)
-		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
-		aRes = []
-		aKeys = []
-		nLen = len(anPos)
-		for i = 1 to nLen
-			v = aContent[ anPos[i] ]
-			k = _StzStringifyItem(v)
-			if bCaseSensitive = 0 k = StzLower(k) ok
-			if NOT _StzHasItemTyped(aKeys, k)
-				add(aKeys, k)
-				add(aRes, v)
+	func _StzDupSecutiveValues(_aContent_, _bCaseSensitive_)
+		_anPos_ = _StzFindDupSecutive(_aContent_, _bCaseSensitive_)
+		_aRes_ = []
+		_aKeys_ = []
+		_nLen_ = len(_anPos_)
+		for _i_ = 1 to _nLen_
+			_v_ = _aContent_[ _anPos_[_i_] ]
+			_k_ = _StzStringifyItem(_v_)
+			if _bCaseSensitive_ = 0 _k_ = StzLower(_k_) ok
+			if NOT _StzHasItemTyped(_aKeys_, _k_)
+				add(_aKeys_, _k_)
+				add(_aRes_, _v_)
 			ok
 		next
-		return aRes
+		return _aRes_
 
 	#-- positions among the consecutive-dups whose item equals pItem
-	func _StzFindThisDupSecutive(aContent, pItem, bCaseSensitive)
-		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
-		cTarget = _StzStringifyItem(pItem)
-		if bCaseSensitive = 0 cTarget = StzLower(cTarget) ok
-		aRes = []
-		nLen = len(anPos)
-		for i = 1 to nLen
-			c = _StzStringifyItem(aContent[ anPos[i] ])
-			if bCaseSensitive = 0 c = StzLower(c) ok
-			if c = cTarget add(aRes, anPos[i]) ok
+	func _StzFindThisDupSecutive(_aContent_, pItem, _bCaseSensitive_)
+		_anPos_ = _StzFindDupSecutive(_aContent_, _bCaseSensitive_)
+		_cTarget_ = _StzStringifyItem(pItem)
+		if _bCaseSensitive_ = 0 _cTarget_ = StzLower(_cTarget_) ok
+		_aRes_ = []
+		_nLen_ = len(_anPos_)
+		for _i_ = 1 to _nLen_
+			_c_ = _StzStringifyItem(_aContent_[ _anPos_[_i_] ])
+			if _bCaseSensitive_ = 0 _c_ = StzLower(_c_) ok
+			if _c_ = _cTarget_ add(_aRes_, _anPos_[_i_]) ok
 		next
-		return aRes
+		return _aRes_
 
 
-func @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
-	if isList(nStart) and IsStartingAtNamedParamList(nStart)
-		nStart = nStart[2]
+func @FindNthPreviousCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+	if isList(_nStart_) and IsStartingAtNamedParamList(_nStart_)
+		_nStart_ = _nStart_[2]
 	ok
-	nLen = len(aList)
-	nRevStart = nLen - nStart + 2
-	nRevPos = @FindNthSTCS(reverse(aList), nth, pItem, nRevStart, pCaseSensitive)
-	if nRevPos < 1
+	_nLen_ = len(_aList_)
+	_nRevStart_ = _nLen_ - _nStart_ + 2
+	_nRevPos_ = @FindNthSTCS(reverse(_aList_), nth, pItem, _nRevStart_, pCaseSensitive)
+	if _nRevPos_ < 1
 		return 0
 	ok
-	return nLen - nRevPos + 1
+	return _nLen_ - _nRevPos_ + 1
 
-	func FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthPreviousCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthPreviousCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func @FindNthPreviousSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func @FindNthPreviousSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthPreviousCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-	func FindNthPreviousSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthPreviousSTCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
+		return @FindNthPreviousCS(_aList_, nth, pItem, _nStart_, pCaseSensitive)
 
-func @FindNthPrevious(aList, nth, pItem, nStart)
-	return @FindNthPreviousCS(aList, nth, pItem, nStart, 1)
+func @FindNthPrevious(_aList_, nth, pItem, _nStart_)
+	return @FindNthPreviousCS(_aList_, nth, pItem, _nStart_, 1)
 
-	func FindNthPrevious(aList, nth, pItem, nStart)
-		return @FindNthPrevious(aList, nth, pItem, nStart)
+	func FindNthPrevious(_aList_, nth, pItem, _nStart_)
+		return @FindNthPrevious(_aList_, nth, pItem, _nStart_)
 
-	func @FindNthPreviousST(aList, nth, pItem, nStart)
-		return @FindNthPrevious(aList, nth, pItem, nStart)
+	func @FindNthPreviousST(_aList_, nth, pItem, _nStart_)
+		return @FindNthPrevious(_aList_, nth, pItem, _nStart_)
 
-	func FindNthPreviousST(aList, nth, pItem, nStart)
-		return @FindNthPrevious(aList, nth, pItem, nStart)
+	func FindNthPreviousST(_aList_, nth, pItem, _nStart_)
+		return @FindNthPrevious(_aList_, nth, pItem, _nStart_)
 
-func @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
-	return @FindNthPreviousCS(aList, 1, pItem, nStart, pCaseSensitive)
+func @FindPreviousCS(_aList_, pItem, _nStart_, pCaseSensitive)
+	return @FindNthPreviousCS(_aList_, 1, pItem, _nStart_, pCaseSensitive)
 
-	func FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+	func FindPreviousCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindPreviousCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-	func @FindPreviousSTCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+	func @FindPreviousSTCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindPreviousCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-	func FindPreviousSTCS(aList, pItem, nStart, pCaseSensitive)
-		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+	func FindPreviousSTCS(_aList_, pItem, _nStart_, pCaseSensitive)
+		return @FindPreviousCS(_aList_, pItem, _nStart_, pCaseSensitive)
 
-func @FindPrevious(aList, pItem, nStart)
-	return @FindPreviousCS(aList, pItem, nStart, 1)
+func @FindPrevious(_aList_, pItem, _nStart_)
+	return @FindPreviousCS(_aList_, pItem, _nStart_, 1)
 
-	func FindPrevious(aList, pItem, nStart)
-		return @FindPrevious(aList, pItem, nStart)
+	func FindPrevious(_aList_, pItem, _nStart_)
+		return @FindPrevious(_aList_, pItem, _nStart_)
 
-	func @FindPreviousST(aList, pItem, nStart)
-		return @FindPrevious(aList, pItem, nStart)
+	func @FindPreviousST(_aList_, pItem, _nStart_)
+		return @FindPrevious(_aList_, pItem, _nStart_)
 
-	func FindPreviousST(aList, pItem, nStart)
-		return @FindPrevious(aList, pItem, nStart)
+	func FindPreviousST(_aList_, pItem, _nStart_)
+		return @FindPrevious(_aList_, pItem, _nStart_)
 
   #=====================================================================#
  #  W-DSL CONDITIONAL CODE: LOWERING Q(EXPR).Method(...) TO ENGINE DSL  #
@@ -8440,72 +8440,72 @@ func @FindPrevious(aList, pItem, nStart)
 #
 # The conditional code is ASCII DSL, so byte-wise scanning is safe here.
 
-func _StzLowerWPredicates(cCode)
-	if isNull(cCode) or NOT isString(cCode)
-		return cCode
+func _StzLowerWPredicates(_cCode_)
+	if isNull(_cCode_) or NOT isString(_cCode_)
+		return _cCode_
 	ok
 
-	cRes = ""
-	n = len(cCode)
-	i = 1
+	_cRes_ = ""
+	_n_ = len(_cCode_)
+	_i_ = 1
 
-	while i <= n
-		c = cCode[i]
+	while _i_ <= _n_
+		_c_ = _cCode_[_i_]
 
 		# Copy string literals through verbatim (don't lower a Q( that
 		# happens to live inside quotes).
-		if c = '"' or c = "'"
-			cQuote = c
-			cRes += c
-			i++
-			while i <= n
-				cRes += cCode[i]
-				if cCode[i] = cQuote
-					i++
+		if _c_ = '"' or _c_ = "'"
+			_cQuote_ = _c_
+			_cRes_ += _c_
+			_i_++
+			while _i_ <= _n_
+				_cRes_ += _cCode_[_i_]
+				if _cCode_[_i_] = _cQuote_
+					_i_++
 					exit
 				ok
-				i++
+				_i_++
 			end
 			loop
 		ok
 
 		# Detect a Q(...) wrapper at a word boundary.
-		if (c = "Q" or c = "q") and _StzWBoundaryBefore(cCode, i)
-			j = i + 1
-			while j <= n and cCode[j] = " "
-				j++
+		if (_c_ = "Q" or _c_ = "q") and _StzWBoundaryBefore(_cCode_, _i_)
+			_j_ = _i_ + 1
+			while _j_ <= _n_ and _cCode_[_j_] = " "
+				_j_++
 			end
 
-			if j <= n and cCode[j] = "("
-				aExpr = _StzScanParen(cCode, j)
-				if aExpr[2] > 0
-					cExpr = aExpr[1]
-					nClose = aExpr[2]
+			if _j_ <= _n_ and _cCode_[_j_] = "("
+				_aExpr_ = _StzScanParen(_cCode_, _j_)
+				if _aExpr_[2] > 0
+					_cExpr_ = _aExpr_[1]
+					_nClose_ = _aExpr_[2]
 
-					k = nClose + 1
-					while k <= n and cCode[k] = " "
-						k++
+					_k_ = _nClose_ + 1
+					while _k_ <= _n_ and _cCode_[_k_] = " "
+						_k_++
 					end
 
-					if k <= n and cCode[k] = "."
-						k++
-						cMeth = ""
-						while k <= n and _StzIsIdentChar(cCode[k])
-							cMeth += cCode[k]
-							k++
+					if _k_ <= _n_ and _cCode_[_k_] = "."
+						_k_++
+						_cMeth_ = ""
+						while _k_ <= _n_ and _StzIsIdentChar(_cCode_[_k_])
+							_cMeth_ += _cCode_[_k_]
+							_k_++
 						end
 
-						while k <= n and cCode[k] = " "
-							k++
+						while _k_ <= _n_ and _cCode_[_k_] = " "
+							_k_++
 						end
 
-						if k <= n and cCode[k] = "("
-							aArg = _StzScanParen(cCode, k)
-							if aArg[2] > 0
-								cLow = _StzMapWPredicate(cMeth, cExpr, aArg[1])
-								if cLow != NULL
-									cRes += cLow
-									i = aArg[2] + 1
+						if _k_ <= _n_ and _cCode_[_k_] = "("
+							_aArg_ = _StzScanParen(_cCode_, _k_)
+							if _aArg_[2] > 0
+								_cLow_ = _StzMapWPredicate(_cMeth_, _cExpr_, _aArg_[1])
+								if _cLow_ != NULL
+									_cRes_ += _cLow_
+									_i_ = _aArg_[2] + 1
 									loop
 								ok
 							ok
@@ -8515,120 +8515,120 @@ func _StzLowerWPredicates(cCode)
 			ok
 		ok
 
-		cRes += c
-		i++
+		_cRes_ += _c_
+		_i_++
 	end
 
-	return cRes
+	return _cRes_
 
 # Scans cCode starting at the '(' located at nOpen and returns
 # [ cInnerContent, nCloseIndex ] using balanced-paren matching, or
 # [ NULL, 0 ] if no matching ')' is found.
-func _StzScanParen(cCode, nOpen)
-	n = len(cCode)
-	nDepth = 0
-	cContent = ""
-	i = nOpen
+func _StzScanParen(_cCode_, nOpen)
+	_n_ = len(_cCode_)
+	_nDepth_ = 0
+	_cContent_ = ""
+	_i_ = nOpen
 
-	while i <= n
-		c = cCode[i]
-		if c = "("
-			nDepth++
-			if nDepth > 1
-				cContent += c
+	while _i_ <= _n_
+		_c_ = _cCode_[_i_]
+		if _c_ = "("
+			_nDepth_++
+			if _nDepth_ > 1
+				_cContent_ += _c_
 			ok
-		but c = ")"
-			nDepth--
-			if nDepth = 0
-				return [ cContent, i ]
+		but _c_ = ")"
+			_nDepth_--
+			if _nDepth_ = 0
+				return [ _cContent_, _i_ ]
 			else
-				cContent += c
+				_cContent_ += _c_
 			ok
 		else
-			if nDepth >= 1
-				cContent += c
+			if _nDepth_ >= 1
+				_cContent_ += _c_
 			ok
 		ok
-		i++
+		_i_++
 	end
 
 	return [ NULL, 0 ]
 
-func _StzIsIdentChar(c)
-	if isNull(c) or len(c) = 0
+func _StzIsIdentChar(_c_)
+	if isNull(_c_) or len(_c_) = 0
 		return FALSE
 	ok
 	# Ring's >/< operators coerce strings to numbers (R41), so test
 	# membership against an explicit ASCII alphabet instead.
-	return substr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_", c) > 0
+	return substr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_", _c_) > 0
 
-func _StzWBoundaryBefore(cCode, i)
-	if i <= 1
+func _StzWBoundaryBefore(_cCode_, _i_)
+	if _i_ <= 1
 		return TRUE
 	ok
-	return NOT _StzIsIdentChar(cCode[i-1])
+	return NOT _StzIsIdentChar(_cCode_[_i_-1])
 
 # Maps a Softanza predicate method to its engine-DSL equivalent.
 # cExpr is the receiver expression, cArg the (possibly empty) argument.
 # Returns NULL for unknown methods so the caller leaves them untouched.
-func _StzMapWPredicate(cMeth, cExpr, cArg)
-	cM = lower(trim(cMeth))
-	cE = trim(cExpr)
-	cA = trim(cArg)
+func _StzMapWPredicate(_cMeth_, _cExpr_, cArg)
+	_cM_ = lower(trim(_cMeth_))
+	_cE_ = trim(_cExpr_)
+	_cA_ = trim(cArg)
 
 	# --- no-argument type/case predicates ---
-	switch cM
-	on "isnumber"      return "isNumber(" + cE + ")"
-	on "isanumber"     return "isNumber(" + cE + ")"
-	on "isnotanumber"  return "(NOT isNumber(" + cE + "))"
-	on "isnotnumber"   return "(NOT isNumber(" + cE + "))"
-	on "isstring"      return "isString(" + cE + ")"
-	on "isastring"     return "isString(" + cE + ")"
-	on "isnotastring"  return "(NOT isString(" + cE + "))"
-	on "isnotstring"   return "(NOT isString(" + cE + "))"
-	on "islist"        return "isList(" + cE + ")"
-	on "isalist"       return "isList(" + cE + ")"
-	on "isletter"      return "isLetter(" + cE + ")"
-	on "isaletter"     return "isLetter(" + cE + ")"
-	on "isnotletter"   return "(NOT isLetter(" + cE + "))"
-	on "isnotaletter"  return "(NOT isLetter(" + cE + "))"
-	on "isuppercase"   return "isUppercase(" + cE + ")"
-	on "islowercase"   return "isLowercase(" + cE + ")"
-	on "isdigit"       return "isDigit(" + cE + ")"
-	on "isspace"       return "isSpace(" + cE + ")"
-	on "iswhitespace"  return "isSpace(" + cE + ")"
-	on "isalphanumeric" return "isAlphanumeric(" + cE + ")"
-	on "isvowel"       return "isVowel(" + cE + ")"
-	on "isconsonant"   return "isConsonant(" + cE + ")"
-	on "ispunctuation" return "isPunctuation(" + cE + ")"
-	on "isnumberinstring"  return "isDigit(" + cE + ")"
-	on "isanumberinstring" return "isDigit(" + cE + ")"
-	on "isarabic"      return "isArabic(" + cE + ")"
-	on "isarabicletter" return "isArabic(" + cE + ")"
-	on "islatin"       return "isLatin(" + cE + ")"
-	on "islatinletter" return "isLatin(" + cE + ")"
-	on "iseven"        return "iseven(" + cE + ")"
-	on "isodd"         return "isodd(" + cE + ")"
-	on "ispositive"    return "ispositive(" + cE + ")"
-	on "isnegative"    return "isnegative(" + cE + ")"
+	switch _cM_
+	on "isnumber"      return "isNumber(" + _cE_ + ")"
+	on "isanumber"     return "isNumber(" + _cE_ + ")"
+	on "isnotanumber"  return "(NOT isNumber(" + _cE_ + "))"
+	on "isnotnumber"   return "(NOT isNumber(" + _cE_ + "))"
+	on "isstring"      return "isString(" + _cE_ + ")"
+	on "isastring"     return "isString(" + _cE_ + ")"
+	on "isnotastring"  return "(NOT isString(" + _cE_ + "))"
+	on "isnotstring"   return "(NOT isString(" + _cE_ + "))"
+	on "islist"        return "isList(" + _cE_ + ")"
+	on "isalist"       return "isList(" + _cE_ + ")"
+	on "isletter"      return "isLetter(" + _cE_ + ")"
+	on "isaletter"     return "isLetter(" + _cE_ + ")"
+	on "isnotletter"   return "(NOT isLetter(" + _cE_ + "))"
+	on "isnotaletter"  return "(NOT isLetter(" + _cE_ + "))"
+	on "isuppercase"   return "isUppercase(" + _cE_ + ")"
+	on "islowercase"   return "isLowercase(" + _cE_ + ")"
+	on "isdigit"       return "isDigit(" + _cE_ + ")"
+	on "isspace"       return "isSpace(" + _cE_ + ")"
+	on "iswhitespace"  return "isSpace(" + _cE_ + ")"
+	on "isalphanumeric" return "isAlphanumeric(" + _cE_ + ")"
+	on "isvowel"       return "isVowel(" + _cE_ + ")"
+	on "isconsonant"   return "isConsonant(" + _cE_ + ")"
+	on "ispunctuation" return "isPunctuation(" + _cE_ + ")"
+	on "isnumberinstring"  return "isDigit(" + _cE_ + ")"
+	on "isanumberinstring" return "isDigit(" + _cE_ + ")"
+	on "isarabic"      return "isArabic(" + _cE_ + ")"
+	on "isarabicletter" return "isArabic(" + _cE_ + ")"
+	on "islatin"       return "isLatin(" + _cE_ + ")"
+	on "islatinletter" return "isLatin(" + _cE_ + ")"
+	on "iseven"        return "iseven(" + _cE_ + ")"
+	on "isodd"         return "isodd(" + _cE_ + ")"
+	on "ispositive"    return "ispositive(" + _cE_ + ")"
+	on "isnegative"    return "isnegative(" + _cE_ + ")"
 	off
 
 	# --- one-argument numeric predicates ---
-	if cA = NULL or cA = ""
+	if _cA_ = NULL or _cA_ = ""
 		return NULL
 	ok
 
-	switch cM
-	on "isdoubleof"     return "((" + cE + ") = 2 * (" + cA + "))"
-	on "ishalfof"       return "((2 * (" + cE + ")) = (" + cA + "))"
-	on "isdividableby"  return "(((" + cE + ") % (" + cA + ")) = 0)"
-	on "isdivisibleby"  return "(((" + cE + ") % (" + cA + ")) = 0)"
-	on "ismultipleof"   return "(((" + cE + ") % (" + cA + ")) = 0)"
-	on "isequalto"      return "((" + cE + ") = (" + cA + "))"
-	on "isbiggerthan"   return "((" + cE + ") > (" + cA + "))"
-	on "isgreaterthan"  return "((" + cE + ") > (" + cA + "))"
-	on "issmallerthan"  return "((" + cE + ") < (" + cA + "))"
-	on "islessthan"     return "((" + cE + ") < (" + cA + "))"
+	switch _cM_
+	on "isdoubleof"     return "((" + _cE_ + ") = 2 * (" + _cA_ + "))"
+	on "ishalfof"       return "((2 * (" + _cE_ + ")) = (" + _cA_ + "))"
+	on "isdividableby"  return "(((" + _cE_ + ") % (" + _cA_ + ")) = 0)"
+	on "isdivisibleby"  return "(((" + _cE_ + ") % (" + _cA_ + ")) = 0)"
+	on "ismultipleof"   return "(((" + _cE_ + ") % (" + _cA_ + ")) = 0)"
+	on "isequalto"      return "((" + _cE_ + ") = (" + _cA_ + "))"
+	on "isbiggerthan"   return "((" + _cE_ + ") > (" + _cA_ + "))"
+	on "isgreaterthan"  return "((" + _cE_ + ") > (" + _cA_ + "))"
+	on "issmallerthan"  return "((" + _cE_ + ") < (" + _cA_ + "))"
+	on "islessthan"     return "((" + _cE_ + ") < (" + _cA_ + "))"
 	off
 
 	return NULL

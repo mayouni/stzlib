@@ -36,9 +36,9 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def SetWorkflowType(pcType)
-		cType = StzLower(pcType)
-		if StzFindFirst($acWorkflowTypes, cType) > 0
-			@cWorkflowType = cType
+		_cType_ = StzLower(pcType)
+		if StzFindFirst($acWorkflowTypes, _cType_) > 0
+			@cWorkflowType = _cType_
 		ok
 	
 	def WorkflowType()
@@ -66,7 +66,7 @@ class stzWorkflow from stzDiagram
 	        paProps = [ ["_empty", ""] ]
 	    ok
 	    
-	    aStep = [
+	    _aStep_ = [
 	        :id = pcId,
 	        :label = pcLabel,
 	        :type = "process",
@@ -75,27 +75,27 @@ class stzWorkflow from stzDiagram
 	        :sla = 0,
 	        :properties = paProps
 	    ]
-	    @aSteps + aStep
+	    @aSteps + _aStep_
 	    
 	    # Filter out dummy key before passing to AddNodeXTT
-	    aNodeProps = []
+	    _aNodeProps_ = []
 	    _nProps1Len_ = len(paProps)
 	    for _iLoopProps1_ = 1 to _nProps1Len_
-	    	aPair = paProps[_iLoopProps1_]
-	        if aPair[1] != "_empty"
-	            aNodeProps + aPair
+	    	_aPair_ = paProps[_iLoopProps1_]
+	        if _aPair_[1] != "_empty"
+	            _aNodeProps_ + _aPair_
 	        ok
 	    end
 	    
-	    aNodeProps + ["nodeType", "step"]
-	    This.AddNodeXTT(pcId, pcLabel, aNodeProps)
+	    _aNodeProps_ + ["nodeType", "step"]
+	    This.AddNodeXTT(pcId, pcLabel, _aNodeProps_)
 	
 	def Step_(pcId)
 		_nSteps9Len_ = len(@aSteps)
 		for _iLoopSteps9_ = 1 to _nSteps9Len_
-			aStep = @aSteps[_iLoopSteps9_]
-			if aStep[:id] = pcId
-				return aStep
+			_aStep_ = @aSteps[_iLoopSteps9_]
+			if _aStep_[:id] = pcId
+				return _aStep_
 			ok
 		end
 		return []
@@ -121,25 +121,25 @@ class stzWorkflow from stzDiagram
 	
 	def AddStateXTT(pcId, pcLabel, paProps)
 
-		aState = [
+		_aState_ = [
 			:id = pcId,
 			:label = pcLabel,
 			:isInitial = FALSE,
 			:isFinal = FALSE,
 			:properties = paProps
 		]
-		@aStates + aState
+		@aStates + _aState_
 		
 		# Add as diagram node
-		cType = "state"
+		_cType_ = "state"
 		if HasKey(paProps, :isInitial) and paProps[:isInitial]
-			cType = "start"
+			_cType_ = "start"
 		but HasKey(paProps, :isFinal) and paProps[:isFinal]
-			cType = "endpoint"
+			_cType_ = "endpoint"
 		ok
 		
 		paProps + [ "nodetype", "state" ]
-		paProps + [ "type", cType ]
+		paProps + [ "type", _cType_ ]
 
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
@@ -147,22 +147,22 @@ class stzWorkflow from stzDiagram
 		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
 	
 	def AddTransitionXT(pcFrom, pcTo, pcEvent, pcCondition)
-		aTransition = [
+		_aTransition_ = [
 			:from = pcFrom,
 			:to = pcTo,
 			:event = pcEvent,
 			:condition = pcCondition
 		]
-		@aTransitions + aTransition
+		@aTransitions + _aTransition_
 		
 		This.AddEdgeXT(pcFrom, pcTo, pcEvent)
 	
 	def State(pcId)
 		_nStates1Len_ = len(@aStates)
 		for _iLoopStates1_ = 1 to _nStates1Len_
-			aState = @aStates[_iLoopStates1_]
-			if aState[:id] = pcId
-				return aState
+			_aState_ = @aStates[_iLoopStates1_]
+			if _aState_[:id] = pcId
+				return _aState_
 			ok
 		end
 		return []
@@ -178,12 +178,12 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def AddActor(pcId, pcName, pcRole)
-		aActor = [
+		_aActor_ = [
 			:id = pcId,
 			:name = pcName,
 			:role = pcRole
 		]
-		@aActors + aActor
+		@aActors + _aActor_
 	
 	def AssignStepTo(pcStepId, pcActorId)
 		_nStepsLen_3 = len(@aSteps)
@@ -199,9 +199,9 @@ class stzWorkflow from stzDiagram
 	def Actor(pcId)
 		_nActors2Len_ = len(@aActors)
 		for _iLoopActors2_ = 1 to _nActors2Len_
-			aActor = @aActors[_iLoopActors2_]
-			if aActor[:id] = pcId
-				return aActor
+			_aActor_ = @aActors[_iLoopActors2_]
+			if _aActor_[:id] = pcId
+				return _aActor_
 			ok
 		end
 		return []
@@ -236,22 +236,22 @@ class stzWorkflow from stzDiagram
 		This.SetNodeProperty(pcStepId, "duration", nHours)
 	
 	def SLAViolations()
-		acViolations = []
+		_acViolations_ = []
 		
 		_nSteps8Len_ = len(@aSteps)
 		for _iLoopSteps8_ = 1 to _nSteps8Len_
-			aStep = @aSteps[_iLoopSteps8_]
-			if aStep[:sla] > 0 and aStep[:duration] > aStep[:sla]
-				acViolations + [
-					:step = aStep[:id],
-					:sla = aStep[:sla],
-					:actual = aStep[:duration],
-					:overrun = aStep[:duration] - aStep[:sla]
+			_aStep_ = @aSteps[_iLoopSteps8_]
+			if _aStep_[:sla] > 0 and _aStep_[:duration] > _aStep_[:sla]
+				_acViolations_ + [
+					:step = _aStep_[:id],
+					:sla = _aStep_[:sla],
+					:actual = _aStep_[:duration],
+					:overrun = _aStep_[:duration] - _aStep_[:sla]
 				]
 			ok
 		end
 		
-		return acViolations
+		return _acViolations_
 	
 	#-----------------------#
 	#  ORG CHART LINKING    #
@@ -267,181 +267,181 @@ class stzWorkflow from stzDiagram
 		]
 	
 	def GetPositionForStep(pcStepId)
-		aStep = This.Step_(pcStepId)
-		if len(aStep) = 0
+		_aStep_ = This.Step_(pcStepId)
+		if len(_aStep_) = 0
 			return ""
 		ok
 		
-		cActorId = aStep[:assignedTo]
-		if cActorId = ""
+		_cActorId_ = _aStep_[:assignedTo]
+		if _cActorId_ = ""
 			return ""
 		ok
 		
-		aActor = This.Actor(cActorId)
-		if len(aActor) = 0
+		_aActor_ = This.Actor(_cActorId_)
+		if len(_aActor_) = 0
 			return ""
 		ok
 		
-		cRole = aActor[:role]
+		_cRole_ = _aActor_[:role]
 		
 		_nRoleAssignments1Len_ = len(@aRoleAssignments)
 		for _iLoopRoleAssignments1_ = 1 to _nRoleAssignments1Len_
-			aMapping = @aRoleAssignments[_iLoopRoleAssignments1_]
-			if aMapping[:role] = cRole
-				return aMapping[:position]
+			_aMapping_ = @aRoleAssignments[_iLoopRoleAssignments1_]
+			if _aMapping_[:role] = _cRole_
+				return _aMapping_[:position]
 			ok
 		end
 		
 		return ""
 	
 	def WorkloadByPosition()
-		aWorkload = []
+		_aWorkload_ = []
 		
 		if @oLinkedOrgChart = NULL
-			return aWorkload
+			return _aWorkload_
 		ok
 		
 		# Count steps per position
 		_nSteps7Len_ = len(@aSteps)
 		for _iLoopSteps7_ = 1 to _nSteps7Len_
-			aStep = @aSteps[_iLoopSteps7_]
-			cPosition = This.GetPositionForStep(aStep[:id])
-			if cPosition != ""
-				bFound = FALSE
-				_nWorkloadLen_ = len(aWorkload)
+			_aStep_ = @aSteps[_iLoopSteps7_]
+			_cPosition_ = This.GetPositionForStep(_aStep_[:id])
+			if _cPosition_ != ""
+				_bFound_ = FALSE
+				_nWorkloadLen_ = len(_aWorkload_)
 				for i = 1 to _nWorkloadLen_
-					if aWorkload[i][:position] = cPosition
-						aWorkload[i][:stepCount]++
-						aWorkload[i][:totalDuration] += aStep[:duration]
-						bFound = TRUE
+					if _aWorkload_[i][:position] = _cPosition_
+						_aWorkload_[i][:stepCount]++
+						_aWorkload_[i][:totalDuration] += _aStep_[:duration]
+						_bFound_ = TRUE
 						exit
 					ok
 				end
 				
-				if NOT bFound
-					aWorkload + [
-						:position = cPosition,
+				if NOT _bFound_
+					_aWorkload_ + [
+						:position = _cPosition_,
 						:stepCount = 1,
-						:totalDuration = aStep[:duration]
+						:totalDuration = _aStep_[:duration]
 					]
 				ok
 			ok
 		end
 		
-		return aWorkload
+		return _aWorkload_
 	
 	#-----------------------#
 	#  PERFORMANCE METRICS  #
 	#-----------------------#
 	
 	def TotalDuration()
-		nTotal = 0
+		_nTotal_ = 0
 		_nSteps6Len_ = len(@aSteps)
 		for _iLoopSteps6_ = 1 to _nSteps6Len_
-			aStep = @aSteps[_iLoopSteps6_]
-			nTotal += aStep[:duration]
+			_aStep_ = @aSteps[_iLoopSteps6_]
+			_nTotal_ += _aStep_[:duration]
 		end
-		return nTotal
+		return _nTotal_
 	
 	def CriticalPath()
 		# For sequential: longest path from start to end
 		# For state machine: longest path to final state
-		acPath = []
-		nLongest = 0
+		_acPath_ = []
+		_nLongest_ = 0
 		
 		if This.IsSequential()
-			acAllPaths = This.AllPathsFromStartToEnd()
+			_acAllPaths_ = This.AllPathsFromStartToEnd()
 			
-			_nAcAllPaths1Len_ = len(acAllPaths)
+			_nAcAllPaths1Len_ = len(_acAllPaths_)
 			for _iLoopAcAllPaths1_ = 1 to _nAcAllPaths1Len_
-				acPath = acAllPaths[_iLoopAcAllPaths1_]
-				nDuration = 0
-				_nAcPath1Len_ = len(acPath)
+				_acPath_ = _acAllPaths_[_iLoopAcAllPaths1_]
+				_nDuration_ = 0
+				_nAcPath1Len_ = len(_acPath_)
 				for _iLoopAcPath1_ = 1 to _nAcPath1Len_
-					cStepId = acPath[_iLoopAcPath1_]
-					aStep = This.Step_(cStepId)
-					if len(aStep) > 0
-						nDuration += aStep[:duration]
+					_cStepId_ = _acPath_[_iLoopAcPath1_]
+					_aStep_ = This.Step_(_cStepId_)
+					if len(_aStep_) > 0
+						_nDuration_ += _aStep_[:duration]
 					ok
 				end
 				
-				if nDuration > nLongest
-					nLongest = nDuration
-					acCriticalPath = acPath
+				if _nDuration_ > _nLongest_
+					_nLongest_ = _nDuration_
+					_acCriticalPath_ = _acPath_
 				ok
 			end
 		ok
 		
 		return [
-			:path = acCriticalPath,
-			:duration = nLongest
+			:path = _acCriticalPath_,
+			:duration = _nLongest_
 		]
 	
 	def AllPathsFromStartToEnd()
-		acStarts = []
-		acEnds = []
+		_acStarts_ = []
+		_acEnds_ = []
 		
 		# Find start/end nodes
 		_nSteps5Len_ = len(@aSteps)
 		for _iLoopSteps5_ = 1 to _nSteps5Len_
-			aStep = @aSteps[_iLoopSteps5_]
-			cId = aStep[:id]
-			if len(This.Incoming(cId)) = 0
-				acStarts + cId
+			_aStep_ = @aSteps[_iLoopSteps5_]
+			_cId_ = _aStep_[:id]
+			if len(This.Incoming(_cId_)) = 0
+				_acStarts_ + _cId_
 			ok
-			if len(This.Neighbors(cId)) = 0
-				acEnds + cId
+			if len(This.Neighbors(_cId_)) = 0
+				_acEnds_ + _cId_
 			ok
 		end
 		
-		acAllPaths = []
-		_nAcStarts1Len_ = len(acStarts)
+		_acAllPaths_ = []
+		_nAcStarts1Len_ = len(_acStarts_)
 		for _iLoopAcStarts1_ = 1 to _nAcStarts1Len_
-			cStart = acStarts[_iLoopAcStarts1_]
-			_nAcEnds1Len_ = len(acEnds)
+			_cStart_ = _acStarts_[_iLoopAcStarts1_]
+			_nAcEnds1Len_ = len(_acEnds_)
 			for _iLoopAcEnds1_ = 1 to _nAcEnds1Len_
-				cEnd = acEnds[_iLoopAcEnds1_]
-				acPaths = This.PathsXT(cStart, cEnd)
-				_nAcPaths1Len_ = len(acPaths)
+				_cEnd_ = _acEnds_[_iLoopAcEnds1_]
+				_acPaths_ = This.PathsXT(_cStart_, _cEnd_)
+				_nAcPaths1Len_ = len(_acPaths_)
 				for _iLoopAcPaths1_ = 1 to _nAcPaths1Len_
-					acPath = acPaths[_iLoopAcPaths1_]
-					acAllPaths + acPath
+					_acPath_ = _acPaths_[_iLoopAcPaths1_]
+					_acAllPaths_ + _acPath_
 				end
 			end
 		end
 		
-		return acAllPaths
+		return _acAllPaths_
 	
 	def Bottlenecks()
-		acBottlenecks = []
+		_acBottlenecks_ = []
 		
 		_nSteps4Len_ = len(@aSteps)
 		for _iLoopSteps4_ = 1 to _nSteps4Len_
-			aStep = @aSteps[_iLoopSteps4_]
-			cId = aStep[:id]
-			nIncoming = len(This.Incoming(cId))
-			nOutgoing = len(This.Neighbors(cId))
+			_aStep_ = @aSteps[_iLoopSteps4_]
+			_cId_ = _aStep_[:id]
+			_nIncoming_ = len(This.Incoming(_cId_))
+			_nOutgoing_ = len(This.Neighbors(_cId_))
 			
 			# High fan-in = bottleneck
-			if nIncoming > 2
-				acBottlenecks + [
-					:step = cId,
+			if _nIncoming_ > 2
+				_acBottlenecks_ + [
+					:step = _cId_,
 					:reason = "high fan-in",
-					:count = nIncoming
+					:count = _nIncoming_
 				]
 			ok
 			
 			# SLA violation = bottleneck
-			if aStep[:sla] > 0 and aStep[:duration] > aStep[:sla]
-				acBottlenecks + [
-					:step = cId,
+			if _aStep_[:sla] > 0 and _aStep_[:duration] > _aStep_[:sla]
+				_acBottlenecks_ + [
+					:step = _cId_,
 					:reason = "sla violation",
-					:overrun = aStep[:duration] - aStep[:sla]
+					:overrun = _aStep_[:duration] - _aStep_[:sla]
 				]
 			ok
 		end
 		
-		return acBottlenecks
+		return _acBottlenecks_
 	
 	#-----------------------#
 	#  VALIDATION           #
@@ -466,51 +466,51 @@ class stzWorkflow from stzDiagram
 		]
 	
 	def ValidateSLA()
-		acViolations = This.SLAViolations()
+		_acViolations_ = This.SLAViolations()
 		
-		aIssues = []
-		_nAcViolations1Len_ = len(acViolations)
+		_aIssues_ = []
+		_nAcViolations1Len_ = len(_acViolations_)
 		for _iLoopAcViolations1_ = 1 to _nAcViolations1Len_
-			aViolation = acViolations[_iLoopAcViolations1_]
-			aIssues + ("Step " + aViolation[:step] + " exceeds SLA by " + aViolation[:overrun] + "h")
+			_aViolation_ = _acViolations_[_iLoopAcViolations1_]
+			_aIssues_ + ("Step " + _aViolation_[:step] + " exceeds SLA by " + _aViolation_[:overrun] + "h")
 		end
 		
 		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(_aIssues_) = 0, "pass", "fail"),
 			:domain = "sla",
-			:issueCount = len(aIssues),
-			:issues = aIssues,
-			:affectedNodes = This._ExtractStepIds(acViolations)
+			:issueCount = len(_aIssues_),
+			:issues = _aIssues_,
+			:affectedNodes = This._ExtractStepIds(_acViolations_)
 		]
 	
 	def ValidateBottleneck()
-		acBottlenecks = This.Bottlenecks()
+		_acBottlenecks_ = This.Bottlenecks()
 		
-		aIssues = []
-		_nAcBottlenecks1Len_ = len(acBottlenecks)
+		_aIssues_ = []
+		_nAcBottlenecks1Len_ = len(_acBottlenecks_)
 		for _iLoopAcBottlenecks1_ = 1 to _nAcBottlenecks1Len_
-			aBottleneck = acBottlenecks[_iLoopAcBottlenecks1_]
-			aIssues + ("Bottleneck at " + aBottleneck[:step] + ": " + aBottleneck[:reason])
+			_aBottleneck_ = _acBottlenecks_[_iLoopAcBottlenecks1_]
+			_aIssues_ + ("Bottleneck at " + _aBottleneck_[:step] + ": " + _aBottleneck_[:reason])
 		end
 		
 		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(_aIssues_) = 0, "pass", "fail"),
 			:domain = "bottleneck",
-			:issueCount = len(aIssues),
-			:issues = aIssues,
-			:affectedNodes = This._ExtractStepIds(acBottlenecks)
+			:issueCount = len(_aIssues_),
+			:issues = _aIssues_,
+			:affectedNodes = This._ExtractStepIds(_acBottlenecks_)
 		]
 	
 	def _ExtractStepIds(paList)
-		acIds = []
+		_acIds_ = []
 		_nList1Len_ = len(paList)
 		for _iLoopList1_ = 1 to _nList1Len_
-			aItem = paList[_iLoopList1_]
-			if HasKey(aItem, :step)
-				acIds + aItem[:step]
+			_aItem_ = paList[_iLoopList1_]
+			if HasKey(_aItem_, :step)
+				_acIds_ + _aItem_[:step]
 			ok
 		end
-		return acIds
+		return _acIds_
 	
 	def _ValidateSingle(pcValidator)
 		switch StzLower(pcValidator)
@@ -529,56 +529,56 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def ViewCriticalPath()
-		aCritical = This.CriticalPath()
-		This.ApplyFocusTo(aCritical[:path])
-		This.SetSubtitle("Critical Path (" + aCritical[:duration] + "h)")
+		_aCritical_ = This.CriticalPath()
+		This.ApplyFocusTo(_aCritical_[:path])
+		This.SetSubtitle("Critical Path (" + _aCritical_[:duration] + "h)")
 		This.View()
 	
 	def ViewBottlenecks()
-		acBottlenecks = This.Bottlenecks()
-		acIds = This._ExtractStepIds(acBottlenecks)
-		This.ApplyFocusTo(acIds)
-		This.SetSubtitle("Bottlenecks (" + len(acBottlenecks) + ")")
+		_acBottlenecks_ = This.Bottlenecks()
+		_acIds_ = This._ExtractStepIds(_acBottlenecks_)
+		This.ApplyFocusTo(_acIds_)
+		This.SetSubtitle("Bottlenecks (" + len(_acBottlenecks_) + ")")
 		This.View()
 	
 	def ViewSLAViolations()
-		acViolations = This.SLAViolations()
-		acIds = This._ExtractStepIds(acViolations)
-		This.ApplyFocusTo(acIds)
-		This.SetSubtitle("SLA Violations (" + len(acViolations) + ")")
+		_acViolations_ = This.SLAViolations()
+		_acIds_ = This._ExtractStepIds(_acViolations_)
+		This.ApplyFocusTo(_acIds_)
+		This.SetSubtitle("SLA Violations (" + len(_acViolations_) + ")")
 		This.View()
 	
 	def ViewByActor(pcActorId)
-		acSteps = []
+		_acSteps_ = []
 		_nSteps3Len_ = len(@aSteps)
 		for _iLoopSteps3_ = 1 to _nSteps3Len_
-			aStep = @aSteps[_iLoopSteps3_]
-			if aStep[:assignedTo] = pcActorId
-				acSteps + aStep[:id]
+			_aStep_ = @aSteps[_iLoopSteps3_]
+			if _aStep_[:assignedTo] = pcActorId
+				_acSteps_ + _aStep_[:id]
 			ok
 		end
 		
-		aActor = This.Actor(pcActorId)
-		cName = iif(len(aActor) > 0, aActor[:name], pcActorId)
+		_aActor_ = This.Actor(pcActorId)
+		_cName_ = iif(len(_aActor_) > 0, _aActor_[:name], pcActorId)
 		
-		This.ApplyFocusTo(acSteps)
-		This.SetSubtitle("Steps by " + cName)
+		This.ApplyFocusTo(_acSteps_)
+		This.SetSubtitle("Steps by " + _cName_)
 		This.View()
 	
 	def ViewByRole(pcRole)
-		acSteps = []
+		_acSteps_ = []
 		_nSteps2Len_ = len(@aSteps)
 		for _iLoopSteps2_ = 1 to _nSteps2Len_
-			aStep = @aSteps[_iLoopSteps2_]
-			if aStep[:assignedTo] != ""
-				aActor = This.Actor(aStep[:assignedTo])
-				if len(aActor) > 0 and aActor[:role] = pcRole
-					acSteps + aStep[:id]
+			_aStep_ = @aSteps[_iLoopSteps2_]
+			if _aStep_[:assignedTo] != ""
+				_aActor_ = This.Actor(_aStep_[:assignedTo])
+				if len(_aActor_) > 0 and _aActor_[:role] = pcRole
+					_acSteps_ + _aStep_[:id]
 				ok
 			ok
 		end
 		
-		This.ApplyFocusTo(acSteps)
+		This.ApplyFocusTo(_acSteps_)
 		This.SetSubtitle("Steps by role: " + pcRole)
 		This.View()
 	
@@ -587,50 +587,50 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def ToWorkflow()
-		cResult = 'workflow "' + @cId + '"' + NL
-		cResult += '    type: ' + @cWorkflowType + NL + NL
+		_cResult_ = 'workflow "' + @cId + '"' + NL
+		_cResult_ += '    type: ' + @cWorkflowType + NL + NL
 		
 		if This.IsSequential()
-			cResult += 'steps' + NL
+			_cResult_ += 'steps' + NL
 			_nSteps1Len_ = len(@aSteps)
 			for _iLoopSteps1_ = 1 to _nSteps1Len_
-				aStep = @aSteps[_iLoopSteps1_]
-				cResult += '    ' + aStep[:id] + NL
-				cResult += '        label: "' + aStep[:label] + '"' + NL
-				if aStep[:assignedTo] != ""
-					cResult += '        assignedTo: ' + aStep[:assignedTo] + NL
+				_aStep_ = @aSteps[_iLoopSteps1_]
+				_cResult_ += '    ' + _aStep_[:id] + NL
+				_cResult_ += '        label: "' + _aStep_[:label] + '"' + NL
+				if _aStep_[:assignedTo] != ""
+					_cResult_ += '        assignedTo: ' + _aStep_[:assignedTo] + NL
 				ok
-				if aStep[:duration] > 0
-					cResult += '        duration: ' + aStep[:duration] + NL
+				if _aStep_[:duration] > 0
+					_cResult_ += '        duration: ' + _aStep_[:duration] + NL
 				ok
-				if aStep[:sla] > 0
-					cResult += '        sla: ' + aStep[:sla] + NL
+				if _aStep_[:sla] > 0
+					_cResult_ += '        sla: ' + _aStep_[:sla] + NL
 				ok
-				cResult += NL
+				_cResult_ += NL
 			end
 			
-			cResult += 'flow' + NL
+			_cResult_ += 'flow' + NL
 			_aThisEdges1_ = This.Edges()
 			_nThisEdges1Len_ = len(_aThisEdges1_)
 			for _iLoopThisEdges1_ = 1 to _nThisEdges1Len_
-				aEdge = _aThisEdges1_[_iLoopThisEdges1_]
-				cResult += '    ' + aEdge[:from] + ' -> ' + aEdge[:to] + NL
+				_aEdge_ = _aThisEdges1_[_iLoopThisEdges1_]
+				_cResult_ += '    ' + _aEdge_[:from] + ' -> ' + _aEdge_[:to] + NL
 			end
 		ok
 		
 		if len(@aActors) > 0
-			cResult += NL + 'actors' + NL
+			_cResult_ += NL + 'actors' + NL
 			_nActors1Len_ = len(@aActors)
 			for _iLoopActors1_ = 1 to _nActors1Len_
-				aActor = @aActors[_iLoopActors1_]
-				cResult += '    ' + aActor[:id] + NL
-				cResult += '        name: "' + aActor[:name] + '"' + NL
-				cResult += '        role: ' + aActor[:role] + NL
-				cResult += NL
+				_aActor_ = @aActors[_iLoopActors1_]
+				_cResult_ += '    ' + _aActor_[:id] + NL
+				_cResult_ += '        name: "' + _aActor_[:name] + '"' + NL
+				_cResult_ += '        role: ' + _aActor_[:role] + NL
+				_cResult_ += NL
 			end
 		ok
 		
-		return cResult
+		return _cResult_
 
 
 #============================================#
@@ -646,46 +646,46 @@ class stzBPMRuleBase from stzObject
 	
 	def _LoadBPMRules()
 		# No orphan steps
-		oRule1 = new stzGraphRule("bpm_no_orphans")
-		oRule1 {
+		_oRule1_ = new stzGraphRule("bpm_no_orphans")
+		_oRule1_ {
 			SetRuleType("validation")
 			SetDomain("bpm")
 			SetMessage("Step has no incoming or outgoing connections")
 			When("nodeType", "equals", "step")
 			ThenViolation("Orphan step detected")
 		}
-		This.AddRule(oRule1)
+		This.AddRule(_oRule1_)
 		
 		# Single start point
-		oRule2 = new stzGraphRule("bpm_single_start")
-		oRule2 {
+		_oRule2_ = new stzGraphRule("bpm_single_start")
+		_oRule2_ {
 			SetRuleType("validation")
 			SetDomain("bpm")
 			SetMessage("Workflow must have exactly one start")
 		}
-		This.AddRule(oRule2)
+		This.AddRule(_oRule2_)
 		
 		# Decision nodes need 2+ paths
-		oRule3 = new stzGraphRule("bpm_decision_branches")
-		oRule3 {
+		_oRule3_ = new stzGraphRule("bpm_decision_branches")
+		_oRule3_ {
 			SetRuleType("validation")
 			SetDomain("bpm")
 			SetMessage("Decision must have at least 2 outgoing paths")
 			When("type", "equals", "decision")
 			ThenViolation("Decision has insufficient branches")
 		}
-		This.AddRule(oRule3)
+		This.AddRule(_oRule3_)
 		
 		# Steps must be assigned
-		oRule4 = new stzGraphRule("bpm_assignment_required")
-		oRule4 {
+		_oRule4_ = new stzGraphRule("bpm_assignment_required")
+		_oRule4_ {
 			SetRuleType("validation")
 			SetDomain("bpm")
 			SetMessage("Step must be assigned to an actor")
 			When("assignedTo", "equals", "")
 			ThenViolation("Unassigned step")
 		}
-		This.AddRule(oRule4)
+		This.AddRule(_oRule4_)
 
 
 class stzSLARuleBase from stzObject
@@ -697,24 +697,24 @@ class stzSLARuleBase from stzObject
 	
 	def _LoadSLARules()
 		# SLA definition required
-		oRule1 = new stzGraphRule("sla_defined")
-		oRule1 {
+		_oRule1_ = new stzGraphRule("sla_defined")
+		_oRule1_ {
 			SetRuleType("validation")
 			SetDomain("sla")
 			SetMessage("Critical steps must have SLA defined")
 			When("critical", "equals", TRUE)
 			Then("sla", "greaterthan", 0)
 		}
-		This.AddRule(oRule1)
+		This.AddRule(_oRule1_)
 		
 		# Duration within SLA
-		oRule2 = new stzGraphRule("sla_compliance")
-		oRule2 {
+		_oRule2_ = new stzGraphRule("sla_compliance")
+		_oRule2_ {
 			SetRuleType("validation")
 			SetDomain("sla")
 			SetMessage("Step duration exceeds SLA")
 		}
-		This.AddRule(oRule2)
+		This.AddRule(_oRule2_)
 
 
 #============================================#
@@ -747,17 +747,17 @@ class stzWorkflowSimulation from stzObject
 	def _ApplyChanges()
 		_nChanges1Len_ = len(@aChanges)
 		for _iLoopChanges1_ = 1 to _nChanges1Len_
-			aChange = @aChanges[_iLoopChanges1_]
-			switch aChange[:type]
+			_aChange_ = @aChanges[_iLoopChanges1_]
+			switch _aChange_[:type]
 			on "optimize_step"
-				@oGraph.SetStepDuration(aChange[:step], aChange[:newDuration])
+				@oGraph.SetStepDuration(_aChange_[:step], _aChange_[:newDuration])
 				
 			on "reassign_step"
-				@oGraph.AssignStepTo(aChange[:step], aChange[:to])
+				@oGraph.AssignStepTo(_aChange_[:step], _aChange_[:to])
 				
 			on "parallelize"
 				# Complex restructuring logic
-				This._ParallelizeSteps(aChange[:steps])
+				This._ParallelizeSteps(_aChange_[:steps])
 			off
 		end
 	
@@ -771,15 +771,15 @@ class stzWorkflowSimulation from stzObject
 
 	def ImportFlow(pSource)
 		if isString(pSource) and StzRight(pSource, 8) = ".stzflow"
-			oParser = new stzFlowParser()
-			oLoaded = oParser.ParseFile(pSource)
+			_oParser_ = new stzFlowParser()
+			_oLoaded_ = _oParser_.ParseFile(pSource)
 		else
-			oParser = new stzFlowParser()
-			oLoaded = oParser.Parse(pSource)
+			_oParser_ = new stzFlowParser()
+			_oLoaded_ = _oParser_.Parse(pSource)
 		ok
 		
 		# Merge loaded workflow
-		This._MergeWorkflow(oLoaded)
+		This._MergeWorkflow(_oLoaded_)
 	
 		def LoadFlow(pSource)
 			This.ImportFlow(pSource)
@@ -789,13 +789,13 @@ class stzWorkflowSimulation from stzObject
 		_aOtherSteps1_ = oOther.Steps()
 		_nOtherSteps1Len_ = len(_aOtherSteps1_)
 		for _iLoopOtherSteps1_ = 1 to _nOtherSteps1Len_
-			aStep = _aOtherSteps1_[_iLoopOtherSteps1_]
-			This.AddStepXTT(aStep[:id], aStep[:label], aStep[:properties])
-			if aStep[:duration] > 0
-				This.SetStepDuration(aStep[:id], aStep[:duration])
+			_aStep_ = _aOtherSteps1_[_iLoopOtherSteps1_]
+			This.AddStepXTT(_aStep_[:id], _aStep_[:label], _aStep_[:properties])
+			if _aStep_[:duration] > 0
+				This.SetStepDuration(_aStep_[:id], _aStep_[:duration])
 			ok
-			if aStep[:sla] > 0
-				This.SetStepSLA(aStep[:id], aStep[:sla])
+			if _aStep_[:sla] > 0
+				This.SetStepSLA(_aStep_[:id], _aStep_[:sla])
 			ok
 		end
 		
@@ -803,16 +803,16 @@ class stzWorkflowSimulation from stzObject
 		_aOtherEdges1_ = oOther.Edges()
 		_nOtherEdges1Len_ = len(_aOtherEdges1_)
 		for _iLoopOtherEdges1_ = 1 to _nOtherEdges1Len_
-			aEdge = _aOtherEdges1_[_iLoopOtherEdges1_]
-			This.ConnectSteps(aEdge[:from], aEdge[:to])
+			_aEdge_ = _aOtherEdges1_[_iLoopOtherEdges1_]
+			This.ConnectSteps(_aEdge_[:from], _aEdge_[:to])
 		end
 		
 		# Copy actors
 		_aOtherActors1_ = oOther.Actors()
 		_nOtherActors1Len_ = len(_aOtherActors1_)
 		for _iLoopOtherActors1_ = 1 to _nOtherActors1Len_
-			aActor = _aOtherActors1_[_iLoopOtherActors1_]
-			This.AddActor(aActor[:id], aActor[:name], aActor[:role])
+			_aActor_ = _aOtherActors1_[_iLoopOtherActors1_]
+			This.AddActor(_aActor_[:id], _aActor_[:name], _aActor_[:role])
 		end
 
 
@@ -822,156 +822,156 @@ class stzWorkflowSimulation from stzObject
 
 class stzFlowParser from stzObject
 	def ParseFile(pcFilename)
-		cContent = read(pcFilename)
-		return This.Parse(cContent)
+		_cContent_ = read(pcFilename)
+		return This.Parse(_cContent_)
 	
 	def Parse(pcContent)
-		oWorkflow = NULL
-		acLines = split(pcContent, NL)
-		cSection = ""
-		cCurrentItem = ""
-		aCurrentProps = []
+		_oWorkflow_ = NULL
+		_acLines_ = split(pcContent, NL)
+		_cSection_ = ""
+		_cCurrentItem_ = ""
+		_aCurrentProps_ = []
 		
-		_nAcLines1Len_ = len(acLines)
+		_nAcLines1Len_ = len(_acLines_)
 		for _iLoopAcLines1_ = 1 to _nAcLines1Len_
-			cLine = acLines[_iLoopAcLines1_]
-			cLine = trim(cLine)
+			_cLine_ = _acLines_[_iLoopAcLines1_]
+			_cLine_ = trim(_cLine_)
 			
-			if cLine = '' or StzLeft(cLine, 1) = "#"
+			if _cLine_ = '' or StzLeft(_cLine_, 1) = "#"
 				loop
 			ok
 			
-			if StzFindFirst(cLine, "workflow ")
-				cId = This._ExtractQuoted(cLine)
-				oWorkflow = new stzWorkflow(cId)
+			if StzFindFirst(_cLine_, "workflow ")
+				_cId_ = This._ExtractQuoted(_cLine_)
+				_oWorkflow_ = new stzWorkflow(_cId_)
 			
-			but StzFindFirst(cLine, "type:")
-				cType = This._ExtractValue(cLine)
-				oWorkflow.SetWorkflowType(cType)
+			but StzFindFirst(_cLine_, "type:")
+				_cType_ = This._ExtractValue(_cLine_)
+				_oWorkflow_.SetWorkflowType(_cType_)
 			
-			but cLine = "steps"
-				cSection = "steps"
+			but _cLine_ = "steps"
+				_cSection_ = "steps"
 			
-			but cLine = "flow"
-				cSection = "flow"
+			but _cLine_ = "flow"
+				_cSection_ = "flow"
 			
-			but cLine = "actors"
-				cSection = "actors"
+			but _cLine_ = "actors"
+				_cSection_ = "actors"
 			
-			but cLine = "roles"
-				cSection = "roles"
+			but _cLine_ = "roles"
+				_cSection_ = "roles"
 			
-			but cSection = "steps"
-				if NOT StzFindFirst(cLine, ":")
-					if cCurrentItem != ""
-						This._AddStep(oWorkflow, cCurrentItem, aCurrentProps)
+			but _cSection_ = "steps"
+				if NOT StzFindFirst(_cLine_, ":")
+					if _cCurrentItem_ != ""
+						This._AddStep(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 					ok
-					cCurrentItem = cLine
-					aCurrentProps = []
+					_cCurrentItem_ = _cLine_
+					_aCurrentProps_ = []
 				else
-					aParts = split(cLine, ":")
-					cKey = trim(aParts[1])
-					cValue = trim(aParts[2])
-					aCurrentProps + [cKey, This._ParseValue(cValue)]
+					_aParts_ = split(_cLine_, ":")
+					_cKey_ = trim(_aParts_[1])
+					_cValue_ = trim(_aParts_[2])
+					_aCurrentProps_ + [_cKey_, This._ParseValue(_cValue_)]
 				ok
 			
-			but cSection = "flow" and StzFindFirst(cLine, "->")
-				aParts = split(cLine, "->")
-				oWorkflow.ConnectSteps(trim(aParts[1]), trim(aParts[2]))
+			but _cSection_ = "flow" and StzFindFirst(_cLine_, "->")
+				_aParts_ = split(_cLine_, "->")
+				_oWorkflow_.ConnectSteps(trim(_aParts_[1]), trim(_aParts_[2]))
 			
-			but cSection = "actors"
-				if NOT StzFindFirst(cLine, ":")
-					if cCurrentItem != ""
-						This._AddActor(oWorkflow, cCurrentItem, aCurrentProps)
+			but _cSection_ = "actors"
+				if NOT StzFindFirst(_cLine_, ":")
+					if _cCurrentItem_ != ""
+						This._AddActor(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 					ok
-					cCurrentItem = cLine
-					aCurrentProps = []
+					_cCurrentItem_ = _cLine_
+					_aCurrentProps_ = []
 				else
-					aParts = split(cLine, ":")
-					aCurrentProps + [trim(aParts[1]), This._ParseValue(trim(aParts[2]))]
+					_aParts_ = split(_cLine_, ":")
+					_aCurrentProps_ + [trim(_aParts_[1]), This._ParseValue(trim(_aParts_[2]))]
 				ok
 			
-			but cSection = "roles" and StzFindFirst(cLine, "->")
-				aParts = split(cLine, "->")
-				oWorkflow.MapRoleToPosition(trim(aParts[1]), trim(aParts[2]))
+			but _cSection_ = "roles" and StzFindFirst(_cLine_, "->")
+				_aParts_ = split(_cLine_, "->")
+				_oWorkflow_.MapRoleToPosition(trim(_aParts_[1]), trim(_aParts_[2]))
 			ok
 		end
 		
 		# Add last items
-		if cSection = "steps" and cCurrentItem != ""
-			This._AddStep(oWorkflow, cCurrentItem, aCurrentProps)
+		if _cSection_ = "steps" and _cCurrentItem_ != ""
+			This._AddStep(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 		ok
-		if cSection = "actors" and cCurrentItem != ""
-			This._AddActor(oWorkflow, cCurrentItem, aCurrentProps)
+		if _cSection_ = "actors" and _cCurrentItem_ != ""
+			This._AddActor(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 		ok
 		
-		return oWorkflow
+		return _oWorkflow_
 	
-	def _AddStep(oWorkflow, pcId, paProps)
-		cLabel = pcId
-		nDuration = 0
-		nSLA = 0
-		cAssigned = ""
+	def _AddStep(_oWorkflow_, pcId, paProps)
+		_cLabel_ = pcId
+		_nDuration_ = 0
+		_nSLA_ = 0
+		_cAssigned_ = ""
 		
-		nLen = len(paProps)
-		for i = 1 to nLen step 2
-			cKey = paProps[i]
+		_nLen_ = len(paProps)
+		for i = 1 to _nLen_ step 2
+			_cKey_ = paProps[i]
 			pValue = paProps[i + 1]
 			
-			if cKey = "label"
-				cLabel = pValue
-			but cKey = "duration"
-				nDuration = pValue
-			but cKey = "sla"
-				nSLA = pValue
-			but cKey = "assignedto"
-				cAssigned = pValue
+			if _cKey_ = "label"
+				_cLabel_ = pValue
+			but _cKey_ = "duration"
+				_nDuration_ = pValue
+			but _cKey_ = "sla"
+				_nSLA_ = pValue
+			but _cKey_ = "assignedto"
+				_cAssigned_ = pValue
 			ok
 		end
 		
-		oWorkflow.AddStepXT(pcId, cLabel)
-		if nDuration > 0
-			oWorkflow.SetStepDuration(pcId, nDuration)
+		_oWorkflow_.AddStepXT(pcId, _cLabel_)
+		if _nDuration_ > 0
+			_oWorkflow_.SetStepDuration(pcId, _nDuration_)
 		ok
-		if nSLA > 0
-			oWorkflow.SetStepSLA(pcId, nSLA)
+		if _nSLA_ > 0
+			_oWorkflow_.SetStepSLA(pcId, _nSLA_)
 		ok
-		if cAssigned != ""
-			oWorkflow.AssignStepTo(pcId, cAssigned)
+		if _cAssigned_ != ""
+			_oWorkflow_.AssignStepTo(pcId, _cAssigned_)
 		ok
 	
-	def _AddActor(oWorkflow, pcId, paProps)
-		cName = pcId
-		cRole = ""
+	def _AddActor(_oWorkflow_, pcId, paProps)
+		_cName_ = pcId
+		_cRole_ = ""
 		
-		nLen = len(paProps)
-		for i = 1 to nLen step 2
+		_nLen_ = len(paProps)
+		for i = 1 to _nLen_ step 2
 			if paProps[i] = "name"
-				cName = paProps[i + 1]
+				_cName_ = paProps[i + 1]
 			but paProps[i] = "role"
-				cRole = paProps[i + 1]
+				_cRole_ = paProps[i + 1]
 			ok
 		end
 		
-		oWorkflow.AddActor(pcId, cName, cRole)
+		_oWorkflow_.AddActor(pcId, _cName_, _cRole_)
 	
-	def _ParseValue(cValue)
-		if isdigit(cValue)
-			return 0 + cValue
+	def _ParseValue(_cValue_)
+		if isdigit(_cValue_)
+			return 0 + _cValue_
 		ok
-		if StzLeft(cValue, 1) = '"' and StzRight(cValue, 1) = '"'
-			return StzMid(cValue, 2, StzLen(cValue) - 2)
+		if StzLeft(_cValue_, 1) = '"' and StzRight(_cValue_, 1) = '"'
+			return StzMid(_cValue_, 2, StzLen(_cValue_) - 2)
 		ok
-		return cValue
+		return _cValue_
 	
-	def _ExtractQuoted(cLine)
-		nStart = StzFindFirst(cLine, '"')
-		if nStart = 0 return "" ok
-		nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-		nEnd = StzFindFirst(nEnd, '"')
-		return StzMid(cLine, nStart + 1, nEnd - 1)
+	def _ExtractQuoted(_cLine_)
+		_nStart_ = StzFindFirst(_cLine_, '"')
+		if _nStart_ = 0 return "" ok
+		_nEnd_ = StzMid(_cLine_, _nStart_ + 1, StzLen(_cLine_) - _nStart_)
+		_nEnd_ = StzFindFirst(_nEnd_, '"')
+		return StzMid(_cLine_, _nStart_ + 1, _nEnd_ - 1)
 
-	def _ExtractValue(cLine)
-		nPos = StzFindFirst(cLine, ":")
-		if nPos = 0 return "" ok
-		return trim(StzMid(cLine, nPos + 1, StzLen(cLine) - nPos))
+	def _ExtractValue(_cLine_)
+		_nPos_ = StzFindFirst(_cLine_, ":")
+		if _nPos_ = 0 return "" ok
+		return trim(StzMid(_cLine_, _nPos_ + 1, StzLen(_cLine_) - _nPos_))

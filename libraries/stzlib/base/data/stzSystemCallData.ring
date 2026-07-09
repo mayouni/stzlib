@@ -174,39 +174,39 @@ func Sys(cCommand)
 		stzraise("Unknown system command: " + cCommand)
 	ok
 	
-	aCmd = $aStzSystemCommands[cCommand]
+	_aCmd_ = $aStzSystemCommands[cCommand]
 	
 	# Get platform-specific command
-	aPlatformCmd = ""
-	if isWindows() and haskey(aCmd, :windows)
-		aPlatformCmd = aCmd[:windows]
-	but isMacOS() and haskey(aCmd, :mac)
-		aPlatformCmd = aCmd[:mac]
-	but haskey(aCmd, :unix)
-		aPlatformCmd = aCmd[:unix]
+	_aPlatformCmd_ = ""
+	if isWindows() and haskey(_aCmd_, :windows)
+		_aPlatformCmd_ = _aCmd_[:windows]
+	but isMacOS() and haskey(_aCmd_, :mac)
+		_aPlatformCmd_ = _aCmd_[:mac]
+	but haskey(_aCmd_, :unix)
+		_aPlatformCmd_ = _aCmd_[:unix]
 	ok
 	
-	if aPlatformCmd = ""
+	if _aPlatformCmd_ = ""
 		stzraise("Command not supported on this platform: " + cCommand)
 	ok
 	
 	# Build command string
-	cProgram = aPlatformCmd[1]
-	acArgs = aPlatformCmd[2]
+	_cProgram_ = _aPlatformCmd_[1]
+	_acArgs_ = _aPlatformCmd_[2]
 	
-	cResult = cProgram
-	_nAcArgs1Len_ = len(acArgs)
+	_cResult_ = _cProgram_
+	_nAcArgs1Len_ = len(_acArgs_)
 	for _iLoopAcArgs1_ = 1 to _nAcArgs1Len_
-		cArg = acArgs[_iLoopAcArgs1_]
-		cResult += " " + cArg
+		_cArg_ = _acArgs_[_iLoopAcArgs1_]
+		_cResult_ += " " + _cArg_
 	next
 	
 	# Add return type suffix
-	if haskey(aCmd, :ReturnType)
-		cResult += " @RETURN:" + aCmd[:ReturnType]
+	if haskey(_aCmd_, :ReturnType)
+		_cResult_ += " @RETURN:" + _aCmd_[:ReturnType]
 	ok
 	
-	return cResult
+	return _cResult_
 
 	func SysCmd(cCommand)
 		return Sys(cCommand)

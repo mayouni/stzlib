@@ -36,9 +36,9 @@ class stzTableColumnAccess from stzTable
 			ok
 		ok
 
-		aResult = This.ColSection( p, 1, This.NumberOfRows() )
+		_aResult_ = This.ColSection( p, 1, This.NumberOfRows() )
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -136,31 +136,31 @@ class stzTableColumnAccess from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
 		ok
 
-		nLen = len(paCols)
+		_nLen_ = len(paCols)
 
-		aResult = []
-		for i = 1 to nLen
-			aResult + This.CellsInCol(paCols[i])
+		_aResult_ = []
+		for i = 1 to _nLen_
+			_aResult_ + This.CellsInCol(paCols[i])
 		next
 
-		aResult = Q(aResult).Flattened()
-		return aResult
+		_aResult_ = Q(_aResult_).Flattened()
+		return _aResult_
 
 	  #------------------------------------------------#
 	 #  GETTING THE COLUMN NAME AND THE COLUMN CELLS  #
 	#------------------------------------------------#
 
 	def ColXT(p)
-		aResult = [ This.ColName(p) ]
+		_aResult_ = [ This.ColName(p) ]
 
-		aCells = This.Col(p)
-		nLen = len(aCells)
+		_aCells_ = This.Col(p)
+		_nLen_ = len(_aCells_)
 
-		for i = 1 to nLen
-			aResult + aCells[i]
+		for i = 1 to _nLen_
+			_aResult_ + _aCells_[i]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -219,86 +219,86 @@ class stzTableColumnAccess from stzTable
 	 #  GETTING COLUMN NAME  #
 	#=======================#
 
-	def NthColName(n)
-		if isString(n)
+	def NthColName(_n_)
+		if isString(_n_)
 
-			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], n) > 0
-				n = 1
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], _n_) > 0
+				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastCol, :LastColumn ], n) > 0
-				n = This.NumberOfColumns()
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], _n_) > 0
+				_n_ = This.NumberOfColumns()
 
 			else
-				StzRaise("syntax error in (" + n + ")! Allowed values are :First or :Last ( or :FirstCol or :LastCol).")
+				StzRaise("syntax error in (" + _n_ + ")! Allowed values are :First or :Last ( or :FirstCol or :LastCol).")
 
 			ok
 		ok
 
-		cResult = This.ColNames()[n]
+		_cResult_ = This.ColNames()[_n_]
 
-		return cResult
+		return _cResult_
 
-		def NthColumnName(n)
-			return This.NthColName(n)
+		def NthColumnName(_n_)
+			return This.NthColName(_n_)
 
 	  #------------------------------------------------#
 	 #  GETTING THE LIST OF CELLS IN THE NTH COLUMN   #
 	#------------------------------------------------#
 
-	def NthCol(n)
-		return This.Col(n)
+	def NthCol(_n_)
+		return This.Col(_n_)
 
-		def NthColumn(n)
-			return This.NthCol(n)
+		def NthColumn(_n_)
+			return This.NthCol(_n_)
 
-		def CellsInNthCol(n)
-			return This.NthCol(n)
+		def CellsInNthCol(_n_)
+			return This.NthCol(_n_)
 
-		def CellsInNthColumn(n)
-			return This.NthCol(n)
+		def CellsInNthColumn(_n_)
+			return This.NthCol(_n_)
 
-		def NthColData(n)
-			return This.NthCol(n)
+		def NthColData(_n_)
+			return This.NthCol(_n_)
 
-		def NthColumnData(n)
-			return This.NthCol(n)
+		def NthColumnData(_n_)
+			return This.NthCol(_n_)
 
 	  #-------------------------------------------------------------------------#
 	 #  GETTING A LIST CONTAINING THE NAME OF NTH COLUMN ALONG WITH ITS CELLS  #
 	#-------------------------------------------------------------------------#
 
-	def NthColXT(n)
-		if isString(n)
-			if n = :first or n = :FirstCol or n = :FirstColumn
-				n = 1
+	def NthColXT(_n_)
+		if isString(_n_)
+			if _n_ = :first or _n_ = :FirstCol or _n_ = :FirstColumn
+				_n_ = 1
 
-			but n = :Last or n = :LastCol or n = :LastColumn
-				n = This.NumberOfCol()
+			but _n_ = :Last or _n_ = :LastCol or _n_ = :LastColumn
+				_n_ = This.NumberOfCol()
 			ok
 		ok
 
-		return This.ColXT(n)
+		return This.ColXT(_n_)
 
-		def NthColumnXT(n)
-			return This.ColXT(n)
+		def NthColumnXT(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInNthColXT(n)
-			return This.ColXT(n)
+		def CellsInNthColXT(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInNthColumnXT(n)
-			return This.ColXT(n)
+		def CellsInNthColumnXT(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInNthColAndTheirPositions(n)
-			return This.ColXT(n)
+		def CellsInNthColAndTheirPositions(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInColNAndTheirPositions(n)
-			return This.ColXT(n)
+		def CellsInColNAndTheirPositions(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInNthColumnAndTheirPositions(n)
-			return This.ColXT(n)
+		def CellsInNthColumnAndTheirPositions(_n_)
+			return This.ColXT(_n_)
 
-		def CellsInColumnNAndTheirPositions(n)
-			return This.ColXT(n)
+		def CellsInColumnNAndTheirPositions(_n_)
+			return This.ColXT(_n_)
 
 	  #----------------------------------------#
 	 #  GETTING THE NAME OF THE FIRST COLUMN  #
@@ -377,45 +377,45 @@ class stzTableColumnAccess from stzTable
 	 #  GETTING COLUMN NAME  #
 	#=======================#
 
-	def ColName(n)
-		if isString(n)
-			if This.HasColName(n)
-				return n
+	def ColName(_n_)
+		if isString(_n_)
+			if This.HasColName(_n_)
+				return _n_
 			else
 				StzRaise("Incorrect column name! The name you provided does not exist.")
 			ok
 		ok
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLenCols = len(@aContent)
+		_nLenCols_ = len(@aContent)
 
-		if n < 1 or n > nLenCols
+		if _n_ < 1 or _n_ > _nLenCols_
 			StzRaise("Index out of range! n must is not a valid number of column.")
 		ok
 
-		cResult = @aContent[n][1]
-		return cResult
+		_cResult_ = @aContent[_n_][1]
+		return _cResult_
 
-		def ColNameQ(n)
-			return new stzString( This.ColName(n) )
+		def ColNameQ(_n_)
+			return new stzString( This.ColName(_n_) )
 
-		def ColumnName(n)
-			return This.ColName(n)
+		def ColumnName(_n_)
+			return This.ColName(_n_)
 
-			def ColumnNameQ(n)
-				return new stzString( This.ColumnName(n) )
+			def ColumnNameQ(_n_)
+				return new stzString( This.ColumnName(_n_) )
 
 	  #--------------------------------------------------------#
 	 #  GETTING CELLS AND THEIR POSITIONS IN A GIVEN COLUMN   #
 	#--------------------------------------------------------#
 
 	def CellsAndPositionsInCol(p)
-		aResult = This.ColQ(p).AssociatedWith( This.CellsInColAsPositions(p) )
+		_aResult_ = This.ColQ(p).AssociatedWith( This.CellsInColAsPositions(p) )
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -479,17 +479,17 @@ class stzTableColumnAccess from stzTable
 			StzRaise("Incorrect param value! " + @@(pCol) + " is not a valid column identifier.")
 		ok
 
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 
-		nNumberOfRows = This.NumberOfRows()
+		_nNumberOfRows_ = This.NumberOfRows()
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nNumberOfRows
-			aResult + [ nCol, i]
+		for i = 1 to _nNumberOfRows_
+			_aResult_ + [ _nCol_, i]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -574,20 +574,20 @@ class stzTableColumnAccess from stzTable
 	#--------------------------------------------------------#
 
 	def ColsAsPositions(paCols)
-		nLen = len(paCols)
-		anColNumbers = This.TheseColsAsNumbers(paCols)
-		aResult = []
+		_nLen_ = len(paCols)
+		_anColNumbers_ = This.TheseColsAsNumbers(paCols)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aCellsPos = This.CellsInColAsPositions(anColNumbers[i])
-			nLenCells = len(aCellsPos)
+		for i = 1 to _nLen_
+			_aCellsPos_ = This.CellsInColAsPositions(_anColNumbers_[i])
+			_nLenCells_ = len(_aCellsPos_)
 
-			for j = 1 to nLenCells
-				aResult + aCellsPos[j]
+			for j = 1 to _nLenCells_
+				_aResult_ + _aCellsPos_[j]
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 

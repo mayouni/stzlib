@@ -6,11 +6,11 @@ func IsListOfTables(paList)
 		return FALSE
 	ok
 
-	nRows = len(paList[1][2])
-	nLen = len(paList)
+	_nRows_ = len(paList[1][2])
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
-		if len(paList[i][2]) != nRows
+	for i = 1 to _nLen_
+		if len(paList[i][2]) != _nRows_
 			return FALSE
 		ok
 	next
@@ -29,8 +29,8 @@ class stzListOfTables from stzListOfHashLists
 			StzRaise("Can't create the stzListOfTables object! You must provide a well formed list of hashlists.")
 		ok
 
-		nLen = len(paList)
-		for i = 1 to nLen
+		_nLen_ = len(paList)
+		for i = 1 to _nLen_
 			@aContent + new stzTable(paList[i])
 		next
 
@@ -44,7 +44,7 @@ class stzListOfTables from stzListOfHashLists
 			return len(@aContent)
 
 	def Show()
-		nLen = len(@aContent)
-		for i = 1 to nLen
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
 			@aContent[i].Show()
 		next

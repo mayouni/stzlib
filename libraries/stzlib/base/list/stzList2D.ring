@@ -17,11 +17,11 @@ func IsList2D(paList)
 		StzRaise("Incorrect param type! paList must be a list of lists.")
 	ok
 
-	nLen = len(paList)
-	nLen1 = len(paList[1])
+	_nLen_ = len(paList)
+	_nLen1_ = len(paList[1])
 
-	for i = 2 to nLen
-		if len(paList[i]) != nLen1
+	for i = 2 to _nLen_
+		if len(paList[i]) != _nLen1_
 			return FALSE
 		ok
 	next
@@ -44,8 +44,8 @@ func Transpose(aList2D)
 	ok
 
     # Handle edge cases
-    nRows = len(aList2D)
-    if nRows = 0
+    _nRows_ = len(aList2D)
+    if _nRows_ = 0
         StzRaise("Can't transpose an empty list!")
     ok
 
@@ -53,27 +53,27 @@ func Transpose(aList2D)
 		StzRaise("Can't transpose the list! Incorrect format.")
 	ok
 
-    nCols = len(aList2D[1])
+    _nCols_ = len(aList2D[1])
 
     # Verify all sublists have the same length
 
-	for i = 1 to nRows
-        if not (isList(aList2D[i]) and len(aList2D[i]) = nCols)
+	for i = 1 to _nRows_
+        if not (isList(aList2D[i]) and len(aList2D[i]) = _nCols_)
            StzRaise("Can't transpose the list! Incorrect format.")
         ok
     next
 
     # Initialize the transposed matrix: nCols rows, each with nRows elements
-    aTransposed = []
-    for i = 1 to nCols
-        aNewRow = []
-        for j = 1 to nRows
-            aNewRow + aList2D[j][i]
+    _aTransposed_ = []
+    for i = 1 to _nCols_
+        _aNewRow_ = []
+        for j = 1 to _nRows_
+            _aNewRow_ + aList2D[j][i]
         next
-        aTransposed + aNewRow
+        _aTransposed_ + _aNewRow_
     next
 
-    return aTransposed
+    return _aTransposed_
 
 	#< @FunctionAlternativeForms
 

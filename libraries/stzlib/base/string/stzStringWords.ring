@@ -41,9 +41,9 @@ class stzStringWords from stzObject
 	def Words()
 		pH = @oString.Engine()
 		pR = StzEngineStringWordsSplit(pH)
-		cJoined = StzEngineStringData(pR)
+		_cJoined_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cJoined)
+		return _SplitNullDelimited(_cJoined_)
 
 		def WordsQ()
 			return new stzList(This.Words())
@@ -65,18 +65,18 @@ class stzStringWords from stzObject
 	 #     NTH WORD                  #
 	#===============================#
 
-	def NthWord(n)
+	def NthWord(_n_)
 		pH = @oString.Engine()
-		pR = StzEngineStringNthWord(pH, n)
+		pR = StzEngineStringNthWord(pH, _n_)
 		if pR != NULL
-			c = StzEngineStringData(pR)
+			_c_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			return c
+			return _c_
 		ok
 		StzRaise("Index out of range!")
 
-		def Word(n)
-			return This.NthWord(n)
+		def Word(_n_)
+			return This.NthWord(_n_)
 
 	def FirstWord()
 		return This.NthWord(1)
@@ -88,79 +88,79 @@ class stzStringWords from stzObject
 	 #     FIRST/LAST N WORDS       #
 	#===============================#
 
-	def NFirstWords(n)
-		acWords = This.Words()
-		nTotal = len(acWords)
-		if n > nTotal
-			n = nTotal
+	def NFirstWords(_n_)
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		if _n_ > _nTotal_
+			_n_ = _nTotal_
 		ok
 
-		acResult = []
-		for i = 1 to n
-			acResult + acWords[i]
+		_acResult_ = []
+		for i = 1 to _n_
+			_acResult_ + _acWords_[i]
 		next
-		return acResult
+		return _acResult_
 
-	def NLastWords(n)
-		acWords = This.Words()
-		nTotal = len(acWords)
-		if n > nTotal
-			n = nTotal
+	def NLastWords(_n_)
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		if _n_ > _nTotal_
+			_n_ = _nTotal_
 		ok
 
-		acResult = []
-		nStart = nTotal - n + 1
-		for i = nStart to nTotal
-			acResult + acWords[i]
+		_acResult_ = []
+		_nStart_ = _nTotal_ - _n_ + 1
+		for i = _nStart_ to _nTotal_
+			_acResult_ + _acWords_[i]
 		next
-		return acResult
+		return _acResult_
 
 	  #===============================#
 	 #     WORD AT POSITION          #
 	#===============================#
 
-	def WordAtPosition(n)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
+	def WordAtPosition(_n_)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
 
-		if n < 1 or n > nLen
+		if _n_ < 1 or _n_ > _nLen_
 			StzRaise("Position out of range!")
 		ok
 
-		nWordIndex = 0
-		bInWord = 0
-		cWord = ""
+		_nWordIndex_ = 0
+		_bInWord_ = 0
+		_cWord_ = ""
 
-		for i = 1 to nLen
-			c = acChars[i]
-			bIsSpace = (c = " " or c = StzChar(9) or c = StzChar(10) or c = StzChar(13))
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			_bIsSpace_ = (_c_ = " " or _c_ = StzChar(9) or _c_ = StzChar(10) or _c_ = StzChar(13))
 
-			if NOT bIsSpace
-				if NOT bInWord
-					nWordIndex++
-					bInWord = 1
-					cWord = ""
+			if NOT _bIsSpace_
+				if NOT _bInWord_
+					_nWordIndex_++
+					_bInWord_ = 1
+					_cWord_ = ""
 				ok
-				cWord += c
+				_cWord_ += _c_
 			else
-				if bInWord
-					bInWord = 0
+				if _bInWord_
+					_bInWord_ = 0
 				ok
 			ok
 
-			if i = n
-				if bIsSpace
+			if i = _n_
+				if _bIsSpace_
 					return ""
 				else
 					# Finish reading the rest of this word
-					for j = i + 1 to nLen
-						cNext = acChars[j]
-						if cNext = " " or cNext = StzChar(9) or cNext = StzChar(10) or cNext = StzChar(13)
+					for j = i + 1 to _nLen_
+						_cNext_ = _acChars_[j]
+						if _cNext_ = " " or _cNext_ = StzChar(9) or _cNext_ = StzChar(10) or _cNext_ = StzChar(13)
 							exit
 						ok
-						cWord += cNext
+						_cWord_ += _cNext_
 					next
-					return cWord
+					return _cWord_
 				ok
 			ok
 		next
@@ -175,14 +175,14 @@ class stzStringWords from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringUniqueWordsCS(pH, _bCase_)
-		cResult = StzEngineStringData(pR)
+		_cResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 
-		if cResult = ""
+		if _cResult_ = ""
 			return []
 		ok
 
-		return split(cResult, " ")
+		return split(_cResult_, " ")
 
 	def UniqueWords()
 		return This.UniqueWordsCS(1)
@@ -195,115 +195,115 @@ class stzStringWords from stzObject
 	#===============================#
 
 	def LongestWord()
-		acWords = This.Words()
-		nTotal = len(acWords)
-		if nTotal = 0
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		if _nTotal_ = 0
 			return ""
 		ok
 
-		cLongest = acWords[1]
-		for i = 2 to nTotal
-			if StzLen(acWords[i]) > StzLen(cLongest)
-				cLongest = acWords[i]
+		_cLongest_ = _acWords_[1]
+		for i = 2 to _nTotal_
+			if StzLen(_acWords_[i]) > StzLen(_cLongest_)
+				_cLongest_ = _acWords_[i]
 			ok
 		next
-		return cLongest
+		return _cLongest_
 
 	def ShortestWord()
-		acWords = This.Words()
-		nTotal = len(acWords)
-		if nTotal = 0
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		if _nTotal_ = 0
 			return ""
 		ok
 
-		cShortest = acWords[1]
-		for i = 2 to nTotal
-			if StzLen(acWords[i]) < StzLen(cShortest)
-				cShortest = acWords[i]
+		_cShortest_ = _acWords_[1]
+		for i = 2 to _nTotal_
+			if StzLen(_acWords_[i]) < StzLen(_cShortest_)
+				_cShortest_ = _acWords_[i]
 			ok
 		next
-		return cShortest
+		return _cShortest_
 
 	def AverageWordLength()
-		acWords = This.Words()
-		nTotal = len(acWords)
-		if nTotal = 0
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		if _nTotal_ = 0
 			return 0
 		ok
 
-		nSum = 0
-		for i = 1 to nTotal
-			nSum += StzLen(acWords[i])
+		_nSum_ = 0
+		for i = 1 to _nTotal_
+			_nSum_ += StzLen(_acWords_[i])
 		next
-		return nSum / nTotal
+		return _nSum_ / _nTotal_
 
 	  #===============================#
 	 #     WORD FREQUENCIES          #
 	#===============================#
 
 	def WordFrequencies()
-		acWords = This.Words()
-		nTotal = len(acWords)
-		acUnique = []
-		anCounts = []
+		_acWords_ = This.Words()
+		_nTotal_ = len(_acWords_)
+		_acUnique_ = []
+		_anCounts_ = []
 
-		for i = 1 to nTotal
-			cLow = StzCaseFold(acWords[i])
-			bFound = 0
-			nULen = len(acUnique)
-			for j = 1 to nULen
-				if StzCaseFold(acUnique[j]) = cLow
-					anCounts[j] = anCounts[j] + 1
-					bFound = 1
+		for i = 1 to _nTotal_
+			_cLow_ = StzCaseFold(_acWords_[i])
+			_bFound_ = 0
+			_nULen_ = len(_acUnique_)
+			for j = 1 to _nULen_
+				if StzCaseFold(_acUnique_[j]) = _cLow_
+					_anCounts_[j] = _anCounts_[j] + 1
+					_bFound_ = 1
 					exit
 				ok
 			next
-			if NOT bFound
-				acUnique + acWords[i]
-				anCounts + 1
+			if NOT _bFound_
+				_acUnique_ + _acWords_[i]
+				_anCounts_ + 1
 			ok
 		next
 
-		aResult = []
-		nULen = len(acUnique)
-		for i = 1 to nULen
-			aResult + [acUnique[i], anCounts[i]]
+		_aResult_ = []
+		_nULen_ = len(_acUnique_)
+		for i = 1 to _nULen_
+			_aResult_ + [_acUnique_[i], _anCounts_[i]]
 		next
-		return aResult
+		return _aResult_
 
 	def MostFrequentWord()
-		aFreqs = This.WordFrequencies()
-		nFLen = len(aFreqs)
-		if nFLen = 0
+		_aFreqs_ = This.WordFrequencies()
+		_nFLen_ = len(_aFreqs_)
+		if _nFLen_ = 0
 			return ""
 		ok
 
-		cBest = aFreqs[1][1]
-		nBest = aFreqs[1][2]
-		for i = 2 to nFLen
-			if aFreqs[i][2] > nBest
-				nBest = aFreqs[i][2]
-				cBest = aFreqs[i][1]
+		_cBest_ = _aFreqs_[1][1]
+		_nBest_ = _aFreqs_[1][2]
+		for i = 2 to _nFLen_
+			if _aFreqs_[i][2] > _nBest_
+				_nBest_ = _aFreqs_[i][2]
+				_cBest_ = _aFreqs_[i][1]
 			ok
 		next
-		return cBest
+		return _cBest_
 
 	  #===============================#
 	 #     WORD EXISTS               #
 	#===============================#
 
 	def ContainsWordCS(pcWord, pCaseSensitive)
-		bCase = @CaseSensitive(pCaseSensitive)
-		acWords = This.Words()
-		nLen = len(acWords)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_acWords_ = This.Words()
+		_nLen_ = len(_acWords_)
 
-		for i = 1 to nLen
-			if bCase
-				if acWords[i] = pcWord
+		for i = 1 to _nLen_
+			if _bCase_
+				if _acWords_[i] = pcWord
 					return 1
 				ok
 			else
-				if StzCaseFold(acWords[i]) = StzCaseFold(pcWord)
+				if StzCaseFold(_acWords_[i]) = StzCaseFold(pcWord)
 					return 1
 				ok
 			ok
@@ -318,37 +318,37 @@ class stzStringWords from stzObject
 	#===============================#
 
 	def ReplaceWordCS(pcOldWord, pcNewWord, pCaseSensitive)
-		bCase = @CaseSensitive(pCaseSensitive)
-		acWords = This.Words()
-		nLen = len(acWords)
-		acResult = []
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_acWords_ = This.Words()
+		_nLen_ = len(_acWords_)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			if bCase
-				if acWords[i] = pcOldWord
-					acResult + pcNewWord
+		for i = 1 to _nLen_
+			if _bCase_
+				if _acWords_[i] = pcOldWord
+					_acResult_ + pcNewWord
 				else
-					acResult + acWords[i]
+					_acResult_ + _acWords_[i]
 				ok
 			else
-				if StzCaseFold(acWords[i]) = StzCaseFold(pcOldWord)
-					acResult + pcNewWord
+				if StzCaseFold(_acWords_[i]) = StzCaseFold(pcOldWord)
+					_acResult_ + pcNewWord
 				else
-					acResult + acWords[i]
+					_acResult_ + _acWords_[i]
 				ok
 			ok
 		next
 
-		cResult = ""
-		nResLen = len(acResult)
-		for i = 1 to nResLen
+		_cResult_ = ""
+		_nResLen_ = len(_acResult_)
+		for i = 1 to _nResLen_
 			if i > 1
-				cResult += " "
+				_cResult_ += " "
 			ok
-			cResult += acResult[i]
+			_cResult_ += _acResult_[i]
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def ReplaceWordCSQ(pcOldWord, pcNewWord, pCaseSensitive)
 			This.ReplaceWordCS(pcOldWord, pcNewWord, pCaseSensitive)
@@ -366,33 +366,33 @@ class stzStringWords from stzObject
 	#===============================#
 
 	def RemoveWordCS(pcWord, pCaseSensitive)
-		bCase = @CaseSensitive(pCaseSensitive)
-		acWords = This.Words()
-		nLen = len(acWords)
-		acResult = []
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_acWords_ = This.Words()
+		_nLen_ = len(_acWords_)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			if bCase
-				if acWords[i] != pcWord
-					acResult + acWords[i]
+		for i = 1 to _nLen_
+			if _bCase_
+				if _acWords_[i] != pcWord
+					_acResult_ + _acWords_[i]
 				ok
 			else
-				if StzCaseFold(acWords[i]) != StzCaseFold(pcWord)
-					acResult + acWords[i]
+				if StzCaseFold(_acWords_[i]) != StzCaseFold(pcWord)
+					_acResult_ + _acWords_[i]
 				ok
 			ok
 		next
 
-		cResult = ""
-		nResLen = len(acResult)
-		for i = 1 to nResLen
+		_cResult_ = ""
+		_nResLen_ = len(_acResult_)
+		for i = 1 to _nResLen_
 			if i > 1
-				cResult += " "
+				_cResult_ += " "
 			ok
-			cResult += acResult[i]
+			_cResult_ += _acResult_[i]
 		next
 
-		@oString.Update(cResult)
+		@oString.Update(_cResult_)
 
 		def RemoveWordCSQ(pcWord, pCaseSensitive)
 			This.RemoveWordCS(pcWord, pCaseSensitive)

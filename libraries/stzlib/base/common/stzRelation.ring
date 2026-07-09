@@ -57,11 +57,11 @@ class stzRelation from stzObject
 			ok
 		ok
 
-		nHandle = StzEngineRelAdd(cSubject, cRelationType, cObject, nWeight)
-		if nHandle < 0
+		_nHandle_ = StzEngineRelAdd(cSubject, cRelationType, cObject, nWeight)
+		if _nHandle_ < 0
 			StzRaise("Can't add relation! Slots full.")
 		ok
-		return nHandle
+		return _nHandle_
 
 		def AddQ(cSubject, cRelationType, cObject, nWeight)
 			This.Add(cSubject, cRelationType, cObject, nWeight)

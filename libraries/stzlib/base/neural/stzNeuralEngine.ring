@@ -42,7 +42,7 @@ class stzNeuralEngine from stzNeural
 		]
 
 	def Show()
-		aC = This.Content()
-		? "stzNeuralEngine [ backend=" + aC[1][2] +
-		  ", version=" + aC[2][2] + ", ready=" + aC[3][2] + " ]"
+		_aC_ = This.Content()
+		? "stzNeuralEngine [ backend=" + _aC_[1][2] +
+		  ", version=" + _aC_[2][2] + ", ready=" + _aC_[3][2] + " ]"
 		return This

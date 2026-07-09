@@ -59,48 +59,48 @@ class stzListOfSections from stzLists
 
 		/* EXAMPLE
 
-		o1 = new stzListOfSections([
+		_o1_ = new stzListOfSections([
 			[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15] ]
 		])
-		o1.MergeContiguous()
-		? o1.Content()
+		_o1_.MergeContiguous()
+		? _o1_.Content()
 		#--> [ [1, 4], [6, 10], [12, 15] ]
 
 		*/
 
-    		aContent = This.Content()
-    		nLen = len(aContent)
+    		_aContent_ = This.Content()
+    		_nLen_ = len(_aContent_)
 
-    		if nLen = 0
+    		if _nLen_ = 0
         		return
     		ok
 
-    		aResult = []
-    		aCurrentMerged = aContent[1]
+    		_aResult_ = []
+    		_aCurrentMerged_ = _aContent_[1]
 
-		for i = 2 to nLen
-		        aNextPair = This.Item(i)
+		for i = 2 to _nLen_
+		        _aNextPair_ = This.Item(i)
 		
-		        if aCurrentMerged[2] >= aNextPair[1] - 1
+		        if _aCurrentMerged_[2] >= _aNextPair_[1] - 1
 
 		            # Merge sections
 
-		            aCurrentMerged[2] = @max([ aCurrentMerged[2], aNextPair[2] ])
+		            _aCurrentMerged_[2] = @max([ _aCurrentMerged_[2], _aNextPair_[2] ])
 
 		        else
 
 		            # Add current merged section and start a new merge
 
-		            aResult + aCurrentMerged
-		            aCurrentMerged = aNextPair
+		            _aResult_ + _aCurrentMerged_
+		            _aCurrentMerged_ = _aNextPair_
 		        ok
 		next
 		
 		# Add the last merged section
 
-		aResult + aCurrentMerged
+		_aResult_ + _aCurrentMerged_
 		
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionFluentForm	
 
@@ -121,8 +121,8 @@ class stzListOfSections from stzLists
 		#>
 
 	def ContiguousSectionsMerged()
-		aResult = This.Copy().MergeContiguousQ().Content()
-		return aResult
+		_aResult_ = This.Copy().MergeContiguousQ().Content()
+		return _aResult_
 
 		def AdjuscentSectionsMerged()
 			return This.ContiguousSectionsMerged()
@@ -139,41 +139,41 @@ class stzListOfSections from stzLists
 
 	def MergeIncluded() #ClaudeAI
 
-		aSections = This.Content()
-		nLen = len(aSections)
+		_aSections_ = This.Content()
+		_nLen_ = len(_aSections_)
 
 		# If the list is empty or has only one section, nothing to merge
-		if nLen <= 1
+		if _nLen_ <= 1
 			return
 		ok
 	
 		# Sort sections based on first number, then by second number
-		aSectionsSorted = This.Copy().SortedInAscending()
+		_aSectionsSorted_ = This.Copy().SortedInAscending()
 		
 		# Initialize result list with first section
-		aResult = []
-		aCurrentSection = aSectionsSorted[1]
+		_aResult_ = []
+		_aCurrentSection_ = _aSectionsSorted_[1]
 		
 		# Iterate through sections
-		for i = 2 to nLen
-			aSection = aSectionsSorted[i]
+		for i = 2 to _nLen_
+			_aSection_ = _aSectionsSorted_[i]
 			
 			# Check if current section is included in current section
-			if pvtIsInclusive(aCurrentSection, aSection)
-				aCurrentSection = pvtMergeInclusiveSections(aCurrentSection, aSection)
+			if pvtIsInclusive(_aCurrentSection_, _aSection_)
+				_aCurrentSection_ = pvtMergeInclusiveSections(_aCurrentSection_, _aSection_)
 			
 			# If not included, add current section to result and start new one
 			else
-				aResult + aCurrentSection
-				aCurrentSection = aSection
+				_aResult_ + _aCurrentSection_
+				_aCurrentSection_ = _aSection_
 			ok
 		next
 		
 		# Add the last section
-		aResult + aCurrentSection
+		_aResult_ + _aCurrentSection_
 		
 		# Update content with merged result
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionFluentForm
 
@@ -195,8 +195,8 @@ class stzListOfSections from stzLists
 
 	def IncludedSectionsMerged()
 
-		aResult = This.Copy().MergeIncludedQ().Content()
-		return aResult
+		_aResult_ = This.Copy().MergeIncludedQ().Content()
+		return _aResult_
 
 		def InclusiveSectionsMerged()
 			return This.IncludedSectionsMerged()
@@ -208,41 +208,41 @@ class stzListOfSections from stzLists
 
 	def MergeOverlapping() #ClaudeAI
 
-		aSections = This.Content()
-		nLen = len(aSections)
+		_aSections_ = This.Content()
+		_nLen_ = len(_aSections_)
 
 		# If the list is empty or has only one section, nothing to merge
-		if nLen <= 1
+		if _nLen_ <= 1
 			return
 		ok
 	
 		# Sort sections based on first number
-		asections = This.Copy().SortedInAscending()
+		_aSections_ = This.Copy().SortedInAscending()
 		
 		# Initialize result list with first section
-		aResult = []
-		aCurrentSection = aSections[1]
+		_aResult_ = []
+		_aCurrentSection_ = _aSections_[1]
 		
 		# Iterate through sections
-		for i = 2 to nLen
-			aSection = aSections[i]
+		for i = 2 to _nLen_
+			_aSection_ = _aSections_[i]
 	
 			# Check if current section overlaps or is adjacent to current section
-			if pvtDoOverlap(aCurrentSection, aSection)
-				aCurrentSection = pvtMergeOverlappingSections(aCurrentSection, aSection)
+			if pvtDoOverlap(_aCurrentSection_, _aSection_)
+				_aCurrentSection_ = pvtMergeOverlappingSections(_aCurrentSection_, _aSection_)
 			
 			# If no overlap, add current section to result and start new one
 			else
-				aResult + aCurrentSection
-				aCurrentSection = aSection
+				_aResult_ + _aCurrentSection_
+				_aCurrentSection_ = _aSection_
 			ok
 		next
 		
 		# Add the last section
-		aResult + aCurrentSection
+		_aResult_ + _aCurrentSection_
 		
 		# Update content with merged result
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionFluentForm
 
@@ -263,8 +263,8 @@ class stzListOfSections from stzLists
 		#>
 
 	def OverLappedSectionsMerged()
-		cResult = This.Copy().MergeoverLappingQ().Content()
-		return cResult
+		_cResult_ = This.Copy().MergeoverLappingQ().Content()
+		return _cResult_
 
 	  #--------------------------------------------------#
 	 #  MERGING SECTIONS BOTH ICLUSIVE AND OVERLAPPING  #
@@ -279,8 +279,8 @@ class stzListOfSections from stzLists
 			return This
 
 	def Merged()
-		aResult = This.Copy().MergeQ().Content()
-		return aResult
+		_aResult_ = This.Copy().MergeQ().Content()
+		return _aResult_
 
 		def SectionsMerged()
 			return This.Merged()
@@ -307,10 +307,10 @@ class stzListOfSections from stzLists
 	func pvtMergeInclusiveSections(aSection1, aSection2)
 		# Returns a new section that spans both input sections
 		
-		nStart = pvtMin(aSection1[1], aSection2[1])
-		nEnd = pvtMax(aSection1[2], aSection2[2])
+		_nStart_ = pvtMin(aSection1[1], aSection2[1])
+		_nEnd_ = pvtMax(aSection1[2], aSection2[2])
 		
-		return [nStart, nEnd]
+		return [_nStart_, _nEnd_]
 	
 	func pvtMin(n1, n2)
 		if n1 < n2
@@ -347,7 +347,7 @@ class stzListOfSections from stzLists
 	def pvtMergeOverlappingSections(aSection1, aSection2)
 		# Returns a new section that spans both input sections
 		
-		nStart = pvtMin(aSection1[1], aSection2[1])
-		nEnd = pvtMax(aSection1[2], aSection2[2])
+		_nStart_ = pvtMin(aSection1[1], aSection2[1])
+		_nEnd_ = pvtMax(aSection1[2], aSection2[2])
 		
-		return [nStart, nEnd]
+		return [_nStart_, _nEnd_]

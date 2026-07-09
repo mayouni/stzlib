@@ -74,43 +74,43 @@ class stzListRandom from stzObject
 	 #   GETTING A RANDOM POSITION GREATER THAN / LESS THAN THE ONE PROVIDED  #
 	#------------------------------------------------------------------------#
 
-	def RandomPositionGreaterThan(n)
+	def RandomPositionGreaterThan(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
 		_nRpgtLen_ = This.NumberOfItems()
 
-		if n >= _nRpgtLen_
+		if _n_ >= _nRpgtLen_
 			return 0
 		ok
 
-		_nRpgtResult_ = ARandomNumberBetween(n + 1, _nRpgtLen_)
+		_nRpgtResult_ = ARandomNumberBetween(_n_ + 1, _nRpgtLen_)
 		return _nRpgtResult_
 
-	def RandomPositionLessThan(n)
+	def RandomPositionLessThan(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		if n <= 1
+		if _n_ <= 1
 			return 0
 		ok
 
-		_nRpltResult_ = ARandomNumberBetween(1, n - 1)
+		_nRpltResult_ = ARandomNumberBetween(1, _n_ - 1)
 		return _nRpltResult_
 
 	  #------------------------------------------------#
 	 #   GETTING A RANDOM POSITION EXCEPT ONE / MANY  #
 	#------------------------------------------------#
 
-	def RandomPositionExcept(n)
+	def RandomPositionExcept(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -121,8 +121,8 @@ class stzListRandom from stzObject
 			return 0
 		ok
 
-		_nRpeResult_ = n
-		while _nRpeResult_ = n
+		_nRpeResult_ = _n_
+		while _nRpeResult_ = _n_
 			_nRpeResult_ = ARandomNumberBetween(1, _nRpeLen_)
 		end
 
@@ -153,17 +153,17 @@ class stzListRandom from stzObject
 	 #   GETTING N RANDOM POSITIONS IN THE LIST #
 	#==========================================#
 
-	def NRandomPositions(n)
+	def NRandomPositions(_n_)
 		_nNrpLen_ = This.NumberOfItems()
-		if n >= _nNrpLen_
-			n = _nNrpLen_
+		if _n_ >= _nNrpLen_
+			_n_ = _nNrpLen_
 		ok
 
-		_anNrpResult_ = NUniqueRandomNumbersIn(n, 1:_nNrpLen_)
+		_anNrpResult_ = NUniqueRandomNumbersIn(_n_, 1:_nNrpLen_)
 		return _anNrpResult_
 
-		def NRandomPositionsU(n)
-			return This.NRandomPositions(n)
+		def NRandomPositionsU(_n_)
+			return This.NRandomPositions(_n_)
 
 	  #=================================#
 	 #   GETTING A RANDOM ITEM         #
@@ -227,26 +227,26 @@ class stzListRandom from stzObject
 	 #   GETTING A RANDOM ITEM EXCEPT AT THE GIVEN POSITION #
 	#-----------------------------------------------------#
 
-	def RandomItemExceptPosition(n)
-		_riepResult_ = @oList.ItemAt( This.RandomPositionExcept(n) )
+	def RandomItemExceptPosition(_n_)
+		_riepResult_ = @oList.ItemAt( This.RandomPositionExcept(_n_) )
 		return _riepResult_
 
-		def ARandomItemExceptPosition(n)
-			return This.RandomItemExceptPosition(n)
+		def ARandomItemExceptPosition(_n_)
+			return This.RandomItemExceptPosition(_n_)
 
-		def AnItemExceptPosition(n)
-			return This.RandomItemExceptPosition(n)
+		def AnItemExceptPosition(_n_)
+			return This.RandomItemExceptPosition(_n_)
 
-		def AnItemExceptAt(n)
-			return This.RandomItemExceptPosition(n)
+		def AnItemExceptAt(_n_)
+			return This.RandomItemExceptPosition(_n_)
 
 	  #=================================#
 	 #   GETTING N RANDOM ITEMS        #
 	#=================================#
 
-	def NRandomItems(n)
+	def NRandomItems(_n_)
 		_pNriList_ = @oList._EngineListFromContent()
-		_pNriPicked_ = StzEngineListRandomItems(_pNriList_, n)
+		_pNriPicked_ = StzEngineListRandomItems(_pNriList_, _n_)
 		if _pNriPicked_ != NULL
 			_aNriResult_ = StzEngineListContentToRingList(_pNriPicked_)
 			StzEngineListFree(_pNriPicked_)

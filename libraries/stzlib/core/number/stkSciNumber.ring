@@ -4,29 +4,29 @@ func IsSciForm(cNumber)
 		return FALSE
 	ok
 
-	nPos = ring_substr1(cNumber, "e")
-	if nPos = 0
+	_nPos_ = ring_substr1(cNumber, "e")
+	if _nPos_ = 0
 		return FALSE
 	ok
 
-	cBase = ""
-	for i = 1 to nPos-1
-		cBase += cNumberInStr[i]
+	_cBase_ = ""
+	for i = 1 to _nPos_-1
+		_cBase_ += cNumberInStr[i]
 	next
 
-	cExp = ""
-	nLen = len(cNumberInStr)
-	for i = nPos+1 to nLen
-		cExp += cNumberInStr[i]
+	_cExp_ = ""
+	_nLen_ = len(cNumberInStr)
+	for i = _nPos_+1 to _nLen_
+		_cExp_ += cNumberInStr[i]
 	next
 
-	nBase = 0+ cBase
-	if NOT isNumber(nBase)
+	_nBase_ = 0+ _cBase_
+	if NOT isNumber(_nBase_)
 		return FALSE
 	ok
 
-	nExp = 0+ cExp
-	if NOT isNumber(nExp)
+	_nExp_ = 0+ _cExp_
+	if NOT isNumber(_nExp_)
 		return FALSE
 	ok
 
@@ -36,8 +36,8 @@ func Number2Sci(n)
 	return StzEngineNumberToScientific(0+ n)
 
 func Sci2Number(cNumberInStr)
-	cClean = trim( ring_substr2(cNumberInStr, "_", "") )
-	return StzEngineNumberFromScientific(cClean)
+	_cClean_ = trim( ring_substr2(cNumberInStr, "_", "") )
+	return StzEngineNumberFromScientific(_cClean_)
 	
 class stzCoreSciNumber from stkSciNumber
 class stkSciNumber
@@ -51,34 +51,34 @@ class stkSciNumber
 			return raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 	
-		nPos = ring_substr1(cNumberInSciForm, "e")
-		if nPos = 0
+		_nPos_ = ring_substr1(cNumberInSciForm, "e")
+		if _nPos_ = 0
 			return FALSE
 		ok
 	
-		cBase = ""
-		for i = 1 to nPos-1
-			cBase += cNumberInStr[i]
+		_cBase_ = ""
+		for i = 1 to _nPos_-1
+			_cBase_ += cNumberInStr[i]
 		next
 	
-		cExp = ""
-		nLen = len(cNumberInSciForm)
-		for i = nPos+1 to nLen
-			cExp += cNumberInStr[i]
+		_cExp_ = ""
+		_nLen_ = len(cNumberInSciForm)
+		for i = _nPos_+1 to _nLen_
+			_cExp_ += cNumberInStr[i]
 		next
 	
-		nBase = 0+ cBase
-		if NOT isNumber(nBase)
+		_nBase_ = 0+ _cBase_
+		if NOT isNumber(_nBase_)
 			return raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 	
-		nExp = 0+ cExp
-		if NOT isNumber(nExp)
+		_nExp_ = 0+ _cExp_
+		if NOT isNumber(_nExp_)
 			return raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 	
-		@nBase = nBase
-		@nExp = nExp
+		@nBase = _nBase_
+		@nExp = _nExp_
 
 		@cStrValue = cNumberInSciForm
 
@@ -89,8 +89,8 @@ class stkSciNumber
 			return @cStrValue
 
 	def Value()
-		nResult = @nBase * pow(10, @nExp)
-		return nResult
+		_nResult_ = @nBase * pow(10, @nExp)
+		return _nResult_
 
 		def NValue()
 

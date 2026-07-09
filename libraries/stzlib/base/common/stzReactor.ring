@@ -8,13 +8,13 @@
 
 		oR = new stzReactor
 		# fire-and-await a timer
-		nId = oR.SubmitTimer(50)
-		oR.AwaitTimer(nId, 2000)              # 0 = fired
+		_nId_ = oR.SubmitTimer(50)
+		oR.AwaitTimer(_nId_, 2000)              # 0 = fired
 
 		# async TCP request/response in one call
-		cReq = "GET / HTTP/1.0" + nl + "Host: example.com" + nl +
+		_cReq_ = "GET / HTTP/1.0" + nl + "Host: example.com" + nl +
 		       "Connection: close" + nl + nl
-		cBody = oR.TcpRequest("example.com", 80, cReq, 15000)
+		_cBody_ = oR.TcpRequest("example.com", 80, _cReq_, 15000)
 		? oR.TcpLastStatus()                  # 0 = ok
 
 		oR.Destroy()
@@ -29,15 +29,15 @@ func StzReactor()
 class stzReactor from stzObject
 
 	pHandle = NULL
-	bReady  = FALSE
+	_bReady_  = FALSE
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if bReady = FALSE
+		if _bReady_ = FALSE
 			pHandle = StzEngineReactorCreate()
-			bReady = TRUE
+			_bReady_ = TRUE
 		ok
 
 	def Handle()
@@ -55,13 +55,13 @@ class stzReactor from stzObject
 
 	# Block up to nTimeoutMs for the timer; returns 0 (fired), -1
 	# (running/timeout) or -2 (unknown id).
-	def AwaitTimer(nId, nTimeoutMs)
+	def AwaitTimer(_nId_, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorAwait(pHandle, _nId_, nTimeoutMs)
 
-	def Poll(nId)
+	def Poll(_nId_)
 		This._Ensure()
-		return StzEngineReactorPoll(pHandle, nId)
+		return StzEngineReactorPoll(pHandle, _nId_)
 
 	def Pending()
 		This._Ensure()
@@ -74,13 +74,13 @@ class stzReactor from stzObject
 		return StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
 
 	# Block up to nTimeoutMs for the response body (empty on error/timeout).
-	def AwaitTcp(nId, nTimeoutMs)
+	def AwaitTcp(_nId_, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorTcpAwait(pHandle, _nId_, nTimeoutMs)
 
-	def PollTcp(nId)
+	def PollTcp(_nId_)
 		This._Ensure()
-		return StzEngineReactorTcpPoll(pHandle, nId)
+		return StzEngineReactorTcpPoll(pHandle, _nId_)
 
 	def TcpLastStatus()
 		return StzEngineReactorTcpLastStatus()
@@ -95,9 +95,9 @@ class stzReactor from stzObject
 	# ── teardown ─────────────────────────────────────────────
 
 	def Destroy()
-		if bReady = TRUE
+		if _bReady_ = TRUE
 			StzEngineReactorDestroy(pHandle)
 			pHandle = NULL
-			bReady = FALSE
+			_bReady_ = FALSE
 		ok
 		return This

@@ -46,8 +46,8 @@ class stkNumber
 	#--------------------------------------------#
 
 	def Copy()
-		oCopy = This
-		return oCopy
+		_oCopy_ = This
+		return _oCopy_
 
 	def Content()
 		return @content
@@ -60,8 +60,8 @@ class stkNumber
 
 	def SValue()
 		
-		cResult = This.SIntPart() + "." + SFractPartWithoutZeroDot()
-		return cResult
+		_cResult_ = This.SIntPart() + "." + SFractPartWithoutZeroDot()
+		return _cResult_
 
 	#-----------------------------------------------------#
 	#  UPDATING THE NUMBER WITH A NUMBER OR STRING FORM   #
@@ -104,16 +104,16 @@ class stkNumber
 
 	def SIntPart()
 
-		cSpaceChar = ""
+		_cSpaceChar_ = ""
 		if @bSpacify
-			cSpaceChar = @cSpaceChar
+			_cSpaceChar_ = @cSpaceChar
 		ok
 
-		nInt = This.IntPart()
-		nRound = @Round(nInt)
-		cResult = NStringify(nInt, cSpaceChar, @nSpaceStep, nRound)
+		_nInt_ = This.IntPart()
+		_nRound_ = @Round(_nInt_)
+		_cResult_ = NStringify(_nInt_, _cSpaceChar_, @nSpaceStep, _nRound_)
 
-		return cResult
+		return _cResult_
 
 
 	#------------------------------------------------------#
@@ -122,13 +122,13 @@ class stkNumber
 
 	def FractPart()
 
-		n = @content
-		if n < 0
-			n = -n
+		_n_ = @content
+		if _n_ < 0
+			_n_ = -_n_
 		ok
 
-		nResult = n - floor(n)
-		return nResult
+		_nResult_ = _n_ - floor(_n_)
+		return _nResult_
 
 		def FPart()
 			return This.FractPart()
@@ -140,39 +140,39 @@ class stkNumber
 			return This.FractPart()
 
 	def SFractPart()
-		nTempRound = CurrentRound() # in Ring program
-		nRound = This.Round()
+		_nTempRound_ = CurrentRound() # in Ring program
+		_nRound_ = This.Round()
 
-		decimals(nRound)
+		decimals(_nRound_)
 
-		nRound = @Round(@content)
+		_nRound_ = @Round(@content)
 
-		cTempStr = "" + @content
-		nLen = len(cTempStr)
+		_cTempStr_ = "" + @content
+		_nLen_ = len(_cTempStr_)
 
-		decimals(nTempRound)
+		decimals(_nTempRound_)
 
-		nPos = ring_substr1(cTempStr, ".")
+		_nPos_ = ring_substr1(_cTempStr_, ".")
 
-		if nPos = 0
+		if _nPos_ = 0
 			return ""
 
 		else
 			if @content < 0
-				cResult = "-0."
+				_cResult_ = "-0."
 			else
-				cResult = "0."
+				_cResult_ = "0."
 			ok
 
-			n1 = nPos + 1
-			n2 = nPos + nRound
+			_n1_ = _nPos_ + 1
+			_n2_ = _nPos_ + _nRound_
 
-			for i = n1 to n2
-				cResult += cTempStr[i]
+			for i = _n1_ to _n2_
+				_cResult_ += _cTempStr_[i]
 			next
 		ok
 
-		return cResult
+		return _cResult_
 
 		#< @FunctionAlternativeForms
 
@@ -217,12 +217,12 @@ class stkNumber
 
 	def SFractPartWithoutZeroDot()
 
-		cResult = This.SFractPart()
-		cResult = ring_substr2(cResult, "0.", "")
-		cResult = ring_substr2(cResult, "+", "")
-		cResult = ring_substr2(cResult, "-", "")
+		_cResult_ = This.SFractPart()
+		_cResult_ = ring_substr2(_cResult_, "0.", "")
+		_cResult_ = ring_substr2(_cResult_, "+", "")
+		_cResult_ = ring_substr2(_cResult_, "-", "")
 
-		return cResult
+		return _cResult_
 
 		#< @FunctionAlternativeForms
 
@@ -247,36 +247,36 @@ class stkNumber
 	def Round()
 		return @nRound
 
-	def SetRound(n)
-		if not isNumber(n)
+	def SetRound(_n_)
+		if not isNumber(_n_)
 			raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 
-		@nRound = n
+		@nRound = _n_
 
-	def RoundedTo(n)
-		if NOT isNumber(n)
+	def RoundedTo(_n_)
+		if NOT isNumber(_n_)
 			raise(StkError(:IncorrectParamType))
 		ok
 
-		nTempRound = CurrentRound()
+		_nTempRound_ = CurrentRound()
 
-		decimals(n)
+		decimals(_n_)
 		return @content
 
 
-	def SRoundedTo(n)
-		if NOT isNumber(n)
+	def SRoundedTo(_n_)
+		if NOT isNumber(_n_)
 			raise(StkError(:IncorrectParamType))
 		ok
 
-		nTempRound = CurrentRound()
+		_nTempRound_ = CurrentRound()
 
-		decimals(n)
-		cResult = ""+ @content
-		decimals(nTempRound)
+		decimals(_n_)
+		_cResult_ = ""+ @content
+		decimals(_nTempRound_)
 
-		return cResult
+		return _cResult_
 
 	#----------------------------------#
 	#  GETTING THE SIGN OF THE NUMBER  #
@@ -300,15 +300,15 @@ class stkNumber
 		@bSpacify = FALSE
 
 	def UnSpacified()
-		bTemp = @bSpacify
+		_bTemp_ = @bSpacify
 		@bSpacify = FALSE
-		cResult This.SValue()
-		@bSpacify = bTemp
+		_cResult_ This.SValue()
+		@bSpacify = _bTemp_
 
 	def Spacified()
 		
-		cResult = NStringify(@content, @cSpaceChar, @nSpaceStep, @Round(@content))
-		return cResult
+		_cResult_ = NStringify(@content, @cSpaceChar, @nSpaceStep, @Round(@content))
+		return _cResult_
 
 	#-------------------------------------------#
 	#  SETTING AND GETTING SPACE CHAR AND STEP  #
@@ -323,8 +323,8 @@ class stkNumber
 	def SpaceStep()
 		return @nSpaceStep
 
-	def SetSpaceStep(n)
-		@nSpaceStep = n
+	def SetSpaceStep(_n_)
+		@nSpaceStep = _n_
 
 	#-------------------------#
 	#  ARITHMETIC OPERATIONS  #
@@ -401,19 +401,19 @@ class stkNumber
 	#  CHECKING EQUALITY WITH AN OTHER NUMBER  #
 	#------------------------------------------#
 
-	def IsEqual(n)
-		oOtherNumber = new stkNumber(n)
-		if This.SNumber() = oOtherNumber.SNumber()
+	def IsEqual(_n_)
+		_oOtherNumber_ = new stkNumber(_n_)
+		if This.SNumber() = _oOtherNumber_.SNumber()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def Equals(n)
-			return IsEqual(n)
+		def Equals(_n_)
+			return IsEqual(_n_)
 
-		def IsEqualTo(n)
-			return IsEqual(n)
+		def IsEqualTo(_n_)
+			return IsEqual(_n_)
 
 	#------------------------#
 	#  OVERLOADED OPERATORS  #
@@ -433,11 +433,11 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim( ring_substr2(value, "_", "") )
+				_cTempStr_ = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
-				nValue = @content + (0+ cTempStr)
+				nValue = @content + (0+ _cTempStr_)
 
 				if not isNumber(nValue)
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -445,25 +445,25 @@ class stkNumber
 
 				# Using NStringify to get the string value of the number
 
-				cSpaceChar = @cSpaceChar
+				_cSpaceChar_ = @cSpaceChar
 				if not @bSpacify
-					cSpaceChar = ""
+					_cSpaceChar_ = ""
 				ok
 
-				nRound1 = @Round(nValue)
-				nRound2 = This.Round()
+				_nRound1_ = @Round(nValue)
+				_nRound2_ = This.Round()
 
-				if nRound1 < nRound2
-					nRound = nRound1
+				if _nRound1_ < _nRound2_
+					_nRound_ = _nRound1_
 				else
-					nRound = nRound2
+					_nRound_ = _nRound2_
 				ok
 				
-				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				_cResult_ = NStringify(nValue, @bSpacify, _cSpaceChar_, _nRound_)
 
 				# Returning the result
 
-				return cResult
+				return _cResult_
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -479,11 +479,11 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim( ring_substr2(value, "_", "") )
+				_cTempStr_ = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
-				nValue = @content - (0+ cTempStr)
+				nValue = @content - (0+ _cTempStr_)
 
 				if not isNumber(nValue)
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -491,25 +491,25 @@ class stkNumber
 
 				# Using NStringify to get the string value of the number
 
-				cSpaceChar = @cSpaceChar
+				_cSpaceChar_ = @cSpaceChar
 				if not @bSpacify
-					cSpaceChar = ""
+					_cSpaceChar_ = ""
 				ok
 
-				nRound1 = @Round(nValue)
-				nRound2 = This.Round()
+				_nRound1_ = @Round(nValue)
+				_nRound2_ = This.Round()
 
-				if nRound1 < nRound2
-					nRound = nRound1
+				if _nRound1_ < _nRound2_
+					_nRound_ = _nRound1_
 				else
-					nRound = nRound2
+					_nRound_ = _nRound2_
 				ok
 
-				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				_cResult_ = NStringify(nValue, @bSpacify, _cSpaceChar_, _nRound_)
 
 				# Returning the result
 
-				return cResult
+				return _cResult_
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -525,11 +525,11 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim( ring_substr2(value, "_", "") )
+				_cTempStr_ = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
-				nValue = @content * (0+ cTempStr)
+				nValue = @content * (0+ _cTempStr_)
 
 				if not isNumber(nValue)
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -537,25 +537,25 @@ class stkNumber
 
 				# Using NStringify to get the string value of the number
 
-				cSpaceChar = @cSpaceChar
+				_cSpaceChar_ = @cSpaceChar
 				if not @bSpacify
-					cSpaceChar = ""
+					_cSpaceChar_ = ""
 				ok
 
-				nRound1 = @Round(nValue)
-				nRound2 = This.Round()
+				_nRound1_ = @Round(nValue)
+				_nRound2_ = This.Round()
 
-				if nRound1 < nRound2
-					nRound = nRound1
+				if _nRound1_ < _nRound2_
+					_nRound_ = _nRound1_
 				else
-					nRound = nRound2
+					_nRound_ = _nRound2_
 				ok
 
-				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				_cResult_ = NStringify(nValue, @bSpacify, _cSpaceChar_, _nRound_)
 
 				# Returning the result
 
-				return cResult
+				return _cResult_
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -570,11 +570,11 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim( ring_substr2(value, "_", "") )
+				_cTempStr_ = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
-				nValue = @content + (0+ cTempStr)
+				nValue = @content + (0+ _cTempStr_)
 
 				if not isNumber(nValue)
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
@@ -582,25 +582,25 @@ class stkNumber
 
 				# Using NStringify to get the string value of the number
 
-				cSpaceChar = @cSpaceChar
+				_cSpaceChar_ = @cSpaceChar
 				if not @bSpacify
-					cSpaceChar = ""
+					_cSpaceChar_ = ""
 				ok
 
-				nRound1 = nValue
-				nRound2 = This.Round()
+				_nRound1_ = nValue
+				_nRound2_ = This.Round()
 
-				if nRound1 < nRound2
-					nRound = nRound1
+				if _nRound1_ < _nRound2_
+					_nRound_ = _nRound1_
 				else
-					nRound = nRound2
+					_nRound_ = _nRound2_
 				ok
 
-				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				_cResult_ = NStringify(nValue, @bSpacify, _cSpaceChar_, _nRound_)
 
 				# Returning the result
 
-				return cResult
+				return _cResult_
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType) + NL)

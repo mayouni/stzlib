@@ -7,107 +7,107 @@
 func StzPairOfNumbersQ(paPair)
 	return new stzPairOfNumbers(paPair)
 
-func LeastCommonMuliple( n1, n2 )
+func LeastCommonMuliple( _n1_, _n2_ )
 	# EXAMPLE
 	# ? LastCommonMuliplier( :Of = 25, :And = 42 )
 
-	if isList(n1) and Q(n1).IsOfNamedParam()
-		n1 = n1[2]
+	if isList(_n1_) and Q(_n1_).IsOfNamedParam()
+		_n1_ = _n1_[2]
 	ok
 
-	if isList(n2) and Q(n2).IsAndNamedParam()
-		n2 = n2[2]
+	if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+		_n2_ = _n2_[2]
 	ok
 
-	if NOT @BothAreNumbers(n1, n2)
+	if NOT @BothAreNumbers(_n1_, _n2_)
 		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
-	nResult = LCM(n1, n2) # A Ring function
-	return nResult
+	_nResult_ = LCM(_n1_, _n2_) # A Ring function
+	return _nResult_
 
 	#< @FunctionAlternativeForm
 
-	func CommonLeastMultiple(n1, n2)
-		return This.LastCommonMuliple(n1, n2)
+	func CommonLeastMultiple(_n1_, _n2_)
+		return This.LastCommonMuliple(_n1_, _n2_)
 
 	#>
 
-func GreatestCommonDividor( n1, n2 )
+func GreatestCommonDividor( _n1_, _n2_ )
 
-	if isList(n1) and Q(n1).IsOfNamedParam()
-		n1 = n1[2]
+	if isList(_n1_) and Q(_n1_).IsOfNamedParam()
+		_n1_ = _n1_[2]
 	ok
 
-	if isList(n2) and Q(n2).IsAndNamedParam()
-		n2 = n2[2]
+	if isList(_n2_) and Q(_n2_).IsAndNamedParam()
+		_n2_ = _n2_[2]
 	ok
 
-	if NOT @BothAreNumbers(n1, n2)
+	if NOT @BothAreNumbers(_n1_, _n2_)
 		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
-	nResult = GCD(n1, n2) # A Ring function
-	return nResult
+	_nResult_ = GCD(_n1_, _n2_) # A Ring function
+	return _nResult_
 
 	#< @FunctionAlternativeForm
 
-	func CommonGreatestDividor(n1, n2)
-		return GreatestCommonDividor(n1, n2)
+	func CommonGreatestDividor(_n1_, _n2_)
+		return GreatestCommonDividor(_n1_, _n2_)
 
-	func CommonDividor(n1, n2)
-		return GreatestCommonDividor(n1, n2)
+	func CommonDividor(_n1_, _n2_)
+		return GreatestCommonDividor(_n1_, _n2_)
 
 	#>
 
 #-- SpeedUp and PerfGain
 #-- Inspired by a discussion with Mahmoud on the google group
 
-func SpeedUp(n1, n2)
+func SpeedUp(_n1_, _n2_)
 	if CheckingParams()
-		if isList(n1) and IsFromOrBetweenNamedParamList(n1)
-			n1 = n1[2]
+		if isList(_n1_) and IsFromOrBetweenNamedParamList(_n1_)
+			_n1_ = _n1_[2]
 		ok
 
-		if isList(n2) and IsToOrAndNamedParamList(n2)
-			n2 = n2[2]
+		if isList(_n2_) and IsToOrAndNamedParamList(_n2_)
+			_n2_ = _n2_[2]
 		ok
 	ok
 
-	return StzPairOfNumbersQ([ n1, n2 ]).SpeedUp()
+	return StzPairOfNumbersQ([ _n1_, _n2_ ]).SpeedUp()
 
-	func SpeedUpX(n1, n2) # X ~> ouput is a factor
-		return SpeedUp(n1, n2)
+	func SpeedUpX(_n1_, _n2_) # X ~> ouput is a factor
+		return SpeedUp(_n1_, _n2_)
 
-	func SpeedX(n1, n2)
-		return SpeedUp(n1, n2)
+	func SpeedX(_n1_, _n2_)
+		return SpeedUp(_n1_, _n2_)
 
-	func SpeedFactor(n1, n2)
-		return SpeedUp(n1, n2)
+	func SpeedFactor(_n1_, _n2_)
+		return SpeedUp(_n1_, _n2_)
 
-	func PerfGainX(n1, n2)
-		return SpeedUp(n1, n2)
+	func PerfGainX(_n1_, _n2_)
+		return SpeedUp(_n1_, _n2_)
 
-func GainFactor(n1, n2)
-	return StzPairOfNumbersQ([ n1, n2 ]).GainFactor()
+func GainFactor(_n1_, _n2_)
+	return StzPairOfNumbersQ([ _n1_, _n2_ ]).GainFactor()
 
-	func GainX(n1, n2)
-		return GainFactor(n1, n2)
+	func GainX(_n1_, _n2_)
+		return GainFactor(_n1_, _n2_)
 
-func PerfGain(n1, n2)
-	return StzPairOfNumbersQ([ n1, n2 ]).PerfGain()
+func PerfGain(_n1_, _n2_)
+	return StzPairOfNumbersQ([ _n1_, _n2_ ]).PerfGain()
 
-	func PerfGain100(n1, n2) # 100 ~> Output is a percentage
-		return PerfGain(n1, n2)
+	func PerfGain100(_n1_, _n2_) # 100 ~> Output is a percentage
+		return PerfGain(_n1_, _n2_)
 
-func RelativeGain(n1, n2)
-	return StzPairOfNumbersQ([ n1, n2 ]).RelativeGain()
+func RelativeGain(_n1_, _n2_)
+	return StzPairOfNumbersQ([ _n1_, _n2_ ]).RelativeGain()
 
-	func Gain100(n1, n2)
-		return RelativeGain(n1, n2)
+	func Gain100(_n1_, _n2_)
+		return RelativeGain(_n1_, _n2_)
 
-	func Gain(n1, n2)
-		return RelativeGain(n1, n2)
+	func Gain(_n1_, _n2_)
+		return RelativeGain(_n1_, _n2_)
 
 class stzPairOfNumbers from stzPair
 
@@ -136,30 +136,30 @@ class stzPairOfNumbers from stzPair
 	def SecondNumber()
 		return This.Content()[2]
 
-	def BothAreBetween(n1, n2)
+	def BothAreBetween(_n1_, _n2_)
 
-		if NOT Q([n1, n2]).BothAreNumbers()
+		if NOT Q([_n1_, _n2_]).BothAreNumbers()
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
-		if ( @aContent[1] >= n1 and @aContent[2] <= n2 ) and
-		   ( @aContent[2] >= n1 and @aContent[2] <= n2 )
+		if ( @aContent[1] >= _n1_ and @aContent[2] <= _n2_ ) and
+		   ( @aContent[2] >= _n1_ and @aContent[2] <= _n2_ )
 
 			return 1
 		else
 			return 0
 		ok
 
-		def AreBothBetween(n1, n2)
-			return This.BothAreBetween(n1, n2)
+		def AreBothBetween(_n1_, _n2_)
+			return This.BothAreBetween(_n1_, _n2_)
 
 	  #---------------------------------------------------------------#
 	 #   CALCULATIONG THE LEAST COMMON MULTIPLE OF THE TWO NUMBERS   #
 	#---------------------------------------------------------------#
 
 	def LeastCommonMuliple()
-		nResult = LCM( This.FirstNumber(), This.SecondNumber() ) # A Ring function
-		return nResult
+		_nResult_ = LCM( This.FirstNumber(), This.SecondNumber() ) # A Ring function
+		return _nResult_
 			
 		#< @FunctionAlternativeForms
 
@@ -173,8 +173,8 @@ class stzPairOfNumbers from stzPair
 	#-----------------------------------------------------------------#
 
 	def GreatestCommonDividor()
-		nResult = GCD( This.FirstNumber(), This.SecondNumber() ) # A Ring function
-		return nResult
+		_nResult_ = GCD( This.FirstNumber(), This.SecondNumber() ) # A Ring function
+		return _nResult_
 			
 		#< @FunctionAlternativeForms
 
@@ -188,14 +188,14 @@ class stzPairOfNumbers from stzPair
 	#======================================#
 
 	def SpeedUp()
-		anNumbers = This.Content()
+		_anNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_n1_ = _anNumbers_[1]
+		_n2_ = _anNumbers_[2]
 
-		nResult = n1 / n2
+		_nResult_ = _n1_ / _n2_
 
-		return nResult
+		return _nResult_
 
 		def SpeedUpX()
 			return This.SpeedUp()
@@ -205,14 +205,14 @@ class stzPairOfNumbers from stzPair
 	#-------------------------------------------------#
 
 	def GainFactor()
-		anNumbers = This.Content()
+		_anNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_n1_ = _anNumbers_[1]
+		_n2_ = _anNumbers_[2]
 
-		nResult = n2 / n1
+		_nResult_ = _n2_ / _n1_
 
-		return nResult
+		return _nResult_
 	
 		def GainX()
 			return This.GainFactor()
@@ -225,14 +225,14 @@ class stzPairOfNumbers from stzPair
 	#=========================================#
 
 	def PerfGain() # In percentage
-		anNumbers = This.Content()
+		_anNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_n1_ = _anNumbers_[1]
+		_n2_ = _anNumbers_[2]
 
-		nResult = ( (n1 - n2) / n1) * 100
+		_nResult_ = ( (_n1_ - _n2_) / _n1_) * 100
 
-		return nResult
+		return _nResult_
 
 		def PerfGain100()
 			return This.PerfGain()
@@ -242,14 +242,14 @@ class stzPairOfNumbers from stzPair
 	#---------------------------------------------------------#
 
 	def Gain()
-		anNumbers = This.Content()
+		_anNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_n1_ = _anNumbers_[1]
+		_n2_ = _anNumbers_[2]
 
-		nResult = ( (n2 - n1) / n2) * 100
+		_nResult_ = ( (_n2_ - _n1_) / _n2_) * 100
 
-		return nResult
+		return _nResult_
 
 		def RelativeGain()
 			return This.Gain()

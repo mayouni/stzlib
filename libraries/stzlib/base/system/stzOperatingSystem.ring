@@ -247,10 +247,10 @@ func StzIsAndroid64()
 
 func StzIs32Or64Bit()
 	_oOS_ = new stzOperatingSystem()
-	nBits = _oOS_.BitSize()
-	if nBits = 32
+	_nBits_ = _oOS_.BitSize()
+	if _nBits_ = 32
 		return :32
-	but nBits = 64
+	but _nBits_ = 64
 		return :64
 	else
 		return :Unknown
@@ -296,12 +296,12 @@ class stzOperatingSystem from stzObject
 			return This.Architecture()
 
 	def Is32Bit()
-		cArch = This.Arch()
-		return (cArch = "x86" or cArch = "arm")
+		_cArch_ = This.Arch()
+		return (_cArch_ = "x86" or _cArch_ = "arm")
 
 	def Is64Bit()
-		cArch = This.Arch()
-		return (cArch = "x64" or cArch = "arm64")
+		_cArch_ = This.Arch()
+		return (_cArch_ = "x64" or _cArch_ = "arm64")
 
 	def BitSize()
 		if This.Is32Bit()
@@ -316,8 +316,8 @@ class stzOperatingSystem from stzObject
 			return This.BitSize()
 
 	def IsARM()
-		cArch = This.Arch()
-		return (cArch = "arm" or cArch = "arm64")
+		_cArch_ = This.Arch()
+		return (_cArch_ = "arm" or _cArch_ = "arm64")
 
 	def IsARM32()
 		return (This.Arch() = "arm")
@@ -379,9 +379,9 @@ class stzOperatingSystem from stzObject
 			return This.NameAndArchitecture()
 
 	def FullName()
-		cName = This.Name()
-		nBits = This.BitSize()
-		return cName + " " + nBits + "-bit"
+		_cName_ = This.Name()
+		_nBits_ = This.BitSize()
+		return _cName_ + " " + _nBits_ + "-bit"
 
 		def FullOSName()
 			return This.FullName()
@@ -487,7 +487,7 @@ class stzOperatingSystem from stzObject
 	#-----------------------#
 
 	def Info()
-		aInfo = [
+		_aInfo_ = [
 			:name = This.Name(),
 			:architecture = This.Architecture(),
 			:bits = This.BitSize(),
@@ -496,7 +496,7 @@ class stzOperatingSystem from stzObject
 			:isMicrosoft = This.IsMicrosoft(),
 			:isMobile = This.IsMobile()
 		]
-		return aInfo
+		return _aInfo_
 
 		def SystemInfo()
 			return This.Info()
@@ -505,15 +505,15 @@ class stzOperatingSystem from stzObject
 			return This.Info()
 
 	def Show()
-		aInfo = This.Info()
+		_aInfo_ = This.Info()
 		? "Operating System Information:"
-		? "  Name: " + aInfo[:name]
-		? "  Architecture: " + aInfo[:architecture]
-		? "  Bits: " + aInfo[:bits]
-		? "  Full Name: " + aInfo[:fullname]
-		? "  Unix-like: " + aInfo[:isUnixLike]
-		? "  Microsoft: " + aInfo[:isMicrosoft]
-		? "  Mobile: " + aInfo[:isMobile]
+		? "  Name: " + _aInfo_[:name]
+		? "  Architecture: " + _aInfo_[:architecture]
+		? "  Bits: " + _aInfo_[:bits]
+		? "  Full Name: " + _aInfo_[:fullname]
+		? "  Unix-like: " + _aInfo_[:isUnixLike]
+		? "  Microsoft: " + _aInfo_[:isMicrosoft]
+		? "  Mobile: " + _aInfo_[:isMobile]
 
 		def Print()
 			This.Show()
@@ -551,17 +551,17 @@ class stzOperatingSystem from stzObject
 		def EOL()
 			return This.LineEnding()
 
-	def NormalizePath(cPath)
-		cSep = This.PathSeparator()
+	def NormalizePath(_cPath_)
+		_cSep_ = This.PathSeparator()
 		if This.IsWindows()
-			cPath = StzReplace(cPath, "/", "\")
+			_cPath_ = StzReplace(_cPath_, "/", "\")
 		else
-			cPath = StzReplace(cPath, "\", "/")
+			_cPath_ = StzReplace(_cPath_, "\", "/")
 		ok
-		return cPath
+		return _cPath_
 
-		def NormalizePathQ(cPath)
-			return This.NormalizePath(cPath)
+		def NormalizePathQ(_cPath_)
+			return This.NormalizePath(_cPath_)
 
 	def ExecutableExtension()
 		if This.IsWindows()

@@ -40,8 +40,8 @@ func IsListOfBytes(p)
 
 func NumberInPointer(ptr)
 	if IsPointer(ptr)
-		BinStr = pointer2string(ptr, 0, len(int2bytes(0)) )
-		return bytes2int(BinStr)
+		_BinStr_ = pointer2string(ptr, 0, len(int2bytes(0)) )
+		return bytes2int(_BinStr_)
 	else
 		StzRaise("Value you provided is not of type Pointer!")
 	ok
@@ -93,11 +93,11 @@ class stzListOfBytes from stzList
 	def ToStzString()
 		return new stzString(This.ToString())
 
-	def InsertNBytesOfSubstringAt(nPosition, nBytes, pcSubstr)
-		cLeft = StzLeft(@cData, nPosition - 1)
-		cInsert = StzLeft(pcSubstr, nBytes)
-		cRight = StzMid(@cData, nPosition, StzLen(@cData) - nPosition + 1)
-		@cData = cLeft + cInsert + cRight
+	def InsertNBytesOfSubstringAt(nPosition, _nBytes_, pcSubstr)
+		_cLeft_ = StzLeft(@cData, nPosition - 1)
+		_cInsert_ = StzLeft(pcSubstr, _nBytes_)
+		_cRight_ = StzMid(@cData, nPosition, StzLen(@cData) - nPosition + 1)
+		@cData = _cLeft_ + _cInsert_ + _cRight_
 
 	def NLeftBytes(n)
 		return StzLeft(@cData, n)
@@ -133,14 +133,14 @@ class stzListOfBytes from stzList
 	def IsEmpty()
 		return StzLen(@cData) = 0
 
-	def RemoveNBytesStartingAt(nPosition, nBytes)
+	def RemoveNBytesStartingAt(nPosition, _nBytes_)
 		if nPosition < 1 or nPosition > StzLen(@cData) return ok
-		nEnd = nPosition + nBytes - 1
-		if nEnd > StzLen(@cData) nEnd = StzLen(@cData) ok
-		@cData = StzLeft(@cData, nPosition - 1) + StzMid(@cData, nEnd + 1, StzLen(@cData) - nEnd)
+		_nEnd_ = nPosition + _nBytes_ - 1
+		if _nEnd_ > StzLen(@cData) _nEnd_ = StzLen(@cData) ok
+		@cData = StzLeft(@cData, nPosition - 1) + StzMid(@cData, _nEnd_ + 1, StzLen(@cData) - _nEnd_)
 
-	def RemoveNBytesStartingAtQ(nPosition, nBytes)
-		This.RemoveNBytesStartingAt(nPosition, nBytes)
+	def RemoveNBytesStartingAtQ(nPosition, _nBytes_)
+		This.RemoveNBytesStartingAt(nPosition, _nBytes_)
 		return This
 
 	def RemoveNBytesFromEnd(n)
@@ -154,17 +154,17 @@ class stzListOfBytes from stzList
 		This.RemoveNBytesFromEnd(n)
 		return This
 
-	def Range(nStart, nBytes)
-		return StzMid(@cData, nStart, nBytes)
+	def Range(nStart, _nBytes_)
+		return StzMid(@cData, nStart, _nBytes_)
 
 	def Section(n1, n2)
 		return This.Range( n1, n2 - n1 + 1 )
 
 	def ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
-		cLeft = StzLeft(@cData, nStartingAtPosition - 1)
-		cMid = StzLeft(pcFromSubstr, nWithNBytes)
-		cRight = StzMid(@cData, nStartingAtPosition + nBytesFromMainStr, StzLen(@cData) - (nStartingAtPosition + nBytesFromMainStr) + 1)
-		@cData = cLeft + cMid + cRight
+		_cLeft_ = StzLeft(@cData, nStartingAtPosition - 1)
+		_cMid_ = StzLeft(pcFromSubstr, nWithNBytes)
+		_cRight_ = StzMid(@cData, nStartingAtPosition + nBytesFromMainStr, StzLen(@cData) - (nStartingAtPosition + nBytesFromMainStr) + 1)
+		@cData = _cLeft_ + _cMid_ + _cRight_
 
 	def ReplaceNBytesQ(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
 		This.ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
@@ -192,13 +192,13 @@ class stzListOfBytes from stzList
 			return This.UnicodeOfNthByte(n)
 
 	def Bytecodes()
-		aResult = []
+		_aResult_ = []
 
 		for i = 1 to len(@cData)
-			aResult + ascii(@cData[i])
+			_aResult_ + ascii(@cData[i])
 		next
 
-		return aResult
+		return _aResult_
 
 		def BytecodesQ()
 			return new stzList( This.Bytecodes() )
@@ -216,31 +216,31 @@ class stzListOfBytes from stzList
 			return new stzList( This.Chars() )
 
 	def BytecodesPerChar()
-		aChars = This.Chars()
-		nLen = len(aChars)
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aChars[i], StzListOfBytesQ(aChars[i]).Bytecodes()]
+		for i = 1 to _nLen_
+			_aResult_ + [ _aChars_[i], StzListOfBytesQ(_aChars_[i]).Bytecodes()]
 		next
 
-		return aResult
+		return _aResult_
 
 		def UnicodesPerChar()
 			return This.BytecodesPerChar()
 
 	def BytesPerChar()
-		aChars = This.Chars()
-		nLen = len(aChars)
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aChars[i], StzListOfBytesQ(aChars[i]).Bytes()]
+		for i = 1 to _nLen_
+			_aResult_ + [ _aChars_[i], StzListOfBytesQ(_aChars_[i]).Bytes()]
 		next
 
-		return aResult
+		return _aResult_
 
 	def BytesOfChar(pcChar)
 		if CheckingParams()
@@ -249,22 +249,22 @@ class stzListOfBytes from stzList
 			ok
 		ok
 
-		aChars = This.Chars()
-		nLen = len(aChars)
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
 
-		aResult = []
+		_aResult_ = []
 
-		if StzFindFirst(aChars, pcChar) > 0
-			aResult = StzListOfBytesQ(pcChar).Bytes()
+		if StzFindFirst(_aChars_, pcChar) > 0
+			_aResult_ = StzListOfBytesQ(pcChar).Bytes()
 		ok
 
-		return aResult
+		return _aResult_
 
 		def BytesOfThisChar(pcChar)
 
 	def NumberOfBytesInCharNumber(n)
-		nResult = len( This.BytesOfCharNumber(n) )
-		return nResult
+		_nResult_ = len( This.BytesOfCharNumber(n) )
+		return _nResult_
 
 		def NumberOfBytesInCharN(n)
 			return This.NumberOfBytesInCharNumber(n)
@@ -277,11 +277,11 @@ class stzListOfBytes from stzList
 			ok
 		ok
 
-		aChars = This.Chars()
-		nLen = len(aChars)
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
 
-		aResult = StzListOfBytesQ(aChars[n]).Bytes()
-		return aResult
+		_aResult_ = StzListOfBytesQ(_aChars_[n]).Bytes()
+		return _aResult_
 
 		def BytesOfNthChar(n)
 			return This.BytesOfCharNumber(n)
@@ -300,13 +300,13 @@ class stzListOfBytes from stzList
 
 	def NumberOfBytesPerChar()
 
-		aResult = []
+		_aResult_ = []
 		for i = 1 to This.ToStzString().NumberOfChars()
-			oStzChar = new stzChar(This.ToStzString()[i])
-			aResult + [ This.ToStzString()[i], oStzChar.NumberOfBytes() ]
+			_oStzChar_ = new stzChar(This.ToStzString()[i])
+			_aResult_ + [ This.ToStzString()[i], _oStzChar_.NumberOfBytes() ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def NumberOfBytesInNthChar(n)
 
@@ -316,22 +316,22 @@ class stzListOfBytes from stzList
 		return This.NumberOfBytesPerChar()[pcCaract]
 
 	def FillWithAsciiChar(pcChar)
-		oCaract = new stzChar(pcChar)
-		if oCaract.IsAscii()
-			nCode = oCaract.AsciiCode()
-			cChar = StzChar(nCode)
-			@cData = @copy(cChar, This.NumberOfBytes())
+		_oCaract_ = new stzChar(pcChar)
+		if _oCaract_.IsAscii()
+			_nCode_ = _oCaract_.AsciiCode()
+			_cChar_ = StzChar(_nCode_)
+			@cData = @copy(_cChar_, This.NumberOfBytes())
 			return @cData
 		else
 			return StzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
 		ok
 
-	def FillWithAsciiCharUpToNBytes(pcChar, nBytes)
-		@cData = @copy(StzChar(ascii(pcChar)), nBytes)
+	def FillWithAsciiCharUpToNBytes(pcChar, _nBytes_)
+		@cData = @copy(StzChar(ascii(pcChar)), _nBytes_)
 
 	def FillWithAsciiCharUpToNChars(pcChar, nChars)
-		nBytes = nChars * This.NumberOfBytesPerChar()
-		@cData = @copy(StzChar(ascii(pcChar)), nBytes)
+		_nBytes_ = nChars * This.NumberOfBytesPerChar()
+		@cData = @copy(StzChar(ascii(pcChar)), _nBytes_)
 
 	def Resize(n)
 		if n < StzLen(@cData)
@@ -350,28 +350,28 @@ class stzListOfBytes from stzList
 			This.ReleaseUnusedMemory()
 
 	def SetWithtNumberInBase(nNumber, nBase)
-		cResult = ""
-		nVal = nNumber
-		cDigits = "0123456789abcdefghijklmnopqrstuvwxyz"
-		if nVal = 0
+		_cResult_ = ""
+		_nVal_ = nNumber
+		_cDigits_ = "0123456789abcdefghijklmnopqrstuvwxyz"
+		if _nVal_ = 0
 			@cData = "0"
 			return
 		ok
-		bNeg = (nVal < 0)
-		if bNeg nVal = -nVal ok
-		while nVal > 0
-			nRem = nVal % nBase
-			cResult = cDigits[nRem + 1] + cResult
-			nVal = floor(nVal / nBase)
+		_bNeg_ = (_nVal_ < 0)
+		if _bNeg_ _nVal_ = -_nVal_ ok
+		while _nVal_ > 0
+			_nRem_ = _nVal_ % nBase
+			_cResult_ = _cDigits_[_nRem_ + 1] + _cResult_
+			_nVal_ = floor(_nVal_ / nBase)
 		end
-		if bNeg cResult = "-" + cResult ok
-		@cData = cResult
+		if _bNeg_ _cResult_ = "-" + _cResult_ ok
+		@cData = _cResult_
 
 	def SwapWith(oOtherListOfBytes)
 		if IsListOfBytes(oOtherListOfBytes)
-			cTemp = @cData
+			_cTemp_ = @cData
 			@cData = oOtherListOfBytes.ToString()
-			oOtherListOfBytes.Update(cTemp)
+			oOtherListOfBytes.Update(_cTemp_)
 		else
 			StzRaise(stzListOfBytesError(:CanNotSwapWithNonListOfBytes))
 		ok
@@ -379,17 +379,17 @@ class stzListOfBytes from stzList
 	def ToBase64()
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return "" ok
-		cResult = StzEngineBytesToBase64(pHandle)
+		_cResult_ = StzEngineBytesToBase64(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 	def FromBase64(pcBase64String)
 		pHandle = StzEngineBytesNew()
 		if pHandle = NULL return ok
 		StzEngineBytesFromBase64(pHandle, pcBase64String)
-		nSize = StzEngineBytesSize(pHandle)
-		if nSize > 0
-			@cData = StzEngineBytesLeft(pHandle, nSize)
+		_nSize_ = StzEngineBytesSize(pHandle)
+		if _nSize_ > 0
+			@cData = StzEngineBytesLeft(pHandle, _nSize_)
 		else
 			@cData = ""
 		ok
@@ -398,17 +398,17 @@ class stzListOfBytes from stzList
 	def ToPercentEncoding(pcExcludedFromEncoding, pcIncludedInEncoding, pcPercentAsciiChar)
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return @cData ok
-		cResult = StzEngineBytesToPercent(pHandle)
+		_cResult_ = StzEngineBytesToPercent(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 	def FromPercentEncoding(pcPercentEncodedString, pcPercentAsciiChar)
 		pHandle = StzEngineBytesNew()
 		if pHandle = NULL return 0 ok
 		StzEngineBytesFromPercent(pHandle, pcPercentEncodedString)
-		nSize = StzEngineBytesSize(pHandle)
-		if nSize > 0
-			@cData = StzEngineBytesLeft(pHandle, nSize)
+		_nSize_ = StzEngineBytesSize(pHandle)
+		if _nSize_ > 0
+			@cData = StzEngineBytesLeft(pHandle, _nSize_)
 		else
 			@cData = ""
 		ok
@@ -418,9 +418,9 @@ class stzListOfBytes from stzList
 	def ToHex()
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return HexPrefix() ok
-		cResult = HexPrefix() + StzEngineBytesToHex(pHandle)
+		_cResult_ = HexPrefix() + StzEngineBytesToHex(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def ToHexQ()
 			return new stzString(This.ToHex())
@@ -428,9 +428,9 @@ class stzListOfBytes from stzList
 	def ToHexWithoutPrefix()
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return "" ok
-		cResult = StzEngineBytesToHex(pHandle)
+		_cResult_ = StzEngineBytesToHex(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def ToHexWithoutPrefixQ()
 			return new stzString( This.ToHexWithoutPrefix() )
@@ -439,69 +439,69 @@ class stzListOfBytes from stzList
 		pHandle = StzEngineBytesNew()
 		if pHandle = NULL return ok
 		StzEngineBytesFromHex(pHandle, pcHexString)
-		nSize = StzEngineBytesSize(pHandle)
-		if nSize > 0
-			@cData = StzEngineBytesLeft(pHandle, nSize)
+		_nSize_ = StzEngineBytesSize(pHandle)
+		if _nSize_ > 0
+			@cData = StzEngineBytesLeft(pHandle, _nSize_)
 		else
 			@cData = ""
 		ok
 		StzEngineBytesFree(pHandle)
 
 	def ToUTF8()
-		cResult = This.ToStzString().ToUTF8()
-		return cResult
+		_cResult_ = This.ToStzString().ToUTF8()
+		return _cResult_
 
 	def Hexcodes()
-		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		_aBytes_ = This.Bytes()
+		_nLen_ = len(_aBytes_)
 
-		acResult = []
+		_acResult_ = []
 
-		for i = 1 to nLen
-			cHex = StzListOfBytesQ(aBytes[i]).ToHex()
-			acResult + cHex
+		for i = 1 to _nLen_
+			_cHex_ = StzListOfBytesQ(_aBytes_[i]).ToHex()
+			_acResult_ + _cHex_
 		next
 
-		return acResult
+		return _acResult_
 
 	def HexPerByte()
-		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		_aBytes_ = This.Bytes()
+		_nLen_ = len(_aBytes_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			cHex = StzListOfBytesQ(aBytes[i]).ToHex()
-			aResult + [ aBytes[i], cHex ]
+		for i = 1 to _nLen_
+			_cHex_ = StzListOfBytesQ(_aBytes_[i]).ToHex()
+			_aResult_ + [ _aBytes_[i], _cHex_ ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def HexcodesWithoutPrefix()
-		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		_aBytes_ = This.Bytes()
+		_nLen_ = len(_aBytes_)
 
-		acResult = []
+		_acResult_ = []
 
-		for i = 1 to nLen
-			cHex = StzListOfBytesQ(aBytes[i]).ToHexWithoutPrefix()
-			acResult + cHex
+		for i = 1 to _nLen_
+			_cHex_ = StzListOfBytesQ(_aBytes_[i]).ToHexWithoutPrefix()
+			_acResult_ + _cHex_
 		next
 
-		return acResult
+		return _acResult_
 
 	def HexPerByteWithoutPrefix()
-		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		_aBytes_ = This.Bytes()
+		_nLen_ = len(_aBytes_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			cHex = StzListOfBytesQ(aBytes[i]).ToHexWithoutPrefix()
-			aResult + [ aBytes[i], cHex ]
+		for i = 1 to _nLen_
+			_cHex_ = StzListOfBytesQ(_aBytes_[i]).ToHexWithoutPrefix()
+			_aResult_ + [ _aBytes_[i], _cHex_ ]
 		next
 
-		return aResult
+		return _aResult_
 
 	def ToHexSeparated(pcSep)
 		if CheckingParams()
@@ -514,19 +514,19 @@ class stzListOfBytes from stzList
 			ok
 		ok
 
-		aHex = This.Hexcodes()
-		nLen = len(aHex)
+		_aHex_ = This.Hexcodes()
+		_nLen_ = len(_aHex_)
 
-		cResult = ""
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			cResult += aHex[i]
-			if i < nLen
-				cResult += pcSep
+		for i = 1 to _nLen_
+			_cResult_ += _aHex_[i]
+			if i < _nLen_
+				_cResult_ += pcSep
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 		#< @FunctionAlternativeForm
 
@@ -592,19 +592,19 @@ class stzListOfBytes from stzList
 			ok
 		ok
 
-		aHex = This.HexcodesWithoutPrefix()
-		nLen = len(aHex)
+		_aHex_ = This.HexcodesWithoutPrefix()
+		_nLen_ = len(_aHex_)
 
-		cResult = ""
+		_cResult_ = ""
 
-		for i = 1 to nLen
-			cResult += aHex[i]
-			if i < nLen
-				cResult += pcSep
+		for i = 1 to _nLen_
+			_cResult_ += _aHex_[i]
+			if i < _nLen_
+				_cResult_ += pcSep
 			ok
 		next
 
-		return cResult
+		return _cResult_
 
 		#< @FunctionAlternativeForm
 
@@ -655,8 +655,8 @@ class stzListOfBytes from stzList
 		return This.ToHexWithoutPrefixSeparatedBy(" ")
 
 	def ToHexUTF8()
-		cResult = "\x" + This.ToHexWithoutPrefixSeparatedBy(" \x")
-		return cResult
+		_cResult_ = "\x" + This.ToHexWithoutPrefixSeparatedBy(" \x")
+		return _cResult_
 
 	#--
 
@@ -722,9 +722,9 @@ class stzListOfBytes from stzList
 	def Lowercase()
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return @cData ok
-		cResult = StzEngineBytesToLower(pHandle)
+		_cResult_ = StzEngineBytesToLower(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def ToLowercase()
 			return This.Lowercase()
@@ -739,9 +739,9 @@ class stzListOfBytes from stzList
 	def Uppercased()
 		pHandle = StzEngineBytesFrom(@cData)
 		if pHandle = NULL return @cData ok
-		cResult = StzEngineBytesToUpper(pHandle)
+		_cResult_ = StzEngineBytesToUpper(pHandle)
 		StzEngineBytesFree(pHandle)
-		return cResult
+		return _cResult_
 
 		def ToUppercase()
 			return This.Uppercased()

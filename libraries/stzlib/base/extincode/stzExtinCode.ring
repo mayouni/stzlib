@@ -11,8 +11,8 @@
  ///  VARIABLES  ///
 ///////////////////
 
-None = ""
-Nothing = ""
+_None_ = ""
+_Nothing_ = ""
 
   ///////////////////
  ///  FUNCTIONS  ///
@@ -56,11 +56,11 @@ func iif(pCondition, pTrue, pFalse)
 
 	# pCondition is a string -- was `cCondition` (undefined). The
 	# whole eval was unreachable; iif("x = 1", ...) crashed.
-	cCode = 'bOk = (' + pCondition + ')'
+	_cCode_ = '_bOk_ = (' + pCondition + ')'
 
-	eval(cCode)
+	eval(_cCode_)
 
-	if bOk
+	if _bOk_
 		return pTrue
 	else
 		return pFalse

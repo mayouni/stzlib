@@ -45,32 +45,32 @@ class stzStringLeadTrail from stzObject
 		return This.HasRepeatedLeadingCharsCS(1)
 
 	def RepeatedLeadingCharsCS(pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		if nLen < 2
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		if _nLen_ < 2
 			return ""
 		ok
-		cFirst = acChars[1]
-		cResult = cFirst
-		for i = 2 to nLen
-			if acChars[i] = cFirst
-				cResult += acChars[i]
+		_cFirst_ = _acChars_[1]
+		_cResult_ = _cFirst_
+		for i = 2 to _nLen_
+			if _acChars_[i] = _cFirst_
+				_cResult_ += _acChars_[i]
 			else
 				exit
 			ok
 		next
-		nResultChars = StzLen(cResult)
-		if nResultChars < 2
+		_nResultChars_ = StzLen(_cResult_)
+		if _nResultChars_ < 2
 			return ""
 		ok
-		return cResult
+		return _cResult_
 
 	def RepeatedLeadingChars()
 		return This.RepeatedLeadingCharsCS(1)
 
 	def RepeatedLeadingChar()
-		cLead = This.RepeatedLeadingChars()
-		if StzLen(cLead) > 0
+		_cLead_ = This.RepeatedLeadingChars()
+		if StzLen(_cLead_) > 0
 			return @oString.NthChar(1)
 		else
 			return ""
@@ -96,33 +96,33 @@ class stzStringLeadTrail from stzObject
 		return This.HasRepeatedTrailingCharsCS(1)
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		if nLen < 2
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		if _nLen_ < 2
 			return ""
 		ok
-		cLast = acChars[nLen]
-		cResult = cLast
-		for i = nLen - 1 to 1 step -1
-			if acChars[i] = cLast
-				cResult = acChars[i] + cResult
+		_cLast_ = _acChars_[_nLen_]
+		_cResult_ = _cLast_
+		for i = _nLen_ - 1 to 1 step -1
+			if _acChars_[i] = _cLast_
+				_cResult_ = _acChars_[i] + _cResult_
 			else
 				exit
 			ok
 		next
-		nResultChars = StzLen(cResult)
-		if nResultChars < 2
+		_nResultChars_ = StzLen(_cResult_)
+		if _nResultChars_ < 2
 			return ""
 		ok
-		return cResult
+		return _cResult_
 
 	def RepeatedTrailingChars()
 		return This.RepeatedTrailingCharsCS(1)
 
 	def RepeatedTrailingChar()
-		cTrail = This.RepeatedTrailingChars()
-		nTrailLen = StzLen(cTrail)
-		if nTrailLen > 0
+		_cTrail_ = This.RepeatedTrailingChars()
+		_nTrailLen_ = StzLen(_cTrail_)
+		if _nTrailLen_ > 0
 			return @oString.NthChar(@oString.NumberOfChars())
 		else
 			return ""
@@ -132,9 +132,9 @@ class stzStringLeadTrail from stzObject
 		return StzLen(This.RepeatedTrailingChars())
 
 	def TrailingChar()
-		nLen = @oString.NumberOfChars()
-		if nLen > 0
-			return @oString.NthChar(nLen)
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ > 0
+			return @oString.NthChar(_nLen_)
 		ok
 		return ""
 
@@ -143,10 +143,10 @@ class stzStringLeadTrail from stzObject
 	#======================================================#
 
 	def RemoveRepeatedLeadingChars()
-		cLead = This.RepeatedLeadingChars()
-		nToRemove = StzLen(cLead) - 1
-		if nToRemove > 0
-			@oString.RemoveSection(1, nToRemove)
+		_cLead_ = This.RepeatedLeadingChars()
+		_nToRemove_ = StzLen(_cLead_) - 1
+		if _nToRemove_ > 0
+			@oString.RemoveSection(1, _nToRemove_)
 		ok
 
 		def RemoveRepeatedLeadingCharsQ()
@@ -161,11 +161,11 @@ class stzStringLeadTrail from stzObject
 	#--
 
 	def RemoveRepeatedTrailingChars()
-		cTrail = This.RepeatedTrailingChars()
-		nToRemove = StzLen(cTrail) - 1
-		nLen = @oString.NumberOfChars()
-		if nToRemove > 0
-			@oString.RemoveSection(nLen - nToRemove + 1, nLen)
+		_cTrail_ = This.RepeatedTrailingChars()
+		_nToRemove_ = StzLen(_cTrail_) - 1
+		_nLen_ = @oString.NumberOfChars()
+		if _nToRemove_ > 0
+			@oString.RemoveSection(_nLen_ - _nToRemove_ + 1, _nLen_)
 		ok
 
 		def RemoveRepeatedTrailingCharsQ()
@@ -181,85 +181,85 @@ class stzStringLeadTrail from stzObject
 	 #   REMOVING A SPECIFIC LEADING / TRAILING CHAR        #
 	#======================================================#
 
-	def RemoveThisLeadingCharCS(c, pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		nStart = 1
-		for i = 1 to nLen
-			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
-				nStart = i + 1
+	def RemoveThisLeadingCharCS(_c_, pCaseSensitive)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_nStart_ = 1
+		for i = 1 to _nLen_
+			if BothStringsAreEqualCS(_acChars_[i], _c_, pCaseSensitive)
+				_nStart_ = i + 1
 			else
 				exit
 			ok
 		next
-		if nStart > nLen
+		if _nStart_ > _nLen_
 			@oString.Update("")
 		else
-			@oString.Update(@oString.Section(nStart, nLen))
+			@oString.Update(@oString.Section(_nStart_, _nLen_))
 		ok
 
-		def RemoveThisLeadingCharCSQ(c, pCaseSensitive)
-			This.RemoveThisLeadingCharCS(c, pCaseSensitive)
+		def RemoveThisLeadingCharCSQ(_c_, pCaseSensitive)
+			This.RemoveThisLeadingCharCS(_c_, pCaseSensitive)
 			return This
 
-		def RemoveLeadingCharCS(c, pCaseSensitive)
-			This.RemoveThisLeadingCharCS(c, pCaseSensitive)
+		def RemoveLeadingCharCS(_c_, pCaseSensitive)
+			This.RemoveThisLeadingCharCS(_c_, pCaseSensitive)
 
-	def RemoveThisLeadingChar(c)
-		This.RemoveThisLeadingCharCS(c, 1)
+	def RemoveThisLeadingChar(_c_)
+		This.RemoveThisLeadingCharCS(_c_, 1)
 
-		def RemoveLeadingChar(c)
-			This.RemoveThisLeadingChar(c)
+		def RemoveLeadingChar(_c_)
+			This.RemoveThisLeadingChar(_c_)
 
 	#--
 
-	def RemoveThisTrailingCharCS(c, pCaseSensitive)
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		nEnd = nLen
-		for i = nLen to 1 step -1
-			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
-				nEnd = i - 1
+	def RemoveThisTrailingCharCS(_c_, pCaseSensitive)
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		_nEnd_ = _nLen_
+		for i = _nLen_ to 1 step -1
+			if BothStringsAreEqualCS(_acChars_[i], _c_, pCaseSensitive)
+				_nEnd_ = i - 1
 			else
 				exit
 			ok
 		next
-		if nEnd < 1
+		if _nEnd_ < 1
 			@oString.Update("")
 		else
-			@oString.Update(@oString.Section(1, nEnd))
+			@oString.Update(@oString.Section(1, _nEnd_))
 		ok
 
-		def RemoveThisTrailingCharCSQ(c, pCaseSensitive)
-			This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+		def RemoveThisTrailingCharCSQ(_c_, pCaseSensitive)
+			This.RemoveThisTrailingCharCS(_c_, pCaseSensitive)
 			return This
 
-		def RemoveTrailingCharCS(c, pCaseSensitive)
-			This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+		def RemoveTrailingCharCS(_c_, pCaseSensitive)
+			This.RemoveThisTrailingCharCS(_c_, pCaseSensitive)
 
-	def RemoveThisTrailingChar(c)
-		This.RemoveThisTrailingCharCS(c, 1)
+	def RemoveThisTrailingChar(_c_)
+		This.RemoveThisTrailingCharCS(_c_, 1)
 
-		def RemoveTrailingChar(c)
-			This.RemoveThisTrailingChar(c)
+		def RemoveTrailingChar(_c_)
+			This.RemoveThisTrailingChar(_c_)
 
 	  #======================================================#
 	 #   REMOVING LEADING AND TRAILING AT ONCE              #
 	#======================================================#
 
-	def RemoveThisLeadingAndTrailingCharCS(c, pCaseSensitive)
-		This.RemoveThisLeadingCharCS(c, pCaseSensitive)
-		This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+	def RemoveThisLeadingAndTrailingCharCS(_c_, pCaseSensitive)
+		This.RemoveThisLeadingCharCS(_c_, pCaseSensitive)
+		This.RemoveThisTrailingCharCS(_c_, pCaseSensitive)
 
-		def RemoveThisLeadingAndTrailingCharCSQ(c, pCaseSensitive)
-			This.RemoveThisLeadingAndTrailingCharCS(c, pCaseSensitive)
+		def RemoveThisLeadingAndTrailingCharCSQ(_c_, pCaseSensitive)
+			This.RemoveThisLeadingAndTrailingCharCS(_c_, pCaseSensitive)
 			return This
 
-	def RemoveThisLeadingAndTrailingChar(c)
-		This.RemoveThisLeadingAndTrailingCharCS(c, 1)
+	def RemoveThisLeadingAndTrailingChar(_c_)
+		This.RemoveThisLeadingAndTrailingCharCS(_c_, 1)
 
-		def RemoveThisLeadingAndTrailingCharQ(c)
-			This.RemoveThisLeadingAndTrailingChar(c)
+		def RemoveThisLeadingAndTrailingCharQ(_c_)
+			This.RemoveThisLeadingAndTrailingChar(_c_)
 			return This
 
 	  #======================================================#
@@ -267,23 +267,23 @@ class stzStringLeadTrail from stzObject
 	#======================================================#
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
-		nLen = StzLen(pcSubStr)
-		if nLen > @oString.NumberOfChars()
+		_nLen_ = StzLen(pcSubStr)
+		if _nLen_ > @oString.NumberOfChars()
 			return 0
 		ok
-		cLeft = @oString.NLeftChars(nLen)
-		return BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
+		_cLeft_ = @oString.NLeftChars(_nLen_)
+		return BothStringsAreEqualCS(_cLeft_, pcSubStr, pCaseSensitive)
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
-		nLen = StzLen(pcSubStr)
-		if nLen > @oString.NumberOfChars()
+		_nLen_ = StzLen(pcSubStr)
+		if _nLen_ > @oString.NumberOfChars()
 			return 0
 		ok
-		cRight = @oString.NRightChars(nLen)
-		return BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
+		_cRight_ = @oString.NRightChars(_nLen_)
+		return BothStringsAreEqualCS(_cRight_, pcSubStr, pCaseSensitive)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
@@ -296,9 +296,9 @@ class stzStringLeadTrail from stzObject
 		if This.StartsWithCS(pcSubStr, pCaseSensitive)
 			pH = @oString.Engine()
 			pR = StzEngineStringRemovePrefix(pH, pcSubStr)
-			c = StzEngineStringData(pR)
+			_c_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			@oString.Update(c)
+			@oString.Update(_c_)
 		ok
 
 		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
@@ -326,9 +326,9 @@ class stzStringLeadTrail from stzObject
 		if This.EndsWithCS(pcSubStr, pCaseSensitive)
 			pH = @oString.Engine()
 			pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
-			c = StzEngineStringData(pR)
+			_c_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			@oString.Update(c)
+			@oString.Update(_c_)
 		ok
 
 		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
@@ -358,9 +358,9 @@ class stzStringLeadTrail from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def EnsurePrefixCSQ(pcPrefix, pCaseSensitive)
 			This.EnsurePrefixCS(pcPrefix, pCaseSensitive)
@@ -377,9 +377,9 @@ class stzStringLeadTrail from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def PrefixEnsured(pcPrefix)
 		return This.PrefixEnsuredCS(pcPrefix, 1)
@@ -388,9 +388,9 @@ class stzStringLeadTrail from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def EnsureSuffixCSQ(pcSuffix, pCaseSensitive)
 			This.EnsureSuffixCS(pcSuffix, pCaseSensitive)
@@ -407,9 +407,9 @@ class stzStringLeadTrail from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def SuffixEnsured(pcSuffix)
 		return This.SuffixEnsuredCS(pcSuffix, 1)

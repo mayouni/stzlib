@@ -28,13 +28,13 @@ func StzIsTime(str)
         return FALSE
     ok
 
-    aParts = split(str, ":")
-    if len(aParts) < 2 or len(aParts) > 3
-        cUpper = StzUpper(str)
-        if StzRight(cUpper, 3) = " AM" or StzRight(cUpper, 3) = " PM"
-            cCore = trim(StzLeft(str, StzLen(str) - 3))
-            aParts = split(cCore, ":")
-            if len(aParts) < 2 or len(aParts) > 3
+    _aParts_ = split(str, ":")
+    if len(_aParts_) < 2 or len(_aParts_) > 3
+        _cUpper_ = StzUpper(str)
+        if StzRight(_cUpper_, 3) = " AM" or StzRight(_cUpper_, 3) = " PM"
+            _cCore_ = trim(StzLeft(str, StzLen(str) - 3))
+            _aParts_ = split(_cCore_, ":")
+            if len(_aParts_) < 2 or len(_aParts_) > 3
                 return FALSE
             ok
         else
@@ -42,31 +42,31 @@ func StzIsTime(str)
         ok
     ok
 
-    _nPartsLen_ = len(aParts)
+    _nPartsLen_ = len(_aParts_)
     for i = 1 to _nPartsLen_
-        cPart = aParts[i]
-        if i = len(aParts) and StzFindFirst(cPart, ".")
-            aSubParts = split(cPart, ".")
-            cPart = aSubParts[1]
+        _cPart_ = _aParts_[i]
+        if i = len(_aParts_) and StzFindFirst(_cPart_, ".")
+            _aSubParts_ = split(_cPart_, ".")
+            _cPart_ = _aSubParts_[1]
         ok
-        if not isdigit(cPart)
+        if not isdigit(_cPart_)
             return FALSE
         ok
     next
 
-    nH = 0+ aParts[1]
-    nM = 0+ aParts[2]
-    if nH < 0 or nH > 23 or nM < 0 or nM > 59
+    _nH_ = 0+ _aParts_[1]
+    _nM_ = 0+ _aParts_[2]
+    if _nH_ < 0 or _nH_ > 23 or _nM_ < 0 or _nM_ > 59
         return FALSE
     ok
-    if len(aParts) = 3
-        cSecPart = aParts[3]
-        if StzFindFirst(cSecPart, ".")
-            aSubParts = split(cSecPart, ".")
-            cSecPart = aSubParts[1]
+    if len(_aParts_) = 3
+        _cSecPart_ = _aParts_[3]
+        if StzFindFirst(_cSecPart_, ".")
+            _aSubParts_ = split(_cSecPart_, ".")
+            _cSecPart_ = _aSubParts_[1]
         ok
-        nS = 0+ cSecPart
-        if nS < 0 or nS > 59
+        _nS_ = 0+ _cSecPart_
+        if _nS_ < 0 or _nS_ > 59
             return FALSE
         ok
     ok
@@ -102,156 +102,156 @@ class stzTime from stzObject
             This.ParseStringTime(pTime)
 
         but isNumber(pTime)
-            nHours = floor(pTime / 3600)
-            nMinutes = floor((pTime % 3600) / 60)
-            nSeconds = pTime % 60
-            @nHour = nHours
-            @nMinute = nMinutes
-            @nSecond = nSeconds
+            _nHours_ = floor(pTime / 3600)
+            _nMinutes_ = floor((pTime % 3600) / 60)
+            _nSeconds_ = pTime % 60
+            @nHour = _nHours_
+            @nMinute = _nMinutes_
+            @nSecond = _nSeconds_
             @nMillisecond = 0
 
         but isList(pTime) and IsHashList(pTime)
-            nHour   = 0
-            nMinute = 0
-            nSecond = 0
-            nMs     = 0
+            _nHour_   = 0
+            _nMinute_ = 0
+            _nSecond_ = 0
+            _nMs_     = 0
 
             if HasKey(pTime, :Hour)
-                nHour = 0+ pTime[:Hour]
+                _nHour_ = 0+ pTime[:Hour]
             ok
 
             if HasKey(pTime, :Minute)
-                nMinute = 0+ pTime[:Minute]
+                _nMinute_ = 0+ pTime[:Minute]
             ok
 
             if HasKey(pTime, :Second)
-                nSecond = 0+ pTime[:Second]
+                _nSecond_ = 0+ pTime[:Second]
             ok
 
             if HasKey(pTime, :Millisecond)
-                nMs = 0+ pTime[:Millisecond]
+                _nMs_ = 0+ pTime[:Millisecond]
             ok
 
-            @nHour = nHour
-            @nMinute = nMinute
-            @nSecond = nSecond
-            @nMillisecond = nMs
+            @nHour = _nHour_
+            @nMinute = _nMinute_
+            @nSecond = _nSecond_
+            @nMillisecond = _nMs_
         ok
 
         if not This.pvtIsValidHMS(@nHour, @nMinute, @nSecond, @nMillisecond)
             StzRaise("Invalid time provided!")
         ok
 
-    def ParseStringTime(cTime)
-        cTime = trim(cTime)
+    def ParseStringTime(_cTime_)
+        _cTime_ = trim(_cTime_)
 
-        cAmPm = ""
-        cUpper = StzUpper(cTime)
-        if StzRight(cUpper, 3) = " AM" or StzRight(cUpper, 3) = " PM"
-            cAmPm = StzUpper(StzRight(cTime, 2))
-            cTime = trim(StzLeft(cTime, StzLen(cTime) - 3))
+        _cAmPm_ = ""
+        _cUpper_ = StzUpper(_cTime_)
+        if StzRight(_cUpper_, 3) = " AM" or StzRight(_cUpper_, 3) = " PM"
+            _cAmPm_ = StzUpper(StzRight(_cTime_, 2))
+            _cTime_ = trim(StzLeft(_cTime_, StzLen(_cTime_) - 3))
         ok
 
-        aParts = split(cTime, ":")
-        if len(aParts) < 2 or len(aParts) > 3
-            StzRaise("Cannot parse time string: " + cTime)
+        _aParts_ = split(_cTime_, ":")
+        if len(_aParts_) < 2 or len(_aParts_) > 3
+            StzRaise("Cannot parse time string: " + _cTime_)
         ok
 
-        nH = 0+ aParts[1]
-        nM = 0+ aParts[2]
-        nS = 0
-        nMs = 0
+        _nH_ = 0+ _aParts_[1]
+        _nM_ = 0+ _aParts_[2]
+        _nS_ = 0
+        _nMs_ = 0
 
-        if len(aParts) = 3
-            cSecPart = aParts[3]
-            if StzFindFirst(cSecPart, ".")
-                aSubParts = split(cSecPart, ".")
-                nS = 0+ aSubParts[1]
-                if len(aSubParts) > 1
-                    nMs = 0+ aSubParts[2]
+        if len(_aParts_) = 3
+            _cSecPart_ = _aParts_[3]
+            if StzFindFirst(_cSecPart_, ".")
+                _aSubParts_ = split(_cSecPart_, ".")
+                _nS_ = 0+ _aSubParts_[1]
+                if len(_aSubParts_) > 1
+                    _nMs_ = 0+ _aSubParts_[2]
                 ok
             else
-                nS = 0+ cSecPart
+                _nS_ = 0+ _cSecPart_
             ok
         ok
 
-        if cAmPm = "PM" and nH < 12
-            nH = nH + 12
-        but cAmPm = "AM" and nH = 12
-            nH = 0
+        if _cAmPm_ = "PM" and _nH_ < 12
+            _nH_ = _nH_ + 12
+        but _cAmPm_ = "AM" and _nH_ = 12
+            _nH_ = 0
         ok
 
-        @nHour = nH
-        @nMinute = nM
-        @nSecond = nS
-        @nMillisecond = nMs
+        @nHour = _nH_
+        @nMinute = _nM_
+        @nSecond = _nS_
+        @nMillisecond = _nMs_
 
     #--- ARITHMETIC OPERATIONS ---#
 
-    def AddSeconds(nSeconds)
-        This.pvtAddTotalSeconds(nSeconds)
+    def AddSeconds(_nSeconds_)
+        This.pvtAddTotalSeconds(_nSeconds_)
         return This.ToString()
 
-    def AddSecondsQ(nSeconds)
-        This.AddSeconds(nSeconds)
+    def AddSecondsQ(_nSeconds_)
+        This.AddSeconds(_nSeconds_)
         return This
 
-    def AddMinutes(nMinutes)
-        This.pvtAddTotalSeconds(nMinutes * 60)
+    def AddMinutes(_nMinutes_)
+        This.pvtAddTotalSeconds(_nMinutes_ * 60)
         return This.ToString()
 
-    def AddMinutesQ(nMinutes)
-        This.AddMinutes(nMinutes)
+    def AddMinutesQ(_nMinutes_)
+        This.AddMinutes(_nMinutes_)
         return This
 
-    def AddHours(nHours)
-        This.pvtAddTotalSeconds(nHours * 3600)
+    def AddHours(_nHours_)
+        This.pvtAddTotalSeconds(_nHours_ * 3600)
         return This.ToString()
 
-    def AddHoursQ(nHours)
-        This.AddHours(nHours)
+    def AddHoursQ(_nHours_)
+        This.AddHours(_nHours_)
         return This
 
-    def AddMilliseconds(nMs)
-        nTotalMs = This.pvtToTotalMs() + nMs
-        This.pvtFromTotalMs(nTotalMs)
+    def AddMilliseconds(_nMs_)
+        _nTotalMs_ = This.pvtToTotalMs() + _nMs_
+        This.pvtFromTotalMs(_nTotalMs_)
         return This.ToString()
 
-    def AddMillisecondsQ(nMs)
-        This.AddMilliseconds(nMs)
+    def AddMillisecondsQ(_nMs_)
+        This.AddMilliseconds(_nMs_)
         return This
 
-    def SubtractSeconds(nSeconds)
-        This.pvtAddTotalSeconds(-nSeconds)
+    def SubtractSeconds(_nSeconds_)
+        This.pvtAddTotalSeconds(-_nSeconds_)
         return This.ToString()
 
-    def SubtractSecondsQ(nSeconds)
-        This.SubtractSeconds(nSeconds)
+    def SubtractSecondsQ(_nSeconds_)
+        This.SubtractSeconds(_nSeconds_)
         return This
 
-    def SubtractMinutes(nMinutes)
-        This.pvtAddTotalSeconds(-nMinutes * 60)
+    def SubtractMinutes(_nMinutes_)
+        This.pvtAddTotalSeconds(-_nMinutes_ * 60)
         return This.ToString()
 
-    def SubtractMinutesQ(nMinutes)
-        This.SubtractMinutes(nMinutes)
+    def SubtractMinutesQ(_nMinutes_)
+        This.SubtractMinutes(_nMinutes_)
         return This
 
-    def SubtractHours(nHours)
-        This.pvtAddTotalSeconds(-nHours * 3600)
+    def SubtractHours(_nHours_)
+        This.pvtAddTotalSeconds(-_nHours_ * 3600)
         return This.ToString()
 
-    def SubtractHoursQ(nHours)
-        This.SubtractHours(nHours)
+    def SubtractHoursQ(_nHours_)
+        This.SubtractHours(_nHours_)
         return This
 
-    def SubtractMilliseconds(nMs)
-        nTotalMs = This.pvtToTotalMs() - nMs
-        This.pvtFromTotalMs(nTotalMs)
+    def SubtractMilliseconds(_nMs_)
+        _nTotalMs_ = This.pvtToTotalMs() - _nMs_
+        This.pvtFromTotalMs(_nTotalMs_)
         return This.ToString()
 
-    def SubtractMillisecondsQ(nMs)
-        This.SubtractMilliseconds(nMs)
+    def SubtractMillisecondsQ(_nMs_)
+        This.SubtractMilliseconds(_nMs_)
         return This
 
     #--- OPERATOR OVERLOADING ---#
@@ -272,8 +272,8 @@ class stzTime from stzObject
                 return -This.SecsTo(v)
 
             but isString(v) and IsTime(v)
-                oOtherTime = new stzTime(v)
-                return -This.SecsTo(oOtherTime)
+                _oOtherTime_ = new stzTime(v)
+                return -This.SecsTo(_oOtherTime_)
 
             ok
 
@@ -308,58 +308,58 @@ class stzTime from stzObject
 
     #--- COMPARISON METHODS ---#
 
-    def SecsTo(oOtherTime)
-        if isString(oOtherTime)
-            oTempTime = new stzTime(oOtherTime)
-			oOtherTime = oTempTime
+    def SecsTo(_oOtherTime_)
+        if isString(_oOtherTime_)
+            _oTempTime_ = new stzTime(_oOtherTime_)
+			_oOtherTime_ = _oTempTime_
         ok
-        nThisSecs = This.SecondsSinceMidnight()
-        nOtherSecs = oOtherTime.SecondsSinceMidnight()
-        return nOtherSecs - nThisSecs
+        _nThisSecs_ = This.SecondsSinceMidnight()
+        _nOtherSecs_ = _oOtherTime_.SecondsSinceMidnight()
+        return _nOtherSecs_ - _nThisSecs_
 
-    def MSecsTo(oOtherTime)
-        if isString(oOtherTime)
-            oOtherTime = new stzTime(oOtherTime)
+    def MSecsTo(_oOtherTime_)
+        if isString(_oOtherTime_)
+            _oOtherTime_ = new stzTime(_oOtherTime_)
         ok
-        nThisMs = This.pvtToTotalMs()
-        nOtherMs = (oOtherTime.HourN() * 3600000) + (oOtherTime.MinuteN() * 60000) + (oOtherTime.SecondN() * 1000) + oOtherTime.MillisecondN()
-        return nOtherMs - nThisMs
+        _nThisMs_ = This.pvtToTotalMs()
+        _nOtherMs_ = (_oOtherTime_.HourN() * 3600000) + (_oOtherTime_.MinuteN() * 60000) + (_oOtherTime_.SecondN() * 1000) + _oOtherTime_.MillisecondN()
+        return _nOtherMs_ - _nThisMs_
 
-    def MinutesTo(oOtherTime)
-        return floor(This.SecsTo(oOtherTime) / 60)
+    def MinutesTo(_oOtherTime_)
+        return floor(This.SecsTo(_oOtherTime_) / 60)
 
-    def HoursTo(oOtherTime)
-        return floor(This.SecsTo(oOtherTime) / 3600)
+    def HoursTo(_oOtherTime_)
+        return floor(This.SecsTo(_oOtherTime_) / 3600)
 
-    def IsBefore(oOtherTime)
-        return This.SecsTo(oOtherTime) > 0
+    def IsBefore(_oOtherTime_)
+        return This.SecsTo(_oOtherTime_) > 0
 
-    def IsAfter(oOtherTime)
-        return This.SecsTo(oOtherTime) < 0
+    def IsAfter(_oOtherTime_)
+        return This.SecsTo(_oOtherTime_) < 0
 
-    def IsEqualTo(oOtherTime)
-        return This.SecsTo(oOtherTime) = 0
+    def IsEqualTo(_oOtherTime_)
+        return This.SecsTo(_oOtherTime_) = 0
 
-        def IsEqual(oOtherTime)
-            return This.IsEqualTo(oOtherTime)
+        def IsEqual(_oOtherTime_)
+            return This.IsEqualTo(_oOtherTime_)
 
-    def IsBetween(oStartTime, oEndTime)
+    def IsBetween(_oStartTime_, _oEndTime_)
         if CheckParams()
-            if isList(oEndTime) and IsAndNamedParamList(oEndTime)
-                oEndTime = oEndTime[2]
+            if isList(_oEndTime_) and IsAndNamedParamList(_oEndTime_)
+                _oEndTime_ = _oEndTime_[2]
             ok
         ok
 
-        if isString(oStartTime)
-            oTempStartTime = new stzTime(oStartTime)
-			oStartTime = oTempStartTime
+        if isString(_oStartTime_)
+            _oTempStartTime_ = new stzTime(_oStartTime_)
+			_oStartTime_ = _oTempStartTime_
         ok
-        if isString(oEndTime)
-            oTempEndTime = new stzTime(oEndTime)
-			oEndTime = oTempEndTime
+        if isString(_oEndTime_)
+            _oTempEndTime_ = new stzTime(_oEndTime_)
+			_oEndTime_ = _oTempEndTime_
         ok
 
-        return This.IsAfter(oStartTime) and This.IsBefore(oEndTime)
+        return This.IsAfter(_oStartTime_) and This.IsBefore(_oEndTime_)
 
     #--- UTILITY CHECKS ---#
 
@@ -392,13 +392,13 @@ class stzTime from stzObject
 
     def IsNow()
         pHandle = StzEngineTimeNow()
-        nNowH = StzEngineTimeHour(pHandle)
-        nNowM = StzEngineTimeMinute(pHandle)
-        nNowS = StzEngineTimeSecond(pHandle)
+        _nNowH_ = StzEngineTimeHour(pHandle)
+        _nNowM_ = StzEngineTimeMinute(pHandle)
+        _nNowS_ = StzEngineTimeSecond(pHandle)
         StzEngineTimeFree(pHandle)
-        nNowTotal = (nNowH * 3600) + (nNowM * 60) + nNowS
-        nDiff = abs(This.SecondsSinceMidnight() - nNowTotal)
-        return nDiff < 60
+        _nNowTotal_ = (_nNowH_ * 3600) + (_nNowM_ * 60) + _nNowS_
+        _nDiff_ = abs(This.SecondsSinceMidnight() - _nNowTotal_)
+        return _nDiff_ < 60
 
     #--- GETTERS ---#
 
@@ -513,32 +513,32 @@ class stzTime from stzObject
     #--- SMART NAVIGATION ---#
 
     def NextHour()
-        oCopy = This.Copy()
-        oCopy.AddSeconds(3600)
-        return oCopy.ToString()
+        _oCopy_ = This.Copy()
+        _oCopy_.AddSeconds(3600)
+        return _oCopy_.ToString()
 
     def PreviousHour()
-        oCopy = This.Copy()
-        oCopy.SubtractSeconds(3600)
-        return oCopy.ToString()
+        _oCopy_ = This.Copy()
+        _oCopy_.SubtractSeconds(3600)
+        return _oCopy_.ToString()
 
     def NextMinute()
-        oCopy = This.Copy()
-        oCopy.AddSeconds(60)
-        return oCopy.ToString()
+        _oCopy_ = This.Copy()
+        _oCopy_.AddSeconds(60)
+        return _oCopy_.ToString()
 
     def PreviousMinute()
-        oCopy = This.Copy()
-        oCopy.SubtractSeconds(60)
-        return oCopy.ToString()
+        _oCopy_ = This.Copy()
+        _oCopy_.SubtractSeconds(60)
+        return _oCopy_.ToString()
 
     def RoundToNearestHour()
         if @nMinute >= 30
-            nNewHour = @nHour + 1
-            if nNewHour >= 24
-                nNewHour = 0
+            _nNewHour_ = @nHour + 1
+            if _nNewHour_ >= 24
+                _nNewHour_ = 0
             ok
-            @nHour = nNewHour
+            @nHour = _nNewHour_
         ok
         @nMinute = 0
         @nSecond = 0
@@ -570,37 +570,37 @@ class stzTime from stzObject
     def ToString()
         return This.ToStringXT("")
 
-    def ToStringXT(cFormat)
+    def ToStringXT(_cFormat_)
 
-        if cFormat = ""
-            cFormat = $cDefaultTimeFormat
+        if _cFormat_ = ""
+            _cFormat_ = $cDefaultTimeFormat
         ok
-		cLowerFormat = StzLower(cFormat)
+		_cLowerFormat_ = StzLower(_cFormat_)
 
-		cFormat = trim(cFormat)
-		if StzRight(cFormat, 2) = "ap"
+		_cFormat_ = trim(_cFormat_)
+		if StzRight(_cFormat_, 2) = "ap"
 
-			return This.ToStringXT(StzLeft(cFormat, StzLen(cFormat)-2)) +
+			return This.ToStringXT(StzLeft(_cFormat_, StzLen(_cFormat_)-2)) +
 				   " " + This.AMPM()
 
-		but cFormat = "ampm"
+		but _cFormat_ = "ampm"
 			return This.ToString() + " " + This.AMPM()
 
 		ok
 
         _nTimeFormats1Len_ = len($aTimeFormats)
         for _iLoopTimeFormats1_ = 1 to _nTimeFormats1Len_
-        	aFormat = $aTimeFormats[_iLoopTimeFormats1_]
-            if StzLower(aFormat[1]) = cLowerFormat
-                cFormat = aFormat[2]
+        	_aFormat_ = $aTimeFormats[_iLoopTimeFormats1_]
+            if StzLower(_aFormat_[1]) = _cLowerFormat_
+                _cFormat_ = _aFormat_[2]
                 exit
             ok
         next
 
-		if cFormat = "long"
+		if _cFormat_ = "long"
 			return This.ToLong()
 		else
-        	return This.pvtFormatTime(cFormat)
+        	return This.pvtFormatTime(_cFormat_)
     	ok
 
     def To12Hour()
@@ -621,52 +621,52 @@ class stzTime from stzObject
     #--- HUMAN-READABLE ---#
 
     def ToHuman()
-        nHour = This.Hour12()
-        nMinute = This.MinuteN()
-        cAMPM = This.AMPM()
+        _nHour_ = This.Hour12()
+        _nMinute_ = This.MinuteN()
+        _cAmPm_ = This.AMPM()
 
-        if nMinute = 0
-            return '' + nHour + " o'clock " + cAMPM
+        if _nMinute_ = 0
+            return '' + _nHour_ + " o'clock " + _cAmPm_
 
-        but nMinute = 15
-            return "Quarter past " + nHour + " " + cAMPM
+        but _nMinute_ = 15
+            return "Quarter past " + _nHour_ + " " + _cAmPm_
 
-        but nMinute = 30
-            return "Half past " + nHour + " " + cAMPM
+        but _nMinute_ = 30
+            return "Half past " + _nHour_ + " " + _cAmPm_
 
-        but nMinute = 45
-            return "Quarter to " + (nHour + 1) + " " + cAMPM
+        but _nMinute_ = 45
+            return "Quarter to " + (_nHour_ + 1) + " " + _cAmPm_
 
         else
-            return '' + nHour + ":" + StzPadLeftXT(''+ nMinute, 2, "0") + " " + cAMPM
+            return '' + _nHour_ + ":" + StzPadLeftXT(''+ _nMinute_, 2, "0") + " " + _cAmPm_
         ok
 
     def ToRelative()
-        oNow = new stzTime("")
-        nSecs = This.SecsTo(oNow)
+        _oNow_ = new stzTime("")
+        _nSecs_ = This.SecsTo(_oNow_)
 
-        if abs(nSecs) < 60
+        if abs(_nSecs_) < 60
             return "now"
 
-        but nSecs < 0  # In the past
-            nAbsSecs = -nSecs
-            if nAbsSecs < 3600
-                nMins = floor(nAbsSecs / 60)
-                return '' + nMins + " minute" + Iff(nMins=1, "", "s") + " ago"
+        but _nSecs_ < 0  # In the past
+            _nAbsSecs_ = -_nSecs_
+            if _nAbsSecs_ < 3600
+                _nMins_ = floor(_nAbsSecs_ / 60)
+                return '' + _nMins_ + " minute" + Iff(_nMins_=1, "", "s") + " ago"
 
             else
-                nHours = floor(nAbsSecs / 3600)
-                return '' + nHours + " hour" + Iff(nHours=1, "", "s") + " ago"
+                _nHours_ = floor(_nAbsSecs_ / 3600)
+                return '' + _nHours_ + " hour" + Iff(_nHours_=1, "", "s") + " ago"
             ok
 
         else  # In the future
-            if nSecs < 3600
-                nMins = floor(nSecs / 60)
-                return "in " + nMins + " minute" + Iff(nMins=1, "", "s")
+            if _nSecs_ < 3600
+                _nMins_ = floor(_nSecs_ / 60)
+                return "in " + _nMins_ + " minute" + Iff(_nMins_=1, "", "s")
 
            else
-                nHours = floor(nSecs / 3600)
-                return "in " + nHours + " hour" + Iff(nHours=1, "", "s")
+                _nHours_ = floor(_nSecs_ / 3600)
+                return "in " + _nHours_ + " hour" + Iff(_nHours_=1, "", "s")
             ok
         ok
 
@@ -687,8 +687,8 @@ class stzTime from stzObject
     #--- UTILITY METHODS ---#
 
     def Copy()
-        oNewTime = new stzTime([:Hour = @nHour, :Minute = @nMinute, :Second = @nSecond, :Millisecond = @nMillisecond])
-        return oNewTime
+        _oNewTime_ = new stzTime([:Hour = @nHour, :Minute = @nMinute, :Second = @nSecond, :Millisecond = @nMillisecond])
+        return _oNewTime_
 
     def IsValid()
         return This.pvtIsValidHMS(@nHour, @nMinute, @nSecond, @nMillisecond)
@@ -700,59 +700,59 @@ class stzTime from stzObject
 
     private
 
-    def pvtIsValidHMS(nH, nM, nS, nMs)
-        if nH < 0 or nH > 23
+    def pvtIsValidHMS(_nH_, _nM_, _nS_, _nMs_)
+        if _nH_ < 0 or _nH_ > 23
             return FALSE
         ok
-        if nM < 0 or nM > 59
+        if _nM_ < 0 or _nM_ > 59
             return FALSE
         ok
-        if nS < 0 or nS > 59
+        if _nS_ < 0 or _nS_ > 59
             return FALSE
         ok
-        if nMs < 0 or nMs > 999
+        if _nMs_ < 0 or _nMs_ > 999
             return FALSE
         ok
         return TRUE
 
-    def pvtAddTotalSeconds(nSecs)
-        nTotal = This.SecondsSinceMidnight() + nSecs
-        nTotal = nTotal % 86400
-        if nTotal < 0
-            nTotal = nTotal + 86400
+    def pvtAddTotalSeconds(_nSecs_)
+        _nTotal_ = This.SecondsSinceMidnight() + _nSecs_
+        _nTotal_ = _nTotal_ % 86400
+        if _nTotal_ < 0
+            _nTotal_ = _nTotal_ + 86400
         ok
-        @nHour = floor(nTotal / 3600)
-        @nMinute = floor((nTotal % 3600) / 60)
-        @nSecond = nTotal % 60
+        @nHour = floor(_nTotal_ / 3600)
+        @nMinute = floor((_nTotal_ % 3600) / 60)
+        @nSecond = _nTotal_ % 60
 
     def pvtToTotalMs()
         return (@nHour * 3600000) + (@nMinute * 60000) + (@nSecond * 1000) + @nMillisecond
 
-    def pvtFromTotalMs(nTotalMs)
-        nTotalMs = nTotalMs % 86400000
-        if nTotalMs < 0
-            nTotalMs = nTotalMs + 86400000
+    def pvtFromTotalMs(_nTotalMs_)
+        _nTotalMs_ = _nTotalMs_ % 86400000
+        if _nTotalMs_ < 0
+            _nTotalMs_ = _nTotalMs_ + 86400000
         ok
-        @nHour = floor(nTotalMs / 3600000)
-        nRem = nTotalMs % 3600000
-        @nMinute = floor(nRem / 60000)
-        nRem = nRem % 60000
-        @nSecond = floor(nRem / 1000)
-        @nMillisecond = nRem % 1000
+        @nHour = floor(_nTotalMs_ / 3600000)
+        _nRem_ = _nTotalMs_ % 3600000
+        @nMinute = floor(_nRem_ / 60000)
+        _nRem_ = _nRem_ % 60000
+        @nSecond = floor(_nRem_ / 1000)
+        @nMillisecond = _nRem_ % 1000
 
-    def pvtFormatTime(cFormat)
-        cResult = cFormat
+    def pvtFormatTime(_cFormat_)
+        _cResult_ = _cFormat_
 
-        cResult = StzReplace(cResult, "HH", StzPadLeftXT(''+ @nHour, 2, "0"))
-        cResult = StzReplace(cResult, "hh", StzPadLeftXT(''+ @nHour, 2, "0"))
+        _cResult_ = StzReplace(_cResult_, "HH", StzPadLeftXT(''+ @nHour, 2, "0"))
+        _cResult_ = StzReplace(_cResult_, "hh", StzPadLeftXT(''+ @nHour, 2, "0"))
 
-        if StzFindFirst(cResult, "h")
-            cResult = StzReplace(cResult, "h", ''+ @nHour)
+        if StzFindFirst(_cResult_, "h")
+            _cResult_ = StzReplace(_cResult_, "h", ''+ @nHour)
         ok
 
-        cResult = StzReplace(cResult, "mm", StzPadLeftXT(''+ @nMinute, 2, "0"))
-        cResult = StzReplace(cResult, "ss", StzPadLeftXT(''+ @nSecond, 2, "0"))
-        cResult = StzReplace(cResult, "zzz", StzPadLeftXT(''+ @nMillisecond, 3, "0"))
-        cResult = StzReplace(cResult, "AP", This.AMPM())
+        _cResult_ = StzReplace(_cResult_, "mm", StzPadLeftXT(''+ @nMinute, 2, "0"))
+        _cResult_ = StzReplace(_cResult_, "ss", StzPadLeftXT(''+ @nSecond, 2, "0"))
+        _cResult_ = StzReplace(_cResult_, "zzz", StzPadLeftXT(''+ @nMillisecond, 3, "0"))
+        _cResult_ = StzReplace(_cResult_, "AP", This.AMPM())
 
-        return cResult
+        return _cResult_

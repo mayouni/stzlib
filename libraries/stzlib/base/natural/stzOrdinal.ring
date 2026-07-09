@@ -19,8 +19,8 @@ $aOrdinalConfig = [
 ]
 
 // Helper function
-func Ordinal(n)
-    _oOrd_ = new stzOrdinal(n)
+func Ordinal(_n_)
+    _oOrd_ = new stzOrdinal(_n_)
     return _oOrd_.Content()
 
 // Set global language
@@ -35,8 +35,8 @@ class stzOrdinal from stzObject
     @nNumber
     @cLanguge
     
-    def init(n)
-        @nNumber = n
+    def init(_n_)
+        @nNumber = _n_
         @cLanguge = $aOrdinalConfig[:current_lang]
     
     def SetLanguage(lang)
@@ -48,17 +48,17 @@ class stzOrdinal from stzObject
         return @cLanguge
     
     def ToString()
-        aConfig = $aOrdinalConfig[:languages][@cLanguge]
+        _aConfig_ = $aOrdinalConfig[:languages][@cLanguge]
         
         switch @cLanguge
             on "en"
-                return This.ToEnglish(aConfig)
+                return This.ToEnglish(_aConfig_)
 
             on "fr"
-                return This.ToFrench(aConfig)
+                return This.ToFrench(_aConfig_)
 
             on "ar"
-                return This.ToArabic(aConfig)
+                return This.ToArabic(_aConfig_)
         off
         
         return string(@nNumber)
@@ -74,52 +74,52 @@ class stzOrdinal from stzObject
 
     private
     
-    def ToEnglish(aConfig)
-        n = @nNumber
-        if n <= 0
-            return string(n) + aConfig[:suffixes][1]
+    def ToEnglish(_aConfig_)
+        _n_ = @nNumber
+        if _n_ <= 0
+            return string(_n_) + _aConfig_[:suffixes][1]
         ok
         
-        nLastDigit = n % 10
-        nLastTwoDigits = n % 100
+        _nLastDigit_ = _n_ % 10
+        _nLastTwoDigits_ = _n_ % 100
         
-        if find(aConfig[:special_cases], nLastTwoDigits)
-            return string(n) + aConfig[:suffixes][1]
+        if find(_aConfig_[:special_cases], _nLastTwoDigits_)
+            return string(_n_) + _aConfig_[:suffixes][1]
         ok
         
-        switch nLastDigit
+        switch _nLastDigit_
             on 1
-                cSuffix = aConfig[:suffixes][2]
+                _cSuffix_ = _aConfig_[:suffixes][2]
             on 2
-                cSuffix = aConfig[:suffixes][3]
+                _cSuffix_ = _aConfig_[:suffixes][3]
             on 3
-                cSuffix = aConfig[:suffixes][4]
+                _cSuffix_ = _aConfig_[:suffixes][4]
             other
-                cSuffix = aConfig[:suffixes][1]
+                _cSuffix_ = _aConfig_[:suffixes][1]
         off
         
-        return string(n) + cSuffix
+        return string(_n_) + _cSuffix_
     
-    def ToFrench(aConfig)
-        n = @nNumber
-        if n <= 0
-            return string(n) + aConfig[:suffixes][1]
+    def ToFrench(_aConfig_)
+        _n_ = @nNumber
+        if _n_ <= 0
+            return string(_n_) + _aConfig_[:suffixes][1]
         ok
         
-        if n = 1
+        if _n_ = 1
             return "1er"
         ok
         
-        if n <= 9
-            return string(n) + aConfig[:suffixes][4]
+        if _n_ <= 9
+            return string(_n_) + _aConfig_[:suffixes][4]
         ok
         
-        return string(n) + aConfig[:suffixes][1]
+        return string(_n_) + _aConfig_[:suffixes][1]
     
-    def ToArabic(aConfig)
-        n = @nNumber
-        if n >= 1 and n <= 5
-            return aConfig[:suffixes][n + 1]
+    def ToArabic(_aConfig_)
+        _n_ = @nNumber
+        if _n_ >= 1 and _n_ <= 5
+            return _aConfig_[:suffixes][_n_ + 1]
         ok
         
-        return "ال" + string(n)
+        return "ال" + string(_n_)

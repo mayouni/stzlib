@@ -25,18 +25,18 @@ class stzReactiveSystem from stzObject
 	# Manages the internal state of the reactive system,
 	# tracking timers, tasks, streams, and handlers.
 
-	timerManager = NULL
-	tasks = []
-	streams = []
+	_timerManager_ = NULL
+	_tasks_ = []
+	_streams_ = []
 
-	isRunning = ENGINE_STOPPED
+	_isRunning_ = ENGINE_STOPPED
 
 	# Reactive components
 	#--------------------
 
-	http = NULL
-	oDataStream = NULL
-	oHttpStream = NULL
+	_http_ = NULL
+	_oDataStream_ = NULL
+	_oHttpStream_ = NULL
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -52,13 +52,13 @@ class stzReactiveSystem from stzObject
 		# sentinel so legacy callers that read the handle don't crash.
 		@libuvLoop = NULL
 
-		timerManager = new stzTimerManager()
-		http = new stzReactiveHttp(self)
+		_timerManager_ = new stzTimerManager()
+		_http_ = new stzReactiveHttp(self)
 
-		tasks = []
-		streams = []
+		_tasks_ = []
+		_streams_ = []
 
-		isRunning = ENGINE_STOPPED
+		_isRunning_ = ENGINE_STOPPED
 
 
 	def LibuvLoop()
@@ -74,23 +74,23 @@ class stzReactiveSystem from stzObject
 
 	def Start()
 	    # Initiates the reactive system and runs the event loop.
-	    if isRunning = ENGINE_STOPPED
-	        isRunning = ENGINE_RUNNING
+	    if _isRunning_ = ENGINE_STOPPED
+	        _isRunning_ = ENGINE_RUNNING
 
 	        # (Removed an unconditional sleep(0.1) here -- it added a flat
 	        # 100ms to every RunLoop with no functional purpose.)
 
 	        # Execute any pending chunked tasks
-	        nLenTasks = len(tasks)
-	        for i = 1 to nLenTasks
-	            if tasks[i].status = TASK_PENDING
-	                tasks[i].Execute()
+	        _nLenTasks_ = len(_tasks_)
+	        for i = 1 to _nLenTasks_
+	            if _tasks_[i].status = TASK_PENDING
+	                _tasks_[i].Execute()
 	            ok
 	        next
 	
 		# Run timer-based loop for other reactive components
-	        timerManager.RunLoop()	        
-	        isRunning = ENGINE_STOPPED
+	        _timerManager_.RunLoop()	        
+	        _isRunning_ = ENGINE_STOPPED
 	    ok
 
 		#< @FunctionAlternativeForms
@@ -116,19 +116,19 @@ class stzReactiveSystem from stzObject
 
 	def Stop()
 		# Stops the system and cleans up tasks, streams, and handlers.
-		isRunning = ENGINE_STOPPED
-		timerManager.Stop()
+		_isRunning_ = ENGINE_STOPPED
+		_timerManager_.Stop()
 
 		# Clean up all tasks
-		nLenTasks = len(tasks)
-		for i = 1 to nLenTasks
-			tasks[i].Cleanup()
+		_nLenTasks_ = len(_tasks_)
+		for i = 1 to _nLenTasks_
+			_tasks_[i].Cleanup()
 		next
 
 		# Clean up streams
-		nLenStreams = len(streams)
-		for i = 1 to nLenStreams 
-			streams[i].Cleanup()
+		_nLenStreams_ = len(_streams_)
+		for i = 1 to _nLenStreams_ 
+			_streams_[i].Cleanup()
 		next
 
 		#< @FunctionAlternativeForms
@@ -233,10 +233,10 @@ class stzReactiveSystem from stzObject
 			return new stzReactiveObject(NULL, self)
 		#>
 
-	def BindObjects(poSource, pcSourceAttr, poTarget, pcTargetAttr, bindingMode)
+	def BindObjects(poSource, pcSourceAttr, poTarget, pcTargetAttr, _bindingMode_)
 		# Binds attributes of two reactive objects for synchronized updates.
-		if bindingMode = NULL
-			bindingMode = DEFAULT_BINDING_MODE
+		if _bindingMode_ = NULL
+			_bindingMode_ = DEFAULT_BINDING_MODE
 		ok
 		
 		_oXSource_ = new stzReactiveObject(poSource, self)
@@ -250,16 +250,16 @@ class stzReactiveSystem from stzObject
 	# Creates and manages streams for processing asynchronous data
 	# flows from various sources (timers, network, etc.).
 
-	def CreateStreamXT(id, sourceType)
+	def CreateStreamXT(id, _sourceType_)
 		# Creates a generic stream with a specified ID and source type.
-		if sourceType = NULL
-			sourceType = DEFAULT_STREAM_SOURCE
+		if _sourceType_ = NULL
+			_sourceType_ = DEFAULT_STREAM_SOURCE
 		ok
 		
-		stream = new stzReactiveStream(id, sourceType, self)
-		stream.Start()
-		AddStream(stream)
-		return stream
+		_stream_ = new stzReactiveStream(id, _sourceType_, self)
+		_stream_.Start()
+		AddStream(_stream_)
+		return _stream_
 
 	def CreateStream(id)
 		return This.CreateStreamXT(id, "manual")
@@ -286,117 +286,117 @@ class stzReactiveSystem from stzObject
 	# Manages timers for scheduling delayed or periodic
 	# tasks in the reactive system.
 
-	def CreateTimer(id, intervalMs, callback) # Runs every second
-		return This.CreateTimerXT(id, intervalMs, callback, FALSE)
+	def CreateTimer(id, intervalMs, _callback_) # Runs every second
+		return This.CreateTimerXT(id, intervalMs, _callback_, FALSE)
 
-	def CreateTimerXT(id, intervalMs, callback, oneTime) # runs once after 5 seconds
+	def CreateTimerXT(id, intervalMs, _callback_, _oneTime_) # runs once after 5 seconds
 
-	    if oneTime = NULL
-	        oneTime = false
+	    if _oneTime_ = NULL
+	        _oneTime_ = false
 	    ok
 
-	    timer = new stzReactiveTimer(id, intervalMs, callback, self, oneTime)
-	    timerManager.AddTimer(timer)
-	    timer.Start()
+	    _timer_ = new stzReactiveTimer(id, intervalMs, _callback_, self, _oneTime_)
+	    _timerManager_.AddTimer(_timer_)
+	    _timer_.Start()
 
-	    return timer
+	    return _timer_
 
 	def CreateTask(id, f)
 		# Creates an asynchronous task with a specified function.
-		task = new stzReactiveTask(id, f, self, NULL)
-		This.AddTask(task)
-		return task
+		_task_ = new stzReactiveTask(id, f, self, NULL)
+		This.AddTask(_task_)
+		return _task_
 
-	def RunAfterXT(nDelay, cUnit, callback)
-		if isNull(cUnit)
-			cUnit = "milliseconds"
+	def RunAfterXT(_nDelay_, _cUnit_, _callback_)
+		if isNull(_cUnit_)
+			_cUnit_ = "milliseconds"
 		ok
 
 		# Convert to milliseconds (the timer's native unit). seconds and
 		# minutes scale UP, not down -- the old code divided, so
 		# RunAfterXT(1, :seconds) asked for 0.001ms and fired instantly.
-		if cUnit = "seconds" or cUnit = "second"
-			nDelay = nDelay * 1000
+		if _cUnit_ = "seconds" or _cUnit_ = "second"
+			_nDelay_ = _nDelay_ * 1000
 
-		but cUnit = "minutes" or cUnit = "minute"
-			nDelay = nDelay * 60000
+		but _cUnit_ = "minutes" or _cUnit_ = "minute"
+			_nDelay_ = _nDelay_ * 60000
 		ok
 
-		return This.RunAfter(nDelay, callback)
+		return This.RunAfter(_nDelay_, _callback_)
 
-		def SetTimeoutXT(nDelay, cUnit, callback)
+		def SetTimeoutXT(_nDelay_, _cUnit_, _callback_)
 
-	def RunAfter(delay, callback)
+	def RunAfter(_delay_, _callback_)
 		# Sets a one-time timer with a delay and callback.
 		if CheckParams()
-			if isNumber(callback) and NOT isNumber(delay)
-				tempval = delay
-				delay = callback
-				callback = tempval
+			if isNumber(_callback_) and NOT isNumber(_delay_)
+				_tempval_ = _delay_
+				_delay_ = _callback_
+				_callback_ = _tempval_
 			ok
 		ok
 
-		if delay = NULL
-			delay = IMMEDIATE
+		if _delay_ = NULL
+			_delay_ = IMMEDIATE
 		ok
 
-		timerId = "timeout_" + random(999999)
-		timer = new stzRingTimer(timerId, delay, callback, self, true, self)
-		timer.Start()
-		This.AddTimer(timer)
-		return timerId
+		_timerId_ = "timeout_" + random(999999)
+		_timer_ = new stzRingTimer(_timerId_, _delay_, _callback_, self, true, self)
+		_timer_.Start()
+		This.AddTimer(_timer_)
+		return _timerId_
 
-		def SetTimeout(delay, callback)
-			return This.RunAfter(delay, callback)
+		def SetTimeout(_delay_, _callback_)
+			return This.RunAfter(_delay_, _callback_)
 
-	def RunEveryXT(nInterval, cUnit, callback)
-		if isNull(cUnit)
-			cUnit = "milliseconds"
+	def RunEveryXT(_nInterval_, _cUnit_, _callback_)
+		if isNull(_cUnit_)
+			_cUnit_ = "milliseconds"
 		ok
 
 		# Convert to milliseconds (see RunAfterXT) -- scale up, not down.
-		if cUnit = "seconds" or cUnit = "second"
-			nInterval = nInterval * 1000
+		if _cUnit_ = "seconds" or _cUnit_ = "second"
+			_nInterval_ = _nInterval_ * 1000
 
-		but cUnit = "minutes" or cUnit = "minute"
-			nInterval = nInterval * 60000
+		but _cUnit_ = "minutes" or _cUnit_ = "minute"
+			_nInterval_ = _nInterval_ * 60000
 		ok
 
-		return This.RunEvery(nInterval, callback)
+		return This.RunEvery(_nInterval_, _callback_)
 
-	def RunEvery(interval, callback)
+	def RunEvery(_interval_, _callback_)
 		# Sets a periodic timer with an interval and callback.
 		if CheckParams()
-			if isNumber(callback) and NOT isNumber(interval)
-				tempval = interval
-				interval = callback
-				callback = tempval
+			if isNumber(_callback_) and NOT isNumber(_interval_)
+				_tempval_ = _interval_
+				_interval_ = _callback_
+				_callback_ = _tempval_
 			ok
 		ok
 
-		if interval = NULL
-			interval = DEFAULT_TIMER_DELAY
+		if _interval_ = NULL
+			_interval_ = DEFAULT_TIMER_DELAY
 		ok
 
-		timerId = "interval_" + random(999999)
-		timer = new stzRingTimer(timerId, interval, callback, self, false, self)
-		timer.Start()
-		AddTimer(timer)
-		return timer
+		_timerId_ = "interval_" + random(999999)
+		_timer_ = new stzRingTimer(_timerId_, _interval_, _callback_, self, false, self)
+		_timer_.Start()
+		AddTimer(_timer_)
+		return _timer_
 
-		def SetInterval(interval, callback)
-			return This.RunEvery(interval, callback)
+		def SetInterval(_interval_, _callback_)
+			return This.RunEvery(_interval_, _callback_)
 
-	def StopTimer(timer)
+	def StopTimer(_timer_)
 
-		if isString(timer)
-			timerManager.RemoveTimer(timer)
+		if isString(_timer_)
+			_timerManager_.RemoveTimer(_timer_)
 		else
-			timer.Stop()
+			_timer_.Stop()
 		ok
 
 	def StopAllTimers()
-	   timerManager.StopAllTimers()
+	   _timerManager_.StopAllTimers()
 
 	#--------------------------#
 	#  REACTIVE HTTP REQUESTS  #
@@ -408,24 +408,24 @@ class stzReactiveSystem from stzObject
 	def HttpGet(url, onSuccess, onError)
 		return This.HttpGetXT(url, onSuccess, onError, DEFAULT_ERROR_HANDLING)
 
-	def HttpGetXT(url, onSuccess, onError, errorHandling)
+	def HttpGetXT(url, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP GET request.
-		if errorHandling = NULL
-			errorHandling = DEFAULT_ERROR_HANDLING
+		if _errorHandling_ = NULL
+			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
-		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
+		return _http_.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
 
 	#--
 
 	def HttpPost(url, data, onSuccess, onError)
 		return This.HttpPostXT(url, data, onSuccess, onError, DEFAULT_ERROR_HANDLING)
 
-	def HttpPostXT(url, data, onSuccess, onError, errorHandling)
+	def HttpPostXT(url, data, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP POST request with data.
-		if errorHandling = NULL
-			errorHandling = DEFAULT_ERROR_HANDLING
+		if _errorHandling_ = NULL
+			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
-		return http.Post(url, data, onSuccess, onError)
+		return _http_.Post(url, data, onSuccess, onError)
 
 	#--------------------#
 	#  BUFFER UTILITIES  #
@@ -449,14 +449,14 @@ class stzReactiveSystem from stzObject
 	# Manages tasks, streams, and timers
 	# for internal system operations.
 
-	def AddTask(task)
+	def AddTask(_task_)
 		# Adds a task to the internal task list.
-		tasks + task
+		_tasks_ + _task_
 		
-	def AddStream(stream)
+	def AddStream(_stream_)
 		# Adds a stream to the internal stream list.
-		streams + stream
+		_streams_ + _stream_
 		
-	def AddTimer(timer)
+	def AddTimer(_timer_)
 		# Adds a timer to the timer manager.
-		timerManager.AddTimer(timer)
+		_timerManager_.AddTimer(_timer_)

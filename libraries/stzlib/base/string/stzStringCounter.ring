@@ -86,8 +86,8 @@ class stzStringCounter from stzObject
 		if _bCase_ = 1
 			return StzEngineStringCount(@oString.Engine())
 		else
-			oGetter = new stzStringGetter(@oString)
-			return len(oGetter.UniqueCharsCS(0))
+			_oGetter_ = new stzStringGetter(@oString)
+			return len(_oGetter_.UniqueCharsCS(0))
 		ok
 
 	  #======================================================#
@@ -102,8 +102,8 @@ class stzStringCounter from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_ = 1
-			n = @oString.NumberOfChars()
-			return n * (n + 1) / 2
+			_n_ = @oString.NumberOfChars()
+			return _n_ * (_n_ + 1) / 2
 		else
 			# Case-insensitive count via engine
 			return StzEngineStringSubstringsCount(@oString.Engine())
@@ -123,8 +123,8 @@ class stzStringCounter from stzObject
 	#======================================================#
 
 	def CountBetweenCS(pcSubStr, n1, n2, pCaseSensitive)
-		cSection = @oString.Section(n1, n2)
-		return StringNumberOfOccurrenceCS(cSection, pcSubStr, pCaseSensitive)
+		_cSection_ = @oString.Section(n1, n2)
+		return StringNumberOfOccurrenceCS(_cSection_, pcSubStr, pCaseSensitive)
 
 	def CountBetween(pcSubStr, n1, n2)
 		return This.CountBetweenCS(pcSubStr, n1, n2, 1)
@@ -145,16 +145,16 @@ class stzStringCounter from stzObject
 	def CountLeadingChar(pcChar)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
-		nCp = StzEngineStringCharAt(pHChar, 1)
+		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		return StzEngineStringCountLeadingChar(pH, nCp)
+		return StzEngineStringCountLeadingChar(pH, _nCp_)
 
 	def CountTrailingChar(pcChar)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
-		nCp = StzEngineStringCharAt(pHChar, 1)
+		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		return StzEngineStringCountTrailingChar(pH, nCp)
+		return StzEngineStringCountTrailingChar(pH, _nCp_)
 
 	  #======================================================#
 	 #   COUNT BETWEEN MARKERS                              #

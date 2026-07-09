@@ -1,61 +1,61 @@
 # stzRequestClassifier: AI-powered request analysis for routing
 class stzRequestClassifier from stzObject
-    aPatterns = []
+    _aPatterns_ = []
     
     def init()
         This.LoadClassificationPatterns()
 
     def LoadClassificationPatterns()
         # NLP patterns
-        aPatterns + [
+        _aPatterns_ + [
             :domain = "nlp",
             :keywords = ["text", "analyze", "sentiment", "translate", "language", "parse", "extract"]
         ]
         # Math patterns  
-        aPatterns + [
+        _aPatterns_ + [
             :domain = "math",
             :keywords = ["calculate", "compute", "model", "statistics", "optimize", "solve", "formula"]
         ]
         # Vision patterns
-        aPatterns + [
+        _aPatterns_ + [
             :domain = "vision", 
             :keywords = ["image", "photo", "ocr", "scan", "visual", "picture", "document", "pdf"]
         ]
         # Search patterns
-        aPatterns + [
+        _aPatterns_ + [
             :domain = "search",
             :keywords = ["search", "find", "query", "index", "lookup", "discover", "retrieve"]
         ]
 
     def ClassifyComputationalDomain(oRequest)
-        cContent = StzLower(oRequest.Path() + " " + oRequest.Body())
-        aScores = []
+        _cContent_ = StzLower(oRequest.Path() + " " + oRequest.Body())
+        _aScores_ = []
         
-        _nPatterns1Len_ = len(aPatterns)
+        _nPatterns1Len_ = len(_aPatterns_)
         for _iLoopPatterns1_ = 1 to _nPatterns1Len_
-        	aPattern = aPatterns[_iLoopPatterns1_]
-            nScore = 0
-            _aPatternkeywords1_ = aPattern[:keywords]
+        	_aPattern_ = _aPatterns_[_iLoopPatterns1_]
+            _nScore_ = 0
+            _aPatternkeywords1_ = _aPattern_[:keywords]
             _nPatternkeywords1Len_ = len(_aPatternkeywords1_)
             for _iLoopPatternkeywords1_ = 1 to _nPatternkeywords1Len_
-            	cKeyword = _aPatternkeywords1_[_iLoopPatternkeywords1_]
-                if StzFindFirst(cContent, cKeyword) > 0
-                    nScore++
+            	_cKeyword_ = _aPatternkeywords1_[_iLoopPatternkeywords1_]
+                if StzFindFirst(_cContent_, _cKeyword_) > 0
+                    _nScore_++
                 ok
             next
-            aScores + [aPattern[:domain], nScore]
+            _aScores_ + [_aPattern_[:domain], _nScore_]
         next
         
         # Find highest scoring domain
-        cBestDomain = "general"
-        nHighestScore = 0
-        _nScores1Len_ = len(aScores)
+        _cBestDomain_ = "general"
+        _nHighestScore_ = 0
+        _nScores1Len_ = len(_aScores_)
         for _iLoopScores1_ = 1 to _nScores1Len_
-        	aScore = aScores[_iLoopScores1_]
-            if aScore[2] > nHighestScore
-                nHighestScore = aScore[2]
-                cBestDomain = aScore[1]
+        	_aScore_ = _aScores_[_iLoopScores1_]
+            if _aScore_[2] > _nHighestScore_
+                _nHighestScore_ = _aScore_[2]
+                _cBestDomain_ = _aScore_[1]
             ok
         next
         
-        return cBestDomain
+        return _cBestDomain_

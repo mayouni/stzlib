@@ -39,19 +39,19 @@ class stzStringSections from stzObject
 	 #   SECTION (SLICE)                                    #
 	#======================================================#
 
-	def SectionCS(n1, n2, pCaseSensitive)
+	def SectionCS(_n1_, _n2_, pCaseSensitive)
 		if CheckingParams()
-			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [:From, :FromPosition, :StartingAt])
-				n1 = n1[2]
+			if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [:From, :FromPosition, :StartingAt])
+				_n1_ = _n1_[2]
 			ok
-			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [:To, :ToPosition, :Until])
-				n2 = n2[2]
+			if isList(_n2_) and IsOneOfTheseNamedParamsList(_n2_, [:To, :ToPosition, :Until])
+				_n2_ = _n2_[2]
 			ok
 		ok
-		return @oString.Section(n1, n2)
+		return @oString.Section(_n1_, _n2_)
 
-	def Section(n1, n2)
-		return This.SectionCS(n1, n2, 1)
+	def Section(_n1_, _n2_)
+		return This.SectionCS(_n1_, _n2_, 1)
 
 	  #======================================================#
 	 #   RANGE                                              #
@@ -65,102 +65,102 @@ class stzStringSections from stzObject
 	#======================================================#
 
 	def Sections(paSections)
-		aResult = []
-		nLen = len(paSections)
-		for i = 1 to nLen
-			aResult + This.Section(paSections[i][1], paSections[i][2])
+		_aResult_ = []
+		_nLen_ = len(paSections)
+		for i = 1 to _nLen_
+			_aResult_ + This.Section(paSections[i][1], paSections[i][2])
 		next
-		return aResult
+		return _aResult_
 
 	  #======================================================#
 	 #   ANTI-SECTIONS                                      #
 	#======================================================#
 
 	def AntiSections(paSections)
-		nLen = @oString.NumberOfChars()
-		aCovered = []
-		nSLen = len(paSections)
-		for i = 1 to nSLen
-			n1 = paSections[i][1]
-			n2 = paSections[i][2]
-			if n1 > n2
-				temp = n1
-				n1 = n2
-				n2 = temp
+		_nLen_ = @oString.NumberOfChars()
+		_aCovered_ = []
+		_nSLen_ = len(paSections)
+		for i = 1 to _nSLen_
+			_n1_ = paSections[i][1]
+			_n2_ = paSections[i][2]
+			if _n1_ > _n2_
+				_temp_ = _n1_
+				_n1_ = _n2_
+				_n2_ = _temp_
 			ok
-			for j = n1 to n2
-				aCovered + j
+			for j = _n1_ to _n2_
+				_aCovered_ + j
 			next
 		next
 
-		aResult = []
-		nStart = 0
-		for i = 1 to nLen
-			bCovered = 0
-			_nCoveredLen_ = len(aCovered)
+		_aResult_ = []
+		_nStart_ = 0
+		for i = 1 to _nLen_
+			_bCovered_ = 0
+			_nCoveredLen_ = len(_aCovered_)
 			for k = 1 to _nCoveredLen_
-				if aCovered[k] = i
-					bCovered = 1
+				if _aCovered_[k] = i
+					_bCovered_ = 1
 					exit
 				ok
 			next
-			if bCovered = 0
-				if nStart = 0
-					nStart = i
+			if _bCovered_ = 0
+				if _nStart_ = 0
+					_nStart_ = i
 				ok
 			else
-				if nStart > 0
-					aResult + This.Section(nStart, i - 1)
-					nStart = 0
+				if _nStart_ > 0
+					_aResult_ + This.Section(_nStart_, i - 1)
+					_nStart_ = 0
 				ok
 			ok
 		next
-		if nStart > 0
-			aResult + This.Section(nStart, nLen)
+		if _nStart_ > 0
+			_aResult_ + This.Section(_nStart_, _nLen_)
 		ok
-		return aResult
+		return _aResult_
 
 	  #======================================================#
 	 #   SECTION BETWEEN POSITIONS                          #
 	#======================================================#
 
-	def SectionBetween(n1, n2)
-		return This.Section(n1 + 1, n2 - 1)
+	def SectionBetween(_n1_, _n2_)
+		return This.Section(_n1_ + 1, _n2_ - 1)
 
 	  #======================================================#
 	 #   REMOVE SECTION                                     #
 	#======================================================#
 
-	def RemoveSection(n1, n2)
-		nLen = @oString.NumberOfChars()
-		if n1 < 1 n1 = 1 ok
-		if n2 > nLen n2 = nLen ok
-		if n1 > n2
-			temp = n1
-			n1 = n2
-			n2 = temp
+	def RemoveSection(_n1_, _n2_)
+		_nLen_ = @oString.NumberOfChars()
+		if _n1_ < 1 _n1_ = 1 ok
+		if _n2_ > _nLen_ _n2_ = _nLen_ ok
+		if _n1_ > _n2_
+			_temp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _temp_
 		ok
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringRemoveRange(pH, _n1_, _n2_ - _n1_ + 1)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
-		def RemoveSectionQ(n1, n2)
-			This.RemoveSection(n1, n2)
+		def RemoveSectionQ(_n1_, _n2_)
+			This.RemoveSection(_n1_, _n2_)
 			return This
 
-	def SectionRemoved(n1, n2)
-		oCopy = new stzStringSections(@oString.Content())
-		return oCopy.RemoveSectionQ(n1, n2).Content()
+	def SectionRemoved(_n1_, _n2_)
+		_oCopy_ = new stzStringSections(@oString.Content())
+		return _oCopy_.RemoveSectionQ(_n1_, _n2_).Content()
 
 	  #======================================================#
 	 #   REMOVE MANY SECTIONS                               #
 	#======================================================#
 
 	def RemoveSections(paSections)
-		nLen = len(paSections)
-		for i = nLen to 1 step -1
+		_nLen_ = len(paSections)
+		for i = _nLen_ to 1 step -1
 			This.RemoveSection(paSections[i][1], paSections[i][2])
 		next
 
@@ -169,8 +169,8 @@ class stzStringSections from stzObject
 			return This
 
 	def SectionsRemoved(paSections)
-		oCopy = new stzStringSections(@oString.Content())
-		return oCopy.RemoveSectionsQ(paSections).Content()
+		_oCopy_ = new stzStringSections(@oString.Content())
+		return _oCopy_.RemoveSectionsQ(paSections).Content()
 
 	  #======================================================#
 	 #   REMOVE RANGE                                       #
@@ -184,5 +184,5 @@ class stzStringSections from stzObject
 			return This
 
 	def RangeRemoved(pnStart, pnRange)
-		oCopy = new stzStringSections(@oString.Content())
-		return oCopy.RemoveRangeQ(pnStart, pnRange).Content()
+		_oCopy_ = new stzStringSections(@oString.Content())
+		return _oCopy_.RemoveRangeQ(pnStart, pnRange).Content()

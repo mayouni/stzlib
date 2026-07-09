@@ -92,14 +92,14 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNamesOrNumbers must be a list of numbers or a list of strings.")
 		ok
 
-		nLen = len(pacColNamesOrNumbers)
-		aResult = []
+		_nLen_ = len(pacColNamesOrNumbers)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + This.Column(pacColNamesOrNumbers[i])
+		for i = 1 to _nLen_
+			_aResult_ + This.Column(pacColNamesOrNumbers[i])
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -217,15 +217,15 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! paColNamesOrNumbers must be a list of strings or numbers.")
 		ok
 
-		nLen = len(paColNamesOrNumbers)
-		aResult = []
+		_nLen_ = len(paColNamesOrNumbers)
+		_aResult_ = []
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			p = paColNamesOrNumbers[i]
-			aResult + [ This.ColName(p), This.ColData(p) ]
+			_aResult_ + [ This.ColName(p), This.ColData(p) ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -280,38 +280,38 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
 
-		nCols = This.NumberOfCols()
+		_nCols_ = This.NumberOfCols()
 
-		bAllValid = 1
+		_bAllValid_ = 1
 		_nPanColNumbersLen_ = len(panColNumbers)
 		for _i = 1 to _nPanColNumbersLen_
-			if panColNumbers[_i] < 1 or panColNumbers[_i] > nCols
-				bAllValid = 0
+			if panColNumbers[_i] < 1 or panColNumbers[_i] > _nCols_
+				_bAllValid_ = 0
 				exit
 			ok
 		next
-		if NOT bAllValid
-			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + nCols + ".")
+		if NOT _bAllValid_
+			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + _nCols_ + ".")
 		ok
 
 		panColNumbers  = new stzList(panColNumbers).Sorted()
-		nLenColNumbers = len(panColNumbers)
+		_nLenColNumbers_ = len(panColNumbers)
 
 		pacColNames    = This.ColNames()
 
-		nNumCols       = len(pacColNames)
+		_nNumCols_       = len(pacColNames)
 
-		if len(panColNumbers) > nNumCols
-			panColNumbers = Q(panColNumbers).Section( 1, nNumCols)
+		if len(panColNumbers) > _nNumCols_
+			panColNumbers = Q(panColNumbers).Section( 1, _nNumCols_)
 		ok
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLenColNumbers
-			aResult + pacColNames[panColNumbers[i]]
+		for i = 1 to _nLenColNumbers_
+			_aResult_ + pacColNames[panColNumbers[i]]
 		next
 
-		return aResult
+		return _aResult_
 
 		def TheseColumsNames(panColNumbers)
 			return This.TheseColNames(panColNumbers)
@@ -328,14 +328,14 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(panColNumbers)
-		aResult = []
+		_nLen_ = len(panColNumbers)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + This.NthColName(panColNumbers[i])
+		for i = 1 to _nLen_
+			_aResult_ + This.NthColName(panColNumbers[i])
 		next
 
-		return aResult
+		return _aResult_
 
 	  #------------------------------------------------------------------#
 	 #  GETTING THE NUMBERS OF COLUMNS AS DEFINED BY THEIR GIVEN NAMES  #
@@ -346,15 +346,15 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
-		nLen = len(pacColNames)
-		anResult = []
+		_nLen_ = len(pacColNames)
+		_anResult_ = []
 
-		for i = 1 to nLen
-			n = This.FindColByName(pacColNames[i])
-			anResult + n
+		for i = 1 to _nLen_
+			_n_ = This.FindColByName(pacColNames[i])
+			_anResult_ + _n_
 		next
 
-		return anResult
+		return _anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -381,14 +381,14 @@ class stzTableSubset from stzTable
 		pacColNames = Q(pacColNames).Lowercased()
 
 		if This.HasColNames(pacColNames)
-			aResult = []
+			_aResult_ = []
 			_nPacColNames1Len_ = len(pacColNames)
 			for _iLoopPacColNames1_ = 1 to _nPacColNames1Len_
-				cColName = pacColNames[_iLoopPacColNames1_]
-				aResult + [ cColName, This.Col(cColName) ]
+				_cColName_ = pacColNames[_iLoopPacColNames1_]
+				_aResult_ + [ _cColName_, This.Col(_cColName_) ]
 			next
 
-			return aResult
+			return _aResult_
 		ok
 
 		def SubTableQ(pacColNames)
@@ -438,14 +438,14 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
-		aResult = []
-		nLen = len(panRowsNumbers)
+		_aResult_ = []
+		_nLen_ = len(panRowsNumbers)
 
-		for i = 1 to nLen
-			aResult + This.Row(panRowsNumbers[i])
+		for i = 1 to _nLen_
+			_aResult_ + This.Row(panRowsNumbers[i])
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -502,16 +502,16 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(apnRowsNumbers)
+		_nLen_ = len(apnRowsNumbers)
 
-		aResult = []
-		_nLen1Len_ = len(nLen)
+		_aResult_ = []
+		_nLen1Len_ = len(_nLen_)
 		for _iLoopLen1_ = 1 to _nLen1Len_
-			n = nLen[_iLoopLen1_]
-			aResult + This.RowZ(panRowsNumbers[i])
+			_n_ = _nLen_[_iLoopLen1_]
+			_aResult_ + This.RowZ(panRowsNumbers[i])
 		next
 
-		return aResult
+		return _aResult_
 
 		def TheseRowsZQ(panRowsNumbers)
 			return This.TheseRowsZQRT(panRowsNumbers, :stzList)
@@ -584,9 +584,9 @@ class stzTableSubset from stzTable
 
 		# Doing the job
 
-		aRowCopy = This.Row(pnTo)
+		_aRowCopy_ = This.Row(pnTo)
 		This.ReplaceRow(pnTo, This.Row(pnFrom))
-		This.ReplaceRow(pnFrom, aRowCopy)
+		This.ReplaceRow(pnFrom, _aRowCopy_)
 
 	  #-----------------------#
 	 #   SWAPPING TWO ROWS   #
@@ -622,9 +622,9 @@ class stzTableSubset from stzTable
 		ok
 
 		if AreBothNumbers(pnRow1, pnRow2)
-			aCopyOfRow1 = This.Row(pnRow1)
+			_aCopyOfRow1_ = This.Row(pnRow1)
 			This.ReplaceRow(pnRow1, This.Row(pnRow2))
-			This.ReplaceRow(pnRow2, aCopyOfRow1)
+			This.ReplaceRow(pnRow2, _aCopyOfRow1_)
 		ok
 
 	  #-------------------------------------------------#
@@ -690,15 +690,15 @@ class stzTableSubset from stzTable
 
 		# Doing the job
 
-		aContent = @aContent
+		_aContent_ = @aContent
 
 		if pnFrom != pnTo
-			aCopy = @aContent[pnTo]
-			aContent[pnTo] = @aContent[pnFrom]
-			aContent[pnFrom] = aCopy
+			_aCopy_ = @aContent[pnTo]
+			_aContent_[pnTo] = @aContent[pnFrom]
+			_aContent_[pnFrom] = _aCopy_
 		ok
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForm
@@ -714,26 +714,26 @@ class stzTableSubset from stzTable
 
 	def SwapcColNames(pCol1, pCol2)
 
-		bCol1IsValid = ( isNumber(pCol1) and
+		_bCol1IsValid_ = ( isNumber(pCol1) and
 				 pCol1 >= 1 and pCol1 <= This.NumberOfCol() )
 
-		bCol2IsValid = ( isString(pCol2) and This.HasColName(pCol2) )
+		_bCol2IsValid_ = ( isString(pCol2) and This.HasColName(pCol2) )
 
-		if NOT ( bCol1IsValid or bCol2IsValid )
+		if NOT ( _bCol1IsValid_ or _bCol2IsValid_ )
 			StzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
 		ok
 
-		cName1 = This.ColName(pCol1)
-		cName2 = This.ColName(pCol2)
+		_cName1_ = This.ColName(pCol1)
+		_cName2_ = This.ColName(pCol2)
 
-		nCol1 = This.ColNumber(pCol1)
-		nCol2 = This.ColNumber(pCol2)
+		_nCol1_ = This.ColNumber(pCol1)
+		_nCol2_ = This.ColNumber(pCol2)
 
-		aContent = @aContent
-		aContent[nCol1][1] = cName2
-		aContent[nCol2][1] = cName1
+		_aContent_ = @aContent
+		_aContent_[_nCol1_][1] = _cName2_
+		_aContent_[_nCol2_][1] = _cName1_
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForm
@@ -796,9 +796,9 @@ class stzTableSubset from stzTable
 		ok
 
 		if This.ColNumber(pCol1) != This.ColNumber(pCol2)
-			aCopyOfCol1 = This.Col(pCol1)
+			_aCopyOfCol1_ = This.Col(pCol1)
 			This.ReplaceCol(pCol1, This.Col(pCol2) )
-			This.ReplaceCol(pCol2, aCopyOfCol1)
+			This.ReplaceCol(pCol2, _aCopyOfCol1_)
 
 			This.SwapcColNames(pCol1, pCol2)
 		ok
@@ -823,12 +823,12 @@ class stzTableSubset from stzTable
 	 #   REPLACING A COLUMN NAME   #
 	#=============================#
 
-	def ReplaceNthColName(n, pcNewColName)
-		if NOT isNumber(n)
+	def ReplaceNthColName(_n_, pcNewColName)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		This.ReplaceColName(n, pcNewColName)
+		This.ReplaceColName(_n_, pcNewColName)
 
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
@@ -843,10 +843,10 @@ class stzTableSubset from stzTable
 			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
-		aContent = @aContent
-		n = This.ColNumber(pCol)
-		@aContent[n][1] = pcNewColName
-		This.UpdateWith(aContent)
+		_aContent_ = @aContent
+		_n_ = This.ColNumber(pCol)
+		@aContent[_n_][1] = pcNewColName
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForm
@@ -861,17 +861,17 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
-		nLen = len(pacColNames)
-		bResult = 1
+		_nLen_ = len(pacColNames)
+		_bResult_ = 1
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT This.IsColName(pacColNames[i])
-				bResult = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForm
 

@@ -40,30 +40,30 @@ class stzStringCode from stzObject
 	#===============================#
 
 	def IsRingCode()
-		cContent = StzCaseFold(@oString.Content())
-		acKeywords = [
+		_cContent_ = StzCaseFold(@oString.Content())
+		_acKeywords_ = [
 			"func", "class", "def", "if", "but", "else", "ok",
 			"for", "next", "while", "end", "switch", "off",
 			"return", "load", "see", "give", "new", "try",
 			"catch", "done"
 		]
 
-		nLen = len(acKeywords)
-		for i = 1 to nLen
-			oFinder = new stzStringFinder(cContent)
-			if oFinder.Contains(acKeywords[i])
+		_nLen_ = len(_acKeywords_)
+		for i = 1 to _nLen_
+			_oFinder_ = new stzStringFinder(_cContent_)
+			if _oFinder_.Contains(_acKeywords_[i])
 				return 1
 			ok
 		next
 		return 0
 
 	def IsRingFunction()
-		cTrimmed = trim(@oString.Content())
-		return StzLeft(StzCaseFold(cTrimmed), 5) = "func "
+		_cTrimmed_ = trim(@oString.Content())
+		return StzLeft(StzCaseFold(_cTrimmed_), 5) = "func "
 
 	def IsRingClass()
-		cTrimmed = trim(@oString.Content())
-		return StzLeft(StzCaseFold(cTrimmed), 6) = "class "
+		_cTrimmed_ = trim(@oString.Content())
+		return StzLeft(StzCaseFold(_cTrimmed_), 6) = "class "
 
 	  #===============================#
 	 #     CODE EXECUTION            #
@@ -73,8 +73,8 @@ class stzStringCode from stzObject
 		eval(@oString.Content())
 
 	def ExecuteAndReturn()
-		cCode = "_result_ = " + @oString.Content()
-		eval(cCode)
+		_cCode_ = "_result_ = " + @oString.Content()
+		eval(_cCode_)
 		return _result_
 
 	  #===============================#
@@ -82,157 +82,157 @@ class stzStringCode from stzObject
 	#===============================#
 
 	def ContainsFunctions()
-		oFinder = new stzStringFinder(StzCaseFold(@oString.Content()))
-		return oFinder.Contains("func ")
+		_oFinder_ = new stzStringFinder(StzCaseFold(@oString.Content()))
+		return _oFinder_.Contains("func ")
 
 	def ContainsClasses()
-		oFinder = new stzStringFinder(StzCaseFold(@oString.Content()))
-		return oFinder.Contains("class ")
+		_oFinder_ = new stzStringFinder(StzCaseFold(@oString.Content()))
+		return _oFinder_.Contains("class ")
 
 	def NumberOfFunctions()
-		cContent = StzCaseFold(@oString.Content())
-		acLines = split(cContent, nl)
-		nCount = 0
-		nLen = len(acLines)
+		_cContent_ = StzCaseFold(@oString.Content())
+		_acLines_ = split(_cContent_, nl)
+		_nCount_ = 0
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if StzLeft(cLine, 5) = "func "
-				nCount++
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if StzLeft(_cLine_, 5) = "func "
+				_nCount_++
 			ok
 		next
 
-		return nCount
+		return _nCount_
 
 	def NumberOfClasses()
-		cContent = StzCaseFold(@oString.Content())
-		acLines = split(cContent, nl)
-		nCount = 0
-		nLen = len(acLines)
+		_cContent_ = StzCaseFold(@oString.Content())
+		_acLines_ = split(_cContent_, nl)
+		_nCount_ = 0
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if StzLeft(cLine, 6) = "class "
-				nCount++
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if StzLeft(_cLine_, 6) = "class "
+				_nCount_++
 			ok
 		next
 
-		return nCount
+		return _nCount_
 
 	def FunctionNames()
-		cContent = @oString.Content()
-		acLines = split(cContent, nl)
-		acNames = []
-		nLen = len(acLines)
+		_cContent_ = @oString.Content()
+		_acLines_ = split(_cContent_, nl)
+		_acNames_ = []
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			cLineLow = StzCaseFold(cLine)
-			if StzLeft(cLineLow, 5) = "func "
-				oLine = new stzString(cLine)
-				cRest = oLine.Section(6, StzLen(cLine))
-				cRest = trim(cRest)
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			_cLineLow_ = StzCaseFold(_cLine_)
+			if StzLeft(_cLineLow_, 5) = "func "
+				_oLine_ = new stzString(_cLine_)
+				_cRest_ = _oLine_.Section(6, StzLen(_cLine_))
+				_cRest_ = trim(_cRest_)
 				# Extract the function name (first word)
-				cName = ""
-				oRest = new stzString(cRest)
-				acRestChars = oRest.Chars()
-				nRestLen = len(acRestChars)
-				for j = 1 to nRestLen
-					c = acRestChars[j]
-					if c = " " or c = "(" or c = nl
+				_cName_ = ""
+				_oRest_ = new stzString(_cRest_)
+				_acRestChars_ = _oRest_.Chars()
+				_nRestLen_ = len(_acRestChars_)
+				for j = 1 to _nRestLen_
+					_c_ = _acRestChars_[j]
+					if _c_ = " " or _c_ = "(" or _c_ = nl
 						exit
 					ok
-					cName += c
+					_cName_ += _c_
 				next
-				if StzLen(cName) > 0
-					acNames + cName
+				if StzLen(_cName_) > 0
+					_acNames_ + _cName_
 				ok
 			ok
 		next
 
-		return acNames
+		return _acNames_
 
 	def ClassNames()
-		cContent = @oString.Content()
-		acLines = split(cContent, nl)
-		acNames = []
-		nLen = len(acLines)
+		_cContent_ = @oString.Content()
+		_acLines_ = split(_cContent_, nl)
+		_acNames_ = []
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			cLineLow = StzCaseFold(cLine)
-			if StzLeft(cLineLow, 6) = "class "
-				oLine = new stzString(cLine)
-				cRest = oLine.Section(7, StzLen(cLine))
-				cRest = trim(cRest)
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			_cLineLow_ = StzCaseFold(_cLine_)
+			if StzLeft(_cLineLow_, 6) = "class "
+				_oLine_ = new stzString(_cLine_)
+				_cRest_ = _oLine_.Section(7, StzLen(_cLine_))
+				_cRest_ = trim(_cRest_)
 				# Extract the class name (first word)
-				cName = ""
-				oRest = new stzString(cRest)
-				acRestChars = oRest.Chars()
-				nRestLen = len(acRestChars)
-				for j = 1 to nRestLen
-					c = acRestChars[j]
-					if c = " " or c = nl
+				_cName_ = ""
+				_oRest_ = new stzString(_cRest_)
+				_acRestChars_ = _oRest_.Chars()
+				_nRestLen_ = len(_acRestChars_)
+				for j = 1 to _nRestLen_
+					_c_ = _acRestChars_[j]
+					if _c_ = " " or _c_ = nl
 						exit
 					ok
-					cName += c
+					_cName_ += _c_
 				next
-				if StzLen(cName) > 0
-					acNames + cName
+				if StzLen(_cName_) > 0
+					_acNames_ + _cName_
 				ok
 			ok
 		next
 
-		return acNames
+		return _acNames_
 
 	  #===============================#
 	 #     LINE ANALYSIS             #
 	#===============================#
 
 	def IsComment()
-		cTrimmed = trim(@oString.Content())
-		if StzLeft(cTrimmed, 1) = "#"
+		_cTrimmed_ = trim(@oString.Content())
+		if StzLeft(_cTrimmed_, 1) = "#"
 			return 1
 		ok
-		if StzLeft(cTrimmed, 2) = "//"
+		if StzLeft(_cTrimmed_, 2) = "//"
 			return 1
 		ok
 		return 0
 
 	def IsBlankLine()
-		cTrimmed = trim(@oString.Content())
-		return StzLen(cTrimmed) = 0
+		_cTrimmed_ = trim(@oString.Content())
+		return StzLen(_cTrimmed_) = 0
 
 	def ContainsComments()
-		oFinder = new stzStringFinder(@oString)
-		if oFinder.Contains("#")
+		_oFinder_ = new stzStringFinder(@oString)
+		if _oFinder_.Contains("#")
 			return 1
 		ok
-		if oFinder.Contains("//")
+		if _oFinder_.Contains("//")
 			return 1
 		ok
 		return 0
 
 	def LinesOfCode()
-		cContent = @oString.Content()
-		acLines = split(cContent, nl)
-		nCount = 0
-		nLen = len(acLines)
+		_cContent_ = @oString.Content()
+		_acLines_ = split(_cContent_, nl)
+		_nCount_ = 0
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
 			# Skip blank lines
-			if StzLen(cLine) = 0
+			if StzLen(_cLine_) = 0
 				loop
 			ok
 			# Skip comment lines
-			if StzLeft(cLine, 1) = "#"
+			if StzLeft(_cLine_, 1) = "#"
 				loop
 			ok
-			if StzLeft(cLine, 2) = "//"
+			if StzLeft(_cLine_, 2) = "//"
 				loop
 			ok
-			nCount++
+			_nCount_++
 		next
 
-		return nCount
+		return _nCount_

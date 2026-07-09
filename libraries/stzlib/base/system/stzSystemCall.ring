@@ -11,7 +11,7 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-ShellBuiltInCommands = [
+_ShellBuiltInCommands_ = [
 	# Windows built-ins
 	"echo", "cd", "dir", "type", "set", "if", "for", "date", "time",
 	"copy", "move", "del", "ren", "md", "rd", "cls", "exit", "call",
@@ -30,9 +30,9 @@ func StzSystemCallQ(pcProgram)
 	return new stzSystemCall(pcProgram)
 
 func StzSystemCallQXT(pcProgram, cReturnType)
-	oCall = new stzSystemCall(pcProgram)
-	oCall.SetReturnType(cReturnType)
-	return oCall
+	_oCall_ = new stzSystemCall(pcProgram)
+	_oCall_.SetReturnType(cReturnType)
+	return _oCall_
 
 func StzSystem(pcCommand)
 	pcCommand = StzNormalizePathsInCommand(pcCommand)
@@ -50,31 +50,31 @@ func StzSystemSilent(pcCommand)
 
 func StzNormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
-	cResult = ""
-	aTokens = split(pcCommand, " ")
-	nLen = len(aTokens)
-	for i = 1 to nLen
-		cToken = aTokens[i]
+	_cResult_ = ""
+	_aTokens_ = split(pcCommand, " ")
+	_nLen_ = len(_aTokens_)
+	for i = 1 to _nLen_
+		_cToken_ = _aTokens_[i]
 
 		if isWindows()
 			# Convert / to \ only if not a flag (doesn't start with /)
-			if StzFindFirst(cToken, "/") > 0 and cToken[1] != "/"
-				cToken = StzReplace(cToken, "/", "\")
+			if StzFindFirst(_cToken_, "/") > 0 and _cToken_[1] != "/"
+				_cToken_ = StzReplace(_cToken_, "/", "\")
 			ok
 		else
 			# Convert \ to / for Unix paths
-			if StzFindFirst(cToken, "\") > 0
-				cToken = StzReplace(cToken, "\", "/")
+			if StzFindFirst(_cToken_, "\") > 0
+				_cToken_ = StzReplace(_cToken_, "\", "/")
 			ok
 		ok
 
-		cResult += cToken
-		if i < len(aTokens)
-			cResult += " "
+		_cResult_ += _cToken_
+		if i < len(_aTokens_)
+			_cResult_ += " "
 		ok
 	next
 
-	return cResult
+	return _cResult_
 
 	func NormalizePathsInCommand(pcCommand)
 		return StzNormalizePathsInCommand(pcCommand)
@@ -121,57 +121,57 @@ class stzSystemCall from stzObject
 		This.ParseCommandString(pcCommandString)
 		This.UseShellIfNeeded()
 
-	def ParseCommandString(cCmd)
+	def ParseCommandString(_cCmd_)
 		# Check for return type suffix (@RETURN:type)
-		nReturnPos = StzFindFirst(cCmd, "@RETURN:")
-		if nReturnPos > 0
+		_nReturnPos_ = StzFindFirst(_cCmd_, "@RETURN:")
+		if _nReturnPos_ > 0
 			# Extract return type
-			oCmd = new stzString(cCmd)
-			@cReturnType = trim(oCmd.Section(nReturnPos + 8, oCmd.NumberOfChars()))
+			_oCmd_ = new stzString(_cCmd_)
+			@cReturnType = trim(_oCmd_.Section(_nReturnPos_ + 8, _oCmd_.NumberOfChars()))
 			# Remove suffix from command
-			cCmd = trim(oCmd.Section(1, nReturnPos - 1))
+			_cCmd_ = trim(_oCmd_.Section(1, _nReturnPos_ - 1))
 		ok
 
 		# Handle quoted arguments properly
 		@acArgs = []
-		cCmd = trim(cCmd)
+		_cCmd_ = trim(_cCmd_)
 
 		# Extract first token (program name)
-		nPos = StzFindFirst(cCmd, " ")
-		if nPos = 0
-			@cProgram = cCmd
+		_nPos_ = StzFindFirst(_cCmd_, " ")
+		if _nPos_ = 0
+			@cProgram = _cCmd_
 			return
 		ok
 
-		oCmd2 = new stzString(cCmd)
-		@cProgram = oCmd2.Section(1, nPos - 1)
-		cRest = trim(oCmd2.Section(nPos + 1, oCmd2.NumberOfChars()))
+		_oCmd2_ = new stzString(_cCmd_)
+		@cProgram = _oCmd2_.Section(1, _nPos_ - 1)
+		_cRest_ = trim(_oCmd2_.Section(_nPos_ + 1, _oCmd2_.NumberOfChars()))
 
 		# Parse remaining arguments respecting quotes
-		bInQuote = FALSE
-		cCurrent = ""
+		_bInQuote_ = FALSE
+		_cCurrent_ = ""
 
-		oRest = new stzString(cRest)
-		acChars = oRest.Chars()
-		nLen = len(acChars)
+		_oRest_ = new stzString(_cRest_)
+		_acChars_ = _oRest_.Chars()
+		_nLen_ = len(_acChars_)
 
-		for i = 1 to nLen
-			c = acChars[i]
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
 
-			if c = '"'
-				bInQuote = NOT bInQuote
-			but c = " " and NOT bInQuote
-				if cCurrent != ""
-					@acArgs + cCurrent
-					cCurrent = ""
+			if _c_ = '"'
+				_bInQuote_ = NOT _bInQuote_
+			but _c_ = " " and NOT _bInQuote_
+				if _cCurrent_ != ""
+					@acArgs + _cCurrent_
+					_cCurrent_ = ""
 				ok
 			else
-				cCurrent += c
+				_cCurrent_ += _c_
 			ok
 		next
 
-		if cCurrent != ""
-			@acArgs + cCurrent
+		if _cCurrent_ != ""
+			@acArgs + _cCurrent_
 		ok
 
 	#-------------------#
@@ -193,16 +193,16 @@ class stzSystemCall from stzObject
 			return NULL
 		ok
 
-		cFullCmd = _BuildCommandLine()
+		_cFullCmd_ = _BuildCommandLine()
 
 		# Use engine for hidden console execution
 		if NOT @bShowConsole
 			# Engine-backed: no console window, direct stdout capture
-			@cOutput = StzEngineSystemRun(cFullCmd)
+			@cOutput = StzEngineSystemRun(_cFullCmd_)
 			@nExitCode = 0
 			if @cOutput = "" and @bCaptureError
 				# If no output, might have failed
-				@nExitCode = StzEngineSystemExec(cFullCmd)
+				@nExitCode = StzEngineSystemExec(_cFullCmd_)
 				if @nExitCode != 0
 					@cError = "Command failed with exit code " + @nExitCode
 				ok
@@ -214,33 +214,33 @@ class stzSystemCall from stzObject
 			ok
 		else
 			# Fallback to Ring system() when console is explicitly shown
-			cOutFile = ""
-			cErrFile = ""
+			_cOutFile_ = ""
+			_cErrFile_ = ""
 
 			if @bCaptureOutput or @bCaptureError
-				cTmpBase = tempname()
-				cOutFile = cTmpBase + "_out.tmp"
-				cErrFile = cTmpBase + "_err.tmp"
-				cFullCmd += ' >"' + cOutFile + '" 2>"' + cErrFile + '"'
+				_cTmpBase_ = tempname()
+				_cOutFile_ = _cTmpBase_ + "_out.tmp"
+				_cErrFile_ = _cTmpBase_ + "_err.tmp"
+				_cFullCmd_ += ' >"' + _cOutFile_ + '" 2>"' + _cErrFile_ + '"'
 			ok
 
-			@nExitCode = system(cFullCmd)
+			@nExitCode = system(_cFullCmd_)
 			@bExecuted = TRUE
 
-			if @bCaptureOutput and cOutFile != ""
+			if @bCaptureOutput and _cOutFile_ != ""
 				try
-					@cOutput = read(cOutFile)
-					remove(cOutFile)
+					@cOutput = read(_cOutFile_)
+					remove(_cOutFile_)
 				catch
 					@cOutput = ""
 				done
 				This.ConvertOutputByType()
 			ok
 
-			if @bCaptureError and cErrFile != ""
+			if @bCaptureError and _cErrFile_ != ""
 				try
-					@cError = read(cErrFile)
-					remove(cErrFile)
+					@cError = read(_cErrFile_)
+					remove(_cErrFile_)
 				catch
 					@cError = ""
 				done
@@ -269,63 +269,63 @@ class stzSystemCall from stzObject
 	#  RETURN TYPE CONTROL  #
 	#-----------------------#
 
-	def SetReturnType(cType)
-		cType = StzLower(cType)
-		if NOT (cType = "string" or cType = "number" or cType = "list")
+	def SetReturnType(_cType_)
+		_cType_ = StzLower(_cType_)
+		if NOT (_cType_ = "string" or _cType_ = "number" or _cType_ = "list")
 			stzraise("Return type must be 'string', 'number', or 'list'")
 		ok
-		@cReturnType = cType
+		@cReturnType = _cType_
 		return This
 
-		def SetReturnTypeQ(cType)
-			This.SetReturnType(cType)
+		def SetReturnTypeQ(_cType_)
+			This.SetReturnType(_cType_)
 			return This
 
 	def ReturnType()
 		return @cReturnType
 
 	def _BuildCommandLine()
-		cCmd = ""
+		_cCmd_ = ""
 		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
-			cCmd = "cmd.exe /c "
-			cCommand = ""
+			_cCmd_ = "cmd.exe /c "
+			_cCommand_ = ""
 			_nArgsLen_3 = len(@acArgs)
 			for i = 2 to _nArgsLen_3
-				cArg = @acArgs[i]
+				_cArg_ = @acArgs[i]
 				if i > 2
-					cCommand += " "
+					_cCommand_ += " "
 				ok
-				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
-					nCmdLen = StzLen(cCommand)
-					if nCmdLen > 0
-						oTmp = new stzString(cCommand)
-						acTmpChars = oTmp.Chars()
-						if acTmpChars[nCmdLen] != " "
-							cCommand += " "
+				if _cArg_ = "&" or _cArg_ = "&&" or _cArg_ = "|" or _cArg_ = "||"
+					_nCmdLen_ = StzLen(_cCommand_)
+					if _nCmdLen_ > 0
+						_oTmp_ = new stzString(_cCommand_)
+						_acTmpChars_ = _oTmp_.Chars()
+						if _acTmpChars_[_nCmdLen_] != " "
+							_cCommand_ += " "
 						ok
 					ok
-					cCommand += cArg
+					_cCommand_ += _cArg_
 				else
-					cCommand += cArg
+					_cCommand_ += _cArg_
 				ok
 			next
-			cCmd += cCommand
+			_cCmd_ += _cCommand_
 		else
 			if StzFindFirst(@cProgram, " ") > 0
-				cCmd = '"' + @cProgram + '"'
+				_cCmd_ = '"' + @cProgram + '"'
 			else
-				cCmd = @cProgram
+				_cCmd_ = @cProgram
 			ok
 			_nArgsLen_2 = len(@acArgs)
 			for i = 1 to _nArgsLen_2
 				if StzFindFirst(@acArgs[i], " ") > 0
-					cCmd += ' "' + @acArgs[i] + '"'
+					_cCmd_ += ' "' + @acArgs[i] + '"'
 				else
-					cCmd += " " + @acArgs[i]
+					_cCmd_ += " " + @acArgs[i]
 				ok
 			next
 		ok
-		return cCmd
+		return _cCmd_
 
 	def ConvertOutputByType()
 		if NOT isString(@cOutput)
@@ -344,43 +344,43 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		acLines = split(@cOutput, NL)
-		aResult = []
-		nLen = len(acLines)
+		_acLines_ = split(@cOutput, NL)
+		_aResult_ = []
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if cLine != ""
-				aResult + cLine
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if _cLine_ != ""
+				_aResult_ + _cLine_
 			ok
 		next
-		return aResult
+		return _aResult_
 
 	def ParseOutputAsNumber()
 		if NOT isString(@cOutput) or @cOutput = ""
 			return 0
 		ok
 
-		cOut = trim(@cOutput)
-		oOut = new stzString(cOut)
-		acChars = oOut.Chars()
-		nLen = len(acChars)
+		_cOut_ = trim(@cOutput)
+		_oOut_ = new stzString(_cOut_)
+		_acChars_ = _oOut_.Chars()
+		_nLen_ = len(_acChars_)
 
 		# Try to extract first number from output
-		for i = 1 to nLen
-			c = acChars[i]
-			if (c >= "0" and c <= "9") or c = "-" or c = "."
+		for i = 1 to _nLen_
+			_c_ = _acChars_[i]
+			if (_c_ >= "0" and _c_ <= "9") or _c_ = "-" or _c_ = "."
 				# Found start of number, extract it
-				cNum = ""
-				for j = i to nLen
-					c2 = acChars[j]
-					if (c2 >= "0" and c2 <= "9") or c2 = "." or c2 = "-"
-						cNum += c2
+				_cNum_ = ""
+				for j = i to _nLen_
+					_c2_ = _acChars_[j]
+					if (_c2_ >= "0" and _c2_ <= "9") or _c2_ = "." or _c2_ = "-"
+						_cNum_ += _c2_
 					else
 						exit
 					ok
 				next
-				return 0 + cNum  # Convert to number
+				return 0 + _cNum_  # Convert to number
 			ok
 		next
 		return 0
@@ -420,20 +420,20 @@ class stzSystemCall from stzObject
 		def WithArgsQ(pacArgs)
 			return This.SetArgsQ(pacArgs)
 
-	def SetParam(cParam, cValue)
+	def SetParam(cParam, _cValue_)
 		# Convert forward slashes to backslashes on Windows for path-like values
-		if isWindows() and (StzFindFirst(cValue, "/") > 0 or StzFindFirst(cValue, "\") > 0)
-			cValue = StzReplace(cValue, "/", "\")
+		if isWindows() and (StzFindFirst(_cValue_, "/") > 0 or StzFindFirst(_cValue_, "\") > 0)
+			_cValue_ = StzReplace(_cValue_, "/", "\")
 		ok
 
 		_nArgsLen_ = len(@acArgs)
 		for i = 1 to _nArgsLen_
-			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", cValue)
+			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", _cValue_)
 		next
 
 	def SetParams(aParams)
-		nLen = len(aParams)
-		for i = 1 to nLen
+		_nLen_ = len(aParams)
+		for i = 1 to _nLen_
 			This.SetParam(aParams[i][1], aParams[i][2])
 		next
 
@@ -546,9 +546,9 @@ class stzSystemCall from stzObject
 	#-----------------------#
 
 	def RunEngineSilent()
-		cFullCmd = _BuildCommandLine()
+		_cFullCmd_ = _BuildCommandLine()
 		# Engine exec: no console, no output capture, just exit code
-		@nExitCode = StzEngineSystemExec(cFullCmd)
+		@nExitCode = StzEngineSystemExec(_cFullCmd_)
 		@bExecuted = TRUE
 
 	def RunSilently()
@@ -588,18 +588,18 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		acLines = split(@cOutput, NL)
+		_acLines_ = split(@cOutput, NL)
 		# Remove empty lines
-		aResult = []
-		nLen = len(acLines)
+		_aResult_ = []
+		_nLen_ = len(_acLines_)
 
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			if cLine != ""
-				aResult + cLine
+		for i = 1 to _nLen_
+			_cLine_ = trim(_acLines_[i])
+			if _cLine_ != ""
+				_aResult_ + _cLine_
 			ok
 		next
-		return aResult
+		return _aResult_
 
 		def OutputAsList()
 			return This.OutputAsLines()
@@ -677,22 +677,22 @@ class stzSystemCall from stzObject
 	#  UTILITIES            #
 	#-----------------------#
 
-	def OpenFile(cFilePath)
+	def OpenFile(_cFilePath_)
 		if isWindows()
-			cFilePath = StzReplace(cFilePath, "\", "/")
+			_cFilePath_ = StzReplace(_cFilePath_, "\", "/")
 			This.SetProgram("cmd.exe")
-			This.SetArgs(["/c", "start", "", cFilePath])
+			This.SetArgs(["/c", "start", "", _cFilePath_])
 		but isMacOS()
 			This.SetProgram("open")
-			This.SetArgs([cFilePath])
+			This.SetArgs([_cFilePath_])
 		else
 			This.SetProgram("xdg-open")
-			This.SetArgs([cFilePath])
+			This.SetArgs([_cFilePath_])
 		ok
 		This.RunSilently()
 
-		def OpenFileQ(cFilePath)
-			This.OpenFile(cFilePath)
+		def OpenFileQ(_cFilePath_)
+			This.OpenFile(_cFilePath_)
 			return This
 
 	def Reset()
@@ -709,42 +709,42 @@ class stzSystemCall from stzObject
 
 	def UseShellIfNeeded()
 		# Detect if command needs shell wrapper
-		cCmd = @cCommandString
+		_cCmd_ = @cCommandString
 
 		# Handle empty command
-		if cCmd = "" or trim(cCmd) = ""
+		if _cCmd_ = "" or trim(_cCmd_) = ""
 			return This
 		ok
 
-		bNeedsShell = FALSE
+		_bNeedsShell_ = FALSE
 
 		# Check for shell operators
-		if StzFindFirst(cCmd, " > ") > 0 or StzFindFirst(cCmd, " < ") > 0 or
-		   StzFindFirst(cCmd, "|") > 0 or StzFindFirst(cCmd, "&&") > 0 or
-		   StzFindFirst(cCmd, "||") > 0
-			bNeedsShell = TRUE
+		if StzFindFirst(_cCmd_, " > ") > 0 or StzFindFirst(_cCmd_, " < ") > 0 or
+		   StzFindFirst(_cCmd_, "|") > 0 or StzFindFirst(_cCmd_, "&&") > 0 or
+		   StzFindFirst(_cCmd_, "||") > 0
+			_bNeedsShell_ = TRUE
 		ok
 
 		# Check for single & (but not &&)
-		if StzFindFirst(cCmd, "&") > 0 and StzFindFirst(cCmd, "&&") = 0
-			bNeedsShell = TRUE
+		if StzFindFirst(_cCmd_, "&") > 0 and StzFindFirst(_cCmd_, "&&") = 0
+			_bNeedsShell_ = TRUE
 		ok
 
 		# Check for shell built-in commands
-		aWords = split(cCmd, " ")
-		if len(aWords) > 0
-			cFirstWord = StzLower(trim(aWords[1]))
-			if find(ShellBuiltInCommands, cFirstWord) > 0
-				bNeedsShell = TRUE
+		_aWords_ = split(_cCmd_, " ")
+		if len(_aWords_) > 0
+			_cFirstWord_ = StzLower(trim(_aWords_[1]))
+			if find(_ShellBuiltInCommands_, _cFirstWord_) > 0
+				_bNeedsShell_ = TRUE
 			ok
 		ok
 
-		if bNeedsShell
+		if _bNeedsShell_
 			# Rebuild command with shell wrapper
 			if isWindows()
-				@cCommandString = "cmd.exe /c " + cCmd
+				@cCommandString = "cmd.exe /c " + _cCmd_
 			else
-				@cCommandString = "sh -c " + cCmd
+				@cCommandString = "sh -c " + _cCmd_
 			ok
 			# Re-parse with new command string
 			This.ParseCommandString(@cCommandString)

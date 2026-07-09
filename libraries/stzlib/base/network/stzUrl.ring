@@ -16,63 +16,63 @@ func StzUrlIsValid(pcUrl)
 	if pH = NULL
 		return FALSE
 	ok
-	nValid = StzEngineUrlIsValid(pH)
+	_nValid_ = StzEngineUrlIsValid(pH)
 	StzEngineUrlFree(pH)
-	return nValid = 1
+	return _nValid_ = 1
 
 func StzUrlScheme(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineUrlScheme(pH)
+	_cResult_ = StzEngineUrlScheme(pH)
 	StzEngineUrlFree(pH)
-	return cResult
+	return _cResult_
 
 func StzUrlHost(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineUrlHost(pH)
+	_cResult_ = StzEngineUrlHost(pH)
 	StzEngineUrlFree(pH)
-	return cResult
+	return _cResult_
 
 func StzUrlPort(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return -1
 	ok
-	nResult = StzEngineUrlPort(pH)
+	_nResult_ = StzEngineUrlPort(pH)
 	StzEngineUrlFree(pH)
-	return nResult
+	return _nResult_
 
 func StzUrlPath(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineUrlPath(pH)
+	_cResult_ = StzEngineUrlPath(pH)
 	StzEngineUrlFree(pH)
-	return cResult
+	return _cResult_
 
 func StzUrlQuery(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineUrlQuery(pH)
+	_cResult_ = StzEngineUrlQuery(pH)
 	StzEngineUrlFree(pH)
-	return cResult
+	return _cResult_
 
 func StzUrlFragment(pcUrl)
 	pH = StzEngineUrlParse(pcUrl)
 	if pH = NULL
 		return ""
 	ok
-	cResult = StzEngineUrlFragment(pH)
+	_cResult_ = StzEngineUrlFragment(pH)
 	StzEngineUrlFree(pH)
-	return cResult
+	return _cResult_
 
 Class stzUrl from stzObject
 
@@ -234,24 +234,24 @@ Class stzUrl from stzObject
 	#-- FILENAME --
 
 	def FileName()
-		cP = This.Path()
-		if cP = "" or cP = NULL
+		_cP_ = This.Path()
+		if _cP_ = "" or _cP_ = NULL
 			return ""
 		ok
-		nPos = 0
-		oPath = new stzString(cP)
-		acChars = oPath.Chars()
-		nLen = len(acChars)
-		for i = nLen to 1 step -1
-			if acChars[i] = "/"
-				nPos = i
+		_nPos_ = 0
+		_oPath_ = new stzString(_cP_)
+		_acChars_ = _oPath_.Chars()
+		_nLen_ = len(_acChars_)
+		for i = _nLen_ to 1 step -1
+			if _acChars_[i] = "/"
+				_nPos_ = i
 				exit
 			ok
 		next
-		if nPos > 0
-			return oPath.Section(nPos + 1, nLen)
+		if _nPos_ > 0
+			return _oPath_.Section(_nPos_ + 1, _nLen_)
 		ok
-		return cP
+		return _cP_
 
 	#-- QUERY --
 
@@ -310,15 +310,15 @@ Class stzUrl from stzObject
 		return @cPassword
 
 	def UserInfo()
-		cUser = This.UserName()
-		cPass = This.Password()
-		if cUser = "" and cPass = ""
+		_cUser_ = This.UserName()
+		_cPass_ = This.Password()
+		if _cUser_ = "" and _cPass_ = ""
 			return ""
 		ok
-		if cPass != ""
-			return cUser + ":" + cPass
+		if _cPass_ != ""
+			return _cUser_ + ":" + _cPass_
 		ok
-		return cUser
+		return _cUser_
 
 	def SetUserName(pcUserName)
 		@cUserName = pcUserName
@@ -329,12 +329,12 @@ Class stzUrl from stzObject
 		This.ReconstructUrl()
 
 	def SetUserInfo(pcUserInfo)
-		oInfo = new stzString(pcUserInfo)
-		oFinder = new stzStringFinder(oInfo)
-		nColon = oFinder.IndexOf(":")
-		if nColon > 0
-			@cUserName = oInfo.Section(1, nColon - 1)
-			@cPassword = oInfo.Section(nColon + 1, oInfo.NumberOfChars())
+		_oInfo_ = new stzString(pcUserInfo)
+		_oFinder_ = new stzStringFinder(_oInfo_)
+		_nColon_ = _oFinder_.IndexOf(":")
+		if _nColon_ > 0
+			@cUserName = _oInfo_.Section(1, _nColon_ - 1)
+			@cPassword = _oInfo_.Section(_nColon_ + 1, _oInfo_.NumberOfChars())
 		else
 			@cUserName = pcUserInfo
 			@cPassword = ""
@@ -344,37 +344,37 @@ Class stzUrl from stzObject
 	#-- AUTHORITY --
 
 	def Authority()
-		cAuth = ""
-		cUI = This.UserInfo()
-		if cUI != ""
-			cAuth += cUI + "@"
+		_cAuth_ = ""
+		_cUI_ = This.UserInfo()
+		if _cUI_ != ""
+			_cAuth_ += _cUI_ + "@"
 		ok
-		cAuth += This.Host()
-		nP = This.Port()
-		if nP != -1 and nP != 0
-			cAuth += ":" + string(nP)
+		_cAuth_ += This.Host()
+		_nP_ = This.Port()
+		if _nP_ != -1 and _nP_ != 0
+			_cAuth_ += ":" + string(_nP_)
 		ok
-		return cAuth
+		return _cAuth_
 
 	def SetAuthority(pcAuthority)
-		oAuth = new stzString(pcAuthority)
-		oFinder = new stzStringFinder(oAuth)
+		_oAuth_ = new stzString(pcAuthority)
+		_oFinder_ = new stzStringFinder(_oAuth_)
 
-		nAt = oFinder.IndexOf("@")
-		cWork = pcAuthority
-		if nAt > 0
-			This.SetUserInfo(oAuth.Section(1, nAt - 1))
-			cWork = oAuth.Section(nAt + 1, oAuth.NumberOfChars())
+		_nAt_ = _oFinder_.IndexOf("@")
+		_cWork_ = pcAuthority
+		if _nAt_ > 0
+			This.SetUserInfo(_oAuth_.Section(1, _nAt_ - 1))
+			_cWork_ = _oAuth_.Section(_nAt_ + 1, _oAuth_.NumberOfChars())
 		ok
 
-		oWork = new stzString(cWork)
-		oFinder2 = new stzStringFinder(oWork)
-		nColon = oFinder2.IndexOf(":")
-		if nColon > 0
-			@cHost = oWork.Section(1, nColon - 1)
-			@nPort = 0 + oWork.Section(nColon + 1, oWork.NumberOfChars())
+		_oWork_ = new stzString(_cWork_)
+		_oFinder2_ = new stzStringFinder(_oWork_)
+		_nColon_ = _oFinder2_.IndexOf(":")
+		if _nColon_ > 0
+			@cHost = _oWork_.Section(1, _nColon_ - 1)
+			@nPort = 0 + _oWork_.Section(_nColon_ + 1, _oWork_.NumberOfChars())
 		else
-			@cHost = cWork
+			@cHost = _cWork_
 		ok
 		This.ReconstructUrl()
 
@@ -402,40 +402,40 @@ Class stzUrl from stzObject
 
 	def IsParentOf(oOtherUrl)
 		if isObject(oOtherUrl)
-			cMyPath = This.Host() + This.Path()
-			cOtherPath = oOtherUrl.Host() + oOtherUrl.Path()
-			return StzLeft(cOtherPath, StzLen(cMyPath)) = cMyPath and
-				StzLen(cOtherPath) > StzLen(cMyPath)
+			_cMyPath_ = This.Host() + This.Path()
+			_cOtherPath_ = oOtherUrl.Host() + oOtherUrl.Path()
+			return StzLeft(_cOtherPath_, StzLen(_cMyPath_)) = _cMyPath_ and
+				StzLen(_cOtherPath_) > StzLen(_cMyPath_)
 		ok
 		return 0
 
 	def ResolvedWith(oRelativeUrl)
 		if isObject(oRelativeUrl)
-			cRelPath = oRelativeUrl.Path()
-			if StzLeft(cRelPath, 1) = "/"
-				oResult = new stzUrl(This.Content())
-				oResult.SetPath(cRelPath)
-				return oResult
+			_cRelPath_ = oRelativeUrl.Path()
+			if StzLeft(_cRelPath_, 1) = "/"
+				_oResult_ = new stzUrl(This.Content())
+				_oResult_.SetPath(_cRelPath_)
+				return _oResult_
 			else
-				cBasePath = This.Path()
-				nSlash = 0
-				oBase = new stzString(cBasePath)
-				acChars = oBase.Chars()
-				nBLen = len(acChars)
-				for i = nBLen to 1 step -1
-					if acChars[i] = "/"
-						nSlash = i
+				_cBasePath_ = This.Path()
+				_nSlash_ = 0
+				_oBase_ = new stzString(_cBasePath_)
+				_acChars_ = _oBase_.Chars()
+				_nBLen_ = len(_acChars_)
+				for i = _nBLen_ to 1 step -1
+					if _acChars_[i] = "/"
+						_nSlash_ = i
 						exit
 					ok
 				next
-				if nSlash > 0
-					cNewPath = oBase.Section(1, nSlash) + cRelPath
+				if _nSlash_ > 0
+					_cNewPath_ = _oBase_.Section(1, _nSlash_) + _cRelPath_
 				else
-					cNewPath = "/" + cRelPath
+					_cNewPath_ = "/" + _cRelPath_
 				ok
-				oResult = new stzUrl(This.Content())
-				oResult.SetPath(cNewPath)
-				return oResult
+				_oResult_ = new stzUrl(This.Content())
+				_oResult_.SetPath(_cNewPath_)
+				return _oResult_
 			ok
 		ok
 		return new stzUrl("")
@@ -444,83 +444,83 @@ Class stzUrl from stzObject
 
 	def ToLocalFile()
 		if StzCaseFold(This.Scheme()) = "file"
-			cP = This.Path()
-			oP = new stzString(cP)
-			if StzLeft(cP, 1) = "/" and oP.NumberOfChars() > 2
-				acChars = oP.Chars()
-				if acChars[3] = ":"
-					return oP.Section(2, oP.NumberOfChars())
+			_cP_ = This.Path()
+			_oP_ = new stzString(_cP_)
+			if StzLeft(_cP_, 1) = "/" and _oP_.NumberOfChars() > 2
+				_acChars_ = _oP_.Chars()
+				if _acChars_[3] = ":"
+					return _oP_.Section(2, _oP_.NumberOfChars())
 				ok
 			ok
-			return cP
+			return _cP_
 		ok
 		return ""
 
 	def FromLocalFile(pcFilePath)
-		oFile = new stzString(pcFilePath)
-		oReplacer = new stzStringReplacer(oFile)
-		oReplacer.ReplaceSubstring("\", "/")
-		cNorm = oReplacer.Content()
-		if StzLeft(cNorm, 1) != "/"
-			cNorm = "/" + cNorm
+		_oFile_ = new stzString(pcFilePath)
+		_oReplacer_ = new stzStringReplacer(_oFile_)
+		_oReplacer_.ReplaceSubstring("\", "/")
+		_cNorm_ = _oReplacer_.Content()
+		if StzLeft(_cNorm_, 1) != "/"
+			_cNorm_ = "/" + _cNorm_
 		ok
-		return new stzUrl("file://" + cNorm)
+		return new stzUrl("file://" + _cNorm_)
 
 	#-- URL RECONSTRUCTION --
 
 	def ReconstructUrl()
-		cUrl = ""
+		_cUrl_ = ""
 
-		cSch = This.Scheme()
-		if cSch != ""
-			cUrl = cSch + "://"
+		_cSch_ = This.Scheme()
+		if _cSch_ != ""
+			_cUrl_ = _cSch_ + "://"
 		ok
 
-		cUser = This.UserName()
-		cPass = This.Password()
-		if cUser != "" or cPass != ""
-			if cUser != ""
-				cUrl += cUser
+		_cUser_ = This.UserName()
+		_cPass_ = This.Password()
+		if _cUser_ != "" or _cPass_ != ""
+			if _cUser_ != ""
+				_cUrl_ += _cUser_
 			ok
-			if cPass != ""
-				cUrl += ":" + cPass
+			if _cPass_ != ""
+				_cUrl_ += ":" + _cPass_
 			ok
-			cUrl += "@"
+			_cUrl_ += "@"
 		ok
 
-		cH = This.Host()
-		if cH != ""
-			cUrl += cH
+		_cH_ = This.Host()
+		if _cH_ != ""
+			_cUrl_ += _cH_
 		ok
 
-		nP = This.Port()
-		if nP != -1 and nP != 0 and nP != 80 and nP != 443
-			cUrl += ":" + string(nP)
+		_nP_ = This.Port()
+		if _nP_ != -1 and _nP_ != 0 and _nP_ != 80 and _nP_ != 443
+			_cUrl_ += ":" + string(_nP_)
 		ok
 
-		cPth = This.Path()
-		if cPth != ""
-			if StzLeft(cPth, 1) != "/"
-				cUrl += "/"
+		_cPth_ = This.Path()
+		if _cPth_ != ""
+			if StzLeft(_cPth_, 1) != "/"
+				_cUrl_ += "/"
 			ok
-			cUrl += cPth
+			_cUrl_ += _cPth_
 		ok
 
-		cQ = This.Query()
-		if cQ != ""
-			cUrl += "?" + cQ
+		_cQ_ = This.Query()
+		if _cQ_ != ""
+			_cUrl_ += "?" + _cQ_
 		ok
 
-		cFr = This.Fragment()
-		if cFr != ""
-			cUrl += "#" + cFr
+		_cFr_ = This.Fragment()
+		if _cFr_ != ""
+			_cUrl_ += "#" + _cFr_
 		ok
 
-		@cUrl = cUrl
+		@cUrl = _cUrl_
 
 	def Swap(oOtherUrl)
 		if isObject(oOtherUrl)
-			cTemp = This.Content()
+			_cTemp_ = This.Content()
 			This.SetUrl(oOtherUrl.Content())
-			oOtherUrl.SetUrl(cTemp)
+			oOtherUrl.SetUrl(_cTemp_)
 		ok

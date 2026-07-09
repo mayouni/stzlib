@@ -44,12 +44,12 @@ class stzOccurrences from stzObject
 	#--
 
 	def RemovedCS(pCaseSensitive)
-		cResult = This.StringQ().
+		_cResult_ = This.StringQ().
 				RemoveSubStringAtPositionsCSQ(
 					This.Occurrences, This.SubString(), pCaseSensitive).
 				Content()
 
-		return cResult
+		return _cResult_
 
 	def Removed()
 		return This.RemovedCS(1)

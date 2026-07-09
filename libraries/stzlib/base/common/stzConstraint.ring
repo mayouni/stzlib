@@ -43,17 +43,17 @@ func IsConstraint(pObject, pcConstraint)
 	if isString(pcConstraint)
 		@ = pObject
 
-		cConstraint = StzStringQ(pcConstraint).RemoveTheseBoundsQ("{","}").RemoveFirstBoundQ(NL).Simplified()
-		if cConstraint = ""
+		_cConstraint_ = StzStringQ(pcConstraint).RemoveTheseBoundsQ("{","}").RemoveFirstBoundQ(NL).Simplified()
+		if _cConstraint_ = ""
 			StzRaise("Constraint can't be empty!")
 		ok
 
-		cCode = "if " + cConstraint + NL +
+		_cCode_ = "if " + _cConstraint_ + NL +
 				TAB + "// Do nothing!" + NL +
 			"ok"
 
 		try
-			eval(cCode)
+			eval(_cCode_)
 			return 1
 		catch
 			return 0
@@ -97,13 +97,13 @@ class stzConstraint from stzObject
 
 	def Expression()
 
-		cCode = "if " + cConstraint + NL +
+		_cCode_ = "if " + _cConstraint_ + NL +
 				TAB + " // Pass" + NL +
 			"else" + NL +
 				TAB + "StzRaise('Constraint unverified!')" + NL +
 			"ok"
 
-		return cCode
+		return _cCode_
 
 	def CheckConstraint()
 

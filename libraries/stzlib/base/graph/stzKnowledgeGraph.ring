@@ -286,7 +286,7 @@ class stzKnowledgeGraph from stzGraph
 	#---------------------------#
 
 	def Explain()
-		aExplanation = [
+		_aExplanation_ = [
 			:type = "Knowledge Graph",
 			:structure = "",
 			:facts = [],
@@ -298,128 +298,128 @@ class stzKnowledgeGraph from stzGraph
 		]
 		
 		# Structure overview
-		nNodes = This.NodeCount()
-		nEdges = This.EdgeCount()
-		nFacts = len(This.Facts())
-		aExplanation[:structure] = 'Knowledge graph "' + @cId + '" contains ' + 
-		                           nNodes + " entities and " + nFacts + " facts."
+		_nNodes_ = This.NodeCount()
+		_nEdges_ = This.EdgeCount()
+		_nFacts_ = len(This.Facts())
+		_aExplanation_[:structure] = 'Knowledge graph "' + @cId + '" contains ' + 
+		                           _nNodes_ + " entities and " + _nFacts_ + " facts."
 		
 		# Facts analysis
-		aFacts = This.Facts()
-		if len(aFacts) > 0
-			nSample = min([5, len(aFacts)])
-			for i = 1 to nSample
-				aFact = aFacts[i]
-				aExplanation[:facts] + (aFact[1] + " " + aFact[2] + " " + aFact[3])
+		_aFacts_ = This.Facts()
+		if len(_aFacts_) > 0
+			_nSample_ = min([5, len(_aFacts_)])
+			for i = 1 to _nSample_
+				_aFact_ = _aFacts_[i]
+				_aExplanation_[:facts] + (_aFact_[1] + " " + _aFact_[2] + " " + _aFact_[3])
 			end
-			if len(aFacts) > 5
-				aExplanation[:facts] + ("... and " + (len(aFacts) - 5) + " more facts")
+			if len(_aFacts_) > 5
+				_aExplanation_[:facts] + ("... and " + (len(_aFacts_) - 5) + " more facts")
 			ok
 		else
-			aExplanation[:facts] + "No facts defined yet"
+			_aExplanation_[:facts] + "No facts defined yet"
 		ok
 		
 		# Entity analysis
-		aNodes = This.Nodes()
-		acEntities = []
-		nNodeLen = len(aNodes)
-		for i = 1 to nNodeLen
-			if HasKey(aNodes[i]["properties"], "type")
-				if aNodes[i]["properties"]["type"] = "entity"
-					acEntities + aNodes[i]["id"]
+		_aNodes_ = This.Nodes()
+		_acEntities_ = []
+		_nNodeLen_ = len(_aNodes_)
+		for i = 1 to _nNodeLen_
+			if HasKey(_aNodes_[i]["properties"], "type")
+				if _aNodes_[i]["properties"]["type"] = "entity"
+					_acEntities_ + _aNodes_[i]["id"]
 				ok
 			ok
 		end
 		
-		if len(acEntities) > 0
-			nSample = min([10, len(acEntities)])
-			cEntityList = ""
-			for i = 1 to nSample
-				cEntityList += acEntities[i]
-				if i < nSample cEntityList += ", " ok
+		if len(_acEntities_) > 0
+			_nSample_ = min([10, len(_acEntities_)])
+			_cEntityList_ = ""
+			for i = 1 to _nSample_
+				_cEntityList_ += _acEntities_[i]
+				if i < _nSample_ _cEntityList_ += ", " ok
 			end
-			aExplanation[:entities] + ("Entities: " + cEntityList)
-			if len(acEntities) > 10
-				aExplanation[:entities] + ("... and " + (len(acEntities) - 10) + " more")
+			_aExplanation_[:entities] + ("Entities: " + _cEntityList_)
+			if len(_acEntities_) > 10
+				_aExplanation_[:entities] + ("... and " + (len(_acEntities_) - 10) + " more")
 			ok
 		ok
 		
 		# Predicate analysis
-		acAllPredicates = []
-		aEdges = This.Edges()
-		nEdgeLen = len(aEdges)
-		for i = 1 to nEdgeLen
-			cPred = aEdges[i][:label]
-			if cPred != "" and StzFindFirst(acAllPredicates, cPred) = 0
-				acAllPredicates + cPred
+		_acAllPredicates_ = []
+		_aEdges_ = This.Edges()
+		_nEdgeLen_ = len(_aEdges_)
+		for i = 1 to _nEdgeLen_
+			_cPred_ = _aEdges_[i][:label]
+			if _cPred_ != "" and StzFindFirst(_acAllPredicates_, _cPred_) = 0
+				_acAllPredicates_ + _cPred_
 			ok
 		end
 		
-		if len(acAllPredicates) > 0
-			aExplanation[:predicates] + ("Predicates used: " + JoinXT(acAllPredicates, ", "))
+		if len(_acAllPredicates_) > 0
+			_aExplanation_[:predicates] + ("Predicates used: " + JoinXT(_acAllPredicates_, ", "))
 		ok
 		
 		# Ontology status
 		if len(@aOntology) > 0
-			aExplanation[:ontology] + ("Ontology defined with " + len(@aOntology) + " constraints")
-			nOntLen = len(@aOntology)
-			for i = 1 to nOntLen
+			_aExplanation_[:ontology] + ("Ontology defined with " + len(@aOntology) + " constraints")
+			_nOntLen_ = len(@aOntology)
+			for i = 1 to _nOntLen_
 				if HasKey(@aOntology[i], :property)
-					aExplanation[:ontology] + ("Property: " + @aOntology[i][:property])
+					_aExplanation_[:ontology] + ("Property: " + @aOntology[i][:property])
 				ok
 			end
 		else
-			aExplanation[:ontology] + "No formal ontology defined"
+			_aExplanation_[:ontology] + "No formal ontology defined"
 		ok
 		
 		# Pattern detection
-		nMaxConnections = 0
-		cMostConnected = ""
-		for i = 1 to nNodeLen
-			cNodeId = aNodes[i]["id"]
-			nConnections = len(This.Predicates(cNodeId))
-			if nConnections > nMaxConnections
-				nMaxConnections = nConnections
-				cMostConnected = cNodeId
+		_nMaxConnections_ = 0
+		_cMostConnected_ = ""
+		for i = 1 to _nNodeLen_
+			_cNodeId_ = _aNodes_[i]["id"]
+			_nConnections_ = len(This.Predicates(_cNodeId_))
+			if _nConnections_ > _nMaxConnections_
+				_nMaxConnections_ = _nConnections_
+				_cMostConnected_ = _cNodeId_
 			ok
 		end
 		
-		if cMostConnected != ""
-			aExplanation[:patterns] + ("Most connected entity: " + cMostConnected + 
-			                           " (" + nMaxConnections + " relationships)")
+		if _cMostConnected_ != ""
+			_aExplanation_[:patterns] + ("Most connected entity: " + _cMostConnected_ + 
+			                           " (" + _nMaxConnections_ + " relationships)")
 		ok
 		
 		# Density
-		nDensity = This.NodeDensity()
-		if nDensity < 25
-			aExplanation[:patterns] + ("Graph is sparse (" + nDensity + "% density)")
-		but nDensity > 75
-			aExplanation[:patterns] + ("Graph is highly connected (" + nDensity + "% density)")
+		_nDensity_ = This.NodeDensity()
+		if _nDensity_ < 25
+			_aExplanation_[:patterns] + ("Graph is sparse (" + _nDensity_ + "% density)")
+		but _nDensity_ > 75
+			_aExplanation_[:patterns] + ("Graph is highly connected (" + _nDensity_ + "% density)")
 		else
-			aExplanation[:patterns] + ("Moderate connectivity (" + nDensity + "% density)")
+			_aExplanation_[:patterns] + ("Moderate connectivity (" + _nDensity_ + "% density)")
 		ok
 		
 		# Insights
 		if This.CyclicDependencies()
-			aExplanation[:insights] + "Contains circular relationships (cycles detected)"
+			_aExplanation_[:insights] + "Contains circular relationships (cycles detected)"
 		else
-			aExplanation[:insights] + "Acyclic structure (no circular dependencies)"
+			_aExplanation_[:insights] + "Acyclic structure (no circular dependencies)"
 		ok
 		
 		# Inferred knowledge
 		if This.ApplyInference() > 0
-			aExplanation[:insights] + "Inference rules generated new knowledge"
+			_aExplanation_[:insights] + "Inference rules generated new knowledge"
 		ok
 		
-		if len(acAllPredicates) < 3
-			aExplanation[:insights] + "Limited relationship types - consider enriching the ontology"
+		if len(_acAllPredicates_) < 3
+			_aExplanation_[:insights] + "Limited relationship types - consider enriching the ontology"
 		ok
 		
-		if nDensity < 10 and nNodes > 5
-			aExplanation[:insights] + "Many isolated entities - may need more connections"
+		if _nDensity_ < 10 and _nNodes_ > 5
+			_aExplanation_[:insights] + "Many isolated entities - may need more connections"
 		ok
 		
-		return aExplanation
+		return _aExplanation_
 
 	#----------------------------------#
 	#  MANAGING *.stzknow file format  #
@@ -428,28 +428,28 @@ class stzKnowledgeGraph from stzGraph
 	def ImportKnow(pSource)
 	    if isString(pSource)
 	        if StzRight(pSource, 8) = ".stzknow"
-	            oParser = new stzKnowParser()
-	            oLoaded = oParser.ParseFile(pSource)
+	            _oParser_ = new stzKnowParser()
+	            _oLoaded_ = _oParser_.ParseFile(pSource)
 	        else
-	            oParser = new stzKnowParser()
-	            oLoaded = oParser.Parse(pSource)
+	            _oParser_ = new stzKnowParser()
+	            _oLoaded_ = _oParser_.Parse(pSource)
 	        ok
-	        This._MergeKnowledgeBase(oLoaded)
+	        This._MergeKnowledgeBase(_oLoaded_)
 	    ok
 	
 	    def LoadKnow(pSource)
 		return This.ImportKnow(pSource)
 
 	def ExportToKnow()
-	    cKnow = 'knowledge "' + @cId + '"' + NL + NL
-	    cKnow += "facts" + NL
-	    aFacts = This.Facts()
-	    _nFacts2Len_ = len(aFacts)
+	    _cKnow_ = 'knowledge "' + @cId + '"' + NL + NL
+	    _cKnow_ += "facts" + NL
+	    _aFacts_ = This.Facts()
+	    _nFacts2Len_ = len(_aFacts_)
 	    for _iLoopFacts2_ = 1 to _nFacts2Len_
-	    	aFact = aFacts[_iLoopFacts2_]
-	        cKnow += "    " + aFact[1] + " | " + aFact[2] + " | " + aFact[3] + NL
+	    	_aFact_ = _aFacts_[_iLoopFacts2_]
+	        _cKnow_ += "    " + _aFact_[1] + " | " + _aFact_[2] + " | " + _aFact_[3] + NL
 	    end
-	    return cKnow
+	    return _cKnow_
 	
 	def WriteToKnowFile(pcFilename)
 	    if StzRight(pcFilename, 8) != ".stzknow"
@@ -461,57 +461,57 @@ class stzKnowledgeGraph from stzGraph
 		This.WriteToKnowFile(pcFilename)
 
 	def _MergeKnowledgeBase(oOther)
-	    aFacts = oOther.Facts()
-	    _nFacts1Len_ = len(aFacts)
+	    _aFacts_ = oOther.Facts()
+	    _nFacts1Len_ = len(_aFacts_)
 	    for _iLoopFacts1_ = 1 to _nFacts1Len_
-	    	aFact = aFacts[_iLoopFacts1_]
-	        This.AddFact(aFact[1], aFact[2], aFact[3])
+	    	_aFact_ = _aFacts_[_iLoopFacts1_]
+	        This.AddFact(_aFact_[1], _aFact_[2], _aFact_[3])
 	    end
 
 class stzKnowParser from stzObject
     def ParseFile(pcFilename)
-        cContent = read(pcFilename)
-        return This.Parse(cContent)
+        _cContent_ = read(pcFilename)
+        return This.Parse(_cContent_)
     
     def Parse(pcContent)
-        oKG = NULL
-        acLines = split(pcContent, NL)
-        cSection = ""
+        _oKG_ = NULL
+        _acLines_ = split(pcContent, NL)
+        _cSection_ = ""
         
-        _nAcLines1Len_ = len(acLines)
+        _nAcLines1Len_ = len(_acLines_)
         for _iLoopAcLines1_ = 1 to _nAcLines1Len_
-        	cLine = acLines[_iLoopAcLines1_]
-            cLine = trim(cLine)
-            if cLine = "" or StzLeft(cLine, 1) = "#"
+        	_cLine_ = _acLines_[_iLoopAcLines1_]
+            _cLine_ = trim(_cLine_)
+            if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
                 loop
             ok
             
-            if StzFindFirst(cLine, "knowledge ")
-                cId = This._ExtractQuoted(cLine)
-                oKG = new stzKnowledgeGraph(cId)
+            if StzFindFirst(_cLine_, "knowledge ")
+                _cId_ = This._ExtractQuoted(_cLine_)
+                _oKG_ = new stzKnowledgeGraph(_cId_)
             
-            but cLine = "namespaces"
-                cSection = "namespaces"
-            but cLine = "ontology"
-                cSection = "ontology"
-            but cLine = "facts"
-                cSection = "facts"
-            but cLine = "rules"
-                cSection = "rules"
+            but _cLine_ = "namespaces"
+                _cSection_ = "namespaces"
+            but _cLine_ = "ontology"
+                _cSection_ = "ontology"
+            but _cLine_ = "facts"
+                _cSection_ = "facts"
+            but _cLine_ = "rules"
+                _cSection_ = "rules"
             
-            but cSection = "facts" and StzFindFirst(cLine, "|")
-                aParts = split(cLine, "|")
-                if len(aParts) = 3
-                    oKG.AddFact(trim(aParts[1]), trim(aParts[2]), trim(aParts[3]))
+            but _cSection_ = "facts" and StzFindFirst(_cLine_, "|")
+                _aParts_ = split(_cLine_, "|")
+                if len(_aParts_) = 3
+                    _oKG_.AddFact(trim(_aParts_[1]), trim(_aParts_[2]), trim(_aParts_[3]))
                 ok
             ok
         end
         
-        return oKG
+        return _oKG_
     
-    def _ExtractQuoted(cLine)
-        nStart = StzFindFirst(cLine, '"')
-        if nStart = 0 return "" ok
-        nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-        nEnd = StzFindFirst(nEnd, '"')
-        return StzMid(cLine, nStart + 1, nEnd - 1)
+    def _ExtractQuoted(_cLine_)
+        _nStart_ = StzFindFirst(_cLine_, '"')
+        if _nStart_ = 0 return "" ok
+        _nEnd_ = StzMid(_cLine_, _nStart_ + 1, StzLen(_cLine_) - _nStart_)
+        _nEnd_ = StzFindFirst(_nEnd_, '"')
+        return StzMid(_cLine_, _nStart_ + 1, _nEnd_ - 1)

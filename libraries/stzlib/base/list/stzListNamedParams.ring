@@ -957,19 +957,19 @@ class stzListNamedParams from stzObject
 			ok
 		ok
 
-		nLen = len(pacParamNames)
-		bResult = 0
+		_nLen_ = len(pacParamNames)
+		_bResult_ = 0
 
-		for i = 1 to nLen
-			cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam()'
-			eval(cCode)
-			if bFound
-				bResult = 1
+		for i = 1 to _nLen_
+			_cCode_ = '_bFound_ = This.Is' + pacParamNames[i] + 'NamedParam()'
+			eval(_cCode_)
+			if _bFound_
+				_bResult_ = 1
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionMisspelledForm
 
@@ -979,7 +979,7 @@ class stzListNamedParams from stzObject
 		#>
 
 	def IsRemoveAtOptionsNamedParam()
-		bResult = 0
+		_bResult_ = 0
 
 		if This.IsHashList() and
 
@@ -1007,47 +1007,47 @@ class stzListNamedParams from stzObject
 				StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
 			ok
 
-			bOk1 = 0
-			nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
-			cType = ring_type(nRemoveNCharsBefore)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = "" )
-				bOk1 = 1
+			_bOk1_ = 0
+			_nRemoveNCharsBefore_ = This.Content()[ :RemoveNCharsBefore ]
+			_cType_ = ring_type(_nRemoveNCharsBefore_)
+		   	if _cType_ = "NUMBER" or ( _cType_ = "STRING" and _nRemoveNCharsBefore_ = "" )
+				_bOk1_ = 1
 			ok
 
-			bOk2 = 0
-			nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
-			cType = ring_type(nRemoveNCharsAfter)
-		   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = "" )
-				bOk2 = 1
+			_bOk2_ = 0
+			_nRemoveNCharsAfter_ = This.Content()[ :RemoveNCharsAfter ]
+			_cType_ = ring_type(_nRemoveNCharsAfter_)
+		   	if _cType_ = "NUMBER" or ( _cType_ = "STRING" and _nRemoveNCharsAfter_ = "" )
+				_bOk2_ = 1
 			ok
 
-			bOk3 = 0
-			cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
-			cType = ring_type(cRemoveSubStringBefore)
-		   	if cType = "STRING"
-				bOk3 = 1
+			_bOk3_ = 0
+			_cRemoveSubStringBefore_ = This.Content()[ :RemoveSubStringBefore ]
+			_cType_ = ring_type(_cRemoveSubStringBefore_)
+		   	if _cType_ = "STRING"
+				_bOk3_ = 1
 			ok
 
-			bOk4 = 0
-			cRemoveSubStringAfter = This.Content()[ :RemoveSubStringAfter ]
-			cType = ring_type(cRemoveSubStringAfter)
-		   	if cType = "STRING"
-				bOk4 = 1
+			_bOk4_ = 0
+			_cRemoveSubStringAfter_ = This.Content()[ :RemoveSubStringAfter ]
+			_cType_ = ring_type(_cRemoveSubStringAfter_)
+		   	if _cType_ = "STRING"
+				_bOk4_ = 1
 			ok
 
-			bOk5 = 0
-			cRemoveThisBound = This.Content()[ :cRemoveThisBound ]
-			cType = ring_type(cRemoveThisBound)
-		   	if cType = "STRING"
-				bOk5 = 1
+			_bOk5_ = 0
+			_cRemoveThisBound_ = This.Content()[ :cRemoveThisBound ]
+			_cType_ = ring_type(_cRemoveThisBound_)
+		   	if _cType_ = "STRING"
+				_bOk5_ = 1
 			ok
 
-			if bOk1 and bOk2 and bOk3 and bOk4 and bOk5
-				bResult = 1
+			if _bOk1_ and _bOk2_ and _bOk3_ and _bOk4_ and _bOk5_
+				_bResult_ = 1
 			ok
 		ok
 
-		return bResult
+		return _bResult_
 
 	def IsTextBoxedOptionsNamedParam()
 		/*
@@ -1073,7 +1073,7 @@ class stzListNamedParams from stzObject
 			return 1
 		ok
 
-		aListOfBoxOptions = [
+		_aListOfBoxOptions_ = [
 
 			:Line, :Solid, :Dashed,
 
@@ -1096,12 +1096,12 @@ class stzListNamedParams from stzObject
 			:Sectioned
 		]
 
-		nLen = This.NumberOfItems()
+		_nLen_ = This.NumberOfItems()
 
-		if nLen >= 1 and nLen < len(aListOfBoxOptions)
+		if _nLen_ >= 1 and _nLen_ < len(_aListOfBoxOptions_)
 
 			if This.IsHashList() and
-			   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
+			   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(_aListOfBoxOptions_)
 
 				return 1
 			ok
@@ -1116,7 +1116,7 @@ class stzListNamedParams from stzObject
 			return 1
 		ok
 
-		aListOfBoxOptions = [
+		_aListOfBoxOptions_ = [
 			:Line,
 			:AllCorners,
 			:Corners,
@@ -1136,11 +1136,11 @@ class stzListNamedParams from stzObject
 			
 		]
 
-		nLen = This.NumberOfItems()
+		_nLen_ = This.NumberOfItems()
 		   
-		if nLen >= 1 and nLen <= len(aListOfBoxOptions) and
+		if _nLen_ >= 1 and _nLen_ <= len(_aListOfBoxOptions_) and
 		   This.IsHashList() and
-		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
+		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(_aListOfBoxOptions_)
 		
 			return 1
 
@@ -2368,26 +2368,26 @@ class stzListNamedParams from stzObject
 	#--
 
 	def IsCaseSensitiveNamedParam()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		if NOT nLen = 2
+		if NOT _nLen_ = 2
 			return 0
 		ok
 
-		if NOT isString(aContent[1])
+		if NOT isString(_aContent_[1])
 			return 0
 		ok
 
-		if NOT isNumber(aContent[2])
+		if NOT isNumber(_aContent_[2])
 			return 0
 		ok
 
-		if NOT ( aContent[1] = :CaseSensitive or aContent[1] = :CS )
+		if NOT ( _aContent_[1] = :CaseSensitive or _aContent_[1] = :CS )
 			return 0
 		ok
 
-		if NOT ( aContent[2] = 0 or aContent[2] = 1 )
+		if NOT ( _aContent_[2] = 0 or _aContent_[2] = 1 )
 			return 0
 		ok
 

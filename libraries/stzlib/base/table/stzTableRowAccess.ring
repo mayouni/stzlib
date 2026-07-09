@@ -21,49 +21,49 @@ class stzTableRowAccess from stzTable
 	 #  GETTING THE CELLS OF A ROW  #
 	#==============================#
 
-	def Row(n)
+	def Row(_n_)
 
-		if isString(n)
+		if isString(_n_)
 
-			if StzFindFirst([ :First, :FirstRow ], n) > 0
-				n = 1
+			if StzFindFirst([ :First, :FirstRow ], _n_) > 0
+				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastRow ], n) > 0
-				n = This.NumberOfRows()
+			but StzFindFirst([ :Last, :LastRow ], _n_) > 0
+				_n_ = This.NumberOfRows()
 
 			ok
 		ok
 
-		aResult = This.RowSection( n, 1, This.NumberOfCols() )
-		return aResult
+		_aResult_ = This.RowSection( _n_, 1, This.NumberOfCols() )
+		return _aResult_
 
 		#< @FunctionFluentForm
 
-		def RowQ(n)
-			return This.RowQRT(n, :stzList)
+		def RowQ(_n_)
+			return This.RowQRT(_n_, :stzList)
 
-		def RowQRT(n, pcReturnType)
+		def RowQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Row(n) )
+				return new stzList( This.Row(_n_) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Row(n) )
+				return new stzListOfNumbers( This.Row(_n_) )
 
 			on :stzListOfStrings
-				return new stzListOfNumbers( This.Row(n) )
+				return new stzListOfNumbers( This.Row(_n_) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.Row(n) )
+				return new stzListOfLists( This.Row(_n_) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.Row(n) )
+				return new stzListOfPairs( This.Row(_n_) )
 
 			on :stzListOfHashTables
-				return new stzListOfHashTables( This.Row(n) )
+				return new stzListOfHashTables( This.Row(_n_) )
 
 			on :stzListOfObjects
-				return new stzListOfObjects( This.Row(n) )
+				return new stzListOfObjects( This.Row(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -73,50 +73,50 @@ class stzTableRowAccess from stzTable
 
 		#< @FunctionAlternativeForms
 
-		def RowN(n)
-			return This.Row(n)
+		def RowN(_n_)
+			return This.Row(_n_)
 
-			def RowNQ(n)
-				return This.RownQRT(n, :stzList)
+			def RowNQ(_n_)
+				return This.RownQRT(_n_, :stzList)
 
-			def RowNQRT(n, pcReturnType)
-				return This.CellsInRowQRT(n, pcReturnType)
+			def RowNQRT(_n_, pcReturnType)
+				return This.CellsInRowQRT(_n_, pcReturnType)
 
-		def NthRow(n)
-			return This.Row(n)
+		def NthRow(_n_)
+			return This.Row(_n_)
 
-			def NthRowQ(n)
-				return This.NthRowQRT(n, :stzList)
+			def NthRowQ(_n_)
+				return This.NthRowQRT(_n_, :stzList)
 
-			def NthRowQRT(n, pcReturnType)
-				return This.CellsInRowQRT(n, pcReturnType)
+			def NthRowQRT(_n_, pcReturnType)
+				return This.CellsInRowQRT(_n_, pcReturnType)
 
-		def CellsInRow(n)
-			return This.Row(n)
+		def CellsInRow(_n_)
+			return This.Row(_n_)
 
-			def CellsInRowQ(n)
-				return This.CellsInRowQRT(n, :stzList)
+			def CellsInRowQ(_n_)
+				return This.CellsInRowQRT(_n_, :stzList)
 
-			def CellsInRowQRT(n, pcReturnType)
-				return This.CellsInRowQRT(n, pcReturnType)
+			def CellsInRowQRT(_n_, pcReturnType)
+				return This.CellsInRowQRT(_n_, pcReturnType)
 
-		def CellsInRowN(n)
-			return This.Row(n)
+		def CellsInRowN(_n_)
+			return This.Row(_n_)
 
-			def CellsInRowNQ(n)
-				return This.CellsInRowNQRT(n, :stzList)
+			def CellsInRowNQ(_n_)
+				return This.CellsInRowNQRT(_n_, :stzList)
 
-			def CellsInRowNQRT(n, pcReturnType)
-				return This.CellsInRowQRT(n, pcReturnType)
+			def CellsInRowNQRT(_n_, pcReturnType)
+				return This.CellsInRowQRT(_n_, pcReturnType)
 
-		def CellsInNthRow(n)
-			return This.Row(n)
+		def CellsInNthRow(_n_)
+			return This.Row(_n_)
 
-			def CellsInNthRowQ(n)
-				return This.CellsInNthRowQRT(n, :stzList)
+			def CellsInNthRowQ(_n_)
+				return This.CellsInNthRowQRT(_n_, :stzList)
 
-			def CellsInNthRowQRT(n, pcReturnType)
-				return This.CellsInRowQRT(n, pcReturnType)
+			def CellsInNthRowQRT(_n_, pcReturnType)
+				return This.CellsInRowQRT(_n_, pcReturnType)
 		#>
 
 	  #----------------------------------#
@@ -128,8 +128,8 @@ class stzTableRowAccess from stzTable
 			StzRaise("Incorrect param type! panRows must be a list of numbers.")
 		ok
 
-		aResult = This.TheseCells(RowsAsPositions(panRows))
-		return aResult
+		_aResult_ = This.TheseCells(RowsAsPositions(panRows))
+		return _aResult_
 
 	  #-----------------------#
 	 #   GETTING FIRST ROW   #
@@ -170,14 +170,14 @@ class stzTableRowAccess from stzTable
 	#------------------------------#
 
 	def Rows()
-		nRows   = This.NumberOfRows()
-		aResult = []
+		_nRows_   = This.NumberOfRows()
+		_aResult_ = []
 
-		for i = 1 to nRows
-			aResult + This.RowN(i)
+		for i = 1 to _nRows_
+			_aResult_ + This.RowN(i)
 		next
 
-		return aResult
+		return _aResult_
 
 		def RowsQ()
 			return This.RowsQRT(:stzList)
@@ -233,25 +233,25 @@ class stzTableRowAccess from stzTable
 	 #   GETTING CELLS AND THEIR POSITIONS IN A GIVN ROW   #
 	#-----------------------------------------------------#
 
-	def RowZ(n)
-		aResult = RowQ(n).AssociatedWith( This.CellsInRowAsPositions(n) )
-		return aResult
+	def RowZ(_n_)
+		_aResult_ = RowQ(_n_).AssociatedWith( This.CellsInRowAsPositions(_n_) )
+		return _aResult_
 
 		#< @FunctionFluentForm
 
-		def RowZQ(n)
+		def RowZQ(_n_)
 			return This.RowZQRT(p, :stzList)
 
-		def RowZQRT(n, pcReturnType)
+		def RowZQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.RowZ(n) )
+				return new stzList( This.RowZ(_n_) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.RowZ(n) )
+				return new stzListOfPairs( This.RowZ(_n_) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.RowZ(n) )
+				return new stzListOfLists( This.RowZ(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -261,77 +261,77 @@ class stzTableRowAccess from stzTable
 
 		#< @FunctionAlternativeForms
 
-		def CellsAndPositionsInRow(n)
-			return This.RowZ(n)
+		def CellsAndPositionsInRow(_n_)
+			return This.RowZ(_n_)
 
-			def CellsAndPositionsInRowQ(n)
-				return This.CellsAndPositionsInRowNQRT(n, :stzList)
+			def CellsAndPositionsInRowQ(_n_)
+				return This.CellsAndPositionsInRowNQRT(_n_, :stzList)
 
-			def CellsAndPositionsInRowQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsAndPositionsInRowQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def CellsInRowZ(n)
-			return This.RowZ(n)
+		def CellsInRowZ(_n_)
+			return This.RowZ(_n_)
 
-			def CellsInRowZQ(n)
-				return This.CellsInRowZQRT(n, :stzList)
+			def CellsInRowZQ(_n_)
+				return This.CellsInRowZQRT(_n_, :stzList)
 
-			def CellsInRowZQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsInRowZQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def CellsInRowNAndTheirPositions(n)
+		def CellsInRowNAndTheirPositions(_n_)
 			return This.RowZ(p)
 
-			def CellsInRowNAndTheirsPositionsQ(n)
-				return This.CellsInRowNAndTheirsPositionsQRT(n, :stzList)
+			def CellsInRowNAndTheirsPositionsQ(_n_)
+				return This.CellsInRowNAndTheirsPositionsQRT(_n_, :stzList)
 
-			def CellsInRowNAndTheirsPositionsQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsInRowNAndTheirsPositionsQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def CellsAndPositionsInRowN(n)
-			return This.RowZ(n)
+		def CellsAndPositionsInRowN(_n_)
+			return This.RowZ(_n_)
 
-			def CellsAndPositionsInRowNQ(n)
-				return This.CellsAndPositionsInRowNQRT(n, :stzList)
+			def CellsAndPositionsInRowNQ(_n_)
+				return This.CellsAndPositionsInRowNQRT(_n_, :stzList)
 
-			def CellsAndPositionsInRowNQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsAndPositionsInRowNQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def CellsAndPositionsInNthRow(n)
+		def CellsAndPositionsInNthRow(_n_)
 			return This.RowZ(p)
 
-			def CellsAndPositionsInNthRowQ(n)
-				return This.CellsAndPositionsInNthRowQRT(n, :stzList)
+			def CellsAndPositionsInNthRowQ(_n_)
+				return This.CellsAndPositionsInNthRowQRT(_n_, :stzList)
 
-			def CellsAndPositionsInNthRowQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsAndPositionsInNthRowQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def CellsInNthRowAndTheirPositions(n)
+		def CellsInNthRowAndTheirPositions(_n_)
 			return This.RowZ(p)
 
-			def CellsInNthRowAndTheirPositionsQ(n)
-				return This.CellsInNthRowAndTheirPositionsQRT(n, :stzList)
+			def CellsInNthRowAndTheirPositionsQ(_n_)
+				return This.CellsInNthRowAndTheirPositionsQRT(_n_, :stzList)
 
-			def CellsInNthRowAndTheirPositionsQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def CellsInNthRowAndTheirPositionsQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def RowNZ(n)
-			return This.RowZ(n)
+		def RowNZ(_n_)
+			return This.RowZ(_n_)
 
-			def RowNZQ(n)
-				return This.RowNZQRT(n, :stzList)
+			def RowNZQ(_n_)
+				return This.RowNZQRT(_n_, :stzList)
 
-			def RowNZQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def RowNZQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
-		def NthRowZ(n)
-			return This.RowZ(n)
+		def NthRowZ(_n_)
+			return This.RowZ(_n_)
 
-			def NtRowZQ(n)
-				return This.NthRowZQRT(n, :stzList)
+			def NtRowZQ(_n_)
+				return This.NthRowZQRT(_n_, :stzList)
 
-			def NthRowZQRT(n, pcReturnType)
-				return This.RowZQRT(n, pcReturnType)
+			def NthRowZQRT(_n_, pcReturnType)
+				return This.RowZQRT(_n_, pcReturnType)
 
 		#>
 
@@ -357,14 +357,14 @@ class stzTableRowAccess from stzTable
 
 		ok
 
-		nNumberOfCols = This.NumberOfCols()
-		aResult = []
+		_nNumberOfCols_ = This.NumberOfCols()
+		_aResult_ = []
 
-		for i = 1 to nNumberOfCols
-			aResult + [ i, pnRow ]
+		for i = 1 to _nNumberOfCols_
+			_aResult_ + [ i, pnRow ]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @Alternativefunctions
 
@@ -427,20 +427,20 @@ class stzTableRowAccess from stzTable
 	#----------------------------------------------------#
 
 	def RowsAsPositions(panRows)
-		nNumberOfCols = This.NumberOfCols()
-		nLenRows = len(panRows)
+		_nNumberOfCols_ = This.NumberOfCols()
+		_nLenRows_ = len(panRows)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLenRows
+		for i = 1 to _nLenRows_
 
-			for j = 1 to nNumberOfCols
-				aResult + [ j, panRows[i] ]
+			for j = 1 to _nNumberOfCols_
+				_aResult_ + [ j, panRows[i] ]
 			next
 
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 

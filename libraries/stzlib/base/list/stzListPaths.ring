@@ -9,53 +9,53 @@
 
 func GeneratePaths(cStr)
 
-	aResult = []
-	aCurrentPath = []
-	aLevelCounts = [1]    # Start with 1 for first position
+	_aResult_ = []
+	_aCurrentPath_ = []
+	_aLevelCounts_ = [1]    # Start with 1 for first position
     
-	nLen = len(cStr)
+	_nLen_ = len(cStr)
 
-	for i = 1 to nLen
-		cChar = cStr[i]
+	for i = 1 to _nLen_
+		_cChar_ = cStr[i]
         
-		if cChar = "["
+		if _cChar_ = "["
 			# Start new level
-			aLevelCounts + 1  # Start with position 1
-			aCurrentPath + 1  # Add current position to path
-			if len(aCurrentPath) > 0
-				aResult + aCurrentPath
+			_aLevelCounts_ + 1  # Start with position 1
+			_aCurrentPath_ + 1  # Add current position to path
+			if len(_aCurrentPath_) > 0
+				_aResult_ + _aCurrentPath_
 		ok
             
-		but cChar = "]"
+		but _cChar_ = "]"
 			# Close current level
-			if len(aCurrentPath) > 0
-				del(aCurrentPath, len(aCurrentPath))
+			if len(_aCurrentPath_) > 0
+				del(_aCurrentPath_, len(_aCurrentPath_))
 			ok
-			if len(aLevelCounts) > 0
-				del(aLevelCounts, len(aLevelCounts))
+			if len(_aLevelCounts_) > 0
+				del(_aLevelCounts_, len(_aLevelCounts_))
 			ok
             
-		but cChar = ","
+		but _cChar_ = ","
 			# New item at current level
-			if len(aLevelCounts) > 0
+			if len(_aLevelCounts_) > 0
 				# Increment count at current level
-				aLevelCounts[len(aLevelCounts)] += 1
+				_aLevelCounts_[len(_aLevelCounts_)] += 1
                 
 				# Update path with new position
-				if len(aCurrentPath) > 0
-					del(aCurrentPath, len(aCurrentPath))
+				if len(_aCurrentPath_) > 0
+					del(_aCurrentPath_, len(_aCurrentPath_))
 				ok
-				aCurrentPath + aLevelCounts[len(aLevelCounts)]
+				_aCurrentPath_ + _aLevelCounts_[len(_aLevelCounts_)]
                 
 				# Add new path to result
-				if len(aCurrentPath) > 0
-					aResult + aCurrentPath
+				if len(_aCurrentPath_) > 0
+					_aResult_ + _aCurrentPath_
 				ok
 			ok
 		ok
 	next
     
-	return aResult
+	return _aResult_
 
 	def GenPaths(str)
 		return GeneratePaths(str)
@@ -586,18 +586,18 @@ func LongestPath(aPaths)
         return []
     ok
 
-    aLongest = aPaths[1]
-    nMaxLen = len(aLongest)
+    _aLongest_ = aPaths[1]
+    _nMaxLen_ = len(_aLongest_)
     
     _nPathsLen_2 = len(aPaths)
     for i = 2 to _nPathsLen_2
-        if len(aPaths[i]) > nMaxLen
-            aLongest = aPaths[i]
-            nMaxLen = len(aLongest)
+        if len(aPaths[i]) > _nMaxLen_
+            _aLongest_ = aPaths[i]
+            _nMaxLen_ = len(_aLongest_)
         ok
     next
     
-    return aLongest
+    return _aLongest_
 
     func @LongestPath(aPaths)
 	return LongestPath(aPaths)
@@ -609,18 +609,18 @@ func ShortestPath(aPaths)
         return []
     ok
 
-    aShortest = aPaths[1]
-    nMinLen = len(aShortest)
+    _aShortest_ = aPaths[1]
+    _nMinLen_ = len(_aShortest_)
     
     _nPathsLen_ = len(aPaths)
     for i = 2 to _nPathsLen_
-        if len(aPaths[i]) < nMinLen
-            aShortest = aPaths[i]
-            nMinLen = len(aShortest)
+        if len(aPaths[i]) < _nMinLen_
+            _aShortest_ = aPaths[i]
+            _nMinLen_ = len(_aShortest_)
         ok
     next
     
-    return aShortest
+    return _aShortest_
 
     func @ShortestPath(aPaths)
 	return ShortestPath(aPaths)
@@ -628,17 +628,17 @@ func ShortestPath(aPaths)
 # Returns all paths whose depth is equal to a specified value
 
 func PathsWithDepth(aPaths, nDepth)
-    aResult = []
+    _aResult_ = []
     
     _nPaths2Len_ = len(aPaths)
     for _iLoopPaths2_ = 1 to _nPaths2Len_
     	path = aPaths[_iLoopPaths2_]
         if len(path) = nDepth
-            add(aResult, path)
+            add(_aResult_, path)
         ok
     next
     
-    return aResult
+    return _aResult_
 
     func @PathsWithPath(aPaths, n)
 	return PathsWithDepth(aPaths, nDepth)
@@ -646,17 +646,17 @@ func PathsWithDepth(aPaths, nDepth)
 # Returns all paths that are superpaths of a given path
 
 func SuperPathsOf(aPaths, aBasePath)
-    aResult = []
+    _aResult_ = []
     
     _nPaths1Len_ = len(aPaths)
     for _iLoopPaths1_ = 1 to _nPaths1Len_
     	path = aPaths[_iLoopPaths1_]
         if IsSubPathOf(aBasePath, path) and aBasePath != path
-            add(aResult, path)
+            add(_aResult_, path)
         ok
     next
     
-    return aResult
+    return _aResult_
 
     func @SuperPathsOf(aPaths, aBasePath)
 	return SuperPathsOf(aPaths, aBasePath)

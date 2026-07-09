@@ -51,9 +51,9 @@ class stzListCounter from stzObject
 	#==================================================#
 
 	def CountItemsW(pCondition)
-		aItems = @oList.FindW(pCondition)
-		nResult = len(aItems)
-		return nResult
+		_aItems_ = @oList.FindW(pCondition)
+		_nResult_ = len(_aItems_)
+		return _nResult_
 
 		def CountW(pCondition)
 			return This.CountItemsW(pCondition)
@@ -97,8 +97,8 @@ class stzListCounter from stzObject
 	#====================================================================#
 
 	def InsertAfterW( pcCondition, pNewItem )
-		anPos = @oList.FindItemsW(pcCondition)
-		@oList.InsertAfterManyPositions( anPos, pNewItem )
+		_anPos_ = @oList.FindItemsW(pcCondition)
+		@oList.InsertAfterManyPositions( _anPos_, pNewItem )
 
 		def InsertAfterWQ( pcCondition, pNewItem )
 			This.InsertAfterW( pCondition, pNewItem )
@@ -108,8 +108,8 @@ class stzListCounter from stzObject
 			This.InsertAfterW(pCondition, pNewItem)
 
 	def InsertBeforeW(pcCondition, pNewItem)
-		anPos = @oList.FindItemsW(pcCondition)
-		@oList.InsertBeforeManyPositions(anPos, pNewItem)
+		_anPos_ = @oList.FindItemsW(pcCondition)
+		@oList.InsertBeforeManyPositions(_anPos_, pNewItem)
 
 		def InsertBeforeWQ(pcCondition, pNewItem)
 			This.InsertBeforeW(pcCondition, pNewItem)
@@ -133,43 +133,43 @@ class stzListCounter from stzObject
 	#======================================================#
 
 	def CountStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if isString(aContent[i])
-				nCount++
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nCount_ = 0
+		for i = 1 to _nLen_
+			if isString(_aContent_[i])
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def NumberOfStrings()
 			return This.CountStrings()
 
 	def CountNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				nCount++
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nCount_ = 0
+		for i = 1 to _nLen_
+			if isNumber(_aContent_[i])
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def NumberOfNumbers()
 			return This.CountNumbers()
 
 	def CountLists()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if isList(aContent[i])
-				nCount++
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nCount_ = 0
+		for i = 1 to _nLen_
+			if isList(_aContent_[i])
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def NumberOfLists()
 			return This.CountLists()
@@ -188,15 +188,15 @@ class stzListCounter from stzObject
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
-				nCount++
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nCount_ = 0
+		for i = 1 to _nLen_
+			if BothAreEqualCS(_aContent_[i], pItem, pCaseSensitive)
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def NumberOfOccurrencesOfCS(pItem, pCaseSensitive)
 			return This.CountCS(pItem, pCaseSensitive)
@@ -222,15 +222,15 @@ class stzListCounter from stzObject
 	#======================================================#
 
 	def CountEmptyItems()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if isString(aContent[i]) and aContent[i] = ""
-				nCount++
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_nCount_ = 0
+		for i = 1 to _nLen_
+			if isString(_aContent_[i]) and _aContent_[i] = ""
+				_nCount_++
 			ok
 		next
-		return nCount
+		return _nCount_
 
 		def NumberOfEmptyItems()
 			return This.CountEmptyItems()

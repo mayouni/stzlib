@@ -41,9 +41,9 @@ class stzStringDuplicates from stzObject
 	def DuplicatedChars()
 		pH = @oString.Engine()
 		pR = StzEngineStringDuplicatedChars(pH)
-		cDups = StzEngineStringData(pR)
+		_cDups_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cDups)
+		return _SplitNullDelimited(_cDups_)
 
 	def HasDuplicatedChars()
 		return len(This.DuplicatedChars()) > 0
@@ -58,18 +58,18 @@ class stzStringDuplicates from stzObject
 	def UniqueChars()
 		pH = @oString.Engine()
 		pR = StzEngineStringUniqueChars(pH)
-		cUnique = StzEngineStringData(pR)
+		_cUnique_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if cUnique = ""
+		if _cUnique_ = ""
 			return []
 		ok
 		# Split unique chars string into individual characters
-		pU = StzEngineString(cUnique)
+		pU = StzEngineString(_cUnique_)
 		pSplit = StzEngineStringCharsSplit(pU)
-		cJoined = StzEngineStringData(pSplit)
+		_cJoined_ = StzEngineStringData(pSplit)
 		StzEngineStringFree(pSplit)
 		StzEngineStringFree(pU)
-		return _SplitNullDelimited(cJoined)
+		return _SplitNullDelimited(_cJoined_)
 
 	def NumberOfUniqueChars()
 		pH = @oString.Engine()
@@ -80,14 +80,14 @@ class stzStringDuplicates from stzObject
 	#===============================#
 
 	def HasConsecutiveDuplicates()
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-		if nLen < 2
+		_acChars_ = @oString.Chars()
+		_nLen_ = len(_acChars_)
+		if _nLen_ < 2
 			return 0
 		ok
 
-		for i = 2 to nLen
-			if acChars[i] = acChars[i - 1]
+		for i = 2 to _nLen_
+			if _acChars_[i] = _acChars_[i - 1]
 				return 1
 			ok
 		next
@@ -97,9 +97,9 @@ class stzStringDuplicates from stzObject
 	def RemoveConsecutiveDuplicateChars()
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveConsecutiveDuplicateCharsQ()
 			This.RemoveConsecutiveDuplicateChars()
@@ -108,9 +108,9 @@ class stzStringDuplicates from stzObject
 	def ConsecutiveDuplicateCharsRemoved()
 		pH = @oString.Engine()
 		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     REMOVE ALL DUPLICATES     #
@@ -119,9 +119,9 @@ class stzStringDuplicates from stzObject
 	def RemoveAllDuplicateChars()
 		pH = @oString.Engine()
 		pR = StzEngineStringUniqueChars(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_c_)
 
 		def RemoveAllDuplicateCharsQ()
 			This.RemoveAllDuplicateChars()
@@ -130,27 +130,27 @@ class stzStringDuplicates from stzObject
 	def AllDuplicateCharsRemoved()
 		pH = @oString.Engine()
 		pR = StzEngineStringUniqueChars(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     DEDUPLICATE SUBSTRINGS    #
 	#===============================#
 
 	def RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
-		oFinder = new stzStringFinder(@oString)
-		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if len(anPos) <= 1
+		_oFinder_ = new stzStringFinder(@oString)
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
+		if len(_anPos_) <= 1
 			return
 		ok
 
-		nLenSub = StzLen(pcSubStr)
+		_nLenSub_ = StzLen(pcSubStr)
 
 		# Remove from end to start to preserve earlier positions
-		for i = len(anPos) to 2 step -1
-			nPos = anPos[i]
-			@oString.RemoveSection(nPos, nPos + nLenSub - 1)
+		for i = len(_anPos_) to 2 step -1
+			_nPos_ = _anPos_[i]
+			@oString.RemoveSection(_nPos_, _nPos_ + _nLenSub_ - 1)
 		next
 
 		def RemoveDuplicateSubStringCSQ(pcSubStr, pCaseSensitive)
@@ -165,9 +165,9 @@ class stzStringDuplicates from stzObject
 			return This
 
 	def DuplicateSubStringRemovedCS(pcSubStr, pCaseSensitive)
-		oCopy = new stzStringDuplicates(@oString.Content())
-		oCopy.RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
-		return oCopy.Content()
+		_oCopy_ = new stzStringDuplicates(@oString.Content())
+		_oCopy_.RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	def DuplicateSubStringRemoved(pcSubStr)
 		return This.DuplicateSubStringRemovedCS(pcSubStr, 1)

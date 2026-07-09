@@ -17,8 +17,8 @@
 /////////////////////
 
 func StzBoxedString(str)
-	oStr = new stzStringBoxed(str)
-	return oStr.Boxed()
+	_oStr_ = new stzStringBoxed(str)
+	return _oStr_.Boxed()
 
 	func BoxedString(str)
 		return StzBoxedString(str)
@@ -52,78 +52,78 @@ class stzStringBoxed from stzObject
 	#======================================================#
 
 	def Boxed()
-		cContent = @oString.Content()
+		_cContent_ = @oString.Content()
 
 		# Split into lines using engine
-		oLines = new stzStringLines(@oString)
-		nLines = oLines.NumberOfLines()
+		_oLines_ = new stzStringLines(@oString)
+		_nLines_ = _oLines_.NumberOfLines()
 
 		# Find max line length (codepoint-aware)
-		nMaxLen = 0
-		for i = 1 to nLines
-			cLine = oLines.NthLine(i)
-			oLine = new stzString(cLine)
-			nLen = oLine.NumberOfChars()
-			if nLen > nMaxLen
-				nMaxLen = nLen
+		_nMaxLen_ = 0
+		for i = 1 to _nLines_
+			_cLine_ = _oLines_.NthLine(i)
+			_oLine_ = new stzString(_cLine_)
+			_nLen_ = _oLine_.NumberOfChars()
+			if _nLen_ > _nMaxLen_
+				_nMaxLen_ = _nLen_
 			ok
 		next
 
 		# Build box using Unicode box-drawing chars
-		cHBar = ""
-		for i = 1 to nMaxLen + 2
-			cHBar += "─"
+		_cHBar_ = ""
+		for i = 1 to _nMaxLen_ + 2
+			_cHBar_ += "─"
 		next
 
-		cResult = "╭" + cHBar + "╮" + StzChar(10)
+		_cResult_ = "╭" + _cHBar_ + "╮" + StzChar(10)
 
-		for i = 1 to nLines
-			cLine = oLines.NthLine(i)
-			oLine = new stzString(cLine)
-			nLen = oLine.NumberOfChars()
-			cPad = ""
-			for j = 1 to nMaxLen - nLen
-				cPad += " "
+		for i = 1 to _nLines_
+			_cLine_ = _oLines_.NthLine(i)
+			_oLine_ = new stzString(_cLine_)
+			_nLen_ = _oLine_.NumberOfChars()
+			_cPad_ = ""
+			for j = 1 to _nMaxLen_ - _nLen_
+				_cPad_ += " "
 			next
-			cResult += "│ " + cLine + cPad + " │" + StzChar(10)
+			_cResult_ += "│ " + _cLine_ + _cPad_ + " │" + StzChar(10)
 		next
 
-		cResult += "╰" + cHBar + "╯"
-		return cResult
+		_cResult_ += "╰" + _cHBar_ + "╯"
+		return _cResult_
 
 	  #======================================================#
 	 #   BOXED CHARS -- EACH CHAR IN ITS OWN CELL           #
 	#======================================================#
 
 	def BoxedChars()
-		cContent = @oString.Content()
-		if cContent = ""
+		_cContent_ = @oString.Content()
+		if _cContent_ = ""
 			return This.Boxed()
 		ok
 
-		nLen = @oString.NumberOfChars()
+		_nLen_ = @oString.NumberOfChars()
 
 		# Build middle line: │ c1 │ c2 │ c3 │
-		cMiddle = "│ "
-		for i = 1 to nLen
-			cMiddle += @oString.NthChar(i) + " │"
-			if i < nLen
-				cMiddle += " "
+		_cMiddle_ = "│ "
+		for i = 1 to _nLen_
+			_cMiddle_ += @oString.NthChar(i) + " │"
+			if i < _nLen_
+				_cMiddle_ += " "
 			ok
 		next
 
 		# Build top/bottom lines with separators
-		cTop = "╭"
-		cBottom = "╰"
-		for i = 1 to nLen
-			cTop += "────"
-			cBottom += "────"
-			if i < nLen
-				cTop += "┬"
-				cBottom += "┴"
+		_cTop_ = "╭"
+		_cBottom_ = "╰"
+		for i = 1 to _nLen_
+			_cTop_ += "────"
+			_cBottom_ += "────"
+			if i < _nLen_
+				_cTop_ += "┬"
+				_cBottom_ += "┴"
 			ok
 		next
-		cTop += "╮"
-		cBottom += "╯"
+		_cTop_ += "╮"
+		_cBottom_ += "╯"
 
-		return cTop + StzChar(10) + cMiddle + StzChar(10) + cBottom
+		return _cTop_ + StzChar(10) + _cMiddle_ + StzChar(10) + _cBottom_

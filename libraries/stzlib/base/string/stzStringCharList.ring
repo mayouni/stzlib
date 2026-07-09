@@ -27,8 +27,8 @@ func StzAreChars(pacChars)
 		ok
 	ok
 
-	nLen = len(pacChars)
-	for i = 1 to nLen
+	_nLen_ = len(pacChars)
+	for i = 1 to _nLen_
 		if NOT ( isString(pacChars[i]) and @IsChar(pacChars[i]) )
 			return 0
 		ok
@@ -63,8 +63,8 @@ func StzAreLetters(pacLetters)
 		ok
 	ok
 
-	nLen = len(pacLetters)
-	for i = 1 to nLen
+	_nLen_ = len(pacLetters)
+	for i = 1 to _nLen_
 		if NOT ( isString(pacLetters[i]) and @IsLetter(pacLetters[i]) )
 			return 0
 		ok
@@ -92,49 +92,49 @@ func StzAreBothLetters(p1, p2)
 	func @BothAreLetters(p1, p2)
 		return StzAreBothLetters(p1, p2)
 
-func StzCharsBetween(c1, c2)
+func StzCharsBetween(c1, _c2_)
 	if CheckingParams()
-		if isList(c2) and len(c2) = 2 and isString(c2[1]) and c2[1] = "and"
-			c2 = c2[2]
+		if isList(_c2_) and len(_c2_) = 2 and isString(_c2_[1]) and _c2_[1] = "and"
+			_c2_ = _c2_[2]
 		ok
 
-		if NOT @BothAreChars(c1, c2)
+		if NOT @BothAreChars(c1, _c2_)
 			StzRaise("Incorrect param type!")
 		ok
 	ok
 
-	nUnicode1 = Unicode(c1)
-	nUnicode2 = Unicode(c2)
+	_nUnicode1_ = Unicode(c1)
+	_nUnicode2_ = Unicode(_c2_)
 
-	nStep = 1
-	if nUnicode1 > nUnicode2
-		nStep = -1
+	_nStep_ = 1
+	if _nUnicode1_ > _nUnicode2_
+		_nStep_ = -1
 	ok
 
-	acResult = []
-	for i = nUnicode1 to nUnicode2 step nStep
-		acResult + StzCharQ(i).Content()
+	_acResult_ = []
+	for i = _nUnicode1_ to _nUnicode2_ step _nStep_
+		_acResult_ + StzCharQ(i).Content()
 	next
 
-	return acResult
+	return _acResult_
 
-	func CharsBetween(c1, c2)
-		return StzCharsBetween(c1, c2)
+	func CharsBetween(c1, _c2_)
+		return StzCharsBetween(c1, _c2_)
 
-func StzNumberOfCharsBetween(c1, c2)
+func StzNumberOfCharsBetween(c1, _c2_)
 	if CheckingParams()
-		if NOT @BothAreChars(c1, c2)
+		if NOT @BothAreChars(c1, _c2_)
 			StzRaise("Incorrect param type!")
 		ok
 	ok
 
-	nUnicode1 = Unicode(c1)
-	nUnicode2 = Unicode(c2)
+	_nUnicode1_ = Unicode(c1)
+	_nUnicode2_ = Unicode(_c2_)
 
-	return Abs(nUnicode2 - nUnicode1) + 1
+	return Abs(_nUnicode2_ - _nUnicode1_) + 1
 
-	func NumberOfCharsBetween(c1, c2)
-		return StzNumberOfCharsBetween(c1, c2)
+	func NumberOfCharsBetween(c1, _c2_)
+		return StzNumberOfCharsBetween(c1, _c2_)
 
 func StzCharsToUnicodes(paList)
 	return StzStringCharListQ(paList).Unicodes()
@@ -214,16 +214,16 @@ class stzStringCharList from stzObject
 			# Auto-split a string into its chars via the engine
 			pHandle = StzEngineString(pValue)
 			pSplit = StzEngineStringCharsSplit(pHandle)
-			cJoined = StzEngineStringData(pSplit)
+			_cJoined_ = StzEngineStringData(pSplit)
 			StzEngineStringFree(pSplit)
 			StzEngineStringFree(pHandle)
 
-			@acChars = _SplitNullDelimited(cJoined)
+			@acChars = _SplitNullDelimited(_cJoined_)
 
 		but isList(pValue) and Q(pValue).IsListOfNumbers()
 			# List of unicode codepoints
-			nLen = len(pValue)
-			for i = 1 to nLen
+			_nLen_ = len(pValue)
+			for i = 1 to _nLen_
 				@acChars + StzCharQ(pValue[i]).Content()
 			next
 
@@ -395,8 +395,8 @@ class stzStringCharList from stzObject
 	#===============================#
 
 	def Contains(cChar)
-		nLen = len(@acChars)
-		for i = 1 to nLen
+		_nLen_ = len(@acChars)
+		for i = 1 to _nLen_
 			if @acChars[i] = cChar
 				return 1
 			ok
@@ -404,83 +404,83 @@ class stzStringCharList from stzObject
 		return 0
 
 	def Find(cChar)
-		anResult = []
-		nLen = len(@acChars)
-		for i = 1 to nLen
+		_anResult_ = []
+		_nLen_ = len(@acChars)
+		for i = 1 to _nLen_
 			if @acChars[i] = cChar
-				anResult + i
+				_anResult_ + i
 			ok
 		next
-		return anResult
+		return _anResult_
 
 	  #===============================#
 	 #   UNIQUE CHARS (ENGINE)       #
 	#===============================#
 
 	def Unique()
-		cStr = This.Concatenated()
-		pHandle = StzEngineString(cStr)
+		_cStr_ = This.Concatenated()
+		pHandle = StzEngineString(_cStr_)
 		pUniq = StzEngineStringUniqueChars(pHandle)
-		cJoined = StzEngineStringData(pUniq)
+		_cJoined_ = StzEngineStringData(pUniq)
 		StzEngineStringFree(pUniq)
 		StzEngineStringFree(pHandle)
 
-		if cJoined = ""
+		if _cJoined_ = ""
 			return []
 		ok
 
-		return _SplitNullDelimited(cJoined)
+		return _SplitNullDelimited(_cJoined_)
 
 	def NumberOfUniqueChars()
-		cStr = This.Concatenated()
-		pHandle = StzEngineString(cStr)
-		nResult = StzEngineStringUniqueCharsCount(pHandle)
+		_cStr_ = This.Concatenated()
+		pHandle = StzEngineString(_cStr_)
+		_nResult_ = StzEngineStringUniqueCharsCount(pHandle)
 		StzEngineStringFree(pHandle)
-		return nResult
+		return _nResult_
 
 	  #===============================#
 	 #   SORT (ENGINE)               #
 	#===============================#
 
 	def SortAsc()
-		cStr = This.Concatenated()
-		pHandle = StzEngineString(cStr)
+		_cStr_ = This.Concatenated()
+		pHandle = StzEngineString(_cStr_)
 		pSorted = StzEngineStringSortCharsAsc(pHandle)
-		cJoined = StzEngineStringData(pSorted)
+		_cJoined_ = StzEngineStringData(pSorted)
 		StzEngineStringFree(pSorted)
 		StzEngineStringFree(pHandle)
 
-		if cJoined = ""
+		if _cJoined_ = ""
 			@acChars = []
 			return
 		ok
 
-		@acChars = _SplitNullDelimited(cJoined)
+		@acChars = _SplitNullDelimited(_cJoined_)
 
 	def SortedAsc()
-		oCopy = This.Copy()
-		oCopy.SortAsc()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.SortAsc()
+		return _oCopy_.Content()
 
 	def SortDesc()
-		cStr = This.Concatenated()
-		pHandle = StzEngineString(cStr)
+		_cStr_ = This.Concatenated()
+		pHandle = StzEngineString(_cStr_)
 		pSorted = StzEngineStringSortCharsDesc(pHandle)
-		cJoined = StzEngineStringData(pSorted)
+		_cJoined_ = StzEngineStringData(pSorted)
 		StzEngineStringFree(pSorted)
 		StzEngineStringFree(pHandle)
 
-		if cJoined = ""
+		if _cJoined_ = ""
 			@acChars = []
 			return
 		ok
 
-		@acChars = _SplitNullDelimited(cJoined)
+		@acChars = _SplitNullDelimited(_cJoined_)
 
 	def SortedDesc()
-		oCopy = This.Copy()
-		oCopy.SortDesc()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.SortDesc()
+		return _oCopy_.Content()
 
 	def Sort()
 		This.SortAsc()
@@ -493,75 +493,75 @@ class stzStringCharList from stzObject
 	#===============================#
 
 	def Reverse()
-		nLen = len(@acChars)
-		acNew = []
-		for i = nLen to 1 step -1
-			acNew + @acChars[i]
+		_nLen_ = len(@acChars)
+		_acNew_ = []
+		for i = _nLen_ to 1 step -1
+			_acNew_ + @acChars[i]
 		next
-		@acChars = acNew
+		@acChars = _acNew_
 
 	def Reversed()
-		oCopy = This.Copy()
-		oCopy.Reverse()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.Reverse()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #   CASE CHANGE                 #
 	#===============================#
 
 	def ToUpper()
-		cStr = This.Concatenated()
-		cUpper = StzUpper(cStr)
-		pHandle = StzEngineString(cUpper)
+		_cStr_ = This.Concatenated()
+		_cUpper_ = StzUpper(_cStr_)
+		pHandle = StzEngineString(_cUpper_)
 		pSplit = StzEngineStringCharsSplit(pHandle)
-		cJoined = StzEngineStringData(pSplit)
+		_cJoined_ = StzEngineStringData(pSplit)
 		StzEngineStringFree(pSplit)
 		StzEngineStringFree(pHandle)
 
-		if cJoined = ""
+		if _cJoined_ = ""
 			@acChars = []
 			return
 		ok
 
-		@acChars = _SplitNullDelimited(cJoined)
+		@acChars = _SplitNullDelimited(_cJoined_)
 
 	def Uppercased()
-		oCopy = This.Copy()
-		oCopy.ToUpper()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.ToUpper()
+		return _oCopy_.Content()
 
 	def ToLower()
-		cStr = This.Concatenated()
-		cLower = StzLower(cStr)
-		pHandle = StzEngineString(cLower)
+		_cStr_ = This.Concatenated()
+		_cLower_ = StzLower(_cStr_)
+		pHandle = StzEngineString(_cLower_)
 		pSplit = StzEngineStringCharsSplit(pHandle)
-		cJoined = StzEngineStringData(pSplit)
+		_cJoined_ = StzEngineStringData(pSplit)
 		StzEngineStringFree(pSplit)
 		StzEngineStringFree(pHandle)
 
-		if cJoined = ""
+		if _cJoined_ = ""
 			@acChars = []
 			return
 		ok
 
-		@acChars = _SplitNullDelimited(cJoined)
+		@acChars = _SplitNullDelimited(_cJoined_)
 
 	def Lowercased()
-		oCopy = This.Copy()
-		oCopy.ToLower()
-		return oCopy.Content()
+		_oCopy_ = This.Copy()
+		_oCopy_.ToLower()
+		return _oCopy_.Content()
 
 	  #===============================#
 	 #   UNICODES (ENGINE)           #
 	#===============================#
 
 	def Unicodes()
-		nLen = len(@acChars)
-		anResult = []
-		for i = 1 to nLen
-			anResult + StzEngineCharUnicode(@acChars[i])
+		_nLen_ = len(@acChars)
+		_anResult_ = []
+		for i = 1 to _nLen_
+			_anResult_ + StzEngineCharUnicode(@acChars[i])
 		next
-		return anResult
+		return _anResult_
 
 	def NthCharUnicode(n)
 		return StzEngineCharUnicode(This.NthChar(n))
@@ -571,20 +571,20 @@ class stzStringCharList from stzObject
 	#===============================#
 
 	def IsLetterAt(n)
-		nUnicode = This.NthCharUnicode(n)
-		return StzEngineCharIsLetter(nUnicode) = 1
+		_nUnicode_ = This.NthCharUnicode(n)
+		return StzEngineCharIsLetter(_nUnicode_) = 1
 
 	def IsDigitAt(n)
-		nUnicode = This.NthCharUnicode(n)
-		return StzEngineCharIsDigit(nUnicode) = 1
+		_nUnicode_ = This.NthCharUnicode(n)
+		return StzEngineCharIsDigit(_nUnicode_) = 1
 
 	def IsUpperAt(n)
-		nUnicode = This.NthCharUnicode(n)
-		return StzEngineCharIsUpper(nUnicode) = 1
+		_nUnicode_ = This.NthCharUnicode(n)
+		return StzEngineCharIsUpper(_nUnicode_) = 1
 
 	def IsLowerAt(n)
-		nUnicode = This.NthCharUnicode(n)
-		return StzEngineCharIsLower(nUnicode) = 1
+		_nUnicode_ = This.NthCharUnicode(n)
+		return StzEngineCharIsLower(_nUnicode_) = 1
 
 	  #===============================#
 	 #   UPDATE                      #

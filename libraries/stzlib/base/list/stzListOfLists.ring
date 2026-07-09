@@ -42,22 +42,22 @@ func ListsMerge(paListOfLists)
 		ok
 	ok
 
-	nLen = len(paListOfLists)
+	_nLen_ = len(paListOfLists)
 
-	if nLen < 2
+	if _nLen_ < 2
 		return paListOfLists
 	ok
 
-	aResult = paListOfLists[1]
+	_aResult_ = paListOfLists[1]
 
-	for i = 2 to nLen
-		nLenList = len(paListOfLists[i])
-		for j = 1 to nLenList
-			aResult + paListOfLists[i][j]
+	for i = 2 to _nLen_
+		_nLenList_ = len(paListOfLists[i])
+		for j = 1 to _nLenList_
+			_aResult_ + paListOfLists[i][j]
 		next j
 	next
 
-	return aResult
+	return _aResult_
 
 	func ListsMergeQ(paListOfLists)
 		return new stzList( ListsMerge(paListOfLists) )
@@ -82,23 +82,23 @@ func Association(paLists)
 		StzRaise("Can't proceed! paLists must contain at least two lists.")
 	ok
 
-	nLen = len(paLists)
+	_nLen_ = len(paLists)
 
 	# Counting the sizes of each list
 
-	anLen = []
-	for i = 1 to nLen
-		anLen + len(paLists[i])
+	_anLen_ = []
+	for i = 1 to _nLen_
+		_anLen_ + len(paLists[i])
 	next
 
 	# Unifiying the sizes of all the lists
 
-	nMax = Max(anLen)
+	_nMax_ = Max(_anLen_)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 
-		if anLen[i] < nMax
-			for j = anLen[i] + 1 to nMax
+		if _anLen_[i] < _nMax_
+			for j = _anLen_[i] + 1 to _nMax_
 				paLists[i] + ""
 			next
 		ok
@@ -106,18 +106,18 @@ func Association(paLists)
 
 	# Doing the association
 
-	aResult = []
+	_aResult_ = []
 
-	for i = 1 to nMax
-		aList = []
-		for j = 1 to nLen
+	for i = 1 to _nMax_
+		_aList_ = []
+		for j = 1 to _nLen_
 
-			aList + paLists[j][i]
+			_aList_ + paLists[j][i]
 		next
-		aResult + aList
+		_aResult_ + _aList_
 	next
 
-	return aResult
+	return _aResult_
 
 	#< @FunctionAlternativeForm
 
@@ -199,8 +199,8 @@ func Pairify(paPairOfLists) # A @SpecializedForm of Association()
 		return Pairify(paPairOfLists)
 
 func CommonItemsCS(paLists, pCaseSensitive)
-	aResult = StzListOfListsQ(paLists).CommonItemsCS(pCaseSensitive)
-	return aResult
+	_aResult_ = StzListOfListsQ(paLists).CommonItemsCS(pCaseSensitive)
+	return _aResult_
 
 	func IntersectionCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paList, pCaseSensitive)
@@ -402,48 +402,48 @@ class stzListOfLists from stzList
 	 #   NTH LIST    #
 	#---------------#
 
-	def NthList(n)
+	def NthList(_n_)
 		if CheckingParams()
 
-			if isString(n)
-				if n = :First or n = :FirstList
-					n = 1
+			if isString(_n_)
+				if _n_ = :First or _n_ = :FirstList
+					_n_ = 1
 
-				but n = :Last or n = :LastList
-					n = This.NumberOfLists()
+				but _n_ = :Last or _n_ = :LastList
+					_n_ = This.NumberOfLists()
 
 				ok
 			ok
 
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
 		ok
 
-		_aNlResult_ = This.Content()[n]
+		_aNlResult_ = This.Content()[_n_]
 		return _aNlResult_
 
 		#< @FunctionFluentForm
 		
-		def NthListQ(n)
-			return new stzList( This.NthList(n) )
+		def NthListQ(_n_)
+			return new stzList( This.NthList(_n_) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ListAt(n)
+		def ListAt(_n_)
 			return This.NthList()
 
-			def ListAtQ(n)
-				return This.NthListQ(n)
+			def ListAtQ(_n_)
+				return This.NthListQ(_n_)
 
-		def ListAtPosition(n)
-			return This.NthList(n)
+		def ListAtPosition(_n_)
+			return This.NthList(_n_)
 
-			def ListAtPositionQ(n)
-				return This.NthListQ(n)
+			def ListAtPositionQ(_n_)
+				return This.NthListQ(_n_)
 
 		#>
 
@@ -570,7 +570,7 @@ class stzListOfLists from stzList
 	def PositionsW(pcCondition)
 
 		_cPwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
-		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
+		_aResult_ = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
 		_aPwLists_ = This.ListOfLists()
 		_nPwLen_ = len(_aPwLists_)
@@ -586,7 +586,7 @@ class stzListOfLists from stzList
 			eval(_cPwCode_)
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -634,7 +634,7 @@ class stzListOfLists from stzList
 	def ListsW(pcCondition)
 
 		_cLwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
-		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
+		_aResult_ = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
 		_aLwLists_ = This.ListOfLists()
 		_nLwLen_ = len(_aLwLists_)
@@ -650,7 +650,7 @@ class stzListOfLists from stzList
 			eval(_cLwCode_)
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -984,7 +984,7 @@ class stzListOfLists from stzList
 	 #   LISTS OF SIZE N   #
 	#---------------------#
 
-	def FindListsOfSizeN(n)
+	def FindListsOfSizeN(_n_)
 
 		_aFlsContent_ = This.Content()
 		_nFlsLen_ = len(_aFlsContent_)
@@ -992,7 +992,7 @@ class stzListOfLists from stzList
 		_anFlsResult_ = []
 
 		for _iFls_ = 1 to _nFlsLen_
-			if len(_aFlsContent_[_iFls_]) = n
+			if len(_aFlsContent_[_iFls_]) = _n_
 				@AddItem(_anFlsResult_, _iFls_)
 			ok
 		next
@@ -1001,27 +1001,27 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForms
 
-		def FindListsOfSize(n)
-			return This.FindListsOfSizeN(n)
+		def FindListsOfSize(_n_)
+			return This.FindListsOfSizeN(_n_)
 
-		def PositionsOfListsOfSizeN(n)
-			return This.FindListsOfSizeN(n)
+		def PositionsOfListsOfSizeN(_n_)
+			return This.FindListsOfSizeN(_n_)
 
-		def PositionsOfListsOfSize(n)
-			return This.FindListsOfSizeN(n)
+		def PositionsOfListsOfSize(_n_)
+			return This.FindListsOfSizeN(_n_)
 
 		#>
 
-	def ListsOfSizeN(n)
+	def ListsOfSizeN(_n_)
 
-		_anLsnPos_ = This.FindListsOfSizeN(n)
+		_anLsnPos_ = This.FindListsOfSizeN(_n_)
 		_aLsnResult_ = This.ItemsAtPositions(_anLsnPos_)
 		return _aLsnResult_
 
 		#< @FunctionAlternativeForm
 
-		def ListsOfSize(n)
-			return This.ListsOfSizeN(n)
+		def ListsOfSize(_n_)
+			return This.ListsOfSizeN(_n_)
 
 		#>
 
@@ -1103,7 +1103,7 @@ class stzListOfLists from stzList
 	 #   ITEMS AT POSITION N    #
 	#==========================#
 
-	def ItemsAtPositionN(n)
+	def ItemsAtPositionN(_n_)
 		_aIapnResult_ = []
 
 		_aIapnLists_ = This.ListOfLists()
@@ -1111,8 +1111,8 @@ class stzListOfLists from stzList
 
 		for _iIapn_ = 1 to _nIapnLen_
 			_aIapnList_ = _aIapnLists_[_iIapn_]
-			if len(_aIapnList_) >= n
-				@AddItem(_aIapnResult_, _aIapnList_[n])
+			if len(_aIapnList_) >= _n_
+				@AddItem(_aIapnResult_, _aIapnList_[_n_])
 			ok
 		next
 
@@ -1120,10 +1120,10 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def ItemsAtPositionNQ(n)
-			return This.ItemsAtPositionNQRT(n, :stzList)
+		def ItemsAtPositionNQ(_n_)
+			return This.ItemsAtPositionNQRT(_n_, :stzList)
 
-		def ItemsAtPositionsNQRT(n, pcReturnType)
+		def ItemsAtPositionsNQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -1134,13 +1134,13 @@ class stzListOfLists from stzList
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.ItemsAtPositionN(n) )
+				return new stzList( This.ItemsAtPositionN(_n_) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.ItemsAtPositionN(n) )
+				return new stzListOfLists( This.ItemsAtPositionN(_n_) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.ItemsAtPositionN(n) )
+				return new stzListOfPairs( This.ItemsAtPositionN(_n_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -1150,50 +1150,50 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForms
 
-		def ItemsAt(n)
-			return This.ItemsAtPositionN(n)
+		def ItemsAt(_n_)
+			return This.ItemsAtPositionN(_n_)
 
-			def ItemsAtQ(n)
-				return This.ItemsAtPositionNQRT(n, :stzList)
+			def ItemsAtQ(_n_)
+				return This.ItemsAtPositionNQRT(_n_, :stzList)
 
-			def ItemsAtQRT(n, pcReturnType)
-				return This.ItemsAtPositionNQRT(n, pcReturnType)
+			def ItemsAtQRT(_n_, pcReturnType)
+				return This.ItemsAtPositionNQRT(_n_, pcReturnType)
 
-		def ItemsAtPosition(n)
-			return This.ItemsAtPositionN(n)
+		def ItemsAtPosition(_n_)
+			return This.ItemsAtPositionN(_n_)
 
-			def ItemsAtPositionQ(n)
-				return This.ItemsAtPositionQRT(n, :stzList)
+			def ItemsAtPositionQ(_n_)
+				return This.ItemsAtPositionQRT(_n_, :stzList)
 
-			def ItemsAtPositionQRT(n, pcReturnType)
-				return This.ItemsAtPositionQRT(n, pcReturnType)
+			def ItemsAtPositionQRT(_n_, pcReturnType)
+				return This.ItemsAtPositionQRT(_n_, pcReturnType)
 
-		def ListsAtPositionN(n)
-			return This.ItemsAtPositionN(n)
+		def ListsAtPositionN(_n_)
+			return This.ItemsAtPositionN(_n_)
 
-			def ListsAtPositionNQ(n)
-				return This.ListsAtPositionNQRT(n, :stzList)
+			def ListsAtPositionNQ(_n_)
+				return This.ListsAtPositionNQRT(_n_, :stzList)
 
-			def ListsAtPositionNQRT(n, pcReturnType)
-				return This.ListsAtPositionNQRT(n, pcReturnType)
+			def ListsAtPositionNQRT(_n_, pcReturnType)
+				return This.ListsAtPositionNQRT(_n_, pcReturnType)
 
-		def ListsAt(n)
-			return This.ItemsAtPositionN(n)
+		def ListsAt(_n_)
+			return This.ItemsAtPositionN(_n_)
 
-			def ListsAtQ(n)
-				return This.ListsAtQRT(n, :stzList)
+			def ListsAtQ(_n_)
+				return This.ListsAtQRT(_n_, :stzList)
 
-			def ListsAtQRT(n, pcReturnType)
-				return This.ListsAtQRT(n, pcReturnType)
+			def ListsAtQRT(_n_, pcReturnType)
+				return This.ListsAtQRT(_n_, pcReturnType)
 
-		def ListsAtPosition(n)
-			return This.ItemsAtPositionN(n)
+		def ListsAtPosition(_n_)
+			return This.ItemsAtPositionN(_n_)
 
-			def ListsAtPositionQ(n)
-				return This.ListsAtPositionQRT(n, :stzList)
+			def ListsAtPositionQ(_n_)
+				return This.ListsAtPositionQRT(_n_, :stzList)
 
-			def ListsAtPositionQRT(n, pcReturnType)
-				return This.ListsAtPositionQRT(n, pcReturnType)
+			def ListsAtPositionQRT(_n_, pcReturnType)
+				return This.ListsAtPositionQRT(_n_, pcReturnType)
 
 		#>
 
@@ -1449,18 +1449,18 @@ class stzListOfLists from stzList
 	 #  SIZE OF NTH LIST   #
 	#---------------------#
 
-	def SizeOfList(n)
-		_nSolnResult_ = len( This.NthList(n) )
+	def SizeOfList(_n_)
+		_nSolnResult_ = len( This.NthList(_n_) )
 		return _nSolnResult_
 
-		def Size(n)
-			return This.SizeOfList(n)
+		def Size(_n_)
+			return This.SizeOfList(_n_)
 
-		def SizeOfNthList(n)
-			return This.SizeOfList(n)
+		def SizeOfNthList(_n_)
+			return This.SizeOfList(_n_)
 
-		def NumberOfItemsOfList(n)
-			return This.SizeOfList(n)
+		def NumberOfItemsOfList(_n_)
+			return This.SizeOfList(_n_)
 
 	  #==============================================#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS  #
@@ -1726,75 +1726,75 @@ class stzListOfLists from stzList
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
 	#------------------------------------------------------------------------------------#
 
-	def ExtendTo(n)
-		This.ExtendToXT(n, "")
+	def ExtendTo(_n_)
+		This.ExtendToXT(_n_, "")
 
 
 		#< @FunctionFluentForm
 
-		def ExtendToQ(n)
-			This.ExtendTo(n)
+		def ExtendToQ(_n_)
+			This.ExtendTo(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ExtendToPosition(n)
-			if NOT isNumber(n)
+		def ExtendToPosition(_n_)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			This.ExtendTo(n)
+			This.ExtendTo(_n_)
 
-			def ExtendToPositionQ(n)
-				return This.ExtendToQ(n)
+			def ExtendToPositionQ(_n_)
+				return This.ExtendToQ(_n_)
 
 		#==
 
-		def StretchTo(n)
-			This.ExtendTo(n)
+		def StretchTo(_n_)
+			This.ExtendTo(_n_)
 
-			def StretchToQ(n)
-				return This.ExtendToQ(n)
+			def StretchToQ(_n_)
+				return This.ExtendToQ(_n_)
 
-		def StretchToPosition(n)
-			This.ExtendToPosition(n)
+		def StretchToPosition(_n_)
+			This.ExtendToPosition(_n_)
 
-			def StretchToPositionQ(n)
-				return This.ExtendToPositionQ(n)
+			def StretchToPositionQ(_n_)
+				return This.ExtendToPositionQ(_n_)
 
 		#>
 
 
-	def ExtendedTo(n)
-		_aExtdtResult_ = This.Copy().ExtendToQ(n).Content()
+	def ExtendedTo(_n_)
+		_aExtdtResult_ = This.Copy().ExtendToQ(_n_).Content()
 		return _aExtdtResult_
 
-		def ExtendedToPosition(n)
-			if NOT isNumber(n)
+		def ExtendedToPosition(_n_)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			return This.ExtendedTo(n)	
+			return This.ExtendedTo(_n_)	
 
-		def StretchedTo(n)
-			return This.ExtendedTo(n)
+		def StretchedTo(_n_)
+			return This.ExtendedTo(_n_)
 
-		def StretchedToPosition(n)
-			return This.ExtendedToPosition(n)
+		def StretchedToPosition(_n_)
+			return This.ExtendedToPosition(_n_)
 
 	  #------------------------------------------------------------------------------------#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A GIVEN ITEM  #
 	#------------------------------------------------------------------------------------#
 
-	def ExtendToXT(n, pItem)
+	def ExtendToXT(_n_, pItem)
 		if CheckingParams()
-			if isList(n) and Q(n).IsPositionNamedParam()
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsPositionNamedParam()
+				_n_ = _n_[2]
 			ok
 	
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
@@ -1808,7 +1808,7 @@ class stzListOfLists from stzList
 					:RepeatedItems, :ByRepeatingItems
 				], pItem) > 0
 	
-				This.ExtendToByRepeatingItems(n)
+				This.ExtendToByRepeatingItems(_n_)
 				return
 			ok
 		ok
@@ -1820,7 +1820,7 @@ class stzListOfLists from stzList
 			_nExtxSize_ = This.SizeOfList(_iExtx_)
 
 			_aExtxTemp_ = This.NthList(_iExtx_)
-			for _jExtx_ = 1 to n - _nExtxSize_
+			for _jExtx_ = 1 to _n_ - _nExtxSize_
 				@AddItem(_aExtxTemp_, pItem)
 			next
 
@@ -1830,53 +1830,53 @@ class stzListOfLists from stzList
 
 		#< @FuntionFluentForm
 
-		def ExtendToXTQ(n, pItem)
-			This.ExtendToXT(n, pItem)
+		def ExtendToXTQ(_n_, pItem)
+			This.ExtendToXT(_n_, pItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ExtendToPositionXT(n, pItem)
-			This.ExtendToXT(n, pItem)
+		def ExtendToPositionXT(_n_, pItem)
+			This.ExtendToXT(_n_, pItem)
 
 		#--
 
-		def StretchToXT(n, pItem)
-			This.ExtendToXT(n, pItem)
+		def StretchToXT(_n_, pItem)
+			This.ExtendToXT(_n_, pItem)
 
-			def StretchToXTQ(n, pItem)
-				return This.ExtendToXTQ(n, pItem)
+			def StretchToXTQ(_n_, pItem)
+				return This.ExtendToXTQ(_n_, pItem)
 
-		def StretchToPositionXT(n, pItem)
-			This.ExtendToPositionXT(n, pItem)
+		def StretchToPositionXT(_n_, pItem)
+			This.ExtendToPositionXT(_n_, pItem)
 
-			def StretchToPositionXTQ(n, pItem)
-				return This.ExtendToPositionXTQ(n, pItem)
+			def StretchToPositionXTQ(_n_, pItem)
+				return This.ExtendToPositionXTQ(_n_, pItem)
 
 		#>
 
-	def ExtendedToXT(n, pItem)
-		_aEdtxResult_ = This.Copy().ExtendToXTQ(n, pItem).Content()
+	def ExtendedToXT(_n_, pItem)
+		_aEdtxResult_ = This.Copy().ExtendToXTQ(_n_, pItem).Content()
 		return _aEdtxResult_
 
 		#< @FunctionAlternativeForm
 
-		def ExtendedToPositionXT(n, pItem)
-			if NOT isNumber(n)
+		def ExtendedToPositionXT(_n_, pItem)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			return This.ExtendedToXT(n, pItem)	
+			return This.ExtendedToXT(_n_, pItem)	
 
 		#--
 
-		def StretchedToXT(n, pItem)
-			return This.ExtendedToXT(n, pItem)
+		def StretchedToXT(_n_, pItem)
+			return This.ExtendedToXT(_n_, pItem)
 
-		def StretchedToPositionXT(n, pItem)
-			return This.ExtendedToPositionXT(n, pItem)
+		def StretchedToPositionXT(_n_, pItem)
+			return This.ExtendedToPositionXT(_n_, pItem)
 
 		#>
 
@@ -1887,48 +1887,48 @@ class stzListOfLists from stzList
 
 	#TODO // Add Stretch and Expand alternatives to all remaining methods
 
-	def ExtendToByRepeatingItems(n)
+	def ExtendToByRepeatingItems(_n_)
 		_aEtbrContent_ = This.Content()
 		_nEtbrLen_ = len(_aEtbrContent_)
 
 		_aEtbrResult_ = []
 
 		for _iEtbr_ = 1 to _nEtbrLen_
-			@AddItem(_aEtbrResult_, Q(_aEtbrContent_[_iEtbr_]).ExtendedToByRepeatingItems(n))
+			@AddItem(_aEtbrResult_, Q(_aEtbrContent_[_iEtbr_]).ExtendedToByRepeatingItems(_n_))
 		next
 
 		This.UpdateWith(_aEtbrResult_)
 
 		#< @FunctionFluentForm
 
-		def ExtendToByRepeatingItemsQ(n)
-			This.ExtendToByRepeatingItems(n)
+		def ExtendToByRepeatingItemsQ(_n_)
+			This.ExtendToByRepeatingItems(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ExtendToWithItemsRepeated(n)
-			This.ExtendedToByRepeatingItems(n)
+		def ExtendToWithItemsRepeated(_n_)
+			This.ExtendedToByRepeatingItems(_n_)
 
-			def ExtendToWithItemsRepeatedQ(n)
-				return This.ExtendToByRepeatingItemsQ(n)
+			def ExtendToWithItemsRepeatedQ(_n_)
+				return This.ExtendToByRepeatingItemsQ(_n_)
 
 		#>
 
-	def ExtendedToByRepeatingItems(n)
-		_aEdbrResult_ = This.Copy().ExtendToByRepeatingItemsQ(n).Content()
+	def ExtendedToByRepeatingItems(_n_)
+		_aEdbrResult_ = This.Copy().ExtendToByRepeatingItemsQ(_n_).Content()
 		return _aEdbrResult_
 
 		#< @FunctionAlternativeForm
 
-		def ExtendedToWithItemsRepeated(n)
-			This.ExtendedToByRepeatingItems(n)
+		def ExtendedToWithItemsRepeated(_n_)
+			This.ExtendedToByRepeatingItems(_n_)
 
 		# Word-order alias used by narrative tests.
-		def ExtendedToByRepeating(n)
-			return This.ExtendedToByRepeatingItems(n)
+		def ExtendedToByRepeating(_n_)
+			return This.ExtendedToByRepeatingItems(_n_)
 
 		#>
 
@@ -2030,35 +2030,35 @@ class stzListOfLists from stzList
 	 #  EXTENDIND THE LIST OF LISTS TO A GIVEN POSITION USING THE GIVEN ITEMS  #
 	#-------------------------------------------------------------------------#
 
-	def ExtendToWithItemsIn(n, paItems)
+	def ExtendToWithItemsIn(_n_, paItems)
 		_aEtwiContent_ = This.Content()
 		_nEtwiLen_ = len(_aEtwiContent_)
 
 		_aEtwiResult_ = []
 
 		for _iEtwi_ = 1 to _nEtwiLen_
-			@AddItem(_aEtwiResult_, Q(_aEtwiContent_[_iEtwi_]).ExtendedToWithItemsIn(n, paItems))
+			@AddItem(_aEtwiResult_, Q(_aEtwiContent_[_iEtwi_]).ExtendedToWithItemsIn(_n_, paItems))
 		next
 
 		This.UpdateWith(_aEtwiResult_)
 
 
-		def ExtendToWithItemsInQ(n, paItems)
-			This.ExtendToWithItemsIn(n, paItems)
+		def ExtendToWithItemsInQ(_n_, paItems)
+			This.ExtendToWithItemsIn(_n_, paItems)
 			return This
 
-		def ExtendToUsingItemsIn(n, paItems)
-			This.ExtendToWithItemsIn(n, paItems)
+		def ExtendToUsingItemsIn(_n_, paItems)
+			This.ExtendToWithItemsIn(_n_, paItems)
 
-			def ExtendToUsingItemsInQ(n, paItems)
-				return This.ExtendToWithItemsInQ(n, paItems)
+			def ExtendToUsingItemsInQ(_n_, paItems)
+				return This.ExtendToWithItemsInQ(_n_, paItems)
 
-	def ExtendedToWithItemsIn(n, paItems)
-		_aEtwiResult2_ = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
+	def ExtendedToWithItemsIn(_n_, paItems)
+		_aEtwiResult2_ = This.Copy().ExtendToWithItemsInQ(_n_, paItems).Content()
 		return _aEtwiResult2_
 
-		def ExtendedToUsingItemsIn(n, paItems)
-			return This.ExtendedToWithItemsIn(n, paItems)
+		def ExtendedToUsingItemsIn(_n_, paItems)
+			return This.ExtendedToWithItemsIn(_n_, paItems)
 
 	  #-----------------------------------------------------#
 	 #  EXTENDIND THE LIST OF LISTS USING THE GIVEN ITEMS  #
@@ -2148,10 +2148,10 @@ class stzListOfLists from stzList
 	#------------------------------------------------------------------#
 
 
-	def ShrinkTo(n)
+	def ShrinkTo(_n_)
 		#TODO // Review implementation for performance and history tracing
 
-		if NOT isNumber(n)
+		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
@@ -2160,48 +2160,48 @@ class stzListOfLists from stzList
 			_nSktSize_ = This.SizeOfList(_iSkt_)
 
 			_aSktTemp_ = []
-			if n < _nSktSize_
-				_aSktTemp_ = This.NthListQ(_iSkt_).Section(1, n)
+			if _n_ < _nSktSize_
+				_aSktTemp_ = This.NthListQ(_iSkt_).Section(1, _n_)
 				This.ReplaceAt(_iSkt_, _aSktTemp_)
 			ok
 
 		next
 
-		def ShrinkToQ(n)
-			This.ShrinkTo(n) ### Fixed: was misspelled "ShrinkTp"
+		def ShrinkToQ(_n_)
+			This.ShrinkTo(_n_) ### Fixed: was misspelled "ShrinkTp"
 			return This
 
 		#< @FunctionAlternativeForm
 
-		def ShrinkToPosition(n)
-			This.ShrinkTo(n)
+		def ShrinkToPosition(_n_)
+			This.ShrinkTo(_n_)
 
 		#>
 
-	def ShrinkedTo(n)
-		_aSkdtResult_ = This.Copy().ShrinkToQ(n).Content()
+	def ShrinkedTo(_n_)
+		_aSkdtResult_ = This.Copy().ShrinkToQ(_n_).Content()
 		return _aSkdtResult_
 
-		def ShrinkedToPosition(n)
-			if NOT isNumber(n)
+		def ShrinkedToPosition(_n_)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
-			return This.ShrinkedTo(n)
+			return This.ShrinkedTo(_n_)
 
 	  #--------------------------------------------------------------------------------------#
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION USING A GIVEN VALUE  #
 	#--------------------------------------------------------------------------------------#
 
-	def ShrinkToWith(n, pItem)
+	def ShrinkToWith(_n_, pItem)
 
 		if CheckingParams()
 
-			if isList(n) and Q(n).IsToOrToPosition(n)
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsToOrToPosition(_n_)
+				_n_ = _n_[2]
 			ok
 	
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
@@ -2220,14 +2220,14 @@ class stzListOfLists from stzList
 		for _iSkw_ = 1 to _nSkwLen_
 			_nSkwInner_ = len(_aSkwContent_[_iSkw_])
 
-			if n > _nSkwLargest_
+			if _n_ > _nSkwLargest_
 				loop
 			ok
 
-			if n < _nSkwInner_
+			if _n_ < _nSkwInner_
 
 				_aSkwTemp_ = []
-				for _jSkw_ = 1 to n
+				for _jSkw_ = 1 to _n_
 					@AddItem(_aSkwTemp_, _aSkwContent_[_iSkw_][_jSkw_])
 				next
 
@@ -2235,7 +2235,7 @@ class stzListOfLists from stzList
 
 			else
 				_aSkwTemp_ = _aSkwContent_[_iSkw_]
-				_nSkwDiff_ = _nSkwInner_ - n
+				_nSkwDiff_ = _nSkwInner_ - _n_
 
 				for _kSkw_ = 1 to _nSkwDiff_
 					@AddItem(_aSkwTemp_, pItem)
@@ -2249,39 +2249,39 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def ShrinkToWithQ(n, pItem)
-			This.ShrinkToWith(n, pItem)
+		def ShrinkToWithQ(_n_, pItem)
+			This.ShrinkToWith(_n_, pItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ShrinkToUsing(n, pItem)
-			This.ShrinkToWith(n, pItem)
+		def ShrinkToUsing(_n_, pItem)
+			This.ShrinkToWith(_n_, pItem)
 
-			def ShrinkToUsingQ(n, pItem)
-				return This.ShrinkToWithQ(n, pItem)
+			def ShrinkToUsingQ(_n_, pItem)
+				return This.ShrinkToWithQ(_n_, pItem)
 
-		def ShrinkXT(n, pItem)
-			This.ShrinkToWith(n, pItem)
+		def ShrinkXT(_n_, pItem)
+			This.ShrinkToWith(_n_, pItem)
 
-			def ShrinkXTQ(n, pItem)
-				return This.ShrinkToWithQ(n, pItem)
+			def ShrinkXTQ(_n_, pItem)
+				return This.ShrinkToWithQ(_n_, pItem)
 
 		#>
 
-	def ShrinkedToWith(n, pWith)
-		_aSktwResult_ = This.Copy().ShrinkToWithQ(n, pWith).Content()
+	def ShrinkedToWith(_n_, pWith)
+		_aSktwResult_ = This.Copy().ShrinkToWithQ(_n_, pWith).Content()
 		return _aSktwResult_
 
 		#< @FunctionAlternativeForms
 
-		def ShrinkedToUsing(n, pUsing)
-			return This.ShrinkedToWith(n, pUsing) ### Fixed: was passing undefined pWith
+		def ShrinkedToUsing(_n_, pUsing)
+			return This.ShrinkedToWith(_n_, pUsing) ### Fixed: was passing undefined pWith
 
-		def ShrinkedToBy(n, pBy)
-			return This.ShrinkedToWith(n, pBy) ### Fixed: was passing undefined pWith
+		def ShrinkedToBy(_n_, pBy)
+			return This.ShrinkedToWith(_n_, pBy) ### Fixed: was passing undefined pWith
 
 		#>
 
@@ -2359,37 +2359,37 @@ class stzListOfLists from stzList
 
 	#---
 
-	def AdjustTo(n)
-		This.AdjustXT(n, "")
+	def AdjustTo(_n_)
+		This.AdjustXT(_n_, "")
 
-		def AdjustToQ(n)
-			This.AdjustTo(n)
+		def AdjustToQ(_n_)
+			This.AdjustTo(_n_)
 			return This
 
-		def AdjustToPosition(n)
-			This.AdjustTo(n)
+		def AdjustToPosition(_n_)
+			This.AdjustTo(_n_)
 
-			def AdjustToPositionQ(n)
-				return This.AdjustToQ(n)
+			def AdjustToPositionQ(_n_)
+				return This.AdjustToQ(_n_)
 
-	def AdjustedTo(n)
-		_aAdtResult_ = This.Copy().AdjustToQ(n).Content() ### Fixed: .Conten() typo
+	def AdjustedTo(_n_)
+		_aAdtResult_ = This.Copy().AdjustToQ(_n_).Content() ### Fixed: .Conten() typo
 		return _aAdtResult_
 
-		def AdjustedToPosition(n)
-			return This.AdjustedTo(n)
+		def AdjustedToPosition(_n_)
+			return This.AdjustedTo(_n_)
 
 	#---
 
-	def AdjustXT(n, pItem)
+	def AdjustXT(_n_, pItem)
 
 		if CheckingParams()
 
-			if isList(n) and Q(n).IsToOrToPosition(n)
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsToOrToPosition(_n_)
+				_n_ = _n_[2]
 			ok
 	
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
@@ -2408,14 +2408,14 @@ class stzListOfLists from stzList
 
 			_nAdxInner_ = len(_aAdxContent_[_iAdx_])
 
-			if _nAdxInner_ = n
+			if _nAdxInner_ = _n_
 				@AddItem(_aAdxResult_, _aAdxContent_[_iAdx_])
 				loop
 			ok
 
-			_nAdxDiff_ = Abs( _nAdxInner_ - n )
+			_nAdxDiff_ = Abs( _nAdxInner_ - _n_ )
 
-			if _nAdxInner_ < n
+			if _nAdxInner_ < _n_
 
 				_aAdxTemp_ = _aAdxContent_[_iAdx_]
 
@@ -2427,7 +2427,7 @@ class stzListOfLists from stzList
 
 				_aAdxTemp_ = []
 
-				for _kAdx_ = 1 to n
+				for _kAdx_ = 1 to _n_
 					@AddItem(_aAdxTemp_, _aAdxContent_[_iAdx_][_kAdx_]) ### Fixed: was [_iAdx_] only
 				next
 
@@ -2442,33 +2442,33 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def AdjustXTQ(n, pItem)
-			This.AdjustXT(n, pItem)
+		def AdjustXTQ(_n_, pItem)
+			This.AdjustXT(_n_, pItem)
 			return This
 		#>
 
-		def AdjustToXT(n, pItem)
-			This.AdjustXT(n, pItem)
+		def AdjustToXT(_n_, pItem)
+			This.AdjustXT(_n_, pItem)
 
-			def AdjustToXTQ(n, pItem)
-				return This.AdjustXTQ(n, pItem)
+			def AdjustToXTQ(_n_, pItem)
+				return This.AdjustXTQ(_n_, pItem)
 
-		def AdjustToWith(n, pItem)
-			This.AdjustXT(n, pItem)
+		def AdjustToWith(_n_, pItem)
+			This.AdjustXT(_n_, pItem)
 
-			def AdjustToWithQ(n, pItem)
-				return This.AdjustXTQ(n, pItem)
+			def AdjustToWithQ(_n_, pItem)
+				return This.AdjustXTQ(_n_, pItem)
 
-	def AdjustedXT(n, pItem)
-		_aAdxdResult_ = This.Copy().AdjustXTQ(n, pItem).Content()
+	def AdjustedXT(_n_, pItem)
+		_aAdxdResult_ = This.Copy().AdjustXTQ(_n_, pItem).Content()
 		return _aAdxdResult_
 
-		def AdjustedToXT(n, pItem)
-			return This.AdjustedXT(n, pItem)
+		def AdjustedToXT(_n_, pItem)
+			return This.AdjustedXT(_n_, pItem)
 
 
-		def AdjustedToWith(n, pItem)
-			return This.AdjustedXT(n, pItem)
+		def AdjustedToWith(_n_, pItem)
+			return This.AdjustedXT(_n_, pItem)
 
 	  #========================================#
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
@@ -2794,11 +2794,11 @@ class stzListOfLists from stzList
 		def HowManyEntries(pEntry)
 			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
-	def NthOccurrenceOfEntry(n, pEntry)
-		return This.IndexOn(:Position)[pEntry][n] ### Fixed: was bare o1
+	def NthOccurrenceOfEntry(_n_, pEntry)
+		return This.IndexOn(:Position)[pEntry][_n_] ### Fixed: was bare o1
 
-		def NthOccurrencesOfEntry(n, pEntry)
-			return This.NthOccurrenceOfEntry(n, pEntry)
+		def NthOccurrencesOfEntry(_n_, pEntry)
+			return This.NthOccurrenceOfEntry(_n_, pEntry)
 
 	def FirstOccurrenceOfEntry(pEntry)
 		return This.NthOccurrenceOfEntry(1, pEntry) ### Fixed: was bare call
@@ -2947,14 +2947,14 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
 	#===========================================================#
 
-	def SizeOfEach@Is(n)
+	def SizeOfEach@Is(_n_)
 		_aSeContent_ = This.Content()
 		_nSeLen_ = len(_aSeContent_)
 
 		_bSeResult_ = 1 ### Fixed: was nResult=1 but inner branch set bResult=0 (different var)
 
 		for _iSe_ = 1 to _nSeLen_
-			if len(_aSeContent_[_iSe_]) != n
+			if len(_aSeContent_[_iSe_]) != _n_
 				_bSeResult_ = 0
 				exit
 			ok
@@ -2964,97 +2964,97 @@ class stzListOfLists from stzList
 
 		#< @FunctionalternativeForms
 
-		def TheSizeOfEach@Is(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeOfEach@Is(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheSizeInEach@Is(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeInEach@Is(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheSizeOfEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeOfEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheSizeInEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeInEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def SizeOfEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def SizeOfEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def SizeInEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def SizeInEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def SizeOfEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def SizeOfEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def SizeInEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def SizeInEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheSizeOfEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeOfEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheSizeInEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def TheSizeInEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasTheSize(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasTheSize(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasSize(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasSize(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasItsSizeEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasItsSizeEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasThisSize(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasThisSize(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasThisSameSize(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasThisSameSize(_n_)
+			return This.SizeOfEach@Is(_n_)
 
 		#--
 
-		def TheNumberOfItemsOfEach@Is(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfItemsOfEach@Is(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheNumberOfItemsInEach@Is(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfItemsInEach@Is(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheNumberOfItemsOfEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfItemsOfEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheNumberOfItemsInEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfItemsInEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def NumberOfItemsOfEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def NumberOfItemsOfEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def NumberOfItemsInEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def NumberOfItemsInEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def NumberOfItemsOfEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def NumberOfItemsOfEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def NumberOfItemsInEach@IsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def NumberOfItemsInEach@IsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheNumberOfItemsOfEachListEquals(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfItemsOfEachListEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def TheNumberOfCharsInEachStringEquals(n)
-			return This.SizeOfEach@Is(n)
+		def TheNumberOfCharsInEachStringEquals(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasTheNumberOfItems(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasTheNumberOfItems(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasNumberOfItems(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasNumberOfItems(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListHasItsNumberOfItemsEqualTo(n)
-			return This.SizeOfEach@Is(n)
+		def EachListHasItsNumberOfItemsEqualTo(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListItemHasThisNumberOfItems(n)
-			return This.SizeOfEach@Is(n)
+		def EachListItemHasThisNumberOfItems(_n_)
+			return This.SizeOfEach@Is(_n_)
 
-		def EachListItemHasThisSameNumberOfItems(n)
-			return This.SizeOfEach@Is(n)
+		def EachListItemHasThisSameNumberOfItems(_n_)
+			return This.SizeOfEach@Is(_n_)
 
 		#>
 
@@ -3204,9 +3204,9 @@ class stzListOfLists from stzList
 
 		#>
 
-	def NthcolumnXT(n) # Adds NULL if size of innerlist < n
+	def NthcolumnXT(_n_) # Adds NULL if size of innerlist < n
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -3218,7 +3218,7 @@ class stzListOfLists from stzList
 				return []
 			ok
 
-			if n < 1 or n > This.NumberOfCols()
+			if _n_ < 1 or _n_ > This.NumberOfCols()
 				return []
 			ok
 		ok
@@ -3229,8 +3229,8 @@ class stzListOfLists from stzList
 
 		for _iNcx_ = 1 to _nNcxLen_
 			_nNcxInner_ = len(@aContent[_iNcx_])
-			if _nNcxInner_ >= n
-				@AddItem(_aNcxResult_, @aContent[_iNcx_][n])
+			if _nNcxInner_ >= _n_
+				@AddItem(_aNcxResult_, @aContent[_iNcx_][_n_])
 			else
 				@AddItem(_aNcxResult_, "")
 			ok
@@ -3240,30 +3240,30 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def NthColumnXTQ(n)
-			return new stzList(This.NthColumnXT(n))
+		def NthColumnXTQ(_n_)
+			return new stzList(This.NthColumnXT(_n_))
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def NthColXT(n)
-			return This.NthColumnXT(n)
+		def NthColXT(_n_)
+			return This.NthColumnXT(_n_)
 
-			def NthColXTQ(n)
-				return This.NthColumnXTQ(n)
+			def NthColXTQ(_n_)
+				return This.NthColumnXTQ(_n_)
 
-		def ColXT(n)
-			return This.NthColumnXT(n)
+		def ColXT(_n_)
+			return This.NthColumnXT(_n_)
 
-			def ColXTQ(n)
-				return This.NthColumnXTQ(n)
+			def ColXTQ(_n_)
+				return This.NthColumnXTQ(_n_)
 
 		#>
 
-	def NthColumn(n)
+	def NthColumn(_n_)
 		if CheckingParams()
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -3275,7 +3275,7 @@ class stzListOfLists from stzList
 				return []
 			ok
 
-			if n < 1 or n > This.NumberOfCols()
+			if _n_ < 1 or _n_ > This.NumberOfCols()
 				return []
 			ok
 		ok
@@ -3286,8 +3286,8 @@ class stzListOfLists from stzList
 
 		for _iNc_ = 1 to _nNcLen_
 			_nNcInner_ = len(@aContent[_iNc_])
-			if n <= _nNcInner_
-				@AddItem(_aNcResult_, @aContent[_iNc_][n])
+			if _n_ <= _nNcInner_
+				@AddItem(_aNcResult_, @aContent[_iNc_][_n_])
 			ok
 		next
 
@@ -3295,30 +3295,30 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def NthColumnQ(n)
-			return new stzList(This.NthColumn(n))
+		def NthColumnQ(_n_)
+			return new stzList(This.NthColumn(_n_))
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def NthCol(n)
-			return This.NthColumn(n)
+		def NthCol(_n_)
+			return This.NthColumn(_n_)
 
-			def NthColQ(n)
-				return This.NthColumnQ(n)
+			def NthColQ(_n_)
+				return This.NthColumnQ(_n_)
 
-		def NthItems(n)
-			return This.NthColumn(n)
+		def NthItems(_n_)
+			return This.NthColumn(_n_)
 
-			def NthItemsQ(n)
-				return This.NthColumnQ(n)
+			def NthItemsQ(_n_)
+				return This.NthColumnQ(_n_)
 
-		def Col(n)
-			return This.NthColumn(n)
+		def Col(_n_)
+			return This.NthColumn(_n_)
 
-			def ColQ(n)
-				return This.NthColumnQ(n)
+			def ColQ(_n_)
+				return This.NthColumnQ(_n_)
 
 		#>
 
@@ -3381,14 +3381,14 @@ class stzListOfLists from stzList
 	def AddCol(paList)
 		/* EXAMPLE
 
-		o1 = new stzListOfLists([
+		_o1_ = new stzListOfLists([
 			[ 1 ],
 			[ "one", "two" ],
 			[ ]
 		])
 		
-		o1.AddCol([ 2, "three", 0 ])
-		? @@NL( o1.Content() )
+		_o1_.AddCol([ 2, "three", 0 ])
+		? @@NL( _o1_.Content() )
 		#--> [
 		#	[ 1, 2 ],
 		#	[ "one", "two", "three" ],
@@ -3434,14 +3434,14 @@ class stzListOfLists from stzList
 	def AddColXT(paList)
 		/* EXAMPLE
 
-		o1 = new stzListOfLists([
+		_o1_ = new stzListOfLists([
 			[ 1 ],
 			[ "one", "two" ],
 			[ ]
 		])
 		
-		o1.AddCol([ 2, "three", 0 ])
-		? @@NL( o1.Content() )
+		_o1_.AddCol([ 2, "three", 0 ])
+		? @@NL( _o1_.Content() )
 		#--> [
 		#	[ 1, 2 ],
 		#	[ "one", "two", "three" ],
@@ -3471,68 +3471,68 @@ class stzListOfLists from stzList
 	 #  SORTING NTH LIST IN  ASCENDING  #
 	#==================================#
 
-	def SortNthList(n)
+	def SortNthList(_n_)
 		_aSnContent_ = This.Content()
-		_aSnSorted_ = @SortList(_aSnContent_[n])
-		_aSnContent_[n] = _aSnSorted_
+		_aSnSorted_ = @SortList(_aSnContent_[_n_])
+		_aSnContent_[_n_] = _aSnSorted_
 
 		This.UpdateWith(_aSnContent_)
 
 
-		def SortNthListQ(n)
-			This.SortNthList(n)
+		def SortNthListQ(_n_)
+			This.SortNthList(_n_)
 			return This
 
-		def SortupNthList(n)
-			This.SortNthList(n)
+		def SortupNthList(_n_)
+			This.SortNthList(_n_)
 
-			def SortupNthListQ(n)
-				return This.SortNthListQ(n)
+			def SortupNthListQ(_n_)
+				return This.SortNthListQ(_n_)
 
-		def SortUpNthListInAscending(n)
-			This.SortNthList(n)
+		def SortUpNthListInAscending(_n_)
+			This.SortNthList(_n_)
 
-			def SortUpNthListInAscendingQ(n)
-				return This.SortNthListQ(n)
+			def SortUpNthListInAscendingQ(_n_)
+				return This.SortNthListQ(_n_)
 
-	def NthListSorted(n)
-		_aNlsResult_ = This.Copy().SortNthListQ(n).Content() ### Fixed: was bad method name + missing arg + no return
+	def NthListSorted(_n_)
+		_aNlsResult_ = This.Copy().SortNthListQ(_n_).Content() ### Fixed: was bad method name + missing arg + no return
 		return _aNlsResult_
 
-		def NthListSortedUp(n)
-			return This.NthListSorted(n)
+		def NthListSortedUp(_n_)
+			return This.NthListSorted(_n_)
 
-		def NthListSortedInAscending(n)
-			return This.NthListSorted(n)
+		def NthListSortedInAscending(_n_)
+			return This.NthListSorted(_n_)
 
 	  #----------------------------------#
 	 #  SORTING NTH LIST IN DESCENDING  #
 	#----------------------------------#
 
-	def SortDownNthList(n)
+	def SortDownNthList(_n_)
 		_aSdnContent_ = This.Content()
-		_aSdnSorted_ = new stzList(@SortList(_aSdnContent_[n])).Reversed()
-		_aSdnContent_[n] = _aSdnSorted_
+		_aSdnSorted_ = new stzList(@SortList(_aSdnContent_[_n_])).Reversed()
+		_aSdnContent_[_n_] = _aSdnSorted_
 
 		This.UpdateWith(_aSdnContent_)
 
 
-		def SortDownNthListQ(n)
-			This.SortDownNthList(n)
+		def SortDownNthListQ(_n_)
+			This.SortDownNthList(_n_)
 			return This
 
-		def SortNthListInDescending(n)
-			This.SortDownNthList(n)
+		def SortNthListInDescending(_n_)
+			This.SortDownNthList(_n_)
 
-			def SortNthListInDescendingQ(n)
-				return This.SortNthListQ(n)
+			def SortNthListInDescendingQ(_n_)
+				return This.SortNthListQ(_n_)
 
-	def NthListSortedDown(n)
-		_aNlsdResult_ = This.Copy().SortDownNthListQ(n).Content()
+	def NthListSortedDown(_n_)
+		_aNlsdResult_ = This.Copy().SortDownNthListQ(_n_).Content()
 		return _aNlsdResult_
 
-		def NthListSortedInDescending(n)
-			return This.NthListSortedDown(n)
+		def NthListSortedInDescending(_n_)
+			return This.NthListSortedDown(_n_)
 
 	  #--------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN ASCENDING ON THE NTH COLUMN  #
@@ -3547,15 +3547,15 @@ class stzListOfLists from stzList
 		def IsSorted()
 			return This.IsSortedInAscending()
 
-	def IsSortedInAscendingOn(n)
-		_bIsaoResult_ = This.ColQ(n).IsSortedInAscending()
+	def IsSortedInAscendingOn(_n_)
+		_bIsaoResult_ = This.ColQ(_n_).IsSortedInAscending()
 		return _bIsaoResult_
 
-		def IsSortedUpOn(n)
-			return This.IsSortedInAscendingOn(n)
+		def IsSortedUpOn(_n_)
+			return This.IsSortedInAscendingOn(_n_)
 
-		def IsSortedOn(n)
-			return This.IsSortedInAscendingOn(n)
+		def IsSortedOn(_n_)
+			return This.IsSortedInAscendingOn(_n_)
 
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN DESCENDING ON THE NTH COLUMN  #
@@ -3567,12 +3567,12 @@ class stzListOfLists from stzList
 		def IsSortedDown()
 			return This.IsSortedInDescending()
 
-	def IsSortedInDescendingOn(n)
-		_bIsdoResult_ = This.ColQ(n).IsSortedInDescending()
+	def IsSortedInDescendingOn(_n_)
+		_bIsdoResult_ = This.ColQ(_n_).IsSortedInDescending()
 		return _bIsdoResult_
 
-		def IsSortedDownOn(n)
-			return This.IsSortedInDescendingOn(n) ### Fixed: was IsSortedInDescendingDown (nonexistent)
+		def IsSortedDownOn(_n_)
+			return This.IsSortedInDescendingOn(_n_) ### Fixed: was IsSortedInDescendingDown (nonexistent)
 
 	  #----------------------------------#
 	 #  SORTING THE LISTS IN ASCENDING  #
@@ -3653,101 +3653,101 @@ class stzListOfLists from stzList
 	 #  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
 	#===============================================#
 
-	def SortOn(n)
+	def SortOn(_n_)
 
-		_aSoResult_ = @SortListsOn(This.Content(), n)
+		_aSoResult_ = @SortListsOn(This.Content(), _n_)
 
 		This.UpdateWith(_aSoResult_)
 
 		#< @FunctionFluentForm
 
-		def SortOnQ(n)
-			This.SortOn(n)
+		def SortOnQ(_n_)
+			This.SortOn(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortOnUp(n)
-			This.SortOn(n)
+		def SortOnUp(_n_)
+			This.SortOn(_n_)
 
-			def SortOnUpQ(n)
-				This.SortOn(n)
+			def SortOnUpQ(_n_)
+				This.SortOn(_n_)
 				return This
 
-		def SortInAscendingOn(n)
-			This.SortOn(n)
+		def SortInAscendingOn(_n_)
+			This.SortOn(_n_)
 
-			def SortInAscendingOnQ(n)
-				return This.SortOnQ(n)
+			def SortInAscendingOnQ(_n_)
+				return This.SortOnQ(_n_)
 
 		#>
 
 	# SortOnDown / SortDescendingOn -- alias used by external
 	# narratives. Wraps SortDownOn which lives below.
-	def SortOnDown(n)
-		This.SortDownOn(n)
+	def SortOnDown(_n_)
+		This.SortDownOn(_n_)
 
-		def SortOnDownQ(n)
-			This.SortDownOn(n)
+		def SortOnDownQ(_n_)
+			This.SortDownOn(_n_)
 			return This
 
-	def SortedOn(n)
-		_aSdoResult_ = This.Copy().SortOnQ(n).Content()
+	def SortedOn(_n_)
+		_aSdoResult_ = This.Copy().SortOnQ(_n_).Content()
 
 		return _aSdoResult_
 
-		def SortedUpOn(n)
-			return This.SortedOn(n)
+		def SortedUpOn(_n_)
+			return This.SortedOn(_n_)
 
-		def SortedInAscendingOn(n)
-			return This.SortedOn(n)
+		def SortedInAscendingOn(_n_)
+			return This.SortedOn(_n_)
 
 	  #-------------------------------------------------------------#
 	 #  SORTING THE LIST OF LISTS IN DESCENDING ON A GIVEN COLUMN  #
 	#-------------------------------------------------------------#
 
-	def SortDownOn(n)
+	def SortDownOn(_n_)
 		# Ring chaining `new stzList(x).Method()` parses ambiguously --
 		# evaluate the construction first, then call the method.
-		_oSdoTmp_ = new stzList( This.SortedOn(n) )
+		_oSdoTmp_ = new stzList( This.SortedOn(_n_) )
 		_aSdoResult_ = _oSdoTmp_.Reversed()
 		This.UpdateWith(_aSdoResult_)
 
 		#< @FunctionFluentForm
 
-		def SortDownOnQ(n)
-			This.SortDownOn(n)
+		def SortDownOnQ(_n_)
+			This.SortDownOn(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortInDescendingOn(n)
-			This.SortDownOn(n) ### Fixed: was This.SortDown(n) -- missing On
+		def SortInDescendingOn(_n_)
+			This.SortDownOn(_n_) ### Fixed: was This.SortDown(n) -- missing On
 
-			def SortInDescendingOnQ(n)
-				return This.SortDownOnQ(n)
+			def SortInDescendingOnQ(_n_)
+				return This.SortDownOnQ(_n_)
 
 		#>
 
-	def SortedDownOn(n)
-		_aSddoResult_ = This.Copy().SortDownOnQ(n).Content()
+	def SortedDownOn(_n_)
+		_aSddoResult_ = This.Copy().SortDownOnQ(_n_).Content()
 
 		return _aSddoResult_
 
-		def SortedInDescendingOn(n)
-			return This.SortedDownOn(n)
+		def SortedInDescendingOn(_n_)
+			return This.SortedDownOn(_n_)
 
 		# Word-order alias used by narrative tests: SortedOnDown(n)
 		# == SortedDownOn(n) -- same descending sort on column n.
-		def SortedOnDown(n)
-			return This.SortedDownOn(n)
+		def SortedOnDown(_n_)
+			return This.SortedDownOn(_n_)
 
-		def SortedOnUp(n)
-			return This.SortedOn(n)
+		def SortedOnUp(_n_)
+			return This.SortedOn(_n_)
 
 	  #---------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
@@ -3833,12 +3833,12 @@ class stzListOfLists from stzList
 		_aSobCol_ = This.Col(nCol)
 		_nSobLenCol_ = len(_aSobCol_)
 
-		_cSobCode_ = 'value = (' + _StzStripBraces(pcExpr) + ')'
+		_cSobCode_ = '_value_ = (' + _StzStripBraces(pcExpr) + ')'
 
 		for @i = 1 to _nSobLenCol_
 			@item = _aSobCol_[@i]
 			eval(_cSobCode_)
-			ring_insert(_aSobContent_[@i], 1, value)
+			ring_insert(_aSobContent_[@i], 1, _value_)
 		next
 
 		This.UpdateWith( @SortLists(_aSobContent_) )
@@ -3907,28 +3907,28 @@ class stzListOfLists from stzList
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #
 	#===========================================#
 
-	def RemoveDuplicatesInNthList(n)
+	def RemoveDuplicatesInNthList(_n_)
 		_aRdnContent_ = This.Content()
-		_aRdnContent_[n] = @WithoutDuplicates(_aRdnContent_[n])
+		_aRdnContent_[_n_] = @WithoutDuplicates(_aRdnContent_[_n_])
 		This.UpdateWith(_aRdnContent_)
 
 
-		def RemoveDuplicatesInNthListQ(n)
-			This.RemoveDuplicatesInNthList(n)
+		def RemoveDuplicatesInNthListQ(_n_)
+			This.RemoveDuplicatesInNthList(_n_)
 			return This ### Fixed: was bare `return` -- fluent form returned NULL
 
-	def DuplicatesInNthListRemoved(n)
-		_aDnrResult_ = This.Copy().RemoveDuplicatesInNthListQ(n).Content()
+	def DuplicatesInNthListRemoved(_n_)
+		_aDnrResult_ = This.Copy().RemoveDuplicatesInNthListQ(_n_).Content()
 		return _aDnrResult_
 
-		def WithoutDuplicatesInNthList(n)
-			return This.DuplicatesInNthListRemoved(n)
+		def WithoutDuplicatesInNthList(_n_)
+			return This.DuplicatesInNthListRemoved(_n_)
 
-		def WithoutDuplicationInNthList(n)
-			return This.DuplicatesInNthListRemoved(n)
+		def WithoutDuplicationInNthList(_n_)
+			return This.DuplicatesInNthListRemoved(_n_)
 
-		def WithoutDuplicationsInNthList(n)
-			return This.DuplicatesInNthListRemoved(n)
+		def WithoutDuplicationsInNthList(_n_)
+			return This.DuplicatesInNthListRemoved(_n_)
 
 	  #--------------------------------------------#
 	 #  REMOVING DUPLICATES INSIDE ALL THE LISTS  #
@@ -4170,7 +4170,7 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		_cCobCode_ = 'value = (' + _StzStripBraces(pcExpr) + ')'
+		_cCobCode_ = '_value_ = (' + _StzStripBraces(pcExpr) + ')'
 
 		_aCobContent_ = This.Content()
 
@@ -4180,7 +4180,7 @@ class stzListOfLists from stzList
 		for @i = 1 to _nCobLenCol_
 			@item = _aCobCol_[@i]
 			eval(_cCobCode_)
-			ring_insert(_aCobContent_[@i], nCol, value)
+			ring_insert(_aCobContent_[@i], nCol, _value_)
 		next
 
 		_aCobResult_ = StzListOfListsQ(_aCobContent_).
@@ -4193,27 +4193,27 @@ class stzListOfLists from stzList
 	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
 	#===============================================#
 
-	def MoveCol(n1, n2)
+	def MoveCol(_n1_, _n2_)
 
 		if CheckingParams()
-			if NOT (isNumber(n1) and isNumber(n2))
+			if NOT (isNumber(_n1_) and isNumber(_n2_))
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
 		ok
 
 		# Early checks
 
-		if n1 = n2
+		if _n1_ = _n2_
 			return
 		ok
 
 		_nMcCols_ = This.NumberOfCols()
 
-		if n1 < 1 or n1 > _nMcCols_
+		if _n1_ < 1 or _n1_ > _nMcCols_
 			return
 		ok
 
-		if n2 < 1 or n2 > _nMcCols_
+		if _n2_ < 1 or _n2_ > _nMcCols_
 			return
 		ok
 
@@ -4224,8 +4224,8 @@ class stzListOfLists from stzList
 
 		for _iMc_ = 1 to _nMcLen_
 			_nMcInner_ = len(_aMcContent_[_iMc_])
-			if n1 <= _nMcInner_ and n2 <= _nMcInner_
-				@Move(_aMcContent_[_iMc_], n1, n2)
+			if _n1_ <= _nMcInner_ and _n2_ <= _nMcInner_
+				@Move(_aMcContent_[_iMc_], _n1_, _n2_)
 			ok
 		next
 
@@ -4234,76 +4234,76 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def MoveColQ(n1, n2)
-			This.MoveCol(n1, n2)
+		def MoveColQ(_n1_, _n2_)
+			This.MoveCol(_n1_, _n2_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def MoveColumn(n1, n2)
-			This.MoveCol(n1, n2)
+		def MoveColumn(_n1_, _n2_)
+			This.MoveCol(_n1_, _n2_)
 
-			def MoveColumnQ(n1, n2)
-				return This.MoveColQ(n1, n2)
+			def MoveColumnQ(_n1_, _n2_)
+				return This.MoveColQ(_n1_, _n2_)
 
-		def MoveNthItems(n1, n2)
-			This.MoveCol(n1, n2)
+		def MoveNthItems(_n1_, _n2_)
+			This.MoveCol(_n1_, _n2_)
 
-			def MoveNthItemsQ(n1, n2)
-				return This.MoveColQ(n1, n2)
+			def MoveNthItemsQ(_n1_, _n2_)
+				return This.MoveColQ(_n1_, _n2_)
 
 		#>
 
-	def ColMoved(n1, n2)
-		_aCmResult_ = This.Copy().MoveColQ(n1, n2).Content()
+	def ColMoved(_n1_, _n2_)
+		_aCmResult_ = This.Copy().MoveColQ(_n1_, _n2_).Content()
 		return _aCmResult_
 
-		def ColumnMoved(n1, n2)
-			return This.ColMoved(n1, n2)
+		def ColumnMoved(_n1_, _n2_)
+			return This.ColMoved(_n1_, _n2_)
 
-		def NthItemsMoved(n1, n2)
-			return This.ColMoved(n1, n2)
+		def NthItemsMoved(_n1_, _n2_)
+			return This.ColMoved(_n1_, _n2_)
 
 	  #=============================================#
 	 #  SWAPPING TWO COLUMNS IN THE LIST OF LISTS  #
 	#=============================================#
 
-	def SwapCols(n1, n2)
+	def SwapCols(_n1_, _n2_)
 		if CheckingParams()
 
-			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
+			if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [
 				:From, :FromPosition,
 				:Between, :BetweenPosition, :BetweenPositions ])
 
-				n1 = n1[2]
+				_n1_ = _n1_[2]
 			ok
 
-			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
+			if isList(_n2_) and IsOneOfTheseNamedParamsList(_n2_, [
 				:To, :ToPosition, :And, :AndPosition ])
 
-				n2 = n2[2] ### Fixed: was `n1 = n2[2]` -- assigned to wrong var, dropped n2 named-param unwrap
+				_n2_ = _n2_[2] ### Fixed: was `n1 = n2[2]` -- assigned to wrong var, dropped n2 named-param unwrap
 			ok
 
-			if NOT (isNumber(n1) and isNumber(n2))
+			if NOT (isNumber(_n1_) and isNumber(_n2_))
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
 		ok
 
 		# Early checks
 
-		if n1 = n2
+		if _n1_ = _n2_
 			return
 		ok
 
 		_nScCols_ = This.NumberOfCols()
 
-		if n1 < 1 or n1 > _nScCols_
+		if _n1_ < 1 or _n1_ > _nScCols_
 			return
 		ok
 
-		if n2 < 1 or n2 > _nScCols_
+		if _n2_ < 1 or _n2_ > _nScCols_
 			return
 		ok
 
@@ -4314,12 +4314,12 @@ class stzListOfLists from stzList
 
 		for _iSc_ = 1 to _nScLen_
 			_nScInner_ = len(_aScContent_[_iSc_])
-			if n1 <= _nScInner_ and n2 <= _nScInner_
+			if _n1_ <= _nScInner_ and _n2_ <= _nScInner_
 				# Inline swap -- ring_swap calls swap() which is shadowed
 				# by user-defined func Swap(p1, p2) in stzFuncs.ring
-				_scTmp_ = _aScContent_[_iSc_][n1]
-				_aScContent_[_iSc_][n1] = _aScContent_[_iSc_][n2]
-				_aScContent_[_iSc_][n2] = _scTmp_
+				_scTmp_ = _aScContent_[_iSc_][_n1_]
+				_aScContent_[_iSc_][_n1_] = _aScContent_[_iSc_][_n2_]
+				_aScContent_[_iSc_][_n2_] = _scTmp_
 			ok
 		next
 
@@ -4328,56 +4328,56 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def SwapColsQ(n1, n2)
-			This.SwapCols(n1, n2)
+		def SwapColsQ(_n1_, _n2_)
+			This.SwapCols(_n1_, _n2_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SwapColumns(n1, n2)
-			This.SwapCols(n1, n2)
+		def SwapColumns(_n1_, _n2_)
+			This.SwapCols(_n1_, _n2_)
 
-			def SwapColumnsQ(n1, n2)
-				return This.SwapColsQ(n1, n2)
+			def SwapColumnsQ(_n1_, _n2_)
+				return This.SwapColsQ(_n1_, _n2_)
 
 		#--
 
-		def SwapNthItems(n1, n2)
-			This.SwapCols(n1, n2)
+		def SwapNthItems(_n1_, _n2_)
+			This.SwapCols(_n1_, _n2_)
 
-			def SwapNthItemsQ(n1, n2)
-				return This.SwapColsQ(n1, n2)
+			def SwapNthItemsQ(_n1_, _n2_)
+				return This.SwapColsQ(_n1_, _n2_)
 
 		#>
 
-	def ColsSwapped(n1, n2)
-		_aCsResult_ = This.Copy().SwapColsQ(n1, n2).Content() ### Fixed: was calling non-fluent SwapCols (returns NULL)
+	def ColsSwapped(_n1_, _n2_)
+		_aCsResult_ = This.Copy().SwapColsQ(_n1_, _n2_).Content() ### Fixed: was calling non-fluent SwapCols (returns NULL)
 		return _aCsResult_
 
-		def ColumnsSwapped(n1, n2)
-			return This.ColsSwapped(n1, n2)
+		def ColumnsSwapped(_n1_, _n2_)
+			return This.ColsSwapped(_n1_, _n2_)
 
-		def NthItemsSwapped(n1, n2)
-			return This.ColsSwapped(n1, n2)
+		def NthItemsSwapped(_n1_, _n2_)
+			return This.ColsSwapped(_n1_, _n2_)
 
 	  #===========================================#
 	 #  INSERTING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
 
-	def InsertCol(n, paColData)
+	def InsertCol(_n_, paColData)
 		if CheckingParams()
 
 			if NOT isList(paColData)
 				StzRaise("Incorrect param type! paColData must be a list.")
 			ok
 
-			if isList(n) and Q(n).IsAtOrAtPositionNamedParams()
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsAtOrAtPositionNamedParams()
+				_n_ = _n_[2]
 			ok
 
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -4386,7 +4386,7 @@ class stzListOfLists from stzList
 
 		_nIcCols_ = This.NumberOfCols()
 
-		if n < 1 or n > _nIcCols_
+		if _n_ < 1 or _n_ > _nIcCols_
 			return
 		ok
 
@@ -4404,8 +4404,8 @@ class stzListOfLists from stzList
 				_icItem_ = paColData[_iIc_]
 			ok
 
-			if n <= _nIcInner_
-				ring_insert(_aIcContent_[_iIc_], n, _icItem_)
+			if _n_ <= _nIcInner_
+				ring_insert(_aIcContent_[_iIc_], _n_, _icItem_)
 			ok
 
 		next
@@ -4415,19 +4415,19 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def InsertColQ(n, paColData)
-			This.InsertCol(n, paColData)
+		def InsertColQ(_n_, paColData)
+			This.InsertCol(_n_, paColData)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertItems(n, paColData)
-			This.InsertCol(n, paColData)
+		def InsertItems(_n_, paColData)
+			This.InsertCol(_n_, paColData)
 
-			def InsertItemsQ(n, paColData)
-				return This.InsertColQ(n, paColData)
+			def InsertItemsQ(_n_, paColData)
+				return This.InsertColQ(_n_, paColData)
 
 		#>
 
@@ -4435,13 +4435,13 @@ class stzListOfLists from stzList
 	 #  REMOVING A COLUMN FROM FROM THE LIST OF LISTS  #
 	#=================================================#
 	
-	def RemoveCol(n)
+	def RemoveCol(_n_)
 		if CheckingParams()
-			if isList(n) and Q(n).IsAtOrAtPositionNamedParam()
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsAtOrAtPositionNamedParam()
+				_n_ = _n_[2]
 			ok
 
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -4451,7 +4451,7 @@ class stzListOfLists from stzList
 		_aRcContent_ = This.Content()
 		_nRcLen_ = len(_aRcContent_)
 
-		if n < 1 or n > _nRcLen_
+		if _n_ < 1 or _n_ > _nRcLen_
 			return
 		ok
 
@@ -4459,8 +4459,8 @@ class stzListOfLists from stzList
 
 		for _iRc_ = 1 to _nRcLen_
 			_nRcInner_ = len(_aRcContent_[_iRc_])
-			if n <= _nRcInner_
-				ring_remove(_aRcContent_[_iRc_], n)
+			if _n_ <= _nRcInner_
+				ring_remove(_aRcContent_[_iRc_], _n_)
 			ok
 		next
 
@@ -4469,57 +4469,57 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def RemoveColQ(n)
-			This.RemoveCol(n)
+		def RemoveColQ(_n_)
+			This.RemoveCol(_n_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveNthCol(n)
-			This.RemoveCol(n)
+		def RemoveNthCol(_n_)
+			This.RemoveCol(_n_)
 
-			def RemoveNthColQ(n)
-				return This.RemoveColQ(n)
+			def RemoveNthColQ(_n_)
+				return This.RemoveColQ(_n_)
 
-		def RemoveColumn(n)
-			This.RemoveCol(n)
+		def RemoveColumn(_n_)
+			This.RemoveCol(_n_)
 
-			def RemoveColumnQ(n)
-				return This.RemoveColQ(n)
+			def RemoveColumnQ(_n_)
+				return This.RemoveColQ(_n_)
 
-		def RemoveNthColumn(n)
-			This.RemoveCol(n)
+		def RemoveNthColumn(_n_)
+			This.RemoveCol(_n_)
 
-			def RemoveNthColumnQ(n)
-				return This.RemoveColQ(n)
+			def RemoveNthColumnQ(_n_)
+				return This.RemoveColQ(_n_)
 
-		def RemoveNthItems(n)
-			This.RemoveCol(n)
+		def RemoveNthItems(_n_)
+			This.RemoveCol(_n_)
 
-			def RemoveNthItemsQ(n)
-				return This.RemoveColQ(n)
+			def RemoveNthItemsQ(_n_)
+				return This.RemoveColQ(_n_)
 
 		#>
 
-	def ColRemoved(n)
-		_aCrResult_ = This.Copy().RemoveColQ(n).Content()
+	def ColRemoved(_n_)
+		_aCrResult_ = This.Copy().RemoveColQ(_n_).Content()
 		return _aCrResult_
 
 		#< @FunctionAlternativeForms
 
-		def NthColRemoved(n)
-			return This.ColRemoved(n)
+		def NthColRemoved(_n_)
+			return This.ColRemoved(_n_)
 
-		def ColumnRemoved(n)
-			return This.ColRemoved(n)
+		def ColumnRemoved(_n_)
+			return This.ColRemoved(_n_)
 
-		def NthColumnRemoved(n)
-			return This.ColRemoved(n)
+		def NthColumnRemoved(_n_)
+			return This.ColRemoved(_n_)
 
-		def NthItemsRemoved(n)
-			return This.ColRemoved(n)
+		def NthItemsRemoved(_n_)
+			return This.ColRemoved(_n_)
 
 		#>
 
@@ -4527,13 +4527,13 @@ class stzListOfLists from stzList
 	 #  REMOVING MANY COLUMNS FROM THE LIST OF LISTS  #
 	#------------------------------------------------#
 
-	def RemoveCols(anColNumbers)
+	def RemoveCols(_anColNumbers_)
 		if CheckingParams()
-			if isList(anColNumbers) and Q(anColNumbers).IsAtOrAtPositionsNamedParams()
-				anColNumbers = anColNumbers[2]
+			if isList(_anColNumbers_) and Q(_anColNumbers_).IsAtOrAtPositionsNamedParams()
+				_anColNumbers_ = _anColNumbers_[2]
 			ok
 
-			if NOT ( isList(anColNumbers) and @IsListOfNumbers(anColNumbers) )
+			if NOT ( isList(_anColNumbers_) and @IsListOfNumbers(_anColNumbers_) )
 				StzRaise("Incorrect param type! anColNumbers must be a list of numbers.")
 			ok
 		ok
@@ -4541,13 +4541,13 @@ class stzListOfLists from stzList
 		_aRcsContent_ = This.Content()
 		_nRcsLen_ = len(_aRcsContent_)
 
-		_oChain_ = new stzList(anColNumbers)
+		_oChain_ = new stzList(_anColNumbers_)
 
-		anColNumbers = _oChain_.Sorted()
-		_nRcsLenCols_ = len(anColNumbers)
+		_anColNumbers_ = _oChain_.Sorted()
+		_nRcsLenCols_ = len(_anColNumbers_)
 
 		for _iRcs_ = _nRcsLenCols_ to 1 step -1
-			_nRcsN_ = anColNumbers[_iRcs_]
+			_nRcsN_ = _anColNumbers_[_iRcs_]
 			for _jRcs_ = 1 to _nRcsLen_
 				_nRcsInner_ = len(_aRcsContent_[_jRcs_])
 				if _nRcsN_ <= _nRcsInner_
@@ -4561,67 +4561,67 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def RemoveColsQ(anColNumbers)
-			This.RemoveCols(anColNumbers)
+		def RemoveColsQ(_anColNumbers_)
+			This.RemoveCols(_anColNumbers_)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveTheseCols(anColNumbers)
-			This.RemoveCols(anColNumbers)
+		def RemoveTheseCols(_anColNumbers_)
+			This.RemoveCols(_anColNumbers_)
 
-			def RemoveTheseColqQ(anColNumbers)
-				return This.RemoveColsQ(anColNumbers) ### Fixed: was passing bare `n` (undefined)
+			def RemoveTheseColqQ(_anColNumbers_)
+				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was passing bare `n` (undefined)
 
-		def RemoveManyCols(anColNumbers)
-			This.RemoveCols(anColNumbers)
+		def RemoveManyCols(_anColNumbers_)
+			This.RemoveCols(_anColNumbers_)
 
-			def RemoveManyColqQ(anColNumbers)
-				return This.RemoveColsQ(anColNumbers) ### Fixed: was bare `n` (undefined)
+			def RemoveManyColqQ(_anColNumbers_)
+				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was bare `n` (undefined)
 
-		def RemoveColumns(anColNumbers)
-			This.RemoveCols(anColNumbers)
+		def RemoveColumns(_anColNumbers_)
+			This.RemoveCols(_anColNumbers_)
 
-			def RemoveColumnsQ(anColNumbers)
-				This.RemoveColumns(anColNumbers)
+			def RemoveColumnsQ(_anColNumbers_)
+				This.RemoveColumns(_anColNumbers_)
 				return This
 
-		def RemoveTheseColumns(anColNumbers)
-			This.RemoveTheseCols(anColNumbers)
+		def RemoveTheseColumns(_anColNumbers_)
+			This.RemoveTheseCols(_anColNumbers_)
 
-			def RemoveTheseColumnsQ(anColNumbers)
-				return This.RemoveColsQ(anColNumbers) ### Fixed: was RemoveCoslQ (typo)
+			def RemoveTheseColumnsQ(_anColNumbers_)
+				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was RemoveCoslQ (typo)
 
-		def RemoveManyColumns(anColNumbers)
-			This.RemoveTheseCols(anColNumbers)
+		def RemoveManyColumns(_anColNumbers_)
+			This.RemoveTheseCols(_anColNumbers_)
 
-			def RemoveManyColumnsQ(anColNumbers)
-				return This.RemoveColsQ(anColNumbers) ### Fixed: was RemoveCoslQ (typo)
+			def RemoveManyColumnsQ(_anColNumbers_)
+				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was RemoveCoslQ (typo)
 	
 		#>
 
-	def ColsRemoved(anColNumbers)
-		_aCrdResult_ = This.Copy().RemoveColsQ(anColNumbers).Content()
+	def ColsRemoved(_anColNumbers_)
+		_aCrdResult_ = This.Copy().RemoveColsQ(_anColNumbers_).Content()
 		return _aCrdResult_
 
 		#< @FunctionAlternativeForms
 
-		def TheseColsRemoved(anColNumbers)
-			return This.ColsRemoved(anColNumbers)
+		def TheseColsRemoved(_anColNumbers_)
+			return This.ColsRemoved(_anColNumbers_)
 
-		def ManyColsRemoved(anColNumbers)
-			return This.ColsRemoved(anColNumbers)
+		def ManyColsRemoved(_anColNumbers_)
+			return This.ColsRemoved(_anColNumbers_)
 
-		def ColumnsRemoved(anColNumbers)
-			return This.ColsRemoved(anColNumbers)
+		def ColumnsRemoved(_anColNumbers_)
+			return This.ColsRemoved(_anColNumbers_)
 
-		def ManyColumnsRemoved(anColNumbers)
-			return This.ColsRemoved(anColNumbers)
+		def ManyColumnsRemoved(_anColNumbers_)
+			return This.ColsRemoved(_anColNumbers_)
 
-		def TheseColumnsRemoved(anColNumbers)
-			return This.ColsRemoved(anColNumbers)
+		def TheseColumnsRemoved(_anColNumbers_)
+			return This.ColsRemoved(_anColNumbers_)
 
 		#>
 
@@ -4629,7 +4629,7 @@ class stzListOfLists from stzList
 	 #  REPLACING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
 
-	def ReplaceCol(n, paColData)
+	def ReplaceCol(_n_, paColData)
 
 		if CheckingParams()
 			if isList(paColData) and Q(paColData).IsWithOrByNamedParam()
@@ -4640,11 +4640,11 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! paColData must be a list.")
 			ok
 
-			if isList(n) and Q(n).IsAtOrAtPositionNamedParams()
-				n = n[2]
+			if isList(_n_) and Q(_n_).IsAtOrAtPositionNamedParams()
+				_n_ = _n_[2]
 			ok
 
-			if NOT isNumber(n)
+			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
@@ -4653,7 +4653,7 @@ class stzListOfLists from stzList
 
 		_nRpcCols_ = This.NumberOfCols()
 
-		if n < 1 or n > _nRpcCols_
+		if _n_ < 1 or _n_ > _nRpcCols_
 			return
 		ok
 
@@ -4671,8 +4671,8 @@ class stzListOfLists from stzList
 				_rpcItem_ = paColData[_iRpc_]
 			ok
 
-			if n <= _nRpcInner_
-				_aRpcContent_[_iRpc_][n] = _rpcItem_
+			if _n_ <= _nRpcInner_
+				_aRpcContent_[_iRpc_][_n_] = _rpcItem_
 			ok
 
 		next
@@ -4682,19 +4682,19 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def ReplaceColQ(n, paColData)
-			This.ReplaceCol(n, paColData)
+		def ReplaceColQ(_n_, paColData)
+			This.ReplaceCol(_n_, paColData)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceItems(n, paColData)
-			This.ReplaceCol(n, paColData)
+		def ReplaceItems(_n_, paColData)
+			This.ReplaceCol(_n_, paColData)
 
-			def ReplaceItemsQ(n, paColData)
-				return This.ReplaceColQ(n, paColData)
+			def ReplaceItemsQ(_n_, paColData)
+				return This.ReplaceColQ(_n_, paColData)
 
 		#>		
 

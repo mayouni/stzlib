@@ -50,58 +50,58 @@ class stzListBounder from stzObject
 	 #  GETTING A SECTION (SLICE) OF THE LIST   #
 	#==========================================#
 
-	def SectionCS(n1, n2, pCaseSensitive)
+	def SectionCS(_n1_, _n2_, pCaseSensitive)
 
 		_aScContent_ = This.Content()
 		_nScLen_ = len(_aScContent_)
 
 		if CheckingParams()
 
-			if isList(n1) and IsFromNamedParamList(n1)
-				n1 = n1[2]
+			if isList(_n1_) and IsFromNamedParamList(_n1_)
+				_n1_ = _n1_[2]
 			ok
 
-			if isList(n2) and IsToNamedParamList(n2)
-				n2 = n2[2]
+			if isList(_n2_) and IsToNamedParamList(_n2_)
+				_n2_ = _n2_[2]
 			ok
 
-			if isString(n1)
-				if StzFindFirst([ :First, :FirstItem ], n1) > 0
-					n1 = 1
-				but StzFindFirst([ :Last, :LastItem ], n1) > 0
-					n1 = _nScLen_
+			if isString(_n1_)
+				if StzFindFirst([ :First, :FirstItem ], _n1_) > 0
+					_n1_ = 1
+				but StzFindFirst([ :Last, :LastItem ], _n1_) > 0
+					_n1_ = _nScLen_
 				ok
 			ok
 
-			if isString(n2)
-				if StzFindFirst([ :End, :Last, :LastItem, :EndOfList ], n2) > 0
-					n2 = _nScLen_
-				but StzFindFirst([ :First, :FirstItem ], n2) > 0
-					n2 = 1
+			if isString(_n2_)
+				if StzFindFirst([ :End, :Last, :LastItem, :EndOfList ], _n2_) > 0
+					_n2_ = _nScLen_
+				but StzFindFirst([ :First, :FirstItem ], _n2_) > 0
+					_n2_ = 1
 				ok
 			ok
 
-			if NOT (isNumber(n1) and isNumber(n2))
+			if NOT (isNumber(_n1_) and isNumber(_n2_))
 				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 		ok
 
-		if NOT ( ( n1 >= 1 and n1 <= _nScLen_ ) and
-			 ( n2 >= 1 and n2 <= _nScLen_ ) )
+		if NOT ( ( _n1_ >= 1 and _n1_ <= _nScLen_ ) and
+			 ( _n2_ >= 1 and _n2_ <= _nScLen_ ) )
 
 			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
 		ok
 
-		if n2 < n1
-			_nScTemp_ = n1
-			n1 = n2
-			n2 = _nScTemp_
+		if _n2_ < _n1_
+			_nScTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nScTemp_
 		ok
 
 		# Engine fast path
 		_pBsList_ = @oList._EngineListFromContent()
 		if _pBsList_ != NULL
-			_pBsResult_ = StzEngineListSection(_pBsList_, n1, n2)
+			_pBsResult_ = StzEngineListSection(_pBsList_, _n1_, _n2_)
 			StzEngineListFree(_pBsList_)
 			if _pBsResult_ != NULL
 				_aBsResult_ = @oList._ContentFromEngineList(_pBsResult_)
@@ -111,57 +111,57 @@ class stzListBounder from stzObject
 		ok
 
 		_aScFallback_ = []
-		for _iSc_ = n1 to n2
+		for _iSc_ = _n1_ to _n2_
 			@AddItem(_aScFallback_, _aScContent_[_iSc_])
 		next
 
 		return _aScFallback_
 
-		def SectionCSQ(n1, n2, pCaseSensitive)
-			return new stzList( This.SectionCS(n1, n2, pCaseSensitive) )
+		def SectionCSQ(_n1_, _n2_, pCaseSensitive)
+			return new stzList( This.SectionCS(_n1_, _n2_, pCaseSensitive) )
 
-	def Section(n1, n2)
-		return This.SectionCS(n1, n2, 1)
+	def Section(_n1_, _n2_)
+		return This.SectionCS(_n1_, _n2_, 1)
 
-		def SectionQ(n1, n2)
-			return new stzList(This.Section(n1, n2))
+		def SectionQ(_n1_, _n2_)
+			return new stzList(This.Section(_n1_, _n2_))
 
 	  #-------------------------------------------------#
 	 #  GETTING A SECTION -- XT (inverted = reversed)  #
 	#-------------------------------------------------#
 
-	def SectionXT(n1, n2)
+	def SectionXT(_n1_, _n2_)
 		_aSxContent_ = This.Content()
 		_nSxLen_ = len(_aSxContent_)
 
 		# XT: a negative endpoint counts back from the end (-1 = last item).
-		if n1 < 0
-			n1 = _nSxLen_ + n1 + 1
+		if _n1_ < 0
+			_n1_ = _nSxLen_ + _n1_ + 1
 		ok
-		if n2 < 0
-			n2 = _nSxLen_ + n2 + 1
+		if _n2_ < 0
+			_n2_ = _nSxLen_ + _n2_ + 1
 		ok
 
-		if n1 < 1 or n1 > _nSxLen_ or n2 < 1 or n2 > _nSxLen_
+		if _n1_ < 1 or _n1_ > _nSxLen_ or _n2_ < 1 or _n2_ > _nSxLen_
 			StzRaise("Indexes out of range!")
 		ok
 
 		_aSxResult_ = []
 
-		if n1 <= n2
-			for _iSx_ = n1 to n2
+		if _n1_ <= _n2_
+			for _iSx_ = _n1_ to _n2_
 				@AddItem(_aSxResult_, _aSxContent_[_iSx_])
 			next
 		else
-			for _jSx_ = n1 to n2 step -1
+			for _jSx_ = _n1_ to _n2_ step -1
 				@AddItem(_aSxResult_, _aSxContent_[_jSx_])
 			next
 		ok
 
 		return _aSxResult_
 
-		def SectionXTQ(n1, n2)
-			return new stzList(This.SectionXT(n1, n2))
+		def SectionXTQ(_n1_, _n2_)
+			return new stzList(This.SectionXT(_n1_, _n2_))
 
 	  #===========================================#
 	 #  GETTING MANY SECTIONS                   #
@@ -265,9 +265,9 @@ class stzListBounder from stzObject
 	 #  GETTING BOUNDS OF THE LIST UP TO N ITEMS  #
 	#--------------------------------------------#
 
-	def BoundsUpToNItems(n)
-		_aBuFirst_ = This.NFirstItems(n)
-		_aBuLast_  = This.NLastItems(n)
+	def BoundsUpToNItems(_n_)
+		_aBuFirst_ = This.NFirstItems(_n_)
+		_aBuLast_  = This.NLastItems(_n_)
 
 		if len(_aBuFirst_) = 1
 			_aBuFirst_ = _aBuFirst_[1]
@@ -409,72 +409,72 @@ class stzListBounder from stzObject
 	 #     CHECK IF POSITION IS WITHIN BOUNDS   #
 	#==========================================#
 
-	def IsWithinBounds(n)
-		if n >= 1 and n <= This.NumberOfItems()
+	def IsWithinBounds(_n_)
+		if _n_ >= 1 and _n_ <= This.NumberOfItems()
 			return 1
 		else
 			return 0
 		ok
 
-		def PositionExists(n)
-			return This.IsWithinBounds(n)
+		def PositionExists(_n_)
+			return This.IsWithinBounds(_n_)
 
-		def HasPosition(n)
-			return This.IsWithinBounds(n)
+		def HasPosition(_n_)
+			return This.IsWithinBounds(_n_)
 
 	  #=======================================#
 	 #     FIRST N AND LAST N ITEMS          #
 	#=======================================#
 
-	def NFirstItems(n)
+	def NFirstItems(_n_)
 		_aNfContent_ = This.Content()
 		_nNfLen_ = len(_aNfContent_)
 		_aNfResult_ = []
 
-		if n > _nNfLen_
-			n = _nNfLen_
+		if _n_ > _nNfLen_
+			_n_ = _nNfLen_
 		ok
 
-		for _iNf_ = 1 to n
+		for _iNf_ = 1 to _n_
 			@AddItem(_aNfResult_, _aNfContent_[_iNf_])
 		next
 
 		return _aNfResult_
 
-		def FirstNItems(n)
-			return This.NFirstItems(n)
+		def FirstNItems(_n_)
+			return This.NFirstItems(_n_)
 
-		def Take(n)
-			return This.NFirstItems(n)
+		def Take(_n_)
+			return This.NFirstItems(_n_)
 
-	def NLastItems(n)
+	def NLastItems(_n_)
 		_aNlContent_ = This.Content()
 		_nNlLen_ = len(_aNlContent_)
 		_aNlResult_ = []
 
-		if n > _nNlLen_
-			n = _nNlLen_
+		if _n_ > _nNlLen_
+			_n_ = _nNlLen_
 		ok
 
-		_nNlStart_ = _nNlLen_ - n + 1
+		_nNlStart_ = _nNlLen_ - _n_ + 1
 		for _iNl_ = _nNlStart_ to _nNlLen_
 			@AddItem(_aNlResult_, _aNlContent_[_iNl_])
 		next
 
 		return _aNlResult_
 
-		def LastNItems(n)
-			return This.NLastItems(n)
+		def LastNItems(_n_)
+			return This.NLastItems(_n_)
 
-		def TakeLast(n)
-			return This.NLastItems(n)
+		def TakeLast(_n_)
+			return This.NLastItems(_n_)
 
 	  #=======================================#
 	 #     ITEMS BETWEEN TWO POSITIONS       #
 	#=======================================#
 
-	def ItemsBetweenPositions(n1, n2)
-		return This.Section(n1, n2)
+	def ItemsBetweenPositions(_n1_, _n2_)
+		return This.Section(_n1_, _n2_)
 
-		def Between(n1, n2)
-			return This.ItemsBetweenPositions(n1, n2)
+		def Between(_n1_, _n2_)
+			return This.ItemsBetweenPositions(_n1_, _n2_)

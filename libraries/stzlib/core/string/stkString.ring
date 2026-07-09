@@ -3,56 +3,56 @@
 #  STK CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
-func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
+func StkReplaceCS(_cStr_, cSubStr, cNewSubStr, bCase)
 
 	if bCase = TRUE
-		return ring_substr2(cStr, cSubStr, cNewSubStr)
+		return ring_substr2(_cStr_, cSubStr, cNewSubStr)
 	ok
 
-	cStrLow = lower(cStr)
-	cSubStrLow = lower(cSubStr)
-	cNewSubStrLow = lower(cNewSubStr)
+	_cStrLow_ = lower(_cStr_)
+	_cSubStrLow_ = lower(cSubStr)
+	_cNewSubStrLow_ = lower(cNewSubStr)
 
-	return ring_substr2(cStrLow, cSubStrLow, cNewSubStrLow)
+	return ring_substr2(_cStrLow_, _cSubStrLow_, _cNewSubStrLow_)
 
-func StkReplace(cStr, cSubStr, cNewSubStr)
-	return StkReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
+func StkReplace(_cStr_, cSubStr, cNewSubStr)
+	return StkReplaceCS(_cStr_, cSubStr, cNewSubStr, TRUE)
 
 # Split function
 
-func StkSplitCS(cStr, cSubStr, bCase)
-	if cSubStr = "" return [cStr] ok
+func StkSplitCS(_cStr_, cSubStr, bCase)
+	if cSubStr = "" return [_cStr_] ok
 
-	cWork = cStr
-	cSep = cSubStr
+	_cWork_ = _cStr_
+	_cSep_ = cSubStr
 	if bCase = FALSE or bCase = 0
-		cWork = lower(cStr)
-		cSep = lower(cSubStr)
+		_cWork_ = lower(_cStr_)
+		_cSep_ = lower(cSubStr)
 	ok
 
-	acResult = []
-	nSepLen = len(cSep)
-	nPos = substr(cWork, cSep)
+	_acResult_ = []
+	_nSepLen_ = len(_cSep_)
+	_nPos_ = substr(_cWork_, _cSep_)
 
-	nStart = 1
-	while nPos > 0
-		acResult + substr(cStr, nStart, nPos - nStart)
-		nStart = nPos + nSepLen
-		cWork = substr(cWork, nStart)
-		cStr = substr(cStr, nStart)
-		nStart = 1
-		nPos = substr(cWork, cSep)
+	_nStart_ = 1
+	while _nPos_ > 0
+		_acResult_ + substr(_cStr_, _nStart_, _nPos_ - _nStart_)
+		_nStart_ = _nPos_ + _nSepLen_
+		_cWork_ = substr(_cWork_, _nStart_)
+		_cStr_ = substr(_cStr_, _nStart_)
+		_nStart_ = 1
+		_nPos_ = substr(_cWork_, _cSep_)
 	end
-	acResult + cStr
-	return acResult
+	_acResult_ + _cStr_
+	return _acResult_
 
-func StkSplit(cStr, cSubStr)
-	return StkSplitCS(cStr, cSubStr, 0)
+func StkSplit(_cStr_, cSubStr)
+	return StkSplitCS(_cStr_, cSubStr, 0)
 
 # Trim function
 
-func StkTrim(cStr)
-	return trim(cStr)
+func StkTrim(_cStr_)
+	return trim(_cStr_)
 
 
 class stkString from stzCoreString
@@ -72,9 +72,9 @@ class stzCoreString from stzCoreObject
 	def Content()
 		return StkEngineStringData(@pEngine)
 
-	def Update(cStr)
+	def Update(_cStr_)
 		StkEngineStringFree(@pEngine)
-		@pEngine = StkEngineStringFrom(cStr)
+		@pEngine = StkEngineStringFrom(_cStr_)
 
 	#--
 
@@ -90,9 +90,9 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def At(n)
-		cContent = This.Content()
-		if n > 0 and n <= len(cContent)
-			return cContent[n]
+		_cContent_ = This.Content()
+		if n > 0 and n <= len(_cContent_)
+			return _cContent_[n]
 		ok
 		return ""
 
@@ -116,14 +116,14 @@ class stzCoreString from stzCoreObject
 			return 0
 		ok
 		if bCase = TRUE or bCase = 1
-			nPos = StkEngineStringIndexOf(@pEngine, substr)
-			if nPos >= 0 return nPos + 1 ok
+			_nPos_ = StkEngineStringIndexOf(@pEngine, substr)
+			if _nPos_ >= 0 return _nPos_ + 1 ok
 			return 0
 		ok
-		cContent = lower(This.Content())
-		cNeedle = lower(substr)
-		nPos = substr(cContent, cNeedle)
-		return nPos
+		_cContent_ = lower(This.Content())
+		_cNeedle_ = lower(substr)
+		_nPos_ = substr(_cContent_, _cNeedle_)
+		return _nPos_
 
 	def FindFirst(substr)
 		if substr = ""
@@ -137,23 +137,23 @@ class stzCoreString from stzCoreObject
 		if cSub = ""
 			return 0
 		ok
-		cContent = This.Content()
-		cNeedle = cSub
+		_cContent_ = This.Content()
+		_cNeedle_ = cSub
 		if bCase = FALSE or bCase = 0
-			cContent = lower(cContent)
-			cNeedle = lower(cSub)
+			_cContent_ = lower(_cContent_)
+			_cNeedle_ = lower(cSub)
 		ok
-		nResult = 0
-		nOffset = 0
-		cWork = cContent
-		nPos = substr(cWork, cNeedle)
-		while nPos > 0
-			nResult = nOffset + nPos
-			cWork = substr(cWork, nPos + 1)
-			nOffset = nResult
-			nPos = substr(cWork, cNeedle)
+		_nResult_ = 0
+		_nOffset_ = 0
+		_cWork_ = _cContent_
+		_nPos_ = substr(_cWork_, _cNeedle_)
+		while _nPos_ > 0
+			_nResult_ = _nOffset_ + _nPos_
+			_cWork_ = substr(_cWork_, _nPos_ + 1)
+			_nOffset_ = _nResult_
+			_nPos_ = substr(_cWork_, _cNeedle_)
 		end
-		return nResult
+		return _nResult_
 
 	def FindLast(substr)
 		if substr = ""
@@ -168,25 +168,25 @@ class stzCoreString from stzCoreObject
 			return [0]
 		ok
 
-		cContent = This.Content()
-		cNeedle = cSub
+		_cContent_ = This.Content()
+		_cNeedle_ = cSub
 		if bCase = FALSE or bCase = 0
-			cContent = lower(cContent)
-			cNeedle = lower(cSub)
+			_cContent_ = lower(_cContent_)
+			_cNeedle_ = lower(cSub)
 		ok
 
-		nSize = len(cNeedle)
-		anResult = []
-		nOffset = 0
-		cWork = cContent
-		nPos = substr(cWork, cNeedle)
-		while nPos > 0
-			anResult + (nOffset + nPos)
-			cWork = substr(cWork, nPos + nSize)
-			nOffset += (nPos + nSize - 1)
-			nPos = substr(cWork, cNeedle)
+		_nSize_ = len(_cNeedle_)
+		_anResult_ = []
+		_nOffset_ = 0
+		_cWork_ = _cContent_
+		_nPos_ = substr(_cWork_, _cNeedle_)
+		while _nPos_ > 0
+			_anResult_ + (_nOffset_ + _nPos_)
+			_cWork_ = substr(_cWork_, _nPos_ + _nSize_)
+			_nOffset_ += (_nPos_ + _nSize_ - 1)
+			_nPos_ = substr(_cWork_, _cNeedle_)
 		end
-		return anResult
+		return _anResult_
 
 		def FindAllCS(substr, bCase)
 			return This.FindCS(substr, bCase)
@@ -203,8 +203,8 @@ class stzCoreString from stzCoreObject
 		if n < 0 or substr = ""
 			return 0
 		ok
-		anAll = This.FindCS(substr, bCase)
-		if n <= len(anAll) return anAll[n] ok
+		_anAll_ = This.FindCS(substr, bCase)
+		if n <= len(_anAll_) return _anAll_[n] ok
 		return 0
 
 	def FindNth(n, substr)
@@ -214,16 +214,16 @@ class stzCoreString from stzCoreObject
 
 	def InsertAt(n, substr)
 		if n > 0 and substr != ""
-			cContent = This.Content()
-			cNew = left(cContent, n-1) + substr + substr(cContent, n)
-			This.Update(cNew)
+			_cContent_ = This.Content()
+			_cNew_ = left(_cContent_, n-1) + substr + substr(_cContent_, n)
+			This.Update(_cNew_)
 		ok
 
 	#== REPLACING
 
 	def ReplaceCS(substr1, substr2, bCase)
-		cResult = StkReplaceCS(This.Content(), substr1, substr2, bCase)
-		This.Update(cResult)
+		_cResult_ = StkReplaceCS(This.Content(), substr1, substr2, bCase)
+		This.Update(_cResult_)
 
 	def Replace(substr1, substr2)
 		This.ReplaceCS(substr1, substr2, TRUE)
@@ -232,9 +232,9 @@ class stzCoreString from stzCoreObject
 
 	def ReplaceSection(n1, n2, substr)
 		if n1 > 0 and n2 >= n1 and substr != ""
-			cContent = This.Content()
-			cNew = left(cContent, n1 - 1) + substr + substr(cContent, n2 + 1)
-			This.Update(cNew)
+			_cContent_ = This.Content()
+			_cNew_ = left(_cContent_, n1 - 1) + substr + substr(_cContent_, n2 + 1)
+			This.Update(_cNew_)
 		ok
 
 	#== REMOVING
@@ -249,16 +249,16 @@ class stzCoreString from stzCoreObject
 
 	def RemoveSection(n1, n2)
 		if n1 > 0 and n2 >= n1
-			cContent = This.Content()
-			cNew = left(cContent, n1 - 1) + substr(cContent, n2 + 1)
-			This.Update(cNew)
+			_cContent_ = This.Content()
+			_cNew_ = left(_cContent_, n1 - 1) + substr(_cContent_, n2 + 1)
+			This.Update(_cNew_)
 		ok
 
 	#== SPLITTING
 
 	def SplitCS(cSubStr, bCase)
-		acResult = StkSplitCS(This.Content(), cSubStr, bCase)
-		return acResult
+		_acResult_ = StkSplitCS(This.Content(), cSubStr, bCase)
+		return _acResult_
 
 	def Split(substr)
 		return This.SplitCS(substr, TRUE)
@@ -267,8 +267,8 @@ class stzCoreString from stzCoreObject
 
 	def Section(n1, n2)
 		if n1 > 0 and n2 >= n1
-			cContent = This.Content()
-			return substr(cContent, n1, n2 - n1 + 1)
+			_cContent_ = This.Content()
+			return substr(_cContent_, n1, n2 - n1 + 1)
 		else
 			raise( 'ERR-' + StkError(:IncorrectParamType) )
 		ok
@@ -328,61 +328,61 @@ class stzCoreString from stzCoreObject
 
 	def Simplify()
 		if This.Content() != ""
-			cContent = This.Content()
-			while substr(cContent, "  ") > 0
-				cContent = ring_substr2(cContent, "  ", " ")
+			_cContent_ = This.Content()
+			while substr(_cContent_, "  ") > 0
+				_cContent_ = ring_substr2(_cContent_, "  ", " ")
 			end
-			This.Update(StkTrim(cContent))
+			This.Update(StkTrim(_cContent_))
 		ok
 
 	#==
 
 	def UnicodeAt(n)
-		cContent = This.Content()
-		if cContent = ""
+		_cContent_ = This.Content()
+		if _cContent_ = ""
 			raise( "Can't proceed! Because the string is empty." )
 		ok
 		if n <= 0
 			raise( 'ERR-' + StkError(:IncorrectParamType) )
 		ok
-		cChar = This.CharAt(n)
-		return StkEngineCharUnicode(cChar)
+		_cChar_ = This.CharAt(n)
+		return StkEngineCharUnicode(_cChar_)
 
 		def UnicodeOfCharAt(n)
 			return This.UnicodeAt(n)
 
 	def Unicode()
-		nLen = This.Size()
-		if nLen = 0
+		_nLen_ = This.Size()
+		if _nLen_ = 0
 			raise( "Can't proceed! Because the string is empty." )
 		ok
-		if nLen = 1
+		if _nLen_ = 1
 			return This.UnicodeAt(1)
 		else
 			return This.Unicodes()
 		ok
 
 	def Unicodes()
-		nLen = This.Size()
-		if nLen = 0
+		_nLen_ = This.Size()
+		if _nLen_ = 0
 			raise( "Can't proceed! Because the string is empty." )
 		ok
-		anResult = []
-		for i = 1 to nLen
-			anResult + This.UnicodeAt(i)
+		_anResult_ = []
+		for i = 1 to _nLen_
+			_anResult_ + This.UnicodeAt(i)
 		next
-		return anResult
+		return _anResult_
 
 	def Chars()
-		nLen = This.Size()
-		if nLen = 0
+		_nLen_ = This.Size()
+		if _nLen_ = 0
 			raise( "Can't proceed! Because the string is empty." )
 		ok
-		acResult = []
-		for i = 1 to nLen
-			acResult + This.CharAt(i)
+		_acResult_ = []
+		for i = 1 to _nLen_
+			_acResult_ + This.CharAt(i)
 		next
-		return acResult
+		return _acResult_
 
 	#==
 

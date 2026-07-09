@@ -7,21 +7,21 @@ func b(e)
 	_b = e
 
 func bv(val1, val2)
-	nLen = len(_aVars)
+	_nLen_ = len(_aVars)
 	if _b = 1
-		_aVars[nLen][2] = val1
+		_aVars[_nLen_][2] = val1
 	else
-		_aVars[nLen][2] = val2
+		_aVars[_nLen_][2] = val2
 	ok	
 
 func bt(val)
-	nLen = len(_aVars)
+	_nLen_ = len(_aVars)
 	if _b = 1
-		_aVars[nLen][2] = val
+		_aVars[_nLen_][2] = val
 	ok
 
 func bf(val)
-	nLen = len(_aVars)
+	_nLen_ = len(_aVars)
 	if _b = 0
-		_aVars[nLen][2] = val
+		_aVars[_nLen_][2] = val
 	ok

@@ -7,17 +7,17 @@ func StzCacheQ(cFile)
 // Creates cache file, depending on its type, only if it is inexistant
 // Otherwise, the cache file is open, and a handler of that file is returned
 func CacheCreateIfInexistant(pcCacheName,pcStorageType)
-	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
+	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
 
 	switch pcStorageType
 	on :InFile
-		if NOT TextFileExists(cCompleteCacheFileName)
-			hCacheFileHandler = new stzCache(cCompleteCacheFileName, pcStorageType)
+		if NOT TextFileExists(_cCompleteCacheFileName_)
+			_hCacheFileHandler_ = new stzCache(_cCompleteCacheFileName_, pcStorageType)
 		else
-			hFileHandler = TextFileOpen(cCompleteCacheFileName)	
+			_hFileHandler_ = TextFileOpen(_cCompleteCacheFileName_)	
 		ok
 
-		return hCacheFileHandler		
+		return _hCacheFileHandler_		
 
 	on :InMemory
 		// TODO
@@ -27,25 +27,25 @@ func CacheCreateIfInexistant(pcCacheName,pcStorageType)
 	off
 
 func CacheActivate(pcCacheName)
-	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
+	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
 
-	oTempHashList = new stzHashList(_aStzCaches)
-	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
-	_aStzCaches[n][2] = 1
+	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
+	_aStzCaches[_n_][2] = 1
 	return 1
 
 func CacheDeactivate(pcFileName)
-	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
-	oTempHashList = new stzHashList(_aStzCaches)
-	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
-	_aStzCaches[n][2] = 0
+	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
+	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
+	_aStzCaches[_n_][2] = 0
 	return 1
 
 func IsCacheActivated(pcFileName)
-	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
-	oTempHashList = new stzHashList(_aStzCaches)
-	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
-	return _aSteCaches[n][2]
+	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
+	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
+	return _aSteCaches[_n_][2]
 
 	func @IsCacheActivated(pcFileName)
 		return IsCacheActivated(pcFileName)
@@ -69,17 +69,17 @@ func CacheAddLine(pcCacheName,pcEntry,pcStorageType)
 func CacheFileHandler(pcCacheName)
 	// A global variable that maintains the list of caches and their related file handlers
 	// needs to be addedd
-	cCompleteCacheFileName = CacheCompleteFileName(pcCacheName)
-	n = find(_aStzCaches,cCompleteCacheFileName)
-	return aStzCaches[cCompleteCacheFileName][1]
+	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
+	_n_ = find(_aStzCaches,_cCompleteCacheFileName_)
+	return aStzCaches[_cCompleteCacheFileName_][1]
 
 class stzCache from stzObject
-	cCacheName
+	_cCacheName_
 	cCacheContent
 
-	oCacheStorage
+	_oCacheStorage_
 
-	bActivated = 0
+	_bActivated_ = 0
 
 	def Content()
 		return cCacheContent
@@ -88,20 +88,20 @@ class stzCache from stzObject
 			return This.Content()
 
 	func init(pcCacheName, pcStorageType)
-		cCacheName = pcCacheName
-		oCacheStorage = new stzCacheStorage("cache", pcCacheName, pcStorageType)
+		_cCacheName_ = pcCacheName
+		_oCacheStorage_ = new stzCacheStorage("cache", pcCacheName, pcStorageType)
 
 	def StorageType()
-		return oCacheStorage.StorageType()
+		return _oCacheStorage_.StorageType()
 
 	def Activate()
-		bActivated = 1
+		_bActivated_ = 1
 
 	def Deactivate()
-		bactivated = 0
+		_bActivated_ = 0
 
 	def IsActivated()
-		return bActivated
+		return _bActivated_
 
 	func CacheOpen()
 		switch StorageType()
@@ -113,66 +113,66 @@ class stzCache from stzObject
 		
 	
 	def CacheFileHandler()
-		return oCacheStorage.FileHandler()
+		return _oCacheStorage_.FileHandler()
 
 	func CacheFileColse()
 		return TextFileColse(_CacheFileHandler)
 	
 	
 	func CacheFindEntry(pcFunc, pcParamValues)
-		n = 0
-		aTemp = CacheFileLines()
+		_n_ = 0
+		_aTemp_ = CacheFileLines()
 	
-		_nTemp1Len_ = len(aTemp)
+		_nTemp1Len_ = len(_aTemp_)
 		for _iLoopTemp1_ = 1 to _nTemp1Len_
-			aLine = aTemp[_iLoopTemp1_]
-			n++
-			oStzStr = new stzString(aLine)
+			_aLine_ = _aTemp_[_iLoopTemp1_]
+			_n_++
+			_oStzStr_ = new stzString(_aLine_)
 	
-			if oStzStr.Contains(pcFunc + "|" + pcParamValues)
-				return n
+			if _oStzStr_.Contains(pcFunc + "|" + pcParamValues)
+				return _n_
 			ok
 		next
 		return 0
 	
 	func CacheGetCachedResult( pcFunc, pcParamValues)
-		n = CacheFindEntry(pcFunc, pcParamValues)
-		if n > 0
-			return CacheGetResultInLineNumber(n)
+		_n_ = CacheFindEntry(pcFunc, pcParamValues)
+		if _n_ > 0
+			return CacheGetResultInLineNumber(_n_)
 		else
 			stzError(:CacheEntryInexistant)
 		ok
 		
 	func CacheGetResultInLineNumber(pnLineNumber)
-		cLineStr = CacheFileLines()[ pnLineNumber ]
-		cCode = "aTempList = " + cLineStr
-		eval(cCode)
-		return aTempList[4]
+		_cLineStr_ = CacheFileLines()[ pnLineNumber ]
+		_cCode_ = "_aTempList_ = " + _cLineStr_
+		eval(_cCode_)
+		return _aTempList_[4]
 	
 	func CacheFileLines()
-		cCache = read(oCacheStorage.CompleteFileName())
-		oStr = new stzString(cCache)
-		nLen = oStr.NumberOfChars()
+		_cCache_ = read(_oCacheStorage_.CompleteFileName())
+		_oStr_ = new stzString(_cCache_)
+		_nLen_ = _oStr_.NumberOfChars()
 
-		aResult = []
-		cLine = ""
-		i = 0
-		_nCache1Len_ = len(cCache)
+		_aResult_ = []
+		_cLine_ = ""
+		_i_ = 0
+		_nCache1Len_ = len(_cCache_)
 		for _iLoopCache1_ = 1 to _nCache1Len_
-			c = cCache[_iLoopCache1_]
-			i++
-			if c != "|"
-				cLine += c
-			but c = NL or i = nLen
-				aResult + cLine
-				cLine = ""
+			_c_ = _cCache_[_iLoopCache1_]
+			_i_++
+			if _c_ != "|"
+				_cLine_ += _c_
+			but _c_ = NL or _i_ = _nLen_
+				_aResult_ + _cLine_
+				_cLine_ = ""
 			ok
 		next
 	
-		return aResult
+		return _aResult_
 	
-	func CacheFileLineNumber(n)
-		return CacheFileLines()[n]
+	func CacheFileLineNumber(_n_)
+		return CacheFileLines()[_n_]
 	
 	func CacheFileNumberOfLines()
 		return len(CacheFileLines())
@@ -193,20 +193,20 @@ class stzCache from stzObject
 		off
 	
 class stzCacheStorage from stzObject
-	oStorage
+	_oStorage_
 	
 
 	def init(pcCacheName, pcStoragePath, pcStorageType)
-		oStorage = new stzStorage(pcStoragePath, pcCacheName, pcStorageType)
+		_oStorage_ = new stzStorage(pcStoragePath, pcCacheName, pcStorageType)
 
 	def FileHandler()
-		return oStorage.FileHandler()
+		return _oStorage_.FileHandler()
 
 	def FileName()
-		return oStorage.FileName()
+		return _oStorage_.FileName()
 
 	def CompleteFileName()
-		return oStorage.CompleteFileName()
+		return _oStorage_.CompleteFileName()
 
 	def StorageType()
-		return oStorage.StorageType()
+		return _oStorage_.StorageType()

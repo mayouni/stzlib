@@ -3,9 +3,9 @@
 
 	Semantically speaking:
 
-	LIST	-->	Item
+	_LIST_	-->	_item_
 	SET	-->	Element
-	STRING	-->	Char
+	_STRING_	-->	Char
 
 */
 
@@ -19,18 +19,18 @@ func IsSet(paList)
 		ok
 	ok
 
-	nLen = len(paList)
-	if nLen = 0
+	_nLen_ = len(paList)
+	if _nLen_ = 0
 		return 0
-	but nLen = 1
+	but _nLen_ = 1
 		return 1
 	ok
 
 	# Engine-backed: check if all elements are unique
 	pList = StzEngineMarshalList(paList)
-	nResult = StzEngineListAllUniqueCS(pList, 1)
+	_nResult_ = StzEngineListAllUniqueCS(pList, 1)
 	StzEngineListFree(pList)
-	return nResult
+	return _nResult_
 
 	#< @FunctionAlternativeForms
 
@@ -158,9 +158,9 @@ class stzSet from stzList
 
 	def AddElement(pElm)
 		if not This.Contains(pElm)	# From StzList
-			aContent = This.Content()
-			aContent + pElm
-			This.UpdateWith(aContent)
+			_aContent_ = This.Content()
+			_aContent_ + pElm
+			This.UpdateWith(_aContent_)
 		ok
 
 	def AddElementQ(pElm)
@@ -191,11 +191,11 @@ class stzSet from stzList
 		pListA = StzEngineMarshalList(This.Content())
 		pListB = StzEngineMarshalList(paOtherSet)
 		pResult = StzEngineListUnionCS(pListA, pListB, 1)
-		aUnion = StzEngineListContentToRingList(pResult)
+		_aUnion_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pListB)
 		StzEngineListFree(pListA)
-		return aUnion
+		return _aUnion_
 
 	def UnionWithQ(paOtherSet)
 		return new stzSet( This.UnionWith(paOtherSet) )
@@ -218,21 +218,21 @@ class stzSet from stzList
 			StzRaise(stzSetError(:CanNotComputeUnionWithNonSets))
 		ok
 
-		aUnion = this.Content()
-		oTempSet = this
+		_aUnion_ = this.Content()
+		_oTempSet_ = this
 		_nListOfLists1Len_ = len(paListOfLists)
 		for _iLoopListOfLists1_ = 1 to _nListOfLists1Len_
-			lst = paListOfLists[_iLoopListOfLists1_]
-			_nLst1Len_ = len(lst)
+			_lst_ = paListOfLists[_iLoopListOfLists1_]
+			_nLst1Len_ = len(_lst_)
 			for _iLoopLst1_ = 1 to _nLst1Len_
-				item = lst[_iLoopLst1_]
-				if not ItemExists(item,aUnion)
-					aUnion + item
+				_item_ = _lst_[_iLoopLst1_]
+				if not ItemExists(_item_,_aUnion_)
+					_aUnion_ + _item_
 				ok
 			end
 		next
 
-		return aUnion
+		return _aUnion_
 
 		def UnionWithManyQ(paListOfSets)
 			return new stzSet( This.UnionWithMany(paListOfSets))
@@ -253,19 +253,19 @@ class stzSet from stzList
 	def IntersectionWith(paOtherSet)
 		// If necessary, transform the provided list to a set
 		if NOT @IsSet(paOtherSet)
-			oTempSet = new stzSet(paOtherSet)
-			paOtherSet = oTempSet.Content()
+			_oTempSet_ = new stzSet(paOtherSet)
+			paOtherSet = _oTempSet_.Content()
 		ok
 
 		# Engine-backed O(n log n) intersection
 		pListA = StzEngineMarshalList(This.Content())
 		pListB = StzEngineMarshalList(paOtherSet)
 		pResult = StzEngineListIntersectionCS(pListA, pListB, 1)
-		aIntersection = StzEngineListContentToRingList(pResult)
+		_aIntersection_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pListB)
 		StzEngineListFree(pListA)
-		return aIntersection
+		return _aIntersection_
 
 	  #----------------------------------------#
 	 #    INTERSECTION WITH MANY OTHER SETS   #
@@ -280,19 +280,19 @@ class stzSet from stzList
 
 	def DifferenceWith(paOtherSet)
 		if NOT @IsSet(paOtherSet)
-			oTempSet = new stzSet(paOtherSet)
-			paOtherSet = oTempSet.Content()
+			_oTempSet_ = new stzSet(paOtherSet)
+			paOtherSet = _oTempSet_.Content()
 		ok
 
 		# Engine-backed O(n log n) difference
 		pListA = StzEngineMarshalList(This.Content())
 		pListB = StzEngineMarshalList(paOtherSet)
 		pResult = StzEngineListDifferenceCS(pListA, pListB, 1)
-		aDiff = StzEngineListContentToRingList(pResult)
+		_aDiff_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		StzEngineListFree(pListB)
 		StzEngineListFree(pListA)
-		return aDiff
+		return _aDiff_
 
 	def DifferenceWithQ(paOtherSet)
 		return new stzSet( This.DifferenceWith(paOtherSet) )
@@ -304,13 +304,13 @@ class stzSet from stzList
 	def IsIncludedIn(paOtherSet)
 		// If necessary, transform the provided list to a set
 		if NOT @IsSet(paOtherSet)
-			oTempSet = new stzList(paOtherSet)
-			paOtherSet = oTempSet.ToSet()
+			_oTempSet_ = new stzList(paOtherSet)
+			paOtherSet = _oTempSet_.ToSet()
 		ok
 
 		# A is included in B iff A-B is empty (engine-backed)
-		aDiff = This.DifferenceWith(paOtherSet)
-		return len(aDiff) = 0
+		_aDiff_ = This.DifferenceWith(paOtherSet)
+		return len(_aDiff_) = 0
 
 	  #-------------------------------------------#
 	 #    INCLUSION OF AN OTHER SET IN THE SET   #
@@ -319,14 +319,14 @@ class stzSet from stzList
 	def Includes(paOtherSet)
 		// If necessary, transform the provided list to a set
 		if NOT @IsSet(paOtherSet)
-			oTempSet = new stzSet(paOtherSet)
-			paOtherSet = oTempSet.Content()
+			_oTempSet_ = new stzSet(paOtherSet)
+			paOtherSet = _oTempSet_.Content()
 		ok
 
 		# B is included in A iff B-A is empty (engine-backed)
-		oOtherSet = new stzSet(paOtherSet)
-		aDiff = oOtherSet.DifferenceWith(This.Content())
-		return len(aDiff) = 0
+		_oOtherSet_ = new stzSet(paOtherSet)
+		_aDiff_ = _oOtherSet_.DifferenceWith(This.Content())
+		return len(_aDiff_) = 0
 
 	def Contains(paOtherSet)
 		return This.Includes(paOtherSet)

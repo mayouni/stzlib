@@ -54,12 +54,12 @@ class stzStringChecker from stzObject
 		# Engine palindrome is always CS. For CI, casefold first.
 		if _bCase_ = 0
 			pFolded = StzEngineStringFoldcase(pH)
-			nResult = StzEngineStringIsPalindrome(pFolded)
+			_nResult_ = StzEngineStringIsPalindrome(pFolded)
 			StzEngineStringFree(pFolded)
 		else
-			nResult = StzEngineStringIsPalindrome(pH)
+			_nResult_ = StzEngineStringIsPalindrome(pH)
 		ok
-		return nResult
+		return _nResult_
 
 	def IsPalindrome()
 		return This.IsPalindromeCS(1)
@@ -72,9 +72,9 @@ class stzStringChecker from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
-		nResult = StzEngineStringIsAnagramCS(pH, pH2, _bCase_)
+		_nResult_ = StzEngineStringIsAnagramCS(pH, pH2, _bCase_)
 		StzEngineStringFree(pH2)
-		return nResult
+		return _nResult_
 
 	def IsAnagramOf(pcOtherStr)
 		return This.IsAnagramOfCS(pcOtherStr, 1)
@@ -90,27 +90,27 @@ class stzStringChecker from stzObject
 		return StzIsLower(@oString.Content())
 
 	def IsCapitalcase()
-		cStr = @oString.Content()
-		if StzLen(cStr) < 1
+		_cStr_ = @oString.Content()
+		if StzLen(_cStr_) < 1
 			return 0
 		ok
 
-		cFirst = StzLeft(cStr, 1)
-		if cFirst = StzUpper(cFirst) and StzLen(cStr) > 1
-			pH = StzEngineString(cStr)
-			pRest = StzEngineStringSlice(pH, 2, StzLen(cStr) - 1)
-			cRest = StzEngineStringData(pRest)
+		_cFirst_ = StzLeft(_cStr_, 1)
+		if _cFirst_ = StzUpper(_cFirst_) and StzLen(_cStr_) > 1
+			pH = StzEngineString(_cStr_)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(_cStr_) - 1)
+			_cRest_ = StzEngineStringData(pRest)
 			StzEngineStringFree(pRest)
 			StzEngineStringFree(pH)
-			return cRest = StzLower(cRest)
+			return _cRest_ = StzLower(_cRest_)
 		ok
 		return 0
 
 	def IsHybridcase()
 		pH = StzEngineString(@oString.Content())
-		nResult = StzEngineStringHasMixedCase(pH)
+		_nResult_ = StzEngineStringHasMixedCase(pH)
 		StzEngineStringFree(pH)
-		return nResult
+		return _nResult_
 
 	  #===============================#
 	 #     CONTENT COMPOSITION       #
@@ -118,27 +118,27 @@ class stzStringChecker from stzObject
 
 	def ContainsOnlySpaces()
 		pH = StzEngineString(@oString.Content())
-		n = StzEngineStringIsWhitespace(pH)
+		_n_ = StzEngineStringIsWhitespace(pH)
 		StzEngineStringFree(pH)
-		return n
+		return _n_
 
 	def ContainsOnlyLetters()
 		return StzIsAlpha(@oString.Content())
 
 	def ContainsOnlyNumbers()
 		pH = StzEngineString(@oString.Content())
-		n = StzEngineStringIsNumericString(pH)
+		_n_ = StzEngineStringIsNumericString(pH)
 		StzEngineStringFree(pH)
-		return n
+		return _n_
 
 	def ContainsOnlyDigits()
 		return StzIsDigit(@oString.Content())
 
 	def ContainsOnlyLettersAndNumbers()
 		pH = StzEngineString(@oString.Content())
-		n = StzEngineStringIsAlphanumeric(pH)
+		_n_ = StzEngineStringIsAlphanumeric(pH)
 		StzEngineStringFree(pH)
-		return n
+		return _n_
 
 	  #===============================#
 	 #     IS MADE OF                #
@@ -151,19 +151,19 @@ class stzStringChecker from stzObject
 			ok
 		ok
 
-		cCopy = @oString.Content()
-		nLen = len(acSubStr)
+		_cCopy_ = @oString.Content()
+		_nLen_ = len(acSubStr)
 
 		# The ORIGINAL requires every listed part to be USED (an
 		# unused extra token -> FALSE), then full coverage.
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT @oString.ContainsCS(acSubStr[i], pCaseSensitive)
 				return 0
 			ok
-			cCopy = @ReplaceCS(cCopy, acSubStr[i], "", pCaseSensitive)
+			_cCopy_ = @ReplaceCS(_cCopy_, acSubStr[i], "", pCaseSensitive)
 		next
 
-		if cCopy = ""
+		if _cCopy_ = ""
 			return 1
 		else
 			return 0
@@ -172,15 +172,15 @@ class stzStringChecker from stzObject
 	def IsMadeOf(acSubStr)
 		return This.IsMadeOfCS(acSubStr, 1)
 
-	def IsMadeOfCharCS(c, pCaseSensitive)
-		if isString(c) and @IsChar(c)
-			return This.IsMadeOfCS([ c ], pCaseSensitive)
+	def IsMadeOfCharCS(_c_, pCaseSensitive)
+		if isString(_c_) and @IsChar(_c_)
+			return This.IsMadeOfCS([ _c_ ], pCaseSensitive)
 		else
 			return 0
 		ok
 
-	def IsMadeOfChar(c)
-		return This.IsMadeOfCharCS(c, 1)
+	def IsMadeOfChar(_c_)
+		return This.IsMadeOfCharCS(_c_, 1)
 
 	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
 		if CheckingParams()
@@ -189,17 +189,17 @@ class stzStringChecker from stzObject
 			ok
 		ok
 
-		cCopy = @oString.Content()
-		nLen = len(acSubStr)
+		_cCopy_ = @oString.Content()
+		_nLen_ = len(acSubStr)
 
-		for i = 1 to nLen
-			oFinder = new stzStringFinder(cCopy)
-			if oFinder.ContainsCS(acSubStr[i], pCaseSensitive)
-				cCopy = @ReplaceCS(cCopy, acSubStr[i], "", pCaseSensitive)
+		for i = 1 to _nLen_
+			_oFinder_ = new stzStringFinder(_cCopy_)
+			if _oFinder_.ContainsCS(acSubStr[i], pCaseSensitive)
+				_cCopy_ = @ReplaceCS(_cCopy_, acSubStr[i], "", pCaseSensitive)
 			ok
 		next
 
-		if cCopy = ""
+		if _cCopy_ = ""
 			return 1
 		else
 			return 0
@@ -218,8 +218,8 @@ class stzStringChecker from stzObject
 
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger()
-			cFirst = @oString.NthChar(1)
-			if cFirst = "+" or cFirst = "-"
+			_cFirst_ = @oString.NthChar(1)
+			if _cFirst_ = "+" or _cFirst_ = "-"
 				return 1
 			ok
 		ok
@@ -294,12 +294,12 @@ class stzStringChecker from stzObject
 
 	def RepresentsBinaryNumber()
 		# Requires 0b/0B prefix per Softanza convention
-		cContent = @oString.Content()
-		if StzLen(cContent) < 3
+		_cContent_ = @oString.Content()
+		if StzLen(_cContent_) < 3
 			return 0
 		ok
-		cPrefix = StzLeft(cContent, 2)
-		if cPrefix != "0b" and cPrefix != "0B"
+		_cPrefix_ = StzLeft(_cContent_, 2)
+		if _cPrefix_ != "0b" and _cPrefix_ != "0B"
 			return 0
 		ok
 		pH = @oString.Engine()
@@ -310,12 +310,12 @@ class stzStringChecker from stzObject
 
 	def RepresentsHexNumber()
 		# Requires 0x/0X prefix per Softanza convention
-		cContent = @oString.Content()
-		if StzLen(cContent) < 3
+		_cContent_ = @oString.Content()
+		if StzLen(_cContent_) < 3
 			return 0
 		ok
-		cPrefix = StzLeft(cContent, 2)
-		if cPrefix != "0x" and cPrefix != "0X"
+		_cPrefix_ = StzLeft(_cContent_, 2)
+		if _cPrefix_ != "0x" and _cPrefix_ != "0X"
 			return 0
 		ok
 		pH = @oString.Engine()
@@ -326,16 +326,16 @@ class stzStringChecker from stzObject
 
 	def RepresentsNumberInUnicodeHexForm()
 		# Checks for "U+XXXX" format
-		cContent = @oString.Content()
-		_nLen_ = StzLen(cContent)
+		_cContent_ = @oString.Content()
+		_nLen_ = StzLen(_cContent_)
 		if _nLen_ < 3
 			return 0
 		ok
-		_cPrefix_ = StzUpper(StzLeft(cContent, 2))
+		_cPrefix_ = StzUpper(StzLeft(_cContent_, 2))
 		if _cPrefix_ != "U+"
 			return 0
 		ok
-		_cHexPart_ = StzRight(cContent, _nLen_ - 2)
+		_cHexPart_ = StzRight(_cContent_, _nLen_ - 2)
 		return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
 
 	def IsCharName()
@@ -354,10 +354,10 @@ class stzStringChecker from stzObject
 		pH = @oString.Engine()
 		pRev = StzEngineStringReverse(pH)
 		pH2 = StzEngineString(pcOtherStr)
-		nResult = StzEngineStringEqualsCS(pRev, pH2, _bCase_)
+		_nResult_ = StzEngineStringEqualsCS(pRev, pH2, _bCase_)
 		StzEngineStringFree(pRev)
 		StzEngineStringFree(pH2)
-		return nResult
+		return _nResult_
 
 	def IsReversedCopyOf(pcOtherStr)
 		return This.IsReversedCopyOfCS(pcOtherStr, 1)
@@ -423,20 +423,20 @@ class stzStringChecker from stzObject
 		ok
 
 		pH = @oString.Engine()
-		cFirst = StzEngineStringCharAtToString(pH, 1)
-		cSecond = StzEngineStringCharAtToString(pH, 2)
-		return cFirst = cSecond
+		_cFirst_ = StzEngineStringCharAtToString(pH, 1)
+		_cSecond_ = StzEngineStringCharAtToString(pH, 2)
+		return _cFirst_ = _cSecond_
 
 	def HasTrailingChars()
-		nLen = @oString.NumberOfChars()
-		if nLen < 2
+		_nLen_ = @oString.NumberOfChars()
+		if _nLen_ < 2
 			return 0
 		ok
 
 		pH = @oString.Engine()
-		cLast = StzEngineStringCharAtToString(pH, nLen)
-		cPrev = StzEngineStringCharAtToString(pH, nLen - 1)
-		return cLast = cPrev
+		_cLast_ = StzEngineStringCharAtToString(pH, _nLen_)
+		_cPrev_ = StzEngineStringCharAtToString(pH, _nLen_ - 1)
+		return _cLast_ = _cPrev_
 
 	def HasLeadingAndTrailingChars()
 		return This.HasLeadingChars() and This.HasTrailingChars()
@@ -448,26 +448,26 @@ class stzStringChecker from stzObject
 	def Trimmed()
 		pH = StzEngineString(@oString.Content())
 		pR = StzEngineStringTrimmed(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
-		return c
+		return _c_
 
 	def TrimmedLeft()
 		pH = StzEngineString(@oString.Content())
 		pR = StzEngineStringTrimLeft(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
-		return c
+		return _c_
 
 	def TrimmedRight()
 		pH = StzEngineString(@oString.Content())
 		pR = StzEngineStringTrimRight(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     ADDITIONAL CHECKS          #
@@ -483,12 +483,12 @@ class stzStringChecker from stzObject
 
 	def RepresentsOctalNumber()
 		# Requires 0o/0O prefix per Softanza convention
-		cContent = @oString.Content()
-		if StzLen(cContent) < 3
+		_cContent_ = @oString.Content()
+		if StzLen(_cContent_) < 3
 			return 0
 		ok
-		cPrefix = StzLeft(cContent, 2)
-		if cPrefix != "0o" and cPrefix != "0O"
+		_cPrefix_ = StzLeft(_cContent_, 2)
+		if _cPrefix_ != "0o" and _cPrefix_ != "0O"
 			return 0
 		ok
 		pH = @oString.Engine()
@@ -552,9 +552,9 @@ class stzStringChecker from stzObject
 	def ContainsCharCS(pcChar, pCaseSensitive)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
-		nCp = StzEngineStringCharAt(pHChar, 1)
+		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		return StzEngineStringContainsChar(pH, nCp)
+		return StzEngineStringContainsChar(pH, _nCp_)
 
 	def ContainsChar(pcChar)
 		return This.ContainsCharCS(pcChar, 1)
@@ -595,17 +595,17 @@ class stzStringChecker from stzObject
 		pH = @oString.Engine()
 		return StzEngineStringHasMark(pH)
 
-	def CharIsControlAt(n)
+	def CharIsControlAt(_n_)
 		pH = @oString.Engine()
-		return StzEngineStringCharIsControlAt(pH, n)
+		return StzEngineStringCharIsControlAt(pH, _n_)
 
-	def CharIsMarkAt(n)
+	def CharIsMarkAt(_n_)
 		pH = @oString.Engine()
-		return StzEngineStringCharIsMarkAt(pH, n)
+		return StzEngineStringCharIsMarkAt(pH, _n_)
 
-	def CharIsSpaceAt(n)
+	def CharIsSpaceAt(_n_)
 		pH = @oString.Engine()
-		return StzEngineStringCharIsSpaceAt(pH, n)
+		return StzEngineStringCharIsSpaceAt(pH, _n_)
 
 	  #===============================#
 	 #     ONLY MARKS / CONTROLS     #
@@ -614,23 +614,23 @@ class stzStringChecker from stzObject
 	def OnlyMarks()
 		pH = @oString.Engine()
 		pR = StzEngineStringOnlyMarks(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def OnlyControls()
 		pH = @oString.Engine()
 		pR = StzEngineStringOnlyControls(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	def OnlyLatinLetters()
 		pH = @oString.Engine()
 		pR = StzEngineStringOnlyLatinLetters(pH)
-		c = StzEngineStringData(pR)
+		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return c
+		return _c_
 
 	  #===============================#
 	 #     NUMERIC / ALPHA CHECKS    #

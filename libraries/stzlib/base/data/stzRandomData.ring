@@ -123,14 +123,14 @@ func AWord()
 		return AWord()
 
 func 100EnglishWords()
-	acResult = []
-	nLen = len(_a100Words)
+	_acResult_ = []
+	_nLen_ = len(_a100Words)
 
-	for i = 1 to nLen
-		acResult + _a100Words[i][1]
+	for i = 1 to _nLen_
+		_acResult_ + _a100Words[i][1]
 	next
 
-	return acResult
+	return _acResult_
 
 	func EnglishWords()
 		return 100EnglishWords()
@@ -142,14 +142,14 @@ func AnEnglishWord()
 		return AnEnglishWord()
 
 func 100FrenchWords()
-	acResult = []
-	nLen = len(_a100Words)
+	_acResult_ = []
+	_nLen_ = len(_a100Words)
 
-	for i = 1 to nLen
-		acResult + _a100Words[i][2]
+	for i = 1 to _nLen_
+		_acResult_ + _a100Words[i][2]
 	next
 
-	return acResult
+	return _acResult_
 
 	func FrenchWords()
 		return 100FrenchWords()
@@ -161,14 +161,14 @@ func AFrenchWord()
 		return AFrenchWord()
 
 func 100ArabicWords()
-	acResult = []
-	nLen = len(_a100Words)
+	_acResult_ = []
+	_nLen_ = len(_a100Words)
 
-	for i = 1 to nLen
-		acResult + _a100Words[i][3]
+	for i = 1 to _nLen_
+		_acResult_ + _a100Words[i][3]
 	next
 
-	return acResult
+	return _acResult_
 
 	func ArabicWords()
 		return 100ArabicWords()

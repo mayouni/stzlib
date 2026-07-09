@@ -28,89 +28,89 @@ class stzNaturalMarkup from stzObject
 
     def _Blocks()
         @acBlocks = @oCode.SubStringsBoundedBy([ "#<", "#>" ])
-        nLen = len(@acBlocks)
-        for i = 1 to nLen
+        _nLen_ = len(@acBlocks)
+        for i = 1 to _nLen_
             if trim(@acBlocks[i]) != ""
                 @aoBlocks + new stzString(@acBlocks[i])
             ok
         next
 
     def _getHowManyParams(cDynPart)
-        cRev = reverse(cDynPart)
-        n = StzFindFirst(cRev, " ")
+        _cRev_ = reverse(cDynPart)
+        _n_ = StzFindFirst(_cRev_, " ")
     
-        nLen = stzlen(cDynPart)
-        cRes = ""
-        for i = 1 to n-1
-            cRes += cDynPart[nLen-i]
+        _nLen_ = stzlen(cDynPart)
+        _cRes_ = ""
+        for i = 1 to _n_-1
+            _cRes_ += cDynPart[_nLen_-i]
         next
     
-        nRes = 0+ reverse(cRes)
-        return nRes
+        _nRes_ = 0+ reverse(_cRes_)
+        return _nRes_
 
     def _getParamRank(cDynPart)
-        n = StzFindFirst(cDynPart, " ")
+        _n_ = StzFindFirst(cDynPart, " ")
     
-        cRes = ""
-        for i = 2 to n-1
-            cRes += cDynPart[i]
+        _cRes_ = ""
+        for i = 2 to _n_-1
+            _cRes_ += cDynPart[i]
         next
     
-        nRes = 0+ cRes
-        return nRes
+        _nRes_ = 0+ _cRes_
+        return _nRes_
 
     def _DynamicPartsPerBlock()
-        nLen = len(@aoBlocks)
+        _nLen_ = len(@aoBlocks)
 
 
-        for i = 1 to nLen
-            aData = []
-            acParts = @aoBlocks[i].SubstringsBoundedByZZ([ "{", "}" ])
-            nLenParts = len(acParts)
+        for i = 1 to _nLen_
+            _aData_ = []
+            _acParts_ = @aoBlocks[i].SubstringsBoundedByZZ([ "{", "}" ])
+            _nLenParts_ = len(_acParts_)
 
-            for j = 1 to nLenParts
+            for j = 1 to _nLenParts_
 
                 # Checking the left side
-                cLeft = StzLeft(acParts[j][1], 1)
+                _cLeft_ = StzLeft(_acParts_[j][1], 1)
 
-                if cLeft = "+"
-                    acParts[j] + "new"
+                if _cLeft_ = "+"
+                    _acParts_[j] + "new"
 
-                    nPos = StzFindFirst(acParts[j][1], ":")
-                    if nPos = 0
-                        nPos = StzFindFirst(acParts[j][1], " ")
+                    _nPos_ = StzFindFirst(_acParts_[j][1], ":")
+                    if _nPos_ = 0
+                        _nPos_ = StzFindFirst(_acParts_[j][1], " ")
                     ok
 
-                    if nPos > 2
-                        cType = @StzMid(acParts[j][1], 2, nPos-1)
-                        cStzType = "stz" + cType
-                        acParts[j] + cStzType
+                    if _nPos_ > 2
+                        _cType_ = @StzMid(_acParts_[j][1], 2, _nPos_-1)
+                        _cStzType_ = "stz" + _cType_
+                        _acParts_[j] + _cStzType_
                     ok
-                    n = j
+                    _n_ = j
 
-                but cLeft = "#"
-                    acParts[j] + "param"
-                    acParts[j] + _getParamRank(acParts[j][1])
+                but _cLeft_ = "#"
+                    _acParts_[j] + "param"
+                    _acParts_[j] + _getParamRank(_acParts_[j][1])
 
-                but cLeft = "?"
-                    acParts[j] + "get"
+                but _cLeft_ = "?"
+                    _acParts_[j] + "get"
 
-                but cLeft = "^"
-                    acParts[j] + "global"
+                but _cLeft_ = "^"
+                    _acParts_[j] + "global"
                 ok
 
                 # Checking the right side
 
-                cRight = StzRight(acParts[j][1], 1)
+                _cRight_ = StzRight(_acParts_[j][1], 1)
 
-                if cRight = "~"
-                    acParts[j] + _getHowManyParams(acParts[j][1])
+                if _cRight_ = "~"
+                    _acParts_[j] + _getHowManyParams(_acParts_[j][1])
                 ok
 
-                aData + acParts[j]
+                _aData_ + _acParts_[j]
             next
 
-            @aDynPartsPerBlock + aData
+            @aDynPartsPerBlock + _aData_
         next
 
     def _ResolveParams()

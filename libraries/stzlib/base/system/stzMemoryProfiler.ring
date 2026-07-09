@@ -8,73 +8,73 @@ func SizeInChars(str)
 	ok
 
 	# Count Unicode codepoints (not bytes) in a UTF-8 string
-	nCount = 0
-	nBytes = len(str)
-	i = 1
-	while i <= nBytes
-		c = ascii(str[i])
-		if (c & 0x80) = 0        # 1-byte (ASCII)
-			i++
-		but (c & 0xE0) = 0xC0    # 2-byte
-			i += 2
-		but (c & 0xF0) = 0xE0    # 3-byte
-			i += 3
-		but (c & 0xF8) = 0xF0    # 4-byte
-			i += 4
+	_nCount_ = 0
+	_nBytes_ = len(str)
+	_i_ = 1
+	while _i_ <= _nBytes_
+		_c_ = ascii(str[_i_])
+		if (_c_ & 0x80) = 0        # 1-byte (ASCII)
+			_i_++
+		but (_c_ & 0xE0) = 0xC0    # 2-byte
+			_i_ += 2
+		but (_c_ & 0xF0) = 0xE0    # 3-byte
+			_i_ += 3
+		but (_c_ & 0xF8) = 0xF0    # 4-byte
+			_i_ += 4
 		else
-			i++                   # invalid byte, skip
+			_i_++                   # invalid byte, skip
 		ok
-		nCount++
+		_nCount_++
 	end
-	return nCount
+	return _nCount_
 
 	func @SizeInChars(str)
 		return SizeInChars(str)
 
 
-func ContentSizeInBytes(item)
-	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
-		item = item[2]
+func ContentSizeInBytes(_item_)
+	if isList(_item_) and len(_item_) = 2 and isString(_item_[1]) and _item_[1] = :Of
+		_item_ = _item_[2]
 	ok
 
-	if isNumber(item)
+	if isNumber(_item_)
 		return RING_NUMBER_CONTENT_SIZE
 
-	but isString(item)
-		return len(item)
+	but isString(_item_)
+		return len(_item_)
 
-	but isList(item)
-		nResult = 0
-		nLen = len(item)
+	but isList(_item_)
+		_nResult_ = 0
+		_nLen_ = len(_item_)
 
-		for i = 1 to nLen
-			nResult += ContentSizeInBytes(item[i])
+		for _i_ = 1 to _nLen_
+			_nResult_ += ContentSizeInBytes(_item_[_i_])
 		next
 
-		return nResult
+		return _nResult_
 
-	but isObject(item)
-		return ContentSizeInBytes( AttributesValues(item) )
+	but isObject(_item_)
+		return ContentSizeInBytes( AttributesValues(_item_) )
 	ok
 
 	#< @FunctionAlternativeForms
 
-	func ContentSize(item)
-		return ContentSizeInBytes(item)
+	func ContentSize(_item_)
+		return ContentSizeInBytes(_item_)
 
-	func CSize(item)
-		return ContentSizeInBytes(item)
+	func CSize(_item_)
+		return ContentSizeInBytes(_item_)
 
 	#--
 
-	func @ContentSizeInBytes(item)
-		return ContentSizeInBytes(item)
+	func @ContentSizeInBytes(_item_)
+		return ContentSizeInBytes(_item_)
 
-	func @ContentSize(item)
-		return ContentSizeInBytes(item)
+	func @ContentSize(_item_)
+		return ContentSizeInBytes(_item_)
 
-	func @CSize(item)
-		return ContentSizeInBytes(item)
+	func @CSize(_item_)
+		return ContentSizeInBytes(_item_)
 
 	#>
 
@@ -192,11 +192,11 @@ func SizeInBytes(p)
 
 	#>
 
-func SizeInBytesXT(item)
+func SizeInBytesXT(_item_)
 	if Is64Bit()
-		return SizeInBytes64XT(item)
+		return SizeInBytes64XT(_item_)
 	else
-		return SizeInBytes32XT(item)
+		return SizeInBytes32XT(_item_)
 	ok
 
 	#< @FunctionAlternativeForms

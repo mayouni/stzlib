@@ -3,29 +3,29 @@
 # =============================================================================
 
 class stzWebSocket from stzNetwork
-    is_connected = False
-    last_message = ""
-    message_type = ""
-    on_message_callback = ""
-    on_open_callback = ""
-    on_close_callback = ""
-    on_error_callback = ""
+    _is_connected_ = False
+    _last_message_ = ""
+    _message_type_ = ""
+    _on_message_callback_ = ""
+    _on_open_callback_ = ""
+    _on_close_callback_ = ""
+    _on_error_callback_ = ""
     
     def Connect(cUrl)
-        curl_handle = curl_easy_init()
-        curl_easy_setopt_2(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt_1(curl_handle, CURLOPT_CONNECT_ONLY, 2)
+        _curl_handle_ = curl_easy_init()
+        curl_easy_setopt_2(_curl_handle_, CURLOPT_URL, cUrl)
+        curl_easy_setopt_1(_curl_handle_, CURLOPT_CONNECT_ONLY, 2)
         
-        result = curl_easy_perform(curl_handle)
-        if result = CURLE_OK
-            is_connected = True
+        _result_ = curl_easy_perform(_curl_handle_)
+        if _result_ = CURLE_OK
+            _is_connected_ = True
             ClearErrors()
-            if on_open_callback != ""
-                call on_open_callback()
+            if _on_open_callback_ != ""
+                call _on_open_callback_()
             ok
         else
-            last_error = "WebSocket connection failed"
-            error_code = result
+            _last_error_ = "WebSocket connection failed"
+            _error_code_ = _result_
         ok
         return This
     
@@ -33,97 +33,97 @@ class stzWebSocket from stzNetwork
         return This.SendText(cMessage)
     
     def SendText(cText)
-        if not is_connected
-            last_error = "Not connected"
+        if not _is_connected_
+            _last_error_ = "Not connected"
             return This
         ok
         
-        result = curl_ws_send(curl_handle, cText, 0, CURLWS_TEXT)
-        if result[1] != CURLE_OK
-            last_error = "Failed to send message"
-            error_code = result[1]
+        _result_ = curl_ws_send(_curl_handle_, cText, 0, CURLWS_TEXT)
+        if _result_[1] != CURLE_OK
+            _last_error_ = "Failed to send message"
+            _error_code_ = _result_[1]
         ok
         return This
     
     def SendBinary(aData)
-        if not is_connected
-            last_error = "Not connected"
+        if not _is_connected_
+            _last_error_ = "Not connected"
             return This
         ok
         
         # Convert array to binary string
-        binary_string = ""
+        _binary_string_ = ""
         _nData1Len_ = len(aData)
         for _iLoopData1_ = 1 to _nData1Len_
-        	byte = aData[_iLoopData1_]
-            binary_string += StzChar(byte)
+        	_byte_ = aData[_iLoopData1_]
+            _binary_string_ += StzChar(_byte_)
         next
         
-        result = curl_ws_send(curl_handle, binary_string, 0, CURLWS_BINARY)
-        if result[1] != CURLE_OK
-            last_error = "Failed to send binary data"
-            error_code = result[1]
+        _result_ = curl_ws_send(_curl_handle_, _binary_string_, 0, CURLWS_BINARY)
+        if _result_[1] != CURLE_OK
+            _last_error_ = "Failed to send binary data"
+            _error_code_ = _result_[1]
         ok
         return This
     
     def Receive()
-        if not is_connected
-            last_error = "Not connected"
+        if not _is_connected_
+            _last_error_ = "Not connected"
             return This
         ok
         
-        result = curl_ws_recv(curl_handle, 1024)
-        if result[1] = CURLE_OK
-            last_message = result[2]
+        _result_ = curl_ws_recv(_curl_handle_, 1024)
+        if _result_[1] = CURLE_OK
+            _last_message_ = _result_[2]
             # Determine message type based on WebSocket frame
-            message_type = "TEXT"  # Simplified - would need proper frame parsing
+            _message_type_ = "TEXT"  # Simplified - would need proper frame parsing
             ClearErrors()
             
-            if on_message_callback != ""
-                call on_message_callback()
+            if _on_message_callback_ != ""
+                call _on_message_callback_()
             ok
         else
-            if result[1] != CURLE_AGAIN
-                last_error = "Failed to receive message"
-                error_code = result[1]
+            if _result_[1] != CURLE_AGAIN
+                _last_error_ = "Failed to receive message"
+                _error_code_ = _result_[1]
             ok
         ok
         return This
     
     def Close()
-        if is_connected and curl_handle != NULL
+        if _is_connected_ and _curl_handle_ != NULL
             # Send close frame
-            curl_ws_send(curl_handle, "", 0, CURLWS_CLOSE)
-            curl_easy_cleanup(curl_handle)
-            is_connected = False
+            curl_ws_send(_curl_handle_, "", 0, CURLWS_CLOSE)
+            curl_easy_cleanup(_curl_handle_)
+            _is_connected_ = False
             
-            if on_close_callback != ""
-                call on_close_callback()
+            if _on_close_callback_ != ""
+                call _on_close_callback_()
             ok
         ok
         return This
     
     def IsOpen()
-        return is_connected
+        return _is_connected_
     
     def OnMessage(cCallback)
-        on_message_callback = cCallback
+        _on_message_callback_ = cCallback
         return This
     
     def OnOpen(cCallback)
-        on_open_callback = cCallback
+        _on_open_callback_ = cCallback
         return This
     
     def OnClose(cCallback)
-        on_close_callback = cCallback
+        _on_close_callback_ = cCallback
         return This
     
     def OnError(cCallback)
-        on_error_callback = cCallback
+        _on_error_callback_ = cCallback
         return This
     
     def LastMessage()
-        return last_message
+        return _last_message_
     
     def MessageType()
-        return message_type
+        return _message_type_

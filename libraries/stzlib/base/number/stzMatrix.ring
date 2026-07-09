@@ -29,77 +29,77 @@ func StzMatrixQ(paMatrix)
 
 func Diagonal1Matrix(paValues)
 
-	nSize = len(paValues)
-	aMatrix = []
+	_nSize_ = len(paValues)
+	_aMatrix_ = []
 
-	for i = 1 to nSize
+	for i = 1 to _nSize_
 
-		aRow = []
+		_aRow_ = []
 
-		for j = 1 to nSize
+		for j = 1 to _nSize_
 
 			if j = 1
-				aRow + paValues[i]
+				_aRow_ + paValues[i]
 			else
-				aRow + 0
+				_aRow_ + 0
 			ok
 
 		next
 
-		aMatrix + aRow
+		_aMatrix_ + _aRow_
 
 	next
 
-	return aMatrix
+	return _aMatrix_
 
 func Diagonal2Matrix(paValues)
 
-	nSize = len(paValues)
-	aMatrix = []
+	_nSize_ = len(paValues)
+	_aMatrix_ = []
     
-	for i = 1 to nSize
+	for i = 1 to _nSize_
 
-		aRow = []
+		_aRow_ = []
 
-		for j = 1 to nSize
+		for j = 1 to _nSize_
 
-			if j = nSize - i + 1
-				aRow + paValues[i]
+			if j = _nSize_ - i + 1
+				_aRow_ + paValues[i]
 			else
-				aRow + 0
+				_aRow_ + 0
 			ok
 
 		next
 
-		aMatrix + aRow
+		_aMatrix_ + _aRow_
 
 	next
 
-	return aMatrix
+	return _aMatrix_
 
 func ConstantMatrix(paParams)
 
-	nValue = paParams[1]
-	aSize = paParams[2]
+	_nValue_ = paParams[1]
+	_aSize_ = paParams[2]
 
-	nRows = aSize[1]
-	nCols = aSize[2]
+	_nRows_ = _aSize_[1]
+	_nCols_ = _aSize_[2]
 
-	aMatrix = []
+	_aMatrix_ = []
 
-	for i = 1 to nRows
+	for i = 1 to _nRows_
 
-		aRow = []
+		_aRow_ = []
 
-		for j = 1 to nCols
-			aRow + nValue
+		for j = 1 to _nCols_
+			_aRow_ + _nValue_
 		next
 
-		aMatrix + aRow
+		_aMatrix_ + _aRow_
 
 	next
 
-	return aMatrix
+	return _aMatrix_
 
 
 func IsMatrix(paList)
@@ -119,11 +119,11 @@ func IsMatrixOfPositiveNumbers(paList)
 	if isList(paList) and IsListOfListsOfNumbers(paList) and
 	   AllListsHaveSameSize(paList)
 
-		nLen = len(paList)
-		nLen2 = len(paList[1])
+		_nLen_ = len(paList)
+		_nLen2_ = len(paList[1])
 
-		for i = 1 to nLen
-			for j = 1 to nLen2
+		for i = 1 to _nLen_
+			for j = 1 to _nLen2_
 				if NOT paList[i][j] >= 0
 					return FALSE
 				ok
@@ -142,11 +142,11 @@ func IsMatrixOfNonZeroPositiveNumbers(paList)
 	if isList(paList) and IsListOfListsOfNumbers(paList) and
 	   AllListsHaveSameSize(paList)
 
-		nLen = len(paList)
-		nLen2 = len(paList[1])
+		_nLen_ = len(paList)
+		_nLen2_ = len(paList[1])
 
-		for i = 1 to nLen
-			for j = 1 to nLen2
+		for i = 1 to _nLen_
+			for j = 1 to _nLen2_
 				if NOT paList[i][j] > 0
 					return FALSE
 				ok
@@ -171,17 +171,17 @@ func IsListOfMatrices(paList)
 		return 0
 	ok
 
-	bResult = 1
-	nLen = len(paList)
+	_bResult_ = 1
+	_nLen_ = len(paList)
 
-	for i = 1 to nLen
+	for i = 1 to _nLen_
 		if NOT IsMAtrix(paList[i])
-			bResult = 0
+			_bResult_ = 0
 			exit
 		ok
 	next
 
-	return bResult
+	return _bResult_
 
 class stzMatrix from stzListOfLists
 
@@ -271,12 +271,12 @@ class stzMatrix from stzListOfLists
 	# in rows nR1..nR2 x cols nC1..nC2 (1-based, inclusive) inside the Zig
 	# matrix engine, then syncs @aContent back.
 	def _UpdateRegion(cOp, nR1, nR2, nC1, nC2, nVal)
-		nOp = 0
+		_nOp_ = 0
 		if cOp = :mul
-			nOp = 1
+			_nOp_ = 1
 		ok
 		This._EnsureEngineMatrix()
-		StzEngineMatrixUpdateRegion(@pEngineMatrix, nOp, nR1, nR2, nC1, nC2, nVal)
+		StzEngineMatrixUpdateRegion(@pEngineMatrix, _nOp_, nR1, nR2, nC1, nC2, nVal)
 		This._SyncFromEngine()
 
 	# Raw matrix access
@@ -352,17 +352,17 @@ class stzMatrix from stzListOfLists
 
 		stzraise("Incorrect param type or incorrect syntax!")
 
-	def AddCV(nCol, nValue)
-		This.AddInCol(nCol, nValue)
+	def AddCV(_nCol_, _nValue_)
+		This.AddInCol(_nCol_, _nValue_)
 
-	def AddVC(nValue, nCol)
-		This.AddInCol(nCol, nValue)
+	def AddVC(_nValue_, _nCol_)
+		This.AddInCol(_nCol_, _nValue_)
 
-	def AddRV(nRow, nValue)
-		This.AddInRow(nRow, nValue)
+	def AddRV(_nRow_, _nValue_)
+		This.AddInRow(_nRow_, _nValue_)
 
-	def AddVR(nValue, nRow)
-		This.AddInRow(nRow, nValue)
+	def AddVR(_nValue_, _nRow_)
+		This.AddInRow(_nRow_, _nValue_)
 
 	# Adds a value to a specific column
 
@@ -466,9 +466,9 @@ class stzMatrix from stzListOfLists
 
 		_nColumns1Len_ = len(paColumns)
 		for _iLoopColumns1_ = 1 to _nColumns1Len_
-			nCol = paColumns[_iLoopColumns1_]
+			_nCol_ = paColumns[_iLoopColumns1_]
 			for i = 1 to @nRows
-				@aContent[i][nCol] += pnValue
+				@aContent[i][_nCol_] += pnValue
 			next
 		next
 
@@ -504,11 +504,11 @@ class stzMatrix from stzListOfLists
 
 		#-- Other cases
 
-		nLen = len(panRows)
+		_nLen_ = len(panRows)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			for j = 1 to @nCols
-				@aContent[nRow][j] += pnValue
+				@aContent[_nRow_][j] += pnValue
 				@aContent[panRows[i]][j] += pnValue
 			next
 		next
@@ -517,9 +517,9 @@ class stzMatrix from stzListOfLists
 
 	def AddInDiagonal(pnValue)
 
-		nMin = @min([@nRows, @nCols])
+		_nMin_ = @min([@nRows, @nCols])
 
-		for i = 1 to nMin
+		for i = 1 to _nMin_
 			@aContent[i][i] += pnValue
 		next
 
@@ -527,9 +527,9 @@ class stzMatrix from stzListOfLists
 
 	def AddInDiagonal2(pnValue)
 
-		nMin = @min([@nRows, @nCols])
+		_nMin_ = @min([@nRows, @nCols])
 
-		for i = 1 to nMin
+		for i = 1 to _nMin_
 			@aContent[i][@nCols - i + 1] += pnValue
 		next
 
@@ -575,17 +575,17 @@ class stzMatrix from stzListOfLists
 
 		stzraise("Incorrect param type or incorrect syntax!")
 
-	def MultiplyCV(nCol, nValue)
-		This.MultiplyCol(nCol, nValue)
+	def MultiplyCV(_nCol_, _nValue_)
+		This.MultiplyCol(_nCol_, _nValue_)
 
-	def MultiplyVC(nValue, nCol)
-		This.MultiplyCol(nCol, nValue)
+	def MultiplyVC(_nValue_, _nCol_)
+		This.MultiplyCol(_nCol_, _nValue_)
 
-	def MultiplyRV(nRow, nValue)
-		This.MultiplyRow(nRow, nValue)
+	def MultiplyRV(_nRow_, _nValue_)
+		This.MultiplyRow(_nRow_, _nValue_)
 
-	def MultiplyVR(nValue, nRow)
-		This.MultiplyRow(nRow, nValue)
+	def MultiplyVR(_nValue_, _nRow_)
+		This.MultiplyRow(_nRow_, _nValue_)
 
 	def MultiplyBy(pnValue)
 
@@ -671,19 +671,19 @@ class stzMatrix from stzListOfLists
 
 		# Doing the job
 
-		nLen = len(panCols)
+		_nLen_ = len(panCols)
 
-		aCommands = []
-		cCode = 'updateColumn(@aContent, '
+		_aCommands_ = []
+		_cCode_ = 'updateColumn(@aContent, '
 
-		for i = 1 to nLen
-			cCode += ':mul, ' + panCols[i] + ', ' + pnValue + ', '
+		for i = 1 to _nLen_
+			_cCode_ += ':mul, ' + panCols[i] + ', ' + pnValue + ', '
 		next
 
-		cCode += ')'
-		cCode = StzReplace(ccode, ", )", ")")
+		_cCode_ += ')'
+		_cCode_ = StzReplace(_cCode_, ", )", ")")
 
-		eval(ccode)
+		eval(_cCode_)
 
 		# More performant then:
 
@@ -762,9 +762,9 @@ class stzMatrix from stzListOfLists
 
 		# Doing the job
 
-		nLen = len(panRows)
+		_nLen_ = len(panRows)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 		 	This._UpdateRegion(:mul, panRows[i], panRows[i], 1, @nCols, pnValue)
 		next
 
@@ -778,9 +778,9 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		nMin = @min([@nRows, @nCols])
+		_nMin_ = @min([@nRows, @nCols])
 
-		for i = 1 to nMin
+		for i = 1 to _nMin_
 			@aContent[i][i] *= pnValue
 		next
 
@@ -807,9 +807,9 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		nMin = @min([@nRows, @nCols])
+		_nMin_ = @min([@nRows, @nCols])
 
-		for i = 1 to nMin
+		for i = 1 to _nMin_
 			@aContent[i][@nCols - i + 1] *= pnValue
 		next
 
@@ -828,10 +828,10 @@ class stzMatrix from stzListOfLists
 			raise("Input must be a valid matrix")
 		ok
 
-		nInputRows = len(paMatrix)
-		nInputCols = len(paMatrix[1])
+		_nInputRows_ = len(paMatrix)
+		_nInputCols_ = len(paMatrix[1])
 
-		if @nRows != nInputRows or @nCols != nInputCols
+		if @nRows != _nInputRows_ or @nCols != _nInputCols_
 			raise("Matrices must have the same dimensions")
 		ok
 
@@ -854,17 +854,17 @@ class stzMatrix from stzListOfLists
 
 		# Check matrix multiplication dimensions
 
-		nInputRows = len(paMatrix)
-		nInputCols = len(paMatrix[1])
+		_nInputRows_ = len(paMatrix)
+		_nInputCols_ = len(paMatrix[1])
 
-		if @nCols != nInputRows
+		if @nCols != _nInputRows_
 			raise("Matrices cannot be multiplied: incompatible dimensions")
 		ok
 
 		# Engine fast path
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != NULL
-			_pMbB = StzEngineMatrixNewFromList(nInputRows, nInputCols, paMatrix)
+			_pMbB = StzEngineMatrixNewFromList(_nInputRows_, _nInputCols_, paMatrix)
 			if _pMbB != NULL
 				_pMbResult = StzEngineMatrixMultiply(@pEngineMatrix, _pMbB)
 				StzEngineMatrixFree(_pMbB)
@@ -879,30 +879,30 @@ class stzMatrix from stzListOfLists
 
 		# Ring fallback
 
-		aResultMatrix = []
+		_aResultMatrix_ = []
 
 		for i = 1 to @nRows
 
-			aResultRow = []
+			_aResultRow_ = []
 
-			for j = 1 to nInputCols
+			for j = 1 to _nInputCols_
 
-				nSum = 0
+				_nSum_ = 0
 
 				for k = 1 to @nCols
-					nSum += @aContent[i][k] * paMatrix[k][j]
+					_nSum_ += @aContent[i][k] * paMatrix[k][j]
 				next
 
-				aResultRow + nSum
+				_aResultRow_ + _nSum_
 			next
 
-			aResultMatrix + aResultRow
+			_aResultMatrix_ + _aResultRow_
 		next
 
 		# Update the current matrix with the result
 
-		@aContent = aResultMatrix
-		@nCols = nInputCols
+		@aContent = _aResultMatrix_
+		@nCols = _nInputCols_
 		This._InvalidateEngineMatrix()
 
 		def MultiplyByMatrixQ(pMatrix)
@@ -920,17 +920,17 @@ class stzMatrix from stzListOfLists
 			return StzEngineMatrixSum(@pEngineMatrix)
 		ok
 
-		nTotal = 0
+		_nTotal_ = 0
 
 		for i = 1 to @nRows
 
 			for j = 1 to @nCols
-				nTotal += @aContent[i][j]
+				_nTotal_ += @aContent[i][j]
 			next
 
 		next
 
-		return nTotal
+		return _nTotal_
 
 	# Calculates the mean of all elements
 
@@ -945,17 +945,17 @@ class stzMatrix from stzListOfLists
 			return StzEngineMatrixMax(@pEngineMatrix)
 		ok
 
-		nMax = @aContent[1][1]
+		_nMax_ = @aContent[1][1]
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aContent[i][j] > nMax
-					nMax = @aContent[i][j]
+				if @aContent[i][j] > _nMax_
+					_nMax_ = @aContent[i][j]
 				ok
 			next
 		next
 
-		return nMax
+		return _nMax_
 
 	# Finds the minimum value in the matrix
 
@@ -965,17 +965,17 @@ class stzMatrix from stzListOfLists
 			return StzEngineMatrixMin(@pEngineMatrix)
 		ok
 
-		nMin = @aContent[1][1]
+		_nMin_ = @aContent[1][1]
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aContent[i][j] < nMin
-					nMin = @aContent[i][j]
+				if @aContent[i][j] < _nMin_
+					_nMin_ = @aContent[i][j]
 				ok
 			next
 		next
 
-		return nMin
+		return _nMin_
 
 	# Calculates the power of all elements
 
@@ -987,7 +987,7 @@ class stzMatrix from stzListOfLists
 			return
 		ok
 
-		nTotal = 0
+		_nTotal_ = 0
 
 		for i = 1 to @nRows
 
@@ -1018,109 +1018,109 @@ class stzMatrix from stzListOfLists
 	#-------------------------------#
 
 	def FindElement(nElm)
-		aPositions = []
+		_aPositions_ = []
     
 		for i = 1 to @nRows
 			for j = 1 to @nCols
 				if @aContent[i][j] = nElm
-					aPositions + [i, j]
+					_aPositions_ + [i, j]
 				ok
 			next
 		next
     
-		return aPositions
+		return _aPositions_
 
 	def FindElements(panElms)
 
-		aResult = []
-		nLen = len(panElms)
+		_aResult_ = []
+		_nLen_ = len(panElms)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			aPositions = This.FindElement(panElms[i])
-			nLen2 = len(aPositions)
+			_aPositions_ = This.FindElement(panElms[i])
+			_nLen2_ = len(_aPositions_)
 
-			for j = 1 to nLen2
-				aResult + aPositions[j]
+			for j = 1 to _nLen2_
+				_aResult_ + _aPositions_[j]
 			next
 
 		next
 
-		return aResult
+		return _aResult_
 
 	func FindCol(paCol)
-		aResult = []
+		_aResult_ = []
 
 		for nColIndex = 1 to @nCols
-			bMatch = True
+			_bMatch_ = True
 
 			for nRowIndex = 1 to @nRows
 				if @aContent[nRowIndex][nColIndex] != paCol[nRowIndex]
-					bMatch = False
+					_bMatch_ = False
 					exit
 				ok
 			next
 
-			if bMatch
-				aResult + nColIndex
+			if _bMatch_
+				_aResult_ + nColIndex
 			ok
 		next
     
-		return aResult
+		return _aResult_
 
 	def FindCols(panCols)
 		
-		nLen = len(panCols)
-		anResult = []
+		_nLen_ = len(panCols)
+		_anResult_ = []
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			anPos = This.FindCol(panCols[i])
-			nLenPos = len(anPos)
+			_anPos_ = This.FindCol(panCols[i])
+			_nLenPos_ = len(_anPos_)
 
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+			for j = 1 to _nLenPos_
+				_anResult_ + _anPos_[j]
 			next
 		next
 
-		return U(@sort(anResult))
+		return U(@sort(_anResult_))
 
 	def FindRow(panRow)
-		anResult = []
+		_anResult_ = []
 
 		for nRowIndex = 1 to @nRows
-			bMatch = True
+			_bMatch_ = True
 
 			for nColIndex = 1 to @nCols
 				if @aContent[nRowIndex][nColIndex] != panRow[nColIndex]
-					bMatch = False
+					_bMatch_ = False
 					exit
 				ok
 			next
 
-			if bMatch
-				anResult + nRowIndex
+			if _bMatch_
+				_anResult_ + nRowIndex
 			ok
 		next
     
-		return anResult
+		return _anResult_
 
 	def FindRows(panRows)
 
-		nLen = len(panRows)
-		anResult = []
+		_nLen_ = len(panRows)
+		_anResult_ = []
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 
-			anPos = This.FindRow(panRows[i])
-			nLenPos = len(anPos)
+			_anPos_ = This.FindRow(panRows[i])
+			_nLenPos_ = len(_anPos_)
 
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+			for j = 1 to _nLenPos_
+				_anResult_ + _anPos_[j]
 			next
 		next
 
-		return U(@sort(anResult))
+		return U(@sort(_anResult_))
 
 	#--
 
@@ -1150,22 +1150,22 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		for i = panStart[1] to panEnd[1]
-			aRow = []
+			_aRow_ = []
 
 			for j = panStart[2] to panEnd[2]
-				aRow + [j, i]
+				_aRow_ + [j, i]
 			next
 
-			nLen = len(aRow)
-			for j = 1 to nLen
-				aResult + aRow[j]
+			_nLen_ = len(_aRow_)
+			for j = 1 to _nLen_
+				_aResult_ + _aRow_[j]
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 		def FindNumbersInSection(panStart, panEnd)
 			return This.FindElementsInSection(panStart, panEnd)
@@ -1210,20 +1210,20 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		for i = panStart[1] to panEnd[1]
 
 			for j = panStart[2] to panEnd[2]
 
 				if @aContent[i][j] = pnElm
-					aResult + [i, j]
+					_aResult_ + [i, j]
 				ok
 
 			next
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1269,21 +1269,21 @@ class stzMatrix from stzListOfLists
 
 		# Doing the job
 
-		anElms = U(panElms)
-		aResult = []
+		_anElms_ = U(panElms)
+		_aResult_ = []
 
 		for i = panStart[1] to panEnd[1]
 
 			for j = panStart[2] to panEnd[2]
 
-				if StzFindFirst(anElms, @aContent[i][j]) > 0
-					aResult + [i, j]
+				if StzFindFirst(_anElms_, @aContent[i][j]) > 0
+					_aResult_ + [i, j]
 				ok
 
 			next
  		next
 
-		return aResult
+		return _aResult_
 
 		def FindTheseNumbersInSection(panElms, panStart, panEnd)
 			return This.FindTheseElementsInSection(panElms, panStart, panEnd)
@@ -1313,18 +1313,18 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		for i = panStart[1] to panEnd[1]
-			aRow = []
+			_aRow_ = []
 			for j = panStart[2] to panEnd[2]
-				aRow + @aContent[j][i]
+				_aRow_ + @aContent[j][i]
 			next
 
-			aResult + aRow
+			_aResult_ + _aRow_
 		next
 
-		return @Merge(aResult)
+		return @Merge(_aResult_)
 
 		#< @FunctionFluentForms
 
@@ -1359,12 +1359,12 @@ class stzMatrix from stzListOfLists
 		#>
 
 	def ElementsInSectionZ(panStart, panEnd)
-		aResult = @Association([
+		_aResult_ = @Association([
 			This.ElementsInSection(panStart, panEnd),
 			This.FindElementsInSection(panStart, panEnd)
 		])
 
-		return aResult
+		return _aResult_
 
 		def NumbersInSectionZ(panStart, panEnd)
 			return This.ElementsInSectionZ(panStart, panEnd)
@@ -1388,18 +1388,18 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		for i = panStart[1] to panEnd[1]
-			aRow = []
+			_aRow_ = []
 			for j = panStart[2] to panEnd[2]
-				aRow + @aContent[i][j]
+				_aRow_ + @aContent[i][j]
 			next
 
-			aResult + aRow
+			_aResult_ + _aRow_
 		next
 
-		return new stzMatrix(aResult)
+		return new stzMatrix(_aResult_)
 
 		def SubMatrixQ(panStart, panEnd)
 			return This.SubMatrix(panStart, panEnd)
@@ -1456,26 +1456,26 @@ class stzMatrix from stzListOfLists
 
 		# Logical cheks
 
-		nLenNewCols = len(panNewCols)
+		_nLenNewCols_ = len(panNewCols)
 
 		if len(panNewCols[1]) != @nRows
 			raise("Can't proceed! Replacement columns must match matrix rows")
 		ok
 
-		nLenCols = len(panCols)
+		_nLenCols_ = len(panCols)
 
-		if nLenCols != len(panNewCols)
+		if _nLenCols_ != len(panNewCols)
 			raise("Can't proceed! Number of columns to replace must match new columns")
 		ok
 
 		# Doing the job
 
-		for k = 1 to nLenCols
+		for k = 1 to _nLenCols_
 
-			nCol = panCols[k]
+			_nCol_ = panCols[k]
 
 			for i = 1 to @nRows
-				@aContent[i][nCol] = panNewCols[k][i]
+				@aContent[i][_nCol_] = panNewCols[k][i]
 			next
 		next
 
@@ -1525,21 +1525,21 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		nLenRows = len(panRows)
+		_nLenRows_ = len(panRows)
 
-		if nLenRows != len(paNewRows)
+		if _nLenRows_ != len(paNewRows)
 			raise("Number of rows to replace must match new rows")
 		ok
 
-		for k = 1 to nLenRows
+		for k = 1 to _nLenRows_
 
-			nRow = panRows[k]
+			_nRow_ = panRows[k]
 
 			if len(paNewRows[k]) != @nCols
 				raise("Replacement row must match matrix columns")
 			ok
 
-			@aContent[nRow] = paNewRows[k]
+			@aContent[_nRow_] = paNewRows[k]
 		next
 
 	  #------------------------------------#
@@ -1550,7 +1550,7 @@ class stzMatrix from stzListOfLists
 
 	def ReplaceElement(pnElm, pnNewElm)
 
-		bXT = FALSE
+		_bXT_ = FALSE
 
 		if isList(pnNewElm)
 
@@ -1567,7 +1567,7 @@ class stzMatrix from stzListOfLists
 			     	     pnNewElm[1] = :UsingManyXT )
 
 					pnNewElm[1] = :ByXT
-					bXT = TRUE
+					_bXT_ = TRUE
 				ok
 
 			ok
@@ -1577,11 +1577,11 @@ class stzMatrix from stzListOfLists
 				pnNEwElm = pnNewElm[2]
 			ok
 
-			if NOT bXT
+			if NOT _bXT_
 				if isNumber(pnNewElm)
-					anTemp = []
-					anTemp + pnNewElm
-					pnNewElm = anTemp
+					_anTemp_ = []
+					_anTemp_ + pnNewElm
+					pnNewElm = _anTemp_
 				ok
 				This.ReplaceElementByMany(pnElm, pnNewElm)
 			else
@@ -1638,10 +1638,10 @@ class stzMatrix from stzListOfLists
 
 		ok
 
-		nRow = panRowCol[1]
-		nCol = panRowCol[2]
+		_nRow_ = panRowCol[1]
+		_nCol_ = panRowCol[2]
 
-		@aContent[nRow][nCol] = pnNewElm
+		@aContent[_nRow_][_nCol_] = pnNewElm
 
 		def ReplaceNumberAt(panRowCol, pnNewElm)
 			This.ReplaceElementAt(panRowCol, pnNewElm)
@@ -1669,11 +1669,11 @@ class stzMatrix from stzListOfLists
 
 		ok
 
-		nRow = panRowCol[1]
-		nCol = panRowCol[2]
+		_nRow_ = panRowCol[1]
+		_nCol_ = panRowCol[2]
 
-		if @aContent[nRow][nCol] = pnElm
-			@aContent[nRow][nCol] = pnNewElm
+		if @aContent[_nRow_][_nCol_] = pnElm
+			@aContent[_nRow_][_nCol_] = pnNewElm
 		else
 			stzraise("Can't proceed! pnElm must be equal to the element in position panRowCol.")
 		ok
@@ -1704,16 +1704,16 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		nLen = len(panPos)
+		_nLen_ = len(panPos)
 	
-		for i = 1 to nLen
-			nRow = panPos[i][1]
-			nCol = panPos[i][2]
+		for i = 1 to _nLen_
+			_nRow_ = panPos[i][1]
+			_nCol_ = panPos[i][2]
 	
-			if nRow <= @nRows and nCol <= @nCols
+			if _nRow_ <= @nRows and _nCol_ <= @nCols
 				if i <= len(panElms)
-					if @aContent[nRow][nCol] = panElms[i]
-						@aContent[nRow][nCol] = pnNewElm
+					if @aContent[_nRow_][_nCol_] = panElms[i]
+						@aContent[_nRow_][_nCol_] = pnNewElm
 					ok
 				ok
 			ok
@@ -1740,18 +1740,18 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aPositions = This.FindElement(pnElm)
-		nLen = len(aPositions)
-		nNewElmsLen = len(panNewElms)
+		_aPositions_ = This.FindElement(pnElm)
+		_nLen_ = len(_aPositions_)
+		_nNewElmsLen_ = len(panNewElms)
     
 		# Consider the minimum of occurrences and replacement values
 
-		nToReplace = @min([nLen, nNewElmsLen])
+		_nToReplace_ = @min([_nLen_, _nNewElmsLen_])
 
-		for i = 1 to nToReplace
-			nRow = aPositions[i][1]
-			nCol = aPositions[i][2]
-			@aContent[nRow][nCol] = panNewElms[i]
+		for i = 1 to _nToReplace_
+			_nRow_ = _aPositions_[i][1]
+			_nCol_ = _aPositions_[i][2]
+			@aContent[_nRow_][_nCol_] = panNewElms[i]
 		next
 
 		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
@@ -1772,21 +1772,21 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		aPositions = This.FindElement(pnElm)
-		nLen = len(aPositions)
-		nNewElmsLen = len(panNewElms)
+		_aPositions_ = This.FindElement(pnElm)
+		_nLen_ = len(_aPositions_)
+		_nNewElmsLen_ = len(panNewElms)
 
 		# If no replacement values, exit
 
-		if nNewElmsLen = 0 return ok
+		if _nNewElmsLen_ = 0 return ok
 
 		# Replace all occurrences with cycling through replacement values
 
-		for i = 1 to nLen
-			nRow = aPositions[i][1]
-			nCol = aPositions[i][2]
-			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-			@aContent[nRow][nCol] = panNewElms[nIndex]
+		for i = 1 to _nLen_
+			_nRow_ = _aPositions_[i][1]
+			_nCol_ = _aPositions_[i][2]
+			_nIndex_ = ((i-1) % _nNewElmsLen_) + 1  # Cycle through new elements
+			@aContent[_nRow_][_nCol_] = panNewElms[_nIndex_]
 		next
 
 		def ReplaceAllOccurrencesXT(pnElm, panNewElms)
@@ -1817,23 +1817,23 @@ class stzMatrix from stzListOfLists
 			ok
 		ok
 
-		nLen = len(panPos)
-		nElmsLen = len(panElms)
-		nNewElmsLen = len(panNewElms)
+		_nLen_ = len(panPos)
+		_nElmsLen_ = len(panElms)
+		_nNewElmsLen_ = len(panNewElms)
 
 		# Consider minimum of occurrences, elements, and replacement values
 
-		nToReplace = @min([nLen, nElmsLen, nNewElmsLen])
+		_nToReplace_ = @min([_nLen_, _nElmsLen_, _nNewElmsLen_])
 
-		for i = 1 to nToReplace
+		for i = 1 to _nToReplace_
 
-			nRow = panPos[i][1]
-			nCol = panPos[i][2]
+			_nRow_ = panPos[i][1]
+			_nCol_ = panPos[i][2]
 
-			if nRow <= @nRows and nCol <= @nCols
+			if _nRow_ <= @nRows and _nCol_ <= @nCols
 
-				if @aContent[nRow][nCol] = panElms[i]
-					@aContent[nRow][nCol] = panNewElms[i]
+				if @aContent[_nRow_][_nCol_] = panElms[i]
+					@aContent[_nRow_][_nCol_] = panNewElms[i]
 				ok
 
 			ok
@@ -1860,25 +1860,25 @@ class stzMatrix from stzListOfLists
 
 		ok
 
-		nLen = len(panPos)
-		nElmsLen = len(panElms)
-		nNewElmsLen = len(panNewElms)
+		_nLen_ = len(panPos)
+		_nElmsLen_ = len(panElms)
+		_nNewElmsLen_ = len(panNewElms)
 
 		# If no replacement values, exit
 
-		if nNewElmsLen = 0 return ok
+		if _nNewElmsLen_ = 0 return ok
 
 		# Replace elements with cycling through replacement values
 
-		for i = 1 to @min([nLen, nElmsLen])
+		for i = 1 to @min([_nLen_, _nElmsLen_])
 
-			nRow = panPos[i][1]
-			nCol = panPos[i][2]
+			_nRow_ = panPos[i][1]
+			_nCol_ = panPos[i][2]
 
-			if nRow <= @nRows and nCol <= @nCols
-				if @aContent[nRow][nCol] = panElms[i]
-					nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-					@aContent[nRow][nCol] = panNewElms[nIndex]
+			if _nRow_ <= @nRows and _nCol_ <= @nCols
+				if @aContent[_nRow_][_nCol_] = panElms[i]
+					_nIndex_ = ((i-1) % _nNewElmsLen_) + 1  # Cycle through new elements
+					@aContent[_nRow_][_nCol_] = panNewElms[_nIndex_]
 				ok
 			ok
 
@@ -1921,9 +1921,9 @@ class stzMatrix from stzListOfLists
 
 		# Doing the job
 
-		nLen = len(panPos)
+		_nLen_ = len(panPos)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			@aContent[ panPos[i][1] ][ panPos[i][2] ] = pBy
 		next
 
@@ -1943,65 +1943,65 @@ class stzMatrix from stzListOfLists
 		
 	def ReplaceElementsAtByManyXT(panPos, panByMany)
 
-		nLen = len(panPos)
-		nNewElmsLen = len(panByMany)
+		_nLen_ = len(panPos)
+		_nNewElmsLen_ = len(panByMany)
 
 		# If no replacement values, exit
 
-		if nNewElmsLen = 0 return ok
+		if _nNewElmsLen_ = 0 return ok
 
 		# Replace all occurrences with cycling through replacement values
 
-		for i = 1 to nLen
-			nRow = panPos[i][1]
-			nCol = panPos[i][2]
-			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-			@aContent[nRow][nCol] = panByMany[nIndex]
+		for i = 1 to _nLen_
+			_nRow_ = panPos[i][1]
+			_nCol_ = panPos[i][2]
+			_nIndex_ = ((i-1) % _nNewElmsLen_) + 1  # Cycle through new elements
+			@aContent[_nRow_][_nCol_] = panByMany[_nIndex_]
 		next
 
 	def ReplaceSection(panStart, panEnd, pBy)
-		aElmsPos = This.FindElementsInSection(panStart, panEnd)
-		This.ReplaceElementsAt(aElmsPos, pby)
+		_aElmsPos_ = This.FindElementsInSection(panStart, panEnd)
+		This.ReplaceElementsAt(_aElmsPos_, pby)
 
 	def ReplaceSectionByMany(panStart, panEnd, paMany)
-		aElmsPos = This.FindElementsInSection(panStart, panEnd)
-		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+		_aElmsPos_ = This.FindElementsInSection(panStart, panEnd)
+		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
 		def ReplaceElementsInSectionByMany(panStart, panEnd, paMany)
 			This.ReplaceSectionByMany(panStart, panEnd, paMany)
 
 	def ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
-		aElmsPos = This.FindElementInSection(pnElm, panStart, panEnd)
-		This.ReplaceElementsAt(aElmsPos, pby)
+		_aElmsPos_ = This.FindElementInSection(pnElm, panStart, panEnd)
+		This.ReplaceElementsAt(_aElmsPos_, pby)
 
 		def ReplaceThisElementInSection(pnElm, panStart, panEnd, pBy)
 			This.ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
 
 	def ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
-		aElmsPos = This.FindThisElementInSection(panStart, panEnd)
-		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+		_aElmsPos_ = This.FindThisElementInSection(panStart, panEnd)
+		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
 		def ReplaceThisElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 			This.ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 
 	def ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
-		aElmsPos = This.FindThisElementInSection(panStart, panEnd)
-		This.ReplaceElementsAtByManyXT(aElmsPos, paMany)
+		_aElmsPos_ = This.FindThisElementInSection(panStart, panEnd)
+		This.ReplaceElementsAtByManyXT(_aElmsPos_, paMany)
 
 		def ReplaceThisElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
 			This.ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
 
 	def ReplaceTheseElementsInSection(panElms, panStart, panEnd, pBy)
-		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
-		This.ReplaceElementsAt(aElmsPos, pby)
+		_aElmsPos_ = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAt(_aElmsPos_, pby)
 
 	def ReplaceTheseElementsInSectionByMany(panElms, panStart, panEnd, paMany)
-		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
-		This.ReplaceElementsAtByMany(aElmsPos, paMany)
+		_aElmsPos_ = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
 	def ReplaceTheseElementsInSectionByManyXT(panElms, panStart, panEnd, paMany)
-		aElmsPos = This.FindTheseElementsInSection(panElms, panStart, panEnd)
-		This.ReplaceElementsAtByManyXT(aElmsPos, paMany)
+		_aElmsPos_ = This.FindTheseElementsInSection(panElms, panStart, panEnd)
+		This.ReplaceElementsAtByManyXT(_aElmsPos_, paMany)
 
 
 	  #-----------------------------#
@@ -2012,14 +2012,14 @@ class stzMatrix from stzListOfLists
 
 	def Diagonal()
 
-		nMin = @min([ @nRows, @nCols ])
-		aDiagonal = []
+		_nMin_ = @min([ @nRows, @nCols ])
+		_aDiagonal_ = []
 
-		for i = 1 to nMin
-			aDiagonal + @aContent[i][i]
+		for i = 1 to _nMin_
+			_aDiagonal_ + @aContent[i][i]
 		next
 
-		return aDiagonal
+		return _aDiagonal_
 
 		func Diagonal1()
 
@@ -2027,14 +2027,14 @@ class stzMatrix from stzListOfLists
 
 	def Diagonal2()
 
-		nMin = @min([@nRows, @nCols])
-		aDiagonal = []
+		_nMin_ = @min([@nRows, @nCols])
+		_aDiagonal_ = []
 
-		for i = 1 to nMin
-			aDiagonal + @aContent[i][@nCols - i + 1]
+		for i = 1 to _nMin_
+			_aDiagonal_ + @aContent[i][@nCols - i + 1]
 		next
 
-		return aDiagonal
+		return _aDiagonal_
 
 	  #-----------------------#
 	 # Advanced Calculations #
@@ -2071,37 +2071,37 @@ class stzMatrix from stzListOfLists
 
 		# Recursive calculation for larger matrices
 
-		nDeterminant = 0
-		nSign = 1
+		_nDeterminant_ = 0
+		_nSign_ = 1
 
 		for j = 1 to @nCols
 
 			# Create submatrix
 
-			aSubMatrix = []
+			_aSubMatrix_ = []
 
 			for k = 2 to @nRows
 
-				aRow = []
+				_aRow_ = []
 
 				for l = 1 to @nCols
 					if l != j
-						aRow + @aContent[k][l]
+						_aRow_ + @aContent[k][l]
 					ok
 				next
 
-				aSubMatrix + aRow
+				_aSubMatrix_ + _aRow_
 			next
 
 			# Recursive determinant calculation
 
-			nDeterminant += nSign * @aContent[1][j] * 
-                        		StzMatrixQ(aSubMatrix).Determinant()
+			_nDeterminant_ += _nSign_ * @aContent[1][j] * 
+                        		StzMatrixQ(_aSubMatrix_).Determinant()
 
-			nSign *= -1
+			_nSign_ *= -1
 		next
 
-		return nDeterminant
+		return _nDeterminant_
 
 	# Simple Gaussian elimination for matrix inversion
 	# ~> Reliable up to ~50x50 matrices
@@ -2138,33 +2138,33 @@ class stzMatrix from stzListOfLists
 
 		# Check determinant
 
-		nDet = This.Determinant()
+		_nDet_ = This.Determinant()
 
-		if nDet = 0
+		if _nDet_ = 0
 			raise("Matrix is not invertible (determinant is zero)")
 		ok
 
 		# Create augmented matrix with identity
 
-		aAugmented = []
+		_aAugmented_ = []
 
 		for i = 1 to @nRows
 
-			aRow = []
+			_aRow_ = []
 	
 			for j = 1 to @nCols
-				aRow + @aContent[i][j]
+				_aRow_ + @aContent[i][j]
 			next
 	
 			for j = 1 to @nCols
 				if j = i
-					aRow + 1
+					_aRow_ + 1
 				else
-					aRow + 0
+					_aRow_ + 0
 				ok
 			next
 	
-			aAugmented + aRow
+			_aAugmented_ + _aRow_
 		next
 
 		# Gaussian elimination
@@ -2173,11 +2173,11 @@ class stzMatrix from stzListOfLists
 	
 			# Find pivot
 	
-			nPivot = aAugmented[i][i]
-			nTwice = 2*@nCols
+			_nPivot_ = _aAugmented_[i][i]
+			_nTwice_ = 2*@nCols
 	
-			for j = i to nTwice
-				aAugmented[i][j] /= nPivot
+			for j = i to _nTwice_
+				_aAugmented_[i][j] /= _nPivot_
 			next
 	
 			# Eliminate other rows
@@ -2186,10 +2186,10 @@ class stzMatrix from stzListOfLists
 	
 				if k != i
 	
-					nFactor = aAugmented[k][i]
+					_nFactor_ = _aAugmented_[k][i]
 	
-					for j = i to nTwice
-						aAugmented[k][j] -= nFactor * aAugmented[i][j]
+					for j = i to _nTwice_
+						_aAugmented_[k][j] -= _nFactor_ * _aAugmented_[i][j]
 					next
 				ok
 			next
@@ -2197,62 +2197,62 @@ class stzMatrix from stzListOfLists
 
 		# Extract inverse matrix
 	
-		aInverse = []
+		_aInverse_ = []
 	
 		for i = 1 to @nRows
 	
-			aRow = []
+			_aRow_ = []
 	
-			for j = @nCols + 1 to nTwice
-				aRow + aAugmented[i][j]
+			for j = @nCols + 1 to _nTwice_
+				_aRow_ + _aAugmented_[i][j]
 			next
 	
-			aInverse + aRow
+			_aInverse_ + _aRow_
 		next
 	
-		@aContent = aInverse
+		@aContent = _aInverse_
 
 
 	# Computes the difference between adjacent elements in the matrix
 
 	def Diff()
 
-		aResult = []
+		_aResult_ = []
 		
 		for i = 1 to @nRows
 
-			rowDiffs = []
+			_rowDiffs_ = []
 
 			for j = 2 to @nCols
-				rowDiffs + (@aContent[i][j] - @aContent[i][j-1])
+				_rowDiffs_ + (@aContent[i][j] - @aContent[i][j-1])
 			next
 
-			aResult + rowDiffs
+			_aResult_ + _rowDiffs_
 
 		next
 
-		return aResult
+		return _aResult_
 
 	# Subtracts the mean of each row from its respective elements
 
 	def SubMean()
 
-		aResult = []
+		_aResult_ = []
 		
 		for i = 1 to @nRows
 	
-			rowMean = @Mean(@aContent[i])
+			_rowMean_ = @Mean(@aContent[i])
 	
-			rowAdjusted = []
+			_rowAdjusted_ = []
 	
 			for j = 1 to @nCols
-				rowAdjusted + (@aContent[i][j] - rowMean)
+				_rowAdjusted_ + (@aContent[i][j] - _rowMean_)
 			next
 	
-			aResult + rowAdjusted
+			_aResult_ + _rowAdjusted_
 		next
 	
-		@aContent = aResult
+		@aContent = _aResult_
 
 		def SubMeanQ()
 			This.SubMean()
@@ -2279,41 +2279,41 @@ class stzMatrix from stzListOfLists
 
 		# Calculate the maximum width for each column
 
-		anColWidths = []
+		_anColWidths_ = []
 
 		for i = 1 to @nCols
-			anColWidths + 0
+			_anColWidths_ + 0
 		next
 
 		# Determine max width considering formatted numbers
 
 		for j = 1 to @nCols
 
-			nMaxWidth = 0
+			_nMaxWidth_ = 0
 
 			for i = 1 to @nRows
 
 				# Format number to remove unnecessary decimals
 
-				cFormattedNum = _FormatNumber(@aContent[i][j])
-				nWidth = StzLen(cFormattedNum)
+				_cFormattedNum_ = _FormatNumber(@aContent[i][j])
+				_nWidth_ = StzLen(_cFormattedNum_)
 
-				if nWidth > nMaxWidth
-					nMaxWidth = nWidth
+				if _nWidth_ > _nMaxWidth_
+					_nMaxWidth_ = _nWidth_
 				ok
 
 			next
 
-			anColWidths[j] = nMaxWidth
+			_anColWidths_[j] = _nMaxWidth_
 		next
 
 		# Calculate total width for border
 
-		nTotalWidth = @sum(anColWidths) + @nCols + 1
+		_nTotalWidth_ = @sum(_anColWidths_) + @nCols + 1
 
 		# Top border
 
-		see "â”Œ" + ring_copy(" ", nTotalWidth) + "â”" + NL
+		see "â”Œ" + ring_copy(" ", _nTotalWidth_) + "â”" + NL
 
 		# Matrix content
 
@@ -2325,8 +2325,8 @@ class stzMatrix from stzListOfLists
 
 				# Format and left-pad numbers
 
-				cFormattedNum = _FormatNumber(@aContent[i][j])
-				see ring_copy(" ", anColWidths[j] - StzLen(cFormattedNum)) + cFormattedNum + " "
+				_cFormattedNum_ = _FormatNumber(@aContent[i][j])
+				see ring_copy(" ", _anColWidths_[j] - StzLen(_cFormattedNum_)) + _cFormattedNum_ + " "
 
 			next
 
@@ -2335,7 +2335,7 @@ class stzMatrix from stzListOfLists
 
 		# Bottom border
 
-		see "â””" + ring_copy(" ", nTotalWidth) + "â”˜" + nl
+		see "â””" + ring_copy(" ", _nTotalWidth_) + "â”˜" + nl
 
 		#< @FunctionMisspelledForm
 
@@ -2350,23 +2350,23 @@ class stzMatrix from stzListOfLists
 
 		# Convert to string, removing trailing zeros after decimal
 
-		cNum = "" + pnNum
+		_cNum_ = "" + pnNum
 
 		# If decimal point exists
 
-		if ring_substr1(cNum, ".") > 0
+		if ring_substr1(_cNum_, ".") > 0
 
 			# Remove trailing zeros
 
-			while cNum[StzLen(cNum)] = "0"
-				cNum = StzLeft(cNum, StzLen(cNum) - 1)
+			while _cNum_[StzLen(_cNum_)] = "0"
+				_cNum_ = StzLeft(_cNum_, StzLen(_cNum_) - 1)
 			end
 
 			# Remove trailing decimal point if it's the last character
 
-			if cNum[StzLen(cNum)] = "."
-				cNum = StzLeft(cNum, StzLen(cNum) - 1)
+			if _cNum_[StzLen(_cNum_)] = "."
+				_cNum_ = StzLeft(_cNum_, StzLen(_cNum_) - 1)
 			ok
 		ok
 
-		return cNum
+		return _cNum_

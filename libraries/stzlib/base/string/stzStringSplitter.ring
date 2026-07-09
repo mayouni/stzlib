@@ -51,27 +51,27 @@ class stzStringSplitter from stzObject
 	def SplitCS(pSubStrOrPos, pCaseSensitive)
 
 		if isList(pSubStrOrPos) and len(pSubStrOrPos) = 2 and isString(pSubStrOrPos[1])
-			cParamName = StzCaseFold(pSubStrOrPos[1])
+			_cParamName_ = StzCaseFold(pSubStrOrPos[1])
 
-			if cParamName = "with" or cParamName = "by" or cParamName = "using"
+			if _cParamName_ = "with" or _cParamName_ = "by" or _cParamName_ = "using"
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but cParamName = "at"
+			but _cParamName_ = "at"
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but cParamName = "atposition"
+			but _cParamName_ = "atposition"
 				return This.SplitAtPosition(pSubStrOrPos[2])
 
-			but cParamName = "atpositions"
+			but _cParamName_ = "atpositions"
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but cParamName = "before"
+			but _cParamName_ = "before"
 				return This.SplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but cParamName = "after"
+			but _cParamName_ = "after"
 				return This.SplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but cParamName = "around"
+			but _cParamName_ = "around"
 				return This.SplitAroundCS(pSubStrOrPos[2], pCaseSensitive)
 
 			ok
@@ -155,15 +155,15 @@ class stzStringSplitter from stzObject
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		cResult = This.Content()
-		cSep = "<<<SEP>>>"
+		_cResult_ = This.Content()
+		_cSep_ = "<<<SEP>>>"
 
-		nLen = len(pacSubStrings)
-		for i = 1 to nLen
-			cResult = @ReplaceCS(cResult, pacSubStrings[i], cSep, pCaseSensitive)
+		_nLen_ = len(pacSubStrings)
+		for i = 1 to _nLen_
+			_cResult_ = @ReplaceCS(_cResult_, pacSubStrings[i], _cSep_, pCaseSensitive)
 		next
 
-		return @SplitCS(cResult, cSep, 1)
+		return @SplitCS(_cResult_, _cSep_, 1)
 
 	def SplitAtSubStrings(pacSubStrings)
 		return This.SplitAtSubStringsCS(pacSubStrings, 1)
@@ -204,18 +204,18 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AT POSITIONS          #
 	#=================================#
 
-	def SplitAtPositions(anPos)
+	def SplitAtPositions(_anPos_)
 
 		if This.IsEmpty()
 			return []
 		ok
 
-		if NOT ( isList(anPos) and IsListOfNumbers(anPos) )
+		if NOT ( isList(_anPos_) and IsListOfNumbers(_anPos_) )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
 		# Split at multiple positions (each position is excluded)
-		_anSapsorted_ = sort(anPos)
+		_anSapsorted_ = sort(_anPos_)
 		_nSapLen_ = This.NumberOfChars()
 		_aSapResult_ = []
 		_nSapPrev_ = 1
@@ -265,29 +265,29 @@ class stzStringSplitter from stzObject
 			return [ This.Content() ]
 		ok
 
-		cPart1 = @oString.Section(1, n - 1)
-		cPart2 = @oString.Section(n, @oString.NumberOfChars())
+		_cPart1_ = @oString.Section(1, n - 1)
+		_cPart2_ = @oString.Section(n, @oString.NumberOfChars())
 
-		return [ cPart1, cPart2 ]
+		return [ _cPart1_, _cPart2_ ]
 
 	def SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
-		oFinder = new stzStringFinder(@oString)
-		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if len(anPos) = 0
+		_oFinder_ = new stzStringFinder(@oString)
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
+		if len(_anPos_) = 0
 			return [ This.Content() ]
 		ok
-		return This.SplitBeforePositions(anPos)
+		return This.SplitBeforePositions(_anPos_)
 
 	def SplitBeforeSubString(pcSubStr)
 		return This.SplitBeforeSubStringCS(pcSubStr, 1)
 
-	def SplitBeforePositions(anPos)
+	def SplitBeforePositions(_anPos_)
 		if This.IsEmpty()
 			return []
 		ok
 
 		# Split before each position: segments end at pos-1, next starts at pos
-		_anSbpSorted_ = sort(anPos)
+		_anSbpSorted_ = sort(_anPos_)
 		_nSbpLen_ = This.NumberOfChars()
 		_aSbpResult_ = []
 		_nSbpPrev_ = 1
@@ -335,38 +335,38 @@ class stzStringSplitter from stzObject
 			return [ This.Content() ]
 		ok
 
-		cPart1 = @oString.Section(1, n)
-		cPart2 = @oString.Section(n + 1, @oString.NumberOfChars())
+		_cPart1_ = @oString.Section(1, n)
+		_cPart2_ = @oString.Section(n + 1, @oString.NumberOfChars())
 
-		return [ cPart1, cPart2 ]
+		return [ _cPart1_, _cPart2_ ]
 
 	def SplitAfterSubStringCS(pcSubStr, pCaseSensitive)
-		oFinder = new stzStringFinder(@oString)
-		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if len(anPos) = 0
+		_oFinder_ = new stzStringFinder(@oString)
+		_anPos_ = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
+		if len(_anPos_) = 0
 			return [ This.Content() ]
 		ok
 
-		nLenSub = StzLen(pcSubStr)
-		anAfterPos = []
-		_nAnPos1Len_ = len(anPos)
+		_nLenSub_ = StzLen(pcSubStr)
+		_anAfterPos_ = []
+		_nAnPos1Len_ = len(_anPos_)
 		for _iLoopAnPos1_ = 1 to _nAnPos1Len_
-			nPos = anPos[_iLoopAnPos1_]
-			anAfterPos + (nPos + nLenSub - 1)
+			_nPos_ = _anPos_[_iLoopAnPos1_]
+			_anAfterPos_ + (_nPos_ + _nLenSub_ - 1)
 		next
 
-		return This.SplitAfterPositions(anAfterPos)
+		return This.SplitAfterPositions(_anAfterPos_)
 
 	def SplitAfterSubString(pcSubStr)
 		return This.SplitAfterSubStringCS(pcSubStr, 1)
 
-	def SplitAfterPositions(anPos)
+	def SplitAfterPositions(_anPos_)
 		if This.IsEmpty()
 			return []
 		ok
 
 		# Split after each position: segments end at pos, next starts at pos+1
-		_anSapSorted_ = sort(anPos)
+		_anSapSorted_ = sort(_anPos_)
 		_nSapLen_ = This.NumberOfChars()
 		_aSapResult_ = []
 		_nSapPrev_ = 1
@@ -394,9 +394,9 @@ class stzStringSplitter from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringPartitionCS(pH, pcSep, _bCase_)
-		cResult = StzEngineStringData(pR)
+		_cResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cResult)
+		return _SplitNullDelimited(_cResult_)
 
 	def Partition(pcSep)
 		return This.PartitionCS(pcSep, 1)
@@ -405,9 +405,9 @@ class stzStringSplitter from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringPartitionAfterCS(pH, pcSep, _bCase_)
-		cResult = StzEngineStringData(pR)
+		_cResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cResult)
+		return _SplitNullDelimited(_cResult_)
 
 	def PartitionAfter(pcSep)
 		return This.PartitionAfterCS(pcSep, 1)
@@ -416,9 +416,9 @@ class stzStringSplitter from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringRpartitionCS(pH, pcSep, _bCase_)
-		cResult = StzEngineStringData(pR)
+		_cResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cResult)
+		return _SplitNullDelimited(_cResult_)
 
 	def RPartition(pcSep)
 		return This.RPartitionCS(pcSep, 1)
@@ -427,9 +427,9 @@ class stzStringSplitter from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
 		pR = StzEngineStringRpartitionAfterCS(pH, pcSep, _bCase_)
-		cResult = StzEngineStringData(pR)
+		_cResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cResult)
+		return _SplitNullDelimited(_cResult_)
 
 	def RPartitionAfter(pcSep)
 		return This.RPartitionAfterCS(pcSep, 1)

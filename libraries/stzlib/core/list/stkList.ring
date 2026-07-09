@@ -34,11 +34,11 @@ class stkList from stkObject
 
 	#--
 
-	def At(n)
-		return @content[n]
+	def At(_n_)
+		return @content[_n_]
 
-		def ItemAt(n)
-			return @content[n]
+		def ItemAt(_n_)
+			return @content[_n_]
 
 	#-- APPENDING
 
@@ -56,145 +56,145 @@ class stkList from stkObject
 	#--
 
 	def FindLast(item)
-		n = ring_find( reverse(@content), item )
-		nResult = len(@content) - n + 1
+		_n_ = ring_find( reverse(@content), item )
+		_nResult_ = len(@content) - _n_ + 1
 
-		return nResult
+		return _nResult_
 
 	#--
 
 	def Find(item)
 
-		anResult = []
-		nLen = len(@content)
+		_anResult_ = []
+		_nLen_ = len(@content)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if @content[i] = item
-				anResult + i
+				_anResult_ + i
 			ok
 		next
 
-		return anResult
+		return _anResult_
 
 		func FindAll(item)
 			return This.Find(item)
 
 	#--
 
-	def FindNth(n, item)
+	def FindNth(_n_, item)
 
-		nResult = 0
-		nLen = len(@content)
-		nTimes = 0
+		_nResult_ = 0
+		_nLen_ = len(@content)
+		_nTimes_ = 0
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if @content[i] = item
-				nTimes++
-				if nTimes = n
-					nResult = i
+				_nTimes_++
+				if _nTimes_ = _n_
+					_nResult_ = i
 					exit
 				ok
 			ok
 		next
 
-		return nResult
+		return _nResult_
 	
 	#-- INSERTING
 
-	def InsertAt(n, item)
-		ring_insert(@content, n, item)
+	def InsertAt(_n_, item)
+		ring_insert(@content, _n_, item)
 
 	#-- REPLACING
 
 	def Replace(item1, item2)
-		anPos = This.FindAll(item1)
-		nLen = len(anPos)
+		_anPos_ = This.FindAll(item1)
+		_nLen_ = len(_anPos_)
 
-		for i = 1 to nLen
-			@content[anPos[i]] = item2
+		for i = 1 to _nLen_
+			@content[_anPos_[i]] = item2
 		next
 
-	def ReplaceSection(n1, n2, item)
-		if NOT (isNumber(n1) and isNumber(n2))
+	def ReplaceSection(_n1_, _n2_, item)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			raise( "ERR-" + StkError(:IncorrectParamType) )
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
 
-		aResult = []
+		_aResult_ = []
 
-		for i = n1 to n2
+		for i = _n1_ to _n2_
 			@content[i] = item
 		next
 
 	#-- REMOVING
 
-	def RemoveAt(n)
-		ring_remove(@content, n)
+	def RemoveAt(_n_)
+		ring_remove(@content, _n_)
 
-		def RemoveItemAt(n)
-			ring_remove(@content, n)
+		def RemoveItemAt(_n_)
+			ring_remove(@content, _n_)
 
-		def RemoveNth(n)
-			ring_remove(@content, n)
+		def RemoveNth(_n_)
+			ring_remove(@content, _n_)
 
-		def RemoveNthItem(n)
-			ring_remove(@content, n)
+		def RemoveNthItem(_n_)
+			ring_remove(@content, _n_)
 
 	def Remove(item)
-		anPos = This.FindAll(item)
-		nLen = len(anPos)
+		_anPos_ = This.FindAll(item)
+		_nLen_ = len(_anPos_)
 
-		if nLen > 0
-			for i = nLen to 1 step -1
-				ring_remove(@content, anPos[i])
+		if _nLen_ > 0
+			for i = _nLen_ to 1 step -1
+				ring_remove(@content, _anPos_[i])
 			next
 		ok
 
 		def RemoveItem(item)
 			This.Remove(item)
 
-	def RemoveSection(n1, n2)
-		if NOT (isNumber(n1) and isNumber(n2))
+	def RemoveSection(_n1_, _n2_)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			raise( "ERR-" + StkError(:IncorrectParamType) )
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
 
-		aResult = []
+		_aResult_ = []
 
-		for i = n2 to n1 step -1
+		for i = _n2_ to _n1_ step -1
 			ring_remove(@content, i)
 		next
 
 	#--
 
-	def Section(n1, n2)
-		if NOT (isNumber(n1) and isNumber(n2))
+	def Section(_n1_, _n2_)
+		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			raise( "ERR-" + StkError(:IncorrectParamType) )
 		ok
 
-		if n1 > n2
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
 		ok
 
-		aResult = []
+		_aResult_ = []
 
-		for i = n1 to n2
-			aResult + @content[i]
+		for i = _n1_ to _n2_
+			_aResult_ + @content[i]
 		next
 
-		return aResult
+		return _aResult_
 
 	#--
 

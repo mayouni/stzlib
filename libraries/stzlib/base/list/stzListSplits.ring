@@ -147,23 +147,23 @@ class stzListSplits from stzObject
 	 #  SPLITTING BEFORE A GIVEN POSITION   #
 	#======================================#
 
-	def SplitBeforePosition(n)
+	def SplitBeforePosition(_n_)
 		# Engine-backed: stz_list_split_before
 		_pSbpList_ = StzEngineMarshalList(@oList.Content())
-		_pSbpResult_ = StzEngineListSplitBefore(_pSbpList_, n)
+		_pSbpResult_ = StzEngineListSplitBefore(_pSbpList_, _n_)
 		_aSbpResult_ = StzEngineListContentToRingList(_pSbpResult_)
 		StzEngineListFree(_pSbpResult_)
 		StzEngineListFree(_pSbpList_)
 
 		@oList.UpdateWith(_aSbpResult_)
 
-		def SplitBeforePositionQ(n)
-			This.SplitBeforePosition(n)
+		def SplitBeforePositionQ(_n_)
+			This.SplitBeforePosition(_n_)
 			return This
 
-	def SplittedBeforePosition(n)
+	def SplittedBeforePosition(_n_)
 		_pSbdList_ = StzEngineMarshalList(@oList.Content())
-		_pSbdResult_ = StzEngineListSplitBefore(_pSbdList_, n)
+		_pSbdResult_ = StzEngineListSplitBefore(_pSbdList_, _n_)
 		_aSbdResult_ = StzEngineListContentToRingList(_pSbdResult_)
 		StzEngineListFree(_pSbdResult_)
 		StzEngineListFree(_pSbdList_)
@@ -199,23 +199,23 @@ class stzListSplits from stzObject
 	 #  SPLITTING AFTER A GIVEN POSITION   #
 	#=====================================#
 
-	def SplitAfterPosition(n)
+	def SplitAfterPosition(_n_)
 		# Engine-backed: stz_list_split_after
 		_pSfpList_ = StzEngineMarshalList(@oList.Content())
-		_pSfpResult_ = StzEngineListSplitAfter(_pSfpList_, n)
+		_pSfpResult_ = StzEngineListSplitAfter(_pSfpList_, _n_)
 		_aSfpResult_ = StzEngineListContentToRingList(_pSfpResult_)
 		StzEngineListFree(_pSfpResult_)
 		StzEngineListFree(_pSfpList_)
 
 		@oList.UpdateWith(_aSfpResult_)
 
-		def SplitAfterPositionQ(n)
-			This.SplitAfterPosition(n)
+		def SplitAfterPositionQ(_n_)
+			This.SplitAfterPosition(_n_)
 			return This
 
-	def SplittedAfterPosition(n)
+	def SplittedAfterPosition(_n_)
 		_pSfdList_ = StzEngineMarshalList(@oList.Content())
-		_pSfdResult_ = StzEngineListSplitAfter(_pSfdList_, n)
+		_pSfdResult_ = StzEngineListSplitAfter(_pSfdList_, _n_)
 		_aSfdResult_ = StzEngineListContentToRingList(_pSfdResult_)
 		StzEngineListFree(_pSfdResult_)
 		StzEngineListFree(_pSfdList_)
@@ -252,16 +252,16 @@ class stzListSplits from stzObject
 	 #  SPLITTING AT A GIVEN POSITION   #
 	#==================================#
 
-	def SplitAtPosition(n)
+	def SplitAtPosition(_n_)
 		# "Split at position N" = split before position N
-		This.SplitBeforePosition(n)
+		This.SplitBeforePosition(_n_)
 
-		def SplitAtPositionQ(n)
-			This.SplitAtPosition(n)
+		def SplitAtPositionQ(_n_)
+			This.SplitAtPosition(_n_)
 			return This
 
-	def SplittedAtPosition(n)
-		return This.SplittedBeforePosition(n)
+	def SplittedAtPosition(_n_)
+		return This.SplittedBeforePosition(_n_)
 
 	  #================================#
 	 #  SPLITTING AT A GIVEN ITEM     #
@@ -300,15 +300,15 @@ class stzListSplits from stzObject
 	 #  SPLITTING TO N EQUAL PARTS  #
 	#==============================#
 
-	def SplitToNParts(n)
+	def SplitToNParts(_n_)
 		# Mutator form: divide into n parts (see SplittedToNParts).
-		@oList.UpdateWith( This.SplittedToNParts(n) )
+		@oList.UpdateWith( This.SplittedToNParts(_n_) )
 
-		def SplitToNPartsQ(n)
-			This.SplitToNParts(n)
+		def SplitToNPartsQ(_n_)
+			This.SplitToNParts(_n_)
 			return This
 
-	def SplittedToNParts(n)
+	def SplittedToNParts(_n_)
 		# Divide the list into n parts of as-equal-as-possible size: the
 		# documented "/ n -> n parts" contract ([1..6] -> [[1,2],[3,4],[5,6]],
 		# 3 items / 3 -> [[a],[b],[c]]). The remainder is front-loaded -- the
@@ -317,16 +317,16 @@ class stzListSplits from stzObject
 		# chunks by a fixed SIZE. The old ceil-chunk approximation produced
 		# the wrong count when n was close to len (e.g. 7 items / 5).
 		_nSndLen_ = This.NumberOfItems()
-		if n <= 0 or _nSndLen_ = 0
+		if _n_ <= 0 or _nSndLen_ = 0
 			return []
 		ok
-		n = floor(n)
+		_n_ = floor(_n_)
 		_aSrc_ = @oList.Content()
 		_aSndResult_ = []
-		_nBase_ = floor(_nSndLen_ / n)
-		_nRem_ = _nSndLen_ % n
+		_nBase_ = floor(_nSndLen_ / _n_)
+		_nRem_ = _nSndLen_ % _n_
 		_iCur_ = 1
-		for _iSp_ = 1 to n
+		for _iSp_ = 1 to _n_
 			_nSz_ = _nBase_
 			if _iSp_ <= _nRem_
 				_nSz_ = _nSz_ + 1
@@ -349,38 +349,38 @@ class stzListSplits from stzObject
 	 #  SPLITTING TO PARTS OF N ITEMS  #
 	#=================================#
 
-	def SplitToPartsOfNItems(n)
+	def SplitToPartsOfNItems(_n_)
 		# Engine-backed: stz_list_split_to_parts_of_n
 		_pSpnList_ = StzEngineMarshalList(@oList.Content())
-		_pSpnResult_ = StzEngineListSplitToPartsOfN(_pSpnList_, n)
+		_pSpnResult_ = StzEngineListSplitToPartsOfN(_pSpnList_, _n_)
 		_aSpnResult_ = StzEngineListContentToRingList(_pSpnResult_)
 		StzEngineListFree(_pSpnResult_)
 		StzEngineListFree(_pSpnList_)
 
 		@oList.UpdateWith(_aSpnResult_)
 
-		def SplitToPartsOfNItemsQ(n)
-			This.SplitToPartsOfNItems(n)
+		def SplitToPartsOfNItemsQ(_n_)
+			This.SplitToPartsOfNItems(_n_)
 			return This
 
-		def SplitToPartsOf(n)
-			This.SplitToPartsOfNItems(n)
+		def SplitToPartsOf(_n_)
+			This.SplitToPartsOfNItems(_n_)
 
-			def SplitToPartsOfQ(n)
-				This.SplitToPartsOf(n)
+			def SplitToPartsOfQ(_n_)
+				This.SplitToPartsOf(_n_)
 				return This
 
-	def SplittedToPartsOfNItems(n)
+	def SplittedToPartsOfNItems(_n_)
 		_pSpdList_ = StzEngineMarshalList(@oList.Content())
-		_pSpdResult_ = StzEngineListSplitToPartsOfN(_pSpdList_, n)
+		_pSpdResult_ = StzEngineListSplitToPartsOfN(_pSpdList_, _n_)
 		_aSpdResult_ = StzEngineListContentToRingList(_pSpdResult_)
 		StzEngineListFree(_pSpdResult_)
 		StzEngineListFree(_pSpdList_)
 
 		return _aSpdResult_
 
-		def SplittedToPartsOf(n)
-			return This.SplittedToPartsOfNItems(n)
+		def SplittedToPartsOf(_n_)
+			return This.SplittedToPartsOfNItems(_n_)
 
 	  #===============================#
 	 #  SPLITTING USING A CONDITION  #

@@ -214,92 +214,92 @@ class stzExterCode from stzObject
 	
 	    @nStartTime = clock()
 	
-	    cRuntime = @aLanguages[@cLanguage][:CustomPath]
-	    if cRuntime = ""
-	        cRuntime = @aLanguages[@cLanguage][:Runtime]
+	    _cRuntime_ = @aLanguages[@cLanguage][:CustomPath]
+	    if _cRuntime_ = ""
+	        _cRuntime_ = @aLanguages[@cLanguage][:Runtime]
 	    ok
 	
 	    # Get extra args if they exist
-	    cExtraArgs = ""
+	    _cExtraArgs_ = ""
 
 	    if HasKey(@aLanguages, @cLanguage) and
 	   	HasKey(@aLanguages[@cLanguage], :ExtraArgs)
 
-        		cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
+        		_cExtraArgs_ = " " + @aLanguages[@cLanguage][:ExtraArgs]
 	    else
 		StzRaise("Can't set the path! This path does not exist: @aLanguages[@cLanguage][:ExtraArgs].")
 	    ok
 	
-	    cScriptFile = "run" + @cLanguage
+	    _cScriptFile_ = "run" + @cLanguage
 	
 	    if isWindows()
-	        cScriptFile += ".bat"
-	        cScriptContent = "@echo off" + NL
+	        _cScriptFile_ += ".bat"
+	        _cScriptContent_ = "@echo off" + NL
 	
 	        if @aLanguages[@cLanguage][:Type] = "compiled"
 	            if @cLanguage = "c"
-	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
 	                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
 	            else
-	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
 	            ok
 	        else
 	            # Interpreted languages - include extra args
-	            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
 	        ok
 	
-	        cScriptContent += "exit %ERRORLEVEL%"
+	        _cScriptContent_ += "exit %ERRORLEVEL%"
 	
 	    else
-	        cScriptFile += ".sh"
-	        cScriptContent = "#!/bin/bash" + NL
+	        _cScriptFile_ += ".sh"
+	        _cScriptContent_ = "#!/bin/bash" + NL
 	
 	        if @aLanguages[@cLanguage][:Type] = "compiled"
 	            if @cLanguage = "c"
-	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
 	                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
 	            else
-	                cScriptContent += cRuntime + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
 	            ok
 	        else
 	            # Interpreted languages - include extra args
-	            cScriptContent += cRuntime + cExtraArgs + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
 	        ok
 	
-	        cScriptContent += "exit $?"
+	        _cScriptContent_ += "exit $?"
 	    ok
 	
-	    This.WriteToFile(cScriptFile, cScriptContent)
+	    This.WriteToFile(_cScriptFile_, _cScriptContent_)
 	
-	    cCmd = cScriptFile
-	    _oSysCall_ = new stzSystemCall(cCmd)
+	    _cCmd_ = _cScriptFile_
+	    _oSysCall_ = new stzSystemCall(_cCmd_)
 	    _oSysCall_.DontCaptureOutput()
 	    _oSysCall_.Run()
 	
 	    @nEndTime = clock()
 	
-	    cLog = This.ReadFile(@cLogFile)
+	    _cLog_ = This.ReadFile(@cLogFile)
 	
-	    if cLog = NULL
-	        cLog = "Log file '" + @cLogFile + "' not found or unreadable"
+	    if _cLog_ = NULL
+	        _cLog_ = "Log file '" + @cLogFile + "' not found or unreadable"
 	    ok
 	
-	    This.RecordExecution(cLog, 0)
+	    This.RecordExecution(_cLog_, 0)
 	
 	    if @bVerbose
-	        ? "Command: " + cCmd
-	        ? "Log: " + cLog
+	        ? "Command: " + _cCmd_
+	        ? "Log: " + _cLog_
 	        ? "Working Directory: " + currentdir()
 	        ? "Source File Exists: " + fexists(@cSourceFile)
 	        ? "Result File Exists: " + fexists(@cResultFile)
 	    ok
 	
 	    if NOT fexists(@cResultFile)
-	        stzraise("Result file '" + @cResultFile + "' not created. Log: " + cLog)
+	        stzraise("Result file '" + @cResultFile + "' not created. Log: " + _cLog_)
 	    ok
 	
-	    if fexists(cScriptFile)
-	        remove(cScriptFile)
+	    if fexists(_cScriptFile_)
+	        remove(_cScriptFile_)
 	    ok
 		
 		#< @FunctionAlternativeForms
@@ -326,8 +326,8 @@ class stzExterCode from stzObject
         	This.CleanupFiles()
 
     def CleanupRequired()
-        bResult = @aLanguages[@cLanguage][:Cleanup]
-        return isNumber(bResult) and bResult = 1
+        _bResult_ = @aLanguages[@cLanguage][:Cleanup]
+        return isNumber(_bResult_) and _bResult_ = 1
 
     def LastCallDuration()
         if len(@aCallTrace) > 0
@@ -356,28 +356,28 @@ class stzExterCode from stzObject
                      "End of log file content.")
         ok
 
-        cContent = This.ReadFile(@cResultFile)
+        _cContent_ = This.ReadFile(@cResultFile)
 
-        if cContent = ""
+        if _cContent_ = ""
             return ""
         ok
 
         try
-	    cContent = StzReplace(cContent, "\n", NL)
-            cCode = 'result = ' + cContent
+	    _cContent_ = StzReplace(_cContent_, "\n", NL)
+            _cCode_ = '_result_ = ' + _cContent_
 
-            eval(cCode)
+            eval(_cCode_)
 
             if CleanupRequired()
                 This.CleanupFiles()
             ok
 
-            return result
+            return _result_
 
         catch
             ? "Eval error: " + cCatchError + NL
             ? "Log content: " + This.Log()
-            return cContent
+            return _cContent_
 
         done
 
@@ -415,22 +415,22 @@ class stzExterCode from stzObject
 
     #====== PRIVATE METHODS ======#
 
-    def WriteToFile(cFile, cContent)
-        fp = fopen(cFile, "w")
-        fwrite(fp, cContent)
-        fclose(fp)
+    def WriteToFile(cFile, _cContent_)
+        _fp_ = fopen(cFile, "w")
+        fwrite(_fp_, _cContent_)
+        fclose(_fp_)
 
     def ReadFile(cFile)
         if NOT fexists(cFile)
             return NULL
         ok
-        fp = fopen(cFile, "r")
-        if fp = NULL
+        _fp_ = fopen(cFile, "r")
+        if _fp_ = NULL
             return NULL
         end
-        cContent = fread(fp, fsize(fp))
-        fclose(fp)
-        return cContent
+        _cContent_ = fread(_fp_, fsize(_fp_))
+        fclose(_fp_)
+        return _cContent_
 
     def BuildCommand()
 
@@ -439,31 +439,31 @@ class stzExterCode from stzObject
 	if HasPath(@aLanguages, [@cLanguage, :type]) and 
            @aLanguages[@cLanguage][:type] = "interpreted"
 
-            cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
+            _cCmd_ = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
 
             if HasPath(@aLanguages, [@cLanguage, :customPath])
-                cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
+                _cCmd_ = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
             ok
 
-            return cCmd
+            return _cCmd_
 
         but HasPath(@aLanguages, [@cLanguage, :type]) and
 	    @aLanguages[@cLanguage][:type] = "compiled"
 
-	    cCmd = @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
-            return cCmd
+	    _cCmd_ = @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
+            return _cCmd_
         ok
 
         stzraise("Unsupported language type for " + @cLanguage)
 
-    def RecordExecution(cLog, nExitCode)
+    def RecordExecution(_cLog_, nExitCode)
 	if NOT HasPath(@aLanguages, [@clanguage, :type])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@clanguage][:type].")
 	ok
 
-        cMode = @aLanguages[@cLanguage][:type]
+        _cMode_ = @aLanguages[@cLanguage][:type]
 
-        if cMode != "interpreted" and cMode != "compiled"
+        if _cMode_ != "interpreted" and _cMode_ != "compiled"
             stzraise("Incorrect language type! Must be 'interpreted' or 'compiled'.")
         ok
 
@@ -471,9 +471,9 @@ class stzExterCode from stzObject
             :Language = @cLanguage,
             :Timestamp = StzTimeStamp(),
             :Duration = (@nEndTime - @nStartTime) / clockspersecond(),
-            :Log = cLog,
+            :Log = _cLog_,
             :Exitcode = nExitCode,
-            :Mode = cMode
+            :Mode = _cMode_
         ]
 
     def PrepareSourceCode()
@@ -481,21 +481,21 @@ class stzExterCode from stzObject
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLanguage][:TransFunc].")
 	ok
 
-        cTransFunc = @aLanguages[@cLanguage][:TransFunc]
+        _cTransFunc_ = @aLanguages[@cLanguage][:TransFunc]
 
 	#-------------------------
          if @cLanguage = "python"
 	#-------------------------
 
-            return NL + cTransFunc + '
+            return NL + _cTransFunc_ + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '
 print("Data before transformation:", ' + @cResultVar + ')
-transformed = transform_to_ring(' + @cResultVar + ')
-print("Data after transformation:", transformed)
+_transformed_ = transform_to_ring(' + @cResultVar + ')
+print("Data after transformation:", _transformed_)
 with open("' + @cResultFile + '", "w") as f:
-    f.write(transformed)
+    f.write(_transformed_)
 print("Data written to file")
 '
 
@@ -503,12 +503,12 @@ print("Data written to file")
          but @cLanguage = "r"
 	#---------------------
 
-            return cTransFunc + '
+            return _cTransFunc_ + '
 # Main code
 cat("R script starting...\n")
 ' + @cCode + '
-transformed <- transform_to_ring(' + @cResultVar + ')
-writeLines(transformed, "' + @cResultFile + '")
+_transformed_ <- transform_to_ring(' + @cResultVar + ')
+writeLines(_transformed_, "' + @cResultFile + '")
 cat("Data written to file\n")
 '
 
@@ -516,15 +516,15 @@ cat("Data written to file\n")
          but @cLanguage = "julia"
 	#-------------------------
 
-            return cTransFunc + '
+            return _cTransFunc_ + '
 # Main code
 println("Julia script starting...")
 ' + @cCode + '
-transformed = transform_to_ring(' + @cResultVar + ')
+_transformed_ = transform_to_ring(' + @cResultVar + ')
 println("Data before transformation: ", ' + @cResultVar + ')
-println("Data after transformation: ", transformed)
+println("Data after transformation: ", _transformed_)
 open("' + @cResultFile + '", "w") do f
-    write(f, transformed)
+    write(f, _transformed_)
 end
 println("Data written to file")
 '
@@ -554,15 +554,15 @@ int main() {
 
     # Extract the main computation predicate name from user code
     # Look for a predicate that takes one argument and is likely the main one
-    cMainPredicate = "compute_result"  # default
+    _cMainPredicate_ = "compute_result"  # default
     
     # Try to find a predicate definition in the code
     if StzFindFirst(@cCode, "compute_result(") > 0
-        cMainPredicate = "compute_result"
+        _cMainPredicate_ = "compute_result"
     but StzFindFirst(@cCode, "get_factorials(") > 0
-        cMainPredicate = "get_factorials"
+        _cMainPredicate_ = "get_factorials"
     but StzFindFirst(@cCode, "res(") > 0
-        cMainPredicate = "res"
+        _cMainPredicate_ = "res"
     ok
 
     return '
@@ -587,14 +587,14 @@ main :-
 	but @cLanguage = "nodejs"
 	#------------------------------
 	
-	    return cTransFunc + '
+	    return _cTransFunc_ + '
 // Main code
 console.log("NodeJS script starting...");
 ' + @cCode + '
 console.log("Data before transformation:", ' + @cResultVar + ');
-const transformed = transform_to_ring(' + @cResultVar + ');
-console.log("Data after transformation:", transformed);
-require("fs").writeFileSync("' + @cResultFile + '", transformed);
+const _transformed_ = transform_to_ring(' + @cResultVar + ');
+console.log("Data after transformation:", _transformed_);
+require("fs").writeFileSync("' + @cResultFile + '", _transformed_);
 console.log("Data written to file");
 '
 

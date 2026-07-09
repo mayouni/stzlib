@@ -146,8 +146,8 @@ class stzListDuplicates from stzObject
 	#=====================================#
 
 	def WithoutDuplicationCS(pCaseSensitive)
-		aResult = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
-		return aResult
+		_aResult_ = This.Copy().RemoveDuplicatesCSQ(pCaseSensitive).Content()
+		return _aResult_
 
 	def WithoutDuplication()
 		return This.WithoutDuplicationCS(1)
@@ -160,8 +160,8 @@ class stzListDuplicates from stzObject
 	#=================================#
 
 	def HasDuplicatesCS(pCaseSensitive)
-		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		return len(anPos) > 0
+		_anPos_ = This.FindDuplicatesCS(pCaseSensitive)
+		return len(_anPos_) > 0
 
 	def HasDuplicates()
 		return This.HasDuplicatesCS(1)
@@ -314,9 +314,9 @@ class stzListDuplicates from stzObject
 	#========================================#
 
 	def RemoveNthDuplicateCS(n, pItem, pCaseSensitive)
-		anPos = This.FindDuplicatesOfCS(pItem, pCaseSensitive)
-		if n >= 1 and n <= len(anPos)
-			ring_remove(This.List(), anPos[n])
+		_anPos_ = This.FindDuplicatesOfCS(pItem, pCaseSensitive)
+		if n >= 1 and n <= len(_anPos_)
+			ring_remove(This.List(), _anPos_[n])
 		ok
 
 		def RemoveNthDuplicateCSQ(n, pItem, pCaseSensitive)

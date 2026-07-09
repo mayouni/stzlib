@@ -74,8 +74,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedDown()
-		aResult = This.Copy().SortDownQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SortDownQ().Content()
+		return _aResult_
 
 		def SortedInDescending()
 			return This.SortedDown()
@@ -88,10 +88,10 @@ class stzTableSorter from stzTable
 	# Check performance on large tables
 
 	def SortOn(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 
 		This._EnsureEngine()
-		StzEngineTableSortOn(@pEngine, nCol-1, 1)
+		StzEngineTableSortOn(@pEngine, _nCol_-1, 1)
 		This._SyncFromEngine()
 
 		#< @FunctionFluentForm
@@ -155,8 +155,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedOn(pCol)
-		aResult = This.Copy().SortOnQ(pCol).Content()
-		return aResult
+		_aResult_ = This.Copy().SortOnQ(pCol).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -191,10 +191,10 @@ class stzTableSorter from stzTable
 	#=====================================================#
 
 	def SortDownOn(pCol)
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 
 		This._EnsureEngine()
-		StzEngineTableSortOn(@pEngine, nCol-1, 0)
+		StzEngineTableSortOn(@pEngine, _nCol_-1, 0)
 		This._SyncFromEngine()
 
 		#< @FunctionFluentForm
@@ -241,8 +241,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedDownOn(pCol)
-		aResult = This.Copy().SortDownOnQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SortDownOnQ().Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -296,8 +296,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedBy(pcExpr)
-		aResult = This.Copy().SortByQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortByQ(pcExpr).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -335,8 +335,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedDownBy(pcExpr)
-		aResult = This.Copy().SortDownByQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortDownByQ(pcExpr).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForm
 
@@ -351,17 +351,17 @@ class stzTableSorter from stzTable
 
 	def SortOnBy(pCol, pcExpr)
 
-		nCol = This.ColToColNumber(pCol)
-		oLoL = new stzListOfLists( This.Rows() )
+		_nCol_ = This.ColToColNumber(pCol)
+		_oLoL_ = new stzListOfLists( This.Rows() )
 		pcExpr = StzReplace(StzReplace(pcExpr, "@cell", "@item"), "@CELL", "@item")
 
-		oLoL.SortOnBy(nCol, pcExpr)
+		_oLoL_.SortOnBy(_nCol_, pcExpr)
 
-		aRowsSorted = oLoL.Content()
-		nLenRows = len(aRowsSorted)
+		_aRowsSorted_ = _oLoL_.Content()
+		_nLenRows_ = len(_aRowsSorted_)
 
-		for i = 1 to nLenRows
-			This.ReplaceRow(i, aRowsSorted[i])
+		for i = 1 to _nLenRows_
+			This.ReplaceRow(i, _aRowsSorted_[i])
 		next
 
 		#< @FunctionFluentForm
@@ -425,8 +425,8 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedOnBy(pCol, pcExpr)
-		aResult = This.Copy().SortOnByQ(pCol, pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortOnByQ(pCol, pcExpr).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -462,17 +462,17 @@ class stzTableSorter from stzTable
 
 	def SortDownOnBy(pCol, pcExpr)
 
-		nCol = This.ColToColNumber(pCol)
+		_nCol_ = This.ColToColNumber(pCol)
 
-		oLoL = new stzListOfLists( This.Rows() )
+		_oLoL_ = new stzListOfLists( This.Rows() )
 		pcExpr = StzReplace(StzReplace(pcExpr, "@cell", "@item"), "@CELL", "@item")
-		oLoL.SortDownOnBy(nCol, pcExpr)
+		_oLoL_.SortDownOnBy(_nCol_, pcExpr)
 
-		aRowsSorted = oLol.Content()
-		nLenRows = len(aRowsSorted)
+		_aRowsSorted_ = _oLoL_.Content()
+		_nLenRows_ = len(_aRowsSorted_)
 
-		for i = 1 to nLenRows
-			This.ReplaceRow(i, aRowsSorted[i])
+		for i = 1 to _nLenRows_
+			This.ReplaceRow(i, _aRowsSorted_[i])
 		next
 
 		#< @FunctionFluentForm
@@ -486,15 +486,15 @@ class stzTableSorter from stzTable
 		#< @FunctionAlternativeForms
 
 		def SortInDescendingOnBy(pCol, pcExpr)
-			This.SortDownOnBy(nCol, pcExpr)
+			This.SortDownOnBy(_nCol_, pcExpr)
 
 			def SortInDescendingOnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
-		def SortDownOnColBy(nCol, pcExpr)
+		def SortDownOnColBy(_nCol_, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortDownOnColByQ(nCol, pcExpr)
+			def SortDownOnColByQ(_nCol_, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
 		def SortInDescendingOnColBy(pCol, pcExpr)
@@ -518,15 +518,15 @@ class stzTableSorter from stzTable
 		#>
 
 	def SortedDownOnBy(pCol, pcExpr)
-		aResult = This.Copy().SortDownOnByQ(pCol, pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortDownOnByQ(pCol, pcExpr).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
 		def SortedInDescendingOnBy(pCol, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
-		def SortedDownOnColBy(nCol, pcExpr)
+		def SortedDownOnColBy(_nCol_, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
 		def SortedInDescendingInColBy(pCol, pcExpr)
@@ -564,9 +564,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortOn(pCol)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit
@@ -586,9 +586,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortUpOn(pCol)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit
@@ -626,9 +626,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortDownOn(pCol)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit
@@ -680,9 +680,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortOnBy(pCol, pcExpr)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit
@@ -713,9 +713,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortUpOnBy(pCol, pcExpr)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit
@@ -765,9 +765,9 @@ class stzTableSorter from stzTable
 		_oCopy_.SortDownOnBy(pCol, pcExpr)
 
 		_bResult_ = TRUE
-		nLen = This.NumberOfCols()
+		_nLen_ = This.NumberOfCols()
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
 				_bResult_ = FALSE
 				exit

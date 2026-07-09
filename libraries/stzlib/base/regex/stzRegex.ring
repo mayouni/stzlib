@@ -73,9 +73,9 @@ func StzMatchOptions()
 		return StzMatchOptions()
 
 func StzAllMatches(cInput, cPattern)
-	oRegex = new stzRegex(cPattern)
-	oRegex.Match(cInput)
-	return oRegex.AllMatches()
+	_oRegex_ = new stzRegex(cPattern)
+	_oRegex_.Match(cInput)
+	return _oRegex_.AllMatches()
 
 	func AllMatches(cInput, cPattern)
 		return StzAllMatches(cInput, cPattern)
@@ -85,9 +85,9 @@ func StzRegexMatch(cInput, cPattern)
 	if pH = NULL
 		return FALSE
 	ok
-	nResult = StzEngineRegexMatch(pH, cInput, 1)
+	_nResult_ = StzEngineRegexMatch(pH, cInput, 1)
 	StzEngineRegexFree(pH)
-	return nResult = 1
+	return _nResult_ = 1
 
 func StzRegexReplace(cInput, cPattern, cReplacement)
 	pH = StzEngineRegexNew(cPattern, 0)
@@ -95,9 +95,9 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
 		return cInput
 	ok
 	StzEngineRegexMatch(pH, cInput, 1)
-	cResult = StzEngineRegexReplace(pH, cInput, cReplacement)
+	_cResult_ = StzEngineRegexReplace(pH, cInput, cReplacement)
 	StzEngineRegexFree(pH)
-	return cResult
+	return _cResult_
 
   #==================#
  #  STZREGEX CLASS  #
@@ -227,9 +227,9 @@ class stzRegex from stzObject
 		ok
 
 		@nFlags = 0
-		nLen = len(pacOptions)
+		_nLen_ = len(pacOptions)
 
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			switch pacOptions[i]
 
 			case :CaseInsensitive
@@ -262,10 +262,10 @@ class stzRegex from stzObject
 		@cStr = pcStr
 		@cMatchType = pcMatchType
 
-		nStart = pnStartPosition - 1
-		if nStart < 0 nStart = 0 ok
+		_nStart_ = pnStartPosition - 1
+		if _nStart_ < 0 _nStart_ = 0 ok
 
-		StzEngineRegexMatch(@pRegexHandle, pcStr, nStart)
+		StzEngineRegexMatch(@pRegexHandle, pcStr, _nStart_)
 		@bLastMatchResult = StzEngineRegexHasMatch(@pRegexHandle)
 
 		return @bLastMatchResult
@@ -290,8 +290,8 @@ class stzRegex from stzObject
 
 	def HasPartialMatch()
 		if @pRegexHandle = NULL return FALSE ok
-		nResult = StzEngineRegexPartialMatch(@pRegexHandle, @cStr, 1)
-		return nResult = 2
+		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, @cStr, 1)
+		return _nResult_ = 2
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -308,16 +308,16 @@ class stzRegex from stzObject
 			return This.MatchFirstLineIn(pcStr)
 
 	def MatchWordsIn(pcStr)
-		cWordPattern = "\b" + This.Pattern() + "\b"
-		This.SetPattern(cWordPattern)
+		_cWordPattern_ = "\b" + This.Pattern() + "\b"
+		This.SetPattern(_cWordPattern_)
 		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
 
 	def MatchFirstWordIn(pcStr)
-		cWordPattern = "\b" + This.Pattern() + "\b"
-		This.SetPattern(cWordPattern)
+		_cWordPattern_ = "\b" + This.Pattern() + "\b"
+		This.SetPattern(_cWordPattern_)
 		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def MatchFirstWord(pcStr)
@@ -813,16 +813,16 @@ class stzRegex from stzObject
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
-		aResult = []
+		_aResult_ = []
 
 		for @i = 1 to This.CaptureCount()
-			cVal = StzEngineRegexCaptureText(@pRegexHandle, @i)
-			if cVal != ""
-				aResult + [ "" + @i, cVal ]
+			_cVal_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
+			if _cVal_ != ""
+				_aResult_ + [ "" + @i, _cVal_ ]
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		def Groups()
 			return This.CapturedGroups()
@@ -1039,8 +1039,8 @@ class stzRegex from stzObject
 
 	def IsPartialMatch(pcStr)
 		if @pRegexHandle = NULL return FALSE ok
-		nResult = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
-		return nResult = 2
+		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
+		return _nResult_ = 2
 
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
@@ -1079,9 +1079,9 @@ class stzRegex from stzObject
 			]
 		ok
 
-		nResult = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
+		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
 
-		if nResult = 1
+		if _nResult_ = 1
 			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 			_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 			# Convert engine's half-open [start, end) to Softanza's
@@ -1094,7 +1094,7 @@ class stzRegex from stzObject
 			]
 		ok
 
-		if nResult = 2
+		if _nResult_ = 2
 			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 			_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 			return [
@@ -1151,9 +1151,9 @@ class stzRegex from stzObject
 	#----------------------------#
 
 	def MatchRecursive(pcStr)
-		bResult = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :RecursiveMatch ])
-		@bRecursiveMatch = bResult
-		return bResult
+		_bResult_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :RecursiveMatch ])
+		@bRecursiveMatch = _bResult_
+		return _bResult_
 
 		def RecursiveMatch(pcStr)
 			return This.MatchRecursive(pcStr)
@@ -1177,40 +1177,40 @@ class stzRegex from stzObject
 			return [ :IsRecursive = FALSE, :depth = 0, :matches = [] ]
 		ok
 
-		aMatches = []
-		nMaxDepth = 0
+		_aMatches_ = []
+		_nMaxDepth_ = 0
 
-		cStr = This.String()
-		nStart = 1
-		This.MatchAt(cStr, nStart)
-		acSeen = []
+		_cStr_ = This.String()
+		_nStart_ = 1
+		This.MatchAt(_cStr_, _nStart_)
+		_acSeen_ = []
 
 		while This.HasMatch()
 
-			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 1)
+			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
-			if StzFindFirst(acSeen, cCapture) = 0
+			if StzFindFirst(_acSeen_, _cCapture_) = 0
 
 				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 
-				aMatches + [
-					cCapture,
+				_aMatches_ + [
+					_cCapture_,
 					[ _nS_, _nE_ ]
 				]
 
-				nMaxDepth++
-				acSeen + cCapture
+				_nMaxDepth_++
+				_acSeen_ + _cCapture_
 			ok
 
-			This.MatchAt(cStr, nStart++)
+			This.MatchAt(_cStr_, _nStart_++)
 
 		end
 
 		return [
 			:IsRecursive = TRUE,
-			:depth = nMaxDepth,
-			:matches = aMatches
+			:depth = _nMaxDepth_,
+			:matches = _aMatches_
 		]
 
 		def NestedMatchInfo(pcStr)

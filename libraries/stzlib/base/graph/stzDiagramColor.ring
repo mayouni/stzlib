@@ -273,127 +273,127 @@ func StzColorThemes()
 		return StzColorThemes()
 
 # Generate color intensities: color--, color-, color, color+, color++
-func StzGenerateColorIntensities(cColorName, cHexValue)
-	aIntensities = []
+func StzGenerateColorIntensities(_cColorName_, cHexValue)
+	_aIntensities_ = []
 
-	aRGB = StzHexToRGB(cHexValue)
-	nR = aRGB[1]
-	nG = aRGB[2]
-	nB = aRGB[3]
+	_aRGB_ = StzHexToRGB(cHexValue)
+	_nR_ = _aRGB_[1]
+	_nG_ = _aRGB_[2]
+	_nB_ = _aRGB_[3]
 	
-	nLum = 0.299 * nR + 0.587 * nG + 0.114 * nB
+	_nLum_ = 0.299 * _nR_ + 0.587 * _nG_ + 0.114 * _nB_
 	
-	if nLum < 128  # Dark color
+	if _nLum_ < 128  # Dark color
 		# Base is original
-		aIntensities[cColorName] = cHexValue
+		_aIntensities_[_cColorName_] = cHexValue
 		
 		# - : lighter (add ~64% white)
-		aIntensities[cColorName + "-"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.64)]),
-			min([255, nG + floor((255 - nG) * 0.64)]),
-			min([255, nB + floor((255 - nB) * 0.64)])
+		_aIntensities_[_cColorName_ + "-"] = RGBToHex(
+			min([255, _nR_ + floor((255 - _nR_) * 0.64)]),
+			min([255, _nG_ + floor((255 - _nG_) * 0.64)]),
+			min([255, _nB_ + floor((255 - _nB_) * 0.64)])
 		)
 		
 		# -- : much lighter (add ~88% white)
-		aIntensities[cColorName + "--"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.88)]),
-			min([255, nG + floor((255 - nG) * 0.88)]),
-			min([255, nB + floor((255 - nB) * 0.88)])
+		_aIntensities_[_cColorName_ + "--"] = RGBToHex(
+			min([255, _nR_ + floor((255 - _nR_) * 0.88)]),
+			min([255, _nG_ + floor((255 - _nG_) * 0.88)]),
+			min([255, _nB_ + floor((255 - _nB_) * 0.88)])
 		)
 		
 		# + : darker - for pure colors add 77 to zero channels, scale primary to 79%
-		nRedPlus = floor(nR * 0.79)
-		nGreenPlus = floor(nG * 0.79)
-		nBluePlus = floor(nB * 0.79)
+		_nRedPlus_ = floor(_nR_ * 0.79)
+		_nGreenPlus_ = floor(_nG_ * 0.79)
+		_nBluePlus_ = floor(_nB_ * 0.79)
 		
-		if nR = 0 and (nG > 0 or nB > 0)
-			nRedPlus = 77
+		if _nR_ = 0 and (_nG_ > 0 or _nB_ > 0)
+			_nRedPlus_ = 77
 		ok
-		if nG = 0 and (nR > 0 or nB > 0)
-			nGreenPlus = 77
+		if _nG_ = 0 and (_nR_ > 0 or _nB_ > 0)
+			_nGreenPlus_ = 77
 		ok
-		if nB = 0 and (nR > 0 or nG > 0)
-			nBluePlus = 77
+		if _nB_ = 0 and (_nR_ > 0 or _nG_ > 0)
+			_nBluePlus_ = 77
 		ok
 		
-		aIntensities[cColorName + "+"] = RGBToHex(
-			max([0, nRedPlus]),
-			max([0, nGreenPlus]),
-			max([0, nBluePlus])
+		_aIntensities_[_cColorName_ + "+"] = RGBToHex(
+			max([0, _nRedPlus_]),
+			max([0, _nGreenPlus_]),
+			max([0, _nBluePlus_])
 		)
 		
 		# ++ : much darker (scale to 40%)
-		aIntensities[cColorName + "++"] = RGBToHex(
-			max([0, floor(nR * 0.4)]),
-			max([0, floor(nG * 0.4)]),
-			max([0, floor(nB * 0.4)])
+		_aIntensities_[_cColorName_ + "++"] = RGBToHex(
+			max([0, floor(_nR_ * 0.4)]),
+			max([0, floor(_nG_ * 0.4)]),
+			max([0, floor(_nB_ * 0.4)])
 		)
 		
 	else  # Light color
 		# Base is original
-		aIntensities[cColorName] = cHexValue
+		_aIntensities_[_cColorName_] = cHexValue
 		
 		# - : lighter (64% to white)
-		aIntensities[cColorName + "-"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.64)]),
-			min([255, nG + floor((255 - nG) * 0.64)]),
-			min([255, nB + floor((255 - nB) * 0.64)])
+		_aIntensities_[_cColorName_ + "-"] = RGBToHex(
+			min([255, _nR_ + floor((255 - _nR_) * 0.64)]),
+			min([255, _nG_ + floor((255 - _nG_) * 0.64)]),
+			min([255, _nB_ + floor((255 - _nB_) * 0.64)])
 		)
 		
 		# -- : much lighter (88% to white)
-		aIntensities[cColorName + "--"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.88)]),
-			min([255, nG + floor((255 - nG) * 0.88)]),
-			min([255, nB + floor((255 - nB) * 0.88)])
+		_aIntensities_[_cColorName_ + "--"] = RGBToHex(
+			min([255, _nR_ + floor((255 - _nR_) * 0.88)]),
+			min([255, _nG_ + floor((255 - _nG_) * 0.88)]),
+			min([255, _nB_ + floor((255 - _nB_) * 0.88)])
 		)
 		
 		# + : darker (20% of original)
-		aIntensities[cColorName + "+"] = RGBToHex(
-			max([0, floor(nR * 0.2)]),
-			max([0, floor(nG * 0.2)]),
-			max([0, floor(nB * 0.2)])
+		_aIntensities_[_cColorName_ + "+"] = RGBToHex(
+			max([0, floor(_nR_ * 0.2)]),
+			max([0, floor(_nG_ * 0.2)]),
+			max([0, floor(_nB_ * 0.2)])
 		)
 		
 		# ++ : much darker (5% of original)
-		aIntensities[cColorName + "++"] = RGBToHex(
-			max([0, floor(nR * 0.05)]),
-			max([0, floor(nG * 0.05)]),
-			max([0, floor(nB * 0.05)])
+		_aIntensities_[_cColorName_ + "++"] = RGBToHex(
+			max([0, floor(_nR_ * 0.05)]),
+			max([0, floor(_nG_ * 0.05)]),
+			max([0, floor(_nB_ * 0.05)])
 		)
 	ok
 	
-	return aIntensities
+	return _aIntensities_
 
-	func GenerateColorIntensities(cColorName, cHexValue)
-		return StzGenerateColorIntensities(cColorName, cHexValue)
+	func GenerateColorIntensities(_cColorName_, cHexValue)
+		return StzGenerateColorIntensities(_cColorName_, cHexValue)
 
 func StzBuildColorPalette()
-	aPalette = []
-	acKeys = keys($acColors)
-	nLen = len(acKeys)
+	_aPalette_ = []
+	_acKeys_ = keys($acColors)
+	_nLen_ = len(_acKeys_)
 
 	# Add base colors
 
-	for i = 1 to nLen
-		cHex = $acColors[acKeys[i]]
-		aPalette[acKeys[i]] = cHex
+	for i = 1 to _nLen_
+		_cHex_ = $acColors[_acKeys_[i]]
+		_aPalette_[_acKeys_[i]] = _cHex_
 	end
 	
 	# Add all intensity variations
 
-	for i = 1 to nLen
-		cHex = $acColors[acKeys[i]]
-		cColorName = "" + acKeys[i]
-		aIntensities = StzGenerateColorIntensities(cColorName, cHex)
-		acKeysInt = keys(aIntensities)
-		nLenInt = len(acKeysInt)
+	for i = 1 to _nLen_
+		_cHex_ = $acColors[_acKeys_[i]]
+		_cColorName_ = "" + _acKeys_[i]
+		_aIntensities_ = StzGenerateColorIntensities(_cColorName_, _cHex_)
+		_acKeysInt_ = keys(_aIntensities_)
+		_nLenInt_ = len(_acKeysInt_)
 
-		for j = 1 to nLenInt
-			aPalette[acKeysInt[j]] = aIntensities[acKeysInt[j]]
+		for j = 1 to _nLenInt_
+			_aPalette_[_acKeysInt_[j]] = _aIntensities_[_acKeysInt_[j]]
 		end
 	end
 
-	return aPalette
+	return _aPalette_
 
 	func BuildColorPalette()
 		return StzBuildColorPalette()
@@ -403,74 +403,74 @@ func StzResolveColor(pColor)
 		$acFullColorPalette = StzBuildColorPalette()
 	ok
 
-	oResolver = new stzColorResolver()
-	return oResolver.ResolveWithPalette(pColor, $acFullColorPalette)
+	_oResolver_ = new stzColorResolver()
+	return _oResolver_.ResolveWithPalette(pColor, $acFullColorPalette)
 
 	func ResolveColor(pColor)
 		return StzResolveColor(pColor)
 
 func StzAttenuateColor(cColor)
     # Remove all intensity modifiers
-    cBase = replace(cColor, "++", "")
-    cBase = replace(cBase, "+", "")
-    cBase = replace(cBase, "--", "")
-    cBase = replace(cBase, "-", "")
+    _cBase_ = replace(cColor, "++", "")
+    _cBase_ = replace(_cBase_, "+", "")
+    _cBase_ = replace(_cBase_, "--", "")
+    _cBase_ = replace(_cBase_, "-", "")
     
     # Apply maximum attenuation
-    return cBase + "--"
+    return _cBase_ + "--"
 
 	func AttenuateColor(cColor)
 		return StzAttenuateColor(cColor)
 
 func StzIntensifyColor(cColor)
-    cBase = replace(cColor, "++", "")
-    cBase = replace(cBase, "+", "")
-    cBase = replace(cBase, "--", "")
-    cBase = replace(cBase, "-", "")
-    return cBase + "++"
+    _cBase_ = replace(cColor, "++", "")
+    _cBase_ = replace(_cBase_, "+", "")
+    _cBase_ = replace(_cBase_, "--", "")
+    _cBase_ = replace(_cBase_, "-", "")
+    return _cBase_ + "++"
 
 	func IntensifyColor(cColor)
 		return StzIntensifyColor(cColor)
 
-func StzHexToRGB(cHex)
-	if StzFindFirst(cHex, "#")
-		cHex = StzMid(cHex, 2, StzLen(cHex) - 1)
+func StzHexToRGB(_cHex_)
+	if StzFindFirst(_cHex_, "#")
+		_cHex_ = StzMid(_cHex_, 2, StzLen(_cHex_) - 1)
 	ok
 
-	if StzLen(cHex) != 6
+	if StzLen(_cHex_) != 6
 		return [128, 128, 128]
 	ok
 
-	cR = StzMid(cHex, 1, 2)
-	cG = StzMid(cHex, 3, 2)
-	cB = StzMid(cHex, 5, 2)
+	_cR_ = StzMid(_cHex_, 1, 2)
+	_cG_ = StzMid(_cHex_, 3, 2)
+	_cB_ = StzMid(_cHex_, 5, 2)
 
-	nR = HexToDec(cR)
-	nG = HexToDec(cG)
-	nB = HexToDec(cB)
+	_nR_ = HexToDec(_cR_)
+	_nG_ = HexToDec(_cG_)
+	_nB_ = HexToDec(_cB_)
 
-	return [nR, nG, nB]
+	return [_nR_, _nG_, _nB_]
 
-	func HexToRGB(cHex)
-		return StzHexToRGB(cHex)
+	func HexToRGB(_cHex_)
+		return StzHexToRGB(_cHex_)
 
-func StzRGBToHex(nR, nG, nB)
-	nR = max([ 0, min([ 255, nR ]) ])
-	nG = max([ 0, min([ 255, nG ]) ])
-	nB = max([ 0, min([ 255, nB ]) ])
+func StzRGBToHex(_nR_, _nG_, _nB_)
+	_nR_ = max([ 0, min([ 255, _nR_ ]) ])
+	_nG_ = max([ 0, min([ 255, _nG_ ]) ])
+	_nB_ = max([ 0, min([ 255, _nB_ ]) ])
 
-	cR = DecToHex(nR)
-	cG = DecToHex(nG)
-	cB = DecToHex(nB)
+	_cR_ = DecToHex(_nR_)
+	_cG_ = DecToHex(_nG_)
+	_cB_ = DecToHex(_nB_)
 
-	if len(cR) = 1 cR = "0" + cR ok
-	if len(cG) = 1 cG = "0" + cG ok
-	if len(cB) = 1 cB = "0" + cB ok
+	if len(_cR_) = 1 _cR_ = "0" + _cR_ ok
+	if len(_cG_) = 1 _cG_ = "0" + _cG_ ok
+	if len(_cB_) = 1 _cB_ = "0" + _cB_ ok
 
-	return "#" + StzUpper(cR) + StzUpper(cG) + StzUpper(cB)
+	return "#" + StzUpper(_cR_) + StzUpper(_cG_) + StzUpper(_cB_)
 
-	func RGBToHex(nR, nG, nB)
-		return StzRGBToHex(nR, nG, nB)
+	func RGBToHex(_nR_, _nG_, _nB_)
+		return StzRGBToHex(_nR_, _nG_, _nB_)
 
 func StzPalette()
 	return $aPalette

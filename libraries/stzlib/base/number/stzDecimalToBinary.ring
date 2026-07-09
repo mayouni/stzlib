@@ -53,12 +53,12 @@ class stzDecimalToBinary from stzObject
 		return new stzBinaryNumber(This.ToBinaryForm())
 
 	def ToBinaryForm()
-		cBinary = ""
+		_cBinary_ = ""
 
 		_nNum_ = This.ToStzNumber().NumericValue()
 
 		if _nNum_ = 0
-			cBinary = "0"
+			_cBinary_ = "0"
 		else
 
 			_cIntPart_ = This.IntegerPartToBinaryForm()
@@ -70,77 +70,77 @@ class stzDecimalToBinary from stzObject
 				_cIntPart_ += "0"
 			ok
 
-			cBinary += _cIntPart_
+			_cBinary_ += _cIntPart_
 
 			if This.ToStzNumber().HasFractionalPart()
-				cBinary  += DefaultFractionalSeparator() + This.FractionalPartToBinaryForm()
+				_cBinary_  += DefaultFractionalSeparator() + This.FractionalPartToBinaryForm()
 			ok
 
 			# Re-apply the negative sign if it was dropped by the
 			# integer-part short-circuit (e.g. "-0.625" has integer
 			# part 0, which renders as plain "0").
-			if _nNum_ < 0 and NOT left(cBinary, 1) = "-"
-				cBinary = "-" + cBinary
+			if _nNum_ < 0 and NOT left(_cBinary_, 1) = "-"
+				_cBinary_ = "-" + _cBinary_
 			ok
 		ok
 
-		return BinaryNumberPrefix() + cBinary
+		return BinaryNumberPrefix() + _cBinary_
 
 	def IntegerPartToBinaryForm()
-		nVal = This.ToStzNumber().IntegerPartValue()
-		if nVal = 0
+		_nVal_ = This.ToStzNumber().IntegerPartValue()
+		if _nVal_ = 0
 			return ""
 		ok
 
-		cPrefix = ""
-		if nVal < 0
-			cPrefix = "-"
-			nVal = -nVal
+		_cPrefix_ = ""
+		if _nVal_ < 0
+			_cPrefix_ = "-"
+			_nVal_ = -_nVal_
 		ok
 
-		return cPrefix + StzEngineNumberToBase(nVal, 2)
+		return _cPrefix_ + StzEngineNumberToBase(_nVal_, 2)
 
 	def FractionalPartToBinaryForm()
 
-		n = This.ToStzNumber().FractionalPartValue()
+		_n_ = This.ToStzNumber().FractionalPartValue()
 
-		if n < 0
-			n = -n
+		if _n_ < 0
+			_n_ = -_n_
 		ok
 
-		aTemp = []
-		cBinary = ""
+		_aTemp_ = []
+		_cBinary_ = ""
 
-		nPrecision = 0
-		bAgain = 1
+		_nPrecision_ = 0
+		_bAgain_ = 1
 
-		while bAgain
+		while _bAgain_
 			
-			nPrecision++
-			if nPrecision > 19
-				bAgain = 0
+			_nPrecision_++
+			if _nPrecision_ > 19
+				_bAgain_ = 0
 
 			else
-				nDouble = n * 2 // Check if This should to be done using stzNumber
+				_nDouble_ = _n_ * 2 // Check if This should to be done using stzNumber
 	
-				oTempNumber = new stzNumber(nDouble)
+				_oTempNumber_ = new stzNumber(_nDouble_)
 	
-				if NOT oTempNumber.HasFractionalPart()
-					bAgain = 0
+				if NOT _oTempNumber_.HasFractionalPart()
+					_bAgain_ = 0
 				ok
 	
-				aTemp + oTempNumber.IntegerPart()
-				n = oTempNumber.FractionalPartValue()
+				_aTemp_ + _oTempNumber_.IntegerPart()
+				_n_ = _oTempNumber_.FractionalPartValue()
 			ok
 				
 		end
 
-		_nTempLen_ = len(aTemp)
+		_nTempLen_ = len(_aTemp_)
 		for i = 1 to _nTempLen_
-			cBinary += aTemp[i]
+			_cBinary_ += _aTemp_[i]
 		next
 
-		return cBinary
+		return _cBinary_
 
 
 	

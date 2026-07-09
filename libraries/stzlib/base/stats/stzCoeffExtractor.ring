@@ -86,51 +86,51 @@ class stzCoeffExtractor from stzObject
 		decimals(@nOutsidePrecision)
 
 	# Main method: Extract coefficient
-	def extract(cExpression, cVarName)
+	def extract(cExpression, _cVarName_)
 
-		nResult = 0
+		_nResult_ = 0
 
-		if not ring_substr1(cExpression, cVarName)
+		if not ring_substr1(cExpression, _cVarName_)
 			return 0
-			return nResult
+			return _nResult_
 		ok
 		
 		# Try simple pattern matching first (for performance)
-		nSimpleCoeff = This.trySimpleExtraction(cExpression, cVarName)
-		if nSimpleCoeff != NULL
-			return nSimpleCoeff
-			nResult = nSimpleCoeff
+		_nSimpleCoeff_ = This.trySimpleExtraction(cExpression, _cVarName_)
+		if _nSimpleCoeff_ != NULL
+			return _nSimpleCoeff_
+			_nResult_ = _nSimpleCoeff_
 		ok
 		
 		# Fall back to numerical differentiation
-		return This.numericalDerivative(cExpression, cVarName)
+		return This.numericalDerivative(cExpression, _cVarName_)
 	
-		nResult = This.numericalDerivative(cExpression, cVarName)
-		return nResult
+		_nResult_ = This.numericalDerivative(cExpression, _cVarName_)
+		return _nResult_
 	
-		def ExtractCoefficient(cExpression, cVarName)
-			return This.Extract(cExpression, cVarName)
+		def ExtractCoefficient(cExpression, _cVarName_)
+			return This.Extract(cExpression, _cVarName_)
 
-		def ExtractCoeff(cExpression, cVarName)
-			return This.Extract(cExpression, cVarName)
+		def ExtractCoeff(cExpression, _cVarName_)
+			return This.Extract(cExpression, _cVarName_)
 
 
 	# Fast path for simple linear expressions
-	def trySimpleExtraction(cExpression, cVarName)
-		cExpr = This.normalizeExpression(cExpression)
+	def trySimpleExtraction(cExpression, _cVarName_)
+		_cExpr_ = This.normalizeExpression(cExpression)
 		
 		# Check if it's a simple linear form
-		if This.isSimpleLinearExpression(cExpr)
-			return This.extractLinearCoefficient(cExpr, cVarName)
+		if This.isSimpleLinearExpression(_cExpr_)
+			return This.extractLinearCoefficient(_cExpr_, _cVarName_)
 		ok
 		
 		return NULL  # Indicates need for numerical method
 	
 	def normalizeExpression(cExpression)
-		cExpr = @trim(cExpression)
-		cExpr = StzReplace(cExpr, " ", "")  # Remove spaces
-		cExpr = StzReplace(cExpr, "\t", "") # Remove tabs
-		return cExpr
+		_cExpr_ = @trim(cExpression)
+		_cExpr_ = StzReplace(_cExpr_, " ", "")  # Remove spaces
+		_cExpr_ = StzReplace(_cExpr_, "\t", "") # Remove tabs
+		return _cExpr_
 	
 	def isSimpleLinearExpression(cExpression)
 		# Check if expression contains only +, -, *, numbers, and variables
@@ -146,31 +146,31 @@ class stzCoeffExtractor from stzObject
 		
 		return TRUE
 	
-	def extractLinearCoefficient(cExpression, cVarName)
-		cExpr = StzReplace(cExpression, "-", "+-")  # Handle negative terms
-		acTerms = @split(cExpr, "+")
-		nLen = len(acTerms)
+	def extractLinearCoefficient(cExpression, _cVarName_)
+		_cExpr_ = StzReplace(cExpression, "-", "+-")  # Handle negative terms
+		_acTerms_ = @split(_cExpr_, "+")
+		_nLen_ = len(_acTerms_)
 
-		for i = 1 to nLen
-			cTerm = @trim(acTerms[i])
-			if cTerm = "" loop ok
+		for i = 1 to _nLen_
+			_cTerm_ = @trim(_acTerms_[i])
+			if _cTerm_ = "" loop ok
 			
-			if ring_substr1(cTerm, cVarName)
-				if ring_substr1(cTerm, "*")
+			if ring_substr1(_cTerm_, _cVarName_)
+				if ring_substr1(_cTerm_, "*")
 					# Extract coefficient before *
-					nPos = ring_substr1(cTerm, "*")
+					_nPos_ = ring_substr1(_cTerm_, "*")
 
-					cCoeff = trim(@StzMid(cTerm, 1, nPos-1))
-					if cCoeff = "" or cCoeff = "+"
+					_cCoeff_ = trim(@StzMid(_cTerm_, 1, _nPos_-1))
+					if _cCoeff_ = "" or _cCoeff_ = "+"
 						return 1
 					ok
-					if cCoeff = "-"
+					if _cCoeff_ = "-"
 						return -1
 					ok
-					return 0 + cCoeff
+					return 0 + _cCoeff_
 				else
 					# Variable without explicit coefficient
-					if StzLeft(cTerm, 1) = "-"
+					if StzLeft(_cTerm_, 1) = "-"
 						return -1
 					ok
 					return 1
@@ -183,101 +183,101 @@ class stzCoeffExtractor from stzObject
 
 	# Numerical differentiation for complex expressions
 
-	def numericalDerivative(cExpression, cVarName)
+	def numericalDerivative(cExpression, _cVarName_)
 		# Create test values for all variables
-		aTestValues = This.createTestValues()
+		_aTestValues_ = This.createTestValues()
 		
 		# Evaluate at base point
-		nBaseValue = This.evaluateExpression(cExpression, aTestValues)
+		_nBaseValue_ = This.evaluateExpression(cExpression, _aTestValues_)
 		
 		# Perturb the target variable and evaluate again
-		aTestValues[cVarName] = aTestValues[cVarName] + @nPerturbationDelta
-		nPerturbedValue = This.evaluateExpression(cExpression, aTestValues)
+		_aTestValues_[_cVarName_] = _aTestValues_[_cVarName_] + @nPerturbationDelta
+		_nPerturbedValue_ = This.evaluateExpression(cExpression, _aTestValues_)
 		
 		# Calculate numerical derivative (coefficient)
-		nCoeff = (nPerturbedValue - nBaseValue) / @nPerturbationDelta
+		_nCoeff_ = (_nPerturbedValue_ - _nBaseValue_) / @nPerturbationDelta
 		
 		# Round to handle floating point precision issues
-		return This.roundCoefficient(nCoeff)
+		return This.roundCoefficient(_nCoeff_)
 	
 
 	def createTestValues()
-		aValues = []
+		_aValues_ = []
 		_nVars2Len_ = len(@aVars)
 		for _iLoopVars2_ = 1 to _nVars2Len_
-			cVarName = @aVars[_iLoopVars2_]
-			aValues[cVarName] = 10.0  # Use 10.0 to avoid min() saturation
+			_cVarName_ = @aVars[_iLoopVars2_]
+			_aValues_[_cVarName_] = 10.0  # Use 10.0 to avoid min() saturation
 		next
-		return aValues
+		return _aValues_
 
 
 	def evaluateExpression(cExpression, aVarValues)
 	    # Prepare replacement pairs
-	    acSubStr = []
-		acNewSubStr = []
+	    _acSubStr_ = []
+		_acNewSubStr_ = []
 
 	    _nVars1Len_ = len(@aVars)
 	    for _iLoopVars1_ = 1 to _nVars1Len_
-	    	cVarName = @aVars[_iLoopVars1_]
-	        if ring_substr1(cExpression, cVarName)
-	            acSubStr + cVarName
-				acNewSubStr + @@(aVarValues[cVarName])
+	    	_cVarName_ = @aVars[_iLoopVars1_]
+	        if ring_substr1(cExpression, _cVarName_)
+	            _acSubStr_ + _cVarName_
+				_acNewSubStr_ + @@(aVarValues[_cVarName_])
 	        ok
 	    next
 	    
 	    # Use StzStringQ for safe replacement
-	    cEvalExpr = "nResult = (" +
-			StzStringQ(cExpression).ManyReplaced(acSubStr, acNewSubStr) + " )"
-		cEvalExpr = "nResult = " +
-    	StzStringQ(cExpression).ManyReplaced(acSubStr, acNewSubStr)
+	    _cEvalExpr_ = "_nResult_ = (" +
+			StzStringQ(cExpression).ManyReplaced(_acSubStr_, _acNewSubStr_) + " )"
+		_cEvalExpr_ = "_nResult_ = " +
+    	StzStringQ(cExpression).ManyReplaced(_acSubStr_, _acNewSubStr_)
 
-	    eval(cEvalExpr)
-		eval(cEvalExpr)
-	    return nResult
+	    eval(_cEvalExpr_)
+		eval(_cEvalExpr_)
+	    return _nResult_
 
 	
-	def roundCoefficient(nCoeff)
+	def roundCoefficient(_nCoeff_)
 		# Round to reasonable precision to avoid floating point artifacts
-		nRounded = floor(nCoeff * 1000000 + 0.5) / 1000000
+		_nRounded_ = floor(_nCoeff_ * 1000000 + 0.5) / 1000000
 		
 		# If very close to integer, return integer
-		if abs(nRounded - floor(nRounded + 0.5)) < 0.000001
-			return floor(nRounded + 0.5)
+		if abs(_nRounded_ - floor(_nRounded_ + 0.5)) < 0.000001
+			return floor(_nRounded_ + 0.5)
 		ok
 		
-		return nRounded
+		return _nRounded_
 	
 
 	def VarNames()
-		nLen = len(@aVars)
-		acResult = []
+		_nLen_ = len(@aVars)
+		_acResult_ = []
 
-		for i = 1 to nLen
-			acResult + @aVars[i]
+		for i = 1 to _nLen_
+			_acResult_ + @aVars[i]
 		next
 
-		return acResult
+		return _acResult_
 
 		def VariableNames()
 			return This.VarNames()
 
 	# Batch extraction for all variables
 	def extractAllCoefficients(cExpression)
-		aCoeffs = []
-		acVarNames = This.VarNames()
+		_aCoeffs_ = []
+		_acVarNames_ = This.VarNames()
 
-		_nAcVarNames1Len_ = len(acVarNames)
+		_nAcVarNames1Len_ = len(_acVarNames_)
 		for _iLoopAcVarNames1_ = 1 to _nAcVarNames1Len_
-			cVarName = acVarNames[_iLoopAcVarNames1_]
-			aCoeffs + This.extractCoefficient(cExpression, cVarName)
+			_cVarName_ = _acVarNames_[_iLoopAcVarNames1_]
+			_aCoeffs_ + This.extractCoefficient(cExpression, _cVarName_)
 		next
-		return aCoeffs
+		return _aCoeffs_
 	
 	# Utility method to validate expression
 	def validateExpression(cExpression)
 		try
-			aTestValues = This.createTestValues(cExpression)
-			This.evaluateExpression(cExpression, aTestValues)
+			_aTestValues_ = This.createTestValues(cExpression)
+			This.evaluateExpression(cExpression, _aTestValues_)
 			return TRUE
 		catch
 			return FALSE

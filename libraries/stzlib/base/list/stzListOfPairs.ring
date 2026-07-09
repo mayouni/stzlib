@@ -10,8 +10,8 @@ func RangeToSection(pnStart, pnRange)
 		StzRaise("Incorrect param type! pnStart and pnRange must be noth numbers.")
 	ok
 
-	aResult = [ pnStart, pnStart + pnRange - 1 ]
-	return aResult
+	_aResult_ = [ pnStart, pnStart + pnRange - 1 ]
+	return _aResult_
 
 
 	func @RangeToSection(pnStart, pnRange)
@@ -30,22 +30,22 @@ func RangesToSections(panRanges)
 		ok
 	ok
 
-	nLen = len(panRanges)
-	anSections = []
+	_nLen_ = len(panRanges)
+	_anSections_ = []
 
-	for i = 1 to nLen
-		anSections + @RangeToSection(panRanges[i][1], panRanges[i][2])
+	for i = 1 to _nLen_
+		_anSections_ + @RangeToSection(panRanges[i][1], panRanges[i][2])
 	next
 
-	return anSections
+	return _anSections_
 
 func SectionToRange(n1, n2)
 	if NOT (isNumber(n1) and isNumber(n2))
 		StzRaise("Incorrect param types! n1 and n2 must be both numbers.")
 	ok
 
-	anResult = [ n1, n2 - n1 + 1 ]
-	return anResult
+	_anResult_ = [ n1, n2 - n1 + 1 ]
+	return _anResult_
 
 	func @SectionToRange(n1, n2)
 		return SectionToRange(n1, n2)
@@ -63,26 +63,26 @@ func SectionsToRanges(paSections)
 		ok
 	ok
 
-	nLen = len(paSections)
-	anRanges = []
+	_nLen_ = len(paSections)
+	_anRanges_ = []
 	
-	for i = 1 to nLen
-		anRanges + @SectionToRange(paSections[i][1], paSections[i][2])
+	for i = 1 to _nLen_
+		_anRanges_ + @SectionToRange(paSections[i][1], paSections[i][2])
 	next
 
-	return anRanges
+	return _anRanges_
 
 func ListThatHasMoreNumberOfItems(paList1, paList2)
-	oList1 = new stzList(aList1)
-	if oList1.HasMoreNumberOfItemsThen(paList2)
+	_oList1_ = new stzList(aList1)
+	if _oList1_.HasMoreNumberOfItemsThen(paList2)
 		return paList1
 	else
 		return paList2
 	ok
 
 func ListThatHasLessNumberOfItems(paList1, paList2)
-	oList1 = new stzList(paList1)
-	if oList1.HasLessNumberOfItems(:Then = paList2)
+	_oList1_ = new stzList(paList1)
+	if _oList1_.HasLessNumberOfItems(:Then = paList2)
 		return paList1
 	else
 		return paList2
@@ -137,9 +137,9 @@ class stzListOfPairs from stzListOfLists
 			ok
 		ok
 
-		aContent = This.Content()
-		aContent[n] = paNewPair
-		This.UpdateWith(aContent)
+		_aContent_ = This.Content()
+		_aContent_[n] = paNewPair
+		This.UpdateWith(_aContent_)
 
 
 		#< @FunctionAlternativeForms
@@ -190,8 +190,8 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------#
 
 	def NumberOfPairs()
-		nResult = len(@aContent)
-		return nResult
+		_nResult_ = len(@aContent)
+		return _nResult_
 
 	  #------------------------#
 	 #  GETTING THE NTH PAIR  #
@@ -238,12 +238,12 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------------------------------------------#
 
 	def FindInFirstItems(pValue)
-		anResult = This.FirstItemsQ().Find(pValue)
-		return anResult
+		_anResult_ = This.FirstItemsQ().Find(pValue)
+		return _anResult_
 
 	def FindInSecondItems(pValue)
-		anResult = This.SecondItemsQ().Find(pValue)
-		return anResult
+		_anResult_ = This.SecondItemsQ().Find(pValue)
+		return _anResult_
 
 	  #---------------------------------------------#
 	 #  CHECKING IF PAIRS ARE MADE OF EQUAL ITEMS  #
@@ -254,33 +254,33 @@ class stzListOfPairs from stzListOfLists
 		# equal; should be when items are NOT equal. Returned the
 		# wrong answer on every call (including the typical
 		# "yes, all pairs are equal" case).
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT Q(aContent[i][1]).IsEqualTo(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT Q(_aContent_[i][1]).IsEqualTo(_aContent_[i][2])
+				_bResult_ = 0
 			ok
 		next
-		return bResult
+		return _bResult_
 
 	  #----------------------------#
 	 #  FIRST ITEMS OF EACH PAIR  #
 	#============================#
 
 	def FirstItems()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + aContent[i][1]
+		for i = 1 to _nLen_
+			_aResult_ + _aContent_[i][1]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -334,8 +334,8 @@ class stzListOfPairs from stzListOfLists
 	#----------------------------------------------------#
 
 	def FirstItemsU()
-		aResult = This.FirstItemsQ().WithoutDuplication()
-		return aResult
+		_aResult_ = This.FirstItemsQ().WithoutDuplication()
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -392,16 +392,16 @@ class stzListOfPairs from stzListOfLists
 	#=============================#
 
 	def SecondItems()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + aContent[i][2]
+		for i = 1 to _nLen_
+			_aResult_ + _aContent_[i][2]
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -475,8 +475,8 @@ class stzListOfPairs from stzListOfLists
 	#-----------------------------------------------------#
 
 	def SecondItemsU()
-		aResult = This.SecondItemsQ().WithoutDuplication()
-		return aResult
+		_aResult_ = This.SecondItemsQ().WithoutDuplication()
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -541,32 +541,32 @@ class stzListOfPairs from stzListOfLists
 			return This
 
 	def PairReplaced(n, paNewPair)
-		aResult = This.Copy().ReplacePairQ(n, paNewPair).Content()
-		return aResult
+		_aResult_ = This.Copy().ReplacePairQ(n, paNewPair).Content()
+		return _aResult_
 
 	  #==============================#
 	 #  SORTING PAIRS IN ASCENDING  #
 	#==============================#
 
 	def StringifyItems()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ Q(aContent[i][1]).Stringified(), Q(aContent[i][2]).Stringified() ]
+		for i = 1 to _nLen_
+			_aResult_ + [ Q(_aContent_[i][1]).Stringified(), Q(_aContent_[i][2]).Stringified() ]
 		next
 
-		This.Update(aResult)
+		This.Update(_aResult_)
 
 		def StringifyItemsQ()
 			This.StringifyItems()
 			return This
 
 	def ItemsStringified()
-		aResult = This.Copy().StringifyItemsQ().Content()
-		return aResult
+		_aResult_ = This.Copy().StringifyItemsQ().Content()
+		return _aResult_
 
 	  #=========================================#
 	 #  SORTING THE LIST OF PAIRS IN ASCENDING  #
@@ -593,8 +593,8 @@ class stzListOfPairs from stzListOfLists
 				return This.SortQ()
 
 	def Sorted()
-		aResult = This.Copy().SortQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SortQ().Content()
+		return _aResult_
 
 		def SortedInAscending()
 			return This.Sorted()
@@ -620,8 +620,8 @@ class stzListOfPairs from stzListOfLists
 				return This.SortDownQ()
 
 	def SortedDown()
-		aResult = This.Copy().SortDownQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SortDownQ().Content()
+		return _aResult_
 
 		def SortedInDescending()
 			return This.Sorted()
@@ -631,8 +631,8 @@ class stzListOfPairs from stzListOfLists
 	#==================================================================#
 
 	def SortOn(n)
-		aResult = @SortOn(This.Content(), n)
-		This.UpdateWith(aResult)
+		_aResult_ = @SortOn(This.Content(), n)
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionFluentForm
 
@@ -673,8 +673,8 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def SortedOn(n)
-		aResult = This.Copy().SortOnQ(n).Content()
-		return aResult
+		_aResult_ = This.Copy().SortOnQ(n).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -739,8 +739,8 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def SortedOnInDescending(n)
-		aResult = This.Copy().SortOnInDescendingQ(n).Content()
-		return aResult
+		_aResult_ = This.Copy().SortOnInDescendingQ(n).Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -767,8 +767,8 @@ class stzListOfPairs from stzListOfLists
 
 		pcExpr = Q(pcExpr).ReplaceQ("@pair", "@item").Content()
 
-		aContent = This.ToStzList().SortedBy(pcExpr)
-		This.UpdateWith(aContent)
+		_aContent_ = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(_aContent_)
 
 		#< @FunctionFluentForm
 
@@ -795,8 +795,8 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def SortedBy(pcExpr)
-		aResult = This.Copy().SortByQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortByQ(pcExpr).Content()
+		return _aResult_
 
 		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
@@ -823,8 +823,8 @@ class stzListOfPairs from stzListOfLists
 				return This.SortByInDescendingQ(pcExpr)
 
 	def SortedByInDescending(pcExpr)
-		aResult = This.Copy().SortByInDescendingQ(pcExpr).Content()
-		return aResult
+		_aResult_ = This.Copy().SortByInDescendingQ(pcExpr).Content()
+		return _aResult_
 
 		def SortedByDown(pcExpr)
 			return This.SortedByInDescending(pcExpr)
@@ -834,18 +834,18 @@ class stzListOfPairs from stzListOfLists
 	#==================================================================#
 
 	def ExpandedIfPairsOfNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aResult = []
+		_aResult_ = []
 
-		for i = 1 to nLen
-			if isNumber(aContent[i][1]) and isNumber(aContent[i][2])
-				aResult + StzListQ(aContent[i]).ExpandedIfPairOfNumbers()
+		for i = 1 to _nLen_
+			if isNumber(_aContent_[i][1]) and isNumber(_aContent_[i][2])
+				_aResult_ + StzListQ(_aContent_[i]).ExpandedIfPairOfNumbers()
 			ok
 		next
 
-		return aResult
+		return _aResult_
 
 		#< @FunctionFluentForm
 
@@ -875,15 +875,15 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------------#
 
 	def SwapItems()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
+		_aResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aContent[i][2], aContent[i][1] ]
+		for i = 1 to _nLen_
+			_aResult_ + [ _aContent_[i][2], _aContent_[i][1] ]
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aResult_)
 
 		#< @FunctionFluentForm
 			
@@ -950,8 +950,8 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def ItemsSwapped()
-		aResult = This.Copy().SwapItemsQ().Content()
-		return aResult
+		_aResult_ = This.Copy().SwapItemsQ().Content()
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -992,19 +992,19 @@ class stzListOfPairs from stzListOfLists
 
 	def IsListOfSections()
 
-		aContent = This.Content()
-		nLen = len(aContent)	
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)	
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsListOfNumbers(aContent[i])
-				bIsMadeOfNumbers = 0
+		for i = 1 to _nLen_
+			if NOT @IsListOfNumbers(_aContent_[i])
+				_bIsMadeOfNumbers_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 	def IsSortedListOfSections()
 
@@ -1019,49 +1019,49 @@ class stzListOfPairs from stzListOfLists
 
 	def IsListOfSectionsSortedInAscending()
 
-		bResult = 0
+		_bResult_ = 0
 
 		If This.IsListOfSections() and
 		   This.ToStzList().MergeQ().IsSortedInAscending()
 
-				bResult = 1
+				_bResult_ = 1
 
 		ok
 
-		return bResult
+		return _bResult_
 
 	def IsListOfSectionsSortedInDescending()
 
-		bResult = 0
-		aSwapped = This.Swapped()
+		_bResult_ = 0
+		_aSwapped_ = This.Swapped()
 
 		If This.IsListOfSections() and
-		   StzListQ(aSwapped).MergeQ().IsSortedInDescending()
+		   StzListQ(_aSwapped_).MergeQ().IsSortedInDescending()
 
-				bResult = 1
+				_bResult_ = 1
 
 		ok
 
-		return bResult
+		return _bResult_
 
 	  #---------------------------------------------#
 	 #   CHECHKING IF AN ITEM EXISTS IN ANY PAIR   #
 	#---------------------------------------------#
 
 	def ContainsInAnyPair(pItem)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 0
+		_bResult_ = 0
 		
-		for i = 1 to nLen
-			if ListContains(aContent[i], pItem)
-				bResult = 1
+		for i = 1 to _nLen_
+			if ListContains(_aContent_[i], pItem)
+				_bResult_ = 1
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1088,11 +1088,11 @@ class stzListOfPairs from stzListOfLists
 
 	def AreAnagramsCS(pCaseSensitive)
 
-		val1 = This.FirstValue()
-		val2 = This.SecondValue()
+		_val1_ = This.FirstValue()
+		_val2_ = This.SecondValue()
 
-		if @BothAreStrings(val1, val2) and
-		   Q(val1).IsAnagramOfCS(val2, pCaseSensitive)
+		if @BothAreStrings(_val1_, _val2_) and
+		   Q(_val1_).IsAnagramOfCS(_val2_, pCaseSensitive)
 
 			return 1
 		else
@@ -1107,19 +1107,19 @@ class stzListOfPairs from stzListOfLists
 	#===============================================#
 
 	def FirstItemsAreNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isNumber(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isNumber(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllNumbers()
 			return This.FirstItemsAreNumbers()
@@ -1135,19 +1135,19 @@ class stzListOfPairs from stzListOfLists
 	#-----------------------------------------------#
 
 	def FirstItemsAreStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isString(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isString(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStrings()
 			return This.FirstItemsAreStrings()
@@ -1163,19 +1163,19 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------#
 
 	def FirstItemsAreChars()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsChar(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsChar(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllChars()
 			return This.FirstItemsAreChars()
@@ -1191,19 +1191,19 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------#
 
 	def FirstItemsAreLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isList(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isList(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllLists()
 			return This.FirstItemsAreLists()
@@ -1219,19 +1219,19 @@ class stzListOfPairs from stzListOfLists
 	#-----------------------------------------------#
 
 	def FirstItemsAreObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isObject(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isObject(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllObjects()
 			return This.FirstItemsAreObjects()
@@ -1247,19 +1247,19 @@ class stzListOfPairs from stzListOfLists
 	#--------------------------------------------------#
 
 	def FirstItemsAreStzObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzObject(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzObject(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzObjects()
 			return This.FirstItemsAreStzObjects()
@@ -1275,19 +1275,19 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------------------------#
 
 	def FirstItemsAreStzChars()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzChar(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzChar(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzChars()
 			return This.FirstItemsAreStzChars()
@@ -1303,19 +1303,19 @@ class stzListOfPairs from stzListOfLists
 	#--------------------------------------------------#
 
 	def FirstItemsAreStzStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzString(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzString(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzStrings()
 			return This.FirstItemsAreStzStrings()
@@ -1331,19 +1331,19 @@ class stzListOfPairs from stzListOfLists
 	#--------------------------------------------------#
 
 	def FirstItemsAreStzNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzNumber(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzNumber(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzNumbers()
 			return This.FirstItemsAreStzNumbers()
@@ -1359,19 +1359,19 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------------------------#
 
 	def FirstItemsAreStzLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzList(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzList(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzLists()
 			return This.FirstItemsAreStzLists()
@@ -1387,19 +1387,19 @@ class stzListOfPairs from stzListOfLists
 	#----------------------------------------------------#
 
 	def FirstItemsAreStzHashLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzHashList(aContent[i][1])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzHashList(_aContent_[i][1])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def FirstItemsAreAllStzHashLists()
 			return This.FirstItemsAreStzHashLists()
@@ -1415,19 +1415,19 @@ class stzListOfPairs from stzListOfLists
 	#================================================#
 
 	def SecondItemsAreNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isNumber(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isNumber(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllNumbers()
 			return This.SecondItemsAreNumbers()
@@ -1443,19 +1443,19 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------------------------#
 
 	def SecondItemsAreStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isString(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isString(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStrings()
 			return This.SecondItemsAreStrings()
@@ -1471,19 +1471,19 @@ class stzListOfPairs from stzListOfLists
 	#----------------------------------------------#
 
 	def SecondItemsAreChars()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsChar(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsChar(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllChars()
 			return This.SecondItemsAreChars()
@@ -1499,19 +1499,19 @@ class stzListOfPairs from stzListOfLists
 	#----------------------------------------------#
 
 	def SecondItemsAreLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isList(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isList(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllLists()
 			return This.SecondItemsAreLists()
@@ -1527,19 +1527,19 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------------------------#
 
 	def SecondItemsAreObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT isObject(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT isObject(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllObjects()
 			return This.SecondItemsAreObjects()
@@ -1555,19 +1555,19 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------------#
 
 	def SecondItemsAreStzObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzObject(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzObject(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzObjects()
 			return This.SecondItemsAreStzObjects()
@@ -1583,19 +1583,19 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------------#
 
 	def SecondItemsAreStzChars()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzChar(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzChar(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzChars()
 			return This.SecondItemsAreStzChars()
@@ -1611,19 +1611,19 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------------#
 
 	def SecondItemsAreStzStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzString(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzString(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzStrings()
 			return This.SecondItemsAreStzStrings()
@@ -1639,19 +1639,19 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------------#
 
 	def SecondItemsAreStzNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzNumber(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzNumber(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzNumbers()
 			return This.SecondItemsAreStzNumbers()
@@ -1667,19 +1667,19 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------------#
 
 	def SecondItemsAreStzLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzList(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzList(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzLists()
 			return This.SecondItemsAreStzLists()
@@ -1695,19 +1695,19 @@ class stzListOfPairs from stzListOfLists
 	#-----------------------------------------------------#
 
 	def SecondItemsAreStzHashLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		bResult = 1
+		_bResult_ = 1
 
-		for i = 1 to nLen
-			if NOT @IsStzHashList(aContent[i][2])
-				bResult = 0
+		for i = 1 to _nLen_
+			if NOT @IsStzHashList(_aContent_[i][2])
+				_bResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bResult_
 
 		def SecondItemsAreAllStzHashLists()
 			return This.SecondItemsAreStzHashLists()
@@ -1727,17 +1727,17 @@ class stzListOfPairs from stzListOfLists
 			StzRais("Can't transform the list of pairs into a stzHashList! First items of the pairs must all be strings.")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aContent_ = This.Content()
+		_nLen_ = len(_aContent_)
 
-		aHash = []
+		_aHash_ = []
 
-		for i = 1 to nLen
-			aHash + [ aContent[i][1], [ aContent[i][2] ] ]
+		for i = 1 to _nLen_
+			_aHash_ + [ _aContent_[i][1], [ _aContent_[i][2] ] ]
 		next
 
-		oResult = new stzHashList(aHash)
-		return oResult
+		_oResult_ = new stzHashList(_aHash_)
+		return _oResult_
 
 
 	def ToStzListOfSections()

@@ -9,68 +9,68 @@
 
 class stzReactiveTimer from stzObject
 
-	timerId = ""
-	interval = ONE_SECOND  # milliseconds
-	callback = NULL
-	engine = NULL
-	timerHandle = NULL     # kept as NULL sentinel for API parity
-	isActive = false
-	isOneTime = false
-	startTime = 0
-	lastTick = 0
+	_timerId_ = ""
+	_interval_ = ONE_SECOND  # milliseconds
+	_callback_ = NULL
+	_engine_ = NULL
+	_timerHandle_ = NULL     # kept as NULL sentinel for API parity
+	_isActive_ = false
+	_isOneTime_ = false
+	_startTime_ = 0
+	_lastTick_ = 0
 
-	def Init(id, intervalMs, f, engine, oneTime)
-		timerId = id
-		interval = intervalMs
-		callback = f
-		this.engine = engine
+	def Init(id, intervalMs, f, _engine_, oneTime)
+		_timerId_ = id
+		_interval_ = intervalMs
+		_callback_ = f
+		this.engine = _engine_
 
 		# Honor the constructor's oneTime arg (default FALSE on NULL).
 		if oneTime = NULL
-			isOneTime = false
+			_isOneTime_ = false
 		else
-			isOneTime = oneTime
+			_isOneTime_ = oneTime
 		ok
 
 	def Start()
-		if not isActive
-			isActive = true
+		if not _isActive_
+			_isActive_ = true
 			# Engine-side monotonic clock so every host language
 			# observes identical semantics (M-DEP4 hardening).
-			startTime = StzEngineTimeNowMs()
-			lastTick = startTime
+			_startTime_ = StzEngineTimeNowMs()
+			_lastTick_ = _startTime_
 		ok
 
 	def Stop()
-		isActive = false
+		_isActive_ = false
 
 	def Tick()
-		if callback != NULL
-			call callback()
+		if _callback_ != NULL
+			call _callback_()
 		ok
 
 	# Drive the timer from the manager's poll loop. Returns isActive
 	# so the manager can prune completed one-shot timers.
 	def CheckAndTick()
-		if not isActive
+		if not _isActive_
 			return false
 		ok
 		# Engine clock returns milliseconds directly -- no
 		# clocksPerSecond conversion needed.
-		currentTime = StzEngineTimeNowMs()
-		elapsed = currentTime - lastTick
-		if elapsed >= interval
-			if callback != NULL
-				call callback()
+		_currentTime_ = StzEngineTimeNowMs()
+		_elapsed_ = _currentTime_ - _lastTick_
+		if _elapsed_ >= _interval_
+			if _callback_ != NULL
+				call _callback_()
 			ok
-			if isOneTime
+			if _isOneTime_
 				Stop()
 				return false
 			else
-				lastTick = currentTime
+				_lastTick_ = _currentTime_
 			ok
 		ok
-		return isActive
+		return _isActive_
 
 	def Cleanup()
 		Stop()
@@ -80,42 +80,42 @@ class stzReactiveTimer from stzObject
 
 class stzRingTimer from stzObject
 
-	timerId = ""
-	interval = ONE_SECOND    # milliseconds
-	callback = NULL
-	engine = NULL
-	obj = NULL
-	isActive = false
-	isOneTime = false
-	startTime = 0
-	lastTick = 0
+	_timerId_ = ""
+	_interval_ = ONE_SECOND    # milliseconds
+	_callback_ = NULL
+	_engine_ = NULL
+	_obj_ = NULL
+	_isActive_ = false
+	_isOneTime_ = false
+	_startTime_ = 0
+	_lastTick_ = 0
 	
-	def init(id, intervalMs, f, engine, oneTime, obj)
-		timerId = id
-		interval = intervalMs
-		callback = f
-		this.engine = engine
-		this.obj = obj
-		isOneTime = oneTime
-		if isOneTime = NULL
-			isOneTime = false
+	def init(id, intervalMs, f, _engine_, oneTime, _obj_)
+		_timerId_ = id
+		_interval_ = intervalMs
+		_callback_ = f
+		this.engine = _engine_
+		this.obj = _obj_
+		_isOneTime_ = oneTime
+		if _isOneTime_ = NULL
+			_isOneTime_ = false
 		ok
-		isActive = false
+		_isActive_ = false
 		
 	def Start()
-		if not isActive
-			isActive = true
+		if not _isActive_
+			_isActive_ = true
 			# Engine-side monotonic clock so every host language
 			# observes identical semantics (M-DEP4 hardening).
-			startTime = StzEngineTimeNowMs()
-			lastTick = startTime
+			_startTime_ = StzEngineTimeNowMs()
+			_lastTick_ = _startTime_
 		ok
 		
 	def Stop()
-		isActive = false
+		_isActive_ = false
 		
 	def CheckAndTick()
-	    if not isActive
+	    if not _isActive_
 	        return false
 	    ok
 	    
@@ -125,10 +125,10 @@ class stzRingTimer from stzObject
 	    # was hugely negative and the timer NEVER fired: every RunAfter/
 	    # RunEvery test hung forever. clock() also doesn't advance during
 	    # the poll loop's sleep() (it measures CPU, not wall time).
-	    currentTime = StzEngineTimeNowMs()
-	    elapsed = currentTime - lastTick
+	    _currentTime_ = StzEngineTimeNowMs()
+	    _elapsed_ = _currentTime_ - _lastTick_
 
-	    if elapsed < interval
+	    if _elapsed_ < _interval_
 	        return true   # still active, just not due yet
 	    ok
 
@@ -141,17 +141,17 @@ class stzRingTimer from stzObject
 	    # post-callback attribute read. A repeating timer reports "active";
 	    # if the callback stopped the system, the manager loop sees its own
 	    # isRunning flag drop and exits.
-	    bOnce = isOneTime
-	    lastTick = currentTime
-	    if bOnce
+	    _bOnce_ = _isOneTime_
+	    _lastTick_ = _currentTime_
+	    if _bOnce_
 	        Stop()
 	    ok
 
-	    if callback != NULL
-	        call callback()
+	    if _callback_ != NULL
+	        call _callback_()
 	    ok
 
-	    if bOnce
+	    if _bOnce_
 	        return false
 	    ok
 	    return true
@@ -163,57 +163,57 @@ class stzRingTimer from stzObject
 
 class stzTimerManager from stzObject
 
-	timers = []
-	isRunning = false
-	shouldStop = false
-	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
-	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
+	_timers_ = []
+	_isRunning_ = false
+	_shouldStop_ = false
+	_checkFrequency_ = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
+	_emptyLoopPatience_ = DEFAULT_PATIENCE  # How long to wait when no timers
 
 	def init()
-		timers = []
-		isRunning = false
-		shouldStop = false
-		checkFrequency = DEFAULT_TIMER_CHECK
-		emptyLoopPatience = DEFAULT_PATIENCE
+		_timers_ = []
+		_isRunning_ = false
+		_shouldStop_ = false
+		_checkFrequency_ = DEFAULT_TIMER_CHECK
+		_emptyLoopPatience_ = DEFAULT_PATIENCE
 
 	def SetCheckFrequency(freq)
-		checkFrequency = freq
+		_checkFrequency_ = freq
 
 	def SetPatience(patience)
-		emptyLoopPatience = patience
+		_emptyLoopPatience_ = patience
 
-	def AddTimer(timer)
-		timers + timer
+	def AddTimer(_timer_)
+		_timers_ + _timer_
 		
-	def RemoveTimer(timerId)
-	    for i = len(timers) to 1 step -1  # Iterate backwards
-	        if timers[i].timerId = timerId
-	            timers[i].Stop()
-	            del(timers, i)
+	def RemoveTimer(_timerId_)
+	    for i = len(_timers_) to 1 step -1  # Iterate backwards
+	        if _timers_[i].timerId = _timerId_
+	            _timers_[i].Stop()
+	            del(_timers_, i)
 	            exit
 	        ok
 	    next
 	    
 	    # Stop run loop if no active timers
-	    if len(timers) = 0
-	        isRunning = false
+	    if len(_timers_) = 0
+	        _isRunning_ = false
 	    ok
 
 	def RunLoop()
-	    isRunning = true
-	    emptyLoopCount = 0
+	    _isRunning_ = true
+	    _emptyLoopCount_ = 0
 	    
-	    while isRunning and not shouldStop
-	        activeCount = 0
+	    while _isRunning_ and not _shouldStop_
+	        _activeCount_ = 0
 
 	        # Process timers safely by collecting completed ones first
-	        completedIndices = []
-	        nLenTimers = len(timers)
+	        _completedIndices_ = []
+	        _nLenTimers_ = len(_timers_)
 
-	        for i = 1 to nLenTimers
+	        for i = 1 to _nLenTimers_
 	            # A callback may have removed timers (StopAllTimers clears
 	            # the list mid-iteration), so re-check the bound each step.
-	            if i > len(timers)
+	            if i > len(_timers_)
 	                exit
 	            ok
 	            # Call through the index, NOT a `timer = timers[i]` copy:
@@ -221,63 +221,63 @@ class stzTimerManager from stzObject
 	            # would never persist CheckAndTick's lastTick update -- the
 	            # repeating timer then re-fired every poll (~10ms) instead
 	            # of every interval. (One-shot timers happened to survive.)
-	            if timers[i].CheckAndTick()
-	                activeCount++
+	            if _timers_[i].CheckAndTick()
+	                _activeCount_++
 	            else
 	                # Mark for removal if it's a one-time timer
-	                if timers[i].isOneTime
-	                    completedIndices + i
+	                if _timers_[i].isOneTime
+	                    _completedIndices_ + i
 	                ok
 	            ok
 	            # A callback may have stopped the whole system; bail now
 	            # rather than index into a cleared list.
-	            if not isRunning or shouldStop
+	            if not _isRunning_ or _shouldStop_
 	                exit
 	            ok
 	        next
 	        
 	        # Remove completed timers in reverse order to maintain indices
-	        for i = len(completedIndices) to 1 step -1
-	            index = completedIndices[i]
-	            if index >= 1 and index <= len(timers)
-	                del(timers, index)
+	        for i = len(_completedIndices_) to 1 step -1
+	            _index_ = _completedIndices_[i]
+	            if _index_ >= 1 and _index_ <= len(_timers_)
+	                del(_timers_, _index_)
 	            ok
 	        next
 	        
 	        # Use configurable check frequency instead of fixed delay
-	        sleepTime = checkFrequency / MS_PER_SECOND  # Convert to seconds
-	        sleep(sleepTime)
+	        _sleepTime_ = _checkFrequency_ / MS_PER_SECOND  # Convert to seconds
+	        sleep(_sleepTime_)
 	        
 	        # Don't exit immediately if no timers - wait based on patience level
-	        if len(timers) = 0
-	            emptyLoopCount++
-	            if emptyLoopCount > emptyLoopPatience
-	                isRunning = false
+	        if len(_timers_) = 0
+	            _emptyLoopCount_++
+	            if _emptyLoopCount_ > _emptyLoopPatience_
+	                _isRunning_ = false
 	            ok
 	        else
-	            emptyLoopCount = 0  # Reset counter when we have timers
+	            _emptyLoopCount_ = 0  # Reset counter when we have timers
 	        ok
 	        
 	        # Exit if shouldStop flag is set
-	        if shouldStop
-	            isRunning = false
+	        if _shouldStop_
+	            _isRunning_ = false
 	        ok
 	    end
 		
 	def Stop()
-		shouldStop = true
-		isRunning = false
-		_nTimers1Len_ = len(timers)
+		_shouldStop_ = true
+		_isRunning_ = false
+		_nTimers1Len_ = len(_timers_)
 		for _iLoopTimers1_ = 1 to _nTimers1Len_
-			timer = timers[_iLoopTimers1_]
-			timer.Stop()
+			_timer_ = _timers_[_iLoopTimers1_]
+			_timer_.Stop()
 		next
 
 	def StopAllTimers()
 	    # Stop all timers and clear the list
-	    nLen = len(timers)
-	    for i = 1 to nLen
-	        timers[i].Stop()
+	    _nLen_ = len(_timers_)
+	    for i = 1 to _nLen_
+	        _timers_[i].Stop()
 	    next
-	    timers = []
-	    isRunning = false
+	    _timers_ = []
+	    _isRunning_ = false

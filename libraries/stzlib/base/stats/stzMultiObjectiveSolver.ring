@@ -62,12 +62,12 @@ class stzMultiObjectiveSolver from stzObject
 
 
     def VariableNames()
-        aNames = []
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            aNames + @aVariables[i][:name]
+        _aNames_ = []
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _aNames_ + @aVariables[i][:name]
         next
-        return aNames
+        return _aNames_
 
 		def VarNames()
 			return This.VariableNames()
@@ -114,7 +114,7 @@ class stzMultiObjectiveSolver from stzObject
     # Solving Methods
     def solve(cMethod)
         if isNull(cMethod) or cMethod = "" cMethod = "nsga_ii" ok
-        nStartTime = clock()
+        _nStartTime_ = clock()
         
         if len(@aVariables) = 0 stzRaise("No variables defined!") ok
         if len(@aObjectives) = 0 stzRaise("No objectives defined!") ok
@@ -129,303 +129,303 @@ class stzMultiObjectiveSolver from stzObject
             stzRaise("Unknown method: " + cMethod + ". Use 'nsga_ii' or 'epsilon_constraint'!")
         off
 
-        @nSolveTime = (clock() - nStartTime) / clockspersecond()
+        @nSolveTime = (clock() - _nStartTime_) / clockspersecond()
         @cStatus = "optimal"
         return this
 
 
 	def solveWithNSGAII()
 	    @nIterations = @nGenerations
-	    aPopulation = This.initializePopulation()
+	    _aPopulation_ = This.initializePopulation()
 	    
 	    # CRITICAL FIX: Evaluate initial population objectives
-	    nPopLen = len(aPopulation)
-	    for i = 1 to nPopLen
-	        if len(aPopulation[i][:solution]) > 0
-	            aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
+	    _nPopLen_ = len(_aPopulation_)
+	    for i = 1 to _nPopLen_
+	        if len(_aPopulation_[i][:solution]) > 0
+	            _aPopulation_[i][:objectives] = This.evaluateObjectives(_aPopulation_[i][:solution])
 	        else
 	            # Generate new solution if invalid
-	            aPopulation[i][:solution] = This.generateRandomSolution()
-	            aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
+	            _aPopulation_[i][:solution] = This.generateRandomSolution()
+	            _aPopulation_[i][:objectives] = This.evaluateObjectives(_aPopulation_[i][:solution])
 	        ok
 	    next
 	    
 	    for gen = 1 to @nGenerations
 	        # Evaluate objectives for all individuals (in case of new ones)
-	        nPopLen = len(aPopulation)
-	        for i = 1 to nPopLen
-	            if len(aPopulation[i][:solution]) > 0 and len(aPopulation[i][:objectives]) = 0
-	                aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
+	        _nPopLen_ = len(_aPopulation_)
+	        for i = 1 to _nPopLen_
+	            if len(_aPopulation_[i][:solution]) > 0 and len(_aPopulation_[i][:objectives]) = 0
+	                _aPopulation_[i][:objectives] = This.evaluateObjectives(_aPopulation_[i][:solution])
 	            ok
 	        next
 	        
 	        # Non-dominated sorting and crowding distance
-	        aFronts = This.nonDominatedSort(aPopulation)
-	        aPopulation = This.calculateCrowdingDistance(aFronts, aPopulation)
+	        _aFronts_ = This.nonDominatedSort(_aPopulation_)
+	        _aPopulation_ = This.calculateCrowdingDistance(_aFronts_, _aPopulation_)
 	        
 	        # Create new population
-	        aNewPopulation = This.createNewPopulation(aPopulation)
-	        aPopulation = aNewPopulation
+	        _aNewPopulation_ = This.createNewPopulation(_aPopulation_)
+	        _aPopulation_ = _aNewPopulation_
 	    next
 	    
 	    # Extract Pareto front - only include valid solutions
-	    aParetoFront = []
-	    nPopLen = len(aPopulation)
-	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0 and aPopulation[i][:rank] = 1
-	            aParetoFront + aPopulation[i]
+	    _aParetoFront_ = []
+	    _nPopLen_ = len(_aPopulation_)
+	    for i = 1 to _nPopLen_
+	        if len(_aPopulation_[i]) > 0 and len(_aPopulation_[i][:solution]) > 0 and 
+	           len(_aPopulation_[i][:objectives]) > 0 and _aPopulation_[i][:rank] = 1
+	            _aParetoFront_ + _aPopulation_[i]
 	        ok
 	    next
 	    
-	    return aParetoFront
+	    return _aParetoFront_
 
 
     def solveWithEpsilonConstraint()
         @nIterations = len(@aObjectives) * 10
-        aParetoSolutions = []
+        _aParetoSolutions_ = []
         
         # Use first objective as primary, others as constraints
-        oPrimarySolver = new stzLinearSolver()
+        _oPrimarySolver_ = new stzLinearSolver()
         
         # Copy variables and constraints
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            var = @aVariables[i]
-            oPrimarySolver.addVariable(var[:name], var[:lowerBound], var[:upperBound])
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _var_ = @aVariables[i]
+            _oPrimarySolver_.addVariable(_var_[:name], _var_[:lowerBound], _var_[:upperBound])
         next
-        nConstLen = len(@aConstraints)
-        for i = 1 to nConstLen
-            const = @aConstraints[i]
-            oPrimarySolver.addConstraint(const[:expression], const[:operator], const[:value])
+        _nConstLen_ = len(@aConstraints)
+        for i = 1 to _nConstLen_
+            _const_ = @aConstraints[i]
+            _oPrimarySolver_.addConstraint(_const_[:expression], _const_[:operator], _const_[:value])
         next
         
         # Set primary objective
-        oPrimaryObj = @aObjectives[1]
-        if oPrimaryObj[:type] = "maximize"
-            oPrimarySolver.maximize(oPrimaryObj[:expression])
+        _oPrimaryObj_ = @aObjectives[1]
+        if _oPrimaryObj_[:type] = "maximize"
+            _oPrimarySolver_.maximize(_oPrimaryObj_[:expression])
         else
-            oPrimarySolver.minimize(oPrimaryObj[:expression])
+            _oPrimarySolver_.minimize(_oPrimaryObj_[:expression])
         ok
         
         # Generate epsilon values for other objectives
-        aEpsilonRanges = This.calculateEpsilonRanges()
+        _aEpsilonRanges_ = This.calculateEpsilonRanges()
         
-        nEpsilonLen = len(aEpsilonRanges)
-        for i = 1 to nEpsilonLen
-            epsilonSet = aEpsilonRanges[i]
-            oTempSolver = new stzLinearSolver()
+        _nEpsilonLen_ = len(_aEpsilonRanges_)
+        for i = 1 to _nEpsilonLen_
+            _epsilonSet_ = _aEpsilonRanges_[i]
+            _oTempSolver_ = new stzLinearSolver()
             
             # Copy variables and constraints
-            for j = 1 to nVarLen
-                var = @aVariables[j]
-                oTempSolver.addVariable(var[:name], var[:lowerBound], var[:upperBound])
+            for j = 1 to _nVarLen_
+                _var_ = @aVariables[j]
+                _oTempSolver_.addVariable(_var_[:name], _var_[:lowerBound], _var_[:upperBound])
             next
-            for j = 1 to nConstLen
-                const = @aConstraints[j]
-                oTempSolver.addConstraint(const[:expression], const[:operator], const[:value])
+            for j = 1 to _nConstLen_
+                _const_ = @aConstraints[j]
+                _oTempSolver_.addConstraint(_const_[:expression], _const_[:operator], _const_[:value])
             next
             
             # Add epsilon constraints for secondary objectives
-            nObjLen = len(@aObjectives)
-            for j = 2 to nObjLen
-                cOperator = iff(@aObjectives[j][:type] = "maximize", ">=", "<=")
-                oTempSolver.addConstraint(@aObjectives[j][:expression], cOperator, epsilonSet[j-1])
+            _nObjLen_ = len(@aObjectives)
+            for j = 2 to _nObjLen_
+                _cOperator_ = iff(@aObjectives[j][:type] = "maximize", ">=", "<=")
+                _oTempSolver_.addConstraint(@aObjectives[j][:expression], _cOperator_, _epsilonSet_[j-1])
             next
             
             # Set primary objective
-            if oPrimaryObj[:type] = "maximize"
-                oTempSolver.maximize(oPrimaryObj[:expression])
+            if _oPrimaryObj_[:type] = "maximize"
+                _oTempSolver_.maximize(_oPrimaryObj_[:expression])
             else
-                oTempSolver.minimize(oPrimaryObj[:expression])
+                _oTempSolver_.minimize(_oPrimaryObj_[:expression])
             ok
             
-            oTempSolver.solve("greedy") # Shoud it be greedy?
-            if oTempSolver.status() = "optimal"
-                aSolution = oTempSolver.solution()
-                aObjectiveValues = This.evaluateObjectives(aSolution)
-                aParetoSolutions + [ :solution = aSolution, :objectives = aObjectiveValues, :rank = 1 ]
+            _oTempSolver_.solve("greedy") # Shoud it be greedy?
+            if _oTempSolver_.status() = "optimal"
+                _aSolution_ = _oTempSolver_.solution()
+                _aObjectiveValues_ = This.evaluateObjectives(_aSolution_)
+                _aParetoSolutions_ + [ :solution = _aSolution_, :objectives = _aObjectiveValues_, :rank = 1 ]
             ok
         next
         
-        return aParetoSolutions
+        return _aParetoSolutions_
 
     # NSGA-II Helper Methods
     def initializePopulation()
-        aPopulation = []
+        _aPopulation_ = []
         for i = 1 to @nPopulationSize
-            aSolution = This.generateRandomSolution()
-            aPopulation + [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
+            _aSolution_ = This.generateRandomSolution()
+            _aPopulation_ + [ :solution = _aSolution_, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
         next
-        return aPopulation
+        return _aPopulation_
 
 /*
     def generateRandomSolution()
-        aSolution = []
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            var = @aVariables[i]
-            nValue = var[:lowerBound] + random(var[:upperBound] - var[:lowerBound] + 1)
-            if var[:type] = "integer" or var[:type] = "binary"
-                nValue = floor(nValue)
+        _aSolution_ = []
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _var_ = @aVariables[i]
+            _nValue_ = _var_[:lowerBound] + random(_var_[:upperBound] - _var_[:lowerBound] + 1)
+            if _var_[:type] = "integer" or _var_[:type] = "binary"
+                _nValue_ = floor(_nValue_)
             ok
-            aSolution + [var[:name], nValue]
+            _aSolution_ + [_var_[:name], _nValue_]
         next
-        return aSolution
+        return _aSolution_
 */
 
 	def generateRandomSolution()
-	    aSolution = []
-	    nVarLen = len(@aVariables)
-	    for i = 1 to nVarLen
-	        var = @aVariables[i]
+	    _aSolution_ = []
+	    _nVarLen_ = len(@aVariables)
+	    for i = 1 to _nVarLen_
+	        _var_ = @aVariables[i]
 	        
 	        # FIXED: Correct random number generation
-	        nRange = var[:upperBound] - var[:lowerBound]
-	        nValue = var[:lowerBound] + random(nRange * 100) / 100.0
+	        _nRange_ = _var_[:upperBound] - _var_[:lowerBound]
+	        _nValue_ = _var_[:lowerBound] + random(_nRange_ * 100) / 100.0
 	        
-	        if var[:type] = "integer" or var[:type] = "binary"
-	            nValue = floor(nValue)
+	        if _var_[:type] = "integer" or _var_[:type] = "binary"
+	            _nValue_ = floor(_nValue_)
 	        ok
 	        
 	        # Ensure within bounds
-	        if nValue < var[:lowerBound] nValue = var[:lowerBound] ok
-	        if nValue > var[:upperBound] nValue = var[:upperBound] ok
+	        if _nValue_ < _var_[:lowerBound] _nValue_ = _var_[:lowerBound] ok
+	        if _nValue_ > _var_[:upperBound] _nValue_ = _var_[:upperBound] ok
 	        
-	        aSolution + [var[:name], nValue]
+	        _aSolution_ + [_var_[:name], _nValue_]
 	    next
-	    return aSolution
+	    return _aSolution_
 	
 
-    def evaluateObjectives(aSolution)
-        aObjectiveValues = []
-        nObjLen = len(@aObjectives)
-        for i = 1 to nObjLen
-            obj = @aObjectives[i]
-            nValue = This.calculateObjectiveValue(obj[:expression], aSolution)
-            if obj[:type] = "maximize" nValue = -nValue ok  # Convert to minimization
-            aObjectiveValues + nValue
+    def evaluateObjectives(_aSolution_)
+        _aObjectiveValues_ = []
+        _nObjLen_ = len(@aObjectives)
+        for i = 1 to _nObjLen_
+            _obj_ = @aObjectives[i]
+            _nValue_ = This.calculateObjectiveValue(_obj_[:expression], _aSolution_)
+            if _obj_[:type] = "maximize" _nValue_ = -_nValue_ ok  # Convert to minimization
+            _aObjectiveValues_ + _nValue_
         next
-        return aObjectiveValues
+        return _aObjectiveValues_
 
-    def calculateObjectiveValue(cExpression, aSolution)
-        nResult = 0
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            var = @aVariables[i]
-            nValue = This.getSolutionValue(aSolution, var[:name])
-            nCoeff = This.extractCoefficient(cExpression, var[:name])
-            nResult += nCoeff * nValue
+    def calculateObjectiveValue(cExpression, _aSolution_)
+        _nResult_ = 0
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _var_ = @aVariables[i]
+            _nValue_ = This.getSolutionValue(_aSolution_, _var_[:name])
+            _nCoeff_ = This.extractCoefficient(cExpression, _var_[:name])
+            _nResult_ += _nCoeff_ * _nValue_
         next
-        return nResult
+        return _nResult_
 
-    def nonDominatedSort(aPopulation)
-        aFronts = []
-        nPopLen = len(aPopulation)
+    def nonDominatedSort(_aPopulation_)
+        _aFronts_ = []
+        _nPopLen_ = len(_aPopulation_)
         
-        for i = 1 to nPopLen
-            aPopulation[i][:dominatedSolutions] = []
-            aPopulation[i][:dominationCount] = 0
+        for i = 1 to _nPopLen_
+            _aPopulation_[i][:dominatedSolutions] = []
+            _aPopulation_[i][:dominationCount] = 0
         next
         
-        aFirstFront = []
-        for i = 1 to nPopLen
-            for j = 1 to nPopLen
+        _aFirstFront_ = []
+        for i = 1 to _nPopLen_
+            for j = 1 to _nPopLen_
                 if i != j
-                    if This.dominates(aPopulation[i], aPopulation[j])
-                        aPopulation[i][:dominatedSolutions] + j
-                    elseif This.dominates(aPopulation[j], aPopulation[i])
-                        aPopulation[i][:dominationCount]++
+                    if This.dominates(_aPopulation_[i], _aPopulation_[j])
+                        _aPopulation_[i][:dominatedSolutions] + j
+                    elseif This.dominates(_aPopulation_[j], _aPopulation_[i])
+                        _aPopulation_[i][:dominationCount]++
                     ok
                 ok
             next
-            if aPopulation[i][:dominationCount] = 0
-                aPopulation[i][:rank] = 1
-                aFirstFront + i
+            if _aPopulation_[i][:dominationCount] = 0
+                _aPopulation_[i][:rank] = 1
+                _aFirstFront_ + i
             ok
         next
         
-        aFronts + aFirstFront
-        nCurrentFront = 1
+        _aFronts_ + _aFirstFront_
+        _nCurrentFront_ = 1
         
-        while len(aFronts[nCurrentFront]) > 0
-            aNextFront = []
-            nCurrentFrontLen = len(aFronts[nCurrentFront])
-            for i = 1 to nCurrentFrontLen
-                p = aFronts[nCurrentFront][i]
-                nDominatedLen = len(aPopulation[p][:dominatedSolutions])
-                for j = 1 to nDominatedLen
-                    q = aPopulation[p][:dominatedSolutions][j]
-                    aPopulation[q][:dominationCount]--
-                    if aPopulation[q][:dominationCount] = 0
-                        aPopulation[q][:rank] = nCurrentFront + 1
-                        aNextFront + q
+        while len(_aFronts_[_nCurrentFront_]) > 0
+            _aNextFront_ = []
+            _nCurrentFrontLen_ = len(_aFronts_[_nCurrentFront_])
+            for i = 1 to _nCurrentFrontLen_
+                p = _aFronts_[_nCurrentFront_][i]
+                _nDominatedLen_ = len(_aPopulation_[p][:dominatedSolutions])
+                for j = 1 to _nDominatedLen_
+                    _q_ = _aPopulation_[p][:dominatedSolutions][j]
+                    _aPopulation_[_q_][:dominationCount]--
+                    if _aPopulation_[_q_][:dominationCount] = 0
+                        _aPopulation_[_q_][:rank] = _nCurrentFront_ + 1
+                        _aNextFront_ + _q_
                     ok
                 next
             next
-            nCurrentFront++
-            aFronts + aNextFront
+            _nCurrentFront_++
+            _aFronts_ + _aNextFront_
         end
         
-        return aFronts
+        return _aFronts_
 
-    def dominates(individual1, individual2)
-        bAtLeastOneBetter = false
-        nObjLen = len(individual1[:objectives])
-        for i = 1 to nObjLen
-            if individual1[:objectives][i] > individual2[:objectives][i]
+    def dominates(_individual1_, _individual2_)
+        _bAtLeastOneBetter_ = false
+        _nObjLen_ = len(_individual1_[:objectives])
+        for i = 1 to _nObjLen_
+            if _individual1_[:objectives][i] > _individual2_[:objectives][i]
                 return false
-            elseif individual1[:objectives][i] < individual2[:objectives][i]
-                bAtLeastOneBetter = true
+            elseif _individual1_[:objectives][i] < _individual2_[:objectives][i]
+                _bAtLeastOneBetter_ = true
             ok
         next
-        return bAtLeastOneBetter
+        return _bAtLeastOneBetter_
 
-    def calculateCrowdingDistance(aFronts, aPopulation)
-        nFrontsLen = len(aFronts)
-        nObjLen = len(@aObjectives)
+    def calculateCrowdingDistance(_aFronts_, _aPopulation_)
+        _nFrontsLen_ = len(_aFronts_)
+        _nObjLen_ = len(@aObjectives)
         
-        for i = 1 to nFrontsLen
-            front = aFronts[i]
-            nFrontLen = len(front)
+        for i = 1 to _nFrontsLen_
+            _front_ = _aFronts_[i]
+            _nFrontLen_ = len(_front_)
             
-            if nFrontLen > 0
+            if _nFrontLen_ > 0
                 # Initialize crowding distance to 0
-                for j = 1 to nFrontLen
-                    nIndex = front[j]
-                    if nIndex > 0 and nIndex <= len(aPopulation)
-                        aPopulation[nIndex][:crowdingDistance] = 0
+                for j = 1 to _nFrontLen_
+                    _nIndex_ = _front_[j]
+                    if _nIndex_ > 0 and _nIndex_ <= len(_aPopulation_)
+                        _aPopulation_[_nIndex_][:crowdingDistance] = 0
                     ok
                 next
                 
                 # Calculate crowding distance for each objective
-                for obj = 1 to nObjLen
+                for _obj_ = 1 to _nObjLen_
                     # Sort front by current objective
-                    front = This.sortFrontByObjective(front, obj, aPopulation)
+                    _front_ = This.sortFrontByObjective(_front_, _obj_, _aPopulation_)
                     
-                    if nFrontLen >= 2
+                    if _nFrontLen_ >= 2
                         # Set boundary solutions to infinite distance
-                        nFirstIndex = front[1]
-                        nLastIndex = front[nFrontLen]
-                        if nFirstIndex > 0 and nFirstIndex <= len(aPopulation)
-                            aPopulation[nFirstIndex][:crowdingDistance] = 999999
+                        _nFirstIndex_ = _front_[1]
+                        _nLastIndex_ = _front_[_nFrontLen_]
+                        if _nFirstIndex_ > 0 and _nFirstIndex_ <= len(_aPopulation_)
+                            _aPopulation_[_nFirstIndex_][:crowdingDistance] = 999999
                         ok
-                        if nLastIndex > 0 and nLastIndex <= len(aPopulation)
-                            aPopulation[nLastIndex][:crowdingDistance] = 999999
+                        if _nLastIndex_ > 0 and _nLastIndex_ <= len(_aPopulation_)
+                            _aPopulation_[_nLastIndex_][:crowdingDistance] = 999999
                         ok
                         
                         # Calculate distance for intermediate solutions
-                        for j = 2 to nFrontLen-1
-                            nCurrentIndex = front[j]
-                            nPrevIndex = front[j-1]
-                            nNextIndex = front[j+1]
+                        for j = 2 to _nFrontLen_-1
+                            _nCurrentIndex_ = _front_[j]
+                            _nPrevIndex_ = _front_[j-1]
+                            _nNextIndex_ = _front_[j+1]
                             
-                            if nCurrentIndex > 0 and nCurrentIndex <= len(aPopulation) and
-                               nPrevIndex > 0 and nPrevIndex <= len(aPopulation) and
-                               nNextIndex > 0 and nNextIndex <= len(aPopulation)
+                            if _nCurrentIndex_ > 0 and _nCurrentIndex_ <= len(_aPopulation_) and
+                               _nPrevIndex_ > 0 and _nPrevIndex_ <= len(_aPopulation_) and
+                               _nNextIndex_ > 0 and _nNextIndex_ <= len(_aPopulation_)
                                 
-                                nDistance = aPopulation[nNextIndex][:objectives][obj] - aPopulation[nPrevIndex][:objectives][obj]
-                                aPopulation[nCurrentIndex][:crowdingDistance] += nDistance
+                                _nDistance_ = _aPopulation_[_nNextIndex_][:objectives][_obj_] - _aPopulation_[_nPrevIndex_][:objectives][_obj_]
+                                _aPopulation_[_nCurrentIndex_][:crowdingDistance] += _nDistance_
                             ok
                         next
                     ok
@@ -433,204 +433,204 @@ class stzMultiObjectiveSolver from stzObject
             ok
         next
         
-        return aPopulation
+        return _aPopulation_
 
-    def sortFrontByObjective(front, objIndex, aPopulation)
+    def sortFrontByObjective(_front_, objIndex, _aPopulation_)
         # Simple bubble sort by objective value
-        nFrontLen = len(front)
-        for i = 1 to nFrontLen-1
-            for j = 1 to nFrontLen-i
-                nIndex1 = front[j]
-                nIndex2 = front[j+1]
-                if nIndex1 > 0 and nIndex1 <= len(aPopulation) and
-                   nIndex2 > 0 and nIndex2 <= len(aPopulation)
-                    if aPopulation[nIndex1][:objectives][objIndex] > aPopulation[nIndex2][:objectives][objIndex]
+        _nFrontLen_ = len(_front_)
+        for i = 1 to _nFrontLen_-1
+            for j = 1 to _nFrontLen_-i
+                _nIndex1_ = _front_[j]
+                _nIndex2_ = _front_[j+1]
+                if _nIndex1_ > 0 and _nIndex1_ <= len(_aPopulation_) and
+                   _nIndex2_ > 0 and _nIndex2_ <= len(_aPopulation_)
+                    if _aPopulation_[_nIndex1_][:objectives][objIndex] > _aPopulation_[_nIndex2_][:objectives][objIndex]
                         # Swap
-                        temp = front[j]
-                        front[j] = front[j+1]
-                        front[j+1] = temp
+                        _temp_ = _front_[j]
+                        _front_[j] = _front_[j+1]
+                        _front_[j+1] = _temp_
                     ok
                 ok
             next
         next
-        return front
+        return _front_
 
 /*
-    def createNewPopulation(aPopulation)
-        aNewPopulation = []
-        nPopLen = len(aPopulation)
+    def createNewPopulation(_aPopulation_)
+        _aNewPopulation_ = []
+        _nPopLen_ = len(_aPopulation_)
         
-        if nPopLen = 0
+        if _nPopLen_ = 0
             # If population is empty, reinitialize
             return This.initializePopulation()
         ok
         
         for i = 1 to @nPopulationSize
-            parent1 = This.tournamentSelection(aPopulation)
-            parent2 = This.tournamentSelection(aPopulation)
+            parent1 = This.tournamentSelection(_aPopulation_)
+            parent2 = This.tournamentSelection(_aPopulation_)
             
             # Check if parents are valid
             if len(parent1) = 0 or len(parent2) = 0
                 # Generate random individual if parents are invalid
-                aSolution = This.generateRandomSolution()
-                child = [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
+                _aSolution_ = This.generateRandomSolution()
+                _child_ = [ :solution = _aSolution_, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
             else
-                child = This.crossover(parent1, parent2)
-                child = This.mutate(child)
+                _child_ = This.crossover(parent1, parent2)
+                _child_ = This.mutate(_child_)
             ok
             
-            aNewPopulation + child
+            _aNewPopulation_ + _child_
         next
-        return aNewPopulation
+        return _aNewPopulation_
 */
 
-	def createNewPopulation(aPopulation)
-	    aNewPopulation = []
-	    nPopLen = len(aPopulation)
+	def createNewPopulation(_aPopulation_)
+	    _aNewPopulation_ = []
+	    _nPopLen_ = len(_aPopulation_)
 	    
 	    # Count valid individuals
-	    nValidIndividuals = 0
-	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0
-	            nValidIndividuals++
+	    _nValidIndividuals_ = 0
+	    for i = 1 to _nPopLen_
+	        if len(_aPopulation_[i]) > 0 and len(_aPopulation_[i][:solution]) > 0 and 
+	           len(_aPopulation_[i][:objectives]) > 0
+	            _nValidIndividuals_++
 	        ok
 	    next
 	    
 	    # If too few valid individuals, reinitialize
-	    if nValidIndividuals < 2
+	    if _nValidIndividuals_ < 2
 	        ? "Warning: Population has too few valid individuals, reinitializing..."
 	        return This.initializePopulation()
 	    ok
 	    
 	    # Generate new population
 	    for i = 1 to @nPopulationSize
-	        parent1 = This.tournamentSelection(aPopulation)
-	        parent2 = This.tournamentSelection(aPopulation)
+	        parent1 = This.tournamentSelection(_aPopulation_)
+	        parent2 = This.tournamentSelection(_aPopulation_)
 	        
 	        # Check if parents are valid
 	        if len(parent1) = 0 or len(parent2) = 0 or 
 	           len(parent1[:solution]) = 0 or len(parent2[:solution]) = 0
 	            # Generate random individual if parents are invalid
-	            aSolution = This.generateRandomSolution()
-	            child = [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
+	            _aSolution_ = This.generateRandomSolution()
+	            _child_ = [ :solution = _aSolution_, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
 	        else
-	            child = This.crossover(parent1, parent2)
-	            child = This.mutate(child)
+	            _child_ = This.crossover(parent1, parent2)
+	            _child_ = This.mutate(_child_)
 	        ok
 	        
 	        # Ensure child has valid solution structure
-	        if len(child[:solution]) = 0
-	            child[:solution] = This.generateRandomSolution()
+	        if len(_child_[:solution]) = 0
+	            _child_[:solution] = This.generateRandomSolution()
 	        ok
 	        
-	        aNewPopulation + child
+	        _aNewPopulation_ + _child_
 	    next
 	    
-	    return aNewPopulation
+	    return _aNewPopulation_
 
 /*
-    def tournamentSelection(aPopulation)
-        nPopLen = len(aPopulation)
-        if nPopLen = 0 return [] ok
+    def tournamentSelection(_aPopulation_)
+        _nPopLen_ = len(_aPopulation_)
+        if _nPopLen_ = 0 return [] ok
         
-        nIndex1 = random(nPopLen-1) + 1
-        nIndex2 = random(nPopLen-1) + 1
+        _nIndex1_ = random(_nPopLen_-1) + 1
+        _nIndex2_ = random(_nPopLen_-1) + 1
         
         # Ensure indices are within bounds
-        if nIndex1 < 1 nIndex1 = 1 ok
-        if nIndex1 > nPopLen nIndex1 = nPopLen ok
-        if nIndex2 < 1 nIndex2 = 1 ok
-        if nIndex2 > nPopLen nIndex2 = nPopLen ok
+        if _nIndex1_ < 1 _nIndex1_ = 1 ok
+        if _nIndex1_ > _nPopLen_ _nIndex1_ = _nPopLen_ ok
+        if _nIndex2_ < 1 _nIndex2_ = 1 ok
+        if _nIndex2_ > _nPopLen_ _nIndex2_ = _nPopLen_ ok
         
-        individual1 = aPopulation[nIndex1]
-        individual2 = aPopulation[nIndex2]
+        _individual1_ = _aPopulation_[_nIndex1_]
+        _individual2_ = _aPopulation_[_nIndex2_]
         
-        if individual1[:rank] < individual2[:rank]
-            return individual1
-        elseif individual1[:rank] > individual2[:rank]
-            return individual2
+        if _individual1_[:rank] < _individual2_[:rank]
+            return _individual1_
+        elseif _individual1_[:rank] > _individual2_[:rank]
+            return _individual2_
         else
-            if individual1[:crowdingDistance] > individual2[:crowdingDistance]
-                return individual1
+            if _individual1_[:crowdingDistance] > _individual2_[:crowdingDistance]
+                return _individual1_
             else
-                return individual2
+                return _individual2_
             ok
         ok
 */
 
-	def tournamentSelection(aPopulation)
-	    nPopLen = len(aPopulation)
-	    if nPopLen = 0 return [] ok
+	def tournamentSelection(_aPopulation_)
+	    _nPopLen_ = len(_aPopulation_)
+	    if _nPopLen_ = 0 return [] ok
 	    
 	    # Find valid individuals first
-	    aValidIndices = []
-	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0
-	            aValidIndices + i
+	    _aValidIndices_ = []
+	    for i = 1 to _nPopLen_
+	        if len(_aPopulation_[i]) > 0 and len(_aPopulation_[i][:solution]) > 0 and 
+	           len(_aPopulation_[i][:objectives]) > 0
+	            _aValidIndices_ + i
 	        ok
 	    next
 	    
-	    if len(aValidIndices) < 2
+	    if len(_aValidIndices_) < 2
 	        return []  # Not enough valid individuals
 	    ok
 	    
 	    # Select two random valid individuals
-	    nIdx1 = random(len(aValidIndices)-1) + 1
-	    nIdx2 = random(len(aValidIndices)-1) + 1
+	    _nIdx1_ = random(len(_aValidIndices_)-1) + 1
+	    _nIdx2_ = random(len(_aValidIndices_)-1) + 1
 	    
 	    # Ensure different individuals
-	    while nIdx1 = nIdx2 and len(aValidIndices) > 1
-	        nIdx2 = random(len(aValidIndices)-1) + 1
+	    while _nIdx1_ = _nIdx2_ and len(_aValidIndices_) > 1
+	        _nIdx2_ = random(len(_aValidIndices_)-1) + 1
 	    end
 	    
-	    individual1 = aPopulation[aValidIndices[nIdx1]]
-	    individual2 = aPopulation[aValidIndices[nIdx2]]
+	    _individual1_ = _aPopulation_[_aValidIndices_[_nIdx1_]]
+	    _individual2_ = _aPopulation_[_aValidIndices_[_nIdx2_]]
 	    
 	    # Tournament selection based on rank and crowding distance
-	    if individual1[:rank] < individual2[:rank]
-	        return individual1
-	    elseif individual1[:rank] > individual2[:rank]
-	        return individual2
+	    if _individual1_[:rank] < _individual2_[:rank]
+	        return _individual1_
+	    elseif _individual1_[:rank] > _individual2_[:rank]
+	        return _individual2_
 	    else
 	        # Same rank, choose based on crowding distance (higher is better)
-	        if individual1[:crowdingDistance] > individual2[:crowdingDistance]
-	            return individual1
+	        if _individual1_[:crowdingDistance] > _individual2_[:crowdingDistance]
+	            return _individual1_
 	        else
-	            return individual2
+	            return _individual2_
 	        ok
 	    ok
 
     def crossover(parent1, parent2)
-        aSolution = []
+        _aSolution_ = []
         
         # Check if parents have valid solutions
         if len(parent1[:solution]) = 0 or len(parent2[:solution]) = 0
             return [ :solution = This.generateRandomSolution(), :objectives = [], :rank = 0, :crowdingDistance = 0 ]
         ok
         
-        nSolLen = len(parent1[:solution])
-        for i = 1 to nSolLen
+        _nSolLen_ = len(parent1[:solution])
+        for i = 1 to _nSolLen_
             if random(100) < @nCrossoverRate * 100
-                aSolution + parent1[:solution][i]
+                _aSolution_ + parent1[:solution][i]
             else
-                aSolution + parent2[:solution][i]
+                _aSolution_ + parent2[:solution][i]
             ok
         next
-        return [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
+        return [ :solution = _aSolution_, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
 
     def mutate(individual)
-        nSolLen = len(individual[:solution])
-        for i = 1 to nSolLen
+        _nSolLen_ = len(individual[:solution])
+        for i = 1 to _nSolLen_
             if random(100) < @nMutationRate * 100
                 if i <= len(@aVariables)
-                    var = @aVariables[i]
-                    nNewValue = var[:lowerBound] + random(var[:upperBound] - var[:lowerBound])
-                    if var[:type] = "integer" or var[:type] = "binary"
-                        nNewValue = floor(nNewValue)
+                    _var_ = @aVariables[i]
+                    _nNewValue_ = _var_[:lowerBound] + random(_var_[:upperBound] - _var_[:lowerBound])
+                    if _var_[:type] = "integer" or _var_[:type] = "binary"
+                        _nNewValue_ = floor(_nNewValue_)
                     ok
-                    individual[:solution][i][2] = nNewValue
+                    individual[:solution][i][2] = _nNewValue_
                 ok
             ok
         next
@@ -638,56 +638,56 @@ class stzMultiObjectiveSolver from stzObject
 
     # Epsilon Constraint Helper Methods
     def calculateEpsilonRanges()
-        aRanges = []
-        nSteps = 10
-        nObjLen = len(@aObjectives)
+        _aRanges_ = []
+        _nSteps_ = 10
+        _nObjLen_ = len(@aObjectives)
         
-        for i = 2 to nObjLen
+        for i = 2 to _nObjLen_
             # Calculate min and max for each secondary objective
-            nMin = This.calculateObjectiveBound(@aObjectives[i][:expression], "min")
-            nMax = This.calculateObjectiveBound(@aObjectives[i][:expression], "max")
-            nStep = (nMax - nMin) / nSteps
+            _nMin_ = This.calculateObjectiveBound(@aObjectives[i][:expression], "min")
+            _nMax_ = This.calculateObjectiveBound(@aObjectives[i][:expression], "max")
+            _nStep_ = (_nMax_ - _nMin_) / _nSteps_
             
-            aEpsilonValues = []
-            for j = 0 to nSteps
-                aEpsilonValues + (nMin + j * nStep)
+            _aEpsilonValues_ = []
+            for j = 0 to _nSteps_
+                _aEpsilonValues_ + (_nMin_ + j * _nStep_)
             next
-            aRanges + aEpsilonValues
+            _aRanges_ + _aEpsilonValues_
         next
         
         # Generate combinations
-        aEpsilonSets = []
-        if len(aRanges) = 1
-            nRange1Len = len(aRanges[1])
-            for i = 1 to nRange1Len
-                aEpsilonSets + [aRanges[1][i]]
+        _aEpsilonSets_ = []
+        if len(_aRanges_) = 1
+            _nRange1Len_ = len(_aRanges_[1])
+            for i = 1 to _nRange1Len_
+                _aEpsilonSets_ + [_aRanges_[1][i]]
             next
         else
-            nRange1Len = len(aRanges[1])
-            nRange2Len = len(aRanges[2])
-            for i = 1 to nRange1Len
-                for j = 1 to nRange2Len
-                    aEpsilonSets + [aRanges[1][i], aRanges[2][j]]
+            _nRange1Len_ = len(_aRanges_[1])
+            _nRange2Len_ = len(_aRanges_[2])
+            for i = 1 to _nRange1Len_
+                for j = 1 to _nRange2Len_
+                    _aEpsilonSets_ + [_aRanges_[1][i], _aRanges_[2][j]]
                 next
             next
         ok
         
-        return aEpsilonSets
+        return _aEpsilonSets_
 
     def calculateObjectiveBound(cExpression, cType)
         # Simple bound estimation based on variable bounds
-        nBound = 0
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            var = @aVariables[i]
-            nCoeff = This.extractCoefficient(cExpression, var[:name])
+        _nBound_ = 0
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _var_ = @aVariables[i]
+            _nCoeff_ = This.extractCoefficient(cExpression, _var_[:name])
             if cType = "min"
-                nBound += nCoeff * iff(nCoeff > 0, var[:lowerBound], var[:upperBound])
+                _nBound_ += _nCoeff_ * iff(_nCoeff_ > 0, _var_[:lowerBound], _var_[:upperBound])
             else
-                nBound += nCoeff * iff(nCoeff > 0, var[:upperBound], var[:lowerBound])
+                _nBound_ += _nCoeff_ * iff(_nCoeff_ > 0, _var_[:upperBound], _var_[:lowerBound])
             ok
         next
-        return nBound
+        return _nBound_
 
     # Utility Methods (inherited from stzLinearSolver)
 
@@ -700,10 +700,10 @@ class stzMultiObjectiveSolver from stzObject
         return @oCoeffExtractor.extractAllCoefficients(cExpression)
 */
 
-    def getSolutionValue(aSolution, cVarName)
-        nSolLen = len(aSolution)
-        for i = 1 to nSolLen
-            if aSolution[i][1] = cVarName return aSolution[i][2] ok
+    def getSolutionValue(_aSolution_, cVarName)
+        _nSolLen_ = len(_aSolution_)
+        for i = 1 to _nSolLen_
+            if _aSolution_[i][1] = cVarName return _aSolution_[i][2] ok
         next
         return 0
 
@@ -715,24 +715,24 @@ class stzMultiObjectiveSolver from stzObject
         if len(@aParetoSolutions) = 0 return [] ok
         
         # Find solution with minimum sum of normalized objectives
-        nBestScore = 999999
-        aBestSolution = []
-        nParetoLen = len(@aParetoSolutions)
+        _nBestScore_ = 999999
+        _aBestSolution_ = []
+        _nParetoLen_ = len(@aParetoSolutions)
         
-        for i = 1 to nParetoLen
-            solution = @aParetoSolutions[i]
-            nScore = 0
-            nObjLen = len(solution[:objectives])
-            for j = 1 to nObjLen
-                nScore += abs(solution[:objectives][j])
+        for i = 1 to _nParetoLen_
+            _solution_ = @aParetoSolutions[i]
+            _nScore_ = 0
+            _nObjLen_ = len(_solution_[:objectives])
+            for j = 1 to _nObjLen_
+                _nScore_ += abs(_solution_[:objectives][j])
             next
-            if nScore < nBestScore
-                nBestScore = nScore
-                aBestSolution = solution
+            if _nScore_ < _nBestScore_
+                _nBestScore_ = _nScore_
+                _aBestSolution_ = _solution_
             ok
         next
         
-        return aBestSolution
+        return _aBestSolution_
 
     def status()
         return @cStatus
@@ -749,26 +749,26 @@ class stzMultiObjectiveSolver from stzObject
 
 		? ""
         ? "• Variables:"
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            var = @aVariables[i]
-            ? " ─ " + var[:name] + " ∈ [" + var[:lowerBound] + ", " + var[:upperBound] + "] (" + var[:type] + ")"
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _var_ = @aVariables[i]
+            ? " ─ " + _var_[:name] + " ∈ [" + _var_[:lowerBound] + ", " + _var_[:upperBound] + "] (" + _var_[:type] + ")"
         next
 
 		? ""
         ? "• Constraints:"
-        nConstLen = len(@aConstraints)
-        for i = 1 to nConstLen
-            const = @aConstraints[i]
-            ? " ─ " + const[:expression] + " " + const[:operator] + " " + const[:value]
+        _nConstLen_ = len(@aConstraints)
+        for i = 1 to _nConstLen_
+            _const_ = @aConstraints[i]
+            ? " ─ " + _const_[:expression] + " " + _const_[:operator] + " " + _const_[:value]
         next
 
 		? ""
         ? "• Objectives:"
-        nObjLen = len(@aObjectives)
-        for i = 1 to nObjLen
-            obj = @aObjectives[i]
-            ? " ─ " + upper(obj[:type]) + " " + obj[:expression]
+        _nObjLen_ = len(@aObjectives)
+        for i = 1 to _nObjLen_
+            _obj_ = @aObjectives[i]
+            ? " ─ " + upper(_obj_[:type]) + " " + _obj_[:expression]
         next
         
         if @cStatus != ""
@@ -780,62 +780,62 @@ class stzMultiObjectiveSolver from stzObject
 			? ""
             ? "• Pareto Solutions Found: " + len(@aParetoSolutions)
             
-            oBest = This.bestCompromiseSolution()
-            if len(oBest) > 0
+            _oBest_ = This.bestCompromiseSolution()
+            if len(_oBest_) > 0
 				 ? "• Best Compromise Solution:"
-                nSolLen = len(oBest[:solution])
-                for i = 1 to nSolLen
-                    sol = oBest[:solution][i]
-                    ? " ─ " + sol[1] + " = " + sol[2]
+                _nSolLen_ = len(_oBest_[:solution])
+                for i = 1 to _nSolLen_
+                    _sol_ = _oBest_[:solution][i]
+                    ? " ─ " + _sol_[1] + " = " + _sol_[2]
                 next
 
 				? ""
                 ? "• Objective Values:"
-                nObjLen = len(oBest[:objectives])
-                for i = 1 to nObjLen
-                    nValue = oBest[:objectives][i]
-                    if @aObjectives[i][:type] = "maximize" nValue = -nValue ok
-                    ? " ─ " + @aObjectives[i][:expression] + " = " + nValue
+                _nObjLen_ = len(_oBest_[:objectives])
+                for i = 1 to _nObjLen_
+                    _nValue_ = _oBest_[:objectives][i]
+                    if @aObjectives[i][:type] = "maximize" _nValue_ = -_nValue_ ok
+                    ? " ─ " + @aObjectives[i][:expression] + " = " + _nValue_
                 next
             ok
         ok
 
     def exportParetoFrontCSV(cFileName)
-        oFile = new stzFile(cFileName)
-        cContent = "Solution,"
+        _oFile_ = new stzFile(cFileName)
+        _cContent_ = "Solution,"
         
         # Headers for variables
-        nVarLen = len(@aVariables)
-        for i = 1 to nVarLen
-            cContent += @aVariables[i][:name] + ","
+        _nVarLen_ = len(@aVariables)
+        for i = 1 to _nVarLen_
+            _cContent_ += @aVariables[i][:name] + ","
         next
         
         # Headers for objectives
-        nObjLen = len(@aObjectives)
-        for i = 1 to nObjLen
-            cContent += @aObjectives[i][:expression] + ","
+        _nObjLen_ = len(@aObjectives)
+        for i = 1 to _nObjLen_
+            _cContent_ += @aObjectives[i][:expression] + ","
         next
-        cContent += nl
+        _cContent_ += nl
         
         # Data rows
-        nParetoLen = len(@aParetoSolutions)
-        for i = 1 to nParetoLen
-            cContent += "Sol" + i + ","
+        _nParetoLen_ = len(@aParetoSolutions)
+        for i = 1 to _nParetoLen_
+            _cContent_ += "Sol" + i + ","
             
             # Variable values
-            nSolLen = len(@aParetoSolutions[i][:solution])
-            for j = 1 to nSolLen
-                cContent += @aParetoSolutions[i][:solution][j][2] + ","
+            _nSolLen_ = len(@aParetoSolutions[i][:solution])
+            for j = 1 to _nSolLen_
+                _cContent_ += @aParetoSolutions[i][:solution][j][2] + ","
             next
             
             # Objective values
-            nObjLen = len(@aParetoSolutions[i][:objectives])
-            for j = 1 to nObjLen
-                nValue = @aParetoSolutions[i][:objectives][j]
-                if @aObjectives[j][:type] = "maximize" nValue = -nValue ok
-                cContent += nValue + ","
+            _nObjLen_ = len(@aParetoSolutions[i][:objectives])
+            for j = 1 to _nObjLen_
+                _nValue_ = @aParetoSolutions[i][:objectives][j]
+                if @aObjectives[j][:type] = "maximize" _nValue_ = -_nValue_ ok
+                _cContent_ += _nValue_ + ","
             next
-            cContent += nl
+            _cContent_ += nl
         next
         
-        oFile.write(cContent)
+        _oFile_.write(_cContent_)
