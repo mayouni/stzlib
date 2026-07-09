@@ -8,24 +8,20 @@
 # that is the marker pulled out (symmetric with ExtractNext, which from
 # position 4 also lands on position 5). The "♥" at position 3 stays.
 #
-# Extracted from stzlisttest.ring, block #230. The historically recorded
-# output removed the position-3 "♥" instead; that was inconsistent with
-# the symmetric ExtractNext (block #229) and with the authoritative
+# Extracted from stzlisttest.ring, block #230 (Scenario form). The
+# historically recorded output removed the position-3 "♥" instead; that
+# was inconsistent with the symmetric ExtractNext and with the authoritative
 # Find(Previous)OccurrenceCS algorithm -- corrected here to the real run.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ExtractPrevious pulls out the nearest earlier occurrence and removes it")
+	o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
+	Then("ExtractPrevious('♥', :StartingAt = 6) returns the position-5 marker",
+		o1.ExtractPrevious("♥", :StartingAt = 6), "♥")
+	Then("...and the extracted marker is removed from the list",
+		@@( o1.Content() ), @@([ 1, 2, "♥", 4, 6, "♥" ]))
+EndScenario()
 
-o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
-
-? o1.ExtractPrevious("♥", :StartingAt = 6)
-#--> "♥"
-
-? @@( o1.Content() )
-#--> [ 1, 2, "♥", 4, 6, "♥" ]
-
-StopProfiler()
-
-pf()
-# Executed in almost 0 second(s)
+Summary()
