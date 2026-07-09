@@ -113,8 +113,21 @@ func StzGrowSemanticOperations()
 		if ring_find([ "init", "operator", "braceend", "bracestart" ], lower(_cName_)) > 0
 			loop
 		ok
+		# The function-forms grammar decides the operation KIND:
+		#   active / deep / plural      -> "action" (mutates the object)
+		#   passive / predicate / IsNot -> "query"  (RETURNS a value: the
+		#      result concept -- "Is it empty", "its Reversed copy")
+		#   fluent (Q) is excluded: its purpose is chaining, and natural
+		#      sequencing already chains; extended/conditional/statement
+		#      (XT/W/X) carry special parameter grammars -- out for now.
 		_aForm_ = _StzFormOf(_cName_)
-		if _aForm_[1] != "active"
+		_cKind_ = ""
+		if ring_find([ "active", "deep", "plural" ], _aForm_[1]) > 0
+			_cKind_ = "action"
+		but ring_find([ "passive", "predicate", "negative" ], _aForm_[1]) > 0
+			_cKind_ = "query"
+		ok
+		if _cKind_ = ""
 			loop
 		ok
 		# must be callable on a live instance of the harvested class
@@ -174,6 +187,7 @@ func StzGrowSemanticOperations()
 		if _nAr_ > 0
 			_aOp_ + [ "requires_params", _nAr_ ]
 		ok
+		_aOp_ + [ "kind", _cKind_ ]
 		_aOp_ + [ "grown", 1 ]
 		$aSemanticOperations + _aOp_
 		$aStzSemOpIds + _cId_
@@ -353,14 +367,21 @@ func StzSemanticLexicon()
 	func @StzSemanticLexicon()
 		return StzSemanticLexicon()
 
-#--- CACHE (grown operations + final lexicon bags, under doc/) ------------
+#--- CACHE (grown operations + final lexicon bags) ------------------------
+# Lives in natural/cache/ -- a natural-module artifact travels WITH the
+# module (the natural stack is slated to move into the engine later).
 
 func _StzSemCachePath()
 	_cB_ = _StzBaseDir()
 	if _cB_ = ""
 		return ""
 	ok
-	return _cB_ + "/doc/semantic_ops.stzcache"
+	_cDir_ = _cB_ + "/natural/cache"
+	try
+		StzMakeDir(_cDir_)
+	catch
+	done
+	return _cDir_ + "/semantic_ops.stzcache"
 
 # Signature = combined byte size of the three harvested sources; any edit
 # to them changes the size and forces a rebuild.
@@ -390,7 +411,7 @@ func _StzSemLoadCache(nSig)
 		return FALSE
 	ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG1 "
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG2 "
 		return FALSE
 	ok
 	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig
@@ -404,7 +425,7 @@ func _StzSemLoadCache(nSig)
 			loop
 		ok
 		_aP_ = _StzSplitOnChar(_ln_, char(1))
-		if _aP_[1] = "OP" and len(_aP_) >= 6
+		if _aP_[1] = "OP" and len(_aP_) >= 7
 			_aOp_ = []
 			_aOp_ + [ "semantic_id", _aP_[2] ]
 			_aOp_ + [ "stz_method", _aP_[3] ]
@@ -414,6 +435,7 @@ func _StzSemLoadCache(nSig)
 			if _nAr_ > 0
 				_aOp_ + [ "requires_params", _nAr_ ]
 			ok
+			_aOp_ + [ "kind", _aP_[7] ]
 			_aOp_ + [ "grown", 1 ]
 			$aSemanticOperations + _aOp_
 			$aStzSemOpIds + _aP_[2]
@@ -433,7 +455,7 @@ func _StzSemSaveCache(nSig)
 	if _cPath_ = ""
 		return
 	ok
-	_c_ = "SIG1 " + nSig + nl
+	_c_ = "SIG2 " + nSig + nl
 	_nOps_ = len($aSemanticOperations)
 	for _i_ = 1 to _nOps_
 		_aOp_ = $aSemanticOperations[_i_]
@@ -443,6 +465,10 @@ func _StzSemSaveCache(nSig)
 		_nAr_ = 0
 		if HasKey(_aOp_, :requires_params)
 			_nAr_ = _aOp_[:requires_params]
+		ok
+		_cKind_ = "action"
+		if HasKey(_aOp_, :kind)
+			_cKind_ = _aOp_[:kind]
 		ok
 		_aTo_ = _aOp_[:applies_to]
 		_cTo_ = ""
@@ -455,7 +481,7 @@ func _StzSemSaveCache(nSig)
 		next
 		_c_ += "OP" + char(1) + _aOp_[:semantic_id] + char(1) +
 		       _aOp_[:stz_method] + char(1) + _aOp_[:stz_signature] + char(1) +
-		       _cTo_ + char(1) + _nAr_ + nl
+		       _cTo_ + char(1) + _nAr_ + char(1) + _cKind_ + nl
 	next
 	_nB_ = len($aStzSemLexicon)
 	for _i_ = 1 to _nB_
@@ -566,6 +592,28 @@ func StzResolveSemantic(pcWord)
 
 	func @StzResolveSemantic(pcWord)
 		return StzResolveSemantic(pcWord)
+
+# Deterministic exact-name lookup: is this (joined) word EXACTLY an
+# operation's method name? Powers multi-word phrase resolution ("remove
+# duplicates" -> removeduplicates -> METHOD_REMOVEDUPLICATES). Triggers
+# the lazy growth on first use.
+
+func StzSemanticExactId(pcWord)
+	if NOT isString(pcWord) or pcWord = ""
+		return ""
+	ok
+	StzSemanticLexicon()
+	_w_ = lower(trim(pcWord))
+	_n_ = len($aStzSemExactNames)
+	for _i_ = 1 to _n_
+		if $aStzSemExactNames[_i_][1] = _w_
+			return $aStzSemExactNames[_i_][2]
+		ok
+	next
+	return ""
+
+	func @StzSemanticExactId(pcWord)
+		return StzSemanticExactId(pcWord)
 
 # Introspection: all candidates with their lexical scores, best first.
 

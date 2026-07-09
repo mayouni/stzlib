@@ -84,6 +84,35 @@ Scenario("Grown verbs execute through Naturally() on all three classes")
 	Then("stzNumber: Add (grown, 1-param)", og3.Result(), "8")
 EndScenario()
 
+Scenario("Truly natural phrasing via multi-word phrase resolution")
+	Given("longest exact method-name joins over content words, fillers skipped")
+	on1 = Naturally("Create a list with [ 3, 1, 3, 2, 1 ] and Remove its duplicates")
+	Then("'Remove its duplicates' -> RemoveDuplicates()",
+		@@( on1.Result() ), @@([ 3, 1, 2 ]))
+
+	on2 = Naturally("Create a string with 'hello world' and Uppercase the substring 'world'")
+	Then("'Uppercase the substring' outmatches plain Uppercase (longest wins)",
+		on2.Result(), "hello WORLD")
+
+	on3 = Naturally("Create a number with 5 and Add 3 to it")
+	Then("'Add 3 to it' reads naturally", on3.Result(), "8")
+
+	on4 = Naturally("Create a list with [ 1, 2, 2 ] and Remove it's duplicates please")
+	Then("a contraction apostrophe never breaks quote pairing",
+		@@( on4.Result() ), @@([ 1, 2 ]))
+EndScenario()
+
+Scenario("Query forms: passives and predicates RETURN a value")
+	Given("the function-forms grammar mapped to kinds: active=action, passive/predicate=query")
+	oq1 = Naturally("Create a string with 'softanza' Is it empty ?")
+	Then("'Is it empty ?' answers the question instead of mutating",
+		oq1.Result(), 0)
+
+	oq2 = Naturally("Create a string with 'ring' Give me it Reversed")
+	Then("'it Reversed' yields the reversed COPY as the result",
+		oq2.Result(), "gnir")
+EndScenario()
+
 Scenario("Growth safety: wrong-class verbs and missing params degrade to no-ops")
 	og4 = Naturally("Create a string with 'ring' Prepend it with 'x-'")
 	Then("a stzList-only verb on a string is skipped, never an R14",
