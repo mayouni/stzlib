@@ -537,8 +537,14 @@ class stzNaturalEngine from stzObject
 	            next
 
 	        but aSection[:type] = "list"
-	            cCode = 'aResult + ' + cSection
-	            eval(cCode)
+	            # nested brackets can mis-pair the section -- degrade to a
+	            # literal string token instead of dying in eval
+	            try
+	                cCode = 'aResult + ' + cSection
+	                eval(cCode)
+	            catch
+	                aResult + cSection
+	            done
 	            @aTokenIsWord + FALSE
 
 	        else  # string
@@ -913,12 +919,32 @@ class stzNaturalEngine from stzObject
 
 	def ProcessMethod(nIndex, cSemantic)
 		This.AddToDebugLog("Processing method: " + cSemantic)
-		
+
 		aOp = This.GetSemanticOperation(cSemantic)
 		if len(aOp) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
-		
+
+		# GROWN operations carry the class they were harvested from --
+		# applying a stzList verb to a stzString object would R14, so
+		# enforce :applies_to for them (hand-authored ops keep their
+		# historical advisory behavior).
+		if HasKey(aOp, :grown) and HasKey(aOp, :applies_to)
+			bApplies = FALSE
+			aTo = aOp[:applies_to]
+			nTo = len(aTo)
+			for i = 1 to nTo
+				if lower(aTo[i]) = lower(@cCurrentObject)
+					bApplies = TRUE
+					exit
+				ok
+			next
+			if NOT bApplies
+				This.AddToDebugLog("Skipped " + cSemantic + " -- not applicable to " + @cCurrentObject)
+				return [:code = "", :next_index = nIndex+1]
+			ok
+		ok
+
 		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 
 		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
@@ -931,12 +957,22 @@ class stzNaturalEngine from stzObject
 				cPlaceholder = "@param" + i
 				if isString(aParams[i])
 					cParamValue = '"' + aParams[i] + '"'
+				but isList(aParams[i])
+					cParamValue = @@(aParams[i])
 				else
 					cParamValue = "" + aParams[i]
 				ok
 				cCode = StzReplace(cCode, cPlaceholder, cParamValue)
 			next
-			
+
+			# a parameter the natural code never supplied: emit NOTHING
+			# rather than broken Ring code (matters for grown operations
+			# whose verbs can appear in prose without arguments)
+			if StzFindFirst(cCode, "@param") > 0
+				This.AddToDebugLog("Skipped " + cSemantic + " -- missing parameter(s)")
+				return [:code = "", :next_index = nNextIndex]
+			ok
+
 			return [:code = cCode, :next_index = nNextIndex]
 		ok
 		
