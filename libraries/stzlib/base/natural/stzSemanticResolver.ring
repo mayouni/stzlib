@@ -171,6 +171,22 @@ func StzGrowSemanticOperations()
 			loop
 		ok
 
+		# SEMANTIC PROBE (the Host & Ostvold lesson, run forward): a
+		# 0-arity "active"-form name that is really a GETTER -- probing a
+		# sample instance shows no mutation but a returned value -- is
+		# reclassified as a QUERY, so "Take its content"-style narration
+		# answers instead of silently no-oping. Verb-headed and output-
+		# ish names are trusted without probing (probing Show() would
+		# print during growth).
+		if _cKind_ = "action" and _nAr_ = 0 and
+		   NOT _StzSemVerbHeaded(_cName_) and
+		   NOT _StzSemOutputish(_cName_)
+			_cObs_ = _StzSemProbeBehavior(_aRec_[6], _cName_)
+			if _cObs_ = "getter"
+				_cKind_ = "query"
+			ok
+		ok
+
 		_cSig_ = "@var." + _cName_ + "("
 		for _k_ = 1 to _nAr_
 			_cSig_ += "@param" + _k_
@@ -249,6 +265,198 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 	ok
 	paMemo + [ _cKey_, _aMap_ ]
 	return _aMap_
+
+#--- RUNTIME TEACHING (the Voxelurn lesson, deterministic) ------------------
+# 'When I say purge I mean remove duplicates': resolve the MEANING through
+# the existing machinery, then register the new word as an exact synonym in
+# the live lexicon. Session-scoped (packs and caches are untouched).
+
+func StzTeachSynonym(pcLang, pcWord, pcMeaning)
+
+	if NOT ( isString(pcWord) and isString(pcMeaning) )
+		StzRaise("Incorrect params! pcWord and pcMeaning must be strings.")
+	ok
+	_cLang_ = StzLower(pcLang)
+	_w_ = StzLower(trim(pcWord))
+	if _w_ = ""
+		return ""
+	ok
+
+	# resolve the meaning: exact joined phrase first, then per-word scoring
+	_aTok_ = _StzSplitOnChar(StzLower(trim(pcMeaning)), " ")
+	_cJoin_ = ""
+	_aClean_ = []
+	_nT_ = len(_aTok_)
+	for _i_ = 1 to _nT_
+		_t_ = trim(_aTok_[_i_])
+		if _t_ != "" and ring_find($aStzStopwords, _t_) = 0
+			_cJoin_ += _t_
+			_aClean_ + _t_
+		ok
+	next
+	_cId_ = StzSemanticExactIdInLang(_cLang_, _cJoin_)
+	if _cId_ = ""
+		_cId_ = StzResolveSemanticInLang(_cLang_, _cJoin_)
+	ok
+	if _cId_ = "" and len(_aClean_) > 1 and _cLang_ != "en"
+		_cId_ = StzResolveSemanticPhraseInLang(_cLang_, _aClean_)
+	ok
+	if _cId_ = "" and len(_aClean_) > 0
+		_cId_ = StzResolveSemanticInLang(_cLang_, _aClean_[len(_aClean_)])
+	ok
+	if _cId_ = ""
+		return ""
+	ok
+
+	# register the synonym + refresh any memoized result for the word
+	if _cLang_ = "en"
+		StzSemanticLexicon()
+		$aStzSemExactNames + [ _w_, _cId_ ]
+	else
+		_aLex_ = _StzSemLangEntry(_cLang_)
+		if len(_aLex_) > 0
+			_StzSemLangExactAdd(_aLex_[3], _w_, _cId_)
+			if ring_find(_aLex_[9], _w_) = 0
+				_aLex_[9] + _w_
+			ok
+		ok
+	ok
+	_nM_ = len($aStzSemResolveMemo)
+	for _i_ = 1 to _nM_
+		if $aStzSemResolveMemo[_i_][1] = _w_
+			$aStzSemResolveMemo[_i_][2] = _cId_
+		ok
+	next
+	return _cId_
+
+	func @StzTeachSynonym(pcLang, pcWord, pcMeaning)
+		return StzTeachSynonym(pcLang, pcWord, pcMeaning)
+
+#--- SEMANTIC PROBING + NAMING LINT ----------------------------------------
+# Form says what a method SHOULD do; probing observes what it DOES. Calling
+# a 0-arity method on a sample instance and comparing content before/after
+# classifies it empirically: "mutator" (content changed), "getter" (content
+# intact, value returned), "silent" (neither). Growth uses this to reclass
+# noun-headed getters as queries; StzNamingLint() reports every method
+# whose FORM contradicts its observed behavior (the naming-bug detector).
+
+func _StzSemSampleExpr(pcClass)
+	_c_ = lower(pcClass)
+	if _c_ = "stzstring"
+		return "new stzString('ab ba')"
+	but _c_ = "stzlist"
+		return "new stzList([ 2, 1, 2 ])"
+	but _c_ = "stznumber"
+		return "new stzNumber(7)"
+	ok
+	return ""
+
+func _StzSemProbeBehavior(pcClass, pcMethod)
+	_cNew_ = _StzSemSampleExpr(pcClass)
+	if _cNew_ = ""
+		return "unknown"
+	ok
+	_cObs_ = "unknown"
+	try
+		eval("_oPrb_ = " + _cNew_)
+		_xBefore_ = @@( _oPrb_.Content() )
+		eval("_vPrbRet_ = _oPrb_." + pcMethod + "()")
+		_xAfter_ = @@( _oPrb_.Content() )
+		if _xAfter_ != _xBefore_
+			_cObs_ = "mutator"
+		else
+			_bHas_ = FALSE
+			if isNumber(_vPrbRet_)
+				_bHas_ = TRUE
+			but isString(_vPrbRet_) and _vPrbRet_ != ""
+				_bHas_ = TRUE
+			but isList(_vPrbRet_) and len(_vPrbRet_) > 0
+				_bHas_ = TRUE
+			ok
+			if _bHas_
+				_cObs_ = "getter"
+			else
+				_cObs_ = "silent"
+			ok
+		ok
+	catch
+	done
+	return _cObs_
+
+# names that read as commands even when noun-shaped analysis is unsure
+func _StzSemVerbHeaded(pcName)
+	return _StzVerbLookup(lower(_StzFirstCamelWord(pcName))) != ""
+
+func _StzSemOutputish(pcName)
+	_c_ = lower(pcName)
+	_aOut_ = [ "show", "print", "display", "viz", "log", "debug", "trace" ]
+	_n_ = len(_aOut_)
+	for _i_ = 1 to _n_
+		if left(_c_, len(_aOut_[_i_])) = _aOut_[_i_]
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func _StzFirstCamelWord(pcName)
+	_cOut_ = ""
+	_n_ = len(pcName)
+	for _i_ = 1 to _n_
+		_nA_ = ascii(pcName[_i_])
+		if _i_ > 1 and _nA_ >= 65 and _nA_ <= 90
+			exit
+		ok
+		_cOut_ += pcName[_i_]
+	next
+	return _cOut_
+
+# THE NAMING LINT: probe every 0-arity method of the three natural-facing
+# classes and report each one whose observed behavior contradicts its
+# grammatical form. Returns [ [class, name, form, observed], ... ]:
+#   active-form  that only reads      -> flagged (should be a noun/passive)
+#   passive-form that MUTATES         -> flagged (breaks the copy contract)
+
+func StzNamingLint()
+	_aOut_ = []
+	_aRecs_ = _StzSemHarvest()
+	_nR_ = len(_aRecs_)
+	_aArity_ = []
+	_aSeen_ = []
+	for _i_ = 1 to _nR_
+		_aRec_ = _aRecs_[_i_]
+		_cName_ = _aRec_[1]
+		_cKey_ = lower(_aRec_[6]) + ":" + lower(_cName_)
+		if NOT isalpha(_cName_) or ring_find(_aSeen_, _cKey_) > 0
+			loop
+		ok
+		_aSeen_ + _cKey_
+		_aForm_ = _StzFormOf(_cName_)
+		if _aForm_[1] != "active" and _aForm_[1] != "passive"
+			loop
+		ok
+		if _StzSemOutputish(_cName_)
+			loop
+		ok
+		_cOwner_ = _aRec_[4]
+		if _cOwner_ = ""
+			_cOwner_ = _aRec_[6]
+		ok
+		_aMap_ = _StzSemArityMapFor(_aArity_, _cOwner_)
+		if _StzSemArityLookup(_aMap_, lower(_cName_)) != 0
+			loop
+		ok
+		_cObs_ = _StzSemProbeBehavior(_aRec_[6], _cName_)
+		if _aForm_[1] = "active" and _cObs_ = "getter" and
+		   NOT _StzSemVerbHeaded(_cName_)
+			_aOut_ + [ _aRec_[6], _cName_, "active", "getter" ]
+		but _aForm_[1] = "passive" and _cObs_ = "mutator"
+			_aOut_ + [ _aRec_[6], _cName_, "passive", "mutator" ]
+		ok
+	next
+	return _aOut_
+
+	func @StzNamingLint()
+		return StzNamingLint()
 
 # The lowered method names of a live instance (Ring's methods() is the
 # ground truth of callability).
@@ -426,7 +634,7 @@ func _StzSemLoadCache(nSig)
 		return FALSE
 	ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG3 "
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG4 "
 		return FALSE
 	ok
 	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig
@@ -470,7 +678,7 @@ func _StzSemSaveCache(nSig)
 	if _cPath_ = ""
 		return
 	ok
-	_c_ = "SIG3 " + nSig + nl
+	_c_ = "SIG4 " + nSig + nl
 	_nOps_ = len($aSemanticOperations)
 	for _i_ = 1 to _nOps_
 		_aOp_ = $aSemanticOperations[_i_]

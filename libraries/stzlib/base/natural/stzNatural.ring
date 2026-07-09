@@ -281,6 +281,28 @@ func StzNaturalLintIn(cLang, _cCode_)
 func StzNaturalLint(_cCode_)
 	return StzNaturalLintIn("en", _cCode_)
 
+# STRICT natural execution (the agent posture): any word the language does
+# not understand RAISES with suggestions instead of degrading -- and an
+# optional operation allow-list makes everything off the list impossible.
+
+func NaturallyStrictIn(cLang, _cCode_, pacAllowedOps)
+	oEngine = new stzNaturalEngine(cLang, "", [], "")
+	oEngine.SetStrict(1)
+	if isList(pacAllowedOps) and len(pacAllowedOps) > 0
+		oEngine.SetAllowedOperations(pacAllowedOps)
+	ok
+	oEngine.Execute(_cCode_)
+	return oEngine
+
+	func @NaturallyStrictIn(cLang, _cCode_, pacAllowedOps)
+		return NaturallyStrictIn(cLang, _cCode_, pacAllowedOps)
+
+func NaturallyStrict(_cCode_)
+	return NaturallyStrictIn("en", _cCode_, [])
+
+	func @NaturallyStrict(_cCode_)
+		return NaturallyStrict(_cCode_)
+
 	func @StzNaturalLint(_cCode_)
 		return StzNaturalLint(_cCode_)
 
@@ -303,6 +325,11 @@ class stzNaturalEngine from stzObject
 	@aSemanticTokens = []
 	@aConsumedTokens = []	# token indexes already used as values/params
 				# (needed once params may sit BEFORE their verb)
+	@bStrict = 0		# strict mode: unresolved words RAISE (for agents)
+	@aAllowedOps = []	# operation allow-list ([] = everything permitted):
+				# a capability sandbox -- forbidden actions are
+				# grammatically impossible, not just discouraged
+	@aDigitMap = []		# per-language digit/punctuation normalization
 	# ROLE-BASED GRAMMAR flags, declared per language pack: SOV-family
 	# languages put the object/value before the creation verb and the
 	# parameters before their action verb
@@ -495,7 +522,7 @@ class stzNaturalEngine from stzObject
 		@aNamedObjects = []
 		@aNamedValues = []
 		@aConsumedTokens = []
-		_cCode_ = trim(_cCode_)
+		_cCode_ = This.NormalizeForeignDigits(trim(_cCode_))
 		_aTokens_ = This.SmartSplit(_cCode_)
 		@aValues = _aTokens_
 	
@@ -658,6 +685,62 @@ class stzNaturalEngine from stzObject
 		end
 		return _aOut_
 
+	# Normalize the language's digits and list punctuation OUTSIDE quoted
+	# strings (Arabic-Indic numerals in a value list must become ASCII for
+	# the list eval; a quoted string keeps its script untouched).
+
+	def NormalizeForeignDigits(_cCode_)
+		if len(@aDigitMap) = 0
+			return _cCode_
+		ok
+		_cOut_ = ""
+		_cChunk_ = ""
+		_n_ = len(_cCode_)
+		_i_ = 1
+		while _i_ <= _n_
+			_c_ = _cCode_[_i_]
+			if _c_ = "'" or _c_ = char(34)
+				# contraction guard: a letter-flanked apostrophe is
+				# part of a word, not a string delimiter
+				_bDelim_ = TRUE
+				if _c_ = "'" and _i_ > 1 and _i_ < _n_
+					if isalpha(_cCode_[_i_-1]) and isalpha(_cCode_[_i_+1])
+						_bDelim_ = FALSE
+					ok
+				ok
+				if _bDelim_
+					_cOut_ += This.MapDigits(_cChunk_)
+					_cChunk_ = ""
+					_q_ = _c_
+					_cOut_ += _c_
+					_i_++
+					while _i_ <= _n_
+						_cOut_ += _cCode_[_i_]
+						if _cCode_[_i_] = _q_
+							exit
+						ok
+						_i_++
+					end
+					_i_++
+					loop
+				ok
+			ok
+			_cChunk_ += _c_
+			_i_++
+		end
+		_cOut_ += This.MapDigits(_cChunk_)
+		return _cOut_
+
+	def MapDigits(_cChunk_)
+		if _cChunk_ = ""
+			return _cChunk_
+		ok
+		_n_ = len(@aDigitMap)
+		for _k_ = 1 to _n_
+			_cChunk_ = StzReplace(_cChunk_, @aDigitMap[_k_][1], @aDigitMap[_k_][2])
+		next
+		return _cChunk_
+
 	# A word without clinging trailing punctuation ("empty?" -> "empty").
 	# BYTE-based whole-mark matching (StzLeft/StzRight take byte counts
 	# while StzLen counts codepoints -- mixing them mangles multibyte
@@ -794,6 +877,10 @@ class stzNaturalEngine from stzObject
 			if HasKey(_aLangDef_, :params_before_verb)
 				@bParamsBeforeVerb = _aLangDef_[:params_before_verb]
 			ok
+			@aDigitMap = []
+			if HasKey(_aLangDef_, :digit_map)
+				@aDigitMap = _aLangDef_[:digit_map]
+			ok
 		ok
 
 	# May unknown words of the active language be resolved at all?
@@ -804,6 +891,12 @@ class stzNaturalEngine from stzObject
 			return 1
 		ok
 		return StzHasLanguagePack(@cLangCode)
+
+	def SetStrict(pbOn)
+		@bStrict = pbOn
+
+	def SetAllowedOperations(pacIds)
+		@aAllowedOps = pacIds
 	
 	def FindLanguageDefinition(_cCode_)
 		_nLen_ = len($aLanguageDefinitions)
@@ -817,6 +910,21 @@ class stzNaturalEngine from stzObject
 	
 	def Process()
 		@aSemanticTokens = This.ConvertToSemanticTokens()
+
+		# STRICT mode (the agent posture): a narration with ANY word the
+		# language could not understand must not run half-blind -- raise
+		# with machine-readable diagnostics so the caller self-corrects
+		if @bStrict and len(@aUnresolved) > 0
+			_cMsg_ = "Strict natural mode: not understood:"
+			_nU_ = len(@aUnresolved)
+			for _i_ = 1 to _nU_
+				_cMsg_ += " '" + @aUnresolved[_i_][1] + "'"
+				if @aUnresolved[_i_][2] != ""
+					_cMsg_ += " (did you mean '" + @aUnresolved[_i_][2] + "'?)"
+				ok
+			next
+			StzRaise(_cMsg_)
+		ok
 		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
 		_cCode_ = This.GenerateCodeFromSemantics()
@@ -1379,6 +1487,17 @@ class stzNaturalEngine from stzObject
 			return [:code = "", :next_index = nIndex+1]
 		ok
 
+		# CAPABILITY SANDBOX: with an allow-list set, an operation off
+		# the list is grammatically impossible -- strict mode raises,
+		# permissive mode skips with a note
+		if len(@aAllowedOps) > 0 and ring_find(@aAllowedOps, _cSemantic_) = 0
+			if @bStrict
+				StzRaise("Operation not permitted in this world: " + _cSemantic_)
+			ok
+			This.AddToDebugLog("Blocked by allow-list: " + _cSemantic_)
+			return [:code = "", :next_index = nIndex+1]
+		ok
+
 		# GROWN operations carry the class they were harvested from --
 		# applying a stzList verb to a stzString object would R14, so
 		# enforce :applies_to for them (hand-authored ops keep their
@@ -1571,6 +1690,83 @@ class stzNaturalEngine from stzObject
 
 	def NaturalCode()
 		return @cNaturalCode
+
+	# PARAPHRASE-BACK (the Boeing-CPL trust loop): say what was UNDERSTOOD,
+	# in plain words derived from the interpreted tokens -- so the writer of
+	# a loosely-phrased (or vocalized Arabic) narration sees the canonical
+	# reading before trusting the result.
+
+	def Understood()
+		_aSteps_ = []
+		_nLen_ = len(@aSemanticTokens)
+		_i_ = 1
+		while _i_ <= _nLen_
+			_aTok_ = @aSemanticTokens[_i_]
+			if _aTok_[:type] != "semantic"
+				_i_++
+				loop
+			ok
+			_cSem_ = _aTok_[:value]
+			if _cSem_ = "CREATE_OBJECT"
+				_cT_ = ""
+				_cV_ = ""
+				for _j_ = _i_ + 1 to _nLen_
+					_aT2_ = @aSemanticTokens[_j_]
+					if _aT2_[:type] = "semantic" and StzLeft(_aT2_[:value], 7) = "OBJECT_"
+						_cT_ = lower(StzRight(_aT2_[:value], len(_aT2_[:value]) - 7))
+					but _aT2_[:type] = "literal" and _cV_ = ""
+						if isString(_aT2_[:value])
+							_cV_ = _aT2_[:value]
+						else
+							_cV_ = @@(_aT2_[:value])
+						ok
+						exit
+					ok
+				next
+				_cStep_ = "create a " + _cT_
+				if _cV_ != ""
+					_cStep_ += " with " + _cV_
+				ok
+				_aSteps_ + _cStep_
+			but StzLeft(_cSem_, 7) = "METHOD_"
+				_aOp2_ = This.GetSemanticOperation(_cSem_)
+				if len(_aOp2_) > 0 and HasKey(_aOp2_, :stz_method)
+					_cVerb_ = lower(_StzSplitCamel(_aOp2_[:stz_method]))
+					if HasKey(_aOp2_, :kind) and _aOp2_[:kind] = "query"
+						_aSteps_ + ("ask: " + _cVerb_)
+					else
+						_aSteps_ + _cVerb_
+					ok
+				ok
+			but _cSem_ = "OUTPUT_DISPLAY"
+				_aSteps_ + "show it"
+			but _cSem_ = "NAME_INDICATOR"
+				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
+					_aSteps_ + ("call it " + @aSemanticTokens[_i_+1][:value])
+					_i_++
+				ok
+			but _cSem_ = "SWITCH_OBJECT"
+				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
+					_aSteps_ + ("switch to " + @aSemanticTokens[_i_+1][:value])
+					_i_++
+				ok
+			but _cSem_ = "KEEP_INDICATOR"
+				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
+					_aSteps_ + ("keep it as " + @aSemanticTokens[_i_+1][:value])
+					_i_++
+				ok
+			ok
+			_i_++
+		end
+		_cOut_ = ""
+		_nS_ = len(_aSteps_)
+		for _i_ = 1 to _nS_
+			_cOut_ += _aSteps_[_i_]
+			if _i_ < _nS_
+				_cOut_ += " -> "
+			ok
+		next
+		return _cOut_
 
 	# UNDERSTANDABILITY: the action-position words this run could not
 	# interpret, each with the nearest known word as a suggestion --

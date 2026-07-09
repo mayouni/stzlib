@@ -127,6 +127,16 @@ StzAddNaturalLanguage([
 	# remaining base must be a word the pack already knows
 	:prefix_prepositions = [ "بـ", "ب", "لـ", "ل" ],
 
+	# Arabic-Indic digits (and the Arabic comma) normalize to ASCII
+	# OUTSIDE quoted strings, so a value list written in Arabic numerals
+	# evaluates ("[ ٣, ١ ]" reads as [ 3, 1 ])
+	:digit_map = [
+		[ StzChar(1632), "0" ], [ StzChar(1633), "1" ], [ StzChar(1634), "2" ],
+		[ StzChar(1635), "3" ], [ StzChar(1636), "4" ], [ StzChar(1637), "5" ],
+		[ StzChar(1638), "6" ], [ StzChar(1639), "7" ], [ StzChar(1640), "8" ],
+		[ StzChar(1641), "9" ], [ StzChar(1548), "," ]
+	],
+
 	# tashkeel (tanween, fatha, damma, kasra, shadda, sukun) and the
 	# tatweel stretch are WRITING marks, not meaning -- deleted anywhere
 	# in a token before matching, so the writer may fully vocalize

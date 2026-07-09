@@ -240,6 +240,49 @@ Scenario("Variable binding: keep a value, recall it where values go")
 		@@( ovb4.Result() ), @@([ 2, 1 ]))
 EndScenario()
 
+Scenario("Semantic probing: getters answer instead of silently no-oping")
+	Given("growth probes 0-arity noun-headed actives on a live sample: no mutation + a returned value = query")
+	op1 = Naturally("Create a string with 'hello' NumberOfChars ?")
+	Then("NumberOfChars ANSWERS as a query", op1.Result(), 5)
+EndScenario()
+
+Scenario("Strict mode and operation allow-lists (the agent posture)")
+	bR1 = FALSE
+	try
+		NaturallyStrict("Create a string with 'x' Fooify it")
+	catch
+		bR1 = ( StzFindFirst(cCatchError, "did you mean") > 0 )
+	done
+	Then("strict mode raises on any not-understood word, with suggestions", bR1, TRUE)
+
+	oal = NaturallyStrictIn("en", "Create a list with [ 3, 1, 3 ] Remove its duplicates", [ "METHOD_REMOVEDUPLICATES" ])
+	Then("an allow-listed operation runs", @@( oal.Result() ), @@([ 3, 1 ]))
+
+	bR2 = FALSE
+	try
+		NaturallyStrictIn("en", "Create a list with [ 3, 1 ] Reverse it", [ "METHOD_REMOVEDUPLICATES" ])
+	catch
+		bR2 = ( StzFindFirst(cCatchError, "not permitted") > 0 )
+	done
+	Then("...and everything off the list is grammatically impossible", bR2, TRUE)
+EndScenario()
+
+Scenario("Understood(): the engine paraphrases its interpretation back")
+	oun = Naturally("Create a list with [ 3, 1, 3 ] called basket Remove its duplicates and keep it as clean")
+	Then("the canonical reading is echoed in plain words",
+		oun.Understood(),
+		"create a list with [ 3, 1, 3 ] -> call it basket -> remove duplicates -> keep it as clean")
+EndScenario()
+
+Scenario("Runtime teaching: new words join the live lexicon")
+	cTid = StzTeachSynonym("en", "purge", "remove duplicates")
+	Then("the meaning resolves through the existing machinery",
+		cTid, "METHOD_REMOVEDUPLICATES")
+	otc = Naturally("Create a list with [ 5, 5, 2 ] Purge it")
+	Then("...and the taught word executes immediately",
+		@@( otc.Result() ), @@([ 5, 2 ]))
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
