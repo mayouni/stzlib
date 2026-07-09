@@ -218,6 +218,28 @@ Scenario("Multiple live objects: name them, switch between them")
 		@@( om5.Result() ), @@([ 3, 2, 1 ]))
 EndScenario()
 
+Scenario("Variable binding: keep a value, recall it where values go")
+	Given("KEEP_INDICATOR binds the current result; bound names recall as variables")
+
+	ovb1 = Naturally("Create a string with '.' Keep it as sep Create a string with 'a.b' Replace sep with '_'")
+	Then("a kept CONTENT recalls as a method parameter",
+		ovb1.Result(), "a_b")
+	Then("...the generated code passes the VARIABLE, not a string",
+		StzFindFirst(ovb1.Code(), "Replace(v_sep,") > 0, TRUE)
+
+	ovb2 = Naturally("Create a string with 'ring' Give me it Reversed and keep it as rev Create a string with rev")
+	Then("a kept QUERY result recalls as a creation value",
+		ovb2.Result(), "gnir")
+
+	ovb3 = Naturally("Create a string with '.' Keep it as sep Create a string with 'a.sep.b' Replace 'sep' with 'Z'")
+	Then("a QUOTED name is data, never a reference (provenance guard)",
+		ovb3.Result(), "a.Z.b")
+
+	ovb4 = Naturally("Create a string with '-' called dash Keep it as d Create a list with [ 1, 2 ] called basket Use basket Reverse it")
+	Then("object names and value names coexist",
+		@@( ovb4.Result() ), @@([ 2, 1 ]))
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
