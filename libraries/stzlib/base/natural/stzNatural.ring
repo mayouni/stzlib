@@ -292,6 +292,13 @@ class stzNaturalEngine from stzObject
 	@aNamedObjects = []	# [ [name, var, type], ... ] -- the multi-object
 				# registry ('called basket' ... 'Use basket')
 	@aSemanticTokens = []
+	@aConsumedTokens = []	# token indexes already used as values/params
+				# (needed once params may sit BEFORE their verb)
+	# ROLE-BASED GRAMMAR flags, declared per language pack: SOV-family
+	# languages put the object/value before the creation verb and the
+	# parameters before their action verb
+	@bObjectBeforeCreate = 0
+	@bParamsBeforeVerb = 0
 	@cCurrentObject = ""
 	@cCurrentVariable = ""
 	@aDefineRecallState = []
@@ -477,6 +484,7 @@ class stzNaturalEngine from stzObject
 		@aTokenIsWord = []
 		@aUnresolved = []
 		@aNamedObjects = []
+		@aConsumedTokens = []
 		_cCode_ = trim(_cCode_)
 		_aTokens_ = This.SmartSplit(_cCode_)
 		@aValues = _aTokens_
@@ -681,8 +689,9 @@ class stzNaturalEngine from stzObject
 		# pronoun suffixes stripped), so the inflected Arabic
 		# "remove its-duplicates" joins to the same form as the pack's
 		# "remove the-duplicates". Identity for English.
-		_aWords_ = [ StzSemLangCanonToken(@cLangCode,
-			StzLower(This.StripEdgePunct(@aValues[nStart]))) ]
+		_cHeadRaw_ = StzLower(This.StripEdgePunct(@aValues[nStart]))
+		_bHeadUnknown_ = ( This.ToSemantic(_cHeadRaw_) = "" )
+		_aWords_ = [ StzSemLangCanonToken(@cLangCode, _cHeadRaw_) ]
 		_aEnds_ = [ nStart ]
 		_nLen_ = len(@aValues)
 		_j_ = nStart + 1
@@ -738,8 +747,10 @@ class stzNaturalEngine from stzObject
 
 		# no exact join: for PACK languages, let the shared IDF ranker
 		# decide from the rare content words ("vire les doublons" -- the
-		# unlisted verb contributes nothing, the rare word carries it)
-		if @cLangCode != "en"
+		# unlisted verb contributes nothing, the rare word carries it).
+		# Only when the HEAD is dictionary-unknown: a known head (a
+		# CREATE verb, say) must never be swallowed into a scored phrase.
+		if @cLangCode != "en" and _bHeadUnknown_
 			_cId_ = StzResolveSemanticPhraseInLang(@cLangCode, _aWords_)
 			if _cId_ != ""
 				_cShown_ = ""
@@ -763,6 +774,15 @@ class stzNaturalEngine from stzObject
 			ok
 			if HasKey(_aLangDef_, :semantic_mappings)
 				@aMappings = _aLangDef_[:semantic_mappings]
+			ok
+			# word-order grammar (SOV-family packs declare these)
+			@bObjectBeforeCreate = 0
+			@bParamsBeforeVerb = 0
+			if HasKey(_aLangDef_, :object_before_create)
+				@bObjectBeforeCreate = _aLangDef_[:object_before_create]
+			ok
+			if HasKey(_aLangDef_, :params_before_verb)
+				@bParamsBeforeVerb = _aLangDef_[:params_before_verb]
 			ok
 		ok
 
@@ -935,12 +955,16 @@ class stzNaturalEngine from stzObject
 		
 		_aLast_ = _aTokens_[_nLen_]
 		
-		if _aLast_[:type] = "semantic" and
-		   ( _aLast_[:value] = "VALUE_INDICATOR" or
-		     _aLast_[:value] = "NAME_INDICATOR" or
-		     _aLast_[:value] = "SWITCH_OBJECT" )
-			return 1	# a VALUE or a NAME: even a dictionary word
-					# ('called box') stays literal here
+		if _aLast_[:type] = "semantic"
+			# a VALUE or a NAME: even a dictionary word ('called box')
+			# stays literal here. NB: in postpositional grammars the
+			# VALUE precedes its indicator ("[...] ile"), so the word
+			# AFTER the indicator is ordinary -- no forcing there.
+			if ( _aLast_[:value] = "VALUE_INDICATOR" and @bObjectBeforeCreate = 0 ) or
+			   _aLast_[:value] = "NAME_INDICATOR" or
+			   _aLast_[:value] = "SWITCH_OBJECT"
+				return 1
+			ok
 		ok
 
 		if _aLast_[:type] = "literal" and _nLen_ >= 2
@@ -972,7 +996,8 @@ class stzNaturalEngine from stzObject
 		if _aLast_[:type] = "semantic"
 			_cVal_ = _aLast_[:value]
 
-			if StzLeft(_cVal_, 7) = "OBJECT_" or _cVal_ = "VALUE_INDICATOR" or
+			if StzLeft(_cVal_, 7) = "OBJECT_" or
+			   ( _cVal_ = "VALUE_INDICATOR" and @bObjectBeforeCreate = 0 ) or
 			   _cVal_ = "NAME_INDICATOR" or _cVal_ = "SWITCH_OBJECT"
 				return 0
 			ok
@@ -1021,6 +1046,9 @@ class stzNaturalEngine from stzObject
 	def GenerateCodeFromSemantics()
 		_aCodeLines_ = []
 		_nLen_ = len(@aSemanticTokens)
+		# consumption tracking is per-GENERATION (Code() regenerates)
+		@aConsumedTokens = []
+		@aNamedObjects = []
 
 		_i_ = 1
 
@@ -1121,22 +1149,47 @@ class stzNaturalEngine from stzObject
 		_cObjectType_ = ""
 		_cValue_ = ""
 		_nNextIndex_ = nIndex + 1
-		
-		for _i_ = nIndex+1 to _nLen_
-			_aToken_ = @aSemanticTokens[_i_]
-			if _aToken_[:type] = "semantic" and StzLeft(_aToken_[:value], 7) = "OBJECT_"
-				_cObjectType_ = _aToken_[:value]
-				
-				for _j_ = _i_+1 to _nLen_
-					aNextToken = @aSemanticTokens[_j_]
-					if aNextToken[:type] = "literal"
-						_cValue_ = aNextToken[:value]
-						_nNextIndex_ = _j_ + 1
-						exit 2
-					ok
-				next
-			ok
-		next
+
+		if @bObjectBeforeCreate = 1
+			# VERB-FINAL grammar (SOV family): "[ 3, 1, 3 ] with a list
+			# create" -- the object word and its value sit BEFORE the
+			# creation verb: scan backward for the nearest OBJECT_, then
+			# the nearest unconsumed literal before the verb
+			for _i_ = nIndex - 1 to 1 step -1
+				_aToken_ = @aSemanticTokens[_i_]
+				if _aToken_[:type] = "semantic" and StzLeft(_aToken_[:value], 7) = "OBJECT_"
+					_cObjectType_ = _aToken_[:value]
+					exit
+				ok
+			next
+			for _j_ = nIndex - 1 to 1 step -1
+				aNextToken = @aSemanticTokens[_j_]
+				if aNextToken[:type] = "literal" and
+				   ring_find(@aConsumedTokens, _j_) = 0
+					_cValue_ = aNextToken[:value]
+					@aConsumedTokens + _j_
+					exit
+				ok
+			next
+			_nNextIndex_ = nIndex + 1
+		else
+			for _i_ = nIndex+1 to _nLen_
+				_aToken_ = @aSemanticTokens[_i_]
+				if _aToken_[:type] = "semantic" and StzLeft(_aToken_[:value], 7) = "OBJECT_"
+					_cObjectType_ = _aToken_[:value]
+
+					for _j_ = _i_+1 to _nLen_
+						aNextToken = @aSemanticTokens[_j_]
+						if aNextToken[:type] = "literal"
+							_cValue_ = aNextToken[:value]
+							@aConsumedTokens + _j_
+							_nNextIndex_ = _j_ + 1
+							exit 2
+						ok
+					next
+				ok
+			next
+		ok
 
 		if _cObjectType_ != ""
 			_aOp_ = This.GetSemanticOperation(_cObjectType_)
@@ -1304,33 +1357,72 @@ class stzNaturalEngine from stzObject
 		return [:code = _cCode_, :next_index = nIndex+1]
 	
 	def ExtractMethodParameters(nIndex, nParamCount)
+		if @bParamsBeforeVerb = 1
+			return This.ExtractParamsBackward(nIndex, nParamCount)
+		ok
 		_aParams_ = []
 		_nLen_ = len(@aSemanticTokens)
 		_nLastIndex_ = nIndex
-		
+
 		for _i_ = nIndex+1 to _nLen_
 			_aToken_ = @aSemanticTokens[_i_]
 			_nLastIndex_ = _i_
-			
+
 			if _aToken_[:type] = "semantic" and _aToken_[:value] = "VALUE_INDICATOR"
 				loop
 			ok
-			
+
 			if _aToken_[:type] = "literal"
 				_aParams_ + _aToken_[:value]
+				@aConsumedTokens + _i_
 				if len(_aParams_) = nParamCount
 					exit
 				ok
 			ok
-			
-			if _aToken_[:type] = "semantic" and 
+
+			if _aToken_[:type] = "semantic" and
 			   (StzLeft(_aToken_[:value], 7) = "METHOD_" or _aToken_[:value] = "OUTPUT_DISPLAY")
 				_nLastIndex_ = _i_ - 1
 				exit
 			ok
 		next
-		
+
 		return [:params = _aParams_, :next_index = _nLastIndex_ + 1]
+
+	# VERB-FINAL grammar: the parameters precede their verb ("'.'" instead-
+	# of "'_'" put). Walk backward to the previous action/creation boundary
+	# collecting unconsumed literals, keep the LAST nParamCount in textual
+	# order, and mark them consumed so no later verb re-grabs them.
+
+	def ExtractParamsBackward(nIndex, nParamCount)
+		_aFound_ = []    # [ [tokenIndex, value], ... ] in textual order
+		for _i_ = nIndex - 1 to 1 step -1
+			_aToken_ = @aSemanticTokens[_i_]
+			if _aToken_[:type] = "semantic"
+				_cV_ = _aToken_[:value]
+				if StzLeft(_cV_, 7) = "METHOD_" or _cV_ = "CREATE_OBJECT" or
+				   _cV_ = "OUTPUT_DISPLAY"
+					exit	# previous clause boundary
+				ok
+				loop		# indicators/objects pass through
+			ok
+			if _aToken_[:type] = "literal" and
+			   ring_find(@aConsumedTokens, _i_) = 0
+				_aFound_ + [ _i_, _aToken_[:value] ]
+			ok
+		next
+		# _aFound_ is reverse-textual: keep the FIRST nParamCount found
+		# (= the literals nearest the verb), restored to textual order
+		_aParams_ = []
+		_nTake_ = nParamCount
+		if _nTake_ > len(_aFound_)
+			_nTake_ = len(_aFound_)
+		ok
+		for _i_ = _nTake_ to 1 step -1
+			_aParams_ + _aFound_[_i_][2]
+			@aConsumedTokens + _aFound_[_i_][1]
+		next
+		return [:params = _aParams_, :next_index = nIndex + 1]
 	
 	def ProcessMethodWithModifiers(nIndex, _cSemantic_)
 		_aOp_ = This.GetSemanticOperation(_cSemantic_)

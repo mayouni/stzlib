@@ -204,3 +204,62 @@ StzAddNaturalLanguage([
 		 :words = "هل هي فارغة, هل هو فارغ, فارغة, فارغ"]
 	]
 ])
+
+#-- TURKISH (SOV: the role-based grammar proof) ------------------------------
+# Turkish puts the object and its value BEFORE the creation verb ("[ 3, 1 ]
+# ile bir liste olustur" = with [ 3, 1 ] a list create) and the parameters
+# BEFORE their action verb ("'.' yerine '_' koy" = '.' instead-of '_' put).
+# Two grammar flags declare that; everything else is the same pack anatomy.
+
+StzAddNaturalLanguage([
+	:code = "tr",
+	:name = "turkish",
+	:script = "latin",
+
+	:object_before_create = 1,
+	:params_before_verb = 1,
+
+	# accusative/plural case endings on nouns (tekrarlari = tekrar+lari)
+	:suffix_pronouns = [ "ları", "leri", "lari" ],
+
+	:ignored_words = [
+		"bir", "ve", "sonra", "da", "de", "ise", "yerine", "onu",
+		"bunu", "lütfen", "lutfen"
+	],
+
+	:semantic_mappings = [
+		[:natural = "oluştur",  :semantic = "CREATE_OBJECT"],
+		[:natural = "olustur",  :semantic = "CREATE_OBJECT"],
+		[:natural = "yarat",    :semantic = "CREATE_OBJECT"],
+
+		[:natural = "liste",    :semantic = "OBJECT_LIST"],
+		[:natural = "metin",    :semantic = "OBJECT_STRING"],
+		[:natural = "yazı",     :semantic = "OBJECT_STRING"],
+		[:natural = "yazi",     :semantic = "OBJECT_STRING"],
+		[:natural = "sayı",     :semantic = "OBJECT_NUMBER"],
+		[:natural = "sayi",     :semantic = "OBJECT_NUMBER"],
+
+		[:natural = "ile",      :semantic = "VALUE_INDICATOR"],
+
+		[:natural = "koy",      :semantic = "METHOD_REPLACE"],
+		[:natural = "değiştir", :semantic = "METHOD_REPLACE"],
+		[:natural = "degistir", :semantic = "METHOD_REPLACE"],
+		[:natural = "sırala",   :semantic = "METHOD_SORT"],
+		[:natural = "sirala",   :semantic = "METHOD_SORT"],
+		[:natural = "çevir",    :semantic = "METHOD_REVERSE"],
+		[:natural = "cevir",    :semantic = "METHOD_REVERSE"],
+
+		[:natural = "göster",   :semantic = "OUTPUT_DISPLAY"],
+		[:natural = "goster",   :semantic = "OUTPUT_DISPLAY"],
+		[:natural = "yazdır",   :semantic = "OUTPUT_DISPLAY"],
+		[:natural = "yazdir",   :semantic = "OUTPUT_DISPLAY"]
+	],
+
+	:phrases = [
+		[:semantic = "METHOD_REMOVEDUPLICATES",
+		 :words = "tekrarları kaldır, tekrarlari kaldir, tekrarları sil, tekrarlari sil, kopyaları kaldır, kopyalari kaldir, kopyaları sil, kopyalari sil"],
+
+		[:semantic = "METHOD_REVERSE",
+		 :words = "tersine çevir, tersine cevir, ters çevir, ters cevir"]
+	]
+])
