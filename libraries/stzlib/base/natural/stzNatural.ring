@@ -260,6 +260,8 @@ class stzNaturalEngine from stzObject
 	@aIgnoredWords = []
 	@aMappings = []
 	@aValues = []
+	@aTokenIsWord = []	# provenance: TRUE = bare word, FALSE = quoted string
+				# or list literal (those must NEVER be fallback-resolved)
 	@aSemanticTokens = []
 	@cCurrentObject = ""
 	@cCurrentVariable = ""
@@ -277,7 +279,10 @@ class stzNaturalEngine from stzObject
 			@aContext = aContext
 			@cOriginalCode = cContextCode
 			@cLanguage = StzLower(cLang)
-			if @cLanguage = "" or NOT IsLanguageAbbreviation(@cLanguage)
+			# Accept any DEFINED language (code "ha" or name "hausa") --
+			# IsLanguageAbbreviation() alone rejected full names.
+			if @cLanguage = "" or
+			   len(This.FindLanguageDefinition(@cLanguage)) = 0
 				@cLanguage = "en"
 			ok
 			This.LoadLanguageData()
@@ -440,6 +445,7 @@ class stzNaturalEngine from stzObject
 	
 	def TokenizeCode(cCode)
 		@aValues = []
+		@aTokenIsWord = []
 		cCode = trim(cCode)
 		aTokens = This.SmartSplit(cCode)
 		@aValues = aTokens
@@ -451,10 +457,15 @@ class stzNaturalEngine from stzObject
 	    # Find all protected sections (lists AND standalone strings)
 	    aListSections = _oStr_.FindSubStringsBoundedByIBZZ([ "[", "]" ])
 	    
-	    # For strings, only find those OUTSIDE of lists
+	    # For strings, only find those OUTSIDE of lists.
+	    # NOTE: BoundedByIBZZ with identical single-char bounds OVERLAPS by
+	    # design (each closer is reused as the next opener) -- right for
+	    # substring analytics, wrong for quote pairing: with six quotes it
+	    # would protect the gaps BETWEEN values too. Pair quotes manually
+	    # (1st-2nd, 3rd-4th, ...) instead.
 	    aAllQuoteSections = Merge([
-	        _oStr_.FindSubStringsBoundedByIBZZ([ '"', '"' ]),
-	        _oStr_.FindSubStringsBoundedByIBZZ([ "'", "'" ])
+	        This.PairedQuoteSections(cCode, '"'),
+	        This.PairedQuoteSections(cCode, "'")
 	    ])
 	    
 	    # Filter out quote sections that are inside list sections
@@ -478,8 +489,10 @@ class stzNaturalEngine from stzObject
 	    
 	    aProtectedSections = Merge([aListSections, aStringSections])
 	    
-	    # Get splittable sections
-	    aSplittableSections = _oStr_.FindAntiSectionsZZ(aProtectedSections)
+	    # Get splittable sections (the gaps around the protected ones).
+	    # NOTE: FindAntiSectionsZZ() is the find-form and takes a SUBSTRING
+	    # since the finder refactor -- the section-form is AntiSectionsZZ().
+	    aSplittableSections = _oStr_.AntiSectionsZZ(aProtectedSections)
 	    
 	    # Merge and sort by position
 	    aAllSections = []
@@ -519,21 +532,57 @@ class stzNaturalEngine from stzObject
 		    for j = 1 to nLenWords
 	                if trim(acWords[j]) != ""
 	                    aResult + acWords[j]
+	                    @aTokenIsWord + TRUE
 	                ok
 	            next
 
 	        but aSection[:type] = "list"
 	            cCode = 'aResult + ' + cSection
 	            eval(cCode)
+	            @aTokenIsWord + FALSE
 
 	        else  # string
-	            # Remove quotes
-	            aResult + @StzMid(cSection, 2, stzlen(cSection) - 1)
+	            # Remove quotes -- StzMid is (start, COUNT): keep len-2 chars
+	            aResult + @StzMid(cSection, 2, stzlen(cSection) - 2)
+	            @aTokenIsWord + FALSE
 	        ok
 	    next
 	    
 	    return aResult
 	
+	# Only these SHAPES may be eval'd as list literals: a bracketed
+	# [ ... ] form, or a pure numeric range like 1:5. Prose that
+	# isListInString() mistakes for a range ("note:") is rejected.
+
+	def LooksEvalSafeList(cVal)
+		cVal = trim(cVal)
+		if StzLeft(cVal, 1) = "[" and StzRight(cVal, 1) = "]"
+			return 1
+		ok
+		nPos = StzFindFirst(cVal, ":")
+		if nPos > 1 and nPos < StzLen(cVal)
+			cL = StzLeft(cVal, nPos - 1)
+			cR = StzRight(cVal, StzLen(cVal) - nPos)
+			if isdigit(cL) and isdigit(cR)
+				return 1
+			ok
+		ok
+		return 0
+
+	# Non-overlapping quote pairing: positions 1-2, 3-4, ... form the
+	# quoted sections. An unmatched trailing quote is simply ignored.
+
+	def PairedQuoteSections(cCode, cQuote)
+		aPos = StzFind(cQuote, cCode)
+		aOut = []
+		nLen = len(aPos)
+		k = 1
+		while k + 1 <= nLen
+			aOut + [ aPos[k], aPos[k+1] ]
+			k += 2
+		end
+		return aOut
+
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
 		if len(aLangDef) > 0
@@ -573,12 +622,24 @@ class stzNaturalEngine from stzObject
 		for i = 1 to nLen
 			cValue = @aValues[i]
 		
-			if isString(cValue) and isListInString(cValue)
-				cCode = 'aListValue = ' + cValue
-				eval(cCode)
-				aTokens + [:type = "literal", :value = aListValue]
-				This.AddToDebugLog("List literal parsed: " + stzlen(aListValue) + " items")
-				loop
+			if isString(cValue) and isListInString(cValue) and
+			   This.LooksEvalSafeList(cValue)
+				# isListInString() can false-positive on plain prose
+				# ("note:" reads as range syntax) -- LooksEvalSafeList()
+				# filters those, and if the eval still fails we fall
+				# through to normal word handling instead of dying.
+				bParsed = FALSE
+				try
+					cCode = 'aListValue = ' + cValue
+					eval(cCode)
+					bParsed = TRUE
+				catch
+				done
+				if bParsed
+					aTokens + [:type = "literal", :value = aListValue]
+					This.AddToDebugLog("List literal parsed: " + stzlen(aListValue) + " items")
+					loop
+				ok
 			ok
 			
 
@@ -587,14 +648,44 @@ class stzNaturalEngine from stzObject
 			ok
 			
 			This.AddToDebugLog("Processing: '" + cValue + "'")
-			
+
+			# Provenance: quoted strings and list literals are VALUES --
+			# they are never ignored-word-filtered and never interpreted
+			# ('Create a string with "this"' must keep "this" even though
+			# the bare word this is an ignored word; 'with "show"' must
+			# not become OUTPUT_DISPLAY).
+			bWord = TRUE
+			if len(@aTokenIsWord) >= i
+				bWord = @aTokenIsWord[i]
+			ok
+
+			if NOT bWord
+				aTokens + [:type = "literal", :value = cValue]
+				This.AddToDebugLog("Literal (quoted value)")
+				loop
+			ok
+
 			if This.IsIgnoredWord(cValue)
 				This.AddToDebugLog("Ignored")
 				loop
 			ok
-			
+
 			cSemantic = This.ToSemantic(cValue)
-			
+
+			# Unified-lexicon fallback (natural <-> reflect unification):
+			# a bare WORD the dictionary doesn't know (quoted values never
+			# reach here -- see the provenance branch above -- and value
+			# positions are excluded by FallbackEligible) is resolved
+			# against the shared semantic lexicon built from the dictionary
+			# seed + the _ActionsXT form glossary + the #@ aka tags.
+			if cSemantic = "" and @cLanguage = "en" and
+			   This.FallbackEligible(aTokens)
+				cSemantic = StzResolveSemantic(cValue)
+				if cSemantic != ""
+					This.AddToDebugLog("Unified lexicon: '" + cValue + "' -> " + cSemantic)
+				ok
+			ok
+
 			if cSemantic != ""
 				bLiteral = This.ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
 				
@@ -637,6 +728,38 @@ class stzNaturalEngine from stzObject
 		
 		return 0
 	
+	# May an unknown word at the current position be fallback-resolved to an
+	# action? NO whenever the word sits in a VALUE position: right after an
+	# OBJECT_* (it is the creation value: Create a string with capitals),
+	# right after a VALUE_INDICATOR, or right after a METHOD_* that still
+	# expects parameters (Replace dot with underscore). In all those spots
+	# the word must stay a literal -- resolution would corrupt the program.
+
+	def FallbackEligible(aTokens)
+		nLen = len(aTokens)
+		if nLen = 0
+			return 1	# first token of a block: action position
+		ok
+
+		aLast = aTokens[nLen]
+		if aLast[:type] = "semantic"
+			cVal = aLast[:value]
+
+			if StzLeft(cVal, 7) = "OBJECT_" or cVal = "VALUE_INDICATOR"
+				return 0
+			ok
+
+			if StzLeft(cVal, 7) = "METHOD_"
+				aOp = This.GetSemanticOperation(cVal)
+				if len(aOp) > 0 and HasKey(aOp, :requires_params) and
+				   aOp[:requires_params] > 0
+					return 0
+				ok
+			ok
+		ok
+
+		return 1
+
 	def IsIgnoredWord(cWord)
 		return StzFindFirst(@aIgnoredWords, StzLower(cWord)) > 0
 	
@@ -730,7 +853,7 @@ class stzNaturalEngine from stzObject
 			raise("Unsupported object type!")
 		ok
 
-		cCode = JoinLines(aCodeLines) + StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
+		cCode = JoinXT(aCodeLines, StzChar(10)) + StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
