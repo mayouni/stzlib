@@ -15,7 +15,7 @@ $aLanguageDefinitions = [
 			"being", "decorated", "final", "result", "object", "at",
 			"position", "a", "it", "on", "inside", "very", "much",
 			"thank", "you", "please", "nice",
-			"its", "it's", "of", "me"
+			"its", "it's", "of", "me", "as", "in"
 		],
 		
 		:semantic_mappings = [
@@ -40,6 +40,13 @@ $aLanguageDefinitions = [
 			[:natural = "called", :semantic = "NAME_INDICATOR"],
 			[:natural = "named",  :semantic = "NAME_INDICATOR"],
 			[:natural = "use",    :semantic = "SWITCH_OBJECT"],
+
+			# VALUE binding: 'Keep it as sep' captures the current result
+			# (a query's answer, else the live content) under a name that
+			# later RECALLS as a variable in value/parameter positions
+			[:natural = "keep",     :semantic = "KEEP_INDICATOR"],
+			[:natural = "store",    :semantic = "KEEP_INDICATOR"],
+			[:natural = "remember", :semantic = "KEEP_INDICATOR"],
 			
 			[:natural = "uppercase", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "lowercase", :semantic = "METHOD_LOWERCASE"],
@@ -291,6 +298,8 @@ class stzNaturalEngine from stzObject
 				# the language could not understand (see Unresolved())
 	@aNamedObjects = []	# [ [name, var, type], ... ] -- the multi-object
 				# registry ('called basket' ... 'Use basket')
+	@aNamedValues = []	# [ [name, var], ... ] -- VALUE bindings ('Keep it
+				# as sep'); recalled as variables where values go
 	@aSemanticTokens = []
 	@aConsumedTokens = []	# token indexes already used as values/params
 				# (needed once params may sit BEFORE their verb)
@@ -484,6 +493,7 @@ class stzNaturalEngine from stzObject
 		@aTokenIsWord = []
 		@aUnresolved = []
 		@aNamedObjects = []
+		@aNamedValues = []
 		@aConsumedTokens = []
 		_cCode_ = trim(_cCode_)
 		_aTokens_ = This.SmartSplit(_cCode_)
@@ -842,7 +852,7 @@ class stzNaturalEngine from stzObject
 				catch
 				done
 				if _bParsed_
-					_aTokens_ + [:type = "literal", :value = _aListValue_]
+					_aTokens_ + [:type = "literal", :value = _aListValue_, :word = 0]
 					This.AddToDebugLog("List literal parsed: " + stzlen(_aListValue_) + " items")
 					_i_++
 					loop
@@ -866,7 +876,7 @@ class stzNaturalEngine from stzObject
 			ok
 
 			if NOT _bWord_
-				_aTokens_ + [:type = "literal", :value = _cValue_]
+				_aTokens_ + [:type = "literal", :value = _cValue_, :word = 0]
 				This.AddToDebugLog("Literal (quoted value)")
 				_i_++
 				loop
@@ -922,14 +932,14 @@ class stzNaturalEngine from stzObject
 				_bLiteral_ = This.ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
 
 				if _bLiteral_
-					_aTokens_ + [:type = "literal", :value = _cValue_]
+					_aTokens_ + [:type = "literal", :value = _cValue_, :word = 1]
 					This.AddToDebugLog("Literal (context)")
 				else
 					_aTokens_ + [:type = "semantic", :value = _cSemantic_, :original = _cValue_]
 					This.AddToDebugLog("Semantic: " + _cSemantic_)
 				ok
 			else
-				_aTokens_ + [:type = "literal", :value = _cValue_]
+				_aTokens_ + [:type = "literal", :value = _cValue_, :word = 1]
 				This.AddToDebugLog("Literal")
 				# UNDERSTANDABILITY: an action-position word nobody
 				# understood -- report it, with the nearest known
@@ -962,7 +972,8 @@ class stzNaturalEngine from stzObject
 			# AFTER the indicator is ordinary -- no forcing there.
 			if ( _aLast_[:value] = "VALUE_INDICATOR" and @bObjectBeforeCreate = 0 ) or
 			   _aLast_[:value] = "NAME_INDICATOR" or
-			   _aLast_[:value] = "SWITCH_OBJECT"
+			   _aLast_[:value] = "SWITCH_OBJECT" or
+			   _aLast_[:value] = "KEEP_INDICATOR"
 				return 1
 			ok
 		ok
@@ -998,7 +1009,8 @@ class stzNaturalEngine from stzObject
 
 			if StzLeft(_cVal_, 7) = "OBJECT_" or
 			   ( _cVal_ = "VALUE_INDICATOR" and @bObjectBeforeCreate = 0 ) or
-			   _cVal_ = "NAME_INDICATOR" or _cVal_ = "SWITCH_OBJECT"
+			   _cVal_ = "NAME_INDICATOR" or _cVal_ = "SWITCH_OBJECT" or
+			   _cVal_ = "KEEP_INDICATOR"
 				return 0
 			ok
 
@@ -1049,6 +1061,7 @@ class stzNaturalEngine from stzObject
 		# consumption tracking is per-GENERATION (Code() regenerates)
 		@aConsumedTokens = []
 		@aNamedObjects = []
+		@aNamedValues = []
 
 		_i_ = 1
 
@@ -1097,6 +1110,21 @@ class stzNaturalEngine from stzObject
 				but _cSemantic_ = "SWITCH_OBJECT"
 					# 'Use basket': the named object becomes the live one
 					_i_ = This.ProcessObjectSwitch(_i_)
+
+				but _cSemantic_ = "KEEP_INDICATOR"
+					# 'Keep it as sep': bind the current result -- the
+					# last query's answer if one just ran, else the live
+					# object's content -- to a named VALUE variable
+					_bQ_ = FALSE
+					_nCL2_ = len(_aCodeLines_)
+					if _nCL2_ > 0 and StzLeft(_aCodeLines_[_nCL2_], 10) = "@result = "
+						_bQ_ = TRUE
+					ok
+					_aResult_ = This.ProcessValueKeep(_i_, _bQ_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
+					ok
+					_i_ = _aResult_[:next_index]
 
 				but StzLeft(_cSemantic_, 7) = "METHOD_"
 					_aResult_ = This.ProcessMethod(_i_, _cSemantic_)
@@ -1148,6 +1176,7 @@ class stzNaturalEngine from stzObject
 		_nLen_ = len(@aSemanticTokens)
 		_cObjectType_ = ""
 		_cValue_ = ""
+		_cValRef_ = ""
 		_nNextIndex_ = nIndex + 1
 
 		if @bObjectBeforeCreate = 1
@@ -1167,6 +1196,7 @@ class stzNaturalEngine from stzObject
 				if _aNextToken_[:type] = "literal" and
 				   ring_find(@aConsumedTokens, _j_) = 0
 					_cValue_ = _aNextToken_[:value]
+					_cValRef_ = This.ValueRefOf(_aNextToken_)
 					@aConsumedTokens + _j_
 					exit
 				ok
@@ -1182,6 +1212,7 @@ class stzNaturalEngine from stzObject
 						_aNextToken_ = @aSemanticTokens[_j_]
 						if _aNextToken_[:type] = "literal"
 							_cValue_ = _aNextToken_[:value]
+							_cValRef_ = This.ValueRefOf(_aNextToken_)
 							@aConsumedTokens + _j_
 							_nNextIndex_ = _j_ + 1
 							exit 2
@@ -1199,7 +1230,10 @@ class stzNaturalEngine from stzObject
 				@cCurrentVariable = _aOp_[:variable]
 				_cConstructor_ = _aOp_[:constructor]
 				
-				if isListInString(_cValue_)
+				if _cValRef_ != ""
+					# a RECALLED value: construct from the bound variable
+					_cConstructor_ = StzReplace(_cConstructor_, "@", _cValRef_)
+				but isListInString(_cValue_)
 					_cConstructor_ = StzReplace(_cConstructor_, "@", _cValue_)
 				else
 
@@ -1271,6 +1305,56 @@ class stzNaturalEngine from stzObject
 		next
 		return nIndex + 1
 
+	# 'Keep it as <name>': bind the current result to a VALUE variable.
+	# pbFromQuery says whether a query line just set @result.
+
+	def ProcessValueKeep(nIndex, pbFromQuery)
+		_nLen_ = len(@aSemanticTokens)
+		for _k_ = nIndex + 1 to _nLen_
+			_aToken_ = @aSemanticTokens[_k_]
+			if _aToken_[:type] = "literal" and isString(_aToken_[:value])
+				_cName_ = StzLower(trim(_aToken_[:value]))
+				if _cName_ = "" or trim(@cCurrentVariable) = ""
+					exit
+				ok
+				_cVar_ = This.SanitizedName(_cName_)
+				if _cVar_ != ""
+					_cVar_ = "v_" + _cVar_
+				else
+					_cVar_ = "v_value" + (len(@aNamedValues) + 1)
+				ok
+				@aNamedValues + [ _cName_, _cVar_ ]
+				if pbFromQuery
+					_cBind_ = _cVar_ + " = @result"
+				else
+					_cBind_ = _cVar_ + " = " + @cCurrentVariable + ".Content()"
+				ok
+				This.AddToDebugLog("Kept value: " + _cName_ + " -> " + _cVar_)
+				return [:code = _cBind_, :next_index = _k_ + 1]
+			ok
+			exit
+		next
+		return [:code = "", :next_index = nIndex + 1]
+
+	# RECALL: the bound variable for a literal token, or "" -- only bare
+	# WORDS recall (a quoted 'sep' is data, never a reference).
+
+	def ValueRefOf(paToken)
+		if paToken[:type] != "literal" or NOT isString(paToken[:value])
+			return ""
+		ok
+		if NOT ( HasKey(paToken, :word) and paToken[:word] = 1 )
+			return ""
+		ok
+		_cName_ = StzLower(trim(paToken[:value]))
+		_nReg_ = len(@aNamedValues)
+		for _r_ = 1 to _nReg_
+			if @aNamedValues[_r_][1] = _cName_
+				return @aNamedValues[_r_][2]
+			ok
+		next
+		return ""
+
 	def SanitizedName(_cValue_)
 		_cOut_ = ""
 		_cLow_ = StzLower(trim(_cValue_))
@@ -1333,7 +1417,11 @@ class stzNaturalEngine from stzObject
 
 			for _i_ = 1 to _nLen_
 				_cPlaceholder_ = "@param" + _i_
-				if isString(_aParams_[_i_])
+				if isList(_aParams_[_i_]) and len(_aParams_[_i_]) = 2 and
+				   _aParams_[_i_][1] = char(2)
+					# a RECALLED value: emit the bound variable itself
+					_cParamValue_ = _aParams_[_i_][2]
+				but isString(_aParams_[_i_])
 					_cParamValue_ = '"' + _aParams_[_i_] + '"'
 				but isList(_aParams_[_i_])
 					_cParamValue_ = @@(_aParams_[_i_])
@@ -1373,7 +1461,12 @@ class stzNaturalEngine from stzObject
 			ok
 
 			if _aToken_[:type] = "literal"
-				_aParams_ + _aToken_[:value]
+				_cRef_ = This.ValueRefOf(_aToken_)
+				if _cRef_ != ""
+					_aParams_ + [ char(2), _cRef_ ]
+				else
+					_aParams_ + _aToken_[:value]
+				ok
 				@aConsumedTokens + _i_
 				if len(_aParams_) = nParamCount
 					exit
@@ -1408,7 +1501,12 @@ class stzNaturalEngine from stzObject
 			ok
 			if _aToken_[:type] = "literal" and
 			   ring_find(@aConsumedTokens, _i_) = 0
-				_aFound_ + [ _i_, _aToken_[:value] ]
+				_cRef_ = This.ValueRefOf(_aToken_)
+				if _cRef_ != ""
+					_aFound_ + [ _i_, [ char(2), _cRef_ ] ]
+				else
+					_aFound_ + [ _i_, _aToken_[:value] ]
+				ok
 			ok
 		next
 		# _aFound_ is reverse-textual: keep the FIRST nParamCount found

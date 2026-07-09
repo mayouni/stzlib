@@ -36,7 +36,7 @@ StzAddNaturalLanguage([
 		"ces", "sa", "ses", "son", "moi", "lui", "elle", "il",
 		"y", "a", "au", "aux", "mets", "met", "mettre", "par",
 		"pour", "est", "sont", "doit", "merci", "stp", "svp",
-		"donne", "donnez", "montre-moi"
+		"donne", "donnez", "montre-moi", "comme"
 	],
 
 	:semantic_mappings = [
@@ -61,6 +61,8 @@ StzAddNaturalLanguage([
 		[:natural = "nommee",     :semantic = "NAME_INDICATOR"],
 		[:natural = "utilise",    :semantic = "SWITCH_OBJECT"],
 		[:natural = "prends",     :semantic = "SWITCH_OBJECT"],
+		[:natural = "garde",      :semantic = "KEEP_INDICATOR"],
+		[:natural = "conserve",   :semantic = "KEEP_INDICATOR"],
 
 		[:natural = "majuscule",  :semantic = "METHOD_UPPERCASE"],
 		[:natural = "majuscules", :semantic = "METHOD_UPPERCASE"],
@@ -138,7 +140,7 @@ StzAddNaturalLanguage([
 	:ignored_words = [
 		"و", "ثم", "من", "في", "على", "إلى", "الى", "يا", "هذه",
 		"هذا", "لو", "سمحت", "رجاء", "هل", "هي", "هو", "ها",
-		"القائمة", "السلسلة", "النص", "العدد"
+		"القائمة", "السلسلة", "النص", "العدد", "باسم"
 	],
 
 	:semantic_mappings = [
@@ -170,6 +172,8 @@ StzAddNaturalLanguage([
 		[:natural = "سمّها",   :semantic = "NAME_INDICATOR"],
 		[:natural = "استخدم",  :semantic = "SWITCH_OBJECT"],
 		[:natural = "خذ",      :semantic = "SWITCH_OBJECT"],
+		[:natural = "احفظ",    :semantic = "KEEP_INDICATOR"],
+		[:natural = "احفظها",  :semantic = "KEEP_INDICATOR"],
 
 		[:natural = "اعكس",    :semantic = "METHOD_REVERSE"],
 		[:natural = "اقلب",    :semantic = "METHOD_REVERSE"],
