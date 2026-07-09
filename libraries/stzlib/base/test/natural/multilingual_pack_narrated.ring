@@ -75,6 +75,16 @@ Scenario("Arabic is LINGUISTICALLY CORRECT, not transliterated English")
 	ol4 = NaturallyIn("ar", "أنشئ قائمة مع [ 7, 7, 2 ] حذف المكررات")
 	Then("hadhf al-mukarrarat (verb variant + article form)",
 		@@( ol4.Result() ), @@([ 7, 2 ]))
+
+	# iqlib is the alternative of i3kis for reversal -- and gender
+	# agreement holds: -ha on the feminine list, -hu on the masculine text
+	ol5 = NaturallyIn("ar", "أنشئ قائمة بـ [ 1, 2, 3 ] ثم اقلبها")
+	Then("iqlib-ha: the reversal verb alternative, feminine suffix",
+		@@( ol5.Result() ), @@([ 3, 2, 1 ]))
+
+	ol6 = NaturallyIn("ar", "أنشئ نصا بـ 'ring' ثم اقلبه")
+	Then("iqlib-hu: same verb, masculine suffix on the text object",
+		ol6.Result(), "gnir")
 EndScenario()
 
 Scenario("French elision generalizes through the same canonicalizer")
