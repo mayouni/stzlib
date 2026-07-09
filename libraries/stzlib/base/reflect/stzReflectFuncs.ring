@@ -1545,11 +1545,23 @@ func _StzArrowExamples(pcContent)
 	next
 	return _aOut_
 
-# The persisted example-index cache path (under doc/, gitignored via *.stzcache).
-func _StzExampleCachePath()
+# The reflect-owned cache directory (reflect artifacts live WITH the module,
+# not under doc/). Created on demand; gitignored via *.stzcache.
+func _StzReflectCacheDir()
 	_cB_ = _StzBaseDir()
 	if _cB_ = "" return "" ok
-	return _cB_ + "/doc/reflect_example_index.stzcache"
+	_cDir_ = _cB_ + "/reflect/cache"
+	try
+		StzMakeDir(_cDir_)
+	catch
+	done
+	return _cDir_
+
+# The persisted example-index cache path.
+func _StzExampleCachePath()
+	_cD_ = _StzReflectCacheDir()
+	if _cD_ = "" return "" ok
+	return _cD_ + "/reflect_example_index.stzcache"
 
 # Load the index from the cache IF its signature matches nSig (the current test
 # file count). Returns TRUE on a valid load. Any malformed/stale/missing cache ->
@@ -1604,9 +1616,9 @@ func _StzSaveExampleCache(nSig)
 # method order (the signature guarantees the set+order match), so no names needed.
 
 func _StzEmbCachePath(pcClass)
-	_cB_ = _StzBaseDir()
-	if _cB_ = "" return "" ok
-	return _cB_ + "/doc/.emb_" + lower(pcClass) + ".stzcache"
+	_cD_ = _StzReflectCacheDir()
+	if _cD_ = "" return "" ok
+	return _cD_ + "/.emb_" + lower(pcClass) + ".stzcache"
 
 # Cheap signature of the retrieval texts: count + total length + first-char sum.
 # Any aka/intent edit changes a length -> the cache invalidates and re-embeds.

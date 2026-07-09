@@ -14,7 +14,8 @@ $aLanguageDefinitions = [
 			"plus", "with", "using", "to", "by", "containing", "be",
 			"being", "decorated", "final", "result", "object", "at",
 			"position", "a", "it", "on", "inside", "very", "much",
-			"thank", "you", "please", "nice"
+			"thank", "you", "please", "nice",
+			"its", "it's", "of", "me"
 		],
 		
 		:semantic_mappings = [
@@ -577,9 +578,24 @@ class stzNaturalEngine from stzObject
 
 	# Non-overlapping quote pairing: positions 1-2, 3-4, ... form the
 	# quoted sections. An unmatched trailing quote is simply ignored.
+	# An apostrophe with a LETTER on both sides is part of a word
+	# ("it's", "don't"), not a string delimiter.
 
 	def PairedQuoteSections(cCode, cQuote)
-		aPos = StzFind(cQuote, cCode)
+		aRaw = StzFind(cQuote, cCode)
+		aPos = []
+		nRaw = len(aRaw)
+		nStrLen = StzLen(cCode)
+		for k = 1 to nRaw
+			p = aRaw[k]
+			if p > 1 and p < nStrLen
+				if isalpha(StzMid(cCode, p - 1, 1)) and
+				   isalpha(StzMid(cCode, p + 1, 1))
+					loop	# contraction, keep it inside the word
+				ok
+			ok
+			aPos + p
+		next
 		aOut = []
 		nLen = len(aPos)
 		k = 1
@@ -588,6 +604,82 @@ class stzNaturalEngine from stzObject
 			k += 2
 		end
 		return aOut
+
+	# A word without clinging trailing punctuation ("empty?" -> "empty").
+
+	def StripEdgePunct(cWord)
+		if NOT isString(cWord)
+			return cWord
+		ok
+		cW = trim(cWord)
+		while StzLen(cW) > 0 and
+		      ring_find([ "?", "!", ".", ",", ";", ":" ], StzRight(cW, 1)) > 0
+			cW = StzLeft(cW, StzLen(cW) - 1)
+		end
+		return cW
+
+	# MULTI-WORD PHRASE resolution: head word + up to two following
+	# content words (ignored words skipped), longest EXACT method-name
+	# join wins -- "remove [its] duplicates" -> removeduplicates,
+	# "is [it] empty" -> isempty. Returns [ semanticId, nextIndex,
+	# matchedPhrase ] or [ "", 0, "" ]. Only consulted when at least one
+	# word is dictionary-unknown, so pure-dictionary programs never pay
+	# the lazy lexicon growth.
+
+	def PhraseResolve(nStart)
+		aWords = [ lower(This.StripEdgePunct(@aValues[nStart])) ]
+		aEnds = [ nStart ]
+		nLen = len(@aValues)
+		j = nStart + 1
+		while j <= nLen and len(aWords) < 3 and (j - nStart) <= 4
+			if NOT ( len(@aTokenIsWord) >= j and @aTokenIsWord[j] = TRUE )
+				exit
+			ok
+			if NOT isString(@aValues[j])
+				exit
+			ok
+			cW = lower(This.StripEdgePunct(@aValues[j]))
+			if This.IsIgnoredWord(cW)
+				j++
+				loop
+			ok
+			aWords + cW
+			aEnds + j
+			j++
+		end
+
+		nW = len(aWords)
+		if nW < 2
+			return [ "", 0, "" ]
+		ok
+
+		bUnknown = FALSE
+		for k = 1 to nW
+			if This.ToSemantic(aWords[k]) = ""
+				bUnknown = TRUE
+				exit
+			ok
+		next
+		if NOT bUnknown
+			return [ "", 0, "" ]
+		ok
+
+		for n = nW to 2 step -1
+			cJoin = ""
+			cShown = ""
+			for k = 1 to n
+				cJoin += aWords[k]
+				cShown += aWords[k]
+				if k < n
+					cShown += " "
+				ok
+			next
+			cId = StzSemanticExactId(cJoin)
+			if cId != ""
+				return [ cId, aEnds[n] + 1, cShown ]
+			ok
+		next
+		return [ "", 0, "" ]
 
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
@@ -624,10 +716,11 @@ class stzNaturalEngine from stzObject
 
 		nLen = len(@aValues)
 		This.AddToDebugLog("Converting to semantic tokens")
-		
-		for i = 1 to nLen
+
+		i = 1
+		while i <= nLen
 			cValue = @aValues[i]
-		
+
 			if isString(cValue) and isListInString(cValue) and
 			   This.LooksEvalSafeList(cValue)
 				# isListInString() can false-positive on plain prose
@@ -644,15 +737,15 @@ class stzNaturalEngine from stzObject
 				if bParsed
 					aTokens + [:type = "literal", :value = aListValue]
 					This.AddToDebugLog("List literal parsed: " + stzlen(aListValue) + " items")
+					i++
 					loop
 				ok
 			ok
-			
 
 			if NOT isString(cValue)
 				cValue = @@(cValue)
 			ok
-			
+
 			This.AddToDebugLog("Processing: '" + cValue + "'")
 
 			# Provenance: quoted strings and list literals are VALUES --
@@ -668,15 +761,36 @@ class stzNaturalEngine from stzObject
 			if NOT bWord
 				aTokens + [:type = "literal", :value = cValue]
 				This.AddToDebugLog("Literal (quoted value)")
+				i++
 				loop
 			ok
 
-			if This.IsIgnoredWord(cValue)
+			# interpretation looks at the word without clinging
+			# punctuation ("empty?" reads as "empty")
+			cCheck = This.StripEdgePunct(cValue)
+
+			# MULTI-WORD PHRASE resolution (longest exact match first):
+			# "Remove its duplicates" -> removeduplicates, "Uppercase the
+			# substring" -> uppercasesubstring, "Is it empty" -> isempty.
+			# Deterministic (exact method-name joins only), and value
+			# positions are excluded by the same FallbackEligible guard.
+			if @cLanguage = "en" and This.FallbackEligible(aTokens)
+				aPh = This.PhraseResolve(i)
+				if aPh[1] != ""
+					aTokens + [:type = "semantic", :value = aPh[1], :original = aPh[3]]
+					This.AddToDebugLog("Phrase: '" + aPh[3] + "' -> " + aPh[1])
+					i = aPh[2]
+					loop
+				ok
+			ok
+
+			if This.IsIgnoredWord(cCheck)
 				This.AddToDebugLog("Ignored")
+				i++
 				loop
 			ok
 
-			cSemantic = This.ToSemantic(cValue)
+			cSemantic = This.ToSemantic(cCheck)
 
 			# Unified-lexicon fallback (natural <-> reflect unification):
 			# a bare WORD the dictionary doesn't know (quoted values never
@@ -686,15 +800,15 @@ class stzNaturalEngine from stzObject
 			# seed + the _ActionsXT form glossary + the #@ aka tags.
 			if cSemantic = "" and @cLanguage = "en" and
 			   This.FallbackEligible(aTokens)
-				cSemantic = StzResolveSemantic(cValue)
+				cSemantic = StzResolveSemantic(cCheck)
 				if cSemantic != ""
-					This.AddToDebugLog("Unified lexicon: '" + cValue + "' -> " + cSemantic)
+					This.AddToDebugLog("Unified lexicon: '" + cCheck + "' -> " + cSemantic)
 				ok
 			ok
 
 			if cSemantic != ""
 				bLiteral = This.ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
-				
+
 				if bLiteral
 					aTokens + [:type = "literal", :value = cValue]
 					This.AddToDebugLog("Literal (context)")
@@ -706,8 +820,9 @@ class stzNaturalEngine from stzObject
 				aTokens + [:type = "literal", :value = cValue]
 				This.AddToDebugLog("Literal")
 			ok
-		next
-		
+			i++
+		end
+
 		return aTokens
 	
 	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
@@ -859,7 +974,14 @@ class stzNaturalEngine from stzObject
 			raise("Unsupported object type!")
 		ok
 
-		cCode = JoinXT(aCodeLines, StzChar(10)) + StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
+		# the natural contract for @result: the last thing produced. A
+		# trailing QUERY line already set it; otherwise it is the live
+		# object's final content.
+		cCode = JoinXT(aCodeLines, StzChar(10))
+		nCL = len(aCodeLines)
+		if NOT ( nCL > 0 and StzLeft(aCodeLines[nCL], 10) = "@result = " )
+			cCode += StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
+		ok
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
@@ -946,6 +1068,14 @@ class stzNaturalEngine from stzObject
 		ok
 
 		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
+
+		# QUERY operations (passive / predicate forms) RETURN a value
+		# instead of mutating: their call becomes the current @result
+		# ("Is it empty", "its Reversed copy"). If a query is the LAST
+		# step, @result keeps its value (see GenerateCodeFromSemantics).
+		if HasKey(aOp, :kind) and aOp[:kind] = "query"
+			cCode = "@result = " + cCode
+		ok
 
 		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
