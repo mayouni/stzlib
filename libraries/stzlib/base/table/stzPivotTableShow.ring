@@ -10,7 +10,7 @@ Class TableDisplayConfig
     # Container for all configuration and dynamic calculations
     
     # Basic display settings
-    _aSettings_ = [
+    aSettings = [
         :MinCellWidth         = 5,    # Minimum width for any cell
         :MaxCellWidth         = 20,   # Maximum width for data cells
         :MaxHeaderWidth       = 30,   # Maximum width for header cells
@@ -28,7 +28,7 @@ Class TableDisplayConfig
     ]
     
     # Content-specific measurements (calculated dynamically)
-    _aContentDimensions_ = [
+    aContentDimensions = [
         :RowLabels         = [],   # Width measurements for row labels
         :ColumnDimValues   = [],   # Lists of dimension values for columns
         :ColumnHeaders     = [],   # Width measurements for column headers
@@ -38,7 +38,7 @@ Class TableDisplayConfig
     ]
     
     # Final calculated dimensions (used for rendering)
-    _aCalculatedLayout_ = [
+    aCalculatedLayout = [
         :RowLabelWidths      = [],   # Final widths for row label columns
         :DataColumnWidths    = [],   # Final widths for data columns (by dimension)
         :TotalColumnWidth    = 0,    # Final width for total column
@@ -50,7 +50,7 @@ Class TableDisplayConfig
     ]
     
     # Separators and decorators
-    _aDecorators_ = [
+    aDecorators = [
         :RowLabelSeparator   = " | ", # Separator between row labels
         :CellSeparator       = " │ ", # Separator between cells
         :BorderChars = [
@@ -69,19 +69,19 @@ Class TableDisplayConfig
     ]
     
     # Data/formatting references
-    _aPivotData_ = []        # Reference to pivot table data
-    _aRowLabels_ = []        # Row dimension labels
-    _aColLabels_ = []        # Column dimension labels
-    _cTotalLabel_ = ""       # Label used for totals
-    _bShowTotalRow_ = true   # Whether to show totals row
-    _bShowTotalColumn_ = true # Whether to show totals column
+    aPivotData = []        # Reference to pivot table data
+    aRowLabels = []        # Row dimension labels
+    aColLabels = []        # Column dimension labels
+    cTotalLabel = ""       # Label used for totals
+    bShowTotalRow = true   # Whether to show totals row
+    bShowTotalColumn = true # Whether to show totals column
     
     # Initialize with pivot table data
     func init(aPivotTable, aRowDims, aColDims, cTotalLbl)
-        _aPivotData_ = aPivotTable
-        _aRowLabels_ = aRowDims
-        _aColLabels_ = aColDims
-        _cTotalLabel_ = cTotalLbl
+        aPivotData = aPivotTable
+        aRowLabels = aRowDims
+        aColLabels = aColDims
+        cTotalLabel = cTotalLbl
         
         # Perform initial measurements
         MeasureContentDimensions()
@@ -90,31 +90,31 @@ Class TableDisplayConfig
     
     # 1. Measure all content to determine natural sizes
     func MeasureContentDimensions()
-        _aContentDimensions_[:RowLabels] = []
-        _aContentDimensions_[:ColumnDimValues] = []
-        _aContentDimensions_[:ColumnHeaders] = []
-        _aContentDimensions_[:DataCells] = []
-        _aContentDimensions_[:TotalLabels] = []
-        _aContentDimensions_[:TotalCells] = []
+        aContentDimensions[:RowLabels] = []
+        aContentDimensions[:ColumnDimValues] = []
+        aContentDimensions[:ColumnHeaders] = []
+        aContentDimensions[:DataCells] = []
+        aContentDimensions[:TotalLabels] = []
+        aContentDimensions[:TotalCells] = []
         
         # 1.1 Analyze row labels
-        _nRowLabelsLen_2 = len(_aRowLabels_)
+        _nRowLabelsLen_2 = len(aRowLabels)
         for i = 1 to _nRowLabelsLen_2
-            _cLabel_ = _aRowLabels_[i]
+            _cLabel_ = aRowLabels[i]
             _nWidth_ = StzLen(_cLabel_)
             
             # Find max width of actual data in this column
             _nMaxDataWidth_ = _nWidth_
-            _nPivotDataLen_5 = len(_aPivotData_)
+            _nPivotDataLen_5 = len(aPivotData)
             for r = 2 to _nPivotDataLen_5
-                _nValueWidth_ = StzLen(_aPivotData_[r][i])
+                _nValueWidth_ = StzLen(aPivotData[r][i])
                 if _nValueWidth_ > _nMaxDataWidth_
                     _nMaxDataWidth_ = _nValueWidth_
                 ok
             next
             
             # Store both label width and max content width
-            add(_aContentDimensions_[:RowLabels], [
+            add(aContentDimensions[:RowLabels], [
                 :label = _cLabel_,
                 :labelWidth = _nWidth_,
                 :maxContentWidth = _nMaxDataWidth_,
@@ -124,13 +124,13 @@ Class TableDisplayConfig
         
         # 1.2 Extract and measure column dimension values
         _aColumnValues_ = GetUniqueColumnDimensionValues()
-        _aContentDimensions_[:ColumnDimValues] = _aColumnValues_
+        aContentDimensions[:ColumnDimValues] = _aColumnValues_
         
         # 1.3 Measure column headers
         _aColumnHeaders_ = []
-        _nColLabelsLen_ = len(_aColLabels_)
+        _nColLabelsLen_ = len(aColLabels)
         for i = 1 to _nColLabelsLen_
-            _cLabel_ = _aColLabels_[i]
+            _cLabel_ = aColLabels[i]
             _nWidth_ = StzLen(_cLabel_)
             
             # For each value in this dimension, measure width
@@ -149,24 +149,24 @@ Class TableDisplayConfig
                 :width = _nWidth_
             ])
         next
-        _aContentDimensions_[:ColumnHeaders] = _aColumnHeaders_
+        aContentDimensions[:ColumnHeaders] = _aColumnHeaders_
         
         # 1.4 Measure data cells
         # Create a map to store maximum width for each column combination
         _aDataWidths_ = []
         
         # Process all data rows
-        _nPivotDataLen_4 = len(_aPivotData_)
+        _nPivotDataLen_4 = len(aPivotData)
         for r = 2 to _nPivotDataLen_4 - 1  # Skip header and total rows
-            _nPivotData1Len_4 = len(_aPivotData_[1])
-            for c = len(_aRowLabels_) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
-                _cHeader_ = _aPivotData_[1][c]
-                if _cHeader_ = _cTotalLabel_  # Skip total columns
+            _nPivotData1Len_4 = len(aPivotData[1])
+            for c = len(aRowLabels) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
+                _cHeader_ = aPivotData[1][c]
+                if _cHeader_ = cTotalLabel  # Skip total columns
                     loop
                 ok
                 
                 # Get the cell value and measure it
-                _cValue_ = "" + _aPivotData_[r][c]
+                _cValue_ = "" + aPivotData[r][c]
                 _nWidth_ = StzLen(_cValue_)
                 
                 # Store in our map with the header as key
@@ -182,22 +182,22 @@ Class TableDisplayConfig
             next
         next
         
-        _aContentDimensions_[:DataCells] = _aDataWidths_
+        aContentDimensions[:DataCells] = _aDataWidths_
         
         # 1.5 Measure total labels and cells
-        _nTotalLabelWidth_ = StzLen(_cTotalLabel_)
-        _aContentDimensions_[:TotalLabels] = [
-            :label = _cTotalLabel_,
+        _nTotalLabelWidth_ = StzLen(cTotalLabel)
+        aContentDimensions[:TotalLabels] = [
+            :label = cTotalLabel,
             :width = _nTotalLabelWidth_
         ]
         
         # Measure total cells (rightmost column)
         _nMaxTotalWidth_ = 0
-        if _bShowTotalColumn_
-            _nPivotDataLen_3 = len(_aPivotData_)
+        if bShowTotalColumn
+            _nPivotDataLen_3 = len(aPivotData)
             for r = 2 to _nPivotDataLen_3
-                _nCol_ = len(_aPivotData_[r])
-                _cValue_ = "" + _aPivotData_[r][_nCol_]
+                _nCol_ = len(aPivotData[r])
+                _cValue_ = "" + aPivotData[r][_nCol_]
                 _nWidth_ = StzLen(_cValue_)
                 
                 if _nWidth_ > _nMaxTotalWidth_
@@ -206,14 +206,14 @@ Class TableDisplayConfig
             next
         ok
         
-        _aContentDimensions_[:TotalCells] = [
+        aContentDimensions[:TotalCells] = [
             :width = _nMaxTotalWidth_
         ]
     
     # Helper: Get unique values for each column dimension
     func GetUniqueColumnDimensionValues()
         _aResult_ = []
-        _nColLabelCount_ = len(_aColLabels_)
+        _nColLabelCount_ = len(aColLabels)
         
         # Initialize arrays for each dimension
         for i = 1 to _nColLabelCount_
@@ -223,12 +223,12 @@ Class TableDisplayConfig
         # Extract unique values for each column dimension
         for i = 1 to _nColLabelCount_
             _aUnique_ = []
-            _nPivotDataLen_2 = len(_aPivotData_)
+            _nPivotDataLen_2 = len(aPivotData)
             for r = 2 to _nPivotDataLen_2
-                _nPivotData1Len_3 = len(_aPivotData_[1])
-                for c = len(_aRowLabels_) + 1 to _nPivotData1Len_3
-                    _cHeader_ = _aPivotData_[1][c]
-                    if _cHeader_ = _cTotalLabel_
+                _nPivotData1Len_3 = len(aPivotData[1])
+                for c = len(aRowLabels) + 1 to _nPivotData1Len_3
+                    _cHeader_ = aPivotData[1][c]
+                    if _cHeader_ = cTotalLabel
                         loop
                     ok
                     
@@ -249,38 +249,38 @@ Class TableDisplayConfig
         _aFinalRowWidths_ = []
         _nRowLabelSectionWidth_ = 0
         
-        _nContentDimensionsRowLabelsLen_ = len(_aContentDimensions_[:RowLabels])
+        _nContentDimensionsRowLabelsLen_ = len(aContentDimensions[:RowLabels])
         for i = 1 to _nContentDimensionsRowLabelsLen_
-            _item_ = _aContentDimensions_[:RowLabels][i]
+            _item_ = aContentDimensions[:RowLabels][i]
             
             # Calculate width with growth ratio and constraints
             _nWidth_ = max([ _item_[:labelWidth], _item_[:maxContentWidth] ])
-            _nWidth_ = ceil(_nWidth_ * _aSettings_[:RowLabelGrowthRatio])
+            _nWidth_ = ceil(_nWidth_ * aSettings[:RowLabelGrowthRatio])
             
             # Apply min/max constraints
-            _nWidth_ = max([ _nWidth_, _aSettings_[:MinCellWidth] ])
-            _nWidth_ = min([ _nWidth_, _aSettings_[:MaxHeaderWidth] ])
+            _nWidth_ = max([ _nWidth_, aSettings[:MinCellWidth] ])
+            _nWidth_ = min([ _nWidth_, aSettings[:MaxHeaderWidth] ])
             
             # Update item's final width
-            _aContentDimensions_[:RowLabels][i][:finalWidth] = _nWidth_
+            aContentDimensions[:RowLabels][i][:finalWidth] = _nWidth_
             add(_aFinalRowWidths_, _nWidth_)
             
             # Add to section width (including separators)
             _nRowLabelSectionWidth_ += _nWidth_
-            if i < len(_aContentDimensions_[:RowLabels])
-                _nRowLabelSectionWidth_ += StzLen(_aDecorators_[:RowLabelSeparator])
+            if i < len(aContentDimensions[:RowLabels])
+                _nRowLabelSectionWidth_ += StzLen(aDecorators[:RowLabelSeparator])
             ok
         next
         
-        _aCalculatedLayout_[:RowLabelWidths] = _aFinalRowWidths_
-        _aCalculatedLayout_[:RowLabelSectionWidth] = _nRowLabelSectionWidth_
+        aCalculatedLayout[:RowLabelWidths] = _aFinalRowWidths_
+        aCalculatedLayout[:RowLabelSectionWidth] = _nRowLabelSectionWidth_
         
         # 2.2 Calculate data column widths based on dimension combinations
         _aFinalDataWidths_ = []
         _aDimWidthSums_ = []  # Width sums for each primary dimension group
         
         # Get dimension values
-        _aColDimValues_ = _aContentDimensions_[:ColumnDimValues]
+        _aColDimValues_ = aContentDimensions[:ColumnDimValues]
         
         # Create a map for each dimension combination
         _aColDimValues16_ = _aColDimValues_[1]
@@ -296,18 +296,18 @@ Class TableDisplayConfig
                 _cKey_ = _dim1_ + "|" + _dim2_
                 
                 # Get measured content width or minimum width
-                _nWidth_ = _aSettings_[:MinCellWidth]
-                if @IsHashList(_aContentDimensions_[:DataCells][_cKey_])
-                    _nWidth_ = _aContentDimensions_[:DataCells][_cKey_]
+                _nWidth_ = aSettings[:MinCellWidth]
+                if @IsHashList(aContentDimensions[:DataCells][_cKey_])
+                    _nWidth_ = aContentDimensions[:DataCells][_cKey_]
                 ok
                 
                 # Apply growth ratio and constraints
-                _nWidth_ = ceil(_nWidth_ * _aSettings_[:CellGrowthRatio])
-                _nWidth_ = max([ _nWidth_, _aSettings_[:MinCellWidth] ])
-                _nWidth_ = min([ _nWidth_, _aSettings_[:MaxCellWidth] ])
+                _nWidth_ = ceil(_nWidth_ * aSettings[:CellGrowthRatio])
+                _nWidth_ = max([ _nWidth_, aSettings[:MinCellWidth] ])
+                _nWidth_ = min([ _nWidth_, aSettings[:MaxCellWidth] ])
                 
                 # Add padding on both sides
-                _nPaddedWidth_ = _nWidth_ + (2 * _aSettings_[:DefaultPadding])
+                _nPaddedWidth_ = _nWidth_ + (2 * aSettings[:DefaultPadding])
                 
                 # Store the final width
                 if !@IsHashList(_aFinalDataWidths_[_cKey_])
@@ -327,26 +327,26 @@ Class TableDisplayConfig
             add(_aDimWidthSums_, _nGroupWidth_)
         next
         
-        _aCalculatedLayout_[:DataColumnWidths] = _aFinalDataWidths_
+        aCalculatedLayout[:DataColumnWidths] = _aFinalDataWidths_
         
         # 2.3 Calculate total column width
         _nTotalColumnWidth_ = 0
-        if _bShowTotalColumn_
+        if bShowTotalColumn
             _nWidth_ = max([
-                _aContentDimensions_[:TotalLabels][:width],
-                _aContentDimensions_[:TotalCells][:width]
+                aContentDimensions[:TotalLabels][:width],
+                aContentDimensions[:TotalCells][:width]
             ])
             
             # Apply growth and constraints
-            _nWidth_ = ceil(_nWidth_ * _aSettings_[:CellGrowthRatio])
-            _nWidth_ = max([ _nWidth_, _aSettings_[:MinCellWidth] ])
-            _nWidth_ = min([ _nWidth_, _aSettings_[:MaxCellWidth] ])
+            _nWidth_ = ceil(_nWidth_ * aSettings[:CellGrowthRatio])
+            _nWidth_ = max([ _nWidth_, aSettings[:MinCellWidth] ])
+            _nWidth_ = min([ _nWidth_, aSettings[:MaxCellWidth] ])
             
             # Add padding
-            _nTotalColumnWidth_ = _nWidth_ + (2 * _aSettings_[:DefaultPadding])
+            _nTotalColumnWidth_ = _nWidth_ + (2 * aSettings[:DefaultPadding])
         ok
         
-        _aCalculatedLayout_[:TotalColumnWidth] = _nTotalColumnWidth_
+        aCalculatedLayout[:TotalColumnWidth] = _nTotalColumnWidth_
         
         # 2.4 Calculate overall table width and adjustments
         _nTableWidth_ = _nRowLabelSectionWidth_
@@ -361,22 +361,22 @@ Class TableDisplayConfig
         next
         
         # Add total column if enabled
-        if _bShowTotalColumn_
+        if bShowTotalColumn
             _nTableWidth_ += _nTotalColumnWidth_ + 1  # Include separator
         ok
         
         # Add outer border characters
         _nTableWidth_ += 2  # Left and right borders
         
-        _aCalculatedLayout_[:TableWidth] = _nTableWidth_
+        aCalculatedLayout[:TableWidth] = _nTableWidth_
         
         # Calculate left padding
-        _nLeftPadding_ = _aSettings_[:OuterPadding]
-        if _aSettings_[:MaxTableWidth] > 0 and _nTableWidth_ < _aSettings_[:MaxTableWidth]
-            _nLeftPadding_ = floor((_aSettings_[:MaxTableWidth] - _nTableWidth_) / 2)
+        _nLeftPadding_ = aSettings[:OuterPadding]
+        if aSettings[:MaxTableWidth] > 0 and _nTableWidth_ < aSettings[:MaxTableWidth]
+            _nLeftPadding_ = floor((aSettings[:MaxTableWidth] - _nTableWidth_) / 2)
         ok
         
-        _aCalculatedLayout_[:LeftPadding] = _nLeftPadding_
+        aCalculatedLayout[:LeftPadding] = _nLeftPadding_
         
         # 2.5 Calculate border width offsets for alignment
         # This helps with complex border rendering
@@ -394,11 +394,11 @@ Class TableDisplayConfig
             add(_aBorderOffsets_, _nCurrentOffset_)
         next
         
-        _aCalculatedLayout_[:BorderWidthOffsets] = _aBorderOffsets_
+        aCalculatedLayout[:BorderWidthOffsets] = _aBorderOffsets_
     
     # Helper: Get the overall width for a specific column dimension group
     func GetDimensionGroupWidth(nDimIndex)
-        _aColDimValues_ = _aContentDimensions_[:ColumnDimValues]
+        _aColDimValues_ = aContentDimensions[:ColumnDimValues]
         _nGroupWidth_ = 0
         
         _aColDimValues15_ = _aColDimValues_[1]
@@ -419,23 +419,23 @@ Class TableDisplayConfig
     # Helper: Get actual cell width for a specific dimension combination
     func GetCellWidth(_dim1_, _dim2_)
         _cKey_ = _dim1_ + "|" + _dim2_
-        if @IsHashList(_aCalculatedLayout_[:DataColumnWidths][_cKey_])
-            return _aCalculatedLayout_[:DataColumnWidths][_cKey_]
+        if @IsHashList(aCalculatedLayout[:DataColumnWidths][_cKey_])
+            return aCalculatedLayout[:DataColumnWidths][_cKey_]
         ok
         
-        return _aSettings_[:MinCellWidth]  # Default fallback
+        return aSettings[:MinCellWidth]  # Default fallback
     
     # Apply a custom setting
     func SetSetting(cSetting, _value_)
-        _aSettings_[cSetting] = _value_
+        aSettings[cSetting] = _value_
         # Recalculate on setting change
         CalculateLayout()
         return self
     
     # Get a specific layout measurement
     func GetLayoutValue(_cKey_)
-        if @IsHashList(_aCalculatedLayout_[_cKey_])
-            return _aCalculatedLayout_[_cKey_]
+        if @IsHashList(aCalculatedLayout[_cKey_])
+            return aCalculatedLayout[_cKey_]
         ok
         return null
     
@@ -448,15 +448,15 @@ Class TableDisplayConfig
     # Debug function to show all calculated dimensions
     func DebugLayout()
         see "=== TABLE LAYOUT DEBUG ===" + nl
-        see "Row Label Section Width: " + _aCalculatedLayout_[:RowLabelSectionWidth] + nl
+        see "Row Label Section Width: " + aCalculatedLayout[:RowLabelSectionWidth] + nl
         see "Row Label Widths: " + nl
-        _nCalculatedLayoutRowLabelWidthsLen_ = len(_aCalculatedLayout_[:RowLabelWidths])
+        _nCalculatedLayoutRowLabelWidthsLen_ = len(aCalculatedLayout[:RowLabelWidths])
         for i = 1 to _nCalculatedLayoutRowLabelWidthsLen_
-            see "  " + _aRowLabels_[i] + ": " + _aCalculatedLayout_[:RowLabelWidths][i] + nl
+            see "  " + aRowLabels[i] + ": " + aCalculatedLayout[:RowLabelWidths][i] + nl
         next
         
         see "Data Column Widths: " + nl
-        _aColDimValues_ = _aContentDimensions_[:ColumnDimValues]
+        _aColDimValues_ = aContentDimensions[:ColumnDimValues]
         _aColDimValues14_ = _aColDimValues_[1]
         _nColDimValues14Len_ = len(_aColDimValues14_)
         for _iLoopColDimValues14_ = 1 to _nColDimValues14Len_
@@ -466,15 +466,15 @@ Class TableDisplayConfig
             for _iLoopColDimValues26_ = 1 to _nColDimValues26Len_
             	_dim2_ = _aColDimValues26_[_iLoopColDimValues26_]
                 _cKey_ = _dim1_ + "|" + _dim2_
-                if @IsHashList(_aCalculatedLayout_[:DataColumnWidths][_cKey_])
-                    see "  " + _cKey_ + ": " + _aCalculatedLayout_[:DataColumnWidths][_cKey_] + nl
+                if @IsHashList(aCalculatedLayout[:DataColumnWidths][_cKey_])
+                    see "  " + _cKey_ + ": " + aCalculatedLayout[:DataColumnWidths][_cKey_] + nl
                 ok
             next
         next
         
-        see "Total Column Width: " + _aCalculatedLayout_[:TotalColumnWidth] + nl
-        see "Total Table Width: " + _aCalculatedLayout_[:TableWidth] + nl
-        see "Left Padding: " + _aCalculatedLayout_[:LeftPadding] + nl
+        see "Total Column Width: " + aCalculatedLayout[:TotalColumnWidth] + nl
+        see "Total Table Width: " + aCalculatedLayout[:TableWidth] + nl
+        see "Left Padding: " + aCalculatedLayout[:LeftPadding] + nl
         see "=========================" + nl
     
 end  # End of TableDisplayConfig class
@@ -485,11 +485,11 @@ end  # End of TableDisplayConfig class
 Class TableRenderer
     
     # Configuration object reference
-    _oConfig_ = null
+    oConfig = null
     
     # Initialize with configuration object
     func init(oTableConfig)
-        _oConfig_ = oTableConfig
+        oConfig = oTableConfig
         return self
     
     # Render the complete table
@@ -502,16 +502,16 @@ Class TableRenderer
     # 1. Render table headers
     func RenderTableHeaders()
         # Extract needed values from config
-        _aColDimValues_ = _oConfig_.aContentDimensions[:ColumnDimValues]
-        _aRowWidths_ = _oConfig_.aCalculatedLayout[:RowLabelWidths]
-        _aDataColumnWidths_ = _oConfig_.aCalculatedLayout[:DataColumnWidths]
-        _nTotalColWidth_ = _oConfig_.aCalculatedLayout[:TotalColumnWidth]
-        _nLeftPadding_ = _oConfig_.aCalculatedLayout[:LeftPadding]
-        _nRowLabelSectionWidth_ = _oConfig_.aCalculatedLayout[:RowLabelSectionWidth]
-        _aBorderChars_ = _oConfig_.aDecorators[:BorderChars]
+        _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
+        _aRowWidths_ = oConfig.aCalculatedLayout[:RowLabelWidths]
+        _aDataColumnWidths_ = oConfig.aCalculatedLayout[:DataColumnWidths]
+        _nTotalColWidth_ = oConfig.aCalculatedLayout[:TotalColumnWidth]
+        _nLeftPadding_ = oConfig.aCalculatedLayout[:LeftPadding]
+        _nRowLabelSectionWidth_ = oConfig.aCalculatedLayout[:RowLabelSectionWidth]
+        _aBorderChars_ = oConfig.aDecorators[:BorderChars]
         
         # Add top padding
-        see nl + copy(nl, _oConfig_.aSettings[:HeaderTopPadding] - 1)
+        see nl + copy(nl, oConfig.aSettings[:HeaderTopPadding] - 1)
         
         # 1.1 Top border
         _cLeftPad_ = copy(" ", _nLeftPadding_)
@@ -530,7 +530,7 @@ Class TableRenderer
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nGroupWidth_ += _aDataColumnWidths_[_cKey_]
                 else
-                    _nGroupWidth_ += _oConfig_.aSettings[:MinCellWidth]
+                    _nGroupWidth_ += oConfig.aSettings[:MinCellWidth]
                 ok
             next
             
@@ -566,7 +566,7 @@ Class TableRenderer
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nGroupWidth_ += _aDataColumnWidths_[_cKey_]
                 else
-                    _nGroupWidth_ += _oConfig_.aSettings[:MinCellWidth]
+                    _nGroupWidth_ += oConfig.aSettings[:MinCellWidth]
                 ok
             next
             
@@ -595,7 +595,7 @@ Class TableRenderer
                 _dim2_ = _aColDimValues_[2][j]
                 _cKey_ = _dim1_ + "|" + _dim2_
                 
-                _nWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                _nWidth_ = oConfig.aSettings[:MinCellWidth]
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nWidth_ = _aDataColumnWidths_[_cKey_]
                 ok
@@ -618,17 +618,17 @@ Class TableRenderer
         ? _cSep1_
         
         # 1.4 Second header row with row labels and second dimension
-        _nHeaderPadding_ = _oConfig_.aSettings[:DefaultPadding]
+        _nHeaderPadding_ = oConfig.aSettings[:DefaultPadding]
         _cHeader2_ = copy(" ", _nLeftPadding_ - _nRowLabelSectionWidth_)
         
         # Add row labels with separators
-        _nConfigaRowLabelsLen_ = len(_oConfig_.aRowLabels)
+        _nConfigaRowLabelsLen_ = len(oConfig.aRowLabels)
         for i = 1 to _nConfigaRowLabelsLen_
-            _cLabel_ = _center(_oConfig_.aRowLabels[i], _aRowWidths_[i])
+            _cLabel_ = _center(oConfig.aRowLabels[i], _aRowWidths_[i])
             _cHeader2_ += _cLabel_
             
-            if i < len(_oConfig_.aRowLabels)
-                _cHeader2_ += _oConfig_.aDecorators[:RowLabelSeparator]
+            if i < len(oConfig.aRowLabels)
+                _cHeader2_ += oConfig.aDecorators[:RowLabelSeparator]
             ok
         next
         
@@ -644,7 +644,7 @@ Class TableRenderer
                 _dim2_ = _aColDimValues_[2][dim2_idx]
                 _cKey_ = _dim1_ + "|" + _dim2_
                 
-                _nWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                _nWidth_ = oConfig.aSettings[:MinCellWidth]
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nWidth_ = _aDataColumnWidths_[_cKey_]
                 ok
@@ -660,8 +660,8 @@ Class TableRenderer
         next
         
         # Add AVERAGE/TOTAL header if enabled
-        if _oConfig_.bShowTotalColumn
-            _cHeader2_ += " " + _center(_oConfig_.cTotalLabel, _nTotalColWidth_ - _nHeaderPadding_)
+        if oConfig.bShowTotalColumn
+            _cHeader2_ += " " + _center(oConfig.cTotalLabel, _nTotalColWidth_ - _nHeaderPadding_)
             _cHeader2_ += " " + _aBorderChars_[:Vertical]
         ok
         
@@ -680,7 +680,7 @@ Class TableRenderer
                 _dim2_ = _aColDimValues_[2][j]
                 _cKey_ = _dim1_ + "|" + _dim2_
                 
-                _nWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                _nWidth_ = oConfig.aSettings[:MinCellWidth]
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nWidth_ = _aDataColumnWidths_[_cKey_]
                 ok
@@ -699,7 +699,7 @@ Class TableRenderer
             ok
         next
         
-        if _oConfig_.bShowTotalColumn
+        if oConfig.bShowTotalColumn
             _cMainSep_ += _aBorderChars_[:Cross] + copy(_aBorderChars_[:Horizontal], _nTotalColWidth_) + _aBorderChars_[:TeeLeft]
         else
             _cMainSep_ += _aBorderChars_[:TeeLeft]
@@ -712,22 +712,22 @@ Class TableRenderer
     # 2. Render data rows
     func RenderDataRows()
         # Extract needed values from config
-        _aColDimValues_ = _oConfig_.aContentDimensions[:ColumnDimValues]
-        _aRowWidths_ = _oConfig_.aCalculatedLayout[:RowLabelWidths]
-        _aDataColumnWidths_ = _oConfig_.aCalculatedLayout[:DataColumnWidths]
-        _nTotalColWidth_ = _oConfig_.aCalculatedLayout[:TotalColumnWidth]
-        _nLeftPadding_ = _oConfig_.aCalculatedLayout[:LeftPadding]
-        _nRowLabelSectionWidth_ = _oConfig_.aCalculatedLayout[:RowLabelSectionWidth]
-        _aBorderChars_ = _oConfig_.aDecorators[:BorderChars]
-        _aPivotData_ = _oConfig_.aPivotData
+        _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
+        _aRowWidths_ = oConfig.aCalculatedLayout[:RowLabelWidths]
+        _aDataColumnWidths_ = oConfig.aCalculatedLayout[:DataColumnWidths]
+        _nTotalColWidth_ = oConfig.aCalculatedLayout[:TotalColumnWidth]
+        _nLeftPadding_ = oConfig.aCalculatedLayout[:LeftPadding]
+        _nRowLabelSectionWidth_ = oConfig.aCalculatedLayout[:RowLabelSectionWidth]
+        _aBorderChars_ = oConfig.aDecorators[:BorderChars]
+        aPivotData = oConfig.aPivotData
         
         _cCurrentDept_ = ""  # Track current department for grouping
         
-        _nPivotDataLen_ = len(_aPivotData_)
+        _nPivotDataLen_ = len(aPivotData)
         for r = 2 to _nPivotDataLen_ - 1  # Skip header and total row
             # Check if this is a new department
-            if _aPivotData_[r][1] != _cCurrentDept_
-                _cCurrentDept_ = _aPivotData_[r][1]
+            if aPivotData[r][1] != _cCurrentDept_
+                _cCurrentDept_ = aPivotData[r][1]
                 
                 # Insert empty row between departments (except for first dept)
                 if r > 2
@@ -736,17 +736,17 @@ Class TableRenderer
                 
                 # Start row with department
                 _cRowStart_ = copy(" ", _nLeftPadding_) + _aBorderChars_[:Vertical] + " "
-                _cRowData_ = _padRight(_cCurrentDept_, _aRowWidths_[1] - _oConfig_.aSettings[:DefaultPadding])
+                _cRowData_ = _padRight(_cCurrentDept_, _aRowWidths_[1] - oConfig.aSettings[:DefaultPadding])
             else
                 # Empty department column for same department
                 _cRowStart_ = copy(" ", _nLeftPadding_) + _aBorderChars_[:Vertical] + " "
-                _cRowData_ = copy(" ", _aRowWidths_[1] - _oConfig_.aSettings[:DefaultPadding])
+                _cRowData_ = copy(" ", _aRowWidths_[1] - oConfig.aSettings[:DefaultPadding])
             ok
             
             # Add location if we have it
-            if len(_oConfig_.aRowLabels) > 1
-                _cRowData_ += " " + _oConfig_.aDecorators[:RowLabelSeparator] + " "
-                _cRowData_ += _padRight(_aPivotData_[r][2], _aRowWidths_[2] - _oConfig_.aSettings[:DefaultPadding])
+            if len(oConfig.aRowLabels) > 1
+                _cRowData_ += " " + oConfig.aDecorators[:RowLabelSeparator] + " "
+                _cRowData_ += _padRight(aPivotData[r][2], _aRowWidths_[2] - oConfig.aSettings[:DefaultPadding])
             ok
             
             # Pad to full row label section width if needed
@@ -768,29 +768,29 @@ Class TableRenderer
                     
                     # Find column index for this combination
                     _nColIndex_ = 0
-                    _nPivotData1Len_2 = len(_aPivotData_[1])
-                    for c = len(_oConfig_.aRowLabels) + 1 to _nPivotData1Len_2
-                        if _aPivotData_[1][c] = _cKey_
+                    _nPivotData1Len_2 = len(aPivotData[1])
+                    for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_2
+                        if aPivotData[1][c] = _cKey_
                             _nColIndex_ = c
                             exit
                         ok
                     next
                     
-                    _nCellWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                    _nCellWidth_ = oConfig.aSettings[:MinCellWidth]
                     if @IsHashList(_aDataColumnWidths_[_cKey_])
                         _nCellWidth_ = _aDataColumnWidths_[_cKey_]
                     ok
                     
                     # Add data with proper padding
                     if _nColIndex_ > 0
-                        _cValue_ = "" + _aPivotData_[r][_nColIndex_]
+                        _cValue_ = "" + aPivotData[r][_nColIndex_]
                         if StzLen(_cValue_) > 0
-                            _cRowData_ += " " + _padLeft(_cValue_, _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                            _cRowData_ += " " + _padLeft(_cValue_, _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                         else
-                            _cRowData_ += " " + copy(" ", _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                            _cRowData_ += " " + copy(" ", _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                         ok
                     else
-                        _cRowData_ += " " + copy(" ", _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                        _cRowData_ += " " + copy(" ", _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                     ok
                     
                     if dim2_idx < len(_aColDimValues_[2])
@@ -802,11 +802,11 @@ Class TableRenderer
             next
             
             # Add total column if enabled
-            if _oConfig_.bShowTotalColumn
-                _nTotalCol_ = len(_aPivotData_[r])
-                _cTotal_ = "" + _aPivotData_[r][_nTotalCol_]
+            if oConfig.bShowTotalColumn
+                _nTotalCol_ = len(aPivotData[r])
+                _cTotal_ = "" + aPivotData[r][_nTotalCol_]
                 
-                _cRowData_ += " " + _padLeft(_cTotal_, _nTotalColWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                _cRowData_ += " " + _padLeft(_cTotal_, _nTotalColWidth_ - oConfig.aSettings[:DefaultPadding])
                 _cRowData_ += " " + _aBorderChars_[:Vertical]
             ok
             
@@ -815,9 +815,9 @@ Class TableRenderer
     
     # 3. Render empty row (for visual separation)
     func RenderEmptyRow()
-        _nLeftPadding_ = _oConfig_.aCalculatedLayout[:LeftPadding]
-        _nTableWidth_ = _oConfig_.aCalculatedLayout[:TableWidth]
-        _aBorderChars_ = _oConfig_.aDecorators[:BorderChars]
+        _nLeftPadding_ = oConfig.aCalculatedLayout[:LeftPadding]
+        _nTableWidth_ = oConfig.aCalculatedLayout[:TableWidth]
+        _aBorderChars_ = oConfig.aDecorators[:BorderChars]
         
         _cEmptyRow_ = copy(" ", _nLeftPadding_) + _aBorderChars_[:Vertical]
         _cEmptyRow_ += copy(" ", _nTableWidth_ - 2)  # -2 for the left and right borders
@@ -828,14 +828,14 @@ Class TableRenderer
     # 4. Render table footer (total row)
     func RenderTableFooter()
         # Extract needed values from config
-        _aColDimValues_ = _oConfig_.aContentDimensions[:ColumnDimValues]
-        _aRowWidths_ = _oConfig_.aCalculatedLayout[:RowLabelWidths]
-        _aDataColumnWidths_ = _oConfig_.aCalculatedLayout[:DataColumnWidths]
-        _nTotalColWidth_ = _oConfig_.aCalculatedLayout[:TotalColumnWidth]
-        _nLeftPadding_ = _oConfig_.aCalculatedLayout[:LeftPadding]
-        _nRowLabelSectionWidth_ = _oConfig_.aCalculatedLayout[:RowLabelSectionWidth]
-        _aBorderChars_ = _oConfig_.aDecorators[:BorderChars]
-        _aPivotData_ = _oConfig_.aPivotData
+        _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
+        _aRowWidths_ = oConfig.aCalculatedLayout[:RowLabelWidths]
+        _aDataColumnWidths_ = oConfig.aCalculatedLayout[:DataColumnWidths]
+        _nTotalColWidth_ = oConfig.aCalculatedLayout[:TotalColumnWidth]
+        _nLeftPadding_ = oConfig.aCalculatedLayout[:LeftPadding]
+        _nRowLabelSectionWidth_ = oConfig.aCalculatedLayout[:RowLabelSectionWidth]
+        _aBorderChars_ = oConfig.aDecorators[:BorderChars]
+        aPivotData = oConfig.aPivotData
         
         # Bottom separator
         _cBottomSep_ = copy(" ", _nLeftPadding_)
@@ -851,7 +851,7 @@ Class TableRenderer
                 _dim2_ = _aColDimValues_[2][j]
                 _cKey_ = _dim1_ + "|" + _dim2_
                 
-                _nWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                _nWidth_ = oConfig.aSettings[:MinCellWidth]
                 if @IsHashList(_aDataColumnWidths_[_cKey_])
                     _nWidth_ = _aDataColumnWidths_[_cKey_]
                 ok
@@ -867,7 +867,7 @@ Class TableRenderer
             _cBottomSep_ += copy(_aBorderChars_[:Horizontal], _nGroupWidth_)
         next
         
-        if _oConfig_.bShowTotalColumn
+        if oConfig.bShowTotalColumn
             _cBottomSep_ += _aBorderChars_[:TeeUp]
             _cBottomSep_ += copy(_aBorderChars_[:Horizontal], _nTotalColWidth_)
         ok
@@ -876,9 +876,9 @@ Class TableRenderer
         ? _cBottomSep_
         
         # Total row if enabled
-        if _oConfig_.bShowTotalRow
-            _nLastRow_ = len(_aPivotData_)
-            _cTotalRow_ = copy(" ", _nLeftPadding_) + _oConfig_.cTotalLabel
+        if oConfig.bShowTotalRow
+            _nLastRow_ = len(aPivotData)
+            _cTotalRow_ = copy(" ", _nLeftPadding_) + oConfig.cTotalLabel
             
             # Pad to row label section width
             while StzLen(_cTotalRow_) < _nLeftPadding_ + _nRowLabelSectionWidth_
@@ -899,29 +899,29 @@ Class TableRenderer
                     
                     # Find column index for this combination
                     _nColIndex_ = 0
-                    _nPivotData1Len_ = len(_aPivotData_[1])
-                    for c = len(_oConfig_.aRowLabels) + 1 to _nPivotData1Len_
-                        if _aPivotData_[1][c] = _cKey_
+                    _nPivotData1Len_ = len(aPivotData[1])
+                    for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_
+                        if aPivotData[1][c] = _cKey_
                             _nColIndex_ = c
                             exit
                         ok
                     next
                     
-                    _nCellWidth_ = _oConfig_.aSettings[:MinCellWidth]
+                    _nCellWidth_ = oConfig.aSettings[:MinCellWidth]
                     if @IsHashList(_aDataColumnWidths_[_cKey_])
                         _nCellWidth_ = _aDataColumnWidths_[_cKey_]
                     ok
                     
                     # Add total value with proper padding
                     if _nColIndex_ > 0
-                        _cValue_ = "" + _aPivotData_[_nLastRow_][_nColIndex_]
+                        _cValue_ = "" + aPivotData[_nLastRow_][_nColIndex_]
                         if StzLen(_cValue_) > 0
-                            _cTotalRow_ += " " + _padLeft(_cValue_, _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                            _cTotalRow_ += " " + _padLeft(_cValue_, _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                         else
-                            _cTotalRow_ += " " + copy(" ", _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                            _cTotalRow_ += " " + copy(" ", _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                         ok
                     else
-                        _cTotalRow_ += " " + copy(" ", _nCellWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                        _cTotalRow_ += " " + copy(" ", _nCellWidth_ - oConfig.aSettings[:DefaultPadding])
                     ok
                     
                     if dim2_idx < len(_aColDimValues_[2])
@@ -933,12 +933,12 @@ Class TableRenderer
             next
             
             # Add grand total if enabled
-            if _oConfig_.bShowTotalColumn
+            if oConfig.bShowTotalColumn
 
-                _nTotalCol_ = len(_aPivotData_[_nLastRow_])
-                _cTotal_ = "" + _aPivotData_[_nLastRow_][_nTotalCol_]
+                _nTotalCol_ = len(aPivotData[_nLastRow_])
+                _cTotal_ = "" + aPivotData[_nLastRow_][_nTotalCol_]
                 
-                _cTotalRow_ += " " + _padLeft(_cTotal_, _nTotalColWidth_ - _oConfig_.aSettings[:DefaultPadding])
+                _cTotalRow_ += " " + _padLeft(_cTotal_, _nTotalColWidth_ - oConfig.aSettings[:DefaultPadding])
                 _cTotalRow_ += " " + _aBorderChars_[:Vertical]
             ok
             
@@ -983,19 +983,19 @@ end  # End of TableRenderer class
 Class TableConfigManager
     
     # Reference to configuration object
-    _oConfig_ = null
+    oConfig = null
     
     # Callback function for events
-    _fOnConfigChanged_ = null
+    fOnConfigChanged = null
     
     # Initialize with configuration object
     func init(oTableConfig)
-        _oConfig_ = oTableConfig
+        oConfig = oTableConfig
         return self
     
     # Set a callback to be called when config changes
     func SetChangeCallback(fCallback)
-        _fOnConfigChanged_ = fCallback
+        fOnConfigChanged = fCallback
         return self
     
     # Batch update settings
@@ -1005,15 +1005,15 @@ Class TableConfigManager
         	_aPair_ = aNewSettings[_iLoopNewSettings1_]
             _cKey_ = _aPair_[1]
             _value_ = _aPair_[2]										
-            _oConfig_.SetSetting(_cKey_, _value_)
+            oConfig.SetSetting(_cKey_, _value_)
         next
         
         # Trigger recalculation
-        _oConfig_.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type(_fOnConfigChanged_) = "BLOCK"
-            call _fOnConfigChanged_()
+        if type(fOnConfigChanged) = "BLOCK"
+            call fOnConfigChanged()
         ok
         
         return self
@@ -1023,25 +1023,25 @@ Class TableConfigManager
         # Analyze current content and adjust settings
         
         # 1. Adjust cell widths based on actual content
-        if _oConfig_.aSettings[:AutoAdjustWidths]
-            _aRowLabels_ = _oConfig_.aContentDimensions[:RowLabels]
-            _nRowLabelsLen_ = len(_aRowLabels_)
+        if oConfig.aSettings[:AutoAdjustWidths]
+            aRowLabels = oConfig.aContentDimensions[:RowLabels]
+            _nRowLabelsLen_ = len(aRowLabels)
             for i = 1 to _nRowLabelsLen_
-                _nOptimalWidth_ = max([ _aRowLabels_[i][:labelWidth], _aRowLabels_[i][:maxContentWidth] ])
-                _nOptimalWidth_ = ceil(_nOptimalWidth_ * _oConfig_.aSettings[:RowLabelGrowthRatio])
+                _nOptimalWidth_ = max([ aRowLabels[i][:labelWidth], aRowLabels[i][:maxContentWidth] ])
+                _nOptimalWidth_ = ceil(_nOptimalWidth_ * oConfig.aSettings[:RowLabelGrowthRatio])
                 
                 # Update the final width with constraints
-                _nOptimalWidth_ = max([ _nOptimalWidth_, _oConfig_.aSettings[:MinCellWidth] ])
-                _nOptimalWidth_ = min([ _nOptimalWidth_, _oConfig_.aSettings[:MaxHeaderWidth] ])
+                _nOptimalWidth_ = max([ _nOptimalWidth_, oConfig.aSettings[:MinCellWidth] ])
+                _nOptimalWidth_ = min([ _nOptimalWidth_, oConfig.aSettings[:MaxHeaderWidth] ])
                 
-                _oConfig_.aContentDimensions[:RowLabels][i][:finalWidth] = _nOptimalWidth_
+                oConfig.aContentDimensions[:RowLabels][i][:finalWidth] = _nOptimalWidth_
             next
         ok
         
         # 2. Balance column widths if enabled
-        if _oConfig_.aSettings[:BalanceColumns]
-            _aColDimValues_ = _oConfig_.aContentDimensions[:ColumnDimValues]
-            _aDataColumnWidths_ = _oConfig_.aCalculatedLayout[:DataColumnWidths]
+        if oConfig.aSettings[:BalanceColumns]
+            _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
+            _aDataColumnWidths_ = oConfig.aCalculatedLayout[:DataColumnWidths]
             
             # Find average column width
             _nTotalWidth_ = 0
@@ -1083,7 +1083,7 @@ Class TableConfigManager
                             # Only adjust if difference is significant
                             if abs(_nDiff_) > _nAvgWidth_ * 0.3
                                 _nNewWidth_ = _nCurrentWidth_ - (_nDiff_ * 0.5)
-                                _oConfig_.aCalculatedLayout[:DataColumnWidths][_cKey_] = _nNewWidth_
+                                oConfig.aCalculatedLayout[:DataColumnWidths][_cKey_] = _nNewWidth_
                             ok
                         ok
                     next
@@ -1092,21 +1092,21 @@ Class TableConfigManager
         ok
         
         # 3. Check if table exceeds maximum width
-        _nTableWidth_ = _oConfig_.aCalculatedLayout[:TableWidth]
-        _nMaxWidth_ = _oConfig_.aSettings[:MaxTableWidth]
+        _nTableWidth_ = oConfig.aCalculatedLayout[:TableWidth]
+        _nMaxWidth_ = oConfig.aSettings[:MaxTableWidth]
         
         if _nMaxWidth_ > 0 and _nTableWidth_ > _nMaxWidth_
             # Scale down all widths proportionally
             _nScaleFactor_ = _nMaxWidth_ / _nTableWidth_
             
             # Apply to row labels
-            _nConfigaCalculatedLayoutRowLabeLen_ = len(_oConfig_.aCalculatedLayout[:RowLabelWidths])
+            _nConfigaCalculatedLayoutRowLabeLen_ = len(oConfig.aCalculatedLayout[:RowLabelWidths])
             for i = 1 to _nConfigaCalculatedLayoutRowLabeLen_
-                _oConfig_.aCalculatedLayout[:RowLabelWidths][i] *= _nScaleFactor_
+                oConfig.aCalculatedLayout[:RowLabelWidths][i] *= _nScaleFactor_
             next
             
             # Apply to data columns
-            _aColDimValues_ = _oConfig_.aContentDimensions[:ColumnDimValues]
+            _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
             _aColDimValues11_ = _aColDimValues_[1]
             _nColDimValues11Len_ = len(_aColDimValues11_)
             for _iLoopColDimValues11_ = 1 to _nColDimValues11Len_
@@ -1116,22 +1116,22 @@ Class TableConfigManager
                 for _iLoopColDimValues21_ = 1 to _nColDimValues21Len_
                 	_dim2_ = _aColDimValues21_[_iLoopColDimValues21_]
                     _cKey_ = _dim1_ + "|" + _dim2_
-                    if @IsHashList(_oConfig_.aCalculatedLayout[:DataColumnWidths][_cKey_])
-                        _oConfig_.aCalculatedLayout[:DataColumnWidths][_cKey_] *= _nScaleFactor_
+                    if @IsHashList(oConfig.aCalculatedLayout[:DataColumnWidths][_cKey_])
+                        oConfig.aCalculatedLayout[:DataColumnWidths][_cKey_] *= _nScaleFactor_
                     ok
                 next
             next
             
             # Apply to total column
-            _oConfig_.aCalculatedLayout[:TotalColumnWidth] *= _nScaleFactor_
+            oConfig.aCalculatedLayout[:TotalColumnWidth] *= _nScaleFactor_
         ok
         
         # Trigger recalculation
-        _oConfig_.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type(_fOnConfigChanged_) = "BLOCK"
-            call _fOnConfigChanged_()
+        if type(fOnConfigChanged) = "BLOCK"
+            call fOnConfigChanged()
         ok
         
         return self
@@ -1141,10 +1141,10 @@ Class TableConfigManager
         _aConfig_ = []
         
         # Copy settings
-        _aConfig_[:Settings] = _oConfig_.aSettings
+        _aConfig_[:Settings] = oConfig.aSettings
         
         # Copy calculated measurements (for reference)
-        _aConfig_[:Layout] = _oConfig_.aCalculatedLayout
+        _aConfig_[:Layout] = oConfig.aCalculatedLayout
         
         return _aConfig_
     
@@ -1158,16 +1158,16 @@ Class TableConfigManager
             	_aPair_ = _aConfigSettings1_[_iLoopConfigSettings1_]
                 _cKey_ = _aPair_[1]
                 _value_ = _aPair_[2]
-                _oConfig_.SetSetting(_cKey_, _value_)
+                oConfig.SetSetting(_cKey_, _value_)
             next
         ok
         
         # Recalculate everything
-        _oConfig_.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type(_fOnConfigChanged_) = "BLOCK"
-            call _fOnConfigChanged_()
+        if type(fOnConfigChanged) = "BLOCK"
+            call fOnConfigChanged()
         ok
         
         return self
@@ -1180,10 +1180,10 @@ end  # End of TableConfigManager class
 Class TableThemeManager
     
     # Reference to configuration object
-    _oConfig_ = null
+    oConfig = null
     
     # Predefined themes
-    _aThemes_ = [
+    aThemes = [
         :Default = [
             :MinCellWidth = 5,
             :MaxCellWidth = 20,
@@ -1271,17 +1271,17 @@ Class TableThemeManager
     
     # Initialize with configuration object
     func init(oTableConfig)
-        _oConfig_ = oTableConfig
+        oConfig = oTableConfig
         return self
     
     # Apply a predefined theme
     func ApplyTheme(_cThemeName_)
-        if !@IsHashList(_aThemes_[_cThemeName_])
+        if !@IsHashList(aThemes[_cThemeName_])
             see "Theme '" + _cThemeName_ + "' not found. Using Default." + nl
             _cThemeName_ = :Default
         ok
         
-        _aTheme_ = _aThemes_[_cThemeName_]
+        _aTheme_ = aThemes[_cThemeName_]
         
         # Apply theme settings to config
         _nTheme1Len_ = len(_aTheme_)
@@ -1296,30 +1296,30 @@ Class TableThemeManager
                 	_aPairr_ = _value_[_iLoopValue1_]
                     _cBorderKey_ = _aPairr_[1]
                     _cChar_ = _aPairr_[2]
-                    _oConfig_.aDecorators[:BorderChars][_cBorderKey_] = _cChar_
+                    oConfig.aDecorators[:BorderChars][_cBorderKey_] = _cChar_
                 next
             else
                 # Regular settings
-                _oConfig_.SetSetting(_cKey_, _value_)
+                oConfig.SetSetting(_cKey_, _value_)
             ok
         next
         
         # Recalculate layout
-        _oConfig_.Recalculate()
+        oConfig.Recalculate()
         
         return self
     
     # Create a custom theme
     func CreateTheme(_cThemeName_, aThemeSettings)
-        _aThemes_[_cThemeName_] = aThemeSettings
+        aThemes[_cThemeName_] = aThemeSettings
         return self
     
     # Get a list of available themes
     func ListThemes()
         _aThemeNames_ = []
-        _nThemes1Len_ = len(_aThemes_)
+        _nThemes1Len_ = len(aThemes)
         for _iLoopThemes1_ = 1 to _nThemes1Len_
-        	_aPair_ = _aThemes_[_iLoopThemes1_]
+        	_aPair_ = aThemes[_iLoopThemes1_]
             _cKey_ = _aPair_[1]
             _value_ = _aPair_[2]
             add(_aThemeNames_, _cKey_)

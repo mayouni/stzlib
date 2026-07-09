@@ -1,28 +1,28 @@
 # stzLoadBalancer: Routes requests based on computational domain
 class stzLoadBalancer from stzObject
-    _aClusters_ = []         # Available clusters by type
-    _oRequestClassifier_ = NULL
-    _aRoutingRules_ = []
-    _nTotalRequests_ = 0
+    aClusters = []         # Available clusters by type
+    oRequestClassifier = NULL
+    aRoutingRules = []
+    nTotalRequests = 0
     
     def init()
-        _oRequestClassifier_ = new stzRequestClassifier()
+        oRequestClassifier = new stzRequestClassifier()
         This.SetupDefaultRouting()
 
     def SetupDefaultRouting()
-        _aRoutingRules_ + [
+        aRoutingRules + [
             :pattern = "/api/analyze-text",
             :domain = "nlp"
         ]
-        _aRoutingRules_ + [
+        aRoutingRules + [
             :pattern = "/api/calculate",
             :domain = "math"
         ]
-        _aRoutingRules_ + [
+        aRoutingRules + [
             :pattern = "/api/process-image",
             :domain = "vision"
         ]
-        _aRoutingRules_ + [
+        aRoutingRules + [
             :pattern = "/api/search",
             :domain = "search"
         ]
@@ -32,20 +32,20 @@ class stzLoadBalancer from stzObject
         # `aCluster = aClusters[i]; aCluster[:nodes] = ...` mutates
         # the copy and discards the change. Mutate in-place via the
         # index instead.
-        _nClusters2Len_ = len(_aClusters_)
+        _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
-            if _aClusters_[_iLoopClusters2_][:type] = cType
-                _aClusters_[_iLoopClusters2_][:nodes] = aNodes
+            if aClusters[_iLoopClusters2_][:type] = cType
+                aClusters[_iLoopClusters2_][:nodes] = aNodes
                 return
             ok
         next
-        _aClusters_ + [
+        aClusters + [
             :type = cType,
             :nodes = aNodes
         ]
 
     def RouteRequest(oRequest)
-        _nTotalRequests_++
+        nTotalRequests++
         _cDomain_ = This.ClassifyRequest(oRequest)
         _oTargetCluster_ = This.FindCluster(_cDomain_)
         
@@ -64,21 +64,21 @@ class stzLoadBalancer from stzObject
     def ClassifyRequest(oRequest)
         # Check explicit routing rules first
         _cPath_ = oRequest.Path()
-        _nRoutingRules1Len_ = len(_aRoutingRules_)
+        _nRoutingRules1Len_ = len(aRoutingRules)
         for _iLoopRoutingRules1_ = 1 to _nRoutingRules1Len_
-        	_aRule_ = _aRoutingRules_[_iLoopRoutingRules1_]
+        	_aRule_ = aRoutingRules[_iLoopRoutingRules1_]
             if StzFindFirst(_cPath_, _aRule_[:pattern]) > 0
                 return _aRule_[:domain]
             ok
         next
         
         # Use AI classifier for complex requests
-        return _oRequestClassifier_.ClassifyComputationalDomain(oRequest)
+        return oRequestClassifier.ClassifyComputationalDomain(oRequest)
 
     def FindCluster(cType)
-        _nClusters1Len_ = len(_aClusters_)
+        _nClusters1Len_ = len(aClusters)
         for _iLoopClusters1_ = 1 to _nClusters1Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters1_]
+        	_aCluster_ = aClusters[_iLoopClusters1_]
             if _aCluster_[:type] = cType
                 return _aCluster_
             ok
@@ -105,7 +105,7 @@ class stzLoadBalancer from stzObject
 
     def GetRoutingStats()
         return [
-            :total_requests = _nTotalRequests_,
-            :clusters_count = len(_aClusters_),
-            :routing_rules = len(_aRoutingRules_)
+            :total_requests = nTotalRequests,
+            :clusters_count = len(aClusters),
+            :routing_rules = len(aRoutingRules)
         ]

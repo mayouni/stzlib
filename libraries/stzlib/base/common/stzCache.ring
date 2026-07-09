@@ -79,7 +79,7 @@ class stzCache from stzObject
 
 	_oCacheStorage_
 
-	_bActivated_ = 0
+	bActivated = 0
 
 	def Content()
 		return cCacheContent
@@ -95,13 +95,13 @@ class stzCache from stzObject
 		return _oCacheStorage_.StorageType()
 
 	def Activate()
-		_bActivated_ = 1
+		bActivated = 1
 
 	def Deactivate()
-		_bActivated_ = 0
+		bActivated = 0
 
 	def IsActivated()
-		return _bActivated_
+		return bActivated
 
 	func CacheOpen()
 		switch StorageType()

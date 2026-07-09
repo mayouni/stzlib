@@ -21,16 +21,16 @@ type by using the method Type().
 
 Here is an example:
 
-	_obj_ = new Person
-	? Q(_obj_).Type()	#--> :Object
+	obj = new Person
+	? Q(obj).Type()	#--> :Object
 	
 	class Person
 
 To avoid writing a class every time I have to make a sample like this,
 I made this stzNullObject class, so I can write just:
 
-	_obj_ = new stzNullObject # Or simply obj = NullObject()
-	? Q(_obj_).Type()	#--> :Object
+	obj = new stzNullObject # Or simply obj = NullObject()
+	? Q(obj).Type()	#--> :Object
 */
 
 func StzNullObjectQ()

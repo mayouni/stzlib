@@ -1,34 +1,34 @@
 # stzClusterMonitor: Monitors cluster health and auto-scaling
 class stzClusterMonitor from stzObject
-    _aClusters_ = []
-    _bIsMonitoring_ = False
-    _nMonitorInterval_ = 5000  # 5 seconds
+    aClusters = []
+    bIsMonitoring = False
+    nMonitorInterval = 5000  # 5 seconds
     
     def RegisterCluster(cType, aNodes)
-        _aClusters_ + [
+        aClusters + [
             :type = cType,
             :nodes = aNodes
         ]
 
     def Start()
-        _bIsMonitoring_ = True
+        bIsMonitoring = True
         # In production, this would run in a background thread
         This.MonitorLoop()
 
     def Stop()
-        _bIsMonitoring_ = False
+        bIsMonitoring = False
 
     def MonitorLoop()
         # Simplified monitoring - in production would use timers/threads
-        while _bIsMonitoring_
+        while bIsMonitoring
             This.CheckClusterHealth()
             # sleep(nMonitorInterval) - Ring doesn't have built-in sleep
         end
 
     def CheckClusterHealth()
-        _nClusters3Len_ = len(_aClusters_)
+        _nClusters3Len_ = len(aClusters)
         for _iLoopClusters3_ = 1 to _nClusters3Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters3_]
+        	_aCluster_ = aClusters[_iLoopClusters3_]
             This.MonitorCluster(_aCluster_)
         next
 
@@ -72,9 +72,9 @@ class stzClusterMonitor from stzObject
         _oNewNode_ = new stzClusterNode(cType, _cNodeId_)
         
         # Add to existing cluster
-        _nClusters2Len_ = len(_aClusters_)
+        _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters2_]
+        	_aCluster_ = aClusters[_iLoopClusters2_]
             if _aCluster_[:type] = cType
                 _aCluster_[:nodes] + _oNewNode_
                 exit
@@ -83,9 +83,9 @@ class stzClusterMonitor from stzObject
 
     def GetHealthReport()
         _aReport_ = []
-        _nClusters1Len_ = len(_aClusters_)
+        _nClusters1Len_ = len(aClusters)
         for _iLoopClusters1_ = 1 to _nClusters1Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters1_]
+        	_aCluster_ = aClusters[_iLoopClusters1_]
             _nHealthy_ = 0
             _nOverloaded_ = 0
             
@@ -108,7 +108,7 @@ class stzClusterMonitor from stzObject
         
         return [
             :clusters = _aReport_,
-            :monitoring = _bIsMonitoring_,
+            :monitoring = bIsMonitoring,
             :last_check = clock()
         ]
 

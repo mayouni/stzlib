@@ -54,7 +54,7 @@ _aRingTypesXT = [
 @ = 0
 
 # Temporary Truth Statement and Negation (read X as Truth)
-_bXStatement_ = 1
+bXStatement = 1
 
 _aStzFindableTypes = [
 	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
@@ -90,7 +90,7 @@ _bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 _nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
 			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
 
-_cCacheFileName_ = "stzcache.txt"
+cCacheFileName = "stzcache.txt"
 _CacheFileHandler = ""
 
 _cCacheMemoryString = ""
@@ -505,7 +505,7 @@ func StzFindAll(pContainer, pVal)
 #---
 
 func StzTruthStatement()
-	return _bXStatement_
+	return bXStatement
 
 	func TruthStatement()
 		return StzTruthStatement()

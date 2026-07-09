@@ -5,53 +5,53 @@
 	hops across services / agentic steps. Backed by engine/src/tracectx.zig
 	(stz_tracectx.dll). Pure value type -- no I/O.
 
-		_oT_ = new stzTraceContext              # fresh sampled context
-		? _oT_.TraceParent()                    # the header value
-		? _oT_.TraceId()                        # 32-hex trace id
+		oT = new stzTraceContext              # fresh sampled context
+		? oT.TraceParent()                    # the header value
+		? oT.TraceId()                        # 32-hex trace id
 
 		# propagate to a downstream call (new span, same trace)
-		_oChild_ = StzTraceContextFrom(cIncomingHeader)
-		_cHeader_ = _oChild_.ChildHeader()
+		oChild = StzTraceContextFrom(cIncomingHeader)
+		cHeader = oChild.ChildHeader()
 
-	stzHttpClient.SetTraceParent(_cHeader_) injects it as a request header.
+	stzHttpClient.SetTraceParent(cHeader) injects it as a request header.
 */
 
 func StzTraceContext()
 	return new stzTraceContext()
 
 # Build a context object from an incoming traceparent header.
-func StzTraceContextFrom(_cHeader_)
-	_oT_ = new stzTraceContext()
-	_oT_.SetHeader(_cHeader_)
-	return _oT_
+func StzTraceContextFrom(cHeader)
+	oT = new stzTraceContext()
+	oT.SetHeader(cHeader)
+	return oT
 
 class stzTraceContext from stzObject
 
-	_cTP_ = ""
+	cTP = ""
 
 	def init()
-		_cTP_ = StzEngineTraceNew()
+		cTP = StzEngineTraceNew()
 
 	# Adopt an incoming header instead of a freshly generated one.
-	def SetHeader(_cHeader_)
-		_cTP_ = _cHeader_
+	def SetHeader(cHeader)
+		cTP = cHeader
 		return This
 
 	def TraceParent()
-		return _cTP_
+		return cTP
 
 	def IsValid()
-		return StzEngineTraceIsValid(_cTP_) = 1
+		return StzEngineTraceIsValid(cTP) = 1
 
 	def TraceId()
-		return StzEngineTraceId(_cTP_)
+		return StzEngineTraceId(cTP)
 
 	def SpanId()
-		return StzEngineTraceSpanId(_cTP_)
+		return StzEngineTraceSpanId(cTP)
 
 	def IsSampled()
-		return StzEngineTraceSampled(_cTP_) = 1
+		return StzEngineTraceSampled(cTP) = 1
 
 	# A child header for an outbound call: same trace-id, new span-id.
 	def ChildHeader()
-		return StzEngineTraceChild(_cTP_)
+		return StzEngineTraceChild(cTP)

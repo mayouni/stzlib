@@ -1,38 +1,38 @@
 # stzCluster: Main cluster orchestration class
 class stzCluster from stzObject
-    _oClusterManager_ = NULL
+    oClusterManager = NULL
     
     def init()
-        _oClusterManager_ = new stzClusterManager()
+        oClusterManager = new stzClusterManager()
 
     def CreateNLPCluster(nNodes)
         if nNodes = 0 nNodes = 3 ok
-        return _oClusterManager_.CreateCluster("nlp", nNodes)
+        return oClusterManager.CreateCluster("nlp", nNodes)
 
     def CreateMathCluster(nNodes) 
         if nNodes = 0 nNodes = 3 ok
-        return _oClusterManager_.CreateCluster("math", nNodes)
+        return oClusterManager.CreateCluster("math", nNodes)
 
     def CreateVisionCluster(nNodes)
         if nNodes = 0 nNodes = 3 ok  
-        return _oClusterManager_.CreateCluster("vision", nNodes)
+        return oClusterManager.CreateCluster("vision", nNodes)
 
     def CreateSearchCluster(nNodes)
         if nNodes = 0 nNodes = 3 ok
-        return _oClusterManager_.CreateCluster("search", nNodes)
+        return oClusterManager.CreateCluster("search", nNodes)
 
     def Start(nPort)
         if nPort = 0 nPort = 8080 ok
-        return _oClusterManager_.Start(nPort)
+        return oClusterManager.Start(nPort)
 
     def Stop()
-        _oClusterManager_.Stop()
+        oClusterManager.Stop()
 
     def GetStatus()
-        return _oClusterManager_.GetClusterStatus()
+        return oClusterManager.GetClusterStatus()
 
     def GetHealth()
-        return _oClusterManager_.oHealthMonitor.GetHealthReport()
+        return oClusterManager.oHealthMonitor.GetHealthReport()
 
     # Simple builder pattern for easy setup
     def WithNLP(nNodes)

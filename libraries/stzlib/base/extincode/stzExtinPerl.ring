@@ -1,8 +1,8 @@
 # Functions and classes for porting Perl/Raku code to Ring
 
-_say_ = new _say_	# Raku / Perl language
+say = new say	# Raku / Perl language
 
-class _say_
+class say
 	vr(:say)
 	def braceend()
 		? v(:say)

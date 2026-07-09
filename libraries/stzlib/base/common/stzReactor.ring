@@ -8,13 +8,13 @@
 
 		oR = new stzReactor
 		# fire-and-await a timer
-		_nId_ = oR.SubmitTimer(50)
-		oR.AwaitTimer(_nId_, 2000)              # 0 = fired
+		nId = oR.SubmitTimer(50)
+		oR.AwaitTimer(nId, 2000)              # 0 = fired
 
 		# async TCP request/response in one call
-		_cReq_ = "GET / HTTP/1.0" + nl + "Host: example.com" + nl +
+		cReq = "GET / HTTP/1.0" + nl + "Host: example.com" + nl +
 		       "Connection: close" + nl + nl
-		_cBody_ = oR.TcpRequest("example.com", 80, _cReq_, 15000)
+		cBody = oR.TcpRequest("example.com", 80, cReq, 15000)
 		? oR.TcpLastStatus()                  # 0 = ok
 
 		oR.Destroy()
@@ -29,15 +29,15 @@ func StzReactor()
 class stzReactor from stzObject
 
 	pHandle = NULL
-	_bReady_  = FALSE
+	bReady  = FALSE
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if _bReady_ = FALSE
+		if bReady = FALSE
 			pHandle = StzEngineReactorCreate()
-			_bReady_ = TRUE
+			bReady = TRUE
 		ok
 
 	def Handle()
@@ -55,13 +55,13 @@ class stzReactor from stzObject
 
 	# Block up to nTimeoutMs for the timer; returns 0 (fired), -1
 	# (running/timeout) or -2 (unknown id).
-	def AwaitTimer(_nId_, nTimeoutMs)
+	def AwaitTimer(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorAwait(pHandle, _nId_, nTimeoutMs)
+		return StzEngineReactorAwait(pHandle, nId, nTimeoutMs)
 
-	def Poll(_nId_)
+	def Poll(nId)
 		This._Ensure()
-		return StzEngineReactorPoll(pHandle, _nId_)
+		return StzEngineReactorPoll(pHandle, nId)
 
 	def Pending()
 		This._Ensure()
@@ -74,13 +74,13 @@ class stzReactor from stzObject
 		return StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
 
 	# Block up to nTimeoutMs for the response body (empty on error/timeout).
-	def AwaitTcp(_nId_, nTimeoutMs)
+	def AwaitTcp(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorTcpAwait(pHandle, _nId_, nTimeoutMs)
+		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
 
-	def PollTcp(_nId_)
+	def PollTcp(nId)
 		This._Ensure()
-		return StzEngineReactorTcpPoll(pHandle, _nId_)
+		return StzEngineReactorTcpPoll(pHandle, nId)
 
 	def TcpLastStatus()
 		return StzEngineReactorTcpLastStatus()
@@ -88,16 +88,16 @@ class stzReactor from stzObject
 	# Submit + await an async TCP request in one call; returns the body.
 	def TcpRequest(cHost, nPort, cPayload, nTimeoutMs)
 		This._Ensure()
-		_nId_ = StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
-		if _nId_ < 1 return "" ok
-		return StzEngineReactorTcpAwait(pHandle, _nId_, nTimeoutMs)
+		nId = StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
+		if nId < 1 return "" ok
+		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
 
 	# ── teardown ─────────────────────────────────────────────
 
 	def Destroy()
-		if _bReady_ = TRUE
+		if bReady = TRUE
 			StzEngineReactorDestroy(pHandle)
 			pHandle = NULL
-			_bReady_ = FALSE
+			bReady = FALSE
 		ok
 		return This

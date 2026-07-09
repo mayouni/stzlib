@@ -1,28 +1,28 @@
 # stzRequestClassifier: AI-powered request analysis for routing
 class stzRequestClassifier from stzObject
-    _aPatterns_ = []
+    aPatterns = []
     
     def init()
         This.LoadClassificationPatterns()
 
     def LoadClassificationPatterns()
         # NLP patterns
-        _aPatterns_ + [
+        aPatterns + [
             :domain = "nlp",
             :keywords = ["text", "analyze", "sentiment", "translate", "language", "parse", "extract"]
         ]
         # Math patterns  
-        _aPatterns_ + [
+        aPatterns + [
             :domain = "math",
             :keywords = ["calculate", "compute", "model", "statistics", "optimize", "solve", "formula"]
         ]
         # Vision patterns
-        _aPatterns_ + [
+        aPatterns + [
             :domain = "vision", 
             :keywords = ["image", "photo", "ocr", "scan", "visual", "picture", "document", "pdf"]
         ]
         # Search patterns
-        _aPatterns_ + [
+        aPatterns + [
             :domain = "search",
             :keywords = ["search", "find", "query", "index", "lookup", "discover", "retrieve"]
         ]
@@ -31,9 +31,9 @@ class stzRequestClassifier from stzObject
         _cContent_ = StzLower(oRequest.Path() + " " + oRequest.Body())
         _aScores_ = []
         
-        _nPatterns1Len_ = len(_aPatterns_)
+        _nPatterns1Len_ = len(aPatterns)
         for _iLoopPatterns1_ = 1 to _nPatterns1Len_
-        	_aPattern_ = _aPatterns_[_iLoopPatterns1_]
+        	_aPattern_ = aPatterns[_iLoopPatterns1_]
             _nScore_ = 0
             _aPatternkeywords1_ = _aPattern_[:keywords]
             _nPatternkeywords1Len_ = len(_aPatternkeywords1_)

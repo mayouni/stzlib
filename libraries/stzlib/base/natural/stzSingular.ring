@@ -1,5 +1,5 @@
 ﻿// Define the aSingularRules list with inverse transformations of stzPlural
-_aSingularRules_ = [
+aSingularRules = [
     // Irregulars (priority 1)
     [ "^children$", "child", "exact", 1, "irregular" ],
     [ "^men$", "man", "exact", 1, "irregular" ],
@@ -38,7 +38,7 @@ func SortSingularRulesByPriority(aRules)
 // Function to convert a plural noun to singular
 func Singular(str)
     _cWord_ = StzLower(trim(str))
-    _aSortedRules_ = SortSingularRulesByPriority(_aSingularRules_)
+    _aSortedRules_ = SortSingularRulesByPriority(aSingularRules)
 	_nLen_ = len(_aSortedRules_)
 
 	for i = 1 to _nLen_
@@ -85,16 +85,16 @@ func Singular(str)
 
 // Helper function to add a new singular rule
 func AddSingularRule(pattern, replacement, type, priority, category)
-    _aSingularRules_ + [pattern, replacement, type, priority, category]
+    aSingularRules + [pattern, replacement, type, priority, category]
 
 // Helper function to get rules by category
 func GetsingularRulesByCategory(category)
     _result_ = []
-	_nLen_ = len(_aSingularRules_)
+	_nLen_ = len(aSingularRules)
 
 	for i = 1 to _nLen_
-        if _aSingularRules_[i][5] = category
-            _result_ + _aSingularRules_[i]
+        if aSingularRules[i][5] = category
+            _result_ + aSingularRules[i]
         ok
     next
     return _result_

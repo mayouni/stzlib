@@ -11,8 +11,8 @@
  ///  VARIABLES  ///
 ///////////////////
 
-_None_ = ""
-_Nothing_ = ""
+None = ""
+Nothing = ""
 
   ///////////////////
  ///  FUNCTIONS  ///
