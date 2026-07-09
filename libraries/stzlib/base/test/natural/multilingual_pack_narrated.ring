@@ -20,8 +20,8 @@ Scenario("Language packs register as pure data")
 	Then("the French pack is registered", StzHasLanguagePack("fr"), TRUE)
 	Then("the Arabic pack is registered", StzHasLanguagePack("ar"), TRUE)
 	Then("an unregistered language reports FALSE", StzHasLanguagePack("de"), FALSE)
-	Then("the language roster covers en/ha/fr/ar",
-		@@( StzNaturalLanguages() ), @@([ "en", "ha", "fr", "ar" ]))
+	Then("the language roster covers en/ha/fr/ar/tr",
+		@@( StzNaturalLanguages() ), @@([ "en", "ha", "fr", "ar", "tr" ]))
 EndScenario()
 
 Scenario("French natural programs execute -- including grown operations")
@@ -172,6 +172,24 @@ Scenario("A language can be added at RUNTIME as a data block")
 	osw = NaturallyIn("sw", "Unda orodha na [ 9, 4, 9 ] ondoa nakala")
 	Then("...and its phrases execute grown operations immediately",
 		@@( osw.Result() ), @@([ 9, 4 ]))
+EndScenario()
+
+Scenario("Role-based grammar: Turkish SOV executes (the word-order unlock)")
+	Given(":object_before_create + :params_before_verb declared as pack grammar")
+
+	# verb-final creation: "[ 3, 1, 3 ] with a list CREATE" -- the value
+	# and the object word both precede the verb
+	ot1 = NaturallyIn("tr", "[ 3, 1, 3 ] ile bir liste oluştur ve tekrarları kaldır")
+	Then("verb-final creation + case-suffixed dedup phrase",
+		@@( ot1.Result() ), @@([ 3, 1 ]))
+
+	# parameters BEFORE their verb: "'.' instead-of '_' PUT"
+	ot2 = NaturallyIn("tr", "'a.b' ile bir metin oluştur '.' yerine '_' koy")
+	Then("backward parameter extraction keeps textual order",
+		ot2.Result(), "a_b")
+
+	ot3 = NaturallyIn("tr", "[ 1, 2, 3 ] ile bir liste oluştur ve tersine çevir")
+	Then("SOV phrase reversal", @@( ot3.Result() ), @@([ 3, 2, 1 ]))
 EndScenario()
 
 Scenario("Existing languages unaffected (regression)")
