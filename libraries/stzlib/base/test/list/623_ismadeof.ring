@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #623.
-#ERR Error (R14) : Calling Method without definition: ismadeof
 
 load "../../stzBase.ring"
 
@@ -18,4 +15,5 @@ o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
 #--> TRUE
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before

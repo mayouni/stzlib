@@ -21,7 +21,5 @@ o1 = new stzList([ "A", "B", "C", "_" ])
 ? o1.Content()
 #--> [ "A", "B", "C" ]
 
-StopProfiler()
-
 pf()
-# Executed in almost 0 second(s)
+# Executed in almost 0 second(s) in Ring 1.27

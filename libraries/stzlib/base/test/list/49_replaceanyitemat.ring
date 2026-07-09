@@ -19,4 +19,5 @@ o1.ReplaceAnyItemAt(3, :With = "★")
 #--> [ 1, 2, "★", 4, "♥" ]
 
 pf()
-# Executed in 0.05 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.05 second(s) before

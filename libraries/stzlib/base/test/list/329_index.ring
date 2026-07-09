@@ -1,9 +1,8 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
-# Extracted from stzlisttest.ring, block #329.
-#ERR Error (R14) : Calling Method without definition: index
+# Extracted from stzlisttest.ring, block #329
 
 load "../../stzBase.ring"
 
@@ -20,7 +19,5 @@ pr()
 	# 	[ "E", [ 8 ] ]
 	# ]
 
-StopProfiler()
-#--> Executed in almost 0 second(s).
-
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

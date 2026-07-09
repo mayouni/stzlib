@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlisttest.ring, block #607.
 

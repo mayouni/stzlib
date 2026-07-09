@@ -26,4 +26,5 @@ ShowShort( o1.ItemsZ() )
 # ]
 
 pf()
+# Executed in 0.45 second(s) in Ring 1.27
 # Executed in 1.09 second(s) in Ring 1.21

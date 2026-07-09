@@ -75,3 +75,4 @@ o1 = new stzList([
 #--> [ [ "tunis", [ 2, 3, 5, 6, 8, 9 ] ], [ "regueb", [ 12 ] ] ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27

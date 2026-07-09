@@ -21,7 +21,5 @@ o1 = new stzList([ "_", "A", "B", "C" ])
 ? o1.Content()
 #--> [ "A", "B", "C" ]
 
-StopProfiler()
-
 pf()
 # Executed in almost 0 second(s)

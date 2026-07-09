@@ -3,13 +3,10 @@
 # WALKING WHILE
 #
 # Extracted from stzlisttest.ring, block #496.
-#ERR Error (R3) : Calling Function without definition: walkwhilext
 
 load "../../stzBase.ring"
 
 pr()
-
-StartProfiler()
 
 StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
 
@@ -23,7 +20,6 @@ StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
 	#--> [1, 2, 3]
 }
 
-StopProfiler()
-#--> Executed in 0.17 second(s)
-
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.17 second(s) before

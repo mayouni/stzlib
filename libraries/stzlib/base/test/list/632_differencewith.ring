@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #632.
-#ERR Error (R14) : Calling Method without definition: commonitemswith
 
 load "../../stzBase.ring"
 
@@ -25,4 +22,5 @@ o1 = new stzList([ "green", "red" ])
 #--> FALSE
 
 pf()
-#--> Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before

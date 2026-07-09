@@ -29,4 +29,5 @@ pr()
 #--> FALSE
 
 pf()
-# Executed in 0.07 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.07 second(s) before

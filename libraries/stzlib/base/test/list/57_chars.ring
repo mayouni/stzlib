@@ -6,10 +6,7 @@
 # Q("1♥♥456♥♥901♥♥4").Chars() builds a stzList of single characters; inside
 # the o1 { ... } block the unqualified Find/ReplaceAnyItemsAtPositions/Content
 # calls all target o1. Find("♥") locates the six ♥ characters and they are
-# replaced in place by "★". The :With and :By labels are interchangeable here.
-#
-# (The old "#ERR Line 98 Bad parameters" header was stale -- the test runs
-# clean against the current engine; verified to STOPPED!.)
+# replaced in place by "★". The :With and :By labels are interchangeable here.7
 #
 # Extracted from stzlisttest.ring, block #57.
 
@@ -36,4 +33,5 @@ o1 {
 }
 
 pf()
-# Executed in 0.06 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.06 second(s) before

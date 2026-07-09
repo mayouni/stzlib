@@ -27,5 +27,5 @@ o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
 # ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.03 second(s) in ring 1.8
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.03 second(s) before

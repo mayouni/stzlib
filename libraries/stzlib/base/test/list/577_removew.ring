@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlisttest.ring, block #577.
 
@@ -18,4 +18,5 @@ o1.RemoveW('{
 #--> [ 1, 2, 3 ]
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.05 second(s) before

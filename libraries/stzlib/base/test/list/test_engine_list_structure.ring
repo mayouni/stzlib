@@ -58,3 +58,4 @@ o = new stzList([1, 2, 3])
 ? "All structural operation tests completed."
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

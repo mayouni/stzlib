@@ -41,5 +41,6 @@ o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
 #--> [ "emm" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.19

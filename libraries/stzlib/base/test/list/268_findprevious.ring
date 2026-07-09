@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #268.
 
@@ -23,6 +23,6 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 StopProfiler()
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.21
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.07 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.04 second(s) in Ring 1.17

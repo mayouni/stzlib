@@ -10,9 +10,6 @@
 # The list is built with the L() range function ("♥1":"♥3"), exercising the
 # codepoint-aware range parser too.
 #
-# (The old "#ERR ... itemsreversed" header was stale -- ItemsReversed is
-# defined and the test runs clean; verified to STOPPED!.)
-#
 # Extracted from stzlisttest.ring, block #69.
 
 load "../../stzBase.ring"
@@ -48,4 +45,5 @@ o1 = new stzList(L(' "♥1" : "♥3" '))
 # and returned as a string containing "♥3~♥2~♥1".
 
 pf()
-# Executed in 0.94 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.94 second(s) before

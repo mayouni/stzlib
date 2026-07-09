@@ -79,4 +79,5 @@ aList = "ا" : "ج"
 #--> [ 1, 2, 3 ]
 
 pf()
-# Executed in 0.23 second(s).
+# Executed in 0.01 second(s) in Ring 1.27
+# Executed in 0.23 second(s) before

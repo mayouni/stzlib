@@ -22,4 +22,5 @@ o1 - 4:6
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.03 second(s) before

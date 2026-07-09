@@ -22,4 +22,5 @@ o1.ReplaceOccurrencesByManyXT([ 3, 4, 5, 6 ], [ "#1", "#2" ])
 #--> [ "A", "B", "#1", "#2", "#1", "#2" ]
 
 pf()
-# Executed in 0.07 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.07 second(s) before

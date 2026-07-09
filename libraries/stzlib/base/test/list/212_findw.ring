@@ -32,4 +32,5 @@ o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
 #--> [ 3 ]
 
 pf()
-# Executed in 0.13 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.13 second(s) before

@@ -1,10 +1,7 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #561.
-#ERR Error (R19) : Calling function with less number of parameters
-
+#
 load "../../stzBase.ring"
 
 pr()
@@ -27,4 +24,5 @@ o1 = new stzString("abcde")
 #---> [ "ab", "cd", "e" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.04 second(s) in Ring 1.21

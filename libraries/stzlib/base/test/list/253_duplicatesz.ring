@@ -30,4 +30,4 @@ o1 = new stzList(aList)
 #--> [ [ "A", [ 1, 4, 5 ] ], [ "B", [ 2, 10 ] ], [ 1, [ 3, 6 ] ], [ "C", [ 7 ] ], [ [ 1, 2 ], [ 8, 13 ] ], [ "D", [ 9 ] ], [ "E", [ 11 ] ], [ '"1"', [ 12 ] ] ]
 
 pf()
-# Executed in almost 0 second(s)
+# Executed in almost 0 second(s) in Ring 1.27

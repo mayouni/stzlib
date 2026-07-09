@@ -37,3 +37,4 @@ c = o1.Content()
 #--> 1
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

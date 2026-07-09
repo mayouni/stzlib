@@ -3,7 +3,6 @@
 # DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 #
 # Extracted from stzlisttest.ring, block #599.
-#ERR Error (R14) : Calling Method without definition: distributeover
 
 load "../../stzBase.ring"
 
@@ -59,4 +58,5 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 #	       the number of items of the list.
 
 pf()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.01 second(s) before

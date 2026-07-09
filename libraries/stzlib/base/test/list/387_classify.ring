@@ -24,6 +24,7 @@ o1 = new stzList([
 #--> [ [ "1982", [ 1, 4, 7 ] ], [ "1964", [ 2, 5 ] ], [ "1992", [ 3, 8 ] ], [ "2001", [ 6 ] ], [ "2000", [ 9 ] ] ]
 
 #NOTE that list items are stringified.
+#ERROR returned []!
 
 pf()
 # Executed in 0.01 second(s).

@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #567.
-#ERR Error (R14) : Calling Method without definition: finditemsw
 
 load "../../stzBase.ring"
 
@@ -17,4 +14,5 @@ o1.InsertBeforeWF( func x { return Q(x).IsLowercase() }, "*" )
 #--> [ "*", "a", "*", "b", "C", "D", "*", "e" ]
 
 pf()
-# Executed in 0.07 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.07 second(s) before
