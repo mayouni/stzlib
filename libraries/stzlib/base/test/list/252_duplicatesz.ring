@@ -21,5 +21,6 @@ pr()
 o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ])
 ? @@( o1.DuplicatesZ() )
 #--> [ [ 1, [ 6 ] ], [ "*", [ 7, 10 ] ], [ [ 10, 11, 12 ], [ 12 ] ], [ "B", [ 11, 13 ] ] ]
+
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

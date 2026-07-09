@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #544.
-#ERR Error (R14) : Calling Method without definition: onlyobjects
 
 load "../../stzBase.ring"
 
@@ -33,4 +30,4 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], o
 # @cvarname: @falseobject
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

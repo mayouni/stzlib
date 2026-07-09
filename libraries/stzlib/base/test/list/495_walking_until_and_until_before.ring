@@ -3,13 +3,10 @@
 # WALKING UNTIL (AND UNTIL BEFORE)
 #
 # Extracted from stzlisttest.ring, block #495.
-#ERR exit 1: 1
 
 load "../../stzBase.ring"
 
 pr()
-
-StartProfiler()
 
 StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
 
@@ -26,7 +23,7 @@ StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
 	#--> [1, 2, 3, 4]
 }
 
-StopProfiler()
-#--> Executed in 0.24 second(s)
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.24 second(s) before

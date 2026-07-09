@@ -14,3 +14,4 @@ pr()
 #--> [ 8, 7, 6, 5 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

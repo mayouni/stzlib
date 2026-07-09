@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #540.
-#ERR Error (R14) : Calling Method without definition: uniquetypes
 
 load "../../stzBase.ring"
 
@@ -16,4 +13,4 @@ pr()
 #--> [ "STRING", "NUMBER" ]
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

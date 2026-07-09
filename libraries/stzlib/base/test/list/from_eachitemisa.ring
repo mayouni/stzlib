@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlistofliststest.ring, block #58.
 
@@ -19,7 +19,7 @@ o1 = new stzList([
 ? o1.EachItemIsA(:ListOfNumbers)
 #--> TRUE
 
-o1 = new stzList([ "A":"C", "E":"D", "G": "Y" ])
+o1 = new stzList([ "A":"C", "E":"D", "G":"Y" ])
 ? o1.EachItemIs(:ListOfStrings)
 #--> TRUE
 

@@ -36,5 +36,6 @@ o1.RemoveDuplicates()
 #--> [ "_", "ONE", "TWO", "THREE", "*" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.01 second(s) in ring 1.21
 # Executed in 0.55 second(s) in Ring 1.17

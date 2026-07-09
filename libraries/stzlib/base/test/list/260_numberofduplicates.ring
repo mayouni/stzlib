@@ -24,4 +24,5 @@ o1 = new stzList([ "*", "4", "*", "3", "4" ])
 #--> [ "*", "4" ]
 
 pf()
-# Executed in 0.08 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.08 second(s) before

@@ -1,9 +1,8 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlisttest.ring, block #619.
-#ERR Error (R14) : Calling Method without definition: yieldatw
 
 load "../../stzBase.ring"
 
@@ -14,4 +13,5 @@ o1 = new stzList([ 1, "ring", 3, "python", 5, "ruby" ])
 #--> [ "RING", "PYTHON", "RUBY" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.06 second(s) in Ring 1.22

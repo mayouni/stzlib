@@ -76,3 +76,4 @@ aData = [ [3, "c"], [1, "a"], [2, "b"] ]
 ? "All sort/reverse tests completed."
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

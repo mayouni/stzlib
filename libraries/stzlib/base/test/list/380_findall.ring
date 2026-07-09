@@ -25,4 +25,5 @@ o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 #--> TRUE	
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before

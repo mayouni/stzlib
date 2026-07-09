@@ -29,5 +29,6 @@ o1.StringifyAndReplaceXT("_", "♥")
 #--> [ 12, "--♥--", 10 ]
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.27
 # Executed in 0.21 second(s) in Ring 1.22
 # Executed in 0.50 second(s) in Ring 1.20

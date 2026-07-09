@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #643.
-#ERR Error (R14) : Calling Method without definition: itemshavesameorderas
 
 load "../../stzBase.ring"
 
@@ -14,4 +11,4 @@ o1 = new stzList([ 2, 1, 3 ])
 #-- TRUE
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

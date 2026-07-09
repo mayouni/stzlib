@@ -24,4 +24,5 @@ o1 = new stzList("A":"J")
 #--> [ ["A", "B"], ["F"], ["I", "J"] ]
 
 pf()
-# Executed in 0.07 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.07 second(s) before

@@ -18,4 +18,5 @@ o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
 #--> [ 1, 2, 4, 5, 7, 8, 10 ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.03 second(s) before

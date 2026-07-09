@@ -35,5 +35,6 @@ o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 #--> 6
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.17

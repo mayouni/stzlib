@@ -15,6 +15,7 @@ pr()
 # Only the numbers move; the string slots (1,2,7,8,9) stay put
 aL = [ "A", "B", 30, 40, 50, 60, "A", "B", "C" ]
 o1 = new stzList(aL)
+
 o1.RandomizeNumbers()
 c = o1.Content()
 ? ( @@([ c[1], c[2], c[7], c[8], c[9] ]) = @@([ "A", "B", "A", "B", "C" ]) and o1.ContainsAllOfThese(aL) )
@@ -37,3 +38,4 @@ c = o1.Content()
 #--> 1
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27

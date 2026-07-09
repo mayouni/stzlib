@@ -1,12 +1,12 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #629.
-#ERR Error (R14) : Calling Method without definition: iscontainedin
 
 load "../../stzBase.ring"
 
+/*---
+
+pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
 
@@ -41,9 +41,11 @@ o1 = new stzList([ "green", "red", "blue" ])
 #--> TRUE
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.05 second(s) before
 
-#--------- DIFF
+/*--------- DIFF
+*/
 pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
@@ -72,4 +74,5 @@ o1 = new stzList([ "green", "red", "blue" ])
 '
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.03 second(s) in Ring 1.24

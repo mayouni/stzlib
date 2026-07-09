@@ -25,4 +25,5 @@ o1 = new stzList([ "a", "ab", "abnA", "abAb" ])
 #--> 0
 
 pf()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before

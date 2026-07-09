@@ -26,6 +26,7 @@ pr()
 	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
 
 	? ElapsedTime() # illustrative -- varies by machine
+	#--> 0.01 second(s)
 
 # Now disable checking and repeat the same job:
 

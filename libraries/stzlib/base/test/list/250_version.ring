@@ -10,10 +10,10 @@ load "../../stzBase.ring"
 pr()
 
 ? ring_version()
-#--> "1.17"
+#--> "1.27"
 
 ? StzVersion()
-#--> "1.0"
+#--> "0.9"
 
 pf()
 # Executed in almost 0 second(s).

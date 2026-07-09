@@ -112,3 +112,4 @@ ok
 ? "================================="
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

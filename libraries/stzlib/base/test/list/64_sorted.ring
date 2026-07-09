@@ -23,4 +23,5 @@ o1 = new stzList([ ["03", "04"], 3, ["01","02"], 1, "Two", 2, "One" ])
 #--> [ [ "03", "04" ], [ "01", "02" ], "Two", "One", 3, 2, 1 ]
 
 pf()
-# Executed in 0.06 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.06 second(s) before

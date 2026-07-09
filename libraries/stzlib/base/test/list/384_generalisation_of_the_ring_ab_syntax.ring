@@ -39,4 +39,5 @@ StzListQ( L(' "ا" : "ج" ') ) {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27
 # Executed in 0.07 second(s) in Ring 1.21

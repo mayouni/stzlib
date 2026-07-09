@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #588.
-#ERR Error (R14) : Calling Method without definition: numberofduplicatesof
 
 load "../../stzBase.ring"
 
@@ -29,4 +26,5 @@ o1.Reverse()
 #--> [ "regueb", "tunis", "gabes", [ 1, 2, 3 ], "gafsa" ]
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before

@@ -3,7 +3,6 @@
 # #ring A draft for a code using inside Softanza
 #
 # Extracted from stzlisttest.ring, block #314.
-#ERR Error (R14) : Calling Method without definition: manyremoved
 
 load "../../stzBase.ring"
 
@@ -42,7 +41,6 @@ end
 ? @@(aSections)
 # [ [ 6, 9 ], [ 11, 14 ], [ 18, 21 ], [ 4, 15 ], [ 1, 22 ] ]
 
-StopProfiler()
-
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.01 second(s) before

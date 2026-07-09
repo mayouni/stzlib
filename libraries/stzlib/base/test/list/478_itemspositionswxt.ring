@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #478.
 

@@ -1,55 +1,43 @@
 # Narrative
 # --------
-# VizFind on a long, NESTED list -- wrapping, shallow-vs-deep, and any value.
+# VizFind on a LONG list: the rendering wraps into fixed-width lines.
 #
-# Rendering wraps into fixed-width lines (default 50 cols) with a marker row
-# beneath each, a blank line between wrapped blocks, and the "(count)" once at
-# the end. The code line is indented by the label width so the "^" carets sit
-# under their items.
+# When the rendered list is wider than the wrap width (default 50 columns),
+# VizFind/VizFindXT/VizFindMany split it into successive lines and draw the
+# marker row(s) beneath EACH line, with a blank line separating the wrapped
+# blocks (none after the last). The "(count)" tally of an XT form is printed
+# once, at the end of the final block. This keeps the visual readable for
+# lists too wide for one line -- and it works for any string value, not just
+# single chars.
 #
-# SHALLOW (VizFindXT): marks only TOP-LEVEL occurrences -- the "A" nested inside
-# a sub-list [ "A", "B" ] is NOT marked -- and the "(count)" is what Find returns
-# (top-level items: 4). DEEP (VizDeepFindXT): marks every occurrence at any depth
-# and counts them all (6). The searched value can itself be a sub-list: because a
-# list is WIDE, its match is UNDERLINED across its whole footprint, not pinned to
-# a single caret (a scalar value keeps the single caret).
-#
-# Authored example (not extracted).
+# Authored example (not extracted) -- exercises the wrapping path of VizFind.
 
 load "../../stzBase.ring"
 
+
+/*---
+
 pr()
 
-o1 = new stzList([ "A","B","A",[ "A", "B" ], "C","A","D","E", [ "A", "B" ], "A","B" ])
-
-# Shallow: nested "A"s left unmarked; count = Find's 4 top-level items
-? o1.VizFindXT("A")
-#-->       [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
-#    "A" :  --^---------^-----------------------^------------
+StzListQ([ "A","B","A","C","A","D","E","A","B","F","A","C","A","G","A" ]) {
+	? VizFindXT("A")
+}
+#--> [ "A", "B", "A", "C", "A", "D", "E", "A", "B", "F"
+#    "A" :  --^---------^---------^--------------^-----------
 #
-#           [ "A", "B" ], "A", "B" ]
-#    "A" : ----------------^-------- (4)
-
-? ""
-
-# Deep: every "A" marked, including the two nested in sub-lists; count 6
-? o1.VizDeepFindXT("A")
-#-->       [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
-#    "A" :  --^---------^------^----------------^------------
-#
-#           [ "A", "B" ], "A", "B" ]
-#    "A" : ----^-----------^-------- (6)
-
-? ""
-
-# The value can be a whole sub-list: each [ "A", "B" ] item is underlined across
-# its full width (2 of them)
-? o1.VizFindXT([ "A", "B" ])
-#-->                [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
-#    [ "A", "B" ] :  ----------------^^^^^^^^^^^^---------------------
-#
-#                     [ "A", "B" ], "A", "B" ]
-#    [ "A", "B" ] : -^^^^^^^^^^^^------------ (2)
+#    , "A", "C", "A", "G", "A" ]
+#    "A" : ---^---------^---------^--- (7)
 
 pf()
 # Executed in 0.01 second(s).
+
+/*---
+*/
+
+pr()
+
+SetVizWidth(80)
+o1 = new stzList([ "A","B","A",[ "A", "B" ], "C","A","D","E", [ "A", "B" ], "A","B" ])
+? o1.VizFindXT(["A", "B"])
+
+pf()

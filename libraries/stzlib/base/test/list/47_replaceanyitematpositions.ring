@@ -21,4 +21,5 @@ o1.ReplaceAnyItemAtPositions([ 1, 5 ], :By = "♥♥♥")
 #--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
 
 pf()
-# Executed in 0.06 second(s)
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.06 second(s) before

@@ -27,4 +27,4 @@ o1 = new stzList([
 #--> TRUE
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

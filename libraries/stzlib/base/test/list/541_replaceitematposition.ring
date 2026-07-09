@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #541.
-#ERR Error (R3) : Calling Function without definition: replaceitematposition
 
 load "../../stzBase.ring"
 
@@ -21,4 +18,4 @@ StzListQ([ "one", "two", "three" ]) {
 }
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.27

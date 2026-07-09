@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #624.
-#ERR Error (R14) : Calling Method without definition: ismadeofoneofthese
 
 load "../../stzBase.ring"
 
@@ -14,4 +11,5 @@ o1 = new stzList([ :monday, :monday, :monday ])
 #--> TRUE
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.01 second(s) before

@@ -1,9 +1,7 @@
 # Narrative
 # --------
-# StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #325.
-#ERR Error (R14) : Calling Method without definition: numberoflevels
 
 load "../../stzBase.ring"
 
@@ -21,4 +19,5 @@ o1 = new stzList(
 StopProfiler()
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.09 second(s) in Ring 1.22

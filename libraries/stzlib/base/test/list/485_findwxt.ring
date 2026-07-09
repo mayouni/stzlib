@@ -23,4 +23,5 @@ o1 = new stzList([ 2, 8, 2, 2, 11, 2, 11, 7, 7, 4, 2, 1, 3, 2, 10, 8, 3, 3, 3, 6
 #--> [ 3, 8, 17, 18 ]
 
 pf()
-# Executed in 0.29 second(s).
+# Executed in 0.01 second(s) in Ring 1.27
+# Executed in 0.29 second(s) before

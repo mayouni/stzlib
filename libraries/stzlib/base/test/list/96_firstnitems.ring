@@ -24,11 +24,12 @@ next
 o1 = new stzList(aLargeList)
 o1.StringifyAndReplace("_", "♥")
 
-? o1.FirstNItems(5)
+? @@( o1.FirstNItems(5) )
 #--> [ "--♥--", '[ 12, "--♥--", 10 ]', "--♥--", "9", "♥--♥" ]
 
-? o1.LastNItems(3)
+? @@( o1.LastNItems(3) )
 #--> [ "♥--♥", "♥--♥", "♥--♥" ]
 
 pf()
-# Executed in 0.09 second(s)
+# Executed in 0.01 second(s) in Ring 1.27
+# Executed in 0.09 second(s) before

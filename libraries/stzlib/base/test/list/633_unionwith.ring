@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# pr()
-#
 # Extracted from stzlisttest.ring, block #633.
-#ERR Error (R14) : Calling Method without definition: intersectionwith
 
 load "../../stzBase.ring"
 
@@ -18,4 +15,5 @@ o1 = new stzList([ 1, 2, 3 ])
 #--> [ 3 ]
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before
