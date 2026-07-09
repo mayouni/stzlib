@@ -87,6 +87,26 @@ Scenario("Arabic is LINGUISTICALLY CORRECT, not transliterated English")
 		ol6.Result(), "gnir")
 EndScenario()
 
+Scenario("Vocalized, real-world Arabic writing is accepted")
+	Given("tashkeel/tatweel stripped as marks, wa-/fa- stripped as attached conjunctions")
+
+	# the once-crashing sentence: tanween on qa'imatan, stretched bi--,
+	# shadda on thumma, and wa- glued to iqlib-ha -- two chained actions
+	ov1 = NaturallyIn("ar", "أنشئ قائمةً بــ [ 3, 1, 3, 1, 3, 2 ] ثمّ احذف تكراراتها واقلبها")
+	Then("fully vocalized sentence: dedup THEN wa-reverse",
+		@@( ov1.Result() ), @@([ 2, 1, 3 ]))
+
+	ov2 = NaturallyIn("ar", "أنشئ قائمةً بـ [ 1, 2 ] اعكسها")
+	Then("tanween on the object noun", @@( ov2.Result() ), @@([ 2, 1 ]))
+
+	ov3 = NaturallyIn("ar", "أنشئ قائمة بــــ [ 1, 2 ] اعكسها")
+	Then("bi- stretched with many tatweels", @@( ov3.Result() ), @@([ 2, 1 ]))
+
+	ov4 = NaturallyIn("ar", "أنشئ قائمة بـ [ 1, 2, 2 ] ثمّ أزل التكرارات واعكسها")
+	Then("shadda on thumma + wa-attached dictionary verb",
+		@@( ov4.Result() ), @@([ 2, 1 ]))
+EndScenario()
+
 Scenario("French elision generalizes through the same canonicalizer")
 	oe1 = NaturallyIn("fr", "Crée une chaine avec 'ring' et mets la à l'envers")
 	Then("l'envers (elided article, apostrophe intact)", oe1.Result(), "gnir")
