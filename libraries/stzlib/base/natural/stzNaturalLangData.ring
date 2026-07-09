@@ -113,6 +113,11 @@ StzAddNaturalLanguage([
 	# and-reverse-it) -- stripped before the article
 	:prefix_conjunctions = [ "و", "ف" ],
 
+	# fused prepositions bi-/li- (RISKY: many words start with these
+	# letters) -- stripped only on the VERIFIED path, where the
+	# remaining base must be a word the pack already knows
+	:prefix_prepositions = [ "بـ", "ب", "لـ", "ل" ],
+
 	# tashkeel (tanween, fatha, damma, kasra, shadda, sukun) and the
 	# tatweel stretch are WRITING marks, not meaning -- deleted anywhere
 	# in a token before matching, so the writer may fully vocalize

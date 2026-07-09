@@ -254,6 +254,23 @@ func NaturallyIn(cLang, cCode)
 func Naturally(cCode)
 	return NaturallyXT([], cCode)
 
+# LINT a natural narration WITHOUT running it: which words would not be
+# understood, and what the writer probably meant. Returns
+# [ :understood = TRUE/FALSE, :unresolved = [ [word, suggestion], ... ] ].
+
+func StzNaturalLintIn(cLang, cCode)
+	oEngine = new stzNaturalEngine(cLang, "", [], "")
+	return oEngine.Analyze(cCode)
+
+	func @StzNaturalLintIn(cLang, cCode)
+		return StzNaturalLintIn(cLang, cCode)
+
+func StzNaturalLint(cCode)
+	return StzNaturalLintIn("en", cCode)
+
+	func @StzNaturalLint(cCode)
+		return StzNaturalLint(cCode)
+
 #-- NATURAL ENGINE CLASS WITH CONTEXT
 
 class stzNaturalEngine from stzObject
@@ -264,6 +281,8 @@ class stzNaturalEngine from stzObject
 	@aValues = []
 	@aTokenIsWord = []	# provenance: TRUE = bare word, FALSE = quoted string
 				# or list literal (those must NEVER be fallback-resolved)
+	@aUnresolved = []	# [ [word, suggestion], ... ] -- action-position words
+				# the language could not understand (see Unresolved())
 	@aSemanticTokens = []
 	@cCurrentObject = ""
 	@cCurrentVariable = ""
@@ -448,6 +467,7 @@ class stzNaturalEngine from stzObject
 	def TokenizeCode(cCode)
 		@aValues = []
 		@aTokenIsWord = []
+		@aUnresolved = []
 		cCode = trim(cCode)
 		aTokens = This.SmartSplit(cCode)
 		@aValues = aTokens
@@ -701,6 +721,23 @@ class stzNaturalEngine from stzObject
 				return [ cId, aEnds[n] + 1, cShown ]
 			ok
 		next
+
+		# no exact join: for PACK languages, let the shared IDF ranker
+		# decide from the rare content words ("vire les doublons" -- the
+		# unlisted verb contributes nothing, the rare word carries it)
+		if @cLangCode != "en"
+			cId = StzResolveSemanticPhraseInLang(@cLangCode, aWords)
+			if cId != ""
+				cShown = ""
+				for k = 1 to nW
+					cShown += aWords[k]
+					if k < nW
+						cShown += " "
+					ok
+				next
+				return [ cId, aEnds[nW] + 1, cShown ]
+			ok
+		ok
 		return [ "", 0, "" ]
 
 	def LoadLanguageData()
@@ -839,8 +876,8 @@ class stzNaturalEngine from stzObject
 			# positions are excluded by FallbackEligible) is resolved
 			# against the shared semantic lexicon (en) or the language's
 			# registered pack (fr, ar, ...).
-			if cSemantic = "" and This.LangResolvable() and
-			   This.FallbackEligible(aTokens)
+			bEligible = This.FallbackEligible(aTokens)
+			if cSemantic = "" and This.LangResolvable() and bEligible
 				cSemantic = StzResolveSemanticInLang(@cLangCode, cCheck)
 				if cSemantic != ""
 					This.AddToDebugLog("Unified lexicon: '" + cCheck + "' -> " + cSemantic)
@@ -860,6 +897,16 @@ class stzNaturalEngine from stzObject
 			else
 				aTokens + [:type = "literal", :value = cValue]
 				This.AddToDebugLog("Literal")
+				# UNDERSTANDABILITY: an action-position word nobody
+				# understood -- report it, with the nearest known
+				# word as a suggestion (never blocks execution).
+				# bEligible was captured BEFORE this literal joined
+				# aTokens, so it judges the word's own position.
+				if This.LangResolvable() and bEligible and
+				   StzLen(cCheck) >= 3
+					cSug = StzSuggestWord(@cLangCode, cCheck)
+					@aUnresolved + [ cCheck, cSug ]
+				ok
 			ok
 			i++
 		end
@@ -1224,9 +1271,32 @@ class stzNaturalEngine from stzObject
 
 	def OriginalCode()
 		return @cOriginalCode
-	
+
 	def NaturalCode()
 		return @cNaturalCode
+
+	# UNDERSTANDABILITY: the action-position words this run could not
+	# interpret, each with the nearest known word as a suggestion --
+	# [ [word, suggestion], ... ]. Execution is permissive (unknown
+	# words degrade to literals); this is the honest report of it.
+
+	def Unresolved()
+		return @aUnresolved
+
+	def UnderstoodAll()
+		return len(@aUnresolved) = 0
+
+	# Dry run: tokenize + interpret WITHOUT generating or executing any
+	# code. Returns the lint report.
+
+	def Analyze(cCode)
+		if NOT isString(cCode) or trim(cCode) = ""
+			return [ :understood = TRUE, :unresolved = [] ]
+		ok
+		@cNaturalCode = cCode
+		This.TokenizeCode(cCode)
+		@aSemanticTokens = This.ConvertToSemanticTokens()
+		return [ :understood = This.UnderstoodAll(), :unresolved = @aUnresolved ]
 	
 	def Context()
 		return @aContext

@@ -123,6 +123,24 @@ Scenario("Growth safety: wrong-class verbs and missing params degrade to no-ops"
 		og5.Result(), "ring")
 EndScenario()
 
+Scenario("Understandability: unknown words are reported with suggestions")
+	ou1 = Naturally("Create a string with 'softanza' Uppercse it")
+	Then("the typo degrades permissively (no crash, no wrong action)",
+		ou1.Result(), "softanza")
+	Then("...and Unresolved() names it, with the nearest known word",
+		@@( ou1.Unresolved() ), @@([ [ "Uppercse", "uppercase" ] ]))
+
+	aLint = StzNaturalLint("Create a string with 'x' Fooify it and Uppercse it")
+	Then("lint flags a not-understood narration without running it",
+		aLint[:understood], 0)
+	Then("...listing every unknown word with its suggestion",
+		len(aLint[:unresolved]), 2)
+
+	ou2 = Naturally("Create a list with [ 3, 1, 3 ] and Remove its duplicates")
+	Then("a fully understood program reports UnderstoodAll",
+		ou2.UnderstoodAll(), TRUE)
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")

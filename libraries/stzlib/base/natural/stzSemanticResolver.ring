@@ -659,6 +659,15 @@ func StzAddNaturalLanguage(aDef)
 	if HasKey(aDef, :prefix_conjunctions)
 		_aConj_ = aDef[:prefix_conjunctions]
 	ok
+	# attached prepositions (Arabic bi-/li- fuse with their noun:
+	# "bi-al-takrarat"). RISKY affixes: many words legitimately start
+	# with these letters, so they are stripped ONLY on the verified
+	# path (construct-and-verify: the remaining base must be a word
+	# the language already knows).
+	_aPrep_ = []
+	if HasKey(aDef, :prefix_prepositions)
+		_aPrep_ = aDef[:prefix_prepositions]
+	ok
 	# marks deleted ANYWHERE in a token before matching: Arabic tashkeel
 	# (tanween, fatha, shadda, ...) and the tatweel stretch character --
 	# writers use them freely ("qa'imatan" with tanween, "bi--" stretched)
@@ -697,8 +706,41 @@ func StzAddNaturalLanguage(aDef)
 		next
 	ok
 
+	# KNOWN BASES: every canonical word this language recognizes --
+	# mapping words, exact-phrase keys, bag tokens. The verified affix
+	# stripper only accepts a strip chain that lands on one of these.
+	_aKnown_ = []
+	if HasKey(aDef, :semantic_mappings)
+		_aM_ = aDef[:semantic_mappings]
+		_nM_ = len(_aM_)
+		for _i_ = 1 to _nM_
+			_cW_ = _StzSemLangNorm(StzLower(_aM_[_i_][:natural]), _aMarks_)
+			_cW_ = _StzSemLangCanon(_cW_, _aArt_, _aSuf_, _aConj_)
+			if _cW_ != "" and ring_find(_aKnown_, _cW_) = 0
+				_aKnown_ + _cW_
+			ok
+		next
+	ok
+	_nE_ = len(_aExact_)
+	for _i_ = 1 to _nE_
+		if ring_find(_aKnown_, _aExact_[_i_][1]) = 0
+			_aKnown_ + _aExact_[_i_][1]
+		ok
+	next
+	_nB_ = len(_aBags_)
+	for _i_ = 1 to _nB_
+		_aTk_ = _StzSplitOnChar(_aBags_[_i_][2], " ")
+		_nT_ = len(_aTk_)
+		for _j_ = 1 to _nT_
+			if _aTk_[_j_] != "" and ring_find(_aKnown_, _aTk_[_j_]) = 0
+				_aKnown_ + _aTk_[_j_]
+			ok
+		next
+	next
+
 	# upsert the language lexicon (morphology kept for query-side canon)
-	_aEntry_ = [ _cCode_, _aBags_, _aExact_, _aArt_, _aSuf_, _aConj_, _aMarks_ ]
+	_aEntry_ = [ _cCode_, _aBags_, _aExact_, _aArt_, _aSuf_, _aConj_, _aMarks_,
+	             _aPrep_, _aKnown_ ]
 	_bDone_ = FALSE
 	_nX_ = len($aStzSemLangLex)
 	for _i_ = 1 to _nX_
@@ -760,11 +802,16 @@ func StzResolveSemanticInLang(pcLang, pcWord)
 		return ""
 	ok
 
-	# canonical form: marks deleted, attached conjunction/article/pronoun
-	# suffix stripped, so the inflected Arabic "wa-reverse-it" or
-	# "its-duplicates" (with tanween) matches its base
+	# canonical form: marks deleted, then VERIFIED affix stripping (any
+	# chain landing on a known base -- wa+bi+al+word), falling back to
+	# the one-shot canon
 	_w_ = _StzSemLangNorm(_w_, _aLex_[7])
-	_w_ = _StzSemLangCanon(_w_, _aLex_[4], _aLex_[5], _aLex_[6])
+	_cV_ = _StzSemLangCanonVerified(_w_, _aLex_)
+	if _cV_ != ""
+		_w_ = _cV_
+	else
+		_w_ = _StzSemLangCanon(_w_, _aLex_[4], _aLex_[5], _aLex_[6])
+	ok
 
 	# the language's own DICTIONARY, consulted with the canonical form:
 	# a pronoun-suffixed dictionary verb resolves without any pack phrase
@@ -784,20 +831,37 @@ func StzResolveSemanticInLang(pcLang, pcWord)
 		return _cId_
 	ok
 
-	# membership over the pack bags (strict unique winner)
-	_aBags_ = _aLex_[2]
-	_nB_ = len(_aBags_)
-	_cBest_ = ""
-	_nHits_ = 0
-	for _i_ = 1 to _nB_
-		if ring_find(_StzSplitOnChar(_aBags_[_i_][2], " "), _w_) > 0
-			_nHits_++
-			_cBest_ = _aBags_[_i_][1]
-		ok
-	next
-	if _nHits_ = 1
+	# ONE RANKER FOR ALL LANGUAGES: the same IDF discipline English gets,
+	# over the pack bags (Unicode-safe: bags are pre-tokenized on spaces),
+	# with the strict unique-winner rule
+	_cId_ = _StzSemLangIdfBest([ _w_ ], _aLex_[2])
+	if _cId_ != ""
 		StzGrowSemanticOperations()
-		return _cBest_
+		return _cId_
+	ok
+
+	# neural rescue, exactly as English enjoys it: only when the lexical
+	# passes found nothing and a model is loaded
+	if StzHasNeuralModel()
+		_aBags_ = _aLex_[2]
+		_nB_ = len(_aBags_)
+		_nBest_ = 0
+		_nSecond_ = 0
+		_nBestIdx_ = 0
+		for _i_ = 1 to _nB_
+			_n_ = StzSemanticSimilarity(_w_, _aBags_[_i_][2])
+			if _n_ > _nBest_
+				_nSecond_ = _nBest_
+				_nBest_ = _n_
+				_nBestIdx_ = _i_
+			but _n_ > _nSecond_
+				_nSecond_ = _n_
+			ok
+		next
+		if _nBest_ >= 0.55 and (_nBest_ - _nSecond_) >= 0.05
+			StzGrowSemanticOperations()
+			return _aBags_[_nBestIdx_][1]
+		ok
 	ok
 	return ""
 
@@ -824,6 +888,216 @@ func StzSemanticExactIdInLang(pcLang, pcJoined)
 
 	func @StzSemanticExactIdInLang(pcLang, pcJoined)
 		return StzSemanticExactIdInLang(pcLang, pcJoined)
+
+# Scored phrase resolution for pack languages: when no exact join matched,
+# the same IDF discipline decides -- rare pack words carry the phrase
+# ("vire les doublons": the unlisted verb contributes nothing, the rare
+# 'doublons' decides). Strict unique winner, action ids by construction.
+# acWords arrive already canonicalized by the engine.
+
+func StzResolveSemanticPhraseInLang(pcLang, pacWords)
+	_cLang_ = StzLower(pcLang)
+	if _cLang_ = "en"
+		return ""
+	ok
+	_aLex_ = _StzSemLangEntry(_cLang_)
+	if len(_aLex_) = 0
+		return ""
+	ok
+	_cId_ = _StzSemLangIdfBest(pacWords, _aLex_[2])
+	if _cId_ != ""
+		StzGrowSemanticOperations()
+	ok
+	return _cId_
+
+	func @StzResolveSemanticPhraseInLang(pcLang, pacWords)
+		return StzResolveSemanticPhraseInLang(pcLang, pacWords)
+
+# IDF over the pack bags, Unicode-safe (bags are pre-tokenized on spaces).
+# Score of a bag = sum of idf of the query words it contains; smoothed
+# idf = 1 + ln(nBags / df)-ish via 1/(df). Strict unique winner or "".
+
+func _StzSemLangIdfBest(pacWords, paBags)
+	_nB_ = len(paBags)
+	_nW_ = len(pacWords)
+	if _nB_ = 0 or _nW_ = 0
+		return ""
+	ok
+	# tokenize bags once
+	_aTok_ = []
+	for _i_ = 1 to _nB_
+		_aTok_ + _StzSplitOnChar(paBags[_i_][2], " ")
+	next
+	# document frequency per query word
+	_aDf_ = []
+	for _j_ = 1 to _nW_
+		_nDf_ = 0
+		for _i_ = 1 to _nB_
+			if ring_find(_aTok_[_i_], pacWords[_j_]) > 0
+				_nDf_++
+			ok
+		next
+		_aDf_ + _nDf_
+	next
+	# score bags
+	_nBest_ = 0
+	_nSecond_ = 0
+	_nBestIdx_ = 0
+	for _i_ = 1 to _nB_
+		_nScore_ = 0
+		for _j_ = 1 to _nW_
+			if _aDf_[_j_] > 0 and ring_find(_aTok_[_i_], pacWords[_j_]) > 0
+				_nScore_ += (1 / _aDf_[_j_])
+			ok
+		next
+		if _nScore_ > _nBest_
+			_nSecond_ = _nBest_
+			_nBest_ = _nScore_
+			_nBestIdx_ = _i_
+		but _nScore_ > _nSecond_
+			_nSecond_ = _nScore_
+		ok
+	next
+	if _nBest_ > 0 and _nBest_ > _nSecond_
+		return paBags[_nBestIdx_][1]
+	ok
+	return ""
+
+#--- UNDERSTANDABILITY FEEDBACK --------------------------------------------
+# A natural system's flexibility is measured by how it behaves when it does
+# NOT understand: report the word, and suggest the nearest known one.
+
+# The suggestion vocabulary of a language: dictionary words + exact-phrase
+# keys (+ bag tokens for packs). English uses its dictionary + operation
+# method names.
+
+func StzSemVocabulary(pcLang)
+	_cLang_ = StzLower(pcLang)
+	_aOut_ = []
+	if _cLang_ = "en"
+		StzSemanticLexicon()
+		_n_ = len($aStzSemExactNames)
+		for _i_ = 1 to _n_
+			_aOut_ + $aStzSemExactNames[_i_][1]
+		next
+	else
+		_aLex_ = _StzSemLangEntry(_cLang_)
+		if len(_aLex_) > 0
+			_aOut_ = _StzSemCopyList(_aLex_[9])   # known bases
+		ok
+	ok
+	# the language's dictionary words, both cases
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if StzLower(_aDef_[:code]) != _cLang_ or NOT HasKey(_aDef_, :semantic_mappings)
+			loop
+		ok
+		_aM_ = _aDef_[:semantic_mappings]
+		_nM_ = len(_aM_)
+		for _j_ = 1 to _nM_
+			_cW_ = StzLower(_aM_[_j_][:natural])
+			if ring_find(_aOut_, _cW_) = 0
+				_aOut_ + _cW_
+			ok
+		next
+	next
+	return _aOut_
+
+	func @StzSemVocabulary(pcLang)
+		return StzSemVocabulary(pcLang)
+
+func _StzSemCopyList(paList)
+	_aOut_ = []
+	_n_ = len(paList)
+	for _i_ = 1 to _n_
+		_aOut_ + paList[_i_]
+	next
+	return _aOut_
+
+# Nearest known word by edit distance (<= 2 for ASCII words, <= 4 for
+# multibyte scripts where one letter = two bytes). Length + boundary-byte
+# prefilters keep the DP off nearly all candidates.
+
+func StzSuggestWord(pcLang, pcWord)
+	_w_ = StzLower(trim(pcWord))
+	_nW_ = len(_w_)
+	if _nW_ < 3
+		return ""
+	ok
+	_nMax_ = 2
+	for _i_ = 1 to _nW_
+		if ascii(_w_[_i_]) > 127
+			_nMax_ = 4
+			exit
+		ok
+	next
+	_aVoc_ = StzSemVocabulary(pcLang)
+	_n_ = len(_aVoc_)
+	_cBest_ = ""
+	_nBest_ = _nMax_ + 1
+	for _i_ = 1 to _n_
+		_cC_ = _aVoc_[_i_]
+		_nC_ = len(_cC_)
+		if _cC_ = _w_
+			loop
+		ok
+		# prefilters: length window, then a shared boundary byte
+		if _nC_ - _nW_ > _nMax_ or _nW_ - _nC_ > _nMax_
+			loop
+		ok
+		if left(_cC_, 1) != left(_w_, 1) and right(_cC_, 1) != right(_w_, 1)
+			loop
+		ok
+		_nD_ = _StzSemEditDistance(_w_, _cC_, _nBest_ - 1)
+		if _nD_ >= 0 and _nD_ < _nBest_
+			_nBest_ = _nD_
+			_cBest_ = _cC_
+			if _nBest_ <= 1
+				exit
+			ok
+		ok
+	next
+	return _cBest_
+
+	func @StzSuggestWord(pcLang, pcWord)
+		return StzSuggestWord(pcLang, pcWord)
+
+# Byte-level Levenshtein with a cutoff: returns the distance, or -1 when
+# it exceeds pnCut (lets the caller skip hopeless candidates fast).
+
+func _StzSemEditDistance(pcA, pcB, pnCut)
+	_nA_ = len(pcA)
+	_nB_ = len(pcB)
+	_aPrev_ = []
+	for _j_ = 0 to _nB_
+		_aPrev_ + _j_
+	next
+	for _i_ = 1 to _nA_
+		_aCur_ = [ _i_ ]
+		_nMin_ = _i_
+		for _j_ = 1 to _nB_
+			_nCost_ = 1
+			if pcA[_i_] = pcB[_j_]
+				_nCost_ = 0
+			ok
+			_nV_ = _aPrev_[_j_ + 1] + 1          # deletion
+			_nV2_ = _aCur_[_j_] + 1              # insertion
+			if _nV2_ < _nV_ _nV_ = _nV2_ ok
+			_nV2_ = _aPrev_[_j_] + _nCost_       # substitution
+			if _nV2_ < _nV_ _nV_ = _nV2_ ok
+			_aCur_ + _nV_
+			if _nV_ < _nMin_ _nMin_ = _nV_ ok
+		next
+		if _nMin_ > pnCut
+			return -1
+		ok
+		_aPrev_ = _aCur_
+	next
+	if _aPrev_[_nB_ + 1] > pnCut
+		return -1
+	ok
+	return _aPrev_[_nB_ + 1]
 
 #--- multilingual private helpers
 
@@ -938,10 +1212,78 @@ func StzSemLangCanonToken(pcLang, pcWord)
 		return pcWord
 	ok
 	_w_ = _StzSemLangNorm(pcWord, _aLex_[7])
+	# VERIFIED stripping first (any affix chain whose base the language
+	# knows -- handles fused forms like wa+bi+al+word); the one-shot
+	# unverified canon stays as the compatible fallback.
+	_cV_ = _StzSemLangCanonVerified(_w_, _aLex_)
+	if _cV_ != ""
+		return _cV_
+	ok
 	return _StzSemLangCanon(_w_, _aLex_[4], _aLex_[5], _aLex_[6])
 
 	func @StzSemLangCanonToken(pcLang, pcWord)
 		return StzSemLangCanonToken(pcLang, pcWord)
+
+# CONSTRUCT-AND-VERIFY affix stripping: breadth-first over single strips
+# (conjunction / preposition / article prefixes, pronoun suffixes), accepting
+# the FIRST chain whose remaining base is a KNOWN word of the language.
+# Fewest-strips-first = safest reading. Risky affixes (prepositions) exist
+# ONLY here, where a false strip cannot survive verification. Returns ""
+# when no verified base is reachable (caller decides the fallback).
+
+func _StzSemLangCanonVerified(pcWord, paLex)
+	_aKnown_ = paLex[9]
+	if ring_find(_aKnown_, pcWord) > 0
+		return pcWord
+	ok
+	_aQueue_ = [ pcWord ]
+	_aSeen_ = [ pcWord ]
+	_nDepth_ = 0
+	while len(_aQueue_) > 0 and _nDepth_ < 4
+		_nDepth_++
+		_aNext_ = []
+		_nQ_ = len(_aQueue_)
+		for _q_ = 1 to _nQ_
+			_w_ = _aQueue_[_q_]
+			_aCands_ = []
+			# one prefix strip per class attempt + one suffix strip
+			_aP1_ = _StzSemStripPrefix(_w_, paLex[6])   # conjunction
+			_aP2_ = _StzSemStripPrefix(_w_, paLex[8])   # preposition
+			_aP3_ = _StzSemStripPrefix(_w_, paLex[4])   # article
+			_aCands_ + _aP1_
+			_aCands_ + _aP2_
+			_aCands_ + _aP3_
+			_aCands_ + _StzSemStripSuffix(_w_, paLex[5])
+			_nC_ = len(_aCands_)
+			for _c_ = 1 to _nC_
+				_cNew_ = _aCands_[_c_]
+				if _cNew_ = _w_ or ring_find(_aSeen_, _cNew_) > 0
+					loop
+				ok
+				if ring_find(_aKnown_, _cNew_) > 0
+					return _cNew_
+				ok
+				_aSeen_ + _cNew_
+				_aNext_ + _cNew_
+			next
+		next
+		_aQueue_ = _aNext_
+	end
+	return ""
+
+func _StzSemStripSuffix(pcWord, paSuffixes)
+	_n_ = len(paSuffixes)
+	for _i_ = 1 to _n_
+		_cS_ = paSuffixes[_i_]
+		_nS_ = len(_cS_)
+		if len(pcWord) > _nS_ and right(pcWord, _nS_) = _cS_
+			_cRest_ = left(pcWord, len(pcWord) - _nS_)
+			if StzLen(_cRest_) >= 2
+				return _cRest_
+			ok
+		ok
+	next
+	return pcWord
 
 # Consult a language's OWN semantic_mappings with a canonical form --
 # action-like ids only (a canonicalized noun must never resolve to an

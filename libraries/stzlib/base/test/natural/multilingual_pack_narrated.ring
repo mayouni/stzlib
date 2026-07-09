@@ -107,6 +107,33 @@ Scenario("Vocalized, real-world Arabic writing is accepted")
 		@@( ov4.Result() ), @@([ 2, 1 ]))
 EndScenario()
 
+Scenario("Verified affix chains: risky strips allowed when the base is known")
+	Given("construct-and-verify stripping over conjunction/preposition/article/suffix")
+	Then("the fused wa+bi+al+word canonicalizes to its base",
+		StzSemLangCanonToken("ar", "وبالتكرارات"), "تكرارات")
+
+	ov5 = NaturallyIn("ar", "أنشئ قائمة بـ [ 5, 5, 1 ] فاحذف التكرارات")
+	Then("fa- attached to the verb executes (fa-ihdhif = so-remove)",
+		@@( ov5.Result() ), @@([ 5, 1 ]))
+EndScenario()
+
+Scenario("One ranker for all languages: unlisted words carried by rare ones")
+	os1 = NaturallyIn("fr", "Crée une liste avec [ 5, 3, 5, 1 ] et vire les doublons")
+	Then("'vire' was never listed -- the rare 'doublons' decides via IDF",
+		@@( os1.Result() ), @@([ 5, 3, 1 ]))
+EndScenario()
+
+Scenario("The system says what it did NOT understand, in any language")
+	aL1 = StzNaturalLintIn("fr", "Crée une chaine avec 'x' et majuscul la")
+	Then("French lint flags the typo", aL1[:understood], 0)
+	Then("...and suggests the nearest known word",
+		@@( aL1[:unresolved] ), @@([ [ "majuscul", "majuscule" ] ]))
+
+	of9 = NaturallyIn("fr", "Crée une chaine avec 'softanza' et mets la en majuscules")
+	Then("a fully understood program reports UnderstoodAll",
+		of9.UnderstoodAll(), TRUE)
+EndScenario()
+
 Scenario("French elision generalizes through the same canonicalizer")
 	oe1 = NaturallyIn("fr", "Crée une chaine avec 'ring' et mets la à l'envers")
 	Then("l'envers (elided article, apostrophe intact)", oe1.Result(), "gnir")
