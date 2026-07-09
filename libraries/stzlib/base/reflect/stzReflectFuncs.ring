@@ -1474,39 +1474,76 @@ func _StzEnsureExampleIndex()
 	# metadata-cheap; the expensive part was reading every file, which the cache skips.
 	# Signature = the test .ring file count (a rename/add/remove invalidates it).
 	if _StzLoadExampleCache(_nf_) return ok
+	# Record = [ key, titles (scenario intent phrases), snippet (a runnable "code
+	# #--> output" line), file ]. Scenarios give intent phrases; #--> lines give a
+	# real example -- so a method tested only in the OLDER pr()/pf()+#--> narrated
+	# files (e.g. most of the list module) still gets an example for Explain.
 	for _i_ = 1 to _nf_
 		if NOT fexists(_aFiles_[_i_]) loop ok
 		_cContent_ = read(_aFiles_[_i_])
-		if substr(_cContent_, "Scenario(") = 0 loop ok
-		_aScn_ = _StzParseScenariosText(_cContent_)
-		_ns_ = len(_aScn_)
-		for _s_ = 1 to _ns_
-			_cTitle_ = _aScn_[_s_][1]
-			_cCode_  = _aScn_[_s_][2]
-			_aMeth_  = _StzExtractMethodCalls(_cCode_)
-			_nm_ = len(_aMeth_)
-			# Skip kitchen-sink scenarios (many methods -> each link is weak) and
-			# plumbing methods (display/setup noise). Focused scenarios give the
-			# cleanest method<->intent signal.
-			if _nm_ > 6 loop ok
-			for _m_ = 1 to _nm_
-				_k_ = lower(_aMeth_[_m_])
+		_bScn_ = substr(_cContent_, "Scenario(") > 0
+		_bArr_ = substr(_cContent_, "#-->") > 0
+		if NOT _bScn_ and NOT _bArr_ loop ok
+		if _bScn_
+			_aScn_ = _StzParseScenariosText(_cContent_)
+			_ns_ = len(_aScn_)
+			for _s_ = 1 to _ns_
+				_cTitle_ = _aScn_[_s_][1]
+				_aMeth_  = _StzExtractMethodCalls(_aScn_[_s_][2])
+				if len(_aMeth_) > 6 loop ok   # skip kitchen-sink scenarios
+				for _m_ = 1 to len(_aMeth_)
+					_k_ = lower(_aMeth_[_m_])
+					if ring_find($aStzExamplePlumbing, _k_) > 0 loop ok
+					_pos_ = ring_find($aStzExampleKeys, _k_)
+					if _pos_ = 0
+						$aStzExampleKeys + _k_
+						$aStzExampleIndex + [ _k_, _cTitle_, "", _aFiles_[_i_] ]
+					but len($aStzExampleIndex[_pos_][2]) < 800
+						$aStzExampleIndex[_pos_][2] += " " + _cTitle_
+					ok
+				next
+			next
+		ok
+		if _bArr_
+			_aArr_ = _StzArrowExamples(_cContent_)
+			_na_ = len(_aArr_)
+			for _a_ = 1 to _na_
+				_k_ = lower(_aArr_[_a_][1])
 				if ring_find($aStzExamplePlumbing, _k_) > 0 loop ok
 				_pos_ = ring_find($aStzExampleKeys, _k_)
 				if _pos_ = 0
 					$aStzExampleKeys + _k_
-					$aStzExampleIndex + [ _k_, _cTitle_, _cCode_, _aFiles_[_i_] ]
-				else
-					# Cap accumulated titles so a hot method (contains, split...)
-					# used in hundreds of scenarios keeps a bounded record.
-					if len($aStzExampleIndex[_pos_][2]) < 800
-						$aStzExampleIndex[_pos_][2] += " " + _cTitle_
-					ok
+					$aStzExampleIndex + [ _k_, "", _aArr_[_a_][2], _aFiles_[_i_] ]
+					but $aStzExampleIndex[_pos_][3] = ""    # first snippet wins
+					$aStzExampleIndex[_pos_][3] = _aArr_[_a_][2]
 				ok
 			next
-		next
+		ok
 	next
 	_StzSaveExampleCache(_nf_)
+
+# Harvest inline "code #--> output" examples -> [ [method, snippetLine], ... ].
+# The snippet is the whole trimmed line (code + its expected output), a genuine
+# runnable demonstration. Method-less or kitchen-sink (>5 calls) lines are skipped.
+func _StzArrowExamples(pcContent)
+	_aOut_ = []
+	_aLines_ = str2list(pcContent)
+	_n_ = len(_aLines_)
+	for _i_ = 1 to _n_
+		_ln_ = _aLines_[_i_]
+		_p_ = substr(_ln_, "#-->")
+		if _p_ = 0 loop ok
+		_cCode_ = trim(left(_ln_, _p_ - 1))
+		if _cCode_ = "" loop ok          # an output-only continuation line
+		if left(_cCode_, 1) = "#" or left(_cCode_, 2) = "//" loop ok   # commented-out demo
+		_aMeth_ = _StzExtractMethodCalls(_cCode_)
+		if len(_aMeth_) = 0 or len(_aMeth_) > 5 loop ok
+		_cSnip_ = trim(_ln_)
+		if len(_cSnip_) > 120 _cSnip_ = left(_cSnip_, 117) + "..." ok
+		_nm_ = len(_aMeth_)
+		for _m_ = 1 to _nm_ _aOut_ + [ _aMeth_[_m_], _cSnip_ ] next
+	next
+	return _aOut_
 
 # The persisted example-index cache path (under doc/, gitignored via *.stzcache).
 func _StzExampleCachePath()
@@ -1526,8 +1563,8 @@ func _StzLoadExampleCache(nSig)
 	_aLines_ = str2list(_c_)
 	if len(_aLines_) < 1 return FALSE ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 5 or left(_cSig_, 4) != "SIG " return FALSE ok
-	if number(substr(_cSig_, 5, len(_cSig_) - 4)) != nSig return FALSE ok
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG2 " return FALSE ok
+	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig return FALSE ok
 	$aStzExampleIndex = []
 	$aStzExampleKeys = []
 	_nl_ = len(_aLines_)
@@ -1535,9 +1572,9 @@ func _StzLoadExampleCache(nSig)
 		_ln_ = trim(_aLines_[_i_])
 		if _ln_ = "" loop ok
 		_aP_ = _StzSplitOnChar(_ln_, char(1))
-		if len(_aP_) >= 3
+		if len(_aP_) >= 4
 			$aStzExampleKeys + _aP_[1]
-			$aStzExampleIndex + [ _aP_[1], _aP_[2], "", _aP_[3] ]
+			$aStzExampleIndex + [ _aP_[1], _aP_[2], _aP_[3], _aP_[4] ]
 		ok
 	next
 	return TRUE
@@ -1548,11 +1585,11 @@ func _StzLoadExampleCache(nSig)
 func _StzSaveExampleCache(nSig)
 	_cPath_ = _StzExampleCachePath()
 	if _cPath_ = "" return ok
-	_c_ = "SIG " + nSig + nl
+	_c_ = "SIG2 " + nSig + nl
 	_n_ = len($aStzExampleIndex)
 	for _i_ = 1 to _n_
 		_r_ = $aStzExampleIndex[_i_]
-		_c_ += _r_[1] + char(1) + _r_[2] + char(1) + _r_[4] + nl
+		_c_ += _r_[1] + char(1) + _r_[2] + char(1) + _r_[3] + char(1) + _r_[4] + nl
 	next
 	try
 		write(_cPath_, _c_)
