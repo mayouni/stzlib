@@ -659,7 +659,8 @@ class stzNaturalEngine from stzObject
 			if NOT isString(@aValues[j])
 				exit
 			ok
-			cW = StzLower(This.StripEdgePunct(@aValues[j]))
+			cW = StzSemLangNormToken(@cLangCode,
+				StzLower(This.StripEdgePunct(@aValues[j])))
 			if This.IsIgnoredWord(cW)
 				j++
 				loop
@@ -801,8 +802,11 @@ class stzNaturalEngine from stzObject
 			ok
 
 			# interpretation looks at the word without clinging
-			# punctuation ("empty?" reads as "empty")
-			cCheck = This.StripEdgePunct(cValue)
+			# punctuation ("empty?" reads as "empty") and without the
+			# language's marks (Arabic tanween/shadda/tatweel: the
+			# writer's diacritized word must match the plain dictionary)
+			cCheck = StzSemLangNormToken(@cLangCode,
+				This.StripEdgePunct(cValue))
 
 			# MULTI-WORD PHRASE resolution (longest exact match first):
 			# "Remove its duplicates" -> removeduplicates, "Uppercase the

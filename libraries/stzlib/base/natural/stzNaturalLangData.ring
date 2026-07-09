@@ -109,6 +109,20 @@ StzAddNaturalLanguage([
 	:prefix_articles = [ "ال" ],
 	:suffix_pronouns = [ "ها", "هما", "هم", "هن", "ه", "كما", "كم", "ك" ],
 
+	# the conjunctions wa-/fa- attach to the NEXT word ("wa-iqlib-ha" =
+	# and-reverse-it) -- stripped before the article
+	:prefix_conjunctions = [ "و", "ف" ],
+
+	# tashkeel (tanween, fatha, damma, kasra, shadda, sukun) and the
+	# tatweel stretch are WRITING marks, not meaning -- deleted anywhere
+	# in a token before matching, so the writer may fully vocalize
+	:strip_marks = [
+		StzChar(1600),                                  # tatweel
+		StzChar(1611), StzChar(1612), StzChar(1613),    # tanween forms
+		StzChar(1614), StzChar(1615), StzChar(1616),    # fatha/damma/kasra
+		StzChar(1617), StzChar(1618)                    # shadda/sukun
+	],
+
 	:ignored_words = [
 		"و", "ثم", "من", "في", "على", "إلى", "الى", "يا", "هذه",
 		"هذا", "لو", "سمحت", "رجاء", "هل", "هي", "هو", "ها",
@@ -142,11 +156,14 @@ StzAddNaturalLanguage([
 
 		[:natural = "اعكس",    :semantic = "METHOD_REVERSE"],
 		[:natural = "اقلب",    :semantic = "METHOD_REVERSE"],
+
 		[:natural = "رتب",     :semantic = "METHOD_SORT"],
 		[:natural = "رتّب",    :semantic = "METHOD_SORT"],
+
 		[:natural = "استبدل",  :semantic = "METHOD_REPLACE"],
 		[:natural = "بدّل",    :semantic = "METHOD_REPLACE"],
 		[:natural = "بدل",     :semantic = "METHOD_REPLACE"],
+
 		[:natural = "كبّر",    :semantic = "METHOD_UPPERCASE"],
 		[:natural = "كبر",     :semantic = "METHOD_UPPERCASE"],
 		[:natural = "صغّر",    :semantic = "METHOD_LOWERCASE"],
