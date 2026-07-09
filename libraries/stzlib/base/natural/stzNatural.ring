@@ -258,6 +258,7 @@ func Naturally(cCode)
 
 class stzNaturalEngine from stzObject
 	@cLanguage = "en"
+	@cLangCode = "en"	# normalized code ("fr" even when created as "french")
 	@aIgnoredWords = []
 	@aMappings = []
 	@aValues = []
@@ -613,7 +614,9 @@ class stzNaturalEngine from stzObject
 		ok
 		cW = trim(cWord)
 		while StzLen(cW) > 0 and
-		      ring_find([ "?", "!", ".", ",", ";", ":" ], StzRight(cW, 1)) > 0
+		      ring_find([ "?", "!", ".", ",", ";", ":",
+		                  StzChar(1567), StzChar(1548) ], StzRight(cW, 1)) > 0
+			# 1567/1548 = the Arabic question mark and comma
 			cW = StzLeft(cW, StzLen(cW) - 1)
 		end
 		return cW
@@ -674,7 +677,7 @@ class stzNaturalEngine from stzObject
 					cShown += " "
 				ok
 			next
-			cId = StzSemanticExactId(cJoin)
+			cId = StzSemanticExactIdInLang(@cLangCode, cJoin)
 			if cId != ""
 				return [ cId, aEnds[n] + 1, cShown ]
 			ok
@@ -684,9 +687,23 @@ class stzNaturalEngine from stzObject
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
 		if len(aLangDef) > 0
-			@aIgnoredWords = aLangDef[:ignored_words]
-			@aMappings = aLangDef[:semantic_mappings]
+			@cLangCode = StzLower(aLangDef[:code])
+			if HasKey(aLangDef, :ignored_words)
+				@aIgnoredWords = aLangDef[:ignored_words]
+			ok
+			if HasKey(aLangDef, :semantic_mappings)
+				@aMappings = aLangDef[:semantic_mappings]
+			ok
 		ok
+
+	# May unknown words of the active language be resolved at all?
+	# English always (the unified lexicon); others when a pack exists.
+
+	def LangResolvable()
+		if @cLangCode = "en"
+			return 1
+		ok
+		return StzHasLanguagePack(@cLangCode)
 	
 	def FindLanguageDefinition(cCode)
 		nLen = len($aLanguageDefinitions)
@@ -771,10 +788,12 @@ class stzNaturalEngine from stzObject
 
 			# MULTI-WORD PHRASE resolution (longest exact match first):
 			# "Remove its duplicates" -> removeduplicates, "Uppercase the
-			# substring" -> uppercasesubstring, "Is it empty" -> isempty.
-			# Deterministic (exact method-name joins only), and value
-			# positions are excluded by the same FallbackEligible guard.
-			if @cLanguage = "en" and This.FallbackEligible(aTokens)
+			# substring" -> uppercasesubstring, "Is it empty" -> isempty --
+			# and in any REGISTERED language: "enleve les doublons" (fr) /
+			# Arabic equivalents match their pack's phrase map the same
+			# way. Deterministic (exact joins only), and value positions
+			# are excluded by the same FallbackEligible guard.
+			if This.LangResolvable() and This.FallbackEligible(aTokens)
 				aPh = This.PhraseResolve(i)
 				if aPh[1] != ""
 					aTokens + [:type = "semantic", :value = aPh[1], :original = aPh[3]]
@@ -796,11 +815,11 @@ class stzNaturalEngine from stzObject
 			# a bare WORD the dictionary doesn't know (quoted values never
 			# reach here -- see the provenance branch above -- and value
 			# positions are excluded by FallbackEligible) is resolved
-			# against the shared semantic lexicon built from the dictionary
-			# seed + the _ActionsXT form glossary + the #@ aka tags.
-			if cSemantic = "" and @cLanguage = "en" and
+			# against the shared semantic lexicon (en) or the language's
+			# registered pack (fr, ar, ...).
+			if cSemantic = "" and This.LangResolvable() and
 			   This.FallbackEligible(aTokens)
-				cSemantic = StzResolveSemantic(cCheck)
+				cSemantic = StzResolveSemanticInLang(@cLangCode, cCheck)
 				if cSemantic != ""
 					This.AddToDebugLog("Unified lexicon: '" + cCheck + "' -> " + cSemantic)
 				ok

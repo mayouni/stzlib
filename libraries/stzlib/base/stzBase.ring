@@ -433,6 +433,7 @@ ok
     load "natural/stzNaturalCode.ring"
     load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
+    load "natural/stzNaturalLangData.ring"
     load "natural/stzNaturalMarkup.ring"
 
     load "natural/stzAdverb.ring"

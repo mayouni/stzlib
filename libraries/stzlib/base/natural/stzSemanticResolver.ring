@@ -31,6 +31,7 @@ $bStzSemOpsGrown = FALSE    # $aSemanticOperations grown from the harvest yet?
 $aStzSemExactNames = []     # [ [ lowered stz_method, semantic_id ], ... ]
 $aStzSemOpIds = []          # flat id list backing _StzSemOpKnown (ring_find speed)
 $nStzSemCacheSig = 0        # cache signature (combined source sizes)
+$aStzSemLangLex = []        # multilingual packs: [ [ cCode, aBags, aExact ], ... ]
 
 #--
 
@@ -592,6 +593,245 @@ func StzResolveSemantic(pcWord)
 
 	func @StzResolveSemantic(pcWord)
 		return StzResolveSemantic(pcWord)
+
+#--- MULTILINGUAL PACKS ----------------------------------------------------
+# A language pack is a DATA block keyed by the SAME semantic IDs as English:
+# one semantic core, many linguistic skins (the stzNatural design promise).
+# Registering a pack feeds three layers at once:
+#   1. $aLanguageDefinitions (ToSemantic: exact dictionary words)
+#   2. a per-language EXACT-PHRASE map (multi-word naturalness --
+#      "enlève les doublons" / "أزل التكرارات" -> METHOD_REMOVEDUPLICATES)
+#   3. per-language word BAGS (single-word fallback -- "doublons" alone)
+# Because the map is ID-keyed, packs cover GROWN operations for free.
+# ($aStzSemLangLex is declared with the top-of-file globals.)
+
+# Register (or replace) a natural language at devtime OR runtime.
+# aDef = [ :code, :name, :script, :ignored_words, :semantic_mappings,
+#          :phrases = [ [ :semantic = ID, :words = "phrase, phrase, ..." ], ... ] ]
+
+func StzAddNaturalLanguage(aDef)
+
+	if NOT ( isList(aDef) and HasKey(aDef, :code) and HasKey(aDef, :name) )
+		StzRaise("Incorrect param! aDef must be a language definition with at least :code and :name.")
+	ok
+	_cCode_ = StzLower(aDef[:code])
+
+	# upsert into the dictionary-side definitions
+	_bDone_ = FALSE
+	_nL_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _nL_
+		if StzLower($aLanguageDefinitions[_i_][:code]) = _cCode_
+			$aLanguageDefinitions[_i_] = aDef
+			_bDone_ = TRUE
+			exit
+		ok
+	next
+	if NOT _bDone_
+		$aLanguageDefinitions + aDef
+	ok
+
+	# build the resolver-side lexicon from :phrases
+	_aIgn_ = []
+	if HasKey(aDef, :ignored_words)
+		_aI_ = aDef[:ignored_words]
+		_nI_ = len(_aI_)
+		for _i_ = 1 to _nI_
+			_aIgn_ + StzLower(_aI_[_i_])
+		next
+	ok
+
+	_aBags_ = []
+	_aExact_ = []
+	if HasKey(aDef, :phrases)
+		_aPh_ = aDef[:phrases]
+		_nP_ = len(_aPh_)
+		for _i_ = 1 to _nP_
+			_cId_ = _aPh_[_i_][:semantic]
+			_aVars_ = _StzSplitOnChar(_aPh_[_i_][:words], ",")
+			_nV_ = len(_aVars_)
+			for _j_ = 1 to _nV_
+				_aTok_ = _StzSemLangTokens(_aVars_[_j_], _aIgn_)
+				if len(_aTok_) = 0
+					loop
+				ok
+				_cJoin_ = ""
+				_cBag_ = ""
+				_nT_ = len(_aTok_)
+				for _k_ = 1 to _nT_
+					_cJoin_ += _aTok_[_k_]
+					_cBag_ += _aTok_[_k_]
+					if _k_ < _nT_
+						_cBag_ += " "
+					ok
+				next
+				_StzSemLangExactAdd(_aExact_, _cJoin_, _cId_)
+				_StzSemBagAdd(_aBags_, _cId_, _cBag_)
+			next
+		next
+	ok
+
+	# upsert the language lexicon
+	_bDone_ = FALSE
+	_nX_ = len($aStzSemLangLex)
+	for _i_ = 1 to _nX_
+		if $aStzSemLangLex[_i_][1] = _cCode_
+			$aStzSemLangLex[_i_] = [ _cCode_, _aBags_, _aExact_ ]
+			_bDone_ = TRUE
+			exit
+		ok
+	next
+	if NOT _bDone_
+		$aStzSemLangLex + [ _cCode_, _aBags_, _aExact_ ]
+	ok
+	return TRUE
+
+	func @StzAddNaturalLanguage(aDef)
+		return StzAddNaturalLanguage(aDef)
+
+func StzHasLanguagePack(pcLang)
+	_c_ = StzLower(pcLang)
+	_n_ = len($aStzSemLangLex)
+	for _i_ = 1 to _n_
+		if $aStzSemLangLex[_i_][1] = _c_
+			return TRUE
+		ok
+	next
+	return FALSE
+
+	func @StzHasLanguagePack(pcLang)
+		return StzHasLanguagePack(pcLang)
+
+func StzNaturalLanguages()
+	_aOut_ = []
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aOut_ + $aLanguageDefinitions[_i_][:code]
+	next
+	return _aOut_
+
+	func @StzNaturalLanguages()
+		return StzNaturalLanguages()
+
+# Language-aware resolution: English uses the full unified lexicon
+# (dictionary + _ActionsXT + aka + grown names); pack languages use their
+# registered exact map + word-membership over the pack bags. Deterministic
+# and script-agnostic (plain token equality -- no stemming assumptions).
+
+func StzResolveSemanticInLang(pcLang, pcWord)
+
+	_cLang_ = StzLower(pcLang)
+	if _cLang_ = "en"
+		return StzResolveSemantic(pcWord)
+	ok
+	_aLex_ = _StzSemLangEntry(_cLang_)
+	if len(_aLex_) = 0 or NOT isString(pcWord)
+		return ""
+	ok
+	_w_ = StzLower(trim(pcWord))
+	if StzLen(_w_) < 2
+		return ""
+	ok
+
+	# exact single-word / joined-phrase hit
+	_cId_ = _StzSemLangExactGet(_aLex_[3], _w_)
+	if _cId_ != ""
+		# a pack can target a GROWN id -- make sure the operations
+		# table is grown before codegen looks the id up
+		StzGrowSemanticOperations()
+		return _cId_
+	ok
+
+	# membership over the pack bags (strict unique winner)
+	_aBags_ = _aLex_[2]
+	_nB_ = len(_aBags_)
+	_cBest_ = ""
+	_nHits_ = 0
+	for _i_ = 1 to _nB_
+		if ring_find(_StzSplitOnChar(_aBags_[_i_][2], " "), _w_) > 0
+			_nHits_++
+			_cBest_ = _aBags_[_i_][1]
+		ok
+	next
+	if _nHits_ = 1
+		StzGrowSemanticOperations()
+		return _cBest_
+	ok
+	return ""
+
+	func @StzResolveSemanticInLang(pcLang, pcWord)
+		return StzResolveSemanticInLang(pcLang, pcWord)
+
+# Exact joined-phrase lookup, language-aware (used by phrase resolution).
+
+func StzSemanticExactIdInLang(pcLang, pcJoined)
+	_cLang_ = StzLower(pcLang)
+	if _cLang_ = "en"
+		return StzSemanticExactId(pcJoined)
+	ok
+	_aLex_ = _StzSemLangEntry(_cLang_)
+	if len(_aLex_) = 0
+		return ""
+	ok
+	_cId_ = _StzSemLangExactGet(_aLex_[3], StzLower(trim(pcJoined)))
+	if _cId_ != ""
+		# grown ids need the grown operations table at codegen time
+		StzGrowSemanticOperations()
+	ok
+	return _cId_
+
+	func @StzSemanticExactIdInLang(pcLang, pcJoined)
+		return StzSemanticExactIdInLang(pcLang, pcJoined)
+
+#--- multilingual private helpers
+
+func _StzSemLangEntry(pcCode)
+	_n_ = len($aStzSemLangLex)
+	for _i_ = 1 to _n_
+		if $aStzSemLangLex[_i_][1] = pcCode
+			return $aStzSemLangLex[_i_]
+		ok
+	next
+	return []
+
+# Content tokens of a pack phrase: lowered, split on spaces, this
+# language's ignored words dropped. Script-agnostic.
+
+func _StzSemLangTokens(pcPhrase, paIgnored)
+	_aRaw_ = _StzSplitOnChar(trim(pcPhrase), " ")
+	_aOut_ = []
+	_n_ = len(_aRaw_)
+	for _i_ = 1 to _n_
+		_w_ = StzLower(trim(_aRaw_[_i_]))
+		if _w_ = "" or ring_find(paIgnored, _w_) > 0
+			loop
+		ok
+		_aOut_ + _w_
+	next
+	return _aOut_
+
+# Add an exact entry; a joined phrase claimed by TWO different ids is
+# ambiguous -- kill it (safety over coverage, same strict-winner spirit).
+
+func _StzSemLangExactAdd(paExact, pcJoined, pcId)
+	_n_ = len(paExact)
+	for _i_ = 1 to _n_
+		if paExact[_i_][1] = pcJoined
+			if paExact[_i_][2] != pcId
+				paExact[_i_][2] = ""
+			ok
+			return
+		ok
+	next
+	paExact + [ pcJoined, pcId ]
+
+func _StzSemLangExactGet(paExact, pcJoined)
+	_n_ = len(paExact)
+	for _i_ = 1 to _n_
+		if paExact[_i_][1] = pcJoined
+			return paExact[_i_][2]
+		ok
+	next
+	return ""
 
 # Deterministic exact-name lookup: is this (joined) word EXACTLY an
 # operation's method name? Powers multi-word phrase resolution ("remove
