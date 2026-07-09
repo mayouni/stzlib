@@ -2063,6 +2063,48 @@ class stzObject
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.MethodForIntent(pcIntent)
 
+	# PlanForIntent(intent) -- the intent as EXECUTABLE NATURAL CODE over
+	# this object's current content: a Create line + the intent's steps.
+	# DoIntent(intent) lint-verifies the plan (raising with suggestions
+	# when a word is not understood -- a plan must be fully understood,
+	# unlike permissive free narration), runs it, returns the result.
+
+	def PlanForIntent(pcIntent)
+		_cT_ = This.NaturalTypeWord()
+		if _cT_ = ""
+			StzRaise("PlanForIntent is supported on stzString, stzList and stzNumber objects.")
+		ok
+		return StzNaturalPlanFor(pcIntent, _cT_, This.Content())
+
+	def DoIntent(pcIntent)
+		_cPlan_ = This.PlanForIntent(pcIntent)
+		_aLint_ = StzNaturalLint(_cPlan_)
+		if NOT _aLint_[:understood]
+			_cMsg_ = "The intent was not fully understood:"
+			_aU_ = _aLint_[:unresolved]
+			_nU_ = len(_aU_)
+			for _i_ = 1 to _nU_
+				_cMsg_ += " '" + _aU_[_i_][1] + "'"
+				if _aU_[_i_][2] != ""
+					_cMsg_ += " (did you mean '" + _aU_[_i_][2] + "'?)"
+				ok
+			next
+			StzRaise(_cMsg_)
+		ok
+		_oRun_ = Naturally(_cPlan_)
+		return _oRun_.Result()
+
+	def NaturalTypeWord()
+		_c_ = lower(_StzClassNameOf(This))
+		if _c_ = "stzstring"
+			return "string"
+		but _c_ = "stzlist"
+			return "list"
+		but _c_ = "stznumber"
+			return "number"
+		ok
+		return ""
+
 	def Content()
 		return @content
 

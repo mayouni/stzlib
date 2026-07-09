@@ -225,51 +225,51 @@ $aSemanticOperations = [
 
 #-- GLOBAL FUNCTIONS WITH CONTEXT SUPPORT
 
-func NaturallyInXT(cLang, aContext, cCode)
+func NaturallyInXT(cLang, aContext, _cCode_)
 	# Handle: NaturallyInXT(aContext, "code")
 	if isList(cLang) and isString(aContext)
 		return new stzNaturalEngine("en", "", cLang, aContext)
 	ok
 	
 	# Handle: NaturallyInXT("lang", aContext, "code")
-	if isString(cLang) and isList(aContext) and isString(cCode)
-		return new stzNaturalEngine(cLang, "", aContext, cCode)
+	if isString(cLang) and isList(aContext) and isString(_cCode_)
+		return new stzNaturalEngine(cLang, "", aContext, _cCode_)
 	ok
 	
 	# Fallback
 	return new stzNaturalEngine("en", "", [], "")
 
-func NaturallyXT(aContext, cCode)
+func NaturallyXT(aContext, _cCode_)
 	# Handle: NaturallyXT(aContext, "code")
-	if isList(aContext) and isString(cCode)
-		return new stzNaturalEngine("en", "", aContext, cCode)
+	if isList(aContext) and isString(_cCode_)
+		return new stzNaturalEngine("en", "", aContext, _cCode_)
 	ok
 	
 	# Fallback
 	return new stzNaturalEngine("en", "", [], "")
 
-func NaturallyIn(cLang, cCode)
-	return NaturallyInXT(cLang, [], cCode)
+func NaturallyIn(cLang, _cCode_)
+	return NaturallyInXT(cLang, [], _cCode_)
 
-func Naturally(cCode)
-	return NaturallyXT([], cCode)
+func Naturally(_cCode_)
+	return NaturallyXT([], _cCode_)
 
 # LINT a natural narration WITHOUT running it: which words would not be
 # understood, and what the writer probably meant. Returns
 # [ :understood = TRUE/FALSE, :unresolved = [ [word, suggestion], ... ] ].
 
-func StzNaturalLintIn(cLang, cCode)
-	oEngine = new stzNaturalEngine(cLang, "", [], "")
-	return oEngine.Analyze(cCode)
+func StzNaturalLintIn(cLang, _cCode_)
+	_oEngine_ = new stzNaturalEngine(cLang, "", [], "")
+	return _oEngine_.Analyze(_cCode_)
 
-	func @StzNaturalLintIn(cLang, cCode)
-		return StzNaturalLintIn(cLang, cCode)
+	func @StzNaturalLintIn(cLang, _cCode_)
+		return StzNaturalLintIn(cLang, _cCode_)
 
-func StzNaturalLint(cCode)
-	return StzNaturalLintIn("en", cCode)
+func StzNaturalLint(_cCode_)
+	return StzNaturalLintIn("en", _cCode_)
 
-	func @StzNaturalLint(cCode)
-		return StzNaturalLint(cCode)
+	func @StzNaturalLint(_cCode_)
+		return StzNaturalLint(_cCode_)
 
 #-- NATURAL ENGINE CLASS WITH CONTEXT
 
@@ -294,7 +294,7 @@ class stzNaturalEngine from stzObject
 	@cOriginalCode = ""
 	@aContext = []
 
-	def init(cLang, cCode, aContext, cContextCode)
+	def init(cLang, _cCode_, aContext, cContextCode)
 		# Handle context-enabled calls
 		if isList(aContext) and isString(cContextCode)
 			@aContext = aContext
@@ -308,17 +308,17 @@ class stzNaturalEngine from stzObject
 			ok
 			This.LoadLanguageData()
 
-			cInterpolated = This.InterpolateContext(cContextCode, aContext)
-			@cNaturalCode = cInterpolated
-			This.Execute(cInterpolated)
+			_cInterpolated_ = This.InterpolateContext(cContextCode, aContext)
+			@cNaturalCode = _cInterpolated_
+			This.Execute(_cInterpolated_)
 			return
 		ok
 		
 		# Handle original patterns
-		if cCode != ""
+		if _cCode_ != ""
 			@cLanguage = StzLower(cLang)
-			@cNaturalCode = cCode
-			@cOriginalCode = cCode
+			@cNaturalCode = _cCode_
+			@cOriginalCode = _cCode_
 		else
 			if IsLanguageAbbreviation(cLang)
 				@cLanguage = StzLower(cLang)
@@ -337,80 +337,80 @@ class stzNaturalEngine from stzObject
 			This.Execute(@cNaturalCode)
 		ok
 	
-	def InterpolateContext(cCode, aContext)
+	def InterpolateContext(_cCode_, aContext)
 		if len(aContext) = 0
-			return cCode
+			return _cCode_
 		ok
 		
-		cResult = cCode
+		_cResult_ = _cCode_
 		
 		# Extract all {key} or {key.nested.path} patterns
 
-		aMatches = StzStringQ(cCode).SubstringsBoundedBy([ "{", "}" ])
+		_aMatches_ = StzStringQ(_cCode_).SubstringsBoundedBy([ "{", "}" ])
 
-		_nMatchesLen_ = len(aMatches)
-		for i = 1 to _nMatchesLen_
-			cKey = aMatches[i]
-			cValue = @@(This.GetContextValue(cKey, aContext))
+		_nMatchesLen_ = len(_aMatches_)
+		for _i_ = 1 to _nMatchesLen_
+			_cKey_ = _aMatches_[_i_]
+			_cValue_ = @@(This.GetContextValue(_cKey_, aContext))
 
-			if cValue != :NOT_FOUND
-				cResult = StzReplace(cResult, "{" + cKey + "}", cValue)
+			if _cValue_ != :NOT_FOUND
+				_cResult_ = StzReplace(_cResult_, "{" + _cKey_ + "}", _cValue_)
 			ok
 		next
 		
-		return cResult
+		return _cResult_
 	
-	def FindContextPlaceholders(cCode)
-		aResult = []
-		nLen = stzlen(cCode)
-		i = 1
+	def FindContextPlaceholders(_cCode_)
+		_aResult_ = []
+		_nLen_ = stzlen(_cCode_)
+		_i_ = 1
 		
-		while i <= nLen
-			if @StzMid(cCode, i, i) = "{"
+		while _i_ <= _nLen_
+			if @StzMid(_cCode_, _i_, _i_) = "{"
 				# Find closing }
-				nEnd = i + 1
-				nDepth = 1
+				_nEnd_ = _i_ + 1
+				_nDepth_ = 1
 				
-				while nEnd <= nLen and nDepth > 0
-					cChar = @StzMid(cCode, nEnd, nEnd)
+				while _nEnd_ <= _nLen_ and _nDepth_ > 0
+					cChar = @StzMid(_cCode_, _nEnd_, _nEnd_)
 					if cChar = "{"
-						nDepth++
+						_nDepth_++
 					but cChar = "}"
-						nDepth--
+						_nDepth_--
 					ok
-					nEnd++
+					_nEnd_++
 				end
 				
-				if nDepth = 0
-					cPlaceholder = @StzMid(cCode, i, nEnd - i)
-					aResult + cPlaceholder
-					i = nEnd
+				if _nDepth_ = 0
+					_cPlaceholder_ = @StzMid(_cCode_, _i_, _nEnd_ - _i_)
+					_aResult_ + _cPlaceholder_
+					_i_ = _nEnd_
 				else
-					i++
+					_i_++
 				ok
 			else
-				i++
+				_i_++
 			ok
 		end
 		
-		return aResult
+		return _aResult_
 	
-	def GetContextValue(cKey, aContext)
+	def GetContextValue(_cKey_, aContext)
 		# Handle nested keys like "user.profile.name"
-		if StzFindFirst(cKey, ".") > 0
-			aParts = @split(cKey, ".")
-			xCurrent = aContext
+		if StzFindFirst(_cKey_, ".") > 0
+			_aParts_ = @split(_cKey_, ".")
+			_xCurrent_ = aContext
 			
-			_nPartsLen_ = len(aParts)
-			for i = 1 to _nPartsLen_
-				cPart = trim(aParts[i])
+			_nPartsLen_ = len(_aParts_)
+			for _i_ = 1 to _nPartsLen_
+				_cPart_ = trim(_aParts_[_i_])
 				
 				# Normalize key (case-insensitive, capitalize first letter)
-				cNormalized = This.NormalizeKey(cPart)
+				_cNormalized_ = This.NormalizeKey(_cPart_)
 				
-				if isList(xCurrent)
-					xCurrent = This.FindInList(xCurrent, cNormalized)
-					if xCurrent = :NOT_FOUND
+				if isList(_xCurrent_)
+					_xCurrent_ = This.FindInList(_xCurrent_, _cNormalized_)
+					if _xCurrent_ = :NOT_FOUND
 						return :NOT_FOUND
 					ok
 				else
@@ -418,30 +418,30 @@ class stzNaturalEngine from stzObject
 				ok
 			next
 			
-			return xCurrent
+			return _xCurrent_
 		else
 			# Simple key lookup
-			cNormalized = This.NormalizeKey(cKey)
-			return This.FindInList(aContext, cNormalized)
+			_cNormalized_ = This.NormalizeKey(_cKey_)
+			return This.FindInList(aContext, _cNormalized_)
 		ok
 	
-	def NormalizeKey(cKey)
-		cKey = trim(cKey)
-		if StzLen(cKey) = 0
-			return cKey
+	def NormalizeKey(_cKey_)
+		_cKey_ = trim(_cKey_)
+		if StzLen(_cKey_) = 0
+			return _cKey_
 		ok
 		
 		# Capitalize first letter, lowercase rest
-		return StzUpper(@StzMid(cKey, 1, 1)) + StzLower(StzMid(cKey, 2, stzlen(cKey) - 1))
+		return StzUpper(@StzMid(_cKey_, 1, 1)) + StzLower(StzMid(_cKey_, 2, stzlen(_cKey_) - 1))
 	
-	def FindInList(aList, cKey) #TODO// Review it
-		nLen = len(aList)
-		for i = 1 to nLen
-			if isList(aList[i]) and len(aList[i]) = 2
-				if isString(aList[i][1])
-					cNormalized = This.NormalizeKey(aList[i][1])
-					if cNormalized = cKey
-						return aList[i][2]
+	def FindInList(aList, _cKey_) #TODO// Review it
+		_nLen_ = len(aList)
+		for _i_ = 1 to _nLen_
+			if isList(aList[_i_]) and len(aList[_i_]) = 2
+				if isString(aList[_i_][1])
+					_cNormalized_ = This.NormalizeKey(aList[_i_][1])
+					if _cNormalized_ = _cKey_
+						return aList[_i_][2]
 					ok
 				ok
 			ok
@@ -449,35 +449,35 @@ class stzNaturalEngine from stzObject
 		return :NOT_FOUND
 
 	
-	def Execute(cCode)
-		if NOT isString(cCode) or trim(cCode) = ""
+	def Execute(_cCode_)
+		if NOT isString(_cCode_) or trim(_cCode_) = ""
 			return
 		ok
 		
-		@cNaturalCode = cCode
+		@cNaturalCode = _cCode_
 		This.AddToDebugLog("Executing natural code")
-		This.AddToDebugLog("Code length: " + stzlen(cCode) + " chars")
+		This.AddToDebugLog("Code length: " + stzlen(_cCode_) + " chars")
 		
-		This.TokenizeCode(cCode)
+		This.TokenizeCode(_cCode_)
 	
 		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
 		
 		This.Process()
 	
-	def TokenizeCode(cCode)
+	def TokenizeCode(_cCode_)
 		@aValues = []
 		@aTokenIsWord = []
 		@aUnresolved = []
-		cCode = trim(cCode)
-		aTokens = This.SmartSplit(cCode)
-		@aValues = aTokens
+		_cCode_ = trim(_cCode_)
+		_aTokens_ = This.SmartSplit(_cCode_)
+		@aValues = _aTokens_
 	
-	def SmartSplit(cCode)
-	    aResult = []
-	    _oStr_ = new stzString(cCode)
+	def SmartSplit(_cCode_)
+	    _aResult_ = []
+	    _oStr_ = new stzString(_cCode_)
 	    
 	    # Find all protected sections (lists AND standalone strings)
-	    aListSections = _oStr_.FindSubStringsBoundedByIBZZ([ "[", "]" ])
+	    _aListSections_ = _oStr_.FindSubStringsBoundedByIBZZ([ "[", "]" ])
 	    
 	    # For strings, only find those OUTSIDE of lists.
 	    # NOTE: BoundedByIBZZ with identical single-char bounds OVERLAPS by
@@ -485,112 +485,117 @@ class stzNaturalEngine from stzObject
 	    # substring analytics, wrong for quote pairing: with six quotes it
 	    # would protect the gaps BETWEEN values too. Pair quotes manually
 	    # (1st-2nd, 3rd-4th, ...) instead.
-	    aAllQuoteSections = Merge([
-	        This.PairedQuoteSections(cCode, '"'),
-	        This.PairedQuoteSections(cCode, "'")
+	    _aAllQuoteSections_ = Merge([
+	        This.PairedQuoteSections(_cCode_, '"'),
+	        This.PairedQuoteSections(_cCode_, "'")
 	    ])
 	    
 	    # Filter out quote sections that are inside list sections
-	    aStringSections = []
-	    _nAllQuoteSections1Len_ = len(aAllQuoteSections)
+	    _aStringSections_ = []
+	    _nAllQuoteSections1Len_ = len(_aAllQuoteSections_)
 	    for _iLoopAllQuoteSections1_ = 1 to _nAllQuoteSections1Len_
-	    	aQuoteSection = aAllQuoteSections[_iLoopAllQuoteSections1_]
-	        bInsideList = FALSE
-	        _nListSections1Len_ = len(aListSections)
+	    	_aQuoteSection_ = _aAllQuoteSections_[_iLoopAllQuoteSections1_]
+	        _bInsideList_ = FALSE
+	        _nListSections1Len_ = len(_aListSections_)
 	        for _iLoopListSections1_ = 1 to _nListSections1Len_
-	        	aListSection = aListSections[_iLoopListSections1_]
-	            if aQuoteSection[1] >= aListSection[1] and aQuoteSection[2] <= aListSection[2]
-	                bInsideList = TRUE
+	        	_aListSection_ = _aListSections_[_iLoopListSections1_]
+	            if _aQuoteSection_[1] >= _aListSection_[1] and _aQuoteSection_[2] <= _aListSection_[2]
+	                _bInsideList_ = TRUE
 	                exit
 	            ok
 	        next
-	        if NOT bInsideList
-	            aStringSections + aQuoteSection
+	        if NOT _bInsideList_
+	            _aStringSections_ + _aQuoteSection_
 	        ok
 	    next
 	    
-	    aProtectedSections = Merge([aListSections, aStringSections])
+	    _aProtectedSections_ = Merge([_aListSections_, _aStringSections_])
 	    
 	    # Get splittable sections (the gaps around the protected ones).
 	    # NOTE: FindAntiSectionsZZ() is the find-form and takes a SUBSTRING
 	    # since the finder refactor -- the section-form is AntiSectionsZZ().
-	    aSplittableSections = _oStr_.AntiSectionsZZ(aProtectedSections)
+	    _aSplittableSections_ = _oStr_.AntiSectionsZZ(_aProtectedSections_)
 	    
 	    # Merge and sort by position
-	    aAllSections = []
+	    _aAllSections_ = []
 
-	    nLen = len(aSplittableSections)
-	    for i = 1 to nLen
-		aPair = aSplittableSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "splittable", :pair = aPair]
+	    _nLen_ = len(_aSplittableSections_)
+	    for _i_ = 1 to _nLen_
+		_aPair_ = _aSplittableSections_[_i_]
+	        _aAllSections_ + [:pos = _aPair_[1], :type = "splittable", :pair = _aPair_]
 	    next
 
-	    nLen = len(aListSections)
-	    for i = 1 to nLen
-		aPair = aListSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "list", :pair = aPair]
+	    _nLen_ = len(_aListSections_)
+	    for _i_ = 1 to _nLen_
+		_aPair_ = _aListSections_[_i_]
+	        _aAllSections_ + [:pos = _aPair_[1], :type = "list", :pair = _aPair_]
 	    next
 
-	    nLen = len(aStringSections)
-	    for i = 1 to nLen
-		aPair = aStringSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "string", :pair = aPair]
+	    _nLen_ = len(_aStringSections_)
+	    for _i_ = 1 to _nLen_
+		_aPair_ = _aStringSections_[_i_]
+	        _aAllSections_ + [:pos = _aPair_[1], :type = "string", :pair = _aPair_]
 	    next
 	    
-	    aAllSections = SortListsOn(aAllSections, 1)
-	    nLen = len(aAllSections)
+	    _aAllSections_ = SortListsOn(_aAllSections_, 1)
+	    _nLen_ = len(_aAllSections_)
 
 	    # Process in order
 
-	    for i = 1 to nLen
-		aSection = aAllSections[i]
-	        aPair = aSection[:pair]
-	        cSection = _oStr_.Section(aPair[1], aPair[2])
+	    for _i_ = 1 to _nLen_
+		_aSection_ = _aAllSections_[_i_]
+	        _aPair_ = _aSection_[:pair]
+	        _cSection_ = _oStr_.Section(_aPair_[1], _aPair_[2])
 	        
-	        if aSection[:type] = "splittable"
-	            acWords = @split(cSection, " ")
-		    nLenWords = len(acWords)
+	        if _aSection_[:type] = "splittable"
+	            # ALL whitespace separates words (multiline narrations:
+	            # newlines/tabs must not glue "it\nreverse" into one token)
+	            _cSection_ = StzReplace(_cSection_, char(13), " ")
+	            _cSection_ = StzReplace(_cSection_, char(10), " ")
+	            _cSection_ = StzReplace(_cSection_, char(9), " ")
+	            _acWords_ = @split(_cSection_, " ")
+		    _nLenWords_ = len(_acWords_)
 
-		    for j = 1 to nLenWords
-	                if trim(acWords[j]) != ""
-	                    aResult + acWords[j]
+		    for _j_ = 1 to _nLenWords_
+	                if trim(_acWords_[_j_]) != ""
+	                    _aResult_ + _acWords_[_j_]
 	                    @aTokenIsWord + TRUE
 	                ok
 	            next
 
-	        but aSection[:type] = "list"
+	        but _aSection_[:type] = "list"
 	            # nested brackets can mis-pair the section -- degrade to a
 	            # literal string token instead of dying in eval
 	            try
-	                cCode = 'aResult + ' + cSection
-	                eval(cCode)
+	                _cCode_ = '_aResult_ + ' + _cSection_
+	                eval(_cCode_)
 	            catch
-	                aResult + cSection
+	                _aResult_ + _cSection_
 	            done
 	            @aTokenIsWord + FALSE
 
 	        else  # string
 	            # Remove quotes -- StzMid is (start, COUNT): keep len-2 chars
-	            aResult + @StzMid(cSection, 2, stzlen(cSection) - 2)
+	            _aResult_ + @StzMid(_cSection_, 2, stzlen(_cSection_) - 2)
 	            @aTokenIsWord + FALSE
 	        ok
 	    next
 	    
-	    return aResult
+	    return _aResult_
 	
 	# Only these SHAPES may be eval'd as list literals: a bracketed
 	# [ ... ] form, or a pure numeric range like 1:5. Prose that
 	# isListInString() mistakes for a range ("note:") is rejected.
 
-	def LooksEvalSafeList(cVal)
-		cVal = trim(cVal)
-		if StzLeft(cVal, 1) = "[" and StzRight(cVal, 1) = "]"
+	def LooksEvalSafeList(_cVal_)
+		_cVal_ = trim(_cVal_)
+		if StzLeft(_cVal_, 1) = "[" and StzRight(_cVal_, 1) = "]"
 			return 1
 		ok
-		nPos = StzFindFirst(cVal, ":")
-		if nPos > 1 and nPos < StzLen(cVal)
-			cL = StzLeft(cVal, nPos - 1)
-			cR = StzRight(cVal, StzLen(cVal) - nPos)
+		nPos = StzFindFirst(_cVal_, ":")
+		if nPos > 1 and nPos < StzLen(_cVal_)
+			cL = StzLeft(_cVal_, nPos - 1)
+			cR = StzRight(_cVal_, StzLen(_cVal_) - nPos)
 			if isdigit(cL) and isdigit(cR)
 				return 1
 			ok
@@ -602,29 +607,29 @@ class stzNaturalEngine from stzObject
 	# An apostrophe with a LETTER on both sides is part of a word
 	# ("it's", "don't"), not a string delimiter.
 
-	def PairedQuoteSections(cCode, cQuote)
-		aRaw = StzFind(cQuote, cCode)
-		aPos = []
-		nRaw = len(aRaw)
-		nStrLen = StzLen(cCode)
-		for k = 1 to nRaw
-			p = aRaw[k]
-			if p > 1 and p < nStrLen
-				if isalpha(StzMid(cCode, p - 1, 1)) and
-				   isalpha(StzMid(cCode, p + 1, 1))
+	def PairedQuoteSections(_cCode_, cQuote)
+		_aRaw_ = StzFind(cQuote, _cCode_)
+		_aPos_ = []
+		_nRaw_ = len(_aRaw_)
+		_nStrLen_ = StzLen(_cCode_)
+		for _k_ = 1 to _nRaw_
+			p = _aRaw_[_k_]
+			if p > 1 and p < _nStrLen_
+				if isalpha(StzMid(_cCode_, p - 1, 1)) and
+				   isalpha(StzMid(_cCode_, p + 1, 1))
 					loop	# contraction, keep it inside the word
 				ok
 			ok
-			aPos + p
+			_aPos_ + p
 		next
-		aOut = []
-		nLen = len(aPos)
-		k = 1
-		while k + 1 <= nLen
-			aOut + [ aPos[k], aPos[k+1] ]
-			k += 2
+		_aOut_ = []
+		_nLen_ = len(_aPos_)
+		_k_ = 1
+		while _k_ + 1 <= _nLen_
+			_aOut_ + [ _aPos_[_k_], _aPos_[_k_+1] ]
+			_k_ += 2
 		end
-		return aOut
+		return _aOut_
 
 	# A word without clinging trailing punctuation ("empty?" -> "empty").
 	# BYTE-based whole-mark matching (StzLeft/StzRight take byte counts
@@ -635,24 +640,24 @@ class stzNaturalEngine from stzObject
 		if NOT isString(cWord)
 			return cWord
 		ok
-		cW = trim(cWord)
-		aPunct = [ "?", "!", ".", ",", ";", ":",
+		_cW_ = trim(cWord)
+		_aPunct_ = [ "?", "!", ".", ",", ";", ":",
 		           StzChar(1567), StzChar(1548) ]	# + Arabic ? and ,
-		nP = len(aPunct)
-		bAgain = TRUE
-		while bAgain and len(cW) > 0
-			bAgain = FALSE
-			for p = 1 to nP
-				cM = aPunct[p]
-				nM = len(cM)
-				if len(cW) >= nM and right(cW, nM) = cM
-					cW = left(cW, len(cW) - nM)
-					bAgain = TRUE
+		_nP_ = len(_aPunct_)
+		_bAgain_ = TRUE
+		while _bAgain_ and len(_cW_) > 0
+			_bAgain_ = FALSE
+			for p = 1 to _nP_
+				_cM_ = _aPunct_[p]
+				_nM_ = len(_cM_)
+				if len(_cW_) >= _nM_ and right(_cW_, _nM_) = _cM_
+					_cW_ = left(_cW_, len(_cW_) - _nM_)
+					_bAgain_ = TRUE
 					exit
 				ok
 			next
 		end
-		return cW
+		return _cW_
 
 	# MULTI-WORD PHRASE resolution: head word + up to two following
 	# content words (ignored words skipped), longest EXACT method-name
@@ -667,58 +672,58 @@ class stzNaturalEngine from stzObject
 		# pronoun suffixes stripped), so the inflected Arabic
 		# "remove its-duplicates" joins to the same form as the pack's
 		# "remove the-duplicates". Identity for English.
-		aWords = [ StzSemLangCanonToken(@cLangCode,
+		_aWords_ = [ StzSemLangCanonToken(@cLangCode,
 			StzLower(This.StripEdgePunct(@aValues[nStart]))) ]
-		aEnds = [ nStart ]
-		nLen = len(@aValues)
-		j = nStart + 1
-		while j <= nLen and len(aWords) < 3 and (j - nStart) <= 4
-			if NOT ( len(@aTokenIsWord) >= j and @aTokenIsWord[j] = TRUE )
+		_aEnds_ = [ nStart ]
+		_nLen_ = len(@aValues)
+		_j_ = nStart + 1
+		while _j_ <= _nLen_ and len(_aWords_) < 3 and (_j_ - nStart) <= 4
+			if NOT ( len(@aTokenIsWord) >= _j_ and @aTokenIsWord[_j_] = TRUE )
 				exit
 			ok
-			if NOT isString(@aValues[j])
+			if NOT isString(@aValues[_j_])
 				exit
 			ok
-			cW = StzSemLangNormToken(@cLangCode,
-				StzLower(This.StripEdgePunct(@aValues[j])))
-			if This.IsIgnoredWord(cW)
-				j++
+			_cW_ = StzSemLangNormToken(@cLangCode,
+				StzLower(This.StripEdgePunct(@aValues[_j_])))
+			if This.IsIgnoredWord(_cW_)
+				_j_++
 				loop
 			ok
-			aWords + StzSemLangCanonToken(@cLangCode, cW)
-			aEnds + j
-			j++
+			_aWords_ + StzSemLangCanonToken(@cLangCode, _cW_)
+			_aEnds_ + _j_
+			_j_++
 		end
 
-		nW = len(aWords)
-		if nW < 2
+		_nW_ = len(_aWords_)
+		if _nW_ < 2
 			return [ "", 0, "" ]
 		ok
 
-		bUnknown = FALSE
-		for k = 1 to nW
-			if This.ToSemantic(aWords[k]) = ""
-				bUnknown = TRUE
+		_bUnknown_ = FALSE
+		for _k_ = 1 to _nW_
+			if This.ToSemantic(_aWords_[_k_]) = ""
+				_bUnknown_ = TRUE
 				exit
 			ok
 		next
-		if NOT bUnknown
+		if NOT _bUnknown_
 			return [ "", 0, "" ]
 		ok
 
-		for n = nW to 2 step -1
-			cJoin = ""
-			cShown = ""
-			for k = 1 to n
-				cJoin += aWords[k]
-				cShown += aWords[k]
-				if k < n
-					cShown += " "
+		for n = _nW_ to 2 step -1
+			_cJoin_ = ""
+			_cShown_ = ""
+			for _k_ = 1 to n
+				_cJoin_ += _aWords_[_k_]
+				_cShown_ += _aWords_[_k_]
+				if _k_ < n
+					_cShown_ += " "
 				ok
 			next
-			cId = StzSemanticExactIdInLang(@cLangCode, cJoin)
-			if cId != ""
-				return [ cId, aEnds[n] + 1, cShown ]
+			_cId_ = StzSemanticExactIdInLang(@cLangCode, _cJoin_)
+			if _cId_ != ""
+				return [ _cId_, _aEnds_[n] + 1, _cShown_ ]
 			ok
 		next
 
@@ -726,29 +731,29 @@ class stzNaturalEngine from stzObject
 		# decide from the rare content words ("vire les doublons" -- the
 		# unlisted verb contributes nothing, the rare word carries it)
 		if @cLangCode != "en"
-			cId = StzResolveSemanticPhraseInLang(@cLangCode, aWords)
-			if cId != ""
-				cShown = ""
-				for k = 1 to nW
-					cShown += aWords[k]
-					if k < nW
-						cShown += " "
+			_cId_ = StzResolveSemanticPhraseInLang(@cLangCode, _aWords_)
+			if _cId_ != ""
+				_cShown_ = ""
+				for _k_ = 1 to _nW_
+					_cShown_ += _aWords_[_k_]
+					if _k_ < _nW_
+						_cShown_ += " "
 					ok
 				next
-				return [ cId, aEnds[nW] + 1, cShown ]
+				return [ _cId_, _aEnds_[_nW_] + 1, _cShown_ ]
 			ok
 		ok
 		return [ "", 0, "" ]
 
 	def LoadLanguageData()
-		aLangDef = This.FindLanguageDefinition(@cLanguage)
-		if len(aLangDef) > 0
-			@cLangCode = StzLower(aLangDef[:code])
-			if HasKey(aLangDef, :ignored_words)
-				@aIgnoredWords = aLangDef[:ignored_words]
+		_aLangDef_ = This.FindLanguageDefinition(@cLanguage)
+		if len(_aLangDef_) > 0
+			@cLangCode = StzLower(_aLangDef_[:code])
+			if HasKey(_aLangDef_, :ignored_words)
+				@aIgnoredWords = _aLangDef_[:ignored_words]
 			ok
-			if HasKey(aLangDef, :semantic_mappings)
-				@aMappings = aLangDef[:semantic_mappings]
+			if HasKey(_aLangDef_, :semantic_mappings)
+				@aMappings = _aLangDef_[:semantic_mappings]
 			ok
 		ok
 
@@ -761,11 +766,11 @@ class stzNaturalEngine from stzObject
 		ok
 		return StzHasLanguagePack(@cLangCode)
 	
-	def FindLanguageDefinition(cCode)
-		nLen = len($aLanguageDefinitions)
-		for i = 1 to nLen
-			aLang = $aLanguageDefinitions[i]
-			if aLang[:code] = cCode or aLang[:name] = cCode
+	def FindLanguageDefinition(_cCode_)
+		_nLen_ = len($aLanguageDefinitions)
+		for _i_ = 1 to _nLen_
+			aLang = $aLanguageDefinitions[_i_]
+			if aLang[:code] = _cCode_ or aLang[:name] = _cCode_
 				return aLang
 			ok
 		next
@@ -775,66 +780,66 @@ class stzNaturalEngine from stzObject
 		@aSemanticTokens = This.ConvertToSemanticTokens()
 		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
-		cCode = This.GenerateCodeFromSemantics()
+		_cCode_ = This.GenerateCodeFromSemantics()
 
 		This.AddToDebugLog("Generated code:")
-		This.AddToDebugLog(cCode)
+		This.AddToDebugLog(_cCode_)
 		
-		if trim(cCode) != ""
-			eval(cCode)
+		if trim(_cCode_) != ""
+			eval(_cCode_)
 		ok
 	
 	def ConvertToSemanticTokens()
-		aTokens = []
+		_aTokens_ = []
 
-		nLen = len(@aValues)
+		_nLen_ = len(@aValues)
 		This.AddToDebugLog("Converting to semantic tokens")
 
-		i = 1
-		while i <= nLen
-			cValue = @aValues[i]
+		_i_ = 1
+		while _i_ <= _nLen_
+			_cValue_ = @aValues[_i_]
 
-			if isString(cValue) and isListInString(cValue) and
-			   This.LooksEvalSafeList(cValue)
+			if isString(_cValue_) and isListInString(_cValue_) and
+			   This.LooksEvalSafeList(_cValue_)
 				# isListInString() can false-positive on plain prose
 				# ("note:" reads as range syntax) -- LooksEvalSafeList()
 				# filters those, and if the eval still fails we fall
 				# through to normal word handling instead of dying.
-				bParsed = FALSE
+				_bParsed_ = FALSE
 				try
-					cCode = 'aListValue = ' + cValue
-					eval(cCode)
-					bParsed = TRUE
+					_cCode_ = '_aListValue_ = ' + _cValue_
+					eval(_cCode_)
+					_bParsed_ = TRUE
 				catch
 				done
-				if bParsed
-					aTokens + [:type = "literal", :value = aListValue]
-					This.AddToDebugLog("List literal parsed: " + stzlen(aListValue) + " items")
-					i++
+				if _bParsed_
+					_aTokens_ + [:type = "literal", :value = _aListValue_]
+					This.AddToDebugLog("List literal parsed: " + stzlen(_aListValue_) + " items")
+					_i_++
 					loop
 				ok
 			ok
 
-			if NOT isString(cValue)
-				cValue = @@(cValue)
+			if NOT isString(_cValue_)
+				_cValue_ = @@(_cValue_)
 			ok
 
-			This.AddToDebugLog("Processing: '" + cValue + "'")
+			This.AddToDebugLog("Processing: '" + _cValue_ + "'")
 
 			# Provenance: quoted strings and list literals are VALUES --
 			# they are never ignored-word-filtered and never interpreted
 			# ('Create a string with "this"' must keep "this" even though
 			# the bare word this is an ignored word; 'with "show"' must
 			# not become OUTPUT_DISPLAY).
-			bWord = TRUE
-			if len(@aTokenIsWord) >= i
-				bWord = @aTokenIsWord[i]
+			_bWord_ = TRUE
+			if len(@aTokenIsWord) >= _i_
+				_bWord_ = @aTokenIsWord[_i_]
 			ok
 
-			if NOT bWord
-				aTokens + [:type = "literal", :value = cValue]
+			if NOT _bWord_
+				_aTokens_ + [:type = "literal", :value = _cValue_]
 				This.AddToDebugLog("Literal (quoted value)")
-				i++
+				_i_++
 				loop
 			ok
 
@@ -842,8 +847,8 @@ class stzNaturalEngine from stzObject
 			# punctuation ("empty?" reads as "empty") and without the
 			# language's marks (Arabic tanween/shadda/tatweel: the
 			# writer's diacritized word must match the plain dictionary)
-			cCheck = StzSemLangNormToken(@cLangCode,
-				This.StripEdgePunct(cValue))
+			_cCheck_ = StzSemLangNormToken(@cLangCode,
+				This.StripEdgePunct(_cValue_))
 
 			# MULTI-WORD PHRASE resolution (longest exact match first):
 			# "Remove its duplicates" -> removeduplicates, "Uppercase the
@@ -852,23 +857,23 @@ class stzNaturalEngine from stzObject
 			# Arabic equivalents match their pack's phrase map the same
 			# way. Deterministic (exact joins only), and value positions
 			# are excluded by the same FallbackEligible guard.
-			if This.LangResolvable() and This.FallbackEligible(aTokens)
-				aPh = This.PhraseResolve(i)
-				if aPh[1] != ""
-					aTokens + [:type = "semantic", :value = aPh[1], :original = aPh[3]]
-					This.AddToDebugLog("Phrase: '" + aPh[3] + "' -> " + aPh[1])
-					i = aPh[2]
+			if This.LangResolvable() and This.FallbackEligible(_aTokens_)
+				_aPh_ = This.PhraseResolve(_i_)
+				if _aPh_[1] != ""
+					_aTokens_ + [:type = "semantic", :value = _aPh_[1], :original = _aPh_[3]]
+					This.AddToDebugLog("Phrase: '" + _aPh_[3] + "' -> " + _aPh_[1])
+					_i_ = _aPh_[2]
 					loop
 				ok
 			ok
 
-			if This.IsIgnoredWord(cCheck)
+			if This.IsIgnoredWord(_cCheck_)
 				This.AddToDebugLog("Ignored")
-				i++
+				_i_++
 				loop
 			ok
 
-			cSemantic = This.ToSemantic(cCheck)
+			_cSemantic_ = This.ToSemantic(_cCheck_)
 
 			# Unified-lexicon fallback (natural <-> reflect unification):
 			# a bare WORD the dictionary doesn't know (quoted values never
@@ -876,60 +881,60 @@ class stzNaturalEngine from stzObject
 			# positions are excluded by FallbackEligible) is resolved
 			# against the shared semantic lexicon (en) or the language's
 			# registered pack (fr, ar, ...).
-			bEligible = This.FallbackEligible(aTokens)
-			if cSemantic = "" and This.LangResolvable() and bEligible
-				cSemantic = StzResolveSemanticInLang(@cLangCode, cCheck)
-				if cSemantic != ""
-					This.AddToDebugLog("Unified lexicon: '" + cCheck + "' -> " + cSemantic)
+			_bEligible_ = This.FallbackEligible(_aTokens_)
+			if _cSemantic_ = "" and This.LangResolvable() and _bEligible_
+				_cSemantic_ = StzResolveSemanticInLang(@cLangCode, _cCheck_)
+				if _cSemantic_ != ""
+					This.AddToDebugLog("Unified lexicon: '" + _cCheck_ + "' -> " + _cSemantic_)
 				ok
 			ok
 
-			if cSemantic != ""
-				bLiteral = This.ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
+			if _cSemantic_ != ""
+				_bLiteral_ = This.ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
 
-				if bLiteral
-					aTokens + [:type = "literal", :value = cValue]
+				if _bLiteral_
+					_aTokens_ + [:type = "literal", :value = _cValue_]
 					This.AddToDebugLog("Literal (context)")
 				else
-					aTokens + [:type = "semantic", :value = cSemantic, :original = cValue]
-					This.AddToDebugLog("Semantic: " + cSemantic)
+					_aTokens_ + [:type = "semantic", :value = _cSemantic_, :original = _cValue_]
+					This.AddToDebugLog("Semantic: " + _cSemantic_)
 				ok
 			else
-				aTokens + [:type = "literal", :value = cValue]
+				_aTokens_ + [:type = "literal", :value = _cValue_]
 				This.AddToDebugLog("Literal")
 				# UNDERSTANDABILITY: an action-position word nobody
 				# understood -- report it, with the nearest known
 				# word as a suggestion (never blocks execution).
-				# bEligible was captured BEFORE this literal joined
-				# aTokens, so it judges the word's own position.
-				if This.LangResolvable() and bEligible and
-				   StzLen(cCheck) >= 3
-					cSug = StzSuggestWord(@cLangCode, cCheck)
-					@aUnresolved + [ cCheck, cSug ]
+				# _bEligible_ was captured BEFORE this literal joined
+				# _aTokens_, so it judges the word's own position.
+				if This.LangResolvable() and _bEligible_ and
+				   StzLen(_cCheck_) >= 3
+					_cSug_ = StzSuggestWord(@cLangCode, _cCheck_)
+					@aUnresolved + [ _cCheck_, _cSug_ ]
 				ok
 			ok
-			i++
+			_i_++
 		end
 
-		return aTokens
+		return _aTokens_
 	
-	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
-		nLen = len(aTokens)
-		if nLen = 0
+	def ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
+		_nLen_ = len(_aTokens_)
+		if _nLen_ = 0
 			return 0
 		ok
 		
-		aLast = aTokens[nLen]
+		_aLast_ = _aTokens_[_nLen_]
 		
-		if aLast[:type] = "semantic" and aLast[:value] = "VALUE_INDICATOR"
+		if _aLast_[:type] = "semantic" and _aLast_[:value] = "VALUE_INDICATOR"
 			return 1
 		ok
 
-		if aLast[:type] = "literal" and nLen >= 2
-			aBeforeLast = aTokens[nLen-1]
+		if _aLast_[:type] = "literal" and _nLen_ >= 2
+			aBeforeLast = _aTokens_[_nLen_-1]
 			if aBeforeLast[:type] = "semantic" and StzLeft(aBeforeLast[:value], 7) = "METHOD_"
-				aOp = This.GetSemanticOperation(aBeforeLast[:value])
-				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+				_aOp_ = This.GetSemanticOperation(aBeforeLast[:value])
+				if len(_aOp_) > 0 and HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
 					return 1
 				ok
 			ok
@@ -944,24 +949,24 @@ class stzNaturalEngine from stzObject
 	# expects parameters (Replace dot with underscore). In all those spots
 	# the word must stay a literal -- resolution would corrupt the program.
 
-	def FallbackEligible(aTokens)
-		nLen = len(aTokens)
-		if nLen = 0
+	def FallbackEligible(_aTokens_)
+		_nLen_ = len(_aTokens_)
+		if _nLen_ = 0
 			return 1	# first token of a block: action position
 		ok
 
-		aLast = aTokens[nLen]
-		if aLast[:type] = "semantic"
-			cVal = aLast[:value]
+		_aLast_ = _aTokens_[_nLen_]
+		if _aLast_[:type] = "semantic"
+			_cVal_ = _aLast_[:value]
 
-			if StzLeft(cVal, 7) = "OBJECT_" or cVal = "VALUE_INDICATOR"
+			if StzLeft(_cVal_, 7) = "OBJECT_" or _cVal_ = "VALUE_INDICATOR"
 				return 0
 			ok
 
-			if StzLeft(cVal, 7) = "METHOD_"
-				aOp = This.GetSemanticOperation(cVal)
-				if len(aOp) > 0 and HasKey(aOp, :requires_params) and
-				   aOp[:requires_params] > 0
+			if StzLeft(_cVal_, 7) = "METHOD_"
+				_aOp_ = This.GetSemanticOperation(_cVal_)
+				if len(_aOp_) > 0 and HasKey(_aOp_, :requires_params) and
+				   _aOp_[:requires_params] > 0
 					return 0
 				ok
 			ok
@@ -984,77 +989,77 @@ class stzNaturalEngine from stzObject
 			cLower = StzLeft(cLower, stzlen(cLower) - 1)
 		ok
 		
-		nLen = len(@aMappings)
-		for i = 1 to nLen
-			aMap = @aMappings[i]
+		_nLen_ = len(@aMappings)
+		for _i_ = 1 to _nLen_
+			aMap = @aMappings[_i_]
 			if aMap[:natural] = cLower
-				cSemantic = aMap[:semantic]
+				_cSemantic_ = aMap[:semantic]
 				if bDefine
-					return "@" + cSemantic
+					return "@" + _cSemantic_
 				but bRecall
-					return cSemantic + "@"
+					return _cSemantic_ + "@"
 				ok
-				return cSemantic
+				return _cSemantic_
 			ok
 		next
 		return ""
 	
 	def GenerateCodeFromSemantics()
-		aCodeLines = []
-		nLen = len(@aSemanticTokens)
+		_aCodeLines_ = []
+		_nLen_ = len(@aSemanticTokens)
 
-		i = 1
+		_i_ = 1
 
-		while i <= nLen
-			aToken = @aSemanticTokens[i]
+		while _i_ <= _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
 			
-			if aToken[:type] = "semantic"
-				cSemantic = aToken[:value]
-				nLenSem = stzLen(cSemantic)
+			if _aToken_[:type] = "semantic"
+				_cSemantic_ = _aToken_[:value]
+				nLenSem = stzLen(_cSemantic_)
 
-				if StzLeft(cSemantic, 1) = "@"
-					cClean = @StzMid(cSemantic, 2, nLenSem - 1)
-					@aDefineRecallState + [:semantic = cClean, :index = i]
-					i++
+				if StzLeft(_cSemantic_, 1) = "@"
+					cClean = @StzMid(_cSemantic_, 2, nLenSem - 1)
+					@aDefineRecallState + [:semantic = cClean, :index = _i_]
+					_i_++
 					loop
 				ok
 				
-				if StzRight(cSemantic, 1) = "@"
-					cClean = StzLeft(cSemantic, nLenSem - 1)
-					aResult = This.ProcessMethodWithModifiers(i, cClean)
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+				if StzRight(_cSemantic_, 1) = "@"
+					cClean = StzLeft(_cSemantic_, nLenSem - 1)
+					_aResult_ = This.ProcessMethodWithModifiers(_i_, cClean)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					loop
 				ok
 				
-				if cSemantic = "CREATE_OBJECT"
-					aResult = This.ProcessObjectCreation(i)
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+				if _cSemantic_ = "CREATE_OBJECT"
+					_aResult_ = This.ProcessObjectCreation(_i_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					
-				but StzLeft(cSemantic, 7) = "METHOD_"
-					aResult = This.ProcessMethod(i, cSemantic)
-					if stzlen(aResult[:code]) > 0
-						aCodeLines + aResult[:code]
+				but StzLeft(_cSemantic_, 7) = "METHOD_"
+					_aResult_ = This.ProcessMethod(_i_, _cSemantic_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
 					ok
-					i = aResult[:next_index]
+					_i_ = _aResult_[:next_index]
 					
-				but cSemantic = "OUTPUT_DISPLAY"
-					aOp = This.GetSemanticOperation(cSemantic)
-					if len(aOp) > 0
-						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
-						aCodeLines + cCode
+				but _cSemantic_ = "OUTPUT_DISPLAY"
+					_aOp_ = This.GetSemanticOperation(_cSemantic_)
+					if len(_aOp_) > 0
+						_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
+						_aCodeLines_ + _cCode_
 					ok
-					i++
+					_i_++
 				else
-					i++
+					_i_++
 				ok
 			else
-				i++
+				_i_++
 			ok
 		end
 
@@ -1065,73 +1070,73 @@ class stzNaturalEngine from stzObject
 		# the natural contract for @result: the last thing produced. A
 		# trailing QUERY line already set it; otherwise it is the live
 		# object's final content.
-		cCode = JoinXT(aCodeLines, StzChar(10))
-		nCL = len(aCodeLines)
-		if NOT ( nCL > 0 and StzLeft(aCodeLines[nCL], 10) = "@result = " )
-			cCode += StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
+		_cCode_ = JoinXT(_aCodeLines_, StzChar(10))
+		_nCL_ = len(_aCodeLines_)
+		if NOT ( _nCL_ > 0 and StzLeft(_aCodeLines_[_nCL_], 10) = "@result = " )
+			_cCode_ += StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
 		ok
-		return cCode
+		return _cCode_
 	
-	def FindDefineIndex(cSemantic)
-		nLen = len(@aDefineRecallState)
-		for i = 1 to nLen
-			if @aDefineRecallState[i][:semantic] = cSemantic
-				return @aDefineRecallState[i][:index]
+	def FindDefineIndex(_cSemantic_)
+		_nLen_ = len(@aDefineRecallState)
+		for _i_ = 1 to _nLen_
+			if @aDefineRecallState[_i_][:semantic] = _cSemantic_
+				return @aDefineRecallState[_i_][:index]
 			ok
 		next
 		return 0
 	
 	def ProcessObjectCreation(nIndex)
 
-		nLen = len(@aSemanticTokens)
-		cObjectType = ""
-		cValue = ""
-		nNextIndex = nIndex + 1
+		_nLen_ = len(@aSemanticTokens)
+		_cObjectType_ = ""
+		_cValue_ = ""
+		_nNextIndex_ = nIndex + 1
 		
-		for i = nIndex+1 to nLen
-			aToken = @aSemanticTokens[i]
-			if aToken[:type] = "semantic" and StzLeft(aToken[:value], 7) = "OBJECT_"
-				cObjectType = aToken[:value]
+		for _i_ = nIndex+1 to _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
+			if _aToken_[:type] = "semantic" and StzLeft(_aToken_[:value], 7) = "OBJECT_"
+				_cObjectType_ = _aToken_[:value]
 				
-				for j = i+1 to nLen
-					aNextToken = @aSemanticTokens[j]
+				for _j_ = _i_+1 to _nLen_
+					aNextToken = @aSemanticTokens[_j_]
 					if aNextToken[:type] = "literal"
-						cValue = aNextToken[:value]
-						nNextIndex = j + 1
+						_cValue_ = aNextToken[:value]
+						_nNextIndex_ = _j_ + 1
 						exit 2
 					ok
 				next
 			ok
 		next
 
-		if cObjectType != ""
-			aOp = This.GetSemanticOperation(cObjectType)
+		if _cObjectType_ != ""
+			_aOp_ = This.GetSemanticOperation(_cObjectType_)
 
-			if len(aOp) > 0
-				@cCurrentObject = aOp[:object_type]
-				@cCurrentVariable = aOp[:variable]
-				cConstructor = aOp[:constructor]
+			if len(_aOp_) > 0
+				@cCurrentObject = _aOp_[:object_type]
+				@cCurrentVariable = _aOp_[:variable]
+				_cConstructor_ = _aOp_[:constructor]
 				
-				if isListInString(cValue)
-					cConstructor = StzReplace(cConstructor, "@", cValue)
+				if isListInString(_cValue_)
+					_cConstructor_ = StzReplace(_cConstructor_, "@", _cValue_)
 				else
 
-					cConstructor = StzReplace(cConstructor, "@", '"' + cValue + '"')
+					_cConstructor_ = StzReplace(_cConstructor_, "@", '"' + _cValue_ + '"')
 				ok
 				
-				cCode = @cCurrentVariable + " = " + cConstructor
-				return [:code = cCode, :next_index = nNextIndex]
+				_cCode_ = @cCurrentVariable + " = " + _cConstructor_
+				return [:code = _cCode_, :next_index = _nNextIndex_]
 			ok
 		ok
 		
-		aResult = [:code = "", :next_index = nIndex+1]
-		return aResult
+		_aResult_ = [:code = "", :next_index = nIndex+1]
+		return _aResult_
 
-	def ProcessMethod(nIndex, cSemantic)
-		This.AddToDebugLog("Processing method: " + cSemantic)
+	def ProcessMethod(nIndex, _cSemantic_)
+		This.AddToDebugLog("Processing method: " + _cSemantic_)
 
-		aOp = This.GetSemanticOperation(cSemantic)
-		if len(aOp) = 0
+		_aOp_ = This.GetSemanticOperation(_cSemantic_)
+		if len(_aOp_) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 
@@ -1139,111 +1144,111 @@ class stzNaturalEngine from stzObject
 		# applying a stzList verb to a stzString object would R14, so
 		# enforce :applies_to for them (hand-authored ops keep their
 		# historical advisory behavior).
-		if HasKey(aOp, :grown) and HasKey(aOp, :applies_to)
-			bApplies = FALSE
-			aTo = aOp[:applies_to]
-			nTo = len(aTo)
-			for i = 1 to nTo
-				if lower(aTo[i]) = lower(@cCurrentObject)
-					bApplies = TRUE
+		if HasKey(_aOp_, :grown) and HasKey(_aOp_, :applies_to)
+			_bApplies_ = FALSE
+			_aTo_ = _aOp_[:applies_to]
+			_nTo_ = len(_aTo_)
+			for _i_ = 1 to _nTo_
+				if lower(_aTo_[_i_]) = lower(@cCurrentObject)
+					_bApplies_ = TRUE
 					exit
 				ok
 			next
-			if NOT bApplies
-				This.AddToDebugLog("Skipped " + cSemantic + " -- not applicable to " + @cCurrentObject)
+			if NOT _bApplies_
+				This.AddToDebugLog("Skipped " + _cSemantic_ + " -- not applicable to " + @cCurrentObject)
 				return [:code = "", :next_index = nIndex+1]
 			ok
 		ok
 
-		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
+		_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
 
 		# QUERY operations (passive / predicate forms) RETURN a value
 		# instead of mutating: their call becomes the current @result
 		# ("Is it empty", "its Reversed copy"). If a query is the LAST
 		# step, @result keeps its value (see GenerateCodeFromSemantics).
-		if HasKey(aOp, :kind) and aOp[:kind] = "query"
-			cCode = "@result = " + cCode
+		if HasKey(_aOp_, :kind) and _aOp_[:kind] = "query"
+			_cCode_ = "@result = " + _cCode_
 		ok
 
-		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
-			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
-			aParams = aResult[:params]
-			nNextIndex = aResult[:next_index]
-			nLen = len(aParams)
+		if HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
+			_aResult_ = This.ExtractMethodParameters(nIndex, _aOp_[:requires_params])
+			_aParams_ = _aResult_[:params]
+			_nNextIndex_ = _aResult_[:next_index]
+			_nLen_ = len(_aParams_)
 
-			for i = 1 to nLen
-				cPlaceholder = "@param" + i
-				if isString(aParams[i])
-					cParamValue = '"' + aParams[i] + '"'
-				but isList(aParams[i])
-					cParamValue = @@(aParams[i])
+			for _i_ = 1 to _nLen_
+				_cPlaceholder_ = "@param" + _i_
+				if isString(_aParams_[_i_])
+					_cParamValue_ = '"' + _aParams_[_i_] + '"'
+				but isList(_aParams_[_i_])
+					_cParamValue_ = @@(_aParams_[_i_])
 				else
-					cParamValue = "" + aParams[i]
+					_cParamValue_ = "" + _aParams_[_i_]
 				ok
-				cCode = StzReplace(cCode, cPlaceholder, cParamValue)
+				_cCode_ = StzReplace(_cCode_, _cPlaceholder_, _cParamValue_)
 			next
 
 			# a parameter the natural code never supplied: emit NOTHING
 			# rather than broken Ring code (matters for grown operations
 			# whose verbs can appear in prose without arguments)
-			if StzFindFirst(cCode, "@param") > 0
-				This.AddToDebugLog("Skipped " + cSemantic + " -- missing parameter(s)")
-				return [:code = "", :next_index = nNextIndex]
+			if StzFindFirst(_cCode_, "@param") > 0
+				This.AddToDebugLog("Skipped " + _cSemantic_ + " -- missing parameter(s)")
+				return [:code = "", :next_index = _nNextIndex_]
 			ok
 
-			return [:code = cCode, :next_index = nNextIndex]
+			return [:code = _cCode_, :next_index = _nNextIndex_]
 		ok
 		
-		return [:code = cCode, :next_index = nIndex+1]
+		return [:code = _cCode_, :next_index = nIndex+1]
 	
 	def ExtractMethodParameters(nIndex, nParamCount)
-		aParams = []
-		nLen = len(@aSemanticTokens)
-		nLastIndex = nIndex
+		_aParams_ = []
+		_nLen_ = len(@aSemanticTokens)
+		_nLastIndex_ = nIndex
 		
-		for i = nIndex+1 to nLen
-			aToken = @aSemanticTokens[i]
-			nLastIndex = i
+		for _i_ = nIndex+1 to _nLen_
+			_aToken_ = @aSemanticTokens[_i_]
+			_nLastIndex_ = _i_
 			
-			if aToken[:type] = "semantic" and aToken[:value] = "VALUE_INDICATOR"
+			if _aToken_[:type] = "semantic" and _aToken_[:value] = "VALUE_INDICATOR"
 				loop
 			ok
 			
-			if aToken[:type] = "literal"
-				aParams + aToken[:value]
-				if len(aParams) = nParamCount
+			if _aToken_[:type] = "literal"
+				_aParams_ + _aToken_[:value]
+				if len(_aParams_) = nParamCount
 					exit
 				ok
 			ok
 			
-			if aToken[:type] = "semantic" and 
-			   (StzLeft(aToken[:value], 7) = "METHOD_" or aToken[:value] = "OUTPUT_DISPLAY")
-				nLastIndex = i - 1
+			if _aToken_[:type] = "semantic" and 
+			   (StzLeft(_aToken_[:value], 7) = "METHOD_" or _aToken_[:value] = "OUTPUT_DISPLAY")
+				_nLastIndex_ = _i_ - 1
 				exit
 			ok
 		next
 		
-		return [:params = aParams, :next_index = nLastIndex + 1]
+		return [:params = _aParams_, :next_index = _nLastIndex_ + 1]
 	
-	def ProcessMethodWithModifiers(nIndex, cSemantic)
-		aOp = This.GetSemanticOperation(cSemantic)
-		if len(aOp) = 0
+	def ProcessMethodWithModifiers(nIndex, _cSemantic_)
+		_aOp_ = This.GetSemanticOperation(_cSemantic_)
+		if len(_aOp_) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
+		_cCode_ = StzReplace(_aOp_[:stz_signature], "@var", @cCurrentVariable)
 
-		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
-			nLen = len(@aSemanticTokens)
-			for i = nIndex+1 to nLen
-				aToken = @aSemanticTokens[i]
-				if aToken[:type] = "semantic"
-					nModLen = len(aOp[:modifiers])
-					for j = 1 to nModLen
-						aMod = aOp[:modifiers][j]
-						if aMod[:semantic_id] = aToken[:value]
-							cCode = StzReplace(cCode, aOp[:stz_method], aMod[:stz_method])
-							cCode = StzReplace(cCode, "()", "([" + aMod[:stz_param] + "])")
+		if HasKey(_aOp_, :supports_modifiers) and _aOp_[:supports_modifiers] = 1
+			_nLen_ = len(@aSemanticTokens)
+			for _i_ = nIndex+1 to _nLen_
+				_aToken_ = @aSemanticTokens[_i_]
+				if _aToken_[:type] = "semantic"
+					_nModLen_ = len(_aOp_[:modifiers])
+					for _j_ = 1 to _nModLen_
+						_aMod_ = _aOp_[:modifiers][_j_]
+						if _aMod_[:semantic_id] = _aToken_[:value]
+							_cCode_ = StzReplace(_cCode_, _aOp_[:stz_method], _aMod_[:stz_method])
+							_cCode_ = StzReplace(_cCode_, "()", "([" + _aMod_[:stz_param] + "])")
 							exit 2
 						ok
 					next
@@ -1251,14 +1256,14 @@ class stzNaturalEngine from stzObject
 			next
 		ok
 		
-		return [:code = cCode, :next_index = nIndex+1]
+		return [:code = _cCode_, :next_index = nIndex+1]
 	
 	def GetSemanticOperation(cSemanticId)
-		nLen = len($aSemanticOperations)
-		for i = 1 to nLen
-			aOp = $aSemanticOperations[i]
-			if aOp[:semantic_id] = cSemanticId
-				return aOp
+		_nLen_ = len($aSemanticOperations)
+		for _i_ = 1 to _nLen_
+			_aOp_ = $aSemanticOperations[_i_]
+			if _aOp_[:semantic_id] = cSemanticId
+				return _aOp_
 			ok
 		next
 		return []
@@ -1289,12 +1294,12 @@ class stzNaturalEngine from stzObject
 	# Dry run: tokenize + interpret WITHOUT generating or executing any
 	# code. Returns the lint report.
 
-	def Analyze(cCode)
-		if NOT isString(cCode) or trim(cCode) = ""
+	def Analyze(_cCode_)
+		if NOT isString(_cCode_) or trim(_cCode_) = ""
 			return [ :understood = TRUE, :unresolved = [] ]
 		ok
-		@cNaturalCode = cCode
-		This.TokenizeCode(cCode)
+		@cNaturalCode = _cCode_
+		This.TokenizeCode(_cCode_)
 		@aSemanticTokens = This.ConvertToSemanticTokens()
 		return [ :understood = This.UnderstoodAll(), :unresolved = @aUnresolved ]
 	
