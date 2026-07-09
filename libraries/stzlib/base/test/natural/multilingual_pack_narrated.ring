@@ -142,6 +142,12 @@ Scenario("The system says what it did NOT understand, in any language")
 		of9.UnderstoodAll(), TRUE)
 EndScenario()
 
+Scenario("Arabic-Indic numerals and the Arabic comma normalize in values")
+	ovd1 = NaturallyIn("ar", "أنشئ قائمة بـ [ ٣، ١، ٣ ] أزل التكرارات")
+	Then("a value list written entirely in Arabic numerals evaluates",
+		@@( ovd1.Result() ), @@([ 3, 1 ]))
+EndScenario()
+
 Scenario("French elision generalizes through the same canonicalizer")
 	oe1 = NaturallyIn("fr", "Crée une chaine avec 'ring' et mets la à l'envers")
 	Then("l'envers (elided article, apostrophe intact)", oe1.Result(), "gnir")
