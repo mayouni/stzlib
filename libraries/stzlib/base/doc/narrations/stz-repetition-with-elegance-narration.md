@@ -25,7 +25,7 @@ load "stzlib.ring"
 #--> [ ".", ".", "." ]
 
 ? @NXT(3, ".", :InAString)
-#--> ...
+#--> "..."
 ```
 
 Here, `@N()` and `@NXT()` create sequences of repeated characters with an optional format (`:InAList` or `:InAString`). Whether you need a list of dots for validation or a string of them for comparison, these utilities adapt seamlessly.
@@ -45,7 +45,6 @@ And for brevity’s sake, Softanza offers the charmingly compact `@3(".")`:
 ```
 
 >**NOTE**: You can express any number of repetitions using `@N()`, and for convenience, there are shortcuts for repetitions from `@1()` to `@10()`, accompanied by their semantic alternatives `One()` to `Ten()`.
-
 
 ## The Power of Intuitive Queries: `StartsWith()`, `EndsWith()`, and Beyond
 
