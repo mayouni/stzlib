@@ -25,7 +25,240 @@ $aStzSemLexicon = []        # [ [ cSemanticId, cBagOfWords ], ... ]
 $bStzSemLexiconBuilt = FALSE
 $aStzSemResolveMemo = []    # [ [ cWord, cResolvedId ], ... ] (failures memoized as "")
 
+$aStzSemHarvestRecs = []    # cached reflect harvest [ name, desc, aka, owner, class ]
+$bStzSemHarvested = FALSE
+$bStzSemOpsGrown = FALSE    # $aSemanticOperations grown from the harvest yet?
+$aStzSemExactNames = []     # [ [ lowered stz_method, semantic_id ], ... ]
+$aStzSemOpIds = []          # flat id list backing _StzSemOpKnown (ring_find speed)
+$nStzSemCacheSig = 0        # cache signature (combined source sizes)
+
 #--
+
+# The reflect harvest of the three natural-facing classes, cached once and
+# shared by the operation growth AND the lexicon build.
+
+func _StzSemHarvest()
+	if $bStzSemHarvested
+		return $aStzSemHarvestRecs
+	ok
+	_aCls_ = [ "stzString", "stzList", "stzNumber" ]
+	for _i_ = 1 to 3
+		_aH_ = _StzHarvestChain(_aCls_[_i_])
+		_nH_ = len(_aH_)
+		for _j_ = 1 to _nH_
+			_aRec_ = _aH_[_j_]
+			while len(_aRec_) < 4
+				_aRec_ + ""
+			end
+			_aRec_ + _aCls_[_i_]
+			$aStzSemHarvestRecs + _aRec_
+		next
+	next
+	$bStzSemHarvested = TRUE
+	return $aStzSemHarvestRecs
+
+# GROW $aSemanticOperations FROM THE HARVEST. Every ACTIVE-form method of
+# stzString / stzList / stzNumber with arity <= 2 becomes an executable
+# METHOD_* operation -- the active form is exactly Naturally()'s semantic
+# model (transform one object through steps), so passives, predicates,
+# fluents and the other forms stay out. Hand-authored operations are never
+# overridden. Also (re)builds the exact-name map used by the resolver.
+
+func StzGrowSemanticOperations()
+
+	if $bStzSemOpsGrown
+		return
+	ok
+	$bStzSemOpsGrown = TRUE
+
+	# flat id list -- _StzSemOpKnown must stay O(ring_find), not a hashlist
+	# scan, or growth goes quadratic over ~2000 candidates
+	$aStzSemOpIds = []
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		$aStzSemOpIds + $aSemanticOperations[_i_][:semantic_id]
+	next
+
+	# warm start: grown ops + final lexicon bags persisted under doc/
+	# (harvesting + arity-scanning three big sources costs seconds; the
+	# cache signature is the combined source size, so any edit rebuilds)
+	$nStzSemCacheSig = _StzSemCacheSig()
+	if _StzSemLoadCache($nStzSemCacheSig)
+		_StzSemBuildExactMap()
+		return
+	ok
+
+	_aRecs_ = _StzSemHarvest()
+	_nR_ = len(_aRecs_)
+
+	# CONSTRUCT-AND-VERIFY: only names that are REAL methods of a live
+	# instance may become operations (the harvest can carry phantom names
+	# from nested defs and parent-file noise -- calling those would R14).
+	_aLive_ = []
+	_aLive_ + [ "stzstring", _StzSemMethodsOf("new stzString('')") ]
+	_aLive_ + [ "stzlist",   _StzSemMethodsOf("new stzList([])") ]
+	_aLive_ + [ "stznumber", _StzSemMethodsOf("new stzNumber(0)") ]
+
+	# arity maps per owner class, built lazily (one source pass each)
+	_aArity_ = []    # [ [ ownerLower, aMap ], ... ]
+
+	for _i_ = 1 to _nR_
+		_aRec_ = _aRecs_[_i_]
+		_cName_ = _aRec_[1]
+
+		if NOT isalpha(_cName_) or StzLen(_cName_) < 3
+			loop
+		ok
+		# Ring/class plumbing is never a natural action
+		if ring_find([ "init", "operator", "braceend", "bracestart" ], lower(_cName_)) > 0
+			loop
+		ok
+		_aForm_ = _StzFormOf(_cName_)
+		if _aForm_[1] != "active"
+			loop
+		ok
+		# must be callable on a live instance of the harvested class
+		_aClsMeths_ = []
+		_nLv_ = len(_aLive_)
+		for _v_ = 1 to _nLv_
+			if _aLive_[_v_][1] = lower(_aRec_[5])
+				_aClsMeths_ = _aLive_[_v_][2]
+				exit
+			ok
+		next
+		if ring_find(_aClsMeths_, lower(_cName_)) = 0
+			loop
+		ok
+
+		_cId_ = "METHOD_" + upper(_cName_)
+		_nAt_ = ring_find($aStzSemOpIds, _cId_)   # index-aligned with ops
+		if _nAt_ > 0
+			# same verb proven callable on ANOTHER class (RemoveDuplicates
+			# lives on both stzString and stzList): widen :applies_to of
+			# the grown op so the codegen guard admits both. NB: read-
+			# modify-write -- Ring copies lists on plain assignment.
+			if HasKey($aSemanticOperations[_nAt_], :grown)
+				_aTo_ = $aSemanticOperations[_nAt_][:applies_to]
+				if ring_find(_aTo_, _aRec_[5]) = 0
+					_aTo_ + _aRec_[5]
+					$aSemanticOperations[_nAt_][:applies_to] = _aTo_
+				ok
+			ok
+			loop
+		ok
+
+		_cOwner_ = _aRec_[4]
+		if _cOwner_ = ""
+			_cOwner_ = _aRec_[5]
+		ok
+		_aMap_ = _StzSemArityMapFor(_aArity_, _cOwner_)
+		_nAr_ = _StzSemArityLookup(_aMap_, lower(_cName_))
+		if _nAr_ < 0 or _nAr_ > 2
+			loop
+		ok
+
+		_cSig_ = "@var." + _cName_ + "("
+		for _k_ = 1 to _nAr_
+			_cSig_ += "@param" + _k_
+			if _k_ < _nAr_
+				_cSig_ += ", "
+			ok
+		next
+		_cSig_ += ")"
+
+		_aOp_ = []
+		_aOp_ + [ "semantic_id", _cId_ ]
+		_aOp_ + [ "stz_method", _cName_ ]
+		_aOp_ + [ "stz_signature", _cSig_ ]
+		_aOp_ + [ "applies_to", [ _aRec_[5] ] ]
+		if _nAr_ > 0
+			_aOp_ + [ "requires_params", _nAr_ ]
+		ok
+		_aOp_ + [ "grown", 1 ]
+		$aSemanticOperations + _aOp_
+		$aStzSemOpIds + _cId_
+	next
+
+	_StzSemBuildExactMap()
+
+	func @StzGrowSemanticOperations()
+		StzGrowSemanticOperations()
+
+# Exact-name map over ALL operations (hand-authored + grown): the resolver
+# prefers a deterministic exact hit over IDF scoring, so base verbs can
+# never be lost to score ties as the lexicon grows.
+
+func _StzSemBuildExactMap()
+	$aStzSemExactNames = []
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		_aOp_ = $aSemanticOperations[_i_]
+		if HasKey(_aOp_, :stz_method)
+			$aStzSemExactNames + [ lower(_aOp_[:stz_method]), _aOp_[:semantic_id] ]
+		ok
+	next
+
+# One source pass per owner class: [ [ lowered def name, arity ], ... ].
+
+func _StzSemArityMapFor(paMemo, pcOwner)
+	_cKey_ = lower(pcOwner)
+	_n_ = len(paMemo)
+	for _i_ = 1 to _n_
+		if paMemo[_i_][1] = _cKey_
+			return paMemo[_i_][2]
+		ok
+	next
+	_aMap_ = []
+	_cSrc_ = _StzResolveSource(pcOwner)
+	if _cSrc_ != "" and fexists(_cSrc_)
+		_aLines_ = str2list(read(_cSrc_))
+		_nL_ = len(_aLines_)
+		for _i_ = 1 to _nL_
+			_cT_ = trim(_aLines_[_i_])
+			if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def "
+				_cDefName_ = lower(_StzDefName(_cT_))
+				_nAr_ = 0
+				_p1_ = substr(_cT_, "(")
+				if _p1_ > 0
+					_p2_ = _StzLastPos(_cT_, ")")
+					if _p2_ > _p1_ + 1
+						_cP_ = substr(_cT_, _p1_ + 1, _p2_ - _p1_ - 1)
+						if trim(_cP_) != ""
+							_nAr_ = len(_StzSplitOnChar(_cP_, ","))
+						ok
+					ok
+				ok
+				_aMap_ + [ _cDefName_, _nAr_ ]
+			ok
+		next
+	ok
+	paMemo + [ _cKey_, _aMap_ ]
+	return _aMap_
+
+# The lowered method names of a live instance (Ring's methods() is the
+# ground truth of callability).
+
+func _StzSemMethodsOf(pcNewExpr)
+	_aOut_ = []
+	try
+		eval("_oObj_ = " + pcNewExpr)
+		_aM_ = methods(_oObj_)
+		_nM_ = len(_aM_)
+		for _i_ = 1 to _nM_
+			_aOut_ + lower(_aM_[_i_])
+		next
+	catch
+	done
+	return _aOut_
+
+func _StzSemArityLookup(paMap, pcName)
+	_n_ = len(paMap)
+	for _i_ = 1 to _n_
+		if paMap[_i_][1] = pcName
+			return paMap[_i_][2]
+		ok
+	next
+	return -1
 
 func StzSemanticLexicon()
 
@@ -33,7 +266,23 @@ func StzSemanticLexicon()
 		return $aStzSemLexicon
 	ok
 
+	# grow $aSemanticOperations from the harvest FIRST, so every source
+	# below (and the bags themselves) covers the grown operations too
+	StzGrowSemanticOperations()
+
 	_aBags_ = []
+
+	# -- Source 0: each operation's own method name, camel-split ("MultiplyBy"
+	# -> "multiply by"), so grown verbs are findable by their name words.
+
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		_aOp_ = $aSemanticOperations[_i_]
+		_cId_ = _aOp_[:semantic_id]
+		if left(_cId_, 7) = "METHOD_" and HasKey(_aOp_, :stz_method)
+			_StzSemBagAdd(_aBags_, _cId_, lower(_StzSplitCamel(_aOp_[:stz_method])))
+		ok
+	next
 
 	# -- Source 1: invert the English :semantic_mappings (authoritative seed).
 	# Only action-like IDs take part: resolving an unknown word to an OBJECT_*
@@ -73,45 +322,150 @@ func StzSemanticLexicon()
 	next
 
 	# -- Source 3: the #@ aka retrieval tags, harvested from the class sources
-	# by the reflect layer. For each METHOD_* operation, collect the aka text
-	# of the method AND of its form family (Uppercase / Uppercased /
-	# IsUppercased...), exactly the _ActionsXT lesson: forms share the ID.
+	# by the reflect layer. Each record's aka is folded into the operation of
+	# its form-family BASE (Uppercased / IsUppercased -> METHOD_UPPERCASE),
+	# exactly the _ActionsXT lesson: all forms of one action share the ID.
 
-	_aRecs_ = []
-	_aCls_ = [ "stzString", "stzList", "stzNumber" ]
-	for _i_ = 1 to 3
-		_aH_ = _StzHarvestChain(_aCls_[_i_])
-		_nH_ = len(_aH_)
-		for _j_ = 1 to _nH_
-			_aRecs_ + _aH_[_j_]
-		next
-	next
-
-	_nOps_ = len($aSemanticOperations)
+	_aRecs_ = _StzSemHarvest()
 	_nR_ = len(_aRecs_)
 
-	for _i_ = 1 to _nOps_
-		_aOp_ = $aSemanticOperations[_i_]
-		_cId_ = _aOp_[:semantic_id]
-		if left(_cId_, 7) != "METHOD_" or NOT HasKey(_aOp_, :stz_method)
+	for _j_ = 1 to _nR_
+		_aRec_ = _aRecs_[_j_]
+		if len(_aRec_) < 3 or _aRec_[3] = ""
 			loop
 		ok
-		_cMeth_ = _aOp_[:stz_method]
-		for _j_ = 1 to _nR_
-			_aRec_ = _aRecs_[_j_]
-			if len(_aRec_) >= 3 and _aRec_[3] != "" and
-			   _StzSemInFamily(_aRec_[1], _cMeth_)
+		_aCands_ = _StzSemBaseCands(_aRec_[1])
+		_nC_ = len(_aCands_)
+		for _k_ = 1 to _nC_
+			_cId_ = "METHOD_" + upper(_aCands_[_k_])
+			if _StzSemOpKnown(_cId_)
 				_StzSemBagAdd(_aBags_, _cId_, _aRec_[3])
+				exit
 			ok
 		next
 	next
 
 	$aStzSemLexicon = _aBags_
 	$bStzSemLexiconBuilt = TRUE
+	_StzSemSaveCache($nStzSemCacheSig)
 	return $aStzSemLexicon
 
 	func @StzSemanticLexicon()
 		return StzSemanticLexicon()
+
+#--- CACHE (grown operations + final lexicon bags, under doc/) ------------
+
+func _StzSemCachePath()
+	_cB_ = _StzBaseDir()
+	if _cB_ = ""
+		return ""
+	ok
+	return _cB_ + "/doc/semantic_ops.stzcache"
+
+# Signature = combined byte size of the three harvested sources; any edit
+# to them changes the size and forces a rebuild.
+
+func _StzSemCacheSig()
+	_n_ = 0
+	_aCls_ = [ "stzString", "stzList", "stzNumber" ]
+	for _i_ = 1 to 3
+		_cSrc_ = _StzResolveSource(_aCls_[_i_])
+		if _cSrc_ != "" and fexists(_cSrc_)
+			_n_ += len(read(_cSrc_))
+		ok
+	next
+	return _n_
+
+func _StzSemLoadCache(nSig)
+	_cPath_ = _StzSemCachePath()
+	if _cPath_ = "" or NOT fexists(_cPath_)
+		return FALSE
+	ok
+	_c_ = read(_cPath_)
+	if _c_ = ""
+		return FALSE
+	ok
+	_aLines_ = str2list(_c_)
+	if len(_aLines_) < 1
+		return FALSE
+	ok
+	_cSig_ = trim(_aLines_[1])
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG1 "
+		return FALSE
+	ok
+	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig
+		return FALSE
+	ok
+	_aBags_ = []
+	_nl_ = len(_aLines_)
+	for _i_ = 2 to _nl_
+		_ln_ = _aLines_[_i_]
+		if trim(_ln_) = ""
+			loop
+		ok
+		_aP_ = _StzSplitOnChar(_ln_, char(1))
+		if _aP_[1] = "OP" and len(_aP_) >= 6
+			_aOp_ = []
+			_aOp_ + [ "semantic_id", _aP_[2] ]
+			_aOp_ + [ "stz_method", _aP_[3] ]
+			_aOp_ + [ "stz_signature", _aP_[4] ]
+			_aOp_ + [ "applies_to", _StzSplitOnChar(_aP_[5], ";") ]
+			_nAr_ = number(_aP_[6])
+			if _nAr_ > 0
+				_aOp_ + [ "requires_params", _nAr_ ]
+			ok
+			_aOp_ + [ "grown", 1 ]
+			$aSemanticOperations + _aOp_
+			$aStzSemOpIds + _aP_[2]
+		but _aP_[1] = "LX" and len(_aP_) >= 3
+			_aBags_ + [ _aP_[2], _aP_[3] ]
+		ok
+	next
+	if len(_aBags_) = 0
+		return FALSE
+	ok
+	$aStzSemLexicon = _aBags_
+	$bStzSemLexiconBuilt = TRUE
+	return TRUE
+
+func _StzSemSaveCache(nSig)
+	_cPath_ = _StzSemCachePath()
+	if _cPath_ = ""
+		return
+	ok
+	_c_ = "SIG1 " + nSig + nl
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		_aOp_ = $aSemanticOperations[_i_]
+		if NOT HasKey(_aOp_, :grown)
+			loop
+		ok
+		_nAr_ = 0
+		if HasKey(_aOp_, :requires_params)
+			_nAr_ = _aOp_[:requires_params]
+		ok
+		_aTo_ = _aOp_[:applies_to]
+		_cTo_ = ""
+		_nTo_ = len(_aTo_)
+		for _k_ = 1 to _nTo_
+			_cTo_ += _aTo_[_k_]
+			if _k_ < _nTo_
+				_cTo_ += ";"
+			ok
+		next
+		_c_ += "OP" + char(1) + _aOp_[:semantic_id] + char(1) +
+		       _aOp_[:stz_method] + char(1) + _aOp_[:stz_signature] + char(1) +
+		       _cTo_ + char(1) + _nAr_ + nl
+	next
+	_nB_ = len($aStzSemLexicon)
+	for _i_ = 1 to _nB_
+		_cBag_ = StzReplace($aStzSemLexicon[_i_][2], nl, " ")
+		_c_ += "LX" + char(1) + $aStzSemLexicon[_i_][1] + char(1) + _cBag_ + nl
+	next
+	try
+		write(_cPath_, _c_)
+	catch
+	done
 
 # Resolve one natural word (or short phrase) to a canonical semantic ID.
 # Returns "" when nothing wins CLEARLY -- ambiguity must degrade to a
@@ -147,6 +501,17 @@ func StzResolveSemantic(pcWord)
 	if _nLex_ = 0
 		return ""
 	ok
+
+	# -- Exact pass: the word IS an operation's method name. Deterministic
+	# and immune to score ties, however large the grown lexicon gets.
+	_nEx_ = len($aStzSemExactNames)
+	for _i_ = 1 to _nEx_
+		if $aStzSemExactNames[_i_][1] = _w_
+			_cId_ = $aStzSemExactNames[_i_][2]
+			$aStzSemResolveMemo + [ _w_, _cId_ ]
+			return _cId_
+		ok
+	next
 
 	_aTexts_ = []
 	for _i_ = 1 to _nLex_
@@ -245,6 +610,10 @@ func _StzSemIdEligible(pcId)
 	return FALSE
 
 func _StzSemOpKnown(pcId)
+	# fast path: the flat id list maintained by StzGrowSemanticOperations()
+	if len($aStzSemOpIds) > 0
+		return ring_find($aStzSemOpIds, pcId) > 0
+	ok
 	_n_ = len($aSemanticOperations)
 	for _i_ = 1 to _n_
 		if $aSemanticOperations[_i_][:semantic_id] = pcId
@@ -266,17 +635,25 @@ func _StzSemBagAdd(paBags, pcId, pcWords)
 	next
 	paBags + [ pcId, pcWords ]
 
-# Is method-name pcName a FORM of canonical method pcMethod?
-# Uppercase -> Uppercased / IsUppercased; Trim -> Trimmed (doubled consonant).
+# The candidate form-family BASE words of a method name, lowercased --
+# the operation a record's aka should fold into. Uppercased -> uppercase;
+# IsUppercased -> (strip the predicate is/are/has) -> uppercase; fluent
+# UppercaseQ -> uppercase. Reuses the reflect form grammar.
 
-func _StzSemInFamily(pcName, pcMethod)
-	_n_ = lower(pcName)
-	_m_ = lower(pcMethod)
-	if _n_ = _m_ or _n_ = (_m_ + "d") or _n_ = (_m_ + "ed") or
-	   _n_ = (_m_ + right(_m_, 1) + "ed")
-		return TRUE
+func _StzSemBaseCands(pcName)
+	_aF_ = _StzFormOf(pcName)
+	if _aF_[1] = "predicate" or _aF_[1] = "negative"
+		if _aF_[2] = ""
+			return []
+		ok
+		_aOut_ = [ _aF_[2] ]
+		_aDeeper_ = _StzSiblingBases(_aF_[2])
+		_nD_ = len(_aDeeper_)
+		for _i_ = 1 to _nD_
+			if ring_find(_aOut_, _aDeeper_[_i_]) = 0
+				_aOut_ + _aDeeper_[_i_]
+			ok
+		next
+		return _aOut_
 	ok
-	if left(_n_, 2) = "is" and StzLen(_n_) > 2
-		return _StzSemInFamily(right(_n_, len(_n_) - 2), _m_)
-	ok
-	return FALSE
+	return _StzSiblingBases(pcName)

@@ -58,6 +58,42 @@ Scenario("Quoted values are never hijacked (provenance guard)")
 		o4.Result(), "change this")
 EndScenario()
 
+Scenario("$aSemanticOperations grows from the reflect harvest")
+	Given("active-form verbs of stzString/stzList/stzNumber, arity <= 2, construct-and-verified")
+	StzGrowSemanticOperations()
+	Then("the operation table grew far beyond the ~17 hand-authored entries",
+		len($aSemanticOperations) > 1000, TRUE)
+	Then("grown verb 'flatten' resolves by exact method name",
+		StzResolveSemantic("flatten"), "METHOD_FLATTEN")
+	Then("grown verb 'removeduplicates' resolves",
+		StzResolveSemantic("removeduplicates"), "METHOD_REMOVEDUPLICATES")
+	Then("...while paraphrase quality SURVIVES the grown lexicon: 'capitals'",
+		StzResolveSemantic("capitals"), "METHOD_UPPERCASE")
+EndScenario()
+
+Scenario("Grown verbs execute through Naturally() on all three classes")
+	og1 = Naturally("Create a list with [ 3, 1, 3, 2, 1 ] RemoveDuplicates it")
+	Then("stzList: RemoveDuplicates (grown, 0-param)",
+		@@( og1.Result() ), @@([ 3, 1, 2 ]))
+
+	og2 = Naturally("Create a string with 'hello world' UppercaseSubString it with 'world'")
+	Then("stzString: UppercaseSubString (grown, 1-param)",
+		og2.Result(), "hello WORLD")
+
+	og3 = Naturally("Create a number with 5 Add it with 3")
+	Then("stzNumber: Add (grown, 1-param)", og3.Result(), "8")
+EndScenario()
+
+Scenario("Growth safety: wrong-class verbs and missing params degrade to no-ops")
+	og4 = Naturally("Create a string with 'ring' Prepend it with 'x-'")
+	Then("a stzList-only verb on a string is skipped, never an R14",
+		og4.Result(), "ring")
+
+	og5 = Naturally("Create a string with 'ring' Update it")
+	Then("a param-hungry verb without its argument emits nothing",
+		og5.Result(), "ring")
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
