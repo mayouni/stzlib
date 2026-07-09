@@ -26,6 +26,10 @@ StzAddNaturalLanguage([
 	:name = "french",
 	:script = "latin",
 
+	# elided articles attach to the word (l'envers, d'abord) -- stripped
+	# to the canonical form on both sides, so "envers" == "l'envers"
+	:prefix_articles = [ "l'", "d'" ],
+
 	:ignored_words = [
 		"le", "la", "les", "un", "une", "de", "des", "du", "en",
 		"et", "dans", "puis", "ensuite", "alors", "ce", "cette",
@@ -97,6 +101,14 @@ StzAddNaturalLanguage([
 	:name = "arabic",
 	:script = "arabic",
 
+	# MORPHOLOGY: the definite article attaches as a prefix (al-) and the
+	# possessive/object pronouns attach as suffixes (-ha feminine, -hu
+	# masculine, -hum plural...). Canonicalization strips them on both
+	# sides, so the linguistically correct inflected forms just work:
+	# "remove its-duplicates(fem)" matches "remove the-duplicates".
+	:prefix_articles = [ "ال" ],
+	:suffix_pronouns = [ "ها", "هما", "هم", "هن", "ه", "كما", "كم", "ك" ],
+
 	:ignored_words = [
 		"و", "ثم", "من", "في", "على", "إلى", "الى", "يا", "هذه",
 		"هذا", "لو", "سمحت", "رجاء", "هل", "هي", "هو", "ها",
@@ -118,6 +130,13 @@ StzAddNaturalLanguage([
 		[:natural = "عددا",    :semantic = "OBJECT_NUMBER"],
 		[:natural = "رقم",     :semantic = "OBJECT_NUMBER"],
 
+		# the attached preposition "bi-" is the correct "with" here
+		# (not "ma3a"); "tahtawi 3ala" (containing) reads naturally too.
+		# "ma3a" stays accepted -- permissiveness costs nothing.
+		[:natural = "بـ",      :semantic = "VALUE_INDICATOR"],
+		[:natural = "ب",       :semantic = "VALUE_INDICATOR"],
+		[:natural = "تحتوي",   :semantic = "VALUE_INDICATOR"],
+		[:natural = "يحتوي",   :semantic = "VALUE_INDICATOR"],
 		[:natural = "مع",      :semantic = "VALUE_INDICATOR"],
 		[:natural = "بواسطة",  :semantic = "VALUE_INDICATOR"],
 
@@ -140,9 +159,12 @@ StzAddNaturalLanguage([
 	],
 
 	:phrases = [
-		# grown operation, addressed in Arabic
+		# grown operation, addressed in Arabic. The verb comes in its
+		# variants (azil -- imperative of azaala -- ihdhif, hadhf), and
+		# canonicalization makes "duplicates" match through the article
+		# (al-takrarat) AND the pronoun suffix (takraratu-HA).
 		[:semantic = "METHOD_REMOVEDUPLICATES",
-		 :words = "أزل التكرارات, ازل التكرارات, احذف التكرارات, أزل المكررات, احذف المكررات, بدون تكرار"],
+		 :words = "أزل التكرارات, ازل التكرارات, احذف التكرارات, حذف التكرارات, أزل المكررات, احذف المكررات, حذف المكررات, بدون تكرار"],
 
 		[:semantic = "METHOD_ISEMPTY",
 		 :words = "هل هي فارغة, هل هو فارغ, فارغة, فارغ"]

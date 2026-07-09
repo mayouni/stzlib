@@ -51,6 +51,39 @@ Scenario("Arabic natural programs execute -- same semantic IDs, RTL script")
 		@@( oa2.Result() ), @@([ 3, 2, 1 ]))
 EndScenario()
 
+Scenario("Arabic is LINGUISTICALLY CORRECT, not transliterated English")
+	Given("attached bi- preposition, pronoun suffixes -ha/-hu, verb variants")
+
+	# 'with' is the attached preposition bi-, and 'its duplicates' is ONE
+	# inflected word: takraratu-HA (list is feminine in Arabic)
+	ol1 = NaturallyIn("ar", "أنشئ قائمة بـ [ 3, 1, 3, 2 ] و أزل تكراراتها")
+	Then("bi- preposition + azil takraratu-ha (suffixed noun)",
+		@@( ol1.Result() ), @@([ 3, 1, 2 ]))
+
+	# 'containing' (tahtawi 3ala) reads naturally as the value indicator
+	ol2 = NaturallyIn("ar", "أنشئ قائمة تحتوي على [ 5, 4, 5 ] ثم احذف التكرارات")
+	Then("tahtawi 3ala (containing) + the ihdhif verb variant",
+		@@( ol2.Result() ), @@([ 5, 4 ]))
+
+	# a pronoun-suffixed DICTIONARY verb needs no pack phrase at all:
+	# i3kis-ha (reverse-it-fem) canonicalizes to the base verb
+	ol3 = NaturallyIn("ar", "أنشئ قائمة بـ [ 1, 2, 3 ] ثم اعكسها")
+	Then("i3kis-ha: suffixed dictionary verb resolves via canonicalization",
+		@@( ol3.Result() ), @@([ 3, 2, 1 ]))
+
+	# hadhf: the third verb variant of removal
+	ol4 = NaturallyIn("ar", "أنشئ قائمة مع [ 7, 7, 2 ] حذف المكررات")
+	Then("hadhf al-mukarrarat (verb variant + article form)",
+		@@( ol4.Result() ), @@([ 7, 2 ]))
+EndScenario()
+
+Scenario("French elision generalizes through the same canonicalizer")
+	oe1 = NaturallyIn("fr", "Crée une chaine avec 'ring' et mets la à l'envers")
+	Then("l'envers (elided article, apostrophe intact)", oe1.Result(), "gnir")
+	oe2 = NaturallyIn("fr", "Crée une chaine avec 'ring' et mets la envers")
+	Then("bare envers matches the same canonical form", oe2.Result(), "gnir")
+EndScenario()
+
 Scenario("The language-aware resolver answers directly")
 	Then("fr 'doublons' alone resolves via pack-bag membership",
 		StzResolveSemanticInLang("fr", "doublons"), "METHOD_REMOVEDUPLICATES")

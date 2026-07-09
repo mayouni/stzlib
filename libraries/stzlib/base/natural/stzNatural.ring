@@ -607,17 +607,30 @@ class stzNaturalEngine from stzObject
 		return aOut
 
 	# A word without clinging trailing punctuation ("empty?" -> "empty").
+	# BYTE-based whole-mark matching (StzLeft/StzRight take byte counts
+	# while StzLen counts codepoints -- mixing them mangles multibyte
+	# words; exact byte-suffix comparison is UTF-8-safe).
 
 	def StripEdgePunct(cWord)
 		if NOT isString(cWord)
 			return cWord
 		ok
 		cW = trim(cWord)
-		while StzLen(cW) > 0 and
-		      ring_find([ "?", "!", ".", ",", ";", ":",
-		                  StzChar(1567), StzChar(1548) ], StzRight(cW, 1)) > 0
-			# 1567/1548 = the Arabic question mark and comma
-			cW = StzLeft(cW, StzLen(cW) - 1)
+		aPunct = [ "?", "!", ".", ",", ";", ":",
+		           StzChar(1567), StzChar(1548) ]	# + Arabic ? and ,
+		nP = len(aPunct)
+		bAgain = TRUE
+		while bAgain and len(cW) > 0
+			bAgain = FALSE
+			for p = 1 to nP
+				cM = aPunct[p]
+				nM = len(cM)
+				if len(cW) >= nM and right(cW, nM) = cM
+					cW = left(cW, len(cW) - nM)
+					bAgain = TRUE
+					exit
+				ok
+			next
 		end
 		return cW
 
@@ -630,7 +643,12 @@ class stzNaturalEngine from stzObject
 	# the lazy lexicon growth.
 
 	def PhraseResolve(nStart)
-		aWords = [ lower(This.StripEdgePunct(@aValues[nStart])) ]
+		# tokens are CANONICALIZED per language (attached articles and
+		# pronoun suffixes stripped), so the inflected Arabic
+		# "remove its-duplicates" joins to the same form as the pack's
+		# "remove the-duplicates". Identity for English.
+		aWords = [ StzSemLangCanonToken(@cLangCode,
+			StzLower(This.StripEdgePunct(@aValues[nStart]))) ]
 		aEnds = [ nStart ]
 		nLen = len(@aValues)
 		j = nStart + 1
@@ -641,12 +659,12 @@ class stzNaturalEngine from stzObject
 			if NOT isString(@aValues[j])
 				exit
 			ok
-			cW = lower(This.StripEdgePunct(@aValues[j]))
+			cW = StzLower(This.StripEdgePunct(@aValues[j]))
 			if This.IsIgnoredWord(cW)
 				j++
 				loop
 			ok
-			aWords + cW
+			aWords + StzSemLangCanonToken(@cLangCode, cW)
 			aEnds + j
 			j++
 		end

@@ -640,6 +640,20 @@ func StzAddNaturalLanguage(aDef)
 		next
 	ok
 
+	# MORPHOLOGY (optional): languages where articles attach as prefixes
+	# (Arabic al-, French l'/d') and pronouns attach as suffixes (Arabic
+	# -ha/-hu). Tokens are CANONICALIZED (affixes stripped) on BOTH the
+	# registration side and the query side, so the writer may say
+	# "remove-its-duplicates" as ONE inflected word and still match.
+	_aArt_ = []
+	if HasKey(aDef, :prefix_articles)
+		_aArt_ = aDef[:prefix_articles]
+	ok
+	_aSuf_ = []
+	if HasKey(aDef, :suffix_pronouns)
+		_aSuf_ = aDef[:suffix_pronouns]
+	ok
+
 	_aBags_ = []
 	_aExact_ = []
 	if HasKey(aDef, :phrases)
@@ -650,7 +664,7 @@ func StzAddNaturalLanguage(aDef)
 			_aVars_ = _StzSplitOnChar(_aPh_[_i_][:words], ",")
 			_nV_ = len(_aVars_)
 			for _j_ = 1 to _nV_
-				_aTok_ = _StzSemLangTokens(_aVars_[_j_], _aIgn_)
+				_aTok_ = _StzSemLangTokens(_aVars_[_j_], _aIgn_, _aArt_, _aSuf_)
 				if len(_aTok_) = 0
 					loop
 				ok
@@ -670,18 +684,19 @@ func StzAddNaturalLanguage(aDef)
 		next
 	ok
 
-	# upsert the language lexicon
+	# upsert the language lexicon (morphology kept for query-side canon)
+	_aEntry_ = [ _cCode_, _aBags_, _aExact_, _aArt_, _aSuf_ ]
 	_bDone_ = FALSE
 	_nX_ = len($aStzSemLangLex)
 	for _i_ = 1 to _nX_
 		if $aStzSemLangLex[_i_][1] = _cCode_
-			$aStzSemLangLex[_i_] = [ _cCode_, _aBags_, _aExact_ ]
+			$aStzSemLangLex[_i_] = _aEntry_
 			_bDone_ = TRUE
 			exit
 		ok
 	next
 	if NOT _bDone_
-		$aStzSemLangLex + [ _cCode_, _aBags_, _aExact_ ]
+		$aStzSemLangLex + _aEntry_
 	ok
 	return TRUE
 
@@ -730,6 +745,19 @@ func StzResolveSemanticInLang(pcLang, pcWord)
 	_w_ = StzLower(trim(pcWord))
 	if StzLen(_w_) < 2
 		return ""
+	ok
+
+	# canonical form: attached articles/pronoun suffixes stripped, so the
+	# inflected Arabic "reverse-it" or "its-duplicates" matches its base
+	_w_ = _StzSemLangCanon(_w_, _aLex_[4], _aLex_[5])
+
+	# the language's own DICTIONARY, consulted with the canonical form:
+	# a pronoun-suffixed dictionary verb resolves without any pack phrase
+	# (action-like ids only -- structural ids stay dictionary-exact)
+	_cId_ = _StzSemLangMappingGet(_cLang_, _w_)
+	if _cId_ != ""
+		StzGrowSemanticOperations()
+		return _cId_
 	ok
 
 	# exact single-word / joined-phrase hit
@@ -794,9 +822,10 @@ func _StzSemLangEntry(pcCode)
 	return []
 
 # Content tokens of a pack phrase: lowered, split on spaces, this
-# language's ignored words dropped. Script-agnostic.
+# language's ignored words dropped, then CANONICALIZED (articles and
+# pronoun suffixes stripped). Script-agnostic.
 
-func _StzSemLangTokens(pcPhrase, paIgnored)
+func _StzSemLangTokens(pcPhrase, paIgnored, paArticles, paSuffixes)
 	_aRaw_ = _StzSplitOnChar(trim(pcPhrase), " ")
 	_aOut_ = []
 	_n_ = len(_aRaw_)
@@ -805,9 +834,92 @@ func _StzSemLangTokens(pcPhrase, paIgnored)
 		if _w_ = "" or ring_find(paIgnored, _w_) > 0
 			loop
 		ok
-		_aOut_ + _w_
+		_aOut_ + _StzSemLangCanon(_w_, paArticles, paSuffixes)
 	next
 	return _aOut_
+
+# The canonical (affix-free) form of a token: one attached ARTICLE prefix
+# (Arabic al-, French l'/d') and one PRONOUN suffix (Arabic -ha/-hu/-hum)
+# stripped, codepoint-safe, only while the remainder keeps >= 2 codepoints.
+# Applied identically at registration AND query time, so both sides always
+# meet on the same form.
+
+# NB: deliberately BYTE-based (Ring's left/right/len): an affix is stripped
+# only after an exact whole-affix byte match, which is UTF-8-safe -- while
+# StzLeft/StzRight take BYTE counts although StzLen counts codepoints, so
+# mixing them corrupts multibyte words (the trap this replaces). The >= 2
+# remainder guard counts CODEPOINTS (StzLen) so it means two real letters.
+
+func _StzSemLangCanon(pcWord, paArticles, paSuffixes)
+	_w_ = pcWord
+	_n_ = len(paArticles)
+	for _i_ = 1 to _n_
+		_cA_ = paArticles[_i_]
+		_nA_ = len(_cA_)
+		if len(_w_) > _nA_ and left(_w_, _nA_) = _cA_
+			_cRest_ = right(_w_, len(_w_) - _nA_)
+			if StzLen(_cRest_) >= 2
+				_w_ = _cRest_
+				exit
+			ok
+		ok
+	next
+	_n_ = len(paSuffixes)
+	for _i_ = 1 to _n_
+		_cS_ = paSuffixes[_i_]
+		_nS_ = len(_cS_)
+		if len(_w_) > _nS_ and right(_w_, _nS_) = _cS_
+			_cRest_ = left(_w_, len(_w_) - _nS_)
+			if StzLen(_cRest_) >= 2
+				_w_ = _cRest_
+				exit
+			ok
+		ok
+	next
+	return _w_
+
+# The engine's per-token canonicalization seam (identity for English and
+# for languages without morphology data).
+
+func StzSemLangCanonToken(pcLang, pcWord)
+	_cLang_ = StzLower(pcLang)
+	if _cLang_ = "en"
+		return pcWord
+	ok
+	_aLex_ = _StzSemLangEntry(_cLang_)
+	if len(_aLex_) = 0
+		return pcWord
+	ok
+	return _StzSemLangCanon(pcWord, _aLex_[4], _aLex_[5])
+
+	func @StzSemLangCanonToken(pcLang, pcWord)
+		return StzSemLangCanonToken(pcLang, pcWord)
+
+# Consult a language's OWN semantic_mappings with a canonical form --
+# action-like ids only (a canonicalized noun must never resolve to an
+# OBJECT_* and corrupt program structure).
+
+func _StzSemLangMappingGet(pcCode, pcCanon)
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if StzLower(_aDef_[:code]) != pcCode
+			loop
+		ok
+		if NOT HasKey(_aDef_, :semantic_mappings)
+			return ""
+		ok
+		_aM_ = _aDef_[:semantic_mappings]
+		_nM_ = len(_aM_)
+		for _j_ = 1 to _nM_
+			if StzLower(_aM_[_j_][:natural]) = pcCanon and
+			   _StzSemIdEligible(_aM_[_j_][:semantic])
+				return _aM_[_j_][:semantic]
+			ok
+		next
+		return ""
+	next
+	return ""
 
 # Add an exact entry; a joined phrase claimed by TWO different ids is
 # ambiguous -- kill it (safety over coverage, same strict-winner spirit).
