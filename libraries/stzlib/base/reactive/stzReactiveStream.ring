@@ -2,63 +2,63 @@
 
 class stzReactiveStream from stzObject
 
-	_streamId_ = ""
-	_sourceType_ = STREAM_SOURCE_MANUAL
+	streamId = ""
+	sourceType = STREAM_SOURCE_MANUAL
 
-	_aReactiveFuncs_ = []
-	_errorHandlers_ = []
-	_concludeHandlers_ = []
-	_engine_ = NULL
-	_isActive_ = STREAM_STATE_INACTIVE
-	_isConcluded_ = STREAM_STATE_RUNNING
+	aReactiveFuncs = []
+	errorHandlers = []
+	concludeHandlers = []
+	engine = NULL
+	isActive = STREAM_STATE_INACTIVE
+	isConcluded = STREAM_STATE_RUNNING
 
 	# Transformation functions to apply
-	_transforms_ = []
+	transforms = []
 	
 	# Accumulator for reduce operations
-	_accumulator_ = NULL
-	_hasReduceTransform_ = STREAM_STATE_INACTIVE
+	accumulator = NULL
+	hasReduceTransform = STREAM_STATE_INACTIVE
 
 	# LibUV handle (only for libuv-backed streams)
-	_uvHandle_ = NULL
+	uvHandle = NULL
 
 	# Overflow (backpressure) configuration
-	_bufferSize_ = 100
-	_overflowStrategy_ = :BUFFER
-	_currentBufferCount_ = 0
-	_buffer_ = []
-	_isOverflowActive_ = STREAM_STATE_INACTIVE
-	_droppedCount_ = 0
+	bufferSize = 100
+	overflowStrategy = :BUFFER
+	currentBufferCount = 0
+	buffer = []
+	isOverflowActive = STREAM_STATE_INACTIVE
+	droppedCount = 0
 	
 	# Overflow (backpressure) callbacks
-	_overflowHandlers_ = []
-	_bufferFullHandlers_ = []
+	overflowHandlers = []
+	bufferFullHandlers = []
 
-	_hasOverflowConfig_ = STREAM_STATE_INACTIVE
+	hasOverflowConfig = STREAM_STATE_INACTIVE
 
-	_autoConcludeEnabled_ = STREAM_STATE_ACTIVE
+	autoConcludeEnabled = STREAM_STATE_ACTIVE
 	pendingDataCount = 0
-	_autoConcludeDelay_ = 100  # milliseconds to wait for more data
-	_autoConcludeTimer_ = NULL
+	autoConcludeDelay = 100  # milliseconds to wait for more data
+	autoConcludeTimer = NULL
 
-	def Init(id, _sourceType_, _engine_)
-		_streamId_ = id
+	def Init(id, sourceType, engine)
+		streamId = id
 		
 		# Validate source type with expressive constants
 		if not ( find([
 			      STREAM_SOURCE_MANUAL, STREAM_SOURCE_LIBUV, 
 		                STREAM_SOURCE_TIMER, STREAM_SOURCE_FILE,
-		                STREAM_SOURCE_NETWORK, STREAM_SOURCE_SENSOR], _sourceType_ ) )
+		                STREAM_SOURCE_NETWORK, STREAM_SOURCE_SENSOR], sourceType ) )
 
-			_sourceType_ = STREAM_SOURCE_MANUAL
+			sourceType = STREAM_SOURCE_MANUAL
 		ok
 		
-		this.sourceType = _sourceType_
-		this.engine = _engine_
+		this.sourceType = sourceType
+		this.engine = engine
 
 	# Store map transformation with expressive constant
 	def Transform(mapFunction)
-		_transforms_ + [TRANSFORM_MAP, mapFunction]
+		transforms + [TRANSFORM_MAP, mapFunction]
 		return self
 
 		def Map(mapFunction)
@@ -66,7 +66,7 @@ class stzReactiveStream from stzObject
 
 	# Store filter transformation with expressive constant
 	def Filter(filterFunction)
-		_transforms_ + [TRANSFORM_FILTER, filterFunction]
+		transforms + [TRANSFORM_FILTER, filterFunction]
 		return self
 
 		def Where(filterFunction)
@@ -74,16 +74,16 @@ class stzReactiveStream from stzObject
 
 	# Store reduce transformation with expressive constant
 	def Accumulate(reduceFunction, initialValue)
-		_transforms_ + [TRANSFORM_REDUCE, reduceFunction, initialValue]
-		_hasReduceTransform_ = STREAM_STATE_ACTIVE
-		_accumulator_ = initialValue
+		transforms + [TRANSFORM_REDUCE, reduceFunction, initialValue]
+		hasReduceTransform = STREAM_STATE_ACTIVE
+		accumulator = initialValue
 		return self
 
 		def Reduce(reduceFunction, initialValue)
 			return This.Accumulate(reduceFunction, initialValue)
 
 	def OnPassed(_Rf_)
-		_aReactiveFuncs_ + _Rf_
+		aReactiveFuncs + _Rf_
 		return self
 
 		def OnRecieved(_Rf_)
@@ -99,18 +99,18 @@ class stzReactiveStream from stzObject
 			return OnPassed(_Rf_)
 
 	def OnError(errorHandler)
-		_errorHandlers_ + errorHandler
+		errorHandlers + errorHandler
 		return self
 
 	def OnNoMore(concludeHandler)
-		_concludeHandlers_ + concludeHandler
+		concludeHandlers + concludeHandler
 		return self
 
 		def OnComplete(completeHandler)
 			return This.OnNoMore(completeHandler)
 
 	def Recieve(data)
-		if not _isActive_ or _isConcluded_
+		if not isActive or isConcluded
 			return
 		ok
 		
@@ -118,22 +118,22 @@ class stzReactiveStream from stzObject
 		pendingDataCount++
 		
 		# Check if buffer is at capacity BEFORE adding new data
-		if _currentBufferCount_ >= _bufferSize_
+		if currentBufferCount >= bufferSize
 		    HandleOverflow(data)
 		    return
 		ok
 		
 		# Add to buffer
-		_buffer_ + data
-		_currentBufferCount_++
+		buffer + data
+		currentBufferCount++
 	
 		# Process immediately if no overflow config
-		if not _hasOverflowConfig_
+		if not hasOverflowConfig
 		    ProcessAnItemFromBuffer()
 		ok
 		
 		# Schedule auto-completion check if enabled
-		if _autoConcludeEnabled_
+		if autoConcludeEnabled
 			ScheduleAutoConclude()
 		ok
 
@@ -167,7 +167,7 @@ class stzReactiveStream from stzObject
 		ProcessAnItemFromBuffer()
 		
 		# Auto-conclude after processing batch if enabled
-		if _autoConcludeEnabled_
+		if autoConcludeEnabled
 			AutoConclude()
 		ok
 
@@ -194,12 +194,12 @@ class stzReactiveStream from stzObject
 		return self
 
 	def SetAutoConclude(enabled)
-		_autoConcludeEnabled_ = enabled
+		autoConcludeEnabled = enabled
 		
 		# Cancel any pending timer if disabling
-		if not enabled and _autoConcludeTimer_ != NULL
-			_engine_.TimerManager().RemoveTimer(_autoConcludeTimer_.timerId)
-			_autoConcludeTimer_ = NULL
+		if not enabled and autoConcludeTimer != NULL
+			engine.TimerManager().RemoveTimer(autoConcludeTimer.timerId)
+			autoConcludeTimer = NULL
 		ok
 		
 		return self
@@ -210,29 +210,29 @@ class stzReactiveStream from stzObject
 
 	# Set the delay before auto-conclusion triggers
 	def SetAutoConcludeDelay(pnMilliseconds)
-		_autoConcludeDelay_ = pnMilliseconds
+		autoConcludeDelay = pnMilliseconds
 		return self
 
 	# Real-world timer implementation for auto-conclusion
 	def ScheduleAutoConclude()
 		# Cancel existing timer if running
-		if _autoConcludeTimer_ != NULL
-			_engine_.timerManager.RemoveTimer(_autoConcludeTimer_.timerId)
-			_autoConcludeTimer_ = NULL
+		if autoConcludeTimer != NULL
+			engine.timerManager.RemoveTimer(autoConcludeTimer.timerId)
+			autoConcludeTimer = NULL
 		ok
 		
 		# Create one-time timer using existing timer system
-		_timerId_ = "autoconclude_" + _streamId_ + "_" + random(9999)
-		_autoConcludeTimer_ = new stzRingTimer(_timerId_, _autoConcludeDelay_, func() {
+		_timerId_ = "autoconclude_" + streamId + "_" + random(9999)
+		autoConcludeTimer = new stzRingTimer(_timerId_, autoConcludeDelay, func() {
 			# Timer callback - check if we should auto-conclude
-			if pendingDataCount = 0 and _autoConcludeEnabled_
+			if pendingDataCount = 0 and autoConcludeEnabled
 				AutoConclude()
 			ok
-			_autoConcludeTimer_ = NULL  # Clean up timer reference
-		}, _engine_, true, self)  # true = one-time timer
+			autoConcludeTimer = NULL  # Clean up timer reference
+		}, engine, true, self)  # true = one-time timer
 		
-		_engine_.timerManager.AddTimer(_autoConcludeTimer_)
-		_autoConcludeTimer_.Start()
+		engine.timerManager.AddTimer(autoConcludeTimer)
+		autoConcludeTimer.Start()
 
 	
 		def ScheduleAutoComplete()
@@ -240,7 +240,7 @@ class stzReactiveStream from stzObject
 
 	def AutoConclude()
 		# Only auto-conclude if we have aReactiveFuncs that need final results
-		if (_hasReduceTransform_ or len(_concludeHandlers_) > 0) and not _isConcluded_
+		if (hasReduceTransform or len(concludeHandlers) > 0) and not isConcluded
 			Conclude()
 		ok
 
@@ -248,26 +248,26 @@ class stzReactiveStream from stzObject
 			This.AutoConclude()
 
 	def Conclude()
-		if _isConcluded_
+		if isConcluded
 			return
 		ok
 		
-		_isConcluded_ = STREAM_STATE_CONCLUDED
+		isConcluded = STREAM_STATE_CONCLUDED
 		
 		# If we have a reduce transform, emit the final accumulated result
-		if _hasReduceTransform_
-			_nLenSub_ = len(_aReactiveFuncs_)
+		if hasReduceTransform
+			_nLenSub_ = len(aReactiveFuncs)
 			for i = 1 to _nLenSub_
-				_Rf_ = _aReactiveFuncs_[i]
-				call _Rf_(_accumulator_)
+				_Rf_ = aReactiveFuncs[i]
+				call _Rf_(accumulator)
 			next
 		ok
 		
 		# Call completion handlers
-		_nLenHand_ = len(_concludeHandlers_)
+		_nLenHand_ = len(concludeHandlers)
 
 		for i = 1 to _nLenHand_
-			_fConcludeHandler_ = _concludeHandlers_[i]
+			_fConcludeHandler_ = concludeHandlers[i]
 			call _fConcludeHandler_()
 		next
 		
@@ -277,30 +277,30 @@ class stzReactiveStream from stzObject
 			return This.Conclude()
 
 	def Start()
-		_isActive_ = STREAM_STATE_ACTIVE
-		_isConcluded_ = STREAM_STATE_RUNNING
+		isActive = STREAM_STATE_ACTIVE
+		isConcluded = STREAM_STATE_RUNNING
 		return self
 		
 	def Stop()
-		_isActive_ = STREAM_STATE_INACTIVE
+		isActive = STREAM_STATE_INACTIVE
 		return self
 		
 	def Cleanup()
 		Stop()
-		if _uvHandle_ != NULL and _sourceType_ = STREAM_SOURCE_LIBUV
+		if uvHandle != NULL and sourceType = STREAM_SOURCE_LIBUV
 			# Clean up LibUV resources
-			_uvHandle_ = NULL
+			uvHandle = NULL
 		ok
 
 	def CheckErrorHandling(error)
-		if not _isActive_ or _isConcluded_
+		if not isActive or isConcluded
 			return
 		ok
 		
 		# Call error handlers
-		_nLenErr_ = len(_errorHandlers_)
+		_nLenErr_ = len(errorHandlers)
 		for i = 1 to _nLenErr_
-			_fErrorHandler_ = _errorHandlers_[i]
+			_fErrorHandler_ = errorHandlers[i]
 			call _fErrorHandler_(error)
 		next
 
@@ -311,53 +311,53 @@ class stzReactiveStream from stzObject
 		if not find([:BUFFER, :DROP, :BLOCK, :LATEST], _strategy_)
 			_strategy_ = :BUFFER
 		ok
-		_hasOverflowConfig_ = STREAM_STATE_ACTIVE
-		_overflowStrategy_ = _strategy_
-		_bufferSize_ = maxBufferSize
+		hasOverflowConfig = STREAM_STATE_ACTIVE
+		overflowStrategy = _strategy_
+		bufferSize = maxBufferSize
 		return self
 
 		def SetBackpressureStrategy(_strategy_, maxBufferSize)
 			return This.SetOverflowStrategy(_strategy_, maxBufferSize)
 
 	def OnOverflow(handler)
-		_overflowHandlers_ + handler
+		overflowHandlers + handler
 		return self
 
 		def OnBackpressure(handler)
 			return This.OnOverflow(handler)
 
 	def OnBufferFull(handler)
-		_bufferFullHandlers_ + handler
+		bufferFullHandlers + handler
 		return self
 
 	def HandleOverflow(data)
-		_isOverflowActive_ = STREAM_STATE_ACTIVE
+		isOverflowActive = STREAM_STATE_ACTIVE
 		
 		# Notify overflow handlers
-		_nLenBack_ = len(_overflowHandlers_)
+		_nLenBack_ = len(overflowHandlers)
 		for i = 1 to _nLenBack_
-			_fHandler_ = _overflowHandlers_[i]
-			call _fHandler_(_currentBufferCount_, _bufferSize_)
+			_fHandler_ = overflowHandlers[i]
+			call _fHandler_(currentBufferCount, bufferSize)
 		next
 		
-		switch _overflowStrategy_
+		switch overflowStrategy
 		case :BUFFER
 		    # Block until buffer has space (simulate)
-		    ? "⚠️ Overflow: Buffering data (buffer full: " + _currentBufferCount_ + "/" + _bufferSize_ + ")"
+		    ? "⚠️ Overflow: Buffering data (buffer full: " + currentBufferCount + "/" + bufferSize + ")"
 			
 		case :DROP
 			# Drop the new data
-			_droppedCount_++
-			? "⚠️ Overflow: Dropping data item (dropped so far: " + _droppedCount_ + ")"
+			droppedCount++
+			? "⚠️ Overflow: Dropping data item (dropped so far: " + droppedCount + ")"
 			
 		case :LATEST
 			# Drop oldest, keep latest
-			if len(_buffer_) > 0
-				del(_buffer_, 1)  # Remove oldest
-				_currentBufferCount_--
+			if len(buffer) > 0
+				del(buffer, 1)  # Remove oldest
+				currentBufferCount--
 			ok
-			_buffer_ + data
-			_currentBufferCount_++
+			buffer + data
+			currentBufferCount++
 			? "⚠️ Overflow: Keeping latest, dropped oldest"
 			
 		case :BLOCK
@@ -370,40 +370,40 @@ class stzReactiveStream from stzObject
 
 
 	def ProcessAnItemFromBuffer()
-		if len(_buffer_) = 0
+		if len(buffer) = 0
 			return
 		ok
 	
 		# Get the next item from buffer
-		data = _buffer_[1]
-		del(_buffer_, 1)
-		_currentBufferCount_--
+		data = buffer[1]
+		del(buffer, 1)
+		currentBufferCount--
 	
 		# Apply transforms (existing logic)
 		processedData = [data]
-		_nLenTrans_ = len(_transforms_)
+		_nLenTrans_ = len(transforms)
 
 		for i = 1 to _nLenTrans_
-			_transformType_ = _transforms_[i][1]
+			_transformType_ = transforms[i][1]
 
 			switch _transformType_
 			case TRANSFORM_MAP
-				_mapFunc_ = _transforms_[i][2]
+				_mapFunc_ = transforms[i][2]
 				processedData = @Map(processedData, _mapFunc_)
 	
 			case TRANSFORM_FILTER
-				_filterFunc_ = _transforms_[i][2]
+				_filterFunc_ = transforms[i][2]
 				processedData = @Filter(processedData, _filterFunc_)
 
 			case TRANSFORM_REDUCE
-				_fReduceFunc_ = _transforms_[i][2]
+				_fReduceFunc_ = transforms[i][2]
 				_nLenData_ = len(processedData)
 				for j = 1 to _nLenData_
-					_accumulator_ = call _fReduceFunc_(_accumulator_, processedData[j])
+					accumulator = call _fReduceFunc_(accumulator, processedData[j])
 				next
 				# Reset overflow if buffer is no longer full
-				if _currentBufferCount_ < _bufferSize_ and _isOverflowActive_
-					_isOverflowActive_ = STREAM_STATE_INACTIVE
+				if currentBufferCount < bufferSize and isOverflowActive
+					isOverflowActive = STREAM_STATE_INACTIVE
 				ok
 
 				# Decrement pending counter for reduce transforms
@@ -415,12 +415,12 @@ class stzReactiveStream from stzObject
 		next
 		
 		# Only emit if we didn't encounter a reduce transform
-		if not _hasReduceTransform_
-			_nLenSub_ = len(_aReactiveFuncs_)
+		if not hasReduceTransform
+			_nLenSub_ = len(aReactiveFuncs)
 			_nLenData_ = len(processedData)
 	
 			for i = 1 to _nLenSub_
-				_Rf_ = _aReactiveFuncs_[i]
+				_Rf_ = aReactiveFuncs[i]
 				for j = 1 to _nLenData_
 					call _Rf_(processedData[j])
 				next
@@ -428,8 +428,8 @@ class stzReactiveStream from stzObject
 		ok
 		
 		# Reset overflow if buffer is no longer full
-		if _currentBufferCount_ < _bufferSize_ and _isOverflowActive_
-			_isOverflowActive_ = STREAM_STATE_INACTIVE
+		if currentBufferCount < bufferSize and isOverflowActive
+			isOverflowActive = STREAM_STATE_INACTIVE
 		ok
 		
 		# Decrement pending counter after successful processing
@@ -440,7 +440,7 @@ class stzReactiveStream from stzObject
 
 	def ProcessAllInBuffer()
 		# Process all buffered items
-		while len(_buffer_) > 0
+		while len(buffer) > 0
 			ProcessAnItemFromBuffer()
 		end
 		return self
@@ -450,11 +450,11 @@ class stzReactiveStream from stzObject
 
 	def OverflowStats()
 		return [
-			:bufferSize = _bufferSize_,
-			:currentBuffer = _currentBufferCount_,
-			:isOverflowActive = _isOverflowActive_,
-			:droppedCount = _droppedCount_,
-			:strategy = _overflowStrategy_
+			:bufferSize = bufferSize,
+			:currentBuffer = currentBufferCount,
+			:isOverflowActive = isOverflowActive,
+			:droppedCount = droppedCount,
+			:strategy = overflowStrategy
 		]
 
 		def BackpressureStats()

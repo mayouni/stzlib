@@ -11,7 +11,7 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-_ShellBuiltInCommands_ = [
+ShellBuiltInCommands = [
 	# Windows built-ins
 	"echo", "cd", "dir", "type", "set", "if", "for", "date", "time",
 	"copy", "move", "del", "ren", "md", "rd", "cls", "exit", "call",
@@ -734,7 +734,7 @@ class stzSystemCall from stzObject
 		_aWords_ = split(_cCmd_, " ")
 		if len(_aWords_) > 0
 			_cFirstWord_ = StzLower(trim(_aWords_[1]))
-			if find(_ShellBuiltInCommands_, _cFirstWord_) > 0
+			if find(ShellBuiltInCommands, _cFirstWord_) > 0
 				_bNeedsShell_ = TRUE
 			ok
 		ok

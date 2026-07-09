@@ -2,12 +2,12 @@
 
 /*
 	Example 1:
-		_o1_ = new stzHashList(4)
-		_o1_ { SetKeyValue[ :name = "mansour" ] Show() }
+		o1 = new stzHashList(4)
+		o1 { SetKeyValue[ :name = "mansour" ] Show() }
 
 	Example 2:
- 		_o1_ = new stzHashList([ :name = "mansour", :age = 44, :job = "programmer" ])
-		_o1_ { Show() }
+ 		o1 = new stzHashList([ :name = "mansour", :age = 44, :job = "programmer" ])
+		o1 { Show() }
 */
 
 func StzHashListQ(paList)
@@ -2614,13 +2614,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ContainsItem(pItem) #TODO // Add case sensitivity
 		/* EXAMPLE
 	
-		_o1_ = new stzHashList([
+		o1 = new stzHashList([
 			:Positive	= :NONE,
 			:Neutral  	= [ :is, :will, :can, :some ],
 			:Negative	= :NONE
 		])
 	
-		? _o1_.ContainsItem(:nice) #--> TRUE
+		? o1.ContainsItem(:nice) #--> TRUE
 		*/
 
 		# See EXAMPLE in FindItemInList()
@@ -2659,7 +2659,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindItem(pItem)
 		/* EXAMPLE
 
-		_o1_ = new stzHashList([
+		o1 = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2667,7 +2667,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( _o1_.FindItem(:can) )
+		? @@( o1.FindItem(:can) )
 		#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
 		*/
 
@@ -2721,7 +2721,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindTheseItems(paItems)
 		/* EXAMPLE
 
-		_o1_ = new stzHashList([
+		o1 = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2729,7 +2729,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? @@( _o1_.FindTheseItems([ :can, :will ]) )
+		? @@( o1.FindTheseItems([ :can, :will ]) )
 		#--> [
 		#	[ 2, [ 2, 3, 5 ] ],
 		#	[ 4, [ 1, 2 ] ],
@@ -2798,7 +2798,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def TheseItemsZ(paItems)
 		/* EXAMPLE
 
-		_o1_ = new stzHashList([
+		o1 = new stzHashList([
 			:One	= :NONE,
 			:Two  	= [ :is, :will, :can, :some, :can ],
 			:Three	= :NONE,
@@ -2806,7 +2806,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			:Five	= [ :will ]
 		])
 
-		? _o1_.TheseItemsZ([ :can, :will ])
+		? o1.TheseItemsZ([ :can, :will ])
 		#--> [
 		#	[ :can,  [ [2, [3,5] ], [ 4, [1] ]             ],
 		#	[ :will, [ [2, [1]   ], [ 4, [2] ], [ 5, [1] ] ]

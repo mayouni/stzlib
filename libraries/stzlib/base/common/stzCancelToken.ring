@@ -7,13 +7,13 @@
 	(StzEnginePoolLastStatus() = -5) instead of executing.
 
 	Usage:
-		_oTok_ = new stzCancelToken
-		_nId_  = StzEnginePoolSubmitWithCancel(pPool, 0, cUrl, _oTok_.Handle())
-		_oTok_.Cancel()                 # ask the worker to skip the job
+		oTok = new stzCancelToken
+		nId  = StzEnginePoolSubmitWithCancel(pPool, 0, cUrl, oTok.Handle())
+		oTok.Cancel()                 # ask the worker to skip the job
 		...
-		_oTok_.Destroy()                # free the engine handle
+		oTok.Destroy()                # free the engine handle
 
-	The handle is an opaque engine pointer; pass _oTok_.Handle() to the
+	The handle is an opaque engine pointer; pass oTok.Handle() to the
 	pool submit call. Construct paren-less (new stzCancelToken) inside
 	Scenario blocks to avoid the C27 parse trap.
 */
@@ -28,15 +28,15 @@ class stzCancelToken from stzObject
 	# NULL (Ring's typed null trips `= NULL` / isPointer). Paren-less
 	# `new stzCancelToken` does NOT run init(), so every method lazily
 	# ensures the handle exists before using it.
-	_bReady_ = FALSE
+	bReady = FALSE
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if _bReady_ = FALSE
+		if bReady = FALSE
 			pHandle = StzEngineCancelCreate()
-			_bReady_ = TRUE
+			bReady = TRUE
 		ok
 
 	# The opaque engine handle, to hand to StzEnginePoolSubmitWithCancel.
@@ -62,9 +62,9 @@ class stzCancelToken from stzObject
 
 	# Free the engine handle. The token must not be used afterwards.
 	def Destroy()
-		if _bReady_ = TRUE
+		if bReady = TRUE
 			StzEngineCancelDestroy(pHandle)
 			pHandle = NULL
-			_bReady_ = FALSE
+			bReady = FALSE
 		ok
 		return This

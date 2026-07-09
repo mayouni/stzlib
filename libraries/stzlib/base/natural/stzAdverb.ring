@@ -1,5 +1,5 @@
 ﻿# Systematic adverb transformation rules
-_AdverbRules_ = [
+AdverbRules = [
     # [pattern, replacement, type, priority, category]
     
     # Irregulars (priority 1)
@@ -69,7 +69,7 @@ func Adverb(str)
     _cWord_ = StzLower(trim(str))
     
     # Sort rules by priority
-    _aSortedRules_ = SortAdverbRulesByPriority(_AdverbRules_)
+    _aSortedRules_ = SortAdverbRulesByPriority(AdverbRules)
     _nLenRules_ = len(_aSortedRules_)
 
 	for i = 1 to _nLenRules_
@@ -133,16 +133,16 @@ func SortAdverbRulesByPriority(rules)
 
 # Enhanced helper functions
 func AddAdverbRule(pattern, replacement, type, priority, category)
-    _AdverbRules_ + [pattern, replacement, type, priority, category]
+    AdverbRules + [pattern, replacement, type, priority, category]
 
 func LoadAdverbRulesFromFile(filename)
     # Load rules from external file for easy maintenance
     
 func GetAdverbRulesByCategory(category) 
     _result_ = []
-    _nAdverbRules1Len_ = len(_AdverbRules_)
+    _nAdverbRules1Len_ = len(AdverbRules)
     for _iLoopAdverbRules1_ = 1 to _nAdverbRules1Len_
-    	_rule_ = _AdverbRules_[_iLoopAdverbRules1_]
+    	_rule_ = AdverbRules[_iLoopAdverbRules1_]
         if _rule_[5] = category
             _result_ + _rule_
         ok

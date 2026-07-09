@@ -11,27 +11,27 @@
 $cPrologToRingTransFunc = '
 :- use_module(library(http/json)).
 
-% Main function to transform Prolog _Term_ to Ring format and save to file
-transform_to_ring(_Term_, Filename) :-
-    transform(_Term_, ResultStr),
+% Main function to transform Prolog Term to Ring format and save to file
+transform_to_ring(Term, Filename) :-
+    transform(Term, ResultStr),
     open(Filename, write, Stream),
     write(Stream, ResultStr),
     close(Stream).
 
 % Transform an atom or string
-transform(_Term_, _result_) :-
-    (atom(_Term_) ; string(_Term_)),
+transform(Term, result) :-
+    (atom(Term) ; string(Term)),
     !,
-    format(atom(_result_), "\' + StzChar(39) + '~w\' + StzChar(39) + '", [_Term_]).
+    format(atom(result), "\' + StzChar(39) + '~w\' + StzChar(39) + '", [Term]).
 
 % Transform a number, handling scientific notation
-transform(_Term_, _result_) :-
-    number(_Term_),
+transform(Term, result) :-
+    number(Term),
     !,
-    format(atom(StrVal), "~w", [_Term_]),
+    format(atom(StrVal), "~w", [Term]),
     (   sub_atom(StrVal, _, _, _, e) 
-    ->  format(atom(_result_), "\' + StzChar(39) + '~w\' + StzChar(39) + '", [_Term_])
-    ;   _result_ = StrVal
+    ->  format(atom(result), "\' + StzChar(39) + '~w\' + StzChar(39) + '", [Term])
+    ;   result = StrVal
     ).
 
 % Transform boolean true value
@@ -41,47 +41,47 @@ transform(true, "TRUE") :- !.
 transform(false, "FALSE") :- !.
 
 % Transform a list
-transform(List, _result_) :-
+transform(List, result) :-
     is_list(List),
     !,
-    transform_list(List, _result_).
+    transform_list(List, result).
 
-% Transform a compound _Term_
-transform(_Term_, _result_) :-
-    compound(_Term_),
+% Transform a compound Term
+transform(Term, result) :-
+    compound(Term),
     !,
-    _Term_ =.. [Functor|Args],
-    transform_compound(Functor, Args, _result_).
+    Term =.. [Functor|Args],
+    transform_compound(Functor, Args, result).
 
 % Default case for variables or other terms
 transform(_, "NULL").
 
 % Transform a list into a flat string
-transform_list(List, _result_) :-
+transform_list(List, result) :-
     transform_list_items(List, _items_),
-    format(atom(_result_), "[~w]", [_items_]).
+    format(atom(result), "[~w]", [_items_]).
 
 % Transform list _items_ into a comma-separated string
 transform_list_items([], "").
-transform_list_items([H], _result_) :-
+transform_list_items([H], result) :-
     transform(H, HResult),
-    format(atom(_result_), "~w", [HResult]).
-transform_list_items([H|T], _result_) :-
+    format(atom(result), "~w", [HResult]).
+transform_list_items([H|T], result) :-
     transform(H, HResult),
     transform_list_items(T, TResult),
-    (   TResult = "" -> format(atom(_result_), "~w", [HResult])
-    ;   format(atom(_result_), "~w, ~w", [HResult, TResult])
+    (   TResult = "" -> format(atom(result), "~w", [HResult])
+    ;   format(atom(result), "~w, ~w", [HResult, TResult])
     ).
 
-% Handle key-value pairs (_Term_ = Key-Value), including numeric keys
-transform_compound(-, [Key, Value], _result_) :-
+% Handle key-value pairs (Term = Key-Value), including numeric keys
+transform_compound(-, [Key, Value], result) :-
     transform(Key, KeyResult),
     transform(Value, ValueResult),
-    format(atom(_result_), "[~w, ~w]", [KeyResult, ValueResult]).
+    format(atom(result), "[~w, ~w]", [KeyResult, ValueResult]).
 
 % Default handling for other compound terms
-transform_compound(_, Args, _result_) :-
-    transform_list(Args, _result_).
+transform_compound(_, Args, result) :-
+    transform_list(Args, result).
 '
 
 #----------------------------------#
@@ -325,10 +325,10 @@ char* array_to_ring_string(Value* _items_, size_t size, int depth) {
     if (depth > MAX_DEPTH) return strdup("TOO_DEEP");
     
     // Allocate buffer with generous size
-    char* _result_ = (char*)malloc(BUFFER_SIZE);
-    if (!_result_) return NULL;
+    char* result = (char*)malloc(BUFFER_SIZE);
+    if (!result) return NULL;
     
-    strcpy(_result_, "[");
+    strcpy(result, "[");
     size_t pos = 1;
     
     for (size_t i = 0; i < size; i++) {
@@ -337,20 +337,20 @@ char* array_to_ring_string(Value* _items_, size_t size, int depth) {
             // Check if we need to resize buffer
             size_t needed = pos + strlen(item_str) + 3; // +3 for ", " and possibly "]"
             if (needed >= BUFFER_SIZE) {
-                char* new_buf = (char*)realloc(_result_, needed + BUFFER_SIZE);
+                char* new_buf = (char*)realloc(result, needed + BUFFER_SIZE);
                 if (!new_buf) {
                     free(item_str);
-                    free(_result_);
+                    free(result);
                     return NULL;
                 }
-                _result_ = new_buf;
+                result = new_buf;
             }
             
-            strcpy(_result_ + pos, item_str);
+            strcpy(result + pos, item_str);
             pos += strlen(item_str);
             
             if (i < size - 1) {
-                strcpy(_result_ + pos, ", ");
+                strcpy(result + pos, ", ");
                 pos += 2;
             }
             
@@ -358,18 +358,18 @@ char* array_to_ring_string(Value* _items_, size_t size, int depth) {
         }
     }
     
-    strcpy(_result_ + pos, "]");
-    return _result_;
+    strcpy(result + pos, "]");
+    return result;
 }
 
 // Convert struct to Ring string
 char* struct_to_ring_string(KeyValue* pairs, size_t size, int depth) {
     if (depth > MAX_DEPTH) return strdup("TOO_DEEP");
     
-    char* _result_ = (char*)malloc(BUFFER_SIZE);
-    if (!_result_) return NULL;
+    char* result = (char*)malloc(BUFFER_SIZE);
+    if (!result) return NULL;
     
-    strcpy(_result_, "[");
+    strcpy(result, "[");
     size_t pos = 1;
     
     for (size_t i = 0; i < size; i++) {
@@ -378,20 +378,20 @@ char* struct_to_ring_string(KeyValue* pairs, size_t size, int depth) {
             // Check if we need to resize buffer
             size_t needed = pos + strlen(value_str) + strlen(pairs[i].key) + 10;
             if (needed >= BUFFER_SIZE) {
-                char* new_buf = (char*)realloc(_result_, needed + BUFFER_SIZE);
+                char* new_buf = (char*)realloc(result, needed + BUFFER_SIZE);
                 if (!new_buf) {
                     free(value_str);
-                    free(_result_);
+                    free(result);
                     return NULL;
                 }
-                _result_ = new_buf;
+                result = new_buf;
             }
             
-            sprintf(_result_ + pos, "['+StzChar(39)+'%s'+StzChar(39)+', %s]", pairs[i].key, value_str);
-            pos += strlen(_result_ + pos);
+            sprintf(result + pos, "['+StzChar(39)+'%s'+StzChar(39)+', %s]", pairs[i].key, value_str);
+            pos += strlen(result + pos);
             
             if (i < size - 1) {
-                strcpy(_result_ + pos, ", ");
+                strcpy(result + pos, ", ");
                 pos += 2;
             }
             
@@ -399,8 +399,8 @@ char* struct_to_ring_string(KeyValue* pairs, size_t size, int depth) {
         }
     }
     
-    strcpy(_result_ + pos, "]");
-    return _result_;
+    strcpy(result + pos, "]");
+    return result;
 }
 
 // Convert any value to Ring string
@@ -408,7 +408,7 @@ char* value_to_ring_string(Value* value, int depth) {
     if (!value) return strdup("NULL");
     
     char buffer[128];
-    char* _result_ = NULL;
+    char* result = NULL;
     
     switch (value->type) {
         case TYPE_NULL:
@@ -481,11 +481,11 @@ void transform_to_ring(void* res, const char* filename) {
     
     // Assume res is a pointer to a Value structure
     Value* value = (Value*)res;
-    char* _result_ = value_to_ring_string(value, 0);
+    char* result = value_to_ring_string(value, 0);
     
-    if (_result_) {
-        write_to_file(filename, _result_);
-        free(_result_);
+    if (result) {
+        write_to_file(filename, result);
+        free(result);
     } else {
         write_to_file(filename, "NULL");
     }

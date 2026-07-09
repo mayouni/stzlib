@@ -97,9 +97,9 @@ func NTimes(n)
 #=====================#
 
 class stzRegexMaker from stzObject
-	_acFragments_ = []
-	_aSequences_ = []
-	_aGroups_ = []  	# List of [name, pattern] pairs
+	acFragments = []
+	aSequences = []
+	aGroups = []  	# List of [name, pattern] pairs
 
 	def init()
 
@@ -173,11 +173,11 @@ class stzRegexMaker from stzObject
 
 		# Storing the complete pattern (main string + quantifier part)
 
-        	_acFragments_ + (_cPattern_ + _cQuantifier_)
+        	acFragments + (_cPattern_ + _cQuantifier_)
 
 		# String the elements of the sequence applied
 
-        	_aSequences_ + [ cType, _cRange_, cQuant, nTimes1, _nTimes2_ ]
+        	aSequences + [ cType, _cRange_, cQuant, nTimes1, _nTimes2_ ]
         
 
 	def AddAmongChars(_cChars_, cQuant, nTimes1, _nTimes2_)
@@ -226,9 +226,9 @@ class stzRegexMaker from stzObject
 	def Pattern()
 		_cResult_ = ""
 
-		_nAcFragments1Len_ = len(_acFragments_)
+		_nAcFragments1Len_ = len(acFragments)
 		for _iLoopAcFragments1_ = 1 to _nAcFragments1Len_
-			_cFrag_ = _acFragments_[_iLoopAcFragments1_]
+			_cFrag_ = acFragments[_iLoopAcFragments1_]
 			_cResult_ += _cFrag_
 		next
 
@@ -239,13 +239,13 @@ class stzRegexMaker from stzObject
 	#-----------------------------------------------#
 
 	def Fragments()
-		return _acFragments_
+		return acFragments
 
 		def Frags()
 			return This.Fragments()
 
 	def NumberOfFragements()
-		return len(_acFragments_)
+		return len(acFragments)
 
 		#< @FunctionAlternativeForms
 
@@ -269,13 +269,13 @@ class stzRegexMaker from stzObject
 		#>
 
 	def Fragment(n)
-		return _acFragments_[n]
+		return acFragments[n]
 
 		def Frag(n)
 			return This.Fragment(n)
 
 	def FragmentXT(n)
-		return [ _acFragments_[n], _aSequences_[n] ]
+		return [ acFragments[n], aSequences[n] ]
 
 		#< @FunctionAlternativeForms
 
@@ -323,7 +323,7 @@ class stzRegexMaker from stzObject
 	#-------------------------------------------------------------#
 
 	def Sequences()
-		return _aSequences_
+		return aSequences
 
 		def Seqs()
 			return This.Sequences()
@@ -367,7 +367,7 @@ class stzRegexMaker from stzObject
 		#>
 
 	def Sequence(n)
-		return _aSequences_[n]
+		return aSequences[n]
 
 		def Seq(n)
 			return This.Sequence(n)
@@ -376,7 +376,7 @@ class stzRegexMaker from stzObject
 			return This.Sequence(n)
 
 	def SequenceXT(n)
-		return [ _aSequences_[n], _acFragments_[n] ]
+		return [ aSequences[n], acFragments[n] ]
 
 		#< @FunctionAlternativeForms
 
@@ -429,8 +429,8 @@ class stzRegexMaker from stzObject
 
 	def RepeatSequence(n)
 
-		_aSequences_ + _aSequences_[n]
-		_acFragments_ + _acFragments_[n]
+		aSequences + aSequences[n]
+		acFragments + acFragments[n]
 
 		def RepeatCommand(n)
 			This.RepeatSequence(n)
@@ -703,7 +703,7 @@ class stzRegexMaker from stzObject
 	#----------------------------#
 
 	def AddLiteral(pcStr)
-		_acFragments_ + pcStr
+		acFragments + pcStr
 
 	  #------------------------------#
 	 #     CHARACTER CLASS HELPER    #
@@ -751,7 +751,7 @@ class stzRegexMaker from stzObject
 		# o1.AddCommonPattern(:email)  # Matches email addresses
 		# o1.AddCommonPattern(:phone)  # Matches phone numbers
 	
-		_acFragments_ + rxp(pcType)
+		acFragments + rxp(pcType)
 	
 	  #-------------------------------#
 	 #     BACKREFERENCE HELPER      #
@@ -764,9 +764,9 @@ class stzRegexMaker from stzObject
 		# o1.AddBackreference("tag")  # Matches same tag again
 	
 		if isString(pcGroupName)
-			_acFragments_ + "(?P=" + pcGroupName + ")"
+			acFragments + "(?P=" + pcGroupName + ")"
 		but isNumber(pcGroupName)  
-			_acFragments_ + "\\" + pcGroupName
+			acFragments + "\\" + pcGroupName
 		ok
 	
 	  #-------------------------------#
@@ -781,13 +781,13 @@ class stzRegexMaker from stzObject
 	
 		switch pcCategory
 		on :letter
-			_acFragments_ + "\p{L}"
+			acFragments + "\p{L}"
 		on :number
-			_acFragments_ + "\p{N}" 
+			acFragments + "\p{N}" 
 		on :punctuation 
-			_acFragments_ + "\p{P}"
+			acFragments + "\p{P}"
 		on :symbol
-			_acFragments_ + "\p{S}"
+			acFragments + "\p{S}"
 		off
 	
 	  #-------------------------------#
@@ -803,11 +803,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcType
 		on :start
-			_acFragments_ + "\b"
+			acFragments + "\b"
 		on :end  
-			_acFragments_ + "\b"
+			acFragments + "\b"
 		on :none
-			_acFragments_ + "\B"
+			acFragments + "\B"
 		off
 	
 	  #--------------------------------#
@@ -822,13 +822,13 @@ class stzRegexMaker from stzObject
 		# o1.AddCapturingGroup(:atomic, "[aeiou]+")  	# Atomic group
 	
 		if pcName = :nonCapturing
-			_acFragments_ + "(?:" + pcPattern + ")"
+			acFragments + "(?:" + pcPattern + ")"
 		
 		but pcName = :atomic
-			_acFragments_ + "(?>" + pcPattern + ")"
+			acFragments + "(?>" + pcPattern + ")"
 		
 		but isString(pcName)
-			_acFragments_ + "(?P<" + pcName + ">" + pcPattern + ")"
+			acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
 		ok
 	
 	  #-----------------------------------------#
@@ -850,13 +850,13 @@ class stzRegexMaker from stzObject
 	
 		switch pcBehavior
 		on :longest    # Takes longest possible match (formerly 'greedy')
-			_acFragments_ + pcPattern + "+"
+			acFragments + pcPattern + "+"
 	
 		on :shortest   # Takes shortest possible match (formerly 'lazy')
-			_acFragments_ + pcPattern + "+?"
+			acFragments + pcPattern + "+?"
 	
 		on :complete   # Matches everything at once without backtracking (formerly 'possessive')
-			_acFragments_ + pcPattern + "++"
+			acFragments + pcPattern + "++"
 		off
 	
 	  #--------------------------------#
@@ -871,11 +871,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcQuantifier
 		on :possessive
-			_acFragments_ + pcPattern + "++"
+			acFragments + pcPattern + "++"
 		on :lazy
-			_acFragments_ + pcPattern + "+?"
+			acFragments + pcPattern + "+?"
 		on :greedy
-			_acFragments_ + pcPattern + "+"
+			acFragments + pcPattern + "+"
 		off
 	
 	  #----------------------#
@@ -888,7 +888,7 @@ class stzRegexMaker from stzObject
 		# o1.AddComment("Match emails") 
 		# o1.AddCommonPattern(:email)
 	
-		_acFragments_ + "(?#" + pcText + ")"
+		acFragments + "(?#" + pcText + ")"
 	
 	  #--------------------------------#
 	 #     CASE SENSITIVITY HELPER    #
@@ -905,11 +905,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcMode
 		on :insensitive
-			_acFragments_ + "(?i)" + pcPattern
+			acFragments + "(?i)" + pcPattern
 		on :sensitive  
-			_acFragments_ + "(?-i)" + pcPattern
+			acFragments + "(?-i)" + pcPattern
 		on :mixed
-			_acFragments_ + "(?i:" + pcPattern + ")"
+			acFragments + "(?i:" + pcPattern + ")"
 		off
 	
 	  #--------------------------------#
@@ -931,13 +931,13 @@ class stzRegexMaker from stzObject
 				_cPattern_ = paPatterns[_iLoopPatterns1_]
 				_cResult_ += "(?=" + _cPattern_ + ")"
 			next
-			_acFragments_ + _cResult_
+			acFragments + _cResult_
 			
 		on :or
-			_acFragments_ + "(" + join(paPatterns, "|") + ")"
+			acFragments + "(" + join(paPatterns, "|") + ")"
 			
 		on :sequence
-			_acFragments_ + join(paPatterns, "")
+			acFragments + join(paPatterns, "")
 		off
 
 	  #----------------------------------------#
@@ -956,9 +956,9 @@ class stzRegexMaker from stzObject
 			StzRaise("Group name must be a string")
 		ok
 
-		_aGroups_ + [pcName, pcPattern]
-		_acFragments_ + "(?P<" + pcName + ">" + pcPattern + ")"
-		return len(_aGroups_)
+		aGroups + [pcName, pcPattern]
+		acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+		return len(aGroups)
 
 	def ReuseGroupPattern(pcGroupName)
 		# Reuses the pattern of a previously defined group
@@ -973,7 +973,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		_acFragments_ + "(?:" + _aGroups_[_nGroup_][2] + ")"
+		acFragments + "(?:" + aGroups[_nGroup_][2] + ")"
 
 		def ReuseGroup(pcGroupName)
 			This.ReuseGroupPattern(pcGroupName)
@@ -994,7 +994,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		_acFragments_ + "</(?P=" + pcTagGroupName + ")>"
+		acFragments + "</(?P=" + pcTagGroupName + ")>"
 
 	def MatchOppositeTagAs(pcTagGroupName)
 		# Special case for HTML/XML - matches the closing tag
@@ -1012,7 +1012,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No tag group named '" + pcTagGroupName + "' has been defined")
 		ok
 
-		_acFragments_ + "</(?P=" + pcTagGroupName + ")>"
+		acFragments + "</(?P=" + pcTagGroupName + ")>"
 
 	def IsBeforeGroup(pcGroupName)
 		# Positive lookahead - checks if the referenced group pattern
@@ -1029,14 +1029,14 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		_acFragments_ + "(?=" + _aGroups_[_nGroup_][2] + ")"
+		acFragments + "(?=" + aGroups[_nGroup_][2] + ")"
 
 	def FindGroup(pcName)
 		# Returns index of named group or 0 if not found
 
-		_nGroupsLen_ = len(_aGroups_)
+		_nGroupsLen_ = len(aGroups)
 		for i = 1 to _nGroupsLen_
-			if _aGroups_[i][1] = pcName
+			if aGroups[i][1] = pcName
 				return i
 			ok
 		next
@@ -1106,16 +1106,16 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 
 class stzRecursiveRegexMaker from stzObject
 
-	_aLevels_ = []
-	_bNamedRecursion_ = FALSE
-	_aParentStack_ = []  # Tracks current parent levels during declarative setup
-	_nParentIndex_ = 0
+	aLevels = []
+	bNamedRecursion = FALSE
+	aParentStack = []  # Tracks current parent levels during declarative setup
+	nParentIndex = 0
 
 	def init()
 		This.EnableNamedRecursion()
 
 	def AddLevel(cName, _cPattern_)
-		_aLevels_ + [
+		aLevels + [
 			:name    = cName,
 			:pattern = _cPattern_,
 			:parent  = NULL,
@@ -1123,7 +1123,7 @@ class stzRecursiveRegexMaker from stzObject
 			:quant   = ""
 		]
 
-		_nParentIndex_ = len(_aParentStack_)
+		nParentIndex = len(aParentStack)
 
 	def AddChildLevel(cParentName, cChildName, _cPattern_)
 		_nParent_ = pvtFindLevelByName(cParentName)
@@ -1134,9 +1134,9 @@ class stzRecursiveRegexMaker from stzObject
 
 		AddLevel(cChildName, _cPattern_)
 		
-		_nChild_ = len(_aLevels_)
-		_aLevels_[_nChild_][:parent] = _nParent_
-		_aLevels_[_nParent_][:children] + _nChild_
+		_nChild_ = len(aLevels)
+		aLevels[_nChild_][:parent] = _nParent_
+		aLevels[_nParent_][:children] + _nChild_
 
 	def AddQuantifier(cLevelName, cQuant)
 		_nLevel_ = pvtFindLevelByName(cLevelName)
@@ -1145,16 +1145,16 @@ class stzRecursiveRegexMaker from stzObject
 			StzRaise("Level '" + cLevelName + "' not found!")
 		ok
 
-		_aLevels_[_nLevel_][:quant] = cQuant
+		aLevels[_nLevel_][:quant] = cQuant
 
 	def EnableNamedRecursion()
-		_bNamedRecursion_ = TRUE
+		bNamedRecursion = TRUE
 		
 	def DisableNamedRecursion()
-		_bNamedRecursion_ = FALSE
+		bNamedRecursion = FALSE
 
 	def Pattern()
-		if len(_aLevels_) = 0
+		if len(aLevels) = 0
 			return ""
 		ok
 
@@ -1162,9 +1162,9 @@ class stzRecursiveRegexMaker from stzObject
 		
 		# Process all root levels (those without parents)
 
-		_nLevelsLen_2 = len(_aLevels_)
+		_nLevelsLen_2 = len(aLevels)
 		for i = 1 to _nLevelsLen_2
-			if _aLevels_[i][:parent] = NULL
+			if aLevels[i][:parent] = NULL
 				_cPattern_ += pvtBuildPattern(i)
 			ok
 		next
@@ -1182,15 +1182,15 @@ class stzRecursiveRegexMaker from stzObject
 
 	def LevelNames()
 		_aResult_ = []
-		_nLevels2Len_ = len(_aLevels_)
+		_nLevels2Len_ = len(aLevels)
 		for _iLoopLevels2_ = 1 to _nLevels2Len_
-			_level_ = _aLevels_[_iLoopLevels2_]
+			_level_ = aLevels[_iLoopLevels2_]
 			_aResult_ + _level_[:name]
 		next
 		return _aResult_
 
 	def NumberOfLevels()
-		return len(_aLevels_)
+		return len(aLevels)
 
 	def HasLevel(cName)
 		return pvtFindLevelByName(cName) > 0
@@ -1200,11 +1200,11 @@ class stzRecursiveRegexMaker from stzObject
 		if _nLevel_ = 0
 			return ""
 		ok
-		_nParent_ = _aLevels_[_nLevel_][:parent]
+		_nParent_ = aLevels[_nLevel_][:parent]
 		if _nParent_ = NULL
 			return ""
 		ok
-		return _aLevels_[_nParent_][:name]
+		return aLevels[_nParent_][:name]
 
 	def LevelChildren(cName)
 
@@ -1216,11 +1216,11 @@ class stzRecursiveRegexMaker from stzObject
 
 		_aResult_ = []
 
-		_aLevelsnLevelchildren1_ = _aLevels_[_nLevel_][:children]
+		_aLevelsnLevelchildren1_ = aLevels[_nLevel_][:children]
 		_nLevelsnLevelchildren1Len_ = len(_aLevelsnLevelchildren1_)
 		for _iLoopLevelsnLevelchildren1_ = 1 to _nLevelsnLevelchildren1Len_
 			_nChild_ = _aLevelsnLevelchildren1_[_iLoopLevelsnLevelchildren1_]
-			_aResult_ + _aLevels_[_nChild_][:name]
+			_aResult_ + aLevels[_nChild_][:name]
 		next
 
 		return _aResult_
@@ -1229,9 +1229,9 @@ class stzRecursiveRegexMaker from stzObject
 
 		_aResult_ = []
 
-		_nLevels1Len_ = len(_aLevels_)
+		_nLevels1Len_ = len(aLevels)
 		for _iLoopLevels1_ = 1 to _nLevels1Len_
-			_level_ = _aLevels_[_iLoopLevels1_]
+			_level_ = aLevels[_iLoopLevels1_]
 			_aInfo_ = [
 				:name = _level_[:name],
 				:pattern = _level_[:pattern],
@@ -1246,16 +1246,16 @@ class stzRecursiveRegexMaker from stzObject
 		return _aResult_
 
 	def Reset()
-		_aLevels_ = []
-		_bNamedRecursion_ = FALSE
+		aLevels = []
+		bNamedRecursion = FALSE
 
 	private
 
 	def pvtFindLevelByName(cName)
 
-		_nLevelsLen_ = len(_aLevels_)
+		_nLevelsLen_ = len(aLevels)
 		for i = 1 to _nLevelsLen_
-			if _aLevels_[i][:name] = cName
+			if aLevels[i][:name] = cName
 				return i
 			ok
 		next
@@ -1264,11 +1264,11 @@ class stzRecursiveRegexMaker from stzObject
 
 	def pvtBuildPattern(_nLevel_)
 
-		if _nLevel_ < 1 or _nLevel_ > len(_aLevels_)
+		if _nLevel_ < 1 or _nLevel_ > len(aLevels)
 			return ""
 		ok
 
-		_level_ = _aLevels_[_nLevel_]
+		_level_ = aLevels[_nLevel_]
 		_cPattern_ = _level_[:pattern]
 
 		# Process children first to properly nest them
@@ -1293,7 +1293,7 @@ class stzRecursiveRegexMaker from stzObject
 
 		if HasKey(_level_[:quant])
 
-			if _bNamedRecursion_
+			if bNamedRecursion
 
 				# For named recursion, wrap pattern + children in capture group before quantifier
 				_cPattern_ = "(?P<" + _level_[:name] + ">" + _cPattern_ + ")" + _level_[:quant]
@@ -1303,7 +1303,7 @@ class stzRecursiveRegexMaker from stzObject
 			ok
 
 		else
-			if _bNamedRecursion_
+			if bNamedRecursion
 
 				# Wrap in capture group without quantifier
 				_cPattern_ = "(?P<" + _level_[:name] + ">" + _cPattern_ + ")"

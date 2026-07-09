@@ -5,16 +5,16 @@
 
 class stzReactiveFunc from stzObject
 
-	_originalFunc_ = NULL
-	_engine_ = NULL
+	originalFunc = NULL
+	engine = NULL
 	
-	def Init(f, _engine_)
-		_originalFunc_ = f
-		this.engine = _engine_
+	def Init(f, engine)
+		originalFunc = f
+		this.engine = engine
 		
 	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
-		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, _originalFunc_, params, _engine_)
-		_engine_.AddTask(_task_)
+		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, originalFunc, params, engine)
+		engine.AddTask(_task_)
 		return _task_
 		
 	# CallAsync() for normal operations
@@ -23,10 +23,10 @@ class stzReactiveFunc from stzObject
 
 	def CallAsync(params, onComplete, onError)
 
-		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, _originalFunc_, params, _engine_)
+		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, originalFunc, params, engine)
 		_task_.Then_(onComplete)
 		_task_.Catch_(onError)
-		_engine_.AddTask(_task_)
+		engine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 
@@ -35,8 +35,8 @@ class stzFunctionTask from stzReactiveTask
 	@f = NULL
 	params = []
 	
-	def Init(id, f, params, _engine_)
-		super.Init(id, NULL, _engine_, DEFAULT_ERROR_HANDLING)
+	def Init(id, f, params, engine)
+		super.Init(id, NULL, engine, DEFAULT_ERROR_HANDLING)
 		this.@f = f
 		this.params = params
 		

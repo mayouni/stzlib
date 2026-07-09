@@ -214,54 +214,54 @@ class stzChainOfTruth from stzObject
 
 		@bNegateNext = 0
 
-		_bResult_ = 0
+		bResult = 0
 
 		# Case of equality
 		if BothAreEqual(pThing, This.Value())
 
-			_bResult_ = 1
+			bResult = 1
 
 		but BothAreStrings( pThing, This.Value() ) and
 		    StzLower(pThing) = StzLower(This.Value())
-			_bResult_ = 1
+			bResult = 1
 
 		# Case of a string
 		but isString(pThing)
 
 			# Case of the 4 native ring types
 			if pThing = :Number and This._Type() = "NUMBER"
-				_bResult_ = 1
+				bResult = 1
 	
 			but pThing = :String and This._Type() = "STRING"
-				_bResult_ = 1
+				bResult = 1
 	
 			but pThing = :List and This._Type() = "LIST"
-				_bResult_ = 1
+				bResult = 1
 	
 			but pThing = :Object and This._Type() = "OBJECT"
-				_bResult_ = 1
+				bResult = 1
 
 			# Case of a stz object method
 			but StzFindFirst( methods(This.StzObject()), "is" + pThing ) > 0
 				# Example: _("A").Is( :Uppercase )
 	
-				_cCode_ = 'bResult = StzObject().Is' + pThing + '()'
-				eval(_cCode_)
+				cCode = 'bResult = StzObject().Is' + pThing + '()'
+				eval(cCode)
 	
 			# Case of a function call
 			but (StzFindFirst(pThing, "(") > 1 and StzFindFirst(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst(pThing, "(") < StzFindFirst(pThing, ")") and StzRight(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
-				_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
-				eval(_cCode_)
+				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
+				eval(cCode)
 
 			else
 				# Case of an eventual function call
-				_cCode_ = pThing
+				cCode = pThing
 				try
-					eval(_cCode_)
+					eval(cCode)
 				catch
-					_bResult_ = 0
+					bResult = 0
 				done
 			ok
 
@@ -270,23 +270,23 @@ class stzChainOfTruth from stzObject
 			# Example:
 			# ? _(["A","B","C"]).Is([ :AListOfStrings, :AListOfChars, :AListOfLetters ]).AtTheSameTime._
 
-			_bIsListOfMethods_ = 1
-			_nThing2Len_ = len(pThing)
-			for _iLoopThing2_ = 1 to _nThing2Len_
-				_str_ = pThing[_iLoopThing2_]
-				if NOT ( StzFindFirst( methods(This.StzObject()), "is" + _str_ ) > 0 )
-					_bIsListOfMethods_ = 0
+			bIsListOfMethods = 1
+			nThing2Len = len(pThing)
+			for iLoopThing2 = 1 to nThing2Len
+				str = pThing[iLoopThing2]
+				if NOT ( StzFindFirst( methods(This.StzObject()), "is" + str ) > 0 )
+					bIsListOfMethods = 0
 					exit
 				ok
 			next
 
-			if _bIsListOfMethods_
-				_bResult_ = 1
-				_nThing1Len_ = len(pThing)
-				for _iLoopThing1_ = 1 to _nThing1Len_
-					_str_ = pThing[_iLoopThing1_]
-					if NOT _(This.Value()).Is(_str_)._
-						_bResult_ = 0
+			if bIsListOfMethods
+				bResult = 1
+				nThing1Len = len(pThing)
+				for iLoopThing1 = 1 to nThing1Len
+					str = pThing[iLoopThing1]
+					if NOT _(This.Value()).Is(str)._
+						bResult = 0
 						exit
 					ok
 				next
@@ -296,7 +296,7 @@ class stzChainOfTruth from stzObject
 
 		# Tagging the chain object with the result (1 or 0)
 		# and returning the object itself (not 1 or 0)
-		if _bResult_
+		if bResult
 			This.SetChainToReturn(1)
 		else
 			This.SetChainToReturn(0)
@@ -307,8 +307,8 @@ class stzChainOfTruth from stzObject
 		#< @FunctionNegativeForm
 
 		def IsNot(pThing)
-			_bResult_ = This.Is(pThing)
-			return NOT _bResult_
+			bResult = This.Is(pThing)
+			return NOT bResult
 
 		#>
 
@@ -372,7 +372,7 @@ class stzChainOfTruth from stzObject
 			ok
 
 			_cFunCode_ = _cFuncName_ + '(' + FunctionParam(pThing) + ')'
-			_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + _cFunCode_
+			cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + _cFunCode_
 	
 			#--> Example of generated code:
 			# bResult = _("H").Q.IsLetterOf("HUSSEIN")
@@ -382,7 +382,7 @@ class stzChainOfTruth from stzObject
 			# Now, we evaluate that code and get 1 or 0
 			# as produced, normally, by the @ softanza object
 			
-			eval(_cCode_)
+			eval(cCode)
 
 			# Let's leverage the result we got to apply the sepeciefic
 			# semantics of IsA() as explained above
@@ -391,12 +391,12 @@ class stzChainOfTruth from stzObject
 			_cMethod_ = StzLeft(_cFuncName_, StzLen(_cFuncName_) - 2)
 			_cIsMethod_ = "is" + _cMethod_
 			_cIsMethodCall_ = _cIsMethod_ + "()"
-			_cCode_ = "bPass = _(" + ComputableForm(_cValue_) + ").Q.NumberOfItemsW('{ _(@item).Q." + _cIsMethodCall_ + " }') > 1"
+			cCode = "bPass = _(" + ComputableForm(_cValue_) + ").Q.NumberOfItemsW('{ _(@item).Q." + _cIsMethodCall_ + " }') > 1"
 
-				eval(_cCode_)
+				eval(cCode)
 	
 
-			if _bResult_ = 1 and bPass
+			if bResult = 1 and bPass
 				This.SetChainToReturn(1)
 			else
 				This.SetChainToReturn(0)
@@ -413,22 +413,22 @@ class stzChainOfTruth from stzObject
 		#---
 
 		def IsNotA(pcThing)
-			_bResult_ = This.IsA(pThing)
-			return NOT _bResult_
+			bResult = This.IsA(pThing)
+			return NOT bResult
 	
 		def IsAn(pThing)
 			return This.IsA(pThing)
 	
 		def IsNotAn(pThing)
-			_bResult_ = This.IsAn(pThing)
-			return NOT _bResult_
+			bResult = This.IsAn(pThing)
+			return NOT bResult
 
 	def IsThe(pThing)
 		return This.Is(pThing)
 
 	def IsNotThe(pThing)
-		_bResult_ = This.IsThe(pThing)
-		return NOT _bResult_
+		bResult = This.IsThe(pThing)
+		return NOT bResult
 
 	def IsTheOnly(pThing)
 		return This.IsThe(pThing)
@@ -464,24 +464,24 @@ class stzChainOfTruth from stzObject
 
 		pcMethod = StringSimplified(pcMethod)
 
-		_cCode_ = 'bResult = This.StzObject().' + pcMethod
+		cCode = 'bResult = This.StzObject().' + pcMethod
 
 		if NOT (StzFindFirst(pcMethod, "(") > 1 and StzFindFirst(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFindFirst(pcMethod, "(") < StzFindFirst(pcMethod, ")") and StzRight(pcMethod, 1) = ")")
-			_cCode_ += "()"
+			cCode += "()"
 		ok
 
 		try
-			eval(_cCode_)
+			eval(cCode)
 		catch
 			StzRaise("Syntax Error. check the code you provided as a param of Which()...")
 		done
 
 		if This.ShouldBeNegated()
 
-			_bResult_ = NOT _bResult_
+			bResult = NOT bResult
 		ok
 
-		if _bResult_ = 1
+		if bResult = 1
 			This.SetChainToReturn(1)
 		else
 			This.SetChainToReturn(0)
@@ -526,23 +526,23 @@ class stzChainOfTruth from stzObject
 
 		_cCondition_ = StringSimplified(pcCondition)
 
-		_cCode_ = "if This.StzObject()." + _cCondition_ + NL +
+		cCode = "if This.StzObject()." + _cCondition_ + NL +
 			"	" + "bResult = 1" + NL +
 			"else" + NL +
 			"	bResult = 0" + NL +
 			"ok"
 
 		try
-			eval(_cCode_)
+			eval(cCode)
 		catch
 			StzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
 
 		if This.ShouldBeNegated()
-			_bResult_ = NOT _bResult_
+			bResult = NOT bResult
 		ok
 
-		if _bResult_ = 1
+		if bResult = 1
 			This.SetChainToReturn(1)
 		else
 			This.SetChainToReturn(0)
@@ -596,13 +596,13 @@ class stzChainOfTruth from stzObject
 			p = '"' + p + '"'
 		ok
 
-		_bResult_ = This.Where('{ Contains(' + p + ') }')
+		bResult = This.Where('{ Contains(' + p + ') }')
 
 		if This.ShouldBeNegated()
-			_bResult_ = NOt _bResult_
+			bResult = NOt bResult
 		ok
 
-		return _bResult_
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -646,13 +646,13 @@ class stzChainOfTruth from stzObject
 			p = '"' + p + '"'
 		ok
 
-		_bResult_ = This.Where('{ ContainsNo(' + p + ') }')
+		bResult = This.Where('{ ContainsNo(' + p + ') }')
 
 		if This.ShouldBeNegated()
-			_bResult_ = NOt _bResult_
+			bResult = NOt bResult
 		ok
 
-		return _bResult_
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -674,10 +674,10 @@ class stzChainOfTruth from stzObject
 		#>
 
 	def Nor(p)
-		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
-		eval(_cCode_)
+		cCode = 'bResult = This.' + This.NeightherFunction() + '(p)'
+		eval(cCode)
 
-		return _bResult_
+		return bResult
 
 	#------------------
 
@@ -723,14 +723,14 @@ class stzChainOfTruth from stzObject
 
 			pcThing = StringSimplified(pcThing)
 
-			_cCode_ = 'result = Nth' + pcThing
+			cCode = 'result = Nth' + pcThing
 	
-			_oStzString_ = new stzString(_cCode_)
+			_oStzString_ = new stzString(cCode)
 			_n_ = _oStzString_.FindFirst("(")
 	
-			_cCode_ = StzLeft(_cCode_, _n_) + "" + This.Value() + ", " + StzMid(_cCode_, _n_ + 1, StzLen(_cCode_) - _n_)
+			cCode = StzLeft(cCode, _n_) + "" + This.Value() + ", " + StzMid(cCode, _n_ + 1, StzLen(cCode) - _n_)
 
-			eval(_cCode_)
+			eval(cCode)
 
 			return _( result )
 		ok

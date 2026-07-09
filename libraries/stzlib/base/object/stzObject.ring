@@ -9,7 +9,7 @@
 
 	All the meta data provided by Ring to objects are provided by this class:
 
-		_o1_ = new Person { name = "Ali" age = 32 job = "Developer" }
+		o1 = new Person { name = "Ali" age = 32 job = "Developer" }
 		
 		StzObjectQ( :o1 ) {
 		
@@ -4556,11 +4556,11 @@ class stzObject
 	
 	def RepeatXT(pIn, pnSize)
 		/* EXAMPLE
-		_o1_ = new stzNumber(5)
-		_o1_.RepeatXT( :InA = :List, :OfSize = 2 )
+		o1 = new stzNumber(5)
+		o1.RepeatXT( :InA = :List, :OfSize = 2 )
 		#--> [ 5, 5 ]
 
-		_o1_.RepeatXT( [ 3, :Times ], :InAList )
+		o1.RepeatXT( [ 3, :Times ], :InAList )
 
 		*/
 
@@ -5585,14 +5585,14 @@ class stzObject
 
 		/* EXAMPLE
 
-		_o1_ = new stzString("ONE")
+		o1 = new stzString("ONE")
 
-		? _o1_.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
-		? _o1_.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
+		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
 
-		? _o1_.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
 		#--> TRUE
-		? _o1_.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
 		#--> FALSE
 
 		*/

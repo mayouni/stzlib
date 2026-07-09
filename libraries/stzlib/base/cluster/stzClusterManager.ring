@@ -1,35 +1,35 @@
 # stzClusterManager: Orchestrates the entire cluster ecosystem
 class stzClusterManager from stzObject
-    _aClusters_ = []
-    _oLoadBalancer_ = NULL
-    _oHealthMonitor_ = NULL
-    _bIsRunning_ = False
-    _nPort_ = 8080
-    _oMainServer_ = NULL
+    aClusters = []
+    oLoadBalancer = NULL
+    oHealthMonitor = NULL
+    bIsRunning = False
+    nPort = 8080
+    oMainServer = NULL
 
     def init()
-        _oLoadBalancer_ = new stzLoadBalancer()
-        _oHealthMonitor_ = new stzClusterMonitor()
-        _oMainServer_ = new stzAppServer()
+        oLoadBalancer = new stzLoadBalancer()
+        oHealthMonitor = new stzClusterMonitor()
+        oMainServer = new stzAppServer()
         This.SetupMainServerRoutes()
 
     def SetupMainServerRoutes()
         # Main entry point - all requests come here first
-        _oMainServer_.Get_("/*", func oRequest, oResponse {
+        oMainServer.Get_("/*", func oRequest, oResponse {
             This.HandleClusterRequest(oRequest, oResponse)
         })
         
-        _oMainServer_.Post("/*", func oRequest, oResponse {
+        oMainServer.Post("/*", func oRequest, oResponse {
             This.HandleClusterRequest(oRequest, oResponse)
         })
         
         # Cluster management endpoints
-        _oMainServer_.Get_("/cluster/status", func oRequest, oResponse {
+        oMainServer.Get_("/cluster/status", func oRequest, oResponse {
             oResponse.Json(This.GetClusterStatus())
         })
         
-        _oMainServer_.Get_("/cluster/health", func oRequest, oResponse {
-            oResponse.Json(_oHealthMonitor_.GetHealthReport())
+        oMainServer.Get_("/cluster/health", func oRequest, oResponse {
+            oResponse.Json(oHealthMonitor.GetHealthReport())
         })
 
     def CreateCluster(cType, nNodes)
@@ -41,43 +41,43 @@ class stzClusterManager from stzObject
             _aNodes_ + _oNode_
         next
         
-        _aClusters_ + [
+        aClusters + [
             :type = cType,
             :nodes = _aNodes_,
             :created = clock()
         ]
         
-        _oLoadBalancer_.RegisterCluster(cType, _aNodes_)
-        _oHealthMonitor_.RegisterCluster(cType, _aNodes_)
+        oLoadBalancer.RegisterCluster(cType, _aNodes_)
+        oHealthMonitor.RegisterCluster(cType, _aNodes_)
         
         return _aNodes_
 
     def Start(nPortNum)
-        _nPort_ = nPortNum
+        nPort = nPortNum
         
         # Start health monitoring
-        _oHealthMonitor_.Start()
+        oHealthMonitor.Start()
         
         # Start all cluster nodes
-        _nClusters3Len_ = len(_aClusters_)
+        _nClusters3Len_ = len(aClusters)
         for _iLoopClusters3_ = 1 to _nClusters3Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters3_]
+        	_aCluster_ = aClusters[_iLoopClusters3_]
             _aClusternodes3_ = _aCluster_[:nodes]
             _nClusternodes3Len_ = len(_aClusternodes3_)
             for _iLoopClusternodes3_ = 1 to _nClusternodes3Len_
             	_oNode_ = _aClusternodes3_[_iLoopClusternodes3_]
-                _nNodePort_ = _nPort_ + (len(_aCluster_[:nodes]) * 10) + 
+                _nNodePort_ = nPort + (len(_aCluster_[:nodes]) * 10) + 
                            This.GetNodeIndex(_aCluster_[:nodes], _oNode_)
                 _oNode_.Start(_nNodePort_, "127.0.0.1")
             next
         next
         
         # Start main load balancer server
-        _bIsRunning_ = _oMainServer_.Start(_nPort_, "127.0.0.1")
-        return _bIsRunning_
+        bIsRunning = oMainServer.Start(nPort, "127.0.0.1")
+        return bIsRunning
 
     def HandleClusterRequest(oRequest, oResponse)
-        _oTargetNode_ = _oLoadBalancer_.RouteRequest(oRequest)
+        _oTargetNode_ = oLoadBalancer.RouteRequest(oRequest)
         
         if _oTargetNode_ = NULL
             oResponse.Status(503, "Service Unavailable")
@@ -96,9 +96,9 @@ class stzClusterManager from stzObject
 
     def GetClusterStatus()
         _aStatus_ = []
-        _nClusters2Len_ = len(_aClusters_)
+        _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters2_]
+        	_aCluster_ = aClusters[_iLoopClusters2_]
             _aNodeStatus_ = []
             _aClusternodes2_ = _aCluster_[:nodes]
             _nClusternodes2Len_ = len(_aClusternodes2_)
@@ -117,7 +117,7 @@ class stzClusterManager from stzObject
         
         return [
             :clusters = _aStatus_,
-            :load_balancer = _oLoadBalancer_.GetRoutingStats(),
+            :load_balancer = oLoadBalancer.GetRoutingStats(),
             :uptime = This.GetUptime()
         ]
 
@@ -142,13 +142,13 @@ class stzClusterManager from stzObject
         return "N/A"
 
     def Stop()
-        _bIsRunning_ = False
-        _oMainServer_.Stop()
-        _oHealthMonitor_.Stop()
+        bIsRunning = False
+        oMainServer.Stop()
+        oHealthMonitor.Stop()
         
-        _nClusters1Len_ = len(_aClusters_)
+        _nClusters1Len_ = len(aClusters)
         for _iLoopClusters1_ = 1 to _nClusters1Len_
-        	_aCluster_ = _aClusters_[_iLoopClusters1_]
+        	_aCluster_ = aClusters[_iLoopClusters1_]
             _aClusternodes1_ = _aCluster_[:nodes]
             _nClusternodes1Len_ = len(_aClusternodes1_)
             for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_

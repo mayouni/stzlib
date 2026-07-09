@@ -1,7 +1,7 @@
 # Functions and classes for porting SQL code to Ring
 
-_SMALLINT_ = :SMALLINT
-_TABLE_ = :TABLE
+SMALLINT = :SMALLINT
+TABLE = :TABLE
 
 _oInitialTable = new stzTable([])
 _oIntermediateTable = new stzTable([])

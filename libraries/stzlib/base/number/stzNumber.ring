@@ -27,16 +27,16 @@
 
 	This may generate a loss of precision like in the following example:
 
-	_o1_ = new stzNumber(12.234)
-	? _o1_.Content() #--> "12.23" # if the current round was left at its
+	o1 = new stzNumber(12.234)
+	? o1.Content() #--> "12.23" # if the current round was left at its
 				    # default Ring value or has been set
 				    # explicitly to decimals(2)
 
 	Therefore, if you want to force a precise round, (and that's why the
 	class is made), you should provide a number in string like this:
 
-	_o1_ = new stzNumber("12.234")
-	? _o1_.Content() #--> "12.234"
+	o1 = new stzNumber("12.234")
+	? o1.Content() #--> "12.234"
 
 	 NOTE
 	------

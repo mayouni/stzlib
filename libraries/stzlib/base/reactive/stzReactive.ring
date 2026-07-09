@@ -25,18 +25,18 @@ class stzReactiveSystem from stzObject
 	# Manages the internal state of the reactive system,
 	# tracking timers, tasks, streams, and handlers.
 
-	_timerManager_ = NULL
-	_tasks_ = []
-	_streams_ = []
+	timerManager = NULL
+	tasks = []
+	streams = []
 
-	_isRunning_ = ENGINE_STOPPED
+	isRunning = ENGINE_STOPPED
 
 	# Reactive components
 	#--------------------
 
-	_http_ = NULL
-	_oDataStream_ = NULL
-	_oHttpStream_ = NULL
+	http = NULL
+	oDataStream = NULL
+	oHttpStream = NULL
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -52,13 +52,13 @@ class stzReactiveSystem from stzObject
 		# sentinel so legacy callers that read the handle don't crash.
 		@libuvLoop = NULL
 
-		_timerManager_ = new stzTimerManager()
-		_http_ = new stzReactiveHttp(self)
+		timerManager = new stzTimerManager()
+		http = new stzReactiveHttp(self)
 
-		_tasks_ = []
-		_streams_ = []
+		tasks = []
+		streams = []
 
-		_isRunning_ = ENGINE_STOPPED
+		isRunning = ENGINE_STOPPED
 
 
 	def LibuvLoop()
@@ -74,23 +74,23 @@ class stzReactiveSystem from stzObject
 
 	def Start()
 	    # Initiates the reactive system and runs the event loop.
-	    if _isRunning_ = ENGINE_STOPPED
-	        _isRunning_ = ENGINE_RUNNING
+	    if isRunning = ENGINE_STOPPED
+	        isRunning = ENGINE_RUNNING
 
 	        # (Removed an unconditional sleep(0.1) here -- it added a flat
 	        # 100ms to every RunLoop with no functional purpose.)
 
 	        # Execute any pending chunked tasks
-	        _nLenTasks_ = len(_tasks_)
+	        _nLenTasks_ = len(tasks)
 	        for i = 1 to _nLenTasks_
-	            if _tasks_[i].status = TASK_PENDING
-	                _tasks_[i].Execute()
+	            if tasks[i].status = TASK_PENDING
+	                tasks[i].Execute()
 	            ok
 	        next
 	
 		# Run timer-based loop for other reactive components
-	        _timerManager_.RunLoop()	        
-	        _isRunning_ = ENGINE_STOPPED
+	        timerManager.RunLoop()	        
+	        isRunning = ENGINE_STOPPED
 	    ok
 
 		#< @FunctionAlternativeForms
@@ -116,19 +116,19 @@ class stzReactiveSystem from stzObject
 
 	def Stop()
 		# Stops the system and cleans up tasks, streams, and handlers.
-		_isRunning_ = ENGINE_STOPPED
-		_timerManager_.Stop()
+		isRunning = ENGINE_STOPPED
+		timerManager.Stop()
 
 		# Clean up all tasks
-		_nLenTasks_ = len(_tasks_)
+		_nLenTasks_ = len(tasks)
 		for i = 1 to _nLenTasks_
-			_tasks_[i].Cleanup()
+			tasks[i].Cleanup()
 		next
 
 		# Clean up streams
-		_nLenStreams_ = len(_streams_)
+		_nLenStreams_ = len(streams)
 		for i = 1 to _nLenStreams_ 
-			_streams_[i].Cleanup()
+			streams[i].Cleanup()
 		next
 
 		#< @FunctionAlternativeForms
@@ -296,7 +296,7 @@ class stzReactiveSystem from stzObject
 	    ok
 
 	    _timer_ = new stzReactiveTimer(id, intervalMs, _callback_, self, _oneTime_)
-	    _timerManager_.AddTimer(_timer_)
+	    timerManager.AddTimer(_timer_)
 	    _timer_.Start()
 
 	    return _timer_
@@ -390,13 +390,13 @@ class stzReactiveSystem from stzObject
 	def StopTimer(_timer_)
 
 		if isString(_timer_)
-			_timerManager_.RemoveTimer(_timer_)
+			timerManager.RemoveTimer(_timer_)
 		else
 			_timer_.Stop()
 		ok
 
 	def StopAllTimers()
-	   _timerManager_.StopAllTimers()
+	   timerManager.StopAllTimers()
 
 	#--------------------------#
 	#  REACTIVE HTTP REQUESTS  #
@@ -413,7 +413,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = NULL
 			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
-		return _http_.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
+		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
 
 	#--
 
@@ -425,7 +425,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = NULL
 			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
-		return _http_.Post(url, data, onSuccess, onError)
+		return http.Post(url, data, onSuccess, onError)
 
 	#--------------------#
 	#  BUFFER UTILITIES  #
@@ -451,12 +451,12 @@ class stzReactiveSystem from stzObject
 
 	def AddTask(_task_)
 		# Adds a task to the internal task list.
-		_tasks_ + _task_
+		tasks + _task_
 		
 	def AddStream(_stream_)
 		# Adds a stream to the internal stream list.
-		_streams_ + _stream_
+		streams + _stream_
 		
 	def AddTimer(_timer_)
 		# Adds a timer to the timer manager.
-		_timerManager_.AddTimer(_timer_)
+		timerManager.AddTimer(_timer_)

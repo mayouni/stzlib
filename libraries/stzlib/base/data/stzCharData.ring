@@ -87,7 +87,7 @@ Dotless LETTERS
 	# Vowel chars
 
 	_acVowels = [ "A", "a", "E", "e", "I", "i", "O", "o", "U", "u" ]
-	_anVowelsUnicodes_ = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
+	anVowelsUnicodes = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
 
 	#NOTE:
 	# the letter "Y" is not considered a vowel to stay consistent with
@@ -405,22 +405,22 @@ Dotless LETTERS
 
 	# Merging the three lists above
 	_anPunctuationUnicodes = []
-	_n_anOtherPunctuationUnico1Len_ = len(_anOtherPunctuationUnicodes)
-	for _iLoop_anOtherPunctuationUnico1_ = 1 to _n_anOtherPunctuationUnico1Len_
-		_item_ = _anOtherPunctuationUnicodes[_iLoop_anOtherPunctuationUnico1_]
-		_anPunctuationUnicodes + _item_
+	n_anOtherPunctuationUnico1Len = len(_anOtherPunctuationUnicodes)
+	for iLoop_anOtherPunctuationUnico1 = 1 to n_anOtherPunctuationUnico1Len
+		item = _anOtherPunctuationUnicodes[iLoop_anOtherPunctuationUnico1]
+		_anPunctuationUnicodes + item
 	next
 
-	_n_anGeneralPunctuationUni1Len_ = len(_anGeneralPunctuationUnicodes)
-	for _iLoop_anGeneralPunctuationUni1_ = 1 to _n_anGeneralPunctuationUni1Len_
-		_item_ = _anGeneralPunctuationUnicodes[_iLoop_anGeneralPunctuationUni1_]
-		_anPunctuationUnicodes + _item_
+	n_anGeneralPunctuationUni1Len = len(_anGeneralPunctuationUnicodes)
+	for iLoop_anGeneralPunctuationUni1 = 1 to n_anGeneralPunctuationUni1Len
+		item = _anGeneralPunctuationUnicodes[iLoop_anGeneralPunctuationUni1]
+		_anPunctuationUnicodes + item
 	next
 
-	_n_anSupplementalPunctuati1Len_ = len(_anSupplementalPunctuationCodes)
-	for _iLoop_anSupplementalPunctuati1_ = 1 to _n_anSupplementalPunctuati1Len_
-		_item_ = _anSupplementalPunctuationCodes[_iLoop_anSupplementalPunctuati1_]
-		_anPunctuationUnicodes + _item_
+	n_anSupplementalPunctuati1Len = len(_anSupplementalPunctuationCodes)
+	for iLoop_anSupplementalPunctuati1 = 1 to n_anSupplementalPunctuati1Len
+		item = _anSupplementalPunctuationCodes[iLoop_anSupplementalPunctuati1]
+		_anPunctuationUnicodes + item
 	next
 
 	  #-------------------#
@@ -489,51 +489,51 @@ Dotless LETTERS
 
 	_anArabicPresentationFormUnicodes = []
 
-	_n_anArabicPresentationFor4Len_ = len(_anArabicPresentationFormAUnicodes)
-	for _iLoop_anArabicPresentationFor4_ = 1 to _n_anArabicPresentationFor4Len_
-		_item_ = _anArabicPresentationFormAUnicodes[_iLoop_anArabicPresentationFor4_]
-		_anArabicPresentationFormUnicodes + _item_
+	n_anArabicPresentationFor4Len = len(_anArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor4 = 1 to n_anArabicPresentationFor4Len
+		item = _anArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor4]
+		_anArabicPresentationFormUnicodes + item
 	next
 
-	_n_anArabicPresentationFor3Len_ = len(_anArabicPresentationFormBUnicodes)
-	for _iLoop_anArabicPresentationFor3_ = 1 to _n_anArabicPresentationFor3Len_
-		_item_ = _anArabicPresentationFormBUnicodes[_iLoop_anArabicPresentationFor3_]
-		_anArabicPresentationFormUnicodes + _item_
+	n_anArabicPresentationFor3Len = len(_anArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor3 = 1 to n_anArabicPresentationFor3Len
+		item = _anArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor3]
+		_anArabicPresentationFormUnicodes + item
 	next
 
 	# All Arabic unicodes #TODO PErf
 
 	_anArabicUnicodes = []
 
-	_n_anArabicBasicUnicodes1Len_ = len(_anArabicBasicUnicodes)
-	for _iLoop_anArabicBasicUnicodes1_ = 1 to _n_anArabicBasicUnicodes1Len_
-		_item_ = _anArabicBasicUnicodes[_iLoop_anArabicBasicUnicodes1_]
-		_anArabicUnicodes + _item_
+	n_anArabicBasicUnicodes1Len = len(_anArabicBasicUnicodes)
+	for iLoop_anArabicBasicUnicodes1 = 1 to n_anArabicBasicUnicodes1Len
+		item = _anArabicBasicUnicodes[iLoop_anArabicBasicUnicodes1]
+		_anArabicUnicodes + item
 	next
-	_n_anArabicSupplementUnico1Len_ = len(_anArabicSupplementUnicodes)
-	for _iLoop_anArabicSupplementUnico1_ = 1 to _n_anArabicSupplementUnico1Len_
-		_item_ = _anArabicSupplementUnicodes[_iLoop_anArabicSupplementUnico1_]
-		_anArabicUnicodes + _item_
+	n_anArabicSupplementUnico1Len = len(_anArabicSupplementUnicodes)
+	for iLoop_anArabicSupplementUnico1 = 1 to n_anArabicSupplementUnico1Len
+		item = _anArabicSupplementUnicodes[iLoop_anArabicSupplementUnico1]
+		_anArabicUnicodes + item
 	next
-	_n_anArabicExtendedAUnicod1Len_ = len(_anArabicExtendedAUnicodes)
-	for _iLoop_anArabicExtendedAUnicod1_ = 1 to _n_anArabicExtendedAUnicod1Len_
-		_item_ = _anArabicExtendedAUnicodes[_iLoop_anArabicExtendedAUnicod1_]
-		_anArabicUnicodes + _item_
+	n_anArabicExtendedAUnicod1Len = len(_anArabicExtendedAUnicodes)
+	for iLoop_anArabicExtendedAUnicod1 = 1 to n_anArabicExtendedAUnicod1Len
+		item = _anArabicExtendedAUnicodes[iLoop_anArabicExtendedAUnicod1]
+		_anArabicUnicodes + item
 	next
-	_n_anArabicPresentationFor2Len_ = len(_anArabicPresentationFormAUnicodes)
-	for _iLoop_anArabicPresentationFor2_ = 1 to _n_anArabicPresentationFor2Len_
-		_item_ = _anArabicPresentationFormAUnicodes[_iLoop_anArabicPresentationFor2_]
-		_anArabicUnicodes + _item_
+	n_anArabicPresentationFor2Len = len(_anArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor2 = 1 to n_anArabicPresentationFor2Len
+		item = _anArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor2]
+		_anArabicUnicodes + item
 	next
-	_n_anArabicPresentationFor1Len_ = len(_anArabicPresentationFormBUnicodes)
-	for _iLoop_anArabicPresentationFor1_ = 1 to _n_anArabicPresentationFor1Len_
-		_item_ = _anArabicPresentationFormBUnicodes[_iLoop_anArabicPresentationFor1_]
-		_anArabicUnicodes + _item_
+	n_anArabicPresentationFor1Len = len(_anArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor1 = 1 to n_anArabicPresentationFor1Len
+		item = _anArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor1]
+		_anArabicUnicodes + item
 	next
-	_n_anArabicMathAlphabeticS1Len_ = len(_anArabicMathAlphabeticSymbolUnicodes)
-	for _iLoop_anArabicMathAlphabeticS1_ = 1 to _n_anArabicMathAlphabeticS1Len_
-		_item_ = _anArabicMathAlphabeticSymbolUnicodes[_iLoop_anArabicMathAlphabeticS1_]
-		_anArabicUnicodes + _item_
+	n_anArabicMathAlphabeticS1Len = len(_anArabicMathAlphabeticSymbolUnicodes)
+	for iLoop_anArabicMathAlphabeticS1 = 1 to n_anArabicMathAlphabeticS1Len
+		item = _anArabicMathAlphabeticSymbolUnicodes[iLoop_anArabicMathAlphabeticS1]
+		_anArabicUnicodes + item
 	next
 
 	# Arabic Dotless letters
@@ -654,15 +654,15 @@ Dotless LETTERS
 	
 	_anArabicHamzahUnicodes = []
 
-	_n_anArabicHamzahKat3iahUn1Len_ = len(_anArabicHamzahKat3iahUnicodes)
-	for _iLoop_anArabicHamzahKat3iahUn1_ = 1 to _n_anArabicHamzahKat3iahUn1Len_
-		_item_ = _anArabicHamzahKat3iahUnicodes[_iLoop_anArabicHamzahKat3iahUn1_]
-		_anArabicHamzahUnicodes + _item_
+	n_anArabicHamzahKat3iahUn1Len = len(_anArabicHamzahKat3iahUnicodes)
+	for iLoop_anArabicHamzahKat3iahUn1 = 1 to n_anArabicHamzahKat3iahUn1Len
+		item = _anArabicHamzahKat3iahUnicodes[iLoop_anArabicHamzahKat3iahUn1]
+		_anArabicHamzahUnicodes + item
 	next
-	_n_anArabicHamzahWasliahUn1Len_ = len(_anArabicHamzahWasliahUnicodes)
-	for _iLoop_anArabicHamzahWasliahUn1_ = 1 to _n_anArabicHamzahWasliahUn1Len_
-		_item_ = _anArabicHamzahWasliahUnicodes[_iLoop_anArabicHamzahWasliahUn1_]
-		_anArabicHamzahUnicodes + _item_
+	n_anArabicHamzahWasliahUn1Len = len(_anArabicHamzahWasliahUnicodes)
+	for iLoop_anArabicHamzahWasliahUn1 = 1 to n_anArabicHamzahWasliahUn1Len
+		item = _anArabicHamzahWasliahUnicodes[iLoop_anArabicHamzahWasliahUn1]
+		_anArabicHamzahUnicodes + item
 	next
 
 	  #-------------------#
@@ -682,45 +682,45 @@ Dotless LETTERS
 	
 	_anLatinUnicodes = []
 	
-	_n_anLatinBasicUnicodes1Len_ = len(_anLatinBasicUnicodes)
-	for _iLoop_anLatinBasicUnicodes1_ = 1 to _n_anLatinBasicUnicodes1Len_
-		_item_ = _anLatinBasicUnicodes[_iLoop_anLatinBasicUnicodes1_]
-		_anLatinUnicodes + _item_
+	n_anLatinBasicUnicodes1Len = len(_anLatinBasicUnicodes)
+	for iLoop_anLatinBasicUnicodes1 = 1 to n_anLatinBasicUnicodes1Len
+		item = _anLatinBasicUnicodes[iLoop_anLatinBasicUnicodes1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatin1SupplementUnico1Len_ = len(_anLatin1SupplementUnicodes)
-	for _iLoop_anLatin1SupplementUnico1_ = 1 to _n_anLatin1SupplementUnico1Len_
-		_item_ = _anLatin1SupplementUnicodes[_iLoop_anLatin1SupplementUnico1_]
-		_anLatinUnicodes + _item_
+	n_anLatin1SupplementUnico1Len = len(_anLatin1SupplementUnicodes)
+	for iLoop_anLatin1SupplementUnico1 = 1 to n_anLatin1SupplementUnico1Len
+		item = _anLatin1SupplementUnicodes[iLoop_anLatin1SupplementUnico1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedAUnicode1Len_ = len(_anLatinExtendedAUnicodes)
-	for _iLoop_anLatinExtendedAUnicode1_ = 1 to _n_anLatinExtendedAUnicode1Len_
-		_item_ = _anLatinExtendedAUnicodes[_iLoop_anLatinExtendedAUnicode1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedAUnicode1Len = len(_anLatinExtendedAUnicodes)
+	for iLoop_anLatinExtendedAUnicode1 = 1 to n_anLatinExtendedAUnicode1Len
+		item = _anLatinExtendedAUnicodes[iLoop_anLatinExtendedAUnicode1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedBUnicode1Len_ = len(_anLatinExtendedBUnicodes)
-	for _iLoop_anLatinExtendedBUnicode1_ = 1 to _n_anLatinExtendedBUnicode1Len_
-		_item_ = _anLatinExtendedBUnicodes[_iLoop_anLatinExtendedBUnicode1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedBUnicode1Len = len(_anLatinExtendedBUnicodes)
+	for iLoop_anLatinExtendedBUnicode1 = 1 to n_anLatinExtendedBUnicode1Len
+		item = _anLatinExtendedBUnicodes[iLoop_anLatinExtendedBUnicode1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedAddition1Len_ = len(_anLatinExtendedAdditionalUnicodes)
-	for _iLoop_anLatinExtendedAddition1_ = 1 to _n_anLatinExtendedAddition1Len_
-		_item_ = _anLatinExtendedAdditionalUnicodes[_iLoop_anLatinExtendedAddition1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedAddition1Len = len(_anLatinExtendedAdditionalUnicodes)
+	for iLoop_anLatinExtendedAddition1 = 1 to n_anLatinExtendedAddition1Len
+		item = _anLatinExtendedAdditionalUnicodes[iLoop_anLatinExtendedAddition1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedCUnicode1Len_ = len(_anLatinExtendedCUnicodes)
-	for _iLoop_anLatinExtendedCUnicode1_ = 1 to _n_anLatinExtendedCUnicode1Len_
-		_item_ = _anLatinExtendedCUnicodes[_iLoop_anLatinExtendedCUnicode1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedCUnicode1Len = len(_anLatinExtendedCUnicodes)
+	for iLoop_anLatinExtendedCUnicode1 = 1 to n_anLatinExtendedCUnicode1Len
+		item = _anLatinExtendedCUnicodes[iLoop_anLatinExtendedCUnicode1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedDUnicode1Len_ = len(_anLatinExtendedDUnicodes)
-	for _iLoop_anLatinExtendedDUnicode1_ = 1 to _n_anLatinExtendedDUnicode1Len_
-		_item_ = _anLatinExtendedDUnicodes[_iLoop_anLatinExtendedDUnicode1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedDUnicode1Len = len(_anLatinExtendedDUnicodes)
+	for iLoop_anLatinExtendedDUnicode1 = 1 to n_anLatinExtendedDUnicode1Len
+		item = _anLatinExtendedDUnicodes[iLoop_anLatinExtendedDUnicode1]
+		_anLatinUnicodes + item
 	next
-	_n_anLatinExtendedEUnicode1Len_ = len(_anLatinExtendedEUnicodes)
-	for _iLoop_anLatinExtendedEUnicode1_ = 1 to _n_anLatinExtendedEUnicode1Len_
-		_item_ = _anLatinExtendedEUnicodes[_iLoop_anLatinExtendedEUnicode1_]
-		_anLatinUnicodes + _item_
+	n_anLatinExtendedEUnicode1Len = len(_anLatinExtendedEUnicodes)
+	for iLoop_anLatinExtendedEUnicode1 = 1 to n_anLatinExtendedEUnicode1Len
+		item = _anLatinExtendedEUnicodes[iLoop_anLatinExtendedEUnicode1]
+		_anLatinUnicodes + item
 	next
 
 	# Dotless chars
@@ -1008,15 +1008,15 @@ Dotless LETTERS
 
 	_anLatinCircledLetterUnicodes = []
 
-	_n_anLatinCircledCapitalLe1Len_ = len(_anLatinCircledCapitalLetterUnicodes)
-	for _iLoop_anLatinCircledCapitalLe1_ = 1 to _n_anLatinCircledCapitalLe1Len_
-		_item_ = _anLatinCircledCapitalLetterUnicodes[_iLoop_anLatinCircledCapitalLe1_]
-		_anLatinCircledLetterUnicodes + _item_
+	n_anLatinCircledCapitalLe1Len = len(_anLatinCircledCapitalLetterUnicodes)
+	for iLoop_anLatinCircledCapitalLe1 = 1 to n_anLatinCircledCapitalLe1Len
+		item = _anLatinCircledCapitalLetterUnicodes[iLoop_anLatinCircledCapitalLe1]
+		_anLatinCircledLetterUnicodes + item
 	next
-	_n_anLatinCircledSmallLett1Len_ = len(_anLatinCircledSmallLetterUnicodes)
-	for _iLoop_anLatinCircledSmallLett1_ = 1 to _n_anLatinCircledSmallLett1Len_
-		_item_ = _anLatinCircledSmallLetterUnicodes[_iLoop_anLatinCircledSmallLett1_]
-		_anLatinCircledLetterUnicodes + _item_
+	n_anLatinCircledSmallLett1Len = len(_anLatinCircledSmallLetterUnicodes)
+	for iLoop_anLatinCircledSmallLett1 = 1 to n_anLatinCircledSmallLett1Len
+		item = _anLatinCircledSmallLetterUnicodes[iLoop_anLatinCircledSmallLett1]
+		_anLatinCircledLetterUnicodes + item
 	next
 
 	# Invisible chars
@@ -1063,17 +1063,17 @@ Dotless LETTERS
 
 	_acWordNonLetterChars = []
 
-	_a_1_ = [ "_", "-", "*", "/", "\", "+" ]
-	_n_1Len_ = len(_a_1_)
-	for _iLoop_1_ = 1 to _n_1Len_
-		_item_ = _a_1_[_iLoop_1_]
-		_acWordNonLetterChars + _item_
+	a_1 = [ "_", "-", "*", "/", "\", "+" ]
+	n_1Len = len(a_1)
+	for iLoop_1 = 1 to n_1Len
+		item = a_1[iLoop_1]
+		_acWordNonLetterChars + item
 	next
-	_aArabicNumbers1_ = ArabicNumbers()
-	_nArabicNumbers1Len_ = len(_aArabicNumbers1_)
-	for _iLoopArabicNumbers1_ = 1 to _nArabicNumbers1Len_
-		_item_ = _aArabicNumbers1_[_iLoopArabicNumbers1_]
-		_acWordNonLetterChars + _item_
+	aArabicNumbers1 = ArabicNumbers()
+	nArabicNumbers1Len = len(aArabicNumbers1)
+	for iLoopArabicNumbers1 = 1 to nArabicNumbers1Len
+		item = aArabicNumbers1[iLoopArabicNumbers1]
+		_acWordNonLetterChars + item
 	next
 
 	/* Example of words containing those non-letter chars:
@@ -1380,55 +1380,55 @@ Dotless LETTERS
 	# Diacritics
 
 	_anDiacriticsUnicodes = []
-	_n_anLatinDiacriticsUnicod2Len_ = len(_anLatinDiacriticsUnicodes)
-	for _iLoop_anLatinDiacriticsUnicod2_ = 1 to _n_anLatinDiacriticsUnicod2Len_
-		_item_ = _anLatinDiacriticsUnicodes[_iLoop_anLatinDiacriticsUnicod2_]
-		_anDiacriticsUnicodes + _item_
+	n_anLatinDiacriticsUnicod2Len = len(_anLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod2 = 1 to n_anLatinDiacriticsUnicod2Len
+		item = _anLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod2]
+		_anDiacriticsUnicodes + item
 	next
-	_n_anArabicDiacriticsUnico1Len_ = len(_anArabicDiacriticsUnicodes)
-	for _iLoop_anArabicDiacriticsUnico1_ = 1 to _n_anArabicDiacriticsUnico1Len_
-		_item_ = _anArabicDiacriticsUnicodes[_iLoop_anArabicDiacriticsUnico1_]
-		_anDiacriticsUnicodes + _item_
+	n_anArabicDiacriticsUnico1Len = len(_anArabicDiacriticsUnicodes)
+	for iLoop_anArabicDiacriticsUnico1 = 1 to n_anArabicDiacriticsUnico1Len
+		item = _anArabicDiacriticsUnicodes[iLoop_anArabicDiacriticsUnico1]
+		_anDiacriticsUnicodes + item
 	next
-	_n_anGreekDiacriticsUnicod2Len_ = len(_anGreekDiacriticsUnicodes)
-	for _iLoop_anGreekDiacriticsUnicod2_ = 1 to _n_anGreekDiacriticsUnicod2Len_
-		_item_ = _anGreekDiacriticsUnicodes[_iLoop_anGreekDiacriticsUnicod2_]
-		_anDiacriticsUnicodes + _item_
+	n_anGreekDiacriticsUnicod2Len = len(_anGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod2 = 1 to n_anGreekDiacriticsUnicod2Len
+		item = _anGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod2]
+		_anDiacriticsUnicodes + item
 	next
-	_n_anHebrewDiacriticsUnico1Len_ = len(_anHebrewDiacriticsUnicodes)
-	for _iLoop_anHebrewDiacriticsUnico1_ = 1 to _n_anHebrewDiacriticsUnico1Len_
-		_item_ = _anHebrewDiacriticsUnicodes[_iLoop_anHebrewDiacriticsUnico1_]
-		_anDiacriticsUnicodes + _item_
+	n_anHebrewDiacriticsUnico1Len = len(_anHebrewDiacriticsUnicodes)
+	for iLoop_anHebrewDiacriticsUnico1 = 1 to n_anHebrewDiacriticsUnico1Len
+		item = _anHebrewDiacriticsUnicodes[iLoop_anHebrewDiacriticsUnico1]
+		_anDiacriticsUnicodes + item
 	next
 	
 	# Diacricized chars
 
 	_anDiacricizedUnicodes = []
 
-	_n_anLatinDiacriticsUnicod1Len_ = len(_anLatinDiacriticsUnicodes)
-	for _iLoop_anLatinDiacriticsUnicod1_ = 1 to _n_anLatinDiacriticsUnicod1Len_
-		_item_ = _anLatinDiacriticsUnicodes[_iLoop_anLatinDiacriticsUnicod1_]
-		_anDiacricizedUnicodes + _item_
+	n_anLatinDiacriticsUnicod1Len = len(_anLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod1 = 1 to n_anLatinDiacriticsUnicod1Len
+		item = _anLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod1]
+		_anDiacricizedUnicodes + item
 	next
-	_n_anGreekDiacriticsUnicod1Len_ = len(_anGreekDiacriticsUnicodes)
-	for _iLoop_anGreekDiacriticsUnicod1_ = 1 to _n_anGreekDiacriticsUnicod1Len_
-		_item_ = _anGreekDiacriticsUnicodes[_iLoop_anGreekDiacriticsUnicod1_]
-		_anDiacricizedUnicodes + _item_
+	n_anGreekDiacriticsUnicod1Len = len(_anGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod1 = 1 to n_anGreekDiacriticsUnicod1Len
+		item = _anGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod1]
+		_anDiacricizedUnicodes + item
 	next
 
 	# Diacricized chars -- EXTENDED
 
 	_aDiacricizedCharsXT = []
 
-	_n_aLatinDiacriticsXT1Len_ = len(_aLatinDiacriticsXT)
-	for _iLoop_aLatinDiacriticsXT1_ = 1 to _n_aLatinDiacriticsXT1Len_
-		_item_ = _aLatinDiacriticsXT[_iLoop_aLatinDiacriticsXT1_]
-		_aDiacricizedCharsXT + _item_
+	n_aLatinDiacriticsXT1Len = len(_aLatinDiacriticsXT)
+	for iLoop_aLatinDiacriticsXT1 = 1 to n_aLatinDiacriticsXT1Len
+		item = _aLatinDiacriticsXT[iLoop_aLatinDiacriticsXT1]
+		_aDiacricizedCharsXT + item
 	next
-	_n_aGreekDiacriticsXT1Len_ = len(_aGreekDiacriticsXT)
-	for _iLoop_aGreekDiacriticsXT1_ = 1 to _n_aGreekDiacriticsXT1Len_
-		_item_ = _aGreekDiacriticsXT[_iLoop_aGreekDiacriticsXT1_]
-		_aDiacricizedCharsXT + _item_
+	n_aGreekDiacriticsXT1Len = len(_aGreekDiacriticsXT)
+	for iLoop_aGreekDiacriticsXT1 = 1 to n_aGreekDiacriticsXT1Len
+		item = _aGreekDiacriticsXT[iLoop_aGreekDiacriticsXT1]
+		_aDiacricizedCharsXT + item
 	next
 
 	  #----------------------------------#
@@ -1753,8 +1753,8 @@ _cMarquerChar = "#"
 		_aResult_ = []
 		_n_aArabicNumberFractionsX2Len_ = len(_aArabicNumberFractionsXT)
 		for _iLoop_aArabicNumberFractionsX2_ = 1 to _n_aArabicNumberFractionsX2Len_
-			_item_ = _aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX2_]
-			_nUnicode_ = _item_[2]
+			item = _aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX2_]
+			_nUnicode_ = item[2]
 			_oChar_ = new stzChar(_nUnicode_)
 			_aResult_ + _oChar_.Content()
 		next
@@ -1764,8 +1764,8 @@ _cMarquerChar = "#"
 		_aResult_ = []
 		_n_aArabicNumberFractionsX1Len_ = len(_aArabicNumberFractionsXT)
 		for _iLoop_aArabicNumberFractionsX1_ = 1 to _n_aArabicNumberFractionsX1Len_
-			_item_ = _aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX1_]
-			_aResult_ + _item_[2]
+			item = _aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX1_]
+			_aResult_ + item[2]
 		next
 		return _aResult_
 
@@ -1930,8 +1930,8 @@ _cMarquerChar = "#"
 		_aUnicodeScriptsXT1_ = UnicodeScriptsXT()
 		_nUnicodeScriptsXT1Len_ = len(_aUnicodeScriptsXT1_)
 		for _iLoopUnicodeScriptsXT1_ = 1 to _nUnicodeScriptsXT1Len_
-			_item_ = _aUnicodeScriptsXT1_[_iLoopUnicodeScriptsXT1_]
-			_acResult_ + _item_[2]
+			item = _aUnicodeScriptsXT1_[_iLoopUnicodeScriptsXT1_]
+			_acResult_ + item[2]
 		next
 
 		return _acResult_
@@ -2100,14 +2100,14 @@ _cMarquerChar = "#"
 		_aLatinDiacriticsXT2_ = LatinDiacriticsXT()
 		_nLatinDiacriticsXT2Len_ = len(_aLatinDiacriticsXT2_)
 		for _iLoopLatinDiacriticsXT2_ = 1 to _nLatinDiacriticsXT2Len_
-			_item_ = _aLatinDiacriticsXT2_[_iLoopLatinDiacriticsXT2_]
-			_aResult_ + _item_
+			item = _aLatinDiacriticsXT2_[_iLoopLatinDiacriticsXT2_]
+			_aResult_ + item
 		next
 		_aArabicDiacriticsXT1_ = ArabicDiacriticsXT()
 		_nArabicDiacriticsXT1Len_ = len(_aArabicDiacriticsXT1_)
 		for _iLoopArabicDiacriticsXT1_ = 1 to _nArabicDiacriticsXT1Len_
-			_item_ = _aArabicDiacriticsXT1_[_iLoopArabicDiacriticsXT1_]
-			_aResult_ + _item_
+			item = _aArabicDiacriticsXT1_[_iLoopArabicDiacriticsXT1_]
+			_aResult_ + item
 		next
 
 		return _aResult_
@@ -2146,9 +2146,9 @@ _cMarquerChar = "#"
 			_aDiacriticsXT1_ = DiacriticsXT()
 			_nDiacriticsXT1Len_ = len(_aDiacriticsXT1_)
 			for _iLoopDiacriticsXT1_ = 1 to _nDiacriticsXT1Len_
-				_item_ = _aDiacriticsXT1_[_iLoopDiacriticsXT1_]
-				if _item_[1] = _C_
-					return _item_[3]
+				item = _aDiacriticsXT1_[_iLoopDiacriticsXT1_]
+				if item[1] = _C_
+					return item[3]
 				ok
 			next
 		ok
@@ -2159,9 +2159,9 @@ _cMarquerChar = "#"
 			_aLatinDiacriticsXT1_ = LatinDiacriticsXT()
 			_nLatinDiacriticsXT1Len_ = len(_aLatinDiacriticsXT1_)
 			for _iLoopLatinDiacriticsXT1_ = 1 to _nLatinDiacriticsXT1Len_
-				_item_ = _aLatinDiacriticsXT1_[_iLoopLatinDiacriticsXT1_]
-				if _item_[2] = _C_
-					_aResult_ + _item_[1]
+				item = _aLatinDiacriticsXT1_[_iLoopLatinDiacriticsXT1_]
+				if item[2] = _C_
+					_aResult_ + item[1]
 				ok
 			next
 

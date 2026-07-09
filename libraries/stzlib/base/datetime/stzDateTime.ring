@@ -135,7 +135,7 @@ $aDateTimeFormats = [
 #=================================================================
 
 # Reference points (in milliseconds from Unix epoch)
-_aTimeOrigins_ = [
+aTimeOrigins = [
     :UnixEpoch = 0,                      # 1970-01-01
     :YearOne = -62135596800000,          # 1 CE
     :IslamicHijra = -42521587200000,  # 622 CE (Hijra)
@@ -2157,9 +2157,9 @@ class stzDateTime from stzObject
         ok
 
     def GetOriginBase(_cOrigin_)
-        _nTimeOrigins1Len_ = len(_aTimeOrigins_)
+        _nTimeOrigins1Len_ = len(aTimeOrigins)
         for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
-        	_aOrigin_ = _aTimeOrigins_[_iLoopTimeOrigins1_]
+        	_aOrigin_ = aTimeOrigins[_iLoopTimeOrigins1_]
             if _aOrigin_[1] = _cOrigin_
                 return _aOrigin_[2]
             ok

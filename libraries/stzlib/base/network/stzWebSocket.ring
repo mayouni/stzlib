@@ -3,13 +3,13 @@
 # =============================================================================
 
 class stzWebSocket from stzNetwork
-    _is_connected_ = False
-    _last_message_ = ""
-    _message_type_ = ""
-    _on_message_callback_ = ""
-    _on_open_callback_ = ""
-    _on_close_callback_ = ""
-    _on_error_callback_ = ""
+    is_connected = False
+    last_message = ""
+    message_type = ""
+    on_message_callback = ""
+    on_open_callback = ""
+    on_close_callback = ""
+    on_error_callback = ""
     
     def Connect(cUrl)
         _curl_handle_ = curl_easy_init()
@@ -18,10 +18,10 @@ class stzWebSocket from stzNetwork
         
         _result_ = curl_easy_perform(_curl_handle_)
         if _result_ = CURLE_OK
-            _is_connected_ = True
+            is_connected = True
             ClearErrors()
-            if _on_open_callback_ != ""
-                call _on_open_callback_()
+            if on_open_callback != ""
+                call on_open_callback()
             ok
         else
             _last_error_ = "WebSocket connection failed"
@@ -33,7 +33,7 @@ class stzWebSocket from stzNetwork
         return This.SendText(cMessage)
     
     def SendText(cText)
-        if not _is_connected_
+        if not is_connected
             _last_error_ = "Not connected"
             return This
         ok
@@ -46,7 +46,7 @@ class stzWebSocket from stzNetwork
         return This
     
     def SendBinary(aData)
-        if not _is_connected_
+        if not is_connected
             _last_error_ = "Not connected"
             return This
         ok
@@ -67,20 +67,20 @@ class stzWebSocket from stzNetwork
         return This
     
     def Receive()
-        if not _is_connected_
+        if not is_connected
             _last_error_ = "Not connected"
             return This
         ok
         
         _result_ = curl_ws_recv(_curl_handle_, 1024)
         if _result_[1] = CURLE_OK
-            _last_message_ = _result_[2]
+            last_message = _result_[2]
             # Determine message type based on WebSocket frame
-            _message_type_ = "TEXT"  # Simplified - would need proper frame parsing
+            message_type = "TEXT"  # Simplified - would need proper frame parsing
             ClearErrors()
             
-            if _on_message_callback_ != ""
-                call _on_message_callback_()
+            if on_message_callback != ""
+                call on_message_callback()
             ok
         else
             if _result_[1] != CURLE_AGAIN
@@ -91,39 +91,39 @@ class stzWebSocket from stzNetwork
         return This
     
     def Close()
-        if _is_connected_ and _curl_handle_ != NULL
+        if is_connected and _curl_handle_ != NULL
             # Send close frame
             curl_ws_send(_curl_handle_, "", 0, CURLWS_CLOSE)
             curl_easy_cleanup(_curl_handle_)
-            _is_connected_ = False
+            is_connected = False
             
-            if _on_close_callback_ != ""
-                call _on_close_callback_()
+            if on_close_callback != ""
+                call on_close_callback()
             ok
         ok
         return This
     
     def IsOpen()
-        return _is_connected_
+        return is_connected
     
     def OnMessage(cCallback)
-        _on_message_callback_ = cCallback
+        on_message_callback = cCallback
         return This
     
     def OnOpen(cCallback)
-        _on_open_callback_ = cCallback
+        on_open_callback = cCallback
         return This
     
     def OnClose(cCallback)
-        _on_close_callback_ = cCallback
+        on_close_callback = cCallback
         return This
     
     def OnError(cCallback)
-        _on_error_callback_ = cCallback
+        on_error_callback = cCallback
         return This
     
     def LastMessage()
-        return _last_message_
+        return last_message
     
     def MessageType()
-        return _message_type_
+        return message_type

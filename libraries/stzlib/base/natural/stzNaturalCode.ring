@@ -5,7 +5,7 @@
 
 _aFuture = [] # Stores future actions in natural-coding
 
-_WhatEverCaseItHas_ = FALSE # Used in natural-coding
+WhatEverCaseItHas = FALSE # Used in natural-coding
 
 _oMainObject = ANullObject() # Used for chains of truth
 _MainValue = NULL
