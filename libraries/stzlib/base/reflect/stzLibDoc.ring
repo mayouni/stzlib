@@ -115,7 +115,14 @@ class stzLibDoc from stzObject
 		_nE2_ = len(@aEntries)
 		for _iB_ = 1 to _nE2_
 			if @aEntries[_iB_][1] = "(recipe)"
-				_aBonus_ + 0.05
+				# a recipe IS the imperative answer -- under a verb-
+				# initial cue it keeps pace with the boosted active
+				# methods (same lift); otherwise its usual small edge
+				if _cCue_ = "imperative"
+					_aBonus_ + 0.30
+				else
+					_aBonus_ + 0.05
+				ok
 				_aHeads_ + ""
 			else
 				# form preference + tiny shorter-name nudge (see stzSelfDoc.AskFor)

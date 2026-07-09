@@ -184,6 +184,19 @@ Scenario("Intents become executable natural plans")
 		bRaised, TRUE)
 EndScenario()
 
+Scenario("Form-slotted aka: predicate words ask, imperative words act")
+	Given("aka folded into each record's OWN form slot; ties broken by the imperative default")
+	Then("'shouting' (predicate-specific aka) -> the QUERY op",
+		StzResolveSemantic("shouting"), "METHOD_ISUPPERCASE")
+	Then("'capitals' (voice-neutral, shared) -> the ACTION op wins the tie",
+		StzResolveSemantic("capitals"), "METHOD_UPPERCASE")
+
+	ofs1 = Naturally("Create a string with 'SOFTANZA' Is it shouting ?")
+	Then("'Is it shouting ?' ANSWERS on uppercase content", ofs1.Result(), 1)
+	ofs2 = Naturally("Create a string with 'softanza' Is it shouting ?")
+	Then("...and on lowercase content", ofs2.Result(), 0)
+EndScenario()
+
 Scenario("Multiple live objects: name them, switch between them")
 	om1 = Naturally("Create a string with 'ring' called first Create a string with 'zig' called second Use first Uppercase it")
 	Then("two objects coexist; 'Use first' switches back before acting",

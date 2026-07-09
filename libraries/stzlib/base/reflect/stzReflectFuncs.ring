@@ -78,16 +78,25 @@ func _StzMethodText(paMethod)
 # passive form "Reversed"). One place, so lexical scoring, the embedding index,
 # and stzLibDoc all agree.
 func _StzMethodRetrievalText(paMethod)
-	# CURATED zone: name + intent + aka + form-base variants (high signal).
+	# CURATED zone: name + intent + OWN aka + form-base variants (high signal).
 	_c_ = _StzMethodText(paMethod)
 	_cFv_ = _StzFormBaseVariants(paMethod[1])
 	if _cFv_ != "" _c_ += " " + _cFv_ ok
-	# EXAMPLE-TITLE zone after a "|||" sentinel (the alnum tokenizer ignores it):
-	# lexical IDF scoring weights this zone DOWN, so a rare word buried in a
-	# method's test-title soup can't hijack the ranking (the IDF lesson). The
-	# embedding/reranker paths just see the full text; the sentinel is inert.
+	# DOWN-WEIGHTED zone after the "|||" sentinel (the alnum tokenizer ignores
+	# it): INHERITED voice-sibling aka (field 5 -- the form-slotted store) and
+	# the example-title soup. Lexical IDF scores this zone at a fraction, so a
+	# sibling's operation words still FIND the method without outranking the
+	# own-tagged sibling, and a rare test-title word can't hijack the ranking.
+	_cInh_ = ""
+	if len(paMethod) >= 5 and paMethod[5] != ""
+		_cInh_ = paMethod[5]
+	ok
 	_cEg_ = _StzExampleTitlesFor(lower(paMethod[1]))
-	if _cEg_ != "" _c_ += " ||| " + _cEg_ ok
+	# three zones, weighted 1.0 / 0.6 / 0.3 by the scorer: OWN text |||
+	# INHERITED sibling aka ||| example-title soup
+	if _cInh_ != "" or _cEg_ != ""
+		_c_ += " ||| " + _cInh_ + " ||| " + _cEg_
+	ok
 	return _c_
 
   #==========================================================#
@@ -278,6 +287,10 @@ func _StzArgTemplate(pcOwner, pcMethod)
 # letter c/n/a form) -- i.e. a generic holder like pNamed/pWhere that often takes
 # named arguments.
 func _StzIsGenericParam(pcParam)
+	# see through the _x_ global-capture guard
+	if len(pcParam) > 2 and left(pcParam, 1) = "_" and right(pcParam, 1) = "_"
+		pcParam = substr(pcParam, 2, len(pcParam) - 2)
+	ok
 	if left(pcParam, 2) = "pc" or left(pcParam, 2) = "pn" return FALSE ok
 	if left(pcParam, 2) = "pa" or left(pcParam, 2) = "pb" return FALSE ok
 	if _StzSingleLetterType(pcParam) != "" return FALSE ok
@@ -320,6 +333,13 @@ func _StzDocKeywords(pcDoc)
 # like pNamed, is a generic param, NOT one of these); (2) the CheckParam block's
 # is<Type>(param) validation; (3) a name substring hint. Else "..." (honestly unknown).
 func _StzArgFor(pcParam, pcBody)
+	# see through the _x_ global-capture guard: `_n1_` carries the same
+	# naming conventions as `n1` (the body is searched with the REAL,
+	# guarded name -- CheckParam lines use it verbatim)
+	_cReal_ = pcParam
+	if len(pcParam) > 2 and left(pcParam, 1) = "_" and right(pcParam, 1) = "_"
+		pcParam = substr(pcParam, 2, len(pcParam) - 2)
+	ok
 	# 1. Hungarian type PREFIX (lowercase pc/pn/pa/pb).
 	if left(pcParam, 2) = "pc" return '"..."' ok
 	if left(pcParam, 2) = "pn" return "0" ok
@@ -331,12 +351,14 @@ func _StzArgFor(pcParam, pcBody)
 	_cSl_ = _StzSingleLetterType(pcParam)
 	if _cSl_ != "" return _cSl_ ok
 	_p_ = lower(pcParam)
+	_pReal_ = lower(_cReal_)
 	# 3. CheckParam block -- for a GENERIC param (pNamed, pWhere) with no convention.
 	#    Closing paren required: isNumber(p) matches, indexed isString(p[1]) does not.
+	#    The body uses the param's REAL (possibly _x_-guarded) spelling.
 	if isString(pcBody) and pcBody != ""
-		if substr(pcBody, "isnumber(" + _p_ + ")") > 0 return "0" ok
-		if substr(pcBody, "isstring(" + _p_ + ")") > 0 return '"..."' ok
-		if substr(pcBody, "islist(" + _p_ + ")") > 0 return "[...]" ok
+		if substr(pcBody, "isnumber(" + _pReal_ + ")") > 0 return "0" ok
+		if substr(pcBody, "isstring(" + _pReal_ + ")") > 0 return '"..."' ok
+		if substr(pcBody, "islist(" + _pReal_ + ")") > 0 return "[...]" ok
 	ok
 	# 4. name substring hint.
 	if substr(_p_, "number") > 0 return "0" ok
@@ -603,7 +625,16 @@ func _StzFillSiblingAka(paMethods)
 			for _s_ = 1 to 4
 				_p_ = ring_find(_aNames_, _aSibs_[_s_])
 				if _p_ > 0 and _p_ != _i_ and len(paMethods[_p_]) >= 3 and trim(paMethods[_p_][3]) = ""
-					paMethods[_p_][3] = _ak_
+					# FORM-SLOTTED: inherited aka goes to field 5, a
+					# DOWN-WEIGHTED retrieval zone -- the OWN-tagged
+					# sibling keeps full weight on the shared operation
+					# words, so voice ranking needs no cue to break ties
+					while len(paMethods[_p_]) < 5
+						paMethods[_p_] + ""
+					end
+					if paMethods[_p_][5] = ""
+						paMethods[_p_][5] = _ak_
+					ok
 				ok
 			next
 		next
@@ -682,7 +713,14 @@ func _StzQueryFormCue(pcQuery)
 	   substr(_q_, "continue") > 0 or substr(_q_, "keep working") > 0
 		return "chain"
 	ok
-	# Bare imperative -> the ACTIVE form.
+	# VERB-INITIAL phrasing is a real IMPERATIVE ("remove surrounding
+	# spaces") -- the DO-it preference must then outweigh the form-slotted
+	# zone gap when the aka tag lives on the passive twin. A bare noun
+	# phrase ("capitals") stays a neutral docs lookup.
+	_aTk_ = _StzAlnumTokens(_q_)
+	if len(_aTk_) > 0 and _StzVerbLookup(_aTk_[1]) != ""
+		return "imperative"
+	ok
 	return "active"
 
 # A small ranking prior favouring the FORM the phrasing calls for. Softanza's
@@ -696,6 +734,12 @@ func _StzFormPreferenceBonus(pcName, pcCue)
 		return 0
 	but pcCue = "chain"
 		if _f_ = "fluent" return 0.06 ok
+		return 0
+	but pcCue = "imperative"
+		# a verb-initial query DOES something: the active form must beat
+		# its own-tagged passive twin across the 0.4x zone gap of the
+		# form-slotted aka store
+		if _f_ = "active" return 0.25 ok
 		return 0
 	else
 		# default (bare imperative): prefer the ACTIVE form. Do NOT boost fluent --
@@ -762,24 +806,26 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 	# is untouched and risk is low): "readable"->read, "reversed"->reverse.
 	_aQV_ = []
 	for _j_ = 1 to _nq_ _aQV_ + _StzStemVariants(_aQ_[_j_]) next
-	# split each doc into its CURATED zone and its (down-weighted) TITLE zone at the
-	# "|||" sentinel; tokenize each once (reused for df + scoring). df is counted over
-	# the CURATED zone only, so IDF rarity reflects the high-signal text.
+	# split each doc into up to THREE zones at "|||" sentinels: OWN text
+	# (full weight), INHERITED sibling aka (0.6 -- the form-slotted store:
+	# strong enough that the active verb still finds its passive twin,
+	# weak enough that the OWN-tagged sibling outranks it), and example-
+	# TITLE soup (0.3). df is counted over the OWN zone only, so IDF
+	# rarity reflects the high-signal text.
 	_aCur_ = []
+	_aInh_ = []
 	_aTit_ = []
 	_aDf_ = []
 	for _j_ = 1 to _nq_ _aDf_ + 0 next
 	for _i_ = 1 to _nT_
-		_full_ = paTexts[_i_]
-		_p_ = substr(_full_, "|||")
-		if _p_ > 0
-			_ct_ = _StzAlnumTokens(lower(left(_full_, _p_ - 1)))
-			_tt_ = _StzAlnumTokens(lower(substr(_full_, _p_ + 3, len(_full_) - _p_ - 2)))
-		else
-			_ct_ = _StzAlnumTokens(lower(_full_))
-			_tt_ = []
-		ok
+		_aParts_ = _StzSplitOnChar(StzReplace(paTexts[_i_], "|||", char(1)), char(1))
+		_ct_ = _StzAlnumTokens(lower(_aParts_[1]))
+		_it_ = []
+		_tt_ = []
+		if len(_aParts_) >= 2 _it_ = _StzAlnumTokens(lower(_aParts_[2])) ok
+		if len(_aParts_) >= 3 _tt_ = _StzAlnumTokens(lower(_aParts_[3])) ok
 		_aCur_ + _ct_
+		_aInh_ + _it_
 		_aTit_ + _tt_
 		for _j_ = 1 to _nq_
 			if _StzAnyIn(_aQV_[_j_], _ct_) _aDf_[_j_]++ ok
@@ -796,14 +842,18 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		_aW_ + _w_
 		_wSum_ += _w_
 	next
-	# zone-weighted coverage: a CURATED match earns full IDF weight, a TITLE-only
-	# match earns 0.3x (recall without letting the title-soup hijack ranks).
+	# zone-weighted coverage: OWN match = full IDF weight, INHERITED
+	# sibling-aka match = 0.6x, TITLE-only match = 0.3x (recall without
+	# letting lower zones hijack ranks).
 	for _i_ = 1 to _nT_
 		_num_ = 0
 		_hits_ = 0
 		for _j_ = 1 to _nq_
 			if _StzAnyIn(_aQV_[_j_], _aCur_[_i_])
 				_num_ += _aW_[_j_]
+				_hits_++
+			but _StzAnyIn(_aQV_[_j_], _aInh_[_i_])
+				_num_ += 0.6 * _aW_[_j_]
 				_hits_++
 			but _StzAnyIn(_aQV_[_j_], _aTit_[_i_])
 				_num_ += 0.3 * _aW_[_j_]
@@ -812,7 +862,7 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		next
 		_sc_ = 0
 		if _wSum_ > 0 _sc_ = _num_ / _wSum_ ok
-		_dl_ = len(_aCur_[_i_]) + len(_aTit_[_i_])
+		_dl_ = len(_aCur_[_i_]) + len(_aInh_[_i_]) + len(_aTit_[_i_])
 		if _dl_ > 0 _sc_ += 0.001 * (_hits_ / _dl_) ok
 		_aOut_ + [ _i_, _sc_ ]
 	next

@@ -48,7 +48,7 @@ func _StzSemHarvest()
 		_nH_ = len(_aH_)
 		for _j_ = 1 to _nH_
 			_aRec_ = _aH_[_j_]
-			while len(_aRec_) < 4
+			while len(_aRec_) < 5
 				_aRec_ + ""
 			end
 			_aRec_ + _aCls_[_i_]
@@ -135,7 +135,7 @@ func StzGrowSemanticOperations()
 		_aClsMeths_ = []
 		_nLv_ = len(_aLive_)
 		for _v_ = 1 to _nLv_
-			if _aLive_[_v_][1] = lower(_aRec_[5])
+			if _aLive_[_v_][1] = lower(_aRec_[6])
 				_aClsMeths_ = _aLive_[_v_][2]
 				exit
 			ok
@@ -153,8 +153,8 @@ func StzGrowSemanticOperations()
 			# modify-write -- Ring copies lists on plain assignment.
 			if HasKey($aSemanticOperations[_nAt_], :grown)
 				_aTo_ = $aSemanticOperations[_nAt_][:applies_to]
-				if ring_find(_aTo_, _aRec_[5]) = 0
-					_aTo_ + _aRec_[5]
+				if ring_find(_aTo_, _aRec_[6]) = 0
+					_aTo_ + _aRec_[6]
 					$aSemanticOperations[_nAt_][:applies_to] = _aTo_
 				ok
 			ok
@@ -163,7 +163,7 @@ func StzGrowSemanticOperations()
 
 		_cOwner_ = _aRec_[4]
 		if _cOwner_ = ""
-			_cOwner_ = _aRec_[5]
+			_cOwner_ = _aRec_[6]
 		ok
 		_aMap_ = _StzSemArityMapFor(_aArity_, _cOwner_)
 		_nAr_ = _StzSemArityLookup(_aMap_, lower(_cName_))
@@ -184,7 +184,7 @@ func StzGrowSemanticOperations()
 		_aOp_ + [ "semantic_id", _cId_ ]
 		_aOp_ + [ "stz_method", _cName_ ]
 		_aOp_ + [ "stz_signature", _cSig_ ]
-		_aOp_ + [ "applies_to", [ _aRec_[5] ] ]
+		_aOp_ + [ "applies_to", [ _aRec_[6] ] ]
 		if _nAr_ > 0
 			_aOp_ + [ "requires_params", _nAr_ ]
 		ok
@@ -349,6 +349,20 @@ func StzSemanticLexicon()
 		if len(_aRec_) < 3 or _aRec_[3] = ""
 			loop
 		ok
+		# FORM-SLOTTED folding: a PREDICATE'S aka is predicate-specific
+		# ("is it shouting" asks, it does not mutate) -- fold it into the
+		# record's OWN query operation when grown. Voice-neutral words on
+		# actives/passives keep feeding the family's ACTION (a bare
+		# imperative "Capitals it" should mutate, per the imperative
+		# default of natural narration).
+		_aFm_ = _StzFormOf(_aRec_[1])
+		if _aFm_[1] = "predicate" or _aFm_[1] = "negative"
+			_cOwnId_ = "METHOD_" + upper(_aRec_[1])
+			if _StzSemOpKnown(_cOwnId_)
+				_StzSemBagAdd(_aBags_, _cOwnId_, _aRec_[3])
+				loop
+			ok
+		ok
 		_aCands_ = _StzSemBaseCands(_aRec_[1])
 		_nC_ = len(_aCands_)
 		for _k_ = 1 to _nC_
@@ -412,7 +426,7 @@ func _StzSemLoadCache(nSig)
 		return FALSE
 	ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG2 "
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG3 "
 		return FALSE
 	ok
 	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig
@@ -456,7 +470,7 @@ func _StzSemSaveCache(nSig)
 	if _cPath_ = ""
 		return
 	ok
-	_c_ = "SIG2 " + nSig + nl
+	_c_ = "SIG3 " + nSig + nl
 	_nOps_ = len($aSemanticOperations)
 	for _i_ = 1 to _nOps_
 		_aOp_ = $aSemanticOperations[_i_]
@@ -563,8 +577,35 @@ func StzResolveSemantic(pcWord)
 	next
 
 	_cResolved_ = ""
-	if _nBest_ > 0 and _nBest_ > _nSecond_   # strict unique winner only
+	if _nBest_ > 0 and (_nBest_ - _nSecond_) > 0.002
+		# clear unique winner (the 0.002 margin absorbs the scorer's
+		# tiny shorter-document bonus, which must never decide meaning)
 		_cResolved_ = _aLex_[_nBestIdx_][1]
+	but _nBest_ > 0
+		# FORM-SLOT tie-break: voice-neutral operation words now live in
+		# BOTH the action's bag and its predicate/passive twin's. On a
+		# (near-)tie, the IMPERATIVE DEFAULT of narration decides: if
+		# exactly ONE of the tied bags is an ACTION, take it
+		# ("capitals" mutates; predicate-specific "shouting" stays
+		# unique and never reaches this branch).
+		_aTied_ = []
+		for _i_ = 1 to _nS_
+			if _aScores_[_i_][2] >= (_nBest_ - 0.002)
+				_aTied_ + _aLex_[_aScores_[_i_][1]][1]
+			ok
+		next
+		_cAct_ = ""
+		_nActs_ = 0
+		_nT_ = len(_aTied_)
+		for _i_ = 1 to _nT_
+			if _StzSemKindOf(_aTied_[_i_]) = "action"
+				_nActs_++
+				_cAct_ = _aTied_[_i_]
+			ok
+		next
+		if _nActs_ = 1
+			_cResolved_ = _cAct_
+		ok
 	ok
 
 	# -- Neural rescue: only when lexical found nothing and a model is loaded.
@@ -1450,6 +1491,21 @@ func _StzSemIdEligible(pcId)
 		return TRUE
 	ok
 	return FALSE
+
+# The KIND of an operation ("action" mutates / "query" returns); hand-
+# authored ops without :kind default to action.
+
+func _StzSemKindOf(pcId)
+	_n_ = len($aSemanticOperations)
+	for _i_ = 1 to _n_
+		if $aSemanticOperations[_i_][:semantic_id] = pcId
+			if HasKey($aSemanticOperations[_i_], :kind)
+				return $aSemanticOperations[_i_][:kind]
+			ok
+			return "action"
+		ok
+	next
+	return ""
 
 func _StzSemOpKnown(pcId)
 	# fast path: the flat id list maintained by StzGrowSemanticOperations()
