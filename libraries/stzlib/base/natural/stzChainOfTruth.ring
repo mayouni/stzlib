@@ -1,5 +1,22 @@
 
 /*
+	LEGACY SURFACE -- FROZEN (NATURAL_VISION step 4 decision, 2026-07-10).
+
+	The chain-of-truth IDEA lives on as INTERROGATIVE NARRATIONS in the
+	stzNatural engine: a narration that asks several questions records
+	every answer --
+
+		Naturally("Create a string with 'ring' " +
+		          "Is it lowercase ? Does it contain 'g' ?").AllYes()
+		#--> 1  (see also Answers() / AnyYes())
+
+	which is this class's semantics rebuilt on the ONE semantic lexicon
+	(no per-step eval of user strings). This file stays for backward
+	compatibility of the _()... surface and its test corpus; do not grow
+	it -- add new predicate vocabulary to the lexicon instead.
+
+	--- original narrative ---
+
 	A chain of the truth is a Ring expression you can use any where in
 	your code to simplify the 1/FALSE expressions.
 

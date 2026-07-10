@@ -263,8 +263,17 @@ verifies after. Strictly better ergonomics for the same guarantee.
    EXPLICIT by design so arbitrary text never pollutes silently), and the
    legacy _@ hook. Suite: entity_world_narrated 17/17. Remaining thread:
    surfacing WhatIs through Ask()'s retrieval pipeline.
-4. **ChainOfTruth decision** -- absorb into interrogative narrations, or
-   rebuild resolver-backed; either way refresh its tests.
+4. **ChainOfTruth decision** [DONE 2026-07-10 -- ABSORBED, option (b)] --
+   a chain of truth is now a narration that asks several questions: every
+   QUERY records its answer (Answers(), in order), folded by AllYes() /
+   AnyYes(); Result() keeps its last-thing-produced contract. Enablers:
+   predicate VERBS (Contains/Equals/StartsWith/EndsWith/Exists) classified
+   as queries whatever their surface form says (cache SIG4->SIG5), does/do
+   ignored, and -- the deep fix -- the exact pass on en number variants now
+   runs BEFORE IDF scoring, because "contain" existed only in
+   DoesNotContain's bag and scoring INVERTED the meaning. The legacy _()
+   surface is frozen in place (header points here); its test corpus stays
+   green. Suite: interrogative_narrated 11/11.
 5. **Markup seeds (optional)** -- literate blocks + natural templates as
    small stzNatural features.
 

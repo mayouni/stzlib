@@ -133,6 +133,20 @@ func StzGrowSemanticOperations()
 		if _cKind_ = ""
 			loop
 		ok
+		# PREDICATE-VERB override: some names are 3rd-person predicate
+		# verbs whose FORM reads active but whose MEANING asks a question
+		# and returns the answer without mutating ("Contains", "Equals",
+		# "StartsWith"). They must be QUERIES so interrogative narrations
+		# ("Does it contain 'g' ?") land their answer in @result.
+		_acPredStems_ = [ "contains", "equals", "exists", "startswith", "endswith" ]
+		_nPs_ = len(_acPredStems_)
+		for _v_ = 1 to _nPs_
+			_nSl_ = len(_acPredStems_[_v_])
+			if len(_cName_) >= _nSl_ and lower(left(_cName_, _nSl_)) = _acPredStems_[_v_]
+				_cKind_ = "query"
+				exit
+			ok
+		next
 		# must be callable on a live instance of the harvested class
 		_aClsMeths_ = []
 		_nLv_ = len(_aLive_)
@@ -1028,7 +1042,7 @@ func _StzSemLoadCache(nSig)
 		return FALSE
 	ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG4 "
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG5 "
 		return FALSE
 	ok
 	if number(StzMidToEnd(_cSig_, 6)) != nSig
@@ -1072,7 +1086,7 @@ func _StzSemSaveCache(nSig)
 	if _cPath_ = ""
 		return
 	ok
-	_c_ = "SIG4 " + nSig + nl
+	_c_ = "SIG5 " + nSig + nl
 	_nOps_ = len($aSemanticOperations)
 	for _i_ = 1 to _nOps_
 		_aOp_ = $aSemanticOperations[_i_]
@@ -1315,6 +1329,22 @@ func StzResolveSemantic(pcWord)
 			$aStzSemResolveMemo + [ _w_, _cId_ ]
 			return _cId_
 		ok
+	next
+
+	# -- Exact pass on en number variants: "contain" -> "contains" is
+	# DETERMINISTIC and must run BEFORE any scoring -- "contain" appears as
+	# a bag token of DoesNotContain, so letting IDF see it first would
+	# INVERT the meaning. (Variants are verified: only an exact hit counts.)
+	_aVarE_ = _StzSemEnNumberVariants(_w_)
+	_nVE_ = len(_aVarE_)
+	for _iVE_ = 1 to _nVE_
+		for _i_ = 1 to _nEx_
+			if $aStzSemExactNames[_i_][1] = _aVarE_[_iVE_]
+				_cId_ = $aStzSemExactNames[_i_][2]
+				$aStzSemResolveMemo + [ _w_, _cId_ ]
+				return _cId_
+			ok
+		next
 	next
 
 	_aTexts_ = []
