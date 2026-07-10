@@ -274,8 +274,20 @@ verifies after. Strictly better ergonomics for the same guarantee.
    DoesNotContain's bag and scoring INVERTED the meaning. The legacy _()
    surface is frozen in place (header points here); its test corpus stays
    green. Suite: interrogative_narrated 11/11.
-5. **Markup seeds (optional)** -- literate blocks + natural templates as
-   small stzNatural features.
+5. **Markup seeds** [DONE 2026-07-10] -- both seeds graduated as thin
+   doors into the real engine (no markup interpreter exists):
+   StzNaturalBlocks(doc) extracts the #< ... #> fences and
+   NaturallyFromDoc/In runs each as its own program (executable
+   documentation -- one engine per block, each with Result/Answers/
+   Understood); NaturallyWith/In(template, args) fills {#n} holes with
+   literals (strings double-quoted so apostrophes survive, lists in
+   @@-form) and REFUSES loudly on unfilled holes. Suite:
+   literate_templates_narrated 10/10.
+
+THE SEQUENCING IS COMPLETE (steps 1-5, all landed 2026-07-10). Open
+threads beyond it: surfacing WhatIs through Ask()'s retrieval pipeline,
+and the deferred Floor-2 rebuild of the chain surface as resolver-backed
+sugar if ever wanted.
 
 ---
 
