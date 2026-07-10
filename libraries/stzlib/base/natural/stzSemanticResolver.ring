@@ -266,6 +266,55 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 	paMemo + [ _cKey_, _aMap_ ]
 	return _aMap_
 
+#--- LINEARIZATION (the GF lesson, lightweight) -----------------------------
+# One abstract syntax, many surfaces: the canonical way to SAY a semantic id
+# in a given language -- its first dictionary word, else the first written
+# :phrases variant, else the English reading. Powers the multilingual
+# Understood() paraphrase.
+
+func StzLinearizeId(pcLang, pcSemId)
+	_cLang_ = StzLower(pcLang)
+	if _cLang_ != "en"
+		_aW_ = StzMappingWordsOf(_cLang_, pcSemId, 1)
+		if len(_aW_) > 0
+			return _aW_[1]
+		ok
+		_n_ = len($aLanguageDefinitions)
+		for _i_ = 1 to _n_
+			_aDef_ = $aLanguageDefinitions[_i_]
+			if StzLower(_aDef_[:code]) != _cLang_ or NOT HasKey(_aDef_, :phrases)
+				loop
+			ok
+			_aPh_ = _aDef_[:phrases]
+			_nP_ = len(_aPh_)
+			for _j_ = 1 to _nP_
+				if _aPh_[_j_][:semantic] = pcSemId
+					_aV_ = _StzSplitOnChar(_aPh_[_j_][:words], ",")
+					if len(_aV_) > 0
+						return trim(_aV_[1])
+					ok
+				ok
+			next
+			exit
+		next
+	ok
+	# English / fallback reading
+	_aW_ = StzMappingWordsOf("en", pcSemId, 1)
+	if len(_aW_) > 0
+		return _aW_[1]
+	ok
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		if $aSemanticOperations[_i_][:semantic_id] = pcSemId and
+		   HasKey($aSemanticOperations[_i_], :stz_method)
+			return lower(_StzSplitCamel($aSemanticOperations[_i_][:stz_method]))
+		ok
+	next
+	return StzLower(pcSemId)
+
+	func @StzLinearizeId(pcLang, pcSemId)
+		return StzLinearizeId(pcLang, pcSemId)
+
 #--- PACK TEMPLATE EXPORTER + COVERAGE (the Citrine lesson) -----------------
 # A translator should produce a new language pack by FILLING A DATA FILE,
 # never by reading internals. The exporter emits a valid, ready-to-fill

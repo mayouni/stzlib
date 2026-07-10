@@ -206,6 +206,31 @@ Scenario("Role-based grammar: Turkish SOV executes (the word-order unlock)")
 	Then("SOV phrase reversal", @@( ot3.Result() ), @@([ 3, 2, 1 ]))
 EndScenario()
 
+Scenario("Understood() paraphrases back in the program's OWN language")
+	Given("StzLinearizeId: pack word -> phrase variant -> English fallback")
+
+	# French SVO: creation verb + object word + value indicator
+	ofu = NaturallyIn("fr", "Crée une liste avec [ 5, 3, 5, 1 ] et enlève les doublons")
+	Then("French paraphrase composed from the pack's own words",
+		ofu.Understood(), "crée liste avec [ 5, 3, 5, 1 ] -> enlève les doublons")
+
+	# Arabic: creation with the correct preposition word from the pack
+	oau = NaturallyIn("ar", "أنشئ قائمة بـ [ 5, 3, 5 ] ثم أزل تكراراتها")
+	Then("Arabic paraphrase in Arabic words",
+		oau.Understood(), "أنشئ قائمة بـ [ 5, 3, 5 ] -> أزل التكرارات")
+
+	# Turkish SOV: the paraphrase honors verb-final creation order
+	otu = NaturallyIn("tr", "[ 3, 1, 3 ] ile bir liste oluştur ve tekrarları kaldır")
+	Then("Turkish paraphrase keeps the SOV creation order",
+		otu.Understood(), "[ 3, 1, 3 ] ile liste oluştur -> tekrarları kaldır")
+
+	# English templates untouched (the exact-string regression lives in
+	# semantic_resolver_narrated.ring; spot-guard the shape here too)
+	oeu = Naturally("Create a list with [ 3, 1, 3 ] and Remove its duplicates")
+	Then("English keeps its polished template",
+		oeu.Understood(), "create a list with [ 3, 1, 3 ] -> remove duplicates")
+EndScenario()
+
 Scenario("Existing languages unaffected (regression)")
 	oe = Naturally("Create a list with [ 3, 1, 3 ] and Remove its duplicates")
 	Then("English", @@( oe.Result() ), @@([ 3, 1 ]))

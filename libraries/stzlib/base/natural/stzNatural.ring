@@ -1712,6 +1712,7 @@ class stzNaturalEngine from stzObject
 	# reading before trusting the result.
 
 	def Understood()
+		_bEn_ = ( @cLangCode = "en" )
 		_aSteps_ = []
 		_nLen_ = len(@aSemanticTokens)
 		_i_ = 1
@@ -1724,50 +1725,116 @@ class stzNaturalEngine from stzObject
 			_cSem_ = _aTok_[:value]
 			if _cSem_ = "CREATE_OBJECT"
 				_cT_ = ""
+				_cTid_ = ""
 				_cV_ = ""
-				for _j_ = _i_ + 1 to _nLen_
-					_aT2_ = @aSemanticTokens[_j_]
-					if _aT2_[:type] = "semantic" and StzLeft(_aT2_[:value], 7) = "OBJECT_"
-						_cT_ = lower(StzRight(_aT2_[:value], len(_aT2_[:value]) - 7))
-					but _aT2_[:type] = "literal" and _cV_ = ""
-						if isString(_aT2_[:value])
-							_cV_ = _aT2_[:value]
-						else
-							_cV_ = @@(_aT2_[:value])
+				if @bObjectBeforeCreate = 1
+					# SOV: the object word and value came BEFORE the verb
+					for _j_ = _i_ - 1 to 1 step -1
+						_aT2_ = @aSemanticTokens[_j_]
+						if _cTid_ = "" and _aT2_[:type] = "semantic" and
+						   StzLeft(_aT2_[:value], 7) = "OBJECT_"
+							_cTid_ = _aT2_[:value]
+						but _cV_ = "" and _aT2_[:type] = "literal"
+							if isString(_aT2_[:value])
+								_cV_ = _aT2_[:value]
+							else
+								_cV_ = @@(_aT2_[:value])
+							ok
 						ok
-						exit
+					next
+				else
+					for _j_ = _i_ + 1 to _nLen_
+						_aT2_ = @aSemanticTokens[_j_]
+						if _aT2_[:type] = "semantic" and StzLeft(_aT2_[:value], 7) = "OBJECT_"
+							_cTid_ = _aT2_[:value]
+						but _aT2_[:type] = "literal" and _cV_ = ""
+							if isString(_aT2_[:value])
+								_cV_ = _aT2_[:value]
+							else
+								_cV_ = @@(_aT2_[:value])
+							ok
+							exit
+						ok
+					next
+				ok
+				if _bEn_
+					if _cTid_ != ""
+						_cT_ = lower(StzRight(_cTid_, len(_cTid_) - 7))
 					ok
-				next
-				_cStep_ = "create a " + _cT_
-				if _cV_ != ""
-					_cStep_ += " with " + _cV_
+					_cStep_ = "create a " + _cT_
+					if _cV_ != ""
+						_cStep_ += " with " + _cV_
+					ok
+				else
+					# linearize with the pack's OWN words, in the pack's
+					# OWN word order (SOV packs put the value first)
+					_cCr_ = StzLinearizeId(@cLangCode, "CREATE_OBJECT")
+					_cOb_ = ""
+					if _cTid_ != ""
+						_cOb_ = StzLinearizeId(@cLangCode, _cTid_)
+					ok
+					_cWi_ = StzLinearizeId(@cLangCode, "VALUE_INDICATOR")
+					if @bObjectBeforeCreate = 1
+						_cStep_ = _cV_ + " " + _cWi_ + " " + _cOb_ + " " + _cCr_
+					else
+						_cStep_ = _cCr_ + " " + _cOb_
+						if _cV_ != ""
+							_cStep_ += " " + _cWi_ + " " + _cV_
+						ok
+					ok
 				ok
 				_aSteps_ + _cStep_
 			but StzLeft(_cSem_, 7) = "METHOD_"
 				_aOp2_ = This.GetSemanticOperation(_cSem_)
 				if len(_aOp2_) > 0 and HasKey(_aOp2_, :stz_method)
-					_cVerb_ = lower(_StzSplitCamel(_aOp2_[:stz_method]))
-					if HasKey(_aOp2_, :kind) and _aOp2_[:kind] = "query"
-						_aSteps_ + ("ask: " + _cVerb_)
+					_bQ2_ = ( HasKey(_aOp2_, :kind) and _aOp2_[:kind] = "query" )
+					if _bEn_
+						_cVerb_ = lower(_StzSplitCamel(_aOp2_[:stz_method]))
+						if _bQ2_
+							_aSteps_ + ("ask: " + _cVerb_)
+						else
+							_aSteps_ + _cVerb_
+						ok
 					else
-						_aSteps_ + _cVerb_
+						_cVerb_ = StzLinearizeId(@cLangCode, _cSem_)
+						if _bQ2_
+							_aSteps_ + (_cVerb_ + " ?")
+						else
+							_aSteps_ + _cVerb_
+						ok
 					ok
 				ok
 			but _cSem_ = "OUTPUT_DISPLAY"
-				_aSteps_ + "show it"
+				if _bEn_
+					_aSteps_ + "show it"
+				else
+					_aSteps_ + StzLinearizeId(@cLangCode, "OUTPUT_DISPLAY")
+				ok
 			but _cSem_ = "NAME_INDICATOR"
 				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
-					_aSteps_ + ("call it " + @aSemanticTokens[_i_+1][:value])
+					if _bEn_
+						_aSteps_ + ("call it " + @aSemanticTokens[_i_+1][:value])
+					else
+						_aSteps_ + (StzLinearizeId(@cLangCode, "NAME_INDICATOR") + " " + @aSemanticTokens[_i_+1][:value])
+					ok
 					_i_++
 				ok
 			but _cSem_ = "SWITCH_OBJECT"
 				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
-					_aSteps_ + ("switch to " + @aSemanticTokens[_i_+1][:value])
+					if _bEn_
+						_aSteps_ + ("switch to " + @aSemanticTokens[_i_+1][:value])
+					else
+						_aSteps_ + (StzLinearizeId(@cLangCode, "SWITCH_OBJECT") + " " + @aSemanticTokens[_i_+1][:value])
+					ok
 					_i_++
 				ok
 			but _cSem_ = "KEEP_INDICATOR"
 				if _i_ < _nLen_ and @aSemanticTokens[_i_+1][:type] = "literal"
-					_aSteps_ + ("keep it as " + @aSemanticTokens[_i_+1][:value])
+					if _bEn_
+						_aSteps_ + ("keep it as " + @aSemanticTokens[_i_+1][:value])
+					else
+						_aSteps_ + (StzLinearizeId(@cLangCode, "KEEP_INDICATOR") + " " + @aSemanticTokens[_i_+1][:value])
+					ok
 					_i_++
 				ok
 			ok
@@ -1782,11 +1849,6 @@ class stzNaturalEngine from stzObject
 			ok
 		next
 		return _cOut_
-
-	# PREDICTIVE SUGGESTIONS (the Ginseng/PENG lesson): what can be said
-	# NEXT, from the same token-state machine that executes. Two modes:
-	# at a word boundary -> next-category words; mid-word -> prefix
-	# completion over the language's vocabulary.
 
 	def SuggestNext(_cPartial_)
 		if NOT isString(_cPartial_)
