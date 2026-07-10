@@ -300,6 +300,21 @@ func NaturallyStrictIn(cLang, _cCode_, pacAllowedOps)
 func NaturallyStrict(_cCode_)
 	return NaturallyStrictIn("en", _cCode_, [])
 
+# PREDICTIVE SUGGEST: what can be said next after a partial narration.
+
+func StzNaturalSuggestIn(cLang, _cPartial_)
+	oEngine = new stzNaturalEngine(cLang, "", [], "")
+	return oEngine.SuggestNext(_cPartial_)
+
+	func @StzNaturalSuggestIn(cLang, _cPartial_)
+		return StzNaturalSuggestIn(cLang, _cPartial_)
+
+func StzNaturalSuggest(_cPartial_)
+	return StzNaturalSuggestIn("en", _cPartial_)
+
+	func @StzNaturalSuggest(_cPartial_)
+		return StzNaturalSuggest(_cPartial_)
+
 	func @NaturallyStrict(_cCode_)
 		return NaturallyStrict(_cCode_)
 
@@ -1767,6 +1782,165 @@ class stzNaturalEngine from stzObject
 			ok
 		next
 		return _cOut_
+
+	# PREDICTIVE SUGGESTIONS (the Ginseng/PENG lesson): what can be said
+	# NEXT, from the same token-state machine that executes. Two modes:
+	# at a word boundary -> next-category words; mid-word -> prefix
+	# completion over the language's vocabulary.
+
+	def SuggestNext(_cPartial_)
+		if NOT isString(_cPartial_)
+			return []
+		ok
+		# mid-word? extract the trailing prefix (never inside a quote
+		# or a value literal)
+		_cPrefix_ = ""
+		_cBase_ = _cPartial_
+		_n_ = len(_cPartial_)
+		if _n_ > 0 and ring_find([ " ", char(9), char(10), char(13) ], right(_cPartial_, 1)) = 0
+			_k_ = _n_
+			while _k_ > 0 and ring_find([ " ", char(9), char(10), char(13) ], _cPartial_[_k_]) = 0
+				_k_--
+			end
+			_cW_ = right(_cPartial_, _n_ - _k_)
+			if StzFindFirst(_cW_, "'") = 0 and StzFindFirst(_cW_, char(34)) = 0 and
+			   StzFindFirst(_cW_, "[") = 0
+				_cPrefix_ = StzLower(_cW_)
+				_cBase_ = left(_cPartial_, _k_)
+			ok
+		ok
+
+		This.Analyze(_cBase_)
+
+		# state = the last SEMANTIC token... but a LITERAL after it means
+		# the slot it opened is already FILLED (value given, name given):
+		# the narration is ready for its next action
+		_cState_ = ""
+		_nT_ = len(@aSemanticTokens)
+		_nLastSem_ = 0
+		for _i_ = _nT_ to 1 step -1
+			if @aSemanticTokens[_i_][:type] = "semantic"
+				_cState_ = @aSemanticTokens[_i_][:value]
+				_nLastSem_ = _i_
+				exit
+			ok
+		next
+		if _nLastSem_ > 0 and _nLastSem_ < _nT_
+			for _i_ = _nLastSem_ + 1 to _nT_
+				if @aSemanticTokens[_i_][:type] = "literal"
+					if StzLeft(_cState_, 7) = "OBJECT_" or
+					   _cState_ = "VALUE_INDICATOR" or
+					   _cState_ = "NAME_INDICATOR" or
+					   _cState_ = "KEEP_INDICATOR" or
+					   _cState_ = "SWITCH_OBJECT"
+						_cState_ = "READY"
+					ok
+					exit
+				ok
+			next
+		ok
+		_bHasObject_ = FALSE
+		for _i_ = 1 to _nT_
+			if @aSemanticTokens[_i_][:type] = "semantic" and
+			   @aSemanticTokens[_i_][:value] = "CREATE_OBJECT"
+				_bHasObject_ = TRUE
+				exit
+			ok
+		next
+
+		_aSug_ = []
+		if _cState_ = "" and NOT _bHasObject_
+			_aSug_ = StzMappingWordsOf(@cLangCode, "CREATE_OBJECT", 4)
+		but _cState_ = "CREATE_OBJECT"
+			_aSug_ = StzMappingWordsOf(@cLangCode, "OBJECT_STRING", 2)
+			_aT2_ = StzMappingWordsOf(@cLangCode, "OBJECT_LIST", 2)
+			_aT3_ = StzMappingWordsOf(@cLangCode, "OBJECT_NUMBER", 2)
+			_nX_ = len(_aT2_)
+			for _i_ = 1 to _nX_ _aSug_ + _aT2_[_i_] next
+			_nX_ = len(_aT3_)
+			for _i_ = 1 to _nX_ _aSug_ + _aT3_[_i_] next
+		but StzLeft(_cState_, 7) = "OBJECT_"
+			# the value indicator may be an ignored word (en 'with'), so
+			# offer the indicator AND the value shapes together
+			_aSug_ = StzMappingWordsOf(@cLangCode, "VALUE_INDICATOR", 2)
+			_aSug_ + "'a value'"
+			_aSug_ + "[ 1, 2, 3 ]"
+			_aSug_ + "42"
+		but _cState_ = "VALUE_INDICATOR"
+			_aSug_ = [ "'a value'", "[ 1, 2, 3 ]", "42" ]
+		but _cState_ = "NAME_INDICATOR" or _cState_ = "KEEP_INDICATOR"
+			_aSug_ = [ "<a name>" ]
+		but _cState_ = "SWITCH_OBJECT"
+			# names live in the TOKEN stream (Analyze does not run the
+			# codegen that fills the registry): every literal right
+			# after a NAME_INDICATOR is a named object
+			for _i_ = 1 to _nT_ - 1
+				if @aSemanticTokens[_i_][:type] = "semantic" and
+				   @aSemanticTokens[_i_][:value] = "NAME_INDICATOR" and
+				   @aSemanticTokens[_i_+1][:type] = "literal"
+					_aSug_ + StzLower(trim(@aSemanticTokens[_i_+1][:value]))
+				ok
+			next
+			if len(_aSug_) = 0
+				_aSug_ = [ "<a named object>" ]
+			ok
+		else
+			# an object lives (or a step just completed): action verbs,
+			# plus the closing moves. Phrases span words, so ALSO try the
+			# base's last word + the typed prefix ("remove d" beats "d")
+			_cPrefix2_ = ""
+			if _cPrefix_ != ""
+				_aBW_ = @split(trim(_cBase_), " ")
+				_nBW_ = len(_aBW_)
+				if _nBW_ > 0 and isalpha(_aBW_[_nBW_])
+					_cPrefix2_ = StzLower(_aBW_[_nBW_]) + " " + _cPrefix_
+				ok
+			ok
+			_aSug_ = []
+			if _cPrefix_ = ""
+				# no prefix: the CURATED dictionary verbs read best
+				# (grown names are for completion, not browsing)
+				_aSug_ = StzPackPhrases(@cLangCode, "", 9)
+			else
+				if _cPrefix2_ != ""
+					if @cLangCode = "en"
+						_aSug_ = StzSuggestVerbPhrases(_cPrefix2_, 9)
+					else
+						_aSug_ = StzPackPhrases(@cLangCode, _cPrefix2_, 9)
+					ok
+				ok
+				if len(_aSug_) = 0
+					if @cLangCode = "en"
+						_aSug_ = StzSuggestVerbPhrases(_cPrefix_, 9)
+					else
+						_aSug_ = StzPackPhrases(@cLangCode, _cPrefix_, 9)
+					ok
+				ok
+			ok
+			if _cPrefix_ = ""
+				_aTail_ = StzMappingWordsOf(@cLangCode, "OUTPUT_DISPLAY", 1)
+				_nX_ = len(_aTail_)
+				for _i_ = 1 to _nX_ _aSug_ + _aTail_[_i_] next
+				if @cLangCode = "en"
+					_aSug_ + "called <name>"
+					_aSug_ + "keep it as <name>"
+				ok
+			ok
+			return _aSug_
+		ok
+
+		# prefix filter for the category modes
+		if _cPrefix_ != ""
+			_aF_ = []
+			_nX_ = len(_aSug_)
+			for _i_ = 1 to _nX_
+				if left(StzLower(_aSug_[_i_]), len(_cPrefix_)) = _cPrefix_
+					_aF_ + _aSug_[_i_]
+				ok
+			next
+			return _aF_
+		ok
+		return _aSug_
 
 	# UNDERSTANDABILITY: the action-position words this run could not
 	# interpret, each with the nearest known word as a suggestion --

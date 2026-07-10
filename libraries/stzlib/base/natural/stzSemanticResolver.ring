@@ -266,6 +266,146 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 	paMemo + [ _cKey_, _aMap_ ]
 	return _aMap_
 
+#--- SUGGESTION VOCABULARY (powers the predictive suggest API) --------------
+# The Ginseng/PENG lesson: the strongest CNL UX device is showing what CAN
+# be said next. These pools feed prefix completion.
+
+# English: natural phrases for the operations -- the split-camel reading of
+# each method name ("RemoveDuplicates" -> "remove duplicates"), filtered by
+# an optional prefix, capped. Actions before queries, shortest first.
+
+func StzSuggestVerbPhrases(pcPrefix, pnMax)
+	StzSemanticLexicon()
+	_cP_ = StzLower(trim(pcPrefix))
+	_nP_ = len(_cP_)
+	_aAct_ = []
+	_aQry_ = []
+	_nOps_ = len($aSemanticOperations)
+	for _i_ = 1 to _nOps_
+		_aOp_ = $aSemanticOperations[_i_]
+		if NOT HasKey(_aOp_, :stz_method)
+			loop
+		ok
+		_cPh_ = lower(_StzSplitCamel(_aOp_[:stz_method]))
+		if _nP_ > 0 and left(_cPh_, _nP_) != _cP_
+			loop
+		ok
+		if HasKey(_aOp_, :kind) and _aOp_[:kind] = "query"
+			_aQry_ + _cPh_
+		else
+			_aAct_ + _cPh_
+		ok
+	next
+	_aAct_ = _StzSemShortestFirst(_aAct_)
+	_aQry_ = _StzSemShortestFirst(_aQry_)
+	_aOut_ = []
+	_n_ = len(_aAct_)
+	for _i_ = 1 to _n_
+		if len(_aOut_) >= pnMax exit ok
+		if ring_find(_aOut_, _aAct_[_i_]) = 0
+			_aOut_ + _aAct_[_i_]
+		ok
+	next
+	_n_ = len(_aQry_)
+	for _i_ = 1 to _n_
+		if len(_aOut_) >= pnMax exit ok
+		if ring_find(_aOut_, _aQry_[_i_]) = 0
+			_aOut_ + _aQry_[_i_]
+		ok
+	next
+	return _aOut_
+
+	func @StzSuggestVerbPhrases(pcPrefix, pnMax)
+		return StzSuggestVerbPhrases(pcPrefix, pnMax)
+
+# Pack languages: the pack's own written phrases (the :phrases entries) plus
+# its dictionary words, prefix-filtered.
+
+func StzPackPhrases(pcLang, pcPrefix, pnMax)
+	_cLang_ = StzLower(pcLang)
+	_cP_ = StzLower(trim(pcPrefix))
+	_nP_ = len(_cP_)
+	_aOut_ = []
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if StzLower(_aDef_[:code]) != _cLang_
+			loop
+		ok
+		if HasKey(_aDef_, :semantic_mappings)
+			_aM_ = _aDef_[:semantic_mappings]
+			_nM_ = len(_aM_)
+			for _j_ = 1 to _nM_
+				if left(_aM_[_j_][:semantic], 7) = "METHOD_" or
+				   _aM_[_j_][:semantic] = "OUTPUT_DISPLAY"
+					_w_ = StzLower(_aM_[_j_][:natural])
+					if ( _nP_ = 0 or left(_w_, _nP_) = _cP_ ) and
+					   ring_find(_aOut_, _w_) = 0 and len(_aOut_) < pnMax
+						_aOut_ + _w_
+					ok
+				ok
+			next
+		ok
+		if HasKey(_aDef_, :phrases)
+			_aPh_ = _aDef_[:phrases]
+			_nPh_ = len(_aPh_)
+			for _j_ = 1 to _nPh_
+				_aVars_ = _StzSplitOnChar(_aPh_[_j_][:words], ",")
+				_nV_ = len(_aVars_)
+				for _k_ = 1 to _nV_
+					_w_ = StzLower(trim(_aVars_[_k_]))
+					if _w_ != "" and ( _nP_ = 0 or left(_w_, _nP_) = _cP_ ) and
+					   ring_find(_aOut_, _w_) = 0 and len(_aOut_) < pnMax
+						_aOut_ + _w_
+					ok
+				next
+			next
+		ok
+		exit
+	next
+	return _aOut_
+
+	func @StzPackPhrases(pcLang, pcPrefix, pnMax)
+		return StzPackPhrases(pcLang, pcPrefix, pnMax)
+
+# Words of a semantic id in a language's dictionary (for state suggestions).
+
+func StzMappingWordsOf(pcLang, pcSemId, pnMax)
+	_cLang_ = StzLower(pcLang)
+	_aOut_ = []
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if StzLower(_aDef_[:code]) != _cLang_ or NOT HasKey(_aDef_, :semantic_mappings)
+			loop
+		ok
+		_aM_ = _aDef_[:semantic_mappings]
+		_nM_ = len(_aM_)
+		for _j_ = 1 to _nM_
+			if _aM_[_j_][:semantic] = pcSemId and len(_aOut_) < pnMax
+				_aOut_ + StzLower(_aM_[_j_][:natural])
+			ok
+		next
+		exit
+	next
+	return _aOut_
+
+	func @StzMappingWordsOf(pcLang, pcSemId, pnMax)
+		return StzMappingWordsOf(pcLang, pcSemId, pnMax)
+
+func _StzSemShortestFirst(paList)
+	_n_ = len(paList)
+	_aPairs_ = []
+	for _i_ = 1 to _n_
+		_aPairs_ + [ len(paList[_i_]), paList[_i_] ]
+	next
+	_aPairs_ = SortListsOn(_aPairs_, 1)
+	_aOut_ = []
+	for _i_ = 1 to _n_
+		_aOut_ + _aPairs_[_i_][2]
+	next
+	return _aOut_
+
 #--- RUNTIME TEACHING (the Voxelurn lesson, deterministic) ------------------
 # 'When I say purge I mean remove duplicates': resolve the MEANING through
 # the existing machinery, then register the new word as an exact synonym in
