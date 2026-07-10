@@ -1976,7 +1976,7 @@ class stzList from stzObject
 			This.RemoveDuplicatesCS(pCaseSensitive)
 			return This
 
-	#@ aka  unique, distinct, dedupe, remove repeats, deduplicate
+	#@ aka  unique, distinct, dedupe, remove repeats, deduplicate, drop duplicates
 	def RemoveDuplicates()
 		This.RemoveDuplicatesCS(1)
 

@@ -34,6 +34,7 @@ $aLanguageDefinitions = [
 			[:natural = "stznumber", :semantic = "OBJECT_NUMBER"],
 
 			[:natural = "with", :semantic = "VALUE_INDICATOR"],
+			[:natural = "holding", :semantic = "VALUE_INDICATOR"],
 
 			# multi-object naming: 'Create a list with [...] called basket'
 			# then 'Use basket' to switch the live object
@@ -858,8 +859,38 @@ class stzNaturalEngine from stzObject
 		# unlisted verb contributes nothing, the rare word carries it).
 		# Only when the HEAD is dictionary-unknown: a known head (a
 		# CREATE verb, say) must never be swallowed into a scored phrase.
-		if @cLangCode != "en" and _bHeadUnknown_
-			_cId_ = StzResolveSemanticPhraseInLang(@cLangCode, _aWords_)
+		if _bHeadUnknown_
+			if @cLangCode != "en"
+				_cId_ = StzResolveSemanticPhraseInLang(@cLangCode, _aWords_)
+			else
+				# same strict ranker for English: exact-first, then IDF
+				# with the unique-winner margin -- ambiguity refuses,
+				# never guesses ("drop duplicates" -> RemoveDuplicates
+				# because the aka words carry it). HARD GATE: a scored
+				# phrase may only be made of words the dictionary does
+				# NOT know -- a known word (uppercase) or an ignored
+				# head (and) must never be swallowed by a score.
+				_bEligible_ = NOT This.IsIgnoredWord(_aWords_[1])
+				if _bEligible_
+					for _k_ = 1 to _nW_
+						if This.ToSemantic(_aWords_[_k_]) != ""
+							_bEligible_ = FALSE
+							exit
+						ok
+					next
+				ok
+				_cId_ = ""
+				if _bEligible_
+					_cSp_ = ""
+					for _k_ = 1 to _nW_
+						_cSp_ += _aWords_[_k_]
+						if _k_ < _nW_
+							_cSp_ += " "
+						ok
+					next
+					_cId_ = StzResolveSemantic(_cSp_)
+				ok
+			ok
 			if _cId_ != ""
 				_cShown_ = ""
 				for _k_ = 1 to _nW_
