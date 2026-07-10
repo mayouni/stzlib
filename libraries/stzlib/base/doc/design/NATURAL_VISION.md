@@ -240,8 +240,18 @@ verifies after. Strictly better ergonomics for the same guarantee.
    stzConstraints; remove or repurpose the `IsStzChainOfCode` dangler;
    refresh the stale `#ERR` annotations in test/chainoftruth/ and
    test/naturalcode/ (several pass today under ring127).
-2. **Morphology wiring** -- Plural/Singular into the en canon path and the
-   linearization path (Adverb/Ordinal on standby for surface realization).
+2. **Morphology wiring** [DONE 2026-07-10] -- verified en number/third-person
+   morphology at three seams: ToSemantic dictionary retry (OBJECT_* excluded
+   so "a list of strings" can never hijack the creation type), the
+   StzResolveSemantic morph retry (before neural rescue, reentry-guarded),
+   and PhraseResolve join variants ("removes its duplicate" ->
+   removeduplicates). Bare -s/-es/-ies de-inflection candidates come FIRST
+   (the noun engines mangle verbs: "removes" -> "remof"); everything is
+   verified so a wrong transform can never fire. StzTypeFromWord() realizes
+   the pluraltostztype idea outside the sentence grammar. Linearization
+   inspection came back EMPTY: the en surface is already number-correct
+   because method names carry their own number ("remove duplicates").
+   Adverb/Ordinal stay on standby for future surface realization.
 3. **Entity convergence** -- one `$oWorldEntities` world: engine named
    objects become stzEntity instances; stzText.NamedEntities() emits into
    the same registry; Ask gains world queries (WhatIs). This realizes the

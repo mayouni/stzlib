@@ -101,6 +101,24 @@ Scenario("Truly natural phrasing via multi-word phrase resolution")
 	Then("a contraction apostrophe never breaks quote pairing",
 		@@( on4.Result() ), @@([ 1, 2 ]))
 
+	# English number morphology, VERIFIED (the Arabic strip principle):
+	# third-person verbs de-inflect ("creates" -> create, "removes its
+	# duplicate" -> the removeduplicates join), and a wrong transform can
+	# never fire because only a resolving candidate counts
+	on6 = Naturally("Creates a list with [ 3, 1, 3 ] and removes its duplicate")
+	Then("third-person verbs + singular noun read naturally",
+		@@( on6.Result() ), @@([ 3, 1 ]))
+	Then("and the paraphrase stays canonical",
+		on6.Understood(), "create a list with [ 3, 1, 3 ] -> remove duplicates")
+
+	on7 = Naturally("Create a string with 'hello' and uppercases it")
+	Then("-es de-inflection: 'uppercases' -> Uppercase()", on7.Result(), "HELLO")
+
+	Then("type words are number-tolerant OUTSIDE the sentence grammar",
+		StzTypeFromWord("strings") + "/" + StzTypeFromWord("Lists") + "/" +
+		StzTypeFromWord("number") + "/" + StzTypeFromWord("banana"),
+		"stzString/stzList/stzNumber/")
+
 	# synonym phrasing rides the aka words through the strict ranker:
 	# 'holding' is a pack word, 'drop duplicates' scores to RemoveDuplicates
 	on5 = Naturally("Make a list holding [ 3, 1, 3 ] then drop its duplicates")
