@@ -269,6 +269,101 @@ func NaturallyIn(cLang, _cCode_)
 func Naturally(_cCode_)
 	return NaturallyXT([], _cCode_)
 
+#--- THE TWO MARKUP SEEDS (NATURAL_VISION step 5) ----------------------------
+# stzNaturalMarkup is retired, but two of its ideas graduate in modern form:
+#   1. LITERATE BLOCKS -- its #< ... #> fence, kept as a fence only: natural
+#      programs embedded in any document (a tutorial, a spec, a paper),
+#      extracted and run by the REAL engine. Executable documentation.
+#   2. NATURAL TEMPLATES -- its {#n} parameter slots, kept as fill-in holes:
+#      one narration written once, instantiated with different values.
+# No markup interpreter exists anymore -- both seeds are thin doors into
+# Naturally()/NaturallyIn().
+
+# The natural blocks of a document: every #< ... #> fence's inner text,
+# in document order. Text outside the fences is prose and stays prose.
+
+func StzNaturalBlocks(pcDoc)
+	if NOT isString(pcDoc)
+		return []
+	ok
+	_aOut_ = []
+	_aParts_ = StzSplit(pcDoc, "#<")
+	_nP_ = len(_aParts_)
+	for _i_ = 2 to _nP_
+		_nEnd_ = StzFindFirst(_aParts_[_i_], "#>")
+		if _nEnd_ > 0
+			_cBlock_ = trim(StzMid(_aParts_[_i_], 1, _nEnd_ - 1))
+			if _cBlock_ != ""
+				_aOut_ + _cBlock_
+			ok
+		ok
+	next
+	return _aOut_
+
+	func @StzNaturalBlocks(pcDoc)
+		return StzNaturalBlocks(pcDoc)
+
+# Run every natural block of a document; returns the list of ENGINES, one
+# per block, so the caller reads each block's Result()/Answers()/
+# Understood() -- a document whose examples EXECUTE and can be verified.
+
+func NaturallyFromDoc(pcDoc)
+	return NaturallyFromDocIn("en", pcDoc)
+
+	func @NaturallyFromDoc(pcDoc)
+		return NaturallyFromDocIn("en", pcDoc)
+
+func NaturallyFromDocIn(pcLang, pcDoc)
+	_aBlocks_ = StzNaturalBlocks(pcDoc)
+	_aOut_ = []
+	_nB_ = len(_aBlocks_)
+	for _i_ = 1 to _nB_
+		_aOut_ + NaturallyIn(pcLang, _aBlocks_[_i_])
+	next
+	return _aOut_
+
+	func @NaturallyFromDocIn(pcLang, pcDoc)
+		return NaturallyFromDocIn(pcLang, pcDoc)
+
+# NATURAL TEMPLATES: a narration with {#1}, {#2}, ... holes, instantiated
+# with real values. Values render as literals the tokenizer already reads
+# (strings quoted -- double quotes, so apostrophes survive; lists in
+# @@-form; numbers plain). Unfilled holes REFUSE loudly: a template is a
+# contract, not a suggestion.
+
+func _StzNaturalRenderValue(pValue)
+	if isString(pValue)
+		return '"' + pValue + '"'
+	but isNumber(pValue)
+		return "" + pValue
+	but isList(pValue)
+		return @@(pValue)
+	ok
+	StzRaise("Incorrect template value! Only strings, numbers and lists render into a narration.")
+
+func NaturallyWith(pcTemplate, paArgs)
+	return NaturallyWithIn("en", pcTemplate, paArgs)
+
+	func @NaturallyWith(pcTemplate, paArgs)
+		return NaturallyWithIn("en", pcTemplate, paArgs)
+
+func NaturallyWithIn(pcLang, pcTemplate, paArgs)
+	if NOT ( isString(pcTemplate) and isList(paArgs) )
+		StzRaise("Incorrect params! pcTemplate must be a string and paArgs a list.")
+	ok
+	_c_ = pcTemplate
+	_nA_ = len(paArgs)
+	for _i_ = 1 to _nA_
+		_c_ = StzReplace(_c_, "{#" + _i_ + "}", _StzNaturalRenderValue(paArgs[_i_]))
+	next
+	if StzFindFirst(_c_, "{#") > 0
+		StzRaise("Unfilled template hole! The narration still contains a {#n} slot with no value for it.")
+	ok
+	return NaturallyIn(pcLang, _c_)
+
+	func @NaturallyWithIn(pcLang, pcTemplate, paArgs)
+		return NaturallyWithIn(pcLang, pcTemplate, paArgs)
+
 # LINT a natural narration WITHOUT running it: which words would not be
 # understood, and what the writer probably meant. Returns
 # [ :understood = TRUE/FALSE, :unresolved = [ [word, suggestion], ... ] ].
