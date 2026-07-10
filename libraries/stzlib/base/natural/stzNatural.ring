@@ -852,6 +852,19 @@ class stzNaturalEngine from stzObject
 			if _cId_ != ""
 				return [ _cId_, _aEnds_[n] + 1, _cShown_ ]
 			ok
+			# en number morphology on the join: each position may need
+			# its -s toggled ("removes its duplicate" ->
+			# "removeduplicates"). Verified: only an exact hit counts.
+			if @cLangCode = "en"
+				_aAltJ_ = _StzSemEnJoinVariants(_aWords_, n)
+				_nAltJ_ = len(_aAltJ_)
+				for _kJ_ = 1 to _nAltJ_
+					_cId_ = StzSemanticExactIdInLang("en", _aAltJ_[_kJ_][1])
+					if _cId_ != ""
+						return [ _cId_, _aEnds_[n] + 1, _aAltJ_[_kJ_][2] ]
+					ok
+				next
+			ok
 		next
 
 		# no exact join: for PACK languages, let the shared IDF ranker
@@ -1207,6 +1220,31 @@ class stzNaturalEngine from stzObject
 				return _cSemantic_
 			ok
 		next
+		# English number / third-person morphology, VERIFIED against the
+		# dictionary itself ("creates" -> "create"). OBJECT_* words are
+		# deliberately EXCLUDED: "a list of strings" must never let
+		# "strings" hijack the creation type -- plural type words are
+		# served by StzTypeFromWord() instead.
+		if @cLangCode = "en"
+			_aVarT_ = _StzSemEnNumberVariants(_cLower_)
+			_nVT_ = len(_aVarT_)
+			for _iVT_ = 1 to _nVT_
+				for _i_ = 1 to _nLen_
+					_aMap_ = @aMappings[_i_]
+					if _aMap_[:natural] = _aVarT_[_iVT_]
+						_cSemantic_ = _aMap_[:semantic]
+						if StzLeft(_cSemantic_, 7) != "OBJECT_"
+							if _bDefine_
+								return "@" + _cSemantic_
+							but _bRecall_
+								return _cSemantic_ + "@"
+							ok
+							return _cSemantic_
+						ok
+					ok
+				next
+			next
+		ok
 		return ""
 	
 	def GenerateCodeFromSemantics()

@@ -26,6 +26,8 @@ $bStzSemLexiconBuilt = FALSE
 $aStzSemResolveMemo = []    # [ [ cWord, cResolvedId ], ... ] (failures memoized as "")
 
 $aStzSemHarvestRecs = []    # cached reflect harvest [ name, desc, aka, owner, class ]
+$bStzSemMorphRetry = 0      # reentry guard for the en number-morphology retry
+$aStzSemVariantMemo = []    # per-word cache of en number variants (Plural/Singular run once)
 $bStzSemHarvested = FALSE
 $bStzSemOpsGrown = FALSE    # $aSemanticOperations grown from the harvest yet?
 $aStzSemExactNames = []     # [ [ lowered stz_method, semantic_id ], ... ]
@@ -1108,6 +1110,167 @@ func _StzSemSaveCache(nSig)
 	catch
 	done
 
+#--- ENGLISH NUMBER MORPHOLOGY (verified, like the Arabic strips) ----------
+# Singular()/Plural() are rule engines and can misfire ("uses" -> "us");
+# every wiring below is VERIFIED -- a transformed word only counts when the
+# RESULT resolves against the lexicon/dictionary, so a wrong transform is
+# harmless. This is the Arabic verified-strip principle applied to English
+# plurals AND third-person -s ("creates", "removes").
+
+func _StzSemEnNumberVariants(pcWord)
+	_aOut_ = []
+	if NOT isString(pcWord) or pcWord = ""
+		return _aOut_
+	ok
+	# pure-letter words only: junk tokens skip the regex machinery.
+	# (isalpha() -- NO char-index loop here: per-char indexing in a hot
+	# path is the documented Ring VM-corruption trap.)
+	if NOT isalpha(pcWord)
+		return _aOut_
+	ok
+	# memo: Plural()/Singular() spin regex objects -- once per word, ever
+	_nM_ = len($aStzSemVariantMemo)
+	for _i_ = 1 to _nM_
+		if $aStzSemVariantMemo[_i_][1] = pcWord
+			return $aStzSemVariantMemo[_i_][2]
+		ok
+	next
+	_n_ = len(pcWord)
+	# plain de-inflection candidates FIRST: third-person verbs need a bare
+	# -s / -es / -ies strip ("uppercases" -> "uppercase"); the noun engines
+	# below would mangle them ("removes" -> "remof" via the -ves rule).
+	# Over-generation is safe -- every candidate is verified by the caller.
+	_aCand_ = []
+	if right(pcWord, 3) = "ies" and _n_ >= 5
+		_aCand_ + ( left(pcWord, _n_ - 3) + "y" )
+	ok
+	if right(pcWord, 2) = "es" and _n_ >= 5
+		_aCand_ + left(pcWord, _n_ - 2)
+	ok
+	if right(pcWord, 1) = "s" and _n_ >= 4
+		_aCand_ + left(pcWord, _n_ - 1)
+	ok
+	_aCand_ + Singular(pcWord)
+	_aCand_ + Plural(pcWord)
+	_nC_ = len(_aCand_)
+	for _i_ = 1 to _nC_
+		_c2_ = _aCand_[_i_]
+		if _c2_ != pcWord and StzLen(_c2_) >= 3 and ring_find(_aOut_, _c2_) = 0
+			_aOut_ + _c2_
+		ok
+	next
+	$aStzSemVariantMemo + [ pcWord, _aOut_ ]
+	return _aOut_
+
+# All the number-variant JOINS of a phrase window, ordered by how many
+# positions changed (fewest first; the unchanged join is the caller's
+# base case and is excluded). Powers "removes its duplicate" ->
+# "removeduplicates": each position may independently need its -s toggled.
+
+func _StzSemEnJoinVariants(paWords, n)
+	_aOpts_ = []
+	for _i_ = 1 to n
+		_aO_ = [ paWords[_i_] ]
+		_aV_ = _StzSemEnNumberVariants(paWords[_i_])
+		_nV_ = len(_aV_)
+		for _j_ = 1 to _nV_
+			_aO_ + _aV_[_j_]
+		next
+		_aOpts_ + _aO_
+	next
+	# odometer over the option lists; collect [ nChanges, join, shown ]
+	_aIdx_ = []
+	for _i_ = 1 to n
+		_aIdx_ + 1
+	next
+	_aAll_ = []
+	while TRUE
+		# advance the odometer FIRST, so the all-as-is combo (the
+		# caller's base case) is never emitted
+		_k_ = n
+		while _k_ >= 1
+			if _aIdx_[_k_] < len(_aOpts_[_k_])
+				_aIdx_[_k_] = _aIdx_[_k_] + 1
+				exit
+			else
+				_aIdx_[_k_] = 1
+				_k_--
+			ok
+		end
+		if _k_ < 1
+			exit
+		ok
+		_nCh_ = 0
+		_cJoinV_ = ""
+		_cShownV_ = ""
+		for _i_ = 1 to n
+			if _aIdx_[_i_] > 1
+				_nCh_++
+			ok
+			_cJoinV_ += _aOpts_[_i_][_aIdx_[_i_]]
+			_cShownV_ += _aOpts_[_i_][_aIdx_[_i_]]
+			if _i_ < n
+				_cShownV_ += " "
+			ok
+		next
+		_aAll_ + [ _nCh_, _cJoinV_, _cShownV_ ]
+	end
+	_aAll_ = SortListsOn(_aAll_, 1)
+	_aOut_ = []
+	_nA_ = len(_aAll_)
+	for _i_ = 1 to _nA_
+		_aOut_ + [ _aAll_[_i_][2], _aAll_[_i_][3] ]
+	next
+	return _aOut_
+
+# A type WORD in any number ("string", "strings", "Texts") -> the stz class
+# name ("stzString"), or "" when unknown. The old pluraltostztype idea done
+# right: dictionary-verified, morphology-tolerant, and OUTSIDE the sentence
+# grammar (so "a list of strings" can never have its creation type hijacked).
+
+func StzTypeFromWord(pcWord)
+	if NOT isString(pcWord)
+		return ""
+	ok
+	_w_ = StzLower(trim(pcWord))
+	if _w_ = ""
+		return ""
+	ok
+	_aTry_ = [ _w_ ]
+	_aVar_ = _StzSemEnNumberVariants(_w_)
+	_nV_ = len(_aVar_)
+	for _i_ = 1 to _nV_
+		_aTry_ + _aVar_[_i_]
+	next
+	_nL_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _nL_
+		if StzLower($aLanguageDefinitions[_i_][:code]) != "en"
+			loop
+		ok
+		_aM_ = $aLanguageDefinitions[_i_][:semantic_mappings]
+		_nM_ = len(_aM_)
+		_nT_ = len(_aTry_)
+		for _j_ = 1 to _nT_
+			for _k_ = 1 to _nM_
+				if _aM_[_k_][:natural] = _aTry_[_j_]
+					_cSem_ = _aM_[_k_][:semantic]
+					if _cSem_ = "OBJECT_STRING"
+						return "stzString"
+					but _cSem_ = "OBJECT_LIST"
+						return "stzList"
+					but _cSem_ = "OBJECT_NUMBER"
+						return "stzNumber"
+					ok
+				ok
+			next
+		next
+		exit
+	next
+	return ""
+
+	func @StzTypeFromWord(pcWord)
+		return StzTypeFromWord(pcWord)
+
 # Resolve one natural word (or short phrase) to a canonical semantic ID.
 # Returns "" when nothing wins CLEARLY -- ambiguity must degrade to a
 # literal, never to a guessed action.
@@ -1206,6 +1369,44 @@ func StzResolveSemantic(pcWord)
 		if _nActs_ = 1
 			_cResolved_ = _cAct_
 		ok
+	ok
+
+	# -- Morphology retry (en): number / third-person -s, VERIFIED -- the
+	# variant only counts if it itself resolves lexically. The guard stops
+	# singular<->plural ping-pong recursion.
+	if _cResolved_ = "" and $bStzSemMorphRetry = 0
+		$bStzSemMorphRetry = 1
+		if StzFindFirst(_w_, " ") = 0
+			_aVarW_ = _StzSemEnNumberVariants(_w_)
+			_nVW_ = len(_aVarW_)
+			for _iVW_ = 1 to _nVW_
+				_cTryW_ = StzResolveSemantic(_aVarW_[_iVW_])
+				if _cTryW_ != ""
+					_cResolved_ = _cTryW_
+					exit
+				ok
+			next
+		else
+			# short phrase: toggle the trailing head noun only
+			_aParts_ = StzSplit(_w_, " ")
+			_nP_ = len(_aParts_)
+			if _nP_ >= 2
+				_aVarW_ = _StzSemEnNumberVariants(_aParts_[_nP_])
+				_nVW_ = len(_aVarW_)
+				for _iVW_ = 1 to _nVW_
+					_cLead_ = ""
+					for _jW_ = 1 to _nP_ - 1
+						_cLead_ += _aParts_[_jW_] + " "
+					next
+					_cTryW_ = StzResolveSemantic(_cLead_ + _aVarW_[_iVW_])
+					if _cTryW_ != ""
+						_cResolved_ = _cTryW_
+						exit
+					ok
+				next
+			ok
+		ok
+		$bStzSemMorphRetry = 0
 	ok
 
 	# -- Neural rescue: only when lexical found nothing and a model is loaded.
