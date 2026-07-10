@@ -19,10 +19,8 @@
 
 */
 
-$oWorldEntities = new stzListOfEntities
-
-func WorldEntities()
-	return $oWorldEntities
+# $oWorldEntities and WorldEntities() moved to stzListOfEntities.ring
+# (NATURAL_VISION step 3): the world is shared, not owned by this surface.
 
 # Initiates the chain of value by accepting a value
 # and returns a ChainOfTruth object that we can work on
