@@ -283,6 +283,26 @@ Scenario("Runtime teaching: new words join the live lexicon")
 		@@( otc.Result() ), @@([ 5, 2 ]))
 EndScenario()
 
+Scenario("Predictive suggestions: the engine says what can come NEXT")
+	Given("the same token-state machine that executes, run as a guide")
+	Then("an empty narration starts with a creation verb",
+		ring_find(StzNaturalSuggest(""), "create") > 0, TRUE)
+	Then("after 'Create a' come the object types",
+		ring_find(StzNaturalSuggest("Create a "), "list") > 0, TRUE)
+	Then("after the object comes the value indicator + value shapes",
+		ring_find(StzNaturalSuggest("Create a list "), "with") > 0, TRUE)
+	Then("after a value come the dictionary action verbs",
+		ring_find(StzNaturalSuggest("Create a list with [ 1, 2 ] "), "reverse") > 0, TRUE)
+	Then("a mid-word prefix completes over the GROWN vocabulary",
+		ring_find(StzNaturalSuggest("Create a list with [ 1, 2 ] rev"), "reverse") > 0, TRUE)
+	Then("...and a two-word phrase prefix completes across words",
+		ring_find(StzNaturalSuggest("Create a list with [ 1, 2 ] remove d"), "remove duplicates") > 0, TRUE)
+	Then("after 'Use' come the objects NAMED in this narration",
+		@@( StzNaturalSuggest("Create a list with [ 1 ] called basket Use ") ), @@([ "basket" ]))
+	Then("packs suggest in their own language",
+		ring_find(StzNaturalSuggestIn("fr", "Crée une liste avec [ 1, 2 ] "), "inverse") > 0, TRUE)
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
