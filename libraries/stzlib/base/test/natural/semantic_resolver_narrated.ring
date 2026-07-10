@@ -303,6 +303,23 @@ Scenario("Predictive suggestions: the engine says what can come NEXT")
 		ring_find(StzNaturalSuggestIn("fr", "Crée une liste avec [ 1, 2 ] "), "inverse") > 0, TRUE)
 EndScenario()
 
+Scenario("Pack template exporter: a translator fills a data file")
+	cTpl = StzExportPackTemplate("de", "German")
+	Then("the template is a registration call with every reference slot",
+		StzFindFirst(cTpl, "StzAddNaturalLanguage([") > 0 and
+		StzFindFirst(cTpl, "CREATE_OBJECT") > 0 and
+		StzFindFirst(cTpl, "METHOD_REMOVEDUPLICATES") > 0, TRUE)
+	Then("...with the English reference beside each slot",
+		StzFindFirst(cTpl, "# en: create, make, new") > 0, TRUE)
+	eval(cTpl)
+	Then("the RAW template already evals and registers (round-trip)",
+		StzHasLanguagePack("de"), TRUE)
+
+	aCov = StzPackCoverage("fr")
+	Then("the coverage report counts against the reference id set",
+		aCov[:total] >= 20 and aCov[:covered] = aCov[:total], TRUE)
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
