@@ -1,28 +1,13 @@
 # Narrative
 # --------
-# pr()
+# (retired 2026-07-10) The _aFuture deferred-action queue (AddFuture /
+# ExecuteFuture / BeforeQ / AfterQ, FQ/FFQ suffixes) was removed from
+# stzNaturalCode.ring per doc/design/NATURAL_VISION.md sequencing step 1.
+# Its idea lives on in the stzNatural engine: the full token PLAN is built
+# before execution (SOV reordering, StzNaturalPlanFor).
 #
-# Extracted from stzbaturalcodetest.ring, block #2.
+#SKIP retired -- Future queue removed; the plan is the heir
 
 load "../../stzBase.ring"
 
-pr()
-
-oStr = new stzString("ring")
-
-AddFuture(:Uppercase) # or AddfutureAction()
-AddFuture(:Replace = [ "I", "♥" ])
-
-? @@(Future()) + NL # Or FutureActions()
-#--> [
-#	[ "uppercase", [ ] ],
-#	[ "replace", [ "I", "♥" ] ]
-# ]
-
-ExecuteActions( Future(), :on = oStr ) // #ERR Check why using :on = oStr returns nothing!
-? oStr.Content()
-#--> R♥NG
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-# Executed in 0.02 second(s) in Ring 1.20
+? "(retired test; the Future queue's heir is the plan -- see header)"

@@ -235,7 +235,7 @@ verifies after. Strictly better ergonomics for the same guarantee.
 
 ## 6. Sequencing
 
-1. **Housekeeping** -- archive stznatural-copy.ring; retire
+1. **Housekeeping** [DONE 2026-07-10] -- archive stznatural-copy.ring; retire
    stzNaturalMarkup, stzNaturalCode's future/context globals, and
    stzConstraints; remove or repurpose the `IsStzChainOfCode` dangler;
    refresh the stale `#ERR` annotations in test/chainoftruth/ and

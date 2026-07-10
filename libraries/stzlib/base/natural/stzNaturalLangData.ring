@@ -19,6 +19,22 @@
 #  loads, just a data block.                                                #
 #---------------------------------------------------------------------------#
 
+#-- THE ACTIONSXT FORM GLOSSARY ---------------------------------------------
+# Lexicon Source 2 (see stzSemanticResolver.StzSemanticLexicon): each entry
+# lists ALL the linguistic forms of one action (active, passive, predicate,
+# gerund) sharing one semantic ID. Historically born in stzNaturalCode.ring
+# (Era-1 near-natural coding); moved here 2026-07-10 because it is pure
+# lexicon DATA. Grow it freely -- every form feeds the resolver's bags.
+
+# Glossary of Softanza actions
+
+	_ActionsXT = [
+	
+		:Uppercase = [
+			:Uppercase, :Uppercased, :IsUppercased, :InUppercase, :Uppercasing
+		]
+	]
+
 #-- FRENCH ------------------------------------------------------------------
 
 StzAddNaturalLanguage([

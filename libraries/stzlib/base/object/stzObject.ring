@@ -1125,27 +1125,6 @@ func IsStzchainofTruth(pObject)
 	func @IsAStzchainofTruth(pObject)
 		return IsStzchainofTruth(pObject)
 
-func IsStzChainOfCode(pObject)
-	if isObject(pObject) and classname(pObject) = "stzchainofcode"
-		return 1
-	else
-		return 0
-	ok
-
-	func ObjectIsStzchainofcode(pObject)
-		return IsStzchainofcode(pObject)
-
-	func @IsStzchainofcode(pObject)
-		return IsStzchainofcode(pObject)
-
-	#--
-
-	func IsAStzchainofCode(pObject)
-		return IsStzchainofCode(pObject)
-
-	func @IsAStzchainofTCode(pObject)
-		return IsStzchainofCode(pObject)
-
 func IsStzTransform(pObject)
 	if isObject(pObject) and classname(pObject) = "stztransform"
 		return 1
