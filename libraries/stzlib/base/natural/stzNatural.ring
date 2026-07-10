@@ -15,7 +15,7 @@ $aLanguageDefinitions = [
 			"being", "decorated", "final", "result", "object", "at",
 			"position", "a", "it", "on", "inside", "very", "much",
 			"thank", "you", "please", "nice",
-			"its", "it's", "of", "me", "as", "in"
+			"its", "it's", "of", "me", "as", "in", "does", "do"
 		],
 		
 		:semantic_mappings = [
@@ -358,6 +358,7 @@ class stzNaturalEngine from stzObject
 	@bDebugMode = 0
 	@aDebugLog = []
 	@result
+	@aAnswers = []
 	@cNaturalCode = ""
 	@cOriginalCode = ""
 	@aContext = []
@@ -534,6 +535,7 @@ class stzNaturalEngine from stzObject
 	
 	def TokenizeCode(_cCode_)
 		@aValues = []
+		@aAnswers = []
 		@aTokenIsWord = []
 		@aUnresolved = []
 		@aNamedObjects = []
@@ -1618,7 +1620,8 @@ class stzNaturalEngine from stzObject
 		# ("Is it empty", "its Reversed copy"). If a query is the LAST
 		# step, @result keeps its value (see GenerateCodeFromSemantics).
 		if HasKey(_aOp_, :kind) and _aOp_[:kind] = "query"
-			_cCode_ = "@result = " + _cCode_
+			_cCode_ = "@result = " + _cCode_ + StzChar(10) +
+			          "@aAnswers + @result"
 		ok
 
 		if HasKey(_aOp_, :requires_params) and _aOp_[:requires_params] > 0
@@ -1777,6 +1780,56 @@ class stzNaturalEngine from stzObject
 	
 	def Result()
 		return @result
+
+	# INTERROGATIVE NARRATIONS (the stzChainOfTruth absorption, NATURAL_VISION
+	# step 4): every QUERY in the narration records its answer, in order.
+	# A chain of truth is now just a narration that asks several questions:
+	#   Naturally("Create a string with 'ring' Is it lowercase ?
+	#              Does it contain 'g' ?").AllYes()  #--> 1
+	# Result() stays "the last thing produced" (unchanged contract);
+	# Answers() exposes the full record; AllYes()/AnyYes() fold it.
+
+	def Answers()
+		return @aAnswers
+
+	# generous truthiness: a number answers yes when nonzero, a string when
+	# non-empty, a list when it has items (predicate queries answer 1/0)
+	def _IsYes(pAnswer)
+		if isNumber(pAnswer)
+			return pAnswer != 0
+		but isString(pAnswer)
+			return pAnswer != ""
+		but isList(pAnswer)
+			return len(pAnswer) > 0
+		ok
+		return FALSE
+
+	def AllYes()
+		_nAy_ = len(@aAnswers)
+		if _nAy_ = 0
+			return FALSE
+		ok
+		for _iAy_ = 1 to _nAy_
+			if NOT This._IsYes(@aAnswers[_iAy_])
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def AllTrue()
+			return This.AllYes()
+
+	def AnyYes()
+		_nAy_ = len(@aAnswers)
+		for _iAy_ = 1 to _nAy_
+			if This._IsYes(@aAnswers[_iAy_])
+				return TRUE
+			ok
+		next
+		return FALSE
+
+		def AnyTrue()
+			return This.AnyYes()
 
 	def OriginalCode()
 		return @cOriginalCode
