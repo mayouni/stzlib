@@ -266,6 +266,209 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 	paMemo + [ _cKey_, _aMap_ ]
 	return _aMap_
 
+#--- PACK TEMPLATE EXPORTER + COVERAGE (the Citrine lesson) -----------------
+# A translator should produce a new language pack by FILLING A DATA FILE,
+# never by reading internals. The exporter emits a valid, ready-to-fill
+# StzAddNaturalLanguage() skeleton with the English reference words beside
+# every slot; the coverage report says which semantic ids a pack still
+# misses relative to the reference id set.
+
+# The reference id set: the structural roles + every id the English
+# dictionary covers + every id any shipped pack addresses via :phrases.
+
+func _StzSemReferenceIds()
+	_aIds_ = [ "CREATE_OBJECT", "OBJECT_STRING", "OBJECT_LIST", "OBJECT_NUMBER",
+	           "VALUE_INDICATOR", "NAME_INDICATOR", "SWITCH_OBJECT",
+	           "KEEP_INDICATOR", "OUTPUT_DISPLAY" ]
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if HasKey(_aDef_, :semantic_mappings)
+			_aM_ = _aDef_[:semantic_mappings]
+			_nM_ = len(_aM_)
+			for _j_ = 1 to _nM_
+				_cId_ = _aM_[_j_][:semantic]
+				if ( left(_cId_, 7) = "METHOD_" or left(_cId_, 9) = "MODIFIER_" ) and
+				   ring_find(_aIds_, _cId_) = 0
+					_aIds_ + _cId_
+				ok
+			next
+		ok
+		if HasKey(_aDef_, :phrases)
+			_aPh_ = _aDef_[:phrases]
+			_nP_ = len(_aPh_)
+			for _j_ = 1 to _nP_
+				if ring_find(_aIds_, _aPh_[_j_][:semantic]) = 0
+					_aIds_ + _aPh_[_j_][:semantic]
+				ok
+			next
+		ok
+	next
+	return _aIds_
+
+# English reference words for an id, comma-joined (for the # en: comments).
+
+func _StzSemEnRefOf(pcId)
+	_aW_ = StzMappingWordsOf("en", pcId, 4)
+	_c_ = ""
+	_n_ = len(_aW_)
+	for _i_ = 1 to _n_
+		_c_ += _aW_[_i_]
+		if _i_ < _n_ _c_ += ", " ok
+	next
+	if _c_ = ""
+		# a grown id: the split-camel reading of its method name
+		_nOps_ = len($aSemanticOperations)
+		for _i_ = 1 to _nOps_
+			if $aSemanticOperations[_i_][:semantic_id] = pcId and
+			   HasKey($aSemanticOperations[_i_], :stz_method)
+				_c_ = lower(_StzSplitCamel($aSemanticOperations[_i_][:stz_method]))
+				exit
+			ok
+		next
+	ok
+	return _c_
+
+func StzExportPackTemplate(pcCode, pcName)
+
+	if NOT ( isString(pcCode) and isString(pcName) )
+		StzRaise("Incorrect params! pcCode and pcName must be strings.")
+	ok
+	StzGrowSemanticOperations()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = ""
+	_c_ += "# Softanza natural-language pack -- " + pcName + " (" + pcCode + ")" + _nl_
+	_c_ += "# ------------------------------------------------------------------" + _nl_
+	_c_ += "# HOW TO FILL: put your language word(s) between the empty quotes." + _nl_
+	_c_ += "# One word per :natural line (duplicate a line for synonyms); multi-" + _nl_
+	_c_ += "# word expressions go in the :phrases section, comma-separated." + _nl_
+	_c_ += "# Delete any line you cannot translate -- partial packs work fine." + _nl_
+	_c_ += "# The en: comments show the English reference for each slot." + _nl_
+	_c_ += "# Load the finished file (or paste it) and the language is live." + _nl_
+	_c_ += _nl_
+	_c_ += "StzAddNaturalLanguage([" + _nl_
+	_c_ += char(9) + ":code = " + _q_ + pcCode + _q_ + "," + _nl_
+	_c_ += char(9) + ":name = " + _q_ + StzLower(pcName) + _q_ + "," + _nl_
+	_c_ += char(9) + ":script = " + _q_ + "latin" + _q_ + ",   # or arabic, cyrillic, ..." + _nl_
+	_c_ += _nl_
+	_c_ += char(9) + "# Small words your language skips over (articles, fillers," + _nl_
+	_c_ += char(9) + "# politeness): they are ignored during interpretation." + _nl_
+	_c_ += char(9) + ":ignored_words = [ " + _q_ + _q_ + ", " + _q_ + _q_ + ", " + _q_ + _q_ + " ]," + _nl_
+	_c_ += _nl_
+	_c_ += char(9) + "# MORPHOLOGY (optional -- uncomment what your language needs):" + _nl_
+	_c_ += char(9) + "# :prefix_articles     = [ " + _q_ + _q_ + " ],   # attached articles (Arabic al-, French l-apostrophe)" + _nl_
+	_c_ += char(9) + "# :prefix_conjunctions = [ " + _q_ + _q_ + " ],   # attached and/so (Arabic wa-/fa-)" + _nl_
+	_c_ += char(9) + "# :prefix_prepositions = [ " + _q_ + _q_ + " ],   # fused with/for (Arabic bi-/li-; verified strips only)" + _nl_
+	_c_ += char(9) + "# :suffix_pronouns     = [ " + _q_ + _q_ + " ],   # attached it/them (Arabic -ha/-hu; Turkish case endings)" + _nl_
+	_c_ += char(9) + "# :strip_marks         = [ StzChar(0) ],   # writing marks deleted anywhere (diacritics, stretch)" + _nl_
+	_c_ += char(9) + "# :digit_map           = [ [ StzChar(0), " + _q_ + "0" + _q_ + " ] ],   # your digits -> ASCII" + _nl_
+	_c_ += char(9) + "# WORD ORDER (uncomment for SOV-family languages):" + _nl_
+	_c_ += char(9) + "# :object_before_create = 1,   # value and object word BEFORE the creation verb" + _nl_
+	_c_ += char(9) + "# :params_before_verb   = 1,   # parameters BEFORE their action verb" + _nl_
+	_c_ += _nl_
+	_c_ += char(9) + ":semantic_mappings = [" + _nl_
+
+	_aStruct_ = [ "CREATE_OBJECT", "OBJECT_STRING", "OBJECT_LIST", "OBJECT_NUMBER",
+	              "VALUE_INDICATOR", "NAME_INDICATOR", "SWITCH_OBJECT",
+	              "KEEP_INDICATOR", "OUTPUT_DISPLAY" ]
+	_aIds_ = _StzSemReferenceIds()
+	_nI_ = len(_aIds_)
+	for _i_ = 1 to _nI_
+		_cId_ = _aIds_[_i_]
+		_cRef_ = _StzSemEnRefOf(_cId_)
+		_c_ += char(9) + char(9) + "[:natural = " + _q_ + _q_ + ", :semantic = " + _q_ + _cId_ + _q_ + "],"
+		if _cRef_ != ""
+			_c_ += "   # en: " + _cRef_
+		ok
+		_c_ += _nl_
+		if _cId_ = "OUTPUT_DISPLAY" and _i_ < _nI_
+			_c_ += _nl_ + char(9) + char(9) + "# --- the action verbs ---" + _nl_
+		ok
+	next
+	_c_ += char(9) + "]," + _nl_
+	_c_ += _nl_
+	_c_ += char(9) + "# Multi-word expressions of your language, comma-separated per id" + _nl_
+	_c_ += char(9) + "# (these also power fuzzy matching and suggestions):" + _nl_
+	_c_ += char(9) + ":phrases = [" + _nl_
+	for _i_ = 1 to _nI_
+		_cId_ = _aIds_[_i_]
+		if ring_find(_aStruct_, _cId_) > 0
+			loop
+		ok
+		_cRef_ = _StzSemEnRefOf(_cId_)
+		_c_ += char(9) + char(9) + "[:semantic = " + _q_ + _cId_ + _q_ + ", :words = " + _q_ + _q_ + "],"
+		if _cRef_ != ""
+			_c_ += "   # en: " + _cRef_
+		ok
+		_c_ += _nl_
+	next
+	_c_ += char(9) + "]" + _nl_
+	_c_ += "])" + _nl_
+	return _c_
+
+	func @StzExportPackTemplate(pcCode, pcName)
+		return StzExportPackTemplate(pcCode, pcName)
+
+func StzExportPackTemplateToFile(pcCode, pcName, pcFilePath)
+	_c_ = StzExportPackTemplate(pcCode, pcName)
+	write(pcFilePath, _c_)
+	return pcFilePath
+
+	func @StzExportPackTemplateToFile(pcCode, pcName, pcFilePath)
+		return StzExportPackTemplateToFile(pcCode, pcName, pcFilePath)
+
+# COVERAGE: which reference ids does a language address (dictionary word OR
+# phrase entry)? Returns [ :language, :covered, :total, :missing ].
+
+func StzPackCoverage(pcLang)
+	_cLang_ = StzLower(pcLang)
+	_aIds_ = _StzSemReferenceIds()
+	_aCovered_ = []
+	_n_ = len($aLanguageDefinitions)
+	for _i_ = 1 to _n_
+		_aDef_ = $aLanguageDefinitions[_i_]
+		if StzLower(_aDef_[:code]) != _cLang_
+			loop
+		ok
+		if HasKey(_aDef_, :semantic_mappings)
+			_aM_ = _aDef_[:semantic_mappings]
+			_nM_ = len(_aM_)
+			for _j_ = 1 to _nM_
+				if trim(_aM_[_j_][:natural]) != "" and
+				   ring_find(_aCovered_, _aM_[_j_][:semantic]) = 0
+					_aCovered_ + _aM_[_j_][:semantic]
+				ok
+			next
+		ok
+		if HasKey(_aDef_, :phrases)
+			_aPh_ = _aDef_[:phrases]
+			_nP_ = len(_aPh_)
+			for _j_ = 1 to _nP_
+				if trim(_aPh_[_j_][:words]) != "" and
+				   ring_find(_aCovered_, _aPh_[_j_][:semantic]) = 0
+					_aCovered_ + _aPh_[_j_][:semantic]
+				ok
+			next
+		ok
+		exit
+	next
+	_aMissing_ = []
+	_nI_ = len(_aIds_)
+	_nCov_ = 0
+	for _i_ = 1 to _nI_
+		if ring_find(_aCovered_, _aIds_[_i_]) > 0
+			_nCov_++
+		else
+			_aMissing_ + _aIds_[_i_]
+		ok
+	next
+	return [ :language = _cLang_, :covered = _nCov_, :total = _nI_,
+	         :missing = _aMissing_ ]
+
+	func @StzPackCoverage(pcLang)
+		return StzPackCoverage(pcLang)
+
 #--- SUGGESTION VOCABULARY (powers the predictive suggest API) --------------
 # The Ginseng/PENG lesson: the strongest CNL UX device is showing what CAN
 # be said next. These pools feed prefix completion.
