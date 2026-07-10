@@ -252,11 +252,17 @@ verifies after. Strictly better ergonomics for the same guarantee.
    inspection came back EMPTY: the en surface is already number-correct
    because method names carry their own number ("remove duplicates").
    Adverb/Ordinal stay on standby for future surface realization.
-3. **Entity convergence** -- one `$oWorldEntities` world: engine named
-   objects become stzEntity instances; stzText.NamedEntities() emits into
-   the same registry; Ask gains world queries (WhatIs). This realizes the
-   Semantic Model pillar of the oldest vision and is the biggest
-   structural win remaining.
+3. **Entity convergence** [DONE 2026-07-10] -- one `$oWorldEntities` world,
+   moved home to stzListOfEntities.ring (stzChainOfTruth no longer owns
+   it). StzKnow(name, type) teaches idempotently (the same pair registers
+   once, silently -- Naturally() regenerations re-run safely); WhatIs(name)
+   answers with the list of types ("apple" -> [ "fruit", "company" ], the
+   bridging-minds vision realized). Feeders: Naturally() named objects
+   ("call it basket" -> basket:list, automatic; "call" joined "called" in
+   the en dictionary), stzText.RegisterNamedEntities() (NER -> world,
+   EXPLICIT by design so arbitrary text never pollutes silently), and the
+   legacy _@ hook. Suite: entity_world_narrated 17/17. Remaining thread:
+   surfacing WhatIs through Ask()'s retrieval pipeline.
 4. **ChainOfTruth decision** -- absorb into interrogative narrations, or
    rebuild resolver-backed; either way refresh its tests.
 5. **Markup seeds (optional)** -- literate blocks + natural templates as

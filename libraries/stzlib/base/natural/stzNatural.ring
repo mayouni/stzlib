@@ -40,6 +40,7 @@ $aLanguageDefinitions = [
 			# then 'Use basket' to switch the live object
 			[:natural = "called", :semantic = "NAME_INDICATOR"],
 			[:natural = "named",  :semantic = "NAME_INDICATOR"],
+			[:natural = "call",   :semantic = "NAME_INDICATOR"],
 			[:natural = "use",    :semantic = "SWITCH_OBJECT"],
 
 			# VALUE binding: 'Keep it as sep' captures the current result
@@ -1463,6 +1464,14 @@ class stzNaturalEngine from stzObject
 					_cVar_ = "o_named" + (len(@aNamedObjects) + 1)
 				ok
 				@aNamedObjects + [ _cName_, _cVar_, @cCurrentObject ]
+				# NATURAL_VISION step 3: a named object IS a world
+				# entity ("call it basket" -> basket:list). StzKnow
+				# is idempotent, so code regeneration re-runs safely.
+				_cTypeWord_ = StzLower(@cCurrentObject)
+				if StzLeft(_cTypeWord_, 3) = "stz"
+					_cTypeWord_ = StzMidToEnd(_cTypeWord_, 4)
+				ok
+				StzKnowXT(_cName_, _cTypeWord_, [ [ "source", "naturally" ] ])
 				_cAlias_ = _cVar_ + " = " + @cCurrentVariable
 				@cCurrentVariable = _cVar_
 				This.AddToDebugLog("Named object: " + _cName_ + " -> " + _cVar_)

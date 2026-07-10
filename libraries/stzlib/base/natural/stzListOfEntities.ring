@@ -1,3 +1,94 @@
+# THE WORLD (NATURAL_VISION step 3) -- the single shared entity registry.
+# Everything that NAMES a thing feeds it, everything that WONDERS about a
+# thing queries it:
+#   - Naturally() named objects  ("call it basket")   -> StzKnow, automatic
+#   - stzText.RegisterNamedEntities()  (NER)          -> StzKnow, explicit
+#   - stzChainOfTruth's _@ entity hook                -> AddEntity (legacy)
+#   - WhatIs("basket")                                -> [ "list" ]
+# Declared HERE (the world IS a list of entities); stzChainOfTruth used to
+# own it, which put the knowledge floor inside one legacy surface.
+$oWorldEntities = new stzListOfEntities
+
+func WorldEntities()
+	return $oWorldEntities
+
+	func @WorldEntities()
+		return $oWorldEntities
+
+# Idempotent world registration: the same (name, type) pair registers ONCE
+# and silently -- unlike AddEntity, which raises on duplicates. Returns 1
+# when the entity was new, 0 when it was already known. Naturally() calls
+# this on every code regeneration, so silence on repeats is the contract.
+
+func StzKnow(pcName, pcType)
+	return StzKnowXT(pcName, pcType, [])
+
+	func @StzKnow(pcName, pcType)
+		return StzKnowXT(pcName, pcType, [])
+
+func StzKnowXT(pcName, pcType, paProps)
+	if NOT ( isString(pcName) and isString(pcType) )
+		return 0
+	ok
+	_cName_ = StzLower(trim(pcName))
+	_cType_ = StzLower(trim(pcType))
+	if _cName_ = ""
+		return 0
+	ok
+	if _cType_ = ""
+		_cType_ = "undefined"
+	ok
+	# exact (name, type) PAIR check -- AddEntity's own guard tests name and
+	# type independently, which both over-fires and raises; the world wants
+	# quiet idempotence
+	_aAll_ = $oWorldEntities.Entities()
+	_nAll_ = len(_aAll_)
+	for _i_ = 1 to _nAll_
+		if _aAll_[_i_][:name] = _cName_ and _aAll_[_i_][:type] = _cType_
+			return 0
+		ok
+	next
+	_aEnt_ = [ [ "name", _cName_ ], [ "type", _cType_ ] ]
+	if isList(paProps)
+		_nP_ = len(paProps)
+		for _i_ = 1 to _nP_
+			if isList(paProps[_i_]) and len(paProps[_i_]) = 2 and isString(paProps[_i_][1])
+				_aEnt_ + [ StzLower(paProps[_i_][1]), paProps[_i_][2] ]
+			ok
+		next
+	ok
+	_oEnt_ = new stzEntity(_aEnt_)
+	# AppendEntity bypasses AddEntity's raise-on-duplicate; the PAIR check
+	# above already guaranteed uniqueness
+	$oWorldEntities.AppendEntity(_oEnt_.Content())
+	return 1
+
+	func @StzKnowXT(pcName, pcType, paProps)
+		return StzKnowXT(pcName, pcType, paProps)
+
+# WhatIs: the world query from the oldest Softanza vision --
+#   ? WhatIs("apple")  #--> [ "fruit", "company" ]
+# Returns the list of TYPES the world knows for that name; [] when the
+# world has never heard of it.
+
+func WhatIs(pcName)
+	if NOT isString(pcName)
+		return []
+	ok
+	_cName_ = StzLower(trim(pcName))
+	_aOut_ = []
+	_aAll_ = $oWorldEntities.Entities()
+	_nAll_ = len(_aAll_)
+	for _i_ = 1 to _nAll_
+		if _aAll_[_i_][:name] = _cName_ and ring_find(_aOut_, _aAll_[_i_][:type]) = 0
+			_aOut_ + _aAll_[_i_][:type]
+		ok
+	next
+	return _aOut_
+
+	func @WhatIs(pcName)
+		return WhatIs(pcName)
+
 func StzListOfEntitiesQ(paList)
 	return new stzListOfEntities(paList)
 
@@ -96,7 +187,10 @@ class stzListOfEntities from stzList
 			StzRaise(stzListOfEntitiesError(:CanNotAddNotAHashList))
 		ok
 
-		def AddEntities(paEntities)
+		def AppendEntity(paEntity)
+		@aListOfEntities + paEntity
+
+	def AddEntities(paEntities)
 			_nEntities1Len_ = len(paEntities)
 			for _iLoopEntities1_ = 1 to _nEntities1Len_
 				_aEntity_ = paEntities[_iLoopEntities1_]

@@ -254,6 +254,22 @@ class stzText from stzStringText
 		def Entities()
 			return This.NamedEntities()
 
+	# Register this text's named entities into the shared world
+	# ($oWorldEntities) -- EXPLICIT by design: NER over arbitrary text must
+	# never pollute the world silently. Returns how many were NEW.
+	def RegisterNamedEntities()
+		_aRne_ = This.NamedEntities()
+		_nRne_ = len(_aRne_)
+		_nAdded_ = 0
+		for _iRne_ = 1 to _nRne_
+			_nAdded_ += StzKnowXT(_aRne_[_iRne_][1], _aRne_[_iRne_][2],
+			                      [ [ "source", "ner" ] ])
+		next
+		return _nAdded_
+
+		def EntitiesToWorld()
+			return This.RegisterNamedEntities()
+
 	# The named entities of one type (e.g. "PERSON") mentioned in the text.
 	def EntitiesOfType(pcType)
 		_aEtAll_ = This.NamedEntities()
