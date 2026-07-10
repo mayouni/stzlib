@@ -427,7 +427,6 @@ ok
 
     load "natural/stzChainOfTruth.ring"
     load "natural/stzChainOfValue.ring"
-    load "natural/stzConstraints.ring"
 
     load "natural/stzEntity.ring"
     load "natural/stzListOfEntities.ring"
@@ -436,7 +435,6 @@ ok
     load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"
-    load "natural/stzNaturalMarkup.ring"
 
     load "natural/stzAdverb.ring"
     load "natural/stzPlural.ring"

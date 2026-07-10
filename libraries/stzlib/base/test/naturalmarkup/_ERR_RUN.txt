@@ -1,18 +1,2 @@
-== naturalmarkup  PASS 16  ERR 1  TIMEOUT 0  (26.7s) ==
-[ERR]     01_upper.ring :: exit 1: Error (S1) In file: 01_upper.ring
-[PASS]    02_blocks.ring
-[PASS]    03_basic_list_creation_and_queries.ring
-[PASS]    04_list_transformation_and_uppercase.ring
-[PASS]    05_global_function_with_parameter_order_independence.ring
-[PASS]    06_global_function_with_parameter_order_independence.ring
-[PASS]    07_string_creation_and_manipulation.ring
-[PASS]    08_method_chaining_with_dot_notation.ring
-[PASS]    09_cross-block_context_references.ring
-[PASS]    10_parameter_position_binding_with_n_declaration.ring
-[PASS]    11_unnamed_object_creation.ring
-[PASS]    12_complex_narrative_with_multiple_transformations.ring
-[PASS]    13_testing_generated_code_inspection.ring
-[PASS]    14_smartsplit_test_-_preserving_lists_and_strings.ring
-[PASS]    15_void_operator_removing_noise_words.ring
-[PASS]    16_multiple_parameters_in_any_order.ring
-[PASS]    17_nested_lists_in_literals.ring
+== naturalmarkup  PASS 17  ERR 0  TIMEOUT 0  (refreshed 2026-07-10, ring127) ==
+(no errors)

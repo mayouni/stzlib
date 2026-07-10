@@ -1,14 +1,2 @@
-== baturalcode  PASS 0  ERR 13  TIMEOUT 0  (21.2s) ==
-[ERR]     01_future.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     02_future.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     03_programming_the_future_litterally_in_softanza.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     04_numberofvowels.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     05_vowelnb.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     06_profon.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     07_-coding_-eloquence.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     08_are.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     09_isa.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     10_isa.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     11_pluraltostztype.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     13_areboth.ring :: Error (C22) : Function redefinition, function is already defined!
-[ERR]     14_isa.ring :: Error (C22) : Function redefinition, function is already defined!
+== naturalcode  PASS 13  ERR 0  TIMEOUT 0  (refreshed 2026-07-10, ring127) ==
+(no errors)

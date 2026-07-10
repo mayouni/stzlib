@@ -3,7 +3,6 @@
 # # All these return 1
 #
 # Extracted from stzchainoftruthtest.ring, block #16.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
