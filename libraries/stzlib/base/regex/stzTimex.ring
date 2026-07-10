@@ -2,14 +2,15 @@
 # A regex-like pattern language for time structures
 
 /*
-   IMPORTANT: Ring's substr() function has only TWO forms:
-   1. substr(str, substring)           → finds position of substring in str
-   2. substr(str, substr1, substr2)    → replaces substr1 with substr2 in str
-   
-   Ring does NOT have substr(str, position, length) form, nor it has a substr(str, n) form!
-   
-   That's why Softanza provides @StzMid(str, nStart, nEnd) which extracts
-   a substring from position _nStart_ to position _nEnd_ (both inclusive).
+   IMPORTANT: Ring's substr() is polymorphic and BYTE-oriented:
+   1. substr(str, substring)          → find (byte position)
+   2. substr(str, sub1, sub2)         → replace sub1 with sub2
+   3. substr(str, nPos)               → byte extract from nPos to end
+   4. substr(str, nPos, nCount)       → byte extract of nCount bytes
+   All four corrupt UTF-8 the moment positions cross a multibyte
+   character. Softanza policy: never call substr() in new code --
+   use StzFindFirst / StzReplace / StzMidToEnd / StzMid(str, nStart,
+   nLen) which are engine-backed and codepoint-correct.
 */
 
 # Quick constructor functions
