@@ -100,6 +100,14 @@ Scenario("Truly natural phrasing via multi-word phrase resolution")
 	on4 = Naturally("Create a list with [ 1, 2, 2 ] and Remove it's duplicates please")
 	Then("a contraction apostrophe never breaks quote pairing",
 		@@( on4.Result() ), @@([ 1, 2 ]))
+
+	# synonym phrasing rides the aka words through the strict ranker:
+	# 'holding' is a pack word, 'drop duplicates' scores to RemoveDuplicates
+	on5 = Naturally("Make a list holding [ 3, 1, 3 ] then drop its duplicates")
+	Then("'holding' + 'drop its duplicates' read naturally",
+		@@( on5.Result() ), @@([ 3, 1 ]))
+	Then("and the paraphrase names the canonical operation",
+		on5.Understood(), "create a list with [ 3, 1, 3 ] -> remove duplicates")
 EndScenario()
 
 Scenario("Query forms: passives and predicates RETURN a value")

@@ -249,11 +249,11 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 			if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def "
 				_cDefName_ = lower(_StzDefName(_cT_))
 				_nAr_ = 0
-				_p1_ = substr(_cT_, "(")
+				_p1_ = StzFindFirst(_cT_, "(")
 				if _p1_ > 0
 					_p2_ = _StzLastPos(_cT_, ")")
 					if _p2_ > _p1_ + 1
-						_cP_ = substr(_cT_, _p1_ + 1, _p2_ - _p1_ - 1)
+						_cP_ = StzMid(_cT_, _p1_ + 1, _p2_ - _p1_ - 1)
 						if trim(_cP_) != ""
 							_nAr_ = len(_StzSplitOnChar(_cP_, ","))
 						ok
@@ -1029,7 +1029,7 @@ func _StzSemLoadCache(nSig)
 	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG4 "
 		return FALSE
 	ok
-	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig
+	if number(StzMidToEnd(_cSig_, 6)) != nSig
 		return FALSE
 	ok
 	_aBags_ = []
