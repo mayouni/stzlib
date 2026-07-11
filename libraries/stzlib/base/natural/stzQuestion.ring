@@ -35,6 +35,13 @@ func WhatIsQ()
 func HowManyQ()
 	return new stzQuestion("howmany")
 
+# the nominal counting frame: "the number of letters in 'ring'"
+func NumberOfQ()
+	return new stzQuestion("howmany")
+
+	func TheNumberOfQ()
+		return new stzQuestion("howmany")
+
 func IsQ()
 	return new stzQuestion("is")
 
@@ -50,6 +57,8 @@ class stzQuestion
 	@bLeftSet = 0
 	@cComparator = ""  # "" | same | different | more | less
 	@nSide = 1
+	@bCount1 = 0       # "the number of <noun>" -- count mode per side
+	@bCount2 = 0
 	@cWhy = ""
 
 	def init(pcForce)
@@ -71,6 +80,15 @@ class stzQuestion
 	# the copula slot ("Is the length of Ring IS ... " reads as the
 	# mid-sentence 'is' of the comparison) -- position marker only
 	def IsQ()
+		return This
+
+	# "the NUMBER OF <noun>" as a constituent: count mode for this side
+	def NumberOfQ()
+		if @nSide = 1
+			@bCount1 = 1
+		else
+			@bCount2 = 1
+		ok
 		return This
 
 	  #--------------------------------------------------------------#
@@ -120,6 +138,10 @@ class stzQuestion
 		@bLeftSet = 1
 		return This
 
+		# locative flavor: "the number of letters IN ring"
+		def InQ(pHost)
+			return This.OfQ(pHost)
+
 	  #--------------------------------------------------------------#
 	 #  CLOSERS -- plain form: answer as DATA (the Q-convention)     #
 	#--------------------------------------------------------------#
@@ -132,6 +154,10 @@ class stzQuestion
 		@pLeftHost = pHost
 		@bLeftSet = 1
 		return This._Answer("")
+
+		# locative CLOSING form
+		def In(pHost)
+			return This.Of(pHost)
 
 	# copula, CLOSING form: "What the first char of Ring IS"
 	def Is()
@@ -149,9 +175,9 @@ class stzQuestion
 
 	# compute an aspect of a host THROUGH the accountable dispatcher
 	# (morphology + refusal-with-suggestion for free)
-	def _Compute(pcAspect, pHost)
+	def _Compute(pcAspect, pHost, pbCount)
 		_oQh_ = Q(pHost)
-		if @cForce = "howmany"
+		if @cForce = "howmany" or pbCount = 1
 			# "how many vowels" counts: prefer the NumberOf twin
 			if StzFindFirst(ring_methods(_oQh_), "numberof" + pcAspect) > 0
 				return _oQh_._NNLCall("numberof" + pcAspect, [])
@@ -168,7 +194,7 @@ class stzQuestion
 		if @cAspect = ""
 			StzRaise("NNL question: no aspect was named (say a noun like FirstCharQ()).")
 		ok
-		_vLeft_ = This._Compute(@cAspect, @pLeftHost)
+		_vLeft_ = This._Compute(@cAspect, @pLeftHost, @bCount1)
 
 		if @cComparator = ""
 			# a WH-question: the answer IS the missing constituent
@@ -182,7 +208,7 @@ class stzQuestion
 		if _cAsp2_ = ""
 			_cAsp2_ = @cAspect
 		ok
-		_vRight_ = This._Compute(_cAsp2_, pRightHost)
+		_vRight_ = This._Compute(_cAsp2_, pRightHost, @bCount2)
 
 		_bYes_ = FALSE
 		_cRel_ = ""

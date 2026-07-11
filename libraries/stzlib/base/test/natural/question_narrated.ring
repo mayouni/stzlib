@@ -27,6 +27,19 @@ Scenario("HowMany: counting questions prefer the NumberOf twin")
 		HowManyQ().WordsQ().Of("hello brave world"), 3)
 EndScenario()
 
+Scenario("The nominal count and the locative preposition (author's addition)")
+	Given("'the number of letters IN ring' -- In/InQ beside Of/OfQ, NumberOfQ as opener AND as constituent word")
+	Then("NumberOfQ().LettersQ().In('ring')",
+		NumberOfQ().LettersQ().In("ring"), 4)
+	Then("TheNumberOfQ variant reads with its article",
+		TheNumberOfQ().WordsQ().In("hello brave world"), 3)
+	Then("In() closes any frame, like Of()",
+		WhatIsQ().TheQ().FirstCharQ().In("Ring"), "R")
+	Then("'the number of letters' as a COMPARISON constituent",
+		IsQ().TheQ().NumberOfQ().LettersQ().OfQ("Ring").IsQ().
+			TheSameAsQ().TheQ().NumberOfQ().LettersQ().In("Ruby"), 1)
+EndScenario()
+
 Scenario("Polar comparison: two computed constituents, one verdict")
 	Given("the author's canonical question, decomposed per the one-word-one-method law")
 	Then("'Is the length of Ring the same as the length of Ruby?'",
