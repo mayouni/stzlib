@@ -251,6 +251,30 @@ Scenario("The aliasing doctrine and QC() -- chain on a clone")
 		oLz.ALengthQ().OnlyQ(1).VowelNB(), TRUE)
 EndScenario()
 
+Scenario("Q2: the widened generated surface -- B-forms, QC-forms, pack stems")
+	Given("2512 generated devices: value-agreement B/BQ over every arity-0 query, immutable QC over every arity-0/1 action (incl. the hand-authored seeds), and the dispatcher speaks the pack languages")
+
+	SetLastValue("h")
+	Then("'the first char is the remembered one'",
+		Q("hello").FirstCharB(), TRUE)
+	SetLastValue("x")
+	Then("...disagreement explains itself",
+		Q("hello").FirstCharB(), FALSE)
+	Then("...", Why(), 'no: firstchar is "h", expected "x"')
+
+	oQ2 = new stzString("ring")
+	Then("UppercaseQC acts on a CLONE", oQ2.UppercaseQC().Content(), "RING")
+	Then("...the original untouched", oQ2.Content(), "ring")
+	Then("arity-1 immutable: RemoveQC", oQ2.RemoveQC("r").Content(), "ing")
+	Then("...original still intact", oQ2.Content(), "ring")
+	Then("a false premise absorbs the whole QC family (one override)",
+		classname( Q("hello").IsAQ(:Number).UppercaseQC() ),
+		"stzfalseobject")
+
+	Then("the dispatcher speaks FRENCH: IfSo('majuscule')",
+		Q("ring").IsAQ(:String).IfSo("majuscule").Content(), "RING")
+EndScenario()
+
 Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",

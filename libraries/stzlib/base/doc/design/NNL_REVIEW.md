@@ -497,7 +497,10 @@ objectid() is volatile and proves nothing):
   mutates; pronouns fall back to This on uninterrupted chains and
   re-stamp the live logical figure on what they hand back.
 
-Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3b
-(distributive quantifiers on W), Q4
+Q2 DONE (2026-07-10): the generator emits 2512 devices -- countable-noun
+families, value-agreement B/BQ over every arity-0 query, immutable QC
+over every arity-0/1 action (seeds parsed from stzNatural.ring: the
+cache holds grown ops only), and _NNLCall resolves PACK-language stems
+(IfSo("majuscule") uppercases). Remaining: Q4
 (convergence: frame answers into Answers()/AllYes, WhatQ meets WhatIs,
 history tense, plan<->NNL).
