@@ -78,4 +78,27 @@ Scenario("One world, many feeders -- the convergence itself")
 		@@( WorldEntities().FindEntitiesByType("person") ) != "[ ]", TRUE)
 EndScenario()
 
+Scenario("The hypothetical frontier: suppose -> ask -> commit or forget")
+	Given("an assumption is an OVERLAY on the world, never a commitment -- the agent reasons 'as if', then concludes or discards; the world stays clean throughout")
+
+	Then("an unsupposed name is unknown", @@( WhatIs("tomato") ), "[ ]")
+
+	SupposeQ("tomato").IsAQ(:Fruit).AndQ().IsAQ(:Vegetable)
+	Then("'Suppose tomato is a fruit and is a vegetable' -- visible while supposed",
+		@@( WhatIs("tomato") ), '[ "fruit", "vegetable" ]')
+	Then("the suppositions are inspectable",
+		@@( SuppositionsSoFar() ),
+		'[ [ "tomato", "fruit" ], [ "tomato", "vegetable" ] ]')
+
+	ForgetSuppositions()
+	Then("FORGET discards -- the world was never touched",
+		@@( WhatIs("tomato") ), "[ ]")
+
+	SupposeQ("tomato").IsAQ(:Fruit)
+	Then("COMMIT concludes: the supposition becomes knowledge",
+		CommitSuppositions(), 1)
+	Then("...now the world knows it", @@( WhatIs("tomato") ), '[ "fruit" ]')
+	Then("...and the overlay is empty", @@( SuppositionsSoFar() ), "[ ]")
+EndScenario()
+
 Summary()
