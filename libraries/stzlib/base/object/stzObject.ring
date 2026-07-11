@@ -2699,6 +2699,22 @@ class stzObject
 
 				but pctype = "object" or pcType = "stzobject"
 					return This
+				else
+					# a NON-core descriptor that held (:Word, :Char,
+					# :Email...): continue on the typed object, context
+					# carried -- this is what lets the grammatical form
+					# TheWordQ("ring").IsAQ(:Word).WhichQ().HasQ()...
+					# run as written (it used to fall through and
+					# return NOTHING)
+					content = This.Content()
+					if isNumber(content)
+						return This._NNLCarry(new stzNumber(content))
+					but isString(content)
+						return This._NNLCarry(new stzString(content))
+					but isList(content)
+						return This._NNLCarry(new stzList(content))
+					ok
+					return This
 				ok
 
 			else

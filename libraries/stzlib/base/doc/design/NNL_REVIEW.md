@@ -159,6 +159,34 @@ surface -- the naturalcode tests were retired instead of preserved.
    executable specification. The articles ARE the spec; they must become a
    narrated suite (which literate blocks now make trivial).
 
+## 4b. The Grammaticality Doctrine (author's correction, 2026-07-10)
+
+Two rules that ARE the paradigm, learned by violating them:
+
+1. **The chain IS the sentence.** Every particle is a syntactic
+   constituent, not decoration. A relative pronoun must be followed by a
+   verb: `...WhichQ().HasQ().ALengthQ().Of(4)` -- "which HAS a length of
+   4". `...WhichQ().ALengthQ()` runs but reads "which a length": that a
+   chain executes does NOT make it NNL-correct; an ungrammatical chain
+   that runs is a BUG in NNL terms, because the paradigm's claim is that
+   the code adheres to language dynamics. Reviewing an NNL chain =
+   reading it aloud as English and rejecting what a native speaker would
+   reject.
+2. **M is a commitment, never a default.** `QM` declares "a later clause
+   will refer back to this referent". If nothing recalls it, M is wrong
+   -- a topic introduced and never mentioned again:
+   - no recall -> no M:
+     `TheWordQ("ring").IsAQ(:Word).WhichQ().HasQ().ALengthQ().Of(4)`
+   - recall ("...and only 1 vowel" refers back to the WORD) -> M:
+     `TheWordQM("ring")...ALengthQ().OfQ(4).AndQ().OnlyQM(1).VowelNB()`
+   Grammar decides M -- specifically, whether the discourse contains a
+   forward reference -- not habit.
+
+Fix that fell out of the correction: IsAQ(pcType) with a NON-core
+descriptor (:Word, :Char...) used to fall through its type switch and
+return NOTHING (R13 downstream); it now continues on the typed object,
+context carried, so the author's canonical statement runs as written.
+
 ## 5. Generalization: Derive the Surface from the Substrate
 
 The single most important design decision for NNL 2.0: **stop hand-writing
