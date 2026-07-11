@@ -5874,6 +5874,21 @@ class stzObject
 		_cM_ = StzLower(ring_trim(pcMethod))
 		if StzFindFirst(ring_methods(This), _cM_) = 0
 			_cId_ = StzResolveSemantic(_cM_)
+			if _cId_ = ""
+				# MULTILINGUAL stems: the pack languages speak here too
+				# ("majuscule" -> METHOD_UPPERCASE) -- same accountable
+				# route, any registered language
+				_aLangs_ = StzNaturalLanguages()
+				_nLg_ = len(_aLangs_)
+				for _iLg_ = 1 to _nLg_
+					if _aLangs_[_iLg_] != "en"
+						_cId_ = StzResolveSemanticInLang(_aLangs_[_iLg_], _cM_)
+						if _cId_ != ""
+							exit
+						ok
+					ok
+				next
+			ok
 			_bGot_ = FALSE
 			if _cId_ != ""
 				_nOps_ = ring_len($aSemanticOperations)
@@ -6040,6 +6055,14 @@ class stzObject
 			_cExp_ + ", found " + nActual
 		$cStzLastWhyB = @cNNLWhy
 		return 0
+
+	# the IMMUTABLE form executor: act on a CLONE (QC), return the
+	# clone chainable, the original untouched -- the ...QC suffix the
+	# reflect layer already tags, generated below for every action
+	def _NNLImmutable(pcMethod, paParams)
+		_oQc_ = QC(This)
+		_oQc_._NNLCall(pcMethod, paParams)
+		return _oQc_
 
 	def _NNLCountIs(pcMethod)
 		if @bNNLSkip = 1
@@ -6487,20 +6510,25 @@ class stzObject
 			return This._NNLCarry(Q(This.TheLast(pcNoun)))
 
 	# <nnl-generated-surface>
-	# GENERATED from the semantic lexicon (scripts: scratchpad gen_nnl_surface.py;
-	# see doc/design/NNL_REVIEW.md). One entry per countable noun the library
-	# knows: <Noun>N (count), <Noun>NQ, <Noun>NB (count vs the expectation
-	# register), <Noun>NBQ (monadic), and where the plural op exists <Nouns>B /
-	# <Nouns>BQ (value agreement). All delegate to the hand-written engine
-	# above; a child class overriding any name wins automatically. Do not
-	# edit by hand -- regenerate.
+	# GENERATED from the semantic lexicon (scratchpad gen_widen.py; see
+	# doc/design/NNL_REVIEW.md). Three device families:
+	#   - countable nouns: <Noun>N/NQ/NB/NBQ (+<Nouns>B/BQ value agreement)
+	#   - Q2 predicate B-forms: <Query>B/BQ -- the query's VALUE equals the
+	#     remembered expectation (the ellipsis device over any query)
+	#   - Q2 immutable forms: <Action>QC -- act on a CLONE via QC(), the
+	#     original untouched (the suffix the reflect layer tags immutable)
+	# All delegate to the hand-written engine; child overrides win; the
+	# FalseObject absorbs via the engine overrides. Do not edit; regenerate.
 
 	def ByteN()
 		return This._NNLNounCount("numberofbytes")
+
 	def ByteNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofbytes")))
+
 	def ByteNB()
 		return This._NNLCountIs("numberofbytes")
+
 	def ByteNBQ()
 		if This._NNLCountIs("numberofbytes") = 1
 			return This
@@ -6508,8 +6536,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def BytesB()
 		return This._NNLValueIs("bytes")
+
 	def BytesBQ()
 		if This._NNLValueIs("bytes") = 1
 			return This
@@ -6520,10 +6550,13 @@ class stzObject
 
 	def CharN()
 		return This._NNLNounCount("numberofchars")
+
 	def CharNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofchars")))
+
 	def CharNB()
 		return This._NNLCountIs("numberofchars")
+
 	def CharNBQ()
 		if This._NNLCountIs("numberofchars") = 1
 			return This
@@ -6531,8 +6564,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def CharsB()
 		return This._NNLValueIs("chars")
+
 	def CharsBQ()
 		if This._NNLValueIs("chars") = 1
 			return This
@@ -6543,10 +6578,13 @@ class stzObject
 
 	def ClassN()
 		return This._NNLNounCount("numberofclasses")
+
 	def ClassNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofclasses")))
+
 	def ClassNB()
 		return This._NNLCountIs("numberofclasses")
+
 	def ClassNBQ()
 		if This._NNLCountIs("numberofclasses") = 1
 			return This
@@ -6554,8 +6592,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ClassesB()
 		return This._NNLValueIs("classes")
+
 	def ClassesBQ()
 		if This._NNLValueIs("classes") = 1
 			return This
@@ -6566,10 +6606,13 @@ class stzObject
 
 	def DecimalN()
 		return This._NNLNounCount("numberofdecimals")
+
 	def DecimalNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofdecimals")))
+
 	def DecimalNB()
 		return This._NNLCountIs("numberofdecimals")
+
 	def DecimalNBQ()
 		if This._NNLCountIs("numberofdecimals") = 1
 			return This
@@ -6577,8 +6620,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def DecimalsB()
 		return This._NNLValueIs("decimals")
+
 	def DecimalsBQ()
 		if This._NNLValueIs("decimals") = 1
 			return This
@@ -6589,10 +6634,13 @@ class stzObject
 
 	def DigitN()
 		return This._NNLNounCount("numberofdigits")
+
 	def DigitNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofdigits")))
+
 	def DigitNB()
 		return This._NNLCountIs("numberofdigits")
+
 	def DigitNBQ()
 		if This._NNLCountIs("numberofdigits") = 1
 			return This
@@ -6600,8 +6648,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def DigitsB()
 		return This._NNLValueIs("digits")
+
 	def DigitsBQ()
 		if This._NNLValueIs("digits") = 1
 			return This
@@ -6612,10 +6662,13 @@ class stzObject
 
 	def DuplicatedItemN()
 		return This._NNLNounCount("numberofduplicateditems")
+
 	def DuplicatedItemNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplicateditems")))
+
 	def DuplicatedItemNB()
 		return This._NNLCountIs("numberofduplicateditems")
+
 	def DuplicatedItemNBQ()
 		if This._NNLCountIs("numberofduplicateditems") = 1
 			return This
@@ -6623,8 +6676,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def DuplicatedItemsB()
 		return This._NNLValueIs("duplicateditems")
+
 	def DuplicatedItemsBQ()
 		if This._NNLValueIs("duplicateditems") = 1
 			return This
@@ -6635,10 +6690,13 @@ class stzObject
 
 	def DuplicateN()
 		return This._NNLNounCount("numberofduplicates")
+
 	def DuplicateNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplicates")))
+
 	def DuplicateNB()
 		return This._NNLCountIs("numberofduplicates")
+
 	def DuplicateNBQ()
 		if This._NNLCountIs("numberofduplicates") = 1
 			return This
@@ -6646,8 +6704,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def DuplicatesB()
 		return This._NNLValueIs("duplicates")
+
 	def DuplicatesBQ()
 		if This._NNLValueIs("duplicates") = 1
 			return This
@@ -6658,10 +6718,13 @@ class stzObject
 
 	def DuplicationN()
 		return This._NNLNounCount("numberofduplications")
+
 	def DuplicationNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplications")))
+
 	def DuplicationNB()
 		return This._NNLCountIs("numberofduplications")
+
 	def DuplicationNBQ()
 		if This._NNLCountIs("numberofduplications") = 1
 			return This
@@ -6669,8 +6732,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def DuplicationsB()
 		return This._NNLValueIs("duplications")
+
 	def DuplicationsBQ()
 		if This._NNLValueIs("duplications") = 1
 			return This
@@ -6681,10 +6746,13 @@ class stzObject
 
 	def EmptyLineN()
 		return This._NNLNounCount("numberofemptylines")
+
 	def EmptyLineNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofemptylines")))
+
 	def EmptyLineNB()
 		return This._NNLCountIs("numberofemptylines")
+
 	def EmptyLineNBQ()
 		if This._NNLCountIs("numberofemptylines") = 1
 			return This
@@ -6695,10 +6763,13 @@ class stzObject
 
 	def IntegerN()
 		return This._NNLNounCount("numberofintegers")
+
 	def IntegerNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofintegers")))
+
 	def IntegerNB()
 		return This._NNLCountIs("numberofintegers")
+
 	def IntegerNBQ()
 		if This._NNLCountIs("numberofintegers") = 1
 			return This
@@ -6706,8 +6777,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def IntegersB()
 		return This._NNLValueIs("integers")
+
 	def IntegersBQ()
 		if This._NNLValueIs("integers") = 1
 			return This
@@ -6718,10 +6791,13 @@ class stzObject
 
 	def ItemN()
 		return This._NNLNounCount("numberofitems")
+
 	def ItemNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofitems")))
+
 	def ItemNB()
 		return This._NNLCountIs("numberofitems")
+
 	def ItemNBQ()
 		if This._NNLCountIs("numberofitems") = 1
 			return This
@@ -6729,8 +6805,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ItemsB()
 		return This._NNLValueIs("items")
+
 	def ItemsBQ()
 		if This._NNLValueIs("items") = 1
 			return This
@@ -6741,10 +6819,13 @@ class stzObject
 
 	def ItemsUN()
 		return This._NNLNounCount("numberofitemsu")
+
 	def ItemsUNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofitemsu")))
+
 	def ItemsUNB()
 		return This._NNLCountIs("numberofitemsu")
+
 	def ItemsUNBQ()
 		if This._NNLCountIs("numberofitemsu") = 1
 			return This
@@ -6755,10 +6836,13 @@ class stzObject
 
 	def LargestN()
 		return This._NNLNounCount("numberoflargest")
+
 	def LargestNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflargest")))
+
 	def LargestNB()
 		return This._NNLCountIs("numberoflargest")
+
 	def LargestNBQ()
 		if This._NNLCountIs("numberoflargest") = 1
 			return This
@@ -6766,8 +6850,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def LargestB()
 		return This._NNLValueIs("largest")
+
 	def LargestBQ()
 		if This._NNLValueIs("largest") = 1
 			return This
@@ -6778,10 +6864,13 @@ class stzObject
 
 	def LeadingCharN()
 		return This._NNLNounCount("numberofleadingchars")
+
 	def LeadingCharNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofleadingchars")))
+
 	def LeadingCharNB()
 		return This._NNLCountIs("numberofleadingchars")
+
 	def LeadingCharNBQ()
 		if This._NNLCountIs("numberofleadingchars") = 1
 			return This
@@ -6789,8 +6878,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def LeadingCharsB()
 		return This._NNLValueIs("leadingchars")
+
 	def LeadingCharsBQ()
 		if This._NNLValueIs("leadingchars") = 1
 			return This
@@ -6801,10 +6892,13 @@ class stzObject
 
 	def LeadingItemN()
 		return This._NNLNounCount("numberofleadingitems")
+
 	def LeadingItemNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofleadingitems")))
+
 	def LeadingItemNB()
 		return This._NNLCountIs("numberofleadingitems")
+
 	def LeadingItemNBQ()
 		if This._NNLCountIs("numberofleadingitems") = 1
 			return This
@@ -6812,8 +6906,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def LeadingItemsB()
 		return This._NNLValueIs("leadingitems")
+
 	def LeadingItemsBQ()
 		if This._NNLValueIs("leadingitems") = 1
 			return This
@@ -6824,10 +6920,13 @@ class stzObject
 
 	def LetterN()
 		return This._NNLNounCount("numberofletters")
+
 	def LetterNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofletters")))
+
 	def LetterNB()
 		return This._NNLCountIs("numberofletters")
+
 	def LetterNBQ()
 		if This._NNLCountIs("numberofletters") = 1
 			return This
@@ -6835,8 +6934,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def LettersB()
 		return This._NNLValueIs("letters")
+
 	def LettersBQ()
 		if This._NNLValueIs("letters") = 1
 			return This
@@ -6847,10 +6948,13 @@ class stzObject
 
 	def LevelN()
 		return This._NNLNounCount("numberoflevels")
+
 	def LevelNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflevels")))
+
 	def LevelNB()
 		return This._NNLCountIs("numberoflevels")
+
 	def LevelNBQ()
 		if This._NNLCountIs("numberoflevels") = 1
 			return This
@@ -6861,10 +6965,13 @@ class stzObject
 
 	def LineN()
 		return This._NNLNounCount("numberoflines")
+
 	def LineNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflines")))
+
 	def LineNB()
 		return This._NNLCountIs("numberoflines")
+
 	def LineNBQ()
 		if This._NNLCountIs("numberoflines") = 1
 			return This
@@ -6872,8 +6979,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def LinesB()
 		return This._NNLValueIs("lines")
+
 	def LinesBQ()
 		if This._NNLValueIs("lines") = 1
 			return This
@@ -6884,10 +6993,13 @@ class stzObject
 
 	def ListN()
 		return This._NNLNounCount("numberoflists")
+
 	def ListNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflists")))
+
 	def ListNB()
 		return This._NNLCountIs("numberoflists")
+
 	def ListNBQ()
 		if This._NNLCountIs("numberoflists") = 1
 			return This
@@ -6895,8 +7007,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ListsB()
 		return This._NNLValueIs("lists")
+
 	def ListsBQ()
 		if This._NNLValueIs("lists") = 1
 			return This
@@ -6907,10 +7021,13 @@ class stzObject
 
 	def MarkerN()
 		return This._NNLNounCount("numberofmarkers")
+
 	def MarkerNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofmarkers")))
+
 	def MarkerNB()
 		return This._NNLCountIs("numberofmarkers")
+
 	def MarkerNBQ()
 		if This._NNLCountIs("numberofmarkers") = 1
 			return This
@@ -6918,8 +7035,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def MarkersB()
 		return This._NNLValueIs("markers")
+
 	def MarkersBQ()
 		if This._NNLValueIs("markers") = 1
 			return This
@@ -6930,10 +7049,13 @@ class stzObject
 
 	def MarquerN()
 		return This._NNLNounCount("numberofmarquers")
+
 	def MarquerNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofmarquers")))
+
 	def MarquerNB()
 		return This._NNLCountIs("numberofmarquers")
+
 	def MarquerNBQ()
 		if This._NNLCountIs("numberofmarquers") = 1
 			return This
@@ -6941,8 +7063,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def MarquersB()
 		return This._NNLValueIs("marquers")
+
 	def MarquersBQ()
 		if This._NNLValueIs("marquers") = 1
 			return This
@@ -6953,10 +7077,13 @@ class stzObject
 
 	def NamedObjectN()
 		return This._NNLNounCount("numberofnamedobjects")
+
 	def NamedObjectNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnamedobjects")))
+
 	def NamedObjectNB()
 		return This._NNLCountIs("numberofnamedobjects")
+
 	def NamedObjectNBQ()
 		if This._NNLCountIs("numberofnamedobjects") = 1
 			return This
@@ -6964,8 +7091,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def NamedObjectsB()
 		return This._NNLValueIs("namedobjects")
+
 	def NamedObjectsBQ()
 		if This._NNLValueIs("namedobjects") = 1
 			return This
@@ -6976,10 +7105,13 @@ class stzObject
 
 	def NonEmptyLineN()
 		return This._NNLNounCount("numberofnonemptylines")
+
 	def NonEmptyLineNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnonemptylines")))
+
 	def NonEmptyLineNB()
 		return This._NNLCountIs("numberofnonemptylines")
+
 	def NonEmptyLineNBQ()
 		if This._NNLCountIs("numberofnonemptylines") = 1
 			return This
@@ -6990,10 +7122,13 @@ class stzObject
 
 	def NonStzObjectN()
 		return This._NNLNounCount("numberofnonstzobjects")
+
 	def NonStzObjectNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnonstzobjects")))
+
 	def NonStzObjectNB()
 		return This._NNLCountIs("numberofnonstzobjects")
+
 	def NonStzObjectNBQ()
 		if This._NNLCountIs("numberofnonstzobjects") = 1
 			return This
@@ -7004,10 +7139,13 @@ class stzObject
 
 	def NumberN()
 		return This._NNLNounCount("numberofnumbers")
+
 	def NumberNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnumbers")))
+
 	def NumberNB()
 		return This._NNLCountIs("numberofnumbers")
+
 	def NumberNBQ()
 		if This._NNLCountIs("numberofnumbers") = 1
 			return This
@@ -7015,8 +7153,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def NumbersB()
 		return This._NNLValueIs("numbers")
+
 	def NumbersBQ()
 		if This._NNLValueIs("numbers") = 1
 			return This
@@ -7027,10 +7167,13 @@ class stzObject
 
 	def ObjectN()
 		return This._NNLNounCount("numberofobjects")
+
 	def ObjectNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofobjects")))
+
 	def ObjectNB()
 		return This._NNLCountIs("numberofobjects")
+
 	def ObjectNBQ()
 		if This._NNLCountIs("numberofobjects") = 1
 			return This
@@ -7038,8 +7181,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ObjectsB()
 		return This._NNLValueIs("objects")
+
 	def ObjectsBQ()
 		if This._NNLValueIs("objects") = 1
 			return This
@@ -7050,10 +7195,13 @@ class stzObject
 
 	def PairN()
 		return This._NNLNounCount("numberofpairs")
+
 	def PairNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofpairs")))
+
 	def PairNB()
 		return This._NNLCountIs("numberofpairs")
+
 	def PairNBQ()
 		if This._NNLCountIs("numberofpairs") = 1
 			return This
@@ -7061,8 +7209,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def PairsB()
 		return This._NNLValueIs("pairs")
+
 	def PairsBQ()
 		if This._NNLValueIs("pairs") = 1
 			return This
@@ -7073,10 +7223,13 @@ class stzObject
 
 	def ParagraphN()
 		return This._NNLNounCount("numberofparagraphs")
+
 	def ParagraphNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofparagraphs")))
+
 	def ParagraphNB()
 		return This._NNLCountIs("numberofparagraphs")
+
 	def ParagraphNBQ()
 		if This._NNLCountIs("numberofparagraphs") = 1
 			return This
@@ -7084,8 +7237,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ParagraphsB()
 		return This._NNLValueIs("paragraphs")
+
 	def ParagraphsBQ()
 		if This._NNLValueIs("paragraphs") = 1
 			return This
@@ -7096,10 +7251,13 @@ class stzObject
 
 	def ScriptN()
 		return This._NNLNounCount("numberofscripts")
+
 	def ScriptNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofscripts")))
+
 	def ScriptNB()
 		return This._NNLCountIs("numberofscripts")
+
 	def ScriptNBQ()
 		if This._NNLCountIs("numberofscripts") = 1
 			return This
@@ -7107,8 +7265,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def ScriptsB()
 		return This._NNLValueIs("scripts")
+
 	def ScriptsBQ()
 		if This._NNLValueIs("scripts") = 1
 			return This
@@ -7119,10 +7279,13 @@ class stzObject
 
 	def SentenceN()
 		return This._NNLNounCount("numberofsentences")
+
 	def SentenceNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsentences")))
+
 	def SentenceNB()
 		return This._NNLCountIs("numberofsentences")
+
 	def SentenceNBQ()
 		if This._NNLCountIs("numberofsentences") = 1
 			return This
@@ -7130,8 +7293,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def SentencesB()
 		return This._NNLValueIs("sentences")
+
 	def SentencesBQ()
 		if This._NNLValueIs("sentences") = 1
 			return This
@@ -7142,10 +7307,13 @@ class stzObject
 
 	def SmallestN()
 		return This._NNLNounCount("numberofsmallest")
+
 	def SmallestNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsmallest")))
+
 	def SmallestNB()
 		return This._NNLCountIs("numberofsmallest")
+
 	def SmallestNBQ()
 		if This._NNLCountIs("numberofsmallest") = 1
 			return This
@@ -7153,8 +7321,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def SmallestB()
 		return This._NNLValueIs("smallest")
+
 	def SmallestBQ()
 		if This._NNLValueIs("smallest") = 1
 			return This
@@ -7165,10 +7335,13 @@ class stzObject
 
 	def StringN()
 		return This._NNLNounCount("numberofstrings")
+
 	def StringNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofstrings")))
+
 	def StringNB()
 		return This._NNLCountIs("numberofstrings")
+
 	def StringNBQ()
 		if This._NNLCountIs("numberofstrings") = 1
 			return This
@@ -7176,8 +7349,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def StringsB()
 		return This._NNLValueIs("strings")
+
 	def StringsBQ()
 		if This._NNLValueIs("strings") = 1
 			return This
@@ -7188,10 +7363,13 @@ class stzObject
 
 	def StzObjectN()
 		return This._NNLNounCount("numberofstzobjects")
+
 	def StzObjectNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofstzobjects")))
+
 	def StzObjectNB()
 		return This._NNLCountIs("numberofstzobjects")
+
 	def StzObjectNBQ()
 		if This._NNLCountIs("numberofstzobjects") = 1
 			return This
@@ -7202,10 +7380,13 @@ class stzObject
 
 	def SubStringN()
 		return This._NNLNounCount("numberofsubstrings")
+
 	def SubStringNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsubstrings")))
+
 	def SubStringNB()
 		return This._NNLCountIs("numberofsubstrings")
+
 	def SubStringNBQ()
 		if This._NNLCountIs("numberofsubstrings") = 1
 			return This
@@ -7213,8 +7394,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def SubStringsB()
 		return This._NNLValueIs("substrings")
+
 	def SubStringsBQ()
 		if This._NNLValueIs("substrings") = 1
 			return This
@@ -7225,10 +7408,13 @@ class stzObject
 
 	def SubStringsUN()
 		return This._NNLNounCount("numberofsubstringsu")
+
 	def SubStringsUNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsubstringsu")))
+
 	def SubStringsUNB()
 		return This._NNLCountIs("numberofsubstringsu")
+
 	def SubStringsUNBQ()
 		if This._NNLCountIs("numberofsubstringsu") = 1
 			return This
@@ -7236,8 +7422,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def SubStringsUB()
 		return This._NNLValueIs("substringsu")
+
 	def SubStringsUBQ()
 		if This._NNLValueIs("substringsu") = 1
 			return This
@@ -7248,10 +7436,13 @@ class stzObject
 
 	def TrailingCharN()
 		return This._NNLNounCount("numberoftrailingchars")
+
 	def TrailingCharNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoftrailingchars")))
+
 	def TrailingCharNB()
 		return This._NNLCountIs("numberoftrailingchars")
+
 	def TrailingCharNBQ()
 		if This._NNLCountIs("numberoftrailingchars") = 1
 			return This
@@ -7259,8 +7450,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def TrailingCharsB()
 		return This._NNLValueIs("trailingchars")
+
 	def TrailingCharsBQ()
 		if This._NNLValueIs("trailingchars") = 1
 			return This
@@ -7271,10 +7464,13 @@ class stzObject
 
 	def TrailingItemN()
 		return This._NNLNounCount("numberoftrailingitems")
+
 	def TrailingItemNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoftrailingitems")))
+
 	def TrailingItemNB()
 		return This._NNLCountIs("numberoftrailingitems")
+
 	def TrailingItemNBQ()
 		if This._NNLCountIs("numberoftrailingitems") = 1
 			return This
@@ -7282,8 +7478,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def TrailingItemsB()
 		return This._NNLValueIs("trailingitems")
+
 	def TrailingItemsBQ()
 		if This._NNLValueIs("trailingitems") = 1
 			return This
@@ -7294,10 +7492,13 @@ class stzObject
 
 	def UniqueSubStringN()
 		return This._NNLNounCount("numberofuniquesubstrings")
+
 	def UniqueSubStringNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofuniquesubstrings")))
+
 	def UniqueSubStringNB()
 		return This._NNLCountIs("numberofuniquesubstrings")
+
 	def UniqueSubStringNBQ()
 		if This._NNLCountIs("numberofuniquesubstrings") = 1
 			return This
@@ -7305,8 +7506,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def UniqueSubStringsB()
 		return This._NNLValueIs("uniquesubstrings")
+
 	def UniqueSubStringsBQ()
 		if This._NNLValueIs("uniquesubstrings") = 1
 			return This
@@ -7317,10 +7520,13 @@ class stzObject
 
 	def UnnamedObjectN()
 		return This._NNLNounCount("numberofunnamedobjects")
+
 	def UnnamedObjectNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofunnamedobjects")))
+
 	def UnnamedObjectNB()
 		return This._NNLCountIs("numberofunnamedobjects")
+
 	def UnnamedObjectNBQ()
 		if This._NNLCountIs("numberofunnamedobjects") = 1
 			return This
@@ -7328,8 +7534,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def UnnamedObjectsB()
 		return This._NNLValueIs("unnamedobjects")
+
 	def UnnamedObjectsBQ()
 		if This._NNLValueIs("unnamedobjects") = 1
 			return This
@@ -7340,10 +7548,13 @@ class stzObject
 
 	def VowelN()
 		return This._NNLNounCount("numberofvowels")
+
 	def VowelNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofvowels")))
+
 	def VowelNB()
 		return This._NNLCountIs("numberofvowels")
+
 	def VowelNBQ()
 		if This._NNLCountIs("numberofvowels") = 1
 			return This
@@ -7351,8 +7562,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def VowelsB()
 		return This._NNLValueIs("vowels")
+
 	def VowelsBQ()
 		if This._NNLValueIs("vowels") = 1
 			return This
@@ -7363,10 +7576,13 @@ class stzObject
 
 	def WordN()
 		return This._NNLNounCount("numberofwords")
+
 	def WordNQ()
 		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofwords")))
+
 	def WordNB()
 		return This._NNLCountIs("numberofwords")
+
 	def WordNBQ()
 		if This._NNLCountIs("numberofwords") = 1
 			return This
@@ -7374,8 +7590,10 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
 	def WordsB()
 		return This._NNLValueIs("words")
+
 	def WordsBQ()
 		if This._NNLValueIs("words") = 1
 			return This
@@ -7383,4 +7601,10303 @@ class stzObject
 		_oFo_ = AFalseObjectXT(This)
 		_oFo_.SetWhyStopped(@cNNLWhy)
 		return _oFo_
+
+	def AbsB()
+		return This._NNLValueIs("abs")
+
+	def AbsBQ()
+		if This._NNLValueIs("abs") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AbsoluteB()
+		return This._NNLValueIs("absolute")
+
+	def AbsoluteBQ()
+		if This._NNLValueIs("absolute") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ACharB()
+		return This._NNLValueIs("achar")
+
+	def ACharBQ()
+		if This._NNLValueIs("achar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllAreEqualB()
+		return This._NNLValueIs("allareequal")
+
+	def AllAreEqualBQ()
+		if This._NNLValueIs("allareequal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllCharsAreEvenB()
+		return This._NNLValueIs("allcharsareeven")
+
+	def AllCharsAreEvenBQ()
+		if This._NNLValueIs("allcharsareeven") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllCharsAreOddB()
+		return This._NNLValueIs("allcharsareodd")
+
+	def AllCharsAreOddBQ()
+		if This._NNLValueIs("allcharsareodd") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllCharsArePositiveB()
+		return This._NNLValueIs("allcharsarepositive")
+
+	def AllCharsArePositiveBQ()
+		if This._NNLValueIs("allcharsarepositive") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllDozensB()
+		return This._NNLValueIs("alldozens")
+
+	def AllDozensBQ()
+		if This._NNLValueIs("alldozens") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllHundredsB()
+		return This._NNLValueIs("allhundreds")
+
+	def AllHundredsBQ()
+		if This._NNLValueIs("allhundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllItemsAreEmptyListsB()
+		return This._NNLValueIs("allitemsareemptylists")
+
+	def AllItemsAreEmptyListsBQ()
+		if This._NNLValueIs("allitemsareemptylists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllItemsAreEqualB()
+		return This._NNLValueIs("allitemsareequal")
+
+	def AllItemsAreEqualBQ()
+		if This._NNLValueIs("allitemsareequal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllItemsAreListsB()
+		return This._NNLValueIs("allitemsarelists")
+
+	def AllItemsAreListsBQ()
+		if This._NNLValueIs("allitemsarelists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllItemsHaveSameTypeB()
+		return This._NNLValueIs("allitemshavesametype")
+
+	def AllItemsHaveSameTypeBQ()
+		if This._NNLValueIs("allitemshavesametype") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllPathsB()
+		return This._NNLValueIs("allpaths")
+
+	def AllPathsBQ()
+		if This._NNLValueIs("allpaths") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AllUnitsB()
+		return This._NNLValueIs("allunits")
+
+	def AllUnitsBQ()
+		if This._NNLValueIs("allunits") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AnyCharB()
+		return This._NNLValueIs("anychar")
+
+	def AnyCharBQ()
+		if This._NNLValueIs("anychar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AnyPositionB()
+		return This._NNLValueIs("anyposition")
+
+	def AnyPositionBQ()
+		if This._NNLValueIs("anyposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AnySectionB()
+		return This._NNLValueIs("anysection")
+
+	def AnySectionBQ()
+		if This._NNLValueIs("anysection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def APositionB()
+		return This._NNLValueIs("aposition")
+
+	def APositionBQ()
+		if This._NNLValueIs("aposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ARandomCharB()
+		return This._NNLValueIs("arandomchar")
+
+	def ARandomCharBQ()
+		if This._NNLValueIs("arandomchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ARandomPositionB()
+		return This._NNLValueIs("arandomposition")
+
+	def ARandomPositionBQ()
+		if This._NNLValueIs("arandomposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ARandomSectionB()
+		return This._NNLValueIs("arandomsection")
+
+	def ARandomSectionBQ()
+		if This._NNLValueIs("arandomsection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AreContiguousB()
+		return This._NNLValueIs("arecontiguous")
+
+	def AreContiguousBQ()
+		if This._NNLValueIs("arecontiguous") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ASectionB()
+		return This._NNLValueIs("asection")
+
+	def ASectionBQ()
+		if This._NNLValueIs("asection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AsWellB()
+		return This._NNLValueIs("aswell")
+
+	def AsWellBQ()
+		if This._NNLValueIs("aswell") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AttributesB()
+		return This._NNLValueIs("attributes")
+
+	def AttributesBQ()
+		if This._NNLValueIs("attributes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AutoLemmatizedB()
+		return This._NNLValueIs("autolemmatized")
+
+	def AutoLemmatizedBQ()
+		if This._NNLValueIs("autolemmatized") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AutoStemmedB()
+		return This._NNLValueIs("autostemmed")
+
+	def AutoStemmedBQ()
+		if This._NNLValueIs("autostemmed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AverageB()
+		return This._NNLValueIs("average")
+
+	def AverageBQ()
+		if This._NNLValueIs("average") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BisectB()
+		return This._NNLValueIs("bisect")
+
+	def BisectBQ()
+		if This._NNLValueIs("bisect") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BothAreListsB()
+		return This._NNLValueIs("botharelists")
+
+	def BothAreListsBQ()
+		if This._NNLValueIs("botharelists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BothAreNumbersB()
+		return This._NNLValueIs("botharenumbers")
+
+	def BothAreNumbersBQ()
+		if This._NNLValueIs("botharenumbers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BothAreObjectsB()
+		return This._NNLValueIs("bothareobjects")
+
+	def BothAreObjectsBQ()
+		if This._NNLValueIs("bothareobjects") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BothAreStringsB()
+		return This._NNLValueIs("botharestrings")
+
+	def BothAreStringsBQ()
+		if This._NNLValueIs("botharestrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoundsB()
+		return This._NNLValueIs("bounds")
+
+	def BoundsBQ()
+		if This._NNLValueIs("bounds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoundsRemovedB()
+		return This._NNLValueIs("boundsremoved")
+
+	def BoundsRemovedBQ()
+		if This._NNLValueIs("boundsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedB()
+		return This._NNLValueIs("boxed")
+
+	def BoxedBQ()
+		if This._NNLValueIs("boxed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedDashedB()
+		return This._NNLValueIs("boxeddashed")
+
+	def BoxedDashedBQ()
+		if This._NNLValueIs("boxeddashed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedRoundB()
+		return This._NNLValueIs("boxedround")
+
+	def BoxedRoundBQ()
+		if This._NNLValueIs("boxedround") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedRoundDashedB()
+		return This._NNLValueIs("boxedrounddashed")
+
+	def BoxedRoundDashedBQ()
+		if This._NNLValueIs("boxedrounddashed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedRoundedB()
+		return This._NNLValueIs("boxedrounded")
+
+	def BoxedRoundedBQ()
+		if This._NNLValueIs("boxedrounded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxedRoundedDashedB()
+		return This._NNLValueIs("boxedroundeddashed")
+
+	def BoxedRoundedDashedBQ()
+		if This._NNLValueIs("boxedroundeddashed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BoxifyB()
+		return This._NNLValueIs("boxify")
+
+	def BoxifyBQ()
+		if This._NNLValueIs("boxify") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def BytecodesB()
+		return This._NNLValueIs("bytecodes")
+
+	def BytecodesBQ()
+		if This._NNLValueIs("bytecodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CapitalCasedB()
+		return This._NNLValueIs("capitalcased")
+
+	def CapitalCasedBQ()
+		if This._NNLValueIs("capitalcased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CapitalizedB()
+		return This._NNLValueIs("capitalized")
+
+	def CapitalizedBQ()
+		if This._NNLValueIs("capitalized") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CaseFoldedB()
+		return This._NNLValueIs("casefolded")
+
+	def CaseFoldedBQ()
+		if This._NNLValueIs("casefolded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CentralCharB()
+		return This._NNLValueIs("centralchar")
+
+	def CentralCharBQ()
+		if This._NNLValueIs("centralchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CentralItemB()
+		return This._NNLValueIs("centralitem")
+
+	def CentralItemBQ()
+		if This._NNLValueIs("centralitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CentralItemPositionB()
+		return This._NNLValueIs("centralitemposition")
+
+	def CentralItemPositionBQ()
+		if This._NNLValueIs("centralitemposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CentralPositionB()
+		return This._NNLValueIs("centralposition")
+
+	def CentralPositionBQ()
+		if This._NNLValueIs("centralposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharCaseB()
+		return This._NNLValueIs("charcase")
+
+	def CharCaseBQ()
+		if This._NNLValueIs("charcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsAndTheirCountsB()
+		return This._NNLValueIs("charsandtheircounts")
+
+	def CharsAndTheirCountsBQ()
+		if This._NNLValueIs("charsandtheircounts") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsAndTheirUnicodesB()
+		return This._NNLValueIs("charsandtheirunicodes")
+
+	def CharsAndTheirUnicodesBQ()
+		if This._NNLValueIs("charsandtheirunicodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsAndUnicodesB()
+		return This._NNLValueIs("charsandunicodes")
+
+	def CharsAndUnicodesBQ()
+		if This._NNLValueIs("charsandunicodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsAndUnicodesUB()
+		return This._NNLValueIs("charsandunicodesu")
+
+	def CharsAndUnicodesUBQ()
+		if This._NNLValueIs("charsandunicodesu") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsBoxedB()
+		return This._NNLValueIs("charsboxed")
+
+	def CharsBoxedBQ()
+		if This._NNLValueIs("charsboxed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsInvertedB()
+		return This._NNLValueIs("charsinverted")
+
+	def CharsInvertedBQ()
+		if This._NNLValueIs("charsinverted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsNamesB()
+		return This._NNLValueIs("charsnames")
+
+	def CharsNamesBQ()
+		if This._NNLValueIs("charsnames") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsReversedB()
+		return This._NNLValueIs("charsreversed")
+
+	def CharsReversedBQ()
+		if This._NNLValueIs("charsreversed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CharsUB()
+		return This._NNLValueIs("charsu")
+
+	def CharsUBQ()
+		if This._NNLValueIs("charsu") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ClassifiedB()
+		return This._NNLValueIs("classified")
+
+	def ClassifiedBQ()
+		if This._NNLValueIs("classified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ClassNameB()
+		return This._NNLValueIs("classname")
+
+	def ClassNameBQ()
+		if This._NNLValueIs("classname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CommonLogarithmB()
+		return This._NNLValueIs("commonlogarithm")
+
+	def CommonLogarithmBQ()
+		if This._NNLValueIs("commonlogarithm") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CompactedB()
+		return This._NNLValueIs("compacted")
+
+	def CompactedBQ()
+		if This._NNLValueIs("compacted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ConsecutiveSubStringsB()
+		return This._NNLValueIs("consecutivesubstrings")
+
+	def ConsecutiveSubStringsBQ()
+		if This._NNLValueIs("consecutivesubstrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ConsecutiveSubStringsZB()
+		return This._NNLValueIs("consecutivesubstringsz")
+
+	def ConsecutiveSubStringsZBQ()
+		if This._NNLValueIs("consecutivesubstringsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsADecimalPartB()
+		return This._NNLValueIs("containsadecimalpart")
+
+	def ContainsADecimalPartBQ()
+		if This._NNLValueIs("containsadecimalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsAFinalNumberB()
+		return This._NNLValueIs("containsafinalnumber")
+
+	def ContainsAFinalNumberBQ()
+		if This._NNLValueIs("containsafinalnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsAnEndingNumberB()
+		return This._NNLValueIs("containsanendingnumber")
+
+	def ContainsAnEndingNumberBQ()
+		if This._NNLValueIs("containsanendingnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsArabicB()
+		return This._NNLValueIs("containsarabic")
+
+	def ContainsArabicBQ()
+		if This._NNLValueIs("containsarabic") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsASignB()
+		return This._NNLValueIs("containsasign")
+
+	def ContainsASignBQ()
+		if This._NNLValueIs("containsasign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsBillionsB()
+		return This._NNLValueIs("containsbillions")
+
+	def ContainsBillionsBQ()
+		if This._NNLValueIs("containsbillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsCentralItemB()
+		return This._NNLValueIs("containscentralitem")
+
+	def ContainsCentralItemBQ()
+		if This._NNLValueIs("containscentralitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsDecimalPartB()
+		return This._NNLValueIs("containsdecimalpart")
+
+	def ContainsDecimalPartBQ()
+		if This._NNLValueIs("containsdecimalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsDiacriticsB()
+		return This._NNLValueIs("containsdiacritics")
+
+	def ContainsDiacriticsBQ()
+		if This._NNLValueIs("containsdiacritics") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsDigitsB()
+		return This._NNLValueIs("containsdigits")
+
+	def ContainsDigitsBQ()
+		if This._NNLValueIs("containsdigits") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsDozensB()
+		return This._NNLValueIs("containsdozens")
+
+	def ContainsDozensBQ()
+		if This._NNLValueIs("containsdozens") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsDuplicatesB()
+		return This._NNLValueIs("containsduplicates")
+
+	def ContainsDuplicatesBQ()
+		if This._NNLValueIs("containsduplicates") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsEmptyStringsB()
+		return This._NNLValueIs("containsemptystrings")
+
+	def ContainsEmptyStringsBQ()
+		if This._NNLValueIs("containsemptystrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsFractionalPartB()
+		return This._NNLValueIs("containsfractionalpart")
+
+	def ContainsFractionalPartBQ()
+		if This._NNLValueIs("containsfractionalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsHundredsB()
+		return This._NNLValueIs("containshundreds")
+
+	def ContainsHundredsBQ()
+		if This._NNLValueIs("containshundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsInvisibleCharsB()
+		return This._NNLValueIs("containsinvisiblechars")
+
+	def ContainsInvisibleCharsBQ()
+		if This._NNLValueIs("containsinvisiblechars") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsLatinB()
+		return This._NNLValueIs("containslatin")
+
+	def ContainsLatinBQ()
+		if This._NNLValueIs("containslatin") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsLettersB()
+		return This._NNLValueIs("containsletters")
+
+	def ContainsLettersBQ()
+		if This._NNLValueIs("containsletters") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsListsB()
+		return This._NNLValueIs("containslists")
+
+	def ContainsListsBQ()
+		if This._NNLValueIs("containslists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyBillionsB()
+		return This._NNLValueIs("containsmanybillions")
+
+	def ContainsManyBillionsBQ()
+		if This._NNLValueIs("containsmanybillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyDozensB()
+		return This._NNLValueIs("containsmanydozens")
+
+	def ContainsManyDozensBQ()
+		if This._NNLValueIs("containsmanydozens") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyHundredsB()
+		return This._NNLValueIs("containsmanyhundreds")
+
+	def ContainsManyHundredsBQ()
+		if This._NNLValueIs("containsmanyhundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyMillionsB()
+		return This._NNLValueIs("containsmanymillions")
+
+	def ContainsManyMillionsBQ()
+		if This._NNLValueIs("containsmanymillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyOnesB()
+		return This._NNLValueIs("containsmanyones")
+
+	def ContainsManyOnesBQ()
+		if This._NNLValueIs("containsmanyones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyThousandsB()
+		return This._NNLValueIs("containsmanythousands")
+
+	def ContainsManyThousandsBQ()
+		if This._NNLValueIs("containsmanythousands") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyTrillionsB()
+		return This._NNLValueIs("containsmanytrillions")
+
+	def ContainsManyTrillionsBQ()
+		if This._NNLValueIs("containsmanytrillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsManyZerosB()
+		return This._NNLValueIs("containsmanyzeros")
+
+	def ContainsManyZerosBQ()
+		if This._NNLValueIs("containsmanyzeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsMarkersB()
+		return This._NNLValueIs("containsmarkers")
+
+	def ContainsMarkersBQ()
+		if This._NNLValueIs("containsmarkers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsMarquersB()
+		return This._NNLValueIs("containsmarquers")
+
+	def ContainsMarquersBQ()
+		if This._NNLValueIs("containsmarquers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsMillionsB()
+		return This._NNLValueIs("containsmillions")
+
+	def ContainsMillionsBQ()
+		if This._NNLValueIs("containsmillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsNoDuplicatesB()
+		return This._NNLValueIs("containsnoduplicates")
+
+	def ContainsNoDuplicatesBQ()
+		if This._NNLValueIs("containsnoduplicates") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsNoDuplicationsB()
+		return This._NNLValueIs("containsnoduplications")
+
+	def ContainsNoDuplicationsBQ()
+		if This._NNLValueIs("containsnoduplications") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsNoNumbersB()
+		return This._NNLValueIs("containsnonumbers")
+
+	def ContainsNoNumbersBQ()
+		if This._NNLValueIs("containsnonumbers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsNoObjectsB()
+		return This._NNLValueIs("containsnoobjects")
+
+	def ContainsNoObjectsBQ()
+		if This._NNLValueIs("containsnoobjects") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsNoStringsB()
+		return This._NNLValueIs("containsnostrings")
+
+	def ContainsNoStringsBQ()
+		if This._NNLValueIs("containsnostrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsObjectsB()
+		return This._NNLValueIs("containsobjects")
+
+	def ContainsObjectsBQ()
+		if This._NNLValueIs("containsobjects") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOneOrMoreListsB()
+		return This._NNLValueIs("containsoneormorelists")
+
+	def ContainsOneOrMoreListsBQ()
+		if This._NNLValueIs("containsoneormorelists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnesB()
+		return This._NNLValueIs("containsones")
+
+	def ContainsOnesBQ()
+		if This._NNLValueIs("containsones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlyDigitsB()
+		return This._NNLValueIs("containsonlydigits")
+
+	def ContainsOnlyDigitsBQ()
+		if This._NNLValueIs("containsonlydigits") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlyEmptyListsB()
+		return This._NNLValueIs("containsonlyemptylists")
+
+	def ContainsOnlyEmptyListsBQ()
+		if This._NNLValueIs("containsonlyemptylists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlyLettersB()
+		return This._NNLValueIs("containsonlyletters")
+
+	def ContainsOnlyLettersBQ()
+		if This._NNLValueIs("containsonlyletters") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlyListsB()
+		return This._NNLValueIs("containsonlylists")
+
+	def ContainsOnlyListsBQ()
+		if This._NNLValueIs("containsonlylists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlyNumbersB()
+		return This._NNLValueIs("containsonlynumbers")
+
+	def ContainsOnlyNumbersBQ()
+		if This._NNLValueIs("containsonlynumbers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsOnlySpacesB()
+		return This._NNLValueIs("containsonlyspaces")
+
+	def ContainsOnlySpacesBQ()
+		if This._NNLValueIs("containsonlyspaces") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsPairsB()
+		return This._NNLValueIs("containspairs")
+
+	def ContainsPairsBQ()
+		if This._NNLValueIs("containspairs") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsSeveralDozensB()
+		return This._NNLValueIs("containsseveraldozens")
+
+	def ContainsSeveralDozensBQ()
+		if This._NNLValueIs("containsseveraldozens") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsSeveralOnesB()
+		return This._NNLValueIs("containsseveralones")
+
+	def ContainsSeveralOnesBQ()
+		if This._NNLValueIs("containsseveralones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsSeveralZerosB()
+		return This._NNLValueIs("containsseveralzeros")
+
+	def ContainsSeveralZerosBQ()
+		if This._NNLValueIs("containsseveralzeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsSignB()
+		return This._NNLValueIs("containssign")
+
+	def ContainsSignBQ()
+		if This._NNLValueIs("containssign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsSinglesB()
+		return This._NNLValueIs("containssingles")
+
+	def ContainsSinglesBQ()
+		if This._NNLValueIs("containssingles") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsThousandsB()
+		return This._NNLValueIs("containsthousands")
+
+	def ContainsThousandsBQ()
+		if This._NNLValueIs("containsthousands") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsTrillionsB()
+		return This._NNLValueIs("containstrillions")
+
+	def ContainsTrillionsBQ()
+		if This._NNLValueIs("containstrillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsTwoListsB()
+		return This._NNLValueIs("containstwolists")
+
+	def ContainsTwoListsBQ()
+		if This._NNLValueIs("containstwolists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsTwoNumbersB()
+		return This._NNLValueIs("containstwonumbers")
+
+	def ContainsTwoNumbersBQ()
+		if This._NNLValueIs("containstwonumbers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsTwoObjectsB()
+		return This._NNLValueIs("containstwoobjects")
+
+	def ContainsTwoObjectsBQ()
+		if This._NNLValueIs("containstwoobjects") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsTwoStringsB()
+		return This._NNLValueIs("containstwostrings")
+
+	def ContainsTwoStringsBQ()
+		if This._NNLValueIs("containstwostrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsVowelsB()
+		return This._NNLValueIs("containsvowels")
+
+	def ContainsVowelsBQ()
+		if This._NNLValueIs("containsvowels") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContainsZerosB()
+		return This._NNLValueIs("containszeros")
+
+	def ContainsZerosBQ()
+		if This._NNLValueIs("containszeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContentB()
+		return This._NNLValueIs("content")
+
+	def ContentBQ()
+		if This._NNLValueIs("content") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContentUB()
+		return This._NNLValueIs("contentu")
+
+	def ContentUBQ()
+		if This._NNLValueIs("contentu") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ContentWordsB()
+		return This._NNLValueIs("contentwords")
+
+	def ContentWordsBQ()
+		if This._NNLValueIs("contentwords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CosineB()
+		return This._NNLValueIs("cosine")
+
+	def CosineBQ()
+		if This._NNLValueIs("cosine") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def CotangentB()
+		return This._NNLValueIs("cotangent")
+
+	def CotangentBQ()
+		if This._NNLValueIs("cotangent") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DecimalPartValueB()
+		return This._NNLValueIs("decimalpartvalue")
+
+	def DecimalPartValueBQ()
+		if This._NNLValueIs("decimalpartvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DecrementedB()
+		return This._NNLValueIs("decremented")
+
+	def DecrementedBQ()
+		if This._NNLValueIs("decremented") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DeepStringifiedB()
+		return This._NNLValueIs("deepstringified")
+
+	def DeepStringifiedBQ()
+		if This._NNLValueIs("deepstringified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DerivativeSigmoidB()
+		return This._NNLValueIs("derivativesigmoid")
+
+	def DerivativeSigmoidBQ()
+		if This._NNLValueIs("derivativesigmoid") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DetectedLanguageB()
+		return This._NNLValueIs("detectedlanguage")
+
+	def DetectedLanguageBQ()
+		if This._NNLValueIs("detectedlanguage") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DiacriticsRemovedB()
+		return This._NNLValueIs("diacriticsremoved")
+
+	def DiacriticsRemovedBQ()
+		if This._NNLValueIs("diacriticsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DigitCountB()
+		return This._NNLValueIs("digitcount")
+
+	def DigitCountBQ()
+		if This._NNLValueIs("digitcount") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DigitSumB()
+		return This._NNLValueIs("digitsum")
+
+	def DigitSumBQ()
+		if This._NNLValueIs("digitsum") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DividorsB()
+		return This._NNLValueIs("dividors")
+
+	def DividorsBQ()
+		if This._NNLValueIs("dividors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DivirdosB()
+		return This._NNLValueIs("divirdos")
+
+	def DivirdosBQ()
+		if This._NNLValueIs("divirdos") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DivisorsB()
+		return This._NNLValueIs("divisors")
+
+	def DivisorsBQ()
+		if This._NNLValueIs("divisors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DotlessB()
+		return This._NNLValueIs("dotless")
+
+	def DotlessBQ()
+		if This._NNLValueIs("dotless") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DotsOnLettersRemovedB()
+		return This._NNLValueIs("dotsonlettersremoved")
+
+	def DotsOnLettersRemovedBQ()
+		if This._NNLValueIs("dotsonlettersremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DotsRemovedB()
+		return This._NNLValueIs("dotsremoved")
+
+	def DotsRemovedBQ()
+		if This._NNLValueIs("dotsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DozensB()
+		return This._NNLValueIs("dozens")
+
+	def DozensBQ()
+		if This._NNLValueIs("dozens") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicateCharsZB()
+		return This._NNLValueIs("duplicatecharsz")
+
+	def DuplicateCharsZBQ()
+		if This._NNLValueIs("duplicatecharsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatedCharsRemovedB()
+		return This._NNLValueIs("duplicatedcharsremoved")
+
+	def DuplicatedCharsRemovedBQ()
+		if This._NNLValueIs("duplicatedcharsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatedItemsZB()
+		return This._NNLValueIs("duplicateditemsz")
+
+	def DuplicatedItemsZBQ()
+		if This._NNLValueIs("duplicateditemsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatedStringsB()
+		return This._NNLValueIs("duplicatedstrings")
+
+	def DuplicatedStringsBQ()
+		if This._NNLValueIs("duplicatedstrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatedSubStringsB()
+		return This._NNLValueIs("duplicatedsubstrings")
+
+	def DuplicatedSubStringsBQ()
+		if This._NNLValueIs("duplicatedsubstrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicateItemsZB()
+		return This._NNLValueIs("duplicateitemsz")
+
+	def DuplicateItemsZBQ()
+		if This._NNLValueIs("duplicateitemsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatesRemovedB()
+		return This._NNLValueIs("duplicatesremoved")
+
+	def DuplicatesRemovedBQ()
+		if This._NNLValueIs("duplicatesremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatesXTZB()
+		return This._NNLValueIs("duplicatesxtz")
+
+	def DuplicatesXTZBQ()
+		if This._NNLValueIs("duplicatesxtz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicatesZB()
+		return This._NNLValueIs("duplicatesz")
+
+	def DuplicatesZBQ()
+		if This._NNLValueIs("duplicatesz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DuplicationsZB()
+		return This._NNLValueIs("duplicationsz")
+
+	def DuplicationsZBQ()
+		if This._NNLValueIs("duplicationsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def DupOriginsB()
+		return This._NNLValueIs("duporigins")
+
+	def DupOriginsBQ()
+		if This._NNLValueIs("duporigins") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EachCharBoxedB()
+		return This._NNLValueIs("eachcharboxed")
+
+	def EachCharBoxedBQ()
+		if This._NNLValueIs("eachcharboxed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EachCharBoxedDashedB()
+		return This._NNLValueIs("eachcharboxeddashed")
+
+	def EachCharBoxedDashedBQ()
+		if This._NNLValueIs("eachcharboxeddashed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EachCharBoxedRoundedB()
+		return This._NNLValueIs("eachcharboxedrounded")
+
+	def EachCharBoxedRoundedBQ()
+		if This._NNLValueIs("eachcharboxedrounded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EachCharBoxRoundedB()
+		return This._NNLValueIs("eachcharboxrounded")
+
+	def EachCharBoxRoundedBQ()
+		if This._NNLValueIs("eachcharboxrounded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EndsWithAFinalNumberB()
+		return This._NNLValueIs("endswithafinalnumber")
+
+	def EndsWithAFinalNumberBQ()
+		if This._NNLValueIs("endswithafinalnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EndsWithANumberB()
+		return This._NNLValueIs("endswithanumber")
+
+	def EndsWithANumberBQ()
+		if This._NNLValueIs("endswithanumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EndsWithNumberB()
+		return This._NNLValueIs("endswithnumber")
+
+	def EndsWithNumberBQ()
+		if This._NNLValueIs("endswithnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EngineB()
+		return This._NNLValueIs("engine")
+
+	def EngineBQ()
+		if This._NNLValueIs("engine") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EscapedForRegexB()
+		return This._NNLValueIs("escapedforregex")
+
+	def EscapedForRegexBQ()
+		if This._NNLValueIs("escapedforregex") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def EscapedHtmlB()
+		return This._NNLValueIs("escapedhtml")
+
+	def EscapedHtmlBQ()
+		if This._NNLValueIs("escapedhtml") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ExponentialB()
+		return This._NNLValueIs("exponential")
+
+	def ExponentialBQ()
+		if This._NNLValueIs("exponential") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FactorialB()
+		return This._NNLValueIs("factorial")
+
+	def FactorialBQ()
+		if This._NNLValueIs("factorial") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FactorsB()
+		return This._NNLValueIs("factors")
+
+	def FactorsBQ()
+		if This._NNLValueIs("factors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FibonacciB()
+		return This._NNLValueIs("fibonacci")
+
+	def FibonacciBQ()
+		if This._NNLValueIs("fibonacci") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstAndLastItemsB()
+		return This._NNLValueIs("firstandlastitems")
+
+	def FirstAndLastItemsBQ()
+		if This._NNLValueIs("firstandlastitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstCharB()
+		return This._NNLValueIs("firstchar")
+
+	def FirstCharBQ()
+		if This._NNLValueIs("firstchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstCharRemovedB()
+		return This._NNLValueIs("firstcharremoved")
+
+	def FirstCharRemovedBQ()
+		if This._NNLValueIs("firstcharremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfB()
+		return This._NNLValueIs("firsthalf")
+
+	def FirstHalfBQ()
+		if This._NNLValueIs("firsthalf") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfAndItsSectionB()
+		return This._NNLValueIs("firsthalfanditssection")
+
+	def FirstHalfAndItsSectionBQ()
+		if This._NNLValueIs("firsthalfanditssection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfAndPositionB()
+		return This._NNLValueIs("firsthalfandposition")
+
+	def FirstHalfAndPositionBQ()
+		if This._NNLValueIs("firsthalfandposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfAndSectionB()
+		return This._NNLValueIs("firsthalfandsection")
+
+	def FirstHalfAndSectionBQ()
+		if This._NNLValueIs("firsthalfandsection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfXTZB()
+		return This._NNLValueIs("firsthalfxtz")
+
+	def FirstHalfXTZBQ()
+		if This._NNLValueIs("firsthalfxtz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfXTZZB()
+		return This._NNLValueIs("firsthalfxtzz")
+
+	def FirstHalfXTZZBQ()
+		if This._NNLValueIs("firsthalfxtzz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfZB()
+		return This._NNLValueIs("firsthalfz")
+
+	def FirstHalfZBQ()
+		if This._NNLValueIs("firsthalfz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstHalfZZB()
+		return This._NNLValueIs("firsthalfzz")
+
+	def FirstHalfZZBQ()
+		if This._NNLValueIs("firsthalfzz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstItemB()
+		return This._NNLValueIs("firstitem")
+
+	def FirstItemBQ()
+		if This._NNLValueIs("firstitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstLineB()
+		return This._NNLValueIs("firstline")
+
+	def FirstLineBQ()
+		if This._NNLValueIs("firstline") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstNonSpaceCharB()
+		return This._NNLValueIs("firstnonspacechar")
+
+	def FirstNonSpaceCharBQ()
+		if This._NNLValueIs("firstnonspacechar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstSentenceB()
+		return This._NNLValueIs("firstsentence")
+
+	def FirstSentenceBQ()
+		if This._NNLValueIs("firstsentence") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FirstWordB()
+		return This._NNLValueIs("firstword")
+
+	def FirstWordBQ()
+		if This._NNLValueIs("firstword") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FlattenedB()
+		return This._NNLValueIs("flattened")
+
+	def FlattenedBQ()
+		if This._NNLValueIs("flattened") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FleschKincaidGradeB()
+		return This._NNLValueIs("fleschkincaidgrade")
+
+	def FleschKincaidGradeBQ()
+		if This._NNLValueIs("fleschkincaidgrade") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FleschReadingEaseB()
+		return This._NNLValueIs("fleschreadingease")
+
+	def FleschReadingEaseBQ()
+		if This._NNLValueIs("fleschreadingease") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FractionalPartValueB()
+		return This._NNLValueIs("fractionalpartvalue")
+
+	def FractionalPartValueBQ()
+		if This._NNLValueIs("fractionalpartvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def FrequenciesB()
+		return This._NNLValueIs("frequencies")
+
+	def FrequenciesBQ()
+		if This._NNLValueIs("frequencies") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def GetRoundB()
+		return This._NNLValueIs("getround")
+
+	def GetRoundBQ()
+		if This._NNLValueIs("getround") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def GreatestB()
+		return This._NNLValueIs("greatest")
+
+	def GreatestBQ()
+		if This._NNLValueIs("greatest") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesB()
+		return This._NNLValueIs("halves")
+
+	def HalvesBQ()
+		if This._NNLValueIs("halves") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesAndPositionsB()
+		return This._NNLValueIs("halvesandpositions")
+
+	def HalvesAndPositionsBQ()
+		if This._NNLValueIs("halvesandpositions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesAndSectionsB()
+		return This._NNLValueIs("halvesandsections")
+
+	def HalvesAndSectionsBQ()
+		if This._NNLValueIs("halvesandsections") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesXTZB()
+		return This._NNLValueIs("halvesxtz")
+
+	def HalvesXTZBQ()
+		if This._NNLValueIs("halvesxtz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesXTZZB()
+		return This._NNLValueIs("halvesxtzz")
+
+	def HalvesXTZZBQ()
+		if This._NNLValueIs("halvesxtzz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesZB()
+		return This._NNLValueIs("halvesz")
+
+	def HalvesZBQ()
+		if This._NNLValueIs("halvesz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HalvesZZB()
+		return This._NNLValueIs("halveszz")
+
+	def HalvesZZBQ()
+		if This._NNLValueIs("halveszz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasADecimalPartB()
+		return This._NNLValueIs("hasadecimalpart")
+
+	def HasADecimalPartBQ()
+		if This._NNLValueIs("hasadecimalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasAFractionalPartB()
+		return This._NNLValueIs("hasafractionalpart")
+
+	def HasAFractionalPartBQ()
+		if This._NNLValueIs("hasafractionalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasASignB()
+		return This._NNLValueIs("hasasign")
+
+	def HasASignBQ()
+		if This._NNLValueIs("hasasign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasBillionsB()
+		return This._NNLValueIs("hasbillions")
+
+	def HasBillionsBQ()
+		if This._NNLValueIs("hasbillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasCentralCharB()
+		return This._NNLValueIs("hascentralchar")
+
+	def HasCentralCharBQ()
+		if This._NNLValueIs("hascentralchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasCentralItemB()
+		return This._NNLValueIs("hascentralitem")
+
+	def HasCentralItemBQ()
+		if This._NNLValueIs("hascentralitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasDecimalPartB()
+		return This._NNLValueIs("hasdecimalpart")
+
+	def HasDecimalPartBQ()
+		if This._NNLValueIs("hasdecimalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasDiacriticsB()
+		return This._NNLValueIs("hasdiacritics")
+
+	def HasDiacriticsBQ()
+		if This._NNLValueIs("hasdiacritics") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasDuplicatedCharsB()
+		return This._NNLValueIs("hasduplicatedchars")
+
+	def HasDuplicatedCharsBQ()
+		if This._NNLValueIs("hasduplicatedchars") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasDuplicatesB()
+		return This._NNLValueIs("hasduplicates")
+
+	def HasDuplicatesBQ()
+		if This._NNLValueIs("hasduplicates") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasFractionalPartB()
+		return This._NNLValueIs("hasfractionalpart")
+
+	def HasFractionalPartBQ()
+		if This._NNLValueIs("hasfractionalpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasHundredsB()
+		return This._NNLValueIs("hashundreds")
+
+	def HasHundredsBQ()
+		if This._NNLValueIs("hashundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasLeadingCharsB()
+		return This._NNLValueIs("hasleadingchars")
+
+	def HasLeadingCharsBQ()
+		if This._NNLValueIs("hasleadingchars") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasLeadingItemsB()
+		return This._NNLValueIs("hasleadingitems")
+
+	def HasLeadingItemsBQ()
+		if This._NNLValueIs("hasleadingitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasLeadingSubStringB()
+		return This._NNLValueIs("hasleadingsubstring")
+
+	def HasLeadingSubStringBQ()
+		if This._NNLValueIs("hasleadingsubstring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyBillionsB()
+		return This._NNLValueIs("hasmanybillions")
+
+	def HasManyBillionsBQ()
+		if This._NNLValueIs("hasmanybillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyHundredsB()
+		return This._NNLValueIs("hasmanyhundreds")
+
+	def HasManyHundredsBQ()
+		if This._NNLValueIs("hasmanyhundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyOnesB()
+		return This._NNLValueIs("hasmanyones")
+
+	def HasManyOnesBQ()
+		if This._NNLValueIs("hasmanyones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyThousandsB()
+		return This._NNLValueIs("hasmanythousands")
+
+	def HasManyThousandsBQ()
+		if This._NNLValueIs("hasmanythousands") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyTrillionsB()
+		return This._NNLValueIs("hasmanytrillions")
+
+	def HasManyTrillionsBQ()
+		if This._NNLValueIs("hasmanytrillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasManyZerosB()
+		return This._NNLValueIs("hasmanyzeros")
+
+	def HasManyZerosBQ()
+		if This._NNLValueIs("hasmanyzeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasMarkB()
+		return This._NNLValueIs("hasmark")
+
+	def HasMarkBQ()
+		if This._NNLValueIs("hasmark") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasMillionsB()
+		return This._NNLValueIs("hasmillions")
+
+	def HasMillionsBQ()
+		if This._NNLValueIs("hasmillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasOnesB()
+		return This._NNLValueIs("hasones")
+
+	def HasOnesBQ()
+		if This._NNLValueIs("hasones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralBillionsB()
+		return This._NNLValueIs("hasseveralbillions")
+
+	def HasSeveralBillionsBQ()
+		if This._NNLValueIs("hasseveralbillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralHundredsB()
+		return This._NNLValueIs("hasseveralhundreds")
+
+	def HasSeveralHundredsBQ()
+		if This._NNLValueIs("hasseveralhundreds") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralMilllionsB()
+		return This._NNLValueIs("hasseveralmilllions")
+
+	def HasSeveralMilllionsBQ()
+		if This._NNLValueIs("hasseveralmilllions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralOnesB()
+		return This._NNLValueIs("hasseveralones")
+
+	def HasSeveralOnesBQ()
+		if This._NNLValueIs("hasseveralones") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralThousandsB()
+		return This._NNLValueIs("hasseveralthousands")
+
+	def HasSeveralThousandsBQ()
+		if This._NNLValueIs("hasseveralthousands") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralTrillionsB()
+		return This._NNLValueIs("hasseveraltrillions")
+
+	def HasSeveralTrillionsBQ()
+		if This._NNLValueIs("hasseveraltrillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSeveralZerosB()
+		return This._NNLValueIs("hasseveralzeros")
+
+	def HasSeveralZerosBQ()
+		if This._NNLValueIs("hasseveralzeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSignB()
+		return This._NNLValueIs("hassign")
+
+	def HasSignBQ()
+		if This._NNLValueIs("hassign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasSynonymsB()
+		return This._NNLValueIs("hassynonyms")
+
+	def HasSynonymsBQ()
+		if This._NNLValueIs("hassynonyms") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasThousandsB()
+		return This._NNLValueIs("hasthousands")
+
+	def HasThousandsBQ()
+		if This._NNLValueIs("hasthousands") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasTrailingCharsB()
+		return This._NNLValueIs("hastrailingchars")
+
+	def HasTrailingCharsBQ()
+		if This._NNLValueIs("hastrailingchars") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasTrailingItemsB()
+		return This._NNLValueIs("hastrailingitems")
+
+	def HasTrailingItemsBQ()
+		if This._NNLValueIs("hastrailingitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasTrailingSubStringB()
+		return This._NNLValueIs("hastrailingsubstring")
+
+	def HasTrailingSubStringBQ()
+		if This._NNLValueIs("hastrailingsubstring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasTrillionsB()
+		return This._NNLValueIs("hastrillions")
+
+	def HasTrillionsBQ()
+		if This._NNLValueIs("hastrillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasVowelsB()
+		return This._NNLValueIs("hasvowels")
+
+	def HasVowelsBQ()
+		if This._NNLValueIs("hasvowels") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HasZerosB()
+		return This._NNLValueIs("haszeros")
+
+	def HasZerosBQ()
+		if This._NNLValueIs("haszeros") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HexUnicodeB()
+		return This._NNLValueIs("hexunicode")
+
+	def HexUnicodeBQ()
+		if This._NNLValueIs("hexunicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HexUnicodesB()
+		return This._NNLValueIs("hexunicodes")
+
+	def HexUnicodesBQ()
+		if This._NNLValueIs("hexunicodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HighestB()
+		return This._NNLValueIs("highest")
+
+	def HighestBQ()
+		if This._NNLValueIs("highest") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HistogramB()
+		return This._NNLValueIs("histogram")
+
+	def HistogramBQ()
+		if This._NNLValueIs("histogram") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyDigitsB()
+		return This._NNLValueIs("howmanydigits")
+
+	def HowManyDigitsBQ()
+		if This._NNLValueIs("howmanydigits") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyDuplicatesB()
+		return This._NNLValueIs("howmanyduplicates")
+
+	def HowManyDuplicatesBQ()
+		if This._NNLValueIs("howmanyduplicates") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyItemsB()
+		return This._NNLValueIs("howmanyitems")
+
+	def HowManyItemsBQ()
+		if This._NNLValueIs("howmanyitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyLeadingCharB()
+		return This._NNLValueIs("howmanyleadingchar")
+
+	def HowManyLeadingCharBQ()
+		if This._NNLValueIs("howmanyleadingchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManySubStringsB()
+		return This._NNLValueIs("howmanysubstrings")
+
+	def HowManySubStringsBQ()
+		if This._NNLValueIs("howmanysubstrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyTrailingCharB()
+		return This._NNLValueIs("howmanytrailingchar")
+
+	def HowManyTrailingCharBQ()
+		if This._NNLValueIs("howmanytrailingchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HowManyWordsB()
+		return This._NNLValueIs("howmanywords")
+
+	def HowManyWordsBQ()
+		if This._NNLValueIs("howmanywords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HsManyMillionsB()
+		return This._NNLValueIs("hsmanymillions")
+
+	def HsManyMillionsBQ()
+		if This._NNLValueIs("hsmanymillions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HtmlDecodedB()
+		return This._NNLValueIs("htmldecoded")
+
+	def HtmlDecodedBQ()
+		if This._NNLValueIs("htmldecoded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HtmlEncodedB()
+		return This._NNLValueIs("htmlencoded")
+
+	def HtmlEncodedBQ()
+		if This._NNLValueIs("htmlencoded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HTMLEscapeB()
+		return This._NNLValueIs("htmlescape")
+
+	def HTMLEscapeBQ()
+		if This._NNLValueIs("htmlescape") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HtmlEscapedB()
+		return This._NNLValueIs("htmlescaped")
+
+	def HtmlEscapedBQ()
+		if This._NNLValueIs("htmlescaped") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HyperbolicCosineB()
+		return This._NNLValueIs("hyperboliccosine")
+
+	def HyperbolicCosineBQ()
+		if This._NNLValueIs("hyperboliccosine") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def HyperbolicSineB()
+		return This._NNLValueIs("hyperbolicsine")
+
+	def HyperbolicSineBQ()
+		if This._NNLValueIs("hyperbolicsine") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IncrementedB()
+		return This._NNLValueIs("incremented")
+
+	def IncrementedBQ()
+		if This._NNLValueIs("incremented") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IndexB()
+		return This._NNLValueIs("index")
+
+	def IndexBQ()
+		if This._NNLValueIs("index") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def InfereTypeB()
+		return This._NNLValueIs("inferetype")
+
+	def InfereTypeBQ()
+		if This._NNLValueIs("inferetype") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def InitialsB()
+		return This._NNLValueIs("initials")
+
+	def InitialsBQ()
+		if This._NNLValueIs("initials") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartB()
+		return This._NNLValueIs("integerpart")
+
+	def IntegerPartBQ()
+		if This._NNLValueIs("integerpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartStringValueB()
+		return This._NNLValueIs("integerpartstringvalue")
+
+	def IntegerPartStringValueBQ()
+		if This._NNLValueIs("integerpartstringvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartToHexFormB()
+		return This._NNLValueIs("integerparttohexform")
+
+	def IntegerPartToHexFormBQ()
+		if This._NNLValueIs("integerparttohexform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartToOctalFormB()
+		return This._NNLValueIs("integerparttooctalform")
+
+	def IntegerPartToOctalFormBQ()
+		if This._NNLValueIs("integerparttooctalform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartValueB()
+		return This._NNLValueIs("integerpartvalue")
+
+	def IntegerPartValueBQ()
+		if This._NNLValueIs("integerpartvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntegerPartWithoutSignB()
+		return This._NNLValueIs("integerpartwithoutsign")
+
+	def IntegerPartWithoutSignBQ()
+		if This._NNLValueIs("integerpartwithoutsign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntergerPartB()
+		return This._NNLValueIs("intergerpart")
+
+	def IntergerPartBQ()
+		if This._NNLValueIs("intergerpart") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IntergersB()
+		return This._NNLValueIs("intergers")
+
+	def IntergersBQ()
+		if This._NNLValueIs("intergers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def InverseB()
+		return This._NNLValueIs("inverse")
+
+	def InverseBQ()
+		if This._NNLValueIs("inverse") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def InversedB()
+		return This._NNLValueIs("inversed")
+
+	def InversedBQ()
+		if This._NNLValueIs("inversed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsACharB()
+		return This._NNLValueIs("isachar")
+
+	def IsACharBQ()
+		if This._NNLValueIs("isachar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsACharNameB()
+		return This._NNLValueIs("isacharname")
+
+	def IsACharNameBQ()
+		if This._NNLValueIs("isacharname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAClassB()
+		return This._NNLValueIs("isaclass")
+
+	def IsAClassBQ()
+		if This._NNLValueIs("isaclass") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsADigitB()
+		return This._NNLValueIs("isadigit")
+
+	def IsADigitBQ()
+		if This._NNLValueIs("isadigit") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAFunctionB()
+		return This._NNLValueIs("isafunction")
+
+	def IsAFunctionBQ()
+		if This._NNLValueIs("isafunction") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAFunctionNameB()
+		return This._NNLValueIs("isafunctionname")
+
+	def IsAFunctionNameBQ()
+		if This._NNLValueIs("isafunctionname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAHashListB()
+		return This._NNLValueIs("isahashlist")
+
+	def IsAHashListBQ()
+		if This._NNLValueIs("isahashlist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAHexUnicodeB()
+		return This._NNLValueIs("isahexunicode")
+
+	def IsAHexUnicodeBQ()
+		if This._NNLValueIs("isahexunicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsALetterB()
+		return This._NNLValueIs("isaletter")
+
+	def IsALetterBQ()
+		if This._NNLValueIs("isaletter") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAListB()
+		return This._NNLValueIs("isalist")
+
+	def IsAListBQ()
+		if This._NNLValueIs("isalist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAllLettersB()
+		return This._NNLValueIs("isallletters")
+
+	def IsAllLettersBQ()
+		if This._NNLValueIs("isallletters") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAlmostAFunctionCallB()
+		return This._NNLValueIs("isalmostafunctioncall")
+
+	def IsAlmostAFunctionCallBQ()
+		if This._NNLValueIs("isalmostafunctioncall") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAlphaStringB()
+		return This._NNLValueIs("isalphastring")
+
+	def IsAlphaStringBQ()
+		if This._NNLValueIs("isalphastring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndcColNamedParamB()
+		return This._NNLValueIs("isandccolnamedparam")
+
+	def IsAndcColNamedParamBQ()
+		if This._NNLValueIs("isandccolnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndColAtNamedParamB()
+		return This._NNLValueIs("isandcolatnamedparam")
+
+	def IsAndColAtNamedParamBQ()
+		if This._NNLValueIs("isandcolatnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndColumnNamedParamB()
+		return This._NNLValueIs("isandcolumnnamedparam")
+
+	def IsAndColumnNamedParamBQ()
+		if This._NNLValueIs("isandcolumnnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndNamedParamB()
+		return This._NNLValueIs("isandnamedparam")
+
+	def IsAndNamedParamBQ()
+		if This._NNLValueIs("isandnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndReturnNamedParamB()
+		return This._NNLValueIs("isandreturnnamedparam")
+
+	def IsAndReturnNamedParamBQ()
+		if This._NNLValueIs("isandreturnnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndRowAtNamedParamB()
+		return This._NNLValueIs("isandrowatnamedparam")
+
+	def IsAndRowAtNamedParamBQ()
+		if This._NNLValueIs("isandrowatnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAndRowNamedParamB()
+		return This._NNLValueIs("isandrownamedparam")
+
+	def IsAndRowNamedParamBQ()
+		if This._NNLValueIs("isandrownamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAnIntegerB()
+		return This._NNLValueIs("isaninteger")
+
+	def IsAnIntegerBQ()
+		if This._NNLValueIs("isaninteger") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAnObjectB()
+		return This._NNLValueIs("isanobject")
+
+	def IsAnObjectBQ()
+		if This._NNLValueIs("isanobject") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsANumberB()
+		return This._NNLValueIs("isanumber")
+
+	def IsANumberBQ()
+		if This._NNLValueIs("isanumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAObjectB()
+		return This._NNLValueIs("isaobject")
+
+	def IsAObjectBQ()
+		if This._NNLValueIs("isaobject") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAPairB()
+		return This._NNLValueIs("isapair")
+
+	def IsAPairBQ()
+		if This._NNLValueIs("isapair") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAPrimeB()
+		return This._NNLValueIs("isaprime")
+
+	def IsAPrimeBQ()
+		if This._NNLValueIs("isaprime") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAPrimeNumberB()
+		return This._NNLValueIs("isaprimenumber")
+
+	def IsAPrimeNumberBQ()
+		if This._NNLValueIs("isaprimenumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsArabicB()
+		return This._NNLValueIs("isarabic")
+
+	def IsArabicBQ()
+		if This._NNLValueIs("isarabic") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsArabicScriptB()
+		return This._NNLValueIs("isarabicscript")
+
+	def IsArabicScriptBQ()
+		if This._NNLValueIs("isarabicscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsASetB()
+		return This._NNLValueIs("isaset")
+
+	def IsASetBQ()
+		if This._NNLValueIs("isaset") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAStringB()
+		return This._NNLValueIs("isastring")
+
+	def IsAStringBQ()
+		if This._NNLValueIs("isastring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAtCharsNamedParamB()
+		return This._NNLValueIs("isatcharsnamedparam")
+
+	def IsAtCharsNamedParamBQ()
+		if This._NNLValueIs("isatcharsnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAtNamedParamB()
+		return This._NNLValueIs("isatnamedparam")
+
+	def IsAtNamedParamBQ()
+		if This._NNLValueIs("isatnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsAtPositionNamedParamB()
+		return This._NNLValueIs("isatpositionnamedparam")
+
+	def IsAtPositionNamedParamBQ()
+		if This._NNLValueIs("isatpositionnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBalancedB()
+		return This._NNLValueIs("isbalanced")
+
+	def IsBalancedBQ()
+		if This._NNLValueIs("isbalanced") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBetweenNamedParamB()
+		return This._NNLValueIs("isbetweennamedparam")
+
+	def IsBetweenNamedParamBQ()
+		if This._NNLValueIs("isbetweennamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBetweenRowNamedParamB()
+		return This._NNLValueIs("isbetweenrownamedparam")
+
+	def IsBetweenRowNamedParamBQ()
+		if This._NNLValueIs("isbetweenrownamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBigNumberB()
+		return This._NNLValueIs("isbignumber")
+
+	def IsBigNumberBQ()
+		if This._NNLValueIs("isbignumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBlankB()
+		return This._NNLValueIs("isblank")
+
+	def IsBlankBQ()
+		if This._NNLValueIs("isblank") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsBooleanB()
+		return This._NNLValueIs("isboolean")
+
+	def IsBooleanBQ()
+		if This._NNLValueIs("isboolean") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsByNamedParamB()
+		return This._NNLValueIs("isbynamedparam")
+
+	def IsByNamedParamBQ()
+		if This._NNLValueIs("isbynamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsByRowNamedParamB()
+		return This._NNLValueIs("isbyrownamedparam")
+
+	def IsByRowNamedParamBQ()
+		if This._NNLValueIs("isbyrownamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCamelCaseB()
+		return This._NNLValueIs("iscamelcase")
+
+	def IsCamelCaseBQ()
+		if This._NNLValueIs("iscamelcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCapitalcaseB()
+		return This._NNLValueIs("iscapitalcase")
+
+	def IsCapitalcaseBQ()
+		if This._NNLValueIs("iscapitalcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCharB()
+		return This._NNLValueIs("ischar")
+
+	def IsCharBQ()
+		if This._NNLValueIs("ischar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCharNameB()
+		return This._NNLValueIs("ischarname")
+
+	def IsCharNameBQ()
+		if This._NNLValueIs("ischarname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCharsSortedAscB()
+		return This._NNLValueIs("ischarssortedasc")
+
+	def IsCharsSortedAscBQ()
+		if This._NNLValueIs("ischarssortedasc") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCharsSortedAscendingB()
+		return This._NNLValueIs("ischarssortedascending")
+
+	def IsCharsSortedAscendingBQ()
+		if This._NNLValueIs("ischarssortedascending") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCharsSortedDescB()
+		return This._NNLValueIs("ischarssorteddesc")
+
+	def IsCharsSortedDescBQ()
+		if This._NNLValueIs("ischarssorteddesc") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCircledDigitB()
+		return This._NNLValueIs("iscircleddigit")
+
+	def IsCircledDigitBQ()
+		if This._NNLValueIs("iscircleddigit") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCircledNumberB()
+		return This._NNLValueIs("iscirclednumber")
+
+	def IsCircledNumberBQ()
+		if This._NNLValueIs("iscirclednumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsComingNamedParamB()
+		return This._NNLValueIs("iscomingnamedparam")
+
+	def IsComingNamedParamBQ()
+		if This._NNLValueIs("iscomingnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCommonScriptB()
+		return This._NNLValueIs("iscommonscript")
+
+	def IsCommonScriptBQ()
+		if This._NNLValueIs("iscommonscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsContiguousB()
+		return This._NNLValueIs("iscontiguous")
+
+	def IsContiguousBQ()
+		if This._NNLValueIs("iscontiguous") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsControlB()
+		return This._NNLValueIs("iscontrol")
+
+	def IsControlBQ()
+		if This._NNLValueIs("iscontrol") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryAbbreviationB()
+		return This._NNLValueIs("iscountryabbreviation")
+
+	def IsCountryAbbreviationBQ()
+		if This._NNLValueIs("iscountryabbreviation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryCodeB()
+		return This._NNLValueIs("iscountrycode")
+
+	def IsCountryCodeBQ()
+		if This._NNLValueIs("iscountrycode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryIdentifierB()
+		return This._NNLValueIs("iscountryidentifier")
+
+	def IsCountryIdentifierBQ()
+		if This._NNLValueIs("iscountryidentifier") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryNameB()
+		return This._NNLValueIs("iscountryname")
+
+	def IsCountryNameBQ()
+		if This._NNLValueIs("iscountryname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryNumberB()
+		return This._NNLValueIs("iscountrynumber")
+
+	def IsCountryNumberBQ()
+		if This._NNLValueIs("iscountrynumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCountryPhoneCodeB()
+		return This._NNLValueIs("iscountryphonecode")
+
+	def IsCountryPhoneCodeBQ()
+		if This._NNLValueIs("iscountryphonecode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCurrencyNameB()
+		return This._NNLValueIs("iscurrencyname")
+
+	def IsCurrencyNameBQ()
+		if This._NNLValueIs("iscurrencyname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsCurrencySymbolB()
+		return This._NNLValueIs("iscurrencysymbol")
+
+	def IsCurrencySymbolBQ()
+		if This._NNLValueIs("iscurrencysymbol") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsDigitB()
+		return This._NNLValueIs("isdigit")
+
+	def IsDigitBQ()
+		if This._NNLValueIs("isdigit") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsDigitPalindromeB()
+		return This._NNLValueIs("isdigitpalindrome")
+
+	def IsDigitPalindromeBQ()
+		if This._NNLValueIs("isdigitpalindrome") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsEmailLikeB()
+		return This._NNLValueIs("isemaillike")
+
+	def IsEmailLikeBQ()
+		if This._NNLValueIs("isemaillike") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsEmptyB()
+		return This._NNLValueIs("isempty")
+
+	def IsEmptyBQ()
+		if This._NNLValueIs("isempty") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsEqualToNamedParamB()
+		return This._NNLValueIs("isequaltonamedparam")
+
+	def IsEqualToNamedParamBQ()
+		if This._NNLValueIs("isequaltonamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsEvenB()
+		return This._NNLValueIs("iseven")
+
+	def IsEvenBQ()
+		if This._NNLValueIs("iseven") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsEvenOrOddB()
+		return This._NNLValueIs("isevenorodd")
+
+	def IsEvenOrOddBQ()
+		if This._NNLValueIs("isevenorodd") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsFalseB()
+		return This._NNLValueIs("isfalse")
+
+	def IsFalseBQ()
+		if This._NNLValueIs("isfalse") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsFardiOrZawjiB()
+		return This._NNLValueIs("isfardiorzawji")
+
+	def IsFardiOrZawjiBQ()
+		if This._NNLValueIs("isfardiorzawji") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsFromNamedParamB()
+		return This._NNLValueIs("isfromnamedparam")
+
+	def IsFromNamedParamBQ()
+		if This._NNLValueIs("isfromnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsFuncB()
+		return This._NNLValueIs("isfunc")
+
+	def IsFuncBQ()
+		if This._NNLValueIs("isfunc") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsHanScriptB()
+		return This._NNLValueIs("ishanscript")
+
+	def IsHanScriptBQ()
+		if This._NNLValueIs("ishanscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsHashListB()
+		return This._NNLValueIs("ishashlist")
+
+	def IsHashListBQ()
+		if This._NNLValueIs("ishashlist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsHexUnicodeB()
+		return This._NNLValueIs("ishexunicode")
+
+	def IsHexUnicodeBQ()
+		if This._NNLValueIs("ishexunicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsHybridcaseB()
+		return This._NNLValueIs("ishybridcase")
+
+	def IsHybridcaseBQ()
+		if This._NNLValueIs("ishybridcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsHybridScriptB()
+		return This._NNLValueIs("ishybridscript")
+
+	def IsHybridScriptBQ()
+		if This._NNLValueIs("ishybridscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsIdentifierB()
+		return This._NNLValueIs("isidentifier")
+
+	def IsIdentifierBQ()
+		if This._NNLValueIs("isidentifier") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsInheritedScriptB()
+		return This._NNLValueIs("isinheritedscript")
+
+	def IsInheritedScriptBQ()
+		if This._NNLValueIs("isinheritedscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsIntegerB()
+		return This._NNLValueIs("isinteger")
+
+	def IsIntegerBQ()
+		if This._NNLValueIs("isinteger") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsIntegerOrRealB()
+		return This._NNLValueIs("isintegerorreal")
+
+	def IsIntegerOrRealBQ()
+		if This._NNLValueIs("isintegerorreal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsIntergerOrRealB()
+		return This._NNLValueIs("isintergerorreal")
+
+	def IsIntergerOrRealBQ()
+		if This._NNLValueIs("isintergerorreal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsIsogramB()
+		return This._NNLValueIs("isisogram")
+
+	def IsIsogramBQ()
+		if This._NNLValueIs("isisogram") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsItemB()
+		return This._NNLValueIs("isitem")
+
+	def IsItemBQ()
+		if This._NNLValueIs("isitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsKebabCaseB()
+		return This._NNLValueIs("iskebabcase")
+
+	def IsKebabCaseBQ()
+		if This._NNLValueIs("iskebabcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLanguageAbbreviationB()
+		return This._NNLValueIs("islanguageabbreviation")
+
+	def IsLanguageAbbreviationBQ()
+		if This._NNLValueIs("islanguageabbreviation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLanguageCodeB()
+		return This._NNLValueIs("islanguagecode")
+
+	def IsLanguageCodeBQ()
+		if This._NNLValueIs("islanguagecode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLanguageIdentifierB()
+		return This._NNLValueIs("islanguageidentifier")
+
+	def IsLanguageIdentifierBQ()
+		if This._NNLValueIs("islanguageidentifier") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLanguageNameB()
+		return This._NNLValueIs("islanguagename")
+
+	def IsLanguageNameBQ()
+		if This._NNLValueIs("islanguagename") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLanguageNumberB()
+		return This._NNLValueIs("islanguagenumber")
+
+	def IsLanguageNumberBQ()
+		if This._NNLValueIs("islanguagenumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLatinB()
+		return This._NNLValueIs("islatin")
+
+	def IsLatinBQ()
+		if This._NNLValueIs("islatin") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLatinScriptB()
+		return This._NNLValueIs("islatinscript")
+
+	def IsLatinScriptBQ()
+		if This._NNLValueIs("islatinscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLeftToRightB()
+		return This._NNLValueIs("islefttoright")
+
+	def IsLeftToRightBQ()
+		if This._NNLValueIs("islefttoright") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLetterB()
+		return This._NNLValueIs("isletter")
+
+	def IsLetterBQ()
+		if This._NNLValueIs("isletter") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLocaleAbbreviationB()
+		return This._NNLValueIs("islocaleabbreviation")
+
+	def IsLocaleAbbreviationBQ()
+		if This._NNLValueIs("islocaleabbreviation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLocaleListB()
+		return This._NNLValueIs("islocalelist")
+
+	def IsLocaleListBQ()
+		if This._NNLValueIs("islocalelist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLowercaseB()
+		return This._NNLValueIs("islowercase")
+
+	def IsLowercaseBQ()
+		if This._NNLValueIs("islowercase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsLowercasedB()
+		return This._NNLValueIs("islowercased")
+
+	def IsLowercasedBQ()
+		if This._NNLValueIs("islowercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsMarkerB()
+		return This._NNLValueIs("ismarker")
+
+	def IsMarkerBQ()
+		if This._NNLValueIs("ismarker") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsMarquerB()
+		return This._NNLValueIs("ismarquer")
+
+	def IsMarquerBQ()
+		if This._NNLValueIs("ismarquer") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsMemberB()
+		return This._NNLValueIs("ismember")
+
+	def IsMemberBQ()
+		if This._NNLValueIs("ismember") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsMultilingualStringB()
+		return This._NNLValueIs("ismultilingualstring")
+
+	def IsMultilingualStringBQ()
+		if This._NNLValueIs("ismultilingualstring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNamedObjectB()
+		return This._NNLValueIs("isnamedobject")
+
+	def IsNamedObjectBQ()
+		if This._NNLValueIs("isnamedobject") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNamedParamB()
+		return This._NNLValueIs("isnamedparam")
+
+	def IsNamedParamBQ()
+		if This._NNLValueIs("isnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNegativeB()
+		return This._NNLValueIs("isnegative")
+
+	def IsNegativeBQ()
+		if This._NNLValueIs("isnegative") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNegativeIntegerB()
+		return This._NNLValueIs("isnegativeinteger")
+
+	def IsNegativeIntegerBQ()
+		if This._NNLValueIs("isnegativeinteger") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNestedB()
+		return This._NNLValueIs("isnested")
+
+	def IsNestedBQ()
+		if This._NNLValueIs("isnested") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNorNamedParamB()
+		return This._NNLValueIs("isnornamedparam")
+
+	def IsNorNamedParamBQ()
+		if This._NNLValueIs("isnornamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotAListB()
+		return This._NNLValueIs("isnotalist")
+
+	def IsNotAListBQ()
+		if This._NNLValueIs("isnotalist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotAnObjectB()
+		return This._NNLValueIs("isnotanobject")
+
+	def IsNotAnObjectBQ()
+		if This._NNLValueIs("isnotanobject") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotANumberB()
+		return This._NNLValueIs("isnotanumber")
+
+	def IsNotANumberBQ()
+		if This._NNLValueIs("isnotanumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotAStringB()
+		return This._NNLValueIs("isnotastring")
+
+	def IsNotAStringBQ()
+		if This._NNLValueIs("isnotastring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotEmptyB()
+		return This._NNLValueIs("isnotempty")
+
+	def IsNotEmptyBQ()
+		if This._NNLValueIs("isnotempty") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotEvenB()
+		return This._NNLValueIs("isnoteven")
+
+	def IsNotEvenBQ()
+		if This._NNLValueIs("isnoteven") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotHashListB()
+		return This._NNLValueIs("isnothashlist")
+
+	def IsNotHashListBQ()
+		if This._NNLValueIs("isnothashlist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotLetterB()
+		return This._NNLValueIs("isnotletter")
+
+	def IsNotLetterBQ()
+		if This._NNLValueIs("isnotletter") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotOddB()
+		return This._NNLValueIs("isnotodd")
+
+	def IsNotOddBQ()
+		if This._NNLValueIs("isnotodd") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNotSignedB()
+		return This._NNLValueIs("isnotsigned")
+
+	def IsNotSignedBQ()
+		if This._NNLValueIs("isnotsigned") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsNumericStringB()
+		return This._NNLValueIs("isnumericstring")
+
+	def IsNumericStringBQ()
+		if This._NNLValueIs("isnumericstring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsOddB()
+		return This._NNLValueIs("isodd")
+
+	def IsOddBQ()
+		if This._NNLValueIs("isodd") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsOddOrEvenB()
+		return This._NNLValueIs("isoddoreven")
+
+	def IsOddOrEvenBQ()
+		if This._NNLValueIs("isoddoreven") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsOneDigitB()
+		return This._NNLValueIs("isonedigit")
+
+	def IsOneDigitBQ()
+		if This._NNLValueIs("isonedigit") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPairB()
+		return This._NNLValueIs("ispair")
+
+	def IsPairBQ()
+		if This._NNLValueIs("ispair") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPalindromeB()
+		return This._NNLValueIs("ispalindrome")
+
+	def IsPalindromeBQ()
+		if This._NNLValueIs("ispalindrome") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPalindromeNumberB()
+		return This._NNLValueIs("ispalindromenumber")
+
+	def IsPalindromeNumberBQ()
+		if This._NNLValueIs("ispalindromenumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPalindromeWordsB()
+		return This._NNLValueIs("ispalindromewords")
+
+	def IsPalindromeWordsBQ()
+		if This._NNLValueIs("ispalindromewords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPangramB()
+		return This._NNLValueIs("ispangram")
+
+	def IsPangramBQ()
+		if This._NNLValueIs("ispangram") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPerfectB()
+		return This._NNLValueIs("isperfect")
+
+	def IsPerfectBQ()
+		if This._NNLValueIs("isperfect") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPerfectNumberB()
+		return This._NNLValueIs("isperfectnumber")
+
+	def IsPerfectNumberBQ()
+		if This._NNLValueIs("isperfectnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPositionNamedParamB()
+		return This._NNLValueIs("ispositionnamedparam")
+
+	def IsPositionNamedParamBQ()
+		if This._NNLValueIs("ispositionnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPositiveB()
+		return This._NNLValueIs("ispositive")
+
+	def IsPositiveBQ()
+		if This._NNLValueIs("ispositive") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPositiveIntegerB()
+		return This._NNLValueIs("ispositiveinteger")
+
+	def IsPositiveIntegerBQ()
+		if This._NNLValueIs("ispositiveinteger") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPrimeB()
+		return This._NNLValueIs("isprime")
+
+	def IsPrimeBQ()
+		if This._NNLValueIs("isprime") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsPrimeNumberB()
+		return This._NNLValueIs("isprimenumber")
+
+	def IsPrimeNumberBQ()
+		if This._NNLValueIs("isprimenumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsRealB()
+		return This._NNLValueIs("isreal")
+
+	def IsRealBQ()
+		if This._NNLValueIs("isreal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsRealNumberB()
+		return This._NNLValueIs("isrealnumber")
+
+	def IsRealNumberBQ()
+		if This._NNLValueIs("isrealnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsReturnedAsNamedParamB()
+		return This._NNLValueIs("isreturnedasnamedparam")
+
+	def IsReturnedAsNamedParamBQ()
+		if This._NNLValueIs("isreturnedasnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsReturningNamedParamB()
+		return This._NNLValueIs("isreturningnamedparam")
+
+	def IsReturningNamedParamBQ()
+		if This._NNLValueIs("isreturningnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsReturnNamedParamB()
+		return This._NNLValueIs("isreturnnamedparam")
+
+	def IsReturnNamedParamBQ()
+		if This._NNLValueIs("isreturnnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsReturnNthNamedParamB()
+		return This._NNLValueIs("isreturnnthnamedparam")
+
+	def IsReturnNthNamedParamBQ()
+		if This._NNLValueIs("isreturnnthnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsRightToLeftB()
+		return This._NNLValueIs("isrighttoleft")
+
+	def IsRightToLeftBQ()
+		if This._NNLValueIs("isrighttoleft") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptB()
+		return This._NNLValueIs("isscript")
+
+	def IsScriptBQ()
+		if This._NNLValueIs("isscript") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptAbbreviationB()
+		return This._NNLValueIs("isscriptabbreviation")
+
+	def IsScriptAbbreviationBQ()
+		if This._NNLValueIs("isscriptabbreviation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptCodeB()
+		return This._NNLValueIs("isscriptcode")
+
+	def IsScriptCodeBQ()
+		if This._NNLValueIs("isscriptcode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptIdentifierB()
+		return This._NNLValueIs("isscriptidentifier")
+
+	def IsScriptIdentifierBQ()
+		if This._NNLValueIs("isscriptidentifier") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptNameB()
+		return This._NNLValueIs("isscriptname")
+
+	def IsScriptNameBQ()
+		if This._NNLValueIs("isscriptname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsScriptNumberB()
+		return This._NNLValueIs("isscriptnumber")
+
+	def IsScriptNumberBQ()
+		if This._NNLValueIs("isscriptnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSeedNamedParamB()
+		return This._NNLValueIs("isseednamedparam")
+
+	def IsSeedNamedParamBQ()
+		if This._NNLValueIs("isseednamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSetB()
+		return This._NNLValueIs("isset")
+
+	def IsSetBQ()
+		if This._NNLValueIs("isset") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSignedB()
+		return This._NNLValueIs("issigned")
+
+	def IsSignedBQ()
+		if This._NNLValueIs("issigned") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSingleB()
+		return This._NNLValueIs("issingle")
+
+	def IsSingleBQ()
+		if This._NNLValueIs("issingle") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSizeNamedParamB()
+		return This._NNLValueIs("issizenamedparam")
+
+	def IsSizeNamedParamBQ()
+		if This._NNLValueIs("issizenamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSnakeCaseB()
+		return This._NNLValueIs("issnakecase")
+
+	def IsSnakeCaseBQ()
+		if This._NNLValueIs("issnakecase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsSortedB()
+		return This._NNLValueIs("issorted")
+
+	def IsSortedBQ()
+		if This._NNLValueIs("issorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStartingAtNamedParamB()
+		return This._NNLValueIs("isstartingatnamedparam")
+
+	def IsStartingAtNamedParamBQ()
+		if This._NNLValueIs("isstartingatnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStepNamedParamB()
+		return This._NNLValueIs("isstepnamedparam")
+
+	def IsStepNamedParamBQ()
+		if This._NNLValueIs("isstepnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStoppingAtNamedParamB()
+		return This._NNLValueIs("isstoppingatnamedparam")
+
+	def IsStoppingAtNamedParamBQ()
+		if This._NNLValueIs("isstoppingatnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStopwordB()
+		return This._NNLValueIs("isstopword")
+
+	def IsStopwordBQ()
+		if This._NNLValueIs("isstopword") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStrictlyNegativeB()
+		return This._NNLValueIs("isstrictlynegative")
+
+	def IsStrictlyNegativeBQ()
+		if This._NNLValueIs("isstrictlynegative") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStrictlyPositiveB()
+		return This._NNLValueIs("isstrictlypositive")
+
+	def IsStrictlyPositiveBQ()
+		if This._NNLValueIs("isstrictlypositive") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsStzNumberB()
+		return This._NNLValueIs("isstznumber")
+
+	def IsStzNumberBQ()
+		if This._NNLValueIs("isstznumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsTitlecaseB()
+		return This._NNLValueIs("istitlecase")
+
+	def IsTitlecaseBQ()
+		if This._NNLValueIs("istitlecase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsTitleCasedB()
+		return This._NNLValueIs("istitlecased")
+
+	def IsTitleCasedBQ()
+		if This._NNLValueIs("istitlecased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsToNamedParamB()
+		return This._NNLValueIs("istonamedparam")
+
+	def IsToNamedParamBQ()
+		if This._NNLValueIs("istonamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsToOrToPositionB()
+		return This._NNLValueIs("istoortoposition")
+
+	def IsToOrToPositionBQ()
+		if This._NNLValueIs("istoortoposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsToPositionNamedParamB()
+		return This._NNLValueIs("istopositionnamedparam")
+
+	def IsToPositionNamedParamBQ()
+		if This._NNLValueIs("istopositionnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsToPositionOrToB()
+		return This._NNLValueIs("istopositionorto")
+
+	def IsToPositionOrToBQ()
+		if This._NNLValueIs("istopositionorto") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsTrueB()
+		return This._NNLValueIs("istrue")
+
+	def IsTrueBQ()
+		if This._NNLValueIs("istrue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsUnsignedB()
+		return This._NNLValueIs("isunsigned")
+
+	def IsUnsignedBQ()
+		if This._NNLValueIs("isunsigned") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsUppercaseB()
+		return This._NNLValueIs("isuppercase")
+
+	def IsUppercaseBQ()
+		if This._NNLValueIs("isuppercase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsUppercasedB()
+		return This._NNLValueIs("isuppercased")
+
+	def IsUppercasedBQ()
+		if This._NNLValueIs("isuppercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsUrlLikeB()
+		return This._NNLValueIs("isurllike")
+
+	def IsUrlLikeBQ()
+		if This._NNLValueIs("isurllike") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsVowelB()
+		return This._NNLValueIs("isvowel")
+
+	def IsVowelBQ()
+		if This._NNLValueIs("isvowel") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsWithNamedParamB()
+		return This._NNLValueIs("iswithnamedparam")
+
+	def IsWithNamedParamBQ()
+		if This._NNLValueIs("iswithnamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsWithOrByNamedParamB()
+		return This._NNLValueIs("iswithorbynamedparam")
+
+	def IsWithOrByNamedParamBQ()
+		if This._NNLValueIs("iswithorbynamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsWithRowNamedParamB()
+		return This._NNLValueIs("iswithrownamedparam")
+
+	def IsWithRowNamedParamBQ()
+		if This._NNLValueIs("iswithrownamedparam") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsWordB()
+		return This._NNLValueIs("isword")
+
+	def IsWordBQ()
+		if This._NNLValueIs("isword") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsZawjiOrFardiB()
+		return This._NNLValueIs("iszawjiorfardi")
+
+	def IsZawjiOrFardiBQ()
+		if This._NNLValueIs("iszawjiorfardi") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def IsZeroB()
+		return This._NNLValueIs("iszero")
+
+	def IsZeroBQ()
+		if This._NNLValueIs("iszero") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsAndTheirPositionsB()
+		return This._NNLValueIs("itemsandtheirpositions")
+
+	def ItemsAndTheirPositionsBQ()
+		if This._NNLValueIs("itemsandtheirpositions") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsAndTheirTypesB()
+		return This._NNLValueIs("itemsandtheirtypes")
+
+	def ItemsAndTheirTypesBQ()
+		if This._NNLValueIs("itemsandtheirtypes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsAreEmptyListsB()
+		return This._NNLValueIs("itemsareemptylists")
+
+	def ItemsAreEmptyListsBQ()
+		if This._NNLValueIs("itemsareemptylists") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsCountB()
+		return This._NNLValueIs("itemscount")
+
+	def ItemsCountBQ()
+		if This._NNLValueIs("itemscount") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsHaveSameTypeB()
+		return This._NNLValueIs("itemshavesametype")
+
+	def ItemsHaveSameTypeBQ()
+		if This._NNLValueIs("itemshavesametype") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsReversedB()
+		return This._NNLValueIs("itemsreversed")
+
+	def ItemsReversedBQ()
+		if This._NNLValueIs("itemsreversed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ItemsZB()
+		return This._NNLValueIs("itemsz")
+
+	def ItemsZBQ()
+		if This._NNLValueIs("itemsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def KeywordsB()
+		return This._NNLValueIs("keywords")
+
+	def KeywordsBQ()
+		if This._NNLValueIs("keywords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def KFormB()
+		return This._NNLValueIs("kform")
+
+	def KFormBQ()
+		if This._NNLValueIs("kform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LanguageB()
+		return This._NNLValueIs("language")
+
+	def LanguageBQ()
+		if This._NNLValueIs("language") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastAndFirstItemsB()
+		return This._NNLValueIs("lastandfirstitems")
+
+	def LastAndFirstItemsBQ()
+		if This._NNLValueIs("lastandfirstitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastCharB()
+		return This._NNLValueIs("lastchar")
+
+	def LastCharBQ()
+		if This._NNLValueIs("lastchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastCharRemovedB()
+		return This._NNLValueIs("lastcharremoved")
+
+	def LastCharRemovedBQ()
+		if This._NNLValueIs("lastcharremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastItemB()
+		return This._NNLValueIs("lastitem")
+
+	def LastItemBQ()
+		if This._NNLValueIs("lastitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastLineB()
+		return This._NNLValueIs("lastline")
+
+	def LastLineBQ()
+		if This._NNLValueIs("lastline") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastNonSpaceCharB()
+		return This._NNLValueIs("lastnonspacechar")
+
+	def LastNonSpaceCharBQ()
+		if This._NNLValueIs("lastnonspacechar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastSentenceB()
+		return This._NNLValueIs("lastsentence")
+
+	def LastSentenceBQ()
+		if This._NNLValueIs("lastsentence") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastWordB()
+		return This._NNLValueIs("lastword")
+
+	def LastWordBQ()
+		if This._NNLValueIs("lastword") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LastZB()
+		return This._NNLValueIs("lastz")
+
+	def LastZBQ()
+		if This._NNLValueIs("lastz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeadingCharsRemovedB()
+		return This._NNLValueIs("leadingcharsremoved")
+
+	def LeadingCharsRemovedBQ()
+		if This._NNLValueIs("leadingcharsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeadingSpacesRemovedB()
+		return This._NNLValueIs("leadingspacesremoved")
+
+	def LeadingSpacesRemovedBQ()
+		if This._NNLValueIs("leadingspacesremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeastFrequentB()
+		return This._NNLValueIs("leastfrequent")
+
+	def LeastFrequentBQ()
+		if This._NNLValueIs("leastfrequent") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeftBoundB()
+		return This._NNLValueIs("leftbound")
+
+	def LeftBoundBQ()
+		if This._NNLValueIs("leftbound") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeftCharB()
+		return This._NNLValueIs("leftchar")
+
+	def LeftCharBQ()
+		if This._NNLValueIs("leftchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LeftCharRemovedB()
+		return This._NNLValueIs("leftcharremoved")
+
+	def LeftCharRemovedBQ()
+		if This._NNLValueIs("leftcharremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LemmaB()
+		return This._NNLValueIs("lemma")
+
+	def LemmaBQ()
+		if This._NNLValueIs("lemma") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LemmatizedB()
+		return This._NNLValueIs("lemmatized")
+
+	def LemmatizedBQ()
+		if This._NNLValueIs("lemmatized") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LemmatizedWordsB()
+		return This._NNLValueIs("lemmatizedwords")
+
+	def LemmatizedWordsBQ()
+		if This._NNLValueIs("lemmatizedwords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LengthB()
+		return This._NNLValueIs("length")
+
+	def LengthBQ()
+		if This._NNLValueIs("length") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LexicalDiversityB()
+		return This._NNLValueIs("lexicaldiversity")
+
+	def LexicalDiversityBQ()
+		if This._NNLValueIs("lexicaldiversity") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ListB()
+		return This._NNLValueIs("list")
+
+	def ListBQ()
+		if This._NNLValueIs("list") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LowercasedB()
+		return This._NNLValueIs("lowercased")
+
+	def LowercasedBQ()
+		if This._NNLValueIs("lowercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def LowestB()
+		return This._NNLValueIs("lowest")
+
+	def LowestBQ()
+		if This._NNLValueIs("lowest") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarkerB()
+		return This._NNLValueIs("marker")
+
+	def MarkerBQ()
+		if This._NNLValueIs("marker") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarkersAreSortedB()
+		return This._NNLValueIs("markersaresorted")
+
+	def MarkersAreSortedBQ()
+		if This._NNLValueIs("markersaresorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarkersAreUnsortedB()
+		return This._NNLValueIs("markersareunsorted")
+
+	def MarkersAreUnsortedBQ()
+		if This._NNLValueIs("markersareunsorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarkersSortingOrderB()
+		return This._NNLValueIs("markerssortingorder")
+
+	def MarkersSortingOrderBQ()
+		if This._NNLValueIs("markerssortingorder") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarquerB()
+		return This._NNLValueIs("marquer")
+
+	def MarquerBQ()
+		if This._NNLValueIs("marquer") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarquersAreSortedB()
+		return This._NNLValueIs("marquersaresorted")
+
+	def MarquersAreSortedBQ()
+		if This._NNLValueIs("marquersaresorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarquersAreUnsortedB()
+		return This._NNLValueIs("marquersareunsorted")
+
+	def MarquersAreUnsortedBQ()
+		if This._NNLValueIs("marquersareunsorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MarquersSortingOrderB()
+		return This._NNLValueIs("marquerssortingorder")
+
+	def MarquersSortingOrderBQ()
+		if This._NNLValueIs("marquerssortingorder") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MaxB()
+		return This._NNLValueIs("max")
+
+	def MaxBQ()
+		if This._NNLValueIs("max") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MaxNumberB()
+		return This._NNLValueIs("maxnumber")
+
+	def MaxNumberBQ()
+		if This._NNLValueIs("maxnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MaxRoundB()
+		return This._NNLValueIs("maxround")
+
+	def MaxRoundBQ()
+		if This._NNLValueIs("maxround") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MeanB()
+		return This._NNLValueIs("mean")
+
+	def MeanBQ()
+		if This._NNLValueIs("mean") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MedianB()
+		return This._NNLValueIs("median")
+
+	def MedianBQ()
+		if This._NNLValueIs("median") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MergedB()
+		return This._NNLValueIs("merged")
+
+	def MergedBQ()
+		if This._NNLValueIs("merged") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MetaphoneB()
+		return This._NNLValueIs("metaphone")
+
+	def MetaphoneBQ()
+		if This._NNLValueIs("metaphone") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MethodsB()
+		return This._NNLValueIs("methods")
+
+	def MethodsBQ()
+		if This._NNLValueIs("methods") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MFormB()
+		return This._NNLValueIs("mform")
+
+	def MFormBQ()
+		if This._NNLValueIs("mform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MiddleB()
+		return This._NNLValueIs("middle")
+
+	def MiddleBQ()
+		if This._NNLValueIs("middle") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MinB()
+		return This._NNLValueIs("min")
+
+	def MinBQ()
+		if This._NNLValueIs("min") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MinNumberB()
+		return This._NNLValueIs("minnumber")
+
+	def MinNumberBQ()
+		if This._NNLValueIs("minnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ModeB()
+		return This._NNLValueIs("mode")
+
+	def ModeBQ()
+		if This._NNLValueIs("mode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MostFrequentB()
+		return This._NNLValueIs("mostfrequent")
+
+	def MostFrequentBQ()
+		if This._NNLValueIs("mostfrequent") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MostFrequentCharB()
+		return This._NNLValueIs("mostfrequentchar")
+
+	def MostFrequentCharBQ()
+		if This._NNLValueIs("mostfrequentchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MostFrequentWordB()
+		return This._NNLValueIs("mostfrequentword")
+
+	def MostFrequentWordBQ()
+		if This._NNLValueIs("mostfrequentword") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MostNegativeSentenceB()
+		return This._NNLValueIs("mostnegativesentence")
+
+	def MostNegativeSentenceBQ()
+		if This._NNLValueIs("mostnegativesentence") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def MostPositiveSentenceB()
+		return This._NNLValueIs("mostpositivesentence")
+
+	def MostPositiveSentenceBQ()
+		if This._NNLValueIs("mostpositivesentence") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NamesB()
+		return This._NNLValueIs("names")
+
+	def NamesBQ()
+		if This._NNLValueIs("names") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NaturalLogarithmB()
+		return This._NNLValueIs("naturallogarithm")
+
+	def NaturalLogarithmBQ()
+		if This._NNLValueIs("naturallogarithm") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NegativeScoreB()
+		return This._NNLValueIs("negativescore")
+
+	def NegativeScoreBQ()
+		if This._NNLValueIs("negativescore") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NestingDepthB()
+		return This._NNLValueIs("nestingdepth")
+
+	def NestingDepthBQ()
+		if This._NNLValueIs("nestingdepth") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NeutralScoreB()
+		return This._NNLValueIs("neutralscore")
+
+	def NeutralScoreBQ()
+		if This._NNLValueIs("neutralscore") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NoItemsAreDuplicatedB()
+		return This._NNLValueIs("noitemsareduplicated")
+
+	def NoItemsAreDuplicatedBQ()
+		if This._NNLValueIs("noitemsareduplicated") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NonDuplicatedItemsB()
+		return This._NNLValueIs("nonduplicateditems")
+
+	def NonDuplicatedItemsBQ()
+		if This._NNLValueIs("nonduplicateditems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NonDuplicatedItemsZB()
+		return This._NNLValueIs("nonduplicateditemsz")
+
+	def NonDuplicatedItemsZBQ()
+		if This._NNLValueIs("nonduplicateditemsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NounsB()
+		return This._NNLValueIs("nouns")
+
+	def NounsBQ()
+		if This._NNLValueIs("nouns") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NullsStrippedB()
+		return This._NNLValueIs("nullsstripped")
+
+	def NullsStrippedBQ()
+		if This._NNLValueIs("nullsstripped") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumberB()
+		return This._NNLValueIs("number")
+
+	def NumberBQ()
+		if This._NNLValueIs("number") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumberFormB()
+		return This._NNLValueIs("numberform")
+
+	def NumberFormBQ()
+		if This._NNLValueIs("numberform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumbericValueB()
+		return This._NNLValueIs("numbericvalue")
+
+	def NumbericValueBQ()
+		if This._NNLValueIs("numbericvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumberRoundB()
+		return This._NNLValueIs("numberround")
+
+	def NumberRoundBQ()
+		if This._NNLValueIs("numberround") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumbersAndStringsB()
+		return This._NNLValueIs("numbersandstrings")
+
+	def NumbersAndStringsBQ()
+		if This._NNLValueIs("numbersandstrings") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumbersAndStringsZB()
+		return This._NNLValueIs("numbersandstringsz")
+
+	def NumbersAndStringsZBQ()
+		if This._NNLValueIs("numbersandstringsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumbersAsSectionsB()
+		return This._NNLValueIs("numbersassections")
+
+	def NumbersAsSectionsBQ()
+		if This._NNLValueIs("numbersassections") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def NumberWithSignB()
+		return This._NNLValueIs("numberwithsign")
+
+	def NumberWithSignBQ()
+		if This._NNLValueIs("numberwithsign") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ObjectifiedB()
+		return This._NNLValueIs("objectified")
+
+	def ObjectifiedBQ()
+		if This._NNLValueIs("objectified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def OnlyLatinLettersB()
+		return This._NNLValueIs("onlylatinletters")
+
+	def OnlyLatinLettersBQ()
+		if This._NNLValueIs("onlylatinletters") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def OrientationB()
+		return This._NNLValueIs("orientation")
+
+	def OrientationBQ()
+		if This._NNLValueIs("orientation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PairifiedB()
+		return This._NNLValueIs("pairified")
+
+	def PairifiedBQ()
+		if This._NNLValueIs("pairified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PairifyB()
+		return This._NNLValueIs("pairify")
+
+	def PairifyBQ()
+		if This._NNLValueIs("pairify") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PathsB()
+		return This._NNLValueIs("paths")
+
+	def PathsBQ()
+		if This._NNLValueIs("paths") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PercentB()
+		return This._NNLValueIs("percent")
+
+	def PercentBQ()
+		if This._NNLValueIs("percent") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PositiveScoreB()
+		return This._NNLValueIs("positivescore")
+
+	def PositiveScoreBQ()
+		if This._NNLValueIs("positivescore") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def POSTagsB()
+		return This._NNLValueIs("postags")
+
+	def POSTagsBQ()
+		if This._NNLValueIs("postags") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PrimeDividorsB()
+		return This._NNLValueIs("primedividors")
+
+	def PrimeDividorsBQ()
+		if This._NNLValueIs("primedividors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PrimeDivirdosB()
+		return This._NNLValueIs("primedivirdos")
+
+	def PrimeDivirdosBQ()
+		if This._NNLValueIs("primedivirdos") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PrimeDivisorsB()
+		return This._NNLValueIs("primedivisors")
+
+	def PrimeDivisorsBQ()
+		if This._NNLValueIs("primedivisors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def PrimeFactorsB()
+		return This._NNLValueIs("primefactors")
+
+	def PrimeFactorsBQ()
+		if This._NNLValueIs("primefactors") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ProductB()
+		return This._NNLValueIs("product")
+
+	def ProductBQ()
+		if This._NNLValueIs("product") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ProfileB()
+		return This._NNLValueIs("profile")
+
+	def ProfileBQ()
+		if This._NNLValueIs("profile") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomCharB()
+		return This._NNLValueIs("randomchar")
+
+	def RandomCharBQ()
+		if This._NNLValueIs("randomchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomItemB()
+		return This._NNLValueIs("randomitem")
+
+	def RandomItemBQ()
+		if This._NNLValueIs("randomitem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomItemsB()
+		return This._NNLValueIs("randomitems")
+
+	def RandomItemsBQ()
+		if This._NNLValueIs("randomitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomizedB()
+		return This._NNLValueIs("randomized")
+
+	def RandomizedBQ()
+		if This._NNLValueIs("randomized") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomPositionB()
+		return This._NNLValueIs("randomposition")
+
+	def RandomPositionBQ()
+		if This._NNLValueIs("randomposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RandomSectionB()
+		return This._NNLValueIs("randomsection")
+
+	def RandomSectionBQ()
+		if This._NNLValueIs("randomsection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RankedB()
+		return This._NNLValueIs("ranked")
+
+	def RankedBQ()
+		if This._NNLValueIs("ranked") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReadabilityExplainedB()
+		return This._NNLValueIs("readabilityexplained")
+
+	def ReadabilityExplainedBQ()
+		if This._NNLValueIs("readabilityexplained") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReadabilityGradeB()
+		return This._NNLValueIs("readabilitygrade")
+
+	def ReadabilityGradeBQ()
+		if This._NNLValueIs("readabilitygrade") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReadingEaseB()
+		return This._NNLValueIs("readingease")
+
+	def ReadingEaseBQ()
+		if This._NNLValueIs("readingease") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReduceB()
+		return This._NNLValueIs("reduce")
+
+	def ReduceBQ()
+		if This._NNLValueIs("reduce") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsAHexUnicodeB()
+		return This._NNLValueIs("representsahexunicode")
+
+	def RepresentsAHexUnicodeBQ()
+		if This._NNLValueIs("representsahexunicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsBinaryNumberB()
+		return This._NNLValueIs("representsbinarynumber")
+
+	def RepresentsBinaryNumberBQ()
+		if This._NNLValueIs("representsbinarynumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsHexNumberB()
+		return This._NNLValueIs("representshexnumber")
+
+	def RepresentsHexNumberBQ()
+		if This._NNLValueIs("representshexnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsIntegerB()
+		return This._NNLValueIs("representsinteger")
+
+	def RepresentsIntegerBQ()
+		if This._NNLValueIs("representsinteger") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsNumberB()
+		return This._NNLValueIs("representsnumber")
+
+	def RepresentsNumberBQ()
+		if This._NNLValueIs("representsnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsOctalNumberB()
+		return This._NNLValueIs("representsoctalnumber")
+
+	def RepresentsOctalNumberBQ()
+		if This._NNLValueIs("representsoctalnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsRealNumberB()
+		return This._NNLValueIs("representsrealnumber")
+
+	def RepresentsRealNumberBQ()
+		if This._NNLValueIs("representsrealnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RepresentsSignedNumberB()
+		return This._NNLValueIs("representssignednumber")
+
+	def RepresentsSignedNumberBQ()
+		if This._NNLValueIs("representssignednumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReturnTypeB()
+		return This._NNLValueIs("returntype")
+
+	def ReturnTypeBQ()
+		if This._NNLValueIs("returntype") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ReversedB()
+		return This._NNLValueIs("reversed")
+
+	def ReversedBQ()
+		if This._NNLValueIs("reversed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RightBoundB()
+		return This._NNLValueIs("rightbound")
+
+	def RightBoundBQ()
+		if This._NNLValueIs("rightbound") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RightCharB()
+		return This._NNLValueIs("rightchar")
+
+	def RightCharBQ()
+		if This._NNLValueIs("rightchar") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RightCharRemovedB()
+		return This._NNLValueIs("rightcharremoved")
+
+	def RightCharRemovedBQ()
+		if This._NNLValueIs("rightcharremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def rndItemsB()
+		return This._NNLValueIs("rnditems")
+
+	def rndItemsBQ()
+		if This._NNLValueIs("rnditems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RoundB()
+		return This._NNLValueIs("round")
+
+	def RoundBQ()
+		if This._NNLValueIs("round") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def RoundedToMaxB()
+		return This._NNLValueIs("roundedtomax")
+
+	def RoundedToMaxBQ()
+		if This._NNLValueIs("roundedtomax") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ScriptB()
+		return This._NNLValueIs("script")
+
+	def ScriptBQ()
+		if This._NNLValueIs("script") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfB()
+		return This._NNLValueIs("secondhalf")
+
+	def SecondHalfBQ()
+		if This._NNLValueIs("secondhalf") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfAndPositionB()
+		return This._NNLValueIs("secondhalfandposition")
+
+	def SecondHalfAndPositionBQ()
+		if This._NNLValueIs("secondhalfandposition") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfAndSectionB()
+		return This._NNLValueIs("secondhalfandsection")
+
+	def SecondHalfAndSectionBQ()
+		if This._NNLValueIs("secondhalfandsection") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfXTZB()
+		return This._NNLValueIs("secondhalfxtz")
+
+	def SecondHalfXTZBQ()
+		if This._NNLValueIs("secondhalfxtz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfXTZZB()
+		return This._NNLValueIs("secondhalfxtzz")
+
+	def SecondHalfXTZZBQ()
+		if This._NNLValueIs("secondhalfxtzz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfZB()
+		return This._NNLValueIs("secondhalfz")
+
+	def SecondHalfZBQ()
+		if This._NNLValueIs("secondhalfz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SecondHalfZZB()
+		return This._NNLValueIs("secondhalfzz")
+
+	def SecondHalfZZBQ()
+		if This._NNLValueIs("secondhalfzz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SentimentB()
+		return This._NNLValueIs("sentiment")
+
+	def SentimentBQ()
+		if This._NNLValueIs("sentiment") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SentimentCompoundB()
+		return This._NNLValueIs("sentimentcompound")
+
+	def SentimentCompoundBQ()
+		if This._NNLValueIs("sentimentcompound") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SentimentExplainedB()
+		return This._NNLValueIs("sentimentexplained")
+
+	def SentimentExplainedBQ()
+		if This._NNLValueIs("sentimentexplained") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SentimentScoreB()
+		return This._NNLValueIs("sentimentscore")
+
+	def SentimentScoreBQ()
+		if This._NNLValueIs("sentimentscore") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ShortenedB()
+		return This._NNLValueIs("shortened")
+
+	def ShortenedBQ()
+		if This._NNLValueIs("shortened") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ShowTaggedB()
+		return This._NNLValueIs("showtagged")
+
+	def ShowTaggedBQ()
+		if This._NNLValueIs("showtagged") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ShuffledB()
+		return This._NNLValueIs("shuffled")
+
+	def ShuffledBQ()
+		if This._NNLValueIs("shuffled") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SigmoidB()
+		return This._NNLValueIs("sigmoid")
+
+	def SigmoidBQ()
+		if This._NNLValueIs("sigmoid") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SignRemovedB()
+		return This._NNLValueIs("signremoved")
+
+	def SignRemovedBQ()
+		if This._NNLValueIs("signremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SimplifiedB()
+		return This._NNLValueIs("simplified")
+
+	def SimplifiedBQ()
+		if This._NNLValueIs("simplified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SineB()
+		return This._NNLValueIs("sine")
+
+	def SineBQ()
+		if This._NNLValueIs("sine") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SinglifiedB()
+		return This._NNLValueIs("singlified")
+
+	def SinglifiedBQ()
+		if This._NNLValueIs("singlified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SortedB()
+		return This._NNLValueIs("sorted")
+
+	def SortedBQ()
+		if This._NNLValueIs("sorted") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SoundexB()
+		return This._NNLValueIs("soundex")
+
+	def SoundexBQ()
+		if This._NNLValueIs("soundex") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SpacesRemovedB()
+		return This._NNLValueIs("spacesremoved")
+
+	def SpacesRemovedBQ()
+		if This._NNLValueIs("spacesremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SpacifiedB()
+		return This._NNLValueIs("spacified")
+
+	def SpacifiedBQ()
+		if This._NNLValueIs("spacified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SquareRootB()
+		return This._NNLValueIs("squareroot")
+
+	def SquareRootBQ()
+		if This._NNLValueIs("squareroot") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SqueezedB()
+		return This._NNLValueIs("squeezed")
+
+	def SqueezedBQ()
+		if This._NNLValueIs("squeezed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StandardDeviationB()
+		return This._NNLValueIs("standarddeviation")
+
+	def StandardDeviationBQ()
+		if This._NNLValueIs("standarddeviation") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StartsWithANumberB()
+		return This._NNLValueIs("startswithanumber")
+
+	def StartsWithANumberBQ()
+		if This._NNLValueIs("startswithanumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StartsWithNumberB()
+		return This._NNLValueIs("startswithnumber")
+
+	def StartsWithNumberBQ()
+		if This._NNLValueIs("startswithnumber") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StddevB()
+		return This._NNLValueIs("stddev")
+
+	def StddevBQ()
+		if This._NNLValueIs("stddev") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StemB()
+		return This._NNLValueIs("stem")
+
+	def StemBQ()
+		if This._NNLValueIs("stem") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StemmedB()
+		return This._NNLValueIs("stemmed")
+
+	def StemmedBQ()
+		if This._NNLValueIs("stemmed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StemmedWordsB()
+		return This._NNLValueIs("stemmedwords")
+
+	def StemmedWordsBQ()
+		if This._NNLValueIs("stemmedwords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringB()
+		return This._NNLValueIs("string")
+
+	def StringBQ()
+		if This._NNLValueIs("string") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringCaseB()
+		return This._NNLValueIs("stringcase")
+
+	def StringCaseBQ()
+		if This._NNLValueIs("stringcase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringifiedB()
+		return This._NNLValueIs("stringified")
+
+	def StringifiedBQ()
+		if This._NNLValueIs("stringified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringsAndNumbersB()
+		return This._NNLValueIs("stringsandnumbers")
+
+	def StringsAndNumbersBQ()
+		if This._NNLValueIs("stringsandnumbers") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringsAndNumbersZB()
+		return This._NNLValueIs("stringsandnumbersz")
+
+	def StringsAndNumbersZBQ()
+		if This._NNLValueIs("stringsandnumbersz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringsLowercasedB()
+		return This._NNLValueIs("stringslowercased")
+
+	def StringsLowercasedBQ()
+		if This._NNLValueIs("stringslowercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringsUppercasedB()
+		return This._NNLValueIs("stringsuppercased")
+
+	def StringsUppercasedBQ()
+		if This._NNLValueIs("stringsuppercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StringValueB()
+		return This._NNLValueIs("stringvalue")
+
+	def StringValueBQ()
+		if This._NNLValueIs("stringvalue") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StyleProfileB()
+		return This._NNLValueIs("styleprofile")
+
+	def StyleProfileBQ()
+		if This._NNLValueIs("styleprofile") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StzClassB()
+		return This._NNLValueIs("stzclass")
+
+	def StzClassBQ()
+		if This._NNLValueIs("stzclass") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StzClassNameB()
+		return This._NNLValueIs("stzclassname")
+
+	def StzClassNameBQ()
+		if This._NNLValueIs("stzclassname") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def StzTypeB()
+		return This._NNLValueIs("stztype")
+
+	def StzTypeBQ()
+		if This._NNLValueIs("stztype") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SubStringsZB()
+		return This._NNLValueIs("substringsz")
+
+	def SubStringsZBQ()
+		if This._NNLValueIs("substringsz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SubStringsZZB()
+		return This._NNLValueIs("substringszz")
+
+	def SubStringsZZBQ()
+		if This._NNLValueIs("substringszz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SubstrinksB()
+		return This._NNLValueIs("substrinks")
+
+	def SubstrinksBQ()
+		if This._NNLValueIs("substrinks") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SubstrongsB()
+		return This._NNLValueIs("substrongs")
+
+	def SubstrongsBQ()
+		if This._NNLValueIs("substrongs") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def SumB()
+		return This._NNLValueIs("sum")
+
+	def SumBQ()
+		if This._NNLValueIs("sum") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TaggedWordsB()
+		return This._NNLValueIs("taggedwords")
+
+	def TaggedWordsBQ()
+		if This._NNLValueIs("taggedwords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TangentB()
+		return This._NNLValueIs("tangent")
+
+	def TangentBQ()
+		if This._NNLValueIs("tangent") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TextB()
+		return This._NNLValueIs("text")
+
+	def TextBQ()
+		if This._NNLValueIs("text") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TitlecasedB()
+		return This._NNLValueIs("titlecased")
+
+	def TitlecasedBQ()
+		if This._NNLValueIs("titlecased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToBinaryB()
+		return This._NNLValueIs("tobinary")
+
+	def ToBinaryBQ()
+		if This._NNLValueIs("tobinary") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToBinaryFormB()
+		return This._NNLValueIs("tobinaryform")
+
+	def ToBinaryFormBQ()
+		if This._NNLValueIs("tobinaryform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToBinaryFormNoPrefixB()
+		return This._NNLValueIs("tobinaryformnoprefix")
+
+	def ToBinaryFormNoPrefixBQ()
+		if This._NNLValueIs("tobinaryformnoprefix") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToBinaryNoPrefixB()
+		return This._NNLValueIs("tobinarynoprefix")
+
+	def ToBinaryNoPrefixBQ()
+		if This._NNLValueIs("tobinarynoprefix") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToBinaryWithoutPrefixB()
+		return This._NNLValueIs("tobinarywithoutprefix")
+
+	def ToBinaryWithoutPrefixBQ()
+		if This._NNLValueIs("tobinarywithoutprefix") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToCodeB()
+		return This._NNLValueIs("tocode")
+
+	def ToCodeBQ()
+		if This._NNLValueIs("tocode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToHexB()
+		return This._NNLValueIs("tohex")
+
+	def ToHexBQ()
+		if This._NNLValueIs("tohex") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToHexFormB()
+		return This._NNLValueIs("tohexform")
+
+	def ToHexFormBQ()
+		if This._NNLValueIs("tohexform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToHexFormWithoutPrefixB()
+		return This._NNLValueIs("tohexformwithoutprefix")
+
+	def ToHexFormWithoutPrefixBQ()
+		if This._NNLValueIs("tohexformwithoutprefix") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToHexUnicodeB()
+		return This._NNLValueIs("tohexunicode")
+
+	def ToHexUnicodeBQ()
+		if This._NNLValueIs("tohexunicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToHexWithoutPrefixB()
+		return This._NNLValueIs("tohexwithoutprefix")
+
+	def ToHexWithoutPrefixBQ()
+		if This._NNLValueIs("tohexwithoutprefix") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToKFormB()
+		return This._NNLValueIs("tokform")
+
+	def ToKFormBQ()
+		if This._NNLValueIs("tokform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToListB()
+		return This._NNLValueIs("tolist")
+
+	def ToListBQ()
+		if This._NNLValueIs("tolist") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToMFormB()
+		return This._NNLValueIs("tomform")
+
+	def ToMFormBQ()
+		if This._NNLValueIs("tomform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToOctalB()
+		return This._NNLValueIs("tooctal")
+
+	def ToOctalBQ()
+		if This._NNLValueIs("tooctal") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToOctalFormB()
+		return This._NNLValueIs("tooctalform")
+
+	def ToOctalFormBQ()
+		if This._NNLValueIs("tooctalform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToPairsB()
+		return This._NNLValueIs("topairs")
+
+	def ToPairsBQ()
+		if This._NNLValueIs("topairs") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TopKeyPhraseB()
+		return This._NNLValueIs("topkeyphrase")
+
+	def TopKeyPhraseBQ()
+		if This._NNLValueIs("topkeyphrase") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToSetB()
+		return This._NNLValueIs("toset")
+
+	def ToSetBQ()
+		if This._NNLValueIs("toset") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToSlugB()
+		return This._NNLValueIs("toslug")
+
+	def ToSlugBQ()
+		if This._NNLValueIs("toslug") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToStringB()
+		return This._NNLValueIs("tostring")
+
+	def ToStringBQ()
+		if This._NNLValueIs("tostring") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToUnicodeHexB()
+		return This._NNLValueIs("tounicodehex")
+
+	def ToUnicodeHexBQ()
+		if This._NNLValueIs("tounicodehex") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ToUnicodeHexFormB()
+		return This._NNLValueIs("tounicodehexform")
+
+	def ToUnicodeHexFormBQ()
+		if This._NNLValueIs("tounicodehexform") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TrailingCharsRemovedB()
+		return This._NNLValueIs("trailingcharsremoved")
+
+	def TrailingCharsRemovedBQ()
+		if This._NNLValueIs("trailingcharsremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TrailingSpacesRemovedB()
+		return This._NNLValueIs("trailingspacesremoved")
+
+	def TrailingSpacesRemovedBQ()
+		if This._NNLValueIs("trailingspacesremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TrimmedB()
+		return This._NNLValueIs("trimmed")
+
+	def TrimmedBQ()
+		if This._NNLValueIs("trimmed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TrimmedLeftB()
+		return This._NNLValueIs("trimmedleft")
+
+	def TrimmedLeftBQ()
+		if This._NNLValueIs("trimmedleft") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TrimmedRightB()
+		return This._NNLValueIs("trimmedright")
+
+	def TrimmedRightBQ()
+		if This._NNLValueIs("trimmedright") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TripletsB()
+		return This._NNLValueIs("triplets")
+
+	def TripletsBQ()
+		if This._NNLValueIs("triplets") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TypesB()
+		return This._NNLValueIs("types")
+
+	def TypesBQ()
+		if This._NNLValueIs("types") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TypesAndTheirSectionsB()
+		return This._NNLValueIs("typesandtheirsections")
+
+	def TypesAndTheirSectionsBQ()
+		if This._NNLValueIs("typesandtheirsections") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TypesUB()
+		return This._NNLValueIs("typesu")
+
+	def TypesUBQ()
+		if This._NNLValueIs("typesu") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TypesZZB()
+		return This._NNLValueIs("typeszz")
+
+	def TypesZZBQ()
+		if This._NNLValueIs("typeszz") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def TypeTokenRatioB()
+		return This._NNLValueIs("typetokenratio")
+
+	def TypeTokenRatioBQ()
+		if This._NNLValueIs("typetokenratio") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnicodeB()
+		return This._NNLValueIs("unicode")
+
+	def UnicodeBQ()
+		if This._NNLValueIs("unicode") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnicodesB()
+		return This._NNLValueIs("unicodes")
+
+	def UnicodesBQ()
+		if This._NNLValueIs("unicodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueB()
+		return This._NNLValueIs("unique")
+
+	def UniqueBQ()
+		if This._NNLValueIs("unique") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueCharsB()
+		return This._NNLValueIs("uniquechars")
+
+	def UniqueCharsBQ()
+		if This._NNLValueIs("uniquechars") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueCharsAndUnicodesB()
+		return This._NNLValueIs("uniquecharsandunicodes")
+
+	def UniqueCharsAndUnicodesBQ()
+		if This._NNLValueIs("uniquecharsandunicodes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueItemsB()
+		return This._NNLValueIs("uniqueitems")
+
+	def UniqueItemsBQ()
+		if This._NNLValueIs("uniqueitems") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueTypesB()
+		return This._NNLValueIs("uniquetypes")
+
+	def UniqueTypesBQ()
+		if This._NNLValueIs("uniquetypes") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UniqueWordsB()
+		return This._NNLValueIs("uniquewords")
+
+	def UniqueWordsBQ()
+		if This._NNLValueIs("uniquewords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnitsB()
+		return This._NNLValueIs("units")
+
+	def UnitsBQ()
+		if This._NNLValueIs("units") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnspacifiedB()
+		return This._NNLValueIs("unspacified")
+
+	def UnspacifiedBQ()
+		if This._NNLValueIs("unspacified") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnzipB()
+		return This._NNLValueIs("unzip")
+
+	def UnzipBQ()
+		if This._NNLValueIs("unzip") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UnzippedB()
+		return This._NNLValueIs("unzipped")
+
+	def UnzippedBQ()
+		if This._NNLValueIs("unzipped") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UppercasedB()
+		return This._NNLValueIs("uppercased")
+
+	def UppercasedBQ()
+		if This._NNLValueIs("uppercased") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UrlDecodedB()
+		return This._NNLValueIs("urldecoded")
+
+	def UrlDecodedBQ()
+		if This._NNLValueIs("urldecoded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def UrlEncodedB()
+		return This._NNLValueIs("urlencoded")
+
+	def UrlEncodedBQ()
+		if This._NNLValueIs("urlencoded") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ValueB()
+		return This._NNLValueIs("value")
+
+	def ValueBQ()
+		if This._NNLValueIs("value") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def VarianceB()
+		return This._NNLValueIs("variance")
+
+	def VarianceBQ()
+		if This._NNLValueIs("variance") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def VowelB()
+		return This._NNLValueIs("vowel")
+
+	def VowelBQ()
+		if This._NNLValueIs("vowel") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WalkBackAndForthB()
+		return This._NNLValueIs("walkbackandforth")
+
+	def WalkBackAndForthBQ()
+		if This._NNLValueIs("walkbackandforth") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WalkForthAndBackB()
+		return This._NNLValueIs("walkforthandback")
+
+	def WalkForthAndBackBQ()
+		if This._NNLValueIs("walkforthandback") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutDiacriticsB()
+		return This._NNLValueIs("withoutdiacritics")
+
+	def WithoutDiacriticsBQ()
+		if This._NNLValueIs("withoutdiacritics") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutDotsB()
+		return This._NNLValueIs("withoutdots")
+
+	def WithoutDotsBQ()
+		if This._NNLValueIs("withoutdots") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutDotsOnLettersB()
+		return This._NNLValueIs("withoutdotsonletters")
+
+	def WithoutDotsOnLettersBQ()
+		if This._NNLValueIs("withoutdotsonletters") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutDuplicationB()
+		return This._NNLValueIs("withoutduplication")
+
+	def WithoutDuplicationBQ()
+		if This._NNLValueIs("withoutduplication") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutSapcesB()
+		return This._NNLValueIs("withoutsapces")
+
+	def WithoutSapcesBQ()
+		if This._NNLValueIs("withoutsapces") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutSpacesB()
+		return This._NNLValueIs("withoutspaces")
+
+	def WithoutSpacesBQ()
+		if This._NNLValueIs("withoutspaces") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WithoutStopwordsB()
+		return This._NNLValueIs("withoutstopwords")
+
+	def WithoutStopwordsBQ()
+		if This._NNLValueIs("withoutstopwords") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WordsAndTheirCountsB()
+		return This._NNLValueIs("wordsandtheircounts")
+
+	def WordsAndTheirCountsBQ()
+		if This._NNLValueIs("wordsandtheircounts") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WordsForSearchB()
+		return This._NNLValueIs("wordsforsearch")
+
+	def WordsForSearchBQ()
+		if This._NNLValueIs("wordsforsearch") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WordsLemmatizedB()
+		return This._NNLValueIs("wordslemmatized")
+
+	def WordsLemmatizedBQ()
+		if This._NNLValueIs("wordslemmatized") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WordsStemmedB()
+		return This._NNLValueIs("wordsstemmed")
+
+	def WordsStemmedBQ()
+		if This._NNLValueIs("wordsstemmed") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def WordsWithPOSB()
+		return This._NNLValueIs("wordswithpos")
+
+	def WordsWithPOSBQ()
+		if This._NNLValueIs("wordswithpos") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def ZerosRemovedB()
+		return This._NNLValueIs("zerosremoved")
+
+	def ZerosRemovedBQ()
+		if This._NNLValueIs("zerosremoved") = 1
+			return This
+		ok
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
+
+	def AddQC(p1)
+		return This._NNLImmutable("add", [ p1 ])
+
+	def AddBoundsQC(p1)
+		return This._NNLImmutable("addbounds", [ p1 ])
+
+	def AddedManyQC(p1)
+		return This._NNLImmutable("addedmany", [ p1 ])
+
+	def AddedToEachQC(p1)
+		return This._NNLImmutable("addedtoeach", [ p1 ])
+
+	def AddItemQC(p1)
+		return This._NNLImmutable("additem", [ p1 ])
+
+	def AddItemsQC(p1)
+		return This._NNLImmutable("additems", [ p1 ])
+
+	def AddManyQC(p1)
+		return This._NNLImmutable("addmany", [ p1 ])
+
+	def AddTheseQC(p1)
+		return This._NNLImmutable("addthese", [ p1 ])
+
+	def AddToEachQC(p1)
+		return This._NNLImmutable("addtoeach", [ p1 ])
+
+	def AdjectivesQC()
+		return This._NNLImmutable("adjectives", [])
+
+	def AdverbsQC()
+		return This._NNLImmutable("adverbs", [])
+
+	def AllAreEqualCSQC(p1)
+		return This._NNLImmutable("allareequalcs", [ p1 ])
+
+	def AllCharsAreQC(p1)
+		return This._NNLImmutable("allcharsare", [ p1 ])
+
+	def AllItemsAreQC(p1)
+		return This._NNLImmutable("allitemsare", [ p1 ])
+
+	def AllItemsAreEqualCSQC(p1)
+		return This._NNLImmutable("allitemsareequalcs", [ p1 ])
+
+	def AllItemsAreEqualToQC(p1)
+		return This._NNLImmutable("allitemsareequalto", [ p1 ])
+
+	def AllItemsExceptQC(p1)
+		return This._NNLImmutable("allitemsexcept", [ p1 ])
+
+	def AllItemsVerifyQC(p1)
+		return This._NNLImmutable("allitemsverify", [ p1 ])
+
+	def AntiFindQC(p1)
+		return This._NNLImmutable("antifind", [ p1 ])
+
+	def AntiFindAsSectionQC(p1)
+		return This._NNLImmutable("antifindassection", [ p1 ])
+
+	def AntiFindAsSectionsQC(p1)
+		return This._NNLImmutable("antifindassections", [ p1 ])
+
+	def AntiFindAsSectionsZQC(p1)
+		return This._NNLImmutable("antifindassectionsz", [ p1 ])
+
+	def AntiFindAsSectionsZZQC(p1)
+		return This._NNLImmutable("antifindassectionszz", [ p1 ])
+
+	def AntiFindZZQC(p1)
+		return This._NNLImmutable("antifindzz", [ p1 ])
+
+	def AntiPositionsQC(p1)
+		return This._NNLImmutable("antipositions", [ p1 ])
+
+	def AntiPositionsZZQC(p1)
+		return This._NNLImmutable("antipositionszz", [ p1 ])
+
+	def AntiRangesQC(p1)
+		return This._NNLImmutable("antiranges", [ p1 ])
+
+	def AntiSectionsQC(p1)
+		return This._NNLImmutable("antisections", [ p1 ])
+
+	def AntiSectionsZQC(p1)
+		return This._NNLImmutable("antisectionsz", [ p1 ])
+
+	def AntiSectionsZZQC(p1)
+		return This._NNLImmutable("antisectionszz", [ p1 ])
+
+	def AnyBoundedByQC(p1)
+		return This._NNLImmutable("anyboundedby", [ p1 ])
+
+	def AnyBoundedByZZQC(p1)
+		return This._NNLImmutable("anyboundedbyzz", [ p1 ])
+
+	def AnySubStringsBoundedByQC(p1)
+		return This._NNLImmutable("anysubstringsboundedby", [ p1 ])
+
+	def AppendQC(p1)
+		return This._NNLImmutable("append", [ p1 ])
+
+	def ApplyFormatQC()
+		return This._NNLImmutable("applyformat", [])
+
+	def ApplyLocaleQC(p1)
+		return This._NNLImmutable("applylocale", [ p1 ])
+
+	def ApplyTitlecaseQC()
+		return This._NNLImmutable("applytitlecase", [])
+
+	def ArcCosineQC()
+		return This._NNLImmutable("arccosine", [])
+
+	def ArcSineQC()
+		return This._NNLImmutable("arcsine", [])
+
+	def ArcTangentQC()
+		return This._NNLImmutable("arctangent", [])
+
+	def AsDeepListQC()
+		return This._NNLImmutable("asdeeplist", [])
+
+	def AssociatedWithQC(p1)
+		return This._NNLImmutable("associatedwith", [ p1 ])
+
+	def AssociateWithQC(p1)
+		return This._NNLImmutable("associatewith", [ p1 ])
+
+	def BeginsWithQC(p1)
+		return This._NNLImmutable("beginswith", [ p1 ])
+
+	def BillionsQC()
+		return This._NNLImmutable("billions", [])
+
+	def BoundedByQC(p1)
+		return This._NNLImmutable("boundedby", [ p1 ])
+
+	def BoundedByUQC(p1)
+		return This._NNLImmutable("boundedbyu", [ p1 ])
+
+	def BoundedByUZQC(p1)
+		return This._NNLImmutable("boundedbyuz", [ p1 ])
+
+	def BoundedByUZZQC(p1)
+		return This._NNLImmutable("boundedbyuzz", [ p1 ])
+
+	def BoundedByZQC(p1)
+		return This._NNLImmutable("boundedbyz", [ p1 ])
+
+	def BoundedByZZQC(p1)
+		return This._NNLImmutable("boundedbyzz", [ p1 ])
+
+	def BoundWithQC(p1)
+		return This._NNLImmutable("boundwith", [ p1 ])
+
+	def BoxQC()
+		return This._NNLImmutable("box", [])
+
+	def BoxEachCharQC()
+		return This._NNLImmutable("boxeachchar", [])
+
+	def BoxifyCharsQC()
+		return This._NNLImmutable("boxifychars", [])
+
+	def BoxifyRoundQC()
+		return This._NNLImmutable("boxifyround", [])
+
+	def BoxRoundQC()
+		return This._NNLImmutable("boxround", [])
+
+	def BoxRoundEachCharQC()
+		return This._NNLImmutable("boxroundeachchar", [])
+
+	def CanBeDividedByQC(p1)
+		return This._NNLImmutable("canbedividedby", [ p1 ])
+
+	def CapitalCaseQC()
+		return This._NNLImmutable("capitalcase", [])
+
+	def CapitalizeQC()
+		return This._NNLImmutable("capitalize", [])
+
+	def CharacterNameQC()
+		return This._NNLImmutable("charactername", [])
+
+	def CharAtQC(p1)
+		return This._NNLImmutable("charat", [ p1 ])
+
+	def CharIsControlAtQC(p1)
+		return This._NNLImmutable("chariscontrolat", [ p1 ])
+
+	def CharIsMarkAtQC(p1)
+		return This._NNLImmutable("charismarkat", [ p1 ])
+
+	def CharIsSpaceAtQC(p1)
+		return This._NNLImmutable("charisspaceat", [ p1 ])
+
+	def CharNameQC()
+		return This._NNLImmutable("charname", [])
+
+	def CharRemovedFromLeftQC(p1)
+		return This._NNLImmutable("charremovedfromleft", [ p1 ])
+
+	def CharRemovedFromRightQC(p1)
+		return This._NNLImmutable("charremovedfromright", [ p1 ])
+
+	def CharsAndTheirCountsCSQC(p1)
+		return This._NNLImmutable("charsandtheircountscs", [ p1 ])
+
+	def CharsZQC()
+		return This._NNLImmutable("charsz", [])
+
+	def CharTrimmedFromLeftQC(p1)
+		return This._NNLImmutable("chartrimmedfromleft", [ p1 ])
+
+	def CharTrimmedFromRightQC(p1)
+		return This._NNLImmutable("chartrimmedfromright", [ p1 ])
+
+	def CheckQC(p1)
+		return This._NNLImmutable("check", [ p1 ])
+
+	def ChunksQC(p1)
+		return This._NNLImmutable("chunks", [ p1 ])
+
+	def ClassesQC()
+		return This._NNLImmutable("classes", [])
+
+	def ClassesSFQC()
+		return This._NNLImmutable("classessf", [])
+
+	def ClassifiedSFQC()
+		return This._NNLImmutable("classifiedsf", [])
+
+	def ClassifyQC()
+		return This._NNLImmutable("classify", [])
+
+	def ClassifyByQC(p1)
+		return This._NNLImmutable("classifyby", [ p1 ])
+
+	def ClassifySFQC()
+		return This._NNLImmutable("classifysf", [])
+
+	def CombinationsQC(p1)
+		return This._NNLImmutable("combinations", [ p1 ])
+
+	def ComesAfterPositionQC(p1)
+		return This._NNLImmutable("comesafterposition", [ p1 ])
+
+	def ComesAfterSubStringQC(p1)
+		return This._NNLImmutable("comesaftersubstring", [ p1 ])
+
+	def ComesBeforePositionQC(p1)
+		return This._NNLImmutable("comesbeforeposition", [ p1 ])
+
+	def ComesBeforeSubStringQC(p1)
+		return This._NNLImmutable("comesbeforesubstring", [ p1 ])
+
+	def CommonQC(p1)
+		return This._NNLImmutable("common", [ p1 ])
+
+	def CommonGreatestDividorQC(p1)
+		return This._NNLImmutable("commongreatestdividor", [ p1 ])
+
+	def CommonItemsQC(p1)
+		return This._NNLImmutable("commonitems", [ p1 ])
+
+	def CommonItemsWithQC(p1)
+		return This._NNLImmutable("commonitemswith", [ p1 ])
+
+	def CommonPrefixWithQC(p1)
+		return This._NNLImmutable("commonprefixwith", [ p1 ])
+
+	def CommonSubStringsQC(p1)
+		return This._NNLImmutable("commonsubstrings", [ p1 ])
+
+	def CommonSuffixWithQC(p1)
+		return This._NNLImmutable("commonsuffixwith", [ p1 ])
+
+	def CompactQC()
+		return This._NNLImmutable("compact", [])
+
+	def CompactFormQC()
+		return This._NNLImmutable("compactform", [])
+
+	def ComparedToQC(p1)
+		return This._NNLImmutable("comparedto", [ p1 ])
+
+	def CompareRoundsWithQC(p1)
+		return This._NNLImmutable("compareroundswith", [ p1 ])
+
+	def CompressUsingBinaryQC(p1)
+		return This._NNLImmutable("compressusingbinary", [ p1 ])
+
+	def ConcatenateQC(p1)
+		return This._NNLImmutable("concatenate", [ p1 ])
+
+	def ConcordanceQC(p1)
+		return This._NNLImmutable("concordance", [ p1 ])
+
+	def ContentCSQC(p1)
+		return This._NNLImmutable("contentcs", [ p1 ])
+
+	def ContentCSUQC(p1)
+		return This._NNLImmutable("contentcsu", [ p1 ])
+
+	def CopyQC()
+		return This._NNLImmutable("copy", [])
+
+	def CosineSimilarityWithQC(p1)
+		return This._NNLImmutable("cosinesimilaritywith", [ p1 ])
+
+	def CountQC(p1)
+		return This._NNLImmutable("count", [ p1 ])
+
+	def CountEmptyStringsQC()
+		return This._NNLImmutable("countemptystrings", [])
+
+	def CountLeadingCharQC(p1)
+		return This._NNLImmutable("countleadingchar", [ p1 ])
+
+	def CountNumbersQC()
+		return This._NNLImmutable("countnumbers", [])
+
+	def CountOverlappingQC(p1)
+		return This._NNLImmutable("countoverlapping", [ p1 ])
+
+	def CountRegexQC(p1)
+		return This._NNLImmutable("countregex", [ p1 ])
+
+	def CountSubStringsQC(p1)
+		return This._NNLImmutable("countsubstrings", [ p1 ])
+
+	def CountTrailingCharQC(p1)
+		return This._NNLImmutable("counttrailingchar", [ p1 ])
+
+	def CountVowelsQC()
+		return This._NNLImmutable("countvowels", [])
+
+	def CountWordsQC()
+		return This._NNLImmutable("countwords", [])
+
+	def DecimalPartQC()
+		return This._NNLImmutable("decimalpart", [])
+
+	def DecimalPartStringValueQC()
+		return This._NNLImmutable("decimalpartstringvalue", [])
+
+	def DecimalPartToHexFormQC()
+		return This._NNLImmutable("decimalparttohexform", [])
+
+	def DecimalPartwihtoutDotQC()
+		return This._NNLImmutable("decimalpartwihtoutdot", [])
+
+	def DecimalPartWithoutDotQC()
+		return This._NNLImmutable("decimalpartwithoutdot", [])
+
+	def DecimalsQC()
+		return This._NNLImmutable("decimals", [])
+
+	def DecrementQC()
+		return This._NNLImmutable("decrement", [])
+
+	def DeepBoundedByQC(p1)
+		return This._NNLImmutable("deepboundedby", [ p1 ])
+
+	def DeepContainsQC(p1)
+		return This._NNLImmutable("deepcontains", [ p1 ])
+
+	def DeepContainsManyQC(p1)
+		return This._NNLImmutable("deepcontainsmany", [ p1 ])
+
+	def DeepContainsTheseQC(p1)
+		return This._NNLImmutable("deepcontainsthese", [ p1 ])
+
+	def DeepFindQC(p1)
+		return This._NNLImmutable("deepfind", [ p1 ])
+
+	def DeepFindAllQC(p1)
+		return This._NNLImmutable("deepfindall", [ p1 ])
+
+	def DeepFindBoundedByZZQC(p1)
+		return This._NNLImmutable("deepfindboundedbyzz", [ p1 ])
+
+	def DeepFindSubStringsZZQC(p1)
+		return This._NNLImmutable("deepfindsubstringszz", [ p1 ])
+
+	def DeepListQC()
+		return This._NNLImmutable("deeplist", [])
+
+	def DeepListsQC()
+		return This._NNLImmutable("deeplists", [])
+
+	def DeeplyContainsQC(p1)
+		return This._NNLImmutable("deeplycontains", [ p1 ])
+
+	def DeepRemoveQC(p1)
+		return This._NNLImmutable("deepremove", [ p1 ])
+
+	def DeepRemovedQC(p1)
+		return This._NNLImmutable("deepremoved", [ p1 ])
+
+	def DeepRemoveManyQC(p1)
+		return This._NNLImmutable("deepremovemany", [ p1 ])
+
+	def DeepStringifiyQC()
+		return This._NNLImmutable("deepstringifiy", [])
+
+	def DeepSubStringsZZQC(p1)
+		return This._NNLImmutable("deepsubstringszz", [ p1 ])
+
+	def DerivativeQC(p1)
+		return This._NNLImmutable("derivative", [ p1 ])
+
+	def DiffQC(p1)
+		return This._NNLImmutable("diff", [ p1 ])
+
+	def DifferenceWithQC(p1)
+		return This._NNLImmutable("differencewith", [ p1 ])
+
+	def DifferentItemsWithQC(p1)
+		return This._NNLImmutable("differentitemswith", [ p1 ])
+
+	def DifferentItemsWithXTTQC(p1)
+		return This._NNLImmutable("differentitemswithxtt", [ p1 ])
+
+	def DiffWithQC(p1)
+		return This._NNLImmutable("diffwith", [ p1 ])
+
+	def DiffXTTQC(p1)
+		return This._NNLImmutable("diffxtt", [ p1 ])
+
+	def DisplayQC()
+		return This._NNLImmutable("display", [])
+
+	def DistributeOverQC(p1)
+		return This._NNLImmutable("distributeover", [ p1 ])
+
+	def DivideByQC(p1)
+		return This._NNLImmutable("divideby", [ p1 ])
+
+	def DivideByManyQC(p1)
+		return This._NNLImmutable("dividebymany", [ p1 ])
+
+	def DividedByQC(p1)
+		return This._NNLImmutable("dividedby", [ p1 ])
+
+	def DividedByManyQC(p1)
+		return This._NNLImmutable("dividedbymany", [ p1 ])
+
+	def DoesNotContainQC(p1)
+		return This._NNLImmutable("doesnotcontain", [ p1 ])
+
+	def DownToQC(p1)
+		return This._NNLImmutable("downto", [ p1 ])
+
+	def DuplicatedItemsCSQC(p1)
+		return This._NNLImmutable("duplicateditemscs", [ p1 ])
+
+	def DuplicatedStringsCSQC(p1)
+		return This._NNLImmutable("duplicatedstringscs", [ p1 ])
+
+	def DuplicatedSubStringsCSQC(p1)
+		return This._NNLImmutable("duplicatedsubstringscs", [ p1 ])
+
+	def DuplicatesCSQC(p1)
+		return This._NNLImmutable("duplicatescs", [ p1 ])
+
+	def DuplicatesCSXTZQC(p1)
+		return This._NNLImmutable("duplicatescsxtz", [ p1 ])
+
+	def DuplicatesCSZQC(p1)
+		return This._NNLImmutable("duplicatescsz", [ p1 ])
+
+	def DuplicatesRemovedCSQC(p1)
+		return This._NNLImmutable("duplicatesremovedcs", [ p1 ])
+
+	def DupSecutiveCharsZQC()
+		return This._NNLImmutable("dupsecutivecharsz", [])
+
+	def DupSecutiveCharsZZQC()
+		return This._NNLImmutable("dupsecutivecharszz", [])
+
+	def DupSecutiveItemsQC()
+		return This._NNLImmutable("dupsecutiveitems", [])
+
+	def DupSecutiveItemsCSQC(p1)
+		return This._NNLImmutable("dupsecutiveitemscs", [ p1 ])
+
+	def DupSecutiveItemsCSZQC(p1)
+		return This._NNLImmutable("dupsecutiveitemscsz", [ p1 ])
+
+	def DupSecutiveItemsZQC()
+		return This._NNLImmutable("dupsecutiveitemsz", [])
+
+	def DupSecutiveItemZQC(p1)
+		return This._NNLImmutable("dupsecutiveitemz", [ p1 ])
+
+	def DupSecutiveSubStringsQC()
+		return This._NNLImmutable("dupsecutivesubstrings", [])
+
+	def DupSecutiveSubStringsZQC()
+		return This._NNLImmutable("dupsecutivesubstringsz", [])
+
+	def DupSecutiveSubStringZQC(p1)
+		return This._NNLImmutable("dupsecutivesubstringz", [ p1 ])
+
+	def DupSecutiveSubStringZZQC(p1)
+		return This._NNLImmutable("dupsecutivesubstringzz", [ p1 ])
+
+	def EachContainsQC(p1)
+		return This._NNLImmutable("eachcontains", [ p1 ])
+
+	def EachContainsTheseQC(p1)
+		return This._NNLImmutable("eachcontainsthese", [ p1 ])
+
+	def EachItemContainsQC(p1)
+		return This._NNLImmutable("eachitemcontains", [ p1 ])
+
+	def EachItemIsQC(p1)
+		return This._NNLImmutable("eachitemis", [ p1 ])
+
+	def EachItemIsAQC(p1)
+		return This._NNLImmutable("eachitemisa", [ p1 ])
+
+	def EditDistanceWithQC(p1)
+		return This._NNLImmutable("editdistancewith", [ p1 ])
+
+	def EndingNumberQC()
+		return This._NNLImmutable("endingnumber", [])
+
+	def EnsurePrefixQC(p1)
+		return This._NNLImmutable("ensureprefix", [ p1 ])
+
+	def EnsureSuffixQC(p1)
+		return This._NNLImmutable("ensuresuffix", [ p1 ])
+
+	def EntitiesQC()
+		return This._NNLImmutable("entities", [])
+
+	def EqualToQC(p1)
+		return This._NNLImmutable("equalto", [ p1 ])
+
+	def EscapeForRegexQC()
+		return This._NNLImmutable("escapeforregex", [])
+
+	def EveryNthItemQC(p1)
+		return This._NNLImmutable("everynthitem", [ p1 ])
+
+	def ExceptQC(p1)
+		return This._NNLImmutable("except", [ p1 ])
+
+	def ExtendQC(p1)
+		return This._NNLImmutable("extend", [ p1 ])
+
+	def ExtendToQC(p1)
+		return This._NNLImmutable("extendto", [ p1 ])
+
+	def ExtendToPositionQC(p1)
+		return This._NNLImmutable("extendtoposition", [ p1 ])
+
+	def ExtendWithQC(p1)
+		return This._NNLImmutable("extendwith", [ p1 ])
+
+	def ExtractQC(p1)
+		return This._NNLImmutable("extract", [ p1 ])
+
+	def ExtractAllQC()
+		return This._NNLImmutable("extractall", [])
+
+	def ExtractAtQC(p1)
+		return This._NNLImmutable("extractat", [ p1 ])
+
+	def ExtractDatesQC()
+		return This._NNLImmutable("extractdates", [])
+
+	def ExtractDuplicatesQC()
+		return This._NNLImmutable("extractduplicates", [])
+
+	def ExtractDuplicatesCSQC(p1)
+		return This._NNLImmutable("extractduplicatescs", [ p1 ])
+
+	def ExtractEmailsQC()
+		return This._NNLImmutable("extractemails", [])
+
+	def ExtractFirstQC(p1)
+		return This._NNLImmutable("extractfirst", [ p1 ])
+
+	def ExtractFirstOccurrenceQC(p1)
+		return This._NNLImmutable("extractfirstoccurrence", [ p1 ])
+
+	def ExtractHashtagsQC()
+		return This._NNLImmutable("extracthashtags", [])
+
+	def ExtractIPAddressesQC()
+		return This._NNLImmutable("extractipaddresses", [])
+
+	def ExtractLastQC(p1)
+		return This._NNLImmutable("extractlast", [ p1 ])
+
+	def ExtractLastOccurrenceQC(p1)
+		return This._NNLImmutable("extractlastoccurrence", [ p1 ])
+
+	def ExtractListsQC()
+		return This._NNLImmutable("extractlists", [])
+
+	def ExtractManyQC(p1)
+		return This._NNLImmutable("extractmany", [ p1 ])
+
+	def ExtractMatchesQC(p1)
+		return This._NNLImmutable("extractmatches", [ p1 ])
+
+	def ExtractMentionsQC()
+		return This._NNLImmutable("extractmentions", [])
+
+	def ExtractNthQC(p1)
+		return This._NNLImmutable("extractnth", [ p1 ])
+
+	def ExtractNumbersQC()
+		return This._NNLImmutable("extractnumbers", [])
+
+	def ExtractPatternQC(p1)
+		return This._NNLImmutable("extractpattern", [ p1 ])
+
+	def ExtractPhoneNumbersQC()
+		return This._NNLImmutable("extractphonenumbers", [])
+
+	def ExtractPhonesQC()
+		return This._NNLImmutable("extractphones", [])
+
+	def ExtractPricesQC()
+		return This._NNLImmutable("extractprices", [])
+
+	def ExtractStringsQC()
+		return This._NNLImmutable("extractstrings", [])
+
+	def ExtractTimesQC()
+		return This._NNLImmutable("extracttimes", [])
+
+	def ExtractURLsQC()
+		return This._NNLImmutable("extracturls", [])
+
+	def FilledWithQC(p1)
+		return This._NNLImmutable("filledwith", [ p1 ])
+
+	def FilterQC(p1)
+		return This._NNLImmutable("filter", [ p1 ])
+
+	def FindQC(p1)
+		return This._NNLImmutable("find", [ p1 ])
+
+	def FindAllQC(p1)
+		return This._NNLImmutable("findall", [ p1 ])
+
+	def FindAllAsSectionsQC(p1)
+		return This._NNLImmutable("findallassections", [ p1 ])
+
+	def FindAllCharQC(p1)
+		return This._NNLImmutable("findallchar", [ p1 ])
+
+	def FindAllExceptQC(p1)
+		return This._NNLImmutable("findallexcept", [ p1 ])
+
+	def FindAllExceptFirstQC(p1)
+		return This._NNLImmutable("findallexceptfirst", [ p1 ])
+
+	def FindAllExceptLastQC(p1)
+		return This._NNLImmutable("findallexceptlast", [ p1 ])
+
+	def FindAllRegexQC(p1)
+		return This._NNLImmutable("findallregex", [ p1 ])
+
+	def FindAllRegexMatchesQC(p1)
+		return This._NNLImmutable("findallregexmatches", [ p1 ])
+
+	def FindAllZZQC(p1)
+		return This._NNLImmutable("findallzz", [ p1 ])
+
+	def FindAntiSectionsQC(p1)
+		return This._NNLImmutable("findantisections", [ p1 ])
+
+	def FindAntiSectionsZQC(p1)
+		return This._NNLImmutable("findantisectionsz", [ p1 ])
+
+	def FindAntiSectionsZZQC(p1)
+		return This._NNLImmutable("findantisectionszz", [ p1 ])
+
+	def FindAnyBoundedByQC(p1)
+		return This._NNLImmutable("findanyboundedby", [ p1 ])
+
+	def FindAnyBoundedByZZQC(p1)
+		return This._NNLImmutable("findanyboundedbyzz", [ p1 ])
+
+	def FindAsAntiSectionsQC(p1)
+		return This._NNLImmutable("findasantisections", [ p1 ])
+
+	def FindAsSectionQC(p1)
+		return This._NNLImmutable("findassection", [ p1 ])
+
+	def FindAsSectionsQC(p1)
+		return This._NNLImmutable("findassections", [ p1 ])
+
+	def FindBoundedByQC(p1)
+		return This._NNLImmutable("findboundedby", [ p1 ])
+
+	def FindBoundedByZZQC(p1)
+		return This._NNLImmutable("findboundedbyzz", [ p1 ])
+
+	def FindBoundedSubStringQC(p1)
+		return This._NNLImmutable("findboundedsubstring", [ p1 ])
+
+	def FindBoundedSubStringsQC(p1)
+		return This._NNLImmutable("findboundedsubstrings", [ p1 ])
+
+	def FindBoundedSubStringZQC(p1)
+		return This._NNLImmutable("findboundedsubstringz", [ p1 ])
+
+	def FindBoundedSubStringZZQC(p1)
+		return This._NNLImmutable("findboundedsubstringzz", [ p1 ])
+
+	def FindDuplicatedItemQC(p1)
+		return This._NNLImmutable("findduplicateditem", [ p1 ])
+
+	def FindDuplicatedItemsQC()
+		return This._NNLImmutable("findduplicateditems", [])
+
+	def FindDuplicatedStringQC(p1)
+		return This._NNLImmutable("findduplicatedstring", [ p1 ])
+
+	def FindDuplicatesQC()
+		return This._NNLImmutable("findduplicates", [])
+
+	def FindDuplicatesCSQC(p1)
+		return This._NNLImmutable("findduplicatescs", [ p1 ])
+
+	def FindDuplicatesOriginsQC()
+		return This._NNLImmutable("findduplicatesorigins", [])
+
+	def FindDuplicatesZZQC()
+		return This._NNLImmutable("findduplicateszz", [])
+
+	def FindDuplicationsQC()
+		return This._NNLImmutable("findduplications", [])
+
+	def FindDupOriginsQC()
+		return This._NNLImmutable("findduporigins", [])
+
+	def FindDupSecutiveCharsQC()
+		return This._NNLImmutable("finddupsecutivechars", [])
+
+	def FindDupSecutiveCharsCSQC(p1)
+		return This._NNLImmutable("finddupsecutivecharscs", [ p1 ])
+
+	def FindDupSecutiveCharsZZQC()
+		return This._NNLImmutable("finddupsecutivecharszz", [])
+
+	def FindDupSecutiveItemsQC()
+		return This._NNLImmutable("finddupsecutiveitems", [])
+
+	def FindDupSecutiveItemsCSQC(p1)
+		return This._NNLImmutable("finddupsecutiveitemscs", [ p1 ])
+
+	def FindEmptyStringsQC()
+		return This._NNLImmutable("findemptystrings", [])
+
+	def FindExceptZZQC(p1)
+		return This._NNLImmutable("findexceptzz", [ p1 ])
+
+	def FindFirstQC(p1)
+		return This._NNLImmutable("findfirst", [ p1 ])
+
+	def FindFirstAsSectionQC(p1)
+		return This._NNLImmutable("findfirstassection", [ p1 ])
+
+	def FindFirstDuplicatesQC()
+		return This._NNLImmutable("findfirstduplicates", [])
+
+	def FindFirstDuplicatesCSQC(p1)
+		return This._NNLImmutable("findfirstduplicatescs", [ p1 ])
+
+	def FindFirstListQC()
+		return This._NNLImmutable("findfirstlist", [])
+
+	def FindFirstMarquerQC()
+		return This._NNLImmutable("findfirstmarquer", [])
+
+	def FindFirstNonSpaceCharQC()
+		return This._NNLImmutable("findfirstnonspacechar", [])
+
+	def FindFirstOccurrenceQC(p1)
+		return This._NNLImmutable("findfirstoccurrence", [ p1 ])
+
+	def FindFirstRegexQC(p1)
+		return This._NNLImmutable("findfirstregex", [ p1 ])
+
+	def FindFirstSubStringQC(p1)
+		return This._NNLImmutable("findfirstsubstring", [ p1 ])
+
+	def FindFirstZQC(p1)
+		return This._NNLImmutable("findfirstz", [ p1 ])
+
+	def FindFirstZZQC(p1)
+		return This._NNLImmutable("findfirstzz", [ p1 ])
+
+	def FindInvisibleCharsQC()
+		return This._NNLImmutable("findinvisiblechars", [])
+
+	def FindItemQC(p1)
+		return This._NNLImmutable("finditem", [ p1 ])
+
+	def FindItemsQC()
+		return This._NNLImmutable("finditems", [])
+
+	def FindItemsCSQC(p1)
+		return This._NNLImmutable("finditemscs", [ p1 ])
+
+	def FindItemsOtherThanQC(p1)
+		return This._NNLImmutable("finditemsotherthan", [ p1 ])
+
+	def FindLargestQC()
+		return This._NNLImmutable("findlargest", [])
+
+	def FindLastQC(p1)
+		return This._NNLImmutable("findlast", [ p1 ])
+
+	def FindLastAsSectionQC(p1)
+		return This._NNLImmutable("findlastassection", [ p1 ])
+
+	def FindLasteAsSectionQC(p1)
+		return This._NNLImmutable("findlasteassection", [ p1 ])
+
+	def FindLastMarquerQC()
+		return This._NNLImmutable("findlastmarquer", [])
+
+	def FindLastNonSpaceCharQC()
+		return This._NNLImmutable("findlastnonspacechar", [])
+
+	def FindLastZQC(p1)
+		return This._NNLImmutable("findlastz", [ p1 ])
+
+	def FindLastZZQC(p1)
+		return This._NNLImmutable("findlastzz", [ p1 ])
+
+	def FindLeadingCharsQC()
+		return This._NNLImmutable("findleadingchars", [])
+
+	def FindLeadingCharsZZQC()
+		return This._NNLImmutable("findleadingcharszz", [])
+
+	def FindListsAsSectionsQC()
+		return This._NNLImmutable("findlistsassections", [])
+
+	def FindListsZZQC()
+		return This._NNLImmutable("findlistszz", [])
+
+	def FindManyQC(p1)
+		return This._NNLImmutable("findmany", [ p1 ])
+
+	def FindManyAsSectionsQC(p1)
+		return This._NNLImmutable("findmanyassections", [ p1 ])
+
+	def FindManyZZQC(p1)
+		return This._NNLImmutable("findmanyzz", [ p1 ])
+
+	def FindMarkerQC(p1)
+		return This._NNLImmutable("findmarker", [ p1 ])
+
+	def FindMarkersQC()
+		return This._NNLImmutable("findmarkers", [])
+
+	def FindMarkersAsSectionsQC()
+		return This._NNLImmutable("findmarkersassections", [])
+
+	def FindMarquerQC(p1)
+		return This._NNLImmutable("findmarquer", [ p1 ])
+
+	def FindMarquersQC()
+		return This._NNLImmutable("findmarquers", [])
+
+	def FindMarquersAsSectionsQC()
+		return This._NNLImmutable("findmarquersassections", [])
+
+	def FindNamedObjectsQC()
+		return This._NNLImmutable("findnamedobjects", [])
+
+	def FindNonDuplicatedItemsQC()
+		return This._NNLImmutable("findnonduplicateditems", [])
+
+	def FindNonNumbersQC()
+		return This._NNLImmutable("findnonnumbers", [])
+
+	def FindNonStzObjectsQC()
+		return This._NNLImmutable("findnonstzobjects", [])
+
+	def FindNthLargestQC(p1)
+		return This._NNLImmutable("findnthlargest", [ p1 ])
+
+	def FindNthMarquerQC(p1)
+		return This._NNLImmutable("findnthmarquer", [ p1 ])
+
+	def FindNthSmallestQC(p1)
+		return This._NNLImmutable("findnthsmallest", [ p1 ])
+
+	def FindNumbersQC()
+		return This._NNLImmutable("findnumbers", [])
+
+	def FindNumbersAsSectionsQC()
+		return This._NNLImmutable("findnumbersassections", [])
+
+	def FindNumbersZZQC()
+		return This._NNLImmutable("findnumberszz", [])
+
+	def FindObjectQC(p1)
+		return This._NNLImmutable("findobject", [ p1 ])
+
+	def FindObjectsQC()
+		return This._NNLImmutable("findobjects", [])
+
+	def FindObjectsAsSectionsQC()
+		return This._NNLImmutable("findobjectsassections", [])
+
+	def FindObjectsZZQC()
+		return This._NNLImmutable("findobjectszz", [])
+
+	def FindPairsQC()
+		return This._NNLImmutable("findpairs", [])
+
+	def FindPositionsQC(p1)
+		return This._NNLImmutable("findpositions", [ p1 ])
+
+	def FindRegexQC(p1)
+		return This._NNLImmutable("findregex", [ p1 ])
+
+	def FindSinglesQC()
+		return This._NNLImmutable("findsingles", [])
+
+	def FindSmallestQC()
+		return This._NNLImmutable("findsmallest", [])
+
+	def FindSpacesQC()
+		return This._NNLImmutable("findspaces", [])
+
+	def FindStringsAsSectionsQC()
+		return This._NNLImmutable("findstringsassections", [])
+
+	def FindStringsZZQC()
+		return This._NNLImmutable("findstringszz", [])
+
+	def FindStzListsQC()
+		return This._NNLImmutable("findstzlists", [])
+
+	def FindStzNumbersQC()
+		return This._NNLImmutable("findstznumbers", [])
+
+	def FindStzObjectsQC()
+		return This._NNLImmutable("findstzobjects", [])
+
+	def FindStzStringsQC()
+		return This._NNLImmutable("findstzstrings", [])
+
+	def FindSubListQC(p1)
+		return This._NNLImmutable("findsublist", [ p1 ])
+
+	def FindSubStringQC(p1)
+		return This._NNLImmutable("findsubstring", [ p1 ])
+
+	def FindSubStringBoundsQC(p1)
+		return This._NNLImmutable("findsubstringbounds", [ p1 ])
+
+	def FindSubStringBoundsZZQC(p1)
+		return This._NNLImmutable("findsubstringboundszz", [ p1 ])
+
+	def FindSubStringsWZZQC(p1)
+		return This._NNLImmutable("findsubstringswzz", [ p1 ])
+
+	def FindTheseAdjacentItemsQC(p1)
+		return This._NNLImmutable("findtheseadjacentitems", [ p1 ])
+
+	def FindTrailingCharsQC()
+		return This._NNLImmutable("findtrailingchars", [])
+
+	def FindTrailingCharsZZQC()
+		return This._NNLImmutable("findtrailingcharszz", [])
+
+	def FindUnnamedObjectsQC()
+		return This._NNLImmutable("findunnamedobjects", [])
+
+	def FindWordsQC()
+		return This._NNLImmutable("findwords", [])
+
+	def FindZQC(p1)
+		return This._NNLImmutable("findz", [ p1 ])
+
+	def FindZZQC(p1)
+		return This._NNLImmutable("findzz", [ p1 ])
+
+	def FirstListQC()
+		return This._NNLImmutable("firstlist", [])
+
+	def FirstMarkerQC()
+		return This._NNLImmutable("firstmarker", [])
+
+	def FirstMarquerQC()
+		return This._NNLImmutable("firstmarquer", [])
+
+	def FirstNumberComingAfterQC(p1)
+		return This._NNLImmutable("firstnumbercomingafter", [ p1 ])
+
+	def FirstOccurrenceQC(p1)
+		return This._NNLImmutable("firstoccurrence", [ p1 ])
+
+	def FirstZQC(p1)
+		return This._NNLImmutable("firstz", [ p1 ])
+
+	def FirstZZQC(p1)
+		return This._NNLImmutable("firstzz", [ p1 ])
+
+	def FlattenQC()
+		return This._NNLImmutable("flatten", [])
+
+	def FormatQC()
+		return This._NNLImmutable("format", [])
+
+	def FractionalPartQC()
+		return This._NNLImmutable("fractionalpart", [])
+
+	def FromBinaryQC(p1)
+		return This._NNLImmutable("frombinary", [ p1 ])
+
+	def FromBinaryFormQC(p1)
+		return This._NNLImmutable("frombinaryform", [ p1 ])
+
+	def FromHexQC()
+		return This._NNLImmutable("fromhex", [])
+
+	def FromHexFormQC(p1)
+		return This._NNLImmutable("fromhexform", [ p1 ])
+
+	def FromOctalQC(p1)
+		return This._NNLImmutable("fromoctal", [ p1 ])
+
+	def FromOctalFormQC(p1)
+		return This._NNLImmutable("fromoctalform", [ p1 ])
+
+	def FromUrlQC(p1)
+		return This._NNLImmutable("fromurl", [ p1 ])
+
+	def GCDQC(p1)
+		return This._NNLImmutable("gcd", [ p1 ])
+
+	def GreatestCommonDividorQC(p1)
+		return This._NNLImmutable("greatestcommondividor", [ p1 ])
+
+	def GroupByQC(p1)
+		return This._NNLImmutable("groupby", [ p1 ])
+
+	def HeadQC(p1)
+		return This._NNLImmutable("head", [ p1 ])
+
+	def HowManyQC(p1)
+		return This._NNLImmutable("howmany", [ p1 ])
+
+	def HtmlDecodeQC()
+		return This._NNLImmutable("htmldecode", [])
+
+	def HtmlEncodeQC()
+		return This._NNLImmutable("htmlencode", [])
+
+	def HundredsQC()
+		return This._NNLImmutable("hundreds", [])
+
+	def HyperbolicTangentQC()
+		return This._NNLImmutable("hyperbolictangent", [])
+
+	def HypernymsQC()
+		return This._NNLImmutable("hypernyms", [])
+
+	def IncrementQC()
+		return This._NNLImmutable("increment", [])
+
+	def IndexCSQC(p1)
+		return This._NNLImmutable("indexcs", [ p1 ])
+
+	def InfereMethodQC(p1)
+		return This._NNLImmutable("inferemethod", [ p1 ])
+
+	def InitialContentQC()
+		return This._NNLImmutable("initialcontent", [])
+
+	def InnQC(p1)
+		return This._NNLImmutable("inn", [ p1 ])
+
+	def InterleavedWithQC(p1)
+		return This._NNLImmutable("interleavedwith", [ p1 ])
+
+	def InterleaveWithQC(p1)
+		return This._NNLImmutable("interleavewith", [ p1 ])
+
+	def IntersectionQC(p1)
+		return This._NNLImmutable("intersection", [ p1 ])
+
+	def IntersectionWithQC(p1)
+		return This._NNLImmutable("intersectionwith", [ p1 ])
+
+	def IntersectWithQC(p1)
+		return This._NNLImmutable("intersectwith", [ p1 ])
+
+	def InvertCharsCaseQC()
+		return This._NNLImmutable("invertcharscase", [])
+
+	def InvisibleCharsQC()
+		return This._NNLImmutable("invisiblechars", [])
+
+	def ItemQC(p1)
+		return This._NNLImmutable("item", [ p1 ])
+
+	def ItemAtQC(p1)
+		return This._NNLImmutable("itemat", [ p1 ])
+
+	def ItemAtPositionQC(p1)
+		return This._NNLImmutable("itematposition", [ p1 ])
+
+	def ItemsAreQC(p1)
+		return This._NNLImmutable("itemsare", [ p1 ])
+
+	def ItemsAreEqualToQC(p1)
+		return This._NNLImmutable("itemsareequalto", [ p1 ])
+
+	def ItemsAtQC(p1)
+		return This._NNLImmutable("itemsat", [ p1 ])
+
+	def ItemsAtPositionsQC(p1)
+		return This._NNLImmutable("itemsatpositions", [ p1 ])
+
+	def ItemsExceptQC(p1)
+		return This._NNLImmutable("itemsexcept", [ p1 ])
+
+	def ItemsHaveSameOrderAsQC(p1)
+		return This._NNLImmutable("itemshavesameorderas", [ p1 ])
+
+	def ItemsThatArePairsQC()
+		return This._NNLImmutable("itemsthatarepairs", [])
+
+	def JaroSimilarityWithQC(p1)
+		return This._NNLImmutable("jarosimilaritywith", [ p1 ])
+
+	def JoinQC(p1)
+		return This._NNLImmutable("join", [ p1 ])
+
+	def KeepFirstQC(p1)
+		return This._NNLImmutable("keepfirst", [ p1 ])
+
+	def KeyPhrasesQC(p1)
+		return This._NNLImmutable("keyphrases", [ p1 ])
+
+	def KlassQC(p1)
+		return This._NNLImmutable("klass", [ p1 ])
+
+	def KlassSFQC(p1)
+		return This._NNLImmutable("klasssf", [ p1 ])
+
+	def LastMarquerQC()
+		return This._NNLImmutable("lastmarquer", [])
+
+	def LCMQC(p1)
+		return This._NNLImmutable("lcm", [ p1 ])
+
+	def LeadingCharQC()
+		return This._NNLImmutable("leadingchar", [])
+
+	def LeadingCharCSQC(p1)
+		return This._NNLImmutable("leadingcharcs", [ p1 ])
+
+	def LeadingCharIsQC(p1)
+		return This._NNLImmutable("leadingcharis", [ p1 ])
+
+	def LeadingCharsQC()
+		return This._NNLImmutable("leadingchars", [])
+
+	def LeadingCharsAsStringQC()
+		return This._NNLImmutable("leadingcharsasstring", [])
+
+	def LeadingCharsCSQC(p1)
+		return This._NNLImmutable("leadingcharscs", [ p1 ])
+
+	def LeadingNumberQC()
+		return This._NNLImmutable("leadingnumber", [])
+
+	def LeadingSubStringQC()
+		return This._NNLImmutable("leadingsubstring", [])
+
+	def LeadingSubStringCSQC(p1)
+		return This._NNLImmutable("leadingsubstringcs", [ p1 ])
+
+	def LeadingSubStringRemoveQC()
+		return This._NNLImmutable("leadingsubstringremove", [])
+
+	def LeadingSubStringZZQC()
+		return This._NNLImmutable("leadingsubstringzz", [])
+
+	def LeastCommonMultipleQC(p1)
+		return This._NNLImmutable("leastcommonmultiple", [ p1 ])
+
+	def LettersZQC()
+		return This._NNLImmutable("lettersz", [])
+
+	def LinesContainingQC(p1)
+		return This._NNLImmutable("linescontaining", [ p1 ])
+
+	def ListsQC()
+		return This._NNLImmutable("lists", [])
+
+	def ListsAtAnyLevelQC()
+		return This._NNLImmutable("listsatanylevel", [])
+
+	def ListsZQC()
+		return This._NNLImmutable("listsz", [])
+
+	def LocationsQC()
+		return This._NNLImmutable("locations", [])
+
+	def LowercaseQC()
+		return This._NNLImmutable("lowercase", [])
+
+	def MapQC(p1)
+		return This._NNLImmutable("map", [ p1 ])
+
+	def MarkerByPositionQC(p1)
+		return This._NNLImmutable("markerbyposition", [ p1 ])
+
+	def MarkerByPositionsQC(p1)
+		return This._NNLImmutable("markerbypositions", [ p1 ])
+
+	def MarkersQC()
+		return This._NNLImmutable("markers", [])
+
+	def MarkersAndSectionsQC()
+		return This._NNLImmutable("markersandsections", [])
+
+	def MarkersByPositionsQC(p1)
+		return This._NNLImmutable("markersbypositions", [ p1 ])
+
+	def MarkersPositionsQC()
+		return This._NNLImmutable("markerspositions", [])
+
+	def MarkersSortedUZQC()
+		return This._NNLImmutable("markerssorteduz", [])
+
+	def MarkersSortedUZZQC()
+		return This._NNLImmutable("markerssorteduzz", [])
+
+	def MarkersSortedZQC()
+		return This._NNLImmutable("markerssortedz", [])
+
+	def MarkersSortedZZQC()
+		return This._NNLImmutable("markerssortedzz", [])
+
+	def MarkersUZQC()
+		return This._NNLImmutable("markersuz", [])
+
+	def MarkersUZZQC()
+		return This._NNLImmutable("markersuzz", [])
+
+	def MarkersZQC()
+		return This._NNLImmutable("markersz", [])
+
+	def MarkersZZQC()
+		return This._NNLImmutable("markerszz", [])
+
+	def MarquerByPositionQC(p1)
+		return This._NNLImmutable("marquerbyposition", [ p1 ])
+
+	def MarquerByPositionsQC(p1)
+		return This._NNLImmutable("marquerbypositions", [ p1 ])
+
+	def MarquersQC()
+		return This._NNLImmutable("marquers", [])
+
+	def MarquersAndPositionsQC()
+		return This._NNLImmutable("marquersandpositions", [])
+
+	def MarquersAndSectionsQC()
+		return This._NNLImmutable("marquersandsections", [])
+
+	def MarquersByPositionsQC(p1)
+		return This._NNLImmutable("marquersbypositions", [ p1 ])
+
+	def MarquersPositionsQC()
+		return This._NNLImmutable("marquerspositions", [])
+
+	def MarquersSortedUZQC()
+		return This._NNLImmutable("marquerssorteduz", [])
+
+	def MarquersSortedUZZQC()
+		return This._NNLImmutable("marquerssorteduzz", [])
+
+	def MarquersSortedZQC()
+		return This._NNLImmutable("marquerssortedz", [])
+
+	def MarquersSortedZZQC()
+		return This._NNLImmutable("marquerssortedzz", [])
+
+	def MarquersUZQC()
+		return This._NNLImmutable("marquersuz", [])
+
+	def MarquersUZZQC()
+		return This._NNLImmutable("marquersuzz", [])
+
+	def MarquersZQC()
+		return This._NNLImmutable("marquersz", [])
+
+	def MarquersZZQC()
+		return This._NNLImmutable("marquerszz", [])
+
+	def MatchesRegexQC(p1)
+		return This._NNLImmutable("matchesregex", [ p1 ])
+
+	def MergeQC()
+		return This._NNLImmutable("merge", [])
+
+	def MergedWithQC(p1)
+		return This._NNLImmutable("mergedwith", [ p1 ])
+
+	def MergedWithManyQC(p1)
+		return This._NNLImmutable("mergedwithmany", [ p1 ])
+
+	def MergeWithQC(p1)
+		return This._NNLImmutable("mergewith", [ p1 ])
+
+	def MergeWithManyQC(p1)
+		return This._NNLImmutable("mergewithmany", [ p1 ])
+
+	def MillionsQC()
+		return This._NNLImmutable("millions", [])
+
+	def ModuloQC(p1)
+		return This._NNLImmutable("modulo", [ p1 ])
+
+	def MostFrequentCharsQC(p1)
+		return This._NNLImmutable("mostfrequentchars", [ p1 ])
+
+	def MostFrequentWordsQC(p1)
+		return This._NNLImmutable("mostfrequentwords", [ p1 ])
+
+	def MostSimilarSentenceToQC(p1)
+		return This._NNLImmutable("mostsimilarsentenceto", [ p1 ])
+
+	def MostSquareLikeFactorsQC()
+		return This._NNLImmutable("mostsquarelikefactors", [])
+
+	def MoveItemToEndQC(p1)
+		return This._NNLImmutable("moveitemtoend", [ p1 ])
+
+	def MoveItemToStartQC(p1)
+		return This._NNLImmutable("moveitemtostart", [ p1 ])
+
+	def MoveToEndQC(p1)
+		return This._NNLImmutable("movetoend", [ p1 ])
+
+	def MoveToStartQC(p1)
+		return This._NNLImmutable("movetostart", [ p1 ])
+
+	def MSLFQC()
+		return This._NNLImmutable("mslf", [])
+
+	def MultiplesQC(p1)
+		return This._NNLImmutable("multiples", [ p1 ])
+
+	def MultiplesUnderQC(p1)
+		return This._NNLImmutable("multiplesunder", [ p1 ])
+
+	def MultiplesUpToQC(p1)
+		return This._NNLImmutable("multiplesupto", [ p1 ])
+
+	def MultipliedByQC(p1)
+		return This._NNLImmutable("multipliedby", [ p1 ])
+
+	def MultipliedByManyQC(p1)
+		return This._NNLImmutable("multipliedbymany", [ p1 ])
+
+	def MultiplyByQC(p1)
+		return This._NNLImmutable("multiplyby", [ p1 ])
+
+	def MultiplyByManyQC(p1)
+		return This._NNLImmutable("multiplybymany", [ p1 ])
+
+	def NamedEntitiesQC()
+		return This._NNLImmutable("namedentities", [])
+
+	def NamedObjectsQC()
+		return This._NNLImmutable("namedobjects", [])
+
+	def NegativeSentencesQC()
+		return This._NNLImmutable("negativesentences", [])
+
+	def NestedSubStringsQC(p1)
+		return This._NNLImmutable("nestedsubstrings", [ p1 ])
+
+	def NextMarquersQC(p1)
+		return This._NNLImmutable("nextmarquers", [ p1 ])
+
+	def NoItemsAreDuplicatedCSQC(p1)
+		return This._NNLImmutable("noitemsareduplicatedcs", [ p1 ])
+
+	def NonDuplicatedItemsCSQC(p1)
+		return This._NNLImmutable("nonduplicateditemscs", [ p1 ])
+
+	def NonNumbersQC()
+		return This._NNLImmutable("nonnumbers", [])
+
+	def NthCharQC(p1)
+		return This._NNLImmutable("nthchar", [ p1 ])
+
+	def NthItemQC(p1)
+		return This._NNLImmutable("nthitem", [ p1 ])
+
+	def NthLargestQC(p1)
+		return This._NNLImmutable("nthlargest", [ p1 ])
+
+	def NthLineQC(p1)
+		return This._NNLImmutable("nthline", [ p1 ])
+
+	def NthMarkerQC(p1)
+		return This._NNLImmutable("nthmarker", [ p1 ])
+
+	def NthMarquerQC(p1)
+		return This._NNLImmutable("nthmarquer", [ p1 ])
+
+	def NthParagraphQC(p1)
+		return This._NNLImmutable("nthparagraph", [ p1 ])
+
+	def NthSentenceQC(p1)
+		return This._NNLImmutable("nthsentence", [ p1 ])
+
+	def NthSmallestQC(p1)
+		return This._NNLImmutable("nthsmallest", [ p1 ])
+
+	def NthToLastQC(p1)
+		return This._NNLImmutable("nthtolast", [ p1 ])
+
+	def NthWordQC(p1)
+		return This._NNLImmutable("nthword", [ p1 ])
+
+	def NumberAfterQC(p1)
+		return This._NNLImmutable("numberafter", [ p1 ])
+
+	def NumberComingAfterQC(p1)
+		return This._NNLImmutable("numbercomingafter", [ p1 ])
+
+	def NumbersQC()
+		return This._NNLImmutable("numbers", [])
+
+	def NumbersAfterQC(p1)
+		return This._NNLImmutable("numbersafter", [ p1 ])
+
+	def NumbersComingAfterQC(p1)
+		return This._NNLImmutable("numberscomingafter", [ p1 ])
+
+	def NumbersZQC()
+		return This._NNLImmutable("numbersz", [])
+
+	def NumbersZZQC()
+		return This._NNLImmutable("numberszz", [])
+
+	def NumberValueQC()
+		return This._NNLImmutable("numbervalue", [])
+
+	def NumericValueQC()
+		return This._NNLImmutable("numericvalue", [])
+
+	def ObjectifyQC()
+		return This._NNLImmutable("objectify", [])
+
+	def ObjectsQC()
+		return This._NNLImmutable("objects", [])
+
+	def ObjectsVarNamesQC()
+		return This._NNLImmutable("objectsvarnames", [])
+
+	def ObjectsVarNamesUQC()
+		return This._NNLImmutable("objectsvarnamesu", [])
+
+	def ObjectsZQC()
+		return This._NNLImmutable("objectsz", [])
+
+	def ObjectsZZQC()
+		return This._NNLImmutable("objectszz", [])
+
+	def OnlyCharsQC()
+		return This._NNLImmutable("onlychars", [])
+
+	def OnlyControlsQC()
+		return This._NNLImmutable("onlycontrols", [])
+
+	def OnlyDigitsQC()
+		return This._NNLImmutable("onlydigits", [])
+
+	def OnlyListsQC()
+		return This._NNLImmutable("onlylists", [])
+
+	def OnlyMarksQC()
+		return This._NNLImmutable("onlymarks", [])
+
+	def OnlyNonNumbersQC()
+		return This._NNLImmutable("onlynonnumbers", [])
+
+	def OnlyNumbersQC()
+		return This._NNLImmutable("onlynumbers", [])
+
+	def OnlyObjectsQC()
+		return This._NNLImmutable("onlyobjects", [])
+
+	def OnlyStringsQC()
+		return This._NNLImmutable("onlystrings", [])
+
+	def OrganizationsQC()
+		return This._NNLImmutable("organizations", [])
+
+	def PairsQC()
+		return This._NNLImmutable("pairs", [])
+
+	def PairsUQC()
+		return This._NNLImmutable("pairsu", [])
+
+	def PairsZQC()
+		return This._NNLImmutable("pairsz", [])
+
+	def PartitionQC(p1)
+		return This._NNLImmutable("partition", [ p1 ])
+
+	def PartsClassifiedUsingQC(p1)
+		return This._NNLImmutable("partsclassifiedusing", [ p1 ])
+
+	def PartsUsingQC(p1)
+		return This._NNLImmutable("partsusing", [ p1 ])
+
+	def PartsUsingZZQC(p1)
+		return This._NNLImmutable("partsusingzz", [ p1 ])
+
+	def PerformQC(p1)
+		return This._NNLImmutable("perform", [ p1 ])
+
+	def PersonNamesQC()
+		return This._NNLImmutable("personnames", [])
+
+	def PopQC()
+		return This._NNLImmutable("pop", [])
+
+	def PopFirstQC()
+		return This._NNLImmutable("popfirst", [])
+
+	def PositionAfterQC(p1)
+		return This._NNLImmutable("positionafter", [ p1 ])
+
+	def PositionBeforeQC(p1)
+		return This._NNLImmutable("positionbefore", [ p1 ])
+
+	def PositionsQC(p1)
+		return This._NNLImmutable("positions", [ p1 ])
+
+	def PositiveSentencesQC()
+		return This._NNLImmutable("positivesentences", [])
+
+	def PowerQC(p1)
+		return This._NNLImmutable("power", [ p1 ])
+
+	def PrependedWithQC(p1)
+		return This._NNLImmutable("prependedwith", [ p1 ])
+
+	def PrependWithQC(p1)
+		return This._NNLImmutable("prependwith", [ p1 ])
+
+	def PreviousMarkerZQC(p1)
+		return This._NNLImmutable("previousmarkerz", [ p1 ])
+
+	def PreviousMarquersQC(p1)
+		return This._NNLImmutable("previousmarquers", [ p1 ])
+
+	def PreviousMarquerZQC(p1)
+		return This._NNLImmutable("previousmarquerz", [ p1 ])
+
+	def PrintQC()
+		return This._NNLImmutable("print", [])
+
+	def PronounsQC()
+		return This._NNLImmutable("pronouns", [])
+
+	def ProperNounsQC()
+		return This._NNLImmutable("propernouns", [])
+
+	def RandomiseNumbersQC()
+		return This._NNLImmutable("randomisenumbers", [])
+
+	def RandomiseStringsQC()
+		return This._NNLImmutable("randomisestrings", [])
+
+	def RandomItemExceptQC(p1)
+		return This._NNLImmutable("randomitemexcept", [ p1 ])
+
+	def RandomizeQC()
+		return This._NNLImmutable("randomize", [])
+
+	def RandomizeNumbersQC()
+		return This._NNLImmutable("randomizenumbers", [])
+
+	def RandomizeStringsQC()
+		return This._NNLImmutable("randomizestrings", [])
+
+	def RandomPositionAfterQC(p1)
+		return This._NNLImmutable("randompositionafter", [ p1 ])
+
+	def RandomPositionExceptQC(p1)
+		return This._NNLImmutable("randompositionexcept", [ p1 ])
+
+	def RandomPositionLessThanQC(p1)
+		return This._NNLImmutable("randompositionlessthan", [ p1 ])
+
+	def RandomRemoveItemsQC()
+		return This._NNLImmutable("randomremoveitems", [])
+
+	def RangesQC(p1)
+		return This._NNLImmutable("ranges", [ p1 ])
+
+	def RangesAndAntiRangesQC(p1)
+		return This._NNLImmutable("rangesandantiranges", [ p1 ])
+
+	def RankedKeywordsQC(p1)
+		return This._NNLImmutable("rankedkeywords", [ p1 ])
+
+	def RedoQC()
+		return This._NNLImmutable("redo", [])
+
+	def ReduceNoInitQC(p1)
+		return This._NNLImmutable("reducenoinit", [ p1 ])
+
+	def RegexMatchesQC(p1)
+		return This._NNLImmutable("regexmatches", [ p1 ])
+
+	def RemoveQC(p1)
+		return This._NNLImmutable("remove", [ p1 ])
+
+	def RemoveAllQC(p1)
+		return This._NNLImmutable("removeall", [ p1 ])
+
+	def RemoveAllExceptQC(p1)
+		return This._NNLImmutable("removeallexcept", [ p1 ])
+
+	def RemoveAllExceptNumbersQC()
+		return This._NNLImmutable("removeallexceptnumbers", [])
+
+	def RemoveAllItemsQC()
+		return This._NNLImmutable("removeallitems", [])
+
+	def RemoveAnyCharFromLeftQC(p1)
+		return This._NNLImmutable("removeanycharfromleft", [ p1 ])
+
+	def RemoveAnyCharFromRightQC(p1)
+		return This._NNLImmutable("removeanycharfromright", [ p1 ])
+
+	def RemoveAnyItemFromEndQC(p1)
+		return This._NNLImmutable("removeanyitemfromend", [ p1 ])
+
+	def RemoveAnyItemFromStartQC(p1)
+		return This._NNLImmutable("removeanyitemfromstart", [ p1 ])
+
+	def RemoveAnyLeadingCharQC()
+		return This._NNLImmutable("removeanyleadingchar", [])
+
+	def RemoveAtPositionQC(p1)
+		return This._NNLImmutable("removeatposition", [ p1 ])
+
+	def RemoveBlankLinesQC()
+		return This._NNLImmutable("removeblanklines", [])
+
+	def RemoveBoundedSubStringQC(p1)
+		return This._NNLImmutable("removeboundedsubstring", [ p1 ])
+
+	def RemoveBoundingCharsQC()
+		return This._NNLImmutable("removeboundingchars", [])
+
+	def RemoveBoundsQC()
+		return This._NNLImmutable("removebounds", [])
+
+	def RemoveCharQC(p1)
+		return This._NNLImmutable("removechar", [ p1 ])
+
+	def RemoveCharAtQC(p1)
+		return This._NNLImmutable("removecharat", [ p1 ])
+
+	def RemoveCharFromLeftQC(p1)
+		return This._NNLImmutable("removecharfromleft", [ p1 ])
+
+	def RemoveCharFromRightQC(p1)
+		return This._NNLImmutable("removecharfromright", [ p1 ])
+
+	def RemovedFromEndQC(p1)
+		return This._NNLImmutable("removedfromend", [ p1 ])
+
+	def RemoveDiacriticsQC()
+		return This._NNLImmutable("removediacritics", [])
+
+	def RemoveDupCharsQC()
+		return This._NNLImmutable("removedupchars", [])
+
+	def RemoveDuplicatedCharsQC()
+		return This._NNLImmutable("removeduplicatedchars", [])
+
+	def RemoveDuplicatedItemsQC()
+		return This._NNLImmutable("removeduplicateditems", [])
+
+	def RemoveDuplicatesQC()
+		return This._NNLImmutable("removeduplicates", [])
+
+	def RemoveDuplicatesCSQC(p1)
+		return This._NNLImmutable("removeduplicatescs", [ p1 ])
+
+	def RemoveDupOriginsQC()
+		return This._NNLImmutable("removeduporigins", [])
+
+	def RemoveDupSecutiveItemQC(p1)
+		return This._NNLImmutable("removedupsecutiveitem", [ p1 ])
+
+	def RemoveDupSecutiveItemsQC()
+		return This._NNLImmutable("removedupsecutiveitems", [])
+
+	def RemoveEmptyLinesQC()
+		return This._NNLImmutable("removeemptylines", [])
+
+	def RemoveEmptyStringsQC()
+		return This._NNLImmutable("removeemptystrings", [])
+
+	def RemoveFirstQC(p1)
+		return This._NNLImmutable("removefirst", [ p1 ])
+
+	def RemoveFirstCharQC()
+		return This._NNLImmutable("removefirstchar", [])
+
+	def RemoveFirstCharCSQC(p1)
+		return This._NNLImmutable("removefirstcharcs", [ p1 ])
+
+	def RemoveFirstItemQC()
+		return This._NNLImmutable("removefirstitem", [])
+
+	def RemoveFirstOccurrenceQC(p1)
+		return This._NNLImmutable("removefirstoccurrence", [ p1 ])
+
+	def RemoveFromEndQC(p1)
+		return This._NNLImmutable("removefromend", [ p1 ])
+
+	def RemoveFromLeftQC(p1)
+		return This._NNLImmutable("removefromleft", [ p1 ])
+
+	def RemoveFromRightQC(p1)
+		return This._NNLImmutable("removefromright", [ p1 ])
+
+	def RemoveFromStartQC(p1)
+		return This._NNLImmutable("removefromstart", [ p1 ])
+
+	def RemoveItemAtPositionQC(p1)
+		return This._NNLImmutable("removeitematposition", [ p1 ])
+
+	def RemoveItemsAtPositionsQC(p1)
+		return This._NNLImmutable("removeitemsatpositions", [ p1 ])
+
+	def RemoveItemsOtherThanQC(p1)
+		return This._NNLImmutable("removeitemsotherthan", [ p1 ])
+
+	def RemoveLastQC(p1)
+		return This._NNLImmutable("removelast", [ p1 ])
+
+	def RemoveLastCharQC()
+		return This._NNLImmutable("removelastchar", [])
+
+	def RemoveLastItemQC()
+		return This._NNLImmutable("removelastitem", [])
+
+	def RemoveLeadingCharQC()
+		return This._NNLImmutable("removeleadingchar", [])
+
+	def RemoveLeadingCharsQC()
+		return This._NNLImmutable("removeleadingchars", [])
+
+	def RemoveLeadingSpacesQC()
+		return This._NNLImmutable("removeleadingspaces", [])
+
+	def RemoveLeadingSubStringQC()
+		return This._NNLImmutable("removeleadingsubstring", [])
+
+	def RemoveLeftOccurrenceQC(p1)
+		return This._NNLImmutable("removeleftoccurrence", [ p1 ])
+
+	def RemoveManyQC(p1)
+		return This._NNLImmutable("removemany", [ p1 ])
+
+	def RemoveManySectionsQC(p1)
+		return This._NNLImmutable("removemanysections", [ p1 ])
+
+	def RemoveNonDuplicatesQC()
+		return This._NNLImmutable("removenonduplicates", [])
+
+	def RemoveNonNumbersQC()
+		return This._NNLImmutable("removenonnumbers", [])
+
+	def RemoveNthCharQC(p1)
+		return This._NNLImmutable("removenthchar", [ p1 ])
+
+	def RemoveNthItemQC(p1)
+		return This._NNLImmutable("removenthitem", [ p1 ])
+
+	def RemoveNumbersQC()
+		return This._NNLImmutable("removenumbers", [])
+
+	def RemoveOnlyNonNumbersQC()
+		return This._NNLImmutable("removeonlynonnumbers", [])
+
+	def RemoveOnlyNumbersQC()
+		return This._NNLImmutable("removeonlynumbers", [])
+
+	def RemoveRangesQC(p1)
+		return This._NNLImmutable("removeranges", [ p1 ])
+
+	def RemoveRightOccurrenceQC(p1)
+		return This._NNLImmutable("removerightoccurrence", [ p1 ])
+
+	def RemoveSectionsQC(p1)
+		return This._NNLImmutable("removesections", [ p1 ])
+
+	def RemoveSignQC()
+		return This._NNLImmutable("removesign", [])
+
+	def RemoveSpacesQC()
+		return This._NNLImmutable("removespaces", [])
+
+	def RemoveTheseItemsQC(p1)
+		return This._NNLImmutable("removetheseitems", [ p1 ])
+
+	def RemoveThisBoundQC(p1)
+		return This._NNLImmutable("removethisbound", [ p1 ])
+
+	def RemoveThisCharFromEndQC(p1)
+		return This._NNLImmutable("removethischarfromend", [ p1 ])
+
+	def RemoveThisCharFromLeftQC(p1)
+		return This._NNLImmutable("removethischarfromleft", [ p1 ])
+
+	def RemoveThisFirstCharQC(p1)
+		return This._NNLImmutable("removethisfirstchar", [ p1 ])
+
+	def RemoveThisFirstItemQC(p1)
+		return This._NNLImmutable("removethisfirstitem", [ p1 ])
+
+	def RemoveThisLastCharQC(p1)
+		return This._NNLImmutable("removethislastchar", [ p1 ])
+
+	def RemoveThisLeadingCharQC(p1)
+		return This._NNLImmutable("removethisleadingchar", [ p1 ])
+
+	def RemoveThisTrailingCharQC(p1)
+		return This._NNLImmutable("removethistrailingchar", [ p1 ])
+
+	def RemoveTrailingCharQC()
+		return This._NNLImmutable("removetrailingchar", [])
+
+	def RemoveTrailingCharsQC()
+		return This._NNLImmutable("removetrailingchars", [])
+
+	def RemoveTrailingSpacesQC()
+		return This._NNLImmutable("removetrailingspaces", [])
+
+	def RemoveZerosQC()
+		return This._NNLImmutable("removezeros", [])
+
+	def RemoveZerosFromLeftQC()
+		return This._NNLImmutable("removezerosfromleft", [])
+
+	def RemoveZerosFromRightQC()
+		return This._NNLImmutable("removezerosfromright", [])
+
+	def RepeatQC(p1)
+		return This._NNLImmutable("repeat", [ p1 ])
+
+	def RepeatedLeadingCharQC()
+		return This._NNLImmutable("repeatedleadingchar", [])
+
+	def RepeatedLeadingCharsQC()
+		return This._NNLImmutable("repeatedleadingchars", [])
+
+	def RepeatedLeadingCharsCSQC(p1)
+		return This._NNLImmutable("repeatedleadingcharscs", [ p1 ])
+
+	def RepeatedLeadingItemQC()
+		return This._NNLImmutable("repeatedleadingitem", [])
+
+	def RepeatedLeadingItemCSQC(p1)
+		return This._NNLImmutable("repeatedleadingitemcs", [ p1 ])
+
+	def RepeatedLeadingItemsQC()
+		return This._NNLImmutable("repeatedleadingitems", [])
+
+	def RepeatedLeadingItemsCSQC(p1)
+		return This._NNLImmutable("repeatedleadingitemscs", [ p1 ])
+
+	def RepeatedTrailingCharQC()
+		return This._NNLImmutable("repeatedtrailingchar", [])
+
+	def RepeatedTrailingCharsQC()
+		return This._NNLImmutable("repeatedtrailingchars", [])
+
+	def RepeatedTrailingItemQC()
+		return This._NNLImmutable("repeatedtrailingitem", [])
+
+	def RepeatedTrailingItemCSQC(p1)
+		return This._NNLImmutable("repeatedtrailingitemcs", [ p1 ])
+
+	def RepeatedTrailingItemsQC()
+		return This._NNLImmutable("repeatedtrailingitems", [])
+
+	def ReplaceAllCharsQC(p1)
+		return This._NNLImmutable("replaceallchars", [ p1 ])
+
+	def ReplaceAllItemsQC(p1)
+		return This._NNLImmutable("replaceallitems", [ p1 ])
+
+	def ReplaceEachLeadingCharQC(p1)
+		return This._NNLImmutable("replaceeachleadingchar", [ p1 ])
+
+	def ReplaceEmptyStringsQC(p1)
+		return This._NNLImmutable("replaceemptystrings", [ p1 ])
+
+	def ReplaceLeadingCharsQC(p1)
+		return This._NNLImmutable("replaceleadingchars", [ p1 ])
+
+	def ReplaceLeadingItemsQC(p1)
+		return This._NNLImmutable("replaceleadingitems", [ p1 ])
+
+	def ReplaceMarkersQC(p1)
+		return This._NNLImmutable("replacemarkers", [ p1 ])
+
+	def ReplaceMarquersQC(p1)
+		return This._NNLImmutable("replacemarquers", [ p1 ])
+
+	def ReplaceTrailingCharsQC(p1)
+		return This._NNLImmutable("replacetrailingchars", [ p1 ])
+
+	def ReplaceTrailingItemsQC(p1)
+		return This._NNLImmutable("replacetrailingitems", [ p1 ])
+
+	def RetrieveQC(p1)
+		return This._NNLImmutable("retrieve", [ p1 ])
+
+	def RetrieveManyQC(p1)
+		return This._NNLImmutable("retrievemany", [ p1 ])
+
+	def ReturnNumberQC()
+		return This._NNLImmutable("returnnumber", [])
+
+	def ReverseQC()
+		return This._NNLImmutable("reverse", [])
+
+	def ReversedCopyQC()
+		return This._NNLImmutable("reversedcopy", [])
+
+	def ReversedDigitsQC()
+		return This._NNLImmutable("reverseddigits", [])
+
+	def ReverseDigitsQC()
+		return This._NNLImmutable("reversedigits", [])
+
+	def ReverseWordsQC()
+		return This._NNLImmutable("reversewords", [])
+
+	def rndRemoveItemsQC()
+		return This._NNLImmutable("rndremoveitems", [])
+
+	def RotatedLeftQC(p1)
+		return This._NNLImmutable("rotatedleft", [ p1 ])
+
+	def RotatedRightQC(p1)
+		return This._NNLImmutable("rotatedright", [ p1 ])
+
+	def RotateLeftQC(p1)
+		return This._NNLImmutable("rotateleft", [ p1 ])
+
+	def RotateRightQC(p1)
+		return This._NNLImmutable("rotateright", [ p1 ])
+
+	def RoundDownQC()
+		return This._NNLImmutable("rounddown", [])
+
+	def RoundedToQC(p1)
+		return This._NNLImmutable("roundedto", [ p1 ])
+
+	def RoundToQC(p1)
+		return This._NNLImmutable("roundto", [ p1 ])
+
+	def RoundToMaxQC()
+		return This._NNLImmutable("roundtomax", [])
+
+	def RoundToSameRoundAsQC(p1)
+		return This._NNLImmutable("roundtosameroundas", [ p1 ])
+
+	def RoundUpQC()
+		return This._NNLImmutable("roundup", [])
+
+	def RPartitionQC(p1)
+		return This._NNLImmutable("rpartition", [ p1 ])
+
+	def SameContentAsQC(p1)
+		return This._NNLImmutable("samecontentas", [ p1 ])
+
+	def ScriptIsQC(p1)
+		return This._NNLImmutable("scriptis", [ p1 ])
+
+	def SearchTokensQC()
+		return This._NNLImmutable("searchtokens", [])
+
+	def SectionsQC(p1)
+		return This._NNLImmutable("sections", [ p1 ])
+
+	def SectionsZQC(p1)
+		return This._NNLImmutable("sectionsz", [ p1 ])
+
+	def SectionsZZQC(p1)
+		return This._NNLImmutable("sectionszz", [ p1 ])
+
+	def SentencesThatAreQC(p1)
+		return This._NNLImmutable("sentencesthatare", [ p1 ])
+
+	def SetDefaultFormatQC()
+		return This._NNLImmutable("setdefaultformat", [])
+
+	def SetReturnTypeQC(p1)
+		return This._NNLImmutable("setreturntype", [ p1 ])
+
+	def SetReturnTypeAsQC(p1)
+		return This._NNLImmutable("setreturntypeas", [ p1 ])
+
+	def SetReturnTypeToQC(p1)
+		return This._NNLImmutable("setreturntypeto", [ p1 ])
+
+	def SetRoundQC(p1)
+		return This._NNLImmutable("setround", [ p1 ])
+
+	def ShortenQC()
+		return This._NNLImmutable("shorten", [])
+
+	def ShortenedUsingQC(p1)
+		return This._NNLImmutable("shortenedusing", [ p1 ])
+
+	def ShowQC()
+		return This._NNLImmutable("show", [])
+
+	def ShowEntitiesQC()
+		return This._NNLImmutable("showentities", [])
+
+	def ShowSentimentQC()
+		return This._NNLImmutable("showsentiment", [])
+
+	def ShowShortQC()
+		return This._NNLImmutable("showshort", [])
+
+	def ShrinkQC(p1)
+		return This._NNLImmutable("shrink", [ p1 ])
+
+	def ShrinkToQC(p1)
+		return This._NNLImmutable("shrinkto", [ p1 ])
+
+	def ShuffleQC()
+		return This._NNLImmutable("shuffle", [])
+
+	def ShuffleNumbersQC()
+		return This._NNLImmutable("shufflenumbers", [])
+
+	def ShuffleStringsQC()
+		return This._NNLImmutable("shufflestrings", [])
+
+	def SignQC()
+		return This._NNLImmutable("sign", [])
+
+	def SimilarityWithQC(p1)
+		return This._NNLImmutable("similaritywith", [ p1 ])
+
+	def SimplifyQC()
+		return This._NNLImmutable("simplify", [])
+
+	def SimplifyExceptQC(p1)
+		return This._NNLImmutable("simplifyexcept", [ p1 ])
+
+	def SinglesQC()
+		return This._NNLImmutable("singles", [])
+
+	def SinglesUQC()
+		return This._NNLImmutable("singlesu", [])
+
+	def SinglesZQC()
+		return This._NNLImmutable("singlesz", [])
+
+	def SlidingWindowQC(p1)
+		return This._NNLImmutable("slidingwindow", [ p1 ])
+
+	def SortQC()
+		return This._NNLImmutable("sort", [])
+
+	def SortAscendingQC()
+		return This._NNLImmutable("sortascending", [])
+
+	def SortByQC(p1)
+		return This._NNLImmutable("sortby", [ p1 ])
+
+	def SortByDescendingQC(p1)
+		return This._NNLImmutable("sortbydescending", [ p1 ])
+
+	def SortCSQC(p1)
+		return This._NNLImmutable("sortcs", [ p1 ])
+
+	def SortDownQC()
+		return This._NNLImmutable("sortdown", [])
+
+	def SortedByQC(p1)
+		return This._NNLImmutable("sortedby", [ p1 ])
+
+	def SortedCSQC(p1)
+		return This._NNLImmutable("sortedcs", [ p1 ])
+
+	def SortedOnDownQC(p1)
+		return This._NNLImmutable("sortedondown", [ p1 ])
+
+	def SortingOrderQC()
+		return This._NNLImmutable("sortingorder", [])
+
+	def SortLinesQC()
+		return This._NNLImmutable("sortlines", [])
+
+	def SortLinesCSQC(p1)
+		return This._NNLImmutable("sortlinescs", [ p1 ])
+
+	def SortOnDownQC(p1)
+		return This._NNLImmutable("sortondown", [ p1 ])
+
+	def SortUpQC()
+		return This._NNLImmutable("sortup", [])
+
+	def SortWordsQC()
+		return This._NNLImmutable("sortwords", [])
+
+	def SortWordsCSQC(p1)
+		return This._NNLImmutable("sortwordscs", [ p1 ])
+
+	def SpacifiedUsingQC(p1)
+		return This._NNLImmutable("spacifiedusing", [ p1 ])
+
+	def SpacifyQC()
+		return This._NNLImmutable("spacify", [])
+
+	def SpacifyCharsQC()
+		return This._NNLImmutable("spacifychars", [])
+
+	def SpacifyCharsUsingQC(p1)
+		return This._NNLImmutable("spacifycharsusing", [ p1 ])
+
+	def SpacifyItRQC()
+		return This._NNLImmutable("spacifyitr", [])
+
+	def SpacifySectionsQC(p1)
+		return This._NNLImmutable("spacifysections", [ p1 ])
+
+	def SpacifySubStringsQC(p1)
+		return This._NNLImmutable("spacifysubstrings", [ p1 ])
+
+	def SpacifyTheseSubStringsQC(p1)
+		return This._NNLImmutable("spacifythesesubstrings", [ p1 ])
+
+	def SpacifyUsingQC(p1)
+		return This._NNLImmutable("spacifyusing", [ p1 ])
+
+	def SplitQC(p1)
+		return This._NNLImmutable("split", [ p1 ])
+
+	def SplitAfterQC(p1)
+		return This._NNLImmutable("splitafter", [ p1 ])
+
+	def SplitAfterPositionQC(p1)
+		return This._NNLImmutable("splitafterposition", [ p1 ])
+
+	def SplitAfterPositionsQC(p1)
+		return This._NNLImmutable("splitafterpositions", [ p1 ])
+
+	def SplitAroundQC(p1)
+		return This._NNLImmutable("splitaround", [ p1 ])
+
+	def SplitAroundPositionQC(p1)
+		return This._NNLImmutable("splitaroundposition", [ p1 ])
+
+	def SplitAroundPositionsQC(p1)
+		return This._NNLImmutable("splitaroundpositions", [ p1 ])
+
+	def SplitAroundSectionsQC(p1)
+		return This._NNLImmutable("splitaroundsections", [ p1 ])
+
+	def SplitAroundSubStringQC(p1)
+		return This._NNLImmutable("splitaroundsubstring", [ p1 ])
+
+	def SplitAroundSubStringsQC(p1)
+		return This._NNLImmutable("splitaroundsubstrings", [ p1 ])
+
+	def SplitAtQC(p1)
+		return This._NNLImmutable("splitat", [ p1 ])
+
+	def SplitAtPositionQC(p1)
+		return This._NNLImmutable("splitatposition", [ p1 ])
+
+	def SplitAtPositionsQC(p1)
+		return This._NNLImmutable("splitatpositions", [ p1 ])
+
+	def SplitAtPositionsZZQC(p1)
+		return This._NNLImmutable("splitatpositionszz", [ p1 ])
+
+	def SplitAtPositionZZQC(p1)
+		return This._NNLImmutable("splitatpositionzz", [ p1 ])
+
+	def SplitAtSectionsQC(p1)
+		return This._NNLImmutable("splitatsections", [ p1 ])
+
+	def SplitAtZZQC(p1)
+		return This._NNLImmutable("splitatzz", [ p1 ])
+
+	def SplitBeforeQC(p1)
+		return This._NNLImmutable("splitbefore", [ p1 ])
+
+	def SplitBeforePositionQC(p1)
+		return This._NNLImmutable("splitbeforeposition", [ p1 ])
+
+	def SplitBeforePositionsQC(p1)
+		return This._NNLImmutable("splitbeforepositions", [ p1 ])
+
+	def SplitByRegexQC(p1)
+		return This._NNLImmutable("splitbyregex", [ p1 ])
+
+	def SplitsQC(p1)
+		return This._NNLImmutable("splits", [ p1 ])
+
+	def SplitsZQC(p1)
+		return This._NNLImmutable("splitsz", [ p1 ])
+
+	def SplitsZZQC(p1)
+		return This._NNLImmutable("splitszz", [ p1 ])
+
+	def SplittedAfterPositionQC(p1)
+		return This._NNLImmutable("splittedafterposition", [ p1 ])
+
+	def SplittedAfterPositionsQC(p1)
+		return This._NNLImmutable("splittedafterpositions", [ p1 ])
+
+	def SplittedAtQC(p1)
+		return This._NNLImmutable("splittedat", [ p1 ])
+
+	def SplittedAtPositionQC(p1)
+		return This._NNLImmutable("splittedatposition", [ p1 ])
+
+	def SplittedAtPositionsQC(p1)
+		return This._NNLImmutable("splittedatpositions", [ p1 ])
+
+	def SplittedAtPositionsZZQC(p1)
+		return This._NNLImmutable("splittedatpositionszz", [ p1 ])
+
+	def SplittedAtPositionZZQC(p1)
+		return This._NNLImmutable("splittedatpositionzz", [ p1 ])
+
+	def SplittedAtZZQC(p1)
+		return This._NNLImmutable("splittedatzz", [ p1 ])
+
+	def SplittedBeforePositionQC(p1)
+		return This._NNLImmutable("splittedbeforeposition", [ p1 ])
+
+	def SqueezeQC()
+		return This._NNLImmutable("squeeze", [])
+
+	def StartingNumberQC()
+		return This._NNLImmutable("startingnumber", [])
+
+	def StringifyQC()
+		return This._NNLImmutable("stringify", [])
+
+	def StringifyAndLowerQC()
+		return This._NNLImmutable("stringifyandlower", [])
+
+	def StringifyAndUpperQC()
+		return This._NNLImmutable("stringifyandupper", [])
+
+	def StringifyLowercaseQC()
+		return This._NNLImmutable("stringifylowercase", [])
+
+	def StringifyUppercaseQC()
+		return This._NNLImmutable("stringifyuppercase", [])
+
+	def StringsQC()
+		return This._NNLImmutable("strings", [])
+
+	def StringsZQC()
+		return This._NNLImmutable("stringsz", [])
+
+	def StripNullsQC()
+		return This._NNLImmutable("stripnulls", [])
+
+	def StructureQC()
+		return This._NNLImmutable("structure", [])
+
+	def SubstractQC(p1)
+		return This._NNLImmutable("substract", [ p1 ])
+
+	def SubstractedManyQC(p1)
+		return This._NNLImmutable("substractedmany", [ p1 ])
+
+	def SubstractManyQC(p1)
+		return This._NNLImmutable("substractmany", [ p1 ])
+
+	def SubStringBoundsQC(p1)
+		return This._NNLImmutable("substringbounds", [ p1 ])
+
+	def SubStringsBoundedByQC(p1)
+		return This._NNLImmutable("substringsboundedby", [ p1 ])
+
+	def SubStringsBoundedByUQC(p1)
+		return This._NNLImmutable("substringsboundedbyu", [ p1 ])
+
+	def SubStringsBoundedByZZQC(p1)
+		return This._NNLImmutable("substringsboundedbyzz", [ p1 ])
+
+	def SubStringsCSQC(p1)
+		return This._NNLImmutable("substringscs", [ p1 ])
+
+	def SubStructQC(p1)
+		return This._NNLImmutable("substruct", [ p1 ])
+
+	def SubstructedManyQC(p1)
+		return This._NNLImmutable("substructedmany", [ p1 ])
+
+	def SubStructManyQC(p1)
+		return This._NNLImmutable("substructmany", [ p1 ])
+
+	def SubtractQC(p1)
+		return This._NNLImmutable("subtract", [ p1 ])
+
+	def SubtractedManyQC(p1)
+		return This._NNLImmutable("subtractedmany", [ p1 ])
+
+	def SubtractManyQC(p1)
+		return This._NNLImmutable("subtractmany", [ p1 ])
+
+	def SubtructQC(p1)
+		return This._NNLImmutable("subtruct", [ p1 ])
+
+	def SubtructedManyQC(p1)
+		return This._NNLImmutable("subtructedmany", [ p1 ])
+
+	def SubtructManyQC(p1)
+		return This._NNLImmutable("subtructmany", [ p1 ])
+
+	def SummaryQC(p1)
+		return This._NNLImmutable("summary", [ p1 ])
+
+	def SummarySentencesQC(p1)
+		return This._NNLImmutable("summarysentences", [ p1 ])
+
+	def SwapContentWithQC(p1)
+		return This._NNLImmutable("swapcontentwith", [ p1 ])
+
+	def SwapFirstAndLastQC()
+		return This._NNLImmutable("swapfirstandlast", [])
+
+	def SwapWithQC(p1)
+		return This._NNLImmutable("swapwith", [ p1 ])
+
+	def SynonymsQC()
+		return This._NNLImmutable("synonyms", [])
+
+	def TailQC(p1)
+		return This._NNLImmutable("tail", [ p1 ])
+
+	def TakeQC(p1)
+		return This._NNLImmutable("take", [ p1 ])
+
+	def TakeLastQC(p1)
+		return This._NNLImmutable("takelast", [ p1 ])
+
+	def TheseCharsZQC(p1)
+		return This._NNLImmutable("thesecharsz", [ p1 ])
+
+	def TheseItemsZQC(p1)
+		return This._NNLImmutable("theseitemsz", [ p1 ])
+
+	def TheseObjectsZQC(p1)
+		return This._NNLImmutable("theseobjectsz", [ p1 ])
+
+	def TheseSubstringsZQC(p1)
+		return This._NNLImmutable("thesesubstringsz", [ p1 ])
+
+	def TheseSubstringsZZQC(p1)
+		return This._NNLImmutable("thesesubstringszz", [ p1 ])
+
+	def ThousandsQC()
+		return This._NNLImmutable("thousands", [])
+
+	def TimesQC(p1)
+		return This._NNLImmutable("times", [ p1 ])
+
+	def ToBinaryNumberQC()
+		return This._NNLImmutable("tobinarynumber", [])
+
+	def ToBytesQC()
+		return This._NNLImmutable("tobytes", [])
+
+	def ToCompactFormQC()
+		return This._NNLImmutable("tocompactform", [])
+
+	def ToHashListQC()
+		return This._NNLImmutable("tohashlist", [])
+
+	def ToHexNumberQC()
+		return This._NNLImmutable("tohexnumber", [])
+
+	def ToOctalNumberQC()
+		return This._NNLImmutable("tooctalnumber", [])
+
+	def ToStzHashListQC()
+		return This._NNLImmutable("tostzhashlist", [])
+
+	def ToStzStringQC()
+		return This._NNLImmutable("tostzstring", [])
+
+	def ToStzTableQC()
+		return This._NNLImmutable("tostztable", [])
+
+	def ToStzTextQC()
+		return This._NNLImmutable("tostztext", [])
+
+	def TrailingCharQC()
+		return This._NNLImmutable("trailingchar", [])
+
+	def TrailingCharCSQC(p1)
+		return This._NNLImmutable("trailingcharcs", [ p1 ])
+
+	def TrailingCharIsQC(p1)
+		return This._NNLImmutable("trailingcharis", [ p1 ])
+
+	def TrailingCharsQC()
+		return This._NNLImmutable("trailingchars", [])
+
+	def TrailingCharsAsStringQC()
+		return This._NNLImmutable("trailingcharsasstring", [])
+
+	def TrailingCharsCSQC(p1)
+		return This._NNLImmutable("trailingcharscs", [ p1 ])
+
+	def TrailingNumberQC()
+		return This._NNLImmutable("trailingnumber", [])
+
+	def TrailingSubStringQC()
+		return This._NNLImmutable("trailingsubstring", [])
+
+	def TrailingSubStringCSQC(p1)
+		return This._NNLImmutable("trailingsubstringcs", [ p1 ])
+
+	def TrailingSubStringZZQC()
+		return This._NNLImmutable("trailingsubstringzz", [])
+
+	def TrillionsQC()
+		return This._NNLImmutable("trillions", [])
+
+	def TrimQC()
+		return This._NNLImmutable("trim", [])
+
+	def TrimCharQC(p1)
+		return This._NNLImmutable("trimchar", [ p1 ])
+
+	def TrimCSQC(p1)
+		return This._NNLImmutable("trimcs", [ p1 ])
+
+	def TrimEndQC()
+		return This._NNLImmutable("trimend", [])
+
+	def TrimItemQC(p1)
+		return This._NNLImmutable("trimitem", [ p1 ])
+
+	def TrimItemFromLeftQC(p1)
+		return This._NNLImmutable("trimitemfromleft", [ p1 ])
+
+	def TrimItemFromRightQC(p1)
+		return This._NNLImmutable("trimitemfromright", [ p1 ])
+
+	def TrimLeftQC()
+		return This._NNLImmutable("trimleft", [])
+
+	def TrimLeftCharQC(p1)
+		return This._NNLImmutable("trimleftchar", [ p1 ])
+
+	def TrimLeftCSQC(p1)
+		return This._NNLImmutable("trimleftcs", [ p1 ])
+
+	def TrimmedCSQC(p1)
+		return This._NNLImmutable("trimmedcs", [ p1 ])
+
+	def TrimmedToSizeQC(p1)
+		return This._NNLImmutable("trimmedtosize", [ p1 ])
+
+	def TrimRightQC()
+		return This._NNLImmutable("trimright", [])
+
+	def TrimRightCharQC(p1)
+		return This._NNLImmutable("trimrightchar", [ p1 ])
+
+	def TrimRightCSQC(p1)
+		return This._NNLImmutable("trimrightcs", [ p1 ])
+
+	def TrimStartQC()
+		return This._NNLImmutable("trimstart", [])
+
+	def TrimToSizeQC(p1)
+		return This._NNLImmutable("trimtosize", [ p1 ])
+
+	def TruncateToQC(p1)
+		return This._NNLImmutable("truncateto", [ p1 ])
+
+	def UnamedObjectsQC()
+		return This._NNLImmutable("unamedobjects", [])
+
+	def UndoQC()
+		return This._NNLImmutable("undo", [])
+
+	def UndoStackQC()
+		return This._NNLImmutable("undostack", [])
+
+	def UnicodeCompareWithQC(p1)
+		return This._NNLImmutable("unicodecomparewith", [ p1 ])
+
+	def UnicodeNameQC()
+		return This._NNLImmutable("unicodename", [])
+
+	def UnionWithQC(p1)
+		return This._NNLImmutable("unionwith", [ p1 ])
+
+	def UniqueCSQC(p1)
+		return This._NNLImmutable("uniquecs", [ p1 ])
+
+	def UniqueItemsCSQC(p1)
+		return This._NNLImmutable("uniqueitemscs", [ p1 ])
+
+	def UniqueLinesQC()
+		return This._NNLImmutable("uniquelines", [])
+
+	def UniqueLinesCSQC(p1)
+		return This._NNLImmutable("uniquelinescs", [ p1 ])
+
+	def UniqueNumbersQC()
+		return This._NNLImmutable("uniquenumbers", [])
+
+	def UniqueWordsCSQC(p1)
+		return This._NNLImmutable("uniquewordscs", [ p1 ])
+
+	def UnnamedObjectsQC()
+		return This._NNLImmutable("unnamedobjects", [])
+
+	def UnspacifyQC()
+		return This._NNLImmutable("unspacify", [])
+
+	def UpdateQC(p1)
+		return This._NNLImmutable("update", [ p1 ])
+
+	def UpdateByQC(p1)
+		return This._NNLImmutable("updateby", [ p1 ])
+
+	def UpdatedByQC(p1)
+		return This._NNLImmutable("updatedby", [ p1 ])
+
+	def UpdatedUsingQC(p1)
+		return This._NNLImmutable("updatedusing", [ p1 ])
+
+	def UpdatedWithQC(p1)
+		return This._NNLImmutable("updatedwith", [ p1 ])
+
+	def UpdateUsingQC(p1)
+		return This._NNLImmutable("updateusing", [ p1 ])
+
+	def UpdateWithQC(p1)
+		return This._NNLImmutable("updatewith", [ p1 ])
+
+	def UppercaseQC()
+		return This._NNLImmutable("uppercase", [])
+
+	def UppercaseSubStringQC(p1)
+		return This._NNLImmutable("uppercasesubstring", [ p1 ])
+
+	def UpToQC(p1)
+		return This._NNLImmutable("upto", [ p1 ])
+
+	def UrlDecodeQC()
+		return This._NNLImmutable("urldecode", [])
+
+	def UrlEncodeQC()
+		return This._NNLImmutable("urlencode", [])
+
+	def VerbsQC()
+		return This._NNLImmutable("verbs", [])
+
+	def VizDeepFindQC(p1)
+		return This._NNLImmutable("vizdeepfind", [ p1 ])
+
+	def VizDeepFindAllQC(p1)
+		return This._NNLImmutable("vizdeepfindall", [ p1 ])
+
+	def VizFindQC(p1)
+		return This._NNLImmutable("vizfind", [ p1 ])
+
+	def VizFindAllQC(p1)
+		return This._NNLImmutable("vizfindall", [ p1 ])
+
+	def VizFindAllOccurrencesQC(p1)
+		return This._NNLImmutable("vizfindalloccurrences", [ p1 ])
+
+	def VizFindManyQC(p1)
+		return This._NNLImmutable("vizfindmany", [ p1 ])
+
+	def VizFindZZQC(p1)
+		return This._NNLImmutable("vizfindzz", [ p1 ])
+
+	def WalkAccumulatingQC(p1)
+		return This._NNLImmutable("walkaccumulating", [ p1 ])
+
+	def WalkedItemsQC(p1)
+		return This._NNLImmutable("walkeditems", [ p1 ])
+
+	def WalkedLastItemQC(p1)
+		return This._NNLImmutable("walkedlastitem", [ p1 ])
+
+	def WalkedLastPositionQC(p1)
+		return This._NNLImmutable("walkedlastposition", [ p1 ])
+
+	def WalkedPositionsQC(p1)
+		return This._NNLImmutable("walkedpositions", [ p1 ])
+
+	def WalkersQC()
+		return This._NNLImmutable("walkers", [])
+
+	def WalkEveryNthQC(p1)
+		return This._NNLImmutable("walkeverynth", [ p1 ])
+
+	def WalkSkippingQC(p1)
+		return This._NNLImmutable("walkskipping", [ p1 ])
+
+	def WalkWhileQC(p1)
+		return This._NNLImmutable("walkwhile", [ p1 ])
+
+	def WalkZigZagQC(p1)
+		return This._NNLImmutable("walkzigzag", [ p1 ])
+
+	def WithoutDuplicationCSQC(p1)
+		return This._NNLImmutable("withoutduplicationcs", [ p1 ])
+
+	def WordFrequencyQC(p1)
+		return This._NNLImmutable("wordfrequency", [ p1 ])
+
+	def WordsThatAreQC(p1)
+		return This._NNLImmutable("wordsthatare", [ p1 ])
+
+	def YieldQC(p1)
+		return This._NNLImmutable("yield", [ p1 ])
+
+	def YieldPairsQC(p1)
+		return This._NNLImmutable("yieldpairs", [ p1 ])
+
+	def ZippedWithQC(p1)
+		return This._NNLImmutable("zippedwith", [ p1 ])
+
+	def ZipWithQC(p1)
+		return This._NNLImmutable("zipwith", [ p1 ])
 	# </nnl-generated-surface>

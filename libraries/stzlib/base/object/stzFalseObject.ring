@@ -112,6 +112,10 @@ class stzFalseObject from stzObject
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
 
+	def _NNLImmutable(pcMethod, paParams)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return This
+
 	def _NNLExpectCompare(nActual)
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
