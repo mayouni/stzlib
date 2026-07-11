@@ -389,9 +389,18 @@ the core of P3. The phases, restated against what now exists:
 - **P4 -- The pivot round-trip.** Unchanged: plan->NNL linearizer
   (Naturally emitting NNL chains as its generated code) and NNL->plan;
   NNL chains then gain Understood()/Answers()/strict for free.
-- **P5 -- The governance kit.** Unchanged: entity-grounded strict mode,
-  graph-governed relations, interrogative policies as gates,
-  ChainOfValue's temporal guards rebuilt on W, the LLM contract bundle.
+- **P5 -- The governance kit.** [DONE 2026-07-12, stzGovernance.ring]
+  StzPolicy: named natural-question gates -- Allows(value) folds the
+  answers, WhyDenied() names the failing requirement; an ununderstood
+  policy DENIES (broken, never permissive). GROUNDED STRICT: under
+  strict, recalling an unknown referent refuses with the known roster.
+  StzAgentContract(lang): one deterministic bundle -- protocol (strict +
+  repair + Understood echo + AllYesSoFar gates + the Suppose cycle),
+  the entity WORLD, structural words, lexicon-linearized sample
+  vocabulary (per pack language), accountability rules. DEFERRED
+  honestly: temporal guards (until/whenever agent loops -- need a loop
+  runtime) and graph-governed relations (need the relations schema on
+  the entity world).
 - **P6 (new) -- Device candidates observed but deferred:** distributive
   quantification (`EachQ()` mapping the next predicate over items --
   needs W integration), chain-level negation particle (`NotQ()` flipping
