@@ -113,6 +113,30 @@ Scenario("Accountability replaced silent typo tolerance")
 	Then("an unknown stem refuses with a did-you-mean", bRefused2, TRUE)
 EndScenario()
 
+Scenario("P2: the context lives ON the chain -- agent safety")
+	Given("determiners set the expectation on the object they return; devices that build new objects carry it; *QM recalls read the chain-local main first")
+
+	# two DISCOURSES built side by side: each keeps its own referent,
+	# even though the process global now points at the second one
+	od1 = TheWordQM("ring").IsAQ([ :Word ]).WhichQ().ALengthQ()
+	od2 = TheWordQM("softanza").IsAQ([ :Word ]).WhichQ().ALengthQ()
+	Then("the FIRST chain still recalls ITS word",
+		od1.OnlyQM(1).Content(), "ring")
+	Then("the second recalls its own", od2.OnlyQM(3).Content(), "softanza")
+	Then("ring: only 1 vowel -- against ring, not softanza",
+		od1.OnlyQM(1).VowelNB(), TRUE)
+	Then("softanza: only 3 vowels", od2.OnlyQM(3).VowelNB(), TRUE)
+
+	# two expectations built side by side: neither clobbers the other
+	oe1 = Q("AnnIE").AtMost(2)
+	oe2 = Q("hello world").AtLeast(5)
+	Then("the first chain keeps ITS atmost-2", oe1.VowelNB(), FALSE)
+	Then("...for its own reason",
+		oe1.WhyCheckFailed(), "no: expected atmost 2, found 3")
+	Then("the second keeps ITS atleast-5 (2 words -> no)",
+		oe2.WordNB(), FALSE)
+EndScenario()
+
 Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",

@@ -1972,6 +1972,14 @@ class stzObject
 
 	@cNNLWhy = ""
 
+	# P2 -- CHAIN-SCOPED CONTEXT (NNL_REVIEW): the expectation register and
+	# the main referent travel ON the chain; the process globals survive
+	# only as fallback shims. Mode "" = no chain-local expectation set.
+	@cNNLExpectMode = ""
+	@pNNLExpect = 0
+	@nNNLExpectTol = 0
+	@oNNLMain = 0
+
 	@cVarName = :@NoName
 	@cUuid = ""
 	@cHashedUuid = ""
@@ -2603,16 +2611,16 @@ class stzObject
 				content = This.Content()
 		
 				if isNumber(content)
-					return new stzNumber(content)
+					return This._NNLCarry(new stzNumber(content))
 		
 				but isString(content)
-					return new stzString(content)
+					return This._NNLCarry(new stzString(content))
 		
 				but isList(content)
-					return new stzList(content)
+					return This._NNLCarry(new stzList(content))
 		
 				but isObject(content)
-					return new stzObject(content)
+					return This._NNLCarry(new stzObject(content))
 		
 				ok
 			else
@@ -2678,16 +2686,16 @@ class stzObject
 			if This.IsA(pcType) = 1
 
 				if pcType = "number" or pcType = "stznumber"
-					return This.ToStzNumber()
+					return This._NNLCarry(This.ToStzNumber())
 
 				but pcType = "string" or pcType = "stzstring"
-					return This.ToStzString()
+					return This._NNLCarry(This.ToStzString())
 
 				but pcType = "char" or pcType = "stzchar"
-					return This.ToStzChar()
+					return This._NNLCarry(This.ToStzChar())
 
 				but pcType = "list" or pcType = "stzlist"
-					return This.ToStzList()
+					return This._NNLCarry(This.ToStzList())
 
 				but pctype = "object" or pcType = "stzobject"
 					return This
@@ -2702,7 +2710,7 @@ class stzObject
 			return This.IsAQ(pcType)
 
 		def IsAQMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		def IsAM(pcType)
 			SetMainObject(This)
@@ -2713,7 +2721,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 		def IsAMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#>
 
@@ -2726,7 +2734,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 			def IsAnQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def IsAnM(pcType)
 			SetMainObject(This)
@@ -2737,7 +2745,7 @@ class stzObject
 				return This.IsAnQ(pcType)
 
 		def IsAnMM(pctype)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -2748,7 +2756,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 			def AreAQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def AreAM(pcType)
 			SetMainObject(This)
@@ -2759,7 +2767,7 @@ class stzObject
 				return This.AreAQ(pcType)
 
 		def AreAMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -2770,7 +2778,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 			def AreAnQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def AreAnM(pcType)
 			SetMainObject(This)
@@ -2781,7 +2789,7 @@ class stzObject
 				return This.AreAnQ(pcType)
 
 		def AreAnMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -2792,7 +2800,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 			def IsTheQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def IsTheM(pcType)
 			SetMainObject(This)
@@ -2803,7 +2811,7 @@ class stzObject
 				return This.IsTheQ(pcType)
 
 		def IsTheMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -2814,7 +2822,7 @@ class stzObject
 				return This.IsAQ(pcType)
 
 			def AreTheQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def AreTheM(pcType)
 			SetMainObject(This)
@@ -2825,7 +2833,7 @@ class stzObject
 				return This.AreTheQ(pcType)
 
 		def AreTheMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#>
 
@@ -2872,7 +2880,7 @@ class stzObject
 			ok
 
 		def IsQM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		def IsM(pcType)
 			SetMainObject(This)
@@ -2883,7 +2891,7 @@ class stzObject
 				return This.IsQ(pcType)
 
 		def IsMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 	def Are(pcType)
 
@@ -2933,7 +2941,7 @@ class stzObject
 			ok
 
 		def AreQM(pcType)
-			return MainObject()
+			return This._NNLMain()
 			
 		def AreM(pcType)
 			SetMainObject(This)
@@ -2944,7 +2952,7 @@ class stzObject
 				return This.AreQ(pcType)
 
 		def AreMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#>
 
@@ -2955,7 +2963,7 @@ class stzObject
 				return This.AreQ(pcType)
 
 			def AreAllQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def AreAllM(pcType)
 			SetMainObject(This)
@@ -2966,7 +2974,7 @@ class stzObject
 				return This.AreAllQ(pcType)
 
 		def AreAllMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 	def AreBothA(pcType)
 
@@ -3005,7 +3013,7 @@ class stzObject
 			return This.AreQ(pcType)
 
 		def AreBothAQM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#>
 
@@ -3018,7 +3026,7 @@ class stzObject
 				return This.AreBothAQ(pcType)
 
 			def AreBothAnQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		#--
 
@@ -3040,7 +3048,7 @@ class stzObject
 			return This.AreBoth(pcType)
 
 		def AreBothMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3051,7 +3059,7 @@ class stzObject
 				return This.AreBothAQ(pcType)
 
 			def BothAreAQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 			def BothAreAMQ(pcType)
 				SetMainObject(This)
@@ -3066,7 +3074,7 @@ class stzObject
 				return This.AreBothAQ(pcType)
 
 		def AreBothAMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3077,7 +3085,7 @@ class stzObject
 				return This.AreBothAQ(pcType)
 
 			def BothAreAnQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 			def BothAreAnMQ(pcType)
 				SetMainObject(This)
@@ -3092,7 +3100,7 @@ class stzObject
 				return This.AreBothAnQ(pcType)
 
 		def AreBothAnMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3103,7 +3111,7 @@ class stzObject
 				return This.AreBothQ(pcType)
 
 			def BothAreQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def BothAreM(pcType)
 			return this.AreBothM(pcType)
@@ -3112,7 +3120,7 @@ class stzObject
 				return This.AreBothMQ(pcType)
 
 		def BothAreMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3123,7 +3131,7 @@ class stzObject
 				return AreBothAQ(pcType)
 
 			def AreTwoQM(pcType)
-				return MainObject()
+				return This._NNLMain()
 
 		def AreTwoM(pcType)
 			SetMainObject(This)
@@ -3134,7 +3142,7 @@ class stzObject
 				return This.AreTwoM(pcType)
 
 		def AreTwoMM(pcType)
-			return MainObject()
+			return This._NNLMain()
 
 		#>
 
@@ -3149,13 +3157,13 @@ class stzObject
 				return This.WichM()
 	
 		def WichMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def WhichQ()
 			return This.Which()
 
 		def WhichQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def whichMQ()
 			SetMainObject(This)
@@ -3170,13 +3178,13 @@ class stzObject
 			return This
 
 		def ThatMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def ThatQ()
 			return This
 
 		def ThatQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def ThatMQ()
 			SetMainObject(This)
@@ -3196,10 +3204,10 @@ class stzObject
 				return This.WhichIsM()
 
 		def WhichIsQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def WhichIsMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3217,7 +3225,7 @@ class stzObject
 				return This.ThatIsM()
 
 		def ThatiIsMM()
-			return MainObject()
+			return This._NNLMain()
 
 	def WhichAre()
 		return This
@@ -3230,10 +3238,10 @@ class stzObject
 			return This
 
 		def WhichAreMQ()
-			return MainObject()
+			return This._NNLMain()
 
 		def WhichAreMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3251,7 +3259,7 @@ class stzObject
 				return This.ThatAreM()
 
 		def ThatiAreMM()
-			return MainObject()
+			return This._NNLMain()
 
 	def WhichAreBoth()
 		_aContent_ = This.Content()
@@ -3277,10 +3285,10 @@ class stzObject
 				return This.WhichAreBothQ()
 
 		def WhichAreBothQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def WhichAreBothMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3299,7 +3307,7 @@ class stzObject
 				return This.WhichBothAreQ()
 
 		def WhichBothAreMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#-- @MisspelledForms
 
@@ -3318,10 +3326,10 @@ class stzObject
 				return This.WichAreBothQ()
 
 			def WichAreBothQM()
-				return MainObject()
+				return This._NNLMain()
 
 		def WichAreBothMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3340,10 +3348,10 @@ class stzObject
 				return This.WichBothAreQ()
 
 			def WichBothAreQM()
-				return MainObject()
+				return This._NNLMain()
 
 		def WichBothAreMM()
-			return MainObject()
+			return This._NNLMain()
 
 		#--
 
@@ -3362,10 +3370,10 @@ class stzObject
 				return This.WitchBothAreQ()
 
 			def WitchBothAreQM()
-				return MainObject()
+				return This._NNLMain()
 
 		def WitchBothAreMM()
-			return MainObject()
+			return This._NNLMain()
 
 	def FromIt()
 		return This.Content()
@@ -3429,13 +3437,13 @@ class stzObject
 				return This
 
 			def AndThenQM()
-				return MainObject()
+				return This._NNLMain()
 
 		def AndQ()
 			return This
 
 			def AndQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def AndMQ()
 				SetMainObject()
@@ -3446,10 +3454,10 @@ class stzObject
 			return This.AndThen()
 
 		def AndThenMM()
-			return MainObject()
+			return This._NNLMain()
 
 	def QM()
-		return MainObject() # Used in chains of truth
+		return This._NNLMain() # Used in chains of truth
 
 	def Having()
 		return This
@@ -3458,14 +3466,14 @@ class stzObject
 			return This
 
 		def HavingQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HavingMQ()
 			SetMainObject(This)
 			return This.HavingQ()
 
 		def HavingM()
-			return MainObject()
+			return This._NNLMain()
 		
 		#--
 
@@ -3476,14 +3484,14 @@ class stzObject
 			return This
 
 		def AndHavingQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AndHavingMQ()
 			SetMainObject(This)
 			return This.AndHavingQ()
 
 		def AndHavingM()
-			return MainObject()
+			return This._NNLMain()
 
 	def With()
 		return This
@@ -3502,31 +3510,32 @@ class stzObject
 			return This.WithQ()
 
 		def WithM()
-			return MainObject()
+			return This._NNLMain()
 
 		def WithAMQ()
 			SetMainObject(This)
 			return This.WithAQ()
 
 		def WithAM()
-			return MainObject()
+			return This._NNLMain()
 
 	def WithQM()
-		return MainObject()
+		return This._NNLMain()
 
 		def WithAQM()
-			return MainObject()
+			return This._NNLMain()
 	
 	def Only(value)
-		SetLastValue(value)
+		This._NNLSetExpect(value, :Exactly, 0)
 		return This
 
 		def OnlyQ(value)
 			return Only(value)
 
 		def OnLyQM(value)
-			SetLastValue(value)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(value, :Exactly, 0)
+			return _oM_
 
 		def OnlyMQ(value)
 			SetMainObject(This)
@@ -3537,7 +3546,7 @@ class stzObject
 			return This.OnlyM(value)
 
 		def OnlyMM(value)
-			return MainObject()
+			return This._NNLMain()
 
 	def A()
 		return This
@@ -3559,7 +3568,7 @@ class stzObject
 			return This
 
 		def AMM()
-			return MainObject()
+			return This._NNLMain()
 
 	def Their()
 		return This
@@ -3570,7 +3579,7 @@ class stzObject
 			return This
 
 		def TheirQM()
-			return MainObject()
+			return This._NNLMain()
 		
 		#>
 
@@ -3583,7 +3592,7 @@ class stzObject
 				return This.TheirQ()
 	
 		def TheirMM()
-			return MainObject()
+			return This._NNLMain()
 
 
 		#< @FunctionAlternativeForms
@@ -3595,7 +3604,7 @@ class stzObject
 				return This
 
 			def AllTheirQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def AlltheirMQ()
 				SetMainObject(This)
@@ -3609,13 +3618,13 @@ class stzObject
 				return This.Its()
 
 			def ItsMM()
-				return MainObject()
+				return This._NNLMain()
 
 			def ItsQ()
 				return This
 	
 			def ItsQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def ItsMQ()
 				SetMainObject(This)
@@ -3629,13 +3638,13 @@ class stzObject
 				return This
 
 			def HisMM()
-				return MainObject()
+				return This._NNLMain()
 
 			def HisQ()
 				return This
 	
 			def HisQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def HisMQ()
 				SetMainObject(This)
@@ -3649,13 +3658,13 @@ class stzObject
 				return This
 
 			def HerMM()
-				return MainObject()
+				return This._NNLMain()
 
 			def HerQ()
 				return This
 	
 			def HerQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def HerMQ()
 				SetMainObject(This)
@@ -3670,13 +3679,13 @@ class stzObject
 				return This
 
 			def MyMM()
-				return MainObject()
+				return This._NNLMain()
 
 			def MyQ()
 				return This
 	
 			def MyQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def MyMQ()
 				SetMainObject(This)
@@ -3691,13 +3700,13 @@ class stzObject
 				return This
 
 			def YourMM()
-				return MainObject()
+				return This._NNLMain()
 
 			def YourQ()
 				return This
 	
 			def YourQM()
-				return MainObject()
+				return This._NNLMain()
 
 			def YourMQ()
 				SetMainObject(This)
@@ -3713,13 +3722,13 @@ class stzObject
 			return This.As()
 
 		def AsMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsQ()
 			return This
 
 		def AsQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsMQ()
 			SetMainObject(This)
@@ -3734,13 +3743,13 @@ class stzObject
 			return This.AsM()
 
 		def AsAMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsAQ()
 			return This.AsQ()
 
 		def AsAQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsAMQ()
 			return This.AsMQ()
@@ -3754,13 +3763,13 @@ class stzObject
 			return This.AsM()
 
 		def AsTheMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsTheQ()
 			return This.AsQ()
 
 		def AsTheQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def AsTheMQ()
 			return This.AsMQ()
@@ -3779,7 +3788,7 @@ class stzObject
 				return This.The_M()
 
 		def The_MM()
-			return MainObject()
+			return This._NNLMain()
 
 	def Them()
 		return This
@@ -3805,13 +3814,13 @@ class stzObject
 			return This
 
 		def MeMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def MeQ()
 			return This.Me()
 
 		def MeQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def MeMQ()
 			SetMainObject(This)
@@ -3825,13 +3834,13 @@ class stzObject
 			return This
 
 		def MineMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def MineQ()
 			return This.Mine()
 
 		def MineQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def MineMQ()
 			SetMainObject(This)
@@ -3845,13 +3854,13 @@ class stzObject
 			return This
 
 		def ItMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def ItQ()
 			return This.It()
 
 		def ItQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def ItMQ()
 			SetMainObject(This)
@@ -3865,13 +3874,13 @@ class stzObject
 			return This
 
 		def YouMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def YouQ()
 			return This.You()
 
 		def YouQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def YouMQ()
 			SetMainObject(This)
@@ -3885,13 +3894,13 @@ class stzObject
 			return This
 
 		def YoursMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def YoursQ()
 			return This.Yours()
 
 		def YoursQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def YoursMQ()
 			SetMainObject(This)
@@ -3905,13 +3914,13 @@ class stzObject
 			return This
 
 		def HimMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HimQ()
 			return This.Him()
 
 		def HimQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HimMQ()
 			SetMainObject(This)
@@ -3925,13 +3934,13 @@ class stzObject
 			return This
 
 		def HasMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HasQ()
 			return This.Has()
 
 		def HasQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HasMQ()
 			SetMainObject(This)
@@ -3945,13 +3954,13 @@ class stzObject
 			return This
 
 		def HasAMM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HasAQ()
 			return This.HasA()
 
 		def HasAQM()
-			return MainObject()
+			return This._NNLMain()
 
 		def HasaMQ()
 			SetMainObject(This)
@@ -3964,7 +3973,7 @@ class stzObject
 			ok
 		ok
 
-		SetLastValue(_n_)
+		This._NNLSetExpect(_n_, :Exactly, 0)
 		return This
 
 		def HasNM(_n_)
@@ -3982,13 +3991,13 @@ class stzObject
 					StzRaise("Incorrect param type! n must be a number.")
 				ok
 			ok
-			return MainObject()
+			return This._NNLMain()
 
 		def HasNQ(_n_)
 			return This.HasN(_n_)
 
 		def HasNQM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 		def HasNMQ(_n_)
 			SetMainObject(This)
@@ -4004,7 +4013,7 @@ class stzObject
 			return This.HasTheNumber(_n_)
 
 		def HasTheNumberMM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 		def HasTheNumberQ(_n_)
 			return This.HasTheNumber(_n_)
@@ -4022,7 +4031,7 @@ class stzObject
 		return This
 
 	def MM()
-		return MainObject()
+		return This._NNLMain()
 
 	def _(any)
 		return LastValue()
@@ -4032,13 +4041,13 @@ class stzObject
 			return This._(any)
 
 		def _MM()
-			return MainObject()
+			return This._NNLMain()
 
 		def _Q(any)
 			return Q( This._(any) )
 
 		def _QM(any)
-			return MainObject()
+			return This._NNLMain()
 
 		def _MQ(any)
 			SetMainObject(This)
@@ -4054,7 +4063,7 @@ class stzObject
 			return This.OfCS(_n_, pCaseSensitive)
 
 		def OfCSMM(_n_, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfCSQ(_n_, pCaseSensitive)
 			if This.IsEqualToCS(_n_, pCaseSensitive)
@@ -4064,7 +4073,7 @@ class stzObject
 			ok
 
 		def OfCSQM(_n_, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfCSMQ(_n_, pCaseSensitive)
 			SetMainObject(This)
@@ -4083,7 +4092,7 @@ class stzObject
 			return This.OfCSQ(_n_, 1)
 
 		def OfQM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfMQ(_n_)
 			return This.OfCSMQ(_n_, pCaseSensitive)
@@ -4147,7 +4156,7 @@ class stzObject
 			return This.OfCSB(_n_, pCaseSensitive)
 
 		def OfCSBMM(_n_, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfCSMB(_n_, pCaseSensitive)
 			SetMainObject(This)
@@ -4166,13 +4175,13 @@ class stzObject
 
 
 		def OfCSBQMM(_n_, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 	def OfBM(_n_)
 		return This.OfCSBM(_n_, pCaseSensitive)
 
 		def OfBMM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfMB(_n_)
 			return This.OfCSMB(_n_, 1)
@@ -4184,7 +4193,7 @@ class stzObject
 			return This.OfCSBQM(_n_, 1)
 
 		def OfBQMM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 	#==
 
@@ -4195,7 +4204,7 @@ class stzObject
 			return This.OfCSBM(_n_, pCaseSensitive)
 
 		def OfXTCSBMM(_n_, cIgnored, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfXTCSMB(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSMB(_n_, pCaseSensitive)
@@ -4207,13 +4216,13 @@ class stzObject
 			return This.OfCSBQM(_n_, pCaseSensitive)
 
 		def OfXTCSBQMM(_n_, pCaseSensitive)
-			return MainObject()
+			return This._NNLMain()
 
 	def OfXTBM(_n_)
 		return This.OfXTCSB(_n_, cIgnored, 1)
 
 		def OfXTBMM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 		def OfXTMB(_n_)
 			return This.OfXTCSMB(_n_, 1)
@@ -4225,7 +4234,7 @@ class stzObject
 			return This.OfXTCSBQM(_n_, 1)
 
 		def OfXTBQMM(_n_)
-			return MainObject()
+			return This._NNLMain()
 
 	#==
 
@@ -6435,6 +6444,51 @@ class stzObject
 		ok
 		StzRaise("NNL: an action must be a name or [ name, params... ].")
 
+	# --- P2: the chain-scoped context machinery -----------------------
+	# A determiner sets the expectation ON the object it returns; a device
+	# that returns a NEW object carries the context over (_NNLCarry); the
+	# *QM recalls read the chain-local main first. Globals stay mirrored
+	# so legacy code and the detached console surface keep working.
+
+	def SetNNLMain(poObj)
+		@oNNLMain = poObj
+
+	def NNLMainRaw()
+		return @oNNLMain
+
+	def _NNLMain()
+		if isObject(@oNNLMain)
+			return @oNNLMain
+		ok
+		return This._NNLMain()
+
+	def _NNLSetExpect(pVal, pcMode, pnTol)
+		@pNNLExpect = pVal
+		@cNNLExpectMode = pcMode
+		@nNNLExpectTol = pnTol
+		# mirror the globals (SetLastValue resets the global mode, so the
+		# mode is written AFTER it)
+		SetLastValue(pVal)
+		$cStzExpectMode = pcMode
+		$nStzExpectTol = pnTol
+
+	def _NNLExpectValue()
+		if @cNNLExpectMode != ""
+			return @pNNLExpect
+		ok
+		return LastValue()
+
+	def _NNLCarry(poNew)
+		if isObject(poNew)
+			if isObject(@oNNLMain)
+				poNew.SetNNLMain(@oNNLMain)
+			ok
+			if @cNNLExpectMode != ""
+				poNew._NNLSetExpect(@pNNLExpect, @cNNLExpectMode, @nNNLExpectTol)
+			ok
+		ok
+		return poNew
+
 	# --- counting through a noun (guarded, accountable)
 
 	def _NNLNounCount(pcMethod)
@@ -6452,6 +6506,12 @@ class stzObject
 	def _NNLExpectCompare(nActual)
 		_pExp_ = LastValue()
 		_cMode_ = $cStzExpectMode
+		_nTolR_ = $nStzExpectTol
+		if @cNNLExpectMode != ""
+			_pExp_ = @pNNLExpect
+			_cMode_ = @cNNLExpectMode
+			_nTolR_ = @nNNLExpectTol
+		ok
 		_bYes_ = FALSE
 		_cExp_ = @@(_pExp_)
 		if _cMode_ = :Exactly
@@ -6465,7 +6525,7 @@ class stzObject
 		but _cMode_ = :LessThan
 			_bYes_ = ( nActual < _pExp_ )
 		but _cMode_ = :About
-			_nTol_ = $nStzExpectTol
+			_nTol_ = _nTolR_
 			if _nTol_ < 1
 				_nTol_ = _pExp_ * _nTol_
 			ok
@@ -6491,13 +6551,13 @@ class stzObject
 	# --- value agreement: the RESULT of a noun equals the remembered value
 	def _NNLValueIs(pcMethod)
 		_vNNL_ = This._NNLCall(pcMethod, [])
-		if Q(_vNNL_).IsEqualTo(LastValue())
+		if Q(_vNNL_).IsEqualTo(This._NNLExpectValue())
 			@cNNLWhy = "yes: " + StzLower(pcMethod) + " equals the expected value"
 			$cStzLastWhyB = @cNNLWhy
 			return 1
 		ok
 		@cNNLWhy = "no: " + StzLower(pcMethod) + " is " + @@(_vNNL_) +
-			", expected " + @@(LastValue())
+			", expected " + @@(This._NNLExpectValue())
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
@@ -6553,7 +6613,7 @@ class stzObject
 			return This.ALengthN()
 
 		def ALengthQ()
-			return new stzNumber(This.ALengthN())
+			return This._NNLCarry(new stzNumber(This.ALengthN()))
 
 		def ALengthNB()
 			return This._NNLExpectCompare(This.ALengthN())
@@ -6564,97 +6624,94 @@ class stzObject
 	# "between". Each returns This (chain on) or MainObject (QM recall).
 
 	def Exactly(n)
-		SetLastValue(n)
-		$cStzExpectMode = :Exactly
+		This._NNLSetExpect(n, :Exactly, 0)
 		return This
 
 		def ExactlyQ(n)
 			return This.Exactly(n)
 
 		def ExactlyQM(n)
-			This.Exactly(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :Exactly, 0)
+			return _oM_
 
 	def AtLeast(n)
-		SetLastValue(n)
-		$cStzExpectMode = :AtLeast
+		This._NNLSetExpect(n, :AtLeast, 0)
 		return This
 
 		def AtLeastQ(n)
 			return This.AtLeast(n)
 
 		def AtLeastQM(n)
-			This.AtLeast(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :AtLeast, 0)
+			return _oM_
 
 	def AtMost(n)
-		SetLastValue(n)
-		$cStzExpectMode = :AtMost
+		This._NNLSetExpect(n, :AtMost, 0)
 		return This
 
 		def AtMostQ(n)
 			return This.AtMost(n)
 
 		def AtMostQM(n)
-			This.AtMost(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :AtMost, 0)
+			return _oM_
 
 	def MoreThan(n)
-		SetLastValue(n)
-		$cStzExpectMode = :MoreThan
+		This._NNLSetExpect(n, :MoreThan, 0)
 		return This
 
 		def MoreThanQ(n)
 			return This.MoreThan(n)
 
 		def MoreThanQM(n)
-			This.MoreThan(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :MoreThan, 0)
+			return _oM_
 
 	def LessThan(n)
-		SetLastValue(n)
-		$cStzExpectMode = :LessThan
+		This._NNLSetExpect(n, :LessThan, 0)
 		return This
 
 		def LessThanQ(n)
 			return This.LessThan(n)
 
 		def LessThanQM(n)
-			This.LessThan(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :LessThan, 0)
+			return _oM_
 
 	def About(n)
-		SetLastValue(n)
-		$cStzExpectMode = :About
-		$nStzExpectTol = 0.1
+		This._NNLSetExpect(n, :About, 0.1)
 		return This
 
 		def AboutQ(n)
 			return This.About(n)
 
 		def AboutQM(n)
-			This.About(n)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect(n, :About, 0.1)
+			return _oM_
 
 		def AboutXT(n, nTol)
-			SetLastValue(n)
-			$cStzExpectMode = :About
-			$nStzExpectTol = nTol
+			This._NNLSetExpect(n, :About, nTol)
 			return This
 
 	# named BetweenN (not Between) -- stzString owns Between(sub1, sub2)
 	# for text extraction; the N marks the NUMBER expectation
 	def BetweenN(n1, n2)
-		SetLastValue([ n1, n2 ])
-		$cStzExpectMode = :Between
+		This._NNLSetExpect([ n1, n2 ], :Between, 0)
 		return This
 
 		def BetweenNQ(n1, n2)
 			return This.BetweenN(n1, n2)
 
 		def BetweenNQM(n1, n2)
-			This.BetweenN(n1, n2)
-			return MainObject()
+			_oM_ = This._NNLMain()
+			_oM_._NNLSetExpect([ n1, n2 ], :Between, 0)
+			return _oM_
 
 	# --- CONDITIONAL MOOD (new device): the chain branches on its own
 	# truth. On a live object the premise held: IfSo RUNS, Otherwise
@@ -6687,13 +6744,13 @@ class stzObject
 			StzLower("" + pcNoun) + " here.")
 
 		def TheNthQ(n, pcNoun)
-			return Q(This.TheNth(n, pcNoun))
+			return This._NNLCarry(Q(This.TheNth(n, pcNoun)))
 
 	def TheFirst(pcNoun)
 		return This.TheNth(1, pcNoun)
 
 		def TheFirstQ(pcNoun)
-			return Q(This.TheFirst(pcNoun))
+			return This._NNLCarry(Q(This.TheFirst(pcNoun)))
 
 	def TheLast(pcNoun)
 		_aNNL_ = This._NNLCall(pcNoun, [])
@@ -6703,7 +6760,7 @@ class stzObject
 		StzRaise("NNL: there is no last " + StzLower("" + pcNoun) + " here.")
 
 		def TheLastQ(pcNoun)
-			return Q(This.TheLast(pcNoun))
+			return This._NNLCarry(Q(This.TheLast(pcNoun)))
 
 	# <nnl-generated-surface>
 	# GENERATED from the semantic lexicon (scripts: scratchpad gen_nnl_surface.py;
@@ -6717,7 +6774,7 @@ class stzObject
 	def ByteN()
 		return This._NNLNounCount("numberofbytes")
 	def ByteNQ()
-		return new stzNumber(This._NNLNounCount("numberofbytes"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofbytes")))
 	def ByteNB()
 		return This._NNLCountIs("numberofbytes")
 	def ByteNBQ()
@@ -6740,7 +6797,7 @@ class stzObject
 	def CharN()
 		return This._NNLNounCount("numberofchars")
 	def CharNQ()
-		return new stzNumber(This._NNLNounCount("numberofchars"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofchars")))
 	def CharNB()
 		return This._NNLCountIs("numberofchars")
 	def CharNBQ()
@@ -6763,7 +6820,7 @@ class stzObject
 	def ClassN()
 		return This._NNLNounCount("numberofclasses")
 	def ClassNQ()
-		return new stzNumber(This._NNLNounCount("numberofclasses"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofclasses")))
 	def ClassNB()
 		return This._NNLCountIs("numberofclasses")
 	def ClassNBQ()
@@ -6786,7 +6843,7 @@ class stzObject
 	def DecimalN()
 		return This._NNLNounCount("numberofdecimals")
 	def DecimalNQ()
-		return new stzNumber(This._NNLNounCount("numberofdecimals"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofdecimals")))
 	def DecimalNB()
 		return This._NNLCountIs("numberofdecimals")
 	def DecimalNBQ()
@@ -6809,7 +6866,7 @@ class stzObject
 	def DigitN()
 		return This._NNLNounCount("numberofdigits")
 	def DigitNQ()
-		return new stzNumber(This._NNLNounCount("numberofdigits"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofdigits")))
 	def DigitNB()
 		return This._NNLCountIs("numberofdigits")
 	def DigitNBQ()
@@ -6832,7 +6889,7 @@ class stzObject
 	def DuplicatedItemN()
 		return This._NNLNounCount("numberofduplicateditems")
 	def DuplicatedItemNQ()
-		return new stzNumber(This._NNLNounCount("numberofduplicateditems"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplicateditems")))
 	def DuplicatedItemNB()
 		return This._NNLCountIs("numberofduplicateditems")
 	def DuplicatedItemNBQ()
@@ -6855,7 +6912,7 @@ class stzObject
 	def DuplicateN()
 		return This._NNLNounCount("numberofduplicates")
 	def DuplicateNQ()
-		return new stzNumber(This._NNLNounCount("numberofduplicates"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplicates")))
 	def DuplicateNB()
 		return This._NNLCountIs("numberofduplicates")
 	def DuplicateNBQ()
@@ -6878,7 +6935,7 @@ class stzObject
 	def DuplicationN()
 		return This._NNLNounCount("numberofduplications")
 	def DuplicationNQ()
-		return new stzNumber(This._NNLNounCount("numberofduplications"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofduplications")))
 	def DuplicationNB()
 		return This._NNLCountIs("numberofduplications")
 	def DuplicationNBQ()
@@ -6901,7 +6958,7 @@ class stzObject
 	def EmptyLineN()
 		return This._NNLNounCount("numberofemptylines")
 	def EmptyLineNQ()
-		return new stzNumber(This._NNLNounCount("numberofemptylines"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofemptylines")))
 	def EmptyLineNB()
 		return This._NNLCountIs("numberofemptylines")
 	def EmptyLineNBQ()
@@ -6915,7 +6972,7 @@ class stzObject
 	def IntegerN()
 		return This._NNLNounCount("numberofintegers")
 	def IntegerNQ()
-		return new stzNumber(This._NNLNounCount("numberofintegers"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofintegers")))
 	def IntegerNB()
 		return This._NNLCountIs("numberofintegers")
 	def IntegerNBQ()
@@ -6938,7 +6995,7 @@ class stzObject
 	def ItemN()
 		return This._NNLNounCount("numberofitems")
 	def ItemNQ()
-		return new stzNumber(This._NNLNounCount("numberofitems"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofitems")))
 	def ItemNB()
 		return This._NNLCountIs("numberofitems")
 	def ItemNBQ()
@@ -6961,7 +7018,7 @@ class stzObject
 	def ItemsUN()
 		return This._NNLNounCount("numberofitemsu")
 	def ItemsUNQ()
-		return new stzNumber(This._NNLNounCount("numberofitemsu"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofitemsu")))
 	def ItemsUNB()
 		return This._NNLCountIs("numberofitemsu")
 	def ItemsUNBQ()
@@ -6975,7 +7032,7 @@ class stzObject
 	def LargestN()
 		return This._NNLNounCount("numberoflargest")
 	def LargestNQ()
-		return new stzNumber(This._NNLNounCount("numberoflargest"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflargest")))
 	def LargestNB()
 		return This._NNLCountIs("numberoflargest")
 	def LargestNBQ()
@@ -6998,7 +7055,7 @@ class stzObject
 	def LeadingCharN()
 		return This._NNLNounCount("numberofleadingchars")
 	def LeadingCharNQ()
-		return new stzNumber(This._NNLNounCount("numberofleadingchars"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofleadingchars")))
 	def LeadingCharNB()
 		return This._NNLCountIs("numberofleadingchars")
 	def LeadingCharNBQ()
@@ -7021,7 +7078,7 @@ class stzObject
 	def LeadingItemN()
 		return This._NNLNounCount("numberofleadingitems")
 	def LeadingItemNQ()
-		return new stzNumber(This._NNLNounCount("numberofleadingitems"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofleadingitems")))
 	def LeadingItemNB()
 		return This._NNLCountIs("numberofleadingitems")
 	def LeadingItemNBQ()
@@ -7044,7 +7101,7 @@ class stzObject
 	def LetterN()
 		return This._NNLNounCount("numberofletters")
 	def LetterNQ()
-		return new stzNumber(This._NNLNounCount("numberofletters"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofletters")))
 	def LetterNB()
 		return This._NNLCountIs("numberofletters")
 	def LetterNBQ()
@@ -7067,7 +7124,7 @@ class stzObject
 	def LevelN()
 		return This._NNLNounCount("numberoflevels")
 	def LevelNQ()
-		return new stzNumber(This._NNLNounCount("numberoflevels"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflevels")))
 	def LevelNB()
 		return This._NNLCountIs("numberoflevels")
 	def LevelNBQ()
@@ -7081,7 +7138,7 @@ class stzObject
 	def LineN()
 		return This._NNLNounCount("numberoflines")
 	def LineNQ()
-		return new stzNumber(This._NNLNounCount("numberoflines"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflines")))
 	def LineNB()
 		return This._NNLCountIs("numberoflines")
 	def LineNBQ()
@@ -7104,7 +7161,7 @@ class stzObject
 	def ListN()
 		return This._NNLNounCount("numberoflists")
 	def ListNQ()
-		return new stzNumber(This._NNLNounCount("numberoflists"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoflists")))
 	def ListNB()
 		return This._NNLCountIs("numberoflists")
 	def ListNBQ()
@@ -7127,7 +7184,7 @@ class stzObject
 	def MarkerN()
 		return This._NNLNounCount("numberofmarkers")
 	def MarkerNQ()
-		return new stzNumber(This._NNLNounCount("numberofmarkers"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofmarkers")))
 	def MarkerNB()
 		return This._NNLCountIs("numberofmarkers")
 	def MarkerNBQ()
@@ -7150,7 +7207,7 @@ class stzObject
 	def MarquerN()
 		return This._NNLNounCount("numberofmarquers")
 	def MarquerNQ()
-		return new stzNumber(This._NNLNounCount("numberofmarquers"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofmarquers")))
 	def MarquerNB()
 		return This._NNLCountIs("numberofmarquers")
 	def MarquerNBQ()
@@ -7173,7 +7230,7 @@ class stzObject
 	def NamedObjectN()
 		return This._NNLNounCount("numberofnamedobjects")
 	def NamedObjectNQ()
-		return new stzNumber(This._NNLNounCount("numberofnamedobjects"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnamedobjects")))
 	def NamedObjectNB()
 		return This._NNLCountIs("numberofnamedobjects")
 	def NamedObjectNBQ()
@@ -7196,7 +7253,7 @@ class stzObject
 	def NonEmptyLineN()
 		return This._NNLNounCount("numberofnonemptylines")
 	def NonEmptyLineNQ()
-		return new stzNumber(This._NNLNounCount("numberofnonemptylines"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnonemptylines")))
 	def NonEmptyLineNB()
 		return This._NNLCountIs("numberofnonemptylines")
 	def NonEmptyLineNBQ()
@@ -7210,7 +7267,7 @@ class stzObject
 	def NonStzObjectN()
 		return This._NNLNounCount("numberofnonstzobjects")
 	def NonStzObjectNQ()
-		return new stzNumber(This._NNLNounCount("numberofnonstzobjects"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnonstzobjects")))
 	def NonStzObjectNB()
 		return This._NNLCountIs("numberofnonstzobjects")
 	def NonStzObjectNBQ()
@@ -7224,7 +7281,7 @@ class stzObject
 	def NumberN()
 		return This._NNLNounCount("numberofnumbers")
 	def NumberNQ()
-		return new stzNumber(This._NNLNounCount("numberofnumbers"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofnumbers")))
 	def NumberNB()
 		return This._NNLCountIs("numberofnumbers")
 	def NumberNBQ()
@@ -7247,7 +7304,7 @@ class stzObject
 	def ObjectN()
 		return This._NNLNounCount("numberofobjects")
 	def ObjectNQ()
-		return new stzNumber(This._NNLNounCount("numberofobjects"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofobjects")))
 	def ObjectNB()
 		return This._NNLCountIs("numberofobjects")
 	def ObjectNBQ()
@@ -7270,7 +7327,7 @@ class stzObject
 	def PairN()
 		return This._NNLNounCount("numberofpairs")
 	def PairNQ()
-		return new stzNumber(This._NNLNounCount("numberofpairs"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofpairs")))
 	def PairNB()
 		return This._NNLCountIs("numberofpairs")
 	def PairNBQ()
@@ -7293,7 +7350,7 @@ class stzObject
 	def ParagraphN()
 		return This._NNLNounCount("numberofparagraphs")
 	def ParagraphNQ()
-		return new stzNumber(This._NNLNounCount("numberofparagraphs"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofparagraphs")))
 	def ParagraphNB()
 		return This._NNLCountIs("numberofparagraphs")
 	def ParagraphNBQ()
@@ -7316,7 +7373,7 @@ class stzObject
 	def ScriptN()
 		return This._NNLNounCount("numberofscripts")
 	def ScriptNQ()
-		return new stzNumber(This._NNLNounCount("numberofscripts"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofscripts")))
 	def ScriptNB()
 		return This._NNLCountIs("numberofscripts")
 	def ScriptNBQ()
@@ -7339,7 +7396,7 @@ class stzObject
 	def SentenceN()
 		return This._NNLNounCount("numberofsentences")
 	def SentenceNQ()
-		return new stzNumber(This._NNLNounCount("numberofsentences"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsentences")))
 	def SentenceNB()
 		return This._NNLCountIs("numberofsentences")
 	def SentenceNBQ()
@@ -7362,7 +7419,7 @@ class stzObject
 	def SmallestN()
 		return This._NNLNounCount("numberofsmallest")
 	def SmallestNQ()
-		return new stzNumber(This._NNLNounCount("numberofsmallest"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsmallest")))
 	def SmallestNB()
 		return This._NNLCountIs("numberofsmallest")
 	def SmallestNBQ()
@@ -7385,7 +7442,7 @@ class stzObject
 	def StringN()
 		return This._NNLNounCount("numberofstrings")
 	def StringNQ()
-		return new stzNumber(This._NNLNounCount("numberofstrings"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofstrings")))
 	def StringNB()
 		return This._NNLCountIs("numberofstrings")
 	def StringNBQ()
@@ -7408,7 +7465,7 @@ class stzObject
 	def StzObjectN()
 		return This._NNLNounCount("numberofstzobjects")
 	def StzObjectNQ()
-		return new stzNumber(This._NNLNounCount("numberofstzobjects"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofstzobjects")))
 	def StzObjectNB()
 		return This._NNLCountIs("numberofstzobjects")
 	def StzObjectNBQ()
@@ -7422,7 +7479,7 @@ class stzObject
 	def SubStringN()
 		return This._NNLNounCount("numberofsubstrings")
 	def SubStringNQ()
-		return new stzNumber(This._NNLNounCount("numberofsubstrings"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsubstrings")))
 	def SubStringNB()
 		return This._NNLCountIs("numberofsubstrings")
 	def SubStringNBQ()
@@ -7445,7 +7502,7 @@ class stzObject
 	def SubStringsUN()
 		return This._NNLNounCount("numberofsubstringsu")
 	def SubStringsUNQ()
-		return new stzNumber(This._NNLNounCount("numberofsubstringsu"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofsubstringsu")))
 	def SubStringsUNB()
 		return This._NNLCountIs("numberofsubstringsu")
 	def SubStringsUNBQ()
@@ -7468,7 +7525,7 @@ class stzObject
 	def TrailingCharN()
 		return This._NNLNounCount("numberoftrailingchars")
 	def TrailingCharNQ()
-		return new stzNumber(This._NNLNounCount("numberoftrailingchars"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoftrailingchars")))
 	def TrailingCharNB()
 		return This._NNLCountIs("numberoftrailingchars")
 	def TrailingCharNBQ()
@@ -7491,7 +7548,7 @@ class stzObject
 	def TrailingItemN()
 		return This._NNLNounCount("numberoftrailingitems")
 	def TrailingItemNQ()
-		return new stzNumber(This._NNLNounCount("numberoftrailingitems"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberoftrailingitems")))
 	def TrailingItemNB()
 		return This._NNLCountIs("numberoftrailingitems")
 	def TrailingItemNBQ()
@@ -7514,7 +7571,7 @@ class stzObject
 	def UniqueSubStringN()
 		return This._NNLNounCount("numberofuniquesubstrings")
 	def UniqueSubStringNQ()
-		return new stzNumber(This._NNLNounCount("numberofuniquesubstrings"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofuniquesubstrings")))
 	def UniqueSubStringNB()
 		return This._NNLCountIs("numberofuniquesubstrings")
 	def UniqueSubStringNBQ()
@@ -7537,7 +7594,7 @@ class stzObject
 	def UnnamedObjectN()
 		return This._NNLNounCount("numberofunnamedobjects")
 	def UnnamedObjectNQ()
-		return new stzNumber(This._NNLNounCount("numberofunnamedobjects"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofunnamedobjects")))
 	def UnnamedObjectNB()
 		return This._NNLCountIs("numberofunnamedobjects")
 	def UnnamedObjectNBQ()
@@ -7560,7 +7617,7 @@ class stzObject
 	def VowelN()
 		return This._NNLNounCount("numberofvowels")
 	def VowelNQ()
-		return new stzNumber(This._NNLNounCount("numberofvowels"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofvowels")))
 	def VowelNB()
 		return This._NNLCountIs("numberofvowels")
 	def VowelNBQ()
@@ -7583,7 +7640,7 @@ class stzObject
 	def WordN()
 		return This._NNLNounCount("numberofwords")
 	def WordNQ()
-		return new stzNumber(This._NNLNounCount("numberofwords"))
+		return This._NNLCarry(new stzNumber(This._NNLNounCount("numberofwords")))
 	def WordNB()
 		return This._NNLCountIs("numberofwords")
 	def WordNBQ()

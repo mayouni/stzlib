@@ -303,10 +303,19 @@ the core of P3. The phases, restated against what now exists:
 
 ### REMAINING -- the re-scoped phases
 
-- **P2 -- Chain-scoped context.** Unchanged: MainObject/LastValue/the
-  expectation register are still process globals; move them onto the
-  chain (carried by returned objects) with the globals as compatibility
-  shims. Required before NNL is agent-safe under concurrency.
+- **P2 -- Chain-scoped context.** [DONE 2026-07-10] The expectation
+  register (@pNNLExpect/@cNNLExpectMode/@nNNLExpectTol) and the main
+  referent (@oNNLMain) are now ATTRIBUTES of the chain: determiners set
+  the expectation on the object they RETURN (QM determiners set it on
+  the recalled main), devices that build new objects carry the context
+  over (_NNLCarry through IsAXTQ/IsAQ/ALengthQ/ordinals/generated NQ),
+  all 116 *QM recall sites read the chain-local main first
+  (This._NNLMain()), SetMainObject stamps the chain-local main, and the
+  false branch carries it too. The globals survive as fallback shims and
+  the detached console surface. Suite-proven: two interleaved discourses
+  each keep their own referent AND their own expectation
+  (nnl_narrated 37/37). Remaining niche: legacy Q-methods outside the
+  NNL layer that build new objects do not carry (fall back to globals).
 - **P3b -- Widen the derived surface.** Today: countable nouns. Next:
   predicate B-forms for query ops (EqualsB, StartsWithB...), M/QM
   variants generated, and pack-language aka stems accepted by _NNLCall
