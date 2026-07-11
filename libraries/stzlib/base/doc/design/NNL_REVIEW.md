@@ -426,7 +426,7 @@ idiom is a composition.
 | Truth-functional or/nor, both...and | DONE Q3-corrected: fused copulas IsEitherQ/IsNeitherQ coordinate TYPE NOUNS (ANumberQ/AStringQ...); Or-recovery via origin; skip short-circuit; pronouns carry the figure |
 | Negation | DONE Q3-corrected: NO NotQ (un-English) -- negative FORMS (IsNot*/DoesNot*), ANTONYM comparators (DifferentFromQ), and the TAG closer OrNot() |
 | Distributive quantification | DONE Q3b: EachQ/AnyQ/NoneQ figures distribute the next predicate (types AND the NB ellipsis device) with per-item explanations; strings quantify over chars; the collective ALL stays in AreQ (agreement) |
-| Tense/aspect over history (WasQ/EverB) | Q4 (QH exists) |
+| Tense/aspect over history | DONE Q4: WasEver/WasNever/UsedToBe/IsStill peek the QH stream (owned, never another chain's leftovers), explain with the state |
 | Modality (can/must) & evidentiality | frontier (constraints + neural) |
 | Hypothetical contexts (SupposeQ/AssumeQ) | frontier (entity world) |
 
@@ -496,6 +496,15 @@ objectid() is volatile and proves nothing):
   object) -- a birth-time snapshot would dangle after the original
   mutates; pronouns fall back to This on uninterrupted chains and
   re-stamp the live logical figure on what they hand back.
+
+Q4 DONE (2026-07-12): discourse tense over QH + the session
+ask-record (AnswersSoFar/AllYesSoFar/AnyYesSoFar/ClearAnswers -- every
+question frame records its verdict, so a run of questions folds like a
+narration: the agent-gate primitive). WhatQ<->WhatIs converge BY NAME:
+frames ask about VALUES, WhatIs() asks the WORLD -- one interrogative
+family, two knowledge sources; no new syntax invented without the
+author. plan->NNL emission deferred (the generated code is already
+readable method calls; revisit on demand).
 
 Q2 DONE (2026-07-10): the generator emits 2512 devices -- countable-noun
 families, value-agreement B/BQ over every arity-0 query, immutable QC

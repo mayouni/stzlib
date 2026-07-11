@@ -22,6 +22,7 @@
 $cStzExpectMode = :Exactly
 $nStzExpectTol = 0
 $cStzLastWhyB = ""
+$aStzAskAnswers = []   # Q4: the session ask-record (see the funcs below)
 
 func ExpectExactly(n)
 	SetLastValue(n)
@@ -76,3 +77,36 @@ func Why()
 
 	func @Why()
 		return $cStzLastWhyB
+
+# THE SESSION ASK-RECORD (Q4 convergence) -- every question FRAME records
+# its answer here, so a run of questions folds exactly like a narration's
+# interrogative record: several IsQ() gates, then one verdict.
+
+func AnswersSoFar()
+	return $aStzAskAnswers
+
+func AllYesSoFar()
+	_n_ = len($aStzAskAnswers)
+	if _n_ = 0
+		return FALSE
+	ok
+	for _i_ = 1 to _n_
+		_v_ = $aStzAskAnswers[_i_]
+		if isNumber(_v_) and _v_ = 0
+			return FALSE
+		ok
+	next
+	return TRUE
+
+func AnyYesSoFar()
+	_n_ = len($aStzAskAnswers)
+	for _i_ = 1 to _n_
+		_v_ = $aStzAskAnswers[_i_]
+		if NOT ( isNumber(_v_) and _v_ = 0 )
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func ClearAnswers()
+	$aStzAskAnswers = []

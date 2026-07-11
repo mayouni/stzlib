@@ -275,6 +275,36 @@ Scenario("Q2: the widened generated surface -- B-forms, QC-forms, pack stems")
 		Q("ring").IsAQ(:String).IfSo("majuscule").Content(), "RING")
 EndScenario()
 
+Scenario("Q4: discourse tense -- the chain remembers its past")
+	Given("open with QH() and the tense devices answer about TIME; the stream is peeked (History() consumes) and OWNED (another chain's leftovers never leak)")
+
+	oT = QH("ring")
+	oT.UppercaseQ().SpacifyQ()
+	Then("'was it ever uppercase?'", oT.WasEver(:Uppercase), TRUE)
+	Then("...naming the state", Why(), 'yes: state 2 ("RING") was uppercase')
+	Then("'it used to be lowercase' (past yes, now no)",
+		oT.UsedToBe(:Lowercase), TRUE)
+	Then("'it is still uppercase' (past yes, now yes)",
+		oT.IsStill(:Uppercase), TRUE)
+	Then("'it was never a number' (the negative form)",
+		oT.WasNever(:Number), TRUE)
+	Then("no QH, no past -- honestly",
+		Q("plain").WasEver(:Uppercase), FALSE)
+	Then("...", Why(), "no: no history was kept (open the chain with QH)")
+EndScenario()
+
+Scenario("Q4: the session ask-record -- question frames fold like a narration")
+	ClearAnswers()
+	IsQ().TheQ().LengthQ().OfQ("Ring").TheSameAsQ().TheQ().LengthQ().OfQ("Ruby").OrNot()
+	IsQ().TheQ().LengthQ().OfQ("softanza").MoreThanQ().TheQ().LengthQ().Of("Ring")
+	Then("two yes answers on record", @@( AnswersSoFar() ), "[ 1, 1 ]")
+	Then("the gate holds", AllYesSoFar(), TRUE)
+	IsQ().TheQ().LengthQ().OfQ("Ring").MoreThanQ().TheQ().LengthQ().Of("softanza")
+	Then("one no breaks AllYes", AllYesSoFar(), FALSE)
+	Then("AnyYes survives", AnyYesSoFar(), TRUE)
+	ClearAnswers()
+EndScenario()
+
 Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",

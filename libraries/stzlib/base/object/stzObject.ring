@@ -6370,6 +6370,129 @@ class stzObject
 	def AllItemsQ()
 		return This
 
+	# --- Q4: DISCOURSE TENSE over the QH history ----------------------
+	# Open the chain with QH() and the object remembers its states; the
+	# tense devices then answer about TIME, plain-form (they are data):
+	#   WasEver(:Uppercase)   -- some state satisfied the descriptor
+	#   WasNever(:Number)     -- no state ever did (the negative FORM)
+	#   UsedToBe(:Lowercase)  -- held in the PAST, does not hold NOW
+	#   IsStill(:Uppercase)   -- held before and still holds
+	# Descriptors dispatch like IsAXT (@is<X> over the typed state).
+	# The devices PEEK the stream (History() consumes; these do not).
+
+	def _NNLPastStates()
+		# the QH stream is PROCESS-global (History() consumes it to end
+		# a stream); a tense device must not read another chain's
+		# leftovers -- the stream belongs to THIS object only if its
+		# latest state IS this object's current content
+		_aTense_ = _aHisto
+		_nTe_ = len(_aTense_)
+		if _nTe_ = 0
+			return []
+		ok
+		if NOT Q(_aTense_[_nTe_]).IsEqualTo(This.Content())
+			return []
+		ok
+		return _aTense_
+
+	def _NNLStateHolds(pState, pcDesc)
+		_vTense_ = pState
+		eval("_bTh_ = @is" + pcDesc + "(_vTense_)")
+		return _bTh_
+
+	def WasEver(pcDesc)
+		_aPast_ = This._NNLPastStates()
+		_nTe_ = len(_aPast_)
+		if _nTe_ = 0
+			@cNNLWhy = "no: no history was kept (open the chain with QH)"
+			$cStzLastWhyB = @cNNLWhy
+			return 0
+		ok
+		for _i_ = 1 to _nTe_
+			if This._NNLStateHolds(_aPast_[_i_], pcDesc)
+				@cNNLWhy = "yes: state " + _i_ + " (" + @@(_aPast_[_i_]) +
+					") was " + StzLower(pcDesc)
+				$cStzLastWhyB = @cNNLWhy
+				return 1
+			ok
+		next
+		if This._NNLStateHolds(This.Content(), pcDesc)
+			@cNNLWhy = "yes: it is " + StzLower(pcDesc) + " right now"
+			$cStzLastWhyB = @cNNLWhy
+			return 1
+		ok
+		@cNNLWhy = "no: none of the " + _nTe_ + " states was " + StzLower(pcDesc)
+		$cStzLastWhyB = @cNNLWhy
+		return 0
+
+	def WasNever(pcDesc)
+		if This.WasEver(pcDesc) = 1
+			@cNNLWhy = "no: " + @cNNLWhy
+			$cStzLastWhyB = @cNNLWhy
+			return 0
+		ok
+		@cNNLWhy = "yes: " + StzLower("" + pcDesc) + " never held"
+		$cStzLastWhyB = @cNNLWhy
+		return 1
+
+	def UsedToBe(pcDesc)
+		_aPast_ = This._NNLPastStates()
+		_nTe_ = len(_aPast_)
+		if _nTe_ = 0
+			@cNNLWhy = "no: no history was kept (open the chain with QH)"
+			$cStzLastWhyB = @cNNLWhy
+			return 0
+		ok
+		_bPast_ = FALSE
+		for _i_ = 1 to _nTe_ - 1
+			if This._NNLStateHolds(_aPast_[_i_], pcDesc)
+				_bPast_ = TRUE
+				exit
+			ok
+		next
+		_bNow_ = This._NNLStateHolds(This.Content(), pcDesc)
+		if _bPast_ and NOT _bNow_
+			@cNNLWhy = "yes: it was " + StzLower(pcDesc) + " before, not anymore"
+			$cStzLastWhyB = @cNNLWhy
+			return 1
+		ok
+		if NOT _bPast_
+			@cNNLWhy = "no: it never was " + StzLower(pcDesc) + " before now"
+		else
+			@cNNLWhy = "no: it is STILL " + StzLower(pcDesc)
+		ok
+		$cStzLastWhyB = @cNNLWhy
+		return 0
+
+	def IsStill(pcDesc)
+		_aPast_ = This._NNLPastStates()
+		_nTe_ = len(_aPast_)
+		if _nTe_ = 0
+			@cNNLWhy = "no: no history was kept (open the chain with QH)"
+			$cStzLastWhyB = @cNNLWhy
+			return 0
+		ok
+		_bPast_ = FALSE
+		for _i_ = 1 to _nTe_ - 1
+			if This._NNLStateHolds(_aPast_[_i_], pcDesc)
+				_bPast_ = TRUE
+				exit
+			ok
+		next
+		_bNow_ = This._NNLStateHolds(This.Content(), pcDesc)
+		if _bPast_ and _bNow_
+			@cNNLWhy = "yes: it was and still is " + StzLower(pcDesc)
+			$cStzLastWhyB = @cNNLWhy
+			return 1
+		ok
+		if NOT _bPast_
+			@cNNLWhy = "no: it was not " + StzLower(pcDesc) + " before"
+		else
+			@cNNLWhy = "no: it stopped being " + StzLower(pcDesc)
+		ok
+		$cStzLastWhyB = @cNNLWhy
+		return 0
+
 	# the typed-list converters AreQ answers with (decayed remnants --
 	# AreQ referenced them but modularization had dropped them; strings
 	# map to stzStringList, the plural-strings class)
