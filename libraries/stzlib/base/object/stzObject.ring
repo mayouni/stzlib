@@ -6370,6 +6370,43 @@ class stzObject
 	def AllItemsQ()
 		return This
 
+	# --- MODALITY gate: "the value QUALIFIES AS a score" -- validates
+	# the content against the kind's declared constraints; monadic
+	# (AsAQ was unavailable: the As-family owns it)
+
+	def QualifiesAs(pcKind)
+		_cQk_ = StzLower(ring_trim(pcKind))
+		_aQc_ = ConstraintsOn(_cQk_)
+		_nQc_ = len(_aQc_)
+		if _nQc_ = 0
+			@cNNLWhy = "no: nothing is known about being a '" + _cQk_ + "'"
+			$cStzLastWhyB = @cNNLWhy
+			return 0
+		ok
+		_vQv_ = This.Content()
+		if This.StzType() = :stzNumber
+			_vQv_ = This.NumericValue()
+		ok
+		for _i_ = 1 to _nQc_
+			if NOT _StzKindHolds(_vQv_, _aQc_[_i_])
+				@cNNLWhy = "no: " + @@(_vQv_) + " is not " + _aQc_[_i_] +
+					" (constraint " + _i_ + " of '" + _cQk_ + "')"
+				$cStzLastWhyB = @cNNLWhy
+				return 0
+			ok
+		next
+		@cNNLWhy = "yes: it qualifies as a '" + _cQk_ + "'"
+		$cStzLastWhyB = @cNNLWhy
+		return 1
+
+		def QualifiesAsQ(pcKind)
+			if This.QualifiesAs(pcKind) = 1
+				return This
+			ok
+			_oFo_ = AFalseObjectXT(This)
+			_oFo_.SetWhyStopped(@cNNLWhy)
+			return _oFo_
+
 	# --- Q4: DISCOURSE TENSE over the QH history ----------------------
 	# Open the chain with QH() and the object remembers its states; the
 	# tense devices then answer about TIME, plain-form (they are data):

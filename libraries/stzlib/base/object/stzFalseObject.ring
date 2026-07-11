@@ -128,6 +128,13 @@ class stzFalseObject from stzObject
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
 
+	def QualifiesAs(pcKind)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def QualifiesAsQ(pcKind)
+		return This
+
 	def _NNLImmutable(pcMethod, paParams)
 		$cStzLastWhyB = "no: the premise before was already false"
 		return This
