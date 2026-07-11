@@ -112,6 +112,22 @@ class stzFalseObject from stzObject
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
 
+	def WasEver(pcDesc)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def WasNever(pcDesc)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def UsedToBe(pcDesc)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def IsStill(pcDesc)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
 	def _NNLImmutable(pcMethod, paParams)
 		$cStzLastWhyB = "no: the premise before was already false"
 		return This

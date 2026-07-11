@@ -222,6 +222,7 @@ class stzQuestion
 			# a WH-question: the answer IS the missing constituent
 			@cWhy = "answered: " + @@(_vLeft_)
 			$cStzLastWhyB = @cWhy
+			$aStzAskAnswers + _vLeft_
 			return _vLeft_
 		ok
 
@@ -255,8 +256,10 @@ class stzQuestion
 		ok
 		$cStzLastWhyB = @cWhy
 		if _bYes_
+			$aStzAskAnswers + 1
 			return 1
 		ok
+		$aStzAskAnswers + 0
 		return 0
 
 	  #--------------------------------------------------------------#
