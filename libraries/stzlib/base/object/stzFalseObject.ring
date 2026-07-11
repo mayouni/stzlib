@@ -42,6 +42,7 @@ class stzFalse from stzFalseObject
 class stzFalseObject from stzObject
 	@cVarName = :@falseobject
 	@oNNLOrigin = 0
+	@cNNLWhyStopped = "a premise in the chain did not hold"
 
 	def Content()
 		return 0
@@ -62,6 +63,17 @@ class stzFalseObject from stzObject
 
 	def Origin()
 		return @oNNLOrigin
+
+	# the CHAIN-STOPPED explanation (the user-facing debug surface, per
+	# the WhyChainStopped precedent): recorded at the failing check
+	def SetWhyStopped(pcWhy)
+		@cNNLWhyStopped = pcWhy
+
+	def WhyStopped()
+		return @cNNLWhyStopped
+
+		def WhyAnswered()
+			return @cNNLWhyStopped
 
 	# conditional mood on the FALSE branch: IfSo skips, Otherwise recovers
 	def IfSo(pAction)

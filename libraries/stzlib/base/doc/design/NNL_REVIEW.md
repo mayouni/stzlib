@@ -278,11 +278,15 @@ the core of P3. The phases, restated against what now exists:
      About(n)/AboutXT(n,tol) BetweenN(n1,n2)` (+Q/QM forms; global
      Expect* twins). "About" models linguistic VAGUENESS (+/-10% default).
      BetweenN carries the N because stzString owns Between() for text.
-  2. **The accountability register** -- `Why()`: every B/NB comparison
-     (NOT WhyB -- the B suffix is reserved for boolean devices; Why* is
-     the explanation family, per WhyChainStopped's precedent). It
-     records "no: expected atmost 2, found 3". Explain-everything
-     replaced absorb-anything.
+  2. **The accountability surface** -- two scopes, per the archived
+     WhyChainStopped precedent (explanations live ON the chain):
+     chain-local `o.WhyAnswered()` (the last check THIS object answered;
+     interleaved chains never lie to each other) and
+     `oFalse.WhyStopped()` (why the chain stopped -- a live object
+     answers "the chain is not stopped", the archive's politeness);
+     detached `Why()` remains as console/test convenience over the
+     process register. Never WhyB -- the B suffix is reserved for
+     boolean devices. Explain-everything replaced absorb-anything.
   3. **Conditional mood** -- the chain branches on its own truth:
      `Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim)`. The
      false premise now CARRIES its origin (AFalseObjectXT wired into all
