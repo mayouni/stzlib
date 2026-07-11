@@ -136,16 +136,31 @@ class stzFalseObject from stzObject
 	def NorQ()
 		return This
 
-	def NotQ()
-		return This
-
 	def BothQ()
 		return This
 
-	def EitherQ()
+	def IsEitherQ()
+		return This
+
+	def IsNeitherQ()
 		return This
 
 	def NeitherQ()
+		return This
+
+	def ANumberQ()
+		return This
+
+	def AStringQ()
+		return This
+
+	def AListQ()
+		return This
+
+	def AnObjectQ()
+		return This
+
+	def ACharQ()
 		return This
 
 	def StartsWith(p)

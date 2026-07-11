@@ -423,8 +423,8 @@ idiom is a composition.
 | Illocutionary force (questions) | DONE Q1 -- stzQuestion (below) |
 | Comparison of computed constituents | DONE Q1 (same/different/more/less) |
 | Noun phrases as values | DONE Q1 (aspect + genitive slots) |
-| Truth-functional or/nor, both...and | DONE Q3 (Or-recovery via origin; skip-flag short-circuit; neither/nor) |
-| Negation as operator (NotQ) | DONE Q3 (frames negate the claim; chains flip the next comparison) |
+| Truth-functional or/nor, both...and | DONE Q3-corrected: fused copulas IsEitherQ/IsNeitherQ coordinate TYPE NOUNS (ANumberQ/AStringQ...); Or-recovery via origin; skip short-circuit; pronouns carry the figure |
+| Negation | DONE Q3-corrected: NO NotQ (un-English) -- negative FORMS (IsNot*/DoesNot*), ANTONYM comparators (DifferentFromQ), and the TAG closer OrNot() |
 | Distributive quantification (each/all/any/none) | Q3b (W engine) -- next |
 | Tense/aspect over history (WasQ/EverB) | Q4 (QH exists) |
 | Modality (can/must) & evidentiality | frontier (constraints + neural) |
@@ -453,6 +453,33 @@ through the accountable dispatcher (morphology + refusal-with-suggestion
 for free); every answer records Why() ("yes: 4 is the same as 4"); WH
 answers are DATA (values, lists); HowMany prefers the NumberOf twin.
 Suite: question_narrated 13/13.
+
+
+### 9.2 Q3 corrected by the author (grammar over mechanics)
+
+My first Q3 shapes ran but were un-English and were rejected:
+"IsQ()...IsQ().NotQ().TheSameAsQ()" doubles the fronted copula and
+misplaces negation; "EitherQ().IsAQ().OrQ().IsAQ()" is not how English
+coordinates predicates. The corrected inventory:
+
+- TAG QUESTION: IsQ().TheQ().LengthQ().OfQ("Ring").TheSameAsQ().TheQ().
+  LengthQ().OfQ("Ruby").OrNot() -- OrNot() is a plain-form CLOSER (it
+  answers); the tag does not negate.
+- Negation-proper: antonym comparators (DifferentFromQ) and the
+  negative forms family. NotQ was removed everywhere.
+- Disjunction: Q("Ring").IsEitherQ().ANumberQ().OrQ().AStringQ() --
+  the fused copula + TYPE NOUNS; the first disjunct may fail without
+  falsifying; a satisfied disjunction skips the rest (proven by type
+  passthrough).
+- Neither: IsNeitherQ().ANumberQ().NorQ().AListQ(), and the author's
+  inverted variant NeitherQ().IsAQ(:Number).NorQ().ItQ().IsAQ(:List).
+
+RING DISCOVERY forced by the ItQ variant: Ring stores and returns
+OBJECTS BY VALUE -- the stamped subject is a pristine copy, so
+pronouns must CARRY the active logical figure (neither/either/sat/
+skip) onto the copy they return (_NNLSetFigure). The earlier belief
+"objects assign by reference" is false; chain state survives because
+COPIES carry it.
 
 Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3b
 (distributive quantifiers on W), Q4

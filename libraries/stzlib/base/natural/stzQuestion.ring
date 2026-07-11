@@ -59,7 +59,8 @@ class stzQuestion
 	@nSide = 1
 	@bCount1 = 0       # "the number of <noun>" -- count mode per side
 	@bCount2 = 0
-	@bNegate = 0       # NotQ(): "is X NOT the same as Y"
+	@pRightHost = ""   # side-2 host recorded OPEN (for the OrNot tag)
+	@bRightSet = 0
 	@cWhy = ""
 
 	def init(pcForce)
@@ -78,15 +79,12 @@ class stzQuestion
 	def AnQ()
 		return This
 
-	# the copula slot ("Is the length of Ring IS ... " reads as the
-	# mid-sentence 'is' of the comparison) -- position marker only
-	def IsQ()
-		return This
-
-	# negation of the claim: "Is ... NOT the same as ..."
-	def NotQ()
-		@bNegate = 1
-		return This
+	# NO mid-chain IsQ() and NO NotQ() -- both were linguistically wrong
+	# (author's ruling): the sentence-initial IsQ() IS the fronted copula
+	# (subject-aux inversion), so a second one doubles it; and English
+	# negates comparisons with ANTONYM comparators (DifferentFromQ),
+	# predicates with negative FORMS (IsNot*/DoesNot*), and questions
+	# with the TAG ("..., or not?" -> OrNot()).
 
 	# "the NUMBER OF <noun>" as a constituent: count mode for this side
 	def NumberOfQ()
@@ -138,8 +136,14 @@ class stzQuestion
 		ok
 		return This
 
-	# genitive, OPEN form: records the left host, the sentence goes on
+	# genitive, OPEN form: records the current side's host, the
+	# sentence goes on (side 2 stays open for the OrNot tag)
 	def OfQ(pHost)
+		if @nSide = 2
+			@pRightHost = pHost
+			@bRightSet = 1
+			return This
+		ok
 		@pLeftHost = pHost
 		@bLeftSet = 1
 		return This
@@ -164,6 +168,18 @@ class stzQuestion
 		# locative CLOSING form
 		def In(pHost)
 			return This.Of(pHost)
+
+	# the TAG-QUESTION closer: "Is X the same as Y, or not?" -- plain
+	# form (it returns the answer); the tag does not negate, it just
+	# closes the polar question (author's formulation)
+	def OrNot()
+		if @nSide = 2 and @bRightSet = 1
+			return This._Answer(@pRightHost)
+		ok
+		if @bLeftSet = 1
+			return This._Answer("")
+		ok
+		StzRaise("NNL question: nothing to answer yet -- no constituent was given.")
 
 	# copula, CLOSING form: "What the first char of Ring IS"
 	def Is()
@@ -232,16 +248,7 @@ class stzQuestion
 			_cRel_ = "less than"
 		ok
 
-		if @bNegate = 1
-			# the CLAIM is the negated relation; the explanation states
-			# the positive fact either way
-			_bYes_ = NOT _bYes_
-			if _bYes_
-				@cWhy = "yes: " + @@(_vLeft_) + " is not " + _cRel_ + " " + @@(_vRight_)
-			else
-				@cWhy = "no: " + @@(_vLeft_) + " is " + _cRel_ + " " + @@(_vRight_)
-			ok
-		but _bYes_
+		if _bYes_
 			@cWhy = "yes: " + @@(_vLeft_) + " is " + _cRel_ + " " + @@(_vRight_)
 		else
 			@cWhy = "no: " + @@(_vLeft_) + " is not " + _cRel_ + " " + @@(_vRight_)

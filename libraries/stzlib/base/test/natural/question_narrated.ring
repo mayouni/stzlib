@@ -36,41 +36,46 @@ Scenario("The nominal count and the locative preposition (author's addition)")
 	Then("In() closes any frame, like Of()",
 		WhatIsQ().TheQ().FirstCharQ().In("Ring"), "R")
 	Then("'the number of letters' as a COMPARISON constituent",
-		IsQ().TheQ().NumberOfQ().LettersQ().OfQ("Ring").IsQ().
+		IsQ().TheQ().NumberOfQ().LettersQ().OfQ("Ring").
 			TheSameAsQ().TheQ().NumberOfQ().LettersQ().In("Ruby"), 1)
 EndScenario()
 
 Scenario("Polar comparison: two computed constituents, one verdict")
 	Given("the author's canonical question, decomposed per the one-word-one-method law")
 	Then("'Is the length of Ring the same as the length of Ruby?'",
-		IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().
+		IsQ().TheQ().LengthQ().OfQ("Ring").
 			TheSameAsQ().TheQ().LengthQ().Of("Ruby"), 1)
 	Then("...and the answer explains itself",
 		Why(), "yes: 4 is the same as 4")
 
 	Then("'Is the length of softanza more than the length of Ring?'",
-		IsQ().TheQ().LengthQ().OfQ("softanza").IsQ().
+		IsQ().TheQ().LengthQ().OfQ("softanza").
 			MoreThanQ().TheQ().LengthQ().Of("Ring"), 1)
 	Then("'...less than...' answers no honestly",
-		IsQ().TheQ().LengthQ().OfQ("softanza").IsQ().
+		IsQ().TheQ().LengthQ().OfQ("softanza").
 			LessThanQ().TheQ().LengthQ().Of("Ring"), 0)
 	Then("...with the reason", Why(), "no: 8 is not less than 4")
 
 	# DIFFERENT aspects on the two sides
 	Then("'Is the vowel count of Ring different from the word count of hi there?'",
-		IsQ().TheQ().NumberOfVowelsQ().OfQ("Ring").IsQ().
+		IsQ().TheQ().NumberOfVowelsQ().OfQ("Ring").
 			DifferentFromQ().TheQ().NumberOfWordsQ().Of("hi there"), 1)
 EndScenario()
 
-Scenario("Q3: negation on the frame")
-	Then("'Is the length of Ring NOT the same as the length of Ruby?' (both 4)",
-		IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().NotQ().
-			TheSameAsQ().TheQ().LengthQ().Of("Ruby"), 0)
-	Then("...explained by the positive fact", Why(), "no: 4 is the same as 4")
-	Then("negated claim holds when lengths differ",
-		IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().NotQ().
-			TheSameAsQ().TheQ().LengthQ().Of("softanza"), 1)
-	Then("...and says so", Why(), "yes: 4 is not the same as 8")
+Scenario("Q3 corrected: the tag question and the antonym (author's ruling)")
+	Given("English does not say 'is X is not the same as Y' -- negation lives in ANTONYM comparators (DifferentFromQ), negative FORMS, and the TAG '..., or not?' (OrNot, plain because it answers)")
+
+	Then("'Is the length of Ring the same as the length of Ruby, or not?'",
+		IsQ().TheQ().LengthQ().OfQ("Ring").
+			TheSameAsQ().TheQ().LengthQ().OfQ("Ruby").OrNot(), 1)
+	Then("...the tag does not negate; the answer explains",
+		Why(), "yes: 4 is the same as 4")
+	Then("the tag answers no when lengths differ",
+		IsQ().TheQ().LengthQ().OfQ("Ring").
+			TheSameAsQ().TheQ().LengthQ().OfQ("softanza").OrNot(), 0)
+	Then("negation-proper IS the antonym: 'different from'",
+		IsQ().TheQ().LengthQ().OfQ("Ring").
+			DifferentFromQ().TheQ().LengthQ().Of("softanza"), 1)
 EndScenario()
 
 Scenario("The frame is accountable like everything else")

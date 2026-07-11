@@ -1980,10 +1980,13 @@ class stzObject
 	@nNNLExpectTol = 0
 	@oNNLMain = 0
 
-	# Q3 -- negation + truth-functional coordination (one-shot flags)
-	@bNNLNegate = 0    # NotQ(): flip the NEXT comparison
+	# Q3 -- truth-functional coordination (one-shot flags). NO NotQ:
+	# English negates with negative FORMS (IsNot*/DoesNot*), antonym
+	# comparators (DifferentFromQ) and the OrNot tag (author's ruling).
 	@bNNLSkip = 0      # OrQ() on a TRUE branch: skip the next disjunct
-	@bNNLNeither = 0   # NeitherQ()...NorQ(): every disjunct must be false
+	@bNNLNeither = 0   # neither...nor: every disjunct must be false
+	@bNNLEither = 0    # is either...or: first disjunct may fail WITHOUT
+	@bNNLSat = 0       # falsifying; or-recovery/skip close the figure
 
 	@cVarName = :@NoName
 	@cUuid = ""
@@ -3302,9 +3305,13 @@ class stzObject
 
 		def TheirQ()
 		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling)
+		# uninterrupted chain is This itself (markerless anaphora ruling).
+		# Ring object semantics are BY VALUE, so the subject comes back
+		# as a copy: the active logical figure travels with it.
 		if isObject(@oNNLMain)
-			return @oNNLMain
+			_oIt_ = @oNNLMain
+			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
+			return _oIt_
 		ok
 		return This
 
@@ -3332,9 +3339,13 @@ class stzObject
 
 			def ItsQ()
 		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling)
+		# uninterrupted chain is This itself (markerless anaphora ruling).
+		# Ring object semantics are BY VALUE, so the subject comes back
+		# as a copy: the active logical figure travels with it.
 		if isObject(@oNNLMain)
-			return @oNNLMain
+			_oIt_ = @oNNLMain
+			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
+			return _oIt_
 		ok
 		return This
 	
@@ -3468,9 +3479,13 @@ class stzObject
 
 		def ItQ()
 		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling)
+		# uninterrupted chain is This itself (markerless anaphora ruling).
+		# Ring object semantics are BY VALUE, so the subject comes back
+		# as a copy: the active logical figure travels with it.
 		if isObject(@oNNLMain)
-			return @oNNLMain
+			_oIt_ = @oNNLMain
+			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
+			return _oIt_
 		ok
 		return This
 
@@ -5998,11 +6013,6 @@ class stzObject
 			_cExp_ = "between " + _pExp_[1] + " and " + _pExp_[2]
 		ok
 		_cModeTxt_ = lower("" + _cMode_)
-		if @bNNLNegate = 1
-			@bNNLNegate = 0
-			_bYes_ = NOT _bYes_
-			_cModeTxt_ = "not " + _cModeTxt_
-		ok
 		if _bYes_
 			@cNNLWhy = "yes: expected " + _cModeTxt_ + " " +
 				_cExp_ + ", found " + nActual
@@ -6190,26 +6200,95 @@ class stzObject
 	# FALSE: a passing predicate turns the chain false, a failing one
 	# keeps it alive.
 
-	def NotQ()
-		@bNNLNegate = 1
-		return This
-
 	def BothQ()
 		return This
 
-	def EitherQ()
+	# Ring stores/returns objects BY VALUE: the stamped subject is a
+	# pristine copy, so a pronoun must CARRY the active logical figure
+	# (neither/either/sat/skip) onto the copy it hands back
+	def _NNLSetFigure(pbNeither, pbEither, pbSat, pbSkip)
+		@bNNLNeither = pbNeither
+		@bNNLEither = pbEither
+		@bNNLSat = pbSat
+		@bNNLSkip = pbSkip
+
+	# "It IS EITHER a number or a string" -- the fused copula opens the
+	# disjunctive figure: the FIRST disjunct may fail without falsifying
+	def IsEitherQ()
+		@bNNLEither = 1
+		@bNNLSat = 0
 		return This
+
+	# "It IS NEITHER a number nor a list" -- every disjunct must be
+	# false; a holding predicate falsifies the chain
+	def IsNeitherQ()
+		@bNNLNeither = 1
+		return This
+
+		def NeitherQ()
+			@bNNLNeither = 1
+			return This
 
 	def OrQ()
+		if @bNNLEither = 1
+			# inside either...or: skip the next disjunct ONLY when one
+			# already held; otherwise the next disjunct decides
+			@bNNLEither = 0
+			if @bNNLSat = 1
+				@bNNLSkip = 1
+				@bNNLSat = 0
+			ok
+			return This
+		ok
+		# outside the figure: a live object means the premise held --
+		# the disjunction is satisfied, skip the next disjunct
 		@bNNLSkip = 1
-		return This
-
-	def NeitherQ()
-		@bNNLNeither = 1
 		return This
 
 	def NorQ()
 		return This
+
+	# --- the TYPE-NOUN predicates: "a number", "a string"... the words
+	# the disjunctive figures coordinate ("is either A NUMBER or A
+	# STRING"). Outside a figure they behave like IsAQ(type).
+
+	def _NNLTypeNoun(pcType)
+		if @bNNLSkip = 1
+			@bNNLSkip = 0
+			return This
+		ok
+		if @bNNLEither = 1
+			# first disjunct: record, never falsify
+			if This.IsA(pcType) = 1
+				@bNNLSat = 1
+			ok
+			return This
+		ok
+		if @bNNLNeither = 1
+			if This.IsA(pcType) = 1
+				@bNNLNeither = 0
+				_oFo_ = AFalseObjectXT(This)
+				_oFo_.SetWhyStopped("no: the predicate held, but neither/nor required it false")
+				return _oFo_
+			ok
+			return This
+		ok
+		return This.IsAQ(pcType)
+
+	def ANumberQ()
+		return This._NNLTypeNoun(:Number)
+
+	def AStringQ()
+		return This._NNLTypeNoun(:String)
+
+	def AListQ()
+		return This._NNLTypeNoun(:List)
+
+	def AnObjectQ()
+		return This._NNLTypeNoun(:Object)
+
+	def ACharQ()
+		return This._NNLTypeNoun(:Char)
 
 	# --- ORDINAL REFERENCE (new device): "the second word", "the last
 	# vowel" -- definite reference into a plural noun, stzOrdinal wired.

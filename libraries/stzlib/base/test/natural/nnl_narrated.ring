@@ -160,30 +160,28 @@ Scenario("P2: the context lives ON the chain -- agent safety")
 		oe2.WordNB(), FALSE)
 EndScenario()
 
-Scenario("Q3: truth-functional coordination on the monad")
-	Given("OrQ on a FALSE premise recovers the origin (the second disjunct gets its chance); on a TRUE branch it short-circuits; neither...nor demands every disjunct false")
+Scenario("Q3: truth-functional coordination -- the author's formulations")
+	Given("'It is either a number or a string' -- the fused copula IsEitherQ coordinates TYPE NOUNS (ANumberQ/AStringQ...); the first disjunct may fail without falsifying; a satisfied disjunction skips the rest. No NotQ anywhere: negation lives in negative forms, antonyms, and the OrNot tag")
 
-	Then("'is a number OR a string' -- false branch recovers, second decides",
-		classname( Q("Ring").EitherQ().IsAQ(:Number).OrQ().IsAQ(:String) ),
+	Then("'Ring is either a number or a string' -- second disjunct decides",
+		classname( Q("Ring").IsEitherQ().ANumberQ().OrQ().AStringQ() ),
 		"stzstring")
-	Then("false OR false stays false",
-		classname( Q(123).EitherQ().IsAQ(:String).OrQ().IsAQ(:List) ),
+	Then("'123 is either a string or a list' -- both fail, false",
+		classname( Q(123).IsEitherQ().AStringQ().OrQ().AListQ() ),
 		"stzfalseobject")
-	Then("TRUE branch short-circuits: the number passes through UNTOUCHED",
-		classname( Q(123).EitherQ().IsAQ(:Number).OrQ().IsAQ(:String) ),
+	Then("first disjunct holds: the rest is SKIPPED, the number untouched",
+		classname( Q(123).IsEitherQ().ANumberQ().OrQ().AStringQ() ),
 		"stznumber")
 
-	Then("'is neither a number nor a list' holds for a string",
-		classname( Q("Ring").NeitherQ().IsAQ(:Number).NorQ().IsAQ(:List) ),
+	Then("'Ring is neither a number nor a list'",
+		classname( Q("Ring").IsNeitherQ().ANumberQ().NorQ().AListQ() ),
 		"stzstring")
-	Then("...and fails when one predicate holds",
-		classname( Q("Ring").NeitherQ().IsAQ(:String).NorQ().IsAQ(:List) ),
+	Then("the author's variant: '...nor is IT a list' (pronoun carries the figure)",
+		classname( Q("Ring").NeitherQ().IsAQ(:Number).NorQ().ItQ().IsAQ(:List) ),
+		"stzstring")
+	Then("neither fails when one predicate holds",
+		classname( Q("Ring").IsNeitherQ().AStringQ().NorQ().AListQ() ),
 		"stzfalseobject")
-
-	Then("NotQ flips the next comparison: 'has NOT at most 2 vowels'",
-		Q("AnnIE").NotQ().AtMost(2).VowelNB(), TRUE)
-	Then("...with the negated expectation in the reason",
-		Why(), "yes: expected not atmost 2, found 3")
 
 	# the number-typing fix that Q3 exposed, locked forever
 	Then("a number is NOT a string (descriptors test the TYPED value)",
