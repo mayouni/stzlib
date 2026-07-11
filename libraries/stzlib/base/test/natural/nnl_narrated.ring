@@ -189,6 +189,35 @@ Scenario("Q3: truth-functional coordination -- the author's formulations")
 	Then("and IS a number", classname( Q(123).IsAQ(:Number) ), "stznumber")
 EndScenario()
 
+Scenario("Q3b: distributive quantifiers -- each / any / none")
+	Given("the quantifier opens a figure; the NEXT predicate distributes over the items and the fold explains itself per item; singular agreement by design (each IS, none IS) -- the collective plural lives in AreQ")
+
+	Then("'each is a number'",
+		classname( Q([ 1, 2, 3 ]).EachQ().IsAQ(:Number) ), "stzlist")
+	oQf = Q([ 1, "x", 3 ]).EachQ().IsAQ(:Number)
+	Then("...and the failing ITEM is named",
+		oQf.WhyStopped(), 'no: item 2 ("x") does not hold, and each must')
+	Then("'any of them is a number'",
+		classname( Q([ "a", 5, "b" ]).AnyQ().IsAQ(:Number) ), "stzlist")
+	Then("'none is a number'",
+		classname( Q([ "a", "b" ]).NoneQ().IsAQ(:Number) ), "stzlist")
+	Then("...and a holding item breaks none",
+		Q([ "a", 7 ]).NoneQ().IsAQ(:Number).WhyStopped(),
+		"no: item 2 (7) holds, and none may")
+
+	Then("'each has at least 2 vowels' (the ellipsis device distributes)",
+		Q([ "AnnIE", "aeiou" ]).EachQ().AtLeast(2).VowelNB(), TRUE)
+	Then("...failure names the item AND the expectation",
+		Q([ "AnnIE", "sky" ]).EachQ().AtLeast(2).VowelNB(), FALSE)
+	Then("...", Why(),
+		'no: item 2 ("sky") fails -- no: expected atleast 2, found 0')
+	Then("'any has at least 3 vowels'",
+		Q([ "sky", "AnnIE" ]).AnyQ().AtLeast(3).VowelNB(), TRUE)
+
+	Then("a string is a plural of its chars: 'each is a vowel'",
+		classname( Q("aeiou").EachQ().IsAQ([ :Vowel ]) ), "stzstring")
+EndScenario()
+
 Scenario("The aliasing doctrine and QC() -- chain on a clone")
 	Given("never alias stz objects with = (copies share the engine handle); QC completes the Q/QC/QH trio: chain on a clone, the original untouched")
 	oQc = new stzString("ring")
