@@ -400,3 +400,61 @@ the core of P3. The phases, restated against what now exists:
   the neural tier's scores), and discourse tense over QH history
   ("was it ever uppercase?" -- SoFarQ/EverB over the object's kept
   history).
+
+## 9. The Coverage Map -- Toward Any Natural-Language Expression
+
+The author's question (2026-07-10): what constructs cover, theoretically,
+ANY natural-language expression? Typology's answer: a finite inventory --
+a predicate-argument core wrapped in operator layers (negation, modality,
+aspect, tense), given an ILLOCUTIONARY FORCE, combined by coordination /
+subordination / comparison / quantification, over a discourse layer
+(reference, ellipsis, information structure). Cover the systems and every
+idiom is a composition.
+
+| Linguistic system | Status |
+|---|---|
+| Predicate + arguments | DONE (methods + params) |
+| Reference & anaphora | DONE (markerless subject, attachment, pronouns) |
+| Determiners & degree (+vagueness) | DONE |
+| Agreement / relatives / flow-and | DONE |
+| Ellipsis | DONE (expectation register + NB) |
+| Conditional mood | DONE (IfSo/Otherwise) |
+| Voice | DONE (forms grammar) |
+| Illocutionary force (questions) | DONE Q1 -- stzQuestion (below) |
+| Comparison of computed constituents | DONE Q1 (same/different/more/less) |
+| Noun phrases as values | DONE Q1 (aspect + genitive slots) |
+| Truth-functional or/nor, both...and | Q3 |
+| Negation as operator (NotQ) | Q3 |
+| Distributive quantification (each/all/any/none) | Q3 (W engine) |
+| Tense/aspect over history (WasQ/EverB) | Q4 (QH exists) |
+| Modality (can/must) & evidentiality | frontier (constraints + neural) |
+| Hypothetical contexts (SupposeQ/AssumeQ) | frontier (entity world) |
+
+### 9.1 Q1 -- stzQuestion, DONE 2026-07-10
+
+The author's design, two LAWS enforced:
+- **Decomposition: one word = one method.** TheQ() stands alone; nouns
+  are GENERATED from the lexicon (1063 on the frame: every arity-0 query
+  + every NumberOf* counter). Particles compose with nouns -- never fused
+  (TheLengthQ-style fusion is the alias explosion reborn).
+- **The plain form closes.** Q chains, no-Q answers -- the house
+  Q-convention applied to interrogation. Two grammatical orderings, two
+  closers:
+
+      WhatIsQ().TheQ().FirstCharQ().Of("Ring")          --> "R"
+      WhatQ().TheQ().FirstCharQ().OfQ("Ring").Is()      --> "R"
+      IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().
+          TheSameAsQ().TheQ().LengthQ().Of("Ruby")      --> 1
+      HowManyQ().VowelsQ().Of("Ring")                   --> 1
+
+The frame (natural/stzQuestion.ring) is a slot-filling machine, NOT an
+stzObject descendant (it records, it must not execute); aspects compute
+through the accountable dispatcher (morphology + refusal-with-suggestion
+for free); every answer records Why() ("yes: 4 is the same as 4"); WH
+answers are DATA (values, lists); HowMany prefers the NumberOf twin.
+Suite: question_narrated 13/13.
+
+Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3
+(negation + truth-functional coordination + distributives), Q4
+(convergence: frame answers into Answers()/AllYes, WhatQ meets WhatIs,
+history tense, plan<->NNL).
