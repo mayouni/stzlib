@@ -50,6 +50,11 @@ func MainObject() # Used in Chains of truth
 
 func SetMainObject(_obj_)
 	_oMainObject = _obj_
+	# P2: stamp the chain-local main too, so the referent travels ON the
+	# chain (stz objects only; foreign objects keep the global-only path)
+	if isObject(_obj_) and StzFindFirst(ring_methods(_obj_), "setnnlmain") > 0
+		_obj_.SetNNLMain(_obj_)
+	ok
 
 func LastValue()
 	return _LastValue
