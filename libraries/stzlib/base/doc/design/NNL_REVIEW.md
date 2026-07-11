@@ -474,12 +474,28 @@ coordinates predicates. The corrected inventory:
 - Neither: IsNeitherQ().ANumberQ().NorQ().AListQ(), and the author's
   inverted variant NeitherQ().IsAQ(:Number).NorQ().ItQ().IsAQ(:List).
 
-RING DISCOVERY forced by the ItQ variant: Ring stores and returns
-OBJECTS BY VALUE -- the stamped subject is a pristine copy, so
-pronouns must CARRY the active logical figure (neither/either/sat/
-skip) onto the copy they return (_NNLSetFigure). The earlier belief
-"objects assign by reference" is false; chain state survives because
-COPIES carry it.
+CORRECTED BY THE AUTHOR -- THE ALIASING DOCTRINE (mutation-probed;
+objectid() is volatile and proves nothing):
+
+- Ring semantics: numbers/strings COPY; lists and objects pass BY
+  REFERENCE into functions, but the `=` ASSIGNMENT (including
+  attribute store) COPIES.
+- The engine corollary: a copied stz object SHARES its engine handle;
+  after the younger copy mutates, the ELDER's content view DANGLES
+  (reads empty). Therefore: NEVER alias stz objects with `=` -- clone
+  through content with QC()/Copy().
+- The chain is built of objects RETURNED BY SOFTANZA CODE (This or a
+  deliberate new object): its semantics belong to the library, never
+  to raw Ring aliasing.
+- Consequences implemented: the global QC() now exists (the missing
+  member of the MACROPLAN trio "Q() chaining, QC() clone, QH()
+  history") -- chain on a clone, original untouched, for values AND
+  stz objects; the reflect layer already tags the ...QC method suffix
+  as the immutable form, to be emitted by the generator in P3b.
+  Subject stamping became LAZY (at interruption, from the live
+  object) -- a birth-time snapshot would dangle after the original
+  mutates; pronouns fall back to This on uninterrupted chains and
+  re-stamp the live logical figure on what they hand back.
 
 Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3b
 (distributive quantifiers on W), Q4

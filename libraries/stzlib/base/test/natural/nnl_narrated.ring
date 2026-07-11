@@ -189,6 +189,23 @@ Scenario("Q3: truth-functional coordination -- the author's formulations")
 	Then("and IS a number", classname( Q(123).IsAQ(:Number) ), "stznumber")
 EndScenario()
 
+Scenario("The aliasing doctrine and QC() -- chain on a clone")
+	Given("never alias stz objects with = (copies share the engine handle); QC completes the Q/QC/QH trio: chain on a clone, the original untouched")
+	oQc = new stzString("ring")
+	Then("QC(obj) chains on a CLONE", QC(oQc).UppercaseQ().Content(), "RING")
+	Then("...and the original is untouched", oQc.Content(), "ring")
+	aQc = [ 1, 2, 2 ]
+	Then("QC(list) protects the caller's list",
+		@@( QC(aQc).RemoveDuplicatesQ().Content() ), "[ 1, 2 ]")
+	Then("...which still holds its duplicates", @@( aQc ), "[ 1, 2, 2 ]")
+
+	# lazy subject stamping: no birth snapshot to dangle
+	oLz = Q("ring")
+	oLz.Uppercase()
+	Then("mutate THEN interrupt: attachment sees the LIVE subject",
+		oLz.ALengthQ().OnlyQ(1).VowelNB(), TRUE)
+EndScenario()
+
 Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",
