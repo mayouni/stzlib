@@ -6501,14 +6501,19 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
-	# CHAIN-LOCAL explanations, per the stzChainOfValue precedent
-	# (WhyChainStopped / WhyCodeNotYetExecuted): the reason lives ON the
-	# object that answered, with an explicit event name -- never on a
-	# process global (two interleaved chains would lie to each other).
+	# CHAIN-LOCAL explanations, in the stzChainOfValue naming grammar
+	# (WhyChainStopped / WhyCodeNotYetExecuted): Why + subject + past
+	# verb, always about something NOT proceeding; the reason lives ON
+	# the object -- never on a process global (two interleaved chains
+	# would lie to each other). Successes are not explained -- the
+	# archive never explained them either.
 
-	def WhyAnswered()
+	def WhyCheckFailed()
 		if @cNNLWhy = ""
-			return "no check has been answered on this object yet"
+			return "no check has been made on this object yet"
+		ok
+		if StzLeft(@cNNLWhy, 4) = "yes:"
+			return "the last check did not fail"
 		ok
 		return @cNNLWhy
 

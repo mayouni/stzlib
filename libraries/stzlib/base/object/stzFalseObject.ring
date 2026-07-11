@@ -72,7 +72,7 @@ class stzFalseObject from stzObject
 	def WhyStopped()
 		return @cNNLWhyStopped
 
-		def WhyAnswered()
+		def WhyCheckFailed()
 			return @cNNLWhyStopped
 
 	# conditional mood on the FALSE branch: IfSo skips, Otherwise recovers

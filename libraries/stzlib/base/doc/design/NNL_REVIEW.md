@@ -280,7 +280,7 @@ the core of P3. The phases, restated against what now exists:
      BetweenN carries the N because stzString owns Between() for text.
   2. **The accountability surface** -- two scopes, per the archived
      WhyChainStopped precedent (explanations live ON the chain):
-     chain-local `o.WhyAnswered()` (the last check THIS object answered;
+     chain-local `o.WhyCheckFailed()` (the last failing check on THIS object;
      interleaved chains never lie to each other) and
      `oFalse.WhyStopped()` (why the chain stopped -- a live object
      answers "the chain is not stopped", the archive's politeness);
