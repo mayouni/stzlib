@@ -10,6 +10,14 @@ func StzFalseObjectQ()
 	func AFalseObject()
 		return new stzFalseObject
 
+	# NNL 2.0: a false premise CARRIES the object it judged, so the
+	# conditional mood can recover it -- .Otherwise(:Trim) runs on the
+	# origin and hands the live chain back.
+	func AFalseObjectXT(poOrigin)
+		_oFo_ = new stzFalseObject
+		_oFo_.SetOrigin(poOrigin)
+		return _oFo_
+
 	func FalseObject()
 		return new stzFalseObject
 
@@ -33,6 +41,7 @@ class stzFalse from stzFalseObject
 
 class stzFalseObject from stzObject
 	@cVarName = :@falseobject
+	@oNNLOrigin = 0
 
 	def Content()
 		return 0
@@ -42,6 +51,53 @@ class stzFalseObject from stzObject
 
 	def StzType()
 		return :stzFalseObject
+
+	#-- NNL 2.0 (see doc/design/NNL_REVIEW.md) -----------------------------
+	# The false premise as a DISCOURSE object: it remembers what it judged
+	# (origin), it absorbs every counting/comparison device with an honest
+	# explanation, and it powers the CONDITIONAL MOOD.
+
+	def SetOrigin(poObj)
+		@oNNLOrigin = poObj
+
+	def Origin()
+		return @oNNLOrigin
+
+	# conditional mood on the FALSE branch: IfSo skips, Otherwise recovers
+	def IfSo(pAction)
+		return This
+
+		def IfSoQ(pAction)
+			return This
+
+	def Otherwise(pAction)
+		if isObject(@oNNLOrigin)
+			@oNNLOrigin._NNLDo(pAction)
+			return @oNNLOrigin
+		ok
+		return This
+
+		def OtherwiseQ(pAction)
+			return This.Otherwise(pAction)
+
+	# every NNL counting/comparison device answers 0 through here, and
+	# says why -- the monad absorbs the SURFACE without hiding the truth
+	def _NNLNounCount(pcMethod)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def _NNLCountIs(pcMethod)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def _NNLValueIs(pcMethod)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def _NNLExpectCompare(nActual)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+	#-----------------------------------------------------------------------
 
 	#-- Fluent boolean short-circuit: every check stays FALSE; AndQ/OrQ keep the
 	#-- chain going (so StartsWithXTQ(a).AndQ().EndsWithXT(b) is FALSE when a fails).

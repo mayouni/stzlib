@@ -2614,7 +2614,7 @@ class stzObject
 		
 				ok
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		#-- @FunctionAlternativeForm
@@ -2692,7 +2692,7 @@ class stzObject
 				ok
 
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		def IsAQM(pcType)
@@ -2866,7 +2866,7 @@ class stzObject
 					return This
 				ok
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		def IsQM(pcType)
@@ -2927,7 +2927,7 @@ class stzObject
 					return This.ToStzListOfObjects()
 				ok
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		def AreQM(pcType)
@@ -2969,7 +2969,7 @@ class stzObject
 	def AreBothA(pcType)
 
 		if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
-			return AFalseObject()
+			return AFalseObjectXT(This)
 		ok
 
 		_item1_ = This.Content()[1]
@@ -2988,7 +2988,7 @@ class stzObject
 		def AreBothAQ(pcType)
 
 			if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 	
 			_item1_ = This.Content()[1]
@@ -3254,7 +3254,7 @@ class stzObject
 	def WhichAreBoth()
 		_aContent_ = This.Content()
 		if NOT (isList(_aList_) and len(_aList_) = 2)
-			return AFalseObject()
+			return AFalseObjectXT(This)
 		ok
 
 		return This
@@ -4058,7 +4058,7 @@ class stzObject
 			if This.IsEqualToCS(_n_, pCaseSensitive)
 				return This
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		def OfCSQM(_n_, pCaseSensitive)
@@ -4155,7 +4155,7 @@ class stzObject
 			if This.OfCSB(_n_, pCaseSensitive) = 1
 				return This
 			else
-				return AFalseObject()
+				return AFalseObjectXT(This)
 			ok
 
 		def OfCSBQM(_n_, pCaseSensitive)
@@ -6361,3 +6361,1069 @@ class stzObject
 
 		def Inn(paList)
 			return This.ExistsIn(paList)
+
+
+	  #================================================================#
+	 #  NNL 2.0 -- THE NEAR-NATURAL LANGUAGE DEVICE LAYER (RENOVATED)  #
+	#================================================================#
+	# doc/design/NNL_REVIEW.md is the contract. Hand-written here: the
+	# accountable mini-dispatcher, the expectation comparator, the grammar
+	# particles that were missing, the COMPARATIVE determiners, the
+	# CONDITIONAL MOOD, and ORDINAL REFERENCE. The noun surface
+	# (VowelN / VowelNB / VowelsB / ...) is GENERATED from the semantic
+	# lexicon between the <nnl-generated-surface> markers further down.
+
+	# --- the accountable dynamic call (the seed of the P3 dispatcher):
+	# exact method -> call; else resolve the stem through the ONE lexicon
+	# (morphology included); else REFUSE with a suggestion. Silent
+	# absorb-anything typo tolerance is gone by design.
+
+	def _NNLCall(pcMethod, paParams)
+		_cM_ = StzLower(ring_trim(pcMethod))
+		if StzFindFirst(ring_methods(This), _cM_) = 0
+			_cId_ = StzResolveSemantic(_cM_)
+			_bGot_ = FALSE
+			if _cId_ != ""
+				_nOps_ = ring_len($aSemanticOperations)
+				for _i_ = 1 to _nOps_
+					if $aSemanticOperations[_i_][:semantic_id] = _cId_ and
+					   HasKey($aSemanticOperations[_i_], :stz_method)
+						_cCand_ = lower($aSemanticOperations[_i_][:stz_method])
+						if StzFindFirst(ring_methods(This), _cCand_) > 0
+							_cM_ = _cCand_
+							_bGot_ = TRUE
+						ok
+						exit
+					ok
+				next
+			ok
+			if NOT _bGot_
+				_cSugg_ = StzSuggestWord("en", pcMethod)
+				_cMsg_ = "NNL: this " + This.StzType() + " does not understand '" + pcMethod + "'."
+				if _cSugg_ != ""
+					_cMsg_ += " Did you mean '" + _cSugg_ + "'?"
+				ok
+				StzRaise(_cMsg_)
+			ok
+		ok
+		_cCode_ = "_vNNL_ = This." + _cM_ + "("
+		_nP_ = ring_len(paParams)
+		for _i_ = 1 to _nP_
+			_cCode_ += @@(paParams[_i_])
+			if _i_ < _nP_
+				_cCode_ += ", "
+			ok
+		next
+		_cCode_ += ")"
+		eval(_cCode_)
+		return _vNNL_
+
+	# run one ACTION given naturally: :Uppercase, "remove duplicates",
+	# or [ :Replace, "a", "b" ] -- the conditional mood's executor
+	def _NNLDo(pAction)
+		if isString(pAction)
+			return This._NNLCall(pAction, [])
+		but isList(pAction) and ring_len(pAction) > 0 and isString(pAction[1])
+			_aPrm_ = []
+			_nA_ = ring_len(pAction)
+			for _i_ = 2 to _nA_
+				_aPrm_ + pAction[_i_]
+			next
+			return This._NNLCall(pAction[1], _aPrm_)
+		ok
+		StzRaise("NNL: an action must be a name or [ name, params... ].")
+
+	# --- counting through a noun (guarded, accountable)
+
+	def _NNLNounCount(pcMethod)
+		if StzFindFirst(ring_methods(This), StzLower(pcMethod)) = 0
+			StzRaise("NNL: a " + This.StzType() + " cannot count '" +
+				StzLower(pcMethod) + "' -- no such aspect on this object.")
+		ok
+		eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
+		return _nNNL_
+
+	# --- the expectation comparator: compares an actual count to the
+	# expectation register per the active COMPARATIVE MODE, and records
+	# its explanation (WhyB) -- the ellipsis device, generalized
+
+	def _NNLExpectCompare(nActual)
+		_pExp_ = LastValue()
+		_cMode_ = $cStzExpectMode
+		_bYes_ = FALSE
+		_cExp_ = @@(_pExp_)
+		if _cMode_ = :Exactly
+			_bYes_ = ( nActual = _pExp_ )
+		but _cMode_ = :AtLeast
+			_bYes_ = ( nActual >= _pExp_ )
+		but _cMode_ = :AtMost
+			_bYes_ = ( nActual <= _pExp_ )
+		but _cMode_ = :MoreThan
+			_bYes_ = ( nActual > _pExp_ )
+		but _cMode_ = :LessThan
+			_bYes_ = ( nActual < _pExp_ )
+		but _cMode_ = :About
+			_nTol_ = $nStzExpectTol
+			if _nTol_ < 1
+				_nTol_ = _pExp_ * _nTol_
+			ok
+			_bYes_ = ( nActual >= (_pExp_ - _nTol_) and nActual <= (_pExp_ + _nTol_) )
+		but _cMode_ = :Between
+			_bYes_ = ( nActual >= _pExp_[1] and nActual <= _pExp_[2] )
+			_cExp_ = "between " + _pExp_[1] + " and " + _pExp_[2]
+		ok
+		if _bYes_
+			$cStzLastWhyB = "yes: expected " + lower("" + _cMode_) + " " +
+				_cExp_ + ", found " + nActual
+			return 1
+		ok
+		$cStzLastWhyB = "no: expected " + lower("" + _cMode_) + " " +
+			_cExp_ + ", found " + nActual
+		return 0
+
+	def _NNLCountIs(pcMethod)
+		return This._NNLExpectCompare(This._NNLNounCount(pcMethod))
+
+	# --- value agreement: the RESULT of a noun equals the remembered value
+	def _NNLValueIs(pcMethod)
+		_vNNL_ = This._NNLCall(pcMethod, [])
+		if Q(_vNNL_).IsEqualTo(LastValue())
+			$cStzLastWhyB = "yes: " + StzLower(pcMethod) + " equals the expected value"
+			return 1
+		ok
+		$cStzLastWhyB = "no: " + StzLower(pcMethod) + " is " + @@(_vNNL_) +
+			", expected " + @@(LastValue())
+		return 0
+
+	def WhyB()
+		return $cStzLastWhyB
+
+	# --- grammar particles that were missing (pure pass-throughs)
+
+	def AnQ()
+		return This
+
+	def AlsoQ()
+		return This
+
+	def UnitQ(pUnit)
+		# unit annotation: ...ALengthQ().OfQ(4).UnitQ(:Letters) -- says
+		# WHAT the 4 counts; semantically inert, linguistically load-
+		# bearing. (A method named Q() would shadow the global Q() for
+		# every child class -- the documented ring_len() trap -- hence UnitQ.)
+		return This
+
+	# --- the article device, generic: "a length" of ANY object
+
+	def ALengthN()
+		if StzFindFirst(ring_methods(This), "numberofchars") > 0
+			return This.NumberOfChars()
+		but StzFindFirst(ring_methods(This), "numberofitems") > 0
+			return This.NumberOfItems()
+		but StzFindFirst(ring_methods(This), "numberofdigits") > 0
+			return This.NumberOfDigits()
+		ok
+		StzRaise("NNL: a " + This.StzType() + " has no length to speak of.")
+
+		def ALength()
+			return This.ALengthN()
+
+		def ALengthQ()
+			return new stzNumber(This.ALengthN())
+
+		def ALengthNB()
+			return This._NNLExpectCompare(This.ALengthN())
+
+	# --- COMPARATIVE DETERMINERS (new devices): degree words for the
+	# expectation register. Only() said "exactly"; language also says
+	# "at least", "at most", "more than", "about" (vagueness!), and
+	# "between". Each returns This (chain on) or MainObject (QM recall).
+
+	def Exactly(n)
+		SetLastValue(n)
+		$cStzExpectMode = :Exactly
+		return This
+
+		def ExactlyQ(n)
+			return This.Exactly(n)
+
+		def ExactlyQM(n)
+			This.Exactly(n)
+			return MainObject()
+
+	def AtLeast(n)
+		SetLastValue(n)
+		$cStzExpectMode = :AtLeast
+		return This
+
+		def AtLeastQ(n)
+			return This.AtLeast(n)
+
+		def AtLeastQM(n)
+			This.AtLeast(n)
+			return MainObject()
+
+	def AtMost(n)
+		SetLastValue(n)
+		$cStzExpectMode = :AtMost
+		return This
+
+		def AtMostQ(n)
+			return This.AtMost(n)
+
+		def AtMostQM(n)
+			This.AtMost(n)
+			return MainObject()
+
+	def MoreThan(n)
+		SetLastValue(n)
+		$cStzExpectMode = :MoreThan
+		return This
+
+		def MoreThanQ(n)
+			return This.MoreThan(n)
+
+		def MoreThanQM(n)
+			This.MoreThan(n)
+			return MainObject()
+
+	def LessThan(n)
+		SetLastValue(n)
+		$cStzExpectMode = :LessThan
+		return This
+
+		def LessThanQ(n)
+			return This.LessThan(n)
+
+		def LessThanQM(n)
+			This.LessThan(n)
+			return MainObject()
+
+	def About(n)
+		SetLastValue(n)
+		$cStzExpectMode = :About
+		$nStzExpectTol = 0.1
+		return This
+
+		def AboutQ(n)
+			return This.About(n)
+
+		def AboutQM(n)
+			This.About(n)
+			return MainObject()
+
+		def AboutXT(n, nTol)
+			SetLastValue(n)
+			$cStzExpectMode = :About
+			$nStzExpectTol = nTol
+			return This
+
+	# named BetweenN (not Between) -- stzString owns Between(sub1, sub2)
+	# for text extraction; the N marks the NUMBER expectation
+	def BetweenN(n1, n2)
+		SetLastValue([ n1, n2 ])
+		$cStzExpectMode = :Between
+		return This
+
+		def BetweenNQ(n1, n2)
+			return This.BetweenN(n1, n2)
+
+		def BetweenNQM(n1, n2)
+			This.BetweenN(n1, n2)
+			return MainObject()
+
+	# --- CONDITIONAL MOOD (new device): the chain branches on its own
+	# truth. On a live object the premise held: IfSo RUNS, Otherwise
+	# skips. On a false premise (stzFalseObject) IfSo skips and
+	# Otherwise recovers the origin object and runs on it.
+	#   Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim)
+
+	def IfSo(pAction)
+		This._NNLDo(pAction)
+		return This
+
+		def IfSoQ(pAction)
+			return This.IfSo(pAction)
+
+	def Otherwise(pAction)
+		return This
+
+		def OtherwiseQ(pAction)
+			return This
+
+	# --- ORDINAL REFERENCE (new device): "the second word", "the last
+	# vowel" -- definite reference into a plural noun, stzOrdinal wired.
+
+	def TheNth(n, pcNoun)
+		_aNNL_ = This._NNLCall(pcNoun, [])
+		if isList(_aNNL_) and n >= 1 and n <= ring_len(_aNNL_)
+			return _aNNL_[n]
+		ok
+		StzRaise("NNL: there is no " + Ordinal(n) + " " +
+			StzLower("" + pcNoun) + " here.")
+
+		def TheNthQ(n, pcNoun)
+			return Q(This.TheNth(n, pcNoun))
+
+	def TheFirst(pcNoun)
+		return This.TheNth(1, pcNoun)
+
+		def TheFirstQ(pcNoun)
+			return Q(This.TheFirst(pcNoun))
+
+	def TheLast(pcNoun)
+		_aNNL_ = This._NNLCall(pcNoun, [])
+		if isList(_aNNL_) and ring_len(_aNNL_) > 0
+			return _aNNL_[ring_len(_aNNL_)]
+		ok
+		StzRaise("NNL: there is no last " + StzLower("" + pcNoun) + " here.")
+
+		def TheLastQ(pcNoun)
+			return Q(This.TheLast(pcNoun))
+
+	# <nnl-generated-surface>
+	# GENERATED from the semantic lexicon (scripts: scratchpad gen_nnl_surface.py;
+	# see doc/design/NNL_REVIEW.md). One entry per countable noun the library
+	# knows: <Noun>N (count), <Noun>NQ, <Noun>NB (count vs the expectation
+	# register), <Noun>NBQ (monadic), and where the plural op exists <Nouns>B /
+	# <Nouns>BQ (value agreement). All delegate to the hand-written engine
+	# above; a child class overriding any name wins automatically. Do not
+	# edit by hand -- regenerate.
+
+	def ByteN()
+		return This._NNLNounCount("numberofbytes")
+	def ByteNQ()
+		return new stzNumber(This._NNLNounCount("numberofbytes"))
+	def ByteNB()
+		return This._NNLCountIs("numberofbytes")
+	def ByteNBQ()
+		if This._NNLCountIs("numberofbytes") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def BytesB()
+		return This._NNLValueIs("bytes")
+	def BytesBQ()
+		if This._NNLValueIs("bytes") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def CharN()
+		return This._NNLNounCount("numberofchars")
+	def CharNQ()
+		return new stzNumber(This._NNLNounCount("numberofchars"))
+	def CharNB()
+		return This._NNLCountIs("numberofchars")
+	def CharNBQ()
+		if This._NNLCountIs("numberofchars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def CharsB()
+		return This._NNLValueIs("chars")
+	def CharsBQ()
+		if This._NNLValueIs("chars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ClassN()
+		return This._NNLNounCount("numberofclasses")
+	def ClassNQ()
+		return new stzNumber(This._NNLNounCount("numberofclasses"))
+	def ClassNB()
+		return This._NNLCountIs("numberofclasses")
+	def ClassNBQ()
+		if This._NNLCountIs("numberofclasses") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ClassesB()
+		return This._NNLValueIs("classes")
+	def ClassesBQ()
+		if This._NNLValueIs("classes") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def DecimalN()
+		return This._NNLNounCount("numberofdecimals")
+	def DecimalNQ()
+		return new stzNumber(This._NNLNounCount("numberofdecimals"))
+	def DecimalNB()
+		return This._NNLCountIs("numberofdecimals")
+	def DecimalNBQ()
+		if This._NNLCountIs("numberofdecimals") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def DecimalsB()
+		return This._NNLValueIs("decimals")
+	def DecimalsBQ()
+		if This._NNLValueIs("decimals") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def DigitN()
+		return This._NNLNounCount("numberofdigits")
+	def DigitNQ()
+		return new stzNumber(This._NNLNounCount("numberofdigits"))
+	def DigitNB()
+		return This._NNLCountIs("numberofdigits")
+	def DigitNBQ()
+		if This._NNLCountIs("numberofdigits") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def DigitsB()
+		return This._NNLValueIs("digits")
+	def DigitsBQ()
+		if This._NNLValueIs("digits") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def DuplicatedItemN()
+		return This._NNLNounCount("numberofduplicateditems")
+	def DuplicatedItemNQ()
+		return new stzNumber(This._NNLNounCount("numberofduplicateditems"))
+	def DuplicatedItemNB()
+		return This._NNLCountIs("numberofduplicateditems")
+	def DuplicatedItemNBQ()
+		if This._NNLCountIs("numberofduplicateditems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def DuplicatedItemsB()
+		return This._NNLValueIs("duplicateditems")
+	def DuplicatedItemsBQ()
+		if This._NNLValueIs("duplicateditems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def DuplicateN()
+		return This._NNLNounCount("numberofduplicates")
+	def DuplicateNQ()
+		return new stzNumber(This._NNLNounCount("numberofduplicates"))
+	def DuplicateNB()
+		return This._NNLCountIs("numberofduplicates")
+	def DuplicateNBQ()
+		if This._NNLCountIs("numberofduplicates") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def DuplicatesB()
+		return This._NNLValueIs("duplicates")
+	def DuplicatesBQ()
+		if This._NNLValueIs("duplicates") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def DuplicationN()
+		return This._NNLNounCount("numberofduplications")
+	def DuplicationNQ()
+		return new stzNumber(This._NNLNounCount("numberofduplications"))
+	def DuplicationNB()
+		return This._NNLCountIs("numberofduplications")
+	def DuplicationNBQ()
+		if This._NNLCountIs("numberofduplications") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def DuplicationsB()
+		return This._NNLValueIs("duplications")
+	def DuplicationsBQ()
+		if This._NNLValueIs("duplications") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def EmptyLineN()
+		return This._NNLNounCount("numberofemptylines")
+	def EmptyLineNQ()
+		return new stzNumber(This._NNLNounCount("numberofemptylines"))
+	def EmptyLineNB()
+		return This._NNLCountIs("numberofemptylines")
+	def EmptyLineNBQ()
+		if This._NNLCountIs("numberofemptylines") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def IntegerN()
+		return This._NNLNounCount("numberofintegers")
+	def IntegerNQ()
+		return new stzNumber(This._NNLNounCount("numberofintegers"))
+	def IntegerNB()
+		return This._NNLCountIs("numberofintegers")
+	def IntegerNBQ()
+		if This._NNLCountIs("numberofintegers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def IntegersB()
+		return This._NNLValueIs("integers")
+	def IntegersBQ()
+		if This._NNLValueIs("integers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ItemN()
+		return This._NNLNounCount("numberofitems")
+	def ItemNQ()
+		return new stzNumber(This._NNLNounCount("numberofitems"))
+	def ItemNB()
+		return This._NNLCountIs("numberofitems")
+	def ItemNBQ()
+		if This._NNLCountIs("numberofitems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ItemsB()
+		return This._NNLValueIs("items")
+	def ItemsBQ()
+		if This._NNLValueIs("items") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ItemsUN()
+		return This._NNLNounCount("numberofitemsu")
+	def ItemsUNQ()
+		return new stzNumber(This._NNLNounCount("numberofitemsu"))
+	def ItemsUNB()
+		return This._NNLCountIs("numberofitemsu")
+	def ItemsUNBQ()
+		if This._NNLCountIs("numberofitemsu") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LargestN()
+		return This._NNLNounCount("numberoflargest")
+	def LargestNQ()
+		return new stzNumber(This._NNLNounCount("numberoflargest"))
+	def LargestNB()
+		return This._NNLCountIs("numberoflargest")
+	def LargestNBQ()
+		if This._NNLCountIs("numberoflargest") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def LargestB()
+		return This._NNLValueIs("largest")
+	def LargestBQ()
+		if This._NNLValueIs("largest") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LeadingCharN()
+		return This._NNLNounCount("numberofleadingchars")
+	def LeadingCharNQ()
+		return new stzNumber(This._NNLNounCount("numberofleadingchars"))
+	def LeadingCharNB()
+		return This._NNLCountIs("numberofleadingchars")
+	def LeadingCharNBQ()
+		if This._NNLCountIs("numberofleadingchars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def LeadingCharsB()
+		return This._NNLValueIs("leadingchars")
+	def LeadingCharsBQ()
+		if This._NNLValueIs("leadingchars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LeadingItemN()
+		return This._NNLNounCount("numberofleadingitems")
+	def LeadingItemNQ()
+		return new stzNumber(This._NNLNounCount("numberofleadingitems"))
+	def LeadingItemNB()
+		return This._NNLCountIs("numberofleadingitems")
+	def LeadingItemNBQ()
+		if This._NNLCountIs("numberofleadingitems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def LeadingItemsB()
+		return This._NNLValueIs("leadingitems")
+	def LeadingItemsBQ()
+		if This._NNLValueIs("leadingitems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LetterN()
+		return This._NNLNounCount("numberofletters")
+	def LetterNQ()
+		return new stzNumber(This._NNLNounCount("numberofletters"))
+	def LetterNB()
+		return This._NNLCountIs("numberofletters")
+	def LetterNBQ()
+		if This._NNLCountIs("numberofletters") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def LettersB()
+		return This._NNLValueIs("letters")
+	def LettersBQ()
+		if This._NNLValueIs("letters") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LevelN()
+		return This._NNLNounCount("numberoflevels")
+	def LevelNQ()
+		return new stzNumber(This._NNLNounCount("numberoflevels"))
+	def LevelNB()
+		return This._NNLCountIs("numberoflevels")
+	def LevelNBQ()
+		if This._NNLCountIs("numberoflevels") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def LineN()
+		return This._NNLNounCount("numberoflines")
+	def LineNQ()
+		return new stzNumber(This._NNLNounCount("numberoflines"))
+	def LineNB()
+		return This._NNLCountIs("numberoflines")
+	def LineNBQ()
+		if This._NNLCountIs("numberoflines") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def LinesB()
+		return This._NNLValueIs("lines")
+	def LinesBQ()
+		if This._NNLValueIs("lines") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ListN()
+		return This._NNLNounCount("numberoflists")
+	def ListNQ()
+		return new stzNumber(This._NNLNounCount("numberoflists"))
+	def ListNB()
+		return This._NNLCountIs("numberoflists")
+	def ListNBQ()
+		if This._NNLCountIs("numberoflists") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ListsB()
+		return This._NNLValueIs("lists")
+	def ListsBQ()
+		if This._NNLValueIs("lists") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def MarkerN()
+		return This._NNLNounCount("numberofmarkers")
+	def MarkerNQ()
+		return new stzNumber(This._NNLNounCount("numberofmarkers"))
+	def MarkerNB()
+		return This._NNLCountIs("numberofmarkers")
+	def MarkerNBQ()
+		if This._NNLCountIs("numberofmarkers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def MarkersB()
+		return This._NNLValueIs("markers")
+	def MarkersBQ()
+		if This._NNLValueIs("markers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def MarquerN()
+		return This._NNLNounCount("numberofmarquers")
+	def MarquerNQ()
+		return new stzNumber(This._NNLNounCount("numberofmarquers"))
+	def MarquerNB()
+		return This._NNLCountIs("numberofmarquers")
+	def MarquerNBQ()
+		if This._NNLCountIs("numberofmarquers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def MarquersB()
+		return This._NNLValueIs("marquers")
+	def MarquersBQ()
+		if This._NNLValueIs("marquers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def NamedObjectN()
+		return This._NNLNounCount("numberofnamedobjects")
+	def NamedObjectNQ()
+		return new stzNumber(This._NNLNounCount("numberofnamedobjects"))
+	def NamedObjectNB()
+		return This._NNLCountIs("numberofnamedobjects")
+	def NamedObjectNBQ()
+		if This._NNLCountIs("numberofnamedobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def NamedObjectsB()
+		return This._NNLValueIs("namedobjects")
+	def NamedObjectsBQ()
+		if This._NNLValueIs("namedobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def NonEmptyLineN()
+		return This._NNLNounCount("numberofnonemptylines")
+	def NonEmptyLineNQ()
+		return new stzNumber(This._NNLNounCount("numberofnonemptylines"))
+	def NonEmptyLineNB()
+		return This._NNLCountIs("numberofnonemptylines")
+	def NonEmptyLineNBQ()
+		if This._NNLCountIs("numberofnonemptylines") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def NonStzObjectN()
+		return This._NNLNounCount("numberofnonstzobjects")
+	def NonStzObjectNQ()
+		return new stzNumber(This._NNLNounCount("numberofnonstzobjects"))
+	def NonStzObjectNB()
+		return This._NNLCountIs("numberofnonstzobjects")
+	def NonStzObjectNBQ()
+		if This._NNLCountIs("numberofnonstzobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def NumberN()
+		return This._NNLNounCount("numberofnumbers")
+	def NumberNQ()
+		return new stzNumber(This._NNLNounCount("numberofnumbers"))
+	def NumberNB()
+		return This._NNLCountIs("numberofnumbers")
+	def NumberNBQ()
+		if This._NNLCountIs("numberofnumbers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def NumbersB()
+		return This._NNLValueIs("numbers")
+	def NumbersBQ()
+		if This._NNLValueIs("numbers") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ObjectN()
+		return This._NNLNounCount("numberofobjects")
+	def ObjectNQ()
+		return new stzNumber(This._NNLNounCount("numberofobjects"))
+	def ObjectNB()
+		return This._NNLCountIs("numberofobjects")
+	def ObjectNBQ()
+		if This._NNLCountIs("numberofobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ObjectsB()
+		return This._NNLValueIs("objects")
+	def ObjectsBQ()
+		if This._NNLValueIs("objects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def PairN()
+		return This._NNLNounCount("numberofpairs")
+	def PairNQ()
+		return new stzNumber(This._NNLNounCount("numberofpairs"))
+	def PairNB()
+		return This._NNLCountIs("numberofpairs")
+	def PairNBQ()
+		if This._NNLCountIs("numberofpairs") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def PairsB()
+		return This._NNLValueIs("pairs")
+	def PairsBQ()
+		if This._NNLValueIs("pairs") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ParagraphN()
+		return This._NNLNounCount("numberofparagraphs")
+	def ParagraphNQ()
+		return new stzNumber(This._NNLNounCount("numberofparagraphs"))
+	def ParagraphNB()
+		return This._NNLCountIs("numberofparagraphs")
+	def ParagraphNBQ()
+		if This._NNLCountIs("numberofparagraphs") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ParagraphsB()
+		return This._NNLValueIs("paragraphs")
+	def ParagraphsBQ()
+		if This._NNLValueIs("paragraphs") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def ScriptN()
+		return This._NNLNounCount("numberofscripts")
+	def ScriptNQ()
+		return new stzNumber(This._NNLNounCount("numberofscripts"))
+	def ScriptNB()
+		return This._NNLCountIs("numberofscripts")
+	def ScriptNBQ()
+		if This._NNLCountIs("numberofscripts") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def ScriptsB()
+		return This._NNLValueIs("scripts")
+	def ScriptsBQ()
+		if This._NNLValueIs("scripts") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def SentenceN()
+		return This._NNLNounCount("numberofsentences")
+	def SentenceNQ()
+		return new stzNumber(This._NNLNounCount("numberofsentences"))
+	def SentenceNB()
+		return This._NNLCountIs("numberofsentences")
+	def SentenceNBQ()
+		if This._NNLCountIs("numberofsentences") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def SentencesB()
+		return This._NNLValueIs("sentences")
+	def SentencesBQ()
+		if This._NNLValueIs("sentences") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def SmallestN()
+		return This._NNLNounCount("numberofsmallest")
+	def SmallestNQ()
+		return new stzNumber(This._NNLNounCount("numberofsmallest"))
+	def SmallestNB()
+		return This._NNLCountIs("numberofsmallest")
+	def SmallestNBQ()
+		if This._NNLCountIs("numberofsmallest") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def SmallestB()
+		return This._NNLValueIs("smallest")
+	def SmallestBQ()
+		if This._NNLValueIs("smallest") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def StringN()
+		return This._NNLNounCount("numberofstrings")
+	def StringNQ()
+		return new stzNumber(This._NNLNounCount("numberofstrings"))
+	def StringNB()
+		return This._NNLCountIs("numberofstrings")
+	def StringNBQ()
+		if This._NNLCountIs("numberofstrings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def StringsB()
+		return This._NNLValueIs("strings")
+	def StringsBQ()
+		if This._NNLValueIs("strings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def StzObjectN()
+		return This._NNLNounCount("numberofstzobjects")
+	def StzObjectNQ()
+		return new stzNumber(This._NNLNounCount("numberofstzobjects"))
+	def StzObjectNB()
+		return This._NNLCountIs("numberofstzobjects")
+	def StzObjectNBQ()
+		if This._NNLCountIs("numberofstzobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def SubStringN()
+		return This._NNLNounCount("numberofsubstrings")
+	def SubStringNQ()
+		return new stzNumber(This._NNLNounCount("numberofsubstrings"))
+	def SubStringNB()
+		return This._NNLCountIs("numberofsubstrings")
+	def SubStringNBQ()
+		if This._NNLCountIs("numberofsubstrings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def SubStringsB()
+		return This._NNLValueIs("substrings")
+	def SubStringsBQ()
+		if This._NNLValueIs("substrings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def SubStringsUN()
+		return This._NNLNounCount("numberofsubstringsu")
+	def SubStringsUNQ()
+		return new stzNumber(This._NNLNounCount("numberofsubstringsu"))
+	def SubStringsUNB()
+		return This._NNLCountIs("numberofsubstringsu")
+	def SubStringsUNBQ()
+		if This._NNLCountIs("numberofsubstringsu") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def SubStringsUB()
+		return This._NNLValueIs("substringsu")
+	def SubStringsUBQ()
+		if This._NNLValueIs("substringsu") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def TrailingCharN()
+		return This._NNLNounCount("numberoftrailingchars")
+	def TrailingCharNQ()
+		return new stzNumber(This._NNLNounCount("numberoftrailingchars"))
+	def TrailingCharNB()
+		return This._NNLCountIs("numberoftrailingchars")
+	def TrailingCharNBQ()
+		if This._NNLCountIs("numberoftrailingchars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def TrailingCharsB()
+		return This._NNLValueIs("trailingchars")
+	def TrailingCharsBQ()
+		if This._NNLValueIs("trailingchars") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def TrailingItemN()
+		return This._NNLNounCount("numberoftrailingitems")
+	def TrailingItemNQ()
+		return new stzNumber(This._NNLNounCount("numberoftrailingitems"))
+	def TrailingItemNB()
+		return This._NNLCountIs("numberoftrailingitems")
+	def TrailingItemNBQ()
+		if This._NNLCountIs("numberoftrailingitems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def TrailingItemsB()
+		return This._NNLValueIs("trailingitems")
+	def TrailingItemsBQ()
+		if This._NNLValueIs("trailingitems") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def UniqueSubStringN()
+		return This._NNLNounCount("numberofuniquesubstrings")
+	def UniqueSubStringNQ()
+		return new stzNumber(This._NNLNounCount("numberofuniquesubstrings"))
+	def UniqueSubStringNB()
+		return This._NNLCountIs("numberofuniquesubstrings")
+	def UniqueSubStringNBQ()
+		if This._NNLCountIs("numberofuniquesubstrings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def UniqueSubStringsB()
+		return This._NNLValueIs("uniquesubstrings")
+	def UniqueSubStringsBQ()
+		if This._NNLValueIs("uniquesubstrings") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def UnnamedObjectN()
+		return This._NNLNounCount("numberofunnamedobjects")
+	def UnnamedObjectNQ()
+		return new stzNumber(This._NNLNounCount("numberofunnamedobjects"))
+	def UnnamedObjectNB()
+		return This._NNLCountIs("numberofunnamedobjects")
+	def UnnamedObjectNBQ()
+		if This._NNLCountIs("numberofunnamedobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def UnnamedObjectsB()
+		return This._NNLValueIs("unnamedobjects")
+	def UnnamedObjectsBQ()
+		if This._NNLValueIs("unnamedobjects") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def VowelN()
+		return This._NNLNounCount("numberofvowels")
+	def VowelNQ()
+		return new stzNumber(This._NNLNounCount("numberofvowels"))
+	def VowelNB()
+		return This._NNLCountIs("numberofvowels")
+	def VowelNBQ()
+		if This._NNLCountIs("numberofvowels") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def VowelsB()
+		return This._NNLValueIs("vowels")
+	def VowelsBQ()
+		if This._NNLValueIs("vowels") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+
+	def WordN()
+		return This._NNLNounCount("numberofwords")
+	def WordNQ()
+		return new stzNumber(This._NNLNounCount("numberofwords"))
+	def WordNB()
+		return This._NNLCountIs("numberofwords")
+	def WordNBQ()
+		if This._NNLCountIs("numberofwords") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	def WordsB()
+		return This._NNLValueIs("words")
+	def WordsBQ()
+		if This._NNLValueIs("words") = 1
+			return This
+		ok
+		return AFalseObjectXT(This)
+	# </nnl-generated-surface>

@@ -2057,8 +2057,11 @@ class stzString from stzObject
 		def VowelN()
 			return This.NumberOfVowels()
 
-		def VowelNb()
-			return This.NumberOfVowels()
+		def VowelNB()
+			# NNL B-device restored (was flattened to a bare count during
+			# modularization): compares the count to the expectation
+			# register -- "and only 1 vowel" -> Only(1) ... VowelNB()
+			return This._NNLCountIs("numberofvowels")
 
 		def CountVowels()
 			return This.NumberOfVowels()
@@ -2081,7 +2084,9 @@ class stzString from stzObject
 		return len(This.Vowels()) > 0
 
 		def VowelsB()
-			return This.HasVowels()
+			# NNL B-device restored (was flattened to HasVowels()):
+			# the vowel LIST must equal the remembered value
+			return This._NNLValueIs("vowels")
 
 		def ContainsVowels()
 			return This.HasVowels()

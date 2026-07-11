@@ -56,3 +56,4 @@ func LastValue()
 
 func SetLastValue(value)
 	_LastValue = value
+	$cStzExpectMode = :Exactly
