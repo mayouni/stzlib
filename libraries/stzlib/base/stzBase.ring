@@ -432,6 +432,7 @@ ok
     load "natural/stzListOfEntities.ring"
 
     load "natural/stzNaturalCode.ring"
+    load "natural/stzNNL.ring"
     load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"

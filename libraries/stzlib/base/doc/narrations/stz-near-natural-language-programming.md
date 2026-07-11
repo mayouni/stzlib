@@ -25,7 +25,7 @@ It's functional, but it doesn't _flow_. The code prioritizes the machine's needs
 Enter Softanza, a library for the Ring programming language that transforms code into near-natural expressions. Here's the same validation, now reading like a sentence:
 
 ```ring
-? Q("ring").IsAXT([:Lowercase, :Latin, :String]).WhichQ().HasAQ().LengthQ().EqualTo(4)
+? Q("ring").IsAXTQ([:Lowercase, :Latin, :String]).WhichQ().HasAQ().LengthQ().EqualTo(4)
 #--> TRUE
 ```
 

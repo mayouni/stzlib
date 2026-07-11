@@ -233,34 +233,90 @@ the NNL documents were reaching for: not the machine pretending to
 understand language, but language constrained until understanding is a
 theorem.
 
-## 8. The Plan (proposed phases -- approval before execution)
+## 8. The Plan -- Updated After the Renovation (2026-07-10)
 
-- **P1 -- Lock the spec (small, immediate).** Fix `@isLowercase` (live
-  bug). Write `nnl_narrated.ring` from the two documents' examples: green
-  assertions for what runs, `#--> (decayed)` documentation for what does
-  not -- the articles become an executable specification and the decay
-  becomes visible forever.
-- **P2 -- Chain-scoped context.** Move MainObject/LastValue onto the chain
-  (attributes of the returned stz object, propagated by Q-returns), keep
-  the globals as a compatibility shim. Kills cross-chain contamination;
-  makes NNL agent-safe and thread-safe.
-- **P3 -- The device dispatcher (NNL 2.0 core).** One resolver-backed
-  dispatcher: unknown method name -> strip device suffix (N/B/NB/M/QM...)
-  -> resolve stem through the lexicon (morphology included) -> execute ID
-  + device. Grammar particles hand-written once. Unknown stems produce a
-  lint error WITH suggestion (accountability replaces silent absorption).
-  The generated surface covers every grown operation, in every pack
-  language's aka space.
-- **P4 -- The pivot round-trip.** plan->NNL linearizer (Naturally's
-  codegen option: emit NNL chains instead of raw calls) and NNL->plan
-  (native in 2.0). NNL chains gain Understood()/Answers()/strict for free;
-  narrations gain a readable executable artifact.
-- **P5 -- The governance kit.** Entity-grounded narrations (refuse unknown
-  referents in strict mode), graph-governed relations, interrogative
-  policies (AllYes gates), ChainOfValue's temporal guards rebuilt on W for
-  agent loops, and the LLM contract bundle (pack export + strict + suggest
-  + Understood as one loop).
+The user directed: dig the archives, renovate cleanly with full coverage,
+and invent new devices. That work LANDED, absorbing the original P1 and
+the core of P3. The phases, restated against what now exists:
 
-Phase order is deliberate: P1 costs an hour and stops the rot; P2-P3 are
-the paradigm rebuild; P4 unifies the two directions; P5 is where NNL
-becomes the language OF the intelligent systems Softanza wants to host.
+### DONE -- the renovation itself
+
+- **The archive dig** established the original patterns: B/NB compare to
+  LastValue and return This|AFalseObject (the monad); typo tolerance was
+  literally hand-written `@Misspelled` alias sections; ALength was an
+  article alias family; QM/MM memorize/recall the main referent.
+- **P1 (spec-lock): DONE.** `@isLowercase`/`@isUpperCase` repaired (they
+  were char-only predicates -- every word answered 0). The two decayed
+  stzString remnants (VowelNb returning a bare count, VowelsB returning
+  HasVowels) restored to true B semantics. `nnl_narrated.ring` (24
+  assertions) is the executable specification: the article's opening
+  example and the FLAGSHIP sentence now run and are locked:
+
+      TheWordQM("ring").IsAQ([:Lowercase,:Latin,:Word]).WithQ().
+          ALengthQ().OfQ(4).UnitQ(:Letters).AndQ().OnlyQM(1).VowelNB()
+      #--> TRUE
+
+  (UnitQ replaces the article's `.Q(:Letters)`: a method named Q() would
+  shadow the global Q() for every child class -- the documented len()
+  trap.)
+- **P3 (derived surface): CORE DONE.** The hand-written engine on
+  stzObject: `_NNLCall` (the accountable mini-dispatcher: exact method ->
+  call; else resolve the stem through the ONE lexicon, morphology
+  included; else REFUSE with a did-you-mean), `_NNLNounCount`,
+  `_NNLExpectCompare`, `_NNLValueIs`, `_NNLDo`. Above it, the GENERATED
+  noun surface: 41 countable nouns x N/NQ/NB/NBQ (+ Nouns B/BQ where the
+  plural op exists) = 234 methods emitted from the semantic lexicon into
+  a marked region of stzObject.ring (regenerate: scratchpad
+  gen_nnl_surface.py). Child classes overriding a name win automatically
+  on live objects, while stzFalseObject inherits the parent surface --
+  which is exactly how the monad absorbs the WHOLE surface through three
+  tiny overrides (_NNLCountIs/_NNLValueIs/_NNLExpectCompare return 0 with
+  "the premise before was already false").
+- **NEW DEVICES delivered** (aspects beyond the original catalog):
+  1. **Comparative determiners** -- degree modification for the ellipsis
+     device: `AtLeast(n) AtMost(n) MoreThan(n) LessThan(n) Exactly(n)
+     About(n)/AboutXT(n,tol) BetweenN(n1,n2)` (+Q/QM forms; global
+     Expect* twins). "About" models linguistic VAGUENESS (+/-10% default).
+     BetweenN carries the N because stzString owns Between() for text.
+  2. **The accountability register** -- `WhyB()`: every B/NB comparison
+     records "no: expected atmost 2, found 3". Explain-everything
+     replaced absorb-anything.
+  3. **Conditional mood** -- the chain branches on its own truth:
+     `Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim)`. The
+     false premise now CARRIES its origin (AFalseObjectXT wired into all
+     9 monadic sites), so Otherwise recovers the judged object and acts
+     on it. Actions are natural: `:Uppercase`, "remove duplicates"
+     (lexicon-resolved), or `[ :Replace, "a", "b" ]`.
+  4. **Ordinal reference** -- `TheNth(2, :Words)`, `TheFirst/TheLast
+     (:Vowels)`: definite reference into plural nouns, stzOrdinal wired
+     into the refusal message ("there is no 4th word here").
+  5. Grammar particles completed: `AnQ AlsoQ UnitQ` join the surviving
+     WhichQ/ThatQ/AndQ/HavingQ/TheirQ/WithQ/OfQ/TheQ/OnlyQM family; the
+     generic `ALengthN/ALength/ALengthQ/ALengthNB` article device works
+     on ANY object (chars/items/digits by type).
+
+### REMAINING -- the re-scoped phases
+
+- **P2 -- Chain-scoped context.** Unchanged: MainObject/LastValue/the
+  expectation register are still process globals; move them onto the
+  chain (carried by returned objects) with the globals as compatibility
+  shims. Required before NNL is agent-safe under concurrency.
+- **P3b -- Widen the derived surface.** Today: countable nouns. Next:
+  predicate B-forms for query ops (EqualsB, StartsWithB...), M/QM
+  variants generated, and pack-language aka stems accepted by _NNLCall
+  (the dispatcher already reads the lexicon; let it read the packs too,
+  making the NNL surface MULTILINGUAL like Naturally already is).
+- **P4 -- The pivot round-trip.** Unchanged: plan->NNL linearizer
+  (Naturally emitting NNL chains as its generated code) and NNL->plan;
+  NNL chains then gain Understood()/Answers()/strict for free.
+- **P5 -- The governance kit.** Unchanged: entity-grounded strict mode,
+  graph-governed relations, interrogative policies as gates,
+  ChainOfValue's temporal guards rebuilt on W, the LLM contract bundle.
+- **P6 (new) -- Device candidates observed but deferred:** distributive
+  quantification (`EachQ()` mapping the next predicate over items --
+  needs W integration), chain-level negation particle (`NotQ()` flipping
+  the next predicate -- needs the P3b dispatcher), evidentiality
+  ("apparently/certainly" -- confidence-carrying answers pairing with
+  the neural tier's scores), and discourse tense over QH history
+  ("was it ever uppercase?" -- SoFarQ/EverB over the object's kept
+  history).

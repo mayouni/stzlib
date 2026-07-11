@@ -25,22 +25,34 @@ func IsDigit(c)
 	func @IsDigit(c)
 		return IsDigit(c)
 
+# Polymorphic (widened 2026-07-10, see doc/design/NNL_REVIEW.md): a single
+# char keeps the historical ASCII-char check; a longer string answers for
+# the WHOLE string -- this is what the NNL descriptor dispatch relies on
+# (@isLowercase("ring") must be TRUE; it silently answered 0 for years
+# because the char-only form said "not one char -> FALSE").
+
 func IsUpperCase(c)
-	if len(c) != 1
+	if NOT isString(c) or len(c) = 0
 		return FALSE
 	ok
-	_n_ = ascii(c)
-	return (_n_ >= 65 and _n_ <= 90)
+	if len(c) = 1
+		_n_ = ascii(c)
+		return (_n_ >= 65 and _n_ <= 90)
+	ok
+	return c = upper(c) and upper(c) != lower(c)
 
 	func @IsUpperCase(c)
 		return IsUpperCase(c)
 
 func IsLowerCase(c)
-	if len(c) != 1
+	if NOT isString(c) or len(c) = 0
 		return FALSE
 	ok
-	_n_ = ascii(c)
-	return (_n_ >= 97 and _n_ <= 122)
+	if len(c) = 1
+		_n_ = ascii(c)
+		return (_n_ >= 97 and _n_ <= 122)
+	ok
+	return c = lower(c) and lower(c) != upper(c)
 
 	func @IsLowerCase(c)
 		return IsLowerCase(c)
