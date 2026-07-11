@@ -15,8 +15,16 @@ single wall: **the semantic gap between a human intention and its
 execution**. What makes the folder look heterogeneous is that the gap was
 attacked from three directions, in three eras.
 
-### Era 1 -- Near-Natural Coding (raise the code toward language)
+### Era 1 -- Near-Natural Language (NNL): the FIRST paradigm
 
+CORRECTED 2026-07-10 (see doc/design/NNL_REVIEW.md for the full review):
+this era is not residue to absorb -- it is a paradigm with its own thesis:
+any natural-language expression can be modeled as computational code by
+forcing the CODE to adhere to human language dynamics (zero NLP/ML, native
+speed, the HUMAN is the parser). Its artifacts form a computational grammar
+of English -- definite reference (QM), anaphoric ellipsis (LastValue + NB),
+number agreement (Is/Are), grammar particles (WhichQ/OfQ/AndQ), the
+True/FalseObject discourse monad, temporal aspect (Future, Until/Since).
 The host is *Ring syntax*; naturalness lives inside it. Artifacts:
 
 - **The function-forms grammar** (active / passive / fluent / immutable /
@@ -274,6 +282,14 @@ verifies after. Strictly better ergonomics for the same guarantee.
    DoesNotContain's bag and scoring INVERTED the meaning. The legacy _()
    surface is frozen in place (header points here); its test corpus stays
    green. Suite: interrogative_narrated 11/11.
+5a. **NNL review** [DONE 2026-07-10] -- doc/design/NNL_REVIEW.md: the
+   paradigm restated, the device catalog, the empirical decay audit (4/15
+   article examples still run; @isLowercase broken live; the B/NB ellipsis
+   device gone), the design critique (chain-scoped context, derived
+   surface, accountable resolution), the three-representation convergence
+   (narration <-> plan <-> NNL chain), the agent-governance prospect, and
+   the P1-P5 rebuild plan awaiting approval.
+
 5. **Markup seeds** [DONE 2026-07-10] -- both seeds graduated as thin
    doors into the real engine (no markup interpreter exists):
    StzNaturalBlocks(doc) extracts the #< ... #> fences and
