@@ -216,6 +216,22 @@ Scenario("Q3b: distributive quantifiers -- each / any / none")
 
 	Then("a string is a plural of its chars: 'each is a vowel'",
 		classname( Q("aeiou").EachQ().IsAQ([ :Vowel ]) ), "stzstring")
+
+	# the author's formulations, verbatim: the InQ topic opener and the
+	# quantifier-NOUN units; ALL takes the collective road (AreQ) and
+	# answers with the TYPED list
+	Then("'In [1, x, 3], each item is a number' -- refused at item 2",
+		classname( InQ([ 1, "x", 3 ]).EachItemQ().IsAQ(:Number) ),
+		"stzfalseobject")
+	Then("'In [1, 2, 3], all items are numbers' -- the TYPED answer",
+		classname( InQ([ 1, 2, 3 ]).AllItemsQ().AreQ(:Numbers) ),
+		"stzlistofnumbers")
+	Then("...and the mixed list is refused (the Are stub answered TRUE
+		for ANY non-empty list; repaired)",
+		classname( InQ([ 1, "x", 3 ]).AllItemsQ().AreQ(:Numbers) ),
+		"stzfalseobject")
+	Then("'no item is a number'",
+		classname( InQ([ "a", "b" ]).NoItemQ().IsAQ(:Number) ), "stzlist")
 EndScenario()
 
 Scenario("The aliasing doctrine and QC() -- chain on a clone")
