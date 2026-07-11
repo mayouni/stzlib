@@ -113,19 +113,37 @@ Scenario("Accountability replaced silent typo tolerance")
 	Then("an unknown stem refuses with a did-you-mean", bRefused2, TRUE)
 EndScenario()
 
+Scenario("The grammaticality doctrine -- the chain IS the sentence")
+	Given("a relative pronoun needs a VERB: which HAS a length -- a chain that runs but does not parse as English is a bug in NNL terms; and M is a COMMITMENT to recall later, never a default")
+
+	# the corrected canonical statement, exactly as the author wrote it:
+	# 'The word ring is a word which has a length of 4.' No later clause
+	# refers back to the word, so NO M.
+	Then("TheWordQ (no M) ... WhichQ().HasQ().ALengthQ().Of(4)",
+		TheWordQ("ring").IsAQ(:Word).WhichQ().HasQ().ALengthQ().Of(4), TRUE)
+
+	# the single-symbol descriptor continues the chain now (it used to
+	# fall through IsAQ's core-type switch and return nothing)
+	Then("IsAQ(:Word) continues on the typed object",
+		classname( TheWordQ("ring").IsAQ(:Word) ), "stzstring")
+EndScenario()
+
 Scenario("P2: the context lives ON the chain -- agent safety")
 	Given("determiners set the expectation on the object they return; devices that build new objects carry it; *QM recalls read the chain-local main first")
 
-	# two DISCOURSES built side by side: each keeps its own referent,
-	# even though the process global now points at the second one
-	od1 = TheWordQM("ring").IsAQ([ :Word ]).WhichQ().ALengthQ()
-	od2 = TheWordQM("softanza").IsAQ([ :Word ]).WhichQ().ALengthQ()
-	Then("the FIRST chain still recalls ITS word",
-		od1.OnlyQM(1).Content(), "ring")
-	Then("the second recalls its own", od2.OnlyQM(3).Content(), "softanza")
-	Then("ring: only 1 vowel -- against ring, not softanza",
-		od1.OnlyQM(1).VowelNB(), TRUE)
-	Then("softanza: only 3 vowels", od2.OnlyQM(3).VowelNB(), TRUE)
+	# two DISCOURSES built side by side, each a GRAMMATICAL sentence:
+	# 'The word ring is a word which has a length of 4, and only 1
+	# vowel.' -- the '...and only 1 vowel' clause refers BACK to the
+	# word, so M is justified here (unlike the plain length statement)
+	od1 = TheWordQM("ring").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(4)
+	od2 = TheWordQM("softanza").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(8)
+	Then("the FIRST discourse still holds ITS referent",
+		od1._NNLMain().Content(), "ring")
+	Then("the second holds its own", od2._NNLMain().Content(), "softanza")
+	Then("'...and only 1 vowel' recalls RING, though the global moved on",
+		od1.AndQ().OnlyQM(1).VowelNB(), TRUE)
+	Then("'...and only 3 vowels' recalls SOFTANZA",
+		od2.AndQ().OnlyQM(3).VowelNB(), TRUE)
 
 	# two expectations built side by side: neither clobbers the other
 	oe1 = Q("AnnIE").AtMost(2)
