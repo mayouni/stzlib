@@ -6,7 +6,8 @@
 # ever locked its surface. Covers: the repaired descriptor dispatch, the
 # flagship sentence, the regenerated noun surface (from the semantic
 # lexicon), the expectation register with the NEW comparative determiners,
-# the accountability register (WhyB), the NEW conditional mood, the NEW
+# the accountability surface (WhyAnswered/WhyStopped on the chain,
+# detached Why() for the console), the NEW conditional mood, the NEW
 # ordinal reference, and the accountable refusal that replaced silent
 # absorb-anything typo tolerance.
 
@@ -45,6 +46,24 @@ Scenario("Comparative determiners -- degree words for the expectation (NEW)")
 	Then("'at least 2 vowels'", Q("AnnIE").AtLeast(2).VowelNB(), TRUE)
 	Then("'at most 2 vowels' refuses on 3", Q("AnnIE").AtMost(2).VowelNB(), FALSE)
 	Then("...and explains itself", Why(), "no: expected atmost 2, found 3")
+
+	# the explanation lives ON the chain (the WhyChainStopped precedent):
+	# two interleaved chains never lie to each other
+	oc1 = Q("AnnIE")
+	oc2 = Q("hello world")
+	oc1.AtMost(2).VowelNB()
+	oc2.AtLeast(5).WordNB()
+	Then("each chain keeps ITS OWN reason",
+		oc1.WhyAnswered(), "no: expected atmost 2, found 3")
+	Then("even after another chain answered",
+		oc2.WhyAnswered(), "no: expected atleast 5, found 2")
+	Then("a fresh object answers honestly",
+		Q("x").WhyAnswered(), "no check has been answered on this object yet")
+	Then("a LIVE object is polite about WhyStopped (the archive's way)",
+		oc1.WhyStopped(), "the chain is not stopped")
+	Then("a FALSE premise records why the chain stopped",
+		Q("AnnIE").AtMost(2).VowelNBQ().WhyStopped(),
+		"no: expected atmost 2, found 3")
 	Then("'more than 2 words'",
 		Q("hello brave new world").MoreThan(2).WordNB(), TRUE)
 	Then("'about 10 items' tolerates 9 (vagueness, +/-10%)",

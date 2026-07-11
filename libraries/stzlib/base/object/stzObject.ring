@@ -1970,6 +1970,8 @@ func StzObjectToList(cObjectVarName)
 class stzObject
 	@content
 
+	@cNNLWhy = ""
+
 	@cVarName = :@NoName
 	@cUuid = ""
 	@cHashedUuid = ""
@@ -6473,12 +6475,14 @@ class stzObject
 			_cExp_ = "between " + _pExp_[1] + " and " + _pExp_[2]
 		ok
 		if _bYes_
-			$cStzLastWhyB = "yes: expected " + lower("" + _cMode_) + " " +
+			@cNNLWhy = "yes: expected " + lower("" + _cMode_) + " " +
 				_cExp_ + ", found " + nActual
+			$cStzLastWhyB = @cNNLWhy
 			return 1
 		ok
-		$cStzLastWhyB = "no: expected " + lower("" + _cMode_) + " " +
+		@cNNLWhy = "no: expected " + lower("" + _cMode_) + " " +
 			_cExp_ + ", found " + nActual
+		$cStzLastWhyB = @cNNLWhy
 		return 0
 
 	def _NNLCountIs(pcMethod)
@@ -6488,17 +6492,30 @@ class stzObject
 	def _NNLValueIs(pcMethod)
 		_vNNL_ = This._NNLCall(pcMethod, [])
 		if Q(_vNNL_).IsEqualTo(LastValue())
-			$cStzLastWhyB = "yes: " + StzLower(pcMethod) + " equals the expected value"
+			@cNNLWhy = "yes: " + StzLower(pcMethod) + " equals the expected value"
+			$cStzLastWhyB = @cNNLWhy
 			return 1
 		ok
-		$cStzLastWhyB = "no: " + StzLower(pcMethod) + " is " + @@(_vNNL_) +
+		@cNNLWhy = "no: " + StzLower(pcMethod) + " is " + @@(_vNNL_) +
 			", expected " + @@(LastValue())
+		$cStzLastWhyB = @cNNLWhy
 		return 0
 
-	# Why(), not WhyB(): B is reserved for boolean-returning devices;
-	# this returns the EXPLANATION of the last B/NB comparison
-	def Why()
-		return $cStzLastWhyB
+	# CHAIN-LOCAL explanations, per the stzChainOfValue precedent
+	# (WhyChainStopped / WhyCodeNotYetExecuted): the reason lives ON the
+	# object that answered, with an explicit event name -- never on a
+	# process global (two interleaved chains would lie to each other).
+
+	def WhyAnswered()
+		if @cNNLWhy = ""
+			return "no check has been answered on this object yet"
+		ok
+		return @cNNLWhy
+
+	def WhyStopped()
+		# a live object means the chain did NOT stop -- answer politely,
+		# exactly like the archived "Chain is not stopped!"
+		return "the chain is not stopped"
 
 	# --- grammar particles that were missing (pure pass-throughs)
 
@@ -6702,14 +6719,18 @@ class stzObject
 		if This._NNLCountIs("numberofbytes") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def BytesB()
 		return This._NNLValueIs("bytes")
 	def BytesBQ()
 		if This._NNLValueIs("bytes") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def CharN()
 		return This._NNLNounCount("numberofchars")
@@ -6721,14 +6742,18 @@ class stzObject
 		if This._NNLCountIs("numberofchars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def CharsB()
 		return This._NNLValueIs("chars")
 	def CharsBQ()
 		if This._NNLValueIs("chars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ClassN()
 		return This._NNLNounCount("numberofclasses")
@@ -6740,14 +6765,18 @@ class stzObject
 		if This._NNLCountIs("numberofclasses") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ClassesB()
 		return This._NNLValueIs("classes")
 	def ClassesBQ()
 		if This._NNLValueIs("classes") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def DecimalN()
 		return This._NNLNounCount("numberofdecimals")
@@ -6759,14 +6788,18 @@ class stzObject
 		if This._NNLCountIs("numberofdecimals") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def DecimalsB()
 		return This._NNLValueIs("decimals")
 	def DecimalsBQ()
 		if This._NNLValueIs("decimals") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def DigitN()
 		return This._NNLNounCount("numberofdigits")
@@ -6778,14 +6811,18 @@ class stzObject
 		if This._NNLCountIs("numberofdigits") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def DigitsB()
 		return This._NNLValueIs("digits")
 	def DigitsBQ()
 		if This._NNLValueIs("digits") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def DuplicatedItemN()
 		return This._NNLNounCount("numberofduplicateditems")
@@ -6797,14 +6834,18 @@ class stzObject
 		if This._NNLCountIs("numberofduplicateditems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def DuplicatedItemsB()
 		return This._NNLValueIs("duplicateditems")
 	def DuplicatedItemsBQ()
 		if This._NNLValueIs("duplicateditems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def DuplicateN()
 		return This._NNLNounCount("numberofduplicates")
@@ -6816,14 +6857,18 @@ class stzObject
 		if This._NNLCountIs("numberofduplicates") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def DuplicatesB()
 		return This._NNLValueIs("duplicates")
 	def DuplicatesBQ()
 		if This._NNLValueIs("duplicates") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def DuplicationN()
 		return This._NNLNounCount("numberofduplications")
@@ -6835,14 +6880,18 @@ class stzObject
 		if This._NNLCountIs("numberofduplications") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def DuplicationsB()
 		return This._NNLValueIs("duplications")
 	def DuplicationsBQ()
 		if This._NNLValueIs("duplications") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def EmptyLineN()
 		return This._NNLNounCount("numberofemptylines")
@@ -6854,7 +6903,9 @@ class stzObject
 		if This._NNLCountIs("numberofemptylines") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def IntegerN()
 		return This._NNLNounCount("numberofintegers")
@@ -6866,14 +6917,18 @@ class stzObject
 		if This._NNLCountIs("numberofintegers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def IntegersB()
 		return This._NNLValueIs("integers")
 	def IntegersBQ()
 		if This._NNLValueIs("integers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ItemN()
 		return This._NNLNounCount("numberofitems")
@@ -6885,14 +6940,18 @@ class stzObject
 		if This._NNLCountIs("numberofitems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ItemsB()
 		return This._NNLValueIs("items")
 	def ItemsBQ()
 		if This._NNLValueIs("items") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ItemsUN()
 		return This._NNLNounCount("numberofitemsu")
@@ -6904,7 +6963,9 @@ class stzObject
 		if This._NNLCountIs("numberofitemsu") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LargestN()
 		return This._NNLNounCount("numberoflargest")
@@ -6916,14 +6977,18 @@ class stzObject
 		if This._NNLCountIs("numberoflargest") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def LargestB()
 		return This._NNLValueIs("largest")
 	def LargestBQ()
 		if This._NNLValueIs("largest") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LeadingCharN()
 		return This._NNLNounCount("numberofleadingchars")
@@ -6935,14 +7000,18 @@ class stzObject
 		if This._NNLCountIs("numberofleadingchars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def LeadingCharsB()
 		return This._NNLValueIs("leadingchars")
 	def LeadingCharsBQ()
 		if This._NNLValueIs("leadingchars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LeadingItemN()
 		return This._NNLNounCount("numberofleadingitems")
@@ -6954,14 +7023,18 @@ class stzObject
 		if This._NNLCountIs("numberofleadingitems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def LeadingItemsB()
 		return This._NNLValueIs("leadingitems")
 	def LeadingItemsBQ()
 		if This._NNLValueIs("leadingitems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LetterN()
 		return This._NNLNounCount("numberofletters")
@@ -6973,14 +7046,18 @@ class stzObject
 		if This._NNLCountIs("numberofletters") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def LettersB()
 		return This._NNLValueIs("letters")
 	def LettersBQ()
 		if This._NNLValueIs("letters") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LevelN()
 		return This._NNLNounCount("numberoflevels")
@@ -6992,7 +7069,9 @@ class stzObject
 		if This._NNLCountIs("numberoflevels") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def LineN()
 		return This._NNLNounCount("numberoflines")
@@ -7004,14 +7083,18 @@ class stzObject
 		if This._NNLCountIs("numberoflines") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def LinesB()
 		return This._NNLValueIs("lines")
 	def LinesBQ()
 		if This._NNLValueIs("lines") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ListN()
 		return This._NNLNounCount("numberoflists")
@@ -7023,14 +7106,18 @@ class stzObject
 		if This._NNLCountIs("numberoflists") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ListsB()
 		return This._NNLValueIs("lists")
 	def ListsBQ()
 		if This._NNLValueIs("lists") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def MarkerN()
 		return This._NNLNounCount("numberofmarkers")
@@ -7042,14 +7129,18 @@ class stzObject
 		if This._NNLCountIs("numberofmarkers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def MarkersB()
 		return This._NNLValueIs("markers")
 	def MarkersBQ()
 		if This._NNLValueIs("markers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def MarquerN()
 		return This._NNLNounCount("numberofmarquers")
@@ -7061,14 +7152,18 @@ class stzObject
 		if This._NNLCountIs("numberofmarquers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def MarquersB()
 		return This._NNLValueIs("marquers")
 	def MarquersBQ()
 		if This._NNLValueIs("marquers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def NamedObjectN()
 		return This._NNLNounCount("numberofnamedobjects")
@@ -7080,14 +7175,18 @@ class stzObject
 		if This._NNLCountIs("numberofnamedobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def NamedObjectsB()
 		return This._NNLValueIs("namedobjects")
 	def NamedObjectsBQ()
 		if This._NNLValueIs("namedobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def NonEmptyLineN()
 		return This._NNLNounCount("numberofnonemptylines")
@@ -7099,7 +7198,9 @@ class stzObject
 		if This._NNLCountIs("numberofnonemptylines") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def NonStzObjectN()
 		return This._NNLNounCount("numberofnonstzobjects")
@@ -7111,7 +7212,9 @@ class stzObject
 		if This._NNLCountIs("numberofnonstzobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def NumberN()
 		return This._NNLNounCount("numberofnumbers")
@@ -7123,14 +7226,18 @@ class stzObject
 		if This._NNLCountIs("numberofnumbers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def NumbersB()
 		return This._NNLValueIs("numbers")
 	def NumbersBQ()
 		if This._NNLValueIs("numbers") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ObjectN()
 		return This._NNLNounCount("numberofobjects")
@@ -7142,14 +7249,18 @@ class stzObject
 		if This._NNLCountIs("numberofobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ObjectsB()
 		return This._NNLValueIs("objects")
 	def ObjectsBQ()
 		if This._NNLValueIs("objects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def PairN()
 		return This._NNLNounCount("numberofpairs")
@@ -7161,14 +7272,18 @@ class stzObject
 		if This._NNLCountIs("numberofpairs") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def PairsB()
 		return This._NNLValueIs("pairs")
 	def PairsBQ()
 		if This._NNLValueIs("pairs") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ParagraphN()
 		return This._NNLNounCount("numberofparagraphs")
@@ -7180,14 +7295,18 @@ class stzObject
 		if This._NNLCountIs("numberofparagraphs") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ParagraphsB()
 		return This._NNLValueIs("paragraphs")
 	def ParagraphsBQ()
 		if This._NNLValueIs("paragraphs") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def ScriptN()
 		return This._NNLNounCount("numberofscripts")
@@ -7199,14 +7318,18 @@ class stzObject
 		if This._NNLCountIs("numberofscripts") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def ScriptsB()
 		return This._NNLValueIs("scripts")
 	def ScriptsBQ()
 		if This._NNLValueIs("scripts") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def SentenceN()
 		return This._NNLNounCount("numberofsentences")
@@ -7218,14 +7341,18 @@ class stzObject
 		if This._NNLCountIs("numberofsentences") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def SentencesB()
 		return This._NNLValueIs("sentences")
 	def SentencesBQ()
 		if This._NNLValueIs("sentences") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def SmallestN()
 		return This._NNLNounCount("numberofsmallest")
@@ -7237,14 +7364,18 @@ class stzObject
 		if This._NNLCountIs("numberofsmallest") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def SmallestB()
 		return This._NNLValueIs("smallest")
 	def SmallestBQ()
 		if This._NNLValueIs("smallest") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def StringN()
 		return This._NNLNounCount("numberofstrings")
@@ -7256,14 +7387,18 @@ class stzObject
 		if This._NNLCountIs("numberofstrings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def StringsB()
 		return This._NNLValueIs("strings")
 	def StringsBQ()
 		if This._NNLValueIs("strings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def StzObjectN()
 		return This._NNLNounCount("numberofstzobjects")
@@ -7275,7 +7410,9 @@ class stzObject
 		if This._NNLCountIs("numberofstzobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def SubStringN()
 		return This._NNLNounCount("numberofsubstrings")
@@ -7287,14 +7424,18 @@ class stzObject
 		if This._NNLCountIs("numberofsubstrings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def SubStringsB()
 		return This._NNLValueIs("substrings")
 	def SubStringsBQ()
 		if This._NNLValueIs("substrings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def SubStringsUN()
 		return This._NNLNounCount("numberofsubstringsu")
@@ -7306,14 +7447,18 @@ class stzObject
 		if This._NNLCountIs("numberofsubstringsu") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def SubStringsUB()
 		return This._NNLValueIs("substringsu")
 	def SubStringsUBQ()
 		if This._NNLValueIs("substringsu") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def TrailingCharN()
 		return This._NNLNounCount("numberoftrailingchars")
@@ -7325,14 +7470,18 @@ class stzObject
 		if This._NNLCountIs("numberoftrailingchars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def TrailingCharsB()
 		return This._NNLValueIs("trailingchars")
 	def TrailingCharsBQ()
 		if This._NNLValueIs("trailingchars") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def TrailingItemN()
 		return This._NNLNounCount("numberoftrailingitems")
@@ -7344,14 +7493,18 @@ class stzObject
 		if This._NNLCountIs("numberoftrailingitems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def TrailingItemsB()
 		return This._NNLValueIs("trailingitems")
 	def TrailingItemsBQ()
 		if This._NNLValueIs("trailingitems") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def UniqueSubStringN()
 		return This._NNLNounCount("numberofuniquesubstrings")
@@ -7363,14 +7516,18 @@ class stzObject
 		if This._NNLCountIs("numberofuniquesubstrings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def UniqueSubStringsB()
 		return This._NNLValueIs("uniquesubstrings")
 	def UniqueSubStringsBQ()
 		if This._NNLValueIs("uniquesubstrings") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def UnnamedObjectN()
 		return This._NNLNounCount("numberofunnamedobjects")
@@ -7382,14 +7539,18 @@ class stzObject
 		if This._NNLCountIs("numberofunnamedobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def UnnamedObjectsB()
 		return This._NNLValueIs("unnamedobjects")
 	def UnnamedObjectsBQ()
 		if This._NNLValueIs("unnamedobjects") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def VowelN()
 		return This._NNLNounCount("numberofvowels")
@@ -7401,14 +7562,18 @@ class stzObject
 		if This._NNLCountIs("numberofvowels") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def VowelsB()
 		return This._NNLValueIs("vowels")
 	def VowelsBQ()
 		if This._NNLValueIs("vowels") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 
 	def WordN()
 		return This._NNLNounCount("numberofwords")
@@ -7420,12 +7585,16 @@ class stzObject
 		if This._NNLCountIs("numberofwords") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	def WordsB()
 		return This._NNLValueIs("words")
 	def WordsBQ()
 		if This._NNLValueIs("words") = 1
 			return This
 		ok
-		return AFalseObjectXT(This)
+		_oFo_ = AFalseObjectXT(This)
+		_oFo_.SetWhyStopped(@cNNLWhy)
+		return _oFo_
 	# </nnl-generated-surface>

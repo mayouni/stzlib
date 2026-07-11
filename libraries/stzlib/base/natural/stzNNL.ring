@@ -55,13 +55,21 @@ func ExpectBetween(n1, n2)
 	SetLastValue([ n1, n2 ])
 	$cStzExpectMode = :Between
 
-# THE ACCOUNTABILITY REGISTER -- after any B/NB device, Why() says what
-# was expected, what was found, and the verdict. Absorb-anything typo
-# tolerance is gone; explain-everything replaces it.
-# NAMING: Why(), not WhyB() -- the B suffix is RESERVED by the NNL grammar
-# for boolean-returning devices, and this returns an EXPLANATION string.
-# The house precedent is stzChainOfValue's WhyChainStopped(): Why* =
-# the reason, in words.
+# THE ACCOUNTABILITY SURFACE -- two scopes, two names (the archived
+# WhyChainStopped precedent: explanations live ON the chain):
+#
+#   CHAIN-LOCAL (the real device): o.WhyAnswered() -- the reason of the
+#   last check THIS object answered; oFalse.WhyStopped() -- why the chain
+#   stopped at a false premise. Two interleaved chains never lie to each
+#   other. A live object answers WhyStopped() with "the chain is not
+#   stopped", exactly like the archive.
+#
+#   DETACHED (console/test convenience): Why() -- the last check anywhere
+#   in the session, read from the process register. Handy right after a
+#   `? o.SomethingNB()` line; NOT reliable across interleaved chains --
+#   use the chain-local forms in real code.
+# NAMING: never WhyB -- the B suffix is RESERVED by the NNL grammar for
+# boolean-returning devices; Why* is the explanation family.
 
 func Why()
 	return $cStzLastWhyB
