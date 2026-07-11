@@ -6508,12 +6508,24 @@ class stzObject
 	# --- counting through a noun (guarded, accountable)
 
 	def _NNLNounCount(pcMethod)
-		if StzFindFirst(ring_methods(This), StzLower(pcMethod)) = 0
-			StzRaise("NNL: a " + This.StzType() + " cannot count '" +
-				StzLower(pcMethod) + "' -- no such aspect on this object.")
+		if StzFindFirst(ring_methods(This), StzLower(pcMethod)) > 0
+			eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
+			return _nNNL_
 		ok
-		eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
-		return _nNNL_
+		# SELECTIONAL ATTACHMENT (anaphora without markers): the current
+		# object cannot answer this noun -- if the chain's SUBJECT can,
+		# attach there, exactly as a listener resolves "...a length of 4
+		# and only 1 vowel" (lengths have no vowels, so the vowel belongs
+		# to the word). Deterministic order: nearest referent first (the
+		# branch above), the subject second, refusal third.
+		if isObject(@oNNLMain)
+			if StzFindFirst(ring_methods(@oNNLMain), StzLower(pcMethod)) > 0
+				eval("_nNNL_ = @oNNLMain." + StzLower(pcMethod) + "()")
+				return _nNNL_
+			ok
+		ok
+		StzRaise("NNL: a " + This.StzType() + " cannot count '" +
+			StzLower(pcMethod) + "' -- and neither can the chain subject.")
 
 	# --- the expectation comparator: compares an actual count to the
 	# expectation register per the active COMPARATIVE MODE, and records
