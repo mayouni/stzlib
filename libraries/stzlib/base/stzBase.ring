@@ -434,6 +434,7 @@ ok
     load "natural/stzNaturalCode.ring"
     load "natural/stzNNL.ring"
     load "natural/stzQuestion.ring"
+    load "natural/stzGovernance.ring"
     load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"
