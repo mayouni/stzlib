@@ -44,7 +44,7 @@ EndScenario()
 Scenario("Comparative determiners -- degree words for the expectation (NEW)")
 	Then("'at least 2 vowels'", Q("AnnIE").AtLeast(2).VowelNB(), TRUE)
 	Then("'at most 2 vowels' refuses on 3", Q("AnnIE").AtMost(2).VowelNB(), FALSE)
-	Then("...and explains itself", WhyB(), "no: expected atmost 2, found 3")
+	Then("...and explains itself", Why(), "no: expected atmost 2, found 3")
 	Then("'more than 2 words'",
 		Q("hello brave new world").MoreThan(2).WordNB(), TRUE)
 	Then("'about 10 items' tolerates 9 (vagueness, +/-10%)",
@@ -54,13 +54,15 @@ Scenario("Comparative determiners -- degree words for the expectation (NEW)")
 EndScenario()
 
 Scenario("Conditional mood -- the chain branches on its own truth (NEW)")
-	Then("a TRUE premise runs IfSo and skips Otherwise",
-		Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim).Content(),
+	# the two branches carry DIFFERENT actions -- only one ever runs
+	Then("a TRUE premise runs IfSo (uppercase), skips Otherwise (reverse)",
+		Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Reverse).Content(),
 		"RING")
 	Then("a FALSE premise carries its origin...",
 		classname( Q("hello").IsAQ(:Number) ), "stzfalseobject")
-	Then("...and Otherwise recovers it and acts on it",
-		Q("hello").IsAQ(:Number).Otherwise(:Uppercase).Content(), "HELLO")
+	Then("...skips IfSo (reverse), and Otherwise (uppercase) runs on it",
+		Q("hello").IsAQ(:Number).IfSo(:Reverse).Otherwise(:Uppercase).Content(),
+		"HELLO")
 EndScenario()
 
 Scenario("Ordinal reference -- 'the second word' (NEW, stzOrdinal wired)")
@@ -92,7 +94,7 @@ Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",
 		Q("hello").IsAQ(:Number).VowelNB(), FALSE)
-	Then("and says why", WhyB(), "no: the premise before was already false")
+	Then("and says why", Why(), "no: the premise before was already false")
 EndScenario()
 
 Summary()

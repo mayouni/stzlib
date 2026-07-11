@@ -6495,7 +6495,9 @@ class stzObject
 			", expected " + @@(LastValue())
 		return 0
 
-	def WhyB()
+	# Why(), not WhyB(): B is reserved for boolean-returning devices;
+	# this returns the EXPLANATION of the last B/NB comparison
+	def Why()
 		return $cStzLastWhyB
 
 	# --- grammar particles that were missing (pure pass-throughs)

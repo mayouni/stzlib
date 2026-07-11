@@ -55,12 +55,16 @@ func ExpectBetween(n1, n2)
 	SetLastValue([ n1, n2 ])
 	$cStzExpectMode = :Between
 
-# THE ACCOUNTABILITY REGISTER -- after any B/NB device, WhyB() says what
+# THE ACCOUNTABILITY REGISTER -- after any B/NB device, Why() says what
 # was expected, what was found, and the verdict. Absorb-anything typo
 # tolerance is gone; explain-everything replaces it.
+# NAMING: Why(), not WhyB() -- the B suffix is RESERVED by the NNL grammar
+# for boolean-returning devices, and this returns an EXPLANATION string.
+# The house precedent is stzChainOfValue's WhyChainStopped(): Why* =
+# the reason, in words.
 
-func WhyB()
+func Why()
 	return $cStzLastWhyB
 
-	func @WhyB()
+	func @Why()
 		return $cStzLastWhyB

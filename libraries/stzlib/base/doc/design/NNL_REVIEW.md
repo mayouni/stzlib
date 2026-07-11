@@ -278,7 +278,9 @@ the core of P3. The phases, restated against what now exists:
      About(n)/AboutXT(n,tol) BetweenN(n1,n2)` (+Q/QM forms; global
      Expect* twins). "About" models linguistic VAGUENESS (+/-10% default).
      BetweenN carries the N because stzString owns Between() for text.
-  2. **The accountability register** -- `WhyB()`: every B/NB comparison
+  2. **The accountability register** -- `Why()`: every B/NB comparison
+     (NOT WhyB -- the B suffix is reserved for boolean devices; Why* is
+     the explanation family, per WhyChainStopped's precedent). It
      records "no: expected atmost 2, found 3". Explain-everything
      replaced absorb-anything.
   3. **Conditional mood** -- the chain branches on its own truth:
