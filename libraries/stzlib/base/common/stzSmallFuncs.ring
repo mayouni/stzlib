@@ -18,6 +18,11 @@ func StzQ(p)
 		_oResult_ = new stzObject(p)
 	ok
 
+	# NNL: the chain SUBJECT is the topic by virtue of being the subject
+	# (no marker, exactly like language) -- stamped chain-locally so the
+	# anaphora devices can attach back to it; no global is written
+	_oResult_.SetNNLMain(_oResult_)
+
 	return _oResult_
 
 	func Q(p)
