@@ -1980,6 +1980,11 @@ class stzObject
 	@nNNLExpectTol = 0
 	@oNNLMain = 0
 
+	# Q3 -- negation + truth-functional coordination (one-shot flags)
+	@bNNLNegate = 0    # NotQ(): flip the NEXT comparison
+	@bNNLSkip = 0      # OrQ() on a TRUE branch: skip the next disjunct
+	@bNNLNeither = 0   # NeitherQ()...NorQ(): every disjunct must be false
+
 	@cVarName = :@NoName
 	@cUuid = ""
 	@cHashedUuid = ""
@@ -2592,8 +2597,19 @@ class stzObject
 
 		_bResult_ = 1
 
+		# the DESCRIPTOR must test the TYPED value: stzNumber stores its
+		# content as a STRING (big-number precision), so @@(Content())
+		# rendered numbers as string literals and @isString(123) answered
+		# 1 while @isNumber(123) answered 0 -- every type descriptor on
+		# numbers was silently inverted (pre-existing, exposed by the Q3
+		# disjunction tests)
+		_vIsaxt_ = this.Content()
+		if This.StzType() = :stzNumber
+			_vIsaxt_ = This.NumericValue()
+		ok
+
 		for i = 1 to _nLen_
-			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
+			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(' + @@(_vIsaxt_) + ')'
 
 			eval(_cCode_)
 			if _bResult_ = 0
@@ -2606,6 +2622,22 @@ class stzObject
 		#-- @FunctionluentForm
 
 		def IsAXTQ(pcType)
+			if @bNNLSkip = 1
+				@bNNLSkip = 0
+				return This
+			ok
+			if @bNNLNeither = 1
+				# under neither...nor a HOLDING predicate falsifies;
+				# a failing one keeps the chain alive (mode persists
+				# across the nor-continuation)
+				if this.IsAXT(pcType) = 1
+					@bNNLNeither = 0
+					_oFo_ = AFalseObjectXT(This)
+					_oFo_.SetWhyStopped("no: the predicate held, but neither/nor required it false")
+					return _oFo_
+				ok
+				return This
+			ok
 			if this.IsAXT(pcType) = 1
 
 				content = This.Content()
@@ -2679,8 +2711,21 @@ class stzObject
 
 		def IsAQ(pcType)
 
+			if @bNNLSkip = 1
+				@bNNLSkip = 0
+				return This
+			ok
 			if isList(pcType)
 				return This.IsAXTQ(pcType)
+			ok
+			if @bNNLNeither = 1
+				if This.IsA(pcType) = 1
+					@bNNLNeither = 0
+					_oFo_ = AFalseObjectXT(This)
+					_oFo_.SetWhyStopped("no: the predicate held, but neither/nor required it false")
+					return _oFo_
+				ok
+				return This
 			ok
 
 			if This.IsA(pcType) = 1
@@ -5952,18 +5997,30 @@ class stzObject
 			_bYes_ = ( nActual >= _pExp_[1] and nActual <= _pExp_[2] )
 			_cExp_ = "between " + _pExp_[1] + " and " + _pExp_[2]
 		ok
+		_cModeTxt_ = lower("" + _cMode_)
+		if @bNNLNegate = 1
+			@bNNLNegate = 0
+			_bYes_ = NOT _bYes_
+			_cModeTxt_ = "not " + _cModeTxt_
+		ok
 		if _bYes_
-			@cNNLWhy = "yes: expected " + lower("" + _cMode_) + " " +
+			@cNNLWhy = "yes: expected " + _cModeTxt_ + " " +
 				_cExp_ + ", found " + nActual
 			$cStzLastWhyB = @cNNLWhy
 			return 1
 		ok
-		@cNNLWhy = "no: expected " + lower("" + _cMode_) + " " +
+		@cNNLWhy = "no: expected " + _cModeTxt_ + " " +
 			_cExp_ + ", found " + nActual
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
 	def _NNLCountIs(pcMethod)
+		if @bNNLSkip = 1
+			@bNNLSkip = 0
+			@cNNLWhy = "skipped: the disjunction was already satisfied"
+			$cStzLastWhyB = @cNNLWhy
+			return 1
+		ok
 		return This._NNLExpectCompare(This._NNLNounCount(pcMethod))
 
 	# --- value agreement: the RESULT of a noun equals the remembered value
@@ -6121,6 +6178,38 @@ class stzObject
 
 		def OtherwiseQ(pAction)
 			return This
+
+	# --- Q3: NEGATION + TRUTH-FUNCTIONAL COORDINATION ------------------
+	# NotQ() flips the NEXT comparison ("has not at most 2 vowels").
+	# EitherQ()/BothQ() are readable openers (pass-throughs). OrQ() on a
+	# LIVE object short-circuits: the disjunction is already satisfied,
+	# so the next disjunct is SKIPPED (one-shot flag honored by the
+	# device layer); on a FALSE premise OrQ() recovers the origin and
+	# the second disjunct gets its chance -- real disjunction, enabled
+	# by the carried origin. NeitherQ()...NorQ() demands every disjunct
+	# FALSE: a passing predicate turns the chain false, a failing one
+	# keeps it alive.
+
+	def NotQ()
+		@bNNLNegate = 1
+		return This
+
+	def BothQ()
+		return This
+
+	def EitherQ()
+		return This
+
+	def OrQ()
+		@bNNLSkip = 1
+		return This
+
+	def NeitherQ()
+		@bNNLNeither = 1
+		return This
+
+	def NorQ()
+		return This
 
 	# --- ORDINAL REFERENCE (new device): "the second word", "the last
 	# vowel" -- definite reference into a plural noun, stzOrdinal wired.

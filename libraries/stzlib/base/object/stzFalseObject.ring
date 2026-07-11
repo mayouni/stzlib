@@ -123,7 +123,29 @@ class stzFalseObject from stzObject
 	def AndQ()
 		return This
 
+	# Q3: on a FALSE premise, OR gives the SECOND disjunct its chance --
+	# the carried origin comes back to life ("is a number OR a string")
 	def OrQ()
+		if isObject(@oNNLOrigin)
+			return @oNNLOrigin
+		ok
+		return This
+
+	# under neither...nor a failing predicate is what KEEPS the chain
+	# alive -- but once false for another reason, false absorbs
+	def NorQ()
+		return This
+
+	def NotQ()
+		return This
+
+	def BothQ()
+		return This
+
+	def EitherQ()
+		return This
+
+	def NeitherQ()
 		return This
 
 	def StartsWith(p)
