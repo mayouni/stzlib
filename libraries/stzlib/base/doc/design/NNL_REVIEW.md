@@ -428,7 +428,7 @@ idiom is a composition.
 | Distributive quantification | DONE Q3b: EachQ/AnyQ/NoneQ figures distribute the next predicate (types AND the NB ellipsis device) with per-item explanations; strings quantify over chars; the collective ALL stays in AreQ (agreement) |
 | Tense/aspect over history | DONE Q4: WasEver/WasNever/UsedToBe/IsStill peek the QH stream (owned, never another chain's leftovers), explain with the state |
 | Modality (can/must) & evidentiality | frontier (constraints + neural) |
-| Hypothetical contexts (SupposeQ/AssumeQ) | frontier (entity world) |
+| Hypothetical contexts | DONE (2026-07-12): SupposeQ(name).IsAQ(type) overlays the world; WhatIs answers while supposed; ForgetSuppositions discards (world untouched), CommitSuppositions concludes via StzKnow -- the agent reasoning primitive |
 
 ### 9.1 Q1 -- stzQuestion, DONE 2026-07-10
 

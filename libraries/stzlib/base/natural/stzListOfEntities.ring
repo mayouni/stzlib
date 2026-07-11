@@ -8,6 +8,7 @@
 # Declared HERE (the world IS a list of entities); stzChainOfTruth used to
 # own it, which put the knowledge floor inside one legacy surface.
 $oWorldEntities = new stzListOfEntities
+$aStzSuppositions = []   # the HYPOTHETICAL overlay (see SupposeQ below)
 
 func WorldEntities()
 	return $oWorldEntities
@@ -66,6 +67,34 @@ func StzKnowXT(pcName, pcType, paProps)
 	func @StzKnowXT(pcName, pcType, paProps)
 		return StzKnowXT(pcName, pcType, paProps)
 
+# THE HYPOTHETICAL CONTEXT (the SupposeQ frontier): an assumption is an
+# OVERLAY on the world, never a commitment -- the world stays clean while
+# the discourse reasons "as if". The reasoning primitive of an agent:
+#
+#     SupposeQ("tomato").IsAQ(:Fruit)      # "Suppose tomato is a fruit"
+#     ? WhatIs("tomato")                    #--> [ "fruit" ]  (while supposed)
+#     ForgetSuppositions()                  # discard -- the world unchanged
+#     CommitSuppositions()                  # ...or conclude: StzKnow each
+#
+# Suppose -> ask -> commit or forget: deterministic sandboxed reasoning.
+
+func SupposeQ(pcName)
+	return new stzSupposition(pcName)
+
+func SuppositionsSoFar()
+	return $aStzSuppositions
+
+func ForgetSuppositions()
+	$aStzSuppositions = []
+
+func CommitSuppositions()
+	_nSup_ = len($aStzSuppositions)
+	for _iSup_ = 1 to _nSup_
+		StzKnow($aStzSuppositions[_iSup_][1], $aStzSuppositions[_iSup_][2])
+	next
+	$aStzSuppositions = []
+	return _nSup_
+
 # WhatIs: the world query from the oldest Softanza vision --
 #   ? WhatIs("apple")  #--> [ "fruit", "company" ]
 # Returns the list of TYPES the world knows for that name; [] when the
@@ -82,6 +111,14 @@ func WhatIs(pcName)
 	for _i_ = 1 to _nAll_
 		if _aAll_[_i_][:name] = _cName_ and ring_find(_aOut_, _aAll_[_i_][:type]) = 0
 			_aOut_ + _aAll_[_i_][:type]
+		ok
+	next
+	# the hypothetical overlay answers too, while it stands
+	_nSup_ = len($aStzSuppositions)
+	for _i_ = 1 to _nSup_
+		if $aStzSuppositions[_i_][1] = _cName_ and
+		   ring_find(_aOut_, $aStzSuppositions[_i_][2]) = 0
+			_aOut_ + $aStzSuppositions[_i_][2]
 		ok
 	next
 	return _aOut_
@@ -426,3 +463,29 @@ class stzListOfEntities from stzList
 				? "" + _n_ + ". " + _oEntity_.Name() + " (" + _oEntity_.Type() + ")"
 			next
 		ok
+
+class stzSupposition
+	@cName = ""
+
+	def init(pcName)
+		@cName = StzLower(trim(pcName))
+
+	# "Suppose X IS A fruit" -- records the assumption in the overlay
+	def IsAQ(pcType)
+		_cT_ = StzLower(trim("" + pcType))
+		_nSp_ = len($aStzSuppositions)
+		for _iSp_ = 1 to _nSp_
+			if $aStzSuppositions[_iSp_][1] = @cName and
+			   $aStzSuppositions[_iSp_][2] = _cT_
+				return This
+			ok
+		next
+		$aStzSuppositions + [ @cName, _cT_ ]
+		return This
+
+	# "...and (is) a company" -- the conjunction keeps supposing
+	def AndQ()
+		return This
+
+	def Name()
+		return @cName
