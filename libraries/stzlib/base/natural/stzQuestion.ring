@@ -59,6 +59,7 @@ class stzQuestion
 	@nSide = 1
 	@bCount1 = 0       # "the number of <noun>" -- count mode per side
 	@bCount2 = 0
+	@bNegate = 0       # NotQ(): "is X NOT the same as Y"
 	@cWhy = ""
 
 	def init(pcForce)
@@ -80,6 +81,11 @@ class stzQuestion
 	# the copula slot ("Is the length of Ring IS ... " reads as the
 	# mid-sentence 'is' of the comparison) -- position marker only
 	def IsQ()
+		return This
+
+	# negation of the claim: "Is ... NOT the same as ..."
+	def NotQ()
+		@bNegate = 1
 		return This
 
 	# "the NUMBER OF <noun>" as a constituent: count mode for this side
@@ -226,7 +232,16 @@ class stzQuestion
 			_cRel_ = "less than"
 		ok
 
-		if _bYes_
+		if @bNegate = 1
+			# the CLAIM is the negated relation; the explanation states
+			# the positive fact either way
+			_bYes_ = NOT _bYes_
+			if _bYes_
+				@cWhy = "yes: " + @@(_vLeft_) + " is not " + _cRel_ + " " + @@(_vRight_)
+			else
+				@cWhy = "no: " + @@(_vLeft_) + " is " + _cRel_ + " " + @@(_vRight_)
+			ok
+		but _bYes_
 			@cWhy = "yes: " + @@(_vLeft_) + " is " + _cRel_ + " " + @@(_vRight_)
 		else
 			@cWhy = "no: " + @@(_vLeft_) + " is not " + _cRel_ + " " + @@(_vRight_)

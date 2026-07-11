@@ -62,6 +62,17 @@ Scenario("Polar comparison: two computed constituents, one verdict")
 			DifferentFromQ().TheQ().NumberOfWordsQ().Of("hi there"), 1)
 EndScenario()
 
+Scenario("Q3: negation on the frame")
+	Then("'Is the length of Ring NOT the same as the length of Ruby?' (both 4)",
+		IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().NotQ().
+			TheSameAsQ().TheQ().LengthQ().Of("Ruby"), 0)
+	Then("...explained by the positive fact", Why(), "no: 4 is the same as 4")
+	Then("negated claim holds when lengths differ",
+		IsQ().TheQ().LengthQ().OfQ("Ring").IsQ().NotQ().
+			TheSameAsQ().TheQ().LengthQ().Of("softanza"), 1)
+	Then("...and says so", Why(), "yes: 4 is not the same as 8")
+EndScenario()
+
 Scenario("The frame is accountable like everything else")
 	bRefused = FALSE
 	try

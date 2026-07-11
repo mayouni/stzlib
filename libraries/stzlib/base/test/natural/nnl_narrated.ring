@@ -160,6 +160,37 @@ Scenario("P2: the context lives ON the chain -- agent safety")
 		oe2.WordNB(), FALSE)
 EndScenario()
 
+Scenario("Q3: truth-functional coordination on the monad")
+	Given("OrQ on a FALSE premise recovers the origin (the second disjunct gets its chance); on a TRUE branch it short-circuits; neither...nor demands every disjunct false")
+
+	Then("'is a number OR a string' -- false branch recovers, second decides",
+		classname( Q("Ring").EitherQ().IsAQ(:Number).OrQ().IsAQ(:String) ),
+		"stzstring")
+	Then("false OR false stays false",
+		classname( Q(123).EitherQ().IsAQ(:String).OrQ().IsAQ(:List) ),
+		"stzfalseobject")
+	Then("TRUE branch short-circuits: the number passes through UNTOUCHED",
+		classname( Q(123).EitherQ().IsAQ(:Number).OrQ().IsAQ(:String) ),
+		"stznumber")
+
+	Then("'is neither a number nor a list' holds for a string",
+		classname( Q("Ring").NeitherQ().IsAQ(:Number).NorQ().IsAQ(:List) ),
+		"stzstring")
+	Then("...and fails when one predicate holds",
+		classname( Q("Ring").NeitherQ().IsAQ(:String).NorQ().IsAQ(:List) ),
+		"stzfalseobject")
+
+	Then("NotQ flips the next comparison: 'has NOT at most 2 vowels'",
+		Q("AnnIE").NotQ().AtMost(2).VowelNB(), TRUE)
+	Then("...with the negated expectation in the reason",
+		Why(), "yes: expected not atmost 2, found 3")
+
+	# the number-typing fix that Q3 exposed, locked forever
+	Then("a number is NOT a string (descriptors test the TYPED value)",
+		classname( Q(123).IsAQ(:String) ), "stzfalseobject")
+	Then("and IS a number", classname( Q(123).IsAQ(:Number) ), "stznumber")
+EndScenario()
+
 Scenario("The monad keeps its discourse role")
 	Given("a false premise absorbs what follows and stays explainable")
 	Then("counting through a false premise answers 0",
