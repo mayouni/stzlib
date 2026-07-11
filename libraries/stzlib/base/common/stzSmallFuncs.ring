@@ -35,6 +35,13 @@ func StzQ(p)
 	func TQ(p)
 		return StzQ(p)
 
+	# the LOCATIVE topic opener: "In [1, 2, 3], each item is a number"
+	func InQ(p)
+		return StzQ(p)
+
+	func @InQ(p)
+		return StzQ(p)
+
 func StzQC(p)
 	if isObject(p)
 		# an stz object: clone THROUGH the content -- a fresh object

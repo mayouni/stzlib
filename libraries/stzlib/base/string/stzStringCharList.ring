@@ -651,8 +651,8 @@ class stzStringCharList from stzObject
 	def ToStzListOfStrings()
 		return new stzList( This.Content() )
 
-	def Are(p)
-		return len(This.Content()) > 0
+	# (the Are(p) stub was removed 2026-07-10: it answered TRUE for any
+	# non-empty list; the repaired stzList.Are is inherited instead)
 
 	# Boxify (delegates to the stzString cell renderer via concat).
 	def Boxify()

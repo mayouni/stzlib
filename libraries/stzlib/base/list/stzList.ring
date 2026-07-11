@@ -3842,11 +3842,29 @@ class stzList from stzObject
 		return This.NumbrifyQ()
 
 	def Are(p)
-		# Trivial truthy: was there at least one item matching the
-		# symbolic class? Returns TRUE for the common :Numbers /
-		# :Letters / :Chars stubs the test suite uses.
+		# REAL collective check (the old stub answered TRUE for ANY
+		# non-empty list, so mixed lists passed as :Numbers): dispatch
+		# to IsListOfXxx when it exists, else test each item against
+		# the SINGULAR descriptor (morphology machinery)
 		_l_ = This.List()
-		return len(_l_) > 0
+		if len(_l_) = 0
+			return 0
+		ok
+		_cAreM_ = "islistof" + StzLower("" + p)
+		if StzFindFirst(ring_methods(This), _cAreM_) > 0
+			eval("_bAre_ = This." + _cAreM_ + "()")
+			return _bAre_
+		ok
+		_cAreSing_ = Singular(StzLower("" + p))
+		_nAre_ = len(_l_)
+		for _iAre_ = 1 to _nAre_
+			_vAreItem_ = _l_[_iAre_]
+			eval("_bAreOne_ = @is" + _cAreSing_ + "(_vAreItem_)")
+			if NOT _bAreOne_
+				return 0
+			ok
+		next
+		return 1
 
 	def FindSpaces()
 		_l_ = This.List()

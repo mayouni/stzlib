@@ -6326,6 +6326,45 @@ class stzObject
 		@cNNLQuant = "none"
 		return This
 
+	# the quantifier-NOUN units (author's formulations): "each item is",
+	# "any item is", "no item is" -- same figures, the noun spoken.
+	def EachItemQ()
+		@cNNLQuant = "each"
+		return This
+
+	def AnyItemQ()
+		@cNNLQuant = "any"
+		return This
+
+	def NoItemQ()
+		@cNNLQuant = "none"
+		return This
+
+	# "ALL ITEMS ARE numbers" -- the COLLECTIVE side: all takes plural
+	# agreement, so AllItemsQ is the topic particle and AreQ (the
+	# existing collective check) does the work, answering with the
+	# TYPED list. The distributive per-item story belongs to EACH.
+	def AllItemsQ()
+		return This
+
+	# the typed-list converters AreQ answers with (decayed remnants --
+	# AreQ referenced them but modularization had dropped them; strings
+	# map to stzStringList, the plural-strings class)
+	def ToStzListOfNumbers()
+		return This._NNLCarry(new stzListOfNumbers(This.Content()))
+
+	def ToStzListOfStrings()
+		return This._NNLCarry(new stzStringList(This.Content()))
+
+	def ToStzListOfChars()
+		return This._NNLCarry(new stzListOfChars(This.Content()))
+
+	def ToStzListOfLists()
+		return This._NNLCarry(new stzListOfLists(This.Content()))
+
+	def ToStzListOfObjects()
+		return This._NNLCarry(new stzListOfObjects(This.Content()))
+
 	# the items a quantifier ranges over: a list's items, a string's chars
 	def _NNLQuantItems()
 		_vQi_ = This.Content()

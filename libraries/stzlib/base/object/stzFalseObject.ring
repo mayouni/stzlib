@@ -157,6 +157,15 @@ class stzFalseObject from stzObject
 	def NoneQ()
 		return This
 
+	def EachItemQ()
+		return This
+
+	def AnyItemQ()
+		return This
+
+	def NoItemQ()
+		return This
+
 	def ANumberQ()
 		return This
 
