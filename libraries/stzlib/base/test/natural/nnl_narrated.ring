@@ -6,7 +6,7 @@
 # ever locked its surface. Covers: the repaired descriptor dispatch, the
 # flagship sentence, the regenerated noun surface (from the semantic
 # lexicon), the expectation register with the NEW comparative determiners,
-# the accountability surface (WhyAnswered/WhyStopped on the chain,
+# the accountability surface (WhyCheckFailed/WhyStopped on the chain,
 # detached Why() for the console), the NEW conditional mood, the NEW
 # ordinal reference, and the accountable refusal that replaced silent
 # absorb-anything typo tolerance.
@@ -54,11 +54,15 @@ Scenario("Comparative determiners -- degree words for the expectation (NEW)")
 	oc1.AtMost(2).VowelNB()
 	oc2.AtLeast(5).WordNB()
 	Then("each chain keeps ITS OWN reason",
-		oc1.WhyAnswered(), "no: expected atmost 2, found 3")
-	Then("even after another chain answered",
-		oc2.WhyAnswered(), "no: expected atleast 5, found 2")
+		oc1.WhyCheckFailed(), "no: expected atmost 2, found 3")
+	Then("even after another chain checked",
+		oc2.WhyCheckFailed(), "no: expected atleast 5, found 2")
 	Then("a fresh object answers honestly",
-		Q("x").WhyAnswered(), "no check has been answered on this object yet")
+		Q("x").WhyCheckFailed(), "no check has been made on this object yet")
+	oc3 = Q("AnnIE")
+	oc3.AtLeast(2).VowelNB()
+	Then("a PASSED check is not explained (the archive never did)",
+		oc3.WhyCheckFailed(), "the last check did not fail")
 	Then("a LIVE object is polite about WhyStopped (the archive's way)",
 		oc1.WhyStopped(), "the chain is not stopped")
 	Then("a FALSE premise records why the chain stopped",
