@@ -2721,23 +2721,10 @@ class stzObject
 				return AFalseObjectXT(This)
 			ok
 
-		def IsAQM(pcType)
-			SetMainObject(This)
-			return This.IsAQ(pcType)
 
-		def IsAQMM(pcType)
-			return This._NNLMain()
 
-		def IsAM(pcType)
-			SetMainObject(This)
-			return This.IsA(pcType)
 
-			def IsAMQ(pcType)
-				SetMainObject(This)
-				return This.IsAQ(pcType)
 
-		def IsAMM(pcType)
-			return This._NNLMain()
 
 		#>
 
@@ -2749,19 +2736,9 @@ class stzObject
 			def IsAnQ(pcType)
 				return This.IsAQ(pcType)
 
-			def IsAnQM(pcType)
-				return This._NNLMain()
 
-		def IsAnM(pcType)
-			SetMainObject(This)
-			return THis.IsAn(pcType)
 
-			def IsAnMQ(pcType)
-				SetMainObject(This)
-				return This.IsAnQ(pcType)
 
-		def IsAnMM(pctype)
-			return This._NNLMain()
 
 		#--
 
@@ -2771,19 +2748,9 @@ class stzObject
 			def AreAQ(pcType)
 				return This.IsAQ(pcType)
 
-			def AreAQM(pcType)
-				return This._NNLMain()
 
-		def AreAM(pcType)
-			SetMainObject(This)
-			return This.AreA(pcType)
 
-			def AreAMQ(pcType)
-				SetMainObject(This)
-				return This.AreAQ(pcType)
 
-		def AreAMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -2793,19 +2760,9 @@ class stzObject
 			def AreAnQ(pcType)
 				return This.IsAQ(pcType)
 
-			def AreAnQM(pcType)
-				return This._NNLMain()
 
-		def AreAnM(pcType)
-			SetMainObject(This)
-			return This.AreAn(pcType)
 
-			def AreAnMQ(pcType)
-				SetMainObject(This)
-				return This.AreAnQ(pcType)
 
-		def AreAnMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -2815,19 +2772,9 @@ class stzObject
 			def IsTheQ(pcType)
 				return This.IsAQ(pcType)
 
-			def IsTheQM(pcType)
-				return This._NNLMain()
 
-		def IsTheM(pcType)
-			SetMainObject(This)
-			return This.IsThe(pcType)
 
-			def IsTheMQ(pcType)
-				SetMainObject(This)
-				return This.IsTheQ(pcType)
 
-		def IsTheMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -2837,19 +2784,9 @@ class stzObject
 			def AreTheQ(pcType)
 				return This.IsAQ(pcType)
 
-			def AreTheQM(pcType)
-				return This._NNLMain()
 
-		def AreTheM(pcType)
-			SetMainObject(This)
-			return This.AreThe(pcType)
 
-			def AreTheMQ(pcType)
-				SetMainObject(This)
-				return This.AreTheQ(pcType)
 
-		def AreTheMM(pcType)
-			return This._NNLMain()
 
 		#>
 
@@ -2895,19 +2832,9 @@ class stzObject
 				return AFalseObjectXT(This)
 			ok
 
-		def IsQM(pcType)
-			return This._NNLMain()
 
-		def IsM(pcType)
-			SetMainObject(This)
-			return This.IsM(pcType)
 
-			def IsMQ(pcType)
-				SetMainObject(This)
-				return This.IsQ(pcType)
 
-		def IsMM(pcType)
-			return This._NNLMain()
 
 	def Are(pcType)
 
@@ -2956,19 +2883,9 @@ class stzObject
 				return AFalseObjectXT(This)
 			ok
 
-		def AreQM(pcType)
-			return This._NNLMain()
 			
-		def AreM(pcType)
-			SetMainObject(This)
-			return This.Are(pcType)
 
-			def AreMQ(pcType)
-				SetMainObject(This)
-				return This.AreQ(pcType)
 
-		def AreMM(pcType)
-			return This._NNLMain()
 
 		#>
 
@@ -2978,19 +2895,9 @@ class stzObject
 			def AreAllQ(pcType)
 				return This.AreQ(pcType)
 
-			def AreAllQM(pcType)
-				return This._NNLMain()
 
-		def AreAllM(pcType)
-			SetMainObject(This)
-			return this.AreAll(pcType)
 
-			def AreAllMQ(pcType)
-				SetMainObject(pcType)
-				return This.AreAllQ(pcType)
 
-		def AreAllMM(pcType)
-			return This._NNLMain()
 
 	def AreBothA(pcType)
 
@@ -3028,8 +2935,6 @@ class stzObject
 
 			return This.AreQ(pcType)
 
-		def AreBothAQM(pcType)
-			return This._NNLMain()
 
 		#>
 
@@ -3041,8 +2946,6 @@ class stzObject
 			def AreBothAnQ(pcType)
 				return This.AreBothAQ(pcType)
 
-			def AreBothAnQM(pcType)
-				return This._NNLMain()
 
 		#--
 
@@ -3052,20 +2955,6 @@ class stzObject
 			def AreBothQ(pcType)
 				return This.AreBothAQ(pcType)
 
-			def AreBothQM(pcType)
-				return MainObject(This)
-
-			def AreBothMQ(pcType)
-				SetMainObject(This)
-				return This
-
-		def AreBothM(pcType)
-			SetMainObject(This)
-			return This.AreBoth(pcType)
-
-		def AreBothMM(pcType)
-			return This._NNLMain()
-
 		#--
 
 		def BothAreA(pcType)
@@ -3074,23 +2963,10 @@ class stzObject
 			def BothAreAQ(pcType)
 				return This.AreBothAQ(pcType)
 
-			def BothAreAQM(pcType)
-				return This._NNLMain()
 
-			def BothAreAMQ(pcType)
-				SetMainObject(This)
-				return This
 
-		def AreBothAM(pcType)
-			SetMainObject(This)
-			return This.AreBothA(pcType)
 
-			def AreBothAMQ(pcType)
-				SetMainObject(This)
-				return This.AreBothAQ(pcType)
 
-		def AreBothAMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -3100,23 +2976,10 @@ class stzObject
 			def BothAreAnQ(pcType)
 				return This.AreBothAQ(pcType)
 
-			def BothAreAnQM(pcType)
-				return This._NNLMain()
 
-			def BothAreAnMQ(pcType)
-				SetMainObject(This)
-				return This
 
-		def AreBothAnM(pcType)
-			SetMainObject(This)
-			return This.AreBothAn(pcType)
 
-			def AreBothAnMQ(pcType)
-				SetMainObject(This)
-				return This.AreBothAnQ(pcType)
 
-		def AreBothAnMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -3126,17 +2989,11 @@ class stzObject
 			def BothAreQ(pcType)
 				return This.AreBothQ(pcType)
 
-			def BothAreQM(pcType)
-				return This._NNLMain()
 
 		def BothAreM(pcType)
 			return this.AreBothM(pcType)
 
-			def BothAreMQ(pcType)
-				return This.AreBothMQ(pcType)
 
-		def BothAreMM(pcType)
-			return This._NNLMain()
 
 		#--
 
@@ -3146,65 +3003,33 @@ class stzObject
 			def AreTwoQ(pcType)
 				return AreBothAQ(pcType)
 
-			def AreTwoQM(pcType)
-				return This._NNLMain()
 
-		def AreTwoM(pcType)
-			SetMainObject(This)
-			return This.AreTwo(pcType)
 
-			def AreTwoMQ(pcType)
-				SetMainObject(This)
-				return This.AreTwoM(pcType)
 
-		def AreTwoMM(pcType)
-			return This._NNLMain()
 
 		#>
 
 	def Which()
 		return This
 
-		def WichM()
-			SetMainObject(This)
-			return This
 
-			def WichMQ()
-				return This.WichM()
 	
-		def WichMM()
-			return This._NNLMain()
 
 		def WhichQ()
 			return This.Which()
 
-		def WhichQM()
-			return This._NNLMain()
 
-		def whichMQ()
-			SetMainObject(This)
-			return This
 		#--
 	
 		def That()
 			return This
 
-		def ThatM()
-			SetMainObject(This)
-			return This
 
-		def ThatMM()
-			return This._NNLMain()
 
 		def ThatQ()
 			return This
 
-		def ThatQM()
-			return This._NNLMain()
 
-		def ThatMQ()
-			SetMainObject(This)
-			return This
 
 	def WhichIs()
 		return This
@@ -3212,18 +3037,9 @@ class stzObject
 		def WhichIsQ()
 			return This.WhichIs()
 
-		def WhichIsM()
-			SetMainObject(This)
-			return This
 
-			def WhichIsMQ()
-				return This.WhichIsM()
 
-		def WhichIsQM()
-			return This._NNLMain()
 
-		def WhichIsMM()
-			return This._NNLMain()
 
 		#--
 
@@ -3233,15 +3049,8 @@ class stzObject
 		def ThatIsQ()
 			return This.ThatIs()
 
-		def ThatIsM()
-			SetMainObject(This)
-			return This
 
-			def ThatIsMQ()
-				return This.ThatIsM()
 
-		def ThatiIsMM()
-			return This._NNLMain()
 
 	def WhichAre()
 		return This
@@ -3249,15 +3058,8 @@ class stzObject
 		def WhichAreQ()
 			return This.WhichAre()
 
-		def WhichAreM()
-			SetMainObject(This)
-			return This
 
-		def WhichAreMQ()
-			return This._NNLMain()
 
-		def WhichAreMM()
-			return This._NNLMain()
 
 		#--
 
@@ -3267,15 +3069,8 @@ class stzObject
 		def ThatAreQ()
 			return This.ThatAre()
 
-		def ThatAreM()
-			SetMainObject(This)
-			return This
 
-			def ThatAreMQ()
-				return This.ThatAreM()
 
-		def ThatiAreMM()
-			return This._NNLMain()
 
 	def WhichAreBoth()
 		_aContent_ = This.Content()
@@ -3292,19 +3087,9 @@ class stzObject
 
 		#-- @AlternativeForms
 
-		def WhichAreBothM()
-			SetMainObject(This)
-			return This.WhichAreBoth()
 
-			def WhichAreBothMQ()
-				SetMainObject(This)
-				return This.WhichAreBothQ()
 
-		def WhichAreBothQM()
-			return This._NNLMain()
 
-		def WhichAreBothMM()
-			return This._NNLMain()
 
 		#--
 
@@ -3314,16 +3099,8 @@ class stzObject
 		def WhichBothAreQ()
 			return This.WhichAreBoth()
 
-		def WhichBothAreM()
-			SetMainObject(This)
-			return This
 
-			def WhichBothAreMQ()
-				SetMainObject(This)
-				return This.WhichBothAreQ()
 
-		def WhichBothAreMM()
-			return This._NNLMain()
 
 		#-- @MisspelledForms
 
@@ -3333,19 +3110,9 @@ class stzObject
 		def WichAreBothQ()
 			return This.WhichAre()
 
-		def WichAreBothM()
-			SetMainObject(This)
-			return This.WichAreBoth()
 
-			def WichAreBothMQ()
-				SetMainObject(This)
-				return This.WichAreBothQ()
 
-			def WichAreBothQM()
-				return This._NNLMain()
 
-		def WichAreBothMM()
-			return This._NNLMain()
 
 		#--
 
@@ -3355,19 +3122,9 @@ class stzObject
 		def WichBothAreQ()
 			return This.WhichAreBoth()
 
-		def WichBothAreM()
-			SetMainObject(This)
-			return This.WichBothAre()
 
-			def WichBothAreMQ()
-				SetMainObject(This)
-				return This.WichBothAreQ()
 
-			def WichBothAreQM()
-				return This._NNLMain()
 
-		def WichBothAreMM()
-			return This._NNLMain()
 
 		#--
 
@@ -3377,19 +3134,9 @@ class stzObject
 		def WitchBothAreQ()
 			return This.WhichAreBoth()
 
-		def WitchBothAreM()
-			SetMainObject(This)
-			return This.WitchBothAre()
 
-			def WitchBothAreMQ()
-				SetMainObject(This)
-				return This.WitchBothAreQ()
 
-			def WitchBothAreQM()
-				return This._NNLMain()
 
-		def WitchBothAreMM()
-			return This._NNLMain()
 
 	def FromIt()
 		return This.Content()
@@ -3397,11 +3144,13 @@ class stzObject
 		def FromItQ()
 			return This
 		
+
 	def FromQ()
 		return This
 
 	def FromThem()
 		return This.Content()
+
 
 		def FromThemQ()
 			return This
@@ -3412,35 +3161,17 @@ class stzObject
 	def FinallyQ()
 		return This
 
-		def FinallyMQ()
-			SetMainObject(This)
-			return This
 
-		def FinallyM()
-			SetMainObject(This)
-			return This
 
 	def AndFinallyQ()
 		return This
 
-		def AndFinallyMQ()
-			SetMainObject(This)
-			return This
 
-		def AndFinallyM()
-			SetMainObject(This)
-			return This
 
 	def ThenQ()
 		return This
 
-		def ThenMQ()
-			SetMainObject(This)
-			return This
 
-		def ThenM()
-			SetMainObject(This)
-			return This
 
 	def AndThen()
 		return This
@@ -3448,32 +3179,15 @@ class stzObject
 		def AndThenQ()
 			return This
 
-			def AndThenMQ()
-				SetMainObject(This)
-				return This
 
-			def AndThenQM()
-				return This._NNLMain()
 
 		def AndQ()
 			return This
 
-			def AndQM()
-				return This._NNLMain()
 
-			def AndMQ()
-				SetMainObject()
-				return This.AndQ()
 
-		def AndThenM()
-			SetMainObject()
-			return This.AndThen()
 
-		def AndThenMM()
-			return This._NNLMain()
 
-	def QM()
-		return This._NNLMain() # Used in chains of truth
 
 	def Having()
 		return This
@@ -3481,15 +3195,8 @@ class stzObject
 		def HavingQ()
 			return This
 
-		def HavingQM()
-			return This._NNLMain()
 
-		def HavingMQ()
-			SetMainObject(This)
-			return This.HavingQ()
 
-		def HavingM()
-			return This._NNLMain()
 		
 		#--
 
@@ -3499,15 +3206,8 @@ class stzObject
 		def AndHavingQ()
 			return This
 
-		def AndHavingQM()
-			return This._NNLMain()
 
-		def AndHavingMQ()
-			SetMainObject(This)
-			return This.AndHavingQ()
 
-		def AndHavingM()
-			return This._NNLMain()
 
 	def With()
 		return This
@@ -3521,25 +3221,11 @@ class stzObject
 		def WithAQ()
 			return This
 
-		def WithMQ()
-			SetMainObject(This)
-			return This.WithQ()
 
-		def WithM()
-			return This._NNLMain()
 
-		def WithAMQ()
-			SetMainObject(This)
-			return This.WithAQ()
 
-		def WithAM()
-			return This._NNLMain()
 
-	def WithQM()
-		return This._NNLMain()
 
-		def WithAQM()
-			return This._NNLMain()
 	
 	def Only(value)
 		This._NNLSetExpect(value, :Exactly, 0)
@@ -3548,21 +3234,9 @@ class stzObject
 		def OnlyQ(value)
 			return Only(value)
 
-		def OnLyQM(value)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(value, :Exactly, 0)
-			return _oM_
 
-		def OnlyMQ(value)
-			SetMainObject(This)
-			return this.OnlyQ(value)
 
-		def OnlyM(value)
-			SetMainObject(This)
-			return This.OnlyM(value)
 
-		def OnlyMM(value)
-			return This._NNLMain()
 
 	def A()
 		return This
@@ -3570,21 +3244,11 @@ class stzObject
 		def AQ()
 			return This
 
-		def AQM()
-			return This
 
 		#--
 
-		def AM()
-			SetMainObject(This)
-			return This
 
-		def AMQ()
-			SetMainObject(This)
-			return This
 
-		def AMM()
-			return This._NNLMain()
 
 	def Their()
 		return This
@@ -3592,23 +3256,18 @@ class stzObject
 		#< @FunctionFluentForm
 
 		def TheirQ()
-			return This
+		# the PRONOUN: returns the chain SUBJECT -- which on an
+		# uninterrupted chain is This itself (markerless anaphora ruling)
+		if isObject(@oNNLMain)
+			return @oNNLMain
+		ok
+		return This
 
-		def TheirQM()
-			return This._NNLMain()
 		
 		#>
 
-		def TheirM()
-			SetMainObject(This)
-			return This.Their()
 
-			def TheirMQ()
-				SetMainObject(This)
-				return This.TheirQ()
 	
-		def TheirMM()
-			return This._NNLMain()
 
 
 		#< @FunctionAlternativeForms
@@ -3619,136 +3278,76 @@ class stzObject
 			def AllTheirQ()
 				return This
 
-			def AllTheirQM()
-				return This._NNLMain()
 
-			def AlltheirMQ()
-				SetMainObject(This)
-				return This.AlltheirQ()
 
 		def Its()
 			return This
 
-			def ItsM()
-				SetMainObject(This)
-				return This.Its()
 
-			def ItsMM()
-				return This._NNLMain()
 
 			def ItsQ()
-				return This
+		# the PRONOUN: returns the chain SUBJECT -- which on an
+		# uninterrupted chain is This itself (markerless anaphora ruling)
+		if isObject(@oNNLMain)
+			return @oNNLMain
+		ok
+		return This
 	
-			def ItsQM()
-				return This._NNLMain()
 
-			def ItsMQ()
-				SetMainObject(This)
-				return This.ItsQ()
 
 		def His()
 			return This
 
-			def HisM()
-				SetMainObject(This)
-				return This
 
-			def HisMM()
-				return This._NNLMain()
 
 			def HisQ()
 				return This
 	
-			def HisQM()
-				return This._NNLMain()
 
-			def HisMQ()
-				SetMainObject(This)
-				return This.HisQ()
 
 		def Her()
 			return This
 
-			def HerM()
-				SetMainObject(This)
-				return This
 
-			def HerMM()
-				return This._NNLMain()
 
 			def HerQ()
 				return This
 	
-			def HerQM()
-				return This._NNLMain()
 
-			def HerMQ()
-				SetMainObject(This)
-				return This.HerQ()
 
 		def My()
 			return This
 
 
-			def MyM()
-				SetMainObject(This)
-				return This
 
-			def MyMM()
-				return This._NNLMain()
 
 			def MyQ()
 				return This
 	
-			def MyQM()
-				return This._NNLMain()
 
-			def MyMQ()
-				SetMainObject(This)
-				return This.MyQ()
 
 		def Your()
 			return This
 
 
-			def YourM()
-				SetMainObject(This)
-				return This
 
-			def YourMM()
-				return This._NNLMain()
 
 			def YourQ()
 				return This
 	
-			def YourQM()
-				return This._NNLMain()
 
-			def YourMQ()
-				SetMainObject(This)
-				return This.YourQ()
 
 		#>
 
 	def As()
 		return This
 
-		def AsM()
-			SetMainObject(This)
-			return This.As()
 
-		def AsMM()
-			return This._NNLMain()
 
 		def AsQ()
 			return This
 
-		def AsQM()
-			return This._NNLMain()
 
-		def AsMQ()
-			SetMainObject(This)
-			return This.AsM()
 
 		#--
 
@@ -3758,17 +3357,11 @@ class stzObject
 		def AsAM()
 			return This.AsM()
 
-		def AsAMM()
-			return This._NNLMain()
 
 		def AsAQ()
 			return This.AsQ()
 
-		def AsAQM()
-			return This._NNLMain()
 
-		def AsAMQ()
-			return This.AsMQ()
 
 		#--
 
@@ -3778,17 +3371,11 @@ class stzObject
 		def AstheM()
 			return This.AsM()
 
-		def AsTheMM()
-			return This._NNLMain()
 
 		def AsTheQ()
 			return This.AsQ()
 
-		def AsTheQM()
-			return This._NNLMain()
 
-		def AsTheMQ()
-			return This.AsMQ()
 
 	def The()
 		return This
@@ -3796,191 +3383,104 @@ class stzObject
 		def TheQ()
 			return This.The()
 
-		def The_M() # to avoid confusion with Them()
-			SetMainObject(This)
-			return This
 
-			def The_MQ()
-				return This.The_M()
 
-		def The_MM()
-			return This._NNLMain()
 
 	def Them()
 		return This
 
+
+
+
+
 		def ThemQ()
 			return This.Them()
-
-		def ThemM()
-			SetMainObject(This)
-			return This
-
-			def ThemMQ()
-				return This.ThemM()
-
-		def ThemMM()
-			return MainObejct()
 
 	def Me()
 		return This
 
-		def MeM()
-			SetMainObject(This)
-			return This
 
-		def MeMM()
-			return This._NNLMain()
 
 		def MeQ()
 			return This.Me()
 
-		def MeQM()
-			return This._NNLMain()
 
-		def MeMQ()
-			SetMainObject(This)
-			return This.MeQ()
 
 	def Mine()
 		return This
 
-		def MineM()
-			SetMainObject(This)
-			return This
 
-		def MineMM()
-			return This._NNLMain()
 
 		def MineQ()
 			return This.Mine()
 
-		def MineQM()
-			return This._NNLMain()
 
-		def MineMQ()
-			SetMainObject(This)
-			return This.MineQ()
 
 	def It()
 		return This
 
-		def ItM()
-			SetMainObject(This)
-			return This
 
-		def ItMM()
-			return This._NNLMain()
 
 		def ItQ()
-			return This.It()
+		# the PRONOUN: returns the chain SUBJECT -- which on an
+		# uninterrupted chain is This itself (markerless anaphora ruling)
+		if isObject(@oNNLMain)
+			return @oNNLMain
+		ok
+		return This
 
-		def ItQM()
-			return This._NNLMain()
 
-		def ItMQ()
-			SetMainObject(This)
-			return This.ItQ()
 
 	def You()
 		return This
 
-		def YouM()
-			SetMainObject(This)
-			return This
 
-		def YouMM()
-			return This._NNLMain()
 
 		def YouQ()
 			return This.You()
 
-		def YouQM()
-			return This._NNLMain()
 
-		def YouMQ()
-			SetMainObject(This)
-			return This.YouQ()
 
 	def Yours()
 		return This
 
-		def YoursM()
-			SetMainObject(This)
-			return This
 
-		def YoursMM()
-			return This._NNLMain()
 
 		def YoursQ()
 			return This.Yours()
 
-		def YoursQM()
-			return This._NNLMain()
 
-		def YoursMQ()
-			SetMainObject(This)
-			return This.YoursQ()
 
 	def Him()
 		return This
 
-		def HimM()
-			SetMainObject(This)
-			return This
 
-		def HimMM()
-			return This._NNLMain()
+
+
+
 
 		def HimQ()
 			return This.Him()
 
-		def HimQM()
-			return This._NNLMain()
-
-		def HimMQ()
-			SetMainObject(This)
-			return This.HimQ()
-
 	def Has()
 		return This
 
-		def HasM()
-			SetMainObject(This)
-			return This
 
-		def HasMM()
-			return This._NNLMain()
 
 		def HasQ()
 			return This.Has()
 
-		def HasQM()
-			return This._NNLMain()
 
-		def HasMQ()
-			SetMainObject(This)
-			return This.HasQ()
 
 	def HasA()
 		return This
 
-		def HasAM()
-			SetMainObject(This)
-			return This
 
-		def HasAMM()
-			return This._NNLMain()
 
 		def HasAQ()
 			return This.HasA()
 
-		def HasAQM()
-			return This._NNLMain()
 
-		def HasaMQ()
-			SetMainObject(This)
-			return This.HasAQ()
 
 	def HasN(_n_)
 		if CheckingParams()
@@ -3992,94 +3492,45 @@ class stzObject
 		This._NNLSetExpect(_n_, :Exactly, 0)
 		return This
 
-		def HasNM(_n_)
-			if CheckingParams()
-				if NOT isNumber(_n_)
-					StzRaise("Incorrect param type! n must be a number.")
-				ok
-			ok
-			SetMainObject(This)
-			return This.HasN(_n_)
 
-		def HasNMM()
-			if CheckingParams()
-				if NOT isNumber(_n_)
-					StzRaise("Incorrect param type! n must be a number.")
-				ok
-			ok
-			return This._NNLMain()
 
 		def HasNQ(_n_)
 			return This.HasN(_n_)
 
-		def HasNQM(_n_)
-			return This._NNLMain()
 
-		def HasNMQ(_n_)
-			SetMainObject(This)
-			return This.HasNQ(_n_)
 
 		#--
 
 		def HasTheNumber(_n_)
 			return This.HasN(_n_)
 
-		def HasTheNumberM(_n_)
-			SetMainObject(This)
-			return This.HasTheNumber(_n_)
 
-		def HasTheNumberMM(_n_)
-			return This._NNLMain()
 
 		def HasTheNumberQ(_n_)
 			return This.HasTheNumber(_n_)
 
-		def HasTheNumberQM(_n_)
-			return This.HasTheNumberM(_n_)
 
-		def HasTheNumberMQ(_n_)
-			return This.HasTheNumberM(_n_)
 
 	#==
 
-	def M()
-		SetMainObject(This)
-		return This
 
-	def MM()
-		return This._NNLMain()
 
 	def _(any)
 		return LastValue()
 
-		def _M()
-			SetMainObject(This)
-			return This._(any)
 
-		def _MM()
-			return This._NNLMain()
 
 		def _Q(any)
 			return Q( This._(any) )
 
-		def _QM(any)
-			return This._NNLMain()
 
-		def _MQ(any)
-			SetMainObject(This)
-			return This._Q(any)
 
 	#==
 
 	def OfCS(_n_, pCaseSensitive)
 		return This.IsEqualToCS(_n_, pCaseSensitive)
 
-		def OfCSM(_n_, pCaseSensitive)
-			SetMainObject(This)
-			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfCSMM(_n_, pCaseSensitive)
-			return This._NNLMain()
 
 		def OfCSQ(_n_, pCaseSensitive)
 			if This.IsEqualToCS(_n_, pCaseSensitive)
@@ -4088,12 +3539,7 @@ class stzObject
 				return AFalseObjectXT(This)
 			ok
 
-		def OfCSQM(_n_, pCaseSensitive)
-			return This._NNLMain()
 
-		def OfCSMQ(_n_, pCaseSensitive)
-			SetMainObject(This)
-			return This.OfCSQ(_n_, pCaseSensitive)
 
 	def Of(_n_)
 		return This.OfCS(_n_, 1)
@@ -4101,17 +3547,11 @@ class stzObject
 		def OfM(_n_)
 			return This.OfCSM(_n_, 1)
 
-		def OfMM(_n_)
-			return This.OfCSMM(_n_, 1)
 
 		def OfQ(_n_)
 			return This.OfCSQ(_n_, 1)
 
-		def OfQM(_n_)
-			return This._NNLMain()
 
-		def OfMQ(_n_)
-			return This.OfCSMQ(_n_, pCaseSensitive)
 		
 	#--
 
@@ -4121,11 +3561,7 @@ class stzObject
 		def OfCSXTQ(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSQ(_n_, pCaseSensitive)
 
-		def OfCSXTQM(_n_, cIgnored, pCaseSensitive)
-			return This.OfCSQM(_n_, pCaseSensitive)
 
-		def OfCSXTMQ(_n_, cIgnored, pCaseSensitive)
-			return This.OfCSMQ(_n_, pCaseSensitive)
 
 		def OfXTCS(_n_, cIgnored, pCaseSensitive)
 			return This.OfCS(_n_, pCaseSensitive)
@@ -4133,11 +3569,7 @@ class stzObject
 		def OfXTCSQ(_n_, cIgnored, pCaseSensitive)
 			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfXTCSQM(_n_, cIgnored, pCaseSensitive)
-			return This.OfCS(_n_, pCaseSensitive)
 
-		def OfXTCSMQ(_n_, cIgnored, pCaseSensitive)
-			return This.OfCS(_n_, pCaseSensitive)
 
 	def OfXT(_n_, cIgnored)
 		return This.OfCS(_n_, 1)
@@ -4145,17 +3577,11 @@ class stzObject
 		def OfXTM(_n_, cIgnored)
 			return This.OfCSM(_n_, 1)
 
-		def OfXTMM(_n_, cIgnored)
-			return This.OfCSMM(_n_, 1)
 
 		def OfXTQ(_n_, cIgnored)
 			return This.OfCSQ(_n_, 1)
 
-		def OfXTQM(_n_, cIgnored)
-			return This.OfCSXTQM(_n_, 1)
 
-		def OfXTMQ(_n_, cIgnored)
-			return This.OfCSXTMQ(_n_, 1)
 
 	#==
 
@@ -4167,16 +3593,8 @@ class stzObject
 			return 0
 		ok
 
-		def OfCSBM(_n_, pCaseSensitive)
-			SetMainObject()
-			return This.OfCSB(_n_, pCaseSensitive)
 
-		def OfCSBMM(_n_, pCaseSensitive)
-			return This._NNLMain()
 
-		def OfCSMB(_n_, pCaseSensitive)
-			SetMainObject(This)
-			return This.OfCSB(_n_, pCaseSensitive)
 
 		def OfCSBQ(_n_, pCaseSensitive)
 			if This.OfCSB(_n_, pCaseSensitive) = 1
@@ -4185,19 +3603,12 @@ class stzObject
 				return AFalseObjectXT(This)
 			ok
 
-		def OfCSBQM(_n_, pCaseSensitive)
-			SetMainObject(This)
-			return This.OfCSBQ(_n_, pCaseSensitive)
 
 
-		def OfCSBQMM(_n_, pCaseSensitive)
-			return This._NNLMain()
 
 	def OfBM(_n_)
 		return This.OfCSBM(_n_, pCaseSensitive)
 
-		def OfBMM(_n_)
-			return This._NNLMain()
 
 		def OfMB(_n_)
 			return This.OfCSMB(_n_, 1)
@@ -4205,11 +3616,7 @@ class stzObject
 		def OfBQ(_n_)
 			return This.OfCSBQ(_n_, 1)
 
-		def OfBQM(_n_)
-			return This.OfCSBQM(_n_, 1)
 
-		def OfBQMM(_n_)
-			return This._NNLMain()
 
 	#==
 
@@ -4219,8 +3626,6 @@ class stzObject
 		def OfXTCSBM(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSBM(_n_, pCaseSensitive)
 
-		def OfXTCSBMM(_n_, cIgnored, pCaseSensitive)
-			return This._NNLMain()
 
 		def OfXTCSMB(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSMB(_n_, pCaseSensitive)
@@ -4228,17 +3633,11 @@ class stzObject
 		def OfXTCSBQ(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSBQ(_n_, pCaseSensitive)
 
-		def OfXTCSBQM(_n_, cIgnored, pCaseSensitive)
-			return This.OfCSBQM(_n_, pCaseSensitive)
 
-		def OfXTCSBQMM(_n_, pCaseSensitive)
-			return This._NNLMain()
 
 	def OfXTBM(_n_)
 		return This.OfXTCSB(_n_, cIgnored, 1)
 
-		def OfXTBMM(_n_)
-			return This._NNLMain()
 
 		def OfXTMB(_n_)
 			return This.OfXTCSMB(_n_, 1)
@@ -4246,11 +3645,7 @@ class stzObject
 		def OfXTBQ(_n_)
 			return This.OfXTCSBQ(_n_, 1)
 
-		def OfXTBQM(_n_)
-			return This.OfXTCSBQM(_n_, 1)
 
-		def OfXTBQMM(_n_)
-			return This._NNLMain()
 
 	#==
 
@@ -6472,11 +5867,6 @@ class stzObject
 	def NNLMainRaw()
 		return @oNNLMain
 
-	def _NNLMain()
-		if isObject(@oNNLMain)
-			return @oNNLMain
-		ok
-		return This._NNLMain()
 
 	def _NNLSetExpect(pVal, pcMode, pnTol)
 		@pNNLExpect = pVal
@@ -6658,10 +6048,6 @@ class stzObject
 		def ExactlyQ(n)
 			return This.Exactly(n)
 
-		def ExactlyQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :Exactly, 0)
-			return _oM_
 
 	def AtLeast(n)
 		This._NNLSetExpect(n, :AtLeast, 0)
@@ -6670,10 +6056,6 @@ class stzObject
 		def AtLeastQ(n)
 			return This.AtLeast(n)
 
-		def AtLeastQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :AtLeast, 0)
-			return _oM_
 
 	def AtMost(n)
 		This._NNLSetExpect(n, :AtMost, 0)
@@ -6682,10 +6064,6 @@ class stzObject
 		def AtMostQ(n)
 			return This.AtMost(n)
 
-		def AtMostQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :AtMost, 0)
-			return _oM_
 
 	def MoreThan(n)
 		This._NNLSetExpect(n, :MoreThan, 0)
@@ -6694,10 +6072,6 @@ class stzObject
 		def MoreThanQ(n)
 			return This.MoreThan(n)
 
-		def MoreThanQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :MoreThan, 0)
-			return _oM_
 
 	def LessThan(n)
 		This._NNLSetExpect(n, :LessThan, 0)
@@ -6706,10 +6080,6 @@ class stzObject
 		def LessThanQ(n)
 			return This.LessThan(n)
 
-		def LessThanQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :LessThan, 0)
-			return _oM_
 
 	def About(n)
 		This._NNLSetExpect(n, :About, 0.1)
@@ -6718,10 +6088,6 @@ class stzObject
 		def AboutQ(n)
 			return This.About(n)
 
-		def AboutQM(n)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect(n, :About, 0.1)
-			return _oM_
 
 		def AboutXT(n, nTol)
 			This._NNLSetExpect(n, :About, nTol)
@@ -6736,10 +6102,6 @@ class stzObject
 		def BetweenNQ(n1, n2)
 			return This.BetweenN(n1, n2)
 
-		def BetweenNQM(n1, n2)
-			_oM_ = This._NNLMain()
-			_oM_._NNLSetExpect([ n1, n2 ], :Between, 0)
-			return _oM_
 
 	# --- CONDITIONAL MOOD (new device): the chain branches on its own
 	# truth. On a live object the premise held: IfSo RUNS, Otherwise

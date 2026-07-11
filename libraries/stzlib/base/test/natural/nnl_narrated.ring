@@ -24,10 +24,13 @@ EndScenario()
 
 Scenario("The flagship sentence runs")
 	Given("'The word ring is a lowercase Latin word with a length of 4 letters and only 1 vowel'")
-	# UnitQ replaces the article's .Q(:Letters): a method named Q() would
-	# shadow the global Q() for every child class (the len() trap)
-	bFlag = TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithQ().
-		ALengthQ().OfQ(4).UnitQ(:Letters).AndQ().OnlyQM(1).VowelNB()
+	# MARKERLESS (the author's ruling): no M anywhere, exactly like the
+	# English -- the subject is the topic by being the subject; "only 1
+	# vowel" attaches to the word by selectional restriction (lengths
+	# have no vowels). UnitQ replaces the article's .Q(:Letters): a Q()
+	# method would shadow the global Q() (the len() trap).
+	bFlag = TheWordQ("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithQ().
+		ALengthQ().OfQ(4).UnitQ(:Letters).AndQ().OnlyQ(1).VowelNB()
 	Then("definite reference, articles, ellipsis, agreement -- one chain, TRUE",
 		bFlag, TRUE)
 EndScenario()
@@ -114,7 +117,7 @@ Scenario("Accountability replaced silent typo tolerance")
 EndScenario()
 
 Scenario("The grammaticality doctrine -- the chain IS the sentence")
-	Given("a relative pronoun needs a VERB: which HAS a length -- a chain that runs but does not parse as English is a bug in NNL terms; and M is a COMMITMENT to recall later, never a default")
+	Given("a relative pronoun needs a VERB: which HAS a length -- a chain that runs but does not parse as English is a bug in NNL terms; and reference is MARKERLESS: the subject is the topic, comebacks resolve by selectional attachment, pronouns (ItQ/ItsQ/TheirQ) serve true ambiguity")
 
 	# the corrected canonical statement, exactly as the author wrote it:
 	# 'The word ring is a word which has a length of 4.' No later clause
@@ -131,19 +134,21 @@ EndScenario()
 Scenario("P2: the context lives ON the chain -- agent safety")
 	Given("determiners set the expectation on the object they return; devices that build new objects carry it; *QM recalls read the chain-local main first")
 
-	# two DISCOURSES built side by side, each a GRAMMATICAL sentence:
-	# 'The word ring is a word which has a length of 4, and only 1
-	# vowel.' -- the '...and only 1 vowel' clause refers BACK to the
-	# word, so M is justified here (unlike the plain length statement)
-	od1 = TheWordQM("ring").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(4)
-	od2 = TheWordQM("softanza").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(8)
-	Then("the FIRST discourse still holds ITS referent",
-		od1._NNLMain().Content(), "ring")
-	Then("the second holds its own", od2._NNLMain().Content(), "softanza")
-	Then("'...and only 1 vowel' recalls RING, though the global moved on",
-		od1.AndQ().OnlyQM(1).VowelNB(), TRUE)
-	Then("'...and only 3 vowels' recalls SOFTANZA",
-		od2.AndQ().OnlyQM(3).VowelNB(), TRUE)
+	# two DISCOURSES built side by side, each a GRAMMATICAL sentence and
+	# MARKERLESS: the subject travels as chain-local context; the
+	# '...and only N vowels' clause attaches back by selectional
+	# restriction -- no memorize marker, no recall marker
+	od1 = TheWordQ("ring").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(4)
+	od2 = TheWordQ("softanza").IsAQ(:Word).WhichQ().HasQ().ALengthQ().OfQ(8)
+	Then("the FIRST discourse still holds ITS subject",
+		od1.NNLMainRaw().Content(), "ring")
+	Then("the second holds its own", od2.NNLMainRaw().Content(), "softanza")
+	Then("'...and only 1 vowel' attaches to RING",
+		od1.AndQ().OnlyQ(1).VowelNB(), TRUE)
+	Then("'...and only 3 vowels' attaches to SOFTANZA",
+		od2.AndQ().OnlyQ(3).VowelNB(), TRUE)
+	Then("the explicit pronoun recalls the subject too",
+		od1.ItsQ().Content(), "ring")
 
 	# two expectations built side by side: neither clobbers the other
 	oe1 = Q("AnnIE").AtMost(2)

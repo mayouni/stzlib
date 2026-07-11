@@ -187,6 +187,43 @@ descriptor (:Word, :Char...) used to fall through its type switch and
 return NOTHING (R13 downstream); it now continues on the typed object,
 context carried, so the author's canonical statement runs as written.
 
+## 4c. The M Ruling (author, 2026-07-10): MARKERLESS -- the M zoo is REMOVED
+
+The archive dig reconstructed the original M-algebra (MQ = memorize-and-
+chain, final QM = recall, MM = emphatic recall, one IsAQM duplicate) and
+the author rejected it on review: the letter-order cipher was inverted by
+its own inventor from memory, it duplicated meanings (one thing must do
+one thing), and language itself never marks reference this way.
+
+THE MODEL NOW (endorsed and enforced):
+1. The subject is the topic BY BEING THE SUBJECT -- Q()/The*Q()
+   constructors stamp the chain subject chain-locally at birth; no
+   marker, no global.
+2. Comebacks resolve by SELECTIONAL ATTACHMENT, deterministically:
+   nearest referent first (the current object), the subject second
+   ("...a length of 4 and only 1 vowel" -- lengths have no vowels),
+   refusal third, with explanation.
+3. The pronouns ItQ()/ItsQ()/TheirQ() are the ONLY explicit recall --
+   they return the chain subject (which on an uninterrupted chain is
+   This itself: one semantic, two situations).
+
+REMOVED (not frozen -- removed): 260+ M-suffixed methods across
+stzObject (x{M, MQ, QM, MM, QMM} families), the three QM constructor
+funcs (StzTheString/Number/ListQM + aliases like TheWordQM), the QM()
+global, and the Main-register globals (_oMainObject, MainObject,
+SetMainObject) -- ChainOfTruth/Value never used them. The flagship reads
+exactly like its English sentence now, marker-free:
+
+    TheWordQ("ring").IsAQ([:Lowercase,:Latin,:Word]).WithQ().ALengthQ().
+        OfQ(4).UnitQ(:Letters).AndQ().OnlyQ(1).VowelNB()   #--> TRUE
+
+Casualty note for honesty: the first removal sweep matched suffixes
+case-insensitively and briefly took FromQ/FromThemQ/ThemQ/HimQ ("from"+Q,
+"them"+Q are particles, not zoo) -- restored from git in the same
+session; the executable spec caught nothing because those particles were
+untested: they now deserve assertions when the particle inventory is
+locked (P3b).
+
 ## 5. Generalization: Derive the Surface from the Substrate
 
 The single most important design decision for NNL 2.0: **stop hand-writing
