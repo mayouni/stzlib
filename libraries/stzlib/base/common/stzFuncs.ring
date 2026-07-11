@@ -4999,16 +4999,6 @@ func StzTheNumberQ(_n_)
 	func NumberQ(_n_)
 		return StzTheNumberQ(_n_)
 
-func StzTheNumberQM(_n_)
-	obj = StzTheNumberQ(_n_)
-	SetMainObject(obj)
-	return obj
-
-	func TheNumberQM(_n_)
-		return StzTheNumberQM(_n_)
-
-	def NumberQM(_n_)
-		return StzTheNumberQM(_n_)
 
 func StzTheListQ(aList)
 	if NOT isList(aList)
@@ -5024,16 +5014,6 @@ func StzTheListQ(aList)
 	func ListQ(aList)
 		return StzTheListQ(aList)
 
-func StzTheListQM(aList)
-	obj = StzTheListQ(aList)
-	SetMainObject(obj)
-	return obj
-
-	func TheListQM(aList)
-		return StzTheListQM(aList)
-
-	func ListQM(aList)
-		return StzTheListQM(aList)
 
 func StzTheList(aList)
 	if NOT isList(aList)
@@ -5066,22 +5046,6 @@ func StzTheStringQ(str)
 	func WordQ(str)
 		return StzTheStringQ(str)
 
-func StzTheStringQM(str)
-	obj = StzTheStringQ(str)
-	SetMainObject(obj)
-	return obj
-
-	func TheStringQM(str)
-		return StzTheStringQM(str)
-
-	func StringQM(str)
-		return StzTheStringQM(str)
-
-	func TheWordQM(str)
-		return StzTheStringQM(str)
-
-	func WordQM(str)
-		return StzTheStringQM(str)
 
 func StzTheString(str)
 	if NOT isString(str)

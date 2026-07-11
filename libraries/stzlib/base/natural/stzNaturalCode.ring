@@ -13,19 +13,12 @@
 #  What REMAINS here is the context-memory trio, still consumed by live      #
 #  code (stzObject B-suffix comparisons, the stzFuncs QM family, and the     #
 #  stzChainOfTruth surface pending its NATURAL_VISION step-4 decision):      #
-#    - _oMainObject  (MainObject/SetMainObject, set by QM)                   #
 #    - _LastValue    (LastValue/SetLastValue, read by *B() comparisons)      #
 #    - QRT()         (Q with an explicit return type -- a general utility)   #
 #  Full original: git history / natural/archive of this file's ancestors.   #
 #---------------------------------------------------------------------------#
 
-_oMainObject = ANullObject() # Used for chains of truth
 _LastValue = NULL
-
-func QM(p)
-	_obj_ = Q(p)
-	SetMainObject(_obj_)
-	return _obj_
 
 func QRT(p, pcType)
 	if NOT isString(pcType)
@@ -40,20 +33,6 @@ func QRT(p, pcType)
 		return oResult
 	else
 		StzRaise("Unsupported Softanza type!")
-	ok
-
-func MainObject() # Used in Chains of truth
-	return _oMainObject
-
-	func @MainObject()
-		return _oMainObject
-
-func SetMainObject(_obj_)
-	_oMainObject = _obj_
-	# P2: stamp the chain-local main too, so the referent travels ON the
-	# chain (stz objects only; foreign objects keep the global-only path)
-	if isObject(_obj_) and StzFindFirst(ring_methods(_obj_), "setnnlmain") > 0
-		_obj_.SetNNLMain(_obj_)
 	ok
 
 func LastValue()
