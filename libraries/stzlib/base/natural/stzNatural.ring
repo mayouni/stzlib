@@ -1596,17 +1596,6 @@ class stzNaturalEngine from stzObject
 						return _k_ + 1
 					ok
 				next
-				# GROUNDED STRICT (P5): under strict, an unknown
-				# referent refuses with the known roster -- an agent
-				# must never act on a thing that does not exist
-				if @bStrict
-					_cKnown_ = ""
-					for _r_ = 1 to _nReg_
-						_cKnown_ += " '" + @aNamedObjects[_r_][1] + "'"
-					next
-					StzRaise("Strict natural mode: unknown object '" +
-						_cName_ + "'. Known objects:" + _cKnown_)
-				ok
 				This.AddToDebugLog("Unknown object name: " + _cName_)
 				return _k_ + 1
 			ok
