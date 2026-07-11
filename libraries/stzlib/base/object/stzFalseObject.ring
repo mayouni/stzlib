@@ -148,6 +148,15 @@ class stzFalseObject from stzObject
 	def NeitherQ()
 		return This
 
+	def EachQ()
+		return This
+
+	def AnyQ()
+		return This
+
+	def NoneQ()
+		return This
+
 	def ANumberQ()
 		return This
 

@@ -1987,6 +1987,7 @@ class stzObject
 	@bNNLNeither = 0   # neither...nor: every disjunct must be false
 	@bNNLEither = 0    # is either...or: first disjunct may fail WITHOUT
 	@bNNLSat = 0       # falsifying; or-recovery/skip close the figure
+	@cNNLQuant = ""    # each|any|none: the NEXT predicate distributes
 
 	@cVarName = :@NoName
 	@cUuid = ""
@@ -2629,6 +2630,9 @@ class stzObject
 				@bNNLSkip = 0
 				return This
 			ok
+			if @cNNLQuant != ""
+				return This._NNLDistIsA(pcType)
+			ok
 			if @bNNLNeither = 1
 				# under neither...nor a HOLDING predicate falsifies;
 				# a failing one keeps the chain alive (mode persists
@@ -2717,6 +2721,9 @@ class stzObject
 			if @bNNLSkip = 1
 				@bNNLSkip = 0
 				return This
+			ok
+			if @cNNLQuant != ""
+				return This._NNLDistIsA(pcType)
 			ok
 			if isList(pcType)
 				return This.IsAXTQ(pcType)
@@ -6041,6 +6048,43 @@ class stzObject
 			$cStzLastWhyB = @cNNLWhy
 			return 1
 		ok
+		if @cNNLQuant != ""
+			# distribute: every/any/no item's count must satisfy the
+			# expectation ("each has at least 2 vowels")
+			_cQ_ = @cNNLQuant
+			@cNNLQuant = ""
+			_aItems_ = This._NNLQuantItems()
+			_nQc_ = len(_aItems_)
+			for _i_ = 1 to _nQc_
+				_bOk_ = ( This._NNLExpectCompare(
+					Q(_aItems_[_i_])._NNLNounCount(pcMethod) ) = 1 )
+				if _cQ_ = "each" and NOT _bOk_
+					@cNNLWhy = "no: item " + _i_ + " (" + @@(_aItems_[_i_]) +
+						") fails -- " + @cNNLWhy
+					$cStzLastWhyB = @cNNLWhy
+					return 0
+				ok
+				if _cQ_ = "any" and _bOk_
+					@cNNLWhy = "yes: item " + _i_ + " satisfies -- " + @cNNLWhy
+					$cStzLastWhyB = @cNNLWhy
+					return 1
+				ok
+				if _cQ_ = "none" and _bOk_
+					@cNNLWhy = "no: item " + _i_ + " (" + @@(_aItems_[_i_]) +
+						") satisfies, and none may"
+					$cStzLastWhyB = @cNNLWhy
+					return 0
+				ok
+			next
+			if _cQ_ = "any"
+				@cNNLWhy = "no: no item satisfies the expectation"
+				$cStzLastWhyB = @cNNLWhy
+				return 0
+			ok
+			@cNNLWhy = "yes: " + _cQ_ + " over " + _nQc_ + " items"
+			$cStzLastWhyB = @cNNLWhy
+			return 1
+		ok
 		return This._NNLExpectCompare(This._NNLNounCount(pcMethod))
 
 	# --- value agreement: the RESULT of a noun equals the remembered value
@@ -6263,6 +6307,71 @@ class stzObject
 	def NorQ()
 		return This
 
+	# --- Q3b: DISTRIBUTIVE QUANTIFIERS ---------------------------------
+	# The quantifier opens a figure; the NEXT predicate applies to every
+	# item and the figure folds the answers: EACH demands all hold, ANY
+	# demands one, NONE demands zero. Singular agreement by design
+	# ("each IS a number", "none IS a number"); the collective plural
+	# lives in AreQ(:Numbers). The fold explains itself per item.
+
+	def EachQ()
+		@cNNLQuant = "each"
+		return This
+
+	def AnyQ()
+		@cNNLQuant = "any"
+		return This
+
+	def NoneQ()
+		@cNNLQuant = "none"
+		return This
+
+	# the items a quantifier ranges over: a list's items, a string's chars
+	def _NNLQuantItems()
+		_vQi_ = This.Content()
+		if isList(_vQi_)
+			return _vQi_
+		ok
+		if isString(_vQi_)
+			return This.Chars()
+		ok
+		StzRaise("NNL: '" + @cNNLQuant + "' needs a plural subject (a list or a string).")
+
+	# distribute a TYPE test (IsAQ symbol or IsAXT descriptor list)
+	def _NNLDistIsA(pType)
+		_cQ_ = @cNNLQuant
+		@cNNLQuant = ""
+		_aItems_ = This._NNLQuantItems()
+		_nQi_ = len(_aItems_)
+		for _i_ = 1 to _nQi_
+			_bHold_ = ( Q(_aItems_[_i_]).IsA(pType) = 1 )
+			if _cQ_ = "each" and NOT _bHold_
+				_oFo_ = AFalseObjectXT(This)
+				_oFo_.SetWhyStopped("no: item " + _i_ + " (" + @@(_aItems_[_i_]) +
+					") does not hold, and each must")
+				return _oFo_
+			ok
+			if _cQ_ = "any" and _bHold_
+				@cNNLWhy = "yes: item " + _i_ + " holds"
+				$cStzLastWhyB = @cNNLWhy
+				return This
+			ok
+			if _cQ_ = "none" and _bHold_
+				_oFo_ = AFalseObjectXT(This)
+				_oFo_.SetWhyStopped("no: item " + _i_ + " (" + @@(_aItems_[_i_]) +
+					") holds, and none may")
+				return _oFo_
+			ok
+		next
+		if _cQ_ = "any"
+			_oFo_ = AFalseObjectXT(This)
+			_oFo_.SetWhyStopped("no: no item holds, and any needs one")
+			return _oFo_
+		ok
+		@cNNLWhy = "yes: " + _cQ_ + " over " + _nQi_ + " items holds"
+		$cStzLastWhyB = @cNNLWhy
+		return This
+
 	# --- the TYPE-NOUN predicates: "a number", "a string"... the words
 	# the disjunctive figures coordinate ("is either A NUMBER or A
 	# STRING"). Outside a figure they behave like IsAQ(type).
@@ -6271,6 +6380,9 @@ class stzObject
 		if @bNNLSkip = 1
 			@bNNLSkip = 0
 			return This
+		ok
+		if @cNNLQuant != ""
+			return This._NNLDistIsA(pcType)
 		ok
 		if @bNNLEither = 1
 			# first disjunct: record, never falsify

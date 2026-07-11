@@ -425,7 +425,7 @@ idiom is a composition.
 | Noun phrases as values | DONE Q1 (aspect + genitive slots) |
 | Truth-functional or/nor, both...and | DONE Q3-corrected: fused copulas IsEitherQ/IsNeitherQ coordinate TYPE NOUNS (ANumberQ/AStringQ...); Or-recovery via origin; skip short-circuit; pronouns carry the figure |
 | Negation | DONE Q3-corrected: NO NotQ (un-English) -- negative FORMS (IsNot*/DoesNot*), ANTONYM comparators (DifferentFromQ), and the TAG closer OrNot() |
-| Distributive quantification (each/all/any/none) | Q3b (W engine) -- next |
+| Distributive quantification | DONE Q3b: EachQ/AnyQ/NoneQ figures distribute the next predicate (types AND the NB ellipsis device) with per-item explanations; strings quantify over chars; the collective ALL stays in AreQ (agreement) |
 | Tense/aspect over history (WasQ/EverB) | Q4 (QH exists) |
 | Modality (can/must) & evidentiality | frontier (constraints + neural) |
 | Hypothetical contexts (SupposeQ/AssumeQ) | frontier (entity world) |
