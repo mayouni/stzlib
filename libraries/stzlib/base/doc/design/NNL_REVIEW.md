@@ -265,38 +265,11 @@ the plan (the ordered list of semantic IDs + arguments + context bindings):
   **NNL -> plan** (trivial in NNL 2.0), which gives NNL chains
   Understood()/Answers()/strict-mode FOR FREE.
 
-## 7. Prospect: Governing Intelligent Systems
+## 7. (Withdrawn)
 
-Why this matters beyond ergonomics. An agent -- programmatic (Softanza-
-native) or LLM-driven -- needs an action language that is (a) expressive
-enough to say real things, (b) bounded enough to be provable, (c) auditable
-by humans, (d) deterministic in execution. The stack built this year is
-exactly that contract:
-
-- **Vocabulary bound**: packs + allow-lists define what CAN be said
-  (StzExportPackTemplate already emits the contract; give it to the LLM as
-  its tool grammar).
-- **Total understanding**: strict mode refuses any narration containing an
-  unresolved word; Unresolved() + suggest are the repair loop; the LLM
-  regenerates until the machine can PROVE the reading.
-- **Audit**: Understood() paraphrases back (multilingual); plan->NNL
-  renders the executable artifact a human reviews; Answers()/AllYes() are
-  the policy verdicts.
-- **Grounding**: entities ($oWorldEntities, WhatIs) name the things acted
-  on; stzKnowledgeGraph datasets can govern which relations are sayable --
-  the bridging-minds Semantic Model (`Person Eats Fruit`) becomes the
-  agent's ontology; a narration mentioning an entity the world cannot type
-  is refusable, exactly like an unknown verb.
-- **Policy as interrogative narration**: "Is the requester an admin ? Does
-  the amount exceed 1000 ?" -- AllYes() as the gate. ChainOfValue's
-  temporal gems (Until/Since/Whenever) are the natural-word guards for
-  agent LOOPS -- the right rebuild target for that class when the agent
-  thread opens.
-
-This is the "algorithmically bound and totally understood" intelligence
-the NNL documents were reaching for: not the machine pretending to
-understand language, but language constrained until understanding is a
-theorem.
+This section proposed using the stack to govern AI agents and LLMs.
+The author ruled that scope OUT of the library (2026-07-12); the
+section is withdrawn and the corresponding code was removed.
 
 ## 8. The Plan -- Updated After the Renovation (2026-07-10)
 
@@ -389,18 +362,13 @@ the core of P3. The phases, restated against what now exists:
 - **P4 -- The pivot round-trip.** Unchanged: plan->NNL linearizer
   (Naturally emitting NNL chains as its generated code) and NNL->plan;
   NNL chains then gain Understood()/Answers()/strict for free.
-- **P5 -- The governance kit.** [DONE 2026-07-12, stzGovernance.ring]
-  StzPolicy: named natural-question gates -- Allows(value) folds the
-  answers, WhyDenied() names the failing requirement; an ununderstood
-  policy DENIES (broken, never permissive). GROUNDED STRICT: under
-  strict, recalling an unknown referent refuses with the known roster.
-  StzAgentContract(lang): one deterministic bundle -- protocol (strict +
-  repair + Understood echo + AllYesSoFar gates + the Suppose cycle),
-  the entity WORLD, structural words, lexicon-linearized sample
-  vocabulary (per pack language), accountability rules. DEFERRED
-  honestly: temporal guards (until/whenever agent loops -- need a loop
-  runtime) and graph-governed relations (need the relations schema on
-  the entity world).
+- **P5 -- REMOVED by the author (2026-07-12).** The governance kit
+  (StzPolicy, StzAgentContract, grounded strict) and every LLM-facing
+  relation were ruled OUT of the library and deleted the same day they
+  landed. The natural stack's own guarantees (strict mode, refusal,
+  Why, Understood, the ask records, Suppose) remain -- as library
+  features, not as an agent-governance product.
+
 - **P6 (new) -- Device candidates observed but deferred:** distributive
   quantification (`EachQ()` mapping the next predicate over items --
   needs W integration), chain-level negation particle (`NotQ()` flipping
