@@ -5031,7 +5031,6 @@ func StzTheStringQ(str)
 	ok
 
 	obj = new stzString(str)
-	obj.SetNNLMain(obj)
 	return obj
 
 	func TheStringQ(str)

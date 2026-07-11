@@ -3304,10 +3304,11 @@ class stzObject
 		#< @FunctionFluentForm
 
 		def TheirQ()
-		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling).
-		# Ring object semantics are BY VALUE, so the subject comes back
-		# as a copy: the active logical figure travels with it.
+		# the PRONOUN: returns the chain SUBJECT -- on an uninterrupted
+		# chain @oNNLMain is unset (lazy stamping) and the subject IS
+		# This; after an interruption the stored subject is an
+		# assignment-copy, so the live logical figure is re-stamped
+		# onto what is handed back.
 		if isObject(@oNNLMain)
 			_oIt_ = @oNNLMain
 			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
@@ -3338,10 +3339,11 @@ class stzObject
 
 
 			def ItsQ()
-		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling).
-		# Ring object semantics are BY VALUE, so the subject comes back
-		# as a copy: the active logical figure travels with it.
+		# the PRONOUN: returns the chain SUBJECT -- on an uninterrupted
+		# chain @oNNLMain is unset (lazy stamping) and the subject IS
+		# This; after an interruption the stored subject is an
+		# assignment-copy, so the live logical figure is re-stamped
+		# onto what is handed back.
 		if isObject(@oNNLMain)
 			_oIt_ = @oNNLMain
 			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
@@ -3478,10 +3480,11 @@ class stzObject
 
 
 		def ItQ()
-		# the PRONOUN: returns the chain SUBJECT -- which on an
-		# uninterrupted chain is This itself (markerless anaphora ruling).
-		# Ring object semantics are BY VALUE, so the subject comes back
-		# as a copy: the active logical figure travels with it.
+		# the PRONOUN: returns the chain SUBJECT -- on an uninterrupted
+		# chain @oNNLMain is unset (lazy stamping) and the subject IS
+		# This; after an interruption the stored subject is an
+		# assignment-copy, so the live logical figure is re-stamped
+		# onto what is handed back.
 		if isObject(@oNNLMain)
 			_oIt_ = @oNNLMain
 			_oIt_._NNLSetFigure(@bNNLNeither, @bNNLEither, @bNNLSat, @bNNLSkip)
@@ -5946,8 +5949,15 @@ class stzObject
 
 	def _NNLCarry(poNew)
 		if isObject(poNew)
+			# LAZY subject stamping (no birth snapshot): the subject is
+			# recorded at the moment of INTERRUPTION, from the live
+			# object being left behind. A birth-time snapshot would
+			# dangle once the original mutates (stz copies share the
+			# engine handle -- see the aliasing doctrine).
 			if isObject(@oNNLMain)
 				poNew.SetNNLMain(@oNNLMain)
+			else
+				poNew.SetNNLMain(This)
 			ok
 			if @cNNLExpectMode != ""
 				poNew._NNLSetExpect(@pNNLExpect, @cNNLExpectMode, @nNNLExpectTol)
@@ -6203,9 +6213,14 @@ class stzObject
 	def BothQ()
 		return This
 
-	# Ring stores/returns objects BY VALUE: the stamped subject is a
-	# pristine copy, so a pronoun must CARRY the active logical figure
-	# (neither/either/sat/skip) onto the copy it hands back
+	# RING SEMANTICS (author's rule, mutation-probed): numbers/strings
+	# copy; lists and objects pass BY REFERENCE into functions, but the
+	# `=` ASSIGNMENT (incl. attribute store) COPIES -- and a copied stz
+	# object SHARES its engine handle, so the elder's view dangles after
+	# the younger mutates. Therefore the chain's semantics belong to
+	# Softanza's returning code alone: never alias stz objects with `=`
+	# (use QC()/Copy()), and stored subjects are copies whose live
+	# figure must be re-stamped when handed back:
 	def _NNLSetFigure(pbNeither, pbEither, pbSat, pbSkip)
 		@bNNLNeither = pbNeither
 		@bNNLEither = pbEither

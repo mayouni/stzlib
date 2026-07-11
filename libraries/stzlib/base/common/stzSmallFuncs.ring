@@ -18,11 +18,6 @@ func StzQ(p)
 		_oResult_ = new stzObject(p)
 	ok
 
-	# NNL: the chain SUBJECT is the topic by virtue of being the subject
-	# (no marker, exactly like language) -- stamped chain-locally so the
-	# anaphora devices can attach back to it; no global is written
-	_oResult_.SetNNLMain(_oResult_)
-
 	return _oResult_
 
 	func Q(p)
@@ -39,6 +34,30 @@ func StzQ(p)
 
 	func TQ(p)
 		return StzQ(p)
+
+func StzQC(p)
+	if isObject(p)
+		# an stz object: clone THROUGH the content -- a fresh object
+		# gets a fresh engine handle
+		_vQc_ = p.Content()
+		if isList(_vQc_)
+			_aQc_ = _vQc_    # Ring copies lists on assignment
+			return StzQ(_aQc_)
+		ok
+		return StzQ(_vQc_)
+	ok
+	if isList(p)
+		_aQc_ = p            # Ring copies lists on assignment
+		return StzQ(_aQc_)
+	ok
+	# numbers and strings are copied by Ring naturally
+	return StzQ(p)
+
+	func QC(p)
+		return StzQC(p)
+
+	func @QC(p)
+		return StzQC(p)
 
 func StzQH(p)
 	#TODO // Review the code of all functions where loops are used
