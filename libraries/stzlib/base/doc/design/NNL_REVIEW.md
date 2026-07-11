@@ -423,9 +423,9 @@ idiom is a composition.
 | Illocutionary force (questions) | DONE Q1 -- stzQuestion (below) |
 | Comparison of computed constituents | DONE Q1 (same/different/more/less) |
 | Noun phrases as values | DONE Q1 (aspect + genitive slots) |
-| Truth-functional or/nor, both...and | Q3 |
-| Negation as operator (NotQ) | Q3 |
-| Distributive quantification (each/all/any/none) | Q3 (W engine) |
+| Truth-functional or/nor, both...and | DONE Q3 (Or-recovery via origin; skip-flag short-circuit; neither/nor) |
+| Negation as operator (NotQ) | DONE Q3 (frames negate the claim; chains flip the next comparison) |
+| Distributive quantification (each/all/any/none) | Q3b (W engine) -- next |
 | Tense/aspect over history (WasQ/EverB) | Q4 (QH exists) |
 | Modality (can/must) & evidentiality | frontier (constraints + neural) |
 | Hypothetical contexts (SupposeQ/AssumeQ) | frontier (entity world) |
@@ -454,7 +454,7 @@ for free); every answer records Why() ("yes: 4 is the same as 4"); WH
 answers are DATA (values, lists); HowMany prefers the NumberOf twin.
 Suite: question_narrated 13/13.
 
-Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3
-(negation + truth-functional coordination + distributives), Q4
+Next: Q2 (P3b folded in -- predicate B-forms + multilingual stems), Q3b
+(distributive quantifiers on W), Q4
 (convergence: frame answers into Answers()/AllYes, WhatQ meets WhatIs,
 history tense, plan<->NNL).
