@@ -8953,6 +8953,7 @@ class stzList from stzObject
 	def FindItemsW(pCondition)
 		return This.FindAllItemsW(pCondition)
 
+	# The first n items, in the requested return type (QRT).
 	def FirstNItemsQRT(_n_, pcReturnType)
 		return This.NFirstItemsQRT(_n_, pcReturnType)
 
@@ -11310,6 +11311,7 @@ class stzList from stzObject
 		def RemoveAllExceptNonNumbers()
 			This.RemoveNumbers()
 
+	# Remove every non-number item (mutating).
 	def RemoveNonNumbers()
 		This.RemoveItemsAtPositions( This.FindNonNumbers() )
 
@@ -11372,6 +11374,7 @@ class stzList from stzObject
 	#  Positions, (Find)PreviousNthOccurrence.               #
 	#========================================================#
 
+	# TRUE if every item is a number or a pair of numbers.
 	def IsListOfNumbersAndPairsOfNumbers()
 		# Each item must be a number, or a 2-element list of two numbers.
 		# (Pair check inlined: the class also has a 0-arg IsPairOfNumbers
@@ -11405,6 +11408,7 @@ class stzList from stzObject
 	def SplittedToPartsOfNItemsXT(_n_)
 		return This.Copy().SplitToPartsOfNItemsXTQ(_n_).Content()
 
+	# Split the list after EACH of the given positions.
 	def SplitAfterPositions(panPos)
 		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
 		This.UpdateWith( This.Sections(_aSections_) )
@@ -11413,9 +11417,11 @@ class stzList from stzObject
 		This.SplitAfterPositions(panPos)
 		return This
 
+	# The parts split after the given positions, as data.
 	def SplittedAfterPositions(panPos)
 		return This.Copy().SplitAfterPositionsQ(panPos).Content()
 
+	# Split the list before EACH of the given positions.
 	def SplitBeforePositions(panPos)
 		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
 		This.UpdateWith( This.Sections(_aSections_) )
@@ -11424,6 +11430,7 @@ class stzList from stzObject
 		This.SplitBeforePositions(panPos)
 		return This
 
+	# The parts split before the given positions, as data.
 	def SplittedBeforePositions(panPos)
 		return This.Copy().SplitBeforePositionsQ(panPos).Content()
 
@@ -11512,6 +11519,7 @@ class stzList from stzObject
 		This.RemoveTheseBounds(pBound1, pBound2)
 		return This
 
+	# A copy with the two given bounds removed from the ends.
 	def TheseBoundsRemoved(pBound1, pBound2)
 		return This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()
 
@@ -11520,6 +11528,8 @@ class stzList from stzObject
 	#  FindStzNumbers, ReplaceThisAt (split-dropped).        #
 	#========================================================#
 
+	# Multiply the list by the given factor (number: tile; list:
+	# pairwise).
 	def MultiplyBy(p)
 		switch ring_type(p)
 		on "NUMBER"
@@ -11563,6 +11573,7 @@ class stzList from stzObject
 	def TypesXT()
 		return This.ListQ().AssociatedWith( This.Types() )
 
+	# The positions of the stzNumber OBJECT items.
 	def FindStzNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -11593,6 +11604,7 @@ class stzList from stzObject
 		next
 		return _anResult_
 
+	# The positions of the stzList OBJECT items.
 	def FindStzLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
