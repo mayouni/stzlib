@@ -1255,6 +1255,7 @@ class stzString from stzObject
 	def Range(_nStart_, _nRange_)
 		return This._SectionLenient(_nStart_, _nStart_ + _nRange_ - 1)
 
+	# TRUE if the string runs left-to-right (bidi direction).
 	def IsLeftToRight()
 		return TRUE
 
@@ -4539,6 +4540,7 @@ class stzString from stzObject
 		return This.TextQ().IsNegative()
 
 	# --- Part-of-speech tagging ---
+	# The part-of-speech tag of each word (via the text layer).
 	def POSTags()
 		return This.TextQ().POSTags()
 
@@ -4552,6 +4554,7 @@ class stzString from stzObject
 			return This.TaggedWords()
 
 	# --- Named-entity recognition ---
+	# The named entities found in the string (via the text layer).
 	def NamedEntities()
 		return This.TextQ().NamedEntities()
 
@@ -4584,6 +4587,7 @@ class stzString from stzObject
 		return This.TextQ().IsStopword()
 
 	# --- Flesch readability ---
+	# The Flesch reading-ease score of the string (via the text layer).
 	def ReadingEase()
 		return This.TextQ().ReadingEase()
 
@@ -5132,6 +5136,8 @@ class stzString from stzObject
 		def HasDiacritics()
 			return This.ContainsDiacritics()
 
+	# The string in its dotless skeleton (rasm) -- the diacritic dots
+	# removed (Arabic-aware); the original is unchanged.
 	def DotsRemoved()
 		# Render the string in its dotless skeleton (rasm). ENGINE-BACKED
 		# (StzEngineStringDotless): codepoint-by-codepoint, i/î -> ı,
@@ -5495,12 +5501,14 @@ class stzString from stzObject
 	def ContainsDuplicates()
 		return This.ContainsDuplicatesCS(1)
 
+	# TRUE if some substring occurs more than once in the string.
 	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
 		return len(This.DuplicatedSubStringsCS(pCaseSensitive)) > 0
 
 	def ContainsDuplicatedSubStrings()
 		return This.ContainsDuplicatedSubStringsCS(1)
 
+	# The substrings that occur more than once in the string.
 	def DuplicatedSubStringsCS(pCaseSensitive)
 		_oDsDup_ = new stzStringDuplicates(This)
 		return _oDsDup_.DuplicatedChars()
@@ -5514,6 +5522,7 @@ class stzString from stzObject
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(1)
 
+	# TRUE if some char occurs more than once.
 	def HasDuplicatedChars()
 		_oDhDup_ = new stzStringDuplicates(This)
 		return _oDhDup_.HasDuplicatedChars()
@@ -5522,6 +5531,8 @@ class stzString from stzObject
 	 #   CHAR RANGE (UpTo/DownTo) #
 	#============================#
 
+	# For a single-char string: the chars from it UP TO the given
+	# char, as a list.
 	def UpTo(pcChar)
 		if This.NumberOfChars() = 1
 			_oUtChar_ = new stzStringChar(This.Content())
@@ -5529,6 +5540,8 @@ class stzString from stzObject
 		ok
 		return []
 
+	# For a single-char string: the chars from it DOWN TO the given
+	# char, as a list.
 	def DownTo(pcChar)
 		if This.NumberOfChars() = 1
 			_oDtChar_ = new stzStringChar(This.Content())
@@ -5545,6 +5558,7 @@ class stzString from stzObject
 	def Box()
 		This.BoxXT([])
 
+	# Box the content with rounded corners in place (mutating).
 	def BoxRound()
 		This.BoxXT([ :Line = :Solid, :AllCorners = :Round ])
 
@@ -5753,11 +5767,13 @@ class stzString from stzObject
 		       _cV_ + _cMidTxt_ + _cV_ + NL +
 		       _cBL_ + _cHL_ + _cBR_
 
+	# A boxed copy of the string; the original is unchanged.
 	def Boxed()
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.Box()
 		return _oBxCopy_.Content()
 
+	# A rounded-corner boxed copy of the string.
 	def BoxedRound()
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.BoxRound()
@@ -5766,12 +5782,14 @@ class stzString from stzObject
 	def BoxedRounded()
 		return This.BoxedRound()
 
+	# A rounded, dashed-line boxed copy of the string.
 	def BoxedRoundedDashed()
 		return This._BoxRender([ :Line = :Dashed, :AllCorners = :Round ])
 
 	def BoxedRoundDashed()
 		return This.BoxedRoundedDashed()
 
+	# Each char in its own box cell, as a string.
 	def EachCharBoxed()
 		return This._BoxRender([ :EachChar = TRUE ])
 
@@ -5942,6 +5960,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# A boxed copy with options (:Line, :AllCorners, ...).
 	def BoxedXT(paBoxOptions)
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.BoxXT(paBoxOptions)
@@ -5951,6 +5970,8 @@ class stzString from stzObject
 	 #   TEXT ALIGNMENT            #
 	#============================#
 
+	# Align the content in a field of nWidth chars, padded with
+	# cFillChar, to the given direction (mutating).
 	def AlignXT(nWidth, cFillChar, cDirection)
 		_cAlContent_ = This.Content()
 		_nAlLen_ = This.NumberOfChars()
@@ -5979,6 +6000,7 @@ class stzString from stzObject
 	 #   UNIQUE CHARS             #
 	#============================#
 
+	# The UNIQUE chars of the string, in first-seen order.
 	def CharsU()
 		_pCuHandle_ = StzEngineStringUniqueChars(@pEngine)
 		if _pCuHandle_ = NULL
@@ -5997,6 +6019,8 @@ class stzString from stzObject
 	 #   UNICODES                  #
 	#============================#
 
+	# The codepoint of a single-char string -- or the codepoints
+	# list for a longer one.
 	def Unicode()
 		# A single char gives its codepoint NUMBER; a longer string
 		# gives the codepoint LIST (Q("ê" decomposed) -> [101, 770]).
@@ -6019,6 +6043,7 @@ class stzString from stzObject
 		def UnicodeName()
 			return This.CharName()
 
+	# The codepoint of each char, as a list.
 	def Unicodes()
 		_aUcChars_ = This.Chars()
 		_aUcResult_ = []
@@ -6028,6 +6053,7 @@ class stzString from stzObject
 		next
 		return _aUcResult_
 
+	# Each char paired with its codepoint: [ [char, unicode], ... ].
 	def CharsAndUnicodes()
 		_aCauChars_ = This.Chars()
 		_aCauResult_ = []
@@ -6040,6 +6066,7 @@ class stzString from stzObject
 		def UnicodePerChar()
 			return This.CharsAndUnicodes()
 
+	# The unique chars paired with their codepoints.
 	def CharsAndUnicodesU()
 		_aCauuChars_ = This.CharsU()
 		_aCauuResult_ = []
@@ -6080,6 +6107,8 @@ class stzString from stzObject
 		def RepeatedNTimes(n)
 			return This.Repeated(n)
 
+	# Turn the content into itself repeated n times (mutating).
+	# For a copy, use Repeated.
 	def Repeat(n)
 		This.Update(This.Repeated(n))
 
@@ -6087,6 +6116,8 @@ class stzString from stzObject
 			This.Repeat(n)
 			return This
 
+	# Append the given string at the end (mutating). For a copy,
+	# use Concatenated.
 	def Concatenate(pcStr)
 		This.Update(This.Content() + pcStr)
 
@@ -6102,6 +6133,7 @@ class stzString from stzObject
 			This.Concatenate(pcStr)
 			return This
 
+	# The string with pcStr appended, as data; the original is unchanged.
 	def Concatenated(pcStr)
 		return This.Content() + pcStr
 
@@ -6109,6 +6141,7 @@ class stzString from stzObject
 	 #   EQUALITY                  #
 	#============================#
 
+	# TRUE if the content equals the given string (case-sensitive).
 	def IsEqualTo(pcStr)
 		return This.Content() = pcStr
 
@@ -6199,6 +6232,8 @@ class stzString from stzObject
 		if _n_ < 2 return "" ok
 		return This._EngineSlice(This.Content(), 1, _n_)
 
+	# The run of identical chars at the START of the string, as a
+	# list of chars.
 	def LeadingChars()
 		_cRun_ = This.LeadingCharsAsString()
 		if _cRun_ = "" return [] ok
@@ -6218,6 +6253,7 @@ class stzString from stzObject
 		def NumberOfLeadingChars()
 			return This._EngineCount(This.LeadingCharsAsString())
 
+	# The run of identical chars at the end of the string, as a string.
 	def TrailingCharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
@@ -6313,11 +6349,13 @@ class stzString from stzObject
 		_oFcrTmp_.RemoveFirstChar()
 		return _oFcrTmp_.Content()
 
+	# A copy with the last char removed; the original is unchanged.
 	def LastCharRemoved()
 		_oLcrTmp_ = new stzString( This.Content() )
 		_oLcrTmp_.RemoveLastChar()
 		return _oLcrTmp_.Content()
 
+	# Remove the last char of the string (mutating).
 	def RemoveLastChar()
 		_cRlcContent_ = This.Content()
 		_nRlcLen_ = StzLen(_cRlcContent_)
@@ -6365,6 +6403,7 @@ class stzString from stzObject
 			This.RemoveThisFirstChar(pcChar)
 			return This
 
+	# Remove the last char when it equals pcChar (mutating).
 	def RemoveThisLastChar(pcChar)
 		_cRtlContent_ = This.Content()
 		_nRtlLen_ = StzLen(_cRtlContent_)
@@ -6376,6 +6415,7 @@ class stzString from stzObject
 			This.RemoveThisLastChar(pcChar)
 			return This
 
+	# The raw bytes of the string, as a list.
 	def Bytes()
 		_c_ = This.Content()
 		_nL_ = len(_c_)
@@ -6385,6 +6425,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The bytes of each char, char by char.
 	def BytesPerChar()
 		_aChars_ = This.Chars()
 		_nL_ = len(_aChars_)
@@ -6400,6 +6441,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# How many bytes each char occupies (UTF-8), as a list.
 	def NumberOfBytesPerChar()
 		_aChars_ = This.Chars()
 		_nL_ = len(_aChars_)
@@ -6409,9 +6451,11 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The size of the string in bytes (UTF-8).
 	def NumberOfBytes()
 		return len(This.Content())
 
+	# The numeric byte codes of the string, as a list.
 	def Bytecodes()
 		_c_ = This.Content()
 		_nL_ = len(_c_)
@@ -6423,6 +6467,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The byte codes of each char, char by char.
 	def BytecodesPerChar()
 		_aChars_ = This.Chars()
 		_nL_ = len(_aChars_)
@@ -6440,6 +6485,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# How many bytes each char occupies (UTF-8), as a list.
 	def SizeInBytesPerChar()
 		_aChars_ = This.Chars()
 		_nL_ = len(_aChars_)
@@ -6449,6 +6495,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The size of the string in bytes (UTF-8).
 	def SizeInBytes()
 		return len(This.Content())
 
@@ -6456,6 +6503,7 @@ class stzString from stzObject
 	 #   CONTAINS MULTIPLE            #
 	#================================#
 
+	# TRUE if the string contains at least ONE of the given substrings.
 	def ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
 		_oCmpStr_ = new stzStringComparator(This)
 		return _oCmpStr_.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
@@ -6725,6 +6773,7 @@ class stzString from stzObject
 			next
 			return _aAzRes_
 
+	# TRUE if some substring is bounded by the given bounds.
 	def ContainsSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		return len(This.BoundedByCS(pacBounds, pCaseSensitive)) > 0
 
