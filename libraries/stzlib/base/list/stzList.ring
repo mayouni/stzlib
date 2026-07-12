@@ -5490,6 +5490,7 @@ class stzList from stzObject
 
 	  #-- Ranked (engine-backed)
 
+	# The rank of each item in the sorted order, as a list.
 	def Ranked()
 		_pRkList_ = This._EngineListFromContent()
 		if _pRkList_ = NULL return [] ok
@@ -6426,6 +6427,7 @@ class stzList from stzObject
 		_oSdtnpSplitter_ = new stzListSplits(This)
 		return _oSdtnpSplitter_.SplittedToNParts(_n_)
 
+	# Split the list into parts of n items each.
 	def SplitToPartsOfNItems(_n_)
 		# Mutator: delegating to new stzListSplits(This) would mutate a COPY of
 		# This (Ring copies objects passed to a constructor), so the change was
@@ -6508,6 +6510,7 @@ class stzList from stzObject
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
 
+	# The item repeated at the end of the list.
 	def RepeatedTrailingItemCS(pCaseSensitive)
 		_oRticLt_ = new stzListLeadTrail(This)
 		return _oRticLt_.RepeatedTrailingItemCS(pCaseSensitive)
@@ -6515,6 +6518,7 @@ class stzList from stzObject
 	def RepeatedTrailingItem()
 		return This.RepeatedTrailingItemCS(1)
 
+	# How long the repeated run at the end of the list is.
 	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
 		_oNrtiLt_ = new stzListLeadTrail(This)
 		return _oNrtiLt_.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
@@ -6526,12 +6530,15 @@ class stzList from stzObject
 	 #  EXTRACTOR DELEGATIONS        #
 	#-------------------------------#
 
+	# Remove the occurrences of the given item and RETURN them
+	# (extract = remove + return).
 	def ExtractCS(pItem, pCaseSensitive)
 		_oEcsExt_ = new stzListExtractor(This)
 		_oEcsExt_.ExtractCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oEcsExt_.Content())
 		return pItem
 
+	# Extract each of the given items: removed AND returned.
 	def ExtractManyCS(paItems, pCaseSensitive)
 		_oEmcsExt_ = new stzListExtractor(This)
 		_oEmcsExt_.ExtractManyCS(paItems, pCaseSensitive)
@@ -6541,6 +6548,7 @@ class stzList from stzObject
 	def ExtractMany(paItems)
 		return This.ExtractManyCS(paItems, 1)
 
+	# Empty the list, returning everything that was in it.
 	def ExtractAll()
 		_aContent_ = This.Content()
 		_oEaExt_ = new stzListExtractor(This)
@@ -6548,21 +6556,25 @@ class stzList from stzObject
 		This.UpdateWith(_oEaExt_.Content())
 		return _aContent_
 
+	# Remove the nth item and return it.
 	def ExtractNth(_n_)
 		_oEnExt_ = new stzListExtractor(This)
 		_oEnExt_.ExtractNth(_n_)
 		This.UpdateWith(_oEnExt_.Content())
 		return This.Content()[_n_]
 
+	# Remove the FIRST occurrence of the item and return it.
 	def ExtractFirst(pItem)
 		# Extract = remove the FIRST occurrence of pItem from the list and
 		# return it (the destructive sibling of FindFirst).
 		return This.ExtractFirstCS(pItem, 1)
 
+	# Remove the LAST occurrence of the item and return it.
 	def ExtractLast(pItem)
 		# Remove the LAST occurrence of pItem and return it.
 		return This.ExtractLastCS(pItem, 1)
 
+	# Remove the items at positions n1..n2 and return them.
 	def ExtractSection(_n1_, _n2_)
 		# Capture the section BEFORE removing it (afterwards the list is shorter,
 		# so This.Section(n1,n2) would go out of range).
@@ -6572,6 +6584,7 @@ class stzList from stzObject
 		This.UpdateWith(_oEsExt_.Content())
 		return _aEsSection_
 
+	# Remove nRange items starting at nStart and return them.
 	def ExtractRange(pnStart, pnRange)
 		# Capture the range BEFORE removing it (same as ExtractSection).
 		_aErRange_ = This.Range(pnStart, pnRange)
@@ -6580,6 +6593,7 @@ class stzList from stzObject
 		This.UpdateWith(_oErExt_.Content())
 		return _aErRange_
 
+	# Remove every item satisfying the W condition and return them.
 	def ExtractW(pcCondition)
 		# Remove every item matching the W-condition and RETURN them all
 		# (find the matching positions, collect the items, then drop them).
@@ -6591,6 +6605,7 @@ class stzList from stzObject
 		def ExtractWQ(pcCondition)
 			return new stzList( This.ExtractW(pcCondition) )
 
+	# Remove the nth occurrence of the item and return it.
 	def ExtractNthOccurrenceCS(_n_, pItem, pCaseSensitive)
 		# Remove the nth occurrence of pItem and RETURN it (the extracted
 		# value), per the monolith's authoritative Extract semantics.
@@ -6601,6 +6616,7 @@ class stzList from stzObject
 	def ExtractNthOccurrence(_n_, pItem)
 		return This.ExtractNthOccurrenceCS(_n_, pItem, 1)
 
+	# Remove the first occurrence of the item and return it.
 	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
 		_oEfocsExt_ = new stzListExtractor(This)
 		_oEfocsExt_.ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
@@ -6610,6 +6626,7 @@ class stzList from stzObject
 	def ExtractFirstOccurrence(pItem)
 		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
+	# Remove the last occurrence of the item and return it.
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
 		_oElocsExt_ = new stzListExtractor(This)
 		_oElocsExt_.ExtractLastOccurrenceCS(pItem, pCaseSensitive)
@@ -6619,6 +6636,7 @@ class stzList from stzObject
 	def ExtractLastOccurrence(pItem)
 		return This.ExtractLastOccurrenceCS(pItem, 1)
 
+	# Remove the duplicated occurrences and return them.
 	def ExtractDuplicatesCS(pCaseSensitive)
 		_oEdcsExt_ = new stzListExtractor(This)
 		_oEdcsExt_.ExtractDuplicatesCS(pCaseSensitive)
@@ -6628,24 +6646,28 @@ class stzList from stzObject
 	def ExtractDuplicates()
 		return This.ExtractDuplicatesCS(1)
 
+	# Remove and return all the STRING items.
 	def ExtractStrings()
 		_oEsExt2_ = new stzListExtractor(This)
 		_oEsExt2_.ExtractStrings()
 		This.UpdateWith(_oEsExt2_.Content())
 		return This.OnlyStrings()
 
+	# Remove and return all the NUMBER items.
 	def ExtractNumbers()
 		_oEnExt2_ = new stzListExtractor(This)
 		_oEnExt2_.ExtractNumbers()
 		This.UpdateWith(_oEnExt2_.Content())
 		return This.OnlyNumbers()
 
+	# Remove and return all the LIST items.
 	def ExtractLists()
 		_oElExt2_ = new stzListExtractor(This)
 		_oElExt2_.ExtractLists()
 		This.UpdateWith(_oElExt2_.Content())
 		return This.OnlyLists()
 
+	# Remove the LAST item and return it.
 	def Pop()
 		_nPopLen_ = This.NumberOfItems()
 		if _nPopLen_ = 0
@@ -6655,6 +6677,7 @@ class stzList from stzObject
 		This.RemoveLastItem()
 		return _pPopItem_
 
+	# Remove the FIRST item and return it.
 	def PopFirst()
 		if This.NumberOfItems() = 0
 			return NULL
@@ -6663,12 +6686,14 @@ class stzList from stzObject
 		This.RemoveFirstItem()
 		return _pPfItem_
 
+	# Remove the first n items and return them.
 	def Take(_n_)
 		_oTkExt_ = new stzListExtractor(This)
 		_aTkResult_ = _oTkExt_.Take(_n_)
 		This.UpdateWith(_oTkExt_.Content())
 		return _aTkResult_
 
+	# Remove the last n items and return them.
 	def TakeLast(_n_)
 		_oTlExt_ = new stzListExtractor(This)
 		_aTlResult_ = _oTlExt_.TakeLast(_n_)
@@ -6717,6 +6742,7 @@ class stzList from stzObject
 		_oTdrTr_ = new stzListTrimmer(This)
 		return _oTdrTr_.TrimmedRight()
 
+	# Remove the runs of the given item from BOTH ends (mutating).
 	def TrimItemCS(pItem, pCaseSensitive)
 		_oTicsTr_ = new stzListTrimmer(This)
 		_oTicsTr_.TrimItemCS(pItem, pCaseSensitive)
@@ -6725,6 +6751,7 @@ class stzList from stzObject
 	def TrimItem(pItem)
 		This.TrimItemCS(pItem, 1)
 
+	# Remove the run of the given item from the START (mutating).
 	def TrimItemFromLeftCS(pItem, pCaseSensitive)
 		_oTiflcsTr_ = new stzListTrimmer(This)
 		_oTiflcsTr_.TrimItemFromLeftCS(pItem, pCaseSensitive)
@@ -6733,6 +6760,7 @@ class stzList from stzObject
 	def TrimItemFromLeft(pItem)
 		This.TrimItemFromLeftCS(pItem, 1)
 
+	# Remove the run of the given item from the END (mutating).
 	def TrimItemFromRightCS(pItem, pCaseSensitive)
 		_oTifrcsTr_ = new stzListTrimmer(This)
 		_oTifrcsTr_.TrimItemFromRightCS(pItem, pCaseSensitive)
@@ -6759,6 +6787,7 @@ class stzList from stzObject
 		_oSqdTr_ = new stzListTrimmer(This)
 		return _oSqdTr_.Squeezed()
 
+	# Remove the null items from the list (mutating).
 	def StripNulls()
 		_oSnTr_ = new stzListTrimmer(This)
 		_oSnTr_.StripNulls()
@@ -6768,6 +6797,7 @@ class stzList from stzObject
 		_oNsTr_ = new stzListTrimmer(This)
 		return _oNsTr_.NullsStripped()
 
+	# Cut the list down to its first n items (mutating).
 	def TrimToSize(_n_)
 		_oTtsTr_ = new stzListTrimmer(This)
 		_oTtsTr_.TrimToSize(_n_)

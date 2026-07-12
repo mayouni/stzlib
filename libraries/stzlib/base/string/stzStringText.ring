@@ -143,6 +143,7 @@ class stzStringText from stzObject
 	 #     SCRIPT                    #
 	#===============================#
 
+	# The (dominant) script of the string.
 	def Script()
 		if This.NumberOfScripts() = 0
 			StzRaise("Information about script is unavailable!")
@@ -354,6 +355,8 @@ class stzStringText from stzObject
 			return 0
 		ok
 
+	# TRUE if the string contains the given WORD (word-boundary
+	# aware).
 	# TRUE if the string contains the given WORD (word-boundary
 	# aware).
 	def ContainsWordCS(pcWord, pCaseSensitive)
@@ -787,6 +790,7 @@ class stzStringText from stzObject
 	 #     SENTENCES (Engine-backed) #
 	#===============================#
 
+	# How many sentences the string holds.
 	def NumberOfSentences()
 		return StzEngineStringCountSentences(This.Engine())
 
@@ -853,6 +857,7 @@ class stzStringText from stzObject
 	 #     PARAGRAPHS (Engine-backed)#
 	#===============================#
 
+	# How many paragraphs the string holds.
 	def NumberOfParagraphs()
 		return StzEngineStringCountParagraphs(This.Engine())
 

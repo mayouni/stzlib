@@ -143,6 +143,7 @@ class stzListGetter from stzObject
 	 #   UNIQUE ITEMS                                       #
 	#======================================================#
 
+	# The unique items of the list, in first-seen order.
 	def UniqueItemsCS(pCaseSensitive)
 		_pUiList_ = @oList._EngineListFromContent()
 		_pUiResult_ = StzEngineListUniqueCS(_pUiList_, pCaseSensitive)
@@ -158,6 +159,7 @@ class stzListGetter from stzObject
 	 #   RANDOM ITEM                                        #
 	#======================================================#
 
+	# One item picked at random.
 	def RandomItem()
 		_nRdN_ = random(This.NumberOfItems() - 1) + 1
 		return This.NthItem(_nRdN_)
@@ -211,6 +213,7 @@ class stzListGetter from stzObject
 	 #   EVERY NTH ITEM                                     #
 	#======================================================#
 
+	# Every nth item of the list (n, 2n, 3n, ...).
 	def EveryNthItem(_n_)
 		_aEniContent_ = This.Content()
 		_nEniLen_ = len(_aEniContent_)
@@ -230,6 +233,7 @@ class stzListGetter from stzObject
 	 #   HEAD / TAIL                                        #
 	#======================================================#
 
+	# The first n items of the list.
 	def Head(_n_)
 		return This.NFirstItems(_n_)
 
@@ -247,6 +251,7 @@ class stzListGetter from stzObject
 	 #   ITEMS OF TYPE                                      #
 	#======================================================#
 
+	# Only the STRING items of the list.
 	def OnlyStrings()
 		_aOsContent_ = This.Content()
 		_nOsLen_ = len(_aOsContent_)
