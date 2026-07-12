@@ -1,3 +1,6 @@
+$aStzHelperDocCache = []   # per-helper-class doc maps (lazy)
+$aStzHelperInProgress = [] # cycle guard for helper harvesting
+
 #--------------------------------------------------------------#
 #      SOFTANZA LIBRARY (V1.2) - STZ REFLECT FUNCS              #
 #--------------------------------------------------------------#
@@ -1119,9 +1122,12 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				ok
 				_aSect_ + _cSection_
 				# peek the body: a PURE one-line forward (return
-				# This.X(untransformed args)) makes this an alias of X
+				# This.X(untransformed args)) makes this an alias of X;
+				# a TWO-line helper delegation (_o_ = new Helper(This) /
+				# return _o_.X(...)) inherits the HELPER method's doc
 				_cFwd_ = ""
-				for _jF_ = _i_ + 1 to _i_ + 3
+				_cHlpCls_ = ""
+				for _jF_ = _i_ + 1 to _i_ + 4
 					if _jF_ > nEnd
 						exit
 					ok
@@ -1129,12 +1135,36 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 					if _cT2_ = ""
 						loop
 					ok
-					if left(_cT2_, 12) = "return this."
-						_cFwd_ = _StzFwdTarget(substr(_cT2_, 13, len(_cT2_) - 12))
-					but left(_cT2_, 5) = "this."
-						_cFwd_ = _StzFwdTarget(substr(_cT2_, 6, len(_cT2_) - 5))
+					if _cHlpCls_ = ""
+						if left(_cT2_, 12) = "return this."
+							_cFwd_ = _StzFwdTarget(substr(_cT2_, 13, len(_cT2_) - 12))
+							exit
+						but left(_cT2_, 5) = "this."
+							_cFwd_ = _StzFwdTarget(substr(_cT2_, 6, len(_cT2_) - 5))
+							exit
+						ok
+						_nNw_ = StzFindFirst(_cT2_, "= new ")
+						if _nNw_ > 0 and right(_cT2_, 6) = "(this)"
+							_cHc_ = trim(substr(_cT2_, _nNw_ + 6, len(_cT2_) - _nNw_ - 5))
+							_nPo_ = StzFindFirst(_cHc_, "(")
+							if _nPo_ > 1
+								_cHlpCls_ = trim(left(_cHc_, _nPo_ - 1))
+								loop
+							ok
+						ok
+						exit
+					else
+						if left(_cT2_, 7) = "return "
+							_nDot_ = StzFindFirst(_cT2_, ".")
+							if _nDot_ > 0
+								_cMt_ = _StzFwdTarget(substr(_cT2_, _nDot_ + 1, len(_cT2_) - _nDot_))
+								if _cMt_ != ""
+									_cFwd_ = _cHlpCls_ + ">" + _cMt_
+								ok
+							ok
+						ok
+						exit
 					ok
-					exit
 				next
 				_aFwd_ + _cFwd_
 			ok
@@ -1195,6 +1225,13 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
+			if StzFindFirst(_aFwd_[_i_], ">") > 0
+				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
+				if _cHd_ != ""
+					_aMethods_[_i_][2] = _cHd_
+					loop
+				ok
+			ok
 			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
 			if _nBp_ > 0
 				_cTd_ = _aBaseDescs_[_nBp_]
@@ -1263,6 +1300,13 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
+			if StzFindFirst(_aFwd_[_i_], ">") > 0
+				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
+				if _cHd_ != ""
+					_aMethods_[_i_][2] = _cHd_
+					loop
+				ok
+			ok
 			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
 			if _nBp_ > 0
 				_cTd_ = _aBaseDescs_[_nBp_]
@@ -1331,6 +1375,13 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
+			if StzFindFirst(_aFwd_[_i_], ">") > 0
+				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
+				if _cHd_ != ""
+					_aMethods_[_i_][2] = _cHd_
+					loop
+				ok
+			ok
 			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
 			if _nBp_ > 0
 				_cTd_ = _aBaseDescs_[_nBp_]
@@ -1389,6 +1440,58 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		ok
 	next
 	return _aMethods_
+
+# The doc of a HELPER class's method, for a wrapper that delegates to
+# it ("class>method" forward marker). The helper is harvested ONCE
+# (global cache); only real prose survives (anchors are short). The
+# helper's name never leaks into the answer -- the wrapper IS the
+# public face, the doc describes the operation.
+func _StzHelperDocOf(pcTarget)
+	_nSep_ = StzFindFirst(pcTarget, ">")
+	if _nSep_ < 2
+		return ""
+	ok
+	_cCls_ = left(pcTarget, _nSep_ - 1)
+	_cMth_ = substr(pcTarget, _nSep_ + 1, len(pcTarget) - _nSep_)
+	_aMap_ = []
+	_bFound_ = 0
+	_nC_ = len($aStzHelperDocCache)
+	for _i_ = 1 to _nC_
+		if $aStzHelperDocCache[_i_][1] = _cCls_
+			_aMap_ = $aStzHelperDocCache[_i_][2]
+			_bFound_ = 1
+			exit
+		ok
+	next
+	if _bFound_ = 0
+		if ring_find($aStzHelperInProgress, _cCls_) > 0
+			return ""
+		ok
+		$aStzHelperInProgress + _cCls_
+		_aMap_ = []
+		_cSrc_ = _StzResolveSource(_cCls_)
+		if _cSrc_ != "" and fexists(_cSrc_)
+			_aM_ = _StzHarvestClass(_cSrc_, _cCls_)
+			_nM_ = len(_aM_)
+			for _i_ = 1 to _nM_
+				if len(_StzWords(_aM_[_i_][2])) > 3
+					_aMap_ + [ lower(_aM_[_i_][1]), _aM_[_i_][2] ]
+				ok
+			next
+		ok
+		_nIp_ = ring_find($aStzHelperInProgress, _cCls_)
+		if _nIp_ > 0
+			del($aStzHelperInProgress, _nIp_)
+		ok
+		$aStzHelperDocCache + [ _cCls_, _aMap_ ]
+	ok
+	_nM_ = len(_aMap_)
+	for _i_ = 1 to _nM_
+		if _aMap_[_i_][1] = _cMth_
+			return _aMap_[_i_][2]
+		ok
+	next
+	return ""
 
 # Parse "X(args)..." into a SAFE forward target: X must be a plain
 # public method name, and args must be untransformed (identifiers,
