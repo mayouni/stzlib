@@ -2342,9 +2342,8 @@ class stzList from stzObject
 	 #  FLATTEN (engine-backed)             #
 	#--------------------------------------#
 
-	#-- FindSubList / ContainsSubList: locate contiguous occurrences
-	#   of a sub-list. Self-contained walk -- avoids the archive's
-	#   FindManyCSQ + AreContiguous chain.
+	#-- FindSubList / ContainsSubList: locate the contiguous
+	#   occurrences of a sub-list inside the list.
 
 	def FindSubListCS(paSubList, pCaseSensitive)
 		if NOT (isList(paSubList) and len(paSubList) >= 1)
@@ -5560,8 +5559,7 @@ class stzList from stzObject
 	 #  FINDER DELEGATIONS         #
 	#-----------------------------#
 
-	# FindFirst/FindLast already exist as FindFirstOccurrenceCS/FindLastOccurrenceCS
-
+	# The positions of the items DIFFERENT from the given item.
 	def AntiFindCS(pItem, pCaseSensitive)
 		_oAfFinder_ = new stzListFinder(This)
 		return _oAfFinder_.AntiFindCS(pItem, pCaseSensitive)
