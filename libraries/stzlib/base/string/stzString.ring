@@ -11538,6 +11538,9 @@ class stzString from stzObject
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
+	# The first occurrence: the substring paired with its [start,
+	# end] section, from the given start position, in the given
+	# direction (an empty list when there is no match).
 	def FirstSTDZZ(pcSub, _nStartAt_, pDir)
 		_aSec_ = This.FindFirstSTDZZ(pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
@@ -11812,6 +11815,9 @@ class stzString from stzObject
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
+	# The last occurrence: the substring paired with its [start,
+	# end] section, from the given start position, in the given
+	# direction (an empty list when there is no match).
 	def LastSTDZZ(pcSub, _nStartAt_, pDir)
 		_aSec_ = This.FindLastSTDZZ(pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
@@ -11954,6 +11960,8 @@ class stzString from stzObject
 
 	# FirstZZ(sub): the ZZ grouping [sub, [start, end]] of the first
 	# occurrence.
+	# The first occurrence: the substring paired with its [start,
+	# end] section (an empty list when there is no match).
 	def FirstZZ(pcSub)
 		_aSec_ = This.FindFirstAsSection(pcSub)
 		if len(_aSec_) = 0 return [] ok
@@ -12011,6 +12019,9 @@ class stzString from stzObject
 		next
 		return _last_
 
+	# The last occurrence: the substring paired with its position,
+	# from the given start position (an empty list when there is no
+	# match).
 	def LastStz(pcSub, pStartingAt)
 		_p_ = This._LastStFrom(pcSub, pStartingAt)
 		if _p_ < 1 return [] ok
@@ -12327,6 +12338,9 @@ class stzString from stzObject
 		if _p_ = 0 return [] ok
 		return [ pcSub, _p_ ]
 
+	# The nth occurrence: the substring paired with its [start, end]
+	# section, from the given start position, in the given direction
+	# (an empty list when there is no match).
 	def NthSTDZZ(n, pcSub, _nStartAt_, pDir)
 		_aSec_ = This.FindNthSTDZZ(n, pcSub, _nStartAt_, pDir)
 		if len(_aSec_) = 0 return [] ok
@@ -14381,6 +14395,7 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The position of each word of the string.
 	def FindWords()
 		_aRes_ = []
 		_nLen_ = This._EngineCount(This.Content())
@@ -14415,6 +14430,7 @@ class stzString from stzObject
 	def HasThisTrailingChar(pcChar)
 		return This.HasThisTrailingCharCS(pcChar, 1)
 
+	# TRUE if the string starts with the given char.
 	def HasThisLeadingCharCS(pcChar, pCaseSensitive)
 		if This._EngineCount(This.Content()) = 0 return FALSE ok
 		_nFirst_ = StzEngineStringCharAt(@pEngine, 1)
@@ -14428,6 +14444,7 @@ class stzString from stzObject
 	def HasThisLeadingChar(pcChar)
 		return This.HasThisLeadingCharCS(pcChar, 1)
 
+	# The positions of the trailing char run.
 	def FindTrailingChars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
@@ -14438,6 +14455,7 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The positions of the leading char run.
 	def FindLeadingChars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
@@ -14448,10 +14466,12 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# TRUE if the last char equals the given one.
 	def TrailingCharIs(pcChar)
 		_c_ = This.TrailingChar()
 		return _c_ = pcChar
 
+	# TRUE if the first char equals the given one.
 	def LeadingCharIs(pcChar)
 		_c_ = This.LeadingChar()
 		return _c_ = pcChar
@@ -14574,6 +14594,7 @@ class stzString from stzObject
 		if _nL_ = 0 return [] ok
 		return [ _aPos_[1], _aPos_[_nL_] ]
 
+	# The leading char run, as an [start, end] section.
 	def FindLeadingCharsZZ()
 		_aPos_ = This.FindLeadingChars()
 		_nL_ = len(_aPos_)
@@ -14584,6 +14605,7 @@ class stzString from stzObject
 	def HasTrailingSubString()
 		return This.TrailingSubString() != ""
 
+	# TRUE if the string has a leading repeated-char run.
 	def HasLeadingSubString()
 		return This.LeadingSubString() != ""
 
@@ -14600,6 +14622,7 @@ class stzString from stzObject
 		_nSub_ = This._EngineCount(_cRun_)
 		return [ _cRun_, [ (_nLen_ - _nSub_ + 1), _nLen_ ] ]
 
+	# The [start, end] section of the trailing run of pcSub.
 	def TrailingSubStringZZOf(pcSub)
 		if NOT isString(pcSub) or pcSub = "" return [] ok
 		_nLen_ = This._EngineCount(This.Content())
@@ -14651,11 +14674,13 @@ class stzString from stzObject
 	def FirstMarker()
 		return This.FirstMarquer()
 
+	# The position of the first marquer.
 	def FindFirstMarquer()
 		_a_ = This.MarquersPositions()
 		if len(_a_) < 1 return 0 ok
 		return _a_[1]
 
+	# The nth marquer of the string.
 	def NthMarquer(n)
 		_a_ = This.Marquers()
 		if n < 1 or n > len(_a_) return "" ok
@@ -14664,17 +14689,20 @@ class stzString from stzObject
 	def NthMarker(n)
 		return This.NthMarquer(n)
 
+	# The position of the nth marquer.
 	def FindNthMarquer(n)
 		_a_ = This.MarquersPositions()
 		if n < 1 or n > len(_a_) return 0 ok
 		return _a_[n]
 
+	# The last marquer of the string.
 	def LastMarquer()
 		_a_ = This.Marquers()
 		_nL_ = len(_a_)
 		if _nL_ < 1 return "" ok
 		return _a_[_nL_]
 
+	# The position of the last marquer.
 	def FindLastMarquer()
 		_a_ = This.MarquersPositions()
 		_nL_ = len(_a_)
@@ -14690,6 +14718,7 @@ class stzString from stzObject
 		ok
 		return nDefault
 
+	# The nth marquer after the given position.
 	def NextNthMarquerST(n, pStartingAt)
 		_p_ = This.FindNextNthMarquerST(n, pStartingAt)
 		if _p_ = 0 return "" ok
@@ -14715,6 +14744,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The marquers before the given position.
 	def PreviousMarquers(pStartingAt)
 		_aP_ = This._PreviousMarquerPositions(pStartingAt)
 		_aR_ = []
@@ -14724,6 +14754,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The marquers after the given position.
 	def NextMarquers(pStartingAt)
 		_aP_ = This._NextMarquerPositions(pStartingAt)
 		_aR_ = []
@@ -14733,6 +14764,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The nth marquer before the given position.
 	def PreviousNthMarquer(n, pStartingAt)
 		_p_ = This.FindPreviousNthMarquer(n, pStartingAt)
 		if _p_ = 0 return "" ok
@@ -14746,6 +14778,7 @@ class stzString from stzObject
 		if n < 1 or n > _nL_ return 0 ok
 		return _a_[_nL_ - n + 1]
 
+	# The [start, end] section of every marquer.
 	def FindMarquersAsSections()
 		_a_ = This.MarquersAndSections()
 		_aR_ = []
@@ -14760,6 +14793,8 @@ class stzString from stzObject
 	def FindMarkersAsSections()
 		return This.FindMarquersAsSections()
 
+	# The positions of every occurrence of the given (literal)
+	# marquer.
 	def FindMarquer(pcMarker)
 		# Positions of every occurrence of the literal marker string.
 		return This.AllPositionsOf(pcMarker)
@@ -14770,6 +14805,7 @@ class stzString from stzObject
 	def OccurrencesOfMarquer(pcMarker)
 		return This.AllPositionsOf(pcMarker)
 
+	# The unique marquers, each with ALL its positions.
 	def MarquersUZ()
 		# Unique marquers with ALL their positions: [ [m, [pos...]] ].
 		_a_ = This.MarquersAndSections()
@@ -14797,6 +14833,7 @@ class stzString from stzObject
 	def MarkersUZ()
 		return This.MarquersUZ()
 
+	# The unique marquers, each with ALL its [start, end] sections.
 	def MarquersUZZ()
 		# Unique marquers with ALL their sections: [ [m, [[s,e]...]] ].
 		_a_ = This.MarquersAndSections()
@@ -14839,6 +14876,7 @@ class stzString from stzObject
 	def MarkersSortedZ()
 		return This.MarquersSortedZ()
 
+	# The marquers in sorted order, with their sections.
 	def MarquersSortedZZ()
 		_aSecs_ = This.FindMarquersAsSections()
 		_aSorted_ = This._MarquersSortedStrings(TRUE)
@@ -14864,6 +14902,7 @@ class stzString from stzObject
 	def FindNextNthMarkerST(n, pStartingAt)
 		return This.FindNextNthMarquerST(n, pStartingAt)
 
+	# The marquer covering the given position.
 	def MarquerByPosition(pos)
 		_a_ = This.MarquersAndSections()
 		_nL_ = len(_a_)
@@ -14925,6 +14964,7 @@ class stzString from stzObject
 	def MarkersByPositions(positions)
 		return This.MarquerByPositions(positions)
 
+	# The marquer at each of the given positions.
 	def MarquerByPositions(positions)
 		if NOT isList(positions) return [] ok
 		_aR_ = []
@@ -15018,6 +15058,7 @@ class stzString from stzObject
 		ok
 		return This._FindFrom(This.Content(), pcSub, _nFrom_ + 1)
 
+	# The codepoint of each char, as a list.
 	def UnicodesPerChar()
 		_nL_ = This._EngineCount(This.Content())
 		_aR_ = []
@@ -15027,6 +15068,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The codepoint of the given char.
 	def UnicodeOfChar(c)
 		if NOT isString(c) or len(c) = 0 return 0 ok
 		try
@@ -15035,6 +15077,8 @@ class stzString from stzObject
 			return 0
 		done
 
+	# Turn the content into its hex digest with the given algorithm
+	# (mutating, engine-backed).
 	def Hash(pAlgo)
 		# Mutates the content into its hex digest. Engine-backed:
 		# :MD5 and :SHA256 (SHA1/384/512/224 pending engine port --
@@ -15063,9 +15107,12 @@ class stzString from stzObject
 			_oHhTmp_.Hash(pAlgo)
 			return _oHhTmp_.Content()
 
+	# Each char in its own rounded box cell.
 	def EachCharBoxedRounded()
 		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round ])
 
+	# The string titlecased for the given locale (falls back to
+	# plain titlecase).
 	def TitlecasedInLocale(pcLocale)
 		# Locale-aware titlecase is non-trivial; fall back to plain.
 		return This.Titlecased()
@@ -15102,11 +15149,13 @@ class stzString from stzObject
 	def ToListInNormalForm()
 		return @@( This.ToList() )
 
+	# How long the leading char run is.
 	def NumberOfLeadingItems()
 		_nL_ = This._EngineCount(This.Content())
 		if _nL_ = 0 return 0 ok
 		return StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 
+	# How long the trailing char run is.
 	def NumberOfTrailingItems()
 		_nL_ = This._EngineCount(This.Content())
 		if _nL_ = 0 return 0 ok
@@ -15143,9 +15192,12 @@ class stzString from stzObject
 		This.RemoveSection(_p_, _p_ + _nSubLen_ - 1)
 		return This
 
+	# Remove the LAST occurrence of pcSub (mutating).
 	def RemoveRightOccurrence(pcSub)
 		This.RemoveRightOccurrenceQ(pcSub)
 
+	# TRUE if the content mixes LTR (Latin) and RTL (Arabic-side)
+	# scripts.
 	def ContainsHybridOrientation()
 		# TRUE iff content mixes a Latin script and an Arabic script.
 		return StzEngineStringContainsLatin(@pEngine) = 1 and
@@ -15160,10 +15212,12 @@ class stzString from stzObject
 		if len(_c_) = 3 return :Long ok
 		return :Unknown
 
+	# TRUE if the string is a SIGNED real-number literal.
 	def RepresentsSignedRealNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[3] and _aRn_[2]
 
+	# TRUE if the string is an UNSIGNED real-number literal.
 	def RepresentsUnsignedRealNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[3] and NOT _aRn_[2]
@@ -15171,6 +15225,8 @@ class stzString from stzObject
 	def RepresentsCalculableRealNumber()
 		return This.RepresentsRealNumber()
 
+	# TRUE if the string is a 3-letter (long) language abbreviation
+	# (ISO 639-2/3).
 	def IsLongLanguageAbbreviation()
 		# Long form: 3-letter ISO 639-2/3 (e.g. "eng", "fra").
 		_c_ = This.Content()
