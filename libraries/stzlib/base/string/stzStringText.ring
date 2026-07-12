@@ -1089,64 +1089,81 @@ class stzStringText from stzObject
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Collapse the space runs to single spaces (mutating,
+	# engine-backed).
 	def CollapseSpaces()
 		pResult = StzEngineStringCollapseSpaces(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(_cResult_)
 
+		# Collapse the space runs, chainable.
 		def CollapseSpacesQ()
 			This.CollapseSpaces()
 			return This
 
+	# A copy with the space runs collapsed; the original is
+	# unchanged.
 	def SpacesCollapsed()
 		pResult = StzEngineStringCollapseSpaces(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Normalize the whitespace (trim + collapse) in place
+	# (mutating).
 	def NormalizeSpaces()
 		pResult = StzEngineStringNormalizeSpaces(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(_cResult_)
 
+		# Normalize the whitespace, chainable.
 		def NormalizeSpacesQ()
 			This.NormalizeSpaces()
 			return This
 
+	# A copy with the whitespace normalized; the original is
+	# unchanged.
 	def SpacesNormalized()
 		pResult = StzEngineStringNormalizeSpaces(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Sentence-case the text (each sentence's first letter
+	# capitalized) -- mutating.
 	def ToSentenceCase()
 		pResult = StzEngineStringToSentenceCase(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(_cResult_)
 
+		# Sentence-case the text, chainable.
 		def ToSentenceCaseQ()
 			This.ToSentenceCase()
 			return This
 
+	# A sentence-cased copy; the original is unchanged.
 	def SentenceCased()
 		pResult = StzEngineStringToSentenceCase(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Pluralize the (English) word in place (mutating).
 	def Pluralize()
 		pResult = StzEngineStringPluralize(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(_cResult_)
 
+		# Pluralize the word, chainable.
 		def PluralizeQ()
 			This.Pluralize()
 			return This
 
+	# The pluralized form, as a copy; the original is unchanged.
 	def Pluralized()
 		pResult = StzEngineStringPluralize(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -1163,12 +1180,14 @@ class stzStringText from stzObject
 		def Slugified()
 			return This.ToSlug()
 
+	# Abbreviate the text in place (mutating).
 	def Abbreviate(nMaxLen)
 		pResult = StzEngineStringAbbreviate(This.Engine(), nMaxLen)
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+		# An abbreviated copy; the original is unchanged.
 		def Abbreviated(nMaxLen)
 			return This.Abbreviate(nMaxLen)
 
@@ -1184,18 +1203,23 @@ class stzStringText from stzObject
 	def DiacriticsRemoved()
 		return @oString.DiacriticsRemoved()
 
+	# Remove the diacritics (accents) in place (mutating).
 	def RemoveDiacritics()
 		@oString.RemoveDiacritics()
 
+	# Lowercase the text in place (mutating).
 	def Lowercase()
 		return @oString.Lowercase()
 
+	# Uppercase the text in place (mutating).
 	def Uppercase()
 		return @oString.Uppercase()
 
+	# The chars of the text, as a list.
 	def Chars()
 		return @oString.Chars()
 
+	# Engine twin of NumberOfChars (codepoint count).
 	def NumberOfChars2()
 		return @oString.NumberOfChars()
 

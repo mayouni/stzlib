@@ -269,6 +269,7 @@ class stzListOfLists from stzList
 
 	@aContent = []
 
+	# Build the list-of-lists from the given Ring list.
 	def init(paList)
 
 		if CheckingParams()

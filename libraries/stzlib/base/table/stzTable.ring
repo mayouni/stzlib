@@ -70,6 +70,8 @@ Class stzTable from stzList
 	@bTransposedWithHeaders = FALSE # tracks when headers were preserved during transpose
 	@aOriginalColNames = [] # stores the original column names internally
 
+	# Build the table from rows (the first row may carry the column
+	# names).
 	def init(paTable)
 
 		# Initialize Softanza visual identity border characters
@@ -248,26 +250,33 @@ Class stzTable from stzList
 			This.AddHistoricValue(This.Content())
 		ok
 
+	# The lowercase class name: "stztable".
 	def ClassName()
 		return "stztable"
 
+		# Same as ClassName.
 		def KlassName()
 			return "stztable"
 
+	# The raw table rows.
 	def Content()
 		_aContent_ = @aContent # A deep copy to avoid reference propagation
 		return _aContent_
 
+		# Same as Content.
 		def Table()
 			return This.Content()
 
+			# The table content, chainable form.
 			def TableQ()
 				return new stzList( This.Table() )
 
+		# The raw table rows (same as Content).
 		def Value()
 			return Content()
 
 
+	# A new stzTable with the same rows.
 	def Copy()
 
 		_aCopy_ = []
@@ -279,6 +288,7 @@ Class stzTable from stzList
 		_oCopy_ = new stzTable(_aCopy_)
 		return _oCopy_
 
+	# TRUE if the table has no data.
 	def IsEmpty()
 		_nLen_ = len(@aContent)
 		if _nLen_ = 0
@@ -604,6 +614,7 @@ Class stzTable from stzList
 
 		#==
 
+		# TRUE if the given value names a column or is a column number.
 		def IsAColNameOrNumber(pCol)
 			return This.IsColNameOrNumber(pCol)
 
@@ -683,6 +694,7 @@ Class stzTable from stzList
 
 		#==
 
+		# TRUE if every given value is a column name or number.
 		def AreColsNamesOrNumbers(paCols)
 			return This.AreColNamesOrNumbers(paCols)
 

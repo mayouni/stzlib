@@ -1249,6 +1249,8 @@ class stzList from stzObject
 		_o_.ReplaceOccurrencesByMany(panPos, paNewItems)
 		This._SetContent(_o_.Content())
 
+	# Replace the chosen occurrences cycling through the given
+	# replacements (mutating).
 	def ReplaceOccurrencesByManyXT(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceOccurrencesByManyXT(panPos, paNewItems)
