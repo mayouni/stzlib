@@ -12445,7 +12445,7 @@ class stzString from stzObject
 	def NumbersComingAfterQ(pcAnchor)
 		return new stzList( This.NumbersComingAfter(pcAnchor) )
 
-	# StartingNumber / EndingNumber.
+	# Same as LeadingNumber.
 	def StartingNumber()
 		return This.LeadingNumber()
 
@@ -12683,7 +12683,8 @@ class stzString from stzObject
 	def NumbrifiedQ()
 		return This.NumbrifyQ()
 
-	# StartsWithThisNumber(pcNum): prefix-equality check.
+	# TRUE if the string starts with the given number (prefix
+	# equality).
 	def StartsWithThisNumber(pcNum)
 		_nLen_ = This._EngineCount(pcNum)
 		return This._EngineSlice(This.Content(), 1, _nLen_) = pcNum
@@ -12853,7 +12854,8 @@ class stzString from stzObject
 		This.RemoveDuplicatedChars()
 		return This
 
-	# DuplicatedCharsRemoved: non-mutating dedup.
+	# A copy with the duplicated chars removed; the original is
+	# unchanged.
 	def DuplicatedCharsRemoved()
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.RemoveDuplicatedChars()
@@ -15073,7 +15075,7 @@ class stzString from stzObject
 	def MarkersSortedUZZ()
 		return This.MarquersSortedUZZ()
 
-	# More long-tail aliases.
+	# TRUE if the given substring is bounded by the given bound(s).
 	def SubStringIsBoundedBy(pcSub, pacBounds)
 		# Accept single string (used as both open and close) or a pair.
 		# Fresh-var if/but/else (single-clause widening no-ops, note 6).
@@ -16432,7 +16434,7 @@ class stzString from stzObject
 		_oTmp_.RemoveTrailingChars()
 		return _oTmp_.Content()
 
-	# RemoveNFirstChars(n) / RemoveNLastChars(n).
+	# Remove the first n chars (mutating).
 	def RemoveNFirstChars(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_ This.Update("") return ok
@@ -16459,7 +16461,8 @@ class stzString from stzObject
 	def BeginsWithCS(pcSub, pCaseSensitive)
 		return This.StartsWithCS(pcSub, pCaseSensitive)
 
-	# FindNextNthOccurrence(n, pcSub, nFrom).
+	# The position of the nth occurrence of pcSub after the given
+	# position.
 	def FindNextNthOccurrence(n, pcSub, _nFrom_)
 		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and lower(pcSub[1]) = "of"
 			pcSub = pcSub[2]
@@ -16797,7 +16800,8 @@ class stzString from stzObject
 		next
 		return FALSE
 
-	# CharsReversed: non-mutating char-reverse.
+	# The chars in reverse order, as data; the original is
+	# unchanged.
 	def CharsReversed()
 		return StzReverse(This.Content())
 
@@ -16813,7 +16817,7 @@ class stzString from stzObject
 		_nC_ = StzFindFirst(_c_, ")")
 		return _nO_ >= 2 and _nC_ > _nO_
 
-	# Inversed: char-reverse alias.
+	# Same as CharsReversed.
 	def Inversed()
 		return This.CharsReversed()
 
@@ -17469,7 +17473,7 @@ class stzString from stzObject
 		ok
 		return :Less
 
-	# NumberOfCharsW(pcCondition).
+	# How many chars satisfy the W condition.
 	def NumberOfCharsW(pcCondition)
 		return This.CountCharsW(pcCondition)
 

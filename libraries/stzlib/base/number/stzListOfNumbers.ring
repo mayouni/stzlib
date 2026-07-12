@@ -1595,6 +1595,7 @@ class stzListOfNumbers from stzList
 	// TODO: Add the possibility to add a list of numbers in strings
 	// --> So we can manage numbers as stzNumbers (wich can be provided
 	// in strings to conserve their round.
+	# Build the list from the given Ring list of numbers.
 	def init(paList)
 		if isList(paList) and
 		   ( len(paList) = 0 or @IsListOfNumbers(paList) )
@@ -1627,6 +1628,7 @@ class stzListOfNumbers from stzList
 
 		return _aResult_
 
+		# The raw numbers list (same as Content).
 		def Value()
 			return Content()
 
@@ -1644,6 +1646,7 @@ class stzListOfNumbers from stzList
 			def NumbersQ()
 				return This.NumbersQRT(:stzList)
 
+			# The numbers, in the requested return type (QRT).
 			def NumbersQRT(pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 					pcReturnType = pcReturnType[2]
@@ -1681,6 +1684,8 @@ class stzListOfNumbers from stzList
 		def Where(pcCondition)
 			return This.NumbersW(pcCondition)
 
+		# The numbers satisfying the W condition, in the requested
+		# return type.
 		def NumbersWQRT(pcCondition, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 				pcReturnType = pcReturnType[2]
@@ -1913,6 +1918,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# Same as NLowestNumbersZ.
 		def MinNNumbersAndTheirPositions(_n_)
 			return This.NLowestNumbersZ(_n_)
 
@@ -2177,6 +2183,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# Same as NLargestNumbers.
 		def NTopNumbers(_n_)
 			return This.NLargestNumbers(_n_)
 
@@ -2246,6 +2253,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# Same as FindNLargestNumbers.
 		def FindNTopNumbers(_n_)
 			return This.FindNLargestNumbers(_n_)
 
@@ -2318,6 +2326,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# Same as NLargestNumbersZ.
 		def MaxNNumbersAndTheirPositions(_n_)
 			return This.NLargestNumbersZ(_n_)
 
@@ -2364,6 +2373,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# Same as NLargestNumbersZ.
 		def NTopNumbersZ(_n_)
 			return This.NLargestNumbersZ(_n_)
 
@@ -2642,6 +2652,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# The number closest to the given one, with options.
 		def ClosestXT(_n_, pcBeforeOrAfter)
 			return This.NearestXT(_n_, pcBeforeOrAfter)
 
@@ -2943,6 +2954,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# The number closest to the given one.
 		def Closest(_n_)
 			return This.Nearest()
 
@@ -3180,6 +3192,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# The n numbers closest to the given one.
 		def NearestNeighbors(_n_)
 			return This.Neighbors(_n_)
 
@@ -3617,13 +3630,13 @@ class stzListOfNumbers from stzList
 			return This.LeastCommonNumber(pOtherNumber)
 
 
-		#-- Alternative
 
+		# Misspelled-but-kept alias (smallest common number).
 		def SmallesCommonNumber(pOtherNumber)
 			return This.LeastCommonNumber(pOtherNumber)
 
-		#-- Misspelled
 
+		# Misspelled-but-kept alias (least common number).
 		def LeastCommunNumber(panOtherList)
 			return This.LeastCommonNumber(panOtherList)
 
@@ -4720,9 +4733,9 @@ class stzListOfNumbers from stzList
 
 		#>
 
-		#TODO
-		# Add other alternatives
 
+	# The numbers multiplied by n where the W condition holds, as a
+	# copy.
 	def EachMultipliedWithW(_n_)
 		_aResult_ = This.Copy().MultiplyEachWithWQ(_n_).Content()
 		return _aResult_
@@ -5101,6 +5114,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# One number smaller than n, picked at random.
 		def ANumberSmallerThan(_nNumber_)
 			return This.ANumberLessThan(_nNumber_)
 
@@ -5146,6 +5160,8 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# One number smaller than n, picked at random, with its
+		# position.
 		def ANumberSmallerThanZ(_nNumber_)
 			return This.ANumberLessThanZ(_nNumber_)
 
@@ -6126,6 +6142,7 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# One number outside n1..n2 (bounds included), picked at random.
 		def ARandomNumberNotBetweenIB(_n1_, _n2_)
 			return This.AnyNumberNotBetweenIB(_n1_, _n2_)
 
@@ -6184,6 +6201,8 @@ class stzListOfNumbers from stzList
 
 		#==
 
+		# One number outside n1..n2 (bounds included), with its
+		# position.
 		def ARandomNumberNotBetweenIBZ(_n1_, _n2_)
 			return This.AnyNumberNotBetweenIBZ(_n1_, _n2_)
 
@@ -7087,8 +7106,9 @@ class stzListOfNumbers from stzList
 		def NRandomNumbersNotBetweenIB(nMin, nMax)
 			return This.NNumbersNotBetweenIB(nMin, nMax)
 
-	# Z/EXTENDED FORM
 
+	# n numbers outside nMin..nMax (bounds included), with their
+	# positions.
 	def NNumbersNotBetweenIBZ(_n_, nMin, nMax)
 		_anNumbers_ = This.NumbersNotBetweenIB(nMin, nMax)
 		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
@@ -7110,8 +7130,9 @@ class stzListOfNumbers from stzList
 	def NNumbersOutsidePosition(_nPos_)
 		return This.NItemsOutsidePosition(_nPos_)
 
-	#-- 2/EXTENDED FORM
 
+	# n numbers at positions OTHER than the given ones, with their
+	# positions.
 	def NNumbersOutsidePositionsZ(panPos)
 		return This.NItemsOutsidePositionsZ(panPos)
 
@@ -7127,8 +7148,9 @@ class stzListOfNumbers from stzList
 	def NNumbersOutsidePositions(panPos)
 		return This.NItemsOutsidePositions(panPos)
 
-	# Z/EXTENDED FORM
 
+	# n items at positions other than the given one, with their
+	# positions.
 	def NItemsOutsidePositionZ(_anPos_)
 		return This.NItemsOutsidePositionZ(_anPos_)
 
@@ -7150,8 +7172,8 @@ class stzListOfNumbers from stzList
 		def SomeNumbers()
 			return This.SomeRandomNumbers()
 
-	# Z/EXTENDED FORM
 
+	# Some numbers picked at random, with their positions.
 	def SomeRandomNumbersZ()
 		_anPos_ = SomeRandomNumbersIn(1 : This.NumberOfItems())
 		_nLen_  = len(_anPos_)
@@ -7208,8 +7230,8 @@ class stzListOfNumbers from stzList
 
 		return _anResult_
 
-	#-- Z/EXTENDED FORM
 
+	# Some numbers less than n, with their positions.
 	def SomeNumbersLessThanZ(_n_, _nNumber_)
 		_anNumbers_ = This.NumbersLessThan(_nNumber_)
 		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
@@ -7226,8 +7248,8 @@ class stzListOfNumbers from stzList
 
 		return _anResult_
 
-	#-- Z/EXTENDED FORM
 
+	# Some numbers greater than n, with their positions.
 	def SomeNumbersGreaterThanZ(_n_, _nNumber_)
 		_anNumbers_ = This.NumbersGreaterThan(_nNumber_)
 		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
@@ -7244,8 +7266,8 @@ class stzListOfNumbers from stzList
 
 		return _anResult_
 
-	#-- Z/EXTENDED FORM
 
+	# Some numbers other than the given ones, with their positions.
 	def SomeNumbersOtherThanManyZ(paNumbers)
 		_anNumbers_ = This.NumbersOtherThanMany(_nNumber_)
 		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()

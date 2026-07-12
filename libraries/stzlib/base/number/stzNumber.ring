@@ -1883,8 +1883,8 @@ class stzNumber from stzObject
 		def Value()
 			return This.NumericValue()
 	
-		# Misspelled Form
 
+		# Misspelled-but-kept alias of NumericValue.
 		def NumbericValue()
 			return This.NumericValue()
 
@@ -2700,8 +2700,9 @@ class stzNumber from stzObject
 		def Equals(pOtherNumber)
 			return This.IsEqual(pOtherNumber)
 
-		#-- CS
 
+		# TRUE if the number equals the given one (case dial for string
+		# forms).
 		def IsEqualToCS(pOtherNumber, pCaseSensitive)
 			return This.IsEqualTo(pOtherNumber)
 
@@ -4196,6 +4197,7 @@ class stzNumber from stzObject
 	# MODULO
 
 	#@ aka  remainder, mod, leftover of division
+	# The remainder of the division by the given number.
 	def Modulo(pOtherNumber)
 		return This.pvtCalculate("%", pOtherNumber)
 
@@ -4205,6 +4207,7 @@ class stzNumber from stzObject
 	# POWER
 
 	#@ aka  to the power of, exponent, raised to, power
+	# Raise the number to the given power (mutating).
 	def Power(pOtherNumber)
 		return This.pvtCalculate("^", pOtherNumber)
 
@@ -4370,6 +4373,7 @@ class stzNumber from stzObject
 	# SQRT
 
 	#@ aka  square root, sqrt, root of the number
+	# The square root of the number (mutating).
 	def SquareRoot()
 		return This.pvtCalculate( "sqrt", "" )
 
@@ -4410,8 +4414,8 @@ class stzNumber from stzObject
 		def SigmoidQ()
 			return new stzNumber(This.Sigmoid())
 	
-	# DERIVATIVE
 
+	# The derivative via the engine calculator (reserved form).
 	def Derivative(pcFunc)
 		return This.pvtCalculate( "derivative", pcdef ) 
 
@@ -4427,8 +4431,8 @@ class stzNumber from stzObject
 		def DerivativeSigmoidQ()
 			return new stzNumber(This.DerivativeSigmoid())
 	
-	# LEAST COMMON MULTIPLE
 
+	# The least common multiple with the given number.
 	def LeastCommonMultiple(pOtherNumber)
 
 		if isList(pOtherNumber) and Q(pOtherNumber).IsWithNamedParam()
@@ -4453,8 +4457,8 @@ class stzNumber from stzObject
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
 
-	# GREATEST COMMON DIVIDOR
 
+	# The greatest common divisor with the given number.
 	def GreatestCommonDividor(pOtherNumber)
 		return This.pvtCalculate( "GCD", pOtherNumber)
 
@@ -6602,7 +6606,7 @@ class stzNumber from stzObject
 	
 	#--- NUMBER
 	
-	# Always TRUE.
+	# Always TRUE: the object holds a number.
 	def IsANumber()
 		return 1
 

@@ -881,8 +881,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FirstPairQ()
 			return This.NthPairQ(1)
 
-		#-- MISSPELLED
 
+		# Misspelled-but-kept alias of FirstPair.
 		def FristPair()
 			return This.FirstPair()
 
@@ -4520,8 +4520,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassifyInListsQRT(pcReturnType)
 				return This.ClassifyInListQRT(pcReturnType)
 
-		#==
-
+		# Same as ClassifyInList.
 		def ClassifyItemsInList()
 			return This.ClassifyInList()
 
