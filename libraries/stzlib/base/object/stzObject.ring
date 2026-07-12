@@ -1988,6 +1988,7 @@ class stzObject
 	@bNNLEither = 0    # is either...or: first disjunct may fail WITHOUT
 	@bNNLSat = 0       # falsifying; or-recovery/skip close the figure
 	@cNNLQuant = ""    # each|any|none: the NEXT predicate distributes
+	@aNNLConstraints = []   # per-object constraints: [ [name, rule], ... ]
 
 	@cVarName = :@NoName
 	@cUuid = ""
@@ -6406,6 +6407,130 @@ class stzObject
 			_oFo_ = AFalseObjectXT(This)
 			_oFo_.SetWhyStopped(@cNNLWhy)
 			return _oFo_
+
+	# --- PER-OBJECT CONSTRAINTS (the archived stzString design, finally
+	# generalized -- the author's own TODO said "Generalize this feature
+	# to other classes"). A constraint is NAMED and its rule is either a
+	# DESCRIPTOR symbol (:Lowercase -- the @is<X> dispatch) or a
+	# CONDITION in the archived placeholder style:
+	#     o.AddConstraint("stay-small", '{ len(@string) < 10 }')
+	# VerifyConstraint answers 1/0 with Why; ApplyConstraints ENFORCES:
+	# the archived structured raise ("Execution is cancelled by
+	# Softanza") on the first violation, This when all hold.
+
+	def AddConstraint(pcName, pRule)
+		if NOT isString(pcName) or ring_trim(pcName) = ""
+			StzRaise("A constraint needs a name.")
+		ok
+		_cCn_ = StzLower(ring_trim(pcName))
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if @aNNLConstraints[_i_][1] = _cCn_
+				@aNNLConstraints[_i_][2] = pRule
+				return
+			ok
+		next
+		@aNNLConstraints + [ _cCn_, pRule ]
+
+		def AddConstraintQ(pcName, pRule)
+			This.AddConstraint(pcName, pRule)
+			return This
+
+	def Constraints()
+		return @aNNLConstraints
+
+	def RemoveConstraint(pcName)
+		_cCn_ = StzLower(ring_trim(pcName))
+		_aKeep_ = []
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if @aNNLConstraints[_i_][1] != _cCn_
+				_aKeep_ + @aNNLConstraints[_i_]
+			ok
+		next
+		@aNNLConstraints = _aKeep_
+
+	# does one rule hold against the TYPED content?
+	def _NNLConstraintHolds(pRule)
+		_vCv_ = This.Content()
+		if This.StzType() = :stzNumber
+			_vCv_ = This.NumericValue()
+		ok
+		if isString(pRule) and StzFindFirst(pRule, "{") > 0
+			# the archived placeholder style: @string/@number/@list/
+			# @item/@object/@ all mean THE VALUE (longest name first)
+			_cCc_ = pRule
+			_cCc_ = StzReplace(_cCc_, "{", " ")
+			_cCc_ = StzReplace(_cCc_, "}", " ")
+			_cCc_ = StzReplace(_cCc_, "@string", "_vCv_")
+			_cCc_ = StzReplace(_cCc_, "@number", "_vCv_")
+			_cCc_ = StzReplace(_cCc_, "@object", "_vCv_")
+			_cCc_ = StzReplace(_cCc_, "@list", "_vCv_")
+			_cCc_ = StzReplace(_cCc_, "@item", "_vCv_")
+			_cCc_ = StzReplace(_cCc_, "@", "_vCv_")
+			_bCh_ = 0
+			try
+				eval("_bCh_ = ( " + _cCc_ + " )")
+			catch
+				StzRaise("Invalid constraint condition: " + pRule)
+			done
+			return _bCh_
+		ok
+		return _StzKindHolds(_vCv_, StzLower(ring_trim("" + pRule)))
+
+	def VerifyConstraint(pcName)
+		_cCn_ = StzLower(ring_trim(pcName))
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if @aNNLConstraints[_i_][1] = _cCn_
+				if This._NNLConstraintHolds(@aNNLConstraints[_i_][2])
+					@cNNLWhy = "yes: constraint '" + _cCn_ + "' holds"
+					$cStzLastWhyB = @cNNLWhy
+					return 1
+				ok
+				@cNNLWhy = "no: constraint '" + _cCn_ + "' is violated by " +
+					@@(This.Content())
+				$cStzLastWhyB = @cNNLWhy
+				return 0
+			ok
+		next
+		StzRaise("Inexistant constraint! No constraint named '" + _cCn_ +
+			"' on this object.")
+
+	def VerifyConstraints()
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if NOT This._NNLConstraintHolds(@aNNLConstraints[_i_][2])
+				@cNNLWhy = "no: constraint '" + @aNNLConstraints[_i_][1] +
+					"' is violated by " + @@(This.Content())
+				$cStzLastWhyB = @cNNLWhy
+				return 0
+			ok
+		next
+		@cNNLWhy = "yes: all " + _nCn_ + " constraints hold"
+		$cStzLastWhyB = @cNNLWhy
+		return 1
+
+	# ENFORCEMENT -- the archived semantics: execution is cancelled on a
+	# violation, with the structured explanation; chainable when clean
+	def ApplyConstraints()
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if NOT This._NNLConstraintHolds(@aNNLConstraints[_i_][2])
+				StzRaise([
+					:Where = "stzObject > ApplyConstraints()",
+					:What  = "Execution is cancelled by Softanza",
+					:Why   = "The constraint '" + @aNNLConstraints[_i_][1] +
+						"' on this object is not verified by " +
+						@@(This.Content()),
+					:Todo  = "Check that constraint and adjust your logic accordingly ;)"
+				])
+			ok
+		next
+		return This
+
+		def ApplyConstraintsQ()
+			return This.ApplyConstraints()
 
 	# --- Q4: DISCOURSE TENSE over the QH history ----------------------
 	# Open the chain with QH() and the object remembers its states; the
