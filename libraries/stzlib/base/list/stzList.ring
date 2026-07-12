@@ -916,6 +916,7 @@ class stzList from stzObject
 	def ShowShort()
 		? @@S( This.Content() )
 
+	# Print the abbreviated form showing n items at each end.
 	def ShowShortN(_n_)
 		? ComputableShortFormXT( This.Content(), _n_ )
 
@@ -928,9 +929,11 @@ class stzList from stzObject
 	 #  CLASS NAME                 #
 	#-----------------------------#
 
+	# The lowercase class name: "stzlist".
 	def ClassName()
 		return "stzlist"
 
+	# The Softanza type symbol: :stzList.
 	def StzType()
 		return :stzList
 
@@ -3441,6 +3444,7 @@ class stzList from stzObject
 
 	  #-- RemoveFirstItem / RemoveLastItem
 
+	# Remove the first item of the list (mutating).
 	def RemoveFirstItem()
 		This.RemoveItemAtPosition(1)
 
@@ -4569,6 +4573,7 @@ class stzList from stzObject
 
 	  #-- NumberOfOccurrenceCS: count occurrences
 
+	# How many times the given item occurs in the list.
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
 		return len(This.FindAllOccurrencesCS(pItem, pCaseSensitive))
 
@@ -4664,6 +4669,7 @@ class stzList from stzObject
 
 	  #-- FindFirstOccurrenceCS / FindLastOccurrenceCS
 
+	# The position of the FIRST occurrence of the item (0 if none).
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
 		return This.FindNthOccurrenceCS(1, pItem, pCaseSensitive)
 
@@ -5411,6 +5417,9 @@ class stzList from stzObject
 
 	  #-- Repeat (engine-backed)
 
+	# Turn the content into n copies of the whole list, NESTED
+	# ([1,2] -> [[1,2],[1,2]]) -- mutating. For flat tiling, use the
+	# * operator.
 	def Repeat(_n_)
 		if CheckParams()
 			if isList(_n_) and len(_n_) = 2 and
@@ -5461,6 +5470,7 @@ class stzList from stzObject
 
 	  #-- SplitAt (engine-backed)
 
+	# Split the list at the given cut position(s): the parts.
 	def SplitAt(_n_)
 		# The engine's stz_list_split_at takes the cut positions as an ENGINE
 		# LIST handle (0-based cut indices), NOT a bare integer -- passing the
@@ -5492,6 +5502,7 @@ class stzList from stzObject
 
 	  #-- Join (engine-backed)
 
+	# The items joined into one string with the given separator.
 	def Join(pcSep)
 		_pJnList_ = This._EngineListFromContent()
 		if _pJnList_ = NULL return "" ok
@@ -5644,6 +5655,8 @@ class stzList from stzObject
 		_oFnnoFinder_ = new stzListFinder(This)
 		return _oFnnoFinder_.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
+	# The position of the nth occurrence of the item AFTER the given
+	# position (0 when there is none).
 	def FindNextNthOccurrence(_n_, pItem, pnStartingAt)
 		return This.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
@@ -5670,6 +5683,8 @@ class stzList from stzObject
 			ok
 			return This.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
+	# The position of the nearest occurrence of the item BEFORE the
+	# given position (0 when there is none).
 	def FindPrevious(pItem, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
@@ -5714,6 +5729,8 @@ class stzList from stzObject
 		_oFpnoFinder_ = new stzListFinder(This)
 		return _oFpnoFinder_.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
+	# The position of the nth occurrence of the item BEFORE the given
+	# position (0 when there is none).
 	def FindPreviousNthOccurrence(_n_, pItem, pnStartingAt)
 		return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
@@ -5732,10 +5749,12 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 
+	# The position of the nth occurrence of the item after the given position.
 	def FindNextNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextNth(_n_, pItem, pnStartingAt)
 
+	# The positions of ALL the occurrences after the given position.
 	def FindNextOccurrences(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextOccurrences(pItem, pnStartingAt)
@@ -5747,6 +5766,7 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 
+	# The positions of ALL the occurrences before the given position.
 	def FindPreviousOccurrences(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousOccurrences(pItem, pnStartingAt)
@@ -5758,27 +5778,34 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 
+	# The position of the first occurrence after the given position.
 	def FindFirstNext(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindFirstNext(pItem, pnStartingAt)
 
+	# The position of the first occurrence before the given position
+	# (scanning backward).
 	def FindFirstPrevious(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindFirstPrevious(pItem, pnStartingAt)
 
 	#@ aka  index of, position of, locate, where is, at what index
+	# The positions of every occurrence of the item (the Find contract).
 	def FindItem(pItem)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindItem(pItem)
 
+	# The position of the nth occurrence before the given position.
 	def FindPreviousNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousNth(_n_, pItem, pnStartingAt)
 
+	# The position of the nth occurrence after the given position.
 	def NthNextOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.NthNextOccurrence(_n_, pItem, pnStartingAt)
 
+	# The position of the nth occurrence after the given position.
 	def NextNthOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.NextNthOccurrence(_n_, pItem, pnStartingAt)
@@ -5826,6 +5853,7 @@ class stzList from stzObject
 		ok
 		return _StzFindDupSecutive(This.Content(), pCaseSensitive)
 
+	# The positions of the items that repeat consecutively.
 	def FindDupSecutiveItems()
 		return _StzFindDupSecutive(This.Content(), 1)
 
@@ -5846,6 +5874,7 @@ class stzList from stzObject
 		ok
 		return _StzFindThisDupSecutive(This.Content(), pItem, pCaseSensitive)
 
+	# The positions where the GIVEN item repeats consecutively.
 	def FindThisDupSecutiveItem(pItem)
 		return _StzFindThisDupSecutive(This.Content(), pItem, 1)
 
@@ -5867,6 +5896,7 @@ class stzList from stzObject
 	def DupSecutiveItemZ(pItem)
 		return This.DupSecutiveItemCSZ(pItem, 1)
 
+	# Collapse every consecutive-duplicate run to a single item (mutating).
 	def RemoveDupSecutiveItemsCS(pCaseSensitive)
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
@@ -5880,6 +5910,7 @@ class stzList from stzObject
 	def RemoveDupSecutiveItems()
 		This.RemoveDupSecutiveItemsCS(1)
 
+	# Collapse the consecutive-duplicate runs of the GIVEN item (mutating).
 	def RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
@@ -5889,9 +5920,11 @@ class stzList from stzObject
 	def RemoveDupSecutiveItem(pItem)
 		This.RemoveDupSecutiveItemCS(pItem, 1)
 
+	# The position(s) of the nth smallest item.
 	def FindNthSmallest(_n_)
 		return This.Find(This.NthSmallest(_n_))
 
+	# The position(s) of the nth largest item.
 	def FindNthLargest(_n_)
 		return This.Find(This.NthLargest(_n_))
 
@@ -5902,12 +5935,14 @@ class stzList from stzObject
 		def FindStringsZZ()
 			return This.FindStringsAsSections()
 
+	# The [start, end] runs of consecutive LIST items.
 	def FindListsAsSections()
 		return _StzFindTypeRuns(This.Content(), "list")
 
 		def FindListsZZ()
 			return This.FindListsAsSections()
 
+	# The [start, end] runs of consecutive OBJECT items.
 	def FindObjectsAsSections()
 		return _StzFindTypeRuns(This.Content(), "object")
 
@@ -6207,6 +6242,7 @@ class stzList from stzObject
 	 #  COUNTER DELEGATIONS        #
 	#-----------------------------#
 
+	# How many unique items satisfy the given W condition.
 	def NumberOfUniqueItemsW(pCondition)
 		_oNuiwCounter_ = new stzListCounter(This)
 		return _oNuiwCounter_.NumberOfUniqueItemsW(pCondition)
@@ -6245,6 +6281,7 @@ class stzList from stzObject
 		_oSdasxtSplitter_ = new stzListSplits(This)
 		return _oSdasxtSplitter_.SplittedAsSectionsXT(p)
 
+	# Split the list at the given item (or position): the parts.
 	def SplitCS(pItemOrPos, pCaseSensitive)
 		_oScsSplitter_ = new stzListSplits(This)
 		return _oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
@@ -6277,6 +6314,7 @@ class stzList from stzObject
 		This.Update(_aSapParts_)
 		return _aSapParts_
 
+	# The parts of the list split at the given positions.
 	def SplittedAtPositions(panPos)
 		_oSdapSplitter_ = new stzListSplits(This)
 		return _oSdapSplitter_.SplittedAtPositions(panPos)
@@ -6289,10 +6327,12 @@ class stzList from stzObject
 		_oSdapzzSplitter_ = new stzListSplits(This)
 		return _oSdapzzSplitter_.SplittedAtPositionsZZ(panPos)
 
+	# Split the list at the given position: the parts.
 	def SplitAtPosition(_n_)
 		_oSaposSplitter_ = new stzListSplits(This)
 		return _oSaposSplitter_.SplitAtPosition(_n_)
 
+	# The parts of the list split at the given position.
 	def SplittedAtPosition(_n_)
 		_oSdaposSplitter_ = new stzListSplits(This)
 		return _oSdaposSplitter_.SplittedAtPosition(_n_)
@@ -6332,10 +6372,12 @@ class stzList from stzObject
 	def SplittedAtZZ(pItem)
 		return This.SplittedAtCSZZ(pItem, 1)
 
+	# Split the list before the given position: the parts.
 	def SplitBeforePosition(_n_)
 		_oSbpSplitter_ = new stzListSplits(This)
 		return _oSbpSplitter_.SplitBeforePosition(_n_)
 
+	# The parts of the list split before the given position.
 	def SplittedBeforePosition(_n_)
 		_oSdbpSplitter_ = new stzListSplits(This)
 		return _oSdbpSplitter_.SplittedBeforePosition(_n_)
@@ -6349,10 +6391,12 @@ class stzList from stzObject
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
+	# Split the list after the given position: the parts.
 	def SplitAfterPosition(_n_)
 		_oSafpSplitter_ = new stzListSplits(This)
 		return _oSafpSplitter_.SplitAfterPosition(_n_)
 
+	# The parts of the list split after the given position.
 	def SplittedAfterPosition(_n_)
 		_oSdafpSplitter_ = new stzListSplits(This)
 		return _oSdafpSplitter_.SplittedAfterPosition(_n_)
@@ -6366,6 +6410,7 @@ class stzList from stzObject
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
+	# Split the list into n (near-)equal parts.
 	def SplitToNParts(_n_)
 		_oStnpSplitter_ = new stzListSplits(This)
 		return _oStnpSplitter_.SplitToNParts(_n_)
@@ -6373,6 +6418,7 @@ class stzList from stzObject
 		def SplitToNPartsQ(_n_)
 			return new stzList( This.SplitToNParts(_n_) )
 
+	# The n (near-)equal parts of the list, as data.
 	def SplittedToNParts(_n_)
 		_oSdtnpSplitter_ = new stzListSplits(This)
 		return _oSdtnpSplitter_.SplittedToNParts(_n_)
