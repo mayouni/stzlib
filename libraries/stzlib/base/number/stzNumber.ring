@@ -5567,6 +5567,7 @@ class stzNumber from stzObject
 		def HasManyHundredsOfThousands()
 			return This.ContainsHundredsOfThousands()
 
+	# TRUE if the number is at least 2 000 000.
 	def ContainsSeveralMillions()
 		return This.NumericValue() >= 2_000_000
 
@@ -5599,6 +5600,7 @@ class stzNumber from stzObject
 		def HasManyThousandsOfThousands()
 			return This.ContainsSeveralMillions()
 
+	# TRUE if the number is at least 10 000 000.
 	def ContainsTensOfMillions()
 		return This.NumericValue() >= 10_000_000
 
@@ -5619,6 +5621,7 @@ class stzNumber from stzObject
 		def HasMayTensOfMillions()
 			return This.ContainsTensOfMillions()
 
+	# TRUE if the number is at least 100 000 000.
 	def ContainsHundredsOfMillions()
 		return This.NumericValue() >= 100_000_000
 
@@ -5639,6 +5642,7 @@ class stzNumber from stzObject
 		def HasManyHundredsOfMillions()
 			return This.ContainsHundredsOfMillions()
 
+	# TRUE if the number is at least 2 000 000 000.
 	def ContainsSeveralBillions()
 			return This.NumericValue() >= 2_000_000_000
 
@@ -5671,6 +5675,7 @@ class stzNumber from stzObject
 		def HasManyThousandsOfMillions()
 			return This.ontainsSeveralBillions()
 
+	# TRUE if the number is at least 10 billion.
 	def ContainsTensOfBillions()
 		return This.NumericValue() >= 10_000_000_000
 
@@ -5691,6 +5696,7 @@ class stzNumber from stzObject
 		def HasManyTensOfBillions()
 			return This.HasManyTensOfBillions()
 
+	# TRUE if the number is at least 100 billion.
 	def ContainsHundredsOfBillions()
 		return This.NumericValue() >= 100_000_000_000
 
@@ -5711,6 +5717,7 @@ class stzNumber from stzObject
 		def HasManyHundredsOfBillions()
 			return This.ContainsHundredsOfBillions()
 
+	# TRUE if the number is at least 2 trillion.
 	def ContainsSeveralTrillions()
 		return This.NumericValue() >= 2_000_000_000_000
 
@@ -5726,6 +5733,7 @@ class stzNumber from stzObject
 			return This.ContainsSeveralTrillions()
 
 
+	# TRUE if the number is at least 10 trillion.
 	def ContainsTensOfTrillions()
 		return This.NumericValue() >= 10_000_000_000_000
 
@@ -5746,6 +5754,7 @@ class stzNumber from stzObject
 		def HasManyTensOfTrillions()
 			return This.ContainsTensOfTrillions()
 
+	# TRUE if the number is at least 100 trillion.
 	def ContainsHundredsOfTrillions()
 		return This.NumericValue() >= 100_000_000_000_000
 
@@ -5849,15 +5858,18 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
+	# Apply the default number format (mutating).
 	def ApplyFormat()
 		return This.ApplyFormatXT([])
 
 		def Format()
 			return This.ApplyFormatXT([])
 
+	# Format the number with the given options (mutating).
 	def FormatXT(paFormat)
 		return This.ApplyFormatXT(paFormat)
 
+	# Apply the given format options to the number (mutating).
 	def ApplyFormatXT(paFormat)
 	#TODO// Add formatting strings like +99 999.99%
 	#TODO// Support Compact form (K, B, M) see methods below
@@ -6227,6 +6239,7 @@ class stzNumber from stzObject
 		return _cNumber_
 
 
+	# The number in compact form (1.2K / 3.4M style).
 	def CompactForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000 and _nNumber_ < 1_000_000
@@ -6243,6 +6256,7 @@ class stzNumber from stzObject
 			return This.CompactForm()
 
 
+	# The number in K (thousands) form.
 	def KForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000
@@ -6255,6 +6269,7 @@ class stzNumber from stzObject
 			return This.KForm()
 
 
+	# The number in M (millions) form.
 	def MForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1_000_000
@@ -6266,6 +6281,7 @@ class stzNumber from stzObject
 		def ToMForm()
 			return This.MForm()
 
+	# The number in B (billions) form.
 	def BForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000_000_000
@@ -6469,6 +6485,7 @@ class stzNumber from stzObject
 	 #    USUED FOR NATURAL-CODING    #
 	#--------------------------------#
 
+	# Always TRUE: the object IS a stzNumber.
 	def IsStzNumber()
 		return 1
 
@@ -6477,9 +6494,11 @@ class stzNumber from stzObject
 
 	#--- ITEM
 	
+	# Always TRUE: a number can be a list item.
 	def IsItem()
 		return 1
 	
+	# TRUE if the number occurs in the given list.
 	def IsItemOf(paList)
 		return ListContains(paList, This.NumericValue())
 		
@@ -6494,9 +6513,11 @@ class stzNumber from stzObject
 
 	#--- MEMEBER
 
+	# Always TRUE: a number can be a member.
 	def IsMember()
 		return 1
 	
+	# TRUE if the number (as held) occurs in the given list.
 	def IsMemberOf(paList)
 		return ListContains(paList, This.Content())
 		
@@ -6511,24 +6532,28 @@ class stzNumber from stzObject
 	
 	#--- NUMBER
 	
+	# Always TRUE.
 	def IsANumber()
 		return 1
 
 		def IsNotANumber()
 			return 0
 
+	# Always FALSE: a number is not a string.
 	def IsAString()
 		return 0
 
 		def IsNotAString()
 			return 1
 
+	# Always FALSE: a number is not a list.
 	def IsAList()
 		return 0
 
 		def IsNotAList()
 			return 1
 
+	# Always TRUE: the wrapper is an object.
 	def IsAnObject()
 		return 1
 
@@ -6538,6 +6563,7 @@ class stzNumber from stzObject
 		def IsNotAnObject()
 			return 1
 
+	# TRUE if the number occurs in the given list.
 	def IsNumberOf(paList)
 		return This.IsItemOf(paList)
 	
@@ -6550,6 +6576,7 @@ class stzNumber from stzObject
 		def IsANumberIn(paList)
 			return This.IsNumberOf(paList)
 
+	# TRUE if the number occurs in the given list.
 	def IsOneOfThese(paList)
 		return This.IsItemOf(paList)
 
@@ -6558,30 +6585,36 @@ class stzNumber from stzObject
 	
 	#--- STRING
 	
+	# Always FALSE: a number is not a letter.
 	def IsLetter()
 		return 0
 	
+	# Always FALSE: a number is not a letter.
 	def IsALetter()
 		return 0
 	
+	# Always FALSE: a number is not a letter.
 	def IsLetterOf(pStrOrListOfChars)
 		return 0
 	
 		def IsALetterOf(pcStr)
 			return 0
 		
+	# Always FALSE: a number is not a letter.
 	def IsLetterIn(pcStr)
 		return 0
 	
 		def IsALetterIn(pcStr)
 			return 0
 	
+	# Always FALSE: a number is not a char.
 	def IsCharOf(pStrOrListOfChars)
 		return 0
 	
 		def IsACharOf(pcStr)
 			return 0
 	
+	# Always FALSE: a number is not a char.
 	def IsCharIn(pcStr)
 		return 0
 	
@@ -6627,21 +6660,25 @@ class stzNumber from stzObject
 	 #    MISC.    #
 	#-------------#
 
+	# TRUE if the number is a valid RGB color value.
 	def IsRGBColor()
 		return @IsRGBColor(This.Content())
 
 		def IsAnRGBColor()
 			return @IsRGBColor(This.Content())
 
+	# TRUE if the given value is a number too.
 	def HasSameTypeAs(p)
 		return isNumber(p)
 
+	# The numbers from this one UP TO n, as a list.
 	def UpTo(pnOtherNumber)
 		if pnOtherNumber > This.Value()
 			_anResult_ = This.Value() : pnOtherNumber
 			return _anResult_
 		ok
 	
+	# The numbers from this one DOWN TO n, as a list.
 	def DownTo(pnOtherNumber)
 		if This.Value() > pnOtherNumber
 			_anResult_ = This.Value() : pnOtherNumber
@@ -6677,12 +6714,14 @@ class stzNumber from stzObject
 			def SwapContentWithQ(pOtherStzNumber)
 				return This.SwapWithQ(pOtherStzNumber)
 
+	# The least common multiple with the given number.
 	def LCM(pOtherNumber)
 		if isString(pOtherNumber)
 			pOtherNumber = 0+ pOtherNumber
 		ok
 		return StzEngineNumberLcm(This.NumericValue(), pOtherNumber)
 
+	# The greatest common divisor with the given number.
 	def GCD(pOtherNumber)
 		if isString(pOtherNumber)
 			pOtherNumber = 0+ pOtherNumber
@@ -6693,6 +6732,8 @@ class stzNumber from stzObject
 	 #  ENGINE-BACKED NUMBER OPERATIONS        #
 	#=========================================#
 
+	# TRUE if the integer is a perfect number (equals the sum of its
+	# divisors).
 	def IsPerfect()
 		if NOT This.IsInteger()
 			return 0
@@ -6702,6 +6743,7 @@ class stzNumber from stzObject
 		def IsPerfectNumber()
 			return This.IsPerfect()
 
+	# How many digits the integer has.
 	def DigitCount()
 		if NOT This.IsInteger()
 			return len(This.IntegerPartValue())
@@ -6711,6 +6753,7 @@ class stzNumber from stzObject
 		def HowManyDigits()
 			return This.DigitCount()
 
+	# The sum of the digits of the integer.
 	def DigitSum()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute digit sum of a non-integer!")
@@ -6720,6 +6763,7 @@ class stzNumber from stzObject
 		def SumOfDigits()
 			return This.DigitSum()
 
+	# The digits of the integer, reversed.
 	def ReverseDigits()
 		if NOT This.IsInteger()
 			StzRaise("Can't reverse digits of a non-integer!")
@@ -6729,6 +6773,7 @@ class stzNumber from stzObject
 		def ReversedDigits()
 			return This.ReverseDigits()
 
+	# TRUE if the digits read the same backward.
 	def IsDigitPalindrome()
 		if NOT This.IsInteger()
 			return 0
@@ -6738,6 +6783,7 @@ class stzNumber from stzObject
 		def IsPalindromeNumber()
 			return This.IsDigitPalindrome()
 
+	# The Fibonacci value for this integer.
 	def Fibonacci()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute Fibonacci of a non-integer!")
@@ -6754,12 +6800,15 @@ class stzNumber from stzObject
 		def FibonacciQ()
 			return new stzNumber(This.Fibonacci())
 
+	# The methods of the object (Ring reflection).
 	def Methods()
 		return ring_methods(This)
 
+	# The attributes of the object (Ring reflection).
 	def Attributes()
 		return ring_attributes(This)
 
+	# The lowercase class name: "stznumber".
 	def ClassName()
 		return "stznumber"
 
@@ -6769,6 +6818,7 @@ class stzNumber from stzObject
 		def StzClass()
 			return This.ClassName()
 
+	# Always FALSE: plain numbers carry no name.
 	def IsNamedObject()
 		return 0
 
