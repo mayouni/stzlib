@@ -9,6 +9,7 @@
 # own it, which put the knowledge floor inside one legacy surface.
 $oWorldEntities = new stzListOfEntities
 $aStzSuppositions = []   # the HYPOTHETICAL overlay (see SupposeQ below)
+$oStzWhatIsDoc = NULL   # lazy self-doc index for the WhatIs library fallback
 
 func WorldEntities()
 	return $oWorldEntities
@@ -100,7 +101,41 @@ func CommitSuppositions()
 # Returns the list of TYPES the world knows for that name; [] when the
 # world has never heard of it.
 
+# WhatIs -- ONE interrogative family, TWO knowledge sources: the entity
+# WORLD answers first (types, suppositions overlay included); when the
+# world is silent, the LIBRARY answers through Ask()'s retrieval
+# pipeline (self-doc corpus), accepting only NAME-EXACT method hits --
+# deterministic, no guessing.
 func WhatIs(pcName)
+	if NOT isString(pcName)
+		return []
+	ok
+	_cName_ = StzLower(trim(pcName))
+	_aOut_ = _StzWorldTypesOf(_cName_)
+	if len(_aOut_) > 0
+		return _aOut_
+	ok
+	# the world is silent -- ask the library through the pipeline
+	_aHits_ = _StzWhatIsDocIndex().AskFor(_cName_, 3)
+	_nH_ = len(_aHits_)
+	for _i_ = 1 to _nH_
+		if _aHits_[_i_][1] != "(world)" and _aHits_[_i_][1] != "(recipe)" and
+		   _StzNamesAreFormSiblings(StzLower(_aHits_[_i_][2]), _cName_)
+			_cAns_ = "the method " + _aHits_[_i_][2] + " (on " + _aHits_[_i_][1] + ")"
+			if isString(_aHits_[_i_][4]) and _aHits_[_i_][4] != ""
+				_cAns_ += ": " + _aHits_[_i_][4]
+			ok
+			_aOut_ + _cAns_
+		ok
+	next
+	return _aOut_
+
+	func @WhatIs(pcName)
+		return WhatIs(pcName)
+
+# the raw world lookup (entities + the supposition overlay) -- the piece
+# the Ask() world door calls, so the two doors can meet without recursion
+func _StzWorldTypesOf(pcName)
 	if NOT isString(pcName)
 		return []
 	ok
@@ -123,8 +158,60 @@ func WhatIs(pcName)
 	next
 	return _aOut_
 
-	func @WhatIs(pcName)
-		return WhatIs(pcName)
+# lazy cross-class doc index (the default curated set) for the fallback
+func _StzWhatIsDocIndex()
+	if isObject($oStzWhatIsDoc)
+		return $oStzWhatIsDoc
+	ok
+	$oStzWhatIsDoc = StzLibDoc([])
+	return $oStzWhatIsDoc
+
+# THE WORLD DOOR of Ask(): a "what is X / who is X" question consults
+# the entity world. Returns [] or [ name, sentence ].
+func _StzWorldDoorEntry(pcQuestion)
+	if NOT isString(pcQuestion)
+		return []
+	ok
+	_cQ_ = StzLower(ring_trim(pcQuestion))
+	_cQ_ = ring_trim(StzReplace(_cQ_, "?", " "))
+	_cN_ = ""
+	if StzFindFirst(_cQ_, "what is ") = 1
+		_cN_ = ring_trim(right(_cQ_, len(_cQ_) - 8))
+	but StzFindFirst(_cQ_, "who is ") = 1
+		_cN_ = ring_trim(right(_cQ_, len(_cQ_) - 7))
+	ok
+	if _cN_ = ""
+		return []
+	ok
+	_aT_ = _StzWorldTypesOf(_cN_)
+	_nT_ = len(_aT_)
+	if _nT_ = 0
+		return []
+	ok
+	_cS_ = _cN_ + " is " + _StzArticleFor(_aT_[1]) + " " + _aT_[1]
+	for _i_ = 2 to _nT_
+		_cS_ += " (and " + _StzArticleFor(_aT_[_i_]) + " " + _aT_[_i_] + ")"
+	next
+	return [ _cN_, _cS_ ]
+
+# name-exact OR voice-sibling (the library's own form system: active
+# Verb() / passive Verbed()) -- deterministic, no fuzzy guessing
+func _StzNamesAreFormSiblings(pcA, pcB)
+	if pcA = pcB
+		return 1
+	ok
+	if pcA = pcB + "d" or pcA = pcB + "ed" or
+	   pcB = pcA + "d" or pcB = pcA + "ed"
+		return 1
+	ok
+	return 0
+
+func _StzArticleFor(pcWord)
+	if isString(pcWord) and pcWord != "" and
+	   ring_find([ "a", "e", "i", "o", "u" ], StzLower(left(pcWord, 1))) > 0
+		return "an"
+	ok
+	return "a"
 
 func StzListOfEntitiesQ(paList)
 	return new stzListOfEntities(paList)

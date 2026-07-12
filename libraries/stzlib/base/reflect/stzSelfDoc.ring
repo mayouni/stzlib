@@ -166,6 +166,23 @@ class stzSelfDoc from stzObject
 		return This.AskFor(pcQuestion, 3)
 
 	def AskFor(pcQuestion, n)
+		# THE WORLD DOOR: a "what is X / who is X" question consults the
+		# entity world first -- one interrogative family, two knowledge
+		# sources; world answers come as "(world)" entries, like recipes
+		_aWd_ = _StzWorldDoorEntry(pcQuestion)
+		_aMt_ = This._AskForMethods(pcQuestion, n)
+		if len(_aWd_) = 0
+			return _aMt_
+		ok
+		_aOut_ = []
+		_aOut_ + [ "(world)", 1, _aWd_[2] ]
+		_nWm_ = len(_aMt_)
+		for _iWm_ = 1 to _nWm_
+			_aOut_ + _aMt_[_iWm_]
+		next
+		return _aOut_
+
+	def _AskForMethods(pcQuestion, n)
 		if NOT isString(pcQuestion) return [] ok
 		_nM_ = len(@aMethods)
 		if _nM_ = 0 return [] ok
@@ -234,7 +251,7 @@ class stzSelfDoc from stzObject
 
 	# The single best-matching method name for a question (DATA, a string).
 	def BestMethodFor(pcQuestion)
-		_aR_ = This.AskFor(pcQuestion, 1)
+		_aR_ = This._AskForMethods(pcQuestion, 1)
 		if len(_aR_) = 0 return "" ok
 		return _aR_[1][1]
 
@@ -257,7 +274,7 @@ class stzSelfDoc from stzObject
 			_cMethod_ = _cComposed_
 			_cHow_ = "composed by grammar"
 		else
-			_aR_ = This.AskFor(pcIntent, 1)
+			_aR_ = This._AskForMethods(pcIntent, 1)
 			if len(_aR_) > 0
 				_cMethod_ = _aR_[1][1]
 				_cHow_ = "retrieved by meaning"

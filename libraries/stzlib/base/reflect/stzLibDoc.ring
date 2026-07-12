@@ -95,6 +95,22 @@ class stzLibDoc from stzObject
 		return This.AskFor(pcQuestion, 5)
 
 	def AskFor(pcQuestion, n)
+		# THE WORLD DOOR (see stzSelfDoc.AskFor): entity-world answers
+		# join the ranked results as "(world)" entries, best first
+		_aWd_ = _StzWorldDoorEntry(pcQuestion)
+		_aMt_ = This._AskForMethods(pcQuestion, n)
+		if len(_aWd_) = 0
+			return _aMt_
+		ok
+		_aOut_ = []
+		_aOut_ + [ "(world)", _aWd_[1], 1, _aWd_[2] ]
+		_nWm_ = len(_aMt_)
+		for _iWm_ = 1 to _nWm_
+			_aOut_ + _aMt_[_iWm_]
+		next
+		return _aOut_
+
+	def _AskForMethods(pcQuestion, n)
 		if NOT isString(pcQuestion) return [] ok
 		_nE_ = len(@aEntries)
 		if _nE_ = 0 return [] ok
@@ -144,7 +160,7 @@ class stzLibDoc from stzObject
 
 	# The single best "class.method" for a question (DATA, a string).
 	def BestMethodFor(pcQuestion)
-		_aR_ = This.AskFor(pcQuestion, 1)
+		_aR_ = This._AskForMethods(pcQuestion, 1)
 		if len(_aR_) = 0 return "" ok
 		return _aR_[1][1] + "." + _aR_[1][2]
 

@@ -369,14 +369,13 @@ the core of P3. The phases, restated against what now exists:
   Why, Understood, the ask records, Suppose) remain -- as library
   features, not as an agent-governance product.
 
-- **P6 (new) -- Device candidates observed but deferred:** distributive
-  quantification (`EachQ()` mapping the next predicate over items --
-  needs W integration), chain-level negation particle (`NotQ()` flipping
-  the next predicate -- needs the P3b dispatcher), evidentiality
-  ("apparently/certainly" -- confidence-carrying answers pairing with
-  the neural tier's scores), and discourse tense over QH history
-  ("was it ever uppercase?" -- SoFarQ/EverB over the object's kept
-  history).
+- **P6 (new) -- Device candidates observed but deferred** (status as of
+  2026-07-12): distributive quantification DONE (EachQ/AnyQ/NoneQ +
+  item forms); chain-level `NotQ()` RULED OUT by the negation doctrine
+  (negative forms / antonym comparators / OrNot instead); discourse
+  tense DONE (WasEver/WasNever/UsedToBe/IsStill over the QH stream).
+  Only EVIDENTIALITY remains ("apparently/certainly" --
+  confidence-carrying answers pairing with the neural tier's scores).
 
 ## 9. The Coverage Map -- Toward Any Natural-Language Expression
 
@@ -481,7 +480,9 @@ question frame records its verdict, so a run of questions folds like a
 narration: the agent-gate primitive). WhatQ<->WhatIs converge BY NAME:
 frames ask about VALUES, WhatIs() asks the WORLD -- one interrogative
 family, two knowledge sources; no new syntax invented without the
-author. plan->NNL emission deferred (the generated code is already
+author. And since 2026-07-12, one DOOR: Ask() consults the entity world
+on world-shaped questions ("(world)" entries), and WhatIs() falls back
+to the library through Ask's own retrieval pipeline. plan->NNL emission deferred (the generated code is already
 readable method calls; revisit on demand).
 
 Q2 DONE (2026-07-10): the generator emits 2512 devices -- countable-noun
