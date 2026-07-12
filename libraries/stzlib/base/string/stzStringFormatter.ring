@@ -172,8 +172,6 @@ class stzStringFormatter from stzObject
 
 	# The string case-folded (aggressive lowercasing, for caseless
 	# comparison).
-	# The string case-folded (aggressive lowercasing, for caseless
-	# comparison).
 	def CaseFolded()
 		return StzCaseFold(@oString.Content())
 

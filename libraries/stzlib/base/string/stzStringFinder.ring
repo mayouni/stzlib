@@ -455,8 +455,6 @@ class stzStringFinder from stzObject
 
 	# The [start, end] sections of the 2nd+ occurrences of
 	# duplicated chars.
-	# The [start, end] sections of the 2nd+ occurrences of
-	# duplicated chars.
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 		_acDuplicates_ = This.DuplicatesCS(pCaseSensitive)
 		_nLen_ = len(_acDuplicates_)

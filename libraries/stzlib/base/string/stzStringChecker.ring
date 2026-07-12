@@ -196,8 +196,6 @@ class stzStringChecker from stzObject
 
 	# TRUE if the string is made only of (some of) the given
 	# substrings.
-	# TRUE if the string is made only of (some of) the given
-	# substrings.
 	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
 		if CheckingParams()
 			if NOT (isList(acSubStr) and @IsListOfStrings(acSubStr))
@@ -530,8 +528,6 @@ class stzStringChecker from stzObject
 
 	# TRUE if the string uses every letter of the alphabet (a
 	# pangram).
-	# TRUE if the string uses every letter of the alphabet (a
-	# pangram).
 	def IsPangram()
 		pH = @oString.Engine()
 		return StzEngineStringIsPangram(pH)
@@ -541,8 +537,6 @@ class stzStringChecker from stzObject
 		pH = @oString.Engine()
 		return StzEngineStringIsIsogram(pH)
 
-	# TRUE if the brackets and parentheses in the string are
-	# balanced.
 	# TRUE if the brackets and parentheses in the string are
 	# balanced.
 	def IsBalanced()
