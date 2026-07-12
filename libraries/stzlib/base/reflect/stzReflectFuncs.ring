@@ -1010,6 +1010,11 @@ func _StzPolishDesc(pcDesc)
 	if NOT isString(pcDesc) or pcDesc = ""
 		return pcDesc
 	ok
+	# a leading dash-run is a comment ARTIFACT ("-- Median / ..."),
+	# not prose -- drop it before anything else
+	while len(pcDesc) > 2 and left(pcDesc, 1) = "-"
+		pcDesc = ring_trim(substr(pcDesc, 2, len(pcDesc) - 1))
+	end
 	# fast gate: the char-scan below runs ONLY when chatter markers are
 	# present (near-never) -- char-index loops are a known VM hazard
 	if StzFindFirst(pcDesc, "_Stz") = 0 and

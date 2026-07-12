@@ -105,9 +105,11 @@ class stzStringList from stzObject
 	def Content()
 		return @acContent
 
+	# A new stzStringList with the same strings.
 	def Copy()
 		return new stzStringList(@acContent)
 
+	# How many strings the list holds.
 	def NumberOfStrings()
 		return len(@acContent)
 
@@ -118,15 +120,18 @@ class stzStringList from stzObject
 	 #     NTH STRING ACCESS         #
 	#===============================#
 
+	# The string at position n.
 	def NthString(n)
 		return @acContent[n]
 
 		def String(n)
 			return This.NthString(n)
 
+	# The first string of the list.
 	def FirstString()
 		return @acContent[1]
 
+	# The last string of the list.
 	def LastString()
 		return @acContent[len(@acContent)]
 
@@ -134,6 +139,7 @@ class stzStringList from stzObject
 	 #     ADD / REMOVE              #
 	#===============================#
 
+	# Add the given string at the end of the list (mutating).
 	def Add(pcStr)
 		if NOT isString(pcStr)
 			StzRaise("Incorrect param type! pcStr must be a string.")
@@ -144,6 +150,7 @@ class stzStringList from stzObject
 			This.Add(pcStr)
 			return This
 
+	# Insert the given string at the start of the list (mutating).
 	def Prepend(pcStr)
 		if NOT isString(pcStr)
 			StzRaise("Incorrect param type! pcStr must be a string.")
@@ -154,6 +161,7 @@ class stzStringList from stzObject
 			This.Prepend(pcStr)
 			return This
 
+	# Remove the string at position n (mutating).
 	def RemoveAt(n)
 		del(@acContent, n)
 
@@ -161,6 +169,7 @@ class stzStringList from stzObject
 			This.RemoveAt(n)
 			return This
 
+	# Replace the string at position n with the given one (mutating).
 	def ReplaceAt(n, pcNewStr)
 		@acContent[n] = pcNewStr
 
@@ -168,6 +177,8 @@ class stzStringList from stzObject
 			This.ReplaceAt(n, pcNewStr)
 			return This
 
+	# Replace the whole content with the given list of strings
+	# (mutating; the single update point).
 	def Update(paNewList)
 		if isList(paNewList) and @IsListOfStrings(paNewList)
 			@acContent = paNewList
@@ -183,6 +194,7 @@ class stzStringList from stzObject
 	 #   CONCATENATION                                      #
 	#======================================================#
 
+	# All the strings concatenated into one string.
 	def Concat()
 		# Engine-backed: build result by concatenating
 		# engine handles pairwise
@@ -216,6 +228,7 @@ class stzStringList from stzObject
 	 #   CONCATENATION WITH SEPARATOR                       #
 	#------------------------------------------------------#
 
+	# The strings concatenated with the given separator between them.
 	def ConcatUsing(pcSep)
 		_nLen_ = len(@acContent)
 		if _nLen_ = 0
@@ -258,6 +271,7 @@ class stzStringList from stzObject
 	 #   CONTAINS (engine-backed)                           #
 	#======================================================#
 
+	# TRUE if one of the strings equals pcStr.
 	def ContainsCS(pcStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
@@ -306,6 +320,7 @@ class stzStringList from stzObject
 	 #   FIND (engine-backed equality)                      #
 	#======================================================#
 
+	# The positions of every string equal to pcStr, as a list.
 	def FindCS(pcStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
@@ -333,6 +348,7 @@ class stzStringList from stzObject
 	def Find(pcStr)
 		return This.FindCS(pcStr, 1)
 
+	# The position of the first string equal to pcStr (0 if none).
 	def FindFirst(pcStr)
 		_anAll_ = This.Find(pcStr)
 		if len(_anAll_) > 0
@@ -340,6 +356,7 @@ class stzStringList from stzObject
 		ok
 		return 0
 
+	# The position of the last string equal to pcStr (0 if none).
 	def FindLast(pcStr)
 		_anAll_ = This.Find(pcStr)
 		_nLen_ = len(_anAll_)
@@ -352,6 +369,7 @@ class stzStringList from stzObject
 	 #   SORT (engine-backed compare)                       #
 	#======================================================#
 
+	# Sort the strings in ascending order in place (mutating).
 	def SortInAscendingCS(pCaseSensitive)
 		# Engine-backed O(n log n) sort via null-delimited items
 		_nLen_ = len(@acContent)
@@ -393,6 +411,7 @@ class stzStringList from stzObject
 		def SortUp()
 			This.SortInAscending()
 
+	# An ascending-sorted copy; the original is unchanged.
 	def SortedInAscendingCS(pCaseSensitive)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortInAscendingCS(pCaseSensitive)
@@ -437,6 +456,7 @@ class stzStringList from stzObject
 	 #   SORT DESCENDING                                    #
 	#------------------------------------------------------#
 
+	# Sort the strings in descending order in place (mutating).
 	def SortInDescending()
 		This.SortInAscending()
 		This.Reverse()
@@ -448,6 +468,7 @@ class stzStringList from stzObject
 		def SortDown()
 			This.SortInDescending()
 
+	# A descending-sorted copy; the original is unchanged.
 	def SortedInDescending()
 		_oCopy_ = This.Copy()
 		_oCopy_.SortInDescending()
@@ -503,6 +524,7 @@ class stzStringList from stzObject
 	 #   REVERSE                                            #
 	#======================================================#
 
+	# Reverse the order of the strings in place (mutating).
 	def Reverse()
 		# Use ring_reverse -- bare `reverse(...)` resolves
 		# case-insensitively to this class's own Reverse() (0 params)
@@ -513,6 +535,7 @@ class stzStringList from stzObject
 			This.Reverse()
 			return This
 
+	# The strings in reverse order, as a Ring list; the original is unchanged.
 	def Reversed()
 		return ring_reverse(@acContent)
 
@@ -651,6 +674,7 @@ class stzStringList from stzObject
 	 #   CASE OPERATIONS (engine-backed)                    #
 	#======================================================#
 
+	# Uppercase every string in place (mutating).
 	def ToUpper()
 		_acResult_ = []
 		_nLen_ = len(@acContent)
@@ -663,11 +687,13 @@ class stzStringList from stzObject
 			This.ToUpper()
 			return This
 
+	# A copy with every string uppercased; the original is unchanged.
 	def Uppercased()
 		_oCopy_ = This.Copy()
 		_oCopy_.ToUpper()
 		return _oCopy_.Content()
 
+	# Lowercase every string in place (mutating).
 	def ToLower()
 		_acResult_ = []
 		_nLen_ = len(@acContent)
@@ -680,6 +706,7 @@ class stzStringList from stzObject
 			This.ToLower()
 			return This
 
+	# A copy with every string lowercased; the original is unchanged.
 	def Lowercased()
 		_oCopy_ = This.Copy()
 		_oCopy_.ToLower()
@@ -745,9 +772,11 @@ class stzStringList from stzObject
 	 #   CONVERSION                                         #
 	#======================================================#
 
+	# The strings joined with newlines, as one string.
 	def ToString()
 		return This.ConcatUsing(NL)
 
+	# Each string wrapped as a stzString object, as a list.
 	def ToListOfStzStrings()
 		_aResult_ = []
 		_nLen_ = len(@acContent)
@@ -756,6 +785,7 @@ class stzStringList from stzObject
 		next
 		return _aResult_
 
+	# The strings as a stzList object.
 	def ToStzList()
 		return new stzList(@acContent)
 
@@ -781,6 +811,7 @@ class stzStringList from stzObject
 	 #   TRIM EACH STRING                                   #
 	#======================================================#
 
+	# Trim the spaces around each string in place (mutating).
 	def Trim()
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
@@ -792,6 +823,7 @@ class stzStringList from stzObject
 			This.Trim()
 			return This
 
+	# A copy with each string trimmed; the original is unchanged.
 	def Trimmed()
 		_oCopy_ = This.Copy()
 		_oCopy_.Trim()
@@ -814,6 +846,7 @@ class stzStringList from stzObject
 	 #   TYPE IDENTITY                                      #
 	#======================================================#
 
+	# Always TRUE: the object IS a stzStringList.
 	def IsStzStringList()
 		return 1
 

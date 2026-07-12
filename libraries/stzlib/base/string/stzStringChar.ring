@@ -837,6 +837,7 @@ class stzStringChar from stzString
 	 #   UPDATE    #
 	#=============#
 
+	# Replace the char with the given one (mutating; the single update point).
 	def Update(pChar)
 		if CheckingParams() = 1
 			if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
@@ -877,6 +878,7 @@ class stzStringChar from stzString
 			def UpdateUsingQ(pChar)
 				return This.UpdateQ(pChar)
 
+	# The value the char would be updated to (passive twin of Update).
 	def Updated(pChar)
 		return pChar
 
@@ -1075,9 +1077,11 @@ class stzStringChar from stzString
 	 #   UNICODE CATEGORY   #
 	#======================#
 
+	# The numeric Unicode general-category code of the char.
 	def UnicodeCategoryNumber()
 		return _CharCategoryNumber(This.Unicode())
 
+	# The Unicode general category of the char.
 	def UnicodeCategory()
 		_n_ = This.UnicodeCategoryNumber()
 		return UnicodeCategoriesXT()[ ""+_n_ ]
@@ -1104,10 +1108,12 @@ class stzStringChar from stzString
 	 #   CHARACTER CLASSIFICATION   #
 	#==============================#
 
+	# TRUE if the char is the Arabic shaddah (U+0651).
 	def IsArabicShaddah()
 		# U+0651 ARABIC SHADDA -- treated as a letter in Softanza.
 		return This.Unicode() = 1617
 
+	# TRUE if the char is a letter (Unicode-aware).
 	def IsLetter()
 		# Use engine for the primary check
 		_nUnicode_ = This.Unicode()
@@ -1123,6 +1129,7 @@ class stzStringChar from stzString
 		def IsALetter()
 			return This.IsLetter()
 
+	# TRUE if the char is NOT a letter.
 	def IsNotLetter()
 		return NOT This.IsLetter()
 
@@ -1136,9 +1143,11 @@ class stzStringChar from stzString
 			return 0
 		ok
 
+	# TRUE if the char is the given letter, case-insensitively.
 	def IsTheLetter(c)
 		return This.Uppercased() = StzCharQ(c).Uppercased()
 
+	# TRUE if the char is a letter or a number char.
 	def IsLetterOrNumber()
 		if This.IsLetter() or This.IsANumber()
 			return 1
@@ -1155,6 +1164,7 @@ class stzStringChar from stzString
 		def IsANumberOrLetter()
 			return This.IsLetterOrNumber()
 
+	# TRUE if the char is a letter or a space.
 	def IsLetterOrSpace()
 		if This.IsLetter() or This.IsSpace()
 			return 1
@@ -1165,6 +1175,7 @@ class stzStringChar from stzString
 		def IsSpaceOrLetter()
 			return This.IsLetterOrSpace()
 
+	# TRUE if the char is a letter, a space, or the given char.
 	def IsLetterOrSpaceOrThisChar(pcChar)
 		if This.IsLetter() or This.IsSpace() or This.Content() = pcChar
 			return 1
@@ -1175,6 +1186,8 @@ class stzStringChar from stzString
 		def IsSpaceOrLetterOrThisChar(pcChar)
 			return This.IsLetterOrSpaceOrThisChar(pcChar)
 
+	# TRUE if the char is a European number, separator or terminator
+	# (bidi classes).
 	def IsEuropean()
 		if This.IsEuropeanNumber() or This.IsEuropeanNumberSeparator() or
 		   This.IsEuropeanNumberTerminator()
@@ -1183,9 +1196,11 @@ class stzStringChar from stzString
 			return 0
 		ok
 
+	# TRUE if the char is a space char (Unicode-aware).
 	def IsSpace()
 		return _CharIsSpace(This.Unicode())
 
+	# TRUE if the char is a Unicode number char (category N).
 	def IsUnicodeNumber()
 		_nCat_ = _CharCategoryNumber(This.Unicode())
 		if _nCat_ = 3 or _nCat_ = 4 or _nCat_ = 5 or
@@ -1197,9 +1212,11 @@ class stzStringChar from stzString
 			return 0
 		ok
 
+	# TRUE if the char is NOT a number char.
 	def IsNotNumber()
 		return NOT This.IsANumber()
 
+	# TRUE if the char is a digit.
 	def IsDigit()
 		# Use engine call
 		return StzEngineCharIsDigit(This.Unicode()) = 1
@@ -1211,24 +1228,30 @@ class stzStringChar from stzString
 		def IsADigit()
 			return This.IsDigit()
 
+	# TRUE if the char is an Arabic digit.
 	def IsArabicNumber()
 		if NOT This.IsANumber()
 			return 0
 		ok
 		return ring_find( ArabicDigits(), 0+This.Content() ) > 0
 
+	# TRUE if the char is a digit or a circled digit.
 	def IsANumber()
 		return This.IsDigit() or This.IsCircledDigit()
 
+	# TRUE if the char is an Indian numeral.
 	def IsIndianNumber()
 		return ring_find(IndianNumbers(), This.Content()) > 0
 
+	# TRUE if the char is a Roman numeral.
 	def IsRomanNumber()
 		return ring_find(RomanNumbers(), This.Content()) > 0
 
+	# TRUE if the char is a Mandarin numeral.
 	def IsMandarinNumber()
 		return ring_find( MandarinNumbers(), This.Content() ) > 0
 
+	# TRUE if the char is ASCII (codepoint below 128).
 	def IsAscii()
 		try
 			ascii( This.Content() )
@@ -1237,24 +1260,30 @@ class stzStringChar from stzString
 			return 0
 		done
 
+	# TRUE if the char is an ASCII letter (A-Z or a-z).
 	def IsAsciiLetter()
 		return This.IsAscii() AND This.IsLetter()
 
+	# TRUE if the char is a punctuation char.
 	def IsPunctuation()
 		return StzEngineUnicodeIsPunctuation(This.Unicode())
 
 		def IsPunct()
 			return This.IsPunctuation()
 
+	# TRUE if the char belongs to the General Punctuation Unicode block.
 	def IsGeneralPunctuation()
 		return StzFindFirst( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
 
+	# TRUE if the char belongs to the Supplemental Punctuation Unicode block.
 	def IsSupplementalPunctuation()
 		return StzFindFirst( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
 
+	# TRUE if the char is a symbol char (Unicode category S).
 	def IsSymbol()
 		return StzEngineUnicodeIsSymbol(This.Unicode())
 
+	# TRUE if the codepoint is a Unicode noncharacter.
 	def IsNonChar()
 		_nU_ = This.Unicode()
 		if _nU_ >= 0xFDD0 and _nU_ <= 0xFDEF
@@ -1266,15 +1295,18 @@ class stzStringChar from stzString
 		ok
 		return 0
 
+	# TRUE if the char is a combining mark (Unicode category M).
 	def IsMark()
 		return StzEngineUnicodeIsMark(This.Unicode())
 
+	# TRUE if the char is a separator (Unicode space class).
 	def IsSeparator()
 		return StzEngineUnicodeIsSpace(This.Unicode())
 
 		def IsSeperator()
 			return This.IsSeparator()
 
+	# TRUE if the char is one of the given chars.
 	def IsOneOfThese(pacChars)
 		if CheckingParams()
 			if NOT (isList(pacChars) and @IsListOfChars(pacChars))
@@ -1288,6 +1320,7 @@ class stzStringChar from stzString
 			return 0
 		ok
 
+	# TRUE if the char separates words (per the Softanza separators list).
 	def IsWordSeparator()
 		if StzFindFirst( WordSeparators(), This.Char() ) > 0
 			return 1
@@ -1295,6 +1328,7 @@ class stzStringChar from stzString
 			return 0
 		ok
 
+	# TRUE if the char separates sentences (per the Softanza separators list).
 	def IsSentenceSeparator()
 		if StzFindFirst( SentenceSeparators(), This.Char() ) > 0
 			return 1
@@ -1305,12 +1339,15 @@ class stzStringChar from stzString
 		def IsSentenceSeperator()
 			return This.IsSentenceSeparator()
 
+	# TRUE if the char is the newline char.
 	def IsLineSeparator()
 		return This.Content() = NL
 
 		def IsLineSeperator()
 			return This.IsLineSeparator()
 
+	# TRUE if the char is one of the non-letter chars allowed inside
+	# words (hyphen, apostrophe, ...).
 	def IsWordNonLetterChar()
 		return StzFindFirst( WordNonLetterChars(), This.Content() ) > 0
 
@@ -1318,13 +1355,16 @@ class stzStringChar from stzString
 	 #   MIRRORED CHAR  #
 	#==================#
 
+	# TRUE if the char has a mirrored counterpart (like the parentheses).
 	def IsMirrored()
 		_nMirror_ = _CharMirrored(This.Unicode())
 		return _nMirror_ != This.Unicode()
 
+	# The codepoint of the char's mirrored counterpart.
 	def UnicodeOfMirrored()
 		return _CharMirrored(This.Unicode())
 
+	# The mirrored counterpart of the char.
 	def Mirrored()
 		_nMirrorUnicode_ = _CharMirrored(This.Unicode())
 		_cChar_ = CharFromUnicode(_nMirrorUnicode_)
