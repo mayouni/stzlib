@@ -485,12 +485,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     GET     #
 	#-------------#
 
+	# The raw hash list: the [key, value] pairs.
 	def Content()
 		return @aContent
 
+	# Same as Content: the [key, value] pairs.
 	def HashList()
 		return This.Content()
 
+	# How many [key, value] pairs the hash list holds.
 	def NumberOfPairs()
 		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
 		This._EnsureEngineMap()
@@ -526,6 +529,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyValue()
 			return This.NumberOfPairs()
 
+	# The [key, value] pairs (same as Content).
 	def Pairs()
 		return Content()
 
@@ -554,6 +558,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 
+	# The keys of the hash list, as a list.
 	def Keys()
 		_aHkContent_ = This.Content()
 		_nHkLen_ = len(_aHkContent_)
@@ -590,6 +595,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 
+	# The keys whose value equals the given value.
 	def KeysForValue(pValue)
 		_aKfvContent_ = This.Content()
 		_nKfvLen_ = len(_aKfvContent_)
@@ -646,6 +652,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	# The values of the hash list, as a list.
 	def Values()
 
 		_aVlContent_ = This.Content()
@@ -685,6 +692,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 
+	# TRUE if every value is a list and all have the same size.
 	def ValuesAreListsOfSameSize()
 
 		_aValsContent_ = This.Content()
@@ -706,6 +714,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _bValsResult_
 
+	# The pairs INVERTED: [value, key] for each pair.
 	def ValuesAndKeys()
 		_aVakValues_ = This.Values()
 		_nVakLen_ = len(_aVakValues_)
@@ -718,6 +727,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aVakResult_
 
+	# The key of the nth pair.
 	def NthKey(_n_)
 		if isString(_n_)
 			if _n_ = :First or _n_ = :FirstKey
@@ -748,6 +758,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyAtPosition(_n_)
 			return This.Key(_n_)
 	
+	# The value of the nth pair.
 	def NthValue(_n_)
 
 		if checkParams()
@@ -786,18 +797,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValueAtPosition(_n_)
 			return This.Value(_n_)
 
+	# The value of the first pair.
 	def FirstValue()
 		return This.NthValue(1)
 
 		def FirstValueQ()
 			return This.NthValueQ(1)
 	
+	# The value of the last pair.
 	def LastValue()
 		return This.NthValue(This.NumberOfValues())
 
 		def LastValueQ()
 			return Q( This.LastValue() )
 	
+	# The nth [key, value] pair.
 	def NthPair(_n_)
 		if isString(_n_)
 			if _n_ = :First or _n_ = :FirstPair
@@ -852,6 +866,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	
 		#>
 	
+	# The first [key, value] pair.
 	def FirstPair()
 		return This.NthPair(_n_)
 
@@ -863,12 +878,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FristPair()
 			return This.FirstPair()
 
+	# The last [key, value] pair.
 	def LastPair()
 		return This.LastPair(_n_)
 
 		def LastPairQ()
 			return This.NthPairQ(This.NumberOfPairs())
 
+	# The key part of the given [key, value] pair.
 	def KeyInPair(paPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 		   This.ContainsPair(paPair)
@@ -887,6 +904,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KeyInThisPairQ(paPair)
 				return This.KeyInPairQ(paPair)
 
+	# The value part of the given [key, value] pair.
 	def ValueInPair(paPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
@@ -904,6 +922,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ValueInThisPairQ(paPair)
 				return This.ValueInPairQ(paPair)
 
+	# The key of the nth pair.
 	def KeyInNthPair(_n_)
 		return This.NthPair(_n_)[1]
 
@@ -916,6 +935,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ValueInNthPairQ(_n_)
 		return Q( This.ValueInNthPair(_n_) )
 
+	# The value stored under the given key.
 	def ValueByKey(pcKey)
 		# Ring's hashlist[key] indexer is the canonical fast path -- it does
 		# a single C lookup on the underlying VM hash table. The engine
@@ -978,6 +998,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	# How many pairs hold the given value.
 	def NumberOfOccurrenceOfValue(pValue)
 		return len(This.FindValue(pValue))
 

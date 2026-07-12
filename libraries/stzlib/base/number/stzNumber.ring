@@ -1795,12 +1795,14 @@ class stzNumber from stzObject
 	 #    CONTENT AND VALUE    #
 	#-------------------------#
 
+	# The number as it is held: a STRING (use NumericValue for the number).
 	def Content()
 		return @cContent
 
 		def ContentQ()
 			return new stzNumber(This.Content())
 
+	# Same as NumericValue: the number as a Ring number.
 	def Number()
 		return This.NumericValue()
 
@@ -1810,13 +1812,16 @@ class stzNumber from stzObject
 	def InitialContent()
 		return pNumber		 
 
+	# A new stzNumber with the same content.
 	def Copy()
 		_oCopy_ = new stzNumber( This.Content() )
 		return _oCopy_
 
+	# Whether values are returned as :Number or :String.
 	def ReturnType()
 		return @cReturnType
 
+	# Choose whether values are returned as :Number or :String.
 	def SetReturnType(_cType_)
 		if CheckingParams()
 			if isList(_cType_) and Q(_cType_).IsToOrAsNamedParams()
@@ -1853,6 +1858,7 @@ class stzNumber from stzObject
 	def ReturnNumber()
 		SetReturnType(:Number)
 		
+	# The number as a string with its explicit sign (+ or -).
 	def NumberWithSign()
 		If This.IsPositive()
 			return "+" + This.Content()
@@ -1921,6 +1927,8 @@ class stzNumber from stzObject
 	 #   UPDATING THE NUMBER   #
 	#-------------------------#
 
+	# Replace the content with the given number (mutating; the single
+	# update point).
 	def Update(pNumber)
 		if CheckingParams() = 1
 
@@ -2003,6 +2011,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# The value the number would be updated to (passive twin of Update).
 	def Updated(pNumber)
 		return pNumber
 
@@ -2319,6 +2328,7 @@ class stzNumber from stzObject
 	 #    BOUNDNESS    #
 	#-----------------#
 
+	# TRUE if the number lies between n1 and n2.
 	def IsBoundedBy(_n1_, _n2_)
 		if CheckingParams()
 			if NOT ( @IsStringOrNumber(_n1_) and @IsStringOrNumber(_n2_) )
@@ -2359,6 +2369,7 @@ class stzNumber from stzObject
 	 #    TYPE    #
         #------------#
 
+	# TRUE if the number has no fractional part.
 	def IsInteger()
 		if NOT This.HasFractionalPart()
 			return 1
@@ -2366,6 +2377,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is an integer greater than zero.
 	def IsPositiveInteger()
 		if This.IsInteger() and This.IsPositive()
 			return 1
@@ -2373,6 +2385,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is an integer less than zero.
 	def IsNegativeInteger()
 		if This.IsInteger() and This.IsNegative()
 			return 1
@@ -2380,6 +2393,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number has a fractional part.
 	def IsReal()
 		if This.HasFractionalPart()
 			return 1
@@ -2390,6 +2404,7 @@ class stzNumber from stzObject
 		def IsRealNumber()
 			return This.IsReal()
 
+	# TRUE if the number has more digits than the configured maximum.
 	def IsBigNumber()
 		if This.NumberOfDigits() > This.MaxNumberOfDigits()
 			return 1
@@ -2397,6 +2412,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is a single-digit integer.
 	def IsOneDigit()
 		if This.IsInteger() and len(This.Content()) = 1
 			return 1
@@ -2404,6 +2420,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is odd.
 	def IsOdd()
 		return StzEngineNumberIsOdd(This.NumericValue())
 
@@ -2424,6 +2441,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# TRUE if the number is even.
 	def IsEven()
 		return StzEngineNumberIsEven(This.NumericValue())
 
@@ -2444,6 +2462,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# :Odd or :Even, whichever the number is.
 	def IsOddOrEven()
 		If This.IsOdd()
 			return :Odd
@@ -2469,6 +2488,7 @@ class stzNumber from stzObject
 		def IsFardiOrZawji()
 			return This.IsZawjiOrFardi()
 
+	# TRUE if the number is prime.
 	def IsPrime()
 		if This.IsInteger() and This.IsGreaterThan(1)
 			return StzEngineNumberIsPrime( This.NumericValue() )
@@ -2488,6 +2508,7 @@ class stzNumber from stzObject
 	def isWeiferich(s)
 		_bResult_ = @isWeiferich(This.NumericValue())
 
+	# TRUE if the number is 0 or 1.
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
 			return 1
@@ -2495,6 +2516,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is 1.
 	def IsTrue()
 		if This.Number() = 1
 			return 1
@@ -2502,6 +2524,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is 0.
 	def IsFalse()
 		if This.Number() = 0
 			return 1
@@ -2556,6 +2579,7 @@ class stzNumber from stzObject
 	 #    SIGN    #
 	#------------#
 	
+	# The sign of the number: "+", "-" or "" for zero.
 	def Sign()
 
 		_oStr_ = new stzString(This.Content())
@@ -2569,6 +2593,7 @@ class stzNumber from stzObject
 
 		ok
 
+	# Drop the sign from the number (mutating).
 	def RemoveSign()
 		_cNumber_ = This.Content()
 		_nLenNumber_ = len(_cNumber_)

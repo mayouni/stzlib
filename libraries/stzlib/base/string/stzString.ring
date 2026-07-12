@@ -628,6 +628,7 @@ class stzString from stzObject
 	def IsEmpty()
 		return This.Content() = ""
 
+	# TRUE if the string is exactly one char long.
 	def IsAChar()
 		return This.NumberOfChars() = 1
 
@@ -726,6 +727,7 @@ class stzString from stzObject
 	 #     FUNDAMENTAL ACCESSORS              #
 	#========================================#
 
+	# The char at position n (codepoint-aware).
 	def NthChar(n)
 		pH = This.Engine()
 		pR = StzEngineStringNthChar(pH, n)
@@ -755,6 +757,7 @@ class stzString from stzObject
 		def LastCharQ()
 			return new stzString( This.LastChar() )
 
+	# The first (leftmost) char of the string.
 	def LeftChar()
 		# LTR alias for FirstChar. The monolith branched on
 		# IsLeftToRight()/RTL; until directionality is wired up in the
@@ -780,6 +783,7 @@ class stzString from stzObject
 			_StzHistoAdd(_aCq_)
 			return new stzListOfChars( _aCq_ )
 
+	# The Unicode NAME of each char, as a list.
 	def CharsNames()
 		_acResult_ = []
 		_acChars_ = This.Chars()
@@ -791,6 +795,7 @@ class stzString from stzObject
 		return _acResult_
 
 	#@ aka  substring, slice, part, portion, extract, characters between two positions
+	# The substring from position n1 to n2 (inclusive, codepoint-aware).
 	def Section(_n1_, _n2_)
 		_nLen_ = This.NumberOfChars()
 		# Narrative aliases: Section(:From = pcA, :To = pcB). A string
@@ -1111,6 +1116,7 @@ class stzString from stzObject
 			This.ReplaceSection(_n1_, _n2_, pcNewSubStr)
 			return This
 
+	# The substrings at the given [start, end] sections, as a list.
 	def Sections(_aSections_)
 		# Accept :Of = pcSub / :OfSubString = pcSub named-param: returns
 		# every occurrence's [n1, n2] section.
@@ -1191,6 +1197,7 @@ class stzString from stzObject
 			next
 			return _aRes_
 
+	# The substrings OUTSIDE the given sections, as a list.
 	def AntiSections(_aSections_)
 		return This.Sections( This.AntiSectionsZZ(_aSections_) )
 
@@ -1224,6 +1231,7 @@ class stzString from stzObject
 			ok
 			return _aZZ_[1]
 
+	# The substrings between the occurrences of pcSubStr, as a list.
 	def FindAntiSections(pcSubStr)
 		return This.Sections( This.FindAntiSectionsZZ(pcSubStr) )
 
@@ -1243,6 +1251,7 @@ class stzString from stzObject
 		def AntiFindAsSectionsZ(pcSubStr)
 			return This.FindAntiSectionsZ(pcSubStr)
 
+	# The substring starting at nStart and spanning nRange chars (lenient).
 	def Range(_nStart_, _nRange_)
 		return This._SectionLenient(_nStart_, _nStart_ + _nRange_ - 1)
 
@@ -2543,6 +2552,8 @@ class stzString from stzObject
 				This.ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 				return This
 
+	# A copy with every occurrence of pcSubStr replaced by
+	# pcNewSubStr; the original is unchanged.
 	def ReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oRpdCopy_ = This.Copy()
 		_oRpdCopy_.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -4061,6 +4072,8 @@ class stzString from stzObject
 	 #     INSERT                                  #
 	#============================================#
 
+	# Insert pcSubStr BEFORE position n -- or before the given anchor
+	# substring (mutating).
 	def InsertBefore(n, pcSubStr)
 		# Named-param form: (:Position = N, :SubString = pcSub).
 		if isList(n) and len(n) = 2 and isString(n[1])
@@ -4156,6 +4169,7 @@ class stzString from stzObject
 			This.ExtendToWith(n, pcChar)
 			return This
 
+	# Pad the string to total length n by cycling its own chars (mutating).
 	def ExtendToWithCharsRepeated(n)
 		# Pad out to total length n by cycling through the current
 		# content (so "abc" -> "abc abc a" when n = 8).
@@ -4176,6 +4190,8 @@ class stzString from stzObject
 			This.ExtendToWithCharsRepeated(n)
 			return This
 
+	# Pad the string to total length n by cycling the given chars or
+	# range (mutating).
 	def ExtendToWithCharsIn(n, pcCharsOrRange)
 		# Pad out to total length n by cycling through pcCharsOrRange.
 		# A Ring range like "1":"3" expands to "123".
@@ -4270,6 +4286,8 @@ class stzString from stzObject
 			This.InsertBefore(n, pcSubStr)
 			return This
 
+	# Insert pcSubStr AFTER position n -- or after the given anchor
+	# substring (mutating).
 	def InsertAfter(n, pcSubStr)
 		# Anchor form: InsertAfter("Ring", " programming") inserts
 		# after the anchor's last char. Args flip like InsertBefore
@@ -4328,6 +4346,7 @@ class stzString from stzObject
 			return This
 
 	# InsertBeforePositions: mirror.
+	# Insert pcStr before EACH of the given positions (mutating).
 	def InsertBeforePositions(anPos, pcStr)
 		_aPos_ = _ListCopy(anPos)
 		_nPL_ = len(_aPos_)
@@ -4384,6 +4403,7 @@ class stzString from stzObject
 	 #     WORDS                                   #
 	#============================================#
 
+	# The words of the string, as a list (whitespace-split by design).
 	def Words()
 		# Bulk native-list bridge (O(n)); the _SplitNullDelimited byte-walk was
 		# O(n^2) at large token counts.
@@ -4398,6 +4418,7 @@ class stzString from stzObject
 		def WordsQQ()
 			return new stzListOfStrings(This.Words())
 
+	# How many words the string holds.
 	def NumberOfWords()
 		return StzEngineStringCountWords(@pEngine)
 
@@ -4951,6 +4972,7 @@ class stzString from stzObject
 		ok
 		return This.Content()
 
+	# A copy with the leading spaces removed; the original is unchanged.
 	def TrimmedLeft()
 		_pTlResult_ = StzEngineStringTrimLeft(@pEngine)
 		if _pTlResult_ != 0
@@ -4960,6 +4982,7 @@ class stzString from stzObject
 		ok
 		return This.Content()
 
+	# A copy with the trailing spaces removed; the original is unchanged.
 	def TrimmedRight()
 		_pTrResult_ = StzEngineStringTrimRight(@pEngine)
 		if _pTrResult_ != 0
@@ -4973,6 +4996,7 @@ class stzString from stzObject
 	 #     LINES                                  #
 	#============================================#
 
+	# The lines of the string, as a list.
 	def Lines()
 		_nLnCount_ = StzEngineStringLinesSplitCount(@pEngine)
 		_aLnResult_ = []
@@ -4991,6 +5015,7 @@ class stzString from stzObject
 		def LinesQ()
 			return new stzList( This.Lines() )
 
+	# How many lines the string holds.
 	def NumberOfLines()
 		return StzEngineStringCountLines(@pEngine)
 
@@ -4998,6 +5023,7 @@ class stzString from stzObject
 	 #     CHECKER DELEGATIONS               #
 	#========================================#
 
+	# TRUE if the string is a valid Unicode char NAME.
 	def IsCharName()
 		return StzUnicodeContainsName(This.Content())
 
@@ -5090,6 +5116,8 @@ class stzString from stzObject
 		def WithoutDiacritics()
 			return This.DiacriticsRemoved()
 
+	# Remove the diacritics (accents) in place (mutating). For a copy,
+	# use DiacriticsRemoved.
 	def RemoveDiacritics()
 		This.Update( This.DiacriticsRemoved() )
 
@@ -5097,6 +5125,7 @@ class stzString from stzObject
 			This.RemoveDiacritics()
 			return This
 
+	# TRUE if the string contains diacritics (accents).
 	def ContainsDiacritics()
 		return This.DiacriticsRemoved() != This.Content()
 
@@ -5130,6 +5159,7 @@ class stzString from stzObject
 	 #     DERIVED ACCESSORS                  #
 	#========================================#
 
+	# The n leftmost chars, as a string (direction-aware).
 	def NLeftChars(n)
 		if This.IsLeftToRight()
 			return This._SectionLenient(1, n)
@@ -5144,6 +5174,7 @@ class stzString from stzObject
 		def NLeftCharsAsStringQ(n)
 			return new stzString(This.NLeftChars(n))
 
+	# The n rightmost chars, as a string (direction-aware).
 	def NRightChars(n)
 		if This.IsLeftToRight()
 			_nLen_ = This.NumberOfChars()
@@ -5158,9 +5189,11 @@ class stzString from stzObject
 		def NRightCharsAsStringQ(n)
 			return new stzString(This.NRightChars(n))
 
+	# The first n chars of the string.
 	def NFirstChars(n)
 		return This._SectionLenient(1, n)
 
+	# The last n chars of the string.
 	def NLastChars(n)
 		_nLen_ = This.NumberOfChars()
 		return This._SectionLenient(_nLen_ - n + 1, _nLen_)
@@ -5169,6 +5202,7 @@ class stzString from stzObject
 	 #     MUTATION PRIMITIVES                #
 	#========================================#
 
+	# Remove the chars at positions n1..n2 (mutating).
 	def RemoveSection(_n1_, _n2_)
 		_nLen_ = This.NumberOfChars()
 		_n1_ = This._ResolveSymPos(_n1_, _nLen_)
@@ -5181,6 +5215,7 @@ class stzString from stzObject
 			StzEngineStringFree(pR)
 		ok
 
+	# Remove the chars of each given [start, end] section (mutating).
 	def RemoveSections(_aSections_)
 		if len(_aSections_) = 0
 			return
@@ -5198,6 +5233,7 @@ class stzString from stzObject
 			This.RemoveSection(_aSections_[i][1], _aSections_[i][2])
 		next
 
+	# Replace each given [start, end] section with pcNewSubStr (mutating).
 	def ReplaceSections(_aSections_, pcNewSubStr)
 		# Replace sections from end to start to preserve positions
 		_nLen_ = len(_aSections_)
@@ -5284,6 +5320,8 @@ class stzString from stzObject
 	 #     TRIMMING                           #
 	#========================================#
 
+	# Remove the leading spaces in place (mutating). For a copy, use
+	# TrimmedLeft.
 	def TrimLeft()
 		pH = This.Engine()
 		pR = StzEngineStringTrimLeft(pH)
@@ -5292,6 +5330,8 @@ class stzString from stzObject
 			StzEngineStringFree(pR)
 		ok
 
+	# Remove the trailing spaces in place (mutating). For a copy, use
+	# TrimmedRight.
 	def TrimRight()
 		pH = This.Engine()
 		pR = StzEngineStringTrimRight(pH)
@@ -5333,6 +5373,7 @@ class stzString from stzObject
 		def RemoveThisCharFromLeft(pcChar)
 			This.RemoveThisCharFromStartXT(pcChar)
 
+	# Drop the trailing run of pcChar from the end of the string (mutating).
 	def RemoveThisCharFromEndXT(pcChar)
 		if NOT isString(pcChar) or len(pcChar) = 0 return ok
 		_cTxt_ = This.Content()
@@ -5423,6 +5464,7 @@ class stzString from stzObject
 		if len(_cTxt_) = 0 or _cTxt_[1] != pcChar return ok
 		This.ReplaceLeadingChars(pWith)
 
+	# Replace the trailing run of pcChar with the given string (mutating).
 	def ReplaceTrailingChar(pcChar, pWith)
 		if NOT isString(pcChar) or len(pcChar) = 0 return ok
 		_cTxt_ = This.Content()

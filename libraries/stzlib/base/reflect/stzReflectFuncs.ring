@@ -1086,6 +1086,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 	_aMethods_ = []
 	_aOwn_ = []    # 1 = the method carries its OWN doc-comment
 	_aSect_ = []   # the enclosing section anchor at record time
+	_aFwd_ = []    # pure one-line forward target ("" when none)
 	_cDesc_ = ""
 	_cAka_ = ""
 	_cSection_ = ""
@@ -1109,6 +1110,25 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 					_aOwn_ + 0
 				ok
 				_aSect_ + _cSection_
+				# peek the body: a PURE one-line forward (return
+				# This.X(untransformed args)) makes this an alias of X
+				_cFwd_ = ""
+				for _jF_ = _i_ + 1 to _i_ + 3
+					if _jF_ > nEnd
+						exit
+					ok
+					_cT2_ = lower(trim(paLines[_jF_]))
+					if _cT2_ = ""
+						loop
+					ok
+					if left(_cT2_, 12) = "return this."
+						_cFwd_ = _StzFwdTarget(substr(_cT2_, 13, len(_cT2_) - 12))
+					but left(_cT2_, 5) = "this."
+						_cFwd_ = _StzFwdTarget(substr(_cT2_, 6, len(_cT2_) - 5))
+					ok
+					exit
+				next
+				_aFwd_ + _cFwd_
 			ok
 			_cDesc_ = ""
 			_cAka_ = ""
@@ -1141,25 +1161,44 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			ok
 		ok
 	next
-	# SIBLING-DESC INHERITANCE: a variant form (CS/Q/QC/XT/B/ZZ -- the
-	# fixed-semantics suffix system) that carries no doc of its own
-	# inherits its documented BASE's description plus the suffix's
-	# CONTRACT gloss; the plain twin of a documented CS form inherits
-	# with "case-sensitive by default". Only when no documented sibling
-	# exists does the coarse section anchor serve as the fallback.
+	# SIBLING-DESC INHERITANCE: an undocumented method inherits, in
+	# order of precision: (1) its pure one-line FORWARD target's doc
+	# ("Same as X: ..."), (2) its documented BASE's doc + the variant
+	# suffix CONTRACT gloss (CS/Q/QC/XT/B/ZZ -- the fixed-semantics
+	# naming system), (3) the plain twin of a documented CS form
+	# ("case-sensitive by default"). PASS 2 re-runs the same rules
+	# against pass-1 FILLED docs (transitive closure, depth 2 -- e.g.
+	# FindZZ -> Find, itself filled from FindCS). Only what no rule
+	# reaches falls back to the coarse SECTION anchor, at the end.
 	_nMh_ = len(_aMethods_)
 	_aBaseNames_ = []
 	_aBaseDescs_ = []
+	_aBaseProper_ = []
 	for _i_ = 1 to _nMh_
 		if _aOwn_[_i_] = 1
 			_aBaseNames_ + lower(_aMethods_[_i_][1])
 			_aBaseDescs_ + _aMethods_[_i_][2]
+			_aBaseProper_ + _aMethods_[_i_][1]
 		ok
 	next
 	_aSufs_ = [ "zz", "qc", "cs", "xt", "q", "b" ]
 	for _i_ = 1 to _nMh_
-		if _aOwn_[_i_] = 1
+		if _aMethods_[_i_][2] != ""
 			loop
+		ok
+		if _aFwd_[_i_] != ""
+			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
+			if _nBp_ > 0
+				_cTd_ = _aBaseDescs_[_nBp_]
+				_cPfx_ = lower(_aBaseProper_[_nBp_]) + " -- "
+				if lower(left(_cTd_, len(_cPfx_))) = _cPfx_
+					_cTd_ = substr(_cTd_, len(_cPfx_) + 1,
+						len(_cTd_) - len(_cPfx_))
+				ok
+				_aMethods_[_i_][2] = "Same as " + _aBaseProper_[_nBp_] +
+					": " + _cTd_
+				loop
+			ok
 		ok
 		_cBase_ = lower(_aMethods_[_i_][1])
 		_cGloss_ = ""
@@ -1197,11 +1236,141 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		ok
 		if _cHit_ != ""
 			_aMethods_[_i_][2] = _cHit_ + " (" + _cGloss_ + ")"
-		but _aSect_[_i_] != ""
+		ok
+	next
+	# PASS 2: inherit from pass-1 filled docs (anchors are not yet
+	# applied, so every non-empty desc in the map is a REAL doc)
+	_aBaseNames_ = []
+	_aBaseDescs_ = []
+	_aBaseProper_ = []
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] != ""
+			_aBaseNames_ + lower(_aMethods_[_i_][1])
+			_aBaseDescs_ + _aMethods_[_i_][2]
+			_aBaseProper_ + _aMethods_[_i_][1]
+		ok
+	next
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] != ""
+			loop
+		ok
+		if _aFwd_[_i_] != ""
+			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
+			if _nBp_ > 0
+				_cTd_ = _aBaseDescs_[_nBp_]
+				_cPfx_ = lower(_aBaseProper_[_nBp_]) + " -- "
+				if lower(left(_cTd_, len(_cPfx_))) = _cPfx_
+					_cTd_ = substr(_cTd_, len(_cPfx_) + 1,
+						len(_cTd_) - len(_cPfx_))
+				ok
+				_aMethods_[_i_][2] = "Same as " + _aBaseProper_[_nBp_] +
+					": " + _cTd_
+				loop
+			ok
+		ok
+		_cBase_ = lower(_aMethods_[_i_][1])
+		_cGloss_ = ""
+		_cHit_ = ""
+		for _lvl_ = 1 to 3
+			_bStripped_ = 0
+			for _s_ = 1 to 6
+				_cSf_ = _aSufs_[_s_]
+				_nSf_ = len(_cSf_)
+				if len(_cBase_) > _nSf_ + 1 and right(_cBase_, _nSf_) = _cSf_
+					_cBase_ = left(_cBase_, len(_cBase_) - _nSf_)
+					if _cGloss_ != ""
+						_cGloss_ += "; "
+					ok
+					_cGloss_ += _StzVariantGloss(_cSf_)
+					_bStripped_ = 1
+					exit
+				ok
+			next
+			if _bStripped_ = 0
+				exit
+			ok
+			_nBp_ = ring_find(_aBaseNames_, _cBase_)
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				exit
+			ok
+		next
+		if _cHit_ = ""
+			_nBp_ = ring_find(_aBaseNames_, lower(_aMethods_[_i_][1]) + "cs")
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				_cGloss_ = "case-sensitive by default"
+			ok
+		ok
+		if _cHit_ != ""
+			_aMethods_[_i_][2] = _cHit_ + " (" + _cGloss_ + ")"
+		ok
+	next
+	# LAST RESORT: the coarse section anchor
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] = "" and _aSect_[_i_] != ""
 			_aMethods_[_i_][2] = _aSect_[_i_]
 		ok
 	next
 	return _aMethods_
+
+# Parse "X(args)..." into a SAFE forward target: X must be a plain
+# public method name, and args must be untransformed (identifiers,
+# numbers, symbols, commas only -- any quote, operator, bracket or
+# nested call means the body COMPUTES, so it is no pure alias).
+# The Update family is excluded: forwarding a computed value to
+# Update() is a mutation pattern, not an alias.
+func _StzFwdTarget(pcRest)
+	_nOp_ = StzFindFirst(pcRest, "(")
+	if _nOp_ < 2
+		return ""
+	ok
+	_cNm_ = trim(left(pcRest, _nOp_ - 1))
+	if _cNm_ = "" or left(_cNm_, 1) = "_"
+		return ""
+	ok
+	if NOT isalpha(left(_cNm_, 1))
+		return ""
+	ok
+	_nCn_ = len(_cNm_)
+	for _iC_ = 1 to _nCn_
+		if NOT (isalnum(_cNm_[_iC_]) or _cNm_[_iC_] = "_")
+			return ""
+		ok
+	next
+	if _cNm_ = "update" or _cNm_ = "updatewith" or _cNm_ = "updateby"
+		return ""
+	ok
+	_nCl_ = 0
+	_nRl_ = len(pcRest)
+	for _iC_ = _nRl_ to _nOp_ + 1 step -1
+		if pcRest[_iC_] = ")"
+			_nCl_ = _iC_
+			exit
+		ok
+	next
+	if _nCl_ <= _nOp_
+		return ""
+	ok
+	# anything AFTER the closing paren (comparison, arithmetic, tail
+	# expression) means the body computes -- not a pure forward
+	if _nCl_ < _nRl_
+		if trim(substr(pcRest, _nCl_ + 1, _nRl_ - _nCl_)) != ""
+			return ""
+		ok
+	ok
+	if _nCl_ > _nOp_ + 1
+		_cArgs_ = substr(pcRest, _nOp_ + 1, _nCl_ - _nOp_ - 1)
+		_nAl_ = len(_cArgs_)
+		for _iC_ = 1 to _nAl_
+			_c_ = _cArgs_[_iC_]
+			if NOT (isalnum(_c_) or _c_ = "_" or _c_ = "," or
+			        _c_ = " " or _c_ = char(9) or _c_ = ":")
+				return ""
+			ok
+		next
+	ok
+	return _cNm_
 
 # The CONTRACT gloss of each fixed-semantics variant suffix (the
 # Softanza naming system: the suffix IS the meaning).
