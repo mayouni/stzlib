@@ -1745,6 +1745,7 @@ class stzListOfNumbers from stzList
 	 #  FINDING THE LOWEST N NUMBERS  #
 	#================================#
 
+	# The n smallest numbers, as a list.
 	def NLowestNumbers(_n_)
 		_anResult_ = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, _n_)
 		return _anResult_
@@ -1797,6 +1798,7 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# The positions of the n smallest numbers.
 	def FindNLowestNumbers(_n_)
 		_anNumbers_ = This.NLowestNumbers(_n_)
 		_anResult_  = This.FindMany(_anNumbers_)
@@ -1855,6 +1857,8 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE LOWEST N NUMBERS ALONG WITH THEIR POSITIONS  #
 	#------------------------------------------------------------#
 
+	# The n smallest numbers along with their positions:
+	# [ [number, position], ... ].
 	def NLowestNumbersZ(_n_)
 		_aResult_ = @Association([ This.NLowestNumbers(_n_), This.FindNLowestNumbers(_n_) ])
 		return _aResult_
@@ -2120,6 +2124,7 @@ class stzListOfNumbers from stzList
 	 #  FINDING THE LARGEST N NUMBERS  #
 	#=================================#
 
+	# The n largest numbers, as a list.
 	def NLargestNumbers(_n_)
 		_anResult_ = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().LastNItems(_n_)
 		return _anResult_
@@ -2186,6 +2191,7 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# The positions of the n largest numbers.
 	def FindNLargestNumbers(_n_)
 		_anNumbers_ = This.NLargestNumbers(_n_)
 		_anResult_  = This.FindMany(_anNumbers_)
@@ -2258,6 +2264,8 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE LARGEST N NUMBERS ALONG WITH THEIR POSITIONS  #
 	#------------------------------------------------------------#
 
+	# The n largest numbers along with their positions:
+	# [ [number, position], ... ].
 	def NLargestNumbersZ(_n_)
 		_aResult_ = Association([ This.NLargestNumbers(_n_), This.FindNLargestNumbers(_n_) ])
 		return _aResult_
@@ -4026,6 +4034,7 @@ class stzListOfNumbers from stzList
 	 #     ADDING A NUMBER TO EACH NUMBER     #
 	#========================================#
 
+	# Add n to each number of the list (mutating).
 	def AddToEach(_n_)
 		
 		_anContent_ = This.Content()
@@ -4072,6 +4081,7 @@ class stzListOfNumbers from stzList
 	 #     SubStructING A NUMBER FROM EACH NUMBER     #
 	#------------------------------------------------#
 
+	# Subtract n from each number of the list (mutating).
 	def SubStructFromEach(_n_)
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
@@ -4539,6 +4549,7 @@ class stzListOfNumbers from stzList
 	 #   ADDING NUMBER TO EACH UNDER A GIVEN CONDITION   #
 	#===================================================#
 
+	# Add n to each number satisfying the given W condition (mutating).
 	def AddToEachW(_n_, pcCondition)
 
 		# Checking params
@@ -4632,6 +4643,7 @@ class stzListOfNumbers from stzList
 	 #   MULTIPLYING NUMBERS BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
+	# Multiply by n each number satisfying the given W condition (mutating).
 	def MultiplyEachWithW(_n_, pcCondition)
 
 		# Checking params
