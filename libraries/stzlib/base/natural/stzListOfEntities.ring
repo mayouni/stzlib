@@ -133,7 +133,11 @@ func WhatIs(pcName)
 				if ring_find(_aGrp_[_j_][2], _aSites_[_i_][1]) = 0
 					_aGrp_[_j_][2] + _aSites_[_i_][1]
 				ok
-				if _aGrp_[_j_][3] = "" and isString(_aSites_[_i_][3])
+				# keep the RICHEST description across the sites: a
+				# real doc (own or inherited) beats a bare section
+				# anchor from another class
+				if isString(_aSites_[_i_][3]) and
+				   len(_aSites_[_i_][3]) > len(_aGrp_[_j_][3])
 					_aGrp_[_j_][3] = _aSites_[_i_][3]
 				ok
 				_bF_ = 1

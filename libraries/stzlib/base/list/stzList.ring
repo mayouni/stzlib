@@ -498,6 +498,7 @@ class stzList from stzObject
 	 #     ADDING ITEMS     #
 	#----------------------#
 
+	# Add the given item at the end of the list (mutating).
 	def AddItem(pItem)
 		_aCopy_ = This.Content()
 		_aCopy_ + pItem
@@ -515,6 +516,7 @@ class stzList from stzObject
 				This.Add(pItem)
 				return This
 
+		# Same as AddItem: append the item at the end (mutating).
 		def Append(pItem)
 			if isList(pItem) and IsWithOrUsingOrByNamedParamList(pItem)
 				pItem = pItem[2]
@@ -1681,6 +1683,7 @@ class stzList from stzObject
 		_oSb_.SortBy(pcExpr)
 		return _oSb_.Content()
 
+	# Same as Sort: ascending, in place (mutating).
 	def SortUp()
 		This.Sort()
 
@@ -1688,6 +1691,7 @@ class stzList from stzObject
 			This.Sort()
 			return This
 
+	# Same as SortInDescending: descending, in place (mutating).
 	def SortDown()
 		This.SortInDescending()
 
@@ -1696,6 +1700,7 @@ class stzList from stzObject
 			return This
 
 	#@ aka  order, arrange, rank, ascending, smallest to largest
+	# Sort the items in ascending order in place (mutating). For a copy, use Sorted.
 	def Sort()
 		This.SortCS(1)
 
@@ -1731,6 +1736,7 @@ class stzList from stzObject
 		StzEngineListFree(pList)
 		return _aResult_
 
+	# An ascending-sorted copy of the list; the original is unchanged.
 	def Sorted()
 		return This.SortedCS(1)
 
@@ -1749,6 +1755,7 @@ class stzList from stzObject
 			This.SortInDescendingCS(pCaseSensitive)
 			return This
 
+	# Sort the items in descending order in place (mutating). For a copy, use SortedInDescending.
 	def SortInDescending()
 		This.SortInDescendingCS(1)
 
@@ -1954,6 +1961,7 @@ class stzList from stzObject
 		return This._FindFirstEngine(pItem, pCaseSensitive) > 0
 
 	#@ aka  includes, has, is in, member of, present, holds
+	# TRUE if the list contains the given item.
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
 
@@ -2058,6 +2066,7 @@ class stzList from stzObject
 	def ContainsDuplicatedItems()
 		return This.ContainsDuplicatedItemsCS(1)
 
+		# TRUE if some item occurs more than once in the list.
 		def HasDuplicates()
 			return This.ContainsDuplicatedItems()
 
@@ -2071,9 +2080,11 @@ class stzList from stzObject
 		_oDupItm_ = new stzListDuplicates(This)
 		return _oDupItm_.DuplicatedItemsCS(pCaseSensitive)
 
+	# The items that occur more than once in the list.
 	def DuplicatedItems()
 		return This.DuplicatedItemsCS(1)
 
+	# How many duplicated items the list holds.
 	def NumberOfDuplicatedItemsCS(pCaseSensitive)
 		return len(This.DuplicatedItemsCS(pCaseSensitive))
 
@@ -2090,6 +2101,7 @@ class stzList from stzObject
 		def NumberOfDuplications()
 			return This.NumberOfDuplicates()
 
+	# The position of every 2nd+ occurrence of each duplicated item.
 	def FindDuplicates()
 		# Positions of each item's 2nd+ occurrence (case-sensitive).
 		# Engine path: O(n) hashing in Zig + correct on nested-list items
@@ -2123,6 +2135,7 @@ class stzList from stzObject
 		next
 		return _aRes_
 
+		# Same as FindDuplicates.
 		def FindDuplications()
 			return This.FindDuplicates()
 
@@ -2358,6 +2371,8 @@ class stzList from stzObject
 		def FindTheseAdjacentItems(paSubList)
 			return This.FindSubList(paSubList)
 
+	# TRUE if the given sublist occurs in the list as a consecutive
+	# run of items.
 	def ContainsSubListCS(paSubList, pCaseSensitive)
 		return len(This.FindSubListCS(paSubList, pCaseSensitive)) > 0
 
@@ -3528,6 +3543,8 @@ class stzList from stzObject
 		next
 		return _anFaoResult_
 
+		# Find the given item: the positions of EVERY occurrence, as a
+		# list (engine-backed).
 		def FindCS(pItem, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
@@ -5502,6 +5519,8 @@ class stzList from stzObject
 	def AntiFind(pItem)
 		return This.AntiFindCS(pItem, 1)
 
+	# The [start, end] sections of the runs of items DIFFERENT from
+	# the given item.
 	def AntiFindAsSectionsCS(pItem, pCaseSensitive)
 		_oAfsaFinder_ = new stzListFinder(This)
 		return _oAfsaFinder_.AntiFindAsSectionsCS(pItem, pCaseSensitive)
@@ -5554,6 +5573,7 @@ class stzList from stzObject
 		_oFnoFinder_ = new stzListFinder(This)
 		return _oFnoFinder_.FindNOccurrencesCS(_n_, pItem, pCaseSensitive)
 
+	# The positions of the first n occurrences of the given item.
 	def FindNOccurrences(_n_, pItem)
 		return This.FindNOccurrencesCS(_n_, pItem, 1)
 
@@ -5570,6 +5590,7 @@ class stzList from stzObject
 		_oFaefFinder_ = new stzListFinder(This)
 		return _oFaefFinder_.FindAllExceptFirstCS(pItem, pCaseSensitive)
 
+	# The positions of every occurrence of the item EXCEPT the first.
 	def FindAllExceptFirst(pItem)
 		return This.FindAllExceptFirstCS(pItem, 1)
 
@@ -5577,6 +5598,7 @@ class stzList from stzObject
 		_oFaelFinder_ = new stzListFinder(This)
 		return _oFaelFinder_.FindAllExceptLastCS(pItem, pCaseSensitive)
 
+	# The positions of every occurrence of the item EXCEPT the last.
 	def FindAllExceptLast(pItem)
 		return This.FindAllExceptLastCS(pItem, 1)
 
@@ -5591,6 +5613,8 @@ class stzList from stzObject
 		_oFnoFinder2_ = new stzListFinder(This)
 		return _oFnoFinder2_.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
+	# The position of the next occurrence of the item after the given
+	# position (0 when there is none).
 	def FindNextOccurrence(pItem, pnStartingAt)
 		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
 
@@ -5659,6 +5683,8 @@ class stzList from stzObject
 		_oFpoFinder_ = new stzListFinder(This)
 		return _oFpoFinder_.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
+	# The position of the nearest occurrence of the item before the
+	# given position (0 when there is none).
 	def FindPreviousOccurrence(pItem, pnStartingAt)
 		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
 
@@ -5765,6 +5791,8 @@ class stzList from stzObject
 	def FindDupSecutiveItems()
 		return _StzFindDupSecutive(This.Content(), 1)
 
+	# The items that repeat in consecutive runs (dup-secutive:
+	# duplicated AND consecutive).
 	def DupSecutiveItemsCS(pCaseSensitive)
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
@@ -6247,6 +6275,8 @@ class stzList from stzObject
 		_oSdacsSplitter_ = new stzListSplits(This)
 		return _oSdacsSplitter_.SplittedAtCS(pItem, pCaseSensitive)
 
+	# The parts of the list split at each occurrence of the given item
+	# (the item itself is not kept in the parts).
 	def SplittedAt(pItem)
 		return This.SplittedAtCS(pItem, 1)
 
@@ -6276,6 +6306,8 @@ class stzList from stzObject
 		_oSbcsSplitter_ = new stzListSplits(This)
 		return _oSbcsSplitter_.SplitBeforeCS(pItem, pCaseSensitive)
 
+	# Split the list before each occurrence of the item: each
+	# occurrence starts a new part.
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
@@ -6291,6 +6323,8 @@ class stzList from stzObject
 		_oSafcsSplitter_ = new stzListSplits(This)
 		return _oSafcsSplitter_.SplitAfterCS(pItem, pCaseSensitive)
 
+	# Split the list after each occurrence of the item: each
+	# occurrence closes its part.
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
@@ -8237,6 +8271,8 @@ class stzList from stzObject
 		next
 		return 0
 
+	# Remove every occurrence of the item at ANY depth of the nested
+	# list (mutating).
 	def DeepRemove(pItem)
 		This._SetContent(This._DeepFilterCS(@aContent, [pItem], 1))
 		
@@ -8249,6 +8285,7 @@ class stzList from stzObject
 			This._SetContent(This._DeepFilterCS(@aContent, [pItem], pCaseSensitive))
 			
 
+	# DeepRemove applied to each item of the given list (mutating).
 	def DeepRemoveMany(paItems)
 		if NOT isList(paItems)
 			StzRaise("DeepRemoveMany: paItems must be a list")
