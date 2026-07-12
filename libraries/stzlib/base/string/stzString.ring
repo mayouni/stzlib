@@ -7598,6 +7598,8 @@ class stzString from stzObject
 		next
 		return 0
 
+	# Currency-symbol check (stub: the monolith left it TODO;
+	# completes with the locale data).
 	def IsCurrencySymbol()
 		# Stub (the monolith left this as TODO with no body).
 		return 0
@@ -7661,24 +7663,30 @@ class stzString from stzObject
 	def ContainsOne(pcSubStr)
 		return This.ContainsOneOccurrence(pcSubStr)
 
+	# TRUE if the substring occurs exactly n times.
 	def ContainsNTimesCS(n, pcSubStr, pCaseSensitive)
 		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = n
 
 	def ContainsNTimes(n, pcSubStr)
 		return This.ContainsNTimesCS(n, pcSubStr, 1)
 
+	# TRUE if the string is an integer literal.
 	def RepresentsInteger()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and NOT _aRn_[3]
 
+	# TRUE if the string is a SIGNED integer literal.
 	def RepresentsSignedInteger()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and NOT _aRn_[3] and _aRn_[2]
 
+	# TRUE if the string is an UNSIGNED integer literal.
 	def RepresentsUnsignedInteger()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and NOT _aRn_[3] and NOT _aRn_[2]
 
+	# TRUE if the string is a real-number literal (carries a
+	# fractional dot).
 	def RepresentsRealNumber()
 		# A REAL carries a fractional dot (any base form).
 		_aRn_ = This._NumLiteralInfo()
@@ -7694,14 +7702,17 @@ class stzString from stzObject
 		def RepresentsRealInString()
 			return This.RepresentsRealNumber()
 
+	# TRUE if the string is a SIGNED number literal.
 	def RepresentsSignedNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[2]
 
+	# TRUE if the string is an UNSIGNED number literal.
 	def RepresentsUnsignedNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and NOT _aRn_[2]
 
+	# TRUE if the literal is calculable in double precision.
 	def RepresentsCalculableNumber()
 		# Any valid literal is calculable (double precision).
 		return This.RepresentsNumber()
@@ -7710,6 +7721,8 @@ class stzString from stzObject
 		_oInisChk_ = new stzStringChecker(This)
 		return _oInisChk_.IsNumberInString()
 
+	# TRUE if the string holds a list literal (normal or computable
+	# form).
 	def IsListInString()
 		# A list lives in the string either in normal form ([...]) or
 		# in short-form range syntax (1:3, "a":"d").
@@ -7902,10 +7915,12 @@ class stzString from stzObject
 		if _nSide_ = 0 _bOk_ = 0 ok
 		return [ _cForm_, _bSg_, _bDot_, _bOk_ ]
 
+	# TRUE if the string is a valid number literal (any base form).
 	def RepresentsNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4]
 
+	# TRUE if the string is a decimal number literal.
 	def RepresentsDecimalNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[1] = "decimal"
@@ -7913,6 +7928,7 @@ class stzString from stzObject
 		def RepresentsNumberInDecimalForm()
 			return This.RepresentsDecimalNumber()
 
+	# TRUE if the string is a binary number literal.
 	def RepresentsBinaryNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[1] = "binary"
@@ -7920,6 +7936,7 @@ class stzString from stzObject
 		def RepresentsNumberInBinaryForm()
 			return This.RepresentsBinaryNumber()
 
+	# TRUE if the string is a hexadecimal number literal.
 	def RepresentsHexNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[1] = "hex"
@@ -7927,6 +7944,7 @@ class stzString from stzObject
 		def RepresentsNumberInHexForm()
 			return This.RepresentsHexNumber()
 
+	# TRUE if the string is an octal number literal.
 	def RepresentsOctalNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[1] = "octal"
@@ -8042,12 +8060,16 @@ class stzString from stzObject
 
 	# --- Leading/Trailing ---
 
+	# TRUE if the string starts with a repeated char run.
 	def HasLeadingChars()
 		return This.NumberOfLeadingChars() > 0
 
+	# TRUE if the string ends with a repeated char run.
 	def HasTrailingChars()
 		return This.NumberOfTrailingChars() > 0
 
+	# TRUE if the string both starts AND ends with repeated char
+	# runs.
 	def HasLeadingAndTrailingChars()
 		return This.HasLeadingChars() and This.HasTrailingChars()
 
@@ -8102,6 +8124,7 @@ class stzString from stzObject
 
 	#--- Invisible chars
 
+	# The positions of the invisible chars.
 	def FindInvisibleChars()
 		_acInvChars_ = @InvisibleChars()
 		_nLen_ = This.NumberOfChars()
@@ -8115,6 +8138,7 @@ class stzString from stzObject
 
 		return _anResult_
 
+	# The invisible chars of the string, as a list.
 	def InvisibleChars()
 		_acInvChars_ = @InvisibleChars()
 		_nLen_ = This.NumberOfChars()
@@ -8128,6 +8152,7 @@ class stzString from stzObject
 
 		return _acResult_
 
+	# TRUE if the string contains invisible chars.
 	def ContainsInvisibleChars()
 		_acInvChars_ = @InvisibleChars()
 		_nLen_ = This.NumberOfChars()
@@ -8239,6 +8264,7 @@ class stzString from stzObject
 	def SubStrings()
 		return This._DrainStrList( StzEngineStringSubStrings(@pEngine) )
 
+	# How many substrings the string yields.
 	def NumberOfSubStrings()
 		_n_ = This._EngineCount(This.Content())
 		return (_n_ * (_n_ + 1)) / 2
@@ -8250,9 +8276,11 @@ class stzString from stzObject
 		if pCaseSensitive = 1 _bCs_ = TRUE ok
 		return This._DrainStrList( StzEngineStringSubStringsUniqueCS(@pEngine, _bCs_) )
 
+	# How many substrings the string yields (case dial).
 	def NumberOfSubStringsCS(pCaseSensitive)
 		return len(This.SubStringsCS(pCaseSensitive))
 
+	# The substring count, case-insensitive (CS = 0).
 	def NumberOfSubStringsU()
 		return This.NumberOfSubStringsCS(0)
 
@@ -8262,6 +8290,7 @@ class stzString from stzObject
 		def UniqueSubStrings()
 			return This.SubStringsU()
 
+	# How many DISTINCT substrings the string yields.
 	def NumberOfUniqueSubStrings()
 		return len(This.SubStringsU())
 
@@ -8325,6 +8354,7 @@ class stzString from stzObject
 
 	# --- StartsWithAny / EndsWithAny ---
 
+	# TRUE if the string starts with ANY of the given prefixes.
 	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
 		_oSwFinder_ = new stzStringFinder(This)
 		return _oSwFinder_.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
@@ -8436,6 +8466,8 @@ class stzString from stzObject
 		end
 		return _aBcsRes_
 
+	# The [start, end] sections of the substrings bounded by the
+	# given bounds.
 	def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 		# Single-string / same-string bounds take the overlapping walk.
 		if This._IsSameCharBound(pacBounds)
@@ -8591,6 +8623,8 @@ class stzString from stzObject
 		for _dDb_ = 1 to _nDbN_ _aDbOut_ + _aDbNon_[_dDb_] next
 		return _aDbOut_
 
+	# The [start, end] sections of the bounded substrings at EVERY
+	# nesting depth.
 	def DeepFindBoundedByZZ(pacBounds)
 		_aDfb_ = This._DeepBounds(pacBounds)
 		_aDfReg_ = This._DeepBoundedSections(_aDfb_[1], _aDfb_[2])
@@ -8608,6 +8642,7 @@ class stzString from stzObject
 		def DeepFindSubStringsBoundedByZZ(pacBounds)
 			return This.DeepFindBoundedByZZ(pacBounds)
 
+	# The bounded substrings at every nesting depth.
 	def DeepBoundedBy(pacBounds)
 		_aDbbPos_ = This.DeepFindBoundedByZZ(pacBounds)
 		_aDbbRes_ = []
@@ -8617,6 +8652,8 @@ class stzString from stzObject
 		next
 		return _aDbbRes_
 
+	# The nested bounded substrings with their [start, end]
+	# sections.
 	def DeepSubStringsZZ(pacBounds)
 		_aDszPos_ = This.DeepFindBoundedByZZ(pacBounds)
 		_aDszRes_ = []
@@ -8629,6 +8666,7 @@ class stzString from stzObject
 		def DeepSubStringsBoundedByZZ(pacBounds)
 			return This.DeepSubStringsZZ(pacBounds)
 
+	# The nested bounded sections, bounds INCLUDED (IB).
 	def DeepFindBoundedByIBZZ(pacBounds)
 		_aDib_ = This._DeepBounds(pacBounds)
 		_aDiReg_ = This._DeepBoundedSections(_aDib_[1], _aDib_[2])
@@ -8642,6 +8680,8 @@ class stzString from stzObject
 		def DeepFindSubStringsBoundedByIBZZ(pacBounds)
 			return This.DeepFindBoundedByIBZZ(pacBounds)
 
+	# The nested bounded substrings, bounds included, with their
+	# sections.
 	def DeepSubStringsBoundedByIBZZ(pacBounds)
 		_aDsiPos_ = This.DeepFindBoundedByIBZZ(pacBounds)
 		_aDsiRes_ = []
@@ -8684,6 +8724,7 @@ class stzString from stzObject
 		end
 		return _aNbB_
 
+	# The bounded substrings including the NESTED ones.
 	def NestedSubStrings(pacBounds)
 		_aNsb_ = This._DeepBounds(pacBounds)
 		_aNsB_ = This._NestedBoundPositions(_aNsb_[1], _aNsb_[2])
@@ -8697,6 +8738,7 @@ class stzString from stzObject
 		next
 		return _aNsRes_
 
+	# The nested bounded substrings, bounds included (IB).
 	def NestedSubStringsIB(pacBounds)
 		_aNib_ = This._DeepBounds(pacBounds)
 		_aNiB_ = This._NestedBoundPositions(_aNib_[1], _aNib_[2])
@@ -8998,6 +9040,8 @@ class stzString from stzObject
 	def HowManyCS(pcSub, pCaseSensitive)
 		return StzEngineStringCountOfCS(@pEngine, pcSub, pCaseSensitive)
 
+	# How many occurrences of pcSub from the given position on (ST =
+	# starting at).
 	def HowManyST(pcSub, _nStartAt_)
 		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
 		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
@@ -9014,12 +9058,15 @@ class stzString from stzObject
 		end
 		return _nCount_
 
+	# Same as NumberOfSubStrings.
 	def HowManySubStrings()
 		return This.NumberOfSubStrings()
 
+	# How long the trailing char run is.
 	def HowManyTrailingChar()
 		return len(This.TrailingChars())
 
+	# How long the leading char run is.
 	def HowManyLeadingChar()
 		return len(This.LeadingChars())
 
@@ -9031,6 +9078,7 @@ class stzString from stzObject
 	def HowManyOccurrenceOfCharEndSide(pcChar)
 		return This.HowManyOccurrenceOfCharRightSide(pcChar)
 
+	# How many times the char repeats at the START of the string.
 	def HowManyOccurrenceOfCharLeftSide(pcChar)
 		return StzEngineStringCountLeadingChar(@pEngine, StzCodepoint(pcChar))
 
@@ -9315,6 +9363,8 @@ class stzString from stzObject
 	def FindBoundedSubStringXT(pcOpen, pcClose)
 		return This.BoundedBy([ pcOpen, pcClose ])
 
+	# Find the bounded substrings (polymorphic: one substring or an
+	# [open, close] pair).
 	def FindBoundedSubStrings(pcSubOrOpen)
 		if isList(pcSubOrOpen) and len(pcSubOrOpen) = 2
 			return This.BoundedBy(pcSubOrOpen)
@@ -9556,6 +9606,7 @@ class stzString from stzObject
 	def First2CharsAsString()
 		return This._EngineSlice(This.Content(), 1, 2)
 
+	# The last two chars, as a string.
 	def Last2CharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return This.Content() ok
@@ -9751,6 +9802,7 @@ class stzString from stzObject
 		if _nSub_ < 1 return FALSE ok
 		return _nSub_ < _nAnchor_
 
+	# TRUE if pcSub occurs AFTER the anchor substring.
 	def ContainsAfter(pcSub, pcAnchor)
 		_nAnchor_ = 0
 		_nFrom_ = 0
@@ -9818,25 +9870,31 @@ class stzString from stzObject
 		next
 		return _aClo_
 
+	# The first two chars, as a list.
 	def First2Chars()
 		return This._CharListOf( This._EngineSlice(This.Content(), 1, 2) )
 
+	# The last two chars, as a list.
 	def Last2Chars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return This._CharListOf(This.Content()) ok
 		return This._CharListOf( This._EngineSliceFrom(This.Content(), _nLen_ - 1) )
 
+	# The last three chars, as a list.
 	def Last3Chars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 3 return This._CharListOf(This.Content()) ok
 		return This._CharListOf( This._EngineSliceFrom(This.Content(), _nLen_ - 2) )
 
+	# The first three chars, as a list.
 	def First3Chars()
 		return This._CharListOf( This._EngineSlice(This.Content(), 1, 3) )
 
+	# The first n chars, as a string.
 	def FirstNChars(n)
 		return This._EngineSlice(This.Content(), 1, n)
 
+	# The last n chars, as a string.
 	def LastNChars(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_ return This.Content() ok
@@ -9882,6 +9940,7 @@ class stzString from stzObject
 		_oTmp_.Spacify()
 		return _oTmp_.Content()
 
+	# A copy with the chars separated by the given separator.
 	def SpacifiedUsing(pcSep)
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.SpacifyCharsUsing(pcSep)
@@ -10059,6 +10118,7 @@ class stzString from stzObject
 	def IsScript()
 		return This.IsScriptName()
 
+	# TRUE if the string's dominant script is the given one.
 	def ScriptIs(pcScript)
 		# Dominant-script equality (:Latin / :Han / :Inherited ...).
 		if NOT isString(pcScript) or pcScript = "" return FALSE ok
@@ -10223,6 +10283,7 @@ class stzString from stzObject
 		if _n1_ = StzEngineStringCharAt(@pEngine, 2) return StzChar(_n1_) ok
 		return ""
 
+	# The char repeated at the end of the string.
 	def RepeatedTrailingChar()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return "" ok
@@ -10230,9 +10291,11 @@ class stzString from stzObject
 		if _nL_ = StzEngineStringCharAt(@pEngine, _nLen_ - 1) return StzChar(_nL_) ok
 		return ""
 
+	# How long the repeated run at the start is.
 	def NumberOfRepeatedLeadingChars()
 		return This.HowManyOccurrenceOfCharLeftSide(This.RepeatedLeadingChar())
 
+	# How long the repeated run at the end is.
 	def NumberOfRepeatedTrailingChars()
 		return This.HowManyOccurrenceOfCharRightSide(This.RepeatedTrailingChar())
 
@@ -10370,6 +10433,8 @@ class stzString from stzObject
 		# between two regions is preserved). Routes through ReplaceXT :BoundedBy.
 		This.ReplaceXT([], [ :BoundedBy, pacBounds ], [ :With, pcNew ])
 
+	# Replace every bounded block INCLUDING its bounds with pcNew
+	# (mutating).
 	def ReplaceAnyBoundedByIB(pacBounds, pcNew)
 		# Replace the entire bounded block (including bounds).
 		_aOpen_ = pacBounds
