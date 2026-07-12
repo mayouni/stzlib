@@ -105,21 +105,27 @@ class stzStringText from stzObject
 	def Text()
 		return This.Content()
 
+	# How many chars the text holds.
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text is empty.
 	def IsEmpty()
 		return @oString.IsEmpty()
 
+	# A new stzStringText with the same content.
 	def Copy()
 		return new stzStringText(This.Content())
 
+	# The text wrapped as a stzString object.
 	def ToStzString()
 		return new stzString(This.Content())
 
+	# The engine handle of the underlying string.
 	def Engine()
 		return @oString.Engine()
 
+	# Replace the content with the given string (mutating).
 	def Update(pcStr)
 		if isList(pcStr) and IsWithOrByOrUsingNamedParamList(pcStr)
 			pcStr = pcStr[2]
@@ -133,6 +139,7 @@ class stzStringText from stzObject
 	 #     LANGUAGE                   #
 	#===============================#
 
+	# Set the working language of the text.
 	def SetLanguage(pcLanguage)
 		@cLanguage = pcLanguage
 
@@ -188,21 +195,27 @@ class stzStringText from stzObject
 	def NumberOfScripts()
 		return len(This.Scripts())
 
+	# How many scripts the text uses.
 	def CountScripts()
 		return len(This.Scripts())
 
+	# How many distinct scripts the text uses.
 	def NumberOfDistinctScripts()
 		return len(This.Scripts())
 
+	# TRUE if the text's dominant script is the given one.
 	def ScriptIs(_cScript_)
 		return This.Script() = _cScript_
 
+	# TRUE if the text uses the given script.
 	def ContainsScript(_cScript_)
 		return StzFindFirst(This.Scripts(), _cScript_) > 0
 
+	# TRUE if the text contains Arabic-script content.
 	def ContainsArabicScript()
 		return This.ContainsScript(:Arabic)
 
+	# TRUE if the text contains Latin-script content.
 	def ContainsLatinScript()
 		return This.ContainsScript(:Latin)
 
@@ -258,6 +271,7 @@ class stzStringText from stzObject
 	 #     WORDS (Engine-backed)     #
 	#===============================#
 
+	# How many words the text holds.
 	def NumberOfWords()
 		return StzEngineStringCountWords(This.Engine())
 
@@ -267,6 +281,7 @@ class stzStringText from stzObject
 		def HowManyWords()
 			return This.NumberOfWords()
 
+	# The nth word of the text.
 	def NthWord(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringNthWord(This.Engine(), _n_)
@@ -291,6 +306,7 @@ class stzStringText from stzObject
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# The words of the text, as a list (engine-extracted).
 	def Words()
 		pResult = StzEngineStringExtractWords(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -327,6 +343,7 @@ class stzStringText from stzObject
 		def WordsU()
 			return This.UniqueWords()
 
+	# How many distinct words the text holds.
 	def NumberOfUniqueWords()
 		return len(This.UniqueWords())
 
@@ -334,6 +351,7 @@ class stzStringText from stzObject
 	 #     WORD CHECKS                          #
 	#------------------------------------------#
 
+	# TRUE if the text is a single word.
 	def IsWord()
 		if @oString.IsEmpty()
 			return 0
@@ -341,6 +359,7 @@ class stzStringText from stzObject
 		pH = @oString.Engine()
 		return StzEngineStringIsWord(pH)
 
+	# TRUE if the text is a single Arabic-script word.
 	def IsArabicWord()
 		if This.IsWord() and This.ScriptIs(:Arabic)
 			return 1
@@ -348,6 +367,7 @@ class stzStringText from stzObject
 			return 0
 		ok
 
+	# TRUE if the text is a single Latin-script word.
 	def IsLatinWord()
 		if This.IsWord() and This.ScriptIs(:Latin)
 			return 1
@@ -389,6 +409,7 @@ class stzStringText from stzObject
 		def ContainsNoWord(pcWord)
 			return NOT This.ContainsWord(pcWord)
 
+	# TRUE if the text contains EVERY one of the given words.
 	def ContainsEachWordCS(pacWords, pCaseSensitive)
 		_nLen_ = len(pacWords)
 		for i = 1 to _nLen_
@@ -405,6 +426,7 @@ class stzStringText from stzObject
 	 #     WORD TRANSFORMS (Engine-backed)      #
 	#------------------------------------------#
 
+	# Reverse the ORDER of the words in place (mutating).
 	def ReverseWords()
 		pResult = StzEngineStringReverseWords(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -415,12 +437,14 @@ class stzStringText from stzObject
 			This.ReverseWords()
 			return This
 
+	# The words in reverse order, as a copy.
 	def WordsReversed()
 		pResult = StzEngineStringReverseWords(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Sort the words in place (mutating).
 	def SortWordsCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
@@ -439,6 +463,7 @@ class stzStringText from stzObject
 			This.SortWords()
 			return This
 
+	# The words sorted, as a copy; the original is unchanged.
 	def WordsSortedCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
@@ -449,6 +474,7 @@ class stzStringText from stzObject
 	def WordsSorted()
 		return This.WordsSortedCS(1)
 
+	# Reverse the CHARS of each word in place (mutating).
 	def ReverseEachWord()
 		pResult = StzEngineStringReverseEachWord(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -459,12 +485,14 @@ class stzStringText from stzObject
 			This.ReverseEachWord()
 			return This
 
+	# Each word with its chars reversed, as a copy.
 	def EachWordReversed()
 		pResult = StzEngineStringReverseEachWord(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Remove the nth word (mutating).
 	def RemoveNthWord(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringRemoveNthWord(This.Engine(), _n_)
@@ -476,12 +504,14 @@ class stzStringText from stzObject
 			This.RemoveNthWord(_n_)
 			return This
 
+	# A copy with the nth word removed.
 	def NthWordRemoved(_n_)
 		pResult = StzEngineStringRemoveNthWord(This.Engine(), _n_)
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Insert the given word at word-position n (mutating).
 	def InsertWordAt(_n_, pcWord)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringInsertWordAt(This.Engine(), _n_, pcWord)
@@ -493,6 +523,7 @@ class stzStringText from stzObject
 			This.InsertWordAt(_n_, pcWord)
 			return This
 
+	# Exchange the words at the two given word-positions (mutating).
 	def SwapWords(n1, n2)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringSwapWords(This.Engine(), n1, n2)
@@ -504,6 +535,7 @@ class stzStringText from stzObject
 			This.SwapWords(n1, n2)
 			return This
 
+	# Keep only the first n words (mutating).
 	def TruncateWords(_n_)
 		pResult = StzEngineStringTruncateWords(This.Engine(), _n_)
 		_cResult_ = StzEngineStringData(pResult)
@@ -514,12 +546,15 @@ class stzStringText from stzObject
 			This.TruncateWords(_n_)
 			return This
 
+	# A copy keeping only the first n words.
 	def WordsTruncated(_n_)
 		pResult = StzEngineStringTruncateWords(This.Engine(), _n_)
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# Remove the repeated words, keeping first occurrences
+	# (mutating).
 	def RemoveDuplicateWords()
 		pResult = StzEngineStringRemoveDuplicateWords(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -530,12 +565,14 @@ class stzStringText from stzObject
 			This.RemoveDuplicateWords()
 			return This
 
+	# A copy with the repeated words removed.
 	def DuplicateWordsRemoved()
 		pResult = StzEngineStringRemoveDuplicateWords(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# How many words match the given pattern.
 	def CountWordsMatching(pcPattern)
 		return StzEngineStringCountWordsMatching(This.Engine(), pcPattern)
 
@@ -801,6 +838,7 @@ class stzStringText from stzObject
 		def HowManySentences()
 			return This.NumberOfSentences()
 
+	# The sentences of the text, as a list.
 	def Sentences()
 		_cContent_ = This.Content()
 		if _cContent_ = ""
@@ -835,6 +873,7 @@ class stzStringText from stzObject
 
 		return _aResult_
 
+	# The nth sentence of the text.
 	def NthSentence(_n_)
 		_acSentences_ = This.Sentences()
 		if _n_ >= 1 and _n_ <= len(_acSentences_)
@@ -845,9 +884,11 @@ class stzStringText from stzObject
 		def Sentence(_n_)
 			return This.NthSentence(_n_)
 
+	# The first sentence of the text.
 	def FirstSentence()
 		return This.NthSentence(1)
 
+	# The last sentence of the text.
 	def LastSentence()
 		return This.NthSentence(len(This.Sentences()))
 
@@ -900,6 +941,7 @@ class stzStringText from stzObject
 	def FirstParagraph()
 		return This.NthParagraph(1)
 
+	# The last paragraph of the text.
 	def LastParagraph()
 		return This.NthParagraph(len(This.Paragraphs()))
 
@@ -907,6 +949,7 @@ class stzStringText from stzObject
 	 #     LINES (Engine-backed)     #
 	#===============================#
 
+	# How many lines the text holds.
 	def NumberOfLines()
 		return StzEngineStringCountLines(This.Engine())
 
@@ -916,9 +959,11 @@ class stzStringText from stzObject
 		def HowManyLines()
 			return This.NumberOfLines()
 
+	# The lines of the text, as a list.
 	def Lines()
 		return @SplitCS(@oString.Content(), NL, 1)
 
+	# The nth line of the text.
 	def NthLine(_n_)
 		# Engine uses INDEX_BASE=1, no manual adjustment needed
 		pResult = StzEngineStringLineAt(This.Engine(), _n_)
@@ -929,9 +974,11 @@ class stzStringText from stzObject
 		def Line(_n_)
 			return This.NthLine(_n_)
 
+	# The first line of the text.
 	def FirstLine()
 		return This.NthLine(1)
 
+	# The last line of the text.
 	def LastLine()
 		return This.NthLine(This.NumberOfLines())
 
@@ -939,6 +986,8 @@ class stzStringText from stzObject
 	 #     LINE TRANSFORMS (Engine-backed)      #
 	#------------------------------------------#
 
+	# Remove the repeated lines, keeping first occurrences
+	# (mutating).
 	def DeduplicateLinesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
@@ -957,6 +1006,7 @@ class stzStringText from stzObject
 			This.DeduplicateLines()
 			return This
 
+	# A copy with the repeated lines removed.
 	def LinesDeduplicatedCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
@@ -967,6 +1017,7 @@ class stzStringText from stzObject
 	def LinesDeduplicated()
 		return This.LinesDeduplicatedCS(1)
 
+	# Remove the blank lines (mutating).
 	def RemoveBlankLines()
 		pResult = StzEngineStringRemoveBlankLines(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -984,6 +1035,7 @@ class stzStringText from stzObject
 			This.RemoveBlankLines()
 			return This
 
+	# A copy with the blank lines removed.
 	def BlankLinesRemoved()
 		pResult = StzEngineStringRemoveBlankLines(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -993,6 +1045,7 @@ class stzStringText from stzObject
 		def EmptyLinesRemoved()
 			return This.BlankLinesRemoved()
 
+	# Prefix each line with its number (mutating).
 	def NumberLines()
 		pResult = StzEngineStringNumberLines(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -1003,6 +1056,7 @@ class stzStringText from stzObject
 			This.NumberLines()
 			return This
 
+	# A copy with each line prefixed by its number.
 	def LinesNumbered()
 		pResult = StzEngineStringNumberLines(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -1014,6 +1068,7 @@ class stzStringText from stzObject
 	 #     (Engine-backed)           #
 	#===============================#
 
+	# Collapse the whitespace runs to single spaces (mutating).
 	def Simplify()
 		pResult = StzEngineStringSimplify(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -1024,6 +1079,7 @@ class stzStringText from stzObject
 			This.Simplify()
 			return This
 
+	# A copy with the whitespace runs collapsed to single spaces.
 	def Simplified()
 		pResult = StzEngineStringSimplify(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
