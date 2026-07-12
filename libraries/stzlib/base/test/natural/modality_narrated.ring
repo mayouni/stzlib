@@ -64,4 +64,41 @@ Scenario("Modal verdicts join the session ask-record")
 		@@( ConstraintsOn("score") ), "[ ]")
 EndScenario()
 
+Scenario("Per-object constraints -- the archived design, generalized (author's ask)")
+	Given("the archive's stzString machinery (AddConstraint / VerifyConstraint(s) / the structured cancel) now lives on stzObject, so ANY Softanza object can be constrained; rules are descriptor symbols or the archived placeholder conditions")
+
+	oC = new stzString("hello")
+	oC.AddConstraint("always-lowercase", :Lowercase)
+	oC.AddConstraint("stay-small", '{ len(@string) < 10 }')
+	Then("the constraints are inspectable, named",
+		@@( oC.Constraints() ),
+		'[ [ "always-lowercase", "lowercase" ], [ "stay-small", "{ len(@string) < 10 }" ] ]')
+	Then("a clean object verifies them all", oC.VerifyConstraints(), TRUE)
+
+	oC.Uppercase()
+	Then("a violation is caught and NAMED",
+		oC.VerifyConstraint("always-lowercase"), FALSE)
+	Then("...", Why(),
+		'no: constraint ' + "'always-lowercase'" + ' is violated by "HELLO"')
+
+	bStop = FALSE
+	try
+		oC.ApplyConstraints()
+	catch
+		bStop = TRUE
+	done
+	Then("ApplyConstraints CANCELS execution on violation (the archived semantics)",
+		bStop, TRUE)
+
+	oC.Lowercase()
+	Then("...and chains when the object is clean again",
+		classname( oC.ApplyConstraints().SpacifyQ() ), "stzstring")
+
+	oN = Q(42)
+	oN.AddConstraint("positive", :Positive)
+	oN.AddConstraint("under-100", '{ @number < 100 }')
+	Then("numbers constrain too -- ANY object (typed values)",
+		oN.VerifyConstraints(), TRUE)
+EndScenario()
+
 Summary()

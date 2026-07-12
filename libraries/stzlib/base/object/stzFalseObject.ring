@@ -128,6 +128,17 @@ class stzFalseObject from stzObject
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
 
+	def VerifyConstraint(pcName)
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def VerifyConstraints()
+		$cStzLastWhyB = "no: the premise before was already false"
+		return 0
+
+	def ApplyConstraints()
+		return This
+
 	def QualifiesAs(pcKind)
 		$cStzLastWhyB = "no: the premise before was already false"
 		return 0
