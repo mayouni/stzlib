@@ -1792,19 +1792,12 @@ class stzString from stzObject
 			return StzMid(_cAll_, 1, nFromEnd) + pcEllipsis +
 			       StzMidToEnd(_cAll_, _nTL_ - nFromEnd + 1)
 
-	# Boxify: surround the content with a simple ASCII box drawn
-	# with `+` corners, `-` horizontals, `|` verticals.
+	# Boxify: surround the content with the Softanza box -- the SAME
+	# box-drawing glyphs as tables, grids, timelines and calendars
+	# (the VISUALITY design system; never plain +/- bars). Returns
+	# the boxed string; the content-mutating form is Box()/BoxXT().
 	def Boxify()
-		_cStr_ = This.Content()
-		# Box width = codepoint count (byte len() over-sizes the bar on
-		# multibyte content).
-		_nLen_ = StzLen(_cStr_)
-		_cHbar_ = "+"
-		for _iB_ = 1 to _nLen_ + 2
-			_cHbar_ += "-"
-		next
-		_cHbar_ += "+"
-		return _cHbar_ + char(10) + "| " + _cStr_ + " |" + char(10) + _cHbar_
+		return This._BoxRender([])
 
 	def Vowels()
 		_cVoStr_ = This.Content()
