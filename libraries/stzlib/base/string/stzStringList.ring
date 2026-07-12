@@ -833,6 +833,7 @@ class stzStringList from stzObject
 	 #   REGEX MATCHING                                     #
 	#======================================================#
 
+	# The strings matching the given regex pattern.
 	def Matches(pcRegexPatt)
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
@@ -877,9 +878,11 @@ class stzStringList from stzObject
 		next
 		return _c_
 
+	# All the strings concatenated, no separator.
 	def Concatenate()
 		return This.ConcatenateXT("")
 
+	# The strings with their spaces removed, as data.
 	def SpacesRemoved()
 		_l_ = @acContent
 		_nL_ = len(_l_)
@@ -899,6 +902,7 @@ class stzStringList from stzObject
 	def ConcatenateUsing(pcSep)
 		return This.ConcatenateXT(pcSep)
 
+	# Remove the spaces inside each string (mutating).
 	def RemoveSpaces()
 		@acContent = This.SpacesRemoved()
 
@@ -939,6 +943,7 @@ class stzStringList from stzObject
 		next
 		return _aSbkRes_
 
+	# The strings satisfying the given W expression.
 	def StringsW(pcExpr)
 		_l_ = @acContent
 		_nL_ = len(_l_)
@@ -1011,8 +1016,10 @@ class stzStringList from stzObject
 		next
 		return _cBwBest_
 
+	# The string with the MOST words.
 	def Longest()
 		return This._ByWordCount(TRUE)
 
+	# The string with the FEWEST words.
 	def Shortest()
 		return This._ByWordCount(FALSE)
