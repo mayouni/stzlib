@@ -16233,6 +16233,7 @@ class stzString from stzObject
 		next
 		return _r_
 
+	# The marquer positions in descending order.
 	def MarquersPositionsSortedInDescending()
 		_a_ = This.MarquersPositions()
 		_n_ = len(_a_)
@@ -16252,6 +16253,8 @@ class stzString from stzObject
 	def MarkersPositionsSortedInDescending()
 		return This.MarquersPositionsSortedInDescending()
 
+	# The position of the nth occurrence after the given position
+	# (:Of = substring form).
 	def NextNthOccurrence(n, pNamedOf, pStartingAt)
 		_cSub_ = ""
 		_nFrom_ = 1
@@ -16279,6 +16282,8 @@ class stzString from stzObject
 		end
 		return 0
 
+	# An ascending-sorted copy of the chars; the original is
+	# unchanged.
 	def SortedInAscending()
 		_oList_ = new stzList(This.Chars())
 		_aSorted_ = _oList_.Sorted()
@@ -16289,6 +16294,8 @@ class stzString from stzObject
 		next
 		return _cOut_
 
+	# A descending-sorted copy of the chars; the original is
+	# unchanged.
 	def SortedInDescending()
 		_oList_ = new stzList(This.Chars())
 		_aSorted_ = _oList_.SortedInDescending()
@@ -16299,9 +16306,11 @@ class stzString from stzObject
 		next
 		return _cOut_
 
+	# TRUE if the chars are sorted, ascending OR descending.
 	def IsSorted()
 		return This.IsSortedInAscending() or This.IsSortedInDescending()
 
+	# The sorting order of the chars (:Ascending, :Descending, ...).
 	def SortingOrder()
 		if This.IsSortedInAscending() return :Ascending ok
 		if This.IsSortedInDescending() return :Descending ok
@@ -16316,6 +16325,7 @@ class stzString from stzObject
 			This.Sort()
 			return This
 
+	# Sort the chars in ascending order in place (mutating).
 	def SortInAscending()
 		This.Update( This.SortedInAscending() )
 
@@ -16338,11 +16348,13 @@ class stzString from stzObject
 	def RemoveLeadingSubString()
 		This.LeadingSubStringRemove()
 
+	# A copy with the leading char run removed.
 	def LeadingCharsRemoved()
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.RemoveLeadingChars()
 		return _oTmp_.Content()
 
+	# A copy with the trailing char run removed.
 	def TrailingCharsRemoved()
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.RemoveTrailingChars()
@@ -16358,6 +16370,7 @@ class stzString from stzObject
 			This.RemoveNFirstChars(n)
 			return This
 
+	# Remove the last n chars (mutating).
 	def RemoveNLastChars(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_ This.Update("") return ok
@@ -16394,6 +16407,7 @@ class stzString from stzObject
 		end
 		return 0
 
+	# The position of the nth occurrence before the given position.
 	def NthPreviousOccurrence(n, pcSub, _nFrom_)
 		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
 		   lower(_nFrom_[1]) = "startingat"
@@ -16488,6 +16502,7 @@ class stzString from stzObject
 		ok
 		return This.FindNextNthOccurrence(paTN[2], paTN[1], _nStart_ + 1)
 
+	# The distance in chars from the given position to the target.
 	def DistanceTo(pTarget, pStartingAt)
 		_aDtTN_ = This._DistTargetN(pTarget)
 		_nDtStart_ = This._DistStart(pStartingAt)
@@ -16596,6 +16611,8 @@ class stzString from stzObject
 		_aPuPart_ + _aPuVals_[_nPuStart_]
 		return [ _aPuSecs_, _aPuPart_ ]
 
+	# The parts of the string partitioned by the given expression's
+	# value.
 	def PartsUsing(pcExpr)
 		_aPw_ = This._PartsUsingWalk(pcExpr)
 		return This.Sections(_aPw_[1])
@@ -16623,6 +16640,7 @@ class stzString from stzObject
 		_c_ = This.Content()
 		return len(_c_) > 0 and _c_ = lower(_c_) and _c_ != upper(_c_)
 
+	# TRUE if the string is in UPPER CASE.
 	def IsUppercased()
 		_c_ = This.Content()
 		return len(_c_) > 0 and _c_ = upper(_c_) and _c_ != lower(_c_)
@@ -16646,11 +16664,13 @@ class stzString from stzObject
 		ok
 		return This.IsMultipleOf(pcUnit)
 
+	# A copy with the last n chars removed.
 	def LastNCharsRemoved(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_ return "" ok
 		return This._EngineSlice(This.Content(), 1, _nLen_ - n)
 
+	# A copy with the first n chars removed.
 	def FirstNCharsRemoved(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_ return "" ok
@@ -16783,6 +16803,7 @@ class stzString from stzObject
 		return _aRes_
 
 	# ReplaceNthCharQ alias.
+	# Replace the char at position n with the given one (chainable).
 	def ReplaceNthCharQ(n, pcNew)
 		This.ReplaceCharAtSimple(n, pcNew)
 		return This
@@ -16795,6 +16816,7 @@ class stzString from stzObject
 	def Parts2UsingXT(pcExpr)
 		return This.PartsAndPartitionersUsingXT(pcExpr)
 
+	# The char at position n, wrapped as a stzChar object.
 	def CharQ(n)
 		return new stzChar( This.NthChar(n) )
 
@@ -16873,6 +16895,7 @@ class stzString from stzObject
 		This.ReplaceAllCharsXT(pcOld, pcNew)
 		return This
 
+	# How many chars satisfy the W condition.
 	def CountCharsW(pcCondition)
 		return len(This.FindCharsW(pcCondition))
 
@@ -16966,6 +16989,7 @@ class stzString from stzObject
 			This.ReplaceFirstNChars(n, pcNew)
 			return This
 
+	# Replace the last n chars with the given string (mutating).
 	def ReplaceLastNChars(n, pcNew)
 		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1]) and
 		   (lower(pcNew[1]) = "with" or lower(pcNew[1]) = "by")
@@ -17257,6 +17281,8 @@ class stzString from stzObject
 			This.ReplaceWithMany(pcSub, paReplacements)
 			return This
 
+	# Replace each substring with its same-index counterpart
+	# (pairwise, mutating).
 	def ReplaceManyWithMany(pacSubStr, pacReplacements)
 		# Per-index pair replacement.
 		if NOT (isList(pacSubStr) and isList(pacReplacements)) return ok
@@ -17358,6 +17384,7 @@ class stzString from stzObject
 	def UnicodeCompareWith(pcOther)
 		return This.UnicodeCompareWithCS(pcOther, 1)
 
+	# Locale-flavored Unicode comparison with the given string.
 	def UnicodeCompareWithInSystemLocale(pcOther)
 		# Locale-flavored: compare case-blind first; on a tie the
 		# UPPERCASE side sorts greater (collation convention).
@@ -17388,8 +17415,11 @@ class stzString from stzObject
 	def NumericValue()
 		return 0 + This.Content()
 
+	# The numeric value of the content. ring_number() not 0+ :
+	# Ring's 0+str coercion returns 0 on the first use after ANY
+	# caught raise (VM quirk); ring_number() is immune.
 	def NumberValue()
-		return 0 + This.Content()
+		return ring_number(This.Content())
 
 	# LinesQRT(pcType): typed lines wrapper. Returns a list object
 	# so the chain (.TrimQ, .StringsSplitted) lands on an object.
@@ -17405,6 +17435,7 @@ class stzString from stzObject
 	def IncludedIn(pcOther)
 		return This.IsIncludedIn(pcOther)
 
+	# The trailing char (case-dial form).
 	def TrailingCharCS(pCaseSensitive)
 		if This._CaseFlagValue(pCaseSensitive)
 			return This.TrailingChar()
@@ -17414,6 +17445,7 @@ class stzString from stzObject
 		_nRl_ = This._EngineCount(_cRun_)
 		return This._EngineSlice(_cRun_, _nRl_, _nRl_)
 
+	# The leading char (case-dial form).
 	def LeadingCharCS(pCaseSensitive)
 		if This._CaseFlagValue(pCaseSensitive)
 			return This.LeadingChar()
@@ -17453,6 +17485,7 @@ class stzString from stzObject
 		if _nP_ < 1 return 0 ok
 		return _nP_ + This._EngineCount(pcSub)
 
+	# The position just BEFORE the first occurrence of pcSub.
 	def PositionBefore(pcSub)
 		_nP_ = This._FindFrom(This.Content(), pcSub, 1)
 		if _nP_ < 1 return 0 ok
@@ -17610,6 +17643,7 @@ class stzString from stzObject
 		next
 		return TRUE
 
+	# TRUE if pcSub occurs exactly n times.
 	def ContainsNOccurrences(n, pcSub)
 		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
 		   lower(pcSub[1]) = "of"
@@ -17620,6 +17654,7 @@ class stzString from stzObject
 	def ContainsNOccurrencesCS(n, pcSub, pCaseSensitive)
 		return This.HowManyCS(pcSub, pCaseSensitive) = n
 
+	# EXTRACT the digits as one string ("number 125" -> "125").
 	def OnlyNumbers()
 		# EXTRACTS the digits as one string ("number 125" -> "125").
 		_aOnCh_ = This.Chars()
@@ -17635,6 +17670,7 @@ class stzString from stzObject
 	def OnlyDigits()
 		return This.OnlyNumbers()
 
+	# Pad the string to length n with spaces (mutating).
 	def ExtendTo(n)
 		This.ExtendToWith(n, " ")
 
@@ -17642,6 +17678,8 @@ class stzString from stzObject
 			This.ExtendToWith(n, " ")
 			return This
 
+	# Remove pcSub only where it is bounded by the given bounds
+	# (mutating).
 	def RemoveSubStringBoundedBy(pcSub, pacBounds)
 		This.ReplaceSubStringBoundedBy(pcSub, pacBounds, "")
 
@@ -17663,6 +17701,7 @@ class stzString from stzObject
 			This.RemoveNLastChars(n)
 			return This
 
+	# Box each char in its own cell, in place (mutating).
 	def BoxEachChar()
 		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
 
@@ -17670,12 +17709,16 @@ class stzString from stzObject
 		This.BoxEachChar()
 		return This
 
+	# Each char in its own box cell, as data.
 	def CharsBoxed()
 		return This._BoxRender([ :EachChar = TRUE ])
 
+	# Box each char in its own cell, in place (mutating).
 	def BoxifyChars()
 		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
 
+	# Same as FindAnyBoundedByAsSections, the pair given as two
+	# args.
 	def FindAnyBoundedByAsSectionss(p1, p2, p3)
 		return This.FindAnyBoundedByAsSections([ p1, p2 ])
 
@@ -18007,6 +18050,7 @@ class stzString from stzObject
 
 	# --- CharsBetween ---
 
+	# The chars between the two given positions, as a list.
 	def CharsBetween(_nFrom_, nTo)
 		_oCbFinder_ = new stzStringFinder(This)
 		return _oCbFinder_.CharsBetween(_nFrom_, nTo)
@@ -18070,25 +18114,31 @@ class stzString from stzObject
 	def ExtractEmails()
 		return This.ExtractPattern("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}")
 
+	# The URLs found in the string.
 	def ExtractURLs()
 		return This.ExtractPattern("https?://[A-Za-z0-9./?=&_%#~:+-]+")
 
+	# The IPv4 addresses found in the string.
 	def ExtractIPv4Addresses()
 		return This.ExtractPattern("[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}")
 
 		def ExtractIPAddresses()
 			return This.ExtractIPv4Addresses()
 
+	# The #hashtags found in the string.
 	def ExtractHashtags()
 		return This.ExtractPattern("#[A-Za-z0-9_]+")
 
+	# The @mentions found in the string.
 	def ExtractMentions()
 		return This.ExtractPattern("@[A-Za-z0-9_]+")
 
+	# The dates found in the string (ISO or slashed form).
 	def ExtractDates()
 		# ISO (YYYY-MM-DD) or slashed (D/M/Y).
 		return This.ExtractPattern("[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}")
 
+	# The times found in the string.
 	def ExtractTimes()
 		# Non-capturing (?:...) so the whole match (not a sub-group) is extracted.
 		return This.ExtractPattern("[0-9]{1,2}:[0-9]{2}(?::[0-9]{2})?")
