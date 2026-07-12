@@ -5034,6 +5034,7 @@ class stzString from stzObject
 		def IsACharName()
 			return This.IsCharName()
 
+	# TRUE if the string is a Unicode hex form like U+0041.
 	def RepresentsNumberInUnicodeHexForm()
 		_cContent_ = This.Content()
 		_nLen_ = StzLen(_cContent_)
@@ -5516,6 +5517,7 @@ class stzString from stzObject
 	def DuplicatedSubStrings()
 		return This.DuplicatedSubStringsCS(1)
 
+	# How many duplicated occurrences the string holds.
 	def NumberOfDuplicatesCS(pCaseSensitive)
 		return len(This.DuplicatesCS(pCaseSensitive))
 
@@ -5896,6 +5898,8 @@ class stzString from stzObject
 		if _nH_ < 1 or _nH_ >= _nL_ return [] ok
 		return [ [ _nH_ + 1, _nL_ ] ]
 
+	# The DISTINCT bounded substrings, bounds INCLUDED, in
+	# first-seen order (IB + Unique).
 	def BoundedByIBU(pacBounds)
 		# Unique + include-bounds: distinct IB substrings, first-seen order.
 		_aBibuAll_ = This.BoundedByIB(pacBounds)
@@ -6534,6 +6538,8 @@ class stzString from stzObject
 	 #   FIND/REMOVE BOUNDS           #
 	#================================#
 
+	# Find the given opening and closing bounds: their positions in
+	# the string.
 	def FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 		_nFtbLen_ = This.NumberOfChars()
 		_nFtbLenB1_ = StzLen(pcBound1)
@@ -6819,6 +6825,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRbR_)
 		ok
 
+	# Replace what lies between the FIRST pcOpen...pcClose pair (the
+	# bounds stay) -- engine-backed, mutating.
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		_pRfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
 		if _pRfbR_ != NULL
@@ -6826,6 +6834,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRfbR_)
 		ok
 
+	# Replace what lies between the LAST pcOpen...pcClose pair (the
+	# bounds stay) -- mutating.
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
 		_pRlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
 		if _pRlbR_ != NULL
@@ -6833,6 +6843,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRlbR_)
 		ok
 
+	# Replace what lies between the NTH pcOpen...pcClose pair (the
+	# bounds stay) -- mutating.
 	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
 		_pRnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose, n - 1)
 		if _pRnbR_ != NULL
@@ -6840,6 +6852,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRnbR_)
 		ok
 
+	# Remove what lies between every pcOpen...pcClose pair (the
+	# bounds stay) -- mutating.
 	def RemoveBetween(pcOpen, pcClose)
 		_pRmbR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
 		if _pRmbR_ != NULL
@@ -6847,6 +6861,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmbR_)
 		ok
 
+	# Remove what lies between the FIRST pair only (the bounds stay)
+	# -- mutating.
 	def RemoveFirstBetween(pcOpen, pcClose)
 		_pRmfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
 		if _pRmfbR_ != NULL
@@ -6854,6 +6870,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmfbR_)
 		ok
 
+	# Remove what lies between the LAST pair only (the bounds stay)
+	# -- mutating.
 	def RemoveLastBetween(pcOpen, pcClose)
 		_pRmlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
 		if _pRmlbR_ != NULL
@@ -6861,6 +6879,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmlbR_)
 		ok
 
+	# Remove what lies between the NTH pair only (the bounds stay)
+	# -- mutating.
 	def RemoveNthBetween(n, pcOpen, pcClose)
 		_pRmnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose, n - 1)
 		if _pRmnbR_ != NULL
@@ -6878,6 +6898,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRbibR_)
 		ok
 
+	# Replace the FIRST bounded region INCLUDING its bounds (IB) --
+	# mutating.
 	def ReplaceFirstBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pRfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcReplacement)
 		if _pRfbibR_ != NULL
@@ -6885,6 +6907,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRfbibR_)
 		ok
 
+	# Replace the LAST bounded region INCLUDING its bounds (IB) --
+	# mutating.
 	def ReplaceLastBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pRlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcReplacement)
 		if _pRlbibR_ != NULL
@@ -6892,6 +6916,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRlbibR_)
 		ok
 
+	# Replace the NTH bounded region INCLUDING its bounds (IB) --
+	# mutating.
 	def ReplaceNthBetweenIB(n, pcOpen, pcClose, pcReplacement)
 		_pRnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcReplacement, n - 1)
 		if _pRnbibR_ != NULL
@@ -6899,6 +6925,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRnbibR_)
 		ok
 
+	# Remove every bounded region INCLUDING its bounds (IB) --
+	# mutating.
 	def RemoveBetweenIB(pcOpen, pcClose)
 		_pRmbibR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, "")
 		if _pRmbibR_ != NULL
@@ -6906,6 +6934,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmbibR_)
 		ok
 
+	# Remove the FIRST bounded region including its bounds (IB) --
+	# mutating.
 	def RemoveFirstBetweenIB(pcOpen, pcClose)
 		_pRmfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, "")
 		if _pRmfbibR_ != NULL
@@ -6913,6 +6943,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmfbibR_)
 		ok
 
+	# Remove the LAST bounded region including its bounds (IB) --
+	# mutating.
 	def RemoveLastBetweenIB(pcOpen, pcClose)
 		_pRmlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, "")
 		if _pRmlbibR_ != NULL
@@ -6920,6 +6952,8 @@ class stzString from stzObject
 			StzEngineStringFree(_pRmlbibR_)
 		ok
 
+	# Remove the NTH bounded region including its bounds (IB) --
+	# mutating.
 	def RemoveNthBetweenIB(n, pcOpen, pcClose)
 		_pRmnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, "", n - 1)
 		if _pRmnbibR_ != NULL
@@ -7035,6 +7069,7 @@ class stzString from stzObject
 	 #   FIND AS SECTIONS             #
 	#===============================#
 
+	# The [start, end] section of every occurrence of pcSubStr.
 	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		# Polymorphic dispatch:
 		#  - (:Of = pcSub, :CS = bool)     named-param form
@@ -7231,6 +7266,7 @@ class stzString from stzObject
 	 #   REMOVE NTH                   #
 	#===============================#
 
+	# Remove only the nth occurrence of pcSubStr (mutating).
 	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
 		This.ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
 
@@ -7241,6 +7277,8 @@ class stzString from stzObject
 	 #   SURROUND                     #
 	#===============================#
 
+	# Put pcBefore and pcAfter around the content (mutating). For a
+	# copy, use Surrounded.
 	def Surround(pcBefore, pcAfter)
 		This.Update(pcBefore + This.Content() + pcAfter)
 
@@ -7248,6 +7286,7 @@ class stzString from stzObject
 			This.Surround(pcBefore, pcAfter)
 			return This
 
+	# The content with pcBefore and pcAfter around it, as data.
 	def Surrounded(pcBefore, pcAfter)
 		return pcBefore + This.Content() + pcAfter
 
@@ -7363,6 +7402,7 @@ class stzString from stzObject
 
 	# --- IsMadeOf ---
 
+	# TRUE if the string is built ONLY from the given substring(s).
 	def IsMadeOfCS(acSubStr, pCaseSensitive)
 		# Accept a single string OR a list of substrings.
 		# Force-list: build a fresh list, no isString check.
@@ -7422,6 +7462,8 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string is a country abbreviation (per the locale
+	# data).
 	def IsCountryAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInAbbr_ = This.String()
@@ -7436,6 +7478,8 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string is a numeric country code (per the locale
+	# data).
 	def IsCountryNumber()
 		if This.IsEmpty() return 0 ok
 		_cInNum_ = This.String()
@@ -7452,6 +7496,7 @@ class stzString from stzObject
 	def IsCountryCode()
 		return This.IsCountryNumber()
 
+	# TRUE if the string is a country phone code.
 	def IsCountryPhoneCode()
 		if This.IsEmpty() return 0 ok
 		_cInPc_ = This.String()
@@ -7465,6 +7510,7 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string names a language (per the locale data).
 	def IsLanguageName()
 		if This.IsEmpty() return 0 ok
 		_cInLn_ = This.String()
@@ -7478,6 +7524,7 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string is a numeric language code.
 	def IsLanguageNumber()
 		if This.IsEmpty() return 0 ok
 		_cInLnm_ = This.String()
@@ -7494,6 +7541,7 @@ class stzString from stzObject
 	def IsLanguageCode()
 		return This.IsLanguageNumber()
 
+	# TRUE if the string is a language abbreviation.
 	def IsLanguageAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInLa_ = This.String()
@@ -7508,6 +7556,7 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string has an ISO locale shape (like en-US).
 	def IsLocaleAbbreviation()
 		# Structural check of the ISO shapes (case-insensitive):
 		# lang(2-3) [_ script(4)] [_ country(2-3)]. The deep semantic
@@ -7531,6 +7580,7 @@ class stzString from stzObject
 		if len(_aParts_[1]) = 4 and _nP_ = 3 return FALSE ok
 		return TRUE
 
+	# TRUE if the string names a currency (per the locale data).
 	def IsCurrencyName()
 		if This.IsEmpty() return 0 ok
 		_cInCnm_ = lower(This.String())
@@ -7548,6 +7598,7 @@ class stzString from stzObject
 		# Stub (the monolith left this as TODO with no body).
 		return 0
 
+	# TRUE if the string names a script (per the locale data).
 	def IsScriptName()
 		if This.IsEmpty() return 0 ok
 		_cInSn_ = lower(This.String())
@@ -7561,6 +7612,7 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the string is a script code.
 	def IsScriptCode()
 		if This.IsEmpty() return 0 ok
 		_cInScode_ = This.String()
@@ -7577,6 +7629,7 @@ class stzString from stzObject
 	def IsScriptNumber()
 		return This.IsScriptCode()
 
+	# TRUE if the string is a script abbreviation.
 	def IsScriptAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInSa_ = lower(This.String())
@@ -7590,12 +7643,14 @@ class stzString from stzObject
 		next
 		return 0
 
+	# TRUE if the substring occurs EXACTLY once.
 	def ContainsOneOccurrenceCS(pcSubStr, pCaseSensitive)
 		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = 1
 
 	def ContainsOneOccurrence(pcSubStr)
 		return This.ContainsOneOccurrenceCS(pcSubStr, 1)
 
+	# TRUE if the substring occurs exactly once.
 	def ContainsOnlyOne(pcSubStr)
 		return This.ContainsOneOccurrence(pcSubStr)
 

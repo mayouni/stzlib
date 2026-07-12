@@ -76,6 +76,7 @@ class stzStringComparator from stzObject
 	 #   ORDERING                                           #
 	#======================================================#
 
+	# TRUE if the string sorts BEFORE the given one.
 	def IsLessThan(pcOtherStr)
 		return This.CompareCS(pcOtherStr, 1) < 0
 
@@ -109,6 +110,7 @@ class stzStringComparator from stzObject
 	 #   DIFF                                               #
 	#======================================================#
 
+	# The differences between the string and the given one.
 	def DiffWith(pcOtherStr)
 		_aResult_ = []
 		_nLen_ = @oString.NumberOfChars()
@@ -235,6 +237,7 @@ class stzStringComparator from stzObject
 	 #   LEVENSHTEIN DISTANCE                               #
 	#======================================================#
 
+	# The Levenshtein edit distance to the given string.
 	def LevenshteinDistanceWith(pcOtherStr)
 		pH = @oString.Engine()
 		pH2 = StzEngineString(pcOtherStr)
@@ -301,6 +304,7 @@ class stzStringComparator from stzObject
 	 #   SOUNDEX / METAPHONE                                #
 	#======================================================#
 
+	# The Soundex phonetic code of the string.
 	def Soundex()
 		pH = @oString.Engine()
 		pR = StzEngineStringSoundex(pH)

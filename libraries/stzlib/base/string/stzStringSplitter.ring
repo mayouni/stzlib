@@ -172,6 +172,7 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AT POSITION         #
 	#===============================#
 
+	# Split the string at the given position.
 	def SplitAtPosition(n)
 
 		if This.IsEmpty()
@@ -204,6 +205,7 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AT POSITIONS          #
 	#=================================#
 
+	# Split the string at the given positions.
 	def SplitAtPositions(_anPos_)
 
 		if This.IsEmpty()
@@ -311,6 +313,8 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AFTER              #
 	#==============================#
 
+	# Split the string after each occurrence of the separator (the
+	# separator stays with its part).
 	def SplitAfterCS(pSubStrOrPos, pCaseSensitive)
 
 		if isNumber(pSubStrOrPos)
@@ -438,6 +442,7 @@ class stzStringSplitter from stzObject
 	 #     REGEX SPLIT              #
 	#==============================#
 
+	# Split the string on the matches of the given regex pattern.
 	def SplitByRegex(pcPattern)
 		pH = @oString.Engine()
 		_nSbrCount_ = StzEngineStringRegexSplitCount(pH, pcPattern, 0)

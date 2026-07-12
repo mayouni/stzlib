@@ -64,6 +64,7 @@ class stzStringCounter from stzObject
 	 #   COUNT (SHORT FORM)                                 #
 	#======================================================#
 
+	# How many times the given substring occurs.
 	def CountCS(pcSubStr, pCaseSensitive)
 		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
@@ -208,6 +209,7 @@ class stzStringCounter from stzObject
 	 #   OVERLAPPING OCCURRENCES                             #
 	#======================================================#
 
+	# How many times it occurs, counting OVERLAPPING matches.
 	def CountOverlappingCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
@@ -220,6 +222,7 @@ class stzStringCounter from stzObject
 	 #   REGEX MATCH COUNT                                  #
 	#======================================================#
 
+	# How many matches of the given regex pattern.
 	def CountRegex(pcPattern)
 		pH = @oString.Engine()
 		return StzEngineStringRegexCount(pH, pcPattern, 0)

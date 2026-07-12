@@ -71,6 +71,7 @@ class stzStringFinder from stzObject
 	 #     CONTAINS THESE            #
 	#===============================#
 
+	# TRUE if the string contains ALL the given substrings.
 	def ContainsTheseCS(pacSubStrings, pCaseSensitive)
 
 		if NOT isList(pacSubStrings)
@@ -333,6 +334,8 @@ class stzStringFinder from stzObject
 	 #     FIND BETWEEN TWO BOUNDS AS SECTION      #
 	#=============================================#
 
+	# The [start, end] sections of the substrings between the two
+	# bounds.
 	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 		_nLen1_ = StzLen(pcBound1)
@@ -452,6 +455,8 @@ class stzStringFinder from stzObject
 
 	# The [start, end] sections of the 2nd+ occurrences of
 	# duplicated chars.
+	# The [start, end] sections of the 2nd+ occurrences of
+	# duplicated chars.
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 		_acDuplicates_ = This.DuplicatesCS(pCaseSensitive)
 		_nLen_ = len(_acDuplicates_)
@@ -490,6 +495,7 @@ class stzStringFinder from stzObject
 	 #     FIND WITH CONDITION (FindW)        #
 	#========================================#
 
+	# The positions of the chars satisfying the W condition.
 	def FindCharsWCS(pcCondition, pCaseSensitive)
 		# Engine-backed: evaluates expression per character. Normalize first so
 		# the expressive forms (a { ... } block and Q(@char).Method() sugar) are
@@ -549,6 +555,8 @@ class stzStringFinder from stzObject
 	 #     INDEX OF (CS)             #
 	#===============================#
 
+	# The position of the first occurrence of the given substring (0
+	# if none).
 	def IndexOfCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
@@ -561,6 +569,7 @@ class stzStringFinder from stzObject
 	 #     FIND ALL CHAR             #
 	#===============================#
 
+	# The positions of every occurrence of the given char.
 	def FindAllChar(pcChar)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
@@ -646,6 +655,7 @@ class stzStringFinder from stzObject
 	 #     REGEX FIND               #
 	#===============================#
 
+	# Find the first match of the given regex pattern.
 	def FindFirstRegex(pcPattern)
 		pH = @oString.Engine()
 		return StzEngineStringRegexFindFirst(pH, pcPattern, 0)

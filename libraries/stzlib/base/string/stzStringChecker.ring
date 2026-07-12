@@ -48,6 +48,7 @@ class stzStringChecker from stzObject
 	 #     PALINDROME                #
 	#===============================#
 
+	# TRUE if the string reads the same backward (a palindrome).
 	def IsPalindromeCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
@@ -68,6 +69,8 @@ class stzStringChecker from stzObject
 	 #     ANAGRAM                   #
 	#===============================#
 
+	# TRUE if the string is an anagram of the given one (same chars,
+	# reordered).
 	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
@@ -83,6 +86,7 @@ class stzStringChecker from stzObject
 	 #     CASE CHECKING             #
 	#===============================#
 
+	# TRUE if the string is in UPPER CASE.
 	def IsUppercase()
 		return StzIsUpper(@oString.Content())
 
@@ -118,6 +122,7 @@ class stzStringChecker from stzObject
 	 #     CONTENT COMPOSITION       #
 	#===============================#
 
+	# TRUE if the string is made of spaces only.
 	def ContainsOnlySpaces()
 		pH = StzEngineString(@oString.Content())
 		_n_ = StzEngineStringIsWhitespace(pH)
@@ -189,6 +194,8 @@ class stzStringChecker from stzObject
 	def IsMadeOfChar(_c_)
 		return This.IsMadeOfCharCS(_c_, 1)
 
+	# TRUE if the string is made only of (some of) the given
+	# substrings.
 	# TRUE if the string is made only of (some of) the given
 	# substrings.
 	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
@@ -359,6 +366,7 @@ class stzStringChecker from stzObject
 	 #     REVERSED COPY             #
 	#===============================#
 
+	# TRUE if the string is the reverse of the given one.
 	def IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
@@ -412,6 +420,7 @@ class stzStringChecker from stzObject
 	 #     CHAR SORT ORDER           #
 	#===============================#
 
+	# TRUE if the chars are in ascending order.
 	def IsCharsSortedAscending()
 		pH = @oString.Engine()
 		return StzEngineStringIsCharsSortedAsc(pH)
@@ -487,6 +496,7 @@ class stzStringChecker from stzObject
 	 #     ADDITIONAL CHECKS          #
 	#===============================#
 
+	# TRUE if the string is empty or whitespace only.
 	def IsBlank()
 		pH = @oString.Engine()
 		return StzEngineStringIsBlank(pH)
@@ -520,6 +530,8 @@ class stzStringChecker from stzObject
 
 	# TRUE if the string uses every letter of the alphabet (a
 	# pangram).
+	# TRUE if the string uses every letter of the alphabet (a
+	# pangram).
 	def IsPangram()
 		pH = @oString.Engine()
 		return StzEngineStringIsPangram(pH)
@@ -529,6 +541,8 @@ class stzStringChecker from stzObject
 		pH = @oString.Engine()
 		return StzEngineStringIsIsogram(pH)
 
+	# TRUE if the brackets and parentheses in the string are
+	# balanced.
 	# TRUE if the brackets and parentheses in the string are
 	# balanced.
 	def IsBalanced()
@@ -579,6 +593,7 @@ class stzStringChecker from stzObject
 	 #     CONTAINS CHAR / ANY / ALL #
 	#===============================#
 
+	# TRUE if the string contains the given char.
 	def ContainsCharCS(pcChar, pCaseSensitive)
 		pH = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
@@ -617,6 +632,7 @@ class stzStringChecker from stzObject
 	 #     CONTROL / MARK CHECKS     #
 	#===============================#
 
+	# TRUE if the string is made of control chars.
 	def IsControl()
 		pH = @oString.Engine()
 		return StzEngineStringIsControl(pH)
@@ -666,6 +682,7 @@ class stzStringChecker from stzObject
 	 #     NUMERIC / ALPHA CHECKS    #
 	#===============================#
 
+	# TRUE if the string is numeric.
 	def IsNumericString()
 		pH = @oString.Engine()
 		return StzEngineStringIsNumeric(pH)
@@ -684,6 +701,7 @@ class stzStringChecker from stzObject
 	 #     REGEX MATCH CHECK         #
 	#===============================#
 
+	# TRUE if the string matches the given regex pattern.
 	def MatchesRegex(pcPattern)
 		pH = @oString.Engine()
 		return StzEngineStringRegexIsMatch(pH, pcPattern, 0)

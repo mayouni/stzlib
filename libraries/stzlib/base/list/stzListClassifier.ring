@@ -105,6 +105,7 @@ class stzListClassifier from stzObject
 	 #   NUMBER OF CLASSES                                  #
 	#======================================================#
 
+	# How many distinct classes the items form.
 	def NumberOfClasses()
 		return len(This.Classes())
 
@@ -169,6 +170,7 @@ class stzListClassifier from stzObject
 	 #   GROUP BY EXPRESSION                                #
 	#======================================================#
 
+	# Group the items by the given expression.
 	def GroupBy(pcExpr)
 		return This.ClassifyBy(pcExpr)
 
@@ -332,6 +334,8 @@ class stzListClassifier from stzObject
 	 #   PARTITION BY CONDITION                             #
 	#======================================================#
 
+	# Partition the items into [satisfying, not-satisfying] by the W
+	# condition.
 	def PartitionW(pcCondition)
 		_aPwContent_ = This.Content()
 		_nPwLen_ = len(_aPwContent_)

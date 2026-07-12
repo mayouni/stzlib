@@ -38,6 +38,7 @@ class stzStringEncoder from stzObject
 	 #     HEX                       #
 	#===============================#
 
+	# The string's bytes in hexadecimal form.
 	def ToHex()
 		pHandle = StzEngineString(@oString.Content())
 		pHex = StzEngineStringToHex(pHandle)
@@ -78,6 +79,7 @@ class stzStringEncoder from stzObject
 	 #     URL ENCODING              #
 	#===============================#
 
+	# The string URL-encoded.
 	def UrlEncoded()
 		pHandle = StzEngineString(@oString.Content())
 		pEnc = StzEngineStringURLEncode(pHandle)
@@ -125,6 +127,7 @@ class stzStringEncoder from stzObject
 	 #     BINARY                    #
 	#===============================#
 
+	# The string's bytes in binary form.
 	def ToBinary()
 		pH = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
@@ -177,6 +180,7 @@ class stzStringEncoder from stzObject
 	 #     OCTAL                     #
 	#===============================#
 
+	# The string's bytes in octal form.
 	def ToOctal()
 		pH = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
@@ -243,6 +247,7 @@ class stzStringEncoder from stzObject
 	 #     HTML ENCODING             #
 	#===============================#
 
+	# The string with the HTML-special chars encoded as entities.
 	def HtmlEncoded()
 		_acChars_ = @oString.Chars()
 		_nLen_ = len(_acChars_)
@@ -299,6 +304,7 @@ class stzStringEncoder from stzObject
 	 #     REGEX ESCAPING            #
 	#===============================#
 
+	# The string with the regex special chars escaped.
 	def EscapedForRegex()
 		_acChars_ = @oString.Chars()
 		_nLen_ = len(_acChars_)

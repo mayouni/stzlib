@@ -76,6 +76,7 @@ class stzStringLines from stzObject
 	 #     NTH LINE                  #
 	#===============================#
 
+	# The nth line of the string.
 	def NthLine(n)
 		pH = @oString.Engine()
 		pR = StzEngineStringLineAt(pH, n)
@@ -100,6 +101,7 @@ class stzStringLines from stzObject
 	 #     UNIQUE LINES              #
 	#===============================#
 
+	# The unique lines of the string.
 	def UniqueLinesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 

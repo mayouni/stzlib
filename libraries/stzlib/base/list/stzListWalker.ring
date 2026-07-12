@@ -170,6 +170,7 @@ class stzListWalker from stzObject
 	 #  WALKING WHERE          #
 	#=========================#
 
+	# Walk the list collecting where the W condition holds.
 	def WalkW(pcCondition)
 		return @oList.FindAllItemsW(pcCondition)
 
@@ -177,6 +178,7 @@ class stzListWalker from stzObject
 	 #  WALKING UNTIL           #
 	#==========================#
 
+	# Walk the items UNTIL the given condition holds.
 	def WalkUntil(pcCondition)
 		# Walk forward up to AND INCLUDING the first position where the
 		# condition holds. WalkUntil(:Before = cond) stops just before it.
@@ -255,6 +257,7 @@ class stzListWalker from stzObject
 	 #  WALKING WHERE           #
 	#==========================#
 
+	# Walk the list collecting where the condition holds.
 	def WalkWhere(pcCondition)
 		return @oList.FindAllItemsW(pcCondition)
 
@@ -373,6 +376,7 @@ class stzListWalker from stzObject
 	 #  WALKING WHILE           #
 	#==========================#
 
+	# Walk the items WHILE the given condition holds.
 	def WalkWhile(pcCondition)
 		_pWwList_ = @oList._EngineListFromContent()
 		if _pWwList_ = NULL return [] ok

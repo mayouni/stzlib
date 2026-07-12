@@ -117,6 +117,8 @@ class stzListMerger from stzObject
 
 	# The item/counterpart pairs, as data (the passive twin of
 	# AssociateWith).
+	# The item/counterpart pairs, as data (the passive twin of
+	# AssociateWith).
 	def AssociatedWith(paOtherList)
 		return This.AssociateWith(paOtherList)
 
@@ -182,6 +184,8 @@ class stzListMerger from stzObject
 			This.InterleaveWith(paOtherList)
 			return This
 
+	# The items interleaved with the given list's items,
+	# alternating.
 	# The items interleaved with the given list's items,
 	# alternating.
 	def InterleavedWith(paOtherList)
