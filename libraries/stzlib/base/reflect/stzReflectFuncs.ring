@@ -1168,6 +1168,16 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 									_cFwd_ = _cHlpCls_ + ">" + _cMt_
 								ok
 							ok
+						but left(_cT2_, 1) = "_"
+							# MUTATING wrapper (no return): inherit only
+							# when the helper method bears the SAME name
+							_nDot_ = StzFindFirst(_cT2_, ".")
+							if _nDot_ > 0
+								_cMt_ = _StzFwdTarget(substr(_cT2_, _nDot_ + 1, len(_cT2_) - _nDot_))
+								if _cMt_ != "" and _cMt_ = lower(_cName_)
+									_cFwd_ = _cHlpCls_ + ">" + _cMt_
+								ok
+							ok
 						ok
 						exit
 					ok

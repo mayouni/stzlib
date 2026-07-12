@@ -6313,6 +6313,8 @@ class stzString from stzObject
 		def RemoveAnyLeadingChar()
 			This.RemoveLeadingChars()
 
+	# Drop the LAST char of the string (one char, from the end) --
+	# mutating.
 	def RemoveTrailingChar()
 		_c_ = This.Content()
 		_nLen_ = This._EngineCount(_c_)
@@ -6324,6 +6326,8 @@ class stzString from stzObject
 			This.RemoveTrailingChar()
 			return This
 
+	# Drop the whole trailing run of the string's last char
+	# (mutating).
 	def RemoveTrailingChars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok

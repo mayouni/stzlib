@@ -46,6 +46,9 @@ class stzListTrimmer from stzObject
 	def IsEmpty()
 		return @oList.IsEmpty()
 
+	# Remove the runs of EMPTY items (0, empty string, empty
+	# sublist, false-object -- the monolith semantics) from BOTH
+	# ends; a fully-empty list keeps one item (mutating).
 	def TrimCS(pCaseSensitive)
 		_oCopy_ = @oList.Copy()
 		_oCopy_.TrimLeftCS(pCaseSensitive)
@@ -56,6 +59,8 @@ class stzListTrimmer from stzObject
 			This.TrimCS(pCaseSensitive)
 			return This
 
+	# A copy with the empty boundary runs trimmed; the original is
+	# unchanged.
 	def TrimmedCS(pCaseSensitive)
 		# Was @oList.Copy().TrimCSQ(...) -- but Copy() returns a plain stzList
 		# which doesnt have the TrimCSQ method (its on stzListTrimmer).
@@ -73,6 +78,8 @@ class stzListTrimmer from stzObject
 	def Trimmed()
 		return This.TrimmedCS(1)
 
+	# Remove the leading run of empty items (0, empty string, empty
+	# sublist, false-object) -- mutating.
 	def TrimLeftCS(pCaseSensitive)
 		_aTlcContent_ = This.Content()
 		_nTlcLen_ = len(_aTlcContent_)
@@ -106,6 +113,7 @@ class stzListTrimmer from stzObject
 		_o.TrimLeftCS(1)
 		return _o.Content()
 
+	# Remove the trailing run of empty items (mutating).
 	def TrimRightCS(pCaseSensitive)
 		_aTrcContent_ = This.Content()
 		_nTrcLen_ = len(_aTrcContent_)
@@ -227,6 +235,8 @@ class stzListTrimmer from stzObject
 	 #   COMPACT (REMOVE ALL EMPTY ITEMS)                    #
 	#======================================================#
 
+	# Remove the blank strings (whitespace-only) and empty sublists
+	# throughout the list (mutating).
 	def Compact()
 		_aCpContent_ = This.Content()
 		_nCpLen_ = len(_aCpContent_)
@@ -261,6 +271,8 @@ class stzListTrimmer from stzObject
 	 #   SQUEEZE (REMOVE CONSECUTIVE DUPLICATE EMPTY ITEMS) #
 	#======================================================#
 
+	# Collapse each consecutive run of blank strings to a single one
+	# (mutating).
 	def Squeeze()
 		_aSqContent_ = This.Content()
 		_nSqLen_ = len(_aSqContent_)
