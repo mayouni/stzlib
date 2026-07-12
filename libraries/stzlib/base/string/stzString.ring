@@ -740,6 +740,7 @@ class stzString from stzObject
 			return This.NthChar(n)
 
 	#@ aka  first character, initial, leading character, opening char
+	# The first char of the string (codepoint-aware).
 	def FirstChar()
 		return This.NthChar(1)
 
@@ -747,6 +748,7 @@ class stzString from stzObject
 			return new stzString( This.FirstChar() )
 
 	#@ aka  last character, final char, trailing character, ending char
+	# The last char of the string (codepoint-aware).
 	def LastChar()
 		return This.NthChar(This.NumberOfChars())
 
@@ -762,6 +764,7 @@ class stzString from stzObject
 	def RightChar()
 		return This.LastChar()
 
+	# The chars of the string, as a list (codepoint-aware).
 	def Chars()
 		# Engine returns a ready list of 1-codepoint strings (built Zig-side).
 		# The old NUL-delimited-buffer + _SplitNullDelimited round-trip dropped
@@ -998,6 +1001,8 @@ class stzString from stzObject
 		_nMid_ = ceil(_nLen_ / 2)
 		return This._EngineSlice(This.Content(), 1, _nMid_)
 
+	# The second half of the string (the longer half when the length
+	# is odd).
 	def SecondHalf()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
@@ -2182,6 +2187,8 @@ class stzString from stzObject
 	 #     FIND ALL / FIND NTH                    #
 	#============================================#
 
+	# Find pcSubStr in the string: the positions of EVERY occurrence,
+	# as a list (engine-backed, codepoint-aware).
 	def FindCS(pcSubStr, pCaseSensitive)
 		# Accept symbolic :CaseSensitive / :IsCaseSensitive / :CS / :IsCS
 		# (meaning TRUE) and :NotCaseSensitive / :NoCS / :NotCS (FALSE).
@@ -2521,6 +2528,7 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
+		# Same as Replace: replace every occurrence of pcSubStr (mutating).
 		def ReplaceAll(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
 
@@ -2567,6 +2575,7 @@ class stzString from stzObject
 			return This
 
 		#@ aka  delete, strip, erase, get rid of, take out, drop
+		# Same as Remove: remove every occurrence of pcSubStr (mutating).
 		def RemoveAll(pcSubStr)
 			This.Remove(pcSubStr)
 
@@ -5375,6 +5384,8 @@ class stzString from stzObject
 			This.ReplaceLeadingChars(pWith)
 			return This
 
+	# Replace the run of identical chars at the end of the string with
+	# the given string (mutating).
 	def ReplaceTrailingChars(pWith)
 		if isList(pWith) and len(pWith) = 2 and isString(pWith[1]) and
 		   lower(pWith[1]) = "with"
@@ -5487,6 +5498,8 @@ class stzString from stzObject
 	 #   TEXT BOXING               #
 	#============================#
 
+	# Surround the content with the Softanza box in place (mutating).
+	# For a copy, use Boxed.
 	def Box()
 		This.BoxXT([])
 
@@ -5500,6 +5513,8 @@ class stzString from stzObject
 			This.BoxifyRound()
 			return This
 
+	# Box the content with options (:Line = :Solid / :Dashed,
+	# :AllCorners = :Round, ...) -- mutating.
 	def BoxXT(paBoxOptions)
 		This.Update( This._BoxRender(paBoxOptions) )
 
@@ -6169,6 +6184,8 @@ class stzString from stzObject
 		if _n_ < 2 return "" ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
+	# The run of identical chars at the END of the string, as a list
+	# of chars.
 	def TrailingChars()
 		_cRun_ = This.TrailingCharsAsString()
 		if _cRun_ = "" return [] ok
@@ -6474,6 +6491,8 @@ class stzString from stzObject
 
 		This.RemoveSections(_aRtbSections_)
 
+	# Remove the given opening and closing bounds when they enclose
+	# the string (mutating).
 	def RemoveTheseBounds(pcBound1, pcBound2)
 		This.RemoveTheseBoundsCS(pcBound1, pcBound2, 1)
 
@@ -6917,6 +6936,7 @@ class stzString from stzObject
 		_oFmFinder_ = new stzStringFinder(This)
 		return _oFmFinder_.FindManyCS(pacSubStrings, pCaseSensitive)
 
+	# Find the occurrences of each of the given substrings.
 	def FindMany(pacSubStrings)
 		return This.FindManyCS(pacSubStrings, 1)
 
@@ -7024,6 +7044,8 @@ class stzString from stzObject
 		_oRmReplacer_ = new stzStringReplacer(This)
 		_oRmReplacer_.ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 
+	# Replace every occurrence of each given substring with
+	# pcNewSubStr (mutating).
 	def ReplaceMany(pacSubStrings, pcNewSubStr)
 		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, 1)
 
@@ -7062,6 +7084,8 @@ class stzString from stzObject
 			This.MultiReplaceCS(paOlds, paNews, pCaseSensitive)
 			return This
 
+	# Replace each substring of paOlds with its counterpart in paNews
+	# (pairwise, mutating).
 	def MultiReplace(paOlds, paNews)
 		This.MultiReplaceCS(paOlds, paNews, 1)
 
@@ -7104,6 +7128,7 @@ class stzString from stzObject
 			This.RemoveManyCS(pacSubStrings, pCaseSensitive)
 			return This
 
+	# Remove every occurrence of each given substring (mutating).
 	def RemoveMany(pacSubStrings)
 		This.RemoveManyCS(pacSubStrings, 1)
 
@@ -9968,6 +9993,7 @@ class stzString from stzObject
 		if _cRun_ = "" return [] ok
 		return [ _cRun_, [ 1, This._EngineCount(_cRun_) ] ]
 
+	# The run of identical chars at the end of the string, as a string.
 	def TrailingSubString()
 		return This.TrailingCharsAsString()
 
@@ -10591,6 +10617,8 @@ class stzString from stzObject
 			This.RemoveCharFromLeft(pcChar)
 			return This
 
+	# Drop the trailing chars matching pcChar from the end of the
+	# string (mutating).
 	def RemoveCharFromRight(pcChar)
 		This.RemoveThisCharFromEndXT(pcChar)
 
@@ -14677,6 +14705,8 @@ class stzString from stzObject
 		ok
 		return '"' + _v1_ + '" : "' + _v2_ + '"'
 
+	# The position of the next occurrence of pcSub after the given
+	# position (0 when there is none).
 	def FindNextOccurrence(pcSub, pStartingAt)
 		_nFrom_ = 1
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
@@ -14745,6 +14775,8 @@ class stzString from stzObject
 	def CapitalizedInLocale(pcLocale)
 		return This.Titlecased()
 
+	# The position of the nearest occurrence of pcSub before the given
+	# position (0 when there is none).
 	def FindPreviousOccurrence(pcSub, pStartingAt)
 		_nUntil_ = This.NumberOfChars()
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
@@ -15842,6 +15874,8 @@ class stzString from stzObject
 		if This.IsSortedInDescending() return :Descending ok
 		return :Unsorted
 
+	# Sort the CHARS of the string in ascending order in place
+	# (mutating). For a copy, use Sorted.
 	def Sort()
 		This.Update( This.SortedInAscending() )
 
@@ -15856,6 +15890,8 @@ class stzString from stzObject
 			This.SortInAscending()
 			return This
 
+	# Sort the chars of the string in descending order in place
+	# (mutating).
 	def SortInDescending()
 		This.Update( This.SortedInDescending() )
 
@@ -16680,6 +16716,7 @@ class stzString from stzObject
 		This.ReplaceNthOccurrenceCS(n, pcSub, pcNew, pCaseSensitive)
 		return This
 
+	# Replace only the nth occurrence of pcSub with pcNew (mutating).
 	def ReplaceNthOccurrence(n, pcSub, pcNew)
 		_nP_ = This.FindNthOccurrence(n, pcSub)
 		if _nP_ = 0 return ok
@@ -17638,6 +17675,7 @@ class stzString from stzObject
 		return This.CountCS(pcSubStr, 1)
 
 		#@ aka  how many times, count occurrences, tally, frequency of, times it appears
+		# How many times pcSubStr occurs in the string.
 		def NumberOfOccurrences(pcSubStr)
 			return This.Count(pcSubStr)
 
@@ -18615,6 +18653,8 @@ class stzString from stzObject
 			This.RemoveThisTrailingChar(c)
 			return This
 
+	# Remove the leading run of the given char from the start of the
+	# string (mutating, codepoint-aware).
 	def RemoveThisLeadingChar(c)
 		if NOT isString(c)
 			StzRaise("RemoveThisLeadingChar: c must be a string")
@@ -18634,6 +18674,8 @@ class stzString from stzObject
 			This.RemoveThisLeadingChar(c)
 			return This
 
+	# Remove the 2nd+ occurrences of each duplicated char, keeping the
+	# first (mutating).
 	def RemoveDuplicatesCS(pCaseSensitive)
 		_oRdRemover_ = new stzStringRemover(This)
 		_oRdRemover_.RemoveDuplicatesCS(pCaseSensitive)
@@ -19867,6 +19909,8 @@ class stzString from stzObject
 		_oRfeLt_.RemoveFromEndCS(pcSuffix, pCaseSensitive)
 		This.Update(_oRfeLt_.Content())
 
+	# Remove pcSuffix from the end of the string when it ends with it
+	# (mutating).
 	def RemoveFromEnd(pcSuffix)
 		This.RemoveFromEndCS(pcSuffix, 1)
 

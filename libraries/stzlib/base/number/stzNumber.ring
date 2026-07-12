@@ -3464,6 +3464,7 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForm
 
+		# Set how many decimals (the round) this number renders with.
 		def SetRound(_nRound_)
 			This.RoundTo(_nRound_)
 
@@ -3570,6 +3571,7 @@ class stzNumber from stzObject
 		return _nResult_
 
 
+	# Add each of the given numbers to this number (mutating).
 	def AddMany(paOtherNumbers)
 		This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = 0)
 
@@ -3583,6 +3585,7 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForm
 
+		# Same as AddMany.
 		def AddThese(paOtherNumbers)
 			This.AddMany(paOtherNumbers)
 
@@ -3741,6 +3744,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# Subtract each of the given numbers from this number (mutating).
 	def SubStructMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
@@ -3829,6 +3833,7 @@ class stzNumber from stzObject
 		#>
 
 						
+	# Subtract each of the given numbers (same as SubStructMany).
 	def RetrieveMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
@@ -4022,6 +4027,8 @@ class stzNumber from stzObject
 
 		#>
 	
+	# Divide this number by each of the given numbers in turn
+	# (mutating).
 	def DivideByMany(paOtherNumbers)
 		#TODO // Add "These" as alternative of "Many"
 
@@ -4427,6 +4434,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# The prime factors of the number, as a list.
 	def PrimeFactors()
 		_aResult_ = []
 
