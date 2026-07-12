@@ -164,6 +164,24 @@ class stzLibDoc from stzObject
 		if len(_aR_) = 0 return "" ok
 		return _aR_[1][1] + "." + _aR_[1][2]
 
+	# every entry whose method name is name-exact or a voice-sibling
+	# (Verb/Verbed) of pcName: [ [class, method, description], ... ].
+	# Deterministic sweep -- no ranking; WhatIs()'s library door.
+	def _NameSites(pcName)
+		_aOut_ = []
+		if NOT isString(pcName)
+			return _aOut_
+		ok
+		_cN_ = StzLower(ring_trim(pcName))
+		_nE_ = len(@aEntries)
+		for _i_ = 1 to _nE_
+			if @aEntries[_i_][1] != "(recipe)" and
+			   _StzNamesAreFormSiblings(StzLower(@aEntries[_i_][2]), _cN_)
+				_aOut_ + [ @aEntries[_i_][1], @aEntries[_i_][2], @aEntries[_i_][3] ]
+			ok
+		next
+		return _aOut_
+
 	def Show()
 		? "stzLibDoc [ " + This.NumberOfClasses() + " classes, " + len(@aEntries) + " methods ]"
 		return This

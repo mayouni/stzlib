@@ -115,18 +115,54 @@ func WhatIs(pcName)
 	if len(_aOut_) > 0
 		return _aOut_
 	ok
-	# the world is silent -- ask the library through the pipeline
-	_aHits_ = _StzWhatIsDocIndex().AskFor(_cName_, 3)
-	_nH_ = len(_aHits_)
-	for _i_ = 1 to _nH_
-		if _aHits_[_i_][1] != "(world)" and _aHits_[_i_][1] != "(recipe)" and
-		   _StzNamesAreFormSiblings(StzLower(_aHits_[_i_][2]), _cName_)
-			_cAns_ = "the method " + _aHits_[_i_][2] + " (on " + _aHits_[_i_][1] + ")"
-			if isString(_aHits_[_i_][4]) and _aHits_[_i_][4] != ""
-				_cAns_ += ": " + _aHits_[_i_][4]
+	# the world is silent -- ask the LIBRARY: a deterministic name-sites
+	# sweep over the wide doc index, reporting EVERY class that defines
+	# the method (grouped per distinct method name)
+	_aSites_ = _StzWhatIsDocIndex()._NameSites(_cName_)
+	_nS_ = len(_aSites_)
+	if _nS_ = 0
+		return []
+	ok
+	_aGrp_ = []   # [ methodName, [classes...], description ]
+	for _i_ = 1 to _nS_
+		_cMn_ = _aSites_[_i_][2]
+		_bF_ = 0
+		_nG_ = len(_aGrp_)
+		for _j_ = 1 to _nG_
+			if _aGrp_[_j_][1] = _cMn_
+				if ring_find(_aGrp_[_j_][2], _aSites_[_i_][1]) = 0
+					_aGrp_[_j_][2] + _aSites_[_i_][1]
+				ok
+				if _aGrp_[_j_][3] = "" and isString(_aSites_[_i_][3])
+					_aGrp_[_j_][3] = _aSites_[_i_][3]
+				ok
+				_bF_ = 1
+				exit
 			ok
-			_aOut_ + _cAns_
+		next
+		if _bF_ = 0
+			_cD_ = ""
+			if isString(_aSites_[_i_][3])
+				_cD_ = _aSites_[_i_][3]
+			ok
+			_aGrp_ + [ _cMn_, [ _aSites_[_i_][1] ], _cD_ ]
 		ok
+	next
+	_nG_ = len(_aGrp_)
+	for _i_ = 1 to _nG_
+		_cCls_ = ""
+		_nC_ = len(_aGrp_[_i_][2])
+		for _j_ = 1 to _nC_
+			if _j_ > 1
+				_cCls_ += ", "
+			ok
+			_cCls_ += _aGrp_[_i_][2][_j_]
+		next
+		_cAns_ = "the method " + _aGrp_[_i_][1] + " (on " + _cCls_ + ")"
+		if _aGrp_[_i_][3] != ""
+			_cAns_ += ": " + _aGrp_[_i_][3]
+		ok
+		_aOut_ + _cAns_
 	next
 	return _aOut_
 
@@ -158,12 +194,17 @@ func _StzWorldTypesOf(pcName)
 	next
 	return _aOut_
 
-# lazy cross-class doc index (the default curated set) for the fallback
+# lazy cross-class doc index for the WhatIs library door. WIDE on
+# purpose: WhatIs answers about the LIBRARY, so it sees the main domain
+# classes -- unlike Ask()'s lean default set (tuned for the neural
+# index). Built once on first use (~4s), instant after.
 func _StzWhatIsDocIndex()
 	if isObject($oStzWhatIsDoc)
 		return $oStzWhatIsDoc
 	ok
-	$oStzWhatIsDoc = StzLibDoc([])
+	$oStzWhatIsDoc = StzLibDoc([ "stzString", "stzList", "stzNumber",
+		"stzChar", "stzText", "stzListOfTexts", "stzListOfStrings",
+		"stzListOfNumbers", "stzListOfLists", "stzHashList", "stzTable" ])
 	return $oStzWhatIsDoc
 
 # THE WORLD DOOR of Ask(): a "what is X / who is X" question consults
