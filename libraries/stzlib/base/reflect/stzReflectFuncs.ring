@@ -1012,7 +1012,10 @@ func _StzPolishDesc(pcDesc)
 	ok
 	# a leading dash-run is a comment ARTIFACT ("-- Median / ..."),
 	# not prose -- drop it before anything else
-	while len(pcDesc) > 2 and left(pcDesc, 1) = "-"
+	while len(pcDesc) > 0 and left(pcDesc, 1) = "-"
+		if len(pcDesc) = 1
+			return ""
+		ok
 		pcDesc = ring_trim(substr(pcDesc, 2, len(pcDesc) - 1))
 	end
 	# fast gate: the char-scan below runs ONLY when chatter markers are
@@ -1186,7 +1189,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			_aBaseProper_ + _aMethods_[_i_][1]
 		ok
 	next
-	_aSufs_ = [ "zz", "qc", "cs", "xt", "q", "b" ]
+	_aSufs_ = [ "zz", "qc", "cs", "xt", "z", "w", "q", "b" ]
 	for _i_ = 1 to _nMh_
 		if _aMethods_[_i_][2] != ""
 			loop
@@ -1210,7 +1213,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		_cHit_ = ""
 		for _lvl_ = 1 to 3
 			_bStripped_ = 0
-			for _s_ = 1 to 6
+			for _s_ = 1 to 8
 				_cSf_ = _aSufs_[_s_]
 				_nSf_ = len(_cSf_)
 				if len(_cBase_) > _nSf_ + 1 and right(_cBase_, _nSf_) = _cSf_
@@ -1278,7 +1281,75 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		_cHit_ = ""
 		for _lvl_ = 1 to 3
 			_bStripped_ = 0
-			for _s_ = 1 to 6
+			for _s_ = 1 to 8
+				_cSf_ = _aSufs_[_s_]
+				_nSf_ = len(_cSf_)
+				if len(_cBase_) > _nSf_ + 1 and right(_cBase_, _nSf_) = _cSf_
+					_cBase_ = left(_cBase_, len(_cBase_) - _nSf_)
+					if _cGloss_ != ""
+						_cGloss_ += "; "
+					ok
+					_cGloss_ += _StzVariantGloss(_cSf_)
+					_bStripped_ = 1
+					exit
+				ok
+			next
+			if _bStripped_ = 0
+				exit
+			ok
+			_nBp_ = ring_find(_aBaseNames_, _cBase_)
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				exit
+			ok
+		next
+		if _cHit_ = ""
+			_nBp_ = ring_find(_aBaseNames_, lower(_aMethods_[_i_][1]) + "cs")
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				_cGloss_ = "case-sensitive by default"
+			ok
+		ok
+		if _cHit_ != ""
+			_aMethods_[_i_][2] = _cHit_ + " (" + _cGloss_ + ")"
+		ok
+	next
+	# PASS 3: one more closure round -- Z/W alias chains run three
+	# hops (Bottom3Z -> BottomNZ -> NLowestNumbersZ -> NLowestNumbers)
+	_aBaseNames_ = []
+	_aBaseDescs_ = []
+	_aBaseProper_ = []
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] != ""
+			_aBaseNames_ + lower(_aMethods_[_i_][1])
+			_aBaseDescs_ + _aMethods_[_i_][2]
+			_aBaseProper_ + _aMethods_[_i_][1]
+		ok
+	next
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] != ""
+			loop
+		ok
+		if _aFwd_[_i_] != ""
+			_nBp_ = ring_find(_aBaseNames_, _aFwd_[_i_])
+			if _nBp_ > 0
+				_cTd_ = _aBaseDescs_[_nBp_]
+				_cPfx_ = lower(_aBaseProper_[_nBp_]) + " -- "
+				if lower(left(_cTd_, len(_cPfx_))) = _cPfx_
+					_cTd_ = substr(_cTd_, len(_cPfx_) + 1,
+						len(_cTd_) - len(_cPfx_))
+				ok
+				_aMethods_[_i_][2] = "Same as " + _aBaseProper_[_nBp_] +
+					": " + _cTd_
+				loop
+			ok
+		ok
+		_cBase_ = lower(_aMethods_[_i_][1])
+		_cGloss_ = ""
+		_cHit_ = ""
+		for _lvl_ = 1 to 3
+			_bStripped_ = 0
+			for _s_ = 1 to 8
 				_cSf_ = _aSufs_[_s_]
 				_nSf_ = len(_cSf_)
 				if len(_cBase_) > _nSf_ + 1 and right(_cBase_, _nSf_) = _cSf_
@@ -1393,6 +1464,10 @@ func _StzVariantGloss(pcSuf)
 		return "boolean form: answers 1 or 0"
 	on "zz"
 		return "answers [start, end] sections"
+	on "z"
+		return "returns the value along with its position"
+	on "w"
+		return "applies only where the given W condition holds"
 	other
 		return ""
 	off
