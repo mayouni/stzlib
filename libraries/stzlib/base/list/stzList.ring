@@ -1590,6 +1590,8 @@ class stzList from stzObject
 
 	#-- Ring-side setter: @aContent becomes truth; drop any cached handle.
 	def _SetContent(paRing)
+		# Enforced per-object constraints guard the single update point
+		This._NNLGuardUpdate(paRing)
 		@aContent = paRing
 		This._InvalidateEngine()
 		return This
