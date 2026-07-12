@@ -9574,6 +9574,8 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The [start, end] sections of the chosen occurrence numbers,
+	# walking in the given direction.
 	def FindTheseOccurrencesAsSectionsD(_anN_, pNamedOf, pDir)
 		_aPos_ = This.FindTheseOccurrencesD(_anN_, pNamedOf, pDir)
 		_pSub_ = pNamedOf
@@ -10663,6 +10665,7 @@ class stzString from stzObject
 		ok
 		return _cTail_
 
+	# The first n chars, in the requested return type (QRT).
 	def FirstNItemsQRT(n, pcType)
 		_cHead_ = This.FirstNChars(n)
 		if isString(pcType) and lower(pcType) = ":stzstring"
@@ -10708,6 +10711,8 @@ class stzString from stzObject
 		ok
 		return This.PreviousOccurrence(pcSub, _nFrom_)
 
+	# The position of the nth occurrence STRICTLY BEFORE the given
+	# position.
 	def FindPreviousNth(n, pcSub, _nFrom_)
 		# STRICTLY BEFORE the :StartingAt position -- the ORIGINAL
 		# counts occurrences in Section(1, nStart - 1) (block #989;
@@ -10804,6 +10809,7 @@ class stzString from stzObject
 		return StzEngineStringIsAlpha(@pEngine) = 1
 
 	# ReplaceManyCSQ alias.
+	# Replace every occurrence of each given substring, chainable.
 	def ReplaceManyCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive)
 		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
 		return This
@@ -12068,6 +12074,8 @@ class stzString from stzObject
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
 		return This._PickTheseOf(_anN_, This.FindST(_cSub_, pStartingAt))
 
+	# The sections of the chosen occurrence numbers (:Of = sub,
+	# start, direction).
 	def FindTheseOccurrencesAsSectionsSTD(_anN_, pNamedOf, pStartingAt, pDir)
 		_cSub_ = This._OfSubUnwrapped(pNamedOf)
 		_aPos_ = This._PickTheseOf(_anN_, This.FindStD(_cSub_, pStartingAt, pDir))
@@ -12099,6 +12107,8 @@ class stzString from stzObject
 	def FindTheseOccurrencesAsS(p1, pNamedOf)
 		return This.FindOccurrences(p1, pNamedOf)
 
+	# The [start, end] sections of the chosen occurrence numbers
+	# (:Of = sub).
 	def FindTheseOccurrencesAsSections(p1, pNamedOf)
 		_aPos_ = This.FindOccurrences(p1, pNamedOf)
 		_cSub_ = ""
@@ -12671,10 +12681,12 @@ class stzString from stzObject
 	def SplitToPartsOfNCharsXT(n)
 		return This._SplitToPartsOfNCharsKeep(n)
 
+	# Split into n-char parts with options (keep-remainder form).
 	def SplitToPartsOfNCharsXTOpt(n, pNamed)
 		return This._SplitToPartsOfNCharsKeep(n)
 
 	# FindMadeOfZZ alias.
+	# The [start, end] sections of the runs made of the given char.
 	def FindMadeOfZZ(pcChar)
 		return This.FindSubStringsMadeOfZZ(pcChar)
 
@@ -12824,6 +12836,7 @@ class stzString from stzObject
 		StzRaise("Sorry! Can't infere the method name from the provided string.")
 
 	# RemoveDuplicatesQ alias.
+	# Remove the duplicated chars, chainable.
 	def RemoveDuplicatesQ()
 		This.RemoveDuplicatedChars()
 		return This
@@ -13063,15 +13076,18 @@ class stzString from stzObject
 		ok
 		return This.HowMany(pcSub) > n
 
+	# TRUE if pcSub occurs MORE than n times.
 	def ContainsMoreThanN(pcSub, n)
 		if isNumber(pcSub) and isString(n)
 			_tmp_ = pcSub; pcSub = n; n = _tmp_
 		ok
 		return This.HowMany(pcSub) > n
 
+	# TRUE if pcSub occurs at least n times.
 	def ContainsAtLeastN(pcSub, n)
 		return This.HowMany(pcSub) >= n
 
+	# TRUE if pcSub occurs exactly n times.
 	def ContainsExactlyN(pcSub, n)
 		return This.HowMany(pcSub) = n
 
@@ -13100,6 +13116,7 @@ class stzString from stzObject
 		next
 		return _nC_
 
+	# How many non-empty lines the string holds.
 	def NumberOfNonEmptyLines()
 		return This.NumberOfLines() - This.NumberOfEmptyLines()
 
@@ -13154,6 +13171,7 @@ class stzString from stzObject
 		ok
 		return This.BoundsUpToNChars(p1)
 
+	# The string's bounds, capped to n chars each.
 	def BoundsUpToNChars(p)
 		_aB_ = This.Bounds()
 		if len(_aB_) != 2 return _aB_ ok
@@ -13429,6 +13447,8 @@ class stzString from stzObject
 			This.RemoveAnySubStringBoundedBy(pacBounds)
 			return This
 
+	# Remove every bounded substring INCLUDING its bounds
+	# (mutating).
 	def RemoveAnySubStringBoundedByIB(pacBounds)
 		This.RemoveSections( This.FindAnyBoundedByIBZZ(pacBounds) )
 
@@ -13509,12 +13529,14 @@ class stzString from stzObject
 		next
 		return FALSE
 
+	# The n rightmost chars, direction-aware, as a string.
 	def NRightCharsAsSubString(n)
 		if This.IsRightToLeft()
 			return This._EngineSlice(This.Content(), 1, n)
 		ok
 		return This.LastNChars(n)
 
+	# The n leftmost chars, direction-aware, as a string.
 	def NLeftCharsAsSubString(n)
 		if This.IsRightToLeft()
 			_nLen_ = This._EngineCount(This.Content())
@@ -13614,6 +13636,7 @@ class stzString from stzObject
 	def StartsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 		return This.BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 
+	# TRUE if the string ends with ANY of the given suffixes.
 	def EndsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 		_bCase_ = 1
 		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
@@ -13664,6 +13687,7 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(This.Content())
 		return _nLen_ > 0 and (_nLen_ % 2) = 1
 
+	# The middle char of the string (odd lengths).
 	def CentralChar()
 		_nLen_ = This._EngineCount(This.Content())
 		if NOT This.HasCentralChar() return "" ok
@@ -13693,12 +13717,14 @@ class stzString from stzObject
 	def Marker()
 		return This.Marquer()
 
+	# TRUE if the string contains marquers.
 	def ContainsMarquers()
 		return len(This.Markers()) > 0
 
 	def ContainsMarkers()
 		return This.ContainsMarquers()
 
+	# TRUE if the string occurs inside the given one.
 	def IsIncludedIn(pcOther)
 		if NOT isString(pcOther) return FALSE ok
 		return StzFindFirst(This.Content(), pcOther) > 0
@@ -13762,12 +13788,14 @@ class stzString from stzObject
 			This.ReplaceSection(_aSecs_[_i_][1], _aSecs_[_i_][2], _aSorted_[_i_])
 		next
 
+	# Sort the marquers in descending order (mutating).
 	def SortMarquersInDescending()
 		This._SortMarquers(FALSE)
 
 	def SortMarkersInDescending()
 		This.SortMarquersInDescending()
 
+	# Sort the marquers in ascending order (mutating).
 	def SortMarquersInAscending()
 		This._SortMarquers(TRUE)
 
@@ -13829,6 +13857,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The positions of the first n occurrences from the given start.
 	def NFirstOccurrencesST(n, pNamedOf, pStartingAt)
 		_cSub_ = ""
 		_nFrom_ = 1
@@ -13854,6 +13883,7 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The positions of the LAST n occurrences.
 	def LastNOccurrences(n, pNamedOf)
 		_aR_ = This.NFirstOccurrences(99999, pNamedOf)
 		_nL_ = len(_aR_)
@@ -13870,6 +13900,7 @@ class stzString from stzObject
 	def NLastOccurrencesST(n, pNamedOf, pStartingAt)
 		return This.LastNOccurrencesST(n, pNamedOf, pStartingAt)
 
+	# The positions of the last n occurrences from the given start.
 	def LastNOccurrencesST(n, pNamedOf, pStartingAt)
 		_cSub_ = ""
 		_nFrom_ = 1
@@ -13901,6 +13932,7 @@ class stzString from stzObject
 		next
 		return _aS_
 
+	# Each marquer paired with its [start, end] section.
 	def MarquersAndSections()
 		_aP_ = This.MarquersPositions()
 		_aR_ = []
@@ -13961,6 +13993,7 @@ class stzString from stzObject
 		def ReplaceSubstringsWithMarquersCS(pacSubStr, pCaseSensitive)
 			This.MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
 
+	# Remove every occurrence of the given char, chainable.
 	def RemoveCharQ(n)
 		# Accept a single-char string: remove every occurrence.
 		if isString(n)
@@ -13970,6 +14003,7 @@ class stzString from stzObject
 		ok
 		return This
 
+	# Remove every occurrence of the given char (mutating).
 	def RemoveChar(n)
 		if isString(n)
 			This.Replace(n, "")
@@ -13977,11 +14011,14 @@ class stzString from stzObject
 			This.RemoveCharAt(n)
 		ok
 
+	# A copy with the given char removed everywhere.
 	def CharRemoved(n)
 		_o_ = new stzString(This.Content())
 		_o_.RemoveChar(n)
 		return _o_.Content()
 
+	# Remove the char at position n only if it equals pcChar
+	# (mutating).
 	def RemoveThisNthChar(n, pcChar)
 		# Remove the char AT position n only if it EQUALS pcChar (per the
 		# archive: "remove nth item only if it is equal to pItem");
@@ -14049,6 +14086,7 @@ class stzString from stzObject
 	def NumberOfOccurrencesXT(pNamed, pNamed2)
 		return This.NumberOfOccurrenceXT(pNamed, pNamed2)
 
+	# TRUE if the chars are in ascending order.
 	def IsSortedInAscending()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return TRUE ok
@@ -14060,6 +14098,7 @@ class stzString from stzObject
 		next
 		return TRUE
 
+	# TRUE if the chars are in descending order.
 	def IsSortedInDescending()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return TRUE ok
@@ -14071,6 +14110,8 @@ class stzString from stzObject
 		next
 		return TRUE
 
+	# Remove the chars of each given [start, end] section
+	# (mutating).
 	def RemoveManySections(_aSections_)
 		if NOT isList(_aSections_) return ok
 		_aSorted_ = _ListCopy(_aSections_)
@@ -14128,6 +14169,8 @@ class stzString from stzObject
 		next
 		return [ _cSub_, _cNew_, _nFrom_ ]
 
+	# Replace the nth occurrence AFTER the given position
+	# (mutating).
 	def ReplaceNextNthOccurrence(n, pcSub, pcNew, _nFrom_)
 		_aRno_ = This._ResolveOfWithFrom(pcSub, pcNew, _nFrom_)
 		pcSub = _aRno_[1]
@@ -14159,6 +14202,8 @@ class stzString from stzObject
 			This.ReplaceNextNthOccurrence(n, pcSub, pcNew, _nFrom_)
 			return This
 
+	# Replace the nth occurrence BEFORE the given position
+	# (mutating).
 	def ReplacePreviousNthOccurrence(n, pcSub, pcNew, _nFrom_)
 		_aRpo_ = This._ResolveOfWithFrom(pcSub, pcNew, _nFrom_)
 		pcSub = _aRpo_[1]
@@ -14187,10 +14232,12 @@ class stzString from stzObject
 			This.ReplacePreviousNthOccurrence(n, pcSub, pcNew, _nFrom_)
 			return This
 
+	# TRUE if the string is the lowercase form of the given one.
 	def IsLowercaseOf(pcOther)
 		if NOT isString(pcOther) return FALSE ok
 		return This.Content() = lower(pcOther)
 
+	# TRUE if the string is the uppercase form of the given one.
 	def IsUppercaseOf(pcOther)
 		if NOT isString(pcOther) return FALSE ok
 		return This.Content() = upper(pcOther)
@@ -14199,9 +14246,12 @@ class stzString from stzObject
 	def UppercasedInLocale(pcLocale)
 		return upper(This.Content())
 
+	# The string lowercased for the given locale (plain lowercase
+	# fallback).
 	def LowercasedInLocale(pcLocale)
 		return lower(This.Content())
 
+	# The case of the single-char string (codepoint-aware).
 	def CharCase()
 		# Codepoint-aware (Ring's upper/lower are byte-based and fail
 		# on multibyte chars like the German sharp s).
@@ -14211,6 +14261,7 @@ class stzString from stzObject
 		if _c_ = StzUpper(_c_) and _c_ != StzLower(_c_) return :Uppercase ok
 		return :Mixed
 
+	# How many occurrences of pcSub fall inside the given sections.
 	def CountInSections(pcSub, _aSections_)
 		_nT_ = 0
 		_nL_ = len(_aSections_)
@@ -14273,6 +14324,8 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# Remove the chars of each given [start, range] slice
+	# (mutating).
 	def RemoveRanges(p1)
 		# Removes the sliced sections returned by Ranges(p1) from content.
 		if NOT isList(p1) return ok
@@ -14343,6 +14396,8 @@ class stzString from stzObject
 			This.RemoveTheseSubStringBounds(pcSub, pacBounds)
 			return This
 
+	# Walk forward collecting where the W condition holds (mirror of
+	# WalkBackwardW).
 	def WalkForwardW(pcCondition, pNamedUntil)
 		# Mirror of WalkBackwardW but walking forward.
 		if isList(pcCondition) and len(pcCondition) = 2 and isString(pcCondition[1]) and
@@ -15206,6 +15261,8 @@ class stzString from stzObject
 	def RepresentsCalculableInteger()
 		return This.RepresentsInteger()
 
+	# Which abbreviation form the language string carries (:Short /
+	# :Long).
 	def LanguageAbbreviationForm()
 		_c_ = This.Content()
 		if len(_c_) = 2 return :Short ok
@@ -18143,12 +18200,14 @@ class stzString from stzObject
 		# Non-capturing (?:...) so the whole match (not a sub-group) is extracted.
 		return This.ExtractPattern("[0-9]{1,2}:[0-9]{2}(?::[0-9]{2})?")
 
+	# The phone numbers found in the string.
 	def ExtractPhoneNumbers()
 		return This.ExtractPattern("[+]?[0-9][0-9 .()-]{6,}[0-9]")
 
 		def ExtractPhones()
 			return This.ExtractPhoneNumbers()
 
+	# The prices (currency symbol + number) found in the string.
 	def ExtractPrices()
 		# A currency symbol ($ EUR GBP JPY) then a number.
 		return This.ExtractPattern("(?:[$]|" + char(0xE2)+char(0x82)+char(0xAC) + "|" + char(0xC2)+char(0xA3) + "|" + char(0xC2)+char(0xA5) + ")[ ]?[0-9][0-9,]*(?:[.][0-9]+)?")
@@ -18231,6 +18290,8 @@ class stzString from stzObject
 		ok
 		return This.SplitAtCS(pcSepOrPos, 1)
 
+	# Split the string before each occurrence of the separator (it
+	# starts each new part).
 	def SplitBeforeCS(pcSubStr, pCaseSensitive)
 		# Accept :CS = bCase named-param on the case flag.
 		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
@@ -18273,6 +18334,7 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
+	# Split so each given position ENDS a piece.
 	def SplitAfterPositions(anPos)
 		# Split so each position p ENDS a piece (next piece starts at p+1).
 		_aRes_ = []
@@ -18306,6 +18368,7 @@ class stzString from stzObject
 	def SplitBeforeCharsW(pcCondition)
 		return This.SplitBeforePositions( This.FindCharsW(pcCondition) )
 
+	# Split after each char satisfying the W condition.
 	def SplitAfterCharsW(pcCondition)
 		return This.SplitAfterPositions( This.FindCharsW(pcCondition) )
 
@@ -18362,6 +18425,7 @@ class stzString from stzObject
 	def SplitBeforeSubStringsW(pcCondition)
 		return This.SplitBeforePositions( This._SubStringMatchPositions(pcCondition, FALSE) )
 
+	# Split after each substring matching the W condition.
 	def SplitAfterSubStringsW(pcCondition)
 		return This.SplitAfterPositions( This._SubStringMatchPositions(pcCondition, TRUE) )
 
@@ -18408,6 +18472,8 @@ class stzString from stzObject
 	def SplitAfter(pcSubStr)
 		return This.SplitAfterCS(pcSubStr, 1)
 
+	# The pieces between the occurrences of pcSubStr
+	# (codepoint-aware).
 	def SplitAroundCS(pcSubStr, pCaseSensitive)
 		# Codepoint-aware split: return the pieces between every
 		# occurrence of pcSubStr.
@@ -18437,6 +18503,7 @@ class stzString from stzObject
 	def SplitAround(pcSubStr)
 		return This.SplitAroundCS(pcSubStr, 1)
 
+	# The [before, match, after] triple around the FIRST occurrence.
 	def Partition(pcSubStr)
 		_nPtPos_ = This.FindFirst(pcSubStr)
 		if _nPtPos_ = 0
@@ -18454,6 +18521,7 @@ class stzString from stzObject
 		ok
 		return [ _cPtBefore_, pcSubStr, _cPtAfter_ ]
 
+	# The [before, match, after] triple around the LAST occurrence.
 	def RPartition(pcSubStr)
 		_nRpPos_ = This.FindLast(pcSubStr)
 		if _nRpPos_ = 0
@@ -18570,6 +18638,7 @@ class stzString from stzObject
 		_oRwRemover_.RemoveW(pcCondition)
 		This.Update(_oRwRemover_.Content())
 
+	# Remove all the spaces (mutating).
 	def RemoveSpaces()
 		This.Remove(" ")
 
@@ -19060,6 +19129,8 @@ class stzString from stzObject
 		next
 		return _acFsbcR_
 
+	# The [start, end] sections of the bounded substrings, bounds
+	# included (IB).
 	def FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
 		if NOT (isList(pacBounds) and len(pacBounds) = 2 and
 		        isString(pacBounds[1]) and isString(pacBounds[2]))
@@ -19192,6 +19263,8 @@ class stzString from stzObject
 	def RemoveFromLeft(pcSubStr)
 		This.RemoveFromLeftCS(pcSubStr, 1)
 
+	# Remove pcSubStr from the visual RIGHT end (direction-aware,
+	# mutating).
 	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
 		# In a right-to-left string the visual right is the START (the
 		# original RemoveFromRightCS mirrors when IsRightToLeft).
@@ -19206,6 +19279,7 @@ class stzString from stzObject
 	def RemoveFromRight(pcSubStr)
 		This.RemoveFromRightCS(pcSubStr, 1)
 
+	# Remove nRange chars starting at nStart (mutating).
 	def RemoveRange(_nStart_, _nRange_)
 		This.RemoveSection(_nStart_, _nStart_ + _nRange_ - 1)
 
@@ -19827,6 +19901,7 @@ class stzString from stzObject
 	 #     COMPARATOR DELEGATIONS             #
 	#========================================#
 
+	# TRUE if the content differs from the given string.
 	def IsNotEqualToCS(pcStr, pCaseSensitive)
 		return NOT This.IsEqualToCS(pcStr, pCaseSensitive)
 
@@ -20031,6 +20106,7 @@ class stzString from stzObject
 	def MostFrequentChars(n)
 		return This.MostFrequentCharsCS(n, 1)
 
+	# The char that occurs most often in the string.
 	def MostFrequentChar()
 		_aMfc_ = This.MostFrequentChars(1)
 		if len(_aMfc_) = 0 return "" ok
@@ -20094,14 +20170,17 @@ class stzString from stzObject
 		if _nSt_ = 0 return 0 ok
 		return This.NumberOfWords() / _nSt_
 
+	# The average number of chars per sentence.
 	def AverageCharsPerSentence()
 		_nSt_ = This.NumberOfSentences()
 		if _nSt_ = 0 return 0 ok
 		return This.NumberOfChars() / _nSt_
 
+	# The word count of the longest sentence.
 	def LongestSentenceInWords()
 		return StzEngineStringSentenceStat(@pEngine, 0)
 
+	# The word count of the shortest sentence.
 	def ShortestSentenceInWords()
 		return StzEngineStringSentenceStat(@pEngine, 1)
 
@@ -20131,6 +20210,7 @@ class stzString from stzObject
 		def SentencesQQQ()
 			return new stzListOfTexts(This.Sentences())
 
+	# The nth sentence of the string.
 	def NthSentence(n)
 		_aNsnt_ = This.Sentences()
 		if n >= 1 and n <= len(_aNsnt_)
@@ -20138,9 +20218,11 @@ class stzString from stzObject
 		ok
 		return ""
 
+	# The first sentence of the string.
 	def FirstSentence()
 		return This.NthSentence(1)
 
+	# The last sentence of the string.
 	def LastSentence()
 		_aLsnt_ = This.Sentences()
 		if len(_aLsnt_) = 0 return "" ok
@@ -20171,6 +20253,8 @@ class stzString from stzObject
 			This.Simplify()
 			return This
 
+	# A copy with the whitespace collapsed to single spaces; the
+	# original is unchanged.
 	def Simplified()
 		# NB: stzStringText(This) holds THIS by reference -- calling the
 		# helper's mutating Simplify() would write back into the original
@@ -20195,6 +20279,7 @@ class stzString from stzObject
 		_oThEnc_ = new stzStringEncoder(This)
 		return _oThEnc_.ToHex()
 
+	# Set the content from its hex form (mutating).
 	def FromHex()
 		_oFhEnc_ = new stzStringEncoder(This)
 		_oFhEnc_.FromHex()
@@ -20204,6 +20289,7 @@ class stzString from stzObject
 		_oUeEnc_ = new stzStringEncoder(This)
 		return _oUeEnc_.UrlEncoded()
 
+	# URL-encode the content in place (mutating).
 	def UrlEncode()
 		This.Update(This.UrlEncoded())
 
@@ -20215,6 +20301,7 @@ class stzString from stzObject
 		_oUdEnc_ = new stzStringEncoder(This)
 		return _oUdEnc_.UrlDecoded()
 
+	# URL-decode the content in place (mutating).
 	def UrlDecode()
 		This.Update(This.UrlDecoded())
 
@@ -20226,6 +20313,7 @@ class stzString from stzObject
 		_oHeEnc_ = new stzStringEncoder(This)
 		return _oHeEnc_.HtmlEncoded()
 
+	# HTML-encode the content in place (mutating).
 	def HtmlEncode()
 		This.Update(This.HtmlEncoded())
 
@@ -20233,6 +20321,7 @@ class stzString from stzObject
 		_oHdEnc_ = new stzStringEncoder(This)
 		return _oHdEnc_.HtmlDecoded()
 
+	# HTML-decode the content in place (mutating).
 	def HtmlDecode()
 		This.Update(This.HtmlDecoded())
 
@@ -20248,11 +20337,13 @@ class stzString from stzObject
 		_oErEnc_ = new stzStringEncoder(This)
 		return _oErEnc_.EscapedForRegex()
 
+	# Escape the regex special chars in place (mutating).
 	def EscapeForRegex()
 		This.Update(This.EscapedForRegex())
 
 	# --- Unicode normalization ---
 
+	# Normalize the content to Unicode NFC in place (mutating).
 	def NormalizeNFC()
 		_oNnfcEnc_ = new stzStringEncoder(This)
 		_oNnfcEnc_.NormalizeNFC()
@@ -20262,6 +20353,7 @@ class stzString from stzObject
 		_oNdfcEnc_ = new stzStringEncoder(This)
 		return _oNdfcEnc_.NormalizedNFC()
 
+	# Normalize the content to Unicode NFD in place (mutating).
 	def NormalizeNFD()
 		_oNnfdEnc_ = new stzStringEncoder(This)
 		_oNnfdEnc_.NormalizeNFD()
@@ -20271,6 +20363,7 @@ class stzString from stzObject
 		_oNdfdEnc_ = new stzStringEncoder(This)
 		return _oNdfdEnc_.NormalizedNFD()
 
+	# Normalize the content to Unicode NFKC in place (mutating).
 	def NormalizeNFKC()
 		_oNnfkcEnc_ = new stzStringEncoder(This)
 		_oNnfkcEnc_.NormalizeNFKC()
@@ -20280,6 +20373,7 @@ class stzString from stzObject
 		_oNdfkcEnc_ = new stzStringEncoder(This)
 		return _oNdfkcEnc_.NormalizedNFKC()
 
+	# Normalize the content to Unicode NFKD in place (mutating).
 	def NormalizeNFKD()
 		_oNnfkdEnc_ = new stzStringEncoder(This)
 		_oNnfkdEnc_.NormalizeNFKD()
@@ -20297,6 +20391,7 @@ class stzString from stzObject
 		_oTcFmt_ = new stzStringFormatter(This)
 		return _oTcFmt_.Titlecased()
 
+	# Titlecase the content in place (mutating).
 	def ApplyTitlecase()
 		This.Update(This.Titlecased())
 
@@ -20317,16 +20412,19 @@ class stzString from stzObject
 	def CenterAlignXT(nWidth, cFillChar)
 		This.AlignXT(nWidth, cFillChar, :Center)
 
+	# A copy aligned LEFT in a field of nWidth chars.
 	def LeftAligned(nWidth)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.AlignXT(nWidth, " ", :Left)
 		return _oCpFmt_.Content()
 
+	# A copy aligned RIGHT in a field of nWidth chars.
 	def RightAligned(nWidth)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.AlignXT(nWidth, " ", :Right)
 		return _oCpFmt_.Content()
 
+	# A copy CENTERED in a field of nWidth chars.
 	def CenterAligned(nWidth)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.AlignXT(nWidth, " ", :Center)
@@ -20344,6 +20442,7 @@ class stzString from stzObject
 		_oCpFmt_.PadLeft(nWidth, cFillChar)
 		return _oCpFmt_.Content()
 
+	# A copy padded on the right to nWidth with the given char.
 	def PaddedRight(nWidth, cFillChar)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.PadRight(nWidth, cFillChar)
@@ -20365,6 +20464,7 @@ class stzString from stzObject
 	def RepeatedLeadingChars()
 		return This.RepeatedLeadingCharsCS(1)
 
+	# The trailing repeated-char run, as a list (case dial).
 	def RepeatedTrailingCharsCS(pCaseSensitive)
 		if This._CaseFlagValue(pCaseSensitive)
 			return This.TrailingChars()
@@ -20472,6 +20572,7 @@ class stzString from stzObject
 	def UniqueLines()
 		return This.UniqueLinesCS(1)
 
+	# Sort the lines in place (mutating).
 	def SortLinesCS(pCaseSensitive)
 		_oSlLines_ = new stzStringLines(This)
 		_oSlLines_.SortLinesCS(pCaseSensitive)
@@ -20480,6 +20581,7 @@ class stzString from stzObject
 	def SortLines()
 		This.SortLinesCS(1)
 
+	# Remove the blank lines (mutating).
 	def RemoveBlankLines()
 		_oRblLines_ = new stzStringLines(This)
 		_oRblLines_.RemoveBlankLines()
@@ -20504,6 +20606,7 @@ class stzString from stzObject
 	def TrimChar(pcChar)
 		This.TrimCharCS(pcChar, 1)
 
+	# Trim the run of the given char from the START (mutating).
 	def TrimLeftCharCS(pcChar, pCaseSensitive)
 		_oTlcTrm_ = new stzStringTrimmer(This)
 		_oTlcTrm_.RemoveThisCharFromStartCS(pcChar, pCaseSensitive)
@@ -20512,6 +20615,7 @@ class stzString from stzObject
 	def TrimLeftChar(pcChar)
 		This.TrimLeftCharCS(pcChar, 1)
 
+	# Trim the run of the given char from the END (mutating).
 	def TrimRightCharCS(pcChar, pCaseSensitive)
 		_oTrcTrm_ = new stzStringTrimmer(This)
 		_oTrcTrm_.RemoveThisCharFromEndCS(pcChar, pCaseSensitive)
@@ -20587,17 +20691,22 @@ class stzString from stzObject
 		       This.IsLanguageAbbreviation() or
 		       This.IsLanguageName()
 
+	# TRUE if the string identifies a script (number, code or
+	# abbreviation).
 	def IsScriptIdentifier()
 		return This.IsScriptNumber() or
 		       This.IsScriptAbbreviation() or
 		       This.IsScriptName()
 
+	# TRUE if the string identifies a country (number, code,
+	# name...).
 	def IsCountryIdentifier()
 		return This.IsCountryNumber() or
 		       This.IsCountryAbbreviation() or
 		       This.IsCountryName() or
 		       This.IsCountryPhoneCode()
 
+	# TRUE if the string is a language name or abbreviation.
 	def IsLanguageNameOrAbbreviation()
 		if This.IsLanguageName() or This.IsLanguageAbbreviation()
 			return 1
