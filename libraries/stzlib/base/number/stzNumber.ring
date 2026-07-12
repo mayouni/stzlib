@@ -1809,6 +1809,7 @@ class stzNumber from stzObject
 		def NumberQ() # Same as Copy()
 			return new stzNumber( This.Content() )
 
+	# The value the number was created with.
 	def InitialContent()
 		return pNumber		 
 
@@ -1855,6 +1856,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# Make values come back as :Number (the return-type dial).
 	def ReturnNumber()
 		SetReturnType(:Number)
 		
@@ -2609,10 +2611,12 @@ class stzNumber from stzObject
 				This.RemoveSign()
 				return This
 
+	# A copy without the sign; the original is unchanged.
 	def SignRemoved()
 		_cResult_ = This.Copy().RemoveSignQ().Content()
 		return _cResult_
 
+	# TRUE if the number carries an explicit sign.
 	def IsSigned()
 		if This.Sign() != ""
 			return 1
@@ -2623,6 +2627,7 @@ class stzNumber from stzObject
 		def IsNotSigned()
 			return NOT IsSigned()
 
+	# TRUE if the number carries no explicit sign.
 	def IsUnsigned()
 		if This.IsSigned() = 1
 			return 0
@@ -2630,6 +2635,7 @@ class stzNumber from stzObject
 			return 1
 		ok
 
+	# Same as IsSigned.
 	def HasSign()
 		return This.IsSigned()
 
@@ -2739,6 +2745,7 @@ class stzNumber from stzObject
 
 	#=====
 
+	# TRUE if the number equals NEITHER of the two given numbers.
 	def IsNeither(_n1_, _n2_)
 		if CheckingParams()
 			if isList(_n1_) and Q(_n1_).IsEqualToNamedParam()
@@ -2772,6 +2779,7 @@ class stzNumber from stzObject
 		def IsNeitherEqualTo(_n1_, _n2_)
 			return This.IsNeither(_n1_, _n2_)
 
+	# TRUE if the number is less than or equal to the given one.
 	def IsLess(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -2809,6 +2817,7 @@ class stzNumber from stzObject
 
 		#>
 	
+	# TRUE if the number is strictly less than the given one.
 	def IsStriclyLess(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -2846,6 +2855,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# TRUE if the number is greater than or equal to the given one.
 	def IsGreater(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -2886,6 +2896,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# TRUE if the number is strictly greater than the given one.
 	def IsStrictlyGreater(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -2926,6 +2937,8 @@ class stzNumber from stzObject
 
 		#>
 
+	# TRUE if the number lies between the two given numbers (bounds
+	# included).
 	def IsBetween(pNumber1, pNumber2)
 
 		if CheckingParams()
@@ -2951,6 +2964,8 @@ class stzNumber from stzObject
 
 		return _bResult_
 
+	# TRUE if the number lies between the two given numbers, bounds
+	# INCLUDED (IB).
 	def IsBetweenIB(pNumber1, pNumber2)
 
 		if CheckingParams()
@@ -2979,6 +2994,8 @@ class stzNumber from stzObject
 		def IsBetweenXT(pNumber1, pNumber2)
 			return This.IsBetweenIB(pNumber1, pNumber2)
 
+	# TRUE if the number lies strictly between the two given numbers
+	# (bounds excluded).
 	def IsStrictlyBetween(pNumber1, pNumber2)
 		if CheckingParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
@@ -3000,6 +3017,8 @@ class stzNumber from stzObject
 
 		return _bResult_
 
+	# Quiet equality: TRUE if the values match, tolerating
+	# number/string form.
 	def IsQuietEqualTo(pOtherNumber)
 
 		if NOT Q(pOtherNumber).IsNumberOrString()
@@ -3373,6 +3392,7 @@ class stzNumber from stzObject
 	       	- RoundUnnecessary
 	*/
 
+	# The largest round (decimals) this number can still carry.
 	def MaxRound()
 		_nResult_ = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
 
@@ -3471,6 +3491,7 @@ class stzNumber from stzObject
 
 	#---
 
+	# Round the number to the given number of decimals (mutating).
 	def RoundTo(_nRound_)
 		_cResult_ = This.RoundToXTQ(_nRound_).
 			       ToStzString().
@@ -3498,32 +3519,41 @@ class stzNumber from stzObject
 
 		#>
 
+	# A copy rounded to the given number of decimals; the original
+	# is unchanged.
 	def RoundedTo(pRound)
 		_cResult_ = This.Copy().RoundToQ(pRound).Content()
 		return _cResult_
 
 	#--
 
+	# Round to the maximum round available (mutating).
 	def RoundToMax()
 		This.RoundTo(:Max)
 
+	# A copy rounded to the maximum round available.
 	def RoundedToMax()
 		return This.RoundedTo(MaxRound())
 
 	#---
 
+	# The number rounded UP (toward the next integer).
 	def RoundUp()
 		return This.pvtCalculate( "floor", "" )
 
+	# The number rounded DOWN (toward the previous integer).
 	def RoundDown()
 		return This.pvtCalculate( "ceil", "" )
 			
+	# Round to the same number of decimals as the given number
+	# (mutating).
 	def RoundToSameRoundAs(pOtherNumber)
 		_oOtherNumber_ = new stzNumber(pOtherNumber)
 		_nRoundOtherNumber_ = _oOtherNumber_.Round()
 
 		This.RoundTo(_nRoundOtherNumber_)
 
+	# TRUE if this number carries more decimals than the given one.
 	def RoundIsGreaterThanRoundOf(pOtherNumber)
 
 		_nRound_ = This.Round()
@@ -3537,6 +3567,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if this number carries fewer decimals than the given one.
 	def RoundIsLessThanRoundOf(pOtherNumber)
 		_nRound_ = This.Round()
 
@@ -3549,6 +3580,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 	
+	# TRUE if both numbers carry the same number of decimals.
 	def RoundIsSameAsRoundOf(pOtherNumber)
 		_nRound_ = This.Round()
 
@@ -3561,6 +3593,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# Compare the rounds: :Greater, :Less or :Same.
 	def CompareRoundsWith(pOtherNumber)
 		if  This.IsRoundSameAs(pOtherNumber)
 			return :Equal
@@ -3576,6 +3609,8 @@ class stzNumber from stzObject
 	 #    ADDITION    #
 	#----------------#
 
+	# Add the given number to this one (mutating). For a copy, use
+	# Added.
 	def Add(pOtherNumber)
 		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("+", pOtherNumber ) )
@@ -3591,6 +3626,8 @@ class stzNumber from stzObject
 
 	#-- @FunctionPassiveForm
 
+	# The sum with the given number, as data; the original is
+	# unchanged.
 	def Added(pOtherNumber)
 		_nResult_ = This.Copy().AddQ(pOtherNumber).NumericValue()
 		return _nResult_
@@ -3622,6 +3659,8 @@ class stzNumber from stzObject
 
 	#-- @FunctionPassiveForm
 
+	# The sum with all the given numbers, as data; the original is
+	# unchanged.
 	def AddedMany(pOtherNumbers)
 		_nResult_ = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
 		return _nResult_
@@ -3635,6 +3674,7 @@ class stzNumber from stzObject
 
 		#>
 	
+	# AddMany returning every intermediate sum along the way.
 	def AddManyWithIntermediateResults(paOtherNumbers)
 		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = 1)
 
@@ -3705,6 +3745,7 @@ class stzNumber from stzObject
 	 #    SubStructION    #
 	#--------------------#
 
+	# Subtract the given number from this one (mutating).
 	def SubStruct(pOtherNumber)
 
 		_StzHistoOpen(0 + This.Content())
@@ -4004,6 +4045,7 @@ class stzNumber from stzObject
 	 #    DIVISION    #
 	#----------------#
 
+	# Divide this number by the given one (mutating).
 	def Divide(pOtherNumber)
 		if CheckingParams()
 
@@ -4031,6 +4073,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# Divide this number by the given one (mutating).
 	def DivideBy(pOtherNumber)
 		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("/", pOtherNumber ) )

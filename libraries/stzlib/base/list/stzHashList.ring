@@ -929,6 +929,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyInNthPairQ(_n_)
 			return new stzString( This.KeyInNthPair(_n_) )
 	
+	# The value of the nth pair.
 	def ValueInInNthPair(_n_)
 		return This.NthPair(_n_)[2]
 
@@ -943,6 +944,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# ValueIntByKey/ValueFloatByKey/ValueStringByKey helpers below.
 		return This.Content()[ pcKey ]
 
+	# The value under the given key, as an integer (engine map).
 	def ValueIntByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != NULL
@@ -950,6 +952,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 		return 0 + This.ValueByKey(pcKey)
 
+	# The value under the given key, as a float (engine map).
 	def ValueFloatByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != NULL
@@ -957,6 +960,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 		return 0.0 + This.ValueByKey(pcKey)
 
+	# The value under the given key, as a string (engine map).
 	def ValueStringByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != NULL
@@ -1041,6 +1045,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	# The distinct values of the hash list.
 	def UniqueValues()
 		_aUvResult_ = This.ValuesQ().DuplicatesRemoved()
 		return _aUvResult_
@@ -1051,6 +1056,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValuesWithoutDuplication()
 			return This.UniqueValues()
 
+	# The values of the pairs at the given positions.
 	def ValuesAtPositions(anPos)
 		_aVapResult_ = This.ValuesQ().ItemsAtPositions(anPos)
 		return _aVapResult_
@@ -1062,6 +1068,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   UPDATING THE HASHLIST   #
 	#---------------------------#
 
+	# Replace the whole content with the given hash list (mutating;
+	# the single update point).
 	def Update(paNewHashList)
 		if CheckingParams() = 1
 			if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
@@ -1103,6 +1111,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+	# The value the hash list would be updated to (passive twin of
+	# Update).
 	def Updated(paNewHashList)
 		return paNewHashList
 
@@ -1121,6 +1131,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#---
 
+	# Replace the nth pair with the given [key, value] pair
+	# (mutating).
 	def UpdateNthPair(_n_, paNewPair)
 
 		if _n_ = :First
@@ -1137,6 +1149,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Key must be a string!")
 		ok
 	
+	# Replace the given pair with the new one (mutating).
 	def UpdatePair(paPair, paNewPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
@@ -1148,6 +1161,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Key must be a string!")
 		ok
 
+	# Replace the KEY of the nth pair (mutating).
 	def UpdateNthKey(_n_, pcValue)
 		if isList(_n_) and isNumber(pcValue)
 			_unkTemp_ = _n_
@@ -1167,6 +1181,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aUnkContent_[_n_][1] = pcValue
 		This.UpdateWith(_aUnkContent_)
 
+	# Rename the given key (mutating).
 	def UpdateKey(pcKey, pcNewKey)
 		if isString(pcKey) and This.ContainsKey(pcKey)
 			_aUkContent_ = This.Content()
@@ -1175,6 +1190,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateWith(_aUkContent_)
 		ok
 
+	# Replace the keys with the given ones, in order (mutating).
 	def UpdateKeys(paKeys)
 		_oUksList_ = new stzList(paKeys)
 		if _oUksList_.ItemsAreAllStrings()
@@ -1183,6 +1199,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next _iUks_
 		ok
 
+	# Replace the VALUE of the nth pair (mutating).
 	def UpdateNthValue(_n_, pValue)
 
 		if _n_ = :First
@@ -1198,11 +1215,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def UpdateNthOccurrenceOfValue(pValue)
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 
+	# Replace the values with the given ones, in order (mutating).
 	def UpdateValues(paValues)
 		for _iUvs_ = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
 			This.UpdateNthValue(_iUvs_, paValues[_iUvs_])
 		next
 
+	# Replace every occurrence of the given value with the new one
+	# (mutating).
 	def UpdateValue(pValue, pNewValue)
 		_anUvPos_ = This.FindValue(pValue)
 		_nUvLen_ = len(_anUvPos_)
@@ -1211,16 +1231,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateNthValue(_anUvPos_[_iUv_], pNewValue)
 		next
 	
+	# Replace only the FIRST occurrence of the value (mutating).
 	def UpdateFirstOccurrenceOfValue(pValue, pNewValue)
 		This.UpdateNthOccurrenceOfValue(1, pValue, pNewValue)
 
 		def UpdateFirstValue(pValue, pNewValue)
 			This.UpdateFirstOccurrenceOfValue(pValue, pNewValue)
 		
+	# Replace only the LAST occurrence of the value (mutating).
 	def UpdateLastValue(pValue, pNewValue)
 		_nUlvN_ = NumberOfOccurrenceOfValue(pValue)
 		This.UpdateNthValue(_nUlvN_, pValue, pNewValue)
 
+	# Replace every pair with the given [key, value] pair
+	# (mutating).
 	def UpdateAllPairsWith(paPair)
 		if CheckingParams()
 			if not isList(paPair)
@@ -1268,6 +1292,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     ADDING PAIRS    #
 	#---------------------#
 
+	# Add the given [key, value] pair at the end (mutating).
 	def AddPair(paNewPair)
 
 		if isList(paNewPair) and @IsPair(paNewPair) and isString(paNewPair[1])
@@ -1296,6 +1321,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.AddPairQ(paNewPair)
 
 
+	# Add each of the given pairs at the end (mutating).
 	def AddPairs(paListOfPairs)
 		_nApsLen_ = len(paListOfPairs)
 		for _iAps_ = 1 to _nApsLen_
@@ -1322,6 +1348,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INSERTING    #
 	#------------------#
 
+	# Insert the given pair BEFORE position n (mutating).
 	def InsertBefore(_n_, paPair)
 		if _n_ > 1 and _n_ <= This.NumberOfPairs()
 			insert( This.HashList, _n_-1, paPair)
@@ -1332,6 +1359,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.InsertBefore(_n_, paPair)
 			return This
 
+	# Insert the given pair AFTER position n (mutating).
 	def InsertAfter(_n_, paPair)
 		insert( This.HashList, _n_, paPair)
 		This._InvalidateEngineMap()
@@ -1344,6 +1372,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     REMOVING     #
 	#------------------#
 
+	# Remove the nth pair (mutating).
 	def RemoveNthPair(_n_)
 
 		#NOTE // As a general guideline, and after introducing the
@@ -1373,6 +1402,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePair(_n_)
 			return This
 
+	# Remove the given [key, value] pair (mutating).
 	def RemovePair(paPair)
 		_oRpList_ = new stzList( This.HashList() )
 		_aRpResult_ = _oRpList_.RemoveQ(paPair).Content()
@@ -1382,6 +1412,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePair(paPair)
 			return This
 		
+	# Remove the pair holding the given key (mutating).
 	def RemovePairByKey(pcKey)
 		_nRpbkN_ = This.FindKey(pcKey)
 		if _nRpbkN_ > 0
@@ -1400,6 +1431,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				This.RemoveByKey(pcKey)
 				return This
 
+	# Remove the pairs holding any of the given keys (mutating).
 	def RemovePairsByKeys(pacKeys)
 		if CheckingParams()
 			if NOT (isList(pacKeys) and @IsListOStrings(pacKeys))
@@ -1413,6 +1445,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairByKey(pacKeys[_iRpbks_])
 		next
 
+	# Remove every pair holding the given value (mutating).
 	def RemovePairsByValue(pValue)
 		_anRpbvPos_ = This.FindValue(pValue)
 
@@ -1423,6 +1456,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairsByValue(pValue)
 			return This
 
+	# Remove every pair holding any of the given values (mutating).
 	def RemovePairsByValues(paValues)
 		if CheckingParams()
 			if NOT isList(paValues)
@@ -1440,6 +1474,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING KEYS  #
 	#==================#
 
+	# Same as UpdateKey: rename the given key (mutating).
 	def ReplaceKey(pcKey, pcNewKey)
 		_nRkN_ = This.FindKey(pcKey)
 		This.ReplaceNthKey(_nRkN_, pcNewKey)
@@ -1448,6 +1483,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceKey(pcKey, pcNewKey)
 			return this
 
+	# Replace the key of the nth pair (mutating).
 	def ReplaceNthKey(_n_, pcNewKey)
 		if CheckingParam()
 			if isList(pcNewKey) and Q(pcNewKey).IsWithOrByNamedParam()
@@ -1462,6 +1498,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceNthKey(_n_, pcNewKey)
 			return This
 
+	# Replace the key of the first pair (mutating).
 	def ReplaceFirstKey(pcNewKey)
 		This.ReplaceNthKey(1, pcNewKey)
 
@@ -1469,6 +1506,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceFirstKey(pcNewKey)
 			return This
 
+	# Replace the key of the last pair (mutating).
 	def ReplaceLastKey(pcNewKey)
 		This.ReplaceNthKey(This.NumberOfKeys(), pcNewKey)
 
@@ -1480,6 +1518,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING VALUES  #
 	#====================#
 
+	# Replace the first occurrence of the given value (mutating).
 	def ReplaceValue(pValue, pNewValue)
 		_nRvN_ = This.FindValue(pValue)
 		This.ReplaceNthValue(_nRvN_, pNewValue)
@@ -1488,6 +1527,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceValue(pValue, pNewValue)
 			return this
 
+	# Replace the value of the nth pair (mutating).
 	def ReplaceNthValue(_n_, pNewValue)
 
 		if CheckingParam()
@@ -1523,6 +1563,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ReplaceNthValueQ(_n_, pNewValue)
 
 
+	# Replace the value of the first pair (mutating).
 	def ReplaceFirstValue(pNewValue)
 		This.ReplaceNthValue(1, pNewValue)
 
@@ -1530,6 +1571,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceFirstValue(pNewValue)
 			return This
 
+	# Replace the value of the last pair (mutating).
 	def ReplaceLastValue(pNewValue)
 		This.ReplaceNthValue(This.NumberOfValues(), pNewValue)
 
@@ -1541,6 +1583,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING VALUES  #
 	#--------------------#
 
+	# Replace the value stored under the given key (mutating).
 	def ReplaceValueByKey(pcKey, pNewValue)
 		_nRvkN_ = This.FindKey(pcKey)
 		This.HashList()[_nRvkN_][2] = pNewValue
@@ -1561,6 +1604,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING PAIRS  #
 	#===================#
 
+	# Replace the given pair with the new one (mutating).
 	def ReplacePair(paPair, paNewPair)
 		_nRpN_ = This.FindPair(paPair)
 		This.ReplaceNthPair(_nRpN_, paNewPair)
@@ -1569,6 +1613,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplacePair(paPair, paNewPair)
 			return This
 
+	# Replace the whole pair holding the given key (mutating).
 	def ReplacePairByKey(pcKey, paNewPair)
 		_nRpbkN_ = This.FindKey(pcKey)
 		This.ReplaceNthPair(_nRpbkN_, paNewPair)
