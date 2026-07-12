@@ -1084,6 +1084,8 @@ func _StzHarvestClass(pcFile, pcName)
 # lifts undocumented methods library-wide with no per-method editing.
 func _StzHarvestRange(paLines, nStart, nEnd)
 	_aMethods_ = []
+	_aOwn_ = []    # 1 = the method carries its OWN doc-comment
+	_aSect_ = []   # the enclosing section anchor at record time
 	_cDesc_ = ""
 	_cAka_ = ""
 	_cSection_ = ""
@@ -1094,12 +1096,19 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		if len(_cTrim_) >= 4 and lower(left(_cTrim_, 4)) = "def "
 			_cName_ = _StzDefName(_cTrim_)
 			if _cName_ != "" and left(_cName_, 1) != "_"
-				_cD_ = trim(_cDesc_)
-				if _cD_ = "" _cD_ = _cSection_ ok
 				# Record = [ name, DISPLAY desc (clean), AKA keywords ]. Keeping
 				# aka separate is what lets Explain show a clean description while
-				# retrieval still scores against the synonyms.
-				_aMethods_ + [ _cName_, _StzPolishDesc(_cD_), trim(_cAka_) ]
+				# retrieval still scores against the synonyms. The desc stays RAW
+				# here ("" when undocumented) -- the post-pass below fills
+				# variants from their documented base, THEN section-anchors.
+				_cD_ = _StzPolishDesc(trim(_cDesc_))
+				_aMethods_ + [ _cName_, _cD_, trim(_cAka_) ]
+				if _cD_ != ""
+					_aOwn_ + 1
+				else
+					_aOwn_ + 0
+				ok
+				_aSect_ + _cSection_
 			ok
 			_cDesc_ = ""
 			_cAka_ = ""
@@ -1132,7 +1141,87 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			ok
 		ok
 	next
+	# SIBLING-DESC INHERITANCE: a variant form (CS/Q/QC/XT/B/ZZ -- the
+	# fixed-semantics suffix system) that carries no doc of its own
+	# inherits its documented BASE's description plus the suffix's
+	# CONTRACT gloss; the plain twin of a documented CS form inherits
+	# with "case-sensitive by default". Only when no documented sibling
+	# exists does the coarse section anchor serve as the fallback.
+	_nMh_ = len(_aMethods_)
+	_aBaseNames_ = []
+	_aBaseDescs_ = []
+	for _i_ = 1 to _nMh_
+		if _aOwn_[_i_] = 1
+			_aBaseNames_ + lower(_aMethods_[_i_][1])
+			_aBaseDescs_ + _aMethods_[_i_][2]
+		ok
+	next
+	_aSufs_ = [ "zz", "qc", "cs", "xt", "q", "b" ]
+	for _i_ = 1 to _nMh_
+		if _aOwn_[_i_] = 1
+			loop
+		ok
+		_cBase_ = lower(_aMethods_[_i_][1])
+		_cGloss_ = ""
+		_cHit_ = ""
+		for _lvl_ = 1 to 3
+			_bStripped_ = 0
+			for _s_ = 1 to 6
+				_cSf_ = _aSufs_[_s_]
+				_nSf_ = len(_cSf_)
+				if len(_cBase_) > _nSf_ + 1 and right(_cBase_, _nSf_) = _cSf_
+					_cBase_ = left(_cBase_, len(_cBase_) - _nSf_)
+					if _cGloss_ != ""
+						_cGloss_ += "; "
+					ok
+					_cGloss_ += _StzVariantGloss(_cSf_)
+					_bStripped_ = 1
+					exit
+				ok
+			next
+			if _bStripped_ = 0
+				exit
+			ok
+			_nBp_ = ring_find(_aBaseNames_, _cBase_)
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				exit
+			ok
+		next
+		if _cHit_ = ""
+			_nBp_ = ring_find(_aBaseNames_, lower(_aMethods_[_i_][1]) + "cs")
+			if _nBp_ > 0
+				_cHit_ = _aBaseDescs_[_nBp_]
+				_cGloss_ = "case-sensitive by default"
+			ok
+		ok
+		if _cHit_ != ""
+			_aMethods_[_i_][2] = _cHit_ + " (" + _cGloss_ + ")"
+		but _aSect_[_i_] != ""
+			_aMethods_[_i_][2] = _aSect_[_i_]
+		ok
+	next
 	return _aMethods_
+
+# The CONTRACT gloss of each fixed-semantics variant suffix (the
+# Softanza naming system: the suffix IS the meaning).
+func _StzVariantGloss(pcSuf)
+	switch pcSuf
+	on "cs"
+		return "with the case-sensitivity dial"
+	on "q"
+		return "fluent form: returns the object, chainable"
+	on "qc"
+		return "fluent on a clone: the original is untouched"
+	on "xt"
+		return "extended form: takes an options list"
+	on "b"
+		return "boolean form: answers 1 or 0"
+	on "zz"
+		return "answers [start, end] sections"
+	other
+		return ""
+	off
 
 # Extract a section TITLE from the inner text of a boxed header line: strip the
 # border runs (= - # * space/tab) off both ends; "" if only border chars remain
