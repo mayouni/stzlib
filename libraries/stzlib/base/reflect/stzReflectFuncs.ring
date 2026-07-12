@@ -1104,6 +1104,14 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			_cDesc_ = ""
 			_cAka_ = ""
 		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
+			# #TODO / #WARNING lines are maintainer MARKERS, never
+			# descriptions -- skip them (the desc falls back to the
+			# section anchor, which reads far better than a TODO)
+			if lower(left(_cTrim_, 5)) = "#todo" or
+			   lower(left(_cTrim_, 8)) = "#warning" or
+			   left(_cTrim_, 2) = "#<" or left(_cTrim_, 2) = "#>"
+				loop
+			ok
 			if len(_cTrim_) >= 2 and left(_cTrim_, 2) = "#@"
 				# #@ aka/tags/see -> user-language synonyms, into the AKA field
 				# (retrieval-only). Other tags ignored here. Never touches desc.
@@ -1131,6 +1139,11 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 # (a plain separator). Keeps parentheticals/digits ("stemming (snowball, 25 ...)").
 func _StzSectionTitle(pcInner)
 	_c_ = pcInner
+	# a TODO marker glued onto a header line is not part of the title
+	_nTd_ = StzFindFirst(lower(_c_), "#todo")
+	if _nTd_ > 1
+		_c_ = left(_c_, _nTd_ - 1)
+	ok
 	while len(_c_) > 0 and _StzIsBorderChar(left(_c_, 1))
 		_c_ = substr(_c_, 2, len(_c_) - 1)
 	end

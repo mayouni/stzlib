@@ -7289,13 +7289,9 @@ class stzString from stzObject
 	def IsMadeOfSome(acSubStr)
 		return This.IsMadeOfSomeCS(acSubStr, 1)
 
-	# --- Number representation ---
-
 	# --- Country / Language identifier checkers ---
-	# These were missing from the modular stzString (only in the
-	# monolithic archive). stzCountry's init crashes (R14
-	# "iscountrycode method not found") without them.
 
+	# TRUE if the string names a country (per the locale data).
 	def IsCountryName()
 		if This.IsEmpty() return 0 ok
 		_cInName_ = This.String()
@@ -8562,8 +8558,8 @@ class stzString from stzObject
 		def RemoveSubStringsBoundedByIBQ(pacBounds)
 			return This.RemoveSubStringsBoundedByIB(pacBounds)
 
-		# (Older nested aliases dropped to avoid C22 redefinition --
-		# the unified two-arg FindAnyBoundedBy above subsumes them.)
+		# Find the regions bounded by any of the given bounds; the
+		# positions INCLUDE the bounds themselves (IB = inclusive).
 		def FindAnyBoundedByIB(pacBounds)
 			# The START position of each region INCLUDING its open bound:
 			# content-start - openLen.
@@ -16765,7 +16761,8 @@ class stzString from stzObject
 		This.RemoveSection(_n1_, _n2_)
 		return This
 
-	# ReplaceWithMany / ReplaceManyWithMany TODO placeholders.
+	# Replace the occurrences of pcSub cycling through the given
+	# replacements (same as ReplaceByMany).
 	def ReplaceWithMany(pcSub, paReplacements)
 		This.ReplaceByMany(pcSub, paReplacements)
 

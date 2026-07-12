@@ -2,6 +2,21 @@ load "../../stzBase.ring"
 
 pr()
 
+
+? @@NL( WhatIs(:Apple) ) #--> []
+
+StzKnow(:Apple, :Company)
+? @@NL( WhatIs(:Apple) ) #--> []
+
+StzKnow(:Apple, :Company)
+? @@NL( WhatIs(:Apple) ) #--> []
+
+pf()
+
+/*---
+
+pr()
+
 ? Box("LOWERCASE")
 
 ? WhatIs(:Lowercase)

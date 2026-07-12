@@ -3691,8 +3691,9 @@ class stzNumber from stzObject
 	
 		#>
 
-		#< @FunctionAlternativeForms // TODO: Add them anywhere in the library
+		#< @FunctionAlternativeForms
 
+		# Subtract the given number from this one (same as SubStruct).
 		def Retrieve(pOtherNumber)
 			This.SubStruct(pOtherNumber)
 

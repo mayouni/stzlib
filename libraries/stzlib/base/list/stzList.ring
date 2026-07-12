@@ -7909,8 +7909,6 @@ class stzList from stzObject
 	#   Side forms mix freely; a single non-type symbol on one side
 	#   inherits the type from the other.
 	#
-	#   Ported from the archive symbol-DSL at stzList_monolithic.ring
-	#   line ~60000 but kept self-contained (no shared eval-glue file).
 	#   On any unknown predicate / type, the side fails silently and
 	#   returns FALSE rather than crashing -- callers can rely on the
 	#   method always returning a boolean.
@@ -8318,11 +8316,7 @@ class stzList from stzObject
 		next
 		return _aDfR_
 
-	#-- Unicodes: return the codepoint of each character-string item
-	#   in the list. Called by the global Unicodes(p) function in
-	#   stzFuncs.ring when p is a list. Missing here made
-	#   stzCharData.TurnableNumbers() (and friends) crash with R14.
-
+	# The Unicode codepoint of each character-string item in the list.
 	def Unicodes()
 		return This._UnicodesOf(@aContent)
 
