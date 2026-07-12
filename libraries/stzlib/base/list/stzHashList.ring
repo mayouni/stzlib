@@ -402,6 +402,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INIT     #
 	#--------------#
 
+	# Build the hash list from [key, value] pairs (a list of pairs
+	# is auto-normalized).
 	def init(p)
 
 		# Auto-normalize: a list of pairs is also accepted as a
@@ -536,6 +538,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def PairsQ()
 			return This.PairsQRT(:stzList)
 
+		# The pairs, in the requested return type (QRT).
 		def PairsQRT(pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -574,6 +577,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeysQ()
 			return This.KeysQRT(:stzList)
 
+		# The keys, in the requested return type (QRT).
 		def KeysQRT(pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -616,6 +620,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeysForValueQ()
 			return This.KeysForValueQRT(:stzList)
 
+		# The keys holding the value, in the requested return type.
 		def KeysForValueQRT(pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -668,6 +673,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValuesQ()
 			return This.ValuesQRT(:stzList)
 
+		# The values, in the requested return type (QRT).
 		def ValuesQRT(pcReturnType)
 			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -833,6 +839,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NthPairQ(_n_)
 			return This.NthPairQRT(_n_, :stzList)
 
+		# The nth pair, in the requested return type (QRT).
 		def NthPairQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
@@ -861,6 +868,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def PairQ(_n_)
 				return This.NthPairQ(_n_)
 
+			# The pair, in the requested return type (QRT).
 			def PairQRT(_n_, pcReturnType)
 				return This.NthPairQRT(_n_, pcReturnType)
 	
@@ -933,6 +941,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ValueInInNthPair(_n_)
 		return This.NthPair(_n_)[2]
 
+	# The value of the nth pair, wrapped as a Q object.
 	def ValueInNthPairQ(_n_)
 		return Q( This.ValueInNthPair(_n_) )
 
@@ -1627,6 +1636,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplacePairByKey(pcKey, paNewPair)
 			return This
 
+	# Conditional pair replacement (reserved: not yet implemented).
 	def ReplacePairsW(pcCondition) // TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
@@ -3237,6 +3247,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ClassifyQ()
 			return This.ClassifyQRT(pcReturnType)
 
+		# The classification, in the requested return type (QRT).
 		def ClassifyQRT(pcReturnType)
 			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -4649,6 +4660,7 @@ this: lefttoright
 	 #   MISC.   #
 	#-----------#
 
+	# The Softanza type symbol: :stzHashList.
 	def StzType()
 		return :stzHashList
 
@@ -4684,6 +4696,8 @@ this: lefttoright
 	 #     Operator overloading    #
 	#-----------------------------#
 
+	# The operator overloads of the hash list ([] = value by key,
+	# ...).
 	def operator(pOp,pValue)
 
 		if pOp = "[]"

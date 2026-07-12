@@ -282,6 +282,7 @@ class stzString from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Build the string object from the given Ring string.
 	def init(pcStr)
 
 		if CheckingParams()
@@ -15494,6 +15495,7 @@ class stzString from stzObject
 	def AsWell()
 		return This.Content()
 
+	# Narrative closer: the content, as data (positional form).
 	def @0(p)
 		return This.Content()
 
@@ -20460,6 +20462,7 @@ class stzString from stzObject
 		This.AlignXT(nWidth, cFillChar, :Left)
 
 	#@ aka  pad on the left, right-align, fill to width, left-pad
+	# A copy padded on the left to nWidth with the given char.
 	def PaddedLeft(nWidth, cFillChar)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.PadLeft(nWidth, cFillChar)

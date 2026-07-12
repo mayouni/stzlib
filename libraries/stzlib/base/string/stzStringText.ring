@@ -83,6 +83,7 @@ class stzStringText from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Build the text object from a string or a stzString.
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
