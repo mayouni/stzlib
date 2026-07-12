@@ -4025,9 +4025,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
-	# ToStzTable: pass-through stub.
+	# The list turned into a stzTable object (rows; per the stzTable
+	# contract, the first row may carry the column names).
 	def ToStzTable()
-		return This
+		return new stzTable(This.Content())
 
 	def TheseObjectsZ(pacNames)
 		_l_ = This.List()
