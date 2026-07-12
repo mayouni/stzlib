@@ -129,6 +129,8 @@ class stzListPerformer from stzObject
 		def YieldQ(pcYielder)
 			return new stzList(This.Yield(pcYielder))
 
+	# Evaluate the yielder expression over the items and return the
+	# results AT the given positions.
 	def YieldOn(panPos, pcYielder)
 		_aYoAll_ = @oList.Map(pcYielder)
 		_nYoLen_ = len(panPos)

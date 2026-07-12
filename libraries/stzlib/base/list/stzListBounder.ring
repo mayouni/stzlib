@@ -303,6 +303,8 @@ class stzListBounder from stzObject
 			This.RemoveBounds(paBounds)
 			return This
 
+	# A copy of the list with the given bounds removed; the original
+	# is unchanged.
 	def BoundsRemoved(paBounds)
 		_oBrCopy_ = new stzListBounder(@oList.Content())
 		_aBrResult_ = _oBrCopy_.RemoveBoundsQ(paBounds).Content()

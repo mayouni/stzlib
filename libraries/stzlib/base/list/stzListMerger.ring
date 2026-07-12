@@ -96,6 +96,8 @@ class stzListMerger from stzObject
 		_aResult_ = This.Copy().MergeWithQ(paOtherList).Content()
 		return _aResult_
 
+	# Pair each item with its counterpart in the given list: [
+	# [item, other], ... ].
 	def AssociateWith(paOtherList)
 		_aAwContent_ = This.Content()
 		_nAwLen_ = This.NumberOfItems()
@@ -113,6 +115,8 @@ class stzListMerger from stzObject
 		def AssociateWithQ(paOtherList)
 			return new stzList(This.AssociateWith(paOtherList))
 
+	# The item/counterpart pairs, as data (the passive twin of
+	# AssociateWith).
 	def AssociatedWith(paOtherList)
 		return This.AssociateWith(paOtherList)
 
@@ -156,6 +160,7 @@ class stzListMerger from stzObject
 			This.MergeWithMany(paLists)
 			return This
 
+	# A copy merged with each of the given lists.
 	def MergedWithMany(paLists)
 		return This.Copy().MergeWithManyQ(paLists).Content()
 
@@ -177,6 +182,8 @@ class stzListMerger from stzObject
 			This.InterleaveWith(paOtherList)
 			return This
 
+	# The items interleaved with the given list's items,
+	# alternating.
 	def InterleavedWith(paOtherList)
 		return This.Copy().InterleaveWithQ(paOtherList).Content()
 
@@ -244,6 +251,7 @@ class stzListMerger from stzObject
 			This.PrependWith(paOtherList)
 			return This
 
+	# A copy with the given list's items put in front.
 	def PrependedWith(paOtherList)
 		return This.Copy().PrependWithQ(paOtherList).Content()
 

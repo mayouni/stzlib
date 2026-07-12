@@ -49,6 +49,7 @@ class stzListClassifier from stzObject
 	def Copy()
 		return new stzListClassifier( @oList.Content() )
 
+	# Group the items into classes of equal values.
 	def Classify()
 		# Residency-aware: reuse @oList's warm engine handle (do NOT free it).
 		_pClList_ = @oList._Engine()
@@ -65,9 +66,11 @@ class stzListClassifier from stzObject
 		def ClassifyQ()
 			return new stzList(This.Classify())
 
+	# The items grouped into classes of equal values, as data.
 	def Classified()
 		return This.Classify()
 
+	# The distinct classes (values) of the list.
 	def Classes()
 		_aClsClassified_ = This.Classify()
 		_nClsLen_ = len(_aClsClassified_)
@@ -77,6 +80,7 @@ class stzListClassifier from stzObject
 		next
 		return _aClsResult_
 
+	# Group the items into classes by the given expression.
 	def ClassifyBy(pcExpr)
 		# Residency-aware: reuse @oList's warm engine handle (do NOT free it).
 		_pCbList_ = @oList._Engine()

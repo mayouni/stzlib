@@ -1013,13 +1013,19 @@ func _StzPolishDesc(pcDesc)
 	if NOT isString(pcDesc) or pcDesc = ""
 		return pcDesc
 	ok
-	# a leading dash-run is a comment ARTIFACT ("-- Median / ..."),
-	# not prose -- drop it before anything else
+	# leading/trailing dash-runs are comment ARTIFACTS ("-- Median",
+	# "Palindrome ---"), not prose -- drop them before anything else
 	while len(pcDesc) > 0 and left(pcDesc, 1) = "-"
 		if len(pcDesc) = 1
 			return ""
 		ok
 		pcDesc = ring_trim(substr(pcDesc, 2, len(pcDesc) - 1))
+	end
+	while len(pcDesc) > 0 and right(pcDesc, 1) = "-"
+		if len(pcDesc) = 1
+			return ""
+		ok
+		pcDesc = ring_trim(left(pcDesc, len(pcDesc) - 1))
 	end
 	# fast gate: the char-scan below runs ONLY when chatter markers are
 	# present (near-never) -- char-index loops are a known VM hazard
@@ -1190,7 +1196,12 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				if _cTitle_ != "" _cSection_ = _cTitle_ ok
 				_cDesc_ = ""
 			else
-				_cDesc_ += " " + trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
+				_cCc_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
+				if left(_cCc_, 3) = "---"
+					# a "--- Section ---" divider line, never prose
+					loop
+				ok
+				_cDesc_ += " " + _cCc_
 			ok
 		else
 			if _cTrim_ != ""   # code breaks the comment block

@@ -79,6 +79,7 @@ class stzStringComparator from stzObject
 	def IsLessThan(pcOtherStr)
 		return This.CompareCS(pcOtherStr, 1) < 0
 
+	# TRUE if the string sorts AFTER the given one.
 	def IsGreaterThan(pcOtherStr)
 		return This.CompareCS(pcOtherStr, 1) > 0
 
@@ -307,6 +308,7 @@ class stzStringComparator from stzObject
 		StzEngineStringFree(pR)
 		return _c_
 
+	# The Metaphone phonetic code of the string.
 	def Metaphone()
 		pH = @oString.Engine()
 		pR = StzEngineStringMetaphone(pH)

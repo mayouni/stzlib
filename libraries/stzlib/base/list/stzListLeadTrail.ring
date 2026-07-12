@@ -46,6 +46,7 @@ class stzListLeadTrail from stzObject
 	def IsEmpty()
 		return @oList.IsEmpty()
 
+	# TRUE if the list starts with a repeated run of the same item.
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
 		_aLead_ = This.RepeatedLeadingItemsCS(pCaseSensitive)
 		if len(_aLead_) > 0
@@ -57,6 +58,7 @@ class stzListLeadTrail from stzObject
 	def HasRepeatedLeadingItems()
 		return This.HasRepeatedLeadingItemsCS(1)
 
+	# The repeated run at the START of the list, as a list.
 	def RepeatedLeadingItemsCS(pCaseSensitive)
 		_pLtList = @oList._EngineListFromContent()
 		if _pLtList != NULL
@@ -101,6 +103,7 @@ class stzListLeadTrail from stzObject
 	def RepeatedLeadingItems()
 		return This.RepeatedLeadingItemsCS(1)
 
+	# The item repeated at the start of the list.
 	def RepeatedLeadingItemCS(pCaseSensitive)
 		_aLead_ = This.RepeatedLeadingItemsCS(pCaseSensitive)
 		if len(_aLead_) > 0
@@ -112,12 +115,14 @@ class stzListLeadTrail from stzObject
 	def RepeatedLeadingItem()
 		return This.RepeatedLeadingItemCS(1)
 
+	# How long the repeated run at the start of the list is.
 	def NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
 		return len(This.RepeatedLeadingItemsCS(pCaseSensitive))
 
 	def NumberOfRepeatedLeadingItems()
 		return This.NumberOfRepeatedLeadingItemsCS(1)
 
+	# TRUE if the list ends with a repeated run of the same item.
 	def HasRepeatedTrailingItemsCS(pCaseSensitive)
 		_aTrail_ = This.RepeatedTrailingItemsCS(pCaseSensitive)
 		if len(_aTrail_) > 0
@@ -129,6 +134,7 @@ class stzListLeadTrail from stzObject
 	def HasRepeatedTrailingItems()
 		return This.HasRepeatedTrailingItemsCS(1)
 
+	# The repeated run at the END of the list, as a list.
 	def RepeatedTrailingItemsCS(pCaseSensitive)
 		_pLtList2 = @oList._EngineListFromContent()
 		if _pLtList2 != NULL
