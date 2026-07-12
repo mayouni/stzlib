@@ -1621,6 +1621,7 @@ class stzListOfNumbers from stzList
 			This.AddHistoricValue(This.Content())
 		ok
 
+	# The numbers as a raw Ring list.
 	def Content()
 		_aResult_ = @aContent
 
@@ -1629,9 +1630,11 @@ class stzListOfNumbers from stzList
 		def Value()
 			return Content()
 
+	# A new stzListOfNumbers with the same numbers.
 	def Copy()
 		return new stzListOfNumbers(This.Content())
 
+	# Same as Content: the numbers as a raw Ring list.
 	def ListOfNumbers()
 		return Content()
 
@@ -1661,6 +1664,7 @@ class stzListOfNumbers from stzList
 					StzRaise("Unsupported return type!")
 				off
 
+	# The numbers satisfying the given W condition.
 	def NumbersW(pcCondition)
 		return This.YieldW('@number', pcCondition)
 
@@ -1697,9 +1701,11 @@ class stzListOfNumbers from stzList
 				StzRaise("Unsupported return type!")
 			off
 
+	# The numbers as a stzList object.
 	def ToStzList()
 		return new stzList(This.Content())
 
+	# Each number turned into a string, as a stzListOfStrings.
 	def ToStzListOfStrings()
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
@@ -1713,6 +1719,7 @@ class stzListOfNumbers from stzList
 		_oResult_ = new stzListOfStrings(_acStrings_)
 		return _oResult_
 
+	# The numbers as strings, in a raw Ring list.
 	def NumbersTurnedToStrings()
 		_aResult_ = This.ToStzListOfStrings().Content()
 
@@ -1724,6 +1731,7 @@ class stzListOfNumbers from stzList
 		def AllNumbersTurnedToStrings()
 			return This.NumbersTurnedToStrings()
 
+	# The number at position n.
 	def NumberAt(_n_)
 		return This.ItemAt(_n_)	# Inherited from stzList
 
@@ -2006,6 +2014,7 @@ class stzListOfNumbers from stzList
 
 	#--
 
+	# The 3 smallest numbers.
 	def Bottom3()
 		return This.BottomN(3)
 
@@ -2032,6 +2041,7 @@ class stzListOfNumbers from stzList
 
 	#--
 
+	# The positions of the 3 smallest numbers.
 	def FindBottom3()
 		return This.FindBottomN(3)
 
@@ -2433,6 +2443,7 @@ class stzListOfNumbers from stzList
 
 	#--
 
+	# The 3 largest numbers.
 	def Top3()
 		return This.TopN(3)
 
@@ -2459,6 +2470,7 @@ class stzListOfNumbers from stzList
 
 	#--
 
+	# The positions of the 3 largest numbers.
 	def FindTop3()
 		return This.FindTopN(3)
 
@@ -3722,6 +3734,7 @@ class stzListOfNumbers from stzList
 	 #     BASIC CALCULATIONS    #
 	#---------------------------#
 
+	# The product of all the numbers.
 	def Product()
 		_pPrList = This._EngineListFromContent()
 		if _pPrList != NULL
@@ -3741,6 +3754,7 @@ class stzListOfNumbers from stzList
 
 		return _nResult_
 
+	# The sum of all the numbers.
 	def Sum()
 		_pSmList = This._EngineListFromContent()
 		if _pSmList != NULL
@@ -3759,6 +3773,7 @@ class stzListOfNumbers from stzList
 
 		return _nResult_
 
+	# The arithmetic mean (average) of the numbers.
 	def Mean()
 		_pMnList = This._EngineListFromContent()
 		if _pMnList != NULL
@@ -3772,6 +3787,7 @@ class stzListOfNumbers from stzList
 		def Average()
 			return Mean()
 
+	# The median of the numbers.
 	def Median()
 			_aValuesSorted_ = @sort(This.Content())
 			_nLen_ = len(_aValuesSorted_)
@@ -3782,6 +3798,7 @@ class stzListOfNumbers from stzList
 				return (_aValuesSorted_[_nLen_/2] + _aValuesSorted_[(_nLen_/2)+1]) / 2
 			ok
 
+	# The weighted mean of the numbers, using the given coefficients.
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
 		// [  4,  2,  2,  1 ]
@@ -3924,6 +3941,8 @@ class stzListOfNumbers from stzList
 	 #     CUMULATING NUMBERS     #
 	#----------------------------#
 
+	# Turn each number into the running sum up to it (mutating).
+	# For a copy, use Cumulated.
 	def Cumulate()
 		_aResult_ = []
 		_anContent_ = This.Content()
@@ -3955,6 +3974,7 @@ class stzListOfNumbers from stzList
 				StzRaise("Unsupported return type!")
 			off
 
+	# The running sums of the numbers, as a copy; the original is unchanged.
 	def Cumulated()
 		_anResult_ = This.Copy().CumulateQ().Content()
 		return _anResult_
@@ -4887,6 +4907,7 @@ class stzListOfNumbers from stzList
 		def Sectioned()
 			return This.ToSections()
 
+	# Group the contiguous runs of numbers into [start, end] sections.
 	def ContiguousToSections()
 		_anNumbers_ = @aContent
 		_nLen_ = len(_anNumbers_)
@@ -4933,6 +4954,7 @@ class stzListOfNumbers from stzList
 
 		#>
 
+	# Always TRUE: the object IS a stzListOfNumbers.
 	def IsStzListOfNumbers()
 		return 1
 
@@ -4947,9 +4969,12 @@ class stzListOfNumbers from stzList
 	def ToStzListOfChars()
 		return new stzListOfChars( This.Content() )
 
+	# How many numbers the list holds.
 	def NumberOfNumbers()
 		return len( This.Content() )
 
+	# TRUE if the numbers form a contiguous sequence (each one
+	# following the previous).
 	def IsContiguous()
 		_nLen_ = This.NumberOfNumbers()
 
