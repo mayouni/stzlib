@@ -120,7 +120,7 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 
 	aW = WhatIs("uppercase")
 	Then("WhatIs, silent in the world, answers from the LIBRARY -- EVERY defining class named, grouped per voice-sibling form",
-		StzFindFirst(aW[1], "- the method Uppercase (on stzString, stzStringChar)"), 1)
+		StzFindFirst(aW[1], "- the method Uppercase (on stzString, stzStringChar, stzStringText)"), 1)
 	Then("...", StzFindFirst(aW[2],
 		"- the method Uppercased (on stzString, stzList, stzStringChar, stzStringList)"), 1)
 
