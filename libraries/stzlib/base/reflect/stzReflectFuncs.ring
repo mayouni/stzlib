@@ -1454,6 +1454,35 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			_aMethods_[_i_][2] = _cHit_ + " (" + _cGloss_ + ")"
 		ok
 	next
+	# SAME-AS EXPANSION: a hand-written "Same as X." stub inherits X's
+	# full doc ("Same as X: <doc>") -- the stub stays truthful, the
+	# answer becomes complete. Only bare stubs expand (a desc that
+	# already carries prose after the target name is left alone).
+	_aSaNames_ = []
+	_aSaDescs_ = []
+	for _i_ = 1 to _nMh_
+		if _aMethods_[_i_][2] != ""
+			_aSaNames_ + lower(_aMethods_[_i_][1])
+			_aSaDescs_ + _aMethods_[_i_][2]
+		ok
+	next
+	for _i_ = 1 to _nMh_
+		_cSaD_ = _aMethods_[_i_][2]
+		if lower(left(_cSaD_, 8)) != "same as "
+			loop
+		ok
+		_cSaT_ = ring_trim(substr(_cSaD_, 9, len(_cSaD_) - 8))
+		while len(_cSaT_) > 0 and (right(_cSaT_, 1) = "." or right(_cSaT_, 1) = ":")
+			_cSaT_ = ring_trim(left(_cSaT_, len(_cSaT_) - 1))
+		end
+		if _cSaT_ = "" or StzFindFirst(_cSaT_, " ") > 0
+			loop
+		ok
+		_nSaP_ = ring_find(_aSaNames_, lower(_cSaT_))
+		if _nSaP_ > 0 and lower(_aSaDescs_[_nSaP_]) != lower(_cSaD_)
+			_aMethods_[_i_][2] = "Same as " + _cSaT_ + ": " + _aSaDescs_[_nSaP_]
+		ok
+	next
 	# LAST RESORT: the coarse section anchor
 	for _i_ = 1 to _nMh_
 		if _aMethods_[_i_][2] = "" and _aSect_[_i_] != ""
