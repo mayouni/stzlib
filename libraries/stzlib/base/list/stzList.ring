@@ -485,6 +485,7 @@ class stzList from stzObject
 			def UpdateByQ(paNewList)
 				return This.UpdateQ(paNewList)
 
+	# The value the list would be updated to (the passive twin of Update).
 	def Updated(paNewList)
 		return paNewList
 
@@ -528,6 +529,7 @@ class stzList from stzObject
 				This.Append(pItem)
 				return This
 
+	# A copy of the list with the item appended; the original is unchanged.
 	def ItemAdded(pItem)
 		_aResult_ = This.Copy().AddItemQ(pItem).Content()
 		return _aResult_
@@ -535,6 +537,7 @@ class stzList from stzObject
 		def Added(pItem)
 			return This.ItemAdded(pItem)
 
+	# A copy with each item of paItems appended; the original is unchanged.
 	def ManyAdded(paItems)
 		# Non-mutating: append each item of paItems to a copy.
 		_aResult_ = This.Copy().AddManyQ(paItems).Content()
@@ -610,9 +613,11 @@ class stzList from stzObject
 	#-------------------#
 
 	#@ aka  empty, blank, has no items, nothing in it, contains nothing
+	# TRUE if the list has no items.
 	def IsEmpty()
 		return This.NumberOfItems() = 0
 
+	# TRUE if the list has at least one item.
 	def IsNotEmpty()
 		return NOT This.IsEmpty()
 
@@ -870,6 +875,7 @@ class stzList from stzObject
 	 #  SHOWING THE LIST  #
 	#====================#
 
+	# The list rendered as a computable string (the @@ form).
 	def Stringified()
 		return @@(This.Content())
 
@@ -902,9 +908,11 @@ class stzList from stzObject
 		def ToStringQ()
 			return new stzString(This.ToString())
 
+	# Print the list to stdout in its computable @@ form.
 	def Show()
 		? @@( This.Content() )
 
+	# Print an abbreviated form of the list (first items ... last items).
 	def ShowShort()
 		? @@S( This.Content() )
 
@@ -1671,6 +1679,7 @@ class stzList from stzObject
 			This.SortBy(pcExpr)
 			return This
 
+	# Sort the items by the given expression, descending (mutating).
 	def SortByDescending(pcExpr)
 		pcExpr = _StzStripBraces(pcExpr)
 		pList = This._Engine()
@@ -1763,6 +1772,7 @@ class stzList from stzObject
 			This.SortInDescending()
 			return This
 
+	# A descending-sorted copy of the list; the original is unchanged.
 	def SortedInDescendingCS(pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
@@ -1784,6 +1794,8 @@ class stzList from stzObject
 	#------------------------------#
 
 	#@ aka  flip, backwards, invert order, last to first
+	# Reverse the order of the items in place (mutating). For a copy,
+	# use Reversed.
 	def Reverse()
 		pList = This._Engine()
 		if pList = NULL return ok
@@ -1795,6 +1807,7 @@ class stzList from stzObject
 			This.Reverse()
 			return This
 
+	# A reversed copy of the list; the original is unchanged.
 	def Reversed()
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
@@ -2059,6 +2072,7 @@ class stzList from stzObject
 	 #  stzListDuplicates)                  #
 	#--------------------------------------#
 
+	# TRUE if some item occurs more than once in the list.
 	def ContainsDuplicatedItemsCS(pCaseSensitive)
 		_oDupChk_ = new stzListDuplicates(This)
 		return _oDupChk_.HasDuplicatesCS(pCaseSensitive)
@@ -2393,12 +2407,16 @@ class stzList from stzObject
 			This.Merge()
 			return This
 
+	# A copy flattened by ONE level: sublists spread out, other items
+	# kept as they are.
 	def Merged()
 		_oMdTmp_ = new stzList(@aContent)
 		_oMdTmp_.Merge()
 		return _oMdTmp_.Content()
 
 	#@ aka  unnest, merge levels, single level, ungroup, collapse nesting
+	# Flatten the nested list to a single level in place (mutating).
+	# For a copy, use Flattened.
 	def Flatten()
 		pList = This._Engine()
 		if pList = NULL return ok
@@ -2413,6 +2431,7 @@ class stzList from stzObject
 			This.Flatten()
 			return This
 
+	# A fully-flattened copy of the nested list; the original is unchanged.
 	def Flattened()
 		pList = This._Engine()
 		if pList = NULL return [] ok
@@ -2639,18 +2658,23 @@ class stzList from stzObject
 	 #  SORTING ORDER CHECK                      #
 	#-------------------------------------------#
 
+	# TRUE if the items are sorted, ascending OR descending.
 	def IsSorted()
 		return This.IsSortedInAscending() or This.IsSortedInDescending()
 
+	# TRUE if the items are in ascending order.
 	def IsSortedInAscending()
 		return _ListSortingOrder(@aContent) = :Ascending
 
+	# TRUE if the items are in descending order.
 	def IsSortedInDescending()
 		return _ListSortingOrder(@aContent) = :Descending
 
+	# The sorting order of the items (:Ascending, :Descending, ...).
 	def SortingOrder()
 		return _ListSortingOrder(@aContent)
 
+	# TRUE if the given list is sorted the same way as this one.
 	def HasSameSortingOrderAs(paOther)
 		return This.SortingOrder() = _ListSortingOrder(paOther)
 
@@ -2705,6 +2729,7 @@ class stzList from stzObject
 	 #  TYPE-CHECKING METHODS                    #
 	#-------------------------------------------#
 
+	# TRUE if every item is a [key, value] pair (a hash list).
 	def IsHashList()
 		_bResult_ = 1
 		_aTempKeys_ = []
@@ -2746,12 +2771,14 @@ class stzList from stzObject
 		def ToStzHashListQ()
 			return This.ToStzHashList()
 
+	# TRUE if the list holds exactly two items.
 	def IsPair()
 		return len(@aContent) = 2
 
 		def IsAPair()
 			return This.IsPair()
 
+	# TRUE if the list is non-empty and every item is a string.
 	def IsListOfStrings()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-strings (monolith semantics)
 		pList = This._EngineListFromContent()
@@ -2762,6 +2789,7 @@ class stzList from stzObject
 		def IsAListOfStrings()
 			return This.IsListOfStrings()
 
+	# TRUE if the list is non-empty and every item is a number.
 	def IsListOfNumbers()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
 		pList = This._EngineListFromContent()
@@ -2772,6 +2800,7 @@ class stzList from stzObject
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
 
+	# TRUE if every item is a single char.
 	def IsListOfChars()
 		return @IsListOfChars(@aContent)
 
@@ -2896,6 +2925,7 @@ class stzList from stzObject
 		next
 		return TRUE
 
+	# TRUE if every item is a list (vacuously TRUE when empty).
 	def IsListOfLists()
 		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
 		pList = This._EngineListFromContent()
@@ -2935,6 +2965,7 @@ class stzList from stzObject
 		def IsAListOfListsOfNumbers()
 			return This.IsListOfListsOfNumbers()
 
+	# TRUE if every item is a list and all the sublists have the same size.
 	def IsListOfListsOfSameSize()
 		pList = This._EngineListFromContent()
 		_nResult_ = StzEngineListIsAllListsSameSize(pList)
@@ -2947,6 +2978,7 @@ class stzList from stzObject
 		def AllItemsAreListsOfSameSize()
 			return This.IsListOfListsOfSameSize()
 
+	# TRUE if the list is exactly a pair of two numbers.
 	def IsPairOfNumbers()
 		if len(@aContent) = 2 and isNumber(@aContent[1]) and isNumber(@aContent[2])
 			return 1
@@ -2957,6 +2989,7 @@ class stzList from stzObject
 		def IsAPairOfNumbers()
 			return This.IsPairOfNumbers()
 
+	# TRUE if every item is a pair (vacuously TRUE when empty).
 	def IsListOfPairs()
 		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
 		pList = This._EngineListFromContent()
@@ -2989,6 +3022,7 @@ class stzList from stzObject
 		def AreContiguous()
 			return This.IsContiguous()
 
+	# TRUE if every item is a pair of numbers.
 	def IsListOfPairsOfNumbers()
 		_nLen_ = len(@aContent)
 		for _i_ = 1 to _nLen_
@@ -3002,6 +3036,7 @@ class stzList from stzObject
 		def IsAListOfPairsOfNumbers()
 			return This.IsListOfPairsOfNumbers()
 
+	# TRUE if every item is a pair of strings.
 	def IsListOfPairsOfStrings()
 		_nLen_ = len(@aContent)
 		for _i_ = 1 to _nLen_
@@ -3015,6 +3050,7 @@ class stzList from stzObject
 		def IsAListOfPairsOfStrings()
 			return This.IsListOfPairsOfStrings()
 
+	# TRUE if all the items are unique (the list is a set).
 	def IsSet()
 		# Engine-backed: a set == all items unique. The engine's all-unique
 		# compares by content (UTF-8 + nested-list correct), so it matches
@@ -3045,6 +3081,7 @@ class stzList from stzObject
 
 	  #-- List() alias
 
+	# The raw Ring list content (same as Content).
 	def List()
 		return This.Content()
 
@@ -3440,6 +3477,7 @@ class stzList from stzObject
 
 	  #-- RemoveAllItems
 
+	# Empty the list (mutating).
 	def RemoveAllItems()
 		This.UpdateWith([])
 
