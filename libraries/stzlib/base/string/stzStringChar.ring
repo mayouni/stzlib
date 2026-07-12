@@ -860,18 +860,21 @@ class stzStringChar from stzString
 			This.AddHistoricValue(This.Content())
 		ok
 
+		# Same as Update: replace the char (mutating).
 		def UpdateWith(pChar)
 			This.Update(pChar)
 
 			def UpdateWithQ(pChar)
 				return This.UpdateQ(pChar)
 
+		# Same as Update: replace the char (mutating).
 		def UpdateBy(pChar)
 			This.Update(pChar)
 
 			def UpdateByQ(pChar)
 				return This.UpdateQ(pChar)
 
+		# Same as Update: replace the char (mutating).
 		def UpdateUsing(pChar)
 			This.Update(pChar)
 
@@ -1649,6 +1652,7 @@ class stzStringChar from stzString
 
 		return _cResult_
 
+		# The Unicode script of the char.
 		def UnicodeScript()
 			return Script()
 
@@ -1656,6 +1660,7 @@ class stzStringChar from stzString
 	def ScriptCode()
 		return _CharScriptCode(This.Unicode())
 
+	# The numeric Unicode script code of the char.
 	def UnicodeScriptCode()
 		return ScriptCode()
 
@@ -1985,6 +1990,7 @@ class stzStringChar from stzString
 	def IsChamScript()
 		return This.ScriptCode() = 77
 
+	# The Tai Tham script constant.
 	def TaiThamScript()
 		return This.ScriptCode() = 78
 
@@ -2196,6 +2202,7 @@ class stzStringChar from stzString
 	 #  CHAR RANGE (UpTo/DownTo)  #
 	#----------------------------#
 
+	# The chars from this one UP TO the given char, as a list.
 	def UpTo(pcChar)
 		_nUtFrom_ = This.Unicode()
 		_nUtTo_ = StzEngineCharUnicode(pcChar)
@@ -2207,6 +2214,7 @@ class stzStringChar from stzString
 		next
 		return _aUtResult_
 
+	# The chars from this one DOWN TO the given char, as a list.
 	def DownTo(pcChar)
 		_nDtFrom_ = This.Unicode()
 		_nDtTo_ = StzEngineCharUnicode(pcChar)

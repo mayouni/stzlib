@@ -960,6 +960,7 @@ Class stzTable from stzList
 			@pEngine = NULL
 		ok
 
+	# The engine handle of the table's backing store.
 	def EngineHandle()
 		This._EnsureEngine()
 		return @pEngine

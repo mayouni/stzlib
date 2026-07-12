@@ -310,6 +310,7 @@ class stzListOfLists from stzList
 	def Content()
 		return @aContent
 
+		# The raw list of lists (same as Content).
 		def Value()
 			return Content()
 

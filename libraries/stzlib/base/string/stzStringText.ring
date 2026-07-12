@@ -132,6 +132,7 @@ class stzStringText from stzObject
 		ok
 		@oString.Update(pcStr)
 
+		# Same as Update: replace the content (mutating).
 		def UpdateWith(pcStr)
 			This.Update(pcStr)
 
@@ -406,6 +407,7 @@ class stzStringText from stzObject
 	def ContainsWord(pcWord)
 		return This.ContainsWordCS(pcWord, 1)
 
+		# TRUE if the text contains NONE of the given words.
 		def ContainsNoWord(pcWord)
 			return NOT This.ContainsWord(pcWord)
 

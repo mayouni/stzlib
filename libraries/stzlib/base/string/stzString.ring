@@ -8012,6 +8012,8 @@ class stzString from stzObject
 		end
 		return 0
 
+		# TRUE if the string's bounds nest (bounded regions inside
+		# bounded regions).
 		def IsNested()
 			# Default to common bracket pair when no bounds given.
 			return This.IsNestedUsing("(", ")")
@@ -8482,6 +8484,8 @@ class stzString from stzObject
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
+		# The [start, end] sections of the substrings bounded by any of
+		# the given bounds.
 		def FindAnyBoundedByAsSections(pacBounds)
 			# Single-string form -> use as both open and close.
 			if isString(pacBounds)
@@ -8693,6 +8697,7 @@ class stzString from stzObject
 		next
 		return _aDsiRes_
 
+		# The nested bounded substrings, bounds included (IB).
 		def DeepBoundedByIB(pacBounds)
 			_aDbiPos_ = This.DeepFindBoundedByIBZZ(pacBounds)
 			_aDbiRes_ = []
@@ -8822,9 +8827,12 @@ class stzString from stzObject
 	def FindSubStringsAsSectionsW(pcCondition)
 		return This._FindSubStringSectionsW(pcCondition)
 
+		# The positions of the substrings satisfying the W condition.
 		def FindSubStringsW(pcCondition)
 			return This._SubStringsAtSections( This._FindSubStringSectionsW(pcCondition) )
 
+		# The [start, end] sections of the substrings satisfying the W
+		# condition.
 		def FindSubStringsWZZ(pcCondition)
 			return This._FindSubStringSectionsW(pcCondition)
 
@@ -8834,6 +8842,7 @@ class stzString from stzObject
 	def FindSubStringsAsSectionsWF(pFunc)
 		return This._FindSubStringSectionsWF(pFunc)
 
+		# The positions of the substrings satisfying the given function.
 		def FindSubStringsWF(pFunc)
 			return This._SubStringsAtSections( This._FindSubStringSectionsWF(pFunc) )
 
@@ -9209,6 +9218,7 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+		# Find the substrings lying between the two given bounds.
 		def FindSubStringsBetween(pcOpen, pcClose)
 			return This.FindSubStringsBoundedBy([ pcOpen, pcClose ])
 
@@ -9638,6 +9648,7 @@ class stzString from stzObject
 	def SubStringsW(pcCondition)
 		return This.FindSubStringsW(pcCondition)
 
+		# The substrings satisfying the given function.
 		def SubStringsWF(pFunc)
 			return This.FindSubStringsWF(pFunc)
 
@@ -15157,6 +15168,8 @@ class stzString from stzObject
 			This.Hash(pAlgo)
 			return This
 
+		# The hex digest of the content with the given algorithm, as
+		# data.
 		def Hashed(pAlgo)
 			_oHhTmp_ = new stzString(This.Content())
 			_oHhTmp_.Hash(pAlgo)
@@ -18436,6 +18449,8 @@ class stzString from stzObject
 	def SplitAtSubStringsW(pcCondition)
 		return This._SplitAtSections( This._FindSubStringSectionsW(pcCondition) )
 
+		# Split the string at the substrings satisfying the given
+		# function.
 		def SplitAtSubStringsWF(pFunc)
 			return This._SplitAtSections( This._FindSubStringSectionsWF(pFunc) )
 
@@ -18855,9 +18870,12 @@ class stzString from stzObject
 			This.SpacifySubStringsUsing(pacSubStr, pcSep)
 			return This
 
+		# Separate the chars of pcSub inside the string with the given
+		# separator (mutating).
 		def SpacifySubStringUsing(pcSub, pcSep)
 			This.SpacifySubStringsUsing([ pcSub ], pcSep)
 
+		# Spacify every occurrence of the given substrings (mutating).
 		def SpacifySubStrings(pacSubStr)
 			This.SpacifySubStringsUsing(pacSubStr, " ")
 
@@ -19075,6 +19093,7 @@ class stzString from stzObject
 	def SubStringsBoundedByIB(pacBounds)
 		return This.SubStringsBoundedByIBCS(pacBounds, 1)
 
+		# The bounded substrings, bounds INCLUDED (IB).
 		def BoundedByIB(pacBounds)
 			# Same-char bound -> overlapping IB substrings (keep the middle gaps);
 			# derive from BoundedByIBZZ. Distinct bounds use the top-level walk.
@@ -19089,6 +19108,8 @@ class stzString from stzObject
 			ok
 			return This.SubStringsBoundedByIB(pacBounds)
 
+		# The substrings bounded by ANY of the given bounds, bounds
+		# INCLUDED (IB).
 		def AnyBoundedByIB(pacBounds)
 			return This.BoundedByIB(pacBounds)
 
@@ -19200,11 +19221,13 @@ class stzString from stzObject
 			This.RemoveThisTrailingChar(c)
 			return This
 
+		# A copy with the trailing run of the given char removed.
 		def ThisTrailingCharRemoved(c)
 			_oTtcr_ = new stzString(This.Content())
 			_oTtcr_.RemoveThisTrailingChar(c)
 			return _oTtcr_.Content()
 
+		# A copy with the leading run of the given char removed.
 		def ThisLeadingCharRemoved(c)
 			_oTlcr_ = new stzString(This.Content())
 			_oTlcr_.RemoveThisLeadingChar(c)
