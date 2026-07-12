@@ -2353,8 +2353,6 @@ class stzString from stzObject
 	#============================================#
 
 	# Change the string to UPPER CASE in place (mutating). For a copy, use Uppercased.
-	# (Operation synonyms are inherited from the passive sibling Uppercased -- see
-	# _StzFillSiblingAka: tag the OPERATION once, both voices become findable.)
 	def Uppercase()
 		This.Update(StzUpper(This.Content()))
 
@@ -2376,7 +2374,6 @@ class stzString from stzObject
 		return _cUc_
 
 	# Change the string to lower case in place (mutating). For a copy, use Lowercased.
-	# (Operation synonyms inherited from the passive sibling Lowercased.)
 	def Lowercase()
 		This.Update(StzLower(This.Content()))
 
@@ -2557,6 +2554,8 @@ class stzString from stzObject
 	 #     REMOVE                                 #
 	#============================================#
 
+	# Remove every occurrence of pcSubStr from the string (mutating),
+	# with the case-sensitivity dial.
 	def RemoveCS(pcSubStr, pCaseSensitive)
 		This.ReplaceCS(pcSubStr, "", pCaseSensitive)
 
@@ -2564,6 +2563,9 @@ class stzString from stzObject
 			This.RemoveCS(pcSubStr, pCaseSensitive)
 			return This
 
+	# Remove every occurrence of pcSubStr from the string (mutating).
+	# For a copy, use Removed.
+	#@ aka  delete, erase, take out, strip, drop
 	def Remove(pcSubStr)
 		This.Replace(pcSubStr, "")
 
@@ -12619,7 +12621,8 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	# Removed() -- mutating-then-return removal of pcWhat.
+	# A copy of the string with every occurrence of pcWhat removed;
+	# the original is unchanged.
 	def Removed(pcWhat)
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.Remove(pcWhat)

@@ -164,7 +164,9 @@ func WhatIs(pcName)
 		if _aGrp_[_i_][3] != ""
 			_cAns_ += nl + "  " + _aGrp_[_i_][3]
 		ok
-		_cAns_ += nl
+		if _i_ < _nG_
+			_cAns_ += nl   # separator BETWEEN blocks only, none trailing
+		ok
 		_aOut_ + _cAns_
 	next
 	return _aOut_
