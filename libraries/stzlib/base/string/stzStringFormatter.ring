@@ -154,6 +154,7 @@ class stzStringFormatter from stzObject
 			This.ApplyTitlecase()
 			return This
 
+	# The string in Title Case (each word capitalized).
 	def Titlecased()
 		_oCopy_ = new stzStringFormatter(@oString.Content())
 		_oCopy_.ApplyTitlecase()
@@ -169,6 +170,8 @@ class stzStringFormatter from stzObject
 	def ApplyCaseFold()
 		@oString.Update(StzCaseFold(@oString.Content()))
 
+	# The string case-folded (aggressive lowercasing, for caseless
+	# comparison).
 	def CaseFolded()
 		return StzCaseFold(@oString.Content())
 

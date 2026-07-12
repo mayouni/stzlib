@@ -450,6 +450,8 @@ class stzStringFinder from stzObject
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
+	# The [start, end] sections of the 2nd+ occurrences of
+	# duplicated chars.
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 		_acDuplicates_ = This.DuplicatesCS(pCaseSensitive)
 		_nLen_ = len(_acDuplicates_)
@@ -598,6 +600,7 @@ class stzStringFinder from stzObject
 	def StartsWithAny(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
+	# TRUE if the string ends with ANY of the given suffixes.
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
 		# Delegate per-suffix to the engine-backed EndsWithCS (codepoint +
 		# case-correct). The old byte-oriented tail extraction
@@ -662,6 +665,7 @@ class stzStringFinder from stzObject
 		def FindRegexCS(pcPattern, pCaseSensitive)
 			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
 
+	# Find every match of the given regex pattern.
 	def FindAllRegex(pcPattern)
 		pH = @oString.Engine()
 		pResult = StzEngineStringRegexFindAll(pH, pcPattern, 0)

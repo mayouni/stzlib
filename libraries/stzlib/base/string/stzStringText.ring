@@ -170,6 +170,7 @@ class stzStringText from stzObject
 			return _cResult_
 		ok
 
+	# The scripts used in the string.
 	def Scripts()
 		_acResult_ = []
 		_aoStzChars_ = @oString.ToListOfStzChars()
@@ -182,6 +183,7 @@ class stzStringText from stzObject
 		_acResult_ = U(_acResult_)
 		return _acResult_
 
+	# How many scripts the string uses.
 	def NumberOfScripts()
 		return len(This.Scripts())
 
@@ -203,21 +205,27 @@ class stzStringText from stzObject
 	def ContainsLatinScript()
 		return This.ContainsScript(:Latin)
 
+	# TRUE if the string is written in the Latin script.
 	def IsLatinScript()
 		return This.ScriptIs(:Latin)
 
+	# TRUE if the string is written in the Arabic script.
 	def IsArabicScript()
 		return This.ScriptIs(:Arabic)
 
+	# TRUE if the string is written in the Han script.
 	def IsHanScript()
 		return This.ScriptIs(:Han)
 
+	# TRUE if the string mixes several scripts.
 	def IsHybridScript()
 		return This.ScriptIs(:Hybrid)
 
+	# TRUE if the chars belong to the Common script.
 	def IsCommonScript()
 		return This.ScriptIs(:Common)
 
+	# TRUE if the chars belong to the Inherited script.
 	def IsInheritedScript()
 		return This.ScriptIs(:Inherited)
 
@@ -268,12 +276,14 @@ class stzStringText from stzObject
 		def Word(_n_)
 			return This.NthWord(_n_)
 
+	# The first word of the string.
 	def FirstWord()
 		pResult = StzEngineStringFirstWord(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# The last word of the string.
 	def LastWord()
 		pResult = StzEngineStringLastWord(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -294,6 +304,7 @@ class stzStringText from stzObject
 		def WordsQ()
 			return new stzList(This.Words())
 
+	# The unique words of the string.
 	def UniqueWordsCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pResult = StzEngineStringUniqueWordsCS(This.Engine(), _bCase_)
@@ -343,6 +354,8 @@ class stzStringText from stzObject
 			return 0
 		ok
 
+	# TRUE if the string contains the given WORD (word-boundary
+	# aware).
 	def ContainsWordCS(pcWord, pCaseSensitive)
 		if NOT isString(pcWord)
 			StzRaise("Incorrect param type! pcWord must be a string.")
@@ -543,6 +556,7 @@ class stzStringText from stzObject
 		def NumberOfOccurrencesOfWord(pcWord)
 			return This.NumberOfOccurrenceOfWord(pcWord)
 
+	# Each word paired with its frequency.
 	def WordFrequency(pcWord)
 		_n_ = This.NumberOfWords()
 		if _n_ = 0
@@ -598,6 +612,7 @@ class stzStringText from stzObject
 		next
 		return _aResult_
 
+	# The word that occurs most often in the string.
 	def MostFrequentWord()
 		_aWordsFreqs_ = This.WordsAndTheirFrequencies()
 		_nLen_ = len(_aWordsFreqs_)
@@ -847,6 +862,7 @@ class stzStringText from stzObject
 		def HowManyParagraphs()
 			return This.NumberOfParagraphs()
 
+	# The paragraphs of the string, as a list.
 	def Paragraphs()
 		_cContent_ = This.Content()
 		if _cContent_ = ""
@@ -867,6 +883,7 @@ class stzStringText from stzObject
 
 		return _aResult_
 
+	# The nth paragraph of the string.
 	def NthParagraph(_n_)
 		_acParas_ = This.Paragraphs()
 		if _n_ >= 1 and _n_ <= len(_acParas_)
@@ -1074,6 +1091,7 @@ class stzStringText from stzObject
 		StzEngineStringFree(pResult)
 		return _cResult_
 
+	# The string turned into a URL slug (lowercase, hyphens).
 	def ToSlug()
 		pResult = StzEngineStringToSlug(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)
@@ -1092,6 +1110,7 @@ class stzStringText from stzObject
 		def Abbreviated(nMaxLen)
 			return This.Abbreviate(nMaxLen)
 
+	# The initial letter of each word.
 	def Initials()
 		pResult = StzEngineStringInitials(This.Engine())
 		_cResult_ = StzEngineStringData(pResult)

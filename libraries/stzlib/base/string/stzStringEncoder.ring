@@ -89,6 +89,7 @@ class stzStringEncoder from stzObject
 		def UrlEncode()
 			@oString.Update(This.UrlEncoded())
 
+	# The string URL-decoded.
 	def UrlDecoded()
 		pHandle = StzEngineString(@oString.Content())
 		pDec = StzEngineStringURLDecode(pHandle)
@@ -274,6 +275,7 @@ class stzStringEncoder from stzObject
 			This.HtmlEncode()
 			return This
 
+	# The string with the HTML entities decoded.
 	def HtmlDecoded()
 		_cContent_ = @oString.Content()
 		_cResult_ = _cContent_
@@ -353,6 +355,7 @@ class stzStringEncoder from stzObject
 			This.NormalizeNFC()
 			return This
 
+	# The string in Unicode NFC normal form.
 	def NormalizedNFC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 0)
@@ -371,6 +374,7 @@ class stzStringEncoder from stzObject
 			This.NormalizeNFD()
 			return This
 
+	# The string in Unicode NFD normal form.
 	def NormalizedNFD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 1)
@@ -389,6 +393,7 @@ class stzStringEncoder from stzObject
 			This.NormalizeNFKC()
 			return This
 
+	# The string in Unicode NFKC normal form.
 	def NormalizedNFKC()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 2)
@@ -407,6 +412,7 @@ class stzStringEncoder from stzObject
 			This.NormalizeNFKD()
 			return This
 
+	# The string in Unicode NFKD normal form.
 	def NormalizedNFKD()
 		pH = @oString.Engine()
 		pR = StzEngineStringNormalize(pH, 3)

@@ -162,6 +162,7 @@ class stzListGetter from stzObject
 		_nRdN_ = random(This.NumberOfItems() - 1) + 1
 		return This.NthItem(_nRdN_)
 
+	# n items picked at random.
 	def NRandomItems(_n_)
 		_pNriList_ = @oList._EngineListFromContent()
 		if _pNriList_ != NULL
@@ -235,6 +236,7 @@ class stzListGetter from stzObject
 		def HeadQ(_n_)
 			return new stzList(This.Head(_n_))
 
+	# The last n items of the list.
 	def Tail(_n_)
 		return This.NLastItems(_n_)
 
@@ -256,6 +258,7 @@ class stzListGetter from stzObject
 		next
 		return _aOsResult_
 
+	# Only the NUMBER items of the list.
 	def OnlyNumbers()
 		_aOnContent_ = This.Content()
 		_nOnLen_ = len(_aOnContent_)
@@ -267,6 +270,7 @@ class stzListGetter from stzObject
 		next
 		return _aOnResult_
 
+	# Only the LIST items of the list.
 	def OnlyLists()
 		_aOlContent_ = This.Content()
 		_nOlLen_ = len(_aOlContent_)
@@ -278,6 +282,7 @@ class stzListGetter from stzObject
 		next
 		return _aOlResult_
 
+	# Only the CHAR items of the list.
 	def OnlyChars()
 		_aOcContent_ = This.Content()
 		_nOcLen_ = len(_aOcContent_)

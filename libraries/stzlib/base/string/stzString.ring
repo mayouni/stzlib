@@ -7277,6 +7277,7 @@ class stzString from stzObject
 
 	# --- Palindrome ---
 
+	# TRUE if the string reads the same backward (a palindrome).
 	def IsPalindromeCS(pCaseSensitive)
 		_oIpChk_ = new stzStringChecker(This)
 		return _oIpChk_.IsPalindromeCS(pCaseSensitive)

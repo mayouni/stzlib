@@ -92,6 +92,7 @@ class stzStringLines from stzObject
 	def FirstLine()
 		return This.NthLine(1)
 
+	# The last line of the string.
 	def LastLine()
 		return This.NthLine(This.NumberOfLines())
 
@@ -386,6 +387,7 @@ class stzStringLines from stzObject
 
 		return ""
 
+	# The lines containing the given substring.
 	def LinesContainingCS(pcSubStr, pCaseSensitive)
 		_acLines_ = This.Lines()
 		_nLen_ = len(_acLines_)

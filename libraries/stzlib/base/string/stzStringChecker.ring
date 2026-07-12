@@ -86,6 +86,7 @@ class stzStringChecker from stzObject
 	def IsUppercase()
 		return StzIsUpper(@oString.Content())
 
+	# TRUE if the string is in lower case.
 	def IsLowercase()
 		return StzIsLower(@oString.Content())
 
@@ -106,6 +107,7 @@ class stzStringChecker from stzObject
 		ok
 		return 0
 
+	# TRUE if the string mixes upper and lower case.
 	def IsHybridcase()
 		pH = StzEngineString(@oString.Content())
 		_nResult_ = StzEngineStringHasMixedCase(pH)
@@ -122,18 +124,22 @@ class stzStringChecker from stzObject
 		StzEngineStringFree(pH)
 		return _n_
 
+	# TRUE if the string is made of letters only.
 	def ContainsOnlyLetters()
 		return StzIsAlpha(@oString.Content())
 
+	# TRUE if the string is made of number chars only.
 	def ContainsOnlyNumbers()
 		pH = StzEngineString(@oString.Content())
 		_n_ = StzEngineStringIsNumericString(pH)
 		StzEngineStringFree(pH)
 		return _n_
 
+	# TRUE if the string is made of digits only.
 	def ContainsOnlyDigits()
 		return StzIsDigit(@oString.Content())
 
+	# TRUE if the string is made of letters and numbers only.
 	def ContainsOnlyLettersAndNumbers()
 		pH = StzEngineString(@oString.Content())
 		_n_ = StzEngineStringIsAlphanumeric(pH)
@@ -172,6 +178,7 @@ class stzStringChecker from stzObject
 	def IsMadeOf(acSubStr)
 		return This.IsMadeOfCS(acSubStr, 1)
 
+	# TRUE if the string is made of the given char only.
 	def IsMadeOfCharCS(_c_, pCaseSensitive)
 		if isString(_c_) and @IsChar(_c_)
 			return This.IsMadeOfCS([ _c_ ], pCaseSensitive)
@@ -182,6 +189,8 @@ class stzStringChecker from stzObject
 	def IsMadeOfChar(_c_)
 		return This.IsMadeOfCharCS(_c_, 1)
 
+	# TRUE if the string is made only of (some of) the given
+	# substrings.
 	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
 		if CheckingParams()
 			if NOT (isList(acSubStr) and @IsListOfStrings(acSubStr))
@@ -259,6 +268,7 @@ class stzStringChecker from stzObject
 		ok
 		return 0
 
+	# TRUE if the string holds a numeric literal.
 	def IsNumberInString()
 		# Alias for RepresentsNumber -- "is the string a number literal?"
 		return This.RepresentsNumber()
@@ -376,18 +386,21 @@ class stzStringChecker from stzObject
 	def IsChar()
 		return @oString.NumberOfChars() = 1
 
+	# TRUE if the string is a single letter.
 	def IsLetter()
 		if @oString.NumberOfChars() != 1
 			return 0
 		ok
 		return isAlpha(@oString.Content())
 
+	# TRUE if the string is a single digit.
 	def IsADigit()
 		if @oString.NumberOfChars() != 1
 			return 0
 		ok
 		return isDigit(@oString.Content())
 
+	# TRUE if the string is a single word.
 	def IsWord()
 		if @oString.IsEmpty()
 			return 0
@@ -406,6 +419,7 @@ class stzStringChecker from stzObject
 		def IsCharsSortedAsc()
 			return This.IsCharsSortedAscending()
 
+	# TRUE if the chars are in descending order.
 	def IsCharsSortedDescending()
 		pH = @oString.Engine()
 		return StzEngineStringIsCharsSortedDesc(pH)
@@ -477,6 +491,7 @@ class stzStringChecker from stzObject
 		pH = @oString.Engine()
 		return StzEngineStringIsBlank(pH)
 
+	# TRUE if the string is written in Title Case.
 	def IsTitlecase()
 		pH = @oString.Engine()
 		return StzEngineStringIsTitleCase(pH)
@@ -497,50 +512,65 @@ class stzStringChecker from stzObject
 		def RepresentsNumberInOctalForm()
 			return This.RepresentsOctalNumber()
 
+	# TRUE if the string is a valid identifier (letter or underscore
+	# first, then letters, digits, underscores).
 	def IsIdentifier()
 		pH = @oString.Engine()
 		return StzEngineStringIsIdentifier(pH)
 
+	# TRUE if the string uses every letter of the alphabet (a
+	# pangram).
 	def IsPangram()
 		pH = @oString.Engine()
 		return StzEngineStringIsPangram(pH)
 
+	# TRUE if no char repeats in the string (an isogram).
 	def IsIsogram()
 		pH = @oString.Engine()
 		return StzEngineStringIsIsogram(pH)
 
+	# TRUE if the brackets and parentheses in the string are
+	# balanced.
 	def IsBalanced()
 		pH = @oString.Engine()
 		return StzEngineStringIsBalanced(pH)
 
+	# TRUE if the string looks like an email address.
 	def IsEmailLike()
 		pH = @oString.Engine()
 		return StzEngineStringIsEmailLike(pH)
 
+	# TRUE if the string looks like a URL.
 	def IsUrlLike()
 		pH = @oString.Engine()
 		return StzEngineStringIsUrlLike(pH)
 
+	# TRUE if the string is written in camelCase.
 	def IsCamelCase()
 		pH = @oString.Engine()
 		return StzEngineStringIsCamelCase(pH)
 
+	# TRUE if the string is written in snake_case.
 	def IsSnakeCase()
 		pH = @oString.Engine()
 		return StzEngineStringIsSnakeCase(pH)
 
+	# TRUE if the string is written in kebab-case.
 	def IsKebabCase()
 		pH = @oString.Engine()
 		return StzEngineStringIsKebabCase(pH)
 
+	# TRUE if the WORD sequence reads the same backward.
 	def IsPalindromeWords()
 		pH = @oString.Engine()
 		return StzEngineStringIsPalindromeWords(pH)
 
+	# TRUE if the string contains Latin chars.
 	def ContainsLatin()
 		pH = @oString.Engine()
 		return StzEngineStringContainsLatin(pH)
 
+	# TRUE if the string contains Arabic chars.
 	def ContainsArabic()
 		pH = @oString.Engine()
 		return StzEngineStringContainsArabic(pH)
