@@ -1495,8 +1495,12 @@ func _StzHelperDocOf(pcTarget)
 			_aM_ = _StzHarvestClass(_cSrc_, _cCls_)
 			_nM_ = len(_aM_)
 			for _i_ = 1 to _nM_
-				if len(_StzWords(_aM_[_i_][2])) > 3
-					_aMap_ + [ lower(_aM_[_i_][1]), _aM_[_i_][2] ]
+				# real prose only: section anchors are short AND never
+				# end with a period; docs do
+				_cHdD_ = ring_trim(_aM_[_i_][2])
+				if len(_StzWords(_cHdD_)) > 3 or
+				   (len(_cHdD_) > 0 and right(_cHdD_, 1) = ".")
+					_aMap_ + [ lower(_aM_[_i_][1]), _cHdD_ ]
 				ok
 			next
 		ok
@@ -1716,7 +1720,11 @@ func _StzIsClassLineNamed(pcTrim, pcNameLower)
 	return FALSE
 
 # TRUE if a trimmed line opens a new class or func declaration (block boundary).
+# An ANONYMOUS function literal (func c { ... }) inside a method body is NOT a
+# boundary -- treating it as one silently truncated the class harvest at the
+# first inline lambda (stzStringText lost everything after line ~240).
 func _StzIsClassOrFuncDecl(pcTrim)
+	if StzFindFirst(pcTrim, "{") > 0 return FALSE ok
 	if len(pcTrim) >= 6 and lower(left(pcTrim, 6)) = "class " return TRUE ok
 	if len(pcTrim) >= 5 and lower(left(pcTrim, 5)) = "func " return TRUE ok
 	return FALSE

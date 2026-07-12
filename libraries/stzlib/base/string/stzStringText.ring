@@ -357,8 +357,6 @@ class stzStringText from stzObject
 
 	# TRUE if the string contains the given WORD (word-boundary
 	# aware).
-	# TRUE if the string contains the given WORD (word-boundary
-	# aware).
 	def ContainsWordCS(pcWord, pCaseSensitive)
 		if NOT isString(pcWord)
 			StzRaise("Incorrect param type! pcWord must be a string.")
