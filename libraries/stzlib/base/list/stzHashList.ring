@@ -1091,18 +1091,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
+		# Same as Update: replace the whole content (mutating).
 		def UpdateWith(paNewHashList)
 			This.Update(paNewHashList)
 
 			def UpdateWithQ(paNewHashList)
 				return This.UpdateQ(paNewHashList)
 	
+		# Same as Update: replace the whole content (mutating).
 		def UpdateBy(paNewHashList)
 			This.Update(paNewHashList)
 
 			def UpdateByQ(paNewHashList)
 				return This.UpdateQ(paNewHashList)
 
+		# Same as Update: replace the whole content (mutating).
 		def UpdateUsing(paNewHashList)
 			This.Update(paNewHashList)
 
@@ -1212,6 +1215,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aUnvContent_[_n_][2] = pValue
 		This.UpdateWith(_aUnvContent_)
 
+		# Replace the nth occurrence of the value with the new one
+		# (mutating).
 		def UpdateNthOccurrenceOfValue(pValue)
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 
@@ -1840,6 +1845,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def Find(pValue)
 			return This.FindValue(pValue)
 
+		# The positions of the given value (works for item-style lookups
+		# too).
 		def FindValueOrItem(pValue)
 			# Match both: value == pValue, or value is a list that
 			# contains pValue as one of its items. Returns the keys'
@@ -4645,6 +4652,7 @@ this: lefttoright
 	def StzType()
 		return :stzHashList
 
+	# Always TRUE: the object IS a hash list.
 	def IsHashList() # required by stzChainOfTruth
 		return 1
 

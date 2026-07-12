@@ -1842,6 +1842,7 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForms
 
+		# Choose whether values come back as :Number or :String.
 		def SetReturnTypeTo(_cType_)
 			if CheckingParams()
 				if NOT isString(_cType_)
@@ -1851,6 +1852,7 @@ class stzNumber from stzObject
 
 			This.SetReturnType(_cType_)
 
+		# Choose whether values come back as :Number or :String.
 		def SetReturnTypeAs(_cType_)
 			SetReturnTypeTo(_cType_)
 
@@ -1874,6 +1876,7 @@ class stzNumber from stzObject
 		# use after ANY caught raise (VM quirk); number() is immune
 		return ring_number(@cContent)
 
+		# The numeric value of the number.
 		def Value()
 			return This.NumericValue()
 	
@@ -1882,6 +1885,7 @@ class stzNumber from stzObject
 		def NumbericValue()
 			return This.NumericValue()
 
+	# The number as a string (rendered with its round).
 	def StringValue()
 
 		# Memorizing the current round (to reset it before leaving)
@@ -1993,18 +1997,24 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForms
 
+		# Same as Update: replace the content with the given number
+		# (mutating).
 		def UpdateWith(pNumber)
 			This.Update(pNumber)
 
 			def UpdateWithQ(pNumber)
 				return This.UpdateQ(pNumber)
 	
+		# Same as Update: replace the content with the given number
+		# (mutating).
 		def UpdateBy(pNumber)
 			This.Update(pNumber)
 
 			def UpdateByQ(pNumber)
 				return This.UpdateQ(pNumber)
 
+		# Same as Update: replace the content with the given number
+		# (mutating).
 		def UpdateUsing(pNumber)
 			This.Update(pNumber)
 
@@ -2438,6 +2448,7 @@ class stzNumber from stzObject
 
 		#< @FunctionNegativeForm
 
+		# TRUE if the number is even.
 		def IsNotOdd()
 			return NOT This.IsOdd()
 
@@ -2459,6 +2470,7 @@ class stzNumber from stzObject
 
 		#< @FunctionNegativeForm
 
+		# TRUE if the number is odd.
 		def IsNotEven()
 			return NOT This.IsEven()
 
@@ -2625,6 +2637,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+		# TRUE if the number carries no explicit sign.
 		def IsNotSigned()
 			return NOT IsSigned()
 
@@ -2677,6 +2690,7 @@ class stzNumber from stzObject
 
 			return This.IsEqualTo(pOtherNumber)
 
+		# TRUE if the number equals the given one.
 		def EqualTo(pOtherNumber)
 			return This.IsEqual(pOtherNumber)
 
@@ -2698,17 +2712,21 @@ class stzNumber from stzObject
 
 		#< @FunctionNegativeForm
 
+		# TRUE if the number differs from the given one.
 		def IsNotEqualTo(pOtherNumber)
 			return NOT This.IsEqualTo(pOtherNumber)
 	
 			#< @FunctionAlternativeForm
 
+			# TRUE if the number differs from the given one.
 			def IsDifferentFrom(pOtherNumber)
 				return This.IsNotEqualTo(pOtherNumber)
 
+			# TRUE if the number differs from the given one.
 			def IsDifferentTo(pOtherNumber)
 				return This.IsNotEqualTo(pOtherNumber)
 
+			# TRUE if the number differs from the given one.
 			def IsDifferentOf(pOtherNumber)
 				return This.IsNotEqualTo(pOtherNumber)
 
@@ -2836,9 +2854,11 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForms
 
+		# TRUE if the number is strictly less than the given one.
 		def IsStrictlyLessThan(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
+		# TRUE if the number is less than or equal to the given one.
 		def IsStrictlyLessOrEqualTo(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
@@ -3425,6 +3445,7 @@ class stzNumber from stzObject
 		def GetRound()
 			return This.Round()
 
+		# The current round (decimals) of the number.
 		def NumberRound()
 			return This.Round()
 
@@ -3798,12 +3819,15 @@ class stzNumber from stzObject
 			_nResult_ = This.Copy().SubstructQ(pOtherNumber).NumericValue()
 			return _nResult_
 
+			# The difference after subtracting the given number, as data.
 			def Retrieved(pOtherNumber)
 				return This.Substructed(pOtherNumber)
 
+		# The difference after subtracting the given number, as data.
 		def Substracted(pOtherNumber)
 			return This.SubStructed(pOtherNumber)
 
+		# The difference after subtracting the given number, as data.
 		def Subtracted(pOtherNumber)
 			return This.SubStructed(pOtherNumber)
 
@@ -3845,9 +3869,11 @@ class stzNumber from stzObject
 			_nResult_ = This.Copy().SubStructManyQ(pOtherNumbers).Content()
 			return _nResult_
 
+		# The value after subtracting all the given numbers, as data.
 		def SubstractedMany(pOtherNumber)
 			return This.SubStructedMany(pOtherNumbers)
 
+		# The value after subtracting all the given numbers, as data.
 		def SubtractedMany(pOtherNumbers)
 			return This.SubStructedMany(pOtherNumbers)
 
@@ -4069,6 +4095,8 @@ class stzNumber from stzObject
 
 		#< @FunctionPassiveForm
 
+		# The quotient by the given number, as data; the original is
+		# unchanged.
 		def Divided(pOtherNumber)
 			_nResult_ = This.Copy().DivideQ(pOtherNumber).NumericValue()
 			return _nResult_
@@ -4091,6 +4119,7 @@ class stzNumber from stzObject
 
 		#< @FunctionPassiveForm
 
+		# The quotient by the given number, as data.
 		def DividedBy(pOtherNumber)
 			_nResult_ = This.Copy().DivideByQ(pOtherNumber).NumericValue()
 			return _nResult_
@@ -4112,6 +4141,7 @@ class stzNumber from stzObject
 	
 		#>
 
+		# A copy divided by each of the given numbers.
 		def DividedByMany(paOtherNumbers)
 			_nResult_ = This.Copy().DivideByManyQ(paOtherNumbers).NumericValue()
 			return _nResult_
@@ -4451,6 +4481,7 @@ class stzNumber from stzObject
 		def FactorsQ()
 			return This.FactorsQRT(:stzList)
 
+		# The factors, in the requested return type (QRT).
 		def FactorsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -4548,6 +4579,7 @@ class stzNumber from stzObject
 		def PrimeFactorsQ()
 			return This.PrimeFactorsQRT(:stzList)
 
+		# The prime factors, in the requested return type (QRT).
 		def PrimeFactorsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -4722,6 +4754,7 @@ class stzNumber from stzObject
 		def MultiplesUntilQ(pOtherNumber)
 			return This.MultiplesUntilQRT(pOtherNumber, :stzList)
 
+		# The multiples up to the limit, in the requested return type.
 		def MultiplesUntilQRT(pOtherNumber, pcReturnType)
 
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
@@ -4905,9 +4938,11 @@ class stzNumber from stzObject
 	
 		#< @FunctionAlternativeForms
 
+		# The number in Unicode hex form (U+0041).
 		def ToUnicodeHex()
 			return ToUnicodeHexForm()
 
+		# The number in Unicode hex form (U+0041).
 		def ToHexUnicode()
 			return ToUnicodeHexForm()
 
@@ -4954,6 +4989,7 @@ class stzNumber from stzObject
 		def ToBinaryQ()
 			return new stzBinaryNumber( This.ToBinaryForm() )
 
+		# The number wrapped as a stzBinaryNumber object.
 		def ToBinaryNumber()
 			return new stzBinaryNumber( This.ToBinaryForm() )
 
@@ -4993,6 +5029,7 @@ class stzNumber from stzObject
 		def ToOctalQ()
 			return new stzOctalNumber( This.ToOctalForm() ) 
 
+		# The number wrapped as a stzOctalNumber object.
 		def ToOctalNumber()
 			return new stzOctalNumber( This.ToOctalForm() )
 	
@@ -5646,15 +5683,20 @@ class stzNumber from stzObject
 	def ContainsSeveralBillions()
 			return This.NumericValue() >= 2_000_000_000
 
+		# TRUE if the number is at least 2 billion.
 		def ContainsManyBillions()
 			return This.ontainsSeveralBillions()
 
+		# TRUE if the number reaches the billions (thousands of
+		# millions).
 		def ContainsThousandsOfMillions()
 			return This.ontainsSeveralBillions()
 
+		# TRUE if the number is at least 2 billion.
 		def ContainsSeveralThousandsOfMillions()
 			return This.ontainsSeveralBillions()
 
+		# TRUE if the number is at least 2 billion.
 		def ContainsManyThousandsOfMillions()
 			return This.ontainsSeveralBillions()	
 
@@ -5663,15 +5705,18 @@ class stzNumber from stzObject
 		def HasSeveralBillions()
 			return This.ContainsSeveralBillions()
 
+		# TRUE if the number is at least 2 billion.
 		def HasManyBillions()
 			return This.ontainsSeveralBillions()
 
 		def HasThousandsOfMillions()
 			return This.ContainsBillions()
 
+		# TRUE if the number is at least 2 billion.
 		def HasSeveralThousandsOfMillions()
 			return This.ontainsSeveralBillions()
 
+		# TRUE if the number is at least 2 billion.
 		def HasManyThousandsOfMillions()
 			return This.ontainsSeveralBillions()
 
@@ -5690,9 +5735,11 @@ class stzNumber from stzObject
 		def HasTensOfBillions()
 			return This.ContainsTensOfBillions()
 
+		# TRUE if the number is at least 20 billion.
 		def HasSeveralTensOfBillions()
 			return This.HasManyTensOfBillions()
 
+		# TRUE if the number is at least 20 billion.
 		def HasManyTensOfBillions()
 			return This.HasManyTensOfBillions()
 
@@ -5862,6 +5909,7 @@ class stzNumber from stzObject
 	def ApplyFormat()
 		return This.ApplyFormatXT([])
 
+		# Format the number with the default options (mutating).
 		def Format()
 			return This.ApplyFormatXT([])
 
@@ -6294,9 +6342,11 @@ class stzNumber from stzObject
 			return This.BForm()
 
 
+	# Default-format setting (unsupported in this version: raises).
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")
 
+	# Locale application (unsupported in this version: raises).
 	def ApplyLocale(pcLocale) // TODO
 		StzRaise("Unsupported feature in this version!")
 
@@ -6536,6 +6586,7 @@ class stzNumber from stzObject
 	def IsANumber()
 		return 1
 
+		# Always FALSE: it IS a number.
 		def IsNotANumber()
 			return 0
 
@@ -6543,6 +6594,7 @@ class stzNumber from stzObject
 	def IsAString()
 		return 0
 
+		# Always TRUE: a number is not a string.
 		def IsNotAString()
 			return 1
 
@@ -6550,6 +6602,7 @@ class stzNumber from stzObject
 	def IsAList()
 		return 0
 
+		# Always TRUE: a number is not a list.
 		def IsNotAList()
 			return 1
 
@@ -6557,9 +6610,11 @@ class stzNumber from stzObject
 	def IsAnObject()
 		return 1
 
+		# Always TRUE: the wrapper is an object.
 		def IsAObject()
 			return 1
 
+		# Always FALSE: the wrapper is an object.
 		def IsNotAnObject()
 			return 1
 
@@ -6580,6 +6635,7 @@ class stzNumber from stzObject
 	def IsOneOfThese(paList)
 		return This.IsItemOf(paList)
 
+		# TRUE if the number occurs in NONE of the given values.
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 	
@@ -6597,6 +6653,7 @@ class stzNumber from stzObject
 	def IsLetterOf(pStrOrListOfChars)
 		return 0
 	
+		# Always FALSE: a number is not a letter.
 		def IsALetterOf(pcStr)
 			return 0
 		
@@ -6604,6 +6661,7 @@ class stzNumber from stzObject
 	def IsLetterIn(pcStr)
 		return 0
 	
+		# Always FALSE: a number is not a letter.
 		def IsALetterIn(pcStr)
 			return 0
 	
@@ -6611,6 +6669,7 @@ class stzNumber from stzObject
 	def IsCharOf(pStrOrListOfChars)
 		return 0
 	
+		# Always FALSE: a number is not a char.
 		def IsACharOf(pcStr)
 			return 0
 	
@@ -6618,6 +6677,7 @@ class stzNumber from stzObject
 	def IsCharIn(pcStr)
 		return 0
 	
+		# Always FALSE: a number is not a char.
 		def IsACharIn(pcStr)
 			return 0
 	
@@ -6664,6 +6724,7 @@ class stzNumber from stzObject
 	def IsRGBColor()
 		return @IsRGBColor(This.Content())
 
+		# TRUE if the number is a valid RGB color value.
 		def IsAnRGBColor()
 			return @IsRGBColor(This.Content())
 
@@ -6822,6 +6883,7 @@ class stzNumber from stzObject
 	def IsNamedObject()
 		return 0
 
+	# How many times the given digit occurs in the number.
 	def HowMany(n)
 		if isNumber(n)
 			n = "" + n
@@ -6834,6 +6896,7 @@ class stzNumber from stzObject
 		_nResult_ = This.ToStzString().HowMany(n)
 		return _nResult_
 
+	# The digits of the number, as a list.
 	def Digits()
 		_acChars_ = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
 		_nLen_ = len(_acChars_)
@@ -6850,6 +6913,7 @@ class stzNumber from stzObject
 		def DigitsQ()
 			return new stzList( This.Digits() )
 
+		# The digits, in the requested return type (QRT).
 		def DigitsQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -6864,9 +6928,11 @@ class stzNumber from stzObject
 	 # PERCENTAGE FORMS  #
 	#-------------------#
 
+	# The number as a percentage string.
 	def Percent()
 		return This.NumericValue() / 100
 
+	# What percentage this number is OF the given one.
 	def PercentOf(n)
 		return This.NumbericValue() * (n/100)
 

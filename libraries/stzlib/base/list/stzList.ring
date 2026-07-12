@@ -473,12 +473,14 @@ class stzList from stzObject
 			This.Update(paNewList)
 			return This
 
+		# Same as Update: replace the whole content (mutating).
 		def UpdateWith(paNewList)
 			This.Update(paNewList)
 
 			def UpdateWithQ(paNewList)
 				return This.UpdateQ(paNewList)
 
+		# Same as Update: replace the whole content (mutating).
 		def UpdateBy(paNewList)
 			This.Update(paNewList)
 
@@ -2201,6 +2203,7 @@ class stzList from stzObject
 		ok
 		return _nIdx_
 
+		# The nth item after the given position.
 		def NextNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindNextNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return NULL ok
@@ -2218,6 +2221,7 @@ class stzList from stzObject
 		ok
 		return _nIdx_
 
+		# The nth item before the given position.
 		def PreviousNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindPreviousNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return NULL ok
@@ -2758,6 +2762,7 @@ class stzList from stzObject
 		def IsAHashList()
 			return This.IsHashList()
 
+		# TRUE if the list is NOT a hash list.
 		def IsNotHashList()
 			return NOT This.IsHashList()
 
@@ -8329,6 +8334,7 @@ class stzList from stzObject
 	def DeepLists()
 		return _StzCollectDeepLists(@aContent)
 
+		# Every sublist at ANY nesting depth.
 		def ListsAtAnyLevel()
 			return _StzCollectDeepLists(@aContent)
 
@@ -8571,6 +8577,7 @@ class stzList from stzObject
 			This.SortOnDown(_n_)
 			return This
 
+		# A descending-sorted copy; the original is unchanged.
 		def SortedOnDown(_n_)
 			_oLolc_ = This.Copy()
 			_oLolc_.SortOnDown(_n_)
@@ -8819,9 +8826,11 @@ class stzList from stzObject
 	def IsMadeOfItem(pItem)
 		return This.ItemsAreEqualTo(pItem)
 
+		# TRUE if the list is made of the given item only.
 		def IsMadeOfThisItem(pItem)
 			return This.ItemsAreEqualTo(pItem)
 
+		# TRUE if every item is of the given type.
 		def AllItemsAre(pItem)
 			if isString(pItem) and
 			   (@IsRingOrStzType(pItem) or
@@ -8837,6 +8846,7 @@ class stzList from stzObject
 	def IsMadeOfOneOfThese(paItems)
 		return This.ContainsOneOfThese(paItems)
 
+		# TRUE if every item is one of the given values.
 		def IsMadeOfAnyOfThese(paItems)
 			return This.ContainsOneOfThese(paItems)
 
@@ -9213,6 +9223,7 @@ class stzList from stzObject
 	def CommonItemsWith(paOtherList)
 		return This.CommonItems([ :With, paOtherList ])
 
+		# The items shared with the given list (pairwise intersection).
 		def IntersectionWith(paOtherList)
 			return This.CommonItems([ :With, paOtherList ])
 
@@ -9376,9 +9387,11 @@ class stzList from stzObject
 	def ContainsNoOneOfThese(paItems)
 		return NOT This.ContainsOneOfThese(paItems)
 
+		# TRUE if NONE of the given items occurs in the list.
 		def ContainsNoneOfThese(paItems)
 			return NOT This.ContainsOneOfThese(paItems)
 
+		# TRUE if NONE of the given items occurs in the list.
 		def ContainsNoItemOfThese(paItems)
 			return NOT This.ContainsOneOfThese(paItems)
 
@@ -9489,6 +9502,8 @@ class stzList from stzObject
 		def VizFind(pItem)
 			return This.VizFindCS(pItem, 1)
 
+		# A visual map of where the item occurs: the list rendered as
+		# code with ^ marks.
 		def VizFindCS(pItem, pCaseSensitive)
 			# Base form: code + a single unlabelled marker row, wrapped.
 			# Shallow: only top-level occurrences are marked (see VizDeepFind).
@@ -9770,6 +9785,7 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
+		# How many NUMBER items the list holds.
 		def NumberOfNumbers()
 			return ring_len(This.Numbers())
 
@@ -9796,6 +9812,7 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
+		# How many STRING items the list holds.
 		def NumberOfStrings()
 			return ring_len(This.Strings())
 
@@ -9853,6 +9870,7 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
+		# How many LETTER items the list holds.
 		def NumberOfLetters()
 			return ring_len(This.Letters())
 
@@ -9879,6 +9897,7 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
+		# How many LIST items the list holds.
 		def NumberOfLists()
 			return ring_len(This.Lists())
 

@@ -3792,6 +3792,7 @@ class stzListOfNumbers from stzList
 
 		return Sum() / (This.NumberOfNumbers())
 
+		# Same as Mean: the arithmetic average of the numbers.
 		def Average()
 			return Mean()
 
@@ -3966,6 +3967,7 @@ class stzListOfNumbers from stzList
 		def CumulateQ()
 			return This.CumulateQRT()
 
+		# The running sums, in the requested return type (QRT).
 		def CumulateQRT()
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -4981,6 +4983,7 @@ class stzListOfNumbers from stzList
 	def stzType()
 		return :stzListOfNumbers
 
+		# The lowercase class name: "stzlistofnumbers".
 		def ClassName()
 			return This.stzType()
 

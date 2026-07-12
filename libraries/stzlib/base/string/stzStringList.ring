@@ -854,6 +854,7 @@ class stzStringList from stzObject
 	def stzType()
 		return :stzStringList
 
+		# The lowercase class name: "stzstringlist".
 		def ClassName()
 			return This.stzType()
 
@@ -928,6 +929,7 @@ class stzStringList from stzObject
 		next
 		return _aSbgRes_
 
+	# The substrings of each string (playful alias).
 	def SubStrinks()
 		_aSbk_ = @acContent
 		_nSbk_ = ring_len(_aSbk_)
