@@ -120,13 +120,13 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 
 	aW = WhatIs("uppercase")
 	Then("WhatIs, silent in the world, answers from the LIBRARY -- EVERY defining class named, grouped per voice-sibling form",
-		StzFindFirst(aW[1], "the method Uppercase (on stzString, stzStringChar)"), 1)
+		StzFindFirst(aW[1], "- the method Uppercase (on stzString, stzStringChar)"), 1)
 	Then("...", StzFindFirst(aW[2],
-		"the method Uppercased (on stzString, stzList, stzStringChar, stzStringList)"), 1)
+		"- the method Uppercased (on stzString, stzList, stzStringChar, stzStringList)"), 1)
 
 	aW = WhatIs(:Remove)
 	Then("...and a widely-implemented method reports ALL its owners",
-		StzFindFirst(aW[1], "the method Remove (on stzString, stzList)"), 1)
+		StzFindFirst(aW[1], "- the method Remove (on stzString, stzList)"), 1)
 
 	SupposeQ("blorp").IsAQ("gadget")
 	aAns = StzLibDoc([]).Ask("who is blorp")

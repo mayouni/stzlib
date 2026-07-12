@@ -158,10 +158,13 @@ func WhatIs(pcName)
 			ok
 			_cCls_ += _aGrp_[_i_][2][_j_]
 		next
-		_cAns_ = "the method " + _aGrp_[_i_][1] + " (on " + _cCls_ + ")"
+		# readable block: bullet line, description indented on its
+		# own line, a blank line after -- printing the list breathes
+		_cAns_ = "- the method " + _aGrp_[_i_][1] + " (on " + _cCls_ + ")"
 		if _aGrp_[_i_][3] != ""
-			_cAns_ += ": " + _aGrp_[_i_][3]
+			_cAns_ += nl + "  " + _aGrp_[_i_][3]
 		ok
+		_cAns_ += nl
 		_aOut_ + _cAns_
 	next
 	return _aOut_
