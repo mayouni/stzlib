@@ -1383,6 +1383,7 @@ class stzString from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, _bCase_)
 
+	# The first occurrence of the substring: the position(s).
 	def FindFirst(pcSubStr)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, 1)
 
@@ -2291,6 +2292,7 @@ class stzString from stzObject
 		_oFlFinder_ = new stzStringFinder(This)
 		return _oFlFinder_.FindLastCS(pcSubStr, pCaseSensitive)
 
+	# The last occurrence of the substring: the position(s).
 	def FindLast(pcSubStr)
 		return This.FindLastCS(pcSubStr, 1)
 
@@ -10520,6 +10522,8 @@ class stzString from stzObject
 		ok
 		return This._EngineSliceFrom(_cTxt_, _nLen_ - _n_ + 1)
 
+	# The number the string STARTS with, as a string (empty if
+	# none).
 	def LeadingNumber()
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
@@ -10552,9 +10556,11 @@ class stzString from stzObject
 		if _cLead_ = "+" or _cLead_ = "-" return "" ok
 		return _cLead_
 
+	# How many digits the trailing number has.
 	def NumberOfTrailingNumberDigits()
 		return This._EngineCount(This.TrailingNumber())
 
+	# How many digits the leading number has.
 	def NumberOfLeadingNumberDigits()
 		return This._EngineCount(This.LeadingNumber())
 
@@ -10590,6 +10596,7 @@ class stzString from stzObject
 		if _cTrail_ = "" _cTrail_ = _aChars_[_nLen_] ok
 		return [ _cLead_, _cTrail_ ]
 
+	# The [open, close] bounds found between the given pair.
 	def BoundsBetween(pcOpen, pcClose)
 		_nO_ = StzEngineStringFindFirstFromCS(@pEngine, pcOpen, 1, 1)
 		if _nO_ < 1 return [] ok
@@ -10606,6 +10613,7 @@ class stzString from stzObject
 		return StzEngineStringCharAt(@pEngine, 1) =
 		       StzEngineStringCharAt(@pEngine, 2)
 
+	# TRUE if the string ends with a repeated char run.
 	def HasRepeatedTrailingChars()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return FALSE ok
@@ -10637,6 +10645,7 @@ class stzString from stzObject
 		if n < 1 or n > _nLen_ return "" ok
 		return This._EngineSlice(This.Content(), n, 1)
 
+	# The char at position n (lenient 1-based form).
 	def NthChar1(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n < 0 n = _nLen_ + n + 1 ok
@@ -10758,6 +10767,7 @@ class stzString from stzObject
 		if _nLen_ <= 1 return "" ok
 		return This._EngineSliceFrom(This.Content(), 2)
 
+	# A copy with the last (rightmost) char removed.
 	def RightCharRemoved()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ <= 1 return "" ok
@@ -10771,6 +10781,8 @@ class stzString from stzObject
 		if This._EngineCount(_c_) = 0 return "" ok
 		return StzStringTitlecased(_c_)
 
+	# Capitalize the string in place (mutating). For a copy, use
+	# CapitalCased.
 	def CapitalCase()
 		This.Update(This.CapitalCased())
 
@@ -10786,6 +10798,7 @@ class stzString from stzObject
 	def IsMadeOfDigits()
 		return This.IsMadeOfNumbers()
 
+	# TRUE if the string is made of letters only.
 	def IsMadeOfLetters()
 		if This._EngineCount(This.Content()) = 0 return FALSE ok
 		return StzEngineStringIsAlpha(@pEngine) = 1
@@ -10861,11 +10874,13 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSub)
 		return [ _p_, _p_ + _nSubLen_ - 1 ]
 
+	# The opening (left) bound of the string.
 	def LeftBound()
 		_a_ = This.Bounds()
 		if len(_a_) >= 1 return _a_[1] ok
 		return ""
 
+	# The closing (right) bound of the string.
 	def RightBound()
 		_a_ = This.Bounds()
 		if len(_a_) >= 2 return _a_[2] ok
@@ -10879,6 +10894,8 @@ class stzString from stzObject
 		_oSw_ = new stzString(_cSw_)
 		return _oSw_.Chars()
 
+	# Swap the case of every char in place (mutating,
+	# engine-backed).
 	def InvertCharsCase()
 		_pSw_ = StzEngineStringSwapCase(@pEngine)
 		_cSw_ = StzEngineStringData(_pSw_)
@@ -10916,6 +10933,8 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# The previous occurrence of the substring from the given start
+	# position: the position(s).
 	def FindPreviousOccurrences(pNamedOf, pNamedStartingAt)
 		_cSub_ = ""
 		if isList(pNamedOf) and len(pNamedOf) = 2 and isString(pNamedOf[1]) and
@@ -10939,12 +10958,15 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# TRUE if the string is a contiguous list in normal form (1:5
+	# style).
 	def IsContiguousListInNormalForm()
 		_c_ = ring_trim(This.Content())
 		# Normal form `[a,b,c,...]` -- bracketed.
 		if ring_left(_c_, 1) != "[" or ring_right(_c_, 1) != "]" return FALSE ok
 		return TRUE
 
+	# TRUE if the string is a contiguous list in short form.
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
@@ -10952,6 +10974,7 @@ class stzString from stzObject
 		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
 		return TRUE
 
+	# TRUE if the string holds a contiguous list, any form.
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
 		if StzFindFirst(_c_, ":") = 0 return FALSE ok
@@ -10964,6 +10987,7 @@ class stzString from stzObject
 		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
 		return TRUE
 
+	# Each char paired with how many times it occurs.
 	def ItemsAndTheirNumberOfOccurrence()
 		_pU_ = StzEngineStringUniqueChars(@pEngine)
 		_cU_ = StzEngineStringData(_pU_)
@@ -10981,11 +11005,13 @@ class stzString from stzObject
 	def HexUnicodes_alias()
 		return This.HexUnicodes()
 
+	# The last three chars, as a string.
 	def Last3CharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 3 return This.Content() ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - 2)
 
+	# The first three chars, as a string.
 	def First3CharsAsString()
 		return This._EngineSlice(This.Content(), 1, 3)
 
@@ -11008,6 +11034,7 @@ class stzString from stzObject
 		ok
 		return _cTxt_
 
+	# A copy with the trailing run of the given char dropped.
 	def CharRemovedFromRight(c)
 		_cTxt_ = This.Content()
 		_nCrr_ = This._EngineCount(_cTxt_)
@@ -11048,6 +11075,7 @@ class stzString from stzObject
 		next
 		return _nRes_
 
+	# How many CONSECUTIVE repetitions of pcSub the string holds.
 	def NumberOfConsecutiveSubStringsOf(pcSub)
 		return len(This.FindDupSecutiveSubString(pcSub))
 
@@ -11106,6 +11134,7 @@ class stzString from stzObject
 		def BoundsRemovedQ()
 			return new stzString( This.BoundsRemoved() )
 
+	# How many consecutive n-char chunks the string splits into.
 	def NumberOfConsecutiveSubStringsOfNChars(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if NOT isNumber(n) or n <= 0 or n > _nLen_ return 0 ok
@@ -11125,6 +11154,7 @@ class stzString from stzObject
 			This.Unspacify()
 			return This
 
+	# A copy with the spaces removed; the original is unchanged.
 	def Unspacified()
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.Unspacify()
@@ -11279,9 +11309,12 @@ class stzString from stzObject
 		if This._EngineCount(This.Content()) = 0 return [] ok
 		return [ 1, 1 ]
 
+		# The first occurrence of the substring, along with its
+		# position.
 		def FindFirstZ(pcSub)
 			return This.FirstZ(pcSub)
 
+	# The last char along with its position.
 	def LastZ()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
@@ -11474,6 +11507,8 @@ class stzString from stzObject
 		if _c_ = "" return NULL ok
 		return new stzChar(_c_)
 
+	# The nth occurrence of the substring from the given start
+	# position, as [start, end] section(s).
 	def FindNthSZZ(n, pcSub, pStartingAt)
 		# Accept optional :StartingAt = N (or bare N) as 3rd arg.
 		_nFrom_ = 1
@@ -11508,6 +11543,8 @@ class stzString from stzObject
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
+	# The first occurrence of the substring from the given start
+	# position: the position(s).
 	def FindFirstAsSectionST(pcSub, _nStartAt_)
 		_nP_ = This.FindFirstST(pcSub, _nStartAt_)
 		if _nP_ = 0 return [] ok
@@ -11530,12 +11567,16 @@ class stzString from stzObject
 		if len(_aPos_) = 0 return 0 ok
 		return _aPos_[1]
 
+	# The last occurrence of the substring walking in the given
+	# direction: the position(s).
 	def FindLastD(pcSub, pDir)
 		_aPos_ = This.FindD(pcSub, pDir)
 		_nL_ = len(_aPos_)
 		if _nL_ = 0 return 0 ok
 		return _aPos_[_nL_]
 
+	# The last occurrence of the substring walking in the given
+	# direction, as [start, end] section(s).
 	def FindLastDZZ(pcSub, pDir)
 		_nP_ = This.FindLastD(pcSub, pDir)
 		if _nP_ = 0 return [] ok
@@ -11664,6 +11705,8 @@ class stzString from stzObject
 			This.ReplaceEachLeadingChar(pcNewChar)
 			return This
 
+	# Replace EACH char of the trailing run with the given char
+	# (mutating).
 	def ReplaceEachTrailingChar(pcNewChar)
 		if isList(pcNewChar) and len(pcNewChar) = 2 and isString(pcNewChar[1]) and
 		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
@@ -11742,6 +11785,8 @@ class stzString from stzObject
 
 	# FindLastZZ(sub): the ZZ grouping [sub, [start, end]] of the last
 	# occurrence.
+	# The last occurrence of the substring, as [start, end]
+	# section(s).
 	def FindLastZZ(pcSub)
 		_aSec_ = This.FindLastAsSection(pcSub)
 		if len(_aSec_) = 0 return [] ok
@@ -11778,6 +11823,8 @@ class stzString from stzObject
 		if n < 1 or n > len(_aPos_) return 0 ok
 		return _aPos_[n]
 
+	# The nth occurrence of the substring walking in the given
+	# direction, as [start, end] section(s).
 	def FindNthDZZ(n, pcSub, pDir)
 		_nP_ = This.FindNthD(n, pcSub, pDir)
 		if _nP_ = 0 return [] ok
@@ -11880,6 +11927,7 @@ class stzString from stzObject
 		if _p_ < 1 return [] ok
 		return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
 
+	# The three chars after the given position, as a string.
 	def Next3CharsAsString(p1)
 		_nStart_ = 2
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
@@ -11911,11 +11959,15 @@ class stzString from stzObject
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
+		# The first occurrence of the substring, as [start, end]
+		# section(s).
 		def FindFirstZZ(pcSub)
 			return This.FirstZZ(pcSub)
 
 	# FindNthZZ(n, sub): the ZZ grouping [sub, [start, end]] of the n-th
 	# occurrence.
+	# The nth occurrence of the substring, as [start, end]
+	# section(s).
 	def FindNthZZ(n, pcSub)
 		_aSec_ = This.FindNthAsSection(n, pcSub)
 		if len(_aSec_) = 0 return [] ok
@@ -11924,6 +11976,7 @@ class stzString from stzObject
 		def NthZZ(n, pcSub)
 			return This.FindNthZZ(n, pcSub)
 
+		# The nth occurrence of the substring, along with its position.
 		def FindNthZ(n, pcSub)
 			return This.NthZ(n, pcSub)
 
@@ -12015,6 +12068,8 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The first occurrence of the substring from the given start
+	# position, as [start, end] section(s).
 	def FindFirstSZZ(pcSub, pStartingAt)
 		_nFrom_ = 1
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
@@ -12346,6 +12401,7 @@ class stzString from stzObject
 		return This._SubStringsByOccurrence(n, FALSE)
 
 	# = n occurrences
+	# The substrings occurring EXACTLY n times.
 	def SubStringsOccurringOnlyNTimes(n)
 		return This._SubStringsByOccurrence(n, TRUE)
 
@@ -12451,6 +12507,7 @@ class stzString from stzObject
 		return This._EngineSlice(This.Content(),
 		       _nP_ + This._EngineCount(pcAnchor), n)
 
+	# The n chars before the given anchor (position or substring).
 	def PreviousNChars(pcAnchor, n)
 		# Numeric-anchor form: PreviousNChars(n, :StartingAt = pos)
 		if isNumber(pcAnchor)
@@ -12482,6 +12539,7 @@ class stzString from stzObject
 	def NextNItems(pcAnchor, n)
 		return This.NextNChars(pcAnchor, n)
 
+	# Same as PreviousNChars.
 	def PreviousNItems(pcAnchor, n)
 		return This.PreviousNChars(pcAnchor, n)
 
@@ -12573,9 +12631,11 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The substrings occurring EXACTLY n times.
 	def SubStringsOccurringExactlyNTimes(n)
 		return This._SubStringsByOccurrence(n, TRUE)
 
+	# The substrings occurring AT LEAST n times.
 	def SubStringsOccurringNTimes(n)
 		return This._SubStringsByOccurrence(n, FALSE)
 
@@ -12633,9 +12693,12 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# The numbers embedded in the string, each with its position.
 	def NumbersZ()
 		return This._NumbersGrouped(FALSE)
 
+	# The numbers embedded in the string, each with its [start, end]
+	# section.
 	def NumbersZZ()
 		return This._NumbersGrouped(TRUE)
 
@@ -12773,6 +12836,7 @@ class stzString from stzObject
 		def IsFunc()
 			return This.IsAFunction()
 
+	# TRUE if the string is an integer literal (trimmed).
 	def IsAnInteger()
 		_c_ = ring_trim(This.Content())
 		if len(_c_) = 0 return FALSE ok
@@ -12785,6 +12849,7 @@ class stzString from stzObject
 		end
 		return TRUE
 
+	# Same as IsAnInteger.
 	def IsInteger()
 		return This.IsAnInteger()
 
@@ -12792,6 +12857,7 @@ class stzString from stzObject
 	def FindSpaces()
 		return This.FindAll(" ")
 
+	# The positions holding empty (invisible/zero-width) content.
 	def FindEmptyStrings()
 		# A string is "empty" at a position if the codepoint is a
 		# space; same as FindSpaces.
@@ -12823,6 +12889,7 @@ class stzString from stzObject
 	def SubStringsOccurringNoMoreThanNTimes(n)
 		return This.SubStringsOccurringLessThanNTimes(n)
 
+	# The substrings occurring fewer than n times.
 	def SubStringsOccurringLessThanNTimes(n)
 		_aAll_ = This.SubStrings()
 		_aUniq_ = []
@@ -14671,6 +14738,8 @@ class stzString from stzObject
 		if _p_ = 0 return "" ok
 		return This.MarquerByPosition(_p_)
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindNthPreviousMarquer(n, pStartingAt)
 		_a_ = This._PreviousMarquerPositions(pStartingAt)
 		_nL_ = len(_a_)
@@ -14783,11 +14852,15 @@ class stzString from stzObject
 	def MarkersSortedZZ()
 		return This.MarquersSortedZZ()
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindNextNthMarquerST(n, pStartingAt)
 		_a_ = This._NextMarquerPositions(pStartingAt)
 		if n < 1 or n > len(_a_) return 0 ok
 		return _a_[n]
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindNextNthMarkerST(n, pStartingAt)
 		return This.FindNextNthMarquerST(n, pStartingAt)
 
@@ -14806,9 +14879,13 @@ class stzString from stzObject
 	def MarkerByPosition(pos)
 		return This.MarquerByPosition(pos)
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindPreviousNthMarquer(n, pStartingAt)
 		return This.FindNthPreviousMarquer(n, pStartingAt)
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindPreviousNthMarker(n, pStartingAt)
 		return This.FindNthPreviousMarquer(n, pStartingAt)
 
@@ -16218,30 +16295,42 @@ class stzString from stzObject
 	#-- FindPreviousNthOccurrence(n, :Of = sub, :StartingAt = pos): position of
 	#-- the n-th occurrence of sub BEFORE pos (0 if none). FindFirstPrevious /
 	#-- FindFirstNext are the n=1 shorthands.
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindPreviousNthOccurrence(n, pOf, pStartingAt)
 		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
 			pOf = pOf[2]
 		ok
 		return This.NthPreviousOccurrence(n, pOf, pStartingAt)
 
+		# The nth occurrence of the substring from the given start
+		# position: the position(s).
 		def FindPreviousNthOccurrenceOf(n, pOf, pStartingAt)
 			return This.FindPreviousNthOccurrence(n, pOf, pStartingAt)
 
+	# The first occurrence of the substring from the given start
+	# position: the position(s).
 	def FindFirstPrevious(pOf, pStartingAt)
 		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
 			pOf = pOf[2]
 		ok
 		return This.NthPreviousOccurrence(1, pOf, pStartingAt)
 
+		# The first occurrence of the substring from the given start
+		# position: the position(s).
 		def FindFirstPreviousOccurrence(pOf, pStartingAt)
 			return This.FindFirstPrevious(pOf, pStartingAt)
 
+	# The first occurrence of the substring from the given start
+	# position: the position(s).
 	def FindFirstNext(pOf, pStartingAt)
 		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
 			pOf = pOf[2]
 		ok
 		return This.FindNextNthOccurrence(1, pOf, pStartingAt)
 
+		# The first occurrence of the substring from the given start
+		# position: the position(s).
 		def FindFirstNextOccurrence(pOf, pStartingAt)
 			return This.FindFirstNext(pOf, pStartingAt)
 
@@ -18955,6 +19044,8 @@ class stzString from stzObject
 	 #     FIND FIRST STARTING AT            #
 	#========================================#
 
+	# The first occurrence of the substring from the given start
+	# position: the position(s).
 	def FindFirstSTCS(pcSubStr, _nStartAt_, pCaseSensitive)
 		# :StartingAt = n normalisation.
 		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
@@ -18964,6 +19055,8 @@ class stzString from stzObject
 		_bFstCase_ = @CaseSensitive(pCaseSensitive)
 		return This._FindSubStr(pcSubStr, _nStartAt_, _bFstCase_)
 
+	# The first occurrence of the substring from the given start
+	# position: the position(s).
 	def FindFirstST(pcSubStr, _nStartAt_)
 		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
 		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
@@ -18987,6 +19080,8 @@ class stzString from stzObject
 		end
 		return _nLast_
 
+	# The nth occurrence of the substring from the given start
+	# position: the position(s).
 	def FindNthST(n, pcSubStr, _nStartAt_)
 		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
 		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
@@ -19068,6 +19163,8 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
+	# The last occurrence of the substring from the given start
+	# position, walking in the given direction: the position(s).
 	def FindLastSTD(pcSubStr, _nStartAt_, pDir)
 		# Forward: FindLastST starting forward from nStartAt.
 		# Backward: the FARTHEST occurrence going backward (the lowest
@@ -19093,6 +19190,9 @@ class stzString from stzObject
 		next
 		return 0
 
+	# The last occurrence of the substring from the given start
+	# position, walking in the given direction, as [start, end]
+	# section(s).
 	def FindLastSTDZZ(pcSubStr, _nStartAt_, pDir)
 		_nPos_ = This.FindLastSTD(pcSubStr, _nStartAt_, pDir)
 		if _nPos_ = 0 return [] ok
@@ -19516,6 +19616,8 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSubStr)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
+	# The nth occurrence of the substring from the given start
+	# position, walking in the given direction: the position(s).
 	def FindNthSTD(n, pcSubStr, _nStartAt_, pDir)
 		if isList(_nStartAt_) and len(_nStartAt_) = 2 and
 		   isString(_nStartAt_[1]) and lower(_nStartAt_[1]) = "startingat"
@@ -19543,6 +19645,9 @@ class stzString from stzObject
 		next
 		return 0
 
+	# The nth occurrence of the substring from the given start
+	# position, walking in the given direction, as [start, end]
+	# section(s).
 	def FindNthSTDZZ(n, pcSubStr, _nStartAt_, pDir)
 		_nPos_ = This.FindNthSTD(n, pcSubStr, _nStartAt_, pDir)
 		if _nPos_ = 0 return [] ok
