@@ -6270,14 +6270,18 @@ class stzList from stzObject
 		_oSxtSplitter_ = new stzListSplits(This)
 		return _oSxtSplitter_.SplitXT(p)
 
+	# Split with the given item-or-options param; the parts, as data.
 	def SplittedXT(p)
 		_oSdxtSplitter_ = new stzListSplits(This)
 		return _oSdxtSplitter_.SplittedXT(p)
 
+	# Split with the given item-or-options param; the [start, end]
+	# sections of the parts.
 	def SplitAsSectionsXT(p)
 		_oSasxtSplitter_ = new stzListSplits(This)
 		return _oSasxtSplitter_.SplitAsSectionsXT(p)
 
+	# The [start, end] sections of the parts, as data (XT options form).
 	def SplittedAsSectionsXT(p)
 		_oSdasxtSplitter_ = new stzListSplits(This)
 		return _oSdasxtSplitter_.SplittedAsSectionsXT(p)
@@ -7156,18 +7160,26 @@ class stzList from stzObject
 		return _oWhWk_.WalkWhere(pcCondition)
 
 
+	# The When-walk over the items (see stzListWalker), driven by the
+	# given condition.
 	def WalkWhen(pcCondition)
 		_oWnWk_ = new stzListWalker(This)
 		return _oWnWk_.WalkWhen(pcCondition)
 
+	# The When-walk with explicit direction and return selection
+	# (see stzListWalker).
 	def WalkWhenXT(pcCondition, pcDirection, pReturn)
 		_oWnxWk_ = new stzListWalker(This)
 		return _oWnxWk_.WalkWhenXT(pcCondition, pcDirection, pReturn)
 
+	# The Until-walk with explicit direction and return selection
+	# (see stzListWalker).
 	def WalkUntilXT(pcCondition, pcDirection, pReturn)
 		_oWuxWk_ = new stzListWalker(This)
 		return _oWuxWk_.WalkUntilXT(pcCondition, pcDirection, pReturn)
 
+	# The While-walk with explicit direction and return selection
+	# (see stzListWalker).
 	def WalkWhileXT(pcCondition, pcDirection, pReturn)
 		_oWwxWk_ = new stzListWalker(This)
 		return _oWwxWk_.WalkWhileXT(pcCondition, pcDirection, pReturn)
@@ -11296,6 +11308,7 @@ class stzList from stzObject
 		This.SplitToPartsOfNItemsXT(_n_)
 		return This
 
+	# The parts of n items each, as data; the original is unchanged.
 	def SplittedToPartsOfNItemsXT(_n_)
 		return This.Copy().SplitToPartsOfNItemsXTQ(_n_).Content()
 

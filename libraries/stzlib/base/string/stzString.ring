@@ -9261,6 +9261,8 @@ class stzString from stzObject
 		ok
 		return This.FindAsSections(pcSubOrOpen)
 
+	# The substrings bounded by pcOpen...pcClose (same as BoundedBy
+	# with a [open, close] pair).
 	def FindBoundedSubStringsXT(pcOpen, pcClose)
 		return This.BoundedBy([ pcOpen, pcClose ])
 
@@ -11084,6 +11086,8 @@ class stzString from stzObject
 			This.InsertXT(p1, p2)
 			return This
 
+	# The position of the nth occurrence of pcSub after the given
+	# position (0 when there is none).
 	def FindNthNext(n, pcSub, _nFrom_)
 		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
 		   lower(_nFrom_[1]) = "startingat"
@@ -11768,6 +11772,8 @@ class stzString from stzObject
 		_o_.RemoveThisCharFromStartXT(pcChar)
 		return _o_.Content()
 
+	# A copy with the trailing run of pcChar dropped; the original is
+	# unchanged.
 	def CharRemovedFromRightXT(pcChar)
 		_o_ = new stzString(This.Content())
 		_o_.RemoveThisCharFromEndXT(pcChar)
@@ -13791,6 +13797,8 @@ class stzString from stzObject
 			This.RemoveThisNthChar(n, pcChar)
 			return This
 
+	# How many times the substring occurs, in the named-params form
+	# (e.g. :Of = substring).
 	def NumberOfOccurrenceXT(pNamed, pNamed2)
 		_cSub_ = ""
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
@@ -15372,15 +15380,23 @@ class stzString from stzObject
 			This.MultiplyByNXT(_anN_)
 			return This
 
+	# Divide each number embedded in the string by the given
+	# factor(s), integer result (mutating).
 	def DivideByNXT(_anN_)
 		This._ApplyNumberTransform(_anN_, "div")
 
+	# Add the given factor(s) to each number embedded in the string --
+	# one factor for all, or a list applied in order (mutating).
 	def AddNXT(_anN_)
 		This._ApplyNumberTransform(_anN_, "add")
 
+	# Subtract the given factor(s) from each number embedded in the
+	# string (mutating).
 	def RetrieveNXT(_anN_)
 		This._ApplyNumberTransform(_anN_, "sub")
 
+	# Subtract the given factor(s) from each number embedded in the
+	# string (mutating).
 	def SubtractNXT(_anN_)
 		This._ApplyNumberTransform(_anN_, "sub")
 
@@ -15504,12 +15520,16 @@ class stzString from stzObject
 	def EachCharBoxed_alias()
 		return This.EachCharBoxed()
 
+	# The string as boxed char cells with the occurrences of pcSub
+	# visually marked (the VizFind map, boxed).
 	def VizFindBoxed(pcSub)
 		return This._BoxRender([ :EachChar = TRUE, :VizFind = pcSub ])
 
+	# The boxed VizFind map with rounded corners.
 	def VizFindBoxedRounded(pcSub)
 		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round, :VizFind = pcSub ])
 
+	# The boxed VizFind map with dashed lines.
 	def VizFindBoxedDashed(pcSub)
 		return This._BoxRender([ :EachChar = TRUE, :Line = :Dashed, :VizFind = pcSub ])
 
@@ -15592,6 +15612,7 @@ class stzString from stzObject
 		end
 		return _cVzN_
 
+	# The VizFind map of EACH given substring, stacked one after the other.
 	def VizFindMany(pacSub)
 		_o_ = ""
 		if NOT isList(pacSub) return This.VizFindCS("", 1) ok
@@ -16141,6 +16162,7 @@ class stzString from stzObject
 		if _nDtFound_ = 0 return 0 ok
 		return fabs(_nDtFound_ - _nDtStart_) - 1
 
+	# The distance in chars from the given position to the target.
 	def DistanceToXT(pTarget, pStartingAt)
 		_aDxTN_ = This._DistTargetN(pTarget)
 		_nDxStart_ = This._DistStart(pStartingAt)
@@ -16443,6 +16465,8 @@ class stzString from stzObject
 	def CharQ(n)
 		return new stzChar( This.NthChar(n) )
 
+	# The parts grouped by their partitioner value:
+	# [ [value, [parts...]], ... ].
 	def PartsClassifiedUsingXT(pcExpr)
 		# Group the parts by their partitioner value:
 		# [ [value, [parts...]], ... ] in first-seen order.
@@ -16474,6 +16498,8 @@ class stzString from stzObject
 		def PartsClassifiedUsing(pcExpr)
 			return This.PartsClassifiedUsingXT(pcExpr)
 
+	# Each part zipped with its partitioner value (the expression's
+	# result for it).
 	def PartsAndPartitionersUsingXT(pcExpr)
 		# Each part zipped with its partitioner (the expression's
 		# value over that part): [ [part, value], ... ].
