@@ -2507,6 +2507,7 @@ class stzNumber from stzObject
 		def IsPrimeNumber()
 			return This.IsPrime()
 
+	# TRUE if the number is a Wieferich prime.
 	def isWeiferich(s)
 		_bResult_ = @isWeiferich(This.NumericValue())
 
@@ -3402,6 +3403,7 @@ class stzNumber from stzObject
 
 		return _nResult_
 
+	# How many more decimals can be added before the max round.
 	def NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 
 		_nResult_ =  This.MaxNumberOfDigitsTheNumberCanContain() -
@@ -4169,6 +4171,7 @@ class stzNumber from stzObject
 	
 	# SINE
 
+	# The sine of the number (mutating: the number becomes it).
 	def Sine()
 		return This.pvtCalculate( "sin", "" )
 
@@ -4177,6 +4180,7 @@ class stzNumber from stzObject
 	
 	# COSINE
 
+	# The cosine of the number (mutating).
 	def Cosine()
 		return This.pvtCalculate( "cos", "" )
 
@@ -4185,6 +4189,7 @@ class stzNumber from stzObject
 	
 	# TANGENT
 
+	# The tangent of the number (mutating).
 	def Tangent()
 		return This.pvtCalculate( "tan", "" )
 		
@@ -4193,6 +4198,7 @@ class stzNumber from stzObject
 	
 	# COTANGENT
 
+	# The cotangent of the number (mutating).
 	def Cotangent()
 		return This.pvtCalculate( "cotan", "" )
 
@@ -4201,6 +4207,7 @@ class stzNumber from stzObject
 	
 	# ARCSINE
 
+	# The arc sine of the number (mutating).
 	def ArcSine()
 		return This.pvtCalculate( "asin", "" )
 	
@@ -4209,6 +4216,7 @@ class stzNumber from stzObject
 	
 	# ARCCOSINE
 
+	# The arc cosine of the number (mutating).
 	def ArcCosine()
 		return This.pvtCalculate( "acos", "" )
 
@@ -4217,6 +4225,7 @@ class stzNumber from stzObject
 	
 	# ARCTANGENT
 
+	# The arc tangent of the number (mutating).
 	def ArcTangent()
 		return This.pvtCalculate( "atan", "" )
 
@@ -4225,6 +4234,7 @@ class stzNumber from stzObject
 	
 	# ARCTANGENT2
 
+	# The two-argument arc tangent (atan2) of the number (mutating).
 	def ArcTangent2()
 		return This.pvtCalculate( "atan2", "" )
 
@@ -4233,6 +4243,7 @@ class stzNumber from stzObject
 	
 	# SINH
 
+	# The hyperbolic sine of the number (mutating).
 	def HyperbolicSine()
 		return This.pvtCalculate( "sinh", "" )
 
@@ -4241,6 +4252,7 @@ class stzNumber from stzObject
 	
 	# COSH
 
+	# The hyperbolic cosine of the number (mutating).
 	def HyperbolicCosine()
 		return This.pvtCalculate( "cosh", "" )
 
@@ -4249,6 +4261,7 @@ class stzNumber from stzObject
 	
 	# TANH
 
+	# The hyperbolic tangent of the number (mutating).
 	def HyperbolicTangent()
 		return This.pvtCalculate( "tanh", "" )
 
@@ -4257,6 +4270,7 @@ class stzNumber from stzObject
 	
 	# EXP
 
+	# e raised to the number (mutating).
 	def Exponential()
 		return This.pvtCalculate( "exp", "" )
 
@@ -4265,6 +4279,7 @@ class stzNumber from stzObject
 	
 	# LOG
 
+	# The natural logarithm (base e) of the number (mutating).
 	def NaturalLogarithm()
 		return This.pvtCalculate( "log", "" )
 
@@ -4273,6 +4288,7 @@ class stzNumber from stzObject
 	
 	# LOG10
 
+	# The common logarithm (base 10) of the number (mutating).
 	def CommonLogarithm()
 		return This.pvtCalculate( "log10", "" )
 
@@ -4281,6 +4297,7 @@ class stzNumber from stzObject
 	
 	# ABS
 
+	# The absolute value of the number (mutating).
 	def Absolute()
 		if This.IsInteger()
 			n = This.NumericValue()
@@ -4319,6 +4336,7 @@ class stzNumber from stzObject
 	
 	# FACT
 
+	# The factorial of the (integer) number (mutating).
 	def Factorial()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute factorial of a non-integer!")
@@ -4337,11 +4355,13 @@ class stzNumber from stzObject
 	
 	# PERCENT
 
+	# The number as a percentage string.
 	def InPercentage()
 		return This.pvtCalculate( "/", 10 ) + "%"
 
 	# SIGMOID
 
+	# The sigmoid of the number (mutating).
 	def Sigmoid()
 		return This.pvtCalculate( "sigmoid", "" )
 
@@ -4358,6 +4378,7 @@ class stzNumber from stzObject
 	
 	# DERIVATIVE SIGMOID
 
+	# The sigmoid derivative of the number (mutating).
 	def DerivativeSigmoid()
 		return This.pvtCalculate( "DerivativeSigmoid", "" )
 
@@ -4403,6 +4424,7 @@ class stzNumber from stzObject
 	
 	# INVERSE
 
+	# The multiplicative inverse (1/n) of the number (mutating).
 	def Inverse()
 		return This.pvtCalculate( "inverse", "" )
 
@@ -4411,6 +4433,7 @@ class stzNumber from stzObject
 	
 	# FACTORS
 
+	# The factors (divisors) of the integer number, as a list.
 	def Factors()
 		if NOT This.IsInteger()
 			StzRaise("Factors can't be computed for a non integer!")
@@ -4598,6 +4621,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# The factor pair closest to a square (rows x cols).
 	def MostSquareLikeFactors()
 		return @MostSquareLikeFactors(This.Content())
 
@@ -4606,15 +4630,18 @@ class stzNumber from stzObject
 
 	# MULTIPLES UNTIL
 
+	# How many multiples of the given number divide into this one.
 	def NumberOfMultiples(pOtherNumber)
 		return len( This.Multiples(pOtherNumber) )
 
+	# How many multiples fit up to the given limit.
 	def NumberOfMultiplesUntil(pOtherNumber)
 		return len( This.MultiplesUntil(pOtherNumber) )
 
 		def NumberOfMultiplesUpTo(pOtherNumber)
 			return This.NumberOfMultiplesUntil(pOtherNumber)
 
+	# The multiples of the number up to the given count.
 	def Multiples(pOtherNumber)
 		if isList(pOtherNumber) and
 		   IsOneOfTheseNamedParamsList(pOtherNumber, [ :Until, :UpTo, :Under ])
@@ -4623,6 +4650,7 @@ class stzNumber from stzObject
 
 		return This.MultiplesUntil(pOtherNumber)
 
+	# The multiples of the number up to the given limit.
 	def MultiplesUntil(pOtherNumber)
 
 		if CheckingParams()
@@ -4753,6 +4781,7 @@ class stzNumber from stzObject
 
 	# DIVIDABILITY
 
+	# TRUE if the number divides evenly by n.
 	def IsDividableBy(n)
 		if CheckingParams()
 			if NOT @IsNumberOrString(n)
@@ -4808,17 +4837,20 @@ class stzNumber from stzObject
 		def CanBeDividedBy(n)
 			return This.IsDividableBy(n)
 			
+	# TRUE if the number divides evenly INTO n.
 	def IsDividorOf(n)	// Main Number and n must be integers!
 		_oNumber_ = new stzNumber(n)
 
 		return _oNumber_.IsDividableBy(This.IntegerPartValue())
 
+	# The integer part, as a number.
 	def IntegerPartValue()
 		return 0+ This.IntegerPart()
 
 		def IntegerPartNumericValue()
 			return This.IntegerPartValue()
 
+	# The fractional part, as a number.
 	def FractionalPartValue()
 		return 0+ This.FractionalPart()
 
@@ -4835,6 +4867,7 @@ class stzNumber from stzObject
 	 #     CONVERSION    #
 	#-------------------#
 
+	# The number wrapped as a stzString object.
 	def ToStzString()
 		return new stzString(This.Content())
 	
@@ -4862,9 +4895,11 @@ class stzNumber from stzObject
 
 		#>
 
+	# The number wrapped as a stzHexNumber object.
 	def ToHexNumber()
 		return new stzHexNumber( This.ToHex() )
 
+	# The number in Unicode hex form (U+0041).
 	def ToUnicodeHexForm()
 		return "U+" + This.ToHexFormWithoutPrefix()
 	
@@ -4878,6 +4913,7 @@ class stzNumber from stzObject
 
 		#>
 
+	# The hexadecimal form without the 0x prefix.
 	def ToHexFormWithoutPrefix()
 		_cResult_ = This.IntegerPartToHexForm()
 
@@ -4894,9 +4930,11 @@ class stzNumber from stzObject
 
 		#>
 			
+	# The integer part in hexadecimal form.
 	def IntegerPartToHexForm()
 		return StzUpper(StzEngineNumberToBase(This.IntegerPartValue(), 16))
 
+	# The fractional part in hexadecimal form.
 	def FractionalPartToHexForm()
 		_cFraction_ = This.FractionalPart()
 
@@ -4945,6 +4983,7 @@ class stzNumber from stzObject
 		# argument. Same family as the Insert/Swap/Add shadows.
 		return This.Sign() + StzEngineNumberToBase(fabs(This.IntegerPartValue()), 8)
 
+	# The number in octal form (with prefix).
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
 
@@ -4957,6 +4996,7 @@ class stzNumber from stzObject
 		def ToOctalNumber()
 			return new stzOctalNumber( This.ToOctalForm() )
 	
+	# The octal form without the prefix.
 	def ToOctalFormWithoutPrefix()
 		_cResult_ = This.IntegerPartToOctalForm()
 
@@ -4968,6 +5008,7 @@ class stzNumber from stzObject
 
 	// Returns a string containing the equivalent of the interger part
 	// in the specified base n (between 2 and 36)
+	# The integer part written in base n (2..36).
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
 			_nVal_ = This.IntegerValue()
@@ -4996,12 +5037,14 @@ class stzNumber from stzObject
 		def FromBinary(cBinary)
 			This.FromBinaryForm(cBinary)
 
+	# Set the number from the given octal form (mutating).
 	def FromOctalForm(cOctal)
 		This.Update( StzOctalNumberQ(cOctal).ToDecimalForm() )
 
 		def FromOctal(cOctal)
 			This.FromOctalForm(cOctal)
 
+	# Set the number from the given hex form (mutating).
 	def FromHexForm(cHex)
 		This.Update( StzHexNumberQ(cHex).ToDecimalForm() )
 
@@ -5170,24 +5213,29 @@ class stzNumber from stzObject
 		return _aStructure_
 
 	#-- HUNDREDS --#
+	# The hundreds part of the number's structure.
 	def Hundreds()
 		return This.Structure()[ :cHundreds ]		
 
+	# The hundreds part of the structure, in detailed (XT) form.
 	def HundredsXT()
 		return This.StructureXT()[ :aHundreds ]
 
+	# The units digit inside the number's hundreds.
 	def UnitsInHundreds()
 		return This.HundredsXT()[ :Units ]
 
 		def Units()
 			return This.UnitsInHundreds()
 
+	# The dozens digit inside the number's hundreds.
 	def DozensInHundreds()
 		return This.HundredsXT()[ :Dozens ]
 
 		def Dozens()
 			return This.DozensInHundreds()
 
+	# The hundreds digit inside the number's hundreds.
 	def HundredsInHundreds()
 		return This.HundredsXT()[ :Hundreds ]
 
@@ -5206,18 +5254,23 @@ class stzNumber from stzObject
 			return This.HasHundreds()
 
 	#-- TOUHSANDS --#
+	# The thousands part of the number's structure.
 	def Thousands()
 		return This.Structure()[ :cThousands ]
 
+	# The thousands part of the structure, in detailed (XT) form.
 	def ThousandsXT()
 		return This.StructureXT()[ :aThousands ]
 
+	# The units digit inside the number's thousands.
 	def UnitsInThousands()
 		return This.ThousandsXT()[ :Units ]
 
+	# The dozens digit inside the number's thousands.
 	def DozensInThousands()
 		return This.ThousandsXT()[ :Dozens ]
 
+	# The hundreds digit inside the number's thousands.
 	def HundredsInThousands()
 		return This.ThousandsXT()[ :Hundreds ]
 
@@ -5235,18 +5288,23 @@ class stzNumber from stzObject
 			return This.HasThousands()
 
 	#-- MILLIONS --#
+	# The millions part of the number's structure.
 	def Millions()
 		return This.Structure()[ :cMillions ]
 
+	# The millions part of the structure, in detailed (XT) form.
 	def MillionsXT()
 		return This.StructureXT()[ :aMillions ]
 
+	# The units digit inside the number's millions.
 	def UnitsInMillions()
 		return This.MillionsXT()[ :Units ]
 
+	# The dozens digit inside the number's millions.
 	def DozensInMillions()
 		return This.MillionsXT()[ :Dozens ]
 
+	# The hundreds digit inside the number's millions.
 	def HundredsInMillions()
 		return This.MillionsXT()[ :Hundreds ]
 
@@ -5264,18 +5322,23 @@ class stzNumber from stzObject
 			return This.HasMillions()
 
 	#-- BILLIONS --#
+	# The billions part of the number's structure.
 	def Billions()
 		return This.Structure()[ :cBillions ]
 
+	# The billions part of the structure, in detailed (XT) form.
 	def BillionsXT()
 		return This.StructureXT()[ :aBillions ]
 			
+	# The units digit inside the number's billions.
 	def UnitsInBillions()
 		return This.BillionsXT()[ :Units ]
 
+	# The dozens digit inside the number's billions.
 	def DozensInBillions()
 		return This.BillionsXT()[ :Dozens ]
 
+	# The hundreds digit inside the number's billions.
 	def HundredsInBillions()
 		return This.BillionsXT()[ :Hundreds ]
 
@@ -5292,18 +5355,23 @@ class stzNumber from stzObject
 			return This.HasBillions()
 
 	#-- TRILLIONS --#
+	# The trillions part of the number's structure.
 	def Trillions()
 		return This.Structure()[ :cTrillions ]
 
+	# The trillions part of the structure, in detailed (XT) form.
 	def TrillionsXT()
 		return This.StructureXT()[ :aTrillions ]
 
+	# The units digit inside the number's trillions.
 	def UnitsInTrillions()
 		return This.TrillionsXT()[ :Units ]
 
+	# The dozens digit inside the number's trillions.
 	def DozensInTrillions()
 		return This.TrillionsXT()[ :Dozens ]
 
+	# The hundreds digit inside the number's trillions.
 	def HundredsInTrillions()
 		return This.TrillionsXT()[ :Hundreds ]
 
