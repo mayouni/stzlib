@@ -216,6 +216,8 @@ class stzQuestion
 		if @cAspect = ""
 			StzRaise("NNL question: no aspect was named (say a noun like FirstCharQ()).")
 		ok
+		# EVIDENTIALITY: frame answers are computed, hence CERTAIN
+		$nStzLastCertainty = 1
 		_vLeft_ = This._Compute(@cAspect, @pLeftHost, @bCount1)
 
 		if @cComparator = ""

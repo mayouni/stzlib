@@ -109,6 +109,8 @@ class stzCan
 		@pValue = pValue
 
 	def BeA(pcKind)
+		# EVIDENTIALITY: constraint checks are deterministic -- CERTAIN
+		$nStzLastCertainty = 1
 		_cK_ = StzLower(trim(pcKind))
 		_aC_ = ConstraintsOn(_cK_)
 		_nC_ = len(_aC_)
@@ -147,6 +149,7 @@ class stzMust
 		@cKind = StzLower(trim(pcKind))
 
 	def BeA(pcDesc)
+		$nStzLastCertainty = 1
 		_cD_ = StzLower(trim("" + pcDesc))
 		_aC_ = ConstraintsOn(@cKind)
 		_nC_ = len(_aC_)

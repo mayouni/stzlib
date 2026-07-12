@@ -22,6 +22,7 @@
 $cStzExpectMode = :Exactly
 $nStzExpectTol = 0
 $cStzLastWhyB = ""
+$nStzLastCertainty = 1   # EVIDENTIALITY: how confidently the last verdict is known
 $aStzAskAnswers = []   # Q4: the session ask-record (see the funcs below)
 
 func ExpectExactly(n)
@@ -71,6 +72,44 @@ func ExpectBetween(n1, n2)
 #   use the chain-local forms in real code.
 # NAMING: never WhyB -- the B suffix is RESERVED by the NNL grammar for
 # boolean-returning devices; Why* is the explanation family.
+
+# THE EVIDENTIAL REGISTER -- natural language marks not only WHAT is
+# true but HOW CONFIDENTLY the speaker knows it. Deterministic checks
+# are CERTAIN (1); the semantic verdicts (similarity, zero-shot
+# classification, sentiment) carry their graded score. The evidential
+# ADVERB verbalizes the bands: certainly / probably / apparently.
+
+func Certainty()
+	return $nStzLastCertainty
+
+	func @Certainty()
+		return $nStzLastCertainty
+
+func Evidentially()
+	return StzEvidentialAdverb($nStzLastCertainty)
+
+	func HowCertain()
+		return StzEvidentialAdverb($nStzLastCertainty)
+
+func StzEvidentialAdverb(nConf)
+	if NOT isNumber(nConf)
+		return "apparently"
+	ok
+	if nConf >= 0.85
+		return "certainly"
+	ok
+	if nConf >= 0.60
+		return "probably"
+	ok
+	return "apparently"
+
+# verbalize a graded verdict: "certainly yes" / "apparently not"
+func StzEvidentialVerdict(bYes, nConf)
+	_cEv_ = StzEvidentialAdverb(nConf)
+	if bYes = 1
+		return _cEv_ + " yes"
+	ok
+	return _cEv_ + " not"
 
 func Why()
 	return $cStzLastWhyB

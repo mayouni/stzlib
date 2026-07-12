@@ -169,11 +169,26 @@ class stzText from stzStringText
 
 	# TRUE if the sentiment score reaches +0.05.
 	def IsPositive()
-		return This.SentimentScore() >= 0.05
+		_nIpS_ = This.SentimentScore()
+		_bIp_ = 0
+		if _nIpS_ >= 0.05 _bIp_ = 1 ok
+		# EVIDENTIALITY: confidence = |compound| (capped at 1)
+		$nStzLastCertainty = fabs(_nIpS_)
+		if $nStzLastCertainty > 1 $nStzLastCertainty = 1 ok
+		$cStzLastWhyB = StzEvidentialVerdict(_bIp_, $nStzLastCertainty) +
+			": positive in tone"
+		return _bIp_
 
 	# TRUE if the sentiment score is -0.05 or below.
 	def IsNegative()
-		return This.SentimentScore() <= -0.05
+		_nInS_ = This.SentimentScore()
+		_bIn_ = 0
+		if _nInS_ <= -0.05 _bIn_ = 1 ok
+		$nStzLastCertainty = fabs(_nInS_)
+		if $nStzLastCertainty > 1 $nStzLastCertainty = 1 ok
+		$cStzLastWhyB = StzEvidentialVerdict(_bIn_, $nStzLastCertainty) +
+			": negative in tone"
+		return _bIn_
 
 	# The sentiment verdict as a human-readable sentence.
 	def SentimentExplained()
@@ -768,7 +783,18 @@ class stzText from stzStringText
 	# meets the threshold (default 0.5).
 	def IsSemanticallySimilarTo(pcOther, pnThreshold)
 		if NOT isNumber(pnThreshold) pnThreshold = 0.5 ok
-		return This.SemanticSimilarityWith(pcOther) >= pnThreshold
+		_nIssScore_ = This.SemanticSimilarityWith(pcOther)
+		_bIss_ = 0
+		if _nIssScore_ >= pnThreshold _bIss_ = 1 ok
+		# EVIDENTIALITY: the verdict carries its confidence
+		if _bIss_ = 1
+			$nStzLastCertainty = _nIssScore_
+		else
+			$nStzLastCertainty = 1 - _nIssScore_
+		ok
+		$cStzLastWhyB = StzEvidentialVerdict(_bIss_, $nStzLastCertainty) +
+			": semantically similar to " + @@(pcOther)
+		return _bIss_
 
 	# Dot product of two equal-length vectors (0 if empty/mismatched). Private
 	# helper for embedding cosine (vectors arrive L2-normalized).
@@ -818,6 +844,9 @@ class stzText from stzStringText
 	def ClassifiedAs(paLabels)
 		_aCaR_ = This.Classify(paLabels)
 		if len(_aCaR_) = 0 return "" ok
+		# EVIDENTIALITY: the label carries the top score as confidence
+		$nStzLastCertainty = _aCaR_[1][2]
+		$cStzLastWhyB = Evidentially() + " " + @@(_aCaR_[1][1])
 		return _aCaR_[1][1]
 
 		def ClassifiedAsQ(paLabels)
