@@ -1660,6 +1660,8 @@ class stzNumber from stzObject
 	 #    INIT    #
 	#------------#
 
+	# Build the number from a number, a number-in-string, or another
+	# stzNumber.
 	def init(pNumber)
 
 		# A stzNumber object can be initiated in 3 ways:
@@ -1871,6 +1873,7 @@ class stzNumber from stzObject
 			return This.Content()
 		ok
 
+	# The number as a Ring number.
 	def NumericValue()
 		# number() not 0+ : Ring's 0+str coercion returns 0 on the first
 		# use after ANY caught raise (VM quirk); number() is immune
@@ -2862,15 +2865,19 @@ class stzNumber from stzObject
 		def IsStrictlyLessOrEqualTo(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
+		# TRUE if the number is less than or equal to the given one.
 		def IsStrictlySmallerOrEqualTo(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
+		# TRUE if the number is less than or equal to the given one.
 		def IsStrictlyEqualOrLessThan(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
+		# TRUE if the number is less than or equal to the given one.
 		def IsStrictlyEqualOrSmallerThan(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
+		# Misspelled-but-kept alias of IsStrictlyLessThan.
 		def IsStrictlySmallerThqn(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
@@ -3432,6 +3439,7 @@ class stzNumber from stzObject
 		return _nResult_
 
 	#@ aka  round to nearest, nearest whole number, round off
+	# Round the number to the nearest integer (mutating).
 	def Round()
 		return @nRound
 
@@ -3815,6 +3823,7 @@ class stzNumber from stzObject
 
 		#< @FunctionPassiveForm
 
+		# The difference after subtracting the given number, as data.
 		def Substructed(pOtherNumber)
 			_nResult_ = This.Copy().SubstructQ(pOtherNumber).NumericValue()
 			return _nResult_
@@ -3831,6 +3840,7 @@ class stzNumber from stzObject
 		def Subtracted(pOtherNumber)
 			return This.SubStructed(pOtherNumber)
 
+		# The difference after subtracting the given number, as data.
 		def Subtructed(pOtherNumber)
 			return This.SubStructed(pOtherNumber)
 
@@ -3865,6 +3875,7 @@ class stzNumber from stzObject
 
 		#< @FunctionPassiveForms
 
+		# The value after subtracting all the given numbers, as data.
 		def SubstructedMany(pOtherNumbers)
 			_nResult_ = This.Copy().SubStructManyQ(pOtherNumbers).Content()
 			return _nResult_
@@ -3877,6 +3888,7 @@ class stzNumber from stzObject
 		def SubtractedMany(pOtherNumbers)
 			return This.SubStructedMany(pOtherNumbers)
 
+		# The value after subtracting all the given numbers, as data.
 		def SubtructedMany(pOtherNumbers)
 			return This.SubStructedMany(pOtherNumbers)
 
@@ -4524,9 +4536,11 @@ class stzNumber from stzObject
 
 		#< @FunctionFluentForm
 
+		# The factors, in the requested return type (variant form).
 		def FactorsXRQ()
 			return This.FactorsXTQRT(:stzList)
 
+		# The factors with options, in the requested return type.
 		def FactorsXTQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -4621,9 +4635,12 @@ class stzNumber from stzObject
 
 		#< @FunctionFluentForm
 
+		# The prime factors, in the requested return type (variant
+		# form).
 		def PrimeFactorsXRQ()
 			return This.PrimeFactorsXTQRT(:stzList)
 
+		# The prime factors with options, in the requested return type.
 		def PrimeFactorsXTQRT(pcReturnType)
 			switch pcReturnType
 			on :stzList
@@ -4920,6 +4937,7 @@ class stzNumber from stzObject
 		#< @FunctionAlternativeForm
 
 		#@ aka  hexadecimal, hex, base 16
+		# The number in hexadecimal form.
 		def ToHex()
 			return ToHexForm()
 
@@ -5474,6 +5492,7 @@ class stzNumber from stzObject
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())
 
+		# Same as ExistsIn: TRUE if the number occurs in the given list.
 		def Inn(paList)
 			return ExistsIn(paList)
 
@@ -6539,6 +6558,7 @@ class stzNumber from stzObject
 	def IsStzNumber()
 		return 1
 
+	# The Softanza type symbol: :stzNumber.
 	def stzType()
 		return :stzNumber
 

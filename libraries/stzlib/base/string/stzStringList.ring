@@ -83,6 +83,7 @@ class stzStringList from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Build the string-list object from the given list of strings.
 	def init(paList)
 		if NOT isList(paList)
 			StzRaise("Can't create stzStringList! Parameter must be a list of strings.")
@@ -793,6 +794,7 @@ class stzStringList from stzObject
 	 #   SPLIT EACH STRING                                  #
 	#======================================================#
 
+	# Split each string on the given separator.
 	def Split(_cSep_)
 		if isList(_cSep_) and len(_cSep_) = 2 and isString(_cSep_[1]) and
 		   (StzCaseFold(_cSep_[1]) = "using" or StzCaseFold(_cSep_[1]) = "with" or StzCaseFold(_cSep_[1]) = "by")
@@ -851,6 +853,7 @@ class stzStringList from stzObject
 	def IsStzStringList()
 		return 1
 
+	# The Softanza type symbol: :stzStringList.
 	def stzType()
 		return :stzStringList
 

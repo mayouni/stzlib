@@ -36,6 +36,7 @@ class stzList from stzObject
 	 #     INIT     #
 	#--------------#
 
+	# Build the list object from the given Ring list.
 	def init(paList)
 
 		if CheckingParams()
@@ -452,6 +453,9 @@ class stzList from stzObject
 	 #      UPDATING      #
 	#--------------------#
 
+	# Replace the whole content with the given list (mutating; the
+	# enforcement guard sits at _SetContent, the single update
+	# point).
 	def Update(paNewList)
 		if CheckingParams() = 1
 			if isList(paNewList) and IsWithOrByOrUsingNamedParamList(paNewList)
@@ -7252,6 +7256,7 @@ class stzList from stzObject
 		This.UpdateWith(_oMvMvr_.Content())
 
 	#@ aka  exchange, swap positions, interchange two items
+	# Exchange the items at the two given positions (mutating).
 	def Swap(_n1_, _n2_)
 		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
 		   (lower(_n1_[1]) = "positions" or lower(_n1_[1]) = "position") and
@@ -11662,6 +11667,7 @@ class stzList from stzObject
 		_StzHistoAdd(This.Content())
 		return This
 
+		# Lowercase every string item, chainable.
 		def LowercaseQ()
 			_StzHistoOpen(This.Content())
 			This.UpdateWith( This.Lowercased() )

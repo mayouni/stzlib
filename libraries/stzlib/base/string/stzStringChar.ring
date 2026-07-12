@@ -714,6 +714,7 @@ class stzStringChar from stzString
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Build the char object from the given single-char string.
 	def init(pChar)
 
 		if isString(pChar)
@@ -1099,6 +1100,7 @@ class stzStringChar from stzString
 		def UnicodeType()
 			return This.UnicodeCategory()
 
+			# The Unicode category name, wrapped as a stzString.
 			def TypeUnicodeQ()
 				return new stzString( This.UnicodeType() )
 

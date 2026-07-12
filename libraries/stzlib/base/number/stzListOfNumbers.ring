@@ -4980,6 +4980,7 @@ class stzListOfNumbers from stzList
 	def IsStzListOfNumbers()
 		return 1
 
+	# The Softanza type symbol: :stzListOfNumbers.
 	def stzType()
 		return :stzListOfNumbers
 
@@ -4989,6 +4990,7 @@ class stzListOfNumbers from stzList
 
 	#-----
 
+	# The numbers as a stzListOfChars object.
 	def ToStzListOfChars()
 		return new stzListOfChars( This.Content() )
 
