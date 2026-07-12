@@ -101,4 +101,37 @@ Scenario("The hypothetical frontier: suppose -> ask -> commit or forget")
 	Then("...and the overlay is empty", @@( SuppositionsSoFar() ), "[ ]")
 EndScenario()
 
+Scenario("WhatIs through Ask -- one interrogative family, ONE door")
+	Given("the two knowledge sources now meet: Ask() consults the ENTITY WORLD on a 'what is X / who is X' question (a '(world)' entry, kind-consistent with recipes), and WhatIs() falls back to the LIBRARY through the same retrieval pipeline when the world is silent")
+
+	StzKnow("zorglang", "language")
+	aAns = StzLibDoc([]).Ask("what is zorglang ?")
+	Then("the world answers FIRST through Ask", aAns[1][1], "(world)")
+	Then("...as a plain sentence", aAns[1][4], "zorglang is a language")
+
+	oT = new stzText("hello")
+	aAns = oT.Ask("what is zorglang")
+	Then("the same door opens from any OBJECT's Ask",
+		aAns[1][3], "zorglang is a language")
+
+	aAns = oT.Ask("make the text uppercase")
+	Then("a non-world question stays pure method retrieval",
+		aAns[1][1] != "(world)", TRUE)
+
+	aW = WhatIs("uppercase")
+	Then("WhatIs, silent in the world, answers from the LIBRARY -- and only a name-exact or voice-sibling method passes the gate",
+		StzFindFirst(aW[1], "the method Uppercased (on stzStringList)"), 1)
+
+	SupposeQ("blorp").IsAQ("gadget")
+	aAns = StzLibDoc([]).Ask("who is blorp")
+	Then("a supposition answers through the door, while it stands",
+		aAns[1][4], "blorp is a gadget")
+	ForgetSuppositions()
+	Then("...and is honestly gone once forgotten",
+		StzLibDoc([]).Ask("who is blorp")[1][1] != "(world)", TRUE)
+
+	Then("unknown everywhere stays honestly empty",
+		@@( WhatIs("zorgle") ), "[ ]")
+EndScenario()
+
 Summary()

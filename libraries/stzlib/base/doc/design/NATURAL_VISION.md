@@ -301,9 +301,15 @@ verifies after. Strictly better ergonomics for the same guarantee.
    literate_templates_narrated 10/10.
 
 THE SEQUENCING IS COMPLETE (steps 1-5, all landed 2026-07-10). Open
-threads beyond it: surfacing WhatIs through Ask()'s retrieval pipeline,
-and the deferred Floor-2 rebuild of the chain surface as resolver-backed
-sugar if ever wanted.
+threads beyond it: WhatIs-through-Ask DONE (2026-07-12) -- the two doors
+meet: Ask() consults the ENTITY WORLD on a "what is X / who is X"
+question (a "(world)" entry prepended to the ranked results,
+kind-consistent with "(recipe)"; suppositions answer too, while they
+stand), and WhatIs() falls back to the LIBRARY through the same
+retrieval pipeline when the world is silent (accepting only name-exact
+or voice-sibling method hits -- deterministic). Remaining: the deferred
+Floor-2 rebuild of the chain surface as resolver-backed sugar if ever
+wanted.
 
 ---
 
