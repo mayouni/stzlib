@@ -306,18 +306,22 @@ class stzListOfLists from stzList
 	 #   GENERAL   #
 	#-------------#
 
+	# The raw list of lists.
 	def Content()
 		return @aContent
 
 		def Value()
 			return Content()
 
+	# A new stzListOfLists with the same sublists.
 	def Copy()
 		return new stzListOflists(This.Content())
 
+	# Same as Content: the raw list of lists.
 	def ListOfLists()
 		return This.Content()
 
+	# How many sublists the list holds.
 	def NumberOfLists()
 		return len(@aContent)
 
@@ -375,10 +379,12 @@ class stzListOfLists from stzList
 	 #   ADDING LISTS  #
 	#-----------------#
 
+	# Add the given list at the end (mutating).
 	def AddList(paList)
 		_aAlContent_ = This.Content()
 		This.UpdateWith(_aAlContent_ + paList)
 
+	# Add each of the given lists at the end (mutating).
 	def AddMany(paListOfLists)
 		if CheckingParams()
 			if NOT ( isList(paListOfLists) and Q(paListOfLists).IsListOfLists() )
@@ -402,6 +408,7 @@ class stzListOfLists from stzList
 	 #   NTH LIST    #
 	#---------------#
 
+	# The sublist at position n.
 	def NthList(_n_)
 		if CheckingParams()
 
@@ -447,9 +454,11 @@ class stzListOfLists from stzList
 
 		#>
 
+	# The first sublist.
 	def FirstList()
 		return This.NthList(1)
 
+	# The last sublist.
 	def LastList()
 		return This.NthList( This.NumberOfLists() )
 
@@ -491,6 +500,8 @@ class stzListOfLists from stzList
 
 	#-- WITHOUT CASESENSITIVITY
 
+	# Where the item occurs INSIDE the sublists: [sublist, position]
+	# pairs.
 	def FindInLists(pItem)
 		return This.FindInListsCS(pItem, 1)
 	
@@ -543,6 +554,7 @@ class stzListOfLists from stzList
 
 	#-- WITHOUT CASESENSITIVITY
 
+	# Where each of the given items occurs inside the sublists.
 	def FindManyInLists(paItems)
 		return This.FindManyInListsCS(paItems, 1)
 	
@@ -567,6 +579,7 @@ class stzListOfLists from stzList
 	 #   POSITIONS WHERE    #
 	#======================#
 
+	# The positions of the sublists satisfying the W condition.
 	def PositionsW(pcCondition)
 
 		_cPwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
@@ -631,6 +644,7 @@ class stzListOfLists from stzList
 	 #   LISTS WHERE    #
 	#------------------#
 
+	# The sublists satisfying the W condition.
 	def ListsW(pcCondition)
 
 		_cLwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
@@ -836,6 +850,7 @@ class stzListOfLists from stzList
 	 #   SMALLEST LISTS   #
 	#--------------------#
 
+	# The positions of the shortest sublists.
 	def FindSmallestLists()
 
 		_aFslContent_ = This.Content()
@@ -869,12 +884,14 @@ class stzListOfLists from stzList
 		def MinListsPositions()
 			return This.FindSmallestLists()
 
+	# The shortest sublists.
 	def SmallestLists()
 		_aSlResult_ = This.ItemsAtPositions( This.FindSmallestLists() )
 		return _aSlResult_
 
 	#--
 
+	# The shortest sublists along with their positions.
 	def SmallestListsZ()
 		_aSlzResult_ = Association([ This.SmallestLists(), This.FindSmallestLists() ])
 		return _aSlzResult_
@@ -883,6 +900,7 @@ class stzListOfLists from stzList
 	 #   BIGGEST LISTS   #
 	#-------------------#
 
+	# The positions of the longest sublists.
 	def FindBiggestLists()
 
 		_aFblContent_ = This.Content()

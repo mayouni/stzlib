@@ -5239,6 +5239,7 @@ class stzNumber from stzObject
 	def HundredsInHundreds()
 		return This.HundredsXT()[ :Hundreds ]
 
+	# TRUE if the number reaches the hundreds.
 	def HasHundreds()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -5274,6 +5275,7 @@ class stzNumber from stzObject
 	def HundredsInThousands()
 		return This.ThousandsXT()[ :Hundreds ]
 
+	# TRUE if the number reaches the thousands.
 	def HasThousands()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -5308,6 +5310,7 @@ class stzNumber from stzObject
 	def HundredsInMillions()
 		return This.MillionsXT()[ :Hundreds ]
 
+	# TRUE if the number reaches the millions.
 	def HasMillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -5342,6 +5345,7 @@ class stzNumber from stzObject
 	def HundredsInBillions()
 		return This.BillionsXT()[ :Hundreds ]
 
+	# TRUE if the number reaches the billions.
 	def HasBillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -5375,6 +5379,7 @@ class stzNumber from stzObject
 	def HundredsInTrillions()
 		return This.TrillionsXT()[ :Hundreds ]
 
+	# TRUE if the number reaches the trillions.
 	def HasTrillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -5389,6 +5394,7 @@ class stzNumber from stzObject
 			return This.HasTrillions()
 
 	#-- ALL IN ONCE --#
+	# The units digit at every scale level, as a hash.
 	def AllUnits()
 		return 	[ :InHundreds  = This.UnitsInHundreds(),
 			  :InThousands = This.UnitsInThousands(),
@@ -5397,6 +5403,7 @@ class stzNumber from stzObject
 			  :InTrillions = This.UnitsInTrillions()
 			]
 
+	# The dozens digit at every scale level, as a hash.
 	def AllDozens()
 		return 	[ :InHundreds  = This.DozensInHundreds(),
 			  :InThousands = This.DozensInThousands(),
@@ -5405,6 +5412,7 @@ class stzNumber from stzObject
 			  :InTrillions = This.DozensInTrillions()
 			]
 
+	# The hundreds digit at every scale level, as a hash.
 	def AllHundreds()
 		return 	[ :InHundreds  = This.HundredsInHundreds(),
 			  :InThousands = This.HundredsInThousands(),
@@ -5417,30 +5425,36 @@ class stzNumber from stzObject
 	 #    CONTAINABILITY     #
 	#-----------------------#
 
+	# Always TRUE: a number is made of digits.
 	def ContainsDigits()
 		return 1
 
+	# TRUE if the number contains the given digit.
 	def Contains(pcDigit)
 		return StzFindFirst(This.Content(), pcDigit) > 0
 
+	# TRUE if the number occurs in the given list.
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())
 
 		def Inn(paList)
 			return ExistsIn(paList)
 
+	# TRUE if the number contains the digit 0.
 	def ContainsZeros()
 		return This.Contains("0")
 
 		def HasZeros()
 			return This.ContainsZeros()
 
+	# TRUE if the number contains the digit 1.
 	def ContainsOnes()
 		return This.Contains("1")
 
 		def HasOnes()
 			return This.ContainsOnes()
 
+	# TRUE if the given digit occurs more than once.
 	def ContainsSeveral(pcDigit)
 		return StringNumberOfOccurrence(This.Content(), pcDigit) > 1
 
@@ -5453,6 +5467,7 @@ class stzNumber from stzObject
 		def HasMany(pcDigit)
 			return This.ContainsSeveral(pcDigit)
 
+	# TRUE if the digit 0 occurs more than once.
 	def ContainsSeveralZeros()
 		return This.ContainsSeveral("0")
 
@@ -5465,6 +5480,7 @@ class stzNumber from stzObject
 		def HasManyZeros()
 			return This.ContainsSeveralZeros()
 
+	# TRUE if the digit 1 occurs more than once.
 	def ContainsSeveralOnes()
 		return This.ContainsSeveral("1")
 
@@ -5477,6 +5493,7 @@ class stzNumber from stzObject
 		def HasManyOnes()
 			return This.ContainsSeveralOnes()
 
+	# TRUE if the number is at least 10.
 	def ContainsDozens()
 		return This.NumericValue() >= 10
 
@@ -5486,6 +5503,7 @@ class stzNumber from stzObject
 		def ContainsManyDozens()
 			return This.ContainsDozens()
 
+	# TRUE if the number is at least 200 (several hundreds).
 	def ContainsSeveralHundreds()
 		return This.NumericValue() >= 200
 
@@ -5498,6 +5516,7 @@ class stzNumber from stzObject
 		def HasManyHundreds()
 			return This.ContainsSeveralHundreds()
 
+	# TRUE if the number is at least 2000 (several thousands).
 	def ContainsSeveralThousands()
 		return This.NumericValue() >= 2000
 
@@ -5510,6 +5529,7 @@ class stzNumber from stzObject
 		def HasManyThousands()
 			return This.ContainsSeveralThousands()
 
+	# TRUE if the number is at least 10 000.
 	def ContainsTensOfThousands()
 		return This.NumericValue() >= 10_000
 
@@ -5528,6 +5548,7 @@ class stzNumber from stzObject
 		def HasManyTensOfThousands()
 			return This.ContainsSeveralTensOfThousands()
 
+	# TRUE if the number is at least 100 000.
 	def ContainsHundredsOfThousands()
 		return This.NumericValue() >= 100_000
 

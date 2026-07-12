@@ -100,6 +100,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   LEMMATIZATION (dictionary form)                        #
 	#==========================================================#
+	# The text lemmatized in the given language.
 	def LemmatizedInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		_pLem_ = StzEngineStringLemmatized(This.Engine(), pcLang)
@@ -117,10 +118,12 @@ class stzText from stzStringText
 		def Lemma()
 			return This.Lemmatized()
 
+	# The lemma of each word, in the given language.
 	def LemmatizedWordsInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		return StzEngineStringLemmatizeWordsList(This.Engine(), pcLang)
 
+	# The lemma of each word (English).
 	def LemmatizedWords()
 		return This.LemmatizedWordsInLanguage("english")
 
@@ -152,21 +155,27 @@ class stzText from stzStringText
 			return "neutral"
 		ok
 
+	# The positive sentiment score of the text (VADER).
 	def PositiveScore()
 		return StzEngineStringSentiment(This.Engine(), 1)
 
+	# The negative sentiment score of the text (VADER).
 	def NegativeScore()
 		return StzEngineStringSentiment(This.Engine(), 2)
 
+	# The neutral sentiment score of the text (VADER).
 	def NeutralScore()
 		return StzEngineStringSentiment(This.Engine(), 3)
 
+	# TRUE if the sentiment score reaches +0.05.
 	def IsPositive()
 		return This.SentimentScore() >= 0.05
 
+	# TRUE if the sentiment score is -0.05 or below.
 	def IsNegative()
 		return This.SentimentScore() <= -0.05
 
+	# The sentiment verdict as a human-readable sentence.
 	def SentimentExplained()
 		_nSeScore_ = This.SentimentScore()
 		_cSeLabel_ = This.Sentiment()
@@ -339,12 +348,14 @@ class stzText from stzStringText
 		def Keywords()
 			return This.ContentWords()
 
+	# The text with the stopwords removed.
 	def WithoutStopwords()
 		_pWs_ = StzEngineStringWithoutStopwords(This.Engine())
 		_cWs_ = StzEngineStringData(_pWs_)
 		StzEngineStringFree(_pWs_)
 		return _cWs_
 
+	# TRUE if the text is a stopword.
 	def IsStopword()
 		return StzEngineStringIsStopword(This.Engine()) = 1
 
@@ -362,6 +373,7 @@ class stzText from stzStringText
 		def FleschKincaidGrade()
 			return This.ReadabilityGrade()
 
+	# The readability verdict as a human-readable sentence.
 	def ReadabilityExplained()
 		_nReWords_ = This.NumberOfWords()
 		_nReSent_  = This.NumberOfSentences()
@@ -410,6 +422,7 @@ class stzText from stzStringText
 		def KeyPhrasesQQ(n)
 			return new stzListOfTexts(This.KeyPhrases(n))
 
+	# The single best key phrase of the text.
 	def TopKeyPhrase()
 		_aTkp_ = This.KeyPhrases(1)
 		if len(_aTkp_) = 0 return "" ok
@@ -566,6 +579,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   POS-AWARE WORD FILTERS                                 #
 	#==========================================================#
+	# The words carrying the given Penn part-of-speech tag.
 	def WordsThatAre(pcPenn)
 		if NOT isString(pcPenn) return [] ok
 		_aWtWords_ = This.Words()
@@ -849,11 +863,13 @@ class stzText from stzStringText
 		def DetectedLanguage()
 			return This.Language()
 
+	# The text lemmatized in its own detected language.
 	def AutoLemmatized()
 		_cAlLg_ = This.Language()
 		if _cAlLg_ = "unknown" _cAlLg_ = "english" ok
 		return This.LemmatizedInLanguage(_cAlLg_)
 
+	# The text stemmed in its own detected language.
 	def AutoStemmed()
 		_cAsLg_ = This.Language()
 		if _cAsLg_ = "unknown" _cAsLg_ = "english" ok
@@ -862,6 +878,8 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   PROFILE + STYLOMETRY                                   #
 	#==========================================================#
+	# A content profile of the text (keywords, entities,
+	# sentiment...).
 	def Profile()
 		_oPfNoStop_ = new stzString(This.WithoutStopwords())
 		_aPfTop_ = _oPfNoStop_.MostFrequentWords(5)
@@ -892,6 +910,7 @@ class stzText from stzStringText
 		def TypeTokenRatio()
 			return This.LexicalDiversity()
 
+	# A style profile of the text (word lengths, variety...).
 	def StyleProfile()
 		_aSpWords_ = This.Words()
 		_nSpWords_ = len(_aSpWords_)
@@ -910,6 +929,8 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   CONCORDANCE + COMPARISON                               #
 	#==========================================================#
+	# The occurrences of the word with n words of context around
+	# each.
 	def InContextWithWindow(pcWord, nWindow)
 		if NOT isString(pcWord) return [] ok
 		_aIcWords_ = This.Words()
@@ -972,6 +993,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   ANNOTATED DISPLAY                                      #
 	#==========================================================#
+	# Print each word with its part-of-speech tag.
 	def ShowTagged()
 		_aShTw_ = This.TaggedWords()
 		_cShOut_ = ""
@@ -983,6 +1005,7 @@ class stzText from stzStringText
 		? _cShOut_
 		return This
 
+	# Print the named entities found in the text.
 	def ShowEntities()
 		_aSeeNe_ = This.NamedEntities()
 		_cSeeOut_ = This.Content()
@@ -995,6 +1018,7 @@ class stzText from stzStringText
 		? _cSeeOut_
 		return This
 
+	# Print the sentiment of each sentence.
 	def ShowSentiment()
 		_aSsSt_ = This.Sentences()
 		_nSsN_ = len(_aSsSt_)

@@ -4538,6 +4538,7 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add alternatives
 
+	# A copy divided by each given number in order, one by one.
 	def DividedByManyOneByOne(panNumbers)
 		_anResult_ = This.Copy().DivideByManyOneByOneQ(panNumbers).Content()
 		return _anResult_
@@ -4611,6 +4612,8 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add alternatives
 
+	# The numbers with n added where the W condition holds, as a
+	# copy.
 	def AddedToEachW(_n_)
 		_aResult_ = This.Copy().AddToEachWQ(_n_).Content()
 		return _aResult_
@@ -4632,6 +4635,8 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add alternatives
 
+	# The numbers with n subtracted where the W condition holds, as
+	# a copy.
 	def SubStructedFromEachW(_n_)
 		_aResult_ = This.Copy().SubStructFromEachWQ(_n_).Content()
 		return _aResult_
@@ -4743,6 +4748,8 @@ class stzListOfNumbers from stzList
 		#TODO
 		# Add alternatives
 
+	# The numbers divided by n where the W condition holds, as a
+	# copy.
 	def EachDividedWithW(_n_)
 		_aResult_ = This.Copy().DivideEachWithWQ(_n_).Content()
 		return _aResult_
@@ -4878,6 +4885,7 @@ class stzListOfNumbers from stzList
 	 #   MISC.   #
 	#===========#
 
+	# Turn the numbers (positions) into [start, end] sections.
 	def ToSections()
 		/* EXAMPLE
 
@@ -5055,6 +5063,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number picked at random, along with its position.
 	def ARandomNumberZ()
 		_nRandom_  = ARandomNumberBetween(1, This.NumberOfNumbers())
 		_aResult_ = [ This.Content()[_nRandom_], _nRandom_ ]
@@ -5108,6 +5117,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number less than n, picked at random, with its position.
 	def ANumberLessThanZ(_nNumber_)
 		_aResult_ = This.NumbersLessThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
 
@@ -5209,6 +5219,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number greater than n, picked at random, with its
+	# position.
 	def ANumberGreaterThanZ(_nNumber_)
 		_aResult_ = This.NumbersGreaterThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
 		return _aResult_
@@ -5369,6 +5381,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number OTHER than the given one, with its position.
 	def AnyNumberBeforeOrAfterZ(_n_) # Or AnyNumberOtherThan()
 		if isList(_n_) and Q(_n_).IsPositionNamedParam()
 			_n_ = _n_[2]
@@ -5506,6 +5519,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number occurring BEFORE the given number, with its
+	# position.
 	def AnyNumberBeforeZ(_n_)
 		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
 			return This.AnyNumberBeforePosition(_n_)
@@ -5582,6 +5597,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number before the given POSITION, with its position.
 	def AnyNumberBeforePositionZ(_n_)
 		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -5675,6 +5691,8 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# One number occurring AFTER the given number, with its
+	# position.
 	def AnyNumberAfterZ(_n_)
 		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
 			return This.AnyNumberAfterPosition(_n_)
@@ -5752,6 +5770,7 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# One number after the given POSITION, with its position.
 	def AnyNumberAfterPositionZ(_n_)
 		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -5835,6 +5854,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number between n1 and n2, with its position.
 	def AnyNumberBetweenZ(_n1_, _n2_)
 		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
 			return AnyNumberBetweenPositions(_n1_[2], _n2_)
@@ -5928,6 +5948,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number between n1 and n2, bounds INCLUDED (IB), with its
+	# position.
 	def AnyNumberBetweenIBZ(_n1_, _n2_)
 		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
 			return AnyNumberBetweenPositions(_n1_[2], _n2_)
@@ -6021,6 +6043,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number OUTSIDE n1..n2, with its position.
 	def AnyNumberNotBetweenZ(_n1_, _n2_)
 		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
 			return AnyNumberBetweenPositions(_n1_[2], _n2_)
@@ -6116,6 +6139,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number outside n1..n2 (bounds included), with its
+	# position.
 	def AnyNumberNotBetweenIBZ(_n1_, _n2_)
 		if isList(_n1_) and Q(_n1_).IsPositionOrPositionsNamedParam()
 			return AnyNumberBetweenPositions(_n1_[2], _n2_)
@@ -6227,6 +6252,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# One number lying between the two given POSITIONS, with its
+	# position.
 	def AnyNumberBetweenPositionsZ(_n1_, _n2_)
 		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
 			_n2_ = _n2_[2]
@@ -6352,6 +6379,8 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FROM
 
+	# One number lying outside the two given positions, with its
+	# position.
 	def AnyNumberNotBetweenPositionsZ(_n1_, _n2_)
 		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
 			_n2_ = _n2_[2]
@@ -6499,6 +6528,8 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# One number at a position OTHER than the given one, with its
+	# position.
 	def AnyNumberOutsidePositionZ(_n_)
 		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
 		_nRandom_ = AnyNumberIn(_anPos_)
@@ -6618,6 +6649,7 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# n numbers picked at random, with their positions.
 	def NRandomNumbersZ(_n_)
 
 		# Checking param n and the size of the list of numbers
@@ -6695,6 +6727,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# n numbers other than the given one, with their positions.
 	def NNumbersOtherThanZ(_n_, _nNumber_)
 		if isList(_n_)
 
@@ -6754,6 +6787,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# n numbers less than the given one, with their positions.
 	def NNumbersLessThanZ(_n_, _nNumber_)
 		_aResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbersZ(_n_)
 		return _anResult_
@@ -6805,6 +6839,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# n numbers greater than the given one, with their positions.
 	def NNumbersGreaterThanZ(_n_, _nNumber_)
 		_aResult_ = This.NumbersGreaterThanQ(_nNumber_).NRandomNumbersZ(_n_)
 		return _aResult_
@@ -6884,6 +6919,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# n numbers other than the given ones, with their positions.
 	def NNumbersOtherThanManyZ(_n_, _anNumbers_)
 
 		_anPos_ = Q( 1 : This.NumberOfItems() ) - These(This.Find(_anNumbers_))
@@ -6954,6 +6990,7 @@ class stzListOfNumbers from stzList
 
 	#-- Z/EXTENDED FORM
 
+	# n numbers between nMin and nMax, with their positions.
 	def NNumbersBetweenZ(_n_, nMin, nMax)
 		_anNumbers_ = This.NumbersBetween(nMin, nMax)
 		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
@@ -6983,6 +7020,8 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# n numbers between nMin and nMax (bounds included), with their
+	# positions.
 	def NNumbersBetweenIBZ(_n_, nMin, nMax)
 		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
 		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
@@ -7014,6 +7053,7 @@ class stzListOfNumbers from stzList
 
 	# Z/EXTENDED FORM
 
+	# n numbers outside nMin..nMax, with their positions.
 	def NNumbersNotBetweenZ(_n_, nMin, nMax)
 		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
 		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)

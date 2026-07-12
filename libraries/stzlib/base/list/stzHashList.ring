@@ -1630,6 +1630,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     FINDING KEYS    #
 	#---------------------#
 
+	# The positions of the given keys.
 	def FindKeys(pacKeys)
 		_aFksResult_ = This.KeysQ().FindMany(pacKeys)
 		return _aFksResult_
@@ -1637,6 +1638,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindTheseKeys(pacKeys)
 			return This.FindKeys(pacKeys)
 
+	# The position of the given key (0 if none).
 	def FindKey(pcKey)
 
 		if isString(pcKey)
@@ -1650,6 +1652,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindThisKey(pcKey)
 			return This.FindKey(pcKey)
 
+	# TRUE if the hash list holds the given key.
 	def HasKey(pcKey)
 
 		if isString(pcKey)
@@ -1666,6 +1669,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ContainsKey(pcKey)
 			return This.HasKey(pcKey)
 		
+	# TRUE if the hash list holds ALL the given keys.
 	def HasKeys(pacKeys)
 
 		_oKeys_ = new stzList(pacKeys)
@@ -1684,6 +1688,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  FINDING PAIRS  #
 	#-----------------#
 
+	# The position of the given [key, value] pair (0 if none).
 	def FindPair(paPair)
 		if NOT isList(paPair)
 			StzRaise("Incorrect param type! paPair must be a list.")
@@ -1710,6 +1715,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return _nFpResult_
 
 
+	# TRUE if the hash list holds the given pair.
 	def ContainsPair(paPair)
 
 		if FindPair(paPair) > 0
@@ -1745,6 +1751,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#-- WITHOUT CASESENSITIVE
 
+	# TRUE if some pair holds the given value.
 	def ContainsValue(pValue)
 		return This.ContainsValueCS(pValue, 1)
 
@@ -1784,6 +1791,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#-- WITHOUT CASESENSITIVE
 
+	# TRUE if the given values all occur.
 	def ContainsValues(paValues)
 		return This.ContainsValuesCS(paValues, 1)
 
@@ -1820,6 +1828,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#-- WITHOUT CASESENSITIVITY
 
+	# The positions of the pairs holding the given value.
 	def FindValue(pValue)
 		return This.FindValueCS(pValue, 1)
 
@@ -1880,6 +1889,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#-- WITHOUT CASESENSITIVITY
 
+	# The positions of the pairs holding any of the given values.
 	def FindValues(paValues)
 		return This.FindValuesCS(paValues, 1)
 
@@ -1933,6 +1943,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	#-- WITHOUT CASESENSITIVITY
 
+	# The position of the nth pair holding the given value.
 	def FindNthOccurrenceOfValue(_n_, pValue)
 		return This.FindNthOccurrenceOfValueCS(_n_, pValue, 1)
 
@@ -3201,6 +3212,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     CLASSIFYING VALUES    #
 	#===========================#
 
+	# Group the pairs into classes by value.
 	def Classify()
 
 		_aCfResult_ = []
@@ -4607,6 +4619,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     SHOW     #
 	#==============#
 
+	# Print the hash list as a boxed table.
 	def Show()
 		This.ToStzTable().Show()
 
@@ -4635,6 +4648,7 @@ this: lefttoright
 	def IsHashList() # required by stzChainOfTruth
 		return 1
 
+	# The hash list as runnable Ring code, as a string.
 	def ToCode()
 		_aTcPairs_ = This.Content()
 		_nTcLen_ = len(_aTcPairs_)
