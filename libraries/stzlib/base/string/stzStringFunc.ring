@@ -2324,9 +2324,10 @@ func StzIsHtmlTableString(pcStr)
 
 
 func StzBoxify(_str_)
+	# Boxify() RETURNS the boxed string (it does not mutate) -- use
+	# the return value; reading Content() back gave the input unboxed
 	_oTempStr_ = new stzString(_str_)
-	_oTempStr_.Boxify()
-	return _oTempStr_.Content()
+	return _oTempStr_.Boxify()
 
 	func Boxify(_str_)
 		return StzBoxify(_str_)

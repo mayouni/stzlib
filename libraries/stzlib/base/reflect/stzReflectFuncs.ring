@@ -1001,6 +1001,61 @@ func _StzHarvestMethods(pcFile)
 # Harvest ONLY the methods of class pcName within pcFile (a file may hold several
 # classes -- stzObject.ring alone holds many). Scans from that class's `class`
 # line to the next `class`/`func` declaration. Empty pcName => whole file.
+# Displayed descriptions are for USERS: strip maintainer chatter --
+# any (...) parenthetical mentioning an internal _Stz* helper or
+# starting with "Operation synonyms", and any "-- see _Stz..." tail.
+# Belt-and-braces: the source comments should not carry these either,
+# but no future note may leak into Ask/Explain/WhatIs answers.
+func _StzPolishDesc(pcDesc)
+	if NOT isString(pcDesc) or pcDesc = ""
+		return pcDesc
+	ok
+	# fast gate: the char-scan below runs ONLY when chatter markers are
+	# present (near-never) -- char-index loops are a known VM hazard
+	if StzFindFirst(pcDesc, "_Stz") = 0 and
+	   StzFindFirst(pcDesc, "Operation synonyms") = 0
+		return pcDesc
+	ok
+	_cD_ = pcDesc
+	# drop "-- see _Stz..." tails
+	_nT_ = StzFindFirst(_cD_, "-- see _Stz")
+	if _nT_ > 1
+		_cD_ = ring_trim(left(_cD_, _nT_ - 1))
+	ok
+	# drop internal parentheticals
+	_nGuard_ = 0
+	while _nGuard_ < 8
+		_nGuard_++
+		_nO_ = 0
+		_nC_ = 0
+		_nLen_ = len(_cD_)
+		_bFound_ = 0
+		for _i_ = 1 to _nLen_
+			if _cD_[_i_] = "("
+				_nO_ = _i_
+			but _cD_[_i_] = ")" and _nO_ > 0
+				_nC_ = _i_
+				_cIn_ = ""
+				if _nC_ > _nO_ + 1
+					_cIn_ = substr(_cD_, _nO_ + 1, _nC_ - _nO_ - 1)
+				ok
+				if StzFindFirst(_cIn_, "_Stz") > 0 or
+				   StzFindFirst(ring_trim(_cIn_), "Operation synonyms") = 1
+					_cD_ = ring_trim(left(_cD_, _nO_ - 1)) + " " +
+						ring_trim(right(_cD_, _nLen_ - _nC_))
+					_cD_ = ring_trim(_cD_)
+					_bFound_ = 1
+					exit
+				ok
+				_nO_ = 0
+			ok
+		next
+		if _bFound_ = 0
+			exit
+		ok
+	end
+	return _cD_
+
 func _StzHarvestClass(pcFile, pcName)
 	_aLines_ = str2list(read(pcFile))
 	_nLen_ = len(_aLines_)
@@ -1044,7 +1099,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				# Record = [ name, DISPLAY desc (clean), AKA keywords ]. Keeping
 				# aka separate is what lets Explain show a clean description while
 				# retrieval still scores against the synonyms.
-				_aMethods_ + [ _cName_, _cD_, trim(_cAka_) ]
+				_aMethods_ + [ _cName_, _StzPolishDesc(_cD_), trim(_cAka_) ]
 			ok
 			_cDesc_ = ""
 			_cAka_ = ""
