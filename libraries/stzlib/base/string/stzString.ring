@@ -652,6 +652,9 @@ class stzString from stzObject
 			ok
 		ok
 
+		# Enforced per-object constraints guard the single update point
+		This._NNLGuardUpdate(pcNewStr)
+
 		# Undo journal (one snapshot per Update, capped at 8). A new
 		# edit clears the redo trail. Same-content Updates journal
 		# nothing (in-place engine mutators journal their own

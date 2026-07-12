@@ -1989,6 +1989,7 @@ class stzObject
 	@bNNLSat = 0       # falsifying; or-recovery/skip close the figure
 	@cNNLQuant = ""    # each|any|none: the NEXT predicate distributes
 	@aNNLConstraints = []   # per-object constraints: [ [name, rule], ... ]
+	@bNNLEnforce = 0        # 1 = the update points refuse violating values
 
 	@cVarName = :@NoName
 	@cUuid = ""
@@ -6452,10 +6453,16 @@ class stzObject
 
 	# does one rule hold against the TYPED content?
 	def _NNLConstraintHolds(pRule)
-		_vCv_ = This.Content()
+		_vCh_ = This.Content()
 		if This.StzType() = :stzNumber
-			_vCv_ = This.NumericValue()
+			_vCh_ = This.NumericValue()
 		ok
+		return This._NNLRuleHoldsFor(pRule, _vCh_)
+
+	# ...and against a CANDIDATE value -- the enforcement guard asks
+	# about the FUTURE state, before it is applied
+	def _NNLRuleHoldsFor(pRule, pValue)
+		_vCv_ = pValue
 		if isString(pRule) and StzFindFirst(pRule, "{") > 0
 			# the archived placeholder style: @string/@number/@list/
 			# @item/@object/@ all mean THE VALUE (longest name first)
@@ -6531,6 +6538,59 @@ class stzObject
 
 		def ApplyConstraintsQ()
 			return This.ApplyConstraints()
+
+	# ENFORCEMENT-ON-UPDATE -- the archived dream, live: a constrained
+	# object REFUSES a violating update at the SINGLE UPDATE POINT
+	# (stzString/stzNumber Update(), stzList _SetContent()).
+	# EnforceConstraint() declares AND arms; RelaxConstraints() disarms
+	# (on-demand verification stays available). Most mutators compute
+	# their result THEN Update, so a refusal leaves the object
+	# untouched; the few in-place engine mutators journal their
+	# pre-state first, so Undo() recovers.
+
+	def EnforceConstraint(pcName, pRule)
+		This.AddConstraint(pcName, pRule)
+		@bNNLEnforce = 1
+
+		def EnforceConstraintQ(pcName, pRule)
+			This.EnforceConstraint(pcName, pRule)
+			return This
+
+	def EnforceConstraints()
+		@bNNLEnforce = 1
+
+		def EnforceConstraintsQ()
+			This.EnforceConstraints()
+			return This
+
+	def RelaxConstraints()
+		@bNNLEnforce = 0
+
+		def RelaxConstraintsQ()
+			This.RelaxConstraints()
+			return This
+
+	def ConstraintsAreEnforced()
+		return @bNNLEnforce
+
+	# the guard the update points call BEFORE applying a new value
+	def _NNLGuardUpdate(pNewValue)
+		if @bNNLEnforce = 0 or len(@aNNLConstraints) = 0
+			return
+		ok
+		_nGc_ = len(@aNNLConstraints)
+		for _iGc_ = 1 to _nGc_
+			if NOT This._NNLRuleHoldsFor(@aNNLConstraints[_iGc_][2], pNewValue)
+				StzRaise([
+					:Where = This.StzType() + " > Update()",
+					:What  = "Execution is cancelled by Softanza",
+					:Why   = "Updating this object to " + @@(pNewValue) +
+						" would violate the enforced constraint " + "'" +
+						@aNNLConstraints[_iGc_][1] + "'",
+					:Todo  = "Fix the new value or relax the constraint (RelaxConstraints())"
+				])
+			ok
+		next
 
 	# --- Q4: DISCOURSE TENSE over the QH history ----------------------
 	# Open the chain with QH() and the object remembers its states; the

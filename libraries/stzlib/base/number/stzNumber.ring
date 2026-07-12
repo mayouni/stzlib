@@ -1862,7 +1862,9 @@ class stzNumber from stzObject
 		ok
 
 	def NumericValue()
-		return 0+ @cContent
+		# number() not 0+ : Ring's 0+str coercion returns 0 on the first
+		# use after ANY caught raise (VM quirk); number() is immune
+		return ring_number(@cContent)
 
 		def Value()
 			return This.NumericValue()
@@ -1932,6 +1934,14 @@ class stzNumber from stzObject
 
 		ok
 
+		# Enforced per-object constraints guard the single update point
+		# (typed: the guard sees the NUMBER, not its string form)
+		if isString(pNumber)
+			This._NNLGuardUpdate(ring_number(StzReplace(pNumber, "_", "")))
+		else
+			This._NNLGuardUpdate(pNumber)
+		ok
+
 		if isString(pNumber)
 
 			@cReturnType = :String
@@ -1958,7 +1968,7 @@ class stzNumber from stzObject
 	        @TraceObjectHistory(This)
 	    ok
 
-		# Checking object constraints (#TODO)
+		# Object constraints: DONE -- the enforcement guard at the top of this method
 
 		#< ... >
 

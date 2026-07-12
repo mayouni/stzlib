@@ -101,4 +101,69 @@ Scenario("Per-object constraints -- the archived design, generalized (author's a
 		oN.VerifyConstraints(), TRUE)
 EndScenario()
 
+Scenario("Enforcement-on-update -- the constrained object protects itself")
+	Given("EnforceConstraint() arms a guard at the SINGLE UPDATE POINT (stzString/stzNumber Update(), stzList _SetContent() -- the very site the author's archived TODO in stzNumber.Update reserved); a violating update is refused BEFORE it lands")
+
+	oE = new stzString("hello")
+	oE.EnforceConstraint("keep-lowercase", :Lowercase)
+	bRefused = FALSE
+	try
+		oE.UpdateWith("HELLO")
+	catch
+		bRefused = TRUE
+	done
+	Then("the violating update is REFUSED", bRefused, TRUE)
+	Then("...and the object stands untouched", oE.Content(), "hello")
+
+	oE.UpdateWith("world")
+	Then("a lawful update passes", oE.Content(), "world")
+
+	bRefused = FALSE
+	try
+		oE.Uppercase()
+	catch
+		bRefused = TRUE
+	done
+	Then("even a MUTATING METHOD is stopped -- it routes through Update",
+		bRefused, TRUE)
+
+	oE.RelaxConstraints()
+	oE.Uppercase()
+	Then("RelaxConstraints() disarms; the method passes again",
+		oE.Content(), "WORLD")
+	Then("...while on-demand verification stays available",
+		oE.VerifyConstraint("keep-lowercase"), FALSE)
+
+	oL = Q([1, 2, 3])
+	oL.EnforceConstraint("numbers-only", :ListOfNumbers)
+	bRefused = FALSE
+	try
+		oL.UpdateWith([1, 2, "x"])
+	catch
+		bRefused = TRUE
+	done
+	Then("lists refuse too (guarded at _SetContent, THEIR single point)",
+		bRefused, TRUE)
+	Then("...", @@( oL.Content() ), "[ 1, 2, 3 ]")
+
+	oN = Q(42)
+	oN.EnforceConstraint("under-100", '{ @number < 100 }')
+	bRefused = FALSE
+	try
+		oN.UpdateWith(150)
+	catch
+		bRefused = TRUE
+	done
+	Then("numbers refuse too -- at the author's own TODO site",
+		bRefused, TRUE)
+	Then("...", oN.NumericValue(), 42)
+
+	oP = new stzString("abc")
+	oP.AddConstraint("lc", :Lowercase)
+	oP.Uppercase()
+	Then("plain AddConstraint stays PASSIVE (declaring is not enforcing)",
+		oP.Content(), "ABC")
+	Then("...", oP.ConstraintsAreEnforced(), FALSE)
+EndScenario()
+
 Summary()
