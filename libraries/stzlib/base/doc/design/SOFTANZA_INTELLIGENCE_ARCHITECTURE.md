@@ -151,6 +151,25 @@ brings its own machinery to it:
   library is thus the FIRST CONSUMER of its own agentic/ module (LAW 5
   eating its own cooking).
 
+### 0.4 The Engine and the Library (what Softanza IS)
+
+Softanza is an ENGINE plus a LIBRARY. The engine (Zig) is PROGRAMMING-
+LANGUAGE-AGNOSTIC: the library happens to be written in Ring -- the
+REFERENCE implementation -- but nothing prevents rewriting the library
+layer in Python or any other language over the same engine. The engine
+is the invariant; libraries are projections. (This is also why the
+products build on "the Softanza engine": they bind the engine, not the
+Ring surface.)
+
+And even within the Ring distribution, Softanza is POLYGLOT by design:
+the extercode/ system (stzExterCode + stzPythonCode/stzRCode/
+stzJuliaCode/stzPrologCode/...) runs a well-defined set of external
+languages, EACH FOR ITS COMPETENT DOMAIN (Python for data/ML, R for
+statistics, Julia for numerics, Prolog for logic, ...), marshalling
+results back into Ring. Today this requires the external runtimes to be
+installed; section 5.8 (polyglot refinement) upgrades it to a tiered,
+engine-backed system with an embedded floor.
+
 ---
 
 ## 1. The Six Laws (the pattern of thinking, made explicit)
@@ -1019,6 +1038,48 @@ WHAT THE FOUNDATION SAYS THAT THE PRODUCT WON'T:
 5. PERMANENCE: the mechanics (points, gate, cascade, reversibility)
    are FOSS in Softanza forever, whatever any product decides.
 
+POLYGLOT REFINEMENT (the author's extension, 2026-07-13): Softanza
+refines ANY language it supports, not only Ring. Three design rulings:
+
+1. EXECUTION TIERS, not a swap (LAW 2 + the R4b trust postures, twice
+   confirmed): (a) the EMBEDDED FLOOR -- a small embeddable Python
+   implementation VENDORED INTO THE ENGINE (the ggml no-CMake build
+   precedent; PocketPy-class: C11, MIT, tiny) -- zero external install,
+   scripting-grade, sandboxable; (b) the FFI TIER -- dynamically load
+   the SYSTEM CPython shared library (python3x.dll) through the C API:
+   the full ecosystem (numpy/pandas) when Python is present, in-process,
+   microseconds not process spawns; (c) the EXTERNAL TIER -- today's
+   extercode subprocess, maximal isolation. Why() names the tier that
+   ran. HONESTY: the embedded floor is NOT CPython (no C extensions) --
+   the capability difference is declared, never blurred.
+
+2. THE LANGUAGE IS THE AUTHORITY IN ITS OWN GATE (the keystone).
+   Softanza never writes a Python parser: the LIFT runs Python's own
+   ast module (on the embedded/FFI tier) to produce stzPyCodeGraph --
+   a language-tagged sibling of stzCodeGraph (R2). The gate's
+   STRUCTURAL stage is delegated to the language itself (ast.parse /
+   compile IS the check); the CONSTRAINT / DERIVATION / GOVERNANCE
+   stages stay Softanza's -- language-agnostic, graph-side. After
+   Apply, the language re-validates the result. This generalizes for
+   free: Prolog validates Prolog, Julia validates Julia. The R-tag
+   grammar is language-agnostic because it lives in COMMENTS
+   (# <R:PARAM ...> in Python).
+
+3. SPAN SURGERY over full regeneration (the fidelity floor). Full
+   regenerate-from-graph loses comments and formatting (the classic
+   unparse problem) -- that "text is one rendering of the graph"
+   ambition is product-grade. The platform floor stores CODEPOINT-EXACT
+   SPANS per refinement point (the engine's string machinery is
+   purpose-built for this) and Apply() rewrites ONLY those spans; the
+   whole file then goes back to the language for structural
+   re-validation. Fidelity preserved, honesty preserved.
+
+The loop, end to end: import Python -> its own ast lifts it ->
+stzPyCodeGraph (+ R-tag points) -> typed refinement proposed through
+any door -> gate (structural BY PYTHON, the rest by Softanza) ->
+cascade previewed -> span-anchored Apply -> Python re-validates ->
+lineage recorded, revert available. One gate, many languages.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -1230,7 +1291,19 @@ stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
   conversation/ (R3b) + neural/ -- no private machinery;
 - OPTIONAL (research-grade): patch-commutation predicates for sound
   multi-authority merge; ROM-style stable object surface for governed
-  third-party Ring scripts (with meta/, LAW 6).
+  third-party Ring scripts (with meta/, LAW 6);
+- POLYGLOT REFINEMENT (5.8, Python first):
+  1. stz_python engine module -- the EMBEDDED interpreter floor
+     (vendored, ggml-style) + the FFI tier (dynamic load of system
+     CPython) + today's extercode subprocess as the external tier;
+     tier selection :auto, Why() names it, postures per R4b;
+  2. stzPyCodeGraph -- the LIFT via Python's OWN ast (the language is
+     the authority in its own gate); R-tag points in comments;
+  3. span-anchored Apply (codepoint-exact, formatting preserved) +
+     re-validation BY the language + the same cascade/lineage/revert;
+  4. then one contract per supported language (stzXXCodeGraph) --
+     R for statistics, Julia for numerics, Prolog for logic -- each
+     validating its own structural stage.
 
 **S0 -- FOUNDATION HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
