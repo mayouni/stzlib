@@ -49,14 +49,30 @@ ones were wrong.
 
 ```
 base/
-  knowledge/    KNOWLEDGE PROGRAMMING -- entities, relations, graphs
-                  stzKnowledgeGraph   the entry object: entities + typed edges
-                                      + graph laws (:Unique/:Symmetric/
-                                      :Transitive) + suppositions overlay +
-                                      kind constraints. New/Load/Save .zknw
-                  stzEntity           (moves from natural/)
-                  stzKnowledgeBase?   later: multiple graphs, federation
-                  FORMAT: *.zknw      (readable Ring-literal serialization)
+  knowledge/    KNOWLEDGE PROGRAMMING -- entities, relations, graphs.
+                  THE POWER ALREADY EXISTS in graph/: stzGraph (6.3k lines:
+                  nodes, edges, paths, reachability, neighbors, views),
+                  stzKnowledgeGraph from stzGraph (triples via AddFact,
+                  pattern Query/QueryPath, ontology DefineClass/Property/
+                  Validate, Explain), stzGraphRule (three-phase rules:
+                  Constraint / Derivation / Validation), stzGraphQuery/
+                  Planner/Workflow -- and the *.stzknow FORMAT with a real
+                  parser (ImportKnow/ExportToKnow/WriteToKnowFile).
+                  PHASE 1 IS THEREFORE INTEGRATION, NOT CREATION:
+                  - natural/'s world (StzKnow/WhatIs/StzKnowRelation/
+                    AreRelated + $aStzRelations/$aStzRelationRules +
+                    suppositions) becomes SUGAR over a DEFAULT
+                    stzKnowledgeGraph instance;
+                  - the ad-hoc relation laws (:Unique/:Symmetric/
+                    :Transitive globals of 2026-07-13) RETIRE into the
+                    stzGraphRule system / KG-level laws;
+                  - stzEntity/stzListOfEntities move in beside the graph.
+                  FOLDER: whether graph/ is renamed knowledge/ (with
+                  diagram/orgchart as visual citizens inside or moved) is
+                  the author's naming call; the DOMAIN unification is the
+                  substance.
+                  FORMAT: *.stzknow (exists; extend for relation laws and
+                  the suppositions overlay as needed)
                   SUGAR:  StzKnow()/StzKnowRelation()/WhatIs()/AreRelated()
                           keep working over the DEFAULT graph instance
 
@@ -123,7 +139,8 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 
 | Concern | Verdict |
 |---|---|
-| /natural holds entities+relations+suppositions as $-globals | WRONG HOME + WRONG SHAPE -- move to knowledge/, wrap in stzKnowledgeGraph, keep globals as default-instance sugar |
+| /natural holds entities+relations+suppositions as $-globals | WRONG HOME + WRONG SHAPE -- and a PARALLEL WORLD: graph/stzKnowledgeGraph already offers the power (triples/query/ontology/.stzknow). Phase 1 = unify onto a default stzKnowledgeGraph instance, globals as sugar |
+| The 2026-07-13 relation laws ($aStzRelationRules) | DUPLICATE a lesser stzGraphRule (Constraint/Derivation/Validation) -- retire into it during phase 1 |
 | /neural consumes GGUFs only | Right for its scope; the CREATION ambition gets its own learning/ |
 | /reflect hosts self-doc | The mechanics are fine; the DOMAIN identity is meta-programming -- promote to meta/ |
 | Tier-1 linguistics scattered in string/text | Works, but deserves the linguistic/ identity |
@@ -132,35 +149,45 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 
 ---
 
-## 4. The stzKnowledgeGraph Contract (phase 1 target)
+## 4. The Phase-1 Contract: MARRY the worlds (integration)
+
+stzKnowledgeGraph EXISTS (graph/stzKnowledgeGraph.ring, from stzGraph) with
+AddFact triples, Query, ontology, Explain, and .stzknow import/export. What
+is missing is the MARRIAGE with natural/'s world:
 
 ```ring
-# create, fill, persist
-oKg = StzKnowledgeGraphQ("world")
-oKg.Know("paris", "city")
-oKg.KnowRelation("paris", "capital-of", "france")
-oKg.ConstrainRelation("capital-of", :Unique)
-oKg.Save("world.zknw")
+# ONE default knowledge graph behind the natural sugar:
+StzKnow("paris", "city")                          # == oDKG.AddFact("paris", "is-a", "city")
+StzKnowRelation("paris", "capital-of", "france")  # == oDKG.AddFact(...)
+? WhatIs("paris")              # reads the DEFAULT graph (types + edges)
+? AreRelated("piston", "car")  # rides stzGraph paths/reachability
 
-# load and query
-oKg = StzLoadKnowledgeGraph("world.zknw")
-? oKg.WhatIs("paris")             #--> [ "city", "capital-of france" ]
-? oKg.AreRelated("piston", "car") # transitive walk + Why()
+# and the graph object is directly usable, persistable:
+oKg = DefaultKnowledgeGraph()
+oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
+oKg2 = StzKnowledgeGraphQ("w2")
+oKg2.LoadKnow("world.stzknow")
 
-# the default graph keeps today's sugar working UNCHANGED:
-StzKnow("x", "thing")   # == DefaultKnowledgeGraph().Know(...)
+# graph LAWS ride the EXISTING rule system (stzGraphRule:
+# Constraint/Derivation/Validation), not parallel globals:
+#   :Unique     -> a Constraint rule
+#   :Symmetric  -> a Derivation rule (auto-add the reverse edge)
+#   :Transitive -> query-time closure (stzGraph reachability)
 ```
 
-.zknw v1 = a readable Ring literal (entities, relations, rules, metadata)
--- diffable, hand-editable, loadable with eval-free parsing.
+The suppositions overlay and the evidential certainty (deterministic -> 1)
+carry over unchanged. All natural/ suites stay green throughout.
 
 ---
 
 ## 5. Migration Phases (each compat-green before the next)
 
-1. **knowledge/**: stzKnowledgeGraph class wrapping TODAY's logic; move
-   stzEntity + stzListOfEntities machinery; .zknw Save/Load; globals become
-   default-instance sugar; all suites stay green untouched.
+1. **knowledge/ (INTEGRATION)**: marry natural/'s world onto the EXISTING
+   graph/stzKnowledgeGraph -- a default instance behind StzKnow/WhatIs/
+   StzKnowRelation/AreRelated; retire $aStzRelations/$aStzRelationRules into
+   AddFact + the stzGraphRule system; suppositions overlay preserved;
+   .stzknow save/load surfaced through the sugar; stzEntity moves in beside
+   the graph; all natural/ suites stay green untouched.
 2. **meta/**: promote self-doc/libdoc/harvest/recipes; reflect/ keeps parsing
    primitives; load-order + suite paths updated.
 3. **linguistic/**: give Tier-1 its Ring-side home (moves are thin -- mostly
