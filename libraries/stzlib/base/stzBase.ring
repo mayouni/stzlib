@@ -435,6 +435,7 @@ ok
     load "natural/stzNNL.ring"
     load "natural/stzQuestion.ring"
     load "natural/stzConstraints.ring"
+    load "natural/stzTruthChain.ring"
     load "natural/stzSemanticResolver.ring"
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"
