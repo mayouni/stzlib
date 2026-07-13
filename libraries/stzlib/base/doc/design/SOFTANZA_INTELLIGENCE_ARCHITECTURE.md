@@ -309,6 +309,15 @@ base/
                   then k-means/logistic) rides stzDataSet + stzSimilarity.
                   ENTRY: stzOptimModel          FORMAT: *.stzopt
 
+  governance/   PROGRAMMATIC GOVERNANCE (the Zin-concordance layer,
+                  section 5.7 -- R4b): the five declarable primitives
+                  (ActionRiskTier / AuthorityType / CommitmentState /
+                  DecommissionContract / DecisionLineage) + the
+                  PERMISSION-vs-AUTHORITY split, all riding stzGraphRule;
+                  the capability lattice + taint colours consumed by
+                  agentic/'s stzAgentGraph; validators delivered through
+                  meta/ (LAW 6). Mechanism, never a fixed constitution.
+
   agentic/      AGENTS (the composition point -- R5):
                   stzAgent          base: goal, skills, memory, tools, Why
                                     -- its MIND is a Softanzuter (the
@@ -772,6 +781,90 @@ And it REVOKES THE MANDATORY LLM MIND:
 The industry loop is the SPECIAL CASE of this ladder -- one faculty, no
 governance. Softanza offers the general case, locally, for free.
 
+### 5.7 GOVERNANCE -- the layer over all substrates (the Zin concordance)
+
+Modern AI lacks PROGRAMMATIC GOVERNANCE; Softanza thrives at it. The
+2026-07-13 study of the Zin corpus (D:/GitHub/zin/doc -- the product the
+author builds ON TOP of Softanza; Zin depends on Softanza, never the
+inverse; Softanza stays free and open source) returned two findings:
+
+FINDING 1 -- CONCORDANCE, point for point. Zin's governed-AI doctrine is
+the same intelligence philosophy this document articulates -- and the
+lineage is EXPLICIT: Zin's planner profiles are documented as
+"stzGraphPlanner heritage"; its knowledge design cites stzGraphRule/
+stzGraph/stzGraphQuery by name; its reading guide has a "Softanza
+distillations" tier. Revoked-LLM thesis, knowledge-bracketed
+intelligence, derivation-replaces-RAG, pi/llm agents over the same
+interfaces, governed admission, wise-coding-vs-vibe-coding -- all
+mirrored. The Softanza design is VALIDATED by its first product.
+
+FINDING 2 -- THE GAP Zin most needs filled: governance as a CHECKABLE
+PROPERTY, not a value statement. Zin's own move is "agents are
+subgraphs; governance is a set of graph predicates" proved before the
+program runs. The PLATFORM fundamentals (general-purpose, product-
+stripped) Softanza adopts as foundational work:
+
+- G1 THE AGENTIC GOVERNANCE GRAPH (stzAgentGraph over stzGraph): typed
+  node kinds (pi/llm/hybrid actor, function, tool, guardian, effect,
+  human checkpoint, trace sink), edge kinds (feeds/proposes/guards/
+  commits/escalates/traces), a CAPABILITY LATTICE (effectful/sensing/
+  compute/inference) and TAINT COLOURS (trusted/open-llm-text/
+  external-data/validated). The rule that matters: an LLM actor's
+  capability set is EMPTY; a hybrid (LLM creativity -> effects) is
+  legal ONLY under a declared pi-guardian.
+- G2 GOVERNANCE PREDICATES AS RUNNABLE VALIDATORS (LAW 6 made real):
+  "no llm node holds effectful", "every effect is dominated by a
+  guardian", "no open-text edge reaches an effect", "every effect
+  reaches a trace sink", "every rejection reaches a human checkpoint"
+  -- all are graph algorithms Softanza ALREADY OWNS (reachability,
+  dominance, colouring). Softanza's honest claim: GOVERNED ADMISSION
+  WITH INSPECTABLE VALIDATORS (checked before commit), not
+  compile-time proof -- that stricter form is the product's job.
+- G3 stzLLMFunction (neural/): the LLM call as a PURE TYPED FUNCTION --
+  typed I/O, grammar-constrained decoding COMPILED FROM THE TYPE
+  (GBNF/JSON-schema: the sampler cannot emit a violating token),
+  golden-set tested, memoised by content hash (determinism-by-cache:
+  the second run is free), mandatory BUDGET, zero capabilities.
+  Distinct from stzNeuralChat (a session) and stzLLMAgent (an actor).
+- G4 THE GROUNDING CONTRACT (knowledge/): Prove(goal) returns a proof
+  + derivation trace; a declared, TYPED context package (facts with
+  provenance and authority, never text chunks) feeds any model as
+  GROUND TRUTH -- the mechanism behind "derivation replaces RAG".
+- G5 THE TRACE SUBSTRATE (stzTrace): every run leaves a timestamped
+  SUBGRAPH of the declaration graph (nodes fired, value hashes,
+  taints, cost, rejected paths, escalations) -- so diff, replay,
+  blame, and cost attribution are ordinary graph operations. Extends
+  Why() from per-verdict to PER-RUN.
+- G6 THE GOVERNANCE PRIMITIVES (governance/, R4b): ActionRiskTier,
+  AuthorityType (advisory/delegated/autonomous/emergency-override),
+  CommitmentState (exploratory->provisional->committed),
+  DecommissionContract, DecisionLineage -- plus the structural split
+  of PERMISSION (can) from AUTHORITY (should). All ride stzGraphRule.
+- G7 human_checkpoint: a first-class human-in-the-loop node on every
+  rejection path (TTL auto-refuse, context preserved).
+- G8 KNOWLEDGE HYGIENE, strict mode (knowledge/): mandatory
+  provenance+confidence per fact, bounded queries, EXPLICIT
+  contradiction (named, never silently resolved), scope isolation,
+  revision with rollback. OPT-IN, to not break existing AddFact use.
+- G9 BUDGET as a declared, governed concern (per call/session, cost in
+  the trace, escalation to a budget guardian) -- LAW 2's complement
+  for when a remote tier IS chosen.
+- G10 SIGNABLE PREDICATE SETS (meta/): the CONSTITUTION MECHANISM --
+  a declared, diffable, signable set of governance predicates the
+  validators enforce. Softanza ships the mechanism; any specific
+  constitution (articles, jurisdictions, regimes) is product space.
+
+THE BOUNDARY PRINCIPLE (what stays out): wherever the source idea is "a
+graph algorithm / a type rule / a capability label / a declared
+contract", it is PLATFORM (here). Wherever it is "a pillar name / a
+pack / a CLI / a tier / a jurisdiction profile / a market", it is
+PRODUCT and must NOT leak into Softanza. Named tensions resolved:
+Softanza claims validator-checked admission (not compile-time proof);
+ships no fixed constitution (only the mechanism); keeps ITS meaning of
+Wise Coding (elicitation, 0.3); makes provenance strictness opt-in; and
+aligns superposition collapse (0.3) with the taint rule -- an
+ungoverned model suggestion NEVER becomes an effect.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -801,6 +894,12 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
 - suppositions overlay + evidential certainty carry over unchanged;
 - stzEntity/stzListOfEntities move in beside the graph;
 - folder naming (graph/ -> knowledge/?) decided by the author here;
+- GOVERNANCE SEEDS (5.7): Prove(goal) returning a STRUCTURED proof +
+  derivation trace (G4 -- stzGraphRule/Explain is 80% there); the
+  knowledge-hygiene STRICT MODE, opt-in (G8: mandatory provenance +
+  confidence, bounded queries, explicit contradiction, scoped graphs,
+  revision with rollback); the stzAgentGraph node/edge/taint VOCABULARY
+  declared (G1 seed);
 - ACCEPTANCE (the north star, 0.1): a small DOMAIN knowledgebase
   (.stzknow with ontology + rules) loads, answers WhatIs/AreRelated,
   and a newly added fact FIRES derivation rules -- intelligence visibly
@@ -820,6 +919,12 @@ programmer -- Ask answers in STRUCTURED form (not only prose), the house
 rules become RUNNABLE validators (check a diff for Q-convention, form
 semantics, engine-first violations before it lands), and narrated tests
 are surfaced as the executable examples an agent learns from.
+GOVERNANCE VALIDATORS join them (5.7 G2): the graph-predicate invariants
+("no llm node holds effectful", "every effect dominated by a guardian",
+"no open-text reaches an effect", ...) exposed as checks any agent runs
+before committing -- plus the SIGNABLE PREDICATE-SET format (G10, the
+constitution mechanism: declared, diffable, signable, enforced by these
+validators).
 
 **R3 -- linguistic/ (the NLTK offensive).**
 One step = the refactor AND the gap-closing together:
@@ -860,7 +965,11 @@ becomes the DOMAIN (map entry above):
   enumerate and let the user choose, none -> refuse with reasons and
   nearest alternatives;
 - LAW 2 ladder: deterministic floor (lexicon + frames + templates) works
-  with NO model; stzNeuralChat upgrades fluency when a GGUF is present.
+  with NO model; stzNeuralChat upgrades fluency when a GGUF is present;
+- human_checkpoint (5.7 G7): the escalation node -- rejections and
+  low-certainty admissions route to a human with context preserved and
+  TTL auto-refuse; the conversation stays a PROJECTION of the governed
+  graph, never a parallel stack.
 
 **R4 -- learning/ + optim/ (creation + decision) -- RIDES THE NUMERIC
 SUBSTRATE.** Step order matters:
@@ -887,6 +996,20 @@ SUBSTRATE.** Step order matters:
    (SolveWith(:auto), Why() names the engine); UN-RETIRE the
    solver-comparison test as the honesty guard; stzMultiObjectiveSolver
    (NSGA-II) moves in beside it.
+6. stzLLMFunction (5.7 G3): the pure typed LLM primitive -- type->
+   grammar compilation (GBNF for local GGUF, JSON-schema for remote),
+   content-hash memoization, golden-set tests woven into the narrated
+   culture, mandatory BUDGET (G9) with cost recorded in the trace.
+
+**R4b -- governance/ (the primitives -- independently shippable).**
+The five declarable contracts + the permission/authority split (5.7 G6),
+all riding stzGraphRule: ActionRiskTier gates actions by risk level;
+AuthorityType distinguishes advisory/delegated/autonomous/emergency;
+CommitmentState makes exploration/commitment explicit and forward-only;
+DecommissionContract makes agent retirement a declared obligation
+(credential revocation, data removal, audit preservation);
+DecisionLineage weaves rationale + authority + production traces.
+Mechanism only -- no fixed constitution ships with Softanza.
 
 **R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
@@ -907,6 +1030,14 @@ faculties -> Softanzuter mind -> embodied agent):
 - CURRENCY = replanning: stzKnowledgeGraph gains change-emission hooks
   (AddFact publishes) and plans become Computed values over the facts they
   depend on (requires the R54 stzReactiveObject fix -- see S0);
+- GOVERNANCE = the full stzAgentGraph (5.7 G1: capability lattice, taint
+  colours, guardians) + the THREE INJECTION GATES (typed prompt-in,
+  grammar-bounded output-out, guarded tool-call-back) + the G2 validators
+  run at composition time + stzHybridAgent (LLM creativity -> effects
+  ONLY under a declared pi-guardian);
+- ACCOUNTABILITY = the trace substrate (5.7 G5): every run leaves a
+  timestamped subgraph -- diff, replay, blame, cost attribution as
+  ordinary graph operations;
 - memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
   language = linguistic+natural (R3), brains = neural/learning/optim (R4);
 - stzApp is the studied precedent (Being/Behavior/Purpose mapping);
@@ -932,7 +1063,9 @@ Parse trees and *.zagn agent files considered here, on demand.
   fix WaitForAttributetoSettle's (callback, delay) arg order; make
   stzHttpTask store its status; reconcile the stale "built on libuv"
   narration across Reaxis tests/docs; decide wire-or-retire for the
-  orphaned engine event bus (reactive.zig).
+  orphaned engine event bus (reactive.zig);
+- governance seed (5.7): make stzGraphRule/Explain derivations return a
+  STRUCTURED, replayable trace (the stzTrace + Prove() seed).
 
 **THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
 the restaurant scenario of 0.1. DAY ZERO is wise coding (0.3): the owner
