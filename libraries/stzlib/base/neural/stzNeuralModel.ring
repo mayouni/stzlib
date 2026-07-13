@@ -65,6 +65,45 @@ func StzHasNeuralNerModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasNer() = 1
 
 # TRUE if the loaded model is a cross-encoder reranker (e.g. jina-reranker GGUF).
+# --- GENERATIVE model (llama-family decoder GGUF) --------------------------
+# TRUE when the loaded model can GENERATE text (a causal decoder: SmolLM2,
+# Qwen2.5, TinyLlama...). The same single engine slot as embeddings/NER.
+func StzHasGenerativeModel()
+	if StzEngineNeuralModelLoaded() = 0
+		return 0
+	ok
+	return StzEngineNeuralHasGenerator()
+
+	func @StzHasGenerativeModel()
+		return StzHasGenerativeModel()
+
+# Greedy (deterministic) generation from a RAW prompt. "" when no
+# generative model is loaded.
+func StzGenerate(pcPrompt, pnMaxNewTokens)
+	if StzHasGenerativeModel() = 0
+		return ""
+	ok
+	if NOT isNumber(pnMaxNewTokens) or pnMaxNewTokens < 1
+		pnMaxNewTokens = 64
+	ok
+	return StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
+
+# The ChatML prompt shape the small instruct models are trained on.
+func StzChatPrompt(pcSystem, pcUser)
+	if NOT isString(pcSystem) or pcSystem = ""
+		pcSystem = "You are a helpful assistant. Answer briefly."
+	ok
+	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
+		"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+		"<|im_start|>assistant" + char(10)
+
+# Ask the loaded instruct model a question (ChatML-wrapped, greedy).
+func StzAskModel(pcQuestion, pnMaxNewTokens)
+	return StzGenerate(StzChatPrompt("", pcQuestion), pnMaxNewTokens)
+
+	func @StzAskModel(pcQuestion, pnMaxNewTokens)
+		return StzAskModel(pcQuestion, pnMaxNewTokens)
+
 func StzHasRerankerModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasReranker() = 1
 
@@ -247,6 +286,21 @@ class stzNeuralModel from stzNeural
 				_aIds_ + StzEngineNeuralTokenAt(i)
 			next
 			return _aIds_
+
+		# TRUE if this model can GENERATE text (a causal decoder).
+		def IsGenerative()
+			return StzHasGenerativeModel()
+
+		# Greedy generation from a raw prompt ("" when not generative).
+		def Generate(pcPrompt, pnMaxNewTokens)
+			return StzGenerate(pcPrompt, pnMaxNewTokens)
+
+		# Ask the instruct model a question (ChatML-wrapped, greedy).
+		def AnswerTo(pcQuestion, pnMaxNewTokens)
+			return StzAskModel(pcQuestion, pnMaxNewTokens)
+
+			def AnswerToQ(pcQuestion, pnMaxNewTokens)
+				return new stzString(This.AnswerTo(pcQuestion, pnMaxNewTokens))
 
 		# Cosine similarity of two texts' embeddings, in [-1, 1] (DATA). The
 		# vectors are already L2-normalized, so cosine = dot product.

@@ -19,6 +19,17 @@ const gpa = std.heap.c_allocator;
 // One process-wide loaded model (embedding is a single-model workload for now).
 var g_gguf: ?*c.gguf_context = null;
 var g_ctx: ?*c.ggml_context = null;
+
+// Cross-module access for the GENERATIVE decoder (neural_gen.zig): opaque
+// handles (each module's @cImport makes distinct C types) + a generation
+// counter so gen-side caches invalidate on model load/free.
+pub var model_generation: usize = 0;
+pub fn ggufHandle() ?*anyopaque {
+    return @ptrCast(g_gguf);
+}
+pub fn ctxHandle() ?*anyopaque {
+    return @ptrCast(g_ctx);
+}
 var g_arch: [64]u8 = undefined;
 var g_arch_len: usize = 0;
 
@@ -32,6 +43,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     g_gguf = ctx;
     g_ctx = mctx;
     g_arch_len = 0;
+    model_generation += 1;
     if (kvStr("general.architecture")) |a| {
         const s = std.mem.span(a);
         const n = @min(s.len, g_arch.len);
@@ -42,6 +54,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
 }
 
 pub export fn neural_model_free() callconv(.c) void {
+    model_generation += 1;
     if (g_gguf) |x| {
         c.gguf_free(x);
         g_gguf = null;
