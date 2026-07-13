@@ -51,9 +51,39 @@ shape ("an application as a living world of meaning"). The roadmap turns
 that prototype into the doctrine -- and section 6 ends with this scenario
 as THE CAPSTONE TEST of the whole plan.
 
+### 0.2 Programming the knowledgebase: every door Softanza owns
+
+The knowledgebase is only as strong as the experience of AUTHORING it --
+and that experience must serve programmers AND business owners alike.
+Softanza does not need to invent it; it needs to point its existing
+instruments (declarative programming, data orientation, the *.z-format
+family, natural programming, conversational programming) at it. FOUR
+DOORS, one governed brain:
+
+1. THE DSL DOOR (declarative, data-oriented): *.stzknow itself IS the
+   program -- readable, diffable, hand-editable, validated on load.
+   The format family doctrine (LAW 1): .stzknow / .flow / .stzopt /
+   .stzconv -- every stateful domain earns its format.
+2. THE API DOOR (the programmer): stzKnowledgeGraph + Q chains --
+   AddFact/Query/ontology, chainable, Why-accountable.
+3. THE NATURAL DOOR: Naturally(...) / NNL chains / stzQuestion frames --
+   knowledge spoken as language-as-code, resolved through the ONE lexicon.
+4. THE CONVERSATIONAL DOOR (the organic rethink -> conversation/, R3b):
+   a business owner TALKS the knowledge in; the system asks back
+   (stzQuestion frames), validates against the ontology and rules
+   (governance), and only then writes facts. Today's pieces grew apart --
+   stzNeuralChat (neural/, a session over a model), stzQuestion
+   (natural/, built), narration (a culture, not yet a class), goals
+   (stzGraphGoal, referenced not built) -- the rethink reunites them
+   as a domain of their own.
+
+Whichever door is used, the SAME rules govern the same graph: four
+surfaces, one brain. Adding through any door augments the intelligence
+of every other door's view.
+
 ---
 
-## 1. The Five Laws (the pattern of thinking, made explicit)
+## 1. The Six Laws (the pattern of thinking, made explicit)
 
 **LAW 1 -- A domain = a folder = an entry object = a data format.**
 What belongs to a domain is entered through an INSTANTIABLE class -- you create
@@ -82,6 +112,19 @@ Higher modules are composition points, not new machinery. The agent composes
 knowledge (memory) + meta (tools) + linguistic/natural (language) +
 neural/learning (brains). If a higher module needs machinery the lower ones
 lack, the lower ones were wrong.
+
+**LAW 6 -- The machine programmer is a first-class audience.**
+Most programming today is done by agents and LLMs, not humans. Softanza
+must present ITSELF to them -- their own perspective, without letting them
+break its rules: SELF-DESCRIBING (meta/'s Ask/WhatIs, the harvested
+verified prose, info-tags, the semantic lexicon -- the library teaches
+itself), MACHINE-CHECKABLE (the house rules -- Q-convention, active/
+passive/fluent forms, engine-first -- exposed as validators an agent can
+RUN before committing code, not folklore it must infer), and GUARDRAILED
+(constraints, evidentiality, narrated tests as executable examples; the
+library REFUSES doctrine-breaking use the same way it refuses ambiguity,
+LAW 3). An agent should be able to learn Softanza FROM Softanza and be
+corrected BY Softanza.
 
 ---
 
@@ -133,6 +176,27 @@ base/
                   state (-> knowledge/) and stzText (-> linguistic/);
                   keeps only language-as-code. Queries the other domains
                   through their entry objects.
+
+  conversation/ CONVERSATIONAL PROGRAMMING (the organic rethink -- R3b):
+                  the pieces exist but grew apart; the module REUNITES:
+                  stzConversation   ENTRY: a governed multi-turn exchange
+                                    with STATE (topic, goals, grounding,
+                                    history)
+                  stzQuestion       (EXISTS, natural/) the interrogative
+                                    frames -- shared with natural/
+                  stzGoal           what the conversation is FOR (ties to
+                                    stzGraphGoal + the planner, R5)
+                  stzNarration      the system's side of the dialogue:
+                                    Why-chains, evidentiality, prose
+                                    explanations (the narration culture,
+                                    promoted to a construct)
+                  GROUNDING: the knowledge graph (R1) -- a conversation
+                  READS and WRITES the knowledgebase under its rules
+                  (the 0.2 conversational door). LAW 2 ladder applies:
+                  deterministic floor (lexicon + frames + templates) ->
+                  neural upgrade (stzNeuralChat stays in neural/ as the
+                  model-backed ENGINE this module can ride).
+                  ENTRY: stzConversation        FORMAT: *.stzconv
 
   reactive/     THE TIME SUBSTRATE (exists -- round-2 study, section 5.4):
                   Reaxis declarative streams = the change-propagation
@@ -212,6 +276,8 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 | stzLinearSolver's simplex | DISHONEST STUB -- returns all-zeros silently (hardcoded tableau, pivot loop never iterates); the one comparing test was retired, which is why it survives. Violates LAW 3; R4 makes it real |
 | reactive/ vs intelligence modules | DISJOINT ISLANDS -- zero cross-references today; the derived-state engine (Watch/Computed/BindTo) is blocked by the R54 stzReactiveObject init bug (8 of 9 tests retired); the engine event bus (reactive.zig) is built+loaded but ORPHANED (no Ring callers) |
 | Reaxis narration claims "built on libuv" | STALE -- libuv was removed from Reaxis 2026-06-13 (cooperative polling now); real libuv lives in stzReactor. Reconcile in S0 |
+| Conversation constructs scattered: stzNeuralChat (neural/), stzQuestion (natural/), narration = culture-only, goals unbuilt | Conversational programming deserves a DOMAIN -- conversation/ reunites them (R3b) |
+| The house rules (Q-convention, forms, engine-first) live in docs + folklore | LAW 6: agents can't RUN folklore -- meta/ exposes them as checkable validators (R2) |
 
 ---
 
@@ -600,6 +666,11 @@ methods, helpers) and EDGES (defines/delegates-to/forwards-to/inherits,
 already detected by the harvest levers!) instead of flat records: DeadCode()
 via ReachableFrom, ImpactOf(method), CyclicCalls(), refactor planning via
 the planner; Ask/WhatIs answer over STRUCTURE, not just text.
+PLUS THE MACHINE DOOR (LAW 6): the same meta/ machinery serves the agent
+programmer -- Ask answers in STRUCTURED form (not only prose), the house
+rules become RUNNABLE validators (check a diff for Q-convention, form
+semantics, engine-first violations before it lands), and narrated tests
+are surfaced as the executable examples an agent learns from.
 
 **R3 -- linguistic/ (the NLTK offensive).**
 One step = the refactor AND the gap-closing together:
@@ -614,6 +685,21 @@ One step = the refactor AND the gap-closing together:
 - NEW: n-gram LM utilities (probabilities/perplexity over the existing
   counts, engine-side);
 - the 4.2 table re-audited; every green row gets its Ask-able intent.
+
+**R3b -- conversation/ (conversational programming, organically rebuilt).**
+stzNeuralChat stays in neural/ as the model-backed ENGINE; conversation/
+becomes the DOMAIN (map entry above):
+- stzConversation ENTRY OBJECT: multi-turn state (topic, goals, grounding,
+  history), persisted as *.stzconv;
+- stzQuestion supplies the interrogative frames (exists); stzGoal gives
+  the conversation its purpose (ties to stzGraphGoal, R5); stzNarration
+  promotes the narration culture (Why-chains, evidentiality, prose) into
+  the system's side of the dialogue;
+- GROUNDED in the knowledge graph (R1): the conversation reads AND writes
+  the knowledgebase under its rules -- the 0.2 conversational door; the
+  ontology drives the clarifying questions;
+- LAW 2 ladder: deterministic floor (lexicon + frames + templates) works
+  with NO model; stzNeuralChat upgrades fluency when a GGUF is present.
 
 **R4 -- learning/ + optim/ (creation + decision) -- RIDES THE NUMERIC
 SUBSTRATE.** Step order matters:
@@ -689,6 +775,9 @@ relations, ontology, rules. Then, with ZERO app-specific code:
   knowledgebase's structure;
 - R3 proves you can TALK to it: natural surfaces over the domain's own
   vocabulary;
+- R3b proves you can BUILD it by talking: the owner adds a dish and a
+  house rule in conversation -- the system asks back, validates against
+  the ontology, then writes; the knowledgebase grows under governance;
 - R4 proves it DECIDES and LEARNS: optimize a menu/roster straight from
   the knowledgebase (stzOptimModel); classify/score with the ML floor;
 - R5 proves it ACTS: an agent takes a goal ("prepare Saturday's
@@ -696,6 +785,8 @@ relations, ontology, rules. Then, with ZERO app-specific code:
   to changes as they stream in.
 Adding ONE rule to the .stzknow file visibly upgrades every layer above
 -- no code change, no training, no retrieval pipeline. That demo IS the
-proof of the revoked-LLM thesis.
+proof of the revoked-LLM thesis. Finally, run the SAME capstone with an
+AGENT as the programmer, through the machine door (LAW 6): same doors,
+same rules, nothing breaks.
 
 Each R-step is independently shippable; R1 (with S0) is ready to start.
