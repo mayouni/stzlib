@@ -10,8 +10,8 @@ Softanza should become **a reference for building intelligent applications with
 ease**: advanced features at **no cost in time or money**, with the programmer in
 **maximum control**. The current `/natural` + `/neural` split grew along the
 milestones, not along the domains. This document fixes the architecture and
-carries ONE unified roadmap (section 5) -- refactoring and enhancement are the
-same movement, not two plans.
+carries ONE unified roadmap (section 6) -- refactoring and enhancement are the
+same movement, not two plans, running over THREE SUBSTRATES (section 5).
 
 ---
 
@@ -224,7 +224,125 @@ neural upgrade path where meaningful.
 
 ---
 
-## 5. THE ONE ROADMAP (refactor + enhance in the same movement)
+## 5. The Three Substrates (studied 2026-07-13; they run UNDER all pillars)
+
+The author's directive: graphs, the pattern-matching family, and the
+numerical layer are not modules beside the pillars -- they are SUBSTRATES the
+whole intelligence system runs on. Three deep code studies confirmed it.
+
+### 5.1 GRAPHS -- the STRUCTURE substrate  (graph/, ~19k lines, 108+ tests)
+
+WHAT EXISTS (verified in code):
+- stzGraph core: the full classical suite -- Dijkstra/A*/BFS paths, longest
+  path, reachability, connected + strongly-connected components, cycles,
+  topological sort, BETWEENNESS/CLOSENESS/PAGERANK centrality, clustering,
+  MAX-FLOW/MIN-CUT/min-cost-flow, bottleneck + ImpactOf analysis, density/
+  diameter/MST, live filtered VIEWS (Commit/Rollback), diff/compare,
+  DOT/JSON/YAML/GraphML export.
+- stzGraphPlanner: a REAL PLANNER, not just pathfinding -- A* + GOAL-PREDICATE
+  search (UntilYouReachF(func) = preconditions as closures), weighted cost
+  PROFILES (:fastest/:safest/:cheapest/...), Explain()/Why()/Alternatives()/
+  CostBreakdown(), plan COMPARISON (Tradeoffs/WhichIsCheaper/RankPlansBy),
+  HISTORY + LEARNING (BestHistoricalPlan), and Actions() returning a literal
+  step-by-step ACTION SEQUENCE. This is the PI-agent's planning brain,
+  already built and 40-tests strong.
+- stzGraphQuery: Cypher-like declarative matching (variable binding,
+  multi-hop, Where/WhereF, Select/OrderBy/Limit, mutation, rule hooks) +
+  ToOpenCypher() export.
+- stzGraphRule: the three-phase rule registry (Constraint guards BEFORE,
+  Derivation auto-derives AFTER -- incl. built-in Transitivity/Symmetry --
+  Validation checks the final state), rules = plain closures.
+- stzWorkflow (+ stzOrgChart, .flow parser): processes/state machines with
+  actors, SLAs, critical path, bottlenecks, what-if simulation.
+- stzApp: THE precedent -- "an application as a living world of meaning":
+  Being -> stzGraph, Life-behavior -> stzWorkflow, Life-purpose ->
+  stzGraphPlanner.Pursue(goal). Partially validated; study it for R5.
+
+LATENT (spec'd or stubbed, NOT built -- the expansion frontier):
+- **stzCodeGraph** (the design doc's "stzCode: Programs as Call Graphs" --
+  fully worked-out spec): nodes = functions/classes/modules, edges = calls/
+  imports/inheritance/delegation; DeadCode() via ReachableFrom, CyclicCalls(),
+  CriticalPath(), ParallelizableBranches(). Every primitive exists; only the
+  semantic wrapper is missing. DESTINY: meta/ replaces its FLAT harvest
+  records with a code graph (R2) -- impact analysis, dead-code detection,
+  Ask over structure, refactor planning.
+- **stzGraphGoal**: referenced by stzApp (Gap()/Profile()) but nonexistent --
+  the goal-modeling layer the planner needs to become an agent brain (R5).
+- stzGraphSimulator extraction (TODO'd in core), stzDecisionTree,
+  stzSemanticModel, stzDomainLanguage (design-doc Parts 5-6).
+- HYGIENE found: stzGraph.Paths() raises Not-yet-implemented (PathsWhereF
+  partially dead); planner heuristic falls back to constant-1 without
+  coordinates (TODO'd).
+- TODAY graphs are barely used OUTSIDE graph/ (only stzApp + stzGraphex):
+  natural/ and meta/ do not ride them yet -- exactly what R1/R2 fix.
+
+### 5.2 PATTERNS -- the RECOGNITION->ACTION substrate  (regex/, 12 modules)
+
+WHAT EXISTS (verified): ONE grammar DNA across every data shape --
+`{...}` patterns, `@Token(constraints)`, `& | @!` quantifiers/sets/:unique,
+uniform .Match/.MatchedParts/.Explain/.Tokens surface, match caches:
+  stzRegex (PCRE2 + match-type policies + named patterns via pat()),
+  stzRegexMaker (fluent English-like builder), stzListex (typed tokens over
+  lists), stzNumbrex (math properties: prime/perfect/palindrome/mod...),
+  stzMatrex (matrices), stzTablex (tables: cols/rows/sorted/aggregates),
+  stzTimex (timelines: events/durations/sequences), stzGraphex (graph paths
+  with property constraints -- LAYERED ON stzListex: the family composes).
+
+THE SOFTANZUTER PARADIGM (the author's flagged innovation): stzRegexUter +
+stzListexUter are WORKING pattern->computation engines: triggers (patterns)
+carry code; Process(data) fires every matching trigger, transforms the value,
+and records a DEPENDENCY-TRACKED state history (dependsOn/affects/
+GetDependencyChain). This is a nascent FORWARD-CHAINING RULE ENGINE -- the
+scaffolding anticipates cascading but does not yet RE-FIRE dependent
+triggers to fixpoint. That upgrade turns it into production rules = the
+PI-agent's reactive skill substrate (R5).
+
+LATENT: the doc-only executor family (stzRegexAnalyser, stzGeneticRegexuter,
+stzLinguisticRegexuter, stzQuanticRegexuter -- vision, no code); pattern-
+driven data GENERATION and code translation (stzRegex's own TODO roadmap).
+HYGIENE found: Compute() typo (cTex) = dead alias; StateByPosition/
+StateByComputationOrder TODO stubs in both Uters; stznumbrex-copy.ring
+stale duplicate; listexuter tree test retired pending a hash-literal DSL.
+
+DESTINY BY PILLAR: R3's POS chunker = stzListex over tag streams (compose,
+do NOT build a new engine -- Graphex proves the layering); R1's graph laws
+feed stzGraphRule; R5's PI skills = Softanzuter triggers + planner actions.
+
+### 5.3 NUMERICS -- the COMPUTATION substrate  (number/ + stats/ + engine)
+
+WHAT EXISTS (verified):
+- stzMatrix (2.4k lines, from stzListOfLists) over a Zig engine
+  (stz_matrix.dll, flat f64): region add/multiply (the FastPro replacement),
+  matmul, determinant, inverse, sum/min/max/power -- plus a large
+  spreadsheet-style find/replace/section-editing surface.
+- stzDataSet: THE HIDDEN GEM -- fully engine-backed statistics: variance/
+  stddev, percentiles/quartiles/IQR, skewness/kurtosis, z-scores, moving
+  averages, outliers, CORRELATION/COVARIANCE/LINEAR REGRESSION, Spearman.
+- solver.zig: scalar numerics (quadratic roots, bisection/Newton, Simpson).
+- stzLinearSolver: an LP/MILP SURFACE (variables/constraints/objective,
+  greedy/simplex/branch-bound/genetic backends) -- but simplex is a STUB
+  (hardcoded tableau) and only greedy works; the module is unexercised.
+
+GAPS (the honest ledger for R4):
+- Transpose exists in the ENGINE but is NOT exposed in Ring (trivial wire).
+- No Ax=b solve (only full inverse), no LU/QR/Cholesky/SVD/eigen, no
+  elementwise subtract/multiply/divide, no dot/norm/trace/rank, no
+  broadcasting; matmul is naive O(n^3), determinant O(n!) Laplace; every op
+  pays a Ring<->engine copy (no resident pipelines).
+- No random DISTRIBUTIONS (normal/uniform/poisson) anywhere.
+- NO ggml BRIDGE: stzMatrix (flat f64) and ggml tensors are unrelated today
+  -- but both are contiguous float arrays, so a bridge is FEASIBLE and is
+  the strategic move: BLAS-grade matmul + the backward pass from the ggml
+  we already vendor = the floor learning/ stands on.
+
+DESTINY BY PILLAR: R4 rides this substrate (matrix hygiene -> ggml bridge ->
+stzNeuralNetwork); stzDataSet is the evaluation layer (metrics/correlation);
+the LP solver becomes the OPTIMIZATION module (real simplex) feeding
+PI-agents with resource-allocation skills (R5).
+
+---
+
+## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
 
 Rules for EVERY step: entry objects first; existing sugar preserved
 byte-for-byte; all suites green before the step closes; narrated tests for
@@ -252,16 +370,22 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
 - stzEntity/stzListOfEntities move in beside the graph;
 - folder naming (graph/ -> knowledge/?) decided by the author here.
 
-**R2 -- meta/.**
+**R2 -- meta/ (+ THE CODE GRAPH).**
 Promote stzSelfDoc/stzLibDoc/harvest/recipes/test-sample records to meta/;
-reflect/ keeps parsing primitives; load order + suite paths updated;
-ask-probe and semantic-retrieval suites stay the regression guard.
+reflect/ keeps parsing primitives; ask-probe and semantic-retrieval suites
+stay the regression guard. SUBSTRATE MOVE: build **stzCodeGraph** (the
+design doc's stzCode spec) -- the harvested corpus becomes NODES (classes,
+methods, helpers) and EDGES (defines/delegates-to/forwards-to/inherits,
+already detected by the harvest levers!) instead of flat records: DeadCode()
+via ReachableFrom, ImpactOf(method), CyclicCalls(), refactor planning via
+the planner; Ask/WhatIs answer over STRUCTURE, not just text.
 
 **R3 -- linguistic/ (the NLTK offensive).**
 One step = the refactor AND the gap-closing together:
 - stzText moves in as the ENTRY OBJECT; stzPlural/stzSingular/stzOrdinal/
   stzAdverb join it; natural/ keeps language-as-code only;
-- NEW: the POS-PATTERN CHUNKER -- patterns over tags (the graphex idea):
+- NEW: the POS-PATTERN CHUNKER -- built ON stzListex over tag streams
+  (the composition Graphex already proves; do NOT build a new engine):
   Chunks("DT? JJ* NN+") -> noun phrases; covers NLTK's RegexpParser with a
   cleaner grammar (the out-design move, not just parity);
 - NEW: corpora/ shelf + stzCorpus entry object (small corpora embedded,
@@ -270,18 +394,41 @@ One step = the refactor AND the gap-closing together:
   counts, engine-side);
 - the 4.2 table re-audited; every green row gets its Ask-able intent.
 
-**R4 -- learning/ (creation).**
-stzDataset (tables/lists/labeled text) + a minimal trainable
-stzNeuralNetwork (XOR/iris class) with the sentence-like API + stzTrainer/
-stzModelEvaluation; FIRST APPLIED TARGET: the trainable TEXT CLASSIFIER
-(closes the last big 4.2 row); grow toward ggml-backed training; export
-into the artifact world neural/ consumes.
+**R4 -- learning/ (creation) -- RIDES THE NUMERIC SUBSTRATE.**
+Step order matters:
+1. MATRIX HYGIENE: expose Transpose (engine has it); add elementwise
+   subtract/multiply/divide, dot/norm/trace; add Solve(Ax=b) via
+   Gauss-Jordan first, LU next; wire stzRandom distributions
+   (normal/uniform) -- the training prerequisites.
+2. THE GGML BRIDGE: stzMatrix <-> ggml tensor (both contiguous float
+   arrays) -- BLAS-grade matmul + the vendored backward pass become
+   available to ALL numerics, not just neural/.
+3. stzDataset (tables/lists/labeled text) + stzNeuralNetwork with the
+   sentence-like API + stzTrainer/stzModelEvaluation (metrics ride the
+   already-engine-backed stzDataSet statistics).
+4. FIRST APPLIED TARGET: the trainable TEXT CLASSIFIER (closes the last
+   big 4.2 row). Also: make stzLinearSolver's simplex REAL (today a
+   hardcoded-tableau stub) -- the optimization module PI-agents will use.
 
-**R5 -- agentic/ (composition).**
+**R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
 (deterministic, zero-cost, the differentiator), stzLLMAgent second (same
-interfaces over neural/); memory = stzKnowledgeGraph (R1), tools = meta/
-(R2), language = linguistic+natural (R3), brains = neural/learning (R4).
+interfaces over neural/). The PI-agent is ASSEMBLED, not invented:
+- PLANNING = stzGraphPlanner (goal-predicate search, profiles, Actions()
+  sequences, history learning -- ALREADY BUILT) + the missing
+  **stzGraphGoal** goal-modeling layer (Gap()/Profile(), stubbed in stzApp);
+- REACTION = the Softanzuter upgraded to fixpoint cascading (dependent
+  triggers re-fire) = production-rule skills;
+- OPTIMIZATION = the real LP solver (R4) for resource-allocation skills;
+- memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
+  language = linguistic+natural (R3), brains = neural/learning (R4);
+- stzApp is the studied precedent (Being/Behavior/Purpose mapping).
 Parse trees and *.zagn agent files considered here, on demand.
 
-Each R-step is independently shippable; R1 is ready to start.
+**S0 -- SUBSTRATE HYGIENE (small, do alongside R1):**
+fix stzRegexUter.Compute typo; implement StateByPosition/ByComputationOrder;
+delete stznumbrex-copy.ring; implement or honestly-raise stzGraph.Paths()
+(PathsWhereF depends on it); expose stzMatrix.Transpose; note the planner
+constant-heuristic TODO.
+
+Each R-step is independently shippable; R1 (with S0) is ready to start.
