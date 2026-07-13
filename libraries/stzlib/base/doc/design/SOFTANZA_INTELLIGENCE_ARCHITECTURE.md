@@ -13,6 +13,44 @@ milestones, not along the domains. This document fixes the architecture and
 carries ONE unified roadmap (section 6) -- refactoring and enhancement are the
 same movement, not two plans, running over FIVE SUBSTRATES (section 5).
 
+### 0.1 The North Star: the knowledgebase-driven system
+
+The author's definition, which everything below serves:
+
+> INTELLIGENCE is the computational ability to DERIVE NEW KNOWLEDGE from
+> EXISTING KNOWLEDGE. And KNOWLEDGE is the modeling of information in
+> GRAPH-BASED form, obeying DOMAIN-SPECIFIC SEMANTICS.
+
+So the full equation is bracketed by knowledge on BOTH ends:
+
+    KNOWLEDGE  ->  search + optimization + learning + rules  ->  NEW KNOWLEDGE
+
+The middle is machinery; the ends are the point. This is why knowledge/ is
+R1 and why the graph is the first substrate: the knowledge graph is not one
+pillar among six -- it is the INPUT and the OUTPUT of intelligence, and the
+other pillars are the derivation engine between them.
+
+THE GOAL, STATED AS AN EXPERIENCE: a programmer -- or the business itself --
+supplies a KNOWLEDGEBASE. A restaurant describes its business in a
+*.stzknow file: entities, relations, an ontology (domain-specific
+semantics), rules. Feeding that ONE FILE to Softanza yields an
+industrial-grade intelligent system: any app or solution for that
+restaurant is then developed easily on top of a strong, dynamic,
+WELL-GOVERNED BRAIN -- the knowledgebase. And the decisive property:
+adding one fact or one rule -- by the user, the programmer, or an
+intelligent agent -- AUGMENTS THE SYSTEM'S INTELLIGENCE AUTOMATICALLY.
+No code change. No training. No RAG machinery. Derivation rules fire
+(stzGraphRule), derived facts appear, plans recompute (the reactive
+substrate), agents act on the new state.
+
+Every needed mechanism already has verified machinery: ontology =
+stzKnowledgeGraph.DefineClass/Property/Validate; governance = stzGraphRule
+(Constraint/Derivation/Validation); currency = Computed/Watch (5.4);
+decision = planner + optimizer (5.5); and stzApp already PROTOTYPED the
+shape ("an application as a living world of meaning"). The roadmap turns
+that prototype into the doctrine -- and section 6 ends with this scenario
+as THE CAPSTONE TEST of the whole plan.
+
 ---
 
 ## 1. The Five Laws (the pattern of thinking, made explicit)
@@ -430,10 +468,14 @@ three names for one class (stzReactiveSystem/stzReactive/stzReactiveEngine).
 ### 5.5 DECISION -- the OPTIMIZATION+ML substrate  (stats/ + engine)
 
 THE PI DOCTRINE, stated once and plainly: Softanza REVOKES the full-LLM
-thesis. Intelligence is not defined as "call a giant model" -- it is search
-+ optimization + learning + rules, running locally, explaining itself,
+thesis. Intelligence is not defined as "call a giant model" -- it is
+KNOWLEDGE + search + optimization + learning + rules + NEW KNOWLEDGE
+(the bracketed equation of 0.1: the computational ability to derive new
+knowledge from existing knowledge), running locally, explaining itself,
 costing nothing (LAWS 2+3). LLMs are ONE TIER of the ladder, never its
-definition. A doctrine like that needs an engine room; this substrate is it.
+definition. A doctrine like that needs an engine room; this substrate is
+the middle of the bracket -- the derivation machinery between knowledge
+in and knowledge out.
 
 WHAT EXISTS (verified -- the honest ledger):
 - stzLinearSolver: already ~70% of a modeling object -- variables with
@@ -543,7 +585,11 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
   :Transitive -> query-time closure over stzGraph reachability);
 - suppositions overlay + evidential certainty carry over unchanged;
 - stzEntity/stzListOfEntities move in beside the graph;
-- folder naming (graph/ -> knowledge/?) decided by the author here.
+- folder naming (graph/ -> knowledge/?) decided by the author here;
+- ACCEPTANCE (the north star, 0.1): a small DOMAIN knowledgebase
+  (.stzknow with ontology + rules) loads, answers WhatIs/AreRelated,
+  and a newly added fact FIRES derivation rules -- intelligence visibly
+  augmented with zero code change.
 
 **R2 -- meta/ (+ THE CODE GRAPH).**
 Promote stzSelfDoc/stzLibDoc/harvest/recipes/test-sample records to meta/;
@@ -633,5 +679,23 @@ Parse trees and *.zagn agent files considered here, on demand.
   stzHttpTask store its status; reconcile the stale "built on libuv"
   narration across Reaxis tests/docs; decide wire-or-retire for the
   orphaned engine event bus (reactive.zig).
+
+**THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
+the restaurant scenario of 0.1. Write restaurant.stzknow -- entities,
+relations, ontology, rules. Then, with ZERO app-specific code:
+- R1 proves LOAD + GOVERN: facts queried (WhatIs/AreRelated), laws
+  enforced, a new fact triggers derivations;
+- R2 proves it EXPLAINS ITSELF: Ask over the library AND over the
+  knowledgebase's structure;
+- R3 proves you can TALK to it: natural surfaces over the domain's own
+  vocabulary;
+- R4 proves it DECIDES and LEARNS: optimize a menu/roster straight from
+  the knowledgebase (stzOptimModel); classify/score with the ML floor;
+- R5 proves it ACTS: an agent takes a goal ("prepare Saturday's
+  service"), plans over the graph, allocates via the optimizer, reacts
+  to changes as they stream in.
+Adding ONE rule to the .stzknow file visibly upgrades every layer above
+-- no code change, no training, no retrieval pipeline. That demo IS the
+proof of the revoked-LLM thesis.
 
 Each R-step is independently shippable; R1 (with S0) is ready to start.
