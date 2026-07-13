@@ -11,7 +11,7 @@ ease**: advanced features at **no cost in time or money**, with the programmer i
 **maximum control**. The current `/natural` + `/neural` split grew along the
 milestones, not along the domains. This document fixes the architecture and
 carries ONE unified roadmap (section 6) -- refactoring and enhancement are the
-same movement, not two plans, running over FIVE SUBSTRATES (section 5).
+same movement, not two plans, running over FIVE FOUNDATIONS (section 5).
 
 ### 0.1 The North Star: the knowledgebase-driven system
 
@@ -26,7 +26,7 @@ So the full equation is bracketed by knowledge on BOTH ends:
     KNOWLEDGE  ->  search + optimization + learning + rules  ->  NEW KNOWLEDGE
 
 The middle is machinery; the ends are the point. This is why knowledge/ is
-R1 and why the graph is the first substrate: the knowledge graph is not one
+R1 and why the graph is the first foundation: the knowledge graph is not one
 pillar among six -- it is the INPUT and the OUTPUT of intelligence, and the
 other pillars are the derivation engine between them.
 
@@ -41,7 +41,7 @@ adding one fact or one rule -- by the user, the programmer, or an
 intelligent agent -- AUGMENTS THE SYSTEM'S INTELLIGENCE AUTOMATICALLY.
 No code change. No training. No RAG machinery. Derivation rules fire
 (stzGraphRule), derived facts appear, plans recompute (the reactive
-substrate), agents act on the new state.
+foundation), agents act on the new state.
 
 Every needed mechanism already has verified machinery: ontology =
 stzKnowledgeGraph.DefineClass/Property/Validate; governance = stzGraphRule
@@ -268,7 +268,7 @@ base/
                   model-backed ENGINE this module can ride).
                   ENTRY: stzConversation        FORMAT: *.stzconv
 
-  reactive/     THE TIME SUBSTRATE (exists -- round-2 study, section 5.4):
+  reactive/     THE TIME FOUNDATION (exists -- round-2 study, section 5.4):
                   Reaxis declarative streams = the change-propagation
                   surface; stzReactor/stzReactorPool (libuv worker thread,
                   base/common/) = the REAL async runtime agents run on.
@@ -464,17 +464,19 @@ neural upgrade path where meaningful.
 
 ---
 
-## 5. The Five Substrates (rounds 1+2, 2026-07-13; they run UNDER all pillars)
+## 5. The Five Foundations (rounds 1+2, 2026-07-13; they run UNDER all pillars)
 
 The author's directive: graphs, the pattern-matching family, the numerical
 layer -- and, from the second analysis round, REACTIVITY and the
 DECISION machinery (optimization + modeling DSLs + classic ML) -- are not
-modules beside the pillars. They are SUBSTRATES the whole intelligence
+modules beside the pillars. They are FOUNDATIONS the whole intelligence
 system runs on. Five deep code studies confirmed it: STRUCTURE (graphs),
 RECOGNITION->ACTION (patterns), COMPUTATION (numerics), TIME/CHANGE
 (reactive), and DECISION (optimization+ML).
+(Vocabulary ruling, 2026-07-13: the word "substrate" is RETIRED across
+the Softanza corpus; FOUNDATION is the canonical term.)
 
-### 5.1 GRAPHS -- the STRUCTURE substrate  (graph/, ~19k lines, 108+ tests)
+### 5.1 GRAPHS -- the STRUCTURE foundation  (graph/, ~19k lines, 108+ tests)
 
 WHAT EXISTS (verified in code):
 - stzGraph core: the full classical suite -- Dijkstra/A*/BFS paths, longest
@@ -520,7 +522,7 @@ LATENT (spec'd or stubbed, NOT built -- the expansion frontier):
 - TODAY graphs are barely used OUTSIDE graph/ (only stzApp + stzGraphex):
   natural/ and meta/ do not ride them yet -- exactly what R1/R2 fix.
 
-### 5.2 PATTERNS -- the RECOGNITION->ACTION substrate  (regex/, 12 modules)
+### 5.2 PATTERNS -- the RECOGNITION->ACTION foundation  (regex/, 12 modules)
 
 WHAT EXISTS (verified): ONE grammar DNA across every data shape --
 `{...}` patterns, `@Token(constraints)`, `& | @!` quantifiers/sets/:unique,
@@ -539,7 +541,7 @@ and records a DEPENDENCY-TRACKED state history (dependsOn/affects/
 GetDependencyChain). This is a nascent FORWARD-CHAINING RULE ENGINE -- the
 scaffolding anticipates cascading but does not yet RE-FIRE dependent
 triggers to fixpoint. That upgrade turns it into production rules = the
-PI-agent's reactive skill substrate (R5).
+PI-agent's reactive skill foundation (R5).
 
 LATENT: the doc-only executor family (stzRegexAnalyser, stzGeneticRegexuter,
 stzLinguisticRegexuter, stzQuanticRegexuter -- vision, no code); pattern-
@@ -560,7 +562,7 @@ DESTINY BY PILLAR: R3's POS chunker = stzListex over tag streams (compose,
 do NOT build a new engine -- Graphex proves the layering); R1's graph laws
 feed stzGraphRule; R5's PI skills = Softanzuter triggers + planner actions.
 
-### 5.3 NUMERICS -- the COMPUTATION substrate  (number/ + stats/ + engine)
+### 5.3 NUMERICS -- the COMPUTATION foundation  (number/ + stats/ + engine)
 
 WHAT EXISTS (verified):
 - stzMatrix (2.4k lines, from stzListOfLists) over a Zig engine
@@ -587,12 +589,12 @@ GAPS (the honest ledger for R4):
   the strategic move: BLAS-grade matmul + the backward pass from the ggml
   we already vendor = the floor learning/ stands on.
 
-DESTINY BY PILLAR: R4 rides this substrate (matrix hygiene -> ggml bridge ->
+DESTINY BY PILLAR: R4 rides this foundation (matrix hygiene -> ggml bridge ->
 stzNeuralNetwork); stzDataSet is the evaluation layer (metrics/correlation);
 the LP solver becomes the OPTIMIZATION module (real simplex) feeding
 PI-agents with resource-allocation skills (R5).
 
-### 5.4 REACTIVITY -- the TIME/CHANGE substrate  (reactive/ + common/ + engine)
+### 5.4 REACTIVITY -- the TIME/CHANGE foundation  (reactive/ + common/ + engine)
 
 Intelligence that only computes on demand is a SNAPSHOT; reactivity is what
 makes it CURRENT -- facts change and knowledge, plans, and behavior follow
@@ -649,7 +651,7 @@ simulations; stzHttpTask never stores its status; libuv-era corpses
 duplicate constant families (OPTIMISED_/OPTIMIzED_, BINDING_/BIND_);
 three names for one class (stzReactiveSystem/stzReactive/stzReactiveEngine).
 
-### 5.5 DECISION -- the OPTIMIZATION+ML substrate  (stats/ + engine)
+### 5.5 DECISION -- the OPTIMIZATION+ML foundation  (stats/ + engine)
 
 THE PI DOCTRINE, stated once and plainly: Softanza REVOKES the full-LLM
 thesis. Intelligence is not defined as "call a giant model" -- it is
@@ -657,7 +659,7 @@ KNOWLEDGE + search + optimization + learning + rules + NEW KNOWLEDGE
 (the bracketed equation of 0.1: the computational ability to derive new
 knowledge from existing knowledge), running locally, explaining itself,
 costing nothing (LAWS 2+3). LLMs are ONE TIER of the ladder, never its
-definition. A doctrine like that needs an engine room; this substrate is
+definition. A doctrine like that needs an engine room; this foundation is
 the middle of the bracket -- the derivation machinery between knowledge
 in and knowledge out.
 
@@ -718,7 +720,7 @@ writes itself):
   EXIST TODAY: kNN (zero training, "the nearest examples were..." = pure
   LAW 3) -> naive Bayes (text, ties into linguistic/) -> TF-IDF (the
   missing vectorizer feeding everything) -> decision tree (ID3/CART; the
-  MOST explainable model, and its output IS a stzGraph -- substrates
+  MOST explainable model, and its output IS a stzGraph -- foundations
   compose) -> apriori association rules (explainable if-then itemsets).
 - POST matrix-hygiene (R4 steps 1-2): k-means, logistic regression.
 
@@ -777,7 +779,7 @@ RUNG 3 -- THE AGENT (stzAgent): a Softanzuter EMBODIED IN A WORLD. The
 Softanzuter is the agent's MIND; the agent adds the body and the stakes:
 a GOAL (stzGoal + the planner -- the deliberation the reflex rungs
 lack), MEMORY (the knowledge graph), TOOLS (meta/), PERCEPTION-ACTION
-(the reactive substrate's event loop), ACCOUNTABILITY (Why on every
+(the reactive foundation's event loop), ACCOUNTABILITY (Why on every
 act). The containment question answered precisely: AGENTS CONTAIN
 SOFTANZUTERS (at least one, the cognitive core); SOFTANZUTERS CONTAIN
 XUTERS (their faculties); no rung contains the rung above it.
@@ -802,7 +804,7 @@ And it REVOKES THE MANDATORY LLM MIND:
 The industry loop is the SPECIAL CASE of this ladder -- one faculty, no
 governance. Softanza offers the general case, locally, for free.
 
-### 5.7 GOVERNANCE -- the layer over all substrates (the Zin concordance)
+### 5.7 GOVERNANCE -- the layer over all foundations (the Zin concordance)
 
 Modern AI lacks PROGRAMMATIC GOVERNANCE; Softanza thrives at it. The
 2026-07-13 study of the Zin corpus (D:/GitHub/zin/doc -- the product the
@@ -851,7 +853,7 @@ stripped) Softanza adopts as foundational work:
   + derivation trace; a declared, TYPED context package (facts with
   provenance and authority, never text chunks) feeds any model as
   GROUND TRUTH -- the mechanism behind "derivation replaces RAG".
-- G5 THE TRACE SUBSTRATE (stzTrace): every run leaves a timestamped
+- G5 THE TRACE FOUNDATION (stzTrace): every run leaves a timestamped
   SUBGRAPH of the declaration graph (nodes fired, value hashes,
   taints, cost, rejected paths, escalations) -- so diff, replay,
   blame, and cost attribution are ordinary graph operations. Extends
@@ -956,6 +958,67 @@ Softanza stays FOSS regardless. One doctrine note for R5: stzPIAgent
 product agents are REALIZATIONS of the same interface -- the doctrine
 must not fork.
 
+THE EXPERIENCE (how refinement happens in Softanza, for programmers
+AND agents):
+
+    o = StzRefinableCodeQ(ReadFile("pricing.ring"))
+    ? o.RefinementPoints()        # the R-tags: the code's DECLARED,
+                                  # typed change surface
+    ? o.Explain(:vat_rate)        # kind, bounds, current value, lineage
+    o.Refine(:vat_rate).To(0.20)  # a TYPED PROPOSAL -- not a diff
+    ? o.Cascade()                 # the blast radius, BEFORE applying
+    o.Apply()                     # the gate: structural -> constraint
+                                  # -> derivation -> governance; Why()
+    o.Revert()                    # the typed inverse
+
+And through the OTHER doors unchanged: natural ("raise the VAT rate to
+20 percent"), conversational (wise coding ASKS: "vat_rate is bounded
+0..0.25 -- which value?"), by EXAMPLE (desired outputs in, knob values
+INDUCED). REFINEMENT IS THE ANSWER PROTOCOL APPLIED TO ARTIFACTS: a
+proposal is a candidate answer, the gate is the same admission funnel,
+the cascade is the enumerate-before-choose branch, Why() narrates, and
+evidentiality stamps the verdict. For AGENTS (LAW 6) this is the
+SAFEST WRITE SURFACE they can be given: typed proposals against
+declared knobs -- discoverable (the points are the agent's affordance
+map, as the harvest is for Ask), bounded, gate-validated, reversible;
+the gate does not care who authored the proposal. The reviewer-
+attention crisis, answered at the library level.
+
+GRAPHS CARRY THE WHOLE STORY: points = typed nodes anchored in the code
+graph (R2); a refinement = a typed transformation; CASCADE =
+reachability/ImpactOf; the GATE = stzGraphRule phases; lineage = the
+trace subgraph; reversibility = inverse transformations as graph
+events; discovery = stzGraphQuery; multi-point coordination = the
+planner ordering refinements by dependency; Graphex MATCHES refinement
+patterns. Without the graph, refinement is find-and-replace with
+ceremony; on the graph, it is a governed transformation calculus.
+
+WHAT THE FOUNDATION SAYS THAT THE PRODUCT WON'T:
+1. REFINEMENT IS UNIVERSAL, not code-bound: anything living in a graph
+   is refinable through the SAME gate -- the knowledgebase's facts and
+   rules, an optimization model's Vars bounds (.stzopt knobs ARE
+   refinement points), a plan's profile, a conversation policy. The
+   product must focus (code/UI/data); the foundation must generalize
+   (LAW 1 makes every domain graph-backed, hence refinable).
+2. REFINEMENT COMPOSES with the whole intelligence stack, for free:
+   evidential verdicts, wise-coding elicitation, answer-by-example
+   induction of knob values, Softanzuter reactions to refinement
+   state, agents refining as ONE SKILL among skills. The product ships
+   an IDE; the foundation ships refinement as a LIBRARY VERB available
+   to every program.
+3. THE ZERO-CEREMONY FLOOR (LAW 2): one line, no IDE, no server, no
+   product -- Q(code).RefineQ(:knob).To(v).Applied() -- and it still
+   passes the same gate. Graceful degradation applies to refinement
+   itself.
+4. REFINEMENT IS KNOWLEDGE DERIVATION (the 0.1 bracket): existing
+   graph + rules + a proposal -> a new admitted state + lineage = new
+   knowledge derived from existing knowledge. The product speaks
+   version-control's language (change governance); the foundation
+   names the deeper fact: refinement is the knowledgebase's WRITE
+   OPERATION generalized to artifacts.
+5. PERMANENCE: the mechanics (points, gate, cascade, reversibility)
+   are FOSS in Softanza forever, whatever any product decides.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -1002,7 +1065,7 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
 **R2 -- meta/ (+ THE CODE GRAPH).**
 Promote stzSelfDoc/stzLibDoc/harvest/recipes/test-sample records to meta/;
 reflect/ keeps parsing primitives; ask-probe and semantic-retrieval suites
-stay the regression guard. SUBSTRATE MOVE: build **stzCodeGraph** (the
+stay the regression guard. FOUNDATION MOVE: build **stzCodeGraph** (the
 design doc's stzCode spec) -- the harvested corpus becomes NODES (classes,
 methods, helpers) and EDGES (defines/delegates-to/forwards-to/inherits,
 already detected by the harvest levers!) instead of flat records: DeadCode()
@@ -1069,7 +1132,7 @@ becomes the DOMAIN (map entry above):
   graph, never a parallel stack.
 
 **R4 -- learning/ + optim/ (creation + decision) -- RIDES THE NUMERIC
-SUBSTRATE.** Step order matters:
+FOUNDATION.** Step order matters:
 0. THE CLASSIC-ML FLOOR (no numeric blockers -- can start anytime): kNN,
    naive Bayes, TF-IDF, decision tree (ID3 -> emits a stzGraph), apriori --
    riding stzDataSet + stzSimilarity exactly as they exist today.
@@ -1112,7 +1175,7 @@ code execution carries a declared posture (trusted / external /
 sandboxed), resource limits, and lands its trace in the audit chain.
 Mechanism only -- no fixed constitution ships with Softanza.
 
-**R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
+**R5 -- agentic/ (composition) -- THE FOUNDATIONS CONVERGE.**
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
 (deterministic, zero-cost, the differentiator), stzLLMAgent second (same
 interfaces over neural/). The PI-agent is ASSEMBLED, not invented (the 5.6 ladder: Xuter
@@ -1124,7 +1187,7 @@ faculties -> Softanzuter mind -> embodied agent):
   triggers re-fire) = production-rule skills;
 - OPTIMIZATION = stzOptimModel (R4 step 5) called by the planner as a
   sub-solver for resource-allocation skills;
-- RUNTIME = the reactive substrate: the perceive-decide-act loop runs on
+- RUNTIME = the reactive foundation: the perceive-decide-act loop runs on
   stzReactor (REAL libuv async, cancellation tokens, pool retry) -- NOT
   the cooperative poller; perception = async reactor fetches; neural token
   streaming = one new reactor job type;
@@ -1136,7 +1199,7 @@ faculties -> Softanzuter mind -> embodied agent):
   grammar-bounded output-out, guarded tool-call-back) + the G2 validators
   run at composition time + stzHybridAgent (LLM creativity -> effects
   ONLY under a declared pi-guardian);
-- ACCOUNTABILITY = the trace substrate (5.7 G5): every run leaves a
+- ACCOUNTABILITY = the trace foundation (5.7 G5): every run leaves a
   timestamped subgraph -- diff, replay, blame, cost attribution as
   ordinary graph operations;
 - memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
@@ -1169,7 +1232,7 @@ stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
   multi-authority merge; ROM-style stable object surface for governed
   third-party Ring scripts (with meta/, LAW 6).
 
-**S0 -- SUBSTRATE HYGIENE (do alongside R1):**
+**S0 -- FOUNDATION HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
   ByComputationOrder; delete stznumbrex-copy.ring;
 - graphs: implement or honestly-raise stzGraph.Paths() (PathsWhereF
