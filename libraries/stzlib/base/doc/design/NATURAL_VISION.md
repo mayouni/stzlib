@@ -307,9 +307,11 @@ question (a "(world)" entry prepended to the ranked results,
 kind-consistent with "(recipe)"; suppositions answer too, while they
 stand), and WhatIs() falls back to the LIBRARY through the same
 retrieval pipeline when the world is silent (accepting only name-exact
-or voice-sibling method hits -- deterministic). Remaining: the deferred
-Floor-2 rebuild of the chain surface as resolver-backed sugar if ever
-wanted.
+or voice-sibling method hits -- deterministic). Floor-2
+rebuild of the chain surface as resolver-backed sugar DONE (2026-07-13):
+stzTruthChain -- the boolean narrative rebuilt thin (option (a)), every
+predicate word resolves to a lexicon descriptor, the chain folds once
+through the @is<X> dispatch (no per-step eval). NOTHING remains deferred.
 
 ---
 
