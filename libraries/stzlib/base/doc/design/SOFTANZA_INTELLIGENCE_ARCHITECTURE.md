@@ -105,6 +105,31 @@ structure and governed knowledge Softanza holds of ITSELF (meta/, LAW 6)
 and of the DOMAIN (the knowledgebase). Guessing is replaced by asking;
 vibes are replaced by governance. WISE CODING, not vibe coding.
 
+THE ANSWER PROTOCOL (how a reply becomes knowledge). To any question
+Softanza asks, the programmer or the owner may answer in FIVE registers:
+
+1. one of the OPTIONS Softanza proposed;
+2. a well-defined DATA STRUCTURE (hash literals, lists, tables);
+3. a FORMULA or SCRIPT (the W-DSL expression, Ring code);
+4. NATURAL or NEAR-NATURAL language (Naturally / NNL chains, resolved
+   through the ONE lexicon);
+5. EXAMPLES -- from which Softanza INFERS the pattern (induction over
+   the ...ex family: Regex/Listex/Numbrex/Graphex) and builds a
+   COMPUTABLE answer candidate.
+
+Whatever the register, the candidate answer is EVALUATED against the
+world graph and its rules (ontology + stzGraphRule) BEFORE it becomes
+knowledge:
+
+- UNIQUE acceptable answer -> accepted, written, narrated (Why);
+- SEVERAL acceptable -> Softanza ENUMERATES them and the user chooses
+  (informed choice, never a silent guess);
+- NONE acceptable -> refusal with the reason and the nearest acceptable
+  alternatives (LAW 3 applied to dialogue).
+
+Every register lands in the same funnel: EXPRESSION IS FREE, ADMISSION
+IS GOVERNED.
+
 ---
 
 ## 1. The Six Laws (the pattern of thinking, made explicit)
@@ -458,6 +483,9 @@ PI-agent's reactive skill substrate (R5).
 LATENT: the doc-only executor family (stzRegexAnalyser, stzGeneticRegexuter,
 stzLinguisticRegexuter, stzQuanticRegexuter -- vision, no code); pattern-
 driven data GENERATION and code translation (stzRegex's own TODO roadmap).
+PATTERN INDUCTION -- inferring a Regex/Listex/Graphex FROM user-supplied
+EXAMPLES -- is now DEMANDED by the 0.3 answer protocol (answer-by-example):
+the doc-only genetic/inference executors finally have their purpose.
 HYGIENE found: Compute() typo (cTex) = dead alias; StateByPosition/
 StateByComputationOrder TODO stubs in both Uters; stznumbrex-copy.ring
 stale duplicate; listexuter tree test retired pending a hash-literal DSL.
@@ -727,6 +755,13 @@ becomes the DOMAIN (map entry above):
   the current knowledgebase GENERATES the next questions (goal-driven
   slot filling: stzGoal + stzQuestion over the graph); the session ends
   by WRITING the .stzknow and standing the system up;
+- THE ANSWER PROTOCOL (0.3): replies accepted in five registers --
+  proposed option / data structure / formula-script / natural-NNL /
+  EXAMPLES (pattern INDUCTION over the ...ex family builds the
+  computable candidate); every candidate is validated against the graph
+  + its rules before admission: unique -> accept + narrate, several ->
+  enumerate and let the user choose, none -> refuse with reasons and
+  nearest alternatives;
 - LAW 2 ladder: deterministic floor (lexicon + frames + templates) works
   with NO model; stzNeuralChat upgrades fluency when a GGUF is present.
 
