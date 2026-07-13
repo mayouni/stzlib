@@ -140,4 +140,40 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 		@@( WhatIs("zorgle") ), "[ ]")
 EndScenario()
 
+Scenario("Graph-governed relations -- the world grows edges under LAW")
+	Given("StzKnowRelation adds triples; StzConstrainRelation declares graph laws: :Unique (one edge per FROM), :Symmetric (auto-reverse), :Transitive (AreRelated walks the chain, Why narrates the path)")
+
+	ForgetRelations()
+	StzKnowRelation("paris", "capital-of", "france")
+	Then("the edge is known", @@( RelationsOf("paris") ),
+		'[ [ "capital-of", "france" ] ]')
+	Then("AreRelated answers the relation", AreRelated("paris", "france"), "capital-of")
+	Then("WhatIs surfaces the edge with the types",
+		StzFindFirst(@@( WhatIs("paris") ), "capital-of france") > 0, TRUE)
+
+	StzConstrainRelation("capital-of", :Unique)
+	Then("a second capital is REFUSED by the :Unique law",
+		StzKnowRelation("paris", "capital-of", "germany"), FALSE)
+	Then("...", Why(),
+		"no: 'paris' already bears 'capital-of' (to 'france'; the relation is :Unique)")
+
+	StzConstrainRelation("married-to", :Symmetric)
+	StzKnowRelation("ali", "married-to", "salma")
+	Then("the :Symmetric law knows the reverse",
+		AreRelated("salma", "ali"), "married-to")
+
+	StzConstrainRelation("part-of", :Transitive)
+	StzKnowRelation("engine", "part-of", "car")
+	StzKnowRelation("piston", "part-of", "engine")
+	Then("the :Transitive law walks the chain",
+		AreRelated("piston", "car"), "part-of")
+	Then("...and narrates the path", Why(),
+		"yes: piston part-of engine part-of car")
+
+	Then("unrelated stays honestly unrelated",
+		AreRelated("piston", "salma"), "")
+	ForgetRelations()
+	Then("forgotten edges are gone", @@( RelationsOf("paris") ), "[ ]")
+EndScenario()
+
 Summary()

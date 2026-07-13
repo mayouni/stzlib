@@ -10,6 +10,8 @@
 $oWorldEntities = new stzListOfEntities
 $aStzSuppositions = []   # the HYPOTHETICAL overlay (see SupposeQ below)
 $oStzWhatIsDoc = NULL   # lazy self-doc index for the WhatIs library fallback
+$aStzRelations = []      # the world's EDGES: triples [ from, relation, to ]
+$aStzRelationRules = []  # graph laws per relation: [ relation, :Unique | :Symmetric | :Transitive ]
 
 func WorldEntities()
 	return $oWorldEntities
@@ -112,6 +114,12 @@ func WhatIs(pcName)
 	ok
 	_cName_ = StzLower(trim(pcName))
 	_aOut_ = _StzWorldTypesOf(_cName_)
+	# the world's EDGES answer too: "capital-of france"
+	_aRel_ = RelationsOf(_cName_)
+	_nRel_ = len(_aRel_)
+	for _i_ = 1 to _nRel_
+		_aOut_ + (_aRel_[_i_][1] + " " + _aRel_[_i_][2])
+	next
 	if len(_aOut_) > 0
 		return _aOut_
 	ok
@@ -177,6 +185,179 @@ func WhatIs(pcName)
 
 	func @WhatIs(pcName)
 		return WhatIs(pcName)
+
+# --- GRAPH-GOVERNED RELATIONS -----------------------------------------
+# The entity world grows EDGES: named relations between entities,
+# governed by deterministic graph LAWS declared per relation:
+#   :Unique     -- a given FROM bears the relation ONCE (a country has
+#                  one capital); a second declaration is REFUSED with Why
+#   :Symmetric  -- knowing a-R-b auto-knows b-R-a (married-to)
+#   :Transitive -- AreRelated() walks the chain (part-of: piston ->
+#                  engine -> car), narrating the path in Why()
+# Deterministic, hence CERTAIN in the evidential register.
+
+func StzKnowRelation(pcFrom, pcRel, pcTo)
+	if NOT (isString(pcFrom) and isString(pcRel) and isString(pcTo))
+		return 0
+	ok
+	_cF_ = StzLower(trim(pcFrom))
+	_cR_ = StzLower(trim(pcRel))
+	_cT_ = StzLower(trim(pcTo))
+	if _cF_ = "" or _cR_ = "" or _cT_ = ""
+		return 0
+	ok
+	$nStzLastCertainty = 1
+	# the :Unique law: one FROM, one edge of this relation
+	if _StzRelationHasRule(_cR_, :Unique)
+		_n_ = len($aStzRelations)
+		for _i_ = 1 to _n_
+			if $aStzRelations[_i_][1] = _cF_ and $aStzRelations[_i_][2] = _cR_ and
+			   $aStzRelations[_i_][3] != _cT_
+				$cStzLastWhyB = "no: '" + _cF_ + "' already bears '" + _cR_ +
+					"' (to '" + $aStzRelations[_i_][3] + "'; the relation is :Unique)"
+				return 0
+			ok
+		next
+	ok
+	_StzAddRelationTriple(_cF_, _cR_, _cT_)
+	if _StzRelationHasRule(_cR_, :Symmetric)
+		_StzAddRelationTriple(_cT_, _cR_, _cF_)
+	ok
+	$cStzLastWhyB = "yes: '" + _cF_ + "' " + _cR_ + " '" + _cT_ + "'"
+	return 1
+
+	func @StzKnowRelation(pcFrom, pcRel, pcTo)
+		return StzKnowRelation(pcFrom, pcRel, pcTo)
+
+func _StzAddRelationTriple(pcF, pcR, pcT)
+	_n_ = len($aStzRelations)
+	for _i_ = 1 to _n_
+		if $aStzRelations[_i_][1] = pcF and $aStzRelations[_i_][2] = pcR and
+		   $aStzRelations[_i_][3] = pcT
+			return
+		ok
+	next
+	$aStzRelations + [ pcF, pcR, pcT ]
+
+# Declare a graph LAW for a relation (:Unique / :Symmetric / :Transitive).
+# :Symmetric applies RETROACTIVELY (existing edges gain their reverses).
+func StzConstrainRelation(pcRel, pcRule)
+	_cR_ = StzLower(trim(pcRel))
+	_cL_ = StzLower(trim("" + pcRule))
+	if _cR_ = "" or _cL_ = ""
+		return 0
+	ok
+	if NOT _StzRelationHasRule(_cR_, _cL_)
+		$aStzRelationRules + [ _cR_, _cL_ ]
+	ok
+	if _cL_ = "symmetric"
+		_n_ = len($aStzRelations)
+		for _i_ = 1 to _n_
+			if $aStzRelations[_i_][2] = _cR_
+				_StzAddRelationTriple($aStzRelations[_i_][3], _cR_, $aStzRelations[_i_][1])
+			ok
+		next
+	ok
+	return 1
+
+func _StzRelationHasRule(pcRel, pcRule)
+	_cL_ = StzLower(trim("" + pcRule))
+	_n_ = len($aStzRelationRules)
+	for _i_ = 1 to _n_
+		if $aStzRelationRules[_i_][1] = pcRel and $aStzRelationRules[_i_][2] = _cL_
+			return 1
+		ok
+	next
+	return 0
+
+# The outgoing edges of an entity: [ [relation, to], ... ]
+func RelationsOf(pcName)
+	_aOut_ = []
+	if NOT isString(pcName)
+		return _aOut_
+	ok
+	_cN_ = StzLower(trim(pcName))
+	_n_ = len($aStzRelations)
+	for _i_ = 1 to _n_
+		if $aStzRelations[_i_][1] = _cN_
+			_aOut_ + [ $aStzRelations[_i_][2], $aStzRelations[_i_][3] ]
+		ok
+	next
+	return _aOut_
+
+	func @RelationsOf(pcName)
+		return RelationsOf(pcName)
+
+# The relation linking a to b ("" when none). For a :Transitive relation
+# the CHAIN counts too -- the path is narrated in Why().
+func AreRelated(pcA, pcB)
+	if NOT (isString(pcA) and isString(pcB))
+		return ""
+	ok
+	_cA_ = StzLower(trim(pcA))
+	_cB_ = StzLower(trim(pcB))
+	$nStzLastCertainty = 1
+	_n_ = len($aStzRelations)
+	# direct edge first
+	for _i_ = 1 to _n_
+		if $aStzRelations[_i_][1] = _cA_ and $aStzRelations[_i_][3] = _cB_
+			$cStzLastWhyB = "yes: '" + _cA_ + "' " + $aStzRelations[_i_][2] +
+				" '" + _cB_ + "'"
+			return $aStzRelations[_i_][2]
+		ok
+	next
+	# transitive chains, one relation at a time
+	_nR_ = len($aStzRelationRules)
+	for _i_ = 1 to _nR_
+		if $aStzRelationRules[_i_][2] = "transitive"
+			_cPath_ = _StzRelationChain($aStzRelationRules[_i_][1], _cA_, _cB_)
+			if _cPath_ != ""
+				$cStzLastWhyB = "yes: " + _cPath_
+				return $aStzRelationRules[_i_][1]
+			ok
+		ok
+	next
+	$cStzLastWhyB = "no: nothing relates '" + _cA_ + "' to '" + _cB_ + "'"
+	return ""
+
+	func @AreRelated(pcA, pcB)
+		return AreRelated(pcA, pcB)
+
+# Walk pcRel edges from pcA toward pcB (depth-capped); the narrated path
+# ("piston part-of engine part-of car") or "".
+func _StzRelationChain(pcRel, pcA, pcB)
+	_aFront_ = [ [ pcA, pcA ] ]   # [ node, path-so-far ]
+	_aSeen_ = [ pcA ]
+	_nDepth_ = 0
+	while len(_aFront_) > 0 and _nDepth_ < 16
+		_nDepth_++
+		_aNext_ = []
+		_nF_ = len(_aFront_)
+		for _f_ = 1 to _nF_
+			_cNode_ = _aFront_[_f_][1]
+			_cPath_ = _aFront_[_f_][2]
+			_n_ = len($aStzRelations)
+			for _i_ = 1 to _n_
+				if $aStzRelations[_i_][1] = _cNode_ and $aStzRelations[_i_][2] = pcRel
+					_cTo_ = $aStzRelations[_i_][3]
+					_cNewPath_ = _cPath_ + " " + pcRel + " " + _cTo_
+					if _cTo_ = pcB
+						return _cNewPath_
+					ok
+					if ring_find(_aSeen_, _cTo_) = 0
+						_aSeen_ + _cTo_
+						_aNext_ + [ _cTo_, _cNewPath_ ]
+					ok
+				ok
+			next
+		next
+		_aFront_ = _aNext_
+	end
+	return ""
+
+func ForgetRelations()
+	$aStzRelations = []
+	$aStzRelationRules = []
 
 # the raw world lookup (entities + the supposition overlay) -- the piece
 # the Ask() world door calls, so the two doors can meet without recursion

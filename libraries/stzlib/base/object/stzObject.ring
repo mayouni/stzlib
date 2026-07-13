@@ -6490,6 +6490,18 @@ class stzObject
 		_nCn_ = len(@aNNLConstraints)
 		for _i_ = 1 to _nCn_
 			if @aNNLConstraints[_i_][1] = _cCn_
+				if This._NNLTemporalState(_i_) = :Dormant
+					@cNNLWhy = "yes: constraint '" + _cCn_ +
+						"' is not in force right now (its while-condition is false)"
+					$cStzLastWhyB = @cNNLWhy
+					return 1
+				ok
+				if This._NNLTemporalState(_i_) = :Expired
+					@cNNLWhy = "yes: constraint '" + _cCn_ +
+						"' is no longer in force (its until-condition was met)"
+					$cStzLastWhyB = @cNNLWhy
+					return 1
+				ok
 				if This._NNLConstraintHolds(@aNNLConstraints[_i_][2])
 					@cNNLWhy = "yes: constraint '" + _cCn_ + "' holds"
 					$cStzLastWhyB = @cNNLWhy
@@ -6556,6 +6568,77 @@ class stzObject
 			This.EnforceConstraint(pcName, pRule)
 			return This
 
+	# TEMPORAL GUARDS -- natural obligation has SCOPE IN TIME:
+	#   "stay uppercase WHILE it is short"   -> in force only while the
+	#                                           condition holds
+	#   "stay positive UNTIL reaching 100"   -> in force until the
+	#                                           condition is met, then the
+	#                                           constraint RETIRES itself
+	# The condition speaks the same rule language as constraints (a
+	# descriptor symbol or a '{ ... }' placeholder condition) and is
+	# checked against the CURRENT value; the rule guards the CANDIDATE.
+
+	def EnforceConstraintWhile(pcName, pRule, pWhileCondition)
+		This._NNLAddTemporalConstraint(pcName, pRule, "while", pWhileCondition)
+
+		def EnforceConstraintWhileQ(pcName, pRule, pWhileCondition)
+			This.EnforceConstraintWhile(pcName, pRule, pWhileCondition)
+			return This
+
+	def EnforceConstraintUntil(pcName, pRule, pUntilCondition)
+		This._NNLAddTemporalConstraint(pcName, pRule, "until", pUntilCondition)
+
+		def EnforceConstraintUntilQ(pcName, pRule, pUntilCondition)
+			This.EnforceConstraintUntil(pcName, pRule, pUntilCondition)
+			return This
+
+	def _NNLAddTemporalConstraint(pcName, pRule, pcKind, pCondition)
+		if NOT isString(pcName) or ring_trim(pcName) = ""
+			StzRaise("A constraint needs a name.")
+		ok
+		_cCn_ = StzLower(ring_trim(pcName))
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if @aNNLConstraints[_i_][1] = _cCn_
+				@aNNLConstraints[_i_] = [ _cCn_, pRule, pcKind, pCondition ]
+				@bNNLEnforce = 1
+				return
+			ok
+		next
+		@aNNLConstraints + [ _cCn_, pRule, pcKind, pCondition ]
+		@bNNLEnforce = 1
+
+	# The temporal state of constraint i: :Active (enforce), :Dormant
+	# (while-condition false right now), :Expired (until-condition met --
+	# retire). Plain 2-field constraints are always :Active.
+	def _NNLTemporalState(_i_)
+		if len(@aNNLConstraints[_i_]) < 4
+			return :Active
+		ok
+		_bCnd_ = This._NNLConstraintHolds(@aNNLConstraints[_i_][4])
+		if @aNNLConstraints[_i_][3] = "while"
+			if _bCnd_ = 1
+				return :Active
+			ok
+			return :Dormant
+		ok
+		# "until": in force as long as the condition is NOT yet met
+		if _bCnd_ = 1
+			return :Expired
+		ok
+		return :Active
+
+	# drop every :Expired temporal constraint (an until-condition was met)
+	def _NNLRetireExpired()
+		_aKeep_ = []
+		_nCn_ = len(@aNNLConstraints)
+		for _i_ = 1 to _nCn_
+			if This._NNLTemporalState(_i_) != :Expired
+				_aKeep_ + @aNNLConstraints[_i_]
+			ok
+		next
+		@aNNLConstraints = _aKeep_
+
 	def EnforceConstraints()
 		@bNNLEnforce = 1
 
@@ -6578,8 +6661,12 @@ class stzObject
 		if @bNNLEnforce = 0 or len(@aNNLConstraints) = 0
 			return
 		ok
+		This._NNLRetireExpired()
 		_nGc_ = len(@aNNLConstraints)
 		for _iGc_ = 1 to _nGc_
+			if This._NNLTemporalState(_iGc_) != :Active
+				loop
+			ok
 			if NOT This._NNLRuleHoldsFor(@aNNLConstraints[_iGc_][2], pNewValue)
 				StzRaise([
 					:Where = This.StzType() + " > Update()",
