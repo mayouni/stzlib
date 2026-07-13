@@ -130,6 +130,27 @@ knowledge:
 Every register lands in the same funnel: EXPRESSION IS FREE, ADMISSION
 IS GOVERNED.
 
+THE SOLUTION SPACE (how Softanza works out an answer). Analyzing a reply
+or searching for a solution is itself intelligent work, and Softanza
+brings its own machinery to it:
+
+- SUPERPOSITION of candidates -- the stzQuanticRegexuter idea (documented
+  vision: evaluate MULTIPLE interpretations SIMULTANEOUSLY, each carrying
+  a contextual-probability weight): candidate answers are held in
+  parallel, weighted, and COLLAPSED by the rules, the context, or the
+  user's choice. The weights speak the evidential register's language
+  (certainly / probably / apparently) -- ranked interpretations, never a
+  silent guess.
+- THE NATIVE AGENT STACK -- Softanza runs an agentic infrastructure OF
+  ITS OWN: a well-designed, CURATED set of agents native to the library,
+  working individually or collaboratively to bring a plausible solution
+  (analyze the reply in every register, induce the pattern, validate
+  against the graph, rank the survivors, plan the follow-up question).
+  Programmers can add agents too -- but generally in the APPLICATION
+  space; the native roster is a Softanza-designer decision (R5). The
+  library is thus the FIRST CONSUMER of its own agentic/ module (LAW 5
+  eating its own cooking).
+
 ---
 
 ## 1. The Six Laws (the pattern of thinking, made explicit)
@@ -304,6 +325,14 @@ base/
                   stzAgentTool      BACKED BY meta/ (the self-describing
                                     library: every documented method is a
                                     callable tool with its intent text)
+                  TWO SPACES: the NATIVE STACK -- a curated set of
+                  library-internal agents (the roster is a Softanza-
+                  designer decision, R5) that the library's OWN features
+                  consume first: wise-coding answer analysis, solution
+                  search, knowledgebase gap-filling -- individually or
+                  collaboratively. Versus the APPLICATION SPACE, where
+                  programmers add their own agents over the SAME
+                  interfaces, without touching the native stack.
 ```
 
 What does NOT change: string/ list/ number/ table/ etc. (the data domains),
@@ -486,6 +515,11 @@ driven data GENERATION and code translation (stzRegex's own TODO roadmap).
 PATTERN INDUCTION -- inferring a Regex/Listex/Graphex FROM user-supplied
 EXAMPLES -- is now DEMANDED by the 0.3 answer protocol (answer-by-example):
 the doc-only genetic/inference executors finally have their purpose.
+So does stzQuanticRegexuter (documented: evaluate multiple interpretations
+SIMULTANEOUSLY, each weighted by contextual probability): it is the
+SOLUTION-SPACE engine of the same protocol -- superposed weighted
+candidates feeding the several-acceptable branch, collapsed by rules or
+user choice, its weights mapping onto the evidential certainty bands.
 HYGIENE found: Compute() typo (cTex) = dead alias; StateByPosition/
 StateByComputationOrder TODO stubs in both Uters; stznumbrex-copy.ring
 stale duplicate; listexuter tree test retired pending a hash-literal DSL.
@@ -811,7 +845,13 @@ interfaces over neural/). The PI-agent is ASSEMBLED, not invented:
   depend on (requires the R54 stzReactiveObject fix -- see S0);
 - memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
   language = linguistic+natural (R3), brains = neural/learning/optim (R4);
-- stzApp is the studied precedent (Being/Behavior/Purpose mapping).
+- stzApp is the studied precedent (Being/Behavior/Purpose mapping);
+- THE NATIVE STACK: the curated library-internal agents Softanza's own
+  features consume FIRST (the 0.3 solution space: analyze the reply in
+  every register, induce, validate, rank, plan the next question) --
+  the roster is a designer decision taken here (candidate natives:
+  elicitation / induction / validation / ranking / planning agents);
+  programmers extend in the APPLICATION space over the same interfaces.
 Parse trees and *.zagn agent files considered here, on demand.
 
 **S0 -- SUBSTRATE HYGIENE (do alongside R1):**
