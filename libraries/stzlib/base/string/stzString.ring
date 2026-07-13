@@ -4078,6 +4078,7 @@ class stzString from stzObject
 
 	# Insert pcSubStr BEFORE position n -- or before the given anchor
 	# substring (mutating).
+	#@ aka  put before, prepend at, inject ahead of
 	def InsertBefore(n, pcSubStr)
 		# Named-param form: (:Position = N, :SubString = pcSub).
 		if isList(n) and len(n) = 2 and isString(n[1])
@@ -4423,6 +4424,7 @@ class stzString from stzObject
 			return new stzListOfStrings(This.Words())
 
 	# How many words the string holds.
+	#@ aka  word count, how many words, count the words
 	def NumberOfWords()
 		return StzEngineStringCountWords(@pEngine)
 
@@ -5004,6 +5006,7 @@ class stzString from stzObject
 	#============================================#
 
 	# The lines of the string, as a list.
+	#@ aka  split into lines, rows of text, line by line
 	def Lines()
 		_nLnCount_ = StzEngineStringLinesSplitCount(@pEngine)
 		_aLnResult_ = []
@@ -5332,6 +5335,7 @@ class stzString from stzObject
 
 	# Remove the leading spaces in place (mutating). For a copy, use
 	# TrimmedLeft.
+	#@ aka  strip leading spaces, remove left whitespace
 	def TrimLeft()
 		pH = This.Engine()
 		pR = StzEngineStringTrimLeft(pH)
@@ -7286,6 +7290,7 @@ class stzString from stzObject
 
 	# Put pcBefore and pcAfter around the content (mutating). For a
 	# copy, use Surrounded.
+	#@ aka  wrap, enclose, put around, bracket with
 	def Surround(pcBefore, pcAfter)
 		This.Update(pcBefore + This.Content() + pcAfter)
 
@@ -7324,6 +7329,7 @@ class stzString from stzObject
 	# --- Palindrome ---
 
 	# TRUE if the string reads the same backward (a palindrome).
+	#@ aka  reads the same backward, mirror word
 	def IsPalindromeCS(pCaseSensitive)
 		_oIpChk_ = new stzStringChecker(This)
 		return _oIpChk_.IsPalindromeCS(pCaseSensitive)
@@ -15148,6 +15154,7 @@ class stzString from stzObject
 
 	# Turn the content into its hex digest with the given algorithm
 	# (mutating, engine-backed).
+	#@ aka  digest, checksum, sha, md5, fingerprint
 	def Hash(pAlgo)
 		# Mutates the content into its hex digest. Engine-backed:
 		# :MD5 and :SHA256 (SHA1/384/512/224 pending engine port --
@@ -16802,6 +16809,7 @@ class stzString from stzObject
 
 	# The chars in reverse order, as data; the original is
 	# unchanged.
+	#@ aka  backwards text, mirrored, reversed string
 	def CharsReversed()
 		return StzReverse(This.Content())
 

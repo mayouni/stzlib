@@ -506,6 +506,7 @@ class stzList from stzObject
 	#----------------------#
 
 	# Add the given item at the end of the list (mutating).
+	#@ aka  append, push, add element, put at the end
 	def AddItem(pItem)
 		_aCopy_ = This.Content()
 		_aCopy_ + pItem
@@ -2106,6 +2107,7 @@ class stzList from stzObject
 		return _oDupItm_.DuplicatedItemsCS(pCaseSensitive)
 
 	# The items that occur more than once in the list.
+	#@ aka  repeated items, doubles, occur twice, duplicates
 	def DuplicatedItems()
 		return This.DuplicatedItemsCS(1)
 
@@ -3597,6 +3599,7 @@ class stzList from stzObject
 
 		# Find the given item: the positions of EVERY occurrence, as a
 		# list (engine-backed).
+		#@ aka  locate, search, where is, positions of
 		def FindCS(pItem, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
@@ -5515,6 +5518,7 @@ class stzList from stzObject
 	  #-- Join (engine-backed)
 
 	# The items joined into one string with the given separator.
+	#@ aka  concatenate, glue together, merge into one string
 	def Join(pcSep)
 		_pJnList_ = This._EngineListFromContent()
 		if _pJnList_ = NULL return "" ok
@@ -6428,6 +6432,7 @@ class stzList from stzObject
 		return This.SplitAfterCS(pItem, 1)
 
 	# Split the list into n (near-)equal parts.
+	#@ aka  divide, chunk, break into parts, portions
 	def SplitToNParts(_n_)
 		_oStnpSplitter_ = new stzListSplits(This)
 		return _oStnpSplitter_.SplitToNParts(_n_)
@@ -6700,6 +6705,7 @@ class stzList from stzObject
 		return _pPfItem_
 
 	# Remove the first n items and return them.
+	#@ aka  pop first items, grab, draw from the front
 	def Take(_n_)
 		_oTkExt_ = new stzListExtractor(This)
 		_aTkResult_ = _oTkExt_.Take(_n_)
