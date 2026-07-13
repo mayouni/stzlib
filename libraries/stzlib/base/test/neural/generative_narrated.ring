@@ -45,6 +45,31 @@ if StzHasGenerativeModel()
 			"The largest planet of our solar system is Jupiter.")
 	EndScenario()
 
+	Scenario("Sampling knobs: variety with reproducibility")
+		c1 = StzAskModel("What is the capital of France?", 24)
+		c2 = StzAskModelXT("What is the capital of France?",
+			[ :MaxTokens = 24, :Temperature = 0 ])
+		Then("temperature 0 IS the greedy path", c1 = c2, TRUE)
+		c3 = StzAskModelXT("Say something nice about libraries.",
+			[ :MaxTokens = 20, :Temperature = 0.8, :Seed = 7 ])
+		c4 = StzAskModelXT("Say something nice about libraries.",
+			[ :MaxTokens = 20, :Temperature = 0.8, :Seed = 7 ])
+		Then("the same seed reproduces the same text", c3 = c4, TRUE)
+		Then("...and it is not empty", len(c3) > 0, TRUE)
+	EndScenario()
+
+	Scenario("Streaming: token-by-token equals the blocking answer")
+		StzStartGeneration(StzChatPrompt("", "What is the capital of France?"),
+			[ :MaxTokens = 24, :Temperature = 0 ])
+		cAcc = ""
+		cTok = StzNextToken()
+		while cTok != ""
+			cAcc += cTok
+			cTok = StzNextToken()
+		end
+		Then("the accumulated chunks ARE the blocking answer", cAcc = c1, TRUE)
+	EndScenario()
+
 	Scenario("The model object speaks too")
 		oM = new stzNeuralEngine()
 		Then("the engine is ready", oM.IsReady(), TRUE)

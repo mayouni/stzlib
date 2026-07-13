@@ -185,6 +185,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralgenerate", .func = &ring_NeuralGenerate },
     .{ .name = "stzengineneuralgentokenize", .func = &ring_NeuralGenTokenize },
     .{ .name = "stzengineneuralgentokenat", .func = &ring_NeuralGenTokenAt },
+    .{ .name = "stzengineneuralgeneratext", .func = &ring_NeuralGenerateXT },
+    .{ .name = "stzengineneuralgenstart", .func = &ring_NeuralGenStart },
+    .{ .name = "stzengineneuralgennext", .func = &ring_NeuralGenNext },
+    .{ .name = "stzengineneuralgenchunk", .func = &ring_NeuralGenChunk },
+    .{ .name = "stzengineneuralgenactive", .func = &ring_NeuralGenActive },
 };
 
 fn ring_NeuralHasGenerator(p: *anyopaque) callconv(.c) void {
@@ -214,6 +219,48 @@ fn ring_NeuralGenTokenize(p: *anyopaque) callconv(.c) void {
 fn ring_NeuralGenTokenAt(p: *anyopaque) callconv(.c) void {
     const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
     rn(p, @floatFromInt(gen.neural_gen_token_at(i)));
+}
+
+// StzEngineNeuralGenerateXT(prompt, maxNew, temp, topP, topK, seed) -> text
+fn ring_NeuralGenerateXT(p: *anyopaque) callconv(.c) void {
+    const prompt = gs(p, 1);
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const temp: f64 = R.ring_vm_api_getnumber(p, 3);
+    const topp: f64 = R.ring_vm_api_getnumber(p, 4);
+    const topk: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
+    const seed: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 6));
+    const n = gen.neural_generate_xt(prompt, plen, maxn, temp, topp, topk, seed);
+    if (n < 0) {
+        R.ring_vm_api_retstring(p, "");
+        return;
+    }
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_text());
+    R.ring_vm_api_retstring(p, t);
+}
+
+fn ring_NeuralGenStart(p: *anyopaque) callconv(.c) void {
+    const prompt = gs(p, 1);
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const temp: f64 = R.ring_vm_api_getnumber(p, 3);
+    const topp: f64 = R.ring_vm_api_getnumber(p, 4);
+    const topk: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
+    const seed: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 6));
+    rn(p, @floatFromInt(gen.neural_gen_start(prompt, plen, maxn, temp, topp, topk, seed)));
+}
+
+fn ring_NeuralGenNext(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_next()));
+}
+
+fn ring_NeuralGenChunk(p: *anyopaque) callconv(.c) void {
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_chunk());
+    R.ring_vm_api_retstring(p, t);
+}
+
+fn ring_NeuralGenActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_active()));
 }
 
 pub fn registerAll(pState: *anyopaque) void {
