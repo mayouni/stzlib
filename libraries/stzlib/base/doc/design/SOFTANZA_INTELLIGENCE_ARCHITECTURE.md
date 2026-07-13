@@ -81,6 +81,30 @@ Whichever door is used, the SAME rules govern the same graph: four
 surfaces, one brain. Adding through any door augments the intelligence
 of every other door's view.
 
+### 0.3 Wise Coding (the deliberate inversion of vibe coding)
+
+The conversational door is what lets ANYONE -- not only programmers --
+build intelligent systems in Softanza. And it works by INVERTING what
+vibe coding does:
+
+- In VIBE CODING, the human prompts and the machine guesses. Structure
+  is whatever survives the guessing; the knowledge lives nowhere; the
+  result is code you must trust without a brain behind it.
+- In WISE CODING, it is SOFTANZA THAT ASKS THE USER. The system knows
+  what a complete domain model requires -- the ontology and rules define
+  the target shape -- so it measures the GAP between that shape and what
+  it has heard so far, and turns each gap into the next well-structured
+  question (stzGoal drives the elicitation, stzQuestion asks,
+  stzNarration explains why it is asking). The conversation ASSISTS THE
+  DESIGN of the solution, step by governed step -- and it ends with real
+  artifacts: the .stzknow knowledgebase WRITTEN, data in place, an
+  OPERATIONAL intelligent system standing (the 0.1 north star).
+
+The same fluency vibe coding is loved for -- but carried by the
+structure and governed knowledge Softanza holds of ITSELF (meta/, LAW 6)
+and of the DOMAIN (the knowledgebase). Guessing is replaced by asking;
+vibes are replaced by governance. WISE CODING, not vibe coding.
+
 ---
 
 ## 1. The Six Laws (the pattern of thinking, made explicit)
@@ -698,6 +722,11 @@ becomes the DOMAIN (map entry above):
 - GROUNDED in the knowledge graph (R1): the conversation reads AND writes
   the knowledgebase under its rules -- the 0.2 conversational door; the
   ontology drives the clarifying questions;
+- WISE CODING (0.3): the conversation is SYSTEM-LED -- the ontology
+  defines what a complete domain model needs; the gap between that and
+  the current knowledgebase GENERATES the next questions (goal-driven
+  slot filling: stzGoal + stzQuestion over the graph); the session ends
+  by WRITING the .stzknow and standing the system up;
 - LAW 2 ladder: deterministic floor (lexicon + frames + templates) works
   with NO model; stzNeuralChat upgrades fluency when a GGUF is present.
 
@@ -767,8 +796,10 @@ Parse trees and *.zagn agent files considered here, on demand.
   orphaned engine event bus (reactive.zig).
 
 **THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
-the restaurant scenario of 0.1. Write restaurant.stzknow -- entities,
-relations, ontology, rules. Then, with ZERO app-specific code:
+the restaurant scenario of 0.1. DAY ZERO is wise coding (0.3): the owner
+starts with NOTHING -- Softanza interviews them, gap by gap, and writes
+restaurant.stzknow ITSELF (entities, relations, ontology, rules). Then,
+with ZERO app-specific code:
 - R1 proves LOAD + GOVERN: facts queried (WhatIs/AreRelated), laws
   enforced, a new fact triggers derivations;
 - R2 proves it EXPLAINS ITSELF: Ask over the library AND over the
