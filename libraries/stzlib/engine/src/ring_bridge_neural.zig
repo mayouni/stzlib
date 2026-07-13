@@ -1,5 +1,7 @@
+const std = @import("std");
 const neural = @import("neural.zig");
 const embed = @import("neural_embed.zig");
+const gen = @import("neural_gen.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
@@ -179,7 +181,40 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralmodelkvcount", .func = &ring_NeuralModelKvCount },
     .{ .name = "stzengineneuralmodelkey", .func = &ring_NeuralModelKey },
     .{ .name = "stzengineneuralmodelkeytype", .func = &ring_NeuralModelKeyType },
+    .{ .name = "stzengineneuralhasgenerator", .func = &ring_NeuralHasGenerator },
+    .{ .name = "stzengineneuralgenerate", .func = &ring_NeuralGenerate },
+    .{ .name = "stzengineneuralgentokenize", .func = &ring_NeuralGenTokenize },
+    .{ .name = "stzengineneuralgentokenat", .func = &ring_NeuralGenTokenAt },
 };
+
+fn ring_NeuralHasGenerator(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_model_has_generator()));
+}
+
+// StzEngineNeuralGenerate(cPrompt, nMaxNew) -> generated text (greedy)
+fn ring_NeuralGenerate(p: *anyopaque) callconv(.c) void {
+    const prompt = gs(p, 1);
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const n = gen.neural_generate(prompt, plen, maxn);
+    if (n < 0) {
+        R.ring_vm_api_retstring(p, "");
+        return;
+    }
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_text());
+    R.ring_vm_api_retstring(p, t);
+}
+
+fn ring_NeuralGenTokenize(p: *anyopaque) callconv(.c) void {
+    const t = gs(p, 1);
+    const tlen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gen.neural_gen_tokenize(t, tlen)));
+}
+
+fn ring_NeuralGenTokenAt(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    rn(p, @floatFromInt(gen.neural_gen_token_at(i)));
+}
 
 pub fn registerAll(pState: *anyopaque) void {
     R.registerAll(pState, &regs);
