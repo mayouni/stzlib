@@ -41,6 +41,7 @@ class stzLibDoc from stzObject
 	@aVectors = []    # per-entry embedding (lazy; embedding model only)
 	@bIndexed = FALSE
 	@nRecipes = 0     # how many entries are intent recipes
+	@nSamples = 0     # how many entries are harvested test samples
 
 	def init(paClasses)
 		if NOT isList(paClasses) return ok
@@ -86,6 +87,28 @@ class stzLibDoc from stzObject
 		next
 		return len(_aSeen_)
 
+# Union in the TEST SAMPLES of the given test topics (L3): every narrated
+	# Then("desc", code, expected) becomes an "(example)" record -- a natural
+	# query can surface a REAL verified call. Chainable; re-index on next Ask.
+	def WithTestSamples(paTopics)
+		if NOT isList(paTopics) return This ok
+		_nT_ = len(paTopics)
+		for _t_ = 1 to _nT_
+			_aS_ = _StzHarvestTestSamples(paTopics[_t_])
+			_nS_ = len(_aS_)
+			for _s_ = 1 to _nS_
+				@aEntries + [ "(example)", _aS_[_s_][1],
+					_aS_[_s_][2] + "  #--> " + _aS_[_s_][3] ]
+				@aTexts + (_aS_[_s_][1] + " " + _aS_[_s_][2])
+				@nSamples++
+			next
+		next
+		@bIndexed = FALSE
+		return This
+
+	def NumberOfSamples()
+		return @nSamples
+
 	def NumberOfRecipes()
 		return @nRecipes
 
@@ -130,7 +153,11 @@ class stzLibDoc from stzObject
 		_cCue_ = _StzQueryFormCue(pcQuestion)
 		_nE2_ = len(@aEntries)
 		for _iB_ = 1 to _nE2_
-			if @aEntries[_iB_][1] = "(recipe)"
+			if @aEntries[_iB_][1] = "(example)"
+				# a verified real call: small tie-only prior
+				_aBonus_ + 0.04
+				_aHeads_ + ""
+			but @aEntries[_iB_][1] = "(recipe)"
 				# a recipe IS the imperative answer -- under a verb-
 				# initial cue it keeps pace with the boosted active
 				# methods (same lift); otherwise its usual small edge

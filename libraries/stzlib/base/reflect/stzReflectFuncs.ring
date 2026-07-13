@@ -1992,6 +1992,121 @@ func _StzEndsWith(pcStr, pcSuffix)
 # a knowledge record the retrieval index unions in alongside methods, so a
 # conversational "how do I X" query surfaces a runnable snippet, not just a name.
 
+# ---- L3: TEST-SAMPLE HARVEST --------------------------------------------------
+# The narrated suites are a corpus of REAL, VERIFIED usage: every
+# Then("description", expression, expected) is an executed example with a
+# human phrasing attached. Harvested into knowledge records so a natural
+# query can surface an actual call, not just a method name.
+
+func _StzTestTopicDir(pcTopic)
+	_cB_ = _StzBaseDir()
+	if _cB_ = "" return "" ok
+	return _cB_ + "/test/" + pcTopic
+
+# All Then-samples of one test topic: records [ desc, code, expected ].
+func _StzHarvestTestSamples(pcTopic)
+	_aOut_ = []
+	_cDir_ = _StzTestTopicDir(pcTopic)
+	if _cDir_ = "" or NOT direxists(_cDir_) return _aOut_ ok
+	_aE_ = dir(_cDir_)
+	_n_ = len(_aE_)
+	for _i_ = 1 to _n_
+		_cN_ = _aE_[_i_][1]
+		if _aE_[_i_][2] = 0 and StzFindFirst(lower(_cN_), "narrated") > 0 and
+		   _StzEndsWith(lower(_cN_), ".ring")
+			_aS_ = _StzParseThenSamples(_cDir_ + "/" + _cN_)
+			_nS_ = len(_aS_)
+			for _j_ = 1 to _nS_
+				_aOut_ + _aS_[_j_]
+			next
+		ok
+	next
+	return _aOut_
+
+# Parse the Then("desc", code, expected) calls of one suite file. LINE-based:
+# join lines until the parens balance (string-blind count -- descriptions with
+# unbalanced parens inside strings simply fail the 3-part check and are
+# SKIPPED, fail-safe), then split the args at top-level commas with a small
+# string-aware scan.
+func _StzParseThenSamples(pcFile)
+	_aOut_ = []
+	if NOT fexists(pcFile) return _aOut_ ok
+	_aLines_ = str2list(read(pcFile))
+	_nL_ = len(_aLines_)
+	_i_ = 1
+	while _i_ <= _nL_
+		_cT_ = ring_trim(_aLines_[_i_])
+		if left(_cT_, 5) = "Then("
+			_cAcc_ = _cT_
+			_nJ_ = _i_
+			while _StzParenBalance(_cAcc_) > 0 and _nJ_ < _nL_ and _nJ_ < _i_ + 6
+				_nJ_++
+				_cAcc_ += " " + ring_trim(_aLines_[_nJ_])
+			end
+			_i_ = _nJ_
+			if _StzParenBalance(_cAcc_) = 0
+				_aP_ = _StzSplitThenArgs(_cAcc_)
+				if len(_aP_) = 3
+					_cD_ = _aP_[1]
+					if len(_cD_) > 2 and (left(_cD_, 1) = char(34) or left(_cD_, 1) = "'") and
+					   right(_cD_, 1) = left(_cD_, 1)
+						_cD_ = substr(_cD_, 2, len(_cD_) - 2)
+						_aOut_ + [ _cD_, _aP_[2], _aP_[3] ]
+					ok
+				ok
+			ok
+		ok
+		_i_++
+	end
+	return _aOut_
+
+# String-blind ( vs ) balance of a line (fail-safe: mis-balance -> skip).
+func _StzParenBalance(pcStr)
+	return len(StzFindCS(pcStr, "(", 1)) - len(StzFindCS(pcStr, ")", 1))
+
+# Split `Then( a, b, c )` into its 3 top-level args (string-aware commas).
+func _StzSplitThenArgs(pcCall)
+	_aOut_ = []
+	_nA_ = StzFindFirst(pcCall, "(")
+	if _nA_ = 0 return _aOut_ ok
+	_cIn_ = substr(pcCall, _nA_ + 1, len(pcCall) - _nA_)
+	# drop the final closing paren
+	_nZ_ = len(_cIn_)
+	while _nZ_ > 0 and _cIn_[_nZ_] != ")"
+		_nZ_--
+	end
+	if _nZ_ = 0 return _aOut_ ok
+	_cIn_ = left(_cIn_, _nZ_ - 1)
+	_cCur_ = ""
+	_cQ_ = ""
+	_nD_ = 0
+	_nLen_ = len(_cIn_)
+	_k_ = 1
+	while _k_ <= _nLen_
+		_ch_ = _cIn_[_k_]
+		if _cQ_ != ""
+			_cCur_ += _ch_
+			if _ch_ = _cQ_ _cQ_ = "" ok
+		but _ch_ = char(34) or _ch_ = "'"
+			_cQ_ = _ch_
+			_cCur_ += _ch_
+		but _ch_ = "(" or _ch_ = "["
+			_nD_++
+			_cCur_ += _ch_
+		but _ch_ = ")" or _ch_ = "]"
+			_nD_--
+			_cCur_ += _ch_
+		but _ch_ = "," and _nD_ = 0
+			_aOut_ + ring_trim(_cCur_)
+			_cCur_ = ""
+		else
+			_cCur_ += _ch_
+		ok
+		_k_++
+	end
+	if ring_trim(_cCur_) != "" _aOut_ + ring_trim(_cCur_) ok
+	return _aOut_
+
 # The standard recipes directory (under base/), or "" if base can't be located.
 func _StzRecipesDir()
 	_cB_ = _StzBaseDir()

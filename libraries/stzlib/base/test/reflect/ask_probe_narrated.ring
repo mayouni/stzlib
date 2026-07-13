@@ -138,6 +138,30 @@ Scenario("Cross-domain recipes (string / list / number) are retrievable")
 		LibTopIsRecipe(oLib, "find all divisors of a number"), TRUE)
 EndScenario()
 
+Scenario("L3: the narrated suites are retrieval fuel (test-sample harvest)")
+	oDs = StzLibDoc([]).WithTestSamples([ "natural" ])
+	Then("the natural topic yields a corpus", oDs.NumberOfSamples() > 100, TRUE)
+	aRs = oDs.Ask("the violating update is refused")
+	Then("a phrasing from a suite finds its example", aRs[1][1], "(example)")
+	Then("...", aRs[1][2], "the violating update is REFUSED")
+EndScenario()
+
+Scenario("Tier-1 aka widening: user words find core methods (lexical floor)")
+	oDw = StzLibDoc([ "stzList", "stzNumber", "stzString" ])
+	Then("'arrange the list items'", LibTopMethod(oDw, "arrange the list items"), "Sort")
+	Then("'positive value without the sign'",
+		LibTopMethod(oDw, "positive value without the sign"), "Absolute")
+	Then("'sum of the digits'", LibTopMethod(oDw, "sum of the digits"), "DigitSum")
+	Then("'unnest the sublists to a single level'",
+		LibTopMethod(oDw, "unnest the sublists to a single level"), "Flatten")
+	Then("'glue the items together into one string'",
+		LibTopMethod(oDw, "glue the items together into one string"), "Join")
+	Then("'checksum fingerprint of the text'",
+		LibTopMethod(oDw, "checksum fingerprint of the text"), "Hash")
+	Then("'raised to the power of'",
+		LibTopMethod(oDw, "raised to the power of"), "Power")
+EndScenario()
+
 # TRUE if Ask's top-1 method for cQuery is one of the acceptable answers (a
 # capability often has an alias/Q-variant family, all correct).
 func TopHitIsOneOf(oDoc, cQuery, aAcceptable)
@@ -150,3 +174,9 @@ func LibTopIsRecipe(oLib, cQuery)
 	aR = oLib.AskFor(cQuery, 1)
 	if len(aR) = 0 return FALSE ok
 	return aR[1][1] = "(recipe)"
+
+# The stzLibDoc top-1 METHOD name for cQuery ("" when nothing matches).
+func LibTopMethod(oLib, cQuery)
+	aR = oLib.AskFor(cQuery, 1)
+	if len(aR) = 0 return "" ok
+	return aR[1][2]

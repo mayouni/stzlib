@@ -2436,6 +2436,7 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if the number is odd.
+	#@ aka  not divisible by two, odd number
 	def IsOdd()
 		return StzEngineNumberIsOdd(This.NumericValue())
 
@@ -2458,6 +2459,7 @@ class stzNumber from stzObject
 		#>
 
 	# TRUE if the number is even.
+	#@ aka  divisible by two, even number
 	def IsEven()
 		return StzEngineNumberIsEven(This.NumericValue())
 
@@ -2506,6 +2508,7 @@ class stzNumber from stzObject
 			return This.IsZawjiOrFardi()
 
 	# TRUE if the number is prime.
+	#@ aka  prime number, only divisible by one and itself
 	def IsPrime()
 		if This.IsInteger() and This.IsGreaterThan(1)
 			return StzEngineNumberIsPrime( This.NumericValue() )
@@ -3524,6 +3527,7 @@ class stzNumber from stzObject
 	#---
 
 	# Round the number to the given number of decimals (mutating).
+	#@ aka  decimals, precision, digits after the point
 	def RoundTo(_nRound_)
 		_cResult_ = This.RoundToXTQ(_nRound_).
 			       ToStzString().
@@ -3643,6 +3647,7 @@ class stzNumber from stzObject
 
 	# Add the given number to this one (mutating). For a copy, use
 	# Added.
+	#@ aka  plus, sum, increase, increment
 	def Add(pOtherNumber)
 		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("+", pOtherNumber ) )
@@ -3778,6 +3783,7 @@ class stzNumber from stzObject
 	#--------------------#
 
 	# Subtract the given number from this one (mutating).
+	#@ aka  subtract, minus, decrease, take away
 	def SubStruct(pOtherNumber)
 
 		_StzHistoOpen(0 + This.Content())
@@ -4117,6 +4123,7 @@ class stzNumber from stzObject
 		#>
 
 	# Divide this number by the given one (mutating).
+	#@ aka  over, quotient, split by, divided
 	def DivideBy(pOtherNumber)
 		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("/", pOtherNumber ) )
@@ -4343,6 +4350,7 @@ class stzNumber from stzObject
 	# ABS
 
 	# The absolute value of the number (mutating).
+	#@ aka  abs, magnitude, positive value, without sign
 	def Absolute()
 		if This.IsInteger()
 			n = This.NumericValue()
@@ -4383,6 +4391,7 @@ class stzNumber from stzObject
 	# FACT
 
 	# The factorial of the (integer) number (mutating).
+	#@ aka  factorial of, n bang, product of integers up to
 	def Factorial()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute factorial of a non-integer!")
@@ -6839,6 +6848,7 @@ class stzNumber from stzObject
 			return This.DigitCount()
 
 	# The sum of the digits of the integer.
+	#@ aka  sum of the digits, add the digits together
 	def DigitSum()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute digit sum of a non-integer!")
