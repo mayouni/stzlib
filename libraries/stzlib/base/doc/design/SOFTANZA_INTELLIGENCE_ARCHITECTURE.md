@@ -392,6 +392,27 @@ base/
                   collaboratively. Versus the APPLICATION SPACE, where
                   programmers add their own agents over the SAME
                   interfaces, without touching the native stack.
+
+  app/          THE WORLD (exists -- 5.10): stzApp (Being/Becoming/
+                  Body + Presence/Intent/Refinement/Reach; Slice A
+                  green, B-E to finish in R7) and stzSuperApp (the
+                  constellation -- design-only, code in R7).
+                  ENTRY: stzApp / stzSuperApp   FORMAT: *.stzgraf+rulz
+
+  platform/     THE OPERATIONAL ENVELOPE (NEW -- 5.10, R7): stzPlatform
+                  = Generation (Reach -> shells), the capability seam
+                  (governance-gated device/native capabilities), the
+                  Commons runtime (identity/messaging/stores), the
+                  networked body, registry + norm enforcement.
+                  ENTRY: stzPlatform
+
+  appserver/    THE COMPUTATIONAL SERVER (exists as pre-engine
+                  skeleton -- 5.10, re-based in R7): ONE reactor-driven
+                  service host (async accept/read/lifecycle on
+                  stzReactor + sqlite bridge) specializing into web /
+                  MBaaS / IoT / AGENT hosting; the persistent
+                  computational brain IS the resident Zig engine.
+                  ENTRY: stzAppServer
 ```
 
 What does NOT change: string/ list/ number/ table/ etc. (the data domains),
@@ -1172,6 +1193,98 @@ platform DLM (DLM + the Zml grammar + the constitution + Zin corpora
 refinement domain. The concept flows DOWN to the foundation; only the
 worlds stay product.
 
+### 5.10 DELIVERY -- App, SuperApp, Platform, and the computational
+server (studied 2026-07-14)
+
+The last plane of the design: how a Softanza solution IS MODELED, RUNS,
+and SHIPS. Two code studies (the app corpus; the app-server corpus incl.
+the unfinalized future/doc articles) ground it.
+
+WHAT EXISTS (verified):
+- stzApp -- "an application is a LIVING WORLD OF MEANING": DOMAIN/Being
+  (things+truths+relations on stzGraph), LIFE/Becoming (Behavior flows
+  + PURPOSE: goals as wanted graph states, plans on the PI ladder,
+  "an agent is simply a world whose purpose is declared and whose plans
+  may reason"), BODY/Embodiment (declared residence, .stzgraf/.stzrulz)
+  -- plus four emergents: Presence (seen), Intent (engaged), Refinement
+  (tuned, the 5.8 knobs), REACH (appears; explicitly NOT Body).
+  Code truth: one 403-line file; Slice A/Being GREEN; B-E are
+  narrating stubs (the sub-builder brace-copy trap); Pursue() returns
+  a hardcoded empty Gap; Generate(:all) is CALLED in the narration
+  and DOES NOT EXIST in code.
+- stzSuperApp -- "a living constellation of worlds": a governed graph
+  whose nodes are stzApps (graph-of-graphs, recursively), sharing a
+  COMMONS ("world zero": identity/data/services), bound by norm-gated
+  BONDS, under an ambient GOVERNANCE; hot-swappable worlds via a
+  registry graph. DESIGN-ONLY (no code).
+- stzAppServer -- THE COMPUTATIONAL SERVER PARADIGM (future/doc
+  articles + base/appserver skeleton): "treating Softanza as a
+  PERSISTENT COMPUTATIONAL ENGINE rather than a per-request library" --
+  invert the 80/20 load/compute cost; Express-like surface; context
+  pool; polyglot EXCIS fleet; domain-specialized computational
+  clustering; a Supabase-class MBaaS vision. Code truth: a PRE-ENGINE
+  skeleton, never re-checked after the Zig engine (confirmed): the
+  response Send is commented out, it calls stzTcpServer methods that
+  no longer exist, no read loop, the compute-engine preloads are
+  no-ops, the cluster "proxies" in-process and its monitor busy-loops
+  on random() metrics, and the whole pipeline rides Reaxis -- the
+  cooperative poller the runtime doctrine (5.4) already disqualified
+  for servers.
+
+THE PARADIGM'S FATE: VALIDATED AND SURPASSED. The "persistent
+computational brain" the 2024 articles wished for IS the Zig engine --
+always resident, Unicode/NLP/graph/neural warm by construction. Nothing
+in the paradigm is invalidated; almost everything must be RE-WIRED to
+the engine built after the docs were frozen.
+
+THE CONVERGENCE (the study's strongest finding): all four target
+topologies -- classic WEB, MBaaS, IoT, AGENTIC -- reduce to ONE missing
+spine plus one missing bridge:
+- a REACTOR-DRIVEN SERVICE HOST: async accept + per-connection read
+  streams + connection registry + lifecycle/supervision on stzReactor
+  (real libuv), NOT Reaxis; and
+- the SQLITE BRIDGE: vendored in the engine, wired to nothing --
+  the quiet blocker for MBaaS CRUD and IoT telemetry.
+Engine gaps, honestly: an HTTP/1.1 SERVER (only a test fixture exists;
+it is the seed), server-side reactor job kinds (today: timers +
+outbound TCP only), inbound TLS, async spawn for the polyglot fleet.
+And the AGENT HOST IS THE SAME HOST: R5's perceive-decide-act loop
+wants exactly this reactor spine -- an agent is a supervised,
+cancellable, traced, DECOMMISSIONABLE (R4b) long-running service.
+
+stzPlatform -- THE MISSING BACKEND, now defined. stzApp models the
+WORLD and entirely lacks the OPERATIONAL ENVELOPE; the gap is
+DOC-SHAPED (the design names the API without building it). stzPlatform
+is that envelope, one construct with five duties:
+1. GENERATION: Generate(:all) made real -- declared Reach becomes
+   per-platform shells (web/desktop/mobile) embedding the one engine;
+2. THE CAPABILITY SEAM (the design's "stz.platform"): device/native
+   capabilities (camera, offline, storage, notifications, payments)
+   granted by Admits(...) With([...]) and GATED BY GOVERNANCE (the
+   capability lattice of 5.7 -- same vocabulary, no new machinery);
+3. THE COMMONS RUNTIME: identity/auth sessions, messaging, stores --
+   the operational counterpart of SuperApp's declared Provides/Shares;
+4. THE NETWORKED BODY: the single-file .stzgraf body exposed
+   multi-user over the wire (through the service host + sqlite);
+5. REGISTRY + ENFORCEMENT: the discovery graph as a runtime (push/
+   update/retire worlds) and governance norms actually INTERCEPTING
+   cross-world calls.
+
+THE DELIVERY PLANE, stated once:
+  stzApp        the WORLD          (what the solution IS)
+  stzSuperApp   the CONSTELLATION  (worlds composed, commons, norms)
+  stzPlatform   the ENVELOPE       (build, deploy, capabilities,
+                                    services, registry, enforcement)
+  stzAppServer  the HOST           (one reactor spine; specializes to
+                                    web / MBaaS / IoT / agent hosting)
+Declare the world; declare its envelope; the host runs both --
+whatever the topology, with NO dependency beyond engine + stzlib.
+COLLAPSE RULINGS: stzContextPool folds into stzReactorPool (real
+threads; the "context" abstraction predates the resident engine);
+cluster/ folds into the host's worker model (domain-specialized
+workers, not a parallel class tree); the server re-bases from Reaxis
+onto stzReactor.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -1412,11 +1525,39 @@ stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
      R for statistics, Julia for numerics, Prolog for logic -- each
      validating its own structural stage.
 
+**R7 -- the DELIVERY PLANE (app/ + platform/ + appserver/, 5.10).**
+Step order matters:
+1. THE ENGINE TRIO: an HTTP/1.1 server (grow the testserver.zig seed);
+   server-side reactor job kinds (accept + per-connection read
+   streams); the SQLITE BRIDGE (vendored, unwired -- wire it).
+2. REBUILD THE SERVER SPINE on stzReactor: real listener -> parse ->
+   route (params/wildcards) -> dispatch -> WRITE; fold stzContextPool
+   into stzReactorPool; fold cluster/ into the host's worker model
+   (domain-specialized workers); retire the no-op compute-engine
+   preloads (the engine IS the brain).
+3. ONE HOST, FOUR TOPOLOGIES: web (endpoints/static/templates);
+   MBaaS (sessions/auth over engine crypto, CRUD over sqlite,
+   realtime over the reactor); IoT (many persistent connections,
+   telemetry as Reaxis streams fed by real async readers, sqlite
+   persistence); AGENTS (each agent a supervised, cancellable,
+   traced, decommissionable reactor job -- R5's loop finds its home;
+   R4b's DecommissionContract enforced here).
+4. stzPlatform: Generate(:all) made real (Reach -> shells embedding
+   the one engine); the capability seam gated by the 5.7 lattice;
+   the Commons runtime; the networked body; the registry runtime +
+   norm enforcement.
+5. FINISH THE WORLD: stzApp slices B-E converted to the proven
+   return-This pattern; Pursue() wired to the real planner +
+   stzGraphGoal (R5); Live() actually wiring Reaxis reactions;
+   stzSuperApp's constellation as a governed graph-of-graphs.
+
 **S0 -- FOUNDATION HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
   ByComputationOrder; delete stznumbrex-copy.ring;
 - graphs: implement or honestly-raise stzGraph.Paths() (PathsWhereF
-  depends on it); note the planner constant-heuristic TODO;
+  depends on it); note the planner constant-heuristic TODO; fix the
+  stzGraph SetNodeProperty/NodeProperty round-trip bug (it forces
+  stzApp's Domain data into side lists instead of node properties);
 - numerics: expose stzMatrix.Transpose;
 - optimization honesty: fix the createRelaxedProblem bug (4-arg call to a
   3-arg addConstraint + undefined [:value]); make the simplex stub RAISE
@@ -1432,7 +1573,12 @@ stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
   STRUCTURED, replayable trace (the stzTrace + Prove() seed);
 - plan honesty (5.8): the engine MACROPLAN marks stz_polycode and
   stz_polyglot [DONE] with no source in the tree -- correct the plan
-  docs to [PLANNED].
+  docs to [PLANNED];
+- delivery honesty (5.10): mark the appserver skeleton's broken seams
+  until R7 rebuilds them (Send commented out, stzTcpServer methods
+  that no longer exist, "/*" routes the exact-match router can never
+  hit, monitor busy-loop fabricating random() metrics, no-op
+  preloads) -- honest raises or removal, no silent pretending.
 
 **THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
 the restaurant scenario of 0.1. DAY ZERO is wise coding (0.3): the owner
@@ -1457,7 +1603,11 @@ with ZERO app-specific code:
   to changes as they stream in;
 - R6 proves CHANGE ITSELF IS GOVERNED: the agent refines the menu
   logic through a typed refinement -- the cascade is previewed, the
-  gate validates, the audit chain records, and one call reverts.
+  gate validates, the audit chain records, and one call reverts;
+- R7 proves IT SHIPS, WHATEVER THE TOPOLOGY: the same knowledgebase
+  serves the restaurant's WEB portal, its mobile-backend (MBaaS), a
+  kitchen-sensor TELEMETRY feed (IoT), and the resident AGENT -- one
+  world, one envelope, one host, one engine, zero dependencies.
 Adding ONE rule to the .stzknow file visibly upgrades every layer above
 -- no code change, no training, no retrieval pipeline. That demo IS the
 proof of the revoked-LLM thesis. Finally, run the SAME capstone with an
