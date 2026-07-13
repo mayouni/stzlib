@@ -145,6 +145,12 @@ class stzFalseObject from stzObject
 	def EnforceConstraints()
 		return This
 
+	def EnforceConstraintWhile(pcName, pRule, pCond)
+		return This
+
+	def EnforceConstraintUntil(pcName, pRule, pCond)
+		return This
+
 	def RelaxConstraints()
 		return This
 

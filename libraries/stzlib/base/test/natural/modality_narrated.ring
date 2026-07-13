@@ -166,4 +166,41 @@ Scenario("Enforcement-on-update -- the constrained object protects itself")
 	Then("...", oP.ConstraintsAreEnforced(), FALSE)
 EndScenario()
 
+Scenario("Temporal guards -- obligation has SCOPE IN TIME")
+	Given("EnforceConstraintWhile: in force only while the condition holds; EnforceConstraintUntil: in force until the condition is met, then the constraint RETIRES itself")
+
+	oTw = new stzString("HI")
+	oTw.EnforceConstraintWhile("shout-while-short", :Uppercase, '{ StzLen(@string) < 6 }')
+	bRefused = FALSE
+	try
+		oTw.UpdateWith("hi")
+	catch
+		bRefused = TRUE
+	done
+	Then("while SHORT, lowercase is refused", bRefused, TRUE)
+	oTw.UpdateWith("HELLO WORLD")
+	oTw.UpdateWith("hello world")
+	Then("once LONG, the while-condition releases the guard",
+		oTw.Content(), "hello world")
+	Then("...and verification explains the dormancy",
+		oTw.VerifyConstraint("shout-while-short"), TRUE)
+	Then("...", Why(),
+		"yes: constraint 'shout-while-short' is not in force right now (its while-condition is false)")
+
+	oTu = Q(5)
+	oTu.EnforceConstraintUntil("stay-positive", :Positive, '{ @number >= 100 }')
+	bRefused = FALSE
+	try
+		oTu.UpdateWith(-3)
+	catch
+		bRefused = TRUE
+	done
+	Then("until the target, negative is refused", bRefused, TRUE)
+	oTu.UpdateWith(150)
+	oTu.UpdateWith(-7)
+	Then("after the until-condition was met, the guard is gone",
+		oTu.NumericValue(), -7)
+	Then("...the constraint RETIRED itself", len(oTu.Constraints()), 0)
+EndScenario()
+
 Summary()
