@@ -684,18 +684,29 @@ var g_stream_topk: c_int = 0;
 var g_chunk: std.ArrayList(u8) = .{};
 
 pub export fn neural_gen_start(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int) callconv(.c) c_int {
+    return neural_gen_start_x(text, len, max_new, temp, top_p, top_k, seed, 1);
+}
+
+// reset=1 -> fresh prefill (single-shot / first chat turn); reset=0 ->
+// APPEND to the existing KV cache (a follow-up chat turn), so history is
+// processed ONCE across a conversation, not re-fed each turn.
+pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int, reset: c_int) callconv(.c) c_int {
     g_stream_active = false;
     if (neural_model_has_generator() == 0) return 0;
     if (!buildBpe()) return 0;
     if (text == null or len == 0) return 0;
-    resetKv();
+    if (reset != 0) resetKv();
     var ids: std.ArrayList(i32) = .{};
     defer ids.clearAndFree(gpa);
     encode(text[0..len], &ids);
     if (ids.items.len == 0) return 0;
     const cap: usize = 512;
     var prompt = ids.items;
-    if (prompt.len > cap) prompt = prompt[prompt.len - cap ..];
+    // a follow-up turn drops the leading BOS the encoder prepends (history
+    // already opened the sequence); cap only matters on a fresh prefill.
+    if (reset == 0 and g_add_bos and prompt.len > 0 and prompt[0] == g_bos)
+        prompt = prompt[1..];
+    if (reset != 0 and prompt.len > cap) prompt = prompt[prompt.len - cap ..];
     if (!forwardDecode(prompt)) return 0;
     g_stream_max = if (max_new > 0) @intCast(max_new) else 64;
     g_stream_n = 0;
@@ -740,6 +751,24 @@ pub export fn neural_gen_chunk() callconv(.c) [*c]const u8 {
 
 pub export fn neural_gen_active() callconv(.c) c_int {
     return if (g_stream_active) 1 else 0;
+}
+
+// tokens currently in the KV cache (the conversation length so far).
+pub export fn neural_gen_cached() callconv(.c) c_int {
+    return @intCast(g_n_past);
+}
+
+// Continue generation from the CURRENT cache (no reset): the multi-turn
+// primitive. Returns the byte length of the new text, -1 on failure.
+pub export fn neural_generate_cont(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int) callconv(.c) c_int {
+    if (neural_gen_start_x(text, len, max_new, temp, top_p, top_k, seed, 0) == 0) return -1;
+    g_gen_text.clearRetainingCapacity();
+    while (neural_gen_next() == 1) {
+        if (g_chunk.items.len > 1)
+            g_gen_text.appendSlice(gpa, g_chunk.items[0 .. g_chunk.items.len - 1]) catch break;
+    }
+    g_gen_text.append(gpa, 0) catch return -1;
+    return @intCast(g_gen_text.items.len - 1);
 }
 
 // Blocking generation with sampling options; temperature 0 = greedy.

@@ -70,6 +70,28 @@ if StzHasGenerativeModel()
 		Then("the accumulated chunks ARE the blocking answer", cAcc = c1, TRUE)
 	EndScenario()
 
+	Scenario("Multi-turn chat reuses the KV cache (history processed once)")
+		oChat = StzChat()
+		r1 = oChat.Say("My name is Ada. Remember it.")
+		n1 = oChat.CachedTokens()
+		Then("the first turn produces a reply", len(r1) > 0, TRUE)
+		r2 = oChat.Say("What is my name?")
+		n2 = oChat.CachedTokens()
+		Then("the second turn APPENDS to the cache (it grows, no reset)",
+			n2 > n1, TRUE)
+		Then("...and the model remembered across turns (KV reuse works)",
+			StzFindFirst(r2, "Ada") > 0, TRUE)
+		Then("the transcript holds both turns", oChat.NumberOfTurns(), 4)
+	EndScenario()
+
+	Scenario("Abstractive text ops -- the generator composes over text")
+		oT = new stzText("The old library stood at the town center. For decades it lent books to every family. When it closed, the whole town felt the loss.")
+		Then("a fresh abstractive summary is produced",
+			len(oT.SummarizedAbstractively()) > 0, TRUE)
+		Then("a grounded question is answered over the text",
+			StzFindFirst(lower(oT.AnswerAbout("Where did the library stand?")), "center") > 0, TRUE)
+	EndScenario()
+
 	Scenario("The model object speaks too")
 		oM = new stzNeuralEngine()
 		Then("the engine is ready", oM.IsReady(), TRUE)
@@ -78,7 +100,8 @@ if StzHasGenerativeModel()
 else
 	Scenario("Generative path SKIPPED (no decoder GGUF on disk)")
 		Given("drop a llama-family instruct GGUF (SmolLM2/Qwen2.5) into libraries/stzlib/models/ to run the real path")
-		Then("the suite stays green without it", TRUE, TRUE)
+		Then("abstractive summary degrades to the extractive Summary (never crashes)",
+			isString(new stzText("A. B. C.").SummarizedAbstractively()), TRUE)
 	EndScenario()
 ok
 

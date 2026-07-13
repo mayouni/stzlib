@@ -189,6 +189,19 @@ func StzAskModel(pcQuestion, pnMaxNewTokens)
 	func @StzAskModel(pcQuestion, pnMaxNewTokens)
 		return StzAskModel(pcQuestion, pnMaxNewTokens)
 
+# --- MULTI-TURN CHAT (KV reuse) ---------------------------------------
+# A conversation that processes its history ONCE: the first turn prefills
+# system+user, each later turn APPENDS to the KV cache instead of
+# re-feeding the transcript. StzChat()/StzChatQ() open a session.
+func StzChat()
+	return new stzNeuralChat("You are a helpful assistant. Answer briefly.")
+
+func StzChatWith(pcSystem)
+	return new stzNeuralChat(pcSystem)
+
+	func StzChatWithQ(pcSystem)
+		return new stzNeuralChat(pcSystem)
+
 func StzHasRerankerModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasReranker() = 1
 
@@ -399,3 +412,83 @@ class stzNeuralModel from stzNeural
 				_nDot_ += _aA_[i] * _aB_[i]
 			next
 			return _nDot_
+
+
+#---------------------------------------------------------------------------#
+#  stzNeuralChat -- a multi-turn conversation with KV-cache reuse            #
+#---------------------------------------------------------------------------#
+# The transcript is processed ONCE: turn 1 prefills system + user; each
+# Say() after that APPENDS only the new turn to the KV cache and generates.
+# Sampling knobs carry across turns (SetTemperature/SetSeed/...).
+
+class stzNeuralChat from stzObject
+
+	@cSystem = ""
+	@bStarted = 0
+	@nMaxTokens = 96
+	@nTemperature = 0
+	@nTopP = 0.95
+	@nTopK = 40
+	@nSeed = 42
+	@aTurns = []   # [ [role, text], ... ] the transcript (for Show/History)
+
+	def init(pcSystem)
+		if isString(pcSystem) and pcSystem != ""
+			@cSystem = pcSystem
+		else
+			@cSystem = "You are a helpful assistant. Answer briefly."
+		ok
+
+	def SetTemperature(n) @nTemperature = n
+	def SetTopP(n) @nTopP = n
+	def SetTopK(n) @nTopK = n
+	def SetSeed(n) @nSeed = n
+	def SetMaxTokens(n) @nMaxTokens = n
+
+	# Say(userText) -> the assistant's reply. First call prefills
+	# system+user; later calls append only the new turn.
+	def Say(pcUser)
+		if StzHasGenerativeModel() = 0 return "" ok
+		if NOT isString(pcUser) return "" ok
+		@aTurns + [ "user", pcUser ]
+		if @bStarted = 0
+			_cPrompt_ = "<|im_start|>system" + char(10) + @cSystem + "<|im_end|>" + char(10) +
+				"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+				"<|im_start|>assistant" + char(10)
+			@bStarted = 1
+			_cReply_ = StzEngineNeuralGenerateXT(_cPrompt_, @nMaxTokens,
+				@nTemperature, @nTopP, @nTopK, @nSeed)
+		else
+			# the assistant's own last reply is already in the cache; close it
+			# and open the next user+assistant turn -- APPEND, no reset
+			_cCont_ = "<|im_end|>" + char(10) +
+				"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+				"<|im_start|>assistant" + char(10)
+			_cReply_ = StzEngineNeuralGenerateCont(_cCont_, @nMaxTokens,
+				@nTemperature, @nTopP, @nTopK, @nSeed)
+		ok
+		@aTurns + [ "assistant", _cReply_ ]
+		return _cReply_
+
+		def SayQ(pcUser)
+			return new stzString(This.Say(pcUser))
+
+	def NumberOfTurns()
+		return len(@aTurns)
+
+	def History()
+		return @aTurns
+
+	# how many tokens the conversation occupies in the KV cache
+	def CachedTokens()
+		return StzEngineNeuralGenCached()
+
+	def Content()
+		return @aTurns
+
+	def Show()
+		_n_ = len(@aTurns)
+		for _i_ = 1 to _n_
+			? @aTurns[_i_][1] + ": " + @aTurns[_i_][2]
+		next
+		return This

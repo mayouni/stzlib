@@ -781,6 +781,32 @@ class stzText from stzStringText
 
 	# IsSemanticallySimilarTo(other, threshold) -- TRUE if the meaning-similarity
 	# meets the threshold (default 0.5).
+	# --- ABSTRACTIVE ops (generative decoder; falls back to extractive) ---
+	# GENERATE a fresh summary of the text (not sentence extraction). When
+	# no generative model is loaded, degrades to the extractive Summary.
+	def SummarizedAbstractively()
+		if StzHasGenerativeModel() = 0
+			return This.Summary()
+		ok
+		_cP_ = "Summarize the following text in one short sentence:" +
+			char(10) + char(10) + This.Content()
+		return StzAskModel(_cP_, 60)
+
+		def SummarizedAbstractivelyQ()
+			return new stzString(This.SummarizedAbstractively())
+
+	# ANSWER a question ABOUT the text (grounded generation): the text is
+	# the context, the question is asked over it. "" when no model / no text.
+	def AnswerAbout(pcQuestion)
+		if StzHasGenerativeModel() = 0 return "" ok
+		if NOT isString(pcQuestion) return "" ok
+		_cP_ = "Context:" + char(10) + This.Content() + char(10) + char(10) +
+			"Question: " + pcQuestion + char(10) + "Answer briefly:"
+		return StzAskModel(_cP_, 60)
+
+		def AnswerAboutQ(pcQuestion)
+			return new stzString(This.AnswerAbout(pcQuestion))
+
 	def IsSemanticallySimilarTo(pcOther, pnThreshold)
 		if NOT isNumber(pnThreshold) pnThreshold = 0.5 ok
 		_nIssScore_ = This.SemanticSimilarityWith(pcOther)
