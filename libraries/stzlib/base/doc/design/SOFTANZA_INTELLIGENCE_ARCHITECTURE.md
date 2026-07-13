@@ -312,6 +312,12 @@ base/
                   stzModelEvaluation; ggml backward pass or pure-Zig SGD
                   for small nets; EXPORT to the same artifact world neural/
                   consumes. OpenNN as the design lesson, not a dependency.
+                  THE MODEL FOUNDRY (5.9): knowledgebase -> language
+                  model, two rungs -- deterministic domain model (graph
+                  -> grammar synthesis -> constrained decoding; zero
+                  training) and neural domain SLM (teacher-free corpus
+                  synthesis via the natural layer -> tokenizer -> small
+                  training -> GGUF export).
 
   optim/        DECISION PROGRAMMING (round-2 elevation, section 5.5 --
                   the PI doctrine's engine room; lands in R4):
@@ -1080,6 +1086,72 @@ any door -> gate (structural BY PYTHON, the rest by Softanza) ->
 cascade previewed -> span-anchored Apply -> Python re-validates ->
 lineage recorded, revert available. One gate, many languages.
 
+### 5.9 THE MODEL FOUNDRY -- knowledgebase -> language model (the ZLM
+concordance)
+
+The 2026-07-13 study of ZLM in the Zin corpus, and the author's raised
+ambition: Softanza as a powerful, VERY ACCESSIBLE environment for
+MAKING MODELS -- especially SMALL language models, the strategic tier
+per Softanza's pragmatism (complex challenges, simple cheap tools):
+supply a domain knowledgebase, compose primitives from the
+intelligence arsenal, and the domain's language model is ready.
+
+DISAMBIGUATION FIRST: in Zin, ZLM = the model; Zml/.zml = the
+constitutional grammar it emits. And the decisive finding: the
+CANONICAL ZLM IS NOT NEURAL. Zin designed a 1-3B transformer (v1),
+then its own critical review ARCHIVED it in favor of rule-based
+Constructive Semantic Prediction: typed chunks, each validated by the
+compiler BEFORE acceptance -- "hallucination is impossible because the
+model cannot generate almost-valid text." ZLM is Zin's institutional
+expression of the REVOKED-LLM THESIS -- the doctrine independently
+re-derived by the product's own design process. Shared principle,
+canonized: THE MODEL PROPOSES, THE VALIDATOR DECIDES.
+
+FOUNDATION FIT (verified): Softanza already owns the entire
+inference/validation half ZLM needs -- local GGUF inference with
+generate/sample/stream, G3 type->grammar constrained decoding, golden
+sets + memoization, the knowledge graph + Prove(), NL generation, and
+REAL embeddings (Zin ships hash embeddings today; Softanza exceeds
+it). The gap is the model-CREATION half: corpus synthesis from a
+knowledgebase, tokenizer training, small-LM training/fine-tuning, and
+GGUF EXPORT -- Softanza reads GGUF but cannot yet WRITE one.
+
+THE MODEL LADDER (LAW 2 applied to model-making itself):
+
+RUNG 1 -- THE DETERMINISTIC DOMAIN MODEL (no neurons; Zin's SHIPPED
+path; the strategic floor). Walk the knowledgebase graph -> extract
+vocabulary (entity names), schema (fields+types), valid tokens
+(enums), role scoping (actor permissions), process verbs (flows),
+constraints (rules) -> SYNTHESIZE A CONSTRAINED GRAMMAR from them (G3
+machinery pointed at a domain) -> decode under it, gate with golden
+sets, validate every construct against the graph. A usable,
+governed domain language model with ZERO training, ZERO cost --
+compose-and-go. Nearly every primitive already exists.
+
+RUNG 2 -- THE NEURAL DOMAIN SLM (when fluency earns its cost). The
+missing platform pieces, in build order:
+1. CORPUS SYNTHESIS FROM THE KNOWLEDGEBASE -- facts + rules rendered
+   as text by the NATURAL LAYER (derivation pointed at text; graph
+   walks + templates + NNL renderings), every example VALIDATED by
+   the rung-1 grammar before admission ("training data correct by
+   construction"). LAW-2 GUARD: NO REMOTE TEACHER -- Zin's archived
+   pipeline used Claude/GPT-4 as corpus teacher; Softanza's version
+   is teacher-free by design.
+2. dedup (MinHash) + stzDataset containers (R4).
+3. TOKENIZER TRAINING on the domain corpus.
+4. small-LM training/fine-tuning on the ggml backward pass (the R4
+   bridge), sentence-like declaration per LAW 4.
+5. QUANTIZE + GGUF EXPORT -- Softanza learns to WRITE the format it
+   reads; neural/ consumes the foundry's own products. (Preference
+   alignment/DPO deferred; constrained decoding at inference already
+   covers most of its value.)
+
+Both rungs end at the same gate: generations are proposals, the graph
+and its rules decide admission. The 0.1 north star extends one step:
+feed ONE .stzknow file -> an operational intelligent system -> AND,
+when wanted, the domain's own language model. PRODUCT stays product:
+the Zml grammar, the constitution articles, Zin corpora, hosted tiers.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -1221,6 +1293,20 @@ FOUNDATION.** Step order matters:
    grammar compilation (GBNF for local GGUF, JSON-schema for remote),
    content-hash memoization, golden-set tests woven into the narrated
    culture, mandatory BUDGET (G9) with cost recorded in the trace.
+7. THE MODEL FOUNDRY, RUNG 1 (5.9 -- compose-and-go, no training):
+   knowledgebase graph -> vocabulary/schema/rules extraction ->
+   DOMAIN GRAMMAR SYNTHESIS (the G3 machinery pointed at a domain) ->
+   constrained decoding + golden sets + graph validation = a usable
+   deterministic domain language model from ONE .stzknow file.
+8. THE MODEL FOUNDRY, RUNG 2 (neural, when fluency earns its cost):
+   teacher-free CORPUS SYNTHESIS from the knowledgebase (the natural
+   layer renders facts+rules as text; every example validated by the
+   rung-1 grammar -- correct by construction; NO remote teacher, LAW
+   2) -> MinHash dedup -> TOKENIZER TRAINING -> small-LM training/
+   fine-tuning on the ggml backward pass -> QUANTIZE + GGUF EXPORT
+   (Softanza learns to WRITE the format it reads). The model proposes,
+   the validator decides -- generations pass the same gate as any
+   proposal.
 
 **R4b -- governance/ (the primitives -- independently shippable).**
 The five declarable contracts + the permission/authority split (5.7 G6),
