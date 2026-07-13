@@ -318,6 +318,27 @@ base/
                   agentic/'s stzAgentGraph; validators delivered through
                   meta/ (LAW 6). Mechanism, never a fixed constitution.
 
+  refine/       REFINEMENT PROGRAMMING (the Refine concordance, 5.8 --
+                  stzPolyCode's first-stimulus idea comes home; R6):
+                  stzRefinementPoint  typed graph annotations, 8 kinds
+                                    (Param/Block/Algo/Func/Pipeline/
+                                    VarType/Lib/Custom) -- named
+                                    adjustment knobs at any level
+                  stzRefinement     a typed graph TRANSFORMATION carrying
+                                    cascade + author + verification +
+                                    history; IDENTICAL SHAPE whatever the
+                                    author (human/template/solver/LLM)
+                  THE GATE          4-stage pipeline (structural ->
+                                    constraint -> derivation ->
+                                    governance) composed from stzGraphRule
+                  CASCADE           the pre-commit impact query -- the
+                                    review artifact (ImpactOf packaged)
+                  REVERSIBILITY     prior-state capture + typed inverse +
+                                    atomic revert, in the data model
+                  SEEDS: stzAppRefinement's knob model, the narration's
+                  R-tag grammar, stzCCode's working transpiler.
+                  ENTRY: stzRefinableCode       FORMAT: *.stzrfn
+
   agentic/      AGENTS (the composition point -- R5):
                   stzAgent          base: goal, skills, memory, tools, Why
                                     -- its MIND is a Softanzuter (the
@@ -865,6 +886,76 @@ Wise Coding (elicitation, 0.3); makes provenance strictness opt-in; and
 aligns superposition collapse (0.3) with the taint rule -- an
 ungoverned model suggestion NEVER becomes an effect.
 
+### 5.8 REFINEMENT -- the Refine concordance (stzPolyCode comes home)
+
+The 2026-07-13 study of the SECOND Softanza-based product: Refine
+(D:/GitHub/refine -- an IDE + change-governance layer founded on a book
+and the Refinement-Oriented/Centered Programming paradigm, RCP), paired
+with a code study of stzPolyCode inside stzlib (the author's FIRST
+STIMULUS for it, years ago).
+
+TRIPLE COHERENCE (Softanza / Zin / Refine) -- VERIFIED. All three run
+the same doctrine: graph-primary, LLM demoted to ONE AUTHORITY among
+many, governed admission (not proof), lineage-as-query, human
+checkpoints, permission-vs-authority split. And Refine's lineage is
+explicit and one-to-one: RCP is documented as implemented ON Softanza's
+graph machinery -- stzGraph = the system graph, stzGraphRule = the
+rules, stzGraphex = the pattern authority, stzGraphPlanner = the planner
+authority, stzGraphView = scoped perspectives, stzGraphQuery = the
+discovery surface, stzKnowledgeGraph = decision lineage. Refine's own
+words: "This is not coincidence... system transformation is structurally
+a special case of business decision modeling." The two products confirm
+the platform from two directions: Zin governs AGENTS ACTING; Refine
+governs CHANGE ITSELF -- complementary frames, one doctrine. (Semantics
+kept distinct: Refine's graph is the CODE-SYSTEM graph; Softanza's
+knowledge graph is the DOMAIN brain. Related, never conflated.)
+
+WHAT REFINE ADDS that neither round captured (platform-worthy):
+- THE REFINEMENT AS THE UNIT OF WORK: the atomic unit of programming is
+  no longer the line/diff/PR but a TYPED TRANSFORMATION of a subset of
+  the graph, carrying its cascade, author, verification, and history --
+  and every author (human, template, solver, LLM) produces
+  transformations of IDENTICAL SHAPE.
+- THE CASCADE AS THE REVIEW SURFACE: the computed, cross-boundary blast
+  radius, presented BEFORE commit -- "what you read instead of the
+  diff". Softanza owns ImpactOf/reachability; the packaging is new.
+- REVERSIBILITY AS A DATA-MODEL PRIMITIVE: every committed
+  transformation captures prior state and exposes a typed inverse with
+  atomic revert -- built into the graph, not layered on as UX.
+- EXECUTION TRUST POSTURES: trusted in-process / external / sandboxed
+  LLM-composed -- every execution carries a posture and lands in the
+  audit chain.
+- (Research-grade, optional) PATCH-THEORY commutation for sound
+  multi-authority merge/cherry-pick/revert; ROM-style stable object
+  model for governed third-party scripting.
+
+stzPolyCode, THE GROUND TRUTH (code-verified): ~95% vision, ~5% code.
+No stzPolyCode class exists; the canonical narration (refinement-centered
+programming: code carrying <R:PARAM|BLOCK|ALGO|FUNC|PIPELINE|VARTYPE|
+LIB> refinement points -- named adjustment knobs -- through an
+Exploration -> Refinement -> Production workflow) is fully designed; the
+only executable trace is stzAppRefinement (~21 lines:
+Refine(:balance).Bounds(0, 1000000)) plus stzCCode's REAL, tested
+transpiler as seed machinery. One ambiguity RESOLVED here: the engine
+plan's "multi-representation code store" reading is set aside; the
+narration's REFINEMENT-POINTS reading is the original intent and the
+one with machinery. One inconsistency for S0: the engine MACROPLAN
+marks stz_polycode/stz_polyglot [DONE] with no source in the tree.
+
+THE DECISION -- refine/ AS A DOMAIN (LAW 1): stzPolyCode is redefined
+as the refine/ module (map entry; roadmap R6). Its EXECUTION sense
+(trusted polyglot running) is a different concern and lands as the
+trust-posture wrapper in governance/ (R4b). Boundary holds as before:
+the paradigm mechanics (typed refinement points, the 4-stage gate, the
+cascade, reversibility) are PLATFORM; the book, the brand, the IDE/PX,
+live-refinement UX, the three-domain (code/UI/data) product framing,
+jurisdiction packs, and business model are PRODUCT and never leak.
+Note: nothing in Softanza may assume Refine's licensing (undecided);
+Softanza stays FOSS regardless. One doctrine note for R5: stzPIAgent
+(Ring, the Softanzuter mind) is THE platform PI-agent; engine-bodied
+product agents are REALIZATIONS of the same interface -- the doctrine
+must not fork.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -899,7 +990,10 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
   knowledge-hygiene STRICT MODE, opt-in (G8: mandatory provenance +
   confidence, bounded queries, explicit contradiction, scoped graphs,
   revision with rollback); the stzAgentGraph node/edge/taint VOCABULARY
-  declared (G1 seed);
+  declared (G1 seed); the GRAPH REVERSIBILITY contract seeded (5.8:
+  mutating graph ops capture prior state and expose a typed inverse
+  with atomic revert -- Refine's data-model primitive, and G8's
+  rollback made real);
 - ACCEPTANCE (the north star, 0.1): a small DOMAIN knowledgebase
   (.stzknow with ontology + rules) loads, answers WhatIs/AreRelated,
   and a newly added fact FIRES derivation rules -- intelligence visibly
@@ -925,6 +1019,9 @@ GOVERNANCE VALIDATORS join them (5.7 G2): the graph-predicate invariants
 before committing -- plus the SIGNABLE PREDICATE-SET format (G10, the
 constitution mechanism: declared, diffable, signable, enforced by these
 validators).
+CASCADE AS REVIEW (5.8): ImpactOf packaged as a pre-commit
+Cascade(change) query over the code graph -- the affected-node set with
+typed edges, computed BEFORE mutation, presented as the review artifact.
 
 **R3 -- linguistic/ (the NLTK offensive).**
 One step = the refactor AND the gap-closing together:
@@ -1009,6 +1106,10 @@ CommitmentState makes exploration/commitment explicit and forward-only;
 DecommissionContract makes agent retirement a declared obligation
 (credential revocation, data removal, audit preservation);
 DecisionLineage weaves rationale + authority + production traces.
+PLUS the EXECUTION TRUST POSTURES (5.8 -- the redefinition of
+stzPolyCode's EXECUTION sense): every polyglot / external / LLM-composed
+code execution carries a declared posture (trusted / external /
+sandboxed), resource limits, and lands its trace in the audit chain.
 Mechanism only -- no fixed constitution ships with Softanza.
 
 **R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
@@ -1041,6 +1142,9 @@ faculties -> Softanzuter mind -> embodied agent):
 - memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
   language = linguistic+natural (R3), brains = neural/learning/optim (R4);
 - stzApp is the studied precedent (Being/Behavior/Purpose mapping);
+- DOCTRINE GUARD (5.8): stzPIAgent (Ring, the Softanzuter mind) is THE
+  platform PI-agent; engine-bodied product agents (Zig) are product
+  REALIZATIONS of the same interface -- the doctrine must not fork;
 - THE NATIVE STACK: the curated library-internal agents Softanza's own
   features consume FIRST (the 0.3 solution space: analyze the reply in
   every register, induce, validate, rank, plan the next question) --
@@ -1048,6 +1152,22 @@ faculties -> Softanzuter mind -> embodied agent):
   elicitation / induction / validation / ranking / planning agents);
   programmers extend in the APPLICATION space over the same interfaces.
 Parse trees and *.zagn agent files considered here, on demand.
+
+**R6 -- refine/ (refinement programming -- needs R1 + R2 + the
+reversibility contract).**
+stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
+- stzRefinableCode ENTRY OBJECT over *.stzrfn: source carrying the
+  R-tag refinement points (the narration's grammar, finally parsed);
+- stzRefinement = the typed graph transformation (uniform shape for
+  every author -- human, template, solver, LLM); the GATE = the 4-stage
+  pipeline composed from stzGraphRule; the CASCADE presented before
+  commit; REVERSIBILITY riding the R1 contract;
+- the render/Apply step seeds from stzCCode's working transpiler;
+- the AI-guidance layer (Explore/Ask/TestRefinement) rides
+  conversation/ (R3b) + neural/ -- no private machinery;
+- OPTIONAL (research-grade): patch-commutation predicates for sound
+  multi-authority merge; ROM-style stable object surface for governed
+  third-party Ring scripts (with meta/, LAW 6).
 
 **S0 -- SUBSTRATE HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
@@ -1064,8 +1184,12 @@ Parse trees and *.zagn agent files considered here, on demand.
   stzHttpTask store its status; reconcile the stale "built on libuv"
   narration across Reaxis tests/docs; decide wire-or-retire for the
   orphaned engine event bus (reactive.zig);
-- governance seed (5.7): make stzGraphRule/Explain derivations return a
-  STRUCTURED, replayable trace (the stzTrace + Prove() seed).
+- governance seed (5.7, PRIORITIZED -- both products' audit chains
+  depend on it): make stzGraphRule/Explain derivations return a
+  STRUCTURED, replayable trace (the stzTrace + Prove() seed);
+- plan honesty (5.8): the engine MACROPLAN marks stz_polycode and
+  stz_polyglot [DONE] with no source in the tree -- correct the plan
+  docs to [PLANNED].
 
 **THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
 the restaurant scenario of 0.1. DAY ZERO is wise coding (0.3): the owner
@@ -1085,7 +1209,10 @@ with ZERO app-specific code:
   the knowledgebase (stzOptimModel); classify/score with the ML floor;
 - R5 proves it ACTS: an agent takes a goal ("prepare Saturday's
   service"), plans over the graph, allocates via the optimizer, reacts
-  to changes as they stream in.
+  to changes as they stream in;
+- R6 proves CHANGE ITSELF IS GOVERNED: the agent refines the menu
+  logic through a typed refinement -- the cascade is previewed, the
+  gate validates, the audit chain records, and one call reverts.
 Adding ONE rule to the .stzknow file visibly upgrades every layer above
 -- no code change, no training, no retrieval pipeline. That demo IS the
 proof of the revoked-LLM thesis. Finally, run the SAME capstone with an
