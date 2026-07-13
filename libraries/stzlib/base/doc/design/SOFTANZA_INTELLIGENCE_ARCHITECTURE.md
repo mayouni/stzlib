@@ -312,12 +312,14 @@ base/
                   stzModelEvaluation; ggml backward pass or pure-Zig SGD
                   for small nets; EXPORT to the same artifact world neural/
                   consumes. OpenNN as the design lesson, not a dependency.
-                  THE MODEL FOUNDRY (5.9): knowledgebase -> language
-                  model, two rungs -- deterministic domain model (graph
-                  -> grammar synthesis -> constrained decoding; zero
-                  training) and neural domain SLM (teacher-free corpus
-                  synthesis via the natural layer -> tokenizer -> small
-                  training -> GGUF export).
+                  THE MODEL FOUNDRY (5.9): knowledgebase -> the DLM
+                  (DOMAIN LANGUAGE MODEL, *.stzdlm -- ENTRY stzDLM),
+                  two rungs -- deterministic (graph -> grammar
+                  synthesis -> constrained decoding; zero training;
+                  every DLM's floor) and neural SLM (teacher-free
+                  corpus synthesis via the natural layer -> tokenizer
+                  -> small training -> GGUF export; optional fluency).
+                  Any project ships its DLM FREE to its domain users.
 
   optim/        DECISION PROGRAMMING (round-2 elevation, section 5.5 --
                   the PI doctrine's engine room; lands in R4):
@@ -1149,8 +1151,26 @@ missing platform pieces, in build order:
 Both rungs end at the same gate: generations are proposals, the graph
 and its rules decide admission. The 0.1 north star extends one step:
 feed ONE .stzknow file -> an operational intelligent system -> AND,
-when wanted, the domain's own language model. PRODUCT stays product:
-the Zml grammar, the constitution articles, Zin corpora, hosted tiers.
+when wanted, the domain's own language model.
+
+THE DLM RULING (author, 2026-07-13): the ZLM CONCEPT is donated from
+the Zin product arena to the open-source foundation as the **DLM --
+DOMAIN LANGUAGE MODEL**: the generic, named artifact the Model Foundry
+produces. Any Softanza project that supplies a knowledgebase can ship
+its DLM FREE to the users of its knowledge-based domain -- the domain
+gains its own governed voice at zero cost. Under LAW 1:
+  ENTRY: stzDLM (stzDomainLanguageModel)   FORMAT: *.stzdlm
+  -- a bundle of the synthesized domain grammar + lexicon + templates
+  + golden sets (+ optionally the rung-2 GGUF when a neural tier was
+  forged). Rung 1 is EVERY DLM's floor; rung 2 is optional fluency.
+  neural/ runs it, conversation/ speaks through it, the gate governs
+  its every generation.
+The boundary, redrawn cleanly: the DLM concept and machinery =
+PLATFORM (free, forever); ZLM = Zin's PRODUCT INSTANTIATION of the
+platform DLM (DLM + the Zml grammar + the constitution + Zin corpora
++ hosted tiers). Refine may likewise instantiate a DLM over the
+refinement domain. The concept flows DOWN to the foundation; only the
+worlds stay product.
 
 ---
 
@@ -1296,8 +1316,9 @@ FOUNDATION.** Step order matters:
 7. THE MODEL FOUNDRY, RUNG 1 (5.9 -- compose-and-go, no training):
    knowledgebase graph -> vocabulary/schema/rules extraction ->
    DOMAIN GRAMMAR SYNTHESIS (the G3 machinery pointed at a domain) ->
-   constrained decoding + golden sets + graph validation = a usable
-   deterministic domain language model from ONE .stzknow file.
+   constrained decoding + golden sets + graph validation = the DLM
+   (stzDLM, *.stzdlm bundle): a usable, governed DOMAIN LANGUAGE MODEL
+   from ONE .stzknow file, shippable FREE to the domain's users.
 8. THE MODEL FOUNDRY, RUNG 2 (neural, when fluency earns its cost):
    teacher-free CORPUS SYNTHESIS from the knowledgebase (the natural
    layer renders facts+rules as text; every example validated by the
@@ -1429,6 +1450,8 @@ with ZERO app-specific code:
   the ontology, then writes; the knowledgebase grows under governance;
 - R4 proves it DECIDES and LEARNS: optimize a menu/roster straight from
   the knowledgebase (stzOptimModel); classify/score with the ML floor;
+  and the foundry ships the RESTAURANT'S OWN DLM -- its users get the
+  domain's language model for free;
 - R5 proves it ACTS: an agent takes a goal ("prepare Saturday's
   service"), plans over the graph, allocates via the optimizer, reacts
   to changes as they stream in;
