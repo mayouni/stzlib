@@ -88,12 +88,18 @@ base/
                   state (entities/relations move to knowledge/); keeps only
                   language. Queries knowledge/ through its entry objects.
 
-  linguistic/   CLASSICAL LANGUAGE ALGORITHMS (Tier-1, deterministic):
-                  lemmatizer, VADER, POS, rule-NER, RAKE/TextRank, WordNet,
-                  plural/singular/ordinal/adverb, UAX#29 seam. Today these
-                  live inside string/text engine files -- give them their
-                  domain identity. (Engine .zig files stay where they are;
-                  this is the RING-side home.)
+  linguistic/   TEXT PROCESSING / NLP -- the domain that competes with NLTK
+                  head to head (see section 6). ENTRY OBJECT: stzText (LAW 1
+                  -- it moves here from natural/ as the domain's face).
+                  The algorithms (engine, Zig, @embedFile'd data): UAX#29
+                  word/sentence seam, lemmatizer, SNOWBALL STEMMING (25
+                  languages), VADER sentiment, POS (perceptron), rule-NER,
+                  RAKE/TextRank, WordNet, phonetics (Soundex/Metaphone),
+                  fuzzy matching, n-grams + collocations, concordance/KWIC,
+                  textstats/readability, plural/singular/ordinal/adverb.
+                  Ring home for these identities; neural/ upgrades them
+                  transparently (NER, similarity, summary, zero-shot).
+                  ARTIFACTS: corpora/ shelf later (like models/).
 
   neural/       MODEL CONSUMPTION (runtime inference over artifacts):
                   stzNeuralEngine, stzNeuralModel (GGUF load, embeddings,
@@ -132,6 +138,95 @@ base/
 
 What does NOT change: string/ list/ number/ table/ etc. (the data domains),
 engine/ (Zig), the Q-convention, the narrated-test culture.
+
+---
+
+## 6. The Text-Processing Battlefield: Softanza vs NLTK
+
+**The author's target: compete with NLTK head to head and beat it on
+simplicity, innovation, and multi-dimensional paradigms, covering all the
+classic needs of NLP and more.**
+
+### 6.1 Where text processing LIVES (the layered answer)
+
+Text processing is not one module -- it is a LAYERED STACK, and the layering
+IS the advantage:
+
+```
+  string/      the MECHANICS  -- find/replace/split/sections, codepoint-true
+  linguistic/  the ALGORITHMS -- classic NLP, deterministic, zero-setup
+               (entry object: stzText -- the face of the domain)
+  neural/      the UPGRADE    -- the SAME calls sharpen when a model is
+               present (NamedEntities -> transformer NER, Summary ->
+               embedding TextRank, Classify -> zero-shot ...)
+  natural/     the SURFACES   -- the same needs speakable as language
+               (Naturally, NNL chains, questions, evidentiality)
+```
+
+### 6.2 Head-to-head coverage (audited 2026-07-13)
+
+| Classic NLP need | NLTK | Softanza today |
+|---|---|---|
+| Tokenization (word/sentence) | punkt (download) | UAX#29 engine seam -- Unicode-true, zero setup |
+| Stemming | Porter/Snowball (~15 langs) | Snowball, 25 LANGUAGES, embedded |
+| Lemmatization | WordNet lemmatizer | dictionary lemmatizer (42k), embedded |
+| POS tagging | perceptron (download) | perceptron, embedded |
+| NER | ne_chunk (weak) | rule-NER + TRANSFORMER NER (GGUF upgrade) |
+| Sentiment | VADER (download) | VADER, embedded + tone evidentiality |
+| WordNet | corpus download | embedded |
+| Key phrases / summary | (third-party) | RAKE + TextRank + embedding + ABSTRACTIVE |
+| n-grams / collocations | FreqDist/BigramCollocation | NGramsAndTheirCounts / Collocations |
+| Concordance (KWIC) | Text.concordance | Concordance / InContextWithWindow |
+| Phonetics | -- ABSENT -- | Soundex + Metaphone |
+| Edit distance / fuzzy | edit_distance | Levenshtein + fuzzy module |
+| Readability/textstats | (third-party) | textstats engine module |
+| Classification | trainable (setup-heavy) | zero-shot TODAY; trainable = learning/ |
+| Chunking / parsing | RegexpParser, CFG trees | GAP -- see 6.4 |
+| Corpora shelf | nltk.download zoo | GAP -- corpora/ artifacts later |
+| Language modeling utils | nltk.lm | PARTIAL (n-gram counts; LM later) |
+
+### 6.3 The three beat-axes
+
+**SIMPLICITY.** NLTK's first contact is ceremony: pip install, then
+nltk.download('punkt'), download('averaged_perceptron_tagger'), ... per
+feature. Softanza's first contact is ONE LINE, everything embedded:
+
+    Q("The cats were running fast").TextQ().Lemmatized()
+    # no install, no download, no internet -- ever (LAW 2)
+
+**INNOVATION.** What NLTK cannot say: verdicts that carry confidence
+(evidentiality), operations that explain themselves (Why()), the SAME call
+that upgrades itself when a local model appears, a library you can ASK in
+plain words (meta/), 25-language stemming, phonetics, and a Zig engine
+(compiled speed, not interpreter loops).
+
+**MULTI-DIMENSIONAL PARADIGMS.** The same need, five ways -- NLTK has one
+(Python calls). Softanza:
+1. method chains         Q(t).TextQ().Sentiment()
+2. natural language      Naturally("get the sentiment of ...")
+3. NNL narratives        TruthOf(t).IsA(:PositiveText)... (grows with 6.4)
+4. declarative W         conditions/filters over words and sentences
+5. knowledge + agents    text -> entities -> the knowledge graph -> agents
+
+### 6.4 Gap-closing plan (to claim the win honestly)
+
+1. **Chunking over POS tags** -- the innovative move: PATTERNS OVER TAGS
+   (the graphex idea applied to POS sequences): a noun-phrase chunker as a
+   readable pattern, e.g. Chunks("DT? JJ* NN+") -> phrases. Covers NLTK's
+   RegexpParser use cases with a cleaner grammar.
+2. **corpora/ shelf** -- like models/: small corpora embedded, large ones
+   fetched-on-demand and gitignored; stzCorpus entry object (LAW 1).
+3. **Trainable text classifiers** -- learning/ (stzDataset over labeled
+   text + a small trainable net); completes the classification story
+   beyond zero-shot.
+4. **n-gram LM utilities** -- probabilities/perplexity over the existing
+   n-gram counts (small, engine-side).
+5. **Parse trees (later)** -- dependency-lite via rules or a small GGUF;
+   only after 1-4 prove demand.
+
+Definition of victory: every row of 6.2 green, each with (a) a one-line
+zero-setup call, (b) a narrated suite, (c) an Ask-able intent, and (d) a
+neural upgrade path where meaningful.
 
 ---
 
