@@ -311,6 +311,8 @@ base/
 
   agentic/      AGENTS (the composition point -- R5):
                   stzAgent          base: goal, skills, memory, tools, Why
+                                    -- its MIND is a Softanzuter (the
+                                    Uter ladder, 5.6)
                   stzPIAgent        PROGRAMMATIC INTELLIGENCE: deterministic
                                     planners over the semantic lexicon +
                                     library methods (the Softanzuter
@@ -709,6 +711,67 @@ needs an honest optimizer, five-to-seven classic algorithms, and the
 declarative model surface. That is what makes the revoked-LLM thesis
 DEFENSIBLE rather than rhetorical.
 
+### 5.6 The Uter Ladder -- Regexuter, Softanzuter, Agent (the definitions)
+
+The author's definition, adopted verbatim and made mechanical: **a
+SOFTANZUTER is a computational representation of a THINKING MACHINE,
+based on one or many Regexuters, enabling it to identify and react to
+PATTERNS OF THOUGHT.** The ladder, rung by rung -- each rung adds
+exactly one thing:
+
+RUNG 0 -- THE PATTERN (the ...ex family): pure RECOGNITION. A pattern
+knows a shape in a medium (string, list, number, matrix, table, time,
+graph) and can say "this matches, and here is how" (Explain). It does
+nothing.
+
+RUNG 1 -- THE REGEXUTER (generically: an XUTER -- stzRegexUter,
+stzListexUter, ...; one per medium): a REFLEX ARC. Patterns over ONE
+medium, each bound to code; Process(data) fires what matches and records
+a dependency-tracked state (dependsOn / affects / GetDependencyChain).
+It recognizes and REACTS -- stimulus to response, with provenance -- but
+holds no goals and does not deliberate. A FACULTY, not a mind.
+
+RUNG 2 -- THE SOFTANZUTER: the thinking machine. One or MANY Xuters
+(faculties over different media) sharing a dependency-tracked state and
+CASCADING TO FIXPOINT (the R5 upgrade): the state one faculty writes is
+a medium other faculties match over. "Patterns of THOUGHT" is thereby
+mechanical, not metaphorical: a THOUGHT = a state entry (value +
+provenance); the thought HISTORY is a list -- stzListex matches over it;
+the dependency chain is a graph -- stzGraphex matches over it. So
+META-COGNITION rides the SAME pattern family, no new machinery (LAW 5).
+THINKING = the cascade of pattern-firings over the machine's own states;
+a SETTLED THOUGHT = the fixpoint. Deterministic, auditable (every
+thought carries its Why), interruptible.
+
+RUNG 3 -- THE AGENT (stzAgent): a Softanzuter EMBODIED IN A WORLD. The
+Softanzuter is the agent's MIND; the agent adds the body and the stakes:
+a GOAL (stzGoal + the planner -- the deliberation the reflex rungs
+lack), MEMORY (the knowledge graph), TOOLS (meta/), PERCEPTION-ACTION
+(the reactive substrate's event loop), ACCOUNTABILITY (Why on every
+act). The containment question answered precisely: AGENTS CONTAIN
+SOFTANZUTERS (at least one, the cognitive core); SOFTANZUTERS CONTAIN
+XUTERS (their faculties); no rung contains the rung above it.
+Collaboration happens ABOVE the ladder: agents compose into the native
+stack (0.3) and application colonies; stzApp is the world they live in.
+
+THE INDUSTRY NOTION, THE SOFTANZA WAY. Today's industry "agent" = an
+LLM in a loop with tools, memory, and a goal. Softanza ACCEPTS THE
+SHAPE: that loop IS rung 3, and the skill/tool/memory vocabulary maps
+one-to-one -- programmers and machine programmers (LAW 6) feel at home.
+And it REVOKES THE MANDATORY LLM MIND:
+- the mind is PROGRAMMATIC BY DEFAULT (Softanzuter + planner + optimizer
+  + the ML floor) -- stzPIAgent;
+- an LLM is a PLUGGABLE FACULTY -- one generative Xuter among the
+  faculties -- never the definition of the mind: stzLLMAgent = the SAME
+  embodiment, interfaces, and governance with neural faculties swapped
+  in (LAW 2's ladder applied to cognition itself);
+- memory is a GOVERNED GRAPH, not a vector soup: derivation replaces
+  RAG (0.1), and admission stays governed (0.3) even when the suggester
+  is a model;
+- skills VERIFY (precondition + plan + verification); prompts do not.
+The industry loop is the SPECIAL CASE of this ladder -- one faculty, no
+governance. Softanza offers the general case, locally, for free.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -828,7 +891,8 @@ SUBSTRATE.** Step order matters:
 **R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
 (deterministic, zero-cost, the differentiator), stzLLMAgent second (same
-interfaces over neural/). The PI-agent is ASSEMBLED, not invented:
+interfaces over neural/). The PI-agent is ASSEMBLED, not invented (the 5.6 ladder: Xuter
+faculties -> Softanzuter mind -> embodied agent):
 - PLANNING = stzGraphPlanner (goal-predicate search, profiles, Actions()
   sequences, history learning -- ALREADY BUILT) + the missing
   **stzGraphGoal** goal-modeling layer (Gap()/Profile(), stubbed in stzApp);
