@@ -11,7 +11,7 @@ ease**: advanced features at **no cost in time or money**, with the programmer i
 **maximum control**. The current `/natural` + `/neural` split grew along the
 milestones, not along the domains. This document fixes the architecture and
 carries ONE unified roadmap (section 6) -- refactoring and enhancement are the
-same movement, not two plans, running over THREE SUBSTRATES (section 5).
+same movement, not two plans, running over FIVE SUBSTRATES (section 5).
 
 ---
 
@@ -96,6 +96,14 @@ base/
                   keeps only language-as-code. Queries the other domains
                   through their entry objects.
 
+  reactive/     THE TIME SUBSTRATE (exists -- round-2 study, section 5.4):
+                  Reaxis declarative streams = the change-propagation
+                  surface; stzReactor/stzReactorPool (libuv worker thread,
+                  base/common/) = the REAL async runtime agents run on.
+                  Not a new folder -- a ROLE: knowledge/planner/neural gain
+                  change hooks so intelligence stays CURRENT instead of
+                  being recomputed on demand.
+
   neural/       MODEL CONSUMPTION (runtime inference over artifacts):
                   stzNeuralEngine, stzNeuralModel (GGUF load, embeddings,
                   NER, rerank, generate/sample/stream), stzNeuralChat.
@@ -113,6 +121,21 @@ base/
                   stzModelEvaluation; ggml backward pass or pure-Zig SGD
                   for small nets; EXPORT to the same artifact world neural/
                   consumes. OpenNN as the design lesson, not a dependency.
+
+  optim/        DECISION PROGRAMMING (round-2 elevation, section 5.5 --
+                  the PI doctrine's engine room; lands in R4):
+                  stzOptimModel     the ZIMPL-class modeling object: declare
+                                    sets/params/vars/constraints/objective
+                                    (hash literals or *.stzopt), then
+                                    SolveWith(:auto); Why() names the engine
+                                    and narrates the solution (LAW 3)
+                  execution tiers   own Zig simplex+B&B floor -> vendored
+                                    HiGHS upgrade (LAW 2; the ggml no-CMake
+                                    build precedent makes vendoring routine)
+                  stzMultiObjectiveSolver (NSGA-II, already REAL) joins it;
+                  the classic-ML roster (kNN/NaiveBayes/TF-IDF/ID3/apriori,
+                  then k-means/logistic) rides stzDataSet + stzSimilarity.
+                  ENTRY: stzOptimModel          FORMAT: *.stzopt
 
   agentic/      AGENTS (the composition point -- R5):
                   stzAgent          base: goal, skills, memory, tools, Why
@@ -148,6 +171,9 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 | /reflect hosts self-doc | Mechanics fine; the DOMAIN identity is meta-programming -- promote to meta/ (R2) |
 | Evidential + constraint registers as globals in natural/ | Acceptable: DISCOURSE state (per-conversation), not domain data; revisit only if persistence is ever needed |
 | stzNeuralChat in neural/ | Right home (a session over a model) |
+| stzLinearSolver's simplex | DISHONEST STUB -- returns all-zeros silently (hardcoded tableau, pivot loop never iterates); the one comparing test was retired, which is why it survives. Violates LAW 3; R4 makes it real |
+| reactive/ vs intelligence modules | DISJOINT ISLANDS -- zero cross-references today; the derived-state engine (Watch/Computed/BindTo) is blocked by the R54 stzReactiveObject init bug (8 of 9 tests retired); the engine event bus (reactive.zig) is built+loaded but ORPHANED (no Ring callers) |
+| Reaxis narration claims "built on libuv" | STALE -- libuv was removed from Reaxis 2026-06-13 (cooperative polling now); real libuv lives in stzReactor. Reconcile in S0 |
 
 ---
 
@@ -224,11 +250,15 @@ neural upgrade path where meaningful.
 
 ---
 
-## 5. The Three Substrates (studied 2026-07-13; they run UNDER all pillars)
+## 5. The Five Substrates (rounds 1+2, 2026-07-13; they run UNDER all pillars)
 
-The author's directive: graphs, the pattern-matching family, and the
-numerical layer are not modules beside the pillars -- they are SUBSTRATES the
-whole intelligence system runs on. Three deep code studies confirmed it.
+The author's directive: graphs, the pattern-matching family, the numerical
+layer -- and, from the second analysis round, REACTIVITY and the
+DECISION machinery (optimization + modeling DSLs + classic ML) -- are not
+modules beside the pillars. They are SUBSTRATES the whole intelligence
+system runs on. Five deep code studies confirmed it: STRUCTURE (graphs),
+RECOGNITION->ACTION (patterns), COMPUTATION (numerics), TIME/CHANGE
+(reactive), and DECISION (optimization+ML).
 
 ### 5.1 GRAPHS -- the STRUCTURE substrate  (graph/, ~19k lines, 108+ tests)
 
@@ -340,6 +370,151 @@ stzNeuralNetwork); stzDataSet is the evaluation layer (metrics/correlation);
 the LP solver becomes the OPTIMIZATION module (real simplex) feeding
 PI-agents with resource-allocation skills (R5).
 
+### 5.4 REACTIVITY -- the TIME/CHANGE substrate  (reactive/ + common/ + engine)
+
+Intelligence that only computes on demand is a SNAPSHOT; reactivity is what
+makes it CURRENT -- facts change and knowledge, plans, and behavior follow
+without being asked. The study found THREE distinct layers at different
+maturities (conflating them is the main confusion to avoid):
+
+WHAT EXISTS (verified in code):
+- REAXIS (base/reactive/, 8 files ~2.5k lines): the author's DECLARATIVE
+  REDESIGN of reactive programming -- semantics renamed from first
+  principles (callbacks -> Rfunctions, "functions that wait"; observable/
+  subscribe -> stream + OnPassed; backpressure -> overflow strategies;
+  SetTimeout/SetInterval -> RunAfter/RunEvery), a three-tier model
+  (Container stzReactiveSystem -> Stream -> Rfunction), and DECLARE-THEN-
+  EXECUTE: the pipeline is a pure description until RunLoop() activates it.
+  Stream pipelines (Map/Filter/Reduce/OnPassed/OnError/OnNoMore) are GREEN
+  (9/9 core suite). NOTE: libuv was REMOVED from Reaxis (2026-06-13) -- it
+  runs on cooperative polling now; the test narration still claiming
+  "libuv thread pool" is stale.
+- stzReactiveObject: Watch / Computed(attr, fn, deps) / BindTo / Batch /
+  StreamAttribute / debounce -- a Vue/MobX-grade reactive-ATTRIBUTE surface,
+  and the single most intelligence-relevant piece... currently BROKEN:
+  the R54 attribute-redefinition init bug retired 8 of its 9 tests.
+- stzReactor + stzReactorPool (base/common/) over VENDORED libuv 1.52.1 on
+  a worker thread: REAL async -- Ring submits work, gets a job id, then
+  poll/await (Ring never receives a callback; the blocking-looking model is
+  preserved by design). Concurrent TCP/fetch, cancellation tokens
+  (stzCancelToken, green), pool retry/latency machinery. THE strategic
+  runtime for agents.
+- engine reactive.zig: a native observable-channel bus (create/subscribe/
+  emit; built expressly as "the Reaxis engine foundation") -- ORPHANED:
+  compiled and loaded, ZERO Ring callers. Wire-or-retire decision needed.
+
+WHY IT EMPOWERS INTELLIGENCE (today: ZERO cross-references between the
+reactive layers and any intelligence module -- all of this is the wiring
+the roadmap adds, none of it new machinery):
+- knowledge: Computed(attr, fn, deps) IS a derived-fact engine -- a fact
+  changes, dependent knowledge recomputes. Needs (i) the R54 fix and
+  (ii) change-emission hooks on stzKnowledgeGraph (AddFact publishes).
+- patterns: Filter -> OnPassed is structurally a production rule; piping
+  Softanzuter matches into streams = reactive rules over flowing data.
+- planner: a plan as a Computed value over the facts it depends on =
+  REPLANNING when the world changes (needs a planner invalidation hook).
+- neural: StzNextToken() pull-streaming is a natural stream producer;
+  off-thread generation = one new reactor job type (like the TCP op).
+- agents: the perceive-decide-act loop IS an event loop -- build it on
+  stzReactor (real async + cancellation + pool), NOT the cooperative
+  poller. The reactor's submit/await idiom fits a synchronous decide step.
+
+HYGIENE found: the R54 init bug (SetAttributeValue does addattribute +
+eval per set); WaitForAttributetoSettle passes (callback, delay) to
+RunAfter(delay, callback); overflow :BUFFER/:BLOCK are print-only
+simulations; stzHttpTask never stores its status; libuv-era corpses
+(LibuvLoop NULL stub, identity buffer converters) + the stale narration;
+duplicate constant families (OPTIMISED_/OPTIMIzED_, BINDING_/BIND_);
+three names for one class (stzReactiveSystem/stzReactive/stzReactiveEngine).
+
+### 5.5 DECISION -- the OPTIMIZATION+ML substrate  (stats/ + engine)
+
+THE PI DOCTRINE, stated once and plainly: Softanza REVOKES the full-LLM
+thesis. Intelligence is not defined as "call a giant model" -- it is search
++ optimization + learning + rules, running locally, explaining itself,
+costing nothing (LAWS 2+3). LLMs are ONE TIER of the ladder, never its
+definition. A doctrine like that needs an engine room; this substrate is it.
+
+WHAT EXISTS (verified -- the honest ledger):
+- stzLinearSolver: already ~70% of a modeling object -- variables with
+  bounds/integrality, constraints, maximize/minimize, backend dispatch,
+  reporting. Backends: greedy REAL (efficiency-ratio allocation), genetic
+  REAL (population/tournament/crossover/mutation); simplex = a
+  ZEROS-RETURNING STUB (hardcoded tableau, the pivot loop never iterates);
+  branch&bound BROKEN (fed by the dead simplex + a live bug in
+  createRelaxedProblem). The one test comparing solvers was retired --
+  exactly why the stub survives CI.
+- stzMultiObjectiveSolver: NSGA-II GENUINELY IMPLEMENTED (non-dominated
+  sorting, crowding distance, Pareto front, best-compromise) -- the most
+  complete real optimizer in the Ring layer today.
+- stzStochasticSolver: scenarios + chance constraints; four modes real but
+  all reduce to greedy under scenario weighting.
+- stzCoeffExtractor: the shared expression parser -- fragile substring
+  parsing + a numerical-differentiation fallback over eval(); its own
+  header warns about it; flagged #TODO for replacement.
+- Classic ML present: OLS regression/correlation/covariance/Spearman
+  (engine stats.zig), vector-similarity kernels (cosine/Euclidean/
+  Manhattan/dot -- similarity.zig), TextRank, the perceptron POS tagger.
+  ABSENT: kNN, k-means, naive Bayes, decision-tree learner, logistic
+  regression, TF-IDF, apriori, PCA -- the PI-ML gap.
+- engine constraint.zig is value VALIDATION (not CSP); solver.zig is
+  scalar root-finding only; NO vendored LP solver -- but addGgml (a large
+  C++ library compiled from source under Zig, no CMake) is the executed
+  precedent that makes vendoring one routine.
+
+THE MODELING DSL (ZIMPL-class, Softanza-style) -- three coexisting
+surfaces, per LAW 1 + the 4.3 multi-paradigm doctrine:
+1. THE ENTRY OBJECT -- stzOptimModel:
+       oM = new stzOptimModel()
+       oM.Vars([ :x = [0, 40], :y = [0, :integer] ])
+       oM.Maximize("3*x + 2*y")
+       oM.SubjectTo([ "x + y <= 50", "2*x + y <= 80" ])
+       oM.SolveWith(:auto)
+       ? oM.Solution()  ? oM.Why()      # LAW 3: names the engine, narrates
+2. THE SENTENCE SURFACE -- Naturally("maximize ... where ... stays under
+   ..."), parsed by the stzListex grammar family into the same model AST.
+3. THE FORMAT -- *.stzopt (LAW 1; precedent = .stzknow/.flow): sets,
+   params, indexed variable/constraint FAMILIES ("for all p in Products")
+   -- THE capability today's longhand solver lacks. Expressions compile
+   through expr.zig's bytecode (the W-DSL engine), retiring
+   stzCoeffExtractor's eval-based parsing.
+
+EXECUTION -- two tiers per LAW 2 (graceful degradation): own Zig
+simplex+B&B floor (engine/src/optim.zig -- honest, zero-dependency, small
+models and teaching) -> vendored HiGHS (MIT, modern LP/MIP) as the
+transparent large-model upgrade. SolveWith(:auto) picks; Why() reports
+which tier ran -- identical in shape to lexical->embeddings and
+linguistic->neural.
+
+THE CLASSIC-ML ROSTER (ranked by intelligence-per-line; the rollout order
+writes itself):
+- FLOOR, no numeric blockers, rides stzDataSet + stzSimilarity AS THEY
+  EXIST TODAY: kNN (zero training, "the nearest examples were..." = pure
+  LAW 3) -> naive Bayes (text, ties into linguistic/) -> TF-IDF (the
+  missing vectorizer feeding everything) -> decision tree (ID3/CART; the
+  MOST explainable model, and its output IS a stzGraph -- substrates
+  compose) -> apriori association rules (explainable if-then itemsets).
+- POST matrix-hygiene (R4 steps 1-2): k-means, logistic regression.
+
+DESTINY -- the PI DECISION STACK (LAW 5 made concrete, one cycle):
+  1. PERCEIVE/MODEL   classic ML (kNN/Bayes/tree over stzDataSet +
+                      stzSimilarity) classifies the world state; facts land
+                      in the agent's stzKnowledgeGraph memory (R1).
+  2. DECIDE           stzGraphPlanner runs goal-predicate search and
+                      returns Actions(); where a step allocates scarce
+                      resources it calls stzOptimModel as a SUB-SOLVER --
+                      optimization becomes a planner skill.
+  3. REACT            the Softanzuter (fixpoint-upgraded) fires production
+                      rules; stzGraphRule holds the invariants.
+  4. LEARN/SCORE      stzDataSet + the stats engine score executed plans;
+                      BestHistoricalPlan() closes the loop -- the agent
+                      improves WITHOUT any LLM.
+Every box in that stack except stzOptimModel and the ML roster is ALREADY
+BUILT AND TESTED. Programmatic Intelligence does not need inventing; it
+needs an honest optimizer, five-to-seven classic algorithms, and the
+declarative model surface. That is what makes the revoked-LLM thesis
+DEFENSIBLE rather than rhetorical.
+
 ---
 
 ## 6. THE ONE ROADMAP (refactor + enhance in the same movement)
@@ -394,8 +569,11 @@ One step = the refactor AND the gap-closing together:
   counts, engine-side);
 - the 4.2 table re-audited; every green row gets its Ask-able intent.
 
-**R4 -- learning/ (creation) -- RIDES THE NUMERIC SUBSTRATE.**
-Step order matters:
+**R4 -- learning/ + optim/ (creation + decision) -- RIDES THE NUMERIC
+SUBSTRATE.** Step order matters:
+0. THE CLASSIC-ML FLOOR (no numeric blockers -- can start anytime): kNN,
+   naive Bayes, TF-IDF, decision tree (ID3 -> emits a stzGraph), apriori --
+   riding stzDataSet + stzSimilarity exactly as they exist today.
 1. MATRIX HYGIENE: expose Transpose (engine has it); add elementwise
    subtract/multiply/divide, dot/norm/trace; add Solve(Ax=b) via
    Gauss-Jordan first, LU next; wire stzRandom distributions
@@ -405,10 +583,17 @@ Step order matters:
    available to ALL numerics, not just neural/.
 3. stzDataset (tables/lists/labeled text) + stzNeuralNetwork with the
    sentence-like API + stzTrainer/stzModelEvaluation (metrics ride the
-   already-engine-backed stzDataSet statistics).
+   already-engine-backed stzDataSet statistics); k-means + logistic
+   regression join the ML roster here (post steps 1-2).
 4. FIRST APPLIED TARGET: the trainable TEXT CLASSIFIER (closes the last
-   big 4.2 row). Also: make stzLinearSolver's simplex REAL (today a
-   hardcoded-tableau stub) -- the optimization module PI-agents will use.
+   big 4.2 row).
+5. optim/ -- THE MODELING DSL (section 5.5): stzOptimModel entry object +
+   *.stzopt format (sets/params/indexed families); expressions compiled by
+   expr.zig (retire stzCoeffExtractor); REAL simplex + B&B in
+   engine/src/optim.zig as the floor, vendored HiGHS as the upgrade tier
+   (SolveWith(:auto), Why() names the engine); UN-RETIRE the
+   solver-comparison test as the honesty guard; stzMultiObjectiveSolver
+   (NSGA-II) moves in beside it.
 
 **R5 -- agentic/ (composition) -- THE SUBSTRATES CONVERGE.**
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
@@ -419,16 +604,34 @@ interfaces over neural/). The PI-agent is ASSEMBLED, not invented:
   **stzGraphGoal** goal-modeling layer (Gap()/Profile(), stubbed in stzApp);
 - REACTION = the Softanzuter upgraded to fixpoint cascading (dependent
   triggers re-fire) = production-rule skills;
-- OPTIMIZATION = the real LP solver (R4) for resource-allocation skills;
+- OPTIMIZATION = stzOptimModel (R4 step 5) called by the planner as a
+  sub-solver for resource-allocation skills;
+- RUNTIME = the reactive substrate: the perceive-decide-act loop runs on
+  stzReactor (REAL libuv async, cancellation tokens, pool retry) -- NOT
+  the cooperative poller; perception = async reactor fetches; neural token
+  streaming = one new reactor job type;
+- CURRENCY = replanning: stzKnowledgeGraph gains change-emission hooks
+  (AddFact publishes) and plans become Computed values over the facts they
+  depend on (requires the R54 stzReactiveObject fix -- see S0);
 - memory = stzKnowledgeGraph (R1), tools = meta/stzCodeGraph (R2),
-  language = linguistic+natural (R3), brains = neural/learning (R4);
+  language = linguistic+natural (R3), brains = neural/learning/optim (R4);
 - stzApp is the studied precedent (Being/Behavior/Purpose mapping).
 Parse trees and *.zagn agent files considered here, on demand.
 
-**S0 -- SUBSTRATE HYGIENE (small, do alongside R1):**
-fix stzRegexUter.Compute typo; implement StateByPosition/ByComputationOrder;
-delete stznumbrex-copy.ring; implement or honestly-raise stzGraph.Paths()
-(PathsWhereF depends on it); expose stzMatrix.Transpose; note the planner
-constant-heuristic TODO.
+**S0 -- SUBSTRATE HYGIENE (do alongside R1):**
+- patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
+  ByComputationOrder; delete stznumbrex-copy.ring;
+- graphs: implement or honestly-raise stzGraph.Paths() (PathsWhereF
+  depends on it); note the planner constant-heuristic TODO;
+- numerics: expose stzMatrix.Transpose;
+- optimization honesty: fix the createRelaxedProblem bug (4-arg call to a
+  3-arg addConstraint + undefined [:value]); make the simplex stub RAISE
+  or refuse instead of returning zeros, until R4 step 5 replaces it;
+- reactive (the R54 fix is MEDIUM -- a class restructure, but it gates
+  derived facts + replanning): fix the stzReactiveObject init bug;
+  fix WaitForAttributetoSettle's (callback, delay) arg order; make
+  stzHttpTask store its status; reconcile the stale "built on libuv"
+  narration across Reaxis tests/docs; decide wire-or-retire for the
+  orphaned engine event bus (reactive.zig).
 
 Each R-step is independently shippable; R1 (with S0) is ready to start.
