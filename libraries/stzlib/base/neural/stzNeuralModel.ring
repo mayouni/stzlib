@@ -88,6 +88,91 @@ func StzGenerate(pcPrompt, pnMaxNewTokens)
 	ok
 	return StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
 
+# Generation with SAMPLING knobs, as a named-options list:
+#   [ :MaxTokens = 64, :Temperature = 0, :TopP = 0.95, :TopK = 40, :Seed = 42 ]
+# Temperature 0 = greedy (deterministic); a temperature with a SEED is
+# reproducible too (same prompt + options + seed -> same text).
+func StzGenerateXT(pcPrompt, paOptions)
+	if StzHasGenerativeModel() = 0
+		return ""
+	ok
+	_nMax_ = 64
+	_nTemp_ = 0
+	_nTopP_ = 0.95
+	_nTopK_ = 40
+	_nSeed_ = 42
+	if isList(paOptions)
+		_n_ = len(paOptions)
+		for _i_ = 1 to _n_
+			if isList(paOptions[_i_]) and len(paOptions[_i_]) = 2 and isString(paOptions[_i_][1])
+				_cK_ = lower(paOptions[_i_][1])
+				if _cK_ = "maxtokens"
+					_nMax_ = paOptions[_i_][2]
+				but _cK_ = "temperature"
+					_nTemp_ = paOptions[_i_][2]
+				but _cK_ = "topp"
+					_nTopP_ = paOptions[_i_][2]
+				but _cK_ = "topk"
+					_nTopK_ = paOptions[_i_][2]
+				but _cK_ = "seed"
+					_nSeed_ = paOptions[_i_][2]
+				ok
+			ok
+		next
+	ok
+	return StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+
+	func @StzGenerateXT(pcPrompt, paOptions)
+		return StzGenerateXT(pcPrompt, paOptions)
+
+# Ask with sampling options (ChatML-wrapped).
+func StzAskModelXT(pcQuestion, paOptions)
+	return StzGenerateXT(StzChatPrompt("", pcQuestion), paOptions)
+
+# --- STREAMING: token-by-token generation ------------------------------
+# StzStartGeneration(prompt, options) opens a session; each StzNextToken()
+# returns the next decoded chunk ("" when finished) -- show progress,
+# react mid-generation, or stop early by just not calling again.
+func StzStartGeneration(pcPrompt, paOptions)
+	if StzHasGenerativeModel() = 0
+		return 0
+	ok
+	_nMax_ = 64
+	_nTemp_ = 0
+	_nTopP_ = 0.95
+	_nTopK_ = 40
+	_nSeed_ = 42
+	if isList(paOptions)
+		_n_ = len(paOptions)
+		for _i_ = 1 to _n_
+			if isList(paOptions[_i_]) and len(paOptions[_i_]) = 2 and isString(paOptions[_i_][1])
+				_cK_ = lower(paOptions[_i_][1])
+				if _cK_ = "maxtokens"
+					_nMax_ = paOptions[_i_][2]
+				but _cK_ = "temperature"
+					_nTemp_ = paOptions[_i_][2]
+				but _cK_ = "topp"
+					_nTopP_ = paOptions[_i_][2]
+				but _cK_ = "topk"
+					_nTopK_ = paOptions[_i_][2]
+				but _cK_ = "seed"
+					_nSeed_ = paOptions[_i_][2]
+				ok
+			ok
+		next
+	ok
+	return StzEngineNeuralGenStart(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+
+# The next decoded token text of the open session ("" when finished).
+func StzNextToken()
+	if StzEngineNeuralGenNext() = 0
+		return ""
+	ok
+	return StzEngineNeuralGenChunk()
+
+func StzGenerationActive()
+	return StzEngineNeuralGenActive()
+
 # The ChatML prompt shape the small instruct models are trained on.
 func StzChatPrompt(pcSystem, pcUser)
 	if NOT isString(pcSystem) or pcSystem = ""

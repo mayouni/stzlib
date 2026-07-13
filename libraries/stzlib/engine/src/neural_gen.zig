@@ -617,43 +617,146 @@ fn isEog(id: i32) bool {
     return false;
 }
 
-// ---- generation ----------------------------------------------------------------
-// Greedy (deterministic) generation: prompt prefill then one token per step.
-// Returns the byte length of the generated text (read via neural_gen_text), -1
-// on failure.
-pub export fn neural_generate(text: [*c]const u8, len: usize, max_new: c_int) callconv(.c) c_int {
-    if (neural_model_has_generator() == 0) return -1;
-    if (!buildBpe()) return -1;
-    if (text == null or len == 0) return -1;
-    resetKv();
+// ---- sampling ------------------------------------------------------------------
+// temperature <= 0 -> greedy (deterministic). Otherwise: logits/temp ->
+// top-k -> softmax -> top-p nucleus -> draw with the SEEDED prng, so a
+// given (prompt, options, seed) is reproducible.
+var g_prng: std.Random.DefaultPrng = undefined;
 
+const Cand = struct { id: i32, v: f32 };
+fn candDesc(_: void, a: Cand, b: Cand) bool {
+    return a.v > b.v;
+}
+
+fn sampleId(temp: f32, top_p: f32, top_k: c_int) i32 {
+    if (temp <= 0) return argmaxLogits();
+    const n = g_logits.items.len;
+    if (n == 0) return -1;
+    const cands = gpa.alloc(Cand, n) catch return argmaxLogits();
+    defer gpa.free(cands);
+    for (g_logits.items, 0..) |v, i| cands[i] = .{ .id = @intCast(i), .v = v };
+    std.mem.sort(Cand, cands, {}, candDesc);
+    var k: usize = if (top_k > 0) @min(@as(usize, @intCast(top_k)), n) else n;
+    if (k > 200) k = 200; // hard cap: the tail is numerically irrelevant
+    // softmax over the kept candidates (temperature applied)
+    const maxv = cands[0].v;
+    var sum: f32 = 0;
+    for (0..k) |i| {
+        const e = @exp((cands[i].v - maxv) / temp);
+        cands[i].v = e;
+        sum += e;
+    }
+    if (sum <= 0) return cands[0].id;
+    // top-p nucleus: the smallest prefix whose mass reaches top_p
+    var kept: usize = k;
+    if (top_p > 0 and top_p < 1) {
+        var acc: f32 = 0;
+        for (0..k) |i| {
+            acc += cands[i].v / sum;
+            if (acc >= top_p) {
+                kept = i + 1;
+                break;
+            }
+        }
+    }
+    var ksum: f32 = 0;
+    for (0..kept) |i| ksum += cands[i].v;
+    const r = g_prng.random().float(f32) * ksum;
+    var acc2: f32 = 0;
+    for (0..kept) |i| {
+        acc2 += cands[i].v;
+        if (r <= acc2) return cands[i].id;
+    }
+    return cands[kept - 1].id;
+}
+
+// ---- generation: STREAM session -------------------------------------------------
+// neural_gen_start prefills; each neural_gen_next produces ONE token (its
+// decoded text readable via neural_gen_chunk) -- 1 = a token was produced,
+// 0 = finished (EOG or max reached). The blocking neural_generate_xt is the
+// same session run to completion.
+var g_stream_active: bool = false;
+var g_stream_max: usize = 0;
+var g_stream_n: usize = 0;
+var g_stream_temp: f32 = 0;
+var g_stream_topp: f32 = 1.0;
+var g_stream_topk: c_int = 0;
+var g_chunk: std.ArrayList(u8) = .{};
+
+pub export fn neural_gen_start(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int) callconv(.c) c_int {
+    g_stream_active = false;
+    if (neural_model_has_generator() == 0) return 0;
+    if (!buildBpe()) return 0;
+    if (text == null or len == 0) return 0;
+    resetKv();
     var ids: std.ArrayList(i32) = .{};
     defer ids.clearAndFree(gpa);
     encode(text[0..len], &ids);
-    if (ids.items.len == 0) return -1;
-    // cap the prompt (keep the TAIL: instructions usually end the prompt)
+    if (ids.items.len == 0) return 0;
     const cap: usize = 512;
     var prompt = ids.items;
     if (prompt.len > cap) prompt = prompt[prompt.len - cap ..];
+    if (!forwardDecode(prompt)) return 0;
+    g_stream_max = if (max_new > 0) @intCast(max_new) else 64;
+    g_stream_n = 0;
+    g_stream_temp = @floatCast(temp);
+    g_stream_topp = @floatCast(top_p);
+    g_stream_topk = top_k;
+    g_prng = std.Random.DefaultPrng.init(@intCast(@as(u32, @bitCast(seed))));
+    g_stream_active = true;
+    return 1;
+}
 
-    if (!forwardDecode(prompt)) return -1;
-
-    var out_ids: std.ArrayList(i32) = .{};
-    defer out_ids.clearAndFree(gpa);
-    var n: usize = 0;
-    const maxn: usize = if (max_new > 0) @intCast(max_new) else 64;
-    while (n < maxn) : (n += 1) {
-        const id = argmaxLogits();
-        if (isEog(id)) break;
-        out_ids.append(gpa, id) catch break;
-        var one = [1]i32{id};
-        if (!forwardDecode(one[0..])) break;
+pub export fn neural_gen_next() callconv(.c) c_int {
+    if (!g_stream_active) return 0;
+    if (g_stream_n >= g_stream_max) {
+        g_stream_active = false;
+        return 0;
     }
+    const id = sampleId(g_stream_temp, g_stream_topp, g_stream_topk);
+    if (id < 0 or isEog(id)) {
+        g_stream_active = false;
+        return 0;
+    }
+    g_chunk.clearRetainingCapacity();
+    var one = [1]i32{id};
+    decodeInto(one[0..], &g_chunk);
+    g_chunk.append(gpa, 0) catch {
+        g_stream_active = false;
+        return 0;
+    };
+    g_stream_n += 1;
+    if (!forwardDecode(one[0..])) {
+        g_stream_active = false;
+        return 1; // the produced chunk is still valid
+    }
+    return 1;
+}
 
+pub export fn neural_gen_chunk() callconv(.c) [*c]const u8 {
+    if (g_chunk.items.len == 0) return @ptrCast("");
+    return @ptrCast(g_chunk.items.ptr);
+}
+
+pub export fn neural_gen_active() callconv(.c) c_int {
+    return if (g_stream_active) 1 else 0;
+}
+
+// Blocking generation with sampling options; temperature 0 = greedy.
+pub export fn neural_generate_xt(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int) callconv(.c) c_int {
+    if (neural_gen_start(text, len, max_new, temp, top_p, top_k, seed) == 0) return -1;
     g_gen_text.clearRetainingCapacity();
-    decodeInto(out_ids.items, &g_gen_text);
+    while (neural_gen_next() == 1) {
+        if (g_chunk.items.len > 1)
+            g_gen_text.appendSlice(gpa, g_chunk.items[0 .. g_chunk.items.len - 1]) catch break;
+    }
     g_gen_text.append(gpa, 0) catch return -1;
     return @intCast(g_gen_text.items.len - 1);
+}
+
+// Greedy (deterministic) generation -- the temperature-0 case of _xt.
+pub export fn neural_generate(text: [*c]const u8, len: usize, max_new: c_int) callconv(.c) c_int {
+    return neural_generate_xt(text, len, max_new, 0, 1.0, 0, 0);
 }
 
 pub export fn neural_gen_text() callconv(.c) [*c]const u8 {
