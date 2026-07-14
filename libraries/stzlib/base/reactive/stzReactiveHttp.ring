@@ -55,7 +55,10 @@ class stzHttpTask from stzReactiveTask
 		this.data = data
 		
 	def Execute()
-	    _status_ = TASK_RUNNING
+	    # (S0 fix, 2026-07-14): store the status on the TASK, not in a
+	    # local -- the old code wrote _status_ locally and dropped it,
+	    # so task status was unreliable for HTTP.
+	    status = TASK_RUNNING
 	    
 	    # Use Ring's built-in HTTP capabilities
 	    if method = HTTP_GET
@@ -72,12 +75,12 @@ class stzHttpTask from stzReactiveTask
 	    
 	    # Check if we got a valid result
 	    if _result_ != HTTP_RESPONSE_NULL and _result_ != HTTP_RESPONSE_EMPTY
-	        _status_ = TASK_COMPLETED
+	        status = TASK_COMPLETED
 	        if onComplete != HTTP_RESPONSE_NULL
 	            call onComplete(_result_)
 	        ok
 	    else
-	        _status_ = TASK_ERROR
+	        status = TASK_ERROR
 	        if onError != HTTP_RESPONSE_NULL
 	            call onError(HTTP_ERROR_REQUEST_FAILED)
 	        ok

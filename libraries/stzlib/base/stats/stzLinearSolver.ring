@@ -268,7 +268,16 @@ class stzLinearSolver from stzObject
 		return _aSolution_
 
 	def solveWithSimplex()
-		# Simplified Simplex method for small problems
+		# HONESTY GUARD (S0, 2026-07-14): the old body was a stub that
+		# returned all-zeros silently (hardcoded tableau; the pivot loop
+		# never iterated). Until the REAL simplex lands (roadmap R4 --
+		# engine-side optim), refuse loudly rather than lie.
+		# Working backends today: "greedy", "genetic" (and NSGA-II in
+		# stzMultiObjectiveSolver).
+		@status = "unimplemented"
+		raise("Simplex is not implemented yet (the old stub returned all-zeros silently). Use Solve('greedy') or Solve('genetic') until the real simplex lands (R4).")
+
+		# -- unreachable legacy scaffolding kept for the R4 rebuild --
 		@status = "optimal"
 		@iterations = 0
 		
@@ -304,7 +313,13 @@ class stzLinearSolver from stzObject
 		return this.extractSimplexSolution(_aTableau_)
 
 	def solveWithBranchAndBound()
-		# Branch and bound for integer problems
+		# HONESTY GUARD (S0, 2026-07-14): branch-and-bound rides the
+		# simplex relaxation, which is not implemented yet (see
+		# solveWithSimplex). Refuse loudly until R4.
+		@status = "unimplemented"
+		raise("Branch-and-bound needs the simplex relaxation, which is not implemented yet. Use Solve('greedy') or Solve('genetic') until the real simplex lands (R4).")
+
+		# -- unreachable legacy scaffolding kept for the R4 rebuild --
 		@status = "optimal"
 		@iterations = 0
 		
@@ -577,7 +592,6 @@ class stzLinearSolver from stzObject
 
 	def CreateRelaxedProblem()
 		# Create LP relaxation for integer problem
-		_oRelaxed_ = new stzLinear()
 		_oRelaxed_ = new stzLinearSolver()
 		
 		# Copy variables as continuous
@@ -601,7 +615,6 @@ class stzLinearSolver from stzObject
 			_oRelaxed_.addConstraint(
 				_aConst_[:expression],
 				_aConst_[:operator],
-				aoConst[:value],
 				_aConst_[:value]
 			)
 		next

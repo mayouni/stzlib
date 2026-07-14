@@ -10,7 +10,8 @@ load "../../stzBase.ring"
 pr()
 
 # Corporate budget distribution with minimum requirements
-# SIMPLEX solver handles equality and inequality constraints well
+# GREEDY solver (approximate); simplex refuses honestly until the
+# real implementation lands (roadmap R4)
 
 o1 = new stzLinearSolver()
 o1 {
@@ -26,7 +27,7 @@ o1 {
 
 	# Maximize weighted business value
 	Maximize("0.6*marketing + 0.8*rd + 0.5*operations + 0.3*hr")
-	Solve("simplex")
+	Solve("greedy")
 	Show()
 }
 #-->
@@ -56,13 +57,17 @@ o1 {
 • Iterations: 4
 
 • Variable Values:
- ─ marketing = 90000
- ─ rd = 300000
- ─ operations = 80000
- ─ hr = 30000
+ ─ marketing = 50000
+ ─ rd = 150000
+ ─ operations = 150000
+ ─ hr = 100000
 
-• Objective Value: 343000
+• Objective Value: 255000
 '
+# NOTE: greedy is an APPROXIMATION -- the true LP optimum here is
+# 343000 (marketing 90000, rd 300000, operations 80000, hr 30000).
+# The real simplex (roadmap R4) will recover it; simplex currently
+# refuses honestly instead of returning zeros.
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.22

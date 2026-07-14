@@ -116,6 +116,16 @@ class stzAppServer from stzNetwork
 
 	def Start(nPortNum, cHostAddr)
 
+		# HONESTY GUARD (S0, 2026-07-14): this transport spine is a
+		# PRE-ENGINE skeleton, never re-checked after the Zig engine:
+		# it targets stzTcpServer methods that no longer exist
+		# (SendTo/KickClient/Stop_/GetLastClient), has no read loop,
+		# and stzAppResponse.Send never writes to the socket. The
+		# request/response/router VALUE OBJECTS remain usable (and
+		# tested); serving is rebuilt on stzReactor in roadmap R7
+		# (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.10).
+		raise("stzAppServer.Start() is not operational yet: the pre-engine transport spine is being rebuilt on stzReactor (roadmap R7). The request/response/router objects remain usable.")
+
 		if cHostAddr = ""
 			cHostAddr = "127.0.0.1"
 		ok

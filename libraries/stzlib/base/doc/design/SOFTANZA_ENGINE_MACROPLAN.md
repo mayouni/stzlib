@@ -617,12 +617,18 @@ Each one is a concept rethought from first principles.
 - **stz_softanzuter** [DONE]: Named agent slots with state and message
   passing, agent lifecycle management.
   8 C ABI functions, 8 Ring bridge functions, 6 Zig tests. DLL #69.
-- **stz_polyglot** [DONE]: Multi-language string registry, locale-keyed
+- **stz_polyglot** [PLANNED]: Multi-language string registry, locale-keyed
   storage and retrieval.
-  6 C ABI functions, 6 Ring bridge functions, 5 Zig tests. DLL #70.
-- **stz_polycode** [DONE]: Multi-representation code store, format-keyed
+  (PLAN-HONESTY CORRECTION, S0 2026-07-14: previously marked [DONE] with
+  "6 C ABI, 6 bridge, 5 tests, DLL #70" -- NO SOURCE exists in engine/src;
+  zero .zig matches for "polyglot". Re-plan when the need is real.)
+- **stz_polycode** [PLANNED]: Multi-representation code store, format-keyed
   storage and retrieval.
-  6 C ABI functions, 6 Ring bridge functions, 5 Zig tests. DLL #71.
+  (PLAN-HONESTY CORRECTION, S0 2026-07-14: previously marked [DONE] with
+  "6 C ABI, 6 bridge, 5 tests, DLL #71" -- NO SOURCE exists in engine/src.
+  NOTE: the stzPolyCode CONCEPT was redefined 2026-07-13 as the refine/
+  domain (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.8, roadmap R6) under the
+  REFINEMENT-POINTS reading; this engine-store reading is set aside.)
 
 **Depends on:** M-E6 (signature features)
 

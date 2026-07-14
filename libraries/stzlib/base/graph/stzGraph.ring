@@ -1675,8 +1675,31 @@ class stzGraph from stzObject
 
 	#--
 
-	def Paths() #TODO// Returns all the possible paths in the graph
-		stzraise("Not yet implemented!")
+	def Paths()
+
+		# All simple paths between every ORDERED pair of nodes
+		# (S0, 2026-07-14: was raising "Not yet implemented!"; this also
+		# revives PathsWhereF which folds over it. NOTE: all-simple-paths
+		# enumeration is exponential by nature -- fine for the small/mid
+		# graphs the API targets.)
+
+		_acAll_ = []
+		_acIds_ = This.NodesIds()
+		_nIds_ = len(_acIds_)
+
+		for _i_ = 1 to _nIds_
+			for _j_ = 1 to _nIds_
+				if _i_ != _j_
+					_acPairPaths_ = This.PathsXT(_acIds_[_i_], _acIds_[_j_])
+					_nPair_ = len(_acPairPaths_)
+					for _k_ = 1 to _nPair_
+						_acAll_ + _acPairPaths_[_k_]
+					next
+				ok
+			next
+		next
+
+		return _acAll_
 
 	def PathsXT(pcFromNodeId, pcToNodeId)
 		if CheckParams()
@@ -2369,7 +2392,7 @@ class stzGraph from stzObject
 		ok
 
 		_acResult_ = []
-		_acPaths_ = This.Paths() #TODO
+		_acPaths_ = This.Paths()
 		_nLen_ = len(_acPaths_)
 
 		for i = 1 to _nLen_
