@@ -82,6 +82,69 @@ chk("clean source passes", StzCodeIsClean(cGood) = TRUE)
 chk("findings are STRUCTURED (rule/line/severity/message)",
 	aF[1][:message] != "" and aF[1][:line] > 0)
 
+#== SCENE 4 -- governance invariants over a colored agent graph =========
+
+? ""
+? "-- Scene 4: the G2 seed -- graph predicates an agent RUNS --"
+
+oAG = new stzGraph("agents")
+oAG.AddNode("writer")
+oAG.SetNodeProperty("writer", "kind", "llm_actor")
+oAG.SetNodeProperty("writer", "capabilities", ["inference", "effectful"])
+oAG.SetNodeProperty("writer", "taint", "open_llm_text")
+oAG.AddNode("send_email")
+oAG.SetNodeProperty("send_email", "kind", "effect")
+oAG.AddEdgeXTT("writer", "send_email", "proposes", [])
+
+aV = StzCheckAgentGraph(oAG)
+? "  violations on the ungoverned graph: " + len(aV)
+chk("all four invariants fire on the bad graph", len(aV) = 4)
+
+oAG.SetNodeProperty("writer", "capabilities", ["inference"])
+oAG.AddNode("gate")
+oAG.SetNodeProperty("gate", "kind", "guardian")
+oAG.AddNode("audit")
+oAG.SetNodeProperty("audit", "kind", "trace_sink")
+oAG.AddEdgeXTT("gate", "send_email", "guards", [])
+oAG.AddEdgeXTT("send_email", "audit", "traces", [])
+oAG.RemoveThisEdge("writer", "send_email")
+oAG.AddEdgeXTT("writer", "gate", "proposes", [])
+
+chk("governed composition is SOUND (proposes -> gate -> effect -> trace)",
+	StzAgentGraphIsSound(oAG) = TRUE)
+
+#== SCENE 5 -- the signable predicate set (the constitution mechanism) ==
+
+? ""
+? "-- Scene 5: G10 -- declared, diffable, SEALED predicate sets --"
+
+oPS = new stzPredicateSet("house")
+oPS.AddRule("no-len-method")
+oPS.AddInvariant("no-llm-effectful")
+cRulesFile = oPS.Save("t_house_accept")
+
+oPS2 = StzLoadPredicateSet(cRulesFile)
+chk("the loaded set verifies its seal", oPS2.Verify() = TRUE)
+chk("the set enforces ONLY its own rules",
+	len(oPS2.EnforceOnCode("class F" + nl + "def Len()" + nl + "return 1")) = 1)
+
+cT = read(cRulesFile)
+write(cRulesFile, StzReplace(cT, "no-len-method", "q-returns-object"))
+oPS3 = StzLoadPredicateSet(cRulesFile)
+chk("a tampered set BREAKS its seal", oPS3.Verify() = FALSE)
+remove(cRulesFile)
+
+#== SCENE 6 -- the promoted self-doc still answers, structured ==========
+
+? ""
+? "-- Scene 6: meta/ owns the self-doc (promoted from reflect/) --"
+
+oDoc = StzLibDocQ([ "stzString" ])
+aAns = oDoc.Ask("uppercase")
+chk("Ask answers after the promotion", len(aAns) >= 1)
+chk("and the answers are STRUCTURED records (the machine door reads them)",
+	isList(aAns[1]) and len(aAns[1]) >= 3)
+
 #== SUMMARY ==============================================================
 
 ? ""
