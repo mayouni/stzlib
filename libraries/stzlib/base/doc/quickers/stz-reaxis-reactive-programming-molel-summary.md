@@ -17,7 +17,11 @@ Reaxis re-engineers semantics from first principles, focusing on what happens ra
 - **Natural Timing**: Uses clear verbs like `RunEvery()` (repeating intervals) and `RunAfter()` (delays), avoiding ambiguous `SetInterval/SetTimeout`. Control via `StopTimer()` or `StopAllTimers()`.
 
 #### Conceptual Architecture
-Reaxis follows a clear three-tier hierarchy built on LibUV for asynchronous I/O:
+Reaxis follows a clear three-tier hierarchy. (RUNTIME NOTE, updated
+2026-07-14: libuv was REMOVED from Reaxis on 2026-06-13 -- it now runs on a
+cooperative polling loop. REAL libuv async lives in stzReactor/stzReactorPool
+(base/common/, worker-thread reactor): use those for genuine async I/O;
+Reaxis remains the declarative stream/pipeline surface.)
 1. **Container (ReactiveSystem)**: Provides shared infrastructure (timers, HTTP clients, schedulers). Manages multiple streams and activates the system via `RunLoop()`.
 2. **Stream**: Independent data pipelines with four stages:
    - **Receive**: Data intake (e.g., `ReceiveMany([items])`).
@@ -46,4 +50,4 @@ Reaxis separates description from activation:
 - **Comparison to Others**: Gentler learning curve than RxJS or Reactor; focuses on natural flow over complex operators.
 
 #### Conclusion
-Reaxis proves reactive programming can be simple and visual, prioritizing business logic over abstractions. It's ideal for Ring developers seeking maintainable, high-performance reactive systems, leveraging Ring's flexibility for semantic innovation. The full system is in Softanza, built on RingLibUV.
+Reaxis proves reactive programming can be simple and visual, prioritizing business logic over abstractions. It's ideal for Ring developers seeking maintainable, high-performance reactive systems, leveraging Ring's flexibility for semantic innovation. The full system is in Softanza (declarative surface: Reaxis, cooperative polling; real async engine: stzReactor over vendored libuv 1.52.1).

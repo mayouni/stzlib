@@ -45,7 +45,10 @@ class stzAppResponse from stzObject
 		
 		cResponse += nl + cContent
 		
-		# Send via TCP server (need reference to server)
+		# HONESTY (S0, 2026-07-14): no socket write happens here -- the
+		# old line targeted a stzTcpServer.SendTo() that no longer
+		# exists. The composed HTTP string is kept for inspection;
+		# real transmission arrives with the R7 reactor spine.
 		# oTcpServer.SendTo(oClient, cResponse)
 		bSent = True
 

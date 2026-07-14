@@ -10,7 +10,8 @@ load "../../stzBase.ring"
 pr()
 
 # Weekly production schedule with setup costs
-# SIMPLEX solver for continuous production rates
+# GREEDY solver (approximate); simplex refuses honestly until the
+# real implementation lands (roadmap R4)
 
 o1 = new stzLinearSolver()
 o1 {
@@ -24,7 +25,7 @@ o1 {
 	AddConstraint("batch_a + batch_b + batch_c", ">=", 500)               # Min production
 	
 	Maximize("18*batch_a + 22*batch_b + 28*batch_c")  # Revenue
-	Solve("simplex")
+	Solve("greedy")
 	
 	? "Weekly production schedule:"
 	? "Batch A: " + SolutionValue("batch_a") + " units"
@@ -36,9 +37,12 @@ o1 {
 '
 Weekly production schedule:
 Batch A: 0 units
-Batch B: 800 units
-Batch C: 351.22 units
+Batch B: 0 units
+Batch C: 500 units
 '
+# NOTE: greedy approximation (it meets the min-production constraint
+# with the highest-ratio batch only); the richer mixed schedule shown
+# in older narrations needs the real simplex (roadmap R4).
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.22

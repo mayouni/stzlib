@@ -276,10 +276,13 @@ class stzReactiveObject from stzReactive
 				StopTimer(_currentTimer_)
 			ok
 			
-			_currentTimer_ = RunAfter(func {
+			# NOTE (S0 fix, 2026-07-14): RunAfter(nDelay, fCallback) --
+			# delay FIRST. The old call passed (callback, delay), and the
+			# swap-guard in RunAfter cannot detect it for lambdas.
+			_currentTimer_ = RunAfter(nDelay, func {
 				call fCallback(attr, oldVal, newVal)
 				_currentTimer_ = NULL
-			}, nDelay)
+			})
 		})
 		
 		return self

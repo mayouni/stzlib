@@ -2213,6 +2213,78 @@ class stzMatrix from stzListOfLists
 		@aContent = _aInverse_
 
 
+	# Transpose the matrix in place (engine-backed, pure-Ring fallback)
+
+	def Transpose()
+
+		# Engine fast path
+
+		This._EnsureEngineMatrix()
+
+		if @pEngineMatrix != NULL
+
+			_pTrResult = StzEngineMatrixTranspose(@pEngineMatrix)
+
+			if _pTrResult != NULL
+
+				_nTrRows = StzEngineMatrixRows(_pTrResult)
+				_nTrCols = StzEngineMatrixCols(_pTrResult)
+				_aTrMatrix = []
+
+				for _iTr = 1 to _nTrRows
+					_aTrRow = []
+					for _jTr = 1 to _nTrCols
+						_aTrRow + StzEngineMatrixGet(_pTrResult, _iTr - 1, _jTr - 1)
+					next
+					_aTrMatrix + _aTrRow
+				next
+
+				StzEngineMatrixFree(_pTrResult)
+
+				@aContent = _aTrMatrix
+				_nTrTmp = @nRows
+				@nRows = @nCols
+				@nCols = _nTrTmp
+
+				This._InvalidateEngineMatrix()
+				return
+			ok
+		ok
+
+		# Pure-Ring fallback
+
+		_aTr_ = []
+
+		for j = 1 to @nCols
+			_aRow_ = []
+			for i = 1 to @nRows
+				_aRow_ + @aContent[i][j]
+			next
+			_aTr_ + _aRow_
+		next
+
+		@aContent = _aTr_
+		_nTrTmp = @nRows
+		@nRows = @nCols
+		@nCols = _nTrTmp
+
+		This._InvalidateEngineMatrix()
+
+		def TransposeQ()
+			This.Transpose()
+			return This
+
+	# Passive form: the transposed content, original unchanged
+
+	def Transposed()
+		_oTrCopy_ = new stzMatrix(This.Content())
+		_oTrCopy_.Transpose()
+		return _oTrCopy_.Content()
+
+		def TransposedQ()
+			return new stzMatrix(This.Transposed())
+
+
 	# Computes the difference between adjacent elements in the matrix
 
 	def Diff()

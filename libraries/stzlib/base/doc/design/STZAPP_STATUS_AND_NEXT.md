@@ -72,10 +72,15 @@ These cost real debugging; do not rediscover them:
    Plain data lists are fine; objects are not shared.
 6. **stzGraph specifics:** nodes store lowercased ids (`:id = StzLower(id)`); `AddNode(id)`
    works, `AddNodeXTT(id,label,[])` did NOT register usably in our tests. `AddEdgeXT`
-   requires both nodes to already exist and is finicky. **`SetNodeProperty`/`NodeProperty`
-   round-trip is BROKEN** even directly (setting a hashlist key on a node's empty `[]`
-   properties does not persist) -- a real stzlib bug (candidate for `grind-err`). Because of
-   this we store Domain data in app lists, not graph node-properties, for now.
+   requires both nodes to already exist and is finicky.
+   **UPDATE (S0 verification, 2026-07-14): the `SetNodeProperty`/`NodeProperty`
+   round-trip is NOT broken on Ring 1.27** -- verified green in four shapes
+   (global scope; direct attribute call from a class method; accessor-chained
+   `This.Graph().SetNodeProperty(...)`; set -> get -> update -> second property).
+   The original repro likely hit the `new X` WITHOUT-PARENS trap: bare
+   `new Holder` never calls `init()`, so the graph attribute stays NULL and the
+   first method call dies with R13 "Object is required". The side-list storage
+   below can be retired when slices B-E are converted (roadmap R7).
 
 ---
 
@@ -127,9 +132,9 @@ After converting, make examples `01`, `02`, `03` green and add their `#-->` expe
 - Reach: `Reaches` -> `stzGraphView` projections per surface.
 
 ### 4d. Upstream (optional but valuable)
-Fix stzGraph `SetNodeProperty`/`NodeProperty` (setting a key on empty `[]` properties). A
-`grind-err`-style focused fix in `base/graph/stzGraph.ring` (~line 1331-1409) would unblock
-graph-native storage for stzApp and help the graph module generally.
+RESOLVED 2026-07-14 (S0): stzGraph `SetNodeProperty`/`NodeProperty` verified NOT
+broken on Ring 1.27 (see the update in section 3, gotcha 6). Graph-native Domain
+storage is unblocked -- adopt it during the R7 slice conversion.
 
 ---
 

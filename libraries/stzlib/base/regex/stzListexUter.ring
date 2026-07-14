@@ -314,14 +314,42 @@ class stzListexuter from stzObject
 	
 	# Additional state management methods
 	def StateByPosition()
-	    # Return state entries sorted by position
-	    #TODO
-	    return []
-	
-	def StateByComputationOrder() 
-	    # Return state entries sorted by computation order
-	    # TODO
-	    return []
+	    # State entries sorted by matched position (ascending)
+	    _aSorted_ = []
+	    _nLen_ = len(aState)
+
+	    for _i_ = 1 to _nLen_
+	        _aSorted_ + aState[_i_]
+	    next
+
+	    for _i_ = 2 to _nLen_
+	        _e_ = _aSorted_[_i_]
+	        _j_ = _i_ - 1
+
+	        while _j_ >= 1
+	            if _aSorted_[_j_][:position] > _e_[:position]
+	                _aSorted_[_j_ + 1] = _aSorted_[_j_]
+	                _j_ -= 1
+	            else
+	                exit
+	            ok
+	        end
+
+	        _aSorted_[_j_ + 1] = _e_
+	    next
+
+	    return _aSorted_
+
+	def StateByComputationOrder()
+	    # Entries are recorded in computation order; return a copy
+	    _aSorted_ = []
+	    _nLen_ = len(aState)
+
+	    for _i_ = 1 to _nLen_
+	        _aSorted_ + aState[_i_]
+	    next
+
+	    return _aSorted_
 
     #------------------#
     # Private Methods  #
