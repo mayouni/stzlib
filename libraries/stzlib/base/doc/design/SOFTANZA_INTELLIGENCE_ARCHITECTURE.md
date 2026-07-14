@@ -1555,9 +1555,11 @@ Step order matters:
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
   ByComputationOrder; delete stznumbrex-copy.ring;
 - graphs: implement or honestly-raise stzGraph.Paths() (PathsWhereF
-  depends on it); note the planner constant-heuristic TODO; fix the
-  stzGraph SetNodeProperty/NodeProperty round-trip bug (it forces
-  stzApp's Domain data into side lists instead of node properties);
+  depends on it); note the planner constant-heuristic TODO; the
+  stzGraph SetNodeProperty/NodeProperty "round-trip bug" was VERIFIED
+  NOT BROKEN on Ring 1.27 (S0 2026-07-14: four probe shapes green; the
+  old repro hit the bare-new-without-parens trap) -- stzApp's side
+  lists retire at R7;
 - numerics: expose stzMatrix.Transpose;
 - optimization honesty: fix the createRelaxedProblem bug (4-arg call to a
   3-arg addConstraint + undefined [:value]); make the simplex stub RAISE

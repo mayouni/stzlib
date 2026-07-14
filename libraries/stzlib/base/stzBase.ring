@@ -430,6 +430,7 @@ ok
 
     load "natural/stzEntity.ring"
     load "natural/stzListOfEntities.ring"
+    load "natural/stzKnowledgeWorld.ring"
 
     load "natural/stzNaturalCode.ring"
     load "natural/stzNNL.ring"

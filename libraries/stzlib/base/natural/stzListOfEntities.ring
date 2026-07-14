@@ -65,6 +65,8 @@ func StzKnowXT(pcName, pcType, paProps)
 	# AppendEntity bypasses AddEntity's raise-on-duplicate; the PAIR check
 	# above already guaranteed uniqueness
 	$oWorldEntities.AppendEntity(_oEnt_.Content())
+	# R1 dual-write: the default knowledge graph grows alongside the world
+	_StzDKGAddFactOnce(_cName_, "is-a", _cType_)
 	return 1
 
 	func @StzKnowXT(pcName, pcType, paProps)
@@ -238,6 +240,8 @@ func _StzAddRelationTriple(pcF, pcR, pcT)
 		ok
 	next
 	$aStzRelations + [ pcF, pcR, pcT ]
+	# R1 dual-write: the default knowledge graph records the same edge
+	_StzDKGAddFactOnce(pcF, pcR, pcT)
 
 # Declare a graph LAW for a relation (:Unique / :Symmetric / :Transitive).
 # :Symmetric applies RETROACTIVELY (existing edges gain their reverses).
@@ -250,6 +254,9 @@ func StzConstrainRelation(pcRel, pcRule)
 	if NOT _StzRelationHasRule(_cR_, _cL_)
 		$aStzRelationRules + [ _cR_, _cL_ ]
 	ok
+	# R1: the law also lives on the default knowledge graph -- recorded
+	# in its ontology and, where derivational, armed as a stzGraphRule
+	StzKGConstrainRelation(_cR_, _cL_)
 	if _cL_ = "symmetric"
 		_n_ = len($aStzRelations)
 		for _i_ = 1 to _n_
@@ -358,6 +365,9 @@ func _StzRelationChain(pcRel, pcA, pcB)
 func ForgetRelations()
 	$aStzRelations = []
 	$aStzRelationRules = []
+	# R1: keep the default knowledge graph in step (entities survive,
+	# relation edges and laws go)
+	_StzDKGRebuildFromWorld()
 
 # the raw world lookup (entities + the supposition overlay) -- the piece
 # the Ask() world door calls, so the two doors can meet without recursion
