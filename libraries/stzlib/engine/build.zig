@@ -65,6 +65,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_geo", .entry = "src/stz_geo_entry.zig", .needs_ring = true },
     .{ .name = "stz_compress", .entry = "src/stz_compress_entry.zig", .needs_ring = true },
     .{ .name = "stz_solver", .entry = "src/stz_solver_entry.zig", .needs_ring = true },
+    .{ .name = "stz_db", .entry = "src/stz_db_entry.zig", .needs_sqlite = true, .needs_ring = true },
     .{ .name = "stz_watch", .entry = "src/stz_watch_entry.zig", .needs_ring = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
     .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },

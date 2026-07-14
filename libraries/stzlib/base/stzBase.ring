@@ -28,6 +28,7 @@ ok
 
     load "common/stzCCode.ring"
     load "common/stzNamedVars.ring"
+    load "common/stzDatabase.ring"
 
 # Loading files related to the DATA module
 
