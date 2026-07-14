@@ -116,6 +116,7 @@ ok
     load "meta/stzSelfDoc.ring"
     load "meta/stzLibDoc.ring"
     load "meta/stzCodeGraph.ring"
+    load "meta/stzPyCodeGraph.ring"
     load "meta/stzCodeRules.ring"
     load "meta/stzGovernanceChecks.ring"
     load "meta/stzPredicateSet.ring"
