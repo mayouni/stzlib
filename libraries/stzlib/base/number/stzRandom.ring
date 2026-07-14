@@ -4677,3 +4677,47 @@ func NRandomItemsInU(_n_, paList)
 		return NRandomItemsFromU(_n_, paList)
 
 	#>
+
+#=======================================================#
+#  R4 step 1 -- RANDOM DISTRIBUTIONS (training seeds)   #
+#=======================================================#
+# The prerequisites learning/ needs for weight init and sampling:
+# uniform reals over a range and Box-Muller normals. Ride the engine
+# uniform (StzRandom01); deterministic variants can seed via the XT
+# random when reproducibility matters.
+
+func RandomUniform(nMin, nMax)
+	return nMin + StzRandom01() * (nMax - nMin)
+
+	func ARandomUniform(nMin, nMax)
+		return RandomUniform(nMin, nMax)
+
+func RandomUniformList(n, nMin, nMax)
+	_aOut_ = []
+	for _i_ = 1 to n
+		_aOut_ + RandomUniform(nMin, nMax)
+	next
+	return _aOut_
+
+# Box-Muller: a normal deviate with the given mean and stddev
+func RandomNormal(nMean, nStd)
+	_nU1_ = StzRandom01()
+	if _nU1_ < 0.000000001
+		_nU1_ = 0.000000001
+	ok
+	_nU2_ = StzRandom01()
+	_nZ_ = sqrt(-2 * log(_nU1_)) * cos(2 * 3.14159265358979 * _nU2_)
+	return nMean + nStd * _nZ_
+
+	func ARandomNormal(nMean, nStd)
+		return RandomNormal(nMean, nStd)
+
+	func RandomGaussian(nMean, nStd)
+		return RandomNormal(nMean, nStd)
+
+func RandomNormalList(n, nMean, nStd)
+	_aOut_ = []
+	for _i_ = 1 to n
+		_aOut_ + RandomNormal(nMean, nStd)
+	next
+	return _aOut_

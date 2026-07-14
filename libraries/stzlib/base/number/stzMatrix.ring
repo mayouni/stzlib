@@ -844,6 +844,139 @@ class stzMatrix from stzListOfLists
 		next
 		This._InvalidateEngineMatrix()
 
+	# R4 step 1 -- MATRIX HYGIENE: the training prerequisites
+	# (elementwise ops, trace, norm, Ax=b). Ring floor; the engine
+	# tier accelerates behind the same surface later.
+
+	def SubtractMatrix(paMatrix)
+		if not (isList(paMatrix) and @IsMatrix(paMatrix))
+			raise("Input must be a valid matrix")
+		ok
+		if @nRows != len(paMatrix) or @nCols != len(paMatrix[1])
+			raise("Matrices must have the same dimensions")
+		ok
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				@aContent[i][j] -= paMatrix[i][j]
+			next
+		next
+		This._InvalidateEngineMatrix()
+
+	def MultiplyElementwise(paMatrix)
+		if not (isList(paMatrix) and @IsMatrix(paMatrix))
+			raise("Input must be a valid matrix")
+		ok
+		if @nRows != len(paMatrix) or @nCols != len(paMatrix[1])
+			raise("Matrices must have the same dimensions")
+		ok
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				@aContent[i][j] *= paMatrix[i][j]
+			next
+		next
+		This._InvalidateEngineMatrix()
+
+		def HadamardProduct(paMatrix)
+			This.MultiplyElementwise(paMatrix)
+
+	def DivideElementwise(paMatrix)
+		if not (isList(paMatrix) and @IsMatrix(paMatrix))
+			raise("Input must be a valid matrix")
+		ok
+		if @nRows != len(paMatrix) or @nCols != len(paMatrix[1])
+			raise("Matrices must have the same dimensions")
+		ok
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				if paMatrix[i][j] = 0
+					raise("Division by zero at (" + i + ", " + j + ")")
+				ok
+				@aContent[i][j] /= paMatrix[i][j]
+			next
+		next
+		This._InvalidateEngineMatrix()
+
+	def Trace()
+		if @nRows != @nCols
+			raise("Trace is only defined for square matrices")
+		ok
+		_nT_ = 0
+		for i = 1 to @nRows
+			_nT_ += @aContent[i][i]
+		next
+		return _nT_
+
+	def FrobeniusNorm()
+		_nS_ = 0
+		for i = 1 to @nRows
+			for j = 1 to @nCols
+				_nS_ += @aContent[i][j] * @aContent[i][j]
+			next
+		next
+		return sqrt(_nS_)
+
+		def Norm()
+			return This.FrobeniusNorm()
+
+	# Solve A x = b by Gauss-Jordan with partial pivoting -- returns
+	# the solution VECTOR (list). Singular systems REFUSE (LAW 3);
+	# no least-squares guessing.
+	def SolveFor(paB)
+		if @nRows != @nCols
+			raise("SolveFor needs a square system (A must be n x n)")
+		ok
+		if NOT (isList(paB) and len(paB) = @nRows)
+			raise("b must be a list of " + @nRows + " numbers")
+		ok
+		# augmented copy [A|b]
+		_aM_ = []
+		for i = 1 to @nRows
+			_aRow_ = []
+			for j = 1 to @nCols
+				_aRow_ + @aContent[i][j]
+			next
+			_aRow_ + paB[i]
+			_aM_ + _aRow_
+		next
+		_nN_ = @nRows
+		for i = 1 to _nN_
+			# partial pivot: swap in the largest |value| below
+			_nP_ = i
+			for k = i + 1 to _nN_
+				if fabs(_aM_[k][i]) > fabs(_aM_[_nP_][i])
+					_nP_ = k
+				ok
+			next
+			if fabs(_aM_[_nP_][i]) < 0.000000000001
+				raise("Singular system: no unique solution (pivot ~ 0 at column " + i + ")")
+			ok
+			if _nP_ != i
+				_aTmp_ = _aM_[i]
+				_aM_[i] = _aM_[_nP_]
+				_aM_[_nP_] = _aTmp_
+			ok
+			_nPiv_ = _aM_[i][i]
+			for j = i to _nN_ + 1
+				_aM_[i][j] /= _nPiv_
+			next
+			for k = 1 to _nN_
+				if k != i
+					_nF_ = _aM_[k][i]
+					for j = i to _nN_ + 1
+						_aM_[k][j] -= _nF_ * _aM_[i][j]
+					next
+				ok
+			next
+		next
+		_aX_ = []
+		for i = 1 to _nN_
+			_aX_ + _aM_[i][_nN_ + 1]
+		next
+		return _aX_
+
+		def Solve(paB)
+			return This.SolveFor(paB)
+
 	def MultiplyByMatrix(paMatrix)
 
 		# Validate input is a list of lists
