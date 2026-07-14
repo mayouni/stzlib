@@ -268,49 +268,214 @@ class stzLinearSolver from stzObject
 		return _aSolution_
 
 	def solveWithSimplex()
-		# HONESTY GUARD (S0, 2026-07-14): the old body was a stub that
-		# returned all-zeros silently (hardcoded tableau; the pivot loop
-		# never iterated). Until the REAL simplex lands (roadmap R4 --
-		# engine-side optim), refuse loudly rather than lie.
-		# Working backends today: "greedy", "genetic" (and NSGA-II in
-		# stzMultiObjectiveSolver).
-		@status = "unimplemented"
-		raise("Simplex is not implemented yet (the old stub returned all-zeros silently). Use Solve('greedy') or Solve('genetic') until the real simplex lands (R4).")
-
-		# -- unreachable legacy scaffolding kept for the R4 rebuild --
+		# REAL SIMPLEX (R4 step 5 floor, 2026-07-14) -- the S0 honesty
+		# raise replaced WITH the capability: Big-M dense tableau.
+		# Bounded variables via the shift x = lo + x' (plus explicit
+		# x' <= hi-lo rows); <= gets a slack, >= a surplus+artificial,
+		# = an artificial. Floor scale (dense, small/mid models);
+		# the engine/HiGHS tiers are the R4 ladder's next rungs.
 		@status = "optimal"
 		@iterations = 0
-		
-		# Convert to standard form
-		_aTableau_ = this.buildSimplexTableau()
-		
-		# Simplex iterations
-		while this.hasNegativeCoefficient(_aTableau_)
-			@iterations++
-			
-			# Find pivot column (most negative coefficient)
-			_nPivotCol_ = this.findPivotColumn(_aTableau_)
-			
-			# Find pivot row (minimum ratio test)
-			_nPivotRow_ = this.findPivotRow(_aTableau_, _nPivotCol_)
-			
-			if _nPivotRow_ = -1
-				@status = "unbounded"
-				exit
+		_aVarNames_ = this.variableNames()
+		_nV_ = len(_aVarNames_)
+		_aObjC_ = this.parseObjectiveCoefficients()
+
+		_nSign_ = 1
+		if @objectiveType != "maximize"
+			_nSign_ = -1
+		ok
+
+		# rows: [ coeffs(nV), rhs, type ] with rhs shifted by lower bounds
+		_aRows_ = []
+		_nC_ = len(@constraints)
+		for i = 1 to _nC_
+			_aCf_ = []
+			_nRhs_ = 0 + @constraints[i][:value]
+			for j = 1 to _nV_
+				_nCo_ = this.extractCoefficient(@constraints[i][:expression], _aVarNames_[j])
+				_aCf_ + _nCo_
+				_nRhs_ -= _nCo_ * (0 + @variables[j][:lowerBound])
+			next
+			_cOp_ = @constraints[i][:operator]
+			_cTy_ = "le"
+			if _cOp_ = ">="
+				_cTy_ = "ge"
 			ok
-			
-			# Perform pivot operation
-			_aTableau_ = this.pivotTableau(_aTableau_, _nPivotRow_, _nPivotCol_)
-			
-			# Prevent infinite loops
-			if @iterations > 1000
+			if _cOp_ = "="
+				_cTy_ = "eq"
+			ok
+			if _nRhs_ < 0
+				for j = 1 to _nV_
+					_aCf_[j] = -_aCf_[j]
+				next
+				_nRhs_ = -_nRhs_
+				if _cTy_ = "le"
+					_cTy_ = "ge"
+				but _cTy_ = "ge"
+					_cTy_ = "le"
+				ok
+			ok
+			_aRows_ + [ _aCf_, _nRhs_, _cTy_ ]
+		next
+
+		# bound rows x' <= hi - lo (skip effectively-unbounded)
+		for j = 1 to _nV_
+			_nHi_ = 0 + @variables[j][:upperBound]
+			_nLo_ = 0 + @variables[j][:lowerBound]
+			if (_nHi_ - _nLo_) < 1000000000
+				_aCf_ = []
+				for k = 1 to _nV_
+					if k = j
+						_aCf_ + 1
+					else
+						_aCf_ + 0
+					ok
+				next
+				_aRows_ + [ _aCf_, _nHi_ - _nLo_, "le" ]
+			ok
+		next
+
+		_nM_ = len(_aRows_)
+		_nSlackCount_ = 0
+		_nArtCount_ = 0
+		for i = 1 to _nM_
+			if _aRows_[i][3] = "le"
+				_nSlackCount_++
+			but _aRows_[i][3] = "ge"
+				_nSlackCount_++
+				_nArtCount_++
+			else
+				_nArtCount_++
+			ok
+		next
+		_nCols_ = _nV_ + _nSlackCount_ + _nArtCount_ + 1
+		_nBigM_ = 1000000
+		_nSlackAt_ = _nV_
+		_nArtAt_ = _nV_ + _nSlackCount_
+
+		_aT_ = []
+		_aBasis_ = []
+		_nSl_ = 0
+		_nAr_ = 0
+		for i = 1 to _nM_
+			_aRow_ = []
+			for j = 1 to _nCols_
+				_aRow_ + 0
+			next
+			for j = 1 to _nV_
+				_aRow_[j] = _aRows_[i][1][j]
+			next
+			_aRow_[_nCols_] = _aRows_[i][2]
+			if _aRows_[i][3] = "le"
+				_nSl_++
+				_aRow_[_nSlackAt_ + _nSl_] = 1
+				_aBasis_ + (_nSlackAt_ + _nSl_)
+			but _aRows_[i][3] = "ge"
+				_nSl_++
+				_aRow_[_nSlackAt_ + _nSl_] = -1
+				_nAr_++
+				_aRow_[_nArtAt_ + _nAr_] = 1
+				_aBasis_ + (_nArtAt_ + _nAr_)
+			else
+				_nAr_++
+				_aRow_[_nArtAt_ + _nAr_] = 1
+				_aBasis_ + (_nArtAt_ + _nAr_)
+			ok
+			_aT_ + _aRow_
+		next
+
+		# reduced-cost row (maximization): -c for structurals, +M for
+		# artificials, then eliminate the artificial basics
+		_aZ_ = []
+		for j = 1 to _nCols_
+			_aZ_ + 0
+		next
+		for j = 1 to _nV_
+			_aZ_[j] = -(_nSign_ * _aObjC_[j])
+		next
+		for j = 1 to _nArtCount_
+			_aZ_[_nArtAt_ + j] = _nBigM_
+		next
+		for i = 1 to _nM_
+			if _aBasis_[i] > _nArtAt_
+				for j = 1 to _nCols_
+					_aZ_[j] -= _nBigM_ * _aT_[i][j]
+				next
+			ok
+		next
+
+		while TRUE
+			@iterations++
+			if @iterations > 2000
 				@status = "iteration_limit"
 				exit
 			ok
+			_nPc_ = 0
+			_nMost_ = -0.0000001
+			for j = 1 to _nCols_ - 1
+				if _aZ_[j] < _nMost_
+					_nMost_ = _aZ_[j]
+					_nPc_ = j
+				ok
+			next
+			if _nPc_ = 0
+				exit
+			ok
+			_nPr_ = 0
+			_nBestR_ = 0
+			for i = 1 to _nM_
+				if _aT_[i][_nPc_] > 0.0000001
+					_nRatio_ = _aT_[i][_nCols_] / _aT_[i][_nPc_]
+					if _nPr_ = 0 or _nRatio_ < _nBestR_
+						_nBestR_ = _nRatio_
+						_nPr_ = i
+					ok
+				ok
+			next
+			if _nPr_ = 0
+				@status = "unbounded"
+				exit
+			ok
+			_nPv_ = _aT_[_nPr_][_nPc_]
+			for j = 1 to _nCols_
+				_aT_[_nPr_][j] /= _nPv_
+			next
+			for i = 1 to _nM_
+				if i != _nPr_ and fabs(_aT_[i][_nPc_]) > 0.000000001
+					_nF_ = _aT_[i][_nPc_]
+					for j = 1 to _nCols_
+						_aT_[i][j] -= _nF_ * _aT_[_nPr_][j]
+					next
+				ok
+			next
+			_nF_ = _aZ_[_nPc_]
+			if fabs(_nF_) > 0.000000001
+				for j = 1 to _nCols_
+					_aZ_[j] -= _nF_ * _aT_[_nPr_][j]
+				next
+			ok
+			_aBasis_[_nPr_] = _nPc_
 		end
-		
-		# Extract solution from tableau
-		return this.extractSimplexSolution(_aTableau_)
+
+		for i = 1 to _nM_
+			if _aBasis_[i] > _nArtAt_ and _aT_[i][_nCols_] > 0.000001
+				@status = "infeasible"
+			ok
+		next
+
+		# extract x' and shift back to x = lo + x'
+		_aSolution_ = []
+		for j = 1 to _nV_
+			_nVal_ = 0 + @variables[j][:lowerBound]
+			for i = 1 to _nM_
+				if _aBasis_[i] = j
+					_nVal_ += _aT_[i][_nCols_]
+					exit
+				ok
+			next
+			_aSolution_ + [ _aVarNames_[j], _nVal_ ]
+		next
+		return _aSolution_
 
 	def solveWithBranchAndBound()
 		# HONESTY GUARD (S0, 2026-07-14): branch-and-bound rides the
@@ -453,36 +618,40 @@ class stzLinearSolver from stzObject
 		return _aCoeffs_
 
 	def extractCoefficient(_cExpression_, _cVarName_)
-		# Simple coefficient extraction
-		# Look for patterns like "5*x" or "-3*y" or just "x"
-		#TODO // Use stzRegex instead for full solution
-
-		_cPattern_ = _cVarName_
-		_nPos_ = ring_substr1(_cExpression_, _cPattern_)
-		
-		if _nPos_ = 0
-			return 0  # Variable not in expression
-		ok
-		
-		# Check for coefficient before variable
-		if _nPos_ > 1
-			_oExpr_ = new stzString(_cExpression_)
-			_cBefore_ = _oExpr_.Section(_nPos_-1, 1)
-			if _cBefore_ = "*"
-				# Find the coefficient
-				_nStart_ = _nPos_ - 2
-				_c_ = _oExpr_.Section(_nStart_, 1)
-				while _nStart_ > 0 and (isdigit(_c_) or _c_ = ".")
-					_nStart_--
-				end
-				if _nStart_ < _nPos_ - 2
-					_cCoeffStr_ = _oExpr_.Section(_nStart_+1, _nPos_-_nStart_-2)
-					return 0 + _cCoeffStr_  # Convert to number
+		# REAL linear-term parser (R4 step 5, 2026-07-14). The old
+		# byte-peek LOST MULTIPLIERS -- '0.6*marketing' read as 1, so
+		# every solver optimized the wrong objective. This one splits
+		# on +/- terms and understands 'k*var', 'var*k' and bare 'var',
+		# with EXACT token matching ('rd' never matches inside 'yard').
+		_cE_ = StzLower(StzReplace(" " + _cExpression_, "-", "+-"))
+		_acTerms_ = StzSplit(_cE_, "+")
+		_cV_ = StzLower(ring_trim(_cVarName_))
+		_nTotal_ = 0
+		_nT_ = len(_acTerms_)
+		for _i_ = 1 to _nT_
+			_cT_ = StzReplace(ring_trim(_acTerms_[_i_]), " ", "")
+			if _cT_ = ""
+				loop
+			ok
+			_nSg_ = 1
+			if StzLeft(_cT_, 1) = "-"
+				_nSg_ = -1
+				_cT_ = StzRight(_cT_, StzLen(_cT_) - 1)
+			ok
+			if _cT_ = _cV_
+				_nTotal_ += _nSg_
+			but len(StzFind("*", _cT_)) > 0
+				_acF_ = StzSplit(_cT_, "*")
+				if len(_acF_) = 2
+					if ring_trim(_acF_[2]) = _cV_
+						_nTotal_ += _nSg_ * ring_number(_acF_[1])
+					but ring_trim(_acF_[1]) = _cV_
+						_nTotal_ += _nSg_ * ring_number(_acF_[2])
+					ok
 				ok
 			ok
-		ok
-		
-		return 1  # Default coefficient if just variable name
+		next
+		return _nTotal_
 
 	def calculateResourceCost(_cVarName_)
 		# Calculate total resource cost for one unit of variable
