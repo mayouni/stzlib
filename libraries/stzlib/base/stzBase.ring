@@ -490,6 +490,7 @@ ok
     load "agentic/stzPIAgent.ring"
     load "agentic/stzAgentGraph.ring"
     load "agentic/stzLLMAgent.ring"
+    load "agentic/stzNativeStack.ring"
 
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
