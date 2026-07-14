@@ -12,17 +12,23 @@
 #
 # See doc/design/STZAPP_DESIGN.md (+ PURPOSE/BODY deepenings). Examples in test/app/.
 #
-# VALIDATION STATUS (runs under Ring): Slice A (Being) is GREEN -- things, fields,
-# truths, and relations all persist and print. The nested-brace idiom is preserved
-# by having Thing() return This (the app): so Has/IsTrue/Owns/Of are the app's own
-# methods operating on a "current thing" cursor over plain app-held lists -- which
-# sidesteps Ring's value-copy semantics (objects copy when stored in lists/attrs) and
-# a SetNodeProperty round-trip bug in stzGraph. The B..E builders below still use the
-# sub-builder shape and need the same cursor/method conversion to persist their brace
-# data (goals/body attribute-style -> a hashlist form). Ring gotchas found in validation:
-#   reserved names Load/Import/Put/Set/Get; var oR == keyword 'or' (case-insensitive);
-#   top-level code before class defs; new X(){} fails but method(){} braces work; R31.
-# NB hardening: prefer ring_len()/engine helpers in class scope; Unicode-safe stringify.
+# R7 COMPLETION (2026-07-14): slices B..E converted from the sub-builder
+# shape (When() returned a method-local stzAppFlow -- R31 "destroy the
+# object using the self reference" on every brace, and the list held a
+# pre-brace COPY anyway: the brace-copy trap) to the SAME cursor/method
+# pattern Slice A validated: every builder verb is a method ON THE APP
+# operating on a "current record" cursor over plain app-held lists, so
+# the brace after When/Whenever/Want/LivesIn/Screen runs app methods and
+# persists for real. Attribute-style braces (Want/LivesIn) flush their
+# cursor in BraceEnd(). Pursue() is REAL now: the goal's Means compiles
+# to an stzGraphGoal (a wanted graph state) whose GapOn(oGraph) lists
+# the instances breaking the pattern; each gap item becomes a proposal
+# through the matching Whenever/Propose reaction.
+#
+# Ring gotchas honored: reserved names Load/Import/Put/Set/Get; var oR ==
+# keyword 'or'; top-level code before class defs; new X(){} fails but
+# method(){} braces work; lambdas do not capture (hence cursors, not
+# closures); ring_len()/engine helpers in class scope.
 # -----------------------------------------------------------------------------
 
 func StzApp(pcName)
@@ -31,18 +37,39 @@ func StzApp(pcName)
 class stzApp from stzObject
 
     cName        = ""
-    oGraph       = NULL           # the world's domain graph (node registry)   (Being)
+    oGraph       = NULL          # the world's domain graph (node registry)   (Being)
     aThings      = []            # [ [ name, [fields], [ [field,expr] ], [ [rel,to] ] ], ... ]
     aKnows       = []            # [ [ from, relation, to ], ... ]   (free relations)
     nCur         = 0             # cursor: index of the thing being declared
-    aFlows       = []            # (Life - behavior)   -- sub-builder shape (see note above)
-    aReactions   = []
-    aGoals       = []            # (Life - purpose)
-    oBody        = NULL           # (Body)
-    aScreens     = []            # (Intent)
-    aRefinements = []            # (Refinement)
+
+    aFlows       = []            # [ [ actor, verb, thing, [requires], [effects] ], ... ]
+    nCurFlow     = 0
+    aReactions   = []            # [ [ thing, condKind, [condArgs], [effects] ], ... ]
+    nCurReaction = 0
+    aGoals       = []            # [ [ name, means, reachedBy, within, [respecting] ], ... ]
+    nCurGoal     = 0
+    aBody        = []            # [ [kinds], graphPath, filesPath, keep ]  ([] = memory only)
+    bBodyPending = FALSE
+    aScreens     = []            # [ [ name, intent, subject, [shows], [acts] ], ... ]
+    nCurScreen   = 0
+    aRefinements = []            # [ [ knob, min, max, [options] ], ... ]
+    nCurRefinement = 0
     aReaches     = []            # (Reach)
     oReactive    = NULL
+
+    # goal-brace cursor attributes (assigned inside Want(...) { ... })
+    Means      = ""
+    ReachedBy  = ""
+    Within     = ""
+    Respecting = []
+
+    # body-brace cursor attributes (assigned inside LivesIn(...) { ... }).
+    # Graph/Keep coexist with the Graph() accessor and the Keep(thing)
+    # flow verb -- Ring separates attr-assignment from method-call
+    # (probed 2026-07-14: assignment targets the attr, parens the method).
+    Graph      = ""
+    Files      = ""
+    Keep       = ""
 
     def init(pcName)
         cName        = pcName
@@ -53,6 +80,7 @@ class stzApp from stzObject
         aFlows       = []
         aReactions   = []
         aGoals       = []
+        aBody        = []
         aScreens     = []
         aRefinements = []
         aReaches     = []
@@ -67,7 +95,7 @@ class stzApp from stzObject
 
     #== DOMAIN (Being) =======================================================
     # Thing() returns This, so the block  Thing(:X) { Has(...) Owns(:Y) }  runs the
-    # app's OWN Has/Owns on the current-thing cursor -> real, persistent, R31-safe.
+    # app's OWN Has/IsTrue/Owns/Of on the current-thing cursor.
 
     def Thing(pcName)
         n = This._ThingIndex(pcName)
@@ -85,7 +113,7 @@ class stzApp from stzObject
         if nCur > 0  aThings[nCur][2] = paFields  ok
         return This
 
-    def IsTrue(pcField, pcExpr)             # a truth of the current thing (two-arg -- real Ring)
+    def IsTrue(pcField, pcExpr)             # a truth of the current thing
         if nCur > 0  aThings[nCur][3] + [ pcField, pcExpr ]  ok
         return This
 
@@ -101,66 +129,255 @@ class stzApp from stzObject
         aKnows + [ pcFrom, pcRelation, pcTo ]
         return This
 
+    #== BEING -- INSTANCES ===================================================
+    # Schema things are declared; INSTANCES populate them. An instance
+    # binds to its thing by an "isa" edge; instance relations are
+    # labeled edges. Goals (wanted graph states) evaluate over these.
+
+    def Is_(pcInstance, pcThing)
+        if NOT oGraph.NodeExists(pcInstance)
+            oGraph.AddNode(pcInstance)
+        ok
+        if NOT oGraph.NodeExists(pcThing)
+            oGraph.AddNode(pcThing)
+        ok
+        oGraph.AddEdgeXT(pcInstance, pcThing, "isa")
+        return This
+
+    def Relate(pcFrom, pcRelation, pcTo)
+        if NOT oGraph.NodeExists(pcFrom)
+            oGraph.AddNode(pcFrom)
+        ok
+        if NOT oGraph.NodeExists(pcTo)
+            oGraph.AddNode(pcTo)
+        ok
+        oGraph.AddEdgeXT(pcFrom, pcTo, "" + pcRelation)
+        return This
+
     #== LIFE - BEHAVIOR (Becoming) ===========================================
+    # When() returns This: the brace  { Require(:x)  Then( Keep(:Y) ) }
+    # runs app methods against the current-flow cursor.
 
     def When(pcActor, pcVerb, pcThing)
-        oF = new stzAppFlow(pcActor, pcVerb, pcThing, This)
-        aFlows + oF
-        return oF
+        This._FlushCursors()
+        aFlows + [ pcActor, pcVerb, pcThing, [], [] ]
+        nCurFlow = len(aFlows)
+        return This
+
+    def Require(pcField)
+        if nCurFlow > 0  aFlows[nCurFlow][4] + pcField  ok
+        return This
+
+    def Keep(pcThing)
+        return [ :keep, pcThing ]
+
+    def Then(paEffect)
+        if nCurFlow > 0  aFlows[nCurFlow][5] + paEffect  ok
+        return This
 
     def Whenever(pcThing)
-        oRe = new stzAppReaction(pcThing, This)
-        aReactions + oRe
-        return oRe
+        This._FlushCursors()
+        aReactions + [ pcThing, "", [], [] ]
+        nCurReaction = len(aReactions)
+        return This
+
+    def Unseen(nQty, pUnit)
+        if nCurReaction > 0
+            aReactions[nCurReaction][2] = :unseen
+            aReactions[nCurReaction][3] = [ nQty, pUnit ]
+        ok
+        return This
+
+    def Meets(pcExpr)
+        if nCurReaction > 0
+            aReactions[nCurReaction][2] = :expr
+            aReactions[nCurReaction][3] = [ pcExpr ]
+        ok
+        return This
+
+    def Propose(pcThing)
+        if nCurReaction > 0  aReactions[nCurReaction][4] + [ :propose, pcThing ]  ok
+        return This
 
     #== LIFE - PURPOSE (Becoming) ============================================
+    # Want() returns This; the brace assigns the goal-cursor ATTRIBUTES
+    # (Means/ReachedBy/Within/Respecting), flushed into the record by
+    # BraceEnd() when the brace closes.
 
     def Want(pcGoal)
-        oG = new stzAppGoal(pcGoal, This)
-        aGoals + oG
-        return oG
+        This._FlushCursors()
+        aGoals + [ pcGoal, "", :planning, "", [] ]
+        nCurGoal = len(aGoals)
+        Means      = ""
+        ReachedBy  = :planning
+        Within     = ""
+        Respecting = []
+        return This
 
     def Goal(pcGoal)
         for i = 1 to len(aGoals)
-            if aGoals[i].Name() = pcGoal  return aGoals[i]  ok
+            if aGoals[i][1] = pcGoal
+                oG = new stzAppGoal(aGoals[i][1])
+                oG.Means      = aGoals[i][2]
+                oG.ReachedBy  = aGoals[i][3]
+                oG.Within     = aGoals[i][4]
+                oG.Respecting = aGoals[i][5]
+                return oG
+            ok
         next
         return NULL
 
+    # THE REAL PURSUIT: compile the goal's Means into an stzGraphGoal
+    # (a wanted graph state), measure the GAP on the live world graph,
+    # and turn each gap instance into a proposal through the matching
+    # Whenever/Propose reaction (or a bare :attend proposal when no
+    # reaction declares the way).
     def Pursue(pcGoal)
-        oG = This.Goal(pcGoal)
-        if oG = NULL  return []  ok
-        oPlanner = new stzGraphPlanner(oGraph)
-        oPlanner.Using(oG.Profile())
-        aProposals = oG.Gap()
-        ? "pursuing " + pcGoal + " via " + oG.ReachedBy + " -- " + len(aProposals) + " proposal(s)"
+        nG = 0
+        for i = 1 to len(aGoals)
+            if aGoals[i][1] = pcGoal  nG = i  exit  ok
+        next
+        if nG = 0  return []  ok
+        oWanted = new stzGraphGoal(pcGoal)
+        oWanted.FromMeans(aGoals[nG][2])
+        aGap = oWanted.GapOn(oGraph)
+        aProposals = []
+        for i = 1 to len(aGap)
+            cProposed = This._ProposedFor(oWanted.TypeName())
+            if cProposed != ""
+                aProposals + [ :propose, cProposed, :for, aGap[i] ]
+            else
+                aProposals + [ :attend, oWanted.TypeName(), :for, aGap[i] ]
+            ok
+        next
+        ? "pursuing " + pcGoal + " via " + aGoals[nG][3] + " -- " +
+          len(aProposals) + " proposal(s)"
         return aProposals
 
+    def GoalSatisfied(pcGoal)
+        for i = 1 to len(aGoals)
+            if aGoals[i][1] = pcGoal
+                oWanted = new stzGraphGoal(pcGoal)
+                oWanted.FromMeans(aGoals[i][2])
+                return oWanted.SatisfiedOn(oGraph)
+            ok
+        next
+        return FALSE
+
+    # The thing a reaction proposes for a given subject thing ("" = none).
+    def _ProposedFor(pcThing)
+        for i = 1 to len(aReactions)
+            if StzLower("" + aReactions[i][1]) = StzLower("" + pcThing)
+                for j = 1 to len(aReactions[i][4])
+                    if aReactions[i][4][j][1] = :propose
+                        return aReactions[i][4][j][2]
+                    ok
+                next
+            ok
+        next
+        return ""
+
     #== BODY (embodiment) ====================================================
+    # LivesIn() returns This; the brace assigns the body-cursor
+    # attributes (Graph_/Files/Keep_ -- note: the DSL keywords Graph and
+    # Keep collide with the Graph() accessor and the Keep(thing) flow
+    # verb, so the ATTRIBUTES carry a trailing underscore and BraceEnd
+    # reads whichever was written).
 
     def LivesIn(pBody)
+        This._FlushCursors()
         aKinds = pBody
         if NOT isList(pBody)  aKinds = [ pBody ]  ok
-        oBody = new stzAppBody(aKinds, This)
-        return oBody
+        aBody = [ aKinds, "", "", "" ]
+        bBodyPending = TRUE
+        Graph = ""
+        Files = ""
+        Keep  = ""
+        return This
 
     def Body()
-        return oBody
+        if len(aBody) = 0  return NULL  ok
+        oB = new stzAppBody(aBody[1])
+        oB.Graph = aBody[2]
+        oB.Files = aBody[3]
+        return oB
 
     def Save()
-        if oBody != NULL  oBody.Save()  ok
+        if len(aBody) = 0  return This  ok
+        if This._BodyHasKind(:GraphDB)
+            cG = aBody[2]
+            if cG = ""  cG = ".stzapp/world.stzgraf"  ok
+            This._EnsureParentDir(cG)
+            oGraph.SaveToStzGraf(cG)
+        ok
         return This
+
+    def _BodyHasKind(pKind)
+        if len(aBody) = 0  return FALSE  ok
+        for i = 1 to len(aBody[1])
+            if aBody[1][i] = pKind  return TRUE  ok
+        next
+        return FALSE
+
+    def _EnsureParentDir(pcPath)
+        nSlash = 0
+        for i = 1 to len(pcPath)
+            if pcPath[i] = "/"  nSlash = i  ok
+        next
+        if nSlash > 1
+            StzMakeDir(StzLeft(pcPath, nSlash - 1))
+        ok
 
     #== EMERGENTS (met from without) =========================================
 
     def Screen(pcName)
-        oS = new stzAppScreen(pcName, This)
-        aScreens + oS
-        return oS
+        This._FlushCursors()
+        aScreens + [ pcName, "understand", "", [], [] ]
+        nCurScreen = len(aScreens)
+        return This
+
+    def ToDiscover(pcThing)
+        return This._ScreenIntent("discover", pcThing)
+    def ToUnderstand(pcThing)
+        return This._ScreenIntent("understand", pcThing)
+    def ToFocus(pcThing)
+        return This._ScreenIntent("focus", pcThing)
+    def ToSelect(pcThing)
+        return This._ScreenIntent("select", pcThing)
+    def ToAct(pcThing)
+        return This._ScreenIntent("act", pcThing)
+
+    def _ScreenIntent(pcIntent, pcThing)
+        if nCurScreen > 0
+            aScreens[nCurScreen][2] = pcIntent
+            aScreens[nCurScreen][3] = pcThing
+        ok
+        return This
+
+    def Shows(paParts)
+        if nCurScreen > 0  aScreens[nCurScreen][4] = paParts  ok
+        return This
+
+    def Acts(pcAction, pcFlow)
+        if nCurScreen > 0  aScreens[nCurScreen][5] + [ pcAction, pcFlow ]  ok
+        return This
 
     def Refine(pcKnob)
-        oRe = new stzAppRefinement(pcKnob, This)
-        aRefinements + oRe
-        return oRe
+        This._FlushCursors()
+        aRefinements + [ pcKnob, "", "", [] ]
+        nCurRefinement = len(aRefinements)
+        return This
+
+    def Bounds(pLow, pHigh)
+        if nCurRefinement > 0
+            aRefinements[nCurRefinement][2] = "" + pLow
+            aRefinements[nCurRefinement][3] = "" + pHigh
+        ok
+        return This
+
+    def Options(paOpts)
+        if nCurRefinement > 0  aRefinements[nCurRefinement][4] = paOpts  ok
+        return This
 
     def Reaches(paSurfaces)
         if NOT isList(paSurfaces)  paSurfaces = [ paSurfaces ]  ok
@@ -169,9 +386,35 @@ class stzApp from stzObject
         next
         return This
 
+    #== CURSOR FLUSHING ======================================================
+    # Attribute-style braces (Want/LivesIn) write cursor ATTRIBUTES;
+    # Ring's BraceEnd hook fires when any brace on the app closes, so
+    # the flush is idempotent and cursor-guarded. _FlushCursors() also
+    # runs at the start of every builder verb, so a missing brace-end
+    # (or plain method chaining) never loses a pending record.
+
+    def BraceEnd()
+        This._FlushCursors()
+
+    def _FlushCursors()
+        if nCurGoal > 0
+            aGoals[nCurGoal][2] = Means
+            aGoals[nCurGoal][3] = ReachedBy
+            aGoals[nCurGoal][4] = Within
+            aGoals[nCurGoal][5] = Respecting
+            nCurGoal = 0
+        ok
+        if bBodyPending
+            aBody[2] = Graph
+            aBody[3] = Files
+            aBody[4] = Keep
+            bBodyPending = FALSE
+        ok
+
     #== ANIMATION ============================================================
 
     def Live()
+        This._FlushCursors()
         oReactive = new stzReactiveSystem()
         ? "[" + cName + "] is live -- " + len(aThings) + " thing(s), " +
           len(aFlows) + " flow(s), " + len(aReactions) + " reaction(s), " +
@@ -181,6 +424,7 @@ class stzApp from stzObject
     #== PRESENCE (emergent) -- make the world visible ========================
 
     def Explain()
+        This._FlushCursors()
         ? "WORLD " + cName + "   lives in: " + This._BodyLabel()
         ? "  BEING"
         for i = 1 to len(aThings)
@@ -206,14 +450,14 @@ class stzApp from stzObject
         ok
         if len(aFlows) > 0 or len(aReactions) > 0 or len(aGoals) > 0
             ? "  BECOMING"
-            for i = 1 to len(aFlows)      ? "    " + aFlows[i].Narrate()      next
-            for i = 1 to len(aReactions)  ? "    " + aReactions[i].Narrate()  next
-            for i = 1 to len(aGoals)      ? "    " + aGoals[i].Narrate()      next
+            for i = 1 to len(aFlows)      ? "    " + This._NarrateFlow(i)      next
+            for i = 1 to len(aReactions)  ? "    " + This._NarrateReaction(i)  next
+            for i = 1 to len(aGoals)      ? "    " + This._NarrateGoal(i)      next
         ok
         if len(aScreens) > 0 or len(aRefinements) > 0 or len(aReaches) > 0
             ? "  MET FROM WITHOUT"
-            for i = 1 to len(aScreens)      ? "    " + aScreens[i].Narrate()      next
-            for i = 1 to len(aRefinements)  ? "    " + aRefinements[i].Narrate()  next
+            for i = 1 to len(aScreens)      ? "    " + This._NarrateScreen(i)      next
+            for i = 1 to len(aRefinements)  ? "    " + This._NarrateRefinement(i)  next
             if len(aReaches) > 0  ? "    reaches " + This._Join(aReaches, ", ")  ok
         ok
         return This
@@ -230,6 +474,46 @@ class stzApp from stzObject
         next
         return This
 
+    #== narration (formats are CANONICAL -- narration docs rule) =============
+
+    def _NarrateFlow(n)
+        cR = ""
+        if len(aFlows[n][4]) > 0  cR = " require " + This._Join(aFlows[n][4], ", ")  ok
+        cE = ""
+        if len(aFlows[n][5]) > 0  cE = " then keep " + aFlows[n][3]  ok
+        return "when " + aFlows[n][1] + " " + aFlows[n][2] + " " + aFlows[n][3] + cR + cE
+
+    def _NarrateReaction(n)
+        cC = "" + aReactions[n][2]
+        if aReactions[n][2] = :unseen
+            cC = "unseen " + aReactions[n][3][1] + " " + aReactions[n][3][2]
+        but aReactions[n][2] = :expr
+            cC = "meets " + aReactions[n][3][1]
+        ok
+        cE = ""
+        if len(aReactions[n][4]) > 0  cE = " -> propose " + aReactions[n][4][1][2]  ok
+        return "whenever " + aReactions[n][1] + " " + cC + cE
+
+    def _NarrateGoal(n)
+        cW = ""
+        if aGoals[n][4] != ""  cW = " within " + aGoals[n][4]  ok
+        return "wants " + aGoals[n][1] + cW + " -> reached by " + aGoals[n][3]
+
+    def _NarrateScreen(n)
+        cS = ""
+        if len(aScreens[n][4]) > 0  cS = " shows " + This._Join(aScreens[n][4], ", ")  ok
+        return "screen " + aScreens[n][1] + ": " + aScreens[n][2] + " " + aScreens[n][3] + cS
+
+    def _NarrateRefinement(n)
+        if aRefinements[n][2] != "" or aRefinements[n][3] != ""
+            return "refine " + aRefinements[n][1] + " bounds [" +
+                   aRefinements[n][2] + ".." + aRefinements[n][3] + "]"
+        ok
+        if len(aRefinements[n][4]) > 0
+            return "refine " + aRefinements[n][1] + " options " + This._Join(aRefinements[n][4], " | ")
+        ok
+        return "refine " + aRefinements[n][1]
+
     #== internals ============================================================
 
     def _ThingIndex(pcThing)
@@ -245,12 +529,9 @@ class stzApp from stzObject
         next
         return FALSE
 
-    def _GapFor(oGoal)
-        return []
-
     def _BodyLabel()
-        if oBody = NULL  return "memory (not persisted)"  ok
-        return oBody.Label()
+        if len(aBody) = 0  return "memory (not persisted)"  ok
+        return This._Join(aBody[1], " + ")
 
     def _Join(paList, cSep)
         cRes = ""
@@ -261,143 +542,47 @@ class stzApp from stzObject
         return cRes
 
 
-# stzAppFlow -- the  When(:actor,:verb,:Thing) { Require - Then }  builder (behavior).
-class stzAppFlow from stzObject
-    cActor = ""  cVerb = ""  cThing = ""  oApp = NULL
-    aRequires = []  aEffects = []
-    def init(pcActor, pcVerb, pcThing, poApp)
-        cActor = pcActor  cVerb = pcVerb  cThing = pcThing  oApp = poApp
-        aRequires = []  aEffects = []
-    def Require(pcField)
-        aRequires + pcField  return This
-    def Keep(pcThing)
-        return [ :keep, pcThing ]
-    def Then(paEffect)
-        aEffects + paEffect  return This
-    def Matches(pcA, pcV, pcT)
-        return cActor = pcA and cVerb = pcV and cThing = pcT
-    def Narrate()
-        cR = "" if len(aRequires) > 0  cR = " require " + oApp._Join(aRequires, ", ")  ok
-        cE = "" if len(aEffects)  > 0  cE = " then keep " + cThing  ok
-        return "when " + cActor + " " + cVerb + " " + cThing + cR + cE
-    def Build()
-        oWF = new stzWorkflow(cActor + "_" + cVerb + "_" + cThing)
-        oWF.AddActor(cActor, cActor, "actor")
-        oWF.AddStepXT(cVerb, cVerb + " " + cThing)
-        oWF.AssignStepTo(cVerb, cActor)
-        return oWF
-
-
-# stzAppReaction -- the  Whenever(:Thing).Unseen(n,:Unit) { Propose(...) }  builder (behavior).
-class stzAppReaction from stzObject
-    cThing = ""  oApp = NULL
-    cCondKind = ""  aCondArgs = []  aEffects = []
-    def init(pcThing, poApp)
-        cThing = pcThing  oApp = poApp  aCondArgs = []  aEffects = []
-    def Unseen(nQty, pUnit)
-        cCondKind = :unseen  aCondArgs = [ nQty, pUnit ]  return This
-    def Meets(pcExpr)
-        cCondKind = :expr  aCondArgs = [ pcExpr ]  return This
-    def Propose(pcThing)
-        aEffects + [ :propose, pcThing ]  return This
-    def Narrate()
-        cC = cCondKind if cCondKind = :unseen  cC = "unseen " + aCondArgs[1] + " " + aCondArgs[2]  ok
-        cE = "" if len(aEffects) > 0  cE = " -> propose " + aEffects[1][2]  ok
-        return "whenever " + cThing + " " + cC + cE
-    def RegisterIn(poReactive)
-        return This
-
-
-# stzAppGoal -- the  Want(:Goal) { Means = ...  ReachedBy = ... }  builder (purpose).
+# stzAppGoal -- the goal VALUE OBJECT returned by oApp.Goal(:X): a readable
+# snapshot of the goal record (Means/ReachedBy/Within/Respecting).
+# Evaluation happens on the app (Pursue/GoalSatisfied), which holds the
+# live graph.
 class stzAppGoal from stzObject
-    cName = ""  oApp = NULL
+    cName = ""
     Means      = ""
     ReachedBy  = :planning
     Within     = ""
     Respecting = []
-    def init(pcName, poApp)
-        cName = pcName  oApp = poApp  Respecting = []
+    def init(pcName)
+        cName = pcName
+        Respecting = []
     def Name()
         return cName
     def Profile()
         return ReachedBy
-    def Satisfied()
-        return len(This.Gap()) = 0
-    def Gap()
-        return oApp._GapFor(This)
     def Narrate()
         cW = "" if Within != ""  cW = " within " + Within  ok
         return "wants " + cName + cW + " -> reached by " + ReachedBy
 
 
-# stzAppBody -- the  LivesIn(...) { Graph = ...  Files = ... }  builder (embodiment).
+# stzAppBody -- the body VALUE OBJECT returned by oApp.Body(): a readable
+# snapshot of the body record. Persistence happens on the app (Save()).
 class stzAppBody from stzObject
-    aKinds = []  oApp = NULL
+    aKinds = []
     Graph = ""
     Files = ""
-    Keep  = :everything
-    def init(paKinds, poApp)
-        aKinds = paKinds  oApp = poApp
+    def init(paKinds)
+        aKinds = paKinds
     def Label()
-        return oApp._Join(aKinds, " + ")
+        cRes = ""
+        for i = 1 to len(aKinds)
+            cRes += "" + aKinds[i]
+            if i < len(aKinds)  cRes += " + "  ok
+        next
+        return cRes
     def HasKind(pKind)
         for i = 1 to len(aKinds)
             if aKinds[i] = pKind  return TRUE  ok
         next
         return FALSE
-    def Save()
-        if This.HasKind(:GraphDB)
-            cG = Graph  if cG = ""  cG = ".stzapp/world.stzgraf"  ok
-            oApp.Graph().SaveToStzGraf(cG)
-        ok
-        return This
-    def Restore()
-        return This
-    def Reproject()
-        return This
-    def Ingest(pWhat)
-        return This
     def Narrate()
         return "lives in " + This.Label()
-
-
-# stzAppScreen -- the  Screen(:X) { ToUnderstand(:Y)  Shows([...]) }  builder (INTENT).
-class stzAppScreen from stzObject
-    cName = ""  oApp = NULL
-    cIntent = "understand"  cSubject = ""  aShows = []  aActs = []
-    def init(pcName, poApp)
-        cName = pcName  oApp = poApp  aShows = []  aActs = []
-    def ToDiscover(pcThing)    cIntent = "discover"    cSubject = pcThing  return This
-    def ToUnderstand(pcThing)  cIntent = "understand"  cSubject = pcThing  return This
-    def ToFocus(pcThing)       cIntent = "focus"       cSubject = pcThing  return This
-    def ToSelect(pcThing)      cIntent = "select"      cSubject = pcThing  return This
-    def ToAct(pcThing)         cIntent = "act"         cSubject = pcThing  return This
-    def Shows(paParts)
-        aShows = paParts  return This
-    def Acts(pcAction, pcFlow)
-        aActs + [ pcAction, pcFlow ]  return This
-    def Narrate()
-        cS = "" if len(aShows) > 0  cS = " shows " + oApp._Join(aShows, ", ")  ok
-        return "screen " + cName + ": " + cIntent + " " + cSubject + cS
-
-
-# stzAppRefinement -- the  Refine(:knob).Bounds(...)  builder (REFINEMENT / PolyCode).
-class stzAppRefinement from stzObject
-    cKnob = ""  oApp = NULL
-    cMin = ""  cMax = ""  aOptions = []
-    def init(pcKnob, poApp)
-        cKnob = pcKnob  oApp = poApp  aOptions = []
-    def Bounds(pLow, pHigh)
-        cMin = "" + pLow  cMax = "" + pHigh  return This
-    def Options(paOpts)
-        aOptions = paOpts  return This
-    def Knob()
-        return cKnob
-    def Narrate()
-        if cMin != "" or cMax != ""
-            return "refine " + cKnob + " bounds [" + cMin + ".." + cMax + "]"
-        ok
-        if len(aOptions) > 0
-            return "refine " + cKnob + " options " + oApp._Join(aOptions, " | ")
-        ok
-        return "refine " + cKnob
