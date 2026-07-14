@@ -427,6 +427,7 @@ ok
 # Loading files related to APPSERVER module (FUTURE)
 
     load "app/stzApp.ring"
+    load "app/stzSuperApp.ring"
 
     load "appserver/stzAppServer.ring"
     load "appserver/stzAppRequest.ring"
