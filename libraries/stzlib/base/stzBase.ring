@@ -28,7 +28,6 @@ ok
 
     load "common/stzCCode.ring"
     load "common/stzNamedVars.ring"
-    load "common/stzDatabase.ring"
 
 # Loading files related to the DATA module
 
@@ -38,6 +37,9 @@ ok
     load "data/stzRegexData.ring"
     load "data/stzRandomData.ring"
     load "data/stzSystemCallData.ring"
+
+    # stzDatabase -- the sqlite-backed data store (data domain, R7)
+    load "data/stzDatabase.ring"
 
 # Loading files related to the OBJECT module
 
@@ -288,8 +290,6 @@ ok
     load "common/stzCancelToken.ring"
     load "common/stzRetryBudget.ring"
     load "common/stzLatencyHistogram.ring"
-    load "common/stzReactor.ring"
-    load "common/stzReactorPool.ring"
     load "common/stzTraceContext.ring"
     load "graph/stzGridNav.ring"
 
@@ -415,6 +415,12 @@ ok
     load "reactive/stzReactiveTimer.ring"
     load "reactive/stzReactiveStream.ring"
     load "reactive/stzReactiveHttp.ring"
+
+    # stzReactor / stzReactorPool -- the vendored-libuv reactor surface
+    # (real async; the declarative Reaxis surface above is being re-based
+    # onto this -- see the R7 reactive-substrate work)
+    load "reactive/stzReactor.ring"
+    load "reactive/stzReactorPool.ring"
 
 # Loading files related to APPSERVER module (FUTURE)
 
