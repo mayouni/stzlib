@@ -63,6 +63,38 @@ next
 chk("the distinctive term surfaces in the top terms", bHasPizza = 1)
 
 ? ""
+? "-- Scene 4: the decision tree -- a model you can READ (and query) --"
+oTs2 = new stzTrainingSet([
+	[ ["sunny", "high"], "no" ], [ ["sunny", "normal"], "yes" ],
+	[ ["overcast", "high"], "yes" ], [ ["overcast", "normal"], "yes" ],
+	[ ["rain", "high"], "no" ], [ ["rain", "normal"], "yes" ]
+])
+oT = new stzDecisionTree(oTs2)
+oT.SetFeatureNames([ "outlook", "humidity" ])
+oT.Train()
+chk("the tree classifies", oT.Classify([ "sunny", "high" ]) = "no")
+? "  why: " + oT.Why()
+chk("Why narrates the decision PATH", len(StzFind("->", oT.Why())) > 0)
+chk("an unseen value falls to the majority default",
+	oT.Classify([ "storm", "high" ]) != "")
+oG = oT.ToGraph()
+chk("the learned model IS a stzGraph (foundations compose)",
+	oG.NodesCount() >= 3 and oG.EdgeCount() = oG.NodesCount() - 1)
+
+? ""
+? "-- Scene 5: apriori -- rules that read as knowledge --"
+oA = new stzApriori([
+	[ "bread", "butter" ], [ "bread", "butter", "jam" ],
+	[ "bread", "jam" ], [ "butter", "jam" ], [ "bread", "butter" ]
+])
+chk("frequent itemsets counted",
+	len(oA.FrequentItemsets(3)) = 4)
+aR = oA.Rules(3, 0.7)
+chk("confident rules emerge as IF-THEN", len(aR) = 2)
+chk("each rule carries support AND confidence",
+	aR[1][:support] = 3 and aR[1][:confidence] >= 0.7)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
