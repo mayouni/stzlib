@@ -10,8 +10,7 @@ load "../../stzBase.ring"
 pr()
 
 # Corporate budget distribution with minimum requirements
-# GREEDY solver (approximate); simplex refuses honestly until the
-# real implementation lands (roadmap R4)
+# SIMPLEX solver -- REAL since R4 step 5 (2026-07-14): exact LP optimum
 
 o1 = new stzLinearSolver()
 o1 {
@@ -27,7 +26,7 @@ o1 {
 
 	# Maximize weighted business value
 	Maximize("0.6*marketing + 0.8*rd + 0.5*operations + 0.3*hr")
-	Solve("greedy")
+	Solve("simplex")
 	Show()
 }
 #-->
@@ -57,17 +56,16 @@ o1 {
 • Iterations: 4
 
 • Variable Values:
- ─ marketing = 50000
- ─ rd = 150000
- ─ operations = 150000
- ─ hr = 100000
+ ─ marketing = 120000
+ ─ rd = 270000
+ ─ operations = 80000
+ ─ hr = 30000
 
-• Objective Value: 255000
+• Objective Value: 337000
 '
-# NOTE: greedy is an APPROXIMATION -- the true LP optimum here is
-# 343000 (marketing 90000, rd 300000, operations 80000, hr 30000).
-# The real simplex (roadmap R4) will recover it; simplex currently
-# refuses honestly instead of returning zeros.
+# TRUE OPTIMUM: 337000. (The pre-2026 narration claimed 343000 with
+# rd=300000 -- that point is INFEASIBLE: it violates
+# marketing+operations >= 200000. Verified independently in Python.)
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.22

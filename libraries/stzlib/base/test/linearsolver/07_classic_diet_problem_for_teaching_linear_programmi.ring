@@ -39,9 +39,8 @@ o1 {
     # Prices per unit: Bread $2.50, Milk $4.00, Cheese $8.00, Meat $12.00
     minimize("2.50*bread + 4.00*milk + 8.00*cheese + 12.00*meat")
 
-    # Solve with the greedy backend (approximate); simplex refuses
-    # honestly until the real implementation lands (roadmap R4)
-    Solve("greedy")
+    # Solve with the REAL simplex (R4 step 5): exact for LP
+    Solve("simplex")
 
     # Display the optimal diet plan and its cost
     ? "Minimum cost diet plan:"
@@ -54,15 +53,15 @@ o1 {
 #-->
 '
 Minimum cost diet plan:
-─ Bread: 10 loaves
-─ Milk: 5 gallons
+─ Bread: 7.50 loaves
+─ Milk: 2.67 gallons
 ─ Cheese: 0 pounds
 ─ Meat: 0 pounds
-─ Total cost: $45
+─ Total cost: $29.43
 '
-# NOTE: greedy approximation; nutritional coverage of the pricier
-# items is under-weighted vs the true LP optimum. The real simplex
-# (roadmap R4) replaces this; simplex currently refuses honestly.
+# The REAL simplex minimum: $29.43 -- greedy's approximation was $45.
+# Exact LP beats the heuristic by a third; that gap is why the honest
+# refusal mattered.
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.22
