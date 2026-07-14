@@ -93,6 +93,7 @@ ok
     # stzListOfTexts (from stzStringList): a list of texts (sentences carry
     # meaning) with the natural/meaning list ops. SentencesQ() returns it.
     load "linguistic/stzListOfTexts.ring"
+    load "linguistic/stzCorpus.ring"
 
     # Modern / neural domain (base/neural/): stzNeural base -> engine + model
     load "neural/stzNeural.ring"
