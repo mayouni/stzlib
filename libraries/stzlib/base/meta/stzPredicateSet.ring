@@ -6,12 +6,12 @@
 #   oPS = new stzPredicateSet("house-rules")
 #   oPS.AddRule("no-len-method")             # from StzCodeRuleNames()
 #   oPS.AddInvariant("no-llm-effectful")     # from StzGovernanceInvariantNames()
-#   oPS.Save("house.zrulz")                  # content + sha256 seal
-#   oPS2 = StzLoadPredicateSet("house.zrulz")
+#   oPS.Save("house.zrlz")                  # content + sha256 seal
+#   oPS2 = StzLoadPredicateSet("house.zrlz")
 #   ? oPS2.Verify()                          # seal intact?
 #   ? oPS2.EnforceOnCode(cSource)            # only ITS code rules
 #
-# FORMAT (*.zrulz): readable lines --
+# FORMAT (*.zrlz): readable lines --
 #   predicateset "name"
 #   rules        <one code-rule name per line>
 #   invariants   <one graph-invariant name per line>
@@ -111,8 +111,8 @@ class stzPredicateSet from stzObject
 		return StzEngineCryptoSha256(This._Body())
 
 	def Save(pcFile)
-		if StzRight(pcFile, 6) != ".zrulz"
-			pcFile += ".zrulz"
+		if StzRight(pcFile, 5) != ".zrlz"
+			pcFile += ".zrlz"
 		ok
 		write(pcFile, This._Body() + "seal | " + This.Seal() + NL)
 		return pcFile

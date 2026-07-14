@@ -63,9 +63,10 @@ DOORS, one governed brain:
 1. THE DSL DOOR (declarative, data-oriented): *.zknw itself IS the
    program -- readable, diffable, hand-editable, validated on load.
    The format family doctrine (LAW 1): every stateful domain earns
-   its format, and every Softanza extension is Z + A SHORT
-   ABBREVIATION (author ruling 2026-07-14): .zknw / .zopt / .zconv /
-   .zdlm / .zrulz / .zrfn (legacy spellings still READ).
+   its format, and every Softanza extension is EXACTLY FOUR LETTERS:
+   z (the Softanza mark) + a three-letter abbreviation (author ruling
+   2026-07-14): .zknw / .zopt / .zcnv / .zdlm / .zrlz / .zrfn
+   (legacy spellings still READ).
 2. THE API DOOR (the programmer): stzKnowledgeGraph + Q chains --
    AddFact/Query/ontology, chainable, Why-accountable.
 3. THE NATURAL DOOR: Naturally(...) / NNL chains / stzQuestion frames --
@@ -287,7 +288,7 @@ base/
                   deterministic floor (lexicon + frames + templates) ->
                   neural upgrade (stzNeuralChat stays in neural/ as the
                   model-backed ENGINE this module can ride).
-                  ENTRY: stzConversation        FORMAT: *.zconv
+                  ENTRY: stzConversation        FORMAT: *.zcnv
 
   reactive/     THE TIME FOUNDATION (exists -- round-2 study, section 5.4):
                   Reaxis declarative streams = the change-propagation
@@ -1372,7 +1373,7 @@ One step = the refactor AND the gap-closing together:
 stzNeuralChat stays in neural/ as the model-backed ENGINE; conversation/
 becomes the DOMAIN (map entry above):
 - stzConversation ENTRY OBJECT: multi-turn state (topic, goals, grounding,
-  history), persisted as *.zconv;
+  history), persisted as *.zcnv;
 - stzQuestion supplies the interrogative frames (exists); stzGoal gives
   the conversation its purpose (ties to stzGraphGoal, R5); stzNarration
   promotes the narration culture (Why-chains, evidentiality, prose) into
