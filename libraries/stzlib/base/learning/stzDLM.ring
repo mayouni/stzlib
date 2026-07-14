@@ -350,7 +350,7 @@ class stzDLM from stzObject
 
 	#-- persistence (*.zdlm -- SELF-CONTAINED) ---------------------------------
 	# (extension ruling 2026-07-14: Softanza formats are z + a short
-	#  abbreviation -- .zdlm, .zknw, .zconv, .zrulz)
+	#  abbreviation -- .zdlm, .zknw, .zcnv, .zrlz)
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zdlm"
