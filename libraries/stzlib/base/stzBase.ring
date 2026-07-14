@@ -436,7 +436,14 @@ ok
     load "appserver/stzComputeEngine.ring"
     load "appserver/stzContextPool.ring"
 
-# Loading files related to CLUSTER module (FUTURE)
+# cluster/ -- THE SCALE PLANE (R8): the delivery plane's horizontal
+# axis. Specialization is a WORKER PROFILE (capability tag + resource
+# budget) over the ONE resident engine, NOT a preloading class tree
+# (5.10 ruling; section 7). R8.1 = the worker model; the pre-engine
+# stzCluster* prototype below stays only as loadable tombstones.
+
+    load "cluster/stzWorkerProfile.ring"
+    load "cluster/stzWorkerPool.ring"
 
     load "cluster/stzCluster.ring"
     load "cluster/stzClusterNode.ring"
