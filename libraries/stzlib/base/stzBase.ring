@@ -476,6 +476,11 @@ ok
     load "learning/stzTrainer.ring"
     load "learning/stzDLM.ring"
 
+    # governance/ -- PROGRAMMATIC GOVERNANCE as declarable contracts
+    # (R4b): risk tiers, permission-vs-authority, commitment states,
+    # decommission contracts, decision lineage, trust postures.
+    load "governance/stzGovernance.ring"
+
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
     load "linguistic/stzSingular.ring"
