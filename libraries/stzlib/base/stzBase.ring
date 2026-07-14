@@ -481,6 +481,14 @@ ok
     # decommission contracts, decision lineage, trust postures.
     load "governance/stzGovernance.ring"
 
+    # agentic/ -- THE CONVERGENCE (R5): the PI-agent assembled from the
+    # roadmap's parts -- skills (precondition+plan+verification),
+    # memory (knowledge graph), governance gate (R4b), the
+    # perceive-decide-act cycle to fixpoint.
+    load "agentic/stzAgentSkill.ring"
+    load "agentic/stzAgentMemory.ring"
+    load "agentic/stzPIAgent.ring"
+
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
     load "linguistic/stzSingular.ring"
