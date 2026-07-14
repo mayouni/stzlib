@@ -488,6 +488,8 @@ ok
     load "agentic/stzAgentSkill.ring"
     load "agentic/stzAgentMemory.ring"
     load "agentic/stzPIAgent.ring"
+    load "agentic/stzAgentGraph.ring"
+    load "agentic/stzLLMAgent.ring"
 
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
