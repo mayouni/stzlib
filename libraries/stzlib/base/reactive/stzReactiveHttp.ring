@@ -1,7 +1,15 @@
 
 #-------------------------------------------#
-#  REACTIVE HTTP CLIENT - For web requests  #
+#  HTTP CLIENT - For web requests           #
 #-------------------------------------------#
+# HONESTY NOTE (F4, 2026-07-14): despite the "Reactive" name, this is
+# the BLOCKING convenience path -- Get_/Post/etc. run download() /
+# curl_easy_* SYNCHRONOUSLY (via _task_.Execute()) and only invoke the
+# onSuccess/onError callbacks after the call returns. For REAL async
+# HTTP use the reactor: stzReactor.TcpRequest(...) (vendored libuv,
+# off-thread). When Reaxis is re-based onto stzReactor (F5), this
+# surface should delegate its I/O to the reactor and become genuinely
+# non-blocking behind the same callback API.
 
 class stzReactiveHttp from stzObject
 

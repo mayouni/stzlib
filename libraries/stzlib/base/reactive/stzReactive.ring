@@ -1,23 +1,35 @@
-# load "libuv.ring" -- removed 2026-06-13 (M-DEP4 slice 1).
-# The libuv-driven async runtime has been replaced with the
-# pure-Ring poll-based fallback (stzRingTimer + clock()). The few
-# uv_* call sites below are stubbed inline so the public surface
-# stays stable; full async I/O lands in a later slice once the
-# cross-platform Zig event loop is built.
-
+# REAXIS -- the DECLARATIVE reactive-programming SURFACE.
+#
+# THE MODULE'S TWO LAYERS (read this once):
+#   * REAXIS  (this file + stzReactive{Stream,Object,Func,Http,Task,
+#     Timer}) = the "what": streams, Watch/Computed, RunLoop, the
+#     pipeline DSL. The paradigm surface.
+#   * REACTOR (stzReactor + stzReactorPool) = the "how": the real
+#     async I/O runtime over VENDORED LIBUV, on its own engine thread.
+# The clean shape is Reaxis-RUNS-ON-Reactor (the Reactive-Streams-on-a-
+# Reactor pattern). Today Reaxis still drives its OWN cooperative
+# poller (stzTimerManager + StzEngineTimeNowMs) -- libuv was removed
+# from THIS surface 2026-06-13 (M-DEP4 slice 1); the vendored-libuv
+# reactor landed the next day as a SEPARATE track and Reaxis was never
+# re-based onto it. Re-basing Reaxis onto stzReactor (so RunLoop/timers/
+# streams run on real libuv, the poller kept only as a no-DLL fallback)
+# is TRACKED R7 work -- see the reactive-coherence task (F5).
 
 #=====================#
 #  MAIN REACTIVE API  #
 #=====================#
 
-# Provides a high-level abstraction for reactive programming
-# simplifying asynchronous operations using libuv.
+# ENTRY OBJECT: stzReactiveSystem (the container). stzReactive is the
+# documented SHORT ALIAS (same class). [Was three names; the redundant
+# stzReactiveEngine alias was dropped 2026-07-14 for clarity.]
 
-class stzReactiveEngine from stzReactiveSystem
 class stzReactive from stzReactiveSystem
 class stzReactiveSystem from stzObject
 
-	# Libuv internal loop
+	# Retired libuv-loop slot: NULL since the M-DEP4 poller fallback.
+	# LibuvLoop()/the buffer converters return NULL/identity for API
+	# stability; the REAL loop lives in stzReactor. Removed when Reaxis
+	# is re-based onto the reactor (F5).
 	@libuvLoop
 
 	# Core engine state
