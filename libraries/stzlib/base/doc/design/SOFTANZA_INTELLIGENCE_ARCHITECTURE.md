@@ -478,7 +478,7 @@ IS the advantage:
 | Phonetics | -- ABSENT -- | Soundex + Metaphone |
 | Edit distance / fuzzy | edit_distance | Levenshtein + fuzzy module |
 | Readability/textstats | (third-party) | textstats engine module |
-| Classification | trainable (setup-heavy) | zero-shot TODAY; trainable -> R4 |
+| Classification | trainable (setup-heavy) | DONE 2026-07-14: zero-shot (neural) + TRAINABLE floor (stzNaiveBayes text learner + kNN/tree/logistic, learning/); embedding-upgraded tier later |
 | Chunking / parsing | RegexpParser, CFG trees | DONE 2026-07-14: Chunks('DT? JJ* NN+') -- patterns over tags, zero setup; parse trees stay deferred |
 | Corpora shelf | nltk.download zoo | DONE 2026-07-14: stzCorpus -- your texts ARE the corpus; big-shelf artifacts later |
 | Language modeling utils | nltk.lm | DONE 2026-07-14: BigramProbability/LogProbability/Perplexity (Laplace floor; engine-side counting = next rung) |
