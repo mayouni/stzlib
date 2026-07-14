@@ -6,3 +6,6 @@
 
 # stzApp/stzPlatform test-run artifacts
 **/test/**/.stzapp/
+
+# generated cluster worker entry (R8.3)
+**/cluster/.stzworker_gen.ring

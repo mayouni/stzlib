@@ -444,6 +444,7 @@ ok
 
     load "cluster/stzWorkerProfile.ring"
     load "cluster/stzWorkerPool.ring"
+    load "cluster/stzAppCluster.ring"
 
     load "cluster/stzCluster.ring"
     load "cluster/stzClusterNode.ring"
