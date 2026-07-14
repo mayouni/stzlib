@@ -1554,14 +1554,28 @@ movement.] Step order matters:
    by the 5.7 lattice via R4b governance; the Commons runtime; the
    networked body (GET /world, /thing over the host); the registry
    + norm-enforced CallAcross.
-5. FINISH THE WORLD [stzApp DONE / SuperApp deferred]: slices B-E
-   converted to the proven cursor/return-This pattern (brace-copy
-   trap sealed); Pursue() wired to the REAL gap: Means compiles to
-   stzGraphGoal (a wanted graph state; GapOn(liveGraph); instances
-   via Is_/Relate isa-edges); Live() still summary-level (Reaxis
-   reaction wiring rides the R5 slice); stzSuperApp's constellation
-   remains design-only (its registry/bond/norm floor EXISTS in
-   stzPlatform duty 5).
+5. FINISH THE WORLD [DONE]: slices B-E converted to the proven
+   cursor/return-This pattern (brace-copy trap sealed); Pursue()
+   wired to the REAL gap via stzGraphGoal (GapOn(liveGraph);
+   instances via Is_/Relate isa-edges); Live() MADE REAL -- reactions
+   fire into proposals (Pulse/React), composes with stzAgentHost;
+   stzSuperApp is CODE now -- a governed graph-of-graphs (real world
+   objects, shared Commons, norm-gated CallAcross, hot-swap,
+   recursion).
+
+POST-R7 SWEEP [DONE 2026-07-14, "do them all"]: the deferrals above
+are cleared except inbound TLS. (a) R5 REACTOR RUNTIME -- stzAgentHost
+runs PI-agents as supervised/cancellable/traced/decommissionable
+reactor jobs (R4b MayRetire gate). (b) ROUTER params/wildcards. (c) R6
+GATE-DEEPENING -- refine stages 3 (cross-point derivation, rollback) +
+4 (stzGovernance) wired. (d) stzPyCodeGraph -- polyglot code-graph over
+Python. (e) COMMONS KDF -- engine PBKDF2/CSPRNG, no plaintext secrets.
+(f) ASYNC SPAWN -- uv_spawn polyglot fleet floor. (g) OUTBOUND TLS --
+async https on the reactor (uv_queue_work + curl/Schannel), reactive
+HTTP rewired. (h) CAPSTONE -- test/capstone/restaurant threads R1->R7,
+28/28. STILL DEFERRED: INBOUND server-side TLS (needs a vendored
+accept-side TLS lib + handshake-over-libuv); R2 call-edges (body
+parsing); a true-ast stzPyCodeGraph backend (now unblocked by spawn).
 
 **S0 -- FOUNDATION HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
