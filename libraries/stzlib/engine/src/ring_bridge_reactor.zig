@@ -153,6 +153,43 @@ fn ring_ReactorSpawnLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_spawn_last_status()));
 }
 
+// ── async HTTP/HTTPS (native TLS via curl/Schannel, off the loop) ──
+
+/// StzEngineReactorSubmitCurl(reactor, nMethod, cUrl, cBody) -> job id.
+/// method: 0=GET 1=POST 2=PUT 3=DELETE 4=HEAD 5=OPTIONS 6=PATCH.
+fn ring_ReactorSubmitCurl(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const method: i32 = @intFromFloat(gn(p, 2));
+    const url_ptr: [*]const u8 = @ptrCast(gs(p, 3));
+    const url_len: usize = @intCast(gss(p, 3));
+    const body_ptr: [*]const u8 = @ptrCast(gs(p, 4));
+    const body_len: usize = @intCast(gss(p, 4));
+    rn(p, @floatFromInt(reactor.reactor_submit_curl(r, method, url_ptr, url_len, body_ptr, body_len)));
+}
+
+/// StzEngineReactorCurlAwait(reactor, nJobId, nTimeoutMs) -> response
+/// body (empty on error/timeout). HTTP status via CurlLastStatus().
+fn ring_ReactorCurlAwait(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const timeout_ms: u64 = @intFromFloat(gn(p, 3));
+    const n = reactor.reactor_curl_await(r, id, timeout_ms, &tcp_body_buf, TCP_BODY_CAP);
+    if (n >= 0) rs2(p, &tcp_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorCurlPoll(reactor, nJobId) -> body or "".
+fn ring_ReactorCurlPoll(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const n = reactor.reactor_curl_poll(r, id, &tcp_body_buf, TCP_BODY_CAP);
+    if (n >= 0) rs2(p, &tcp_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorCurlLastStatus() -> HTTP status code (or <0 error).
+fn ring_ReactorCurlLastStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(reactor.reactor_curl_last_status()));
+}
+
 /// StzEngineReactorDestroy(reactor) -- stops the loop, joins the thread.
 fn ring_ReactorDestroy(p: *anyopaque) callconv(.c) void {
     reactor.reactor_destroy(getReactor(p, 1));
@@ -275,6 +312,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorspawnawait", .func = ring_ReactorSpawnAwait },
     .{ .name = "stzenginereactorspawnpoll", .func = ring_ReactorSpawnPoll },
     .{ .name = "stzenginereactorspawnlaststatus", .func = ring_ReactorSpawnLastStatus },
+    .{ .name = "stzenginereactorsubmitcurl", .func = ring_ReactorSubmitCurl },
+    .{ .name = "stzenginereactorcurlawait", .func = ring_ReactorCurlAwait },
+    .{ .name = "stzenginereactorcurlpoll", .func = ring_ReactorCurlPoll },
+    .{ .name = "stzenginereactorcurllaststatus", .func = ring_ReactorCurlLastStatus },
 };
 
 pub fn registerAll(state: *anyopaque) void {

@@ -2,13 +2,13 @@
 #-------------------------------------------#
 #  HTTP CLIENT - For web requests           #
 #-------------------------------------------#
-# F5 (2026-07-14): plain-http requests now DELEGATE TO THE REACTOR --
-# Get_/Post/etc. submit an async TCP request on the libuv loop and
-# return immediately; the RunLoop drains completions (DrainPending)
-# and dispatches onSuccess/onError on the Ring thread. Two documented
-# exceptions still take the BLOCKING curl/download path:
-#   * https:// URLs (outbound TLS is an engine gap -- 5.10), and
-#   * the no-DLL fallback (no reactor present).
+# F5 + TLS (2026-07-14): http AND https requests DELEGATE TO THE
+# REACTOR -- Get_/Post/etc. submit an async curl-backed job (native
+# Schannel TLS on a libuv worker thread) and return immediately; the
+# RunLoop drains completions (DrainPending) and dispatches onSuccess/
+# onError on the Ring thread. Only the no-DLL fallback (no reactor
+# present) still takes the blocking curl/download path. The old
+# "https is an outbound-TLS gap" caveat is closed.
 
 class stzReactiveHttp from stzObject
 
@@ -75,35 +75,21 @@ class stzReactiveHttp from stzObject
 		if oReactor = NULL
 			return FALSE
 		ok
-		return StzFindFirst(StzLower("" + url), "http://") = 1
+		# F5+TLS: both http AND https run async on the reactor now (curl
+		# on a worker thread does native TLS -- no more blocking https).
+		_cLow_ = StzLower("" + url)
+		return (StzFindFirst(_cLow_, "http://") = 1 or StzFindFirst(_cLow_, "https://") = 1)
 
-	# Parse http://host[:port]/path, build the wire request, submit it
-	# on the loop thread, remember the job. Returns the job id (>0).
+	# Submit an async request through the reactor's curl-backed HTTP job
+	# (http + https, native TLS, redirects, real client). The job carries
+	# the whole request; DrainPending dispatches the body on completion.
 	def _SubmitAsync(cMethod, url, data, onSuccess, onError)
-		_cRest_ = StzMidToEnd("" + url, 8)          # after "http://"
-		_cPath_ = "/"
-		_nSlash_ = StzFindFirst(_cRest_, "/")
-		if _nSlash_ > 0
-			_cPath_ = StzMidToEnd(_cRest_, _nSlash_)
-			_cRest_ = StzLeft(_cRest_, _nSlash_ - 1)
-		ok
-		_nPort_ = 80
-		_nColon_ = StzFindFirst(_cRest_, ":")
-		if _nColon_ > 0
-			_nPort_ = ring_number(StzMidToEnd(_cRest_, _nColon_ + 1))
-			_cRest_ = StzLeft(_cRest_, _nColon_ - 1)
-		ok
-		_cCRLF_ = char(13) + char(10)
+		_nCode_ = This._MethodCode(cMethod)
 		_cBody_ = ""
 		if isString(data) and data != ""
 			_cBody_ = data
 		ok
-		_cReq_ = cMethod + " " + _cPath_ + " HTTP/1.1" + _cCRLF_ +
-		         "Host: " + _cRest_ + _cCRLF_ +
-		         "User-Agent: " + USER_AGENT_REACTIVE + _cCRLF_ +
-		         "Content-Length: " + len(_cBody_) + _cCRLF_ +
-		         "Connection: close" + _cCRLF_ + _cCRLF_ + _cBody_
-		_nJob_ = oReactor.SubmitTcp(_cRest_, _nPort_, _cReq_)
+		_nJob_ = oReactor.SubmitHttp(_nCode_, "" + url, _cBody_)
 		if _nJob_ < 1
 			if onError != NULL
 				call onError(HTTP_ERROR_REQUEST_FAILED)
@@ -113,9 +99,19 @@ class stzReactiveHttp from stzObject
 		aPending + [ _nJob_, onSuccess, onError ]
 		return _nJob_
 
-	# Called by the run loop each tick: dispatch every finished job.
-	# Success = 2xx status line; the callback receives the BODY (same
-	# contract as the blocking download() path).
+	def _MethodCode(cMethod)
+		_cM_ = StzUpper("" + cMethod)
+		if _cM_ = "GET"     return 0 ok
+		if _cM_ = "POST"    return 1 ok
+		if _cM_ = "PUT"     return 2 ok
+		if _cM_ = "DELETE"  return 3 ok
+		if _cM_ = "HEAD"    return 4 ok
+		return 0
+
+	# Called by the run loop each tick: dispatch every finished job. The
+	# curl path returns the BODY directly (headers stripped) and reports
+	# the HTTP status; success = a 2xx code (same callback contract as
+	# the blocking download() path).
 	def DrainPending()
 		_nDone_ = 0
 		for _i_ = len(aPending) to 1 step -1
@@ -135,25 +131,9 @@ class stzReactiveHttp from stzObject
 				ok
 				loop
 			ok
-			_cResp_ = oReactor.PollTcp(_aEntry_[1])
-			if oReactor.TcpLastStatus() != 0
-				if _fErr_ != NULL
-					call _fErr_(HTTP_ERROR_REQUEST_FAILED)
-				ok
-				loop
-			ok
-			# split status line + headers from the body
-			_cCRLF_ = char(13) + char(10)
-			_nHe_ = StzFindFirst(_cResp_, _cCRLF_ + _cCRLF_)
-			_cBody_ = _cResp_
-			_bOk_ = TRUE
-			if _nHe_ > 0
-				_cBody_ = StzMidToEnd(_cResp_, _nHe_ + 4)
-				# 2xx = the digit right after the first space is "2"
-				_nSp_ = StzFindFirst(_cResp_, " ")
-				_bOk_ = (_nSp_ > 0 and StzLeft(StzMidToEnd(_cResp_, _nSp_ + 1), 1) = "2")
-			ok
-			if _bOk_
+			_cBody_ = oReactor.PollHttp(_aEntry_[1])
+			_nStatus_ = oReactor.HttpLastStatus()
+			if _nStatus_ >= 200 and _nStatus_ < 300
 				if _fOk_ != NULL
 					call _fOk_(_cBody_)
 				ok
