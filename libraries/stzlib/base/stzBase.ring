@@ -488,6 +488,13 @@ ok
     # decommission contracts, decision lineage, trust postures.
     load "governance/stzGovernance.ring"
 
+    # platform/ -- THE OPERATIONAL ENVELOPE (5.10, R7): stzPlatform =
+    # generation (Reach -> shells), the governance-gated capability
+    # seam, the Commons runtime (identity/messaging/stores over
+    # sqlite), the networked body (world served via the reactor host),
+    # and the world registry with norm-enforced cross-world calls.
+    load "platform/stzPlatform.ring"
+
     # agentic/ -- THE CONVERGENCE (R5): the PI-agent assembled from the
     # roadmap's parts -- skills (precondition+plan+verification),
     # memory (knowledge graph), governance gate (R4b), the
