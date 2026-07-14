@@ -977,6 +977,56 @@ class stzMatrix from stzListOfLists
 		def Solve(paB)
 			return This.SolveFor(paB)
 
+	# R4 step 2 -- THE GGML TIER for matmul (the bridge seed, 5.9):
+	# BLAS-grade threaded kernel through the neural DLL. Same semantics
+	# as MultiplyByMatrix (mutates This); FALLS BACK to the naive path
+	# when the tier is unavailable; Why() names the tier that ran.
+	def MultiplyByMatrixXT(paMatrix)
+		if not (isList(paMatrix) and @IsMatrix(paMatrix))
+			raise("Input must be a valid matrix")
+		ok
+		_nBRows_ = len(paMatrix)
+		_nBCols_ = len(paMatrix[1])
+		if @nCols != _nBRows_
+			raise("Matrix dimensions incompatible: " + @nCols +
+				" columns vs " + _nBRows_ + " rows")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			_pB_ = StzEngineMatrixNewFromList(_nBRows_, _nBCols_, paMatrix)
+			_pC_ = StzEngineMatrixNew(@nRows, _nBCols_)
+			if _pB_ != NULL and _pC_ != NULL
+				_bOk_ = 0
+				try
+					_bOk_ = StzEngineMatrixMulGgml(@pEngineMatrix, _pB_, _pC_)
+				catch
+					_bOk_ = 0
+				done
+				if _bOk_ = 1
+					_aNew_ = []
+					for _iMm_ = 1 to @nRows
+						_aRowMm_ = []
+						for _jMm_ = 1 to _nBCols_
+							_aRowMm_ + StzEngineMatrixGet(_pC_, _iMm_ - 1, _jMm_ - 1)
+						next
+						_aNew_ + _aRowMm_
+					next
+					StzEngineMatrixFree(_pB_)
+					StzEngineMatrixFree(_pC_)
+					@aContent = _aNew_
+					@nCols = _nBCols_
+					This._InvalidateEngineMatrix()
+					$cStzLastWhyB = "matmul ran on the GGML tier (threaded f32 kernel)"
+					return
+				ok
+				StzEngineMatrixFree(_pB_)
+				StzEngineMatrixFree(_pC_)
+			ok
+		ok
+		# graceful degradation: the naive engine/Ring path
+		This.MultiplyByMatrix(paMatrix)
+		$cStzLastWhyB = "matmul ran on the NAIVE tier (ggml unavailable)"
+
 	def MultiplyByMatrix(paMatrix)
 
 		# Validate input is a list of lists

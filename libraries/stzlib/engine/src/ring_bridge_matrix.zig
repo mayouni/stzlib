@@ -1,4 +1,5 @@
 const matrix = @import("matrix.zig");
+const nmm = @import("neural_matmul.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -79,6 +80,9 @@ fn ring_Multiply(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_multiply(getMC(p, 1), getMC(p, 2));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_MulGgml(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(nmm.stz_neural_matmul_into(getMC(p, 1), getMC(p, 2), getM(p, 3))));
+}
 fn ring_Transpose(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_transpose(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -148,6 +152,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixaddmatrix", .func = &ring_AddMatrix },
         .{ .name = "stzengine" ++ "matrixmultiply", .func = &ring_Multiply },
         .{ .name = "stzengine" ++ "matrixtranspose", .func = &ring_Transpose },
+        .{ .name = "stzengine" ++ "matrixmulggml", .func = &ring_MulGgml },
         .{ .name = "stzengine" ++ "matrixdeterminant", .func = &ring_Determinant },
         .{ .name = "stzengine" ++ "matrixinverse", .func = &ring_Inverse },
         .{ .name = "stzengine" ++ "matrixpower", .func = &ring_Power },

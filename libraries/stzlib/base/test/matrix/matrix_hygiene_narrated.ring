@@ -67,6 +67,37 @@ nMean = nS / 500
 chk("Box-Muller normal centers on its mean", nMean > 9 and nMean < 11)
 
 ? ""
+? "-- Scene 5: THE GGML BRIDGE (R4 step 2) -- one matmul, two tiers --"
+oG = new stzMatrix([ [1, 2, 3], [4, 5, 6] ])
+oG.MultiplyByMatrixXT([ [7, 8], [9, 10], [11, 12] ])
+chk("the ggml tier computes the textbook product",
+	oG.Content()[1][1] = 58 and oG.Content()[2][2] = 154)
+chk("Why names the tier that ran",
+	len(StzFind("tier", $cStzLastWhyB)) > 0)
+oN2 = new stzMatrix([ [1, 2, 3], [4, 5, 6] ])
+oN2.MultiplyByMatrix([ [7, 8], [9, 10], [11, 12] ])
+chk("both tiers agree exactly",
+	oG.Content()[1][2] = oN2.Content()[1][2] and
+	oG.Content()[2][1] = oN2.Content()[2][1])
+
+# scale agreement (marshal + f32 round-trip stays faithful on ints)
+aBig = []
+for i = 1 to 60
+	aRow = []
+	for j = 1 to 60
+		aRow + ((i * 7 + j * 3) % 10)
+	next
+	aBig + aRow
+next
+oBg = new stzMatrix(aBig)
+oBg.MultiplyByMatrixXT(aBig)
+oBn = new stzMatrix(aBig)
+oBn.MultiplyByMatrix(aBig)
+chk("60x60 products agree cell-for-cell (spot: [30][30], [60][1])",
+	oBg.Content()[30][30] = oBn.Content()[30][30] and
+	oBg.Content()[60][1] = oBn.Content()[60][1])
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
