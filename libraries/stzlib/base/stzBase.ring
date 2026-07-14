@@ -474,6 +474,7 @@ ok
     load "learning/stzModelEval.ring"
     load "learning/stzNeuralNetwork.ring"
     load "learning/stzTrainer.ring"
+    load "learning/stzDLM.ring"
 
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
