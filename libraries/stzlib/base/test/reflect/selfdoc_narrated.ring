@@ -22,7 +22,7 @@ Scenario("Harvest + explain a class from its source (deterministic, no model)")
 	Then("DescriptionOf a documented method is non-empty",
 		len(o.DescriptionOf("Classify")) > 0, TRUE)
 	Then("a class can also be opened by source path",
-		StzDoc("natural/stzText.ring").ClassName(), "stzText")
+		StzDoc("linguistic/stzText.ring").ClassName(), "stzText")
 EndScenario()
 
 Scenario("Ask: near-natural method discovery")

@@ -239,6 +239,100 @@ class stzText from stzStringText
 		def WordsWithPOS()
 			return This.TaggedWords()
 
+	# POS-PATTERN CHUNKING (R3, the NLTK offensive): PATTERNS OVER TAGS.
+	#   ? Q("The quick brown fox...").TextQ().Chunks("DT? JJ* NN+")
+	#   #--> [ "The quick brown fox", "the lazy dog" ]
+	# Grammar: Penn tags separated by spaces, each with an optional
+	# quantifier -- ? (0/1), * (0+), + (1+), none (exactly 1). A tag
+	# matches by PREFIX (NN covers NN/NNS/NNP/NNPS). Covers NLTK's
+	# RegexpParser chunking with a cleaner grammar. The executor is a
+	# deterministic greedy scanner over the tag stream (like NLTK's);
+	# a Listex-native executor can swap in behind this same surface.
+	def Chunks(pcTagPattern)
+		_aUnits_ = This._ChunkUnits(pcTagPattern)
+		_nU_ = len(_aUnits_)
+		if _nU_ = 0
+			return []
+		ok
+		_aTW_ = This.TaggedWords()
+		_nW_ = len(_aTW_)
+		_acOut_ = []
+		_i_ = 1
+		while _i_ <= _nW_
+			_j_ = _i_
+			_bOk_ = 1
+			for _u_ = 1 to _nU_
+				_cTag_ = _aUnits_[_u_][1]
+				_cQ_ = _aUnits_[_u_][2]
+				if _cQ_ = "?"
+					if _j_ <= _nW_ and This._TagMatch(_aTW_[_j_][2], _cTag_)
+						_j_++
+					ok
+				but _cQ_ = "*"
+					while _j_ <= _nW_ and This._TagMatch(_aTW_[_j_][2], _cTag_)
+						_j_++
+					end
+				but _cQ_ = "+"
+					if _j_ <= _nW_ and This._TagMatch(_aTW_[_j_][2], _cTag_)
+						_j_++
+						while _j_ <= _nW_ and This._TagMatch(_aTW_[_j_][2], _cTag_)
+							_j_++
+						end
+					else
+						_bOk_ = 0
+						exit
+					ok
+				else
+					if _j_ <= _nW_ and This._TagMatch(_aTW_[_j_][2], _cTag_)
+						_j_++
+					else
+						_bOk_ = 0
+						exit
+					ok
+				ok
+			next
+			if _bOk_ = 1 and _j_ > _i_
+				_cChunk_ = ""
+				for _k_ = _i_ to _j_ - 1
+					if _cChunk_ != ""
+						_cChunk_ += " "
+					ok
+					_cChunk_ += _aTW_[_k_][1]
+				next
+				_acOut_ + _cChunk_
+				_i_ = _j_
+			else
+				_i_++
+			ok
+		end
+		return _acOut_
+
+	# the flagship sugar: DT? JJ* NN+ -- the classic noun-phrase shape
+	def NounPhrases()
+		return This.Chunks("DT? JJ* NN+")
+
+	def _ChunkUnits(pcPattern)
+		_acToks_ = StzSplit(ring_trim("" + pcPattern), " ")
+		_aUnits_ = []
+		_nT_ = len(_acToks_)
+		for _t_ = 1 to _nT_
+			_cTok_ = ring_trim(_acToks_[_t_])
+			if _cTok_ = ""
+				loop
+			ok
+			_cLast_ = StzRight(_cTok_, 1)
+			if _cLast_ = "?" or _cLast_ = "*" or _cLast_ = "+"
+				_aUnits_ + [ StzUpper(StzLeft(_cTok_, StzLen(_cTok_) - 1)), _cLast_ ]
+			else
+				_aUnits_ + [ StzUpper(_cTok_), "" ]
+			ok
+		next
+		return _aUnits_
+
+	def _TagMatch(pcWordTag, pcPatTag)
+		# prefix semantics: NN covers NN/NNS/NNP/NNPS
+		return StzLeft(StzUpper("" + pcWordTag), StzLen(pcPatTag)) = pcPatTag
+
 	  #==========================================================#
 	 #   NAMED-ENTITY RECOGNITION                               #
 	#==========================================================#
