@@ -27,6 +27,11 @@ class stzRefinableCode from stzObject
 	@cWhy = ""
 	@cPending = ""      # the point Refine() targets
 
+	# R6 DEEPENING: the two reserved gate stages, now wired.
+	@aDerivations = []  # STAGE 3: [ name, fPredicate, message ] cross-point rules
+	@oGov = NULL        # STAGE 4: stzGovernance (refining = a governed action)
+	@cActor = "refiner" # the actor whose permission/authority is checked
+
 	def init(pcSource)
 		@cSource = "" + pcSource
 		This._Parse()
@@ -85,6 +90,67 @@ class stzRefinableCode from stzObject
 		return [ :point = @aPoints[_i_][1], :exists = 1,
 			:lines = [ _nLine_ ], :alsoTouches = _acAlso_ ]
 
+	#-- STAGE 3 wiring: cross-point DERIVATION rules ------------------------
+	# A derivation rule is a named predicate over the code's POST-change
+	# state: fPredicate(oCode) returns TRUE when the state is consistent.
+	# It fires AFTER the value is tentatively applied and rolls the change
+	# back if any rule rejects (so cross-point invariants -- "vat cannot
+	# exceed the ceiling", "heap needs a threshold" -- are enforceable).
+	# Same {name, function, message} record shape as stzGraphRule.
+	def DeclareDerivation(pcName, fPredicate, pcMessage)
+		@aDerivations + [ "" + pcName, fPredicate, "" + pcMessage ]
+		return This
+
+	def NumberOfDerivations()
+		return len(@aDerivations)
+
+	#-- STAGE 4 wiring: GOVERNANCE (refining is a governed action) ----------
+	# Wire a (fully configured) stzGovernance. Each point's refinement is
+	# the action "refine-<point>"; To() calls MayProceed(actor, action)
+	# so a refinement needs permission (CAN) + authority (SHOULD) covering
+	# the point's declared risk tier before it can mutate the source.
+	def GovernedBy(poGov)
+		@oGov = poGov
+		return This
+
+	def AsActor(pcActor)
+		@cActor = "" + pcActor
+		return This
+
+	# Governance config MUST go through these delegators: GovernedBy
+	# stores a COPY (governance is pure Ring lists, no shared handle),
+	# so mutating the caller's original would leave this copy stale (the
+	# Ring aliasing doctrine). Delegating keeps @oGov the one live truth.
+
+	# Declare a point's refinement risk tier ("refine-<point>").
+	def RiskFor(pcPoint, nTier)
+		This._NeedGov()
+		@oGov.DeclareRisk("refine-" + StzLower("" + pcPoint), nTier)
+		return This
+
+	# Grant the actor permission (CAN) to refine a point.
+	def AllowRefine(pcPoint)
+		This._NeedGov()
+		@oGov.GrantPermission(@cActor, "refine-" + StzLower("" + pcPoint))
+		return This
+
+	# Set the actor's authority (SHOULD): :Advisory/:Delegated/
+	# :Autonomous/:EmergencyOverride.
+	def WithAuthority(pcType)
+		This._NeedGov()
+		@oGov.SetAuthority(@cActor, pcType)
+		return This
+
+	# The wired governance as a chainable object (Q-convention) -- returns
+	# a fresh copy each call; use for READS (Why/Lineage/NumberOfDecisions).
+	def GovernanceQ()
+		return @oGov
+
+	def _NeedGov()
+		if @oGov = NULL
+			stzraise("This refinable code is not governed -- GovernedBy(oGov) first.")
+		ok
+
 	#-- the typed proposal + the gate ----------------------------------------
 
 	def Refine(pcName)
@@ -115,15 +181,41 @@ class stzRefinableCode from stzObject
 			return [ :admitted = 0, :why = @cWhy ]
 		ok
 
-		# STAGE 3 (derivation) + STAGE 4 (governance): reserved floor
-		# -- pass-through until the R6 deepening wires stzGraphRule +
-		# stzGovernance. Admitted: capture prior state (reversibility)
-		# and rewrite ONLY this point's value span.
+		# STAGE 4 -- GOVERNANCE (checked BEFORE any mutation): refining
+		# this point is the action "refine-<point>"; the actor needs
+		# permission + authority covering its risk tier. Undeclared-risk
+		# actions are refused by stzGovernance (nothing mutates).
+		if @oGov != NULL
+			_cAction_ = "refine-" + StzLower(_cName_)
+			if @oGov.MayProceed(@cActor, _cAction_) = 0
+				@cWhy = "governance: " + @oGov.Why()
+				return [ :admitted = 0, :why = @cWhy ]
+			ok
+		ok
+
+		# Tentatively apply, then STAGE 3 -- DERIVATION: cross-point
+		# rules evaluate the POST-change state; any rejection rolls the
+		# value back so the source never keeps an inconsistent state.
 		_cOld_ = @aPoints[_i_][3]
 		This._SetValueAt(_i_, _cVal_)
+		_aD_ = This._DerivationCheck()
+		if _aD_[1] = 0
+			_iBack_ = This._IndexOf(_cName_)
+			This._SetValueAt(_iBack_, _cOld_)
+			@cWhy = "derivation: " + _aD_[2]
+			return [ :admitted = 0, :why = @cWhy ]
+		ok
+
+		# ADMITTED: record the reversible step and (if governed) the
+		# decision lineage.
 		@aHistory + [ _cName_, _cOld_, _cVal_ ]
+		if @oGov != NULL
+			@oGov.RecordDecision("refine-" + StzLower(_cName_) + "-" + len(@aHistory),
+				"refinement admitted through the 4-stage gate",
+				@cActor, "refine-" + StzLower(_cName_))
+		ok
 		@cWhy = "admitted: '" + _cName_ + "' " + _cOld_ + " -> " + _cVal_ +
-			" (structural + constraint passed; derivation/governance reserved)"
+			" (structural + constraint + derivation + governance passed)"
 		return [ :admitted = 1, :why = @cWhy ]
 
 	#-- reversibility (a data-model primitive) -------------------------------
@@ -197,6 +289,19 @@ class stzRefinableCode from stzObject
 			ok
 			_nFrom_ = _aClose_ + 1
 		end
+
+	# STAGE 3 evaluator: every declared cross-point rule must hold on the
+	# current (post-tentative-change) state. Returns [ ok, message ].
+	def _DerivationCheck()
+		_n_ = len(@aDerivations)
+		for _i_ = 1 to _n_
+			_f_ = @aDerivations[_i_][2]   # plain var: `call` needs it, not an index
+			if call _f_(This) = 0
+				return [ 0, "rule '" + @aDerivations[_i_][1] + "' violated -- " +
+					@aDerivations[_i_][3] ]
+			ok
+		next
+		return [ 1, "" ]
 
 	def _ConstraintCheck(nIdx, pcVal)
 		_cKind_ = @aPoints[nIdx][2]

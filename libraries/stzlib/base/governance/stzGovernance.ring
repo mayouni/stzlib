@@ -318,6 +318,13 @@ class stzGovernance from stzObject
 		next
 		return []
 
+		# the full decision lineage (every recorded decision).
+		def Lineage()
+			return @aLineage
+
+		def NumberOfDecisions()
+			return len(@aLineage)
+
 	#-- EXECUTION TRUST POSTURES (5.8) -----------------------------------------
 
 	def DeclarePosture(pcExecutor, pcPosture)
