@@ -452,6 +452,14 @@ ok
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"
 
+    # conversation/ -- CONVERSATIONAL PROGRAMMING as a domain (R3b):
+    # stzConversation (entry) runs the wise-coding loop over the R1
+    # knowledge graph; stzGoal generates questions from gaps;
+    # stzNarration is the system's side of the dialogue.
+    load "conversation/stzNarration.ring"
+    load "conversation/stzGoal.ring"
+    load "conversation/stzConversation.ring"
+
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
     load "linguistic/stzSingular.ring"
