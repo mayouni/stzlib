@@ -479,9 +479,9 @@ IS the advantage:
 | Edit distance / fuzzy | edit_distance | Levenshtein + fuzzy module |
 | Readability/textstats | (third-party) | textstats engine module |
 | Classification | trainable (setup-heavy) | zero-shot TODAY; trainable -> R4 |
-| Chunking / parsing | RegexpParser, CFG trees | GAP -> R3 (POS-pattern chunker) |
-| Corpora shelf | nltk.download zoo | GAP -> R3 (corpora/ + stzCorpus) |
-| Language modeling utils | nltk.lm | PARTIAL -> R3 (LM utils over n-gram counts) |
+| Chunking / parsing | RegexpParser, CFG trees | DONE 2026-07-14: Chunks('DT? JJ* NN+') -- patterns over tags, zero setup; parse trees stay deferred |
+| Corpora shelf | nltk.download zoo | DONE 2026-07-14: stzCorpus -- your texts ARE the corpus; big-shelf artifacts later |
+| Language modeling utils | nltk.lm | DONE 2026-07-14: BigramProbability/LogProbability/Perplexity (Laplace floor; engine-side counting = next rung) |
 
 ### 4.3 The three beat-axes
 
