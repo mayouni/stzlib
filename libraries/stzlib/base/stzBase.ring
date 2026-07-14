@@ -506,6 +506,7 @@ ok
     load "agentic/stzAgentGraph.ring"
     load "agentic/stzLLMAgent.ring"
     load "agentic/stzNativeStack.ring"
+    load "agentic/stzAgentHost.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal
