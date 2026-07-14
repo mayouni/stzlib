@@ -87,3 +87,20 @@ class stzAppRequest from stzObject
 			ok
 		next
 		return ""
+
+	# Route path params (bound by the router: /user/:id -> Param("id")).
+	def SetParams(paParams)
+		@aParams = paParams
+		return This
+
+	def Params()
+		return @aParams
+
+	def Param(cKey)
+		_nLen_ = len(@aParams)
+		for _i_ = 1 to _nLen_
+			if @aParams[_i_][1] = cKey
+				return @aParams[_i_][2]
+			ok
+		next
+		return ""
