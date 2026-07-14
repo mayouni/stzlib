@@ -18,6 +18,27 @@
 # Unified Reactive Object System for Softanza Library
 # Single class that handles all reactive object functionality
 
+# R54-FIX GLOBAL HELPERS (2026-07-14): Ring's reflection builtins
+# (attributes/getattribute/hasattribute/setattribute/addattribute)
+# resolve to inherited METHODS inside a class body (the method-vs-
+# builtin trap), which raised R20 and crashed ReactivateObject. Doing
+# the reflection in GLOBAL funcs -- where the builtins ARE builtins --
+# is the standing cure (see stzDeepList's _Dpl* delegation).
+func StzReactiveHarvestAttrs(pObj)
+	_aOut_ = []
+	_acN_ = attributes(pObj)
+	_nH_ = len(_acN_)
+	for _iH_ = 1 to _nH_
+		_aOut_ + [ _acN_[_iH_], getattribute(pObj, _acN_[_iH_]) ]
+	next
+	return _aOut_
+
+func StzReactiveSetAttr(pObj, pcName, pValue)
+	if NOT hasattribute(pObj, pcName)
+		addattribute(pObj, pcName)
+	ok
+	setattribute(pObj, pcName, pValue)
+
 class stzReactiveObject from stzReactive
 
 	# Core reactive infrastructure
@@ -50,14 +71,19 @@ class stzReactiveObject from stzReactive
 	    engine = reactiveEngine
 
    
-	# Initialize attribute cache with wrapped object's current values
+	# Initialize attribute cache with wrapped object's current values.
+	# R54 FIX (2026-07-14): the old line called AttributesXT(wrappedObject)
+	# -- but that name resolves to an inherited 0-ARG method here, so the
+	# 1-arg call raised R20 and crashed every ReactivateObject (the second
+	# half of the init bug that retired the suite). Use Ring's reflection
+	# builtins directly: attributes() gives the NAMES, getattribute() the
+	# values. (The bare-name/method-vs-builtin trap -- see the VM-traps.)
 	if wrappedObject != OBJECT_STANDALONE
-	    _aObjectAttrs_ = AttributesXT(wrappedObject)
+	    _aObjectAttrs_ = StzReactiveHarvestAttrs(wrappedObject)
 	    _nLen_ = len(_aObjectAttrs_)
-	
 	    for i = 1 to _nLen_
-	            SetAttributeInStorage(_aObjectAttrs_[i][1], _aObjectAttrs_[i][2])
-	            UpdateAttributeCache(_aObjectAttrs_[i][1], _aObjectAttrs_[i][2])
+	            SetAttributeInStorage(StzLower(_aObjectAttrs_[i][1]), _aObjectAttrs_[i][2])
+	            UpdateAttributeCache(StzLower(_aObjectAttrs_[i][1]), _aObjectAttrs_[i][2])
 	    next
 	ok
 
@@ -149,20 +175,25 @@ class stzReactiveObject from stzReactive
 	    ok
 	
 	def SetAttributeValue(_cAttribute_, _value_)
+		# R54 FIX (2026-07-14): the old body called addattribute() on
+		# EVERY set -- re-adding an existing attribute REDEFINES it, and
+		# that init/redefinition bug retired 8 of 9 reactive-object
+		# tests. Guard with hasattribute; and use setattribute() (Ring's
+		# reflection setter) instead of eval("... = value") -- the eval
+		# strings referenced a bare 'value' that never bound _value_.
 		_cAttribute_ = StzLower(_cAttribute_)
-		
+
 		if wrappedObject != OBJECT_STANDALONE
-			# Wrapper mode: set on wrapped object
-			addattribute(wrappedObject, _cAttribute_)
-			eval("wrappedObject." + _cAttribute_ + " = value")
+			# Wrapper mode: set on wrapped object (global helper: the
+			# reflection builtins are builtins only outside class scope)
+			StzReactiveSetAttr(wrappedObject, _cAttribute_, _value_)
 		ok
-		
+
 		# Always set in internal storage for consistency
 		SetAttributeInStorage(_cAttribute_, _value_)
-		
+
 		# Also set as object attribute for compatibility
-		AddAttribute(this, _cAttribute_)
-		eval("this." + _cAttribute_ + " = value")
+		StzReactiveSetAttr(this, _cAttribute_, _value_)
 
 	#-----------------------#
 	#  PUBLIC REACTIVE API  #
