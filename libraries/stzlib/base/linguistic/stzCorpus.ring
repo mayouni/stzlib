@@ -20,6 +20,7 @@ class stzCorpus from stzObject
 	@acDocs = []
 	@aUni = []        # [ word, count ] hash
 	@aBi = []         # [ "w1 w2", count ] hash
+	@aDocUni = []     # per-document [ word, count ] hashes (TF-IDF)
 	@nTokens = 0
 	@bCounted = 0
 
@@ -58,20 +59,28 @@ class stzCorpus from stzObject
 		ok
 		@aUni = []
 		@aBi = []
+		@aDocUni = []
 		@nTokens = 0
 		_nD_ = len(@acDocs)
 		for _d_ = 1 to _nD_
 			_oT_ = new stzText(@acDocs[_d_])
 			_acW_ = _oT_.Words()
 			_nW_ = len(_acW_)
+			_aDU_ = []
 			for _w_ = 1 to _nW_
 				_cW_ = StzLower(_acW_[_w_])
 				This._Bump(:uni, _cW_)
 				@nTokens++
+				if HasKey(_aDU_, _cW_)
+					_aDU_[_cW_] = _aDU_[_cW_] + 1
+				else
+					_aDU_[_cW_] = 1
+				ok
 				if _w_ < _nW_
 					This._Bump(:bi, _cW_ + " " + StzLower(_acW_[_w_ + 1]))
 				ok
 			next
+			@aDocUni + _aDU_
 		next
 		@bCounted = 1
 
@@ -179,3 +188,67 @@ class stzCorpus from stzObject
 			return 0
 		ok
 		return exp( - This.LogProbability(pcText) / (_nW_ - 1) )
+
+	#-- TF-IDF (R4 step 0: the vectorizer feeding the ML floor) -----------
+
+	def TfOf(pcWord, nDoc)
+		This._EnsureCounts()
+		_cW_ = StzLower(ring_trim("" + pcWord))
+		if nDoc < 1 or nDoc > len(@aDocUni)
+			return 0
+		ok
+		if HasKey(@aDocUni[nDoc], _cW_)
+			return @aDocUni[nDoc][_cW_]
+		ok
+		return 0
+
+	def IdfOf(pcWord)
+		This._EnsureCounts()
+		_cW_ = StzLower(ring_trim("" + pcWord))
+		_nIn_ = 0
+		_nD_ = len(@aDocUni)
+		for _d_ = 1 to _nD_
+			if HasKey(@aDocUni[_d_], _cW_)
+				_nIn_++
+			ok
+		next
+		# smoothed idf -- never divides by zero, never negative
+		return log( (1 + _nD_) / (1 + _nIn_) ) + 1
+
+	def TfIdfOf(pcWord, nDoc)
+		return This.TfOf(pcWord, nDoc) * This.IdfOf(pcWord)
+
+	# the document's most DISTINCTIVE terms (not just frequent ones)
+	def TopTermsOf(nDoc, n)
+		This._EnsureCounts()
+		if nDoc < 1 or nDoc > len(@aDocUni)
+			return []
+		ok
+		_aDU_ = @aDocUni[nDoc]
+		_aPairs_ = []
+		_nLen_ = len(_aDU_)
+		for _i_ = 1 to _nLen_
+			_aPairs_ + [ _aDU_[_i_][1], This.TfIdfOf(_aDU_[_i_][1], nDoc) ]
+		next
+		for _i_ = 2 to _nLen_
+			_aE_ = _aPairs_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1
+				if _aPairs_[_j_][2] < _aE_[2]
+					_aPairs_[_j_ + 1] = _aPairs_[_j_]
+					_j_--
+				else
+					exit
+				ok
+			end
+			_aPairs_[_j_ + 1] = _aE_
+		next
+		_aOut_ = []
+		_nTake_ = n
+		if _nTake_ > _nLen_
+			_nTake_ = _nLen_
+		ok
+		for _i_ = 1 to _nTake_
+			_aOut_ + _aPairs_[_i_]
+		next
+		return _aOut_

@@ -460,6 +460,13 @@ ok
     load "conversation/stzGoal.ring"
     load "conversation/stzConversation.ring"
 
+    # learning/ -- MODEL CREATION as a domain (R4, step 0: the classic
+    # ML floor -- zero-setup, fully explainable learners riding
+    # stzTrainingSet + stzSimilarity + the linguistic domain).
+    load "learning/stzTrainingSet.ring"
+    load "learning/stzKnn.ring"
+    load "learning/stzNaiveBayes.ring"
+
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
     load "linguistic/stzSingular.ring"
