@@ -32,9 +32,10 @@
 # - The stored stzDatabase is a copy SHARING the engine handle -- live
 #   for reads/writes; do not Close() the original while serving.
 #
-# FLOOR HONESTY: Commons secrets are stored as-received -- wiring a
-# real KDF is an engine gap (5.10); deployments must not ship the
-# floor as-is for real credentials.
+# IDENTITY SECURITY: Commons secrets are stored as a per-user random
+# SALT + a PBKDF2-HMAC-SHA256 hash (engine KDF), never plaintext;
+# verification re-derives and compares in constant time. Rounds default
+# to 100k and are tunable via WithKdfRounds() (lower them only in tests).
 # -----------------------------------------------------------------------------
 
 # Prerendered networked-body payloads (route handlers read these by
@@ -44,6 +45,35 @@ $aStzPlatformThingJsons = []   # [ [ name, json ], ... ]
 
 func StzPlatform(pcName)
 	return new stzPlatform(pcName)
+
+# -- public KDF helpers (engine-backed; reusable beyond the Commons) --
+# StzHashSecret returns "salt:hash" (PBKDF2-HMAC-SHA256, 100k rounds by
+# default); StzVerifySecret re-derives and constant-time compares;
+# StzRandomToken returns nBytes of CSPRNG as hex.
+
+func StzHashSecret(pcSecret)
+	return StzHashSecretXT(pcSecret, 100000)
+
+func StzHashSecretXT(pcSecret, nRounds)
+	_cSalt_ = StzEngineCryptoRandomHex(16)
+	_cHash_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, nRounds, 32)
+	return _cSalt_ + ":" + _cHash_
+
+func StzVerifySecret(pcSecret, pcStored)
+	return StzVerifySecretXT(pcSecret, pcStored, 100000)
+
+func StzVerifySecretXT(pcSecret, pcStored, nRounds)
+	_nSep_ = StzFindFirst(pcStored, ":")
+	if _nSep_ = 0
+		return FALSE
+	ok
+	_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
+	_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)
+	_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, nRounds, 32)
+	return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
+
+func StzRandomToken(nBytes)
+	return StzEngineCryptoRandomHex(nBytes)
 
 # -- networked-body route handlers (global by design; see header) ----
 
@@ -84,6 +114,7 @@ class stzPlatform from stzObject
 	# commons
 	@oDb = NULL
 	@bCommonsReady = FALSE
+	@nKdfRounds = 100000    # PBKDF2 iterations for identity secrets
 
 	# networked body
 	@oHost = NULL
@@ -300,29 +331,58 @@ class stzPlatform from stzObject
 			stzraise("stzPlatform: the Commons is not wired -- CommonsOn(oDb) first.")
 		ok
 
+	# Tune the KDF cost. Default 100k; lower ONLY in tests. Must be set
+	# before RegisterIdentity (a stored hash is bound to the rounds used).
+	def WithKdfRounds(nRounds)
+		if nRounds < 1
+			stzraise("KDF rounds must be >= 1.")
+		ok
+		@nKdfRounds = nRounds
+		return This
+
+	def KdfRounds()
+		return @nKdfRounds
+
+	# KDF-BACKED IDENTITY (the engine KDF closes the plaintext gap): each
+	# identity stores a per-user random SALT + a PBKDF2-HMAC-SHA256 hash
+	# of the secret over @nKdfRounds iterations -- never the secret itself.
 	def RegisterIdentity(pcUser, pcSecret)
 		This._NeedCommons()
 		if @oDb.Value("SELECT user FROM stz_identity WHERE user = '" + This._Sql(pcUser) + "'") != ""
 			@cWhy = "identity '" + pcUser + "' already exists."
 			return FALSE
 		ok
-		# FLOOR: secret stored as-received (see header honesty note)
+		_cSalt_ = StzEngineCryptoRandomHex(16)
+		_cHash_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, @nKdfRounds, 32)
 		@oDb.Exec("INSERT INTO stz_identity (user, secret) VALUES ('" +
-		          This._Sql(pcUser) + "', '" + This._Sql(pcSecret) + "')")
+		          This._Sql(pcUser) + "', '" + _cSalt_ + ":" + _cHash_ + "')")
 		return TRUE
 
-	# Returns a session token, or "" (Why() explains) on refusal.
+	# Returns a session token, or "" (Why() explains) on refusal. The
+	# secret is verified by re-deriving with the stored salt + rounds and
+	# a CONSTANT-TIME compare (StzEngineCryptoConstEqual).
 	def OpenSession(pcUser, pcSecret)
 		This._NeedCommons()
 		_cStored_ = @oDb.Value("SELECT secret FROM stz_identity WHERE user = '" + This._Sql(pcUser) + "'")
-		if _cStored_ = "" or _cStored_ != pcSecret
+		if _cStored_ = "" or NOT This._SecretMatches(_cStored_, pcSecret)
 			@cWhy = "identity/secret mismatch for '" + pcUser + "'."
 			return ""
 		ok
-		_cToken_ = "sess_" + random(999999999) + "_" + random(999999999)
+		_cToken_ = "sess_" + StzEngineCryptoRandomHex(24)
 		@oDb.Exec("INSERT INTO stz_session (token, user, opened_ms) VALUES ('" +
 		          _cToken_ + "', '" + This._Sql(pcUser) + "', " + StzEngineTimeNowMs() + ")")
 		return _cToken_
+
+	# stored = "salt:hash"; re-derive and constant-time compare.
+	def _SecretMatches(pcStored, pcSecret)
+		_nSep_ = StzFindFirst(pcStored, ":")
+		if _nSep_ = 0
+			return FALSE
+		ok
+		_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
+		_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)
+		_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, @nKdfRounds, 32)
+		return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
 
 	def SessionUser(pcToken)
 		This._NeedCommons()

@@ -53,6 +53,27 @@ fn ring_ConstEqual(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(crypto.crypto_equal(a, b, al)));
 }
 
+// StzEngineCryptoPbkdf2(cPassword, cSalt, nRounds, nDkLen) -> hex derived key.
+fn ring_Pbkdf2(p: *anyopaque) callconv(.c) void {
+    const pw: [*]const u8 = @ptrCast(gs(p, 1));
+    const pl: usize = @intCast(gss(p, 1));
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const sl: usize = @intCast(gss(p, 2));
+    const rounds: u32 = @intFromFloat(gn(p, 3));
+    const dk_len: usize = @intFromFloat(gn(p, 4));
+    var buf: [128]u8 = undefined;
+    const n = crypto.crypto_pbkdf2_sha256(pw, pl, s, sl, rounds, dk_len, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineCryptoRandomHex(nBytes) -> hex string of nBytes CSPRNG bytes.
+fn ring_RandomHex(p: *anyopaque) callconv(.c) void {
+    const nbytes: usize = @intFromFloat(gn(p, 1));
+    var buf: [128]u8 = undefined;
+    const n = crypto.crypto_random_hex(nbytes, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -60,6 +81,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptofnv32", .func = &ring_Fnv32 },
     .{ .name = "stzenginecryptofnv64", .func = &ring_Fnv64 },
     .{ .name = "stzenginecryptoconstequal", .func = &ring_ConstEqual },
+    .{ .name = "stzenginecryptopbkdf2", .func = &ring_Pbkdf2 },
+    .{ .name = "stzenginecryptorandomhex", .func = &ring_RandomHex },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

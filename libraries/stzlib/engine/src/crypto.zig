@@ -60,6 +60,59 @@ pub fn crypto_equal(a_ptr: [*]const u8, b_ptr: [*]const u8, len: usize) callconv
     return if (diff == 0) 1 else 0;
 }
 
+// ── Key derivation (PBKDF2-HMAC-SHA256) + CSPRNG salt ─────────
+// The password-hashing floor for the Commons (stzPlatform/stzSuperApp
+// identity): store a per-user salt + an iterated derived key, never the
+// plaintext secret. PBKDF2 is deliberately slow (configurable rounds)
+// so an offline attacker pays per guess.
+
+const HmacSha256 = std.crypto.auth.hmac.sha2.HmacSha256;
+
+/// PBKDF2-HMAC-SHA256. Derives `dk_len` bytes into `out` (hex-encoded,
+/// 2*dk_len chars) from password+salt over `rounds` iterations.
+/// Returns the number of hex chars written, or -1 on error.
+pub fn crypto_pbkdf2_sha256(
+    pw_ptr: [*]const u8,
+    pw_len: usize,
+    salt_ptr: [*]const u8,
+    salt_len: usize,
+    rounds: u32,
+    dk_len: usize,
+    out: [*]u8,
+) callconv(.c) i32 {
+    if (dk_len == 0 or dk_len > 64 or rounds == 0) return -1;
+    var dk: [64]u8 = undefined;
+    std.crypto.pwhash.pbkdf2(
+        dk[0..dk_len],
+        pw_ptr[0..pw_len],
+        salt_ptr[0..salt_len],
+        rounds,
+        HmacSha256,
+    ) catch return -1;
+    const hex = "0123456789abcdef";
+    var i: usize = 0;
+    while (i < dk_len) : (i += 1) {
+        out[i * 2] = hex[dk[i] >> 4];
+        out[i * 2 + 1] = hex[dk[i] & 0x0f];
+    }
+    return @intCast(dk_len * 2);
+}
+
+/// Fill `out[0..n]` with CSPRNG bytes, hex-encoded (2*n chars written).
+/// Returns hex chars written, or -1 on error.
+pub fn crypto_random_hex(n: usize, out: [*]u8) callconv(.c) i32 {
+    if (n == 0 or n > 64) return -1;
+    var buf: [64]u8 = undefined;
+    std.crypto.random.bytes(buf[0..n]);
+    const hex = "0123456789abcdef";
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        out[i * 2] = hex[buf[i] >> 4];
+        out[i * 2 + 1] = hex[buf[i] & 0x0f];
+    }
+    return @intCast(n * 2);
+}
+
 fn hexEncode(hash: [32]u8) [64]u8 {
     const hex = "0123456789abcdef";
     var out: [64]u8 = undefined;
@@ -89,6 +142,8 @@ pub export fn stz_crypto_crc32(p: [*]const u8, l: usize) callconv(.c) u32 { retu
 pub export fn stz_crypto_fnv32(p: [*]const u8, l: usize) callconv(.c) u32 { return crypto_fnv32(p, l); }
 pub export fn stz_crypto_fnv64(p: [*]const u8, l: usize) callconv(.c) u64 { return crypto_fnv64(p, l); }
 pub export fn stz_crypto_equal(a: [*]const u8, b: [*]const u8, l: usize) callconv(.c) i32 { return crypto_equal(a, b, l); }
+pub export fn stz_crypto_pbkdf2_sha256(pw: [*]const u8, pl: usize, s: [*]const u8, sl: usize, r: u32, dl: usize, o: [*]u8) callconv(.c) i32 { return crypto_pbkdf2_sha256(pw, pl, s, sl, r, dl, o); }
+pub export fn stz_crypto_random_hex(n: usize, o: [*]u8) callconv(.c) i32 { return crypto_random_hex(n, o); }
 
 // ── Tests ────────────────────────────────────────────────────
 
