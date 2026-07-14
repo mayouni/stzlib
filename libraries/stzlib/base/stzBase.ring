@@ -85,13 +85,14 @@ ok
 
     load "string/stzStringText.ring"
 
-    # Text-meaning domain (stzText from stzStringText): "NLP" is just natural
-    # operations applied to text, so stzText lives in the natural/ domain. It is
+    # linguistic/ -- TEXT PROCESSING / NLP as a domain (R3): stzText is
+    # its ENTRY OBJECT (promoted from natural/, which keeps
+    # language-as-code only). It is
     # loaded here (early) because it depends on stzStringText, loaded just above.
-    load "natural/stzText.ring"
+    load "linguistic/stzText.ring"
     # stzListOfTexts (from stzStringList): a list of texts (sentences carry
     # meaning) with the natural/meaning list ops. SentencesQ() returns it.
-    load "natural/stzListOfTexts.ring"
+    load "linguistic/stzListOfTexts.ring"
 
     # Modern / neural domain (base/neural/): stzNeural base -> engine + model
     load "neural/stzNeural.ring"
@@ -450,10 +451,10 @@ ok
     load "natural/stzNatural.ring"
     load "natural/stzNaturalLangData.ring"
 
-    load "natural/stzAdverb.ring"
-    load "natural/stzPlural.ring"
-    load "natural/stzSingular.ring"
-    load "natural/stzOrdinal.ring"
+    load "linguistic/stzAdverb.ring"
+    load "linguistic/stzPlural.ring"
+    load "linguistic/stzSingular.ring"
+    load "linguistic/stzOrdinal.ring"
 
 # Loading files related to STATS module
 
