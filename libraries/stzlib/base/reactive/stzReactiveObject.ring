@@ -39,17 +39,12 @@ func StzReactiveSetAttr(pObj, pcName, pValue)
 	ok
 	setattribute(pObj, pcName, pValue)
 
-# INHERITANCE NOTE (F3, 2026-07-14): `from stzReactive` is LOAD-BEARING,
-# not gratuitous -- this class calls the reactive system's timer API
-# directly (RunAfter/StopTimer, ProcessPendingReactions) via inherited
-# methods to drive attribute reactivity. It ALSO holds an `engine`
-# reference (composition) for CreateStream -- so the same "reactive
-# system" is reached two ways (inherit + compose), which is the smell.
-# The clean untangle (compose the engine, route the timer API through
-# it, inherit only stzObject) belongs to F5, when the runtime re-bases
-# onto stzReactor and the timer API moves to the reactor anyway. Left
-# as-is now to avoid destabilizing the R54 fix.
-class stzReactiveObject from stzReactive
+# F5 UNTANGLE (2026-07-14, completes the F3 note): the class now
+# COMPOSES the reactive system (`engine`) and inherits only stzObject.
+# The two timer calls that used to ride the `from stzReactive`
+# inheritance (StopTimer/RunAfter in WaitForAttributetoSettle) route
+# through `engine.` explicitly -- one reactive system, reached one way.
+class stzReactiveObject from stzObject
 
 	# Core reactive infrastructure
 	wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
@@ -60,6 +55,7 @@ class stzReactiveObject from stzReactive
 	aComputedAttributes = []   # [Attribute, computer_func, dependencies]
 	aAttributeBindings = []     # [source_attr, target_obj, target_attr]
 	aAsyncOperations = []      # Pending async Attribute operations
+	aSettleWatchers = []       # [attr, delayMs, callback, timerId] (F5)
 	
 	# State management
 	bReactiveMode = DEFAULT_REACTIVE_MODE
@@ -295,10 +291,13 @@ class stzReactiveObject from stzReactive
 		_streamId_ = StzLower(classname(self)) + "_" + _cAttribute_ + "_" + random(999999)
 		_stream_ = this.engine.CreateStream(_streamId_)
 		
-		Watch(_cAttribute_, func(attr, oldVal, newVal) {
+		# Watcher contract is f(oSelf, attr, old, new) -- the old 3-arg
+		# lambda arity-crashed on every trigger and the error was
+		# swallowed by TriggerAttributeWatchers' try/catch (F5 fix).
+		Watch(_cAttribute_, func(oSelf, attr, oldVal, newVal) {
 			_aData_ = []
 			_aData_ + ["Attribute", attr]
-			_aData_ + ["oldValue", oldVal] 
+			_aData_ + ["oldValue", oldVal]
 			_aData_ + ["newValue", newVal]
 			_aData_ + ["changeType", CHANGE_TYPE_VALUE]
 			_stream_.Emit(_aData_)
@@ -306,30 +305,44 @@ class stzReactiveObject from stzReactive
 		
 		return _stream_
 
-	# The method waits for the attribute to stop changing (settle) before executing the callback
+	# The method waits for the attribute to stop changing (settle) before
+	# executing the callback.
+	#
+	# F5 REWRITE (2026-07-14): the old body stored the pending timer in
+	# a LOCAL that a lambda "captured" -- but Ring lambdas do NOT capture
+	# enclosing locals, so every trigger raised (swallowed silently by
+	# TriggerAttributeWatchers' try/catch) and the feature never worked.
+	# The settle state now lives ON THE OBJECT (aSettleWatchers records)
+	# and the timers go to the GLOBAL detached table, which every
+	# RunLoop drives. The lambda uses only its own params (oSelf!) --
+	# the reason the watcher contract passes `this` first.
 	def WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
 		_cAttribute_ = StzLower(_cAttribute_)
-		
-		_currentTimer_ = NULL
-		
-		Watch(_cAttribute_, func(attr, oldVal, newVal) {
-			if _currentTimer_ != NULL
-				StopTimer(_currentTimer_)
-			ok
-			
-			# NOTE (S0 fix, 2026-07-14): RunAfter(nDelay, fCallback) --
-			# delay FIRST. The old call passed (callback, delay), and the
-			# swap-guard in RunAfter cannot detect it for lambdas.
-			_currentTimer_ = RunAfter(nDelay, func {
-				call fCallback(attr, oldVal, newVal)
-				_currentTimer_ = NULL
-			})
+		aSettleWatchers + [ _cAttribute_, nDelay, fCallback, "" ]
+		Watch(_cAttribute_, func(oSelf, attr, oldVal, newVal) {
+			oSelf.OnSettleChange(attr, oldVal, newVal)
 		})
-		
 		return self
 
 		def DebounceAttribute(_cAttribute_, nDelay, fCallback)
 			return This.WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
+
+	# (Internal) a watched-and-settling attribute changed: restart its
+	# settle timer. The user callback fires as f(attr, old, new) once
+	# the value has been quiet for the configured delay.
+	def OnSettleChange(cAttr, oldVal, newVal)
+		_nLen_ = len(aSettleWatchers)
+		for _i_ = 1 to _nLen_
+			if aSettleWatchers[_i_][1] = cAttr
+				if aSettleWatchers[_i_][4] != ""
+					StzReaxisStopTimer(aSettleWatchers[_i_][4])
+				ok
+				aSettleWatchers[_i_][4] = StzReaxisRunAfterXT(
+					aSettleWatchers[_i_][2],
+					aSettleWatchers[_i_][3],
+					[ cAttr, oldVal, newVal ])
+			ok
+		next
 
 	# Factory method for creating reactive objects
 	def Reactivate(existingObject)

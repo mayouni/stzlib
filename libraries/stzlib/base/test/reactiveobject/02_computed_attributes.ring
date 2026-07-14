@@ -1,6 +1,7 @@
 # Narrative
 # --------
-# (retired) reactiveobject: R54 attribute-redefinition is a stzReactiveObject init bug; needs class restructure (separate from agentic platform work).
+# (retired) R54 was FIXED (see r54_fix_narrated.ring); settle/debounce + watcher
+# arity were fixed in F5 (2026-07-14, see reactive/60_reaxis_on_reactor_narrated.ring).
 #
 #SKIP retired -- see header
 

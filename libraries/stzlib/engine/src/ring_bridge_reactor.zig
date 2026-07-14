@@ -62,6 +62,14 @@ fn ring_ReactorPoll(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_poll(r, id)));
 }
 
+/// StzEngineReactorJobState(reactor, nJobId) -> -2 not found, -1 running,
+/// 0 ready. NON-draining peek (the result stays fetchable).
+fn ring_ReactorJobState(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_job_state(r, id)));
+}
+
 /// StzEngineReactorAwait(reactor, nJobId, nTimeoutMs) -> same codes (-1 on timeout).
 fn ring_ReactorAwait(p: *anyopaque) callconv(.c) void {
     const r = getReactor(p, 1);
@@ -211,6 +219,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorcreate", .func = ring_ReactorCreate },
     .{ .name = "stzenginereactorsubmittimer", .func = ring_ReactorSubmitTimer },
     .{ .name = "stzenginereactorpoll", .func = ring_ReactorPoll },
+    .{ .name = "stzenginereactorjobstate", .func = ring_ReactorJobState },
     .{ .name = "stzenginereactorawait", .func = ring_ReactorAwait },
     .{ .name = "stzenginereactorpending", .func = ring_ReactorPending },
     .{ .name = "stzenginereactorsubmittcp", .func = ring_ReactorSubmitTcp },

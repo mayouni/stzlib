@@ -6,14 +6,15 @@
 #     pipeline DSL. The paradigm surface.
 #   * REACTOR (stzReactor + stzReactorPool) = the "how": the real
 #     async I/O runtime over VENDORED LIBUV, on its own engine thread.
-# The clean shape is Reaxis-RUNS-ON-Reactor (the Reactive-Streams-on-a-
-# Reactor pattern). Today Reaxis still drives its OWN cooperative
-# poller (stzTimerManager + StzEngineTimeNowMs) -- libuv was removed
-# from THIS surface 2026-06-13 (M-DEP4 slice 1); the vendored-libuv
-# reactor landed the next day as a SEPARATE track and Reaxis was never
-# re-based onto it. Re-basing Reaxis onto stzReactor (so RunLoop/timers/
-# streams run on real libuv, the poller kept only as a no-DLL fallback)
-# is TRACKED R7 work -- see the reactive-coherence task (F5).
+#
+# F5 (2026-07-14): Reaxis now RUNS ON Reactor. The system owns a
+# stzReactor; the timer manager's inter-tick waits are real libuv
+# timers awaited on the engine loop thread, and reactive HTTP submits
+# through the reactor (async, drained on the same loop). Callbacks
+# still DISPATCH on the Ring thread -- Ring is not thread-safe, so no
+# callback ever crosses from libuv into Ring. When stz_reactor.dll is
+# absent ($pStzReactorHandle = NULL) the old cooperative sleep-poller
+# runs instead -- the documented no-DLL fallback (LAW 2).
 
 #=====================#
 #  MAIN REACTIVE API  #
@@ -26,11 +27,10 @@
 class stzReactive from stzReactiveSystem
 class stzReactiveSystem from stzObject
 
-	# Retired libuv-loop slot: NULL since the M-DEP4 poller fallback.
-	# LibuvLoop()/the buffer converters return NULL/identity for API
-	# stability; the REAL loop lives in stzReactor. Removed when Reaxis
-	# is re-based onto the reactor (F5).
-	@libuvLoop
+	# F5: the reactor backing this system (a real libuv loop on an
+	# engine thread), or NULL when stz_reactor.dll is absent and the
+	# cooperative poller fallback runs instead.
+	@oReactor = NULL
 
 	# Core engine state
 	#------------------
@@ -59,23 +59,37 @@ class stzReactiveSystem from stzObject
 
 	def init()
 
-		# libuv default loop is no longer used; the polling timer
-		# manager is the runtime now. We keep @libuvLoop as a NULL
-		# sentinel so legacy callers that read the handle don't crash.
-		@libuvLoop = NULL
-
 		timerManager = new stzTimerManager()
 		http = new stzReactiveHttp(self)
+
+		# F5: run on the reactor when the engine DLL is present; the
+		# poller fallback needs no reactor at all. (SetReactor stores
+		# COPIES that share the engine handle -- safe because the
+		# handle is never destroyed while the system lives.)
+		@oReactor = NULL
+		if $pStzReactorHandle != NULL
+			@oReactor = new stzReactor()
+			timerManager.SetReactor(@oReactor)
+			http.SetReactor(@oReactor)
+		ok
 
 		tasks = []
 		streams = []
 
 		isRunning = ENGINE_STOPPED
 
-
+	# The real libuv loop handle backing this system (NULL in the
+	# no-DLL poller fallback). Real again since F5.
 	def LibuvLoop()
-		# Compatibility: returns NULL since libuv is no longer wired.
-		return @libuvLoop
+		if @oReactor != NULL
+			return @oReactor.Handle()
+		ok
+		return NULL
+
+	# The backing reactor as a chainable stz object (Q-convention);
+	# NULL in the poller fallback.
+	def ReactorQ()
+		return @oReactor
 
 	#----------------------------------------------------------#
 	#  STARTING AND STOPPING THE REACTIVE SYSTEM (LIBUV LOOP)  #
@@ -100,8 +114,11 @@ class stzReactiveSystem from stzObject
 	            ok
 	        next
 	
-		# Run timer-based loop for other reactive components
-	        timerManager.RunLoop()	        
+		# Run timer-based loop for other reactive components. The
+		# LIVE http object rides along as a by-ref param so the loop
+		# can drain its async completions (an attribute copy would
+		# see a dead snapshot -- the Ring aliasing doctrine).
+	        timerManager.RunLoop(http)
 	        isRunning = ENGINE_STOPPED
 	    ok
 
@@ -139,9 +156,18 @@ class stzReactiveSystem from stzObject
 
 		# Clean up streams
 		_nLenStreams_ = len(streams)
-		for i = 1 to _nLenStreams_ 
+		for i = 1 to _nLenStreams_
 			streams[i].Cleanup()
 		next
+
+		# F5: the reactor is deliberately NOT destroyed here. The
+		# manager/http hold handle-sharing COPIES (Ring attribute
+		# assignment copies objects), so destroying from Stop() --
+		# which timer callbacks may invoke MID-LOOP -- would leave
+		# those copies submitting on a freed loop (use-after-free).
+		# The idle loop thread is reclaimed at process exit; callers
+		# needing eager teardown may ReactorQ().Destroy() once no
+		# loop is running.
 
 		#< @FunctionAlternativeForms
 
