@@ -125,7 +125,7 @@ class stzPlatform from stzObject
 		@aWorldScreens = []
 		_nLen_ = len(poApp.aScreens)
 		for _i_ = 1 to _nLen_
-			@aWorldScreens + poApp.aScreens[_i_].cName
+			@aWorldScreens + poApp.aScreens[_i_][1]
 		next
 		@bHasWorld = TRUE
 		return This

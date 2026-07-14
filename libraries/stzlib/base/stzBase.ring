@@ -268,6 +268,7 @@ ok
     load "graph/stzGraphView.ring"
 
     load "graph/stzGraphPlanner.ring"
+    load "graph/stzGraphGoal.ring"
     load "graph/stzKnowledgeGraph.ring"
 
     load "graph/stzDiagram.ring"

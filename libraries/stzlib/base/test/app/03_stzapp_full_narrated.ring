@@ -45,26 +45,26 @@ oApp.Refine(:balance).Bounds(0, 1000000)
 oApp.Reaches([ :mobile, :desktop, :web ])
 
 oApp.Explain()
-#--> WORLD SonibankVisits   lives in: GraphDB + Files
+#--> WORLD SonibankVisits   lives in: graphdb + files
 #      BEING
-#        Account (number, chapter, balance)
+#        account (number, chapter, balance)
 #            true when balance @ >= 0
-#        Client (code, name, city)
-#        Visit (agent, date, subject)
+#        client (code, name, city)
+#        visit (agent, date, subject)
 #      RELATIONS
-#        Client owns Account
-#        Visit of Client
-#        Account belongsTo Client
+#        client owns account
+#        visit of client
+#        account belongsto client
 #      BECOMING
-#        when agent records Visit require subject then keep Visit
-#        whenever Client unseen 90 Days -> propose Visit
-#        wants EveryClientSeenThisQuarter within thisQuarter -> reached by planning
+#        when agent records visit require subject then keep visit
+#        whenever client unseen 90 days -> propose visit
+#        wants everyclientseenthisquarter within thisquarter -> reached by planning
 #      MET FROM WITHOUT
-#        screen ClientFile: understand Client shows identity, accounts, visits
+#        screen clientfile: understand client shows identity, accounts, visits
 #        refine balance bounds [0..1000000]
 #        reaches mobile, desktop, web
 
 oApp.Live()
-#--> [SonibankVisits] is live — 1 flow(s), 1 reaction(s), 1 goal(s)
+#--> [SonibankVisits] is live -- 3 thing(s), 1 flow(s), 1 reaction(s), 1 goal(s)
 
 pf()

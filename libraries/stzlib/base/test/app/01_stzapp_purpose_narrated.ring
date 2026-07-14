@@ -33,14 +33,14 @@ oApp {
 oApp.Explain()
 #--> WORLD SonibankVisits
 #      BEING
-#        Client (code, name, city)
-#        Visit (agent, date, subject)
+#        client (code, name, city)
+#        visit (agent, date, subject)
 #      RELATIONS
-#        Visit of Client
+#        visit of client
 #      BECOMING
-#        when agent records Visit require subject then keep Visit
-#        whenever Client unseen 90 Days -> propose Visit
-#        wants EveryClientSeenThisQuarter within thisQuarter -> reached by planning
+#        when agent records visit require subject then keep visit
+#        whenever client unseen 90 days -> propose visit
+#        wants everyclientseenthisquarter within thisquarter -> reached by planning
 
 # The goal is a declared wanted STATE (not a script):
 ? oApp.Goal(:EveryClientSeenThisQuarter).Means
@@ -48,7 +48,7 @@ oApp.Explain()
 
 # Pursue it — the engine finds the way (PI-first). Proposals re-enter behavior.
 oApp.Pursue(:EveryClientSeenThisQuarter)
-#--> pursuing EveryClientSeenThisQuarter via planning — 0 proposal(s)
+#--> pursuing everyclientseenthisquarter via planning -- 0 proposal(s)
 #    (0 here: only the schema is declared; Satisfied()/Gap() evaluate on live instance data)
 
 pf()

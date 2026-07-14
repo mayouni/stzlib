@@ -30,14 +30,14 @@ oApp {
 }
 
 oApp.Explain()
-#--> WORLD SonibankVisits   lives in: GraphDB + Files
+#--> WORLD SonibankVisits   lives in: graphdb + files
 #      BEING
-#        Client (code, name, city)
-#        Visit (agent, date, subject)
+#        client (code, name, city)
+#        visit (agent, date, subject)
 #      RELATIONS
-#        Visit of Client
+#        visit of client
 #      BECOMING
-#        whenever Client unseen 90 Days -> propose Visit
+#        whenever client unseen 90 days -> propose visit
 
 # Persist the world's substance (native .stzgraf + .stzrulz) and reproject files.
 oApp.Save()
@@ -46,7 +46,7 @@ oApp.Save()
 #    → reproject the readable file-face
 
 ? oApp.Body().Label()
-#--> GraphDB + Files
+#--> graphdb + files
 
 # A world with NO declared body still lives — in memory — it just won't endure:
 oScratch = new stzApp("Scratch")
@@ -54,6 +54,6 @@ oScratch { Thing(:Note) { Has([ :text ]) } }
 oScratch.Explain()
 #--> WORLD Scratch   lives in: memory (not persisted)
 #      BEING
-#        Note (text)
+#        note (text)
 
 pf()
