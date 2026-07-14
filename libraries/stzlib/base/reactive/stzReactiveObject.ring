@@ -39,6 +39,16 @@ func StzReactiveSetAttr(pObj, pcName, pValue)
 	ok
 	setattribute(pObj, pcName, pValue)
 
+# INHERITANCE NOTE (F3, 2026-07-14): `from stzReactive` is LOAD-BEARING,
+# not gratuitous -- this class calls the reactive system's timer API
+# directly (RunAfter/StopTimer, ProcessPendingReactions) via inherited
+# methods to drive attribute reactivity. It ALSO holds an `engine`
+# reference (composition) for CreateStream -- so the same "reactive
+# system" is reached two ways (inherit + compose), which is the smell.
+# The clean untangle (compose the engine, route the timer API through
+# it, inherit only stzObject) belongs to F5, when the runtime re-bases
+# onto stzReactor and the timer API moves to the reactor anyway. Left
+# as-is now to avoid destabilizing the R54 fix.
 class stzReactiveObject from stzReactive
 
 	# Core reactive infrastructure
