@@ -1529,30 +1529,39 @@ stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
      validating its own structural stage.
 
 **R7 -- the DELIVERY PLANE (app/ + platform/ + appserver/, 5.10).**
-Step order matters:
-1. THE ENGINE TRIO: an HTTP/1.1 server (grow the testserver.zig seed);
-   server-side reactor job kinds (accept + per-connection read
-   streams); the SQLITE BRIDGE (vendored, unwired -- wire it).
-2. REBUILD THE SERVER SPINE on stzReactor: real listener -> parse ->
-   route (params/wildcards) -> dispatch -> WRITE; fold stzContextPool
-   into stzReactorPool; fold cluster/ into the host's worker model
-   (domain-specialized workers); retire the no-op compute-engine
-   preloads (the engine IS the brain).
-3. ONE HOST, FOUR TOPOLOGIES: web (endpoints/static/templates);
-   MBaaS (sessions/auth over engine crypto, CRUD over sqlite,
-   realtime over the reactor); IoT (many persistent connections,
-   telemetry as Reaxis streams fed by real async readers, sqlite
-   persistence); AGENTS (each agent a supervised, cancellable,
-   traced, decommissionable reactor job -- R5's loop finds its home;
-   R4b's DecommissionContract enforced here).
-4. stzPlatform: Generate(:all) made real (Reach -> shells embedding
-   the one engine); the capability seam gated by the 5.7 lattice;
-   the Commons runtime; the networked body; the registry runtime +
-   norm enforcement.
-5. FINISH THE WORLD: stzApp slices B-E converted to the proven
-   return-This pattern; Pursue() wired to the real planner +
-   stzGraphGoal (R5); Live() actually wiring Reaxis reactions;
-   stzSuperApp's constellation as a governed graph-of-graphs.
+[COMPLETE 2026-07-14 except the deferrals noted inline; commits
+981364d86 (sqlite) + 7f5762eab..0388d987d. F5 (Reaxis re-based onto
+the reactor; poller = documented no-DLL fallback) landed in the same
+movement.] Step order matters:
+1. THE ENGINE TRIO [DONE]: the HTTP/1.1 server grew INSIDE reactor.zig
+   (engine-side framing: Content-Length, keep-alive, pipelining;
+   testserver.zig stays the offline client-hardening fixture);
+   server-side reactor job kinds (listen/accept + per-connection read
+   streams + accept/data/closed events, write/close control ops);
+   the SQLITE BRIDGE wired (stz_db.dll + data/stzDatabase).
+2. REBUILD THE SERVER SPINE on stzReactor [DONE]: real listener ->
+   parse -> route -> dispatch -> WRITE (exact-match routes; params/
+   wildcards deferred); stzContextPool + compute-engine preloads
+   retired as collapse-ruling tombstones; cluster/ folding deferred
+   with the R5 worker model.
+3. ONE HOST, FOUR TOPOLOGIES [3 of 4 DONE]: web (routes over the
+   engine-framed listener); MBaaS (CRUD floor over sqlite; auth/
+   sessions live in stzPlatform's Commons -- KDF = engine gap);
+   IoT (raw per-connection streams on the same loop); AGENTS
+   deferred to the R5 reactor-runtime slice (the loop is ready).
+4. stzPlatform [DONE, new platform/ domain]: Generate(:all) real
+   (Reach -> web/desktop/mobile shells); the capability seam gated
+   by the 5.7 lattice via R4b governance; the Commons runtime; the
+   networked body (GET /world, /thing over the host); the registry
+   + norm-enforced CallAcross.
+5. FINISH THE WORLD [stzApp DONE / SuperApp deferred]: slices B-E
+   converted to the proven cursor/return-This pattern (brace-copy
+   trap sealed); Pursue() wired to the REAL gap: Means compiles to
+   stzGraphGoal (a wanted graph state; GapOn(liveGraph); instances
+   via Is_/Relate isa-edges); Live() still summary-level (Reaxis
+   reaction wiring rides the R5 slice); stzSuperApp's constellation
+   remains design-only (its registry/bond/norm floor EXISTS in
+   stzPlatform duty 5).
 
 **S0 -- FOUNDATION HYGIENE (do alongside R1):**
 - patterns: fix stzRegexUter.Compute typo; implement StateByPosition/
