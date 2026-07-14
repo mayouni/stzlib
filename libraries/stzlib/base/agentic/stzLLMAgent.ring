@@ -23,7 +23,7 @@ class stzLLMAgent from stzObject
 	def Name_()
 		return @cName
 
-	def Memory()
+	def MemoryQ()
 		return @oMem
 
 	# the LLM body is an stzLLMFunction (typed-or-refuse, budgeted,

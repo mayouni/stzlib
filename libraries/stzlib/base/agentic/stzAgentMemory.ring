@@ -14,7 +14,7 @@ class stzAgentMemory from stzObject
 	def init(pcAgentName)
 		@oKG = new stzKnowledgeGraph("mem-" + pcAgentName)
 
-	def Graph()
+	def GraphQ()
 		return @oKG
 
 	def Learn(pcS, pcP, pcO)

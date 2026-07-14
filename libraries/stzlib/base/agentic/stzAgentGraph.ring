@@ -25,7 +25,7 @@ class stzAgentGraph from stzObject
 		@cName = "" + pcName
 		@oG = new stzGraph("agentgraph-" + pcName)
 
-	def Graph()
+	def GraphQ()
 		return @oG
 
 	#-- nodes (the capability lattice + taint colours) ----------------------
