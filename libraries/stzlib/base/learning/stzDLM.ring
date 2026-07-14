@@ -324,6 +324,65 @@ class stzDLM from stzObject
 		next
 		return _acOut_
 
+	# R4 step 8 -- the word-level DOMAIN TOKENIZER: a closed domain
+	# earns a closed vocabulary (id 1 = <unk>, then entities, types,
+	# relations, and every corpus word). The neural rung trains over
+	# these ids; the deterministic rung already speaks them.
+	def Tokenizer()
+		_acV_ = [ "<unk>" ]
+		_aLex_ = This.Lexicon()
+		_acAll_ = _aLex_[:entities]
+		_n_ = len(_acAll_)
+		for _i_ = 1 to _n_
+			if ring_find(_acV_, _acAll_[_i_]) = 0
+				_acV_ + _acAll_[_i_]
+			ok
+		next
+		_acAll_ = _aLex_[:types]
+		_n_ = len(_acAll_)
+		for _i_ = 1 to _n_
+			if ring_find(_acV_, _acAll_[_i_]) = 0
+				_acV_ + _acAll_[_i_]
+			ok
+		next
+		_acAll_ = _aLex_[:relations]
+		_n_ = len(_acAll_)
+		for _i_ = 1 to _n_
+			if ring_find(_acV_, _acAll_[_i_]) = 0
+				_acV_ + _acAll_[_i_]
+			ok
+		next
+		_acSents_ = This.GenerateCorpus()
+		_nS_ = len(_acSents_)
+		for _s_ = 1 to _nS_
+			_acW_ = StzSplit(StzReplace(StzLower(_acSents_[_s_]), ".", ""), " ")
+			_nW_ = len(_acW_)
+			for _w_ = 1 to _nW_
+				_cW_ = ring_trim(_acW_[_w_])
+				if _cW_ != "" and ring_find(_acV_, _cW_) = 0
+					_acV_ + _cW_
+				ok
+			next
+		next
+		return _acV_
+
+	def Tokenize(pcText)
+		_acV_ = This.Tokenizer()
+		_acW_ = StzSplit(StzReplace(StzLower(ring_trim("" + pcText)), ".", ""), " ")
+		_aOut_ = []
+		_nW_ = len(_acW_)
+		for _w_ = 1 to _nW_
+			_cW_ = ring_trim(_acW_[_w_])
+			if _cW_ != ""
+				_nId_ = ring_find(_acV_, _cW_)
+				if _nId_ = 0
+					_nId_ = 1
+				ok
+				_aOut_ + _nId_
+			ok
+		next
+		return _aOut_
+
 	def Why()
 		return @cWhy
 
