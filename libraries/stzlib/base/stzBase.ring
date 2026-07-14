@@ -105,6 +105,12 @@ ok
     load "reflect/stzSelfDoc.ring"
     load "reflect/stzLibDoc.ring"
 
+    # meta/ -- the library's knowledge of ITSELF as a domain (R2):
+    # structure (stzCodeGraph) + runnable house rules (stzCodeRules).
+    # The reflect/ self-doc files promote here in the next R2 slice.
+    load "meta/stzCodeGraph.ring"
+    load "meta/stzCodeRules.ring"
+
     load "string/stzWordStream.ring"
 
     # Modular subclasses
