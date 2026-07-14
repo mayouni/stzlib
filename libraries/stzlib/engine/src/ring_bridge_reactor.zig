@@ -117,6 +117,94 @@ fn ring_ReactorDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── server side (listen / events / write / close / stop) ─────
+
+// Event-data buffer for the last polled server event (an HTTP request or
+// a raw stream chunk).
+const SRV_BODY_CAP: usize = 4 * 1024 * 1024;
+var srv_body_buf: [SRV_BODY_CAP]u8 = undefined;
+
+/// StzEngineReactorListen(reactor, cHost, nPort, bHttpMode) -> server id
+/// (>0) or a negative uv error code. Blocks briefly for the bind result.
+fn ring_ReactorListen(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const host_len: usize = @intCast(gss(p, 2));
+    const port: u16 = @intFromFloat(gn(p, 3));
+    const http_mode: i32 = @intFromFloat(gn(p, 4));
+    rn(p, @floatFromInt(reactor.reactor_listen(r, host_ptr, host_len, port, http_mode)));
+}
+
+/// StzEngineReactorServerPort(reactor, nServerId) -> bound port or -2.
+fn ring_ReactorServerPort(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_port(r, sid)));
+}
+
+/// StzEngineReactorServerConns(reactor, nServerId) -> live connections.
+fn ring_ReactorServerConns(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_conns(r, sid)));
+}
+
+/// StzEngineReactorServerPoll(reactor, nServerId) -> 0 none, -2 unknown,
+/// -3 overflow, else event kind (1 accept, 2 data/request, 3 closed).
+/// Conn id via ServerLastConn(), data via ServerLastData().
+fn ring_ReactorServerPoll(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_poll(r, sid, &srv_body_buf, SRV_BODY_CAP)));
+}
+
+/// StzEngineReactorServerAwait(reactor, nServerId, nTimeoutMs) -> same
+/// codes as ServerPoll (0 = timed out with no event).
+fn ring_ReactorServerAwait(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    const timeout_ms: u64 = @intFromFloat(gn(p, 3));
+    rn(p, @floatFromInt(reactor.reactor_server_await(r, sid, timeout_ms, &srv_body_buf, SRV_BODY_CAP)));
+}
+
+/// StzEngineReactorServerLastConn() -> conn id of the last polled event.
+fn ring_ReactorServerLastConn(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(reactor.reactor_server_last_conn()));
+}
+
+/// StzEngineReactorServerLastData() -> data bytes of the last polled event.
+fn ring_ReactorServerLastData(p: *anyopaque) callconv(.c) void {
+    const n = reactor.reactor_server_last_len();
+    if (n > 0) rs2(p, &srv_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorServerWrite(reactor, nServerId, nConnId, cData,
+/// bCloseAfter) -> 0 ok, -1 error.
+fn ring_ReactorServerWrite(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    const conn_id: u64 = @intFromFloat(gn(p, 3));
+    const data_ptr: [*]const u8 = @ptrCast(gs(p, 4));
+    const data_len: usize = @intCast(gss(p, 4));
+    const close_after: i32 = @intFromFloat(gn(p, 5));
+    rn(p, @floatFromInt(reactor.reactor_server_write(r, sid, conn_id, data_ptr, data_len, close_after)));
+}
+
+/// StzEngineReactorServerCloseConn(reactor, nServerId, nConnId) -> 0/-1.
+fn ring_ReactorServerCloseConn(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    const conn_id: u64 = @intFromFloat(gn(p, 3));
+    rn(p, @floatFromInt(reactor.reactor_server_close_conn(r, sid, conn_id)));
+}
+
+/// StzEngineReactorServerStop(reactor, nServerId) -> 0/-1.
+fn ring_ReactorServerStop(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_stop(r, sid)));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginereactorversion", .func = ring_ReactorVersion },
     .{ .name = "stzenginereactorselftest", .func = ring_ReactorSelfTest },
@@ -130,6 +218,16 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactortcppoll", .func = ring_ReactorTcpPoll },
     .{ .name = "stzenginereactortcplaststatus", .func = ring_ReactorTcpLastStatus },
     .{ .name = "stzenginereactordestroy", .func = ring_ReactorDestroy },
+    .{ .name = "stzenginereactorlisten", .func = ring_ReactorListen },
+    .{ .name = "stzenginereactorserverport", .func = ring_ReactorServerPort },
+    .{ .name = "stzenginereactorserverconns", .func = ring_ReactorServerConns },
+    .{ .name = "stzenginereactorserverpoll", .func = ring_ReactorServerPoll },
+    .{ .name = "stzenginereactorserverawait", .func = ring_ReactorServerAwait },
+    .{ .name = "stzenginereactorserverlastconn", .func = ring_ReactorServerLastConn },
+    .{ .name = "stzenginereactorserverlastdata", .func = ring_ReactorServerLastData },
+    .{ .name = "stzenginereactorserverwrite", .func = ring_ReactorServerWrite },
+    .{ .name = "stzenginereactorservercloseconn", .func = ring_ReactorServerCloseConn },
+    .{ .name = "stzenginereactorserverstop", .func = ring_ReactorServerStop },
 };
 
 pub fn registerAll(state: *anyopaque) void {

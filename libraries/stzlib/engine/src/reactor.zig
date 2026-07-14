@@ -87,6 +87,7 @@ const WriteCb = *const fn (*anyopaque, c_int) callconv(.c) void;
 const AllocCb = *const fn (*anyopaque, usize, [*c]c.uv_buf_t) callconv(.c) void;
 const ReadCb = *const fn (*anyopaque, isize, [*c]const c.uv_buf_t) callconv(.c) void;
 const GaiCb = *const fn (*anyopaque, c_int, ?*c.struct_addrinfo) callconv(.c) void;
+const ConnectionCb = *const fn (*anyopaque, c_int) callconv(.c) void;
 
 extern fn uv_handle_size(handle_type: c.uv_handle_type) usize;
 extern fn uv_req_size(req_type: c.uv_req_type) usize;
@@ -96,10 +97,14 @@ extern fn uv_read_start(stream: *anyopaque, alloc_cb: AllocCb, read_cb: ReadCb) 
 extern fn uv_read_stop(stream: *anyopaque) c_int;
 extern fn uv_write(req: *anyopaque, stream: *anyopaque, bufs: [*]const c.uv_buf_t, nbufs: c_uint, cb: WriteCb) c_int;
 extern fn uv_getaddrinfo(loop: *c.uv_loop_t, req: *anyopaque, cb: GaiCb, node: [*:0]const u8, service: [*:0]const u8, hints: ?*const c.struct_addrinfo) c_int;
+extern fn uv_tcp_bind(handle: *anyopaque, addr: *const c.struct_sockaddr, flags: c_uint) c_int;
+extern fn uv_listen(stream: *anyopaque, backlog: c_int, cb: ConnectionCb) c_int;
+extern fn uv_accept(server: *anyopaque, client: *anyopaque) c_int;
+extern fn uv_tcp_getsockname(handle: *anyopaque, name: *c.struct_sockaddr, namelen: *c_int) c_int;
 
-fn setData(p: *anyopaque, job: *Job) void {
+fn setData(p: *anyopaque, user: *anyopaque) void {
     const slot: *?*anyopaque = @ptrCast(@alignCast(p));
-    slot.* = job;
+    slot.* = user;
 }
 fn getJob(p: *anyopaque) *Job {
     const slot: *?*anyopaque = @ptrCast(@alignCast(p));
@@ -155,6 +160,9 @@ pub const Reactor = struct {
     jobs: std.AutoHashMap(u64, *Job), // id -> job, for poll
     next_id: u64,
     stopping: std.atomic.Value(bool),
+    // server side (listen/accept/read-stream/http)
+    ctl: std.ArrayList(Ctl), // control ops queued for the loop thread
+    servers: std.AutoHashMap(u64, *Server), // id -> server
 };
 
 fn runLoop(r: *Reactor) void {
@@ -183,6 +191,18 @@ fn onWake(handle: [*c]c.uv_async_t) callconv(.c) void {
         r.mutex.unlock();
         if (n == 0) break;
         for (batch[0..n]) |job| startJob(job);
+    }
+    // Drain server control ops the same way.
+    var cbatch: [64]Ctl = undefined;
+    while (true) {
+        r.mutex.lock();
+        var n: usize = 0;
+        while (n < cbatch.len and r.ctl.items.len > 0) : (n += 1) {
+            cbatch[n] = r.ctl.orderedRemove(0);
+        }
+        r.mutex.unlock();
+        if (n == 0) break;
+        for (cbatch[0..n]) |op| runCtl(op);
     }
 }
 
@@ -366,15 +386,19 @@ pub fn reactor_create() callconv(.c) ?*Reactor {
         .jobs = std.AutoHashMap(u64, *Job).init(gpa),
         .next_id = 1,
         .stopping = std.atomic.Value(bool).init(false),
+        .ctl = .{},
+        .servers = std.AutoHashMap(u64, *Server).init(gpa),
     };
     if (c.uv_loop_init(&r.loop) != 0) {
         r.jobs.deinit();
+        r.servers.deinit();
         gpa.destroy(r);
         return null;
     }
     if (c.uv_async_init(&r.loop, &r.wake, onWake) != 0) {
         _ = c.uv_loop_close(&r.loop);
         r.jobs.deinit();
+        r.servers.deinit();
         gpa.destroy(r);
         return null;
     }
@@ -384,6 +408,7 @@ pub fn reactor_create() callconv(.c) ?*Reactor {
         _ = c.uv_run(&r.loop, c.UV_RUN_DEFAULT);
         _ = c.uv_loop_close(&r.loop);
         r.jobs.deinit();
+        r.servers.deinit();
         gpa.destroy(r);
         return null;
     };
@@ -578,6 +603,623 @@ pub fn reactor_tcp_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: [*
     }
 }
 
+// ── server side: listen / accept / per-connection read streams ──
+//
+// Tier 2 server slice (R7). A Server owns a libuv TCP listener living on
+// the loop thread. Each accepted connection gets a read stream; incoming
+// bytes (or, in http mode, complete framed HTTP/1.1 requests) are queued
+// as EVENTS that Ring drains with the same poll/await idiom. Writes and
+// closes are CONTROL OPS queued from Ring and executed on the loop
+// thread, so no libuv call ever happens off-loop and no callback ever
+// crosses into Ring.
+//
+// Event kinds (reactor_server_poll return value):
+//   0 none, 1 accept(conn), 2 data(conn, bytes) -- in http mode one
+//   complete request per event -- 3 closed(conn). Negative = error.
+
+const SRV_SCRATCH: usize = 64 * 1024;
+const SRV_MAX_INBOX: usize = 8 * 1024 * 1024; // per-conn framing cap
+const LISTEN_BACKLOG: c_int = 128;
+
+const SrvEventKind = enum(i32) { accept = 1, data = 2, closed = 3 };
+
+const SrvEvent = struct {
+    kind: SrvEventKind,
+    conn_id: u64,
+    data: ?[]u8 = null, // owned by the queue until polled
+};
+
+const CtlKind = enum { start_server, server_write, conn_close, stop_server };
+
+const Ctl = struct {
+    kind: CtlKind,
+    server: *Server,
+    conn_id: u64 = 0,
+    data: ?[]u8 = null, // write payload (owned until handed to WriteReq)
+    close_after: bool = false,
+};
+
+const Server = struct {
+    id: u64,
+    reactor: *Reactor,
+    host: []u8,
+    port: u16, // requested port; actual bound port in bound_port
+    http_mode: bool,
+    tcp_buf: ?[]u8 = null, // opaque listener uv_tcp_t
+    listener_inited: bool = false,
+    listener_closed: bool = false,
+    bind_done: bool = false, // guarded by Reactor.mutex
+    bind_status: i32 = 0,
+    bound_port: u16 = 0,
+    conns: std.AutoHashMap(u64, *Conn),
+    next_conn_id: u64 = 1,
+    events: std.ArrayList(SrvEvent) = .{},
+    stopping: bool = false,
+};
+
+const Conn = struct {
+    id: u64,
+    server: *Server,
+    tcp_buf: []u8, // opaque uv_tcp_t
+    scratch: []u8, // per-read buffer libuv fills
+    inbox: std.ArrayList(u8) = .{}, // http framing buffer
+    closing: bool = false,
+};
+
+// One in-flight write: the uv write request + the copied payload.
+const WriteReq = struct {
+    req_buf: []u8, // opaque uv_write_t (data slot -> this WriteReq)
+    data: []u8,
+    conn: *Conn,
+    close_after: bool,
+};
+
+fn freeConn(conn: *Conn) void {
+    gpa.free(conn.tcp_buf);
+    gpa.free(conn.scratch);
+    conn.inbox.deinit(gpa);
+    gpa.destroy(conn);
+}
+
+fn freeServer(s: *Server) void {
+    var it = s.conns.iterator();
+    while (it.next()) |e| freeConn(e.value_ptr.*);
+    s.conns.deinit();
+    for (s.events.items) |ev| {
+        if (ev.data) |d| gpa.free(d);
+    }
+    s.events.deinit(gpa);
+    gpa.free(s.host);
+    if (s.tcp_buf) |t| gpa.free(t);
+    gpa.destroy(s);
+}
+
+// Loop thread: execute one control op.
+fn runCtl(op: Ctl) void {
+    switch (op.kind) {
+        .start_server => startServer(op.server),
+        .server_write => startWrite(op),
+        .conn_close => {
+            const s = op.server;
+            s.reactor.mutex.lock();
+            const conn = s.conns.get(op.conn_id);
+            s.reactor.mutex.unlock();
+            if (conn) |cn| closeConn(cn);
+        },
+        .stop_server => stopServer(op.server),
+    }
+}
+
+fn startServer(s: *Server) void {
+    const r = s.reactor;
+    var addr: c.struct_sockaddr_in = undefined;
+    // Accept dotted IPv4 only (plus the localhost convenience alias) --
+    // a service host binds an interface, it does not resolve names.
+    const host = if (std.mem.eql(u8, s.host, "localhost")) "127.0.0.1" else s.host;
+    var host_buf: [64]u8 = undefined;
+    const host_z = std.fmt.bufPrintZ(&host_buf, "{s}", .{host}) catch {
+        finishBind(s, -1);
+        return;
+    };
+    if (c.uv_ip4_addr(host_z.ptr, s.port, &addr) != 0) {
+        finishBind(s, -1);
+        return;
+    }
+    const tcp = s.tcp_buf.?.ptr;
+    if (uv_tcp_init(&r.loop, tcp) != 0) {
+        finishBind(s, -1);
+        return;
+    }
+    setData(tcp, s);
+    s.listener_inited = true;
+    var rc = uv_tcp_bind(tcp, @ptrCast(&addr), 0);
+    if (rc == 0) rc = uv_listen(tcp, LISTEN_BACKLOG, onNewConnection);
+    if (rc != 0) {
+        finishBind(s, rc);
+        return;
+    }
+    // Report the actual bound port (supports port 0 = ephemeral).
+    var name: c.struct_sockaddr_storage = undefined;
+    var namelen: c_int = @sizeOf(c.struct_sockaddr_storage);
+    if (uv_tcp_getsockname(tcp, @ptrCast(&name), &namelen) == 0) {
+        const sin: *c.struct_sockaddr_in = @ptrCast(@alignCast(&name));
+        s.bound_port = std.mem.bigToNative(u16, sin.sin_port);
+    } else {
+        s.bound_port = s.port;
+    }
+    finishBind(s, 0);
+}
+
+fn finishBind(s: *Server, status: c_int) void {
+    const r = s.reactor;
+    if (status != 0 and s.listener_inited) {
+        const tcp = s.tcp_buf.?.ptr;
+        if (c.uv_is_closing(@ptrCast(@alignCast(tcp))) == 0) {
+            c.uv_close(@ptrCast(@alignCast(tcp)), onListenerClosed);
+        }
+    }
+    r.mutex.lock();
+    // If no uv handle was ever created there is nothing to close, so the
+    // "listener closed" half of the reap handshake is already satisfied.
+    if (status != 0 and !s.listener_inited) s.listener_closed = true;
+    s.bind_status = @intCast(status);
+    s.bind_done = true;
+    r.mutex.unlock();
+}
+
+fn onNewConnection(listener: *anyopaque, status: c_int) callconv(.c) void {
+    const slot: *?*anyopaque = @ptrCast(@alignCast(listener));
+    const s: *Server = @ptrCast(@alignCast(slot.*.?));
+    if (status != 0 or s.stopping) return;
+    const r = s.reactor;
+
+    const conn = gpa.create(Conn) catch return;
+    const tcp_buf = gpa.alloc(u8, uv_handle_size(c.UV_TCP)) catch {
+        gpa.destroy(conn);
+        return;
+    };
+    const scratch = gpa.alloc(u8, SRV_SCRATCH) catch {
+        gpa.free(tcp_buf);
+        gpa.destroy(conn);
+        return;
+    };
+    conn.* = .{ .id = 0, .server = s, .tcp_buf = tcp_buf, .scratch = scratch };
+
+    if (uv_tcp_init(&r.loop, tcp_buf.ptr) != 0) {
+        freeConn(conn);
+        return;
+    }
+    setData(tcp_buf.ptr, conn);
+    if (uv_accept(listener, tcp_buf.ptr) != 0) {
+        c.uv_close(@ptrCast(@alignCast(tcp_buf.ptr)), onConnClosed);
+        return;
+    }
+
+    r.mutex.lock();
+    conn.id = s.next_conn_id;
+    s.next_conn_id += 1;
+    const put_ok = blk: {
+        s.conns.put(conn.id, conn) catch break :blk false;
+        break :blk true;
+    };
+    if (put_ok) {
+        s.events.append(gpa, .{ .kind = .accept, .conn_id = conn.id }) catch {};
+    }
+    r.mutex.unlock();
+    if (!put_ok) {
+        closeConn(conn);
+        return;
+    }
+    if (uv_read_start(tcp_buf.ptr, onSrvAlloc, onSrvRead) != 0) closeConn(conn);
+}
+
+fn onSrvAlloc(stream: *anyopaque, suggested: usize, buf: [*c]c.uv_buf_t) callconv(.c) void {
+    _ = suggested;
+    const slot: *?*anyopaque = @ptrCast(@alignCast(stream));
+    const conn: *Conn = @ptrCast(@alignCast(slot.*.?));
+    buf.*.base = conn.scratch.ptr;
+    buf.*.len = @intCast(conn.scratch.len);
+}
+
+fn onSrvRead(stream: *anyopaque, nread: isize, buf: [*c]const c.uv_buf_t) callconv(.c) void {
+    _ = buf;
+    const slot: *?*anyopaque = @ptrCast(@alignCast(stream));
+    const conn: *Conn = @ptrCast(@alignCast(slot.*.?));
+    const s = conn.server;
+    const r = s.reactor;
+    if (nread > 0) {
+        const bytes = conn.scratch[0..@intCast(nread)];
+        if (s.http_mode) {
+            conn.inbox.appendSlice(gpa, bytes) catch {
+                closeConn(conn);
+                return;
+            };
+            if (conn.inbox.items.len > SRV_MAX_INBOX) {
+                closeConn(conn);
+                return;
+            }
+            // Emit every complete request framed so far (pipelining-safe).
+            while (httpRequestLen(conn.inbox.items)) |req_len| {
+                const req = gpa.dupe(u8, conn.inbox.items[0..req_len]) catch {
+                    closeConn(conn);
+                    return;
+                };
+                std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - req_len], conn.inbox.items[req_len..]);
+                conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - req_len);
+                r.mutex.lock();
+                s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = req }) catch {
+                    gpa.free(req);
+                };
+                r.mutex.unlock();
+            }
+        } else {
+            const chunk = gpa.dupe(u8, bytes) catch {
+                closeConn(conn);
+                return;
+            };
+            r.mutex.lock();
+            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = chunk }) catch {
+                gpa.free(chunk);
+            };
+            r.mutex.unlock();
+        }
+        return;
+    }
+    if (nread < 0) closeConn(conn); // EOF or error: peer is gone either way
+    // nread == 0 -> EAGAIN, nothing to do
+}
+
+// HTTP/1.1 framing: total byte length of the first complete request in
+// `bytes` (headers + Content-Length body), or null if incomplete.
+fn httpRequestLen(bytes: []const u8) ?usize {
+    const he = std.mem.indexOf(u8, bytes, "\r\n\r\n") orelse return null;
+    const header_end = he + 4;
+    const clen = httpContentLength(bytes[0..header_end]);
+    if (bytes.len >= header_end + clen) return header_end + clen;
+    return null;
+}
+
+fn httpContentLength(headers: []const u8) usize {
+    var it = std.mem.splitSequence(u8, headers, "\r\n");
+    _ = it.next(); // request line
+    while (it.next()) |line| {
+        if (line.len == 0) break;
+        const colon = std.mem.indexOfScalar(u8, line, ':') orelse continue;
+        if (std.ascii.eqlIgnoreCase(std.mem.trim(u8, line[0..colon], " \t"), "content-length")) {
+            const v = std.mem.trim(u8, line[colon + 1 ..], " \t");
+            return std.fmt.parseInt(usize, v, 10) catch 0;
+        }
+    }
+    return 0;
+}
+
+fn startWrite(op: Ctl) void {
+    const s = op.server;
+    const r = s.reactor;
+    r.mutex.lock();
+    const conn = s.conns.get(op.conn_id);
+    r.mutex.unlock();
+    const cn = conn orelse {
+        if (op.data) |d| gpa.free(d);
+        return;
+    };
+    if (cn.closing) {
+        if (op.data) |d| gpa.free(d);
+        return;
+    }
+    const data = op.data orelse return;
+    const wr = gpa.create(WriteReq) catch {
+        gpa.free(data);
+        return;
+    };
+    const req_buf = gpa.alloc(u8, uv_req_size(c.UV_WRITE)) catch {
+        gpa.free(data);
+        gpa.destroy(wr);
+        return;
+    };
+    wr.* = .{ .req_buf = req_buf, .data = data, .conn = cn, .close_after = op.close_after };
+    setData(req_buf.ptr, wr);
+    var buf = c.uv_buf_init(@ptrCast(data.ptr), @intCast(data.len));
+    if (uv_write(req_buf.ptr, cn.tcp_buf.ptr, @ptrCast(&buf), 1, onSrvWrite) != 0) {
+        gpa.free(req_buf);
+        gpa.free(data);
+        gpa.destroy(wr);
+        closeConn(cn);
+    }
+}
+
+fn onSrvWrite(req: *anyopaque, status: c_int) callconv(.c) void {
+    const slot: *?*anyopaque = @ptrCast(@alignCast(req));
+    const wr: *WriteReq = @ptrCast(@alignCast(slot.*.?));
+    const cn = wr.conn;
+    const want_close = wr.close_after or status != 0;
+    gpa.free(wr.req_buf);
+    gpa.free(wr.data);
+    gpa.destroy(wr);
+    if (want_close) closeConn(cn);
+}
+
+fn closeConn(conn: *Conn) void {
+    if (conn.closing) return;
+    conn.closing = true;
+    _ = uv_read_stop(conn.tcp_buf.ptr);
+    c.uv_close(@ptrCast(@alignCast(conn.tcp_buf.ptr)), onConnClosed);
+}
+
+fn onConnClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
+    const conn: *Conn = @ptrCast(@alignCast(handle.*.data.?));
+    const s = conn.server;
+    const r = s.reactor;
+    r.mutex.lock();
+    const known = s.conns.remove(conn.id);
+    if (known) {
+        s.events.append(gpa, .{ .kind = .closed, .conn_id = conn.id }) catch {};
+    }
+    reapServerLocked(s);
+    r.mutex.unlock();
+    freeConn(conn);
+}
+
+fn stopServer(s: *Server) void {
+    s.stopping = true;
+    if (s.listener_inited and !s.listener_closed) {
+        const tcp = s.tcp_buf.?.ptr;
+        if (c.uv_is_closing(@ptrCast(@alignCast(tcp))) == 0) {
+            c.uv_close(@ptrCast(@alignCast(tcp)), onListenerClosed);
+        }
+    } else {
+        s.reactor.mutex.lock();
+        s.listener_closed = true;
+        reapServerLocked(s);
+        s.reactor.mutex.unlock();
+    }
+    // Close every live connection; each close reaps toward teardown.
+    // Collect ALL ids first (closes complete asynchronously, so the map
+    // still holds closing conns -- re-collecting would spin forever).
+    var ids: std.ArrayList(u64) = .{};
+    defer ids.deinit(gpa);
+    s.reactor.mutex.lock();
+    var it = s.conns.iterator();
+    while (it.next()) |e| {
+        ids.append(gpa, e.key_ptr.*) catch break;
+    }
+    s.reactor.mutex.unlock();
+    for (ids.items) |cid| {
+        s.reactor.mutex.lock();
+        const conn = s.conns.get(cid);
+        s.reactor.mutex.unlock();
+        if (conn) |cn| closeConn(cn);
+    }
+}
+
+fn onListenerClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
+    const s: *Server = @ptrCast(@alignCast(handle.*.data.?));
+    const r = s.reactor;
+    r.mutex.lock();
+    s.listener_closed = true;
+    reapServerLocked(s);
+    r.mutex.unlock();
+}
+
+// Free the server once stopped, listener closed and every conn gone.
+// Caller holds the mutex.
+fn reapServerLocked(s: *Server) void {
+    if (s.stopping and s.listener_closed and s.conns.count() == 0) {
+        _ = s.reactor.servers.remove(s.id);
+        // Deferred free: freeServer touches only our own memory, safe here.
+        freeServer(s);
+    }
+}
+
+var srv_last_conn: u64 = 0;
+var srv_last_len: usize = 0;
+
+/// Connection id of the last event returned by reactor_server_poll/await.
+pub fn reactor_server_last_conn() callconv(.c) u64 {
+    return srv_last_conn;
+}
+
+pub fn reactor_server_last_len() callconv(.c) usize {
+    return srv_last_len;
+}
+
+/// Start a TCP/HTTP listener on host:port (dotted IPv4 or "localhost";
+/// port 0 = ephemeral). http_mode != 0 frames complete HTTP/1.1 requests.
+/// Blocks briefly for the bind result. Returns server id (>0) or the
+/// negative uv error code.
+pub fn reactor_listen(
+    r_opt: ?*Reactor,
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    http_mode: i32,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const s = gpa.create(Server) catch return -1;
+    const host = gpa.dupe(u8, host_ptr[0..host_len]) catch {
+        gpa.destroy(s);
+        return -1;
+    };
+    const tcp_buf = gpa.alloc(u8, uv_handle_size(c.UV_TCP)) catch {
+        gpa.free(host);
+        gpa.destroy(s);
+        return -1;
+    };
+    r.mutex.lock();
+    s.* = .{
+        .id = r.next_id,
+        .reactor = r,
+        .host = host,
+        .port = port,
+        .http_mode = http_mode != 0,
+        .tcp_buf = tcp_buf,
+        .conns = std.AutoHashMap(u64, *Conn).init(gpa),
+    };
+    r.next_id += 1;
+    const id = s.id;
+    r.servers.put(id, s) catch {
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .start_server, .server = s }) catch {
+        _ = r.servers.remove(id);
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    // Wait for the loop thread to report the bind result (bounded).
+    const deadline = std.time.nanoTimestamp() + 5 * std.time.ns_per_s;
+    while (true) {
+        r.mutex.lock();
+        const done = s.bind_done;
+        const status = s.bind_status;
+        r.mutex.unlock();
+        if (done) {
+            if (status != 0) {
+                // Bind failed: the listener close is already in flight;
+                // mark stopping so the reap handshake frees the server.
+                r.mutex.lock();
+                s.stopping = true;
+                reapServerLocked(s);
+                r.mutex.unlock();
+                return status;
+            }
+            return @intCast(id);
+        }
+        if (std.time.nanoTimestamp() >= deadline) return -1;
+        std.Thread.sleep(1 * std.time.ns_per_ms);
+    }
+}
+
+/// Actual bound port of a listening server (useful with port 0).
+pub fn reactor_server_port(r_opt: ?*Reactor, sid: u64) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -2;
+    return @intCast(s.bound_port);
+}
+
+/// Number of live connections on a server.
+pub fn reactor_server_conns(r_opt: ?*Reactor, sid: u64) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -2;
+    return @intCast(s.conns.count());
+}
+
+/// Drain one server event. Returns 0 (none), -2 (unknown server), -3
+/// (data overflow: event dropped), or the event kind (1 accept, 2 data,
+/// 3 closed). Data bytes are copied into out[0..max]; the conn id and
+/// byte count are reported via reactor_server_last_conn/_last_len.
+pub fn reactor_server_poll(r_opt: ?*Reactor, sid: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -2;
+    if (s.events.items.len == 0) return 0;
+    const ev = s.events.orderedRemove(0);
+    srv_last_conn = ev.conn_id;
+    srv_last_len = 0;
+    if (ev.data) |d| {
+        defer gpa.free(d);
+        if (d.len > max) return -3;
+        @memcpy(out[0..d.len], d);
+        srv_last_len = d.len;
+    }
+    return @intFromEnum(ev.kind);
+}
+
+/// Block up to timeout_ms for a server event. Same codes as
+/// reactor_server_poll (0 = timed out with no event).
+pub fn reactor_server_await(r_opt: ?*Reactor, sid: u64, timeout_ms: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
+    while (true) {
+        const rc = reactor_server_poll(r, sid, out, max);
+        if (rc != 0) return rc;
+        if (std.time.nanoTimestamp() >= deadline) return 0;
+        std.Thread.sleep(1 * std.time.ns_per_ms);
+    }
+}
+
+/// Queue a write to a connection; close_after != 0 closes it once the
+/// write completes (Connection: close semantics). Returns 0 or -1.
+pub fn reactor_server_write(
+    r_opt: ?*Reactor,
+    sid: u64,
+    conn_id: u64,
+    data_ptr: [*]const u8,
+    data_len: usize,
+    close_after: i32,
+) callconv(.c) i32 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    r.mutex.lock();
+    const s = r.servers.get(sid) orelse {
+        r.mutex.unlock();
+        return -1;
+    };
+    const data = gpa.dupe(u8, data_ptr[0..data_len]) catch {
+        r.mutex.unlock();
+        return -1;
+    };
+    r.ctl.append(gpa, .{
+        .kind = .server_write,
+        .server = s,
+        .conn_id = conn_id,
+        .data = data,
+        .close_after = close_after != 0,
+    }) catch {
+        r.mutex.unlock();
+        gpa.free(data);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return 0;
+}
+
+/// Queue a connection close. Returns 0 or -1.
+pub fn reactor_server_close_conn(r_opt: ?*Reactor, sid: u64, conn_id: u64) callconv(.c) i32 {
+    const r = r_opt orelse return -1;
+    r.mutex.lock();
+    const s = r.servers.get(sid) orelse {
+        r.mutex.unlock();
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .conn_close, .server = s, .conn_id = conn_id }) catch {
+        r.mutex.unlock();
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return 0;
+}
+
+/// Stop a server: close the listener and every connection; the server is
+/// freed once all handles are closed. Returns 0 or -1.
+pub fn reactor_server_stop(r_opt: ?*Reactor, sid: u64) callconv(.c) i32 {
+    const r = r_opt orelse return -1;
+    r.mutex.lock();
+    const s = r.servers.get(sid) orelse {
+        r.mutex.unlock();
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .stop_server, .server = s }) catch {
+        r.mutex.unlock();
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return 0;
+}
+
 /// Number of jobs submitted but not yet started on the loop.
 pub fn reactor_pending(r_opt: ?*Reactor) callconv(.c) i32 {
     const r = r_opt orelse return -1;
@@ -597,6 +1239,16 @@ pub fn reactor_destroy(r_opt: ?*Reactor) callconv(.c) void {
     while (it.next()) |e| freeJob(e.value_ptr.*);
     r.jobs.deinit();
     r.pending.deinit(gpa);
+    // Free surviving servers (their handles were force-closed by walkClose,
+    // so the per-handle close callbacks never ran).
+    var sit = r.servers.iterator();
+    while (sit.next()) |e| freeServer(e.value_ptr.*);
+    r.servers.deinit();
+    // Free any queued-but-never-run control ops that own data.
+    for (r.ctl.items) |op| {
+        if (op.data) |d| gpa.free(d);
+    }
+    r.ctl.deinit(gpa);
     gpa.destroy(r);
 }
 
@@ -658,6 +1310,68 @@ test "reactor core: async tcp request round-trip (LIVE NETWORK)" {
     try std.testing.expect(n > 0);
     try std.testing.expectEqual(@as(i32, 0), reactor_tcp_last_status());
     try std.testing.expect(std.mem.startsWith(u8, buf[0..@intCast(n)], "HTTP/"));
+}
+
+test "reactor server: http request/response round-trip on loopback" {
+    const r = reactor_create().?;
+    defer reactor_destroy(r);
+    const sid_i = reactor_listen(r, "127.0.0.1", 9, 0, 1); // port 0 = ephemeral
+    try std.testing.expect(sid_i > 0);
+    const sid: u64 = @intCast(sid_i);
+    const port_i = reactor_server_port(r, sid);
+    try std.testing.expect(port_i > 0);
+    const port: u16 = @intCast(port_i);
+
+    // Client and server share the reactor: the loop thread runs both ends,
+    // this thread plays "Ring" -- submit, then serve events, then await.
+    const req = "GET /hello HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n";
+    const jid = reactor_submit_tcp_request(r, "127.0.0.1", 9, port, req, req.len);
+    try std.testing.expect(jid > 0);
+
+    var evbuf: [65536]u8 = undefined;
+    var served = false;
+    var tries: usize = 0;
+    while (!served and tries < 500) : (tries += 1) {
+        const k = reactor_server_await(r, sid, 20, &evbuf, evbuf.len);
+        if (k == 2) {
+            const got = evbuf[0..reactor_server_last_len()];
+            try std.testing.expect(std.mem.startsWith(u8, got, "GET /hello"));
+            const resp = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nhi";
+            try std.testing.expectEqual(@as(i32, 0), reactor_server_write(r, sid, reactor_server_last_conn(), resp, resp.len, 1));
+            served = true;
+        }
+    }
+    try std.testing.expect(served);
+
+    var buf: [65536]u8 = undefined;
+    const n = reactor_tcp_await(r, @intCast(jid), 10_000, &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "200 OK") != null);
+    try std.testing.expect(std.mem.endsWith(u8, buf[0..@intCast(n)], "hi"));
+    try std.testing.expectEqual(@as(i32, 0), reactor_server_stop(r, sid));
+}
+
+test "reactor server: stop with live connections leaks nothing" {
+    const r = reactor_create().?;
+    const sid_i = reactor_listen(r, "127.0.0.1", 9, 0, 0); // raw stream mode
+    try std.testing.expect(sid_i > 0);
+    const sid: u64 = @intCast(sid_i);
+    const port: u16 = @intCast(reactor_server_port(r, sid));
+    // Open a client conn that never completes (no EOF from our side).
+    _ = reactor_submit_tcp_request(r, "127.0.0.1", 9, port, "ping", 4);
+    var evbuf: [4096]u8 = undefined;
+    // Wait for the accept (and likely the data chunk) to arrive.
+    _ = reactor_server_await(r, sid, 2_000, &evbuf, evbuf.len);
+    try std.testing.expectEqual(@as(i32, 0), reactor_server_stop(r, sid));
+    // Destroy with the stop possibly still in flight: must not crash/leak.
+    reactor_destroy(r);
+}
+
+test "reactor server: bind to an invalid host reports an error" {
+    const r = reactor_create().?;
+    defer reactor_destroy(r);
+    const sid = reactor_listen(r, "999.999.0.1", 11, 0, 1);
+    try std.testing.expect(sid < 0);
 }
 
 test "reactor core: tcp connect to unreachable surfaces an error, no leak" {
