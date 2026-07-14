@@ -492,6 +492,11 @@ ok
     load "agentic/stzLLMAgent.ring"
     load "agentic/stzNativeStack.ring"
 
+    # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
+    # code carries typed refinement points; a change is a typed proposal
+    # through the gate, with cascade preview + reversibility.
+    load "refine/stzRefinableCode.ring"
+
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"
     load "linguistic/stzSingular.ring"
