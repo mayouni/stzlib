@@ -102,14 +102,17 @@ ok
     # source, then Ask()/ExplainMethod() via the neural tier (near-natural
     # programming, no heavy LLM). Loaded after neural (uses its globals at runtime).
     load "reflect/stzReflectFuncs.ring"
-    load "reflect/stzSelfDoc.ring"
-    load "reflect/stzLibDoc.ring"
 
     # meta/ -- the library's knowledge of ITSELF as a domain (R2):
-    # structure (stzCodeGraph) + runnable house rules (stzCodeRules).
-    # The reflect/ self-doc files promote here in the next R2 slice.
+    # self-doc (promoted from reflect/, which keeps the parsing
+    # primitives), structure (stzCodeGraph), runnable house rules
+    # (stzCodeRules), governance checks + signable predicate sets.
+    load "meta/stzSelfDoc.ring"
+    load "meta/stzLibDoc.ring"
     load "meta/stzCodeGraph.ring"
     load "meta/stzCodeRules.ring"
+    load "meta/stzGovernanceChecks.ring"
+    load "meta/stzPredicateSet.ring"
 
     load "string/stzWordStream.ring"
 
