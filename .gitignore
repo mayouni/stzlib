@@ -3,3 +3,6 @@
 
 # Neural model files (large; downloaded on demand)
 *.gguf
+
+# stzApp/stzPlatform test-run artifacts
+**/test/**/.stzapp/

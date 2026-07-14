@@ -1,8 +1,0 @@
-graph "sonibankvisits"
-    type: structural
-
-nodes
-    client
-    visit
-
-edges
