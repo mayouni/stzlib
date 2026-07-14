@@ -65,6 +65,6 @@ oApp.Explain()
 #        reaches mobile, desktop, web
 
 oApp.Live()
-#--> [SonibankVisits] is live -- 3 thing(s), 1 flow(s), 1 reaction(s), 1 goal(s)
+#--> [SonibankVisits] is live -- 3 thing(s), 1 flow(s), 1 reaction(s), 1 goal(s); 0 proposal(s)
 
 pf()
