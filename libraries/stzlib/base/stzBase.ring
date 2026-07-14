@@ -99,6 +99,7 @@ ok
     load "neural/stzNeural.ring"
     load "neural/stzNeuralEngine.ring"
     load "neural/stzNeuralModel.ring"
+    load "neural/stzLLMFunction.ring"
 
     # Reflection: self-describing objects -- harvest a class's methods + docs from
     # source, then Ask()/ExplainMethod() via the neural tier (near-natural
