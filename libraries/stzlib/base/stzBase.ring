@@ -468,6 +468,9 @@ ok
     load "learning/stzNaiveBayes.ring"
     load "learning/stzDecisionTree.ring"
     load "learning/stzApriori.ring"
+    load "learning/stzKMeans.ring"
+    load "learning/stzLogisticRegression.ring"
+    load "learning/stzModelEval.ring"
 
     load "linguistic/stzAdverb.ring"
     load "linguistic/stzPlural.ring"

@@ -95,6 +95,43 @@ chk("each rule carries support AND confidence",
 	aR[1][:support] = 3 and aR[1][:confidence] >= 0.7)
 
 ? ""
+? "-- Scene 6: k-means -- unsupervised, deterministic, accountable --"
+oKM = new stzKMeans([ [1,1], [1.2,0.9], [0.8,1.1], [8,8], [7.9,8.1], [8.2,7.8] ])
+oKM.SetK(2)
+oKM.Run(50)
+aCl = oKM.Clusters()
+chk("two blobs separate cleanly",
+	len(aCl[1]) = 3 and len(aCl[2]) = 3)
+chk("a new point joins its blob", oKM.ClusterOf([7.5, 8.0]) = 2)
+chk("Why reports iterations and inertia",
+	len(StzFind("inertia", oKM.Why())) > 0)
+
+? ""
+? "-- Scene 7: logistic regression -- the first gradient-trained model --"
+oTs3 = new stzTrainingSet([
+	[ [0.5], "small" ], [ [1.0], "small" ], [ [1.5], "small" ], [ [2.0], "small" ],
+	[ [3.0], "big" ], [ [3.5], "big" ], [ [4.0], "big" ], [ [4.5], "big" ]
+])
+oLR = new stzLogisticRegression(oTs3)
+oLR.SetLearningRate(0.5)
+oLR.Train(300)
+chk("the boundary is learned (both sides)",
+	oLR.Classify([1.0]) = "small" and oLR.Classify([4.0]) = "big")
+nP = oLR.Probability([2.5])
+chk("mid-boundary probability hovers near 0.5", nP > 0.3 and nP < 0.7)
+chk("Why shows probability, weights and bias",
+	len(StzFind("weights", oLR.Why())) > 0)
+
+? ""
+? "-- Scene 8: evaluation -- scored, confusion NAMED --"
+aP = [ "a", "a", "b", "b" ]
+aT = [ "a", "b", "b", "b" ]
+chk("accuracy computes", StzAccuracy(aP, aT) = 0.75)
+aCM = StzConfusionMatrix(aP, aT)
+chk("the confusion matrix names each truth->prediction",
+	aCM["b->a"] = 1 and aCM["b->b"] = 2)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
