@@ -567,6 +567,18 @@ pub fn reactor_submit_tcp_request(
     return @intCast(id);
 }
 
+/// Peek a job's state WITHOUT draining it: -2 not found, -1 still
+/// running, 0 result ready (a subsequent reactor_tcp_poll fetches the
+/// body). Lets a caller multiplex many in-flight jobs (Reaxis F5).
+pub fn reactor_job_state(r_opt: ?*Reactor, job_id: u64) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const job = r.jobs.get(job_id) orelse return -2;
+    if (!job.result_ready) return -1;
+    return 0;
+}
+
 /// Poll a tcp_request job: -2 not found, -1 running, -3 overflow, else
 /// the number of response bytes written into out[0..max]. The op status
 /// is reported via reactor_tcp_last_status().

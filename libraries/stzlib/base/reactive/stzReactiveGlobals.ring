@@ -456,3 +456,63 @@ DEFAULT_ASYNC_MODE = PROCESS_ASYNC
 DEFAULT_BINDING_MODE = BINDING_ONE_WAY
 DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
 DEFAULT_SYNC_MODE = BINDING_AUTO_SYNC
+
+#--------------------------------------------------------------#
+#  DETACHED TIMER TABLE (F5, 2026-07-14)                       #
+#--------------------------------------------------------------#
+# Ring copies objects on EVERY store (assignment, attribute, list
+# append) -- only method params and index-calls into a list reach the
+# live instance. A reactive OBJECT therefore cannot register a timer
+# on "its" system through a stored engine reference (the reference is
+# a dead snapshot). The Ring-true cure: one GLOBAL timer table,
+# reached by NAME from anywhere, mutated through the index. Every
+# running RunLoop drives it alongside its own timers.
+
+# Table records: [ cId, nDueMs, fCallback, aArgs ] -- plain values, no
+# timer objects (so no copy-vs-live ambiguity at all). Ring lambdas do
+# NOT capture enclosing locals, so aArgs carries the values the
+# callback needs at fire time (up to 3, matched by arity).
+
+$aReaxisDetachedTimers = []
+$nReaxisDetachedSeq = 0
+
+# Register a detached one-shot timer; returns its id string.
+func StzReaxisRunAfter(nDelayMs, fCallback)
+	return StzReaxisRunAfterXT(nDelayMs, fCallback, [])
+
+func StzReaxisRunAfterXT(nDelayMs, fCallback, paArgs)
+	$nReaxisDetachedSeq++
+	_cId_ = "detached_" + $nReaxisDetachedSeq
+	$aReaxisDetachedTimers + [ _cId_, StzEngineTimeNowMs() + nDelayMs, fCallback, paArgs ]
+	return _cId_
+
+# Stop + remove a detached timer by id (no-op when already gone).
+func StzReaxisStopTimer(cId)
+	for _i_ = len($aReaxisDetachedTimers) to 1 step -1
+		if $aReaxisDetachedTimers[_i_][1] = cId
+			del($aReaxisDetachedTimers, _i_)
+			exit
+		ok
+	next
+
+# Fire every due detached timer (called by each RunLoop iteration).
+# Returns the number still pending.
+func StzReaxisTickDetached()
+	_nNow_ = StzEngineTimeNowMs()
+	for _i_ = len($aReaxisDetachedTimers) to 1 step -1
+		if _nNow_ >= $aReaxisDetachedTimers[_i_][2]
+			_f_ = $aReaxisDetachedTimers[_i_][3]
+			_aArgs_ = $aReaxisDetachedTimers[_i_][4]
+			del($aReaxisDetachedTimers, _i_)
+			if islist(_aArgs_) and len(_aArgs_) = 3
+				call _f_(_aArgs_[1], _aArgs_[2], _aArgs_[3])
+			but islist(_aArgs_) and len(_aArgs_) = 2
+				call _f_(_aArgs_[1], _aArgs_[2])
+			but islist(_aArgs_) and len(_aArgs_) = 1
+				call _f_(_aArgs_[1])
+			else
+				call _f_()
+			ok
+		ok
+	next
+	return len($aReaxisDetachedTimers)

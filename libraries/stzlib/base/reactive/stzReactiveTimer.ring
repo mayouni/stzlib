@@ -1,11 +1,12 @@
 
-# Polling-based timer (formerly a libuv wrapper).
-# M-DEP4 slice 1 (2026-06-13): the libuv integration has been removed
-# and the class is now backed by Ring's `clock()` + `clocksPerSecond()`
-# polling -- the same paradigm stzRingTimer uses. CheckAndTick() must
-# be called by the manager to advance the timer; there is no
-# preemptive thread today. Real async will arrive when the
-# cross-platform Zig event loop ships in a later slice.
+# Reaxis timers.
+# M-DEP4 slice 1 (2026-06-13) removed the old libuv wrapper; timers
+# became CheckAndTick() objects advanced by the manager's poll loop.
+# F5 (2026-07-14) re-based the MANAGER onto stzReactor: the wait
+# between ticks is now a real libuv timer awaited on the engine loop
+# thread (callbacks still dispatch on the Ring thread -- Ring is not
+# thread-safe, so no callback ever crosses from libuv into Ring). The
+# pure-Ring sleep() poll remains the documented no-DLL fallback.
 
 class stzReactiveTimer from stzObject
 
@@ -160,6 +161,13 @@ class stzRingTimer from stzObject
 		Stop()
 
 # Timer manager to check all active timers
+#
+# F5 (2026-07-14): the manager now RUNS ON THE REACTOR when the engine
+# DLL is present -- the inter-tick wait is a REAL libuv timer awaited
+# on the engine loop thread (SubmitTimer/AwaitTimer), not a Ring
+# sleep(). The pure-Ring sleep remains the documented no-DLL fallback
+# (LAW 2). The manager also drains the reactive-http pending set each
+# tick, so async HTTP callbacks dispatch from the same loop.
 
 class stzTimerManager from stzObject
 
@@ -168,6 +176,7 @@ class stzTimerManager from stzObject
 	shouldStop = false
 	checkFrequency = DEFAULT_TIMER_CHECK  # How often to check timers (ms)
 	emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no timers
+	oReactor = NULL       # F5: engine loop backing the waits (NULL = poller)
 
 	def init()
 		timers = []
@@ -181,6 +190,27 @@ class stzTimerManager from stzObject
 
 	def SetPatience(patience)
 		emptyLoopPatience = patience
+
+	# NOTE: the stored reactor is a COPY (Ring attribute assignment
+	# copies objects) that SHARES the engine handle -- safe because the
+	# handle is never destroyed while a system lives (see stzReactive.
+	# Stop). The http drain is NOT stored for the same reason: a copy's
+	# aPending would be a dead snapshot; RunLoop takes the LIVE object
+	# as a parameter instead (params are by-reference).
+	def SetReactor(poReactor)
+		oReactor = poReactor
+
+	# The inter-tick wait: a real libuv timer on the engine loop when
+	# the reactor is present; Ring sleep() as the no-DLL fallback.
+	def _WaitTick()
+		if oReactor != NULL
+			_nId_ = oReactor.SubmitTimer(checkFrequency)
+			if _nId_ > 0
+				oReactor.AwaitTimer(_nId_, checkFrequency + 1000)
+			ok
+		else
+			sleep(checkFrequency / MS_PER_SECOND)
+		ok
 
 	def AddTimer(_timer_)
 		timers + _timer_
@@ -199,7 +229,9 @@ class stzTimerManager from stzObject
 	        isRunning = false
 	    ok
 
-	def RunLoop()
+	# poHttpDrain = the LIVE stzReactiveHttp object (by-ref param; an
+	# attribute copy would drain a dead snapshot). NULL = no http.
+	def RunLoop(poHttpDrain)
 	    isRunning = true
 	    _emptyLoopCount_ = 0
 	    
@@ -244,18 +276,30 @@ class stzTimerManager from stzObject
 	            ok
 	        next
 	        
-	        # Use configurable check frequency instead of fixed delay
-	        _sleepTime_ = checkFrequency / MS_PER_SECOND  # Convert to seconds
-	        sleep(_sleepTime_)
-	        
-	        # Don't exit immediately if no timers - wait based on patience level
-	        if len(timers) = 0
+	        # F5: drain async HTTP completions on the same loop, so
+	        # reactive-http callbacks fire between timer ticks.
+	        _nHttpPending_ = 0
+	        if poHttpDrain != NULL
+	            poHttpDrain.DrainPending()
+	            _nHttpPending_ = poHttpDrain.PendingCount()
+	        ok
+
+	        # F5: advance the global DETACHED timer table (timers that
+	        # reactive objects registered -- see stzReactiveGlobals).
+	        _nDetached_ = StzReaxisTickDetached()
+
+	        # The inter-tick wait (engine timer, or sleep as fallback)
+	        This._WaitTick()
+
+	        # Don't exit immediately if no work - wait based on patience
+	        # level. In-flight HTTP and detached timers count as work.
+	        if len(timers) = 0 and _nHttpPending_ = 0 and _nDetached_ = 0
 	            _emptyLoopCount_++
 	            if _emptyLoopCount_ > emptyLoopPatience
 	                isRunning = false
 	            ok
 	        else
-	            _emptyLoopCount_ = 0  # Reset counter when we have timers
+	            _emptyLoopCount_ = 0  # Reset counter when we have work
 	        ok
 	        
 	        # Exit if shouldStop flag is set

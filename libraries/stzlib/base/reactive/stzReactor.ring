@@ -71,6 +71,11 @@ class stzReactor from stzObject
 		This._Ensure()
 		return StzEngineReactorPoll(pHandle, nId)
 
+	# Non-draining peek: -2 unknown, -1 running, 0 ready-to-fetch.
+	def JobState(nId)
+		This._Ensure()
+		return StzEngineReactorJobState(pHandle, nId)
+
 	def Pending()
 		This._Ensure()
 		return StzEngineReactorPending(pHandle)
