@@ -3,6 +3,9 @@ class stzClusterNode from stzAppServer
     cNodeId = ""
     cClusterType = ""      # "nlp", "math", "vision", "search", etc.
     oClusterManager = NULL
+    # own slot: the R7 reactor re-base removed stzAppServer's retired
+    # oComputeEngine attribute; stays NULL (preloads were always no-ops)
+    oComputeEngine = NULL
     nLoad = 0              # Current load percentage (0-100)
     nQueueLength = 0       # Current request queue length
     nAvgResponseTime = 0   # Average response time in ms

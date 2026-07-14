@@ -1,379 +1,465 @@
 #======================================================#
-#  STZAPPSERVER - PERSISTENT COMPUTATIONAL WEB ENGINE  #
+#  STZAPPSERVER - THE REACTOR-DRIVEN SERVICE HOST      #
 #======================================================#
 
-/*--- Core Philosophy
+/*--- The computational server paradigm, made real (R7, 2026-07-14)
 
-stzAppServer transforms the traditional web server paradigm by treating
-Softanza as a persistent computational engine rather than a per-request library.
+stzAppServer treats Softanza as a PERSISTENT COMPUTATIONAL ENGINE
+rather than a per-request library: the Zig engine (Unicode, NLP,
+graphs, neural, sqlite) is resident and warm; the server's only job
+is to move requests onto it and results back out.
 
-TRADITIONAL APPROACH:          SOFTANZA APPROACH:
-==================            ===================
+THE SPINE (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.10): one reactor-
+driven host on stzReactor -- the vendored-libuv event loop running on
+an engine thread. The engine does async accept + per-connection read
+streams + HTTP/1.1 framing; Ring stays synchronous and drains EVENTS:
 
-Request arrives               Request arrives
-  ↓                            ↓
-Load libraries               Parse & route (lightweight)
-  ↓                            ↓
-Process request              Emit to persistent engine
-  ↓                            ↓
-Generate response            Process with pre-loaded Softanza
-  ↓                            ↓
-Cleanup & unload             Return result (reactive)
-  ↓                            ↓
-Send response                Send response
+	oSrv = new stzAppServer()
+	oSrv.Get_("/greet", func oReq, oResp { oResp.Text("hello") })
+	oSrv.Start(8080, "127.0.0.1")
+	oSrv.RunFor(60000)       # serve for a minute (or Run() = forever)
+	oSrv.Stop()
 
-BENEFITS:
-- No initialization overhead per request
-- Rich computational power always available
-- Event-driven, non-blocking architecture
-- Memory-efficient through context pooling
-- Scales with modern multi-core hardware
+No callback ever crosses from libuv into Ring; no libuv call ever
+happens off the loop thread. That is the runtime doctrine (5.4) the
+pre-engine skeleton violated by riding the Reaxis cooperative poller.
 
+ONE HOST, FOUR TOPOLOGIES (the 5.10 convergence):
+- WEB      : Get_/Post/Put_/Delete routes over the HTTP listener
+- MBaaS    : Expose(oDb, "table") -> REST floor over data/stzDatabase
+             (GET list / GET count / POST insert), sqlite in the engine
+- IoT      : ListenRaw(nPort, fHandler) -> raw per-connection byte
+             streams (no HTTP framing) for device telemetry
+- AGENTS   : the same event loop is the R5 perceive-decide-act spine;
+             agent hosting lands with the reactor-runtime slice (R5
+             deferred work), NOT stubbed here.
+
+COLLAPSE RULINGS (5.10): stzContextPool folded into stzReactorPool
+(real threads; the "context" abstraction predates the resident
+engine); stzComputeEngine's preloads are subsumed by the engine being
+resident by construction. Both files remain as documented tombstones.
+
+SCOPE SIGILS: attributes are @-prefixed and method temps are _x_
+wrapped -- bare class-head attributes CAPTURE same-named user globals
+in Ring 1.27 (verified 2026-07-14: a user global `oClient` was
+clobbered at `new stzAppResponse(...)`, then R12 on the attribute).
 */
 
-class stzAppServer from stzNetwork
+func StzAppServerQ()
+	return new stzAppServer()
 
-	# Core Infrastructure
-	oReactiveSystem = NULL
-	oTcpServer = NULL
-	oComputeEngine = NULL
-	oRouter = NULL
-	oContextPool = NULL
-	
-	# Configuration
-	nPort = 8080
-	cHost = "127.0.0.1"
-	bIsRunning = False
-	nMaxConnections = 1000
-	nWorkerThreads = 4
-	
+class stzAppServer from stzObject
+
+	# Core infrastructure
+	@oReactor = NULL          # the libuv loop (owned)
+	@oRouter = NULL
+	@nServerId = 0            # HTTP listener id on the reactor
+	@nBoundPort = 0
+	@cHost = "127.0.0.1"
+	@bRunning = False
+
+	# IoT raw listeners: [ [ nSid, nPort, fHandler ], ... ]
+	@aRawListeners = []
+
+	# MBaaS resources: [ [ cTable, oDb ], ... ]
+	@aResources = []
+
 	# Monitoring
-	nRequestCount = 0
-	nActiveConnections = 0
-	oStartTime = NULL
+	@nRequestCount = 0
+	@nStartMs = 0
 
 	def init()
-		This.InitializeCore()
-		This.LoadSoftanzaEngine()
-		This.SetupDefaults()
-
-	  #-------------------------#
-	 #  SERVER INITIALIZATION  #
-	#-------------------------#
-
-	def InitializeCore()
-		# Initialize the reactive system (libuv-based)
-		oReactiveSystem = new stzReactiveSystem()
-		
-		# Initialize TCP server for HTTP
-		oTcpServer = new stzTcpServer()
-		
-		# Initialize request router
-		oRouter = new stzAppRouter()
-		
-		# Initialize Softanza context pool
-		oContextPool = new stzContextPool()
-		
-		? "✓ Core infrastructure initialized"
-
-	def LoadSoftanzaEngine()
-		# Pre-load Softanza computational engine
-		oComputeEngine = new stzComputeEngine()
-
-		oComputeEngine.PreloadStringEngine()    # Unicode tables, patterns
-		oComputeEngine.PreloadObjectSystem()    # Class definitions, methods
-		oComputeEngine.PreloadCollections()     # Data structures, algorithms
-		oComputeEngine.PreloadNLP()             # Language models (if available)
-
-		? "✓ Softanza computational engine loaded"
-
-	def SetupDefaults()
-		# Default route handlers
-		This.Get_("/", func oRequest, oResponse {
-
-			oResponse.Json([
-				:server = "stzAppServer",
-				:version = "1.0.0",
-				:engine = "Softanza Persistent Computational Engine",
-				:status = "running",
-				:uptime = This.Uptime(),
-				:requests_served = nRequestCount
-			])
-		})
-		
-		This.Get_("/health", func oRequest, oResponse {
-			oResponse.Json([
-				:status = "healthy",
-				:active_connections = nActiveConnections,
-				:memory_usage = This.MemoryUsage(),
-				:compute_contexts = oContextPool.ActiveCount()
-			])
-		})
+		# paren-less: stzAppRouter has no own init(), and the inherited
+		# stzObject.init(pObject) wants an argument
+		@oRouter = new stzAppRouter
 
 	  #--------------------#
 	 #  SERVER LIFECYCLE  #
 	#--------------------#
 
+	# Bind the HTTP listener. nPortNum 0 = ephemeral (see Port()).
+	# Raises on bind failure -- no silent half-started server.
 	def Start(nPortNum, cHostAddr)
-
-		# HONESTY GUARD (S0, 2026-07-14): this transport spine is a
-		# PRE-ENGINE skeleton, never re-checked after the Zig engine:
-		# it targets stzTcpServer methods that no longer exist
-		# (SendTo/KickClient/Stop_/GetLastClient), has no read loop,
-		# and stzAppResponse.Send never writes to the socket. The
-		# request/response/router VALUE OBJECTS remain usable (and
-		# tested); serving is rebuilt on stzReactor in roadmap R7
-		# (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.10).
-		raise("stzAppServer.Start() is not operational yet: the pre-engine transport spine is being rebuilt on stzReactor (roadmap R7). The request/response/router objects remain usable.")
-
-		if cHostAddr = ""
+		if @bRunning
+			stzraise("stzAppServer is already running on port " + @nBoundPort)
+		ok
+		if cHostAddr = NULL or cHostAddr = ""
 			cHostAddr = "127.0.0.1"
 		ok
-
-		if bIsRunning
-			This.Error("Server is already running")
-			return False
+		@cHost = cHostAddr
+		@oReactor = new stzReactor()
+		_nSid_ = @oReactor.ListenHttp(@cHost, nPortNum)
+		if _nSid_ < 1
+			stzraise("stzAppServer could not bind " + @cHost + ":" + nPortNum +
+			         " (uv error " + _nSid_ + ")")
 		ok
-
-		nPort = nPortNum
-		cHost = cHostAddr
-		oStartTime = clock()
-
-		? "Starting stzAppServer..."
-		? "• Host: " + cHost
-		? "• Port: " + nPort
-		? "• Max Connections: " + nMaxConnections
-		? "• Worker Threads: " + nWorkerThreads
-
-		# Configure TCP server for HTTP
-
-		oTcpServer.OnClientConnect(func oClient {
-				This.HandleNewConnection(oClient)
-			})
-			
-		oTcpServer.OnClientMessage(func oClient, cData {
-				This.HandleHttpRequest(oClient, cData)
-			})
-			
-		oTcpServer.OnClientDisconnect(func oClient {
-				This.HandleClientDisconnect(oClient)
-			})
-
-		# Start listening
-
-		if oTcpServer.Listen(nPort, cHost)
-
-			bIsRunning = True
-			? "✓ stzAppServer started successfully!"
-			? '  Access your application at http://' + cHost + ":" + nPort
-			
-			# Start the reactive event loop
-			oReactiveSystem.Start()
-			return True
-
-		else
-			This.Error("Failed to start server on " + cHost + ":" + nPort)
-			return False
-		ok
+		@nServerId = _nSid_
+		@nBoundPort = @oReactor.ServerPort(_nSid_)
+		@bRunning = True
+		@nStartMs = StzEngineTimeNowMs()
+		return True
 
 	def Stop()
-		if not bIsRunning return ok
-		
-		? "Stopping stzAppServer..."
-		oTcpServer.Stop_()
-		oReactiveSystem.Stop()
-		bIsRunning = False
-		? "✓ Server stopped"
+		if NOT @bRunning
+			return This
+		ok
+		@oReactor.ServerStop(@nServerId)
+		_nLen_ = len(@aRawListeners)
+		for _i_ = 1 to _nLen_
+			@oReactor.ServerStop(@aRawListeners[_i_][1])
+		next
+		@oReactor.Destroy()
+		@oReactor = NULL
+		@nServerId = 0
+		@aRawListeners = []
+		@bRunning = False
+		return This
 
 	def IsRunning()
-		return bIsRunning
+		return @bRunning
 
-	  #--------------------#
-	 #  REQUEST HANDLING  #
-	#--------------------#
+	def Port()
+		return @nBoundPort
 
-	def HandleNewConnection(oClient)
+	def Host()
+		return @cHost
 
-		nActiveConnections++
-
-		if nActiveConnections > nMaxConnections
-			This.RejectConnection(oClient, "Server at capacity")
-			return
+	def Uptime()
+		if @nStartMs = 0
+			return 0
 		ok
+		return (StzEngineTimeNowMs() - @nStartMs) / 1000
 
-	def HandleHttpRequest(oClient, cRawRequest)
+	def RequestCount()
+		return @nRequestCount
 
-		nRequestCount++
-		
-		# Parse HTTP request reactively
-		oReactiveSystem {
-			# Parse request without blocking
-			RParse = Reactivate(func cData { 
-				return This.ParseHttpRequest(cData) 
-			})
-			
-			RParse.CallAsync([cRawRequest],
-				func oRequest {
-					# Request parsed successfully
-					This.RouteRequest(oClient, oRequest)
-				},
-				func cError {
-					# Parse error
-					This.SendErrorResponse(oClient, 400, "Bad Request: " + cError)
-				}
-			)
-		}
+	# The underlying reactor as a chainable stz object (Q-convention).
+	def ReactorQ()
+		return @oReactor
 
-	def RouteRequest(oClient, oRequest)
+	  #-----------------#
+	 #  THE SERVE LOOP #
+	#-----------------#
 
-		# Create response object
-		oResponse = new stzAppResponse(oClient)
-		
-		# Route to appropriate handler
-		if oRouter.HasRoute(oRequest.Method(), oRequest.Path())
-
-			# Get route handler
-			fHandler = oRouter.GetHandler(oRequest.Method(), oRequest.Path())
-			
-			# Execute handler with Softanza compute context
-			This.ExecuteWithContext(fHandler, oRequest, oResponse)
-
-		else
-			# No route found
-			oResponse.NotFound("Route not found: " + oRequest.Method() + " " + oRequest.Path())
+	# Drain events until ONE data event (an HTTP request or a raw chunk)
+	# has been handled, or nTimeoutMs elapses. Returns TRUE if work was
+	# done. Accept/closed events are drained silently along the way.
+	def ServeOne(nTimeoutMs)
+		if NOT @bRunning
+			stzraise("stzAppServer.ServeOne() called on a stopped server -- Start() first.")
 		ok
+		_nDeadline_ = StzEngineTimeNowMs() + nTimeoutMs
+		while TRUE
+			# HTTP listener (non-blocking drain)
+			_aEv_ = @oReactor.ServerPoll(@nServerId)
+			if len(_aEv_) > 0
+				if This._HandleHttpEvent(_aEv_)
+					return TRUE
+				ok
+				loop
+			ok
+			# raw listeners (IoT)
+			_bDidWork_ = FALSE
+			_nLen_ = len(@aRawListeners)
+			for _i_ = 1 to _nLen_
+				_aEvR_ = @oReactor.ServerPoll(@aRawListeners[_i_][1])
+				if len(_aEvR_) > 0
+					if This._HandleRawEvent(@aRawListeners[_i_], _aEvR_)
+						_bDidWork_ = TRUE
+					ok
+				ok
+			next
+			if _bDidWork_
+				return TRUE
+			ok
+			if StzEngineTimeNowMs() >= _nDeadline_
+				return FALSE
+			ok
+			# nothing pending: park briefly on the HTTP listener
+			_aEv_ = @oReactor.ServerAwait(@nServerId, 10)
+			if len(_aEv_) > 0
+				if This._HandleHttpEvent(_aEv_)
+					return TRUE
+				ok
+			ok
+		end
 
-	def ExecuteWithContext(fHandler, oRequest, oResponse)
+	# Serve every event that arrives within nMs (a bounded Run()).
+	def RunFor(nMs)
+		_nDeadline_ = StzEngineTimeNowMs() + nMs
+		while StzEngineTimeNowMs() < _nDeadline_
+			_nLeft_ = _nDeadline_ - StzEngineTimeNowMs()
+			if _nLeft_ < 1
+				exit
+			ok
+			This.ServeOne(_nLeft_)
+		end
+		return This
 
-		# Get a Softanza context from the pool
-		oContext = oContextPool.Acquire()
-		
-		# Execute handler reactively with persistent Softanza context
-		oReactiveSystem {
-
-			RExecute = Reactivate(func fFunc, oReq, oRes, oCtx {
-				# Handler runs with full Softanza power
-				oCtx.ExecuteHandler(fFunc, oReq, oRes)
-				return "executed"
-			})
-			
-			RExecute.CallAsync([fHandler, oRequest, oResponse, oContext],
-				func cResult {
-					# Handler completed successfully
-					oContextPool.Release(oContext)
-				},
-				func cError {
-					# Handler error
-					oResponse.InternalError("Execution error: " + cError)
-					oContextPool.Release(oContext)
-				}
-			)
-		}
+	# Serve forever (until the process is killed or Stop() is called
+	# from a handler). The documented blocking entry point.
+	def Run()
+		while @bRunning
+			This.ServeOne(1000)
+		end
+		return This
 
 	  #---------------------#
 	 #  ROUTING INTERFACE  #
 	#---------------------#
 
 	def Get_(cPath, fHandler)
-		oRouter.AddRoute("GET", cPath, fHandler)
+		@oRouter.AddRoute("GET", cPath, fHandler)
 		return This
 
 	def Post(cPath, fHandler)
-		oRouter.AddRoute("POST", cPath, fHandler)
+		@oRouter.AddRoute("POST", cPath, fHandler)
 		return This
 
 	def Put_(cPath, fHandler)
-		oRouter.AddRoute("PUT", cPath, fHandler)
+		@oRouter.AddRoute("PUT", cPath, fHandler)
 		return This
 
 	def Delete(cPath, fHandler)
-		oRouter.AddRoute("DELETE", cPath, fHandler)
+		@oRouter.AddRoute("DELETE", cPath, fHandler)
 		return This
 
 	def Use(cPath, fMiddleware)
-		oRouter.AddMiddleware(cPath, fMiddleware)
+		@oRouter.AddMiddleware(cPath, fMiddleware)
 		return This
-
-	#--- STATIC FILES ---
-
-	  #----------------#
-	 #  STATIC FILES  #
-	#----------------#
 
 	def Static(cPath, cDirectory)
-		oRouter.AddStaticRoute(cPath, cDirectory)
+		@oRouter.AddStaticRoute(cPath, cDirectory)
 		return This
 
-	  #--------------#
-	 #  UTILITILES  #
-	#--------------#
+	  #--------------------------------#
+	 #  MBaaS: REST OVER stzDatabase  #
+	#--------------------------------#
 
-	def ParseHttpRequest(cRawRequest)
+	# Expose a table of an open stzDatabase as a REST resource:
+	#   GET  /api/<table>        -> {"rows":[[...],...]}
+	#   GET  /api/<table>/count  -> {"count":N}
+	#   POST /api/<table>        -> body "col=val&col2=val2" inserts a row
+	def Expose(oDb, cTable)
+		@aResources + [ cTable, oDb ]
+		return This
 
-		# HTTP request parser
-		aLines = @split(cRawRequest, nl)
-		if len(aLines) = 0
-			raise("Empty request")
+	  #----------------------------#
+	 #  IoT: RAW STREAM LISTENER  #
+	#----------------------------#
+
+	# A raw TCP listener (no HTTP framing): fHandler is called as
+	#   call fHandler(oServer, nSid, nConn, cBytes)
+	# for every chunk a device sends; reply with RawWrite(). Requires a
+	# running server (the listener joins the same reactor).
+	def ListenRaw(nPortNum, fHandler)
+		if NOT @bRunning
+			stzraise("ListenRaw() needs a running server -- Start() first.")
 		ok
-		
-		# Parse request line
-		cRequestLine = aLines[1]
-		aParts = @split(cRequestLine, " ")
-		if len(aParts) < 3
-			raise("Invalid request line")
+		_nSid_ = @oReactor.Listen(@cHost, nPortNum)
+		if _nSid_ < 1
+			stzraise("stzAppServer could not bind raw listener on port " +
+			         nPortNum + " (uv error " + _nSid_ + ")")
 		ok
-		
-		cMethod = StzUpper(aParts[1])
-		cPath = aParts[2]
-		cProtocol = aParts[3]
-		
-		# Parse headers
-		aHeaders = []
-		cBody = ""
-		nBodyStart = 0
-		
-		_nLinesLen_2 = len(aLines)
-		for i = 2 to _nLinesLen_2
-			if aLines[i] = ""
-				nBodyStart = i + 1
+		@aRawListeners + [ _nSid_, @oReactor.ServerPort(_nSid_), fHandler ]
+		return _nSid_
+
+	def RawPort(nSid)
+		return @oReactor.ServerPort(nSid)
+
+	def RawWrite(nSid, nConn, cData, bCloseAfter)
+		return @oReactor.ServerWrite(nSid, nConn, cData, bCloseAfter)
+
+	  #--------------------#
+	 #  REQUEST HANDLING  #
+	#--------------------#
+
+	# Returns TRUE when the event was a request that got a response.
+	def _HandleHttpEvent(aEv)
+		if aEv[1] != :data
+			return FALSE   # accept/closed: connection registry only
+		ok
+		_nConn_ = aEv[2]
+		@nRequestCount++
+		_oResp_ = new stzAppResponse(NULL)
+		_bClose_ = TRUE
+		try
+			_oReq_ = This.ParseHttpRequest(aEv[3])
+			_bClose_ = _oReq_.WantsClose()
+			This._Dispatch(_oReq_, _oResp_)
+		catch
+			_oResp_.Status(400, "Bad Request").Text("Bad request: " + cCatchError)
+		done
+		if NOT _oResp_.IsSent()
+			_oResp_.Text("")   # handler set nothing: empty 200
+		ok
+		@oReactor.ServerWrite(@nServerId, _nConn_, _oResp_.HttpBytes(), _bClose_)
+		return TRUE
+
+	def _Dispatch(oReq, oResp)
+		try
+			if @oRouter.HasRoute(oReq.Method(), oReq.Path())
+				_fHandler_ = @oRouter.GetHandler(oReq.Method(), oReq.Path())
+				call _fHandler_(oReq, oResp)
+			but This._ServeResource(oReq, oResp)
+				# handled by the MBaaS floor
+			but oReq.Method() = "GET" and oReq.Path() = "/health"
+				oResp.Json([
+					"status", "healthy",
+					"engine", "softanza-resident",
+					"uptime_s", This.Uptime(),
+					"requests_served", @nRequestCount
+				])
+			else
+				oResp.NotFound("Route not found: " + oReq.Method() + " " + oReq.Path())
+			ok
+		catch
+			oResp.InternalError("Handler error: " + cCatchError)
+		done
+
+	# MBaaS floor. Returns TRUE when the path targeted an exposed table.
+	def _ServeResource(oReq, oResp)
+		if StzFindFirst(oReq.Path(), "/api/") != 1
+			return FALSE
+		ok
+		_cRest_ = StzMidToEnd(oReq.Path(), 6)     # after "/api/"
+		_bCount_ = FALSE
+		_nSlash_ = StzFindFirst(_cRest_, "/")
+		if _nSlash_ > 0
+			_cSub_ = StzMidToEnd(_cRest_, _nSlash_ + 1)
+			_cRest_ = StzLeft(_cRest_, _nSlash_ - 1)
+			if _cSub_ = "count"
+				_bCount_ = TRUE
+			else
+				return FALSE
+			ok
+		ok
+		_oDb_ = NULL
+		_nLen_ = len(@aResources)
+		for _i_ = 1 to _nLen_
+			if @aResources[_i_][1] = _cRest_
+				_oDb_ = @aResources[_i_][2]
 				exit
 			ok
-			
-			nColon = StzFindFirst(aLines[i], ":")
-			if nColon > 0
-				cName = trim(StzLeft(aLines[i], nColon - 1))
-				cValue = trim(StzMidToEnd(aLines[i], nColon + 1))
-				aHeaders + [cName, cValue]
+		next
+		if _oDb_ = NULL
+			return FALSE
+		ok
+		_cTable_ = _cRest_
+		if oReq.Method() = "GET"
+			if _bCount_
+				# ring_number(), not 0+str: the 0+str coercion is
+				# poisoned after any caught raise (Ring trap).
+				oResp.Header("Content-Type", "application/json")
+				oResp.Send('{"count":' + ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_)) + '}')
+			else
+				# rows are ARRAYS of cells -- ObjectToJson would misread
+				# a 2-cell row as a {k:v} object, so serialize directly
+				oResp.Header("Content-Type", "application/json")
+				oResp.Send('{"rows":' + This._RowsJson(_oDb_.Rows("SELECT * FROM " + _cTable_)) + '}')
+			ok
+			return TRUE
+		but oReq.Method() = "POST"
+			_aPairs_ = This._ParseFormBody(oReq.Body())
+			if len(_aPairs_) = 0
+				oResp.Status(400, "Bad Request").Json([ "error", "empty form body" ])
+				return TRUE
+			ok
+			_cCols_ = ""
+			_cVals_ = ""
+			_nPLen_ = len(_aPairs_)
+			for _j_ = 1 to _nPLen_
+				if _j_ > 1
+					_cCols_ += ", "
+					_cVals_ += ", "
+				ok
+				_cCols_ += _aPairs_[_j_][1]
+				_cVals_ += "'" + This._SqlEscape(_aPairs_[_j_][2]) + "'"
+			next
+			_oDb_.Exec("INSERT INTO " + _cTable_ + " (" + _cCols_ + ") VALUES (" + _cVals_ + ")")
+			oResp.Status(201, "Created").Json([ "inserted", 1 ])
+			return TRUE
+		ok
+		oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
+		return TRUE
+
+	def _ParseFormBody(cBody)
+		_aOut_ = []
+		if cBody = ""
+			return _aOut_
+		ok
+		_aPairs_ = StzSplit(cBody, "&")
+		_nLen_ = len(_aPairs_)
+		for _i_ = 1 to _nLen_
+			_nEq_ = StzFindFirst(_aPairs_[_i_], "=")
+			if _nEq_ > 0
+				_aOut_ + [ StzLeft(_aPairs_[_i_], _nEq_ - 1), StzMidToEnd(_aPairs_[_i_], _nEq_ + 1) ]
 			ok
 		next
-		
-		# Extract body if present
-		if nBodyStart > 0 and nBodyStart <= len(aLines)
-			_nLinesLen_ = len(aLines)
-			for i = nBodyStart to _nLinesLen_
-				cBody += aLines[i]
-				if i < len(aLines) cBody += nl ok
+		return _aOut_
+
+	def _SqlEscape(cVal)
+		return StzReplace("" + cVal, "'", "''")
+
+	# [[cell,cell],...] -> [["cell","cell"],...] (rows stay ARRAYS)
+	def _RowsJson(aRows)
+		_cOut_ = "["
+		_nLen_ = len(aRows)
+		for _i_ = 1 to _nLen_
+			if _i_ > 1 _cOut_ += "," ok
+			_cOut_ += "["
+			_nCells_ = len(aRows[_i_])
+			for _j_ = 1 to _nCells_
+				if _j_ > 1 _cOut_ += "," ok
+				_cOut_ += '"' + StzReplace("" + aRows[_i_][_j_], '"', '\"') + '"'
 			next
+			_cOut_ += "]"
+		next
+		return _cOut_ + "]"
+
+	# IoT raw event. aListener = [ nSid, nPort, fHandler ].
+	def _HandleRawEvent(aListener, aEv)
+		if aEv[1] != :data
+			return FALSE
 		ok
-		
-		return new stzAppRequest(cMethod, cPath, aHeaders, cBody)
+		_fHandler_ = aListener[3]
+		call _fHandler_(This, aListener[1], aEv[2], aEv[3])
+		return TRUE
 
-	def SendErrorResponse(oClient, nCode, cMessage)
+	  #--------------#
+	 #  UTILITIES   #
+	#--------------#
 
-		cResponse = "HTTP/1.1 " + nCode + " " + cMessage + nl +
-		           "Content-Type: text/plain" + nl +
-		           "Content-Length: " + len(cMessage) + nl +
-		           nl + cMessage
-		           
-		oTcpServer.SendTo(oClient, cResponse)
-		oTcpServer.KickClient(oClient)
-
-	def HandleClientDisconnect(oClient)
-		nActiveConnections--
-
-	def Uptime()
-		if oStartTime = NULL return 0 ok
-		return (clock() - oStartTime) / 1000  # Convert to seconds
-
-	def MemoryUsage()
-		return "N/A"  # Platform-specific implementation needed
+	# Parse one complete HTTP/1.1 request (the engine frames it: full
+	# headers + Content-Length body, CRLF line endings).
+	def ParseHttpRequest(cRawRequest)
+		_cCRLF_ = char(13) + char(10)
+		_nHeadEnd_ = StzFindFirst(cRawRequest, _cCRLF_ + _cCRLF_)
+		if _nHeadEnd_ = 0
+			stzraise("Malformed HTTP request (no header terminator)")
+		ok
+		_cHead_ = StzLeft(cRawRequest, _nHeadEnd_ - 1)
+		_cBody_ = StzMidToEnd(cRawRequest, _nHeadEnd_ + 4)
+		_aLines_ = StzSplit(_cHead_, _cCRLF_)
+		if len(_aLines_) = 0
+			stzraise("Empty request")
+		ok
+		_aParts_ = @split(_aLines_[1], " ")
+		if len(_aParts_) < 3
+			stzraise("Invalid request line: " + _aLines_[1])
+		ok
+		_cMethod_ = StzUpper(_aParts_[1])
+		_cPath_ = _aParts_[2]
+		_cProtocol_ = StzUpper(_aParts_[3])
+		_aHeaders_ = []
+		_nLen_ = len(_aLines_)
+		for _i_ = 2 to _nLen_
+			_nColon_ = StzFindFirst(_aLines_[_i_], ":")
+			if _nColon_ > 0
+				_aHeaders_ + [ trim(StzLeft(_aLines_[_i_], _nColon_ - 1)),
+				               trim(StzMidToEnd(_aLines_[_i_], _nColon_ + 1)) ]
+			ok
+		next
+		_oReq_ = new stzAppRequest(_cMethod_, _cPath_, _aHeaders_, _cBody_)
+		_oReq_.SetProtocol(_cProtocol_)
+		return _oReq_

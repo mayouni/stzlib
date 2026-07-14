@@ -20,8 +20,8 @@ oReq2 = new stzAppRequest("GET", "/search?q=hello&page=2", [], "")
 # stzAppResponse: status + headers + payload (no actual send)
 oResp = new stzAppResponse(NULL)
 oResp.Status(201, "Created").Header("X-Test", "1")
-? oResp.aHeaders[1][1] = "X-Test"
-? oResp.aHeaders[1][2] = "1"
+? oResp.Headers()[1][1] = "X-Test"
+? oResp.Headers()[1][2] = "1"
 
 # ObjectToJson: primitives
 ? oResp.ObjectToJson("hi") = '"hi"'
@@ -32,7 +32,7 @@ oResp.Status(201, "Created").Header("X-Test", "1")
 # Send marks bSent so a second Send is a no-op
 oResp2 = new stzAppResponse(NULL)
 oResp2.Send("body")
-? oResp2.bSent = TRUE
+? oResp2.IsSent() = TRUE
 
 ? "DONE 14"
 
