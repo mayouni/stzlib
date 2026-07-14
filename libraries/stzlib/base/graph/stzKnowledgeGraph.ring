@@ -24,6 +24,9 @@ class stzKnowledgeGraph from stzGraph
 
 	@aNamespaces = []
 	@aOntology = []
+	@bStrictMode = 0        # G8 seed: opt-in knowledge hygiene
+	@aFactMeta = []         # provenance per fact: [ :fact, :meta ]
+	@aContradictions = []   # named, NEVER silently resolved
 
 	def init(pcId)
 		super.init(pcId)
@@ -43,6 +46,37 @@ class stzKnowledgeGraph from stzGraph
 	#--------------------#
 
 	def AddFact(pcSubject, pcPredicate, pcObject)
+		# STRICT MODE (G8): once enabled, naked facts are refused --
+		# every fact must carry provenance through AddFactXT. Enable
+		# strict AFTER loading/ontology-definition (those use AddFact).
+		if @bStrictMode
+			stzraise("Strict mode: every fact needs provenance -- use AddFactXT(s, p, o, [ :source = ..., :confidence = ... ]).")
+		ok
+		This._AddFactRaw(pcSubject, pcPredicate, pcObject)
+
+		def AddTriple(pcSubject, pcPredicate, pcObject)
+			This.AddFact(pcSubject, pcPredicate, pcObject)
+
+	def _AddFactRaw(pcSubject, pcPredicate, pcObject)
+		# Facts are SET-LIKE: re-asserting a known fact is a quiet no-op
+		# (R1, 2026-07-14 -- reloading a .stzknow over a live graph used
+		# to die on "Edge already exists"). A DIFFERENT predicate between
+		# the same pair still raises: stzGraph stores ONE edge per node
+		# pair (known limitation, revisit with multi-edge support).
+		_cS_ = StzLower("" + pcSubject)
+		_cP_ = StzLower("" + pcPredicate)
+		_cO_ = StzLower("" + pcObject)
+		# (EdgeExists raises on missing nodes -- only probe when both live)
+		if This.NodeExists(_cS_) and This.NodeExists(_cO_)
+			if This.EdgeExists(_cS_, _cO_)
+				_aEdge_ = This.Edge(_cS_, _cO_)
+				if _aEdge_[:label] = _cP_
+					return
+				ok
+				stzraise("Can't add fact: '" + _cS_ + "' and '" + _cO_ + "' already carry the edge '" + _aEdge_[:label] + "' (stzGraph stores one edge per node pair).")
+			ok
+		ok
+
 		if NOT This.NodeExists(pcSubject)
 			This.AddNodeXTT(pcSubject, pcSubject, [:type = "entity"])
 		ok
@@ -56,8 +90,62 @@ class stzKnowledgeGraph from stzGraph
 
 		This.AddEdgeXTT(pcSubject, pcObject, pcPredicate, [:type = "fact"])
 
-		def AddTriple(pcSubject, pcPredicate, pcObject)
-			This.AddFact(pcSubject, pcPredicate, pcObject)
+	# Provenance-carrying add (G8). In STRICT mode :source + :confidence
+	# are MANDATORY, and a fact contradicting a :Unique law is REFUSED
+	# and RECORDED as a named contradiction -- never silently resolved.
+	def AddFactXT(pcSubject, pcPredicate, pcObject, paMeta)
+		if @bStrictMode
+			if NOT ( isList(paMeta) and HasKey(paMeta, :source) and
+			         HasKey(paMeta, :confidence) )
+				stzraise("Strict mode: every fact needs provenance -- AddFactXT(s, p, o, [ :source = ..., :confidence = ... ]).")
+			ok
+			if This.RelationHasLaw(pcPredicate, "unique")
+				_cS_ = StzLower("" + pcSubject)
+				_cP_ = StzLower("" + pcPredicate)
+				_cO_ = StzLower("" + pcObject)
+				_aEdges_ = This.Edges()
+				_nLen_ = len(_aEdges_)
+				for _i_ = 1 to _nLen_
+					if _aEdges_[_i_][:from] = _cS_ and
+					   _aEdges_[_i_][:label] = _cP_ and
+					   _aEdges_[_i_][:to] != _cO_
+						@aContradictions + [
+							:subject = _cS_,
+							:relation = _cP_,
+							:existing = _aEdges_[_i_][:to],
+							:attempted = _cO_,
+							:source = paMeta[:source]
+						]
+						return 0
+					ok
+				next
+			ok
+		ok
+		This._AddFactRaw(pcSubject, pcPredicate, pcObject)
+		@aFactMeta + [
+			:fact = [ StzLower("" + pcSubject), StzLower("" + pcPredicate),
+			          StzLower("" + pcObject) ],
+			:meta = paMeta
+		]
+		return 1
+
+	def SetStrictMode(bOnOff)
+		@bStrictMode = bOnOff
+
+		def EnableStrictMode()
+			@bStrictMode = 1
+
+		def DisableStrictMode()
+			@bStrictMode = 0
+
+	def IsStrict()
+		return @bStrictMode
+
+	def Contradictions()
+		return @aContradictions
+
+	def FactMeta()
+		return @aFactMeta
 
 	def RemoveFact(pcSubject, pcPredicate, pcObject)
 		This.RemoveThisEdge(pcSubject, pcObject)
@@ -281,6 +369,117 @@ class stzKnowledgeGraph from stzGraph
 		# Basic validation - checks if defined properties are used consistently
 		return TRUE
 
+	# Does the ontology declare this LAW for this relation?
+	# (Laws land here through DefineProperty(rel, [ law ]) -- the R1
+	# home of :unique / :symmetric / :transitive.)
+	def RelationHasLaw(pcRel, pcLaw)
+		_cR_ = StzLower("" + pcRel)
+		_cL_ = StzLower("" + pcLaw)
+		_nLen_ = len(@aOntology)
+		for _i_ = 1 to _nLen_
+			if StzLower("" + @aOntology[_i_][:property]) = _cR_
+				_aCons_ = @aOntology[_i_][:constraints]
+				_nC_ = len(_aCons_)
+				for _j_ = 1 to _nC_
+					if StzLower("" + _aCons_[_j_]) = _cL_
+						return TRUE
+					ok
+				next
+			ok
+		next
+		return FALSE
+
+	#-----------------------------------------------#
+	#  PROOF (G4 seed: structured derivation trace)  #
+	#-----------------------------------------------#
+
+	# Prove([ subject, relation, object ]) -> a STRUCTURED, replayable
+	# proof: [ :verdict, :goal, :steps, :narration, :certainty ].
+	# Each step: [ :kind ("fact"|"law"|"chain-link"), :fact, :narration ].
+	# Deterministic over recorded facts + declared laws, so certainty
+	# is 1 WHATEVER the verdict (a certain no is still certain, LAW 3).
+	def Prove(paPattern)
+		_cS_ = StzLower("" + paPattern[1])
+		_cP_ = StzLower("" + paPattern[2])
+		_cO_ = StzLower("" + paPattern[3])
+		_aSteps_ = []
+
+		# 1. a direct recorded fact proves the goal in one step
+		_aEdges_ = This.Edges()
+		_nLen_ = len(_aEdges_)
+		for _i_ = 1 to _nLen_
+			if _aEdges_[_i_][:from] = _cS_ and _aEdges_[_i_][:label] = _cP_ and
+			   _aEdges_[_i_][:to] = _cO_
+				_aSteps_ + [ :kind = "fact", :fact = [ _cS_, _cP_, _cO_ ],
+					:narration = "recorded fact: '" + _cS_ + "' " + _cP_ +
+					" '" + _cO_ + "'" ]
+				return [ :verdict = TRUE, :goal = [ _cS_, _cP_, _cO_ ],
+					:steps = _aSteps_, :narration = "proved: direct fact",
+					:certainty = 1 ]
+			ok
+		next
+
+		# 2. a lawful TRANSITIVE chain proves it link by link
+		if This.RelationHasLaw(_cP_, "transitive")
+			_acChain_ = This._ProveChainNodes(_cP_, _cS_, _cO_)
+			_nC_ = len(_acChain_)
+			if _nC_ > 1
+				_aSteps_ + [ :kind = "law", :fact = [ _cP_, "is", "transitive" ],
+					:narration = "law: '" + _cP_ + "' is :Transitive" ]
+				for _i_ = 1 to _nC_ - 1
+					_aSteps_ + [ :kind = "chain-link",
+						:fact = [ _acChain_[_i_], _cP_, _acChain_[_i_ + 1] ],
+						:narration = "recorded fact: '" + _acChain_[_i_] + "' " +
+						_cP_ + " '" + _acChain_[_i_ + 1] + "'" ]
+				next
+				return [ :verdict = TRUE, :goal = [ _cS_, _cP_, _cO_ ],
+					:steps = _aSteps_,
+					:narration = "proved: " + JoinXT(_acChain_, " " + _cP_ + " "),
+					:certainty = 1 ]
+			ok
+		ok
+
+		return [ :verdict = FALSE, :goal = [ _cS_, _cP_, _cO_ ], :steps = [],
+			:narration = "not derivable: no recorded fact or lawful chain gives '" +
+			_cS_ + "' " + _cP_ + " '" + _cO_ + "'",
+			:certainty = 1 ]
+
+	# BFS over pcRel-labeled edges from pcFrom toward pcTo (depth-capped);
+	# the node chain [ from, ..., to ] or [] when no path exists.
+	def _ProveChainNodes(pcRel, pcFrom, pcTo)
+		_aFront_ = []
+		_aSeed_ = [ pcFrom ]
+		_aFront_ + _aSeed_
+		_acSeen_ = [ pcFrom ]
+		_nDepth_ = 0
+		_aEdges_ = This.Edges()
+		_nE_ = len(_aEdges_)
+		while len(_aFront_) > 0 and _nDepth_ < 16
+			_nDepth_++
+			_aNext_ = []
+			_nF_ = len(_aFront_)
+			for _f_ = 1 to _nF_
+				_aPath_ = _aFront_[_f_]
+				_cNode_ = _aPath_[len(_aPath_)]
+				for _i_ = 1 to _nE_
+					if _aEdges_[_i_][:from] = _cNode_ and _aEdges_[_i_][:label] = pcRel
+						_cTo_ = _aEdges_[_i_][:to]
+						_aNew_ = _aPath_
+						_aNew_ + _cTo_
+						if _cTo_ = pcTo
+							return _aNew_
+						ok
+						if ring_find(_acSeen_, _cTo_) = 0
+							_acSeen_ + _cTo_
+							_aNext_ + _aNew_
+						ok
+					ok
+				next
+			next
+			_aFront_ = _aNext_
+		end
+		return []
+
 	#---------------------------#
 	#  KNOWLEDGE GRAPH EXPLAIN  #
 	#---------------------------#
@@ -449,6 +648,20 @@ class stzKnowledgeGraph from stzGraph
 	    	_aFact_ = _aFacts_[_iLoopFacts2_]
 	        _cKnow_ += "    " + _aFact_[1] + " | " + _aFact_[2] + " | " + _aFact_[3] + NL
 	    end
+	    # the LAWS travel with the knowledge (R1: ontology section --
+	    # "relation | law" lines; the parser re-arms them on load)
+	    if len(@aOntology) > 0
+	        _cKnow_ += NL + "ontology" + NL
+	        _nOnt1Len_ = len(@aOntology)
+	        for _iLoopOnt1_ = 1 to _nOnt1Len_
+	            _aCons_ = @aOntology[_iLoopOnt1_][:constraints]
+	            _nCons1Len_ = len(_aCons_)
+	            for _jLoopCons1_ = 1 to _nCons1Len_
+	                _cKnow_ += "    " + @aOntology[_iLoopOnt1_][:property] +
+	                           " | " + _aCons_[_jLoopCons1_] + NL
+	            next
+	        next
+	    ok
 	    return _cKnow_
 	
 	def WriteToKnowFile(pcFilename)
@@ -467,8 +680,25 @@ class stzKnowledgeGraph from stzGraph
 	    	_aFact_ = _aFacts_[_iLoopFacts1_]
 	        This.AddFact(_aFact_[1], _aFact_[2], _aFact_[3])
 	    end
+	    # the ontology (laws) merges too -- deduped per (property, law)
+	    _aOnt_ = oOther.Ontology()
+	    _nOnt2Len_ = len(_aOnt_)
+	    for _iLoopOnt2_ = 1 to _nOnt2Len_
+	        _aCons_ = _aOnt_[_iLoopOnt2_][:constraints]
+	        _nCons2Len_ = len(_aCons_)
+	        for _jLoopCons2_ = 1 to _nCons2Len_
+	            if NOT This.RelationHasLaw("" + _aOnt_[_iLoopOnt2_][:property], "" + _aCons_[_jLoopCons2_])
+	                This.DefineProperty(_aOnt_[_iLoopOnt2_][:property], [ _aCons_[_jLoopCons2_] ])
+	            ok
+	        next
+	    next
 
 class stzKnowParser from stzObject
+    def init()
+        # stateless parser; shields stzObject's 1-arg init so
+        # `new stzKnowParser()` works (R1 fix, 2026-07-14 -- the
+        # ImportKnow path was dead with R19 before this)
+
     def ParseFile(pcFilename)
         _cContent_ = read(pcFilename)
         return This.Parse(_cContent_)
@@ -503,6 +733,12 @@ class stzKnowParser from stzObject
                 _aParts_ = split(_cLine_, "|")
                 if len(_aParts_) = 3
                     _oKG_.AddFact(trim(_aParts_[1]), trim(_aParts_[2]), trim(_aParts_[3]))
+                ok
+
+            but _cSection_ = "ontology" and StzFindFirst(_cLine_, "|")
+                _aParts_ = split(_cLine_, "|")
+                if len(_aParts_) = 2
+                    _oKG_.DefineProperty(trim(_aParts_[1]), [ trim(_aParts_[2]) ])
                 ok
             ok
         end
