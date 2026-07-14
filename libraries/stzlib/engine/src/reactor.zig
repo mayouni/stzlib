@@ -102,6 +102,45 @@ extern fn uv_listen(stream: *anyopaque, backlog: c_int, cb: ConnectionCb) c_int;
 extern fn uv_accept(server: *anyopaque, client: *anyopaque) c_int;
 extern fn uv_tcp_getsockname(handle: *anyopaque, name: *c.struct_sockaddr, namelen: *c_int) c_int;
 
+// Async process spawn (uv_spawn). uv_process_options_t embeds function
+// pointers + a stdio-container array whose union references uv_stream_t;
+// translate-c cannot always build it, so we lay the ABI out ourselves
+// and pass *anyopaque handles. Every libuv handle begins with `void*
+// data`, so setData/getJob work on the process + pipe handles too.
+const UvExitCb = *const fn (*anyopaque, i64, c_int) callconv(.c) void;
+
+// uv_stdio_flags: ignore=0, create_pipe=1, inherit_fd=2, inherit_stream=4,
+// readable_pipe=0x10, writable_pipe=0x20. To CAPTURE a child's stdout the
+// parent reads and the child writes: create_pipe | writable_pipe.
+const UV_IGNORE: c_uint = 0x00;
+const UV_CREATE_PIPE: c_uint = 0x01;
+const UV_WRITABLE_PIPE: c_uint = 0x20;
+
+const StdioContainer = extern struct {
+    flags: c_uint,
+    data: extern union {
+        stream: ?*anyopaque,
+        fd: c_int,
+    },
+};
+
+const ProcessOptions = extern struct {
+    exit_cb: ?UvExitCb,
+    file: [*:0]const u8,
+    args: [*c]?[*:0]u8,
+    env: [*c]?[*:0]u8,
+    cwd: ?[*:0]const u8,
+    flags: c_uint,
+    stdio_count: c_int,
+    stdio: [*c]StdioContainer,
+    uid: c.uv_uid_t,
+    gid: c.uv_gid_t,
+};
+
+extern fn uv_spawn(loop: *c.uv_loop_t, handle: *anyopaque, options: *const ProcessOptions) c_int;
+extern fn uv_pipe_init(loop: *c.uv_loop_t, handle: *anyopaque, ipc: c_int) c_int;
+extern fn uv_process_kill(handle: *anyopaque, signum: c_int) c_int;
+
 fn setData(p: *anyopaque, user: *anyopaque) void {
     const slot: *?*anyopaque = @ptrCast(@alignCast(p));
     slot.* = user;
@@ -111,7 +150,7 @@ fn getJob(p: *anyopaque) *Job {
     return @ptrCast(@alignCast(slot.*.?));
 }
 
-const JobKind = enum(u32) { timer = 0, tcp_request = 1 };
+const JobKind = enum(u32) { timer = 0, tcp_request = 1, spawn = 2 };
 
 const Job = struct {
     id: u64,
@@ -134,6 +173,17 @@ const Job = struct {
     req_buf: ?[]u8 = null, // opaque uv request (gai/connect/write)
     tcp_inited: bool = false, // whether the handle needs uv_close
 
+    // spawn op (run a subprocess, capture stdout, report exit status).
+    // The command is passed as file + args joined by '\n'; argv/argv_bufs
+    // own the C-string storage. proc_buf + pipe_buf are opaque handles.
+    argv_joined: ?[]u8 = null,
+    proc_buf: ?[]u8 = null, // opaque uv_process_t
+    pipe_buf: ?[]u8 = null, // opaque uv_pipe_t (child stdout)
+    proc_exited: bool = false,
+    pipe_closed: bool = false,
+    proc_inited: bool = false,
+    exit_code: i64 = 0,
+
     // state (all guarded by Reactor.mutex)
     result_ready: bool = false, // op finished; status valid
     handle_closed: bool = false, // uv_close callback fired (or no handle)
@@ -147,6 +197,9 @@ fn freeJob(job: *Job) void {
     if (job.scratch) |s| gpa.free(s);
     if (job.tcp_buf) |t| gpa.free(t);
     if (job.req_buf) |rq| gpa.free(rq);
+    if (job.argv_joined) |a| gpa.free(a);
+    if (job.proc_buf) |p| gpa.free(p);
+    if (job.pipe_buf) |p| gpa.free(p);
     job.resp.deinit(gpa);
     gpa.destroy(job);
 }
@@ -219,6 +272,7 @@ fn startJob(job: *Job) void {
             _ = c.uv_timer_start(&job.timer, onTimer, job.delay_ms, 0);
         },
         .tcp_request => startTcpRequest(job),
+        .spawn => startSpawn(job),
     }
 }
 
@@ -343,6 +397,156 @@ fn finishTcp(job: *Job, status: c_int) void {
     r.mutex.lock();
     job.handle_closed = true;
     reapLocked(r, job);
+    r.mutex.unlock();
+}
+
+// ── async process spawn: run child, capture stdout, report exit ──
+//
+// The command arrives as file + args joined by '\n' in argv_joined. We
+// build a null-terminated argv in place (each '\n' becomes a 0), create
+// a stdout pipe, spawn, and read the pipe to EOF. The job finishes once
+// BOTH the process has exited AND its stdout pipe is closed.
+
+fn startSpawn(job: *Job) void {
+    const r = job.reactor;
+    // argv_joined is `content + '\n'-separators` with ONE trailing spare
+    // byte (already 0) reserved by the caller: raw.len = content_len + 1.
+    const raw = job.argv_joined.?;
+    const content_len = raw.len - 1;
+    if (content_len == 0) {
+        finishSpawn(job, -1);
+        return;
+    }
+    // Split on '\n' in place into NUL-terminated C strings, collecting an
+    // argv array (program is argv[0]; max 64 args).
+    var argv_ptrs: [65]?[*:0]u8 = undefined;
+    var n_args: usize = 0;
+    var seg_start: usize = 0;
+    var i: usize = 0;
+    while (i < content_len) : (i += 1) {
+        if (raw[i] == '\n') {
+            raw[i] = 0;
+            if (n_args < 64) {
+                argv_ptrs[n_args] = @ptrCast(&raw[seg_start]);
+                n_args += 1;
+            }
+            seg_start = i + 1;
+        }
+    }
+    // final segment: NUL is already at raw[content_len]
+    if (n_args < 64) {
+        argv_ptrs[n_args] = @ptrCast(&raw[seg_start]);
+        n_args += 1;
+    }
+    argv_ptrs[n_args] = null;
+
+    const pipe = job.pipe_buf.?.ptr;
+    if (uv_pipe_init(&r.loop, pipe, 0) != 0) {
+        finishSpawn(job, -1);
+        return;
+    }
+    setData(pipe, job);
+
+    var stdio = [_]StdioContainer{
+        .{ .flags = UV_IGNORE, .data = .{ .fd = 0 } },
+        .{ .flags = UV_CREATE_PIPE | UV_WRITABLE_PIPE, .data = .{ .stream = pipe } },
+        .{ .flags = UV_IGNORE, .data = .{ .fd = 2 } },
+    };
+    var opts: ProcessOptions = std.mem.zeroes(ProcessOptions);
+    opts.exit_cb = onProcExit;
+    opts.file = argv_ptrs[0].?;
+    opts.args = @ptrCast(&argv_ptrs);
+    opts.stdio_count = 3;
+    opts.stdio = @ptrCast(&stdio);
+
+    const proc = job.proc_buf.?.ptr;
+    setData(proc, job);
+    const rc = uv_spawn(&r.loop, proc, &opts);
+    if (rc != 0) {
+        // spawn failed: close the pipe we inited, mark process "exited".
+        r.mutex.lock();
+        job.proc_exited = true;
+        job.exit_code = rc;
+        r.mutex.unlock();
+        c.uv_close(@ptrCast(@alignCast(pipe)), onSpawnPipeClosed);
+        return;
+    }
+    job.proc_inited = true;
+    // Start reading the child's stdout.
+    if (uv_read_start(pipe, onAlloc, onSpawnRead) != 0) {
+        c.uv_close(@ptrCast(@alignCast(pipe)), onSpawnPipeClosed);
+    }
+}
+
+fn onSpawnRead(stream: *anyopaque, nread: isize, buf: [*c]const c.uv_buf_t) callconv(.c) void {
+    _ = buf;
+    const job = getJob(stream);
+    if (nread > 0) {
+        const s = job.scratch.?;
+        job.resp.appendSlice(gpa, s[0..@intCast(nread)]) catch {};
+        return;
+    }
+    if (nread < 0) {
+        _ = uv_read_stop(stream);
+        c.uv_close(@ptrCast(@alignCast(stream)), onSpawnPipeClosed);
+    }
+}
+
+fn onProcExit(handle: *anyopaque, exit_status: i64, term_signal: c_int) callconv(.c) void {
+    _ = term_signal;
+    const job = getJob(handle);
+    const r = job.reactor;
+    r.mutex.lock();
+    job.proc_exited = true;
+    job.exit_code = exit_status;
+    r.mutex.unlock();
+    c.uv_close(@ptrCast(@alignCast(handle)), onSpawnProcClosed);
+}
+
+fn onSpawnProcClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
+    const job: *Job = @ptrCast(@alignCast(handle.*.data.?));
+    maybeFinishSpawn(job);
+}
+
+fn onSpawnPipeClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
+    const job: *Job = @ptrCast(@alignCast(handle.*.data.?));
+    const r = job.reactor;
+    r.mutex.lock();
+    job.pipe_closed = true;
+    r.mutex.unlock();
+    maybeFinishSpawn(job);
+}
+
+// The spawn result is ready once the process exited AND the stdout pipe
+// closed. The process handle is closed in onProcExit; the pipe in
+// onSpawnRead's EOF. When both close callbacks have fired we mark the
+// job done and let the standard reap handshake free it.
+fn maybeFinishSpawn(job: *Job) void {
+    const r = job.reactor;
+    r.mutex.lock();
+    // proc_exited implies the process handle is closing/closed; pipe_closed
+    // that the pipe is closed. Require the process to have exited and the
+    // pipe closed (or never inited) before finishing.
+    const proc_done = job.proc_exited;
+    const pipe_done = job.pipe_closed;
+    if (proc_done and pipe_done and !job.result_ready) {
+        job.status = @intCast(std.math.clamp(job.exit_code, -2147483648, 2147483647));
+        job.result_ready = true;
+        job.handle_closed = true;
+        reapLocked(r, job);
+    }
+    r.mutex.unlock();
+}
+
+fn finishSpawn(job: *Job, status: c_int) void {
+    const r = job.reactor;
+    r.mutex.lock();
+    if (!job.result_ready) {
+        job.status = @intCast(status);
+        job.result_ready = true;
+        job.handle_closed = true;
+        reapLocked(r, job);
+    }
     r.mutex.unlock();
 }
 
@@ -1230,6 +1434,119 @@ pub fn reactor_server_stop(r_opt: ?*Reactor, sid: u64) callconv(.c) i32 {
     r.mutex.unlock();
     _ = c.uv_async_send(&r.wake);
     return 0;
+}
+
+// ── async process spawn (public API) ─────────────────────────
+
+var spawn_last_status: i32 = 0;
+var spawn_last_len: usize = 0;
+
+pub fn reactor_spawn_last_status() callconv(.c) i32 {
+    return spawn_last_status;
+}
+pub fn reactor_spawn_last_len() callconv(.c) usize {
+    return spawn_last_len;
+}
+
+/// Submit an async spawn. `cmd_ptr` is the program and its arguments
+/// joined by '\n' (argv[0] = program). Runs the child on the loop,
+/// captures its stdout, and reports the exit code + output through the
+/// job idiom. Returns a job id (>0) or -1.
+pub fn reactor_submit_spawn(
+    r_opt: ?*Reactor,
+    cmd_ptr: [*]const u8,
+    cmd_len: usize,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const job = gpa.create(Job) catch return -1;
+    // dupe with one spare trailing NUL byte for the final argv segment
+    const argv = gpa.alloc(u8, cmd_len + 1) catch {
+        gpa.destroy(job);
+        return -1;
+    };
+    @memcpy(argv[0..cmd_len], cmd_ptr[0..cmd_len]);
+    argv[cmd_len] = 0;
+    const scratch = gpa.alloc(u8, TCP_SCRATCH) catch {
+        gpa.free(argv);
+        gpa.destroy(job);
+        return -1;
+    };
+    const proc_buf = gpa.alloc(u8, uv_handle_size(c.UV_PROCESS)) catch {
+        gpa.free(argv);
+        gpa.free(scratch);
+        gpa.destroy(job);
+        return -1;
+    };
+    const pipe_buf = gpa.alloc(u8, uv_handle_size(c.UV_NAMED_PIPE)) catch {
+        gpa.free(argv);
+        gpa.free(scratch);
+        gpa.free(proc_buf);
+        gpa.destroy(job);
+        return -1;
+    };
+    r.mutex.lock();
+    job.* = .{
+        .id = r.next_id,
+        .kind = .spawn,
+        .reactor = r,
+        .argv_joined = argv,
+        .scratch = scratch,
+        .proc_buf = proc_buf,
+        .pipe_buf = pipe_buf,
+    };
+    r.next_id += 1;
+    const id = job.id;
+    r.jobs.put(id, job) catch {
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.pending.append(gpa, job) catch {
+        _ = r.jobs.remove(id);
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return @intCast(id);
+}
+
+/// Poll a spawn job: -2 not found, -1 running, -3 overflow, else the
+/// number of stdout bytes written into out[0..max]. The exit code is
+/// reported via reactor_spawn_last_status().
+pub fn reactor_spawn_poll(r_opt: ?*Reactor, job_id: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const job = r.jobs.get(job_id) orelse return -2;
+    if (!job.result_ready) return -1;
+    spawn_last_status = job.status;
+    const body = job.resp.items;
+    job.drained = true;
+    if (body.len > max) {
+        spawn_last_len = 0;
+        reapLocked(r, job);
+        return -3;
+    }
+    @memcpy(out[0..body.len], body);
+    spawn_last_len = body.len;
+    reapLocked(r, job);
+    return @intCast(body.len);
+}
+
+/// Block up to timeout_ms for a spawn to finish. Same codes as
+/// reactor_spawn_poll, plus -1 on timeout.
+pub fn reactor_spawn_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
+    while (true) {
+        const rc = reactor_spawn_poll(r, job_id, out, max);
+        if (rc != -1) return rc;
+        if (std.time.nanoTimestamp() >= deadline) return -1;
+        std.Thread.sleep(2 * std.time.ns_per_ms);
+    }
 }
 
 /// Number of jobs submitted but not yet started on the loop.

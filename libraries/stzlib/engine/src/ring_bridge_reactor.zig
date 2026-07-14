@@ -119,6 +119,40 @@ fn ring_ReactorTcpLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_tcp_last_status()));
 }
 
+// ── async process spawn ──────────────────────────────────────
+
+/// StzEngineReactorSubmitSpawn(reactor, cCmd) -> job id. cCmd is the
+/// program and args joined by '\n' (argv[0] = program).
+fn ring_ReactorSubmitSpawn(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const cmd_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const cmd_len: usize = @intCast(gss(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_submit_spawn(r, cmd_ptr, cmd_len)));
+}
+
+/// StzEngineReactorSpawnAwait(reactor, nJobId, nTimeoutMs) -> child
+/// stdout (empty on error/timeout). Exit code via SpawnLastStatus().
+fn ring_ReactorSpawnAwait(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const timeout_ms: u64 = @intFromFloat(gn(p, 3));
+    const n = reactor.reactor_spawn_await(r, id, timeout_ms, &tcp_body_buf, TCP_BODY_CAP);
+    if (n >= 0) rs2(p, &tcp_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorSpawnPoll(reactor, nJobId) -> child stdout or "".
+fn ring_ReactorSpawnPoll(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const n = reactor.reactor_spawn_poll(r, id, &tcp_body_buf, TCP_BODY_CAP);
+    if (n >= 0) rs2(p, &tcp_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorSpawnLastStatus() -> child exit code (0 = ok).
+fn ring_ReactorSpawnLastStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(reactor.reactor_spawn_last_status()));
+}
+
 /// StzEngineReactorDestroy(reactor) -- stops the loop, joins the thread.
 fn ring_ReactorDestroy(p: *anyopaque) callconv(.c) void {
     reactor.reactor_destroy(getReactor(p, 1));
@@ -237,6 +271,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorserverwrite", .func = ring_ReactorServerWrite },
     .{ .name = "stzenginereactorservercloseconn", .func = ring_ReactorServerCloseConn },
     .{ .name = "stzenginereactorserverstop", .func = ring_ReactorServerStop },
+    .{ .name = "stzenginereactorsubmitspawn", .func = ring_ReactorSubmitSpawn },
+    .{ .name = "stzenginereactorspawnawait", .func = ring_ReactorSpawnAwait },
+    .{ .name = "stzenginereactorspawnpoll", .func = ring_ReactorSpawnPoll },
+    .{ .name = "stzenginereactorspawnlaststatus", .func = ring_ReactorSpawnLastStatus },
 };
 
 pub fn registerAll(state: *anyopaque) void {
