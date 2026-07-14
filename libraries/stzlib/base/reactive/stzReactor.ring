@@ -17,6 +17,14 @@
 		cBody = oR.TcpRequest("example.com", 80, cReq, 15000)
 		? oR.TcpLastStatus()                  # 0 = ok
 
+		# serve: HTTP/1.1 listener + event drain (R7 service host spine)
+		nSid = oR.ListenHttp("127.0.0.1", 8080)
+		aEv = oR.ServerAwait(nSid, 100)       # [:accept|:data|:closed, nConn, cBytes]
+		if len(aEv) > 0 and aEv[1] = :data
+			oR.ServerWrite(nSid, aEv[2], cHttpResponse, TRUE)
+		ok
+		oR.ServerStop(nSid)
+
 		oR.Destroy()
 
 	The handle is created lazily on first use, so both `new stzReactor`
@@ -91,6 +99,73 @@ class stzReactor from stzObject
 		nId = StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
 		if nId < 1 return "" ok
 		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
+
+	# ── server side: listen / events / write / close ─────────
+	#
+	# A listener lives on the loop thread; Ring drains EVENTS:
+	#   [ :accept, nConn, "" ] / [ :data, nConn, cBytes ] /
+	#   [ :closed, nConn, "" ] / [] when there is none.
+	# In http mode each :data event is ONE complete framed HTTP/1.1
+	# request (headers + Content-Length body, pipelining-safe).
+
+	# Raw TCP stream listener (IoT/telemetry). nPort 0 = ephemeral.
+	# Returns the server id (>0) or a negative uv error code.
+	def Listen(cHost, nPort)
+		This._Ensure()
+		return StzEngineReactorListen(pHandle, cHost, nPort, 0)
+
+	# HTTP/1.1 listener: :data events carry complete requests.
+	def ListenHttp(cHost, nPort)
+		This._Ensure()
+		return StzEngineReactorListen(pHandle, cHost, nPort, 1)
+
+	# Actual bound port (useful after nPort = 0).
+	def ServerPort(nServerId)
+		This._Ensure()
+		return StzEngineReactorServerPort(pHandle, nServerId)
+
+	def ServerConns(nServerId)
+		This._Ensure()
+		return StzEngineReactorServerConns(pHandle, nServerId)
+
+	# Drain one event without blocking; [] if none.
+	def ServerPoll(nServerId)
+		This._Ensure()
+		nKind = StzEngineReactorServerPoll(pHandle, nServerId)
+		return This._ServerEvent(nKind)
+
+	# Block up to nTimeoutMs for one event; [] on timeout.
+	def ServerAwait(nServerId, nTimeoutMs)
+		This._Ensure()
+		nKind = StzEngineReactorServerAwait(pHandle, nServerId, nTimeoutMs)
+		return This._ServerEvent(nKind)
+
+	def _ServerEvent(nKind)
+		if nKind = 1
+			return [ :accept, StzEngineReactorServerLastConn(), "" ]
+		but nKind = 2
+			return [ :data, StzEngineReactorServerLastConn(), StzEngineReactorServerLastData() ]
+		but nKind = 3
+			return [ :closed, StzEngineReactorServerLastConn(), "" ]
+		ok
+		return []
+
+	# Write to a connection; bCloseAfter closes it once the write lands.
+	def ServerWrite(nServerId, nConnId, cData, bCloseAfter)
+		This._Ensure()
+		nClose = 0
+		if bCloseAfter = TRUE
+			nClose = 1
+		ok
+		return StzEngineReactorServerWrite(pHandle, nServerId, nConnId, cData, nClose)
+
+	def ServerCloseConn(nServerId, nConnId)
+		This._Ensure()
+		return StzEngineReactorServerCloseConn(pHandle, nServerId, nConnId)
+
+	def ServerStop(nServerId)
+		This._Ensure()
+		return StzEngineReactorServerStop(pHandle, nServerId)
 
 	# ── teardown ─────────────────────────────────────────────
 
