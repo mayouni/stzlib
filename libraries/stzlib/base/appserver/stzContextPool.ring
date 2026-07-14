@@ -1,6 +1,12 @@
 #=====================================================#
 #  CONTEXT POOL FOR STZAPPSERCER - MEMORY MANAGEMENT  #
 #=====================================================#
+#
+# RETIRED BY THE R7 COLLAPSE RULING (5.10, 2026-07-14): the "context"
+# abstraction predates the resident Zig engine; pooled parallelism now
+# lives in reactive/stzReactorPool (real loop threads). The class stays
+# only so old scripts don't break at load time; the reactor-driven
+# stzAppServer no longer references it.
 
 class stzContextPool from stzObject
 	aAvailable = []
