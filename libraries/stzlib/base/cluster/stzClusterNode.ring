@@ -1,4 +1,14 @@
 # stzClusterNode: Individual server node in a computational cluster
+#
+# RETIRED BY R8 (the SCALE plane, 2026-07-14): this is the pre-engine
+# PARALLEL CLASS TREE (a subclass per domain, each PRELOADING libraries
+# via the no-op oComputeEngine). The resident Zig engine makes
+# preloading moot -- every worker shares the one hot engine -- so
+# specialization is now a stzWorkerProfile (a capability tag + resource
+# budget), NOT a subclass. This class stays only so old scripts load;
+# the SCALE plane is built on stzWorkerProfile / stzWorkerPool (R8.1)
+# and the reactor-spawn fleet (R8.3). See section 7 of
+# SOFTANZA_INTELLIGENCE_ARCHITECTURE.md.
 class stzClusterNode from stzAppServer
     cNodeId = ""
     cClusterType = ""      # "nlp", "math", "vision", "search", etc.
