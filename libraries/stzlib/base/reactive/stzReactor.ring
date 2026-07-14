@@ -105,6 +105,45 @@ class stzReactor from stzObject
 		if nId < 1 return "" ok
 		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
 
+	# ── async process spawn (polyglot fleet) ─────────────────
+	#
+	# Run a subprocess on the loop, capture its stdout, report the exit
+	# code -- non-Ring workers run OFF-THREAD, drained via the job
+	# idiom. The command is the program followed by its arguments.
+
+	# Submit; acArgv = [ program, arg1, arg2, ... ]. Returns a job id.
+	def SubmitSpawn(acArgv)
+		This._Ensure()
+		if isString(acArgv)
+			acArgv = [ acArgv ]
+		ok
+		cJoined = ""
+		nLen = len(acArgv)
+		for i = 1 to nLen
+			if i > 1  cJoined += char(10)  ok
+			cJoined += "" + acArgv[i]
+		next
+		return StzEngineReactorSubmitSpawn(pHandle, cJoined)
+
+	# Block up to nTimeoutMs for the child; returns its stdout.
+	def AwaitSpawn(nId, nTimeoutMs)
+		This._Ensure()
+		return StzEngineReactorSpawnAwait(pHandle, nId, nTimeoutMs)
+
+	def PollSpawn(nId)
+		This._Ensure()
+		return StzEngineReactorSpawnPoll(pHandle, nId)
+
+	def SpawnLastStatus()
+		return StzEngineReactorSpawnLastStatus()
+
+	# Submit + await in one call; returns the child's stdout.
+	def Spawn(acArgv, nTimeoutMs)
+		This._Ensure()
+		nId = This.SubmitSpawn(acArgv)
+		if nId < 1  return ""  ok
+		return StzEngineReactorSpawnAwait(pHandle, nId, nTimeoutMs)
+
 	# ── server side: listen / events / write / close ─────────
 	#
 	# A listener lives on the loop thread; Ring drains EVENTS:
