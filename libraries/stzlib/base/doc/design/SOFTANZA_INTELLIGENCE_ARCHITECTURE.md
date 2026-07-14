@@ -1643,3 +1643,110 @@ AGENT as the programmer, through the machine door (LAW 6): same doors,
 same rules, nothing breaks.
 
 Each R-step is independently shippable; R1 (with S0) is ready to start.
+
+---
+
+## 7. R8 -- the SCALE plane (clustering, re-based on the resident engine)
+
+Studied 2026-07-14 from the 2024 future/doc corpus (stzappserver_
+clustering.md + stz_cluster_core.txt + cluster_usage_example.txt) and
+the existing base/cluster/ prototype. R1-R7 built the intelligence
+stack and made ONE host serve one world; R8 makes MANY hosts serve at
+SCALE. It is the delivery plane's horizontal axis.
+
+THE CORE INVERSION (the study's decisive finding). The 2024 clustering
+vision sells ONE value: "specialized hot servers beat cold starts" --
+every node PRELOADS NLP/Math/Vision libraries so a request skips a
+2-4s load penalty. That premise is OBSOLETE for Softanza. Those
+`oComputeEngine.Preload*()` calls are the pre-engine skeleton -- all
+NO-OPS (stzComputeEngine is a tombstone). The Zig engine is resident
+and warm BY CONSTRUCTION: the full linguistic tier, the neural tier
+(ggml/BERT/DLM), numerics (matrix/ggml matmul, real simplex), graph,
+and sqlite are hot the instant the process starts. There are NO cold
+starts and NO per-domain library loading in one Softanza process. So
+"14x faster because already loaded" is trivially true for a SINGLE
+process -- the resident engine IS the always-hot farm the doc wished
+for. What SURVIVES once specialization-for-warmth is moot:
+  1. CONCURRENCY / horizontal scale -- one Ring VM is single-threaded;
+     1000+ concurrent requests need many workers across cores/machines.
+  2. LOAD ISOLATION -- a heavy neural/vision request must not
+     head-of-line-block light NLP requests; domains get RESOURCE
+     BUDGETS, not separate libraries.
+  3. DISTRIBUTION + FEDERATION -- spanning machines, with SLAs and
+     capability gating.
+This executes the 5.10 ruling verbatim: cluster/ folds into the host's
+WORKER MODEL -- domain-specialized WORKERS, not a parallel class tree.
+
+DOMAIN HONESTY (what each "cluster" really maps to):
+  - NLP cluster    -> engine-native (linguistic + neural tier). Real.
+  - Math cluster   -> engine-native (matrix/ggml, stats, simplex). Real.
+  - Search cluster -> engine-native (BERT embeddings + graph + sqlite
+                      = semantic search). Real.
+  - Vision/OCR     -> NOT in the engine (no image/OCR). Honest answer:
+                      a POLYGLOT-SPAWN worker -- the reactor's async
+                      spawn (uv_spawn, R7) runs python/tesseract/opencv
+                      off-process and drains the result. Specialization
+                      becomes a WORKER PROFILE (capability tag + budget
+                      + optional external tool), never a subclass.
+
+WHAT R8 REUSES (clustering composes almost entirely from R5+R7):
+  node = stzAppServer; intra-process pool = stzReactorPool; launch a
+  fleet = reactor async SPAWN (worker PROCESSES, each its own VM +
+  resident engine); route/proxy = reactor async CURL/TCP (native TLS);
+  supervise/health/restart/drain = stzAgentHost (R4b decommission);
+  the cluster-as-a-whole governed = stzSuperApp (norm-gated CallAcross,
+  the doc's "SLA/quality guarantees" = the 5.7 capability lattice).
+The only genuinely NEW layer is worker-pool + routing + fleet
+orchestration.
+
+THE RE-BASED ARCHITECTURE:
+  stzAppCluster (front host = stzAppServer)
+    -> request classifier (engine-NLP backed: rules + zero-shot)
+    -> worker PROFILES (nlp / math / search / vision), each backed by
+       in-proc reactor-pool slots OR spawned worker processes
+    -> reactor curl/TCP proxy to the fleet
+    -> stzAgentHost supervises (health / real-metric autoscale / drain)
+    -> bound as a governed stzSuperApp constellation (across machines)
+One resident engine per process; specialization is a routing + budget
+concept; TRUE multi-core parallelism comes from the PROCESS FLEET
+(Ring's VM is single-threaded, so CPU-bound parallelism must cross
+processes -- exactly what reactor spawn + curl enable).
+
+THE STAGES (each: engine reuse first, narrated suite, both remotes):
+- R8.1 WORKER MODEL + RETIRE THE CLASS TREE: stzWorkerProfile
+  ({tag, capabilities, resource budget}) + stzWorkerPool over
+  stzReactorPool; a host dispatches domain-tagged work to profile
+  slots with load isolation (a heavy job never starves a light one).
+  Tombstone stzClusterNode / the stzNLPServer-style tree and the no-op
+  oComputeEngine preloads (as stzContextPool/stzComputeEngine were).
+- R8.2 THE SMART ROUTER (real, engine-backed): stzRequestClassifier --
+  tier-1 deterministic rules (path/method/content-type), tier-2 ENGINE
+  zero-shot/embedding classification of request content -> domain
+  (dogfoods the neural tier; replaces the doc's hand-wavy balancer).
+- R8.3 THE FLEET (true horizontal scale): stzAppCluster = front host +
+  a supervised fleet of stzAppServer worker PROCESSES via reactor
+  spawn, proxied via reactor curl/TCP. WithNLP(3).WithMath(2) = spawn
+  N workers of that profile. Delivers the "1000+ concurrent" scale.
+- R8.4 SUPERVISION + REAL METRICS + AUTOSCALE: stzAgentHost supervises
+  the fleet; a scaling AGENT reads REAL queue/latency/in-flight counts
+  (from the reactor, not random()) and spawns/retires workers; health
+  heartbeats; failed node restarts; graceful drain via R4b. The
+  random()-metrics monitor is retired.
+- R8.5 COMPUTATIONAL PIPELINES: stzComputePipeline chains domain stages
+  (Vision->NLP->Compliance->Search) on the reactor's async job
+  pipeline; each stage runs on the right worker/profile.
+- R8.6 THE GOVERNED CONSTELLATION (distribution/federation): a cluster
+  spanning machines IS an stzSuperApp constellation -- cross-node calls
+  norm-gated, capabilities gated by governance (the "federated compute
+  marketplace" = a governed multi-host SuperApp; reactor curl as
+  transport). Closes the doc's federation vision on real primitives.
+
+REVOKED BY R8 (kept as tombstones like stzComputeEngine):
+  the stzNLPServer/stzMathServer/... PARALLEL CLASS TREE and all
+  oComputeEngine.Preload*() (obsolete -- engine resident); the framing
+  that clustering exists to AVOID COLD STARTS (revoked -- it exists for
+  concurrency, isolation, and governed distribution); the busy-loop
+  random() metrics monitor (replaced with real reactor metrics).
+
+Start at R8.1 + R8.3 (worker model + spawn/curl fleet) -- the
+load-bearing core; routing/scaling/pipelines/federation layer on top.
