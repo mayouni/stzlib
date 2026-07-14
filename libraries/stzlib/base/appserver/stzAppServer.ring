@@ -298,8 +298,10 @@ class stzAppServer from stzObject
 
 	def _Dispatch(oReq, oResp)
 		try
-			if @oRouter.HasRoute(oReq.Method(), oReq.Path())
-				_fHandler_ = @oRouter.GetHandler(oReq.Method(), oReq.Path())
+			_aM_ = @oRouter.MatchRoute(oReq.Method(), oReq.Path())
+			if _aM_[:matched]
+				oReq.SetParams(_aM_[:params])
+				_fHandler_ = _aM_[:handler]
 				call _fHandler_(oReq, oResp)
 			but This._ServeResource(oReq, oResp)
 				# handled by the MBaaS floor
