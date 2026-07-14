@@ -132,6 +132,35 @@ chk("the confusion matrix names each truth->prediction",
 	aCM["b->a"] = 1 and aCM["b->b"] = 2)
 
 ? ""
+? "-- Scene 9: the network you declare like a sentence (LAW 4) --"
+oNN = new stzNeuralNetwork([ :Inputs = 2 ])
+oNN.AddDenseLayer(4, :Tanh)
+oNN.AddDenseLayer(1, :Sigmoid)
+chk("the sentence declares the topology",
+	oNN.NumberOfLayers() = 2 and oNN.NumberOfInputs() = 2)
+
+oTr = new stzTrainer()
+oTr.SetLearningRate(0.5)
+oTr.Train(oNN, [ [0,0], [0,1], [1,0], [1,1] ],
+              [ [0], [1], [1], [0] ], 3000)
+? "  " + oTr.Why()
+chk("XOR is LEARNED (the classic non-linear proof)",
+	oNN.Predict([0,1])[1] > 0.9 and oNN.Predict([1,0])[1] > 0.9 and
+	oNN.Predict([0,0])[1] < 0.1 and oNN.Predict([1,1])[1] < 0.1)
+chk("the loss history descends and is reported",
+	oTr.FinalLoss() < 0.01 and len(StzFind("loss", oTr.Why())) > 0)
+
+oNN2 = new stzNeuralNetwork([ :Inputs = 2 ])
+oNN2.AddDenseLayer(4, :Tanh)
+oNN2.AddDenseLayer(1, :Sigmoid)
+oTr2 = new stzTrainer()
+oTr2.SetLearningRate(0.5)
+oTr2.Train(oNN2, [ [0,0], [0,1], [1,0], [1,1] ],
+               [ [0], [1], [1], [0] ], 3000)
+chk("training is REPRODUCIBLE (same seed, same weights, LAW 3)",
+	oNN.Predict([0,1])[1] = oNN2.Predict([0,1])[1])
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
