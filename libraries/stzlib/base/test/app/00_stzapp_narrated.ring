@@ -37,6 +37,6 @@ oApp.Explain()
 
 ? "nodes: " + oApp.Graph().NodesCount()      #--> nodes: 3
 
-oApp.Live()   #--> [SonibankVisits] is live -- 3 thing(s), 0 flow(s), 0 reaction(s), 0 goal(s)
+oApp.Live()   #--> [SonibankVisits] is live -- 3 thing(s), 0 flow(s), 0 reaction(s), 0 goal(s); 0 proposal(s)
 
 pf()

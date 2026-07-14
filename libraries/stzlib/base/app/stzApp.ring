@@ -56,6 +56,8 @@ class stzApp from stzObject
     nCurRefinement = 0
     aReaches     = []            # (Reach)
     oReactive    = NULL
+    bLive        = FALSE
+    aProposals   = []            # [ [ :propose, thing, :for, instance ], ... ]
 
     # goal-brace cursor attributes (assigned inside Want(...) { ... })
     Means      = ""
@@ -84,6 +86,8 @@ class stzApp from stzObject
         aScreens     = []
         aRefinements = []
         aReaches     = []
+        bLive        = FALSE
+        aProposals   = []
 
     #== Identity & substance =================================================
 
@@ -413,13 +417,132 @@ class stzApp from stzObject
 
     #== ANIMATION ============================================================
 
+    # Live() wires the world's reactions into a running reactive system
+    # and does a first Pulse() so the live world already reflects what
+    # its Whenever/Propose rules imply. Continuous/temporal firing rides
+    # the R5 stzAgentHost runtime (supervise the world, tick Pulse()).
     def Live()
         This._FlushCursors()
         oReactive = new stzReactiveSystem()
+        bLive = TRUE
+        This.Pulse()
         ? "[" + cName + "] is live -- " + len(aThings) + " thing(s), " +
           len(aFlows) + " flow(s), " + len(aReactions) + " reaction(s), " +
-          len(aGoals) + " goal(s)"
+          len(aGoals) + " goal(s); " + len(aProposals) + " proposal(s)"
         return This
+
+    def IsLive()
+        return bLive
+
+    # PULSE: evaluate every reaction against the live world. A reaction
+    # 'Whenever :Thing ... Propose :Other' fires for each INSTANCE of
+    # Thing that lacks an <other>-labeled relation -- producing one
+    # proposal per gap (the same structural gap the goal machinery
+    # measures). Idempotent: a proposal already standing is not
+    # duplicated, and once the world Relate()s the instance the
+    # proposal clears on the next pulse. Returns proposals added.
+    def Pulse()
+        _nAdded_ = 0
+        # drop proposals the world has since satisfied
+        This._PruneSatisfiedProposals()
+        for r = 1 to len(aReactions)
+            cThing = "" + aReactions[r][1]
+            cProposed = This._ReactionProposes(r)
+            if cProposed = ""  loop  ok
+            aInst = This._InstancesOf(cThing)
+            for k = 1 to len(aInst)
+                if NOT This._InstanceHasRelation(aInst[k], cProposed)
+                    if NOT This._ProposalStands(cProposed, aInst[k])
+                        aProposals + [ :propose, cProposed, :for, aInst[k] ]
+                        _nAdded_++
+                    ok
+                ok
+            next
+        next
+        return _nAdded_
+
+    def Proposals()
+        return aProposals
+
+    # React to an EVENT on one instance: pulse just that instance's
+    # reactions. Returns proposals added.
+    def React(pcInstance)
+        _nAdded_ = 0
+        This._PruneSatisfiedProposals()
+        for r = 1 to len(aReactions)
+            cThing = "" + aReactions[r][1]
+            cProposed = This._ReactionProposes(r)
+            if cProposed = ""  loop  ok
+            if This._InstanceIsA(pcInstance, cThing)
+                if NOT This._InstanceHasRelation(pcInstance, cProposed)
+                    if NOT This._ProposalStands(cProposed, pcInstance)
+                        aProposals + [ :propose, cProposed, :for, pcInstance ]
+                        _nAdded_++
+                    ok
+                ok
+            ok
+        next
+        return _nAdded_
+
+    #-- reaction/instance helpers -------------------------------------
+
+    def _ReactionProposes(n)
+        for j = 1 to len(aReactions[n][4])
+            if aReactions[n][4][j][1] = :propose
+                return "" + aReactions[n][4][j][2]
+            ok
+        next
+        return ""
+
+    def _InstancesOf(pcThing)
+        cT = StzLower("" + pcThing)
+        aOut = []
+        aE = oGraph.Edges()
+        for i = 1 to len(aE)
+            if StzLower("" + aE[i][:label]) = "isa" and aE[i][:to] = cT
+                aOut + aE[i][:from]
+            ok
+        next
+        return aOut
+
+    def _InstanceIsA(pcInstance, pcThing)
+        cI = StzLower("" + pcInstance)
+        cT = StzLower("" + pcThing)
+        aE = oGraph.Edges()
+        for i = 1 to len(aE)
+            if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = "isa" and aE[i][:to] = cT
+                return TRUE
+            ok
+        next
+        return FALSE
+
+    def _InstanceHasRelation(pcInstance, pcRelation)
+        cI = StzLower("" + pcInstance)
+        cR = StzLower("" + pcRelation)
+        aE = oGraph.Edges()
+        for i = 1 to len(aE)
+            if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = cR
+                return TRUE
+            ok
+        next
+        return FALSE
+
+    def _ProposalStands(pcThing, pcInstance)
+        for i = 1 to len(aProposals)
+            if aProposals[i][2] = pcThing and aProposals[i][4] = pcInstance
+                return TRUE
+            ok
+        next
+        return FALSE
+
+    def _PruneSatisfiedProposals()
+        aKept = []
+        for i = 1 to len(aProposals)
+            if NOT This._InstanceHasRelation(aProposals[i][4], aProposals[i][2])
+                aKept + aProposals[i]
+            ok
+        next
+        aProposals = aKept
 
     #== PRESENCE (emergent) -- make the world visible ========================
 
