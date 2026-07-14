@@ -11,9 +11,9 @@
 #   ? oCv.NextQuestion()      # SYSTEM-LED: born from the gap
 #   oCv.Reply("tomato-sauce") # any register; admission GOVERNED
 #   ? oCv.Why()               # every verdict narrated
-#   oCv.Conclude("myworld")   # gaps closed -> the .stzknow written
+#   oCv.Conclude("myworld")   # gaps closed -> the .zknw written
 #
-# FORMAT: *.stzconv -- the persisted transcript + state (Save/Load).
+# FORMAT: *.zconv -- the persisted transcript + state (Save/Load).
 
 class stzConversation from stzObject
 
@@ -143,11 +143,11 @@ class stzConversation from stzObject
 		@oNarration.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
 		return 1
 
-	#-- persistence (*.stzconv) -------------------------------------------
+	#-- persistence (*.zconv) ---------------------------------------------
 
 	def Save(pcFile)
-		if StzRight(pcFile, 8) != ".stzconv"
-			pcFile += ".stzconv"
+		if StzRight(pcFile, 6) != ".zconv"
+			pcFile += ".zconv"
 		ok
 		_c_ = 'conversation "' + @cTopic + '"' + NL + "history" + NL
 		_aL_ = @oNarration.Lines()

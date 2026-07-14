@@ -621,12 +621,13 @@ class stzKnowledgeGraph from stzGraph
 		return _aExplanation_
 
 	#----------------------------------#
-	#  MANAGING *.stzknow file format  #
+	#  MANAGING *.zknw file format     #
+	#  (legacy .stzknow still READS)  #
 	#----------------------------------#
 
 	def ImportKnow(pSource)
 	    if isString(pSource)
-	        if StzRight(pSource, 8) = ".stzknow"
+	        if StzRight(pSource, 5) = ".zknw" or StzRight(pSource, 8) = ".stzknow"
 	            _oParser_ = new stzKnowParser()
 	            _oLoaded_ = _oParser_.ParseFile(pSource)
 	        else
@@ -665,8 +666,8 @@ class stzKnowledgeGraph from stzGraph
 	    return _cKnow_
 	
 	def WriteToKnowFile(pcFilename)
-	    if StzRight(pcFilename, 8) != ".stzknow"
-	        pcFilename += ".stzknow"
+	    if StzRight(pcFilename, 5) != ".zknw"
+	        pcFilename += ".zknw"
 	    ok
 	    write(pcFilename, This.ExportToKnow())
 	

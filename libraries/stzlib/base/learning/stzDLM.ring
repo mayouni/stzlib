@@ -9,8 +9,8 @@
 #   ? oDLM.Complete("margherita")                # domain-valid continuations
 #   ? oDLM.GenerateCorpus()                      # facts as sentences --
 #                                                # rung 2's teacher-free seed
-#   oDLM.Save("restaurant")                      # -> restaurant.stzdlm
-#   oD2 = StzLoadDLM("restaurant.stzdlm")        # SELF-CONTAINED: answers
+#   oDLM.Save("restaurant")                      # -> restaurant.zdlm
+#   oD2 = StzLoadDLM("restaurant.zdlm")          # SELF-CONTAINED: answers
 #                                                # without the original KG
 #
 # RUNG 1 = ZERO NEURONS: vocabulary, facts and laws forged from the
@@ -348,11 +348,13 @@ class stzDLM from stzObject
 		next
 		return [ :total = _n_, :passed = _nPass_, :failed = _aFailed_ ]
 
-	#-- persistence (*.stzdlm -- SELF-CONTAINED) -------------------------------
+	#-- persistence (*.zdlm -- SELF-CONTAINED) ---------------------------------
+	# (extension ruling 2026-07-14: Softanza formats are z + a short
+	#  abbreviation -- .zdlm, .zknw, .zconv, .zrulz)
 
 	def Save(pcFile)
-		if StzRight(pcFile, 7) != ".stzdlm"
-			pcFile += ".stzdlm"
+		if StzRight(pcFile, 5) != ".zdlm"
+			pcFile += ".zdlm"
 		ok
 		_c_ = 'dlm "' + @cDomain + '"' + NL
 		_c_ += "entities" + NL
