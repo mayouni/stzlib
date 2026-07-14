@@ -32,7 +32,7 @@ other pillars are the derivation engine between them.
 
 THE GOAL, STATED AS AN EXPERIENCE: a programmer -- or the business itself --
 supplies a KNOWLEDGEBASE. A restaurant describes its business in a
-*.stzknow file: entities, relations, an ontology (domain-specific
+*.zknw file: entities, relations, an ontology (domain-specific
 semantics), rules. Feeding that ONE FILE to Softanza yields an
 industrial-grade intelligent system: any app or solution for that
 restaurant is then developed easily on top of a strong, dynamic,
@@ -60,10 +60,12 @@ instruments (declarative programming, data orientation, the *.z-format
 family, natural programming, conversational programming) at it. FOUR
 DOORS, one governed brain:
 
-1. THE DSL DOOR (declarative, data-oriented): *.stzknow itself IS the
+1. THE DSL DOOR (declarative, data-oriented): *.zknw itself IS the
    program -- readable, diffable, hand-editable, validated on load.
-   The format family doctrine (LAW 1): .stzknow / .flow / .stzopt /
-   .stzconv -- every stateful domain earns its format.
+   The format family doctrine (LAW 1): every stateful domain earns
+   its format, and every Softanza extension is Z + A SHORT
+   ABBREVIATION (author ruling 2026-07-14): .zknw / .zopt / .zconv /
+   .zdlm / .zrulz / .zrfn (legacy spellings still READ).
 2. THE API DOOR (the programmer): stzKnowledgeGraph + Q chains --
    AddFact/Query/ontology, chainable, Why-accountable.
 3. THE NATURAL DOOR: Naturally(...) / NNL chains / stzQuestion frames --
@@ -97,7 +99,7 @@ vibe coding does:
   question (stzGoal drives the elicitation, stzQuestion asks,
   stzNarration explains why it is asking). The conversation ASSISTS THE
   DESIGN of the solution, step by governed step -- and it ends with real
-  artifacts: the .stzknow knowledgebase WRITTEN, data in place, an
+  artifacts: the .zknw knowledgebase WRITTEN, data in place, an
   OPERATIONAL intelligent system standing (the 0.1 north star).
 
 The same fluency vibe coding is loved for -- but carried by the
@@ -228,7 +230,7 @@ base/
                   pattern Query/QueryPath, ontology DefineClass/Property/
                   Validate, Explain), stzGraphRule (three-phase rules:
                   Constraint / Derivation / Validation), stzGraphQuery/
-                  Planner/Workflow -- and the *.stzknow FORMAT with a real
+                  Planner/Workflow -- and the *.zknw FORMAT with a real
                   parser (ImportKnow/ExportToKnow/WriteToKnowFile).
                   THE WORK IS INTEGRATION, NOT CREATION (roadmap R1):
                   natural/'s world becomes SUGAR over a DEFAULT
@@ -238,12 +240,12 @@ base/
                   diagram/orgchart as visual citizens inside or moved) is
                   the author's naming call; the DOMAIN unification is the
                   substance.
-                  ENTRY: stzKnowledgeGraph      FORMAT: *.stzknow
+                  ENTRY: stzKnowledgeGraph      FORMAT: *.zknw
                   SUGAR: StzKnow()/StzKnowRelation()/WhatIs()/AreRelated()
 
   meta/         META-PROGRAMMING -- the library's knowledge of ITSELF:
                   stzSelfDoc, stzLibDoc (move from reflect/), the harvest,
-                  recipes, test-sample records, emb caches (.stzcache).
+                  recipes, test-sample records, emb caches (.zcch).
                   reflect/ keeps only the raw mechanics (source resolution,
                   parsing primitives) that meta/ builds on.
                   ENTRY: stzLibDoc (already right)
@@ -285,7 +287,7 @@ base/
                   deterministic floor (lexicon + frames + templates) ->
                   neural upgrade (stzNeuralChat stays in neural/ as the
                   model-backed ENGINE this module can ride).
-                  ENTRY: stzConversation        FORMAT: *.stzconv
+                  ENTRY: stzConversation        FORMAT: *.zconv
 
   reactive/     THE TIME FOUNDATION (exists -- round-2 study, section 5.4):
                   Reaxis declarative streams = the change-propagation
@@ -313,7 +315,7 @@ base/
                   for small nets; EXPORT to the same artifact world neural/
                   consumes. OpenNN as the design lesson, not a dependency.
                   THE MODEL FOUNDRY (5.9): knowledgebase -> the DLM
-                  (DOMAIN LANGUAGE MODEL, *.stzdlm -- ENTRY stzDLM),
+                  (DOMAIN LANGUAGE MODEL, *.zdlm -- ENTRY stzDLM),
                   two rungs -- deterministic (graph -> grammar
                   synthesis -> constrained decoding; zero training;
                   every DLM's floor) and neural SLM (teacher-free
@@ -325,7 +327,7 @@ base/
                   the PI doctrine's engine room; lands in R4):
                   stzOptimModel     the ZIMPL-class modeling object: declare
                                     sets/params/vars/constraints/objective
-                                    (hash literals or *.stzopt), then
+                                    (hash literals or *.zopt), then
                                     SolveWith(:auto); Why() names the engine
                                     and narrates the solution (LAW 3)
                   execution tiers   own Zig simplex+B&B floor -> vendored
@@ -334,7 +336,7 @@ base/
                   stzMultiObjectiveSolver (NSGA-II, already REAL) joins it;
                   the classic-ML roster (kNN/NaiveBayes/TF-IDF/ID3/apriori,
                   then k-means/logistic) rides stzDataSet + stzSimilarity.
-                  ENTRY: stzOptimModel          FORMAT: *.stzopt
+                  ENTRY: stzOptimModel          FORMAT: *.zopt
 
   governance/   PROGRAMMATIC GOVERNANCE (the Zin-concordance layer,
                   section 5.7 -- R4b): the five declarable primitives
@@ -364,7 +366,7 @@ base/
                                     atomic revert, in the data model
                   SEEDS: stzAppRefinement's knob model, the narration's
                   R-tag grammar, stzCCode's working transpiler.
-                  ENTRY: stzRefinableCode       FORMAT: *.stzrfn
+                  ENTRY: stzRefinableCode       FORMAT: *.zrfn
 
   agentic/      AGENTS (the composition point -- R5):
                   stzAgent          base: goal, skills, memory, tools, Why
@@ -397,7 +399,7 @@ base/
                   Body + Presence/Intent/Refinement/Reach; Slice A
                   green, B-E to finish in R7) and stzSuperApp (the
                   constellation -- design-only, code in R7).
-                  ENTRY: stzApp / stzSuperApp   FORMAT: *.stzgraf+rulz
+                  ENTRY: stzApp / stzSuperApp   FORMAT: *.zgrf+rulz
 
   platform/     THE OPERATIONAL ENVELOPE (NEW -- 5.10, R7): stzPlatform
                   = Generation (Reach -> shells), the capability seam
@@ -424,7 +426,7 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 
 | Concern | Verdict |
 |---|---|
-| /natural holds entities+relations+suppositions as $-globals | WRONG HOME + WRONG SHAPE -- and a PARALLEL WORLD: graph/stzKnowledgeGraph already offers the power (triples/query/ontology/.stzknow). R1 unifies onto a default instance, globals as sugar |
+| /natural holds entities+relations+suppositions as $-globals | WRONG HOME + WRONG SHAPE -- and a PARALLEL WORLD: graph/stzKnowledgeGraph already offers the power (triples/query/ontology/.zknw). R1 unifies onto a default instance, globals as sugar |
 | The 2026-07-13 relation laws ($aStzRelationRules) | DUPLICATE a lesser stzGraphRule (Constraint/Derivation/Validation) -- retire into it in R1 |
 | stzText lives in natural/ | Move to linguistic/ as its ENTRY OBJECT (R3) -- natural/ keeps language-as-code only |
 | /neural consumes GGUFs only | Right for its scope; CREATION gets learning/ (R4) |
@@ -749,7 +751,7 @@ surfaces, per LAW 1 + the 4.3 multi-paradigm doctrine:
        ? oM.Solution()  ? oM.Why()      # LAW 3: names the engine, narrates
 2. THE SENTENCE SURFACE -- Naturally("maximize ... where ... stays under
    ..."), parsed by the stzListex grammar family into the same model AST.
-3. THE FORMAT -- *.stzopt (LAW 1; precedent = .stzknow/.flow): sets,
+3. THE FORMAT -- *.zopt (LAW 1; precedent = .zknw/.flow): sets,
    params, indexed variable/constraint FAMILIES ("for all p in Products")
    -- THE capability today's longhand solver lacks. Expressions compile
    through expr.zig's bytecode (the W-DSL engine), retiring
@@ -1044,7 +1046,7 @@ ceremony; on the graph, it is a governed transformation calculus.
 WHAT THE FOUNDATION SAYS THAT THE PRODUCT WON'T:
 1. REFINEMENT IS UNIVERSAL, not code-bound: anything living in a graph
    is refinable through the SAME gate -- the knowledgebase's facts and
-   rules, an optimization model's Vars bounds (.stzopt knobs ARE
+   rules, an optimization model's Vars bounds (.zopt knobs ARE
    refinement points), a plan's profile, a conversation policy. The
    product must focus (code/UI/data); the foundation must generalize
    (LAW 1 makes every domain graph-backed, hence refinable).
@@ -1171,7 +1173,7 @@ missing platform pieces, in build order:
 
 Both rungs end at the same gate: generations are proposals, the graph
 and its rules decide admission. The 0.1 north star extends one step:
-feed ONE .stzknow file -> an operational intelligent system -> AND,
+feed ONE .zknw file -> an operational intelligent system -> AND,
 when wanted, the domain's own language model.
 
 THE DLM RULING (author, 2026-07-13): the ZLM CONCEPT is donated from
@@ -1180,7 +1182,7 @@ DOMAIN LANGUAGE MODEL**: the generic, named artifact the Model Foundry
 produces. Any Softanza project that supplies a knowledgebase can ship
 its DLM FREE to the users of its knowledge-based domain -- the domain
 gains its own governed voice at zero cost. Under LAW 1:
-  ENTRY: stzDLM (stzDomainLanguageModel)   FORMAT: *.stzdlm
+  ENTRY: stzDLM (stzDomainLanguageModel)   FORMAT: *.zdlm
   -- a bundle of the synthesized domain grammar + lexicon + templates
   + golden sets (+ optionally the rung-2 GGUF when a neural tier was
   forged). Rung 1 is EVERY DLM's floor; rung 2 is optional fluency.
@@ -1205,7 +1207,7 @@ WHAT EXISTS (verified):
   (things+truths+relations on stzGraph), LIFE/Becoming (Behavior flows
   + PURPOSE: goals as wanted graph states, plans on the PI ladder,
   "an agent is simply a world whose purpose is declared and whose plans
-  may reason"), BODY/Embodiment (declared residence, .stzgraf/.stzrulz)
+  may reason"), BODY/Embodiment (declared residence, .zgrf/.zrul)
   -- plus four emergents: Presence (seen), Intent (engaged), Refinement
   (tuned, the 5.8 knobs), REACH (appears; explicitly NOT Body).
   Code truth: one 403-line file; Slice A/Being GREEN; B-E are
@@ -1264,7 +1266,7 @@ is that envelope, one construct with five duties:
    capability lattice of 5.7 -- same vocabulary, no new machinery);
 3. THE COMMONS RUNTIME: identity/auth sessions, messaging, stores --
    the operational counterpart of SuperApp's declared Provides/Shares;
-4. THE NETWORKED BODY: the single-file .stzgraf body exposed
+4. THE NETWORKED BODY: the single-file .zgrf body exposed
    multi-user over the wire (through the service host + sqlite);
 5. REGISTRY + ENFORCEMENT: the discovery graph as a runtime (push/
    update/retire worlds) and governance norms actually INTERCEPTING
@@ -1305,7 +1307,7 @@ StzKnowRelation("paris", "capital-of", "france")  # == oDKG.AddFact(...)
 
 # and the graph object is directly usable, persistable:
 oKg = DefaultKnowledgeGraph()
-oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
+oKg.WriteToKnowFile("world")     # -> world.zknw (the format EXISTS)
 ```
 
 - retire $aStzRelations/$aStzRelationRules into AddFact + stzGraphRule
@@ -1324,7 +1326,7 @@ oKg.WriteToKnowFile("world")     # -> world.stzknow (the format EXISTS)
   with atomic revert -- Refine's data-model primitive, and G8's
   rollback made real);
 - ACCEPTANCE (the north star, 0.1): a small DOMAIN knowledgebase
-  (.stzknow with ontology + rules) loads, answers WhatIs/AreRelated,
+  (.zknw with ontology + rules) loads, answers WhatIs/AreRelated,
   and a newly added fact FIRES derivation rules -- intelligence visibly
   augmented with zero code change.
 
@@ -1370,7 +1372,7 @@ One step = the refactor AND the gap-closing together:
 stzNeuralChat stays in neural/ as the model-backed ENGINE; conversation/
 becomes the DOMAIN (map entry above):
 - stzConversation ENTRY OBJECT: multi-turn state (topic, goals, grounding,
-  history), persisted as *.stzconv;
+  history), persisted as *.zconv;
 - stzQuestion supplies the interrogative frames (exists); stzGoal gives
   the conversation its purpose (ties to stzGraphGoal, R5); stzNarration
   promotes the narration culture (Why-chains, evidentiality, prose) into
@@ -1382,7 +1384,7 @@ becomes the DOMAIN (map entry above):
   defines what a complete domain model needs; the gap between that and
   the current knowledgebase GENERATES the next questions (goal-driven
   slot filling: stzGoal + stzQuestion over the graph); the session ends
-  by WRITING the .stzknow and standing the system up;
+  by WRITING the .zknw and standing the system up;
 - THE ANSWER PROTOCOL (0.3): replies accepted in five registers --
   proposed option / data structure / formula-script / natural-NNL /
   EXAMPLES (pattern INDUCTION over the ...ex family builds the
@@ -1416,7 +1418,7 @@ FOUNDATION.** Step order matters:
 4. FIRST APPLIED TARGET: the trainable TEXT CLASSIFIER (closes the last
    big 4.2 row).
 5. optim/ -- THE MODELING DSL (section 5.5): stzOptimModel entry object +
-   *.stzopt format (sets/params/indexed families); expressions compiled by
+   *.zopt format (sets/params/indexed families); expressions compiled by
    expr.zig (retire stzCoeffExtractor); REAL simplex + B&B in
    engine/src/optim.zig as the floor, vendored HiGHS as the upgrade tier
    (SolveWith(:auto), Why() names the engine); UN-RETIRE the
@@ -1430,8 +1432,8 @@ FOUNDATION.** Step order matters:
    knowledgebase graph -> vocabulary/schema/rules extraction ->
    DOMAIN GRAMMAR SYNTHESIS (the G3 machinery pointed at a domain) ->
    constrained decoding + golden sets + graph validation = the DLM
-   (stzDLM, *.stzdlm bundle): a usable, governed DOMAIN LANGUAGE MODEL
-   from ONE .stzknow file, shippable FREE to the domain's users.
+   (stzDLM, *.zdlm bundle): a usable, governed DOMAIN LANGUAGE MODEL
+   from ONE .zknw file, shippable FREE to the domain's users.
 8. THE MODEL FOUNDRY, RUNG 2 (neural, when fluency earns its cost):
    teacher-free CORPUS SYNTHESIS from the knowledgebase (the natural
    layer renders facts+rules as text; every example validated by the
@@ -1500,7 +1502,7 @@ Parse trees and *.zagn agent files considered here, on demand.
 **R6 -- refine/ (refinement programming -- needs R1 + R2 + the
 reversibility contract).**
 stzPolyCode's first-stimulus idea, rebuilt as a domain (5.8):
-- stzRefinableCode ENTRY OBJECT over *.stzrfn: source carrying the
+- stzRefinableCode ENTRY OBJECT over *.zrfn: source carrying the
   R-tag refinement points (the narration's grammar, finally parsed);
 - stzRefinement = the typed graph transformation (uniform shape for
   every author -- human, template, solver, LLM); the GATE = the 4-stage
@@ -1585,7 +1587,7 @@ Step order matters:
 **THE CAPSTONE TEST (the definition of done for the WHOLE roadmap):**
 the restaurant scenario of 0.1. DAY ZERO is wise coding (0.3): the owner
 starts with NOTHING -- Softanza interviews them, gap by gap, and writes
-restaurant.stzknow ITSELF (entities, relations, ontology, rules). Then,
+restaurant.zknw ITSELF (entities, relations, ontology, rules). Then,
 with ZERO app-specific code:
 - R1 proves LOAD + GOVERN: facts queried (WhatIs/AreRelated), laws
   enforced, a new fact triggers derivations;
@@ -1610,7 +1612,7 @@ with ZERO app-specific code:
   serves the restaurant's WEB portal, its mobile-backend (MBaaS), a
   kitchen-sensor TELEMETRY feed (IoT), and the resident AGENT -- one
   world, one envelope, one host, one engine, zero dependencies.
-Adding ONE rule to the .stzknow file visibly upgrades every layer above
+Adding ONE rule to the .zknw file visibly upgrades every layer above
 -- no code change, no training, no retrieval pipeline. That demo IS the
 proof of the revoked-LLM thesis. Finally, run the SAME capstone with an
 AGENT as the programmer, through the machine door (LAW 6): same doors,

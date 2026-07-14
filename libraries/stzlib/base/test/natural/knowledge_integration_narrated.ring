@@ -67,14 +67,14 @@ chk("an unprovable goal REFUSES with reasons",
 #== SCENE 3 -- the knowledgebase persists and RELOADS whole =============
 
 ? ""
-? "-- Scene 3: one file IS the brain (.stzknow round-trip) --"
+? "-- Scene 3: one file IS the brain (.zknw round-trip) --"
 
 StzSaveKnowledgeBase("restaurant_accept")
 ForgetRelations()
 chk("after forgetting, the relation is gone",
 	AreRelated("margherita", "tomato") = "")
 
-nAbsorbed = StzLoadKnowledgeBase("restaurant_accept.stzknow")
+nAbsorbed = StzLoadKnowledgeBase("restaurant_accept.zknw")
 ? "  facts absorbed from the file: " + nAbsorbed
 
 chk("the file re-hydrated the facts", nAbsorbed >= 8)
@@ -134,7 +134,7 @@ oKG.DisableStrictMode()
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
 
-remove("restaurant_accept.stzknow")
+remove("restaurant_accept.zknw")
 
 pf()
 

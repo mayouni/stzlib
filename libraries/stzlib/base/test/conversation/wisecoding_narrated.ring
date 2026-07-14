@@ -52,13 +52,13 @@ chk("the refusal reaches a human checkpoint with context",
 ? ""
 ? "-- Scene 4: the session ends by WRITING the knowledgebase --"
 chk("gaps closed", len(oCv.Gaps()) = 0)
-chk("Conclude writes the .stzknow", oCv.Conclude("t_wise_world") = 1)
+chk("Conclude writes the .zknw", oCv.Conclude("t_wise_world") = 1)
 chk("the transcript reads as dialogue",
 	len(StzFind("SOFTANZA:", oCv.Transcript())) > 0)
 cF = oCv.Save("t_wise_conv")
 chk("the conversation persists (*.stzconv)",
 	len(StzFind("conversation ", read(cF))) > 0)
-remove("t_wise_world.stzknow")
+remove("t_wise_world.zknw")
 remove(cF)
 
 bRefuse = 0
