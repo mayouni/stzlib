@@ -37,11 +37,11 @@ chk("Explain confirms governance", len(StzFind("GOVERNED", oOk.Explain())) > 0)
 ? "-- Scene 3: the capability rule is structural --"
 oCheck = new stzAgentGraph("cap")
 oCheck.AddLLMActor("creative")
-aCaps = oCheck.Graph().NodeProperty("creative", "capabilities")
+aCaps = oCheck.GraphQ().NodeProperty("creative", "capabilities")
 chk("an llm actor's capabilities EXCLUDE effectful",
 	ring_find(aCaps, "effectful") = 0)
 chk("...and its output is tainted open_llm_text",
-	oCheck.Graph().NodeProperty("creative", "taint") = "open_llm_text")
+	oCheck.GraphQ().NodeProperty("creative", "taint") = "open_llm_text")
 
 ? ""
 ? "-- Scene 4: an effect with a guardian but NO trace still fails --"

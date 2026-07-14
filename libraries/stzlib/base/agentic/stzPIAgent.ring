@@ -14,9 +14,9 @@
 #               model-backed skills (a later slice).
 #
 #   oAg = new stzPIAgent("kitchen-bot")
-#   oAg.Governance().DeclareRisk("order-stock", 2)
-#   oAg.Governance().GrantPermission("kitchen-bot", "order-stock")
-#   oAg.Governance().SetAuthority("kitchen-bot", :Delegated)
+#   oAg.GovernanceQ().DeclareRisk("order-stock", 2)
+#   oAg.GovernanceQ().GrantPermission("kitchen-bot", "order-stock")
+#   oAg.GovernanceQ().SetAuthority("kitchen-bot", :Delegated)
 #   oAg.AddSkill(oRestockSkill.NeedsAction("order-stock"))
 #   oAg.Pursue()                # perceive -> decide -> (govern) -> act
 #   ? oAg.Why()
@@ -38,10 +38,11 @@ class stzPIAgent from stzObject
 	def Name_()
 		return @cName
 
-	def Memory()
+	# Q-convention: these return chainable OBJECTS -> Q suffix
+	def MemoryQ()
 		return @oMem
 
-	def Governance()
+	def GovernanceQ()
 		return @oGov
 
 	def Trace()

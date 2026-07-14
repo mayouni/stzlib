@@ -38,10 +38,10 @@ chk("Recall returns the objects", oMem2.Recall("table-4", "wants")[1] = "water")
 ? ""
 ? "-- Scene 3: the governed cycle -- gate BEFORE act --"
 oAg = new stzPIAgent("kitchen-bot")
-oAg.Memory().Learn("stock", "level", "low")
-oAg.Governance().DeclareRisk("order-stock", 2)
-oAg.Governance().GrantPermission("kitchen-bot", "order-stock")
-oAg.Governance().SetAuthority("kitchen-bot", :Delegated)
+oAg.MemoryQ().Learn("stock", "level", "low")
+oAg.GovernanceQ().DeclareRisk("order-stock", 2)
+oAg.GovernanceQ().GrantPermission("kitchen-bot", "order-stock")
+oAg.GovernanceQ().SetAuthority("kitchen-bot", :Delegated)
 oGSk = new stzAgentSkill("restock")
 oGSk.When(func oM { return oM.Fact("stock", "level", "low") })
 oGSk.Does(func oM {
@@ -53,15 +53,15 @@ oGSk.VerifiedBy(func oM { return oM.Fact("stock", "level", "ordered") })
 oAg.AddGovernedSkill(oGSk, "order-stock")
 n = oAg.Pursue()
 chk("the authorized agent acts and verifies", n = 1)
-chk("...changing its world", oAg.Memory().Fact("stock", "level", "ordered") = 1)
+chk("...changing its world", oAg.MemoryQ().Fact("stock", "level", "ordered") = 1)
 chk("Pursue narrates the rounds", len(StzFind("round", oAg.Why())) > 0)
 chk("the governed act left an audit witness", len(oAg.DecisionLog()) = 1)
 
 ? ""
 ? "-- Scene 4: governance REFUSES at the gate (no permission) --"
 oRog = new stzPIAgent("rogue-bot")
-oRog.Memory().Learn("stock", "level", "low")
-oRog.Governance().DeclareRisk("order-stock", 2)
+oRog.MemoryQ().Learn("stock", "level", "low")
+oRog.GovernanceQ().DeclareRisk("order-stock", 2)
 # NO permission granted
 oRSk = new stzAgentSkill("restock")
 oRSk.When(func oM { return oM.Fact("stock", "level", "low") })
@@ -69,7 +69,7 @@ oRSk.Does(func oM { oM.Learn("stock", "level", "ordered")  return 1 })
 oRog.AddGovernedSkill(oRSk, "order-stock")
 nR = oRog.Pursue()
 chk("the ungoverned-for-this agent NEVER acts", nR = 0)
-chk("...its world is unchanged", oRog.Memory().Fact("stock", "level", "ordered") = 0)
+chk("...its world is unchanged", oRog.MemoryQ().Fact("stock", "level", "ordered") = 0)
 chk("...and the refusal is logged with a reason",
 	oRog.DecisionLog()[1][:decision] = "refused" and
 	len(StzFindCS("permission", oRog.DecisionLog()[1][:why], 0)) > 0)
@@ -77,7 +77,7 @@ chk("...and the refusal is logged with a reason",
 ? ""
 ? "-- Scene 5: the cascade to fixpoint (Softanzuter at agent level) --"
 oChain = new stzPIAgent("cook")
-oChain.Memory().Learn("order", "state", "placed")
+oChain.MemoryQ().Learn("order", "state", "placed")
 # three skills chain: placed -> cooking -> plated -> served
 s1 = new stzAgentSkill("cook")
 s1.When(func oM { return oM.Fact("order", "state", "placed") })
@@ -96,7 +96,7 @@ oChain.AddSkill(s2)
 oChain.AddSkill(s3)
 nC = oChain.Pursue()
 chk("all three skills fire in the cascade", nC = 3)
-chk("the order reaches its final state", oChain.Memory().Fact("order","state","served") = 1)
+chk("the order reaches its final state", oChain.MemoryQ().Fact("order","state","served") = 1)
 
 ? ""
 ? "=========================================="
