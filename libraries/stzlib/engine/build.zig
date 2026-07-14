@@ -41,7 +41,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_hashmap", .entry = "src/stz_hashmap_entry.zig", .needs_ring = true },
     .{ .name = "stz_unidata", .entry = "src/stz_unidata_entry.zig", .needs_sqlite = true, .needs_ring = true },
     .{ .name = "stz_table", .entry = "src/stz_table_entry.zig", .needs_ring = true },
-    .{ .name = "stz_matrix", .entry = "src/stz_matrix_entry.zig", .needs_ring = true },
+    .{ .name = "stz_matrix", .entry = "src/stz_matrix_entry.zig", .needs_ring = true, .needs_ggml = true },
     .{ .name = "stz_random", .entry = "src/stz_random_entry.zig", .needs_ring = true },
     .{ .name = "stz_csv", .entry = "src/stz_csv_entry.zig", .needs_ring = true },
     .{ .name = "stz_stats", .entry = "src/stz_stats_entry.zig", .needs_ring = true },
