@@ -161,6 +161,16 @@ chk("training is REPRODUCIBLE (same seed, same weights, LAW 3)",
 	oNN.Predict([0,1])[1] = oNN2.Predict([0,1])[1])
 
 ? ""
+? "-- Scene 10: GGUF EXPORT -- Softanza writes the format it reads --"
+cF = oNN.ExportToGguf("t_xor_export", "xor-solved")
+chk("the trained net exports to a real .gguf", cF = "t_xor_export.gguf")
+nT = StzEngineNeuralGgufInspect(cF)
+chk("ggml itself reads the file back (4 tensors: 2 layers x W+b)", nT = 4)
+chk("the architecture travels in the metadata",
+	StzEngineNeuralGgufInspectArch() = "stz-mlp")
+remove(cF)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="

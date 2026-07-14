@@ -2,10 +2,57 @@ const std = @import("std");
 const neural = @import("neural.zig");
 const embed = @import("neural_embed.zig");
 const gen = @import("neural_gen.zig");
+const gex = @import("gguf_export.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
 const gs = R.ring_vm_api_getstring;
+
+// --- GGUF export (R4 step 8: write the format we read) ---
+fn ring_GgufBegin(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gex.stz_gguf_export_begin(gs(p, 1), gs(p, 2))));
+}
+fn ring_GgufAddTensor(p: *anyopaque) callconv(.c) void {
+    const nRows: i32 = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const nCols: i32 = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    if (R.ring_vm_api_islist(p, 4) == 0) {
+        rn(p, 0);
+        return;
+    }
+    const pList = R.ring_vm_api_getlist(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    const want: usize = @intCast(nRows * nCols);
+    const buf = std.heap.c_allocator.alloc(f64, want) catch {
+        rn(p, 0);
+        return;
+    };
+    defer std.heap.c_allocator.free(buf);
+    var i: usize = 0;
+    while (i < want) : (i += 1) {
+        const idx: c_uint = @intCast(i + 1);
+        if (R.ring_list_isnumber_gc(null, pList, idx) == 0) {
+            rn(p, 0);
+            return;
+        }
+        const pItem = R.ring_list_getitem_gc(null, pList, idx) orelse {
+            rn(p, 0);
+            return;
+        };
+        buf[i] = R.ring_item_getnumber(pItem);
+    }
+    rn(p, @floatFromInt(gex.stz_gguf_export_add_tensor(gs(p, 1), nRows, nCols, buf.ptr, @intCast(want))));
+}
+fn ring_GgufWrite(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gex.stz_gguf_export_write(gs(p, 1))));
+}
+fn ring_GgufInspect(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gex.stz_gguf_inspect(gs(p, 1))));
+}
+fn ring_GgufInspectArch(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring(p, gex.stz_gguf_inspect_arch());
+}
 
 fn ring_NeuralSmoke(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(neural.neural_ggml_smoke()));
@@ -192,6 +239,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralgenactive", .func = &ring_NeuralGenActive },
     .{ .name = "stzengineneuralgeneratecont", .func = &ring_NeuralGenerateCont },
     .{ .name = "stzengineneuralgencached", .func = &ring_NeuralGenCached },
+    .{ .name = "stzengineneuralggufbegin", .func = &ring_GgufBegin },
+    .{ .name = "stzengineneuralggufaddtensor", .func = &ring_GgufAddTensor },
+    .{ .name = "stzengineneuralggufwrite", .func = &ring_GgufWrite },
+    .{ .name = "stzengineneuralggufinspect", .func = &ring_GgufInspect },
+    .{ .name = "stzengineneuralggufinspectarch", .func = &ring_GgufInspectArch },
 };
 
 fn ring_NeuralHasGenerator(p: *anyopaque) callconv(.c) void {

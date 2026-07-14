@@ -74,6 +74,47 @@ class stzNeuralNetwork from stzObject
 		@aLayers = paLayers
 		return This
 
+	# R4 step 8 -- GGUF EXPORT: the trained network written in the
+	# format neural/ reads (arch 'stz-mlp'; tensors blk.N.weight
+	# [units x prev] row-major + blk.N.bias). Softanza writes what it
+	# reads -- the foundry's artifact loop closes.
+	def ExportToGguf(pcFile, pcName)
+		if len(@aLayers) = 0
+			stzraise("Nothing to export: add layers first.")
+		ok
+		if StzRight(pcFile, 5) != ".gguf"
+			pcFile += ".gguf"
+		ok
+		if StzEngineNeuralGgufBegin("stz-mlp", "" + pcName) != 1
+			stzraise("GGUF export session could not start.")
+		ok
+		_nL_ = len(@aLayers)
+		for _l_ = 1 to _nL_
+			_nU_ = @aLayers[_l_][1]
+			_aW_ = @aLayers[_l_][3]
+			_nP_ = len(_aW_[1])
+			_aFlat_ = []
+			for _u_ = 1 to _nU_
+				for _p_ = 1 to _nP_
+					_aFlat_ + _aW_[_u_][_p_]
+				next
+			next
+			if StzEngineNeuralGgufAddTensor("blk." + _l_ + ".weight",
+					_nU_, _nP_, _aFlat_) != 1
+				StzEngineNeuralGgufAbort()
+				stzraise("Tensor export failed at layer " + _l_ + " (weight).")
+			ok
+			if StzEngineNeuralGgufAddTensor("blk." + _l_ + ".bias",
+					1, _nU_, @aLayers[_l_][4]) != 1
+				StzEngineNeuralGgufAbort()
+				stzraise("Tensor export failed at layer " + _l_ + " (bias).")
+			ok
+		next
+		if StzEngineNeuralGgufWrite(pcFile) != 1
+			stzraise("GGUF write failed for '" + pcFile + "'.")
+		ok
+		return pcFile
+
 	def Predict(paInput)
 		_aFwd_ = This._Forward(paInput)
 		return _aFwd_[:activations][len(_aFwd_[:activations])]

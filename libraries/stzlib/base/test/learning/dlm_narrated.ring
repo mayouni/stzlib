@@ -60,6 +60,15 @@ chk("its goldens travel and pass", oD2.RunGoldens()[:passed] = 1)
 remove(cF)
 
 ? ""
+? "-- Scene 7: the domain tokenizer (the neural rung's vocabulary) --"
+aV = oDLM.Tokenizer()
+chk("the closed domain earns a closed vocabulary (id 1 = <unk>)",
+	aV[1] = "<unk>" and len(aV) >= 6)
+aIds = oDLM.Tokenize("margherita contains something-new")
+chk("known words map to ids; the unknown maps to <unk>",
+	aIds[1] > 1 and aIds[3] = 1)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
