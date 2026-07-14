@@ -18,9 +18,17 @@
 // subsequent slices.
 
 const std = @import("std");
+const curlcore = @import("curlcore.zig"); // curl-backed (Schannel TLS) fetch
 const c = @cImport({
     @cInclude("uv.h");
 });
+
+// curl_request writes the body into a per-call buffer but reports its
+// length via a process-global -- so the fetch + length read must be
+// serialized across libuv's worker threads. HTTPS-on-the-reactor exists
+// to make reactive HTTP non-blocking, not for high fan-out, so a single
+// in-flight curl at a time is an acceptable, correct tradeoff.
+var curl_mutex: std.Thread.Mutex = .{};
 
 /// libuv version string, e.g. "1.52.1".
 pub fn reactor_version() callconv(.c) [*c]const u8 {
@@ -141,6 +149,12 @@ extern fn uv_spawn(loop: *c.uv_loop_t, handle: *anyopaque, options: *const Proce
 extern fn uv_pipe_init(loop: *c.uv_loop_t, handle: *anyopaque, ipc: c_int) c_int;
 extern fn uv_process_kill(handle: *anyopaque, signum: c_int) c_int;
 
+// libuv work queue (its internal thread pool) -- used to run the
+// blocking, TLS-capable curl fetch off the loop thread for async HTTPS.
+const WorkCb = *const fn (*anyopaque) callconv(.c) void;
+const AfterWorkCb = *const fn (*anyopaque, c_int) callconv(.c) void;
+extern fn uv_queue_work(loop: *c.uv_loop_t, req: *anyopaque, work_cb: WorkCb, after_cb: AfterWorkCb) c_int;
+
 fn setData(p: *anyopaque, user: *anyopaque) void {
     const slot: *?*anyopaque = @ptrCast(@alignCast(p));
     slot.* = user;
@@ -150,7 +164,7 @@ fn getJob(p: *anyopaque) *Job {
     return @ptrCast(@alignCast(slot.*.?));
 }
 
-const JobKind = enum(u32) { timer = 0, tcp_request = 1, spawn = 2 };
+const JobKind = enum(u32) { timer = 0, tcp_request = 1, spawn = 2, curl = 3 };
 
 const Job = struct {
     id: u64,
@@ -184,6 +198,15 @@ const Job = struct {
     proc_inited: bool = false,
     exit_code: i64 = 0,
 
+    // curl op (async HTTPS via uv_queue_work + Schannel TLS). The
+    // blocking fetch runs on a libuv worker thread into `curl_out`;
+    // after_work marks the result ready on the loop thread.
+    curl_method: i32 = 0,
+    curl_body: ?[]u8 = null, // request body (POST/PUT)
+    curl_out: ?[]u8 = null, // response buffer the worker fills
+    work_buf: ?[]u8 = null, // opaque uv_work_t
+    curl_status: i64 = 0, // curl_request return (bytes or <0 error)
+
     // state (all guarded by Reactor.mutex)
     result_ready: bool = false, // op finished; status valid
     handle_closed: bool = false, // uv_close callback fired (or no handle)
@@ -200,6 +223,9 @@ fn freeJob(job: *Job) void {
     if (job.argv_joined) |a| gpa.free(a);
     if (job.proc_buf) |p| gpa.free(p);
     if (job.pipe_buf) |p| gpa.free(p);
+    if (job.curl_body) |b| gpa.free(b);
+    if (job.curl_out) |o| gpa.free(o);
+    if (job.work_buf) |w| gpa.free(w);
     job.resp.deinit(gpa);
     gpa.destroy(job);
 }
@@ -273,6 +299,7 @@ fn startJob(job: *Job) void {
         },
         .tcp_request => startTcpRequest(job),
         .spawn => startSpawn(job),
+        .curl => startCurl(job),
     }
 }
 
@@ -547,6 +574,87 @@ fn finishSpawn(job: *Job, status: c_int) void {
         job.handle_closed = true;
         reapLocked(r, job);
     }
+    r.mutex.unlock();
+}
+
+// ── async HTTPS via uv_queue_work + curl (Schannel TLS) ──────
+//
+// TLS itself is not reimplemented on the loop; instead the proven
+// blocking, TLS-capable curl fetch runs on a libuv WORKER thread (its
+// built-in pool) and the loop is notified on completion. Ring stays
+// synchronous through the same submit/poll/await idiom. This gives
+// genuine async HTTPS (the reactive HTTP surface no longer has to block
+// on https), reusing the vendored curl + native Schannel TLS.
+
+const CURL_OUT_CAP: usize = 4 * 1024 * 1024;
+
+fn startCurl(job: *Job) void {
+    const r = job.reactor;
+    const work = job.work_buf.?.ptr;
+    setData(work, job);
+    if (uv_queue_work(&r.loop, work, onCurlWork, onCurlAfter) != 0) {
+        r.mutex.lock();
+        job.status = -1;
+        job.result_ready = true;
+        job.handle_closed = true;
+        reapLocked(r, job);
+        r.mutex.unlock();
+    }
+}
+
+// Worker thread: run the blocking (TLS-capable) fetch. curl_request
+// returns the HTTP status (or <0 transport/overflow error) and writes
+// the body into our per-job buffer; its length comes from a global we
+// read under the same mutex. Safe to touch job.resp here -- Ring cannot
+// have polled yet (result_ready is set on the loop thread in after_work).
+fn onCurlWork(req: *anyopaque) callconv(.c) void {
+    const job = getJob(req);
+    const url = job.host orelse "";
+    const body = job.curl_body orelse "";
+    const out = job.curl_out.?;
+    curl_mutex.lock();
+    const code = curlcore.curl_request(
+        job.curl_method,
+        url.ptr,
+        url.len,
+        "", // headers
+        0,
+        "", // content-type
+        0,
+        body.ptr,
+        body.len,
+        out.ptr,
+        out.len,
+        0, // default connect timeout
+        0, // default request timeout
+        "", // opts
+        0,
+    );
+    const blen = curlcore.curl_last_body_len();
+    curl_mutex.unlock();
+    job.curl_status = code;
+    if (code > 0 and blen > 0) {
+        job.resp.appendSlice(gpa, out[0..blen]) catch {};
+    }
+}
+
+// Loop thread: the work request is done (no uv handle to close -- a
+// uv_work_t is a request), so mark ready and let the reap handshake
+// free the job once Ring drains it.
+fn onCurlAfter(req: *anyopaque, status: c_int) callconv(.c) void {
+    const job = getJob(req);
+    const r = job.reactor;
+    r.mutex.lock();
+    // job.status carries the HTTP status code on success, or a negative
+    // transport/engine error (so 0 here means "no HTTP response").
+    if (status != 0) {
+        job.status = -1;
+    } else {
+        job.status = @intCast(std.math.clamp(job.curl_status, -2147483648, 2147483647));
+    }
+    job.result_ready = true;
+    job.handle_closed = true;
+    reapLocked(r, job);
     r.mutex.unlock();
 }
 
@@ -1543,6 +1651,120 @@ pub fn reactor_spawn_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: 
     const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
     while (true) {
         const rc = reactor_spawn_poll(r, job_id, out, max);
+        if (rc != -1) return rc;
+        if (std.time.nanoTimestamp() >= deadline) return -1;
+        std.Thread.sleep(2 * std.time.ns_per_ms);
+    }
+}
+
+// ── async HTTPS / HTTP request (public API) ──────────────────
+
+var curl_last_status: i32 = 0;
+var curl_last_len: usize = 0;
+
+/// HTTP status code of the last drained curl request (or <0 error).
+pub fn reactor_curl_last_status() callconv(.c) i32 {
+    return curl_last_status;
+}
+pub fn reactor_curl_last_len() callconv(.c) usize {
+    return curl_last_len;
+}
+
+/// Submit an async HTTP/HTTPS request run on a libuv worker thread
+/// (native TLS via curl/Schannel). method: 0=GET 1=POST 2=PUT 3=DELETE
+/// 4=HEAD 5=OPTIONS 6=PATCH. Returns a job id (>0) or -1.
+pub fn reactor_submit_curl(
+    r_opt: ?*Reactor,
+    method: i32,
+    url_ptr: [*]const u8,
+    url_len: usize,
+    body_ptr: [*]const u8,
+    body_len: usize,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const job = gpa.create(Job) catch return -1;
+    const url = gpa.dupe(u8, url_ptr[0..url_len]) catch {
+        gpa.destroy(job);
+        return -1;
+    };
+    const body = gpa.dupe(u8, body_ptr[0..body_len]) catch {
+        gpa.free(url);
+        gpa.destroy(job);
+        return -1;
+    };
+    const out = gpa.alloc(u8, CURL_OUT_CAP) catch {
+        gpa.free(url);
+        gpa.free(body);
+        gpa.destroy(job);
+        return -1;
+    };
+    const work_buf = gpa.alloc(u8, uv_req_size(c.UV_WORK)) catch {
+        gpa.free(url);
+        gpa.free(body);
+        gpa.free(out);
+        gpa.destroy(job);
+        return -1;
+    };
+    r.mutex.lock();
+    job.* = .{
+        .id = r.next_id,
+        .kind = .curl,
+        .reactor = r,
+        .host = url,
+        .curl_method = method,
+        .curl_body = body,
+        .curl_out = out,
+        .work_buf = work_buf,
+    };
+    r.next_id += 1;
+    const id = job.id;
+    r.jobs.put(id, job) catch {
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.pending.append(gpa, job) catch {
+        _ = r.jobs.remove(id);
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return @intCast(id);
+}
+
+/// Poll a curl job: -2 not found, -1 running, -3 overflow, else the
+/// number of body bytes written into out[0..max]. HTTP status via
+/// reactor_curl_last_status().
+pub fn reactor_curl_poll(r_opt: ?*Reactor, job_id: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const job = r.jobs.get(job_id) orelse return -2;
+    if (!job.result_ready) return -1;
+    curl_last_status = job.status;
+    const bdy = job.resp.items;
+    job.drained = true;
+    if (bdy.len > max) {
+        curl_last_len = 0;
+        reapLocked(r, job);
+        return -3;
+    }
+    @memcpy(out[0..bdy.len], bdy);
+    curl_last_len = bdy.len;
+    reapLocked(r, job);
+    return @intCast(bdy.len);
+}
+
+/// Block up to timeout_ms for a curl job. Same codes as
+/// reactor_curl_poll, plus -1 on timeout.
+pub fn reactor_curl_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
+    while (true) {
+        const rc = reactor_curl_poll(r, job_id, out, max);
         if (rc != -1) return rc;
         if (std.time.nanoTimestamp() >= deadline) return -1;
         std.Thread.sleep(2 * std.time.ns_per_ms);

@@ -144,6 +144,44 @@ class stzReactor from stzObject
 		if nId < 1  return ""  ok
 		return StzEngineReactorSpawnAwait(pHandle, nId, nTimeoutMs)
 
+	# ── async HTTP / HTTPS (native TLS, off the loop thread) ──
+	#
+	# A full HTTP(S) request runs on a libuv WORKER thread via curl
+	# (native Schannel TLS on Windows) and is drained through the job
+	# idiom -- so https:// is genuinely async, no TLS state machine on
+	# the loop. Methods: 0=GET 1=POST 2=PUT 3=DELETE 4=HEAD 5=OPTIONS
+	# 6=PATCH.
+
+	def SubmitHttp(nMethod, cUrl, cBody)
+		This._Ensure()
+		return StzEngineReactorSubmitCurl(pHandle, nMethod, cUrl, cBody)
+
+	def AwaitHttp(nId, nTimeoutMs)
+		This._Ensure()
+		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+
+	def PollHttp(nId)
+		This._Ensure()
+		return StzEngineReactorCurlPoll(pHandle, nId)
+
+	# HTTP status code of the last drained request (or < 0 on error).
+	def HttpLastStatus()
+		return StzEngineReactorCurlLastStatus()
+
+	# Submit + await a GET in one call; returns the response body.
+	def HttpGet(cUrl, nTimeoutMs)
+		This._Ensure()
+		nId = StzEngineReactorSubmitCurl(pHandle, 0, cUrl, "")
+		if nId < 1  return ""  ok
+		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+
+	# Submit + await a POST with a body; returns the response body.
+	def HttpPost(cUrl, cBody, nTimeoutMs)
+		This._Ensure()
+		nId = StzEngineReactorSubmitCurl(pHandle, 1, cUrl, cBody)
+		if nId < 1  return ""  ok
+		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+
 	# ── server side: listen / events / write / close ─────────
 	#
 	# A listener lives on the loop thread; Ring drains EVENTS:
