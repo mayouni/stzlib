@@ -1,0 +1,111 @@
+# R5 -- stzNativeStack: SOFTANZA IS THE FIRST CONSUMER OF agentic/
+# (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 0.3 solution space + LAW 5:
+#  the library eats its own cooking.) A CURATED set of library-internal
+#  agents the library's OWN features consume first -- the roster is a
+#  Softanza-designer decision, distinct from the APPLICATION space where
+#  programmers add their own agents over the same interfaces.
+#
+#   ? StzNativeAgents()                 # the curated roster
+#   oWC = StzNativeAgent("wise-coder")  # a real, wired native agent
+#   oWC.PursueGoal(oGoal)               # drives the R3b elicitation loop
+#
+# THE ROSTER (each a stzPIAgent specialization the library uses):
+#   wise-coder  -- drives conversation/ elicitation to a filled goal
+#   validator   -- runs the answer protocol / governed admission
+#   ranker      -- collapses weighted candidates by the evidential bands
+#   induction   -- infers a pattern from examples (the ...ex family)
+#   planner     -- goal-predicate search over the graph
+# Only wise-coder is WIRED in this slice; the rest are declared, so the
+# roster is honest about what runs vs what is reserved (LAW 3).
+
+func StzNativeAgents()
+	return [
+		[ "wise-coder", "drives conversation/ elicitation to a filled goal", "wired" ],
+		[ "validator", "runs the answer protocol / governed admission", "reserved" ],
+		[ "ranker", "collapses weighted candidates by evidential bands", "reserved" ],
+		[ "induction", "infers a ...ex pattern from examples", "reserved" ],
+		[ "planner", "goal-predicate search over the knowledge graph", "reserved" ]
+	]
+
+func StzNativeAgentIsWired(pcName)
+	_cN_ = StzLower(ring_trim("" + pcName))
+	_a_ = StzNativeAgents()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if _a_[_i_][1] = _cN_
+			return (_a_[_i_][3] = "wired")
+		ok
+	next
+	return 0
+
+func StzNativeAgent(pcName)
+	_cN_ = StzLower(ring_trim("" + pcName))
+	if _cN_ = "wise-coder"
+		return new stzWiseCoderAgent()
+	ok
+	if StzNativeAgentIsWired(_cN_) = 0
+		stzraise("Native agent '" + _cN_ + "' is RESERVED, not wired yet -- refusing rather than returning a stub (LAW 3). See StzNativeAgents().")
+	ok
+	stzraise("No native agent '" + _cN_ + "'.")
+
+
+# THE WIRED NATIVE AGENT: wise-coder. It does NOT reimplement the
+# elicitation loop -- it DRIVES conversation/ (R3b) as an agent,
+# proving the library consumes its own agentic surface. The loop is
+# still system-led (the gap generates the question); the agent adds
+# the perceive-decide-act framing and a bounded pursuit.
+class stzWiseCoderAgent from stzObject
+
+	@oConv = NULL
+	@nAsked = 0
+	@cWhy = ""
+
+	def init()
+
+	def Name_()
+		return "wise-coder (native)"
+
+	# drive the elicitation over a goal to fixpoint (no gaps left),
+	# answering from a supplied ANSWER SOURCE closure that maps
+	# (subject, relation) -> a value string ("" = the agent stops,
+	# leaving the gap for a human -- it never invents domain facts).
+	def PursueGoal(poGoal, fAnswerSource)
+		@oConv = new stzConversation("native-wise-coding")
+		# adopt the goal's requirements onto the conversation's goal
+		_aReq_ = poGoal.Requirements()
+		_nE_ = len(_aReq_[:each])
+		for _i_ = 1 to _nE_
+			@oConv.GoalQ().RequireEach(_aReq_[:each][_i_][1], _aReq_[:each][_i_][2])
+		next
+		_nO_ = len(_aReq_[:one])
+		for _i_ = 1 to _nO_
+			@oConv.GoalQ().RequireOne(_aReq_[:one][_i_][1], _aReq_[:one][_i_][2])
+		next
+
+		@nAsked = 0
+		_nRound_ = 0
+		while _nRound_ < 200
+			_nRound_++
+			_aQ_ = @oConv.NextQuestionXT()
+			if len(_aQ_) = 0
+				exit                       # goal filled -- fixpoint
+			ok
+			@nAsked++
+			_cVal_ = call fAnswerSource(_aQ_[:subject], _aQ_[:relation])
+			if _cVal_ = ""
+				# the agent refuses to invent -- leaves the gap
+				@cWhy = "stopped: no answer for '" + _aQ_[:subject] +
+					"' / '" + _aQ_[:relation] + "' -- gap left for a human"
+				return [ :filled = 0, :asked = @nAsked, :why = @cWhy ]
+			ok
+			@oConv.Reply(_cVal_)
+		end
+
+		@cWhy = "goal filled in " + @nAsked + " question(s), governed admission throughout"
+		return [ :filled = 1, :asked = @nAsked, :why = @cWhy ]
+
+	def ConversationQ()
+		return @oConv
+
+	def Why()
+		return @cWhy
