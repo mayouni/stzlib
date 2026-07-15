@@ -1981,9 +1981,15 @@ termination), so this is a multi-slice engine project. Plan +slice breakdown:
   cert; without the CA it is rejected; the plain-HTTP path is unregressed. A
   non-empty CA + `require_client` demands + validates a CLIENT cert (the
   mutual half) -- exercised fully once slice 3 gives curl a client cert.
-- SLICES 3-4 (next): client-cert presentation on the curl bridge
-  (`CURLOPT_SSLCERT/SSLKEY/CAINFO`); identity/trust wiring into the fleet +
-  federation, with the peer identity from the validated cert feeding
-  governance (a cryptographically-bound caller, not asserted). NODE-TO-NODE
-  traffic can now be encrypted (server side ready); the fleet/federation
-  wiring to run over it end-to-end is slice 4.
+- SLICE 3 (DONE 2026-07-15): a dedicated mbedTLS CLIENT (not curl -- Schannel
+  can't present a PEM client cert). `reactor_tls_request` over `mbedtls_net`
+  presents this node's client cert, validates the peer against a CA (hostname
+  via SNI), and reads the framed response. `stzReactor.TlsRequest`/`TlsGet`.
+  VERIFIED end-to-end vs a MUTUAL slice-2 server (CA + CA-signed leaf):
+  genuine -> served; missing client cert -> server refuses (empty body,
+  server-enforced; under TLS 1.3 the body, not the status, is the "let in?"
+  signal); wrong CA -> client aborts the handshake. Mutual auth both ways.
+- SLICE 4 (next): wire the fleet + federation transport over mTLS -- run the
+  worker fleet + `FederatedCall` through `TlsRequest`, and feed the validated
+  peer-cert identity into governance (a cryptographically-bound caller, not
+  asserted), with the full narrated end-to-end mTLS suite.

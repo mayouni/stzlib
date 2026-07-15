@@ -234,6 +234,39 @@ class stzReactor from stzObject
 	def ListenHttpsServer(cHost, nPort, cCertPath, cKeyPath)
 		return This.ListenHttpTls(cHost, nPort, cCertPath, cKeyPath, "", FALSE)
 
+	#--- TLS CLIENT (the mTLS counterpart to ListenHttpTls) ---------------#
+
+	# Send cRequest (raw HTTP bytes) to cHost:nPort over TLS and return the
+	# response bytes ("" on failure -- see TlsClientStatus). This node
+	# PRESENTS the client cert cCertPath/cKeyPath (for the peer's mutual
+	# check; pass "" for none), and VALIDATES the peer's server cert against
+	# cCaPath when bVerify = TRUE (hostname checked via SNI). A dedicated
+	# mbedTLS transport (PEM certs + mutual auth), separate from the curl
+	# path used for general outbound HTTPS.
+	def TlsRequest(cHost, nPort, cRequest, cCertPath, cKeyPath, cCaPath, bVerify)
+		This._Ensure()
+		_nV_ = 0
+		if bVerify  _nV_ = 1  ok
+		return StzEngineReactorTlsRequest("" + cHost, nPort, "" + cRequest,
+			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nV_)
+
+	# Convenience: build + send a GET over TLS. Same cert/verify semantics.
+	def TlsGet(cHost, nPort, cPath, cCertPath, cKeyPath, cCaPath, bVerify)
+		_cCRLF_ = char(13) + char(10)
+		_cReq_ = "GET " + cPath + " HTTP/1.1" + _cCRLF_ +
+			"Host: " + cHost + _cCRLF_ +
+			"Connection: close" + _cCRLF_ + _cCRLF_
+		return This.TlsRequest(cHost, nPort, _cReq_, cCertPath, cKeyPath, cCaPath, bVerify)
+
+	# Result of the last TlsRequest: 0 ok, -1 connect, -2 handshake (an
+	# untrusted/invalid peer SERVER cert aborts here), -3 cert verify, -4
+	# setup. NOTE: a server rejecting a MISSING client cert is enforced
+	# SERVER-side -- under TLS 1.3 the client's handshake still completes
+	# (status 0) but the protected response comes back EMPTY. So the
+	# authoritative "was I let in?" check is the RESPONSE body, not status.
+	def TlsClientStatus()
+		return StzEngineReactorTlsClientStatus()
+
 	# Actual bound port (useful after nPort = 0).
 	def ServerPort(nServerId)
 		This._Ensure()

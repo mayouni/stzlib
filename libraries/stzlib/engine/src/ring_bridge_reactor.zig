@@ -153,6 +153,35 @@ fn ring_ReactorSpawnLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_spawn_last_status()));
 }
 
+/// StzEngineReactorTlsRequest(cHost, nPort, cRequest, cCertPath, cKeyPath,
+/// cCaPath, nVerify) -> response bytes ("" on failure). A synchronous mTLS
+/// client: presents cCertPath/cKeyPath (this node's client cert), validates
+/// the peer against cCaPath when nVerify != 0. Status via TlsClientStatus.
+/// NOTE: no reactor handle -- it's a standalone blocking client (its own
+/// socket), separate from the Schannel curl path.
+fn ring_ReactorTlsRequest(p: *anyopaque) callconv(.c) void {
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const host_len: usize = @intCast(gss(p, 1));
+    const port: u16 = @intFromFloat(gn(p, 2));
+    const req_ptr: [*]const u8 = @ptrCast(gs(p, 3));
+    const req_len: usize = @intCast(gss(p, 3));
+    const cert_ptr: [*]const u8 = @ptrCast(gs(p, 4));
+    const cert_len: usize = @intCast(gss(p, 4));
+    const key_ptr: [*]const u8 = @ptrCast(gs(p, 5));
+    const key_len: usize = @intCast(gss(p, 5));
+    const ca_ptr: [*]const u8 = @ptrCast(gs(p, 6));
+    const ca_len: usize = @intCast(gss(p, 6));
+    const verify: i32 = @intFromFloat(gn(p, 7));
+    const n = reactor.reactor_tls_request(host_ptr, host_len, port, req_ptr, req_len, cert_ptr, cert_len, key_ptr, key_len, ca_ptr, ca_len, verify, &tcp_body_buf, TCP_BODY_CAP);
+    if (n >= 0) rs2(p, &tcp_body_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+/// StzEngineReactorTlsClientStatus() -> last TLS-client result (0 ok, -1
+/// connect, -2 handshake, -3 cert verify, -4 setup).
+fn ring_ReactorTlsClientStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(reactor.reactor_tls_client_status()));
+}
+
 /// StzEngineReactorSpawnKill(reactor, nJobId, nSignum) -> 0 ok, negative
 /// on error (-2 not found, -3 already exited, -4 not a spawn/no handle).
 fn ring_ReactorSpawnKill(p: *anyopaque) callconv(.c) void {
@@ -329,6 +358,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactordestroy", .func = ring_ReactorDestroy },
     .{ .name = "stzenginereactorlisten", .func = ring_ReactorListen },
     .{ .name = "stzenginereactorlistentls", .func = ring_ReactorListenTls },
+    .{ .name = "stzenginereactortlsrequest", .func = ring_ReactorTlsRequest },
+    .{ .name = "stzenginereactortlsclientstatus", .func = ring_ReactorTlsClientStatus },
     .{ .name = "stzenginereactorserverport", .func = ring_ReactorServerPort },
     .{ .name = "stzenginereactorserverconns", .func = ring_ReactorServerConns },
     .{ .name = "stzenginereactorserverpoll", .func = ring_ReactorServerPoll },

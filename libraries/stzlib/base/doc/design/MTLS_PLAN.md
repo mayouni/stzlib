@@ -71,13 +71,26 @@ NOT encryption. mTLS closes both server-side halves.
     (curl exit 60); plain HTTP to the TLS port fails. Plain-HTTP path
     unregressed (reactor + cluster fleet suites green).
 
-- **Slice 3: client-cert presentation on outbound + Ring surface.**
-  - curl already does one-way HTTPS; add client-cert options
-    (`CURLOPT_SSLCERT/SSLKEY/CAINFO`) to the curl bridge so an outbound call
-    presents this node's cert -> the peer's slice-2 server validates it.
-  - Ring: `stzReactor.ListenTls(...)`, `stzAppServer.StartTls(...)`, and
-    `stzAppCluster`/`stzComputeFederation` options to run the fleet + the
-    federation transport over mTLS (cert paths per node, a shared CA).
+- **Slice 3 (DONE 2026-07-15): TLS client with client-cert presentation.**
+  - REVISED backend: NOT curl. The vendored curl uses Schannel, which can't
+    present a PEM client cert (it wants a Windows cert-store reference), and
+    switching curl's global backend to mbedTLS would risk the existing
+    Schannel outbound-HTTPS path. So node-to-node mTLS gets a DEDICATED
+    mbedTLS client -- the symmetric counterpart to slice 2's server.
+  - `reactor_tls_request(host, port, req, cert, key, ca, verify)`: a
+    synchronous mbedTLS request over `mbedtls_net` (blocking socket). It
+    PRESENTS this node's client cert (cert/key) for the server's mutual
+    check, VALIDATES the peer's server cert against `ca` when verify != 0
+    (hostname via SNI/`ssl_set_hostname`), sends the request, and reads the
+    Content-Length-framed response. Bridge `stzenginereactortlsrequest` +
+    `...tlsclientstatus`; Ring `stzReactor.TlsRequest`/`TlsGet`/
+    `TlsClientStatus`.
+  - VERIFIED end-to-end vs a mutual slice-2 server (CA + CA-signed leaf):
+    GENUINE (present cert + verify) -> served `ok:mtls`; MISSING client cert
+    -> server refuses (empty response -- enforced server-side; under TLS 1.3
+    the client handshake still completes, so the RESPONSE BODY, not the
+    status, is the authoritative "let in?" signal); WRONG CA -> client aborts
+    the handshake (status -2). Mutual authentication both directions.
 
 - **Slice 4: identity + trust wiring + tests.**
   - Node identity = its cert; trust = the shared CA (or a pinned peer-cert
