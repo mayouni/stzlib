@@ -1850,6 +1850,31 @@ every reactor caller, not just the cluster:
   rows carry a real endpoint and are left intact (a remote/static host we
   route to and health-check but do NOT spawn).
 
-Deferred (next resilience rungs, not yet built): observability (latency
-percentiles + trace ids), forced kill of a hung worker (`uv_kill`) +
-orphan cleanup, rate limiting, and request signing / mTLS between nodes.
+### 7.2 R8 OBSERVABILITY -- the fleet made diagnosable (rung #2)
+
+Once workers can fail and fail over, you must be able to SEE it. Wired into
+`stzClusterTelemetry` (cluster-owned), fed from `Route`, tested in
+`base/test/cluster/observability_narrated.ring` (32 assertions, green):
+
+- LATENCY PERCENTILES, per facet. Each served request's end-to-end latency
+  is recorded into that facet's OWN engine histogram (`stzLatencyHistogram`
+  / `stz_histogram.dll`, log-scale buckets, O(1) memory + record). `p50 /
+  p90 / p95 / p99` per facet, so the TAIL -- where circuit-breaker trips and
+  failovers hide, invisible to an average -- is visible, and a heavy vision
+  facet's tail never smears a light nlp one. An instant "no routable worker"
+  reject is recorded as a trace but NOT as a latency sample (0ms with no
+  round-trip would deflate the tail).
+
+- TRACE IDS. Every routed request gets a unique, URL-safe, monotonic id
+  (`t-<clock>-<seq>`), recorded with its facet, the endpoint that served it,
+  final status, total latency, and the attempt count (>1 = a failover
+  happened -- `FailoverTraces()` is the breaker/retry footprint). The id is
+  also put ON THE WIRE as a `_trace` query param, so a worker sees the SAME
+  id the front host recorded -- genuine request correlation across the fleet
+  (proven end to end: the worker echoes the id back). `LastTraceId()`,
+  `RecentTraces(n)`, `TraceById(id)` are the read surface; a bounded ring
+  keeps memory flat.
+
+Deferred (next resilience rungs, not yet built): forced kill of a hung
+worker (`uv_kill`) + orphan cleanup, rate limiting, and request signing /
+mTLS between nodes.

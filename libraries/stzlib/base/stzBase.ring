@@ -445,6 +445,7 @@ ok
     load "cluster/stzWorkerProfile.ring"
     load "cluster/stzFacetCatalog.ring"
     load "cluster/stzWorkerPool.ring"
+    load "cluster/stzClusterTelemetry.ring"
     load "cluster/stzAppCluster.ring"
     load "cluster/stzClusterSupervisor.ring"
     load "cluster/stzComputePipeline.ring"
