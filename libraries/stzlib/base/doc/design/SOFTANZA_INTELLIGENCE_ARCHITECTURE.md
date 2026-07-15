@@ -1875,6 +1875,28 @@ Once workers can fail and fail over, you must be able to SEE it. Wired into
   `RecentTraces(n)`, `TraceById(id)` are the read surface; a bounded ring
   keeps memory flat.
 
+### 7.3 R8 RATE LIMITING -- admission control at the front door (rung #3)
+
+The first rungs protect the fleet from ITS OWN workers failing (failover /
+breaker) and make it observable. Rate limiting protects it from EXCESSIVE
+INBOUND demand -- a flooding client or a runaway loop. Three caps now
+compose: load-isolation caps a facet's CONCURRENCY, backpressure caps the
+QUEUE behind a busy worker, and rate limiting caps the request RATE over
+TIME. New `stzRateLimiter` (common/, reusable), owned by the cluster, tested
+in `base/test/cluster/rate_limiting_narrated.ring` (30 assertions, green):
+
+- TOKEN BUCKET, per key. Reuses the engine limiter (resilience.zig /
+  stz_resilience.dll): a bucket of `burst` tokens refilling at `rate`/sec,
+  so short bursts are absorbed up to the bucket size while the sustained
+  rate is capped. Multi-key: a facet, and (for reuse) a caller or client ip
+  each get an independent bucket -- a flooded key never starves another.
+- FRONT DOOR. `WithRateLimit(facet, ratePerSec, burst)`; `Route` checks the
+  bucket BEFORE touching a worker, so an over-limit request is shed with a
+  distinct `-429` (callers branch on it vs `-1` no-worker) and never reaches
+  or exhausts the fleet. A facet with no limit is UNLIMITED. Every shed is
+  TRACED (0 attempts -> not a latency sample), so `RateLimitedCount(facet)`
+  and the trace ring show exactly what was turned away.
+
 Deferred (next resilience rungs, not yet built): forced kill of a hung
-worker (`uv_kill`) + orphan cleanup, rate limiting, and request signing /
-mTLS between nodes.
+worker (`uv_kill`) + orphan cleanup, and request signing / mTLS between
+nodes.

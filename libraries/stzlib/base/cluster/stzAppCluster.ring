@@ -53,6 +53,7 @@ class stzAppCluster from stzObject
 	# observability: latency percentiles + trace ids
 	@oTelemetry = NULL     # stzClusterTelemetry (per-facet histograms + traces)
 	@cLastTrace = ""       # the trace id of the most recent Route
+		@oLimiter = NULL       # stzRateLimiter (per-facet token buckets, opt-in)
 
 	def init()
 		@oPool = new stzWorkerPool()
@@ -60,6 +61,7 @@ class stzAppCluster from stzObject
 		@cRingExe = This._RingExecutable()
 		@cBaseRing = This._DeriveStzBasePath()
 		@oTelemetry = new stzClusterTelemetry("cluster")
+		@oLimiter = new stzRateLimiter("cluster")
 
 	#-- declaring the fleet composition ------------------------------------
 
@@ -101,6 +103,14 @@ class stzAppCluster from stzObject
 		if nThreshold < 1  nThreshold = 1  ok
 		@nBreakerThreshold = nThreshold
 		@nBreakerCooldownMs = nCooldownMs
+		return This
+
+	# Rate limit a facet at the front door: nRatePerSec sustained with a
+	# bucket of nBurst (the largest instantaneous burst absorbed). A facet
+	# with no WithRateLimit is UNLIMITED. Requests over the limit are shed
+	# with a -429 status before any worker is touched.
+	def WithRateLimit(pcFacet, nRatePerSec, nBurst)
+		@oLimiter.SetLimit(StzLower("" + pcFacet), nRatePerSec, nBurst)
 		return This
 
 	# Register a PRE-EXISTING worker (e.g. a remote/static host) into a
@@ -246,6 +256,19 @@ class stzAppCluster from stzObject
 		if StzFindFirst(pcPath, "?") > 0  _cSep_ = "&"  ok
 		_cTracedPath_ = pcPath + _cSep_ + "_trace=" + _cTrace_
 		_nReqStart_ = StzEngineTimeNowMs()   # end-to-end latency clock
+		# RATE LIMIT (admission control at the front door): if this facet has
+		# a configured limit and its token bucket is empty, SHED the request
+		# with a 429 BEFORE touching a worker -- a flooding client never
+		# reaches (or exhausts) the fleet. Still traced (0 attempts, so no
+		# latency sample), with a distinct -429 status callers can branch on.
+		if NOT @oLimiter.Allow(_cTag_)
+			@cWhy = "rate limited: facet '" + _cTag_ + "' exceeded " +
+				@oLimiter.RateOf(_cTag_) + "/s (burst " + @oLimiter.BurstOf(_cTag_) + ")"
+			@nLastStatus = -429
+			@oTelemetry.RecordRequest(_cTrace_, _cTag_, "ratelimited", -429,
+				StzEngineTimeNowMs() - _nReqStart_, 0)
+			return ""
+		ok
 		_aIdx_ = This._RoutableIndices(_cTag_)
 		if len(_aIdx_) = 0
 			@cWhy = "no routable worker for facet '" + _cTag_ + "' (none ready, or all circuits open)"
@@ -316,6 +339,19 @@ class stzAppCluster from stzObject
 	# The last n request records: [ id, facet, endpoint, status, durMs, attempts ].
 	def RecentTraces(n)
 		return @oTelemetry.RecentTraces(n)
+
+	#-- rate limiting (front-door admission) -------------------------------
+
+	def LimiterQ()
+		return @oLimiter
+
+	# How many requests this facet has shed for exceeding its rate limit.
+	def RateLimitedCount(pcFacet)
+		return @oLimiter.RejectedCount(pcFacet)
+
+	# Tokens left in a facet's bucket (-1 = unlimited / no limit configured).
+	def TokensAvailable(pcFacet)
+		return @oLimiter.Available(pcFacet)
 
 	# A proxy path is safe only if it starts with "/" (so "@host" / a bare
 	# host can never land in the URL AUTHORITY -> no SSRF host-override)
@@ -566,6 +602,9 @@ class stzAppCluster from stzObject
 		ok
 		if @oTelemetry != NULL
 			@oTelemetry.Destroy()   # free the engine histogram handles
+		ok
+		if @oLimiter != NULL
+			@oLimiter.Destroy()     # free the engine token-bucket handles
 		ok
 		@bStarted = FALSE
 		return This
