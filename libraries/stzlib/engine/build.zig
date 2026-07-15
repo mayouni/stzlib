@@ -725,6 +725,23 @@ pub fn build(b: *std.Build) void {
         fuzz_all.dependOn(&fs_run.step);
     }
 
+    // Property-based + mutation testing (quality track #3). Invariants over
+    // generated inputs (not examples), and mutants that must be killed.
+    {
+        const ph_mod = b.createModule(.{
+            .root_source_file = b.path("src/prop_http.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const ph = b.addExecutable(.{ .name = "prop_http", .root_module = ph_mod });
+        const ph_run = b.addRunArtifact(ph);
+        const ph_step = b.step("prop-http", "Property + mutation test the HTTP framing (quality)");
+        ph_step.dependOn(&ph_run.step);
+        const prop_all = b.step("prop", "Run all property/mutation test harnesses");
+        prop_all.dependOn(&ph_run.step);
+    }
+
     // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
     // land in .CRT$XCU and can be run at load) -- BLOCKED by a Zig 0.15.2 bug:
     // its bundled libc++abi fails to compile for x86_64-windows-msvc
