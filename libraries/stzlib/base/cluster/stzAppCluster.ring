@@ -52,8 +52,9 @@ class stzAppCluster from stzObject
 	@cWorkerScript = ""    # generated worker entry
 	@nBasePort = 47100
 	@nTtlMs = 30000
-	@aFleet = []           # [ [ tag, port, jobId, ready ], ... ] one per worker
+	@aFleet = []           # [ [ tag, port, jobId, ready, draining ], ... ] per worker
 	@aRR = []              # [ [ tag, cursor ], ... ] round-robin per profile
+	@nNextPort = 0         # next free port for scale-up / restart
 	@nLastStatus = 0
 	@bStarted = FALSE
 
@@ -82,21 +83,35 @@ class stzAppCluster from stzObject
 			@aRR + [ _cTag_, 0 ]
 		ok
 		for _w_ = 1 to nWorkers
-			@aFleet + [ _cTag_, 0, 0, FALSE ]   # [ tag, port(0), jobId(0), ready ]
+			@aFleet + [ _cTag_, 0, 0, FALSE, FALSE ]   # tag,port,jobId,ready,draining
 		next
 		return This
 
-	# Sugar for the doc's domain profiles (grounded in engine capabilities).
-	def WithNLP(n)
-		return This.WithProfile("nlp", [ :sentiment, :entities, :classify, :summarize, :translate ], n)
-	def WithMath(n)
-		return This.WithProfile("math", [ :matrix, :optimize, :stats, :solve ], n)
-	def WithSearch(n)
-		return This.WithProfile("search", [ :embed, :similarity, :rank, :index ], n)
-	def WithVision(n)
-		This.WithProfile("vision", [ :ocr, :image ], n)
-		@oPool.Profile("vision").UsesExternalTool("python")
+	# THE GENERAL FORM: specialize workers along ANY Softanza facet (not
+	# just the doc's four). Looks the capabilities up in the facet catalog
+	# and marks polyglot facets (vision) as external-tool workers.
+	#   oC.WithFacet(:graph, 2).WithFacet(:knowledge, 2).WithFacet(:neural, 1)
+	def WithFacet(pcFacet, n)
+		_aCaps_ = StzFacetCapabilities(pcFacet)
+		if len(_aCaps_) = 0
+			stzraise("stzAppCluster.WithFacet: unknown Softanza facet '" + pcFacet +
+			         "'. Known facets: see StzKnownFacets().")
+		ok
+		This.WithProfile(pcFacet, _aCaps_, n)
+		if StzFacetIsPolyglot(pcFacet)
+			@oPool.Profile(StzLower("" + pcFacet)).UsesExternalTool("python")
+		ok
 		return This
+
+	# Sugar for the doc's four (each just a WithFacet over the catalog).
+	def WithNLP(n)
+		return This.WithFacet(:nlp, n)
+	def WithMath(n)
+		return This.WithFacet(:math, n)
+	def WithSearch(n)
+		return This.WithFacet(:search, n)
+	def WithVision(n)
+		return This.WithFacet(:vision, n)
 
 	def WithWorkerTTL(nMs)
 		@nTtlMs = nMs
@@ -120,13 +135,16 @@ class stzAppCluster from stzObject
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
 			@aFleet[_i_][2] = _nPort_
-			@aFleet[_i_][3] = @oReactor.SubmitSpawn([
-				@cRingExe, @cWorkerScript,
-				"" + _nPort_, @aFleet[_i_][1], "" + @nTtlMs ])
+			@aFleet[_i_][3] = This._SpawnWorker(@aFleet[_i_][1], _nPort_)
 			_nPort_++
 		next
+		@nNextPort = _nPort_
 		@bStarted = TRUE
 		return This
+
+	def _SpawnWorker(pcTag, nPort)
+		return @oReactor.SubmitSpawn([
+			@cRingExe, @cWorkerScript, "" + nPort, "" + pcTag, "" + @nTtlMs ])
 
 	# Poll every worker's /health until it answers 200 (workers need a
 	# moment to load stzBase + bind). Returns the number now ready.
@@ -177,12 +195,12 @@ class stzAppCluster from stzObject
 	def RouteLastStatus()
 		return @nLastStatus
 
-	# Round-robin the next READY worker port for a tag (0 if none ready).
+	# Round-robin the next READY, NON-DRAINING worker port (0 if none).
 	def _NextWorkerPort(pcTag)
 		_aPorts_ = []
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
-			if @aFleet[_i_][1] = pcTag and @aFleet[_i_][4]
+			if @aFleet[_i_][1] = pcTag and @aFleet[_i_][4] and NOT @aFleet[_i_][5]
 				_aPorts_ + @aFleet[_i_][2]
 			ok
 		next
@@ -241,6 +259,110 @@ class stzAppCluster from stzObject
 	def ReactorQ()
 		return @oReactor
 
+	#-- R8.4 health + elastic scale (the supervision surface) --------------
+
+	# Re-probe every worker's /health and refresh its ready flag. A worker
+	# that stops answering (crashed, exited its TTL) flips to NOT ready.
+	# Returns the number ready now.
+	def HealthCheck()
+		_nReady_ = 0
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][2] = 0  loop  ok   # never launched
+			_bOk_ = This._HealthOk(@aFleet[_i_][2])
+			@aFleet[_i_][4] = _bOk_
+			if _bOk_  _nReady_++  ok
+		next
+		return _nReady_
+
+	# Workers that were launched but are not answering (crashed / expired).
+	def DeadCount()
+		_n_ = 0
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][2] != 0 and NOT @aFleet[_i_][4] and NOT @aFleet[_i_][5]
+				_n_++
+			ok
+		next
+		return _n_
+
+	# Add ONE worker of a profile (elastic scale-up). Spawns a new process
+	# on a fresh port; call WaitReady()/HealthCheck() to see it come up.
+	# Returns the new port.
+	def ScaleUp(pcTag)
+		_cTag_ = StzLower("" + pcTag)
+		if This._RRIndex(_cTag_) = 0
+			stzraise("stzAppCluster.ScaleUp: unknown profile '" + _cTag_ + "'.")
+		ok
+		_nPort_ = @nNextPort
+		@nNextPort++
+		_nJob_ = This._SpawnWorker(_cTag_, _nPort_)
+		@aFleet + [ _cTag_, _nPort_, _nJob_, FALSE, FALSE ]
+		@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() + 1)
+		return _nPort_
+
+	# GRACEFUL drain-down: mark one ready worker of a profile DRAINING --
+	# routing stops immediately (it finishes in-flight work), and the
+	# process self-exits on its TTL. Returns the drained port, or 0 if
+	# there is nothing to drain. (Forced kill of a hung worker is a small
+	# future engine add; drain is the graceful path.)
+	def ScaleDown(pcTag)
+		_cTag_ = StzLower("" + pcTag)
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][1] = _cTag_ and @aFleet[_i_][4] and NOT @aFleet[_i_][5]
+				@aFleet[_i_][5] = TRUE   # draining -> no new routes
+				if @oPool.Profile(_cTag_).Budget() > 1
+					@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() - 1)
+				ok
+				return @aFleet[_i_][2]
+			ok
+		next
+		return 0
+
+	# Respawn every dead worker in place (health-driven self-healing).
+	# Returns the number restarted.
+	def RestartDead()
+		_nRestarted_ = 0
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][2] != 0 and NOT @aFleet[_i_][4] and NOT @aFleet[_i_][5]
+				# fresh port avoids a dead worker's lingering socket
+				_nPort_ = @nNextPort
+				@nNextPort++
+				@aFleet[_i_][2] = _nPort_
+				@aFleet[_i_][3] = This._SpawnWorker(@aFleet[_i_][1], _nPort_)
+				_nRestarted_++
+			ok
+		next
+		return _nRestarted_
+
+	# A per-profile metrics snapshot the supervisor reads (REAL counts).
+	def FleetMetrics()
+		_a_ = []
+		_aTags_ = @oPool.Tags()
+		_nT_ = len(_aTags_)
+		for _t_ = 1 to _nT_
+			_cTag_ = _aTags_[_t_]
+			_nReady_ = 0  _nDrain_ = 0  _nDead_ = 0  _nTotal_ = 0
+			_nF_ = len(@aFleet)
+			for _i_ = 1 to _nF_
+				if @aFleet[_i_][1] = _cTag_
+					_nTotal_++
+					if @aFleet[_i_][5]
+						_nDrain_++
+					but @aFleet[_i_][4]
+						_nReady_++
+					but @aFleet[_i_][2] != 0
+						_nDead_++
+					ok
+				ok
+			next
+			_a_ + [ :tag = _cTag_, :total = _nTotal_, :ready = _nReady_,
+			        :draining = _nDrain_, :dead = _nDead_ ]
+		next
+		return _a_
+
 	#-- teardown -----------------------------------------------------------
 	# R8.3: workers self-terminate on their TTL. Graceful drain / kill /
 	# health-restart / autoscale is R8.4 (stzAgentHost supervision).
@@ -283,5 +405,6 @@ class stzAppCluster from stzObject
 		       '_oS_.Get_("/info", func oReq, oResp {' + _cNL_ +
 		       '    oResp.Json([ "profile", _cProfile_, "port", _nPort_, "pid", 0 ]) })' + _cNL_ +
 		       '_oS_.Start(_nPort_, "127.0.0.1")' + _cNL_ +
-		       '_oS_.RunFor(_nTtl_)' + _cNL_
+		       '_oS_.RunFor(_nTtl_)' + _cNL_ +
+		       '_oS_.Stop()' + _cNL_     # join the reactor loop thread on exit
 		write(@cWorkerScript, _cW_)
