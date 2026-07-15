@@ -157,6 +157,13 @@ class stzComputeFederation from stzObject
 	# Why()) on refusal. The governed action is "use-<facet>".
 	def FederatedCall(pcCaller, pcFacet, pcPath, pcBody)
 		_cFacet_ = StzLower("" + pcFacet)
+		# SAFETY: a caller-controlled path must not override the target
+		# host (SSRF) or smuggle via CRLF -- it must be a real path.
+		if NOT This._SafePath(pcPath)
+			@cWhy = "unsafe path rejected (must start with '/', no CRLF): " + pcPath
+			@nLastStatus = -1
+			return ""
+		ok
 		# DISCOVERY
 		_aHosts_ = This.MembersOffering(_cFacet_)
 		if len(_aHosts_) = 0
@@ -201,6 +208,20 @@ class stzComputeFederation from stzObject
 		return This
 
 	#-- internals ----------------------------------------------------------
+
+	# A federated path is safe only if it starts with "/" (so a bare host
+	# / "@host" can never land in the URL authority -> no SSRF to an
+	# arbitrary host; the endpoint stays operator-controlled) and carries
+	# no CR/LF (no request smuggling).
+	def _SafePath(pcPath)
+		_c_ = "" + pcPath
+		if _c_ = "" or StzLeft(_c_, 1) != "/"
+			return FALSE
+		ok
+		if StzFindFirst(_c_, char(13)) > 0 or StzFindFirst(_c_, char(10)) > 0
+			return FALSE
+		ok
+		return TRUE
 
 	def _IndexOf(pcName)
 		_c_ = "" + pcName
