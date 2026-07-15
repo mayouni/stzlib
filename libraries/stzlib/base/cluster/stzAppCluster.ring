@@ -98,6 +98,8 @@ class stzAppCluster from stzObject
 			         "'. Known facets: see StzKnownFacets().")
 		ok
 		This.WithProfile(pcFacet, _aCaps_, n)
+		# record the OPTIONAL facet->module provenance (never forced 1:1)
+		@oPool.Profile(StzLower("" + pcFacet)).RealizedBy(StzFacetModules(pcFacet))
 		if StzFacetIsPolyglot(pcFacet)
 			@oPool.Profile(StzLower("" + pcFacet)).UsesExternalTool("python")
 		ok

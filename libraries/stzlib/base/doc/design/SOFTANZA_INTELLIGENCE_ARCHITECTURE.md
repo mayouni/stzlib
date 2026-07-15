@@ -1689,6 +1689,42 @@ DOMAIN HONESTY (what each "cluster" really maps to):
                       becomes a WORKER PROFILE (capability tag + budget
                       + optional external tool), never a subclass.
 
+THE FACET ONTOLOGY -- the SCALE plane's NAMING LAW (semantic precision,
+formalized 2026-07-15). WithFacet() specializes along a FACET, NOT a
+MODULE, and the distinction is load-bearing, not cosmetic. Because the
+engine is RESIDENT and MONOLITHIC, every worker carries the whole
+engine -- there is nothing to "select" or "deploy" per node, so the
+specialization axis CANNOT be a physical module (no boundary to
+specialize along); it can only be a LOGICAL COMPETENCE used for routing
+and budgeting. Calling it "module" would silently re-import the
+cold-start/preloading model R8 revoked. Four levels, never collapsed:
+  - CAPABILITY (finest): an atomic engine operation (:paths, :embed,
+    :sentiment). WHAT THE ENGINE CAN DO.
+  - FACET (grouping): a named, coherent set of capabilities (:graph,
+    :knowledge). WHAT THE SYSTEM IS COMPETENT AT. Logical; forward-
+    declarable; maps to modules 1:1 / 1:n / n:m / 1:0.
+  - MODULE (physical): base/graph/ -- WHERE THE CODE LIVES. An
+    authoring/maintenance concern, NEVER the specialization unit.
+    (~140 modules exist; ~18 facets -- the asymmetry proves they are
+    different structures.)
+  - PROFILE (configured): stzWorkerProfile = a facet + budget +
+    optional external tool, instantiated in a pool/cluster. A DEPLOYED
+    specialization.
+The facet<->module relation is EXPLICIT, OPTIONAL, and MANY-TO-MANY --
+recorded (stzWorkerProfile.RealizedBy) but never forced to identity:
+  :data->[data] (grounded 1:1); :math->[matrix,stats,number] and
+  :knowledge->[natural,graph] (composed 1:n); :search->[neural,graph,
+  data] (composed, NO search/ module); :nlp->[natural,neural] (logical
+  -- the library DELETED the nlp/ folder by ruling, yet the competence
+  is real); :vision->[] (external/polyglot, no module at all, 1:0).
+MappingKind() reads the relation: :grounded (1 module) / :composed (2+)
+/ :external (polyglot, 0) / :logical (0, not polyglot). This is also
+the bridge to stzCodeGraph: "which FACETS does touching base/graph/
+affect?" is a real cross-structure impact query -- a recorded relation
+between two graphs, not a collapse of one into the other. LAW: carve
+facets at COMPETENCE joints, even when that cuts across folders; never
+drift facet names toward module names for false tidiness.
+
 WHAT R8 REUSES (clustering composes almost entirely from R5+R7):
   node = stzAppServer; intra-process pool = stzReactorPool; launch a
   fleet = reactor async SPAWN (worker PROCESSES, each its own VM +
