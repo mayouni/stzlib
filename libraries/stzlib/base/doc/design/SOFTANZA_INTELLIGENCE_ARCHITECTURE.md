@@ -2070,11 +2070,23 @@ checks those invariants actually catch bugs. `zig build prop`.
   proving the invariants have teeth -- they don't pass vacuously. A surviving
   mutant would fail the step as a test-quality gap.
 
+- `prop_ratebucket.zig` -- the token-bucket rate limiter under four
+  invariants over random capacities: BURST BOUND (exactly C immediate takes
+  from a full bucket, then denials -- the "never admit more than the burst"
+  guarantee), CAP (available never exceeds capacity), NON-NEGATIVE, DRAINED
+  (a take after draining is denied). Mutants killed: always-take, off-by-one
+  burst, lying-available.
+- `prop_crypto.zig` -- the crypto primitives underpinning signing + the
+  Commons KDF. SHA-256 over 300k inputs (DETERMINISM, SENSITIVITY -- any
+  changed byte flips the digest, the basis of tamper detection -- FIXED
+  LENGTH); mutants killed: constant-hash, first-byte-only-hash. PBKDF2 over
+  20k inputs (DETERMINISM, SALT-SENSITIVITY, PASSWORD-SENSITIVITY -- the
+  Commons password-verify invariants).
+
 HONEST SCOPE: line-coverage + a full mutation FRAMEWORK are not available for
 Ring on this toolchain (no kcov on Windows, no Ring coverage tool). So track
 #3 is realized as (a) engine-side property + mutation harnesses where the code
-is callable and invariants are crisp, and (b) the effective input-space
-coverage the fuzz + property harnesses give the parsers, atop the ~thousands
-of narrated behavioral assertions in base/test/. Extending property harnesses
-to more engine surfaces (the signer's sign/verify roundtrip, the token
-bucket's rate bound) is the natural continuation.
+is callable and invariants are crisp -- HTTP framing, the token bucket, and
+the signing/KDF crypto -- and (b) the input-space coverage the fuzz + property
+harnesses give the parsers, atop the ~thousands of narrated behavioral
+assertions in base/test/. `zig build prop` runs all three.
