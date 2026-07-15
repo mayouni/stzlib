@@ -45,6 +45,7 @@ class stzAppCluster from stzObject
 	@nLastStatus = 0
 	@bStarted = FALSE
 	@oClassifier = NULL    # R8.2 smart router (lazy, bound to the catalog)
+	@cWhy = ""
 
 	def init()
 		@oPool = new stzWorkerPool()
@@ -176,14 +177,23 @@ class stzAppCluster from stzObject
 	#-- routing (the load-balanced proxy) ----------------------------------
 
 	# Round-robin proxy to a READY worker of pcTag; returns the response
-	# body. HTTP status via RouteLastStatus().
+	# body. HTTP status via RouteLastStatus(). The path is validated so a
+	# caller-controlled path can NOT override the target host (SSRF) or
+	# smuggle a request via CRLF -- see _SafePath.
 	def Route(pcTag, pcPath)
-		_cTag_ = StzLower("" + pcTag)
-		_nPort_ = This._NextWorkerPort(_cTag_)
-		if _nPort_ = 0
+		if NOT This._SafePath(pcPath)
+			@cWhy = "unsafe proxy path rejected (must start with '/', no CRLF): " + pcPath
 			@nLastStatus = -1
 			return ""
 		ok
+		_cTag_ = StzLower("" + pcTag)
+		_nPort_ = This._NextWorkerPort(_cTag_)
+		if _nPort_ = 0
+			@cWhy = "no ready worker for facet '" + _cTag_ + "'"
+			@nLastStatus = -1
+			return ""
+		ok
+		@cWhy = ""
 		_nJ_ = @oReactor.SubmitHttp(0, "http://127.0.0.1:" + _nPort_ + pcPath, "")
 		_cBody_ = @oReactor.AwaitHttp(_nJ_, 5000)
 		@nLastStatus = @oReactor.HttpLastStatus()
@@ -191,6 +201,22 @@ class stzAppCluster from stzObject
 
 	def RouteLastStatus()
 		return @nLastStatus
+
+	def Why()
+		return @cWhy
+
+	# A proxy path is safe only if it starts with "/" (so "@host" / a bare
+	# host can never land in the URL AUTHORITY -> no SSRF host-override)
+	# and carries no CR/LF (no request smuggling / header injection).
+	def _SafePath(pcPath)
+		_c_ = "" + pcPath
+		if _c_ = "" or StzLeft(_c_, 1) != "/"
+			return FALSE
+		ok
+		if StzFindFirst(_c_, char(13)) > 0 or StzFindFirst(_c_, char(10)) > 0
+			return FALSE
+		ok
+		return TRUE
 
 	# Round-robin the next READY, NON-DRAINING worker port (0 if none).
 	def _NextWorkerPort(pcTag)

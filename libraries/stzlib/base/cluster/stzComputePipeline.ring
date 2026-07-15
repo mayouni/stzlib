@@ -39,6 +39,8 @@ class stzComputePipeline from stzObject
 	@oPool = NULL      # optional: admit each stage into its facet's budget
 	@aTrace = []       # [ [ facet, stageName, output ], ... ] from the last Run
 	@xLast = NULL      # last final output
+	@bFailed = FALSE   # did the last Run hit a failing stage?
+	@cWhy = ""
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -102,28 +104,46 @@ class stzComputePipeline from stzObject
 	#-- running ------------------------------------------------------------
 
 	# Thread pInput through every stage in order; each stage's output feeds
-	# the next. Returns the final output. Records a per-stage trace.
+	# the next. Returns the final output. Records a per-stage trace. A stage
+	# that RAISES is CONTAINED: the failure is traced, the facet slot is
+	# released (no leak), the pipeline HALTS and returns NULL, and Why()/
+	# Failed() explain -- one bad stage never crashes the whole pipeline.
 	def Run(pInput)
 		@aTrace = []
+		@bFailed = FALSE
+		@cWhy = ""
 		_v_ = pInput
 		_n_ = len(@aStages)
 		for _i_ = 1 to _n_
 			_cFacet_ = @aStages[_i_][1]
 			_cName_ = @aStages[_i_][2]
 			_fWork_ = @aStages[_i_][3]
-			# admit into the facet's budget when a pool is attached: the
-			# stage occupies a slot of ITS facet while it runs (isolation)
-			if @oPool != NULL and @oPool.HasProfile(_cFacet_)
-				@oPool.Acquire(_cFacet_)
+			_bBudgeted_ = (@oPool != NULL and @oPool.HasProfile(_cFacet_))
+			if _bBudgeted_  @oPool.Acquire(_cFacet_)  ok
+			_bOk_ = TRUE
+			try
 				_v_ = call _fWork_(_v_)
-				@oPool.Release(_cFacet_)
-			else
-				_v_ = call _fWork_(_v_)
+			catch
+				_bOk_ = FALSE
+				@cWhy = "stage '" + _cName_ + "' (" + _cFacet_ + ") failed: " + cCatchError
+			done
+			if _bBudgeted_  @oPool.Release(_cFacet_)  ok   # release even on failure
+			if NOT _bOk_
+				@aTrace + [ _cFacet_, _cName_, "ERROR" ]
+				@bFailed = TRUE
+				@xLast = NULL
+				return NULL
 			ok
 			@aTrace + [ _cFacet_, _cName_, _v_ ]
 		next
 		@xLast = _v_
 		return _v_
+
+	def Failed()
+		return @bFailed
+
+	def Why()
+		return @cWhy
 
 	# Run many inputs through the WHOLE pipeline; returns a result list
 	# (same order). The trace reflects the LAST input.
