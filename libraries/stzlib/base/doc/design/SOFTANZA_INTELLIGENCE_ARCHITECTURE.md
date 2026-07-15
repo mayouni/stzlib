@@ -1897,6 +1897,39 @@ in `base/test/cluster/rate_limiting_narrated.ring` (30 assertions, green):
   TRACED (0 attempts -> not a latency sample), so `RateLimitedCount(facet)`
   and the trace ring show exactly what was turned away.
 
-Deferred (next resilience rungs, not yet built): forced kill of a hung
-worker (`uv_kill`) + orphan cleanup, and request signing / mTLS between
-nodes.
+### 7.4 R8 REQUEST SIGNING -- authenticity + integrity between nodes (rung #4)
+
+Governance decides whether a caller MAY proceed; it TRUSTS the asserted
+caller identity. Signing closes that gap: it proves the request IS from that
+caller and was not tampered in transit. New `stzRequestSigner` (common/,
+reusable), owned by the federation, tested in
+`base/test/cluster/request_signing_narrated.ring` (29 assertions, green):
+
+- HMAC-SHA256 over a canonical (method, path, body, timestamp, nonce) with a
+  per-caller shared SECRET (engine crypto.zig -- the same primitive as the
+  Commons KDF). The canonical form is length-prefixed (injective: no two
+  distinct requests collide). Sign() returns an envelope
+  [ kid, ts, nonce, sig ]; the receiver, sharing the key, recomputes it.
+- FOUR guarantees, each tested against its threat: INTEGRITY (a tampered
+  path / body / method fails the MAC), AUTHENTICITY (a wrong or unknown key
+  cannot forge), FRESHNESS (a stale or future-dated timestamp fails the skew
+  window), REPLAY (a verified (kid, nonce) is accepted once; a second use is
+  rejected). Signature comparison is constant-time via DOUBLE-HMAC (re-key
+  both sides with a fresh random secret, then compare) -- no byte-by-byte
+  loop, so no timing leak AND no Ring in-class char-index VM trap.
+- Federation wiring: `RegisterKey(caller, secret)` opts a caller into
+  signing; `FederatedCall` signs the request and carries the envelope on the
+  wire (`_caller/_ts/_nonce/_sig`). The receiver calls `VerifyInbound` /
+  `VerifyInboundEnvelope`. Signing is a SEPARATE gate from governance
+  (defense in depth: a signable caller is still refused by an insufficient
+  authority) -- and opt-in, so an unkeyed caller transports unsigned.
+
+GOTCHA sealed: the low-level `StzEngineStringNew` handle reads back EMPTY, so
+HMAC over it silently ignored the message (every request signed identically).
+The engine-backed path is `new stzStringCrypto(msg).HmacSha256(key)` (via a
+real stzString handle) -- the canonical way to MAC a string from Ring.
+
+Deferred (last resilience rungs, not yet built): forced kill of a hung
+worker (`uv_kill`) + orphan cleanup, and full mTLS (mutual-TLS certificates)
+between nodes -- signing gives per-request auth over the existing one-way TLS
+transport; mutual-cert TLS is the heavier remaining step.

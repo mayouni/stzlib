@@ -37,6 +37,8 @@ class stzComputeFederation from stzObject
 	@oGov = NULL         # governance: who may invoke which facet (the SLA layer)
 	@aBonds = []         # [ caller, facet ]  a caller may request this facet
 	@oReactor = NULL     # transport (curl to remote hosts)
+	@oSigner = NULL      # HMAC request signing (authenticity + integrity)
+	@aLastSig = []       # the last outbound signature envelope (observability)
 	@nLastStatus = 0
 	@cWhy = ""
 
@@ -44,6 +46,7 @@ class stzComputeFederation from stzObject
 		@cName = "" + pcName
 		@oGov = new stzGovernance(@cName)
 		@oReactor = new stzReactor()
+		@oSigner = new stzRequestSigner(@cName)
 
 	def Name_()
 		return @cName
@@ -183,10 +186,25 @@ class stzComputeFederation from stzObject
 			@nLastStatus = -1
 			return ""
 		ok
+		# SIGN (opt-in): if this caller has a registered shared key, sign the
+		# request and carry the envelope on the wire (_caller/_ts/_nonce/_sig).
+		# The receiver -- sharing the key -- calls VerifyInbound to prove the
+		# request is AUTHENTIC (really from pcCaller) and UNTAMPERED, closing
+		# the "trust the asserted caller" gap. Unsigned when no key is set.
+		_cEndpoint_ = This.EndpointOf(_aHosts_[1])
+		_cWirePath_ = pcPath
+		@aLastSig = []
+		if @oSigner.HasKey(pcCaller)
+			_env_ = @oSigner.SignNow(pcCaller, "GET", pcPath, "" + pcBody)
+			@aLastSig = _env_
+			_cSep_ = "?"
+			if StzFindFirst(pcPath, "?") > 0  _cSep_ = "&"  ok
+			_cWirePath_ = pcPath + _cSep_ + "_caller=" + pcCaller +
+				"&_ts=" + _env_[:ts] + "&_nonce=" + _env_[:nonce] + "&_sig=" + _env_[:sig]
+		ok
 		# TRANSPORT: curl to the first offering host (round-robin/least-load
 		# is a later refinement)
-		_cEndpoint_ = This.EndpointOf(_aHosts_[1])
-		_cUrl_ = "http://" + _cEndpoint_ + pcPath
+		_cUrl_ = "http://" + _cEndpoint_ + _cWirePath_
 		_nJob_ = @oReactor.SubmitHttp(0, _cUrl_, "" + pcBody)
 		_cResp_ = @oReactor.AwaitHttp(_nJob_, 8000)
 		@nLastStatus = @oReactor.HttpLastStatus()
@@ -197,6 +215,34 @@ class stzComputeFederation from stzObject
 
 	def CallLastStatus()
 		return @nLastStatus
+
+	#-- request signing (authenticity + integrity, under governance) -------
+
+	# Share a secret with a caller: once set, that caller's FederatedCalls
+	# are SIGNED, and a receiver can VerifyInbound them. Signing is opt-in
+	# per caller (no key -> unsigned, backward compatible).
+	def RegisterKey(pcCaller, pcSecret)
+		@oSigner.AddKey(pcCaller, pcSecret)
+		return This
+
+	def SignerQ()
+		return @oSigner
+
+	# The envelope [ :kid, :ts, :nonce, :sig ] of the most recent SIGNED
+	# FederatedCall (empty [] if the last call was unsigned).
+	def LastSignature()
+		return @aLastSig
+
+	# The RECEIVER side: prove an inbound request is authentic + untampered
+	# + fresh + not replayed, before honoring it. pnMaxSkewMs bounds clock
+	# skew / replay window. Why() (via SignerQ) explains a rejection.
+	def VerifyInbound(pcCaller, pcMethod, pcPath, pcBody, pnTs, pcNonce, pcSig, pnMaxSkewMs)
+		return @oSigner.VerifyNow(pcCaller, pcMethod, pcPath, pcBody,
+			pnTs, pcNonce, pcSig, pnMaxSkewMs)
+
+	# Convenience: verify a whole envelope (as produced by LastSignature).
+	def VerifyInboundEnvelope(pcMethod, pcPath, pcBody, paEnvelope, pnMaxSkewMs)
+		return @oSigner.VerifyEnvelope(pcMethod, pcPath, pcBody, paEnvelope, pnMaxSkewMs)
 
 	#-- teardown -----------------------------------------------------------
 
