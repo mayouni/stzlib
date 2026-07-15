@@ -2004,3 +2004,31 @@ termination), so this is a multi-slice engine project. Plan +slice breakdown:
 mTLS COMPLETE (slices 1-4). The resilience/security ladder (rungs 1-6) is
 now fully closed: failover/breaker/backpressure, observability, rate
 limiting, request signing, forced kill/orphan cleanup, and wire mTLS.
+
+### 7.7 MEMORY-SAFETY FUZZING (quality track #2)
+
+After the resilience ladder (#1), the second industry-grade track hardens the
+NATIVE engine's untrusted-input paths -- the surfaces a hostile peer can
+reach. Fuzz harnesses live in `engine/src/`, built with safety checks ON
+(ReleaseSafe) so any out-of-bounds read, integer overflow, or bad slice
+PANICS and fails the step. Run `zig build fuzz` (or `fuzz-http` / `fuzz-tls`).
+
+- HTTP FRAMING (`fuzz_http.zig` -> `http_framing.zig`): the request parser
+  that runs on EVERY server connection's raw bytes -- the most-exposed
+  untrusted surface. Extracted into its own module so the fuzzer hammers the
+  exact code the reactor runs. A regression corpus of nasty edge cases + 1M
+  PRNG-mutated, HTTP-biased inputs; every call must never read OOB nor claim
+  a frame longer than the buffer. FINDING (fixed): the original
+  `header_end + Content-Length` OVERFLOWED usize on a hostile `Content-Length`
+  -- a safety build PANICS, i.e. a one-line malformed request could DoS the
+  server thread. Fixed with `@addWithOverflow` (an unsatisfiable length now
+  reads as "incomplete"). 3M inputs clean after the fix.
+- TLS INPUT (`fuzz_tls.zig`): feeds malformed certs + keys (raw + PEM-header +
+  base64-garbage) to `mbedtls_x509_crt_parse` / `mbedtls_pk_parse_key` -- the
+  peer-cert attack surface plus our PEM NUL-terminator contract. 150k inputs,
+  no crash.
+
+DEFERRED (next in this track): C-level UBSan (`-fsanitize=undefined`) over the
+vendored deps; a live-handshake record fuzzer (garbage ciphertext into the
+server BIO); and quality track #3 (coverage + property-based + mutation
+testing).

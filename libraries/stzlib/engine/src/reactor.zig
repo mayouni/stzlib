@@ -19,6 +19,7 @@
 
 const std = @import("std");
 const curlcore = @import("curlcore.zig"); // curl-backed (Schannel TLS) fetch
+const framing = @import("http_framing.zig"); // untrusted-input HTTP parser (fuzzed)
 const c = @cImport({
     @cInclude("uv.h");
     @cInclude("mbedtls/ssl.h");
@@ -1218,7 +1219,7 @@ fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
             closeConn(conn);
             return;
         }
-        while (httpRequestLen(conn.inbox.items)) |req_len| {
+        while (framing.httpRequestLen(conn.inbox.items)) |req_len| {
             const req = gpa.dupe(u8, conn.inbox.items[0..req_len]) catch {
                 closeConn(conn);
                 return;
@@ -1385,28 +1386,6 @@ fn onSrvRead(stream: *anyopaque, nread: isize, buf: [*c]const c.uv_buf_t) callco
 
 // HTTP/1.1 framing: total byte length of the first complete request in
 // `bytes` (headers + Content-Length body), or null if incomplete.
-fn httpRequestLen(bytes: []const u8) ?usize {
-    const he = std.mem.indexOf(u8, bytes, "\r\n\r\n") orelse return null;
-    const header_end = he + 4;
-    const clen = httpContentLength(bytes[0..header_end]);
-    if (bytes.len >= header_end + clen) return header_end + clen;
-    return null;
-}
-
-fn httpContentLength(headers: []const u8) usize {
-    var it = std.mem.splitSequence(u8, headers, "\r\n");
-    _ = it.next(); // request line
-    while (it.next()) |line| {
-        if (line.len == 0) break;
-        const colon = std.mem.indexOfScalar(u8, line, ':') orelse continue;
-        if (std.ascii.eqlIgnoreCase(std.mem.trim(u8, line[0..colon], " \t"), "content-length")) {
-            const v = std.mem.trim(u8, line[colon + 1 ..], " \t");
-            return std.fmt.parseInt(usize, v, 10) catch 0;
-        }
-    }
-    return 0;
-}
-
 fn startWrite(op: Ctl) void {
     const s = op.server;
     const r = s.reactor;
@@ -1915,7 +1894,7 @@ pub fn reactor_tls_request(
     // read the framed HTTP response (or until idle-timeout / close)
     var total: usize = 0;
     while (total < max) {
-        if (httpRequestLen(out[0..total]) != null) break; // full response framed
+        if (framing.httpRequestLen(out[0..total]) != null) break; // full response framed
         const rc = c.mbedtls_ssl_read(&ssl, out + total, max - total);
         if (rc > 0) {
             total += @intCast(rc);

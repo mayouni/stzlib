@@ -615,6 +615,39 @@ pub fn build(b: *std.Build) void {
         step.dependOn(&run.step);
     }
 
+    // Memory-safety fuzzing (quality track #2). Each harness is built with
+    // safety checks ON (ReleaseSafe) so an OOB read / overflow / UAF inside
+    // the fuzzed code PANICS and fails the step. `zig build fuzz` runs all.
+    const fuzz_all = b.step("fuzz", "Run all memory-safety fuzz harnesses");
+    {
+        // HTTP framing -- the reactor's untrusted-input request parser.
+        const fh_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_http.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const fh = b.addExecutable(.{ .name = "fuzz_http", .root_module = fh_mod });
+        const fh_run = b.addRunArtifact(fh);
+        const fh_step = b.step("fuzz-http", "Fuzz the HTTP framing parser (memory safety)");
+        fh_step.dependOn(&fh_run.step);
+        fuzz_all.dependOn(&fh_run.step);
+
+        // TLS input parsing -- feed malformed certs + ciphertext to mbedTLS.
+        const ft_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_tls.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const ft = b.addExecutable(.{ .name = "fuzz_tls", .root_module = ft_mod });
+        addMbedtls(ft_mod, ft, b, target.result.os.tag);
+        const ft_run = b.addRunArtifact(ft);
+        const ft_step = b.step("fuzz-tls", "Fuzz mbedTLS cert/record parsing (memory safety)");
+        ft_step.dependOn(&ft_run.step);
+        fuzz_all.dependOn(&ft_run.step);
+    }
+
     // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
     // land in .CRT$XCU and can be run at load) -- BLOCKED by a Zig 0.15.2 bug:
     // its bundled libc++abi fails to compile for x86_64-windows-msvc
