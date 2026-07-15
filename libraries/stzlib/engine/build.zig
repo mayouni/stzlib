@@ -568,9 +568,51 @@ fn addSqlite(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build
     });
 }
 
+// Vendored mbedTLS (Tier 2 TLS backbone -- server-side TLS termination for
+// wire mTLS between nodes). Self-contained C (crypto + TLS + x509 in
+// library/*.c); the default include/mbedtls/mbedtls_config.h is auto-picked
+// (no MBEDTLS_CONFIG_FILE), enabling TLS 1.2/1.3 + x509 + PEM + EC/RSA. On
+// Windows the entropy source uses the CryptoAPI (advapi32) + bcrypt.
+fn addMbedtls(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
+    const mt = "vendor/mbedtls";
+    mod.addIncludePath(b.path(mt ++ "/include"));
+    var files: std.ArrayList([]const u8) = .{};
+    const dirpath = mt ++ "/library";
+    var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
+        std.debug.panic("mbedtls: cannot open {s}: {s}", .{ dirpath, @errorName(e) });
+    defer dir.close();
+    var it = dir.iterate();
+    while (it.next() catch null) |entry| {
+        if (entry.kind != .file) continue;
+        if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+        files.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
+    }
+    lib.addCSourceFiles(.{ .files = files.items, .flags = &.{} });
+    if (os_tag == .windows) {
+        for ([_][]const u8{ "bcrypt", "advapi32", "crypt32", "ws2_32" }) |l| lib.linkSystemLibrary(l);
+    }
+}
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+
+    // mTLS slice 1: a standalone mbedTLS handshake smoke (no reactor). Run
+    // with `zig build mtls-smoke`. Proves the vendored TLS lib builds +
+    // handshakes in this toolchain before slice 2 wires it into the server.
+    {
+        const smoke_mod = b.createModule(.{
+            .root_source_file = b.path("src/mtls_smoke.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const smoke = b.addExecutable(.{ .name = "mtls_smoke", .root_module = smoke_mod });
+        addMbedtls(smoke_mod, smoke, b, target.result.os.tag);
+        const run = b.addRunArtifact(smoke);
+        const step = b.step("mtls-smoke", "Build + run the mbedTLS handshake smoke (mTLS slice 1)");
+        step.dependOn(&run.step);
+    }
 
     // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
     // land in .CRT$XCU and can be run at load) -- BLOCKED by a Zig 0.15.2 bug:
