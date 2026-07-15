@@ -1657,6 +1657,22 @@ pub fn reactor_spawn_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: 
     }
 }
 
+/// Force-kill a spawned child by job id: send `signum` to the process
+/// (SIGKILL=9 / SIGTERM=15; on Windows libuv maps these to TerminateProcess).
+/// Returns 0 on success, -2 job not found, -3 already exited, -4 not a spawn
+/// job / no handle, else a negative uv error. Mutex-guarded so it can never
+/// race the loop thread closing/freeing the process handle on exit.
+pub fn reactor_spawn_kill(r_opt: ?*Reactor, job_id: u64, signum: c_int) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const job = r.jobs.get(job_id) orelse return -2;
+    if (job.kind != .spawn) return -4;
+    if (job.proc_exited) return -3;
+    const pb = job.proc_buf orelse return -4;
+    return @intCast(uv_process_kill(pb.ptr, signum));
+}
+
 // ── async HTTPS / HTTP request (public API) ──────────────────
 
 var curl_last_status: i32 = 0;

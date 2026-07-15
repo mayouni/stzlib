@@ -1929,7 +1929,35 @@ HMAC over it silently ignored the message (every request signed identically).
 The engine-backed path is `new stzStringCrypto(msg).HmacSha256(key)` (via a
 real stzString handle) -- the canonical way to MAC a string from Ring.
 
-Deferred (last resilience rungs, not yet built): forced kill of a hung
-worker (`uv_kill`) + orphan cleanup, and full mTLS (mutual-TLS certificates)
-between nodes -- signing gives per-request auth over the existing one-way TLS
-transport; mutual-cert TLS is the heavier remaining step.
+### 7.5 R8 FORCED KILL + ORPHAN CLEANUP -- the fleet-lifecycle closer (rung #5)
+
+`ScaleDown` DRAINS a worker gracefully (routing stops, it finishes in-flight,
+self-exits on TTL). But a WEDGED worker -- alive yet answering neither
+/health nor its TTL -- needs an OS-level kill. New engine primitive
+`reactor_spawn_kill(job_id, signum)` -> `uv_process_kill` (SIGKILL/SIGTERM;
+Windows -> TerminateProcess), MUTEX-GUARDED so it can never race the loop
+thread reaping the process on its own exit. Tested in
+`base/test/cluster/forced_kill_narrated.ring` (19 assertions, green):
+
+- `ForceKill(facet)` SIGKILLs every spawned worker of a facet (the forceful
+  sibling of drain); returns the count actually killed, marks them not ready.
+  `KilledCount()` is the observable. Idempotent: re-killing an already-dead
+  worker returns -3 and is not counted.
+- NO ORPHAN ON RESTART: `RestartDead` now force-kills the OLD process before
+  respawning -- a worker that reads "dead" (no /health) may be HUNG, not
+  gone; respawning without killing it would leak the hung process.
+- ORPHAN CLEANUP ON STOP: `Stop()` force-kills every worker PROCESS the
+  cluster spawned, so NONE outlive it (the guarantee; TTL self-exit is the
+  graceful path). External workers (RegisterExternalWorker, jobId 0) are not
+  ours and are always skipped.
+
+Engine note: `reactor_spawn_kill` + its `ring_ReactorSpawnKill` bridge were
+added to reactor.zig / ring_bridge_reactor.zig; the reactor DLL was rebuilt
+against Ring 1.27. Ring wrapper: `stzReactor.KillSpawn(id, signum)` /
+`KillSpawnHard(id)`.
+
+Deferred (the last rung, not yet built): full mTLS (mutual-TLS certificates)
+between nodes -- request signing (7.4) already gives per-request auth +
+integrity over the existing one-way TLS transport; mutual-cert TLS (both ends
+present + validate certificates) is the heavier remaining step, and the
+practical gap it closes over signing-plus-one-way-TLS is small.
