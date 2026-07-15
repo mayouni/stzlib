@@ -1648,6 +1648,20 @@ Each R-step is independently shippable; R1 (with S0) is ready to start.
 
 ## 7. R8 -- the SCALE plane (clustering, re-based on the resident engine)
 
+[COMPLETE 2026-07-15. All six stages shipped, both remotes, 141
+narrated assertions. R8.1 stzWorkerProfile/stzWorkerPool (worker model
++ retired class tree); R8.2 stzRequestClassifier (rules + capability-
+lexical + model seam); R8.3 stzAppCluster (real worker-process fleet
+via reactor spawn + curl proxy + load-balance); R8.4 stzFacetCatalog
+(the full ~18-facet breadth, INSTANCE-scoped per the naming law) +
+stzClusterSupervisor (health/restart/real-metric autoscale/drain,
+running as a supervised job on stzAgentHost); R8.5 stzComputePipeline
+(chained facet stages, per-stage budget admission); R8.6
+stzComputeFederation (governed multi-host constellation -- discovery +
+bond + governance capability lattice + real curl transport, proven with
+a live cross-host call). The pre-engine stzCluster* tree is retired to
+loadable tombstones.]
+
 Studied 2026-07-14 from the 2024 future/doc corpus (stzappserver_
 clustering.md + stz_cluster_core.txt + cluster_usage_example.txt) and
 the existing base/cluster/ prototype. R1-R7 built the intelligence
