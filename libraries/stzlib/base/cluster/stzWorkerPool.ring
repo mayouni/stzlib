@@ -26,116 +26,6 @@
 func StzWorkerPool()
 	return new stzWorkerPool()
 
-# THE SOFTANZA FACET CATALOG. The 2024 clustering doc named only four
-# "computational domains" (NLP/Math/Vision/Search) -- an enterprise-
-# compute narrowing. Softanza's real breadth is far larger, and a
-# cluster specializes workers along ANY of these facets, not just four.
-# Every facet EXCEPT vision is engine-native (the resident engine serves
-# it hot); vision is the ONE polyglot facet (no image support in the
-# engine -> an external tool via the reactor's async spawn).
-#
-# A FACET IS NOT A MODULE (the R8 naming law). The 4th column records the
-# OPTIONAL facet->module provenance -- a MANY-TO-MANY relation, never a
-# forced 1:1: :data->[data] (grounded); :math/:knowledge (composed,
-# several modules); :search (composed, NO search/ module); :nlp (logical
-# -- the nlp/ folder was DELETED by ruling, yet the competence is real);
-# :vision->[] (external/polyglot, no module).
-#   [ facet, [ capabilities... ], isPolyglot, [ realizing modules... ] ]
-func StzSoftanzaFacets()
-	return [
-		[ :text,      [ :transform, :find, :match, :case, :split, :unicode ], FALSE, [ "string", "char", "text" ] ],
-		[ :list,      [ :sort, :filter, :map, :reduce, :setops, :dedup ], FALSE, [ "list" ] ],
-		[ :table,     [ :query, :aggregate, :join, :pivot, :wrangle ], FALSE, [ "table", "datawrangler" ] ],
-		[ :number,    [ :arith, :convert, :format, :sequence ], FALSE, [ "number" ] ],
-		[ :math,      [ :matrix, :optimize, :stats, :solve, :ggml ], FALSE, [ "matrix", "stats", "number" ] ],
-		[ :graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], FALSE, [ "graph" ] ],
-		[ :knowledge, [ :facts, :derive, :prove, :query, :ontology ], FALSE, [ "natural", "graph" ] ],
-		[ :nlp,       [ :sentiment, :entities, :classify, :summarize, :translate, :pos, :lemmatize ], FALSE, [ "natural", "neural" ] ],
-		[ :neural,    [ :embed, :generate, :zeroshot, :rerank, :dlm ], FALSE, [ "neural" ] ],
-		[ :learning,  [ :train, :knn, :bayes, :tfidf, :kmeans, :apriori ], FALSE, [ "learning" ] ],
-		[ :search,    [ :index, :similarity, :rank, :semantic ], FALSE, [ "neural", "graph", "data" ] ],
-		[ :datetime,  [ :date, :duration, :calendar, :timezone ], FALSE, [ "datetime", "date", "calendar", "duration" ] ],
-		[ :reactive,  [ :stream, :watch, :timer, :debounce ], FALSE, [ "reactive" ] ],
-		[ :agentic,   [ :perceive, :plan, :act, :govern ], FALSE, [ "agentic" ] ],
-		[ :refine,    [ :propose, :cascade, :revert ], FALSE, [ "refine" ] ],
-		[ :code,      [ :codegraph, :impact, :polyglotgraph ], FALSE, [ "meta", "reflect" ] ],
-		[ :data,      [ :crud, :persist, :sqlite ], FALSE, [ "data" ] ],
-		[ :vision,    [ :ocr, :image ], TRUE, [] ]    # the ONLY polyglot facet (no module)
-	]
-
-# The base/ modules that realize a facet ([] = external/logical).
-func StzFacetModules(pcFacet)
-	_cF_ = StzLower("" + pcFacet)
-	_a_ = StzSoftanzaFacets()
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		if StzLower("" + _a_[_i_][1]) = _cF_
-			return _a_[_i_][4]
-		ok
-	next
-	return []
-
-# Capabilities of a named facet ([] if unknown).
-func StzFacetCapabilities(pcFacet)
-	_cF_ = StzLower("" + pcFacet)
-	_a_ = StzSoftanzaFacets()
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		if StzLower("" + _a_[_i_][1]) = _cF_
-			return _a_[_i_][2]
-		ok
-	next
-	return []
-
-func StzFacetIsPolyglot(pcFacet)
-	_cF_ = StzLower("" + pcFacet)
-	_a_ = StzSoftanzaFacets()
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		if StzLower("" + _a_[_i_][1]) = _cF_
-			return _a_[_i_][3]
-		ok
-	next
-	return FALSE
-
-func StzKnownFacets()
-	_a_ = StzSoftanzaFacets()
-	_o_ = []
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		_o_ + _a_[_i_][1]
-	next
-	return _o_
-
-# Default profiles matching the clustering doc's four (kept for the doc's
-# scenarios). Use StzSoftanzaWorkerPool() for the full facet breadth.
-func StzDefaultWorkerPool()
-	oPool = new stzWorkerPool()
-	oPool.AddProfile("nlp",    [ :sentiment, :entities, :classify, :summarize, :translate ], 4)
-	oPool.AddProfile("math",   [ :matrix, :optimize, :stats, :solve ], 2)
-	oPool.AddProfile("search", [ :embed, :similarity, :rank, :index ], 2)
-	oPool.AddProfile("vision", [ :ocr, :image ], 1)
-	oPool.Profile("vision").UsesExternalTool("python")   # tesseract/opencv off-process
-	return oPool
-
-# The FULL Softanza facet breadth as a worker pool (one profile per facet,
-# budget nDefaultBudget each). This is the honest answer to "NLP and Math
-# are not the only facets": text/list/table/graph/knowledge/learning/
-# neural/datetime/reactive/agentic/refine/code/data/... all specialize.
-func StzSoftanzaWorkerPool(nDefaultBudget)
-	if nDefaultBudget < 1  nDefaultBudget = 1  ok
-	oPool = new stzWorkerPool()
-	_a_ = StzSoftanzaFacets()
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		oPool.AddProfile(_a_[_i_][1], _a_[_i_][2], nDefaultBudget)
-		oPool.Profile(_a_[_i_][1]).RealizedBy(_a_[_i_][4])   # provenance
-		if _a_[_i_][3]   # polyglot facet
-			oPool.Profile(_a_[_i_][1]).UsesExternalTool("python")
-		ok
-	next
-	return oPool
-
 
 class stzWorkerPool from stzObject
 
@@ -143,11 +33,65 @@ class stzWorkerPool from stzObject
 	@aQueues = []        # parallel to @aProfiles: [ [ fWork, ... ], ... ]
 	@aResults = []       # drained results: [ [ tag, value ], ... ]
 	@oReactorPool = NULL # attached for the R8.3 fleet (optional at R8.1)
+	@oCatalog = NULL     # the competence registry this pool draws facets
+	                     # from (INSTANCE-scoped; seeded standard, custom-
+	                     # izable) -- not a global (a deployment concern)
 
 	def init()
 		@aProfiles = []
 		@aQueues = []
 		@aResults = []
+		@oCatalog = new stzFacetCatalog()
+
+	#-- the facet catalog (instance-owned) ---------------------------------
+
+	def CatalogQ()
+		return @oCatalog
+
+	# Swap in a fully-built custom catalog (build it before adding facets).
+	def UsingCatalog(poCatalog)
+		@oCatalog = poCatalog
+		return This
+
+	# Customize this pool's OWN catalog (delegated so the pool's live copy
+	# stays the single source of truth -- the aliasing doctrine).
+	def DefineFacet(pcName, paCaps, paModules)
+		@oCatalog.Define(pcName, paCaps, paModules)
+		return This
+	def DefinePolyglotFacet(pcName, paCaps, pcTool)
+		@oCatalog.DefinePolyglot(pcName, paCaps, pcTool)
+		return This
+
+	# Add a profile for a facet DEFINED IN THIS POOL'S CATALOG: capabilities,
+	# provenance and external tool are taken from the catalog.
+	def AddFacet(pcName, nBudget)
+		if NOT @oCatalog.Has(pcName)
+			stzraise("stzWorkerPool.AddFacet: '" + pcName + "' is not in this " +
+			         "pool's catalog. Define it first or use AddProfile for an " +
+			         "ad-hoc profile. Known: see CatalogQ().Names().")
+		ok
+		_cTag_ = StzLower("" + pcName)
+		This.AddProfile(_cTag_, @oCatalog.CapabilitiesOf(pcName), nBudget)
+		# call THROUGH Profile() each time -- assigning to a local COPIES
+		# the profile (Ring aliasing), so the mutation would be discarded.
+		This.Profile(_cTag_).RealizedBy(@oCatalog.ModulesOf(pcName))
+		if @oCatalog.IsPolyglot(pcName)
+			This.Profile(_cTag_).UsesExternalTool(@oCatalog.ToolOf(pcName))
+		ok
+		return This
+
+	# Seed one profile per catalog facet at the given budget (the full
+	# breadth). The honest answer to "NLP and Math are not the only facets".
+	def SeedAllFacets(nBudget)
+		if nBudget < 1  nBudget = 1  ok
+		_a_ = @oCatalog.Names()
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			This.AddFacet(_a_[_i_], nBudget)
+		next
+		return This
+
+	#-- ad-hoc profiles (a facet NOT from the catalog) ---------------------
 
 	def AddProfile(pcTag, paCapabilities, pnBudget)
 		if This._IndexOf(pcTag) > 0

@@ -29,19 +29,6 @@
 func StzAppCluster()
 	return new stzAppCluster()
 
-# The ring executable that launches workers -- derived from sysargv (the
-# interpreter running us), falling back to bare "ring".
-func StzRingExecutable()
-	_a_ = sysargv
-	_n_ = len(_a_)
-	for _i_ = 1 to _n_
-		_c_ = StzLower("" + _a_[_i_])
-		if StzFindFirst(_c_, "ring.exe") > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
-			return "" + _a_[_i_]
-		ok
-	next
-	return "ring"
-
 
 class stzAppCluster from stzObject
 
@@ -61,7 +48,7 @@ class stzAppCluster from stzObject
 	def init()
 		@oPool = new stzWorkerPool()
 		@oReactor = new stzReactor()
-		@cRingExe = StzRingExecutable()
+		@cRingExe = This._RingExecutable()
 		@cBaseRing = This._DeriveStzBasePath()
 
 	#-- declaring the fleet composition ------------------------------------
@@ -87,23 +74,30 @@ class stzAppCluster from stzObject
 		next
 		return This
 
-	# THE GENERAL FORM: specialize workers along ANY Softanza facet (not
-	# just the doc's four). Looks the capabilities up in the facet catalog
-	# and marks polyglot facets (vision) as external-tool workers.
+	# THE GENERAL FORM: specialize workers along ANY facet in THIS cluster's
+	# catalog (not just the doc's four). Capabilities, provenance and any
+	# external tool are taken from the pool's own catalog (instance-scoped,
+	# customizable via CatalogQ()/DefineFacet).
 	#   oC.WithFacet(:graph, 2).WithFacet(:knowledge, 2).WithFacet(:neural, 1)
 	def WithFacet(pcFacet, n)
-		_aCaps_ = StzFacetCapabilities(pcFacet)
-		if len(_aCaps_) = 0
-			stzraise("stzAppCluster.WithFacet: unknown Softanza facet '" + pcFacet +
-			         "'. Known facets: see StzKnownFacets().")
+		if NOT @oPool.CatalogQ().Has(pcFacet)
+			stzraise("stzAppCluster.WithFacet: '" + pcFacet + "' is not in this " +
+			         "cluster's facet catalog. Define it via CatalogQ()/DefineFacet, " +
+			         "or see CatalogQ().Names().")
 		ok
-		This.WithProfile(pcFacet, _aCaps_, n)
-		# record the OPTIONAL facet->module provenance (never forced 1:1)
-		@oPool.Profile(StzLower("" + pcFacet)).RealizedBy(StzFacetModules(pcFacet))
-		if StzFacetIsPolyglot(pcFacet)
-			@oPool.Profile(StzLower("" + pcFacet)).UsesExternalTool("python")
+		_cTag_ = StzLower("" + pcFacet)
+		This.WithProfile(_cTag_, @oPool.CatalogQ().CapabilitiesOf(pcFacet), n)
+		# call THROUGH Profile() (no local assign -> no copy; aliasing)
+		@oPool.Profile(_cTag_).RealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
+		if @oPool.CatalogQ().IsPolyglot(pcFacet)
+			@oPool.Profile(_cTag_).UsesExternalTool(@oPool.CatalogQ().ToolOf(pcFacet))
 		ok
 		return This
+
+	# The cluster's facet catalog (instance-scoped -- customize per
+	# deployment: DefineFacet/DefinePolyglotFacet/Drop before WithFacet).
+	def CatalogQ()
+		return @oPool.CatalogQ()
 
 	# Sugar for the doc's four (each just a WithFacet over the catalog).
 	def WithNLP(n)
@@ -377,6 +371,19 @@ class stzAppCluster from stzObject
 		return This
 
 	#-- internals ----------------------------------------------------------
+
+	# The ring interpreter that launches workers -- derived from sysargv
+	# (the interpreter running us), falling back to bare "ring".
+	def _RingExecutable()
+		_a_ = sysargv
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_c_ = StzLower("" + _a_[_i_])
+			if StzFindFirst(_c_, "ring.exe") > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
+				return "" + _a_[_i_]
+			ok
+		next
+		return "ring"
 
 	def _DeriveStzBasePath()
 		_nSlash_ = 0

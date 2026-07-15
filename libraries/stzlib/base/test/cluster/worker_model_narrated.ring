@@ -10,8 +10,9 @@ load "../_narrated.ring"
 # specialization-for-warmth moot.
 
 Scenario("the default pool has the 4 domain profiles, grounded in the engine")
-	Given("the default worker pool")
-	$oPool = StzDefaultWorkerPool()
+	Given("a worker pool seeded with the doc's four facets (from its catalog)")
+	$oPool = new stzWorkerPool()
+	$oPool.AddFacet(:nlp, 4).AddFacet(:math, 2).AddFacet(:search, 2).AddFacet(:vision, 1)
 	Then("it has four profiles", $oPool.NumberOfProfiles(), 4)
 	Then("nlp/math/search/vision are present",
 		$oPool.HasProfile("nlp") and $oPool.HasProfile("math") and
@@ -90,8 +91,9 @@ EndScenario()
 Scenario("FACET != MODULE: the naming law and the facet->module provenance")
 	# A facet is a LOGICAL competence; a module is WHERE code lives. The
 	# relation is many-to-many, recorded (RealizedBy) but never forced 1:1.
-	Given("the full Softanza facet pool with provenance populated")
-	oF = StzSoftanzaWorkerPool(1)
+	Given("the full facet pool with provenance populated")
+	oF = new stzWorkerPool()
+	oF.SeedAllFacets(1)
 	Then("GROUNDED: :data maps to exactly one module (1:1)",
 		oF.Profile("data").MappingKind(), :grounded)
 	Then("and that module is 'data'", oF.Profile("data").RealizingModules()[1], "data")
@@ -116,7 +118,38 @@ Scenario("FACET != MODULE: the naming law and the facet->module provenance")
 	Then("once mapped to 2+ modules it is :composed", oLog.MappingKind(), :composed)
 
 	Then("asymmetry proves they differ: ~18 facets, far more modules",
-		len(StzKnownFacets()) < 30, TRUE)
+		oF.CatalogQ().NumberOf() < 30, TRUE)
+EndScenario()
+
+Scenario("the facet catalog is INSTANCE-scoped, not global (per deployment)")
+	# The catalog belongs to the pool/cluster INSTANCE -- two deployments
+	# in one process are INDEPENDENT and each may define its own facets.
+	Given("two pools, one customized with a facet the other never sees")
+	oPoolA = new stzWorkerPool()
+	oPoolB = new stzWorkerPool()
+	oPoolA.DefinePolyglotFacet(:pdf, [ :extract, :ocr ], "python")
+	Then("pool A knows the custom :pdf facet", oPoolA.CatalogQ().Has(:pdf), TRUE)
+	Then("pool B does NOT (catalogs are independent)", oPoolB.CatalogQ().Has(:pdf), FALSE)
+
+	When("pool A adds a worker for its custom facet")
+	oPoolA.AddFacet(:pdf, 2)
+	Then("pool A has the :pdf profile", oPoolA.HasProfile("pdf"), TRUE)
+	Then("it is polyglot via python", oPoolA.Profile("pdf").ExternalTool(), "python")
+	When("pool B tries to use a facet not in ITS catalog")
+	bRaised = FALSE
+	try
+		oPoolB.AddFacet(:pdf, 1)
+	catch
+		bRaised = TRUE
+	done
+	Then("pool B refuses -- the facet is not in its own catalog", bRaised, TRUE)
+
+	Given("a deployment that DROPS a standard facet it does not offer")
+	oLean = new stzWorkerPool()
+	oLean.CatalogQ().Drop(:vision)
+	Then("its catalog no longer has vision", oLean.CatalogQ().Has(:vision), FALSE)
+	Then("but a fresh pool still does (no global mutation)",
+		(new stzWorkerPool()).CatalogQ().Has(:vision), TRUE)
 EndScenario()
 
 Scenario("the pre-engine class tree is retired but still loads")

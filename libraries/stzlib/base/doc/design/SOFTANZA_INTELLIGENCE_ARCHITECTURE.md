@@ -1710,8 +1710,14 @@ cold-start/preloading model R8 revoked. Four levels, never collapsed:
   - PROFILE (configured): stzWorkerProfile = a facet + budget +
     optional external tool, instantiated in a pool/cluster. A DEPLOYED
     specialization.
+The facet catalog is an OBJECT (stzFacetCatalog), OWNED by the
+pool/cluster INSTANCE -- NOT a global. Two clusters deployed in one
+process are INDEPENDENT, each with its own catalog (custom facets,
+subsets, per-site competences); global functions are reserved for
+constructors + true stateless utilities, never per-deployment config.
 The facet<->module relation is EXPLICIT, OPTIONAL, and MANY-TO-MANY --
-recorded (stzWorkerProfile.RealizedBy) but never forced to identity:
+recorded (stzFacetCatalog.ModulesOf / stzWorkerProfile.RealizedBy) but
+never forced to identity:
   :data->[data] (grounded 1:1); :math->[matrix,stats,number] and
   :knowledge->[natural,graph] (composed 1:n); :search->[neural,graph,
   data] (composed, NO search/ module); :nlp->[natural,neural] (logical

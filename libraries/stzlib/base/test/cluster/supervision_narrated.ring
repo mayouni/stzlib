@@ -17,32 +17,33 @@ load "../_narrated.ring"
 # linger until TTL)
 $nBase = 48000 + (StzEngineTimeNowMs() % 800)
 
-Scenario("BREADTH: specialization spans the full Softanza facet catalog")
-	Given("the Softanza facet catalog")
-	Then("it is far broader than the doc's four", len(StzKnownFacets()) >= 15, TRUE)
-	Then("graph is a known facet", ring_find(StzKnownFacets(), :graph) > 0, TRUE)
-	Then("knowledge is a known facet", ring_find(StzKnownFacets(), :knowledge) > 0, TRUE)
-	Then("neural is a known facet", ring_find(StzKnownFacets(), :neural) > 0, TRUE)
+Scenario("BREADTH: specialization spans the full facet catalog")
+	Given("a fresh facet catalog (the deployment's competence registry)")
+	oCat = new stzFacetCatalog()
+	Then("it is far broader than the doc's four", oCat.NumberOf() >= 15, TRUE)
+	Then("graph is a known facet", oCat.Has(:graph), TRUE)
+	Then("knowledge is a known facet", oCat.Has(:knowledge), TRUE)
+	Then("neural is a known facet", oCat.Has(:neural), TRUE)
 	Then("table/list/datetime/reactive/agentic all present",
-		ring_find(StzKnownFacets(), :table) > 0 and ring_find(StzKnownFacets(), :list) > 0 and
-		ring_find(StzKnownFacets(), :datetime) > 0 and ring_find(StzKnownFacets(), :reactive) > 0 and
-		ring_find(StzKnownFacets(), :agentic) > 0, TRUE)
+		oCat.Has(:table) and oCat.Has(:list) and oCat.Has(:datetime) and
+		oCat.Has(:reactive) and oCat.Has(:agentic), TRUE)
 	Then("every facet is engine-native EXCEPT vision (polyglot)",
-		StzFacetIsPolyglot(:graph) = FALSE and StzFacetIsPolyglot(:neural) = FALSE and
-		StzFacetIsPolyglot(:vision) = TRUE, TRUE)
+		oCat.IsPolyglot(:graph) = FALSE and oCat.IsPolyglot(:neural) = FALSE and
+		oCat.IsPolyglot(:vision) = TRUE, TRUE)
 
 	Given("a cluster specialized along NON-doc facets")
 	oC = new stzAppCluster()
 	oC.WithFacet(:graph, 2).WithFacet(:knowledge, 1).WithFacet(:neural, 1)
-	Then("four workers across three Softanza facets", oC.FleetSize(), 4)
+	Then("four workers across three facets", oC.FleetSize(), 4)
 	Then("the pool serves :prove (a knowledge capability)",
 		oC.PoolQ().ProfileFor(:prove), "knowledge")
 	Then("and :embed (a neural capability)", oC.PoolQ().ProfileFor(:embed), "neural")
 EndScenario()
 
-Scenario("the FULL-breadth pool has one profile per facet")
-	oFull = StzSoftanzaWorkerPool(2)
-	Then("18 facet profiles", oFull.NumberOfProfiles(), len(StzKnownFacets()))
+Scenario("a pool can seed one profile per catalog facet")
+	oFull = new stzWorkerPool()
+	oFull.SeedAllFacets(2)
+	Then("one profile per facet", oFull.NumberOfProfiles(), oFull.CatalogQ().NumberOf())
 	Then("vision is polyglot in it", oFull.Profile("vision").IsPolyglot(), TRUE)
 	Then("graph is not", oFull.Profile("graph").IsPolyglot(), FALSE)
 EndScenario()

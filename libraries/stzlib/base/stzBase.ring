@@ -443,6 +443,7 @@ ok
 # stzCluster* prototype below stays only as loadable tombstones.
 
     load "cluster/stzWorkerProfile.ring"
+    load "cluster/stzFacetCatalog.ring"
     load "cluster/stzWorkerPool.ring"
     load "cluster/stzAppCluster.ring"
     load "cluster/stzClusterSupervisor.ring"
