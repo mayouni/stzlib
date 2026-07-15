@@ -157,8 +157,14 @@ class stzWorkerPool from stzObject
 			@aResults + [ pcTag, _v_ ]
 			return [ :admitted = 1, :result = _v_, :tag = pcTag ]
 		ok
+		# over budget -> queue, unless the queue is bounded AND full, in
+		# which case SHED (backpressure) rather than grow unbounded.
+		if @aProfiles[_i_].MaxQueue() > 0 and len(@aQueues[_i_]) >= @aProfiles[_i_].MaxQueue()
+			@aProfiles[_i_].Shed()
+			return [ :admitted = 0, :queued = 0, :shed = 1, :tag = pcTag ]
+		ok
 		@aQueues[_i_] + fWork
-		return [ :admitted = 0, :queued = 1, :tag = pcTag ]
+		return [ :admitted = 0, :queued = 1, :shed = 0, :tag = pcTag ]
 
 	# Reserve a slot WITHOUT running work (lets a caller model a
 	# long-running/in-flight job for isolation tests + the R8.3 fleet).
@@ -208,6 +214,11 @@ class stzWorkerPool from stzObject
 		_i_ = This._IndexOf(pcTag)
 		if _i_ = 0  return 0  ok
 		return len(@aQueues[_i_])
+
+	def ShedCount(pcTag)
+		_i_ = This._IndexOf(pcTag)
+		if _i_ = 0  return 0  ok
+		return @aProfiles[_i_].ShedCount()
 
 	def Results()
 		return @aResults

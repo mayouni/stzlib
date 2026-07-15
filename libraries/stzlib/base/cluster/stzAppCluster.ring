@@ -46,6 +46,10 @@ class stzAppCluster from stzObject
 	@bStarted = FALSE
 	@oClassifier = NULL    # R8.2 smart router (lazy, bound to the catalog)
 	@cWhy = ""
+	# resilience: retry-with-failover + per-worker circuit breaker
+	@nMaxTries = 3         # max workers to try per Route (failover cap)
+	@nBreakerThreshold = 3 # consecutive failures that OPEN a worker's circuit
+	@nBreakerCooldownMs = 5000  # how long a circuit stays open before half-open
 
 	def init()
 		@oPool = new stzWorkerPool()
@@ -72,8 +76,40 @@ class stzAppCluster from stzObject
 			@aRR + [ _cTag_, 0 ]
 		ok
 		for _w_ = 1 to nWorkers
-			@aFleet + [ _cTag_, 0, 0, FALSE, FALSE ]   # tag,port,jobId,ready,draining
+			# tag,port,jobId,ready,draining,failures,circuitOpenUntilMs,host
+			@aFleet + [ _cTag_, 0, 0, FALSE, FALSE, 0, 0, "127.0.0.1" ]
 		next
+		return This
+
+	#-- resilience config --------------------------------------------------
+
+	# Cap the number of workers a single Route tries before giving up
+	# (retry-with-failover across healthy workers of the facet).
+	def WithMaxTries(n)
+		if n < 1  n = 1  ok
+		@nMaxTries = n
+		return This
+
+	# Circuit breaker: after nThreshold consecutive failures a worker's
+	# circuit OPENS (it is skipped for nCooldownMs, then half-open: one
+	# probe re-closes on success or re-opens on failure).
+	def WithCircuitBreaker(nThreshold, nCooldownMs)
+		if nThreshold < 1  nThreshold = 1  ok
+		@nBreakerThreshold = nThreshold
+		@nBreakerCooldownMs = nCooldownMs
+		return This
+
+	# Register a PRE-EXISTING worker (e.g. a remote/static host) into a
+	# facet's pool -- it participates in routing, failover and health like
+	# a spawned worker. host:port endpoint.
+	def RegisterExternalWorker(pcFacet, pcHost, nPort)
+		_cTag_ = StzLower("" + pcFacet)
+		if This._RRIndex(_cTag_) = 0
+			@aRR + [ _cTag_, 0 ]
+			@oPool.AddProfile(_cTag_, [ _cTag_ ], 1)
+		ok
+		# ready TRUE: assumed up; HealthCheck / the circuit breaker verify
+		@aFleet + [ _cTag_, nPort, 0, TRUE, FALSE, 0, 0, "" + pcHost ]
 		return This
 
 	# THE GENERAL FORM: specialize workers along ANY facet in THIS cluster's
@@ -128,10 +164,13 @@ class stzAppCluster from stzObject
 			stzraise("stzAppCluster already started.")
 		ok
 		This._GenerateWorkerScript()
-		# assign a sequential port + spawn a worker process per fleet row
+		# assign a sequential port + spawn a worker process per OWNED fleet
+		# row. Rows with a port already set are EXTERNAL (RegisterExternalWorker
+		# -- a remote/static host we do NOT spawn); leave their endpoint intact.
 		_nPort_ = @nBasePort
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
+			if @aFleet[_i_][2] != 0  loop  ok   # external -> not ours to spawn
 			@aFleet[_i_][2] = _nPort_
 			@aFleet[_i_][3] = This._SpawnWorker(@aFleet[_i_][1], _nPort_)
 			_nPort_++
@@ -156,7 +195,7 @@ class stzAppCluster from stzObject
 					_nReady_++
 					loop
 				ok
-				if This._HealthOk(@aFleet[_i_][2])
+				if This._HealthOk(_i_)
 					@aFleet[_i_][4] = TRUE
 					_nReady_++
 				ok
@@ -169,17 +208,25 @@ class stzAppCluster from stzObject
 		end
 		return This.ReadyCount()
 
-	def _HealthOk(nPort)
-		_nJ_ = @oReactor.SubmitHttp(0, "http://127.0.0.1:" + nPort + "/health", "")
+	def _HealthOk(nIdx)
+		_nJ_ = @oReactor.SubmitHttp(0, "http://" + This._EndpointOf(nIdx) + "/health", "")
 		@oReactor.AwaitHttp(_nJ_, 2000)
+		# HttpLastStatus is a GLOBAL updated only when a job DRAINS; on an
+		# await TIMEOUT it stays stale (a prior 200). A drained job is reaped
+		# -> JobState = -2 confirms THIS request actually completed.
+		if @oReactor.JobState(_nJ_) != -2  return FALSE  ok
 		return @oReactor.HttpLastStatus() = 200
 
-	#-- routing (the load-balanced proxy) ----------------------------------
+	def _EndpointOf(nIdx)
+		return @aFleet[nIdx][8] + ":" + @aFleet[nIdx][2]
 
-	# Round-robin proxy to a READY worker of pcTag; returns the response
-	# body. HTTP status via RouteLastStatus(). The path is validated so a
-	# caller-controlled path can NOT override the target host (SSRF) or
-	# smuggle a request via CRLF -- see _SafePath.
+	#-- routing: RETRY-WITH-FAILOVER + per-worker CIRCUIT BREAKER -----------
+
+	# Proxy to a healthy worker of pcTag. On a failed attempt (transport
+	# error or non-2xx), FAIL OVER to the next healthy worker, up to
+	# WithMaxTries. A worker that fails WithCircuitBreaker consecutive times
+	# has its circuit OPENED (skipped for the cooldown, then half-open). A
+	# success resets/closes its circuit. Path is SSRF/CRLF-validated first.
 	def Route(pcTag, pcPath)
 		if NOT This._SafePath(pcPath)
 			@cWhy = "unsafe proxy path rejected (must start with '/', no CRLF): " + pcPath
@@ -187,17 +234,39 @@ class stzAppCluster from stzObject
 			return ""
 		ok
 		_cTag_ = StzLower("" + pcTag)
-		_nPort_ = This._NextWorkerPort(_cTag_)
-		if _nPort_ = 0
-			@cWhy = "no ready worker for facet '" + _cTag_ + "'"
+		_aIdx_ = This._RoutableIndices(_cTag_)
+		if len(_aIdx_) = 0
+			@cWhy = "no routable worker for facet '" + _cTag_ + "' (none ready, or all circuits open)"
 			@nLastStatus = -1
 			return ""
 		ok
-		@cWhy = ""
-		_nJ_ = @oReactor.SubmitHttp(0, "http://127.0.0.1:" + _nPort_ + pcPath, "")
-		_cBody_ = @oReactor.AwaitHttp(_nJ_, 5000)
-		@nLastStatus = @oReactor.HttpLastStatus()
-		return _cBody_
+		_nTries_ = @nMaxTries
+		if _nTries_ > len(_aIdx_)  _nTries_ = len(_aIdx_)  ok
+		_nLastStatus_ = -1
+		for _t_ = 1 to _nTries_
+			_nIdx_ = _aIdx_[_t_]
+			_nJ_ = @oReactor.SubmitHttp(0, "http://" + This._EndpointOf(_nIdx_) + pcPath, "")
+			_cBody_ = @oReactor.AwaitHttp(_nJ_, 5000)
+			# HttpLastStatus is a GLOBAL, refreshed only when a job DRAINS. On
+			# an await TIMEOUT (a hung/black-holed worker) it keeps a PRIOR
+			# call's status -- so a healthy 200 would be misread onto a dead
+			# worker. A drained job is reaped -> JobState = -2 proves THIS
+			# attempt actually completed; only then is the status trustworthy.
+			_bDrained_ = (@oReactor.JobState(_nJ_) = -2)
+			_nStatus_ = -1
+			if _bDrained_  _nStatus_ = @oReactor.HttpLastStatus()  ok
+			_nLastStatus_ = _nStatus_
+			if _bDrained_ and _nStatus_ >= 200 and _nStatus_ < 400
+				This._RecordSuccess(_nIdx_)
+				@nLastStatus = _nStatus_
+				@cWhy = "ok via " + This._EndpointOf(_nIdx_) + " (attempt " + _t_ + ")"
+				return _cBody_
+			ok
+			This._RecordFailure(_nIdx_)   # count + maybe open the circuit
+		next
+		@nLastStatus = _nLastStatus_
+		@cWhy = "all " + _nTries_ + " worker(s) failed for facet '" + _cTag_ + "'"
+		return ""
 
 	def RouteLastStatus()
 		return @nLastStatus
@@ -218,26 +287,60 @@ class stzAppCluster from stzObject
 		ok
 		return TRUE
 
-	# Round-robin the next READY, NON-DRAINING worker port (0 if none).
-	def _NextWorkerPort(pcTag)
-		_aPorts_ = []
+	# The fleet INDICES of workers routable for pcTag -- READY, NOT
+	# draining, and circuit-CLOSED (open circuits past their cooldown are
+	# half-open = eligible again) -- ordered starting from the profile's
+	# round-robin cursor so load spreads AND failover hits a different
+	# worker. Empty when nothing is routable.
+	def _RoutableIndices(pcTag)
+		_nNow_ = StzEngineTimeNowMs()
+		_aAll_ = []
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
 			if @aFleet[_i_][1] = pcTag and @aFleet[_i_][4] and NOT @aFleet[_i_][5]
-				_aPorts_ + @aFleet[_i_][2]
+				if @aFleet[_i_][7] = 0 or _nNow_ >= @aFleet[_i_][7]   # circuit closed / half-open
+					_aAll_ + _i_
+				ok
 			ok
 		next
-		if len(_aPorts_) = 0
-			return 0
-		ok
-		# advance the profile's round-robin cursor
+		if len(_aAll_) = 0  return []  ok
+		# rotate the list to start at the RR cursor, then advance it
 		_nR_ = This._RRIndex(pcTag)
-		if _nR_ = 0  return _aPorts_[1]  ok
+		if _nR_ = 0  return _aAll_  ok
 		@aRR[_nR_][2] = @aRR[_nR_][2] + 1
-		if @aRR[_nR_][2] > len(_aPorts_)
-			@aRR[_nR_][2] = 1
+		if @aRR[_nR_][2] > len(_aAll_)  @aRR[_nR_][2] = 1  ok
+		_nStart_ = @aRR[_nR_][2]
+		_aOrd_ = []
+		for _k_ = 0 to len(_aAll_) - 1
+			_j_ = _nStart_ + _k_
+			if _j_ > len(_aAll_)  _j_ -= len(_aAll_)  ok
+			_aOrd_ + _aAll_[_j_]
+		next
+		return _aOrd_
+
+	# A successful call CLOSES the worker's circuit (resets failures).
+	def _RecordSuccess(nIdx)
+		@aFleet[nIdx][6] = 0
+		@aFleet[nIdx][7] = 0
+		return This
+
+	# A failed call increments the worker's consecutive-failure count; at
+	# the threshold its circuit OPENS for the cooldown window.
+	def _RecordFailure(nIdx)
+		@aFleet[nIdx][6] = @aFleet[nIdx][6] + 1
+		if @aFleet[nIdx][6] >= @nBreakerThreshold
+			@aFleet[nIdx][7] = StzEngineTimeNowMs() + @nBreakerCooldownMs
 		ok
-		return _aPorts_[@aRR[_nR_][2]]
+		return This
+
+	def CircuitOpenCount()
+		_nNow_ = StzEngineTimeNowMs()
+		_n_ = 0
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][7] != 0 and _nNow_ < @aFleet[_i_][7]  _n_++  ok
+		next
+		return _n_
 
 	def _RRIndex(pcTag)
 		_n_ = len(@aRR)
@@ -314,7 +417,7 @@ class stzAppCluster from stzObject
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
 			if @aFleet[_i_][2] = 0  loop  ok   # never launched
-			_bOk_ = This._HealthOk(@aFleet[_i_][2])
+			_bOk_ = This._HealthOk(_i_)
 			@aFleet[_i_][4] = _bOk_
 			if _bOk_  _nReady_++  ok
 		next
@@ -342,7 +445,7 @@ class stzAppCluster from stzObject
 		_nPort_ = @nNextPort
 		@nNextPort++
 		_nJob_ = This._SpawnWorker(_cTag_, _nPort_)
-		@aFleet + [ _cTag_, _nPort_, _nJob_, FALSE, FALSE ]
+		@aFleet + [ _cTag_, _nPort_, _nJob_, FALSE, FALSE, 0, 0, "127.0.0.1" ]
 		@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() + 1)
 		return _nPort_
 
@@ -377,6 +480,8 @@ class stzAppCluster from stzObject
 				@nNextPort++
 				@aFleet[_i_][2] = _nPort_
 				@aFleet[_i_][3] = This._SpawnWorker(@aFleet[_i_][1], _nPort_)
+				@aFleet[_i_][6] = 0   # a restarted worker starts with a
+				@aFleet[_i_][7] = 0   # clean circuit (no stale failures)
 				_nRestarted_++
 			ok
 		next
