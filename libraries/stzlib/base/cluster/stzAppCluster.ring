@@ -44,6 +44,7 @@ class stzAppCluster from stzObject
 	@nNextPort = 0         # next free port for scale-up / restart
 	@nLastStatus = 0
 	@bStarted = FALSE
+	@oClassifier = NULL    # R8.2 smart router (lazy, bound to the catalog)
 
 	def init()
 		@oPool = new stzWorkerPool()
@@ -254,6 +255,28 @@ class stzAppCluster from stzObject
 
 	def ReactorQ()
 		return @oReactor
+
+	#-- R8.2 smart routing (classify -> route) -----------------------------
+
+	# A request classifier bound to THIS cluster's facet catalog (created
+	# lazily, after facets are declared).
+	def ClassifierQ()
+		if @oClassifier = NULL
+			@oClassifier = new stzRequestClassifier()
+			@oClassifier.UsingCatalog(@oPool.CatalogQ())
+		ok
+		return @oClassifier
+
+	# Classify a request to a facet (R8.2), then proxy it to a worker of
+	# that facet (R8.3). Returns the response body; "" (with negative
+	# RouteLastStatus) when the request is undecidable or has no worker.
+	def RouteRequest(pcMethod, pcPath, pcContentType, pcBody)
+		_cFacet_ = This.ClassifierQ().Classify(pcMethod, pcPath, pcContentType, pcBody)
+		if _cFacet_ = ""
+			@nLastStatus = -1
+			return ""
+		ok
+		return This.Route(_cFacet_, pcPath)
 
 	#-- R8.4 health + elastic scale (the supervision surface) --------------
 
