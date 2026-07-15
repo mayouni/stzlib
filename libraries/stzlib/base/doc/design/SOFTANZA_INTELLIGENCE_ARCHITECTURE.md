@@ -1956,8 +1956,26 @@ added to reactor.zig / ring_bridge_reactor.zig; the reactor DLL was rebuilt
 against Ring 1.27. Ring wrapper: `stzReactor.KillSpawn(id, signum)` /
 `KillSpawnHard(id)`.
 
-Deferred (the last rung, not yet built): full mTLS (mutual-TLS certificates)
-between nodes -- request signing (7.4) already gives per-request auth +
-integrity over the existing one-way TLS transport; mutual-cert TLS (both ends
-present + validate certificates) is the heavier remaining step, and the
-practical gap it closes over signing-plus-one-way-TLS is small.
+### 7.6 R8 WIRE mTLS between nodes -- IN PROGRESS (rung #6)
+
+The last rung: true mutual-TLS -- both ends terminate TLS and validate X.509
+certs, adding what signing does NOT (wire CONFIDENTIALITY + cert-bound
+identity). The reactor's SERVER side speaks plain HTTP today (no TLS
+termination), so this is a multi-slice engine project. Plan +slice breakdown:
+`doc/design/MTLS_PLAN.md`.
+
+- BACKEND: vendored mbedTLS 3.6.2 LTS (not Schannel). Self-contained C,
+  vendors + builds with zig like sqlite/pcre2; its buffer-BIO model
+  (feed received bytes, get bytes to send) maps cleanly onto libuv.
+- SLICE 1 (DONE 2026-07-15): vendored under `engine/vendor/mbedtls/`,
+  `addMbedtls()` in build.zig, and `zig build mtls-smoke` runs an in-memory
+  server<->client handshake through paired byte pipes (the exact BIO model
+  slice 2 feeds from libuv). VERIFIED: TLS 1.3 handshake, encrypted app-data
+  round-trip, cleartext confirmed absent from the wire. No reactor changes.
+- SLICES 2-4 (next): server-side TLS termination in the reactor accept/read
+  loop (`reactor_listen_tls` + per-conn ssl ctx with BIO over the libuv
+  buffers; request+validate the client cert = the mutual half); client-cert
+  presentation on the curl bridge; identity/trust wiring into the fleet +
+  federation, with the peer identity from the validated cert feeding
+  governance. Until slice 2 lands, node traffic is NOT yet encrypted and
+  request signing (7.4) remains the operative node-auth mechanism.
