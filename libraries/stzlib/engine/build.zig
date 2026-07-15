@@ -574,7 +574,7 @@ fn addSqlite(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build
 // library/*.c); the default include/mbedtls/mbedtls_config.h is auto-picked
 // (no MBEDTLS_CONFIG_FILE), enabling TLS 1.2/1.3 + x509 + PEM + EC/RSA. On
 // Windows the entropy source uses the CryptoAPI (advapi32) + bcrypt.
-fn addMbedtls(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
+fn addMbedtls(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag, ubsan: bool) void {
     const mt = "vendor/mbedtls";
     mod.addIncludePath(b.path(mt ++ "/include"));
     var files: std.ArrayList([]const u8) = .{};
@@ -588,7 +588,16 @@ fn addMbedtls(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
         if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
         files.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
     }
-    lib.addCSourceFiles(.{ .files = files.items, .flags = &.{} });
+    // UBSan (trap mode) for the fuzz harnesses: any undefined behavior in the
+    // C TLS parser (signed overflow, misaligned access, bad shift, null deref)
+    // becomes an illegal-instruction trap -> the fuzzer crashes + the step
+    // fails. Trap mode needs no ubsan runtime, so it works in any binary.
+    var cflags: std.ArrayList([]const u8) = .{};
+    if (ubsan) {
+        cflags.append(b.allocator, "-fsanitize=undefined") catch @panic("oom");
+        cflags.append(b.allocator, "-fsanitize-trap=undefined") catch @panic("oom");
+    }
+    lib.addCSourceFiles(.{ .files = files.items, .flags = cflags.items });
     if (os_tag == .windows) {
         for ([_][]const u8{ "bcrypt", "advapi32", "crypt32", "ws2_32" }) |l| lib.linkSystemLibrary(l);
     }
@@ -609,7 +618,7 @@ pub fn build(b: *std.Build) void {
             .link_libc = true,
         });
         const smoke = b.addExecutable(.{ .name = "mtls_smoke", .root_module = smoke_mod });
-        addMbedtls(smoke_mod, smoke, b, target.result.os.tag);
+        addMbedtls(smoke_mod, smoke, b, target.result.os.tag, false);
         const run = b.addRunArtifact(smoke);
         const step = b.step("mtls-smoke", "Build + run the mbedTLS handshake smoke (mTLS slice 1)");
         step.dependOn(&run.step);
@@ -641,7 +650,7 @@ pub fn build(b: *std.Build) void {
             .link_libc = true,
         });
         const ft = b.addExecutable(.{ .name = "fuzz_tls", .root_module = ft_mod });
-        addMbedtls(ft_mod, ft, b, target.result.os.tag);
+        addMbedtls(ft_mod, ft, b, target.result.os.tag, true); // UBSan-trap the TLS parser
         const ft_run = b.addRunArtifact(ft);
         const ft_step = b.step("fuzz-tls", "Fuzz mbedTLS cert/record parsing (memory safety)");
         ft_step.dependOn(&ft_run.step);
@@ -722,7 +731,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
-        if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag);
+        if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag, false);
         if (dom.needs_ggml) addGgml(mod, lib, b);
         b.installArtifact(lib);
     }
