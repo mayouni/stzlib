@@ -2051,4 +2051,30 @@ harnesses that link the same sources. The vendored file lists are shared
 STATUS: every network- or user-reachable native parser is now fuzzed +
 UBSan-checked -- HTTP framing (Zig, safety-checked), mbedTLS (cert + record),
 PCRE2, utf8proc, SQLite. One real bug found + fixed (the Content-Length DoS).
-DEFERRED: quality track #3 (coverage + property-based + mutation testing).
+
+### 7.8 PROPERTY + MUTATION TESTING (quality track #3)
+
+Where fuzzing asserts "never crashes", property testing asserts CORRECTNESS
+via invariants over generated (not example) inputs, and mutation testing
+checks those invariants actually catch bugs. `zig build prop`.
+
+- `prop_http.zig` -- the HTTP framing under three invariants over 300k
+  generated well-formed requests: (A) SELF-CONSISTENCY (a complete request
+  frames to exactly its length); (B) PREFIX STABILITY (trailing/pipelined
+  bytes never change the first frame's length -- the guarantee the server
+  relies on); (C) INCREMENTAL (every proper prefix is "incomplete", never
+  mistaken for complete). The real framer holds all three.
+- MUTATION TESTING in the same harness: the properties are re-run against
+  three deliberately buggy framers (Content-Length ignored, header-end
+  off-by-one, `>` instead of `>=`). Each mutant is KILLED (fails a property),
+  proving the invariants have teeth -- they don't pass vacuously. A surviving
+  mutant would fail the step as a test-quality gap.
+
+HONEST SCOPE: line-coverage + a full mutation FRAMEWORK are not available for
+Ring on this toolchain (no kcov on Windows, no Ring coverage tool). So track
+#3 is realized as (a) engine-side property + mutation harnesses where the code
+is callable and invariants are crisp, and (b) the effective input-space
+coverage the fuzz + property harnesses give the parsers, atop the ~thousands
+of narrated behavioral assertions in base/test/. Extending property harnesses
+to more engine surfaces (the signer's sign/verify roundtrip, the token
+bucket's rate bound) is the natural continuation.
