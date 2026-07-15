@@ -137,6 +137,20 @@ class stzReactor from stzObject
 	def SpawnLastStatus()
 		return StzEngineReactorSpawnLastStatus()
 
+	# Force-kill a spawned child by job id: send nSignum (default SIGKILL=9;
+	# SIGTERM=15). On Windows libuv maps these to TerminateProcess. Returns
+	# 0 on success, negative on error (-2 not found, -3 already exited, -4
+	# not a spawn / no handle). The kill is mutex-guarded in the engine so it
+	# can't race the loop thread reaping the process on its own exit.
+	def KillSpawn(nId, nSignum)
+		This._Ensure()
+		return StzEngineReactorSpawnKill(pHandle, nId, nSignum)
+
+	# SIGKILL by default (the forceful stop for a wedged child).
+	def KillSpawnHard(nId)
+		This._Ensure()
+		return StzEngineReactorSpawnKill(pHandle, nId, 9)
+
 	# Submit + await in one call; returns the child's stdout.
 	def Spawn(acArgv, nTimeoutMs)
 		This._Ensure()

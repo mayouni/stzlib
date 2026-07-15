@@ -54,6 +54,7 @@ class stzAppCluster from stzObject
 	@oTelemetry = NULL     # stzClusterTelemetry (per-facet histograms + traces)
 	@cLastTrace = ""       # the trace id of the most recent Route
 		@oLimiter = NULL       # stzRateLimiter (per-facet token buckets, opt-in)
+		@nKilled = 0           # lifetime forced-kill count (orphan-cleanup metric)
 
 	def init()
 		@oPool = new stzWorkerPool()
@@ -554,6 +555,13 @@ class stzAppCluster from stzObject
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
 			if @aFleet[_i_][2] != 0 and NOT @aFleet[_i_][4] and NOT @aFleet[_i_][5]
+				# FORCE-KILL the old process first: a worker can read "dead"
+				# (not answering /health) while its process is HUNG, not gone.
+				# Respawning without killing it would ORPHAN the hung process;
+				# a genuinely-exited one returns -3 (harmless, not counted).
+				if @aFleet[_i_][3] != 0
+					if @oReactor.KillSpawnHard(@aFleet[_i_][3]) = 0  @nKilled++  ok
+				ok
 				# fresh port avoids a dead worker's lingering socket
 				_nPort_ = @nNextPort
 				@nNextPort++
@@ -565,6 +573,39 @@ class stzAppCluster from stzObject
 			ok
 		next
 		return _nRestarted_
+
+	#-- forced kill + orphan cleanup (the forceful sibling of drain) --------
+
+	# Force-kill EVERY spawned worker of a facet (SIGKILL). The forceful
+	# counterpart to ScaleDown's graceful drain: use it on a WEDGED worker
+	# that neither answers health nor self-exits on its TTL. Marks each not
+	# ready and returns how many were actually killed. External workers
+	# (RegisterExternalWorker, jobId 0) are NOT ours to kill and are skipped.
+	def ForceKill(pcTag)
+		_cTag_ = StzLower("" + pcTag)
+		_n_ = 0
+		_nF_ = len(@aFleet)
+		for _i_ = 1 to _nF_
+			if @aFleet[_i_][1] = _cTag_ and @aFleet[_i_][3] != 0
+				if This._KillWorker(_i_)  _n_++  ok
+			ok
+		next
+		return _n_
+
+	# Total workers force-killed over the cluster's life (a hung-worker /
+	# orphan-cleanup signal for the health console).
+	def KilledCount()
+		return @nKilled
+
+	def _KillWorker(nIdx)
+		if @aFleet[nIdx][3] = 0  return FALSE  ok   # external / not spawned
+		_rc_ = @oReactor.KillSpawnHard(@aFleet[nIdx][3])
+		@aFleet[nIdx][4] = FALSE                     # no longer ready
+		if _rc_ = 0
+			@nKilled++
+			return TRUE
+		ok
+		return FALSE                                 # -3 already exited, etc.
 
 	# A per-profile metrics snapshot the supervisor reads (REAL counts).
 	def FleetMetrics()
@@ -597,6 +638,16 @@ class stzAppCluster from stzObject
 	# health-restart / autoscale is R8.4 (stzAgentHost supervision).
 	def Stop()
 		if @oReactor != NULL
+			# ORPHAN CLEANUP: force-kill every worker PROCESS we spawned so
+			# NONE outlive the cluster. TTL self-exit is the graceful path;
+			# this is the guarantee (a hung worker would otherwise linger as
+			# an orphan). External (jobId 0) workers are not ours -- skipped.
+			_nF_ = len(@aFleet)
+			for _i_ = 1 to _nF_
+				if @aFleet[_i_][3] != 0
+					if @oReactor.KillSpawnHard(@aFleet[_i_][3]) = 0  @nKilled++  ok
+				ok
+			next
 			@oReactor.Destroy()
 			@oReactor = NULL
 		ok

@@ -153,6 +153,15 @@ fn ring_ReactorSpawnLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_spawn_last_status()));
 }
 
+/// StzEngineReactorSpawnKill(reactor, nJobId, nSignum) -> 0 ok, negative
+/// on error (-2 not found, -3 already exited, -4 not a spawn/no handle).
+fn ring_ReactorSpawnKill(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const signum: c_int = @intFromFloat(gn(p, 3));
+    rn(p, @floatFromInt(reactor.reactor_spawn_kill(r, id, signum)));
+}
+
 // ── async HTTP/HTTPS (native TLS via curl/Schannel, off the loop) ──
 
 /// StzEngineReactorSubmitCurl(reactor, nMethod, cUrl, cBody) -> job id.
@@ -312,6 +321,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorspawnawait", .func = ring_ReactorSpawnAwait },
     .{ .name = "stzenginereactorspawnpoll", .func = ring_ReactorSpawnPoll },
     .{ .name = "stzenginereactorspawnlaststatus", .func = ring_ReactorSpawnLastStatus },
+    .{ .name = "stzenginereactorspawnkill", .func = ring_ReactorSpawnKill },
     .{ .name = "stzenginereactorsubmitcurl", .func = ring_ReactorSubmitCurl },
     .{ .name = "stzenginereactorcurlawait", .func = ring_ReactorCurlAwait },
     .{ .name = "stzenginereactorcurlpoll", .func = ring_ReactorCurlPoll },
