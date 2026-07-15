@@ -2023,12 +2023,22 @@ PANICS and fails the step. Run `zig build fuzz` (or `fuzz-http` / `fuzz-tls`).
   -- a safety build PANICS, i.e. a one-line malformed request could DoS the
   server thread. Fixed with `@addWithOverflow` (an unsatisfiable length now
   reads as "incomplete"). 3M inputs clean after the fix.
-- TLS INPUT (`fuzz_tls.zig`): feeds malformed certs + keys (raw + PEM-header +
-  base64-garbage) to `mbedtls_x509_crt_parse` / `mbedtls_pk_parse_key` -- the
-  peer-cert attack surface plus our PEM NUL-terminator contract. 150k inputs,
-  no crash.
+- TLS INPUT (`fuzz_tls.zig`), with mbedTLS compiled under UBSan-TRAP
+  (`-fsanitize=undefined -fsanitize-trap=undefined`), so any undefined
+  behavior in the C TLS parser (signed overflow, misaligned access, bad
+  shift, null deref) becomes an illegal-instruction trap that fails the step.
+  Two phases: (1) malformed CERT + KEY parsing (raw + PEM-header + base64
+  garbage) to `mbedtls_x509_crt_parse` / `mbedtls_pk_parse_key` -- the peer-
+  cert surface + our PEM NUL-terminator contract, 150k inputs; (2) RECORD-
+  LAYER handshake fuzz -- garbage "ClientHello" bytes fed to a real server
+  `mbedtls_ssl` context via the BIO (the reactor's actual TLS read path),
+  60k inputs. Both clean: no crash, no UB.
 
-DEFERRED (next in this track): C-level UBSan (`-fsanitize=undefined`) over the
-vendored deps; a live-handshake record fuzzer (garbage ciphertext into the
-server BIO); and quality track #3 (coverage + property-based + mutation
-testing).
+UBSan note: trap mode needs no ubsan runtime, so it works in a plain
+executable (the fuzz harness) -- side-stepping the ubsan-runtime-in-a-DLL
+problem. The DLL itself stays uninstrumented; the C TLS code is validated
+through the harness that links the same sources.
+
+DEFERRED (next): extend UBSan-trap to the other vendored parsers on untrusted
+input (utf8proc, pcre2, sqlite) via their fuzz harnesses; quality track #3
+(coverage + property-based + mutation testing).
