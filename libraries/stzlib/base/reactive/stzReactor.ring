@@ -215,6 +215,25 @@ class stzReactor from stzObject
 		This._Ensure()
 		return StzEngineReactorListen(pHandle, cHost, nPort, 1)
 
+	# TLS-terminating HTTP listener: each connection runs an mbedTLS
+	# handshake (server cert cCertPath + key cKeyPath) before the plaintext
+	# HTTP framing -- so the events Ring drains are DECRYPTED requests and
+	# ServerWrite responses are encrypted transparently. A non-empty cCaPath
+	# turns on client-cert verification; bRequireClient = TRUE makes a valid
+	# client cert MANDATORY (mutual TLS). Returns the server id (>0) or a
+	# negative error (TLS setup errors are -10..-17). Engine-terminated TLS.
+	def ListenHttpTls(cHost, nPort, cCertPath, cKeyPath, cCaPath, bRequireClient)
+		This._Ensure()
+		_nReq_ = 0
+		if bRequireClient  _nReq_ = 1  ok
+		return StzEngineReactorListenTls(pHandle, cHost, nPort, 1,
+			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nReq_)
+
+	# One-way server TLS convenience (no client cert): serve HTTPS with just
+	# a server cert + key.
+	def ListenHttpsServer(cHost, nPort, cCertPath, cKeyPath)
+		return This.ListenHttpTls(cHost, nPort, cCertPath, cKeyPath, "", FALSE)
+
 	# Actual bound port (useful after nPort = 0).
 	def ServerPort(nServerId)
 		This._Ensure()

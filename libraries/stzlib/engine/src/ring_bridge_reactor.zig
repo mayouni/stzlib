@@ -223,6 +223,26 @@ fn ring_ReactorListen(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_listen(r, host_ptr, host_len, port, http_mode)));
 }
 
+/// StzEngineReactorListenTls(reactor, cHost, nPort, nHttpMode, cCertPath,
+/// cKeyPath, cCaPath, nRequireClient) -> server id (>0) or negative error.
+/// The listener terminates TLS with the given cert/key; a non-empty CA path
+/// enables client-cert verification (mandatory when nRequireClient != 0).
+fn ring_ReactorListenTls(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const host_len: usize = @intCast(gss(p, 2));
+    const port: u16 = @intFromFloat(gn(p, 3));
+    const http_mode: i32 = @intFromFloat(gn(p, 4));
+    const cert_ptr: [*]const u8 = @ptrCast(gs(p, 5));
+    const cert_len: usize = @intCast(gss(p, 5));
+    const key_ptr: [*]const u8 = @ptrCast(gs(p, 6));
+    const key_len: usize = @intCast(gss(p, 6));
+    const ca_ptr: [*]const u8 = @ptrCast(gs(p, 7));
+    const ca_len: usize = @intCast(gss(p, 7));
+    const require_client: i32 = @intFromFloat(gn(p, 8));
+    rn(p, @floatFromInt(reactor.reactor_listen_tls(r, host_ptr, host_len, port, http_mode, cert_ptr, cert_len, key_ptr, key_len, ca_ptr, ca_len, require_client)));
+}
+
 /// StzEngineReactorServerPort(reactor, nServerId) -> bound port or -2.
 fn ring_ReactorServerPort(p: *anyopaque) callconv(.c) void {
     const r = getReactor(p, 1);
@@ -308,6 +328,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactortcplaststatus", .func = ring_ReactorTcpLastStatus },
     .{ .name = "stzenginereactordestroy", .func = ring_ReactorDestroy },
     .{ .name = "stzenginereactorlisten", .func = ring_ReactorListen },
+    .{ .name = "stzenginereactorlistentls", .func = ring_ReactorListenTls },
     .{ .name = "stzenginereactorserverport", .func = ring_ReactorServerPort },
     .{ .name = "stzenginereactorserverconns", .func = ring_ReactorServerConns },
     .{ .name = "stzenginereactorserverpoll", .func = ring_ReactorServerPoll },

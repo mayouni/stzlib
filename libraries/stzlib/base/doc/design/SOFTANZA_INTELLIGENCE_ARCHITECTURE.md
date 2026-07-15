@@ -1972,10 +1972,18 @@ termination), so this is a multi-slice engine project. Plan +slice breakdown:
   server<->client handshake through paired byte pipes (the exact BIO model
   slice 2 feeds from libuv). VERIFIED: TLS 1.3 handshake, encrypted app-data
   round-trip, cleartext confirmed absent from the wire. No reactor changes.
-- SLICES 2-4 (next): server-side TLS termination in the reactor accept/read
-  loop (`reactor_listen_tls` + per-conn ssl ctx with BIO over the libuv
-  buffers; request+validate the client cert = the mutual half); client-cert
-  presentation on the curl bridge; identity/trust wiring into the fleet +
+- SLICE 2 (DONE 2026-07-15): the reactor server now TERMINATES TLS.
+  `reactor_listen_tls` + a per-conn mbedTLS context with byte BIOs over the
+  libuv buffers: `onSrvRead` decrypts to the existing HTTP framing,
+  `startWrite` encrypts the response -- transparent, so the Ring
+  router/handlers are unchanged. `stzAppServer.StartTls`/`StartHttps`.
+  VERIFIED: a real external curl GETs `https://.../health` and validates the
+  cert; without the CA it is rejected; the plain-HTTP path is unregressed. A
+  non-empty CA + `require_client` demands + validates a CLIENT cert (the
+  mutual half) -- exercised fully once slice 3 gives curl a client cert.
+- SLICES 3-4 (next): client-cert presentation on the curl bridge
+  (`CURLOPT_SSLCERT/SSLKEY/CAINFO`); identity/trust wiring into the fleet +
   federation, with the peer identity from the validated cert feeding
-  governance. Until slice 2 lands, node traffic is NOT yet encrypted and
-  request signing (7.4) remains the operative node-auth mechanism.
+  governance (a cryptographically-bound caller, not asserted). NODE-TO-NODE
+  traffic can now be encrypted (server side ready); the fleet/federation
+  wiring to run over it end-to-end is slice 4.

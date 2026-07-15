@@ -51,15 +51,25 @@ NOT encryption. mTLS closes both server-side halves.
     and decrypts, and the cleartext is confirmed ABSENT from the transported
     bytes (real encryption). NO reactor changes. Build clean in ~12s.
 
-- **Slice 2: server-side TLS termination in the reactor.**
-  - A per-connection TLS state on the server `Conn`: `mbedtls_ssl_context`
-    with BIO callbacks reading from / writing to the connection's libuv
-    buffers. On accept, run the handshake as bytes arrive; once complete,
-    the existing HTTP/1.1 framing runs over the DECRYPTED stream and writes
-    go through `mbedtls_ssl_write`. Server cert/key loaded from files (a new
-    `reactor_listen_tls(port, cert_path, key_path, ca_path, require_client)`).
-  - Request a CLIENT cert (`MBEDTLS_SSL_VERIFY_REQUIRED` + a CA) = the mutual
-    half. `require_client` toggles mTLS vs one-way server TLS.
+- **Slice 2 (DONE 2026-07-15): server-side TLS termination in the reactor.**
+  - Per-connection TLS on the server `Conn`: an `mbedtls_ssl_context` with
+    byte BIOs (`net_in` = received ciphertext, `net_out` = ciphertext to
+    send). `onSrvRead` feeds ciphertext to `tlsProcess` (pump handshake, then
+    `ssl_read` -> plaintext -> the SAME `feedPlaintext` framing a plain conn
+    uses); `startWrite` runs the plaintext response through `ssl_write` ->
+    ciphertext -> `enqueueRawWrite`. So TLS is transparent: the Ring
+    router/handlers see only decrypted requests + write plaintext.
+  - `reactor_listen_tls(host, port, http_mode, cert, key, ca, require_client)`
+    loads the server cert/key (and optional CA) from files; a non-empty CA
+    turns on client-cert verification, `require_client` makes it MANDATORY
+    (`MBEDTLS_SSL_VERIFY_REQUIRED`) = the mutual half. Bridge
+    `stzenginereactorlistentls`; Ring `stzReactor.ListenHttpTls` /
+    `ListenHttpsServer`, `stzAppServer.StartTls` / `StartHttps`.
+  - VERIFIED end-to-end: a real external `curl` client GETs
+    `https://localhost:44300/health` -> `ok:tls:GET` (server terminated TLS,
+    decrypted, routed, re-encrypted); WITHOUT the CA it is correctly rejected
+    (curl exit 60); plain HTTP to the TLS port fails. Plain-HTTP path
+    unregressed (reactor + cluster fleet suites green).
 
 - **Slice 3: client-cert presentation on outbound + Ring surface.**
   - curl already does one-way HTTPS; add client-cert options
