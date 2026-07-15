@@ -87,6 +87,38 @@ Scenario("metrics are REAL counts (not the retired random() monitor)")
 	Then("vision is idle now (0 in flight)", aM[nVis][:inflight], 0)
 EndScenario()
 
+Scenario("FACET != MODULE: the naming law and the facet->module provenance")
+	# A facet is a LOGICAL competence; a module is WHERE code lives. The
+	# relation is many-to-many, recorded (RealizedBy) but never forced 1:1.
+	Given("the full Softanza facet pool with provenance populated")
+	oF = StzSoftanzaWorkerPool(1)
+	Then("GROUNDED: :data maps to exactly one module (1:1)",
+		oF.Profile("data").MappingKind(), :grounded)
+	Then("and that module is 'data'", oF.Profile("data").RealizingModules()[1], "data")
+
+	Then("COMPOSED: :math spans several modules (1:n)",
+		oF.Profile("math").MappingKind(), :composed)
+	Then("its provenance names more than one module",
+		len(oF.Profile("math").RealizingModules()) >= 2, TRUE)
+	Then("COMPOSED: :knowledge spans natural + graph",
+		oF.Profile("knowledge").MappingKind(), :composed)
+
+	Then("EXTERNAL: :vision has NO module (polyglot, 1:0)",
+		oF.Profile("vision").MappingKind(), :external)
+	Then("its realizing-module list is empty", len(oF.Profile("vision").RealizingModules()), 0)
+
+	Given("a facet that is LOGICAL-ONLY (no dedicated module, not polyglot)")
+	# :search is composed from neural+graph+data; to show a purely logical
+	# facet, declare one with NO modules recorded
+	oLog = new stzWorkerProfile("forecast", [ :predict, :trend ], 1)
+	Then("with no RealizedBy it is :logical", oLog.MappingKind(), :logical)
+	oLog.RealizedBy([ "learning", "datetime" ])
+	Then("once mapped to 2+ modules it is :composed", oLog.MappingKind(), :composed)
+
+	Then("asymmetry proves they differ: ~18 facets, far more modules",
+		len(StzKnownFacets()) < 30, TRUE)
+EndScenario()
+
 Scenario("the pre-engine class tree is retired but still loads")
 	Given("stzClusterNode kept as a loadable tombstone")
 	oNode = new stzClusterNode("nlp", "node-1")

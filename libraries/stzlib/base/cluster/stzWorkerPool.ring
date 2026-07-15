@@ -33,28 +33,47 @@ func StzWorkerPool()
 # Every facet EXCEPT vision is engine-native (the resident engine serves
 # it hot); vision is the ONE polyglot facet (no image support in the
 # engine -> an external tool via the reactor's async spawn).
-#   [ facet, [ capabilities... ], isPolyglot ]
+#
+# A FACET IS NOT A MODULE (the R8 naming law). The 4th column records the
+# OPTIONAL facet->module provenance -- a MANY-TO-MANY relation, never a
+# forced 1:1: :data->[data] (grounded); :math/:knowledge (composed,
+# several modules); :search (composed, NO search/ module); :nlp (logical
+# -- the nlp/ folder was DELETED by ruling, yet the competence is real);
+# :vision->[] (external/polyglot, no module).
+#   [ facet, [ capabilities... ], isPolyglot, [ realizing modules... ] ]
 func StzSoftanzaFacets()
 	return [
-		[ :text,      [ :transform, :find, :match, :case, :split, :unicode ], FALSE ],
-		[ :list,      [ :sort, :filter, :map, :reduce, :setops, :dedup ], FALSE ],
-		[ :table,     [ :query, :aggregate, :join, :pivot, :wrangle ], FALSE ],
-		[ :number,    [ :arith, :convert, :format, :sequence ], FALSE ],
-		[ :math,      [ :matrix, :optimize, :stats, :solve, :ggml ], FALSE ],
-		[ :graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], FALSE ],
-		[ :knowledge, [ :facts, :derive, :prove, :query, :ontology ], FALSE ],
-		[ :nlp,       [ :sentiment, :entities, :classify, :summarize, :translate, :pos, :lemmatize ], FALSE ],
-		[ :neural,    [ :embed, :generate, :zeroshot, :rerank, :dlm ], FALSE ],
-		[ :learning,  [ :train, :knn, :bayes, :tfidf, :kmeans, :apriori ], FALSE ],
-		[ :search,    [ :index, :similarity, :rank, :semantic ], FALSE ],
-		[ :datetime,  [ :date, :duration, :calendar, :timezone ], FALSE ],
-		[ :reactive,  [ :stream, :watch, :timer, :debounce ], FALSE ],
-		[ :agentic,   [ :perceive, :plan, :act, :govern ], FALSE ],
-		[ :refine,    [ :propose, :cascade, :revert ], FALSE ],
-		[ :code,      [ :codegraph, :impact, :polyglotgraph ], FALSE ],
-		[ :data,      [ :crud, :persist, :sqlite ], FALSE ],
-		[ :vision,    [ :ocr, :image ], TRUE ]    # the ONLY polyglot facet
+		[ :text,      [ :transform, :find, :match, :case, :split, :unicode ], FALSE, [ "string", "char", "text" ] ],
+		[ :list,      [ :sort, :filter, :map, :reduce, :setops, :dedup ], FALSE, [ "list" ] ],
+		[ :table,     [ :query, :aggregate, :join, :pivot, :wrangle ], FALSE, [ "table", "datawrangler" ] ],
+		[ :number,    [ :arith, :convert, :format, :sequence ], FALSE, [ "number" ] ],
+		[ :math,      [ :matrix, :optimize, :stats, :solve, :ggml ], FALSE, [ "matrix", "stats", "number" ] ],
+		[ :graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], FALSE, [ "graph" ] ],
+		[ :knowledge, [ :facts, :derive, :prove, :query, :ontology ], FALSE, [ "natural", "graph" ] ],
+		[ :nlp,       [ :sentiment, :entities, :classify, :summarize, :translate, :pos, :lemmatize ], FALSE, [ "natural", "neural" ] ],
+		[ :neural,    [ :embed, :generate, :zeroshot, :rerank, :dlm ], FALSE, [ "neural" ] ],
+		[ :learning,  [ :train, :knn, :bayes, :tfidf, :kmeans, :apriori ], FALSE, [ "learning" ] ],
+		[ :search,    [ :index, :similarity, :rank, :semantic ], FALSE, [ "neural", "graph", "data" ] ],
+		[ :datetime,  [ :date, :duration, :calendar, :timezone ], FALSE, [ "datetime", "date", "calendar", "duration" ] ],
+		[ :reactive,  [ :stream, :watch, :timer, :debounce ], FALSE, [ "reactive" ] ],
+		[ :agentic,   [ :perceive, :plan, :act, :govern ], FALSE, [ "agentic" ] ],
+		[ :refine,    [ :propose, :cascade, :revert ], FALSE, [ "refine" ] ],
+		[ :code,      [ :codegraph, :impact, :polyglotgraph ], FALSE, [ "meta", "reflect" ] ],
+		[ :data,      [ :crud, :persist, :sqlite ], FALSE, [ "data" ] ],
+		[ :vision,    [ :ocr, :image ], TRUE, [] ]    # the ONLY polyglot facet (no module)
 	]
+
+# The base/ modules that realize a facet ([] = external/logical).
+func StzFacetModules(pcFacet)
+	_cF_ = StzLower("" + pcFacet)
+	_a_ = StzSoftanzaFacets()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][1]) = _cF_
+			return _a_[_i_][4]
+		ok
+	next
+	return []
 
 # Capabilities of a named facet ([] if unknown).
 func StzFacetCapabilities(pcFacet)
@@ -110,6 +129,7 @@ func StzSoftanzaWorkerPool(nDefaultBudget)
 	_n_ = len(_a_)
 	for _i_ = 1 to _n_
 		oPool.AddProfile(_a_[_i_][1], _a_[_i_][2], nDefaultBudget)
+		oPool.Profile(_a_[_i_][1]).RealizedBy(_a_[_i_][4])   # provenance
 		if _a_[_i_][3]   # polyglot facet
 			oPool.Profile(_a_[_i_][1]).UsesExternalTool("python")
 		ok

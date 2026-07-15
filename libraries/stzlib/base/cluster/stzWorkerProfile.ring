@@ -29,6 +29,9 @@ class stzWorkerProfile from stzObject
 	@nBudget = 1            # max concurrent slots (load isolation)
 	@nInFlight = 0          # slots currently held
 	@cExternalTool = ""     # non-empty = a polyglot-spawn worker (e.g. vision)
+	@aRealizedBy = []       # OPTIONAL provenance: base/ modules realizing
+	                        # this facet (facet<->module is many-to-many;
+	                        # never forced 1:1 -- see the R8 naming law)
 	@nAdmitted = 0          # lifetime admitted count (metrics)
 	@nRejected = 0          # lifetime over-budget rejections (metrics)
 
@@ -81,6 +84,38 @@ class stzWorkerProfile from stzObject
 
 	def IsPolyglot()
 		return @cExternalTool != ""
+
+	#-- facet<->module provenance (OPTIONAL; never forced 1:1) --------------
+	# Record which base/ modules realize this facet. A facet may map to a
+	# module 1:1 (:data), to several (:math, :knowledge -- composed), or
+	# to none (:vision -- external; :search -- composed-only). This is a
+	# recorded RELATION between the facet-graph and stzCodeGraph, not an
+	# identity. See the R8 naming law.
+	def RealizedBy(paModules)
+		if isList(paModules)
+			@aRealizedBy = paModules
+		else
+			@aRealizedBy = [ "" + paModules ]
+		ok
+		return This
+
+	def RealizingModules()
+		return @aRealizedBy
+
+	# How the facet maps to code: :grounded (exactly one module),
+	# :composed (2+ modules), :external (polyglot, no module), :logical
+	# (no module and not polyglot -- a purely logical competence).
+	def MappingKind()
+		if @cExternalTool != ""
+			return :external
+		ok
+		_n_ = len(@aRealizedBy)
+		if _n_ = 0
+			return :logical
+		but _n_ = 1
+			return :grounded
+		ok
+		return :composed
 
 	# Does this profile serve a capability? (case-insensitive)
 	def Handles(pcCapability)
