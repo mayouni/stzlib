@@ -1989,7 +1989,18 @@ termination), so this is a multi-slice engine project. Plan +slice breakdown:
   genuine -> served; missing client cert -> server refuses (empty body,
   server-enforced; under TLS 1.3 the body, not the status, is the "let in?"
   signal); wrong CA -> client aborts the handshake. Mutual auth both ways.
-- SLICE 4 (next): wire the fleet + federation transport over mTLS -- run the
-  worker fleet + `FederatedCall` through `TlsRequest`, and feed the validated
-  peer-cert identity into governance (a cryptographically-bound caller, not
-  asserted), with the full narrated end-to-end mTLS suite.
+- SLICE 4 (DONE 2026-07-15): the FEDERATION transport runs over mTLS.
+  `stzComputeFederation.WithMutualTls(cert, key, ca)` -> `FederatedCall` goes
+  over the mutual mbedTLS channel (`TlsGet`) instead of curl. So a federated
+  call is now ENCRYPTED + MUTUALLY CERT-AUTHENTICATED + SIGNED (7.4) +
+  GOVERNED (R4b) -- the full node-to-node security stack. Narrated suite
+  `mtls_narrated.ring` (15 assertions): a real mutual-TLS worker driven as a
+  client (genuine / missing-cert / wrong-CA) and over a governed federation
+  (served over mTLS + signed; governance still gates). RESIDUAL (skipped,
+  low value): using the peer-cert CN AS the governed caller identity --
+  request signing already cryptographically binds the caller, so this is
+  redundant; `oReq.PeerCommonName()` is a small future add if needed.
+
+mTLS COMPLETE (slices 1-4). The resilience/security ladder (rungs 1-6) is
+now fully closed: failover/breaker/backpressure, observability, rate
+limiting, request signing, forced kill/orphan cleanup, and wire mTLS.

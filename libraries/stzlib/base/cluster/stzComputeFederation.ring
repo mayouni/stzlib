@@ -41,6 +41,12 @@ class stzComputeFederation from stzObject
 	@aLastSig = []       # the last outbound signature envelope (observability)
 	@nLastStatus = 0
 	@cWhy = ""
+	# wire mTLS: when set, FederatedCall transports over a MUTUALLY
+	# authenticated + encrypted mbedTLS channel instead of plain curl
+	@bMtls = FALSE
+	@cTlsCert = ""       # this node's client cert (presented to the peer)
+	@cTlsKey = ""
+	@cTlsCa = ""         # trust anchor for validating the peer server cert
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -202,15 +208,29 @@ class stzComputeFederation from stzObject
 			_cWirePath_ = pcPath + _cSep_ + "_caller=" + pcCaller +
 				"&_ts=" + _env_[:ts] + "&_nonce=" + _env_[:nonce] + "&_sig=" + _env_[:sig]
 		ok
-		# TRANSPORT: curl to the first offering host (round-robin/least-load
-		# is a later refinement)
-		_cUrl_ = "http://" + _cEndpoint_ + _cWirePath_
-		_nJob_ = @oReactor.SubmitHttp(0, _cUrl_, "" + pcBody)
-		_cResp_ = @oReactor.AwaitHttp(_nJob_, 8000)
-		@nLastStatus = @oReactor.HttpLastStatus()
+		# TRANSPORT to the first offering host (round-robin/least-load is a
+		# later refinement). Over WIRE mTLS when configured, else plain curl.
+		_cResp_ = ""
+		if @bMtls
+			# mutually-authenticated, encrypted mbedTLS channel
+			_cHost_ = This._HostOf(_cEndpoint_)
+			_nPort_ = This._PortOf(_cEndpoint_)
+			_cRaw_ = @oReactor.TlsGet(_cHost_, _nPort_, _cWirePath_,
+				@cTlsCert, @cTlsKey, @cTlsCa, TRUE)
+			_aRB_ = This._SplitHttpResponse(_cRaw_)
+			@nLastStatus = _aRB_[1]
+			_cResp_ = _aRB_[2]
+			if @nLastStatus < 1  @nLastStatus = @oReactor.TlsClientStatus()  ok
+		else
+			_cUrl_ = "http://" + _cEndpoint_ + _cWirePath_
+			_nJob_ = @oReactor.SubmitHttp(0, _cUrl_, "" + pcBody)
+			_cResp_ = @oReactor.AwaitHttp(_nJob_, 8000)
+			@nLastStatus = @oReactor.HttpLastStatus()
+		ok
 		@oGov.RecordDecision("fedcall-" + pcCaller + "-" + _cFacet_ + "-" + len(@aBonds),
 			"federated compute call cleared + transported", pcCaller, "use-" + _cFacet_)
-		@cWhy = "allowed: offered + bonded + governed -> " + _aHosts_[1]
+		@cWhy = "allowed: offered + bonded + governed" +
+			iff(@bMtls, " + mTLS", "") + " -> " + _aHosts_[1]
 		return _cResp_
 
 	def CallLastStatus()
@@ -227,6 +247,22 @@ class stzComputeFederation from stzObject
 
 	def SignerQ()
 		return @oSigner
+
+	# Run the federation transport over WIRE mTLS: every FederatedCall now
+	# goes over a mutually-authenticated, encrypted mbedTLS channel -- this
+	# node PRESENTS pcCert/pcKey and VALIDATES the peer's server cert against
+	# pcCa (slices 2-3). Combined with governance (SLA) + request signing
+	# (per-request auth), this is the full node-to-node security stack:
+	# encrypted + mutually cert-authenticated + signed + governed.
+	def WithMutualTls(pcCert, pcKey, pcCa)
+		@bMtls = TRUE
+		@cTlsCert = "" + pcCert
+		@cTlsKey = "" + pcKey
+		@cTlsCa = "" + pcCa
+		return This
+
+	def IsMtls()
+		return @bMtls
 
 	# The envelope [ :kid, :ts, :nonce, :sig ] of the most recent SIGNED
 	# FederatedCall (empty [] if the last call was unsigned).
@@ -276,3 +312,35 @@ class stzComputeFederation from stzObject
 			if @aMembers[_i_][1] = _c_  return _i_  ok
 		next
 		return 0
+
+	#-- mTLS transport helpers (host:port split + HTTP response parse) ------
+
+	def _HostOf(pcEndpoint)
+		_a_ = StzSplit("" + pcEndpoint, ":")
+		if len(_a_) >= 1  return _a_[1]  ok
+		return "127.0.0.1"
+
+	def _PortOf(pcEndpoint)
+		_a_ = StzSplit("" + pcEndpoint, ":")
+		if len(_a_) >= 2  return number(_a_[2])  ok
+		return 0
+
+	# Split a raw HTTP response into [ statusCode, body ]. TlsGet returns the
+	# full response (status line + headers + body); the curl path returned
+	# just the body, so this restores that contract for the mTLS branch.
+	def _SplitHttpResponse(pcRaw)
+		_c_ = "" + pcRaw
+		if _c_ = ""  return [ -1, "" ]  ok
+		_nCode_ = This._HttpStatusCode(_c_)
+		_cSep_ = char(13) + char(10) + char(13) + char(10)
+		_nHdrEnd_ = StzFindFirst(_c_, _cSep_)
+		if _nHdrEnd_ = 0  return [ _nCode_, _c_ ]  ok
+		return [ _nCode_, StzMidToEnd(_c_, _nHdrEnd_ + 4) ]
+
+	def _HttpStatusCode(pcRaw)
+		_nEol_ = StzFindFirst("" + pcRaw, char(13))
+		_cLine_ = "" + pcRaw
+		if _nEol_ > 0  _cLine_ = StzLeft("" + pcRaw, _nEol_ - 1)  ok
+		_a_ = StzSplit(_cLine_, " ")   # [ "HTTP/1.1", "200", "OK" ]
+		if len(_a_) >= 2  return number(_a_[2])  ok
+		return -1
