@@ -27,6 +27,7 @@ const c = @cImport({
     @cInclude("mbedtls/x509_crt.h");
     @cInclude("mbedtls/pk.h");
     @cInclude("mbedtls/error.h");
+    @cInclude("mbedtls/net_sockets.h");
 });
 
 // curl_request writes the body into a per-call buffer but reports its
@@ -1781,6 +1782,150 @@ pub fn reactor_listen_tls(
         if (std.time.nanoTimestamp() >= deadline) return -1;
         std.Thread.sleep(1 * std.time.ns_per_ms);
     }
+}
+
+// ── TLS CLIENT (the mTLS counterpart to the slice-2 server) ──
+//
+// A synchronous mbedTLS request over a blocking socket (mbedtls_net): it
+// presents THIS node's client cert (cert_path/key_path, for the server's
+// mutual check), validates the peer's server cert against ca_path when
+// verify != 0 (hostname checked via SNI), sends req_bytes, and reads the
+// framed HTTP response. This is deliberately a SEPARATE transport from the
+// Schannel curl path (which stays for general outbound HTTPS): node-to-node
+// mTLS wants PEM certs + mutual auth end to end, which Schannel can't do.
+// Status via reactor_tls_client_status() (0 ok, -1 connect, -2 handshake,
+// -3 cert verify, -4 setup).
+
+var tls_client_status: i32 = 0;
+
+pub fn reactor_tls_client_status() callconv(.c) i32 {
+    return tls_client_status;
+}
+
+pub fn reactor_tls_request(
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    req_ptr: [*]const u8,
+    req_len: usize,
+    cert_ptr: [*]const u8,
+    cert_len: usize,
+    key_ptr: [*]const u8,
+    key_len: usize,
+    ca_ptr: [*]const u8,
+    ca_len: usize,
+    verify: i32,
+    out: [*]u8,
+    max: usize,
+) callconv(.c) i32 {
+    tls_client_status = -4; // assume setup failure until we get past it
+
+    var hbuf: [256]u8 = undefined;
+    var pbuf: [16]u8 = undefined;
+    const host_z = std.fmt.bufPrintZ(&hbuf, "{s}", .{host_ptr[0..host_len]}) catch return -4;
+    const port_z = std.fmt.bufPrintZ(&pbuf, "{d}", .{port}) catch return -4;
+
+    var net: c.mbedtls_net_context = undefined;
+    var ssl: c.mbedtls_ssl_context = undefined;
+    var conf: c.mbedtls_ssl_config = undefined;
+    var cacert: c.mbedtls_x509_crt = undefined;
+    var clicert: c.mbedtls_x509_crt = undefined;
+    var pk: c.mbedtls_pk_context = undefined;
+    var entropy: c.mbedtls_entropy_context = undefined;
+    var drbg: c.mbedtls_ctr_drbg_context = undefined;
+    c.mbedtls_net_init(&net);
+    c.mbedtls_ssl_init(&ssl);
+    c.mbedtls_ssl_config_init(&conf);
+    c.mbedtls_x509_crt_init(&cacert);
+    c.mbedtls_x509_crt_init(&clicert);
+    c.mbedtls_pk_init(&pk);
+    c.mbedtls_entropy_init(&entropy);
+    c.mbedtls_ctr_drbg_init(&drbg);
+    defer {
+        c.mbedtls_net_free(&net);
+        c.mbedtls_ssl_free(&ssl);
+        c.mbedtls_ssl_config_free(&conf);
+        c.mbedtls_x509_crt_free(&cacert);
+        c.mbedtls_x509_crt_free(&clicert);
+        c.mbedtls_pk_free(&pk);
+        c.mbedtls_ctr_drbg_free(&drbg);
+        c.mbedtls_entropy_free(&entropy);
+    }
+
+    const pers = "softanza-tls-client";
+    if (c.mbedtls_ctr_drbg_seed(&drbg, c.mbedtls_entropy_func, &entropy, pers, pers.len) != 0) return -4;
+    if (c.mbedtls_ssl_config_defaults(&conf, c.MBEDTLS_SSL_IS_CLIENT, c.MBEDTLS_SSL_TRANSPORT_STREAM, c.MBEDTLS_SSL_PRESET_DEFAULT) != 0) return -4;
+    c.mbedtls_ssl_conf_rng(&conf, c.mbedtls_ctr_drbg_random, &drbg);
+    c.mbedtls_ssl_conf_read_timeout(&conf, 2000);
+
+    // trust anchor + verification mode
+    if (ca_len > 0) {
+        var abuf: [1024]u8 = undefined;
+        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_ptr[0..ca_len]}) catch return -4;
+        if (c.mbedtls_x509_crt_parse_file(&cacert, ca_z.ptr) != 0) return -4;
+        c.mbedtls_ssl_conf_ca_chain(&conf, &cacert, null);
+        c.mbedtls_ssl_conf_authmode(&conf, if (verify != 0) c.MBEDTLS_SSL_VERIFY_REQUIRED else c.MBEDTLS_SSL_VERIFY_OPTIONAL);
+    } else {
+        c.mbedtls_ssl_conf_authmode(&conf, c.MBEDTLS_SSL_VERIFY_NONE);
+    }
+
+    // this node's CLIENT cert (presented for the server's mutual check)
+    if (cert_len > 0 and key_len > 0) {
+        var cbuf: [1024]u8 = undefined;
+        var kbuf: [1024]u8 = undefined;
+        const cert_z = std.fmt.bufPrintZ(&cbuf, "{s}", .{cert_ptr[0..cert_len]}) catch return -4;
+        const key_z = std.fmt.bufPrintZ(&kbuf, "{s}", .{key_ptr[0..key_len]}) catch return -4;
+        if (c.mbedtls_x509_crt_parse_file(&clicert, cert_z.ptr) != 0) return -4;
+        if (c.mbedtls_pk_parse_keyfile(&pk, key_z.ptr, null, c.mbedtls_ctr_drbg_random, &drbg) != 0) return -4;
+        if (c.mbedtls_ssl_conf_own_cert(&conf, &clicert, &pk) != 0) return -4;
+    }
+
+    if (c.mbedtls_ssl_setup(&ssl, &conf) != 0) return -4;
+    if (c.mbedtls_ssl_set_hostname(&ssl, host_z.ptr) != 0) return -4;
+
+    tls_client_status = -1;
+    if (c.mbedtls_net_connect(&net, host_z.ptr, port_z.ptr, c.MBEDTLS_NET_PROTO_TCP) != 0) return -1;
+    c.mbedtls_ssl_set_bio(&ssl, &net, c.mbedtls_net_send, null, c.mbedtls_net_recv_timeout);
+
+    tls_client_status = -2;
+    while (true) {
+        const rc = c.mbedtls_ssl_handshake(&ssl);
+        if (rc == 0) break;
+        if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) continue;
+        return -2; // handshake failed (bad cert, no client cert offered, etc.)
+    }
+    if (verify != 0 and c.mbedtls_ssl_get_verify_result(&ssl) != 0) {
+        tls_client_status = -3;
+        return -3; // peer cert did not validate against the CA / hostname
+    }
+
+    // send the request
+    tls_client_status = 0;
+    var woff: usize = 0;
+    while (woff < req_len) {
+        const rc = c.mbedtls_ssl_write(&ssl, req_ptr + woff, req_len - woff);
+        if (rc > 0) {
+            woff += @intCast(rc);
+            continue;
+        }
+        if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) continue;
+        return -5;
+    }
+
+    // read the framed HTTP response (or until idle-timeout / close)
+    var total: usize = 0;
+    while (total < max) {
+        if (httpRequestLen(out[0..total]) != null) break; // full response framed
+        const rc = c.mbedtls_ssl_read(&ssl, out + total, max - total);
+        if (rc > 0) {
+            total += @intCast(rc);
+            continue;
+        }
+        if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) continue;
+        break; // TIMEOUT / peer close / EOF -> response complete
+    }
+    _ = c.mbedtls_ssl_close_notify(&ssl);
+    return @intCast(total);
 }
 
 /// Actual bound port of a listening server (useful with port 0).
