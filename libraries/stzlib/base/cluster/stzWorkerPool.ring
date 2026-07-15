@@ -26,8 +26,70 @@
 func StzWorkerPool()
 	return new stzWorkerPool()
 
-# Default domain profiles matching the clustering doc, grounded in the
-# ENGINE's real capabilities (NLP/Math/Search native; Vision polyglot).
+# THE SOFTANZA FACET CATALOG. The 2024 clustering doc named only four
+# "computational domains" (NLP/Math/Vision/Search) -- an enterprise-
+# compute narrowing. Softanza's real breadth is far larger, and a
+# cluster specializes workers along ANY of these facets, not just four.
+# Every facet EXCEPT vision is engine-native (the resident engine serves
+# it hot); vision is the ONE polyglot facet (no image support in the
+# engine -> an external tool via the reactor's async spawn).
+#   [ facet, [ capabilities... ], isPolyglot ]
+func StzSoftanzaFacets()
+	return [
+		[ :text,      [ :transform, :find, :match, :case, :split, :unicode ], FALSE ],
+		[ :list,      [ :sort, :filter, :map, :reduce, :setops, :dedup ], FALSE ],
+		[ :table,     [ :query, :aggregate, :join, :pivot, :wrangle ], FALSE ],
+		[ :number,    [ :arith, :convert, :format, :sequence ], FALSE ],
+		[ :math,      [ :matrix, :optimize, :stats, :solve, :ggml ], FALSE ],
+		[ :graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], FALSE ],
+		[ :knowledge, [ :facts, :derive, :prove, :query, :ontology ], FALSE ],
+		[ :nlp,       [ :sentiment, :entities, :classify, :summarize, :translate, :pos, :lemmatize ], FALSE ],
+		[ :neural,    [ :embed, :generate, :zeroshot, :rerank, :dlm ], FALSE ],
+		[ :learning,  [ :train, :knn, :bayes, :tfidf, :kmeans, :apriori ], FALSE ],
+		[ :search,    [ :index, :similarity, :rank, :semantic ], FALSE ],
+		[ :datetime,  [ :date, :duration, :calendar, :timezone ], FALSE ],
+		[ :reactive,  [ :stream, :watch, :timer, :debounce ], FALSE ],
+		[ :agentic,   [ :perceive, :plan, :act, :govern ], FALSE ],
+		[ :refine,    [ :propose, :cascade, :revert ], FALSE ],
+		[ :code,      [ :codegraph, :impact, :polyglotgraph ], FALSE ],
+		[ :data,      [ :crud, :persist, :sqlite ], FALSE ],
+		[ :vision,    [ :ocr, :image ], TRUE ]    # the ONLY polyglot facet
+	]
+
+# Capabilities of a named facet ([] if unknown).
+func StzFacetCapabilities(pcFacet)
+	_cF_ = StzLower("" + pcFacet)
+	_a_ = StzSoftanzaFacets()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][1]) = _cF_
+			return _a_[_i_][2]
+		ok
+	next
+	return []
+
+func StzFacetIsPolyglot(pcFacet)
+	_cF_ = StzLower("" + pcFacet)
+	_a_ = StzSoftanzaFacets()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][1]) = _cF_
+			return _a_[_i_][3]
+		ok
+	next
+	return FALSE
+
+func StzKnownFacets()
+	_a_ = StzSoftanzaFacets()
+	_o_ = []
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_o_ + _a_[_i_][1]
+	next
+	return _o_
+
+# Default profiles matching the clustering doc's four (kept for the doc's
+# scenarios). Use StzSoftanzaWorkerPool() for the full facet breadth.
 func StzDefaultWorkerPool()
 	oPool = new stzWorkerPool()
 	oPool.AddProfile("nlp",    [ :sentiment, :entities, :classify, :summarize, :translate ], 4)
@@ -35,6 +97,23 @@ func StzDefaultWorkerPool()
 	oPool.AddProfile("search", [ :embed, :similarity, :rank, :index ], 2)
 	oPool.AddProfile("vision", [ :ocr, :image ], 1)
 	oPool.Profile("vision").UsesExternalTool("python")   # tesseract/opencv off-process
+	return oPool
+
+# The FULL Softanza facet breadth as a worker pool (one profile per facet,
+# budget nDefaultBudget each). This is the honest answer to "NLP and Math
+# are not the only facets": text/list/table/graph/knowledge/learning/
+# neural/datetime/reactive/agentic/refine/code/data/... all specialize.
+func StzSoftanzaWorkerPool(nDefaultBudget)
+	if nDefaultBudget < 1  nDefaultBudget = 1  ok
+	oPool = new stzWorkerPool()
+	_a_ = StzSoftanzaFacets()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		oPool.AddProfile(_a_[_i_][1], _a_[_i_][2], nDefaultBudget)
+		if _a_[_i_][3]   # polyglot facet
+			oPool.Profile(_a_[_i_][1]).UsesExternalTool("python")
+		ok
+	next
 	return oPool
 
 
