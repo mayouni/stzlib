@@ -34,6 +34,8 @@ class stzWorkerProfile from stzObject
 	                        # never forced 1:1 -- see the R8 naming law)
 	@nAdmitted = 0          # lifetime admitted count (metrics)
 	@nRejected = 0          # lifetime over-budget rejections (metrics)
+	@nMaxQueue = 0          # backpressure: max queued items (0 = unbounded)
+	@nShed = 0              # lifetime load-shed count (queue-full rejections)
 
 	def init(pcTag, paCapabilities, pnBudget)
 		@cTag = StzLower("" + pcTag)
@@ -71,6 +73,24 @@ class stzWorkerProfile from stzObject
 
 	def RejectedCount()
 		return @nRejected
+
+	# Backpressure: cap the queue so sustained overload SHEDS load
+	# (returns a rejection) instead of growing unbounded -> OOM. 0 =
+	# unbounded (operators SHOULD set a bound in production).
+	def SetMaxQueue(nMax)
+		if nMax < 0  nMax = 0  ok
+		@nMaxQueue = nMax
+		return This
+
+	def MaxQueue()
+		return @nMaxQueue
+
+	def ShedCount()
+		return @nShed
+
+	def Shed()
+		@nShed++
+		return This
 
 	# Mark this profile as a POLYGLOT worker backed by an external tool
 	# (run off-process via the reactor's async spawn -- R8.3). Vision/OCR

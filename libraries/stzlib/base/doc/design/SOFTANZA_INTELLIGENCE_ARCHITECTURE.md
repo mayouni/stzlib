@@ -1806,3 +1806,50 @@ REVOKED BY R8 (kept as tombstones like stzComputeEngine):
 
 Start at R8.1 + R8.3 (worker model + spawn/curl fleet) -- the
 load-bearing core; routing/scaling/pipelines/federation layer on top.
+
+### 7.1 R8 RESILIENCE -- the fleet under fault (industry-grade #1)
+
+Scale is only credible if a broken worker never breaks the request. Three
+standard fault-tolerance patterns are wired into the fleet, all tested in
+`base/test/cluster/resilience_narrated.ring` (25 assertions, green):
+
+- BACKPRESSURE (bounded queue / load shedding). A worker profile's queue
+  can be bounded (`SetMaxQueue(n)`); once full, further dispatch SHEDS
+  (a counted rejection) instead of growing unbounded to OOM. `ShedCount()`
+  records it. The default (0) is unbounded -- operators SHOULD set a bound
+  in production. This is the honest backstop under the R8.1 load-isolation
+  budgets: isolation caps CONCURRENCY, backpressure caps the BACKLOG.
+
+- CIRCUIT BREAKER (per-worker isolation). `WithCircuitBreaker(threshold,
+  cooldownMs)`: a worker that fails `threshold` consecutive times has its
+  circuit OPENED -- it is skipped by routing for `cooldownMs`, then goes
+  HALF-OPEN (eligible for one probe; a success re-closes it, a failure
+  re-opens it). A success anywhere resets the worker's failure count. This
+  stops the cluster from hammering a dead/black-holed node. `RestartDead`
+  clears a respawned worker's circuit (self-healing). `CircuitOpenCount()`
+  is the observable.
+
+- RETRY-WITH-FAILOVER. `Route` no longer targets a single round-robin
+  worker: it tries up to `WithMaxTries(n)` HEALTHY (ready, non-draining,
+  circuit-closed) workers of the facet, in RR-rotated order, and returns
+  the first 2xx. A transport error or non-2xx FAILS OVER to the next. So a
+  live worker beside a broken sibling keeps success at 100% while the
+  breaker quietly isolates the bad one (the LIVE end-to-end scenario:
+  8/8 requests served, the dead sibling's circuit opens and it drops out).
+
+Two engine-truth robustness fixes fell out of building this and matter to
+every reactor caller, not just the cluster:
+
+- COMPLETION, NOT STALE STATUS. `HttpLastStatus()` is a GLOBAL refreshed
+  only when a curl job DRAINS; on an await TIMEOUT it keeps a prior call's
+  status. Reading it blindly makes a healthy 200 bleed onto a hung worker.
+  A drained job is reaped, so `JobState(id) = -2` proves THIS attempt
+  actually completed -- `Route`/`_HealthOk` trust the status only then.
+- OWNED vs EXTERNAL workers. `Start()` spawns a process only for fleet
+  rows it OWNS (port still 0); `RegisterExternalWorker(facet, host, port)`
+  rows carry a real endpoint and are left intact (a remote/static host we
+  route to and health-check but do NOT spawn).
+
+Deferred (next resilience rungs, not yet built): observability (latency
+percentiles + trace ids), forced kill of a hung worker (`uv_kill`) +
+orphan cleanup, rate limiting, and request signing / mTLS between nodes.
