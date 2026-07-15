@@ -2034,11 +2034,21 @@ PANICS and fails the step. Run `zig build fuzz` (or `fuzz-http` / `fuzz-tls`).
   `mbedtls_ssl` context via the BIO (the reactor's actual TLS read path),
   60k inputs. Both clean: no crash, no UB.
 
+- OTHER VENDORED PARSERS, each under UBSan-trap via its own harness (same
+  sources as production, +UBSan): PCRE2 (`fuzz_pcre2.zig`) -- the regex
+  compiler + matcher, a classic UB target, fed random patterns + subjects
+  (300k); UTF8PROC (`fuzz_utf8.zig`) -- Unicode normalization + the codepoint
+  iterator run on every user string, fed mostly-invalid UTF-8 (500k); SQLITE
+  (`fuzz_sqlite.zig`) -- `prepare_v2` + step on random SQL-fragment text
+  (100k). All clean: no crash, no UB.
+
 UBSan note: trap mode needs no ubsan runtime, so it works in a plain
 executable (the fuzz harness) -- side-stepping the ubsan-runtime-in-a-DLL
-problem. The DLL itself stays uninstrumented; the C TLS code is validated
-through the harness that links the same sources.
+problem. The DLLs stay uninstrumented; the C is validated through the
+harnesses that link the same sources. The vendored file lists are shared
+(e.g. `pcre2_files`) so the fuzzed sources never drift from production.
 
-DEFERRED (next): extend UBSan-trap to the other vendored parsers on untrusted
-input (utf8proc, pcre2, sqlite) via their fuzz harnesses; quality track #3
-(coverage + property-based + mutation testing).
+STATUS: every network- or user-reachable native parser is now fuzzed +
+UBSan-checked -- HTTP framing (Zig, safety-checked), mbedTLS (cert + record),
+PCRE2, utf8proc, SQLite. One real bug found + fixed (the Content-Length DoS).
+DEFERRED: quality track #3 (coverage + property-based + mutation testing).

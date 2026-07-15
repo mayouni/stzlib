@@ -215,19 +215,27 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
     lib.linkLibCpp();
 }
 
-fn addPcre2(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
-    const pcre2_dir = "vendor/pcre2/pcre2-10.47/src";
-    mod.addIncludePath(b.path(pcre2_dir));
-    const pcre2_flags = &[_][]const u8{
-        "-DHAVE_CONFIG_H",
-        "-DPCRE2_CODE_UNIT_WIDTH=8",
-        "-DSUPPORT_PCRE2_8",
-        "-DSUPPORT_UNICODE",
-        "-DPCRE2_STATIC",
-    };
-    lib.addCSourceFiles(.{
-        .files = &.{
-            pcre2_dir ++ "/pcre2_auto_possess.c",
+// UBSan-trap flags for the fuzz harnesses (see addMbedtls). Appended to a
+// vendored lib's base flags so UB in its C becomes an illegal-instruction
+// trap -- no ubsan runtime needed, works in the plain fuzz executable.
+fn ubsanFlags(b: *std.Build, base: []const []const u8) []const []const u8 {
+    var f: std.ArrayList([]const u8) = .{};
+    for (base) |x| f.append(b.allocator, x) catch @panic("oom");
+    f.append(b.allocator, "-fsanitize=undefined") catch @panic("oom");
+    f.append(b.allocator, "-fsanitize-trap=undefined") catch @panic("oom");
+    return f.items;
+}
+
+const pcre2_dir = "vendor/pcre2/pcre2-10.47/src";
+const pcre2_base_flags = [_][]const u8{
+    "-DHAVE_CONFIG_H",
+    "-DPCRE2_CODE_UNIT_WIDTH=8",
+    "-DSUPPORT_PCRE2_8",
+    "-DSUPPORT_UNICODE",
+    "-DPCRE2_STATIC",
+};
+const pcre2_files = [_][]const u8{
+    pcre2_dir ++ "/pcre2_auto_possess.c",
             pcre2_dir ++ "/pcre2_chartables.c",
             pcre2_dir ++ "/pcre2_chkdint.c",
             pcre2_dir ++ "/pcre2_compile.c",
@@ -258,9 +266,27 @@ fn addPcre2(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build)
             pcre2_dir ++ "/pcre2_ucd.c",
             pcre2_dir ++ "/pcre2_valid_utf.c",
             pcre2_dir ++ "/pcre2_xclass.c",
-        },
-        .flags = pcre2_flags,
-    });
+};
+
+fn addPcre2(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path(pcre2_dir));
+    lib.addCSourceFiles(.{ .files = &pcre2_files, .flags = &pcre2_base_flags });
+}
+
+// --- UBSan-trap fuzz variants (same sources as production, + UBSan) ---
+fn addPcre2Fuzz(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path(pcre2_dir));
+    lib.addCSourceFiles(.{ .files = &pcre2_files, .flags = ubsanFlags(b, &pcre2_base_flags) });
+}
+
+fn addUtf8procFuzz(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/utf8proc"));
+    lib.addCSourceFiles(.{ .files = &.{"vendor/utf8proc/utf8proc.c"}, .flags = ubsanFlags(b, &.{"-DUTF8PROC_STATIC"}) });
+}
+
+fn addSqliteFuzz(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/sqlite"));
+    lib.addCSourceFiles(.{ .files = &.{"vendor/sqlite/sqlite3.c"}, .flags = ubsanFlags(b, &.{ "-DSQLITE_THREADSAFE=1", "-DSQLITE_OMIT_LOAD_EXTENSION", "-DSQLITE_DQS=0" }) });
 }
 
 // Vendored libuv (Tier 2 reactor backbone) -- compiled from source like
@@ -655,6 +681,48 @@ pub fn build(b: *std.Build) void {
         const ft_step = b.step("fuzz-tls", "Fuzz mbedTLS cert/record parsing (memory safety)");
         ft_step.dependOn(&ft_run.step);
         fuzz_all.dependOn(&ft_run.step);
+
+        // PCRE2 -- the regex compiler/matcher (untrusted patterns + subjects).
+        const fp_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_pcre2.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const fp = b.addExecutable(.{ .name = "fuzz_pcre2", .root_module = fp_mod });
+        addPcre2Fuzz(fp_mod, fp, b);
+        const fp_run = b.addRunArtifact(fp);
+        const fp_step = b.step("fuzz-pcre2", "Fuzz the PCRE2 regex engine (memory safety)");
+        fp_step.dependOn(&fp_run.step);
+        fuzz_all.dependOn(&fp_run.step);
+
+        // utf8proc -- Unicode normalization on every (possibly invalid) string.
+        const fu_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_utf8.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const fu = b.addExecutable(.{ .name = "fuzz_utf8", .root_module = fu_mod });
+        addUtf8procFuzz(fu_mod, fu, b);
+        const fu_run = b.addRunArtifact(fu);
+        const fu_step = b.step("fuzz-utf8", "Fuzz utf8proc normalization (memory safety)");
+        fu_step.dependOn(&fu_run.step);
+        fuzz_all.dependOn(&fu_run.step);
+
+        // SQLite -- the SQL parser + bytecode engine (untrusted SQL).
+        const fs_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_sqlite.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const fs = b.addExecutable(.{ .name = "fuzz_sqlite", .root_module = fs_mod });
+        addSqliteFuzz(fs_mod, fs, b);
+        const fs_run = b.addRunArtifact(fs);
+        const fs_step = b.step("fuzz-sqlite", "Fuzz the SQLite SQL parser (memory safety)");
+        fs_step.dependOn(&fs_run.step);
+        fuzz_all.dependOn(&fs_run.step);
     }
 
     // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
