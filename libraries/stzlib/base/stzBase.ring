@@ -448,6 +448,7 @@ ok
     load "cluster/stzAppCluster.ring"
     load "cluster/stzClusterSupervisor.ring"
     load "cluster/stzComputePipeline.ring"
+    load "cluster/stzComputeFederation.ring"
 
     load "cluster/stzCluster.ring"
     load "cluster/stzClusterNode.ring"
