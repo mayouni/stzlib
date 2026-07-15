@@ -92,16 +92,31 @@ NOT encryption. mTLS closes both server-side halves.
     status, is the authoritative "let in?" signal); WRONG CA -> client aborts
     the handshake (status -2). Mutual authentication both directions.
 
-- **Slice 4: identity + trust wiring + tests.**
-  - Node identity = its cert; trust = the shared CA (or a pinned peer-cert
-    set). Federation `FederatedCall` over https:// with mutual certs; the
-    peer identity from the validated cert feeds governance (the caller name
-    is then cryptographically bound, not asserted). End-to-end narrated
-    tests: handshake success, wrong-CA rejection, missing-client-cert
-    rejection, cert-expiry rejection.
+- **Slice 4 (DONE 2026-07-15): federation over mTLS + end-to-end suite.**
+  - `stzComputeFederation.WithMutualTls(cert, key, ca)`: `FederatedCall` now
+    transports over the mutual mbedTLS channel (`TlsGet`) instead of curl,
+    parsing the response with `_SplitHttpResponse` to keep the body/status
+    contract. Node identity = its cert; trust = the shared CA. Combined with
+    governance (SLA) + request signing (per-request auth), a federated call
+    is now ENCRYPTED + MUTUALLY CERT-AUTHENTICATED + SIGNED + GOVERNED.
+  - Narrated suite `base/test/cluster/mtls_narrated.ring` (15 assertions,
+    green): spawns a REAL mutual-TLS worker process and drives it as a TLS
+    client (genuine served; missing client cert refused; wrong-CA aborted),
+    then over a governed federation (served 200 over mTLS + signed + Why
+    records mTLS; governance still gates a critically-governed facet); plus
+    deterministic connect-failure + bad-cert-file edges.
+  - RESIDUAL (deliberately not done): feeding the validated peer-cert CN in
+    as the governed caller identity. Request signing (7.4) already
+    CRYPTOGRAPHICALLY BINDS the caller (HMAC over a per-caller secret), so
+    the cert-CN-as-identity is largely redundant; the transport is
+    cert-authenticated, the caller is signature-authenticated. Exposing
+    `oReq.PeerCommonName()` is a small future add if a deployment wants the
+    cert subject itself as the principal.
 
-## Honesty note
+## Status
 
-Until slice 2 lands, node-to-node traffic is NOT encrypted; request signing
-(7.4) remains the operative node-auth mechanism. This doc + the code will not
-claim wire encryption before the reactor actually terminates TLS.
+mTLS COMPLETE (slices 1-4, 2026-07-15). Node-to-node traffic can run fully
+encrypted + mutually authenticated; the federation transport does so under
+governance + signing. Honesty note (historical): before slice 2 the reactor
+server spoke plain HTTP and request signing (7.4) was the only node-auth
+mechanism -- that gap is now closed for TLS-configured paths.

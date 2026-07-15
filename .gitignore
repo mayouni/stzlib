@@ -9,3 +9,5 @@
 
 # generated cluster worker entry (R8.3)
 **/cluster/.stzworker_gen.ring
+# generated mTLS test worker entry (R8 mTLS slice 4)
+**/mtls_certs/.mtls_worker_gen.ring
