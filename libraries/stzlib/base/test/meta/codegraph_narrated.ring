@@ -20,7 +20,7 @@ pr()
 oCG = new stzCodeGraph("D:/GitHub/stzlib/libraries/stzlib/base/graph")
 aStats = oCG.Stats()
 ? "  classes: " + aStats[:classes] + "  methods: " + aStats[:methods] +
-  "  inherits-edges: " + aStats[:inheritsEdges]
+  "  inherits-edges: " + aStats[:inheritsEdges] + "  call-edges: " + aStats[:callEdges]
 
 chk("the scanner finds a real population", aStats[:classes] >= 30)
 chk("methods are attributed to their classes", aStats[:methods] >= 1000)
@@ -47,13 +47,32 @@ aCas = oCG.Cascade("stzGraph")
 chk("cascade computes the blast radius BEFORE any change",
 	aCas[:blastRadius] >= 3)
 
-bRefused = 0
-try
-	oCG.DeadCode()
-catch
-	bRefused = 1
-done
-chk("DeadCode() refuses honestly until call edges land", bRefused = 1)
+#-- CALL edges (name-based, from body parsing) --------------------------
+
+? ""
+? "-- Scene 2b: the CALL graph (who calls whom) --"
+
+chk("call edges were extracted from method bodies", aStats[:callEdges] >= 200)
+
+aCallers = oCG.CallersOf("AddFact")
+? "  CallersOf(AddFact): " + @@(aCallers)
+chk("CallersOf finds the real callers of a method", len(aCallers) >= 1)
+chk("callers are STRUCTURED (class + method)",
+	isList(aCallers[1]) and aCallers[1][:class] != "" and aCallers[1][:method] != "")
+
+aDead = oCG.DeadCode()
+? "  DeadCode (private helpers referenced by nothing): " + len(aDead)
+chk("DeadCode() now ANSWERS (call edges landed -- no longer refuses)", isList(aDead))
+chk("dead-code findings are structured (class/method/file/line)",
+	len(aDead) = 0 or (aDead[1][:method] != "" and aDead[1][:line] > 0))
+chk("DeadCode is scoped to PRIVATE helpers (name starts '_')",
+	len(aDead) = 0 or StzLeft(aDead[1][:method], 1) = "_")
+
+aCyc = oCG.CyclicCalls()
+? "  CyclicCalls (intra-class mutual recursion): " + len(aCyc)
+chk("CyclicCalls() now ANSWERS", isList(aCyc))
+chk("each cycle is a 2-method pair in one class",
+	len(aCyc) = 0 or (len(aCyc[1][:cycle]) = 2 and aCyc[1][:class] != ""))
 
 #== SCENE 3 -- the machine door ==========================================
 
