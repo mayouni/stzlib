@@ -740,6 +740,32 @@ pub fn build(b: *std.Build) void {
         ph_step.dependOn(&ph_run.step);
         const prop_all = b.step("prop", "Run all property/mutation test harnesses");
         prop_all.dependOn(&ph_run.step);
+
+        // token-bucket rate limiter -- the burst-bound invariant
+        const pr_mod = b.createModule(.{
+            .root_source_file = b.path("src/prop_ratebucket.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true, // resilience.zig uses the C allocator
+        });
+        const pr = b.addExecutable(.{ .name = "prop_ratebucket", .root_module = pr_mod });
+        const pr_run = b.addRunArtifact(pr);
+        const pr_step = b.step("prop-ratebucket", "Property + mutation test the token bucket (quality)");
+        pr_step.dependOn(&pr_run.step);
+        prop_all.dependOn(&pr_run.step);
+
+        // crypto primitives -- SHA-256 + PBKDF2 (signing + Commons KDF)
+        const pc_mod = b.createModule(.{
+            .root_source_file = b.path("src/prop_crypto.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const pc = b.addExecutable(.{ .name = "prop_crypto", .root_module = pc_mod });
+        const pc_run = b.addRunArtifact(pc);
+        const pc_step = b.step("prop-crypto", "Property + mutation test SHA-256/PBKDF2 (quality)");
+        pc_step.dependOn(&pc_run.step);
+        prop_all.dependOn(&pc_run.step);
     }
 
     // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
