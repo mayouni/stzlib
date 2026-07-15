@@ -12,6 +12,7 @@ const Domain = struct {
     needs_libuv: bool = false,
     needs_libcurl: bool = false,
     needs_ggml: bool = false,
+    needs_mbedtls: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -59,7 +60,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
     .{ .name = "stz_resilience", .entry = "src/stz_resilience_entry.zig", .needs_ring = true },
     .{ .name = "stz_histogram", .entry = "src/stz_histogram_entry.zig", .needs_ring = true },
-    .{ .name = "stz_reactor", .entry = "src/stz_reactor_entry.zig", .needs_ring = true, .needs_libuv = true, .needs_libcurl = true },
+    .{ .name = "stz_reactor", .entry = "src/stz_reactor_entry.zig", .needs_ring = true, .needs_libuv = true, .needs_libcurl = true, .needs_mbedtls = true },
     .{ .name = "stz_tracectx", .entry = "src/stz_tracectx_entry.zig", .needs_ring = true },
     .{ .name = "stz_testsrv", .entry = "src/stz_testsrv_entry.zig", .needs_ring = true },
     .{ .name = "stz_geo", .entry = "src/stz_geo_entry.zig", .needs_ring = true },
@@ -688,6 +689,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
+        if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag);
         if (dom.needs_ggml) addGgml(mod, lib, b);
         b.installArtifact(lib);
     }

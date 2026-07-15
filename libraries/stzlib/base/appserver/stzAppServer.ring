@@ -99,6 +99,36 @@ class stzAppServer from stzObject
 		@nStartMs = StzEngineTimeNowMs()
 		return True
 
+	# Serve over TLS: the reactor terminates TLS per connection (server cert
+	# cCertPath + key cKeyPath) BELOW the router, so every handler runs on
+	# the DECRYPTED request and responses are encrypted transparently -- the
+	# routing/handler code is byte-for-byte identical to plain Start(). A
+	# non-empty cCaPath enables client-cert checks; bRequireClient = TRUE
+	# demands a valid client cert (mutual TLS). Same bind semantics as Start.
+	def StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, cCaPath, bRequireClient)
+		if @bRunning
+			stzraise("stzAppServer is already running on port " + @nBoundPort)
+		ok
+		if cHostAddr = NULL or cHostAddr = ""
+			cHostAddr = "127.0.0.1"
+		ok
+		@cHost = cHostAddr
+		@oReactor = new stzReactor()
+		_nSid_ = @oReactor.ListenHttpTls(@cHost, nPortNum, cCertPath, cKeyPath, cCaPath, bRequireClient)
+		if _nSid_ < 1
+			stzraise("stzAppServer could not start TLS on " + @cHost + ":" + nPortNum +
+			         " (error " + _nSid_ + "; -13=bad cert, -14=bad key, -17=bad CA)")
+		ok
+		@nServerId = _nSid_
+		@nBoundPort = @oReactor.ServerPort(_nSid_)
+		@bRunning = True
+		@nStartMs = StzEngineTimeNowMs()
+		return True
+
+	# One-way HTTPS convenience (server cert only, no client cert).
+	def StartHttps(nPortNum, cHostAddr, cCertPath, cKeyPath)
+		return This.StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, "", FALSE)
+
 	def Stop()
 		if NOT @bRunning
 			return This

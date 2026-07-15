@@ -21,6 +21,12 @@ const std = @import("std");
 const curlcore = @import("curlcore.zig"); // curl-backed (Schannel TLS) fetch
 const c = @cImport({
     @cInclude("uv.h");
+    @cInclude("mbedtls/ssl.h");
+    @cInclude("mbedtls/entropy.h");
+    @cInclude("mbedtls/ctr_drbg.h");
+    @cInclude("mbedtls/x509_crt.h");
+    @cInclude("mbedtls/pk.h");
+    @cInclude("mbedtls/error.h");
 });
 
 // curl_request writes the body into a per-call buffer but reports its
@@ -979,6 +985,16 @@ const Server = struct {
     next_conn_id: u64 = 1,
     events: std.ArrayList(SrvEvent) = .{},
     stopping: bool = false,
+    // TLS termination config (shared, read-only during handshakes; all conns
+    // handshake on the one loop thread so the shared RNG is not contended).
+    tls: bool = false,
+    require_client: bool = false, // mTLS: demand + validate a client cert
+    tls_conf: ?*c.mbedtls_ssl_config = null,
+    tls_srvcert: ?*c.mbedtls_x509_crt = null,
+    tls_cacert: ?*c.mbedtls_x509_crt = null,
+    tls_pk: ?*c.mbedtls_pk_context = null,
+    tls_entropy: ?*c.mbedtls_entropy_context = null,
+    tls_drbg: ?*c.mbedtls_ctr_drbg_context = null,
 };
 
 const Conn = struct {
@@ -986,8 +1002,18 @@ const Conn = struct {
     server: *Server,
     tcp_buf: []u8, // opaque uv_tcp_t
     scratch: []u8, // per-read buffer libuv fills
-    inbox: std.ArrayList(u8) = .{}, // http framing buffer
+    inbox: std.ArrayList(u8) = .{}, // http framing buffer (PLAINTEXT)
     closing: bool = false,
+    // TLS termination (null on a plain-HTTP conn). The socket carries
+    // CIPHERTEXT: received bytes go into net_in for mbedTLS to decrypt;
+    // mbedTLS's output is buffered in net_out (via the send BIO) and flushed
+    // to the socket. The rest of the server (framing, events) sees only the
+    // decrypted plaintext -- TLS is transparent above this layer.
+    ssl: ?*c.mbedtls_ssl_context = null,
+    net_in: std.ArrayList(u8) = .{}, // received ciphertext awaiting mbedTLS
+    net_in_pos: usize = 0, // consumed offset into net_in
+    net_out: std.ArrayList(u8) = .{}, // ciphertext to write (BIO send target)
+    hs_done: bool = false, // TLS handshake complete
 };
 
 // One in-flight write: the uv write request + the copied payload.
@@ -999,16 +1025,57 @@ const WriteReq = struct {
 };
 
 fn freeConn(conn: *Conn) void {
+    if (conn.ssl) |ssl| {
+        c.mbedtls_ssl_free(ssl);
+        gpa.destroy(ssl);
+    }
+    conn.net_in.deinit(gpa);
+    conn.net_out.deinit(gpa);
     gpa.free(conn.tcp_buf);
     gpa.free(conn.scratch);
     conn.inbox.deinit(gpa);
     gpa.destroy(conn);
 }
 
+// Free a server's shared TLS config + credentials.
+fn freeServerTls(s: *Server) void {
+    if (s.tls_conf) |x| {
+        c.mbedtls_ssl_config_free(x);
+        gpa.destroy(x);
+        s.tls_conf = null;
+    }
+    if (s.tls_srvcert) |x| {
+        c.mbedtls_x509_crt_free(x);
+        gpa.destroy(x);
+        s.tls_srvcert = null;
+    }
+    if (s.tls_cacert) |x| {
+        c.mbedtls_x509_crt_free(x);
+        gpa.destroy(x);
+        s.tls_cacert = null;
+    }
+    if (s.tls_pk) |x| {
+        c.mbedtls_pk_free(x);
+        gpa.destroy(x);
+        s.tls_pk = null;
+    }
+    if (s.tls_drbg) |x| {
+        c.mbedtls_ctr_drbg_free(x);
+        gpa.destroy(x);
+        s.tls_drbg = null;
+    }
+    if (s.tls_entropy) |x| {
+        c.mbedtls_entropy_free(x);
+        gpa.destroy(x);
+        s.tls_entropy = null;
+    }
+}
+
 fn freeServer(s: *Server) void {
     var it = s.conns.iterator();
     while (it.next()) |e| freeConn(e.value_ptr.*);
     s.conns.deinit();
+    freeServerTls(s);
     for (s.events.items) |ev| {
         if (ev.data) |d| gpa.free(d);
     }
@@ -1091,6 +1158,131 @@ fn finishBind(s: *Server, status: c_int) void {
     r.mutex.unlock();
 }
 
+// ── TLS termination (mbedTLS over the libuv byte streams) ────
+//
+// mbedTLS drives the crypto through two BIO callbacks. It never touches the
+// socket directly: `recv` hands it received CIPHERTEXT from conn.net_in, and
+// `send` buffers its output CIPHERTEXT into conn.net_out, which tlsFlush()
+// then writes to the socket. So the crypto is decoupled from the async I/O.
+
+fn tlsBioSend(ctx: ?*anyopaque, buf: [*c]const u8, len: usize) callconv(.c) c_int {
+    const conn: *Conn = @ptrCast(@alignCast(ctx));
+    conn.net_out.appendSlice(gpa, buf[0..len]) catch return c.MBEDTLS_ERR_SSL_INTERNAL_ERROR;
+    return @intCast(len);
+}
+
+fn tlsBioRecv(ctx: ?*anyopaque, buf: [*c]u8, len: usize) callconv(.c) c_int {
+    const conn: *Conn = @ptrCast(@alignCast(ctx));
+    const avail = conn.net_in.items.len - conn.net_in_pos;
+    if (avail == 0) return c.MBEDTLS_ERR_SSL_WANT_READ;
+    const n = @min(len, avail);
+    @memcpy(buf[0..n], conn.net_in.items[conn.net_in_pos .. conn.net_in_pos + n]);
+    conn.net_in_pos += n;
+    return @intCast(n);
+}
+
+// Drop consumed ciphertext so net_in stays bounded by the in-flight record,
+// not by total traffic.
+fn compactNetIn(conn: *Conn) void {
+    if (conn.net_in_pos >= conn.net_in.items.len) {
+        conn.net_in.clearRetainingCapacity();
+        conn.net_in_pos = 0;
+    } else if (conn.net_in_pos > 0) {
+        const rem = conn.net_in.items.len - conn.net_in_pos;
+        std.mem.copyForwards(u8, conn.net_in.items[0..rem], conn.net_in.items[conn.net_in_pos..]);
+        conn.net_in.shrinkRetainingCapacity(rem);
+        conn.net_in_pos = 0;
+    }
+}
+
+// Write any buffered ciphertext (mbedTLS output) to the socket.
+fn tlsFlush(conn: *Conn) void {
+    if (conn.net_out.items.len == 0) return;
+    const data = gpa.dupe(u8, conn.net_out.items) catch return;
+    conn.net_out.clearRetainingCapacity();
+    enqueueRawWrite(conn, data, false);
+}
+
+// Feed DECRYPTED plaintext into the same framing/emit path a plain conn uses.
+// (Shared by the plain-HTTP path and the TLS ssl_read loop.)
+fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
+    const s = conn.server;
+    const r = s.reactor;
+    if (s.http_mode) {
+        conn.inbox.appendSlice(gpa, bytes) catch {
+            closeConn(conn);
+            return;
+        };
+        if (conn.inbox.items.len > SRV_MAX_INBOX) {
+            closeConn(conn);
+            return;
+        }
+        while (httpRequestLen(conn.inbox.items)) |req_len| {
+            const req = gpa.dupe(u8, conn.inbox.items[0..req_len]) catch {
+                closeConn(conn);
+                return;
+            };
+            std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - req_len], conn.inbox.items[req_len..]);
+            conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - req_len);
+            r.mutex.lock();
+            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = req }) catch {
+                gpa.free(req);
+            };
+            r.mutex.unlock();
+        }
+    } else {
+        const chunk = gpa.dupe(u8, bytes) catch {
+            closeConn(conn);
+            return;
+        };
+        r.mutex.lock();
+        s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = chunk }) catch {
+            gpa.free(chunk);
+        };
+        r.mutex.unlock();
+    }
+}
+
+// Advance a TLS conn: pump the handshake with whatever ciphertext has
+// arrived, then drain any decrypted application data into the framing path.
+// Flushes mbedTLS output after each phase. Called on every server read.
+fn tlsProcess(conn: *Conn) void {
+    // 1) handshake (until it needs more bytes, completes, or fails)
+    if (!conn.hs_done) {
+        while (true) {
+            const rc = c.mbedtls_ssl_handshake(conn.ssl);
+            if (rc == 0) {
+                conn.hs_done = true;
+                break;
+            }
+            if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) break;
+            tlsFlush(conn); // push out any alert
+            closeConn(conn);
+            return;
+        }
+        tlsFlush(conn); // send handshake records produced this pass
+        compactNetIn(conn);
+        if (!conn.hs_done) return; // await more ciphertext
+    }
+    // 2) decrypt application data -> framing
+    while (true) {
+        var plain: [SRV_SCRATCH]u8 = undefined;
+        const rc = c.mbedtls_ssl_read(conn.ssl, &plain, plain.len);
+        if (rc > 0) {
+            feedPlaintext(conn, plain[0..@intCast(rc)]);
+            if (conn.closing) return;
+            continue;
+        }
+        if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) break;
+        // clean peer close, or a fatal error -> tear the conn down
+        tlsFlush(conn);
+        closeConn(conn);
+        return;
+    }
+    tlsFlush(conn);
+    compactNetIn(conn);
+}
+
 fn onNewConnection(listener: *anyopaque, status: c_int) callconv(.c) void {
     const slot: *?*anyopaque = @ptrCast(@alignCast(listener));
     const s: *Server = @ptrCast(@alignCast(slot.*.?));
@@ -1134,6 +1326,23 @@ fn onNewConnection(listener: *anyopaque, status: c_int) callconv(.c) void {
         closeConn(conn);
         return;
     }
+    // TLS conns get a per-connection mbedTLS context wired to the byte BIOs;
+    // the handshake runs as ciphertext arrives in onSrvRead -> tlsProcess.
+    if (s.tls) {
+        const ssl = gpa.create(c.mbedtls_ssl_context) catch {
+            closeConn(conn);
+            return;
+        };
+        c.mbedtls_ssl_init(ssl);
+        if (c.mbedtls_ssl_setup(ssl, s.tls_conf) != 0) {
+            c.mbedtls_ssl_free(ssl);
+            gpa.destroy(ssl);
+            closeConn(conn);
+            return;
+        }
+        c.mbedtls_ssl_set_bio(ssl, conn, tlsBioSend, tlsBioRecv, null);
+        conn.ssl = ssl;
+    }
     if (uv_read_start(tcp_buf.ptr, onSrvAlloc, onSrvRead) != 0) closeConn(conn);
 }
 
@@ -1150,42 +1359,22 @@ fn onSrvRead(stream: *anyopaque, nread: isize, buf: [*c]const c.uv_buf_t) callco
     const slot: *?*anyopaque = @ptrCast(@alignCast(stream));
     const conn: *Conn = @ptrCast(@alignCast(slot.*.?));
     const s = conn.server;
-    const r = s.reactor;
     if (nread > 0) {
         const bytes = conn.scratch[0..@intCast(nread)];
-        if (s.http_mode) {
-            conn.inbox.appendSlice(gpa, bytes) catch {
+        if (s.tls) {
+            // socket bytes are CIPHERTEXT: buffer + let mbedTLS decrypt them
+            // (the handshake, then app data) via tlsProcess -> feedPlaintext.
+            conn.net_in.appendSlice(gpa, bytes) catch {
                 closeConn(conn);
                 return;
             };
-            if (conn.inbox.items.len > SRV_MAX_INBOX) {
+            if (conn.net_in.items.len > SRV_MAX_INBOX) {
                 closeConn(conn);
                 return;
             }
-            // Emit every complete request framed so far (pipelining-safe).
-            while (httpRequestLen(conn.inbox.items)) |req_len| {
-                const req = gpa.dupe(u8, conn.inbox.items[0..req_len]) catch {
-                    closeConn(conn);
-                    return;
-                };
-                std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - req_len], conn.inbox.items[req_len..]);
-                conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - req_len);
-                r.mutex.lock();
-                s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = req }) catch {
-                    gpa.free(req);
-                };
-                r.mutex.unlock();
-            }
+            tlsProcess(conn);
         } else {
-            const chunk = gpa.dupe(u8, bytes) catch {
-                closeConn(conn);
-                return;
-            };
-            r.mutex.lock();
-            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = chunk }) catch {
-                gpa.free(chunk);
-            };
-            r.mutex.unlock();
+            feedPlaintext(conn, bytes);
         }
         return;
     }
@@ -1232,6 +1421,40 @@ fn startWrite(op: Ctl) void {
         return;
     }
     const data = op.data orelse return;
+    if (cn.ssl != null) {
+        // ENCRYPT the plaintext response: mbedtls_ssl_write feeds ciphertext
+        // into net_out (via the send BIO); that ciphertext is what goes on
+        // the wire. (Our send BIO never blocks, so ssl_write returns bytes
+        // written or a fatal error -- never WANT_*.)
+        var off: usize = 0;
+        while (off < data.len) {
+            const rc = c.mbedtls_ssl_write(cn.ssl, data.ptr + off, data.len - off);
+            if (rc <= 0) {
+                gpa.free(data);
+                closeConn(cn);
+                return;
+            }
+            off += @intCast(rc);
+        }
+        gpa.free(data); // plaintext consumed
+        if (cn.net_out.items.len > 0) {
+            const ct = gpa.dupe(u8, cn.net_out.items) catch {
+                closeConn(cn);
+                return;
+            };
+            cn.net_out.clearRetainingCapacity();
+            enqueueRawWrite(cn, ct, op.close_after);
+        } else if (op.close_after) {
+            closeConn(cn);
+        }
+        return;
+    }
+    enqueueRawWrite(cn, data, op.close_after);
+}
+
+// Queue a raw (already-on-the-wire) byte buffer for a uv_write. Takes
+// ownership of `data`. Used for plain conns and for flushing TLS ciphertext.
+fn enqueueRawWrite(cn: *Conn, data: []u8, close_after: bool) void {
     const wr = gpa.create(WriteReq) catch {
         gpa.free(data);
         return;
@@ -1241,7 +1464,7 @@ fn startWrite(op: Ctl) void {
         gpa.destroy(wr);
         return;
     };
-    wr.* = .{ .req_buf = req_buf, .data = data, .conn = cn, .close_after = op.close_after };
+    wr.* = .{ .req_buf = req_buf, .data = data, .conn = cn, .close_after = close_after };
     setData(req_buf.ptr, wr);
     var buf = c.uv_buf_init(@ptrCast(data.ptr), @intCast(data.len));
     if (uv_write(req_buf.ptr, cn.tcp_buf.ptr, @ptrCast(&buf), 1, onSrvWrite) != 0) {
@@ -1406,6 +1629,147 @@ pub fn reactor_listen(
             if (status != 0) {
                 // Bind failed: the listener close is already in flight;
                 // mark stopping so the reap handshake frees the server.
+                r.mutex.lock();
+                s.stopping = true;
+                reapServerLocked(s);
+                r.mutex.unlock();
+                return status;
+            }
+            return @intCast(id);
+        }
+        if (std.time.nanoTimestamp() >= deadline) return -1;
+        std.Thread.sleep(1 * std.time.ns_per_ms);
+    }
+}
+
+// Build a server's shared TLS credentials + config from cert/key(/ca) file
+// paths. Returns 0 on success, a negative code on failure (the caller frees
+// the partial state via freeServer -> freeServerTls). Done on the CALLER
+// thread at listen time; the config is read-only once the loop uses it.
+fn setupServerTls(s: *Server, cert_path: []const u8, key_path: []const u8, ca_path: []const u8, require_client: bool) i32 {
+    var cbuf: [1024]u8 = undefined;
+    var kbuf: [1024]u8 = undefined;
+    const cert_z = std.fmt.bufPrintZ(&cbuf, "{s}", .{cert_path}) catch return -10;
+    const key_z = std.fmt.bufPrintZ(&kbuf, "{s}", .{key_path}) catch return -10;
+
+    // RNG
+    const entropy = gpa.create(c.mbedtls_entropy_context) catch return -11;
+    s.tls_entropy = entropy;
+    c.mbedtls_entropy_init(entropy);
+    const drbg = gpa.create(c.mbedtls_ctr_drbg_context) catch return -11;
+    s.tls_drbg = drbg;
+    c.mbedtls_ctr_drbg_init(drbg);
+    const pers = "softanza-reactor-tls";
+    if (c.mbedtls_ctr_drbg_seed(drbg, c.mbedtls_entropy_func, entropy, pers, pers.len) != 0) return -12;
+
+    // server certificate chain + private key
+    const srvcert = gpa.create(c.mbedtls_x509_crt) catch return -11;
+    s.tls_srvcert = srvcert;
+    c.mbedtls_x509_crt_init(srvcert);
+    if (c.mbedtls_x509_crt_parse_file(srvcert, cert_z.ptr) != 0) return -13;
+    const pk = gpa.create(c.mbedtls_pk_context) catch return -11;
+    s.tls_pk = pk;
+    c.mbedtls_pk_init(pk);
+    if (c.mbedtls_pk_parse_keyfile(pk, key_z.ptr, null, c.mbedtls_ctr_drbg_random, drbg) != 0) return -14;
+
+    // config
+    const conf = gpa.create(c.mbedtls_ssl_config) catch return -11;
+    s.tls_conf = conf;
+    c.mbedtls_ssl_config_init(conf);
+    if (c.mbedtls_ssl_config_defaults(conf, c.MBEDTLS_SSL_IS_SERVER, c.MBEDTLS_SSL_TRANSPORT_STREAM, c.MBEDTLS_SSL_PRESET_DEFAULT) != 0) return -15;
+    c.mbedtls_ssl_conf_rng(conf, c.mbedtls_ctr_drbg_random, drbg);
+    if (c.mbedtls_ssl_conf_own_cert(conf, srvcert, pk) != 0) return -16;
+
+    // optional CA -> client-cert verification (the MUTUAL half)
+    if (ca_path.len > 0) {
+        var abuf: [1024]u8 = undefined;
+        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_path}) catch return -10;
+        const cacert = gpa.create(c.mbedtls_x509_crt) catch return -11;
+        s.tls_cacert = cacert;
+        c.mbedtls_x509_crt_init(cacert);
+        if (c.mbedtls_x509_crt_parse_file(cacert, ca_z.ptr) != 0) return -17;
+        c.mbedtls_ssl_conf_ca_chain(conf, cacert, null);
+        c.mbedtls_ssl_conf_authmode(conf, if (require_client) c.MBEDTLS_SSL_VERIFY_REQUIRED else c.MBEDTLS_SSL_VERIFY_OPTIONAL);
+    } else {
+        // one-way server TLS: no client cert demanded
+        c.mbedtls_ssl_conf_authmode(conf, c.MBEDTLS_SSL_VERIFY_NONE);
+    }
+    return 0;
+}
+
+/// Like reactor_listen, but the listener TERMINATES TLS: each connection
+/// runs an mbedTLS handshake (server cert from cert_path/key_path) before
+/// the plaintext HTTP framing. A non-empty ca_path enables client-cert
+/// verification; require_client != 0 makes it MANDATORY (mTLS). Returns the
+/// server id (>0) or a negative error (TLS setup errors are -10..-17).
+pub fn reactor_listen_tls(
+    r_opt: ?*Reactor,
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    http_mode: i32,
+    cert_ptr: [*]const u8,
+    cert_len: usize,
+    key_ptr: [*]const u8,
+    key_len: usize,
+    ca_ptr: [*]const u8,
+    ca_len: usize,
+    require_client: i32,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const s = gpa.create(Server) catch return -1;
+    const host = gpa.dupe(u8, host_ptr[0..host_len]) catch {
+        gpa.destroy(s);
+        return -1;
+    };
+    const tcp_buf = gpa.alloc(u8, uv_handle_size(c.UV_TCP)) catch {
+        gpa.free(host);
+        gpa.destroy(s);
+        return -1;
+    };
+    s.* = .{
+        .id = 0,
+        .reactor = r,
+        .host = host,
+        .port = port,
+        .http_mode = http_mode != 0,
+        .tcp_buf = tcp_buf,
+        .conns = std.AutoHashMap(u64, *Conn).init(gpa),
+        .tls = true,
+        .require_client = require_client != 0,
+    };
+    // TLS credentials + config (file parse) before registering with the loop
+    const trc = setupServerTls(s, cert_ptr[0..cert_len], key_ptr[0..key_len], ca_ptr[0..ca_len], require_client != 0);
+    if (trc != 0) {
+        freeServer(s);
+        return trc;
+    }
+    r.mutex.lock();
+    s.id = r.next_id;
+    r.next_id += 1;
+    const id = s.id;
+    r.servers.put(id, s) catch {
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .start_server, .server = s }) catch {
+        _ = r.servers.remove(id);
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    const deadline = std.time.nanoTimestamp() + 5 * std.time.ns_per_s;
+    while (true) {
+        r.mutex.lock();
+        const done = s.bind_done;
+        const status = s.bind_status;
+        r.mutex.unlock();
+        if (done) {
+            if (status != 0) {
                 r.mutex.lock();
                 s.stopping = true;
                 reapServerLocked(s);
