@@ -50,12 +50,16 @@ class stzAppCluster from stzObject
 	@nMaxTries = 3         # max workers to try per Route (failover cap)
 	@nBreakerThreshold = 3 # consecutive failures that OPEN a worker's circuit
 	@nBreakerCooldownMs = 5000  # how long a circuit stays open before half-open
+	# observability: latency percentiles + trace ids
+	@oTelemetry = NULL     # stzClusterTelemetry (per-facet histograms + traces)
+	@cLastTrace = ""       # the trace id of the most recent Route
 
 	def init()
 		@oPool = new stzWorkerPool()
 		@oReactor = new stzReactor()
 		@cRingExe = This._RingExecutable()
 		@cBaseRing = This._DeriveStzBasePath()
+		@oTelemetry = new stzClusterTelemetry("cluster")
 
 	#-- declaring the fleet composition ------------------------------------
 
@@ -234,10 +238,20 @@ class stzAppCluster from stzObject
 			return ""
 		ok
 		_cTag_ = StzLower("" + pcTag)
+		# one TRACE id per request, shared across every failover attempt, and
+		# put ON THE WIRE (a _trace query param) so a worker sees the same id.
+		_cTrace_ = @oTelemetry.NewTraceId()
+		@cLastTrace = _cTrace_
+		_cSep_ = "?"
+		if StzFindFirst(pcPath, "?") > 0  _cSep_ = "&"  ok
+		_cTracedPath_ = pcPath + _cSep_ + "_trace=" + _cTrace_
+		_nReqStart_ = StzEngineTimeNowMs()   # end-to-end latency clock
 		_aIdx_ = This._RoutableIndices(_cTag_)
 		if len(_aIdx_) = 0
 			@cWhy = "no routable worker for facet '" + _cTag_ + "' (none ready, or all circuits open)"
 			@nLastStatus = -1
+			@oTelemetry.RecordRequest(_cTrace_, _cTag_, "none", -1,
+				StzEngineTimeNowMs() - _nReqStart_, 0)
 			return ""
 		ok
 		_nTries_ = @nMaxTries
@@ -245,7 +259,7 @@ class stzAppCluster from stzObject
 		_nLastStatus_ = -1
 		for _t_ = 1 to _nTries_
 			_nIdx_ = _aIdx_[_t_]
-			_nJ_ = @oReactor.SubmitHttp(0, "http://" + This._EndpointOf(_nIdx_) + pcPath, "")
+			_nJ_ = @oReactor.SubmitHttp(0, "http://" + This._EndpointOf(_nIdx_) + _cTracedPath_, "")
 			_cBody_ = @oReactor.AwaitHttp(_nJ_, 5000)
 			# HttpLastStatus is a GLOBAL, refreshed only when a job DRAINS. On
 			# an await TIMEOUT (a hung/black-holed worker) it keeps a PRIOR
@@ -260,12 +274,17 @@ class stzAppCluster from stzObject
 				This._RecordSuccess(_nIdx_)
 				@nLastStatus = _nStatus_
 				@cWhy = "ok via " + This._EndpointOf(_nIdx_) + " (attempt " + _t_ + ")"
+				# record the END-TO-END request span (attempts = _t_; >1 = failover)
+				@oTelemetry.RecordRequest(_cTrace_, _cTag_, This._EndpointOf(_nIdx_),
+					_nStatus_, StzEngineTimeNowMs() - _nReqStart_, _t_)
 				return _cBody_
 			ok
 			This._RecordFailure(_nIdx_)   # count + maybe open the circuit
 		next
 		@nLastStatus = _nLastStatus_
 		@cWhy = "all " + _nTries_ + " worker(s) failed for facet '" + _cTag_ + "'"
+		@oTelemetry.RecordRequest(_cTrace_, _cTag_, "none", _nLastStatus_,
+			StzEngineTimeNowMs() - _nReqStart_, _nTries_)
 		return ""
 
 	def RouteLastStatus()
@@ -273,6 +292,30 @@ class stzAppCluster from stzObject
 
 	def Why()
 		return @cWhy
+
+	#-- observability (latency percentiles + trace ids) --------------------
+
+	def TelemetryQ()
+		return @oTelemetry
+
+	# The trace id assigned to the most recent Route (correlates the front
+	# host's record with the worker's _trace on the wire).
+	def LastTraceId()
+		return @cLastTrace
+
+	# Tail-aware latency for a facet (ms; the engine histogram bucket bound).
+	def LatencyP50(pcFacet)
+		return @oTelemetry.LatencyP50(pcFacet)
+	def LatencyP90(pcFacet)
+		return @oTelemetry.LatencyP90(pcFacet)
+	def LatencyP99(pcFacet)
+		return @oTelemetry.LatencyP99(pcFacet)
+	def LatencyStats(pcFacet)
+		return @oTelemetry.LatencyStats(pcFacet)
+
+	# The last n request records: [ id, facet, endpoint, status, durMs, attempts ].
+	def RecentTraces(n)
+		return @oTelemetry.RecentTraces(n)
 
 	# A proxy path is safe only if it starts with "/" (so "@host" / a bare
 	# host can never land in the URL AUTHORITY -> no SSRF host-override)
@@ -521,6 +564,9 @@ class stzAppCluster from stzObject
 			@oReactor.Destroy()
 			@oReactor = NULL
 		ok
+		if @oTelemetry != NULL
+			@oTelemetry.Destroy()   # free the engine histogram handles
+		ok
 		@bStarted = FALSE
 		return This
 
@@ -567,6 +613,8 @@ class stzAppCluster from stzObject
 		       '    oResp.Text(_cProfile_ + ":done:" + oReq.Query("q")) })' + _cNL_ +
 		       '_oS_.Get_("/info", func oReq, oResp {' + _cNL_ +
 		       '    oResp.Json([ "profile", _cProfile_, "port", _nPort_, "pid", 0 ]) })' + _cNL_ +
+		       '_oS_.Get_("/echo", func oReq, oResp {' + _cNL_ +
+		       '    oResp.Text("trace=" + oReq.Query("_trace")) })' + _cNL_ +
 		       '_oS_.Start(_nPort_, "127.0.0.1")' + _cNL_ +
 		       '_oS_.RunFor(_nTtl_)' + _cNL_ +
 		       '_oS_.Stop()' + _cNL_     # join the reactor loop thread on exit
