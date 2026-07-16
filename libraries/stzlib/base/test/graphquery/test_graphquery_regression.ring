@@ -71,7 +71,7 @@ chk("After Clear: no crash",         isObject(oQ))
 ? ""
 ? "--- Graph accessor ---"
 
-oG2 = oQ.GraphObject()
+oG2 = oQ.GraphQ()
 chk("GraphObject returns",           isObject(oG2))
 
 oG3 = oQ.GraphQ()

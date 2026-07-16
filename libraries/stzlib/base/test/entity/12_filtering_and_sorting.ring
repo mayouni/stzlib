@@ -20,7 +20,7 @@ oList = new stzListOfEntities(aEntities)
 
 
 
-oPersonsList = oList.FilterByType("person")
+oPersonsList = oList.FilterByTypeQ("person")
 ? oPersonsList.NumberOfEntities()
 #--> 2
 

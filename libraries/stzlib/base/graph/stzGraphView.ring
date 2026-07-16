@@ -41,8 +41,13 @@ class stzGraphView from stzGraph
 	def IsView()
 		return TRUE
 	
-	def ParentGraph()
+	# The graph this view is cut from -- an OBJECT, hence Q.
+	def ParentGraphQ()
 		return @oParentGraph
+
+	# ... and its NAME.
+	def ParentGraph()
+		return @oParentGraph.Name()
 	
 	def Commit()
 		# Update node properties

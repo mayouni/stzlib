@@ -18,7 +18,7 @@ StzGraphQueryQ(oGraph) {
 	Set("n.age", [:to = 31])
 	Select("n")
 	
-	? GraphObject().NodeProperty("alice", "age")
+	? GraphQ().NodeProperty("alice", "age")
 	#--> 31
 }
 

@@ -52,8 +52,18 @@ class stzParseTree from stzObject
 	def IsLeaf()
 		return len(@aoChildren) = 0
 
-	def Children()
+	# The child nodes -- OBJECTS, hence Q.
+	def ChildrenQ()
 		return @aoChildren
+
+	# ... and what they are, as data: the label each child carries.
+	def Children()
+		_acLabels_ = []
+		_nLen_ = len(@aoChildren)
+		for i = 1 to _nLen_
+			_acLabels_ + @aoChildren[i].Label()
+		end
+		return _acLabels_
 
 	def NumberOfChildren()
 		return len(@aoChildren)

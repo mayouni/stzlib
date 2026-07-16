@@ -2311,34 +2311,33 @@ class stzGraph from stzObject
 	#  RICH QUERYING - BASED ON stzGraphFinder CLASS  #
 	#-------------------------------------------------#
 
-	def Find(pcWhat)
+	# Opens a rich query on the graph. The finder is an OBJECT, so it
+	# carries the Q -- there is no data-shaped twin of a query builder.
+	def FindQ(pcWhat)
 		return new stzGraphFinder(This, pcWhat)
 
-		def FindQ(pcWhat)
-			return new stzGraphFinder(This, pcWhat)
-
 	def NodesByType(pcType)
-		return Find("nodes").Where("type", "=", pcType).Run()
+		return This.FindQ("nodes").Where("type", "=", pcType).Run()
 
 	#--
 
 	def NodesWhere(pcProp, pcOp, pVal)
-		return This.Find("nodes").Where(pcProp, pcOp, pVal).Run()
+		return This.FindQ("nodes").Where(pcProp, pcOp, pVal).Run()
 
 		def NodesW(pcProp, pcOp, pVal)
 			return This.NodesWhere(pcProp, pcOp, pVal)
 
 	def NodesByProperty(pcProp, pVal)
-		return This.Find("nodes").Where(pcProp, "=", pVal).Run()
+		return This.FindQ("nodes").Where(pcProp, "=", pVal).Run()
 
 	def EdgesWhere(pcProp, pcOp, pVal)
-		return This.Find("edges").Where(pcProp, pcOp, pVal).Run()
+		return This.FindQ("edges").Where(pcProp, pcOp, pVal).Run()
 
 		def EdgesW(pcProp, pcOp, pVal)
 			return This.EdgesWhere(pcProp, pcOp, pVal)
 
 	def EdgesByProperty(pcProp, pVal)
-		return This.Find("edges").Where(pcProp, "=", pVal).Run()
+		return This.FindQ("edges").Where(pcProp, "=", pVal).Run()
 
 	#--
 
@@ -5669,7 +5668,7 @@ class stzGraph from stzObject
 
 class stzGraphFinder from stzObject
 	# Basic Finder of Nodes ane Edges
-	# Used by the Find() method in stzGraph
+	# Used by the FindQ() method in stzGraph
 	# For advanced queries use stzGraphQuery class
 
 	@oGraph

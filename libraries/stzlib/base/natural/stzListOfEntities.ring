@@ -771,7 +771,9 @@ class stzListOfEntities from stzList
 		next
 		@aListOfEntities = _aData_
 
-	def FilterByType(pcType)
+	# Cuts the entities of one type into their own list -- an OBJECT,
+	# hence Q. For the plain data, EntitiesOfType() already answers.
+	def FilterByTypeQ(pcType)
 		return new stzListOfEntities( This.EntitiesOfType(pcType) )
 
 	def Show()
