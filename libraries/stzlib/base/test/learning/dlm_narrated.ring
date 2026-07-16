@@ -20,7 +20,7 @@ oKB.Know("margherita", "dish").
     KnowRelation("margherita", "contains", "mozzarella").
     KnowRelation("margherita", "pairs-with", "chianti")
 
-oDLM = StzForgeDLM("restaurant", oKB)
+oDLM = StzDlmQ(oKB)
 aLex = oDLM.Lexicon()
 chk("the lexicon is forged from the graph",
 	len(aLex[:entities]) >= 3 and ring_find(aLex[:relations], "contains") > 0)

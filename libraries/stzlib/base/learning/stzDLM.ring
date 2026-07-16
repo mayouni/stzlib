@@ -6,9 +6,9 @@
 #   oKB = new stzKnowledgeGraph("restaurant")    # a SCOPED domain brain
 #   oKB.Know("margherita", "dish").
 #       KnowRelation("margherita", "contains", "tomato-sauce")
-#   oDLM = new stzDLM("restaurant")              # then forge from the KB:
-#   oDLM.ForgeFrom(oKB)                          # (can't chain on `new` -- R13)
-#   # or the one-liner:  oDLM = StzForgeDLM("restaurant", oKB)
+#   oDLM = StzDlmQ(oKB)                          # forge from the KB object
+#   #   (the DLM's domain is the brain's own id; the Q ctor is Softanza's
+#   #    object-creation convention). Or build by hand: StzDlmQ("restaurant").
 #   ? oDLM.Ask("what is margherita")             # deterministic answers
 #   ? oDLM.Complete("margherita")                # domain-valid continuations
 #   ? oDLM.GenerateCorpus()                      # facts as sentences --
@@ -22,18 +22,24 @@
 # certainty 1; everything outside the domain REFUSES (LAW 3). The
 # neural rung (2) trains on GenerateCorpus() -- no remote teacher.
 
-# Forge a DLM from an EXPLICIT domain knowledgebase (a stzKnowledgeGraph
-# instance) -- module-oriented: the domain brain is passed in, never read
-# from a hidden global. (A caller who genuinely wants the shared natural
-# world passes DefaultKnowledgeGraph() itself -- that choice is explicit.)
-func StzForgeDLM(pcDomain, poKB)
-	if NOT IsStzKnowledgeGraph(poKB)
-		stzraise("StzForgeDLM needs a stzKnowledgeGraph as its domain brain -- " +
-			"build one with new stzKnowledgeGraph(id).Know(...).KnowRelation(...).")
+# The Q constructor (Softanza's object-creation convention). Polymorphic:
+#   StzDlmQ(oKB)      -- oKB a stzKnowledgeGraph: forge a DLM from that
+#                        domain brain; the DLM's domain IS the brain's id.
+#   StzDlmQ("resto")  -- a plain string: an empty DLM to build by hand.
+# Module-oriented: the domain brain is passed in as an OBJECT, never read
+# from a hidden global. (A caller who wants the shared natural world passes
+# DefaultKnowledgeGraph() itself -- that choice is then explicit.)
+func StzDlmQ(pDomainOrKB)
+	if IsStzKnowledgeGraph(pDomainOrKB)
+		_oD_ = new stzDLM(pDomainOrKB.Id())
+		_oD_.ForgeFrom(pDomainOrKB)
+		return _oD_
+	but isString(pDomainOrKB)
+		return new stzDLM(pDomainOrKB)
 	ok
-	_oD_ = new stzDLM(pcDomain)
-	_oD_.ForgeFrom(poKB)
-	return _oD_
+	stzraise("StzDlmQ needs a stzKnowledgeGraph (its domain brain) or a " +
+		"domain-name string -- build a brain with new stzKnowledgeGraph(id)." +
+		"Know(...).KnowRelation(...).")
 
 func StzLoadDLM(pcFile)
 	_cContent_ = StzReplace(read(pcFile), char(13), "")
