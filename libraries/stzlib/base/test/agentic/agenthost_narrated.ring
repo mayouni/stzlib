@@ -107,6 +107,42 @@ Scenario("retirement is EARNED -- the R4b decommission gate")
 	Then("a retired agent never ticks again", $oHost.TicksOf("kitchen-bot"), nAfter)
 EndScenario()
 
+Scenario("EVENT-DRIVEN supervision -- the perceive-act loop IS an event loop")
+	Given("a governed order-bot supervised on the 'orders' event channel")
+	$oBus = new stzEventBus()
+	$oBus.ClearAll()
+	$oHost.SuperviseOnEvent(BuildOrderBot(), "orders")
+	Then("it is supervised on that channel", $oHost.ChannelOf("order-bot"), "orders")
+	Then("with no events yet, it has not ticked", $oHost.TicksOf("order-bot"), 0)
+
+	When("three orders are EMITTED on the bus and the host runs")
+	$oBus.Emit("orders", "burger")
+	$oBus.Emit("orders", "fries")
+	$oBus.Emit("orders", "shake")
+	$oHost.RunFor(80)
+	Then("the agent reacted ONCE PER EVENT (not on a timer)",
+		$oHost.TicksOf("order-bot"), 3)
+	oLive = $oHost.AgentQ("order-bot")
+	Then("it PERCEIVED the latest event off the bus",
+		oLive.MemoryQ().Fact("order", "last", "shake"), 1)
+
+	When("two more orders arrive")
+	$oBus.Emit("orders", "salad")
+	$oBus.Emit("orders", "soda")
+	$oHost.RunFor(80)
+	Then("the agent caught up -- 5 reactions total", $oHost.TicksOf("order-bot"), 5)
+
+	When("an UNsubscribed channel gets traffic")
+	$oBus.Emit("kitchen-noise", "clatter")
+	$oHost.RunFor(60)
+	Then("the order-bot ignores events on other channels (still 5)",
+		$oHost.TicksOf("order-bot"), 5)
+
+	When("the bus is queried directly (the un-orphaned engine event bus)")
+	Then("it reports the events emitted on the channel", $oBus.EventCount("orders"), 5)
+	Then("and the last payload", $oBus.LastEvent("orders"), "soda")
+EndScenario()
+
 Scenario("teardown releases the owned reactor")
 	Given("the host after all runs")
 	$oHost.Shutdown()
@@ -133,4 +169,23 @@ func BuildKitchenBot()
 	})
 	oSk.VerifiedBy(func oMem { return oMem.Fact("stock", "level", "ordered") })
 	oAg.AddGovernedSkill(oSk, "order-stock")
+	return oAg
+
+func BuildOrderBot()
+	oAg = new stzPIAgent("order-bot")
+	oAg.GovernanceQ().DeclareRisk("log-order", 1)
+	oAg.GovernanceQ().GrantPermission("order-bot", "log-order")
+	oAg.GovernanceQ().SetAuthority("order-bot", :Delegated)
+	oSk = new stzAgentSkill("log-order")
+	# event-driven: fire every cycle (one cycle == one delivered event); the
+	# act PERCEIVES the latest event off the engine bus and records it.
+	oSk.When(func oMem { return TRUE })
+	oSk.Does(func oMem {
+		oB = new stzEventBus()
+		cLast = oB.LastEvent("orders")
+		oMem.Learn("order", "last", cLast)
+		return 1
+	})
+	oSk.VerifiedBy(func oMem { return TRUE })
+	oAg.AddGovernedSkill(oSk, "log-order")
 	return oAg

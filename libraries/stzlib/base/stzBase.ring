@@ -425,6 +425,7 @@ ok
     # onto this -- see the R7 reactive-substrate work)
     load "reactive/stzReactor.ring"
     load "reactive/stzReactorPool.ring"
+    load "reactive/stzEventBus.ring"
 
 # Loading files related to APPSERVER module (FUTURE)
 
