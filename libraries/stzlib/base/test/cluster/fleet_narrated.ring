@@ -16,7 +16,7 @@ load "../_narrated.ring"
 # until their TTL) don't collide on the same ports
 $nBase = 47000 + (StzEngineTimeNowMs() % 800)
 $oC = new stzAppCluster()
-$oC.WithNLP(2).WithMath(1).WithWorkerTTL(15000).WithBasePort($nBase)
+$oC.WithNLP(2).WithMath(1).SetWorkerTTL(15000).SetBasePort($nBase)
 
 Scenario("the fleet is declared as worker profiles (not a class tree)")
 	Then("three workers are declared", $oC.FleetSize(), 3)

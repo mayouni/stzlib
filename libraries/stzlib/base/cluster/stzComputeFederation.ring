@@ -254,7 +254,7 @@ class stzComputeFederation from stzObject
 	# pcCa (slices 2-3). Combined with governance (SLA) + request signing
 	# (per-request auth), this is the full node-to-node security stack:
 	# encrypted + mutually cert-authenticated + signed + governed.
-	def WithMutualTls(pcCert, pcKey, pcCa)
+	def SetMutualTls(pcCert, pcKey, pcCa)
 		@bMtls = TRUE
 		@cTlsCert = "" + pcCert
 		@cTlsKey = "" + pcKey

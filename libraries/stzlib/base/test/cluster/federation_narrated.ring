@@ -52,7 +52,7 @@ EndScenario()
 Scenario("REAL cross-host transport: a governed call reaches a live worker")
 	Given("a live compute host (a spawned worker offering :vision)")
 	$oHostCluster = new stzAppCluster()
-	$oHostCluster.WithFacet(:vision, 1).WithWorkerTTL(15000).WithBasePort($nBase)
+	$oHostCluster.WithFacet(:vision, 1).SetWorkerTTL(15000).SetBasePort($nBase)
 	$oHostCluster.Start()
 	$oHostCluster.WaitReady(20000)
 	nPort = $oHostCluster.Ports()[1]

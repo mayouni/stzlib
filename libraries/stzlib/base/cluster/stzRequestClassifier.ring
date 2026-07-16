@@ -15,7 +15,7 @@
 #                        lexicon, drawn from THIS deployment's catalog.
 #                        Always available, deterministic, offline.
 #   TIER 3  MODEL     -- an OPTIONAL engine classifier seam
-#                        (WithModelClassifier): zero-shot / embedding
+#                        (SetModelClassifier): zero-shot / embedding
 #                        similarity when a neural model is loaded. The
 #                        richer path; never required for the floor.
 #
@@ -90,7 +90,7 @@ class stzRequestClassifier from stzObject
 			This.AddKeyword(pcKeyword, pcFacet)
 			return This
 
-	def WithModelClassifier(fClassify)
+	def SetModelClassifier(fClassify)
 		@fModel = fClassify
 		return This
 

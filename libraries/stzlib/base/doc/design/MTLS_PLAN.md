@@ -93,7 +93,7 @@ NOT encryption. mTLS closes both server-side halves.
     the handshake (status -2). Mutual authentication both directions.
 
 - **Slice 4 (DONE 2026-07-15): federation over mTLS + end-to-end suite.**
-  - `stzComputeFederation.WithMutualTls(cert, key, ca)`: `FederatedCall` now
+  - `stzComputeFederation.SetMutualTls(cert, key, ca)`: `FederatedCall` now
     transports over the mutual mbedTLS channel (`TlsGet`) instead of curl,
     parsing the response with `_SplitHttpResponse` to keep the body/status
     contract. Node identity = its cert; trust = the shared CA. Combined with

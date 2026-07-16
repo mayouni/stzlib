@@ -19,7 +19,7 @@
 # (text/list/graph/knowledge/neural/...), not just nlp/math.
 #
 #   oSup = new stzClusterSupervisor(oCluster)
-#   oSup.Policy(:nlp, 1, 4).Policy(:graph, 1, 3).WithWaterMarks(0.25, 0.75)
+#   oSup.Policy(:nlp, 1, 4).Policy(:graph, 1, 3).SetWaterMarks(0.25, 0.75)
 #   oSup.ReportLoad(:nlp, 0.9)      # the app's observed demand (0..1)
 #   oSup.Supervise()                # heal + scale to policy
 #   oHost.Supervise(oSup, 200)      # ...or run it as a supervised job (R5)
@@ -67,7 +67,7 @@ class stzClusterSupervisor from stzObject
 		ok
 		return This
 
-	def WithWaterMarks(nLow, nHigh)
+	def SetWaterMarks(nLow, nHigh)
 		@nLow = nLow
 		@nHigh = nHigh
 		return This
