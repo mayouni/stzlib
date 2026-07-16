@@ -17,7 +17,7 @@ pr()
 
 ? "-- Scene 1: the graph/ module, read as structure --"
 
-oCG = new stzCodeGraph("D:/GitHub/stzlib/libraries/stzlib/base/graph")
+oCG = new stzRingCodeGraph("D:/GitHub/stzlib/libraries/stzlib/base/graph")
 aStats = oCG.Stats()
 ? "  classes: " + aStats[:classes] + "  methods: " + aStats[:methods] +
   "  inherits-edges: " + aStats[:inheritsEdges] + "  call-edges: " + aStats[:callEdges]

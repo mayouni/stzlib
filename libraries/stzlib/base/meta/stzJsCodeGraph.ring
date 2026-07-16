@@ -1,6 +1,6 @@
 # stzJsCodeGraph -- JAVASCRIPT as a code graph (a peer language on the
 # tree-sitter substrate). A SIBLING of stzPyCodeGraph, not a child: both
-# inherit the language-agnostic query surface from stzPolyglotCodeGraph and
+# inherit the language-agnostic query surface from stzCodeGraph and
 # declare only their own identity. JavaScript is tree-sitter-only (no
 # indentation floor, no external interpreter) -- it parses through the
 # vendored grammar in the engine, with NO Node runtime.
@@ -23,7 +23,7 @@ func StzJsCodeGraphTS(pcRootPath)
 	return oG
 
 
-class stzJsCodeGraph from stzPolyglotCodeGraph
+class stzJsCodeGraph from stzCodeGraph
 
 	def Language()
 		return "javascript"

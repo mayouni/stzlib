@@ -1,7 +1,7 @@
 # stzPyCodeGraph -- PYTHON as a code graph (a peer language on the tree-sitter
 # substrate). Inherits the whole query surface (classes, methods, multiple-
 # inheritance chains, impact, cascade, call edges, DeadCode, CyclicCalls)
-# from stzPolyglotCodeGraph; adds only Python's OWN identity:
+# from stzCodeGraph; adds only Python's OWN identity:
 #   Language()/FileExtension()  -- "python" / ".py"
 #   the INDENTATION FLOOR       -- a self-contained, no-dependency structural
 #                                  scan (declaration graph only), the default
@@ -66,7 +66,7 @@ func StzPyCodeGraphAst(pcRootPath)
 	return oG
 
 
-class stzPyCodeGraph from stzPolyglotCodeGraph
+class stzPyCodeGraph from stzCodeGraph
 
 	# the indentation floor is the default backend for a path/source ctor
 	def init(pcRootPath)
