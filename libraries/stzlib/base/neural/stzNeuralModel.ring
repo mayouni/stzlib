@@ -14,11 +14,8 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-# StzNeuralModel(cPath) / StzNeuralModelQ(cPath) -- construct a model object and
-# load the GGUF at cPath (constructor globals: both return the object).
-func StzNeuralModel(pcPath)
-	return new stzNeuralModel(pcPath)
-
+# StzNeuralModelQ(cPath) -- construct a model object and load the GGUF at
+# cPath. ONE creation function, named for its class + Q (the house rule).
 func StzNeuralModelQ(pcPath)
 	return new stzNeuralModel(pcPath)
 
@@ -192,15 +189,14 @@ func StzAskModel(pcQuestion, pnMaxNewTokens)
 # --- MULTI-TURN CHAT (KV reuse) ---------------------------------------
 # A conversation that processes its history ONCE: the first turn prefills
 # system+user, each later turn APPENDS to the KV cache instead of
-# re-feeding the transcript. StzChat()/StzChatQ() open a session.
-func StzChat()
-	return new stzNeuralChat("You are a helpful assistant. Answer briefly.")
-
-func StzChatWith(pcSystem)
+# re-feeding the transcript. StzNeuralChatQ(cSystemPrompt) opens a session --
+# ONE creation function, named for its class + Q (the house rule); pass "" for
+# the default system prompt.
+func StzNeuralChatQ(pcSystem)
+	if ring_trim("" + pcSystem) = ""
+		return new stzNeuralChat("You are a helpful assistant. Answer briefly.")
+	ok
 	return new stzNeuralChat(pcSystem)
-
-	func StzChatWithQ(pcSystem)
-		return new stzNeuralChat(pcSystem)
 
 func StzHasRerankerModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasReranker() = 1

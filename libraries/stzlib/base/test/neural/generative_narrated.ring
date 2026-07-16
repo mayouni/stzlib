@@ -71,7 +71,7 @@ if StzHasGenerativeModel()
 	EndScenario()
 
 	Scenario("Multi-turn chat reuses the KV cache (history processed once)")
-		oChat = StzChat()
+		oChat = StzNeuralChatQ("")
 		r1 = oChat.Say("My name is Ada. Remember it.")
 		n1 = oChat.CachedTokens()
 		Then("the first turn produces a reply", len(r1) > 0, TRUE)

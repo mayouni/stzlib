@@ -108,7 +108,7 @@ EndScenario()
 
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a
 # runnable snippet), not just a method name -- across the stzLibDoc union index.
-oLib = StzLibDoc([ "stzText", "stzListOfTexts" ])
+oLib = StzLibDocQ([ "stzText", "stzListOfTexts" ])
 
 Scenario("Conversational intents surface a runnable recipe")
 	Then("recipes are loaded into the union index",
@@ -139,7 +139,7 @@ Scenario("Cross-domain recipes (string / list / number) are retrievable")
 EndScenario()
 
 Scenario("L3: the narrated suites are retrieval fuel (test-sample harvest)")
-	oDs = StzLibDoc([]).WithTestSamples([ "natural" ])
+	oDs = StzLibDocQ([]).WithTestSamples([ "natural" ])
 	Then("the natural topic yields a corpus", oDs.NumberOfSamples() > 100, TRUE)
 	aRs = oDs.Ask("the violating update is refused")
 	Then("a phrasing from a suite finds its example", aRs[1][1], "(example)")
@@ -147,7 +147,7 @@ Scenario("L3: the narrated suites are retrieval fuel (test-sample harvest)")
 EndScenario()
 
 Scenario("Tier-1 aka widening: user words find core methods (lexical floor)")
-	oDw = StzLibDoc([ "stzList", "stzNumber", "stzString" ])
+	oDw = StzLibDocQ([ "stzList", "stzNumber", "stzString" ])
 	Then("'arrange the list items'", LibTopMethod(oDw, "arrange the list items"), "Sort")
 	Then("'positive value without the sign'",
 		LibTopMethod(oDw, "positive value without the sign"), "Absolute")
