@@ -120,6 +120,55 @@ Scenario("MBaaS floor: an exposed table serves REST over sqlite")
 	Then("the count is numeric json", StzFindFirst(cBody, '"count":1') > 0, TRUE)
 EndScenario()
 
+Scenario("MBaaS full CRUD: read / update / delete ONE row by id")
+	Given("an id-keyed 'item' table exposed for full REST")
+	$oDb.Exec("CREATE TABLE item(id INTEGER PRIMARY KEY, name TEXT, qty INTEGER)")
+	oSrv.Expose($oDb, "item")
+
+	When("a client POSTs a new item")
+	cForm = "name=widget&qty=5"
+	cReq = "POST /api/item HTTP/1.1" + $CRLF + "Host: local" + $CRLF +
+	       "Content-Length: " + len(cForm) + $CRLF + "Connection: close" + $CRLF + $CRLF + cForm
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
+	oSrv.ServeOne(3000)
+	cBody = oClient.AwaitTcp(nJob, 5000)
+	Then("it is created (201) and sqlite auto-assigned id=1",
+		StzFindFirst(cBody, "201 Created") > 0 and $oDb.Value("SELECT id FROM item") = "1", TRUE)
+
+	When("a client GETs /api/item/1 (read ONE by id)")
+	cReq = "GET /api/item/1 HTTP/1.1" + $CRLF + "Host: local" + $CRLF + "Connection: close" + $CRLF + $CRLF
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
+	oSrv.ServeOne(3000)
+	cBody = oClient.AwaitTcp(nJob, 5000)
+	Then("the single row comes back keyed as {row}",
+		StzFindFirst(cBody, '"row":["1","widget","5"]') > 0, TRUE)
+
+	When("a client PUTs an update to /api/item/1")
+	cForm = "qty=9"
+	cReq = "PUT /api/item/1 HTTP/1.1" + $CRLF + "Host: local" + $CRLF +
+	       "Content-Length: " + len(cForm) + $CRLF + "Connection: close" + $CRLF + $CRLF + cForm
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
+	oSrv.ServeOne(3000)
+	cBody = oClient.AwaitTcp(nJob, 5000)
+	Then("one row was updated", StzFindFirst(cBody, '"updated":1') > 0, TRUE)
+	Then("the change is really in sqlite", $oDb.Value("SELECT qty FROM item WHERE id=1"), "9")
+
+	When("a client GETs a NON-existent id")
+	cReq = "GET /api/item/999 HTTP/1.1" + $CRLF + "Host: local" + $CRLF + "Connection: close" + $CRLF + $CRLF
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
+	oSrv.ServeOne(3000)
+	cBody = oClient.AwaitTcp(nJob, 5000)
+	Then("an honest 404 for a missing row", StzFindFirst(cBody, "404 Not Found") > 0, TRUE)
+
+	When("a client DELETEs /api/item/1")
+	cReq = "DELETE /api/item/1 HTTP/1.1" + $CRLF + "Host: local" + $CRLF + "Connection: close" + $CRLF + $CRLF
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
+	oSrv.ServeOne(3000)
+	cBody = oClient.AwaitTcp(nJob, 5000)
+	Then("one row was deleted", StzFindFirst(cBody, '"deleted":1') > 0, TRUE)
+	Then("the row is gone from sqlite", ring_number($oDb.Value("SELECT COUNT(*) FROM item")), 0)
+EndScenario()
+
 Scenario("IoT floor: a raw listener feeds the same database")
 	Given("a raw (non-HTTP) listener whose handler persists telemetry")
 	nRawSid = oSrv.ListenRaw(0, func oHost, nSid, nConn, cData {

@@ -1260,6 +1260,15 @@ And the AGENT HOST IS THE SAME HOST: R5's perceive-decide-act loop
 wants exactly this reactor spine -- an agent is a supervised,
 cancellable, traced, DECOMMISSIONABLE (R4b) long-running service.
 
+R7 SERVICE-HOST STATUS (2026-07-16): every gap above is now closed. The
+reactor-driven service host (stzAppServer on stzReactor) serves WEB routes,
+the SQLITE BRIDGE (stz_db.dll / stzDatabase) is wired, and the MBaaS floor is
+now the FULL CRUD surface -- `Expose(db, table)` (or `ExposeWithKey` for a
+custom key) gives GET list / GET :id / POST / PUT :id / DELETE :id, all
+injection-safe, with honest 404s; IoT telemetry rides the raw-listener floor
+into the same db; inbound TLS (server termination) + async spawn landed with
+R8. reactor-narrated 26/26.
+
 stzPlatform -- THE MISSING BACKEND, now defined. stzApp models the
 WORLD and entirely lacks the OPERATIONAL ENVELOPE; the gap is
 DOC-SHAPED (the design names the API without building it). stzPlatform
