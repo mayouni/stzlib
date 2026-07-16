@@ -118,6 +118,7 @@ ok
     load "meta/stzLibDoc.ring"
     load "meta/stzCodeGraph.ring"
     load "meta/stzPyCodeGraph.ring"
+    load "meta/stzJsCodeGraph.ring"
     load "meta/stzCodeRules.ring"
     load "meta/stzGovernanceChecks.ring"
     load "meta/stzPredicateSet.ring"
