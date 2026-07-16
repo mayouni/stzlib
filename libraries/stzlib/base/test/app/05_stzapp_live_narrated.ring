@@ -10,14 +10,14 @@ load "../_narrated.ring"
 # rides the R5 agent-host runtime (below).
 
 $oApp = StzAppQ("clinic")
-$oApp.Thing(:Patient) { Has([ :name ]) }
-$oApp.Thing(:Checkup)
-$oApp.Whenever(:Patient).Unseen(90, :Days) { Propose(:Checkup) }
+$oApp.AddThing(:Patient) { Has([ :name ]) }
+$oApp.AddThing(:Checkup)
+$oApp.AddReaction(:Patient).Unseen(90, :Days) { Propose(:Checkup) }
 
 Scenario("a live world reflects what its reactions imply")
 	Given("two patients, neither checked up")
-	$oApp.Is_("alice", :Patient)
-	$oApp.Is_("bob", :Patient)
+	$oApp.AddInstance("alice", :Patient)
+	$oApp.AddInstance("bob", :Patient)
 	When("the world comes alive")
 	$oApp.Live()
 	Then("it is live", $oApp.IsLive(), TRUE)
@@ -39,7 +39,7 @@ EndScenario()
 
 Scenario("a new instance reacts on its own event")
 	Given("a freshly admitted patient")
-	$oApp.Is_("carol", :Patient)
+	$oApp.AddInstance("carol", :Patient)
 	When("the world reacts to carol")
 	nAdded = $oApp.React("carol")
 	Then("one proposal is raised for carol", nAdded, 1)

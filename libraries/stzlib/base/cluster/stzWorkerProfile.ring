@@ -111,6 +111,10 @@ class stzWorkerProfile from stzObject
 	# to none (:vision -- external; :search -- composed-only). This is a
 	# recorded RELATION between the facet-graph and stzCodeGraph, not an
 	# identity. See the R8 naming law.
+	# the modules that realize this profile
+	def RealizedBy()
+		return @aRealizedBy
+
 	def SetRealizedBy(paModules)
 		if isList(paModules)
 			@aRealizedBy = paModules
