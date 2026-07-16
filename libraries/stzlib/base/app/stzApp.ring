@@ -31,7 +31,7 @@
 # closures); ring_len()/engine helpers in class scope.
 # -----------------------------------------------------------------------------
 
-func StzApp(pcName)
+func StzAppQ(pcName)
     return new stzApp(pcName)
 
 class stzApp from stzObject
@@ -218,7 +218,7 @@ class stzApp from stzObject
         Respecting = []
         return This
 
-    def Goal(pcGoal)
+    def GoalQ(pcGoal)
         for i = 1 to len(aGoals)
             if aGoals[i][1] = pcGoal
                 oG = new stzAppGoal(aGoals[i][1])
@@ -230,6 +230,32 @@ class stzApp from stzObject
             ok
         next
         return NULL
+
+    # THE DATA FORM (the house rule: a plain name returns DATA, the Q form
+    # returns the OBJECT). A goal as a plain record -- nothing to chain on.
+    def Goal(pcGoal)
+        for i = 1 to len(aGoals)
+            if aGoals[i][1] = pcGoal
+                return [ :name = aGoals[i][1], :means = aGoals[i][2],
+                         :reachedBy = aGoals[i][3], :within = aGoals[i][4],
+                         :respecting = aGoals[i][5] ]
+            ok
+        next
+        return []
+
+    # just the goal's NAME -- said precisely, since that is all it returns
+    def GoalName(pcGoal)
+        for i = 1 to len(aGoals)
+            if aGoals[i][1] = pcGoal  return aGoals[i][1]  ok
+        next
+        return ""
+
+    def GoalNames()
+        _ac_ = []
+        for i = 1 to len(aGoals)
+            _ac_ + aGoals[i][1]
+        next
+        return _ac_
 
     # THE REAL PURSUIT: compile the goal's Means into an stzGraphGoal
     # (a wanted graph state), measure the GAP on the live world graph,
@@ -299,12 +325,17 @@ class stzApp from stzObject
         Keep  = ""
         return This
 
-    def Body()
+    def BodyQ()
         if len(aBody) = 0  return NULL  ok
         oB = new stzAppBody(aBody[1])
         oB.Graph = aBody[2]
         oB.Files = aBody[3]
         return oB
+
+    # the body as DATA (the Q form above returns the object)
+    def Body()
+        if len(aBody) = 0  return []  ok
+        return [ :label = aBody[1], :graph = aBody[2], :files = aBody[3] ]
 
     def Save()
         if len(aBody) = 0  return This  ok

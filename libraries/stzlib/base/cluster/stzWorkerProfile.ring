@@ -19,7 +19,7 @@
 #   oP.Handles(:entities)  # capability check (routing, R8.2)
 # -----------------------------------------------------------------------------
 
-func StzWorkerProfile(pcTag, paCapabilities, pnBudget)
+func StzWorkerProfileQ(pcTag, paCapabilities, pnBudget)
 	return new stzWorkerProfile(pcTag, paCapabilities, pnBudget)
 
 class stzWorkerProfile from stzObject

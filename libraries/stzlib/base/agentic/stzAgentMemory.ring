@@ -1,6 +1,8 @@
-# R5 -- stzAgentMemory: the agent's memory IS a knowledge graph (LAW 5)
-# A thin, agent-facing face over its OWN stzKnowledgeGraph -- governed,
-# provable, persistable. No new machinery: memory is knowledge (R1).
+# R5 -- stzAgentMemory: an agent's memory HOLDS a knowledge graph (LAW 5)
+# In nature a memory HOLDS knowledge -- not the inverse -- so this is a
+# COMPOSITION, never an IS-A: the memory owns its OWN stzKnowledgeGraph
+# (governed, provable, persistable) and gives the agent a thin face onto it.
+# No new machinery: what a memory holds is knowledge (R1).
 #
 #   oMem = new stzAgentMemory("waiter")
 #   oMem.Learn("table-4", "wants", "water")

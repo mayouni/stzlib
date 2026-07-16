@@ -33,7 +33,7 @@
 # FULLY before Supervise() and thereafter reaches it via the host's
 # accessors, never the pre-handoff reference.
 
-func StzAgentHost()
+func StzAgentHostQ()
 	return new stzAgentHost()
 
 class stzAgentHost from stzObject

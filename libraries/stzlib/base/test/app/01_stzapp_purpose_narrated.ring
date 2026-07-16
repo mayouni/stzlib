@@ -43,7 +43,7 @@ oApp.Explain()
 #        wants everyclientseenthisquarter within thisquarter -> reached by planning
 
 # The goal is a declared wanted STATE (not a script):
-? oApp.Goal(:EveryClientSeenThisQuarter).Means
+? oApp.GoalQ(:EveryClientSeenThisQuarter).Means
 #--> every :Client Has(:visit) Since(:quarterStart)
 
 # Pursue it — the engine finds the way (PI-first). Proposals re-enter behavior.

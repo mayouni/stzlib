@@ -29,7 +29,7 @@
 # Route(facet, ...); the facet tags are the routing contract.
 # -----------------------------------------------------------------------------
 
-func StzComputePipeline(pcName)
+func StzComputePipelineQ(pcName)
 	return new stzComputePipeline(pcName)
 
 class stzComputePipeline from stzObject

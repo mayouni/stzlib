@@ -80,7 +80,7 @@ EndScenario()
 
 # ---- THE WORLD: the restaurant as a living app ---------------------------
 
-$oResto = StzApp("bella-cucina")
+$oResto = StzAppQ("bella-cucina")
 $oResto.Thing(:dish)  { Has([ :name, :price ]) }
 $oResto.Thing(:table) { Has([ :number, :seats ]) }
 $oResto.Whenever(:table).Unseen(1, :service) { Propose(:served) }
@@ -213,7 +213,7 @@ Scenario("R7 ENVELOPE: KDF Commons identity + generated shells")
 	Given("the restaurant enveloped by a platform")
 	$oEnvDb = new stzDatabase(":memory:")
 	$oResto.Reaches([ :web ])
-	oPlat = StzPlatform("bella-envelope")
+	oPlat = StzPlatformQ("bella-envelope")
 	oPlat.ForWorld($oResto)
 	oPlat.WithKdfRounds(20000)
 	oPlat.CommonsOn($oEnvDb)
@@ -230,7 +230,7 @@ EndScenario()
 
 Scenario("R7 CONSTELLATION: restaurant + supplier, norm-gated")
 	Given("a constellation binding the restaurant to its supplier")
-	oSupplier = StzApp("fresh-produce")
+	oSupplier = StzAppQ("fresh-produce")
 	oCon = new stzSuperApp("bella-group")
 	oCon.AddWorld("resto", $oResto)
 	oCon.AddWorld("supplier", oSupplier)

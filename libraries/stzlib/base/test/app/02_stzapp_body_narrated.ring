@@ -45,7 +45,7 @@ oApp.Save()
 #    → oApp.Graph().SaveToStzRulz(".stzapp/truths.stzrulz")
 #    → reproject the readable file-face
 
-? oApp.Body().Label()
+? oApp.BodyQ().Label()
 #--> graphdb + files
 
 # A world with NO declared body still lives — in memory — it just won't endure:

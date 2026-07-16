@@ -28,7 +28,7 @@
 # and feeds it from Route; pipelines/federation can feed the same shape.
 # -----------------------------------------------------------------------------
 
-func StzClusterTelemetry(pcName)
+func StzClusterTelemetryQ(pcName)
 	return new stzClusterTelemetry(pcName)
 
 class stzClusterTelemetry from stzObject

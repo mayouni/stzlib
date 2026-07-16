@@ -9,10 +9,10 @@ load "../_narrated.ring"
 # holds REAL world objects. Fully offline (in-memory sqlite commons).
 
 # two worlds: a restaurant and its produce supplier
-$oResto = StzApp("resto")
+$oResto = StzAppQ("resto")
 $oResto.Thing(:dish) { Has([ :name, :price ]) }
 
-$oSupplier = StzApp("supplier")
+$oSupplier = StzAppQ("supplier")
 $oSupplier.Thing(:crate) { Has([ :produce, :qty ]) }
 
 $oCon = new stzSuperApp("acme-group")
@@ -76,7 +76,7 @@ EndScenario()
 
 Scenario("a world is hot-swapped, keeping its node and bonds")
 	Given("a new supplier implementation")
-	oNewSupplier = StzApp("supplier-v2")
+	oNewSupplier = StzAppQ("supplier-v2")
 	oNewSupplier.Thing(:pallet) { Has([ :sku ]) }
 	When("the live supplier is swapped")
 	$oCon.Swap("supplier", oNewSupplier)

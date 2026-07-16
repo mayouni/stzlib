@@ -16,13 +16,13 @@ load "../_narrated.ring"
 $CRLF = char(13) + char(10)
 
 # -- the world under envelope: a small restaurant ---------------------
-$oApp = StzApp("resto")
+$oApp = StzAppQ("resto")
 $oApp.Thing(:dish) { Has([ :name, :price ]) }
 $oApp.Thing(:table) { Has([ :number, :seats ]) }
 $oApp.Screen(:menu)
 $oApp.Reaches([ :web, :desktop ])
 
-$oPlat = StzPlatform("resto-envelope")
+$oPlat = StzPlatformQ("resto-envelope")
 $oPlat.ForWorld($oApp)
 
 Scenario("GENERATION: declared Reach becomes real per-platform shells")
@@ -39,8 +39,8 @@ Scenario("GENERATION: declared Reach becomes real per-platform shells")
 		StzFindFirst(cDesk, "stzlib.ring") > 0, TRUE)
 
 	When("a world WITHOUT any Reach asks for generation")
-	oBare = StzApp("bare")
-	oPlat2 = StzPlatform("bare-envelope")
+	oBare = StzAppQ("bare")
+	oPlat2 = StzPlatformQ("bare-envelope")
 	oPlat2.ForWorld(oBare)
 	bRaised = FALSE
 	try

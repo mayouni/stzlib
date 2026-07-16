@@ -33,7 +33,7 @@
 # index (the live path).
 # -----------------------------------------------------------------------------
 
-func StzSuperApp(pcName)
+func StzSuperAppQ(pcName)
 	return new stzSuperApp(pcName)
 
 class stzSuperApp from stzObject

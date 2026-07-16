@@ -54,9 +54,10 @@ class stzKnowledgeGraph from stzGraph
 			stzraise("Strict mode: every fact needs provenance -- use AddFactXT(s, p, o, [ :source = ..., :confidence = ... ]).")
 		ok
 		This._AddFactRaw(pcSubject, pcPredicate, pcObject)
+		return This
 
 		def AddTriple(pcSubject, pcPredicate, pcObject)
-			This.AddFact(pcSubject, pcPredicate, pcObject)
+			return This.AddFact(pcSubject, pcPredicate, pcObject)
 
 	#-- domain-modeling verbs (INSTANCE-scoped, chainable) --------------------
 	# Build a domain knowledgebase with NO globals:

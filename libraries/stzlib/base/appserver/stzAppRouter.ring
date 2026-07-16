@@ -110,6 +110,8 @@ class stzAppRouter from stzObject
 
 	def AddMiddleware(cPath, fMiddleware)
 		@aMiddleware + [ cPath, fMiddleware ]
+		return This
 
 	def AddStaticRoute(cPath, cDirectory)
 		@aStaticRoutes + [ cPath, cDirectory ]
+		return This
