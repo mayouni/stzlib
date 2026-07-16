@@ -37,7 +37,7 @@ Scenario("Ask: near-natural method discovery")
 		o.HasMethod(r[1][1]), TRUE)
 	Then("BestMethodFor returns a single real method name",
 		o.HasMethod(o.BestMethodFor("detect the language")), TRUE)
-	# MANUAL (with an embedding model -- StzUseNeuralModel(minilm.gguf)):
+	# MANUAL (with an embedding model -- StzNeuralModelQ(minilm.gguf)):
 	#   o.Ask("detect the language")                 -> DetectedLanguage / Language
 	#   o.Ask("classify into topics without training") -> Classify
 	#   o.Ask("how positive or negative is the tone") -> IsPositive / IsNegative

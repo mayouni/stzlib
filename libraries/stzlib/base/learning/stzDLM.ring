@@ -14,8 +14,8 @@
 #   ? oDLM.GenerateCorpus()                      # facts as sentences --
 #                                                # rung 2's teacher-free seed
 #   oDLM.Save("restaurant")                      # -> restaurant.zdlm
-#   oD2 = StzLoadDLM("restaurant.zdlm")          # SELF-CONTAINED: answers
-#                                                # without the original KG
+#   oD2 = StzDlmQ("")                            # SELF-CONTAINED: it answers
+#   oD2.LoadFrom("restaurant.zdlm")              # without the original KG
 #
 # RUNG 1 = ZERO NEURONS: vocabulary, facts and laws forged from the
 # knowledge graph; every answer is a graph lookup with Why and
@@ -41,58 +41,6 @@ func StzDlmQ(pDomainOrKB)
 		"domain-name string -- build a brain with new stzKnowledgeGraph(id)." +
 		"Know(...).KnowRelation(...).")
 
-func StzLoadDLM(pcFile)
-	_cContent_ = StzReplace(read(pcFile), char(13), "")
-	_acLines_ = StzSplit(_cContent_, char(10))
-	_oD_ = new stzDLM("")
-	_cSection_ = ""
-	_nLen_ = len(_acLines_)
-	for _i_ = 1 to _nLen_
-		_cL_ = ring_trim(_acLines_[_i_])
-		if _cL_ = ""
-			loop
-		ok
-		if StzLeft(_cL_, 4) = 'dlm '
-			_acQ_ = StzSplit(_cL_, '"')
-			if len(_acQ_) >= 2
-				_oD_.SetDomain(_acQ_[2])
-			ok
-		but _cL_ = "entities"
-			_cSection_ = "entities"
-		but _cL_ = "relations"
-			_cSection_ = "relations"
-		but _cL_ = "facts"
-			_cSection_ = "facts"
-		but _cL_ = "laws"
-			_cSection_ = "laws"
-		but _cL_ = "goldens"
-			_cSection_ = "goldens"
-		but _cSection_ = "entities"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oD_.LearnEntity(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		but _cSection_ = "relations"
-			_oD_.LearnRelation(_cL_)
-		but _cSection_ = "facts"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 3
-				_oD_.LearnFact(ring_trim(_acP_[1]), ring_trim(_acP_[2]),
-					ring_trim(_acP_[3]))
-			ok
-		but _cSection_ = "laws"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oD_.LearnLaw(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		but _cSection_ = "goldens"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oD_.AddGolden(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		ok
-	next
-	return _oD_
 
 
 class stzDLM from stzObject
@@ -556,6 +504,60 @@ class stzDLM from stzObject
 	#-- persistence (*.zdlm -- SELF-CONTAINED) ---------------------------------
 	# (extension ruling 2026-07-14: Softanza formats are z + a short
 	#  abbreviation -- .zdlm, .zknw, .zcnv, .zrlz)
+
+	# LOAD the bundle back INTO this DLM -- the mirror of Save(), and the
+	# object's OWN act (named LoadFrom: 'Load' collides with Ring's keyword).
+	def LoadFrom(pcFile)
+	_cContent_ = StzReplace(read(pcFile), char(13), "")
+		_acLines_ = StzSplit(_cContent_, char(10))
+		_cSection_ = ""
+		_nLen_ = len(_acLines_)
+		for _i_ = 1 to _nLen_
+			_cL_ = ring_trim(_acLines_[_i_])
+			if _cL_ = ""
+				loop
+			ok
+			if StzLeft(_cL_, 4) = 'dlm '
+				_acQ_ = StzSplit(_cL_, '"')
+				if len(_acQ_) >= 2
+					This.SetDomain(_acQ_[2])
+				ok
+			but _cL_ = "entities"
+				_cSection_ = "entities"
+			but _cL_ = "relations"
+				_cSection_ = "relations"
+			but _cL_ = "facts"
+				_cSection_ = "facts"
+			but _cL_ = "laws"
+				_cSection_ = "laws"
+			but _cL_ = "goldens"
+				_cSection_ = "goldens"
+			but _cSection_ = "entities"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.LearnEntity(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			but _cSection_ = "relations"
+				This.LearnRelation(_cL_)
+			but _cSection_ = "facts"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 3
+					This.LearnFact(ring_trim(_acP_[1]), ring_trim(_acP_[2]),
+						ring_trim(_acP_[3]))
+				ok
+			but _cSection_ = "laws"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.LearnLaw(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			but _cSection_ = "goldens"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.AddGolden(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			ok
+		next
+		return This
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zdlm"

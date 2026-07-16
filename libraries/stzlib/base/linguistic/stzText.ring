@@ -948,7 +948,7 @@ class stzText from stzStringText
 	 #   SEMANTIC LAYER (neural embeddings)                     #
 	#==========================================================#
 	# Upgrades text similarity from lexical bag-of-words to true MEANING via a
-	# runtime neural model (load one process-wide with StzUseNeuralModel(path)).
+	# runtime neural model (load one process-wide with StzNeuralModelQ(path)).
 	# With no model loaded these degrade gracefully to the lexical path, so code
 	# keeps working and auto-improves once a model is present.
 

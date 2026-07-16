@@ -83,7 +83,8 @@ chk("a declared posture proceeds and names itself",
 ? ""
 ? "-- Scene 7: the regime persists (*.zgov) --"
 cF = oGov.Save("t_gov_accept")
-oG2 = StzLoadGovernance(cF)
+oG2 = new stzGovernance("")
+oG2.LoadFrom(cF)
 chk("the reloaded regime still judges",
 	oG2.MayProceed("billing-agent", "send-invoice") = 1 and
 	oG2.MayProceed("cleaner", "wipe-database") = 0)
