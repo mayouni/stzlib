@@ -86,6 +86,11 @@ class stzDLM from stzObject
 	@aLaws = []         # [ relation, law ]
 	@aGoldens = []      # [ question, expected answer ]
 	@cWhy = ""
+	# RUNG 2 -- the neural bigram LM (trained teacher-free on the corpus)
+	@oNeural = NULL
+	@acNeuralVocab = []
+	@bNeuralTrained = FALSE
+	@cNeuralWhy = ""
 
 	def init(pcDomain)
 		@cDomain = "" + pcDomain
@@ -385,6 +390,129 @@ class stzDLM from stzObject
 
 	def Why()
 		return @cWhy
+
+	#-- RUNG 2: the NEURAL domain LM -----------------------------------------
+	# A neural BIGRAM language model: one-hot(current token) -> softmax over
+	# the domain vocabulary -> next token. Trained ONLY on GenerateCorpus()
+	# (sentences correct-by-construction), no remote teacher -- the whole
+	# point of the Foundry: a project's own knowledge becomes a model that
+	# GENERATES domain text. Rung 1 (deterministic Ask/Complete) still owns
+	# truth; this rung learns the corpus's word-transition distribution.
+	# The softmax + categorical-cross-entropy floor makes it possible.
+
+	def TrainNeuralRung(nEpochs)
+		if nEpochs < 1
+			nEpochs = 300
+		ok
+		_acV_ = This.Tokenizer()
+		_nV_ = len(_acV_)
+		if _nV_ < 2
+			stzraise("Nothing to train: the domain corpus is empty.")
+		ok
+		# bigram (current -> next) pairs from the corpus, one-hot encoded
+		_aIn_ = []
+		_aTg_ = []
+		_acS_ = This.GenerateCorpus()
+		_nS_ = len(_acS_)
+		for _s_ = 1 to _nS_
+			_aIds_ = This.Tokenize(_acS_[_s_])
+			_nT_ = len(_aIds_)
+			for _t_ = 1 to _nT_ - 1
+				_aIn_ + This._OneHot(_aIds_[_t_], _nV_)
+				_aTg_ + This._OneHot(_aIds_[_t_ + 1], _nV_)
+			next
+		next
+		if len(_aIn_) = 0
+			stzraise("No bigrams to train on.")
+		ok
+		# a pure softmax layer over one-hot input IS a neural bigram LM
+		# (multinomial logistic regression -> the corpus bigram law)
+		_oNet_ = new stzNeuralNetwork([ :Inputs = _nV_ ])
+		_oNet_.AddDenseLayer(_nV_, :Softmax)
+		_oTr_ = new stzTrainer()
+		_oTr_.SetLearningRate(0.5)
+		_oTr_.Train(_oNet_, _aIn_, _aTg_, nEpochs)
+		@oNeural = _oNet_
+		@acNeuralVocab = _acV_
+		@bNeuralTrained = TRUE
+		@cNeuralWhy = "neural bigram rung: " + len(_aIn_) + " pairs over a " +
+			_nV_ + "-word vocab; " + _oTr_.Why()
+		return This
+
+	def IsNeuralTrained()
+		return @bNeuralTrained
+
+	def NeuralWhy()
+		return @cNeuralWhy
+
+	# the token (string) the neural rung predicts to follow a word
+	def NextToken(pcWord)
+		if not @bNeuralTrained
+			stzraise("Train the neural rung first: TrainNeuralRung(n).")
+		ok
+		_nId_ = ring_find(@acNeuralVocab, StzLower(ring_trim("" + pcWord)))
+		if _nId_ = 0
+			_nId_ = 1
+		ok
+		_aP_ = @oNeural.Predict(This._OneHot(_nId_, len(@acNeuralVocab)))
+		return @acNeuralVocab[This._ArgMax(_aP_)]
+
+	# the neural rung's confidence in its predicted next token (a real
+	# probability -- softmax normalizes over the whole vocabulary)
+	def NextTokenConfidence(pcWord)
+		if not @bNeuralTrained
+			stzraise("Train the neural rung first: TrainNeuralRung(n).")
+		ok
+		_nId_ = ring_find(@acNeuralVocab, StzLower(ring_trim("" + pcWord)))
+		if _nId_ = 0
+			_nId_ = 1
+		ok
+		_aP_ = @oNeural.Predict(This._OneHot(_nId_, len(@acNeuralVocab)))
+		return _aP_[This._ArgMax(_aP_)]
+
+	# greedy generation: a seed word + nSteps neural next-tokens
+	def NeuralGenerate(pcSeed, nSteps)
+		if nSteps < 1
+			nSteps = 4
+		ok
+		_cCur_ = StzLower(ring_trim("" + pcSeed))
+		_acOut_ = [ _cCur_ ]
+		for _i_ = 1 to nSteps
+			_cNext_ = This.NextToken(_cCur_)
+			_acOut_ + _cNext_
+			_cCur_ = _cNext_
+		next
+		return JoinXT(_acOut_, " ")
+
+	# export the trained neural rung as a real .gguf (the Foundry artifact)
+	def ExportNeuralGguf(pcFile)
+		if not @bNeuralTrained
+			stzraise("Train the neural rung first: TrainNeuralRung(n).")
+		ok
+		return @oNeural.ExportToGguf(pcFile, @cDomain + "-bigram")
+
+	def _OneHot(nId, nV)
+		_a_ = []
+		for _i_ = 1 to nV
+			if _i_ = nId
+				_a_ + 1
+			else
+				_a_ + 0
+			ok
+		next
+		return _a_
+
+	def _ArgMax(paV)
+		_nArg_ = 1
+		_nMax_ = paV[1]
+		_n_ = len(paV)
+		for _i_ = 2 to _n_
+			if paV[_i_] > _nMax_
+				_nMax_ = paV[_i_]
+				_nArg_ = _i_
+			ok
+		next
+		return _nArg_
 
 	#-- goldens ---------------------------------------------------------------
 
