@@ -13,11 +13,11 @@ function transform_to_ring(data)
         
         # Handle dictionaries
         if isa(obj, Dict)
-            items = String[]
+            _items_ = String[]
             for (key, value) in obj
-                push!(items, "[\'$(key)\', $(_transform(value, depth + 1))]")
+                push!(_items_, "[\'$(key)\', $(_transform(value, depth + 1))]")
             end
-            return "[" * join(items, ", ") * "]"
+            return "[" * join(_items_, ", ") * "]"
         end
         
         # Handle arrays
@@ -32,12 +32,12 @@ function transform_to_ring(data)
         
         # Handle numeric values
         if isa(obj, Number)
-            str_val = string(obj)
+            _str_val_ = string(obj)
             # Check for scientific notation
-            if occursin(r"e|E", str_val)
+            if occursin(r"e|E", _str_val_)
                 return "\'$(str_val)\'"
             end
-            return str_val
+            return _str_val_
         end
         
         # Handle boolean values
@@ -178,10 +178,10 @@ res = Dict(
         "time_ms" => matrix_time
     )
 )
-transformed = transform_to_ring(res)
+_transformed_ = transform_to_ring(res)
 println("Data before transformation: ", res)
-println("Data after transformation: ", transformed)
+println("Data after transformation: ", _transformed_)
 open("jlresult.txt", "w") do f
-    write(f, transformed)
+    write(f, _transformed_)
 end
 println("Data written to file")

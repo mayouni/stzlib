@@ -30,7 +30,7 @@ typedef struct Value {
             size_t size;
         } struct_val;
         struct {
-            struct Value* items;
+            struct Value* _items_;
             size_t size;
         } array_val;
     } data;
@@ -57,7 +57,7 @@ void write_to_file(const char* filename, const char* content) {
 }
 
 // Convert array to Ring string
-char* array_to_ring_string(Value* items, size_t size, int depth) {
+char* array_to_ring_string(Value* _items_, size_t size, int depth) {
     if (depth > MAX_DEPTH) return strdup("TOO_DEEP");
     
     // Allocate buffer with generous size
@@ -68,7 +68,7 @@ char* array_to_ring_string(Value* items, size_t size, int depth) {
     size_t pos = 1;
     
     for (size_t i = 0; i < size; i++) {
-        char* item_str = value_to_ring_string(&items[i], depth + 1);
+        char* item_str = value_to_ring_string(&_items_[i], depth + 1);
         if (item_str) {
             // Check if we need to resize buffer
             size_t needed = pos + strlen(item_str) + 3; // +3 for ", " and possibly "]"

@@ -1,0 +1,205 @@
+REGRESSION datetime/test_datetime_bridge.ring :: Error (C27) : Syntax Error!
+REGRESSION datetime/test_datetime_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION file/54_fswatch_engine_narrated.ring :: Error (R11) : Error in class name, class not found: stzfolderwatcher 
+REGRESSION file/test_file_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION file/test_json_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION hexnumbert/09_firstnprimes.ring :: Error (R14) : Calling Method without definition: itemswxtq 
+REGRESSION i18n/test_locale_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION i18n/test_locale_stz.ring :: Error (C27) : Syntax Error!
+REGRESSION list/03_eachitemisa.ring :: Error (R20) : Calling function with extra number of parameters 
+HANG list/03_engine_millions_narrated.ring
+REGRESSION list/131_containsduplicates.ring :: Error (R24) : Using uninitialized variable: nlen 
+HANG list/139_finddupsecutiveitems.ring
+REGRESSION list/231_itemshavext.ring :: Error (R3) : Calling Function without definition: @islistsofstring 
+REGRESSION list/343_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/345_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/351_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/353_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/from_eachitemisa.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION list/from_randomize.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION list/from_randomizenumbers.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION list/test_checker_delegations.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION listofbytes/06_callmethod.ring :: Error (R24) : Using uninitialized variable: aresult 
+REGRESSION listofchars/11_boxedxt.ring :: Error (R14) : Calling Method without definition: boxedxt 
+REGRESSION listoflists/17_listswxt.ring :: Error (R14) : Calling Method without definition: listswxt 
+REGRESSION listoflists/65_nthlist.ring :: Error (R14) : Calling Method without definition: listswxt 
+HANG listofnumbers/36_anynumberbefore.ring
+REGRESSION matrix/10_pr.ring :: Error (R3) : Calling Function without definition: updatecolumn 
+REGRESSION matrix/11_multiplying_many_cols.ring :: Error (R3) : Calling Function without definition: updatecolumn 
+HANG meta/codegraph_narrated.ring
+HANG natural/03_block_3.ring
+HANG natural/36_whatis.ring
+HANG natural/entity_world_narrated.ring
+REGRESSION network/test_url_engine.ring :: Error (C27) : Syntax Error!
+HANG neural/semantic_retrieval_narrated.ring
+REGRESSION plot/05_block_5.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/06_block_6.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/08_add_setpercent_to_horizontal_chart.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/09_custom_width_and_hight.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/10_custom_bar_character.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/11_x-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/12_y-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/13_labels_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/14_average_line_enabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/15_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/16_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/17_custom_bar_width_with_long_label.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/18_multiple_bars_with_varying_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/19_zero_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/20_single_bar.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/21_large_values_with_scaling.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/22_test_1_basic_horizontal_bar_chart_with_percent_val.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/23_test_2_custom_width.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/24_test_3_custom_bar_character.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/25_test_4_x-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/26_test_5_y-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/27_test_6_both_axes_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/28_test_7_labels_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/29_test_8_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/30_test_10_custom_maximum_label_width.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/31_test_11_long_labels.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/32_test_12_multiple_bars_with_varying_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/33_test_13_zero_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/34_test_14_single_bar.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/35_test_15_large_values_with_scaling.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/36_using_the_short_form_stzcharq.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/37_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/38_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/39_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/40_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/41_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/42_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/43_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/44_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/45_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/46_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/47_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/48_setting_the_legend_layout_to_vertical.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION random/11_content.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION random/31_arandomnumberlessthan.ring :: Error (R24) : Using uninitialized variable: nmax 
+HANG reflect/ask_probe_narrated.ring
+REGRESSION regex/test_regex_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION splitter/00_splitter_narrated.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION splitter/03_splitat.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/201_splitat.ring :: Error (R41) : Invalid numeric string 
+REGRESSION string/219_check_after_yield_is_included.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/220_idem.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/221_idem.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/296_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/297_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/358_splitting_at.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/412_findwxt.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/425_findwxt.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/426_content.ring :: Error (R14) : Calling Method without definition: splitwxt 
+REGRESSION string/451_what_you_think_is_what_you_write.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION string/84_findwxt_retired.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/960_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/994_ishanscript.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION tablex/03_matching_exact_row_count.ring :: Error (R14) : Calling Method without definition: hasrow 
+REGRESSION timex/07_example_7_event_span_duration_constraints.ring :: Error (R2) : Array Access (Index out of range) 
+REGRESSION timex/11_example_11_real-world_meeting_scheduler.ring :: Error (R2) : Array Access (Index out of range) 
+
+#GRANDTOTAL ok=2976 expected_fail(#ERR/#SKIP)=379 now_passing(was_#ERR)=1249 REGRESSIONS=93 HANGS=9
+REGRESSION LIST:
+REGRESSION common/test_bytes.ring :: Error (C27) : Syntax Error!
+REGRESSION common/test_meta_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION datetime/test_datetime_bridge.ring :: Error (C27) : Syntax Error!
+REGRESSION datetime/test_datetime_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION file/54_fswatch_engine_narrated.ring :: Error (R11) : Error in class name, class not found: stzfolderwatcher 
+REGRESSION file/test_file_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION file/test_json_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION hexnumbert/09_firstnprimes.ring :: Error (R14) : Calling Method without definition: itemswxtq 
+REGRESSION i18n/test_locale_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION i18n/test_locale_stz.ring :: Error (C27) : Syntax Error!
+REGRESSION list/03_eachitemisa.ring :: Error (R20) : Calling function with extra number of parameters 
+HANG list/03_engine_millions_narrated.ring
+REGRESSION list/131_containsduplicates.ring :: Error (R24) : Using uninitialized variable: nlen 
+HANG list/139_finddupsecutiveitems.ring
+REGRESSION list/231_itemshavext.ring :: Error (R3) : Calling Function without definition: @islistsofstring 
+REGRESSION list/343_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/345_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/351_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/353_are.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION list/from_eachitemisa.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION list/from_randomize.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION list/from_randomizenumbers.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION list/test_checker_delegations.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION listofbytes/06_callmethod.ring :: Error (R24) : Using uninitialized variable: aresult 
+REGRESSION listofchars/11_boxedxt.ring :: Error (R14) : Calling Method without definition: boxedxt 
+REGRESSION listoflists/17_listswxt.ring :: Error (R14) : Calling Method without definition: listswxt 
+REGRESSION listoflists/65_nthlist.ring :: Error (R14) : Calling Method without definition: listswxt 
+HANG listofnumbers/36_anynumberbefore.ring
+REGRESSION matrix/10_pr.ring :: Error (R3) : Calling Function without definition: updatecolumn 
+REGRESSION matrix/11_multiplying_many_cols.ring :: Error (R3) : Calling Function without definition: updatecolumn 
+HANG meta/codegraph_narrated.ring
+HANG natural/03_block_3.ring
+HANG natural/36_whatis.ring
+HANG natural/entity_world_narrated.ring
+REGRESSION network/test_url_engine.ring :: Error (C27) : Syntax Error!
+HANG neural/semantic_retrieval_narrated.ring
+REGRESSION plot/05_block_5.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/06_block_6.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/08_add_setpercent_to_horizontal_chart.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/09_custom_width_and_hight.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/10_custom_bar_character.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/11_x-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/12_y-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/13_labels_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/14_average_line_enabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/15_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/16_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/17_custom_bar_width_with_long_label.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/18_multiple_bars_with_varying_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/19_zero_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/20_single_bar.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/21_large_values_with_scaling.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/22_test_1_basic_horizontal_bar_chart_with_percent_val.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/23_test_2_custom_width.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/24_test_3_custom_bar_character.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/25_test_4_x-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/26_test_5_y-axis_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/27_test_6_both_axes_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/28_test_7_labels_disabled.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/29_test_8_values_displayed.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/30_test_10_custom_maximum_label_width.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/31_test_11_long_labels.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/32_test_12_multiple_bars_with_varying_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/33_test_13_zero_values.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/34_test_14_single_bar.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/35_test_15_large_values_with_scaling.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/36_using_the_short_form_stzcharq.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/37_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/38_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/39_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/40_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/41_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/42_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/43_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/44_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/45_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/46_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/47_pr.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION plot/48_setting_the_legend_layout_to_vertical.ring :: Error (R20) : Calling function with extra number of parameters 
+REGRESSION random/11_content.ring :: Error (R24) : Using uninitialized variable: nmax 
+REGRESSION random/31_arandomnumberlessthan.ring :: Error (R24) : Using uninitialized variable: nmax 
+HANG reflect/ask_probe_narrated.ring
+REGRESSION regex/test_regex_engine.ring :: Error (C27) : Syntax Error!
+REGRESSION splitter/00_splitter_narrated.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION splitter/03_splitat.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/201_splitat.ring :: Error (R41) : Invalid numeric string 
+REGRESSION string/219_check_after_yield_is_included.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/220_idem.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/221_idem.ring :: Error (R14) : Calling Method without definition: yieldwxt 
+REGRESSION string/296_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/297_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/358_splitting_at.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/412_findwxt.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/425_findwxt.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/426_content.ring :: Error (R14) : Calling Method without definition: splitwxt 
+REGRESSION string/451_what_you_think_is_what_you_write.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION string/84_findwxt_retired.ring :: Error (R14) : Calling Method without definition: findwxt 
+REGRESSION string/960_splitatsections.ring :: Error (R24) : Using uninitialized variable: nlenmain 
+REGRESSION string/994_ishanscript.ring :: Error (R21) : Using operator with values of incorrect type 
+REGRESSION tablex/03_matching_exact_row_count.ring :: Error (R14) : Calling Method without definition: hasrow 
+REGRESSION timex/07_example_7_event_span_duration_constraints.ring :: Error (R2) : Array Access (Index out of range) 
+REGRESSION timex/11_example_11_real-world_meeting_scheduler.ring :: Error (R2) : Array Access (Index out of range) 

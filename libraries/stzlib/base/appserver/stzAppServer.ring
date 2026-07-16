@@ -322,6 +322,14 @@ class stzAppServer from stzObject
 		ok
 		_nConn_ = aEv[2]
 		@nRequestCount++
+		# Snapshot the reactor + server id BEFORE dispatch. A handler that
+		# re-enters objects (e.g. a Commons route calling into stzPlatform)
+		# leaves Ring's object scope pointing elsewhere, so a BARE @nServerId
+		# / @oReactor read AFTER `call fHandler()` raises R24 (the trap). Read
+		# them into locals up front and the write is safe whatever the
+		# handler did.
+		_oRct_ = @oReactor
+		_nSid_ = @nServerId
 		_oResp_ = new stzAppResponse(NULL)
 		_bClose_ = TRUE
 		try
@@ -334,7 +342,7 @@ class stzAppServer from stzObject
 		if NOT _oResp_.IsSent()
 			_oResp_.Text("")   # handler set nothing: empty 200
 		ok
-		@oReactor.ServerWrite(@nServerId, _nConn_, _oResp_.HttpBytes(), _bClose_)
+		_oRct_.ServerWrite(_nSid_, _nConn_, _oResp_.HttpBytes(), _bClose_)
 		return TRUE
 
 	def _Dispatch(oReq, oResp)

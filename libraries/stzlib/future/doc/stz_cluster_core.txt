@@ -1,0 +1,545 @@
+# stzAppServerCluster - Core Classes for Computational Clustering
+
+# stzClusterNode: Individual server node in a computational cluster
+class stzClusterNode from stzAppServer
+    cNodeId = ""
+    cClusterType = ""      # "nlp", "math", "vision", "search", etc.
+    oClusterManager = NULL
+    nLoad = 0              # Current load percentage (0-100)
+    nQueueLength = 0       # Current request queue length
+    nAvgResponseTime = 0   # Average response time in ms
+    bIsHealthy = True
+    oLastHeartbeat = NULL
+    aSpecializedEngines = []
+
+    def init(cType, cId)
+        stzAppServer.init()
+        cClusterType = cType
+        cNodeId = cId
+        oLastHeartbeat = clock()
+        This.LoadSpecializedEngines()
+
+    def LoadSpecializedEngines()
+        switch cClusterType
+        on "nlp"
+            This.LoadNLPEngines()
+        on "math" 
+            This.LoadMathEngines()
+        on "vision"
+            This.LoadVisionEngines()
+        on "search"
+            This.LoadSearchEngines()
+        off
+
+    def LoadNLPEngines()
+        oComputeEngine {
+            PreloadLanguageModels(["english", "french", "spanish", "arabic"])
+            PreloadSentimentAnalysis()
+            PreloadEntityRecognition()
+            PreloadTranslationEngines()
+            PreloadTextClassification()
+        }
+        aSpecializedEngines + "nlp_ready"
+
+    def LoadMathEngines()
+        oComputeEngine {
+            PreloadStatisticalModels()
+            PreloadLinearAlgebra()
+            PreloadOptimizationEngines()
+            PreloadTimeSeriesAnalysis()
+            PreloadNumericalSolvers()
+        }
+        aSpecializedEngines + "math_ready"
+
+    def LoadVisionEngines()
+        oComputeEngine {
+            PreloadImageProcessing()
+            PreloadOCREngines()
+            PreloadPatternRecognition()
+            PreloadColorAnalysis()
+            PreloadDocumentAnalysis()
+        }
+        aSpecializedEngines + "vision_ready"
+
+    def LoadSearchEngines()
+        oComputeEngine {
+            PreloadSearchIndices()
+            PreloadTextRetrieval()
+            PreloadSimilarityEngines()
+            PreloadRankingAlgorithms()
+            PreloadSemanticSearch()
+        }
+        aSpecializedEngines + "search_ready"
+
+    def UpdateMetrics(nNewLoad, nNewQueue, nNewResponseTime)
+        nLoad = nNewLoad
+        nQueueLength = nNewQueue
+        nAvgResponseTime = nNewResponseTime
+        oLastHeartbeat = clock()
+
+    def IsOverloaded()
+        return nLoad > 85 or nQueueLength > 50 or nAvgResponseTime > 200
+
+    def GetHealthStatus()
+        return [
+            :node_id = cNodeId,
+            :cluster_type = cClusterType,
+            :load = nLoad,
+            :queue_length = nQueueLength,
+            :avg_response_time = nAvgResponseTime,
+            :is_healthy = bIsHealthy,
+            :specialized_engines = aSpecializedEngines,
+            :last_heartbeat = oLastHeartbeat
+        ]
+
+# stzSmartLoadBalancer: Routes requests based on computational domain
+class stzSmartLoadBalancer
+    aClusters = []         # Available clusters by type
+    oRequestClassifier = NULL
+    aRoutingRules = []
+    nTotalRequests = 0
+    
+    def init()
+        oRequestClassifier = new stzRequestClassifier()
+        This.SetupDefaultRouting()
+
+    def SetupDefaultRouting()
+        aRoutingRules + [
+            :pattern = "/api/analyze-text",
+            :domain = "nlp"
+        ]
+        aRoutingRules + [
+            :pattern = "/api/calculate",
+            :domain = "math"
+        ]
+        aRoutingRules + [
+            :pattern = "/api/process-image",
+            :domain = "vision"
+        ]
+        aRoutingRules + [
+            :pattern = "/api/search",
+            :domain = "search"
+        ]
+
+    def RegisterCluster(cType, aNodes)
+        for aCluster in aClusters
+            if aCluster[:type] = cType
+                aCluster[:nodes] = aNodes
+                return
+            ok
+        next
+        aClusters + [
+            :type = cType,
+            :nodes = aNodes
+        ]
+
+    def RouteRequest(oRequest)
+        nTotalRequests++
+        cDomain = This.ClassifyRequest(oRequest)
+        oTargetCluster = This.FindCluster(cDomain)
+        
+        if oTargetCluster = NULL
+            # Fallback to general cluster
+            oTargetCluster = This.FindCluster("general")
+        ok
+        
+        if oTargetCluster != NULL
+            oNode = This.SelectBestNode(oTargetCluster[:nodes])
+            return oNode
+        ok
+        
+        return NULL
+
+    def ClassifyRequest(oRequest)
+        # Check explicit routing rules first
+        cPath = oRequest.Path()
+        for aRule in aRoutingRules
+            if substr(cPath, aRule[:pattern]) > 0
+                return aRule[:domain]
+            ok
+        next
+        
+        # Use AI classifier for complex requests
+        return oRequestClassifier.ClassifyComputationalDomain(oRequest)
+
+    def FindCluster(cType)
+        for aCluster in aClusters
+            if aCluster[:type] = cType
+                return aCluster
+            ok
+        next
+        return NULL
+
+    def SelectBestNode(aNodes)
+        # Select node with lowest load and shortest queue
+        oSelected = NULL
+        nBestScore = 1000
+        
+        for oNode in aNodes
+            if not oNode.bIsHealthy loop ok
+            nScore = oNode.nLoad + (oNode.nQueueLength * 2)
+            if nScore < nBestScore
+                nBestScore = nScore
+                oSelected = oNode
+            ok
+        next
+        
+        return oSelected
+
+    def GetRoutingStats()
+        return [
+            :total_requests = nTotalRequests,
+            :clusters_count = len(aClusters),
+            :routing_rules = len(aRoutingRules)
+        ]
+
+# stzRequestClassifier: AI-powered request analysis for routing
+class stzRequestClassifier
+    aPatterns = []
+    
+    def init()
+        This.LoadClassificationPatterns()
+
+    def LoadClassificationPatterns()
+        # NLP patterns
+        aPatterns + [
+            :domain = "nlp",
+            :keywords = ["text", "analyze", "sentiment", "translate", "language", "parse", "extract"]
+        ]
+        # Math patterns  
+        aPatterns + [
+            :domain = "math",
+            :keywords = ["calculate", "compute", "model", "statistics", "optimize", "solve", "formula"]
+        ]
+        # Vision patterns
+        aPatterns + [
+            :domain = "vision", 
+            :keywords = ["image", "photo", "ocr", "scan", "visual", "picture", "document", "pdf"]
+        ]
+        # Search patterns
+        aPatterns + [
+            :domain = "search",
+            :keywords = ["search", "find", "query", "index", "lookup", "discover", "retrieve"]
+        ]
+
+    def ClassifyComputationalDomain(oRequest)
+        cContent = lower(oRequest.Path() + " " + oRequest.Body())
+        aScores = []
+        
+        for aPattern in aPatterns
+            nScore = 0
+            for cKeyword in aPattern[:keywords]
+                if substr(cContent, cKeyword) > 0
+                    nScore++
+                ok
+            next
+            aScores + [aPattern[:domain], nScore]
+        next
+        
+        # Find highest scoring domain
+        cBestDomain = "general"
+        nHighestScore = 0
+        for aScore in aScores
+            if aScore[2] > nHighestScore
+                nHighestScore = aScore[2]
+                cBestDomain = aScore[1]
+            ok
+        next
+        
+        return cBestDomain
+
+# stzClusterManager: Orchestrates the entire cluster ecosystem
+class stzClusterManager
+    aClusters = []
+    oLoadBalancer = NULL
+    oHealthMonitor = NULL
+    bIsRunning = False
+    nPort = 8080
+    oMainServer = NULL
+
+    def init()
+        oLoadBalancer = new stzSmartLoadBalancer()
+        oHealthMonitor = new stzClusterHealthMonitor()
+        oMainServer = new stzAppServer()
+        This.SetupMainServerRoutes()
+
+    def SetupMainServerRoutes()
+        # Main entry point - all requests come here first
+        oMainServer.Get_("/*", func oRequest, oResponse {
+            This.HandleClusterRequest(oRequest, oResponse)
+        })
+        
+        oMainServer.Post("/*", func oRequest, oResponse {
+            This.HandleClusterRequest(oRequest, oResponse)
+        })
+        
+        # Cluster management endpoints
+        oMainServer.Get_("/cluster/status", func oRequest, oResponse {
+            oResponse.Json(This.GetClusterStatus())
+        })
+        
+        oMainServer.Get_("/cluster/health", func oRequest, oResponse {
+            oResponse.Json(oHealthMonitor.GetHealthReport())
+        })
+
+    def CreateCluster(cType, nNodes)
+        aNodes = []
+        for i = 1 to nNodes
+            cNodeId = cType + "_node_" + i
+            oNode = new stzClusterNode(cType, cNodeId)
+            oNode.oClusterManager = This
+            aNodes + oNode
+        next
+        
+        aClusters + [
+            :type = cType,
+            :nodes = aNodes,
+            :created = clock()
+        ]
+        
+        oLoadBalancer.RegisterCluster(cType, aNodes)
+        oHealthMonitor.RegisterCluster(cType, aNodes)
+        
+        return aNodes
+
+    def Start(nPortNum)
+        nPort = nPortNum
+        
+        # Start health monitoring
+        oHealthMonitor.Start()
+        
+        # Start all cluster nodes
+        for aCluster in aClusters
+            for oNode in aCluster[:nodes]
+                nNodePort = nPort + (len(aCluster[:nodes]) * 10) + 
+                           This.GetNodeIndex(aCluster[:nodes], oNode)
+                oNode.Start(nNodePort, "127.0.0.1")
+            next
+        next
+        
+        # Start main load balancer server
+        bIsRunning = oMainServer.Start(nPort, "127.0.0.1")
+        return bIsRunning
+
+    def HandleClusterRequest(oRequest, oResponse)
+        oTargetNode = oLoadBalancer.RouteRequest(oRequest)
+        
+        if oTargetNode = NULL
+            oResponse.Status(503, "Service Unavailable")
+                     .Text("No healthy nodes available")
+            return
+        ok
+        
+        # Proxy request to selected node
+        This.ProxyToNode(oTargetNode, oRequest, oResponse)
+
+    def ProxyToNode(oNode, oRequest, oResponse)
+        # Forward request to the specialized node
+        # In production, this would use HTTP client to proxy
+        # For now, we'll execute directly on the node
+        oNode.RouteRequest(oNode.oTcpServer.GetLastClient(), oRequest)
+
+    def GetClusterStatus()
+        aStatus = []
+        for aCluster in aClusters
+            aNodeStatus = []
+            for oNode in aCluster[:nodes]
+                aNodeStatus + oNode.GetHealthStatus()
+            next
+            
+            aStatus + [
+                :cluster_type = aCluster[:type],
+                :nodes = aNodeStatus,
+                :total_nodes = len(aCluster[:nodes]),
+                :healthy_nodes = This.CountHealthyNodes(aCluster[:nodes])
+            ]
+        next
+        
+        return [
+            :clusters = aStatus,
+            :load_balancer = oLoadBalancer.GetRoutingStats(),
+            :uptime = This.GetUptime()
+        ]
+
+    def CountHealthyNodes(aNodes)
+        nHealthy = 0
+        for oNode in aNodes
+            if oNode.bIsHealthy nHealthy++ ok
+        next
+        return nHealthy
+
+    def GetNodeIndex(aNodes, oTargetNode)
+        for i = 1 to len(aNodes)
+            if aNodes[i] = oTargetNode return i ok
+        next
+        return 1
+
+    def GetUptime()
+        # Implementation would track cluster start time
+        return "N/A"
+
+    def Stop()
+        bIsRunning = False
+        oMainServer.Stop()
+        oHealthMonitor.Stop()
+        
+        for aCluster in aClusters
+            for oNode in aCluster[:nodes]
+                oNode.Stop()
+            next
+        next
+
+# stzClusterHealthMonitor: Monitors cluster health and auto-scaling
+class stzClusterHealthMonitor
+    aClusters = []
+    bIsMonitoring = False
+    nMonitorInterval = 5000  # 5 seconds
+    
+    def RegisterCluster(cType, aNodes)
+        aClusters + [
+            :type = cType,
+            :nodes = aNodes
+        ]
+
+    def Start()
+        bIsMonitoring = True
+        # In production, this would run in a background thread
+        This.MonitorLoop()
+
+    def Stop()
+        bIsMonitoring = False
+
+    def MonitorLoop()
+        # Simplified monitoring - in production would use timers/threads
+        while bIsMonitoring
+            This.CheckClusterHealth()
+            # sleep(nMonitorInterval) - Ring doesn't have built-in sleep
+        end
+
+    def CheckClusterHealth()
+        for aCluster in aClusters
+            This.MonitorCluster(aCluster)
+        next
+
+    def MonitorCluster(aCluster)
+        nOverloadedNodes = 0
+        nUnhealthyNodes = 0
+        
+        for oNode in aCluster[:nodes]
+            # Update node metrics (simplified)
+            This.UpdateNodeMetrics(oNode)
+            
+            if oNode.IsOverloaded()
+                nOverloadedNodes++
+            ok
+            
+            if not oNode.bIsHealthy
+                nUnhealthyNodes++
+            ok
+        next
+        
+        # Auto-scaling logic
+        if nOverloadedNodes > len(aCluster[:nodes]) / 2
+            This.ScaleUpCluster(aCluster[:type])
+        ok
+
+    def UpdateNodeMetrics(oNode)
+        # Simplified metrics update
+        # In production, would collect real metrics
+        oNode.UpdateMetrics(
+            random(100),    # Load percentage
+            random(20),     # Queue length  
+            random(300)     # Response time
+        )
+
+    def ScaleUpCluster(cType)
+        # Add new node to overloaded cluster
+        cNodeId = cType + "_node_" + (clock() + "")
+        oNewNode = new stzClusterNode(cType, cNodeId)
+        
+        # Add to existing cluster
+        for aCluster in aClusters
+            if aCluster[:type] = cType
+                aCluster[:nodes] + oNewNode
+                exit
+            ok
+        next
+
+    def GetHealthReport()
+        aReport = []
+        for aCluster in aClusters
+            nHealthy = 0
+            nOverloaded = 0
+            
+            for oNode in aCluster[:nodes]
+                if oNode.bIsHealthy nHealthy++ ok
+                if oNode.IsOverloaded() nOverloaded++ ok
+            next
+            
+            aReport + [
+                :cluster_type = aCluster[:type],
+                :total_nodes = len(aCluster[:nodes]),
+                :healthy_nodes = nHealthy,
+                :overloaded_nodes = nOverloaded,
+                :health_percentage = (nHealthy * 100) / len(aCluster[:nodes])
+            ]
+        next
+        
+        return [
+            :clusters = aReport,
+            :monitoring = bIsMonitoring,
+            :last_check = clock()
+        ]
+
+# stzAppServerCluster: Main cluster orchestration class
+class stzAppServerCluster
+    oClusterManager = NULL
+    
+    def init()
+        oClusterManager = new stzClusterManager()
+
+    def CreateNLPCluster(nNodes)
+        if nNodes = 0 nNodes = 3 ok
+        return oClusterManager.CreateCluster("nlp", nNodes)
+
+    def CreateMathCluster(nNodes) 
+        if nNodes = 0 nNodes = 3 ok
+        return oClusterManager.CreateCluster("math", nNodes)
+
+    def CreateVisionCluster(nNodes)
+        if nNodes = 0 nNodes = 3 ok  
+        return oClusterManager.CreateCluster("vision", nNodes)
+
+    def CreateSearchCluster(nNodes)
+        if nNodes = 0 nNodes = 3 ok
+        return oClusterManager.CreateCluster("search", nNodes)
+
+    def Start(nPort)
+        if nPort = 0 nPort = 8080 ok
+        return oClusterManager.Start(nPort)
+
+    def Stop()
+        oClusterManager.Stop()
+
+    def GetStatus()
+        return oClusterManager.GetClusterStatus()
+
+    def GetHealth()
+        return oClusterManager.oHealthMonitor.GetHealthReport()
+
+    # Simple builder pattern for easy setup
+    def WithNLP(nNodes)
+        This.CreateNLPCluster(nNodes)
+        return This
+
+    def WithMath(nNodes)
+        This.CreateMathCluster(nNodes) 
+        return This
+
+    def WithVision(nNodes)
+        This.CreateVisionCluster(nNodes)
+        return This
+
+    def WithSearch(nNodes)
+        This.CreateSearchCluster(nNodes)
+        return This
