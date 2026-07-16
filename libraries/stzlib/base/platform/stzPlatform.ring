@@ -240,29 +240,14 @@ class stzPlatform from stzObject
 
 	#== 1. GENERATION ========================================================
 
-	# Harvest the world's declarations (see aliasing note in header).
+	# Harvest the world's declarations (see aliasing note in header). The
+	# world is ASKED through its own accessors -- a platform never reaches
+	# into another object's attributes.
 	def ForWorld(poApp)
 		@cWorldName = poApp.Name()
-		@aWorldReaches = []
-		_nLen_ = len(poApp.aReaches)
-		for _i_ = 1 to _nLen_
-			@aWorldReaches + poApp.aReaches[_i_]
-		next
-		@aWorldThings = []
-		_nLen_ = len(poApp.aThings)
-		for _i_ = 1 to _nLen_
-			_aFields_ = []
-			_nF_ = len(poApp.aThings[_i_][2])
-			for _j_ = 1 to _nF_
-				_aFields_ + poApp.aThings[_i_][2][_j_]
-			next
-			@aWorldThings + [ poApp.aThings[_i_][1], _aFields_ ]
-		next
-		@aWorldScreens = []
-		_nLen_ = len(poApp.aScreens)
-		for _i_ = 1 to _nLen_
-			@aWorldScreens + poApp.aScreens[_i_][1]
-		next
+		@aWorldReaches = poApp.Surfaces()
+		@aWorldThings = poApp.Things()
+		@aWorldScreens = poApp.ScreenNames()
 		@bHasWorld = TRUE
 		return This
 
