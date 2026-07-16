@@ -6,7 +6,8 @@
 #   oKB = new stzKnowledgeGraph("restaurant")    # a SCOPED domain brain
 #   oKB.Know("margherita", "dish").
 #       KnowRelation("margherita", "contains", "tomato-sauce")
-#   oDLM = new stzDLM("restaurant").ForgeFrom(oKB)   # forged from the KB
+#   oDLM = new stzDLM("restaurant")              # then forge from the KB:
+#   oDLM.ForgeFrom(oKB)                          # (can't chain on `new` -- R13)
 #   # or the one-liner:  oDLM = StzForgeDLM("restaurant", oKB)
 #   ? oDLM.Ask("what is margherita")             # deterministic answers
 #   ? oDLM.Complete("margherita")                # domain-valid continuations
