@@ -1,0 +1,110 @@
+# custom_functions.stzrulf
+# -----------------------------------------------------------------------------
+# A .stzrulf file is PURE RING CODE. It defines custom rule functions and
+# registers them into rule groups; a graph then pulls a group in with
+# UseRulesFrom(:group). This is how a domain teaches stzGraph rules the
+# library never shipped.
+#
+# ORDER MATTERS: the RegisterRuleInGroup() calls come FIRST. In Ring, any
+# statement written after a func definition belongs to that func's body --
+# register below the funcs and the registration silently never runs.
+
+RegisterRuleInGroup(:banking, "manager_approval_rights", [
+	:type = :derivation,
+	:function = CustomFunc_ManagerApproval(),
+	:params = [],
+	:message = "Manager approval rights derived",
+	:severity = :info
+])
+
+RegisterRuleInGroup(:banking, "no_backdating", [
+	:type = :constraint,
+	:function = CustomFunc_NoBackdating(),
+	:params = [],
+	:message = "Backdating not allowed",
+	:severity = :error
+])
+
+RegisterRuleInGroup(:hr, "balanced_teams", [
+	:type = :validation,
+	:function = CustomFunc_BalancedTeams(),
+	:params = [ :minSize = 3, :maxSize = 8 ],
+	:message = "Teams must be balanced",
+	:severity = :warning
+])
+
+#-- the functions themselves -------------------------------------------------
+
+# DERIVATION: a manager can approve anything its subordinates raise.
+func CustomFunc_ManagerApproval()
+	return func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+
+		nNodesLen = len(aNodes)
+		for iNode = 1 to nNodesLen
+			cNode = aNodes[iNode][:id]
+			if oGraph.NodeProperty(cNode, "role") = "manager"
+				aSubordinates = oGraph.Neighbors(cNode)
+
+				nSubLen = len(aSubordinates)
+				for iSub = 1 to nSubLen
+					cApprovalNode = aSubordinates[iSub] + "_approval"
+					if oGraph.NodeExists(cApprovalNode)
+						if NOT oGraph.EdgeExists(cNode, cApprovalNode)
+							aNewEdges + [ cNode, cApprovalNode, "can_approve", [] ]
+						ok
+					ok
+				next
+			ok
+		next
+
+		return aNewEdges
+	}
+
+# CONSTRAINT: a transaction may not point back in time.
+func CustomFunc_NoBackdating()
+	return func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cTo = paOperationParams[:to]
+
+			if oGraph.NodeExists(cFrom) and oGraph.NodeExists(cTo)
+				cFromDate = oGraph.NodeProperty(cFrom, "date")
+				cToDate = oGraph.NodeProperty(cTo, "date")
+
+				if isString(cFromDate) and isString(cToDate)
+					if cToDate < cFromDate
+						return [ TRUE, "Cannot backdate transactions" ]
+					ok
+				ok
+			ok
+		ok
+
+		return [ FALSE, "" ]
+	}
+
+# VALIDATION: no manager carries a team that is too small or too large.
+func CustomFunc_BalancedTeams()
+	return func(oGraph, paRuleParams) {
+		nMinSize = paRuleParams[:minSize]
+		nMaxSize = paRuleParams[:maxSize]
+
+		aNodes = oGraph.Nodes()
+
+		nNodesLen = len(aNodes)
+		for iNode = 1 to nNodesLen
+			cNode = aNodes[iNode][:id]
+			if oGraph.NodeProperty(cNode, "role") = "manager"
+				nTeamSize = len(oGraph.Neighbors(cNode))
+
+				if nTeamSize < nMinSize
+					return [ FALSE, "Team " + cNode + " too small (" + nTeamSize + ")" ]
+				but nTeamSize > nMaxSize
+					return [ FALSE, "Team " + cNode + " too large (" + nTeamSize + ")" ]
+				ok
+			ok
+		next
+
+		return [ TRUE, "" ]
+	}

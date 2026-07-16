@@ -3765,39 +3765,51 @@ class stzGraph from stzObject
 		ok
 	
 	def _AddUniqueRule(_aRule_)
-		# Check if rule already exists
+		# The ONE door a rule enters by, whatever brought it: a rule group
+		# ($aGraphRules, via UseRulesFrom) or a .stzrulz file (via
+		# _ParseStzRulz). It routes the rule into its typed store and
+		# refuses a name already taken in that store.
+		#
+		# The type arrives in whatever case its author wrote: .stzrulz files
+		# say `type: validation`, the RegisterRuleInGroup examples say
+		# `:type = :constraint`, and the stores are named :Constraint /
+		# :Derivation / :Validation. Ring's `=` on strings is CASE-SENSITIVE
+		# (verified: "validation" = "Validation" -> 0), so comparing those
+		# forms directly dropped every lower-case rule in SILENCE -- no
+		# raise, no count, just no rule. Fold the case once, here, and the
+		# dialects meet.
+
 		_cName_ = _aRule_[:name]
-		_cType_ = _aRule_[:type]
-		
-		# Get appropriate rule list
-		_aRuleList_ = NULL
-		if _cType_ = :Constraint
-			_aRuleList_ = @aConstraintRules
-		but _cType_ = :Derivation
-			_aRuleList_ = @aDerivationRules
-		but _cType_ = :Validation
-			_aRuleList_ = @aValidationRules
-		ok
-		
-		if _aRuleList_ != NULL
-			# Check if already exists
-			_nRuleList1Len_ = len(_aRuleList_)
-			for _iLoopRuleList1_ = 1 to _nRuleList1Len_
-				_aExisting_ = _aRuleList_[_iLoopRuleList1_]
-				if _aExisting_[:name] = _cName_
-					return  # Already added
-				ok
-			next
-			
-			# Add to appropriate list
-			if _cType_ = :Constraint
+		_cType_ = StzLower("" + _aRule_[:type])
+
+		if _cType_ = "constraint"
+			if NOT This._HasRuleNamed(@aConstraintRules, _cName_)
 				@aConstraintRules + _aRule_
-			but _cType_ = :Derivation
+			ok
+
+		but _cType_ = "derivation"
+			if NOT This._HasRuleNamed(@aDerivationRules, _cName_)
 				@aDerivationRules + _aRule_
-			but _cType_ = :Validation
+			ok
+
+		but _cType_ = "validation"
+			if NOT This._HasRuleNamed(@aValidationRules, _cName_)
 				@aValidationRules + _aRule_
 			ok
 		ok
+
+	def _HasRuleNamed(_aRuleList_, _cName_)
+		_nLen_ = len(_aRuleList_)
+		for i = 1 to _nLen_
+			if _aRuleList_[i][:name] = _cName_
+				return TRUE
+			ok
+		next
+		return FALSE
+
+	def _IsKnownRuleType(pcType)
+		_cT_ = StzLower("" + pcType)
+		return _cT_ = "constraint" or _cT_ = "derivation" or _cT_ = "validation"
 
 	def ApplyDerivationRules()
 		This.ApplyDerivationRulesXT()
@@ -3893,6 +3905,40 @@ class stzGraph from stzObject
 		next
 		
 		return _acResult_
+
+	# Every rule this graph carries, of every type, in one list.
+	#
+	# This is a READING of the three typed stores, never a fourth store.
+	# The .stzrulz code used to write to an @aRules attribute that was
+	# never declared -- so exporting raised R24 and the format had, in
+	# fact, never run. A real @aRules would have to be kept in step with
+	# @aConstraintRules / @aDerivationRules / @aValidationRules on every
+	# path that touches a rule; the day one path forgot, the file and the
+	# graph would disagree and nothing would say so. Derive instead: the
+	# typed stores are the truth, and this just reads them.
+
+	def Rules()
+		_aAll_ = []
+
+		_nLen_ = len(@aConstraintRules)
+		for i = 1 to _nLen_
+			_aAll_ + @aConstraintRules[i]
+		next
+
+		_nLen_ = len(@aDerivationRules)
+		for i = 1 to _nLen_
+			_aAll_ + @aDerivationRules[i]
+		next
+
+		_nLen_ = len(@aValidationRules)
+		for i = 1 to _nLen_
+			_aAll_ + @aValidationRules[i]
+		next
+
+		return _aAll_
+
+	def NumberOfRules()
+		return len(This.Rules())
 
 	def RulesSummary()
 		_aSummary_ = [
@@ -5160,10 +5206,11 @@ class stzGraph from stzObject
 		
 		_cOutput_ += "rules" + NL + NL
 		
-		_nLen_ = len(@aRules)
+		_aRules_ = This.Rules()
+		_nLen_ = len(_aRules_)
 		for i = 1 to _nLen_
-			_aRule_ = @aRules[i]
-			
+			_aRule_ = _aRules_[i]
+
 			_cOutput_ += "    rule " + _aRule_[:name] + NL
 			_cOutput_ += "        type: " + _aRule_[:type] + NL
 			_cOutput_ += "        severity: " + _aRule_[:severity] + NL
@@ -5237,7 +5284,7 @@ class stzGraph from stzObject
 				if StzLeft(_cTrimmed_, 4) = "rule"
 					# Save previous rule
 					if len(_aCurrentRule_) > 0
-						@aRules + _aCurrentRule_
+						This._AdmitParsedRule(_aCurrentRule_)
 					ok
 
 					# Start new rule
@@ -5287,21 +5334,69 @@ class stzGraph from stzObject
 		
 		# Save last rule
 		if len(_aCurrentRule_) > 0
-			@aRules + _aCurrentRule_
+			This._AdmitParsedRule(_aCurrentRule_)
 		ok
+
+	def _AdmitParsedRule(_aRule_)
+		# A rule read off a FILE goes in by the same door as a rule read off
+		# a rule group -- _AddUniqueRule types it and dedups it. The one
+		# thing we add here is that a file can be malformed in a way a
+		# registration cannot: an unknown (or missing) type. Say so, loudly.
+		# _AddUniqueRule would simply not route it, and the rule would go
+		# missing without a word.
+
+		if NOT This._IsKnownRuleType(_aRule_[:type])
+			stzraise("Unknown rule type '" + _aRule_[:type] + "' for rule '" +
+				 _aRule_[:name] + "' -- expected constraint, derivation or validation.")
+		ok
+
+		This._AddUniqueRule(_aRule_)
 
 	#------------------#
 	#  .stzrulf FORMAT #
 	#------------------#
 	
 	def LoadRuleFunctionsFrom(pcPath)
+		# A .stzrulf file is pure Ring code: it defines custom rule
+		# functions and registers them into a rule group, which
+		# UseRulesFrom() then pulls into this graph.
+		#
+		# `load pcPath` CANNOT do this. Ring's load is a COMPILE-TIME
+		# directive, so handing it a variable is silently a no-op -- this
+		# method used to report success while defining nothing and
+		# registering nothing (verified: isfunction() -> 0 and the rule
+		# groups unchanged, right after a "successful" call). Going
+		# through eval() makes load see a literal at ITS compile time,
+		# which is the only way to reach a path known at run time.
+		#
+		# NOTE for .stzrulf authors: put the RegisterRuleInGroup() calls
+		# ABOVE the func definitions. In Ring, statements written after a
+		# func belong to that func's body -- register below and the
+		# registration never runs.
+
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
 		ok
-		
-		# Load and execute the .stzrulf file to register functions
-		load pcPath
-	
+
+		if StzFindFirst(pcPath, "'") > 0
+			stzraise("A .stzrulf path may not contain a quote: " + pcPath)
+		ok
+
+		# Load it ONCE per process. A .stzrulf defines functions, and
+		# defining one twice is C22 "Function redefinition" -- a COMPILE
+		# error try/catch cannot catch, which takes the program down. Two
+		# graphs asking for the same custom rules is ordinary, so a repeat
+		# load is a quiet no-op: the functions are already here, and the
+		# rules are already in their group for UseRulesFrom() to pull.
+
+		_cKey_ = StzLower("" + pcPath)
+		if ring_find($acStzRulfLoaded, _cKey_) > 0
+			return
+		ok
+		$acStzRulfLoaded + _cKey_
+
+		eval("load '" + pcPath + "'")
+
 		def LoadStzRulf(pcPath)
 			This.LoadRuleFunctionsFrom(pcPath)
 	
