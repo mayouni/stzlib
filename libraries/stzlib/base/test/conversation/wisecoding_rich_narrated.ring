@@ -75,8 +75,7 @@ chk("... and it says WHY it is fulfilled",
 	len(StzFind("every required slot", oKG.ConversationQ("s1").GoalWhy())) > 0)
 
 oKG.Know("d2", "dish")
-oKG.AddConversation("s2")
-oKG.ConversationQ("s2").SetGoal(StzGoalQ().RequireEach("dish", "garnish"))
+oKG.AddConversationQ("s2").SetGoal(StzGoalQ().RequireEach("dish", "garnish"))
 oKG.AskIn("s2")
 oKG.ConversationQ("s2").RevokeGoal("out of scope tonight")
 chk("REVOKED is the other way out", oKG.ConversationQ("s2").GoalState() = "revoked")
@@ -98,8 +97,7 @@ chk("neither session is still open (one fulfilled, one revoked)",
 oKB = new stzKnowledgeGraph("pizzeria")
 oKB.Know("pizza1", "dish").Know("pizza2", "dish").Know("pizza3", "dish")
 oKB.Know("pizza4", "dish").Know("pizza5", "dish")
-oKB.AddConversation("frame")
-oKB.ConversationQ("frame").SetGoal(StzGoalQ().RequireEach("dish", "topping"))
+oKB.AddConversationQ("frame").SetGoal(StzGoalQ().RequireEach("dish", "topping"))
 
 aQ = oKB.AskInXT("frame")
 chk("with nothing known yet, the force is OPEN (:what)", aQ[:force] = "what")
@@ -143,8 +141,7 @@ chk("... and the refusal reaches a human checkpoint",
 ? ""
 ? "-- Scene 5: a checkpoint has a LIFETIME (it stops haunting) --"
 oKT = new stzKnowledgeGraph("ttl-space")
-oKT.AddConversation("ttl")
-oKT.ConversationQ("ttl").SetGoal(StzGoalQ().RequireOne("kitchenT", "led-by"))
+oKT.AddConversationQ("ttl").SetGoal(StzGoalQ().RequireOne("kitchenT", "led-by"))
 oKT.AskIn("ttl")
 oKT.ReplyIn("ttl", 7)                 # nothing offered -> refused + checkpointed
 chk("the refusal is checkpointed",

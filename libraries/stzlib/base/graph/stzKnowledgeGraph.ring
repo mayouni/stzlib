@@ -240,6 +240,14 @@ class stzKnowledgeGraph from stzGraph
 		@aoConversations + StzConversationQ(_cN_)
 		return This
 
+	# The SAME act, returning the NEW conversation so you can chain onto it:
+	#   oKB.AddConversationQ("setup").SetGoal(oGoal)
+	# The verb says what you DO (add), the Q says what you GET BACK (the new
+	# object). Use ConversationQ(name) when you mean "the one already there".
+	def AddConversationQ(pcConvName)
+		This.AddConversation(pcConvName)
+		return @aoConversations[This._ConvIndex(pcConvName)]
+
 	def AddConversations(pacNames)
 		if NOT isList(pacNames)
 			stzraise("AddConversations() takes a list of names.")

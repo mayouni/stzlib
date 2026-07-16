@@ -16,12 +16,20 @@
 #
 #   oKB = new stzKnowledgeGraph("restaurant")     # the knowledge SPACE
 #   oKB.Know("margherita", "dish")
-#   oKB.Converse("setup")                         # a session opens IN it
-#   oKB.ConversationQ("setup").GoalQ().RequireEach("dish", "contains")
+#   oKB.AddConversationQ("setup").                # ADD a session IN the space,
+#       SetGoal(StzGoalQ().RequireEach("dish", "contains"))   # hand it ONE goal
 #   ? oKB.AskIn("setup")                          # SYSTEM-LED: born from the gap
 #   oKB.ReplyIn("setup", "tomato-sauce")          # admitted INTO the space
-#   ? oKB.ConversationQ("setup").Why()            # every verdict narrated
+#   ? oKB.ConversationQ("setup").GoalState()      # pursuing -> fulfilled|revoked
 #   oKB.ConcludeIn("setup", "myworld")            # gaps closed -> .zknw written
+#
+# AddConversationQ(name) ADDS one and hands you the new object to chain on;
+# ConversationQ(name) is for the one ALREADY there. The verb states the act,
+# the Q states what comes back.
+#
+# THE GOAL is not assembled from inside: it is BUILT whole and HANDED OVER
+# (SetGoal). A conversation carries exactly ONE, and is accountable for it
+# until it is FULFILLED or REVOKED -- see the goal section below.
 #
 # THE QUESTION IS A FRAME (the house doctrine applied to elicitation): a
 # FORCE opens it and SLOTS fill it -- :which when the domain already knows

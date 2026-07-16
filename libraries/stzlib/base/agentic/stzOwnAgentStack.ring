@@ -7,7 +7,8 @@
 #
 #   ? StzOwnAgents()                 # the curated roster
 #   oWC = StzOwnAgent("wise-coder")  # a real, wired agent Softanza owns
-#   oWC.PursueGoal(oGoal)               # drives the R3b elicitation loop
+#   oWC.PursueGoal(oGoal, oKB, fAnswers)  # drives the R3b elicitation loop
+#                                         # IN the knowledge space oKB
 #
 # THE ROSTER (each a stzPIAgent specialization the library uses):
 #   wise-coder  -- drives conversation/ elicitation to a filled goal
@@ -84,9 +85,9 @@ class stzWiseCoderAgent from stzObject
 		if poKB.HasConversation(@cConvTopic)
 			poKB.RemoveConversation(@cConvTopic)
 		ok
-		poKB.AddConversation(@cConvTopic)
-		# HAND THE GOAL OVER -- the session is now accountable for it
-		poKB.ConversationQ(@cConvTopic).SetGoal(poGoal)
+		# add the session and HAND THE GOAL OVER in one act -- from here the
+		# session is accountable for it
+		poKB.AddConversationQ(@cConvTopic).SetGoal(poGoal)
 
 		@nAsked = 0
 		_nRound_ = 0
