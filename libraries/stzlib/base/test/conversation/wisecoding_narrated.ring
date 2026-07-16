@@ -12,12 +12,11 @@ nFail = 0
 pr()
 
 ? "-- Scene 1: the goal declares the shape; gaps generate questions --"
-StzKnow("margherita", "dish")
-StzKnow("tiramisu", "dish")
-
+# SCOPED: the session elicits into its OWN graph, not a global world
 oCv = new stzConversation("restaurant-setup")
+oCv.KnowledgeQ().Know("margherita", "dish").Know("tiramisu", "dish")
 oCv.GoalQ().RequireEach("dish", "contains")
-chk("the gap is computed from the graph", len(oCv.Gaps()) = 2)
+chk("the gap is computed from the SCOPED graph", len(oCv.Gaps()) = 2)
 
 aQ = oCv.NextQuestionXT()
 chk("the question is SYSTEM-LED and names its subject",
@@ -33,16 +32,17 @@ chk("natural phrasing admits (register 4: 'X and Y')",
 oCv.NextQuestion()
 aV2 = oCv.Reply([ "mascarpone", "espresso" ])
 chk("a data structure admits (register 2)", len(aV2[:admitted]) = 2)
-chk("admissions are grounded in the graph (AreRelated sees them)",
-	AreRelated("tiramisu", "espresso") = "contains")
+chk("admissions are grounded in THIS session's graph",
+	oCv.KnowledgeQ().Query([ "tiramisu", "contains", "?o" ])[1] = "mascarpone")
 
 ? ""
 ? "-- Scene 3: refusal is governed AND checkpointed (G7) --"
 oCv3 = new stzConversation("staffing")
 oCv3.GoalQ().RequireOne("kitchen3", "led-by")
 oCv3.NextQuestion()
-StzConstrainRelation("led-by", :Unique)
-StzKnowRelation("kitchen3", "led-by", "mario")
+# the law is declared, and a value lands, while the question is open
+oCv3.KnowledgeQ().ConstrainRelation("led-by", :Unique)
+oCv3.KnowledgeQ().KnowRelation("kitchen3", "led-by", "mario")
 aR = oCv3.Reply("giovanni")
 chk("the :Unique law refuses through the conversation",
 	len(aR[:refused]) = 1)

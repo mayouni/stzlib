@@ -6,12 +6,20 @@
 # WRITING the knowledgebase. Deterministic floor -- NO model needed;
 # stzNeuralChat (neural/) can upgrade fluency behind the same surface.
 #
-#   oCv = new stzConversation("restaurant-setup")
+#   oCv = new stzConversation("restaurant-setup")   # owns a SCOPED brain
+#   oCv.KnowledgeQ().Know("margherita", "dish")     # ...or KnowledgeOn(oKB)
 #   oCv.GoalQ().RequireEach("dish", "contains")
 #   ? oCv.NextQuestion()      # SYSTEM-LED: born from the gap
 #   oCv.Reply("tomato-sauce") # any register; admission GOVERNED
 #   ? oCv.Why()               # every verdict narrated
 #   oCv.Conclude("myworld")   # gaps closed -> the .zknw written
+#
+# SCOPED, NOT GLOBAL: a conversation elicits a DOMAIN, so it works on a
+# stzKnowledgeGraph INSTANCE -- its own by default, or one handed in with
+# KnowledgeOn(oKB). Answers are admitted through that graph's OWN governed
+# door (oKB.Admit: laws checked, verdict explained, refusals recorded as
+# contradictions) and Conclude() writes THAT graph. Two conversations can
+# elicit two domains at once without touching each other or a shared world.
 #
 # THE QUESTION IS A FRAME (the house doctrine applied to elicitation): a
 # FORCE opens it and SLOTS fill it -- :which when the domain already knows
@@ -36,6 +44,8 @@
 class stzConversation from stzObject
 
 	@cTopic = ""
+	@oKB = NULL          # the SCOPED domain brain this session elicits into
+	@cWhy = ""
 	@oGoal = NULL
 	@oNarration = NULL
 	@aPending = []       # [ subject, relation ] awaiting an answer
@@ -48,11 +58,27 @@ class stzConversation from stzObject
 
 	def init(pcTopic)
 		@cTopic = "" + pcTopic
+		@oKB = new stzKnowledgeGraph("" + pcTopic)   # its OWN scoped brain
 		@oGoal = new stzGoal()
+		
 		@oNarration = new stzNarration()
 
 	def Topic()
 		return @cTopic
+
+	#-- the scoped knowledgebase ------------------------------------------
+
+	# elicit into an EXISTING domain graph instead of the session's own
+	def KnowledgeOn(poKB)
+		if NOT IsStzKnowledgeGraph(poKB)
+			stzraise("A conversation elicits into a SCOPED knowledgebase -- KnowledgeOn() needs a stzKnowledgeGraph.")
+		ok
+		@oKB = poKB
+		
+		return This
+
+	def KnowledgeQ()
+		return @oKB
 
 	def GoalQ()
 		return @oGoal
@@ -69,7 +95,7 @@ class stzConversation from stzObject
 	#-- the wise-coding loop ----------------------------------------------
 
 	def Gaps()
-		return @oGoal.Gaps()
+		return @oGoal.Gaps(@oKB)
 
 	# SYSTEM-LED: the next question is BORN FROM THE GAP -- and it can
 	# say why it asks (the elicitation is accountable).
@@ -81,7 +107,7 @@ class stzConversation from stzObject
 		return _aQ_[:question]
 
 	def NextQuestionXT()
-		_aGaps_ = @oGoal.Gaps()
+		_aGaps_ = @oGoal.Gaps(@oKB)
 		if len(_aGaps_) = 0
 			@aPending = []
 			@acOptions = []
@@ -225,15 +251,21 @@ class stzConversation from stzObject
 		next
 		_n_ = len(_acVals_)
 		for _i_ = 1 to _n_
-			_bOk_ = StzKnowRelation(_cSubj_, _cRel_, _acVals_[_i_])
-			@oNarration.Verdict($cStzLastWhyB, $nStzLastCertainty)
-			if _bOk_ = 1
+			# THE GOVERNED DOOR of this session's OWN graph: laws checked,
+			# verdict explained, refusal recorded -- provenance carried (G8).
+			_aAd_ = @oKB.Admit(_cSubj_, _cRel_, _acVals_[_i_],
+				[ :source = "conversation:" + @cTopic, :confidence = 1 ])
+			@cWhy = _aAd_[:why]
+			$cStzLastWhyB = @cWhy       # the house 'last why' convention
+			$nStzLastCertainty = 1
+			@oNarration.Verdict(@cWhy, 1)
+			if _aAd_[:admitted] = 1
 				_acAdmitted_ + _acVals_[_i_]
 			else
-				_aRefused_ + [ _acVals_[_i_], $cStzLastWhyB ]
+				_aRefused_ + [ _acVals_[_i_], @cWhy ]
 				# G7: a refusal reaches a human, context preserved
 				@aCheckpoints + [ :subject = _cSubj_, :relation = _cRel_,
-					:attempted = _acVals_[_i_], :why = $cStzLastWhyB,
+					:attempted = _acVals_[_i_], :why = @cWhy,
 					:turn = @nTurns ]
 			ok
 		next
@@ -242,10 +274,10 @@ class stzConversation from stzObject
 			@aPending = []
 		ok
 		return [ :admitted = _acAdmitted_, :refused = _aRefused_,
-			:narration = $cStzLastWhyB ]
+			:narration = @cWhy ]
 
 	def Why()
-		return $cStzLastWhyB
+		return @cWhy
 
 	#-- G7 checkpoints, with a TTL ----------------------------------------
 	# A refusal reaches a human -- but a checkpoint nobody cleared should not
@@ -287,11 +319,11 @@ class stzConversation from stzObject
 	# gaps closed -> WRITE the knowledgebase (the session's real
 	# artifact); gaps remaining -> refuse with the list (LAW 3)
 	def Conclude(pcKnowFile)
-		_aGaps_ = @oGoal.Gaps()
+		_aGaps_ = @oGoal.Gaps(@oKB)
 		if len(_aGaps_) > 0
 			stzraise("Can't conclude: " + len(_aGaps_) + " gap(s) remain -- the wise-coding loop is not done. Ask NextQuestion().")
 		ok
-		StzSaveKnowledgeBase(pcKnowFile)
+		@oKB.WriteToKnowFile(pcKnowFile)   # THIS session's graph, not a world
 		@oNarration.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
 		return 1
 
@@ -361,13 +393,16 @@ class stzConversation from stzObject
 		next
 		return [ :values = _aVals_, :bad = _aBad_ ]
 
+	# the values this relation already takes IN THIS SESSION'S graph
 	def _KnownValuesOf(pcRel)
+		_cR_ = StzLower("" + pcRel)
 		_acOut_ = []
-		_n_ = len($aStzRelations)
+		_aF_ = @oKB.Facts()
+		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
-			if $aStzRelations[_i_][2] = pcRel
-				if ring_find(_acOut_, $aStzRelations[_i_][3]) = 0
-					_acOut_ + $aStzRelations[_i_][3]
+			if StzLower("" + _aF_[_i_][2]) = _cR_
+				if ring_find(_acOut_, _aF_[_i_][3]) = 0
+					_acOut_ + _aF_[_i_][3]
 				ok
 			ok
 		next

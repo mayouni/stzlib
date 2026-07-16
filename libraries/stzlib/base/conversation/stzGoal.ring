@@ -8,9 +8,17 @@
 #                                     relation (the schema form)
 #   RequireOne("kitchen", "run-by")   one specific subject bears it
 #
-# Gaps() reads the DEFAULT knowledge graph's world (R1) and answers
-# with the missing [ subject, relation ] slots -- deterministic, so
-# the elicitation is accountable: every question can say WHY it asks.
+# A goal is a pure SPEC -- the target shape. It is APPLIED TO a scoped
+# knowledgebase: Gaps(oKB) answers "what is missing in THIS graph", never
+# reading a global world. The graph arrives as a PARAMETER (by reference in
+# Ring) and is deliberately NOT stored: an object kept in an attribute is
+# COPIED, so a stored graph would silently go stale the moment its owner
+# wrote to it (see [[feedback-ring-vm-traps]]).
+#
+#   oKB = new stzKnowledgeGraph("menu")
+#   oKB.Know("margherita", "dish")
+#   oGoal = new stzGoal().RequireEach("dish", "contains")
+#   ? oGoal.Gaps(oKB)   #--> [ [ "margherita", "contains", "every dish..." ] ]
 
 class stzGoal from stzObject
 
@@ -30,8 +38,11 @@ class stzGoal from stzObject
 	def Requirements()
 		return [ :each = @aEach, :one = @aOne ]
 
-	# the missing slots: [ [ subject, relation, why ] ... ]
-	def Gaps()
+	# the missing slots of THIS goal against poKB: [ [ subject, relation, why ] ]
+	def Gaps(poKB)
+		if NOT IsStzKnowledgeGraph(poKB)
+			stzraise("Gaps() needs the SCOPED knowledgebase to read -- Gaps(oKB) with a stzKnowledgeGraph (a goal never reads a global world).")
+		ok
 		_aGaps_ = []
 
 		# schema form: every entity of the type must bear the relation
@@ -39,14 +50,12 @@ class stzGoal from stzObject
 		for _i_ = 1 to _n_
 			_cType_ = @aEach[_i_][1]
 			_cRel_ = @aEach[_i_][2]
-			_aAll_ = $oWorldEntities.Entities()
-			_nAll_ = len(_aAll_)
+			_acEnts_ = poKB.Query([ "?x", "is-a", _cType_ ])
+			_nAll_ = len(_acEnts_)
 			for _e_ = 1 to _nAll_
-				if _aAll_[_e_][:type] = _cType_
-					if NOT This._Bears(_aAll_[_e_][:name], _cRel_)
-						_aGaps_ + [ _aAll_[_e_][:name], _cRel_,
-							"every " + _cType_ + " needs '" + _cRel_ + "'" ]
-					ok
+				if NOT This._Bears(poKB, _acEnts_[_e_], _cRel_)
+					_aGaps_ + [ _acEnts_[_e_], _cRel_,
+						"every " + _cType_ + " needs '" + _cRel_ + "'" ]
 				ok
 			next
 		next
@@ -54,7 +63,7 @@ class stzGoal from stzObject
 		# subject form
 		_n_ = len(@aOne)
 		for _i_ = 1 to _n_
-			if NOT This._Bears(@aOne[_i_][1], @aOne[_i_][2])
+			if NOT This._Bears(poKB, @aOne[_i_][1], @aOne[_i_][2])
 				_aGaps_ + [ @aOne[_i_][1], @aOne[_i_][2],
 					"'" + @aOne[_i_][1] + "' needs '" + @aOne[_i_][2] + "'" ]
 			ok
@@ -62,15 +71,9 @@ class stzGoal from stzObject
 
 		return _aGaps_
 
-	def IsSatisfied()
-		return len(This.Gaps()) = 0
+	def IsSatisfied(poKB)
+		return len(This.Gaps(poKB)) = 0
 
-	def _Bears(pcSubject, pcRel)
-		_aOut_ = RelationsOf(pcSubject)
-		_n_ = len(_aOut_)
-		for _i_ = 1 to _n_
-			if _aOut_[_i_][1] = pcRel
-				return 1
-			ok
-		next
-		return 0
+	# does the SCOPED graph already record (subject, relation, *) ?
+	def _Bears(poKB, pcSubject, pcRel)
+		return len(poKB.Query([ "" + pcSubject, "" + pcRel, "?o" ])) > 0
