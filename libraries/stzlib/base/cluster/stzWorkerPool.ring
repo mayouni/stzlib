@@ -13,7 +13,7 @@
 #
 #   oPool = new stzWorkerPool()
 #   oPool.AddProfile("nlp",  [ :sentiment, :classify ], 4)
-#   oPool.AddProfile("vision", [ :ocr ], 1).Profile("vision").UsesExternalTool("tesseract")
+#   oPool.AddProfileQ("vision", [ :ocr ], 1).UsesExternalTool("tesseract")
 #   r = oPool.Dispatch("nlp", func { return StzEngineTextSentiment("great!") })
 #   ? r[:admitted]   # 1 -> ran now; 0 -> queued (Drain() runs it as slots free)
 #
@@ -29,8 +29,8 @@ func StzWorkerPool()
 
 class stzWorkerPool from stzObject
 
-	@aProfiles = []      # list of stzWorkerProfile
-	@aQueues = []        # parallel to @aProfiles: [ [ fWork, ... ], ... ]
+	@aoProfiles = []      # list of stzWorkerProfile
+	@aQueues = []        # parallel to @aoProfiles: [ [ fWork, ... ], ... ]
 	@aResults = []       # drained results: [ [ tag, value ], ... ]
 	@oReactorPool = NULL # attached for the R8.3 fleet (optional at R8.1)
 	@oCatalog = NULL     # the competence registry this pool draws facets
@@ -38,7 +38,7 @@ class stzWorkerPool from stzObject
 	                     # izable) -- not a global (a deployment concern)
 
 	def init()
-		@aProfiles = []
+		@aoProfiles = []
 		@aQueues = []
 		@aResults = []
 		@oCatalog = new stzFacetCatalog()
@@ -74,9 +74,9 @@ class stzWorkerPool from stzObject
 		This.AddProfile(_cTag_, @oCatalog.CapabilitiesOf(pcName), nBudget)
 		# call THROUGH Profile() each time -- assigning to a local COPIES
 		# the profile (Ring aliasing), so the mutation would be discarded.
-		This.Profile(_cTag_).RealizedBy(@oCatalog.ModulesOf(pcName))
+		This.ProfileQ(_cTag_).RealizedBy(@oCatalog.ModulesOf(pcName))
 		if @oCatalog.IsPolyglot(pcName)
-			This.Profile(_cTag_).UsesExternalTool(@oCatalog.ToolOf(pcName))
+			This.ProfileQ(_cTag_).UsesExternalTool(@oCatalog.ToolOf(pcName))
 		ok
 		return This
 
@@ -97,36 +97,43 @@ class stzWorkerPool from stzObject
 		if This._IndexOf(pcTag) > 0
 			stzraise("stzWorkerPool: profile '" + pcTag + "' already exists.")
 		ok
-		@aProfiles + new stzWorkerProfile(pcTag, paCapabilities, pnBudget)
+		@aoProfiles + new stzWorkerProfile(pcTag, paCapabilities, pnBudget)
 		@aQueues + []
 		return This
 
-	def Profile(pcTag)
+
+	# the SAME act, returning the NEW profile so you can chain onto it:
+	#   oPool.AddProfileQ("vision", [ :ocr ], 1).UsesExternalTool("tesseract")
+	# The verb states the act, the Q states what comes back.
+	def AddProfileQ(pcTag, paCapabilities, pnBudget)
+		This.AddProfile(pcTag, paCapabilities, pnBudget)
+		return This.ProfileQ(pcTag)
+	def ProfileQ(pcTag)
 		_i_ = This._IndexOf(pcTag)
 		if _i_ = 0  return NULL  ok
-		return @aProfiles[_i_]
+		return @aoProfiles[_i_]
 
 	def HasProfile(pcTag)
 		return This._IndexOf(pcTag) > 0
 
 	def NumberOfProfiles()
-		return len(@aProfiles)
+		return len(@aoProfiles)
 
 	def Tags()
 		_a_ = []
-		_n_ = len(@aProfiles)
+		_n_ = len(@aoProfiles)
 		for _i_ = 1 to _n_
-			_a_ + @aProfiles[_i_].Tag()
+			_a_ + @aoProfiles[_i_].Tag()
 		next
 		return _a_
 
 	# The profile whose CAPABILITIES include pcCapability (routing seam
 	# for R8.2). Returns the tag, or "" if none.
 	def ProfileFor(pcCapability)
-		_n_ = len(@aProfiles)
+		_n_ = len(@aoProfiles)
 		for _i_ = 1 to _n_
-			if @aProfiles[_i_].Handles(pcCapability)
-				return @aProfiles[_i_].Tag()
+			if @aoProfiles[_i_].Handles(pcCapability)
+				return @aoProfiles[_i_].Tag()
 			ok
 		next
 		return ""
@@ -151,16 +158,16 @@ class stzWorkerPool from stzObject
 		if _i_ = 0
 			stzraise("stzWorkerPool.Dispatch: no profile '" + pcTag + "'.")
 		ok
-		if @aProfiles[_i_].Acquire()
+		if @aoProfiles[_i_].Acquire()
 			_v_ = call fWork()
-			@aProfiles[_i_].Release()
+			@aoProfiles[_i_].Release()
 			@aResults + [ pcTag, _v_ ]
 			return [ :admitted = 1, :result = _v_, :tag = pcTag ]
 		ok
 		# over budget -> queue, unless the queue is bounded AND full, in
 		# which case SHED (backpressure) rather than grow unbounded.
-		if @aProfiles[_i_].MaxQueue() > 0 and len(@aQueues[_i_]) >= @aProfiles[_i_].MaxQueue()
-			@aProfiles[_i_].Shed()
+		if @aoProfiles[_i_].MaxQueue() > 0 and len(@aQueues[_i_]) >= @aoProfiles[_i_].MaxQueue()
+			@aoProfiles[_i_].Shed()
 			return [ :admitted = 0, :queued = 0, :shed = 1, :tag = pcTag ]
 		ok
 		@aQueues[_i_] + fWork
@@ -174,30 +181,30 @@ class stzWorkerPool from stzObject
 		if _i_ = 0
 			stzraise("stzWorkerPool.Acquire: no profile '" + pcTag + "'.")
 		ok
-		return @aProfiles[_i_].Acquire()
+		return @aoProfiles[_i_].Acquire()
 
 	def Release(pcTag)
 		_i_ = This._IndexOf(pcTag)
 		if _i_ = 0
 			stzraise("stzWorkerPool.Release: no profile '" + pcTag + "'.")
 		ok
-		@aProfiles[_i_].Release()
+		@aoProfiles[_i_].Release()
 		return This
 
 	# Run queued work for every profile as slots free. Returns the number
 	# of queued items that ran this pass.
 	def Drain()
 		_nRan_ = 0
-		_nP_ = len(@aProfiles)
+		_nP_ = len(@aoProfiles)
 		for _i_ = 1 to _nP_
 			# run from the front while the profile can admit and work waits
-			while len(@aQueues[_i_]) > 0 and @aProfiles[_i_].CanAdmit()
+			while len(@aQueues[_i_]) > 0 and @aoProfiles[_i_].CanAdmit()
 				_fWork_ = @aQueues[_i_][1]
 				del(@aQueues[_i_], 1)
-				@aProfiles[_i_].Acquire()
+				@aoProfiles[_i_].Acquire()
 				_v_ = call _fWork_()
-				@aProfiles[_i_].Release()
-				@aResults + [ @aProfiles[_i_].Tag(), _v_ ]
+				@aoProfiles[_i_].Release()
+				@aResults + [ @aoProfiles[_i_].Tag(), _v_ ]
 				_nRan_++
 			end
 		next
@@ -208,7 +215,7 @@ class stzWorkerPool from stzObject
 	def InFlight(pcTag)
 		_i_ = This._IndexOf(pcTag)
 		if _i_ = 0  return 0  ok
-		return @aProfiles[_i_].InFlight()
+		return @aoProfiles[_i_].InFlight()
 
 	def QueueDepth(pcTag)
 		_i_ = This._IndexOf(pcTag)
@@ -218,7 +225,7 @@ class stzWorkerPool from stzObject
 	def ShedCount(pcTag)
 		_i_ = This._IndexOf(pcTag)
 		if _i_ = 0  return 0  ok
-		return @aProfiles[_i_].ShedCount()
+		return @aoProfiles[_i_].ShedCount()
 
 	def Results()
 		return @aResults
@@ -227,24 +234,24 @@ class stzWorkerPool from stzObject
 	# numbers, not the old random() monitor).
 	def Metrics()
 		_a_ = []
-		_n_ = len(@aProfiles)
+		_n_ = len(@aoProfiles)
 		for _i_ = 1 to _n_
 			_a_ + [
-				:tag = @aProfiles[_i_].Tag(),
-				:budget = @aProfiles[_i_].Budget(),
-				:inflight = @aProfiles[_i_].InFlight(),
+				:tag = @aoProfiles[_i_].Tag(),
+				:budget = @aoProfiles[_i_].Budget(),
+				:inflight = @aoProfiles[_i_].InFlight(),
 				:queue = len(@aQueues[_i_]),
-				:admitted = @aProfiles[_i_].AdmittedCount(),
-				:rejected = @aProfiles[_i_].RejectedCount()
+				:admitted = @aoProfiles[_i_].AdmittedCount(),
+				:rejected = @aoProfiles[_i_].RejectedCount()
 			]
 		next
 		return _a_
 
 	def Narrate()
-		_cR_ = "worker pool [" + len(@aProfiles) + " profile(s)]:"
-		_n_ = len(@aProfiles)
+		_cR_ = "worker pool [" + len(@aoProfiles) + " profile(s)]:"
+		_n_ = len(@aoProfiles)
 		for _i_ = 1 to _n_
-			_cR_ += char(10) + "  " + @aProfiles[_i_].Narrate() +
+			_cR_ += char(10) + "  " + @aoProfiles[_i_].Narrate() +
 				"  queue=" + len(@aQueues[_i_])
 		next
 		return _cR_
@@ -253,8 +260,8 @@ class stzWorkerPool from stzObject
 
 	def _IndexOf(pcTag)
 		_c_ = StzLower("" + pcTag)
-		_n_ = len(@aProfiles)
+		_n_ = len(@aoProfiles)
 		for _i_ = 1 to _n_
-			if @aProfiles[_i_].Tag() = _c_  return _i_  ok
+			if @aoProfiles[_i_].Tag() = _c_  return _i_  ok
 		next
 		return 0

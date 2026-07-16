@@ -117,7 +117,7 @@ Scenario("DATA: the worker pool survives heavy dispatch + full drain, no leak")
 	Then("every queued item ran", nRan, 500)
 	Then("the queue is empty", $oPool.QueueDepth("math"), 0)
 	Then("no slot leaked (in-flight back to 0)", $oPool.InFlight("math"), 0)
-	Then("admitted count reflects all work", $oPool.Profile("math").AdmittedCount() >= 500, TRUE)
+	Then("admitted count reflects all work", $oPool.ProfileQ("math").AdmittedCount() >= 500, TRUE)
 EndScenario()
 
 Scenario("DATA: a large payload flows through the whole pipeline intact")
@@ -168,7 +168,7 @@ Scenario("FUNCTIONAL: a pipeline stage failure is CONTAINED, not fatal")
 	oF.UsingPool(oP2)
 	oF.Run("start")
 	Then("the facet slot was RELEASED despite the failure (no leak)",
-		oF.PoolQ().Profile("math").InFlight(), 0)
+		oF.PoolQ().ProfileQ("math").InFlight(), 0)
 EndScenario()
 
 Scenario("FUNCTIONAL: routing/classification boundary conditions")

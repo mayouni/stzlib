@@ -46,10 +46,10 @@ Scenario("each stage is admitted into ITS facet's budget (load isolation)")
 	$oPipe.Run("scan:doc-one")
 	$oPipe.Run("scan:doc-two")
 	Then("each facet was admitted once per run (read via the pipeline's pool)",
-		$oPipe.PoolQ().Profile("nlp").AdmittedCount(), 2)
-	Then("vision too", $oPipe.PoolQ().Profile("vision").AdmittedCount(), 2)
+		$oPipe.PoolQ().ProfileQ("nlp").AdmittedCount(), 2)
+	Then("vision too", $oPipe.PoolQ().ProfileQ("vision").AdmittedCount(), 2)
 	Then("and every slot was released (no leak)",
-		$oPipe.PoolQ().Profile("nlp").InFlight(), 0)
+		$oPipe.PoolQ().ProfileQ("nlp").InFlight(), 0)
 EndScenario()
 
 Scenario("RunBatch fans many inputs through the whole pipeline")

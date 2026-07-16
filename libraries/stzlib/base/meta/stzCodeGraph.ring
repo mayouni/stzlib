@@ -136,7 +136,7 @@ class stzCodeGraph from stzObject
 
 	#-- structure queries -------------------------------------------------
 
-	def Graph()
+	def GraphQ()
 		return @oGraph
 
 	def Classes()

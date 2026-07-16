@@ -23,9 +23,9 @@ Scenario("worlds are registered as nodes of the constellation")
 	$oCon.AddWorld("supplier", $oSupplier)
 	Then("it holds two worlds", $oCon.NumberOfWorlds(), 2)
 	Then("resto is a live world object",
-		isObject($oCon.World("resto")), TRUE)
+		isObject($oCon.WorldQ("resto")), TRUE)
 	Then("and it is the real resto (its dish survived)",
-		$oCon.World("resto").Name(), "resto")
+		$oCon.WorldQ("resto").Name(), "resto")
 	Then("both are active", $oCon.IsActive("resto") and $oCon.IsActive("supplier"), TRUE)
 	Then("the constellation graph has both nodes",
 		$oCon.GraphQ().NodesCount(), 2)
@@ -82,7 +82,7 @@ Scenario("a world is hot-swapped, keeping its node and bonds")
 	$oCon.Swap("supplier", oNewSupplier)
 	Then("still one supplier node (count unchanged)", $oCon.NumberOfWorlds(), 2)
 	Then("the node now serves the new world",
-		$oCon.World("supplier").Name(), "supplier-v2")
+		$oCon.WorldQ("supplier").Name(), "supplier-v2")
 	Then("the bond survived the swap: the order still clears",
 		$oCon.CallAcross("resto", "supplier", "order-produce"), TRUE)
 EndScenario()
@@ -94,7 +94,7 @@ Scenario("constellations nest recursively (graph-of-graphs)")
 	Then("the parent holds one world", oParent.NumberOfWorlds(), 1)
 	Then("its kind is a nested constellation", oParent.KindOf("acme"), "super")
 	Then("and it IS the acme constellation (two worlds inside)",
-		oParent.World("acme").NumberOfWorlds(), 2)
+		oParent.WorldQ("acme").NumberOfWorlds(), 2)
 	$oDb.Close()
 EndScenario()
 

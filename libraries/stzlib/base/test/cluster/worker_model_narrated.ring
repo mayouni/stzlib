@@ -18,10 +18,10 @@ Scenario("the default pool has the 4 domain profiles, grounded in the engine")
 		$oPool.HasProfile("nlp") and $oPool.HasProfile("math") and
 		$oPool.HasProfile("search") and $oPool.HasProfile("vision"), TRUE)
 	Then("nlp/math/search are engine-native (no external tool)",
-		$oPool.Profile("nlp").IsPolyglot(), FALSE)
+		$oPool.ProfileQ("nlp").IsPolyglot(), FALSE)
 	Then("vision is a POLYGLOT worker (external tool, per domain honesty)",
-		$oPool.Profile("vision").IsPolyglot(), TRUE)
-	Then("its external tool is named", $oPool.Profile("vision").ExternalTool(), "python")
+		$oPool.ProfileQ("vision").IsPolyglot(), TRUE)
+	Then("its external tool is named", $oPool.ProfileQ("vision").ExternalTool(), "python")
 EndScenario()
 
 Scenario("capabilities route to profiles (the R8.2 seam)")
@@ -52,7 +52,7 @@ Scenario("LOAD ISOLATION: a saturated profile never starves another")
 	When("a long-running vision job holds the ONLY vision slot")
 	bHeld = $oIso.Acquire("vision")   # models an in-flight heavy job
 	Then("the vision slot is taken", bHeld, TRUE)
-	Then("vision is now saturated", $oIso.Profile("vision").CanAdmit(), FALSE)
+	Then("vision is now saturated", $oIso.ProfileQ("vision").CanAdmit(), FALSE)
 
 	When("MORE vision work arrives while the slot is held")
 	rV = $oIso.Dispatch("vision", func { return "ocr-done" })
@@ -95,19 +95,19 @@ Scenario("FACET != MODULE: the naming law and the facet->module provenance")
 	oF = new stzWorkerPool()
 	oF.SeedAllFacets(1)
 	Then("GROUNDED: :data maps to exactly one module (1:1)",
-		oF.Profile("data").MappingKind(), :grounded)
-	Then("and that module is 'data'", oF.Profile("data").RealizingModules()[1], "data")
+		oF.ProfileQ("data").MappingKind(), :grounded)
+	Then("and that module is 'data'", oF.ProfileQ("data").RealizingModules()[1], "data")
 
 	Then("COMPOSED: :math spans several modules (1:n)",
-		oF.Profile("math").MappingKind(), :composed)
+		oF.ProfileQ("math").MappingKind(), :composed)
 	Then("its provenance names more than one module",
-		len(oF.Profile("math").RealizingModules()) >= 2, TRUE)
+		len(oF.ProfileQ("math").RealizingModules()) >= 2, TRUE)
 	Then("COMPOSED: :knowledge spans natural + graph",
-		oF.Profile("knowledge").MappingKind(), :composed)
+		oF.ProfileQ("knowledge").MappingKind(), :composed)
 
 	Then("EXTERNAL: :vision has NO module (polyglot, 1:0)",
-		oF.Profile("vision").MappingKind(), :external)
-	Then("its realizing-module list is empty", len(oF.Profile("vision").RealizingModules()), 0)
+		oF.ProfileQ("vision").MappingKind(), :external)
+	Then("its realizing-module list is empty", len(oF.ProfileQ("vision").RealizingModules()), 0)
 
 	Given("a facet that is LOGICAL-ONLY (no dedicated module, not polyglot)")
 	# :search is composed from neural+graph+data; to show a purely logical
@@ -134,7 +134,7 @@ Scenario("the facet catalog is INSTANCE-scoped, not global (per deployment)")
 	When("pool A adds a worker for its custom facet")
 	oPoolA.AddFacet(:pdf, 2)
 	Then("pool A has the :pdf profile", oPoolA.HasProfile("pdf"), TRUE)
-	Then("it is polyglot via python", oPoolA.Profile("pdf").ExternalTool(), "python")
+	Then("it is polyglot via python", oPoolA.ProfileQ("pdf").ExternalTool(), "python")
 	When("pool B tries to use a facet not in ITS catalog")
 	bRaised = FALSE
 	try

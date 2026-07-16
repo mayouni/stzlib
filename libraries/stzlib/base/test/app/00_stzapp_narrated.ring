@@ -35,7 +35,7 @@ oApp.Explain()
 #        visit of client
 #        account belongsto client
 
-? "nodes: " + oApp.Graph().NodesCount()      #--> nodes: 3
+? "nodes: " + oApp.GraphQ().NodesCount()      #--> nodes: 3
 
 oApp.Live()   #--> [SonibankVisits] is live -- 3 thing(s), 0 flow(s), 0 reaction(s), 0 goal(s); 0 proposal(s)
 

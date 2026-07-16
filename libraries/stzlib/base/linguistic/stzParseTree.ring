@@ -24,12 +24,12 @@ class stzParseTree from stzObject
 
 	@cLabel = ""        # phrase label (NP/VP/PP/S) OR, on a leaf, the POS tag
 	@cWord = ""         # the token, on a leaf only
-	@aChildren = []     # child stzParseTree nodes (empty on a leaf)
+	@aoChildren = []     # child stzParseTree nodes (empty on a leaf)
 
 	def init(pcLabel)
 		@cLabel = "" + pcLabel
 		@cWord = ""
-		@aChildren = []
+		@aoChildren = []
 
 	#-- construction (the parser builds bottom-up) ---------------------------
 
@@ -38,7 +38,7 @@ class stzParseTree from stzObject
 		return This
 
 	def AddChild(oNode)
-		@aChildren + oNode      # Ring copies on append -- fine, subtrees are
+		@aoChildren + oNode      # Ring copies on append -- fine, subtrees are
 		return This             # finalized before they join their parent
 
 	#-- shape ----------------------------------------------------------------
@@ -50,13 +50,13 @@ class stzParseTree from stzObject
 		return @cWord
 
 	def IsLeaf()
-		return len(@aChildren) = 0
+		return len(@aoChildren) = 0
 
 	def Children()
-		return @aChildren
+		return @aoChildren
 
 	def NumberOfChildren()
-		return len(@aChildren)
+		return len(@aoChildren)
 
 	# the terminal words, left to right (the tree's "yield")
 	def Leaves()
@@ -67,9 +67,9 @@ class stzParseTree from stzObject
 			return []
 		ok
 		_a_ = []
-		_n_ = len(@aChildren)
+		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_aC_ = @aChildren[_i_].Leaves()
+			_aC_ = @aoChildren[_i_].Leaves()
 			_m_ = len(_aC_)
 			for _j_ = 1 to _m_
 				_a_ + _aC_[_j_]
@@ -85,9 +85,9 @@ class stzParseTree from stzObject
 			return 1
 		ok
 		_nMax_ = 0
-		_n_ = len(@aChildren)
+		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_h_ = @aChildren[_i_].Height()
+			_h_ = @aoChildren[_i_].Height()
 			if _h_ > _nMax_
 				_nMax_ = _h_
 			ok
@@ -103,9 +103,9 @@ class stzParseTree from stzObject
 		if StzUpper(@cLabel) = _cL_
 			_a_ + This
 		ok
-		_n_ = len(@aChildren)
+		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_aSub_ = @aChildren[_i_].Subtrees(pcLabel)
+			_aSub_ = @aoChildren[_i_].Subtrees(pcLabel)
 			_m_ = len(_aSub_)
 			for _j_ = 1 to _m_
 				_a_ + _aSub_[_j_]
@@ -140,9 +140,9 @@ class stzParseTree from stzObject
 			return @cWord + "/" + @cLabel
 		ok
 		_c_ = "(" + @cLabel
-		_n_ = len(@aChildren)
+		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_c_ += " " + @aChildren[_i_].ToBracket()
+			_c_ += " " + @aoChildren[_i_].ToBracket()
 		next
 		_c_ += ")"
 		return _c_
@@ -166,8 +166,8 @@ class stzParseTree from stzObject
 			return _cPad_ + @cWord + "/" + @cLabel
 		ok
 		_c_ = _cPad_ + @cLabel
-		_n_ = len(@aChildren)
+		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_c_ += nl + @aChildren[_i_]._Indent(nDepth + 1)
+			_c_ += nl + @aoChildren[_i_]._Indent(nDepth + 1)
 		next
 		return _c_
