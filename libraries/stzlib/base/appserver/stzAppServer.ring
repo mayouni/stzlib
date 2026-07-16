@@ -26,7 +26,8 @@ pre-engine skeleton violated by riding the Reaxis cooperative poller.
 
 ONE HOST, FOUR TOPOLOGIES (the 5.10 convergence):
 - WEB      : Get_/Post/Put_/Delete routes over the HTTP listener
-- MBaaS    : Expose(oDb, "table") -> REST floor over data/stzDatabase
+- MBaaS    : Expose(oDb, "table") -> FULL REST CRUD (list/read/create/
+             update/delete by id) over data/stzDatabase, injection-safe
              (GET list / GET count / POST insert), sqlite in the engine
 - IoT      : ListenRaw(nPort, fHandler) -> raw per-connection byte
              streams (no HTTP framing) for device telemetry
@@ -266,12 +267,22 @@ class stzAppServer from stzObject
 	 #  MBaaS: REST OVER stzDatabase  #
 	#--------------------------------#
 
-	# Expose a table of an open stzDatabase as a REST resource:
-	#   GET  /api/<table>        -> {"rows":[[...],...]}
-	#   GET  /api/<table>/count  -> {"count":N}
-	#   POST /api/<table>        -> body "col=val&col2=val2" inserts a row
+	# Expose a table of an open stzDatabase as a REST resource -- the FULL
+	# CRUD floor, keyed by the "id" column (override with ExposeWithKey):
+	#   GET    /api/<table>         -> {"rows":[[...],...]}   (list)
+	#   GET    /api/<table>/count   -> {"count":N}
+	#   GET    /api/<table>/<id>    -> {"row":[...]} or 404   (read one)
+	#   POST   /api/<table>         -> body "col=val&.." inserts; 201
+	#   PUT    /api/<table>/<id>    -> body "col=val&.." updates; {"updated":N}
+	#   DELETE /api/<table>/<id>    -> {"deleted":N}
+	# Values + the id are SQL-escaped (injection-safe).
 	def Expose(oDb, cTable)
-		@aResources + [ cTable, oDb ]
+		@aResources + [ cTable, oDb, "id" ]
+		return This
+
+	# Same, but with a custom primary-key column (e.g. "uuid", "rowid").
+	def ExposeWithKey(oDb, cTable, cKeyCol)
+		@aResources + [ cTable, oDb, "" + cKeyCol ]
 		return This
 
 	  #----------------------------#
@@ -355,22 +366,23 @@ class stzAppServer from stzObject
 			return FALSE
 		ok
 		_cRest_ = StzMidToEnd(oReq.Path(), 6)     # after "/api/"
-		_bCount_ = FALSE
+		# strip any query string ("/api/t?x=1" -> "/api/t")
+		_nQ_ = StzFindFirst(_cRest_, "?")
+		if _nQ_ > 0  _cRest_ = StzLeft(_cRest_, _nQ_ - 1)  ok
+		_cSub_ = ""
 		_nSlash_ = StzFindFirst(_cRest_, "/")
 		if _nSlash_ > 0
 			_cSub_ = StzMidToEnd(_cRest_, _nSlash_ + 1)
 			_cRest_ = StzLeft(_cRest_, _nSlash_ - 1)
-			if _cSub_ = "count"
-				_bCount_ = TRUE
-			else
-				return FALSE
-			ok
 		ok
+		# resolve the exposed table -> its db + key column
 		_oDb_ = NULL
+		_cKey_ = "id"
 		_nLen_ = len(@aResources)
 		for _i_ = 1 to _nLen_
 			if @aResources[_i_][1] = _cRest_
 				_oDb_ = @aResources[_i_][2]
+				_cKey_ = @aResources[_i_][3]
 				exit
 			ok
 		next
@@ -378,42 +390,98 @@ class stzAppServer from stzObject
 			return FALSE
 		ok
 		_cTable_ = _cRest_
-		if oReq.Method() = "GET"
-			if _bCount_
-				# ring_number(), not 0+str: the 0+str coercion is
-				# poisoned after any caught raise (Ring trap).
+
+		# ---- COLLECTION routes: /api/<table> (and /count) ------------------
+		if _cSub_ = "" or _cSub_ = "count"
+			if oReq.Method() = "GET" and _cSub_ = "count"
+				# ring_number(), not 0+str (the 0+str coercion is poisoned
+				# after any caught raise -- Ring trap).
 				oResp.Header("Content-Type", "application/json")
 				oResp.Send('{"count":' + ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_)) + '}')
-			else
-				# rows are ARRAYS of cells -- ObjectToJson would misread
-				# a 2-cell row as a {k:v} object, so serialize directly
+				return TRUE
+			but oReq.Method() = "GET"
+				# rows are ARRAYS of cells -- serialize directly.
 				oResp.Header("Content-Type", "application/json")
 				oResp.Send('{"rows":' + This._RowsJson(_oDb_.Rows("SELECT * FROM " + _cTable_)) + '}')
+				return TRUE
+			but oReq.Method() = "POST"
+				_aPairs_ = This._ParseFormBody(oReq.Body())
+				if len(_aPairs_) = 0
+					oResp.Status(400, "Bad Request").Json([ "error", "empty form body" ])
+					return TRUE
+				ok
+				_cCols_ = ""
+				_cVals_ = ""
+				_nPLen_ = len(_aPairs_)
+				for _j_ = 1 to _nPLen_
+					if _j_ > 1
+						_cCols_ += ", "
+						_cVals_ += ", "
+					ok
+					_cCols_ += _aPairs_[_j_][1]
+					_cVals_ += "'" + This._SqlEscape(_aPairs_[_j_][2]) + "'"
+				next
+				_oDb_.Exec("INSERT INTO " + _cTable_ + " (" + _cCols_ + ") VALUES (" + _cVals_ + ")")
+				oResp.Status(201, "Created").Json([ "inserted", 1 ])
+				return TRUE
 			ok
+			oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
 			return TRUE
-		but oReq.Method() = "POST"
+		ok
+
+		# ---- ITEM routes: /api/<table>/<id> (read/update/delete one) -------
+		# id is SQL-escaped + quoted; SQLite type-affinity matches '5' to an
+		# INTEGER key, so this is both injection-safe and correct.
+		_cId_ = "'" + This._SqlEscape(_cSub_) + "'"
+		_cWhere_ = " WHERE " + _cKey_ + " = " + _cId_
+		if oReq.Method() = "GET"
+			_aR_ = _oDb_.Rows("SELECT * FROM " + _cTable_ + _cWhere_)
+			if len(_aR_) = 0
+				oResp.Status(404, "Not Found").Json([ "error", "no " + _cTable_ + " with " + _cKey_ + " " + _cSub_ ])
+				return TRUE
+			ok
+			oResp.Header("Content-Type", "application/json")
+			oResp.Send('{"row":' + This._RowJson(_aR_[1]) + '}')
+			return TRUE
+		but oReq.Method() = "PUT"
 			_aPairs_ = This._ParseFormBody(oReq.Body())
 			if len(_aPairs_) = 0
 				oResp.Status(400, "Bad Request").Json([ "error", "empty form body" ])
 				return TRUE
 			ok
-			_cCols_ = ""
-			_cVals_ = ""
+			# guard: the row must exist (so we can report updated=0 honestly)
+			_nBefore_ = ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_ + _cWhere_))
+			if _nBefore_ = 0
+				oResp.Status(404, "Not Found").Json([ "error", "no " + _cTable_ + " with " + _cKey_ + " " + _cSub_ ])
+				return TRUE
+			ok
+			_cSet_ = ""
 			_nPLen_ = len(_aPairs_)
 			for _j_ = 1 to _nPLen_
-				if _j_ > 1
-					_cCols_ += ", "
-					_cVals_ += ", "
-				ok
-				_cCols_ += _aPairs_[_j_][1]
-				_cVals_ += "'" + This._SqlEscape(_aPairs_[_j_][2]) + "'"
+				if _j_ > 1  _cSet_ += ", "  ok
+				_cSet_ += _aPairs_[_j_][1] + " = '" + This._SqlEscape(_aPairs_[_j_][2]) + "'"
 			next
-			_oDb_.Exec("INSERT INTO " + _cTable_ + " (" + _cCols_ + ") VALUES (" + _cVals_ + ")")
-			oResp.Status(201, "Created").Json([ "inserted", 1 ])
+			_oDb_.Exec("UPDATE " + _cTable_ + " SET " + _cSet_ + _cWhere_)
+			oResp.Json([ "updated", _nBefore_ ])
+			return TRUE
+		but oReq.Method() = "DELETE"
+			_nBefore_ = ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_ + _cWhere_))
+			_oDb_.Exec("DELETE FROM " + _cTable_ + _cWhere_)
+			oResp.Json([ "deleted", _nBefore_ ])
 			return TRUE
 		ok
 		oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
 		return TRUE
+
+	# one row [cell,cell,...] -> ["cell","cell",...]
+	def _RowJson(aRow)
+		_cOut_ = "["
+		_nLen_ = len(aRow)
+		for _i_ = 1 to _nLen_
+			if _i_ > 1  _cOut_ += ","  ok
+			_cOut_ += '"' + StzReplace("" + aRow[_i_], '"', '\"') + '"'
+		next
+		return _cOut_ + "]"
 
 	def _ParseFormBody(cBody)
 		_aOut_ = []
