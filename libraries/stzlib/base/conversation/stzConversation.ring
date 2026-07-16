@@ -43,11 +43,26 @@
 #
 # FORMAT: *.zcnv -- the persisted transcript + state (Save/Load).
 
+func StzConversationQ(pcTopic)
+	return new stzConversation(pcTopic)
+
+func IsStzConversation(pObj)
+	if isObject(pObj) and classname(pObj) = "stzconversation"
+		return TRUE
+	ok
+	return FALSE
+
+	func IsAStzConversation(pObj)
+		return IsStzConversation(pObj)
+
+
 class stzConversation from stzObject
 
 	@cTopic = ""
 	@cWhy = ""
-	@oGoal = NULL
+	@oGoal = NULL        # THE one goal this conversation is accountable for
+	@cGoalState = "none" # none | pursuing | fulfilled | revoked
+	@cGoalWhy = ""       # why it ended that way
 	@oNarration = NULL
 	@aPending = []       # [ subject, relation ] awaiting an answer
 	@acOptions = []      # the values offered with the pending question
@@ -59,14 +74,90 @@ class stzConversation from stzObject
 
 	def init(pcTopic)
 		@cTopic = "" + pcTopic
-		@oGoal = new stzGoal()
 		@oNarration = new stzNarration()
 
 	def Topic()
 		return @cTopic
 
+	#-- THE GOAL: one contract, accepted explicitly, then MONITORED --------
+	# A conversation has exactly ONE goal. It is not assembled from inside
+	# the session -- it is BUILT as a stzGoal and HANDED OVER; from then on
+	# the conversation is accountable for it and watches it until it is
+	# FULFILLED (no gaps left in the space) or REVOKED (abandoned, with a
+	# reason). No goal = no loop: the elicitation is goal-driven, so asking
+	# without one REFUSES rather than inventing something to ask (LAW 3).
+
+	def SetGoal(poGoal)
+		if NOT IsStzGoal(poGoal)
+			stzraise("SetGoal() needs a stzGoal -- build it (StzGoalQ().RequireEach(...)) and hand it over.")
+		ok
+		if @cGoalState = "pursuing"
+			stzraise("This conversation is already pursuing a goal -- a conversation has ONE goal. RevokeGoal(why) first.")
+		ok
+		@oGoal = poGoal
+		@cGoalState = "pursuing"
+		@cGoalWhy = ""
+		@oNarration.System("Goal adopted -- this conversation is now accountable for it.")
+		return This
+
 	def GoalQ()
+		if @oGoal = NULL
+			stzraise("This conversation has no goal -- SetGoal(oGoal) first.")
+		ok
 		return @oGoal
+
+	def HasGoal()
+		return @oGoal != NULL
+
+	# none | pursuing | fulfilled | revoked
+	def GoalState()
+		return @cGoalState
+
+	def GoalWhy()
+		return @cGoalWhy
+
+	def IsPursuingGoal()
+		return @cGoalState = "pursuing"
+
+	def IsGoalFulfilled()
+		return @cGoalState = "fulfilled"
+
+	def IsGoalRevoked()
+		return @cGoalState = "revoked"
+
+	# abandon the goal, on the record -- the other way out besides fulfilment
+	def RevokeGoal(pcWhy)
+		if @cGoalState != "pursuing"
+			stzraise("No goal is being pursued here (state: " + @cGoalState + ") -- nothing to revoke.")
+		ok
+		@cGoalState = "revoked"
+		@cGoalWhy = "" + pcWhy
+		@aPending = []
+		@acOptions = []
+		@cForce = ""
+		@oNarration.System("Goal revoked: " + @cGoalWhy)
+		return This
+
+	# THE MONITORING: re-read the goal against the space; the moment no gap
+	# remains, the contract is fulfilled -- recorded, not merely observed.
+	def MonitorGoal(poSpace)
+		if @cGoalState != "pursuing"
+			return @cGoalState
+		ok
+		if len(@oGoal.Gaps(poSpace)) = 0
+			@cGoalState = "fulfilled"
+			@cGoalWhy = "every required slot is filled in '" + poSpace.Id() + "'"
+			@aPending = []
+			@acOptions = []
+			@cForce = ""
+			@oNarration.System("Goal fulfilled: " + @cGoalWhy)
+		ok
+		return @cGoalState
+
+	def _RequireGoal()
+		if @oGoal = NULL
+			stzraise("This conversation has no goal -- SetGoal(oGoal) first (the wise-coding loop is goal-driven).")
+		ok
 
 	def NarrationQ()
 		return @oNarration
@@ -80,6 +171,7 @@ class stzConversation from stzObject
 	#-- the wise-coding loop ----------------------------------------------
 
 	def Gaps(poSpace)
+		This._RequireGoal()
 		return @oGoal.Gaps(poSpace)
 
 	# SYSTEM-LED: the next question is BORN FROM THE GAP -- and it can
@@ -92,11 +184,13 @@ class stzConversation from stzObject
 		return _aQ_[:question]
 
 	def NextQuestionXT(poSpace)
+		This._RequireGoal()
+		# a revoked contract asks nothing more; a fulfilled one is done
+		if This.MonitorGoal(poSpace) != "pursuing"
+			return []
+		ok
 		_aGaps_ = @oGoal.Gaps(poSpace)
 		if len(_aGaps_) = 0
-			@aPending = []
-			@acOptions = []
-			@cForce = ""
 			return []
 		ok
 		_cSubj_ = _aGaps_[1][1]
@@ -258,8 +352,9 @@ class stzConversation from stzObject
 		if len(_acAdmitted_) > 0
 			@aPending = []
 		ok
+		This.MonitorGoal(poSpace)   # the contract may have just been fulfilled
 		return [ :admitted = _acAdmitted_, :refused = _aRefused_,
-			:narration = @cWhy ]
+			:narration = @cWhy, :goalState = @cGoalState ]
 
 	def Why()
 		return @cWhy
@@ -304,9 +399,13 @@ class stzConversation from stzObject
 	# gaps closed -> WRITE the knowledgebase (the session's real
 	# artifact); gaps remaining -> refuse with the list (LAW 3)
 	def Conclude(poSpace, pcKnowFile)
+		This._RequireGoal()
+		if This.MonitorGoal(poSpace) = "revoked"
+			stzraise("Can't conclude: the goal was REVOKED (" + @cGoalWhy + ") -- a revoked contract has nothing to conclude.")
+		ok
 		_aGaps_ = @oGoal.Gaps(poSpace)
 		if len(_aGaps_) > 0
-			stzraise("Can't conclude: " + len(_aGaps_) + " gap(s) remain -- the wise-coding loop is not done. Ask NextQuestion().")
+			stzraise("Can't conclude: " + len(_aGaps_) + " gap(s) remain -- the wise-coding loop is not done. Ask the next question.")
 		ok
 		poSpace.WriteToKnowFile(pcKnowFile)   # THE SPACE this session grew
 		@oNarration.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")

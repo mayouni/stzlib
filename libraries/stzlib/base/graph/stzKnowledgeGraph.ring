@@ -27,7 +27,7 @@ class stzKnowledgeGraph from stzGraph
 	@bStrictMode = 0        # G8 seed: opt-in knowledge hygiene
 	@aFactMeta = []         # provenance per fact: [ :fact, :meta ]
 	@aContradictions = []   # named, NEVER silently resolved
-	@aConversations = []    # the conversations HAPPENING IN this space
+	@aoConversations = []   # the stzConversation objects HAPPENING IN this space
 
 	def init(pcId)
 		super.init(pcId)
@@ -227,66 +227,110 @@ class stzKnowledgeGraph from stzGraph
 	# (AskIn / ReplyIn / GapsIn / ConcludeIn hand THIS graph, live, into the
 	# session); session-only state is reached through ConversationQ(topic).
 
-	# open a conversation IN this space
-	def Converse(pcTopic)
-		_cT_ = ring_trim("" + pcTopic)
-		if _cT_ = ""
-			stzraise("A conversation needs a topic.")
+	#-- the conversations, as a collection this space OWNS -----------------
+
+	def AddConversation(pcConvName)
+		_cN_ = ring_trim("" + pcConvName)
+		if _cN_ = ""
+			stzraise("A conversation needs a name.")
 		ok
-		if This._ConvIndex(_cT_) > 0
-			stzraise("A conversation '" + _cT_ + "' is already open in this space.")
+		if This.HasConversation(_cN_)
+			stzraise("A conversation '" + _cN_ + "' already exists in this space.")
 		ok
-		@aConversations + new stzConversation(_cT_)
+		@aoConversations + StzConversationQ(_cN_)
 		return This
 
-	def ConversationQ(pcTopic)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)]
+	def AddConversations(pacNames)
+		if NOT isList(pacNames)
+			stzraise("AddConversations() takes a list of names.")
+		ok
+		_n_ = len(pacNames)
+		for _i_ = 1 to _n_
+			This.AddConversation(pacNames[_i_])
+		next
+		return This
+
+	def RemoveConversation(pcConvName)
+		del(@aoConversations, This._ConvIndexOrRaise(pcConvName))
+		return This
+
+	def RemoveAllConversations()
+		@aoConversations = []
+		return This
+
+	def ConversationQ(pcConvName)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)]
 
 	def Conversations()
 		_ac_ = []
-		_n_ = len(@aConversations)
+		_n_ = len(@aoConversations)
 		for _i_ = 1 to _n_
-			_ac_ + @aConversations[_i_].Topic()
+			_ac_ + @aoConversations[_i_].Topic()
 		next
 		return _ac_
 
 	def NumberOfConversations()
-		return len(@aConversations)
+		return len(@aoConversations)
 
-	def HasConversation(pcTopic)
-		return This._ConvIndex(pcTopic) > 0
+	def HasConversation(pcConvName)
+		return This._ConvIndex(pcConvName) > 0
+
+	# what is happening in this space, at a glance
+	def ConversationsXT()
+		_a_ = []
+		_n_ = len(@aoConversations)
+		for _i_ = 1 to _n_
+			_a_ + [
+				:name = @aoConversations[_i_].Topic(),
+				:goal = @aoConversations[_i_].GoalState(),
+				:turns = @aoConversations[_i_].NumberOfTurns(),
+				:checkpoints = len(@aoConversations[_i_].AllCheckpoints())
+			]
+		next
+		return _a_
+
+	# the sessions still working (a goal neither fulfilled nor revoked)
+	def OpenConversations()
+		_ac_ = []
+		_n_ = len(@aoConversations)
+		for _i_ = 1 to _n_
+			if @aoConversations[_i_].IsPursuingGoal()
+				_ac_ + @aoConversations[_i_].Topic()
+			ok
+		next
+		return _ac_
 
 	# -- the wise-coding loop, driven BY the space (This goes in live) --
 
-	def GapsIn(pcTopic)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Gaps(This)
+	def GapsIn(pcConvName)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Gaps(This)
 
-	def AskIn(pcTopic)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)].NextQuestion(This)
+	def AskIn(pcConvName)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].NextQuestion(This)
 
-	def AskInXT(pcTopic)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)].NextQuestionXT(This)
+	def AskInXT(pcConvName)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].NextQuestionXT(This)
 
-	def ReplyIn(pcTopic, pAnswer)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Reply(This, pAnswer)
+	def ReplyIn(pcConvName, pAnswer)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Reply(This, pAnswer)
 
-	def ConcludeIn(pcTopic, pcKnowFile)
-		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Conclude(This, pcKnowFile)
+	def ConcludeIn(pcConvName, pcKnowFile)
+		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Conclude(This, pcKnowFile)
 
-	def _ConvIndex(pcTopic)
-		_cT_ = StzLower(ring_trim("" + pcTopic))
-		_n_ = len(@aConversations)
+	def _ConvIndex(pcConvName)
+		_cN_ = StzLower(ring_trim("" + pcConvName))
+		_n_ = len(@aoConversations)
 		for _i_ = 1 to _n_
-			if StzLower(@aConversations[_i_].Topic()) = _cT_
+			if StzLower(@aoConversations[_i_].Topic()) = _cN_
 				return _i_
 			ok
 		next
 		return 0
 
-	def _ConvIndexOrRaise(pcTopic)
-		_i_ = This._ConvIndex(pcTopic)
+	def _ConvIndexOrRaise(pcConvName)
+		_i_ = This._ConvIndex(pcConvName)
 		if _i_ = 0
-			stzraise("No conversation '" + pcTopic + "' in this space -- Converse('" + pcTopic + "') opens one.")
+			stzraise("No conversation '" + pcConvName + "' in this space -- AddConversation('" + pcConvName + "') first.")
 		ok
 		return _i_
 
