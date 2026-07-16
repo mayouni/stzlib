@@ -170,6 +170,55 @@ class stzKnowledgeGraph from stzGraph
 		]
 		return 1
 
+	#-- GOVERNED ADMISSION (instance-scoped) ---------------------------------
+	# The door a conversation / agent / importer admits facts through: the
+	# LAW is checked, the verdict is EXPLAINED, and a refusal is RECORDED as
+	# a named contradiction -- never silently resolved (G8). Admission is
+	# governed because it comes through THIS door, not because a global flag
+	# is set -- so a scoped domain graph governs itself, with no global world.
+	# Returns [ :admitted = 1|0, :why = "..." ].
+	def Admit(pcSubject, pcPredicate, pcObject, paMeta)
+		_cS_ = StzLower("" + pcSubject)
+		_cP_ = StzLower("" + pcPredicate)
+		_cO_ = StzLower("" + pcObject)
+
+		# :Unique -- a subject bears at most ONE object for this relation
+		if This.RelationHasLaw(_cP_, "unique")
+			_aEdges_ = This.Edges()
+			_nE_ = len(_aEdges_)
+			for _i_ = 1 to _nE_
+				if _aEdges_[_i_][:from] = _cS_ and _aEdges_[_i_][:label] = _cP_ and
+				   _aEdges_[_i_][:to] != _cO_
+					_cWhy_ = "'" + _cS_ + "' already bears '" + _cP_ + "' (to '" +
+						_aEdges_[_i_][:to] + "'); the relation is :Unique"
+					@aContradictions + [ :subject = _cS_, :relation = _cP_,
+						:existing = _aEdges_[_i_][:to], :attempted = _cO_,
+						:source = This._MetaSource(paMeta) ]
+					return [ :admitted = 0, :why = _cWhy_ ]
+				ok
+			next
+		ok
+
+		# a structural conflict (stzGraph holds one edge per node pair) is a
+		# REFUSAL too, not a crash -- the elicitation door must stay alive.
+		try
+			This._AddFactRaw(pcSubject, pcPredicate, pcObject)
+		catch
+			return [ :admitted = 0, :why = cCatchError ]
+		done
+
+		if isList(paMeta) and len(paMeta) > 0
+			@aFactMeta + [ :fact = [ _cS_, _cP_, _cO_ ], :meta = paMeta ]
+		ok
+		return [ :admitted = 1,
+			:why = "admitted: '" + _cS_ + "' " + _cP_ + " '" + _cO_ + "'" ]
+
+	def _MetaSource(paMeta)
+		if isList(paMeta) and HasKey(paMeta, :source)
+			return "" + paMeta[:source]
+		ok
+		return "unknown"
+
 	def SetStrictMode(bOnOff)
 		@bStrictMode = bOnOff
 

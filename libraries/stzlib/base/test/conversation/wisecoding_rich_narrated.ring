@@ -19,8 +19,9 @@ nFail = 0
 pr()
 
 ? "-- Scene 1: the question is a FRAME -- force opens it, slots fill it --"
-StzKnow("pizza1", "dish")
+# SCOPED: this session elicits into its OWN graph, never a global world
 oCv = new stzConversation("frame")
+oCv.KnowledgeQ().Know("pizza1", "dish")
 oCv.GoalQ().RequireEach("dish", "topping")
 
 aQ = oCv.NextQuestionXT()
@@ -32,7 +33,7 @@ chk("the frame still names its slots + why",
 	len(StzFind("why:", aQ[:question])) > 0)
 oCv.Reply("cheese")
 
-StzKnow("pizza2", "dish")
+oCv.KnowledgeQ().Know("pizza2", "dish")
 aQ2 = oCv.NextQuestionXT()
 chk("once the domain KNOWS a value, the force closes to a choice (:which)",
 	aQ2[:force] = "which")
@@ -47,18 +48,18 @@ chk("... and the option is NUMBERED in the text",
 aV = oCv.Reply(1)
 chk("a NUMBER picks the offered option", aV[:admitted][1] = "cheese")
 chk("the pick is really grounded in the graph",
-	AreRelated("pizza2", "cheese") = "topping")
+	oCv.KnowledgeQ().Query([ "pizza2", "topping", "?o" ])[1] = "cheese")
 
-StzKnow("pizza3", "dish")
+oCv.KnowledgeQ().Know("pizza3", "dish")
 oCv.NextQuestion()
 oCv.Reply("olives")
-StzKnow("pizza4", "dish")
+oCv.KnowledgeQ().Know("pizza4", "dish")
 aQ4 = oCv.NextQuestionXT()
 chk("both known values are now on the table", len(aQ4[:options]) = 2)
 aV4 = oCv.Reply([ 1, 2 ])
 chk("a LIST of numbers picks several options at once", len(aV4[:admitted]) = 2)
 
-StzKnow("pizza5", "dish")
+oCv.KnowledgeQ().Know("pizza5", "dish")
 oCv.NextQuestion()
 aV5 = oCv.Reply(99)
 chk("an out-of-range pick REFUSES -- it never guesses a value",

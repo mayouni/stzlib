@@ -23,13 +23,14 @@ chk("a reserved agent REFUSES rather than returning a stub (LAW 3)", bR = 1)
 
 ? ""
 ? "-- Scene 2: the wise-coder drives R3b elicitation as an agent --"
-StzKnow("margherita", "dish")
-StzKnow("tiramisu", "dish")
+# SCOPED: the agent elicits into a domain graph handed to it, not a world
+oKB = new stzKnowledgeGraph("menu")
+oKB.Know("margherita", "dish").Know("tiramisu", "dish")
 oGoal = new stzGoal()
 oGoal.RequireEach("dish", "contains")
 answers = [ [ "margherita", "tomato-sauce" ], [ "tiramisu", "mascarpone" ] ]
 oWC = StzNativeAgent("wise-coder")
-aR = oWC.PursueGoal(oGoal, func subj, rel {
+aR = oWC.PursueGoal(oGoal, oKB, func subj, rel {
 	for a in answers
 		if a[1] = subj
 			return a[2]
@@ -39,18 +40,20 @@ aR = oWC.PursueGoal(oGoal, func subj, rel {
 })
 chk("the goal is filled", aR[:filled] = 1)
 chk("one question per gap", aR[:asked] = 2)
-chk("the answers were ADMITTED into the graph (governed)",
-	AreRelated("margherita", "tomato-sauce") = "contains")
+chk("the answers were ADMITTED into the SCOPED graph (governed)",
+	oWC.ConversationQ().KnowledgeQ().Query([ "margherita", "contains", "?o" ])[1] =
+	"tomato-sauce")
 chk("Why reports governed admission",
 	len(StzFind("governed admission", aR[:why])) > 0)
 
 ? ""
 ? "-- Scene 3: the agent refuses to INVENT (leaves the gap) --"
-StzKnow("panna-cotta", "dish")
+oKB2 = new stzKnowledgeGraph("desserts")
+oKB2.Know("panna-cotta", "dish")
 oGoal2 = new stzGoal()
 oGoal2.RequireEach("dish", "contains")
 oWC2 = StzNativeAgent("wise-coder")
-aR2 = oWC2.PursueGoal(oGoal2, func subj, rel {
+aR2 = oWC2.PursueGoal(oGoal2, oKB2, func subj, rel {
 	if subj = "panna-cotta"
 		return ""
 	ok

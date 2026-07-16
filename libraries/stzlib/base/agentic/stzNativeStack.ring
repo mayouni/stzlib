@@ -69,8 +69,15 @@ class stzWiseCoderAgent from stzObject
 	# answering from a supplied ANSWER SOURCE closure that maps
 	# (subject, relation) -> a value string ("" = the agent stops,
 	# leaving the gap for a human -- it never invents domain facts).
-	def PursueGoal(poGoal, fAnswerSource)
+	# poKB = the SCOPED domain graph to elicit into (never a global world).
+	# Read the result through ConversationQ().KnowledgeQ() -- Ring copies an
+	# object into an attribute, so the session works on its own live graph.
+	def PursueGoal(poGoal, poKB, fAnswerSource)
+		if NOT IsStzKnowledgeGraph(poKB)
+			stzraise("PursueGoal needs the SCOPED knowledgebase to elicit into -- PursueGoal(oGoal, oKB, fAnswers).")
+		ok
 		@oConv = new stzConversation("native-wise-coding")
+		@oConv.KnowledgeOn(poKB)
 		# adopt the goal's requirements onto the conversation's goal
 		_aReq_ = poGoal.Requirements()
 		_nE_ = len(_aReq_[:each])
