@@ -57,7 +57,7 @@ Scenario("R4 FORGES: from its own knowledge, the restaurant forges + trains a DL
 	       KnowRelation("margherita", "pairs-with", "chianti")
 
 	When("the Foundry forges a Domain Language Model from that brain")
-	$oRestoDLM = StzForgeDLM("bella-cucina", oBrain)
+	$oRestoDLM = StzDlmQ(oBrain)
 	Then("rung 1 answers deterministically", $oRestoDLM.Ask("what is margherita"),
 		"Margherita is a dish.")
 	Then("outside its domain it REFUSES (LAW 3)",
