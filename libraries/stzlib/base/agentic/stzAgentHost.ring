@@ -13,11 +13,18 @@
 # (governed teardown -- refused until its obligations are fulfilled).
 #
 #   oHost = new stzAgentHost()
-#   oHost.Supervise(oKitchenBot, 50)        # tick every 50ms
+#   oHost.Supervise(oKitchenBot, 50)         # TIMER-driven: tick every 50ms
+#   oHost.SuperviseOnEvent(oOrderBot, "orders") # EVENT-driven: tick per event
 #   oHost.GovernRetirementWith(oGov)         # R4b decommission gate
 #   oHost.RunFor(500)                        # perceive-act on the loop
 #   ? oHost.TicksOf("kitchen-bot")
 #   oHost.Retire("kitchen-bot")              # only if obligations met
+#
+# TWO SUPERVISION MODES: Supervise(agent, ms) ticks on a REAL libuv timer;
+# SuperviseOnEvent(agent, channel) ticks ONCE PER EVENT emitted on the engine
+# event bus (stzEventBus / reactive.zig) -- so the perceive-decide-act loop
+# becomes a true EVENT LOOP: the agent reacts to what happens, when it
+# happens. Both run on the same loop, traced + cancellable + decommissionable.
 #
 # RING-TRUE: a supervised agent is stored in a list; list append COPIES
 # but a method-call THROUGH THE INDEX (@aAgents[i][2].Cycle()) reaches
@@ -97,9 +104,30 @@ class stzAgentHost from stzObject
 		if nTickMs < 1
 			stzraise("stzAgentHost.Supervise: tick interval must be >= 1ms.")
 		ok
+		# row: name, agent, tickMs, active, nextDue, ticks, retired,
+		#      channel(""=timer), lastEventCount
 		@aAgents + [ poAgent.Name_(), poAgent, nTickMs, TRUE,
-		             StzEngineTimeNowMs(), 0, FALSE ]
+		             StzEngineTimeNowMs(), 0, FALSE, "", 0 ]
 		return This
+
+	# EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per
+	# EVENT emitted on pcChannel (the engine event bus, stzEventBus), not on a
+	# timer. The perceive-decide-act loop becomes a true event loop -- the
+	# agent reacts to what happens, when it happens. Past events are NOT
+	# replayed (the baseline is the channel's current count at registration).
+	def SuperviseOnEvent(poAgent, pcChannel)
+		stzengine_reactive_create_channel("" + pcChannel)   # ensure it exists
+		_nBase_ = stzengine_reactive_event_count("" + pcChannel)
+		if _nBase_ < 0  _nBase_ = 0  ok
+		@aAgents + [ poAgent.Name_(), poAgent, 0, TRUE,
+		             0, 0, FALSE, "" + pcChannel, _nBase_ ]
+		return This
+
+	# The channel an agent is event-supervised on ("" if timer-supervised).
+	def ChannelOf(pcName)
+		_n_ = This._IndexOf(pcName)
+		if _n_ = 0  return ""  ok
+		return @aAgents[_n_][8]
 
 	def NumberOfAgents()
 		return len(@aAgents)
@@ -138,15 +166,30 @@ class stzAgentHost from stzObject
 		for _i_ = 1 to _nLen_
 			if NOT @aAgents[_i_][4]  loop  ok         # inactive
 			if @aAgents[_i_][7]      loop  ok         # retired
-			if _nNow_ < @aAgents[_i_][5]  loop  ok    # not due yet
-			# LIVE path: method-call through the index reaches the stored
-			# agent, whose memory shares the engine KG handle.
-			_nA_ = @aAgents[_i_][2].Cycle()
-			@aAgents[_i_][6] = @aAgents[_i_][6] + 1
-			@aAgents[_i_][5] = _nNow_ + @aAgents[_i_][3]
-			@aTrace + [ _nNow_, @aAgents[_i_][1], _nA_,
-			            "tick " + @aAgents[_i_][6] ]
-			_nActed_ += _nA_
+			if @aAgents[_i_][8] != ""
+				# EVENT-DRIVEN: one Cycle per new event on the channel (catch
+				# up if several arrived since the last pass).
+				_nCur_ = stzengine_reactive_event_count(@aAgents[_i_][8])
+				while @aAgents[_i_][9] < _nCur_
+					@aAgents[_i_][9] = @aAgents[_i_][9] + 1
+					_nE_ = @aAgents[_i_][2].Cycle()
+					@aAgents[_i_][6] = @aAgents[_i_][6] + 1
+					@aTrace + [ _nNow_, @aAgents[_i_][1], _nE_,
+					            "event " + @aAgents[_i_][6] ]
+					_nActed_ += _nE_
+				end
+			else
+				# TIMER-DRIVEN: tick once when the interval has elapsed.
+				if _nNow_ < @aAgents[_i_][5]  loop  ok
+				# LIVE path: method-call through the index reaches the stored
+				# agent, whose memory shares the engine KG handle.
+				_nA_ = @aAgents[_i_][2].Cycle()
+				@aAgents[_i_][6] = @aAgents[_i_][6] + 1
+				@aAgents[_i_][5] = _nNow_ + @aAgents[_i_][3]
+				@aTrace + [ _nNow_, @aAgents[_i_][1], _nA_,
+				            "tick " + @aAgents[_i_][6] ]
+				_nActed_ += _nA_
+			ok
 		next
 		return _nActed_
 
