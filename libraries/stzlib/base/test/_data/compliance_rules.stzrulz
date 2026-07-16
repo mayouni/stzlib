@@ -1,0 +1,28 @@
+ruleset "Banking Compliance Rules"
+    ruleGroup: structural
+    version: 1.0
+
+rules
+
+    rule no_self_loop
+        type: constraint
+        severity: error
+        function: ConstraintFunc_NoSelfLoop
+        message
+            "An account may not reference itself"
+
+    rule reporting_is_transitive
+        type: derivation
+        severity: info
+        function: DerivationFunc_Transitivity
+        params
+            relation: reports_to
+        message
+            "Reporting lines are transitive"
+
+    rule chart_is_acyclic
+        type: validation
+        severity: error
+        function: ValidationFunc_IsAcyclic
+        message
+            "The compliance chart must be acyclic"

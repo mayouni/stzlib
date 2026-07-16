@@ -20,6 +20,18 @@ $aGraphRules = [
 	:completeness = []
 ]
 
+# The .stzrulf files already loaded into this process.
+#
+# A .stzrulf defines FUNCTIONS, and Ring refuses to define the same function
+# twice -- C22, "Function redefinition", which is a COMPILE error that
+# try/catch cannot catch and that takes the program down. Two graphs both
+# wanting the same custom rules is perfectly reasonable, so the second load
+# has to be a quiet no-op rather than a crash. stzGraph.LoadRuleFunctionsFrom()
+# keeps this list; the key is the path as spelled, so the same file reached by
+# two different spellings would still double-load.
+
+$acStzRulfLoaded = []
+
 #-------------#
 #  FUNCTIONS  #
 #-------------#
