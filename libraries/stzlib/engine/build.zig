@@ -605,11 +605,14 @@ fn addTreeSitter(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.B
     mod.addIncludePath(b.path("vendor/tree-sitter/runtime/include"));
     mod.addIncludePath(b.path("vendor/tree-sitter/runtime/src"));
     mod.addIncludePath(b.path("vendor/tree-sitter/python"));
+    mod.addIncludePath(b.path("vendor/tree-sitter/javascript"));
     lib.addCSourceFiles(.{
         .files = &.{
             "vendor/tree-sitter/runtime/src/lib.c",
             "vendor/tree-sitter/python/parser.c",
             "vendor/tree-sitter/python/scanner.c",
+            "vendor/tree-sitter/javascript/parser.c",
+            "vendor/tree-sitter/javascript/scanner.c",
         },
         .flags = &.{"-std=c11"},
     });
