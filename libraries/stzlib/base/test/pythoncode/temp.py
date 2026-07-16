@@ -3,10 +3,10 @@
 def transform_to_ring(data):
     def _transform(obj):
         if isinstance(obj, dict):
-            items = []
+            _items_ = []
             for key, value in obj.items():
-                items.append(f"['{key}', {_transform(value)}]")
-            return "[" + ", ".join(items) + "]"
+                _items_.append(f"['{key}', {_transform(value)}]")
+            return "[" + ", ".join(_items_) + "]"
         elif isinstance(obj, list):
             return "[" + ", ".join(_transform(item) for item in obj) + "]"
         elif isinstance(obj, str):
@@ -15,20 +15,20 @@ def transform_to_ring(data):
                 try:
                     # Try to convert the string back to a dictionary using eval
                     # This is safe here because we know the source is from get_params()
-                    dict_obj = eval(obj)
-                    if isinstance(dict_obj, dict):
+                    _dict_obj_ = eval(obj)
+                    if isinstance(_dict_obj_, dict):
                         # If successful, transform the dictionary
-                        return _transform(dict_obj)
+                        return _transform(_dict_obj_)
                 except:
                     # If eval fails, just treat it as a normal string
                     pass
             return f"'{obj}'"
         elif isinstance(obj, (int, float)):
             # Convert to string first to check for scientific notation
-            str_val = str(obj)
-            if "e" in str_val.lower():  # Check for scientific notation
+            _str_val_ = str(obj)
+            if "e" in _str_val_.lower():  # Check for scientific notation
                 return f"'{str_val}'"
-            return str_val
+            return _str_val_
         elif obj is None:
             return "NULL"
         elif isinstance(obj, bool):
@@ -114,8 +114,8 @@ res = {
 }
 
 print("Data before transformation:", res)
-transformed = transform_to_ring(res)
-print("Data after transformation:", transformed)
+_transformed_ = transform_to_ring(res)
+print("Data after transformation:", _transformed_)
 with open("pyresult.txt", "w") as f:
-    f.write(transformed)
+    f.write(_transformed_)
 print("Data written to file")

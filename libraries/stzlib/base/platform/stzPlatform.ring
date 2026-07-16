@@ -43,6 +43,12 @@
 $cStzPlatformWorldJson = '{"world":"none"}'
 $aStzPlatformThingJsons = []   # [ [ name, json ], ... ]
 
+# The live platform whose Commons the networked routes act on. Declared
+# here at top scope so the global route handlers can see it; ServeBody
+# points it at the serving instance (its shared sqlite handle means
+# mutations through a route persist in the same store).
+$oStzPlatformActive = NULL
+
 func StzPlatform(pcName)
 	return new stzPlatform(pcName)
 
@@ -92,6 +98,105 @@ func StzPlatformThingRoute(oReq, oResp)
 		ok
 	next
 	oResp.NotFound('{"error":"no such thing: ' + _cName_ + '"}')
+
+# -- networked COMMONS route handlers (duty 4: the world served multi-user).
+# Global by design (the reactor handler cannot capture instance state; Ring
+# lambdas don't close over locals). They reach the LIVE platform through
+# $oStzPlatformActive -- set in ServeBody -- and its shared sqlite handle, so
+# every mutation persists. Sessions are the auth: a token proves identity;
+# messaging/inbox/store require one, and a sender/reader must match the token.
+
+func StzPlatformFormValue(cBody, cKey)
+	_a_ = StzSplit("" + cBody, "&")
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_nEq_ = StzFindFirst(_a_[_i_], "=")
+		if _nEq_ > 0 and StzLeft(_a_[_i_], _nEq_ - 1) = cKey
+			return StzMidToEnd(_a_[_i_], _nEq_ + 1)
+		ok
+	next
+	return ""
+
+func StzPlatformRowsJson(aRows)
+	_c_ = "["
+	_n_ = len(aRows)
+	for _i_ = 1 to _n_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += "["
+		_m_ = len(aRows[_i_])
+		for _j_ = 1 to _m_
+			if _j_ > 1  _c_ += ","  ok
+			_c_ += '"' + StzReplace("" + aRows[_i_][_j_], '"', '\"') + '"'
+		next
+		_c_ += "]"
+	next
+	return _c_ + "]"
+
+# POST /session  (user=&secret=)  -> {"token":"..."} or 401
+func StzPlatformSessionRoute(oReq, oResp)
+	_t_ = $oStzPlatformActive.OpenSession(
+		StzPlatformFormValue(oReq.Body(), "user"),
+		StzPlatformFormValue(oReq.Body(), "secret"))
+	if _t_ = ""
+		oResp.Status(401, "Unauthorized").Json([ "error", "bad credentials" ])
+		return
+	ok
+	oResp.Header("Content-Type", "application/json")
+	oResp.Send('{"token":"' + _t_ + '"}')
+
+# GET /whoami?token=  -> {"user":"..."} or 401
+func StzPlatformWhoamiRoute(oReq, oResp)
+	_u_ = $oStzPlatformActive.SessionUser(oReq.Query("token"))
+	if _u_ = ""
+		oResp.Status(401, "Unauthorized").Json([ "error", "invalid or expired token" ])
+		return
+	ok
+	oResp.Header("Content-Type", "application/json")
+	oResp.Send('{"user":"' + _u_ + '"}')
+
+# POST /message  (from=&to=&body=&token=)  -> 201, token must authorize `from`
+func StzPlatformMessageRoute(oReq, oResp)
+	_from_ = StzPlatformFormValue(oReq.Body(), "from")
+	_authed_ = $oStzPlatformActive.SessionUser(StzPlatformFormValue(oReq.Body(), "token"))
+	if _authed_ = "" or _authed_ != _from_
+		oResp.Status(401, "Unauthorized").Json([ "error", "token does not authorize this sender" ])
+		return
+	ok
+	$oStzPlatformActive.PostMessage(_from_,
+		StzPlatformFormValue(oReq.Body(), "to"),
+		StzPlatformFormValue(oReq.Body(), "body"))
+	oResp.Status(201, "Created").Json([ "posted", 1 ])
+
+# GET /inbox?user=&token=  -> {"inbox":[[sender,body],...]}, token must match
+func StzPlatformInboxRoute(oReq, oResp)
+	_user_ = oReq.Query("user")
+	_authed_ = $oStzPlatformActive.SessionUser(oReq.Query("token"))
+	if _authed_ = "" or _authed_ != _user_
+		oResp.Status(401, "Unauthorized").Json([ "error", "token does not authorize this inbox" ])
+		return
+	ok
+	oResp.Header("Content-Type", "application/json")
+	oResp.Send('{"inbox":' + StzPlatformRowsJson($oStzPlatformActive.Inbox(_user_)) + '}')
+
+# POST /store  (key=&value=&token=)  -> 201 (auth required)
+func StzPlatformStorePutRoute(oReq, oResp)
+	if $oStzPlatformActive.SessionUser(StzPlatformFormValue(oReq.Body(), "token")) = ""
+		oResp.Status(401, "Unauthorized").Json([ "error", "authentication required" ])
+		return
+	ok
+	$oStzPlatformActive.StorePut(
+		StzPlatformFormValue(oReq.Body(), "key"),
+		StzPlatformFormValue(oReq.Body(), "value"))
+	oResp.Status(201, "Created").Json([ "stored", 1 ])
+
+# GET /store?key=&token=  -> {"value":"..."} (auth required)
+func StzPlatformStoreGetRoute(oReq, oResp)
+	if $oStzPlatformActive.SessionUser(oReq.Query("token")) = ""
+		oResp.Status(401, "Unauthorized").Json([ "error", "authentication required" ])
+		return
+	ok
+	oResp.Header("Content-Type", "application/json")
+	oResp.Send('{"value":"' + StzReplace("" + $oStzPlatformActive.StoreGet(oReq.Query("key")), '"', '\"') + '"}')
 
 
 class stzPlatform from stzObject
@@ -420,13 +525,28 @@ class stzPlatform from stzObject
 	#   GET /thing?name=x -> one thing's fields
 	# nPort 0 = ephemeral; the bound port via HostQ().Port().
 	def ServeBody(nPort)
-		if NOT @bHasWorld
-			stzraise("stzPlatform.ServeBody: no world attached -- ForWorld(oApp) first.")
+		if NOT @bHasWorld and @oDb = NULL
+			stzraise("stzPlatform.ServeBody: nothing to serve -- attach a world " +
+			         "(ForWorld) and/or Commons (CommonsOn) first.")
 		ok
-		This._PrerenderWorld()
 		@oHost = new stzAppServer()
-		@oHost.Get_("/world", "StzPlatformWorldRoute")
-		@oHost.Get_("/thing", "StzPlatformThingRoute")
+		# the read-only WORLD view (duty 4a)
+		if @bHasWorld
+			This._PrerenderWorld()
+			@oHost.Get_("/world", "StzPlatformWorldRoute")
+			@oHost.Get_("/thing", "StzPlatformThingRoute")
+		ok
+		# the interactive, session-authed COMMONS (duty 4b): identity /
+		# sessions / messaging / store served MULTI-USER over the wire.
+		if @oDb != NULL
+			$oStzPlatformActive = This
+			@oHost.Post("/session", "StzPlatformSessionRoute")
+			@oHost.Get_("/whoami", "StzPlatformWhoamiRoute")
+			@oHost.Post("/message", "StzPlatformMessageRoute")
+			@oHost.Get_("/inbox", "StzPlatformInboxRoute")
+			@oHost.Post("/store", "StzPlatformStorePutRoute")
+			@oHost.Get_("/store", "StzPlatformStoreGetRoute")
+		ok
 		@oHost.Start(nPort, "127.0.0.1")
 		@bServing = TRUE
 		return This

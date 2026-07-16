@@ -13,7 +13,7 @@ transform_to_ring <- function(data) {
     
     # Handle lists or data frames
     if (is.list(obj) || is.data.frame(obj)) {
-      items <- lapply(seq_along(obj), function(i) {
+      _items_ <- lapply(seq_along(obj), function(i) {
         key <- names(obj)[i]
         value <- transform(obj[[i]], depth + 1)
         if (!is.null(key)) {
@@ -22,17 +22,17 @@ transform_to_ring <- function(data) {
           value
         }
       })
-      return(paste0("[", paste(items, collapse=", "), "]"))
+      return(paste0("[", paste(_items_, collapse=", "), "]"))
     }
     
     # Handle vectors or arrays
     if (is.vector(obj) || is.array(obj)) {
       if (length(obj) > 1) {
-        items <- sapply(obj, function(x) {
+        _items_ <- sapply(obj, function(x) {
           if (is.na(x)) return("NULL") # Changed from "NA" to "NULL"
           transform(x, depth + 1)
         })
-        return(paste0("[", paste(items, collapse=", "), "]"))
+        return(paste0("[", paste(_items_, collapse=", "), "]"))
       } else {
         if (is.na(obj)) return("NULL") # Changed from "NA" to "NULL"
       }
@@ -46,11 +46,11 @@ transform_to_ring <- function(data) {
     # Handle numeric values
     if (is.numeric(obj)) {
       # Check for scientific notation
-      str_val <- as.character(obj)
-      if (grepl("e", str_val, ignore.case = TRUE)) {
-        return(sprintf("'%s'", str_val))
+      _str_val_ <- as.character(obj)
+      if (grepl("e", _str_val_, ignore.case = TRUE)) {
+        return(sprintf("'%s'", _str_val_))
       }
-      return(str_val)
+      return(_str_val_)
     }
     
     # Handle logical values
@@ -185,6 +185,6 @@ res <- list(
     list("time_ms", matrix_time)
   ))
 )
-transformed <- transform_to_ring(res)
-writeLines(transformed, "rresult.txt")
+_transformed_ <- transform_to_ring(res)
+writeLines(_transformed_, "rresult.txt")
 cat("Data written to file\n")

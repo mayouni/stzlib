@@ -15,16 +15,16 @@ function transform_to_ring(data) {
         if (typeof obj === "object") {
             // Handle arrays
             if (Array.isArray(obj)) {
-                const items = obj.map(item => _transform(item, depth + 1));
-                return "[" + items.join(", ") + "]";
+                const _items_ = obj.map(item => _transform(item, depth + 1));
+                return "[" + _items_.join(", ") + "]";
             }
             
             // Handle plain objects (dictionaries)
-            const items = [];
+            const _items_ = [];
             for (const [key, value] of Object.entries(obj)) {
-                items.push("['" + key + "', " + _transform(value, depth + 1) + "]");
+                _items_.push("['" + key + "', " + _transform(value, depth + 1) + "]");
             }
-            return "[" + items.join(", ") + "]";
+            return "[" + _items_.join(", ") + "]";
         }
         
         // Handle strings
@@ -34,12 +34,12 @@ function transform_to_ring(data) {
         
         // Handle numbers
         if (typeof obj === "number") {
-            const str_val = obj.toString();
+            const _str_val_ = obj.toString();
             // Check for scientific notation
-            if (str_val.includes("e") || str_val.includes("E")) {
-                return "'" + str_val + "'";
+            if (_str_val_.includes("e") || _str_val_.includes("E")) {
+                return "'" + _str_val_ + "'";
             }
-            return str_val;
+            return _str_val_;
         }
         
         // Handle booleans
@@ -177,7 +177,7 @@ const res = [
 ];
 
 console.log("Data before transformation:", res);
-const transformed = transform_to_ring(res);
-console.log("Data after transformation:", transformed);
-require("fs").writeFileSync("jsresult.txt", transformed);
+const _transformed_ = transform_to_ring(res);
+console.log("Data after transformation:", _transformed_);
+require("fs").writeFileSync("jsresult.txt", _transformed_);
 console.log("Data written to file");
