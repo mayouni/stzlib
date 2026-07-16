@@ -69,6 +69,24 @@ chk("known words map to ids; the unknown maps to <unk>",
 	aIds[1] > 1 and aIds[3] = 1)
 
 ? ""
+? "-- Scene 8: RUNG 2 -- the NEURAL bigram LM, trained teacher-free --"
+# the knowledgebase became a corpus (Scene 5); now the corpus trains a
+# real neural model -- softmax over the domain vocabulary -- with NO
+# remote teacher. Rung 1 still owns truth; this rung GENERATES.
+oDLM.TrainNeuralRung(500)
+chk("the neural rung trains on the DLM's own corpus (no teacher)",
+	oDLM.IsNeuralTrained() = TRUE and
+	len(StzFind("neural bigram rung", oDLM.NeuralWhy())) > 0)
+chk("it LEARNED the deterministic bigram is->a at near-1 confidence",
+	oDLM.NextToken("is") = "a" and oDLM.NextTokenConfidence("is") > 0.9)
+chk("greedy generation yields domain-valid grammar ('X is a ...')",
+	StzLeft(oDLM.NeuralGenerate("tiramisu", 3), 13) = "tiramisu is a")
+cG = oDLM.ExportNeuralGguf("t_dlm_bigram")
+chk("the trained rung exports as a real .gguf ggml reads back",
+	StzEngineNeuralGgufInspect(cG) = 2)
+remove(cG)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
