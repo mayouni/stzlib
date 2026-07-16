@@ -363,8 +363,13 @@ base/
                                     governance) composed from stzGraphRule
                   CASCADE           the pre-commit impact query -- the
                                     review artifact (ImpactOf packaged)
-                  REVERSIBILITY     prior-state capture + typed inverse +
-                                    atomic revert, in the data model
+                  REVERSIBILITY     a full undo/redo TIMELINE (RevertTo/
+                                    Checkpoint/Redo), atomic + typed
+                                    [DEEPENED 2026-07-16]
+                  TRUST POSTURES    every refinement carries an origin
+                                    posture (trusted/external/sandboxed/llm)
+                                    into the audit; per-point TrustFloor
+                                    refuses lower-trust edits [DEEPENED 2026-07-16]
                   SEEDS: stzAppRefinement's knob model, the narration's
                   R-tag grammar, stzCCode's working transpiler.
                   ENTRY: stzRefinableCode       FORMAT: *.zrfn
