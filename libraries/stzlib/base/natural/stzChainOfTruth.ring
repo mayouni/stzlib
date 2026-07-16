@@ -147,7 +147,8 @@ class stzChainOfTruth from stzObject
 	def _Type()
 		return ring_type(@pValue)
 
-	def StzObject()
+	# The stz object this chain reasons about -- an OBJECT, hence Q.
+	def StzObjectQ()
 		return @oStzObject
 
 	  #-------------------------------#
@@ -257,7 +258,7 @@ class stzChainOfTruth from stzObject
 				bResult = 1
 
 			# Case of a stz object method
-			but StzFindFirst( methods(This.StzObject()), "is" + pThing ) > 0
+			but StzFindFirst( methods(This.StzObjectQ()), "is" + pThing ) > 0
 				# Example: _("A").Is( :Uppercase )
 	
 				cCode = 'bResult = StzObject().Is' + pThing + '()'
@@ -289,7 +290,7 @@ class stzChainOfTruth from stzObject
 			nThing2Len = len(pThing)
 			for iLoopThing2 = 1 to nThing2Len
 				str = pThing[iLoopThing2]
-				if NOT ( StzFindFirst( methods(This.StzObject()), "is" + str ) > 0 )
+				if NOT ( StzFindFirst( methods(This.StzObjectQ()), "is" + str ) > 0 )
 					bIsListOfMethods = 0
 					exit
 				ok
@@ -479,7 +480,7 @@ class stzChainOfTruth from stzObject
 
 		pcMethod = StringSimplified(pcMethod)
 
-		cCode = 'bResult = This.StzObject().' + pcMethod
+		cCode = 'bResult = This.StzObjectQ().' + pcMethod
 
 		if NOT (StzFindFirst(pcMethod, "(") > 1 and StzFindFirst(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFindFirst(pcMethod, "(") < StzFindFirst(pcMethod, ")") and StzRight(pcMethod, 1) = ")")
 			cCode += "()"
@@ -541,7 +542,7 @@ class stzChainOfTruth from stzObject
 
 		_cCondition_ = StringSimplified(pcCondition)
 
-		cCode = "if This.StzObject()." + _cCondition_ + NL +
+		cCode = "if This.StzObjectQ()." + _cCondition_ + NL +
 			"	" + "bResult = 1" + NL +
 			"else" + NL +
 			"	bResult = 0" + NL +
@@ -753,10 +754,10 @@ class stzChainOfTruth from stzObject
 	#------------------
 
 	def get@()
-		return This.StzObject()
+		return This.StzObjectQ()
 
 		def getQ()
-			return This.StzObject()
+			return This.StzObjectQ()
 
 	def get_()
 		if This.ShouldReturnTRUE()

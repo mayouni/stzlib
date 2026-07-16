@@ -2209,5 +2209,6 @@ class stzOrgChartSimulation from stzObject
 	def Results()
 		return @aResults
 
-	def SimulatedChart()
+	# The what-if chart produced by the simulation -- an OBJECT, hence Q.
+	def SimulatedChartQ()
 		return @oSimulatedChart

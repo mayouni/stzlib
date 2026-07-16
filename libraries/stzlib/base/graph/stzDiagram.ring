@@ -980,8 +980,18 @@ class stzDiagram from stzGraph
 		end
 		return _aoFiltered_
 
-	def Annotations()
+	# The annotators overlaying this diagram -- OBJECTS, hence Q.
+	def AnnotationsQ()
 		return @aoAnnotations
+
+	# ... and what they are, as data: the type each one annotates.
+	def Annotations()
+		_acTypes_ = []
+		_nLen_ = len(@aoAnnotations)
+		for i = 1 to _nLen_
+			_acTypes_ + @aoAnnotations[i].Type()
+		end
+		return _acTypes_
 
 	#-----------------------#
 	#  TEMPLATE OPERATIONS  #
@@ -2357,7 +2367,7 @@ class stzDiagramToStzDiag from stzObject
 
 		# Generating annotations
 
-		_aAnnotations_ = @oDiagram.Annotations()
+		_aAnnotations_ = @oDiagram.AnnotationsQ()
 		_nLen_ = len(_aAnnotations_)
 
 		if _nLen_ > 0

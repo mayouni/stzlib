@@ -66,11 +66,13 @@ class stzGraphQuery from stzObject
 		ok
 		@oGraph = ref(oGraph)
 	
-	def GraphObject()
+	# The graph this query runs against -- an OBJECT, hence Q.
+	def GraphQ()
 		return @oGraph
-		
-		def GraphQ()
-			return @oGraph
+
+	# ... and its NAME, for a reader who only wants to know which graph.
+	def Graph()
+		return @oGraph.Name()
 
 	#---------------------------#
 	#  DEFINITION MANAGEMENT    #
