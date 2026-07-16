@@ -3,8 +3,11 @@
 #  generic artifact the Model Foundry produces -- any project ships
 #  its DLM FREE to its domain's users.)
 #
-#   StzKnow("margherita", "dish") ...            # the brain (R1)
-#   oDLM = StzForgeDLM("restaurant")             # compose-and-go
+#   oKB = new stzKnowledgeGraph("restaurant")    # a SCOPED domain brain
+#   oKB.Know("margherita", "dish").
+#       KnowRelation("margherita", "contains", "tomato-sauce")
+#   oDLM = new stzDLM("restaurant").ForgeFrom(oKB)   # forged from the KB
+#   # or the one-liner:  oDLM = StzForgeDLM("restaurant", oKB)
 #   ? oDLM.Ask("what is margherita")             # deterministic answers
 #   ? oDLM.Complete("margherita")                # domain-valid continuations
 #   ? oDLM.GenerateCorpus()                      # facts as sentences --
@@ -18,9 +21,17 @@
 # certainty 1; everything outside the domain REFUSES (LAW 3). The
 # neural rung (2) trains on GenerateCorpus() -- no remote teacher.
 
-func StzForgeDLM(pcDomain)
+# Forge a DLM from an EXPLICIT domain knowledgebase (a stzKnowledgeGraph
+# instance) -- module-oriented: the domain brain is passed in, never read
+# from a hidden global. (A caller who genuinely wants the shared natural
+# world passes DefaultKnowledgeGraph() itself -- that choice is explicit.)
+func StzForgeDLM(pcDomain, poKB)
+	if NOT IsStzKnowledgeGraph(poKB)
+		stzraise("StzForgeDLM needs a stzKnowledgeGraph as its domain brain -- " +
+			"build one with new stzKnowledgeGraph(id).Know(...).KnowRelation(...).")
+	ok
 	_oD_ = new stzDLM(pcDomain)
-	_oD_.ForgeFrom(DefaultKnowledgeGraph())
+	_oD_.ForgeFrom(poKB)
 	return _oD_
 
 func StzLoadDLM(pcFile)
