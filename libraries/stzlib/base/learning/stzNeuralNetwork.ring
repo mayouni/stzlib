@@ -33,8 +33,8 @@ class stzNeuralNetwork from stzObject
 
 	def AddDenseLayer(nUnits, pcActivation)
 		_cAct_ = StzLower("" + pcActivation)
-		if ring_find([ "relu", "sigmoid", "tanh", "linear" ], _cAct_) = 0
-			stzraise("Unknown activation '" + _cAct_ + "' -- use :ReLU, :Sigmoid, :Tanh or :Linear.")
+		if ring_find([ "relu", "sigmoid", "tanh", "linear", "softmax" ], _cAct_) = 0
+			stzraise("Unknown activation '" + _cAct_ + "' -- use :ReLU, :Sigmoid, :Tanh, :Linear or :Softmax.")
 		ok
 		_nPrev_ = @nInputs
 		if len(@aLayers) > 0
@@ -140,11 +140,39 @@ class stzNeuralNetwork from stzObject
 				_aZ_ + _nZ_
 				_aA_ + This._Act(_cAct_, _nZ_)
 			next
+			# softmax is a WHOLE-LAYER activation (normalizes across units),
+			# so it can't be computed per-unit like the others -- rebuild
+			# the layer's activations from the full pre-activation vector.
+			if _cAct_ = "softmax"
+				_aA_ = This._Softmax(_aZ_)
+			ok
 			_aZs_ + _aZ_
 			_aActs_ + _aA_
 			_aCur_ = _aA_
 		next
 		return [ :activations = _aActs_, :zs = _aZs_ ]
+
+	# numerically stable softmax over a layer's pre-activations (subtract
+	# the max before exp -- exp(700+) overflows Ring's doubles otherwise).
+	def _Softmax(paZ)
+		_n_ = len(paZ)
+		_nMax_ = paZ[1]
+		for _i_ = 2 to _n_
+			if paZ[_i_] > _nMax_
+				_nMax_ = paZ[_i_]
+			ok
+		next
+		_aE_ = []
+		_nSum_ = 0
+		for _i_ = 1 to _n_
+			_nV_ = exp(paZ[_i_] - _nMax_)
+			_aE_ + _nV_
+			_nSum_ += _nV_
+		next
+		for _i_ = 1 to _n_
+			_aE_[_i_] = _aE_[_i_] / _nSum_
+		next
+		return _aE_
 
 	def _Act(pcKind, nZ)
 		if pcKind = "relu"

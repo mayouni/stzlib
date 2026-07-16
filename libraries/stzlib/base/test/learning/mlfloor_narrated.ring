@@ -161,6 +161,42 @@ chk("training is REPRODUCIBLE (same seed, same weights, LAW 3)",
 	oNN.Predict([0,1])[1] = oNN2.Predict([0,1])[1])
 
 ? ""
+? "-- Scene 9b: SOFTMAX + categorical cross-entropy (multi-class) --"
+# three 2-D clusters, one-hot targets: the output layer must normalize
+# ACROSS units (a whole-layer activation), and the trainer must pair it
+# with cross-entropy (delta = a - y) to learn a proper class distribution.
+aXm = [ [0,0],[0.1,0.1], [1,1],[0.9,1.1], [0,1],[0.1,0.9] ]
+aYm = [ [1,0,0],[1,0,0], [0,1,0],[0,1,0], [0,0,1],[0,0,1] ]
+oNNm = new stzNeuralNetwork([ :Inputs = 2 ])
+oNNm.AddDenseLayer(8, :Tanh)
+oNNm.AddDenseLayer(3, :Softmax)
+pm = oNNm.Predict([0,0])
+chk("softmax outputs a probability distribution (sums to 1)",
+	fabs((pm[1] + pm[2] + pm[3]) - 1) < 0.0000001)
+
+oTrm = new stzTrainer()
+oTrm.SetLearningRate(0.3)
+oTrm.Train(oNNm, aXm, aYm, 3000)
+? "  " + oTrm.Why()
+chk("cross-entropy loss descends toward zero", oTrm.FinalLoss() < 0.05)
+
+nCorrect = 0
+for i = 1 to len(aXm)
+	pr = oNNm.Predict(aXm[i])
+	nArg = 1  nMx = pr[1]
+	for k = 2 to 3
+		if pr[k] > nMx  nMx = pr[k]  nArg = k  ok
+	next
+	nTru = 1  tMx = aYm[i][1]
+	for k = 2 to 3
+		if aYm[i][k] > tMx  tMx = aYm[i][k]  nTru = k  ok
+	next
+	if nArg = nTru  nCorrect++  ok
+next
+chk("every point is classified into its right class (argmax)",
+	nCorrect = len(aXm))
+
+? ""
 ? "-- Scene 10: GGUF EXPORT -- Softanza writes the format it reads --"
 cF = oNN.ExportToGguf("t_xor_export", "xor-solved")
 chk("the trained net exports to a real .gguf", cF = "t_xor_export.gguf")
