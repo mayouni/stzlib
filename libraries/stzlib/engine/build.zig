@@ -13,6 +13,7 @@ const Domain = struct {
     needs_libcurl: bool = false,
     needs_ggml: bool = false,
     needs_mbedtls: bool = false,
+    needs_treesitter: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -67,6 +68,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_compress", .entry = "src/stz_compress_entry.zig", .needs_ring = true },
     .{ .name = "stz_solver", .entry = "src/stz_solver_entry.zig", .needs_ring = true },
     .{ .name = "stz_db", .entry = "src/stz_db_entry.zig", .needs_sqlite = true, .needs_ring = true },
+    .{ .name = "stz_polyglot", .entry = "src/stz_polyglot_entry.zig", .needs_treesitter = true, .needs_ring = true },
     .{ .name = "stz_watch", .entry = "src/stz_watch_entry.zig", .needs_ring = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
     .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },
@@ -595,6 +597,24 @@ fn addSqlite(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build
     });
 }
 
+// tree-sitter: the language-agnostic runtime (one amalgamated TU, lib.c) +
+// per-language grammars (parser.c + external scanner.c). Compiles as plain
+// C via Zig, no external runtime. Add a language by dropping its grammar
+// under vendor/tree-sitter/<lang>/ and listing its two C files here.
+fn addTreeSitter(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/tree-sitter/runtime/include"));
+    mod.addIncludePath(b.path("vendor/tree-sitter/runtime/src"));
+    mod.addIncludePath(b.path("vendor/tree-sitter/python"));
+    lib.addCSourceFiles(.{
+        .files = &.{
+            "vendor/tree-sitter/runtime/src/lib.c",
+            "vendor/tree-sitter/python/parser.c",
+            "vendor/tree-sitter/python/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+}
+
 // Vendored mbedTLS (Tier 2 TLS backbone -- server-side TLS termination for
 // wire mTLS between nodes). Self-contained C (crypto + TLS + x509 in
 // library/*.c); the default include/mbedtls/mbedtls_config.h is auto-picked
@@ -843,6 +863,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
         if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag, false);
+        if (dom.needs_treesitter) addTreeSitter(mod, lib, b);
         if (dom.needs_ggml) addGgml(mod, lib, b);
         b.installArtifact(lib);
     }

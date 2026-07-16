@@ -21,16 +21,20 @@
 # graph (defines/inherits/imports); CALL edges (who-calls-whom) need
 # full-body parsing and are refused loudly, never faked (LAW 3).
 #
-# TWO BACKENDS:
-#   - the INDENTATION SCAN (default; new stzPyCodeGraph / ...FromSource):
-#     self-contained + deterministic, so tests never need Python; the
-#     DECLARATION graph only (defines/inherits/imports).
-#   - the TRUE-AST backend (StzPyCodeGraphAst / ...FromSourceAst): drives
-#     Python's own `ast` module through the reactor's async spawn (the
-#     polyglot worker). Correct on decorators, nested/conditional defs,
-#     dotted bases and multiline signatures -- AND it extracts CALL edges,
-#     so DeadCode()/CyclicCalls() ANSWER (they refuse on the scan floor).
-# Both fill the SAME internal arrays, so every query below works either way.
+# THREE BACKENDS, all filling the SAME internal arrays (every query below
+# works whichever one built the graph):
+#   - INDENTATION SCAN (default; new stzPyCodeGraph / ...FromSource):
+#     self-contained, no deps; DECLARATION graph only.
+#   - TREE-SITTER (StzPyCodeGraphTS / ...FromSourceTS): a REAL parse via the
+#     vendored tree-sitter grammar IN THE ENGINE -- correct on decorators,
+#     conditional-block defs, dotted bases, multiline sigs, AND call edges,
+#     with NO external runtime. The preferred real-parse path; the polyglot
+#     substrate (one runtime, a grammar per language).
+#   - PYTHON `ast` (StzPyCodeGraphAst / ...FromSourceAst): the same real
+#     parse + call edges by shelling to a system Python via async spawn.
+#     Kept as a fallback where the engine grammar isn't built.
+# The tree-sitter and Python paths emit the SAME line protocol, so both
+# ingest through _IngestAstLines; both unlock DeadCode()/CyclicCalls().
 
 $cStzPyExe = "python"     # override if the interpreter is named differently
 
@@ -64,6 +68,25 @@ func StzPyCodeGraphAst(pcRootPath)
 	oG = new stzPyCodeGraph("")
 	oG.SetRoot(pcRootPath)
 	oG._ScanViaAst(pcRootPath)
+	oG.BuildGraph()
+	return oG
+
+# --- the TREE-SITTER backend (real parse IN the engine, no runtime) -----
+
+# Is the vendored tree-sitter engine grammar loaded?
+func StzTreeSitterAvailable()
+	return $pStzPolyglotHandle != NULL
+
+func StzPyCodeGraphFromSourceTS(pcSource)
+	oG = new stzPyCodeGraph("")
+	oG.ScanSourceViaTreeSitter(pcSource, "<source>")
+	oG.BuildGraph()
+	return oG
+
+func StzPyCodeGraphTS(pcRootPath)
+	oG = new stzPyCodeGraph("")
+	oG.SetRoot(pcRootPath)
+	oG._ScanViaTreeSitter(pcRootPath)
 	oG.BuildGraph()
 	return oG
 
@@ -123,6 +146,31 @@ class stzPyCodeGraph from stzObject
 			else
 				if StzLower(StzRight(_cName_, 3)) = ".py"
 					This.ScanSourceViaAst(read(pcPath + "/" + _cName_),
+						pcPath + "/" + _cName_)
+				ok
+			ok
+		next
+
+	# Parse via the vendored tree-sitter grammar in the engine (no runtime).
+	# Same line protocol as the Python-ast backend -> same ingestion path.
+	def ScanSourceViaTreeSitter(pcSource, pcFile)
+		if $pStzPolyglotHandle = NULL
+			stzraise("The tree-sitter engine (stz_polyglot.dll) is not loaded. Build the engine, or use new stzPyCodeGraph(...) for the Python-free indentation floor.")
+		ok
+		This._IngestAstLines(StzEnginePolyglotParsePython("" + pcSource), pcFile)
+
+	def _ScanViaTreeSitter(pcPath)
+		_aEntries_ = dir(pcPath)
+		_nLen_ = len(_aEntries_)
+		for _i_ = 1 to _nLen_
+			_cName_ = _aEntries_[_i_][1]
+			if _aEntries_[_i_][2]
+				if _cName_ != "." and _cName_ != ".."
+					This._ScanViaTreeSitter(pcPath + "/" + _cName_)
+				ok
+			else
+				if StzLower(StzRight(_cName_, 3)) = ".py"
+					This.ScanSourceViaTreeSitter(read(pcPath + "/" + _cName_),
 						pcPath + "/" + _cName_)
 				ok
 			ok
