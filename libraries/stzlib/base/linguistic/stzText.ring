@@ -307,9 +307,116 @@ class stzText from stzStringText
 		end
 		return _acOut_
 
+	# CONSTITUENCY PARSING (R3, the level above chunking): the NESTED phrase
+	# structure, not flat chunks. A CASCADED PHRASE GRAMMAR -- rules applied
+	# in order, later rules naming phrases (NP/VP/PP) built by earlier ones,
+	# so the tree gains real depth (S -> VP -> PP -> NP -> leaf).
+	#   ? Q("The quick brown fox jumps over the lazy dog").TextQ().ParseTree()
+	#   #--> (S (NP The/DT quick/JJ brown/JJ fox/NN)
+	#   #       (VP jumps/VBZ (PP over/IN (NP the/DT lazy/JJ dog/NN))))
+	# ParseTree() = the bracket string (data); ParseTreeQ() = the navigable
+	# stzParseTree object (Phrases/Subtrees/Leaves/Height/Show).
+	def ParseTreeQ()
+		return This.ParseTreeWithQ(This._DefaultGrammar())
+
+	def ParseTree()
+		return This.ParseTreeQ().ToBracket()
+
+	# custom cascade: paGrammar = [ [ label, "TAG-pattern" ], ... ]
+	def ParseTreeWithQ(paGrammar)
+		_aTW_ = This.TaggedWords()
+		_aNodes_ = []
+		_nW_ = len(_aTW_)
+		for _i_ = 1 to _nW_
+			_oLeaf_ = new stzParseTree(StzUpper("" + _aTW_[_i_][2]))
+			_oLeaf_.SetWord(_aTW_[_i_][1])
+			_aNodes_ + _oLeaf_
+		next
+		_aNodes_ = This._ApplyCascade(_aNodes_, paGrammar)
+		# root the remaining forest under a single S (the sentence)
+		_oRoot_ = new stzParseTree("S")
+		_nN_ = len(_aNodes_)
+		for _i_ = 1 to _nN_
+			_oRoot_.AddChild(_aNodes_[_i_])
+		next
+		return _oRoot_
+
 	# the flagship sugar: DT? JJ* NN+ -- the classic noun-phrase shape
 	def NounPhrases()
 		return This.Chunks("DT? JJ* NN+")
+
+	#-- the cascade engine (shared quantifier logic with the chunker) --------
+
+	def _DefaultGrammar()
+		return [
+			[ "NP", "DT? PRP$? CD* JJ* NN+" ],   # a noun phrase (NN+ covers NNP)
+			[ "NP", "PRP" ],                      # a pronoun is a noun phrase
+			[ "PP", "IN NP" ],                    # preposition + noun phrase
+			[ "VP", "VB RB* NP? PP*" ]            # verb (+ object) (+ modifiers)
+		]
+
+	def _ApplyCascade(paNodes, paGrammar)
+		_aNodes_ = paNodes
+		_nR_ = len(paGrammar)
+		for _r_ = 1 to _nR_
+			_aUnits_ = This._ChunkUnits(paGrammar[_r_][2])
+			_aNodes_ = This._ApplyRule(_aNodes_, paGrammar[_r_][1], _aUnits_)
+		next
+		return _aNodes_
+
+	# one greedy pass of a rule over the node stream: matched spans become a
+	# new phrase node labeled pcLabel; unmatched nodes pass through unchanged
+	def _ApplyRule(paNodes, pcLabel, paUnits)
+		_nN_ = len(paNodes)
+		_nU_ = len(paUnits)
+		_aOut_ = []
+		_i_ = 1
+		while _i_ <= _nN_
+			_j_ = _i_
+			_bOk_ = 1
+			for _u_ = 1 to _nU_
+				_cTag_ = paUnits[_u_][1]
+				_cQ_ = paUnits[_u_][2]
+				if _cQ_ = "?"
+					if _j_ <= _nN_ and This._TagMatch(paNodes[_j_].Label(), _cTag_)
+						_j_++
+					ok
+				but _cQ_ = "*"
+					while _j_ <= _nN_ and This._TagMatch(paNodes[_j_].Label(), _cTag_)
+						_j_++
+					end
+				but _cQ_ = "+"
+					if _j_ <= _nN_ and This._TagMatch(paNodes[_j_].Label(), _cTag_)
+						_j_++
+						while _j_ <= _nN_ and This._TagMatch(paNodes[_j_].Label(), _cTag_)
+							_j_++
+						end
+					else
+						_bOk_ = 0
+						exit
+					ok
+				else
+					if _j_ <= _nN_ and This._TagMatch(paNodes[_j_].Label(), _cTag_)
+						_j_++
+					else
+						_bOk_ = 0
+						exit
+					ok
+				ok
+			next
+			if _bOk_ = 1 and _j_ > _i_
+				_oPhrase_ = new stzParseTree(pcLabel)
+				for _k_ = _i_ to _j_ - 1
+					_oPhrase_.AddChild(paNodes[_k_])
+				next
+				_aOut_ + _oPhrase_
+				_i_ = _j_
+			else
+				_aOut_ + paNodes[_i_]
+				_i_++
+			ok
+		end
+		return _aOut_
 
 	def _ChunkUnits(pcPattern)
 		_acToks_ = StzSplit(ring_trim("" + pcPattern), " ")
