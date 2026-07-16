@@ -50,18 +50,31 @@ class stzTrainer from stzObject
 				_aZs_ = _aFwd_[:zs]
 				_aOut_ = _aActs_[_nL_ + 1]
 				_nO_ = len(_aOut_)
-				# output delta: SIGMOID outputs pair with cross-entropy
-				# (delta = a - y; the MSE pairing's a(1-a) factor
-				# strangles gradients -- the constant-0.5 XOR saddle);
-				# other activations keep the MSE derivative.
+				# output delta by pairing:
+				#  SOFTMAX + categorical cross-entropy -> delta = a - y,
+				#    loss = -sum y*log(a) (multi-class; the clean gradient);
+				#  SIGMOID + binary cross-entropy   -> delta = a - y,
+				#    loss = squared error report (the a(1-a) MSE factor
+				#    strangles gradients -- the constant-0.5 XOR saddle);
+				#  anything else keeps the MSE derivative.
 				_aDelta_ = []
 				_cOutAct_ = _aLayers_[_nL_][2]
 				for _o_ = 1 to _nO_
 					_nErr_ = _aOut_[_o_] - paTargets[_s_][_o_]
-					_nLoss_ += _nErr_ * _nErr_
-					if _cOutAct_ = "sigmoid"
+					if _cOutAct_ = "softmax"
+						if paTargets[_s_][_o_] > 0
+							_nA_ = _aOut_[_o_]
+							if _nA_ < 0.000000000001
+								_nA_ = 0.000000000001
+							ok
+							_nLoss_ += -paTargets[_s_][_o_] * log(_nA_)
+						ok
+						_aDelta_ + _nErr_
+					but _cOutAct_ = "sigmoid"
+						_nLoss_ += _nErr_ * _nErr_
 						_aDelta_ + _nErr_
 					else
+						_nLoss_ += _nErr_ * _nErr_
 						_aDelta_ + ( _nErr_ * poNet._ActDeriv(_cOutAct_,
 							_aZs_[_nL_][_o_], _aOut_[_o_]) )
 					ok
@@ -129,6 +142,9 @@ class stzTrainer from stzObject
 				_aZ_ + _nZ_
 				_aA_ + poNet._Act(_cAct_, _nZ_)
 			next
+			if _cAct_ = "softmax"
+				_aA_ = poNet._Softmax(_aZ_)
+			ok
 			_aZs_ + _aZ_
 			_aActs_ + _aA_
 			_aCur_ = _aA_
