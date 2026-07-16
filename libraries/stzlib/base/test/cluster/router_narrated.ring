@@ -68,7 +68,7 @@ EndScenario()
 Scenario("TIER 3 model seam: used only when tiers 1+2 abstain")
 	Given("a classifier with a stub model that always says 'neural'")
 	oM = new stzRequestClassifier()
-	oM.WithModelClassifier(func cText { return "neural" })
+	oM.SetModelClassifier(func cText { return "neural" })
 	Then("gibberish (lexically undecidable) falls through to the model",
 		oM.ClassifyText("qwerty zxcvb foobar"), "neural")
 	Then("but a clear lexical hit is decided WITHOUT the model",

@@ -67,7 +67,7 @@ Scenario("a governed federated call is transported over mutual TLS")
 	$oFed.Bond("web", :math)
 	$oFed.GovDeclareRisk("use-math", 1).GovGrant("web", "use-math").GovSetAuthority("web", :Delegated)
 	$oFed.RegisterKey("web", "grid-shared-secret")     # per-request signing too
-	$oFed.WithMutualTls($cNodeCrt, $cNodeKey, $cCACrt)  # + mutual TLS transport
+	$oFed.SetMutualTls($cNodeCrt, $cNodeKey, $cCACrt)  # + mutual TLS transport
 	Then("the federation reports it runs over mTLS", $oFed.IsMtls(), TRUE)
 
 	When("web makes a governed, signed federated call over the mTLS channel")
@@ -84,7 +84,7 @@ Scenario("governance still gates an mTLS federation (transport != authorization)
 	Given("an mTLS federation where the caller lacks authority")
 	$oG = new stzComputeFederation("gated-grid")
 	$oG.Join("worker", "127.0.0.1:" + $nPort, [ :neural ])
-	$oG.WithMutualTls($cNodeCrt, $cNodeKey, $cCACrt)
+	$oG.SetMutualTls($cNodeCrt, $cNodeKey, $cCACrt)
 	$oG.Bond("web", :neural)
 	$oG.GovDeclareRisk("use-neural", 4)   # critical
 	$oG.GovGrant("web", "use-neural").GovSetAuthority("web", :Delegated)  # 2 << 4

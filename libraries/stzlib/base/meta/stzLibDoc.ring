@@ -88,7 +88,7 @@ class stzLibDoc from stzObject
 # Union in the TEST SAMPLES of the given test topics (L3): every narrated
 	# Then("desc", code, expected) becomes an "(example)" record -- a natural
 	# query can surface a REAL verified call. Chainable; re-index on next Ask.
-	def WithTestSamples(paTopics)
+	def AddTestSamples(paTopics)
 		if NOT isList(paTopics) return This ok
 		_nT_ = len(paTopics)
 		for _t_ = 1 to _nT_
@@ -102,7 +102,10 @@ class stzLibDoc from stzObject
 			next
 		next
 		@bIndexed = FALSE
-		return This
+
+		def AddTestSamplesQ(paTopics)
+			This.AddTestSamples(paTopics)
+			return This
 
 	def NumberOfSamples()
 		return @nSamples

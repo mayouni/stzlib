@@ -1834,7 +1834,7 @@ standard fault-tolerance patterns are wired into the fleet, all tested in
   in production. This is the honest backstop under the R8.1 load-isolation
   budgets: isolation caps CONCURRENCY, backpressure caps the BACKLOG.
 
-- CIRCUIT BREAKER (per-worker isolation). `WithCircuitBreaker(threshold,
+- CIRCUIT BREAKER (per-worker isolation). `SetCircuitBreaker(threshold,
   cooldownMs)`: a worker that fails `threshold` consecutive times has its
   circuit OPENED -- it is skipped by routing for `cooldownMs`, then goes
   HALF-OPEN (eligible for one probe; a success re-closes it, a failure
@@ -1844,7 +1844,7 @@ standard fault-tolerance patterns are wired into the fleet, all tested in
   is the observable.
 
 - RETRY-WITH-FAILOVER. `Route` no longer targets a single round-robin
-  worker: it tries up to `WithMaxTries(n)` HEALTHY (ready, non-draining,
+  worker: it tries up to `SetMaxTries(n)` HEALTHY (ready, non-draining,
   circuit-closed) workers of the facet, in RR-rotated order, and returns
   the first 2xx. A transport error or non-2xx FAILS OVER to the next. So a
   live worker beside a broken sibling keeps success at 100% while the
@@ -1904,7 +1904,7 @@ in `base/test/cluster/rate_limiting_narrated.ring` (30 assertions, green):
   so short bursts are absorbed up to the bucket size while the sustained
   rate is capped. Multi-key: a facet, and (for reuse) a caller or client ip
   each get an independent bucket -- a flooded key never starves another.
-- FRONT DOOR. `WithRateLimit(facet, ratePerSec, burst)`; `Route` checks the
+- FRONT DOOR. `SetRateLimit(facet, ratePerSec, burst)`; `Route` checks the
   bucket BEFORE touching a worker, so an over-limit request is shed with a
   distinct `-429` (callers branch on it vs `-1` no-worker) and never reaches
   or exhausts the fleet. A facet with no limit is UNLIMITED. Every shed is
@@ -2004,7 +2004,7 @@ termination), so this is a multi-slice engine project. Plan +slice breakdown:
   server-enforced; under TLS 1.3 the body, not the status, is the "let in?"
   signal); wrong CA -> client aborts the handshake. Mutual auth both ways.
 - SLICE 4 (DONE 2026-07-15): the FEDERATION transport runs over mTLS.
-  `stzComputeFederation.WithMutualTls(cert, key, ca)` -> `FederatedCall` goes
+  `stzComputeFederation.SetMutualTls(cert, key, ca)` -> `FederatedCall` goes
   over the mutual mbedTLS channel (`TlsGet`) instead of curl. So a federated
   call is now ENCRYPTED + MUTUALLY CERT-AUTHENTICATED + SIGNED (7.4) +
   GOVERNED (R4b) -- the full node-to-node security stack. Narrated suite

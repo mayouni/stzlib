@@ -139,7 +139,7 @@ Scenario("Cross-domain recipes (string / list / number) are retrievable")
 EndScenario()
 
 Scenario("L3: the narrated suites are retrieval fuel (test-sample harvest)")
-	oDs = StzLibDocQ([]).WithTestSamples([ "natural" ])
+	oDs = StzLibDocQ([]).AddTestSamplesQ([ "natural" ])
 	Then("the natural topic yields a corpus", oDs.NumberOfSamples() > 100, TRUE)
 	aRs = oDs.Ask("the violating update is refused")
 	Then("a phrasing from a suite finds its example", aRs[1][1], "(example)")

@@ -69,7 +69,7 @@ class stzAppCluster from stzObject
 	# Declare nWorkers processes of a profile (capability tag + caps).
 	# One @aFleet row per worker is created NOW (port assigned at Start),
 	# so FleetSize/WorkersOf are correct before and after launch.
-	def WithProfile(pcTag, paCaps, nWorkers)
+	def AddProfile(pcTag, paCaps, nWorkers)
 		if nWorkers < 1
 			stzraise("A profile needs >= 1 worker.")
 		ok
@@ -86,13 +86,18 @@ class stzAppCluster from stzObject
 			# tag,port,jobId,ready,draining,failures,circuitOpenUntilMs,host
 			@aFleet + [ _cTag_, 0, 0, FALSE, FALSE, 0, 0, "127.0.0.1" ]
 		next
-		return This
+		return
 
 	#-- resilience config --------------------------------------------------
 
 	# Cap the number of workers a single Route tries before giving up
 	# (retry-with-failover across healthy workers of the facet).
-	def WithMaxTries(n)
+
+		def AddProfileQ(pcTag, paCaps, nWorkers)
+			This.AddProfile(pcTag, paCaps, nWorkers)
+			return This
+
+	def SetMaxTries(n)
 		if n < 1  n = 1  ok
 		@nMaxTries = n
 		return This
@@ -100,7 +105,7 @@ class stzAppCluster from stzObject
 	# Circuit breaker: after nThreshold consecutive failures a worker's
 	# circuit OPENS (it is skipped for nCooldownMs, then half-open: one
 	# probe re-closes on success or re-opens on failure).
-	def WithCircuitBreaker(nThreshold, nCooldownMs)
+	def SetCircuitBreaker(nThreshold, nCooldownMs)
 		if nThreshold < 1  nThreshold = 1  ok
 		@nBreakerThreshold = nThreshold
 		@nBreakerCooldownMs = nCooldownMs
@@ -108,9 +113,9 @@ class stzAppCluster from stzObject
 
 	# Rate limit a facet at the front door: nRatePerSec sustained with a
 	# bucket of nBurst (the largest instantaneous burst absorbed). A facet
-	# with no WithRateLimit is UNLIMITED. Requests over the limit are shed
+	# with no SetRateLimit is UNLIMITED. Requests over the limit are shed
 	# with a -429 status before any worker is touched.
-	def WithRateLimit(pcFacet, nRatePerSec, nBurst)
+	def SetRateLimit(pcFacet, nRatePerSec, nBurst)
 		@oLimiter.SetLimit(StzLower("" + pcFacet), nRatePerSec, nBurst)
 		return This
 
@@ -139,7 +144,7 @@ class stzAppCluster from stzObject
 			         "or see CatalogQ().Names().")
 		ok
 		_cTag_ = StzLower("" + pcFacet)
-		This.WithProfile(_cTag_, @oPool.CatalogQ().CapabilitiesOf(pcFacet), n)
+		This.AddProfile(_cTag_, @oPool.CatalogQ().CapabilitiesOf(pcFacet), n)
 		# call THROUGH Profile() (no local assign -> no copy; aliasing)
 		@oPool.ProfileQ(_cTag_).SetRealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
 		if @oPool.CatalogQ().IsPolyglot(pcFacet)
@@ -162,13 +167,13 @@ class stzAppCluster from stzObject
 	def WithVision(n)
 		return This.WithFacet(:vision, n)
 
-	def WithWorkerTTL(nMs)
+	def SetWorkerTTL(nMs)
 		@nTtlMs = nMs
 		return This
-	def WithBasePort(nPort)
+	def SetBasePort(nPort)
 		@nBasePort = nPort
 		return This
-	def WithRingExe(pcPath)
+	def SetRingExe(pcPath)
 		@cRingExe = "" + pcPath
 		return This
 
@@ -239,7 +244,7 @@ class stzAppCluster from stzObject
 
 	# Proxy to a healthy worker of pcTag. On a failed attempt (transport
 	# error or non-2xx), FAIL OVER to the next healthy worker, up to
-	# WithMaxTries. A worker that fails WithCircuitBreaker consecutive times
+	# SetMaxTries. A worker that fails SetCircuitBreaker consecutive times
 	# has its circuit OPENED (skipped for the cooldown, then half-open). A
 	# success resets/closes its circuit. Path is SSRF/CRLF-validated first.
 	def Route(pcTag, pcPath)
