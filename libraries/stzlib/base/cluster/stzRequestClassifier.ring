@@ -30,7 +30,7 @@
 #   ? oR.ClassifyText("find the shortest path between two nodes")   #--> graph
 # -----------------------------------------------------------------------------
 
-func StzRequestClassifier()
+func StzRequestClassifierQ()
 	return new stzRequestClassifier()
 
 class stzRequestClassifier from stzObject

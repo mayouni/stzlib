@@ -9,7 +9,7 @@ load "../_narrated.ring"
 # world Relate()s an instance its proposal clears. Continuous firing
 # rides the R5 agent-host runtime (below).
 
-$oApp = StzApp("clinic")
+$oApp = StzAppQ("clinic")
 $oApp.Thing(:Patient) { Has([ :name ]) }
 $oApp.Thing(:Checkup)
 $oApp.Whenever(:Patient).Unseen(90, :Days) { Propose(:Checkup) }

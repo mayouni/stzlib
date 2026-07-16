@@ -10,7 +10,7 @@ load "../_narrated.ring"
 # declares; INSTANCES (Is_/Relate: isa-edges + labeled edges) live.
 # The old Pursue() returned a hardcoded empty gap -- retired today.
 
-$oApp = StzApp("visitsworld")
+$oApp = StzAppQ("visitsworld")
 $oApp.Thing(:Client) { Has([ :code, :name ]) }
 $oApp.Thing(:Visit)  { Of(:Client) }
 $oApp.Whenever(:Client).Unseen(90, :Days) { Propose(:Visit) }
@@ -54,7 +54,7 @@ EndScenario()
 
 Scenario("the goal object is a readable snapshot")
 	Given("the visits goal")
-	oG = $oApp.Goal(:EveryClientVisited)
+	oG = $oApp.GoalQ(:EveryClientVisited)
 	Then("it carries its Means", oG.Means, "every :Client Has(:visited)")
 	Then("and its profile", oG.Profile(), "planning")
 	Then("and narrates canonically",
@@ -64,7 +64,7 @@ EndScenario()
 Scenario("the platform generates this world's shells (Generate is real)")
 	Given("the world reaching :web, enveloped")
 	$oApp.Reaches([ :web ])
-	oPlat = StzPlatform("visits-envelope")
+	oPlat = StzPlatformQ("visits-envelope")
 	oPlat.ForWorld($oApp)
 	When("Generate(:all) runs")
 	aShells = oPlat.Generate(:all)

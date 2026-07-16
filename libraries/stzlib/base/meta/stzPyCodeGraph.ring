@@ -19,7 +19,7 @@
 
 $cStzPyExe = "python"     # override if the interpreter is named differently
 
-func StzPyCodeGraph(pcRootPath)
+func StzPyCodeGraphQ(pcRootPath)
 	return new stzPyCodeGraph(pcRootPath)
 
 func StzPyCodeGraphFromSource(pcSource)

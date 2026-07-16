@@ -37,7 +37,7 @@ EndScenario()
 Scenario("the Commons stores NO plaintext secret")
 	Given("a platform Commons on in-memory sqlite (low rounds for speed)")
 	$oDb = new stzDatabase(":memory:")
-	oPlat = StzPlatform("secure-envelope")
+	oPlat = StzPlatformQ("secure-envelope")
 	oPlat.WithKdfRounds(20000)
 	oPlat.CommonsOn($oDb)
 

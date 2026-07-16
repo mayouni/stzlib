@@ -26,7 +26,7 @@
 # rides stzWorkerPool (R8.1).
 # -----------------------------------------------------------------------------
 
-func StzAppCluster()
+func StzAppClusterQ()
 	return new stzAppCluster()
 
 

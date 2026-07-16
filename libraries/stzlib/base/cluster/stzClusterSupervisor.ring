@@ -25,7 +25,7 @@
 #   oHost.Supervise(oSup, 200)      # ...or run it as a supervised job (R5)
 # -----------------------------------------------------------------------------
 
-func StzClusterSupervisor(poCluster)
+func StzClusterSupervisorQ(poCluster)
 	return new stzClusterSupervisor(poCluster)
 
 class stzClusterSupervisor from stzObject

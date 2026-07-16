@@ -18,6 +18,14 @@ class stzKnn from stzObject
 	def init(poDataset)
 		@oDs = poDataset
 
+	# THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an
+	# attribute, so the set handed to the constructor is a SNAPSHOT: growing
+	# the caller's own object afterwards would NOT reach this learner. Grow it
+	# through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which
+	# reaches the real held set (accessor + method call is live in Ring).
+	def TrainingSetQ()
+		return @oDs
+
 	def SetK(n)
 		if n >= 1
 			@nK = n

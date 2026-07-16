@@ -18,7 +18,7 @@
 # takes the LIVE graph as a parameter: GapOn(oGraph) / SatisfiedOn().
 # -----------------------------------------------------------------------------
 
-func StzGraphGoal(pcName)
+func StzGraphGoalQ(pcName)
 	return new stzGraphGoal(pcName)
 
 class stzGraphGoal from stzObject

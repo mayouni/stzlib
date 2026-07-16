@@ -27,7 +27,7 @@
 # transport + facet discovery -- the doc's federation, made executable.
 # -----------------------------------------------------------------------------
 
-func StzComputeFederation(pcName)
+func StzComputeFederationQ(pcName)
 	return new stzComputeFederation(pcName)
 
 class stzComputeFederation from stzObject

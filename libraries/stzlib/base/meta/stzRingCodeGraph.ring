@@ -15,7 +15,7 @@
 #   ? oCG.OwnersOf("Uppercase")   ? oCG.AncestryOf("stzString")
 #   ? oCG.CallersOf("AddFact")    ? oCG.DeadCode()   ? oCG.CyclicCalls()
 
-func StzRingCodeGraph(pcRootPath)
+func StzRingCodeGraphQ(pcRootPath)
 	return new stzRingCodeGraph(pcRootPath)
 
 func StzRingCodeGraphFromSource(pcSource)

@@ -23,7 +23,7 @@
 # now via UsingReactorPool() for the later distribution wiring.
 # -----------------------------------------------------------------------------
 
-func StzWorkerPool()
+func StzWorkerPoolQ()
 	return new stzWorkerPool()
 
 

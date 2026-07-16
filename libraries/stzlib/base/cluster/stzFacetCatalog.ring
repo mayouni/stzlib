@@ -24,7 +24,7 @@
 # (run off-process via the reactor's async spawn).
 # -----------------------------------------------------------------------------
 
-func StzFacetCatalog()
+func StzFacetCatalogQ()
 	return new stzFacetCatalog()
 
 class stzFacetCatalog from stzObject
