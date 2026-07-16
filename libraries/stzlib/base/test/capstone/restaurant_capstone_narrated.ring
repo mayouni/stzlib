@@ -6,6 +6,9 @@ load "../_narrated.ring"
 # done). ONE world of knowledge threads every executable layer:
 #   R1  KNOWS      -- restaurant facts + a transitive law; a new fact fires
 #                     derivation with ZERO code change (the revoked-LLM thesis)
+#   R4  FORGES     -- from its OWN scoped knowledgebase the restaurant forges
+#                     a Domain Language Model, trains its neural rung
+#                     teacher-free, and ships it as a real .gguf (the Foundry)
 #   WORLD (app)    -- the restaurant as a living world: things, a reaction,
 #                     a goal (stzApp / stzGraphGoal)
 #   R5  ACTS       -- an agent takes a goal and acts, governed, ON THE
@@ -36,6 +39,43 @@ Scenario("R1 KNOWS: facts, a transitive law, and derivation with no code")
 	StzKnowRelation("food", "kind-of", "italian")
 	Then("every query above upgrades -- no code, no retrain",
 		AreRelated("margherita", "italian") != "", TRUE)
+EndScenario()
+
+# ---- R4: the restaurant FORGES its own domain model ----------------------
+
+$oRestoDLM = NULL
+
+Scenario("R4 FORGES: from its own knowledge, the restaurant forges + trains a DLM")
+	Given("the menu knowledge in the restaurant's OWN scoped graph")
+	# module-oriented: a domain brain is an INSTANCE, and a DLM is forged
+	# from that object -- never filled into or read from a global.
+	oBrain = new stzKnowledgeGraph("bella-cucina")
+	oBrain.Know("margherita", "dish").
+	       Know("tiramisu", "dessert").
+	       Know("chianti", "wine").
+	       KnowRelation("margherita", "kind-of", "pizza").
+	       KnowRelation("margherita", "pairs-with", "chianti")
+
+	When("the Foundry forges a Domain Language Model from that brain")
+	$oRestoDLM = StzForgeDLM("bella-cucina", oBrain)
+	Then("rung 1 answers deterministically", $oRestoDLM.Ask("what is margherita"),
+		"Margherita is a dish.")
+	Then("outside its domain it REFUSES (LAW 3)",
+		$oRestoDLM.AskXT("what is the stock market")[:refused], 1)
+
+	When("the neural rung 2 trains teacher-free on the DLM's own corpus")
+	$oRestoDLM.TrainNeuralRung(500)
+	Then("it learned the corpus grammar (is -> a, near-certain)",
+		$oRestoDLM.NextToken("is") = "a" and
+		$oRestoDLM.NextTokenConfidence("is") > 0.9, TRUE)
+	Then("greedy generation stays in-domain ('tiramisu is a ...')",
+		StzLeft($oRestoDLM.NeuralGenerate("tiramisu", 3), 13), "tiramisu is a")
+
+	When("the restaurant ships its model as a real .gguf artifact (FREE)")
+	cModel = $oRestoDLM.ExportNeuralGguf("bella_dlm")
+	Then("the artifact is a real gguf ggml reads back",
+		StzEngineNeuralGgufInspect(cModel) = 2, TRUE)
+	remove(cModel)
 EndScenario()
 
 # ---- THE WORLD: the restaurant as a living app ---------------------------
@@ -208,6 +248,8 @@ EndScenario()
 Scenario("THE PROOF: one world, one envelope, one host, one engine")
 	Then("the same knowledge that KNOWS also SHIPPED -- zero app code",
 		AreRelated("margherita", "italian") != "", TRUE)
+	Then("and the model FORGED from that knowledge still speaks the domain",
+		$oRestoDLM.Ask("what is margherita"), "Margherita is a dish.")
 	$oDb.Close()
 EndScenario()
 
