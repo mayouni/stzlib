@@ -9,15 +9,18 @@ nFail = 0
 
 pr()
 
-? "-- Scene 1: forge from the brain (compose-and-go) --"
-StzKnow("margherita", "dish")
-StzKnow("tiramisu", "dish")
-StzKnow("chianti", "wine")
-StzKnowRelation("margherita", "contains", "tomato-sauce")
-StzKnowRelation("margherita", "contains", "mozzarella")
-StzKnowRelation("margherita", "pairs-with", "chianti")
+? "-- Scene 1: forge from a SCOPED domain brain (no globals) --"
+# the domain lives in ITS OWN stzKnowledgeGraph instance -- not the shared
+# natural world, not a global StzKnow. A DLM is forged from that object.
+oKB = new stzKnowledgeGraph("restaurant")
+oKB.Know("margherita", "dish").
+    Know("tiramisu", "dish").
+    Know("chianti", "wine").
+    KnowRelation("margherita", "contains", "tomato-sauce").
+    KnowRelation("margherita", "contains", "mozzarella").
+    KnowRelation("margherita", "pairs-with", "chianti")
 
-oDLM = StzForgeDLM("restaurant")
+oDLM = StzForgeDLM("restaurant", oKB)
 aLex = oDLM.Lexicon()
 chk("the lexicon is forged from the graph",
 	len(aLex[:entities]) >= 3 and ring_find(aLex[:relations], "contains") > 0)

@@ -57,6 +57,47 @@ class stzKnowledgeGraph from stzGraph
 		def AddTriple(pcSubject, pcPredicate, pcObject)
 			This.AddFact(pcSubject, pcPredicate, pcObject)
 
+	#-- domain-modeling verbs (INSTANCE-scoped, chainable) --------------------
+	# Build a domain knowledgebase with NO globals:
+	#   oKB = new stzKnowledgeGraph("restaurant")
+	#   oKB.Know("margherita", "dish").
+	#       KnowRelation("margherita", "contains", "tomato-sauce").
+	#       ConstrainRelation("pairs-with", :Symmetric)
+	# The natural-world globals (StzKnow/StzKnowRelation) are a SEPARATE
+	# feature -- the default shared world behind WhatIs/AreRelated. A scoped
+	# domain (a DLM's brain, an app's world) owns its own graph instance.
+
+	def Know(pcName, pcType)
+		This.AddFact(pcName, "is-a", pcType)
+		return This
+
+		def KnowEntity(pcName, pcType)
+			return This.Know(pcName, pcType)
+
+	def KnowRelation(pcSubject, pcPredicate, pcObject)
+		This.AddFact(pcSubject, pcPredicate, pcObject)
+		return This
+
+		def KnowFact(pcSubject, pcPredicate, pcObject)
+			return This.KnowRelation(pcSubject, pcPredicate, pcObject)
+
+	# Record a relation LAW on THIS graph's ontology (:Symmetric, :Unique,
+	# :Transitive). Prove() reads it for transitive closure; forging a DLM
+	# reads it as the domain's laws.
+	def ConstrainRelation(pcRel, pcLaw)
+		_cR_ = StzLower(ring_trim("" + pcRel))
+		_cL_ = StzLower(ring_trim("" + pcLaw))
+		if _cR_ = "" or _cL_ = ""
+			return This
+		ok
+		if NOT This.RelationHasLaw(_cR_, _cL_)
+			This.DefineProperty(_cR_, [ _cL_ ])
+		ok
+		return This
+
+		def Constrain(pcRel, pcLaw)
+			return This.ConstrainRelation(pcRel, pcLaw)
+
 	def _AddFactRaw(pcSubject, pcPredicate, pcObject)
 		# Facts are SET-LIKE: re-asserting a known fact is a quiet no-op
 		# (R1, 2026-07-14 -- reloading a .stzknow over a live graph used
