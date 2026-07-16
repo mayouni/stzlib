@@ -13,6 +13,24 @@
 #   ? oCv.Why()               # every verdict narrated
 #   oCv.Conclude("myworld")   # gaps closed -> the .zknw written
 #
+# THE QUESTION IS A FRAME (the house doctrine applied to elicitation): a
+# FORCE opens it and SLOTS fill it -- :which when the domain already knows
+# candidate values (a closed choice), :what when it is open. The force
+# drives the phrasing, and NextQuestionXT() hands the frame back as data
+# ([ :force, :subject, :relation, :options, :why ]) so any door -- CLI,
+# agent, web -- can render it. (The NNL stzQuestion frame is deliberately
+# NOT reused here: it is a chain that ANSWERS questions over data
+# (WhatIsQ().TheQ()...), not one that ASKS a human.)
+#
+# ANSWER REGISTERS: a NUMBER (or list of numbers) picks the offered
+# OPTION(s) -- register 1; a STRING is natural phrasing ("X and Y"); a LIST
+# of strings is a data structure. Numbers vs strings disambiguate cleanly:
+# an index is never mistaken for a literal value.
+#
+# FLUENCY: Fluency(:neural) rephrases the frame text through a loaded
+# generative model when one IS loaded; with no model it stays on the
+# deterministic floor and says so (LAW 3 -- never a fake upgrade).
+#
 # FORMAT: *.zcnv -- the persisted transcript + state (Save/Load).
 
 class stzConversation from stzObject
@@ -21,7 +39,11 @@ class stzConversation from stzObject
 	@oGoal = NULL
 	@oNarration = NULL
 	@aPending = []       # [ subject, relation ] awaiting an answer
+	@acOptions = []      # the values offered with the pending question
+	@cForce = ""         # the pending question's illocutionary force
 	@aCheckpoints = []   # G7: refusals + context, for a human
+	@nCheckpointTTL = 0  # 0 = never expire; else live for N turns
+	@cFluency = "plain"  # plain | neural
 	@nTurns = 0
 
 	def init(pcTopic)
@@ -62,20 +84,84 @@ class stzConversation from stzObject
 		_aGaps_ = @oGoal.Gaps()
 		if len(_aGaps_) = 0
 			@aPending = []
+			@acOptions = []
+			@cForce = ""
 			return []
 		ok
 		_cSubj_ = _aGaps_[1][1]
 		_cRel_ = _aGaps_[1][2]
+		_cWhy_ = _aGaps_[1][3]
 		@aPending = [ _cSubj_, _cRel_ ]
-		_cQ_ = "What does '" + _cSubj_ + "' bear for '" + _cRel_ + "'? (" +
-			_aGaps_[1][3] + ")"
-		# the enumerate branch: values this relation already takes
-		# elsewhere become PROPOSED OPTIONS (answer register 1)
-		_acOpts_ = This._KnownValuesOf(_cRel_)
+
+		# the enumerate branch: values this relation already takes elsewhere
+		# become PROPOSED OPTIONS -- and having them CHOOSES the force.
+		@acOptions = This._KnownValuesOf(_cRel_)
+		if len(@acOptions) > 0
+			@cForce = "which"      # a closed choice: the domain knows candidates
+		else
+			@cForce = "what"       # open: nothing to offer yet
+		ok
+
+		_cQ_ = This._Phrase(This._FrameText(_cSubj_, _cRel_, _cWhy_))
 		@oNarration.System(_cQ_)
 		@nTurns++
-		return [ :question = _cQ_, :subject = _cSubj_, :relation = _cRel_,
-			:options = _acOpts_, :why = _aGaps_[1][3] ]
+		return [ :question = _cQ_, :force = @cForce, :subject = _cSubj_,
+			:relation = _cRel_, :options = @acOptions, :why = _cWhy_ ]
+
+	# the values offered with the pending question (answer register 1)
+	def Options()
+		return @acOptions
+
+	# the pending question's illocutionary force ("which" | "what" | "")
+	def Force()
+		return @cForce
+
+	#-- the FRAME: force opens it, slots fill it --------------------------
+
+	def _FrameText(pcSubj, pcRel, pcWhy)
+		if @cForce = "which"
+			_c_ = "Which '" + pcRel + "' does '" + pcSubj + "' have? " +
+				This._OptionsText() + " -- or answer freely."
+		else
+			_c_ = "What does '" + pcSubj + "' have for '" + pcRel + "'?"
+		ok
+		return _c_ + "  (why: " + pcWhy + ")"
+
+	def _OptionsText()
+		_c_ = ""
+		_n_ = len(@acOptions)
+		for _i_ = 1 to _n_
+			_c_ += "(" + _i_ + ") " + @acOptions[_i_] + "  "
+		next
+		return ring_trim(_c_)
+
+	#-- fluency: a real upgrade when a model IS loaded, else the floor ----
+
+	def Fluency(pcMode)
+		_c_ = StzLower(ring_trim("" + pcMode))
+		if _c_ != "neural" and _c_ != "plain"
+			stzraise("Fluency takes :plain or :neural (got '" + _c_ + "').")
+		ok
+		@cFluency = _c_
+		return This
+
+	def FluencyMode()
+		return @cFluency
+
+	# TRUE only when neural fluency was asked for AND a model is really
+	# loaded -- so a caller can never mistake the floor for the upgrade.
+	def IsFluencyNeural()
+		return @cFluency = "neural" and StzHasGenerativeModel()
+
+	def _Phrase(pcText)
+		if This.IsFluencyNeural()
+			_cOut_ = StzGenerate("Rephrase this question naturally for a " +
+				"person, keeping every fact and option intact: " + pcText, 60)
+			if ring_trim("" + _cOut_) != ""
+				return _cOut_
+			ok
+		ok
+		return pcText   # the deterministic floor (LAW 3: no fake upgrade)
 
 	# THE ANSWER PROTOCOL (0.3): the reply may be a LIST (data
 	# structure), or a STRING (an option / natural phrasing -- comma
@@ -89,22 +175,54 @@ class stzConversation from stzObject
 		_cSubj_ = @aPending[1]
 		_cRel_ = @aPending[2]
 
+		# THE REGISTERS. A number (or list of numbers) = OPTION INDICES
+		# (register 1); a string = natural phrasing; a list of strings = a
+		# data structure. Numbers vs strings disambiguate with no guessing:
+		# an index can never be mistaken for a literal value.
 		_acVals_ = []
+		_aBadIdx_ = []
 		if isList(pAnswer)
-			_n_ = len(pAnswer)
-			for _i_ = 1 to _n_
-				if isString(pAnswer[_i_]) and ring_trim(pAnswer[_i_]) != ""
-					_acVals_ + ring_trim(pAnswer[_i_])
-				ok
-			next
+			if This._AllIndices(pAnswer)
+				_aPick_ = This._OptionsByIndices(pAnswer)
+				_acVals_ = _aPick_[:values]
+				_aBadIdx_ = _aPick_[:bad]
+			else
+				_n_ = len(pAnswer)
+				for _i_ = 1 to _n_
+					if isString(pAnswer[_i_]) and ring_trim(pAnswer[_i_]) != ""
+						_acVals_ + ring_trim(pAnswer[_i_])
+					ok
+				next
+			ok
 			@oNarration.User(@@(pAnswer))
 		but isString(pAnswer)
 			_acVals_ = This._ValuesFromPhrase(pAnswer)
 			@oNarration.User(pAnswer)
+		else
+			# a bare number: pick that option
+			_aPick_ = This._OptionsByIndices([ pAnswer ])
+			_acVals_ = _aPick_[:values]
+			_aBadIdx_ = _aPick_[:bad]
+			@oNarration.User("" + pAnswer)
 		ok
+
+		# an out-of-range pick REFUSES, narrated + checkpointed (LAW 3)
+		_nB_ = len(_aBadIdx_)
+		for _i_ = 1 to _nB_
+			_cWhyB_ = "no option (" + _aBadIdx_[_i_] + ") was offered -- " +
+				len(@acOptions) + " option(s) on the table"
+			@oNarration.Verdict(_cWhyB_, 1)
+			@aCheckpoints + [ :subject = _cSubj_, :relation = _cRel_,
+				:attempted = "(" + _aBadIdx_[_i_] + ")", :why = _cWhyB_,
+				:turn = @nTurns ]
+		next
 
 		_acAdmitted_ = []
 		_aRefused_ = []
+		_nB2_ = len(_aBadIdx_)
+		for _i_ = 1 to _nB2_
+			_aRefused_ + [ "(" + _aBadIdx_[_i_] + ")", "no such option" ]
+		next
 		_n_ = len(_acVals_)
 		for _i_ = 1 to _n_
 			_bOk_ = StzKnowRelation(_cSubj_, _cRel_, _acVals_[_i_])
@@ -129,8 +247,42 @@ class stzConversation from stzObject
 	def Why()
 		return $cStzLastWhyB
 
+	#-- G7 checkpoints, with a TTL ----------------------------------------
+	# A refusal reaches a human -- but a checkpoint nobody cleared should not
+	# haunt the session forever. TTL(n) lets one LIVE for n turns; 0 (the
+	# default) means it never expires. Nothing is deleted: AllCheckpoints()
+	# still holds the full record -- expiry is about what still NEEDS a human.
+
+	def CheckpointTTL(nTurns)
+		if nTurns < 0
+			stzraise("A checkpoint TTL cannot be negative (got " + nTurns + ").")
+		ok
+		@nCheckpointTTL = nTurns
+		return This
+
+	def CheckpointTTLValue()
+		return @nCheckpointTTL
+
+	# the checkpoints still LIVE (unexpired) -- what a human must still see
 	def Checkpoints()
+		if @nCheckpointTTL = 0
+			return @aCheckpoints
+		ok
+		_aOut_ = []
+		_n_ = len(@aCheckpoints)
+		for _i_ = 1 to _n_
+			if (@aCheckpoints[_i_][:turn] + @nCheckpointTTL) >= @nTurns
+				_aOut_ + @aCheckpoints[_i_]
+			ok
+		next
+		return _aOut_
+
+	# every checkpoint ever raised, expired or not (the audit record)
+	def AllCheckpoints()
 		return @aCheckpoints
+
+	def NumberOfExpiredCheckpoints()
+		return len(@aCheckpoints) - len(This.Checkpoints())
 
 	# gaps closed -> WRITE the knowledgebase (the session's real
 	# artifact); gaps remaining -> refuse with the list (LAW 3)
@@ -175,6 +327,39 @@ class stzConversation from stzObject
 			ok
 		next
 		return _acOut_
+
+	# A list is an INDEX list only if every item is a non-string (a number).
+	# Checked via isString so no bare isNumber()/type() in class scope (R20).
+	def _AllIndices(paList)
+		_n_ = len(paList)
+		if _n_ = 0
+			return 0
+		ok
+		for _i_ = 1 to _n_
+			if isString(paList[_i_]) or isList(paList[_i_])
+				return 0
+			ok
+		next
+		return 1
+
+	# Map option indices -> values; out-of-range picks come back as :bad so
+	# the caller REFUSES them instead of guessing (LAW 3).
+	def _OptionsByIndices(paIdx)
+		_aVals_ = []
+		_aBad_ = []
+		_nO_ = len(@acOptions)
+		_n_ = len(paIdx)
+		for _i_ = 1 to _n_
+			_nIx_ = paIdx[_i_]
+			if _nIx_ >= 1 and _nIx_ <= _nO_
+				if ring_find(_aVals_, @acOptions[_nIx_]) = 0
+					_aVals_ + @acOptions[_nIx_]
+				ok
+			else
+				_aBad_ + _nIx_
+			ok
+		next
+		return [ :values = _aVals_, :bad = _aBad_ ]
 
 	def _KnownValuesOf(pcRel)
 		_acOut_ = []
