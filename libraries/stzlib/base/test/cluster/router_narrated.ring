@@ -52,7 +52,7 @@ Scenario("it only routes to facets THIS deployment's catalog knows")
 	oCat = new stzFacetCatalog()
 	oCat.Drop(:vision)
 	oV = new stzRequestClassifier()
-	oV.UsingCatalog(oCat)
+	oV.SetCatalog(oCat)
 	Then("scan/ocr no longer routes to vision (facet not offered here)",
 		oV.ClassifyText("scan this image with ocr") != "vision", TRUE)
 
@@ -60,7 +60,7 @@ Scenario("it only routes to facets THIS deployment's catalog knows")
 	oCat2 = new stzFacetCatalog()
 	oCat2.DefinePolyglot(:pdf, [ :extract ], "python")
 	oP = new stzRequestClassifier()
-	oP.UsingCatalog(oCat2).AddKeyword(:invoice, :pdf)
+	oP.SetCatalog(oCat2).AddKeyword(:invoice, :pdf)
 	Then("a custom keyword routes to the custom facet",
 		oP.ClassifyText("extract the invoice fields"), "pdf")
 EndScenario()

@@ -257,7 +257,7 @@ class stzWorkflow from stzDiagram
 	#  ORG CHART LINKING    #
 	#-----------------------#
 	
-	def LinkOrgChart(poOrgChart)
+	def SetOrgChart(poOrgChart)
 		@oLinkedOrgChart = poOrgChart
 	
 	def MapRoleToPosition(pcRole, pcPositionId)

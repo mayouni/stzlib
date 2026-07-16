@@ -141,9 +141,9 @@ class stzAppCluster from stzObject
 		_cTag_ = StzLower("" + pcFacet)
 		This.WithProfile(_cTag_, @oPool.CatalogQ().CapabilitiesOf(pcFacet), n)
 		# call THROUGH Profile() (no local assign -> no copy; aliasing)
-		@oPool.ProfileQ(_cTag_).RealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
+		@oPool.ProfileQ(_cTag_).SetRealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
 		if @oPool.CatalogQ().IsPolyglot(pcFacet)
-			@oPool.ProfileQ(_cTag_).UsesExternalTool(@oPool.CatalogQ().ToolOf(pcFacet))
+			@oPool.ProfileQ(_cTag_).SetExternalTool(@oPool.CatalogQ().ToolOf(pcFacet))
 		ok
 		return This
 
@@ -472,7 +472,7 @@ class stzAppCluster from stzObject
 	def ClassifierQ()
 		if @oClassifier = NULL
 			@oClassifier = new stzRequestClassifier()
-			@oClassifier.UsingCatalog(@oPool.CatalogQ())
+			@oClassifier.SetCatalog(@oPool.CatalogQ())
 		ok
 		return @oClassifier
 

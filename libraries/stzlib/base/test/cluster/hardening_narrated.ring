@@ -165,7 +165,7 @@ Scenario("FUNCTIONAL: a pipeline stage failure is CONTAINED, not fatal")
 	Given("a pool-backed faulty pipeline")
 	oP2 = new stzWorkerPool()
 	oP2.AddFacet(:math, 1)
-	oF.UsingPool(oP2)
+	oF.SetPool(oP2)
 	oF.Run("start")
 	Then("the facet slot was RELEASED despite the failure (no leak)",
 		oF.PoolQ().ProfileQ("math").InFlight(), 0)

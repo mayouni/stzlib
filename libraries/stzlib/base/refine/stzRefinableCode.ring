@@ -130,11 +130,11 @@ class stzRefinableCode from stzObject
 	# the action "refine-<point>"; To() calls MayProceed(actor, action)
 	# so a refinement needs permission (CAN) + authority (SHOULD) covering
 	# the point's declared risk tier before it can mutate the source.
-	def GovernedBy(poGov)
+	def SetGovernedBy(poGov)
 		@oGov = poGov
 		return This
 
-	def AsActor(pcActor)
+	def SetActor(pcActor)
 		@cActor = "" + pcActor
 		return This
 
@@ -187,20 +187,20 @@ class stzRefinableCode from stzObject
 	# Ring aliasing doctrine). Delegating keeps @oGov the one live truth.
 
 	# Declare a point's refinement risk tier ("refine-<point>").
-	def RiskFor(pcPoint, nTier)
+	def SetRiskFor(pcPoint, nTier)
 		This._NeedGov()
 		@oGov.DeclareRisk("refine-" + StzLower("" + pcPoint), nTier)
 		return This
 
 	# Grant the actor permission (CAN) to refine a point.
-	def AllowRefine(pcPoint)
+	def SetAllowRefine(pcPoint)
 		This._NeedGov()
 		@oGov.GrantPermission(@cActor, "refine-" + StzLower("" + pcPoint))
 		return This
 
 	# Set the actor's authority (SHOULD): :Advisory/:Delegated/
 	# :Autonomous/:EmergencyOverride.
-	def WithAuthority(pcType)
+	def SetAuthorityLevel(pcType)
 		This._NeedGov()
 		@oGov.SetAuthority(@cActor, pcType)
 		return This
@@ -212,7 +212,7 @@ class stzRefinableCode from stzObject
 
 	def _NeedGov()
 		if @oGov = NULL
-			stzraise("This refinable code is not governed -- GovernedBy(oGov) first.")
+			stzraise("This refinable code is not governed -- SetGovernedBy(oGov) first.")
 		ok
 
 	#-- the typed proposal + the gate ----------------------------------------

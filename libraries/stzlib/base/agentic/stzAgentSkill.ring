@@ -5,9 +5,9 @@
 # it counts (LAW 3: no unchecked effect).
 #
 #   oSk = new stzAgentSkill("restock")
-#   oSk.When(func(oMem) { return oMem.Fact("stock", "level", "low") })
-#   oSk.Does(func(oMem) { oMem.Learn("stock", "level", "ordered")  return 1 })
-#   oSk.VerifiedBy(func(oMem) { return oMem.Fact("stock", "level", "ordered") })
+#   oSk.SetWhen(func(oMem) { return oMem.Fact("stock", "level", "low") })
+#   oSk.SetDoes(func(oMem) { oMem.Learn("stock", "level", "ordered")  return 1 })
+#   oSk.SetVerifiedBy(func(oMem) { return oMem.Fact("stock", "level", "ordered") })
 
 class stzAgentSkill from stzObject
 
@@ -23,15 +23,15 @@ class stzAgentSkill from stzObject
 	def Name_()
 		return @cName
 
-	def When(fPrecondition)
+	def SetWhen(fPrecondition)
 		@fWhen = fPrecondition
 		return This
 
-	def Does(fAction)
+	def SetDoes(fAction)
 		@fDoes = fAction
 		return This
 
-	def VerifiedBy(fCheck)
+	def SetVerifiedBy(fCheck)
 		@fVerify = fCheck
 		return This
 

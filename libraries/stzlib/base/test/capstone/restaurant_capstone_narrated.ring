@@ -107,8 +107,8 @@ Scenario("R5 ACTS: a governed agent serves the tables on the reactor loop")
 	oMaitre.GovernanceQ().GrantPermission("maitre-d", "seat-table")
 	oMaitre.GovernanceQ().SetAuthority("maitre-d", :Delegated)
 	oSk = new stzAgentSkill("seat")
-	oSk.When(func oMem { return oMem.Fact("t1", "state", "waiting") or oMem.Fact("t2", "state", "waiting") })
-	oSk.Does(func oMem {
+	oSk.SetWhen(func oMem { return oMem.Fact("t1", "state", "waiting") or oMem.Fact("t2", "state", "waiting") })
+	oSk.SetDoes(func oMem {
 		if oMem.Fact("t1", "state", "waiting")
 			oMem.Forget("t1", "state", "waiting")  oMem.Learn("t1", "state", "served")
 		but oMem.Fact("t2", "state", "waiting")
@@ -116,7 +116,7 @@ Scenario("R5 ACTS: a governed agent serves the tables on the reactor loop")
 		ok
 		return 1
 	})
-	oSk.VerifiedBy(func oMem { return 1 })
+	oSk.SetVerifiedBy(func oMem { return 1 })
 	oMaitre.AddGovernedSkill(oSk, "seat-table")
 
 	oHost = new stzAgentHost()
@@ -144,8 +144,8 @@ Scenario("R6 GOVERNS: a menu knob is refined through the gate, reversibly")
 	Given("a refinable menu config with a VAT knob, governed")
 	cCfg = 'vat = <R:PARAM name="vat" value="0.10" min="0" max="0.25">'
 	oCode = new stzRefinableCode(cCfg)
-	oCode.GovernedBy(new stzGovernance("menu-ops")).AsActor("owner")
-	oCode.RiskFor("vat", 1).AllowRefine("vat").WithAuthority(:Delegated)
+	oCode.SetGovernedBy(new stzGovernance("menu-ops")).SetActor("owner")
+	oCode.SetRiskFor("vat", 1).SetAllowRefine("vat").SetAuthorityLevel(:Delegated)
 	oCode.DeclareDerivation("vat-cap",
 		func oc { return ring_number(oc.ValueOf("vat")) <= 0.20 },
 		"vat capped at 0.20 by house policy")
@@ -214,9 +214,9 @@ Scenario("R7 ENVELOPE: KDF Commons identity + generated shells")
 	$oEnvDb = new stzDatabase(":memory:")
 	$oResto.Reaches([ :web ])
 	oPlat = StzPlatformQ("bella-envelope")
-	oPlat.ForWorld($oResto)
-	oPlat.WithKdfRounds(20000)
-	oPlat.CommonsOn($oEnvDb)
+	oPlat.SetWorld($oResto)
+	oPlat.SetKdfRounds(20000)
+	oPlat.OpenCommonsOn($oEnvDb)
 	When("the owner registers an identity (secret hashed, not stored)")
 	Then("registration succeeds", oPlat.RegisterIdentity("owner", "p@ss"), TRUE)
 	cStored = $oEnvDb.Value("SELECT secret FROM stz_identity WHERE user='owner'")
