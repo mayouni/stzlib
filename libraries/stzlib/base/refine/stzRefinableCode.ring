@@ -14,10 +14,20 @@
 #   ? o.Rendered()                    # the refined source
 #   o.Revert()                        # the typed inverse
 #
-# THE GATE (4 stages, floor): STRUCTURAL (the point exists + the value
-# parses) -> CONSTRAINT (bounds / allowed options) -> DERIVATION
-# (reserved: cross-point rules) -> GOVERNANCE (reserved: stzGovernance).
-# A rejected proposal NEVER mutates the source (LAW 3). FORMAT: *.zrfn.
+# THE GATE (5 stages): STRUCTURAL (the point exists + the value parses) ->
+# CONSTRAINT (bounds / allowed options) -> GOVERNANCE (stzGovernance:
+# CAN + SHOULD vs the point's risk tier) -> TRUST POSTURE (the origin's
+# trust rank clears the point's floor) -> DERIVATION (cross-point rules on
+# the post-change state). A rejected proposal NEVER mutates (LAW 3).
+#
+# R6 DEEPENING (5.8):
+#   TRUST POSTURES -- Refine(p).As(:llm|:sandboxed|:external|:trusted).To(v):
+#     every refinement records WHERE it came from (into the audit chain), and
+#     TrustFloor(point, posture) refuses lower-trust origins -- an LLM edit to
+#     a critical knob can be forbidden without forbidding a human's.
+#   REVERSIBILITY AS A DATA-MODEL PRIMITIVE -- a full undo/redo TIMELINE:
+#     RevertTo(step) / Checkpoint(name) + RevertToCheckpoint / Redo(), atomic
+#     and typed, not a single-step button. FORMAT: *.zrfn.
 
 class stzRefinableCode from stzObject
 
@@ -31,6 +41,17 @@ class stzRefinableCode from stzObject
 	@aDerivations = []  # STAGE 3: [ name, fPredicate, message ] cross-point rules
 	@oGov = NULL        # STAGE 4: stzGovernance (refining = a governed action)
 	@cActor = "refiner" # the actor whose permission/authority is checked
+
+	# R6 DEEPENING 2: EXECUTION TRUST POSTURES + REVERSIBILITY-AS-PRIMITIVE.
+	# Every refinement carries a POSTURE (where it came from -- trusted in-
+	# process / external / sandboxed / llm-composed) that lands in the audit
+	# chain; a point can set a TRUST FLOOR that refuses lower-trust origins.
+	@cPendingPosture = "trusted"  # posture of the Refine()..To() in flight
+	@aTrustFloors = []            # [ pointLower, minRank ] per-point trust gate
+	# reversibility as a data-model primitive: a full undo/redo timeline +
+	# named checkpoints, not a single-step LIFO.
+	@aRedo = []                   # undone steps available to Redo()
+	@aCheckpoints = []            # [ name, historyLen-at-mark ]
 
 	def init(pcSource)
 		@cSource = "" + pcSource
@@ -117,6 +138,49 @@ class stzRefinableCode from stzObject
 		@cActor = "" + pcActor
 		return This
 
+	#-- EXECUTION TRUST POSTURES (5.8) --------------------------------------
+	# A posture says WHERE a refinement came from. Trust rank (high -> low):
+	# :trusted (3, in-process/verified) > :external (2, an external tool) >
+	# :sandboxed (1, isolated run) > :llm (0, LLM-composed). A proposal
+	# defaults to :trusted; As(posture) declares otherwise for the next
+	# To(). The posture rides into the audit chain; a point's TrustFloor
+	# refuses anything below the required rank (LLM-composed edits to a
+	# critical knob can be forbidden without forbidding a human's).
+	def As(pcPosture)
+		@cPendingPosture = StzLower("" + pcPosture)
+		return This
+
+	def TrustFloor(pcPoint, pcMinPosture)
+		_cP_ = StzLower("" + pcPoint)
+		_r_ = This._PostureRank(pcMinPosture)
+		_i_ = 0
+		_n_ = len(@aTrustFloors)
+		for _k_ = 1 to _n_
+			if @aTrustFloors[_k_][1] = _cP_  _i_ = _k_  ok
+		next
+		if _i_ = 0
+			@aTrustFloors + [ _cP_, _r_ ]
+		else
+			@aTrustFloors[_i_][2] = _r_
+		ok
+		return This
+
+	def TrustFloorOf(pcPoint)
+		_cP_ = StzLower("" + pcPoint)
+		_n_ = len(@aTrustFloors)
+		for _k_ = 1 to _n_
+			if @aTrustFloors[_k_][1] = _cP_  return @aTrustFloors[_k_][2]  ok
+		next
+		return -1   # no floor
+
+	def _PostureRank(pcPosture)
+		_p_ = StzLower("" + pcPosture)
+		if _p_ = "trusted"    return 3  ok
+		if _p_ = "external"   return 2  ok
+		if _p_ = "sandboxed"  return 1  ok
+		if _p_ = "llm"        return 0  ok
+		return 3   # unknown -> most permissive (an explicit posture opts IN)
+
 	# Governance config MUST go through these delegators: GovernedBy
 	# stores a COPY (governance is pure Ring lists, no shared handle),
 	# so mutating the caller's original would leave this copy stale (the
@@ -165,6 +229,8 @@ class stzRefinableCode from stzObject
 		ok
 		_cName_ = @cPending
 		@cPending = ""
+		_cPosture_ = @cPendingPosture
+		@cPendingPosture = "trusted"    # posture is per-proposal; reset
 		_cVal_ = "" + pValue
 		_i_ = This._IndexOf(_cName_)
 
@@ -193,6 +259,16 @@ class stzRefinableCode from stzObject
 			ok
 		ok
 
+		# STAGE 4b -- TRUST POSTURE: the origin's trust rank must clear the
+		# point's floor (an LLM-composed edit to a floored knob is refused
+		# even if the actor's governance would allow it -- origin != identity).
+		_nFloor_ = This.TrustFloorOf(_cName_)
+		if _nFloor_ >= 0 and This._PostureRank(_cPosture_) < _nFloor_
+			@cWhy = "trust: posture :" + _cPosture_ + " below the required floor for '" +
+				_cName_ + "'"
+			return [ :admitted = 0, :why = @cWhy ]
+		ok
+
 		# Tentatively apply, then STAGE 3 -- DERIVATION: cross-point
 		# rules evaluate the POST-change state; any rejection rolls the
 		# value back so the source never keeps an inconsistent state.
@@ -206,16 +282,18 @@ class stzRefinableCode from stzObject
 			return [ :admitted = 0, :why = @cWhy ]
 		ok
 
-		# ADMITTED: record the reversible step and (if governed) the
-		# decision lineage.
-		@aHistory + [ _cName_, _cOld_, _cVal_ ]
+		# ADMITTED: record the reversible step (WITH its posture) and (if
+		# governed) the decision lineage. A fresh admit invalidates the redo
+		# stack -- the timeline forked (standard undo/redo semantics).
+		@aHistory + [ _cName_, _cOld_, _cVal_, _cPosture_ ]
+		@aRedo = []
 		if @oGov != NULL
 			@oGov.RecordDecision("refine-" + StzLower(_cName_) + "-" + len(@aHistory),
-				"refinement admitted through the 4-stage gate",
+				"refinement admitted (posture :" + _cPosture_ + ") through the gate",
 				@cActor, "refine-" + StzLower(_cName_))
 		ok
 		@cWhy = "admitted: '" + _cName_ + "' " + _cOld_ + " -> " + _cVal_ +
-			" (structural + constraint + derivation + governance passed)"
+			" [:" + _cPosture_ + "] (structural + constraint + derivation + governance + trust passed)"
 		return [ :admitted = 1, :why = @cWhy ]
 
 	#-- reversibility (a data-model primitive) -------------------------------
@@ -223,22 +301,82 @@ class stzRefinableCode from stzObject
 	def CanRevert()
 		return len(@aHistory) > 0
 
-	# undo the last admitted refinement -- a TYPED inverse, recorded
+	# undo the last admitted refinement -- a TYPED inverse (single step).
 	def Revert()
 		if len(@aHistory) = 0
 			stzraise("Nothing to revert.")
 		ok
-		_aLast_ = @aHistory[len(@aHistory)]
-		del(@aHistory, len(@aHistory))
-		_i_ = This._IndexOf(_aLast_[1])
-		if _i_ > 0
-			This._SetValueAt(_i_, _aLast_[2])
-		ok
-		@cWhy = "reverted: '" + _aLast_[1] + "' " + _aLast_[3] + " -> " + _aLast_[2]
+		return This.RevertTo(len(@aHistory) - 1)
+
+	# ATOMIC multi-step revert: roll the source back to exactly nStep applied
+	# refinements (0 = the original source), undoing each step in reverse via
+	# its typed inverse. Every undone step is pushed onto the REDO stack. This
+	# is reversibility as a data-model primitive: time-travel over the
+	# timeline, not a one-off undo button.
+	def RevertTo(nStep)
+		if nStep < 0  nStep = 0  ok
+		_nCnt_ = 0
+		while len(@aHistory) > nStep
+			_aLast_ = @aHistory[len(@aHistory)]
+			del(@aHistory, len(@aHistory))
+			_i_ = This._IndexOf(_aLast_[1])
+			if _i_ > 0
+				This._SetValueAt(_i_, _aLast_[2])   # restore the prior value
+			ok
+			@aRedo + _aLast_
+			_nCnt_++
+		end
+		@cWhy = "reverted " + _nCnt_ + " step(s) -> timeline at " + nStep
 		return This
 
+	def CanRedo()
+		return len(@aRedo) > 0
+
+	# RE-APPLY the most recently reverted step (undo the undo). A fresh
+	# admitted Refine clears the redo stack (the timeline forked).
+	def Redo()
+		if len(@aRedo) = 0
+			stzraise("Nothing to redo.")
+		ok
+		_r_ = @aRedo[len(@aRedo)]
+		del(@aRedo, len(@aRedo))
+		_i_ = This._IndexOf(_r_[1])
+		if _i_ > 0
+			This._SetValueAt(_i_, _r_[3])           # re-apply the new value
+		ok
+		@aHistory + _r_
+		@cWhy = "redid: '" + _r_[1] + "' -> " + _r_[3]
+		return This
+
+	# A named marker on the timeline; RevertToCheckpoint rewinds to it.
+	def Checkpoint(pcName)
+		@aCheckpoints + [ "" + pcName, len(@aHistory) ]
+		return This
+
+	def RevertToCheckpoint(pcName)
+		_cN_ = "" + pcName
+		_nStep_ = -1
+		_n_ = len(@aCheckpoints)
+		for _k_ = 1 to _n_
+			if @aCheckpoints[_k_][1] = _cN_  _nStep_ = @aCheckpoints[_k_][2]  ok
+		next
+		if _nStep_ < 0
+			stzraise("No checkpoint '" + pcName + "'.")
+		ok
+		return This.RevertTo(_nStep_)
+
+	# The ordered applied timeline: [ name, old, new, posture ] per step.
 	def History()
 		return @aHistory
+	def Timeline()
+		return @aHistory
+	def NumberOfSteps()
+		return len(@aHistory)
+
+	# The posture recorded for a given applied step (1-based; "" if none).
+	def PostureOf(nStep)
+		if nStep < 1 or nStep > len(@aHistory)  return ""  ok
+		return @aHistory[nStep][4]
 
 	#-- rendering ------------------------------------------------------------
 
