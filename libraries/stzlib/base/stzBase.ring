@@ -92,6 +92,7 @@ ok
     # its ENTRY OBJECT (promoted from natural/, which keeps
     # language-as-code only). It is
     # loaded here (early) because it depends on stzStringText, loaded just above.
+    load "linguistic/stzParseTree.ring"
     load "linguistic/stzText.ring"
     # stzListOfTexts (from stzStringList): a list of texts (sentences carry
     # meaning) with the natural/meaning list ops. SentencesQ() returns it.
