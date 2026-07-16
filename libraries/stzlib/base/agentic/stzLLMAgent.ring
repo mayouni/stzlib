@@ -6,7 +6,7 @@
 # (stzAgentGraph enforces that structurally).
 #
 #   oLLM = new stzLLMAgent("summarizer")
-#   oLLM.SkillFrom(oLLMFunction)      # an stzLLMFunction (R4 G3) is the body
+#   oLLM.SetSkillFrom(oLLMFunction)      # an stzLLMFunction (R4 G3) is the body
 #   ? oLLM.Propose("long text ...")   # a candidate -- NOT an effect
 #   ? oLLM.HoldsEffectful()           # ALWAYS 0
 
@@ -28,7 +28,7 @@ class stzLLMAgent from stzObject
 
 	# the LLM body is an stzLLMFunction (typed-or-refuse, budgeted,
 	# memoized -- R4 G3). The agent proposes through it.
-	def SkillFrom(poLLMFunction)
+	def SetSkillFrom(poLLMFunction)
 		@oFn = poLLMFunction
 		return This
 

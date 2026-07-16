@@ -439,14 +439,14 @@ ok
     load "appserver/stzAppRequest.ring"
     load "appserver/stzAppResponse.ring"
     load "appserver/stzAppRouter.ring"
-    load "appserver/stzComputeEngine.ring"
-    load "appserver/stzContextPool.ring"
 
 # cluster/ -- THE SCALE PLANE (R8): the delivery plane's horizontal
 # axis. Specialization is a WORKER PROFILE (capability tag + resource
 # budget) over the ONE resident engine, NOT a preloading class tree
-# (5.10 ruling; section 7). R8.1 = the worker model; the pre-engine
-# stzCluster* prototype below stays only as loadable tombstones.
+# (5.10 ruling; section 7). R8.1 = the worker model. The pre-engine
+# stzCluster* prototype it replaced is DELETED, not kept as tombstones:
+# superseded code that still loads is still debt (it carried its own
+# conventions, its own tests, and a second answer to a settled question).
 
     load "cluster/stzWorkerProfile.ring"
     load "cluster/stzFacetCatalog.ring"
@@ -457,12 +457,7 @@ ok
     load "cluster/stzComputePipeline.ring"
     load "cluster/stzComputeFederation.ring"
 
-    load "cluster/stzCluster.ring"
-    load "cluster/stzClusterNode.ring"
     load "cluster/stzRequestClassifier.ring"
-    load "cluster/stzLoadBalancer.ring"
-    load "cluster/stzClusterManager.ring"
-    load "cluster/stzClusterMonitor.ring"
 
 # Loading files related to NATURAL module
 

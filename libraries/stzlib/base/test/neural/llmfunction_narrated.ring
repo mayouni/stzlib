@@ -11,7 +11,7 @@ pr()
 
 ? "-- Scene 1: the contract -- budget, types, refusal --"
 oF = new stzLLMFunction("mood")
-oF.Prompt("One word only, positive or negative: {input}")
+oF.SetPrompt("One word only, positive or negative: {input}")
 oF.ReturnsOneOf([ "positive", "negative" ])
 
 b1 = 0
@@ -55,7 +55,7 @@ chk("goldens run and report structured", aG[:passed] = 1 and aG[:total] = 1)
 ? ""
 ? "-- Scene 5: typed outputs are VALUES, not strings --"
 oN = new stzLLMFunction("add")
-oN.Prompt("Compute: {input}")
+oN.SetPrompt("Compute: {input}")
 oN.ReturnsNumber()
 oN.Budget(2)
 oN.SeedAnswer("2+3", 5)

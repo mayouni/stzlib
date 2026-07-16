@@ -45,7 +45,7 @@
 # of strings is a data structure. Numbers vs strings disambiguate cleanly:
 # an index is never mistaken for a literal value.
 #
-# FLUENCY: Fluency(:neural) rephrases the frame text through a loaded
+# FLUENCY: SetFluency(:neural) rephrases the frame text through a loaded
 # generative model when one IS loaded; with no model it stays on the
 # deterministic floor and says so (LAW 3 -- never a fake upgrade).
 #
@@ -250,7 +250,7 @@ class stzConversation from stzObject
 
 	#-- fluency: a real upgrade when a model IS loaded, else the floor ----
 
-	def Fluency(pcMode)
+	def SetFluency(pcMode)
 		_c_ = StzLower(ring_trim("" + pcMode))
 		if _c_ != "neural" and _c_ != "plain"
 			stzraise("Fluency takes :plain or :neural (got '" + _c_ + "').")
@@ -258,7 +258,7 @@ class stzConversation from stzObject
 		@cFluency = _c_
 		return This
 
-	def FluencyMode()
+	def Fluency()
 		return @cFluency
 
 	# TRUE only when neural fluency was asked for AND a model is really
@@ -373,14 +373,14 @@ class stzConversation from stzObject
 	# default) means it never expires. Nothing is deleted: AllCheckpoints()
 	# still holds the full record -- expiry is about what still NEEDS a human.
 
-	def CheckpointTTL(nTurns)
+	def SetCheckpointTTL(nTurns)
 		if nTurns < 0
 			stzraise("A checkpoint TTL cannot be negative (got " + nTurns + ").")
 		ok
 		@nCheckpointTTL = nTurns
 		return This
 
-	def CheckpointTTLValue()
+	def CheckpointTTL()
 		return @nCheckpointTTL
 
 	# the checkpoints still LIVE (unexpired) -- what a human must still see

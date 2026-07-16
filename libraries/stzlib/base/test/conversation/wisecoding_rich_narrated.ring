@@ -149,7 +149,7 @@ chk("the refusal is checkpointed",
 chk("by default a checkpoint NEVER expires (TTL 0)",
 	len(oKT.ConversationQ("ttl").Checkpoints()) = 1)
 
-oKT.ConversationQ("ttl").CheckpointTTL(1)
+oKT.ConversationQ("ttl").SetCheckpointTTL(1)
 oKT.AskIn("ttl")
 oKT.AskIn("ttl")
 chk("with a TTL, the stale checkpoint leaves the LIVE list",
@@ -160,7 +160,7 @@ chk("... and the expiry is reported",
 	oKT.ConversationQ("ttl").NumberOfExpiredCheckpoints() = 1)
 bTTL = 0
 try
-	oKT.ConversationQ("ttl").CheckpointTTL(-3)
+	oKT.ConversationQ("ttl").SetCheckpointTTL(-3)
 catch
 	bTTL = 1
 done
@@ -171,15 +171,15 @@ chk("a negative TTL REFUSES", bTTL = 1)
 oKF = new stzKnowledgeGraph("fluency-space")
 oKF.AddConversation("fluency")
 chk("the deterministic floor is the default",
-	oKF.ConversationQ("fluency").FluencyMode() = "plain")
-oKF.ConversationQ("fluency").Fluency(:neural)
+	oKF.ConversationQ("fluency").Fluency() = "plain")
+oKF.ConversationQ("fluency").SetFluency(:neural)
 chk("asking for neural fluency is recorded",
-	oKF.ConversationQ("fluency").FluencyMode() = "neural")
+	oKF.ConversationQ("fluency").Fluency() = "neural")
 chk("but the upgrade is only CLAIMED when a model is really loaded (LAW 3)",
 	oKF.ConversationQ("fluency").IsFluencyNeural() = StzHasGenerativeModel())
 bFl = 0
 try
-	oKF.ConversationQ("fluency").Fluency(:singing)
+	oKF.ConversationQ("fluency").SetFluency(:singing)
 catch
 	bFl = 1
 done

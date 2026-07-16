@@ -38,7 +38,8 @@ ONE HOST, FOUR TOPOLOGIES (the 5.10 convergence):
 COLLAPSE RULINGS (5.10): stzContextPool folded into stzReactorPool
 (real threads; the "context" abstraction predates the resident
 engine); stzComputeEngine's preloads are subsumed by the engine being
-resident by construction. Both files remain as documented tombstones.
+resident by construction. Both classes are now DELETED -- a ruling that
+leaves the superseded code loadable has not really been applied.
 
 SCOPE SIGILS: attributes are @-prefixed and method temps are _x_
 wrapped -- bare class-head attributes CAPTURE same-named user globals

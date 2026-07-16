@@ -2,7 +2,7 @@
 # (the 5.7 G3 seed: "like sin(x), but for 'translate this'").
 #
 #   oF = new stzLLMFunction("classify-mood")
-#   oF.Prompt("Answer with one word. Is this text positive or negative? {input}")
+#   oF.SetPrompt("Answer with one word. Is this text positive or negative? {input}")
 #   oF.ReturnsOneOf([ "positive", "negative" ])
 #   oF.Budget(20)                       # MANDATORY (G9) -- no silent spend
 #   ? oF.Call_("What a lovely day!")    #--> "positive"
@@ -43,7 +43,7 @@ class stzLLMFunction from stzObject
 	def Name_()
 		return @cName
 
-	def Prompt(pcTemplate)
+	def SetPrompt(pcTemplate)
 		@cTemplate = "" + pcTemplate
 		return This
 
