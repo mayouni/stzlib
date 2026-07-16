@@ -27,6 +27,7 @@ class stzKnowledgeGraph from stzGraph
 	@bStrictMode = 0        # G8 seed: opt-in knowledge hygiene
 	@aFactMeta = []         # provenance per fact: [ :fact, :meta ]
 	@aContradictions = []   # named, NEVER silently resolved
+	@aConversations = []    # the conversations HAPPENING IN this space
 
 	def init(pcId)
 		super.init(pcId)
@@ -218,6 +219,76 @@ class stzKnowledgeGraph from stzGraph
 			return "" + paMeta[:source]
 		ok
 		return "unknown"
+
+	#-- CONVERSATIONS IN THIS SPACE (composition) -----------------------------
+	# A knowledge space HOLDS its conversations: an elicitation is an EPISODE
+	# that happens INSIDE the space it grows -- never a session that owns a
+	# space. So the space is the door for everything that needs knowledge
+	# (AskIn / ReplyIn / GapsIn / ConcludeIn hand THIS graph, live, into the
+	# session); session-only state is reached through ConversationQ(topic).
+
+	# open a conversation IN this space
+	def Converse(pcTopic)
+		_cT_ = ring_trim("" + pcTopic)
+		if _cT_ = ""
+			stzraise("A conversation needs a topic.")
+		ok
+		if This._ConvIndex(_cT_) > 0
+			stzraise("A conversation '" + _cT_ + "' is already open in this space.")
+		ok
+		@aConversations + new stzConversation(_cT_)
+		return This
+
+	def ConversationQ(pcTopic)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)]
+
+	def Conversations()
+		_ac_ = []
+		_n_ = len(@aConversations)
+		for _i_ = 1 to _n_
+			_ac_ + @aConversations[_i_].Topic()
+		next
+		return _ac_
+
+	def NumberOfConversations()
+		return len(@aConversations)
+
+	def HasConversation(pcTopic)
+		return This._ConvIndex(pcTopic) > 0
+
+	# -- the wise-coding loop, driven BY the space (This goes in live) --
+
+	def GapsIn(pcTopic)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Gaps(This)
+
+	def AskIn(pcTopic)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)].NextQuestion(This)
+
+	def AskInXT(pcTopic)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)].NextQuestionXT(This)
+
+	def ReplyIn(pcTopic, pAnswer)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Reply(This, pAnswer)
+
+	def ConcludeIn(pcTopic, pcKnowFile)
+		return @aConversations[This._ConvIndexOrRaise(pcTopic)].Conclude(This, pcKnowFile)
+
+	def _ConvIndex(pcTopic)
+		_cT_ = StzLower(ring_trim("" + pcTopic))
+		_n_ = len(@aConversations)
+		for _i_ = 1 to _n_
+			if StzLower(@aConversations[_i_].Topic()) = _cT_
+				return _i_
+			ok
+		next
+		return 0
+
+	def _ConvIndexOrRaise(pcTopic)
+		_i_ = This._ConvIndex(pcTopic)
+		if _i_ = 0
+			stzraise("No conversation '" + pcTopic + "' in this space -- Converse('" + pcTopic + "') opens one.")
+		ok
+		return _i_
 
 	def SetStrictMode(bOnOff)
 		@bStrictMode = bOnOff

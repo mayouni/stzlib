@@ -6,20 +6,22 @@
 # WRITING the knowledgebase. Deterministic floor -- NO model needed;
 # stzNeuralChat (neural/) can upgrade fluency behind the same surface.
 #
-#   oCv = new stzConversation("restaurant-setup")   # owns a SCOPED brain
-#   oCv.KnowledgeQ().Know("margherita", "dish")     # ...or KnowledgeOn(oKB)
-#   oCv.GoalQ().RequireEach("dish", "contains")
-#   ? oCv.NextQuestion()      # SYSTEM-LED: born from the gap
-#   oCv.Reply("tomato-sauce") # any register; admission GOVERNED
-#   ? oCv.Why()               # every verdict narrated
-#   oCv.Conclude("myworld")   # gaps closed -> the .zknw written
+# A CONVERSATION HAPPENS INSIDE A KNOWLEDGE SPACE -- it never owns one.
+# The space (stzKnowledgeGraph) HOLDS its conversations by composition and
+# is the door for anything needing knowledge; this class holds only the
+# SESSION state (topic, goal, pending frame, narration, checkpoints, turns).
+# The space hands ITSELF in, live, per call (a Ring attribute store COPIES,
+# so a held graph would go stale -- mechanism serves the model, never the
+# reverse; see [[feedback-ring-vm-traps]] #12):
 #
-# SCOPED, NOT GLOBAL: a conversation elicits a DOMAIN, so it works on a
-# stzKnowledgeGraph INSTANCE -- its own by default, or one handed in with
-# KnowledgeOn(oKB). Answers are admitted through that graph's OWN governed
-# door (oKB.Admit: laws checked, verdict explained, refusals recorded as
-# contradictions) and Conclude() writes THAT graph. Two conversations can
-# elicit two domains at once without touching each other or a shared world.
+#   oKB = new stzKnowledgeGraph("restaurant")     # the knowledge SPACE
+#   oKB.Know("margherita", "dish")
+#   oKB.Converse("setup")                         # a session opens IN it
+#   oKB.ConversationQ("setup").GoalQ().RequireEach("dish", "contains")
+#   ? oKB.AskIn("setup")                          # SYSTEM-LED: born from the gap
+#   oKB.ReplyIn("setup", "tomato-sauce")          # admitted INTO the space
+#   ? oKB.ConversationQ("setup").Why()            # every verdict narrated
+#   oKB.ConcludeIn("setup", "myworld")            # gaps closed -> .zknw written
 #
 # THE QUESTION IS A FRAME (the house doctrine applied to elicitation): a
 # FORCE opens it and SLOTS fill it -- :which when the domain already knows
@@ -44,7 +46,6 @@
 class stzConversation from stzObject
 
 	@cTopic = ""
-	@oKB = NULL          # the SCOPED domain brain this session elicits into
 	@cWhy = ""
 	@oGoal = NULL
 	@oNarration = NULL
@@ -58,27 +59,11 @@ class stzConversation from stzObject
 
 	def init(pcTopic)
 		@cTopic = "" + pcTopic
-		@oKB = new stzKnowledgeGraph("" + pcTopic)   # its OWN scoped brain
 		@oGoal = new stzGoal()
-		
 		@oNarration = new stzNarration()
 
 	def Topic()
 		return @cTopic
-
-	#-- the scoped knowledgebase ------------------------------------------
-
-	# elicit into an EXISTING domain graph instead of the session's own
-	def KnowledgeOn(poKB)
-		if NOT IsStzKnowledgeGraph(poKB)
-			stzraise("A conversation elicits into a SCOPED knowledgebase -- KnowledgeOn() needs a stzKnowledgeGraph.")
-		ok
-		@oKB = poKB
-		
-		return This
-
-	def KnowledgeQ()
-		return @oKB
 
 	def GoalQ()
 		return @oGoal
@@ -94,20 +79,20 @@ class stzConversation from stzObject
 
 	#-- the wise-coding loop ----------------------------------------------
 
-	def Gaps()
-		return @oGoal.Gaps(@oKB)
+	def Gaps(poSpace)
+		return @oGoal.Gaps(poSpace)
 
 	# SYSTEM-LED: the next question is BORN FROM THE GAP -- and it can
 	# say why it asks (the elicitation is accountable).
-	def NextQuestion()
-		_aQ_ = This.NextQuestionXT()
+	def NextQuestion(poSpace)
+		_aQ_ = This.NextQuestionXT(poSpace)
 		if len(_aQ_) = 0
 			return ""
 		ok
 		return _aQ_[:question]
 
-	def NextQuestionXT()
-		_aGaps_ = @oGoal.Gaps(@oKB)
+	def NextQuestionXT(poSpace)
+		_aGaps_ = @oGoal.Gaps(poSpace)
 		if len(_aGaps_) = 0
 			@aPending = []
 			@acOptions = []
@@ -121,7 +106,7 @@ class stzConversation from stzObject
 
 		# the enumerate branch: values this relation already takes elsewhere
 		# become PROPOSED OPTIONS -- and having them CHOOSES the force.
-		@acOptions = This._KnownValuesOf(_cRel_)
+		@acOptions = This._KnownValuesOf(poSpace, _cRel_)
 		if len(@acOptions) > 0
 			@cForce = "which"      # a closed choice: the domain knows candidates
 		else
@@ -194,7 +179,7 @@ class stzConversation from stzObject
 	# and 'and' separated values). Every candidate passes the SAME
 	# governed admission (R1: laws, dual-write); refusals are narrated
 	# AND checkpointed (G7). Verdict: [ :admitted, :refused, :narration ].
-	def Reply(pAnswer)
+	def Reply(poSpace, pAnswer)
 		if len(@aPending) = 0
 			stzraise("Nothing was asked -- call NextQuestion() first (the conversation is system-led).")
 		ok
@@ -253,7 +238,7 @@ class stzConversation from stzObject
 		for _i_ = 1 to _n_
 			# THE GOVERNED DOOR of this session's OWN graph: laws checked,
 			# verdict explained, refusal recorded -- provenance carried (G8).
-			_aAd_ = @oKB.Admit(_cSubj_, _cRel_, _acVals_[_i_],
+			_aAd_ = poSpace.Admit(_cSubj_, _cRel_, _acVals_[_i_],
 				[ :source = "conversation:" + @cTopic, :confidence = 1 ])
 			@cWhy = _aAd_[:why]
 			$cStzLastWhyB = @cWhy       # the house 'last why' convention
@@ -318,12 +303,12 @@ class stzConversation from stzObject
 
 	# gaps closed -> WRITE the knowledgebase (the session's real
 	# artifact); gaps remaining -> refuse with the list (LAW 3)
-	def Conclude(pcKnowFile)
-		_aGaps_ = @oGoal.Gaps(@oKB)
+	def Conclude(poSpace, pcKnowFile)
+		_aGaps_ = @oGoal.Gaps(poSpace)
 		if len(_aGaps_) > 0
 			stzraise("Can't conclude: " + len(_aGaps_) + " gap(s) remain -- the wise-coding loop is not done. Ask NextQuestion().")
 		ok
-		@oKB.WriteToKnowFile(pcKnowFile)   # THIS session's graph, not a world
+		poSpace.WriteToKnowFile(pcKnowFile)   # THE SPACE this session grew
 		@oNarration.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
 		return 1
 
@@ -394,10 +379,10 @@ class stzConversation from stzObject
 		return [ :values = _aVals_, :bad = _aBad_ ]
 
 	# the values this relation already takes IN THIS SESSION'S graph
-	def _KnownValuesOf(pcRel)
+	def _KnownValuesOf(poSpace, pcRel)
 		_cR_ = StzLower("" + pcRel)
 		_acOut_ = []
-		_aF_ = @oKB.Facts()
+		_aF_ = poSpace.Facts()
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if StzLower("" + _aF_[_i_][2]) = _cR_

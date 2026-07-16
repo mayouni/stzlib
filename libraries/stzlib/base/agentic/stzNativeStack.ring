@@ -56,7 +56,7 @@ func StzNativeAgent(pcName)
 # the perceive-decide-act framing and a bounded pursuit.
 class stzWiseCoderAgent from stzObject
 
-	@oConv = NULL
+	@cConvTopic = ""
 	@nAsked = 0
 	@cWhy = ""
 
@@ -69,31 +69,35 @@ class stzWiseCoderAgent from stzObject
 	# answering from a supplied ANSWER SOURCE closure that maps
 	# (subject, relation) -> a value string ("" = the agent stops,
 	# leaving the gap for a human -- it never invents domain facts).
-	# poKB = the SCOPED domain graph to elicit into (never a global world).
-	# Read the result through ConversationQ().KnowledgeQ() -- Ring copies an
-	# object into an attribute, so the session works on its own live graph.
+	# poKB = the SCOPED knowledge SPACE to elicit in (never a global world).
+	# The conversation happens INSIDE that space, so the space drives it and
+	# every admission lands in the CALLER's own graph (params are by-ref).
 	def PursueGoal(poGoal, poKB, fAnswerSource)
 		if NOT IsStzKnowledgeGraph(poKB)
-			stzraise("PursueGoal needs the SCOPED knowledgebase to elicit into -- PursueGoal(oGoal, oKB, fAnswers).")
+			stzraise("PursueGoal needs the knowledge SPACE to elicit in -- PursueGoal(oGoal, oKB, fAnswers).")
 		ok
-		@oConv = new stzConversation("native-wise-coding")
-		@oConv.KnowledgeOn(poKB)
-		# adopt the goal's requirements onto the conversation's goal
+		@cConvTopic = "native-wise-coding"
+		if NOT poKB.HasConversation(@cConvTopic)
+			poKB.Converse(@cConvTopic)
+		ok
+		# adopt the goal's requirements onto the session's goal
 		_aReq_ = poGoal.Requirements()
 		_nE_ = len(_aReq_[:each])
 		for _i_ = 1 to _nE_
-			@oConv.GoalQ().RequireEach(_aReq_[:each][_i_][1], _aReq_[:each][_i_][2])
+			poKB.ConversationQ(@cConvTopic).GoalQ().RequireEach(
+				_aReq_[:each][_i_][1], _aReq_[:each][_i_][2])
 		next
 		_nO_ = len(_aReq_[:one])
 		for _i_ = 1 to _nO_
-			@oConv.GoalQ().RequireOne(_aReq_[:one][_i_][1], _aReq_[:one][_i_][2])
+			poKB.ConversationQ(@cConvTopic).GoalQ().RequireOne(
+				_aReq_[:one][_i_][1], _aReq_[:one][_i_][2])
 		next
 
 		@nAsked = 0
 		_nRound_ = 0
 		while _nRound_ < 200
 			_nRound_++
-			_aQ_ = @oConv.NextQuestionXT()
+			_aQ_ = poKB.AskInXT(@cConvTopic)
 			if len(_aQ_) = 0
 				exit                       # goal filled -- fixpoint
 			ok
@@ -105,14 +109,14 @@ class stzWiseCoderAgent from stzObject
 					"' / '" + _aQ_[:relation] + "' -- gap left for a human"
 				return [ :filled = 0, :asked = @nAsked, :why = @cWhy ]
 			ok
-			@oConv.Reply(_cVal_)
+			poKB.ReplyIn(@cConvTopic, _cVal_)
 		end
 
 		@cWhy = "goal filled in " + @nAsked + " question(s), governed admission throughout"
 		return [ :filled = 1, :asked = @nAsked, :why = @cWhy ]
 
-	def ConversationQ()
-		return @oConv
+	def ConversationTopic()
+		return @cConvTopic
 
 	def Why()
 		return @cWhy
