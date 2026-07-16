@@ -21,9 +21,18 @@
 # graph (defines/inherits/imports); CALL edges (who-calls-whom) need
 # full-body parsing and are refused loudly, never faked (LAW 3).
 #
-# NOTE: a richer backend that shells to Python's real `ast` module is
-# the natural extension once async spawn lands (roadmap) -- this floor
-# is self-contained and deterministic so tests never need Python.
+# TWO BACKENDS:
+#   - the INDENTATION SCAN (default; new stzPyCodeGraph / ...FromSource):
+#     self-contained + deterministic, so tests never need Python; the
+#     DECLARATION graph only (defines/inherits/imports).
+#   - the TRUE-AST backend (StzPyCodeGraphAst / ...FromSourceAst): drives
+#     Python's own `ast` module through the reactor's async spawn (the
+#     polyglot worker). Correct on decorators, nested/conditional defs,
+#     dotted bases and multiline signatures -- AND it extracts CALL edges,
+#     so DeadCode()/CyclicCalls() ANSWER (they refuse on the scan floor).
+# Both fill the SAME internal arrays, so every query below works either way.
+
+$cStzPyExe = "python"     # override if the interpreter is named differently
 
 func StzPyCodeGraph(pcRootPath)
 	return new stzPyCodeGraph(pcRootPath)
@@ -34,6 +43,30 @@ func StzPyCodeGraphFromSource(pcSource)
 	oG.BuildGraph()
 	return oG
 
+# --- the TRUE-AST backend (needs Python on PATH) -----------------------
+
+func StzPyExe()
+	return $cStzPyExe
+
+# Is a usable Python interpreter reachable? (spawn `python --version`.)
+func StzPyAstAvailable()
+	_oRct_ = new stzReactor()
+	_oRct_.Spawn([ StzPyExe(), "--version" ], 5000)
+	return _oRct_.SpawnLastStatus() = 0
+
+func StzPyCodeGraphFromSourceAst(pcSource)
+	oG = new stzPyCodeGraph("")
+	oG.ScanSourceViaAst(pcSource, "<source>")
+	oG.BuildGraph()
+	return oG
+
+func StzPyCodeGraphAst(pcRootPath)
+	oG = new stzPyCodeGraph("")
+	oG.SetRoot(pcRootPath)
+	oG._ScanViaAst(pcRootPath)
+	oG.BuildGraph()
+	return oG
+
 class stzPyCodeGraph from stzObject
 
 	@oGraph = NULL       # class nodes + :inherits edges (stzGraph)
@@ -41,6 +74,8 @@ class stzPyCodeGraph from stzObject
 	@acClasses = []      # [ class, [parents], file ]
 	@aFunctions = []     # [ function, file, line ]  (module-level)
 	@aImports = []       # [ file, module ]
+	@aCalls = []         # [ callerFunc, callee ]  (AST backend only)
+	@bHasCalls = FALSE   # TRUE once real CALL edges are ingested
 	@cRoot = ""
 
 	def init(pcRootPath)
@@ -51,7 +86,132 @@ class stzPyCodeGraph from stzObject
 			This.BuildGraph()
 		ok
 
-	#-- scanning ----------------------------------------------------------
+	def SetRoot(pcPath)
+		@cRoot = pcPath
+
+	#-- TRUE-AST scanning (via the Python `ast` module, async spawn) -------
+
+	# Parse one Python source string through Python's real ast; ingest the
+	# structured lines it emits. Raises (LAW 3) if Python is unreachable --
+	# it never silently degrades to the scan floor.
+	def ScanSourceViaAst(pcSource, pcFile)
+		_cDrv_ = tempname()
+		_cSrc_ = tempname()
+		write(_cDrv_, This._AstDriver())
+		write(_cSrc_, "" + pcSource)
+		_oR_ = new stzReactor()
+		_cOut_ = _oR_.Spawn([ StzPyExe(), _cDrv_, _cSrc_ ], 15000)
+		_nStat_ = _oR_.SpawnLastStatus()
+		remove(_cDrv_)
+		remove(_cSrc_)
+		if _nStat_ != 0
+			stzraise("Python AST backend failed (exit " + _nStat_ + "). Is '" +
+				StzPyExe() + "' on PATH? Use new stzPyCodeGraph(...) for the " +
+				"Python-free indentation floor.")
+		ok
+		This._IngestAstLines(_cOut_, pcFile)
+
+	def _ScanViaAst(pcPath)
+		_aEntries_ = dir(pcPath)
+		_nLen_ = len(_aEntries_)
+		for _i_ = 1 to _nLen_
+			_cName_ = _aEntries_[_i_][1]
+			if _aEntries_[_i_][2]
+				if _cName_ != "." and _cName_ != ".."
+					This._ScanViaAst(pcPath + "/" + _cName_)
+				ok
+			else
+				if StzLower(StzRight(_cName_, 3)) = ".py"
+					This.ScanSourceViaAst(read(pcPath + "/" + _cName_),
+						pcPath + "/" + _cName_)
+				ok
+			ok
+		next
+
+	def _IngestAstLines(pcOut, pcFile)
+		_acLines_ = StzSplit(StzReplace("" + pcOut, char(13), ""), char(10))
+		_nLen_ = len(_acLines_)
+		for _i_ = 1 to _nLen_
+			_cL_ = ring_trim(_acLines_[_i_])
+			if _cL_ = ""
+				loop
+			ok
+			_aP_ = StzSplit(_cL_, "|")
+			_cKind_ = _aP_[1]
+			if _cKind_ = "CLASS"
+				_aBases_ = []
+				if len(_aP_) >= 3 and _aP_[3] != ""
+					_aBases_ = StzSplit(_aP_[3], ",")
+				ok
+				@acClasses + [ _aP_[2], _aBases_, pcFile ]
+			but _cKind_ = "METHOD"
+				@aMethods + [ _aP_[2], _aP_[3], pcFile, number(_aP_[4]) ]
+			but _cKind_ = "FUNC"
+				@aFunctions + [ _aP_[2], pcFile, number(_aP_[3]) ]
+			but _cKind_ = "IMPORT"
+				@aImports + [ pcFile, _aP_[2] ]
+			but _cKind_ = "CALL"
+				@aCalls + [ _aP_[2], _aP_[3] ]
+				@bHasCalls = TRUE
+			but _cKind_ = "ERROR"
+				stzraise("Python could not parse the source: " + _aP_[2])
+			ok
+		next
+
+	# The Python driver, emitted to a temp file and run by the interpreter.
+	# Built as an nl-joined list of one-line literals (Ring has no reliable
+	# multi-line string); chr(10) inside Python keeps every line quote-safe.
+	# Python is indentation-sensitive, so the leading spaces are load-bearing.
+	def _AstDriver()
+		_a_ = []
+		_a_ + 'import ast, sys'
+		_a_ + 'src = open(sys.argv[1], "r", encoding="utf-8").read()'
+		_a_ + 'try:'
+		_a_ + '    tree = ast.parse(src)'
+		_a_ + 'except SyntaxError as e:'
+		_a_ + '    sys.stdout.write("ERROR|" + str(e).replace("|", " ") + chr(10)); sys.exit(0)'
+		_a_ + 'def bn(b):'
+		_a_ + '    if isinstance(b, ast.Name): return b.id'
+		_a_ + '    if isinstance(b, ast.Attribute):'
+		_a_ + '        p = []; c = b'
+		_a_ + '        while isinstance(c, ast.Attribute): p.append(c.attr); c = c.value'
+		_a_ + '        if isinstance(c, ast.Name): p.append(c.id)'
+		_a_ + '        return ".".join(reversed(p))'
+		_a_ + '    return None'
+		_a_ + 'def cn(n):'
+		_a_ + '    f = n.func'
+		_a_ + '    if isinstance(f, ast.Name): return f.id'
+		_a_ + '    if isinstance(f, ast.Attribute): return f.attr'
+		_a_ + '    return None'
+		_a_ + 'out = []'
+		_a_ + 'class V(ast.NodeVisitor):'
+		_a_ + '    def __init__(s): s.cls = []; s.fn = []'
+		_a_ + '    def visit_ClassDef(s, n):'
+		_a_ + '        bs = [x for x in (bn(b) for b in n.bases) if x]'
+		_a_ + '        out.append("CLASS|" + n.name + "|" + ",".join(bs) + "|" + str(n.lineno))'
+		_a_ + '        s.cls.append(n.name); s.generic_visit(n); s.cls.pop()'
+		_a_ + '    def _f(s, n):'
+		_a_ + '        c = s.cls[-1] if s.cls else ""'
+		_a_ + '        if c: out.append("METHOD|" + c + "|" + n.name + "|" + str(n.lineno))'
+		_a_ + '        elif not s.fn: out.append("FUNC|" + n.name + "|" + str(n.lineno))'
+		_a_ + '        s.fn.append(n.name); sv = s.cls; s.cls = []'
+		_a_ + '        s.generic_visit(n); s.cls = sv; s.fn.pop()'
+		_a_ + '    def visit_FunctionDef(s, n): s._f(n)'
+		_a_ + '    def visit_AsyncFunctionDef(s, n): s._f(n)'
+		_a_ + '    def visit_Import(s, n):'
+		_a_ + '        for a in n.names: out.append("IMPORT|" + a.name)'
+		_a_ + '    def visit_ImportFrom(s, n):'
+		_a_ + '        if n.module: out.append("IMPORT|" + n.module)'
+		_a_ + '        s.generic_visit(n)'
+		_a_ + '    def visit_Call(s, n):'
+		_a_ + '        c = cn(n)'
+		_a_ + '        if c: out.append("CALL|" + (s.fn[-1] if s.fn else "") + "|" + c)'
+		_a_ + '        s.generic_visit(n)'
+		_a_ + 'V().visit(tree)'
+		_a_ + 'sys.stdout.write(chr(10).join(out) + chr(10))'
+		return JoinXT(_a_, nl)
+
+	#-- scanning (indentation floor) --------------------------------------
 
 	def _Scan(pcPath)
 		_aEntries_ = dir(pcPath)
@@ -386,12 +546,123 @@ class stzPyCodeGraph from stzObject
 			:blastRadius = len(_acDesc_)
 		]
 
-	# refused loudly until CALL edges land (needs full-body parsing)
-	def DeadCode()
-		stzraise("DeadCode() needs CALL edges (full-body/ast parsing) -- the declaration graph only has defines/inherits/imports. Refusing rather than guessing (LAW 3).")
+	#-- CALL edges (present only with the TRUE-AST backend) ---------------
 
+	def HasCallEdges()
+		return @bHasCalls
+
+	def CallEdges()
+		return @aCalls
+
+	def CallersOf(pcCallee)
+		_cC_ = StzLower("" + pcCallee)
+		_ac_ = []
+		_n_ = len(@aCalls)
+		for _i_ = 1 to _n_
+			if StzLower(@aCalls[_i_][2]) = _cC_
+				if @aCalls[_i_][1] != "" and ring_find(_ac_, @aCalls[_i_][1]) = 0
+					_ac_ + @aCalls[_i_][1]
+				ok
+			ok
+		next
+		return _ac_
+
+	def CalleesOf(pcCaller)
+		_cC_ = StzLower("" + pcCaller)
+		_ac_ = []
+		_n_ = len(@aCalls)
+		for _i_ = 1 to _n_
+			if StzLower(@aCalls[_i_][1]) = _cC_
+				if ring_find(_ac_, @aCalls[_i_][2]) = 0
+					_ac_ + @aCalls[_i_][2]
+				ok
+			ok
+		next
+		return _ac_
+
+	def _AllDefinedNames()
+		_ac_ = []
+		_n_ = len(@aFunctions)
+		for _i_ = 1 to _n_
+			if ring_find(_ac_, @aFunctions[_i_][1]) = 0
+				_ac_ + @aFunctions[_i_][1]
+			ok
+		next
+		_n_ = len(@aMethods)
+		for _i_ = 1 to _n_
+			if ring_find(_ac_, @aMethods[_i_][2]) = 0
+				_ac_ + @aMethods[_i_][2]
+			ok
+		next
+		return _ac_
+
+	# every DEFINED function/method that NO recorded call reaches (a dead-code
+	# candidate). dunder methods are runtime entry points, never dead. Name-
+	# based over the AST's call edges -- honest about dynamic dispatch (a call
+	# through a variable can't be seen), so it names candidates, not proof.
+	def DeadCode()
+		if NOT @bHasCalls
+			stzraise("DeadCode() needs CALL edges -- use the AST backend (StzPyCodeGraphFromSourceAst / StzPyCodeGraphAst). The indentation floor has only defines/inherits/imports; refusing rather than guessing (LAW 3).")
+		ok
+		_aDefs_ = This._AllDefinedNames()
+		_acDead_ = []
+		_nD_ = len(_aDefs_)
+		for _i_ = 1 to _nD_
+			_cName_ = _aDefs_[_i_]
+			if StzLeft(_cName_, 2) = "__"
+				loop
+			ok
+			if len(This.CallersOf(_cName_)) = 0
+				if ring_find(_acDead_, _cName_) = 0
+					_acDead_ + _cName_
+				ok
+			ok
+		next
+		return _acDead_
+
+	# every DEFINED function/method that can reach ITSELF through >=1 call
+	# (i.e. participates in a call cycle, direct or indirect recursion).
 	def CyclicCalls()
-		stzraise("CyclicCalls() needs CALL edges (full-body/ast parsing) -- refusing rather than guessing (LAW 3).")
+		if NOT @bHasCalls
+			stzraise("CyclicCalls() needs CALL edges -- use the AST backend (StzPyCodeGraphFromSourceAst / StzPyCodeGraphAst). Refusing rather than guessing (LAW 3).")
+		ok
+		_aDefs_ = This._AllDefinedNames()
+		_acCyclic_ = []
+		_nD_ = len(_aDefs_)
+		for _i_ = 1 to _nD_
+			if This._Reaches(_aDefs_[_i_], _aDefs_[_i_])
+				_acCyclic_ + _aDefs_[_i_]
+			ok
+		next
+		return _acCyclic_
+
+	# can pcFrom reach pcTarget through >= 1 call edge? (BFS over callees)
+	def _Reaches(pcFrom, pcTarget)
+		_cTgt_ = StzLower("" + pcTarget)
+		_acSeen_ = []
+		_acFront_ = This.CalleesOf(pcFrom)
+		_nGuard_ = 0
+		while len(_acFront_) > 0 and _nGuard_ < 2000
+			_nGuard_++
+			_acNext_ = []
+			_nF_ = len(_acFront_)
+			for _f_ = 1 to _nF_
+				_cN_ = _acFront_[_f_]
+				if StzLower(_cN_) = _cTgt_
+					return TRUE
+				ok
+				if ring_find(_acSeen_, _cN_) = 0
+					_acSeen_ + _cN_
+					_acCallees_ = This.CalleesOf(_cN_)
+					_nC_ = len(_acCallees_)
+					for _c_ = 1 to _nC_
+						_acNext_ + _acCallees_[_c_]
+					next
+				ok
+			next
+			_acFront_ = _acNext_
+		end
+		return FALSE
 
 	def Stats()
 		return [

@@ -108,4 +108,60 @@ Scenario("Stats summarizes the declaration graph")
 	Then("inherits edges present", aS[:inheritsEdges] >= 4, TRUE)
 EndScenario()
 
+# ---- the TRUE-AST backend (Python's own ast, via async spawn) ----------
+# Guarded: skips cleanly where Python is not on PATH so the scan-floor
+# scenarios above still stand on any box.
+
+if StzPyAstAvailable()
+
+	# constructs the indentation SCAN cannot see: a decorated method, a
+	# def inside a conditional block, a dotted import, and -- the payoff --
+	# CALL edges (recursion + who-calls-whom).
+	$cPyAst = "import os.path" + nl +
+	          "from collections import OrderedDict as OD" + nl +
+	          "class Base:" + nl +
+	          "    @property" + nl +
+	          "    def label(self): return self._n" + nl +
+	          "class Worker(Base):" + nl +
+	          "    @staticmethod" + nl +
+	          "    def run(): return helper()" + nl +
+	          "    if True:" + nl +
+	          "        def maybe(self): return self.run()" + nl +
+	          "def helper(): return recurse(2)" + nl +
+	          "def recurse(n): return recurse(n - 1)" + nl +
+	          "def orphan(): return 1" + nl
+	$oAst = StzPyCodeGraphFromSourceAst($cPyAst)
+
+	Scenario("AST backend: it sees defs the indentation scan cannot")
+		Then("the decorated @staticmethod is a method of Worker",
+			ring_find($oAst.MethodsOf("Worker"), "run") > 0, TRUE)
+		Then("the def inside 'if True:' is ALSO captured",
+			ring_find($oAst.MethodsOf("Worker"), "maybe") > 0, TRUE)
+		Then("the @property method is captured too",
+			ring_find($oAst.MethodsOf("Base"), "label") > 0, TRUE)
+		Then("a DOTTED import is recorded",
+			ring_find($oAst.ImportsOf("<source>"), "os.path") > 0, TRUE)
+		Then("inheritance still resolves", $oAst.AncestryOf("Worker")[2], "Base")
+	EndScenario()
+
+	Scenario("AST backend: CALL edges are REAL now (not refused)")
+		Then("call edges were extracted", $oAst.HasCallEdges(), TRUE)
+		Then("who calls helper() is known", $oAst.CallersOf("helper")[1], "run")
+		Then("what run() calls is known",
+			ring_find($oAst.CalleesOf("run"), "helper") > 0, TRUE)
+	EndScenario()
+
+	Scenario("AST backend: DeadCode + CyclicCalls now ANSWER (LAW 3 upheld)")
+		Then("the uncalled function is flagged dead",
+			ring_find($oAst.DeadCode(), "orphan") > 0, TRUE)
+		Then("a called function is NOT dead",
+			ring_find($oAst.DeadCode(), "recurse"), 0)
+		Then("self-recursion is a call cycle",
+			ring_find($oAst.CyclicCalls(), "recurse") > 0, TRUE)
+	EndScenario()
+
+else
+	? "  [skip] Python not on PATH -- AST-backend scenarios skipped"
+ok
+
 Summary()
