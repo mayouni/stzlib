@@ -26,7 +26,10 @@ class stzTrainingSet from stzObject
 		if isList(paFeatures)
 			@aExamples + [ paFeatures, "" + pcLabel ]
 		ok
-		return This
+
+		def AddExampleQ(paFeatures, pcLabel)
+			This.AddExample(paFeatures, pcLabel)
+			return This
 
 	def Examples()
 		return @aExamples

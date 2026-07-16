@@ -81,10 +81,10 @@ EndScenario()
 # ---- THE WORLD: the restaurant as a living app ---------------------------
 
 $oResto = StzAppQ("bella-cucina")
-$oResto.AddThing(:dish)  { Has([ :name, :price ]) }
-$oResto.AddThing(:table) { Has([ :number, :seats ]) }
-$oResto.AddReaction(:table).Unseen(1, :service) { Propose(:served) }
-$oResto.AddGoal(:EveryTableServed) { Means = "every :table Has(:served)"  ReachedBy = :planning }
+$oResto.AddThingQ(:dish)  { Has([ :name, :price ]) }
+$oResto.AddThingQ(:table) { Has([ :number, :seats ]) }
+$oResto.AddReactionQ(:table).Unseen(1, :service) { Propose(:served) }
+$oResto.AddGoalQ(:EveryTableServed) { Means = "every :table Has(:served)"  ReachedBy = :planning }
 
 Scenario("THE WORLD: things, a reaction that proposes, a wanted state")
 	Given("two tables in the world, neither served")

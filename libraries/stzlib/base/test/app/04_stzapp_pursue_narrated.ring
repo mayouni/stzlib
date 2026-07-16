@@ -11,10 +11,10 @@ load "../_narrated.ring"
 # The old Pursue() returned a hardcoded empty gap -- retired today.
 
 $oApp = StzAppQ("visitsworld")
-$oApp.AddThing(:Client) { Has([ :code, :name ]) }
-$oApp.AddThing(:Visit)  { Of(:Client) }
-$oApp.AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
-$oApp.AddGoal(:EveryClientVisited) {
+$oApp.AddThingQ(:Client) { Has([ :code, :name ]) }
+$oApp.AddThingQ(:Visit)  { Of(:Client) }
+$oApp.AddReactionQ(:Client).Unseen(90, :Days) { Propose(:Visit) }
+$oApp.AddGoalQ(:EveryClientVisited) {
 	Means     = "every :Client Has(:visited)"
 	ReachedBy = :planning
 }
@@ -42,7 +42,7 @@ EndScenario()
 
 Scenario("an unevaluable Means is refused, never faked (LAW 3)")
 	Given("a goal whose Means carries no evaluable pattern")
-	$oApp.AddGoal(:Vague) { Means = "make things nice" }
+	$oApp.AddGoalQ(:Vague) { Means = "make things nice" }
 	bRaised = FALSE
 	try
 		$oApp.Pursue(:Vague)

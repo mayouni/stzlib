@@ -32,41 +32,69 @@ class stzAgentGraph from stzObject
 
 	def AddPIActor(pcId)
 		This._Node(pcId, "pi_actor", [ "effectful", "compute", "sensing" ], "trusted")
-		return This
 
 	# an LLM actor's capability set is EMPTY (the 5.7 load-bearing rule)
 	# and its output is tainted open_llm_text
+
+		def AddPIActorQ(pcId)
+			This.AddPIActor(pcId)
+			return This
+
 	def AddLLMActor(pcId)
 		This._Node(pcId, "llm_actor", [ "inference" ], "open_llm_text")
-		return This
+
+		def AddLLMActorQ(pcId)
+			This.AddLLMActor(pcId)
+			return This
 
 	def AddHybridActor(pcId)
 		This._Node(pcId, "hybrid_actor", [ "inference" ], "open_llm_text")
-		return This
+
+		def AddHybridActorQ(pcId)
+			This.AddHybridActor(pcId)
+			return This
 
 	def AddGuardian(pcId)
 		This._Node(pcId, "guardian", [ "compute", "sensing" ], "validated")
-		return This
+
+		def AddGuardianQ(pcId)
+			This.AddGuardian(pcId)
+			return This
 
 	def AddEffect(pcId)
 		This._Node(pcId, "effect", [ "effectful" ], "trusted")
-		return This
+
+		def AddEffectQ(pcId)
+			This.AddEffect(pcId)
+			return This
 
 	def AddTool(pcId)
 		This._Node(pcId, "tool", [ "compute" ], "trusted")
-		return This
+
+		def AddToolQ(pcId)
+			This.AddTool(pcId)
+			return This
 
 	def AddTraceSink(pcId)
 		This._Node(pcId, "trace_sink", [ "sensing" ], "trusted")
-		return This
+
+		def AddTraceSinkQ(pcId)
+			This.AddTraceSink(pcId)
+			return This
 
 	def AddInput(pcId)
 		This._Node(pcId, "input", [], "external_data")
-		return This
+
+		def AddInputQ(pcId)
+			This.AddInput(pcId)
+			return This
 
 	def AddCheckpoint(pcId)
 		This._Node(pcId, "human_checkpoint", [ "sensing" ], "validated")
-		return This
+
+		def AddCheckpointQ(pcId)
+			This.AddCheckpoint(pcId)
+			return This
 
 	def _Node(pcId, pcKind, pacCaps, pcTaint)
 		_cId_ = StzLower(ring_trim("" + pcId))

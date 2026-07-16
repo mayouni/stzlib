@@ -81,11 +81,15 @@ class stzRequestClassifier from stzObject
 	# names are matched automatically; keywords add natural phrasing.
 	def AddKeyword(pcKeyword, pcFacet)
 		@aKeywords + [ StzLower("" + pcKeyword), StzLower("" + pcFacet) ]
-		return This
 
 	#-- TIER 3: an optional engine classifier ------------------------------
 
 	# f(cText) -> facet name (or ""). Used only when tiers 1+2 abstain.
+
+		def AddKeywordQ(pcKeyword, pcFacet)
+			This.AddKeyword(pcKeyword, pcFacet)
+			return This
+
 	def WithModelClassifier(fClassify)
 		@fModel = fClassify
 		return This

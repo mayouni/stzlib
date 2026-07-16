@@ -12,7 +12,7 @@ load "../_narrated.ring"
 Scenario("the default pool has the 4 domain profiles, grounded in the engine")
 	Given("a worker pool seeded with the doc's four facets (from its catalog)")
 	$oPool = new stzWorkerPool()
-	$oPool.AddFacet(:nlp, 4).AddFacet(:math, 2).AddFacet(:search, 2).AddFacet(:vision, 1)
+	$oPool.AddFacetQ(:nlp, 4).AddFacetQ(:math, 2).AddFacetQ(:search, 2).AddFacet(:vision, 1)
 	Then("it has four profiles", $oPool.NumberOfProfiles(), 4)
 	Then("nlp/math/search/vision are present",
 		$oPool.HasProfile("nlp") and $oPool.HasProfile("math") and

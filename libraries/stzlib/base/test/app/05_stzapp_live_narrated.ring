@@ -10,9 +10,9 @@ load "../_narrated.ring"
 # rides the R5 agent-host runtime (below).
 
 $oApp = StzAppQ("clinic")
-$oApp.AddThing(:Patient) { Has([ :name ]) }
+$oApp.AddThingQ(:Patient) { Has([ :name ]) }
 $oApp.AddThing(:Checkup)
-$oApp.AddReaction(:Patient).Unseen(90, :Days) { Propose(:Checkup) }
+$oApp.AddReactionQ(:Patient).Unseen(90, :Days) { Propose(:Checkup) }
 
 Scenario("a live world reflects what its reactions imply")
 	Given("two patients, neither checked up")

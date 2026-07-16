@@ -8,7 +8,7 @@
 #   1. GENERATION       Generate(:all): declared REACH becomes real
 #                       per-platform shells (web/desktop/mobile), each
 #                       embedding the one resident engine.
-#   2. CAPABILITY SEAM  AddCapability(:camera).SetPurposes([...]) -- device/native
+#   2. CAPABILITY SEAM  AddCapabilityQ(:camera).SetPurposes([...]) -- device/native
 #                       capabilities requested by the world, GATED BY
 #                       GOVERNANCE (the 5.7 lattice: permission CAN +
 #                       authority SHOULD vs the capability's risk tier).
@@ -367,14 +367,18 @@ class stzPlatform from stzObject
 		next
 
 	# Request a capability for the attached world:
-	#   oPlat.AddCapability(:camera).SetPurposes([ :scan-dish-photo ])
+	#   oPlat.AddCapabilityQ(:camera).SetPurposes([ :scan-dish-photo ])
 	def AddCapability(pcCapability)
 		_cCap_ = StzLower("" + pcCapability)
 		@aAdmissions + [ _cCap_, [] ]
 		@nCurAdmission = len(@aAdmissions)
-		return This
 
 	# fills the purposes of the capability just added (cursor)
+
+		def AddCapabilityQ(pcCapability)
+			This.AddCapability(pcCapability)
+			return This
+
 	def SetPurposes(paPurposes)
 		if @nCurAdmission > 0
 			if NOT isList(paPurposes)
@@ -395,7 +399,7 @@ class stzPlatform from stzObject
 		ok
 		_cCap_ = StzLower("" + pcCapability)
 		if NOT This._WasAdmitted(_cCap_)
-			@cWhy = "capability '" + _cCap_ + "' was never requested via AddCapability()."
+			@cWhy = "capability '" + _cCap_ + "' was never requested via AddCapabilityQ()."
 			return FALSE
 		ok
 		_bOk_ = @oGov.MayProceed(@cWorldName, "use-" + _cCap_)

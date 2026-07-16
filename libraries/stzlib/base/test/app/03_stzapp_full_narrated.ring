@@ -14,17 +14,17 @@ pr()
 oApp = new stzApp("SonibankVisits")
 oApp {
     # ─── BEING (Domain) ───
-    AddThing(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, '@ >= 0') }
-    AddThing(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
-    AddThing(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
+    AddThingQ(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, '@ >= 0') }
+    AddThingQ(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
+    AddThingQ(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
     AddRelation(:Account, :belongsTo, :Client)
 
     # ─── LIFE · behavior ───
-    AddFlow(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
-    AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
+    AddFlowQ(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
+    AddReactionQ(:Client).Unseen(90, :Days) { Propose(:Visit) }
 
     # ─── LIFE · purpose ───
-    AddGoal(:EveryClientSeenThisQuarter) {
+    AddGoalQ(:EveryClientSeenThisQuarter) {
         Means      = "every :Client Has(:visit) Since(:quarterStart)"
         Within     = :thisQuarter
         ReachedBy  = :planning
@@ -36,12 +36,12 @@ oApp {
 }
 
 # ─── MET FROM WITHOUT (emergents) ───
-oApp.AddScreen(:ClientFile) {
+oApp.AddScreenQ(:ClientFile) {
     ToUnderstand(:Client)
     Shows([ :identity, :accounts, :visits ])
     Acts(:NewVisit, :RecordVisit)
 }
-oApp.AddRefinement(:balance).Bounds(0, 1000000)
+oApp.AddRefinementQ(:balance).Bounds(0, 1000000)
 oApp.AddReaches([ :mobile, :desktop, :web ])
 
 oApp.Explain()

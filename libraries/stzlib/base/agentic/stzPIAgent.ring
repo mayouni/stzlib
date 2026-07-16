@@ -55,11 +55,17 @@ class stzPIAgent from stzObject
 	# the agent asks stzGovernance.MayProceed BEFORE running it
 	def AddSkill(poSkill)
 		@aSkills + [ poSkill, "" ]
-		return This
+
+		def AddSkillQ(poSkill)
+			This.AddSkill(poSkill)
+			return This
 
 	def AddGovernedSkill(poSkill, pcAction)
 		@aSkills + [ poSkill, StzLower("" + pcAction) ]
-		return This
+
+		def AddGovernedSkillQ(poSkill, pcAction)
+			This.AddGovernedSkill(poSkill, pcAction)
+			return This
 
 	def NumberOfSkills()
 		return len(@aSkills)

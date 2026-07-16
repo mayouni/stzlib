@@ -4,7 +4,8 @@
 # A world's things, what is TRUE of them, and how they RELATE -- declared in the
 # near-natural block idiom, then made visible. Runs under Ring today.
 #
-# Idiom note: AddThing() returns the app, so the block  AddThing(:X) { Has(...) Owns(:Y) }
+# Idiom note: AddThing() acts and returns nothing; AddThingQ() acts and hands back
+# the app, so the block  AddThingQ(:X) { Has(...) Owns(:Y) }
 # runs the app's own Has/Owns on a "current thing" cursor (Ring-correct; no sub-builder
 # copy, no R31). Names display lowercased (stzGraph lowercases node ids); use string
 # ids like "Account" instead of :Account if case must be preserved.
@@ -17,9 +18,9 @@ pr()
 
 oApp = new stzApp("SonibankVisits")
 oApp {
-    AddThing(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, "@ >= 0") }
-    AddThing(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
-    AddThing(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
+    AddThingQ(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, "@ >= 0") }
+    AddThingQ(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
+    AddThingQ(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
     AddRelation(:Account, :belongsTo, :Client)
 }
 

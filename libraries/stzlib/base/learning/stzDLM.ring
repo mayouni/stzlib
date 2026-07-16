@@ -484,7 +484,10 @@ class stzDLM from stzObject
 
 	def AddGolden(pcQuestion, pcExpected)
 		@aGoldens + [ "" + pcQuestion, "" + pcExpected ]
-		return This
+
+		def AddGoldenQ(pcQuestion, pcExpected)
+			This.AddGolden(pcQuestion, pcExpected)
+			return This
 
 	def RunGoldens()
 		_nPass_ = 0

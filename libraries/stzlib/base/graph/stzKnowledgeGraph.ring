@@ -54,7 +54,10 @@ class stzKnowledgeGraph from stzGraph
 			stzraise("Strict mode: every fact needs provenance -- use AddFactXT(s, p, o, [ :source = ..., :confidence = ... ]).")
 		ok
 		This._AddFactRaw(pcSubject, pcPredicate, pcObject)
-		return This
+
+		def AddFactQ(pcSubject, pcPredicate, pcObject)
+			This.AddFact(pcSubject, pcPredicate, pcObject)
+			return This
 
 		def AddTriple(pcSubject, pcPredicate, pcObject)
 			return This.AddFact(pcSubject, pcPredicate, pcObject)
@@ -239,12 +242,12 @@ class stzKnowledgeGraph from stzGraph
 			stzraise("A conversation '" + _cN_ + "' already exists in this space.")
 		ok
 		@aoConversations + StzConversationQ(_cN_)
-		return This
 
 	# The SAME act, returning the NEW conversation so you can chain onto it:
 	#   oKB.AddConversationQ("setup").SetGoal(oGoal)
 	# The verb says what you DO (add), the Q says what you GET BACK (the new
 	# object). Use ConversationQ(name) when you mean "the one already there".
+
 	def AddConversationQ(pcConvName)
 		This.AddConversation(pcConvName)
 		return @aoConversations[This._ConvIndex(pcConvName)]
@@ -257,7 +260,10 @@ class stzKnowledgeGraph from stzGraph
 		for _i_ = 1 to _n_
 			This.AddConversation(pacNames[_i_])
 		next
-		return This
+
+		def AddConversationsQ(pacNames)
+			This.AddConversations(pacNames)
+			return This
 
 	def RemoveConversation(pcConvName)
 		del(@aoConversations, This._ConvIndexOrRaise(pcConvName))

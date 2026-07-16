@@ -142,7 +142,10 @@ class stzLLMFunction from stzObject
 
 	def AddGolden(pcInput, pExpected)
 		@aGoldens + [ "" + pcInput, pExpected ]
-		return This
+
+		def AddGoldenQ(pcInput, pExpected)
+			This.AddGolden(pcInput, pExpected)
+			return This
 
 	def RunGoldens()
 		_nPass_ = 0
