@@ -20,6 +20,19 @@
 #   oGoal = new stzGoal().RequireEach("dish", "contains")
 #   ? oGoal.Gaps(oKB)   #--> [ [ "margherita", "contains", "every dish..." ] ]
 
+func StzGoalQ()
+	return new stzGoal()
+
+func IsStzGoal(pObj)
+	if isObject(pObj) and classname(pObj) = "stzgoal"
+		return TRUE
+	ok
+	return FALSE
+
+	func IsAStzGoal(pObj)
+		return IsStzGoal(pObj)
+
+
 class stzGoal from stzObject
 
 	@aEach = []     # [ [ type, relation ] ... ]

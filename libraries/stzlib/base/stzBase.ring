@@ -526,7 +526,7 @@ ok
     load "agentic/stzPIAgent.ring"
     load "agentic/stzAgentGraph.ring"
     load "agentic/stzLLMAgent.ring"
-    load "agentic/stzNativeStack.ring"
+    load "agentic/stzOwnAgentStack.ring"
     load "agentic/stzAgentHost.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --

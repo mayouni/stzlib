@@ -10,12 +10,12 @@ nFail = 0
 pr()
 
 ? "-- Scene 1: the curated roster is honest (wired vs reserved) --"
-chk("the roster exists", len(StzNativeAgents()) = 5)
-chk("wise-coder is wired", StzNativeAgentIsWired("wise-coder") = 1)
-chk("the planner is reserved (not wired)", StzNativeAgentIsWired("planner") = 0)
+chk("the roster exists", len(StzOwnAgents()) = 5)
+chk("wise-coder is wired", StzOwnAgentIsWired("wise-coder") = 1)
+chk("the planner is reserved (not wired)", StzOwnAgentIsWired("planner") = 0)
 bR = 0
 try
-	StzNativeAgent("ranker")
+	StzOwnAgent("ranker")
 catch
 	bR = 1
 done
@@ -26,10 +26,9 @@ chk("a reserved agent REFUSES rather than returning a stub (LAW 3)", bR = 1)
 # SCOPED: the agent elicits into a domain graph handed to it, not a world
 oKB = new stzKnowledgeGraph("menu")
 oKB.Know("margherita", "dish").Know("tiramisu", "dish")
-oGoal = new stzGoal()
-oGoal.RequireEach("dish", "contains")
+oGoal = StzGoalQ().RequireEach("dish", "contains")
 answers = [ [ "margherita", "tomato-sauce" ], [ "tiramisu", "mascarpone" ] ]
-oWC = StzNativeAgent("wise-coder")
+oWC = StzOwnAgent("wise-coder")
 aR = oWC.PursueGoal(oGoal, oKB, func subj, rel {
 	for a in answers
 		if a[1] = subj
@@ -49,9 +48,8 @@ chk("Why reports governed admission",
 ? "-- Scene 3: the agent refuses to INVENT (leaves the gap) --"
 oKB2 = new stzKnowledgeGraph("desserts")
 oKB2.Know("panna-cotta", "dish")
-oGoal2 = new stzGoal()
-oGoal2.RequireEach("dish", "contains")
-oWC2 = StzNativeAgent("wise-coder")
+oGoal2 = StzGoalQ().RequireEach("dish", "contains")
+oWC2 = StzOwnAgent("wise-coder")
 aR2 = oWC2.PursueGoal(oGoal2, oKB2, func subj, rel {
 	if subj = "panna-cotta"
 		return ""
