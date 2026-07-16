@@ -15,9 +15,9 @@ pr()
 # the KNOWLEDGE SPACE is the container; a conversation happens INSIDE it
 oKB = new stzKnowledgeGraph("restaurant")
 oKB.Know("margherita", "dish").Know("tiramisu", "dish")
-oKB.AddConversation("restaurant-setup")          # the space HOLDS the session
-oGoal = StzGoalQ().RequireEach("dish", "contains")
-oKB.ConversationQ("restaurant-setup").SetGoal(oGoal)   # ONE goal, handed over
+# ADD the session to the space and hand it ONE goal, in one act
+oKB.AddConversationQ("restaurant-setup").
+    SetGoal(StzGoalQ().RequireEach("dish", "contains"))
 chk("the gap is computed from the SPACE", len(oKB.GapsIn("restaurant-setup")) = 2)
 
 aQ = oKB.AskInXT("restaurant-setup")
@@ -40,8 +40,8 @@ chk("admissions are grounded in THE SPACE the session runs in",
 ? ""
 ? "-- Scene 3: refusal is governed AND checkpointed (G7) --"
 oKB3 = new stzKnowledgeGraph("staffing")
-oKB3.AddConversation("staffing-setup")
-oKB3.ConversationQ("staffing-setup").SetGoal(StzGoalQ().RequireOne("kitchen3", "led-by"))
+oKB3.AddConversationQ("staffing-setup").
+     SetGoal(StzGoalQ().RequireOne("kitchen3", "led-by"))
 oKB3.AskIn("staffing-setup")
 # the law is declared IN THE SPACE, and a value lands, while the question is open
 oKB3.ConstrainRelation("led-by", :Unique)
@@ -67,8 +67,8 @@ remove(cF)
 
 bRefuse = 0
 oKB5 = new stzKnowledgeGraph("early")
-oKB5.AddConversation("early-setup")
-oKB5.ConversationQ("early-setup").SetGoal(StzGoalQ().RequireOne("nowhere", "nothing"))
+oKB5.AddConversationQ("early-setup").
+     SetGoal(StzGoalQ().RequireOne("nowhere", "nothing"))
 try
 	oKB5.ConcludeIn("early-setup", "x")
 catch
