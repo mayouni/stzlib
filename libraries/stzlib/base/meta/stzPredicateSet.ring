@@ -52,7 +52,10 @@ class stzPredicateSet from stzObject
 		if ring_find(@acRules, _cR_) = 0
 			@acRules + _cR_
 		ok
-		return This
+
+		def AddRuleQ(pcRule)
+			This.AddRule(pcRule)
+			return This
 
 	def AddInvariant(pcInv)
 		_cI_ = StzLower(ring_trim("" + pcInv))
@@ -62,7 +65,10 @@ class stzPredicateSet from stzObject
 		if ring_find(@acInvariants, _cI_) = 0
 			@acInvariants + _cI_
 		ok
-		return This
+
+		def AddInvariantQ(pcInv)
+			This.AddInvariant(pcInv)
+			return This
 
 	def Rules()
 		return @acRules

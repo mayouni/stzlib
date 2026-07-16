@@ -65,11 +65,11 @@ class stzApp from stzObject
     # into the app's graph OBJECT, overwrote cName, and emptied aGoals.
     #
     # The slots BELOW stay deliberately bare: they are the brace-DSL contract
-    # (`AddGoal(:X) { Means = "..." }` assigns the bare attribute by name) and the
+    # (`AddGoalQ(:X) { Means = "..." }` assigns the bare attribute by name) and the
     # public data slots read as oGoal.Means. They are the DSL's surface, not
     # internal state -- keep this list SHORT for exactly the reason above.
 
-    # goal-brace cursor attributes (assigned inside AddGoal(...) { ... })
+    # goal-brace cursor attributes (assigned inside AddGoalQ(...) { ... })
     Means      = ""
     ReachedBy  = ""
     Within     = ""
@@ -108,8 +108,11 @@ class stzApp from stzObject
         return @oGraph
 
     #== DOMAIN (Being) =======================================================
-    # AddThing() returns This, so the block  AddThing(:X) { Has(...) Owns(:Y) }  runs the
-    # app's OWN Has/IsTrue/Owns/Of on the current-thing cursor.
+    # AddThing() performs the act and returns NOTHING; AddThingQ() performs it
+    # and hands back the app, so the block  AddThingQ(:X) { Has(...) Owns(:Y) }
+    # runs the app's OWN Has/IsTrue/Owns/Of on the current-thing cursor.
+    # (The core law: a plain name acts, the Q chains -- exactly as stzList
+    # does with AddItem() / AddItemQ().)
 
     def AddThing(pcName)
         n = This._ThingIndex(pcName)
@@ -121,7 +124,10 @@ class stzApp from stzObject
             n = len(@aThings)
         ok
         @nCur = n
-        return This
+
+        def AddThingQ(pcName)
+            This.AddThing(pcName)
+            return This
 
     def Has(paFields)                       # fields of the current thing
         if @nCur > 0  @aThings[@nCur][2] = paFields  ok
@@ -141,12 +147,15 @@ class stzApp from stzObject
 
     def AddRelation(pcFrom, pcRelation, pcTo)     # a free relation between two things
         @aKnows + [ pcFrom, pcRelation, pcTo ]
-        return This
 
     #== BEING -- INSTANCES ===================================================
     # Schema things are declared; INSTANCES populate them. An instance
     # binds to its thing by an "isa" edge; instance relations are
     # labeled edges. Goals (wanted graph states) evaluate over these.
+
+        def AddRelationQ(pcFrom, pcRelation, pcTo)
+            This.AddRelation(pcFrom, pcRelation, pcTo)
+            return This
 
     def AddInstance(pcInstance, pcThing)
         if NOT @oGraph.NodeExists(pcInstance)
@@ -156,7 +165,10 @@ class stzApp from stzObject
             @oGraph.AddNode(pcThing)
         ok
         @oGraph.AddEdgeXT(pcInstance, pcThing, "isa")
-        return This
+
+        def AddInstanceQ(pcInstance, pcThing)
+            This.AddInstance(pcInstance, pcThing)
+            return This
 
     def Relate(pcFrom, pcRelation, pcTo)
         if NOT @oGraph.NodeExists(pcFrom)
@@ -176,7 +188,10 @@ class stzApp from stzObject
         This._FlushCursors()
         @aFlows + [ pcActor, pcVerb, pcThing, [], [] ]
         @nCurFlow = len(@aFlows)
-        return This
+
+        def AddFlowQ(pcActor, pcVerb, pcThing)
+            This.AddFlow(pcActor, pcVerb, pcThing)
+            return This
 
     def Require(pcField)
         if @nCurFlow > 0  @aFlows[@nCurFlow][4] + pcField  ok
@@ -193,7 +208,10 @@ class stzApp from stzObject
         This._FlushCursors()
         @aReactions + [ pcThing, "", [], [] ]
         @nCurReaction = len(@aReactions)
-        return This
+
+        def AddReactionQ(pcThing)
+            This.AddReaction(pcThing)
+            return This
 
     def Unseen(nQty, pUnit)
         if @nCurReaction > 0
@@ -226,7 +244,10 @@ class stzApp from stzObject
         ReachedBy  = :planning
         Within     = ""
         Respecting = []
-        return This
+
+        def AddGoalQ(pcGoal)
+            This.AddGoal(pcGoal)
+            return This
 
     def GoalQ(pcGoal)
         for i = 1 to len(@aGoals)
@@ -379,7 +400,10 @@ class stzApp from stzObject
         This._FlushCursors()
         @aScreens + [ pcName, "understand", "", [], [] ]
         @nCurScreen = len(@aScreens)
-        return This
+
+        def AddScreenQ(pcName)
+            This.AddScreen(pcName)
+            return This
 
     def ToDiscover(pcThing)
         return This._ScreenIntent("discover", pcThing)
@@ -411,7 +435,10 @@ class stzApp from stzObject
         This._FlushCursors()
         @aRefinements + [ pcKnob, "", "", [] ]
         @nCurRefinement = len(@aRefinements)
-        return This
+
+        def AddRefinementQ(pcKnob)
+            This.AddRefinement(pcKnob)
+            return This
 
     def Bounds(pLow, pHigh)
         if @nCurRefinement > 0
@@ -458,7 +485,6 @@ class stzApp from stzObject
         for i = 1 to len(paSurfaces)
             @aReaches + paSurfaces[i]
         next
-        return This
 
     #== CURSOR FLUSHING ======================================================
     # Attribute-style braces (Want/LivesIn) write cursor ATTRIBUTES;
@@ -466,6 +492,10 @@ class stzApp from stzObject
     # the flush is idempotent and cursor-guarded. _FlushCursors() also
     # runs at the start of every builder verb, so a missing brace-end
     # (or plain method chaining) never loses a pending record.
+
+        def AddReachesQ(paSurfaces)
+            This.AddReaches(paSurfaces)
+            return This
 
     def BraceEnd()
         This._FlushCursors()

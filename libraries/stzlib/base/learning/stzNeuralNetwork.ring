@@ -57,7 +57,10 @@ class stzNeuralNetwork from stzObject
 			_aB_ + ((This._NextRand01() - 0.5) * 2)
 		next
 		@aLayers + [ nUnits, _cAct_, _aW_, _aB_ ]
-		return This
+
+		def AddDenseLayerQ(nUnits, pcActivation)
+			This.AddDenseLayer(nUnits, pcActivation)
+			return This
 
 	def NumberOfLayers()
 		return len(@aLayers)

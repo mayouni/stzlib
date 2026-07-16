@@ -10,10 +10,10 @@ load "../_narrated.ring"
 
 # two worlds: a restaurant and its produce supplier
 $oResto = StzAppQ("resto")
-$oResto.AddThing(:dish) { Has([ :name, :price ]) }
+$oResto.AddThingQ(:dish) { Has([ :name, :price ]) }
 
 $oSupplier = StzAppQ("supplier")
-$oSupplier.AddThing(:crate) { Has([ :produce, :qty ]) }
+$oSupplier.AddThingQ(:crate) { Has([ :produce, :qty ]) }
 
 $oCon = new stzSuperApp("acme-group")
 
@@ -77,7 +77,7 @@ EndScenario()
 Scenario("a world is hot-swapped, keeping its node and bonds")
 	Given("a new supplier implementation")
 	oNewSupplier = StzAppQ("supplier-v2")
-	oNewSupplier.AddThing(:pallet) { Has([ :sku ]) }
+	oNewSupplier.AddThingQ(:pallet) { Has([ :sku ]) }
 	When("the live supplier is swapped")
 	$oCon.Swap("supplier", oNewSupplier)
 	Then("still one supplier node (count unchanged)", $oCon.NumberOfWorlds(), 2)

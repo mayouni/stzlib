@@ -78,10 +78,14 @@ class stzWorkerPool from stzObject
 		if @oCatalog.IsPolyglot(pcName)
 			This.ProfileQ(_cTag_).SetExternalTool(@oCatalog.ToolOf(pcName))
 		ok
-		return This
 
 	# Seed one profile per catalog facet at the given budget (the full
 	# breadth). The honest answer to "NLP and Math are not the only facets".
+
+		def AddFacetQ(pcName, nBudget)
+			This.AddFacet(pcName, nBudget)
+			return This
+
 	def SeedAllFacets(nBudget)
 		if nBudget < 1  nBudget = 1  ok
 		_a_ = @oCatalog.Names()
@@ -99,12 +103,12 @@ class stzWorkerPool from stzObject
 		ok
 		@aoProfiles + new stzWorkerProfile(pcTag, paCapabilities, pnBudget)
 		@aQueues + []
-		return This
 
 
 	# the SAME act, returning the NEW profile so you can chain onto it:
 	#   oPool.AddProfileQ("vision", [ :ocr ], 1).SetExternalTool("tesseract")
 	# The verb states the act, the Q states what comes back.
+
 	def AddProfileQ(pcTag, paCapabilities, pnBudget)
 		This.AddProfile(pcTag, paCapabilities, pnBudget)
 		return This.ProfileQ(pcTag)

@@ -43,7 +43,10 @@ class stzCorpus from stzObject
 			@acDocs + pcText
 			@bCounted = 0
 		ok
-		return This
+
+		def AddDocumentQ(pcText)
+			This.AddDocument(pcText)
+			return This
 
 	def Documents()
 		return @acDocs
