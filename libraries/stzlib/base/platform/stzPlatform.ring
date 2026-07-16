@@ -21,10 +21,10 @@
 #      ENFORCEMENT      cross-world calls INTERCEPTED by norms.
 #
 # RING-TRUE DESIGN NOTES (the aliasing doctrine):
-# - ForWorld(oApp) HARVESTS the world's declarations into the
+# - SetWorld(oApp) HARVESTS the world's declarations into the
 #   platform's own plain records at call time (the param is by-ref
 #   only during the call; storing the object would keep a dead copy).
-# - GovernedBy(oGov) SNAPSHOTS the regime -- fitting, since a .zgov
+# - SetGovernedBy(oGov) SNAPSHOTS the regime -- fitting, since a .zgov
 #   governance is a sealed declarative contract; wire it fully
 #   configured.
 # - HTTP route handlers are NAMED GLOBAL FUNCS reading prerendered
@@ -35,7 +35,7 @@
 # IDENTITY SECURITY: Commons secrets are stored as a per-user random
 # SALT + a PBKDF2-HMAC-SHA256 hash (engine KDF), never plaintext;
 # verification re-derives and compares in constant time. Rounds default
-# to 100k and are tunable via WithKdfRounds() (lower them only in tests).
+# to 100k and are tunable via SetKdfRounds() (lower them only in tests).
 # -----------------------------------------------------------------------------
 
 # Prerendered networked-body payloads (route handlers read these by
@@ -240,10 +240,14 @@ class stzPlatform from stzObject
 
 	#== 1. GENERATION ========================================================
 
-	# Harvest the world's declarations (see aliasing note in header). The
-	# world is ASKED through its own accessors -- a platform never reaches
-	# into another object's attributes.
-	def ForWorld(poApp)
+	# SET the world this platform envelopes -- by HARVESTING its declarations
+	# into the platform's own records, right now. It does NOT hold the world:
+	# Ring copies an object into an attribute, so a held stzApp would be a dead
+	# snapshot the moment the caller touched it (see the aliasing note in the
+	# header). Call this AFTER the world is declared. The world is ASKED through
+	# its own accessors -- a platform never reaches into another object's
+	# attributes. (A constellation ADDs many worlds; a platform SETs its one.)
+	def SetWorld(poApp)
 		@cWorldName = poApp.Name()
 		@aWorldReaches = poApp.Surfaces()
 		@aWorldThings = poApp.Things()
@@ -257,7 +261,7 @@ class stzPlatform from stzObject
 	# or an unknown reach surface (LAW 3: refuse, never stub).
 	def Generate(pWhat)
 		if NOT @bHasWorld
-			stzraise("stzPlatform.Generate: no world attached -- ForWorld(oApp) first.")
+			stzraise("stzPlatform.Generate: no world attached -- SetWorld(oApp) first.")
 		ok
 		if len(@aWorldReaches) = 0
 			stzraise("stzPlatform.Generate: the world '" + @cWorldName +
@@ -320,7 +324,7 @@ class stzPlatform from stzObject
 		_c_ += "# desktop shell: restore the world body and serve it locally" + _cNL_
 		_c_ += 'oApp = StzAppQ("' + @cWorldName + '")' + _cNL_
 		_c_ += "oPlat = StzPlatformQ('" + @cName + "')" + _cNL_
-		_c_ += "oPlat.ForWorld(oApp)" + _cNL_
+		_c_ += "oPlat.SetWorld(oApp)" + _cNL_
 		_c_ += "oPlat.ServeBody(8080)" + _cNL_
 		_c_ += "oPlat.HostQ().Run()" + _cNL_
 		return _c_
@@ -339,7 +343,7 @@ class stzPlatform from stzObject
 
 	# Wire the (fully configured, sealed) governance regime. Declares
 	# the platform's capability risk tiers into it when undeclared.
-	def GovernedBy(poGov)
+	def SetGovernedBy(poGov)
 		@oGov = poGov
 		This._EnsureCapabilityRisks()
 		return This
@@ -407,7 +411,7 @@ class stzPlatform from stzObject
 	# Identity / sessions / messaging / stores over an OPEN stzDatabase.
 	# (The stored object shares the engine handle -- live; keep the
 	# original open while the platform runs.)
-	def CommonsOn(poDb)
+	def OpenCommonsOn(poDb)
 		@oDb = poDb
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_identity(user TEXT PRIMARY KEY, secret TEXT)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_session(token TEXT PRIMARY KEY, user TEXT, opened_ms INTEGER)")
@@ -418,12 +422,12 @@ class stzPlatform from stzObject
 
 	def _NeedCommons()
 		if NOT @bCommonsReady
-			stzraise("stzPlatform: the Commons is not wired -- CommonsOn(oDb) first.")
+			stzraise("stzPlatform: the Commons is not wired -- OpenCommonsOn(oDb) first.")
 		ok
 
 	# Tune the KDF cost. Default 100k; lower ONLY in tests. Must be set
 	# before RegisterIdentity (a stored hash is bound to the rounds used).
-	def WithKdfRounds(nRounds)
+	def SetKdfRounds(nRounds)
 		if nRounds < 1
 			stzraise("KDF rounds must be >= 1.")
 		ok

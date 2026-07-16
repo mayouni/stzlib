@@ -49,7 +49,7 @@ class stzRequestClassifier from stzObject
 
 	# Bind to a specific (e.g. a cluster's) catalog -- so the router routes
 	# to exactly the facets THAT deployment offers.
-	def UsingCatalog(poCatalog)
+	def SetCatalog(poCatalog)
 		@oCatalog = poCatalog
 		return This
 

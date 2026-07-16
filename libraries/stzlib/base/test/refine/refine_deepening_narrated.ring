@@ -88,8 +88,8 @@ chk(":llm still fails the :sandboxed floor (lowest trust)",
 ? ""
 ? "-- Scene 3: trust + governance are INDEPENDENT gates --"
 g = new stzRefinableCode(cSrc)
-g.GovernedBy(new stzGovernance("menu")).AsActor("owner")
-g.RiskFor("vat", 1).AllowRefine("vat").WithAuthority(:Delegated)
+g.SetGovernedBy(new stzGovernance("menu")).SetActor("owner")
+g.SetRiskFor("vat", 1).SetAllowRefine("vat").SetAuthorityLevel(:Delegated)
 g.TrustFloor("vat", :trusted)
 chk("a governed + trusted edit passes BOTH gates",
 	g.Refine("vat").As(:trusted).To("0.22")[:admitted] = 1)

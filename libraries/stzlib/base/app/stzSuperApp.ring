@@ -10,7 +10,7 @@
 #   oCon = new stzSuperApp("acme")
 #   oCon.AddWorld("resto", oRestoApp)
 #   oCon.AddWorld("supplier", oSupplierApp)
-#   oCon.CommonsOn(oDb)                       # world-zero backing store
+#   oCon.OpenCommonsOn(oDb)                       # world-zero backing store
 #   oCon.GovDeclareRisk("order-produce", 2)
 #   oCon.GovGrant("resto", "order-produce")
 #   oCon.GovSetAuthority("resto", :Delegated)
@@ -146,8 +146,8 @@ class stzSuperApp from stzObject
 	#-- the Commons (world zero) -------------------------------------------
 
 	# Back the shared Commons with an open stzDatabase.
-	def CommonsOn(poDb)
-		@oCommons.CommonsOn(poDb)
+	def OpenCommonsOn(poDb)
+		@oCommons.OpenCommonsOn(poDb)
 		return This
 
 	def RegisterIdentity(pcUser, pcSecret)

@@ -54,9 +54,9 @@ Scenario("a governance refusal stops the act, not the tick")
 	oWeak.GovernanceQ().GrantPermission("weak-bot", "order-stock")
 	oWeak.GovernanceQ().SetAuthority("weak-bot", :Delegated)   # level 2
 	oSk = new stzAgentSkill("restock")
-	oSk.When(func oMem { return oMem.Fact("stock", "level", "low") })
-	oSk.Does(func oMem { oMem.Learn("stock", "level", "ordered")  return 1 })
-	oSk.VerifiedBy(func oMem { return oMem.Fact("stock", "level", "ordered") })
+	oSk.SetWhen(func oMem { return oMem.Fact("stock", "level", "low") })
+	oSk.SetDoes(func oMem { oMem.Learn("stock", "level", "ordered")  return 1 })
+	oSk.SetVerifiedBy(func oMem { return oMem.Fact("stock", "level", "ordered") })
 	oWeak.AddGovernedSkill(oSk, "order-stock")
 	$oHost.Supervise(oWeak, 20)
 	When("the host runs the loop")
@@ -161,13 +161,13 @@ func BuildKitchenBot()
 	oAg.GovernanceQ().GrantPermission("kitchen-bot", "order-stock")
 	oAg.GovernanceQ().SetAuthority("kitchen-bot", :Delegated)
 	oSk = new stzAgentSkill("restock")
-	oSk.When(func oMem { return oMem.Fact("stock", "level", "low") })
-	oSk.Does(func oMem {
+	oSk.SetWhen(func oMem { return oMem.Fact("stock", "level", "low") })
+	oSk.SetDoes(func oMem {
 		oMem.Forget("stock", "level", "low")
 		oMem.Learn("stock", "level", "ordered")
 		return 1
 	})
-	oSk.VerifiedBy(func oMem { return oMem.Fact("stock", "level", "ordered") })
+	oSk.SetVerifiedBy(func oMem { return oMem.Fact("stock", "level", "ordered") })
 	oAg.AddGovernedSkill(oSk, "order-stock")
 	return oAg
 
@@ -179,13 +179,13 @@ func BuildOrderBot()
 	oSk = new stzAgentSkill("log-order")
 	# event-driven: fire every cycle (one cycle == one delivered event); the
 	# act PERCEIVES the latest event off the engine bus and records it.
-	oSk.When(func oMem { return TRUE })
-	oSk.Does(func oMem {
+	oSk.SetWhen(func oMem { return TRUE })
+	oSk.SetDoes(func oMem {
 		oB = new stzEventBus()
 		cLast = oB.LastEvent("orders")
 		oMem.Learn("order", "last", cLast)
 		return 1
 	})
-	oSk.VerifiedBy(func oMem { return TRUE })
+	oSk.SetVerifiedBy(func oMem { return TRUE })
 	oAg.AddGovernedSkill(oSk, "log-order")
 	return oAg

@@ -23,7 +23,7 @@ $oApp.Screen(:menu)
 $oApp.Reaches([ :web, :desktop ])
 
 $oPlat = StzPlatformQ("resto-envelope")
-$oPlat.ForWorld($oApp)
+$oPlat.SetWorld($oApp)
 
 Scenario("GENERATION: declared Reach becomes real per-platform shells")
 	Given("a world reaching :web and :desktop, enveloped by a platform")
@@ -41,7 +41,7 @@ Scenario("GENERATION: declared Reach becomes real per-platform shells")
 	When("a world WITHOUT any Reach asks for generation")
 	oBare = StzAppQ("bare")
 	oPlat2 = StzPlatformQ("bare-envelope")
-	oPlat2.ForWorld(oBare)
+	oPlat2.SetWorld(oBare)
 	bRaised = FALSE
 	try
 		oPlat2.Generate(:all)
@@ -57,7 +57,7 @@ Scenario("CAPABILITY SEAM: capabilities are governed by construction")
 	oGov.GrantPermission("resto", "use-camera")     # CAN
 	oGov.GrantPermission("resto", "use-payments")   # CAN, but...
 	oGov.SetAuthority("resto", :Delegated)          # SHOULD level 2
-	$oPlat.GovernedBy(oGov)
+	$oPlat.SetGovernedBy(oGov)
 
 	When("the world admits :camera for a declared purpose")
 	$oPlat.Admits(:camera).With([ :scan_dish_photo ])
@@ -77,7 +77,7 @@ EndScenario()
 Scenario("COMMONS: identity, sessions, messaging and stores over sqlite")
 	Given("an in-memory engine database wired as the Commons")
 	$oDb = new stzDatabase(":memory:")
-	$oPlat.CommonsOn($oDb)
+	$oPlat.OpenCommonsOn($oDb)
 
 	When("two identities register")
 	Then("mansour registers", $oPlat.RegisterIdentity("mansour", "s3cret"), TRUE)
@@ -143,7 +143,7 @@ Scenario("REGISTRY + ENFORCEMENT: cross-world calls are norm-gated")
 	oGov2.DeclareRisk("order-produce", 2)
 	oGov2.GrantPermission("resto", "order-produce")
 	oGov2.SetAuthority("resto", :Delegated)
-	$oPlat.GovernedBy(oGov2)
+	$oPlat.SetGovernedBy(oGov2)
 	Then("the bonded, governed call proceeds",
 		$oPlat.CallAcross("resto", "supplier", "order-produce"), TRUE)
 

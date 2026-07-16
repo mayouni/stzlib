@@ -15,7 +15,7 @@
 #   oHost = new stzAgentHost()
 #   oHost.Supervise(oKitchenBot, 50)         # TIMER-driven: tick every 50ms
 #   oHost.SuperviseOnEvent(oOrderBot, "orders") # EVENT-driven: tick per event
-#   oHost.GovernRetirementWith(oGov)         # R4b decommission gate
+#   oHost.SetRetirementGovernance(oGov)         # R4b decommission gate
 #   oHost.RunFor(500)                        # perceive-act on the loop
 #   ? oHost.TicksOf("kitchen-bot")
 #   oHost.Retire("kitchen-bot")              # only if obligations met
@@ -51,7 +51,7 @@ class stzAgentHost from stzObject
 
 	# Share another host's loop (e.g. an stzAppServer's) instead of
 	# owning one -- "the agent host is the same host".
-	def UsingReactor(poReactor)
+	def SetReactor(poReactor)
 		if @bOwnsReactor and @oReactor != NULL
 			@oReactor.Destroy()
 		ok
@@ -71,7 +71,7 @@ class stzAgentHost from stzObject
 	# declared and fulfilled THROUGH THE HOST (below), which mutates
 	# this live copy. Fulfilling on the caller's original would leave
 	# the host's copy stale (the Ring aliasing doctrine).
-	def GovernRetirementWith(poGov)
+	def SetRetirementGovernance(poGov)
 		@oGov = poGov
 		return This
 

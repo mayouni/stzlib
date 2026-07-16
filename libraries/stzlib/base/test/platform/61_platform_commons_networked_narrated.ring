@@ -19,7 +19,7 @@ $CRLF = char(13) + char(10)
 
 oDb = new stzDatabase(":memory:")
 oP = new stzPlatform("acme")
-oP.CommonsOn(oDb)
+oP.OpenCommonsOn(oDb)
 oP.RegisterIdentity("alice", "pw123")
 oP.RegisterIdentity("bob", "pw456")
 oP.ServeBody(0)

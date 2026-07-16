@@ -79,7 +79,7 @@ class stzComputePipeline from stzObject
 	# budget (load isolation across the pipeline; R8.1). Facets not in the
 	# pool run unbudgeted. NOTE: the pipeline works on ITS pool (Ring stores
 	# a copy) -- read metrics via PoolQ(), not the caller's original.
-	def UsingPool(poPool)
+	def SetPool(poPool)
 		@oPool = poPool
 		return This
 

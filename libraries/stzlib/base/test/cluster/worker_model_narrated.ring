@@ -114,7 +114,7 @@ Scenario("FACET != MODULE: the naming law and the facet->module provenance")
 	# facet, declare one with NO modules recorded
 	oLog = new stzWorkerProfile("forecast", [ :predict, :trend ], 1)
 	Then("with no RealizedBy it is :logical", oLog.MappingKind(), :logical)
-	oLog.RealizedBy([ "learning", "datetime" ])
+	oLog.SetRealizedBy([ "learning", "datetime" ])
 	Then("once mapped to 2+ modules it is :composed", oLog.MappingKind(), :composed)
 
 	Then("asymmetry proves they differ: ~18 facets, far more modules",

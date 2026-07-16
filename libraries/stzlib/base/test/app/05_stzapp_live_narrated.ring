@@ -52,9 +52,9 @@ Scenario("the live world runs as a supervised agent on the reactor")
 	# the skill: whenever there are un-actioned proposals, 'schedule'
 	# the first (relate it) so the world converges -- driven by Pulse
 	oSk = new stzAgentSkill("schedule-checkups")
-	oSk.When(func oMem { return oMem.Fact("clinic", "has", "pending") })
-	oSk.Does(func oMem { oMem.Forget("clinic", "has", "pending")  return 1 })
-	oSk.VerifiedBy(func oMem { return 1 })
+	oSk.SetWhen(func oMem { return oMem.Fact("clinic", "has", "pending") })
+	oSk.SetDoes(func oMem { oMem.Forget("clinic", "has", "pending")  return 1 })
+	oSk.SetVerifiedBy(func oMem { return 1 })
 	oWorldBot.AddSkill(oSk)
 	oWorldBot.MemoryQ().Learn("clinic", "has", "pending")
 

@@ -95,7 +95,7 @@ class stzWorkerProfile from stzObject
 	# Mark this profile as a POLYGLOT worker backed by an external tool
 	# (run off-process via the reactor's async spawn -- R8.3). Vision/OCR
 	# is the canonical case (no engine image support).
-	def UsesExternalTool(pcTool)
+	def SetExternalTool(pcTool)
 		@cExternalTool = "" + pcTool
 		return This
 
@@ -111,7 +111,7 @@ class stzWorkerProfile from stzObject
 	# to none (:vision -- external; :search -- composed-only). This is a
 	# recorded RELATION between the facet-graph and stzCodeGraph, not an
 	# identity. See the R8 naming law.
-	def RealizedBy(paModules)
+	def SetRealizedBy(paModules)
 		if isList(paModules)
 			@aRealizedBy = paModules
 		else

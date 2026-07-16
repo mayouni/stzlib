@@ -13,14 +13,14 @@
 #
 #   oPool = new stzWorkerPool()
 #   oPool.AddProfile("nlp",  [ :sentiment, :classify ], 4)
-#   oPool.AddProfileQ("vision", [ :ocr ], 1).UsesExternalTool("tesseract")
+#   oPool.AddProfileQ("vision", [ :ocr ], 1).SetExternalTool("tesseract")
 #   r = oPool.Dispatch("nlp", func { return StzEngineTextSentiment("great!") })
 #   ? r[:admitted]   # 1 -> ran now; 0 -> queued (Drain() runs it as slots free)
 #
 # R8.1 is the in-process FOUNDATION (admission + dispatch + isolation +
 # metrics). The FLEET of worker PROCESSES (reactor spawn) and the async
 # proxy (reactor curl/TCP) land in R8.3; a reactor pool can be attached
-# now via UsingReactorPool() for the later distribution wiring.
+# now via SetReactorPool() for the later distribution wiring.
 # -----------------------------------------------------------------------------
 
 func StzWorkerPoolQ()
@@ -49,7 +49,7 @@ class stzWorkerPool from stzObject
 		return @oCatalog
 
 	# Swap in a fully-built custom catalog (build it before adding facets).
-	def UsingCatalog(poCatalog)
+	def SetCatalog(poCatalog)
 		@oCatalog = poCatalog
 		return This
 
@@ -74,9 +74,9 @@ class stzWorkerPool from stzObject
 		This.AddProfile(_cTag_, @oCatalog.CapabilitiesOf(pcName), nBudget)
 		# call THROUGH Profile() each time -- assigning to a local COPIES
 		# the profile (Ring aliasing), so the mutation would be discarded.
-		This.ProfileQ(_cTag_).RealizedBy(@oCatalog.ModulesOf(pcName))
+		This.ProfileQ(_cTag_).SetRealizedBy(@oCatalog.ModulesOf(pcName))
 		if @oCatalog.IsPolyglot(pcName)
-			This.ProfileQ(_cTag_).UsesExternalTool(@oCatalog.ToolOf(pcName))
+			This.ProfileQ(_cTag_).SetExternalTool(@oCatalog.ToolOf(pcName))
 		ok
 		return This
 
@@ -103,7 +103,7 @@ class stzWorkerPool from stzObject
 
 
 	# the SAME act, returning the NEW profile so you can chain onto it:
-	#   oPool.AddProfileQ("vision", [ :ocr ], 1).UsesExternalTool("tesseract")
+	#   oPool.AddProfileQ("vision", [ :ocr ], 1).SetExternalTool("tesseract")
 	# The verb states the act, the Q states what comes back.
 	def AddProfileQ(pcTag, paCapabilities, pnBudget)
 		This.AddProfile(pcTag, paCapabilities, pnBudget)
@@ -138,7 +138,7 @@ class stzWorkerPool from stzObject
 		next
 		return ""
 
-	def UsingReactorPool(poReactorPool)
+	def SetReactorPool(poReactorPool)
 		@oReactorPool = poReactorPool
 		return This
 
