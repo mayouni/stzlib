@@ -164,4 +164,51 @@ else
 	? "  [skip] Python not on PATH -- AST-backend scenarios skipped"
 ok
 
+# ---- the TREE-SITTER backend (real parse IN the engine, NO runtime) ----
+# The polyglot substrate: vendored tree-sitter runtime + Python grammar,
+# compiled into the engine. Same real-parse quality + call edges as the
+# Python-ast path, but with ZERO external dependency.
+
+if StzTreeSitterAvailable()
+
+	$cPyTs = "import os.path" + nl +
+	         "from collections import OrderedDict as OD" + nl +
+	         "class Base:" + nl +
+	         "    @property" + nl +
+	         "    def label(self): return self._n" + nl +
+	         "class Worker(Base):" + nl +
+	         "    @staticmethod" + nl +
+	         "    def run(): return helper()" + nl +
+	         "    if True:" + nl +
+	         "        def maybe(self): return self.run()" + nl +
+	         "def helper(): return recurse(2)" + nl +
+	         "def recurse(n): return recurse(n - 1)" + nl +
+	         "def orphan(): return 1" + nl
+	$oTs = StzPyCodeGraphFromSourceTS($cPyTs)
+
+	Scenario("tree-sitter: a REAL parse in the engine, no Python runtime")
+		Then("the decorated @staticmethod is a method of Worker",
+			ring_find($oTs.MethodsOf("Worker"), "run") > 0, TRUE)
+		Then("the def inside 'if True:' is captured too",
+			ring_find($oTs.MethodsOf("Worker"), "maybe") > 0, TRUE)
+		Then("the @property method is captured",
+			ring_find($oTs.MethodsOf("Base"), "label") > 0, TRUE)
+		Then("a DOTTED import is recorded",
+			ring_find($oTs.ImportsOf("<source>"), "os.path") > 0, TRUE)
+		Then("inheritance resolves", $oTs.AncestryOf("Worker")[2], "Base")
+	EndScenario()
+
+	Scenario("tree-sitter: CALL edges + DeadCode + CyclicCalls, runtime-free")
+		Then("call edges were extracted in-engine", $oTs.HasCallEdges(), TRUE)
+		Then("who calls helper() is known", $oTs.CallersOf("helper")[1], "run")
+		Then("the uncalled function is flagged dead",
+			ring_find($oTs.DeadCode(), "orphan") > 0, TRUE)
+		Then("self-recursion is a call cycle",
+			ring_find($oTs.CyclicCalls(), "recurse") > 0, TRUE)
+	EndScenario()
+
+else
+	? "  [skip] stz_polyglot.dll not built -- tree-sitter scenarios skipped"
+ok
+
 Summary()
