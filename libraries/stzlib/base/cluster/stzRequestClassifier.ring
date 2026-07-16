@@ -154,7 +154,7 @@ class stzRequestClassifier from stzObject
 		return ""
 
 	# COMPAT (retires the pre-engine classifier in place): the old
-	# stzLoadBalancer calls this with an stzAppRequest.
+	# The fleet router calls this with an stzAppRequest.
 	def ClassifyComputationalDomain(oRequest)
 		return This.Classify(oRequest.Method(), oRequest.Path(), "", oRequest.Body())
 
