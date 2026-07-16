@@ -7,7 +7,8 @@
 #   oPS.AddRule("no-len-method")             # from StzCodeRuleNames()
 #   oPS.AddInvariant("no-llm-effectful")     # from StzGovernanceInvariantNames()
 #   oPS.Save("house.zrlz")                  # content + sha256 seal
-#   oPS2 = StzLoadPredicateSet("house.zrlz")
+#   oPS2 = new stzPredicateSet("")
+#   oPS2.LoadFrom("house.zrlz")
 #   ? oPS2.Verify()                          # seal intact?
 #   ? oPS2.EnforceOnCode(cSource)            # only ITS code rules
 #
@@ -17,35 +18,6 @@
 #   invariants   <one graph-invariant name per line>
 #   seal | <sha256 of the body above>
 
-func StzLoadPredicateSet(pcFile)
-	_cContent_ = StzReplace(read(pcFile), char(13), "")
-	_acLines_ = StzSplit(_cContent_, char(10))
-	_oPS_ = new stzPredicateSet("")
-	_cSection_ = ""
-	_nLen_ = len(_acLines_)
-	for _i_ = 1 to _nLen_
-		_cL_ = ring_trim(_acLines_[_i_])
-		if _cL_ = ""
-			loop
-		ok
-		if StzLeft(_cL_, 13) = 'predicateset '
-			_acQ_ = StzSplit(_cL_, '"')
-			if len(_acQ_) >= 2
-				_oPS_ = new stzPredicateSet(_acQ_[2])
-			ok
-		but _cL_ = "rules"
-			_cSection_ = "rules"
-		but _cL_ = "invariants"
-			_cSection_ = "invariants"
-		but StzLeft(_cL_, 6) = "seal |"
-			_oPS_._SetSeal(StzSectionAfter(_cL_))
-		but _cSection_ = "rules"
-			_oPS_.AddRule(_cL_)
-		but _cSection_ = "invariants"
-			_oPS_.AddInvariant(_cL_)
-		ok
-	next
-	return _oPS_
 
 func StzSectionAfter(pcLine)
 	_acParts_ = StzSplit(pcLine, "|")
@@ -64,6 +36,10 @@ class stzPredicateSet from stzObject
 
 	def init(pcName)
 		@cName = "" + pcName
+
+	def SetName(pcName)
+		@cName = "" + pcName
+		return This
 
 	def Name_()
 		return @cName
@@ -109,6 +85,37 @@ class stzPredicateSet from stzObject
 
 	def Seal()
 		return StzEngineCryptoSha256(This._Body())
+
+	# LOAD a sealed .stzrules back INTO this set -- the mirror of Save(),
+	# and the object's OWN act (LoadFrom: 'Load' is a Ring keyword).
+	def LoadFrom(pcFile)
+		_cContent_ = StzReplace(read(pcFile), char(13), "")
+		_acLines_ = StzSplit(_cContent_, char(10))
+		_cSection_ = ""
+		_nLen_ = len(_acLines_)
+		for _i_ = 1 to _nLen_
+			_cL_ = ring_trim(_acLines_[_i_])
+			if _cL_ = ""
+				loop
+			ok
+			if StzLeft(_cL_, 13) = 'predicateset '
+				_acQ_ = StzSplit(_cL_, '"')
+				if len(_acQ_) >= 2
+					This.SetName(_acQ_[2])
+				ok
+			but _cL_ = "rules"
+				_cSection_ = "rules"
+			but _cL_ = "invariants"
+				_cSection_ = "invariants"
+			but StzLeft(_cL_, 6) = "seal |"
+				This._SetSeal(StzSectionAfter(_cL_))
+			but _cSection_ = "rules"
+				This.AddRule(_cL_)
+			but _cSection_ = "invariants"
+				This.AddInvariant(_cL_)
+			ok
+		next
+		return This
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zrlz"

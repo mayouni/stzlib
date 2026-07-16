@@ -35,7 +35,7 @@ class stzListOfTexts from stzStringList
 	# the MEANING of each fragment (semantic similarity, sentiment), so a fluent
 	# chain like Q(text).SentencesQ().MostSimilarByMeaning(query) / .ThatAre(
 	# :Positive) works. Semantic ops upgrade to neural embeddings when a model is
-	# loaded (StzUseNeuralModel(path)), else degrade to lexical -- see
+	# loaded (StzNeuralModelQ(path)), else degrade to lexical -- see
 	# StzSemanticSimilarity().
 
 	# The text most similar to pcQuery by MEANING. Uses the loaded neural model's

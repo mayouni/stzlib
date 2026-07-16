@@ -56,7 +56,8 @@ chk("the corpus renders every fact as a sentence (teacher-free)",
 ? "-- Scene 6: the bundle is SELF-CONTAINED (*.stzdlm) --"
 oDLM.AddGolden("what is margherita", "Margherita is a dish.")
 cF = oDLM.Save("t_dlm_accept")
-oD2 = StzLoadDLM(cF)
+oD2 = StzDlmQ("")
+oD2.LoadFrom(cF)
 chk("the reloaded DLM answers WITHOUT the original graph",
 	oD2.Ask("what is tiramisu") = "Tiramisu is a dish.")
 chk("its goldens travel and pass", oD2.RunGoldens()[:passed] = 1)

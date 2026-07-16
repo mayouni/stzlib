@@ -196,7 +196,7 @@ Scenario("Concordance / keyword in context")
 EndScenario()
 
 Scenario("Semantic layer -- graceful lexical fallback with no model loaded")
-	# The embedding-backed ops (upgraded when StzUseNeuralModel(path) is called)
+	# The embedding-backed ops (upgraded when StzNeuralModelQ(path) is called)
 	# degrade to lexical bag-of-words when no neural model is present, so the
 	# API always works. Model-free here; the true-semantic path is verified
 	# manually with a BERT GGUF (see below).
@@ -214,7 +214,7 @@ Scenario("Semantic layer -- graceful lexical fallback with no model loaded")
 	Then("IsSemanticallySimilarTo respects the threshold",
 		o.IsSemanticallySimilarTo("The cat sits on the mat", 0.5), TRUE)
 	# MANUAL (needs a BERT GGUF, e.g. all-MiniLM-L6-v2 -- large, not committed):
-	#   StzUseNeuralModel(cPath)
+	#   StzNeuralModelQ(cPath)
 	#   Q("The cat sits on the mat").TextQ().SemanticSimilarityWith("A kitten rests on the rug")
 	#     -> ~0.65 (semantic); vs "Stock markets fell today" -> ~0.06
 	#   new stzText("... Cats are wonderful pets.").MostSimilarSentenceTo("feline animals")
@@ -223,7 +223,7 @@ EndScenario()
 
 Scenario("Zero-shot classification -- rank arbitrary labels, no training")
 	# Model-free here (deterministic lexical fallback with lexically-distinct
-	# labels). With StzUseNeuralModel(path) it ranks by MEANING instead.
+	# labels). With StzNeuralModelQ(path) it ranks by MEANING instead.
 	t = new stzText("the stock market prices fell sharply on wall street today")
 	Then("ClassifiedAs picks the closest label",
 		t.ClassifiedAs([ "market finance", "cooking food" ]), "market finance")
@@ -273,7 +273,7 @@ Scenario("Transformer NER -- token classification when a NER-head GGUF is loaded
 	Then("NamedEntities() still works via the rule-based fallback",
 		len(t.NamedEntities()) >= 1, TRUE)
 	# MANUAL (with a NER-head GGUF, verified with cstr/bert-base-NER-GGUF):
-	#   StzUseNeuralModel(cNerPath)
+	#   StzNeuralModelQ(cNerPath)
 	#   new stzText("Angela Merkel met Emmanuel Macron in Berlin").NamedEntities()
 	#     -> [[Angela Merkel,PERSON],[Emmanuel Macron,PERSON],[Berlin,LOCATION]]
 	#   "The New York Times reported from Washington" -> The New York Times:
@@ -294,7 +294,7 @@ Scenario("Cross-encoder reranking -- retrieve-then-rerank second stage")
 	Then("RankedForQueryQQ is stzListOfPairs",
 		classname(docs.RankedForQueryQQ("x")), "stzlistofpairs")
 	# MANUAL (with a reranker GGUF, verified with jina-reranker-v1-turbo-en):
-	#   StzUseNeuralModel(cRerankerPath)
+	#   StzNeuralModelQ(cRerankerPath)
 	#   new stzListOfTexts([...]).RankedForQuery("training AI models")
 	#     -> "Machine learning models are trained..." ranks above unrelated docs.
 	#   Cross-encoder = joint [CLS] query [SEP] doc scoring; jina-bert-v2's ALiBi +

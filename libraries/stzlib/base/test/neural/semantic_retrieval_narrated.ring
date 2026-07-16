@@ -25,7 +25,7 @@ ok
 # --- RERANKER path (cross-encoder), if a reranker GGUF is present ---
 cRr = FindModel("rerank")
 if cRr != ""
-	StzUseNeuralModel(cRr)
+	StzNeuralModelQ(cRr)
 	if StzHasRerankerModel()
 		RunSemanticScenarios("reranker")
 		Scenario("[reranker] cross-encoder orders relevant above irrelevant")

@@ -55,7 +55,7 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 	#   -> arch=bert dim=384 layers=6 heads=12 ctx=512 vocab=30522 tensors=101.
 	#   m.EmbeddingOf("the cat sat")            -> 384-float L2-normalized vector
 	#   m.SemanticSimilarityBetween(a, b)       -> cosine; related ~0.65, unrelated ~0.05
-	# Once StzUseNeuralModel(cPath) is called, the stzText layer upgrades to
+	# Once StzNeuralModelQ(cPath) is called, the stzText layer upgrades to
 	# embeddings automatically:
 	#   Q(str).TextQ().SemanticSimilarityWith(other) / MostSimilarSentenceTo(q)
 	#   stzText.SummarySentences(n) -> embedding-TextRank (cosine graph + PageRank)

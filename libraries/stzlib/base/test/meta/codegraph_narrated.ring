@@ -142,14 +142,17 @@ oPS.AddRule("no-len-method")
 oPS.AddInvariant("no-llm-effectful")
 cRulesFile = oPS.Save("t_house_accept")
 
-oPS2 = StzLoadPredicateSet(cRulesFile)
+oPS2 = new stzPredicateSet("")
+
+oPS2.LoadFrom(cRulesFile)
 chk("the loaded set verifies its seal", oPS2.Verify() = TRUE)
 chk("the set enforces ONLY its own rules",
 	len(oPS2.EnforceOnCode("class F" + nl + "def Len()" + nl + "return 1")) = 1)
 
 cT = read(cRulesFile)
 write(cRulesFile, StzReplace(cT, "no-len-method", "q-returns-object"))
-oPS3 = StzLoadPredicateSet(cRulesFile)
+oPS3 = new stzPredicateSet("")
+oPS3.LoadFrom(cRulesFile)
 chk("a tampered set BREAKS its seal", oPS3.Verify() = FALSE)
 remove(cRulesFile)
 

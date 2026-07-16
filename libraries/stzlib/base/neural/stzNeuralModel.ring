@@ -19,12 +19,13 @@
 func StzNeuralModelQ(pcPath)
 	return new stzNeuralModel(pcPath)
 
-# StzUseNeuralModel(cPath) -- load a neural embedding model process-wide (into
-# the engine's single active slot) so the text-meaning layer (stzText) and the
-# string-list similarity ops transparently upgrade from lexical bag-of-words to
-# true semantic embeddings. Returns the stzNeuralModel object.
-func StzUseNeuralModel(pcPath)
-	return new stzNeuralModel(pcPath)
+# NOTE: there is no StzNeuralModelQ() global. "Using" a model IS the object's
+# own act -- StzNeuralModelQ(cPath) constructs it and its LoadFrom() loads the
+# GGUF into the engine's single active slot, which is what makes the text-meaning
+# layer (stzText) and the similarity ops upgrade from lexical to semantic:
+#     oModel = StzNeuralModelQ(cPath)      # construct + load (+ activate)
+#     oModel.LoadFrom(cOtherPath)          # or point it at another GGUF later
+# A global verb here would only obscure whose act it is.
 
 # TRUE if a runtime neural embedding model is currently loaded and ready.
 func StzHasNeuralModel()
@@ -50,7 +51,7 @@ func StzAutoLoadNeuralModel()
 	_n_ = len(_aE_)
 	for _i_ = 1 to _n_
 		if _aE_[_i_][2] = 0 and len(_aE_[_i_][1]) >= 5 and right(lower(_aE_[_i_][1]), 5) = ".gguf"
-			StzUseNeuralModel(_d_ + "/" + _aE_[_i_][1])
+			StzNeuralModelQ(_d_ + "/" + _aE_[_i_][1])
 			return StzHasNeuralModel()
 		ok
 	next

@@ -18,7 +18,7 @@ if NOT StzHasGenerativeModel()
 	nGg = len(_aGg_)
 	for iGg = 1 to nGg
 		if _aGg_[iGg][2] = 0 and StzFindFirst(lower(_aGg_[iGg][1]), ".gguf") > 0
-			StzUseNeuralModel("../../../models/" + _aGg_[iGg][1])
+			StzNeuralModelQ("../../../models/" + _aGg_[iGg][1])
 			if StzHasGenerativeModel() exit ok
 		ok
 	next

@@ -16,48 +16,6 @@
 # MECHANISM ONLY: no fixed constitution ships with Softanza; regimes
 # are product space (the 5.7 boundary). FORMAT: *.zgov.
 
-func StzLoadGovernance(pcFile)
-	_cContent_ = StzReplace(read(pcFile), char(13), "")
-	_acLines_ = StzSplit(_cContent_, char(10))
-	_oG_ = new stzGovernance("")
-	_cSection_ = ""
-	_nLen_ = len(_acLines_)
-	for _i_ = 1 to _nLen_
-		_cL_ = ring_trim(_acLines_[_i_])
-		if _cL_ = ""
-			loop
-		ok
-		if StzLeft(_cL_, 11) = 'governance '
-			_acQ_ = StzSplit(_cL_, '"')
-			if len(_acQ_) >= 2
-				_oG_.SetName(_acQ_[2])
-			ok
-		but _cL_ = "risks" or _cL_ = "permissions" or _cL_ = "authorities" or
-		    _cL_ = "postures"
-			_cSection_ = _cL_
-		but _cSection_ = "risks"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oG_.DeclareRisk(ring_trim(_acP_[1]), ring_number(ring_trim(_acP_[2])))
-			ok
-		but _cSection_ = "permissions"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oG_.GrantPermission(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		but _cSection_ = "authorities"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oG_.SetAuthority(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		but _cSection_ = "postures"
-			_acP_ = StzSplit(_cL_, "|")
-			if len(_acP_) = 2
-				_oG_.DeclarePosture(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
-			ok
-		ok
-	next
-	return _oG_
 
 
 class stzGovernance from stzObject
@@ -364,6 +322,50 @@ class stzGovernance from stzObject
 		return 1
 
 	#-- persistence (*.zgov) ------------------------------------------------------
+
+	# LOAD a .zgov back INTO this governance -- the mirror of Save(), and
+	# the object's OWN act (LoadFrom: 'Load' is a Ring keyword).
+	def LoadFrom(pcFile)
+		_cContent_ = StzReplace(read(pcFile), char(13), "")
+		_acLines_ = StzSplit(_cContent_, char(10))
+		_cSection_ = ""
+		_nLen_ = len(_acLines_)
+		for _i_ = 1 to _nLen_
+			_cL_ = ring_trim(_acLines_[_i_])
+			if _cL_ = ""
+				loop
+			ok
+			if StzLeft(_cL_, 11) = 'governance '
+				_acQ_ = StzSplit(_cL_, '"')
+				if len(_acQ_) >= 2
+					This.SetName(_acQ_[2])
+				ok
+			but _cL_ = "risks" or _cL_ = "permissions" or _cL_ = "authorities" or
+			    _cL_ = "postures"
+				_cSection_ = _cL_
+			but _cSection_ = "risks"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.DeclareRisk(ring_trim(_acP_[1]), ring_number(ring_trim(_acP_[2])))
+				ok
+			but _cSection_ = "permissions"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.GrantPermission(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			but _cSection_ = "authorities"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.SetAuthority(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			but _cSection_ = "postures"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.DeclarePosture(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			ok
+		next
+		return This
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zgov"
