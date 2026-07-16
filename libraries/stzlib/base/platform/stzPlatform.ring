@@ -8,7 +8,7 @@
 #   1. GENERATION       Generate(:all): declared REACH becomes real
 #                       per-platform shells (web/desktop/mobile), each
 #                       embedding the one resident engine.
-#   2. CAPABILITY SEAM  Admits(:camera).With([...]) -- device/native
+#   2. CAPABILITY SEAM  AddCapability(:camera).SetPurposes([...]) -- device/native
 #                       capabilities requested by the world, GATED BY
 #                       GOVERNANCE (the 5.7 lattice: permission CAN +
 #                       authority SHOULD vs the capability's risk tier).
@@ -343,6 +343,13 @@ class stzPlatform from stzObject
 
 	# Wire the (fully configured, sealed) governance regime. Declares
 	# the platform's capability risk tiers into it when undeclared.
+	# the NAME of the object that governs this platform ("" if none)
+	def GovernedBy()
+		if @oGov = NULL
+			return ""
+		ok
+		return @oGov.Name_()
+
 	def SetGovernedBy(poGov)
 		@oGov = poGov
 		This._EnsureCapabilityRisks()
@@ -360,14 +367,15 @@ class stzPlatform from stzObject
 		next
 
 	# Request a capability for the attached world:
-	#   oPlat.Admits(:camera).With([ :scan-dish-photo ])
-	def Admits(pcCapability)
+	#   oPlat.AddCapability(:camera).SetPurposes([ :scan-dish-photo ])
+	def AddCapability(pcCapability)
 		_cCap_ = StzLower("" + pcCapability)
 		@aAdmissions + [ _cCap_, [] ]
 		@nCurAdmission = len(@aAdmissions)
 		return This
 
-	def With(paPurposes)
+	# fills the purposes of the capability just added (cursor)
+	def SetPurposes(paPurposes)
 		if @nCurAdmission > 0
 			if NOT isList(paPurposes)
 				paPurposes = [ paPurposes ]
@@ -380,14 +388,14 @@ class stzPlatform from stzObject
 	# action; permission CAN + authority SHOULD vs the risk tier.
 	def Granted(pcCapability)
 		if @oGov = NULL
-			stzraise("stzPlatform.Granted: no governance wired -- capabilities are governed by construction (GovernedBy first).")
+			stzraise("stzPlatform.Granted: no governance wired -- capabilities are governed by construction (SetGovernedBy first).")
 		ok
 		if NOT @bHasWorld
 			stzraise("stzPlatform.Granted: no world attached.")
 		ok
 		_cCap_ = StzLower("" + pcCapability)
 		if NOT This._WasAdmitted(_cCap_)
-			@cWhy = "capability '" + _cCap_ + "' was never requested via Admits()."
+			@cWhy = "capability '" + _cCap_ + "' was never requested via AddCapability()."
 			return FALSE
 		ok
 		_bOk_ = @oGov.MayProceed(@cWorldName, "use-" + _cCap_)

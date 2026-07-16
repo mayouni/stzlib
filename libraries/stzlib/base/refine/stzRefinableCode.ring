@@ -130,9 +130,20 @@ class stzRefinableCode from stzObject
 	# the action "refine-<point>"; To() calls MayProceed(actor, action)
 	# so a refinement needs permission (CAN) + authority (SHOULD) covering
 	# the point's declared risk tier before it can mutate the source.
+	# the NAME of the object that governs this code ("" if none)
+	def GovernedBy()
+		if @oGov = NULL
+			return ""
+		ok
+		return @oGov.Name_()
+
 	def SetGovernedBy(poGov)
 		@oGov = poGov
 		return This
+
+	# the actor this code acts as
+	def Actor()
+		return @cActor
 
 	def SetActor(pcActor)
 		@cActor = "" + pcActor

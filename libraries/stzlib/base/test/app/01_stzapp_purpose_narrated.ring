@@ -14,15 +14,15 @@ pr()
 oApp = new stzApp("SonibankVisits")
 oApp {
     # ── BEING ──
-    Thing(:Client) { Has([ :code, :name, :city ]) }
-    Thing(:Visit)  { Of(:Client)  Has([ :agent, :date, :subject ]) }
+    AddThing(:Client) { Has([ :code, :name, :city ]) }
+    AddThing(:Visit)  { Of(:Client)  Has([ :agent, :date, :subject ]) }
 
     # ── BECOMING · behavior ──
-    When(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
-    Whenever(:Client).Unseen(90, :Days) { Propose(:Visit) }
+    AddFlow(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
+    AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
 
     # ── BECOMING · purpose — what the world WANTS ──
-    Want(:EveryClientSeenThisQuarter) {
+    AddGoal(:EveryClientSeenThisQuarter) {
         Means      = "every :Client Has(:visit) Since(:quarterStart)"   # the wanted state
         Within     = :thisQuarter
         ReachedBy  = :planning                                          # PI-first

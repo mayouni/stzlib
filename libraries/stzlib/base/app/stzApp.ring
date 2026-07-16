@@ -65,17 +65,17 @@ class stzApp from stzObject
     # into the app's graph OBJECT, overwrote cName, and emptied aGoals.
     #
     # The slots BELOW stay deliberately bare: they are the brace-DSL contract
-    # (`Want(:X) { Means = "..." }` assigns the bare attribute by name) and the
+    # (`AddGoal(:X) { Means = "..." }` assigns the bare attribute by name) and the
     # public data slots read as oGoal.Means. They are the DSL's surface, not
     # internal state -- keep this list SHORT for exactly the reason above.
 
-    # goal-brace cursor attributes (assigned inside Want(...) { ... })
+    # goal-brace cursor attributes (assigned inside AddGoal(...) { ... })
     Means      = ""
     ReachedBy  = ""
     Within     = ""
     Respecting = []
 
-    # body-brace cursor attributes (assigned inside LivesIn(...) { ... }).
+    # body-brace cursor attributes (assigned inside SetBody(...) { ... }).
     # Graph/Keep coexist with the Graph() accessor and the Keep(thing)
     # flow verb -- Ring separates attr-assignment from method-call
     # (probed 2026-07-14: assignment targets the attr, parens the method).
@@ -108,10 +108,10 @@ class stzApp from stzObject
         return @oGraph
 
     #== DOMAIN (Being) =======================================================
-    # Thing() returns This, so the block  Thing(:X) { Has(...) Owns(:Y) }  runs the
+    # AddThing() returns This, so the block  AddThing(:X) { Has(...) Owns(:Y) }  runs the
     # app's OWN Has/IsTrue/Owns/Of on the current-thing cursor.
 
-    def Thing(pcName)
+    def AddThing(pcName)
         n = This._ThingIndex(pcName)
         if n = 0
             if NOT @oGraph.NodeExists(pcName)
@@ -139,7 +139,7 @@ class stzApp from stzObject
         if @nCur > 0  @aThings[@nCur][4] + [ "of", pcThing ]  ok
         return This
 
-    def Knows(pcFrom, pcRelation, pcTo)     # a free relation between two things
+    def AddRelation(pcFrom, pcRelation, pcTo)     # a free relation between two things
         @aKnows + [ pcFrom, pcRelation, pcTo ]
         return This
 
@@ -148,7 +148,7 @@ class stzApp from stzObject
     # binds to its thing by an "isa" edge; instance relations are
     # labeled edges. Goals (wanted graph states) evaluate over these.
 
-    def Is_(pcInstance, pcThing)
+    def AddInstance(pcInstance, pcThing)
         if NOT @oGraph.NodeExists(pcInstance)
             @oGraph.AddNode(pcInstance)
         ok
@@ -172,7 +172,7 @@ class stzApp from stzObject
     # When() returns This: the brace  { Require(:x)  Then( Keep(:Y) ) }
     # runs app methods against the current-flow cursor.
 
-    def When(pcActor, pcVerb, pcThing)
+    def AddFlow(pcActor, pcVerb, pcThing)
         This._FlushCursors()
         @aFlows + [ pcActor, pcVerb, pcThing, [], [] ]
         @nCurFlow = len(@aFlows)
@@ -189,7 +189,7 @@ class stzApp from stzObject
         if @nCurFlow > 0  @aFlows[@nCurFlow][5] + paEffect  ok
         return This
 
-    def Whenever(pcThing)
+    def AddReaction(pcThing)
         This._FlushCursors()
         @aReactions + [ pcThing, "", [], [] ]
         @nCurReaction = len(@aReactions)
@@ -214,11 +214,11 @@ class stzApp from stzObject
         return This
 
     #== LIFE - PURPOSE (Becoming) ============================================
-    # Want() returns This; the brace assigns the goal-cursor ATTRIBUTES
+    # AddGoal() returns This; the brace assigns the goal-cursor ATTRIBUTES
     # (Means/ReachedBy/Within/Respecting), flushed into the record by
     # BraceEnd() when the brace closes.
 
-    def Want(pcGoal)
+    def AddGoal(pcGoal)
         This._FlushCursors()
         @aGoals + [ pcGoal, "", :planning, "", [] ]
         @nCurGoal = len(@aGoals)
@@ -318,13 +318,13 @@ class stzApp from stzObject
         return ""
 
     #== BODY (embodiment) ====================================================
-    # LivesIn() returns This; the brace assigns the body-cursor
+    # SetBody() returns This; the brace assigns the body-cursor
     # attributes (Graph_/Files/Keep_ -- note: the DSL keywords Graph and
     # Keep collide with the Graph() accessor and the Keep(thing) flow
     # verb, so the ATTRIBUTES carry a trailing underscore and BraceEnd
     # reads whichever was written).
 
-    def LivesIn(pBody)
+    def SetBody(pBody)
         This._FlushCursors()
         @aKinds = pBody
         if NOT isList(pBody)  @aKinds = [ pBody ]  ok
@@ -375,7 +375,7 @@ class stzApp from stzObject
 
     #== EMERGENTS (met from without) =========================================
 
-    def Screen(pcName)
+    def AddScreen(pcName)
         This._FlushCursors()
         @aScreens + [ pcName, "understand", "", [], [] ]
         @nCurScreen = len(@aScreens)
@@ -407,7 +407,7 @@ class stzApp from stzObject
         if @nCurScreen > 0  @aScreens[@nCurScreen][5] + [ pcAction, pcFlow ]  ok
         return This
 
-    def Refine(pcKnob)
+    def AddRefinement(pcKnob)
         This._FlushCursors()
         @aRefinements + [ pcKnob, "", "", [] ]
         @nCurRefinement = len(@aRefinements)
@@ -426,7 +426,7 @@ class stzApp from stzObject
 
     # THE DECLARATIONS, AS DATA. Anything outside (stzPlatform harvesting a
     # world, a generator, a doc tool) asks through these -- it never reaches
-    # into the @attributes. Reaches([...]) DECLARES the surfaces; Surfaces()
+    # into the @attributes. AddReaches([...]) DECLARES the surfaces; Surfaces()
     # reports them.
     def Surfaces()
         return @aReaches
@@ -453,7 +453,7 @@ class stzApp from stzObject
         next
         return _ac_
 
-    def Reaches(paSurfaces)
+    def AddReaches(paSurfaces)
         if NOT isList(paSurfaces)  paSurfaces = [ paSurfaces ]  ok
         for i = 1 to len(paSurfaces)
             @aReaches + paSurfaces[i]

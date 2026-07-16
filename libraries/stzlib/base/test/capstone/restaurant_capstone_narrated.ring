@@ -81,15 +81,15 @@ EndScenario()
 # ---- THE WORLD: the restaurant as a living app ---------------------------
 
 $oResto = StzAppQ("bella-cucina")
-$oResto.Thing(:dish)  { Has([ :name, :price ]) }
-$oResto.Thing(:table) { Has([ :number, :seats ]) }
-$oResto.Whenever(:table).Unseen(1, :service) { Propose(:served) }
-$oResto.Want(:EveryTableServed) { Means = "every :table Has(:served)"  ReachedBy = :planning }
+$oResto.AddThing(:dish)  { Has([ :name, :price ]) }
+$oResto.AddThing(:table) { Has([ :number, :seats ]) }
+$oResto.AddReaction(:table).Unseen(1, :service) { Propose(:served) }
+$oResto.AddGoal(:EveryTableServed) { Means = "every :table Has(:served)"  ReachedBy = :planning }
 
 Scenario("THE WORLD: things, a reaction that proposes, a wanted state")
 	Given("two tables in the world, neither served")
-	$oResto.Is_("t1", :table)
-	$oResto.Is_("t2", :table)
+	$oResto.AddInstance("t1", :table)
+	$oResto.AddInstance("t2", :table)
 	When("the world comes alive")
 	$oResto.Live()
 	Then("the reaction proposed service for each table", len($oResto.Proposals()), 2)
@@ -212,7 +212,7 @@ EndScenario()
 Scenario("R7 ENVELOPE: KDF Commons identity + generated shells")
 	Given("the restaurant enveloped by a platform")
 	$oEnvDb = new stzDatabase(":memory:")
-	$oResto.Reaches([ :web ])
+	$oResto.AddReaches([ :web ])
 	oPlat = StzPlatformQ("bella-envelope")
 	oPlat.SetWorld($oResto)
 	oPlat.SetKdfRounds(20000)

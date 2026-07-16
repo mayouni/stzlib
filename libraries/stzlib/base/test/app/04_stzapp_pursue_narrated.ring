@@ -11,18 +11,18 @@ load "../_narrated.ring"
 # The old Pursue() returned a hardcoded empty gap -- retired today.
 
 $oApp = StzAppQ("visitsworld")
-$oApp.Thing(:Client) { Has([ :code, :name ]) }
-$oApp.Thing(:Visit)  { Of(:Client) }
-$oApp.Whenever(:Client).Unseen(90, :Days) { Propose(:Visit) }
-$oApp.Want(:EveryClientVisited) {
+$oApp.AddThing(:Client) { Has([ :code, :name ]) }
+$oApp.AddThing(:Visit)  { Of(:Client) }
+$oApp.AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
+$oApp.AddGoal(:EveryClientVisited) {
 	Means     = "every :Client Has(:visited)"
 	ReachedBy = :planning
 }
 
 Scenario("a goal is a wanted graph state; the gap is measured, not scripted")
 	Given("two client instances, one already visited")
-	$oApp.Is_("anna", :Client)
-	$oApp.Is_("bilal", :Client)
+	$oApp.AddInstance("anna", :Client)
+	$oApp.AddInstance("bilal", :Client)
 	$oApp.Relate("anna", :visited, "visit1")
 
 	When("the world pursues the goal")
@@ -42,7 +42,7 @@ EndScenario()
 
 Scenario("an unevaluable Means is refused, never faked (LAW 3)")
 	Given("a goal whose Means carries no evaluable pattern")
-	$oApp.Want(:Vague) { Means = "make things nice" }
+	$oApp.AddGoal(:Vague) { Means = "make things nice" }
 	bRaised = FALSE
 	try
 		$oApp.Pursue(:Vague)
@@ -63,7 +63,7 @@ EndScenario()
 
 Scenario("the platform generates this world's shells (Generate is real)")
 	Given("the world reaching :web, enveloped")
-	$oApp.Reaches([ :web ])
+	$oApp.AddReaches([ :web ])
 	oPlat = StzPlatformQ("visits-envelope")
 	oPlat.SetWorld($oApp)
 	When("Generate(:all) runs")

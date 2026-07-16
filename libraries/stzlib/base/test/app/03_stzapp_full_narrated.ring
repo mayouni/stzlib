@@ -14,17 +14,17 @@ pr()
 oApp = new stzApp("SonibankVisits")
 oApp {
     # ─── BEING (Domain) ───
-    Thing(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, '@ >= 0') }
-    Thing(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
-    Thing(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
-    Knows(:Account, :belongsTo, :Client)
+    AddThing(:Account) { Has([ :number, :chapter, :balance ])  IsTrue(:balance, '@ >= 0') }
+    AddThing(:Client)  { Has([ :code, :name, :city ])  Owns(:Account) }
+    AddThing(:Visit)   { Of(:Client)  Has([ :agent, :date, :subject ]) }
+    AddRelation(:Account, :belongsTo, :Client)
 
     # ─── LIFE · behavior ───
-    When(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
-    Whenever(:Client).Unseen(90, :Days) { Propose(:Visit) }
+    AddFlow(:agent, :records, :Visit) { Require(:subject)  Then( Keep(:Visit) ) }
+    AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
 
     # ─── LIFE · purpose ───
-    Want(:EveryClientSeenThisQuarter) {
+    AddGoal(:EveryClientSeenThisQuarter) {
         Means      = "every :Client Has(:visit) Since(:quarterStart)"
         Within     = :thisQuarter
         ReachedBy  = :planning
@@ -32,17 +32,17 @@ oApp {
     }
 
     # ─── BODY ───
-    LivesIn([ :GraphDB, :Files ]) { Graph = ".stzapp/world.stzgraf"  Files = "./" }
+    SetBody([ :GraphDB, :Files ]) { Graph = ".stzapp/world.stzgraf"  Files = "./" }
 }
 
 # ─── MET FROM WITHOUT (emergents) ───
-oApp.Screen(:ClientFile) {
+oApp.AddScreen(:ClientFile) {
     ToUnderstand(:Client)
     Shows([ :identity, :accounts, :visits ])
     Acts(:NewVisit, :RecordVisit)
 }
-oApp.Refine(:balance).Bounds(0, 1000000)
-oApp.Reaches([ :mobile, :desktop, :web ])
+oApp.AddRefinement(:balance).Bounds(0, 1000000)
+oApp.AddReaches([ :mobile, :desktop, :web ])
 
 oApp.Explain()
 #--> WORLD SonibankVisits   lives in: graphdb + files

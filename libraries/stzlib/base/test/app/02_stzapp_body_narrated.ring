@@ -15,14 +15,14 @@ pr()
 oApp = new stzApp("SonibankVisits")
 oApp {
     # ── BEING ──
-    Thing(:Client) { Has([ :code, :name, :city ]) }
-    Thing(:Visit)  { Of(:Client)  Has([ :agent, :date, :subject ]) }
+    AddThing(:Client) { Has([ :code, :name, :city ]) }
+    AddThing(:Visit)  { Of(:Client)  Has([ :agent, :date, :subject ]) }
 
     # ── BECOMING · behavior ──
-    Whenever(:Client).Unseen(90, :Days) { Propose(:Visit) }
+    AddReaction(:Client).Unseen(90, :Days) { Propose(:Visit) }
 
     # ── BODY — where the world endures ──
-    LivesIn([ :GraphDB, :Files ]) {
+    SetBody([ :GraphDB, :Files ]) {
         Graph = ".stzapp/world.stzgraf"     # the substance (system of record)
         Files = "./"                         # the readable face (things/, life/, ...)
         Keep  = :everything
@@ -50,7 +50,7 @@ oApp.Save()
 
 # A world with NO declared body still lives — in memory — it just won't endure:
 oScratch = new stzApp("Scratch")
-oScratch { Thing(:Note) { Has([ :text ]) } }
+oScratch { AddThing(:Note) { Has([ :text ]) } }
 oScratch.Explain()
 #--> WORLD Scratch   lives in: memory (not persisted)
 #      BEING

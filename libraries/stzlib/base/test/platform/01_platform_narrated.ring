@@ -17,10 +17,10 @@ $CRLF = char(13) + char(10)
 
 # -- the world under envelope: a small restaurant ---------------------
 $oApp = StzAppQ("resto")
-$oApp.Thing(:dish) { Has([ :name, :price ]) }
-$oApp.Thing(:table) { Has([ :number, :seats ]) }
-$oApp.Screen(:menu)
-$oApp.Reaches([ :web, :desktop ])
+$oApp.AddThing(:dish) { Has([ :name, :price ]) }
+$oApp.AddThing(:table) { Has([ :number, :seats ]) }
+$oApp.AddScreen(:menu)
+$oApp.AddReaches([ :web, :desktop ])
 
 $oPlat = StzPlatformQ("resto-envelope")
 $oPlat.SetWorld($oApp)
@@ -60,11 +60,11 @@ Scenario("CAPABILITY SEAM: capabilities are governed by construction")
 	$oPlat.SetGovernedBy(oGov)
 
 	When("the world admits :camera for a declared purpose")
-	$oPlat.Admits(:camera).With([ :scan_dish_photo ])
+	$oPlat.AddCapability(:camera).SetPurposes([ :scan_dish_photo ])
 	Then("camera (risk 2) is granted to a delegated world", $oPlat.Granted(:camera), TRUE)
 
 	When("the world admits :payments (risk tier 4)")
-	$oPlat.Admits(:payments).With([ :charge_guests ])
+	$oPlat.AddCapability(:payments).SetPurposes([ :charge_guests ])
 	Then("payments is refused despite permission", $oPlat.Granted(:payments), FALSE)
 	Then("the refusal narrates the SHOULD gap",
 		StzFindFirst($oPlat.Why(), "risk tier 4") > 0, TRUE)
