@@ -88,7 +88,7 @@ class stzSuperApp from stzObject
 		return This
 
 	# the LIVE world object (reached via the registry index)
-	def World(pcName)
+	def WorldQ(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0  return NULL  ok
 		return @aWorlds[_i_][2]

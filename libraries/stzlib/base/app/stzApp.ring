@@ -94,7 +94,7 @@ class stzApp from stzObject
     def Name()
         return cName
 
-    def Graph()
+    def GraphQ()
         return oGraph
 
     #== DOMAIN (Being) =======================================================

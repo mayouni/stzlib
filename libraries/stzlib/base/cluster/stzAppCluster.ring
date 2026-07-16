@@ -75,7 +75,7 @@ class stzAppCluster from stzObject
 		ok
 		_cTag_ = StzLower("" + pcTag)
 		if @oPool.HasProfile(_cTag_)
-			@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() + nWorkers)
+			@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() + nWorkers)
 		else
 			@oPool.AddProfile(_cTag_, paCaps, nWorkers)
 		ok
@@ -141,9 +141,9 @@ class stzAppCluster from stzObject
 		_cTag_ = StzLower("" + pcFacet)
 		This.WithProfile(_cTag_, @oPool.CatalogQ().CapabilitiesOf(pcFacet), n)
 		# call THROUGH Profile() (no local assign -> no copy; aliasing)
-		@oPool.Profile(_cTag_).RealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
+		@oPool.ProfileQ(_cTag_).RealizedBy(@oPool.CatalogQ().ModulesOf(pcFacet))
 		if @oPool.CatalogQ().IsPolyglot(pcFacet)
-			@oPool.Profile(_cTag_).UsesExternalTool(@oPool.CatalogQ().ToolOf(pcFacet))
+			@oPool.ProfileQ(_cTag_).UsesExternalTool(@oPool.CatalogQ().ToolOf(pcFacet))
 		ok
 		return This
 
@@ -526,7 +526,7 @@ class stzAppCluster from stzObject
 		@nNextPort++
 		_nJob_ = This._SpawnWorker(_cTag_, _nPort_)
 		@aFleet + [ _cTag_, _nPort_, _nJob_, FALSE, FALSE, 0, 0, "127.0.0.1" ]
-		@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() + 1)
+		@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() + 1)
 		return _nPort_
 
 	# GRACEFUL drain-down: mark one ready worker of a profile DRAINING --
@@ -540,8 +540,8 @@ class stzAppCluster from stzObject
 		for _i_ = 1 to _nF_
 			if @aFleet[_i_][1] = _cTag_ and @aFleet[_i_][4] and NOT @aFleet[_i_][5]
 				@aFleet[_i_][5] = TRUE   # draining -> no new routes
-				if @oPool.Profile(_cTag_).Budget() > 1
-					@oPool.Profile(_cTag_).SetBudget(@oPool.Profile(_cTag_).Budget() - 1)
+				if @oPool.ProfileQ(_cTag_).Budget() > 1
+					@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() - 1)
 				ok
 				return @aFleet[_i_][2]
 			ok

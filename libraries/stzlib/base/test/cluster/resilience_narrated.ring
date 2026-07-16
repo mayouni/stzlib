@@ -19,7 +19,7 @@ Scenario("BACKPRESSURE: a bounded queue sheds load instead of growing unbounded"
 	Given("a 1-slot facet whose queue is bounded to 3")
 	$oPool = new stzWorkerPool()
 	$oPool.AddFacet(:math, 1)
-	$oPool.Profile("math").SetMaxQueue(3)
+	$oPool.ProfileQ("math").SetMaxQueue(3)
 	When("the slot is held and 10 items are dispatched")
 	$oPool.Acquire(:math)          # hold the only slot -> everything queues
 	nQueued = 0  nShed = 0
