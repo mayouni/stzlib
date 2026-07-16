@@ -12,13 +12,14 @@ nFail = 0
 pr()
 
 ? "-- Scene 1: the goal declares the shape; gaps generate questions --"
-# SCOPED: the session elicits into its OWN graph, not a global world
-oCv = new stzConversation("restaurant-setup")
-oCv.KnowledgeQ().Know("margherita", "dish").Know("tiramisu", "dish")
-oCv.GoalQ().RequireEach("dish", "contains")
-chk("the gap is computed from the SCOPED graph", len(oCv.Gaps()) = 2)
+# the KNOWLEDGE SPACE is the container; a conversation happens INSIDE it
+oKB = new stzKnowledgeGraph("restaurant")
+oKB.Know("margherita", "dish").Know("tiramisu", "dish")
+oKB.Converse("restaurant-setup")
+oKB.ConversationQ("restaurant-setup").GoalQ().RequireEach("dish", "contains")
+chk("the gap is computed from the SPACE", len(oKB.GapsIn("restaurant-setup")) = 2)
 
-aQ = oCv.NextQuestionXT()
+aQ = oKB.AskInXT("restaurant-setup")
 chk("the question is SYSTEM-LED and names its subject",
 	aQ[:subject] = "margherita" and aQ[:relation] = "contains")
 chk("the question is ACCOUNTABLE (it says why it asks)",
@@ -26,46 +27,49 @@ chk("the question is ACCOUNTABLE (it says why it asks)",
 
 ? ""
 ? "-- Scene 2: the answer protocol -- registers in, governed admission --"
-aV = oCv.Reply("tomato-sauce and mozzarella")
+aV = oKB.ReplyIn("restaurant-setup", "tomato-sauce and mozzarella")
 chk("natural phrasing admits (register 4: 'X and Y')",
 	len(aV[:admitted]) = 2)
-oCv.NextQuestion()
-aV2 = oCv.Reply([ "mascarpone", "espresso" ])
+oKB.AskIn("restaurant-setup")
+aV2 = oKB.ReplyIn("restaurant-setup", [ "mascarpone", "espresso" ])
 chk("a data structure admits (register 2)", len(aV2[:admitted]) = 2)
-chk("admissions are grounded in THIS session's graph",
-	oCv.KnowledgeQ().Query([ "tiramisu", "contains", "?o" ])[1] = "mascarpone")
+chk("admissions are grounded in THE SPACE the session runs in",
+	oKB.Query([ "tiramisu", "contains", "?o" ])[1] = "mascarpone")
 
 ? ""
 ? "-- Scene 3: refusal is governed AND checkpointed (G7) --"
-oCv3 = new stzConversation("staffing")
-oCv3.GoalQ().RequireOne("kitchen3", "led-by")
-oCv3.NextQuestion()
-# the law is declared, and a value lands, while the question is open
-oCv3.KnowledgeQ().ConstrainRelation("led-by", :Unique)
-oCv3.KnowledgeQ().KnowRelation("kitchen3", "led-by", "mario")
-aR = oCv3.Reply("giovanni")
+oKB3 = new stzKnowledgeGraph("staffing")
+oKB3.Converse("staffing-setup")
+oKB3.ConversationQ("staffing-setup").GoalQ().RequireOne("kitchen3", "led-by")
+oKB3.AskIn("staffing-setup")
+# the law is declared IN THE SPACE, and a value lands, while the question is open
+oKB3.ConstrainRelation("led-by", :Unique)
+oKB3.KnowRelation("kitchen3", "led-by", "mario")
+aR = oKB3.ReplyIn("staffing-setup", "giovanni")
 chk("the :Unique law refuses through the conversation",
 	len(aR[:refused]) = 1)
 chk("the refusal reaches a human checkpoint with context",
-	len(oCv3.Checkpoints()) = 1 and oCv3.Checkpoints()[1][:attempted] = "giovanni")
+	len(oKB3.ConversationQ("staffing-setup").Checkpoints()) = 1 and
+	oKB3.ConversationQ("staffing-setup").Checkpoints()[1][:attempted] = "giovanni")
 
 ? ""
 ? "-- Scene 4: the session ends by WRITING the knowledgebase --"
-chk("gaps closed", len(oCv.Gaps()) = 0)
-chk("Conclude writes the .zknw", oCv.Conclude("t_wise_world") = 1)
+chk("gaps closed", len(oKB.GapsIn("restaurant-setup")) = 0)
+chk("Conclude writes the SPACE as .zknw", oKB.ConcludeIn("restaurant-setup", "t_wise_world") = 1)
 chk("the transcript reads as dialogue",
-	len(StzFind("SOFTANZA:", oCv.Transcript())) > 0)
-cF = oCv.Save("t_wise_conv")
+	len(StzFind("SOFTANZA:", oKB.ConversationQ("restaurant-setup").Transcript())) > 0)
+cF = oKB.ConversationQ("restaurant-setup").Save("t_wise_conv")
 chk("the conversation persists (*.stzconv)",
 	len(StzFind("conversation ", read(cF))) > 0)
 remove("t_wise_world.zknw")
 remove(cF)
 
 bRefuse = 0
-oCv5 = new stzConversation("early")
-oCv5.GoalQ().RequireOne("nowhere", "nothing")
+oKB5 = new stzKnowledgeGraph("early")
+oKB5.Converse("early-setup")
+oKB5.ConversationQ("early-setup").GoalQ().RequireOne("nowhere", "nothing")
 try
-	oCv5.Conclude("x")
+	oKB5.ConcludeIn("early-setup", "x")
 catch
 	bRefuse = 1
 done

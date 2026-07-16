@@ -40,9 +40,8 @@ aR = oWC.PursueGoal(oGoal, oKB, func subj, rel {
 })
 chk("the goal is filled", aR[:filled] = 1)
 chk("one question per gap", aR[:asked] = 2)
-chk("the answers were ADMITTED into the SCOPED graph (governed)",
-	oWC.ConversationQ().KnowledgeQ().Query([ "margherita", "contains", "?o" ])[1] =
-	"tomato-sauce")
+chk("the answers were ADMITTED into the caller's OWN space (governed)",
+	oKB.Query([ "margherita", "contains", "?o" ])[1] = "tomato-sauce")
 chk("Why reports governed admission",
 	len(StzFind("governed admission", aR[:why])) > 0)
 
