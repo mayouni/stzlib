@@ -15,22 +15,20 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-# StzLibDoc(aClasses) -- cross-class self-doc over the given classes (or the
-# default curated set when the list is empty/omitted).
-func StzLibDoc(paClasses)
+# StzLibDocQ(aClasses) -- cross-class self-doc over the given classes (or the
+# default curated set when the list is empty/omitted). ONE creation function,
+# named for its class + Q (the house rule).
+func StzLibDocQ(paClasses)
 	if isList(paClasses) and len(paClasses) > 0
 		return new stzLibDoc(paClasses)
 	ok
 	return new stzLibDoc(_StzDefaultDocClasses())
 
-func StzLibDocQ(paClasses)
-	return StzLibDoc(paClasses)
-
 # The curated default set: kept LEAN so the embedding index (built lazily on the
 # first Ask when an embedding model is loaded) stays fast. For a big cross-class
 # corpus, prefer a reranker model -- its lexical-narrow-then-cross-encode path
 # builds no index and scales to thousands of methods. Pass your own class list to
-# StzLibDoc([...]) to widen the scope.
+# StzLibDocQ([...]) to widen the scope.
 func _StzDefaultDocClasses()
 	return [ "stzText", "stzListOfTexts" ]
 

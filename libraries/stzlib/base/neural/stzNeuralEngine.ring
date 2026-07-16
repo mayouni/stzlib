@@ -11,9 +11,6 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-func StzNeuralEngine()
-	return new stzNeuralEngine()
-
 func StzNeuralEngineQ()
 	return new stzNeuralEngine()
 

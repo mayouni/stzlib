@@ -105,7 +105,7 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 	Given("the two knowledge sources now meet: Ask() consults the ENTITY WORLD on a 'what is X / who is X' question (a '(world)' entry, kind-consistent with recipes), and WhatIs() falls back to the LIBRARY through the same retrieval pipeline when the world is silent")
 
 	StzKnow("zorglang", "language")
-	aAns = StzLibDoc([]).Ask("what is zorglang ?")
+	aAns = StzLibDocQ([]).Ask("what is zorglang ?")
 	Then("the world answers FIRST through Ask", aAns[1][1], "(world)")
 	Then("...as a plain sentence", aAns[1][4], "zorglang is a language")
 
@@ -129,12 +129,12 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 		StzFindFirst(aW[1], "- the method Remove (on stzString, stzList)"), 1)
 
 	SupposeQ("blorp").IsAQ("gadget")
-	aAns = StzLibDoc([]).Ask("who is blorp")
+	aAns = StzLibDocQ([]).Ask("who is blorp")
 	Then("a supposition answers through the door, while it stands",
 		aAns[1][4], "blorp is a gadget")
 	ForgetSuppositions()
 	Then("...and is honestly gone once forgotten",
-		StzLibDoc([]).Ask("who is blorp")[1][1] != "(world)", TRUE)
+		StzLibDocQ([]).Ask("who is blorp")[1][1] != "(world)", TRUE)
 
 	Then("unknown everywhere stays honestly empty",
 		@@( WhatIs("zorgle") ), "[ ]")

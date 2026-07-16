@@ -17,13 +17,8 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-# StzDoc(cClassNameOrPath) -- the self-doc of a class (by name or source path).
-func StzDoc(pcTarget)
-	return new stzSelfDoc(pcTarget)
-
-func StzSelfDoc(pcTarget)
-	return new stzSelfDoc(pcTarget)
-
+# StzSelfDocQ(cClassNameOrPath) -- the self-doc of a class (by name or source
+# path). ONE creation function, named for its class + Q (the house rule).
 func StzSelfDocQ(pcTarget)
 	return new stzSelfDoc(pcTarget)
 

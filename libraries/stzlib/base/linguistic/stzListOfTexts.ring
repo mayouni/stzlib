@@ -20,9 +20,6 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-func StzListOfTexts(paList)
-	return new stzListOfTexts(paList)
-
 func StzListOfTextsQ(paList)
 	return new stzListOfTexts(paList)
 

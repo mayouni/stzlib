@@ -402,7 +402,7 @@ func _StzWhatIsDocIndex()
 	if isObject($oStzWhatIsDoc)
 		return $oStzWhatIsDoc
 	ok
-	$oStzWhatIsDoc = StzLibDoc([ "stzString", "stzList", "stzNumber",
+	$oStzWhatIsDoc = StzLibDocQ([ "stzString", "stzList", "stzNumber",
 		"stzChar", "stzText", "stzListOfTexts", "stzListOfStrings",
 		"stzListOfNumbers", "stzListOfLists", "stzHashList", "stzTable" ])
 	return $oStzWhatIsDoc
