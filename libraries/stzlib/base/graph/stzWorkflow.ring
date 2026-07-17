@@ -632,6 +632,64 @@ class stzWorkflow from stzDiagram
 		
 		return _cResult_
 
+	#------------------------#
+	#  WORKFLOW FILE FORMAT  #
+	#------------------------#
+	#
+	# The READ side of ToWorkflow() above: it writes .stzflow, this reads it
+	# back. It used to live in stzWorkflowSimulation -- but every line of it
+	# calls stzWorkflow methods (AddStepXTT, AddActor, ConnectSteps,
+	# SetStepDuration, SetStepSLA), none of which a simulation has. It was
+	# written for THIS class and declared in the wrong one, so `This` was
+	# always the wrong object. A simulation proposes CHANGES (OptimizeStep,
+	# ReassignStep, ParallelizeSteps); importing a file is not a what-if.
+	def ImportFlow(pSource)
+		if isString(pSource) and StzRight(pSource, 8) = ".stzflow"
+			_oParser_ = new stzFlowParser()
+			_oLoaded_ = _oParser_.ParseFile(pSource)
+		else
+			_oParser_ = new stzFlowParser()
+			_oLoaded_ = _oParser_.Parse(pSource)
+		ok
+		
+		# Merge loaded workflow
+		This._MergeWorkflow(_oLoaded_)
+	
+		def LoadFlow(pSource)
+			This.ImportFlow(pSource)
+
+	def _MergeWorkflow(oOther)
+		# Copy steps
+		_aOtherSteps1_ = oOther.Steps()
+		_nOtherSteps1Len_ = len(_aOtherSteps1_)
+		for _iLoopOtherSteps1_ = 1 to _nOtherSteps1Len_
+			_aStep_ = _aOtherSteps1_[_iLoopOtherSteps1_]
+			This.AddStepXTT(_aStep_[:id], _aStep_[:label], _aStep_[:properties])
+			if _aStep_[:duration] > 0
+				This.SetStepDuration(_aStep_[:id], _aStep_[:duration])
+			ok
+			if _aStep_[:sla] > 0
+				This.SetStepSLA(_aStep_[:id], _aStep_[:sla])
+			ok
+		end
+		
+		# Copy edges
+		_aOtherEdges1_ = oOther.Edges()
+		_nOtherEdges1Len_ = len(_aOtherEdges1_)
+		for _iLoopOtherEdges1_ = 1 to _nOtherEdges1Len_
+			_aEdge_ = _aOtherEdges1_[_iLoopOtherEdges1_]
+			This.ConnectSteps(_aEdge_[:from], _aEdge_[:to])
+		end
+		
+		# Copy actors
+		_aOtherActors1_ = oOther.Actors()
+		_nOtherActors1Len_ = len(_aOtherActors1_)
+		for _iLoopOtherActors1_ = 1 to _nOtherActors1Len_
+			_aActor_ = _aOtherActors1_[_iLoopOtherActors1_]
+			This.AddActor(_aActor_[:id], _aActor_[:name], _aActor_[:role])
+		end
+
+
 
 #============================================#
 #  Workflow-Specific Rule Bases              #
@@ -764,57 +822,6 @@ class stzWorkflowSimulation from stzObject
 	def _ParallelizeSteps(pacSteps)
 		# Create fork/join pattern
 		# Implementation for parallel execution
-
-	#------------------------#
-	#  WORKFLOW FILE FORMAT  #
-	#------------------------#
-
-	def ImportFlow(pSource)
-		if isString(pSource) and StzRight(pSource, 8) = ".stzflow"
-			_oParser_ = new stzFlowParser()
-			_oLoaded_ = _oParser_.ParseFile(pSource)
-		else
-			_oParser_ = new stzFlowParser()
-			_oLoaded_ = _oParser_.Parse(pSource)
-		ok
-		
-		# Merge loaded workflow
-		This._MergeWorkflow(_oLoaded_)
-	
-		def LoadFlow(pSource)
-			This.ImportFlow(pSource)
-
-	def _MergeWorkflow(oOther)
-		# Copy steps
-		_aOtherSteps1_ = oOther.Steps()
-		_nOtherSteps1Len_ = len(_aOtherSteps1_)
-		for _iLoopOtherSteps1_ = 1 to _nOtherSteps1Len_
-			_aStep_ = _aOtherSteps1_[_iLoopOtherSteps1_]
-			This.AddStepXTT(_aStep_[:id], _aStep_[:label], _aStep_[:properties])
-			if _aStep_[:duration] > 0
-				This.SetStepDuration(_aStep_[:id], _aStep_[:duration])
-			ok
-			if _aStep_[:sla] > 0
-				This.SetStepSLA(_aStep_[:id], _aStep_[:sla])
-			ok
-		end
-		
-		# Copy edges
-		_aOtherEdges1_ = oOther.Edges()
-		_nOtherEdges1Len_ = len(_aOtherEdges1_)
-		for _iLoopOtherEdges1_ = 1 to _nOtherEdges1Len_
-			_aEdge_ = _aOtherEdges1_[_iLoopOtherEdges1_]
-			This.ConnectSteps(_aEdge_[:from], _aEdge_[:to])
-		end
-		
-		# Copy actors
-		_aOtherActors1_ = oOther.Actors()
-		_nOtherActors1Len_ = len(_aOtherActors1_)
-		for _iLoopOtherActors1_ = 1 to _nOtherActors1Len_
-			_aActor_ = _aOtherActors1_[_iLoopOtherActors1_]
-			This.AddActor(_aActor_[:id], _aActor_[:name], _aActor_[:role])
-		end
-
 
 #============================================#
 #  stzFlowParser - *.stzflow Parser          #

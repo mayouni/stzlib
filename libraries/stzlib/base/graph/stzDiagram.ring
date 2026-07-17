@@ -346,6 +346,17 @@ class stzDiagram from stzGraph
 	def SetEdgeColor(pColor)
 		@cEdgeColor = ResolveColor(pColor)
 
+	# The focus colour's setter, missing until now. ExportToStyl() has always
+	# WRITTEN a focus section (color + penwidth), and _ApplyStyle() has always
+	# called This.SetFocusColor() to read it back -- a method nobody had
+	# written, so loading any exported .stzstyl died on R14. Same shape as its
+	# siblings: resolve the name, keep the resolved value.
+	def SetFocusColor(pColor)
+		@cFocusColor = ResolveColor(pColor)
+
+	def FocusColor()
+		return @cFocusColor
+
 	def SetNodeColor(pColor)
 		@cNodeColor = ResolveColor(pColor)
 
@@ -2091,12 +2102,19 @@ class stzDiagram from stzGraph
 			This.SetLayout(_aStyle_[:layout])
 		ok
 		
+		# stzStylParser builds each section as a list of PAIRS --
+		#     _aStyle_[section] + [ key, value ]
+		# and Ring's + appends that pair as ONE element. Every section here
+		# walked it as a flat [k,v,k,v] run and fell off the end (R2 on the
+		# last pair), so LoadStyle() died on any .stzstyl file -- including the
+		# one ExportToStyl() had just written. Same fault, same era, as the
+		# .stzflow parser's _AddStep/_AddActor.
 		# Apply colors
 		if HasKey(_aStyle_, :colors) and len(_aStyle_[:colors]) > 0
 			_nLen_ = len(_aStyle_[:colors])
-			for i = 1 to _nLen_ step 2
-				_cKey_ = _aStyle_[:colors][i]
-				_cValue_ = _aStyle_[:colors][i + 1]
+			for i = 1 to _nLen_
+				_cKey_ = _aStyle_[:colors][i][1]
+				_cValue_ = _aStyle_[:colors][i][2]
 				
 				# Update color palette
 				if HasKey(@aPalette[@cTheme], _cKey_)
@@ -2108,9 +2126,9 @@ class stzDiagram from stzGraph
 		# Apply fonts
 		if HasKey(_aStyle_, :fonts) and len(_aStyle_[:fonts]) > 0
 			_nLen_ = len(_aStyle_[:fonts])
-			for i = 1 to _nLen_ step 2
-				_cKey_ = _aStyle_[:fonts][i]
-				pValue = _aStyle_[:fonts][i + 1]
+			for i = 1 to _nLen_
+				_cKey_ = _aStyle_[:fonts][i][1]
+				pValue = _aStyle_[:fonts][i][2]
 				
 				if _cKey_ = "default"
 					This.SetFont(pValue)
@@ -2123,9 +2141,9 @@ class stzDiagram from stzGraph
 		# Apply edge settings
 		if HasKey(_aStyle_, :edges) and len(_aStyle_[:edges]) > 0
 			_nLen_ = len(_aStyle_[:edges])
-			for i = 1 to _nLen_ step 2
-				_cKey_ = _aStyle_[:edges][i]
-				pValue = _aStyle_[:edges][i + 1]
+			for i = 1 to _nLen_
+				_cKey_ = _aStyle_[:edges][i][1]
+				pValue = _aStyle_[:edges][i][2]
 				
 				if _cKey_ = "style"
 					This.SetEdgeStyle(pValue)
@@ -2142,9 +2160,9 @@ class stzDiagram from stzGraph
 		# Apply node settings
 		if HasKey(_aStyle_, :nodes) and len(_aStyle_[:nodes]) > 0
 			_nLen_ = len(_aStyle_[:nodes])
-			for i = 1 to _nLen_ step 2
-				_cKey_ = _aStyle_[:nodes][i]
-				pValue = _aStyle_[:nodes][i + 1]
+			for i = 1 to _nLen_
+				_cKey_ = _aStyle_[:nodes][i][1]
+				pValue = _aStyle_[:nodes][i][2]
 				
 				if _cKey_ = "penwidth"
 					This.SetNodePenWidth(pValue)
@@ -2161,9 +2179,9 @@ class stzDiagram from stzGraph
 		# Apply focus settings
 		if HasKey(_aStyle_, :focus) and len(_aStyle_[:focus]) > 0
 			_nLen_ = len(_aStyle_[:focus])
-			for i = 1 to _nLen_ step 2
-				_cKey_ = _aStyle_[:focus][i]
-				pValue = _aStyle_[:focus][i + 1]
+			for i = 1 to _nLen_
+				_cKey_ = _aStyle_[:focus][i][1]
+				pValue = _aStyle_[:focus][i][2]
 				
 				if _cKey_ = "color"
 					This.SetFocusColor(pValue)
