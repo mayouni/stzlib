@@ -130,6 +130,12 @@ func ring_methods(obj)
 func ring_attributes(obj)
 	return attributes(obj)
 
+# Needed inside a class body: stzObject defines a ClassName() METHOD, so
+# every stz class inherits one and a bare classname(obj) there resolves to
+# THAT -- a 0-param method called with 1 argument -> R20. The inherited
+# method is no substitute either: it returns the literal "stzobject"
+# unless a class overrides it, so it cannot tell a stzBarChart from a
+# stzHBarPlot. Only the builtin knows the runtime class.
 func ring_classname(obj)
 	return classname(obj)
 
