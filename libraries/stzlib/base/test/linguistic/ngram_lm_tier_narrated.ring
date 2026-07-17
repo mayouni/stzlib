@@ -35,9 +35,9 @@ oC = new stzCorpus([
 # "the" occurs 4 times; "the cat" occurs once. V = 10.
 # P(cat|the) = (1 + 1) / (4 + 10) = 2/14
 chk("the vocabulary is the 10 distinct words",
-	stzengine_ngram_vocab_size(oC._LmHandle()) = 10)
+	stzengine_ngram_vocab_size(oC._ModelHandle()) = 10)
 chk("the corpus has 18 tokens (3 docs x 6 words)",
-	stzengine_ngram_token_count(oC._LmHandle()) = 18)
+	stzengine_ngram_token_count(oC._ModelHandle()) = 18)
 chk("P(cat|the) = (1+1)/(4+10) = 2/14",
 	abs(oC.BigramProbability("the", "cat") - 2.0 / 14) < 0.0000001)
 
@@ -88,13 +88,13 @@ oB.FreeLm()
 ? ""
 ? "-- Scene 5: the engine is a HARD dependency, reached only through it --"
 
-# _LmHandle returns a live engine handle (a positive id), proving the model is
+# _ModelHandle returns a live engine handle (a positive id), proving the model is
 # engine-resident, not a Ring structure.
-chk("the model is an engine handle, not a Ring object", oC._LmHandle() > 0)
+chk("the model is an engine handle, not a Ring object", oC._ModelHandle() > 0)
 
 # training is idempotent: asking again returns the same handle, not a re-count
-_h1_ = oC._LmHandle()
-_h2_ = oC._LmHandle()
+_h1_ = oC._ModelHandle()
+_h2_ = oC._ModelHandle()
 chk("the model is trained once and reused", _h1_ = _h2_)
 
 oC.FreeLm()
