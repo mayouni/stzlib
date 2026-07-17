@@ -928,7 +928,7 @@ class stzSplitter from stzListOfNumbers
 		_aSections_ = QRT(paSections, :stzListOfPairs).Sorted()
 		
 		_nLenMain_ = This.NumberOfItems()
-		_oMain_ = StzListQ(1:nLenMain)
+		_oMain_ = StzListQ(1:_nLenMain_)
 
 		# Managing the first and last splits
 

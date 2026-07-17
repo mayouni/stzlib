@@ -3156,7 +3156,7 @@ func RandomNumberInZ(panNumbers)
 			ok
 		ok
 
-		return RandomNumberInZ(_nMin_:nMax)
+		return RandomNumberInZ(_nMin_:_nMax_)
 
 	func ARandomNumberBetweenZ(_nMin_, _nMax_)
 		return RandomNumberBetweenZ(_nMin_, _nMax_)
@@ -3220,7 +3220,7 @@ func RandomNumberInXT(panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumberInXT(_nMin_:nMax, _nSeed_)
+		return NRandomNumberInXT(_nMin_:_nMax_, _nSeed_)
 
 	func ARandomNumberBetweenXT(_nMin_, _nMax_, _nSeed_)
 		return RandomNumberBetweenXT(_nMin_, _nMax_, _nSeed_)
@@ -3290,7 +3290,7 @@ func RandomNumberInXTZ(panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumberInXTZ(_nMin_:nMax, _nSeed_)
+		return NRandomNumberInXTZ(_nMin_:_nMax_, _nSeed_)
 
 	func ARandomNumberBetweenXTZ(_nMin_, _nMax_, _nSeed_)
 		return SomeRandomNumberBetweenXTZ(_nMin_, _nMax_, _nSeed_)
@@ -3965,7 +3965,7 @@ func NRandomNumbersIn(_n_, panNumbers)
 			ok
 		ok
 
-		return NRandomNumbersIn(_n_, _nMin_:nMax)
+		return NRandomNumbersIn(_n_, _nMin_:_nMax_)
 
 	func RandomNNumbersBetween(_n_, _nMin_, _nMax_)
 		return NRandomNumbersBetween(_n_, _nMin_, _nMax_)
@@ -4033,7 +4033,7 @@ func NRandomNumbersInZ(_n_, panNumbers)
 			ok
 		ok
 
-		return NRandomNumbersInZ(_n_, _nMin_:nMax)
+		return NRandomNumbersInZ(_n_, _nMin_:_nMax_)
 
 	func RandomNNumbersBetweenZ(_n_, _nMin_, _nMax_)
 		return NRandomNumbersBetweenZ(_n_, _nMin_, _nMax_)
@@ -4086,7 +4086,7 @@ func NRandomNumbersInXT(_n_, panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumbersInXT(_n_, _nMin_:nMax, _nSeed_)
+		return NRandomNumbersInXT(_n_, _nMin_:_nMax_, _nSeed_)
 
 	func RandomNNumbersBetwwenXT(_n_, _nMin_, _nMax_, _nSeed_)
 		return NRandomNumbersBetweenXT(_n_, _nMin_, _nMax_, _nSeed_)
@@ -4137,7 +4137,7 @@ func NRandomNumbersInXTZ(_n_, panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumbersInXTZ(_n_, _nMin_:nMax, _nSeed_)
+		return NRandomNumbersInXTZ(_n_, _nMin_:_nMax_, _nSeed_)
 
 	func RandomNNumbersBetweenXTZ(_n_, _nMin_, _nMax_, _nSeed_)
 		return NRandomNumbersBetweenXTZ(_n_, _nMin_, _nMax_, _nSeed_)
@@ -4235,7 +4235,7 @@ func NRandomNumbersInU(_n_, panNumbers)
 			ok
 		ok
 
-		return NRandomNumbersInU(_n_, _nMin_:nMax)
+		return NRandomNumbersInU(_n_, _nMin_:_nMax_)
 
 	func RandomNNumbersBetweenU(_n_, _nMin_, _nMax_)
 		return NRandomNumbersBetweenU(_n_, _nMin_, _nMax_)
@@ -4347,7 +4347,7 @@ func NRandomNumbersInUZ(_n_, panNumbers)
 			ok
 		ok
 
-		return NRandomNumbersInUZ(_n_, _nMin_:nMax)
+		return NRandomNumbersInUZ(_n_, _nMin_:_nMax_)
 
 	func RandomNNumbersBetweenUZ(_n_, _nMin_, _nMax_)
 		return NRandomNumbersBetweenUZ(_n_, _nMin_, _nMax_)
@@ -4442,7 +4442,7 @@ func NRandomNumbersInXTU(_n_, panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumbersInXTU(_n_, _nMin_:nMax, _nSeed_)
+		return NRandomNumbersInXTU(_n_, _nMin_:_nMax_, _nSeed_)
 
 	func RandomNNumbersBetweenXTU(_n_, _nMin_, _nMax_, _nSeed_)
 		return NRandomNumbersBetweenXTU(_n_, _nMin_, _nMax_, _nSeed_)
@@ -4535,7 +4535,7 @@ func NRandomNumbersInXTUZ(_n_, panNumbers, _nSeed_)
 			ok
 		ok
 
-		return NRandomNumbersInXTUZ(_n_, _nMin_:nMax, _nSeed_)
+		return NRandomNumbersInXTUZ(_n_, _nMin_:_nMax_, _nSeed_)
 
 	func RandomNNumbersBetweenXTUZ(_n_, _nMin_, _nMax_, _nSeed_)
 		return NRandomNumbersBetweenXTUZ(_n_, _nMin_, _nMax_, _nSeed_)
