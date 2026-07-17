@@ -494,29 +494,43 @@ class stzTableAggregator from stzTable
 		@NumberOfCols = _nCols_
 		@NumberOfColumns = _nCols_
 
-		# Engine-first calculated column. Lower the @(:ColName) sugar to the
-		# engine's per-row cell reference This[colIndex], then evaluate the
-		# formula COMPILED ONCE over every row engine-side. The classic path
-		# below re-ran the Ring compiler with eval() on EACH row (~11us/row --
-		# seconds of pure compile overhead on a large table); this compiles the
-		# formula a single time and evaluates it natively per row.
+		# Engine-first calculated column, DENSE path. Lower @(:ColName) to This[j]
+		# where j is the column's position among the REFERENCED columns, so we
+		# pass ONLY those -- read by the engine as a dense f64 matrix with NO
+		# per-cell boxing (the boxing in the nested-list path was the marshalling
+		# floor). The formula compiles ONCE and evaluates natively per row. (The
+		# classic path below re-ran the Ring compiler with eval() on EACH row --
+		# ~11us/row, seconds of pure compile overhead at scale.)
+		# Detect referenced columns and lower them in ONE pass, VIA the replace
+		# itself. We can't use StzFind here: it returns 0 for a needle that
+		# contains @(:...) (the engine find mishandles those chars), and
+		# case-insensitive find is broken for multi-char needles -- so a
+		# find-based check silently misses every reference, leaves the formula
+		# unlowered, and drops to the slow eval-per-row fallback. Instead, try
+		# ReplaceCS (case-insensitive: names are stored lower-cased, formulas may
+		# write @(:A)); if the content changed, the column was referenced, and it
+		# gets the NEXT This[j] position (j = its rank among referenced columns).
 		_oEngFormula_ = new stzString(pcFormula)
 		_aRefCols_ = []
 		for i = 1 to _nCols_
 			_cTok_ = '@(:' + This.ColName(i) + ')'
-			if StzFindFirst(_cTok_, pcFormula) > 0
+			_cBefore_ = _oEngFormula_.Content()
+			_nNext_ = len(_aRefCols_) + 1
+			_oEngFormula_.ReplaceCS(_cTok_, 'This[' + _nNext_ + ']', 0)
+			if _oEngFormula_.Content() != _cBefore_
 				_aRefCols_ + i
 			ok
-			_oEngFormula_.ReplaceCS(_cTok_, 'This[' + i + ']', 0)
 		next
 		_nRefLen_ = len(_aRefCols_)
 
-		# Confirm every column the formula references is numeric. The engine
-		# evaluates arithmetically, so a formula over a string column (e.g. a
-		# concatenation) must take the Ring fallback to preserve its semantics.
+		# One pass: gather the referenced columns' data (the dense input) and
+		# confirm each is numeric. The engine evaluates arithmetically, so a
+		# formula over a string column (e.g. a concatenation) must take the Ring
+		# fallback below to preserve its semantics.
+		_aRefData_ = []
 		_bNumericRefs_ = TRUE
-		for k = 1 to _nRefLen_
-			_aColVals_ = This.Col(_aRefCols_[k])
+		for j = 1 to _nRefLen_
+			_aColVals_ = This.Col(_aRefCols_[j])
 			_nCVLen_ = len(_aColVals_)
 			for c = 1 to _nCVLen_
 				if NOT isNumber(_aColVals_[c])
@@ -524,20 +538,14 @@ class stzTableAggregator from stzTable
 					exit
 				ok
 			next
+			_aRefData_ + _aColVals_
 			if NOT _bNumericRefs_
 				exit
 			ok
 		next
 
-		# Pass the columns as-is -- the table's native layout -- so the engine
-		# reads This[k] = column k at each row and does ALL per-row work. Ring
-		# never transposes the table nor re-runs its compiler.
-		if _bNumericRefs_
-			_aCols_ = []
-			for c = 1 to _nCols_
-				_aCols_ + This.Col(c)
-			next
-			_aColData_ = StzEngineListEvalColumns(_aCols_, _nRows_, _oEngFormula_.Content())
+		if _bNumericRefs_ and _nRefLen_ > 0
+			_aColData_ = StzEngineListEvalColumnsDense(_aRefData_, _nRows_, _oEngFormula_.Content())
 		ok
 
 		# Fallback: a non-numeric reference, or a formula the engine DSL cannot

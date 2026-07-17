@@ -315,6 +315,58 @@ fn ring_EvalColumns(p: *anyopaque) callconv(.c) void {
     }
     R.ring_vm_api_retlist(p, out);
 }
+
+// DENSE calculated column -- the industry-scale path. Arg1 = referenced columns
+// (a Ring list of numeric column lists), arg2 = row count, arg3 = the lowered
+// formula (This[k] = referenced column k). Reads every cell straight into a
+// flat f64 matrix via ring_item_getnumber -- NO per-cell StzValue boxing (that
+// boxing was the marshalling floor of the ...EvalColumns path). Returns the
+// computed column; EMPTY if the formula does not compile (Ring then falls back).
+fn ring_EvalColumnsDense(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (R.ring_vm_api_islist(p, 1) == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const pCols = R.ring_vm_api_getlist(p, 1) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    const ncols: usize = @intCast(R.ringListSize(pCols));
+    const nrows: usize = @intFromFloat(g(p, 2));
+    if (ncols == 0 or nrows == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const vals = std.heap.c_allocator.alloc(f64, ncols * nrows) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer std.heap.c_allocator.free(vals);
+
+    // column-major fill: referenced column c (1-based) at vals[(c-1)*nrows..]
+    var c: c_uint = 1;
+    while (c <= ncols) : (c += 1) {
+        const pCol = R.ring_list_getlist_gc(null, pCols, c) orelse continue;
+        const base = (@as(usize, c) - 1) * nrows;
+        var r: c_uint = 1;
+        while (r <= @as(c_uint, @intCast(nrows))) : (r += 1) {
+            const pItem = R.ring_list_getitem_gc(null, pCol, r) orelse continue;
+            vals[base + (@as(usize, r) - 1)] = R.ring_item_getnumber(pItem);
+        }
+    }
+
+    const outbuf = std.heap.c_allocator.alloc(f64, nrows) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer std.heap.c_allocator.free(outbuf);
+
+    if (list.stz_expr_eval_dense(vals.ptr, ncols, nrows, outbuf.ptr, gs(p, 3), @intCast(gss(p, 3)))) {
+        for (outbuf) |v| R.ring_list_adddouble(out, v);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
 // Return the reduce result as a PLAIN scalar, extracted in-DLL. Passing the
 // StzValue across the stz_list <-> stz_value DLL boundary as a handle is the
 // cross-DLL handle trap (init handle panicked; result handle read back as 0).
@@ -1208,6 +1260,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistmapexpr", .func = &ring_MapExpr },
     .{ .name = "stzenginelistfilterexpr", .func = &ring_FilterExpr },
     .{ .name = "stzenginelistevalcolumns", .func = &ring_EvalColumns },
+    .{ .name = "stzenginelistevalcolumnsdense", .func = &ring_EvalColumnsDense },
     .{ .name = "stzenginelistreduceexpr", .func = &ring_ReduceExpr },
     .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
     .{ .name = "stzenginelistfindallcs", .func = &ring_FindAllCS },
