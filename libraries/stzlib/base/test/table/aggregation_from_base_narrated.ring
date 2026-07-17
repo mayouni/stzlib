@@ -30,12 +30,15 @@ o = new stzTable([
 	[ :POPULATION, [ 12, 125, 213 ] ]
 ])
 
+# Note: division is real (float) arithmetic -- 9000/213 = 42.25..., not a
+# truncated 42. Expected values are computed with Ring's own division so this
+# asserts the engine matches Ring arithmetic exactly.
 o.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 chk("AddCalculatedCol is reachable and correct",
-	@@(o.Col(:PERCAPITA)) = @@([ 100, 320, 42 ]))
+	@@(o.Col(:PERCAPITA)) = @@([ 1200/12, 40000/125, 9000/213 ]))
 chk("the calc col is tracked (position 4)", @@(o.FindCalculatedCols()) = @@([ 4 ]))
 chk("CalculatedColNames reads our own state", @@(o.CalculatedColNames()) = @@([ "percapita" ]))
-chk("CalculatedCols returns the column content", @@(o.CalculatedCols()) = @@([ [ 100, 320, 42 ] ]))
+chk("CalculatedCols returns the column content", @@(o.CalculatedCols()) = @@([ [ 1200/12, 40000/125, 9000/213 ] ]))
 
 ? "  PERCAPITA -> " + @@(o.Col(:PERCAPITA))
 

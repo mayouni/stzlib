@@ -1550,6 +1550,45 @@ pub fn stz_list_map_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len:
     return result;
 }
 
+// Dense column-major cell accessor: This[k] reads column k (1-based; idx 0-based)
+// at the current row, straight from a flat f64 matrix. No StzValue boxing.
+const DenseCtx = struct { vals: [*]const f64, ncols: usize, nrows: usize, row: usize };
+
+fn denseCellGetVal(ctx_ptr: ?*const anyopaque, idx: usize) expr.Val {
+    const dc: *const DenseCtx = @ptrCast(@alignCast(ctx_ptr.?));
+    if (idx >= dc.ncols) return expr.Val.initNull();
+    return expr.Val.initFloat(dc.vals[idx * dc.nrows + dc.row]);
+}
+
+// Industry-scale calculated column: evaluate a formula over a DENSE column-major
+// f64 matrix. `vals` holds ncols*nrows numbers (column k at vals[k*nrows..]),
+// filled by the bridge by reading Ring numbers straight into f64 -- NO per-cell
+// StzValue boxing (the boxing in stz_expr_eval_columns above was the marshalling
+// floor). Writes nrows results into `out`. Returns false if the formula does not
+// compile, so the Ring caller falls back to its eval path. Numeric-only by
+// construction (the caller guards that every referenced column is numeric).
+pub fn stz_expr_eval_dense(vals: [*]const f64, ncols: usize, nrows: usize, out: [*]f64, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) bool {
+    const prog = expr.compile(expr_ptr, expr_len) orelse return false;
+    defer prog.deinit();
+
+    var dc = DenseCtx{ .vals = vals, .ncols = ncols, .nrows = nrows, .row = 0 };
+    const count: i64 = @intCast(nrows);
+
+    var r: usize = 0;
+    while (r < nrows) : (r += 1) {
+        dc.row = r;
+        var ctx = expr.EvalCtx{
+            .list_ctx = &dc,
+            .list_len = ncols,
+            .list_get = &denseCellGetVal,
+            .index = @as(i64, @intCast(r)) + 1,
+            .count = count,
+        };
+        out[r] = expr.eval(prog, &ctx).asFloat();
+    }
+    return true;
+}
+
 pub fn stz_list_filter_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) ?*StzList {
     const l = list orelse return null;
     const prog = expr.compile(expr_ptr, expr_len) orelse return null;
