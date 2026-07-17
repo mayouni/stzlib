@@ -821,6 +821,15 @@ class stzWorkflowSimulation from stzObject
 #============================================#
 
 class stzFlowParser from stzObject
+
+	# The parser holds no state -- but it still needs THIS empty init.
+	#
+	# With no init of its own it inherits stzObject's, which takes one param
+	# (the object to wrap). Every construction here is `new stzFlowParser()`
+	# with none, so it raised R19 "less number of parameters" and took
+	# ImportFlow() -- the whole .stzflow reading path -- down with it.
+	def init()
+
 	def ParseFile(pcFilename)
 		_cContent_ = read(pcFilename)
 		return This.Parse(_cContent_)
@@ -849,18 +858,38 @@ class stzFlowParser from stzObject
 				_cType_ = This._ExtractValue(_cLine_)
 				_oWorkflow_.SetWorkflowType(_cType_)
 			
+			# A section header ENDS the section before it, so the item still
+			# pending there must be flushed HERE. An item is only written when
+			# the NEXT one starts, so the LAST item of every section had no
+			# next to trigger it: the end-of-parse flush below catches the
+			# final section only. In this file's own order -- steps, flow,
+			# actors -- that lost the last step, and then `flow` referenced
+			# it: "Cannot add edge: one or both nodes do not exist".
+
 			but _cLine_ = "steps"
+				This._FlushPending(_oWorkflow_, _cSection_, _cCurrentItem_, _aCurrentProps_)
 				_cSection_ = "steps"
-			
+				_cCurrentItem_ = ""
+				_aCurrentProps_ = []
+
 			but _cLine_ = "flow"
+				This._FlushPending(_oWorkflow_, _cSection_, _cCurrentItem_, _aCurrentProps_)
 				_cSection_ = "flow"
-			
+				_cCurrentItem_ = ""
+				_aCurrentProps_ = []
+
 			but _cLine_ = "actors"
+				This._FlushPending(_oWorkflow_, _cSection_, _cCurrentItem_, _aCurrentProps_)
 				_cSection_ = "actors"
-			
+				_cCurrentItem_ = ""
+				_aCurrentProps_ = []
+
 			but _cLine_ = "roles"
+				This._FlushPending(_oWorkflow_, _cSection_, _cCurrentItem_, _aCurrentProps_)
 				_cSection_ = "roles"
-			
+				_cCurrentItem_ = ""
+				_aCurrentProps_ = []
+
 			but _cSection_ = "steps"
 				if NOT StzFindFirst(_cLine_, ":")
 					if _cCurrentItem_ != ""
@@ -897,15 +926,24 @@ class stzFlowParser from stzObject
 			ok
 		end
 		
-		# Add last items
-		if _cSection_ = "steps" and _cCurrentItem_ != ""
-			This._AddStep(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
-		ok
-		if _cSection_ = "actors" and _cCurrentItem_ != ""
-			This._AddActor(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
-		ok
-		
+		# ... and the item pending in the LAST section, which no header follows
+		This._FlushPending(_oWorkflow_, _cSection_, _cCurrentItem_, _aCurrentProps_)
+
 		return _oWorkflow_
+
+	# Writes the item a section left pending. Every section ends either at the
+	# next header or at the end of the file, and both doors call this one.
+	def _FlushPending(_oWorkflow_, pcSection, pcItem, paProps)
+		if pcItem = ""
+			return
+		ok
+
+		if pcSection = "steps"
+			This._AddStep(_oWorkflow_, pcItem, paProps)
+
+		but pcSection = "actors"
+			This._AddActor(_oWorkflow_, pcItem, paProps)
+		ok
 	
 	def _AddStep(_oWorkflow_, pcId, paProps)
 		_cLabel_ = pcId
@@ -913,11 +951,17 @@ class stzFlowParser from stzObject
 		_nSLA_ = 0
 		_cAssigned_ = ""
 		
+		# paProps is a list of PAIRS -- Parse() builds it with
+		#     _aCurrentProps_ + [ key, value ]
+		# and Ring's + appends that [key, value] as ONE element. Reading it
+		# as a flat [k, v, k, v] run walked off the end (paProps[i+1] on the
+		# last pair -> R2 "Index out of range"), which is what greeted the
+		# parser the moment it could be constructed at all.
 		_nLen_ = len(paProps)
-		for i = 1 to _nLen_ step 2
-			_cKey_ = paProps[i]
-			pValue = paProps[i + 1]
-			
+		for i = 1 to _nLen_
+			_cKey_ = paProps[i][1]
+			pValue = paProps[i][2]
+
 			if _cKey_ = "label"
 				_cLabel_ = pValue
 			but _cKey_ = "duration"
@@ -944,12 +988,13 @@ class stzFlowParser from stzObject
 		_cName_ = pcId
 		_cRole_ = ""
 		
+		# A list of PAIRS, as _AddStep reads it -- see the note there.
 		_nLen_ = len(paProps)
-		for i = 1 to _nLen_ step 2
-			if paProps[i] = "name"
-				_cName_ = paProps[i + 1]
-			but paProps[i] = "role"
-				_cRole_ = paProps[i + 1]
+		for i = 1 to _nLen_
+			if paProps[i][1] = "name"
+				_cName_ = paProps[i][2]
+			but paProps[i][1] = "role"
+				_cRole_ = paProps[i][2]
 			ok
 		end
 		
