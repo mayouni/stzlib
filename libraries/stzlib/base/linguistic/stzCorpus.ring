@@ -18,11 +18,12 @@
 class stzCorpus from stzObject
 
 	@acDocs = []
-	@aUni = []        # [ word, count ] hash
-	@aBi = []         # [ "w1 w2", count ] hash
+	@aUni = []        # [ word, count ] hash (vocabulary / frequency / TF-IDF)
 	@aDocUni = []     # per-document [ word, count ] hashes (TF-IDF)
 	@nTokens = 0
 	@bCounted = 0
+
+	@nLmHandle = 0    # engine-resident n-gram model (0 = not yet trained)
 
 	def init(p)
 		if isString(p)
@@ -56,12 +57,14 @@ class stzCorpus from stzObject
 
 	#-- counting ----------------------------------------------------------
 
+	# Per-word and per-document unigram counts feed the vocabulary/frequency
+	# stats and TF-IDF below. (The n-gram LM does NOT come through here -- it
+	# is owned by the engine; see BigramProbability.)
 	def _EnsureCounts()
 		if @bCounted
 			return
 		ok
 		@aUni = []
-		@aBi = []
 		@aDocUni = []
 		@nTokens = 0
 		_nD_ = len(@acDocs)
@@ -79,27 +82,16 @@ class stzCorpus from stzObject
 				else
 					_aDU_[_cW_] = 1
 				ok
-				if _w_ < _nW_
-					This._Bump(:bi, _cW_ + " " + StzLower(_acW_[_w_ + 1]))
-				ok
 			next
 			@aDocUni + _aDU_
 		next
 		@bCounted = 1
 
 	def _Bump(pcWhich, pcKey)
-		if pcWhich = :uni
-			if HasKey(@aUni, pcKey)
-				@aUni[pcKey] = @aUni[pcKey] + 1
-			else
-				@aUni[pcKey] = 1
-			ok
+		if HasKey(@aUni, pcKey)
+			@aUni[pcKey] = @aUni[pcKey] + 1
 		else
-			if HasKey(@aBi, pcKey)
-				@aBi[pcKey] = @aBi[pcKey] + 1
-			else
-				@aBi[pcKey] = 1
-			ok
+			@aUni[pcKey] = 1
 		ok
 
 	def NumberOfWords()
@@ -153,37 +145,24 @@ class stzCorpus from stzObject
 		return _aOut_
 
 	#-- the n-gram language model (Laplace-smoothed bigrams) --------------
+	#
+	# The ENGINE owns this model, end to end. The corpus is counted in a Zig
+	# hash map (O(tokens)); a Ring hashlist would be a linear scan per token
+	# (~O(tokens * vocab)) and cannot carry a real corpus. Ring is a thin
+	# consumer here: it hands the engine the raw documents and asks questions.
+	# The engine tokenises, lowercases (Unicode-correct, via utf8proc) and
+	# counts -- Ring never touches the tokens.
+	#
+	#   P(w2|w1) = (count(w1 w2) + 1) / (count(w1) + V)   -- Laplace smoothing
 
 	def BigramProbability(pcW1, pcW2)
-		This._EnsureCounts()
-		_cW1_ = StzLower(ring_trim("" + pcW1))
-		_cW2_ = StzLower(ring_trim("" + pcW2))
-		_nBi_ = 0
-		if HasKey(@aBi, _cW1_ + " " + _cW2_)
-			_nBi_ = @aBi[_cW1_ + " " + _cW2_]
-		ok
-		_nUni_ = 0
-		if HasKey(@aUni, _cW1_)
-			_nUni_ = @aUni[_cW1_]
-		ok
-		_nV_ = len(@aUni)
-		return (_nBi_ + 1) / (_nUni_ + _nV_)
+		return stzengine_ngram_bigram_prob(This._LmHandle(), "" + pcW1, "" + pcW2)
 
 	def LogProbability(pcText)
-		This._EnsureCounts()
-		_oT_ = new stzText("" + pcText)
-		_acW_ = _oT_.Words()
-		_nW_ = len(_acW_)
-		if _nW_ < 2
-			return 0
-		ok
-		_nLog_ = 0
-		for _i_ = 1 to _nW_ - 1
-			_nLog_ += log(This.BigramProbability(_acW_[_i_], _acW_[_i_ + 1]))
-		next
-		return _nLog_
+		return stzengine_ngram_log_prob(This._LmHandle(), "" + pcText)
 
-	# perplexity = exp( -avg log P ) -- LOWER is more in-domain
+	# perplexity = exp( -avg log P ) -- LOWER means more in-domain. The scalar
+	# formula is Ring's to craft; the log-probability under it is the engine's.
 	def Perplexity(pcText)
 		_oT_ = new stzText("" + pcText)
 		_nW_ = len(_oT_.Words())
@@ -191,6 +170,31 @@ class stzCorpus from stzObject
 			return 0
 		ok
 		return exp( - This.LogProbability(pcText) / (_nW_ - 1) )
+
+	# The engine-resident model, trained on first use. The engine is a HARD
+	# dependency for this heavy work: if its DLL is not loaded, the model is
+	# simply unavailable -- we raise a clear message rather than fall back to
+	# counting a corpus in Ring.
+	def _LmHandle()
+		if @nLmHandle != 0
+			return @nLmHandle
+		ok
+		try
+			@nLmHandle = stzengine_ngram_train(JoinXT(@acDocs, nl))
+		catch
+			stzraise("The n-gram language model needs the stz_natlang engine (stz_natlang.dll is not loaded).")
+		done
+		return @nLmHandle
+
+	# Ring has no destructors -- free the engine model explicitly when done.
+	def FreeLm()
+		if @nLmHandle != 0
+			try
+				stzengine_ngram_free(@nLmHandle)
+			catch
+			done
+			@nLmHandle = 0
+		ok
 
 	#-- TF-IDF (R4 step 0: the vectorizer feeding the ML floor) -----------
 
