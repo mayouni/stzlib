@@ -51,6 +51,14 @@ pub const NgramModel = struct {
 
 fn lowerTok(tok: []const u8, buf: []u8) []const u8 {
     if (tok.len == 0) return tok;
+    // Case-mapping can EXPAND a token (e.g. Turkish 'İ' -> 'i' + combining dot),
+    // and stz_unicode_to_lower_str CAPS its output at the buffer size -- so a
+    // token near the buffer length would be silently TRUNCATED. Leave 2x room;
+    // a token too long to lower safely is counted RAW (whole, un-lowercased),
+    // never truncated. Real words are far under this; only pathological tokens
+    // (long identifiers, blobs) hit it, and losing case-folding on those is a
+    // fair trade for never losing bytes.
+    if (tok.len * 2 > buf.len) return tok;
     const n = unicode.stz_unicode_to_lower_str(tok.ptr, tok.len, buf.ptr, buf.len);
     if (n == 0) return tok;
     return buf[0..n];
