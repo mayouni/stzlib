@@ -135,6 +135,16 @@ class stzMultiObjectiveSolver from stzObject
 
 
 	def solveWithNSGAII()
+	    # REFUSE constraints rather than ignore them. This genetic path samples
+	    # solutions across the full variable bounds and never tests feasibility
+	    # -- so a constraint like x <= 5 was SILENTLY DROPPED and the front came
+	    # back full of solutions that violate it. Constrained NSGA-II is real work
+	    # and a real feature; until it exists, an honest raise beats a wrong answer.
+	    # The epsilon-constraint method DOES handle bounds via stzLinearSolver.
+	    if len(@aConstraints) > 0
+	        stzRaise("NSGA-II here does not enforce constraints yet -- use solve(:epsilon_constraint) for constrained problems, or drop the constraints.")
+	    ok
+
 	    @nIterations = @nGenerations
 	    _aPopulation_ = This.initializePopulation()
 	    
@@ -167,7 +177,23 @@ class stzMultiObjectiveSolver from stzObject
 	        _aNewPopulation_ = This.createNewPopulation(_aPopulation_)
 	        _aPopulation_ = _aNewPopulation_
 	    next
-	    
+
+	    # RANK THE FINAL POPULATION before reading the front off it. The
+	    # generation loop ends on createNewPopulation(), which builds every child
+	    # with :rank = 0 and never re-ranks -- so the population handed to the
+	    # extractor was ALWAYS all-rank-0, the `:rank = 1` filter matched nothing,
+	    # and solve() returned an EMPTY front while reporting status "optimal": a
+	    # wrong answer that never raised. Sort once more so rank 1 means what the
+	    # filter expects (and evaluate any fresh child that carries no objectives).
+	    _nPopLen_ = len(_aPopulation_)
+	    for i = 1 to _nPopLen_
+	        if len(_aPopulation_[i][:solution]) > 0 and len(_aPopulation_[i][:objectives]) = 0
+	            _aPopulation_[i][:objectives] = This.evaluateObjectives(_aPopulation_[i][:solution])
+	        ok
+	    next
+	    _aFinalFronts_ = This.nonDominatedSort(_aPopulation_)
+	    _aPopulation_ = This.calculateCrowdingDistance(_aFinalFronts_, _aPopulation_)
+
 	    # Extract Pareto front - only include valid solutions
 	    _aParetoFront_ = []
 	    _nPopLen_ = len(_aPopulation_)
