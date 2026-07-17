@@ -740,7 +740,12 @@ class stzBarPlot from stzObject
 		# │ ██ ██ ██  
 		# │ A  B  C   
 
-		if classname(This) = "stzbarchart"
+		# ring_classname(), not classname(): inside a class body the bare
+		# name resolves to the ClassName() METHOD inherited from stzObject
+		# (0 params, called here with 1) -> R20, which took Show() down for
+		# every bar plot. This.ClassName() is not the answer either -- it
+		# returns the literal "stzobject" unless a class overrides it.
+		if ring_classname(This) = "stzbarchart"
 			if @bShowVAxis and not @bShowHAxis
 				_oTempStr_ = new stzString(_cResult_)
 				_nPos_ = _oTempStr_.FindLast(@cVAxisChar)
