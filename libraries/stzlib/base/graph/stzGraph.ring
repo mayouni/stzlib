@@ -3638,6 +3638,16 @@ class stzGraph from stzObject
 		def Shwo()
 			This.Show()
 
+	# The same picture as DATA, for a file, a report, or a test.
+	# Show() prints it; these hand it back.
+	def AsciiArt()
+		_oViz_ = new stzGraphAsciiVisualizer(This)
+		return _oViz_.AsciiArt()
+
+	def AsciiArtHorizontal()
+		_oViz_ = new stzGraphAsciiVisualizer(This)
+		return _oViz_.AsciiArtHorizontal()
+
 	def View()
 		_oDot_ = new stzDotCode()
 		_oDot_.SetCode(This.Dot())
@@ -6166,8 +6176,48 @@ class stzGraphAsciiVisualizer from stzObject
 	@cConnectorDash = "-"
 	@cConnectorArrow = ">"
 	
+	# The art can be RETURNED, not only printed.
+	#
+	# Every line used to go straight to `?`, so a graph's picture could only
+	# ever land on a console: it could not be written to a file, put in a
+	# report, served, or ASSERTED ON -- which is exactly how the box glyphs
+	# stayed double-encoded for months while printing garbage without ever
+	# raising. stzFolder settled this long ago with GenerateVizTreeString();
+	# the graph gets the same courtesy. Show() still prints, byte for byte.
+	@bCapture = FALSE
+	@cBuffer = ""
+
 	def init(poGraph)
 		@oGraph = poGraph
+
+	# Prints, or buffers -- the ONE door every line of the art goes through.
+	def _Emit(pcLine)
+		if @bCapture
+			@cBuffer += pcLine + NL
+		else
+			? pcLine
+		ok
+
+	# The art as DATA -- the vertical picture, as a string.
+	def AsciiArt()
+		return This._Captured(:vertical)
+
+	# ... and the horizontal one.
+	def AsciiArtHorizontal()
+		return This._Captured(:horizontal)
+
+	def _Captured(pcMode)
+		@bCapture = TRUE
+		@cBuffer = ""
+
+		if pcMode = :horizontal
+			This.ShowHorizontal()
+		else
+			This.Show()
+		ok
+
+		@bCapture = FALSE
+		return @cBuffer
 	
 	def Show()
 		_acDisplayNodes_ = This._PrepareDisplayNodes()
@@ -6246,9 +6296,9 @@ class stzGraphAsciiVisualizer from stzObject
 			This._ShowVerticalBranchWithNodes(_cRoot_, _acVisitedPath_, 0, pacDisplayNodes)
 			
 			if _nRootIdx_ < _nLen_
-				? ""
-				? "          ////"
-				? ""
+				This._Emit("")
+				This._Emit("          ////")
+				This._Emit("")
 			ok
 		end
 	
@@ -6260,7 +6310,7 @@ class stzGraphAsciiVisualizer from stzObject
 		
 		for i = 1 to _nLen_
 			_cLine_ = _acLines_[i]
-			? CenterAlignXT(_cLine_, 25, " ")
+			This._Emit(CenterAlignXT(_cLine_, 25, " "))
 		end
 		
 		pacVisitedPath + pcNodeId
@@ -6280,9 +6330,9 @@ class stzGraphAsciiVisualizer from stzObject
 				_aEdge_ = @oGraph.Edge(pcNodeId, _cNext_)
 				
 				if len(_acNeighbors_) > 1 and _nNeighborIdx_ > 1
-					? ""
-					? "          ////"
-					? ""
+					This._Emit("")
+					This._Emit("          ////")
+					This._Emit("")
 					_cDisplayLabel_ = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 					_cBoxed_ = BoxRound(_cDisplayLabel_)
 					_acLines_ = @split(_cBoxed_, nl)
@@ -6293,23 +6343,23 @@ class stzGraphAsciiVisualizer from stzObject
 						if j = 1
 							_cTempLine_ = CenterAlignXT(_cLine_, 25, " ")
 							_cTempLine_ = TrimRight(_cTempLine_) + "  " + @cArrowUp
-							? _cTempLine_
+							This._Emit(_cTempLine_)
 						but j = 2
 							_cTempLine_ = CenterAlignXT(_cLine_, 25, " ")
 							_cTempLine_ = TrimRight(_cTempLine_) + @cBoxHorizontal + @cBoxHorizontal + @cBoxBottomRight
-							? _cTempLine_
+							This._Emit(_cTempLine_)
 						else
-							? CenterAlignXT(_cLine_, 25, " ")
+							This._Emit(CenterAlignXT(_cLine_, 25, " "))
 						ok
 					end
 				ok
 				
-				? CenterAlignXT(@cPipeChar, 25, " ")
+				This._Emit(CenterAlignXT(@cPipeChar, 25, " "))
 				if _aEdge_["label"] != ""
-					? CenterAlignXT(_aEdge_["label"], 25, " ")
-					? CenterAlignXT(@cPipeChar, 25, " ")
+					This._Emit(CenterAlignXT(_aEdge_["label"], 25, " "))
+					This._Emit(CenterAlignXT(@cPipeChar, 25, " "))
 				ok
-				? CenterAlignXT(@cArrowDown, 25, " ")
+				This._Emit(CenterAlignXT(@cArrowDown, 25, " "))
 				
 				_acCopyPath_ = pacVisitedPath
 				This._ShowVerticalBranchWithNodes(_cNext_, _acCopyPath_, pnBranchDepth + 1, pacDisplayNodes)
@@ -6322,10 +6372,10 @@ class stzGraphAsciiVisualizer from stzObject
 					_cEdgeLabel_ = _aEdge_["label"]
 				ok
 				
-				? "            |            "
-				? "      <" + @cCycleIndicator + ": " + _cEdgeLabel_ + ">   "
-				? "            |                      " + @cArrowUp
-				? "            " + @cBoxBottomLeft + @cBoxHorizontal + @cBoxHorizontal + "> [" + _cNodeLabel_ + "] " + @cBoxHorizontal + @cBoxHorizontal + @cBoxBottomRight
+				This._Emit("            |            ")
+				This._Emit("      <" + @cCycleIndicator + ": " + _cEdgeLabel_ + ">   ")
+				This._Emit("            |                      " + @cArrowUp)
+				This._Emit("            " + @cBoxBottomLeft + @cBoxHorizontal + @cBoxHorizontal + "> [" + _cNodeLabel_ + "] " + @cBoxHorizontal + @cBoxHorizontal + @cBoxBottomRight)
 			ok
 		end
 	
@@ -6355,7 +6405,7 @@ class stzGraphAsciiVisualizer from stzObject
 			
 			_nLen2_ = len(_acBoxLines_)
 			for j = 1 to _nLen2_
-				? _acBoxLines_[j]
+				This._Emit(_acBoxLines_[j])
 			end
 		end
 	
