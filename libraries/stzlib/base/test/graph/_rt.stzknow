@@ -1,6 +1,0 @@
-knowledge "resto"
-
-facts
-    tiramisu | is-a | dish
-    tiramisu | contains | mascarpone
-    tiramisu | contains | coffee
