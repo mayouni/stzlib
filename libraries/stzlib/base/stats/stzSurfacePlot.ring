@@ -24,17 +24,17 @@ class stzSurfacePlot from stzObject
 	@nMinLabelWidth = 3  # Minimum characters to show from label
 
 	# Border characters
-	@cTopLeft = "â•­"
-	@cTopRight = "â•®"
-	@cBottomLeft = "â•°"
-	@cBottomRight = "â•¯"
-	@cHorizontal = "â”€"
-	@cVertical = "â”‚"
-	@cTeeDown = "â”¬"
-	@cTeeUp = "â”´"
-	@cTeeRight = "â”œ"
-	@cTeeLeft = "â”¤"
-	@cCross = "â”¼"
+	@cTopLeft = char(226) + char(149) + char(173)
+	@cTopRight = char(226) + char(149) + char(174)
+	@cBottomLeft = char(226) + char(149) + char(176)
+	@cBottomRight = char(226) + char(149) + char(175)
+	@cHorizontal = char(226) + char(148) + char(128)
+	@cVertical = char(226) + char(148) + char(130)
+	@cTeeDown = char(226) + char(148) + char(172)
+	@cTeeUp = char(226) + char(148) + char(180)
+	@cTeeRight = char(226) + char(148) + char(156)
+	@cTeeLeft = char(226) + char(148) + char(164)
+	@cCross = char(226) + char(148) + char(188)
 
 	@aRectangles = []
 	@nSum = 0

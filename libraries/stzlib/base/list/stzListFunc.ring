@@ -6431,7 +6431,7 @@ func ListCount(_aList_, pItem)
 # checking if you can use these global @Find...() functions
 # before using an stzList object.
 
-# These functions can be used when the items youâ€™re looking for
+# These functions can be used when the items you're looking for
 # are either numbers or lists. Otherwise, the use of stzList is necessary.
 
 # The option for the right approach can lead to significant performance gains.

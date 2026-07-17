@@ -118,7 +118,7 @@ class stzStringEncoder from stzObject
 		return _acResult_
 
 	def Unicodes()
-		# Same as AsciiCodes â€” returns Unicode codepoints
+		# Same as AsciiCodes -- returns Unicode codepoints
 		return This.AsciiCodes()
 
 		return _acResult_

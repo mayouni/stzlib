@@ -20,7 +20,7 @@ class stzHistogram from stzObject
 	@nBarInterSpace = 1
 	@nLabelInterSpace = 1
 
-	@cBarChar = "â–ˆ"
+	@cBarChar = char(226) + char(150) + char(136)
 	@cFinalBarChar = ""
 
 	# Histogram-specific data
@@ -44,11 +44,11 @@ class stzHistogram from stzObject
 	@nLabelPadding = 1
 
 	# Axis characters
-	@cVAxisChar = "â”‚"
-	@cHAxisChar = "â”€"
-	@cVArrowChar = "â–²"
-	@cHArrowChar = "â–º"
-	@cOriginChar = "â•°"
+	@cVAxisChar = char(226) + char(148) + char(130)
+	@cHAxisChar = char(226) + char(148) + char(128)
+	@cVArrowChar = char(226) + char(150) + char(178)
+	@cHArrowChar = char(226) + char(150) + char(186)
+	@cOriginChar = char(226) + char(149) + char(176)
 	@cAverageChar = "-"
 
 	# Histogram aggregation types

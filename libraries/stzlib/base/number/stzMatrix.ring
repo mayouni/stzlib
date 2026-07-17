@@ -2528,7 +2528,7 @@ class stzMatrix from stzListOfLists
 		# If matrix is empty, just show empty border
 
 		if @nRows = 0 or @nCols = 0
-			see "â”Œâ”" + nl + "â””â”˜" + nl
+			see char(226) + char(148) + char(140) + char(226) + char(148) + char(144) + nl + char(226) + char(148) + char(148) + char(226) + char(148) + char(152) + nl
 			return
 		ok
 
@@ -2568,13 +2568,13 @@ class stzMatrix from stzListOfLists
 
 		# Top border
 
-		see "â”Œ" + ring_copy(" ", _nTotalWidth_) + "â”" + NL
+		see char(226) + char(148) + char(140) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(144) + NL
 
 		# Matrix content
 
 		for i = 1 to @nRows
 
-			see "â”‚ "
+			see char(226) + char(148) + char(130) + " "
 
 			for j = 1 to @nCols
 
@@ -2585,12 +2585,12 @@ class stzMatrix from stzListOfLists
 
 			next
 
-			see "â”‚" + NL
+			see char(226) + char(148) + char(130) + NL
 		next
 
 		# Bottom border
 
-		see "â””" + ring_copy(" ", _nTotalWidth_) + "â”˜" + nl
+		see char(226) + char(148) + char(148) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(152) + nl
 
 		#< @FunctionMisspelledForm
 

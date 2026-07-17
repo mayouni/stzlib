@@ -1281,7 +1281,12 @@ class stzDiagram from stzGraph
 			_nEffects1Len_ = len(_aEffects_)
 			for _iLoopEffects1_ = 1 to _nEffects1Len_
 				_aEffect_ = _aEffects_[_iLoopEffects1_]
-				_acLegend_ + "  ÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢ " + _aEffect_[1] + ": " + _aEffect_[2]
+				# NOTE: this marker was corrupted beyond recovery -- the bytes were
+				# SUBSTITUTED, not merely re-encoded, so the original glyph cannot
+				# be derived (no candidate reproduces the run under any number of
+				# corruption passes, and it predates the variable's current name).
+				# ASCII "->" matches its sibling lines ("When: ", "  Params: ").
+				_acLegend_ + "  -> " + _aEffect_[1] + ": " + _aEffect_[2]
 			next
 			
 			_acLegend_ + ""
@@ -2958,7 +2963,7 @@ class stzDiagramToDot from stzObject
 	    _cOutput_ = '    ' + _cFrom_ + ' -> ' + _cTo_
 	    _aAttrs_ = []
 	    
-	    # Check if this is a supervisorÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢helper edge
+	    # Check if this is a supervisor -> helper edge
 	    if StzLeft(_cTo_, 8) = "_helper_"
 	        _aAttrs_ + 'arrowhead=none'
 	        _aAttrs_ + 'weight=10'

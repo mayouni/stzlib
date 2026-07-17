@@ -31,14 +31,13 @@ oVariation {
 aDiff = oBaseline.CompareWith(oVariation)
 ? @@NL( aDiff )
 #-->
-# NOTE on the recorded block below: two of its lines are KNOWN-STALE, and
-# neither is about the diff. (1) `longestpath` reads lower than recorded --
+# NOTE on the recorded block below: one of its lines is KNOWN-STALE, and it
+# is not about the diff. The longestpath metric reads lower than recorded --
 # unchanged behaviour, verified identical at HEAD, and tracked separately.
-# (2) the criticality string prints a garbled arrow: the source of stzGraph
-# carries a double-encoded arrow glyph (a project rule says console output
-# stays ASCII), so the clean arrow recorded here is what it SHOULD print.
-# The edge diff itself is now true -- it used to file every added edge under
-# `removed` (and every unchanged edge under `modified`).
+# The edge diff itself is now true: it used to file every ADDED edge under
+# removed (and every unchanged edge under modified). The arrow in the
+# criticality strings is a real arrow again -- stzGraph's source carried a
+# double-encoded glyph, now rebuilt from raw UTF-8 bytes via char().
 `
 [
 	[

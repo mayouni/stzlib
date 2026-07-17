@@ -34,16 +34,16 @@ class stzTimeLine from stzObject
 	@nVizMinWidth = 30
 	@nVizHeight = 5 # Will adjust autumatically to the required hight
 
-	@cAxisChar = "â”€"
-	@cPointChar = "â—"
-	@cMultiPointChar = "â—‰"
-	@cBoundaryEndChar = "â—‹"
+	@cAxisChar = char(226) + char(148) + char(128)
+	@cPointChar = char(226) + char(151) + char(143)
+	@cMultiPointChar = char(226) + char(151) + char(137)
+	@cBoundaryEndChar = char(226) + char(151) + char(139)
 	@cSpanChar = "="
-	@cSpanStartChar = "â•ž"
-	@cSpanEndChar = "â•¡"
+	@cSpanStartChar = char(226) + char(149) + char(158)
+	@cSpanEndChar = char(226) + char(149) + char(161)
 	@cBoundaryStartChar = "|"
-	@cHighlightChar = "â–ˆ"
-	@cArrowChar = "â–º"
+	@cHighlightChar = char(226) + char(150) + char(136)
+	@cArrowChar = char(226) + char(150) + char(186)
 	@cUncoveredChar = "/"
 	@cBlockChar = "X"
 
@@ -1527,10 +1527,10 @@ class stzTimeLine from stzObject
 			_cTable_ = _buildTimepointsTable(_aTimepoints_)
 		ok
 	
-		# Workaround: replacing eventual â”€â”€â—‹â—â–º with â”€â—â—‹â”€â–º
+		# Workaround: replacing eventual --(*) with -(*)-
 		#TODO // Resolve it logically at construction
 
-		_cViz_ = StzReplace(_cViz_, "â”€â”€â—‹â—â–º", "â”€â”€â”€â—â—‹â”€â–º")
+		_cViz_ = StzReplace(_cViz_, char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(151) + char(139) + char(226) + char(151) + char(143) + char(226) + char(150) + char(186), char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(151) + char(143) + char(226) + char(151) + char(139) + char(226) + char(148) + char(128) + char(226) + char(150) + char(186))
 
 		return _cViz_ + nl + nl + _cTable_
 	
@@ -2294,16 +2294,16 @@ class stzTimeLine from stzObject
 	                _bHighlighted_ = TRUE
 	            ok
 	
-	            # Use â—‰ if multiple events at same position, otherwise â—
+	            # Use (o) if multiple events at same position, otherwise (*)
 	            _cChar_ = ""
 	            if _bHighlighted_
 	                _cChar_ = @cHighlightChar
 	            else
 	                if _nCount_ = 1
-	                    _cChar_ = @cPointChar # Single event (â—)
+	                    _cChar_ = @cPointChar # Single event ((*))
 	
 	                but _nCount_ > 1
-	                    _cChar_ = @cMultiPointChar  # Multiple events at this position (â—‰)
+	                    _cChar_ = @cMultiPointChar  # Multiple events at this position ((o))
 	                ok
 	            ok
 	
