@@ -577,7 +577,7 @@ int main() {
 % Main predicate
 main :-
     writeln("SWI-Prolog program starting..."),
-    ' + cMainPredicate + '(Res),
+    ' + _cMainPredicate_ + '(Res),
     writeln("Transforming result..."),
     transform_to_ring(Res, "' + @cResultFile + '"),
     writeln("Data written to file").

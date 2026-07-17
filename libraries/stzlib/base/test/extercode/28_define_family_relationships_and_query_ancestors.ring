@@ -3,7 +3,11 @@
 # Define family relationships and query ancestors
 #
 # Extracted from stzextercodetest.ring, block #28.
-#ERR Error (C22) : Function redefinition, function is already defined!
+#ERR needs SWI-Prolog INSTALLED -- runprolog.bat points at
+#    d:/prolog/swipl-9.9.9/bin/swipl.exe, which is absent here, so the run
+#    dies at "Result file 'plresult.txt' not created". The RING side is green:
+#    PrepareSourceCode() builds the driver and names the right predicate.
+#    (It used to die before that, on R24 'cmainpredicate' -- fixed.)
 
 load "../../stzBase.ring"
 
