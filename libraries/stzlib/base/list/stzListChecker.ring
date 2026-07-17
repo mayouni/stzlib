@@ -150,7 +150,7 @@ class stzListChecker from stzObject
 							return 0
 						ok
 					else
-						if type(_yElem_) != _cInner_
+						if ring_type(_yElem_) != _cInner_
 							return 0
 						ok
 					ok
@@ -160,7 +160,7 @@ class stzListChecker from stzObject
 		ok
 
 		for i = 1 to _nLen_
-			if type(_aContent_[i]) != _cT_
+			if ring_type(_aContent_[i]) != _cT_
 				return 0
 			ok
 		next

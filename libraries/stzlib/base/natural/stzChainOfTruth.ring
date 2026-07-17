@@ -258,10 +258,15 @@ class stzChainOfTruth from stzObject
 				bResult = 1
 
 			# Case of a stz object method
-			but StzFindFirst( methods(This.StzObjectQ()), "is" + pThing ) > 0
+			but StzFindFirst( ring_methods(This.StzObjectQ()), "is" + pThing ) > 0
 				# Example: _("A").Is( :Uppercase )
 	
-				cCode = 'bResult = StzObject().Is' + pThing + '()'
+				# This.StzObjectQ(), like the other eval'd calls in this class
+				# (see the ones built further down). A bare StzObject() here
+				# named the method as it was BEFORE it took its Q -- and a
+				# name inside an eval'd STRING is invisible to a rename sweep,
+				# so it went on compiling and died at run time with R3.
+				cCode = 'bResult = This.StzObjectQ().Is' + pThing + '()'
 				eval(cCode)
 	
 			# Case of a function call
@@ -290,7 +295,7 @@ class stzChainOfTruth from stzObject
 			nThing2Len = len(pThing)
 			for iLoopThing2 = 1 to nThing2Len
 				str = pThing[iLoopThing2]
-				if NOT ( StzFindFirst( methods(This.StzObjectQ()), "is" + str ) > 0 )
+				if NOT ( StzFindFirst( ring_methods(This.StzObjectQ()), "is" + str ) > 0 )
 					bIsListOfMethods = 0
 					exit
 				ok
