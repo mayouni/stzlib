@@ -1508,7 +1508,11 @@ func StzStringCenterAlignXT(_cStr_, nWidth, cChar)
 #===
 
 func StzCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
-	if isSrtring(pStrOrList)
+	# isString, not isSrtring: the typo made the STRING branch unreachable,
+	# so counting a substring in a string raised R3 (Ring resolves an unknown
+	# name only when the line runs) while the list branch worked fine. Found
+	# by the first test that ever counted a glyph in rendered art.
+	if isString(pStrOrList)
 		return StzStringCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 
 	but isList(pStrOrList)

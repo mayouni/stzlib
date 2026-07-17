@@ -6414,10 +6414,19 @@ func ListContainsOneOfThese(paList, paItems)
 #===
 
 func ListCountCS(_aList_, pItem, pCaseSensitive)
-	_nResult_ = StzListQ(_aList_).FindAllCS(_aList_, pItem, pCaseSensitive)
+	# Three faults lived in these five lines, and none could fire until
+	# something counted an item in a list -- which nothing ever did:
+	#   1. it handed the LIST to FindAllCS as a first argument. The method
+	#      takes (item, caseSensitive) -> R20.
+	#   2. it assigned _nResult_ and never RETURNED it -> NULL even if the
+	#      call had worked.
+	#   3. ListCount below passed pCaseSensitive, which is not one of its
+	#      parameters -> R24 on an uninitialised name.
+	# stzList already answers this exactly, so ask it instead of rebuilding it.
+	return StzListQ(_aList_).CountCS(pItem, pCaseSensitive)
 
 func ListCount(_aList_, pItem)
-	return ListCountCS(_aList_, pItem, pCaseSensitive)
+	return ListCountCS(_aList_, pItem, TRUE)
 
 
 #=== Enhance Ring+Softanza finding functions #todo #narration
