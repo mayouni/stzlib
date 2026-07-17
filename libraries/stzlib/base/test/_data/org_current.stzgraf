@@ -1,0 +1,54 @@
+graph "current_org"
+    type: structural
+
+nodes
+    ceo "CEO"
+    cfo "CFO"
+    cto "CTO"
+    treasury_head "Treasury_Head"
+    controller "Controller"
+    eng1 "Engineer_1"
+    eng2 "Engineer_2"
+    analyst "Analyst"
+
+edges
+    ceo -> cfo "manages"
+    ceo -> cto "manages"
+    ceo -> treasury_head "manages"
+    cfo -> controller "manages"
+    cto -> eng1 "manages"
+    cto -> eng2 "manages"
+    treasury_head -> analyst "manages"
+
+properties
+    ceo
+        level: 5
+        department: "executive"
+
+    cfo
+        level: 4
+        department: "finance"
+
+    cto
+        level: 4
+        department: "tech"
+
+    treasury_head
+        level: 3
+        department: "finance"
+
+    controller
+        level: 3
+        department: "finance"
+
+    eng1
+        level: 2
+        department: "tech"
+
+    eng2
+        level: 2
+        department: "tech"
+
+    analyst
+        level: 2
+        department: "finance"

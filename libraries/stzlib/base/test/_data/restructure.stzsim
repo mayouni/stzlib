@@ -1,0 +1,24 @@
+simulation "Move Treasury Under CFO Comparison"
+    description: "Changes from baseline"
+    date: 2024-12-26
+
+changes
+
+    add node risk_officer
+        label: "Risk Officer"
+
+    add node compliance_officer
+        label: "Compliance Officer"
+
+    remove edge ceo -> treasury_head
+
+    add edge cfo -> treasury_head
+    add edge treasury_head -> risk_officer
+    add edge treasury_head -> compliance_officer
+
+metrics
+
+    density: 0.25 -> 0.32
+    nodeCount: 8 -> 10
+    edgeCount: 7 -> 9
+    hasCycles: FALSE -> FALSE

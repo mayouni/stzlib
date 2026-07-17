@@ -3,7 +3,6 @@
 # Business scenario: Comparing sparse vs dense structure
 #
 # Extracted from stzgraphtest.ring, block #81.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -46,6 +45,14 @@ oDense {
 aDiff = oSparse.CompareWith(oDense)
 ? @@NL( aDiff )
 #-->
+# NOTE on the recorded block below: two of its lines are KNOWN-STALE, and
+# neither is about the diff. (1) `longestpath` reads lower than recorded --
+# unchanged behaviour, verified identical at HEAD, and tracked separately.
+# (2) the criticality string prints a garbled arrow: the source of stzGraph
+# carries a double-encoded arrow glyph (a project rule says console output
+# stays ASCII), so the clean arrow recorded here is what it SHOULD print.
+# The edge diff itself is now true -- it used to file every added edge under
+# `removed` (and every unchanged edge under `modified`).
 `
 [
 	[
@@ -53,8 +60,8 @@ aDiff = oSparse.CompareWith(oDense)
 		[
 			[ "nodesadded", 0 ],
 			[ "nodesremoved", 0 ],
-			[ "edgesadded", 0 ],
-			[ "edgesremoved", 6 ],
+			[ "edgesadded", 6 ],
+			[ "edgesremoved", 0 ],
 			[ "propertieschanged", 0 ]
 		]
 	],
@@ -69,9 +76,8 @@ aDiff = oSparse.CompareWith(oDense)
 	[
 		"edges",
 		[
-			[ "added", [  ] ],
 			[
-				"removed",
+				"added",
 				[
 					[
 						[ "from", "top" ],
@@ -111,6 +117,7 @@ aDiff = oSparse.CompareWith(oDense)
 					]
 				]
 			],
+			[ "removed", [  ] ],
 			[ "modified", [  ] ]
 		]
 	],
@@ -246,7 +253,7 @@ aDiff = oSparse.CompareWith(oDense)
 	[
 		"explanation",
 		[
-			"Removed 6 edge(s)",
+			"Added 6 edge(s)",
 			"Density +150.00%",
 			"Bottlenecks reduced (improvement)"
 		]

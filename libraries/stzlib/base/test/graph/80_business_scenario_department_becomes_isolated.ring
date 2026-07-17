@@ -3,7 +3,6 @@
 # Business scenario: Department becomes isolated
 #
 # Extracted from stzgraphtest.ring, block #80.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -32,6 +31,14 @@ oVariation {
 aDiff = oBaseline.CompareWith(oVariation)
 ? @@NL( aDiff )
 #-->
+# NOTE on the recorded block below: two of its lines are KNOWN-STALE, and
+# neither is about the diff. (1) `longestpath` reads lower than recorded --
+# unchanged behaviour, verified identical at HEAD, and tracked separately.
+# (2) the criticality string prints a garbled arrow: the source of stzGraph
+# carries a double-encoded arrow glyph (a project rule says console output
+# stays ASCII), so the clean arrow recorded here is what it SHOULD print.
+# The edge diff itself is now true -- it used to file every added edge under
+# `removed` (and every unchanged edge under `modified`).
 `
 [
 	[
@@ -39,8 +46,8 @@ aDiff = oBaseline.CompareWith(oVariation)
 		[
 			[ "nodesadded", 0 ],
 			[ "nodesremoved", 0 ],
-			[ "edgesadded", 1 ],
-			[ "edgesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 1 ],
 			[ "propertieschanged", 0 ]
 		]
 	],
@@ -55,8 +62,9 @@ aDiff = oBaseline.CompareWith(oVariation)
 	[
 		"edges",
 		[
+			[ "added", [  ] ],
 			[
-				"added",
+				"removed",
 				[
 					[
 						[ "from", "hq" ],
@@ -66,30 +74,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 					]
 				]
 			],
-			[ "removed", [  ] ],
-			[
-				"modified",
-				[
-					[
-						[ "from", "hq" ],
-						[ "to", "branch_a" ],
-						[ "label", "" ],
-						[ "properties", [  ] ]
-					],
-					[
-						[ "from", "hq" ],
-						[ "to", "branch_b" ],
-						[ "label", "" ],
-						[ "properties", [  ] ]
-					],
-					[
-						[ "from", "branch_a" ],
-						[ "to", "branch_b" ],
-						[ "label", "" ],
-						[ "properties", [  ] ]
-					]
-				]
-			]
+			[ "modified", [  ] ]
 		]
 	],
 	[
@@ -213,7 +198,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 	[
 		"explanation",
 		[
-			"Added 1 edge(s)",
+			"Removed 1 edge(s)",
 			"Density -25.00%",
 			"Bottlenecks increased",
 			"Warning: Graph became fragmented"

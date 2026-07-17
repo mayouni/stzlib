@@ -3,7 +3,6 @@
 # Using DiffWith() alias for brevity
 #
 # Extracted from stzgraphtest.ring, block #82.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -24,6 +23,14 @@ oB.Connect("y", "z")
 aDiff = oA.DiffWith(oB)
 ? @@NL(aDiff)
 #-->
+# NOTE on the recorded block below: two of its lines are KNOWN-STALE, and
+# neither is about the diff. (1) `longestpath` reads lower than recorded --
+# unchanged behaviour, verified identical at HEAD, and tracked separately.
+# (2) the criticality string prints a garbled arrow: the source of stzGraph
+# carries a double-encoded arrow glyph (a project rule says console output
+# stays ASCII), so the clean arrow recorded here is what it SHOULD print.
+# The edge diff itself is now true -- it used to file every added edge under
+# `removed` (and every unchanged edge under `modified`).
 `
 [
 	[
@@ -31,8 +38,8 @@ aDiff = oA.DiffWith(oB)
 		[
 			[ "nodesadded", 1 ],
 			[ "nodesremoved", 0 ],
-			[ "edgesadded", 0 ],
-			[ "edgesremoved", 1 ],
+			[ "edgesadded", 1 ],
+			[ "edgesremoved", 0 ],
 			[ "propertieschanged", 0 ]
 		]
 	],
@@ -50,9 +57,8 @@ aDiff = oA.DiffWith(oB)
 	[
 		"edges",
 		[
-			[ "added", [  ] ],
 			[
-				"removed",
+				"added",
 				[
 					[
 						[ "from", "y" ],
@@ -62,6 +68,7 @@ aDiff = oA.DiffWith(oB)
 					]
 				]
 			],
+			[ "removed", [  ] ],
 			[ "modified", [  ] ]
 		]
 	],
@@ -177,8 +184,7 @@ aDiff = oA.DiffWith(oB)
 	[
 		"explanation",
 		[
-			"Added 1 node(s)",
-			"Removed 1 edge(s)",
+			"Added 1 node(s) and 1 edge(s)",
 			"Density -33.33%",
 			"Bottlenecks increased"
 		]

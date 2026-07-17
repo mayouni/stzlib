@@ -1328,6 +1328,46 @@ class stzGraph from stzObject
 		def PropsAndTheirValues()
 			return This.PropertiesXT()
 
+	# The label a node SHOWS, as opposed to the id it is known by.
+	#
+	# A node could only ever be labelled at birth, via AddNodeXT(id, label);
+	# there was no way to say it afterwards, and no way to ask. So a format
+	# that reads a node first and learns its label a line later (.stzsim's
+	# `add node X` / `label: "..."`) had nowhere to put it.
+
+	def SetNodeLabel(pcNodeId, pcLabel)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
+		# Same normalisation AddNodeXTT applies: a label carries no spaces
+		# and no newlines. A label set here must obey the class's own rule,
+		# not a looser one.
+		_cLbl_ = _NormalizeLabel("" + pcLabel)
+
+		_nLen_ = len(@aNodes)
+		for i = 1 to _nLen_
+			if @aNodes[i]["id"] = pcNodeId
+				@aNodes[i]["label"] = _cLbl_
+				_aTemp_ = @aNodes[i]
+				@aNodes[i] = _aTemp_
+				return
+			ok
+		end
+
+		stzraise("Node '" + pcNodeId + "' does not exist.")
+
+	def NodeLabel(pcNodeId)
+		_nLen_ = len(@aNodes)
+		for i = 1 to _nLen_
+			if @aNodes[i]["id"] = pcNodeId
+				return @aNodes[i]["label"]
+			ok
+		end
+
+		stzraise("Node '" + pcNodeId + "' does not exist.")
+
 	def SetNodeProperty(pcNodeId, cProperty, pValue)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -4670,14 +4710,75 @@ class stzGraph from stzObject
 
 	def _CompareEdges(oOtherGraph)
 
-		_aEdges_ = This.Edges()
-		_oOtherEdges_ = new stzList(oOtherGraph.Edges())
-		_aDiff_ = _oOtherEdges_.DifferenceWithXT(_aEdges_)
+		# Diff edges by their IDENTITY -- "from -> to" -- exactly as
+		# _CompareNodes diffs nodes by their id STRINGS.
+		#
+		# This used to take a set difference over the raw edge HASHLISTS.
+		# It could never match anything: Ring's `=` on lists is false even
+		# for structurally identical ones (verified: `[1,2] = [1,2]` -> 0,
+		# and ring_find() over a list of hashlists finds nothing, not even
+		# the very object it was handed). So every edge came back as BOTH
+		# added AND removed, for any two graphs. .stzsim inherited the lie
+		# whole: a simulation between two graphs emitted
+		#     add edge ceo -> cfo
+		#     remove edge ceo -> cfo
+		# for an edge that had never moved -- and applying it then raised
+		# "Edge already exists". Node ids carry no spaces (_IsWellFormedId),
+		# so " -> " is an unambiguous key.
+
+		_aMine_ = This.Edges()
+		_aTheirs_ = oOtherGraph.Edges()
+
+		_acMineKeys_ = []
+		_nLen_ = len(_aMine_)
+		for i = 1 to _nLen_
+			_acMineKeys_ + ( _aMine_[i][:from] + " -> " + _aMine_[i][:to] )
+		next
+
+		_acTheirsKeys_ = []
+		_nLen_ = len(_aTheirs_)
+		for i = 1 to _nLen_
+			_acTheirsKeys_ + ( _aTheirs_[i][:from] + " -> " + _aTheirs_[i][:to] )
+		next
+
+		# ADDED: in the other graph, not in this one
+		_aAdded_ = []
+		_nLen_ = len(_aTheirs_)
+		for i = 1 to _nLen_
+			if StzFindFirst(_acMineKeys_, _acTheirsKeys_[i]) = 0
+				_aAdded_ + _aTheirs_[i]
+			ok
+		next
+
+		# REMOVED: in this graph, not in the other
+		_aRemoved_ = []
+		_nLen_ = len(_aMine_)
+		for i = 1 to _nLen_
+			if StzFindFirst(_acTheirsKeys_, _acMineKeys_[i]) = 0
+				_aRemoved_ + _aMine_[i]
+			ok
+		next
+
+		# MODIFIED: the same edge, relabelled
+		_aModified_ = []
+		_nLen_ = len(_aMine_)
+		for i = 1 to _nLen_
+			_nAt_ = StzFindFirst(_acTheirsKeys_, _acMineKeys_[i])
+			if _nAt_ > 0
+				if _aMine_[i][:label] != _aTheirs_[_nAt_][:label]
+					_aModified_ + [
+						:edge = _acMineKeys_[i],
+						:from = _aMine_[i][:label],
+						:to = _aTheirs_[_nAt_][:label]
+					]
+				ok
+			ok
+		next
 
 		_aResult_ = [
-			:added = _aDiff_[:added],
-			:removed = _aDiff_[:removed],
-			:modified = _aDiff_[:modified]
+			:added = _aAdded_,
+			:removed = _aRemoved_,
+			:modified = _aModified_
 		]
 
 		return _aResult_
@@ -5015,10 +5116,20 @@ class stzGraph from stzObject
 		_cOutput_ += '    type: ' + @cGraphType + NL + NL
 		
 		# Nodes section
+		#
+		# A node carries its LABEL the same way an edge does -- quoted,
+		# after the id:  ceo "CEO". Written only when it says something
+		# the id does not, so a file of plain ids stays a file of plain
+		# ids (and every .stzgraf written before labels existed still
+		# reads).
 		_cOutput_ += "nodes" + NL
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
-			_cOutput_ += "    " + @aNodes[i][:id] + NL
+			_cOutput_ += "    " + @aNodes[i][:id]
+			if @aNodes[i][:label] != "" and @aNodes[i][:label] != @aNodes[i][:id]
+				_cOutput_ += ' "' + @aNodes[i][:label] + '"'
+			ok
+			_cOutput_ += NL
 		next
 		_cOutput_ += NL
 		
@@ -5136,9 +5247,22 @@ class stzGraph from stzObject
 			if _cSection_ = "nodes"
 				_cNodeId_ = trim(_cLine_)
 				if _cNodeId_ != ""
-					This.AddNode(_cNodeId_)
+					# An optional quoted LABEL may follow the id, as on an
+					# edge:   ceo "CEO"
+					_nQuote_ = StzFindFirst(_cNodeId_, '"')
+					if _nQuote_ > 0
+						_cNodeLabel_ = StzMid(_cNodeId_, _nQuote_ + 1, stzlen(_cNodeId_) - _nQuote_)
+						_nEndQuote_ = StzFindFirst(_cNodeLabel_, '"')
+						if _nEndQuote_ > 0
+							_cNodeLabel_ = StzMid(_cNodeLabel_, 1, _nEndQuote_ - 1)
+						ok
+						_cNodeId_ = trim(StzMid(_cNodeId_, 1, _nQuote_ - 1))
+						This.AddNodeXT(_cNodeId_, _cNodeLabel_)
+					else
+						This.AddNode(_cNodeId_)
+					ok
 				ok
-				
+
 			but _cSection_ = "edges"
 				if StzFindFirst(_cLine_, "->") > 0
 					_acParts_ = @split(_cLine_, "->")
@@ -5166,18 +5290,24 @@ class stzGraph from stzObject
 				ok
 				
 			but _cSection_ = "properties"
-				# Check if this is a node name (no indentation or single indent)
-				_nIndent_ = 0
-				_nLen2_ = len(_acLines_[i])
-				for j = 1 to _nLen2_
-					_c_ = StzMid(_acLines_[i], j, 2)
-					if _c_ = " " or _c_ = TAB
-						_nIndent_++
-					else
-						exit
-					ok
-				next
-				
+				# INDENT tells a node name from one of its properties:
+				#
+				#     properties
+				#         warehouse_ny          <- 4 spaces: the node
+				#             capacity: 50000   <- 8 spaces: its property
+				#
+				# This used to be counted by walking the line char by char
+				# with StzMid(line, j, 2) -- which asks for TWO chars and so
+				# never equalled " ", leaving the indent stuck at 0. Every
+				# property line was then read as a node NAME, and no property
+				# was ever set: LoadFromStzGraf() returned "" for every one of
+				# them (test 83 recorded exactly that, "Should return 50000
+				# but returned ''"). Count with the engine instead -- and a
+				# per-char loop in a class method is a VM-corruption trap
+				# besides.
+
+				_nIndent_ = stzlen(_acLines_[i]) - stzlen(StzTrimLeft(_acLines_[i]))
+
 				if _nIndent_ <= 4
 					_cCurrentNode_ = trim(_cLine_)
 				else
@@ -5567,6 +5697,7 @@ class stzGraph from stzObject
 		# Parse and apply changes from .stzsim format
 		_acLines_ = split(cSimContent, NL)
 		_cSection_ = ""
+		_cSimNode_ = ""      # the node most recently added -- a label line follows it
 		_nLen_ = len(_acLines_)
 		
 		for i = 1 to _nLen_
@@ -5590,6 +5721,25 @@ class stzGraph from stzObject
 					if NOT This.NodeExists(_cNodeId_)
 						This.AddNode(_cNodeId_)
 					ok
+					_cSimNode_ = _cNodeId_
+
+				# ExportToStzSim WRITES a label under every added node:
+				#
+				#     add node risk_officer
+				#         label: "Risk Officer"
+				#
+				# ... and nothing here ever read it back, so a simulation
+				# round-trip quietly renamed the node to its id. The label
+				# belongs to the node just named above.
+
+				but StzFindFirst(_cTrimmed_, "label:") = 1 and _cSimNode_ != ""
+					_cLbl_ = trim(StzMid(_cTrimmed_, 7, stzlen(_cTrimmed_) - 6))
+					if StzLeft(_cLbl_, 1) = '"' and StzRight(_cLbl_, 1) = '"'
+						_cLbl_ = StzMid(_cLbl_, 2, stzlen(_cLbl_) - 2)
+					ok
+					if _cLbl_ != "" and This.NodeExists(_cSimNode_)
+						This.SetNodeLabel(_cSimNode_, _cLbl_)
+					ok
 
 				but StzFindFirst(_cTrimmed_, "remove node ") = 1
 					_cNodeId_ = trim(StzMid(_cTrimmed_, 13, stzlen(_cTrimmed_) - 12))
@@ -5604,8 +5754,14 @@ class stzGraph from stzObject
 						if len(_acParts_) >= 2
 							_cFrom_ = trim(_acParts_[1])
 							_cTo_ = trim(_acParts_[2])
+							# An edge already there is nothing to do -- AddEdge
+							# RAISES on a duplicate, and a simulation must be
+							# applyable to a graph that already has part of it
+							# (the same guard `add node` has always had).
 							if This.NodeExists(_cFrom_) and This.NodeExists(_cTo_)
-								This.AddEdge(_cFrom_, _cTo_)
+								if NOT This.EdgeExists(_cFrom_, _cTo_)
+									This.AddEdge(_cFrom_, _cTo_)
+								ok
 							ok
 						ok
 					ok
@@ -5670,9 +5826,15 @@ class stzGraph from stzObject
 		ok
 
 		# Try to parse as number
-		if isdigit(_cValue_) or (StzLeft(_cValue_, 1) = "-" and
-					isdigit(StzMid(_cValue_, 2, 3)))
+		#
+		# Ring's isdigit() judges ONE CHARACTER, so isdigit("50000") is
+		# FALSE (verified) and this branch never fired: every numeric
+		# property came back as a STRING -- capacity "50000", not 50000.
+		# Test 83 has said so all along ("Should return 50000"). The
+		# library's own predicate reads a whole string, decimals and a
+		# leading minus included; it calls "" a number, so guard that.
 
+		if _cValue_ != "" and StzIsNumberOrNumberInString(_cValue_)
 			return 0 + _cValue_
 		ok
 
