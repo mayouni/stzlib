@@ -350,7 +350,7 @@ class stzExterCode from stzObject
 
             stzraise("File does not exist!" + NL + NL +
                      "Log content (from " + @cLanguage + " console): " + NL +
-                     "------------------" + copy("-", len(@cLanguage)) + "----------" + NL + NL +
+                     "------------------" + ring_copy("-", len(@cLanguage)) + "----------" + NL + NL +
                      This.Log() + NL + NL +
                      "------------------------" + NL +
                      "End of log file content.")

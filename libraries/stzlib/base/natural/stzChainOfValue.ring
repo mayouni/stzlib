@@ -516,7 +516,7 @@ class stzChainOfValue from stzObject
 	#-------------------
 
 	def ToStzObject()
-		switch Upper(type(This.Value()))
+		switch Upper(ring_type(This.Value()))
 		on "NUMBER"
 			return new stzList(This.Value())
 		on "STRING"
