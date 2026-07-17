@@ -3,7 +3,6 @@
 # Demonstrates a comprehensive analysis using multiple pillars.
 #
 # Extracted from stzdatasettest.ring, block #41.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3177,27 +3177,27 @@ class stzDataSet from stzObject
     def _FormatValue(_value_)
         if isNumber(_value_)
             if _value_ = floor(_value_)
-                return "" + value
+                return "" + _value_
             else
-                return @@(value)
+                return @@(_value_)
             ok
 
-        but isString(value)
-            return value
+        but isString(_value_)
+            return _value_
 
-        but isList(value)
+        but isList(_value_)
             _cResult_ = "["
-            _nValueLen_ = len(value)
+            _nValueLen_ = len(_value_)
             for i = 1 to _nValueLen_
-                _cResult_ += This._FormatValue(value[i])
-                if i < len(value)
+                _cResult_ += This._FormatValue(_value_[i])
+                if i < len(_value_)
                     _cResult_ += ", "
                 ok
             next
             _cResult_ += "]"
             return _cResult_
         else
-            return "" + value
+            return "" + _value_
         ok
 
 
@@ -3682,7 +3682,7 @@ class stzDataSet from stzObject
         _cCode_ += ")"
         
         eval(_cCode_)
-        return result
+        return _result_
 
     # Functions that require a second/paired dataset as an argument.
     def _NeedsPairedDataset(_cFunction_)
