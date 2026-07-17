@@ -287,6 +287,34 @@ fn ring_MapExpr(p: *anyopaque) callconv(.c) void {
 fn ring_FilterExpr(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_filter_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
 }
+// Table calculated-column, engine-side. Arg1 = columns (a Ring list of column
+// lists -- the table's native layout), arg2 = row count, arg3 = the lowered
+// formula (This[k] reads column k, 1-based). The formula compiles ONCE and the
+// engine iterates every row natively -- Ring neither transposes nor re-runs
+// its compiler. Returns the computed column as a Ring list, EMPTY if the
+// formula does not compile so the Ring caller can fall back to its eval() path.
+fn ring_EvalColumns(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (R.ring_vm_api_islist(p, 1) == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const pRingList = R.ring_vm_api_getlist(p, 1) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    const cols = marshalRingList(pRingList) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer list.stz_list_free(cols);
+    const nrows: usize = @intFromFloat(g(p, 2));
+    if (list.stz_expr_eval_columns(cols, nrows, gs(p, 3), @intCast(gss(p, 3)))) |col| {
+        defer list.stz_list_free(col);
+        for (col.items.items) |item| appendValueToRing(out, item);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
 // Return the reduce result as a PLAIN scalar, extracted in-DLL. Passing the
 // StzValue across the stz_list <-> stz_value DLL boundary as a handle is the
 // cross-DLL handle trap (init handle panicked; result handle read back as 0).
@@ -1179,6 +1207,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistequalscs", .func = &ring_EqualsCS },
     .{ .name = "stzenginelistmapexpr", .func = &ring_MapExpr },
     .{ .name = "stzenginelistfilterexpr", .func = &ring_FilterExpr },
+    .{ .name = "stzenginelistevalcolumns", .func = &ring_EvalColumns },
     .{ .name = "stzenginelistreduceexpr", .func = &ring_ReduceExpr },
     .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
     .{ .name = "stzenginelistfindallcs", .func = &ring_FindAllCS },

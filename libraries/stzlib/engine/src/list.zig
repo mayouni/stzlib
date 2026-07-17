@@ -1578,6 +1578,63 @@ pub fn stz_list_filter_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_l
     return result;
 }
 
+// Column-mode cell accessor for stz_expr_eval_columns: This[k] in the formula
+// reads column k (1-based; idx arrives 0-based) at the row currently under
+// evaluation. ctx_ptr points to a ColCtx carrying the columns and the row.
+const ColCtx = struct { cols: *const StzList, row: usize };
+
+fn colCellGetVal(ctx_ptr: ?*const anyopaque, idx: usize) expr.Val {
+    const cc: *const ColCtx = @ptrCast(@alignCast(ctx_ptr.?));
+    if (idx >= cc.cols.items.items.len) return expr.Val.initNull();
+    const col = cc.cols.items.items[idx];
+    if (col.tag != .list_val) return expr.Val.initNull();
+    const ld = col.data.list_val;
+    if (cc.row >= ld.len) return expr.Val.initNull();
+    return stzValueToVal(ld.items[cc.row]);
+}
+
+// Evaluate ONE compiled formula for every row, reading cells straight from the
+// COLUMNS (the table's native layout). The formula compiles ONCE and the
+// engine does ALL per-row work, so Ring never transposes rows nor re-runs its
+// compiler (the old path ran the Ring compiler with eval() on every single
+// row -- ~11us each). `columns` is a list of column lists; This[k] reads
+// column k at the current row. Returns null if the formula does not compile,
+// so the Ring caller can fall back to its own eval path.
+pub fn stz_expr_eval_columns(columns: ?*const StzList, nrows: usize, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) ?*StzList {
+    const cols = columns orelse return null;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return null;
+    defer prog.deinit();
+
+    const result = StzList.init() catch return null;
+    const ncols = cols.items.items.len;
+    var cc = ColCtx{ .cols = cols, .row = 0 };
+    const count: i64 = @intCast(nrows);
+
+    var r: usize = 0;
+    while (r < nrows) : (r += 1) {
+        cc.row = r;
+        var ctx = expr.EvalCtx{
+            .list_ctx = &cc,
+            .list_len = ncols,
+            .list_get = &colCellGetVal,
+            .index = @as(i64, @intCast(r)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        const sv = valToStzValue(val) orelse {
+            result.deinit();
+            return null;
+        };
+        result.items.append(allocator, sv) catch {
+            sv.deinit();
+            allocator.destroy(sv);
+            result.deinit();
+            return null;
+        };
+    }
+    return result;
+}
+
 pub fn stz_list_reduce_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize, init_val: ?*const StzValue) callconv(.c) ?*StzValue {
     const l = list orelse return null;
     const prog = expr.compile(expr_ptr, expr_len) orelse return null;

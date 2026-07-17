@@ -490,25 +490,71 @@ class stzTableAggregator from stzTable
 		_nCols_ = This.NumberOfCols()
 		_nRows_ = This.NumberOfRows()
 
-		# Preparing the formula expression
-
-		_oForumla_ = new stzString(pcFormula)
-		for i = 1 to _nCols_
-			_oForumla_.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', 0)
-		next
-
-		pcFormula = _oForumla_.Content()
-		_cCode_ = "_value_ = " + pcFormula
-
 		@NumberOfRows = _nRows_
 		@NumberOfCols = _nCols_
 		@NumberOfColumns = _nCols_
 
-		for i = 1 to _nRows_
-			eval(_cCode_)
-			_aColData_ + _value_
-
+		# Engine-first calculated column. Lower the @(:ColName) sugar to the
+		# engine's per-row cell reference This[colIndex], then evaluate the
+		# formula COMPILED ONCE over every row engine-side. The classic path
+		# below re-ran the Ring compiler with eval() on EACH row (~11us/row --
+		# seconds of pure compile overhead on a large table); this compiles the
+		# formula a single time and evaluates it natively per row.
+		_oEngFormula_ = new stzString(pcFormula)
+		_aRefCols_ = []
+		for i = 1 to _nCols_
+			_cTok_ = '@(:' + This.ColName(i) + ')'
+			if StzFindFirst(_cTok_, pcFormula) > 0
+				_aRefCols_ + i
+			ok
+			_oEngFormula_.ReplaceCS(_cTok_, 'This[' + i + ']', 0)
 		next
+		_nRefLen_ = len(_aRefCols_)
+
+		# Confirm every column the formula references is numeric. The engine
+		# evaluates arithmetically, so a formula over a string column (e.g. a
+		# concatenation) must take the Ring fallback to preserve its semantics.
+		_bNumericRefs_ = TRUE
+		for k = 1 to _nRefLen_
+			_aColVals_ = This.Col(_aRefCols_[k])
+			_nCVLen_ = len(_aColVals_)
+			for c = 1 to _nCVLen_
+				if NOT isNumber(_aColVals_[c])
+					_bNumericRefs_ = FALSE
+					exit
+				ok
+			next
+			if NOT _bNumericRefs_
+				exit
+			ok
+		next
+
+		# Pass the columns as-is -- the table's native layout -- so the engine
+		# reads This[k] = column k at each row and does ALL per-row work. Ring
+		# never transposes the table nor re-runs its compiler.
+		if _bNumericRefs_
+			_aCols_ = []
+			for c = 1 to _nCols_
+				_aCols_ + This.Col(c)
+			next
+			_aColData_ = StzEngineListEvalColumns(_aCols_, _nRows_, _oEngFormula_.Content())
+		ok
+
+		# Fallback: a non-numeric reference, or a formula the engine DSL cannot
+		# compile (which returns an empty column), is evaluated the classic way
+		# so no existing formula regresses.
+		if len(_aColData_) != _nRows_
+			_aColData_ = []
+			_oForumla_ = new stzString(pcFormula)
+			for i = 1 to _nCols_
+				_oForumla_.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', 0)
+			next
+			_cCode_ = "_value_ = " + _oForumla_.Content()
+			for i = 1 to _nRows_
+				eval(_cCode_)
+				_aColData_ + _value_
+			next
+		ok
 
 		_aContent_ = @aContent
 		_aContent_ = ring_insert(_aContent_, _n_, [ pcColName, _aColData_ ])
