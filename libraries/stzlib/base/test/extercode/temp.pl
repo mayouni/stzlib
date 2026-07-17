@@ -1,22 +1,85 @@
-# Narrative
-# --------
-# #  BENCHMARK FOR SWI-PROLOG LANGAUGE  #
-#
-# Extracted from stzextercodetest.ring, block #46.
-#ERR needs SWI-Prolog INSTALLED -- runprolog.bat points at
-#    d:/prolog/swipl-9.9.9/bin/swipl.exe, which is absent here, so the run
-#    dies at "Result file 'plresult.txt' not created". The RING side is green:
-#    PrepareSourceCode() builds the driver and names the right predicate.
-#    (It used to die before that, on R24 'cmainpredicate' -- fixed.)
 
-load "../../stzBase.ring"
 
-#-------------------------------------#
+:- use_module(library(http/json)).
 
-pr()
+% Main function to transform Prolog Term to Ring format and save to file
+transform_to_ring(Term, Filename) :-
+    transform(Term, ResultStr),
+    open(Filename, write, Stream),
+    write(Stream, ResultStr),
+    close(Stream).
 
-plg = new stzExterCode(:Prolog)
-plg.SetCode('
+% Transform an atom or string
+transform(Term, result) :-
+    (atom(Term) ; string(Term)),
+    !,
+    format(atom(result), "\'~w\'", [Term]).
+
+% Transform a number, handling scientific notation
+transform(Term, result) :-
+    number(Term),
+    !,
+    format(atom(StrVal), "~w", [Term]),
+    (   sub_atom(StrVal, _, _, _, e) 
+    ->  format(atom(result), "\'~w\'", [Term])
+    ;   result = StrVal
+    ).
+
+% Transform boolean true value
+transform(true, "TRUE") :- !.
+
+% Transform boolean false value
+transform(false, "FALSE") :- !.
+
+% Transform a list
+transform(List, result) :-
+    is_list(List),
+    !,
+    transform_list(List, result).
+
+% Transform a compound Term
+transform(Term, result) :-
+    compound(Term),
+    !,
+    Term =.. [Functor|Args],
+    transform_compound(Functor, Args, result).
+
+% Default case for variables or other terms
+transform(_, "NULL").
+
+% Transform a list into a flat string
+transform_list(List, result) :-
+    transform_list_items(List, _items_),
+    format(atom(result), "[~w]", [_items_]).
+
+% Transform list _items_ into a comma-separated string
+transform_list_items([], "").
+transform_list_items([H], result) :-
+    transform(H, HResult),
+    format(atom(result), "~w", [HResult]).
+transform_list_items([H|T], result) :-
+    transform(H, HResult),
+    transform_list_items(T, TResult),
+    (   TResult = "" -> format(atom(result), "~w", [HResult])
+    ;   format(atom(result), "~w, ~w", [HResult, TResult])
+    ).
+
+% Handle key-value pairs (Term = Key-Value), including numeric keys
+transform_compound(-, [Key, Value], result) :-
+    transform(Key, KeyResult),
+    transform(Value, ValueResult),
+    format(atom(result), "[~w, ~w]", [KeyResult, ValueResult]).
+
+% Default handling for other compound terms
+transform_compound(_, Args, result) :-
+    transform_list(Args, result).
+
+
+:- use_module(library(lists)).
+:- use_module(library(apply)).
+
+% User predicates
+
 
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
@@ -119,24 +182,12 @@ run_benchmarks(Result) :-
 % Define result
 res(Result) :- run_benchmarks(Result).
 
-')
 
-plg.Run()
-? @@( plg.Result() )
-#--> [
-#	[
-#		"fibonacci",
-#		[ [ "n", 450 ], [ "result", 4953967011875066910547013330669507468549271950815257134688446476787412478855327157343790039040.00 ], [ "time_ms", 0 ] ]
-#	],
-#	[
-#		"sorting",
-#		[ [ "array_size", 1000000 ], [ "time_ms", 110 ] ]
-#	],
-#	[
-#		"matrix",
-#		[ [ "matrix_size", 250 ], [ "time_ms", 4250 ] ]
-#	]
-# ]
 
-pf()
-# Executed in 5.99 second(s) in Ring 1.23
+% Main predicate
+main :-
+    writeln("SWI-Prolog program starting..."),
+    res(Res),
+    writeln("Transforming result..."),
+    transform_to_ring(Res, "plresult.txt"),
+    writeln("Data written to file").
