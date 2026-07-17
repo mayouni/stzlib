@@ -87,6 +87,13 @@ class stzGraph from stzObject
 	@pEngineGraph = NULL
 	@bEngineStale = TRUE
 
+	# The arrow the path/impact explanations draw with, built from RAW
+	# UTF-8 BYTES so the source stays pure-ASCII. Written as a literal it
+	# gets double-encoded the next time an editor reads the file as cp1252
+	# and re-saves it as UTF-8 -- which had already happened here: every
+	# explanation printed a garbled run instead of an arrow.
+	@cArrowRight = char(226) + char(134) + char(146)   # U+2192
+
 	def init(pcName)
 		if CheckParams()
 			if NOT isString(pcName)
@@ -3782,7 +3789,7 @@ class stzGraph from stzObject
 
 	    for i = 1 to _nLen_
 	        _aEdge_ = This.Edge(_acPath_[i], _acPath_[i+1])
-	        _aStory_ + (_acPath_[i] + " ââ€ â€™ " + _acPath_[i+1])
+	        _aStory_ + (_acPath_[i] + " " + @cArrowRight + " " + _acPath_[i+1])
 		if _aEdge_[:label] != ""
 			_aStory_[len(_aStory_)] +=  (" : because {" + _acPath_[i] + "} " + StzReplace(_aEdge_[:label], "_", " ") + " {" + _acPath_[i+1] + "}" )
 		ok
@@ -4924,9 +4931,9 @@ class stzGraph from stzObject
 				_nVarDegree_ = len(oOtherGraph.Neighbors(_cNodeId_)) + len(oOtherGraph.Incoming(_cNodeId_))
 				
 				if _nVarDegree_ > _nBaseDegree_
-					_acCriticalityChanges_ + [_cNodeId_, "Criticality increased (degree " + _nBaseDegree_ + " ââ€ â€™ " + _nVarDegree_ + ")"]
+					_acCriticalityChanges_ + [_cNodeId_, "Criticality increased (degree " + _nBaseDegree_ + " " + @cArrowRight + " " + _nVarDegree_ + ")"]
 				but _nVarDegree_ < _nBaseDegree_
-					_acCriticalityChanges_ + [_cNodeId_, "Criticality decreased (degree " + _nBaseDegree_ + " ââ€ â€™ " + _nVarDegree_ + ")"]
+					_acCriticalityChanges_ + [_cNodeId_, "Criticality decreased (degree " + _nBaseDegree_ + " " + @cArrowRight + " " + _nVarDegree_ + ")"]
 				ok
 			ok
 		next
@@ -6145,14 +6152,14 @@ class stzGraphFinder from stzObject
 class stzGraphAsciiVisualizer from stzObject
 	@oGraph
 
-	@cBoxTopLeft = "ââ€¢­"
-	@cBoxTopRight = "ââ€¢®"
-	@cBoxBottomLeft = "ââ€¢°"
-	@cBoxBottomRight = "ââ€¢¯"
-	@cBoxHorizontal = "ââ€€"
-	@cBoxVertical = "ââ€‚"
+	@cBoxTopLeft = char(226) + char(149) + char(173)   # U+256D
+	@cBoxTopRight = char(226) + char(149) + char(174)   # U+256E
+	@cBoxBottomLeft = char(226) + char(149) + char(176)   # U+2570
+	@cBoxBottomRight = char(226) + char(149) + char(175)   # U+256F
+	@cBoxHorizontal = char(226) + char(148) + char(128)   # U+2500
+	@cBoxVertical = char(226) + char(148) + char(130)   # U+2502
 	@cArrowDown = "v"
-	@cArrowUp = "ââ€ â€˜"
+	@cArrowUp = char(226) + char(134) + char(145)   # U+2191
 	@cPipeChar = "|"
 	@cBranchSeparator = "////"
 	@cCycleIndicator = "CYCLE"
@@ -6401,6 +6408,9 @@ class stzGraphComparison from stzObject
 	@oBaselineGraph
 	@aGraphs = []
 	@aComparisonData = []
+	# Built from raw UTF-8 bytes -- see @cArrowRight in stzGraph.
+	@cBullet = char(226) + char(128) + char(162)   # U+2022
+
 	
 	def init(oBaseline, paoGraphs)
 		@oBaselineGraph = oBaseline
@@ -6458,7 +6468,7 @@ class stzGraphComparison from stzObject
 		
 		for i = 1 to _nLen_
 			_aComp_ = _aComps_[i]
-			_cResult_ += "ââ‚¬¢ " + _aComp_[:name] + ": " + _aComp_[:explanation] + NL
+			_cResult_ += @cBullet + " " + _aComp_[:name] + ": " + _aComp_[:explanation] + NL
 		next
 		
 		return _cResult_

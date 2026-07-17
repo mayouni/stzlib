@@ -31,7 +31,7 @@
 # depending on the value of the variables.
 
 # Examples:
-   "pow(x, 2)"            	   # xÂ² â†’ result changes with x (at x=10, rate = 20)  
+   "pow(x, 2)"            	   # x^2 -> result changes with x (at x=10, rate = 20)  
    "sqrt(area)"                # rate changes depending on area  
    "max([0, profit-1000])"     # rate is 0 if profit < 1000, 1 if profit > 1000
 

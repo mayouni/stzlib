@@ -45,15 +45,15 @@
 	Number (1 bit for the sign, 11 bits for the exponent, and 52* bits
 	for the value), _i_.e. double has 15 decimal digits of precision.
 	
-	Double range is '2.2250738585072014 Eâ€“308' to '1.7976931348623158 E+308'.
+	Double range is '2.2250738585072014 E-308' to '1.7976931348623158 E+308'.
 	Subsequently the size and length varies accordingly.
 	It has nothing to do with the language one is using.
 	
 	<Ilir>
-		Â±2.23 x 10-308 to Â±1.80 x 10 308
+		+/-2.23 x 10-308 to +/-1.80 x 10 308
 		
 		Min and max numbers for a double type which Ring uses are
-		Â±2.23 x 10-308 to Â±1.80 x 1030.
+		+/-2.23 x 10-308 to +/-1.80 x 1030.
 	
 		Maximum of 15 digits are allowed.
 		
@@ -1698,7 +1698,7 @@ class stzNumber from stzObject
 
 			# Case where a char is provided in the form
 			# of Unicode circled numbers
-			# ~> Example : new stzNumber("â‘¦")
+			# ~> Example : new stzNumber(char(226) + char(145) + char(166))
 			if StzStringQ(pNumber).IsAChar() and
 			   StzCharQ(pNumber).IsCircledNumber()
 

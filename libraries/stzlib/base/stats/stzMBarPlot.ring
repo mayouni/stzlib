@@ -6,10 +6,10 @@ class stzMultiBarPlot from stzMBarPlot
 class stzMBarPlot from stzBarPlot
 
 	# Multi-series data properties
-	@aSeriesData = []		# [ [:SeriesName = "Sales", :Values = [25,35,30,40], :Char = "â–ˆ"], ... ]
+	@aSeriesData = []		# [ [:SeriesName = "Sales", :Values = [25,35,30,40], :Char = char(226) + char(150) + char(136)], ... ]
 	@acCategories = []		# ["Q1", "Q2", "Q3", "Q4"]
 	@acSeriesNames = []		# ["Sales", "Costs", "Profit"]
-	@acSeriesChars = []		# ["â–ˆ", "â–’", "â–“"]
+	@acSeriesChars = []		# [char(226) + char(150) + char(136), char(226) + char(150) + char(146), char(226) + char(150) + char(147)]
 	@nSeries = 0
 	@nCategories = 0
 
@@ -20,7 +20,7 @@ class stzMBarPlot from stzBarPlot
 	@nCategorySpace = 2		# Space between categories
 
 	# Default series characters
-	@acDefaultSeriesChars = ["â–ˆ", "â–’", "â–“", "â–‘", "â–Œ", "â–", "â–€", "â–„"]
+	@acDefaultSeriesChars = [char(226) + char(150) + char(136), char(226) + char(150) + char(146), char(226) + char(150) + char(147), char(226) + char(150) + char(145), char(226) + char(150) + char(140), char(226) + char(150) + char(144), char(226) + char(150) + char(128), char(226) + char(150) + char(132)]
 
 	def init(paMultiSeriesData)
 		if not isList(paMultiSeriesData)
@@ -232,10 +232,10 @@ class stzMBarPlot from stzBarPlot
 		if @bShowLegend
 			if @cLegendLayout = :Horizontal
 				_nLegendHeight_ = 1
-				# Calculate total legend width: "â–ˆâ–ˆ SeriesName   â–’â–’ SeriesName   ..."
+				# Calculate total legend width: char(226) + char(150) + char(136) + char(226) + char(150) + char(136) + " SeriesName   " + char(226) + char(150) + char(146) + char(226) + char(150) + char(146) + " SeriesName   ..."
 				_nLegendWidth_ = 0
 				for i = 1 to @nSeries
-					_nLegendWidth_ += 3 + len(@acSeriesNames[i])  # "â–ˆâ–ˆ SeriesName"
+					_nLegendWidth_ += 3 + len(@acSeriesNames[i])  # char(226) + char(150) + char(136) + char(226) + char(150) + char(136) + " SeriesName"
 					if i < @nSeries
 						_nLegendWidth_ += 3  # "   " spacing
 					ok
@@ -502,7 +502,7 @@ class stzMBarPlot from stzBarPlot
 		
 
 		if @cLegendLayout = :Horizontal
-			# Draw horizontal legend: "â–ˆâ–ˆ Series1   â–’â–’ Series2   ..."
+			# Draw horizontal legend: char(226) + char(150) + char(136) + char(226) + char(150) + char(136) + " Series1   " + char(226) + char(150) + char(146) + char(226) + char(150) + char(146) + " Series2   ..."
 			_nCol_ = 1
 			for i = 1 to @nSeries
 				_aSeriesInfo_ = @aSeriesData[i]

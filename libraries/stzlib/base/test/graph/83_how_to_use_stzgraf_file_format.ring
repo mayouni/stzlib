@@ -44,7 +44,7 @@ oGraph {
 	
 	          ////
 	
-	     ╭────────────╮  ↑	#ERR: returns "â†‘" "â”€â”€â•¯"
+	     ╭────────────╮  ↑	# (these once printed garbled -- fixed: the glyphs are built from raw bytes now)
 	     │ factory_cn │──╯
 	     ╰────────────╯      
 	            |            

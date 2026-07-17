@@ -46,28 +46,28 @@ class stzCalendar from stzObject
 	@nVizHeight = 10
 
 	# Display Characters
-	@cVizBoundaryChar = "â”‚"
+	@cVizBoundaryChar = char(226) + char(148) + char(130)
 	@cVizSpanStartChar = "["
 	@cVizSpanEndChar = "]"
 
-	@cVizBlockChar = "â–“"
-	@cVizWeekendChar = "â–‘"
+	@cVizBlockChar = char(226) + char(150) + char(147)
+	@cVizWeekendChar = char(226) + char(150) + char(145)
 	@cVizHolidayChar = "[D]"
 
-	@cVizTopLeftCorner = "â•­"
-	@cVizTopRightCorner = "â•®"
-	@cVizBottomLeftCorner = "â•°"
-	@cVizBottomRightCorner = "â•¯"
-	@cVizTopTSeparator = "â”œ"
-	@cVizBottomTSeparator = "â”¤"
-	@cVizHorizontalLine = "â”€"
+	@cVizTopLeftCorner = char(226) + char(149) + char(173)
+	@cVizTopRightCorner = char(226) + char(149) + char(174)
+	@cVizBottomLeftCorner = char(226) + char(149) + char(176)
+	@cVizBottomRightCorner = char(226) + char(149) + char(175)
+	@cVizTopTSeparator = char(226) + char(148) + char(156)
+	@cVizBottomTSeparator = char(226) + char(148) + char(164)
+	@cVizHorizontalLine = char(226) + char(148) + char(128)
 
 
 	# Timeline
 	@oTimeLine = NULL
 
-	@cVizTimeLineEventChar = "â—"
-	@cVizTimeLineSpanChar = "â–¬"
+	@cVizTimeLineEventChar = char(226) + char(151) + char(143)
+	@cVizTimeLineSpanChar = char(226) + char(150) + char(172)
 
 	# Cache system
 	@nCachedAvailableHours = -1
@@ -1428,17 +1428,17 @@ def TimelineEventsXT()
 	
 	_nPointCount_ = len(_aPoints_)
 	if _nPointCount_ > 0
-		_aResult_ + ["Points", _nPointCount_, "â€”", 0]
+		_aResult_ + ["Points", _nPointCount_, char(226) + char(128) + char(148), 0]
 	ok
 	
 	_nSpanCount_ = len(_aSpans_)
 	if _nSpanCount_ > 0
-		_aResult_ + ["Spans", _nSpanCount_, "â€”", 0]
+		_aResult_ + ["Spans", _nSpanCount_, char(226) + char(128) + char(148), 0]
 	ok
 	
 	_nBlockedCount_ = len(_aBlockedSpans_)
 	if _nBlockedCount_ > 0
-		_aResult_ + ["Blocked", _nBlockedCount_, "â€”", 0]
+		_aResult_ + ["Blocked", _nBlockedCount_, char(226) + char(128) + char(148), 0]
 	ok
 	
 	return _aResult_
@@ -2075,10 +2075,10 @@ def CompareWith(_oOtherCal_)
 		# different from those we use here in this hack), the the result
 		# will be erronous
 	
-		_cResult_ = StzReplace(_cResult_, " â”‚ ", "   ")
-		_cResult_ = StzReplace(_cResult_, "â”¬", "â”€")
-		_cResult_ = StzReplace(_cResult_, "â”¼", "â”€")
-		_cResult_ = StzReplace(_cResult_, "â”´", "â”€")
+		_cResult_ = StzReplace(_cResult_, " " + char(226) + char(148) + char(130) + " ", "   ")
+		_cResult_ = StzReplace(_cResult_, char(226) + char(148) + char(172), char(226) + char(148) + char(128))
+		_cResult_ = StzReplace(_cResult_, char(226) + char(148) + char(188), char(226) + char(148) + char(128))
+		_cResult_ = StzReplace(_cResult_, char(226) + char(148) + char(180), char(226) + char(148) + char(128))
 	
 		# Drawing the legend
 		_cResult_ += NL + NL + _drawLegend()
@@ -2358,7 +2358,7 @@ def CompareWith(_oOtherCal_)
 				if len(@aBreaks) > 0
 					_cBreaks_ = @aBreaks[1][1] + "-" + @aBreaks[1][2]
 				else
-					_cBreaks_ = "â”€"
+					_cBreaks_ = char(226) + char(148) + char(128)
 				ok
 				
 				_nHours_ = This.AvailableHoursOnN(_cDate_)

@@ -26,15 +26,15 @@ class stzHBarPlot from stzBarPlot
 	@nBarInterSpace = 0 # No space between bars - compact layout
 
 	# Override characters for horizontal layout
-	@cBarChar = "â–‡"
-	@cTopChar = "â–‡"
-	@cVAxisChar = "â”‚"
-	@cHAxisChar = "â”€"
+	@cBarChar = char(226) + char(150) + char(135)
+	@cTopChar = char(226) + char(150) + char(135)
+	@cVAxisChar = char(226) + char(148) + char(130)
+	@cHAxisChar = char(226) + char(148) + char(128)
 	@cVArrowChar = "^"
 	@cHArrowChar = ">"
-	@cVArrowChar = "â–²"
-	@cHArrowChar = "â–º"
-	@cOriginChar = "â•°"
+	@cVArrowChar = char(226) + char(150) + char(178)
+	@cHArrowChar = char(226) + char(150) + char(186)
+	@cOriginChar = char(226) + char(149) + char(176)
 	@cAverageChar = "|"
 	@cLabelChar = "X"
 

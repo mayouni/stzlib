@@ -24,7 +24,7 @@ $aDaysOfWeek = [
 	[ "7", :Sunday ]
 ]
 
-# â”€â”€ Locale helper data tables â”€â”€
+# -- Locale helper data tables --
 
 $_aDayNamesPerLang = [
 	[:english,    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]],
@@ -78,7 +78,7 @@ $_aCurrencyISOData = [
 	[:Canadian_dollar, "CAD", "C$"],
 	[:Cape_Verdean_escudo, "CVE", "Esc"],
 	[:Chilean_peso, "CLP", "CL$"],
-	[:Chinese_yuan, "CNY", "CNÂ¥"],
+	[:Chinese_yuan, "CNY", "CN¥"],
 	[:Colombian_peso, "COP", "COL$"],
 	[:Comorian_franc, "KMF", "CF"],
 	[:Costa_Rican_colon, "CRC", "CRC"],
@@ -110,7 +110,7 @@ $_aCurrencyISOData = [
 	[:Iraqi_dinar, "IQD", "IQD"],
 	[:Israeli_new_shekel, "ILS", "ILS"],
 	[:Jamaican_dollar, "JMD", "J$"],
-	[:Japanese_yen, "JPY", "JPÂ¥"],
+	[:Japanese_yen, "JPY", "JP¥"],
 	[:Jordanian_dinar, "JOD", "JD"],
 	[:Kazakhstani_tenge, "KZT", "KZT"],
 	[:Kenyan_shilling, "KES", "KSh"],
@@ -448,7 +448,7 @@ func _LangNativeNameFromCode(_cLangCode_)
 	next
 	return ""
 
-# â”€â”€ Top-level functions â”€â”€
+# -- Top-level functions --
 
 func StzSystemLocale()
 	return "C"

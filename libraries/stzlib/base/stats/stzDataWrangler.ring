@@ -567,7 +567,7 @@ class stzDataWrangler from stzObject
         if @bVerbose
             ? "ðŸ”§ Executing Plan: " + _aPlan_[:title]
             ? "ðŸ“ " + _aPlan_[:description]
-            ? "â±ï¸  Estimated time: " + _aPlan_[:estimated_time] + " seconds"
+            ? char(226) + char(143) + char(177) + char(239) + char(184) + char(143) + "  Estimated time: " + _aPlan_[:estimated_time] + " seconds"
             ? ""
         ok
         
@@ -579,7 +579,7 @@ class stzDataWrangler from stzObject
         for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
         	_stepp_ = _aPlansteps1_[_iLoopPlansteps1_]
             if @bVerbose
-                ? "â–¶ï¸  " + _stepp_[:description] + "..."
+                ? char(226) + char(150) + char(182) + char(239) + char(184) + char(143) + "  " + _stepp_[:description] + "..."
             ok
             
             try
@@ -592,7 +592,7 @@ class stzDataWrangler from stzObject
                 ]
                 
                 if @bVerbose
-                    ? "   âœ… " + _result_
+                    ? "   " + char(226) + char(156) + char(133) + " " + _result_
                 ok
                 
             catch
@@ -604,7 +604,7 @@ class stzDataWrangler from stzObject
                 ]
                 
                 if @bVerbose
-                    ? "   âŒ Error: " + cCatchError
+                    ? "   " + char(226) + char(157) + char(140) + " Error: " + cCatchError
                 ok
             done
         next
@@ -719,7 +719,7 @@ class stzDataWrangler from stzObject
         ? "ðŸ“‹ DATA WRANGLING REPORT"
         ? "========================"
         ? "Structure: " + _aProfile_[:structure]
-        ? "Dimensions: " + _aProfile_[:rows] + " rows Ã— " + _aProfile_[:columns] + " columns"
+        ? "Dimensions: " + _aProfile_[:rows] + " rows × " + _aProfile_[:columns] + " columns"
         ? "Issues Found: " + _aProfile_[:issues_found]
         ? "Transformations: " + _aProfile_[:transformations_applied]
         ? ""
@@ -729,7 +729,7 @@ class stzDataWrangler from stzObject
             _nIssues1Len_ = len(@aIssues)
             for _iLoopIssues1_ = 1 to _nIssues1Len_
             	_issue_ = @aIssues[_iLoopIssues1_]
-                ? "  â€¢ " + _issue_[:type] + ": " + _issue_[:description]
+                ? "  " + char(226) + char(128) + char(162) + " " + _issue_[:type] + ": " + _issue_[:description]
             next
             ? ""
         ok
@@ -739,7 +739,7 @@ class stzDataWrangler from stzObject
             _nTransformLog1Len_ = len(@aTransformLog)
             for _iLoopTransformLog1_ = 1 to _nTransformLog1Len_
             	transform = @aTransformLog[_iLoopTransformLog1_]
-                ? "  â€¢ " + transform[:operation] + ": " + transform[:details]
+                ? "  " + char(226) + char(128) + char(162) + " " + transform[:operation] + ": " + transform[:details]
             next
         ok
 
