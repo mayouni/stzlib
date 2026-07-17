@@ -62,23 +62,12 @@ oGraph.LoadRuleFunctionsFrom("../_data/custom_functions.stzrulf")
 ? "Loading the same .stzrulf twice is safe: " + oGraph.NumberOfRules()
 #--> Loading the same .stzrulf twice is safe: 6
 
-pf()
+#-----------------------------------------#
+#  4. restructure.stzsim                  #
+#     Simulation (changes between graphs) #
+#=========================================#
 
-#=============================================================================
-#  DEFERRED BELOW -- .stzsim and the end-to-end workflow
-#
-#  The blocks that used to follow here were never executable: they read
-#  org_current.stzgraf, restructure.stzsim and mycompany.stzgraf, none of
-#  which exist in the repo, and they `load "custom_functions.stzrulf"` at
-#  COMPILE time -- which, next to a runtime load of the same file, is the
-#  C22 "Function redefinition" this test was headed with for months.
-#
-#  They are kept below as the record of what .stzsim is meant to do. They
-#  are a DIFFERENT feature from the rule file formats (graph simulation and
-#  .stzgraf persistence) and want their own fixtures and their own pass.
-#=============================================================================
-
-# Example of a .stzsim file format
+# Example of a .stzsim file format -- see ../_data/restructure.stzsim
 `
 simulation "Move Treasury Under CFO Comparison"
     description: "Changes from baseline"
@@ -106,44 +95,138 @@ metrics
     hasCycles: FALSE -> FALSE
 `
 
-# How to use .stzsim file format? (needs org_current.stzgraf + restructure.stzsim)
+# How to use .stzsim file format?
 #
-#	oBaseline = new stzGraph("current_org")
-#	oBaseline.LoadFromStzGraf("org_current.stzgraf")
-#	cSimulation = read("restructure.stzsim")
-#	oBaseline.ApplySimulation(cSimulation)
-#	? "  Nodes: " + oBaseline.NodeCount()
-#	? "  Edges: " + oBaseline.EdgeCount()
+# A .stzsim is a graph's CHANGES, written down: what a proposed restructure
+# would add and remove. You read a baseline, apply the changes, and look at
+# what you would get -- before doing it for real.
 
-# Complete workflow using the file formats (needs the same fixtures)
-#
-#	oCompany = new stzGraph("MyCompany")
-#	oCompany {
-#		AddNodeXTT("ceo", "CEO", [:level = 5])
-#		AddNodeXTT("cto", "CTO", [:level = 4, :department = "tech"])
-#		AddNodeXTT("cfo", "CFO", [:level = 4, :department = "finance"])
-#		AddNodeXTT("eng1", "Engineer 1", [:level = 2, :department = "tech"])
-#		Connect("ceo", "cto")
-#		Connect("ceo", "cfo")
-#		Connect("cto", "eng1")
-#		SaveToStzGraf("mycompany.stzgraf")
-#	}
-#	oCompany.LoadRuleFunctionsFrom("../_data/custom_functions.stzrulf")
-#	oCompany.LoadFromStzRulz("../_data/compliance_rules.stzrulz")
-#	oCompany.UseRulesFrom(:banking)
-#	nDerived = oCompany.ApplyDerivations()
-#	? "  Derived edges: " + nDerived
-#	oVariation = oCompany.Copy()
-#	oVariation {
-#		AddNodeXTT("coo", "COO", [:level = 4])
-#		RemoveThisEdge("ceo", "cto")
-#		Connect("ceo", "coo")
-#		Connect("coo", "cto")
-#	}
-#	cSim = oVariation.ExportToStzSim(oCompany)
-#	write("add_coo.stzsim", cSim)
-#	aResult = oVariation.Validate()
-#	? "  Valid: " + aResult[1]
+# Loading baseline
+oBaseline = new stzGraph("current_org")
+oBaseline.LoadFromStzGraf("../_data/org_current.stzgraf")
+
+? "Before: " + oBaseline.NodeCount() + " nodes, " + oBaseline.EdgeCount() + " edges"
+#--> Before: 8 nodes, 7 edges
+
+? "Treasury reports to the CEO: " + oBaseline.EdgeExists("ceo", "treasury_head")
+#--> Treasury reports to the CEO: 1
+
+# Applying simulation
+cSimulation = read("../_data/restructure.stzsim")
+oBaseline.ApplySimulation(cSimulation)
+
+# After changes
+? "  Nodes: " + oBaseline.NodeCount() #--> Nodes: 10
+? "  Edges: " + oBaseline.EdgeCount() #--> Edges: 9
+
+# ... which is exactly what the file's own metrics section promised
+# (nodeCount: 8 -> 10, edgeCount: 7 -> 9).
+
+? "Treasury now reports to the CFO: " + oBaseline.EdgeExists("cfo", "treasury_head")
+#--> Treasury now reports to the CFO: 1
+
+? "... and no longer to the CEO: " + (NOT oBaseline.EdgeExists("ceo", "treasury_head"))
+#--> ... and no longer to the CEO: 1
+
+# An added node keeps the label the simulation gave it (spaces normalise to
+# underscores -- a label carries no spaces in a stzGraph).
+? "The new officer is labelled: " + oBaseline.NodeLabel("risk_officer")
+#--> The new officer is labelled: Risk_Officer
+
+#--------------------------------------------------#
+# 5. Complete workflow example using file formats  #
+#==================================================#
+
+# Step 1: Create and save a graph
+
+	oCompany = new stzGraph("MyCompany")
+	oCompany {
+		AddNodeXTT("ceo", "CEO", [:level = 5])
+		AddNodeXTT("cto", "CTO", [:level = 4, :department = "tech", :role = "manager"])
+		AddNodeXTT("cfo", "CFO", [:level = 4, :department = "finance"])
+		AddNodeXTT("eng1", "Engineer 1", [:level = 2, :department = "tech"])
+		AddNode("eng1_approval")
+
+		Connect("ceo", "cto")
+		Connect("ceo", "cfo")
+		Connect("cto", "eng1")
+
+		SaveToStzGraf("_mycompany.stzgraf")
+	}
+
+	? "Saved: " + fexists("_mycompany.stzgraf") #--> Saved: 1
+
+# Step 2: Load custom functions (already in this process from block 1 --
+#         a second load is a no-op, which is the point)
+
+	oCompany.LoadRuleFunctionsFrom("../_data/custom_functions.stzrulf")
+
+# Step 3: Load rules
+
+	oCompany.LoadFromStzRulz("../_data/compliance_rules.stzrulz")
+
+# Step 4: Apply rules
+
+	oCompany.UseRulesFrom(:banking)
+	aDerived = oCompany.ApplyDerivationRulesXT()
+	? "  Derived edges: " + len(aDerived[:edgesAdded]) #--> Derived edges: 2
+
+	# Two rules fired, each deriving what it knows:
+	#   reporting_is_transitive  -> ceo can reach eng1 through cto
+	#   MANAGER_APPROVAL_RIGHTS  -> cto (role: manager) can approve eng1's
+	#                               approval node, which exists
+	? "  ceo -> eng1 (transitivity) : " + oCompany.EdgeExists("ceo", "eng1")
+	#--> ceo -> eng1 (transitivity) : 1
+	? "  cto -> eng1_approval (custom rule) : " + oCompany.EdgeExists("cto", "eng1_approval")
+	#--> cto -> eng1_approval (custom rule) : 1
+
+# Step 5: Create variation
+
+	oVariation = oCompany.Copy()
+	oVariation {
+		AddNodeXTT("coo", "COO", [:level = 4])
+		RemoveThisEdge("ceo", "cto")
+		Connect("ceo", "coo")
+		Connect("coo", "cto")
+	}
+
+# Step 6: Export simulation
+
+	cSim = oVariation.ExportToStzSim(oCompany)
+	write("_add_coo.stzsim", cSim)
+	? "  Saved to _add_coo.stzsim" #--> Saved to _add_coo.stzsim
+
+	# The diff says ONLY what changed -- one node in, one edge out, two in.
+	# (An edge that never moved appears in neither list.)
+	? "  add node coo declared: " + (StzFindFirst(cSim, "add node coo") > 0)
+	#--> add node coo declared: 1
+	? "  remove edge ceo -> cto declared: " + (StzFindFirst(cSim, "remove edge ceo -> cto") > 0)
+	#--> remove edge ceo -> cto declared: 1
+
+	# And it round-trips: replay it onto the original and you get the variation.
+	oReplay = oCompany.Copy()
+	oReplay.ApplySimulation(cSim)
+	? "  Replayed == variation: " + (oReplay.NodeCount() = oVariation.NodeCount() and
+		oReplay.EdgeCount() = oVariation.EdgeCount())
+	#--> Replayed == variation: 1
+
+# Step 7: Validate
+
+	? "Validating structure..."
+	aResult = oVariation.Validate()
+
+	# Validate() answers with a REPORT, not a bare flag: what it ran, what
+	# failed, and every issue it found. (The block used to read aResult[1],
+	# which is the ["status","pass"] PAIR -- a list, so printing it raised
+	# R21. It had never run to find out.)
+	? "  Valid: " + aResult[:status] #--> Valid: pass
+	? "  Validators run: " + aResult[:validatorsRun] #--> Validators run: 3
+	? "  Issues: " + aResult[:totalIssues] #--> Issues: 0
+
+	remove("_mycompany.stzgraf")
+	remove("_add_coo.stzsim")
+
+pf()
 
 #--- Key Concepts explored in those samples:
 

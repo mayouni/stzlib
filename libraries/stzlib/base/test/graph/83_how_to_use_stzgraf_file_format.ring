@@ -3,7 +3,6 @@
 # How to use .stzgraf file format?
 #
 # Extracted from stzgraphtest.ring, block #83.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -18,9 +17,12 @@ oGraph {
 
 	? NodeCount() #--> 5
 	? EdgeCount() #--> 5
-	? @@(NodeProperty("warehouse_ny", "capacity")) #ERR
-	#--> Should return 50000
-	# but returned ""
+
+	# A property comes back as what it IS, not as the text it was written
+	# as: a number stays a number, a quoted string loses its quotes.
+	? @@(NodeProperty("warehouse_ny", "capacity")) #--> 50000
+	? @@(NodeProperty("factory_cn", "cost_per_unit")) #--> 2.50
+	? @@(NodeProperty("warehouse_ny", "location")) #--> "New York"
 
 //	View() #--> See the generated SVG image...
 

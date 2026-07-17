@@ -1,21 +1,9 @@
-digraph "softabank_orgchart_2025" {
+digraph "techco" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out, tooltip=" "]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    board [label="Board_of_Directors", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", fillcolor="#FFFFFF", fontcolor="black", color="#808080", tooltip=" "]
-    ceo [label="Chief_Executive_Officer", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", fillcolor="#FFFFFF", fontcolor="black", color="#808080", tooltip=" "]
-    cfo [label="Chief_Financial_Officer", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", fillcolor="#FFFFFF", fontcolor="black", color="#808080", tooltip=" "]
+    ceo [label="CEO", shape=box, style="rounded,solid,filled", fillcolor="#C94DC9", penwidth=1, fontcolor="white", fillcolor="#C94DC9", fontcolor="white", color="#808080", tooltip=" "]
 
-
-    subgraph cluster_finance {
-        label=""Finance Department"";
-        style=filled;
-        color="#E0E0FF";
-        fillcolor="#E0E0FF20";
-        "cfo";
-    }
-    board -> ceo
-    ceo -> cfo
 
 }
