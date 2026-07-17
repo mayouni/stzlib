@@ -7751,7 +7751,7 @@ func AnyOf(paList)
 		StzRaise("Can't return any item! The list you provided is empty.")
 	ok
 
-	return paList[RandomIn(1:nLen)]
+	return paList[RandomIn(1:_nLen_)]
 
 	func AnyItemOf(paList)
 		return AnyOf(paList)

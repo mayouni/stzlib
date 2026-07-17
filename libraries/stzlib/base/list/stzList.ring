@@ -10711,7 +10711,7 @@ class stzList from stzObject
 	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
 		_anPos_ = This.FindDuplicatesCSXT(pCaseSensitive)
 		_nLen_ = This.NumberOfItems()
-		if NOT Q(_anPos_).IsEqualTo(1:nLen)
+		if NOT Q(_anPos_).IsEqualTo(1:_nLen_)
 			return 1
 		else
 			return 0
