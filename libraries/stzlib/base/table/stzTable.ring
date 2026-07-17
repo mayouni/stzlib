@@ -480,8 +480,142 @@ Class stzTable from stzList
 			def ColNamesQRT(pcReturnType)
 				return This.ColumnsNamesQRT(pcReturnType)
 
+		# --- Aggregation layer, exposed on the base -----------------------
+		# stzTable is the class users instantiate; the aggregation methods are
+		# defined on the stzTableAggregator SUBCLASS, so a bare stzTable would
+		# miss them. We expose them here (same forwarder pattern as Show ->
+		# stzTableDisplay). The heavy compute -- calc columns, column aggregates
+		# -- delegates to a throwaway aggregator built from this table's content,
+		# while the calc-col STATE (@anCalculatedCols) lives on, and is read from,
+		# THIS object so it persists across calls. The query methods read that
+		# state directly via Col/ColName, which also sidesteps two latent bugs in
+		# the aggregator's own versions: a `new X().Method()` R13 in its
+		# FindCalculatedCols, and a CalculatedCols that calls TheseCols (defined
+		# on the sibling stzTableSubset, unreachable from the aggregator). The
+		# real fix is the table-hierarchy refactor noted near the forwarders
+		# below; this keeps the public surface working meanwhile.
+
 		def FindCalculatedCols()
-			return []
+			_oCc_ = new stzList(@anCalculatedCols)
+			return _oCc_.Sorted()
+
+			def FindCalculatedColumns()
+				return This.FindCalculatedCols()
+
+		def InsertCalculatedCol(_n_, pcColName, pcFormula)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			_oAgg_.InsertCalculatedCol(_n_, pcColName, pcFormula)
+			This.UpdateWith(_oAgg_.Content())
+			@anCalculatedCols + _n_
+
+			def InsertCalculatedColAt(_n_, pcColName, pcFormula)
+				This.InsertCalculatedCol(_n_, pcColName, pcFormula)
+
+			def InsertCalculatedColumn(_n_, pcColName, pcFormula)
+				This.InsertCalculatedCol(_n_, pcColName, pcFormula)
+
+			def InsertCalculatedColumnAt(_n_, pcColName, pcFormula)
+				This.InsertCalculatedCol(_n_, pcColName, pcFormula)
+
+		def AddCalculatedCol(pcColName, pcFormula)
+			This.InsertCalculatedCol(This.NumberOfCols() + 1, pcColName, pcFormula)
+
+			def AddCalculatedColumn(pcColName, pcFormula)
+				This.AddCalculatedCol(pcColName, pcFormula)
+
+		def CalculatedCols()
+			_anPos_ = This.FindCalculatedCols()
+			_aResult_ = []
+			_nLen_ = len(_anPos_)
+			for _i_ = 1 to _nLen_
+				_aResult_ + This.Col(_anPos_[_i_])
+			next
+			return _aResult_
+
+			def CalculatedColumns()
+				return This.CalculatedCols()
+
+		def CalculatedColNames()
+			_anPos_ = This.FindCalculatedCols()
+			_acResult_ = []
+			_nLen_ = len(_anPos_)
+			for _i_ = 1 to _nLen_
+				_acResult_ + This.ColName(_anPos_[_i_])
+			next
+			return _acResult_
+
+			def CalculatedColsNams()
+				return This.CalculatedColNames()
+
+			def CalculatedColumnNams()
+				return This.CalculatedColNames()
+
+			def CalculatedColumnsNams()
+				return This.CalculatedColNames()
+
+		def SumCol(pCol)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			return _oAgg_.SumCol(pCol)
+
+		def AvgCol(pCol)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			return _oAgg_.AvgCol(pCol)
+
+			def MeanCol(pCol)
+				return This.AvgCol(pCol)
+
+		def MinCol(pCol)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			return _oAgg_.MinCol(pCol)
+
+		def MaxCol(pCol)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			return _oAgg_.MaxCol(pCol)
+
+		def ProductCol(pCol)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			return _oAgg_.ProductCol(pCol)
+
+		# Calculated ROWS build on InsertRow, which lives on the sibling
+		# stzTableStructure -- so they are unreachable from a bare stzTable AND
+		# broken on the aggregator itself (its InsertCalculatedRow calls
+		# This.InsertRow -> R14). Exposing InsertRow here, delegated to a
+		# throwaway structure, makes it callable on stzTable and -- because the
+		# aggregator inherits from stzTable -- repairs the aggregator's own
+		# calculated-row methods by inheritance.
+
+		def InsertRow(_n_, paRowData)
+			_oStruct_ = new stzTableStructure(@aContent)
+			_oStruct_.InsertRow(_n_, paRowData)
+			This.UpdateWith(_oStruct_.Content())
+
+		def InsertCalculatedRow(_n_, pacFormulas)
+			_oAgg_ = new stzTableAggregator(@aContent)
+			_oAgg_.InsertCalculatedRow(_n_, pacFormulas)
+			This.UpdateWith(_oAgg_.Content())
+			@anCalculatedRows + _n_
+
+		def AddCalculatedRow(pacFormulas)
+			This.InsertCalculatedRow(This.NumberOfRows() + 1, pacFormulas)
+
+			def AddCalculatedRows(pacFormulas)
+				This.AddCalculatedRow(pacFormulas)
+
+		def FindCalculatedRows()
+			_oCr_ = new stzList(@anCalculatedRows)
+			return _oCr_.Sorted()
+
+			def FindCalculatedRowsPositions()
+				return This.FindCalculatedRows()
+
+		def CalculatedRows()
+			_anPos_ = This.FindCalculatedRows()
+			_aResult_ = []
+			_nLen_ = len(_anPos_)
+			for _i_ = 1 to _nLen_
+				_aResult_ + This.Row(_anPos_[_i_])
+			next
+			return _aResult_
 
 		def AllColsNames() # Useful by contrast to TheseCols(paCols)
 			return This.ColumnsNames()
