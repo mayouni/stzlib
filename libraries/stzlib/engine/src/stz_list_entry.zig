@@ -46,6 +46,7 @@ comptime {
     @export(&list.stz_list_equals_cs, .{ .name = "stz_list_equals_cs" });
     @export(&list.stz_list_map_expr, .{ .name = "stz_list_map_expr" });
     @export(&list.stz_list_filter_expr, .{ .name = "stz_list_filter_expr" });
+    @export(&list.stz_expr_eval_columns, .{ .name = "stz_expr_eval_columns" });
     @export(&list.stz_list_reduce_expr, .{ .name = "stz_list_reduce_expr" });
     @export(&list.stz_list_find_first_w, .{ .name = "stz_list_find_first_w" });
     @export(&list.stz_list_find_w, .{ .name = "stz_list_find_w" });
