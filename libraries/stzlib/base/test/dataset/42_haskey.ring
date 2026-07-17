@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzdatasettest.ring, block #42.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

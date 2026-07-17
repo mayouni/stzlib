@@ -3,7 +3,6 @@
 # StdDev / Min / Max / Range + aliases.
 #
 # Run from base/stats/test/.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # EXAMPLE 5: Custom Plan Creation
 #
 # Extracted from stzdatasettest.ring, block #47.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

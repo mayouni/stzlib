@@ -3,7 +3,6 @@
 # Percentile Rank Tests
 #
 # Extracted from stzdatasettest.ring, block #7.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
