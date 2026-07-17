@@ -2030,11 +2030,27 @@ class stzDiagram from stzGraph
 					_cColor_ = trim(StzMid(_cLine_, 8, stzlen(_cLine_) - 7))
 				ok
 
-			but _cCurrentSection_ = "edges" and StzFindFirst(_cLine_, "->")
-				_aEdgeParts_ = @split(_cLine_, "->")
-				_cFrom_ = trim(_aEdgeParts_[1])
-				_cTo_ = trim(_aEdgeParts_[2])
-				_aEdgesToAdd_ + [_cFrom_, _cTo_]  # Store for later
+			but _cCurrentSection_ = "edges"
+
+				# An edge is TWO lines: the arrow, then its label beneath it --
+				#     a -> b
+				#         label: "next"
+				# This branch only ever matched the arrow line, so the label
+				# was read by nobody and every imported edge came back
+				# UNLABELLED. The writer has always emitted it.
+
+				if StzFindFirst(_cLine_, "->")
+					_aEdgeParts_ = @split(_cLine_, "->")
+					_cFrom_ = trim(_aEdgeParts_[1])
+					_cTo_ = trim(_aEdgeParts_[2])
+					_aEdgesToAdd_ + [_cFrom_, _cTo_, ""]  # Store for later
+
+				but StzFindFirst(_cLine_, "label:") and len(_aEdgesToAdd_) > 0
+					# ... and it belongs to the arrow just read. Same
+					# arithmetic the node labels use above.
+					_aEdgesToAdd_[len(_aEdgesToAdd_)][3] =
+						StzMid(_cLine_, 9, stzlen(_cLine_) - 9)
+				ok
 			ok
 		end
 
@@ -2045,10 +2061,14 @@ class stzDiagram from stzGraph
 			This.AddNodeXTT(_cCurrentNode_, _cLabel_, [ :type = _cType_, :color = _cColor_ ])
 		ok
 
-		# Now add all edges
+		# Now add all edges -- with the label the file carried, when it had one
 		_nLen_ = len(_aEdgesToAdd_)
 		for i = 1 to _nLen_
-			This.Connect(_aEdgesToAdd_[i][1], _aEdgesToAdd_[i][2])
+			if _aEdgesToAdd_[i][3] != ""
+				This.AddEdgeXT(_aEdgesToAdd_[i][1], _aEdgesToAdd_[i][2], _aEdgesToAdd_[i][3])
+			else
+				This.Connect(_aEdgesToAdd_[i][1], _aEdgesToAdd_[i][2])
+			ok
 		end
 	
 	#--------------------#
