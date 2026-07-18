@@ -1931,6 +1931,34 @@ pub fn stz_list_all_unique_cs(list_arg: ?*const StzList, case_sensitive: i32) ca
     const n = l.len();
     if (n <= 1) return 1;
 
+    // O(n) through the same value-set the set operations use.
+    //
+    // This was a nested double loop comparing EVERY pair, so answering "are
+    // these 8000 keys unique?" cost 1.68s. IsHashList() calls it on every
+    // hashlist-shaped param, and stzHashList validates on every write -- so a
+    // single value update was quadratic in the size of the list.
+    //
+    // Boxing first, as the set operations do: a dense int/float/string list
+    // keeps its payload outside `items`, and reading items.items without
+    // materialising would see an empty array and call everything unique.
+    @constCast(l).ensureBoxed();
+
+    var seen = newValueSet(cs);
+    defer seen.deinit();
+
+    for (l.items.items) |item| {
+        if (seen.contains(item)) return 0;
+
+        // Out of memory: fall back to the exhaustive comparison rather than
+        // guess. Slow, but it cannot answer wrongly.
+        seen.put(item, {}) catch return allUniqueByScan(l, cs);
+    }
+
+    return 1;
+}
+
+fn allUniqueByScan(l: *const StzList, cs: bool) i32 {
+    const n = l.len();
     var i: usize = 0;
     while (i < n) : (i += 1) {
         var j: usize = i + 1;

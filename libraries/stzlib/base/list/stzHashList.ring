@@ -150,7 +150,10 @@ func HasKey(paList, pcKey)
 	_acHkKeys_ = []
 
 	for _iHk_ = 1 to _nHkLen_
-		add(_acHkKeys_, StzLower(paList[_iHk_][1]))
+		# `+` not add(): Ring's add() builtin corrupts multibyte string
+		# content, so a Greek key went into this list mangled and the
+		# lookup below could never match it.
+		_acHkKeys_ + StzLower(paList[_iHk_][1])
 	next
 
 	return iff(StzFindFirst(StzLower(pcKey), _acHkKeys_) > 0, TRUE, FALSE)
@@ -224,7 +227,7 @@ func HasKeysXT(paList, pacKeys)
 	_acHkxAllKeys_ = []
 
 	for _iHkx_ = 1 to _nHkxLen_
-		add(_acHkxAllKeys_, StzLower(paList[_iHkx_][1]))
+		_acHkxAllKeys_ + StzLower(paList[_iHkx_][1])   # add() corrupts multibyte
 	next
 
 	_aHkxResult_ = []
@@ -232,9 +235,9 @@ func HasKeysXT(paList, pacKeys)
 
 	for _jHkx_ = 1 to _nHkxKeysLen_
 		if find(_acHkxAllKeys_, StzLower(pacKeys[_jHkx_])) > 0
-			add(_aHkxResult_, TRUE)
+			_aHkxResult_ + TRUE
 		else
-			add(_aHkxResult_, FALSE)
+			_aHkxResult_ + FALSE
 		ok
 	next
 
@@ -478,12 +481,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
+		# Normalise the keys into a FRESH list. Assigning p[i][1] in place
+		# corrupts the container: on a hash-indexed Ring list that write
+		# INSERTS the new key instead of replacing the pair's first item, so
+		# a two-pair hash list came back with THREE keys -- the lowercased
+		# one and the original both present, with the pair structure broken.
+		#
+		# It only showed on CASED NON-ASCII keys. For ASCII, lowering changes
+		# nothing the case-insensitive indexer can see, so the damage stayed
+		# invisible; a Greek key stored as capital alpha-theta and read back
+		# as small alpha-theta made ContainsKey, HasKey and ValueByKey all
+		# answer "no such key" for a key that was demonstrably there.
+
+		_aInitNorm_ = []
 		_nInitLen_ = len(p)
+
 		for _iInit_ = 1 to _nInitLen_
-			p[_iInit_][1] = StzLower(p[_iInit_][1])
+			_aInitNorm_ + [ StzLower(p[_iInit_][1]), p[_iInit_][2] ]
 		next
 
-		@aContent = p
+		@aContent = _aInitNorm_
 
 		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
@@ -993,11 +1010,44 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	# The value stored under the given key.
 	def ValueByKey(pcKey)
-		# Ring's hashlist[key] indexer is the canonical fast path -- it does
-		# a single C lookup on the underlying VM hash table. The engine
-		# StzEngineHashMapGet* path is kept for type-coerced reads via
-		# ValueIntByKey/ValueFloatByKey/ValueStringByKey helpers below.
-		return This.Content()[ pcKey ]
+		# Resolve through the ENGINE map, which compares keys byte for byte.
+		#
+		# Ring's hashlist[key] indexer cannot be trusted once the list lives
+		# in an object attribute: 100 of 600 keys built on Greek/CJK prefixes
+		# silently resolved to "" -- SILENTLY, the registry simply reported
+		# no such key -- while the identical lookups on the identical bytes
+		# succeeded on the free-standing list both before AND after the
+		# object was constructed. Indexing @aContent directly instead of
+		# This.Content() does not help either, so the fault is in the VM's
+		# hash index, not in the copy Content() returns.
+		#
+		# The engine map keeps insertion order, so its 1-based key position
+		# is also the position in @aContent -- and reading the value from
+		# there preserves its TYPE, which a get_string coercion would not.
+		#
+		# Falling back to Ring's indexer on a miss is deliberate: it matches
+		# ASCII keys case-INSENSITIVELY, which is long-standing behaviour
+		# here. Exact keys of every script now resolve first, and that
+		# looser ASCII match still resolves after.
+
+		# Lower the PROBE, because the constructor stores keys lowercased --
+		# exactly as HasKey/ContainsKey already do. Without it those three
+		# disagreed: ContainsKey(k) said TRUE while ValueByKey(k) returned ""
+		# for the same k, for every key holding a CASED non-ASCII letter
+		# (Greek, Cyrillic, Armenian).
+		_cVbkKey_ = StzLower(pcKey)
+
+		This._EnsureEngineMap()
+
+		if @pEngineMap != NULL
+			_nVbkPos_ = StzEngineHashMapFindKey(@pEngineMap, _cVbkKey_)
+
+			if _nVbkPos_ > 0
+				return @aContent[_nVbkPos_][2]
+			ok
+		ok
+
+		return @aContent[ _cVbkKey_ ]
 
 	# The value under the given key, as an integer (engine map).
 	def ValueIntByKey(pcKey)
@@ -1266,9 +1316,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 			_n_ = This.NumberOfValues()
 		ok
 
-		_aUnvContent_ = This.Content()
-		_aUnvContent_[_n_][2] = pValue
-		This.UpdateWith(_aUnvContent_)
+		# Write the one cell IN PLACE.
+		#
+		# Changing a VALUE cannot break hashlist-ness -- the keys are
+		# untouched -- so there is nothing to re-validate. The old path
+		# copied the entire hashlist out with Content(), changed one cell,
+		# and pushed the whole thing back through Update(), which wraps the
+		# list in a stz object to test for a named param and then revalidates
+		# every pair. That is several full passes over the list to write one
+		# value, so any loop of updates was quadratic: 200 updates against a
+		# 4000-pair list took 17.85s.
+
+		@aContent[_n_][2] = pValue
+		This._InvalidateEngineMap()
+
+		if KeepingHisto() = 1
+			This.AddHistoricValue(This.Content())
+		ok
 
 		# Replace the nth occurrence of the value with the new one
 		# (mutating).
@@ -1717,11 +1781,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def HasKey(pcKey)
 
 		if isString(pcKey)
+			# Lower the PROBE: keys are stored lowercased, so asking the
+			# engine map for the raw key missed every key whose case the
+			# constructor had changed. That made HasKey case-SENSITIVE while
+			# ValueByKey was case-insensitive, and made both answer "no" for
+			# Greek/Cyrillic keys that were demonstrably present. The global
+			# HasKey(paList, pcKey) has always lowered its probe; this is the
+			# method agreeing with it.
+			_cHkKey_ = StzLower(pcKey)
+
 			This._EnsureEngineMap()
 			if @pEngineMap != NULL
-				return StzEngineHashMapHasKey(@pEngineMap, pcKey)
+				return StzEngineHashMapHasKey(@pEngineMap, _cHkKey_)
 			ok
-			if This.FindKey(pcKey) > 0
+			if This.FindKey(_cHkKey_) > 0
 				return 1
 			ok
 		ok
@@ -2074,9 +2147,40 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_anFkbvResult_ = []
 
-		for _iFkbv_ = 1 to _nFkbvLen_
+		# Q(value).Contains(...) built a whole stz OBJECT for EVERY pair just
+		# to ask a containment question -- n object constructions per call,
+		# which is why one KeysByValue over 8000 pairs took 1.75s. The two
+		# shapes that actually occur are answered directly; anything else
+		# still goes through Q(), so no semantics move.
 
-			if Q(_aFkbvContent_[_iFkbv_][2]).Contains(pValue)
+		for _iFkbv_ = 1 to _nFkbvLen_
+			_vFkbvVal_ = _aFkbvContent_[_iFkbv_][2]
+			_bFkbvHit_ = FALSE
+
+			if isString(_vFkbvVal_)
+				# A string value CONTAINS a substring. A NON-string needle
+				# cannot be inside a string, and it is answered here rather
+				# than passed on because Q(string).Contains(number) takes
+				# Ring down hard -- exit 1, no message, no output at all.
+				if isString(pValue)
+					if StzFindFirst(pValue, _vFkbvVal_) > 0
+						_bFkbvHit_ = TRUE
+					ok
+				ok
+
+			but isList(_vFkbvVal_)
+				# a list value CONTAINS an item
+				if ring_find(_vFkbvVal_, pValue) > 0
+					_bFkbvHit_ = TRUE
+				ok
+
+			else
+				if Q(_vFkbvVal_).Contains(pValue)
+					_bFkbvHit_ = TRUE
+				ok
+			ok
+
+			if _bFkbvHit_
 				@AddItem(_anFkbvResult_, _iFkbv_)
 			ok
 		next

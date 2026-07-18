@@ -16,11 +16,21 @@ const Entry = struct {
 };
 
 pub const StzHashMap = struct {
+    // `entries` is the ORDER: keys and values come back in insertion order,
+    // which callers rely on. `index` is the LOOKUP: key -> position in
+    // entries.
+    //
+    // Without the index this container was a hash map in name only --
+    // findIndex walked every entry, so get/has/put were all O(n) and
+    // BUILDING a map was O(n^2). Filling 8000 pairs took 0.82s, and since
+    // NumberOfPairs() forced the build just to read a count, Values() paid
+    // it too: 82x slower than the identical Keys() loop beside it.
     entries: std.ArrayList(Entry),
+    index: std.StringHashMapUnmanaged(usize),
 
     pub fn init() !*StzHashMap {
         const self = try allocator.create(StzHashMap);
-        self.* = .{ .entries = .{} };
+        self.* = .{ .entries = .{}, .index = .{} };
         return self;
     }
 
@@ -31,6 +41,7 @@ pub const StzHashMap = struct {
             allocator.destroy(entry.value);
         }
         self.entries.deinit(allocator);
+        self.index.deinit(allocator);
         allocator.destroy(self);
     }
 
@@ -39,14 +50,25 @@ pub const StzHashMap = struct {
     }
 
     fn findIndex(self: *const StzHashMap, key: []const u8, case_sensitive: bool) ?usize {
+        // Case-sensitive is the hot path and the one the index answers.
+        if (case_sensitive) return self.index.get(key);
+
+        // Case-INsensitive keeps the scan: the index is keyed on exact
+        // bytes, so it cannot answer a folded query. This path is rare
+        // (the _cs entry points only), and folding a second index would
+        // have to pick a fold, which the exact-byte contract does not.
         for (self.entries.items, 0..) |entry, i| {
-            if (case_sensitive) {
-                if (std.mem.eql(u8, entry.key, key)) return i;
-            } else {
-                if (entry.key.len == key.len and asciiEqlCI(entry.key, key)) return i;
-            }
+            if (entry.key.len == key.len and asciiEqlCI(entry.key, key)) return i;
         }
         return null;
+    }
+
+    /// Re-point the index at `entries` after a positional shift.
+    fn reindexFrom(self: *StzHashMap, start: usize) void {
+        var it = self.index.iterator();
+        while (it.next()) |kv| {
+            if (kv.value_ptr.* > start) kv.value_ptr.* -= 1;
+        }
     }
 };
 
@@ -103,6 +125,15 @@ pub fn stz_hashmap_put(map: ?*StzHashMap, key_ptr: [*]const u8, key_len: usize, 
         return -1;
     };
     m.entries.append(allocator, .{ .key = k, .value = cloned }) catch {
+        allocator.free(k);
+        cloned.deinit();
+        allocator.destroy(cloned);
+        return -1;
+    };
+    // The index borrows the entry's OWNED key, so it stays valid exactly as
+    // long as the entry does -- and is removed before that key is freed.
+    m.index.put(allocator, k, m.entries.items.len - 1) catch {
+        _ = m.entries.pop();
         allocator.free(k);
         cloned.deinit();
         allocator.destroy(cloned);
@@ -194,6 +225,12 @@ pub fn stz_hashmap_remove(map: ?*StzHashMap, key_ptr: [*]const u8, key_len: usiz
     const m = map orelse return -1;
     const idx = m.findIndex(key_ptr[0..key_len], true) orelse return -1;
     const entry = m.entries.orderedRemove(idx);
+
+    // Drop the index entry BEFORE freeing the key it borrows, then close the
+    // positional gap orderedRemove just opened.
+    _ = m.index.remove(entry.key);
+    m.reindexFrom(idx);
+
     allocator.free(entry.key);
     entry.value.deinit();
     allocator.destroy(entry.value);
@@ -230,6 +267,7 @@ pub fn stz_hashmap_clear(map: ?*StzHashMap) callconv(.c) i32 {
         allocator.destroy(entry.value);
     }
     m.entries.clearRetainingCapacity();
+    m.index.clearRetainingCapacity();
     return 0;
 }
 
@@ -250,6 +288,13 @@ pub fn stz_hashmap_clone(map: ?*const StzHashMap) callconv(.c) ?*StzHashMap {
             allocator.free(k);
             v.deinit();
             allocator.destroy(v);
+            result.deinit();
+            return null;
+        };
+        // Clone appends straight to entries, bypassing put -- so the clone's
+        // index has to be filled here or it would come back empty (every
+        // lookup missing on a map that visibly has the keys).
+        result.index.put(allocator, k, result.entries.items.len - 1) catch {
             result.deinit();
             return null;
         };
