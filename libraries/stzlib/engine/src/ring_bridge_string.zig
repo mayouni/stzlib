@@ -2941,8 +2941,9 @@ fn ring_StringWordsSplitList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
-// All substrings bounded by open..close, in one pass. Case-sensitive only --
-// see str_bounded_by_cs for why the folded path is deliberately excluded.
+// All substrings bounded by open..close, in one pass. Arg 4 is the
+// case-sensitivity flag; the folded path works in ORIGINAL offsets, see
+// str_bounded_by_cs.
 fn ring_StringBoundedByList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     const h = getHandle(p, 1);
@@ -2950,7 +2951,8 @@ fn ring_StringBoundedByList(p: *anyopaque) callconv(.c) void {
     const op_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const cl = ring_vm_api_getstring(p, 3);
     const cl_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    emitNulList(out, string.str_bounded_by_cs(h, op, op_len, cl, cl_len));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    emitNulList(out, string.str_bounded_by_cs(h, op, op_len, cl, cl_len, case));
     R.ring_vm_api_retlist(p, out);
 }
 

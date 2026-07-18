@@ -296,6 +296,36 @@ chk("odd regions are message bodies all the way through", bOddAllMessages)
 
 chk("extraction is linear, not quadratic (< 3s for 40k regions)", tBounded < 3)
 
+# The quote bound is CASELESS, so asking case-insensitively must return the
+# very same regions -- and must not fall off a slow path to do it.
+t0 = clock()
+aQuotedCI = oLog.BoundedByCS([ cQuote, cQuote ], FALSE)
+tBoundedCI = (clock() - t0) / clockspersecond()
+? "  same extraction, case-insensitively, in " + tBoundedCI + " s"
+chk("case-insensitive extraction finds the same regions", len(aQuotedCI) = len(aQuoted))
+chk("...with identical content", aQuotedCI[1] = aQuoted[1])
+chk("...and stays linear too (< 3s)", tBoundedCI < 3)
+
+# And on a CASED bound it must actually fold. The Greek customer is written
+# UPPERCASE throughout the log; bounding by the LOWERCASE form must find it
+# case-insensitively and must not find it case-sensitively.
+nCiGreek = len(oLog.BoundedByCS([ cGrLo, cGrLo ], FALSE))
+nCsGreek = len(oLog.BoundedByCS([ cGrLo, cGrLo ], TRUE))
+? "  Greek lowercase bound: case-insensitive " + nCiGreek + " regions, case-sensitive " + nCsGreek
+chk("a lowercase Greek bound finds the UPPERCASE occurrences when folding", nCiGreek > 0)
+chk("...and finds none without folding", nCsGreek = 0)
+
+# The payoff of folding in ORIGINAL offsets rather than in a folded copy:
+# multibyte content between folded bounds comes back intact. A folded-buffer
+# offset would land mid-character here.
+bCiIntact = TRUE
+for k = 1 to 5
+	if StzFindFirst(cBox, aQuotedCI[k * 2 - 1]) < 1
+		bCiIntact = FALSE
+	ok
+next
+chk("multibyte content survives case-insensitive extraction", bCiIntact)
+
 ? ""
 ? "-- Scene 9: a practical question -- which city is busiest? --"
 nTok = oLog.NumberOfOccurrence(cCJKTok)

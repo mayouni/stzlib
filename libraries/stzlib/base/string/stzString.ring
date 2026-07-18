@@ -6685,7 +6685,12 @@ class stzString from stzObject
 		# routed through AnyBoundedBy. DISTINCT bounds keep the top-level
 		# BetweenCS pairing.
 		if This._IsSameCharBound(pacBounds)
-			return This.AnyBoundedBy(This._SameCharBoundPair(pacBounds))
+			# Carry pCaseSensitive through. It used to be dropped here --
+			# AnyBoundedBy took no flag and the walk below it hardcoded
+			# case-sensitive -- so BoundedByCS(x, FALSE) on a same-char bound
+			# silently behaved case-SENSITIVELY.
+			return This._AnyBoundedByWithCase(
+				This._SameCharBoundPair(pacBounds), pCaseSensitive)
 		ok
 		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			StzRaise("BoundedByCS: pacBounds must be a string or a 2-list [ open, close ]")
@@ -6773,26 +6778,34 @@ class stzString from stzObject
 		# non-overlapping pairing drops the middles). AnyBoundedByZZ pairs each
 		# substring with its [start, end] span.
 		def AnyBoundedBy(pacBounds)
-			# SAME-string bounds go to the engine in ONE pass. The general
-			# route below asks for the spans and then slices each one, and
-			# BOTH halves rescan from the start of the string per call
-			# (find-from-position and slice-by-index each walk the UTF-8 from
-			# byte 0), so extracting N regions cost O(N x len) -- 20k quoted
-			# bodies out of a 918KB log never finished.
-			#
-			# Restricted to same-string bounds on purpose: that is the case
-			# str_bounded_by_cs mirrors exactly (overlapping -- each closer
-			# opens the next region). Distinct bounds pair differently, via
-			# FindSubStringsBoundedByCSZZ, and keep the existing route.
-			# (Nested ifs: Ring's `and` does not short-circuit, so a flat
-			# condition would index into a non-list bound.)
+			return This._AnyBoundedByWithCase(pacBounds, 1)
+
+		# _AnyBoundedByWithCase: the ONE place that reaches the engine for
+		# bounded extraction, so the case flag has somewhere to land.
+		#
+		# SAME-string bounds go to the engine in ONE pass. The general route
+		# below asks for the spans and then slices each one, and BOTH halves
+		# rescan from the start of the string per call (find-from-position and
+		# slice-by-index each walk the UTF-8 from byte 0), so extracting N
+		# regions cost O(N x len) -- 20k quoted bodies out of a 918KB log never
+		# finished.
+		#
+		# Restricted to same-string bounds on purpose: that is the case
+		# str_bounded_by_cs mirrors exactly (overlapping -- each closer opens
+		# the next region). Distinct bounds pair differently, via
+		# FindSubStringsBoundedByCSZZ, and keep the existing route.
+		# (Nested ifs: Ring's `and` does not short-circuit, so a flat
+		# condition would index into a non-list bound.)
+
+		def _AnyBoundedByWithCase(pacBounds, pCaseSensitive)
+			_bAbCase_ = @CaseSensitive(pCaseSensitive)
 
 			if isList(pacBounds)
 				if len(pacBounds) = 2
 					if isString(pacBounds[1]) and isString(pacBounds[2])
 						if pacBounds[1] = pacBounds[2]
 							return StzEngineStringBoundedByList(
-								This.Engine(), pacBounds[1], pacBounds[2])
+								This.Engine(), pacBounds[1], pacBounds[2], _bAbCase_)
 						ok
 					ok
 				ok

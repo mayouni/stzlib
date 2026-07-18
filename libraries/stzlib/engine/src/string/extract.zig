@@ -369,10 +369,23 @@ pub fn str_slice(handle: StzStringHandle, start_cp: usize, cp_count_arg: usize) 
 /// therefore cost O(N x len) -- pulling 20k quoted bodies out of a 918KB log
 /// never finished. This walk is O(len).
 ///
-/// CASE-SENSITIVE ONLY, on purpose. Casefolding can change a string's byte
-/// length, so offsets into a folded haystack do not map back onto the
-/// original bytes; emitting from them would corrupt the output. The
-/// case-insensitive path stays on the Ring walk.
+/// Case-insensitivity is done by folding ONE CODEPOINT AT A TIME against the
+/// ORIGINAL bytes, never by searching a folded copy of the haystack. That is
+/// the whole trick: a folded haystack can have different byte lengths (fold
+/// expands some codepoints), so offsets into it do not map back onto the
+/// original -- which is why the existing str_find_first_from_cs returns a
+/// FOLDED index for case==0, and why emitting from one would corrupt output.
+/// Working in original offsets throughout makes the mapping exact, and costs
+/// no allocation at all (the folded-haystack path allocates a full copy per
+/// call).
+///
+/// Fold used: utf8proc simple lowercase, plus Greek final sigma -> sigma
+/// (simple lowercase keeps those distinct; Unicode case FOLDING unifies
+/// them). This covers every 1:1 fold -- Latin, Greek, Cyrillic, Armenian,
+/// fullwidth. It does NOT match the multi-codepoint expansions, so a "ss"
+/// bound will not match a "ss"-ligature/eszett; delimiters are punctuation or
+/// short words in practice, and the alternative costs an allocation per
+/// candidate position.
 ///
 /// Returns the substrings NUL-terminated (a NUL after EVERY item, so an empty
 /// bounded region survives the trip).
@@ -382,6 +395,7 @@ pub export fn str_bounded_by_cs(
     open_len: usize,
     close: [*c]const u8,
     close_len: usize,
+    case: c_int,
 ) StzStringHandle {
     const s = handle orelse return str_new();
     if (open == null or open_len == 0) return str_new();
@@ -393,26 +407,98 @@ pub export fn str_bounded_by_cs(
 
     const result = str_new() orelse return null;
     const same_bounds = mem.eql(u8, op, cl);
+    const sensitive = case != 0;
 
     var pos: usize = 0;
 
-    while (mem.indexOfPos(u8, hay, pos, op)) |open_at| {
-        const content_start = open_at + op.len;
-        if (content_start > hay.len) break;
+    while (true) {
+        // Where the opening bound sits, and where it ENDS in the haystack --
+        // which is not open.len under folding (a 1-byte needle can match a
+        // 2-byte character), so the end is always reported, never derived.
+        var open_end: usize = 0;
+        const open_at = blk: {
+            if (sensitive) {
+                const at = mem.indexOfPos(u8, hay, pos, op) orelse break;
+                open_end = at + op.len;
+                break :blk at;
+            }
+            const m = ciFind(hay, pos, op) orelse break;
+            open_end = m.end;
+            break :blk m.start;
+        };
+        _ = open_at;
 
-        const close_at = mem.indexOfPos(u8, hay, content_start, cl) orelse break;
+        if (open_end > hay.len) break;
 
-        result.data.appendSlice(gpa, hay[content_start..close_at]) catch break;
+        var close_end: usize = 0;
+        const close_at = blk: {
+            if (sensitive) {
+                const at = mem.indexOfPos(u8, hay, open_end, cl) orelse break;
+                close_end = at + cl.len;
+                break :blk at;
+            }
+            const m = ciFind(hay, open_end, cl) orelse break;
+            close_end = m.end;
+            break :blk m.start;
+        };
+
+        result.data.appendSlice(gpa, hay[open_end..close_at]) catch break;
         result.data.append(gpa, 0) catch break;
 
         if (same_bounds) {
             pos = close_at; // the closer opens the next region
         } else {
-            pos = close_at + cl.len;
+            pos = close_end;
         }
     }
 
     return result;
+}
+
+/// Case-folded codepoint, for matching only.
+fn foldCp(cp: i32) i32 {
+    const f = unicode.stz_unicode_to_lower(cp);
+    if (f == 0x03C2) return 0x03C3; // Greek final sigma folds onto sigma
+    return f;
+}
+
+/// Does `needle` sit at byte offset `pos` in `hay`, ignoring case? Returns the
+/// number of HAYSTACK bytes it spans (which can differ from needle.len).
+fn ciMatchAt(hay: []const u8, pos: usize, needle: []const u8) ?usize {
+    var hay_at = pos;
+    var needle_at: usize = 0;
+
+    while (needle_at < needle.len) {
+        if (hay_at >= hay.len) return null;
+
+        const hay_cp_len = std.unicode.utf8ByteSequenceLength(hay[hay_at]) catch 1;
+        const needle_cp_len = std.unicode.utf8ByteSequenceLength(needle[needle_at]) catch 1;
+        if (hay_at + hay_cp_len > hay.len) return null;
+        if (needle_at + needle_cp_len > needle.len) return null;
+
+        if (foldCp(decodeCodepoint(hay, hay_at, hay_cp_len)) !=
+            foldCp(decodeCodepoint(needle, needle_at, needle_cp_len))) return null;
+
+        hay_at += hay_cp_len;
+        needle_at += needle_cp_len;
+    }
+
+    return hay_at - pos;
+}
+
+/// First case-insensitive occurrence of `needle` at or after `from`, as
+/// ORIGINAL byte offsets.
+fn ciFind(hay: []const u8, from: usize, needle: []const u8) ?struct { start: usize, end: usize } {
+    var i = from;
+
+    while (i < hay.len) {
+        if (ciMatchAt(hay, i, needle)) |span| {
+            return .{ .start = i, .end = i + span };
+        }
+        i += std.unicode.utf8ByteSequenceLength(hay[i]) catch 1;
+    }
+
+    return null;
 }
 
 /// Get all chars as an array of handles. Caller must free each handle and the array.
