@@ -235,6 +235,7 @@ pub const stz_strlist_count = core.stz_strlist_count;
 pub const stz_strlist_get = core.stz_strlist_get;
 pub const stz_strlist_free = core.stz_strlist_free;
 pub const str_substrings = extract.str_substrings;
+pub const str_bounded_by_cs = extract.str_bounded_by_cs;
 pub const str_substrings_unique_cs = extract.str_substrings_unique_cs;
 pub const str_substrings_by_count_cs = extract.str_substrings_by_count_cs;
 pub const str_consecutive_substrings_of_n = extract.str_consecutive_substrings_of_n;
