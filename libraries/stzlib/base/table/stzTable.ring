@@ -3409,13 +3409,58 @@ func _NormalizeColLookupKey(pVal)
 
 	def Update(paNewTable)
 		if CheckingParams() = 1
-			if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
+			if isList(paNewTable) and StzIsWithOrByOrUsingNamedParamList(paNewTable)
 				paNewTable = paNewTable[2]
 			ok
 
-			if NOT( isList(paNewTable) and Q(paNewTable).IsHashList() and
-				StzHashListQ(paNewTable).ValuesAreListsOfSameSize()  )
+			# Validate DIRECTLY on paNewTable. This used to read
+			#     Q(paNewTable).IsHashList() and
+			#     StzHashListQ(paNewTable).ValuesAreListsOfSameSize()
+			# -- and each Q()/StzHashListQ() wrap COPIES every cell just to run
+			# an O(cols) check, so validation cost O(rows x cols) on EVERY
+			# update. Measured: 2.10s of a 2.42s calculated column on a 50k-row
+			# table with two text columns (87% of the whole operation), and
+			# Update is on the path of nearly every mutating table method.
+			# The rules below are unchanged: a hashlist -- each item is
+			# [ stringKey, value ] with UNIQUE keys -- whose values all have the
+			# same size.
+			_bValidUp_ = isList(paNewTable)
 
+			if _bValidUp_
+				_nColsUp_ = len(paNewTable)
+				_acKeysUp_ = []
+				_nSizeUp_ = -1
+
+				for _iUp_ = 1 to _nColsUp_
+					_pUp_ = paNewTable[_iUp_]
+
+					if NOT ( isList(_pUp_) and len(_pUp_) = 2 and isString(_pUp_[1]) )
+						_bValidUp_ = FALSE
+						exit
+					ok
+
+					_nKeysUp_ = len(_acKeysUp_)
+					for _jUp_ = 1 to _nKeysUp_
+						if _acKeysUp_[_jUp_] = _pUp_[1]
+							_bValidUp_ = FALSE
+							exit
+						ok
+					next
+					if NOT _bValidUp_
+						exit
+					ok
+					_acKeysUp_ + _pUp_[1]
+
+					if _nSizeUp_ = -1
+						_nSizeUp_ = len(_pUp_[2])
+					but len(_pUp_[2]) != _nSizeUp_
+						_bValidUp_ = FALSE
+						exit
+					ok
+				next
+			ok
+
+			if NOT _bValidUp_
 				StzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
 			ok
 		ok
