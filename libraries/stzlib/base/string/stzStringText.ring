@@ -843,38 +843,31 @@ class stzStringText from stzObject
 
 	# The sentences of the text, as a list.
 	def Sentences()
-		_cContent_ = This.Content()
-		if _cContent_ = ""
-			return []
-		ok
+		# Route through the engine's UAX#29 SentenceIter -- the same seam
+		# NumberOfSentences() beside it already uses, and the same one
+		# stzString.Sentences() uses.
+		#
+		# This used to be a hand-rolled character loop that broke on EVERY
+		# '.', '!', '?' or Arabic question mark. It therefore disagreed with
+		# its own NumberOfSentences() on most real text, and the TEXT layer
+		# -- the one whose whole job is sentence-level meaning -- segmented
+		# worse than the plain string class:
+		#
+		#   "Wow!!!! Yes."                     count 2, list 5
+		#   "Dr. Smith arrived. He was late."  count 2, list 3
+		#   "Visit example.com now."           count 1, list 2
+		#   "Hmm... Yes."                      count 2, list 4
+		#
+		# UAX#29 keeps a RUN of terminators together (SB8a/SB9/SB10), and the
+		# engine additionally suppresses a break after a known abbreviation or
+		# initial. Ellipses and emphatic punctuation are ordinary in real
+		# text, so every sentence-level analytic above this -- sentiment per
+		# sentence, summaries, readability -- was being fed fragments.
+		#
+		# It also walked Chars(), exploding the whole text into a Ring list of
+		# one-character strings before doing any work.
 
-		_aResult_ = []
-		_cSentence_ = ""
-		_acChars_ = @oString.Chars()
-		_nLen_ = len(_acChars_)
-		_cArabicQM_ = StzChar(1567) # Arabic question mark
-
-		for i = 1 to _nLen_
-			c = _acChars_[i]
-			if c = "." or c = "!" or c = "?" or c = _cArabicQM_
-				_cSentence_ += c
-				_cTrimmed_ = trim(_cSentence_)
-				if _cTrimmed_ != ""
-					_aResult_ + _cTrimmed_
-				ok
-				_cSentence_ = ""
-			else
-				_cSentence_ += c
-			ok
-		next
-
-		# Remaining text after last separator
-		_cTrimmed_ = trim(_cSentence_)
-		if _cTrimmed_ != ""
-			_aResult_ + _cTrimmed_
-		ok
-
-		return _aResult_
+		return StzEngineStringSentencesList(This.Engine())
 
 	# The nth sentence of the text.
 	def NthSentence(_n_)
