@@ -18,7 +18,7 @@ func StzFalseObjectQ()
 		_oFo_.SetOrigin(poOrigin)
 		# P2: the chain-local main travels through the false branch too
 		if isObject(poOrigin) and
-		   StzFindFirst(ring_methods(poOrigin), "nnlmainraw") > 0 and
+		   StzFindFirst("nnlmainraw", ring_methods(poOrigin)) > 0 and
 		   isObject(poOrigin.NNLMainRaw())
 			_oFo_.SetNNLMain(poOrigin.NNLMainRaw())
 		ok

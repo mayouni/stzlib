@@ -41,7 +41,7 @@ EndScenario()
 Scenario("a non-matching path is an honest 404")
 	When("GET /nope/here")
 	cBody = GetRaw("/nope/here")
-	Then("the client got a 404", StzFindFirst(cBody, "404 Not Found") > 0, TRUE)
+	Then("the client got a 404", StzFindFirst("404 Not Found", cBody) > 0, TRUE)
 EndScenario()
 
 Scenario("teardown")
@@ -78,6 +78,6 @@ func GetRaw(cPath)
 
 func GetPath(cPath)
 	cRaw = GetRaw(cPath)
-	nHe = StzFindFirst(cRaw, $CRLF + $CRLF)
+	nHe = StzFindFirst($CRLF + $CRLF, cRaw)
 	if nHe = 0  return ""  ok
 	return StzMidToEnd(cRaw, nHe + 4)

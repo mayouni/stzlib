@@ -273,9 +273,9 @@ class stzGraphex from stzGraph
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
-		_nBraceStart_ = StzFindFirst(_cTokenStr_, "{")
+		_nBraceStart_ = StzFindFirst("{", _cTokenStr_)
 		if _nBraceStart_ > 0
-			_nBraceEnd_ = StzFindFirst(_cTokenStr_, "}")
+			_nBraceEnd_ = StzFindFirst("}", _cTokenStr_)
 			if _nBraceEnd_ > _nBraceStart_
 	
 				# span BETWEEN the braces, not the absolute end index
@@ -305,9 +305,9 @@ class stzGraphex from stzGraph
 		if startsWith(_cTokenLower_, "@node")
 			
 			# Manual extraction: @Node(label){props}
-			_nParenStart_ = StzFindFirst(_cTokenStr_, "(")
+			_nParenStart_ = StzFindFirst("(", _cTokenStr_)
 			if _nParenStart_ > 0
-				_nParenEnd_ = StzFindFirst(_cTokenStr_, ")")
+				_nParenEnd_ = StzFindFirst(")", _cTokenStr_)
 				if _nParenEnd_ > _nParenStart_
 					_cLabel_ = @StzMid(_cTokenStr_, _nParenStart_ + 1, _nParenEnd_ - _nParenStart_ - 1)
 				ok
@@ -331,9 +331,9 @@ class stzGraphex from stzGraph
 		but startsWith(_cTokenLower_, "@edge")
 			
 			# Manual extraction: @Edge(label){props}
-			_nParenStart_ = StzFindFirst(_cTokenStr_, "(")
+			_nParenStart_ = StzFindFirst("(", _cTokenStr_)
 			if _nParenStart_ > 0
-				_nParenEnd_ = StzFindFirst(_cTokenStr_, ")")
+				_nParenEnd_ = StzFindFirst(")", _cTokenStr_)
 				if _nParenEnd_ > _nParenStart_
 					_cLabel_ = @StzMid(_cTokenStr_, _nParenStart_ + 1, _nParenEnd_ - _nParenStart_ - 1)
 				ok
@@ -730,9 +730,9 @@ class stzGraphex from stzGraph
 				_cToken_ = _aPatternBranch_[j]
 				_cLabel_ = ""
 
-				_nParenPos_ = StzFindFirst(_cToken_, "(")
+				_nParenPos_ = StzFindFirst("(", _cToken_)
 				if _nParenPos_ > 0
-					_nClosePos_ = StzFindFirst(_cToken_, ")")
+					_nClosePos_ = StzFindFirst(")", _cToken_)
 					if _nClosePos_ > _nParenPos_
 						# count is the span BETWEEN the parens, not nClosePos-1
 						# (which leaked the ')' into the label -> "start)").
@@ -880,9 +880,9 @@ class stzGraphex from stzGraph
 		if NOT isString(_cLabel_)
 			return ""
 		ok
-		_np_ = StzFindFirst(_cLabel_, "(")
+		_np_ = StzFindFirst("(", _cLabel_)
 		if _np_ > 0
-			_nc_ = StzFindFirst(_cLabel_, ")")
+			_nc_ = StzFindFirst(")", _cLabel_)
 			if _nc_ > _np_
 				return @StzMid(_cLabel_, _np_ + 1, _nc_ - _np_ - 1)
 			ok
@@ -1071,9 +1071,9 @@ class stzGraphex from stzGraph
 			
 			if isString(_cToken_)
 				# Extract label from "edge(flows)" -> "flows"
-				_nParenPos_ = StzFindFirst(_cToken_, "(")
+				_nParenPos_ = StzFindFirst("(", _cToken_)
 				if _nParenPos_ > 0
-					_nClosePos_ = StzFindFirst(_cToken_, ")")
+					_nClosePos_ = StzFindFirst(")", _cToken_)
 					if _nClosePos_ > _nParenPos_
 						_cLabel_ = @StzMid(_cToken_, _nParenPos_ + 1, _nClosePos_ - _nParenPos_ - 1)
 						_aPattern_ + _cLabel_

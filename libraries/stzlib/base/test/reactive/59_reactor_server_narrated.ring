@@ -51,9 +51,9 @@ Scenario("a full HTTP request/response round-trip on the loopback")
 		ok
 	next
 	Then("an accept event was seen first", bAccepted, TRUE)
-	Then("one COMPLETE framed request arrived", StzFindFirst(cGot, "GET /hello"), 1)
+	Then("one COMPLETE framed request arrived", StzFindFirst("GET /hello", cGot), 1)
 	Then("framing kept the terminating blank line",
-		StzFindFirst(cGot, char(13)+char(10)+char(13)+char(10)) > 0, TRUE)
+		StzFindFirst(char(13)+char(10)+char(13)+char(10), cGot) > 0, TRUE)
 
 	When("the server writes a response with close-after")
 	cResp = "HTTP/1.1 200 OK" + char(13) + char(10) +
@@ -64,8 +64,8 @@ Scenario("a full HTTP request/response round-trip on the loopback")
 
 	When("the client awaits its response body")
 	cBody = oReactor.AwaitTcp(nJob, 10000)
-	Then("the client received the status line", StzFindFirst(cBody, "200 OK") > 0, TRUE)
-	Then("and the body", StzFindFirst(cBody, "hi") > 0, TRUE)
+	Then("the client received the status line", StzFindFirst("200 OK", cBody) > 0, TRUE)
+	Then("and the body", StzFindFirst("hi", cBody) > 0, TRUE)
 EndScenario()
 
 Scenario("keep-alive framing: two pipelined requests become two events")
@@ -90,8 +90,8 @@ Scenario("keep-alive framing: two pipelined requests become two events")
 		ok
 	next
 	Then("exactly two framed requests were emitted", len(aReqs), 2)
-	Then("the first is /a", StzFindFirst(aReqs[1], "GET /a"), 1)
-	Then("the second is /b", StzFindFirst(aReqs[2], "GET /b"), 1)
+	Then("the first is /a", StzFindFirst("GET /a", aReqs[1]), 1)
+	Then("the second is /b", StzFindFirst("GET /b", aReqs[2]), 1)
 	# answer both on the same kept-alive connection, closing on the last
 	cR1 = "HTTP/1.1 200 OK" + char(13) + char(10) +
 	      "Content-Length: 1" + char(13) + char(10) + char(13) + char(10) + "a"
@@ -102,7 +102,7 @@ Scenario("keep-alive framing: two pipelined requests become two events")
 	oReactor.ServerWrite(nSid, nConn2, cR2, TRUE)
 	cBoth = oReactor.AwaitTcp(nJob2, 10000)
 	Then("the client saw both responses on one connection",
-		StzFindFirst(cBoth, "a") > 0 and StzFindFirst(cBoth, "b") > 0, TRUE)
+		StzFindFirst("a", cBoth) > 0 and StzFindFirst("b", cBoth) > 0, TRUE)
 EndScenario()
 
 Scenario("a POST body is framed by Content-Length")
@@ -126,7 +126,7 @@ Scenario("a POST body is framed by Content-Length")
 			exit
 		ok
 	next
-	Then("the event contains the FULL body", StzFindFirst(cGot3, "temp=21.5") > 0, TRUE)
+	Then("the event contains the FULL body", StzFindFirst("temp=21.5", cGot3) > 0, TRUE)
 	cOk = "HTTP/1.1 204 No Content" + char(13) + char(10) +
 	      "Content-Length: 0" + char(13) + char(10) +
 	      "Connection: close" + char(13) + char(10) + char(13) + char(10)

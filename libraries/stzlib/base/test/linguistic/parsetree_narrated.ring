@@ -28,7 +28,7 @@ cBr = o.ParseTree()
 chk("ParseTree() returns the bracketed string (data, not an object)",
 	isString(cBr) and StzLeft(cBr, 2) = "(S")
 chk("the subject NP is bracketed with its leaves tagged",
-	StzFindFirst(cBr, "(NP The/DT quick/JJ") > 0)
+	StzFindFirst("(NP The/DT quick/JJ", cBr) > 0)
 
 ? ""
 ? "-- Scene 3: real depth -- a PP nested inside the VP, an NP inside the PP --"
@@ -70,7 +70,7 @@ chk("with no VP/PP rules, there is no verb phrase in this tree",
 ? "-- Scene 7: the tree is a first-class object (Show / Bracket) --"
 chk("Bracket() is an alias of ToBracket()", oTree.Bracket() = oTree.ToBracket())
 chk("an indented rendering is available",
-	StzFindFirst(oTree.ToTreeString(), "  NP") > 0)
+	StzFindFirst("  NP", oTree.ToTreeString()) > 0)
 
 ? ""
 ? "=========================================="

@@ -4121,7 +4121,7 @@ class stzObject
 			_value_ = This.Content()
 		ok
 
-		if StzFindFirst([ :List, :InList, :AList, :InAList ], pIn) > 0
+		if StzFindFirst(pIn, [ :List, :InList, :AList, :InAList ]) > 0
 	
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4129,7 +4129,7 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
+		but StzFindFirst(pIn, [ :Pair, :InPair, :APair, :InAPair ]) > 0
 
 			_aResult_ = []
 			for i = 1 to 2
@@ -4137,8 +4137,8 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :ListOfNumbers, :InListOfNumbers,
-				:AListOfNumbers, :InAListOfNumbers ], pIn) > 0
+		but StzFindFirst(pIn, [ :ListOfNumbers, :InListOfNumbers,
+				:AListOfNumbers, :InAListOfNumbers ]) > 0
 
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4146,8 +4146,8 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :ListOfStrings, :InListOfStrings,
-				:AListOfStrings, :InAListOfStrings ], pIn) > 0
+		but StzFindFirst(pIn, [ :ListOfStrings, :InListOfStrings,
+				:AListOfStrings, :InAListOfStrings ]) > 0
 
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4155,8 +4155,8 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :ListOfLists, :InListOfLists,
-				:AListOfLists, :InAListOfLists ], pIn) > 0
+		but StzFindFirst(pIn, [ :ListOfLists, :InListOfLists,
+				:AListOfLists, :InAListOfLists ]) > 0
 	
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4164,8 +4164,8 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :ListOfPairs, :InListOfPairs,
-				:AListOfPairs, :InAListOfNPairs ], pIn) > 0
+		but StzFindFirst(pIn, [ :ListOfPairs, :InListOfPairs,
+				:AListOfPairs, :InAListOfNPairs ]) > 0
 	
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4173,7 +4173,7 @@ class stzObject
 			next
 			return _aResult_
 
-		but StzFindFirst([ :String, :InString, :AString, :InAString ], pIn) > 0
+		but StzFindFirst(pIn, [ :String, :InString, :AString, :InAString ]) > 0
 
 			_cResult_ = ""
 			for i = 1 to pnSize
@@ -4181,7 +4181,7 @@ class stzObject
 			next
 			return _cResult_
 
-		but StzFindFirst([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
+		but StzFindFirst(pIn, [ :Grid, :InGrid, :AGrid, :InAGrid ]) > 0
 
 			_aResult_ = StzGridQ([ pnSize[1], pnSize[2] ]).
 					ReplaceAllQ(:With = _value_).
@@ -4189,12 +4189,12 @@ class stzObject
 
 			return _aResult_
 
-		but StzFindFirst([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
+		but StzFindFirst(pIn, [ :Table, :InTable, :ATable, :InATable ]) > 0
 
 			_aResult_ = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(_value_).Content()
 			return _aResult_
 
-		but StzFindFirst([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
+		but StzFindFirst(pIn, [ :StzTable, :InStzTable, :InAStzTable ]) > 0
 
 			_oResult_ = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(_value_)
 			return _oResult_
@@ -5874,7 +5874,7 @@ class stzObject
 
 	def _NNLCall(pcMethod, paParams)
 		_cM_ = StzLower(ring_trim(pcMethod))
-		if StzFindFirst(ring_methods(This), _cM_) = 0
+		if StzFindFirst(_cM_, ring_methods(This)) = 0
 			_cId_ = StzResolveSemantic(_cM_)
 			if _cId_ = ""
 				# MULTILINGUAL stems: the pack languages speak here too
@@ -5898,7 +5898,7 @@ class stzObject
 					if $aSemanticOperations[_i_][:semantic_id] = _cId_ and
 					   HasKey($aSemanticOperations[_i_], :stz_method)
 						_cCand_ = lower($aSemanticOperations[_i_][:stz_method])
-						if StzFindFirst(ring_methods(This), _cCand_) > 0
+						if StzFindFirst(_cCand_, ring_methods(This)) > 0
 							_cM_ = _cCand_
 							_bGot_ = TRUE
 						ok
@@ -5992,7 +5992,7 @@ class stzObject
 	# --- counting through a noun (guarded, accountable)
 
 	def _NNLNounCount(pcMethod)
-		if StzFindFirst(ring_methods(This), StzLower(pcMethod)) > 0
+		if StzFindFirst(StzLower(pcMethod), ring_methods(This)) > 0
 			eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
 			return _nNNL_
 		ok
@@ -6003,7 +6003,7 @@ class stzObject
 		# to the word). Deterministic order: nearest referent first (the
 		# branch above), the subject second, refusal third.
 		if isObject(@oNNLMain)
-			if StzFindFirst(ring_methods(@oNNLMain), StzLower(pcMethod)) > 0
+			if StzFindFirst(StzLower(pcMethod), ring_methods(@oNNLMain)) > 0
 				eval("_nNNL_ = @oNNLMain." + StzLower(pcMethod) + "()")
 				return _nNNL_
 			ok
@@ -6164,11 +6164,11 @@ class stzObject
 	# --- the article device, generic: "a length" of ANY object
 
 	def ALengthN()
-		if StzFindFirst(ring_methods(This), "numberofchars") > 0
+		if StzFindFirst("numberofchars", ring_methods(This)) > 0
 			return This.NumberOfChars()
-		but StzFindFirst(ring_methods(This), "numberofitems") > 0
+		but StzFindFirst("numberofitems", ring_methods(This)) > 0
 			return This.NumberOfItems()
-		but StzFindFirst(ring_methods(This), "numberofdigits") > 0
+		but StzFindFirst("numberofdigits", ring_methods(This)) > 0
 			return This.NumberOfDigits()
 		ok
 		StzRaise("NNL: a " + This.StzType() + " has no length to speak of.")
@@ -6463,7 +6463,7 @@ class stzObject
 	# about the FUTURE state, before it is applied
 	def _NNLRuleHoldsFor(pRule, pValue)
 		_vCv_ = pValue
-		if isString(pRule) and StzFindFirst(pRule, "{") > 0
+		if isString(pRule) and StzFindFirst("{", pRule) > 0
 			# the archived placeholder style: @string/@number/@list/
 			# @item/@object/@ all mean THE VALUE (longest name first)
 			_cCc_ = pRule

@@ -78,7 +78,7 @@ class stzReactiveHttp from stzObject
 		# F5+TLS: both http AND https run async on the reactor now (curl
 		# on a worker thread does native TLS -- no more blocking https).
 		_cLow_ = StzLower("" + url)
-		return (StzFindFirst(_cLow_, "http://") = 1 or StzFindFirst(_cLow_, "https://") = 1)
+		return (StzFindFirst("http://", _cLow_) = 1 or StzFindFirst("https://", _cLow_) = 1)
 
 	# Submit an async request through the reactor's curl-backed HTTP job
 	# (http + https, native TLS, redirects, real client). The job carries

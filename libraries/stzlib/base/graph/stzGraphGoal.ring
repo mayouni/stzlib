@@ -54,22 +54,22 @@ class stzGraphGoal from stzObject
 	# evaluated must not pretend to be one).
 	def FromMeans(pcMeans)
 		_cM_ = StzLower("" + pcMeans)
-		_nEvery_ = StzFindFirst(_cM_, "every :")
+		_nEvery_ = StzFindFirst("every :", _cM_)
 		if _nEvery_ = 0
 			stzraise("stzGraphGoal.FromMeans: no 'every :Type' clause in '" + pcMeans + "'.")
 		ok
 		_cRest_ = StzMidToEnd(_cM_, _nEvery_ + 7)
-		_nSp_ = StzFindFirst(_cRest_, " ")
+		_nSp_ = StzFindFirst(" ", _cRest_)
 		if _nSp_ = 0
 			stzraise("stzGraphGoal.FromMeans: nothing follows the type in '" + pcMeans + "'.")
 		ok
 		@cType = StzLeft(_cRest_, _nSp_ - 1)
-		_nHas_ = StzFindFirst(_cRest_, "has(:")
+		_nHas_ = StzFindFirst("has(:", _cRest_)
 		if _nHas_ = 0
 			stzraise("stzGraphGoal.FromMeans: no 'Has(:relation)' clause in '" + pcMeans + "'.")
 		ok
 		_cRel_ = StzMidToEnd(_cRest_, _nHas_ + 5)
-		_nClose_ = StzFindFirst(_cRel_, ")")
+		_nClose_ = StzFindFirst(")", _cRel_)
 		if _nClose_ = 0
 			stzraise("stzGraphGoal.FromMeans: unclosed Has(: in '" + pcMeans + "'.")
 		ok

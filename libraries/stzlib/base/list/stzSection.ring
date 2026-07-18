@@ -142,16 +142,16 @@ class stzSection from stzObject
 	
 			if isString(_n1_)
 
-				if StzFindFirst([
+				if StzFindFirst(_n1_, [
 					:Start, :First, :FirstChar,
 					:FromFirst, :FromFirstChar,
-					:FirstItem, :FromFirstItem], _n1_) > 0
+					:FirstItem, :FromFirstItem]) > 0
 
 					_n1_ = 1
 	
-				but StzFindFirst([
+				but StzFindFirst(_n1_, [
 					:Last, :LastChar, :ToLast, :ToLastChar,
-					:LastItem, :ToLastItem ], _n1_) > 0
+					:LastItem, :ToLastItem ]) > 0
 
 					_n1_ = _nSize_
 	
@@ -163,7 +163,7 @@ class stzSection from stzObject
 		
 			if isString(_n2_)
 
-				if StzFindFirst([
+				if StzFindFirst(_n2_, [
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString,
 
@@ -171,11 +171,11 @@ class stzSection from stzObject
 
 					:LastItem, :EndOfList, :ToLastItem, :ToEndOfList
 
-				], _n2_) > 0
+				]) > 0
 
 					_n2_ = _nSize_
 	
-				but StzFindFirst([
+				but StzFindFirst(_n2_, [
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 
@@ -183,7 +183,7 @@ class stzSection from stzObject
 
 					:FirstItem, :FromFirstItem
 
-				], _n2_) > 0
+				]) > 0
 
 					_n2_ = 1
 	

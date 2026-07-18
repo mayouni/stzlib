@@ -1823,10 +1823,10 @@ class stzListOfLists from stzList
 			ok
 	
 			if isString(pItem) and
-			    	StzFindFirst([
+			    	StzFindFirst(pItem, [
 					:ItemsRepeated, :RepeatingItems,
 					:RepeatedItems, :ByRepeatingItems
-				], pItem) > 0
+				]) > 0
 	
 				This.ExtendToByRepeatingItems(_n_)
 				return

@@ -12,7 +12,7 @@ Scenario("Bogus host fails fast and sets LastError")
     pH = StzEngineTcpConnect("invalid.host.example.invalid", 1)
     n2 = StzEngineTimeNowMs()
     Then("LastError contains 'connect failed'",
-        StzFindFirst(StzEngineTcpLastError(), "connect failed") > 0, TRUE)
+        StzFindFirst("connect failed", StzEngineTcpLastError()) > 0, TRUE)
     # DNS resolution should fail within a few seconds even on slow nets.
     Then("Connect returned within 10000 ms",
         n2 - n1 < 10000, TRUE)
@@ -22,7 +22,7 @@ Scenario("Listen with invalid bind host fails cleanly")
     Given("a non-IP host string")
     pS = StzEngineTcpListen("not an ip", 0)
     Then("LastError contains 'listen'",
-        StzFindFirst(StzEngineTcpLastError(), "listen") > 0, TRUE)
+        StzFindFirst("listen", StzEngineTcpLastError()) > 0, TRUE)
 EndScenario()
 
 Scenario("Listen on port 0 picks an ephemeral port")

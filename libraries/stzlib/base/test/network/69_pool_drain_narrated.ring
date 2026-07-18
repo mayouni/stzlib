@@ -21,7 +21,7 @@ Scenario("Drain rejects new submissions")
     nId = StzEnginePoolSubmit(p, 0, "http://example.com/")
     Then("the submission is refused with -4", nId, -4)
     Then("LastError says the pool is draining",
-        StzFindFirst(StzEnginePoolLastError(), "draining") > 0, TRUE)
+        StzFindFirst("draining", StzEnginePoolLastError()) > 0, TRUE)
     StzEnginePoolDestroy(p)
 EndScenario()
 

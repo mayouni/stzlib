@@ -46,7 +46,7 @@ cEmpty = StzEngineSystemEnv("_ZZZ_NONEXISTENT_VAR_ZZZ_")
 cOut = StzEngineSystemRun("echo hello engine")
 cOut = trim(cOut)
 ? "echo output: [" + cOut + "]"
-? "Contains 'hello engine': " + (StzFindFirst(cOut, "hello engine") > 0)
+? "Contains 'hello engine': " + (StzFindFirst("hello engine", cOut) > 0)
 
 # Test 4: Engine Exec (exit code only)
 ? ""

@@ -1029,13 +1029,13 @@ func _StzPolishDesc(pcDesc)
 	end
 	# fast gate: the char-scan below runs ONLY when chatter markers are
 	# present (near-never) -- char-index loops are a known VM hazard
-	if StzFindFirst(pcDesc, "_Stz") = 0 and
-	   StzFindFirst(pcDesc, "Operation synonyms") = 0
+	if StzFindFirst("_Stz", pcDesc) = 0 and
+	   StzFindFirst("Operation synonyms", pcDesc) = 0
 		return pcDesc
 	ok
 	_cD_ = pcDesc
 	# drop "-- see _Stz..." tails
-	_nT_ = StzFindFirst(_cD_, "-- see _Stz")
+	_nT_ = StzFindFirst("-- see _Stz", _cD_)
 	if _nT_ > 1
 		_cD_ = ring_trim(left(_cD_, _nT_ - 1))
 	ok
@@ -1056,8 +1056,8 @@ func _StzPolishDesc(pcDesc)
 				if _nC_ > _nO_ + 1
 					_cIn_ = substr(_cD_, _nO_ + 1, _nC_ - _nO_ - 1)
 				ok
-				if StzFindFirst(_cIn_, "_Stz") > 0 or
-				   StzFindFirst(ring_trim(_cIn_), "Operation synonyms") = 1
+				if StzFindFirst("_Stz", _cIn_) > 0 or
+				   StzFindFirst("Operation synonyms", ring_trim(_cIn_)) = 1
 					_cD_ = ring_trim(left(_cD_, _nO_ - 1)) + " " +
 						ring_trim(right(_cD_, _nLen_ - _nC_))
 					_cD_ = ring_trim(_cD_)
@@ -1149,10 +1149,10 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 							_cFwd_ = _StzFwdTarget(substr(_cT2_, 6, len(_cT2_) - 5))
 							exit
 						ok
-						_nNw_ = StzFindFirst(_cT2_, "= new ")
+						_nNw_ = StzFindFirst("= new ", _cT2_)
 						if _nNw_ > 0 and right(_cT2_, 6) = "(this)"
 							_cHc_ = trim(substr(_cT2_, _nNw_ + 6, len(_cT2_) - _nNw_ - 5))
-							_nPo_ = StzFindFirst(_cHc_, "(")
+							_nPo_ = StzFindFirst("(", _cHc_)
 							if _nPo_ > 1
 								_cHlpCls_ = trim(left(_cHc_, _nPo_ - 1))
 								loop
@@ -1161,7 +1161,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 						exit
 					else
 						if left(_cT2_, 7) = "return "
-							_nDot_ = StzFindFirst(_cT2_, ".")
+							_nDot_ = StzFindFirst(".", _cT2_)
 							if _nDot_ > 0
 								_cMt_ = _StzFwdTarget(substr(_cT2_, _nDot_ + 1, len(_cT2_) - _nDot_))
 								if _cMt_ != ""
@@ -1171,7 +1171,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 						but left(_cT2_, 1) = "_"
 							# MUTATING wrapper (no return): inherit only
 							# when the helper method bears the SAME name
-							_nDot_ = StzFindFirst(_cT2_, ".")
+							_nDot_ = StzFindFirst(".", _cT2_)
 							if _nDot_ > 0
 								_cMt_ = _StzFwdTarget(substr(_cT2_, _nDot_ + 1, len(_cT2_) - _nDot_))
 								if _cMt_ != "" and _cMt_ = lower(_cName_)
@@ -1246,7 +1246,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
-			if StzFindFirst(_aFwd_[_i_], ">") > 0
+			if StzFindFirst(">", _aFwd_[_i_]) > 0
 				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
 				if _cHd_ != ""
 					_aMethods_[_i_][2] = _cHd_
@@ -1321,7 +1321,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
-			if StzFindFirst(_aFwd_[_i_], ">") > 0
+			if StzFindFirst(">", _aFwd_[_i_]) > 0
 				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
 				if _cHd_ != ""
 					_aMethods_[_i_][2] = _cHd_
@@ -1396,7 +1396,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			loop
 		ok
 		if _aFwd_[_i_] != ""
-			if StzFindFirst(_aFwd_[_i_], ">") > 0
+			if StzFindFirst(">", _aFwd_[_i_]) > 0
 				_cHd_ = _StzHelperDocOf(_aFwd_[_i_])
 				if _cHd_ != ""
 					_aMethods_[_i_][2] = _cHd_
@@ -1475,7 +1475,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		while len(_cSaT_) > 0 and (right(_cSaT_, 1) = "." or right(_cSaT_, 1) = ":")
 			_cSaT_ = ring_trim(left(_cSaT_, len(_cSaT_) - 1))
 		end
-		if _cSaT_ = "" or StzFindFirst(_cSaT_, " ") > 0
+		if _cSaT_ = "" or StzFindFirst(" ", _cSaT_) > 0
 			loop
 		ok
 		_nSaP_ = ring_find(_aSaNames_, lower(_cSaT_))
@@ -1497,7 +1497,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 # helper's name never leaks into the answer -- the wrapper IS the
 # public face, the doc describes the operation.
 func _StzHelperDocOf(pcTarget)
-	_nSep_ = StzFindFirst(pcTarget, ">")
+	_nSep_ = StzFindFirst(">", pcTarget)
 	if _nSep_ < 2
 		return ""
 	ok
@@ -1554,7 +1554,7 @@ func _StzHelperDocOf(pcTarget)
 # The Update family is excluded: forwarding a computed value to
 # Update() is a mutation pattern, not an alias.
 func _StzFwdTarget(pcRest)
-	_nOp_ = StzFindFirst(pcRest, "(")
+	_nOp_ = StzFindFirst("(", pcRest)
 	if _nOp_ < 2
 		return ""
 	ok
@@ -1635,7 +1635,7 @@ func _StzVariantGloss(pcSuf)
 func _StzSectionTitle(pcInner)
 	_c_ = pcInner
 	# a TODO marker glued onto a header line is not part of the title
-	_nTd_ = StzFindFirst(lower(_c_), "#todo")
+	_nTd_ = StzFindFirst("#todo", lower(_c_))
 	if _nTd_ > 1
 		_c_ = left(_c_, _nTd_ - 1)
 	ok
@@ -1753,7 +1753,7 @@ func _StzIsClassLineNamed(pcTrim, pcNameLower)
 # boundary -- treating it as one silently truncated the class harvest at the
 # first inline lambda (stzStringText lost everything after line ~240).
 func _StzIsClassOrFuncDecl(pcTrim)
-	if StzFindFirst(pcTrim, "{") > 0 return FALSE ok
+	if StzFindFirst("{", pcTrim) > 0 return FALSE ok
 	if len(pcTrim) >= 6 and lower(left(pcTrim, 6)) = "class " return TRUE ok
 	if len(pcTrim) >= 5 and lower(left(pcTrim, 5)) = "func " return TRUE ok
 	return FALSE
@@ -2012,7 +2012,7 @@ func _StzHarvestTestSamples(pcTopic)
 	_n_ = len(_aE_)
 	for _i_ = 1 to _n_
 		_cN_ = _aE_[_i_][1]
-		if _aE_[_i_][2] = 0 and StzFindFirst(lower(_cN_), "narrated") > 0 and
+		if _aE_[_i_][2] = 0 and StzFindFirst("narrated", lower(_cN_)) > 0 and
 		   _StzEndsWith(lower(_cN_), ".ring")
 			_aS_ = _StzParseThenSamples(_cDir_ + "/" + _cN_)
 			_nS_ = len(_aS_)
@@ -2067,7 +2067,7 @@ func _StzParenBalance(pcStr)
 # Split `Then( a, b, c )` into its 3 top-level args (string-aware commas).
 func _StzSplitThenArgs(pcCall)
 	_aOut_ = []
-	_nA_ = StzFindFirst(pcCall, "(")
+	_nA_ = StzFindFirst("(", pcCall)
 	if _nA_ = 0 return _aOut_ ok
 	_cIn_ = substr(pcCall, _nA_ + 1, len(pcCall) - _nA_)
 	# drop the final closing paren

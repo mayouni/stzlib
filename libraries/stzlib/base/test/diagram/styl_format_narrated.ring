@@ -35,9 +35,9 @@ oD.SetFocusColor("red")
 cStyl = oD.ExportToStyl()
 chk("the export produces a file", len(cStyl) > 0)
 chk("... naming every section it will need to read back",
-	StzFindFirst(cStyl, "colors") > 0 and StzFindFirst(cStyl, "fonts") > 0 and
-	StzFindFirst(cStyl, "edges") > 0 and StzFindFirst(cStyl, "nodes") > 0 and
-	StzFindFirst(cStyl, "focus") > 0)
+	StzFindFirst("colors", cStyl) > 0 and StzFindFirst("fonts", cStyl) > 0 and
+	StzFindFirst("edges", cStyl) > 0 and StzFindFirst("nodes", cStyl) > 0 and
+	StzFindFirst("focus", cStyl) > 0)
 
 write("_rt.stzstyl", cStyl)
 chk("the file is really on disk", fexists("_rt.stzstyl"))

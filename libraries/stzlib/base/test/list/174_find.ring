@@ -16,7 +16,7 @@ load "../_narrated.ring"
 
 Scenario("Finds a value inside a numeric range using the global StzFindFirst().")
 
-	Then("find example 1", @@( StzFindFirst( 1:100_000, 67_000 ) ), @@( 67000 ))
+	Then("find example 1", @@( StzFindFirst(67_000, 1:100_000) ), @@( 67000 ))
 EndScenario()
 
 Summary()

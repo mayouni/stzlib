@@ -416,9 +416,9 @@ func _StzWorldDoorEntry(pcQuestion)
 	_cQ_ = StzLower(ring_trim(pcQuestion))
 	_cQ_ = ring_trim(StzReplace(_cQ_, "?", " "))
 	_cN_ = ""
-	if StzFindFirst(_cQ_, "what is ") = 1
+	if StzFindFirst("what is ", _cQ_) = 1
 		_cN_ = ring_trim(right(_cQ_, len(_cQ_) - 8))
-	but StzFindFirst(_cQ_, "who is ") = 1
+	but StzFindFirst("who is ", _cQ_) = 1
 		_cN_ = ring_trim(right(_cQ_, len(_cQ_) - 7))
 	ok
 	if _cN_ = ""

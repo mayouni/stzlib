@@ -66,17 +66,17 @@ class stzListBounder from stzObject
 			ok
 
 			if isString(_n1_)
-				if StzFindFirst([ :First, :FirstItem ], _n1_) > 0
+				if StzFindFirst(_n1_, [ :First, :FirstItem ]) > 0
 					_n1_ = 1
-				but StzFindFirst([ :Last, :LastItem ], _n1_) > 0
+				but StzFindFirst(_n1_, [ :Last, :LastItem ]) > 0
 					_n1_ = _nScLen_
 				ok
 			ok
 
 			if isString(_n2_)
-				if StzFindFirst([ :End, :Last, :LastItem, :EndOfList ], _n2_) > 0
+				if StzFindFirst(_n2_, [ :End, :Last, :LastItem, :EndOfList ]) > 0
 					_n2_ = _nScLen_
-				but StzFindFirst([ :First, :FirstItem ], _n2_) > 0
+				but StzFindFirst(_n2_, [ :First, :FirstItem ]) > 0
 					_n2_ = 1
 				ok
 			ok

@@ -340,7 +340,7 @@ class stzGraphQuery from stzObject
 			_cInternalOp_ = This._ConvertOp(_cOp_)
 			
 			# Add implicit variable if needed
-			if isString(_cProp_) and NOT StzFindFirst(_cProp_, ".")
+			if isString(_cProp_) and NOT StzFindFirst(".", _cProp_)
 				_cProp_ = pcVarName + "." + _cProp_
 			ok
 			
@@ -428,16 +428,16 @@ class stzGraphQuery from stzObject
 	            _aPattern_ = @aDefinition["match_patterns"][i]
 	            if _aPattern_["type"] = :node
 	                _cVar_ = _aPattern_["alias"]
-	                if StzFindFirst(_acVars_, _cVar_) = 0
+	                if StzFindFirst(_cVar_, _acVars_) = 0
 	                    _acVars_ + _cVar_
 	                ok
 	            but _aPattern_["type"] = :edge
 	                _cFrom_ = _aPattern_["from"]
 	                _cTo_ = _aPattern_["to"]
-	                if StzFindFirst(_acVars_, _cFrom_) = 0
+	                if StzFindFirst(_cFrom_, _acVars_) = 0
 	                    _acVars_ + _cFrom_
 	                ok
-	                if StzFindFirst(_acVars_, _cTo_) = 0
+	                if StzFindFirst(_cTo_, _acVars_) = 0
 	                    _acVars_ + _cTo_
 	                ok
 	            ok
@@ -823,7 +823,7 @@ class stzGraphQuery from stzObject
 				
 				if isList(pValue) and HasKey(pValue, :id)
 					_cId_ = pValue[:id]
-					if StzFindFirst(_acNodeIds_, _cId_) = 0
+					if StzFindFirst(_cId_, _acNodeIds_) = 0
 						_acNodeIds_ + _cId_
 					ok
 				ok
@@ -882,7 +882,7 @@ class stzGraphQuery from stzObject
 				if isList(pValue) and HasKey(pValue, :id)
 					_cNodeId_ = pValue[:id]
 					
-					if StzFindFirst(_aSeenNodes_, _cNodeId_) = 0
+					if StzFindFirst(_cNodeId_, _aSeenNodes_) = 0
 						_aSeenNodes_ + _cNodeId_
 						
 						_cLabel_ = ""
@@ -909,7 +909,7 @@ class stzGraphQuery from stzObject
 			_cFrom_ = _aEdge_[:from]
 			_cTo_ = _aEdge_[:to]
 			
-			if StzFindFirst(_aSeenNodes_, _cFrom_) > 0 and StzFindFirst(_aSeenNodes_, _cTo_) > 0
+			if StzFindFirst(_cFrom_, _aSeenNodes_) > 0 and StzFindFirst(_cTo_, _aSeenNodes_) > 0
 				_cLabel_ = ""
 				if HasKey(_aEdge_, :label)
 					_cLabel_ = _aEdge_[:label]
@@ -1189,7 +1189,7 @@ class stzGraphQuery from stzObject
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			pRight = pCondition["right"]
 			
-			if isString(pRight) and StzFindFirst(pRight, ".") > 0
+			if isString(pRight) and StzFindFirst(".", pRight) > 0
 				pRight = This._ResolveValue(pRight, _aBinding_)
 			ok
 			
@@ -1223,7 +1223,7 @@ class stzGraphQuery from stzObject
 		but _cOp_ = :contains
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			pRight = This._ResolveValue(pCondition["right"], _aBinding_)
-			return isString(pLeft) and isString(pRight) and StzFindFirst(StzLower(pLeft), StzLower(pRight)) > 0
+			return isString(pLeft) and isString(pRight) and StzFindFirst(StzLower(pRight), StzLower(pLeft)) > 0
 			
 		but _cOp_ = :startswith
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
@@ -1249,19 +1249,19 @@ class stzGraphQuery from stzObject
 		but _cOp_ = :in
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			_aRight_ = pCondition["right"]
-			return isList(_aRight_) and StzFindFirst(_aRight_, pLeft) > 0
+			return isList(_aRight_) and StzFindFirst(pLeft, _aRight_) > 0
 			
 		but _cOp_ = :not_in
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			_aRight_ = pCondition["right"]
-			return isList(_aRight_) and StzFindFirst(_aRight_, pLeft) = 0
+			return isList(_aRight_) and StzFindFirst(pLeft, _aRight_) = 0
 		ok
 		
 		return TRUE
 	
 	def _ResolveValue(pValue, _aBinding_)
 		if isString(pValue)
-			if StzFindFirst(pValue, ".") > 0
+			if StzFindFirst(".", pValue) > 0
 				_acParts_ = @split(pValue, ".")
 				_cVar_ = _acParts_[1]
 				_cProp_ = _acParts_[2]
@@ -1486,7 +1486,7 @@ def _ExecuteSetProperty(_aOp_, _aBindings_)
 	for i = 1 to _nLen_
 		_aBinding_ = _aBindings_[i]
 		
-		if StzFindFirst(_cTarget_, ".") > 0
+		if StzFindFirst(".", _cTarget_) > 0
 			_acParts_ = @split(_cTarget_, ".")
 			_cVar_ = _acParts_[1]
 			_cProp_ = _acParts_[2]
@@ -1512,7 +1512,7 @@ def _ExecuteDelete(_aBindings_)
 			if HasKey(_aBinding_, _cTarget_)
 				_aNode_ = _aBinding_[_cTarget_]
 				_cId_ = _aNode_[:id]
-				if StzFindFirst(_acToDelete_, _cId_) = 0
+				if StzFindFirst(_cId_, _acToDelete_) = 0
 					_acToDelete_ + _cId_
 				ok
 			ok
@@ -1564,7 +1564,7 @@ def _ApplyOrderBy(_aResults_)
 	return _aSorted_
 
 def _GetResultValue(_aResult_, _cField_)
-	if StzFindFirst(_cField_, ".") > 0
+	if StzFindFirst(".", _cField_) > 0
 		_acParts_ = @split(_cField_, ".")
 		_cVar_ = _acParts_[1]
 		_cProp_ = _acParts_[2]

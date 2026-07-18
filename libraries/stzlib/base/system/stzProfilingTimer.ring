@@ -52,7 +52,7 @@ func StzElapsedTimeXT(pIn)
 		StzRaise("Incorrect param type! pIn must be a string.")
 	ok
 
-	if NOT StzFindFirst([ :Clocks, :Seconds, :Minutes, :Hours ], pIn)
+	if NOT StzFindFirst(pIn, [ :Clocks, :Seconds, :Minutes, :Hours ])
 		#TODO // Future: Add days, weeks, months, years...
 
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +

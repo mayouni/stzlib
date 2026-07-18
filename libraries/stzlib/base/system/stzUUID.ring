@@ -59,7 +59,7 @@ class stzUUID from stzObject
 		return StzReplace(@cUuid, "-", "")
 
 	def WithHyphens()
-		if StzFindFirst(@cUuid, "-") = 0
+		if StzFindFirst("-", @cUuid) = 0
 			# Standard 8-4-4-4-12 hyphenation.
 			_cResult_ = StzMid(@cUuid, 1, 8)  + "-" +
 			          StzMid(@cUuid, 9, 4)  + "-" +

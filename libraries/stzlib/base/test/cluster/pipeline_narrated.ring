@@ -56,9 +56,9 @@ Scenario("RunBatch fans many inputs through the whole pipeline")
 	aOut = $oPipe.RunBatch([ "scan:a", "scan:b", "scan:c" ])
 	Then("three results come back", len(aOut), 3)
 	Then("each went through the full chain",
-		StzFindFirst(aOut[1], "a [entities] [compliant] [indexed]") = 1, TRUE)
+		StzFindFirst("a [entities] [compliant] [indexed]", aOut[1]) = 1, TRUE)
 	Then("and the third too",
-		StzFindFirst(aOut[3], "c [entities] [compliant] [indexed]") = 1, TRUE)
+		StzFindFirst("c [entities] [compliant] [indexed]", aOut[3]) = 1, TRUE)
 EndScenario()
 
 Scenario("a pipeline is VALIDATED against a deployment's catalog")

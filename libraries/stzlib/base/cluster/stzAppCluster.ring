@@ -259,7 +259,7 @@ class stzAppCluster from stzObject
 		_cTrace_ = @oTelemetry.NewTraceId()
 		@cLastTrace = _cTrace_
 		_cSep_ = "?"
-		if StzFindFirst(pcPath, "?") > 0  _cSep_ = "&"  ok
+		if StzFindFirst("?", pcPath) > 0  _cSep_ = "&"  ok
 		_cTracedPath_ = pcPath + _cSep_ + "_trace=" + _cTrace_
 		_nReqStart_ = StzEngineTimeNowMs()   # end-to-end latency clock
 		# RATE LIMIT (admission control at the front door): if this facet has
@@ -367,7 +367,7 @@ class stzAppCluster from stzObject
 		if _c_ = "" or StzLeft(_c_, 1) != "/"
 			return FALSE
 		ok
-		if StzFindFirst(_c_, char(13)) > 0 or StzFindFirst(_c_, char(10)) > 0
+		if StzFindFirst(char(13), _c_) > 0 or StzFindFirst(char(10), _c_) > 0
 			return FALSE
 		ok
 		return TRUE
@@ -674,7 +674,7 @@ class stzAppCluster from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			_c_ = StzLower("" + _a_[_i_])
-			if StzFindFirst(_c_, "ring.exe") > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
+			if StzFindFirst("ring.exe", _c_) > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
 				return "" + _a_[_i_]
 			ok
 		next

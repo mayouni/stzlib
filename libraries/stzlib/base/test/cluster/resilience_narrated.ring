@@ -78,7 +78,7 @@ Scenario("BREAKER: consecutive failures OPEN a worker's circuit")
 	$oB.Route("math", "/x")
 	Then("there is no routable worker (the open circuit is skipped)",
 		$oB.RouteLastStatus() < 0, TRUE)
-	Then("Why() says nothing is routable", StzFindFirst($oB.Why(), "no routable") = 1, TRUE)
+	Then("Why() says nothing is routable", StzFindFirst("no routable", $oB.Why()) = 1, TRUE)
 EndScenario()
 
 Scenario("BREAKER: an open circuit goes HALF-OPEN after the cooldown")
@@ -115,7 +115,7 @@ Scenario("FAILOVER: a route tries multiple workers before giving up")
 	oF.Route("graph", "/x")
 	Then("it failed over across all three, then declined", oF.RouteLastStatus() < 0, TRUE)
 	Then("Why() reports all 3 workers were tried",
-		StzFindFirst(oF.Why(), "all 3 worker") > 0, TRUE)
+		StzFindFirst("all 3 worker", oF.Why()) > 0, TRUE)
 EndScenario()
 
 Scenario("FAILOVER: SetMaxTries caps how many workers a route attempts")
@@ -129,7 +129,7 @@ Scenario("FAILOVER: SetMaxTries caps how many workers a route attempts")
 	When("a request is routed")
 	oM.Route("graph", "/x")
 	Then("only 2 workers were tried (the cap)",
-		StzFindFirst(oM.Why(), "all 2 worker") > 0, TRUE)
+		StzFindFirst("all 2 worker", oM.Why()) > 0, TRUE)
 EndScenario()
 
 Scenario("SELF-HEAL: RestartDead clears a worker's tripped circuit")
@@ -171,7 +171,7 @@ Scenario("LIVE: a broken sibling never breaks the request (failover + isolation)
 	nOK = 0
 	for i = 1 to 8
 		cR = $oL.Route("nlp", "/work?q=ping")
-		if $oL.RouteLastStatus() = 200 and StzFindFirst(cR, "nlp:done:ping") > 0
+		if $oL.RouteLastStatus() = 200 and StzFindFirst("nlp:done:ping", cR) > 0
 			nOK++
 		ok
 	next

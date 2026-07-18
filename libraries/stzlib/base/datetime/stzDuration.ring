@@ -514,7 +514,7 @@ def ToStringXT(cFormat)
 		
 		# Extract all numbers followed by units
 		# Days
-		_nPos_ = StzFindFirst(_cStr_, "day")
+		_nPos_ = StzFindFirst("day", _cStr_)
 		if _nPos_ > 0
 			_cNum_ = ""
 			for _i_ = _nPos_ - 1 to 1 step -1
@@ -533,9 +533,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Hours
-		_nPos_ = StzFindFirst(_cStr_, "hour")
+		_nPos_ = StzFindFirst("hour", _cStr_)
 		if _nPos_ = 0
-			_nPos_ = StzFindFirst(_cStr_, "hr")
+			_nPos_ = StzFindFirst("hr", _cStr_)
 		ok
 		if _nPos_ > 0
 			_cNum_ = ""
@@ -555,9 +555,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Minutes
-		_nPos_ = StzFindFirst(_cStr_, "minute")
+		_nPos_ = StzFindFirst("minute", _cStr_)
 		if _nPos_ = 0
-			_nPos_ = StzFindFirst(_cStr_, "min")
+			_nPos_ = StzFindFirst("min", _cStr_)
 		ok
 		if _nPos_ > 0
 			_cNum_ = ""
@@ -577,9 +577,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Seconds
-		_nPos_ = StzFindFirst(_cStr_, "second")
+		_nPos_ = StzFindFirst("second", _cStr_)
 		if _nPos_ = 0
-			_nPos_ = StzFindFirst(_cStr_, "sec")
+			_nPos_ = StzFindFirst("sec", _cStr_)
 		ok
 		if _nPos_ > 0
 			_cNum_ = ""
@@ -599,9 +599,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Milliseconds
-		_nPos_ = StzFindFirst(_cStr_, "millisecond")
+		_nPos_ = StzFindFirst("millisecond", _cStr_)
 		if _nPos_ = 0
-			_nPos_ = StzFindFirst(_cStr_, "ms")
+			_nPos_ = StzFindFirst("ms", _cStr_)
 		ok
 		if _nPos_ > 0
 			_cNum_ = ""

@@ -116,7 +116,7 @@ Scenario("REAL elastic scale + graceful drain")
 	aM = $oEl.FleetMetrics()
 	Then("metrics show one draining", This_MetricField(aM, "graph", :draining), 1)
 	Then("routing still works (skips the draining worker)",
-		StzFindFirst($oEl.Route("graph", "/work?q=x"), "graph:done") > 0, TRUE)
+		StzFindFirst("graph:done", $oEl.Route("graph", "/work?q=x")) > 0, TRUE)
 	$oEl.Stop()
 EndScenario()
 

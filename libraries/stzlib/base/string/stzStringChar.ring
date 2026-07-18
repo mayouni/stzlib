@@ -111,7 +111,7 @@ func StzIsInvisibleChar(c)
 		ok
 	ok
 
-	if StzFindFirst( InvisibleChars(), c )
+	if StzFindFirst(c, InvisibleChars())
 		return 1
 	else
 		return 0
@@ -1280,11 +1280,11 @@ class stzStringChar from stzString
 
 	# TRUE if the char belongs to the General Punctuation Unicode block.
 	def IsGeneralPunctuation()
-		return StzFindFirst( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFindFirst(This.Unicode(), GeneralPunctuationUnicodes()) > 0
 
 	# TRUE if the char belongs to the Supplemental Punctuation Unicode block.
 	def IsSupplementalPunctuation()
-		return StzFindFirst( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFindFirst(This.Unicode(), SupplementalPunctuationUnicodes()) > 0
 
 	# TRUE if the char is a symbol char (Unicode category S).
 	def IsSymbol()
@@ -1321,7 +1321,7 @@ class stzStringChar from stzString
 			ok
 		ok
 
-		if StzFindFirst(pacChars, This.Char()) > 0
+		if StzFindFirst(This.Char(), pacChars) > 0
 			return 1
 		else
 			return 0
@@ -1329,7 +1329,7 @@ class stzStringChar from stzString
 
 	# TRUE if the char separates words (per the Softanza separators list).
 	def IsWordSeparator()
-		if StzFindFirst( WordSeparators(), This.Char() ) > 0
+		if StzFindFirst(This.Char(), WordSeparators()) > 0
 			return 1
 		else
 			return 0
@@ -1337,7 +1337,7 @@ class stzStringChar from stzString
 
 	# TRUE if the char separates sentences (per the Softanza separators list).
 	def IsSentenceSeparator()
-		if StzFindFirst( SentenceSeparators(), This.Char() ) > 0
+		if StzFindFirst(This.Char(), SentenceSeparators()) > 0
 			return 1
 		else
 			return 0
@@ -1356,7 +1356,7 @@ class stzStringChar from stzString
 	# TRUE if the char is one of the non-letter chars allowed inside
 	# words (hyphen, apostrophe, ...).
 	def IsWordNonLetterChar()
-		return StzFindFirst( WordNonLetterChars(), This.Content() ) > 0
+		return StzFindFirst(This.Content(), WordNonLetterChars()) > 0
 
 	  #==================#
 	 #   MIRRORED CHAR  #

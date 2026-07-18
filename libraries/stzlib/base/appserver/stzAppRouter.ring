@@ -54,8 +54,8 @@ class stzAppRouter from stzObject
 		_aReq_ = This._Segments(cPath)
 		for _i_ = 1 to _nLen_
 			if @aRoutes[_i_][1] != _cM_  loop  ok
-			if StzFindFirst(@aRoutes[_i_][2], ":") = 0 and
-			   StzFindFirst(@aRoutes[_i_][2], "*") = 0
+			if StzFindFirst(":", @aRoutes[_i_][2]) = 0 and
+			   StzFindFirst("*", @aRoutes[_i_][2]) = 0
 				loop   # plain route, already tried exactly
 			ok
 			_aParams_ = This._MatchPattern(This._Segments(@aRoutes[_i_][2]), _aReq_)

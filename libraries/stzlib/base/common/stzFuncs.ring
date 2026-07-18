@@ -3154,11 +3154,14 @@ func StzFindFirstCS(p1, p2, pCaseSensitive)
 		return 0
 	ok
 
-	# Both strings -> find p2 (needle) in p1 (haystack).
-	if isString(p1) and isString(p2) and p2 != ""
+	# Both strings -> find p1 (needle/substr) in p2 (container), NEEDLE-FIRST,
+	# matching StzFind/StzFindCS and the library-wide (item/substr, container)
+	# convention. (Historically this path was haystack-first -- swapped 2026-07-18
+	# together with a library-wide caller migration.)
+	if isString(p1) and isString(p2) and p1 != ""
 		_bCase_ = CaseSensitive(pCaseSensitive)
-		_pH_ = StzEngineString(p1)
-		_nPos_ = StzEngineStringFindFirstFromCS(_pH_, p2, 1, _bCase_)
+		_pH_ = StzEngineString(p2)
+		_nPos_ = StzEngineStringFindFirstFromCS(_pH_, p1, 1, _bCase_)
 		StzEngineStringFree(_pH_)
 		if _nPos_ > 0 return _nPos_ ok
 	ok
@@ -3173,6 +3176,44 @@ func StzFindFirst(pThing, paIn)
 
 	func @StzFindFirst(pThing, paIn)
 		return StzFindFirst(pThing, paIn)
+
+# StzFindLast / StzFindNth -- same (pSubStrOrItem, pStrOrList) convention as
+# StzFindFirst: the substring/item to find comes FIRST, the container (a string
+# or a list) SECOND. The container may also be written [ :In, container ] for
+# expressiveness. They delegate to the canonical StzFindCS (all positions).
+
+func StzFindLastCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
+	_aPos_ = StzFindCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
+	if isList(_aPos_) and len(_aPos_) > 0
+		return _aPos_[ len(_aPos_) ]
+	ok
+	return 0
+
+	func @StzFindLastCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
+		return StzFindLastCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
+
+func StzFindLast(pSubStrOrItem, pStrOrList)
+	return StzFindLastCS(pSubStrOrItem, pStrOrList, TRUE)
+
+	func @StzFindLast(pSubStrOrItem, pStrOrList)
+		return StzFindLast(pSubStrOrItem, pStrOrList)
+
+func StzFindNthCS(pSubStrOrItem, pStrOrList, n, pCaseSensitive)
+	if NOT isNumber(n) return 0 ok
+	_aPos_ = StzFindCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
+	if isList(_aPos_) and n >= 1 and len(_aPos_) >= n
+		return _aPos_[ n ]
+	ok
+	return 0
+
+	func @StzFindNthCS(pSubStrOrItem, pStrOrList, n, pCaseSensitive)
+		return StzFindNthCS(pSubStrOrItem, pStrOrList, n, pCaseSensitive)
+
+func StzFindNth(pSubStrOrItem, pStrOrList, n)
+	return StzFindNthCS(pSubStrOrItem, pStrOrList, n, TRUE)
+
+	func @StzFindNth(pSubStrOrItem, pStrOrList, n)
+		return StzFindNth(pSubStrOrItem, pStrOrList, n)
 
 # StzFind / StzFindCS ALWAYS return the LIST of all positions of pThing (needle)
 # in paIn (haystack), or an empty list if not found. Engine-backed; works for

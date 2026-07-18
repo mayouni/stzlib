@@ -371,15 +371,15 @@ class stzAppServer from stzObject
 
 	# MBaaS floor. Returns TRUE when the path targeted an exposed table.
 	def _ServeResource(oReq, oResp)
-		if StzFindFirst(oReq.Path(), "/api/") != 1
+		if StzFindFirst("/api/", oReq.Path()) != 1
 			return FALSE
 		ok
 		_cRest_ = StzMidToEnd(oReq.Path(), 6)     # after "/api/"
 		# strip any query string ("/api/t?x=1" -> "/api/t")
-		_nQ_ = StzFindFirst(_cRest_, "?")
+		_nQ_ = StzFindFirst("?", _cRest_)
 		if _nQ_ > 0  _cRest_ = StzLeft(_cRest_, _nQ_ - 1)  ok
 		_cSub_ = ""
-		_nSlash_ = StzFindFirst(_cRest_, "/")
+		_nSlash_ = StzFindFirst("/", _cRest_)
 		if _nSlash_ > 0
 			_cSub_ = StzMidToEnd(_cRest_, _nSlash_ + 1)
 			_cRest_ = StzLeft(_cRest_, _nSlash_ - 1)
@@ -500,7 +500,7 @@ class stzAppServer from stzObject
 		_aPairs_ = StzSplit(cBody, "&")
 		_nLen_ = len(_aPairs_)
 		for _i_ = 1 to _nLen_
-			_nEq_ = StzFindFirst(_aPairs_[_i_], "=")
+			_nEq_ = StzFindFirst("=", _aPairs_[_i_])
 			if _nEq_ > 0
 				_aOut_ + [ StzLeft(_aPairs_[_i_], _nEq_ - 1), StzMidToEnd(_aPairs_[_i_], _nEq_ + 1) ]
 			ok
@@ -543,7 +543,7 @@ class stzAppServer from stzObject
 	# headers + Content-Length body, CRLF line endings).
 	def ParseHttpRequest(cRawRequest)
 		_cCRLF_ = char(13) + char(10)
-		_nHeadEnd_ = StzFindFirst(cRawRequest, _cCRLF_ + _cCRLF_)
+		_nHeadEnd_ = StzFindFirst(_cCRLF_ + _cCRLF_, cRawRequest)
 		if _nHeadEnd_ = 0
 			stzraise("Malformed HTTP request (no header terminator)")
 		ok
@@ -563,7 +563,7 @@ class stzAppServer from stzObject
 		_aHeaders_ = []
 		_nLen_ = len(_aLines_)
 		for _i_ = 2 to _nLen_
-			_nColon_ = StzFindFirst(_aLines_[_i_], ":")
+			_nColon_ = StzFindFirst(":", _aLines_[_i_])
 			if _nColon_ > 0
 				_aHeaders_ + [ trim(StzLeft(_aLines_[_i_], _nColon_ - 1)),
 				               trim(StzMidToEnd(_aLines_[_i_], _nColon_ + 1)) ]

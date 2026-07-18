@@ -183,7 +183,7 @@ class stzListOfTimeLines from stzObject
 		return len(@aLanes)
 
 	def Lane(pcLane)
-		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
 		if _nIndex_ > 0
 			return @aTimeLines[_nIndex_]
 		else
@@ -194,7 +194,7 @@ class stzListOfTimeLines from stzObject
 			return This.Lane(pcLane)  // Already a stzTimeLine object
 
 	def HasLane(pcLane)
-		return StzFindFirst(@aLanes, StzUpper(pcLane)) > 0
+		return StzFindFirst(StzUpper(pcLane), @aLanes) > 0
 
 	def AddLane(pcLane)
 		if This.HasLane(pcLane)
@@ -209,7 +209,7 @@ class stzListOfTimeLines from stzObject
 			return This
 
 	def RemoveLane(pcLane)
-		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
 		if _nIndex_ > 0
 			del(@aLanes, _nIndex_)
 			del(@aTimeLines, _nIndex_)
@@ -227,7 +227,7 @@ class stzListOfTimeLines from stzObject
 		# indexing, so the mutation never persisted back into
 		# @aTimeLines. Index directly so the in-place AddPoint
 		# writes to the stored timeline.
-		_nIndex_ = StzFindFirst(@aLanes, StzUpper(pcLane))
+		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
 		if _nIndex_ = 0
 			StzRaise("No lane found with name: " + pcLane)
 		ok

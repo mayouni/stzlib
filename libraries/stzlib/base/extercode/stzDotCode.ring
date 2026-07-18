@@ -75,7 +75,7 @@ class stzDotCode from stzObject
 		if _cFormat_ = "" or StzLower(_cFormat_) = 'null'
 			_cFormat_ = $cDefaultDotOutputFormat
 		else
-			if StzFindFirst($acDotOutputFormats, _cFormat_) = 0
+			if StzFindFirst(_cFormat_, $acDotOutputFormats) = 0
 				stzraise("Unsupported output formats! Only these are supported: " + @@($acDotOutputFormats) + ".")
 			ok
 		ok

@@ -17,7 +17,7 @@ if NOT StzHasGenerativeModel()
 	try _aGg_ = dir("../../../models/") catch done
 	nGg = len(_aGg_)
 	for iGg = 1 to nGg
-		if _aGg_[iGg][2] = 0 and StzFindFirst(lower(_aGg_[iGg][1]), ".gguf") > 0
+		if _aGg_[iGg][2] = 0 and StzFindFirst(".gguf", lower(_aGg_[iGg][1])) > 0
 			StzNeuralModelQ("../../../models/" + _aGg_[iGg][1])
 			if StzHasGenerativeModel() exit ok
 		ok
@@ -80,7 +80,7 @@ if StzHasGenerativeModel()
 		Then("the second turn APPENDS to the cache (it grows, no reset)",
 			n2 > n1, TRUE)
 		Then("...and the model remembered across turns (KV reuse works)",
-			StzFindFirst(r2, "Ada") > 0, TRUE)
+			StzFindFirst("Ada", r2) > 0, TRUE)
 		Then("the transcript holds both turns", oChat.NumberOfTurns(), 4)
 	EndScenario()
 
@@ -89,7 +89,7 @@ if StzHasGenerativeModel()
 		Then("a fresh abstractive summary is produced",
 			len(oT.SummarizedAbstractively()) > 0, TRUE)
 		Then("a grounded question is answered over the text",
-			StzFindFirst(lower(oT.AnswerAbout("Where did the library stand?")), "center") > 0, TRUE)
+			StzFindFirst("center", lower(oT.AnswerAbout("Where did the library stand?"))) > 0, TRUE)
 	EndScenario()
 
 	Scenario("The model object speaks too")

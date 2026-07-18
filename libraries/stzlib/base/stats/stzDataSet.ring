@@ -1046,7 +1046,7 @@ class stzDataSet from stzObject
         ok
 
         _cStr_ = "" + item
-        return StzFindFirst($aSTAT_MISSING_VALUES, _cStr_) > 0
+        return StzFindFirst(_cStr_, $aSTAT_MISSING_VALUES) > 0
 
     def _DetectDataType()
         if len(@anData) = 0
@@ -2082,7 +2082,7 @@ class stzDataSet from stzObject
 
     def IsOutlier(nValue)
         _aOutliers_ = This.Outliers()
-        return StzFindFirst(_aOutliers_, nValue) > 0
+        return StzFindFirst(nValue, _aOutliers_) > 0
 
 
     def ZScores()
@@ -3267,7 +3267,7 @@ class stzDataSet from stzObject
             StzRaise("Unknown Plan name, goal or template: " + cNameOrGoalOrTemplate)
         ok
 
-		_n_ = StzFindFirst(This._PlanNames(), _cTemplate_)
+		_n_ = StzFindFirst(_cTemplate_, This._PlanNames())
 
 		if _n_ = 0
 			StzRaise("Inexistant Plan template name!")
@@ -3611,17 +3611,17 @@ class stzDataSet from stzObject
         _cInput_ = Lower(@trim(_cInput_))
 
 		# Check if it's a Plan name
-		if StzFindFirst(_PlanNames(), _cInput_)
+		if StzFindFirst(_cInput_, _PlanNames())
 			return _cInput_
 		ok
 
         # Check if it's a direct template key
-		if StzFindFirst(_PlanTemplates(), _cInput_)
+		if StzFindFirst(_cInput_, _PlanTemplates())
 			return _cInput_
 		ok
         
         # Check goal mappings
-		if StzFindFirst(_PlanGoals(), _cInput_)
+		if StzFindFirst(_cInput_, _PlanGoals())
 			return $aPlanGoals[_cInput_]
 		ok
         
@@ -3793,7 +3793,7 @@ class stzDataSet from stzObject
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
 		ok
 
-		if StzFindFirst( This._CacheKeys(), StzLower(_cKey_))
+		if StzFindFirst(StzLower(_cKey_), This._CacheKeys())
 			return TRUE
 		else
 			return FALSE
@@ -3809,7 +3809,7 @@ class stzDataSet from stzObject
 			return
 		ok
 
-		_n_ = StzFindFirst(This._CacheKeys(), StzLower(_cKey_))
+		_n_ = StzFindFirst(StzLower(_cKey_), This._CacheKeys())
 		if _n_ > 0
 			del(@aCache, _n_)
 		ok

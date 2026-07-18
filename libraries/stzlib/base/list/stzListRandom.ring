@@ -143,7 +143,7 @@ class stzListRandom from stzObject
 		ok
 
 		_nRpepResult_ = panPos[1]
-		while StzFindFirst(panPos, _nRpepResult_) > 0
+		while StzFindFirst(_nRpepResult_, panPos) > 0
 			_nRpepResult_ = ARandomNumberBetween(1, _nRpepLen_)
 		end
 

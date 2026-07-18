@@ -655,7 +655,7 @@ class stzTree from stzList
 		ok
 		
 		# Check if branch exists
-		if NOT StzFindFirst(This.Branches(), pcBranch) > 0
+		if NOT StzFindFirst(pcBranch, This.Branches()) > 0
 			return
 		ok
 
@@ -674,7 +674,7 @@ class stzTree from stzList
 		ok
 		
 		# Check if branch exists
-		if NOT StzFindFirst(This.Branches(), pcBranch) > 0
+		if NOT StzFindFirst(pcBranch, This.Branches()) > 0
 			return
 		ok
 		

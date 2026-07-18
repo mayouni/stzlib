@@ -2033,7 +2033,7 @@ func SomeRandomNumbersGreaterThanU(_n_)
 	
 		while 1
 			_nRandom_ = RandomNumberGreaterThan01(_n_)
-			if StzFindFirst(_anResult_, _nRandom_) = 0
+			if StzFindFirst(_nRandom_, _anResult_) = 0
 				_anResult_ + _nRandom_
 	
 				if len(_anResult_) = _nSome_
@@ -2172,7 +2172,7 @@ func SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 	
 		while 1
 			_nRandom_ = RandomNumberGreaterThan01XT(_n_, _nSeed_)
-			if StzFindFirst(_anResult_, _nRandom_) = 0
+			if StzFindFirst(_nRandom_, _anResult_) = 0
 				_anResult_ + _nRandom_
 	
 				if len(_anResult_) = _nSome_
@@ -2407,7 +2407,7 @@ func NRandomNumbersGreaterThanU(_n_, nValue)
 
 		_nRandom_ = ARandomNumberGreaterThan(nValue)
 
-		if StzFindFirst(_anResult_, _nRandom_) = 0
+		if StzFindFirst(_nRandom_, _anResult_) = 0
 			_anResult_ + _nRandom_
 			if len(_anResult_) = _n_
 				exit
@@ -2479,7 +2479,7 @@ func NRandomNumbersGreaterThanU(_n_, nValue)
 
 			_nRandom_ = ARandomNumberGreaterThan01(nValue)
 
-			if StzFindFirst(_anResult_, _nRandom_)
+			if StzFindFirst(_nRandom_, _anResult_)
 				_anResult_ + _nRandom_
 				if len(_anResult_) = _n_
 					exit
@@ -2602,7 +2602,7 @@ func NRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
 			_nRandom_ = ARandomNumberGreaterThan01XT(nValue, _nSeed_)
 
-			if StzFindFirst(_anResult_, _nRandom_)
+			if StzFindFirst(_nRandom_, _anResult_)
 				_anResult_ + _nRandom_
 				if len(_anResult_) = _n_
 					exit
@@ -2801,7 +2801,7 @@ func NRandomNumbersLessThanU(_n_, nValue)
 
 		_nRandom_ = ARandomNumberLessThan(nValue)
 
-		if StzFindFirst(_anResult_, _nRandom_) = 0
+		if StzFindFirst(_nRandom_, _anResult_) = 0
 			_anResult_ + _nRandom_
 			if len(_anResult_) = _n_
 				exit
@@ -2857,7 +2857,7 @@ func NRandomNumbersLessThanU(_n_, nValue)
 			_i_++
 			_nRandom_ = ARandomNumberLessthan01(_n_, nValue)
 
-			if StzFindFirst(_anResult_, _nRandom_) = 0
+			if StzFindFirst(_nRandom_, _anResult_) = 0
 				_anResult_ + _nRandom_
 				if len(_anResult_) = _n_ or _i_ = MaxRandomLoop()
 					exit
@@ -2950,7 +2950,7 @@ func NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 			_i_++
 			_nRandom_ = ARandomNumberLessthanXT01(_n_, nValue, _nSeed_)
 
-			if StzFindFirst(_anResult_, _nRandom_) = 0
+			if StzFindFirst(_nRandom_, _anResult_) = 0
 				_anResult_ + _nRandom_
 				if len(_anResult_) = _n_ or _i_ = MaxRandomLoop()
 					exit
@@ -4162,7 +4162,7 @@ func NRandomNumbersInU(_n_, panNumbers)
 
 		_nRandom_ = ARandomNumberIn(panNumbers)
 		
-		if StzFindFirst(_anResult_, _nRandom_) = 0
+		if StzFindFirst(_nRandom_, _anResult_) = 0
 			_anResult_ + _nRandom_
 
 			if len(_anResult_) = _n_
@@ -4641,7 +4641,7 @@ func NRandomItemsInU(_n_, paList)
 
 	while 1
 		_item_ = ARandomItemIn(paList)
-		if StzFindFirst(_aResult_, _item_) = 0
+		if StzFindFirst(_item_, _aResult_) = 0
 			_aResult_ + _item_
 			if len(_aResult_) = _n_
 				exit

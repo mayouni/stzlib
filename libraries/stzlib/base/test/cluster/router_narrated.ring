@@ -21,7 +21,7 @@ Scenario("TIER 1 rules: explicit routes win, cheaply")
 	Then("a content-type rule wins even over a lexical body hit",
 		$oR.Classify("POST", "/api/analyze", "application/pdf", "translate this text"), "vision")
 	Then("the search path routes to search", $oR.ClassifyPath("/api/search/products"), "search")
-	Then("Why() explains the rule", StzFindFirst($oR.Why(), "rule:") = 1, TRUE)
+	Then("Why() explains the rule", StzFindFirst("rule:", $oR.Why()) = 1, TRUE)
 EndScenario()
 
 Scenario("TIER 2 lexical: route by the facet's OWN capability vocabulary")
@@ -38,13 +38,13 @@ Scenario("TIER 2 lexical: route by the facet's OWN capability vocabulary")
 		$oR.ClassifyText("scan this image with ocr"), "vision")
 	Then("prove/derive talk is knowledge work",
 		$oR.ClassifyText("prove this fact is derived from the ontology"), "knowledge")
-	Then("Why() explains the lexical hit", StzFindFirst($oR.Why(), "lexical:") = 1, TRUE)
+	Then("Why() explains the lexical hit", StzFindFirst("lexical:", $oR.Why()) = 1, TRUE)
 EndScenario()
 
 Scenario("the classifier ABSTAINS honestly when it cannot decide")
 	Then("gibberish routes nowhere", $oR.ClassifyText("qwerty zxcvb foobar"), "")
 	Then("Why() says undecidable/no-hit",
-		StzFindFirst($oR.Why(), "undecidable") > 0 or StzFindFirst($oR.Why(), "no capability") > 0, TRUE)
+		StzFindFirst("undecidable", $oR.Why()) > 0 or StzFindFirst("no capability", $oR.Why()) > 0, TRUE)
 EndScenario()
 
 Scenario("it only routes to facets THIS deployment's catalog knows")

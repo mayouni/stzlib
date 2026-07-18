@@ -29,7 +29,7 @@ func HtmlQ(pcHtmlOrFile)
 		return HtmlQ(pcHtmlOrFile)
 
 func IsHtml(pcStr)
-	return StzFindFirst(pcStr, "<html") > 0 or StzFindFirst(pcStr, "<!DOCTYPE html") > 0
+	return StzFindFirst("<html", pcStr) > 0 or StzFindFirst("<!DOCTYPE html", pcStr) > 0
 
 	func @IsHtml(pcStr)
 		return IsHtml(pcStr)

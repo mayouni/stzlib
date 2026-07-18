@@ -23,7 +23,7 @@ Scenario("SECURITY: a caller-controlled proxy path cannot override the host (SSR
 	cR = $oC.Route("graph", "@evil.example.com/pwn")
 	Then("it is REJECTED before any request is sent", $oC.RouteLastStatus() < 0, TRUE)
 	Then("and the body is empty", cR, "")
-	Then("the why names the unsafe path", StzFindFirst($oC.Why(), "unsafe") > 0, TRUE)
+	Then("the why names the unsafe path", StzFindFirst("unsafe", $oC.Why()) > 0, TRUE)
 
 	When("a path tries an absolute URL")
 	$oC.Route("graph", "http://evil.example.com/")
@@ -37,7 +37,7 @@ Scenario("SECURITY: a caller-controlled proxy path cannot override the host (SSR
 	# no worker started -> port 0 -> declines, but NOT as an unsafe-path
 	$oC.Route("graph", "/work?q=ok")
 	Then("a well-formed path passes the guard (declines only for no worker)",
-		StzFindFirst($oC.Why(), "unsafe"), 0)
+		StzFindFirst("unsafe", $oC.Why()), 0)
 EndScenario()
 
 Scenario("SECURITY: the federation rejects unsafe paths before transport")
@@ -49,7 +49,7 @@ Scenario("SECURITY: the federation rejects unsafe paths before transport")
 	When("a bonded, governed caller sends an SSRF path")
 	$oFed.FederatedCall("web", :math, "@attacker/steal", "")
 	Then("the unsafe path is rejected even for an authorized caller",
-		StzFindFirst($oFed.Why(), "unsafe") > 0, TRUE)
+		StzFindFirst("unsafe", $oFed.Why()) > 0, TRUE)
 	Then("with a negative status", $oFed.CallLastStatus() < 0, TRUE)
 	$oFed.Shutdown()
 EndScenario()
@@ -79,7 +79,7 @@ Scenario("SECURITY: caller confusion -- one caller's grant does not leak to anot
 	$oCC.Bond("evil", :neural)   # evil even has a bond...
 	Then("but evil has NO permission -> refused",
 		isNumberNeg($oCC.FederatedCall("evil", :neural, "/x", "")), TRUE)
-	Then("the refusal is a governance decision", StzFindFirst($oCC.Why(), "governance") > 0, TRUE)
+	Then("the refusal is a governance decision", StzFindFirst("governance", $oCC.Why()) > 0, TRUE)
 	$oCC.Shutdown()
 EndScenario()
 
@@ -158,7 +158,7 @@ Scenario("FUNCTIONAL: a pipeline stage failure is CONTAINED, not fatal")
 	cR = oF.Run("start")
 	Then("Run returns NULL on failure (halted)", cR = NULL, TRUE)
 	Then("Failed() is set", oF.Failed(), TRUE)
-	Then("Why() names the failing stage", StzFindFirst(oF.Why(), "boom") > 0, TRUE)
+	Then("Why() names the failing stage", StzFindFirst("boom", oF.Why()) > 0, TRUE)
 	Then("the trace stops at the failed stage (2 entries)", len(oF.Trace()), 2)
 	Then("the last trace entry is the ERROR marker", oF.Trace()[2][3], "ERROR")
 

@@ -1168,11 +1168,11 @@ Class stzTable from stzList
 			if _bSub_
 				if isString(_cell_) and isString(_pValue_)
 					if pCaseSensitive
-						if StzFindFirst(_pValue_, _cell_) > 0 _bMatch_ = TRUE ok
+						if StzFindFirst(_cell_, _pValue_) > 0 _bMatch_ = TRUE ok
 					else
 						# StzCaseFold is codepoint-aware; upper() is byte-oriented
 						# and missed multibyte case (accented cells).
-						if StzFindFirst(StzCaseFold(_pValue_), StzCaseFold(_cell_)) > 0 _bMatch_ = TRUE ok
+						if StzFindFirst(StzCaseFold(_cell_), StzCaseFold(_pValue_)) > 0 _bMatch_ = TRUE ok
 					ok
 				ok
 			else
@@ -1224,7 +1224,7 @@ Class stzTable from stzList
 			_cell_ = @aContent[_i_][2][nRow]
 			if _bSub_
 				if isString(_cell_) and isString(_pVal_)
-					if StzFindFirst(_pVal_, _cell_) > 0 _nCount_++ ok
+					if StzFindFirst(_cell_, _pVal_) > 0 _nCount_++ ok
 				ok
 			else
 				if _cell_ = _pVal_ _nCount_++ ok
@@ -1246,7 +1246,7 @@ Class stzTable from stzList
 		ok
 		_cell_ = @aContent[nCol][2][nRow]
 		if _bSub_
-			if isString(_cell_) and isString(_pVal_) and StzFindFirst(_pVal_, _cell_) > 0
+			if isString(_cell_) and isString(_pVal_) and StzFindFirst(_cell_, _pVal_) > 0
 				return 1
 			ok
 			return 0
@@ -2114,10 +2114,10 @@ func _NormalizeColLookupKey(pVal)
 			ok
 
 			if isString(pCol)
-				if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+				if StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
 					pCol = 1
 
-				but StzFindFirst([ :Last, :LastCol, :LastColumn ], pCol) > 0
+				but StzFindFirst(pCol, [ :Last, :LastCol, :LastColumn ]) > 0
 					pCol = This.NumberOfColumns()
 
 				but This.HasColName(pCol)
@@ -2230,10 +2230,10 @@ func _NormalizeColLookupKey(pVal)
 
 			if isString(_nRow_)
 
-				if StzFindFirst([ :First, :FirstRow], _nRow_) > 0
+				if StzFindFirst(_nRow_, [ :First, :FirstRow]) > 0
 					_nRow_ = 1
 
-				but StzFindFirst([ :Last, :LastRow ], _nRow_) > 0
+				but StzFindFirst(_nRow_, [ :Last, :LastRow ]) > 0
 					_nRow_ = This.NumberOfRows()
 				ok
 			ok
@@ -3485,10 +3485,10 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pCol)
 
-			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
 				pCol = 1
 
-			but StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			but StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
 				pCol = This.NumberOfCols()
 
 			but This.HasColName(pCol)
@@ -4796,13 +4796,13 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pnFrom)
 
-			if StzFindFirst([
-				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnForm) > 0
+			if StzFindFirst(pnForm, [
+				:First, :FirstCol, :FirstColumn, :FirstPosition ]) > 0
 
 				pnFrom = 1
 
-			but StzFindFirst([
-				:Last, :LastCol, :LastColumn, :LastPosition ], pnFrom) > 0
+			but StzFindFirst(pnFrom, [
+				:Last, :LastCol, :LastColumn, :LastPosition ]) > 0
 
 				pnFrom = This.NumberOfCols()
 			ok
@@ -4810,13 +4810,13 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pnTo)
 
-			if StzFindFirst([
-				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnTo) > 0
+			if StzFindFirst(pnTo, [
+				:First, :FirstCol, :FirstColumn, :FirstPosition ]) > 0
 
 				pnTo = 1
 
-			but StzFindFirst([
-				:Last, :LastCol, :LastColumn, :LastPosition ], pnTo) > 0
+			but StzFindFirst(pnTo, [
+				:Last, :LastCol, :LastColumn, :LastPosition ]) > 0
 
 				pnTo = This.NumberOfCols()
 			ok
@@ -5231,7 +5231,7 @@ func _NormalizeColLookupKey(pVal)
 		_anResult_ = []
 
 		for i = 1 to _nLen_
-			if StzFindFirst(_anColNumbers_, i) = 0
+			if StzFindFirst(i, _anColNumbers_) = 0
 				_anResult_ + i
 			ok
 		next
@@ -5449,7 +5449,7 @@ func _NormalizeColLookupKey(pVal)
 		_anResult_ = []
 
 		for i = 1 to _nRows_
-			if StzFindFirst(_anPos_, i) = 0 and StzFindFirst(_anResult_, i) = 0
+			if StzFindFirst(i, _anPos_) = 0 and StzFindFirst(i, _anResult_) = 0
 				_anResult_ +i
 			ok
 		next
@@ -5489,7 +5489,7 @@ func _NormalizeColLookupKey(pVal)
 		_anResult_ = []
 
 		for i = 1 to _nRows_
-			if StzFindFirst(panRowNumbers, i) = 0 and StzFindFirst(_anResult_, i) = 0
+			if StzFindFirst(i, panRowNumbers) = 0 and StzFindFirst(i, _anResult_) = 0
 				_anResult_ + i
 			ok
 		next
@@ -5863,10 +5863,10 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(_n_)
 
-			if StzFindFirst([ :First, :FirstOccurrence ], _n_) > 0
+			if StzFindFirst(_n_, [ :First, :FirstOccurrence ]) > 0
 				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastOccurrence ], _n_) > 0
+			but StzFindFirst(_n_, [ :Last, :LastOccurrence ]) > 0
 				_n_ = This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -5925,10 +5925,10 @@ func _NormalizeColLookupKey(pVal)
 		# the nth position is returned as a pair of numbers
 
 		if isString(_n_)
-			if StzFindFirst([ :First, :FirstOccurrence ], _n_) > 0
+			if StzFindFirst(_n_, [ :First, :FirstOccurrence ]) > 0
 				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastOccurrence ], _n_) > 0
+			but StzFindFirst(_n_, [ :Last, :LastOccurrence ]) > 0
 				_n_ = This.CountSubValueCS(pSubValue, pCaseSensitive)
 
 			ok
@@ -7132,10 +7132,10 @@ func _NormalizeColLookupKey(pVal)
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(_n_)
-			if StzFindFirst([ :First, :FirstOccurrence, :FirstValue ], _n_) > 0
+			if StzFindFirst(_n_, [ :First, :FirstOccurrence, :FirstValue ]) > 0
 				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastOccurrence, :LastValue ], _n_) > 0
+			but StzFindFirst(_n_, [ :Last, :LastOccurrence, :LastValue ]) > 0
 				_n_ = This.NumberOfOccurrenceInCellsCS(paCells, pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -7174,10 +7174,10 @@ func _NormalizeColLookupKey(pVal)
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(_n_)
-			if StzFindFirst([ :First, :FirstOccurrence, :FirstSubValue ], _n_) > 0
+			if StzFindFirst(_n_, [ :First, :FirstOccurrence, :FirstSubValue ]) > 0
 				_n_ = 1
 
-			but StzFindFirst([ :Last, :LastOccurrence, :LastSubValue ], _n_) > 0
+			but StzFindFirst(_n_, [ :Last, :LastOccurrence, :LastSubValue ]) > 0
 				_n_ = This.CountSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
 			ok
@@ -9835,10 +9835,10 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pCol)
 
-			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
 				pCol = 1
 
-			but StzFindFirst([ :Last, :LastCol, :LastColumn ], pCol) > 0
+			but StzFindFirst(pCol, [ :Last, :LastCol, :LastColumn ]) > 0
 				pCol = This.NumberOfCols()
 		
 			else
@@ -14179,10 +14179,10 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(p)
 
-			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFindFirst(p, [ :First, :FirstCol, :FirstColumn ]) > 0
 				p = 1
 
-			but StzFindFirst([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFindFirst(p, [ :Last, :LastCol, :LastColumn ]) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -15187,7 +15187,7 @@ func _NormalizeColLookupKey(pVal)
 			ok
 
 			# Validate aggregation method
-			if StzFindFirst(_aValidMethods_, _cAggMethod_) = 0
+			if StzFindFirst(_cAggMethod_, _aValidMethods_) = 0
 				StzRaise("Invalid aggregation method: " + _cAggMethod_)
 			ok
 
@@ -15339,7 +15339,7 @@ func _NormalizeColLookupKey(pVal)
 			next
 
 			# Check if this group key exists
-			_nGroupIndex_ = StzFindFirst(_aGroupKeys_, _cGroupKey_)
+			_nGroupIndex_ = StzFindFirst(_cGroupKey_, _aGroupKeys_)
 			if _nGroupIndex_ = 0
 				# New group, add to groups
 				_aGroupKeys_ + _cGroupKey_
@@ -15459,13 +15459,13 @@ func _NormalizeColLookupKey(pVal)
 
 			# Validate method is supported
 
-			if NOT StzFindFirst(_aValidMethods_, _cAggMethod_)
+			if NOT StzFindFirst(_cAggMethod_, _aValidMethods_)
 				StzRaise("Invalid aggregation method: " + _cAggMethod_)
 			ok
 
 			# Validate column is not in grouping columns
 
-			if StzFindFirst(paCols, _cColName_) > 0
+			if StzFindFirst(_cColName_, paCols) > 0
 				StzRaise("Cannot aggregate grouping column: " + _cColName_)
 			ok
 
@@ -15505,7 +15505,7 @@ func _NormalizeColLookupKey(pVal)
 
 		# Check if this group key exists
 
-		_nGroupIndex_ = StzFindFirst(_aGroupKeys_, _cGroupKey_)
+		_nGroupIndex_ = StzFindFirst(_cGroupKey_, _aGroupKeys_)
 
 		if _nGroupIndex_ = 0
 
@@ -16142,7 +16142,7 @@ func _NormalizeColLookupKey(pVal)
 
 			_cGroup_ = "" + _aContent_[_nGroupCol_][2][r]
 
-			if NOT StzFindFirst(_aGroups_, _cGroup_) > 0
+			if NOT StzFindFirst(_cGroup_, _aGroups_) > 0
 				_aGroups_ + _cGroup_
 				_aGroupTotals_[_cGroup_] = []
 				for i = 1 to _nCols_

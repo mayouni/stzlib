@@ -28,13 +28,13 @@ Scenario("a federated call is GOVERNED before it is transported")
 	When("a caller requests a facet with no bond")
 	r = $oFed.FederatedCall("web-host", :neural, "/work", "")
 	Then("it is refused (no bond)", $oFed.CallLastStatus() < 0, TRUE)
-	Then("the why names the missing bond", StzFindFirst($oFed.Why(), "no bond") > 0, TRUE)
+	Then("the why names the missing bond", StzFindFirst("no bond", $oFed.Why()) > 0, TRUE)
 
 	When("a bond exists but the action has no declared risk tier")
 	$oFed.Bond("web-host", :neural)
 	$oFed.FederatedCall("web-host", :neural, "/work", "")
 	Then("still refused (undeclared risk never proceeds)", $oFed.CallLastStatus() < 0, TRUE)
-	Then("the why cites governance", StzFindFirst($oFed.Why(), "governance") > 0, TRUE)
+	Then("the why cites governance", StzFindFirst("governance", $oFed.Why()) > 0, TRUE)
 
 	When("the caller lacks authority for the facet's risk tier")
 	$oFed.GovDeclareRisk("use-neural", 3)               # risk 3
@@ -45,7 +45,7 @@ Scenario("a federated call is GOVERNED before it is transported")
 
 	When("a request targets a facet nobody offers")
 	$oFed.FederatedCall("web-host", :graph, "/work", "")
-	Then("refused: no active host offers it", StzFindFirst($oFed.Why(), "no active host") > 0, TRUE)
+	Then("refused: no active host offers it", StzFindFirst("no active host", $oFed.Why()) > 0, TRUE)
 	$oFed.Shutdown()
 EndScenario()
 
@@ -68,9 +68,9 @@ Scenario("REAL cross-host transport: a governed call reaches a live worker")
 	When("web makes a governed federated call for :vision work")
 	cResp = $oGrid.FederatedCall("web", :vision, "/work?q=scan-me", "")
 	Then("the call was allowed + transported (HTTP 200)", $oGrid.CallLastStatus(), 200)
-	Then("the remote vision worker answered", StzFindFirst(cResp, "vision:done:scan-me") > 0, TRUE)
+	Then("the remote vision worker answered", StzFindFirst("vision:done:scan-me", cResp) > 0, TRUE)
 	Then("the why records offered+bonded+governed",
-		StzFindFirst($oGrid.Why(), "allowed") = 1, TRUE)
+		StzFindFirst("allowed", $oGrid.Why()) = 1, TRUE)
 	Then("the decision left governed lineage",
 		$oGrid.GovernanceQ().NumberOfDecisions() >= 1, TRUE)
 

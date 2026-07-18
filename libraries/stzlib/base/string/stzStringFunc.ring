@@ -2613,7 +2613,7 @@ func @substr(_str_, p1, p2) #TODO // Move to stzExtCode
 		return _nResult_
 
 	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
-		return StzFindFirst(_str_, p1)
+		return StzFindFirst(p1, _str_)
 
 	else
 

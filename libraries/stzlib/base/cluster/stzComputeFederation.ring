@@ -204,7 +204,7 @@ class stzComputeFederation from stzObject
 			_env_ = @oSigner.SignNow(pcCaller, "GET", pcPath, "" + pcBody)
 			@aLastSig = _env_
 			_cSep_ = "?"
-			if StzFindFirst(pcPath, "?") > 0  _cSep_ = "&"  ok
+			if StzFindFirst("?", pcPath) > 0  _cSep_ = "&"  ok
 			_cWirePath_ = pcPath + _cSep_ + "_caller=" + pcCaller +
 				"&_ts=" + _env_[:ts] + "&_nonce=" + _env_[:nonce] + "&_sig=" + _env_[:sig]
 		ok
@@ -300,7 +300,7 @@ class stzComputeFederation from stzObject
 		if _c_ = "" or StzLeft(_c_, 1) != "/"
 			return FALSE
 		ok
-		if StzFindFirst(_c_, char(13)) > 0 or StzFindFirst(_c_, char(10)) > 0
+		if StzFindFirst(char(13), _c_) > 0 or StzFindFirst(char(10), _c_) > 0
 			return FALSE
 		ok
 		return TRUE
@@ -333,12 +333,12 @@ class stzComputeFederation from stzObject
 		if _c_ = ""  return [ -1, "" ]  ok
 		_nCode_ = This._HttpStatusCode(_c_)
 		_cSep_ = char(13) + char(10) + char(13) + char(10)
-		_nHdrEnd_ = StzFindFirst(_c_, _cSep_)
+		_nHdrEnd_ = StzFindFirst(_cSep_, _c_)
 		if _nHdrEnd_ = 0  return [ _nCode_, _c_ ]  ok
 		return [ _nCode_, StzMidToEnd(_c_, _nHdrEnd_ + 4) ]
 
 	def _HttpStatusCode(pcRaw)
-		_nEol_ = StzFindFirst("" + pcRaw, char(13))
+		_nEol_ = StzFindFirst(char(13), "" + pcRaw)
 		_cLine_ = "" + pcRaw
 		if _nEol_ > 0  _cLine_ = StzLeft("" + pcRaw, _nEol_ - 1)  ok
 		_a_ = StzSplit(_cLine_, " ")   # [ "HTTP/1.1", "200", "OK" ]

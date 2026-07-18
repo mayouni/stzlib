@@ -91,7 +91,7 @@ Scenario("retirement is EARNED -- the R4b decommission gate")
 	Then("the bot keeps running (still supervised, active)",
 		$oHost.IsActive("kitchen-bot"), TRUE)
 	Then("the why names pending obligations",
-		StzFindFirst($oHost.Why(), "pending") > 0, TRUE)
+		StzFindFirst("pending", $oHost.Why()) > 0, TRUE)
 
 	When("only one obligation is fulfilled")
 	$oHost.FulfillObligation("kitchen-bot", "handover-notes")

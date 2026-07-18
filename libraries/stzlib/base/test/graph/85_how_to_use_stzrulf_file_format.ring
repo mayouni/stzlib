@@ -198,9 +198,9 @@ oBaseline.ApplySimulation(cSimulation)
 
 	# The diff says ONLY what changed -- one node in, one edge out, two in.
 	# (An edge that never moved appears in neither list.)
-	? "  add node coo declared: " + (StzFindFirst(cSim, "add node coo") > 0)
+	? "  add node coo declared: " + (StzFindFirst("add node coo", cSim) > 0)
 	#--> add node coo declared: 1
-	? "  remove edge ceo -> cto declared: " + (StzFindFirst(cSim, "remove edge ceo -> cto") > 0)
+	? "  remove edge ceo -> cto declared: " + (StzFindFirst("remove edge ceo -> cto", cSim) > 0)
 	#--> remove edge ceo -> cto declared: 1
 
 	# And it round-trips: replay it onto the original and you get the variation.

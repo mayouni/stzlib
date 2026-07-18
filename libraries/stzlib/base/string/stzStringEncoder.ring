@@ -313,7 +313,7 @@ class stzStringEncoder from stzObject
 
 		for _i_ = 1 to _nLen_
 			_c_ = _acChars_[_i_]
-			if StzFindFirst(_cSpecial_, _c_) > 0
+			if StzFindFirst(_c_, _cSpecial_) > 0
 				_cResult_ += "\" + _c_
 			else
 				_cResult_ += _c_
