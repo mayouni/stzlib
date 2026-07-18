@@ -95,7 +95,53 @@ Class stzTable from stzList
 			StzRaise("Incorrect param format! paTable must be a list.")
 		ok
 
-		_oParam_ = Q(paTable)
+		# Structural probes computed DIRECTLY on paTable, in ONE pass.
+		# This used to be `_oParam_ = Q(paTable)` followed by
+		# _oParam_.ItemsAreListsOfSameSize() / IsHashList() / IsNotHashList().
+		# Q() copies every cell, and ItemsAreListsOfSameSize() is engine-backed
+		# (_EngineListFromContent MARSHALS the whole content to the engine) --
+		# and it was called TWICE. So every `new stzTable(...)` paid
+		# O(rows x cols) copying + up to two full marshals to answer questions
+		# that are O(items): 0.75s of a 0.84s Copy() on a 50k-row table, on the
+		# path of EVERY table construction.
+		#   _bSameSize_ -- every item is a list, all of the same size
+		#   _bHashList_ -- every item is [ stringKey, value ], keys unique
+		_nItemsIn_ = len(paTable)
+		_bSameSize_ = TRUE
+		_bHashList_ = TRUE
+		_nFirstSizeIn_ = -1
+		_acKeysIn_ = []
+
+		for _iIn_ = 1 to _nItemsIn_
+			_pIn_ = paTable[_iIn_]
+
+			if isList(_pIn_)
+				if _nFirstSizeIn_ = -1
+					_nFirstSizeIn_ = len(_pIn_)
+				but len(_pIn_) != _nFirstSizeIn_
+					_bSameSize_ = FALSE
+				ok
+			else
+				_bSameSize_ = FALSE
+			ok
+
+			if _bHashList_
+				if NOT ( isList(_pIn_) and len(_pIn_) = 2 and isString(_pIn_[1]) )
+					_bHashList_ = FALSE
+				else
+					_nKeysIn_ = len(_acKeysIn_)
+					for _jIn_ = 1 to _nKeysIn_
+						if _acKeysIn_[_jIn_] = _pIn_[1]
+							_bHashList_ = FALSE
+							exit
+						ok
+					next
+					if _bHashList_
+						_acKeysIn_ + _pIn_[1]
+					ok
+				ok
+			ok
+		next
 
 		if len(paTable) = 0 or @IsPairOfNumbers(paTable)
 
@@ -126,8 +172,7 @@ Class stzTable from stzList
 
 			return
 
-		but _oParam_.ItemsAreListsOfSameSize() and
-		    @IsListOfStrings(paTable[1])
+		but _bSameSize_ and @IsListOfStrings(paTable[1])
 
 		# ~> (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
@@ -166,8 +211,7 @@ Class stzTable from stzList
 
 			return
 
-		but _oParam_.ItemsAreListsOfSameSize() and
-		    _oParam_.IsNotHashList()
+		but _bSameSize_ and NOT _bHashList_
 
 		# ~> Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
@@ -192,11 +236,22 @@ Class stzTable from stzList
 			next
 
 
-			insert(paTable, 0, _acColNames_)
-			This.Init(paTable)
+			# Prepend the generated header by CONSTRUCTION. The original used
+			# bare `insert(paTable, 0, ...)`, but inside a class `insert`
+			# resolves to the inherited Insert METHOD and dies with R20 ("extra
+			# number of parameters") -- which broke the whole rows-without-header
+			# form, `new stzTable([ [1,"Ali"], [2,"Han"] ])`. (ring_insert is no
+			# use here either: it rejects position 0.)
+			_aWithHeader_ = [ _acColNames_ ]
+			_nRowsIn_ = len(paTable)
+			for _iRowIn_ = 1 to _nRowsIn_
+				_aWithHeader_ + paTable[_iRowIn_]
+			next
+
+			This.Init(_aWithHeader_)
 			return
 
-		but _oParam_.IsHashList()
+		but _bHashList_
 		# ~> The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
 		# ~> the most performant way!
