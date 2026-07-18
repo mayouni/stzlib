@@ -5126,8 +5126,42 @@ class stzList from stzObject
 	# edge identity is value-equality).
 
 	def DifferenceWithXT(paOther)
+		# :added and :removed are the two asymmetric differences, which the
+		# engine computes with a HASH SET in O(n+m) -- and it keeps duplicates
+		# (it walks every item of a, not the distinct values), which is the
+		# documented contract here: DifferenceWith([:a,:c]) on [a,b,b,c,b] is
+		# [ "b", "b", "b" ], test 636.
+		#
+		# The Ring loops below called ring_find -- a LINEAR scan of the other
+		# list -- once per item, so this was O(n x m): 100k against 50k took
+		# 17.64s, and doubling the input quadrupled it.
+
 		_aDwAdded_ = []
 		_aDwRemoved_ = []
+
+		_pDwA_ = This._EngineListFromContent()
+		_pDwB_ = StzEngineMarshalList(paOther)
+
+		if _pDwA_ != NULL and _pDwB_ != NULL
+			_pDwAdd_ = StzEngineListDifferenceCS(_pDwA_, _pDwB_, 1)
+			_pDwRem_ = StzEngineListDifferenceCS(_pDwB_, _pDwA_, 1)
+
+			_aDwAdded_ = StzEngineListContentToRingList(_pDwAdd_)
+			_aDwRemoved_ = StzEngineListContentToRingList(_pDwRem_)
+
+			StzEngineListFree(_pDwAdd_)
+			StzEngineListFree(_pDwRem_)
+			StzEngineListFree(_pDwA_)
+			StzEngineListFree(_pDwB_)
+
+			return [
+				:added = _aDwAdded_,
+				:removed = _aDwRemoved_,
+				:modified = []
+			]
+		ok
+
+		# Fallback for content the engine cannot marshal -- same semantics.
 		_nDwLen_ = len(@aContent)
 		for _iDw_ = 1 to _nDwLen_
 			if ring_find(paOther, @aContent[_iDw_]) = 0
