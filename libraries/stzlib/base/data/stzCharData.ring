@@ -1550,7 +1550,7 @@ _cMarquerChar = "#"
 		return _acResult_
 
 	func CommonLanguagesInScripts(pacScripts)
-		if NOT ( isList(pacScripts) and Q(pacScripts).IsListOfStrings() )
+		if NOT ( isList(pacScripts) and @IsListOfStrings(pacScripts) )
 			StzRaise("Incorrect param type! pacScripts must be a list of strings.")
 		ok
 
@@ -1568,7 +1568,7 @@ _cMarquerChar = "#"
 		return StzLanguageQ(pcLang).Scripts()
 
 	func CommonScriptsForLanguages(pacLangs)
-		if NOT ( isList(pacLangs) and Q(pacLangs).IsListOfStrings() )
+		if NOT ( isList(pacLangs) and @IsListOfStrings(pacLangs) )
 			StzRaise("Incorrect param type! pacLangs must be a list of strings.")
 		ok
 

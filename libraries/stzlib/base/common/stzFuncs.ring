@@ -5164,8 +5164,8 @@ func StzTodoXT(pcCurrentOrFuture)
 func StzAreBothListsOfNumbers(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
-	   Q(aList1).IsListOfNumbers() and
-	   Q(aList2).IsListOfNumbers()
+	   @IsListOfNumbers(aList1) and
+	   @IsListOfNumbers(aList2)
 
 		return 1
 
@@ -5179,8 +5179,8 @@ func StzAreBothListsOfNumbers(aList1, aList2)
 func StzAreBothListsOfStrings(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
-	   Q(aList1).IsListOfStrings() and
-	   Q(aList2).IsListOfStrings()
+	   @IsListOfStrings(aList1) and
+	   @IsListOfStrings(aList2)
 
 		return 1
 
@@ -5194,8 +5194,8 @@ func StzAreBothListsOfStrings(aList1, aList2)
 func StzAreBothListsOfLists(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
-	   Q(aList1).IsListOfLists() and
-	   Q(aList2).IsListOfLists()
+	   @IsListOfLists(aList1) and
+	   @IsListOfLists(aList2)
 
 		return 1
 
@@ -5209,8 +5209,8 @@ func StzAreBothListsOfLists(aList1, aList2)
 func StzAreBothListsOfPairs(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
-	   Q(aList1).IsListOfPairs() and
-	   Q(aList2).IsListOfPairs()
+	   @IsListOfPairs(aList1) and
+	   @IsListOfPairs(aList2)
 
 		return 1
 
@@ -5725,7 +5725,7 @@ class stzForEachObjectOld from stzObject
 			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
 		ok
 	
-		if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+		if NOT ( isString(p) or ( isList(p) and @IsListOfStrings(p) ) )
 			StzRaise("Incorrect param type! p must be a string or a list of strings.")
 		ok
 	
@@ -5849,7 +5849,7 @@ class stzForEachObject from stzObject
 			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
 		ok
 	
-		if NOT ( isString(p) or ( isList(p) and Q(p).IsListOfStrings() ) )
+		if NOT ( isString(p) or ( isList(p) and @IsListOfStrings(p) ) )
 			StzRaise("Incorrect param type! p must be a string or a list of strings.")
 		ok
 	
@@ -6043,7 +6043,7 @@ class stzForEachObject from stzObject
 		if isNumber(_n_)
 			_anPos_ + _n_
 
-		but isList(_n_) and Q(_n_).IsListOfNumbers()
+		but isList(_n_) and @IsListOfNumbers(_n_)
 			_anPos_ = _n_
 		ok
 

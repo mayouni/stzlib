@@ -72,7 +72,7 @@ func Association(paLists)
 
 	if CheckingParams()
 	
-		if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paLists must be a list of lists.")
 		ok
 
@@ -389,7 +389,7 @@ class stzListOfLists from stzList
 	# Add each of the given lists at the end (mutating).
 	def AddMany(paListOfLists)
 		if CheckingParams()
-			if NOT ( isList(paListOfLists) and Q(paListOfLists).IsListOfLists() )
+			if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
 				StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
 			ok
 		ok

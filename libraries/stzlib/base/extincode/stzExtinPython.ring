@@ -10,7 +10,7 @@ func range0(p)
 			_aResult_ = 0 : (p - 1)
 		ok
 	but isList(p)
-		if Q(p).IsListOfNumbers()
+		if @IsListOfNumbers(p)
 			# range(n1, n2): n1 <= x < n2
 			#--> n1 included, but n2 not included!
 			if len(p) = 2
@@ -83,7 +83,7 @@ func range1(p)
 		# Example: range1(3) #--> [ 1, 2, 3 ]
 		_aResult_ = 1 : p
 	but isList(p)
-		if Q(p).IsListOfNumbers()
+		if @IsListOfNumbers(p)
 			if len(p) = 3
 				_aResult_ = []
 				for i = p[1] to p[2] step p[3]

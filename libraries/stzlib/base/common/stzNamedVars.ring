@@ -138,10 +138,10 @@ func StzV(p)
 		_aTemp_ + p
 		StzSetV(_aTemp_)
 
-	but isList(p) and Q(p).IsHashList()
+	but isList(p) and @IsHashList(p)
 		StzSetV(p)
 
-	but isList(p) and Q(p).IsListOfStrings()
+	but isList(p) and @IsListOfStrings(p)
 		return StzReadManyV(p)
 
 	else
@@ -212,7 +212,7 @@ func StzSetV(paVarNamesAndTheirValues)
 		paVarNamesAndTheirValues = _aTemp_
 	ok
 
-	if NOT ( isList(paVarNamesAndTheirValues) and Q(paVarNamesAndTheirValues).IsHashList() )
+	if NOT ( isList(paVarNamesAndTheirValues) and @IsHashList(paVarNamesAndTheirValues) )
 		StzRaise("Incorrect param type! paVarNamesAndTheirValues must be a hashlist.")
 	ok
 

@@ -197,7 +197,7 @@ func Sum(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -229,7 +229,7 @@ func Substruct(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -264,7 +264,7 @@ func Product(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -320,7 +320,7 @@ func Divide(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -365,7 +365,7 @@ func SumXT(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -429,7 +429,7 @@ func SubstructXT(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -502,7 +502,7 @@ func ProductXT(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -619,7 +619,7 @@ func DivideXT(panNumbers)
 			panNumbers = panNumbers[2]
 		ok
 
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+		if NOT (isList(panNumbers) and @IsListOfNumbers(panNumbers))
 			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 		ok
 	ok
@@ -3597,7 +3597,7 @@ class stzListOfNumbers from stzList
 				panOtherList = panOtherList[2]
 			ok
 	
-			if NOT Q(panOtherList).IsListOfNumbers()
+			if NOT @IsListOfNumbers(panOtherList)
 				StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
 			ok
 		ok
@@ -3662,7 +3662,7 @@ class stzListOfNumbers from stzList
 				panOtherList = panOtherList[2]
 			ok
 	
-			if NOT Q(panOtherList).IsListOfNumbers()
+			if NOT @IsListOfNumbers(panOtherList)
 				StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
 			ok
 		ok
@@ -4326,7 +4326,7 @@ class stzListOfNumbers from stzList
 
 	def AddManyOneByOne(panNumbers)
 
-		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and @IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -4383,7 +4383,7 @@ class stzListOfNumbers from stzList
 
 	def SubStructManyOneByOne(panNumbers)
 
-		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and @IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -4441,7 +4441,7 @@ class stzListOfNumbers from stzList
 
 	def MultiplyWithManyOneByOne(panNumbers)
 
-		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and @IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -4520,7 +4520,7 @@ class stzListOfNumbers from stzList
 
 	def DivideByManyOneByOne(panNumbers)
 
-		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and @IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
@@ -4787,7 +4787,7 @@ class stzListOfNumbers from stzList
 			ok
 	
 			if NOT ( isList(panNewListOfNumbers) and
-				 Q(panNewListOfNumbers).IsListOfNumbers()
+				 @IsListOfNumbers(panNewListOfNumbers)
 			       )
 	
 				StzRaise("Incorrect param type!")
@@ -7634,7 +7634,7 @@ class stzListOfNumbers from stzList
 	#-----------------------------------------------------#
 
 	def NumbersOtherThanMany(_anNumbers_)
-		if NOT (isList(_anNumbers_) and Q(_anNumbers_).IsListOfNumbers())
+		if NOT (isList(_anNumbers_) and @IsListOfNumbers(_anNumbers_))
 			StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
 		ok
 
@@ -7681,7 +7681,7 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def NumbersOtherThanManyZ(_anNumbers_)
-		if NOT (isList(_anNumbers_) and Q(_anNumbers_).IsListOfNumbers())
+		if NOT (isList(_anNumbers_) and @IsListOfNumbers(_anNumbers_))
 			StzRaise("Incorrect param type! anNumbers must be a list of numbers.")
 		ok
 

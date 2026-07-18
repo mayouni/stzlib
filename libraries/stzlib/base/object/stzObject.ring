@@ -5094,7 +5094,7 @@ class stzObject
 			_nOther_ = _oStr_.FindFirstCS( pcBeforeOrAfter, _bCaseSensitive_ )
 
 		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
+			if @IsListOfStrings(pIn)
 				_oListStr_ = new stzListOfStrings(pIn)
 
 				_nThis_  = _oListStr_.FindFirstCS( This.Content(), _bCaseSensitive_ )
@@ -5239,7 +5239,7 @@ class stzObject
 			_nOccurrence_  = _oStr_.NumberOfOccurrenceCS( This.Content(), _bCaseSensitive_ )
 
 		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
+			if @IsListOfStrings(pIn)
 				_oListStr_ = new stzListOfStrings(pIn)
 				_nOccurrence_  = _oListStr_.NumberOfOccurrenceCS( This.Content(), _bCaseSensitive_ )
 
@@ -5314,7 +5314,7 @@ class stzObject
 			_nNthOccurrence_ = _oStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
 	
 		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
+			if @IsListOfStrings(pIn)
 				_oListStr_ = new stzListOfStrings(pIn)
 				_nNthOccurrence_  = _oListStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
 

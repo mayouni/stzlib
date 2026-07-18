@@ -239,7 +239,7 @@ class stzItemCS from stzObject
 	#--
 
 	def OccurrencesCSXT(anOccurrences, pCaseSensitive)
-		if NOT (isList(anOccurrences) and Q(anOccurrences).IsListOfNumbers())
+		if NOT (isList(anOccurrences) and @IsListOfNumbers(anOccurrences))
 			StzRaise("Incorrect param type! anOccurrences must be a list of numbers.")
 		ok
 

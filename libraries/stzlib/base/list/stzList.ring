@@ -2745,27 +2745,12 @@ class stzList from stzObject
 
 	# TRUE if every item is a [key, value] pair (a hash list).
 	def IsHashList()
-		_bResult_ = 1
-		_aTempKeys_ = []
-		_nLen_ = len(@aContent)
-		for _i_ = 1 to _nLen_
-			if NOT ( isList(@aContent[_i_]) and len(@aContent[_i_]) = 2 and
-				 isString(@aContent[_i_][1]) )
-				_bResult_ = 0
-				exit
-			else
-				_cKey_ = @aContent[_i_][1]
-				_nKeyLen_ = len(_aTempKeys_)
-				for _j_ = 1 to _nKeyLen_
-					if _aTempKeys_[_j_] = _cKey_
-						_bResult_ = 0
-						exit 2
-					ok
-				next
-				_aTempKeys_ + _cKey_
-			ok
-		next
-		return _bResult_
+		# One implementation, in the global (stzHashList.ring): same shape
+		# check, but the key-uniqueness scan goes to the engine once the
+		# list is big enough that the pairwise Ring scan would cliff.
+		# @aContent passes by reference, so this costs no copy.
+
+		return @IsHashList(@aContent)
 
 		def IsAHashList()
 			return This.IsHashList()

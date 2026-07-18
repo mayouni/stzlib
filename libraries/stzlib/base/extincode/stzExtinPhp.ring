@@ -11,7 +11,7 @@ func range0(p)
 			_aResult_ = 0 : (p - 1)
 		ok
 	but isList(p)
-		if Q(p).IsListOfNumbers()
+		if @IsListOfNumbers(p)
 			if len(p) = 2
 				if p[1] < p[2]
 					_aResult_ = p[1] : (p[2]-1)
