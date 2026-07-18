@@ -1450,21 +1450,39 @@ pub fn stz_list_frequencies_cs(list_arg: ?*const StzList, case_sensitive: i32) c
     }
 
     const max_groups = n;
-    const seen_keys = allocator.alloc([]const u8, max_groups) catch { result.deinit(); return null; };
-    defer allocator.free(seen_keys);
     const counts = allocator.alloc(usize, max_groups) catch { result.deinit(); return null; };
     defer allocator.free(counts);
     const first_indices = allocator.alloc(usize, max_groups) catch { result.deinit(); return null; };
     defer allocator.free(first_indices);
 
+    // O(n) grouping through a hash map.
+    //
+    // This used to call findInSeen -- a LINEAR scan over every group
+    // discovered so far, for EVERY item -- making the whole function
+    // O(n x distinct). Holding n at 50000 and doubling the distinct count
+    // roughly tripled the time: 1000 -> 1.52s, 8000 -> 39.82s, while
+    // Classify(), which computes strictly MORE (every position, not just a
+    // count), stayed flat at 0.22s on identical input because it already
+    // grouped through a map.
+    //
+    // The keys are the already case-normalised key_bufs slices, which live
+    // until this function returns, so the map can borrow them without
+    // copying. Byte equality is the right comparison precisely because the
+    // case folding happened above -- same reason the old call passed
+    // case_sensitive=true.
+    var group_of = std.StringHashMap(usize).init(allocator);
+    defer group_of.deinit();
+
     var num_groups: usize = 0;
 
     for (0..n) |i| {
         const key = key_bufs[i][0..key_lens[i]];
-        if (findInSeen(seen_keys[0..num_groups], key, true)) |gi| {
-            counts[gi] += 1;
+        const gop = group_of.getOrPut(key) catch { result.deinit(); return null; };
+
+        if (gop.found_existing) {
+            counts[gop.value_ptr.*] += 1;
         } else {
-            seen_keys[num_groups] = key;
+            gop.value_ptr.* = num_groups;
             counts[num_groups] = 1;
             first_indices[num_groups] = i;
             num_groups += 1;

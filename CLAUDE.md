@@ -154,6 +154,19 @@ git push origin main; git push codeberg main
 Codeberg auth expires periodically; if it fails, push GitHub and
 flag the codeberg push as pending. Don't block on it.
 
+**Verify, don't trust the push output.** `git push codeberg main` can
+report `Everything up-to-date` while codeberg is still several commits
+behind -- the local remote-tracking ref goes stale after a failed
+fetch, and git answers from it without contacting the server. Confirm
+with the server itself:
+```bash
+git ls-remote codeberg main   # must equal `git rev-parse main`
+```
+If it lags, push an explicit refspec, which forces the negotiation:
+```bash
+git push codeberg HEAD:refs/heads/main
+```
+
 ## Sensitive test patterns
 
 - Tests that load `../../stzBase.ring` must be run from inside

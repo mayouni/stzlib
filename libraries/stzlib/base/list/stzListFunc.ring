@@ -315,8 +315,24 @@
 	# a class calls This.Add() instead of the builtin.
 
 func @AddItem(paList, pItem)
-	add(paList, pItem)
-	return paList
+	# Appends IN PLACE via `+`, and returns nothing. Both details matter.
+	#
+	# Ring's add() BUILTIN is O(n) per call -- appending 8000 items with it
+	# took 9.27s against 0.03s for `+`, which appends in amortised O(1). The
+	# two are otherwise identical: a list item goes in as ONE element either
+	# way, and `+` mutates through the by-reference parameter just as add()
+	# does (paList costs nothing to pass -- 1000 calls with a 100k-element
+	# list measured 0s).
+	#
+	# `return paList` was the second half of the problem: it made Ring build
+	# a copy of the whole list on every call, though not one of the ~229
+	# callsites in the library uses the returned value.
+	#
+	# Together those two made every @AddItem loop QUADRATIC -- 31.37s for
+	# 8000 appends, versus 0.04s now. Do NOT reintroduce either. If a caller
+	# ever needs the list back, it already has it: it passed it in.
+
+	paList + pItem
 
 func ListLowercased(paList)
 	_aResult_ = []
