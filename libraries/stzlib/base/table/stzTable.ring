@@ -14513,27 +14513,24 @@ func _NormalizeColLookupKey(pVal)
 		# floor). The formula compiles ONCE and evaluates natively per row. (The
 		# classic path below re-ran the Ring compiler with eval() on EACH row --
 		# ~11us/row, seconds of pure compile overhead at scale.)
-		# Detect referenced columns and lower them in ONE pass, VIA the replace
-		# itself. We can't use StzFind here: it returns 0 for a needle that
-		# contains @(:...) (the engine find mishandles those chars), and
-		# case-insensitive find is broken for multi-char needles -- so a
-		# find-based check silently misses every reference, leaves the formula
-		# unlowered, and drops to the slow eval-per-row fallback. Instead, try
-		# ReplaceCS (case-insensitive: names are stored lower-cased, formulas may
-		# write @(:A)); if the content changed, the column was referenced, and it
-		# gets the NEXT This[j] position (j = its rank among referenced columns).
+		# First find WHICH columns the formula references, then lower each to
+		# This[j] where j is its rank among those referenced. Matching is
+		# case-INsensitive: column names are stored lower-cased while a formula
+		# may write @(:A). The @(:name) delimiters make the token exact, so a
+		# column whose name is a prefix of another cannot match by accident.
 		_oEngFormula_ = new stzString(pcFormula)
 		_aRefCols_ = []
 		for i = 1 to _nCols_
-			_cTok_ = '@(:' + This.ColName(i) + ')'
-			_cBefore_ = _oEngFormula_.Content()
-			_nNext_ = len(_aRefCols_) + 1
-			_oEngFormula_.ReplaceCS(_cTok_, 'This[' + _nNext_ + ']', 0)
-			if _oEngFormula_.Content() != _cBefore_
+			if StzFindFirstCS( '@(:' + This.ColName(i) + ')', pcFormula, FALSE ) > 0
 				_aRefCols_ + i
 			ok
 		next
 		_nRefLen_ = len(_aRefCols_)
+
+		for j = 1 to _nRefLen_
+			_oEngFormula_.ReplaceCS( '@(:' + This.ColName(_aRefCols_[j]) + ')',
+						 'This[' + j + ']', 0 )
+		next
 
 		# One pass: gather the referenced columns' data (the dense input) and
 		# confirm each is numeric. The engine evaluates arithmetically, so a
