@@ -58,7 +58,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 		if NOT StzFindFirst(pcTableName, TempVars()) > 0
 			StzRaise("Undefined named variable!")
 		ok
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 	ok
@@ -81,7 +81,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 
 func VALUES(paValues)
 	if CheckingParams()
-		if NOT ( isList(paValues) and Q(paValues).IsListOfLists() )
+		if NOT ( isList(paValues) and @IsListOfLists(paValues) )
 			StzRaise("Incorrect param type! paValues must be a list of lists.")
 		ok
 	ok
@@ -120,7 +120,7 @@ func VALUES(paValues)
 func SELECT(pacColNames)
 	if CheckingParams()
 		if NOT ( isString(pacColNames) or
-			( isList(pacColNames) and Q(pacColNames).IsListOfStrings() ) )
+			( isList(pacColNames) and @IsListOfStrings(pacColNames) ) )
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 	ok

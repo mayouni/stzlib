@@ -2,7 +2,7 @@
 int = new IntObject
 
 func $(str)
-	if isList(str) and ( Q(str).IsPair() or Q(str).IsHashList() )
+	if isList(str) and ( Q(str).IsPair() or @IsHashList(str) )
 		VrVl(str)
 	but isString(str) and Q(str).ContainsSubStringsBoundedBy([ "{", "}" ])
 		return Interpolate(str)

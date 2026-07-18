@@ -21,7 +21,7 @@ class stzTurboList
 
 			nLen2 = len(paList[2])
 			for i = 1 to nLen2
-				if NOT (isList(paList[2][i]) and Q(paList[2][i]).IsListOfNumbers())
+				if NOT (isList(paList[2][i]) and @IsListOfNumbers(paList[2][i]))
 					StzRaise("Incorrect format! The second list must be a list of litts of numbers.")
 				ok
 			next

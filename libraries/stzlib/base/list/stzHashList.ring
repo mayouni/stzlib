@@ -15,7 +15,7 @@ func StzHashListQ(paList)
 
 func StzNamedHashList(paNamed)
 	if CheckingParams()
-		if NOT (isList(paNamed) and Q(paNamed).IsPair() and isString(paNamed[1]) and Q(paNamed[2]).IsHashList())
+		if NOT (isList(paNamed) and Q(paNamed).IsPair() and isString(paNamed[1]) and @IsHashList(paNamed[2]))
 			StzRaise("Incorrect param type! paNamed must be a pair of string and list of type stzHashList.")
 		ok
 	ok
@@ -35,8 +35,54 @@ func IsHashList(paList)
 		return FALSE
 	ok
 
-	_oTempList_ = new stzList(paList)
-	return _oTempList_.IsHashList()
+	# Shape check and key collection in ONE direct pass -- no stzList clone.
+	# This is a validation predicate: it runs on every hashlist-shaped param
+	# in the library, so it must not copy the payload it is only inspecting.
+
+	_nLen_ = len(paList)
+	_aKeys_ = []
+
+	for _i_ = 1 to _nLen_
+		_item_ = paList[_i_]
+
+		if NOT ( isList(_item_) and len(_item_) = 2 and isString(_item_[1]) )
+			return 0
+		ok
+
+		_aKeys_ + _item_[1]
+	next
+
+	if _nLen_ < 2
+		return 1
+	ok
+
+	# Keys must be distinct. The pairwise Ring scan is O(n^2) and cliffs
+	# past a few hundred keys; the engine hashes in O(n) but costs a
+	# marshal, so each side is used where it actually wins.
+
+	if _nLen_ <= 256
+		for _i_ = 2 to _nLen_
+			_cKey_ = _aKeys_[_i_]
+
+			for _j_ = 1 to _i_ - 1
+				if _aKeys_[_j_] = _cKey_
+					return 0
+				ok
+			next
+		next
+
+		return 1
+	ok
+
+	_pEngKeys_ = StzEngineMarshalList(_aKeys_)
+	_nAllUnique_ = StzEngineListAllUniqueCS(_pEngKeys_, 1)
+	StzEngineListFree(_pEngKeys_)
+
+	if _nAllUnique_ = 1
+		return 1
+	ok
+
+	return 0
 
 	#< @FunctionAlternativeForms
 
@@ -312,7 +358,7 @@ func IsHashListOfObjects(paList)
 	return TRUE
 
 func ShowHL(pValue)
-	if NOT (isList(pValue) and Q(pValue).IsHashList())
+	if NOT (isList(pValue) and @IsHashList(pValue))
 		stzRaise("Incorrect param type! pValue must be a hashlist.")
 	ok
 
@@ -2235,7 +2281,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindTheseLists(paLists)
 		if CheckingParams()
-			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+			if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 				StzRaise("Incorrect param type! paLists must be a list of lists.")
 			ok
 		ok
@@ -2259,7 +2305,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def TheseListsZ(paLists)
 		if CheckingParams()
-			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+			if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 				StzRaise("Incorrect param type! paLists must be a list of lists.")
 			ok
 		ok
@@ -3614,7 +3660,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def TheseClassesSizes(pacClasses)
 		if CheckingParams()
-			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
 				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
 			ok
 		ok
@@ -3658,7 +3704,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def TheseClassesSizesXT(pacClasses)
 		if CheckingParams()
-			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
 				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
 			ok
 		ok
@@ -3872,7 +3918,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def TheseClassesFrequencies(pacClasses)
 		if CheckingParams()
-			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
 				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
 			ok
 		ok
@@ -3908,7 +3954,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def TheseClassesFrequenciesXT(pacClasses)
 		if CheckingParams()
-			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
+			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
 				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
 			ok
 		ok

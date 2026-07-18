@@ -220,7 +220,7 @@ class stzStringCharList from stzObject
 
 			@acChars = _SplitNullDelimited(_cJoined_)
 
-		but isList(pValue) and Q(pValue).IsListOfNumbers()
+		but isList(pValue) and @IsListOfNumbers(pValue)
 			# List of unicode codepoints
 			_nLen_ = len(pValue)
 			for i = 1 to _nLen_

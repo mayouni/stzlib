@@ -3006,7 +3006,7 @@ func _NormalizeColLookupKey(pVal)
 	#----------------------------------#
 
 	def CellsInRows(panRows)
-		if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+		if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 			StzRaise("Incorrect param type! panRows must be a list of numbers.")
 		ok
 
@@ -3434,7 +3434,7 @@ func _NormalizeColLookupKey(pVal)
 			ok
 
 			# Validate DIRECTLY on paNewTable. This used to read
-			#     Q(paNewTable).IsHashList() and
+			#     @IsHashList(paNewTable) and
 			#     StzHashListQ(paNewTable).ValuesAreListsOfSameSize()
 			# -- and each Q()/StzHashListQ() wrap COPIES every cell just to run
 			# an O(cols) check, so validation cost O(rows x cols) on EVERY
@@ -3568,7 +3568,7 @@ func _NormalizeColLookupKey(pVal)
 
 	def RenameCols(paColsAndTheirNewNames)
 
-		if NOT (isList(paColsAndTheirNewNames) and Q(paColsAndTheirNewNames).IsHashList())
+		if NOT (isList(paColsAndTheirNewNames) and @IsHashList(paColsAndTheirNewNames))
 			StzRaise("Incorrect param type! paColsAndTheirNewNames must be a hashlist.")
 		ok
 
@@ -3593,7 +3593,7 @@ func _NormalizeColLookupKey(pVal)
 			This.RenameNthCol(_n_, pcNewName)
 
 	def RemnameNthCols(panColsNumbers)
-		if NOT (isList(paColsNumbers) and Q(paColsNumbers).IsListOfNumbers() )
+		if NOT (isList(paColsNumbers) and @IsListOfNumbers(paColsNumbers) )
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
 		ok
 
@@ -3794,7 +3794,7 @@ func _NormalizeColLookupKey(pVal)
 	def RemoveNthRows(panRows)
 
 		if CheckingParams()
-			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+			if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
 		ok
@@ -3841,7 +3841,7 @@ func _NormalizeColLookupKey(pVal)
 
 	def RemoveAllRowsExceptAt(panRows)
 		if CheckingParams()
-			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+			if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
 		ok
@@ -3955,7 +3955,7 @@ func _NormalizeColLookupKey(pVal)
 		This.EraseCells(_aCellsPos_)
 
 	def EraseRows(panRows)
-		if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+		if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 			StzRaise("Incorrect param type! panRows must be a list of numbers!")
 		ok
 
@@ -4296,8 +4296,8 @@ func _NormalizeColLookupKey(pVal)
 
 	def TheseColumns(pacColNamesOrNumbers)
 		if NOT 	( isList(pacColNamesOrNumbers) and
-			  ( Q(pacColNamesOrNumbers).IsListOfNumbers() or
-			  Q(pacColNamesOrNumbers).IsListOfStrings() ) )
+			  ( @IsListOfNumbers(pacColNamesOrNumbers) or
+			  @IsListOfStrings(pacColNamesOrNumbers) ) )
 
 			StzRaise("Incorrect param type! pacColNamesOrNumbers must be a list of numbers or a list of strings.")
 		ok
@@ -4486,7 +4486,7 @@ func _NormalizeColLookupKey(pVal)
 	#-------------------------------------------------------------------------#
 
 	def TheseColNames(panColNumbers)
-		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
+		if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
 
@@ -4552,7 +4552,7 @@ func _NormalizeColLookupKey(pVal)
 	#------------------------------------------------------------------#
 
 	def cColNamesToNumbers(pacColNames)
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
@@ -4584,7 +4584,7 @@ func _NormalizeColLookupKey(pVal)
 	#=============================================================#
 
 	def SubTable(pacColNames)
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 
@@ -4643,7 +4643,7 @@ func _NormalizeColLookupKey(pVal)
 	#========================================================#
 
 	def TheseRows(panRowsNumbers)
-		if NOT 	( isList(panRowsNumbers) and Q(panRowsNumbers).IsListOfNumbers() )
+		if NOT 	( isList(panRowsNumbers) and @IsListOfNumbers(panRowsNumbers) )
 
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
@@ -4708,7 +4708,7 @@ func _NormalizeColLookupKey(pVal)
 	#----------------------------------------------------------------------------#
 
 	def TheseRowsZ(panRowsNumbers)
-		if NOT (isList(panRowsNumbers) and Q(panRowsNumbers).IsListOfNumbers())
+		if NOT (isList(panRowsNumbers) and @IsListOfNumbers(panRowsNumbers))
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
@@ -5067,7 +5067,7 @@ func _NormalizeColLookupKey(pVal)
 		#>
 
 	def AreColNames(pacColNames)
-		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
@@ -5097,7 +5097,7 @@ func _NormalizeColLookupKey(pVal)
 
 		if CheckingParams()
 
-			if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
+			if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 			ok
 
@@ -5198,7 +5198,7 @@ func _NormalizeColLookupKey(pVal)
 
 		if CheckingParams()
 
-			if NOT ( isList(paManyColData) and Q(paManyColData).IsListOfLists() )
+			if NOT ( isList(paManyColData) and @IsListOfLists(paManyColData) )
 				StzRaise("Incorrect param type! paManyColData must be a list of lists.")
 			ok
 
@@ -6913,7 +6913,7 @@ func _NormalizeColLookupKey(pVal)
 	#================================================================================================#
 
 	def FindAllInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
-		if NOT ( isList(paCells) and Q(paCells).IsListOfPairs() )
+		if NOT ( isList(paCells) and @IsListOfPairs(paCells) )
 			StzRaise("Incorrect param type! paCells must be a list of pairs.")
 		ok
 
@@ -14274,8 +14274,8 @@ func _NormalizeColLookupKey(pVal)
 			return This.ColToColName(p)
 
 	def TheseColsToColNames(paCols)
-		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
-				Q(paCols).IsListOfStrings() or
+		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
+				@IsListOfStrings(paCols) or
 				Q(paCols).IsListOfNumbersAndStrings() ) )
 
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
@@ -14365,8 +14365,8 @@ func _NormalizeColLookupKey(pVal)
 		#>
 
 	def TheseColsToColNumbers(paCols)
-		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
-				Q(paCols).IsListOfStrings() or
+		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
+				@IsListOfStrings(paCols) or
 				Q(paCols).IsListOfNumbersAndStrings() ) )
 
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
@@ -14455,7 +14455,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.RowToRowNumber(pRow)
 
 	def TheseRowsToRowsNumbers(paRows)
-		if NOT ( isList(paRows) and Q(paRows).IsListOfLists() )
+		if NOT ( isList(paRows) and @IsListOfLists(paRows) )
 			StzRaise("Incorrect param type! paRows must be a list of lists.")
 		ok
 
@@ -14519,7 +14519,7 @@ func _NormalizeColLookupKey(pVal)
 		_nLen_ = len(pacColNames)
 		_acColNames_ = []
 
-		if Q(pacColNames).IsListOfStrings()
+		if @IsListOfStrings(pacColNames)
 			for i = 1 to _nLen_
 				_acColNames_ + [ pacColNames[i], [ "" ] ]
 			next
@@ -14882,7 +14882,7 @@ func _NormalizeColLookupKey(pVal)
 
         # Validate input is a hash list
 
-        if NOT (isList(paColValues) and Q(paColValues).IsHashList())
+        if NOT (isList(paColValues) and @IsHashList(paColValues))
             StzRaise("Filter requires a hash list of filtering [ColName, ColValue] pairs.")
         ok
 
@@ -15219,7 +15219,7 @@ func _NormalizeColLookupKey(pVal)
 
 	def Aggregate(paAggregations)
 		# Validate input is a hash list
-		if NOT (isList(paAggregations) and Q(paAggregations).IsHashList())
+		if NOT (isList(paAggregations) and @IsHashList(paAggregations))
 			StzRaise("Aggregate requires a hash list of aggregation specifications")
 		ok
 

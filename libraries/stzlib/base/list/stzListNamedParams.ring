@@ -1162,7 +1162,7 @@ class stzListNamedParams from stzObject
 			],
 		
 			:OnStzList = [
-				:MustBeAHashList = '{ Q(@list).IsHashList() }'
+				:MustBeAHashList = '{ @IsHashList(@list) }'
 			]
 		]
 		*/

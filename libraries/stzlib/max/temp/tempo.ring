@@ -1277,10 +1277,10 @@ pf()
 
 pr()
 
-? Q([]).IsListOfLists()
+? @IsListOfLists([])
 #--> FALSE
 
-? Q([ 1:3, 4:7, 8:10 ]).IsListOfLists()
+? @IsListOfLists([ 1:3, 4:7, 8:10 ])
 #--> TRUE
 
 pf()

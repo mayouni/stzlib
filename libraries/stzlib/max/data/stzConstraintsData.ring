@@ -8,7 +8,7 @@
 	:OnStzList = [
 		/* ... */
 		:MustBeAHashList = '{
-			Q(@list).IsHashList()
+			@IsHashList(@list)
 		}', 
 
 		:MustHave@n@Items = '{

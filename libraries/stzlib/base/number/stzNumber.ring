@@ -4449,7 +4449,7 @@ class stzNumber from stzObject
 		ok
 
 		if isList(pOtherNumber) and
-			( Q(pOtherNumber).IsListOfNumbers() or
+			( @IsListOfNumbers(pOtherNumber) or
 			  Q(pOtherNumber).IsListOfNumbersInStrings() )
 
 			return This.LeastCommonMultipleOfManyNumbers(pOtherNumber)
