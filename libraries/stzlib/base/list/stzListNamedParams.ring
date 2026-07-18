@@ -1153,7 +1153,7 @@ class stzListNamedParams from stzObject
 		[
 			:OnStzString = [
 				:MustBeUppercase 	= '{ Q(@str).IsUppercase() }',
-				:MustNotExceed@n@Chars 	= '{ Q(@str).NumberOfChars() <= n }',
+				:MustNotExceed@n@Chars 	= '{ StzNumberOfChars(@str) <= n }',
 				:MustBeginWithLetter@c@	= '{ Q(@str).BeginsWithCS(c, 0) }'
 			],
 		

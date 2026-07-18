@@ -30,7 +30,7 @@
 		}',
 
 		:MustHave@n1@CharsIncluding@n2@Spaces = '{
-			Q(@str).NumberOfChars()  = n1 and
+			StzNumberOfChars(@str)  = n1 and
 			Q(@stz).NumberOfSpaces() = n2
 		}'
 	],

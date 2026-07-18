@@ -4952,11 +4952,11 @@ o1 = new stzListOfStrings([
 	"Av♥♥c♥♥"
 ])
 
-? o1.StringsW(' Q(@String).NumberOfChars() = 2 ')
+? o1.StringsW(' StzNumberOfChars(@String) = 2 ')
 #--> [ "Av", "♥♥", "c♥" ]
 
 ? o1.StringsW('
-	Q(@String).BeginsWith("A") and Q(@String).NumberOfChars() > 4
+	Q(@String).BeginsWith("A") and StzNumberOfChars(@String) > 4
 ')
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
 
@@ -5298,7 +5298,7 @@ pr()
 o1 = new stzString("Av♥♥c♥♥")
 
 ? @@NL( o1.SubStringsWXTZ('{
-	Q(@SubString).NumberOfChars() = 2	
+	StzNumberOfChars(@SubString) = 2	
 }') )
 #--> [
 #	[ "Av", [ 1 ] ],
@@ -5318,7 +5318,7 @@ pr()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? @@( o1.SubStringsWXTZZ('{
-	Q(@SubString).NumberOfChars() = 2 and NOT Q(@SubString).Contains("♥")
+	StzNumberOfChars(@SubString) = 2 and NOT Q(@SubString).Contains("♥")
 }') )
 
 #--> [ [ "Av", [ [ 1, 2 ] ] ] ]
@@ -6851,7 +6851,7 @@ pf()
 pr()
 
 o1 = new stzList([ "f", "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
-? o1.SortedBy(' Q(@item).NumberOfChars() ')
+? o1.SortedBy(' StzNumberOfChars(@item) ')
 #--> [ 
 #	a
 #	b
@@ -7195,7 +7195,7 @@ acSubStrings = o1.SubStrings()
 
 # If you want to sort them by the number of chars :
 
-? SortBy( acSubStrings, 'Q(@item).NumberOfChars()' ) # It's a Softanza function
+? SortBy( acSubStrings, 'StzNumberOfChars(@item)' ) # It's a Softanza function
 #--> [
 #	"a",
 #	"b",

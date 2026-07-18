@@ -89,7 +89,7 @@ profon()
 
 	? Q("⌘").CharName()		#--> PLACE OF INTEREST SIGN
 	? Q("⌘").ToHex()		#--> e28c98
-	? Q("⌘").NumberOfChars()	#--> 1
+	? StzNumberOfChars("⌘")	#--> 1
 	? Q("⌘").NumberOfBytes()	#--> 3
 	? Q("⌘").ToHexSpacified()	#--> e2 8c 98 
 
@@ -394,10 +394,10 @@ o1 = new stzListOfPairs([ [ "A1", 10 ], [ "A2", 20 ], [ "A3", 30 ], [ "A4", 40 ]
 /*==== YIELD FROM ALL ITEMS OF LIST =========== OK
 
 o1 = new stzList([ "SUN", "EARTH", "Venus", "saturn", "mercury", "Mars", "NEPTUNE", "Jupiter" ])
-? @@( o1.Yield('Q(@item).NumberOfChars()') )
+? @@( o1.Yield('StzNumberOfChars(@item)') )
 #--> [ 3, 5, 5, 6, 7, 4, 7, 7 ]
 
-? @@( o1.Yield('[ @item, Q(@item).NumberOfChars() ]') )
+? @@( o1.Yield('[ @item, StzNumberOfChars(@item) ]') )
 #--> [
 # 	[ "SUN", 3 ], [ "EARTH", 5 ], [ "Venus", 5 ],
 # 	[ "saturn", 6 ], [ "mercury", 7 ], [ "Mars", 4 ],
@@ -410,7 +410,7 @@ o1 = new stzListOfStrings([
 	"SUN", "EARTH", "Venus", "saturn",
 	"mercury", "Mars", "NEPTUNE", "Jupiter" ])
 
-? @@( o1.Yield('Q(@item).NumberOfChars()') )
+? @@( o1.Yield('StzNumberOfChars(@item)') )
 #--> [ 3, 5, 5, 6, 7, 4, 7, 7 ]
 
 #--

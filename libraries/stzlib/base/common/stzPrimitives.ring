@@ -171,6 +171,25 @@ func StzLen(_cStr_)
 	StzEngineStringFree(pH)
 	return _n_
 
+#-- Codepoint count, without constructing a stz object to ask for it.
+#
+#   Q(x).NumberOfChars() builds a whole stzString (a full copy of x) just
+#   to return a number the engine already knows -- ~30x the cost of asking
+#   directly. This is the same question, asked directly.
+#
+#   Strings take the engine fast path. Anything else defers to the object,
+#   because NumberOfChars() does NOT mean "codepoints" everywhere: on a
+#   list it counts the single-character ITEMS (len(Chars())), which is a
+#   different number from StzLen()'s item count. Deferring keeps every
+#   non-string caller exactly as it was.
+
+func StzNumberOfChars(p)
+	if isString(p)
+		return StzLen(p)
+	ok
+
+	return Q(p).NumberOfChars()
+
 #-- Split null-delimited engine output into Ring list
 #   Used to parse engine functions that return items separated by \0
 
