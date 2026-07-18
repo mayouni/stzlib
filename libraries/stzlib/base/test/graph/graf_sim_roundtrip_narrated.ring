@@ -100,10 +100,10 @@ chk("an edge that never moved is in NEITHER list", bUnchangedQuiet)
 ? "-- Scene 3: the changes, written down and replayed --"
 
 cSim = oVar.ExportToStzSim(oBase)
-chk("the simulation names the node to add", StzFindFirst(cSim, "add node risk_officer") > 0)
-chk("... the edge to remove", StzFindFirst(cSim, "remove edge ceo -> treasury_head") > 0)
+chk("the simulation names the node to add", StzFindFirst("add node risk_officer", cSim) > 0)
+chk("... the edge to remove", StzFindFirst("remove edge ceo -> treasury_head", cSim) > 0)
 chk("... and never mentions the edge that stayed",
-	StzFindFirst(cSim, "edge ceo -> cfo") = 0)
+	StzFindFirst("edge ceo -> cfo", cSim) = 0)
 
 oReplay = oBase.Copy()
 oReplay.ApplySimulation(cSim)
@@ -138,7 +138,7 @@ chk("a bare node answers with its id", oL.NodeLabel("x") = "x")
 oL.SetNodeLabel("x", "The X")
 chk("SetNodeLabel says it afterwards", oL.NodeLabel("x") = "The_X")
 chk("... normalised like every other label (no spaces)",
-	StzFindFirst(oL.NodeLabel("x"), " ") = 0)
+	StzFindFirst(" ", oL.NodeLabel("x")) = 0)
 
 bNoNode = 0
 try

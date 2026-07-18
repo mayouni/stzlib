@@ -39,7 +39,7 @@ Scenario("Naturally() executes paraphrases absent from its dictionary")
 	When("natural code uses 'Capitals' -- not a dictionary word")
 	o1 = Naturally("Create a string with 'softanza' Capitals it")
 	Then("the generated Ring code calls Uppercase()",
-		StzFindFirst(o1.Code(), "Uppercase()") > 0, TRUE)
+		StzFindFirst("Uppercase()", o1.Code()) > 0, TRUE)
 	Then("...and executing it yields SOFTANZA",
 		o1.Result(), "SOFTANZA")
 
@@ -189,7 +189,7 @@ Scenario("Intents become executable natural plans")
 	oP1 = new stzString("hello world")
 	cPlan = oP1.PlanForIntent("uppercase it then reverse it")
 	Then("the plan opens with the Create line over the live content",
-		StzFindFirst(cPlan, "Create a string with 'hello world'") > 0, TRUE)
+		StzFindFirst("Create a string with 'hello world'", cPlan) > 0, TRUE)
 	Then("...and executing the intent chains both steps",
 		oP1.DoIntent("uppercase it then reverse it"), "DLROW OLLEH")
 
@@ -204,7 +204,7 @@ Scenario("Intents become executable natural plans")
 	try
 		oP1.DoIntent("fooify it")
 	catch
-		bRaised = ( StzFindFirst(cCatchError, "did you mean") > 0 )
+		bRaised = ( StzFindFirst("did you mean", cCatchError) > 0 )
 	done
 	Then("a not-understood intent raises WITH a suggestion (plans are strict)",
 		bRaised, TRUE)
@@ -251,7 +251,7 @@ Scenario("Variable binding: keep a value, recall it where values go")
 	Then("a kept CONTENT recalls as a method parameter",
 		ovb1.Result(), "a_b")
 	Then("...the generated code passes the VARIABLE, not a string",
-		StzFindFirst(ovb1.Code(), "Replace(v_sep,") > 0, TRUE)
+		StzFindFirst("Replace(v_sep,", ovb1.Code()) > 0, TRUE)
 
 	ovb2 = Naturally("Create a string with 'ring' Give me it Reversed and keep it as rev Create a string with rev")
 	Then("a kept QUERY result recalls as a creation value",
@@ -277,7 +277,7 @@ Scenario("Strict mode and operation allow-lists (the agent posture)")
 	try
 		NaturallyStrict("Create a string with 'x' Fooify it")
 	catch
-		bR1 = ( StzFindFirst(cCatchError, "did you mean") > 0 )
+		bR1 = ( StzFindFirst("did you mean", cCatchError) > 0 )
 	done
 	Then("strict mode raises on any not-understood word, with suggestions", bR1, TRUE)
 
@@ -288,7 +288,7 @@ Scenario("Strict mode and operation allow-lists (the agent posture)")
 	try
 		NaturallyStrictIn("en", "Create a list with [ 3, 1 ] Reverse it", [ "METHOD_REMOVEDUPLICATES" ])
 	catch
-		bR2 = ( StzFindFirst(cCatchError, "not permitted") > 0 )
+		bR2 = ( StzFindFirst("not permitted", cCatchError) > 0 )
 	done
 	Then("...and everything off the list is grammatically impossible", bR2, TRUE)
 EndScenario()
@@ -332,11 +332,11 @@ EndScenario()
 Scenario("Pack template exporter: a translator fills a data file")
 	cTpl = StzExportPackTemplate("de", "German")
 	Then("the template is a registration call with every reference slot",
-		StzFindFirst(cTpl, "StzAddNaturalLanguage([") > 0 and
-		StzFindFirst(cTpl, "CREATE_OBJECT") > 0 and
-		StzFindFirst(cTpl, "METHOD_REMOVEDUPLICATES") > 0, TRUE)
+		StzFindFirst("StzAddNaturalLanguage([", cTpl) > 0 and
+		StzFindFirst("CREATE_OBJECT", cTpl) > 0 and
+		StzFindFirst("METHOD_REMOVEDUPLICATES", cTpl) > 0, TRUE)
 	Then("...with the English reference beside each slot",
-		StzFindFirst(cTpl, "# en: create, make, new") > 0, TRUE)
+		StzFindFirst("# en: create, make, new", cTpl) > 0, TRUE)
 	eval(cTpl)
 	Then("the RAW template already evals and registers (round-trip)",
 		StzHasLanguagePack("de"), TRUE)

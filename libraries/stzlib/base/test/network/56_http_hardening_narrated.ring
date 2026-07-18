@@ -22,8 +22,8 @@ Scenario("Empty URL is rejected cleanly")
     Then("body is empty", cBody, "")
     Then("status is -1", nStatus, -1)
     Then("LastError mentions empty",
-        StzFindFirst(StzEngineHttpLastError(), "URL") > 0 or
-        StzFindFirst(StzEngineHttpLastError(), "empty") > 0,
+        StzFindFirst("URL", StzEngineHttpLastError()) > 0 or
+        StzFindFirst("empty", StzEngineHttpLastError()) > 0,
         TRUE)
 EndScenario()
 

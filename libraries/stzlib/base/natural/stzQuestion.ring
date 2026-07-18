@@ -201,7 +201,7 @@ class stzQuestion
 		_oQh_ = Q(pHost)
 		if @cForce = "howmany" or pbCount = 1
 			# "how many vowels" counts: prefer the NumberOf twin
-			if StzFindFirst(ring_methods(_oQh_), "numberof" + pcAspect) > 0
+			if StzFindFirst("numberof" + pcAspect, ring_methods(_oQh_)) > 0
 				return _oQh_._NNLCall("numberof" + pcAspect, [])
 			ok
 			_vQh_ = _oQh_._NNLCall(pcAspect, [])

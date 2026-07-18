@@ -120,13 +120,12 @@ Scenario("WhatIs through Ask -- one interrogative family, ONE door")
 
 	aW = WhatIs("uppercase")
 	Then("WhatIs, silent in the world, answers from the LIBRARY -- EVERY defining class named, grouped per voice-sibling form",
-		StzFindFirst(aW[1], "- the method Uppercase (on stzString, stzStringChar, stzStringText)"), 1)
-	Then("...", StzFindFirst(aW[2],
-		"- the method Uppercased (on stzString, stzList, stzStringChar, stzStringList)"), 1)
+		StzFindFirst("- the method Uppercase (on stzString, stzStringChar, stzStringText)", aW[1]), 1)
+	Then("...", StzFindFirst("- the method Uppercased (on stzString, stzList, stzStringChar, stzStringList)", aW[2]), 1)
 
 	aW = WhatIs(:Remove)
 	Then("...and a widely-implemented method reports ALL its owners",
-		StzFindFirst(aW[1], "- the method Remove (on stzString, stzList)"), 1)
+		StzFindFirst("- the method Remove (on stzString, stzList)", aW[1]), 1)
 
 	SupposeQ("blorp").IsAQ("gadget")
 	aAns = StzLibDocQ([]).Ask("who is blorp")
@@ -149,7 +148,7 @@ Scenario("Graph-governed relations -- the world grows edges under LAW")
 		'[ [ "capital-of", "france" ] ]')
 	Then("AreRelated answers the relation", AreRelated("paris", "france"), "capital-of")
 	Then("WhatIs surfaces the edge with the types",
-		StzFindFirst(@@( WhatIs("paris") ), "capital-of france") > 0, TRUE)
+		StzFindFirst("capital-of france", @@( WhatIs("paris") )) > 0, TRUE)
 
 	StzConstrainRelation("capital-of", :Unique)
 	Then("a second capital is REFUSED by the :Unique law",

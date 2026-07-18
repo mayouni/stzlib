@@ -180,17 +180,17 @@ Scenario("R7 SHIPS: web + MBaaS + IoT on ONE reactor host")
 
 	When("a WEB client GETs the menu")
 	cMenu = HttpGet1("/menu")
-	Then("the web portal answers", StzFindFirst(cMenu, '"restaurant":"bella-cucina"') > 0, TRUE)
+	Then("the web portal answers", StzFindFirst('"restaurant":"bella-cucina"', cMenu) > 0, TRUE)
 
 	When("a MOBILE backend POSTs a reservation (MBaaS over sqlite)")
 	cRes = Post1("/api/reservation", "name=ayouni&seats=4")
-	Then("the reservation is created (201)", StzFindFirst(cRes, "201 Created") > 0, TRUE)
+	Then("the reservation is created (201)", StzFindFirst("201 Created", cRes) > 0, TRUE)
 	Then("and really persisted in the engine db",
 		$oDb.Value("SELECT name FROM reservation"), "ayouni")
 
 	When("a KITCHEN SENSOR streams telemetry (IoT, raw, same loop)")
 	nRaw = $oSrv.ListenRaw(0, func oHost, nSid, nConn, cData {
-		nSep = StzFindFirst(cData, ":")
+		nSep = StzFindFirst(":", cData)
 		$oDb.Exec("INSERT INTO telemetry (sensor, reading) VALUES ('" +
 			StzLeft(cData, nSep - 1) + "', '" + StzMidToEnd(cData, nSep + 1) + "')")
 		oHost.RawWrite(nSid, nConn, "ack", TRUE)
@@ -220,7 +220,7 @@ Scenario("R7 ENVELOPE: KDF Commons identity + generated shells")
 	When("the owner registers an identity (secret hashed, not stored)")
 	Then("registration succeeds", oPlat.RegisterIdentity("owner", "p@ss"), TRUE)
 	cStored = $oEnvDb.Value("SELECT secret FROM stz_identity WHERE user='owner'")
-	Then("the plaintext secret is NOT in the store", StzFindFirst(cStored, "p@ss"), 0)
+	Then("the plaintext secret is NOT in the store", StzFindFirst("p@ss", cStored), 0)
 	Then("a session opens with the right secret", len(oPlat.OpenSession("owner", "p@ss")) > 0, TRUE)
 	When("Generate(:all) ships the declared reach")
 	aShells = oPlat.Generate(:all)

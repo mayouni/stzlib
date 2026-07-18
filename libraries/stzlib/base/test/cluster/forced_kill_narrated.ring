@@ -50,7 +50,7 @@ Scenario("LIVE: a running worker is force-killed and stops answering")
 	$oK.WithNLP(1).SetWorkerTTL(30000).SetBasePort($nB1)
 	$oK.Start()
 	Then("it comes ready", $oK.WaitReady(25000), 1)
-	Then("it serves a request", StzFindFirst($oK.Route("nlp", "/work?q=hi"), "nlp:done:hi") > 0, TRUE)
+	Then("it serves a request", StzFindFirst("nlp:done:hi", $oK.Route("nlp", "/work?q=hi")) > 0, TRUE)
 
 	When("the worker is force-killed")
 	nKilled = $oK.ForceKill("nlp")
@@ -70,7 +70,7 @@ Scenario("LIVE: a running worker is force-killed and stops answering")
 	Then("the already-dead old process was NOT double-counted as killed",
 		$oK.KilledCount(), 1)
 	Then("the fresh worker comes ready", $oK.WaitReady(25000), 1)
-	Then("and serves again", StzFindFirst($oK.Route("nlp", "/work?q=back"), "nlp:done:back") > 0, TRUE)
+	Then("and serves again", StzFindFirst("nlp:done:back", $oK.Route("nlp", "/work?q=back")) > 0, TRUE)
 
 	When("ForceKill is called a SECOND time on the (now live) worker then AGAIN")
 	$oK.ForceKill("nlp")

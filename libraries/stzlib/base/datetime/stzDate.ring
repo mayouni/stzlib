@@ -600,7 +600,7 @@ class stzDate from stzObject
         _nSeparators1Len_ = len(_aSeparators_)
         for _iLoopSeparators1_ = 1 to _nSeparators1Len_
         	_cSep_ = _aSeparators_[_iLoopSeparators1_]
-            if StzFindFirst(_cDate_, _cSep_) > 0
+            if StzFindFirst(_cSep_, _cDate_) > 0
                 _aParts_ = @split(_cDate_, _cSep_)
                 if len(_aParts_) = 3
                     _nA_ = 0 + _aParts_[1]

@@ -70,7 +70,7 @@ class stzStringVisualizer from stzObject
 
 		_cViz_ = " "
 		for i = 1 to _nChars_
-			if StzFindFirst(_anPos_, i) > 0
+			if StzFindFirst(i, _anPos_) > 0
 				_cViz_ += "^"
 			else
 				_cViz_ += "-"

@@ -39,12 +39,12 @@ cArt = oA.AsciiArt()
 chk("the art comes back as data at all", len(cArt) > 0)
 chk("every node is boxed", StzCountCS(cArt, cRoundTL, :CS = TRUE) = 3)
 chk("... each box closed at the bottom", StzCountCS(cArt, cRoundBL, :CS = TRUE) = 3)
-chk("the boxes have real sides", StzFindFirst(cArt, cVert) > 0)
-chk("... and real tops", StzFindFirst(cArt, cHoriz) > 0)
+chk("the boxes have real sides", StzFindFirst(cVert, cArt) > 0)
+chk("... and real tops", StzFindFirst(cHoriz, cArt) > 0)
 chk("each node's id is in its box",
-	StzFindFirst(cArt, "a") > 0 and StzFindFirst(cArt, "b") > 0 and
-	StzFindFirst(cArt, "c") > 0)
-chk("flow goes DOWN between them", StzFindFirst(cArt, "v") > 0)
+	StzFindFirst("a", cArt) > 0 and StzFindFirst("b", cArt) > 0 and
+	StzFindFirst("c", cArt) > 0)
+chk("flow goes DOWN between them", StzFindFirst("v", cArt) > 0)
 
 ? ""
 ? "-- Scene 2: the glyphs are the RIGHT characters --"
@@ -52,25 +52,25 @@ chk("flow goes DOWN between them", StzFindFirst(cArt, "v") > 0)
 # this is the assertion that would have caught the mojibake: a double-encoded
 # corner still prints, it just prints the wrong bytes
 chk("the corner is U+256D, not a mangled run",
-	StzFindFirst(cArt, cRoundTL) > 0 and StzFindFirst(cArt, char(195)) = 0)
+	StzFindFirst(cRoundTL, cArt) > 0 and StzFindFirst(char(195), cArt) = 0)
 chk("no stray a-circumflex anywhere in the art",
-	StzFindFirst(cArt, char(226) + char(130)) = 0)
+	StzFindFirst(char(226) + char(130), cArt) = 0)
 
 ? ""
 ? "-- Scene 3: the picture follows the GRAPH --"
 
 # a bottleneck is marked !x! -- b carries all the traffic in a -> b -> c
-chk("the bottleneck is marked", StzFindFirst(cArt, "!b!") > 0)
-chk("... and a non-bottleneck is not", StzFindFirst(cArt, "!a!") = 0)
+chk("the bottleneck is marked", StzFindFirst("!b!", cArt) > 0)
+chk("... and a non-bottleneck is not", StzFindFirst("!a!", cArt) = 0)
 
 oB = new stzGraph("branch")
 oB.AddNode("root")  oB.AddNode("left")  oB.AddNode("right")
 oB.AddEdge("root", "left")  oB.AddEdge("root", "right")
 cBranch = oB.AsciiArt()
 chk("a branch draws BOTH children",
-	StzFindFirst(cBranch, "left") > 0 and StzFindFirst(cBranch, "right") > 0)
-chk("... separated as distinct branches", StzFindFirst(cBranch, "////") > 0)
-chk("... and the shared parent carries the up-marker", StzFindFirst(cBranch, cArrowUp) > 0)
+	StzFindFirst("left", cBranch) > 0 and StzFindFirst("right", cBranch) > 0)
+chk("... separated as distinct branches", StzFindFirst("////", cBranch) > 0)
+chk("... and the shared parent carries the up-marker", StzFindFirst(cArrowUp, cBranch) > 0)
 
 ? ""
 ? "-- Scene 4: a cycle TERMINATES --"
@@ -82,16 +82,16 @@ oC.AddEdgeXT("y", "x", "retries")
 
 cCyc = oC.AsciiArt()
 chk("the drawing finishes at all (no infinite walk)", len(cCyc) > 0)
-chk("the cycle is NAMED rather than redrawn", StzFindFirst(cCyc, "<CYCLE:") > 0)
-chk("... and it names the edge that closes it", StzFindFirst(cCyc, "retries") > 0)
-chk("the node is referenced, not boxed again", StzFindFirst(cCyc, "[x]") > 0)
+chk("the cycle is NAMED rather than redrawn", StzFindFirst("<CYCLE:", cCyc) > 0)
+chk("... and it names the edge that closes it", StzFindFirst("retries", cCyc) > 0)
+chk("the node is referenced, not boxed again", StzFindFirst("[x]", cCyc) > 0)
 
 ? ""
 ? "-- Scene 5: horizontal is a different picture of the same graph --"
 
 cH = oA.AsciiArtHorizontal()
 chk("it draws too", len(cH) > 0)
-chk("boxes sit side by side, joined by connectors", StzFindFirst(cH, "---->") > 0)
+chk("boxes sit side by side, joined by connectors", StzFindFirst("---->", cH) > 0)
 chk("... with the same three nodes", StzCountCS(cH, cRoundTL, :CS = TRUE) = 3)
 chk("and it is NOT the vertical picture", cH != cArt)
 

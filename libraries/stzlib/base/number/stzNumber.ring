@@ -5499,7 +5499,7 @@ class stzNumber from stzObject
 
 	# TRUE if the number contains the given digit.
 	def Contains(pcDigit)
-		return StzFindFirst(This.Content(), pcDigit) > 0
+		return StzFindFirst(pcDigit, This.Content()) > 0
 
 	# TRUE if the number occurs in the given list.
 	def ExistsIn(paList)
@@ -6152,7 +6152,7 @@ class stzNumber from stzObject
 				# Reading the rounded fraction part
 				_cFractionalPart_ = ""
 				_nTempNumberLen_ = len(_cTempNumber_)
-				for _i_ = StzFindFirst(_cTempNumber_, ".") + 1 to _nTempNumberLen_
+				for _i_ = StzFindFirst(".", _cTempNumber_) + 1 to _nTempNumberLen_
 					_cFractionalPart_ += _cTempNumber_[_i_]
 				next
 			ok

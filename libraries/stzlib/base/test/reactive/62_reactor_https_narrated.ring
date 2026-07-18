@@ -40,7 +40,7 @@ Scenario("submitting is non-blocking; the worker runs off the loop")
 		ok
 	next
 	Then("the request completed with HTTP 200", $oRct.HttpLastStatus(), 200)
-	Then("and the body is the server's response", StzFindFirst(cBody, "local-ok") > 0, TRUE)
+	Then("and the body is the server's response", StzFindFirst("local-ok", cBody) > 0, TRUE)
 	$oSrv.Stop()
 EndScenario()
 
@@ -59,7 +59,7 @@ Scenario("a POST body reaches a local echo route")
 			exit
 		ok
 	next
-	Then("the POST body made the round trip", StzFindFirst(cBody, "got:payload-42") > 0, TRUE)
+	Then("the POST body made the round trip", StzFindFirst("got:payload-42", cBody) > 0, TRUE)
 	$oSrv2.Stop()
 EndScenario()
 
@@ -70,7 +70,7 @@ Scenario("LIVE HTTPS: native TLS delivers a page (or offline pass)")
 	if nStatus = 200
 		Then("TLS handshake + fetch succeeded (200)", nStatus, 200)
 		Then("the decrypted body is HTML",
-			StzFindFirst(StzLower(cHtml), "<html") > 0, TRUE)
+			StzFindFirst("<html", StzLower(cHtml)) > 0, TRUE)
 	else
 		Then("offline: the path completed without crashing (status <= 0)",
 			nStatus <= 0, TRUE)

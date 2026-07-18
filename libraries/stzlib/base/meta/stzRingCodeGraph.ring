@@ -144,7 +144,7 @@ class stzRingCodeGraph from stzCodeGraph
 	def _CodeOnly(pcLine)
 		_c_ = This._DropQuoted("" + pcLine, '"')
 		_c_ = This._DropQuoted(_c_, "'")
-		_nH_ = StzFindFirst(_c_, "#")
+		_nH_ = StzFindFirst("#", _c_)
 		if _nH_ > 0  _c_ = StzLeft(_c_, _nH_ - 1)  ok
 		return _c_
 

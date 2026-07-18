@@ -30,7 +30,7 @@ Scenario("Connect timeout fires fast on an unreachable host")
     # may turn it into a request-layer error). Assert the connect-layer
     # failure, falling back to "an error was surfaced" for odd networks.
     Then("a connect-layer failure is surfaced",
-        StzFindFirst(oHttp.LastError(), "connect failed") > 0 or oHttp.HasError(),
+        StzFindFirst("connect failed", oHttp.LastError()) > 0 or oHttp.HasError(),
         TRUE)
 EndScenario()
 

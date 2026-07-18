@@ -38,12 +38,12 @@ Scenario("requests are proxied to workers over real HTTP")
 	When("nlp work is routed")
 	cR = $oC.Route("nlp", "/work?q=hello")
 	Then("a worker answered (HTTP 200)", $oC.RouteLastStatus(), 200)
-	Then("the response came from an nlp worker", StzFindFirst(cR, "nlp:done:hello") > 0, TRUE)
+	Then("the response came from an nlp worker", StzFindFirst("nlp:done:hello", cR) > 0, TRUE)
 
 	When("math work is routed")
 	cM = $oC.Route("math", "/work?q=42")
 	Then("a math worker answered", $oC.RouteLastStatus(), 200)
-	Then("with the math tag", StzFindFirst(cM, "math:done:42") > 0, TRUE)
+	Then("with the math tag", StzFindFirst("math:done:42", cM) > 0, TRUE)
 EndScenario()
 
 Scenario("load is round-robined across a profile's workers")
@@ -54,10 +54,10 @@ Scenario("load is round-robined across a profile's workers")
 	for i = 1 to 4
 		cInfo = $oC.Route("nlp", "/info")
 		# extract the "port":N value
-		nP = StzFindFirst(cInfo, '"port":')
+		nP = StzFindFirst('"port":', cInfo)
 		if nP > 0
 			cTail = StzMidToEnd(cInfo, nP + 7)
-			nEnd = StzFindFirst(cTail, "}")
+			nEnd = StzFindFirst("}", cTail)
 			cPort = StzLeft(cTail, nEnd - 1)
 			if ring_find(aSeen, cPort) = 0
 				aSeen + cPort

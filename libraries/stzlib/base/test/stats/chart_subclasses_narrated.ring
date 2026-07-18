@@ -73,10 +73,10 @@ chk("... same count of vertical bars (the branch strips none observable)",
 # the bars scale to the data: b=5 is the tallest, c=2 the shortest
 oScaled = new stzBarChart([ :a = 3, :b = 5, :c = 2 ])
 cArt = oScaled.ToString()
-chk("the art carries the block glyph", StzFindFirst(cArt, char(226)) > 0)
+chk("the art carries the block glyph", StzFindFirst(char(226), cArt) > 0)
 chk("each label appears under its bar",
-	StzFindFirst(cArt, "A") > 0 and StzFindFirst(cArt, "B") > 0 and
-	StzFindFirst(cArt, "C") > 0)
+	StzFindFirst("A", cArt) > 0 and StzFindFirst("B", cArt) > 0 and
+	StzFindFirst("C", cArt) > 0)
 
 ? ""
 ? "-- Scene 4: the surface/square Charts are aliases too --"

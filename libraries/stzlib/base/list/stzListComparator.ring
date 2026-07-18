@@ -273,8 +273,8 @@ class stzListComparator from stzObject
 			return 1
 		ok
 		for i = 1 to _nLen_ - 1
-			_bThisAsc_ = BothAreEqual(_aContent_[i], _aContent_[i+1]) or StzFindFirst([""+_aContent_[i]], ""+_aContent_[i+1]) >= 0
-			_bOtherAsc_ = BothAreEqual(paOtherList[i], paOtherList[i+1]) or StzFindFirst([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
+			_bThisAsc_ = BothAreEqual(_aContent_[i], _aContent_[i+1]) or StzFindFirst(""+_aContent_[i+1], [""+_aContent_[i]]) >= 0
+			_bOtherAsc_ = BothAreEqual(paOtherList[i], paOtherList[i+1]) or StzFindFirst(""+paOtherList[i+1], [""+paOtherList[i]]) >= 0
 			if _bThisAsc_ != _bOtherAsc_
 				return 0
 			ok

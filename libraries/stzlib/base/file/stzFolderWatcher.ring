@@ -51,7 +51,7 @@ class _stzFolderWatcher_ from stzObject
 		for _i_ = 1 to _nL_
 			_line_ = _aLines_[_i_]
 			if _line_ = "" loop ok
-			_nTab_ = StzFindFirst(_line_, char(9))
+			_nTab_ = StzFindFirst(char(9), _line_)
 			if _nTab_ < 1 loop ok
 			_cKind_ = StzLeft(_line_, _nTab_ - 1)
 			_cName_ = StzMidToEnd(_line_, _nTab_ + 1)

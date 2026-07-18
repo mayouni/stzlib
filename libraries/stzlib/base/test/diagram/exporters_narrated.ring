@@ -39,11 +39,11 @@ oD.SetTheme("dark")
 
 cDot = oD.Dot()
 chk("it writes something", len(cDot) > 0)
-chk("a real digraph, named", StzFindFirst(cDot, 'digraph "flow" {') > 0)
-chk("every node is declared", StzFindFirst(cDot, 'a [label="Start"') > 0 and
-	StzFindFirst(cDot, 'b [label="Middle"') > 0)
-chk("the edge carries its label", StzFindFirst(cDot, "a -> b [label=") > 0)
-chk("... and the plain edge has none", StzFindFirst(cDot, "b -> c") > 0)
+chk("a real digraph, named", StzFindFirst('digraph "flow" {', cDot) > 0)
+chk("every node is declared", StzFindFirst('a [label="Start"', cDot) > 0 and
+	StzFindFirst('b [label="Middle"', cDot) > 0)
+chk("the edge carries its label", StzFindFirst("a -> b [label=", cDot) > 0)
+chk("... and the plain edge has none", StzFindFirst("b -> c", cDot) > 0)
 chk("it closes its brace", StzRight(StzTrim(cDot), 1) = "}")
 
 ? ""
@@ -51,10 +51,10 @@ chk("it closes its brace", StzRight(StzTrim(cDot), 1) = "}")
 
 cMer = oD.Mermaid()
 chk("it declares a graph + direction", StzLeft(cMer, 8) = "graph TD")
-chk("the start node takes the stadium shape", StzFindFirst(cMer, 'a(["Start"])') > 0)
-chk("a plain node is a box", StzFindFirst(cMer, 'b["Middle"]') > 0)
-chk("the labelled edge uses the pipe form", StzFindFirst(cMer, "a -->|next| b") > 0)
-chk("the plain edge is a bare arrow", StzFindFirst(cMer, "b --> c") > 0)
+chk("the start node takes the stadium shape", StzFindFirst('a(["Start"])', cMer) > 0)
+chk("a plain node is a box", StzFindFirst('b["Middle"]', cMer) > 0)
+chk("the labelled edge uses the pipe form", StzFindFirst("a -->|next| b", cMer) > 0)
+chk("the plain edge is a bare arrow", StzFindFirst("b --> c", cMer) > 0)
 
 ? ""
 ? "-- Scene 3: JSON -- judged by the engine, not by itself --"
@@ -62,17 +62,17 @@ chk("the plain edge is a bare arrow", StzFindFirst(cMer, "b --> c") > 0)
 cJson = oD.Json()
 chk("the ENGINE's JSON parser accepts it", StzJsonIsValid(cJson) = TRUE)
 chk("... and reads the id back out of it", StzJsonGet(cJson, "id") = "flow")
-chk("it carries nodes and edges", StzFindFirst(cJson, '"nodes"') > 0 and
-	StzFindFirst(cJson, '"edges"') > 0)
+chk("it carries nodes and edges", StzFindFirst('"nodes"', cJson) > 0 and
+	StzFindFirst('"edges"', cJson) > 0)
 
 ? ""
 ? "-- Scene 4: .stzdiag -- the one that must come BACK --"
 
 cDiag = oD.stzdiag()
-chk("it writes its sections", StzFindFirst(cDiag, "nodes") > 0 and
-	StzFindFirst(cDiag, "edges") > 0 and StzFindFirst(cDiag, "properties") > 0)
+chk("it writes its sections", StzFindFirst("nodes", cDiag) > 0 and
+	StzFindFirst("edges", cDiag) > 0 and StzFindFirst("properties", cDiag) > 0)
 chk("... including the edge label the reader used to drop",
-	StzFindFirst(cDiag, 'label: "next"') > 0)
+	StzFindFirst('label: "next"', cDiag) > 0)
 
 oBack = new stzDiagram("blank")
 oBack.ImportDiag(cDiag)

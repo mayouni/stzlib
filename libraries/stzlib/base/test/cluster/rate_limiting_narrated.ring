@@ -100,7 +100,7 @@ Scenario("Route sheds over-limit requests with a distinct -429, before any worke
 	Then("the burst (3) passed the limiter (then declined -1: no worker)", nNoWorker, 3)
 	Then("the overflow (3) was rate-limited (-429), not -1", nLimited, 3)
 	Then("the cluster counts the rate-limited sheds", $oCl.RateLimitedCount("graph"), 3)
-	Then("the Why names the rate limit", StzFindFirst($oCl.Why(), "rate limited") = 1, TRUE)
+	Then("the Why names the rate limit", StzFindFirst("rate limited", $oCl.Why()) = 1, TRUE)
 
 	When("the unlimited nlp facet is flooded")
 	nBad = 0

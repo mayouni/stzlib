@@ -433,7 +433,7 @@ func StzIntensifyColor(cColor)
 		return StzIntensifyColor(cColor)
 
 func StzHexToRGB(_cHex_)
-	if StzFindFirst(_cHex_, "#")
+	if StzFindFirst("#", _cHex_)
 		_cHex_ = StzMid(_cHex_, 2, StzLen(_cHex_) - 1)
 	ok
 

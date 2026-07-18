@@ -265,7 +265,7 @@ func _StzSemArityMapFor(paMemo, pcOwner)
 			if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def "
 				_cDefName_ = lower(_StzDefName(_cT_))
 				_nAr_ = 0
-				_p1_ = StzFindFirst(_cT_, "(")
+				_p1_ = StzFindFirst("(", _cT_)
 				if _p1_ > 0
 					_p2_ = _StzLastPos(_cT_, ")")
 					if _p2_ > _p1_ + 1
@@ -1406,7 +1406,7 @@ func StzResolveSemantic(pcWord)
 	# singular<->plural ping-pong recursion.
 	if _cResolved_ = "" and $bStzSemMorphRetry = 0
 		$bStzSemMorphRetry = 1
-		if StzFindFirst(_w_, " ") = 0
+		if StzFindFirst(" ", _w_) = 0
 			_aVarW_ = _StzSemEnNumberVariants(_w_)
 			_nVW_ = len(_aVarW_)
 			for _iVW_ = 1 to _nVW_
@@ -1868,7 +1868,7 @@ func StzNaturalPlanFor(pcIntent, pcTypeWord, pxValue)
 
 func _StzSemValueLiteral(pxValue)
 	if isString(pxValue)
-		if StzFindFirst(pxValue, "'") > 0
+		if StzFindFirst("'", pxValue) > 0
 			return '"' + pxValue + '"'
 		ok
 		return "'" + pxValue + "'"

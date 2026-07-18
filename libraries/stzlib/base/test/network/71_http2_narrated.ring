@@ -11,8 +11,8 @@ load "../_narrated.ring"
 Scenario("The engine reports a libcurl + nghttp2 backend")
     Given("the HTTP engine version string")
     cEng = StzEngineHttpEngineVersion()
-    Then("it is libcurl", StzFindFirst(cEng, "libcurl") > 0, TRUE)
-    Then("HTTP/2 (nghttp2) is built in", StzFindFirst(cEng, "nghttp2") > 0, TRUE)
+    Then("it is libcurl", StzFindFirst("libcurl", cEng) > 0, TRUE)
+    Then("HTTP/2 (nghttp2) is built in", StzFindFirst("nghttp2", cEng) > 0, TRUE)
 EndScenario()
 
 Scenario("An https request to an h2 host negotiates HTTP/2")

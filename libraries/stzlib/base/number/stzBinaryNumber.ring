@@ -27,7 +27,7 @@ def BinaryPrefixes()
 
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
-	if isString(pcBinaryPrefix) and StzFindFirst(BinaryPrefixes(),pcBinaryPrefix) > 0
+	if isString(pcBinaryPrefix) and StzFindFirst(pcBinaryPrefix, BinaryPrefixes()) > 0
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else

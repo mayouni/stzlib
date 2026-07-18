@@ -160,7 +160,7 @@ class stzStringText from stzObject
 		but This.NumberOfScripts() = 1
 			return This.Scripts()[1]
 
-		but This.NumberOfScripts() = 2 and StzFindFirst(This.Scripts(), :Common) > 0
+		but This.NumberOfScripts() = 2 and StzFindFirst(:Common, This.Scripts()) > 0
 			_cResult_ = StzListQ(This.Scripts()).AllItemsExcept(:Common)[1]
 			return _cResult_
 
@@ -211,7 +211,7 @@ class stzStringText from stzObject
 
 	# TRUE if the text uses the given script.
 	def ContainsScript(_cScript_)
-		return StzFindFirst(This.Scripts(), _cScript_) > 0
+		return StzFindFirst(_cScript_, This.Scripts()) > 0
 
 	# TRUE if the text contains Arabic-script content.
 	def ContainsArabicScript()
@@ -817,7 +817,7 @@ class stzStringText from stzObject
 		_nLen_ = len(_acWords_)
 
 		for i = 1 to _nLen_
-			if StzFindFirst(_acExclude_, StzCaseFold(_acWords_[i])) = 0
+			if StzFindFirst(StzCaseFold(_acWords_[i]), _acExclude_) = 0
 				_aResult_ + _acWords_[i]
 			ok
 		next

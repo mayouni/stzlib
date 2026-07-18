@@ -1453,7 +1453,7 @@ class stzGraphPlanner from stzObject
 			
 			for i = 1 to _nLen_
 				_cNeighbor_ = _aNeighbors_[i]
-				if StzFindFirst(_aClosedSet_, _cNeighbor_) > 0
+				if StzFindFirst(_cNeighbor_, _aClosedSet_) > 0
 					loop
 				ok
 				
@@ -1693,7 +1693,7 @@ class stzGraphPlanner from stzObject
 			but _cKey_ = "requires"
 				_acStates_ = _aResult_[3]
 				_cRequiredNode_ = StzLower(pValue)
-				if StzFindFirst(_acStates_, _cRequiredNode_) = 0
+				if StzFindFirst(_cRequiredNode_, _acStates_) = 0
 					return FALSE
 				ok
 	

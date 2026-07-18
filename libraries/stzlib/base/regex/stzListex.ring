@@ -187,9 +187,9 @@ class stzListex from stzObject
 
 		# Extract set values BEFORE case conversion to preserve original values
 		_cPreservedSet_ = ""
-		_nSetStart_ = StzFindFirst(_cTokenStr_, "{")
+		_nSetStart_ = StzFindFirst("{", _cTokenStr_)
 		if _nSetStart_ > 0
-			_nSetEnd_ = StzFindFirst(_cTokenStr_, "}")
+			_nSetEnd_ = StzFindFirst("}", _cTokenStr_)
 			if _nSetEnd_ > _nSetStart_
 				_cPreservedSet_ = @StzMid(_cTokenStr_, _nSetStart_, _nSetEnd_ - _nSetStart_ + 1)
 			ok
@@ -287,7 +287,7 @@ class stzListex from stzObject
 		# Set constraints processing using preserved values
 		if len(_cPreservedSet_) > 0
 			# Check for {values}U format
-			if EndsWith(_cRemainder_, "U") and StzFindFirst(_cRemainder_, "{") > 0
+			if EndsWith(_cRemainder_, "U") and StzFindFirst("{", _cRemainder_) > 0
 				_bRequireUnique_ = TRUE
 				_cPreservedSet_ = StzReplace(_cPreservedSet_, "U", "")
 			ok

@@ -1073,7 +1073,7 @@ class stzRegexMaker from stzObject
 	
 		_cRepeat_ = ""
 
-		if StzFindFirst(_aTempList_, pRepeat[1]) > 0
+		if StzFindFirst(pRepeat[1], _aTempList_) > 0
 			_cRepeat_ = pRepeat[1]
 		ok
 	

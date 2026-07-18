@@ -398,7 +398,7 @@ class stzPivotTable from stzList
 
 				for i = 1 to _nLenU_
 					_cItem_ = _aUniqueValues_[i]
-					if not StzFindFirst(_aOrdered_, _cItem_) > 0
+					if not StzFindFirst(_cItem_, _aOrdered_) > 0
 						_aOrdered_ + _cItem_
 					ok
 				next
@@ -1481,11 +1481,11 @@ class stzPivotTable from stzList
 				_dim1Value_ = _aParts_[1]
 				_dim2Value_ = _aParts_[2]
 				
-				if StzFindFirst(_aColDim1Values_, _dim1Value_) = 0
+				if StzFindFirst(_dim1Value_, _aColDim1Values_) = 0
 					_aColDim1Values_ + _dim1Value_
 				ok
 				
-				if StzFindFirst(_aColDim2Values_, _dim2Value_) = 0
+				if StzFindFirst(_dim2Value_, _aColDim2Values_) = 0
 					_aColDim2Values_ + _dim2Value_
 				ok
 				
@@ -2003,11 +2003,11 @@ class stzPivotTable from stzList
 				_dim1Value_ = _aParts_[1]
 				_dim2Value_ = _aParts_[2]
 				
-				if StzFindFirst(_aColDim1Values_, _dim1Value_) = 0
+				if StzFindFirst(_dim1Value_, _aColDim1Values_) = 0
 					_aColDim1Values_ + _dim1Value_
 				ok
 				
-				if StzFindFirst(_aColDim2Values_, _dim2Value_) = 0
+				if StzFindFirst(_dim2Value_, _aColDim2Values_) = 0
 					_aColDim2Values_ + _dim2Value_
 				ok
 				
@@ -2125,7 +2125,7 @@ class stzPivotTable from stzList
 				_cGroup_ = "" + _aPivotData_[r][1]
 				
 				# Add to group list if new
-				if NOT StzFindFirst(_aGroups_, _cGroup_) > 0
+				if NOT StzFindFirst(_cGroup_, _aGroups_) > 0
 					_aGroups_ + _cGroup_
 					_aGroupTotals_[_cGroup_] = []
 					
@@ -2684,11 +2684,11 @@ class stzPivotTable from stzList
 				_dim1Value_ = _aParts_[1]
 				_dim2Value_ = _aParts_[2]
 			
-				if StzFindFirst(_aColDim1Values_, _dim1Value_) = 0
+				if StzFindFirst(_dim1Value_, _aColDim1Values_) = 0
 					_aColDim1Values_ = _aColDim1Values_ + _dim1Value_
 				ok
 			
-				if StzFindFirst(_aColDim2Values_, _dim2Value_) = 0
+				if StzFindFirst(_dim2Value_, _aColDim2Values_) = 0
 					_aColDim2Values_ = _aColDim2Values_ + _dim2Value_
 				ok
 			

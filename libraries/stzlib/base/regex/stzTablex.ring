@@ -79,10 +79,10 @@ class stzTablex from stzObject
 				loop
 			ok
 
-			if StzFindFirst(_cPart_, "|") > 0
+			if StzFindFirst("|", _cPart_) > 0
 				_aToken_ = This.ParseAlternation(_cPart_)
 
-			but StzFindFirst(_cPart_, "&") > 0
+			but StzFindFirst("&", _cPart_) > 0
 				_aToken_ = This.ParseConjunction(_cPart_)
 
 			else
@@ -207,9 +207,9 @@ class stzTablex from stzObject
 
 		# Extract and preserve content in parentheses BEFORE lowercasing
 		_cPreservedValue_ = ""
-		_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
+		_nOpenParen_ = StzFindFirst("(", _cTokenStr_)
 		if _nOpenParen_ > 0
-			_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+			_nCloseParen_ = StzFindFirst(")", _cTokenStr_)
 			if _nCloseParen_ > _nOpenParen_
 				_cPreservedValue_ = @StzMid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
 				if @bDebugMode
@@ -354,9 +354,9 @@ class stzTablex from stzObject
 		ok
 
 		# Parse parentheses content - use preserved value
-		_nOpenParen_ = StzFindFirst(_cTokenStr_, "(")
+		_nOpenParen_ = StzFindFirst("(", _cTokenStr_)
 		if _nOpenParen_ > 0
-			_nCloseParen_ = StzFindFirst(_cTokenStr_, ")")
+			_nCloseParen_ = StzFindFirst(")", _cTokenStr_)
 			if _nCloseParen_ > _nOpenParen_
 				_cContent_ = _cPreservedValue_
 
@@ -391,7 +391,7 @@ class stzTablex from stzObject
 		_cQuantPart_ = trim(_cQuantPart_)
 
 		if len(_cQuantPart_) > 0
-			if StzFindFirst(_cQuantPart_, "-") > 0
+			if StzFindFirst("-", _cQuantPart_) > 0
 				_aSection_ = @split(_cQuantPart_, "-")
 				if len(_aSection_) = 2
 					_nMin_ = 0 + trim(_aSection_[1])
@@ -486,7 +486,7 @@ class stzTablex from stzObject
 			ok
 
 		on "cell"
-			if StzFindFirst(cConstraintStr, "..") > 0
+			if StzFindFirst("..", cConstraintStr) > 0
 				_aParts_ = @split(cConstraintStr, "..")
 				if len(_aParts_) = 2
 					_aConstraints_ + [
@@ -495,9 +495,9 @@ class stzTablex from stzObject
 						["end", trim(_aParts_[2])]
 					]
 				ok
-			but StzFindFirst(cConstraintStr, "{") > 0
-				_nStart_ = StzFindFirst(cConstraintStr, "{")
-				_nEnd_ = StzFindFirst(cConstraintStr, "}")
+			but StzFindFirst("{", cConstraintStr) > 0
+				_nStart_ = StzFindFirst("{", cConstraintStr)
+				_nEnd_ = StzFindFirst("}", cConstraintStr)
 				_cSet_ = @StzMid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
 				_aValues_ = @split(_cSet_, ";")
 				_aConstraints_ + [
@@ -1059,7 +1059,7 @@ class stzTablex from stzObject
 			if oTable.HasColumn(_cColName_)
 				_anCalcCols_ = oTable.FindCalculatedCols()
 				_nColPos_ = oTable.FindCol(_cColName_)
-				return StzFindFirst(_anCalcCols_, _nColPos_) > 0
+				return StzFindFirst(_nColPos_, _anCalcCols_) > 0
 			ok
 		else
 			# Check if any calculated columns exist
@@ -1079,7 +1079,7 @@ class stzTablex from stzObject
 		if HasKey(_aToken_, "value")
 			# Format: colname:type (e.g., "salary:number")
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1124,7 +1124,7 @@ class stzTablex from stzObject
 		if HasKey(_aToken_, "value")
 			# Format: colname:pattern (e.g., "email:@EMAIL")
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1153,7 +1153,7 @@ class stzTablex from stzObject
 		if HasKey(_aToken_, "value")
 			# Format: colname:value or colname:>value or colname:<value
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1186,7 +1186,7 @@ class stzTablex from stzObject
 	def CheckAvgCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1223,7 +1223,7 @@ class stzTablex from stzObject
 
 	def CheckMinCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
-			if StzFindFirst(_aToken_["value"], ":") > 0
+			if StzFindFirst(":", _aToken_["value"]) > 0
 				_aParts_ = @split(_aToken_["value"], ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1261,7 +1261,7 @@ class stzTablex from stzObject
 	def CheckMaxCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1315,7 +1315,7 @@ class stzTablex from stzObject
 		if HasKey(_aToken_, "value")
 			# Format: colname:percentage (e.g., "email:90" means 90% complete)
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])
@@ -1378,7 +1378,7 @@ class stzTablex from stzObject
 		if HasKey(_aToken_, "value")
 			# Format: colname:format (e.g., "date:YYYY-MM-DD")
 			_cValue_ = _aToken_["value"]
-			if StzFindFirst(_cValue_, ":") > 0
+			if StzFindFirst(":", _cValue_) > 0
 				_aParts_ = @split(_cValue_, ":")
 				if len(_aParts_) = 2
 					_cColName_ = trim(_aParts_[1])

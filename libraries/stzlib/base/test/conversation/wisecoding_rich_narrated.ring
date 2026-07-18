@@ -115,7 +115,7 @@ chk("... the known value is OFFERED as an option",
 	ring_find(aQ2[:options], "cheese") > 0)
 chk("... the phrasing follows the new force", StzLeft(aQ2[:question], 5) = "Which")
 chk("... and the option is NUMBERED in the text",
-	StzFindFirst(aQ2[:question], "(1) cheese") > 0)
+	StzFindFirst("(1) cheese", aQ2[:question]) > 0)
 
 ? ""
 ? "-- Scene 4: REGISTER 1 -- answer an option by its number --"

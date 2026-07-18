@@ -3269,9 +3269,9 @@ class stzList from stzObject
 
 	def RemoveItemAtPosition(_n_)
 		if isString(_n_)
-			if StzFindFirst([:First, :FirstPosition, :FirstItem], _n_) > 0
+			if StzFindFirst(_n_, [:First, :FirstPosition, :FirstItem]) > 0
 				_n_ = 1
-			but StzFindFirst([:Last, :LastPosition, :LastItem], _n_) > 0
+			but StzFindFirst(_n_, [:Last, :LastPosition, :LastItem]) > 0
 				_n_ = This.NumberOfItems()
 			ok
 		ok
@@ -3327,13 +3327,13 @@ class stzList from stzObject
 
 		if CheckingParams()
 			if isString(_n1_)
-				if StzFindFirst([:First, :FirstPosition, :FirstItem], _n1_) > 0
+				if StzFindFirst(_n1_, [:First, :FirstPosition, :FirstItem]) > 0
 					_n1_ = 1
 				ok
 			ok
 
 			if isString(_n2_)
-				if StzFindFirst([:Last, :LastPosition, :LastItem], _n2_) > 0
+				if StzFindFirst(_n2_, [:Last, :LastPosition, :LastItem]) > 0
 					_n2_ = _nLen_
 				ok
 			ok
@@ -3925,7 +3925,7 @@ class stzList from stzObject
 			return 0
 		ok
 		_cAreM_ = "islistof" + StzLower("" + p)
-		if StzFindFirst(ring_methods(This), _cAreM_) > 0
+		if StzFindFirst(_cAreM_, ring_methods(This)) > 0
 			eval("_bAre_ = This." + _cAreM_ + "()")
 			return _bAre_
 		ok
@@ -7987,7 +7987,7 @@ class stzList from stzObject
 			_s_ = _aSec_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(_cMid_, pcSub) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -11979,9 +11979,9 @@ class stzList from stzObject
 		for _i_ = 1 to _nLen_
 			_acKeys_ + @aContent[_i_][1]
 		next
-		_bLanguage_ = StzFindFirst(_acKeys_, "language")
-		_bScript_ = StzFindFirst(_acKeys_, "script")
-		_bCountry_ = StzFindFirst(_acKeys_, "country")
+		_bLanguage_ = StzFindFirst("language", _acKeys_)
+		_bScript_ = StzFindFirst("script", _acKeys_)
+		_bCountry_ = StzFindFirst("country", _acKeys_)
 		if _bLanguage_ = 0 and _bScript_ = 0 and _bCountry_ = 0
 			return 0
 		ok
@@ -12223,12 +12223,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFindFirst([
+			 StzFindFirst(pReturn, [
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			], pReturn) > 0 )
+			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -12308,12 +12308,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFindFirst([
+			 StzFindFirst(pReturn, [
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			], pReturn) > 0 )
+			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -12393,12 +12393,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFindFirst([
+			 StzFindFirst(pReturn, [
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			], pReturn) > 0 )
+			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -12468,12 +12468,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFindFirst([
+			 StzFindFirst(pReturn, [
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			], pReturn) > 0 )
+			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )

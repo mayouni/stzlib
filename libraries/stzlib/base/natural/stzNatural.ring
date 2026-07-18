@@ -290,7 +290,7 @@ func StzNaturalBlocks(pcDoc)
 	_aParts_ = StzSplit(pcDoc, "#<")
 	_nP_ = len(_aParts_)
 	for _i_ = 2 to _nP_
-		_nEnd_ = StzFindFirst(_aParts_[_i_], "#>")
+		_nEnd_ = StzFindFirst("#>", _aParts_[_i_])
 		if _nEnd_ > 0
 			_cBlock_ = trim(StzMid(_aParts_[_i_], 1, _nEnd_ - 1))
 			if _cBlock_ != ""
@@ -356,7 +356,7 @@ func NaturallyWithIn(pcLang, pcTemplate, paArgs)
 	for _i_ = 1 to _nA_
 		_c_ = StzReplace(_c_, "{#" + _i_ + "}", _StzNaturalRenderValue(paArgs[_i_]))
 	next
-	if StzFindFirst(_c_, "{#") > 0
+	if StzFindFirst("{#", _c_) > 0
 		StzRaise("Unfilled template hole! The narration still contains a {#n} slot with no value for it.")
 	ok
 	return NaturallyIn(pcLang, _c_)
@@ -561,7 +561,7 @@ class stzNaturalEngine from stzObject
 	
 	def GetContextValue(_cKey_, aContext)
 		# Handle nested keys like "user.profile.name"
-		if StzFindFirst(_cKey_, ".") > 0
+		if StzFindFirst(".", _cKey_) > 0
 			_aParts_ = @split(_cKey_, ".")
 			_xCurrent_ = aContext
 			
@@ -760,7 +760,7 @@ class stzNaturalEngine from stzObject
 		if StzLeft(_cVal_, 1) = "[" and StzRight(_cVal_, 1) = "]"
 			return 1
 		ok
-		_nPos_ = StzFindFirst(_cVal_, ":")
+		_nPos_ = StzFindFirst(":", _cVal_)
 		if _nPos_ > 1 and _nPos_ < StzLen(_cVal_)
 			_cL_ = StzLeft(_cVal_, _nPos_ - 1)
 			_cR_ = StzRight(_cVal_, StzLen(_cVal_) - _nPos_)
@@ -1291,7 +1291,7 @@ class stzNaturalEngine from stzObject
 		return 1
 
 	def IsIgnoredWord(cWord)
-		return StzFindFirst(@aIgnoredWords, StzLower(cWord)) > 0
+		return StzFindFirst(StzLower(cWord), @aIgnoredWords) > 0
 	
 	def ToSemantic(cWord)
 		_cLower_ = StzLower(cWord)
@@ -1744,7 +1744,7 @@ class stzNaturalEngine from stzObject
 			# a parameter the natural code never supplied: emit NOTHING
 			# rather than broken Ring code (matters for grown operations
 			# whose verbs can appear in prose without arguments)
-			if StzFindFirst(_cCode_, "@param") > 0
+			if StzFindFirst("@param", _cCode_) > 0
 				This.AddToDebugLog("Skipped " + _cSemantic_ + " -- missing parameter(s)")
 				return [:code = "", :next_index = _nNextIndex_]
 			ok
@@ -2091,8 +2091,8 @@ class stzNaturalEngine from stzObject
 				_k_--
 			end
 			_cW_ = right(_cPartial_, _n_ - _k_)
-			if StzFindFirst(_cW_, "'") = 0 and StzFindFirst(_cW_, char(34)) = 0 and
-			   StzFindFirst(_cW_, "[") = 0
+			if StzFindFirst("'", _cW_) = 0 and StzFindFirst(char(34), _cW_) = 0 and
+			   StzFindFirst("[", _cW_) = 0
 				_cPrefix_ = StzLower(_cW_)
 				_cBase_ = left(_cPartial_, _k_)
 			ok

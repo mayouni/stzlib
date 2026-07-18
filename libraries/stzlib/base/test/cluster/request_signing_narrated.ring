@@ -35,7 +35,7 @@ Scenario("tampering with the path or body breaks the signature (integrity)")
 	Then("a tampered METHOD is rejected",
 		oSi.Verify("web", "POST", "/work?q=hello", "body-1", 2000, "n-7", e[:sig], 30000, 2000), FALSE)
 	Then("the why names a signature mismatch",
-		StzFindFirst(oSi.Why(), "signature mismatch") = 1, TRUE)
+		StzFindFirst("signature mismatch", oSi.Why()) = 1, TRUE)
 EndScenario()
 
 Scenario("a wrong or unknown key cannot forge (authenticity)")
@@ -49,7 +49,7 @@ Scenario("a wrong or unknown key cannot forge (authenticity)")
 	Then("a caller with NO registered key is rejected",
 		oSk.Verify("ghost", "GET", "/x", "", 3000, "n-31", e[:sig], 30000, 3000), FALSE)
 	Then("the why names the unknown key",
-		StzFindFirst(oSk.Why(), "unknown key") = 1, TRUE)
+		StzFindFirst("unknown key", oSk.Why()) = 1, TRUE)
 EndScenario()
 
 Scenario("stale or future-dated requests fail the freshness window")
@@ -63,7 +63,7 @@ Scenario("stale or future-dated requests fail the freshness window")
 		oSf.Verify("web", "GET", "/x", "", 500000, "n-40",
 			oSf.Sign("web", "GET", "/x", "", 500000, "n-40")[:sig], 30000, 1000), FALSE)
 	Then("the why names the freshness window",
-		StzFindFirst(oSf.Why(), "freshness window") > 0, TRUE)
+		StzFindFirst("freshness window", oSf.Why()) > 0, TRUE)
 EndScenario()
 
 Scenario("a captured signature cannot be replayed (nonce)")
@@ -75,7 +75,7 @@ Scenario("a captured signature cannot be replayed (nonce)")
 		oSr.Verify("web", "GET", "/pay", "amount=100", 5000, "n-5", e[:sig], 30000, 5000), TRUE)
 	Then("an identical replay (same nonce) is rejected",
 		oSr.Verify("web", "GET", "/pay", "amount=100", 5000, "n-5", e[:sig], 30000, 5010), FALSE)
-	Then("the why names a replay", StzFindFirst(oSr.Why(), "replay") = 1, TRUE)
+	Then("the why names a replay", StzFindFirst("replay", oSr.Why()) = 1, TRUE)
 	Then("a DIFFERENT nonce for the same request verifies (fresh request)",
 		oSr.Verify("web", "GET", "/pay", "amount=100", 5000, "n-5b",
 			oSr.Sign("web", "GET", "/pay", "amount=100", 5000, "n-5b")[:sig], 30000, 5000), TRUE)

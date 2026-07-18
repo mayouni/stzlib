@@ -1657,7 +1657,7 @@ class stzString from stzObject
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, _n1_, _n2_)
 		# Does pcSubStr occur inside the section? (haystack = section, needle = sub.)
-		return StzFindFirst(This._SectionLenient(_n1_, _n2_), pcSubStr) > 0
+		return StzFindFirst(pcSubStr, This._SectionLenient(_n1_, _n2_)) > 0
 
 		def ContainsInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
 			_cSec_ = This._SectionLenient(_n1_, _n2_)
@@ -1826,7 +1826,7 @@ class stzString from stzObject
 			_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
 			_nVoB_ = ascii(_cVoCh_)
 			if _nVoB_ < 128
-				if StzFindFirst(_cVoVo_, _cVoCh_) > 0
+				if StzFindFirst(_cVoCh_, _cVoVo_) > 0
 					_acVoR_ + _cVoCh_
 				ok
 				_iVo_ += 1
@@ -2977,9 +2977,9 @@ class stzString from stzObject
 		_subLen_ = This._EngineCount(pcSubStr)
 		_pos_ = 0
 		if _bRfCase_
-			_pos_ = StzFindFirst(_cIn_, pcSubStr)
+			_pos_ = StzFindFirst(pcSubStr, _cIn_)
 		else
-			_pos_ = StzFindFirst(lower(_cIn_), lower(pcSubStr))
+			_pos_ = StzFindFirst(lower(pcSubStr), lower(_cIn_))
 		ok
 		if _pos_ < 1 return ok
 		_cBefore_ = ""
@@ -7912,7 +7912,7 @@ class stzString from stzObject
 			but _ch_ = "_"
 				# digit-group separator, ignored
 			else
-				if StzFindFirst(_cDig_, _ch_) > 0
+				if StzFindFirst(_ch_, _cDig_) > 0
 					_nSide_++
 				else
 					_bOk_ = 0
@@ -10994,21 +10994,21 @@ class stzString from stzObject
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
-		if StzFindFirst(_c_, ":") = 0 return FALSE ok
-		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
+		if StzFindFirst(":", _c_) = 0 return FALSE ok
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	# TRUE if the string holds a contiguous list, any form.
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
-		if StzFindFirst(_c_, ":") = 0 return FALSE ok
+		if StzFindFirst(":", _c_) = 0 return FALSE ok
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, len(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
-		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	# Each char paired with how many times it occurs.
@@ -11169,7 +11169,7 @@ class stzString from stzObject
 	def Unspacify()
 		This.Trim()
 		_c_ = This.Content()
-		while StzFindFirst(_c_, "  ") > 0
+		while StzFindFirst("  ", _c_) > 0
 			_c_ = StzReplace(_c_, "  ", " ")
 		end
 		This.Update(_c_)
@@ -13747,7 +13747,7 @@ class stzString from stzObject
 	# TRUE if the string occurs inside the given one.
 	def IsIncludedIn(pcOther)
 		if NOT isString(pcOther) return FALSE ok
-		return StzFindFirst(This.Content(), pcOther) > 0
+		return StzFindFirst(pcOther, This.Content()) > 0
 
 	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
 	# pcNew accepts :By = "..." named-param form.
@@ -15104,7 +15104,7 @@ class stzString from stzObject
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(_cMid_, pcSub) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -15512,13 +15512,13 @@ class stzString from stzObject
 		if NOT isString(pcSub) return ok
 		_cur_ = This.Content()
 		# Avoid double-tagging (find char(1) IN _cur_: haystack first).
-		_p_ = StzFindFirst(_cur_, char(1))
+		_p_ = StzFindFirst(char(1), _cur_)
 		if _p_ > 0 _cur_ = This._EngineSlice(_cur_, 1, _p_ - 1) ok
 		This.Update(_cur_ + char(1) + pcSub)
 
 	def _NarrativeSubAndHost()
 		_c_ = This.Content()
-		_p_ = StzFindFirst(_c_, char(1))
+		_p_ = StzFindFirst(char(1), _c_)
 		if _p_ < 1 return [ "", _c_ ] ok
 		_nNshLen_ = This._EngineCount(_c_)
 		_cNshHost_ = ""
@@ -16645,13 +16645,13 @@ class stzString from stzObject
 		ok
 		# Multi-line blocks: drop #-comments and fold to one line so
 		# the expression can sit inside eval's parentheses.
-		if StzFindFirst(_cPuExpr_, nl) > 0
+		if StzFindFirst(nl, _cPuExpr_) > 0
 			_aPuLines_ = StzSplit(_cPuExpr_, nl)
 			_cPuExpr_ = ""
 			_nPuNL_ = len(_aPuLines_)
 			for _iPuL_ = 1 to _nPuNL_
 				_cPuLine_ = _aPuLines_[_iPuL_]
-				_nPuHash_ = StzFindFirst(_cPuLine_, "#")
+				_nPuHash_ = StzFindFirst("#", _cPuLine_)
 				if _nPuHash_ > 0
 					_cPuLine_ = left(_cPuLine_, _nPuHash_ - 1)
 				ok
@@ -16661,7 +16661,7 @@ class stzString from stzObject
 		ok
 		# Bare CharQ(@i) means This.CharQ(@i) -- resolve it so the
 		# eval (a function scope) finds it. Keep StzCharQ intact.
-		if StzFindFirst(_cPuExpr_, "CharQ(") > 0
+		if StzFindFirst("CharQ(", _cPuExpr_) > 0
 			_cPuExpr_ = StzReplace(_cPuExpr_, "StzCharQ(", "@__STZCQ__(")
 			_cPuExpr_ = StzReplace(_cPuExpr_, "This.CharQ(", "@__THISCQ__(")
 			_cPuExpr_ = StzReplace(_cPuExpr_, "CharQ(", "This.CharQ(")
@@ -16821,8 +16821,8 @@ class stzString from stzObject
 		if _nLen_ < 3 return FALSE ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
 		# somewhere after that.
-		_nO_ = StzFindFirst(_c_, "(")
-		_nC_ = StzFindFirst(_c_, ")")
+		_nO_ = StzFindFirst("(", _c_)
+		_nC_ = StzFindFirst(")", _c_)
 		return _nO_ >= 2 and _nC_ > _nO_
 
 	# Same as CharsReversed.
@@ -17514,7 +17514,7 @@ class stzString from stzObject
 	# IsListInShortForm: rough check for `a:b` short-form list literal.
 	def IsListInShortForm()
 		_c_ = ring_trim(This.Content())
-		return StzFindFirst(_c_, ":") > 0 and len(_c_) >= 3
+		return StzFindFirst(":", _c_) > 0 and len(_c_) >= 3
 
 	def IncludedIn(pcOther)
 		return This.IsIncludedIn(pcOther)
@@ -17544,7 +17544,7 @@ class stzString from stzObject
 		if NOT isString(pcOther) return FALSE ok
 		_c_ = This.Content()
 		if len(_c_) = 0 return FALSE ok
-		return StzFindFirst(StzLower(pcOther), StzLower(_c_)) > 0
+		return StzFindFirst(StzLower(_c_), StzLower(pcOther)) > 0
 
 	def RemoveLeftOccurrenceQ(pcSub)
 		This.RemoveFirstOccurrence(pcSub)
@@ -18858,7 +18858,7 @@ class stzString from stzObject
 		next
 		_c_ = _oCopy_.Content()
 		_cDup_ = pcSep + pcSep
-		while StzFindFirst(_c_, _cDup_) > 0
+		while StzFindFirst(_cDup_, _c_) > 0
 			_c_ = StzReplace(_c_, _cDup_, pcSep)
 		end
 		_nSepLen_ = StzLen(pcSep)

@@ -35,7 +35,7 @@ Scenario("a genuine mutual-TLS request is served over the encrypted channel")
 	When("the client presents its cert and validates the server against the CA")
 	cR = $oClient.TlsGet("127.0.0.1", $nPort, "/health", $cNodeCrt, $cNodeKey, $cCACrt, TRUE)
 	Then("the transport succeeded", $oClient.TlsClientStatus(), 0)
-	Then("the protected endpoint was served over mTLS", StzFindFirst(cR, "ok:mtls") > 0, TRUE)
+	Then("the protected endpoint was served over mTLS", StzFindFirst("ok:mtls", cR) > 0, TRUE)
 EndScenario()
 
 Scenario("a client WITHOUT a cert is refused by the server (mutual enforced)")
@@ -45,7 +45,7 @@ Scenario("a client WITHOUT a cert is refused by the server (mutual enforced)")
 	# TLS 1.3: the client handshake completes (status 0) but the server
 	# refuses to serve -> the RESPONSE BODY is the authoritative signal.
 	Then("the protected endpoint is NOT served (empty response)", len(cR), 0)
-	Then("nothing leaked (no ok:mtls)", StzFindFirst(cR, "ok:mtls"), 0)
+	Then("nothing leaked (no ok:mtls)", StzFindFirst("ok:mtls", cR), 0)
 EndScenario()
 
 Scenario("a client that does not TRUST the server aborts the handshake")
@@ -74,9 +74,9 @@ Scenario("a governed federated call is transported over mutual TLS")
 	cR = $oFed.FederatedCall("web", :math, "/work", "")
 	Then("the worker served it (HTTP 200 over mTLS)", $oFed.CallLastStatus(), 200)
 	Then("the response body came back through the secure channel",
-		StzFindFirst(cR, "worker:ok") > 0, TRUE)
+		StzFindFirst("worker:ok", cR) > 0, TRUE)
 	Then("the call was ALSO signed (the full stack)", len($oFed.LastSignature()) > 0, TRUE)
-	Then("the Why records the mTLS transport", StzFindFirst($oFed.Why(), "mTLS") > 0, TRUE)
+	Then("the Why records the mTLS transport", StzFindFirst("mTLS", $oFed.Why()) > 0, TRUE)
 	$oFed.Shutdown()
 EndScenario()
 
@@ -139,7 +139,7 @@ func WaitTlsReady oClient, nPort, nTimeoutMs
 	nDeadline = StzEngineTimeNowMs() + nTimeoutMs
 	while StzEngineTimeNowMs() < nDeadline
 		cR = oClient.TlsGet("127.0.0.1", nPort, "/health", $cNodeCrt, $cNodeKey, $cCACrt, TRUE)
-		if StzFindFirst(cR, "ok:mtls") > 0  return TRUE  ok
+		if StzFindFirst("ok:mtls", cR) > 0  return TRUE  ok
 		nJ = oClient.SubmitTimer(300)
 		oClient.AwaitTimer(nJ, 600)
 	end
@@ -150,7 +150,7 @@ func MtlsRingExe
 	nLen = len(aA)
 	for i = 1 to nLen
 		c = StzLower("" + aA[i])
-		if StzFindFirst(c, "ring.exe") > 0 or c = "ring"  return "" + aA[i]  ok
+		if StzFindFirst("ring.exe", c) > 0 or c = "ring"  return "" + aA[i]  ok
 	next
 	return "ring"
 

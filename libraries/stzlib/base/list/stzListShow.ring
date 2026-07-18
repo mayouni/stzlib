@@ -556,7 +556,7 @@ func FormatString(cStr)
     ok
     
     # Choose quote character based on content
-    if StzFindFirst(cStr, '"') > 0 and StzFindFirst(cStr, "'") = 0
+    if StzFindFirst('"', cStr) > 0 and StzFindFirst("'", cStr) = 0
         return "'" + cStr + "'"
     else
         return '"' + cStr + '"'

@@ -69,7 +69,7 @@ func StzVerifySecret(pcSecret, pcStored)
 	return StzVerifySecretXT(pcSecret, pcStored, 100000)
 
 func StzVerifySecretXT(pcSecret, pcStored, nRounds)
-	_nSep_ = StzFindFirst(pcStored, ":")
+	_nSep_ = StzFindFirst(":", pcStored)
 	if _nSep_ = 0
 		return FALSE
 	ok
@@ -110,7 +110,7 @@ func StzPlatformFormValue(cBody, cKey)
 	_a_ = StzSplit("" + cBody, "&")
 	_n_ = len(_a_)
 	for _i_ = 1 to _n_
-		_nEq_ = StzFindFirst(_a_[_i_], "=")
+		_nEq_ = StzFindFirst("=", _a_[_i_])
 		if _nEq_ > 0 and StzLeft(_a_[_i_], _nEq_ - 1) = cKey
 			return StzMidToEnd(_a_[_i_], _nEq_ + 1)
 		ok
@@ -481,7 +481,7 @@ class stzPlatform from stzObject
 
 	# stored = "salt:hash"; re-derive and constant-time compare.
 	def _SecretMatches(pcStored, pcSecret)
-		_nSep_ = StzFindFirst(pcStored, ":")
+		_nSep_ = StzFindFirst(":", pcStored)
 		if _nSep_ = 0
 			return FALSE
 		ok

@@ -30,7 +30,7 @@ Scenario("Connect to a bogus host surfaces an error")
     oC.Connect("invalid.host.example.invalid", 1)
     Then("IsConnected stays FALSE", oC.IsConnected(), FALSE)
     Then("LastError reports failure",
-        StzFindFirst(oC.LastError(), "connect failed") > 0, TRUE)
+        StzFindFirst("connect failed", oC.LastError()) > 0, TRUE)
 EndScenario()
 
 Scenario("Send on a never-connected client is a no-op")
@@ -46,7 +46,7 @@ Scenario("Server with an unbindable host fails to listen")
     oS.Listen(8080, "not an ip")
     Then("IsListening stays FALSE", oS.IsListening(), FALSE)
     Then("LastError captured",
-        StzFindFirst(oS.LastError(), "listen") > 0, TRUE)
+        StzFindFirst("listen", oS.LastError()) > 0, TRUE)
 EndScenario()
 
 Scenario("Accept on a non-listening server returns NULL")

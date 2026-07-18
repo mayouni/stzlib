@@ -37,7 +37,7 @@ class stzWorkflow from stzDiagram
 	
 	def SetWorkflowType(pcType)
 		_cType_ = StzLower(pcType)
-		if StzFindFirst($acWorkflowTypes, _cType_) > 0
+		if StzFindFirst(_cType_, $acWorkflowTypes) > 0
 			@cWorkflowType = _cType_
 		ok
 	
@@ -857,11 +857,11 @@ class stzFlowParser from stzObject
 				loop
 			ok
 			
-			if StzFindFirst(_cLine_, "workflow ")
+			if StzFindFirst("workflow ", _cLine_)
 				_cId_ = This._ExtractQuoted(_cLine_)
 				_oWorkflow_ = new stzWorkflow(_cId_)
 			
-			but StzFindFirst(_cLine_, "type:")
+			but StzFindFirst("type:", _cLine_)
 				_cType_ = This._ExtractValue(_cLine_)
 				_oWorkflow_.SetWorkflowType(_cType_)
 			
@@ -898,7 +898,7 @@ class stzFlowParser from stzObject
 				_aCurrentProps_ = []
 
 			but _cSection_ = "steps"
-				if NOT StzFindFirst(_cLine_, ":")
+				if NOT StzFindFirst(":", _cLine_)
 					if _cCurrentItem_ != ""
 						This._AddStep(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 					ok
@@ -911,12 +911,12 @@ class stzFlowParser from stzObject
 					_aCurrentProps_ + [_cKey_, This._ParseValue(_cValue_)]
 				ok
 			
-			but _cSection_ = "flow" and StzFindFirst(_cLine_, "->")
+			but _cSection_ = "flow" and StzFindFirst("->", _cLine_)
 				_aParts_ = split(_cLine_, "->")
 				_oWorkflow_.ConnectSteps(trim(_aParts_[1]), trim(_aParts_[2]))
 			
 			but _cSection_ = "actors"
-				if NOT StzFindFirst(_cLine_, ":")
+				if NOT StzFindFirst(":", _cLine_)
 					if _cCurrentItem_ != ""
 						This._AddActor(_oWorkflow_, _cCurrentItem_, _aCurrentProps_)
 					ok
@@ -927,7 +927,7 @@ class stzFlowParser from stzObject
 					_aCurrentProps_ + [trim(_aParts_[1]), This._ParseValue(trim(_aParts_[2]))]
 				ok
 			
-			but _cSection_ = "roles" and StzFindFirst(_cLine_, "->")
+			but _cSection_ = "roles" and StzFindFirst("->", _cLine_)
 				_aParts_ = split(_cLine_, "->")
 				_oWorkflow_.MapRoleToPosition(trim(_aParts_[1]), trim(_aParts_[2]))
 			ok
@@ -1017,13 +1017,13 @@ class stzFlowParser from stzObject
 		return _cValue_
 	
 	def _ExtractQuoted(_cLine_)
-		_nStart_ = StzFindFirst(_cLine_, '"')
+		_nStart_ = StzFindFirst('"', _cLine_)
 		if _nStart_ = 0 return "" ok
 		_nEnd_ = StzMid(_cLine_, _nStart_ + 1, StzLen(_cLine_) - _nStart_)
-		_nEnd_ = StzFindFirst(_nEnd_, '"')
+		_nEnd_ = StzFindFirst('"', _nEnd_)
 		return StzMid(_cLine_, _nStart_ + 1, _nEnd_ - 1)
 
 	def _ExtractValue(_cLine_)
-		_nPos_ = StzFindFirst(_cLine_, ":")
+		_nPos_ = StzFindFirst(":", _cLine_)
 		if _nPos_ = 0 return "" ok
 		return trim(StzMid(_cLine_, _nPos_ + 1, StzLen(_cLine_) - _nPos_))

@@ -93,7 +93,7 @@ class stzStringRandomizer from stzObject
 		_nLen_ = len(_acChars_)
 		for i = 1 to _nLen_
 			_c_ = _acChars_[i]
-			if StzFindFirst(_acUnique_, _c_) = 0
+			if StzFindFirst(_c_, _acUnique_) = 0
 				_acUnique_ + _c_
 			ok
 		next
@@ -265,7 +265,7 @@ class stzStringRandomizer from stzObject
 		# Build result keeping chars not in remove list
 		_cResult_ = ""
 		for i = 1 to _nLen_
-			if StzFindFirst(_anRemove_, i) = 0
+			if StzFindFirst(i, _anRemove_) = 0
 				_cResult_ += _acChars_[i]
 			ok
 		next

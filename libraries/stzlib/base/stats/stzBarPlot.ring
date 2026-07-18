@@ -8,7 +8,7 @@ func _PlotRound(nNumber, nDecimals)
 	_nPrResult_ = floor(nNumber * _nPrFactor_ + 0.5) / _nPrFactor_
 	# Format with correct decimal places
 	_cPrResult_ = "" + _nPrResult_
-	_nPrDot_ = StzFindFirst(_cPrResult_, ".")
+	_nPrDot_ = StzFindFirst(".", _cPrResult_)
 	if _nPrDot_ = 0
 		_cPrResult_ = _cPrResult_ + "."
 		for _iPr_ = 1 to nDecimals

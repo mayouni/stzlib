@@ -61,7 +61,7 @@ class stzAppRequest from stzObject
 		return FALSE
 
 	def ParseQuery()
-		_nQ_ = StzFindFirst(@cPath, "?")
+		_nQ_ = StzFindFirst("?", @cPath)
 		if _nQ_ > 0
 			_cQueryString_ = StzMidToEnd(@cPath, _nQ_ + 1)
 			@cPath = StzLeft(@cPath, _nQ_ - 1)
@@ -69,7 +69,7 @@ class stzAppRequest from stzObject
 			_aPairs_ = @split(_cQueryString_, "&")
 			_nLen_ = len(_aPairs_)
 			for _i_ = 1 to _nLen_
-				_nEq_ = StzFindFirst(_aPairs_[_i_], "=")
+				_nEq_ = StzFindFirst("=", _aPairs_[_i_])
 				if _nEq_ > 0
 					@aQuery + [ StzLeft(_aPairs_[_i_], _nEq_ - 1),
 					            StzMidToEnd(_aPairs_[_i_], _nEq_ + 1) ]

@@ -285,7 +285,7 @@ class stzGraph from stzObject
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
-		if StzFindFirst(This.NodesIds(), StzLower(pcNodeId)) > 0
+		if StzFindFirst(StzLower(pcNodeId), This.NodesIds()) > 0
 			return 1
 		else
 			return 0
@@ -479,7 +479,7 @@ class stzGraph from stzObject
 			_nLen_ = len(_acPath_)
 			if _nLen_ > 0
 				_cNodeId_ = StzLower(_acPath_[_nLen_])
-				if StzFindFirst(_acToRemove_, _cNodeId_) = 0
+				if StzFindFirst(_cNodeId_, _acToRemove_) = 0
 					_acToRemove_ + _cNodeId_
 				ok
 			ok
@@ -718,7 +718,7 @@ class stzGraph from stzObject
 		def Connect(pcFromNodeId, pcToNodeId)
 			if CheckParams()
 
-				if isList(pcToNodeId) and len(pcToNodeId) = 2 and isString(pcToNodeId[1]) and StzFindFirst(["to","tonode","tonodes","and","andnode","andnodes"], StzLower(pcToNodeId[1])) > 0
+				if isList(pcToNodeId) and len(pcToNodeId) = 2 and isString(pcToNodeId[1]) and StzFindFirst(StzLower(pcToNodeId[1]), ["to","tonode","tonodes","and","andnode","andnodes"]) > 0
 					pcToNodeId = pcToNodeId[2]
 				ok
 
@@ -1317,7 +1317,7 @@ class stzGraph from stzObject
 					end
 					
 					if _nFound_ > 0
-						if StzFindFirst(_aResult_[_nFound_][2], pValue) = 0
+						if StzFindFirst(pValue, _aResult_[_nFound_][2]) = 0
 							_aResult_[_nFound_][2] + pValue
 						ok
 					else
@@ -1648,7 +1648,7 @@ class stzGraph from stzObject
 			return 1
 		ok
 
-		if StzFindFirst(pacVisited, pcCurrent) > 0
+		if StzFindFirst(pcCurrent, pacVisited) > 0
 			return 0
 		ok
 
@@ -1701,7 +1701,7 @@ class stzGraph from stzObject
 			return This.NthNode(n)
 
 	def NodePosition(pcNodeId)
-		return StzFindFirst(This.NodesIds(), StzLower(pcNodeId) )
+		return StzFindFirst(StzLower(pcNodeId), This.NodesIds())
 
 	#--
 
@@ -1809,7 +1809,7 @@ class stzGraph from stzObject
 			if _aEdge_["from"] = pcCurrent
 				_cNext_ = _aEdge_["to"]
 
-				if StzFindFirst(pacCurrentPath, _cNext_) = 0
+				if StzFindFirst(_cNext_, pacCurrentPath) = 0
 					# Thread a fresh copy down the branch instead of
 					# mutate-then-backtrack. Two reasons:
 					#  (1) the old backtrack used stzleft() -- a STRING
@@ -1972,7 +1972,7 @@ class stzGraph from stzObject
 			for i = 1 to _nLen_
 				_cNeighbor_ = _acNeighbors_[i]
 
-				if StzFindFirst(_acVisited_, _cNeighbor_) = 0
+				if StzFindFirst(_cNeighbor_, _acVisited_) = 0
 					_acVisited_ + _cNeighbor_
 					_acQueue_ + _cNeighbor_
 				ok
@@ -2187,8 +2187,8 @@ class stzGraph from stzObject
 			next
 			
 			# If the node can reach itself through other nodes, it's in a cycle
-			if StzFindFirst(_acReachableWithoutStart_, _cNodeId_) > 0
-				if StzFindFirst(_acCyclicNodes_, _cNodeId_) = 0
+			if StzFindFirst(_cNodeId_, _acReachableWithoutStart_) > 0
+				if StzFindFirst(_cNodeId_, _acCyclicNodes_) = 0
 					_acCyclicNodes_ + _cNodeId_
 				ok
 			ok
@@ -2549,7 +2549,7 @@ class stzGraph from stzObject
 
 				_cNeighbor_ = _acNeighbors_[_i_]
 
-				if StzFindFirst(_acVisited_, _cNeighbor_) = 0
+				if StzFindFirst(_cNeighbor_, _acVisited_) = 0
 					_acVisited_ + _cNeighbor_
 					_acQueue_ + _cNeighbor_
 					_aParentMap_ + [_cNeighbor_, _cCurrent_]
@@ -2739,7 +2739,7 @@ class stzGraph from stzObject
 		for _i_ = 1 to _nNodeLen_
 			_cNodeId_ = _aNodes_[_i_][:id]
 			
-			if StzFindFirst(_acVisited_, _cNodeId_) = 0
+			if StzFindFirst(_cNodeId_, _acVisited_) = 0
 				_acComponent_ = []
 				This._ExploreComponent(_cNodeId_, _acVisited_, _acComponent_)
 				_aComponents_ + _acComponent_
@@ -2808,7 +2808,7 @@ class stzGraph from stzObject
 			_nNeighborsLen_ = len(_acNeighbors_)
 			for i = 1 to _nNeighborsLen_
 				_cNext_ = _acNeighbors_[i]
-				if StzFindFirst(_acVisited_, _cNext_) = 0
+				if StzFindFirst(_cNext_, _acVisited_) = 0
 					_acVisited_ + _cNext_
 					_acQueue_ + _cNext_
 				ok
@@ -2817,7 +2817,7 @@ class stzGraph from stzObject
 			_nIncomingLen_ = len(_acIncoming_)
 			for i = 1 to _nIncomingLen_
 				_cNext_ = _acIncoming_[i]
-				if StzFindFirst(_acVisited_, _cNext_) = 0
+				if StzFindFirst(_cNext_, _acVisited_) = 0
 					_acVisited_ + _cNext_
 					_acQueue_ + _cNext_
 				ok
@@ -3436,20 +3436,20 @@ class stzGraph from stzObject
 		@aEdges = []
 		
 		# Extract graph id
-		_nPos_ = StzFindFirst(_cXML_, '<graph id="')
+		_nPos_ = StzFindFirst('<graph id="', _cXML_)
 		if _nPos_ > 0
 			_cRest_ = StzMid(_cXML_, 11, stzlen(_cXML_) - 10)
-			_nEnd_ = StzFindFirst(_cRest_, '"')
+			_nEnd_ = StzFindFirst('"', _cRest_)
 			if _nEnd_ > 0
 				@cId = StzMid(_cRest_, 1, _nEnd_ - 1)
 			ok
 		ok
 
 		# Extract graph type
-		_nPos_ = StzFindFirst(_cXML_, '<data key="type">')
+		_nPos_ = StzFindFirst('<data key="type">', _cXML_)
 		if _nPos_ > 0
 			_cRest_ = StzMid(_cXML_, 17, stzlen(_cXML_) - 16)
-			_nEnd_ = StzFindFirst(_cRest_, '</data>')
+			_nEnd_ = StzFindFirst('</data>', _cRest_)
 			if _nEnd_ > 0
 				@cGraphType = trim(StzMid(_cRest_, 1, _nEnd_ - 1))
 			ok
@@ -3458,24 +3458,24 @@ class stzGraph from stzObject
 		# Parse nodes
 		_cRemaining_ = _cXML_
 		while TRUE
-			_nNodeStart_ = StzFindFirst(_cRemaining_, '<node id="')
+			_nNodeStart_ = StzFindFirst('<node id="', _cRemaining_)
 			if _nNodeStart_ = 0
 				exit
 			ok
 
 			_cRemaining_ = StzMid(_cRemaining_, 10, stzlen(_cRemaining_) - 9)
-			_nIdEnd_ = StzFindFirst(_cRemaining_, '"')
+			_nIdEnd_ = StzFindFirst('"', _cRemaining_)
 			_cNodeId_ = StzMid(_cRemaining_, 1, _nIdEnd_ - 1)
 
-			_nNodeEnd_ = StzFindFirst(_cRemaining_, '</node>')
+			_nNodeEnd_ = StzFindFirst('</node>', _cRemaining_)
 			_cNodeBlock_ = StzMid(_cRemaining_, 1, _nNodeEnd_ - 1)
 
 			# Extract label
 			_cLabel_ = _cNodeId_
-			_nLabelPos_ = StzFindFirst(_cNodeBlock_, '<data key="label">')
+			_nLabelPos_ = StzFindFirst('<data key="label">', _cNodeBlock_)
 			if _nLabelPos_ > 0
 				_cLabelRest_ = StzMid(_cNodeBlock_, 18, stzlen(_cNodeBlock_) - 17)
-				_nLabelEnd_ = StzFindFirst(_cLabelRest_, '</data>')
+				_nLabelEnd_ = StzFindFirst('</data>', _cLabelRest_)
 				if _nLabelEnd_ > 0
 					_cLabel_ = This._XMLUnescape(StzMid(_cLabelRest_, 1, _nLabelEnd_ - 1))
 				ok
@@ -3485,17 +3485,17 @@ class stzGraph from stzObject
 			_aProps_ = []
 			_cPropBlock_ = _cNodeBlock_
 			while TRUE
-				_nPropPos_ = StzFindFirst(_cPropBlock_, '<data key="prop_')
+				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
 				if _nPropPos_ = 0
 					exit
 				ok
 
 				_cPropBlock_ = StzMid(_cPropBlock_, 16, stzlen(_cPropBlock_) - 15)
-				_nKeyEnd_ = StzFindFirst(_cPropBlock_, '">')
+				_nKeyEnd_ = StzFindFirst('">', _cPropBlock_)
 				_cPropKey_ = StzMid(_cPropBlock_, 1, _nKeyEnd_ - 1)
 
 				_cPropBlock_ = StzMid(_cPropBlock_, _nKeyEnd_ + 2, stzlen(_cPropBlock_) - _nKeyEnd_ - 1)
-				_nValEnd_ = StzFindFirst(_cPropBlock_, '</data>')
+				_nValEnd_ = StzFindFirst('</data>', _cPropBlock_)
 				_cPropVal_ = This._XMLUnescape(StzMid(_cPropBlock_, 1, _nValEnd_ - 1))
 
 				_aProps_ + [_cPropKey_, This._StringToValue(_cPropVal_)]
@@ -3508,7 +3508,7 @@ class stzGraph from stzObject
 		# Parse edges
 		_cRemaining_ = _cXML_
 		while TRUE
-			_nEdgeStart_ = StzFindFirst(_cRemaining_, '<edge ')
+			_nEdgeStart_ = StzFindFirst('<edge ', _cRemaining_)
 			if _nEdgeStart_ = 0
 				exit
 			ok
@@ -3516,26 +3516,26 @@ class stzGraph from stzObject
 			_cRemaining_ = StzMid(_cRemaining_, 6, stzlen(_cRemaining_) - 5)
 
 			# Extract source
-			_nSourcePos_ = StzFindFirst(_cRemaining_, 'source="')
+			_nSourcePos_ = StzFindFirst('source="', _cRemaining_)
 			_cRemaining_ = StzMid(_cRemaining_, 8, stzlen(_cRemaining_) - 7)
-			_nSourceEnd_ = StzFindFirst(_cRemaining_, '"')
+			_nSourceEnd_ = StzFindFirst('"', _cRemaining_)
 			_cSource_ = StzMid(_cRemaining_, 1, _nSourceEnd_ - 1)
 
 			# Extract target
-			_nTargetPos_ = StzFindFirst(_cRemaining_, 'target="')
+			_nTargetPos_ = StzFindFirst('target="', _cRemaining_)
 			_cRemaining_ = StzMid(_cRemaining_, 8, stzlen(_cRemaining_) - 7)
-			_nTargetEnd_ = StzFindFirst(_cRemaining_, '"')
+			_nTargetEnd_ = StzFindFirst('"', _cRemaining_)
 			_cTarget_ = StzMid(_cRemaining_, 1, _nTargetEnd_ - 1)
 
-			_nEdgeEnd_ = StzFindFirst(_cRemaining_, '</edge>')
+			_nEdgeEnd_ = StzFindFirst('</edge>', _cRemaining_)
 			_cEdgeBlock_ = StzMid(_cRemaining_, 1, _nEdgeEnd_ - 1)
 
 			# Extract edge label
 			_cEdgeLabel_ = ""
-			_nLabelPos_ = StzFindFirst(_cEdgeBlock_, '<data key="edge_label">')
+			_nLabelPos_ = StzFindFirst('<data key="edge_label">', _cEdgeBlock_)
 			if _nLabelPos_ > 0
 				_cLabelRest_ = StzMid(_cEdgeBlock_, 23, stzlen(_cEdgeBlock_) - 22)
-				_nLabelEnd_ = StzFindFirst(_cLabelRest_, '</data>')
+				_nLabelEnd_ = StzFindFirst('</data>', _cLabelRest_)
 				if _nLabelEnd_ > 0
 					_cEdgeLabel_ = This._XMLUnescape(StzMid(_cLabelRest_, 1, _nLabelEnd_ - 1))
 				ok
@@ -3545,17 +3545,17 @@ class stzGraph from stzObject
 			_aProps_ = []
 			_cPropBlock_ = _cEdgeBlock_
 			while TRUE
-				_nPropPos_ = StzFindFirst(_cPropBlock_, '<data key="prop_')
+				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
 				if _nPropPos_ = 0
 					exit
 				ok
 
 				_cPropBlock_ = StzMid(_cPropBlock_, 16, stzlen(_cPropBlock_) - 15)
-				_nKeyEnd_ = StzFindFirst(_cPropBlock_, '">')
+				_nKeyEnd_ = StzFindFirst('">', _cPropBlock_)
 				_cPropKey_ = StzMid(_cPropBlock_, 1, _nKeyEnd_ - 1)
 
 				_cPropBlock_ = StzMid(_cPropBlock_, 2, stzlen(_cPropBlock_) - 1)
-				_nValEnd_ = StzFindFirst(_cPropBlock_, '</data>')
+				_nValEnd_ = StzFindFirst('</data>', _cPropBlock_)
 				_cPropVal_ = This._XMLUnescape(StzMid(_cPropBlock_, 1, _nValEnd_ - 1))
 
 				_aProps_ + [_cPropKey_, This._StringToValue(_cPropVal_)]
@@ -3942,7 +3942,7 @@ class stzGraph from stzObject
 			_nAffected22Len_ = len(_aAffected22_)
 			for _iLoopAffected22_ = 1 to _nAffected22Len_
 				_cRule_ = _aAffected22_[_iLoopAffected22_]
-				if StzFindFirst(_acResult_, _cRule_) = 0
+				if StzFindFirst(_cRule_, _acResult_) = 0
 					_acResult_ + _cRule_
 				ok
 			next
@@ -3955,7 +3955,7 @@ class stzGraph from stzObject
 			_nAffected21Len_ = len(_aAffected21_)
 			for _iLoopAffected21_ = 1 to _nAffected21Len_
 				_cRule_ = _aAffected21_[_iLoopAffected21_]
-				if StzFindFirst(_acResult_, _cRule_) = 0
+				if StzFindFirst(_cRule_, _acResult_) = 0
 					_acResult_ + _cRule_
 				ok
 			next
@@ -4038,7 +4038,7 @@ class stzGraph from stzObject
 			if _nPos_ = 0
 				@aAffectedNodes + [pcTargetId, [pcRuleName]]
 			else
-				if StzFindFirst(@aAffectedNodes[_nPos_][2], pcRuleName) = 0
+				if StzFindFirst(pcRuleName, @aAffectedNodes[_nPos_][2]) = 0
 					@aAffectedNodes[_nPos_][2] + pcRuleName
 				ok
 			ok
@@ -4056,7 +4056,7 @@ class stzGraph from stzObject
 			if _nPos_ = 0
 				@aAffectedEdges + [pcTargetId, [pcRuleName]]
 			else
-				if StzFindFirst(@aAffectedEdges[_nPos_][2], pcRuleName) = 0
+				if StzFindFirst(pcRuleName, @aAffectedEdges[_nPos_][2]) = 0
 					@aAffectedEdges[_nPos_][2] + pcRuleName
 				ok
 			ok
@@ -4306,7 +4306,7 @@ class stzGraph from stzObject
 						   HasKey(_aSubViolation_, :params) and 
 						   HasKey(_aSubViolation_[:params], :node)
 							_cNode_ = _aSubViolation_[:params][:node]
-							if StzFindFirst(_acNodes_, _cNode_) = 0
+							if StzFindFirst(_cNode_, _acNodes_) = 0
 								_acNodes_ + _cNode_
 							ok
 						ok
@@ -4316,7 +4316,7 @@ class stzGraph from stzObject
 				if HasKey(_aViolation_, :params) and 
 				   HasKey(_aViolation_[:params], :node)
 					_cNode_ = _aViolation_[:params][:node]
-					if StzFindFirst(_acNodes_, _cNode_) = 0
+					if StzFindFirst(_cNode_, _acNodes_) = 0
 						_acNodes_ + _cNode_
 					ok
 				ok
@@ -4334,7 +4334,7 @@ class stzGraph from stzObject
 				_nResultaffectedNodes1Len_ = len(_aResultaffectedNodes1_)
 				for _iLoopResultaffectedNodes1_ = 1 to _nResultaffectedNodes1Len_
 					_cNode_ = _aResultaffectedNodes1_[_iLoopResultaffectedNodes1_]
-					if StzFindFirst(_acAll_, _cNode_) = 0
+					if StzFindFirst(_cNode_, _acAll_) = 0
 						_acAll_ + _cNode_
 					ok
 				end
@@ -4667,7 +4667,7 @@ class stzGraph from stzObject
 		_nLen_ = len(_acBaselineIds_)
 		for i = 1 to _nLen_
 			_cNodeId_ = _acBaselineIds_[i]
-			if StzFindFirst(_acVariationIds_, _cNodeId_) > 0
+			if StzFindFirst(_cNodeId_, _acVariationIds_) > 0
 				_aBaseNode_ = This.Node(_cNodeId_)
 				_aVarNode_ = oOtherGraph.Node(_cNodeId_)
 				
@@ -4922,7 +4922,7 @@ class stzGraph from stzObject
 			_cNodeId_ = _acBaseIds_[i]
 			
 			# Only analyze nodes that exist in both graphs
-			if StzFindFirst(_acVarIds_, _cNodeId_) > 0
+			if StzFindFirst(_cNodeId_, _acVarIds_) > 0
 				# Check reachability changes
 				_acBaseReachable_ = This.ReachableFrom(_cNodeId_)
 				_acVarReachable_ = oOtherGraph.ReachableFrom(_cNodeId_)
@@ -4952,7 +4952,7 @@ class stzGraph from stzObject
 		_nLen_ = len(_acVarIds_)
 		for i = 1 to _nLen_
 			_cNodeId_ = _acVarIds_[i]
-			if StzFindFirst(_acBaseIds_, _cNodeId_) = 0
+			if StzFindFirst(_cNodeId_, _acBaseIds_) = 0
 				_nDegree_ = len(oOtherGraph.Neighbors(_cNodeId_)) + len(oOtherGraph.Incoming(_cNodeId_))
 				if _nDegree_ >= 3
 					_acCriticalityChanges_ + [_cNodeId_, "New critical node (degree " + _nDegree_ + ")"]
@@ -5228,10 +5228,10 @@ class stzGraph from stzObject
 
 			# Parse graph declaration
 			if StzLeft(_cLine_, 5) = "graph"
-				_nPos_ = StzFindFirst(_cLine_, '"')
+				_nPos_ = StzFindFirst('"', _cLine_)
 				if _nPos_ > 0
 					_cQuoted_ = StzMid(_cLine_, _nPos_ + 1, stzlen(_cLine_) - _nPos_)
-					_nEnd_ = StzFindFirst(_cQuoted_, '"')
+					_nEnd_ = StzFindFirst('"', _cQuoted_)
 					if _nEnd_ > 0
 						@cId = StzMid(_cQuoted_, 1, _nEnd_ - 1)
 					ok
@@ -5240,8 +5240,8 @@ class stzGraph from stzObject
 			ok
 
 			# Parse type
-			if StzFindFirst(_cLine_, "type:") > 0
-				_nPos_ = StzFindFirst(_cLine_, ":")
+			if StzFindFirst("type:", _cLine_) > 0
+				_nPos_ = StzFindFirst(":", _cLine_)
 				@cGraphType = trim(StzMid(_cLine_, _nPos_ + 1, stzlen(_cLine_) - _nPos_))
 				loop
 			ok
@@ -5266,10 +5266,10 @@ class stzGraph from stzObject
 				if _cNodeId_ != ""
 					# An optional quoted LABEL may follow the id, as on an
 					# edge:   ceo "CEO"
-					_nQuote_ = StzFindFirst(_cNodeId_, '"')
+					_nQuote_ = StzFindFirst('"', _cNodeId_)
 					if _nQuote_ > 0
 						_cNodeLabel_ = StzMid(_cNodeId_, _nQuote_ + 1, stzlen(_cNodeId_) - _nQuote_)
-						_nEndQuote_ = StzFindFirst(_cNodeLabel_, '"')
+						_nEndQuote_ = StzFindFirst('"', _cNodeLabel_)
 						if _nEndQuote_ > 0
 							_cNodeLabel_ = StzMid(_cNodeLabel_, 1, _nEndQuote_ - 1)
 						ok
@@ -5281,18 +5281,18 @@ class stzGraph from stzObject
 				ok
 
 			but _cSection_ = "edges"
-				if StzFindFirst(_cLine_, "->") > 0
+				if StzFindFirst("->", _cLine_) > 0
 					_acParts_ = @split(_cLine_, "->")
 					if len(_acParts_) >= 2
 						_cFrom_ = trim(_acParts_[1])
 						_cRest_ = trim(_acParts_[2])
 
 						# Check for label in quotes
-						_nQuote_ = StzFindFirst(_cRest_, '"')
+						_nQuote_ = StzFindFirst('"', _cRest_)
 						if _nQuote_ > 0
 							_cTo_ = trim(StzMid(_cRest_, 1, _nQuote_ - 1))
 							_cLabel_ = StzMid(_cRest_, _nQuote_ + 1, stzlen(_cRest_) - _nQuote_)
-							_nEndQuote_ = StzFindFirst(_cLabel_, '"')
+							_nEndQuote_ = StzFindFirst('"', _cLabel_)
 							if _nEndQuote_ > 0
 								_cLabel_ = StzMid(_cLabel_, 1, _nEndQuote_ - 1)
 								This.AddEdgeXT(_cFrom_, _cTo_, _cLabel_)
@@ -5329,7 +5329,7 @@ class stzGraph from stzObject
 					_cCurrentNode_ = trim(_cLine_)
 				else
 					# Property line
-					if StzFindFirst(_cLine_, ":") > 0
+					if StzFindFirst(":", _cLine_) > 0
 						_acParts_ = @split(_cLine_, ":")
 						if len(_acParts_) >= 2
 							_cKey_ = trim(_acParts_[1])
@@ -5445,13 +5445,13 @@ class stzGraph from stzObject
 						:severity = ""
 					]
 
-				but StzFindFirst(_cTrimmed_, "type:") = 1
+				but StzFindFirst("type:", _cTrimmed_) = 1
 					_aCurrentRule_[:type] = trim(StzMid(_cTrimmed_, 6, stzlen(_cTrimmed_) - 5))
 
-				but StzFindFirst(_cTrimmed_, "severity:") = 1
+				but StzFindFirst("severity:", _cTrimmed_) = 1
 					_aCurrentRule_[:severity] = trim(StzMid(_cTrimmed_, 11, stzlen(_cTrimmed_) - 10))
 
-				but StzFindFirst(_cTrimmed_, "function:") = 1
+				but StzFindFirst("function:", _cTrimmed_) = 1
 					_cFuncName_ = trim(StzMid(_cTrimmed_, 11, stzlen(_cTrimmed_) - 10))
 					_aCurrentRule_[:function] = This._ResolveFunctionName(_cFuncName_)
 
@@ -5461,7 +5461,7 @@ class stzGraph from stzObject
 				but _cTrimmed_ = "message"
 					_cCurrentKey_ = "message"
 
-				but _cCurrentKey_ = "params" and StzFindFirst(_cTrimmed_, ":") > 0
+				but _cCurrentKey_ = "params" and StzFindFirst(":", _cTrimmed_) > 0
 					_acParts_ = @split(_cTrimmed_, ":")
 					if len(_acParts_) >= 2
 						_cKey_ = trim(_acParts_[1])
@@ -5525,7 +5525,7 @@ class stzGraph from stzObject
 			stzraise("File not found: " + pcPath)
 		ok
 
-		if StzFindFirst(pcPath, "'") > 0
+		if StzFindFirst("'", pcPath) > 0
 			stzraise("A .stzrulf path may not contain a quote: " + pcPath)
 		ok
 
@@ -5733,7 +5733,7 @@ class stzGraph from stzObject
 			ok
 
 			if _cSection_ = "changes"
-				if StzFindFirst(_cTrimmed_, "add node ") = 1
+				if StzFindFirst("add node ", _cTrimmed_) = 1
 					_cNodeId_ = trim(StzMid(_cTrimmed_, 10, stzlen(_cTrimmed_) - 9))
 					if NOT This.NodeExists(_cNodeId_)
 						This.AddNode(_cNodeId_)
@@ -5749,7 +5749,7 @@ class stzGraph from stzObject
 				# round-trip quietly renamed the node to its id. The label
 				# belongs to the node just named above.
 
-				but StzFindFirst(_cTrimmed_, "label:") = 1 and _cSimNode_ != ""
+				but StzFindFirst("label:", _cTrimmed_) = 1 and _cSimNode_ != ""
 					_cLbl_ = trim(StzMid(_cTrimmed_, 7, stzlen(_cTrimmed_) - 6))
 					if StzLeft(_cLbl_, 1) = '"' and StzRight(_cLbl_, 1) = '"'
 						_cLbl_ = StzMid(_cLbl_, 2, stzlen(_cLbl_) - 2)
@@ -5758,15 +5758,15 @@ class stzGraph from stzObject
 						This.SetNodeLabel(_cSimNode_, _cLbl_)
 					ok
 
-				but StzFindFirst(_cTrimmed_, "remove node ") = 1
+				but StzFindFirst("remove node ", _cTrimmed_) = 1
 					_cNodeId_ = trim(StzMid(_cTrimmed_, 13, stzlen(_cTrimmed_) - 12))
 					if This.NodeExists(_cNodeId_)
 						This.RemoveThisNode(_cNodeId_)
 					ok
 
-				but StzFindFirst(_cTrimmed_, "add edge ") = 1
+				but StzFindFirst("add edge ", _cTrimmed_) = 1
 					_cRest_ = trim(StzMid(_cTrimmed_, 10, stzlen(_cTrimmed_) - 9))
-					if StzFindFirst(_cRest_, "->") > 0
+					if StzFindFirst("->", _cRest_) > 0
 						_acParts_ = split(_cRest_, "->")
 						if len(_acParts_) >= 2
 							_cFrom_ = trim(_acParts_[1])
@@ -5783,9 +5783,9 @@ class stzGraph from stzObject
 						ok
 					ok
 					
-				but StzFindFirst(_cTrimmed_, "remove edge ") = 1
+				but StzFindFirst("remove edge ", _cTrimmed_) = 1
 					_cRest_ = trim(StzMid(_cTrimmed_, 13, stzlen(_cTrimmed_) - 12))
-					if StzFindFirst(_cRest_, "->") > 0
+					if StzFindFirst("->", _cRest_) > 0
 						_acParts_ = @split(_cRest_, "->")
 						if len(_acParts_) >= 2
 							_cFrom_ = trim(_acParts_[1])
@@ -5817,7 +5817,7 @@ class stzGraph from stzObject
 	
 	def _FormatValue(pValue)
 		if isString(pValue)
-			if StzFindFirst(pValue, " ") > 0 or StzFindFirst(pValue, ":") > 0
+			if StzFindFirst(" ", pValue) > 0 or StzFindFirst(":", pValue) > 0
 				return '"' + pValue + '"'
 			else
 				return pValue
@@ -5930,11 +5930,11 @@ class stzGraph from stzObject
 			return 0
 		ok
 
-		if StzFindFirst(pcName, " ") > 0
+		if StzFindFirst(" ", pcName) > 0
 			return 0
 		ok
 
-		if StzFindFirst(pcName, NL) > 0
+		if StzFindFirst(NL, pcName) > 0
 			return 0
 		ok
 
@@ -6050,7 +6050,7 @@ class stzGraphFinder from stzObject
 				pcTag = _aFilter_[2]
 				if NOT HasKey(_aNode_, "properties") or 
 				   NOT HasKey(_aNode_["properties"], "tags") or
-				   StzFindFirst(_aNode_["properties"]["tags"], pcTag) = 0
+				   StzFindFirst(pcTag, _aNode_["properties"]["tags"]) = 0
 					return FALSE
 				ok
 			ok
@@ -6087,7 +6087,7 @@ class stzGraphFinder from stzObject
 				pcTag = _aFilter_[2]
 				if NOT HasKey(_aEdge_, "properties") or 
 				   NOT HasKey(_aEdge_["properties"], "tags") or
-				   StzFindFirst(_aEdge_["properties"]["tags"], pcTag) = 0
+				   StzFindFirst(pcTag, _aEdge_["properties"]["tags"]) = 0
 					return FALSE
 				ok
 			ok
@@ -6095,7 +6095,7 @@ class stzGraphFinder from stzObject
 		return TRUE
 	
 	def _GetNestedValue(aElement, pcKey)
-		_bIsNested_ = (StzFindFirst(pcKey, ".") > 0)
+		_bIsNested_ = (StzFindFirst(".", pcKey) > 0)
 		
 		if _bIsNested_
 			_acPath_ = split(pcKey, ".")
@@ -6150,7 +6150,7 @@ class stzGraphFinder from stzObject
 			
 		but _cCond_ = "contains" or _cCond_ = ":contains"
 			return isString(pActual) and isString(pValue) and 
-			       StzFindFirst(StzLower(pActual), StzLower(pValue)) > 0
+			       StzFindFirst(StzLower(pValue), StzLower(pActual)) > 0
 			       
 		but _cCond_ = "insection" or _cCond_ = ":insection" or _cCond_ = "between" or _cCond_ = ":between"
 			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
@@ -6326,7 +6326,7 @@ class stzGraphAsciiVisualizer from stzObject
 			_cNext_ = _acNeighbors_[i]
 			_nNeighborIdx_ += 1
 			
-			if StzFindFirst(pacVisitedPath, _cNext_) = 0
+			if StzFindFirst(_cNext_, pacVisitedPath) = 0
 				_aEdge_ = @oGraph.Edge(pcNodeId, _cNext_)
 				
 				if len(_acNeighbors_) > 1 and _nNeighborIdx_ > 1
@@ -6447,7 +6447,7 @@ class stzGraphAsciiVisualizer from stzObject
 			_cNext_ = _acNeighbors_[1]
 			_aEdge_ = @oGraph.Edge(pcNodeId, _cNext_)
 			
-			if StzFindFirst(pacVisited, _cNext_) = 0
+			if StzFindFirst(_cNext_, pacVisited) = 0
 				This._ShowHorizontalBranchWithNodes(_cNext_, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
 			else
 				pacArrowLines + [pcNodeId, _cNext_, _aEdge_["label"]]
@@ -6649,7 +6649,7 @@ class stzGraphComparison from stzObject
 			
 			# Positive density change: +3
 			_cDensity_ = _aComp_[:densityChange]
-			if isString(_cDensity_) and StzFindFirst(_cDensity_, "+") > 0
+			if isString(_cDensity_) and StzFindFirst("+", _cDensity_) > 0
 				_nScore_ += 3
 			ok
 			

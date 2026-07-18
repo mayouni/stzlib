@@ -32,11 +32,11 @@ Scenario("GENERATION: declared Reach becomes real per-platform shells")
 	Then("one shell per declared reach was written", len(aShells), 2)
 	Then("the web shell exists on disk", fexists(aShells[1]), TRUE)
 	cWeb = read(aShells[1])
-	Then("it embeds the world's name", StzFindFirst(cWeb, "resto") > 0, TRUE)
-	Then("and its declared screen", StzFindFirst(cWeb, "menu") > 0, TRUE)
+	Then("it embeds the world's name", StzFindFirst("resto", cWeb) > 0, TRUE)
+	Then("and its declared screen", StzFindFirst("menu", cWeb) > 0, TRUE)
 	cDesk = read(aShells[2])
 	Then("the desktop shell is a Ring launcher over the one engine",
-		StzFindFirst(cDesk, "stzlib.ring") > 0, TRUE)
+		StzFindFirst("stzlib.ring", cDesk) > 0, TRUE)
 
 	When("a world WITHOUT any Reach asks for generation")
 	oBare = StzAppQ("bare")
@@ -67,11 +67,11 @@ Scenario("CAPABILITY SEAM: capabilities are governed by construction")
 	$oPlat.AddCapabilityQ(:payments).SetPurposes([ :charge_guests ])
 	Then("payments is refused despite permission", $oPlat.Granted(:payments), FALSE)
 	Then("the refusal narrates the SHOULD gap",
-		StzFindFirst($oPlat.Why(), "risk tier 4") > 0, TRUE)
+		StzFindFirst("risk tier 4", $oPlat.Why()) > 0, TRUE)
 
 	When("a capability that was never admitted is asked for")
 	Then("it is refused outright", $oPlat.Granted(:location), FALSE)
-	Then("with an honest why", StzFindFirst($oPlat.Why(), "never requested") > 0, TRUE)
+	Then("with an honest why", StzFindFirst("never requested", $oPlat.Why()) > 0, TRUE)
 EndScenario()
 
 Scenario("COMMONS: identity, sessions, messaging and stores over sqlite")
@@ -112,8 +112,8 @@ Scenario("NETWORKED BODY: the world served through the reactor host")
 	nJob = oPeer.SubmitTcp("127.0.0.1", nPort, cReq)
 	$oPlat.ServeOne(3000)
 	cBody = oPeer.AwaitTcp(nJob, 5000)
-	Then("the world names itself", StzFindFirst(cBody, '"world":"resto"') > 0, TRUE)
-	Then("and lists its things", StzFindFirst(cBody, '"dish"') > 0, TRUE)
+	Then("the world names itself", StzFindFirst('"world":"resto"', cBody) > 0, TRUE)
+	Then("and lists its things", StzFindFirst('"dish"', cBody) > 0, TRUE)
 
 	When("a client asks GET /thing?name=dish")
 	cReq = "GET /thing?name=dish HTTP/1.1" + $CRLF + "Host: local" + $CRLF +
@@ -121,7 +121,7 @@ Scenario("NETWORKED BODY: the world served through the reactor host")
 	nJob = oPeer.SubmitTcp("127.0.0.1", nPort, cReq)
 	$oPlat.ServeOne(3000)
 	cBody = oPeer.AwaitTcp(nJob, 5000)
-	Then("the thing answers with its fields", StzFindFirst(cBody, '"price"') > 0, TRUE)
+	Then("the thing answers with its fields", StzFindFirst('"price"', cBody) > 0, TRUE)
 
 	oPeer.Destroy()
 	$oPlat.StopServing()
@@ -149,14 +149,14 @@ Scenario("REGISTRY + ENFORCEMENT: cross-world calls are norm-gated")
 
 	When("an unbonded action is attempted")
 	Then("it is refused", $oPlat.CallAcross("resto", "supplier", "raid-kitchen"), FALSE)
-	Then("with the bond named as the reason", StzFindFirst($oPlat.Why(), "no bond") > 0, TRUE)
+	Then("with the bond named as the reason", StzFindFirst("no bond", $oPlat.Why()) > 0, TRUE)
 
 	When("the supplier world is retired")
 	$oPlat.RetireWorld("supplier")
 	Then("the previously allowed call is now refused",
 		$oPlat.CallAcross("resto", "supplier", "order-produce"), FALSE)
 	Then("because the target is inactive",
-		StzFindFirst($oPlat.Why(), "not active") > 0, TRUE)
+		StzFindFirst("not active", $oPlat.Why()) > 0, TRUE)
 	$oDb.Close()
 EndScenario()
 

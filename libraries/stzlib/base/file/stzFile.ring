@@ -764,7 +764,7 @@ func StzNormalizeFilePathXT(_cName_)
 
 	_cName_ = trim(_cName_)
 
-	if StzLeft(_cName_, 1) != "/" and StzFindFirst(_cName_, ":/") = 0
+	if StzLeft(_cName_, 1) != "/" and StzFindFirst(":/", _cName_) = 0
 		_cName_ = currentdir() + "/" + _cName_
 	ok
 
@@ -1039,7 +1039,7 @@ class stzFileInfo from stzObject
 
     def BaseName()
         _cBase_ = StzEnginePathBasename(@cFileName)
-        _nDot_ = StzFindFirst(_cBase_, ".")
+        _nDot_ = StzFindFirst(".", _cBase_)
         if _nDot_ > 0
             return StzLeft(_cBase_, _nDot_ - 1)
         ok
@@ -1128,7 +1128,7 @@ class stzFileReadingMixin from stzObject
     def FindText(cSearchText)
         # Returns position of text in file, or 0 if not found
         _cContent_ = This.Content()
-        return StzFindFirst(_cContent_, cSearchText)
+        return StzFindFirst(cSearchText, _cContent_)
     
     def ContainsText(cSearchText)
         return This.FindText(cSearchText) > 0
@@ -1147,7 +1147,7 @@ class stzFileReadingMixin from stzObject
         _aResult_ = []
 	   _nLen_ = len(_aLines_)
         for i = 1 to _nLen_
-            if StzFindFirst(_aLines_[i], cSearchText) > 0
+            if StzFindFirst(cSearchText, _aLines_[i]) > 0
                 _aResult_ + [i, _aLines_[i]]
             ok
         next
@@ -1158,7 +1158,7 @@ class stzFileReadingMixin from stzObject
         _aLines_ = This.Lines()
 	   _nLen_ = len(_aLines_)
         for i = 1 to _nLen_
-            if StzFindFirst(_aLines_[i], cSearchText) > 0
+            if StzFindFirst(cSearchText, _aLines_[i]) > 0
                 return i
             ok
         next
@@ -1898,7 +1898,7 @@ class stzFileModifier from stzFileReadingMixin
 
         _anResult_ = []
         for i = 1 to _nLen_
-            if StzFindFirst(_aLines_[i], cSearchText) > 0
+            if StzFindFirst(cSearchText, _aLines_[i]) > 0
                 _anResult_ + i
             ok
         next
@@ -1911,7 +1911,7 @@ class stzFileModifier from stzFileReadingMixin
 
         _acResult_ = []
         for i = 1 to _nLen_
-            if StzFindFirst(_acLines_[i], cSearchText) > 0
+            if StzFindFirst(cSearchText, _acLines_[i]) > 0
                 _acResult_ + _acLines_[i]
             ok
         next
@@ -1925,7 +1925,7 @@ class stzFileModifier from stzFileReadingMixin
 
         _aNewLines_ = []
         for i = 1 to _nLen_
-            if StzFindFirst(_aLines_[i], cSearchText) = 0
+            if StzFindFirst(cSearchText, _aLines_[i]) = 0
                 _aNewLines_ + _aLines_[i]
             ok
         next
@@ -1988,7 +1988,7 @@ class stzFileModifier from stzFileReadingMixin
 	    _nLen_ = len(_aLines_)
 
 	    for i = 1 to _nLen_
-	        if StzFindFirst(_aLines_[i], cSubstr) > 0
+	        if StzFindFirst(cSubstr, _aLines_[i]) > 0
 	            _aLines_[i] = cNewLine
 	            exit
 	        ok
@@ -2234,7 +2234,7 @@ class stzFileManager from stzObject
 
         _nLen_ = len(_aLines_)
         for i = 1 to _nLen_
-            if StzFindFirst(_aLines_[i], cPattern) > 0 and len(_aCurrentChunk_) > 0
+            if StzFindFirst(cPattern, _aLines_[i]) > 0 and len(_aCurrentChunk_) > 0
                 _cNewFileName_ = _cBaseName_ + "_" + _nFileNum_ + "." + _cSuffix_
                 _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
                 

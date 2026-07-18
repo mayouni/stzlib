@@ -18,7 +18,7 @@ $oRct = new stzReactor()
 Scenario("a subprocess runs off-thread and its stdout is captured")
 	Given("a shell command that echoes a marker")
 	cOut = $oRct.Spawn(EchoCmd("softanza-spawn"), 5000)
-	Then("the child's stdout came back", StzFindFirst(cOut, "softanza-spawn") > 0, TRUE)
+	Then("the child's stdout came back", StzFindFirst("softanza-spawn", cOut) > 0, TRUE)
 	Then("its exit code is 0", $oRct.SpawnLastStatus(), 0)
 EndScenario()
 
@@ -39,8 +39,8 @@ Scenario("many workers run concurrently, drained independently")
 	cB = $oRct.AwaitSpawn(nB, 5000)
 	cC = $oRct.AwaitSpawn(nC, 5000)
 	Then("each returned its own output",
-		StzFindFirst(cA, "AAA") > 0 and StzFindFirst(cB, "BBB") > 0 and
-		StzFindFirst(cC, "CCC") > 0, TRUE)
+		StzFindFirst("AAA", cA) > 0 and StzFindFirst("BBB", cB) > 0 and
+		StzFindFirst("CCC", cC) > 0, TRUE)
 EndScenario()
 
 Scenario("a missing program surfaces an error, no crash")

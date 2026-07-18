@@ -71,7 +71,7 @@ p.TrustFloor("vat", :trusted)
 rl2 = p.Refine("vat").As(:llm).To("0.24")
 chk("with a :trusted floor, an :llm edit is REFUSED", rl2[:admitted] = 0)
 chk("the why names the trust posture, not identity",
-	StzFindFirst(rl2[:why], "trust: posture :llm") > 0)
+	StzFindFirst("trust: posture :llm", rl2[:why]) > 0)
 chk("the refused proposal did NOT mutate the source", p.ValueOf("vat") != "0.24")
 
 rt = p.Refine("vat").As(:trusted).To("0.24")
