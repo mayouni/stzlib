@@ -977,29 +977,11 @@ Class stzTable from stzList
 
 			@pEngine = StzEngineTableNew()
 
-			_nCols_ = len(@aContent)
-			for _i_ = 1 to _nCols_
-				StzEngineTableAddCol(@pEngine, @aContent[_i_][1])
-			next
-
-			if _nCols_ > 0
-				_nRows_ = len(@aContent[1][2])
-				for r = 1 to _nRows_
-					StzEngineTableAddRow(@pEngine)
-					for c = 1 to _nCols_
-						_v_ = @aContent[c][2][r]
-						if isNumber(_v_)
-							if floor(_v_) = _v_
-								StzEngineTableSetCellInt(@pEngine, c-1, r-1, _v_)
-							else
-								StzEngineTableSetCellFloat(@pEngine, c-1, r-1, _v_)
-							ok
-						but isString(_v_)
-							StzEngineTableSetCellString(@pEngine, c-1, r-1, _v_)
-						ok
-					next
-				next
-			ok
+			# ONE bulk call. This used to add each column, then each row, then
+			# SET EVERY CELL individually -- O(rows x cols) FFI calls (300k for
+			# a 50k x 6 table). The engine now reads the whole content list in
+			# a single call.
+			StzEngineTableFill(@pEngine, @aContent)
 
 			@bEngineStale = FALSE
 		ok
@@ -1008,27 +990,10 @@ Class stzTable from stzList
 		@bEngineStale = TRUE
 
 	def _SyncFromEngine()
-		_nCols_ = StzEngineTableNumCols(@pEngine)
-		_nRows_ = StzEngineTableNumRows(@pEngine)
-
-		@aContent = []
-		for c = 1 to _nCols_
-			_cName_ = StzEngineTableColName(@pEngine, c-1)
-			_aData_ = []
-			for r = 1 to _nRows_
-				_nType_ = StzEngineTableGetCellType(@pEngine, c-1, r-1)
-				if _nType_ = 2
-					_aData_ + StzEngineTableGetCellInt(@pEngine, c-1, r-1)
-				but _nType_ = 3
-					_aData_ + StzEngineTableGetCellFloat(@pEngine, c-1, r-1)
-				but _nType_ = 4
-					_aData_ + StzEngineTableGetCellString(@pEngine, c-1, r-1)
-				else
-					_aData_ + ""
-				ok
-			next
-			@aContent + [_cName_, _aData_]
-		next
+		# ONE bulk call. This used to read EVERY CELL with GetCellType +
+		# GetCell* -- 2 FFI calls per cell (600k for a 50k x 6 table). The
+		# engine now builds the whole Ring content list in a single call.
+		@aContent = StzEngineTableContent(@pEngine)
 		@bEngineStale = FALSE
 
 	def _FreeEngine()

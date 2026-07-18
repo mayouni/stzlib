@@ -255,7 +255,140 @@ fn ring_PivotCrossTab2(p: *anyopaque) callconv(.c) void {
     )), HT);
 }
 
+// ---- BULK transfer: ONE FFI call instead of one per CELL --------------------
+// The Ring side built and read the engine table cell-by-cell (_EnsureEngine did
+// AddRow + SetCell* per cell; _SyncFromEngine did GetCellType + GetCell* per
+// cell) -- ~950k FFI calls just to sort a 50k x 6 table. These two move the
+// whole table in one call each, the same bulk pattern already used for lists
+// (MarshalFromRingList / ContentToRingList).
+
+const ITEMTYPE_STRING: c_uint = 1;
+const ITEMTYPE_NUMBER: c_uint = 2;
+
+// Fill an EMPTY engine table from a Ring content list [ [name, [cells..]], .. ].
+fn ring_Fill(p: *anyopaque) callconv(.c) void {
+    const t = getT(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    if (R.ring_vm_api_islist(p, 2) == 0) {
+        rn(p, 0);
+        return;
+    }
+    const pContent = R.ring_vm_api_getlist(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+
+    const ncols: c_uint = @intCast(R.ringListSize(pContent));
+    if (ncols == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    // pass 1 -- column names, and the row count from the first column
+    var nrows: c_uint = 0;
+    var c: c_uint = 1;
+    while (c <= ncols) : (c += 1) {
+        const pPair = R.ring_list_getlist_gc(null, pContent, c) orelse continue;
+        if (R.ringListSize(pPair) < 2) continue;
+
+        var named = false;
+        if (R.ring_list_gettype_gc(null, pPair, 1) == ITEMTYPE_STRING) {
+            if (R.ring_list_getitem_gc(null, pPair, 1)) |item| {
+                if (R.ringItemStringPtr(item)) |s| {
+                    _ = table.stz_table_add_col(t, s, @intCast(R.ringItemStringSize(item)));
+                    named = true;
+                }
+            }
+        }
+        if (!named) _ = table.stz_table_add_col(t, "", 0);
+
+        if (c == 1) {
+            if (R.ring_list_getlist_gc(null, pPair, 2)) |d| nrows = @intCast(R.ringListSize(d));
+        }
+    }
+
+    var r: c_uint = 0;
+    while (r < nrows) : (r += 1) _ = table.stz_table_add_row(t);
+
+    // pass 2 -- cells
+    c = 1;
+    while (c <= ncols) : (c += 1) {
+        const pPair = R.ring_list_getlist_gc(null, pContent, c) orelse continue;
+        const pData = R.ring_list_getlist_gc(null, pPair, 2) orelse continue;
+        const n: c_uint = @intCast(R.ringListSize(pData));
+        const ci: i64 = @as(i64, @intCast(c)) - 1;
+
+        var i: c_uint = 1;
+        while (i <= n and i <= nrows) : (i += 1) {
+            const ri: i64 = @as(i64, @intCast(i)) - 1;
+            const ty = R.ring_list_gettype_gc(null, pData, i);
+            const item = R.ring_list_getitem_gc(null, pData, i) orelse continue;
+
+            if (ty == ITEMTYPE_NUMBER) {
+                const num = R.ring_item_getnumber(item);
+                const iv: i64 = @intFromFloat(num);
+                if (@as(f64, @floatFromInt(iv)) == num) {
+                    table.stz_table_set_cell_int(t, ci, ri, iv);
+                } else {
+                    table.stz_table_set_cell_float(t, ci, ri, num);
+                }
+            } else if (ty == ITEMTYPE_STRING) {
+                if (R.ringItemStringPtr(item)) |s| {
+                    table.stz_table_set_cell_string(t, ci, ri, s, @intCast(R.ringItemStringSize(item)));
+                }
+            }
+        }
+    }
+    rn(p, 1);
+}
+
+// Build the whole Ring content list [ [name, [cells..]], .. ] from the table.
+fn ring_Content(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const t = getTC(p, 1);
+    if (t == null) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+
+    const ncols = table.stz_table_num_cols(t);
+    const nrows = table.stz_table_num_rows(t);
+
+    var c: i64 = 0;
+    while (c < ncols) : (c += 1) {
+        const pair = R.ring_list_newlist(out) orelse continue;
+
+        if (table.stz_table_col_name(t, c)) |nm| {
+            R.ring_list_addstring2(pair, nm, @intCast(table.stz_table_col_name_len(t, c)));
+        } else {
+            R.ring_list_addstring2(pair, "", 0);
+        }
+
+        const data = R.ring_list_newlist(pair) orelse continue;
+        var r: i64 = 0;
+        while (r < nrows) : (r += 1) {
+            const ty = table.stz_table_get_cell_type(t, c, r);
+            if (ty == 2) {
+                R.ring_list_adddouble(data, @floatFromInt(table.stz_table_get_cell_int(t, c, r)));
+            } else if (ty == 3) {
+                R.ring_list_adddouble(data, table.stz_table_get_cell_float(t, c, r));
+            } else if (ty == 4) {
+                if (table.stz_table_get_cell_string(t, c, r)) |s| {
+                    R.ring_list_addstring2(data, s, @intCast(table.stz_table_get_cell_string_len(t, c, r)));
+                } else R.ring_list_addstring2(data, "", 0);
+            } else {
+                R.ring_list_addstring2(data, "", 0);
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginetablefill",          .func = &ring_Fill },
+    .{ .name = "stzenginetablecontent",       .func = &ring_Content },
     .{ .name = "stzenginetablenew",           .func = &ring_New },
     .{ .name = "stzenginetablefree",          .func = &ring_Free },
     .{ .name = "stzenginetablenumcols",       .func = &ring_NumCols },
