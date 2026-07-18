@@ -436,7 +436,7 @@ load "../stzlib.ring"
 /*	But, in some situations, the generality of the keyword "Item" allows more flexibility.
 	To show that, let's consider using Q() that inferes type from value, and elevates
 	the value to an object, so we can work on it:
-*/	? Q("ABC").NumberOfChars() #--> 3
+*/	? StzNumberOfChars("ABC") #--> 3
 	? Q(["A", "B", "C"]).NumberOfItems() #--> 3
 
 /*	Now, when we have the value in a variable that we don't necessarily know in advance,
