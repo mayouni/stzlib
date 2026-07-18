@@ -2941,6 +2941,19 @@ fn ring_StringWordsSplitList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// All substrings bounded by open..close, in one pass. Case-sensitive only --
+// see str_bounded_by_cs for why the folded path is deliberately excluded.
+fn ring_StringBoundedByList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    const op = ring_vm_api_getstring(p, 2);
+    const op_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const cl = ring_vm_api_getstring(p, 3);
+    const cl_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    emitNulList(out, string.str_bounded_by_cs(h, op, op_len, cl, cl_len));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringStemWordsList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     const h = getHandle(p, 1);
@@ -4111,6 +4124,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsearchtokens", .func = &ring_StringSearchTokens },
     .{ .name = "stzenginestringsearchtokenslist", .func = &ring_StringSearchTokensList },
     .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
+    .{ .name = "stzenginestringboundedbylist", .func = &ring_StringBoundedByList },
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
     .{ .name = "stzenginestringpostagslist", .func = &ring_StringPosTagsList },
     .{ .name = "stzenginestringnamedentitieslist", .func = &ring_StringNamedEntitiesList },

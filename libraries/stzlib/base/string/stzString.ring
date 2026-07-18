@@ -6773,6 +6773,31 @@ class stzString from stzObject
 		# non-overlapping pairing drops the middles). AnyBoundedByZZ pairs each
 		# substring with its [start, end] span.
 		def AnyBoundedBy(pacBounds)
+			# SAME-string bounds go to the engine in ONE pass. The general
+			# route below asks for the spans and then slices each one, and
+			# BOTH halves rescan from the start of the string per call
+			# (find-from-position and slice-by-index each walk the UTF-8 from
+			# byte 0), so extracting N regions cost O(N x len) -- 20k quoted
+			# bodies out of a 918KB log never finished.
+			#
+			# Restricted to same-string bounds on purpose: that is the case
+			# str_bounded_by_cs mirrors exactly (overlapping -- each closer
+			# opens the next region). Distinct bounds pair differently, via
+			# FindSubStringsBoundedByCSZZ, and keep the existing route.
+			# (Nested ifs: Ring's `and` does not short-circuit, so a flat
+			# condition would index into a non-list bound.)
+
+			if isList(pacBounds)
+				if len(pacBounds) = 2
+					if isString(pacBounds[1]) and isString(pacBounds[2])
+						if pacBounds[1] = pacBounds[2]
+							return StzEngineStringBoundedByList(
+								This.Engine(), pacBounds[1], pacBounds[2])
+						ok
+					ok
+				ok
+			ok
+
 			_aAbZZ_ = This.FindAnyBoundedByZZ(pacBounds)
 			_aAbRes_ = []
 			_nAb_ = len(_aAbZZ_)
@@ -8459,22 +8484,46 @@ class stzString from stzObject
 	# closer is REUSED as the next opener (the settled overlap rule);
 	# distinct bounds advance past the closer.
 	def _BoundedContentSpansOC(pcOpen, pcClose)
+		# Walk the RESIDENT engine handle.
+		#
+		# This used to pull the whole string out with Content() and then hand
+		# it to _FindFrom, which marshals it BACK into the engine and frees it
+		# again -- on every call, twice per bounded region. Extracting the 20k
+		# quoted bodies from a 918KB log copied tens of GB and never finished.
+		# Content() is itself just StzEngineStringData(@pEngine), so the handle
+		# is the same truth -- there is nothing to marshal.
+
 		_aBcsRes_ = []
-		_cBcsTxt_ = This.Content()
+		_pBcsH_ = This.Engine()
 		_nBcsOL_ = This._EngineCount(pcOpen)
 		_nBcsCL_ = This._EngineCount(pcClose)
-		_nBcsS_ = This._FindFrom(_cBcsTxt_, pcOpen, 1)
+
+		_nBcsS_ = StzEngineStringFindFirstFromCS(_pBcsH_, pcOpen, 1, 1)
+		if _nBcsS_ < 1
+			_nBcsS_ = 0
+		ok
+
 		while _nBcsS_ > 0
 			_nBcsIn_ = _nBcsS_ + _nBcsOL_
-			_nBcsE_ = This._FindFrom(_cBcsTxt_, pcClose, _nBcsIn_)
-			if _nBcsE_ = 0 exit ok
+			_nBcsE_ = StzEngineStringFindFirstFromCS(_pBcsH_, pcClose, _nBcsIn_, 1)
+
+			if _nBcsE_ < 1
+				exit
+			ok
+
 			_aBcsRes_ + [ _nBcsIn_, _nBcsE_ - 1 ]
+
 			if pcOpen = pcClose
 				_nBcsS_ = _nBcsE_
 			else
-				_nBcsS_ = This._FindFrom(_cBcsTxt_, pcOpen, _nBcsE_ + _nBcsCL_)
+				_nBcsS_ = StzEngineStringFindFirstFromCS(_pBcsH_, pcOpen, _nBcsE_ + _nBcsCL_, 1)
+			ok
+
+			if _nBcsS_ < 1
+				_nBcsS_ = 0
 			ok
 		end
+
 		return _aBcsRes_
 
 	# The [start, end] sections of the substrings bounded by the
@@ -8579,13 +8628,39 @@ class stzString from stzObject
 		return _cDbB_ = pcBound
 
 	def _DeepSlice(_nStart_, nEnd)
-		_aDsC_ = This.Chars()
-		_cDs_ = ""
-		for _kDs_ = _nStart_ to nEnd
-			if _kDs_ >= 1 and _kDs_ <= len(_aDsC_)
-				_cDs_ += _aDsC_[_kDs_]
-			ok
-		next
+		# Codepoint slice taken straight off the resident engine handle.
+		#
+		# This used to call This.Chars(), which explodes the WHOLE string
+		# into a Ring list of 1-char strings -- on EVERY call. Callers slice
+		# in a loop (AnyBoundedBy, BoundedByZZ, ...), so N slices cost
+		# O(N x stringlength) plus N allocations of an N-element list.
+		# Extracting the 20k quoted bodies from a 918KB log did not finish;
+		# doubling the input multiplied the time by ~5.
+		#
+		# Chars() reads This.Engine() too, so slicing the same handle keeps
+		# identical freshness semantics -- and the out-of-range CLAMP below
+		# preserves the old behaviour of returning just the in-range part.
+
+		# No length probe here on purpose: str_slice walks only as far as
+		# the string actually goes, so an over-long end already yields just
+		# the in-range part. Asking for the codepoint count first would add
+		# a full O(len) scan to EVERY slice.
+
+		_nDsA_ = _nStart_
+		_nDsB_ = nEnd
+
+		if _nDsA_ < 1
+			_nDsA_ = 1
+		ok
+
+		if _nDsB_ < _nDsA_
+			return ""
+		ok
+
+		_pDsSlc_ = StzEngineStringSlice(This.Engine(), _nDsA_, _nDsB_ - _nDsA_ + 1)
+		_cDs_ = StzEngineStringData(_pDsSlc_)
+		StzEngineStringFree(_pDsSlc_)
+
 		return _cDs_
 
 	def _DeepBoundedSections(pcOpen, pcClose)

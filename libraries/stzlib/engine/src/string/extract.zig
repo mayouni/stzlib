@@ -354,6 +354,67 @@ pub fn str_slice(handle: StzStringHandle, start_cp: usize, cp_count_arg: usize) 
     return str_new();
 }
 
+/// All substrings bounded by `open` .. `close`, extracted in ONE forward pass.
+///
+/// Mirrors the Ring _BoundedContentSpansOC walk exactly:
+///   - find `open`; the content starts just after it
+///   - find `close` from there; the content ends just before it
+///   - SAME-string bounds OVERLAP -- the closer becomes the next opener, so
+///     `"a"b"c"` yields a, b, c and not just a, c
+///   - DISTINCT bounds resume the search after the closer
+///
+/// Why this exists: the Ring loop it replaces called find-from-position once
+/// per region, and that API rescans from the START of the string on every
+/// call to convert a codepoint index into a byte offset. Extracting N regions
+/// therefore cost O(N x len) -- pulling 20k quoted bodies out of a 918KB log
+/// never finished. This walk is O(len).
+///
+/// CASE-SENSITIVE ONLY, on purpose. Casefolding can change a string's byte
+/// length, so offsets into a folded haystack do not map back onto the
+/// original bytes; emitting from them would corrupt the output. The
+/// case-insensitive path stays on the Ring walk.
+///
+/// Returns the substrings NUL-terminated (a NUL after EVERY item, so an empty
+/// bounded region survives the trip).
+pub export fn str_bounded_by_cs(
+    handle: StzStringHandle,
+    open: [*c]const u8,
+    open_len: usize,
+    close: [*c]const u8,
+    close_len: usize,
+) StzStringHandle {
+    const s = handle orelse return str_new();
+    if (open == null or open_len == 0) return str_new();
+    if (close == null or close_len == 0) return str_new();
+
+    const hay = s.slice();
+    const op = open[0..open_len];
+    const cl = close[0..close_len];
+
+    const result = str_new() orelse return null;
+    const same_bounds = mem.eql(u8, op, cl);
+
+    var pos: usize = 0;
+
+    while (mem.indexOfPos(u8, hay, pos, op)) |open_at| {
+        const content_start = open_at + op.len;
+        if (content_start > hay.len) break;
+
+        const close_at = mem.indexOfPos(u8, hay, content_start, cl) orelse break;
+
+        result.data.appendSlice(gpa, hay[content_start..close_at]) catch break;
+        result.data.append(gpa, 0) catch break;
+
+        if (same_bounds) {
+            pos = close_at; // the closer opens the next region
+        } else {
+            pos = close_at + cl.len;
+        }
+    }
+
+    return result;
+}
+
 /// Get all chars as an array of handles. Caller must free each handle and the array.
 /// Returns count via out parameter. Array allocated with c_allocator.
 pub fn str_chars(handle: StzStringHandle, out_count: *usize) callconv(.c) [*c]StzStringHandle {
