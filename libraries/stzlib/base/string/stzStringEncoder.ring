@@ -305,22 +305,12 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	# The string with the regex special chars escaped.
+	# One engine pass. This used to build a per-character LIST of the whole
+	# string (@oString.Chars()) and scan the metacharacter set for each one,
+	# which allocates a Ring object per character to answer a question about
+	# 14 ASCII bytes. Same set, same result.
 	def EscapedForRegex()
-		_acChars_ = @oString.Chars()
-		_nLen_ = len(_acChars_)
-		_cResult_ = ""
-		_cSpecial_ = ".*+?^${}[]()|\\"
-
-		for _i_ = 1 to _nLen_
-			_c_ = _acChars_[_i_]
-			if StzFindFirst(_c_, _cSpecial_) > 0
-				_cResult_ += "\" + _c_
-			else
-				_cResult_ += _c_
-			ok
-		next
-
-		return _cResult_
+		return StzRegexEscape(@oString.Content())
 
 		def EscapeForRegex()
 			@oString.Update(This.EscapedForRegex())

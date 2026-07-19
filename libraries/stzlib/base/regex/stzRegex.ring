@@ -108,6 +108,25 @@ func StzAllMatches(cInput, cPattern)
 	func AllMatches(cInput, cPattern)
 		return StzAllMatches(cInput, cPattern)
 
+# Escapes the regex metacharacters in pcStr, so the result is a pattern that
+# matches pcStr and nothing else. Engine-backed, one pass, no per-char list.
+#
+#   StzRegexEscape("+")     --> "\+"
+#   StzRegexEscape(".edu")  --> "\.edu"
+#
+# What every "starts with / ends with / contains this TEXT" builder needs, so
+# that a dot means a dot rather than any character.
+
+func StzRegexEscape(pcStr)
+	if NOT isString(pcStr)
+		StzRaise("Incorrect param type! pcStr must be a string.")
+	ok
+
+	return StzEngineRegexEscape(pcStr)
+
+	func StzEscapeForRegex(pcStr)
+		return StzRegexEscape(pcStr)
+
 func StzRegexMatch(cInput, cPattern)
 	pH = StzEngineRegexNew(cPattern, 0)
 	if pH = NULL

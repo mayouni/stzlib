@@ -187,6 +187,61 @@ chk("an EMPTY option list is accepted",
 	oO4.MatchXT("abc", 1, :MatchEntireContent, []) = 1)
 
 ? ""
+? "-- Scene 8: literal text becomes a pattern that matches itself --"
+# StzRegexEscape is what lets a builder say "starts with +" and mean a plus
+# sign. IfStartsWith("+") used to emit (?=^+) -- a quantifier on ^ -- which
+# does not compile, so that pattern silently matched nothing at all.
+#
+# The backslash is built with char(92) rather than written as a literal, for
+# the same reason the Arabic above is built from codepoints: no escaping
+# ambiguity, nothing for a lexer to reinterpret.
+cBS = char(92)
+
+chk("a plus sign is escaped", StzRegexEscape("+") = cBS + "+")
+chk("a dot is escaped", StzRegexEscape(".edu") = cBS + ".edu")
+chk("several metacharacters at once", StzRegexEscape("a.b*c") = "a" + cBS + ".b" + cBS + "*c")
+chk("text with no metacharacters is returned untouched", StzRegexEscape("plain") = "plain")
+chk("the empty string escapes to the empty string", StzRegexEscape("") = "")
+
+# Multibyte must survive byte-for-byte: every metacharacter is ASCII, and no
+# byte of a UTF-8 sequence is, so nothing inside a codepoint can be hit.
+chk("Arabic round-trips unchanged", StzRegexEscape(cAr) = cAr)
+chk("CJK round-trips unchanged", StzRegexEscape(cCJK) = cCJK)
+chk("Hebrew round-trips unchanged", StzRegexEscape(cHeb) = cHeb)
+chk("Arabic followed by a dot escapes only the dot",
+	StzRegexEscape(cAr + ".") = cAr + cBS + ".")
+
+# The escaped form must actually MATCH the text it came from.
+oEsc = new stzRegex(StzRegexEscape("a.b*c"))
+chk("the escaped pattern matches its own literal text", oEsc.Match("a.b*c"))
+oEsc2 = new stzRegex(StzRegexEscape("a.b*c"))
+chk("...and NOT what the unescaped metacharacters would have matched",
+	oEsc2.Match("axbbbc") = 0)
+oEscAr = new stzRegex(StzRegexEscape(cAr + "."))
+chk("a multibyte literal matches itself after escaping", oEscAr.Match(cAr + "."))
+
+# The builder end to end -- the phone-number sequence the article documents,
+# which could not work while IfStartsWith("+") produced an uncompilable
+# pattern.
+cThen = cBS + "+1" + cBS + "d{10}"
+cElse = cBS + "d{10}"
+
+oPh = new stzRegex( wrxm().IfStartsWith("+").ThenMatch(cThen).ElseMatch(cElse).Pattern() )
+chk("IfStartsWith('+') now COMPILES", oPh.IsValid())
+oPh1 = new stzRegex( wrxm().IfStartsWith("+").ThenMatch(cThen).ElseMatch(cElse).Pattern() )
+chk("...and matches the international format", oPh1.Match("+12345678901"))
+oPh2 = new stzRegex( wrxm().IfStartsWith("+").ThenMatch(cThen).ElseMatch(cElse).Pattern() )
+chk("...and the local one", oPh2.Match("1234567890"))
+oPh3 = new stzRegex( wrxm().IfStartsWith("+").ThenMatch(cThen).ElseMatch(cElse).Pattern() )
+chk("...and rejects a short one", oPh3.Match("+1234") = 0)
+
+# StzFindFIRST, not StzFind -- StzFind returns ALL positions, so `> 0` on it
+# is a list-vs-number comparison (R21).
+chk("IfEndsWith('.edu') escapes the dot",
+	StzFindFirst("(?=" + cBS + ".edu$)",
+		wrxm().IfEndsWith(".edu").ThenMatch("x").ElseMatch("y").Pattern()) > 0)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
