@@ -93,6 +93,44 @@ class stzLogisticRegression from stzObject
 	def Bias()
 		return @nB
 
+	# How well the model fits the data it was TRAINED on.
+	#
+	# This exists because the way this class fails is SILENT and CONFIDENT.
+	# Gradient descent on UNSCALED features diverges: with values in the tens
+	# of thousands and the default learning rate, each weight update is
+	# thousands wide, the sigmoid saturates, and the model settles on a
+	# confidently WRONG answer -- Probability() returns exactly 1 or 0, which
+	# reads as certainty. Measured on identical data: features 1000..79000
+	# gave weights [5350, 5350] and misclassified a training-range point,
+	# while the SAME data scaled to 0..1 gave weights [8.06, 8.06] and
+	# answered correctly.
+	#
+	# Needing standardised features is the normal requirement for stochastic
+	# gradient descent, not a defect here -- but nothing surfaced the failure.
+	# This does: a diverged model scores around chance on data it has already
+	# seen, where a converged one scores near 1.
+	def TrainingAccuracy()
+		if NOT @bTrained
+			return 0
+		ok
+
+		_aTaEx_ = @oTs.Examples()
+		_nTaLen_ = len(_aTaEx_)
+
+		if _nTaLen_ = 0
+			return 0
+		ok
+
+		_acTaPred_ = []
+		_acTaTruth_ = []
+
+		for _iTa_ = 1 to _nTaLen_
+			_acTaPred_ + This.Classify(_aTaEx_[_iTa_][1])
+			_acTaTruth_ + _aTaEx_[_iTa_][2]
+		next
+
+		return StzAccuracy(_acTaPred_, _acTaTruth_)
+
 	def Why()
 		return @cWhy
 
