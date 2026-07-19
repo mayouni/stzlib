@@ -92,14 +92,14 @@
 					_iEcfSave_ = _iEcf_
 
 					_aEcfSubContent_ = StzEngineContentFromList(_pEcfSub_)
-					add(_aEcfResult_, _aEcfSubContent_)
+					_aEcfResult_ + _aEcfSubContent_
 					StzEngineListFree(_pEcfSub_)
 
 					# Restore loop state after recursion
 					_nEcfLen_ = _nEcfSaveLen_
 					_iEcf_ = _iEcfSave_
 				else
-					add(_aEcfResult_, [])
+					_aEcfResult_ + []
 				ok
 			other
 				_aEcfResult_ + NULL
@@ -7672,19 +7672,19 @@ func Combinations(_aList_, _n_)
 
 		for @j = @i + 1 to _nLen_ - _n_ + 2
 			_aCombination_ = []
-			add(_aCombination_, _aList_[@i])
+			_aCombination_ + _aList_[@i]
 
 			# Additional loops for n > 2
 			if _n_ > 2
 				for @k = @j + 1 to _nLen_
 					_aTempComb_ = _aCombination_
-					add(_aTempComb_, _aList_[@j])
-					add(_aTempComb_, _aList_[@k])
-					add(_aResult_, _aTempComb_)
+					_aTempComb_ + _aList_[@j]
+					_aTempComb_ + _aList_[@k]
+					_aResult_ + _aTempComb_
 				next
 			else
-				add(_aCombination_, _aList_[@j])
-				add(_aResult_, _aCombination_)
+				_aCombination_ + _aList_[@j]
+				_aResult_ + _aCombination_
 			ok
 		next
 	next
@@ -7861,7 +7861,7 @@ func HasPath(paList, pacKeys)
 			if _nFound_ > 0
 				add(_aRes_[_nFound_][2], _i_)
 			else
-				add(_aRes_, [ _v_, [_i_] ])
+				_aRes_ + [ _v_, [_i_] ]
 			ok
 		next
 		return _aRes_
@@ -7872,7 +7872,7 @@ func HasPath(paList, pacKeys)
 		_aRes_ = []
 		_nLen_ = len(_aWith_)
 		for _i_ = 1 to _nLen_
-			add(_aRes_, [ _aWith_[_i_][1], len(_aWith_[_i_][2]) ])
+			_aRes_ + [ _aWith_[_i_][1], len(_aWith_[_i_][2]) ]
 		next
 		return _aRes_
 
@@ -7904,7 +7904,7 @@ func HasPath(paList, pacKeys)
 			if _nP_ > 1
 				_aRep_ = []
 				for _j_ = 2 to _nP_ add(_aRep_, _aWith_[_i_][2][_j_]) next
-				add(_aRes_, [ _aWith_[_i_][1], _aRep_ ])
+				_aRes_ + [ _aWith_[_i_][1], _aRep_ ]
 			ok
 		next
 		return _aRes_
@@ -8022,7 +8022,7 @@ func HasPath(paList, pacKeys)
 			if _nFound_ > 0
 				add(_aRes_[_nFound_][2], panPos[_i_])
 			else
-				add(_aRes_, [ _v_, [ panPos[_i_] ] ])
+				_aRes_ + [ _v_, [ panPos[_i_] ] ]
 			ok
 		next
 		return _aRes_
@@ -8035,7 +8035,7 @@ func HasPath(paList, pacKeys)
 			if isList(_aContent_[_i_])
 				if len(_aContent_[_i_]) >= 1 add(_aRes_, [ _aContent_[_i_][1] ]) else add(_aRes_, []) ok
 			else
-				add(_aRes_, [ _aContent_[_i_] ])
+				_aRes_ + [ _aContent_[_i_] ]
 			ok
 		next
 		return _aRes_
@@ -8046,9 +8046,9 @@ func HasPath(paList, pacKeys)
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
 			if isList(_aContent_[_i_]) and len(_aContent_[_i_]) = 2
-				add(_aRes_, _aContent_[_i_])
+				_aRes_ + _aContent_[_i_]
 			else
-				add(_aRes_, [ _aContent_[_i_], NULL ])
+				_aRes_ + [ _aContent_[_i_], NULL ]
 			ok
 		next
 		return _aRes_
@@ -8067,7 +8067,7 @@ func HasPath(paList, pacKeys)
 		_aRes_ = []
 		_nLen_ = len(paItems)
 		for _i_ = 1 to _nLen_
-			add(_aRes_, [ paItems[_i_], _StzPositionsOf(_aContent_, paItems[_i_]) ])
+			_aRes_ + [ paItems[_i_], _StzPositionsOf(_aContent_, paItems[_i_]) ]
 		next
 		return _aRes_
 
@@ -8133,7 +8133,7 @@ func HasPath(paList, pacKeys)
 		_aRes_ = []
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
-			add(_aRes_, _aContent_[_i_])
+			_aRes_ + _aContent_[_i_]
 			if _StzHasItemTyped(panPos, _i_) add(_aRes_, pItem) ok
 		next
 		return _aRes_
@@ -8143,7 +8143,7 @@ func HasPath(paList, pacKeys)
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
 			if _StzHasItemTyped(panPos, _i_) add(_aRes_, pItem) ok
-			add(_aRes_, _aContent_[_i_])
+			_aRes_ + _aContent_[_i_]
 		next
 		return _aRes_
 
@@ -8205,7 +8205,7 @@ func HasPath(paList, pacKeys)
 		_aRes_ = []
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
-			add(_aRes_, call pFunc(_aContent_[_i_]))
+			_aRes_ + call pFunc(_aContent_[_i_])
 		next
 		return _aRes_
 
@@ -8214,7 +8214,7 @@ func HasPath(paList, pacKeys)
 		_aRes_ = []
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
-			add(_aRes_, _aContent_[_i_])
+			_aRes_ + _aContent_[_i_]
 			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, pItem) ok
 		next
 		return _aRes_
@@ -8224,7 +8224,7 @@ func HasPath(paList, pacKeys)
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
 			if ( call pFunc(_aContent_[_i_]) ) add(_aRes_, pItem) ok
-			add(_aRes_, _aContent_[_i_])
+			_aRes_ + _aContent_[_i_]
 		next
 		return _aRes_
 
@@ -8236,9 +8236,9 @@ func HasPath(paList, pacKeys)
 		_nLen_ = len(_aContent_)
 		for _i_ = 1 to _nLen_
 			if ( call pCond(_aContent_[_i_]) )
-				add(_aRes_, call pAction(_aContent_[_i_]))
+				_aRes_ + call pAction(_aContent_[_i_])
 			else
-				add(_aRes_, _aContent_[_i_])
+				_aRes_ + _aContent_[_i_]
 			ok
 		next
 		return _aRes_
@@ -8291,7 +8291,7 @@ func HasPath(paList, pacKeys)
 				_n1_ = _i_
 			ok
 			if _StzIsTypeTag(_aC_[_i_], cType) and NOT _StzIsTypeTag(_aC_[_i_+1], cType)
-				add(_aResult_, [ _n1_, _i_ ])
+				_aResult_ + [ _n1_, _i_ ]
 			ok
 		next
 		return _aResult_
@@ -8317,7 +8317,7 @@ func HasPath(paList, pacKeys)
 				if _bCaseSensitive_ = 0 _c_ = StzLower(_c_) ok
 				if _c_ = _cTarget_ add(_aP_, _anPos_[_j_]) ok
 			next
-			add(_aRes_, [ _aVals_[_i_], _aP_ ])
+			_aRes_ + [ _aVals_[_i_], _aP_ ]
 		next
 		return _aRes_
 
@@ -8349,7 +8349,7 @@ func HasPath(paList, pacKeys)
 		for _i_ = 1 to _nLen_
 			_c_ = _StzStringifyItem(_aContent_[_i_])
 			if _bCaseSensitive_ = 0 _c_ = StzLower(_c_) ok
-			add(_acItems_, _c_)
+			_acItems_ + _c_
 		next
 		_anRes_ = []
 		for _i_ = 2 to _nLen_
@@ -8369,8 +8369,8 @@ func HasPath(paList, pacKeys)
 			_k_ = _StzStringifyItem(_v_)
 			if _bCaseSensitive_ = 0 _k_ = StzLower(_k_) ok
 			if NOT _StzHasItemTyped(_aKeys_, _k_)
-				add(_aKeys_, _k_)
-				add(_aRes_, _v_)
+				_aKeys_ + _k_
+				_aRes_ + _v_
 			ok
 		next
 		return _aRes_

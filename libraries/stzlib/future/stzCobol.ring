@@ -88,13 +88,13 @@ Class stzCobol
         for line in str2list(cCode)
             line = trim(line)
             if substr(line, "func ")
-                add(aAst, ["type" = "function", "name" = extractFunctionName(line)])
+                aAst + ["type" = "function", "name" = extractFunctionName(line)]
             but substr(line, "=")
                 aVarParts = split(line, "=")
                 if len(aVarParts) >= 2
                     varName = trim(aVarParts[1])
                     varValue = trim(aVarParts[2])
-                    add(aAst, ["type" = "assignment", "name" = varName, "value" = varValue])
+                    aAst + ["type" = "assignment", "name" = varName, "value" = varValue]
                     # Also track variables for DATA DIVISION
                     mapRingVarToCobol(varName, varValue)
                 ok
@@ -125,7 +125,7 @@ Class stzCobol
         ])
         
         # Add to DATA DIVISION collection
-        add(aDataDivision, "       " + convertToCobolVarName(cVarName) + " " + cCobolPic + ".")
+        aDataDivision + "       " + convertToCobolVarName(cVarName) + " " + cCobolPic + "."
     
     def inferCobolType(cValue)
         if isNumber(cValue)
@@ -375,9 +375,9 @@ Class stzCobol
             if substr(line, "MAIN-PROCEDURE") or substr(line, "MAIN-PROGRAM")
                 inMain = TRUE
             but inMain and substr(line, "MOVE")
-                add(aResult, line)
+                aResult + line
             but inMain and substr(line, "DISPLAY")
-                add(aResult, line)
+                aResult + line
             but inMain and substr(line, "STOP RUN")
                 # Ignore
             ok

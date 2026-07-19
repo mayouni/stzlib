@@ -634,7 +634,7 @@ func PathsWithDepth(aPaths, nDepth)
     for _iLoopPaths2_ = 1 to _nPaths2Len_
     	path = aPaths[_iLoopPaths2_]
         if len(path) = nDepth
-            add(_aResult_, path)
+            _aResult_ + path
         ok
     next
     
@@ -652,7 +652,7 @@ func SuperPathsOf(aPaths, aBasePath)
     for _iLoopPaths1_ = 1 to _nPaths1Len_
     	path = aPaths[_iLoopPaths1_]
         if IsSubPathOf(aBasePath, path) and aBasePath != path
-            add(_aResult_, path)
+            _aResult_ + path
         ok
     next
     
