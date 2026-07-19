@@ -1,0 +1,32 @@
+graph "mycompany"
+    type: structural
+
+nodes
+    ceo "CEO"
+    cto "CTO"
+    cfo "CFO"
+    eng1 "Engineer_1"
+    eng1_approval
+
+edges
+    ceo -> cto
+    ceo -> cfo
+    cto -> eng1
+
+properties
+    ceo
+        level: 5
+
+    cto
+        level: 4
+        department: tech
+        role: manager
+
+    cfo
+        level: 4
+        department: finance
+
+    eng1
+        level: 2
+        department: tech
+

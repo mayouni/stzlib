@@ -1,0 +1,20 @@
+simulation "mycompany Comparison"
+    description: "Changes from baseline"
+    date: 19/07/2026
+
+changes
+
+    add node coo
+        label: "COO"
+
+    add edge ceo -> coo
+    add edge coo -> cto
+
+    remove edge ceo -> cto
+
+metrics
+
+    density: 0.25 -> 0.20
+    nodeCount: 5 -> 6
+    edgeCount: 5 -> 6
+    hasCycles: FALSE -> FALSE

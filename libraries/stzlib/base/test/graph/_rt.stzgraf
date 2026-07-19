@@ -1,0 +1,21 @@
+graph "acme"
+    type: structural
+
+nodes
+    ceo "CEO"
+    cto "CTO"
+    eng1
+
+edges
+    ceo -> cto "manages"
+    cto -> eng1
+
+properties
+    ceo
+        level: 5
+        department: executive
+
+    cto
+        level: 4
+        rate: 2.50
+

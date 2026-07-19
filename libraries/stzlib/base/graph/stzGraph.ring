@@ -68,6 +68,28 @@ class stzGraph from stzObject
 	@aNodes = []
 	@aEdges = []
 
+	# Node-id -> position index, so NodeExists() is O(1).
+	#
+	# It used to rebuild the WHOLE id list with NodesIds() and linear-scan it
+	# on every call, and AddEdge calls NodeExists TWICE per edge -- so
+	# building a graph was O(n^2): 1000 edges took 13.39s.
+	#
+	# The engine hash map is used rather than a Ring hash list on purpose: it
+	# compares keys BYTE-EXACTLY, where Ring's own hashlist indexer silently
+	# misses multibyte keys once the list lives in an object attribute.
+	@pNodeIdx = NULL
+	@nNodeIdxCount = -1
+	@bNodeIdxStale = TRUE
+
+	# Same story for edges, and this one was the bigger half. EdgeExists
+	# walked every edge -- calling StzLower on BOTH arguments inside the loop,
+	# so two engine calls per edge examined -- and AddEdge asks it about an
+	# edge that by definition is NOT there yet, so every add scanned the whole
+	# list. Adding E edges was O(E^2).
+	@pEdgeIdx = NULL
+	@nEdgeIdxCount = -1
+	@bEdgeIdxStale = TRUE
+
 	# Simplified rule storage - rules as hashlists
 	@aConstraintRules = []
 	@aDerivationRules = []
@@ -252,7 +274,26 @@ class stzGraph from stzObject
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
 		@aNodes + _aNode_
-		This._InvalidateEngine()
+
+		# Same as for edges: extend the index rather than invalidating it.
+		if @pNodeIdx != NULL and NOT @bNodeIdxStale
+			if @nNodeIdxCount = len(@aNodes) - 1
+				StzEngineHashMapPutInt(@pNodeIdx, _aNode_[:id], len(@aNodes))
+				@nNodeIdxCount = len(@aNodes)
+			ok
+		ok
+
+		# Push the node into the LIVE engine graph rather than discarding it.
+		if @pEngineGraph != NULL and NOT @bEngineStale
+			StzEngineGraphAddNode(@pEngineGraph, _aNode_[:id])
+
+			_aAnP_ = _aNode_[:properties]
+			if isList(_aAnP_) and HasKey(_aAnP_, "x") and HasKey(_aAnP_, "y")
+				StzEngineGraphSetCoords(@pEngineGraph, _aNode_[:id], _aAnP_[:x], _aAnP_[:y])
+			ok
+		else
+			This._InvalidateEngine()
+		ok
 
 	def Node(pcNodeId)
 
@@ -285,20 +326,62 @@ class stzGraph from stzObject
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
-		if StzFindFirst(StzLower(pcNodeId), This.NodesIds()) > 0
+		_cNeId_ = StzLower(pcNodeId)
+
+		This._EnsureNodeIndex()
+
+		if @pNodeIdx != NULL
+			return StzEngineHashMapHasKey(@pNodeIdx, _cNeId_)
+		ok
+
+		# Fallback when the engine map is unavailable: the original scan.
+		if StzFindFirst(_cNeId_, This.NodesIds()) > 0
 			return 1
 		else
 			return 0
 		ok
+
+	# Builds the node-id index on demand, and rebuilds it when @aNodes has
+	# changed. Length is the cheap staleness signal -- every bulk assignment
+	# either clears the list or shortens it -- and SetNodes(), which can swap
+	# a same-length list, marks the index stale explicitly.
+	def _EnsureNodeIndex()
+		_nNiLen_ = len(@aNodes)
+
+		if @pNodeIdx != NULL and @nNodeIdxCount = _nNiLen_ and NOT @bNodeIdxStale
+			return
+		ok
+
+		if @pNodeIdx != NULL
+			StzEngineHashMapFree(@pNodeIdx)
+			@pNodeIdx = NULL
+		ok
+
+		@pNodeIdx = StzEngineHashMapNew()
+
+		if @pNodeIdx = NULL
+			return
+		ok
+
+		for _iNi_ = 1 to _nNiLen_
+			StzEngineHashMapPutInt(@pNodeIdx, @aNodes[_iNi_][:id], _iNi_)
+		next
+
+		@nNodeIdxCount = _nNiLen_
+		@bNodeIdxStale = FALSE
 
 		def HasNode(pcNodeId)
 			return This.NodeExists(pcNodeId)
 
 	def SetNodes(paNodes)
 		@aNodes = paNodes
+		# Length alone cannot detect a same-length swap, so say so outright.
+		@bNodeIdxStale = TRUE
 	
 	def SetEdges(paEdges)
 		@aEdges = paEdges
+		# Length alone cannot detect a same-length swap.
+		@bEdgeIdxStale = TRUE
 
 	def Nodes()
 		return @aNodes
@@ -866,7 +949,41 @@ class stzGraph from stzObject
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
 		@aEdges + _aEdge_
-		This._InvalidateEngine()
+
+		# Keep the index IN STEP with the append. Letting it go stale and
+		# rebuild on the next lookup costs O(E) per added edge, which is
+		# exactly the quadratic the index was added to remove.
+		if @pEdgeIdx != NULL and NOT @bEdgeIdxStale
+			if @nEdgeIdxCount = len(@aEdges) - 1
+				StzEngineHashMapPutInt(@pEdgeIdx,
+					_aEdge_[:from] + char(1) + _aEdge_[:to], len(@aEdges))
+				@nEdgeIdxCount = len(@aEdges)
+			ok
+		ok
+
+		# Push the edge into the LIVE engine graph rather than discarding it.
+		#
+		# _InvalidateEngine() makes the next query rebuild the entire engine
+		# graph, node by node and edge by edge. So the loop every incremental
+		# build actually runs -- add an edge, ask a question, add an edge --
+		# cost O(V+E) per step. 800 edges built that way took 309.74s.
+		if @pEngineGraph != NULL and NOT @bEngineStale
+			_aAeP_ = _aEdge_[:properties]
+
+			_nAeW_ = 1.0
+			if isList(_aAeP_) and HasKey(_aAeP_, "weight")
+				_nAeW_ = _aAeP_[:weight]
+			ok
+
+			StzEngineGraphAddEdge(@pEngineGraph, _aEdge_[:from], _aEdge_[:to], _nAeW_)
+
+			if isList(_aAeP_) and HasKey(_aAeP_, "cost")
+				StzEngineGraphSetEdgeCost(@pEngineGraph,
+					_aEdge_[:from], _aEdge_[:to], _aAeP_[:cost])
+			ok
+		else
+			This._InvalidateEngine()
+		ok
 
 		# AUTO-DERIVATION - Execute after mutation
 		if @bAutoDerive
@@ -944,10 +1061,22 @@ class stzGraph from stzObject
 			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
+		# Fold ONCE, not once per edge examined.
+		_cEeFrom_ = StzLower(pcFromNodeId)
+		_cEeTo_ = StzLower(pcToNodeId)
+
+		This._EnsureEdgeIndex()
+
+		if @pEdgeIdx != NULL
+			return StzEngineHashMapHasKey(@pEdgeIdx, _cEeFrom_ + char(1) + _cEeTo_)
+		ok
+
+		# Fallback when the engine map is unavailable: the original scan,
+		# with the case folding hoisted out of the loop.
 		_nLen_ = len(@aEdges)
 		for i = 1 to _nLen_
 			_aEdge_ = @aEdges[i]
-			if _aEdge_["from"] = StzLower(pcFromNodeId) and _aEdge_["to"] = StzLower(pcToNodeId)
+			if _aEdge_["from"] = _cEeFrom_ and _aEdge_["to"] = _cEeTo_
 				return 1
 			ok
 		end
@@ -955,6 +1084,35 @@ class stzGraph from stzObject
 
 		def HasEdge(pcFromNodeId, pcToNodeId)
 			return This.EdgeExists(pcFromNodeId, pcToNodeId)
+
+	# Builds the (from,to) index on demand, rebuilding when @aEdges changed.
+	# char(1) is the joiner: node ids are well-formed (no spaces, no control
+	# characters), so it cannot collide with a real id.
+	def _EnsureEdgeIndex()
+		_nEiLen_ = len(@aEdges)
+
+		if @pEdgeIdx != NULL and @nEdgeIdxCount = _nEiLen_ and NOT @bEdgeIdxStale
+			return
+		ok
+
+		if @pEdgeIdx != NULL
+			StzEngineHashMapFree(@pEdgeIdx)
+			@pEdgeIdx = NULL
+		ok
+
+		@pEdgeIdx = StzEngineHashMapNew()
+
+		if @pEdgeIdx = NULL
+			return
+		ok
+
+		for _iEi_ = 1 to _nEiLen_
+			StzEngineHashMapPutInt(@pEdgeIdx,
+				@aEdges[_iEi_]["from"] + char(1) + @aEdges[_iEi_]["to"], _iEi_)
+		next
+
+		@nEdgeIdxCount = _nEiLen_
+		@bEdgeIdxStale = FALSE
 
 	def Edges()
 		return @aEdges
@@ -2731,34 +2889,94 @@ class stzGraph from stzObject
 		return len(_acPath_) - 1
 
 	def ConnectedComponents()
-		_aComponents_ = []
-		_acVisited_ = []
-		_aNodes_ = This.Nodes()
-		
-		_nNodeLen_ = len(_aNodes_)
-		for _i_ = 1 to _nNodeLen_
-			_cNodeId_ = _aNodes_[_i_][:id]
-			
-			if StzFindFirst(_cNodeId_, _acVisited_) = 0
-				_acComponent_ = []
-				This._ExploreComponent(_cNodeId_, _acVisited_, _acComponent_)
-				_aComponents_ + _acComponent_
-			ok
-		end
-		
-		return _aComponents_
+		# Iterative flood fill with a hash-set of visited nodes.
+		#
+		# THREE things were wrong with the recursive version this replaces:
+		#
+		#  - It recursed once per node in the component, so a 1000-node chain
+		#    blew the stack outright (R4 Stack Overflow). Depth is now bounded
+		#    by an explicit stack on the heap.
+		#  - "Visited" was a Ring LIST scanned linearly at every step, making
+		#    the whole walk quadratic: 250 nodes 0.21s, 500 nodes 0.70s.
+		#  - The inner visited test had its ARGUMENTS BACKWARDS --
+		#    StzFindFirst(pacVisited, neighbour) instead of needle-first --
+		#    so it searched a whole list inside one node id and never matched.
+		#    Nodes were therefore re-explored, deepening the recursion that
+		#    was already overflowing. The line right above it had the order
+		#    right, which is exactly how such a thing survives review.
+		#
+		# The engine's connected-components returns a COUNT, not the grouping
+		# (that is what NumberOfConnectedComponents uses), so the walk stays
+		# here -- but it follows Neighbors() exactly as before, keeping the
+		# original out-edge reachability semantics.
 
-	def _ExploreComponent(pcNode, pacVisited, pacComponent)
-		pacVisited + pcNode
-		pacComponent + pcNode
-		
-		_acNeighbors_ = This.Neighbors(pcNode)
-		_nLen_ = len(_acNeighbors_)
-		for _i_ = 1 to _nLen_
-			if StzFindFirst(pacVisited, _acNeighbors_[_i_]) = 0
-				This._ExploreComponent(_acNeighbors_[_i_], pacVisited, pacComponent)
+		_aCcComponents_ = []
+		_aCcNodes_ = This.Nodes()
+		_nCcLen_ = len(_aCcNodes_)
+
+		_pCcSeen_ = StzEngineHashMapNew()
+		_acCcSeenList_ = []
+
+		for _iCc_ = 1 to _nCcLen_
+			_cCcId_ = _aCcNodes_[_iCc_][:id]
+
+			if This._CcSeen(_pCcSeen_, _acCcSeenList_, _cCcId_)
+				loop
 			ok
-		end
+
+			_acCcComp_ = []
+			_acCcStack_ = [ _cCcId_ ]
+
+			while len(_acCcStack_) > 0
+				_cCcCur_ = _acCcStack_[ len(_acCcStack_) ]
+				ring_del(_acCcStack_, len(_acCcStack_))
+
+				if This._CcSeen(_pCcSeen_, _acCcSeenList_, _cCcCur_)
+					loop
+				ok
+
+				if _pCcSeen_ != NULL
+					StzEngineHashMapPutInt(_pCcSeen_, _cCcCur_, 1)
+				else
+					_acCcSeenList_ + _cCcCur_
+				ok
+
+				_acCcComp_ + _cCcCur_
+
+				_acCcNb_ = This.Neighbors(_cCcCur_)
+				_nCcNb_ = len(_acCcNb_)
+
+				# Push neighbours in REVERSE so the stack pops them in their
+				# natural order -- that reproduces the visit order of the
+				# recursion this replaces, which callers may rely on.
+				for _jCc_ = _nCcNb_ to 1 step -1
+					if NOT This._CcSeen(_pCcSeen_, _acCcSeenList_, _acCcNb_[_jCc_])
+						_acCcStack_ + _acCcNb_[_jCc_]
+					ok
+				next
+			end
+
+			_aCcComponents_ + _acCcComp_
+		next
+
+		if _pCcSeen_ != NULL
+			StzEngineHashMapFree(_pCcSeen_)
+		ok
+
+		return _aCcComponents_
+
+	# Membership in the visited set: the engine map when it is available,
+	# else a needle-first scan of the fallback list.
+	def _CcSeen(pSeenMap, pacSeenList, pcId)
+		if pSeenMap != NULL
+			return StzEngineHashMapHasKey(pSeenMap, pcId)
+		ok
+
+		if StzFindFirst(pcId, pacSeenList) > 0
+			return TRUE
+		ok
+
+		return FALSE
 
 	#---------------------------------#
 	#  ENGINE-BACKED GRAPH METHODS    #
