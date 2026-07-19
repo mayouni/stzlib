@@ -15491,7 +15491,7 @@ func _NormalizeColLookupKey(pVal)
 
 			for i = 1 to _nLenAgg_
 
-				if NOT StzFindFirst(paCols, _acColNames_[i]) > 0
+				if NOT StzFindFirst(_acColNames_[i], paCols) > 0
 					paAggregations + [_cColName_, :First]
 				ok
 

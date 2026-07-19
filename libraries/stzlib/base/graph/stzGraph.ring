@@ -1369,13 +1369,13 @@ class stzGraph from stzObject
 				_aEdge_ = @aEdges[j]
 				
 				if _aEdge_["to"] = _cNodeId_
-					if StzFindFirst(_aIncoming_, _aEdge_["from"]) = 0 and StzFindFirst(pacNodeIds, _aEdge_["from"]) = 0
+					if StzFindFirst(_aEdge_["from"], _aIncoming_) = 0 and StzFindFirst(_aEdge_["from"], pacNodeIds) = 0
 						_aIncoming_ + _aEdge_["from"]
 					ok
 				ok
 				
 				if _aEdge_["from"] = _cNodeId_
-					if StzFindFirst(_aOutgoing_, _aEdge_["to"]) = 0 and StzFindFirst(pacNodeIds, _aEdge_["to"]) = 0
+					if StzFindFirst(_aEdge_["to"], _aOutgoing_) = 0 and StzFindFirst(_aEdge_["to"], pacNodeIds) = 0
 						_aOutgoing_ + _aEdge_["to"]
 					ok
 				ok
@@ -2083,12 +2083,12 @@ class stzGraph from stzObject
 			_aEdge_ = @aEdges[i]
 			if _aEdge_["from"] = pcNode
 
-				if StzFindFirst(pacVisited, _aEdge_["to"]) = 0
+				if StzFindFirst(_aEdge_["to"], pacVisited) = 0
 					if This._HasCycleDFS(_aEdge_["to"], pacVisited, pacRecStack)
 						return 1
 					ok
 
-				but StzFindFirst(pacRecStack, _aEdge_["to"]) > 0
+				but StzFindFirst(_aEdge_["to"], pacRecStack) > 0
 					return 1
 				ok
 			ok
@@ -2891,19 +2891,20 @@ class stzGraph from stzObject
 	def ConnectedComponents()
 		# Iterative flood fill with a hash-set of visited nodes.
 		#
-		# THREE things were wrong with the recursive version this replaces:
+		# TWO things were wrong with the recursive version this replaces:
 		#
 		#  - It recursed once per node in the component, so a 1000-node chain
 		#    blew the stack outright (R4 Stack Overflow). Depth is now bounded
 		#    by an explicit stack on the heap.
 		#  - "Visited" was a Ring LIST scanned linearly at every step, making
 		#    the whole walk quadratic: 250 nodes 0.21s, 500 nodes 0.70s.
-		#  - The inner visited test had its ARGUMENTS BACKWARDS --
-		#    StzFindFirst(pacVisited, neighbour) instead of needle-first --
-		#    so it searched a whole list inside one node id and never matched.
-		#    Nodes were therefore re-explored, deepening the recursion that
-		#    was already overflowing. The line right above it had the order
-		#    right, which is exactly how such a thing survives review.
+		#
+		# NOT a third fault, though it reads like one: the inner test was
+		# written list-first, StzFindFirst(pacVisited, neighbour). That looks
+		# like a needle-first violation, but StzFindFirst is POLYMORPHIC over
+		# lists -- both argument orders resolve, and the list-first form
+		# detects membership correctly (verified on a cycle, which would
+		# never terminate if it did not). Style inconsistency, not a bug.
 		#
 		# The engine's connected-components returns a COUNT, not the grouping
 		# (that is what NumberOfConnectedComponents uses), so the walk stays
