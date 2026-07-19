@@ -2215,8 +2215,24 @@ func StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 	pStr = StzEngineString(cData)
 	_nCount_ = StzEngineStringSplitCountCS(pStr, cSubStr, _bCase_)
 
+	# 1-BASED, because the engine is: str_split_get_cs rejects index < 1
+	# outright, so part 1 is the first part.
+	#
+	# This loop ran `for i = 0 to _nCount_ - 1`. Index 0 came back NULL and
+	# the guard below swallowed it, and the loop stopped one short, so the
+	# LAST part was never asked for. Every caller of this family --
+	# @SplitCS / SplitCS / SplitAtCS / @SplitAtCS / StzSplitAt -- silently
+	# lost its final element:
+	#
+	#   @SplitCS("x,y,z", ",")            gave [x, y]
+	#   stzStringLines.Lines()            gave 2 lines for a 3-line string,
+	#                                     while NumberOfLines() said 3
+	#
+	# The NULL guard is what made it invisible: a missing part looked like
+	# nothing happening rather than an error. It is kept, but a NULL now
+	# means something genuinely wrong, not an off-by-one being absorbed.
 	_acResult_ = []
-	for i = 0 to _nCount_ - 1
+	for i = 1 to _nCount_
 		pPart = StzEngineStringSplitGetCS(pStr, cSubStr, i, _bCase_)
 		if pPart != NULL
 			_acResult_ + StzEngineStringData(pPart)

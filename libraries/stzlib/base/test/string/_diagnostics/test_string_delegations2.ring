@@ -28,10 +28,19 @@ ok
 
 # --- FindMany ---
 _oStr2_ = new stzString("abc def abc ghi def")
+# FindMany returns the FLAT, ascending list of every position -- here
+# abc at 1,9 and def at 5,17, so [1,5,9,17]. That was made deliberate in
+# commit 9f8c1833e (2026-07-03), "canonical ... flat FindMany". This test
+# predates it and expected one entry per substring.
+#
+# NOTE for whoever revisits this: the monolithic archive's own docstring
+# for FindManyCS shows the GROUPED shape, #--> [ [4,33], [28], [38] ],
+# which is the opposite. The later explicit ruling is taken as canonical
+# here, but the two disagree and that is worth a decision.
 _aMany_ = _oStr2_.FindMany(["abc", "def"])
 _nTotal_++
-if len(_aMany_) = 2
-	? "  PASS: FindMany found 2 substrings" _nPassed_++
+if len(_aMany_) = 4
+	? "  PASS: FindMany found 4 positions" _nPassed_++
 else
 	? "  FAIL: FindMany got " + len(_aMany_) _nFailed_++
 ok

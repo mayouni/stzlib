@@ -16,7 +16,11 @@
 load "../../../stzBase.ring"
 ? "Step 1: Testing InsertBefore position"
 o = new stzStringInserter("Hello World")
-o.InsertBefore(6, "Beautiful ")
+# Position 6 of "Hello World" is the SPACE (H-e-l-l-o are 1..5), so
+# inserting before 6 correctly yields "HelloBeautiful  World". The word W
+# starts at 7. Verified against the contract at both ends:
+# InsertBefore(1,"X") on "abc" gives "Xabc". The test had the wrong index.
+o.InsertBefore(7, "Beautiful ")
 if o.Content() = "Hello Beautiful World"
 	? "  InsertBefore position: OK"
 else

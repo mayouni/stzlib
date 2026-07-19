@@ -160,6 +160,7 @@ pub const Op = enum(u8) {
     fn_is_arabic,
     fn_is_latin,
     fn_len,
+    fn_ascii,
     fn_lower,
     fn_upper,
     fn_abs,
@@ -245,6 +246,7 @@ const TTag = enum(u8) {
     fn_is_arabic,
     fn_is_latin,
     fn_len,
+    fn_ascii,
     fn_lower,
     fn_upper,
     fn_abs,
@@ -484,6 +486,8 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "islatin")) return .fn_is_latin;
     if (std.mem.eql(u8, w, "islatinletter")) return .fn_is_latin;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
+    if (std.mem.eql(u8, w, "ascii")) return .fn_ascii;
+    if (std.mem.eql(u8, w, "codepoint")) return .fn_ascii;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
     if (std.mem.eql(u8, w, "abs")) return .fn_abs;
@@ -675,6 +679,7 @@ const Compiler = struct {
             .fn_is_arabic => .fn_is_arabic,
             .fn_is_latin => .fn_is_latin,
             .fn_len => .fn_len,
+            .fn_ascii => .fn_ascii,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
             .fn_abs => .fn_abs,
@@ -1147,6 +1152,28 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const a = pop(&stack, &sp);
                 const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 4);
                 push(&stack, &sp, Val.initBool(ok));
+            },
+            // ascii(c) -- the CODEPOINT of the first character.
+            //
+            // Named for Ring's ascii(), and identical to it across the ASCII
+            // range, which is what callers write it for:
+            //     ascii(@char) >= 48 and ascii(@char) <= 57
+            // But it decodes a codepoint rather than returning a raw byte, so
+            // it stays correct for multibyte input instead of reporting the
+            // lead byte of a UTF-8 sequence. codepoint() is the honest alias.
+            .fn_ascii => {
+                const a = pop(&stack, &sp);
+                var cp_out: i64 = 0;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    const sl = a.data.s.ptr[0..a.data.s.len];
+                    const n = std.unicode.utf8ByteSequenceLength(sl[0]) catch 1;
+                    if (n <= sl.len) {
+                        cp_out = @intCast(std.unicode.utf8Decode(sl[0..n]) catch sl[0]);
+                    } else {
+                        cp_out = sl[0];
+                    }
+                }
+                push(&stack, &sp, Val.initInt(cp_out));
             },
             .fn_len => {
                 const a = pop(&stack, &sp);
