@@ -2,7 +2,7 @@
 # composition-pattern submodules. Mirrors what was done for stzList
 # during M-S2.
 
-load "../../stzBase.ring"
+load "../../../stzBase.ring"
 
 nPsd = 0
 nFld = 0

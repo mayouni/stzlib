@@ -7,10 +7,10 @@
 load "test_stubs.ring"
 
 ? "Loading classes"
-load "../../string/stzString.ring"
-load "../../string/stzStringFinder.ring"
-load "../../string/stzStringSplitter.ring"
-load "../../string/stzStringReplacer.ring"
+load "../../../string/stzString.ring"
+load "../../../string/stzStringFinder.ring"
+load "../../../string/stzStringSplitter.ring"
+load "../../../string/stzStringReplacer.ring"
 ? "Step 4: Testing stzString core"
 o1 = new stzString("Ring is beautiful!")
 ? "  Content: " + o1.Content()

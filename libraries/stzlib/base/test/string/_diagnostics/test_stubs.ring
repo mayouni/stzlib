@@ -1,17 +1,24 @@
 # Stub functions needed by stzString
 # This file also handles portable DLL discovery so test files
 # don't need hardcoded absolute paths.
-
-# Bare-len alias so library code rewrites (ring_len) link
-# cleanly in this minimal stub. Must live BEFORE any class
-# definition so it stays a top-level function, not a method.
-func len(p)
-    return len(p)
+#
+# THE DLL BLOCK MUST STAY AT THE TOP, ABOVE THE FIRST func.
+#
+# Only the code BEFORE the first func is a Ring file's main section.
+# Everything after it is compiled but never executed, so when this block
+# sat lower down it silently did nothing: $cStzStringLib came back
+# uninitialized, no DLL was ever loaded, and every diagnostic that used
+# this stub died on "Calling Function without definition: stzenginestring"
+# the moment it touched the engine.
+#
+# The old comment here -- "Ring compiles functions first, so _stzFindDll()
+# is callable here" -- was right about the CALL and wrong about the
+# PLACEMENT. Functions are indeed hoisted, which is why calling
+# _stzFindDll() from up here works even though it is defined below.
 
 $aStzLibConfig = []
 
 # --- Auto-load DLLs at load time ---
-# Ring compiles functions first, so _stzFindDll() is callable here.
 $cStzStringLib = _stzFindDll("stz_string.dll")
 if $cStzStringLib != ""
 	$pStzStringHandle = LoadLib($cStzStringLib)
@@ -25,6 +32,15 @@ if $cStzUnicodeLib != ""
 else
 	? "WARNING: stz_unicode.dll not found! Unicode engine functions will fail."
 ok
+
+# NOTE: there is deliberately NO `func len(p)` here.
+#
+# There used to be one, and its body was `return len(p)` -- a call to
+# itself. Defining len() at all shadows Ring's builtin for every file
+# loaded afterwards, including stzString, so the recursion was reachable
+# from ordinary library code and blew the stack at depth 997. It was added
+# to keep ring_len() call sites linking; the library has since moved to
+# plain len(), which is the builtin and needs no stub.
 
 # --- DLL Discovery ---
 # Searches upward from currentdir() for the engine DLL.

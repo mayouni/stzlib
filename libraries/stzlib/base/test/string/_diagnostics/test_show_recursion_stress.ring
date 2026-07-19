@@ -5,7 +5,7 @@
 # exercises deeply nested + mutually-recursive paths so any
 # regression would surface as wrong output or infinite loops.
 
-load "../../stzBase.ring"
+load "../../../stzBase.ring"
 
 pr()
 

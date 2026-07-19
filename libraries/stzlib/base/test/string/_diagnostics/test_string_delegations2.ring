@@ -1,6 +1,6 @@
 
 
-load "../../stzBase.ring"
+load "../../../stzBase.ring"
 
 pr()
 
