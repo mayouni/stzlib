@@ -254,9 +254,21 @@ class stzStringFinder from stzObject
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		# Per the original monolith: the FLAT, ascending-sorted list of
-		# every substring's positions (the grouped [sub, positions]
-		# shape is the Z-family's job).
+		# FLAT, ascending-sorted list of every substring's position:
+		#
+		#   o = new stzString("My name is Mansour. What's your name please?")
+		#   o.FindMany([ "name", "your", "please" ])   #--> [ 4, 28, 33, 38 ]
+		#
+		# RULED 2026-07-19. Do not "restore" the grouped shape from the
+		# monolithic archive: its docstring for FindManyCS shows
+		# [ [4,33], [28], [38] ], and that is the stale side. The comment
+		# here used to cite the monolith as the authority for FLAT, which
+		# it is not -- the ruling is.
+		#
+		# All three shapes exist, under names that say which is which:
+		#   FindMany            [ 4, 28, 33, 38 ]                  positions
+		#   FindManyAsSections  [ [4,7], [28,31], [33,36], ... ]   sections
+		#   FindManyZZ          [ [ "name", [[4,7],[33,36]] ], ... ] grouped
 		_aResult_ = []
 		_nLen_ = len(pacSubStrings)
 		for i = 1 to _nLen_
