@@ -1,6 +1,6 @@
 
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 
 # Explicitly load the engine DLLs this test needs. test_stubs declares
 # the LoadLib pattern but Ring's load-of-load semantics don't propagate

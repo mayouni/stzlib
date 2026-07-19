@@ -1,6 +1,6 @@
 
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 
 # Load stz_file.dll
 ? "Loading stz_file.dll..."

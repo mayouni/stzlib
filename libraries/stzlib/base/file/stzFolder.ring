@@ -139,26 +139,44 @@ func @dir(_cPath_) # Same as Ring dir() but in lowercase
 
 	#TODO // Add security checks
 
-	# Ring's dir() RAISES "Couldn't open the directory" on an inaccessible
-	# path (permission denied, reparse point, vanished mid-walk). A deep
-	# traversal over a real filesystem (C:\Program Files, C:\Windows) WILL
-	# hit such a subdir, so swallow the failure and treat it as empty rather
-	# than aborting the whole walk.
-	_aRingResult_ = []
-	try
-		_aRingResult_ = dir(_cPath_)
-	catch
-	done
-	_nLen_ = len(_aRingResult_)
+	# ENGINE-BACKED, and it has to be.
+	#
+	# Ring's dir() goes through the ANSI code page on Windows, so every byte
+	# it cannot map becomes '?'. A folder holding an Arabic and a CJK file
+	# listed BOTH of them as "??.txt" -- not merely lossy but ambiguous, and
+	# a name taken from that listing no longer joins back onto a path that
+	# opens anything. (A delete driven from such a listing then hands the
+	# engine a path full of '?' wildcards.)
+	#
+	# The counts were always right because counting never carries the name
+	# back out; only enumeration did. The engine iterates via the wide API
+	# and yields UTF-8, which is what the rest of the library speaks.
+	#
+	# An inaccessible path (permission denied, reparse point, vanished
+	# mid-walk) yields an empty list rather than raising -- a deep traversal
+	# over a real filesystem WILL hit one, and it must not abort the walk.
+	# The engine returns an empty list on open failure, so no guard is
+	# needed here; the try/catch that wrapped Ring's raising dir() is gone.
 
-	# Softanza listing convention: child names are presented in lowercase
-	# (Ring's dir() keeps the on-disk case; @dir lowercases it). The folder's
-	# own path/name keep their real case -- only the ENUMERATED children are
-	# folded. Windows' case-insensitive FS means the lowercased names still
-	# resolve when fed back to dir()/read() during a deep walk.
 	_aResult_ = []
-	for i = 1 to _nLen_
-		_aResult_ + [ StzLower(_aRingResult_[i][1]), _aRingResult_[i][2] ]
+
+	# Softanza listing convention: child names are presented in lowercase.
+	# Only the ENUMERATED children are folded; the folder's own path keeps
+	# its real case. Windows' case-insensitive FS means the folded names
+	# still resolve when fed back during a deep walk.
+	#
+	# Kind codes match Ring's dir(): 0 = file, 1 = folder.
+
+	_aDirFiles_ = StzEngineDirListFiles(_cPath_)
+	_nDfLen_ = len(_aDirFiles_)
+	for i = 1 to _nDfLen_
+		_aResult_ + [ StzLower(_aDirFiles_[i]), 0 ]
+	next
+
+	_aDirFolders_ = StzEngineDirListDirs(_cPath_)
+	_nDdLen_ = len(_aDirFolders_)
+	for i = 1 to _nDdLen_
+		_aResult_ + [ StzLower(_aDirFolders_[i]), 1 ]
 	next
 
 	return _aResult_

@@ -375,6 +375,24 @@ func strcmp(s1, s2)
 	if n1 > n2 return 1 ok
 	return 0
 
+# Needle-first, matching the real contract: (item, container). Returns the
+# 1-based position, or 0. A STUB -- the real one is polymorphic over named
+# params and case flags; this covers the two forms the probes here use.
+func StzFindFirst(pItem, pContainer)
+	if isList(pContainer)
+		nFfLen = len(pContainer)
+		for nFfI = 1 to nFfLen
+			if pContainer[nFfI] = pItem
+				return nFfI
+			ok
+		next
+		return 0
+	ok
+	if isString(pContainer) and isString(pItem)
+		return substr(pContainer, pItem)
+	ok
+	return 0
+
 func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	bCase = @CaseSensitive(pCaseSensitive)
 	if bCase

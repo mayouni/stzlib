@@ -1,6 +1,6 @@
 
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 # Load stz_json.dll
 ? "Loading stz_json.dll..."
 cJsonLib = _stzFindDll("stz_json.dll")

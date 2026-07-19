@@ -1,7 +1,7 @@
 
 #ERR Error (R3) : Calling Function without definition: stzenginestring
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 
 # Load stz_json.dll
 cJsonLib = _stzFindDll("stz_json.dll")

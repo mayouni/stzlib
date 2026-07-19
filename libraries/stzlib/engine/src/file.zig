@@ -5,15 +5,46 @@
 // Paths are UTF-8 encoded.
 
 const std = @import("std");
+const builtin = @import("builtin");
 const fs = std.fs;
 const mem = std.mem;
 
 const gpa = std.heap.c_allocator;
 
+
+// ─── Path sanity ───
+//
+// Windows rejects < > " | ? * and control characters in a path component.
+// Handed one, Zig's std hits an `unreachable` on the NTSTATUS that comes
+// back rather than returning an error -- and an unreachable in a DLL takes
+// the whole host process down, so a bad filename crashed Ring outright
+// instead of returning false.
+//
+// This was reachable in practice: the folder listing used to mangle
+// non-ASCII names to '?', and deleting from that listing handed a path full
+// of wildcards straight to std.
+//
+// ':' '/' and '\' are NOT screened -- they are legal in a full path (drive
+// letter, separators). POSIX allows everything but NUL and '/', so the
+// screen only applies on Windows.
+fn pathIsUsable(p: []const u8) bool {
+    if (p.len == 0) return false;
+    if (builtin.os.tag != .windows) return true;
+    for (p) |c| {
+        switch (c) {
+            '<', '>', '"', '|', '?', '*' => return false,
+            0...31 => return false,
+            else => {},
+        }
+    }
+    return true;
+}
+
 // ─── File Info ───
 
 pub fn stz_file_exists(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     const stat = fs.cwd().statFile(p) catch return 0;
     _ = stat;
@@ -22,6 +53,7 @@ pub fn stz_file_exists(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
 
 pub fn stz_file_size(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
     if (path == null or path_len == 0) return -1;
+    if (!pathIsUsable(path[0..path_len])) return -1;
     const p = path[0..path_len];
     const stat = fs.cwd().statFile(p) catch return -1;
     return @intCast(stat.size);
@@ -32,6 +64,7 @@ pub fn stz_file_size(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
 // stzDateTime([:FromEpochSeconds=...]).
 pub fn stz_file_mtime(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
     if (path == null or path_len == 0) return -1;
+    if (!pathIsUsable(path[0..path_len])) return -1;
     const p = path[0..path_len];
     const stat = fs.cwd().statFile(p) catch return -1;
     return @intCast(@divFloor(stat.mtime, std.time.ns_per_s));
@@ -41,6 +74,10 @@ pub fn stz_file_mtime(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
 
 pub fn stz_file_read(path: [*c]const u8, path_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
     if (path == null or path_len == 0) {
+        out_len.* = 0;
+        return null;
+    }
+    if (!pathIsUsable(path[0..path_len])) {
         out_len.* = 0;
         return null;
     }
@@ -63,6 +100,7 @@ pub fn stz_file_read_free(ptr: [*c]u8, len: usize) callconv(.c) void {
 
 pub fn stz_file_write(path: [*c]const u8, path_len: usize, data: [*c]const u8, data_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     const content = if (data != null and data_len > 0) data[0..data_len] else "";
     const file = fs.cwd().createFile(p, .{}) catch return 0;
@@ -73,6 +111,7 @@ pub fn stz_file_write(path: [*c]const u8, path_len: usize, data: [*c]const u8, d
 
 pub fn stz_file_append(path: [*c]const u8, path_len: usize, data: [*c]const u8, data_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     if (data == null or data_len == 0) return 1;
     const p = path[0..path_len];
     const file = fs.cwd().openFile(p, .{ .mode = .write_only }) catch {
@@ -91,6 +130,7 @@ pub fn stz_file_append(path: [*c]const u8, path_len: usize, data: [*c]const u8, 
 
 pub fn stz_file_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     fs.cwd().deleteFile(p) catch return 0;
     return 1;
@@ -100,6 +140,7 @@ pub fn stz_file_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
 
 pub fn stz_file_copy(src: [*c]const u8, src_len: usize, dst: [*c]const u8, dst_len: usize) callconv(.c) c_int {
     if (src == null or src_len == 0 or dst == null or dst_len == 0) return 0;
+    if (!pathIsUsable(src[0..src_len]) or !pathIsUsable(dst[0..dst_len])) return 0;
     const s = src[0..src_len];
     const d = dst[0..dst_len];
     fs.cwd().copyFile(s, fs.cwd(), d, .{}) catch return 0;
@@ -110,6 +151,7 @@ pub fn stz_file_copy(src: [*c]const u8, src_len: usize, dst: [*c]const u8, dst_l
 
 pub fn stz_dir_exists(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     var dir = fs.cwd().openDir(p, .{}) catch return 0;
     dir.close();
@@ -118,6 +160,7 @@ pub fn stz_dir_exists(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
 
 pub fn stz_dir_create(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     fs.cwd().makeDir(p) catch return 0;
     return 1;
@@ -125,6 +168,7 @@ pub fn stz_dir_create(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
 
 pub fn stz_dir_create_path(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     fs.cwd().makePath(p) catch return 0;
     return 1;
@@ -132,6 +176,7 @@ pub fn stz_dir_create_path(path: [*c]const u8, path_len: usize) callconv(.c) c_i
 
 pub fn stz_dir_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     fs.cwd().deleteDir(p) catch return 0;
     return 1;
@@ -141,6 +186,7 @@ pub fn stz_dir_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
 
 pub fn stz_dir_count_files(path: [*c]const u8, path_len: usize) callconv(.c) i32 {
     if (path == null or path_len == 0) return -1;
+    if (!pathIsUsable(path[0..path_len])) return -1;
     const p = path[0..path_len];
     var dir = fs.cwd().openDir(p, .{ .iterate = true }) catch return -1;
     defer dir.close();
@@ -154,6 +200,7 @@ pub fn stz_dir_count_files(path: [*c]const u8, path_len: usize) callconv(.c) i32
 
 pub fn stz_dir_count_dirs(path: [*c]const u8, path_len: usize) callconv(.c) i32 {
     if (path == null or path_len == 0) return -1;
+    if (!pathIsUsable(path[0..path_len])) return -1;
     const p = path[0..path_len];
     var dir = fs.cwd().openDir(p, .{ .iterate = true }) catch return -1;
     defer dir.close();
@@ -165,10 +212,60 @@ pub fn stz_dir_count_dirs(path: [*c]const u8, path_len: usize) callconv(.c) i32 
     return count;
 }
 
+// ─── Directory LISTING ───
+//
+// Ring's dir() builtin goes through the ANSI code page on Windows, so every
+// byte it cannot map becomes '?'. Two files named with Arabic and CJK come
+// back as the SAME string, "??.txt" -- the listing is not merely lossy, it is
+// ambiguous, and a name read from it can no longer be joined back onto a path
+// that opens anything.
+//
+// Zig's dir.iterate() goes through the wide (W) API and yields UTF-8, which
+// is what the rest of this library speaks. Note the count functions above
+// were already correct for exactly this reason -- counting never had to carry
+// the name back out.
+//
+// Result is one buffer with a NUL after EVERY entry, including the last, so a
+// trailing empty name (which cannot occur here, but the convention is shared
+// with the string list emitters) survives the round trip. Free with
+// stz_file_read_free.
+
+fn dirListKind(path: [*c]const u8, path_len: usize, out_len: *usize, want: fs.Dir.Entry.Kind) [*c]u8 {
+    out_len.* = 0;
+    if (path == null or path_len == 0) return null;
+    if (!pathIsUsable(path[0..path_len])) return null;
+
+    var dir = fs.cwd().openDir(path[0..path_len], .{ .iterate = true }) catch return null;
+    defer dir.close();
+
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(gpa);
+
+    var it = dir.iterate();
+    while (it.next() catch null) |entry| {
+        if (entry.kind != want) continue;
+        buf.appendSlice(gpa, entry.name) catch return null;
+        buf.append(gpa, 0) catch return null;
+    }
+
+    const owned = buf.toOwnedSlice(gpa) catch return null;
+    out_len.* = owned.len;
+    return owned.ptr;
+}
+
+pub fn stz_dir_list_files(path: [*c]const u8, path_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    return dirListKind(path, path_len, out_len, .file);
+}
+
+pub fn stz_dir_list_dirs(path: [*c]const u8, path_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    return dirListKind(path, path_len, out_len, .directory);
+}
+
 // ─── Path Utilities ───
 
 pub fn stz_path_extension(path: [*c]const u8, path_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     // Find last dot after last separator
     var last_dot: ?usize = null;
@@ -187,6 +284,7 @@ pub fn stz_path_extension(path: [*c]const u8, path_len: usize, buf: [*c]u8, buf_
 
 pub fn stz_path_basename(path: [*c]const u8, path_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     // Find last separator (either / or \)
     var last_sep: usize = 0;
@@ -206,6 +304,7 @@ pub fn stz_path_basename(path: [*c]const u8, path_len: usize, buf: [*c]u8, buf_l
 
 pub fn stz_path_dirname(path: [*c]const u8, path_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
     const p = path[0..path_len];
     // Find last separator
     var last_sep: ?usize = null;

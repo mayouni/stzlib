@@ -1,6 +1,6 @@
 
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 # Load stz_url.dll
 ? "Loading stz_url.dll..."
 cUrlLib = _stzFindDll("stz_url.dll")
