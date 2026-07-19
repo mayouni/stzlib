@@ -248,30 +248,13 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	# The string with the HTML-special chars encoded as entities.
+	# Engine-backed. This built a per-character LIST of the whole string and
+	# concatenated onto a growing result -- the wrap-to-scan shape, quadratic
+	# in the string length. The engine does the same five substitutions
+	# (& < > " and ' -> &#39;) in one pass, and the bridge now sizes its
+	# buffer to fit rather than silently returning "" past 64 KB.
 	def HtmlEncoded()
-		_acChars_ = @oString.Chars()
-		_nLen_ = len(_acChars_)
-		_cResult_ = ""
-
-		for _i_ = 1 to _nLen_
-			_c_ = _acChars_[_i_]
-
-			if _c_ = "&"
-				_cResult_ += "&amp;"
-			but _c_ = "<"
-				_cResult_ += "&lt;"
-			but _c_ = ">"
-				_cResult_ += "&gt;"
-			but _c_ = '"'
-				_cResult_ += "&quot;"
-			but _c_ = "'"
-				_cResult_ += "&#39;"
-			else
-				_cResult_ += _c_
-			ok
-		next
-
-		return _cResult_
+		return StzEngineHtmlEncode(@oString.Content())
 
 		def HtmlEncode()
 			@oString.Update(This.HtmlEncoded())
@@ -280,18 +263,26 @@ class stzStringEncoder from stzObject
 			This.HtmlEncode()
 			return This
 
-	# The string with the HTML entities decoded.
+	# The string with the HTML entities decoded. Engine-backed, and it HAS to
+	# be, because the old Ring version was wrong.
+	#
+	# It ran StzReplace("&amp;", "&") FIRST, then the others -- so the '&'
+	# produced by decoding &amp; was fed straight into the next rules:
+	#
+	#   "&amp;lt;"  ->  "&lt;"  ->  "<"      WRONG, should stay "&lt;"
+	#   "&amp;gt;"  ->  "&gt;"  ->  ">"      WRONG, should stay "&gt;"
+	#
+	# i.e. anything that was DOUBLE-encoded came back single-decoded. The
+	# encode/decode pair was not a round trip whenever the source text itself
+	# contained an entity.
+	#
+	# The engine makes ONE left-to-right pass, consuming each entity whole and
+	# advancing past it, so a decoded '&' can never re-trigger a match. It
+	# also covers &apos; &nbsp; and numeric entities (&#NN; / &#xHH;), which
+	# the five-replace version silently left intact -- a widening, not a
+	# behaviour change for anything the old code handled.
 	def HtmlDecoded()
-		_cContent_ = @oString.Content()
-		_cResult_ = _cContent_
-
-		_cResult_ = StzReplace(_cResult_, "&amp;", "&")
-		_cResult_ = StzReplace(_cResult_, "&lt;", "<")
-		_cResult_ = StzReplace(_cResult_, "&gt;", ">")
-		_cResult_ = StzReplace(_cResult_, "&quot;", '"')
-		_cResult_ = StzReplace(_cResult_, "&#39;", "'")
-
-		return _cResult_
+		return StzEngineHtmlDecode(@oString.Content())
 
 		def HtmlDecode()
 			@oString.Update(This.HtmlDecoded())

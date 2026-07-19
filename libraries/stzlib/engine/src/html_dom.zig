@@ -207,6 +207,77 @@ pub fn html_count_by_class(
 }
 
 /// 1-based index of the n-th element with the given class.
+// All class matches in ONE pass, as (tag, occurrence) pairs.
+//
+// The Ring side used to loop find_by_class(class, 1..count), and EACH call
+// re-scans every element from the start to find the n-th match -- O(n) per
+// call, O(n^2) for the loop -- and then _NodeAt scanned AGAIN to compute each
+// node's occurrence. Find(".row") over 800 rows took ~3s and grew
+// quadratically.
+//
+// This walks the element list once. `occurrence` is the 1-based rank of the
+// element among same-tag elements, case-insensitive, in document order --
+// EXACTLY how html_text_of_tag / html_attr_of_tag count when a node later
+// resolves itself, so the pairs address the right elements.
+//
+// Output: "tag\0occ\0tag\0occ\0..." (occ as ASCII), freed with
+// html_pairs_free. HTML has few distinct tag names, so a linearly-scanned
+// counter list beats a hashmap and sidesteps key-lifetime questions.
+pub fn html_class_pairs(
+    doc_opt: ?*Doc,
+    class_ptr: [*]const u8,
+    class_len: usize,
+    out_len: *usize,
+) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    const doc = doc_opt orelse return null;
+    if (class_len == 0) return null;
+    const class = class_ptr[0..class_len];
+
+    const Counter = struct { tag: []const u8, count: i32 };
+    var counters = std.ArrayList(Counter){};
+    defer counters.deinit(gpa);
+
+    var buf = std.ArrayList(u8){};
+    errdefer buf.deinit(gpa);
+
+    for (doc.elements) |e| {
+        const tag = doc.source[e.tag_off .. e.tag_off + e.tag_len];
+
+        var occ: i32 = 0;
+        var found = false;
+        for (counters.items) |*c| {
+            if (eqIgnoreCase(c.tag, tag)) {
+                c.count += 1;
+                occ = c.count;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            counters.append(gpa, .{ .tag = tag, .count = 1 }) catch return null;
+            occ = 1;
+        }
+
+        if (elementHasClass(doc, e, class)) {
+            buf.appendSlice(gpa, tag) catch return null;
+            buf.append(gpa, 0) catch return null;
+            var numbuf: [16]u8 = undefined;
+            const s = std.fmt.bufPrint(&numbuf, "{d}", .{occ}) catch return null;
+            buf.appendSlice(gpa, s) catch return null;
+            buf.append(gpa, 0) catch return null;
+        }
+    }
+
+    const owned = buf.toOwnedSlice(gpa) catch return null;
+    out_len.* = owned.len;
+    return owned.ptr;
+}
+
+pub fn html_pairs_free(ptr: [*c]u8, len: usize) callconv(.c) void {
+    if (ptr != null and len > 0) gpa.free(ptr[0..len]);
+}
+
 pub fn html_find_by_class(
     doc_opt: ?*Doc,
     class_ptr: [*]const u8,
