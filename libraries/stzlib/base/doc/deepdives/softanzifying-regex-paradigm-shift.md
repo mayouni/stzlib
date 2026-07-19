@@ -119,8 +119,8 @@ Even though Softanza shines in creating complex patterns, it does not reinvent t
 
 ```ring
 rx("\b\d+\b") {
-    ? Match("There are 12 apples.") #--> TRUE
-    ? Match("No numbers here.")     #--> FALSE
+    ? MatchFirst("There are 12 apples.") #--> TRUE
+    ? MatchFirst("No numbers here.")     #--> FALSE
 }
 ```
 
@@ -128,6 +128,23 @@ rx("\b\d+\b") {
 
 * `\b`: Ensures the match occurs on whole word boundaries.
 * `\d+`: Matches one or more digits.
+
+**`Match()` vs `MatchFirst()` -- two different questions.** `Match()` asks
+whether the pattern matches the string **entirely**; `MatchFirst()` asks
+whether it **occurs anywhere** inside it. Reach for the one that matches the
+question you are actually asking:
+
+```ring
+rx("\d+") {
+    ? Match("total 42 here")      #--> FALSE  (that string is not a number)
+    ? Match("42")                 #--> TRUE   (this one is)
+    ? MatchFirst("total 42 here") #--> TRUE   (but it does contain one)
+}
+```
+
+This is why validation patterns (`pat(:email)`, `pat(:number)`) read
+naturally with `Match()` -- validating means the *whole* value must fit --
+while scanning a document for occurrences is `MatchFirst()` or `Matches()`.
 
 
 ## 5. Advanced Matching with stzRegex
@@ -164,7 +181,7 @@ Softanza provides methods for locating matches and identifying their positions w
 ```ring
 rx("\b\d+\b") {
     txt = "There are 12 apples and 34 oranges."
-    if Match(txt)
+    if MatchFirst(txt)
 
 	# First let's see the matched values
 
@@ -336,12 +353,12 @@ Conditional patterns enable different behaviors based on context. While classic 
 ```ring
 o1 = new stzConditionalRegexMaker()
 o1 {
-    IfStartsWith("+")
+    IfStartsWith("\+")
     ThenMatch("\+1\d{10}")	# International format
     ElseMatch("\d{10}")		# Local format
 
     ? Pattern()
-    #--> (?(?=^+)\+1\d{10}|\d{10})
+    #--> (?(?=^\+)\+1\d{10}|\d{10})
 }
 ```
 
@@ -392,13 +409,13 @@ rx(rxm().AddDigitsRange("0-9", :RepeatedExactly = 3Times()).Pattern()) {
 
 ```ring
 wrxm() {
-    IfStartsWith("+").
+    IfStartsWith("\+").
     ThenMatch("\+1\d{10}")	# International format
     ElseMatch("\d{10}")		# Local format
 
     ? Pattern()
 }
-//--> (?(?=^+)\+1\d{10}|\d{10})
+//--> (?(?=^\+)\+1\d{10}|\d{10})
 ```
 
 **Example Using `arxm()`**:

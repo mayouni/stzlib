@@ -395,7 +395,7 @@ func StzTodayQ()
 
 func StzIsDate(str)
 	Rx = Rx(pat(:Date))
-	return Rx.Match(str)
+	return Rx.MatchFirst(str)
 
 	func IsDate(str)
 		return StzIsDate(str)

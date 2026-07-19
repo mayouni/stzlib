@@ -94,7 +94,7 @@ class stzListex from stzObject
 		if _nLenNestPat_ > 2
 			_cRest_ = Right(cNestedPattern, 1)
 			_oQMatch_ = rx(@cQuantifierPattern)
-			if _oQMatch_.Match(_cRest_)
+			if _oQMatch_.MatchFirst(_cRest_)
 				_aMatches_ = _oQMatch_.Matches()
 				_cQuantifier_ = _aMatches_[1]
 
@@ -110,7 +110,7 @@ class stzListex from stzObject
 					_nMax_ = 1
 				off
 			else
-				_oNumberMatch_ = rx(@cSingleNumberPattern).Match(_cRest_)
+				_oNumberMatch_ = rx(@cSingleNumberPattern).MatchFirst(_cRest_)
 				if _oNumberMatch_
 					_aMatches_ = _oNumberMatch_.Matches()
 					_nQuantifier_ = number(_aMatches_[1])
@@ -236,7 +236,7 @@ class stzListex from stzObject
 		if len(_cRemainder_) > 0
 			_oRangeMatch_ = rx(@cRangePattern)
 
-			if _oRangeMatch_.Match(_cRemainder_)
+			if _oRangeMatch_.MatchFirst(_cRemainder_)
 				_acNumbers_ = @split(_oRangeMatch_.Matches()[1], "-")
 				_nMin_ = 0+ _acNumbers_[1]
 				_nMax_ = 0+ _acNumbers_[2]
@@ -251,7 +251,7 @@ class stzListex from stzObject
 			else
 				_oQMatch_ = rx(@cQuantifierPattern)
 
-				if _oQMatch_.Match(_cRemainder_)
+				if _oQMatch_.MatchFirst(_cRemainder_)
 					_aMatches_ = _oQMatch_.Matches()
 					_cQuantifier_ = _aMatches_[1]
 
@@ -272,7 +272,7 @@ class stzListex from stzObject
 				else
 					_oNumberMatch_ = rx(@cSingleNumberPattern)
 
-					if _oNumberMatch_.Match(_cRemainder_)
+					if _oNumberMatch_.MatchFirst(_cRemainder_)
 						_aMatches_ = _oNumberMatch_.Matches()
 						_nQuantifier_ = number(_aMatches_[1])
 						_nMin_ = _nQuantifier_

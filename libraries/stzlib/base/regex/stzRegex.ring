@@ -25,11 +25,39 @@
  #  GLOBAL VARIABLES  #
 #====================#
 
+# The four match types. Each says what it DOES -- that was the whole point of
+# renaming them away from Qt's NormalMatch / PartialPreferCompleteMatch /
+# PartialPreferFirstMatch / NoMatch, which said nothing.
+#
+#   :MatchEntireContent
+#       The pattern must match the ENTIRE content, start to end, nothing left
+#       over. "Entire content" is relative to the start position: matching
+#       "hello world" from position 7 asks the pattern to match exactly
+#       "world".
+#
+#   :MatchEntireContentIfNotGoPartial
+#       Try that; and if the content is merely a PREFIX of something that
+#       would match entirely, report a partial instead of failing. This is
+#       as-you-type validation: "123" is not yet an SSN, but it is on the way.
+#
+#   :MatchFirstOccurrenceIfNotGoPartial
+#       Find the first occurrence anywhere from the start position -- the
+#       unanchored search -- falling back to a partial if there is no
+#       complete occurrence at all.
+#
+#   :ReturnFalseForAnyMatch
+#       The matching engine is OFF. Always false, whatever the pattern and
+#       whatever the subject. Not "found nothing" -- didn't look.
+#
+# ORDER IS LOAD-BEARING: the position in this list is the type code the
+# engine expects (stz_regex_match_typed, MT_ENTIRE..MT_NONE = 0..3). Adding
+# a type means adding it engine-side too, at the same index.
+
 _$aMATCH_TYPES = [
-	:MatchEntireContent,
-	:MatchEntireContentIfNotGoPartial,
-	:MatchFirstOccurrenceIfNotGoPartial,
-	:ReturnFalseForAnyMatch
+	:MatchEntireContent,			# -> 0
+	:MatchEntireContentIfNotGoPartial,	# -> 1
+	:MatchFirstOccurrenceIfNotGoPartial,	# -> 2
+	:ReturnFalseForAnyMatch			# -> 3
 ]
 
 _$aMATCH_OPTIONS = [
@@ -111,10 +139,14 @@ class stzRegex from stzObject
 	@cStr = ""
 
 	@nFlags = 0
+	@nCompiledFlags = -1
 	@acMatchOptions = []
 
 	@bRecursiveMatch = FALSE
 	@bLastMatchResult = FALSE
+
+	# 0 = no match, 1 = complete match, 2 = partial match.
+	@nLastMatchKind = 0
 
 	  #----------------------------#
 	 #  INIT AND PATTERN SEETING  #
@@ -152,6 +184,7 @@ class stzRegex from stzObject
 		ok
 
 		@pRegexHandle = StzEngineRegexNew(pcPattern, @nFlags)
+		@nCompiledFlags = @nFlags
 
 	  #-------------------#
 	 #  GENERAL METHODS  #
@@ -218,9 +251,15 @@ class stzRegex from stzObject
 
 		ok
 
-		if NOT StzFindFirst(pcMatchType, @MatchTypes()) > 0
+		# The POSITION in @MatchTypes() is the type code the engine expects
+		# -- see the ORDER IS LOAD-BEARING note on _$aMATCH_TYPES.
+		_nTypeIdx_ = StzFindFirst(pcMatchType, @MatchTypes())
+
+		if _nTypeIdx_ = 0
 			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
 		ok
+
+		_nType_ = _nTypeIdx_ - 1
 
 		# Check the options with a direct scan.
 		#
@@ -270,22 +309,47 @@ class stzRegex from stzObject
 
 		next
 
-		if @pRegexHandle != NULL
-			StzEngineRegexFree(@pRegexHandle)
+		# Recompile ONLY when the flags actually changed. The compiled code
+		# depends on the pattern and the flags, and the pattern is fixed for
+		# the life of the object (SetPattern rebuilds it). This used to free
+		# and rebuild the pattern on EVERY call.
+		if @pRegexHandle = NULL or @nFlags != @nCompiledFlags
+			if @pRegexHandle != NULL
+				StzEngineRegexFree(@pRegexHandle)
+			ok
+
+			@pRegexHandle = StzEngineRegexNew(@cPattern, @nFlags)
+			@nCompiledFlags = @nFlags
 		ok
 
-		@pRegexHandle = StzEngineRegexNew(@cPattern, @nFlags)
 		@acMatchOptions = pacOptions
 		@cStr = pcStr
 		@cMatchType = pcMatchType
 
-		_nStart_ = pnStartPosition - 1
-		if _nStart_ < 0 _nStart_ = 0 ok
+		# The position goes over 1-based and is converted ONCE, in the
+		# bridge. The old path subtracted 1 here AND again in the bridge, so
+		# every position landed one character to the left; Matches() then
+		# over-advanced by one and the two errors cancelled. Both are gone.
+		_nStart_ = pnStartPosition
+		if _nStart_ < 1
+			_nStart_ = 1
+		ok
 
-		StzEngineRegexMatch(@pRegexHandle, pcStr, _nStart_)
-		@bLastMatchResult = StzEngineRegexHasMatch(@pRegexHandle)
+		# The match TYPE is now honoured rather than merely validated:
+		# anchoring and partial-matching are decided engine-side, per call,
+		# with no recompilation (ANCHORED / ENDANCHORED / PARTIAL_SOFT are
+		# all match-time options in PCRE2).
+		#
+		# Returns 0 = no match, 1 = complete match, 2 = partial match.
+		@nLastMatchKind = StzEngineRegexMatchTyped(@pRegexHandle, pcStr, _nStart_, _nType_)
 
-		return @bLastMatchResult
+		if @nLastMatchKind = 1
+			@bLastMatchResult = TRUE
+		else
+			@bLastMatchResult = FALSE
+		ok
+
+		return @nLastMatchKind
 
 		#< @FunctionMisspelledForm
 
@@ -305,21 +369,33 @@ class stzRegex from stzObject
 
 		return StzEngineRegexHasMatch(@pRegexHandle)
 
+	# Reads the recorded outcome of the LAST match, exactly as HasMatch()
+	# does. It used to re-run a fresh unanchored partial probe instead, so
+	# the two siblings could describe different matches.
 	def HasPartialMatch()
-		if @pRegexHandle = NULL return FALSE ok
-		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, @cStr, 1)
-		return _nResult_ = 2
+		return @nLastMatchKind = 2
+
+	# The kind of the last match: 0 none, 1 complete, 2 partial.
+	def LastMatchKind()
+		return @nLastMatchKind
 
 	#-- Softanza scope-based pattern matching methods
 
+	# The scope methods SEARCH within a scope -- the scope sets the
+	# boundaries (what "." spans, where ^ and $ bind), the match type stays
+	# the unanchored search. MatchWord("pre[a-z]+") finds "preset" inside a
+	# longer sentence; that is the whole point of a word scope.
+
 	def MatchLinesIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine, :DotMatchesAll ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :MultiLine, :DotMatchesAll ])
+		return _nKind_ = 1
 
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
 	def MatchFirstLineIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :MultiLine ])
+		return _nKind_ = 1
 
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
@@ -327,7 +403,8 @@ class stzRegex from stzObject
 	def MatchWordsIn(pcStr)
 		_cWordPattern_ = "\b" + This.Pattern() + "\b"
 		This.SetPattern(_cWordPattern_)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		return _nKind_ = 1
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
@@ -335,26 +412,39 @@ class stzRegex from stzObject
 	def MatchFirstWordIn(pcStr)
 		_cWordPattern_ = "\b" + This.Pattern() + "\b"
 		This.SetPattern(_cWordPattern_)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		return _nKind_ = 1
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
 
 	def MatchSegmentsIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
+		return _nKind_ = 1
 
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
 	def MatchFirstSegmentIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
+		return _nKind_ = 1
 
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
+	# Match() ANCHORS: it asks whether the pattern matches the string
+	# ENTIRELY, not whether it occurs somewhere inside it. rx("[0-9]+") does
+	# not match "abc123" -- "abc123" is not a run of digits. Use MatchFirst()
+	# for "does this occur anywhere", Matches() for every occurrence.
+	#
+	# This is what :MatchEntireContent has always said it does, and what the
+	# naming redesign settled on: match the complete pattern against the
+	# complete content.
+
 	def Match(pcStr)
 
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
+		return _nKind_ = 1
 
 		#< @FunctionAlternativeForm
 
@@ -406,8 +496,27 @@ class stzRegex from stzObject
 
 		return _abResult_
 
+	# The SEARCH counterpart of Match(): is there a first occurrence of the
+	# pattern anywhere in the string? rx("[0-9]+").MatchFirst("abc123") is
+	# TRUE where .Match("abc123") is FALSE.
+
 	def MatchFirst(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll ])
+		return _nKind_ = 1
+
+		#< @FunctionAlternativeForms
+
+		def MatchAnywhere(pcStr)
+			return This.MatchFirst(pcStr)
+
+		def Occurs(pcStr)
+			return This.MatchFirst(pcStr)
+
+		#>
+
+	# Searches for the next occurrence FROM nPos (1-based), which is what
+	# Matches() needs to walk a string. Not "must match starting exactly at
+	# nPos" -- that is MatchXT(s, nPos, :MatchEntireContent, ...).
 
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
@@ -419,7 +528,8 @@ class stzRegex from stzObject
 		ok
 	ok
 
-	return This.MatchXT(pcStr, nPos, :MatchEntireContent, [])
+	_nKind_ = This.MatchXT(pcStr, nPos, :MatchFirstOccurrenceIfNotGoPartial, [])
+	return _nKind_ = 1
 
 	#-- Getting all the matching values in a given string
 
@@ -433,8 +543,13 @@ class stzRegex from stzObject
 
 			if _cMatch_ != ""
 				_acResults_ + _cMatch_
-				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
-				_nPos_ = _nEnd_ + 1
+
+				# CaptureEnd() is the 1-based position just PAST the match,
+				# so it is already where the next search starts. It used to
+				# be _nEnd_ + 1 here, which skipped a character -- harmless
+				# only because the start position was ALSO one short (two
+				# decrements, see MatchXT). Both are fixed together.
+				_nPos_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 			else
 				break
 			ok
@@ -1054,10 +1169,12 @@ class stzRegex from stzObject
 	 #  Partial Match   #
 	#-----------------#
 
+	# TRUE only when pcStr is a strict PREFIX of something that would match
+	# entirely -- on the way there, not there yet.
 	def IsPartialMatch(pcStr)
 		if @pRegexHandle = NULL return FALSE ok
-		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
-		return _nResult_ = 2
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+		return _nKind_ = 2
 
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
@@ -1069,19 +1186,32 @@ class stzRegex from stzObject
 			return This.IsPartialMatch(pcStr)
 
 	def IsCompleteMatch(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		return _nKind_ = 1
 
 		def IsComplete(pcStr)
 			return This.IsCompleteMatch(pcStr)
 
+	# Accepts what is already valid AND what could still become valid --
+	# which is what form validation needs while the user is still typing.
+	# Against "^\d{3}-\d{2}-\d{4}$": "123" TRUE (partial), "123-45-6789"
+	# TRUE (complete), "abc" FALSE (cannot get there from here).
+	#
+	# This is the method the two partial match types exist for. Until the
+	# types were wired up it just called an entire-content match, so it
+	# rejected every incomplete input -- the exact case it is named after.
 	def MatchAsYouType(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+		return _nKind_ > 0
 
 		def ValidateAsTyped(pcStr)
 			return This.MatchAsYouType(pcStr)
 
+	# The search counterpart: is a match either present, or still possible
+	# if more text arrives? Used for progressive/incremental search.
 	def MatchInProgress(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
+		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		return _nKind_ > 0
 
 		def SearchInProgress(pcStr)
 			return This.MatchInProgress(pcStr)
@@ -1096,7 +1226,7 @@ class stzRegex from stzObject
 			]
 		ok
 
-		_nResult_ = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
+		_nResult_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
 
 		if _nResult_ = 1
 			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
