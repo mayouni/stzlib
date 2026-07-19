@@ -76,6 +76,47 @@ pub fn stz_system_run_free(ptr: [*c]u8, len: usize) callconv(.c) void {
     if (ptr != null and len > 0) gpa.free(ptr[0..len]);
 }
 
+// Run a command ONCE and hand back stdout, stderr AND the exit code.
+//
+// stz_system_run above returns only stdout and FREES stderr (its length
+// survives but the bytes are gone), and its exit_code out-param is the sole
+// way to learn success. The Ring side, unable to get the exit code and
+// stderr from one call, RE-EXECUTED the command via stz_system_exec to read
+// the code -- so any side-effecting command ran twice, and stderr was lost.
+//
+// This returns everything from a single spawn. Both buffers are the caller's
+// to free with stz_system_run_free (matching the existing convention: only
+// len > 0 buffers are handed back, so only those are freed).
+pub fn stz_system_run2(
+    cmd: [*c]const u8,
+    cmd_len: usize,
+    out_ptr: *[*c]u8,
+    out_len: *usize,
+    err_ptr: *[*c]u8,
+    err_len: *usize,
+    exit_code: *c_int,
+) callconv(.c) void {
+    out_ptr.* = null;
+    out_len.* = 0;
+    err_ptr.* = null;
+    err_len.* = 0;
+    exit_code.* = -1;
+    if (cmd == null or cmd_len == 0) return;
+
+    const command = cmd[0..cmd_len];
+    const result = runShellCommand(command) catch return;
+
+    exit_code.* = result.exit_code;
+    if (result.stdout.len > 0) {
+        out_ptr.* = result.stdout.ptr;
+        out_len.* = result.stdout.len;
+    }
+    if (result.stderr.len > 0) {
+        err_ptr.* = result.stderr.ptr;
+        err_len.* = result.stderr.len;
+    }
+}
+
 // ─── Simple synchronous exec (no capture) ───
 
 pub fn stz_system_exec(cmd: [*c]const u8, cmd_len: usize) callconv(.c) c_int {
