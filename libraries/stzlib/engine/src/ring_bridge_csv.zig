@@ -58,6 +58,41 @@ fn ring_GetCell(p: *anyopaque) callconv(.c) void {
     if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
 }
 
+// Parse AND extract the whole grid in one crossing: returns a Ring list of
+// rows, each row a Ring sublist of cell strings.
+//
+// The old Ring path called RowCount, then per row ColCount, then per cell
+// GetCell -- one Ring<->engine crossing EACH. For 2000 rows x 3 cols that is
+// ~8000 crossings and took ~3s. Here the row/col/cell walk happens INSIDE the
+// bridge as ordinary in-process Zig calls; only the single call in and the
+// single list out cross the boundary. Same parse, ~one-crossing cost.
+fn ring_Dump(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(gss(p, 1));
+    const sep_str = gs(p, 2);
+    const sep: u8 = if (@as(usize, @intCast(gss(p, 2))) > 0) sep_str[0] else ';';
+
+    const doc = csv.stz_csv_parse(ptr, len, sep);
+    if (doc) |c| {
+        defer csv.stz_csv_free(c);
+        const nrows = csv.stz_csv_row_count(c);
+        var r: usize = 0;
+        while (r < nrows) : (r += 1) {
+            const rowlist = R.ring_list_newlist(out) orelse continue;
+            const ncols = csv.stz_csv_col_count(c, r);
+            var col: usize = 0;
+            while (col < ncols) : (col += 1) {
+                const cell = csv.csvCellSlice(c, r, col);
+                R.ring_list_addstring2(rowlist, cell.ptr, @intCast(cell.len));
+            }
+        }
+    }
+
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_IsValid(p: *anyopaque) callconv(.c) void {
     const ptr = gs(p, 1);
     const len: usize = @intCast(gss(p, 1));
@@ -78,6 +113,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecsvrowcount", .func = &ring_RowCount },
     .{ .name = "stzenginecsvcolcount", .func = &ring_ColCount },
     .{ .name = "stzenginecsvgetcell", .func = &ring_GetCell },
+    .{ .name = "stzenginecsvdump", .func = &ring_Dump },
     .{ .name = "stzenginecsvisvalid", .func = &ring_IsValid },
     .{ .name = "stzenginecsvtostring", .func = &ring_ToString },
 };
