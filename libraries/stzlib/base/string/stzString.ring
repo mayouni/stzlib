@@ -17806,14 +17806,16 @@ class stzString from stzObject
 	def IsLatin()
 		# Every char carries the Latin script (Roman numerals like
 		# U+2161 included, per UAX #24).
-		_nIlt_ = This._EngineCount(This.Content())
-		if _nIlt_ = 0 return FALSE ok
-		for _iIlt_ = 1 to _nIlt_
-			if _CharScriptCode(StzEngineStringCharAt(@pEngine, _iIlt_)) != 3
-				return FALSE
-			ok
-		next
-		return TRUE
+		# Ask the engine which scripts the string uses: Latin-only means the
+		# distinct set is exactly ["latin"]. Replaces a per-character walk
+		# through the retired Ring-side _CharScriptCode range table.
+		_acIltScripts_ = StzEngineStringScriptNamesList(@pEngine)
+
+		if len(_acIltScripts_) != 1
+			return FALSE
+		ok
+
+		return _acIltScripts_[1] = "latin"
 
 	# TRUE if pcSub occurs exactly n times.
 	def ContainsNOccurrences(n, pcSub)

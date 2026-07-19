@@ -1271,6 +1271,7 @@ fn ring_StringScriptCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count(h)));
 }
 
+
 fn ring_StringScriptNamesList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     emitNulList(out, string.str_script_names(getHandle(p, 1)));

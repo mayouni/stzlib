@@ -151,34 +151,6 @@ pub fn str_has_rtl(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
-/// Count scripts present in the string. Returns the number of distinct
-/// script types found (excluding UNKNOWN).
-pub fn str_script_count(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const data = s.slice();
-    if (data.len == 0) return 0;
-
-    var seen = [_]bool{false} ** 9; // indices 0..8 for our script IDs
-    var i: usize = 0;
-    while (i < data.len) {
-        const cp = unicode.stz_unicode_iterate(data.ptr, data.len, i);
-        if (cp < 0) break;
-        const blen = unicode.stz_unicode_cp_byte_len(data.ptr, data.len, i);
-        if (blen <= 0) break;
-        i += @intCast(blen);
-        const script = classifyCodepoint(cp);
-        if (script > 0 and script <= 8) {
-            seen[@intCast(script)] = true;
-        }
-    }
-
-    var count: c_int = 0;
-    for (seen[1..]) |found| {
-        if (found) count += 1;
-    }
-    return count;
-}
-
 /// The DISTINCT script names of a string, in FIRST-APPEARANCE order,
 /// NUL-terminated (a NUL after every item).
 ///
@@ -194,40 +166,244 @@ pub fn str_script_count(handle: StzStringHandle) callconv(.c) c_int {
 /// no destructors. The vocabulary is deliberately the SAME table rather than
 /// the engine's own 8-script classifier, which would have collapsed Hangul,
 /// Hiragana, Katakana, Armenian and Gujarati into one bucket.
-fn scriptNameOf(cp: i32) []const u8 {
-    if (cp <= 0x40) return "common";
-    if (cp >= 0x5B and cp <= 0x60) return "common";
-    if (cp >= 0x7B and cp <= 0xBF) return "common";
-    if (cp == 0xD7 or cp == 0xF7) return "common";
-    if (cp >= 0x300 and cp <= 0x36F) return "inherited";
-    if (cp <= 0x24F) return "latin";
-    if (cp >= 0x2160 and cp <= 0x217F) return "latin";
-    if (cp >= 0x370 and cp <= 0x3FF) return "greek";
-    if (cp >= 0x400 and cp <= 0x4FF) return "cyrillic";
-    if (cp >= 0x530 and cp <= 0x58F) return "armenian";
-    if (cp >= 0x590 and cp <= 0x5FF) return "hebrew";
-    if (cp >= 0x64B and cp <= 0x65F) return "inherited";
-    if (cp == 0x670) return "inherited";
-    if (cp >= 0x600 and cp <= 0x6FF) return "arabic";
-    if (cp >= 0x900 and cp <= 0x97F) return "devanagari";
-    if (cp >= 0xA80 and cp <= 0xAFF) return "gujarati";
-    if (cp >= 0xE00 and cp <= 0xE7F) return "thai";
-    if (cp >= 0x3040 and cp <= 0x309F) return "hiragana";
-    if (cp >= 0x30A0 and cp <= 0x30FF) return "katakana";
-    if (cp >= 0x4E00 and cp <= 0x9FFF) return "han";
-    if (cp >= 0xAC00 and cp <= 0xD7AF) return "hangul";
+// ---------------------------------------------------------------------------
+// SCRIPT CLASSIFICATION FROM PCRE2's UNICODE CHARACTER DATABASE
+//
+// utf8proc -- what every other stz_unicode_* helper is built on -- carries NO
+// Script property. That is why eight hand-written is_latin/is_arabic/... range
+// tables existed, and why Ring carried its own 21-branch _CharScriptCode on
+// top of them. But PCRE2 is vendored too, pcre2_ucd.c IS compiled into this
+// engine (SUPPORT_UNICODE is defined, so the real 116KB tables land, not the
+// stubs), and its UCD record carries a script code per codepoint for all 172
+// scripts. The data was in the binary all along, linked for \p{...} and used
+// for nothing else.
+//
+// Measured across the BMP before switching: the old table left 21,435
+// codepoints `unknown` that have a real script, and gave 183 answers the UCD
+// contradicts. Every one of those 183 was the range table approximating --
+// unassigned holes claimed for their block, combining marks that belong to
+// Inherited, currency and punctuation that belong to Common, Coptic letters
+// sitting inside the Greek block.
+// ---------------------------------------------------------------------------
+
+const UcdRecord = extern struct {
+    script: u8,
+    chartype: u8,
+    gbprop: u8,
+    caseset: u8,
+    other_case: i32,
+    scriptx_bidiclass: u16,
+    bprops: u16,
+};
+
+// @extern with an explicit name, not `extern const x: [*]const T` -- the
+// latter declares a POINTER VARIABLE named x, whereas these are C ARRAYS and
+// the symbol IS the data. The _8 is PCRE2's code-unit width: PRIV() looks
+// suffix-free in the header, but the built symbols carry it.
+const ucd_records = @extern([*]const UcdRecord, .{ .name = "_pcre2_ucd_records_8" });
+const ucd_stage1 = @extern([*]const u16, .{ .name = "_pcre2_ucd_stage1_8" });
+const ucd_stage2 = @extern([*]const u16, .{ .name = "_pcre2_ucd_stage2_8" });
+
+const UCD_BLOCK_SIZE: u32 = 128;
+
+// PCRE2's own REAL_GET_UCD, two-stage table lookup.
+fn ucdScriptCode(cp: u32) u8 {
+    if (cp > 0x10FFFF) return 98; // ucp_Unknown
+    const s1 = ucd_stage1[cp / UCD_BLOCK_SIZE];
+    const idx = ucd_stage2[@as(u32, s1) * UCD_BLOCK_SIZE + (cp % UCD_BLOCK_SIZE)];
+    return ucd_records[idx].script;
+}
+
+const UCP_SCRIPT_NAMES = [_][]const u8{
+    "latin",
+    "greek",
+    "cyrillic",
+    "armenian",
+    "hebrew",
+    "arabic",
+    "syriac",
+    "thaana",
+    "devanagari",
+    "bengali",
+    "gurmukhi",
+    "gujarati",
+    "oriya",
+    "tamil",
+    "telugu",
+    "kannada",
+    "malayalam",
+    "sinhala",
+    "thai",
+    "tibetan",
+    "myanmar",
+    "georgian",
+    "hangul",
+    "ethiopic",
+    "cherokee",
+    "runic",
+    "mongolian",
+    "hiragana",
+    "katakana",
+    "bopomofo",
+    "han",
+    "yi",
+    "gothic",
+    "tagalog",
+    "hanunoo",
+    "buhid",
+    "tagbanwa",
+    "limbu",
+    "taile",
+    "linearb",
+    "shavian",
+    "cypriot",
+    "buginese",
+    "coptic",
+    "glagolitic",
+    "tifinagh",
+    "sylotinagri",
+    "phagspa",
+    "nko",
+    "kayahli",
+    "lycian",
+    "carian",
+    "lydian",
+    "avestan",
+    "samaritan",
+    "lisu",
+    "javanese",
+    "oldturkic",
+    "kaithi",
+    "mandaic",
+    "chakma",
+    "meroitichieroglyphs",
+    "sharada",
+    "takri",
+    "caucasianalbanian",
+    "duployan",
+    "elbasan",
+    "grantha",
+    "khojki",
+    "lineara",
+    "mahajani",
+    "manichaean",
+    "modi",
+    "oldpermic",
+    "psalterpahlavi",
+    "khudawadi",
+    "tirhuta",
+    "multani",
+    "oldhungarian",
+    "adlam",
+    "osage",
+    "tangut",
+    "masaramgondi",
+    "dogra",
+    "gunjalagondi",
+    "hanifirohingya",
+    "sogdian",
+    "nandinagari",
+    "yezidi",
+    "cyprominoan",
+    "olduyghur",
+    "toto",
+    "garay",
+    "gurungkhema",
+    "olonal",
+    "sunuwar",
+    "todhri",
+    "tulutigalari",
+    "unknown",
+    "common",
+    "lao",
+    "canadianaboriginal",
+    "ogham",
+    "khmer",
+    "olditalic",
+    "deseret",
+    "inherited",
+    "ugaritic",
+    "osmanya",
+    "braille",
+    "newtailue",
+    "oldpersian",
+    "kharoshthi",
+    "balinese",
+    "cuneiform",
+    "phoenician",
+    "sundanese",
+    "lepcha",
+    "olchiki",
+    "vai",
+    "saurashtra",
+    "rejang",
+    "cham",
+    "taitham",
+    "taiviet",
+    "egyptianhieroglyphs",
+    "bamum",
+    "meeteimayek",
+    "imperialaramaic",
+    "oldsoutharabian",
+    "inscriptionalparthian",
+    "inscriptionalpahlavi",
+    "batak",
+    "brahmi",
+    "meroiticcursive",
+    "miao",
+    "sorasompeng",
+    "bassavah",
+    "pahawhhmong",
+    "mendekikakui",
+    "mro",
+    "oldnortharabian",
+    "nabataean",
+    "palmyrene",
+    "paucinhau",
+    "siddham",
+    "warangciti",
+    "ahom",
+    "anatolianhieroglyphs",
+    "hatran",
+    "signwriting",
+    "bhaiksuki",
+    "marchen",
+    "newa",
+    "nushu",
+    "soyombo",
+    "zanabazarsquare",
+    "makasar",
+    "medefaidrin",
+    "oldsogdian",
+    "elymaic",
+    "nyiakengpuachuehmong",
+    "wancho",
+    "chorasmian",
+    "divesakuru",
+    "khitansmallscript",
+    "tangsa",
+    "vithkuqi",
+    "kawi",
+    "nagmundari",
+    "kiratrai",
+    "scriptcount"
+};
+
+fn ucdScriptName(cp: u32) []const u8 {
+    const code = ucdScriptCode(cp);
+    if (code < UCP_SCRIPT_NAMES.len) return UCP_SCRIPT_NAMES[code];
     return "unknown";
 }
 
+/// The DISTINCT script names of a string, in FIRST-APPEARANCE order,
+/// NUL-terminated after every item.
 pub fn str_script_names(handle: StzStringHandle) callconv(.c) StzStringHandle {
     const result = core.str_new() orelse return null;
     const s = handle orelse return result;
     const data = s.slice();
     if (data.len == 0) return result;
 
-    // At most 22 distinct names, so a small fixed set beats a hash map and
-    // preserves first-appearance order for free.
-    var seen: [22][]const u8 = undefined;
+    var seen: [64][]const u8 = undefined;
     var nseen: usize = 0;
 
     var i: usize = 0;
@@ -238,21 +414,15 @@ pub fn str_script_names(handle: StzStringHandle) callconv(.c) StzStringHandle {
         if (blen <= 0) break;
         i += @intCast(blen);
 
-        const name = scriptNameOf(cp);
+        const name = ucdScriptName(@intCast(cp));
 
         var already = false;
         for (seen[0..nseen]) |n| {
-            if (std.mem.eql(u8, n, name)) {
-                already = true;
-                break;
-            }
+            if (std.mem.eql(u8, n, name)) { already = true; break; }
         }
         if (already) continue;
 
-        if (nseen < seen.len) {
-            seen[nseen] = name;
-            nseen += 1;
-        }
+        if (nseen < seen.len) { seen[nseen] = name; nseen += 1; }
         result.data.appendSlice(gpa, name) catch break;
         result.data.append(gpa, 0) catch break;
     }
@@ -260,23 +430,31 @@ pub fn str_script_names(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
-/// Script count INCLUDING the Common bucket -- digits, spaces and
-/// punctuation, everything classifyCodepoint calls SCRIPT_UNKNOWN.
+/// Distinct script count INCLUDING Common -- the ruled definition, and the
+/// one that must equal len(Scripts()).
 ///
-/// str_script_count above deliberately counts only real writing systems, and
-/// that is the right answer for "is this text mixing scripts". But Softanza's
-/// stzStringText.Scripts() lists Common as a script of its own, so the two
-/// disagreed on ordinary text: "hello 123" was 1 there and 2 here. Ruling:
-/// Common COUNTS. This is that definition; the script-only count stays for
-/// IsMixedScript, where treating a digit as a second script would make every
-/// invoice line "mixed".
+/// Derived from the SAME UCD walk as str_script_names, so the two cannot
+/// drift apart again. They previously disagreed because one counted
+/// Common and the other did not.
 pub fn str_script_count_all(handle: StzStringHandle) callconv(.c) c_int {
+    return scriptCountImpl(handle, true);
+}
+
+/// Distinct script count EXCLUDING Common, Inherited and Unknown -- i.e. real
+/// writing systems only. This is what IsMixedScript asks: a digit, a
+/// combining mark or an unassigned codepoint is not a second writing system.
+pub fn str_script_count(handle: StzStringHandle) callconv(.c) c_int {
+    return scriptCountImpl(handle, false);
+}
+
+fn scriptCountImpl(handle: StzStringHandle, count_nonscripts: bool) c_int {
     const s = handle orelse return 0;
     const data = s.slice();
     if (data.len == 0) return 0;
 
-    var seen = [_]bool{false} ** 9;
-    var seen_common = false;
+    var seen: [200]u8 = undefined;
+    var nseen: usize = 0;
+
     var i: usize = 0;
     while (i < data.len) {
         const cp = unicode.stz_unicode_iterate(data.ptr, data.len, i);
@@ -284,20 +462,24 @@ pub fn str_script_count_all(handle: StzStringHandle) callconv(.c) c_int {
         const blen = unicode.stz_unicode_cp_byte_len(data.ptr, data.len, i);
         if (blen <= 0) break;
         i += @intCast(blen);
-        const script = classifyCodepoint(cp);
-        if (script > 0 and script <= 8) {
-            seen[@intCast(script)] = true;
-        } else {
-            seen_common = true;
+
+        const code = ucdScriptCode(@intCast(cp));
+
+        if (!count_nonscripts) {
+            // 98 = ucp_Unknown, 99 = ucp_Common, 106 = ucp_Inherited
+            if (code == 98 or code == 99 or code == 106) continue;
         }
+
+        var already = false;
+        for (seen[0..nseen]) |c| {
+            if (c == code) { already = true; break; }
+        }
+        if (already) continue;
+
+        if (nseen < seen.len) { seen[nseen] = code; nseen += 1; }
     }
 
-    var count: c_int = 0;
-    for (seen[1..]) |found| {
-        if (found) count += 1;
-    }
-    if (seen_common) count += 1;
-    return count;
+    return @intCast(nseen);
 }
 
 /// Unicode-aware locale comparison using casefold. Returns:

@@ -70,35 +70,6 @@ func _CharUnicodeVersion(_nUnicode_)
 	if _nUnicode_ >= 0x1F300 and _nUnicode_ <= 0x1F5FF return 6 ok
 	return 1
 
-func _CharScriptCode(_nUnicode_)
-	# Codes index _aUnicodeScriptsXT (stzCharData.ring): 3 Latin, 4 Greek,
-	# 5 Cyrillic, 6 Armenian, 7 Hebrew, 8 Arabic, 11 Devanagari, 21 Thai,
-	# 26 Hangul, 34 Hiragana, 35 Katakana, 37 Han.
-# Common script (code 2) first: spaces, digits, punctuation and
-	# symbols are script-neutral, NOT Latin (UAX #24).
-	if _nUnicode_ <= 0x40 return 2 ok					# space, digits, punctuation
-	if _nUnicode_ >= 0x5B and _nUnicode_ <= 0x60 return 2 ok		# [ \ ] ^ _ `
-	if _nUnicode_ >= 0x7B and _nUnicode_ <= 0xBF return 2 ok		# { | } ~ + Latin-1 symbols
-	if _nUnicode_ = 0xD7 or _nUnicode_ = 0xF7 return 2 ok		# multiply / divide signs
-	if _nUnicode_ >= 0x300 and _nUnicode_ <= 0x36F return 1 ok		# combining marks -> Inherited
-	if _nUnicode_ <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
-	if _nUnicode_ >= 0x2160 and _nUnicode_ <= 0x217F return 3 ok	# Roman numerals -> Latin (UAX #24)
-	if _nUnicode_ >= 0x0370 and _nUnicode_ <= 0x03FF return 4 ok		# Greek
-	if _nUnicode_ >= 0x0400 and _nUnicode_ <= 0x04FF return 5 ok		# Cyrillic
-	if _nUnicode_ >= 0x0530 and _nUnicode_ <= 0x058F return 6 ok		# Armenian
-	if _nUnicode_ >= 0x0590 and _nUnicode_ <= 0x05FF return 7 ok		# Hebrew
-	if _nUnicode_ >= 0x064B and _nUnicode_ <= 0x065F return 1 ok	# Arabic diacritics -> Inherited
-	if _nUnicode_ = 0x0670 return 1 ok				# superscript alef -> Inherited
-	if _nUnicode_ >= 0x0600 and _nUnicode_ <= 0x06FF return 8 ok		# Arabic
-	if _nUnicode_ >= 0x0900 and _nUnicode_ <= 0x097F return 11 ok	# Devanagari
-	if _nUnicode_ >= 0x0A80 and _nUnicode_ <= 0x0AFF return 14 ok	# Gujarati
-	if _nUnicode_ >= 0x0E00 and _nUnicode_ <= 0x0E7F return 21 ok	# Thai
-	if _nUnicode_ >= 0x3040 and _nUnicode_ <= 0x309F return 34 ok	# Hiragana
-	if _nUnicode_ >= 0x30A0 and _nUnicode_ <= 0x30FF return 35 ok	# Katakana
-	if _nUnicode_ >= 0x4E00 and _nUnicode_ <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han
-	if _nUnicode_ >= 0xAC00 and _nUnicode_ <= 0xD7AF return 26 ok	# Hangul syllables
-	return 0
-
 #-- Public standalone functions
 
 func StzIsInvisibleChar(c)
@@ -1640,31 +1611,31 @@ class stzStringChar from stzString
 
 	# The script the char belongs to.
 	def Script()
-		_nCode_ = _CharScriptCode(This.Unicode())
-		_nLen_ = len(_aUnicodeScriptsXT)
+		# Straight from the engine's UCD. The Ring-side _CharScriptCode range
+		# table and the _aUnicodeScriptsXT name list this used to walk are
+		# both retired: the engine is the Unicode reference now, and it knows
+		# all 172 scripts where the table knew 8 approximately.
+		_pScH_ = StzEngineString(This.Content())
+		_acScNames_ = StzEngineStringScriptNamesList(_pScH_)
+		StzEngineStringFree(_pScH_)
 
-		_cResult_ = :Undefined
+		if len(_acScNames_) > 0
+			return _acScNames_[1]
+		ok
 
-		for i = 1 to _nLen_
-			if _aUnicodeScriptsXT[i][1] = ""+_nCode_
-				_cResult_ = _aUnicodeScriptsXT[i][2]
-				exit
-			ok
-		next
-
-		return _cResult_
+		return "unknown"
 
 		# The Unicode script of the char.
 		def UnicodeScript()
 			return Script()
 
-	# The numeric code of the char's script.
-	def ScriptCode()
-		return _CharScriptCode(This.Unicode())
-
-	# The numeric Unicode script code of the char.
-	def UnicodeScriptCode()
-		return ScriptCode()
+	# ScriptCode()/UnicodeScriptCode() are RETIRED.
+	#
+	# They returned an index into _aUnicodeScriptsXT -- the Ring-side script
+	# table -- which no longer exists. There is no stable "script number" to
+	# hand back: the engine's UCD numbering is PCRE2's and is an internal
+	# detail. Ask for the NAME instead, via Script(), or test membership with
+	# ScriptIs("latin") / IsLatinScript().
 
 	# TRUE if the char's script is the given one.
 	def ScriptIs(pcScript)
@@ -1682,315 +1653,315 @@ class stzStringChar from stzString
 
 	# TRUE if the char belongs to the Unknown script.
 	def IsUnknownScript()
-		return This.ScriptCode() = 0
+		return This.ScriptIs("unknown")
 
 	# TRUE if the char belongs to the Inherited script.
 	def IsInheritedScript()
-		return This.ScriptCode() = 1
+		return This.ScriptIs("inherited")
 
 	# TRUE if the char belongs to the Common script.
 	def IsCommonScript()
-		return This.ScriptCode() = 2
+		return This.ScriptIs("common")
 
 	# TRUE if the char belongs to the Latin script.
 	def IsLatinScript()
-		return This.ScriptCode() = 3
+		return This.ScriptIs("latin")
 
 	# TRUE if the char belongs to the Greek script.
 	def IsGreekScript()
-		return This.ScriptCode() = 4
+		return This.ScriptIs("greek")
 
 	# TRUE if the char belongs to the Cyrillic script.
 	def IsCyrillicScript()
-		return This.ScriptCode() = 5
+		return This.ScriptIs("cyrillic")
 
 	# TRUE if the char belongs to the Armenian script.
 	def IsArmenianScript()
-		return This.ScriptCode() = 6
+		return This.ScriptIs("armenian")
 
 	# TRUE if the char belongs to the Hebrew script.
 	def IsHebrewScript()
-		return This.ScriptCode() = 7
+		return This.ScriptIs("hebrew")
 
 	# TRUE if the char belongs to the Arabic script.
 	def IsArabicScript()
-		return This.ScriptCode() = 8
+		return This.ScriptIs("arabic")
 
 	# TRUE if the char belongs to the Syriac script.
 	def IsSyriacScript()
-		return This.ScriptCode() = 9
+		return This.ScriptIs("syriac")
 
 	# TRUE if the char belongs to the Thaana script.
 	def IsThaanaScript()
-		return This.ScriptCode() = 10
+		return This.ScriptIs("thaana")
 
 	# TRUE if the char belongs to the Devanagari script.
 	def IsDevanagariScript()
-		return This.ScriptCode() = 11
+		return This.ScriptIs("devanagari")
 
 	# TRUE if the char belongs to the Bengali script.
 	def IsBengaliScript()
-		return This.ScriptCode() = 12
+		return This.ScriptIs("bengali")
 
 	# TRUE if the char belongs to the Gurmukhi script.
 	def IsGurmukhiScript()
-		return This.ScriptCode() = 13
+		return This.ScriptIs("gurmukhi")
 
 	# TRUE if the char belongs to the Gujarati script.
 	def IsGujaratiScript()
-		return This.ScriptCode() = 14
+		return This.ScriptIs("gujarati")
 
 	# TRUE if the char belongs to the Oriya script.
 	def IsOriyaScript()
-		return This.ScriptCode() = 15
+		return This.ScriptIs("oriya")
 
 	# TRUE if the char belongs to the Tamil script.
 	def IsTamilScript()
-		return This.ScriptCode() = 16
+		return This.ScriptIs("tamil")
 
 	# TRUE if the char belongs to the Telugu script.
 	def IsTeluguScript()
-		return This.ScriptCode() = 17
+		return This.ScriptIs("telugu")
 
 	# TRUE if the char belongs to the Kannada script.
 	def IsKannadaScript()
-		return This.ScriptCode() = 18
+		return This.ScriptIs("kannada")
 
 	# TRUE if the char belongs to the Malayalam script.
 	def IsMalayalamScript()
-		return This.ScriptCode() = 19
+		return This.ScriptIs("malayalam")
 
 	# TRUE if the char belongs to the Sinhala script.
 	def IsSinhalaScript()
-		return This.ScriptCode() = 20
+		return This.ScriptIs("sinhala")
 
 	# TRUE if the char belongs to the Thai script.
 	def IsThaiScript()
-		return This.ScriptCode() = 21
+		return This.ScriptIs("thai")
 
 	# TRUE if the char belongs to the Lao script.
 	def IsLaoScript()
-		return This.ScriptCode() = 22
+		return This.ScriptIs("lao")
 
 	# TRUE if the char belongs to the Tibetan script.
 	def IsTibetanScript()
-		return This.ScriptCode() = 23
+		return This.ScriptIs("tibetan")
 
 	# TRUE if the char belongs to the Myanmar script.
 	def IsMyanmarScript()
-		return This.ScriptCode() = 24
+		return This.ScriptIs("myanmar")
 
 	# TRUE if the char belongs to the Georgian script.
 	def IsGeorgianScript()
-		return This.ScriptCode() = 25
+		return This.ScriptIs("georgian")
 
 	# TRUE if the char belongs to the Hangul script.
 	def IsHangulScript()
-		return This.ScriptCode() = 26
+		return This.ScriptIs("hangul")
 
 	# TRUE if the char belongs to the Ethiopic script.
 	def IsEthiopicScript()
-		return This.ScriptCode() = 27
+		return This.ScriptIs("ethiopic")
 
 	# TRUE if the char belongs to the Cherokee script.
 	def IsCherokeeScript()
-		return This.ScriptCode() = 28
+		return This.ScriptIs("cherokee")
 
 	# TRUE if the char belongs to the Canadian Aboriginal script.
 	def IsCanadianAboriginalScript()
-		return This.ScriptCode() = 29
+		return This.ScriptIs("canadianaboriginal")
 
 	# TRUE if the char belongs to the Ogham script.
 	def IsOghamScript()
-		return This.ScriptCode() = 30
+		return This.ScriptIs("ogham")
 
 	# TRUE if the char belongs to the Runic script.
 	def IsRunicScript()
-		return This.ScriptCode() = 31
+		return This.ScriptIs("runic")
 
 	# TRUE if the char belongs to the Khmer script.
 	def IsKhmerScript()
-		return This.ScriptCode() = 32
+		return This.ScriptIs("khmer")
 
 	# TRUE if the char belongs to the Mongolian script.
 	def IsMongolianScript()
-		return This.ScriptCode() = 33
+		return This.ScriptIs("mongolian")
 
 	# TRUE if the char belongs to the Hiragana script.
 	def IsHiraganaScript()
-		return This.ScriptCode() = 34
+		return This.ScriptIs("hiragana")
 
 	# TRUE if the char belongs to the Katakana script.
 	def IsKatakanaScript()
-		return This.ScriptCode() = 35
+		return This.ScriptIs("katakana")
 
 	# TRUE if the char belongs to the Bopomofo script.
 	def IsBopomofoScript()
-		return This.ScriptCode() = 36
+		return This.ScriptIs("bopomofo")
 
 	# TRUE if the char belongs to the Han script.
 	def IsHanScript()
-		return This.ScriptCode() = 37
+		return This.ScriptIs("han")
 
 	# TRUE if the char belongs to the Yi script.
 	def IsYiScript()
-		return This.ScriptCode() = 38
+		return This.ScriptIs("yi")
 
 	# TRUE if the char belongs to the Old Italic script.
 	def IsOldItalicScript()
-		return This.ScriptCode() = 39
+		return This.ScriptIs("olditalic")
 
 	# TRUE if the char belongs to the Gothic script.
 	def IsGothicScript()
-		return This.ScriptCode() = 40
+		return This.ScriptIs("gothic")
 
 	# TRUE if the char belongs to the Deseret script.
 	def IsDeseretScript()
-		return This.ScriptCode() = 41
+		return This.ScriptIs("deseret")
 
 	# TRUE if the char belongs to the Tagalog script.
 	def IsTagalogScript()
-		return This.ScriptCode() = 42
+		return This.ScriptIs("tagalog")
 
 	# TRUE if the char belongs to the Hanunoo script.
 	def IsHanunooScript()
-		return This.ScriptCode() = 43
+		return This.ScriptIs("hanunoo")
 
 	# TRUE if the char belongs to the Buhid script.
 	def IsBuhidScript()
-		return This.ScriptCode() = 44
+		return This.ScriptIs("buhid")
 
 	# TRUE if the char belongs to the Tagbanwa script.
 	def IsTagbanwaScript()
-		return This.ScriptCode() = 45
+		return This.ScriptIs("tagbanwa")
 
 	# TRUE if the char belongs to the Coptic script.
 	def IsCopticScript()
-		return This.ScriptCode() = 46
+		return This.ScriptIs("coptic")
 
 	# TRUE if the char belongs to the Limbu script.
 	def IsLimbuScript()
-		return This.ScriptCode() = 47
+		return This.ScriptIs("limbu")
 
 	# TRUE if the char belongs to the Tai Le script.
 	def IsTaiLeScript()
-		return This.ScriptCode() = 48
+		return This.ScriptIs("taile")
 
 	# TRUE if the char belongs to the Linear B script.
 	def IsLinearBScript()
-		return This.ScriptCode() = 49
+		return This.ScriptIs("linearb")
 
 	# TRUE if the char belongs to the Ugaritic script.
 	def IsUgariticScript()
-		return This.ScriptCode() = 50
+		return This.ScriptIs("ugaritic")
 
 	# TRUE if the char belongs to the Shavian script.
 	def IsShavianScript()
-		return This.ScriptCode() = 51
+		return This.ScriptIs("shavian")
 
 	# TRUE if the char belongs to the Osmanya script.
 	def IsOsmanyaScript()
-		return This.ScriptCode() = 52
+		return This.ScriptIs("osmanya")
 
 	# TRUE if the char belongs to the Cypriot script.
 	def IsCypriotScript()
-		return This.ScriptCode() = 53
+		return This.ScriptIs("cypriot")
 
 	# TRUE if the char belongs to the Braille script.
 	def IsBrailleScript()
-		return This.ScriptCode() = 54
+		return This.ScriptIs("braille")
 
 	# TRUE if the char belongs to the Buginese script.
 	def IsBugineseScript()
-		return This.ScriptCode() = 55
+		return This.ScriptIs("buginese")
 
 	# TRUE if the char belongs to the New Tai Lue script.
 	def IsNewTaiLueScript()
-		return This.ScriptCode() = 56
+		return This.ScriptIs("newtailue")
 
 	# TRUE if the char belongs to the Glagolitic script.
 	def IsGlagoliticScript()
-		return This.ScriptCode() = 57
+		return This.ScriptIs("glagolitic")
 
 	# TRUE if the char belongs to the Tifinagh script.
 	def IsTifinaghScript()
-		return This.ScriptCode() = 58
+		return This.ScriptIs("tifinagh")
 
 	# TRUE if the char belongs to the Syloti Nagri script.
 	def IsSylotiNagriScript()
-		return This.ScriptCode() = 59
+		return This.ScriptIs("sylotinagri")
 
 	# TRUE if the char belongs to the Old Persian script.
 	def IsOldPersianScript()
-		return This.ScriptCode() = 60
+		return This.ScriptIs("oldpersian")
 
 	# TRUE if the char belongs to the Kharoshthi script.
 	def IsKharoshthiScript()
-		return This.ScriptCode() = 61
+		return This.ScriptIs("kharoshthi")
 
 	# TRUE if the char belongs to the Balinese script.
 	def IsBalineseScript()
-		return This.ScriptCode() = 62
+		return This.ScriptIs("balinese")
 
 	# TRUE if the char belongs to the Cuneiform script.
 	def IsCuneiformScript()
-		return This.ScriptCode() = 63
+		return This.ScriptIs("cuneiform")
 
 	# TRUE if the char belongs to the Phoenician script.
 	def IsPhoenicianScript()
-		return This.ScriptCode() = 64
+		return This.ScriptIs("phoenician")
 
 	# TRUE if the char belongs to the Phags Pa script.
 	def IsPhagsPaScript()
-		return This.ScriptCode() = 65
+		return This.ScriptIs("phagspa")
 
 	# TRUE if the char belongs to the Nko script.
 	def IsNkoScript()
-		return This.ScriptCode() = 66
+		return This.ScriptIs("nko")
 
 	# TRUE if the char belongs to the Sundanese script.
 	def IsSundaneseScript()
-		return This.ScriptCode() = 67
+		return This.ScriptIs("sundanese")
 
 	# TRUE if the char belongs to the Lepcha script.
 	def IsLepchaScript()
-		return This.ScriptCode() = 68
+		return This.ScriptIs("lepcha")
 
 	# TRUE if the char belongs to the Ol Chiki script.
 	def IsOlChikiScript()
-		return This.ScriptCode() = 69
+		return This.ScriptIs("olchiki")
 
 	# TRUE if the char belongs to the Vai script.
 	def IsVaiScript()
-		return This.ScriptCode() = 70
+		return This.ScriptIs("vai")
 
 	# TRUE if the char belongs to the Saurashtra script.
 	def IsSaurashtraScript()
-		return This.ScriptCode() = 71
+		return This.ScriptIs("saurashtra")
 
 	# TRUE if the char belongs to the Kayah Li script.
 	def IsKayahLiScript()
-		return This.ScriptCode() = 72
+		return This.ScriptIs("kayahli")
 
 	# TRUE if the char belongs to the Rejang script.
 	def IsRejangScript()
-		return This.ScriptCode() = 73
+		return This.ScriptIs("rejang")
 
 	# TRUE if the char belongs to the Lycian script.
 	def IsLycianScript()
-		return This.ScriptCode() = 74
+		return This.ScriptIs("lycian")
 
 	# TRUE if the char belongs to the Carian script.
 	def IsCarianScript()
-		return This.ScriptCode() = 75
+		return This.ScriptIs("carian")
 
 	# TRUE if the char belongs to the Lydian script.
 	def IsLydianScript()
-		return This.ScriptCode() = 76
+		return This.ScriptIs("lydian")
 
 	# TRUE if the char belongs to the Cham script.
 	def IsChamScript()
-		return This.ScriptCode() = 77
+		return This.ScriptIs("cham")
 
 	# The Tai Tham script constant.
 	def TaiThamScript()
@@ -1998,207 +1969,207 @@ class stzStringChar from stzString
 
 	# TRUE if the char belongs to the Tai Viet script.
 	def IsTaiVietScript()
-		return This.ScriptCode() = 79
+		return This.ScriptIs("taiviet")
 
 	# TRUE if the char belongs to the Avestan script.
 	def IsAvestanScript()
-		return This.ScriptCode() = 80
+		return This.ScriptIs("avestan")
 
 	# TRUE if the char belongs to the Egyptian Hieroglyphs script.
 	def IsEgyptianHieroglyphsScript()
-		return This.ScriptCode() = 81
+		return This.ScriptIs("egyptianhieroglyphs")
 
 	# TRUE if the char belongs to the Samaritan script.
 	def IsSamaritanScript()
-		return This.ScriptCode() = 82
+		return This.ScriptIs("samaritan")
 
 	# TRUE if the char belongs to the Lisu script.
 	def IsLisuScript()
-		return This.ScriptCode() = 83
+		return This.ScriptIs("lisu")
 
 	# TRUE if the char belongs to the Bamum script.
 	def IsBamumScript()
-		return This.ScriptCode() = 84
+		return This.ScriptIs("bamum")
 
 	# TRUE if the char belongs to the Javanese script.
 	def IsJavaneseScript()
-		return This.ScriptCode() = 85
+		return This.ScriptIs("javanese")
 
 	# TRUE if the char belongs to the Meetei Mayek script.
 	def IsMeeteiMayekScript()
-		return This.ScriptCode() = 86
+		return This.ScriptIs("meeteimayek")
 
 	# TRUE if the char belongs to the Imperial Aramaic script.
 	def IsImperialAramaicScript()
-		return This.ScriptCode() = 87
+		return This.ScriptIs("imperialaramaic")
 
 	# TRUE if the char belongs to the Old South Arabian script.
 	def IsOldSouthArabianScript()
-		return This.ScriptCode() = 88
+		return This.ScriptIs("oldsoutharabian")
 
 	# TRUE if the char belongs to the Inscriptional Parthian script.
 	def IsInscriptionalParthianScript()
-		return This.ScriptCode() = 89
+		return This.ScriptIs("inscriptionalparthian")
 
 	# TRUE if the char belongs to the Inscriptional Pahlavi script.
 	def IsInscriptionalPahlaviScript()
-		return This.ScriptCode() = 90
+		return This.ScriptIs("inscriptionalpahlavi")
 
 	# TRUE if the char belongs to the Old Turkic script.
 	def IsOldTurkicScript()
-		return This.ScriptCode() = 91
+		return This.ScriptIs("oldturkic")
 
 	# TRUE if the char belongs to the Kaithi script.
 	def IsKaithiScript()
-		return This.ScriptCode() = 92
+		return This.ScriptIs("kaithi")
 
 	# TRUE if the char belongs to the Batak script.
 	def IsBatakScript()
-		return This.ScriptCode() = 93
+		return This.ScriptIs("batak")
 
 	# TRUE if the char belongs to the Brahmi script.
 	def IsBrahmiScript()
-		return This.ScriptCode() = 94
+		return This.ScriptIs("brahmi")
 
 	# TRUE if the char belongs to the Mandaic script.
 	def IsMandaicScript()
-		return This.ScriptCode() = 95
+		return This.ScriptIs("mandaic")
 
 	# TRUE if the char belongs to the Chakma script.
 	def IsChakmaScript()
-		return This.ScriptCode() = 96
+		return This.ScriptIs("chakma")
 
 	# TRUE if the char belongs to the Meroitic Cursive script.
 	def IsMeroiticCursiveScript()
-		return This.ScriptCode() = 97
+		return This.ScriptIs("meroiticcursive")
 
 	# TRUE if the char belongs to the Meroitic Hieroglyphs script.
 	def IsMeroiticHieroglyphsScript()
-		return This.ScriptCode() = 98
+		return This.ScriptIs("meroitichieroglyphs")
 
 	# TRUE if the char belongs to the Miao script.
 	def IsMiaoScript()
-		return This.ScriptCode() = 99
+		return This.ScriptIs("miao")
 
 	# TRUE if the char belongs to the Sharada script.
 	def IsSharadaScript()
-		return This.ScriptCode() = 100
+		return This.ScriptIs("sharada")
 
 	# TRUE if the char belongs to the Sora Sompeng script.
 	def IsSoraSompengScript()
-		return This.ScriptCode() = 101
+		return This.ScriptIs("sorasompeng")
 
 	# TRUE if the char belongs to the Takri script.
 	def IsTakriScript()
-		return This.ScriptCode() = 102
+		return This.ScriptIs("takri")
 
 	# TRUE if the char belongs to the Caucasian Albanian script.
 	def IsCaucasianAlbanianScript()
-		return This.ScriptCode() = 103
+		return This.ScriptIs("caucasianalbanian")
 
 	# TRUE if the char belongs to the Bassa Vah script.
 	def IsBassaVahScript()
-		return This.ScriptCode() = 104
+		return This.ScriptIs("bassavah")
 
 	# TRUE if the char belongs to the Duployan script.
 	def IsDuployanScript()
-		return This.ScriptCode() = 105
+		return This.ScriptIs("duployan")
 
 	# TRUE if the char belongs to the Elbasan script.
 	def IsElbasanScript()
-		return This.ScriptCode() = 106
+		return This.ScriptIs("elbasan")
 
 	# TRUE if the char belongs to the Grantha script.
 	def IsGranthaScript()
-		return This.ScriptCode() = 107
+		return This.ScriptIs("grantha")
 
 	# TRUE if the char belongs to the Pahawh Hmong script.
 	def IsPahawhHmongScript()
-		return This.ScriptCode() = 108
+		return This.ScriptIs("pahawhhmong")
 
 	# TRUE if the char belongs to the Khojki script.
 	def IsKhojkiScript()
-		return This.ScriptCode() = 109
+		return This.ScriptIs("khojki")
 
 	# TRUE if the char belongs to the Linear A script.
 	def IsLinearAScript()
-		return This.ScriptCode() = 110
+		return This.ScriptIs("lineara")
 
 	# TRUE if the char belongs to the Mahajani script.
 	def IsMahajaniScript()
-		return This.ScriptCode() = 111
+		return This.ScriptIs("mahajani")
 
 	# TRUE if the char belongs to the Manichaean script.
 	def IsManichaeanScript()
-		return This.ScriptCode() = 112
+		return This.ScriptIs("manichaean")
 
 	# TRUE if the char belongs to the Mende Kikakui script.
 	def IsMendeKikakuiScript()
-		return This.ScriptCode() = 113
+		return This.ScriptIs("mendekikakui")
 
 	# TRUE if the char belongs to the Modi script.
 	def IsModiScript()
-		return This.ScriptCode() = 114
+		return This.ScriptIs("modi")
 
 	# TRUE if the char belongs to the Mro script.
 	def IsMroScript()
-		return This.ScriptCode() = 115
+		return This.ScriptIs("mro")
 
 	# TRUE if the char belongs to the Old North Arabian script.
 	def IsOldNorthArabianScript()
-		return This.ScriptCode() = 116
+		return This.ScriptIs("oldnortharabian")
 
 	# TRUE if the char belongs to the Nabataean script.
 	def IsNabataeanScript()
-		return This.ScriptCode() = 117
+		return This.ScriptIs("nabataean")
 
 	# TRUE if the char belongs to the Palmyrene script.
 	def IsPalmyreneScript()
-		return This.ScriptCode() = 118
+		return This.ScriptIs("palmyrene")
 
 	# TRUE if the char belongs to the Pau Cin Hau script.
 	def IsPauCinHauScript()
-		return This.ScriptCode() = 119
+		return This.ScriptIs("paucinhau")
 
 	# TRUE if the char belongs to the Old Permic script.
 	def IsOldPermicScript()
-		return This.ScriptCode() = 120
+		return This.ScriptIs("oldpermic")
 
 	# TRUE if the char belongs to the Psalter Pahlavi script.
 	def IsPsalterPahlaviScript()
-		return This.ScriptCode() = 121
+		return This.ScriptIs("psalterpahlavi")
 
 	# TRUE if the char belongs to the Siddham script.
 	def IsSiddhamScript()
-		return This.ScriptCode() = 122
+		return This.ScriptIs("siddham")
 
 	# TRUE if the char belongs to the Khudawadi script.
 	def IsKhudawadiScript()
-		return This.ScriptCode() = 123
+		return This.ScriptIs("khudawadi")
 
 	# TRUE if the char belongs to the Tirhuta script.
 	def IsTirhutaScript()
-		return This.ScriptCode() = 124
+		return This.ScriptIs("tirhuta")
 
 	# TRUE if the char belongs to the Warang Citi script.
 	def IsWarangCitiScript()
-		return This.ScriptCode() = 125
+		return This.ScriptIs("warangciti")
 
 	# TRUE if the char belongs to the Ahom script.
 	def IsAhomScript()
-		return This.ScriptCode() = 126
+		return This.ScriptIs("ahom")
 
 	# TRUE if the char belongs to the Anatolian Hieroglyphs script.
 	def IsAnatolianHieroglyphsScript()
-		return This.ScriptCode() = 127
+		return This.ScriptIs("anatolianhieroglyphs")
 
 	# TRUE if the char belongs to the Hatran script.
 	def IsHatranScript()
-		return This.ScriptCode() = 128
+		return This.ScriptIs("hatran")
 
 	# TRUE if the char belongs to the Multani script.
 	def IsMultaniScript()
-		return This.ScriptCode() = 129
+		return This.ScriptIs("multani")
 
 	  #----------------------------#
 	 #  CHAR RANGE (UpTo/DownTo)  #
