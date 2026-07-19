@@ -1859,7 +1859,20 @@ class stzGraph from stzObject
 			return This.NthNode(n)
 
 	def NodePosition(pcNodeId)
-		return StzFindFirst(StzLower(pcNodeId), This.NodesIds())
+		# The index already maps id -> POSITION, which is exactly this
+		# question. Missed when NodeExists was indexed: this one kept
+		# rebuilding the whole id list with NodesIds() and scanning it.
+		# The engine map returns 0 for an absent key, same as the scan did.
+
+		_cNpId_ = StzLower(pcNodeId)
+
+		This._EnsureNodeIndex()
+
+		if @pNodeIdx != NULL
+			return StzEngineHashMapGetInt(@pNodeIdx, _cNpId_)
+		ok
+
+		return StzFindFirst(_cNpId_, This.NodesIds())
 
 	#--
 
