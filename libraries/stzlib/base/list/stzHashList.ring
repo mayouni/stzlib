@@ -142,21 +142,46 @@ func HasKey(paList, pcKey)
 		ok
 	ok
 
-	if not IsHashList(paList)
+	# ONE pass: validate the shape as we go and remember whether the key was
+	# seen. 594 live callers depend on this being cheap.
+	#
+	# It used to call IsHashList(paList) -- which validates the shape AND
+	# checks every key for uniqueness, marshalling the whole list to the
+	# engine to do it -- and THEN build the entire lowercased key list before
+	# searching that. Measured, the guard alone was the whole cost of a hit:
+	# 200 lookups over 600 keys spent 0.22s in IsHashList out of 0.22s total.
+	# Callers that bump a counter in a loop pay it per bump, which is why
+	# stzApriori took 1.75s on 40 transactions.
+	#
+	# It answers ONE question -- is this key present -- and stops as soon as
+	# it knows. Validating the whole container is IsHashList's job, and
+	# borrowing it here is what made this both slow and wrong: a list with
+	# DUPLICATE keys used to answer FALSE for a key plainly present.
+	#
+	# Items that are not [string, value] pairs cannot match a string key, so
+	# they are skipped rather than poisoning the answer. A list of non-pairs
+	# therefore still answers FALSE, exactly as before.
+
+	if NOT isList(paList)
 		return FALSE
 	ok
 
+	_cHkProbe_ = StzLower(pcKey)
 	_nHkLen_ = len(paList)
-	_acHkKeys_ = []
 
 	for _iHk_ = 1 to _nHkLen_
-		# `+` not add(): Ring's add() builtin corrupts multibyte string
-		# content, so a Greek key went into this list mangled and the
-		# lookup below could never match it.
-		_acHkKeys_ + StzLower(paList[_iHk_][1])
+		_aHkPair_ = paList[_iHk_]
+
+		if isList(_aHkPair_) and len(_aHkPair_) = 2
+			if isString(_aHkPair_[1])
+				if StzLower(_aHkPair_[1]) = _cHkProbe_
+					return TRUE
+				ok
+			ok
+		ok
 	next
 
-	return iff(StzFindFirst(StzLower(pcKey), _acHkKeys_) > 0, TRUE, FALSE)
+	return FALSE
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
