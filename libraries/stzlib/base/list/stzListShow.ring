@@ -618,15 +618,15 @@ func FormatShortList(aList, nItems)
 
     # Add first nHead items
     for _iFslHead_ = 1 to _nFslHead_
-        add(_aFslShort_, aList[_iFslHead_])
+        _aFslShort_ + aList[_iFslHead_]
     next
 
     # Add ellipsis
-    add(_aFslShort_, "...")
+    _aFslShort_ + "..."
 
     # Add last nTail items
     for _iFslTail_ = (_nFslLen_ - _nFslTail_ + 1) to _nFslLen_
-        add(_aFslShort_, aList[_iFslTail_])
+        _aFslShort_ + aList[_iFslTail_]
     next
 
     return FormatList(_aFslShort_, " ", "")
@@ -638,15 +638,15 @@ func FormatShortListNL(aList, nItems)
 
     # Add first nItems
     for _iFslnlHead_ = 1 to nItems
-        add(_aFslnlShort_, aList[_iFslnlHead_])
+        _aFslnlShort_ + aList[_iFslnlHead_]
     next
 
     # Add ellipsis
-    add(_aFslnlShort_, "...")
+    _aFslnlShort_ + "..."
 
     # Add last nItems
     for _iFslnlTail_ = (_nFslnlLen_ - nItems + 1) to _nFslnlLen_
-        add(_aFslnlShort_, aList[_iFslnlTail_])
+        _aFslnlShort_ + aList[_iFslnlTail_]
     next
 
     return FormatListNL(_aFslnlShort_, " ", "")
@@ -669,7 +669,7 @@ func FormatShortString(cStr, nItems)
         else
             _nFssCharLen_ = 1
         ok
-        add(_aFssChars_, [_iFssScan_, _nFssCharLen_])
+        _aFssChars_ + [_iFssScan_, _nFssCharLen_]
         _iFssScan_ += _nFssCharLen_
     end
 

@@ -27,10 +27,10 @@ func _DeepFlattenHelper(paList)
 			_aDfhTemp_ = _DeepFlattenHelper(paList[_iDfh_])
 			_n_aDfhTempLen_ = len(_aDfhTemp_)
 			for _jDfh_ = 1 to _n_aDfhTempLen_
-				add(_aDfhResult_, _aDfhTemp_[_jDfh_])
+				_aDfhResult_ + _aDfhTemp_[_jDfh_]
 			next
 		else
-			add(_aDfhResult_, paList[_iDfh_])
+			_aDfhResult_ + paList[_iDfh_]
 		ok
 	next
 	return _aDfhResult_
@@ -46,10 +46,10 @@ func _FlattenDepthHelper(paList, nDepth)
 			_aFdhTemp_ = _FlattenDepthHelper(paList[_iFdh_], nDepth - 1)
 			_n_aFdhTempLen_ = len(_aFdhTemp_)
 			for _jFdh_ = 1 to _n_aFdhTempLen_
-				add(_aFdhResult_, _aFdhTemp_[_jFdh_])
+				_aFdhResult_ + _aFdhTemp_[_jFdh_]
 			next
 		else
-			add(_aFdhResult_, paList[_iFdh_])
+			_aFdhResult_ + paList[_iFdh_]
 		ok
 	next
 	return _aFdhResult_

@@ -217,7 +217,7 @@ Class TableDisplayConfig
         
         # Initialize arrays for each dimension
         for i = 1 to _nColLabelCount_
-            add(_aResult_, [])
+            _aResult_ + []
         next
         
         # Extract unique values for each column dimension
@@ -234,7 +234,7 @@ Class TableDisplayConfig
                     
                     _aParts_ = split(_cHeader_, "|")
                     if len(_aParts_) >= i and not find(_aUnique_, _aParts_[i])
-                        add(_aUnique_, _aParts_[i])
+                        _aUnique_ + _aParts_[i]
                     ok
                 next
             next
@@ -263,7 +263,7 @@ Class TableDisplayConfig
             
             # Update item's final width
             aContentDimensions[:RowLabels][i][:finalWidth] = _nWidth_
-            add(_aFinalRowWidths_, _nWidth_)
+            _aFinalRowWidths_ + _nWidth_
             
             # Add to section width (including separators)
             _nRowLabelSectionWidth_ += _nWidth_
@@ -324,7 +324,7 @@ Class TableDisplayConfig
                 _nGroupWidth_ += (len(_aColDimValues_[2]) - 1)
             ok
             
-            add(_aDimWidthSums_, _nGroupWidth_)
+            _aDimWidthSums_ + _nGroupWidth_
         next
         
         aCalculatedLayout[:DataColumnWidths] = _aFinalDataWidths_
@@ -385,13 +385,13 @@ Class TableDisplayConfig
         
         # Add row labels section offset
         _nCurrentOffset_ += _nRowLabelSectionWidth_ + 1  # +1 for the initial border character
-        add(_aBorderOffsets_, _nCurrentOffset_)
+        _aBorderOffsets_ + _nCurrentOffset_
         
         # Add each dimension group offset
         _nDimWidthSumsLen_ = len(_aDimWidthSums_)
         for i = 1 to _nDimWidthSumsLen_
             _nCurrentOffset_ += _aDimWidthSums_[i] + 1  # +1 for separator
-            add(_aBorderOffsets_, _nCurrentOffset_)
+            _aBorderOffsets_ + _nCurrentOffset_
         next
         
         aCalculatedLayout[:BorderWidthOffsets] = _aBorderOffsets_
@@ -1322,7 +1322,7 @@ Class TableThemeManager
         	_aPair_ = aThemes[_iLoopThemes1_]
             _cKey_ = _aPair_[1]
             _value_ = _aPair_[2]
-            add(_aThemeNames_, _cKey_)
+            _aThemeNames_ + _cKey_
         next
         return _aThemeNames_
     

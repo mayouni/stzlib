@@ -193,10 +193,10 @@ class stzStringSplitter from stzObject
 		_aSapResult_ = []
 
 		if n > 1
-			add(_aSapResult_, @oString.Section(1, n - 1))
+			_aSapResult_ + @oString.Section(1, n - 1)
 		ok
 		if n < _nSapLen_
-			add(_aSapResult_, @oString.Section(n + 1, _nSapLen_))
+			_aSapResult_ + @oString.Section(n + 1, _nSapLen_)
 		ok
 
 		return _aSapResult_
@@ -227,14 +227,14 @@ class stzStringSplitter from stzObject
 			_nSapPos_ = _anSapsorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
 				if _nSapPos_ > _nSapPrev_
-					add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapPos_ - 1))
+					_aSapResult_ + @oString.Section(_nSapPrev_, _nSapPos_ - 1)
 				ok
 				_nSapPrev_ = _nSapPos_ + 1
 			ok
 		next
 
 		if _nSapPrev_ <= _nSapLen_
-			add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapLen_))
+			_aSapResult_ + @oString.Section(_nSapPrev_, _nSapLen_)
 		ok
 
 		return _aSapResult_
@@ -298,13 +298,13 @@ class stzStringSplitter from stzObject
 		for _iSbp_ = 1 to _n_anSbpSortedLen_
 			_nSbpPos_ = _anSbpSorted_[_iSbp_]
 			if _nSbpPos_ > _nSbpPrev_ and _nSbpPos_ <= _nSbpLen_
-				add(_aSbpResult_, @oString.Section(_nSbpPrev_, _nSbpPos_ - 1))
+				_aSbpResult_ + @oString.Section(_nSbpPrev_, _nSbpPos_ - 1)
 				_nSbpPrev_ = _nSbpPos_
 			ok
 		next
 
 		if _nSbpPrev_ <= _nSbpLen_
-			add(_aSbpResult_, @oString.Section(_nSbpPrev_, _nSbpLen_))
+			_aSbpResult_ + @oString.Section(_nSbpPrev_, _nSbpLen_)
 		ok
 
 		return _aSbpResult_
@@ -379,13 +379,13 @@ class stzStringSplitter from stzObject
 		for _iSap_ = 1 to _n_anSapSortedLen_
 			_nSapPos_ = _anSapSorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
-				add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapPos_))
+				_aSapResult_ + @oString.Section(_nSapPrev_, _nSapPos_)
 				_nSapPrev_ = _nSapPos_ + 1
 			ok
 		next
 
 		if _nSapPrev_ <= _nSapLen_
-			add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapLen_))
+			_aSapResult_ + @oString.Section(_nSapPrev_, _nSapLen_)
 		ok
 
 		return _aSapResult_

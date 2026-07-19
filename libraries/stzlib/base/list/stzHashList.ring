@@ -118,7 +118,7 @@ func Keys(paList)
 	_nKeysLen_ = len(paList)
 
 	for _iKeys_ = 1 to _nKeysLen_
-		add(_acKeysResult_, paList[_iKeys_][1])
+		_acKeysResult_ + paList[_iKeys_][1]
 	next
 
 	return _acKeysResult_
@@ -186,7 +186,7 @@ func HasKeys(paList, pacKeys)
 	_acHksAllKeys_ = []
 
 	for _iHks_ = 1 to _nHksLen_
-		add(_acHksAllKeys_, paList[_iHks_][1])
+		_acHksAllKeys_ + paList[_iHks_][1]
 	next
 
 	_nHksKeysLen_ = len(pacKeys)

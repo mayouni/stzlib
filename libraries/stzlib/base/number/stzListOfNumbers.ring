@@ -1194,7 +1194,7 @@ func FirstNPrimes(_n_)
 	primes = []
 	for i = 2 to _limit_
 		if _sieve_[i] = 1
-			add(primes, i)
+			primes + i
 			if len(primes) = _n_
 				exit
 			ok

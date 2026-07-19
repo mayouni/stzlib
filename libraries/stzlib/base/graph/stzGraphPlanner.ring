@@ -1901,7 +1901,7 @@ class stzMultiPlanComparison from stzObject
 		_aTable_ = []
 		
 		# Optional header
-		add(_aTable_, ["Rank", "Plan", "Cost", "Steps"])
+		_aTable_ + ["Rank", "Plan", "Cost", "Steps"]
 		
 		_aRankedByCost_ = This.RankBy("cost")
 		_nLen_ = len(_aRankedByCost_)
@@ -1922,7 +1922,7 @@ class stzMultiPlanComparison from stzObject
 			next
 			
 			# Add row as pure data
-			add(_aTable_, [i, _cPlan_, _nCost_, _nSteps_])
+			_aTable_ + [i, _cPlan_, _nCost_, _nSteps_]
 			
 		next
 		

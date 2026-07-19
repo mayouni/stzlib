@@ -5,7 +5,7 @@
 func ListReverse(aList)
 	_aResult_ = []
 	for i = len(aList) to 1 step -1
-		add(_aResult_, aList[i])
+		_aResult_ + aList[i]
 	next
 	return _aResult_
 
@@ -46,10 +46,10 @@ func ListFlatten(aList)
 		if isList(aList[i])
 			_aFlat_ = ListFlatten(aList[i])
 			for item in _aFlat_
-				add(_aResult_, item)
+				_aResult_ + item
 			next
 		else
-			add(_aResult_, aList[i])
+			_aResult_ + aList[i]
 		ok
 	next
 	return _aResult_
@@ -62,7 +62,7 @@ func ListUnique(aList)
 	_nLen_ = len(aList)
 	for i = 1 to _nLen_
 		if NOT ListContains(_aResult_, aList[i])
-			add(_aResult_, aList[i])
+			_aResult_ + aList[i]
 		ok
 	next
 	return _aResult_
@@ -75,7 +75,7 @@ func ListSection(aList, n1, n2)
 	if n1 < 1 n1 = 1 ok
 	if n2 > len(aList) n2 = len(aList) ok
 	for i = n1 to n2
-		add(_aResult_, aList[i])
+		_aResult_ + aList[i]
 	next
 	return _aResult_
 

@@ -125,21 +125,21 @@ if bReport
     aCoreFiles = dir(cBaseDir + "core/string/")
     for aFile in aCoreFiles
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
-            add(aProduction, [:layer = "core", :module = "string", :file = aFile[1]])
+            aProduction + [:layer = "core", :module = "string", :file = aFile[1]]
         ok
     next
 
     aCoreFiles = dir(cBaseDir + "core/number/")
     for aFile in aCoreFiles
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
-            add(aProduction, [:layer = "core", :module = "number", :file = aFile[1]])
+            aProduction + [:layer = "core", :module = "number", :file = aFile[1]]
         ok
     next
 
     aCoreFiles = dir(cBaseDir + "core/list/")
     for aFile in aCoreFiles
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
-            add(aProduction, [:layer = "core", :module = "list", :file = aFile[1]])
+            aProduction + [:layer = "core", :module = "list", :file = aFile[1]]
         ok
     next
 
