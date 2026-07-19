@@ -92,6 +92,7 @@ pub const str_detect_direction = locale.str_detect_direction;
 pub const str_direction_name = locale.str_direction_name;
 pub const str_has_rtl = locale.str_has_rtl;
 pub const str_script_count = locale.str_script_count;
+pub const str_script_count_all = locale.str_script_count_all;
 pub const str_locale_compare = locale.str_locale_compare;
 
 // ─── NLP submodule imports ───

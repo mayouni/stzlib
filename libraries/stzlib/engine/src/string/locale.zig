@@ -179,6 +179,46 @@ pub fn str_script_count(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
+/// Script count INCLUDING the Common bucket -- digits, spaces and
+/// punctuation, everything classifyCodepoint calls SCRIPT_UNKNOWN.
+///
+/// str_script_count above deliberately counts only real writing systems, and
+/// that is the right answer for "is this text mixing scripts". But Softanza's
+/// stzStringText.Scripts() lists Common as a script of its own, so the two
+/// disagreed on ordinary text: "hello 123" was 1 there and 2 here. Ruling:
+/// Common COUNTS. This is that definition; the script-only count stays for
+/// IsMixedScript, where treating a digit as a second script would make every
+/// invoice line "mixed".
+pub fn str_script_count_all(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const data = s.slice();
+    if (data.len == 0) return 0;
+
+    var seen = [_]bool{false} ** 9;
+    var seen_common = false;
+    var i: usize = 0;
+    while (i < data.len) {
+        const cp = unicode.stz_unicode_iterate(data.ptr, data.len, i);
+        if (cp < 0) break;
+        const blen = unicode.stz_unicode_cp_byte_len(data.ptr, data.len, i);
+        if (blen <= 0) break;
+        i += @intCast(blen);
+        const script = classifyCodepoint(cp);
+        if (script > 0 and script <= 8) {
+            seen[@intCast(script)] = true;
+        } else {
+            seen_common = true;
+        }
+    }
+
+    var count: c_int = 0;
+    for (seen[1..]) |found| {
+        if (found) count += 1;
+    }
+    if (seen_common) count += 1;
+    return count;
+}
+
 /// Unicode-aware locale comparison using casefold. Returns:
 /// -1 (a < b), 0 (equal), 1 (a > b). Case-insensitive.
 pub fn str_locale_compare(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {

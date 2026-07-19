@@ -65,12 +65,36 @@ class stzStringLocale from stzObject
 	def Script()
 		return This.ScriptName()
 
+	# How many scripts the string uses -- COMMON INCLUDED.
+	#
+	# Common is the bucket for digits, spaces and punctuation. Counting it is
+	# the ruled definition, and it makes this agree with
+	# stzStringText.Scripts(), which has always LISTED common as a script of
+	# its own. The two used to disagree on ordinary text:
+	#
+	#   "hello 123"          Scripts() [latin, common]  = 2, here 1
+	#   arabic + " latin"    [arabic, common, latin]    = 3, here 2
+	#   "   "                [common]                   = 1, here 0
+	#
+	# Two methods answering "how many scripts" with different numbers is the
+	# kind of split a caller only discovers by accident, so they now match.
 	def ScriptCount()
+		pH = @oString.Engine()
+		return StzEngineStringScriptCountAll(pH)
+
+	# Scripts EXCLUDING common -- the count of real writing systems.
+	def ScriptCountExcludingCommon()
 		pH = @oString.Engine()
 		return StzEngineStringScriptCount(pH)
 
+	# Deliberately NOT ScriptCount() > 1.
+	#
+	# "Mixed script" means mixing writing systems -- Latin with Cyrillic, the
+	# shape of a homograph attack. Digits and spaces are not a second writing
+	# system, so counting common here would make "hello 123", and every
+	# invoice line ever written, mixed-script.
 	def IsMixedScript()
-		return This.ScriptCount() > 1
+		return This.ScriptCountExcludingCommon() > 1
 
 	def IsLatinScript()
 		return This.ScriptName() = "Latin"

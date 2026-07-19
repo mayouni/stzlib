@@ -1271,6 +1271,11 @@ fn ring_StringScriptCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count(h)));
 }
 
+fn ring_StringScriptCountAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count_all(h)));
+}
+
 fn ring_StringLocaleCompare(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
@@ -3870,6 +3875,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringdirectionname", .func = &ring_StringDirectionName },
     .{ .name = "stzenginestringhasrtl", .func = &ring_StringHasRTL },
     .{ .name = "stzenginestringscriptcount", .func = &ring_StringScriptCount },
+    .{ .name = "stzenginestringscriptcountall", .func = &ring_StringScriptCountAll },
     .{ .name = "stzenginestringlocalecompare", .func = &ring_StringLocaleCompare },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
