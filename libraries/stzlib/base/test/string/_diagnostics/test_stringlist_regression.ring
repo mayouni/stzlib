@@ -8,7 +8,7 @@
 #
 # Run from base/string/test/.
 
-load "../../stzBase.ring"
+load "../../../stzBase.ring"
 
 nPsd = 0
 nFld = 0

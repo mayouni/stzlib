@@ -5,14 +5,20 @@
 ? "Loading stubs + DLL"
 #ERR Error (R3) : Calling Function without definition: stzenginestring
 
-load "test_stubs.ring"
+# BOOTSTRAP NOTE
+# This file loads the real library rather than test_stubs.ring.
+#
+# The stub is a hand-written mirror of the string domain's globals (Q,
+# StzRaise, CheckParams, IsListOfStrings, StzStringQ, ...). This file needs
+# things the stub does not carry -- stzObject, for the inherited Update()
+# guard, or stzStringFunc's condition normalisers -- and those real files
+# define the very same globals, so loading both is a wall of C22/C26
+# redefinitions. Stub OR library, never a mix.
+#
+# The other files here that stay on the stub are the ones whose isolation
+# still genuinely holds.
+load "../../../stzBase.ring"
 
-load "../../string/stzString.ring"
-load "../../string/stzStringFinder.ring"
-load "../../string/stzStringReplacer.ring"
-load "../../string/stzStringRemover.ring"
-load "../../string/stzStringExtractor.ring"
-load "../../string/stzStringInserter.ring"
 ? ""
 ? "=== Test: FindAsSections ==="
 oF = new stzStringFinder("hello ring what a nice ring!")

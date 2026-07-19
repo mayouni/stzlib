@@ -2,8 +2,8 @@
 #ERR Error (R3) : Calling Function without definition: stzengineunicodecasefold
 
 load "test_stubs.ring"
-load "../../string/stzString.ring"
-load "../../string/stzStringList.ring"
+load "../../../string/stzString.ring"
+load "../../../string/stzStringList.ring"
 ? "Step 1: Testing ContainsCS"
 o = new stzStringList(["Hello", "World", "HELLO", "test"])
 

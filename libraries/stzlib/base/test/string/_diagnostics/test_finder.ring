@@ -2,8 +2,8 @@
 #ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "test_stubs.ring"
-load "../../string/stzString.ring"
-load "../../string/stzStringFinder.ring"
+load "../../../string/stzString.ring"
+load "../../../string/stzStringFinder.ring"
 ? "Step 1: Testing FindNthCS"
 oFinder = new stzStringFinder(new stzString("hello world hello"))
 nPos = oFinder.FindNthCS(2, "hello", 1)

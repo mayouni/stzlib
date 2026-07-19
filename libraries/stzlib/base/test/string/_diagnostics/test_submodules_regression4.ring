@@ -6,7 +6,7 @@
 # _prefixed_ locals. These tests exercise nested input so that
 # the recursive paths actually run.
 
-load "../../stzBase.ring"
+load "../../../stzBase.ring"
 
 pr()
 

@@ -7,7 +7,7 @@
 load "test_stubs.ring"
 
 ? "Loading stzString"
-load "../../string/stzString.ring"
+load "../../../string/stzString.ring"
 ? ""
 ? "=== Test 1: String-level bulk type extraction ==="
 
