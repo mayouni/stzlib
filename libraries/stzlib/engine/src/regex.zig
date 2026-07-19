@@ -317,6 +317,159 @@ pub fn stz_regex_named_group_name(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: 
     return name_len;
 }
 
+// ─── The four Softanza match TYPES, resolved engine-side ───
+//
+// Softanza renamed Qt's four match types to say what they DO. The names are
+// the contract, so this is what each one means here:
+//
+//   0  :MatchEntireContent
+//        The pattern must match the ENTIRE content, from the start position
+//        through to the end. Nothing left over on either side. Note that
+//        "entire content" is relative to the start position: matching
+//        "hello world" from position 7 asks the pattern to match exactly
+//        "world".                              -> ANCHORED | ENDANCHORED
+//
+//   1  :MatchEntireContentIfNotGoPartial
+//        Try that; and if the content is merely a PREFIX of something that
+//        would match entirely, say so instead of failing. This is what
+//        makes as-you-type validation possible: "123" is not yet an SSN,
+//        but it is still on the way to being one.
+//
+//        Two passes, because PCRE2 refuses the one-pass form: partial
+//        matching and PCRE2_ENDANCHORED are rejected together with
+//        PCRE2_ERROR_BADOPTION (pcre2_match.c, "Partial matching and
+//        PCRE2_ENDANCHORED are currently not allowed at the same time").
+//        So: entire-content first; only if that fails, ask whether the
+//        subject is a live prefix.
+//              -> ANCHORED|ENDANCHORED, then ANCHORED|PARTIAL_HARD
+//
+//        PARTIAL_HARD, not SOFT, on the second pass: SOFT prefers a
+//        shorter complete match over reporting that the subject could be
+//        extended. For "abcd" against `abc|abcdef` the honest answer is
+//        "still on the way" -- and we only reach the second pass because
+//        the entire-content match already failed, so a complete-but-short
+//        match is not the question being asked.
+//
+//   2  :MatchFirstOccurrenceIfNotGoPartial
+//        Find the first occurrence anywhere from the start position -- the
+//        unanchored search -- and fall back to a partial if there is no
+//        complete occurrence at all.           -> PARTIAL_SOFT
+//
+//   3  :ReturnFalseForAnyMatch
+//        The engine is OFF. No matching is performed, whatever the pattern
+//        and whatever the subject. Not "found nothing" -- didn't look.
+//                                              -> no call into PCRE2
+//
+// Returns 0 = no match, 1 = complete match, 2 = partial match. The partial
+// span lands in capture slot 1, same as stz_regex_partial_match, so the
+// existing capture accessors read it without knowing which call produced it.
+//
+// ANCHORED, ENDANCHORED and PARTIAL_SOFT are all MATCH-time options in
+// PCRE2, so switching type costs nothing: no recompilation, same compiled
+// code, same match data.
+pub const MT_ENTIRE: u32 = 0;
+pub const MT_ENTIRE_PARTIAL: u32 = 1;
+pub const MT_FIRST_PARTIAL: u32 = 2;
+pub const MT_NONE: u32 = 3;
+
+pub fn stz_regex_match_typed(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize, match_type: u32) callconv(.c) c_int {
+    const r = h orelse return 0;
+
+    // :ReturnFalseForAnyMatch -- turn the matching engine off. The subject is
+    // still recorded (callers may read it back), but no match is attempted
+    // and no captures survive.
+    if (match_type == MT_NONE) {
+        r.matched = false;
+        r.last_match_count = 0;
+        r.all_captures.clearRetainingCapacity();
+        if (inp != null and inp_len <= r.max_input_len) r.input = inp[0..inp_len];
+        return 0;
+    }
+
+    if (inp == null) {
+        r.matched = false;
+        return 0;
+    }
+    if (inp_len > r.max_input_len) {
+        r.matched = false;
+        return 0;
+    }
+    if (start > inp_len) {
+        r.matched = false;
+        r.all_captures.clearRetainingCapacity();
+        return 0;
+    }
+
+    r.input = inp[0..inp_len];
+    r.all_captures.clearRetainingCapacity();
+
+    const opts: u32 = switch (match_type) {
+        MT_ENTIRE, MT_ENTIRE_PARTIAL => pcre2.PCRE2_ANCHORED | pcre2.PCRE2_ENDANCHORED,
+        MT_FIRST_PARTIAL => pcre2.PCRE2_PARTIAL_SOFT,
+        else => {
+            r.matched = false;
+            return 0;
+        },
+    };
+
+    var rc = pcre2.pcre2_match_8(r.code, inp, inp_len, start, opts, r.match_data, r.match_ctx);
+
+    // Second pass: the entire-content match failed, so ask whether the
+    // subject is on its way to being one. See the PARTIAL_HARD note above.
+    if (rc < 0 and match_type == MT_ENTIRE_PARTIAL) {
+        rc = pcre2.pcre2_match_8(
+            r.code,
+            inp,
+            inp_len,
+            start,
+            pcre2.PCRE2_ANCHORED | pcre2.PCRE2_PARTIAL_HARD,
+            r.match_data,
+            r.match_ctx,
+        );
+
+        // A COMPLETE match here is not an entire-content match -- it stopped
+        // short of the end, which the first pass already rejected. Only a
+        // genuine partial counts.
+        if (rc >= 0) {
+            r.matched = false;
+            r.last_match_count = 0;
+            return 0;
+        }
+    }
+
+    if (rc == pcre2.PCRE2_ERROR_PARTIAL) {
+        r.matched = false;
+        r.last_match_count = 0;
+        const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+        r.all_captures.append(gpa, .{ .start = @intCast(ovector[0]), .end = @intCast(ovector[1]) }) catch {};
+        return 2;
+    }
+
+    if (rc < 0) {
+        r.matched = false;
+        r.last_match_count = 0;
+        return 0;
+    }
+
+    r.matched = true;
+    r.last_match_count = rc;
+
+    const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+    const pair_count: usize = @intCast(rc);
+    var i: usize = 0;
+    while (i < pair_count) : (i += 1) {
+        const s = ovector[i * 2];
+        const e = ovector[i * 2 + 1];
+        if (s == std.math.maxInt(usize)) {
+            r.all_captures.append(gpa, .{ .start = -1, .end = -1 }) catch {};
+        } else {
+            r.all_captures.append(gpa, .{ .start = @intCast(s), .end = @intCast(e) }) catch {};
+        }
+    }
+
+    return 1;
+}
+
 pub fn stz_regex_partial_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize) callconv(.c) c_int {
     const r = h orelse return 0;
     if (inp == null) return 0;

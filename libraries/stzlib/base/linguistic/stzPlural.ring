@@ -48,7 +48,7 @@ func Plural(str)
             ok
         but _rule_[3] = "regex"
             _rx_ = new stzRegex(_rule_[1])
-            if _rx_.Match(_cWord_)
+            if _rx_.MatchFirst(_cWord_)
                 _aCaptured_ = _rx_.CapturedValues()
                 # CapturedValues() returns [ fullMatch, group1, group2, ... ];
                 # the \1 placeholder maps to the first CAPTURE GROUP, i.e.

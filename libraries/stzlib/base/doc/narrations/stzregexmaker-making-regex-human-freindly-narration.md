@@ -100,11 +100,16 @@ rxma() {
 Testing username validation:
 ```ring
 rx("(?<=@)(?!\\W)[a-zA-Z0-9_]+") {
-    ? Match("@username")     #--> TRUE
-    ? Match("@user123")      #--> TRUE
-    ? Match("@user#name")    #--> FALSE
+    ? MatchFirst("@username")         #--> TRUE
+    ? MatchFirst("@user123")          #--> TRUE
+    ? MatchFirst("@user#name")        #--> FALSE
 }
 ```
+
+> `MatchFirst()` rather than `Match()` here: a lookbehind asserts something
+> exists *before* the match, so the match cannot begin at position 1 -- which
+> is exactly what `Match()` requires. Look-around patterns are searches by
+> nature.
 
 ## Conditional Patterns
 
@@ -112,16 +117,16 @@ Regex conditionals (`(?(condition)then|else)`) allow different matches based on 
 
 ```ring
 wrxm() {
-    IfStartsWith("+").                   # Check if starts with +
+    IfStartsWith("\+").                   # Check if starts with +
     ThenMatch("\\+1\\d{10}").           # International format
     ElseMatch("\\d{10}")                # Local format
 
     ? Pattern()
-    #--> (?(?=^+)\+1\d{10}|\d{10})
+    #--> (?(?=^\+)\+1\d{10}|\d{10})
 }
 
 # Testing phone numbers
-rx("(?(?=^+)\\+1\\d{10}|\\d{10})") {
+rx("(?(?=^\\+)\\+1\\d{10}|\\d{10})") {
     ? Match("+12345678901")   #--> TRUE
     ? Match("1234567890")     #--> TRUE
     ? Match("+1234")          #--> FALSE
@@ -139,14 +144,14 @@ o1 {
     
     AddLevel("tag", "<([^>]+)>")
     AddChildLevel("tag", "content", "[^<>]*")
-    AddLevel("close", "</\\1>")
+    AddLevel("close", "</\\2>")
 
     ? Pattern()
-    #--> (?P<tag><([^>]+)>)(?P<content>[^<>]*)</\1>
+    #--> (?P<tag><([^>]+)>)(?P<content>[^<>]*)</\2>
 }
 
 # Testing HTML tags
-rx("(?P<tag><([^>]+)>)(?P<content>[^<>]*)</\\1>") {
+rx("(?P<tag><([^>]+)>)(?P<content>[^<>]*)</\\2>") {
     ? Match("<div>content</div>")    #--> TRUE
     ? Match("<p>text</p>")           #--> TRUE
     ? Match("<div>text</p>")         #--> FALSE

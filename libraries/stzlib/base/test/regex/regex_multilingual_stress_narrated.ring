@@ -5,12 +5,11 @@
 # codepoint. This checks that first, and it passes -- PCRE2 runs in UTF mode
 # here, so `.` counts codepoints and \p{Arabic} resolves.
 #
-# What it also pins is a defect the module has NOT had fixed, because fixing
-# it is a semantic decision rather than a repair: MatchXT VALIDATES its match
-# TYPE and then ignores it. All four types produce the identical unanchored
-# search, including :ReturnFalseForAnyMatch, whose own name promises the
-# opposite. The assertions below record what the code ACTUALLY does, so the
-# gap is visible rather than folklore.
+# The rest pins the MATCH TYPES, which are now honoured rather than merely
+# validated. Match() ANCHORS -- it asks whether the pattern matches the whole
+# string -- and MatchFirst() searches. An earlier version of this file
+# recorded the opposite, because at the time MatchXT checked the type and
+# then ran the same unanchored search whatever you passed.
 #
 # All non-ASCII text is built from RAW CODEPOINTS via a UTF-8 encoder.
 #
@@ -29,42 +28,65 @@ cCJK  = MkW([ 0x6771, 0x4EAC ])                 # CJK
 cGr   = MkW([ 0x03B1, 0x03B2 ])                 # Greek lower
 cHeb  = MkW([ 0x05E9, 0x05DC ])                 # Hebrew
 
-? "-- Scene 1: matching, on answers we can read off --"
+? "-- Scene 1: Match ANCHORS, MatchFirst SEARCHES --"
 oDig = new stzRegex("[0-9]+")
-chk("digits are found in mixed text", oDig.Match("abc123"))
-chk("...and absent when absent", oDig.Match("abc") = 0)
-chk("HasMatch agrees with Match", oDig.HasMatch() = oDig.Match("abc"))
+chk("Match is FALSE on 'abc123' -- that string is not a run of digits", oDig.Match("abc123") = 0)
+chk("...and TRUE when the whole string IS digits", oDig.Match("123"))
+oFnd = new stzRegex("[0-9]+")
+chk("MatchFirst finds the digits inside 'abc123'", oFnd.MatchFirst("abc123"))
+chk("...and reports none when there are none", oFnd.MatchFirst("abc") = 0)
+oHm = new stzRegex("[0-9]+")
+oHm.Match("abc")
+chk("HasMatch agrees with the match that just ran", oHm.HasMatch() = 0)
 
 oAnch = new stzRegex("^[0-9]+$")
-chk("an ANCHORED pattern rejects a partial match", oAnch.Match("abc123") = 0)
+chk("an explicitly anchored pattern rejects a partial match", oAnch.Match("abc123") = 0)
 chk("...and accepts a whole one", oAnch.Match("123"))
 
 ? ""
-? "-- Scene 2: the match TYPE is validated and then ignored --"
-# MatchXT raises on an unknown type, so the parameter is clearly meant to
-# mean something -- but nothing branches on it. All four give the same
-# unanchored search. :ReturnFalseForAnyMatch is the plainest case: it
-# returns TRUE on a match.
+? "-- Scene 2: the four match types each do something different --"
+# Each type is a different question about the same subject and pattern.
 oT1 = new stzRegex("[0-9]+")
 nEntire = oT1.MatchXT("abc123", 1, :MatchEntireContent, [])
 
 oT2 = new stzRegex("[0-9]+")
-nPartial = oT2.MatchXT("abc123", 1, :MatchEntireContentIfNotGoPartial, [])
+nFirst = oT2.MatchXT("abc123", 1, :MatchFirstOccurrenceIfNotGoPartial, [])
 
 oT3 = new stzRegex("[0-9]+")
-nFirst = oT3.MatchXT("abc123", 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+nNever = oT3.MatchXT("123", 1, :ReturnFalseForAnyMatch, [])
+
+? "  entire(abc123)=" + nEntire + " first(abc123)=" + nFirst + " returnfalse(123)=" + nNever
+chk(":MatchEntireContent says NO -- 'abc123' is not entirely digits", nEntire = 0)
+chk(":MatchFirstOccurrence says YES -- there is a run in there", nFirst = 1)
+chk("the two types DISAGREE on the same input, as they should", nEntire != nFirst)
+chk(":ReturnFalseForAnyMatch returns false on a subject that matches entirely", nNever = 0)
 
 oT4 = new stzRegex("[0-9]+")
-nNever = oT4.MatchXT("abc123", 1, :ReturnFalseForAnyMatch, [])
+chk("...and the same subject DOES match entirely when asked properly",
+	oT4.MatchXT("123", 1, :MatchEntireContent, []) = 1)
 
-? "  entire=" + nEntire + " partial=" + nPartial + " first=" + nFirst + " returnfalse=" + nNever
-chk("all four match types return the SAME answer (they are inert)",
-	nEntire = nPartial and nPartial = nFirst and nFirst = nNever)
-chk(":MatchEntireContent does NOT anchor -- it finds a substring", nEntire = 1)
-chk(":ReturnFalseForAnyMatch returns TRUE on a match, contradicting its name",
-	nNever = 1)
+# The partial types: 2 means "not yet, but on the way".
+oP = new stzRegex("^\d{3}-\d{2}-\d{4}$")
+nPart = oP.MatchXT("123-45", 1, :MatchEntireContentIfNotGoPartial, [])
+oP2 = new stzRegex("^\d{3}-\d{2}-\d{4}$")
+nDone = oP2.MatchXT("123-45-6789", 1, :MatchEntireContentIfNotGoPartial, [])
+oP3 = new stzRegex("^\d{3}-\d{2}-\d{4}$")
+nNope = oP3.MatchXT("abc", 1, :MatchEntireContentIfNotGoPartial, [])
+? "  ssn: partial(123-45)=" + nPart + " complete(123-45-6789)=" + nDone + " hopeless(abc)=" + nNope
+chk("a prefix of an SSN reports PARTIAL (2)", nPart = 2)
+chk("a whole SSN reports COMPLETE (1)", nDone = 1)
+chk("something that can never become one reports NOTHING (0)", nNope = 0)
 
-# the parameter IS checked, which is what makes the silence surprising
+# MatchAsYouType is the method these types exist for -- the exact sequence
+# the paradigm-shift article documents, which never worked until now.
+oTy = new stzRegex("^\d{3}-\d{2}-\d{4}$")
+chk("MatchAsYouType accepts '123'", oTy.MatchAsYouType("123"))
+chk("MatchAsYouType accepts '123-'", oTy.MatchAsYouType("123-"))
+chk("MatchAsYouType accepts '123-45'", oTy.MatchAsYouType("123-45"))
+chk("MatchAsYouType accepts the finished '123-45-6789'", oTy.MatchAsYouType("123-45-6789"))
+chk("MatchAsYouType rejects 'abc'", oTy.MatchAsYouType("abc") = 0)
+
+# the parameter is still checked
 bRaised = FALSE
 try
 	oT5 = new stzRegex("[0-9]+")
@@ -72,23 +94,23 @@ try
 catch
 	bRaised = TRUE
 done
-chk("an unknown match type is REJECTED, so the parameter is not decorative", bRaised)
+chk("an unknown match type is still REJECTED", bRaised)
 
 ? ""
 ? "-- Scene 3: multibyte subjects and patterns --"
 oM1 = new stzRegex("[0-9]+")
-chk("digits are found between Arabic runs", oM1.Match(cAr + "123" + cAr))
+chk("digits are found between Arabic runs", oM1.MatchFirst(cAr + "123" + cAr))
 oM2 = new stzRegex("[0-9]+")
-chk("...and not found when there are none", oM2.Match(cAr + cCJK) = 0)
+chk("...and not found when there are none", oM2.MatchFirst(cAr + cCJK) = 0)
 
 oM3 = new stzRegex(cAr)
-chk("an Arabic literal pattern finds itself", oM3.Match("x" + cAr + "y"))
+chk("an Arabic literal pattern finds itself", oM3.MatchFirst("x" + cAr + "y"))
 oM4 = new stzRegex(cCJK)
-chk("a CJK literal pattern finds itself", oM4.Match("x" + cCJK + "y"))
+chk("a CJK literal pattern finds itself", oM4.MatchFirst("x" + cCJK + "y"))
 oM5 = new stzRegex(cHeb)
-chk("a Hebrew literal pattern finds itself", oM5.Match("x" + cHeb + "y"))
+chk("a Hebrew literal pattern finds itself", oM5.MatchFirst("x" + cHeb + "y"))
 oM6 = new stzRegex(cAr)
-chk("a multibyte pattern is not found when absent", oM6.Match("xyz") = 0)
+chk("a multibyte pattern is not found when absent", oM6.MatchFirst("xyz") = 0)
 
 ? ""
 ? "-- Scene 4: UTF mode -- does '.' count codepoints or bytes? --"
@@ -126,7 +148,7 @@ next
 oS = new stzRegex("[0-9]+")
 t0 = clock()
 for k = 1 to 400
-	v = oS.MatchXT(cSubj, 1, :MatchEntireContent, [])
+	v = oS.MatchXT(cSubj, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
 next
 tMatch = (clock() - t0) / clockspersecond()
 ? "  400 matches over a " + len(cSubj) + "-byte subject in " + tMatch + " s"
@@ -136,7 +158,7 @@ chk("the match still succeeds", v = 1)
 oBig = new stzRegex(cAr)
 t0 = clock()
 for k = 1 to 200
-	v2 = oBig.MatchXT(cAr + cSubj, 1, :MatchEntireContent, [])
+	v2 = oBig.MatchXT(cAr + cSubj, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
 next
 tML = (clock() - t0) / clockspersecond()
 chk("multibyte matching at scale is fast too (< 5s)", tML < 5)
@@ -146,15 +168,15 @@ chk("...and still correct", v2 = 1)
 ? "-- Scene 7: options are checked, and bad ones refused --"
 oO1 = new stzRegex("ABC")
 chk("case-insensitive option is honoured",
-	oO1.MatchXT("xxabcxx", 1, :MatchEntireContent, [ :CaseInsensitive ]) = 1)
+	oO1.MatchXT("xxabcxx", 1, :MatchFirstOccurrenceIfNotGoPartial, [ :CaseInsensitive ]) = 1)
 oO2 = new stzRegex("ABC")
 chk("...and without it the match fails",
-	oO2.MatchXT("xxabcxx", 1, :MatchEntireContent, []) = 0)
+	oO2.MatchXT("xxabcxx", 1, :MatchFirstOccurrenceIfNotGoPartial, []) = 0)
 
 bBadOpt = FALSE
 try
 	oO3 = new stzRegex("abc")
-	oO3.MatchXT("abc", 1, :MatchEntireContent, [ :NoSuchOption ])
+	oO3.MatchXT("abc", 1, :MatchFirstOccurrenceIfNotGoPartial, [ :NoSuchOption ])
 catch
 	bBadOpt = TRUE
 done

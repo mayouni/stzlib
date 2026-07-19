@@ -185,7 +185,7 @@ func StzIsDateTime(str)
     ok
 
 	_Rx_ = new stzRegex(pat(:DateTime) )
-	return _Rx_.Match(str)
+	return _Rx_.MatchFirst(str)
 
     func IsDateTime(str)
         return StzIsDateTime(str)
@@ -1120,7 +1120,7 @@ class stzDateTime from stzObject
 	    _cExpr_ = StzLower(trim(_cExpr_))
 
 		_Rx_ = new stzRegex(pat(:DateTime))
-	    if _Rx_.Match(_cExpr_)
+	    if _Rx_.MatchFirst(_cExpr_)
 	        return
 	    ok
 

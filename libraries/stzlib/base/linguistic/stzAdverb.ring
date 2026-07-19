@@ -84,7 +84,7 @@ func Adverb(str)
 
 		but _rule_[3] = "regex"
             _rx_ = new stzRegex(_rule_[1])
-            if _rx_.Match(_cWord_)
+            if _rx_.MatchFirst(_cWord_)
                 _aCaptured_ = _rx_.CapturedValues()
                 # \1 maps to the first CAPTURE GROUP (aCaptured[2]), not the
                 # full match (aCaptured[1]). See stzPlural for the same fix.
@@ -103,7 +103,7 @@ func Adverb(str)
 
         but _rule_[3] = "keep"
             _rx_ = new stzRegex(_rule_[1])
-            if _rx_.Match(_cWord_)
+            if _rx_.MatchFirst(_cWord_)
                 return _cWord_
             ok
 

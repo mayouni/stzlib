@@ -101,6 +101,23 @@ fn ring_NamedGroupName(p: *anyopaque) callconv(.c) void {
     const n = rx.stz_regex_named_group_name(getH(p, 1), idx, &buf, 256);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
+// Takes the 1-based Ring position and converts it ONCE.
+//
+// Worth stating because the older ring_Match does not: its caller in
+// stzRegex ALSO subtracts 1, so a position travelled through two
+// decrements and landed one character to the left. Matches() then
+// over-advanced by exactly one to compensate, and the two errors
+// cancelled -- which is why enumeration looked correct. This entry point
+// converts once and the Ring side hands over the position untouched.
+fn ring_MatchTyped(p: *anyopaque) callconv(.c) void {
+    const h = getH(p, 1);
+    const inp = gs(p, 2);
+    const inp_len: usize = @intCast(gss(p, 2));
+    const raw: usize = @intFromFloat(g(p, 3));
+    const start: usize = if (raw > 1) raw - 1 else 0;
+    const mt: u32 = @intFromFloat(g(p, 4));
+    rn(p, @floatFromInt(rx.stz_regex_match_typed(h, inp, inp_len, start, mt)));
+}
 fn ring_PartialMatch(p: *anyopaque) callconv(.c) void {
     const h = getH(p, 1);
     const inp = gs(p, 2);
@@ -126,6 +143,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexnamedgroupcount", .func = &ring_NamedGroupCount },
     .{ .name = "stzengineregexnamedgroupname", .func = &ring_NamedGroupName },
     .{ .name = "stzengineregexpartialmatch", .func = &ring_PartialMatch },
+    .{ .name = "stzengineregexmatchtyped", .func = &ring_MatchTyped },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

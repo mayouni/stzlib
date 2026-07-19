@@ -371,7 +371,7 @@ class stzCCode from stzObject
 		# Getting the indexs after the @i
 
 		_rx_ = new stzRegex("(?<=@i)([+-]\d+)")
-		_rx_.Match(Join(_acSubStr_))
+		_rx_.MatchFirst(Join(_acSubStr_))
 
 		_acNumbersAfter_ = _rx_.Matches()
 		_nLenAfter_ = len(_acNumbersAfter_)
@@ -474,7 +474,7 @@ class stzCCode from stzObject
 		# Getting the indexs after the @i
 
 		_rx_ = new stzRegex("(?<=@i)([+-]\d+)")
-		_rx_.Match(Join(_acSubStr_))
+		_rx_.MatchFirst(Join(_acSubStr_))
 
 		_acNumbersAfter_ = _rx_.Matches()
 		_nLenAfter_ = len(_acNumbersAfter_)
