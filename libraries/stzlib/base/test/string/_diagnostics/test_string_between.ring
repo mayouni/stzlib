@@ -10,20 +10,28 @@ _nTotal_ = 0
 
 ? "=== stzString Between Delegation Test ==="
 
-# --- Between returns ALL matches ---
+# --- Between is GREEDY: first opener to LAST closer, ONE string ---
+#
+# Commit 2887cbd39 (2026-06-30), "Between greedy (per original)", made this
+# deliberate to match the monolithic archive, with 6 tests pinning it. This
+# file predates that ruling and expected a LIST of every bracketed run.
+#
+# len() on the result is a CHARACTER count, not an item count -- which is
+# why the old failure read "Between got 17 items" for a 17-character string.
 _oStr_ = new stzString("say [hello] and [world] please")
-_aResult_ = _oStr_.Between("[", "]")
+_cResult_ = _oStr_.Between("[", "]")
 _nTotal_++
-if len(_aResult_) = 2 and _aResult_[1] = "hello" and _aResult_[2] = "world"
-	? "  PASS: Between returns all matches" _nPassed_++
+if _cResult_ = "hello] and [world"
+	? "  PASS: Between is greedy, first opener to last closer" _nPassed_++
 else
-	? "  FAIL: Between got " + len(_aResult_) + " items" _nFailed_++
+	? "  FAIL: Between got [" + _cResult_ + "]" _nFailed_++
 ok
 
 # --- Between with no matches ---
 _oStr2_ = new stzString("no brackets here")
 _aResult2_ = _oStr2_.Between("[", "]")
 _nTotal_++
+# No opener and no closer -> empty, greedy or not.
 if len(_aResult2_) = 0
 	? "  PASS: Between no matches = empty list" _nPassed_++
 else
@@ -32,12 +40,13 @@ ok
 
 # --- Between with single match ---
 _oStr3_ = new stzString("one (item) only")
-_aResult3_ = _oStr3_.Between("(", ")")
+_cResult3_ = _oStr3_.Between("(", ")")
 _nTotal_++
-if len(_aResult3_) = 1 and _aResult3_[1] = "item"
+# With exactly one pair, greedy and per-match agree.
+if _cResult3_ = "item"
 	? "  PASS: Between single match" _nPassed_++
 else
-	? "  FAIL: Between single match" _nFailed_++
+	? "  FAIL: Between single match got [" + _cResult3_ + "]" _nFailed_++
 ok
 
 # --- FirstBetween returns only first ---
@@ -72,12 +81,13 @@ ok
 
 # --- Between with 3 matches ---
 _oStr7_ = new stzString("<a> <b> <c>")
-_aResult7_ = _oStr7_.Between("<", ">")
+_cResult7_ = _oStr7_.Between("<", ">")
 _nTotal_++
-if len(_aResult7_) = 3 and _aResult7_[1] = "a" and _aResult7_[2] = "b" and _aResult7_[3] = "c"
-	? "  PASS: Between 3 matches" _nPassed_++
+# Three pairs, and greedy spans all of them: first < to last >.
+if _cResult7_ = "a> <b> <c"
+	? "  PASS: Between spans all three pairs greedily" _nPassed_++
 else
-	? "  FAIL: Between 3 matches got " + len(_aResult7_) _nFailed_++
+	? "  FAIL: Between 3 pairs got [" + _cResult7_ + "]" _nFailed_++
 ok
 
 # --- BetweenIB (including bounds) ---

@@ -111,9 +111,14 @@ ok
 ? ""
 ? "=== Test: Remover.RemoveAnyBetween ==="
 oRem2 = new stzStringRemover("hello <<world>> there")
+# RemoveAnyBetween removes the DELIMITERS TOO. Both sides of the
+# implementation say so: the engine's str_remove_between is documented
+# "inclusive of delimiters", and the Ring wrapper's own comment reads
+# "removes ALL open...close pairs". This test predated that and expected
+# "hello <<>> there" -- content gone, bounds kept.
 oRem2.RemoveAnyBetween("<<", ">>")
 ? "RemoveAnyBetween '<<' and '>>' : [" + oRem2.Content() + "]"
-if oRem2.Content() = "hello <<>> there"
+if oRem2.Content() = "hello  there"
     ? "  PASS"
 else
     ? "  FAIL"
