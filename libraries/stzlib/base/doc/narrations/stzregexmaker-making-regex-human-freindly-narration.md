@@ -117,7 +117,7 @@ Regex conditionals (`(?(condition)then|else)`) allow different matches based on 
 
 ```ring
 wrxm() {
-    IfStartsWith("\+").                   # Check if starts with +
+    IfStartsWith("+").                   # Check if starts with +
     ThenMatch("\\+1\\d{10}").           # International format
     ElseMatch("\\d{10}")                # Local format
 

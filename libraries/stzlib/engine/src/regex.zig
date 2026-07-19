@@ -627,6 +627,52 @@ pub fn stz_regex_replace_free(ptr: [*c]u8, len: usize) callconv(.c) void {
     if (ptr != null and len > 0) gpa.free(ptr[0..len]);
 }
 
+// ─── Escape text so it matches itself ───
+//
+// Backslash-escapes every PCRE2 metacharacter, turning arbitrary text into a
+// pattern that matches exactly that text. What "starts with +" needs in order
+// to mean a plus sign rather than a quantifier.
+//
+// A BYTE loop is correct here even for UTF-8: every metacharacter is ASCII
+// (< 0x80) and no byte of a multibyte sequence ever falls below 0x80, so a
+// continuation byte can never be mistaken for one.
+//
+// Free the result with stz_regex_replace_free, like the other returned
+// buffers in this module.
+// Exactly the set the Ring-side EscapedForRegex() has always used, so that
+// delegating to this changes nothing. '/' is deliberately absent: it is a
+// pattern DELIMITER in Perl and JavaScript, not a PCRE2 metacharacter.
+const REGEX_META = ".*+?^${}[]()|\\";
+
+pub fn stz_regex_escape(inp: [*c]const u8, inp_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    if (inp == null) return null;
+
+    const text = inp[0..inp_len];
+
+    var extra: usize = 0;
+    for (text) |c| {
+        if (std.mem.indexOfScalar(u8, REGEX_META, c) != null) extra += 1;
+    }
+
+    // Nothing to escape and nothing to copy -- an empty result is a valid
+    // answer, but the caller distinguishes it by out_len, not by a null.
+    const buf = gpa.alloc(u8, inp_len + extra) catch return null;
+
+    var w: usize = 0;
+    for (text) |c| {
+        if (std.mem.indexOfScalar(u8, REGEX_META, c) != null) {
+            buf[w] = '\\';
+            w += 1;
+        }
+        buf[w] = c;
+        w += 1;
+    }
+
+    out_len.* = w;
+    return buf.ptr;
+}
+
 // ─── Tests ───
 
 test "literal match" {

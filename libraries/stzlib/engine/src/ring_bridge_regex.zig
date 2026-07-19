@@ -101,6 +101,19 @@ fn ring_NamedGroupName(p: *anyopaque) callconv(.c) void {
     const n = rx.stz_regex_named_group_name(getH(p, 1), idx, &buf, 256);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
+// Escapes text so it matches itself. Handle-free -- it is a pure string
+// transform, so it does not need a compiled pattern.
+fn ring_Escape(p: *anyopaque) callconv(.c) void {
+    const inp = gs(p, 1);
+    const inp_len: usize = @intCast(gss(p, 1));
+    var out_len: usize = 0;
+    const ptr = rx.stz_regex_escape(inp, inp_len, &out_len);
+    if (ptr != null and out_len > 0) {
+        rs2(p, ptr, @intCast(out_len));
+        rx.stz_regex_replace_free(ptr, out_len);
+    } else rs(p, "");
+}
+
 // Takes the 1-based Ring position and converts it ONCE.
 //
 // Worth stating because the older ring_Match does not: its caller in
@@ -144,6 +157,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexnamedgroupname", .func = &ring_NamedGroupName },
     .{ .name = "stzengineregexpartialmatch", .func = &ring_PartialMatch },
     .{ .name = "stzengineregexmatchtyped", .func = &ring_MatchTyped },
+    .{ .name = "stzengineregexescape", .func = &ring_Escape },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -1412,38 +1412,49 @@ class stzConditionalRegexMaker from stzObject
 	 #  COMMON HELPERS  #
 	#------------------#
 
-	def IfStartsWith(pcPattern)
-		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
-			pcPattern = pcPattern[2]
+	# Takes LITERAL TEXT, not a pattern. IfStartsWith("+") means a plus
+	# sign, and it used to build (?=^+) -- a quantifier applied to ^, which
+	# does not even compile. The argument is escaped, so metacharacters mean
+	# themselves.
+	#
+	# IfMatch()/IfNotMatch() are the pattern-taking pair, and IfPrecededBy()/
+	# IfFollowedBy() build look-arounds, which are patterns by nature. The
+	# three text predicates here are the literal ones.
+	def IfStartsWith(pcText)
+		if isList(pcText) and IsPatternNamedParamList(pcText)
+			pcText = pcText[2]
 		ok
 
-		if NOT isString(pcPattern)
-			StzRaise("Incorrect param type! pcPattern must be a string.")
+		if NOT isString(pcText)
+			StzRaise("Incorrect param type! pcText must be a string.")
 		ok
 
-		return This.IfMatch("^" + pcPattern)
+		return This.IfMatch("^" + StzRegexEscape(pcText))
 
-	def IfEndsWith(pcPattern)
-		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
-			pcPattern = pcPattern[2]
+	# Literal text -- IfEndsWith(".edu") means the four characters ".edu",
+	# not "any character followed by edu", which is what it built before.
+	def IfEndsWith(pcText)
+		if isList(pcText) and IsPatternNamedParamList(pcText)
+			pcText = pcText[2]
 		ok
 
-		if NOT isString(pcPattern)
-			StzRaise("Incorrect param type! pcPattern must be a string.")
+		if NOT isString(pcText)
+			StzRaise("Incorrect param type! pcText must be a string.")
 		ok
 
-		return This.IfMatch(pcPattern + "$")
+		return This.IfMatch(StzRegexEscape(pcText) + "$")
 
-	def IfContains(pcPattern)
-		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
-			pcPattern = pcPattern[2]
+	# Literal text.
+	def IfContains(pcText)
+		if isList(pcText) and IsPatternNamedParamList(pcText)
+			pcText = pcText[2]
 		ok
 
-		if NOT isString(pcPattern)
-			StzRaise("Incorrect param type! pcPattern must be a string.")
+		if NOT isString(pcText)
+			StzRaise("Incorrect param type! pcText must be a string.")
 		ok
 
-		return This.IfMatch(".*" + pcPattern + ".*")
+		return This.IfMatch(".*" + StzRegexEscape(pcText) + ".*")
 
 	def IfPrecededBy(pcPattern)
 		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)

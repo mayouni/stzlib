@@ -353,7 +353,7 @@ Conditional patterns enable different behaviors based on context. While classic 
 ```ring
 o1 = new stzConditionalRegexMaker()
 o1 {
-    IfStartsWith("\+")
+    IfStartsWith("+")
     ThenMatch("\+1\d{10}")	# International format
     ElseMatch("\d{10}")		# Local format
 
@@ -409,7 +409,7 @@ rx(rxm().AddDigitsRange("0-9", :RepeatedExactly = 3Times()).Pattern()) {
 
 ```ring
 wrxm() {
-    IfStartsWith("\+").
+    IfStartsWith("+").
     ThenMatch("\+1\d{10}")	# International format
     ElseMatch("\d{10}")		# Local format
 
