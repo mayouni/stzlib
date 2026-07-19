@@ -145,6 +145,18 @@ pub fn train(text: []const u8) ?*NgramModel {
     return m;
 }
 
+/// Append ONE document to an already-trained model.
+///
+/// Every count processDoc touches is cumulative -- uni, bi, df, tokens, and a
+/// freshly appended per-document TF map -- and train() is itself just a loop
+/// of processDoc over the newline-separated segments. So adding documents one
+/// at a time builds exactly the model that training on the concatenation
+/// would, which is what lets stzCorpus.AddDocument stop rebuilding from
+/// scratch: that made "add a document, ask a question" quadratic.
+pub fn addDoc(m: *NgramModel, text: []const u8) void {
+    processDoc(m, text);
+}
+
 pub fn free(m: *NgramModel) void {
     for (m.docs.items) |*d| d.deinit();
     m.docs.deinit(c_alloc);

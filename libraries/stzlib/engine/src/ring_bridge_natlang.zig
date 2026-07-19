@@ -88,6 +88,14 @@ fn ring_ngram_train(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(m)); // 0 on OOM
 }
 
+fn ring_ngram_add_doc(p: *anyopaque) callconv(.c) void {
+    const h = R.getHandle(p, 1) orelse return;
+    const m: *ngram.NgramModel = @ptrCast(@alignCast(h));
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const l: usize = @intCast(gss(p, 2));
+    ngram.addDoc(m, s[0..l]);
+}
+
 fn ring_ngram_bigram_prob(p: *anyopaque) callconv(.c) void {
     const h = R.getHandle(p, 1) orelse {
         rn(p, 0);
@@ -236,6 +244,7 @@ pub const ring_funcs = [_]R.Reg{
     .{ .name = "stzengine_natlang_is_alpha", .func = ring_is_alpha },
     .{ .name = "stzengine_natlang_is_alnum", .func = ring_is_alnum },
     .{ .name = "stzengine_ngram_train", .func = ring_ngram_train },
+    .{ .name = "stzengine_ngram_add_doc", .func = ring_ngram_add_doc },
     .{ .name = "stzengine_ngram_bigram_prob", .func = ring_ngram_bigram_prob },
     .{ .name = "stzengine_ngram_log_prob", .func = ring_ngram_log_prob },
     .{ .name = "stzengine_ngram_token_count", .func = ring_ngram_token_count },
