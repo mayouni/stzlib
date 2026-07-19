@@ -95,17 +95,39 @@ class stzStringCrypto from stzObject
 	 #     XOR CIPHER (Engine)       #
 	#===============================#
 
+	# XOR with a repeating passphrase, returned as BASE64.
+	#
+	# Two bugs lived here. The key was passed as a string HANDLE to an engine
+	# function whose key parameter is a single BYTE, so the bridge coerced the
+	# pointer to a number and every call XORed with a different arbitrary
+	# byte -- "Secret" encrypted and decrypted with "key" came back "Pf`qfw",
+	# every byte off by a constant 0x03, the gap between the two accidental
+	# keys.
+	#
+	# And the result is BINARY. Every other cipher here permutes letters and
+	# stays in the text domain; XOR does not. The engine's string type
+	# validates UTF-8 (rightly), so feeding raw cipher bytes back in for
+	# decryption dropped them: "Secret"/"key" happens to produce only
+	# ASCII-range bytes and survived, but two Arabic letters produce
+	# B5 D0 A1 E0, which is not valid UTF-8, and came back empty.
+	#
+	# So the cipher now stays inside the engine and what crosses the bridge is
+	# always base64. XorDecrypt is a real method rather than an alias for
+	# XorEncrypt: the pair is still an involution over the BYTES, but the
+	# encoding step has a direction.
 	def XorEncrypt(pcKey)
 		pH = @oString.Engine()
-		pKey = StzEngineString(pcKey)
-		pR = StzEngineStringXorCipher(pH, pKey)
+		pR = StzEngineStringXorEncryptB64(pH, pcKey)
 		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		StzEngineStringFree(pKey)
 		return _c_
 
-		def XorDecrypt(pcKey)
-			return This.XorEncrypt(pcKey)
+	def XorDecrypt(pcKey)
+		pH = @oString.Engine()
+		pR = StzEngineStringXorDecryptB64(pH, pcKey)
+		_c_ = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _c_
 
 	  #===============================#
 	 #     CHECKSUM                  #
@@ -263,11 +285,9 @@ class stzStringCrypto from stzObject
 		_cReversed_ = StzReverse(@oString.Content())
 		# XOR with fixed key "ZiN"
 		pRev = StzEngineString(_cReversed_)
-		pKey = StzEngineString("ZiN")
-		pR = StzEngineStringXorCipher(pRev, pKey)
+		pR = StzEngineStringXorEncryptB64(pRev, "ZiN")
 		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		StzEngineStringFree(pKey)
 		StzEngineStringFree(pRev)
 		@oString.Update(_c_)
 
@@ -278,10 +298,25 @@ class stzStringCrypto from stzObject
 	def Obfuscated()
 		_cReversed_ = StzReverse(@oString.Content())
 		pRev = StzEngineString(_cReversed_)
-		pKey = StzEngineString("ZiN")
-		pR = StzEngineStringXorCipher(pRev, pKey)
+		pR = StzEngineStringXorEncryptB64(pRev, "ZiN")
 		_c_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		StzEngineStringFree(pKey)
 		StzEngineStringFree(pRev)
 		return _c_
+
+	# The inverse, which did not exist. Obfuscate() could be applied and
+	# never undone -- reversing then XORing again is NOT the inverse of
+	# XORing then reversing, so callers had no way back.
+	def Deobfuscated()
+		pH = @oString.Engine()
+		pR = StzEngineStringXorDecryptB64(pH, "ZiN")
+		_cX_ = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return StzReverse(_cX_)
+
+	def Deobfuscate()
+		@oString.Update(This.Deobfuscated())
+
+		def DeobfuscateQ()
+			This.Deobfuscate()
+			return This

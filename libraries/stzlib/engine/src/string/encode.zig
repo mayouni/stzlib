@@ -469,6 +469,66 @@ pub fn str_xor_cipher(handle: ?*StzString, key: c_int) callconv(.c) ?*StzString 
     return result;
 }
 
+/// XOR cipher with a repeating STRING key -- the form callers actually want.
+///
+/// str_xor_cipher above takes a single BYTE. The Ring side has always wanted
+/// a passphrase, and it was handing str_xor_cipher a string HANDLE where an
+/// integer was expected; the bridge coerced that pointer to a number, so
+/// every call XORed with a different arbitrary byte and encrypt/decrypt could
+/// not round-trip. This is the function that signature should have been.
+///
+/// XOR is an involution, so this is both the encrypt and the decrypt.
+/// Applying it twice with the same key returns the original bytes exactly,
+/// including any NUL the cipher produces (a NUL is simply where plaintext and
+/// key bytes agree -- "Secret" against "key" makes two of them). Nothing here
+/// treats the payload as NUL-terminated: lengths are carried explicitly on
+/// both sides of the bridge.
+pub fn str_xor_cipher_key(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    if (key_ptr == null or key_len < 1) return null;
+
+    const klen: usize = @intCast(key_len);
+    const key = key_ptr[0..klen];
+    const src = s.slice();
+
+    const result = str_new() orelse return null;
+    result.data.ensureTotalCapacity(gpa, src.len) catch {};
+
+    for (src, 0..) |c, i| {
+        result.data.append(gpa, c ^ key[i % klen]) catch break;
+    }
+    return result;
+}
+
+/// XOR + base64, in one hop, so the BINARY never crosses the bridge.
+///
+/// XOR output is arbitrary bytes, and every other cipher in this module
+/// (ROT13, Caesar, Vigenere, Atbash) permutes letters and stays inside the
+/// text domain. XOR is the one that does not, which is why it is the one that
+/// broke: str_from() validates UTF-8 and returns null on invalid input --
+/// correct for a UTF-8 string type -- so handing raw cipher bytes back for
+/// decryption lost them entirely. "Secret" against "key" happens to produce
+/// only ASCII-range bytes and survived; two Arabic letters produce
+/// B5 D0 A1 E0, which is not valid UTF-8, and came back empty.
+///
+/// Encrypting to base64 fixes that at the source rather than by weakening the
+/// string type: the cipher exists only as an in-engine handle, and what Ring
+/// receives is always text.
+pub fn str_xor_encrypt_b64(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
+    const cipher = str_xor_cipher_key(handle, key_ptr, key_len) orelse return null;
+    defer core.str_free(cipher);
+    return str_to_base64(cipher);
+}
+
+/// The inverse. Decodes the base64, then XORs with the same key -- the
+/// plaintext that comes back out is valid UTF-8 again, because it is whatever
+/// went in.
+pub fn str_xor_decrypt_b64(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
+    const raw = str_from_base64(handle) orelse return null;
+    defer core.str_free(raw);
+    return str_xor_cipher_key(raw, key_ptr, key_len);
+}
+
 /// Vigenere cipher encryption.
 pub fn str_vigenere_encrypt(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
