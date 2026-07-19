@@ -51919,6 +51919,13 @@ class stzString from stzObject
 
 		#--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
+		# SUPERSEDED 2026-07-19: FindMany returns the FLAT, ascending list
+		# of positions -- [ 4, 28, 33, 38 ] -- not this grouped shape. The
+		# grouped one is FindManyZZ's job in the live library. Left here
+		# because this file is an archive, but flagged: the usual "the
+		# monolith is canonical when the extracted expectations disagree"
+		# rule does NOT apply to this line.
+
 		*/
 
 		if CheckingParams()

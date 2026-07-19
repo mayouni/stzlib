@@ -338,6 +338,34 @@ chk("Tokyo is counted everywhere it appears, not just as a city", nTok > nCountC
 chk("Beijing's count equals its city tally exactly", nBei = floor(nRecords / 4))
 
 ? ""
+? "-- Scene: FindMany returns FLAT positions (ruled 2026-07-19) --"
+# Three shapes, three names. The grouped one is FindManyZZ, NOT FindMany --
+# the monolithic archive's docstring for FindManyCS says otherwise and is the
+# stale side. Pinned here so it stops being re-litigated.
+oFm = new stzString("My name is Mansour. What's your name please?")
+aFm = oFm.FindMany([ "name", "your", "please" ])
+chk("FindMany is FLAT: 4 positions for 3 needles", len(aFm) = 4)
+chk("...ascending, merged across needles",
+	aFm[1] = 4 and aFm[2] = 28 and aFm[3] = 33 and aFm[4] = 38)
+
+oFs = new stzString("My name is Mansour. What's your name please?")
+aFs = oFs.FindManyAsSections([ "name", "your", "please" ])
+chk("FindManyAsSections is FLAT too, but sections", len(aFs) = 4)
+chk("...first section is [4, 7]", aFs[1][1] = 4 and aFs[1][2] = 7)
+
+oFz = new stzString("My name is Mansour. What's your name please?")
+aFz = oFz.FindManyZZ([ "name", "your", "please" ])
+chk("FindManyZZ is the GROUPED one: one entry per needle", len(aFz) = 3)
+chk("...keyed by the substring, 'name' occurring twice",
+	aFz[1][1] = "name" and len(aFz[1][2]) = 2)
+
+# A needle that is absent must not silently shift the others.
+oFa = new stzString("abc def abc")
+aFa = oFa.FindMany([ "abc", "zzz", "def" ])
+chk("an absent needle contributes nothing and breaks nothing",
+	len(aFa) = 3 and aFa[1] = 1 and aFa[2] = 5 and aFa[3] = 9)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
