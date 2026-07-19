@@ -132,6 +132,20 @@ pub fn stz_csv_col_count(csv: ?*const StzCSV, row: usize) callconv(.c) usize {
     return c.rows.items[row].items.len;
 }
 
+// Direct slice to a cell's bytes, no copy and no length cap.
+//
+// stz_csv_get_cell copies into a caller buffer (and truncates past 8192
+// bytes); this hands the bridge the bytes in place so it can add them
+// straight to a Ring list. Plain Zig -- the bridge is in the same module and
+// calls it directly, so a whole grid extracts in ONE Ring<->engine crossing
+// instead of one per cell.
+pub fn csvCellSlice(csv: *const StzCSV, row: usize, col: usize) []const u8 {
+    if (row >= csv.rows.items.len) return "";
+    const r = csv.rows.items[row];
+    if (col >= r.items.len) return "";
+    return r.items[col];
+}
+
 pub fn stz_csv_get_cell(csv: ?*const StzCSV, row: usize, col: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
     const c = csv orelse return 0;
     if (row >= c.rows.items.len) return 0;
