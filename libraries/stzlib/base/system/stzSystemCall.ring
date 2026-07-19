@@ -197,16 +197,25 @@ class stzSystemCall from stzObject
 
 		# Use engine for hidden console execution
 		if NOT @bShowConsole
-			# Engine-backed: no console window, direct stdout capture
-			@cOutput = StzEngineSystemRun(_cFullCmd_)
-			@nExitCode = 0
-			if @cOutput = "" and @bCaptureError
-				# If no output, might have failed
-				@nExitCode = StzEngineSystemExec(_cFullCmd_)
-				if @nExitCode != 0
-					@cError = "Command failed with exit code " + @nExitCode
-				ok
+			# Engine-backed: ONE spawn returns stdout, the exit code, AND
+			# stderr together.
+			#
+			# This used to call StzEngineSystemRun (stdout only), hardcode
+			# @nExitCode = 0, and -- when the output happened to be empty --
+			# RE-RUN the whole command via StzEngineSystemExec just to read
+			# the exit code. So a side-effecting command with no stdout
+			# (mkdir, a redirect, an HTTP POST) executed TWICE, the exit code
+			# was wrong (0) whenever the command failed but printed something,
+			# and stderr was thrown away. All three are fixed by reading the
+			# one run's real results.
+			_aRun_ = StzEngineSystemRunXT(_cFullCmd_)
+			@cOutput = _aRun_[1]
+			@nExitCode = _aRun_[2]
+
+			if @bCaptureError
+				@cError = _aRun_[3]
 			ok
+
 			@bExecuted = TRUE
 
 			if @bCaptureOutput
