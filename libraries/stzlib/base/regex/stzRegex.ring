@@ -222,8 +222,25 @@ class stzRegex from stzObject
 			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
 		ok
 
-		if NOT StzListQ(@MatchOptions()).ContainsThese(pacOptions)
-			StzRaise("Unsupported match options! Should be one or more of these " + @@(@MatchOptions()) + "!")
+		# Check the options with a direct scan.
+		#
+		# This used to be StzListQ(@MatchOptions()).ContainsThese(pacOptions),
+		# which builds a whole stzList OBJECT around the options table on
+		# EVERY match call -- the wrap-to-validate pattern in the hottest
+		# place there is. Measured: 300 matches cost 0.10s, and ALL of it was
+		# Ring-side validation. The engine compiled AND matched the same 300
+		# in ~0s, recompiling every time included.
+
+		_nMoLen_ = len(pacOptions)
+
+		if _nMoLen_ > 0
+			_acMoKnown_ = @MatchOptions()
+
+			for _iMo_ = 1 to _nMoLen_
+				if StzFindFirst(pacOptions[_iMo_], _acMoKnown_) = 0
+					StzRaise("Unsupported match options! Should be one or more of these " + @@(_acMoKnown_) + "!")
+				ok
+			next
 		ok
 
 		@nFlags = 0
