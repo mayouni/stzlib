@@ -97,6 +97,18 @@ Dotless LETTERS
 
 	# Unicode scripts
 
+	# NOT a Unicode classifier any more.
+	#
+	# This table used to answer "which script is this codepoint" via
+	# _CharScriptCode, and that job is RETIRED -- the engine reads PCRE2's UCD
+	# and knows all 172 scripts, where these ranges knew 8 approximately.
+	# Nothing here classifies characters now.
+	#
+	# What survives is column 4: the script -> LANGUAGES association behind
+	# LanguagesInScript(). That is i18n domain data, not Unicode character
+	# data, and the engine has no opinion on it. Columns 1 and 3 (the old
+	# numeric code and the range lists) are dead weight kept only so the row
+	# shape stays stable for that one lookup.
 	_aUnicodeScriptsXT = [
 		# code, name, ranges, languages
 		[ "0", :Unknown, [[]], [] ],
@@ -1936,17 +1948,13 @@ _cMarquerChar = "#"
 
 		return _acResult_
 
-	func ScriptByCode(_n_)
-		_aUnicodeScripts1_ = UnicodeScripts()
-		_nUnicodeScripts1Len_ = len(_aUnicodeScripts1_)
-		for _iLoopUnicodeScripts1_ = 1 to _nUnicodeScripts1Len_
-			_aScriptInfo_ = _aUnicodeScripts1_[_iLoopUnicodeScripts1_]
-			if _aScriptInfo_[1] = "" + _n_
-				return _aScriptInfo_[2]
-			ok
-		next
+	# ScriptByCode() is RETIRED. It looked up the numeric code that indexed
+	# this table, and that numbering no longer means anything -- the engine's
+	# script codes are PCRE2's and are an internal detail. It was also broken:
+	# it iterated UnicodeScripts(), which returns NAME strings, then subscripted
+	# them as if they were rows. Ask the engine for the name instead.
 
-		func UnicodeScriptByCode(_n_)
+	func UnicodeScriptByCode(_n_)
 			return ScriptByCode(_n_)
 
 	func UnicodeCategoriesXT()
