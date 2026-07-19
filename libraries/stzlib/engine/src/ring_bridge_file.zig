@@ -8,6 +8,46 @@ const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
 
+// Returns a Ring LIST of names, UTF-8 as they are on disk.
+//
+// Ring's own dir() mangles non-ASCII names to '?' via the ANSI code page on
+// Windows, which makes two differently-named files indistinguishable. This
+// path carries the bytes through untouched.
+fn emitDirList(p: *anyopaque, ptr: [*c]u8, out_len: usize) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+
+    if (ptr != null) {
+        defer f.stz_file_read_free(ptr, out_len);
+
+        const buf = ptr[0..out_len];
+        var start: usize = 0;
+        var i: usize = 0;
+        while (i < buf.len) : (i += 1) {
+            if (buf[i] == 0) {
+                if (i > start) R.ring_list_addstring2(out, buf.ptr + start, @intCast(i - start));
+                start = i + 1;
+            }
+        }
+        if (buf.len > start) R.ring_list_addstring2(out, buf.ptr + start, @intCast(buf.len - start));
+    }
+
+    // An unreadable or empty directory returns an EMPTY list, not nothing --
+    // callers walk a filesystem and must not have to tell those apart.
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_DirListFiles(p: *anyopaque) callconv(.c) void {
+    var out_len: usize = 0;
+    const ptr = f.stz_dir_list_files(gs(p, 1), @intCast(gss(p, 1)), &out_len);
+    emitDirList(p, ptr, out_len);
+}
+
+fn ring_DirListDirs(p: *anyopaque) callconv(.c) void {
+    var out_len: usize = 0;
+    const ptr = f.stz_dir_list_dirs(gs(p, 1), @intCast(gss(p, 1)), &out_len);
+    emitDirList(p, ptr, out_len);
+}
+
 fn ring_FileExists(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_exists(gs(p, 1), @intCast(gss(p, 1)))));
 }
@@ -86,6 +126,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginedirdelete", .func = &ring_DirDelete },
     .{ .name = "stzenginedircountfiles", .func = &ring_DirCountFiles },
     .{ .name = "stzenginedircountdirs", .func = &ring_DirCountDirs },
+    .{ .name = "stzenginedirlistfiles", .func = &ring_DirListFiles },
+    .{ .name = "stzenginedirlistdirs", .func = &ring_DirListDirs },
     .{ .name = "stzenginepathextension", .func = &ring_PathExtension },
     .{ .name = "stzenginepathbasename", .func = &ring_PathBasename },
     .{ .name = "stzenginepathdirname", .func = &ring_PathDirname },

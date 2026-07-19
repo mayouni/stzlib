@@ -5,23 +5,18 @@
 ? "Loading stubs + DLL"
 #ERR Error (C22) : Function redefinition, function is already defined!
 
-load "../string/test_stubs.ring"
+# BOOTSTRAP NOTE
+# Loads the real library, not test_stubs.ring: this probe reaches
+# stzString.Update(), which calls the inherited _NNLGuardUpdate() on
+# stzObject. A method on a parent class cannot be stubbed from outside it,
+# and loading stzObject on TOP of the stub collides on every shared global.
+# Stub OR library, never a mix.
+load "../../stzBase.ring"
+# (the individual string-module loads that used to follow are gone --
+#  stzBase.ring already provides every one of them, and loading both is a
+#  wall of C22/C26 redefinitions.)
 
 ? "Loading classes"
-load "../../string/stzString.ring"
-load "../../string/stzStringFinder.ring"
-load "../../string/stzStringReplacer.ring"
-load "../../string/stzStringTrimmer.ring"
-load "../../string/stzStringRemover.ring"
-load "../../string/stzStringCaseChanger.ring"
-load "../../string/stzStringGetter.ring"
-load "../../string/stzStringDuplicates.ring"
-load "../../string/stzStringExtractor.ring"
-load "../../string/stzStringSplitter.ring"
-load "../../string/stzStringConcat.ring"
-load "../../string/stzStringBounder.ring"
-load "../../string/stzStringRandomizer.ring"
-load "../../string/stzStringWalker.ring"
 nPass = 0
 nFail = 0
 

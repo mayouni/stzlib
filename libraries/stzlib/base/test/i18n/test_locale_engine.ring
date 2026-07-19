@@ -1,6 +1,6 @@
 
 
-load "../string/test_stubs.ring"
+load "../string/_diagnostics/test_stubs.ring"
 # Load stz_locale.dll
 cLocaleLib = _stzFindDll("stz_locale.dll")
 if cLocaleLib != ""
