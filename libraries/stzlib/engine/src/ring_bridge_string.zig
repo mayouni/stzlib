@@ -2395,6 +2395,30 @@ fn ring_StringXorCipher(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_xor_cipher(h, key)), STZ_HANDLE);
 }
 
+// Takes the key as a Ring STRING with its explicit size -- same shape as
+// ring_StringVigenereEncrypt just below. The caller no longer has to build
+// (and leak, or free) a string handle just to name a key.
+fn ring_StringXorCipherKey(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_xor_cipher_key(h, key, key_len)), STZ_HANDLE);
+}
+
+fn ring_StringXorEncryptB64(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_xor_encrypt_b64(h, key, key_len)), STZ_HANDLE);
+}
+
+fn ring_StringXorDecryptB64(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_xor_decrypt_b64(h, key, key_len)), STZ_HANDLE);
+}
+
 fn ring_StringEntropy(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_entropy(h)));
@@ -4040,6 +4064,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtobase64", .func = &ring_StringToBase64 },
     .{ .name = "stzenginestringbase64", .func = &ring_StringFromBase64 },
     .{ .name = "stzenginestringxorcipher", .func = &ring_StringXorCipher },
+    .{ .name = "stzenginestringxorcipherkey", .func = &ring_StringXorCipherKey },
+    .{ .name = "stzenginestringxorencryptb64", .func = &ring_StringXorEncryptB64 },
+    .{ .name = "stzenginestringxordecryptb64", .func = &ring_StringXorDecryptB64 },
     .{ .name = "stzenginestringentropy", .func = &ring_StringEntropy },
     .{ .name = "stzenginestringcharfrequencytop", .func = &ring_StringCharFrequencyTop },
     .{ .name = "stzenginestringjaccardsimilarity", .func = &ring_StringJaccardSimilarity },
