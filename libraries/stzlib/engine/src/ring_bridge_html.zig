@@ -21,36 +21,56 @@ fn getDoc(p: *anyopaque, n: c_int) ?*dom.Doc {
     return @ptrFromInt(addr);
 }
 
-fn ring_HtmlEncode(p: *anyopaque) callconv(.c) void {
+// These four all wrote into a FIXED 65536-byte stack buffer, and the engine
+// functions return -1 on overflow, which the bridge turned into an empty
+// string. So encoding anything past ~64 KB silently produced "" -- a real
+// document vanished with no error. Sizing the buffer to the worst case for
+// the operation removes the cliff.
+//
+// Worst-case growth per output:
+//   encode / encode_attribute : 6x  ('"' -> "&quot;", 6 bytes; the longest)
+//   decode / strip_tags       : 1x  (both only ever SHRINK)
+// A heap allocation avoids putting a 6x-of-input array on the stack.
+const gpa = std.heap.c_allocator;
+const std = @import("std");
+
+fn htmlXform(
+    p: *anyopaque,
+    comptime f: fn ([*]const u8, usize, [*]u8, usize) callconv(.c) i32,
+    growth: usize,
+) void {
     const ptr: [*]const u8 = @ptrCast(gs(p, 1));
     const len: usize = @intCast(gss(p, 1));
-    var buf: [65536]u8 = undefined;
-    const out_len = html.html_encode(ptr, len, &buf, 65536);
-    if (out_len > 0) rs2(p, &buf, @intCast(out_len)) else rs(p, @constCast(""));
+    if (len == 0) {
+        rs(p, @constCast(""));
+        return;
+    }
+    // +8 covers the largest single entity when len is tiny; growth*len is the
+    // real bound.
+    const cap = len * growth + 8;
+    const buf = gpa.alloc(u8, cap) catch {
+        rs(p, @constCast(""));
+        return;
+    };
+    defer gpa.free(buf);
+    const out_len = f(ptr, len, buf.ptr, cap);
+    if (out_len > 0) rs2(p, buf.ptr, @intCast(out_len)) else rs(p, @constCast(""));
+}
+
+fn ring_HtmlEncode(p: *anyopaque) callconv(.c) void {
+    htmlXform(p, html.html_encode, 6);
 }
 
 fn ring_HtmlDecode(p: *anyopaque) callconv(.c) void {
-    const ptr: [*]const u8 = @ptrCast(gs(p, 1));
-    const len: usize = @intCast(gss(p, 1));
-    var buf: [65536]u8 = undefined;
-    const out_len = html.html_decode(ptr, len, &buf, 65536);
-    if (out_len > 0) rs2(p, &buf, @intCast(out_len)) else rs(p, @constCast(""));
+    htmlXform(p, html.html_decode, 1);
 }
 
 fn ring_HtmlStripTags(p: *anyopaque) callconv(.c) void {
-    const ptr: [*]const u8 = @ptrCast(gs(p, 1));
-    const len: usize = @intCast(gss(p, 1));
-    var buf: [65536]u8 = undefined;
-    const out_len = html.html_strip_tags(ptr, len, &buf, 65536);
-    if (out_len > 0) rs2(p, &buf, @intCast(out_len)) else rs(p, @constCast(""));
+    htmlXform(p, html.html_strip_tags, 1);
 }
 
 fn ring_HtmlEncodeAttribute(p: *anyopaque) callconv(.c) void {
-    const ptr: [*]const u8 = @ptrCast(gs(p, 1));
-    const len: usize = @intCast(gss(p, 1));
-    var buf: [65536]u8 = undefined;
-    const out_len = html.html_encode_attribute(ptr, len, &buf, 65536);
-    if (out_len > 0) rs2(p, &buf, @intCast(out_len)) else rs(p, @constCast(""));
+    htmlXform(p, html.html_encode_attribute, 6);
 }
 
 // ── DOM bridge ───────────────────────────────────────────────
@@ -141,6 +161,45 @@ fn ring_HtmlFindByClass(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(dom.html_find_by_class(doc, class_ptr, class_len, n)));
 }
 
+// Returns a Ring list of [ tag, occurrence ] pairs -- every class match in
+// one engine pass. Replaces the O(n^2) find_by_class(1..count) loop.
+fn ring_HtmlClassPairs(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const doc = getDoc(p, 1);
+    const class_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const class_len: usize = @intCast(gss(p, 2));
+
+    var out_len: usize = 0;
+    const ptr = dom.html_class_pairs(doc, class_ptr, class_len, &out_len);
+    if (ptr != null) {
+        defer dom.html_pairs_free(ptr, out_len);
+        const b = ptr[0..out_len];
+        // Walk NUL-delimited fields two at a time: tag, then occurrence.
+        var start: usize = 0;
+        var i: usize = 0;
+        var pending_tag: ?[]const u8 = null;
+        while (i < b.len) : (i += 1) {
+            if (b[i] == 0) {
+                const field = b[start..i];
+                start = i + 1;
+                if (pending_tag) |tagbytes| {
+                    const pair = R.ring_list_newlist(out) orelse {
+                        pending_tag = null;
+                        continue;
+                    };
+                    R.ring_list_addstring2(pair, tagbytes.ptr, @intCast(tagbytes.len));
+                    const occ = std.fmt.parseInt(c_int, field, 10) catch 0;
+                    R.ring_list_addint(pair, occ);
+                    pending_tag = null;
+                } else {
+                    pending_tag = field;
+                }
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_HtmlChildrenCount(p: *anyopaque) callconv(.c) void {
     const doc = getDoc(p, 1);
     const n: i32 = @intFromFloat(gn(p, 2));
@@ -178,6 +237,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehtmlfindbyid", .func = ring_HtmlFindById },
     .{ .name = "stzenginehtmlcountbyclass", .func = ring_HtmlCountByClass },
     .{ .name = "stzenginehtmlfindbyclass", .func = ring_HtmlFindByClass },
+    .{ .name = "stzenginehtmlclasspairs", .func = ring_HtmlClassPairs },
     .{ .name = "stzenginehtmlchildrencount", .func = ring_HtmlChildrenCount },
     .{ .name = "stzenginehtmlchildat", .func = ring_HtmlChildAt },
     .{ .name = "stzenginehtmlparentof", .func = ring_HtmlParentOf },

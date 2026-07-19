@@ -96,11 +96,21 @@ class stzHtml from stzObject
 			return []
 		ok
 		if StzLeft(pcSelector, 1) = "."
+			# ONE engine pass returning [ tag, occurrence ] for every match.
+			#
+			# This looped FindByClass(class, 1..count), and each of those
+			# re-scanned all elements from the start to reach the i-th match,
+			# then _NodeAt scanned AGAIN to compute occurrence -- O(n^2), and
+			# Find(".row") over 800 rows took ~3s. The occurrence the engine
+			# reports is the same case-insensitive document-order rank that
+			# TextOfTag/AttrOfTag count by, so the node addresses the right
+			# element.
 			_cClass_ = StzMidToEnd(pcSelector, 2)
-			_nC_ = StzEngineHtmlCountByClass(@pDoc, _cClass_)
+			_aPairs_ = StzEngineHtmlClassPairs(@pDoc, _cClass_)
 			_aR_ = []
-			for _i_ = 1 to _nC_
-				_aR_ + This._NodeAt(StzEngineHtmlFindByClass(@pDoc, _cClass_, _i_))
+			_nPairs_ = len(_aPairs_)
+			for _i_ = 1 to _nPairs_
+				_aR_ + new stzHtmlNode(self, _aPairs_[_i_][1], _aPairs_[_i_][2])
 			next
 			return _aR_
 		ok
