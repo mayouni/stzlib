@@ -179,6 +179,87 @@ pub fn str_script_count(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
+/// The DISTINCT script names of a string, in FIRST-APPEARANCE order,
+/// NUL-terminated (a NUL after every item).
+///
+/// This mirrors Ring's _CharScriptCode range table branch for branch,
+/// including its ORDER -- Common is tested before Latin, so digits and ASCII
+/// punctuation are common and not latin (UAX #24) -- and its holes: combining
+/// marks and the Arabic diacritics are `inherited`, not the surrounding
+/// script. Names are the lowercase forms _aUnicodeScriptsXT yields.
+///
+/// It replaces a Ring loop that built a stzChar OBJECT for every character:
+/// 139ms per call on a 200-char string, and enough repeated calls exhausted
+/// object allocation outright ("Can not create char object!"), since Ring has
+/// no destructors. The vocabulary is deliberately the SAME table rather than
+/// the engine's own 8-script classifier, which would have collapsed Hangul,
+/// Hiragana, Katakana, Armenian and Gujarati into one bucket.
+fn scriptNameOf(cp: i32) []const u8 {
+    if (cp <= 0x40) return "common";
+    if (cp >= 0x5B and cp <= 0x60) return "common";
+    if (cp >= 0x7B and cp <= 0xBF) return "common";
+    if (cp == 0xD7 or cp == 0xF7) return "common";
+    if (cp >= 0x300 and cp <= 0x36F) return "inherited";
+    if (cp <= 0x24F) return "latin";
+    if (cp >= 0x2160 and cp <= 0x217F) return "latin";
+    if (cp >= 0x370 and cp <= 0x3FF) return "greek";
+    if (cp >= 0x400 and cp <= 0x4FF) return "cyrillic";
+    if (cp >= 0x530 and cp <= 0x58F) return "armenian";
+    if (cp >= 0x590 and cp <= 0x5FF) return "hebrew";
+    if (cp >= 0x64B and cp <= 0x65F) return "inherited";
+    if (cp == 0x670) return "inherited";
+    if (cp >= 0x600 and cp <= 0x6FF) return "arabic";
+    if (cp >= 0x900 and cp <= 0x97F) return "devanagari";
+    if (cp >= 0xA80 and cp <= 0xAFF) return "gujarati";
+    if (cp >= 0xE00 and cp <= 0xE7F) return "thai";
+    if (cp >= 0x3040 and cp <= 0x309F) return "hiragana";
+    if (cp >= 0x30A0 and cp <= 0x30FF) return "katakana";
+    if (cp >= 0x4E00 and cp <= 0x9FFF) return "han";
+    if (cp >= 0xAC00 and cp <= 0xD7AF) return "hangul";
+    return "unknown";
+}
+
+pub fn str_script_names(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const result = core.str_new() orelse return null;
+    const s = handle orelse return result;
+    const data = s.slice();
+    if (data.len == 0) return result;
+
+    // At most 22 distinct names, so a small fixed set beats a hash map and
+    // preserves first-appearance order for free.
+    var seen: [22][]const u8 = undefined;
+    var nseen: usize = 0;
+
+    var i: usize = 0;
+    while (i < data.len) {
+        const cp = unicode.stz_unicode_iterate(data.ptr, data.len, i);
+        if (cp < 0) break;
+        const blen = unicode.stz_unicode_cp_byte_len(data.ptr, data.len, i);
+        if (blen <= 0) break;
+        i += @intCast(blen);
+
+        const name = scriptNameOf(cp);
+
+        var already = false;
+        for (seen[0..nseen]) |n| {
+            if (std.mem.eql(u8, n, name)) {
+                already = true;
+                break;
+            }
+        }
+        if (already) continue;
+
+        if (nseen < seen.len) {
+            seen[nseen] = name;
+            nseen += 1;
+        }
+        result.data.appendSlice(gpa, name) catch break;
+        result.data.append(gpa, 0) catch break;
+    }
+
+    return result;
+}
+
 /// Script count INCLUDING the Common bucket -- digits, spaces and
 /// punctuation, everything classifyCodepoint calls SCRIPT_UNKNOWN.
 ///

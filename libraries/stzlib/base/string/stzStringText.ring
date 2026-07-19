@@ -182,16 +182,22 @@ class stzStringText from stzObject
 
 	# The scripts used in the string.
 	def Scripts()
-		_acResult_ = []
-		_aoStzChars_ = @oString.ToListOfStzChars()
-		_nLen_ = len(_aoStzChars_)
+		# One engine pass over the codepoints.
+		#
+		# This used to build a stzChar OBJECT for every character just to ask
+		# each one its script -- the wrap-to-validate pattern at character
+		# granularity. 139ms per call on a 200-char string, and because Ring
+		# has no destructors, enough repeated calls exhausted object
+		# allocation outright: "Can not create char object!".
+		#
+		# The engine mirrors _CharScriptCode branch for branch, ORDER
+		# included, so the answer is unchanged -- common before latin, the
+		# combining marks and Arabic diacritics still `inherited`, and the
+		# names still first-appearance ordered. Deliberately NOT the engine's
+		# own 8-script classifier, which would have collapsed hangul,
+		# hiragana, katakana, armenian and gujarati into one bucket.
 
-		for i = 1 to _nLen_
-			_acResult_ + _aoStzChars_[i].Script()
-		next
-
-		_acResult_ = U(_acResult_)
-		return _acResult_
+		return StzEngineStringScriptNamesList(@oString.Engine())
 
 	# How many scripts the string uses.
 	def NumberOfScripts()

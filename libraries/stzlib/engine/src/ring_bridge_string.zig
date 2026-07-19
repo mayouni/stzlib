@@ -1271,6 +1271,12 @@ fn ring_StringScriptCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count(h)));
 }
 
+fn ring_StringScriptNamesList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_script_names(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringScriptCountAll(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count_all(h)));
@@ -3876,6 +3882,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringhasrtl", .func = &ring_StringHasRTL },
     .{ .name = "stzenginestringscriptcount", .func = &ring_StringScriptCount },
     .{ .name = "stzenginestringscriptcountall", .func = &ring_StringScriptCountAll },
+    .{ .name = "stzenginestringscriptnameslist", .func = &ring_StringScriptNamesList },
     .{ .name = "stzenginestringlocalecompare", .func = &ring_StringLocaleCompare },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
