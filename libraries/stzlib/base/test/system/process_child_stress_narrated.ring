@@ -129,6 +129,42 @@ chk("30 child cycles all succeeded", nOk = 30)
 chk("...in reasonable time (< 20s)", tMany < 20)
 
 ? ""
+? "-- Scene 10: a nonexistent program answers, not crashes --"
+oBad = SpawnProcess("this_program_does_not_exist_stz_12345")
+_cBadOut_ = oBad.ReadOutputAll()
+chk("a missing program yields a non-zero exit, no crash", oBad.Wait() != 0)
+oBad.Close()
+
+? ""
+? "-- Scene 11: output larger than one read buffer (many chunks) --"
+# 3000 lines forces the 64KB read to return in multiple chunks -- the
+# streaming loop must reassemble them without loss.
+cLoopCmd = "cmd.exe /c for /L %i in (1,1,3000) do @echo item-%i"
+oBig = SpawnProcess(cLoopCmd)
+cGot = ""
+nBigChunks = 0
+cChunk = oBig.ReadOutput()
+while cChunk != ""
+	cGot += cChunk
+	nBigChunks = nBigChunks + 1
+	cChunk = oBig.ReadOutput()
+end
+oBig.Wait()
+oBig.Close()
+? "  " + len(cGot) + " bytes over " + nBigChunks + " chunk(s)"
+chk("the last line survived the multi-chunk stream", StzFindFirst("item-3000", cGot) > 0)
+chk("the first line is there too", StzFindFirst("item-1", cGot) > 0)
+chk("it genuinely spanned more than one chunk", nBigChunks > 1)
+
+? ""
+? "-- Scene 12: Close is idempotent --"
+oDbl = SpawnProcess("cmd.exe /c echo hi")
+_cH_ = oDbl.ReadOutputAll()
+oDbl.Close()
+oDbl.Close()
+chk("a second Close does not crash and leaves no child", oDbl.HasChild() = 0)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
