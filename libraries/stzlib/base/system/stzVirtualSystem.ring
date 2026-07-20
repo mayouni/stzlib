@@ -73,10 +73,15 @@ class stzVirtualOperation from stzObject
 		@cIntent = "" + pcIntent
 		return This
 
-	# The path(s) this operation touches -- what a commit scope checks.
+	# The token(s) this operation touches -- what a commit scope checks. A path
+	# for file ops, a variable name for env ops, a command for a spawn.
 	def Impact()
 		if @cType = "copy_file" or @cType = "move_file"
 			return [ This.Param("from"), This.Param("to") ]
+		but @cType = "set_var" or @cType = "unset_var"
+			return [ This.Param("name") ]
+		but @cType = "spawn_process"
+			return [ This.Param("command") ]
 		ok
 		return [ This.Param("path") ]
 
@@ -98,6 +103,14 @@ class stzVirtualOperation from stzObject
 			return "copy '" + This.Param("from") + "' -> '" + This.Param("to") + "'"
 		but @cType = "move_file"
 			return "move '" + This.Param("from") + "' -> '" + This.Param("to") + "'"
+		but @cType = "set_var"
+			return "set env var '" + This.Param("name") + "' = '" + This.Param("value") + "'"
+		but @cType = "unset_var"
+			return "unset env var '" + This.Param("name") + "'"
+		but @cType = "change_dir"
+			return "change directory to '" + This.Param("path") + "'"
+		but @cType = "spawn_process"
+			return "spawn process: " + This.Param("command")
 		ok
 		return @cType
 
@@ -261,6 +274,10 @@ class stzUpdatePlan from stzObject
 				_a_ + [ _i_, "DESTRUCTIVE: " + @aOps[_i_].Describe() ]
 			but _t_ = "move_file"
 				_a_ + [ _i_, "MOVES (removes source): " + @aOps[_i_].Describe() ]
+			but _t_ = "unset_var"
+				_a_ + [ _i_, "REMOVES an environment variable: " + @aOps[_i_].Describe() ]
+			but _t_ = "spawn_process"
+				_a_ + [ _i_, "RUNS an external command (side effects): " + @aOps[_i_].Describe() ]
 			ok
 		next
 		return _a_
