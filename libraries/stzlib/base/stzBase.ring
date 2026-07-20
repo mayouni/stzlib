@@ -326,6 +326,13 @@ ok
     # classes above -- DevelopmentSystem() composes their live facts.
     load "system/stzSystemProfile.ring"
 
+    # Virtual System twin (Phase 2): rehearse file operations in an in-memory
+    # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
+    # (engine file primitives). The twin holds no reference to reality; disk
+    # changes only on Execute(). Core loads before the file specialization.
+    load "system/stzVirtualSystem.ring"
+    load "system/stzVirtualFileSystem.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"
