@@ -30,7 +30,7 @@ oSol.DevelopedOn(:Windows)
 oSol.WithServer(:backend, :LinuxServer)
 oSol.WithSuperApp(:superapp, :Android)
 oSol.WithApp(:firmware, :ESP32)
-chk("the solution has three constituents", oSol.NumberOfConstituents() = 3)
+chk("the solution has three constituents", oSol.NumberOfParts() = 3)
 chk("...named backend / superapp / firmware", oSol.HasApp(:backend) and oSol.HasApp(:superapp) and oSol.HasApp(:firmware))
 chk("...of the declared kinds (server / superapp / app)",
 	oSol.App(:backend).Kind() = "server" and oSol.App(:superapp).Kind() = "superapp" and oSol.App(:firmware).Kind() = "app")
@@ -155,7 +155,7 @@ chk("...a human/PI gets the effectful/sensing/compute ones", len(oFwProfile.Capa
 oPlatform = StzPlatformQ("my-iot-product")
 oPlatform.SetProfile(oSol)
 chk("the platform owns the deployment profile", oPlatform.HasProfile())
-chk("...seeing all three constituents", oPlatform.NumberOfConstituents() = 3)
+chk("...seeing all three constituents", oPlatform.NumberOfParts() = 3)
 chk("it is neither built nor deployed yet", oPlatform.IsBuilt() = 0 and oPlatform.IsDeployed() = 0)
 bDeployEarly = FALSE
 try
@@ -182,6 +182,48 @@ catch
 	bBuildRefused = TRUE
 done
 chk("Build() refuses an unsound solution", bBuildRefused)
+
+? ""
+? "-- Scene 15: the deploy-time LOWERING bridge -- a rehearsal becomes firmware --"
+# Author feature code per part (persisted as plain data), then Build + Deploy:
+# the bridge lowers each part's UP-ENABLED rehearsals into a real target artifact.
+oSol2 = new stzPlatformProfile("iot2")
+oSol2.DevelopedOn(:Windows)
+oSol2.WithApp(:firmware, :ESP32)
+oSol2.WithServer(:backend, :LinuxServer)
+chk("ReadPin authored for the ESP32 is up-enabled (rehearsed)", oSol2.ReadPinIn(:firmware, 4) = "rehearsed")
+oSol2.WritePinIn(:firmware, 2, 1)
+bSpawnRefused = FALSE
+try
+	oSol2.SpawnIn(:firmware, "worker")
+catch
+	bSpawnRefused = TRUE
+done
+chk("...authoring a forbidden op (Spawn on an MCU) is refused (down-constrain)", bSpawnRefused)
+chk("WriteFile on the Linux backend is native (no lowering needed)", oSol2.WriteFileIn(:backend, "/var/x") = "native")
+oPlat2 = StzPlatformQ("iot2").SetProfile(oSol2)
+oPlat2.Build()
+oPlat2.Deploy()
+cFw = oPlat2.ArtifactFor(:firmware)
+chk("the firmware artifact is generated code", StzFindFirst("void loop()", cFw) > 0)
+chk("...ReadPin(4) LOWERED to digitalRead(4)", StzFindFirst("digitalRead(4)", cFw) > 0)
+chk("...WritePin(2,1) LOWERED to digitalWrite(2, 1)", StzFindFirst("digitalWrite(2, 1)", cFw) > 0)
+chk("the native backend op produced no firmware ops", StzFindFirst("digitalRead", oPlat2.ArtifactFor(:backend)) = 0)
+
+? ""
+? "-- Scene 16: the deploy is GOVERNED -- an LLM cannot lower to reality --"
+oPlat3 = StzPlatformQ("iot2").SetProfile(oSol2)
+oPlat3.Build()
+bLLMDeploy = FALSE
+try
+	oPlat3.DeployAs(LLMActor("gen"))
+catch
+	bLLMDeploy = TRUE
+done
+chk("an LLM actor cannot perform the deploy (its effect set is empty)", bLLMDeploy)
+chk("...so nothing was deployed", oPlat3.IsDeployed() = 0)
+oPlat3.DeployAs(HumanActor("alice"))
+chk("...but a human actor can", oPlat3.IsDeployed())
 
 # cleanup
 StzEngineDirDelete(cScratch)
