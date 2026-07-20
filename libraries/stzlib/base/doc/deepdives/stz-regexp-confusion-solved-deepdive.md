@@ -1,5 +1,12 @@
 # Taming Regular Expressions: Softanza's Scope-Based Design
 
+> **This is the founding instance of a Softanza paradigm.** The scope-based
+> approach shown here for regex has since been promoted into a reusable,
+> field-independent paradigm — **Scope-Oriented Programming** (see
+> `../design/SCOPE_ORIENTED_PROGRAMMING.md`) — and applied a second time to
+> system programming (`../design/SOFTANZA_SYSTEM_FOUNDATION.md`). Read this
+> document as *regex, the first field the paradigm governed*.
+
 Regular expressions (regex) are incredibly powerful, yet they often feel like a cryptic language that requires constant reference to documentation. Even experienced developers frequently find themselves wrestling with the mutable behavior of metacharacters, juggling various flags, and second-guessing pattern boundaries. Softanza introduces a revolutionary scope-based approach that maintains the full power of regex while dramatically simplifying its mental model.
 
 ## The Problem: Why Are Regular Expressions So Hard?
