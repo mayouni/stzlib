@@ -135,6 +135,60 @@ chk("3000 introspection reads stay fast (< 5s)", tRead < 5)
 chk("...and every read agreed", nOk = 3000)
 
 ? ""
+? "-- Scene 9: the OS class's DERIVED predicates survive the refactor --"
+# Architecture is engine-backed now; the interpretations built on it must
+# still hold together.
+oD2 = new stzOperatingSystem()
+chk("exactly ONE of IsX64 / IsX86 / IsARM is true",
+	(oD2.IsX64() + oD2.IsX86() + oD2.IsARM()) = 1)
+chk("Is64Bit and Is32Bit are opposite", oD2.Is64Bit() != oD2.Is32Bit())
+chk("IsIntel = IsX86 or IsX64", oD2.IsIntel() = (oD2.IsX86() or oD2.IsX64()))
+chk("NameAndArchitecture is [name, arch]",
+	isList(oD2.NameAndArchitecture()) and len(oD2.NameAndArchitecture()) = 2)
+chk("...its arch part equals Architecture()", oD2.NameAndArchitecture()[2] = oD2.Architecture())
+chk("FullName folds name and bit-size", StzFindFirst("bit", oD2.FullName()) > 0)
+# The public globals ride the same engine truth.
+chk("global StzArch() = the class Architecture()", StzArch() = oD2.Architecture())
+chk("global StzIs64Bit() = the class Is64Bit()", StzIs64Bit() = oD2.Is64Bit())
+
+? ""
+? "-- Scene 10: environment EDGE cases --"
+oEg = new stzEnvironment()
+# A value containing '=' must survive, and Variables() must split on the
+# FIRST '=' only.
+oEg.SetVar("STZ_EQ_EDGE", "a=b=c")
+chk("a value with '=' round-trips intact", oEg.GetVar("STZ_EQ_EDGE") = "a=b=c")
+_bEqOk_ = FALSE
+_aVars_ = oEg.Variables()
+_nVars_ = len(_aVars_)
+for _i_ = 1 to _nVars_
+	if _aVars_[_i_][1] = "STZ_EQ_EDGE" and _aVars_[_i_][2] = "a=b=c"
+		_bEqOk_ = TRUE
+	ok
+next
+chk("...and Variables() splits it on the first '=' only", _bEqOk_)
+oEg.UnsetVar("STZ_EQ_EDGE")
+
+# A multibyte variable NAME (not just value).
+cMbName = "STZ_" + MkW([ 0x0639, 0x0645 ])
+oEg.SetVar(cMbName, "v")
+chk("a multibyte variable NAME sets and reads back", oEg.GetVar(cMbName) = "v")
+oEg.UnsetVar(cMbName)
+
+# The count tracks a set then an unset.
+_n1_ = oEg.NumberOfVariables()
+oEg.SetVar("STZ_CNT_EDGE", "x")
+_n2_ = oEg.NumberOfVariables()
+oEg.UnsetVar("STZ_CNT_EDGE")
+_n3_ = oEg.NumberOfVariables()
+chk("the variable count rises by one on set", _n2_ = _n1_ + 1)
+chk("...and falls back on unset", _n3_ = _n1_)
+
+# Aliases resolve.
+chk("ValueOf is an alias of Var", oEg.ValueOf("PATH") = oEg.Var("PATH"))
+chk("Cwd is an alias of WorkingDirectory", oEg.Cwd() = oEg.WorkingDirectory())
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
