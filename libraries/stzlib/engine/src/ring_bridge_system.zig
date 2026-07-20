@@ -117,6 +117,40 @@ fn ring_Username(p: *anyopaque) callconv(.c) void {
 fn ring_CpuCount(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(sys.stz_system_cpu_count()));
 }
+
+// ─── Managed child process (handle-table backed) ───
+
+fn ring_ProcSpawn(p: *anyopaque) callconv(.c) void {
+    const h = sys.stz_process_spawn(gs(p, 1), @intCast(gss(p, 1)));
+    R.retHandle(p, @ptrCast(h));
+}
+fn ring_ProcReadStdout(p: *anyopaque) callconv(.c) void {
+    const raw = R.getHandle(p, 1);
+    var buf: [65536]u8 = undefined;
+    const n = sys.stz_process_read_stdout(raw, &buf, 65536);
+    // n > 0: a chunk; n == 0: EOF -> ""; n < 0: error -> "". Ring reads until
+    // it gets "".
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_ProcReadStderr(p: *anyopaque) callconv(.c) void {
+    const raw = R.getHandle(p, 1);
+    var buf: [65536]u8 = undefined;
+    const n = sys.stz_process_read_stderr(raw, &buf, 65536);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_ProcWait(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_process_wait(R.getHandle(p, 1))));
+}
+fn ring_ProcKill(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_process_kill(R.getHandle(p, 1))));
+}
+fn ring_ProcPid(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_process_pid_of(R.getHandle(p, 1))));
+}
+fn ring_ProcFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| sys.stz_process_spawn_free(ptr);
+}
 fn ring_IsWindows(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_windows())); }
 fn ring_IsLinux(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_linux())); }
 fn ring_IsMacos(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_macos())); }
@@ -135,6 +169,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesystemhostname", .func = &ring_Hostname },
     .{ .name = "stzenginesystemusername", .func = &ring_Username },
     .{ .name = "stzenginesystemcpucount", .func = &ring_CpuCount },
+    .{ .name = "stzengineprocessspawn", .func = &ring_ProcSpawn },
+    .{ .name = "stzengineprocessreadstdout", .func = &ring_ProcReadStdout },
+    .{ .name = "stzengineprocessreadstderr", .func = &ring_ProcReadStderr },
+    .{ .name = "stzengineprocesswait", .func = &ring_ProcWait },
+    .{ .name = "stzengineprocesskill", .func = &ring_ProcKill },
+    .{ .name = "stzengineprocesschildpid", .func = &ring_ProcPid },
+    .{ .name = "stzengineprocessspawnfree", .func = &ring_ProcFree },
     .{ .name = "stzenginesystemiswindows", .func = &ring_IsWindows },
     .{ .name = "stzenginesystemislinux", .func = &ring_IsLinux },
     .{ .name = "stzenginesystemismacos", .func = &ring_IsMacos },

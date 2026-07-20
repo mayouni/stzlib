@@ -17,6 +17,13 @@ comptime {
     @export(&system.stz_system_hostname, .{ .name = "stz_system_hostname" });
     @export(&system.stz_system_username, .{ .name = "stz_system_username" });
     @export(&system.stz_system_cpu_count, .{ .name = "stz_system_cpu_count" });
+    @export(&system.stz_process_spawn, .{ .name = "stz_process_spawn" });
+    @export(&system.stz_process_read_stdout, .{ .name = "stz_process_read_stdout" });
+    @export(&system.stz_process_read_stderr, .{ .name = "stz_process_read_stderr" });
+    @export(&system.stz_process_wait, .{ .name = "stz_process_wait" });
+    @export(&system.stz_process_kill, .{ .name = "stz_process_kill" });
+    @export(&system.stz_process_pid_of, .{ .name = "stz_process_pid_of" });
+    @export(&system.stz_process_spawn_free, .{ .name = "stz_process_spawn_free" });
     @export(&system.stz_system_is_windows, .{ .name = "stz_system_is_windows" });
     @export(&system.stz_system_is_linux, .{ .name = "stz_system_is_linux" });
     @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });

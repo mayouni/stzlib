@@ -1,6 +1,9 @@
 # The Softanza System Foundation
 ### A first-principles redesign of system programming: engine-true, virtualizable, governable
-*Design document — v0.1 (2026-07-20). Status: proposal. Nothing here is implemented except where marked ALREADY EXISTS.*
+*Design document — v0.2 (2026-07-20). Status: Phase 0 and Phase 1 IMPLEMENTED
+(engine-true facts + stzProcess/stzOperatingSystem/stzEnvironment + managed
+child processes); Phases 2–4 (the Virtual System twin and the governance
+crossing) remain proposals. Items are marked ALREADY EXISTS / SHIPPED / PLANNED.*
 
 ---
 
@@ -97,7 +100,7 @@ on; it is what SP1–SP4 produce.
         │  → decides WHO may commit WHICH plan, WHERE, and records  │
         │    WHY. An LLM actor's effect-capability set is EMPTY.    │
         └───────────────────────────┬───────────────────────────────┘
-                                    │ authorises
+                                       │ authorises
         ┌───────────────────────────▼───────────────────────────────┐
   L2    │  VIRTUAL SYSTEM  —  the sandbox / universal abstraction    │
         │  stzVirtualSystem  ·  stzVirtual{File,Folder,Process,Env}  │
@@ -105,7 +108,7 @@ on; it is what SP1–SP4 produce.
         │  history · rollback · diff-vs-reality · UpdatePlan        │
         │  → REHEARSE freely. Produce ONE crossing artifact.        │
         └───────────────────────────┬───────────────────────────────┘
-                                    │ mirrors (read) / commits (via plan)
+                                       │ mirrors (read) / commits (via plan)
         ┌───────────────────────────▼───────────────────────────────┐
   L1    │  REAL PROJECTION  —  the reference library (Ring today)    │
         │  stzProcess · stzOperatingSystem · stzEnvironment ·        │
@@ -113,7 +116,7 @@ on; it is what SP1–SP4 produce.
         │  → thin, intent-named. Every method delegates to L0.      │
         │    Immediate + consequential. This is "reality" for L2.   │
         └───────────────────────────┬───────────────────────────────┘
-                                    │ C-ABI (the invariant)
+                                       │ C-ABI (the invariant)
         ┌───────────────────────────▼───────────────────────────────┐
   L0    │  ENGINE  —  the one thing that touches the OS (Zig)        │
         │  system.zig · process.zig · file.zig  (+ new: env, cwd,   │
