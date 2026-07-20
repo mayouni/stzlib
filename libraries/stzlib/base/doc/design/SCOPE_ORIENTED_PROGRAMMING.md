@@ -113,9 +113,9 @@ call:
 
 | scope | how you write it | what it means, unambiguously |
 |---|---|---|
-| **development** | `Platform.DevelopmentSystem()` | the machine the architect codes on — build, flash, rehearse; **tooling only** |
-| **deployment** | `Platform.App(:x).System()` | the system app *x* runs on — **where feature code is written and checked** |
-| **runtime-current** | `CurrentSystem()` | whatever system this code runs on *at execution* — laptop in dev, Android in prod |
+| **development** | `new stzDevSystem()` | the machine the architect codes on — build, flash, rehearse; **tooling only** |
+| **deployment** | `oProfile.App(:x).System()` | the system app *x* runs on — **where feature code is written and checked** |
+| **runtime-current** | `new stzCurrentSystem()` | whatever system this code runs on *at execution* — laptop in dev, Android in prod |
 
 The rule that removes the confusion is M3 taken seriously: **feature code is
 never written against "current."** It is written inside an app's system scope,

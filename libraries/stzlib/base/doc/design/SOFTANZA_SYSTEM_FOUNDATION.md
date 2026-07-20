@@ -197,17 +197,17 @@ name for each of the three worlds:
 
 | scope | how you write it | what it resolves to | used for |
 |---|---|---|---|
-| **development** | `oPlatform.DevelopmentSystem()` | the machine the architect codes on | build, flash, rehearse — **tooling only** |
-| **deployment** | `oPlatform.App(:x).System()` | the system app *x* deploys to | **where feature code is written and checked** |
-| **runtime-current** | `CurrentSystem()` | whatever system this code runs on *now* | runtime-adaptive branches |
+| **development** | `new stzDevSystem()` | the machine the architect codes on | build, flash, rehearse — **tooling only** |
+| **deployment** | `oProfile.App(:x).System()` | the system app *x* deploys to | **where feature code is written and checked** |
+| **runtime-current** | `new stzCurrentSystem()` | whatever system this code runs on *now* | runtime-adaptive branches |
 
 ```ring
-oPlatform.App(:firmware).System() {
+oProfile.App(:firmware).System() {
     ReadPin(4)            # ESP32 profile is in scope: GPIO exists here...
     Spawn("worker")       # ...REFUSED at write time: an MCU has no processes
 }
 
-oPlatform.App(:superapp).System() {
+oProfile.App(:superapp).System() {
     ChangeDirectory("/etc")   # REFUSED: the Android sandbox forbids it
     Persist(oConfig)          # LOWERED to the Android idiom (shared-prefs)
 }
@@ -569,9 +569,11 @@ callers.
   `Close`); `SpawnProcess()` global.
 - **Phase 1b — the scope-model floor (§2, first buildable slice). SHIPPED
   (2026-07-20).** `stzSystemProfile` as a facet bundle (OS / Runtime /
-  Capabilities / Resources) with a `.stzsystem` format; `DevelopmentSystem()`
-  and `CurrentSystem()` populated *live* from the engine (Phase 0/1 supplies
-  every fact); declared deployment targets built with `DeclareSystem()` or read
+  Capabilities / Resources) with a `.stzsystem` format; the two live scopes are
+  objects — `new stzDevSystem()` and `new stzCurrentSystem()` — populated *live*
+  from the engine (Phase 0/1 supplies every fact), with `DevelopmentSystem()` /
+  `CurrentSystem()` kept as thin resolver sugar; declared deployment targets
+  built with `DeclareSystem()` or read
   from a `.stzsystem` file, whose facts are STORED so they never leak from the
   live machine (an rtos/android profile answers rtos/android on a Windows box).
   The keystone `stzSystemCapabilities` is a **closed named set** classified into
