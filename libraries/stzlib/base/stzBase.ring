@@ -333,6 +333,11 @@ ok
     load "system/stzVirtualSystem.ring"
     load "system/stzVirtualFileSystem.ring"
 
+    # Phase 3: the Process/Environment twin -- rehearse env-var changes, a cwd
+    # change, and a queue of process spawns; commit atomically through the one
+    # bridge (stzEnvironment's effectful verbs + SpawnProcess). Same core.
+    load "system/stzVirtualEnvironment.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"
