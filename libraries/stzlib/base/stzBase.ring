@@ -344,6 +344,13 @@ ok
     # bridge (stzEnvironment's effectful verbs + SpawnProcess). Same core.
     load "system/stzVirtualEnvironment.ring"
 
+    # Phase 3b: the FULL scope model -- the architect's common ground. A
+    # stzPlatformProfile holds the dev system + the apps; each app deploys to a
+    # stzSystemProfile; feature code is written in App(:x).System() scopes that
+    # down-constrain (refuse what the target forbids) and up-enable (rehearse
+    # what the host lacks). Loads last -- it composes everything above.
+    load "system/stzPlatformProfile.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"

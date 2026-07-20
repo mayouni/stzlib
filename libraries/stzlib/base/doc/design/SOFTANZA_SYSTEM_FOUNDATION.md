@@ -1,19 +1,19 @@
 # The Softanza System Foundation
 ### A first-principles redesign of system programming: scope-oriented, engine-true, virtualizable, governable
-*Design document — v0.7 (2026-07-20). Status: **Phases 0 through 4 all
-IMPLEMENTED** — engine-true facts + stzProcess/stzOperatingSystem/stzEnvironment
-+ managed child processes; the scope-model floor
-(`stzSystemProfile`/`stzSystemCapabilities` — `DevelopmentSystem()` /
-`CurrentSystem()` live, declared `.stzsystem` targets, the two-worlds compare,
-the system↔agent capability bridge); the Virtual System twin over files, env
-vars, cwd and process spawns (`stzVirtualSystem` + `stzVirtualFileSystem` +
-`stzVirtualEnvironment` — rehearse → plan → commit, the twin holds no reference
-to reality); and the **governance crossing** (`stzSystemActor` +
-`stzUpdatePlan` executor gate — an actor's capability kinds decide whether a
-plan may cross, an LLM's empty effect set commits nothing, in any domain, with
-stzGovernance posture + audit lineage). The one remaining proposal is the rest
-of §2 — the platform/app graph and the lexical `App(:x).System(){…}` scopes with
-static checking. Items are marked ALREADY EXISTS / SHIPPED / PLANNED.*
+*Design document — v0.8 (2026-07-20). Status: **the foundation is COMPLETE —
+Phases 0 through 4 AND the full §2 scope model (Phase 3b) all IMPLEMENTED.**
+Engine-true facts + stzProcess/stzOperatingSystem/stzEnvironment + managed child
+processes; the scope-model floor (`stzSystemProfile`/`stzSystemCapabilities`);
+the Virtual System twin over files, env vars, cwd and process spawns
+(`stzVirtualSystem` + `stzVirtualFileSystem` + `stzVirtualEnvironment` — rehearse
+→ plan → commit, the twin holds no reference to reality); the governance crossing
+(`stzSystemActor` + `stzUpdatePlan` executor gate — an LLM's empty effect set
+commits nothing, in any domain); and the **architect's common ground**
+(`stzPlatformProfile` + `stzAppProfile` + `stzSystemScope` — model the solution,
+then write feature code in an `App(:x).System()` scope that down-constrains what
+the target forbids and up-enables what the host lacks, with a `.stzplatform`
+format). §2 is now realized, not proposed. Items are marked ALREADY EXISTS /
+SHIPPED / PLANNED. **290 assertions across seven guards, all green.**
 
 > **v0.3 adds the programmer-facing model (§2):** the three system scopes
 > (development / deployment / runtime-current) over one common-ground solution
@@ -604,12 +604,25 @@ callers.
   committed-then-restored cwd change. The core file (`stzVirtualSystem.ring`)
   gained only additive `set_var`/`unset_var`/`change_dir`/`spawn_process` cases
   in Describe/Impact/Risks.
-- **Phase 3b — the full scope model (§2).** `stzPlatformProfile` +
-  `stzAppProfile` + attached deployment `stzSystemProfile`s; the three scopes as
-  writable/checkable contexts; **down-constrain** as a static check of a call
-  against its scope's capabilities; **up-enable** as twin-rehearsal of a
-  foreign system's operations (needs Phase 2). This is where "no confusion is
-  possible" and "the two worlds" become enforced, not just documented.
+- **Phase 3b — the full scope model (§2). SHIPPED (2026-07-20).**
+  `stzPlatformProfile` (the common ground: the dev system + the apps) +
+  `stzAppProfile` (a part + its deployment `stzSystemProfile`, built with
+  `DeployApp(:name, :target)`) + `stzSystemScope` (the named context feature
+  code is written in). Model the solution — `oSol.DevelopedOn(:Windows)`,
+  `oSol.Deploys([...])` — then write in a scope: `oSol.App(:firmware).System()`
+  resolves to the ESP32 profile (says `espidf` on a Windows box — no live leak).
+  **Down-constrain** is a real refusal: `scope.Spawn(...)` raises in the firmware
+  scope because the target forbids `process`, checked on the dev box against the
+  target profile so it is caught during development. **Up-enable** is a real
+  rehearsal: `scope.ReadPin(4)` is allowed (the ESP32 has gpio) but returns
+  `"rehearsed"` because the dev host lacks gpio — captured in
+  `RehearsedOperations()` for the deploy-time lowering. The same op gets
+  different verdicts per scope (Spawn: native on the Linux backend, refused on
+  ESP32 and Android). Feature code reads naturally in a Ring block —
+  `scope { ReadPin(1) WritePin(2,1) }`. `.stzplatform` format round-trips.
+  Builds on the Phase 1b capability envelope; the scope's profile is the same
+  one that gates actors (Phase 4). Pure Ring. Guard
+  `full_scope_model_narrated.ring` (34).
 - **Phase 4 — governance crossing. SHIPPED (2026-07-20).** Each
   `stzVirtualOperation` is coloured by the capability KIND it requires
   (`RequiredKind` — every reality-touching op is `effectful`). `stzSystemActor`
@@ -629,16 +642,22 @@ callers.
   the plan's copy (read via `plan.Governance()`); the plan also keeps its own
   plain-data `AuditTrail()`.
 
-**Phases 0 through 4 are all shipped — the implementation roadmap is
-complete.** The twin covers files, environment variables, the working
-directory, and process spawns, all through one governed plan; and the crossing
-is gated by the actor's authority. "Agents that cannot hurt you" is now a
-property the code enforces, not a promise: an LLM actor whose effect-capability
-set is empty (Phase 1b) simply cannot make a plan cross, in any domain (Phase 4,
-proven by the guard). What remains is not a phase but an *elaboration* of §2 —
-the platform/app graph and the lexical `App(:x).System(){…}` scopes with static
-checking — building on the same capability-scope the whole foundation now shares
-across systems, actors, and the reactor host.
+**Every phase is shipped — the foundation is complete, §2 included.** The twin
+covers files, environment variables, the working directory, and process spawns,
+all through one governed plan; the crossing is gated by the actor's authority;
+and the architect's common ground (`stzPlatformProfile` / `stzAppProfile` /
+`stzSystemScope`) makes §2 real — model the solution, write feature code in an
+`App(:x).System()` scope, and the scope down-constrains what the target forbids
+and up-enables what the host lacks, on the dev box, before deploy. "Agents that
+cannot hurt you" is a property the code enforces, not a promise: an LLM actor
+whose effect-capability set is empty (Phase 1b) simply cannot make a plan cross,
+in any domain (Phase 4, proven by the guard). One capability-scope — the lattice
+of effectful/sensing/compute/inference — now runs through the whole foundation:
+a system's capabilities, a deployment scope's verdicts, an actor's authority,
+and the reactor host's supervision are one vocabulary. The natural next work is
+no longer the *system* foundation but what builds on it: wiring the scope model
+into the delivery plane (`stzApp`/`stzPlatform`) and the deploy-time lowering
+bridge that turns an up-enable rehearsal into real firmware.
 
 ## 10. Quality bar
 
