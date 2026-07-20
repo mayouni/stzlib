@@ -29,12 +29,6 @@
 func StzVirtualFileSystemQ()
 	return new stzVirtualFileSystem()
 
-func NewVirtualFileSystem()
-	return new stzVirtualFileSystem()
-
-	func VirtualFileSystem()
-		return new stzVirtualFileSystem()
-
 
   #=================#
  #  STZFILETREE    #

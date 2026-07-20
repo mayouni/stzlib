@@ -156,13 +156,10 @@ declarative artifact, before a line of system feature code:
 ```ring
 oPlatform = new stzPlatformProfile("my-iot-product")   # the common ground
 oPlatform {
-    DevelopedOn(:Windows)                              # the DEV system
-
-    Deploys(
-        new stzAppProfile(:backend ).To(:LinuxServer),
-        new stzAppProfile(:superapp).To(:Android),
-        new stzAppProfile(:firmware).To(:ESP32)
-    )
+    DevelopedOn(:Windows)              # the DEV system
+    Deploy(:backend,  :LinuxServer)    # each part + the system it deploys to
+    Deploy(:superapp, :Android)
+    Deploy(:firmware, :ESP32)          # or Deploys([ [:backend, :LinuxServer], ... ])
 }
 ```
 
@@ -606,10 +603,10 @@ callers.
   in Describe/Impact/Risks.
 - **Phase 3b — the full scope model (§2). SHIPPED (2026-07-20).**
   `stzPlatformProfile` (the common ground: the dev system + the apps) +
-  `stzAppProfile` (a part + its deployment `stzSystemProfile`, built with
-  `DeployApp(:name, :target)`) + `stzSystemScope` (the named context feature
-  code is written in). Model the solution — `oSol.DevelopedOn(:Windows)`,
-  `oSol.Deploys([...])` — then write in a scope: `oSol.App(:firmware).System()`
+  `stzAppProfile` (a part + its deployment `stzSystemProfile`) + `stzSystemScope`
+  (the named context feature code is written in). Model the solution —
+  `oSol.DevelopedOn(:Windows)`, `oSol.Deploy(:firmware, :ESP32)` — then write in a
+  scope: `oSol.App(:firmware).System()`
   resolves to the ESP32 profile (says `espidf` on a Windows box — no live leak).
   **Down-constrain** is a real refusal: `scope.Spawn(...)` raises in the firmware
   scope because the target forbids `process`, checked on the dev box against the
