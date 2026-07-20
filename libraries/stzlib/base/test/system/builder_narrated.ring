@@ -10,7 +10,9 @@
 # unit that Zig compiles WITH the Ring VM source -> a standalone binary, and the
 # same source cross-compiles to a Linux ELF -- no ring.dll anywhere. And a JS
 # part: embedded in a C host that links the vendored QuickJS -> one binary, host
-# + Linux, no node.
+# + Linux, no node. And the WEB composite: a freestanding-wasm part + a generated
+# stz.js bridge + shell + manifest, assembled by stzWebBundle (the browser run of
+# this bundle is verified separately -- Ring has no DOM).
 #
 # Requires zig on the machine (found via $ZIG / D:/Zig / PATH). Each build takes
 # a moment; zig caches after the first.
@@ -171,6 +173,41 @@ oJL.AsJs().Source(cJsSrc).ForTarget(:LinuxServer).Output(cDir + "/app_linux")
 oJL.Build()
 chk("the JS cross build succeeded", oJL.Succeeded())
 chk("...a genuine Linux ELF with the JS engine inside", isELF(cDir + "/app_linux"))
+
+? ""
+? "-- Scene 12: build a part for the WEB -- freestanding wasm, bridge ABI --"
+# The web is a COMPOSITE target: a wasm module with a real bridge (JS owns the
+# memory; the module imports stz_log; its exports are callable) -- not WASI.
+cWebC = cDir + "/mod.c"
+write(cWebC,
+	"__attribute__((import_module(" + char(34) + "env" + char(34) + "), import_name(" + char(34) + "stz_log" + char(34) + ")))" + nl +
+	"extern void stz_log(const char *ptr, int len);" + nl +
+	"int stz_add(int a, int b){ return a + b; }" + nl +
+	"static const char MSG[] = " + char(34) + "web wasm built by stzBuilder" + char(34) + ";" + nl +
+	"void stz_main(void){ stz_log(MSG, sizeof(MSG) - 1); }" + nl)
+oWeb = new stzBuilder("app")
+oWeb.AsC().Source(cWebC).ForWeb().Export("stz_main").Export("stz_add").Output(cDir + "/app.wasm")
+chk("ForWeb targets freestanding wasm", oWeb.Target() = "wasm32-freestanding")
+chk("...the command imports memory and exports the named fns",
+	StzFindFirst("--import-memory", oWeb.ToCommand()) > 0 and StzFindFirst("--export=stz_main", oWeb.ToCommand()) > 0)
+oWeb.Build()
+chk("the web wasm build succeeded", oWeb.Succeeded())
+chk("...and the output is a genuine wasm module", isWASM(cDir + "/app.wasm"))
+
+? ""
+? "-- Scene 13: assemble the web COMPOSITE -- wasm + stz.js + shell + manifest --"
+oBun = new stzWebBundle("app")
+oBun.Title("Softanza on the Web").OutDir(cDir + "/dist")
+oBun.WithWasm("app", cDir + "/app.wasm")
+oBun.Build()
+chk("the bundle assembled all four files",
+	StzEngineFileExists(cDir + "/dist/app.wasm") = 1 and StzEngineFileExists(cDir + "/dist/stz.js") = 1 and
+	StzEngineFileExists(cDir + "/dist/index.html") = 1 and StzEngineFileExists(cDir + "/dist/bundle.json") = 1)
+chk("...stz.js carries the real bridge (stz_log + WebAssembly)",
+	StzFindFirst("stz_log", read(cDir + "/dist/stz.js")) > 0 and StzFindFirst("WebAssembly", read(cDir + "/dist/stz.js")) > 0)
+chk("...the shell loads stz.js and the wasm",
+	StzFindFirst("stz.js", read(cDir + "/dist/index.html")) > 0 and StzFindFirst("app.wasm", read(cDir + "/dist/index.html")) > 0)
+chk("...the manifest declares a web-bundle", StzFindFirst("web-bundle", read(cDir + "/dist/bundle.json")) > 0)
 
 # cleanup
 StzEngineDirDelete(cDir)
