@@ -7,6 +7,16 @@ comptime {
     @export(&system.stz_system_run_free, .{ .name = "stz_system_run_free" });
     @export(&system.stz_system_exec, .{ .name = "stz_system_exec" });
     @export(&system.stz_system_env, .{ .name = "stz_system_env" });
+    @export(&system.stz_system_run2, .{ .name = "stz_system_run2" });
+    @export(&system.stz_system_env_get, .{ .name = "stz_system_env_get" });
+    @export(&system.stz_system_env_set, .{ .name = "stz_system_env_set" });
+    @export(&system.stz_system_env_unset, .{ .name = "stz_system_env_unset" });
+    @export(&system.stz_system_env_list, .{ .name = "stz_system_env_list" });
+    @export(&system.stz_system_cwd_get, .{ .name = "stz_system_cwd_get" });
+    @export(&system.stz_system_cwd_set, .{ .name = "stz_system_cwd_set" });
+    @export(&system.stz_system_hostname, .{ .name = "stz_system_hostname" });
+    @export(&system.stz_system_username, .{ .name = "stz_system_username" });
+    @export(&system.stz_system_cpu_count, .{ .name = "stz_system_cpu_count" });
     @export(&system.stz_system_is_windows, .{ .name = "stz_system_is_windows" });
     @export(&system.stz_system_is_linux, .{ .name = "stz_system_is_linux" });
     @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });

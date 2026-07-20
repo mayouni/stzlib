@@ -289,31 +289,57 @@ class stzOperatingSystem from stzObject
 	#  ARCHITECTURE INFO    #
 	#-----------------------#
 
+	# ENGINE-BACKED. This used to be Ring's getArch() -- a SECOND computation
+	# of a fact the engine already owns (process.zig's process_arch). Two
+	# sources of one truth: they happened to agree, but nothing guaranteed
+	# it, and a future non-Ring binding of Softanza would have had to derive
+	# the fact a third time. It now reads the ONE engine source, through
+	# stzProcess, which also owns the Zig<->Softanza vocabulary reconciliation
+	# (x86_64 -> x64). See SOFTANZA_SYSTEM_FOUNDATION.md.
 	def Architecture()
-		return getArch()
+		_oP_ = new stzProcess()
+		return _oP_.Architecture()
 
 		def Arch()
 			return This.Architecture()
 
+	# ENGINE-BACKED: the native pointer size decides the bit width directly
+	# (8 bytes = 64-bit), rather than inferring it from the arch string and
+	# returning 0 for anything unrecognised.
 	def Is32Bit()
-		_cArch_ = This.Arch()
-		return (_cArch_ = "x86" or _cArch_ = "arm")
+		_oP_ = new stzProcess()
+		return _oP_.Is32Bit()
 
 	def Is64Bit()
-		_cArch_ = This.Arch()
-		return (_cArch_ = "x64" or _cArch_ = "arm64")
+		_oP_ = new stzProcess()
+		return _oP_.Is64Bit()
 
 	def BitSize()
-		if This.Is32Bit()
-			return 32
-		but This.Is64Bit()
-			return 64
-		else
-			return 0
-		ok
+		_oP_ = new stzProcess()
+		return _oP_.BitSize()
 
 		def Bits()
 			return This.BitSize()
+
+	# ENGINE-BACKED machine facts (were absent on this class).
+	def Endianness()
+		_oP_ = new stzProcess()
+		return _oP_.Endianness()
+
+	def IsLittleEndian()
+		_oP_ = new stzProcess()
+		return _oP_.IsLittleEndian()
+
+	def IsBigEndian()
+		_oP_ = new stzProcess()
+		return _oP_.IsBigEndian()
+
+	def PointerSize()
+		_oP_ = new stzProcess()
+		return _oP_.PointerSize()
+
+		def PointerSizeInBytes()
+			return This.PointerSize()
 
 	def IsARM()
 		_cArch_ = This.Arch()
