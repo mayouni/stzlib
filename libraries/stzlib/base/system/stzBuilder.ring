@@ -255,6 +255,11 @@ class stzBuilder from stzObject
 	@aLoweredIncludes = []
 	@aLoweredLibs = []
 
+	# Web target: a freestanding wasm module with a bridge ABI (imports come from
+	# stz.js, listed exports are callable from JS). No WASI -- a real bridge.
+	@bWeb = FALSE
+	@aExports = []
+
 	def init(pcName)
 		@cName = "" + pcName
 
@@ -319,6 +324,31 @@ class stzBuilder from stzObject
 	def ForHost()
 		@cTriple = ""
 		return This
+
+	# Build FOR the web: a freestanding wasm module that stz.js instantiates.
+	# JS owns the memory (imported); listed exports are callable from JS; small
+	# by default. Pair with stzWebBundle to assemble the page.
+	def ForWeb()
+		@cTriple = "wasm32-freestanding"
+		@bWeb = TRUE
+		@cOptimize = "small"
+		return This
+
+	def Export(pcName)
+		@aExports + ("" + pcName)
+		return This
+
+	def Exports(paNames)
+		if isList(paNames)
+			_n_ = len(paNames)
+			for _i_ = 1 to _n_
+				@aExports + ("" + paNames[_i_])
+			next
+		ok
+		return This
+
+	def IsWeb()
+		return @bWeb
 
 	def Target()
 		return @cTriple
@@ -554,6 +584,18 @@ class stzBuilder from stzObject
 			# stderr pipe and deadlock the drain, so this keeps lowered builds safe.
 			if @cLanguage = "ring" or @cLanguage = "js"
 				_a_ + "-w"
+			ok
+			if @bWeb
+				# freestanding wasm + the stz.js bridge ABI: no libc, no _start,
+				# JS owns the memory, and the named functions are exported.
+				_a_ + "-nostdlib"
+				_a_ + "-Wl,--no-entry"
+				_a_ + "-Wl,--import-memory"
+				_a_ + "-Wl,--strip-all"
+				_nE_ = len(@aExports)
+				for _i_ = 1 to _nE_
+					_a_ + ("-Wl,--export=" + @aExports[_i_])
+				next
 			ok
 			_nD_ = len(@aDefines)
 			for _i_ = 1 to _nD_

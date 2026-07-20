@@ -357,6 +357,7 @@ ok
     # build through the engine-backed managed child (SpawnProcess). Loads after
     # the profile (For(target) reuses _StzSystemProfileForTarget).
     load "system/stzBuilder.ring"
+    load "system/stzWebBundle.ring"
 
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
