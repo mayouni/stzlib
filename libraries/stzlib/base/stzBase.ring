@@ -326,6 +326,12 @@ ok
     # classes above -- DevelopmentSystem() composes their live facts.
     load "system/stzSystemProfile.ring"
 
+    # Phase 4 (the governance crossing): a stzSystemActor carries capability
+    # KINDS (effectful/sensing/compute/inference) -- the authority axis of the
+    # scope model. It gates whether an UpdatePlan may commit. Loaded before the
+    # twin so the plan can hold an executor.
+    load "system/stzSystemActor.ring"
+
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
     # (engine file primitives). The twin holds no reference to reality; disk

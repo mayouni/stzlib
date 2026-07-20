@@ -1,18 +1,19 @@
 # The Softanza System Foundation
 ### A first-principles redesign of system programming: scope-oriented, engine-true, virtualizable, governable
-*Design document — v0.6 (2026-07-20). Status: Phase 0, Phase 1, the
-**scope-model floor (Phase 1b)**, the **Virtual System twin — file (Phase 2)**,
-and the **Process/Environment twin (Phase 3)** IMPLEMENTED — engine-true facts +
-stzProcess/stzOperatingSystem/stzEnvironment + managed child processes +
-`stzSystemProfile`/`stzSystemCapabilities` (`DevelopmentSystem()` /
+*Design document — v0.7 (2026-07-20). Status: **Phases 0 through 4 all
+IMPLEMENTED** — engine-true facts + stzProcess/stzOperatingSystem/stzEnvironment
++ managed child processes; the scope-model floor
+(`stzSystemProfile`/`stzSystemCapabilities` — `DevelopmentSystem()` /
 `CurrentSystem()` live, declared `.stzsystem` targets, the two-worlds compare,
-the system↔agent capability bridge) + `stzVirtualSystem` +
-`stzVirtualFileSystem` + `stzVirtualEnvironment` (rehearse → plan → commit over
-files, env vars, cwd, and process spawns; the twin holds no reference to
-reality, one governed bridge to each effect). The rest of §2 (the platform/app
-graph and the lexical `App(:x).System(){…}` scopes with static checking) and
-Phase 4 (the governance crossing) remain proposals. Items are marked ALREADY
-EXISTS / SHIPPED / PLANNED.*
+the system↔agent capability bridge); the Virtual System twin over files, env
+vars, cwd and process spawns (`stzVirtualSystem` + `stzVirtualFileSystem` +
+`stzVirtualEnvironment` — rehearse → plan → commit, the twin holds no reference
+to reality); and the **governance crossing** (`stzSystemActor` +
+`stzUpdatePlan` executor gate — an actor's capability kinds decide whether a
+plan may cross, an LLM's empty effect set commits nothing, in any domain, with
+stzGovernance posture + audit lineage). The one remaining proposal is the rest
+of §2 — the platform/app graph and the lexical `App(:x).System(){…}` scopes with
+static checking. Items are marked ALREADY EXISTS / SHIPPED / PLANNED.*
 
 > **v0.3 adds the programmer-facing model (§2):** the three system scopes
 > (development / deployment / runtime-current) over one common-ground solution
@@ -609,20 +610,35 @@ callers.
   against its scope's capabilities; **up-enable** as twin-rehearsal of a
   foreign system's operations (needs Phase 2). This is where "no confusion is
   possible" and "the two worlds" become enforced, not just documented.
-- **Phase 4 — governance crossing:** wire `stzCommitScope` + `stzGovernance`
-  posture/authority into `stzUpdatePlan.Execute`; the agent host uses it; the
-  deploy step that lowers an up-enable rehearsal to a target is one such governed
-  crossing.
+- **Phase 4 — governance crossing. SHIPPED (2026-07-20).** Each
+  `stzVirtualOperation` is coloured by the capability KIND it requires
+  (`RequiredKind` — every reality-touching op is `effectful`). `stzSystemActor`
+  carries a set of capability kinds — the SAME lattice as `stzSystemCapabilities`
+  (Phase 1b) and `stzAgentGraph`, with factories `HumanActor`/`PIActor`/
+  `LLMActor`/`GuardianActor` mirroring the graph exactly. `stzUpdatePlan.Execute`
+  now passes three gates per op — reviewer (reject), scope (where/what),
+  **governance** (may THIS actor commit an op of THIS kind) — plus an optional
+  `stzGovernance` for the trust-posture requirement (`MayExecute`) and the
+  decision lineage (`RecordDecision`). `MayCommit()` answers "can this actor
+  cross at all" before an attempt. Guard `governance_crossing_narrated.ring`
+  (31) proves the capstone: an LLM actor's empty effect set commits NOTHING
+  across BOTH domains (file + env), a human/PI commits, a guardian (sense/
+  compute, no effect) cannot, posture is required under governance, and the
+  gates compose (an LLM is refused even inside scope). Pure Ring. *Note:* Ring
+  copies objects on assignment, so a wired governance's lineage accumulates in
+  the plan's copy (read via `plan.Governance()`); the plan also keeps its own
+  plain-data `AuditTrail()`.
 
-Phases 0 through 3 are shipped — the twin now covers files, environment
-variables, the working directory, and process spawns, all through one governed
-plan. **Phase 4 (the governance crossing) is the capstone that remains.** It
-wires `stzCommitScope` into `stzGovernance`/`stzAgentGraph` so an actor's
-authority — the very capability-scope from Phase 1b — gates
-`stzUpdatePlan.Execute()`. At that point the two worlds' *up-enable* becomes a
-governed deploy-time lowering, and "agents that cannot hurt you" is a property
-the code enforces, not a promise: an LLM actor whose effect-capability set is
-empty (Phase 1b) simply cannot make a plan cross, in any domain.
+**Phases 0 through 4 are all shipped — the implementation roadmap is
+complete.** The twin covers files, environment variables, the working
+directory, and process spawns, all through one governed plan; and the crossing
+is gated by the actor's authority. "Agents that cannot hurt you" is now a
+property the code enforces, not a promise: an LLM actor whose effect-capability
+set is empty (Phase 1b) simply cannot make a plan cross, in any domain (Phase 4,
+proven by the guard). What remains is not a phase but an *elaboration* of §2 —
+the platform/app graph and the lexical `App(:x).System(){…}` scopes with static
+checking — building on the same capability-scope the whole foundation now shares
+across systems, actors, and the reactor host.
 
 ## 10. Quality bar
 
