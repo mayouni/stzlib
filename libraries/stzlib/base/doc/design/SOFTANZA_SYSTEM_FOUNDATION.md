@@ -1,14 +1,17 @@
 # The Softanza System Foundation
 ### A first-principles redesign of system programming: scope-oriented, engine-true, virtualizable, governable
-*Design document — v0.4 (2026-07-20). Status: Phase 0, Phase 1, and the
-**scope-model floor (Phase 1b)** IMPLEMENTED — engine-true facts +
+*Design document — v0.5 (2026-07-20). Status: Phase 0, Phase 1, the
+**scope-model floor (Phase 1b)**, and the **Virtual System twin, file
+specialization (Phase 2)** IMPLEMENTED — engine-true facts +
 stzProcess/stzOperatingSystem/stzEnvironment + managed child processes +
 `stzSystemProfile`/`stzSystemCapabilities` (`DevelopmentSystem()` /
 `CurrentSystem()` live, declared `.stzsystem` targets, the two-worlds compare,
-the system↔agent capability bridge). The rest of §2 (the platform/app graph and
-the lexical `App(:x).System(){…}` scopes with static checking) and Phases 2–4
-(the Virtual System twin and the governance crossing) remain proposals. Items
-are marked ALREADY EXISTS / SHIPPED / PLANNED.*
+the system↔agent capability bridge) + `stzVirtualSystem`/`stzVirtualFileSystem`
+(rehearse → plan → commit, the twin holds no reference to reality, one governed
+bridge to disk). The rest of §2 (the platform/app graph and the lexical
+`App(:x).System(){…}` scopes with static checking) and Phases 3–4 (Process/Env
+twin + the governance crossing) remain proposals. Items are marked ALREADY
+EXISTS / SHIPPED / PLANNED.*
 
 > **v0.3 adds the programmer-facing model (§2):** the three system scopes
 > (development / deployment / runtime-current) over one common-ground solution
@@ -567,10 +570,22 @@ callers.
   platform/app graph and no lexical `App(:x).System(){…}` scopes yet — just the
   three named scopes, introspectable, with the shared capability envelope. Pure
   Ring, no engine change. Guard: `system_scope_model_narrated.ring` (54).
-- **Phase 2 — `stzVirtualSystem` root + File specialization.** The VSF's own
-  Phase 1–3, reality bridge = `file.zig`. *(Prerequisite for the up-enable
-  direction of the scope model — the twin is how a host rehearses a foreign
-  system.)*
+- **Phase 2 — `stzVirtualSystem` root + File specialization. SHIPPED
+  (2026-07-20).** `stzVirtualOperation` (change as a first-class object with
+  actor + intent), `stzVirtualSystem` (domain-agnostic rehearse/undo/snapshot/
+  rollback core over a state that `Apply`s + `Clone`s), `stzFileTree` (the
+  virtual state, origin mirrored|virtual), `stzVirtualFileSystem` (the
+  intent-named rehearsal verbs CreateFile/WriteFile/Move/Copy/Delete + MirrorFrom
+  + free inspection that reads the twin, not disk), `stzUpdatePlan` (narration,
+  risks, `Validate` re-check, `RejectOperation`, `Execute`) and `stzCommitScope`
+  (allowed prefixes/types/max-ops). The reality bridge `stzFileSystemBridge` is
+  the **only** class that touches disk — it delegates to the engine
+  `StzEngineFile*` / `StzEngineDir*` primitives. Pure Ring, no engine change.
+  Guard `virtual_system_twin_narrated.ring` (48) proves P1 (rehearsal touches
+  nothing), the one-door commit, scope refusal (out-of-scope ops never reach
+  disk), reject, undo, snapshot, mirror, and move semantics. *(This is the
+  up-enable mechanism the scope model needs — the twin is how a host rehearses
+  operations for a system it is not.)*
 - **Phase 3 — Process/Env specialization + `stzUpdatePlan` narration/risks.**
 - **Phase 3b — the full scope model (§2).** `stzPlatformProfile` +
   `stzAppProfile` + attached deployment `stzSystemProfile`s; the three scopes as
@@ -583,12 +598,13 @@ callers.
   deploy step that lowers an up-enable rehearsal to a target is one such governed
   crossing.
 
-Phase 0, Phase 1, and Phase 1b are shipped. **Phase 2 (the Virtual System twin,
-File specialization) is the next step** — and it is what unlocks the *up-enable*
-direction of the two worlds (§2.4): the twin is how a host rehearses a foreign
-system's operations it cannot itself perform. The capability envelope shipped in
-Phase 1b already tells the twin *which* operations those are
-(`DevelopmentSystem().Requires(target)`).
+Phase 0, Phase 1, Phase 1b, and Phase 2 are shipped. **Phase 3 (the Process/Env
+twin) and Phase 4 (the governance crossing) are what remain.** The file twin
+proves the rehearse → plan → commit shape end to end; Phase 4 wires
+`stzCommitScope` into `stzGovernance`/`stzAgentGraph` so an actor's authority
+(the capability-scope from Phase 1b) gates `stzUpdatePlan.Execute` — at which
+point the two worlds' *up-enable* becomes a governed deploy-time lowering, and
+"agents that cannot hurt you" is a property of the code, not a promise.
 
 ## 10. Quality bar
 
