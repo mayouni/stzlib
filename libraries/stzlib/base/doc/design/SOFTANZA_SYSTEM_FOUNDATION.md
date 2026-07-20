@@ -13,7 +13,10 @@ commits nothing, in any domain); and the **architect's common ground**
 then write feature code in an `App(:x).System()` scope that down-constrains what
 the target forbids and up-enables what the host lacks, with a `.stzplatform`
 format). §2 is now realized, not proposed. Items are marked ALREADY EXISTS /
-SHIPPED / PLANNED. **290 assertions across seven guards, all green.**
+SHIPPED / PLANNED. Plus `stzPlatform` now owns a profile and drives Build →
+Deploy, with a `stzLoweringBridge` turning up-enable rehearsals into real target
+artifacts (a gpio rehearsal becomes firmware source; the flash/upload stays
+external). **310 assertions across seven guards, all green.**
 
 > **v0.3 adds the programmer-facing model (§2):** the three system scopes
 > (development / deployment / runtime-current) over one common-ground solution
@@ -154,33 +157,33 @@ A Softanza architect models the **deployment architecture first**, as a
 declarative artifact, before a line of system feature code:
 
 ```ring
-# The PROFILE only DESCRIBES the solution -- its constituents and their targets.
+# The PROFILE only DESCRIBES the solution -- its parts and their targets.
 oProfile = new stzPlatformProfile("my-iot-product")
 oProfile {
     DevelopedOn(:Windows)                 # the DEV system
-    WithServer(:backend,  :LinuxServer)   # each constituent + the system it targets
+    WithServer(:backend,  :LinuxServer)   # each part + the system it targets
     WithSuperApp(:superapp, :Android)
     WithApp(:firmware, :ESP32)
 }
 
 # A stzPlatform OWNS the profile and drives its LIFECYCLE -- build, then deploy.
 oPlatform = StzPlatformQ("my-iot-product").SetProfile(oProfile)
-oPlatform.Build()      # build the platform and its constituents
+oPlatform.Build()      # build the platform and its parts
 oPlatform.Deploy()     # then deploy them (refused unless Build() ran first)
 ```
 
-- **`stzPlatformProfile`** — the DECLARATION: which constituents exist, which
+- **`stzPlatformProfile`** — the DECLARATION: which parts exist, which
   systems they target, and which system the architect develops on. It only
   *describes*; it does not build or deploy.
-- **`stzAppProfile`** — one constituent of the solution (a server, a superapp,
+- **`stzAppProfile`** — one part of the solution (a server, a superapp,
   an app, a firmware image — its `Kind()`). Each declares the system it targets.
 - **`stzSystemProfile`** — a system, as a *capability envelope + OS + runtime +
   resources*. Attached in two roles: the **development** profile (on the
-  platform) and a **deployment** profile (on each constituent).
+  platform) and a **deployment** profile (on each part).
 - **`stzPlatform`** — the actual platform that **owns** a `stzPlatformProfile`
   and drives its lifecycle: **`Build()`** then **`Deploy()`**, two separate,
   ordered operations. *We do not deploy a profile — we deploy a platform and its
-  constituents.*
+  parts.*
 
 The profiles are **declarative design objects**, following Law 1 (a domain is a
 folder + an entry object + a format): `.stzplatform` references `.stzapp`s
@@ -611,8 +614,8 @@ callers.
   gained only additive `set_var`/`unset_var`/`change_dir`/`spawn_process` cases
   in Describe/Impact/Risks.
 - **Phase 3b — the full scope model (§2). SHIPPED (2026-07-20).**
-  `stzPlatformProfile` (the DECLARATION: the dev system + the constituents) +
-  `stzAppProfile` (a constituent + its `Kind()` + its deployment
+  `stzPlatformProfile` (the DECLARATION: the dev system + the parts) +
+  `stzAppProfile` (a part + its `Kind()` + its deployment
   `stzSystemProfile`) + `stzSystemScope` (the named context feature code is
   written in). Model the solution — `oProfile.DevelopedOn(:Windows)`,
   `oProfile.WithServer(:backend, :LinuxServer)`, `oProfile.WithApp(:firmware,
@@ -631,7 +634,7 @@ callers.
   `stzPlatformProfile`** (`SetProfile`) and drives its lifecycle — **`Build()`
   then `Deploy()`**, two separate ordered operations (Deploy refuses unless the
   platform was built; Build refuses an unsound solution). We do not deploy a
-  profile; we deploy a platform and its constituents. Builds on the Phase 1b
+  profile; we deploy a platform and its parts. Builds on the Phase 1b
   capability envelope; the scope's profile is the same one that gates actors
   (Phase 4). Pure Ring. Guard `full_scope_model_narrated.ring` (44).
 - **Phase 4 — governance crossing. SHIPPED (2026-07-20).** Each
@@ -665,10 +668,15 @@ whose effect-capability set is empty (Phase 1b) simply cannot make a plan cross,
 in any domain (Phase 4, proven by the guard). One capability-scope — the lattice
 of effectful/sensing/compute/inference — now runs through the whole foundation:
 a system's capabilities, a deployment scope's verdicts, an actor's authority,
-and the reactor host's supervision are one vocabulary. The natural next work is
-no longer the *system* foundation but what builds on it: wiring the scope model
-into the delivery plane (`stzApp`/`stzPlatform`) and the deploy-time lowering
-bridge that turns an up-enable rehearsal into real firmware.
+and the reactor host's supervision are one vocabulary. The delivery plane is
+wired in too: `stzPlatform` **owns** a `stzPlatformProfile` and drives its
+lifecycle — `Build()` then `Deploy()` — and the **deploy-time lowering bridge**
+(`stzLoweringBridge`) turns each part's up-enable rehearsals into a real target
+artifact: a gpio `ReadPin(4)` authored for an ESP32 becomes `digitalRead(4)` in
+generated firmware, under the same governance gate (an LLM may propose the
+deploy, not perform it). The one step that stays external is the final
+**flash/upload** of the generated artifact to the physical device — the reality
+touch that genuinely needs the hardware.
 
 ## 10. Quality bar
 

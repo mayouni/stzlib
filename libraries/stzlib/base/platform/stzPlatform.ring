@@ -290,24 +290,47 @@ class stzPlatform from stzObject
 	def IsBuilt()
 		return @bBuilt
 
-	# DEPLOY the built constituents to their target systems. Refuses if the
-	# platform was not built first -- Build() and Deploy() are separate.
+	# DEPLOY the built parts to their target systems. Refuses if the platform was
+	# not built first -- Build() and Deploy() are separate. For each part, the
+	# deploy-time LOWERING bridge turns its rehearsed (up-enable) feature ops into
+	# a real target ARTIFACT (firmware source for an MCU, a manifest otherwise) --
+	# the flash/upload of that artifact to the device is the one remaining
+	# external step.
 	def Deploy()
-		if NOT @bBuilt
-			stzraise("stzPlatform.Deploy: the platform must be Build() before it can be deployed.")
-		ok
-		@aDeployReport = []
-		_aApps_ = @oProfile.Apps()
-		_n_ = len(_aApps_)
-		for _i_ = 1 to _n_
-			@aDeployReport + [ _aApps_[_i_].Name(), _aApps_[_i_].Kind(),
-			                   _aApps_[_i_].DeploymentOSName(), "deployed" ]
-		next
-		@bDeployed = TRUE
-		return This
+		return This._DeployWith(NULL)
 
 		def DeployQ()
 			return This.Deploy()
+
+	# Governed deploy: deployment is an EFFECTFUL crossing, so an actor that
+	# cannot effect reality (an LLM) may PROPOSE it but not perform it (Phase 4).
+	def DeployAs(poActor)
+		return This._DeployWith(poActor)
+
+	def _DeployWith(poActor)
+		if NOT @bBuilt
+			stzraise("stzPlatform.Deploy: the platform must be Build() before it can be deployed.")
+		ok
+		if poActor != NULL
+			if NOT poActor.IsEffectful()
+				stzraise("stzPlatform.Deploy: actor '" + poActor.Name() +
+				         "' lacks the 'effectful' capability -- it may propose a deploy, not perform it.")
+			ok
+		ok
+		@aDeployReport = []
+		_oBridge_ = new stzLoweringBridge()
+		_aApps_ = @oProfile.Apps()
+		_n_ = len(_aApps_)
+		for _i_ = 1 to _n_
+			_cName_ = _aApps_[_i_].Name()
+			_cOs_ = _aApps_[_i_].DeploymentOSName()
+			_aOps_ = @oProfile.RehearsedFeatureOpsFor(_cName_)
+			_cArtifact_ = _oBridge_.LowerOps(_aOps_, _cOs_)
+			@aDeployReport + [ _cName_, _aApps_[_i_].Kind(), _cOs_,
+			                   len(_aOps_), _cArtifact_ ]
+		next
+		@bDeployed = TRUE
+		return This
 
 	def IsDeployed()
 		return @bDeployed
@@ -318,15 +341,26 @@ class stzPlatform from stzObject
 	def DeployReport()
 		return @aDeployReport
 
+	# The lowered artifact (firmware / manifest) for a part, after Deploy().
+	def ArtifactFor(pcName)
+		_c_ = StzLower(ring_trim("" + pcName))
+		_n_ = len(@aDeployReport)
+		for _i_ = 1 to _n_
+			if @aDeployReport[_i_][1] = _c_
+				return @aDeployReport[_i_][5]
+			ok
+		next
+		return ""
+
 	# -- delegating reads into the owned profile --
 
-	def Constituents()
+	def Parts()
 		if @oProfile = NULL
 			return []
 		ok
 		return @oProfile.Apps()
 
-	def NumberOfConstituents()
+	def NumberOfParts()
 		if @oProfile = NULL
 			return 0
 		ok
