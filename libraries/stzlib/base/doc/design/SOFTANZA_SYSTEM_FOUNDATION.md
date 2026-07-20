@@ -16,7 +16,9 @@ format). §2 is now realized, not proposed. Items are marked ALREADY EXISTS /
 SHIPPED / PLANNED. Plus `stzPlatform` now owns a profile and drives Build →
 Deploy, with a `stzLoweringBridge` turning up-enable rehearsals into real target
 artifacts (a gpio rehearsal becomes firmware source; the flash/upload stays
-external). **310 assertions across seven guards, all green.**
+external), and **`stzBuilder`** compiling any C/C++/Zig part for any target via
+Zig's cross-compiler — a deployment system's OS+arch *is* the build triple.
+**335 assertions across eight guards, all green.**
 
 > **v0.3 adds the programmer-facing model (§2):** the three system scopes
 > (development / deployment / runtime-current) over one common-ground solution
@@ -676,9 +678,20 @@ lifecycle — `Build()` then `Deploy()` — and the **deploy-time lowering bridg
 (`stzLoweringBridge`) turns each part's up-enable rehearsals into a real target
 artifact: a gpio `ReadPin(4)` authored for an ESP32 becomes `digitalRead(4)` in
 generated firmware, under the same governance gate (an LLM may propose the
-deploy, not perform it). The one step that stays external is the final
-**flash/upload** of the generated artifact to the physical device — the reality
-touch that genuinely needs the hardware.
+deploy, not perform it).
+
+The lowering bridge writes the *source*; **`stzBuilder`** compiles it. Softanza's
+engine is built with Zig — and Zig is a complete multi-platform cross-compiler, so
+one construct builds any C/C++/Zig part for any target with no per-target
+toolchain. The crucial identity: **a deployment `stzSystemProfile`'s OS + arch IS
+a Zig target triple**, so `oBuild.ForTarget(oProfile.App(:backend).System())`
+cross-compiles a part for exactly the system it deploys to — the same object that
+governs *what the code may do* also decides *what it compiles to*. It runs `zig`
+through the Phase-1 managed child, so the compiler's own diagnostics come back in
+`BuildLog()`; the guard verifies a Linux ELF and a wasm module built from a
+Windows box by their magic bytes. The one step that stays external is the final
+**flash/upload** of the built artifact to the physical device — the reality touch
+that genuinely needs the hardware.
 
 ## 10. Quality bar
 
