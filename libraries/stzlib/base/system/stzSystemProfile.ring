@@ -46,21 +46,26 @@ func StzSystemProfileQ()
 func StzSystemCapabilitiesQ()
 	return new stzSystemCapabilities([])
 
+# The two LIVE scopes are objects you instantiate: `new stzDevSystem()` and
+# `new stzCurrentSystem()` (defined below). These resolver globals are thin
+# sugar over them -- handy when you want the answer inline rather than a held
+# object.
+
 # The DEVELOPMENT scope: the machine the architect codes on, read live.
 func DevelopmentSystem()
-	return _StzLiveSystemProfile("development")
+	return new stzDevSystem()
 
 	func DevSystem()
-		return DevelopmentSystem()
+		return new stzDevSystem()
 
 # The RUNTIME-CURRENT scope: whatever system this code runs on right now. During
 # development it is the dev machine; after deployment it is the target -- so it
 # always agrees, by construction, with the profile the code was written against.
 func CurrentSystem()
-	return _StzLiveSystemProfile("runtime")
+	return new stzCurrentSystem()
 
 	func RuntimeSystem()
-		return CurrentSystem()
+		return new stzCurrentSystem()
 
 # Start a DEPLOYMENT scope for a target the dev machine is not. Fill it with the
 # fluent setters, or read one from a .stzsystem file.
@@ -71,18 +76,22 @@ func DeclareSystem(pcName)
 
 # --- private helpers (file scope, so no class-scope builtin traps) ---
 
-func _StzLiveSystemProfile(pcRole)
+# Fill a system profile with the LIVE facts of the machine this code runs on.
+func _StzPopulateLive(poProfile, pcRole)
 	_oOS_ = new stzOperatingSystem()
 	_oEnv_ = new stzEnvironment()
+	poProfile.SetRole(pcRole)
+	poProfile.SetOSName(_oOS_.Name())
+	poProfile.SetArchitecture(_oOS_.Architecture())
+	poProfile.SetBitSize(_oOS_.BitSize())
+	poProfile.SetEndianness(_oOS_.Endianness())
+	poProfile.SetCpuCount(_oEnv_.CpuCount())
+	poProfile.SetLanguageVersion(_StzHostLangVersion())
+	poProfile.SetCapabilityList(_StzDefaultCapsForClass(_StzSystemClassOf(_oOS_.Name())))
+
+func _StzLiveSystemProfile(pcRole)
 	_oP_ = new stzSystemProfile("this-machine")
-	_oP_.SetRole(pcRole)
-	_oP_.SetOSName(_oOS_.Name())
-	_oP_.SetArchitecture(_oOS_.Architecture())
-	_oP_.SetBitSize(_oOS_.BitSize())
-	_oP_.SetEndianness(_oOS_.Endianness())
-	_oP_.SetCpuCount(_oEnv_.CpuCount())
-	_oP_.SetLanguageVersion(_StzHostLangVersion())
-	_oP_.SetCapabilityList(_StzDefaultCapsForClass(_StzSystemClassOf(_oOS_.Name())))
+	_StzPopulateLive(_oP_, pcRole)
 	return _oP_
 
 func _StzHostLangVersion()
@@ -497,11 +506,16 @@ class stzSystemProfile from stzObject
 
 	  #-- Capabilities facet (the KEYSTONE) ------------------
 
+	# The capabilities as DATA (the plain list) -- display with @@().
+	def Capabilities()
+		return @oCaps.List()
+
+		def CapabilityList()
+			return @oCaps.List()
+
+	# The capability ENVELOPE as a chainable object (Q-convention).
 	def CapabilitiesQ()
 		return @oCaps
-
-	def CapabilityList()
-		return @oCaps.List()
 
 	def SetCapabilityList(paCaps)
 		@oCaps = new stzSystemCapabilities(paCaps)
@@ -650,3 +664,39 @@ class stzSystemProfile from stzObject
 		? "  cpu:   " + @nCpuCount
 		? "  caps:  " + _StzJoinComma(@oCaps.List())
 		? "  kinds: " + _StzJoinComma(@oCaps.Kinds())
+
+
+  #=================#
+ #  STZDEVSYSTEM   #
+#=================#
+#
+# The DEVELOPMENT system as a first-class object: the machine the architect codes
+# on, read LIVE from the engine at construction. It IS a system profile (role
+# "development"), so it answers every stzSystemProfile question -- OSName(),
+# Architecture(), Capabilities(), Can(), Lacks(), ... :
+#
+#   o1 = new stzDevSystem()
+#   ? @@( o1.Capabilities() )
+#   #--> [ "filesystem", "process", "network", "environment", "dynamic_load", "threads", "clock" ]
+
+class stzDevSystem from stzSystemProfile
+
+	def init()
+		This.SetName("this-machine")
+		_StzPopulateLive(This, "development")
+
+
+  #=====================#
+ #  STZCURRENTSYSTEM   #
+#=====================#
+#
+# The RUNTIME-CURRENT system as a first-class object: whatever machine this code
+# runs on right now, read LIVE. During development it is the dev machine; on a
+# deployed app it is the deployment system -- and it agrees, by construction,
+# with the scope the code was written against.
+
+class stzCurrentSystem from stzSystemProfile
+
+	def init()
+		This.SetName("this-machine")
+		_StzPopulateLive(This, "runtime")
