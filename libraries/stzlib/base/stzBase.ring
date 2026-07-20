@@ -311,6 +311,13 @@ ok
 
     load "system/stzMemoryGlobals.ring"
     load "system/stzMemoryConvertors.ring"
+
+    # System Foundation: engine-backed process/environment facts.
+    # stzProcess loads BEFORE stzOperatingSystem, which now delegates its
+    # architecture / bit-size / endianness facts to it (one engine source).
+    load "system/stzProcess.ring"
+    load "system/stzEnvironment.ring"
+
     load "system/stzOperatingSystem.ring"
 
     load "system/stzMemoryProfiler.ring"

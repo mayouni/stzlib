@@ -57,6 +57,66 @@ fn ring_Env(p: *anyopaque) callconv(.c) void {
     const n = sys.stz_system_env(gs(p, 1), @intCast(gss(p, 1)), &buf, 4096);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
+
+// A small helper: run an engine fn that returns an owned [ptr,len] and hand
+// the bytes to Ring, freeing them. Empty/failure -> "".
+fn retOwned(p: *anyopaque, ptr: [*c]u8, out_len: usize) void {
+    if (ptr != null and out_len > 0) {
+        rs2(p, ptr, @intCast(out_len));
+        sys.stz_system_run_free(ptr, out_len);
+    } else rs(p, "");
+}
+
+fn ring_EnvGet(p: *anyopaque) callconv(.c) void {
+    var out_len: usize = 0;
+    const ptr = sys.stz_system_env_get(gs(p, 1), @intCast(gss(p, 1)), &out_len);
+    retOwned(p, ptr, out_len);
+}
+fn ring_EnvSet(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_system_env_set(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))));
+}
+fn ring_EnvUnset(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_system_env_unset(gs(p, 1), @intCast(gss(p, 1)))));
+}
+fn ring_EnvList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    var out_len: usize = 0;
+    const ptr = sys.stz_system_env_list(&out_len);
+    if (ptr != null) {
+        defer sys.stz_system_run_free(ptr, out_len);
+        const b = ptr[0..out_len];
+        var start: usize = 0;
+        var i: usize = 0;
+        while (i < b.len) : (i += 1) {
+            if (b[i] == 0) {
+                if (i > start) R.ring_list_addstring2(out, b.ptr + start, @intCast(i - start));
+                start = i + 1;
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+fn ring_CwdGet(p: *anyopaque) callconv(.c) void {
+    var out_len: usize = 0;
+    const ptr = sys.stz_system_cwd_get(&out_len);
+    retOwned(p, ptr, out_len);
+}
+fn ring_CwdSet(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_system_cwd_set(gs(p, 1), @intCast(gss(p, 1)))));
+}
+fn ring_Hostname(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const n = sys.stz_system_hostname(&buf, 256);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_Username(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const n = sys.stz_system_username(&buf, 256);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_CpuCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_system_cpu_count()));
+}
 fn ring_IsWindows(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_windows())); }
 fn ring_IsLinux(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_linux())); }
 fn ring_IsMacos(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_system_is_macos())); }
@@ -66,6 +126,15 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesystemrunxt", .func = &ring_RunXT },
     .{ .name = "stzenginesystemexec", .func = &ring_Exec },
     .{ .name = "stzenginesystemenv", .func = &ring_Env },
+    .{ .name = "stzenginesystemenvget", .func = &ring_EnvGet },
+    .{ .name = "stzenginesystemenvset", .func = &ring_EnvSet },
+    .{ .name = "stzenginesystemenvunset", .func = &ring_EnvUnset },
+    .{ .name = "stzenginesystemenvlist", .func = &ring_EnvList },
+    .{ .name = "stzenginesystemcwdget", .func = &ring_CwdGet },
+    .{ .name = "stzenginesystemcwdset", .func = &ring_CwdSet },
+    .{ .name = "stzenginesystemhostname", .func = &ring_Hostname },
+    .{ .name = "stzenginesystemusername", .func = &ring_Username },
+    .{ .name = "stzenginesystemcpucount", .func = &ring_CpuCount },
     .{ .name = "stzenginesystemiswindows", .func = &ring_IsWindows },
     .{ .name = "stzenginesystemislinux", .func = &ring_IsLinux },
     .{ .name = "stzenginesystemismacos", .func = &ring_IsMacos },
