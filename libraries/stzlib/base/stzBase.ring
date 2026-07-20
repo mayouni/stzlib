@@ -351,6 +351,13 @@ ok
     # what the host lacks). Loads last -- it composes everything above.
     load "system/stzPlatformProfile.ring"
 
+    # stzBuilder: softanzifies the BUILD. Zig's `cc` cross-compiles C/C++ to any
+    # target with one -target flag; stzBuilder wraps it declaratively and derives
+    # the target triple from a stzSystemProfile (a deployment system). It runs the
+    # build through the engine-backed managed child (SpawnProcess). Loads after
+    # the profile (For(target) reuses _StzSystemProfileForTarget).
+    load "system/stzBuilder.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"
