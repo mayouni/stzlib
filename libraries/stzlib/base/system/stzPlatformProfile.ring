@@ -656,5 +656,6 @@ class stzPlatformProfile from stzObject
 		ok
 		_n_ = len(@aApps)
 		for _i_ = 1 to _n_
-			? "  app '" + @aApps[_i_].Name() + "' -> " + @aApps[_i_].DeploymentOSName()
+			? "  " + @aApps[_i_].Kind() + " '" + @aApps[_i_].Name() + "' -> " +
+			  @aApps[_i_].DeploymentOSName()
 		next
