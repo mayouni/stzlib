@@ -11,3 +11,6 @@
 **/cluster/.stzworker_gen.ring
 # generated mTLS test worker entry (R8 mTLS slice 4)
 **/mtls_certs/.mtls_worker_gen.ring
+
+# stzBuilder test scratch (build artifacts; test cleans up, this guards a mid-run crash)
+_build_scratch/
