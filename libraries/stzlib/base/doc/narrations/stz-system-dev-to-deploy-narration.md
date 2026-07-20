@@ -180,7 +180,36 @@ void loop() {
 holding the board. The board is now the *last inch*, not the prerequisite for
 any progress.
 
-### 7. Hand it to an AI copilot
+### 7. The backend, cross-compiled for real — from the same laptop
+
+The lowering bridge writes the *source*; **`stzBuilder`** turns it into a real
+binary for the target. Softanza's engine is built with Zig, and Zig is a complete
+multi-platform cross-compiler — so the Linux backend builds *from the Windows
+laptop* with no separate toolchain. And the build target is not re-specified: it
+**is** the part's deployment system, the same object that governed what the code
+may do:
+
+```ring
+oBuild = new stzBuilder("backend")
+oBuild.Source("backend.c")
+oBuild.ForTarget( oProduct.App(:backend).DeploymentSystem() )   # a system IS a build target
+oBuild.ReleaseFast()
+oBuild.Build()
+
+? oBuild.Target()
+#--> x86_64-linux-gnu
+
+? oBuild.Succeeded()
+#--> 1
+```
+
+The output is a genuine Linux ELF executable, produced on Windows — the same
+laptop with no GPIO, no Linux, and now no Linux toolchain either. The deployment
+system that decided *what the code may do* is the very object that decides *what
+it compiles to*. One profile carries the whole journey, from "which machine?" to
+a shippable binary.
+
+### 8. Hand it to an AI copilot
 
 The very same capability model that decided "can the ESP32 spawn?" decides "can
 this actor deploy?" Deployment is an *effectful* crossing, so an actor whose
@@ -246,10 +275,12 @@ A good tool is precise about what is real and what is modelled:
 - The **flash / upload of the artifact to the physical device** is genuinely
   external — it needs the hardware. The model generates the firmware; the last
   inch is real, and stays honest about it.
-- The **lowering is a modelling layer**. `digitalRead` is a faithful stand-in; a
-  production setup would plug real toolchains (arduino-cli, gradle, a
-  cross-compiler) *behind the same bridge interface*. The seam is unified even
-  where the tool is not yet.
+- The **cross-compile is real**: `stzBuilder` drives Zig, a genuine multi-platform
+  C/C++/Zig compiler — the Linux (and wasm) binaries above are verified by their
+  ELF/wasm magic bytes, built from Windows. What stays *modelled* is the ESP32
+  firmware **source** (`digitalRead` is a faithful Arduino stand-in); a real MCU
+  build plugs an ESP-IDF / arduino-cli toolchain *behind the same builder
+  interface*. The seam is unified; that one target still awaits its real tool.
 - This does not replace every mature deploy tool. It unifies the **seams** those
   tools leave exposed — which is where the cognitive tax actually lives.
 
