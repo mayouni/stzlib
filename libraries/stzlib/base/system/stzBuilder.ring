@@ -156,73 +156,6 @@ func _StzRingVMSources(pcRoot, pbWindowsTarget)
 	next
 	return _aOut_
 
-# Locate the vendored quickjs-ng (engine/vendor/quickjs) used by the JS lowering.
-# $STZ_QUICKJS override, else walk up from the cwd for the vendored landmark
-# (mirrors how the library's _stzFindDll finds engine artifacts).
-func _StzFindQuickJS()
-	_oE_ = new stzEnvironment()
-	_cEnv_ = _oE_.Var("STZ_QUICKJS")
-	if _cEnv_ != "" and StzEngineFileExists(_cEnv_ + "/quickjs.h") = 1
-		return _cEnv_
-	ok
-	_cDir_ = StzReplace(WorkingDirectory(), "\", "/")
-	for _d_ = 1 to 12
-		_aTry_ = [
-			_cDir_ + "/libraries/stzlib/engine/vendor/quickjs",
-			_cDir_ + "/engine/vendor/quickjs",
-			_cDir_ + "/vendor/quickjs"
-		]
-		_nT_ = len(_aTry_)
-		for _i_ = 1 to _nT_
-			if StzEngineFileExists(_aTry_[_i_] + "/quickjs.h") = 1
-				return _aTry_[_i_]
-			ok
-		next
-		_cUp_ = _StzDirOf(_cDir_)
-		if _cUp_ = _cDir_ or _cUp_ = ""
-			return ""
-		ok
-		_cDir_ = _cUp_
-	next
-	return ""
-
-# The quickjs-ng core translation units a JS build compiles (the runtime; not
-# the std/os modules, which a part opts into).
-func _StzQuickJSCoreSources(pcRoot)
-	return [
-		pcRoot + "/quickjs.c",
-		pcRoot + "/libregexp.c",
-		pcRoot + "/libunicode.c",
-		pcRoot + "/cutils.c",
-		pcRoot + "/libbf.c"
-	]
-
-# The C host that embeds a JS program (as bytes) and evals it via QuickJS, with
-# print / console.log wired to stdout. pcBytes is the comma-separated byte list.
-func _StzJsHostC(pcBytes)
-	_c_ = "#include <stdio.h>" + nl
-	_c_ += "#include " + char(34) + "quickjs.h" + char(34) + nl
-	_c_ += "static const unsigned char JS_SRC[] = { " + pcBytes + ", 0 };" + nl
-	_c_ += "static JSValue stz_print(JSContext *ctx, JSValueConst t, int argc, JSValueConst *argv){" + nl
-	_c_ += "  for(int i=0;i<argc;i++){ const char *s=JS_ToCString(ctx,argv[i]);" + nl
-	_c_ += "    if(s){ fputs(s,stdout); if(i+1<argc) fputc(' ',stdout); JS_FreeCString(ctx,s);} }" + nl
-	_c_ += "  fputc('" + char(92) + "n',stdout); return JS_UNDEFINED; }" + nl
-	_c_ += "int main(void){" + nl
-	_c_ += "  JSRuntime *rt=JS_NewRuntime(); JSContext *ctx=JS_NewContext(rt);" + nl
-	_c_ += "  JSValue g=JS_GetGlobalObject(ctx);" + nl
-	_c_ += "  JS_SetPropertyStr(ctx,g," + char(34) + "print" + char(34) + ",JS_NewCFunction(ctx,stz_print," + char(34) + "print" + char(34) + ",1));" + nl
-	_c_ += "  JSValue con=JS_NewObject(ctx);" + nl
-	_c_ += "  JS_SetPropertyStr(ctx,con," + char(34) + "log" + char(34) + ",JS_NewCFunction(ctx,stz_print," + char(34) + "log" + char(34) + ",1));" + nl
-	_c_ += "  JS_SetPropertyStr(ctx,g," + char(34) + "console" + char(34) + ",con);" + nl
-	_c_ += "  JS_FreeValue(ctx,g);" + nl
-	_c_ += "  JSValue r=JS_Eval(ctx,(const char*)JS_SRC,sizeof(JS_SRC)-1," + char(34) + "<app>" + char(34) + ",JS_EVAL_TYPE_GLOBAL);" + nl
-	_c_ += "  int ret=0;" + nl
-	_c_ += "  if(JS_IsException(r)){ JSValue e=JS_GetException(ctx); const char *s=JS_ToCString(ctx,e);" + nl
-	_c_ += "    fprintf(stderr," + char(34) + "JS error: %s" + char(92) + "n" + char(34) + ", s?s:" + char(34) + "?" + char(34) + "); if(s) JS_FreeCString(ctx,s); JS_FreeValue(ctx,e); ret=1; }" + nl
-	_c_ += "  JS_FreeValue(ctx,r); JS_FreeContext(ctx); JS_FreeRuntime(rt); return ret; }" + nl
-	return _c_
-
-
   #===============#
  #  STZBUILDER   #
 #===============#
@@ -245,11 +178,9 @@ class stzBuilder from stzObject
 	@nExit = -1
 	@bBuilt = FALSE
 
-	# Lowering state (Ring / JS). A Ring part is `ring -geo`'d into a C unit and
-	# compiled with the Ring VM source; a JS part is embedded in a C host and
-	# compiled with the vendored QuickJS -- both through the same Zig backend.
+	# Ring lowering state: a Ring part is `ring -geo`'d into a C unit and compiled
+	# with the Ring VM source through the same Zig backend.
 	@cRingRoot = ""
-	@cQuickJS = ""
 	@bLowered = FALSE
 	@aLoweredSources = []
 	@aLoweredIncludes = []
@@ -290,8 +221,6 @@ class stzBuilder from stzObject
 			return This.Language("zig")
 		def AsRing()
 			return This.Language("ring")
-		def AsJs()
-			return This.Language("js")
 
 	def AsExe()
 		@cKind = "exe"
@@ -435,9 +364,6 @@ class stzBuilder from stzObject
 		if @cLanguage = "ring"
 			This._LowerRing()
 			@bLowered = TRUE
-		but @cLanguage = "js"
-			This._LowerJs()
-			@bLowered = TRUE
 		ok
 
 	def _LowerRing()
@@ -482,59 +408,6 @@ class stzBuilder from stzObject
 			@aLoweredLibs = [ "m" ]
 		ok
 
-	  #-- JS parts: embed in a C host, compile with QuickJS --
-
-	def SetQuickJSRoot(pcPath)
-		@cQuickJS = "" + pcPath
-		return This
-
-	def QuickJSRoot()
-		if @cQuickJS != ""
-			return @cQuickJS
-		ok
-		return _StzFindQuickJS()
-
-	def _LowerJs()
-		if len(@aSources) = 0
-			return
-		ok
-		_cSrc_ = @aSources[1]
-		_cDir_ = _StzDirOf(_cSrc_)
-		_cBase_ = _StzBaseNoExt(_cSrc_)
-
-		# embed the JS bytes into a generated C host that evals them via QuickJS
-		_cJs_ = read(_cSrc_)
-		_nJ_ = len(_cJs_)
-		_cBytes_ = ""
-		for _i_ = 1 to _nJ_
-			if _i_ > 1
-				_cBytes_ += ","
-			ok
-			_cBytes_ += "" + ascii(_cJs_[_i_])
-		next
-		if _nJ_ = 0
-			_cBytes_ = "0"
-		ok
-		_cHostC_ = _cDir_ + "/" + _cBase_ + "_jshost.c"
-		write(_cHostC_, _StzJsHostC(_cBytes_))
-
-		_cQ_ = This.QuickJSRoot()
-		_aLS_ = [ _cHostC_ ]
-		_aCore_ = _StzQuickJSCoreSources(_cQ_)
-		_nC_ = len(_aCore_)
-		for _i_ = 1 to _nC_
-			_aLS_ + _aCore_[_i_]
-		next
-		@aLoweredSources = _aLS_
-		@aLoweredIncludes = [ _cQ_ ]
-		if This._IsWindowsTarget()
-			@aLoweredLibs = [ "m" ]
-		but StzFindFirst("wasm", @cTriple) = 1
-			@aLoweredLibs = [ "m" ]
-		else
-			@aLoweredLibs = [ "m", "pthread" ]
-		ok
-
 	  #-- the resolved build command -------------------------
 
 	# The zig argument list (data -- display with @@). For a Ring part this
@@ -555,7 +428,7 @@ class stzBuilder from stzObject
 				_a_ + "-shared"
 			ok
 		ok
-		if @cLanguage = "ring" or @cLanguage = "js"
+		if @cLanguage = "ring"
 			_aSrc_ = @aLoweredSources
 		else
 			_aSrc_ = @aSources
@@ -579,10 +452,10 @@ class stzBuilder from stzObject
 			_a_ + This._ZigOptMode()
 		else
 			_a_ + This._CcOptFlag()
-			# Generated + vendored C (Ring VM, QuickJS) warns a lot; silence it.
-			# Beyond noise, a large warning stream can fill the managed child's
-			# stderr pipe and deadlock the drain, so this keeps lowered builds safe.
-			if @cLanguage = "ring" or @cLanguage = "js"
+			# The generated C + the Ring VM source warn a lot; silence it. Beyond
+			# noise, a large warning stream can fill the managed child's stderr
+			# pipe and deadlock the drain, so this keeps lowered builds safe.
+			if @cLanguage = "ring"
 				_a_ + "-w"
 			ok
 			if @bWeb
@@ -605,7 +478,7 @@ class stzBuilder from stzObject
 			for _i_ = 1 to _nI_
 				_a_ + ("-I" + @aIncludes[_i_])
 			next
-			if @cLanguage = "ring" or @cLanguage = "js"
+			if @cLanguage = "ring"
 				_nLI_ = len(@aLoweredIncludes)
 				for _i_ = 1 to _nLI_
 					_a_ + ("-I" + @aLoweredIncludes[_i_])
@@ -615,7 +488,7 @@ class stzBuilder from stzObject
 			for _i_ = 1 to _nL_
 				_a_ + ("-l" + @aLibs[_i_])
 			next
-			if @cLanguage = "ring" or @cLanguage = "js"
+			if @cLanguage = "ring"
 				_nLL_ = len(@aLoweredLibs)
 				for _i_ = 1 to _nLL_
 					_a_ + ("-l" + @aLoweredLibs[_i_])

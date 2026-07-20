@@ -8,11 +8,10 @@
 # bytes -- from a Windows host: an ELF for Linux, a wasm module for the web.
 # It also builds a RING part (most Softanza code): `ring -geo` lowers it to a C
 # unit that Zig compiles WITH the Ring VM source -> a standalone binary, and the
-# same source cross-compiles to a Linux ELF -- no ring.dll anywhere. And a JS
-# part: embedded in a C host that links the vendored QuickJS -> one binary, host
-# + Linux, no node. And the WEB composite: a freestanding-wasm part + a generated
-# stz.js bridge + shell + manifest, assembled by stzWebBundle (the browser run of
-# this bundle is verified separately -- Ring has no DOM).
+# same source cross-compiles to a Linux ELF -- no ring.dll anywhere. And the WEB
+# composite: a freestanding-wasm part + a generated stz.js bridge + shell +
+# manifest, assembled by stzWebBundle (the browser run of this bundle is verified
+# separately -- Ring has no DOM).
 #
 # Requires zig on the machine (found via $ZIG / D:/Zig / PATH). Each build takes
 # a moment; zig caches after the first.
@@ -151,31 +150,7 @@ chk("the Ring cross build succeeded", oRL.Succeeded())
 chk("...and produced a genuine Linux ELF -- from a Windows box", isELF(cDir + "/greet_linux"))
 
 ? ""
-? "-- Scene 10: build a JS part via the vendored QuickJS -> native binary --"
-# A second non-C language through the same door: the JS source is embedded in a
-# tiny C host that links QuickJS (engine/vendor/quickjs) -- one static binary.
-cJsSrc = cDir + "/app.js"
-write(cJsSrc, "print(" + char(34) + "built from JS by stzBuilder" + char(34) + ");" + nl)
-oJs = new stzBuilder("app")
-oJs.AsJs().Source(cJsSrc).Output(cDir + "/app_host.exe")
-oJs.Build()
-chk("the JS host build succeeded", oJs.Succeeded())
-oJx = SpawnProcess(cDir + "/app_host.exe")
-cJxOut = oJx.ReadOutputAll()
-oJx.Wait()
-oJx.Close()
-chk("...and the binary runs the JS (QuickJS embedded, no node)", StzFindFirst("built from JS by stzBuilder", cJxOut) > 0)
-
-? ""
-? "-- Scene 11: cross-compile that JS part for Linux, from Windows --"
-oJL = new stzBuilder("app")
-oJL.AsJs().Source(cJsSrc).ForTarget(:LinuxServer).Output(cDir + "/app_linux")
-oJL.Build()
-chk("the JS cross build succeeded", oJL.Succeeded())
-chk("...a genuine Linux ELF with the JS engine inside", isELF(cDir + "/app_linux"))
-
-? ""
-? "-- Scene 12: build a part for the WEB -- freestanding wasm, bridge ABI --"
+? "-- Scene 10: build a part for the WEB -- freestanding wasm, bridge ABI --"
 # The web is a COMPOSITE target: a wasm module with a real bridge (JS owns the
 # memory; the module imports stz_log; its exports are callable) -- not WASI.
 cWebC = cDir + "/mod.c"
@@ -195,7 +170,7 @@ chk("the web wasm build succeeded", oWeb.Succeeded())
 chk("...and the output is a genuine wasm module", isWASM(cDir + "/app.wasm"))
 
 ? ""
-? "-- Scene 13: assemble the web COMPOSITE -- wasm + stz.js + shell + manifest --"
+? "-- Scene 11: assemble the web COMPOSITE -- wasm + stz.js + shell + manifest --"
 oBun = new stzWebBundle("app")
 oBun.Title("Softanza on the Web").OutDir(cDir + "/dist")
 oBun.WithWasm("app", cDir + "/app.wasm")
