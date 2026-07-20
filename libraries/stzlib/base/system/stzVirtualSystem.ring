@@ -85,6 +85,15 @@ class stzVirtualOperation from stzObject
 		ok
 		return [ This.Param("path") ]
 
+	# The capability KIND this operation requires of whoever commits it -- its
+	# colour in the agentic lattice (effectful / sensing / compute / inference),
+	# the same vocabulary as stzSystemCapabilities and stzAgentGraph. Every
+	# operation the twin can commit TOUCHES reality, so all are effectful; a
+	# future read-only sense op would be "sensing". The governance gate checks
+	# this against the executing actor's capability set.
+	def RequiredKind()
+		return "effectful"
+
 	# A plain-language line -- the Softanza signature (legible to a non-coder).
 	def Describe()
 		if @cType = "create_file"
@@ -204,6 +213,9 @@ class stzUpdatePlan from stzObject
 	@oBridge = NULL
 	@oScope = NULL
 	@aRejected = []
+	@oExecutor = NULL
+	@oGov = NULL
+	@aAudit = []
 
 	def init(paOps, poBridge)
 		if isList(paOps)
@@ -233,6 +245,35 @@ class stzUpdatePlan from stzObject
 
 	def Scope()
 		return @oScope
+
+	# WHO is committing (a stzSystemActor). Its capability kinds gate the
+	# crossing (Phase 4).
+	def SetExecutor(poActor)
+		@oExecutor = poActor
+		return This
+
+	def Executor()
+		return @oExecutor
+
+	# An optional stzGovernance -- adds the trust-posture requirement and the
+	# decision lineage on top of the capability gate.
+	def SetGovernance(poGov)
+		@oGov = poGov
+		return This
+
+	def Governance()
+		return @oGov
+
+	# The plan's own decision trail (plain data, always available):
+	# [ index, outcome("committed"/"refused"), op-type, actor ]. Read it back
+	# from the plan after Execute -- Ring copies objects on assignment, so a
+	# wired stzGovernance accumulates the richer lineage in THIS plan's copy
+	# (via Governance()), not in the caller's original.
+	def AuditTrail()
+		return @aAudit
+
+	def NumberOfAuditEntries()
+		return len(@aAudit)
 
 	def RejectOperation(pnIndex, pcBecause)
 		@aRejected + [ pnIndex, "" + pcBecause ]
@@ -310,13 +351,46 @@ class stzUpdatePlan from stzObject
 		next
 		return _a_
 
-	# COMMIT. The one place reality changes. Each active operation is
-	# scope-checked, then handed to the bridge. Returns a summary +
-	# per-operation log.
+	# Preflight: CAN the current executor commit this plan at all? Returns
+	# [ bool, reason ] without touching anything. "This LLM's plan cannot cross"
+	# is answerable before an Execute is even attempted.
+	def MayCommit()
+		if @oExecutor = NULL
+			return [ TRUE, "no executor set -- unguarded (a human at the keyboard)" ]
+		ok
+		_n_ = len(@aOps)
+		for _i_ = 1 to _n_
+			if NOT This.IsRejected(_i_)
+				_cKind_ = @aOps[_i_].RequiredKind()
+				if NOT @oExecutor.Can(_cKind_)
+					return [ FALSE, "actor '" + @oExecutor.Name() +
+						"' cannot commit -- it lacks the '" + _cKind_ +
+						"' capability (required by operation " + _i_ + ")" ]
+				ok
+			ok
+		next
+		return [ TRUE, "actor '" + @oExecutor.Name() +
+			"' holds every capability this plan requires" ]
+
+	# COMMIT. The one place reality changes. Each active operation passes three
+	# gates -- the reviewer (reject), the SCOPE (where/what), and GOVERNANCE (may
+	# THIS actor commit an op of THIS capability kind) -- before it reaches the
+	# bridge. Expression is free; admission is governed. Returns a summary + log.
 	def Execute()
 		_nDone_ = 0
 		_nSkipped_ = 0
 		_aLog_ = []
+		# GOVERNANCE preflight: an executor governed by an stzGovernance must
+		# have a declared trust posture, or NOTHING crosses.
+		if @oGov != NULL and @oExecutor != NULL
+			if @oGov.MayExecute(@oExecutor.Name()) = 0
+				return [
+					[ "committed", 0 ],
+					[ "skipped", len(@aOps) ],
+					[ "log", [ [ 0, "REFUSED-BY-GOVERNANCE", @oGov.Why() ] ] ]
+				]
+			ok
+		ok
 		_n_ = len(@aOps)
 		for _i_ = 1 to _n_
 			_oOp_ = @aOps[_i_]
@@ -338,9 +412,25 @@ class stzUpdatePlan from stzObject
 					loop
 				ok
 			ok
+			# GOVERNANCE gate: the executor must hold the capability the
+			# operation requires. An LLM actor (effect-capability set EMPTY)
+			# cannot commit ANY effectful op -- it can only sit in the plan,
+			# awaiting a guardian or human.
+			if @oExecutor != NULL
+				_cKind_ = _oOp_.RequiredKind()
+				if NOT @oExecutor.Can(_cKind_)
+					_nSkipped_++
+					_aLog_ + [ _i_, "REFUSED-BY-GOVERNANCE",
+						"actor '" + @oExecutor.Name() + "' lacks the '" +
+						_cKind_ + "' capability" ]
+					This._Audit(_i_, "refused", _oOp_)
+					loop
+				ok
+			ok
 			if @oBridge.ExecuteOperation(_oOp_)
 				_nDone_++
 				_aLog_ + [ _i_, "COMMITTED", _oOp_.Describe() ]
+				This._Audit(_i_, "committed", _oOp_)
 			else
 				_aLog_ + [ _i_, "FAILED", _oOp_.Describe() ]
 			ok
@@ -350,6 +440,20 @@ class stzUpdatePlan from stzObject
 			[ "skipped", _nSkipped_ ],
 			[ "log", _aLog_ ]
 		]
+
+	# Record a decision into the plan's own audit trail (always), and into a
+	# wired stzGovernance's lineage (if present).
+	def _Audit(pnIndex, pcOutcome, oOp)
+		_cActor_ = "unguarded"
+		if @oExecutor != NULL
+			_cActor_ = @oExecutor.Name()
+		ok
+		@aAudit + [ pnIndex, pcOutcome, oOp.Type(), _cActor_ ]
+		if @oGov != NULL and @oExecutor != NULL
+			@oGov.RecordDecision("plan-op-" + pnIndex,
+				pcOutcome + ": " + oOp.Describe(),
+				_cActor_, oOp.Type())
+		ok
 
 	# Same commit, printing each step as it crosses.
 	def ExecuteStepByStep()
