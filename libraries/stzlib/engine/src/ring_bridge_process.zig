@@ -52,5 +52,8 @@ pub const regs = [_]R.Reg{
 };
 
 pub fn registerAll(pState: *anyopaque) void {
+    // Capture the uptime baseline at DLL load, so uptime counts from process
+    // start rather than the Unix epoch.
+    process.process_init();
     R.registerAll(pState, &regs);
 }

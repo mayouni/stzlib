@@ -13,16 +13,43 @@ pub fn process_pid() callconv(.c) i64 {
     }
 }
 
+// UPTIME -- how long THIS process has been running, from a MONOTONIC clock.
+//
+// These used to return std.time.nanoTimestamp(), which is wall-clock time
+// since the Unix EPOCH -- so uptime_s() answered ~1.75 billion (56 years),
+// not "seconds since the process started". A caller asking how long its
+// program had been up got the year, in seconds.
+//
+// The base instant is captured at DLL load (process_init, called from the
+// bridge's ringlib_init) -- effectively process start, since stz_process.dll
+// loads during library init. A lazy fallback captures it on first use if
+// init never ran. std.time.Instant is monotonic, so uptime never jumps
+// backwards on an NTP correction the way epoch time can.
+var g_start: ?std.time.Instant = null;
+
+pub fn process_init() callconv(.c) void {
+    g_start = std.time.Instant.now() catch null;
+}
+
+fn uptimeNanos() u64 {
+    if (g_start == null) {
+        g_start = std.time.Instant.now() catch return 0;
+    }
+    const start = g_start orelse return 0;
+    const now = std.time.Instant.now() catch return 0;
+    return now.since(start);
+}
+
 pub fn process_uptime_ns() callconv(.c) f64 {
-    return @floatFromInt(std.time.nanoTimestamp());
+    return @floatFromInt(uptimeNanos());
 }
 
 pub fn process_uptime_ms() callconv(.c) f64 {
-    return @as(f64, @floatFromInt(std.time.nanoTimestamp())) / 1_000_000.0;
+    return @as(f64, @floatFromInt(uptimeNanos())) / 1_000_000.0;
 }
 
 pub fn process_uptime_s() callconv(.c) f64 {
-    return @as(f64, @floatFromInt(std.time.nanoTimestamp())) / 1_000_000_000.0;
+    return @as(f64, @floatFromInt(uptimeNanos())) / 1_000_000_000.0;
 }
 
 pub fn process_arch(out: [*]u8, max: usize) callconv(.c) i32 {
@@ -49,6 +76,7 @@ pub fn process_ptr_size() callconv(.c) i32 {
 
 // ── C ABI exports ────────────────────────────────────────────
 
+pub export fn stz_process_init() callconv(.c) void { process_init(); }
 pub export fn stz_process_pid() callconv(.c) i64 { return process_pid(); }
 pub export fn stz_process_uptime_ns() callconv(.c) f64 { return process_uptime_ns(); }
 pub export fn stz_process_uptime_ms() callconv(.c) f64 { return process_uptime_ms(); }
