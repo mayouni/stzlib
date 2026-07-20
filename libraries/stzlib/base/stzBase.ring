@@ -320,6 +320,12 @@ ok
 
     load "system/stzOperatingSystem.ring"
 
+    # Scope-model floor (Phase 1b): stzSystemProfile is the named SCOPE the
+    # programmer writes system code in (development / runtime / deployment),
+    # with the capability envelope as the keystone. Loads AFTER the three
+    # classes above -- DevelopmentSystem() composes their live facts.
+    load "system/stzSystemProfile.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"

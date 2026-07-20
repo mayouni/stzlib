@@ -1,6 +1,9 @@
 # The Softanza Virtual System Framework
 ### A Requirements Narration and Architectural Reference
-*Version 1.1 — Abstract Foundation and File Domain Specialization*
+*Version 1.2 — Abstract Foundation, File Domain Specialization, and the twin's
+second job (foreign-system rehearsal). See `SOFTANZA_SYSTEM_FOUNDATION.md` §2 and
+`SCOPE_ORIENTED_PROGRAMMING.md` (move M5) for how the System Foundation binds to
+this framework.*
 
 ---
 
@@ -11,6 +14,19 @@ Unmanaged systems — file systems, databases, GUIs, networks — share a defini
 The Virtual System Framework inverts this. Every unmanaged system gains a **virtual twin** — a complete, in-memory rehearsal space where any operation can be tried, undone, branched, and compared, at zero risk. When the practitioner is satisfied, a **workbox** compares the virtual result against the constraints of reality and produces a narrated, optimized, inspectable **update plan**. Reality changes only when that plan is deliberately executed.
 
 Three words summarize the promise: **rehearse, plan, commit.**
+
+**The twin has a second job, and it is just as important as the first.** The
+first inversion makes a *dangerous* operation safe — rehearse the delete before
+you commit it. The second makes an *impossible* operation *developable*: a twin
+can model a system the practitioner's own machine **is not**. A developer on a
+Windows laptop can rehearse GPIO writes against a twin of an ESP32, or a
+permission-sandboxed file operation against a twin of Android — neither of which
+the laptop can perform — then let the deploy step lower the rehearsal onto the
+real target. So the twin is not only "reality, made safe to touch"; it is also
+**"a foreign system, made present to a host that isn't it."** This is what lets
+Softanza help a developer *build for a world they cannot run* (the System
+Foundation's "two worlds," and move M5 of Scope-Oriented Programming). The two
+jobs share one mechanism: an in-memory model plus a single governed crossing.
 
 ## 2. Foundational Principles
 
@@ -216,11 +232,13 @@ oPlan.Execute()          # or ExecuteStepByStep()
 
 ## 6. Extensibility Map
 
-The abstract foundation specializes along two independent axes:
+The abstract foundation specializes along three independent axes:
 
-**Domain axis** (what the twin models): files *(this document)* → databases → GUI → configuration → network. Each requires only a state class, an operation catalog, and a reality bridge.
+**Domain axis** (what *kind* of system the twin models): files *(this document)* → databases → GUI → configuration → network. Each requires only a state class, an operation catalog, and a reality bridge.
 
 **Actor axis** (who operates the workbench): human programmers *(this document's primary audience)* → deterministic scripts → autonomous agents. Each requires only an actor identity on operations and, where execution is delegated, a commit scope. The framework itself is already actor-complete by P5/P6; the agentic actor is elaborated in a companion article and will feed back into a future revision as a formal Layer-4 specification.
+
+**Target axis** (which *concrete* system the twin stands in for — the second job from §1): same-as-host → a foreign system the host *can* still emulate → a foreign system the host *cannot* perform at all (an MCU's GPIO, a phone's sandbox). This axis governs the reality bridge's dual mode: when the target *is* the host, the bridge reads and commits against the real system directly; when the target is *foreign*, the bridge's `Capabilities()` and `Constraints()` come from the target's `stzSystemProfile` (not the host's), execution against reality is deferred to a **deploy-time crossing** (cross-compile / flash / push), and the twin is the only place the operation exists until then. Nothing in the abstract foundation changes — only where the bridge's reality *is*. This is the axis the System Foundation's scope model (`SOFTANZA_SYSTEM_FOUNDATION.md` §2) rides to let a developer rehearse, on their own machine, operations their machine cannot run.
 
 ## 7. Implementation Roadmap (File Domain)
 

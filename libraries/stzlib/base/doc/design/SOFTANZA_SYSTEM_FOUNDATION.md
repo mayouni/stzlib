@@ -1,9 +1,21 @@
 # The Softanza System Foundation
-### A first-principles redesign of system programming: engine-true, virtualizable, governable
-*Design document — v0.2 (2026-07-20). Status: Phase 0 and Phase 1 IMPLEMENTED
-(engine-true facts + stzProcess/stzOperatingSystem/stzEnvironment + managed
-child processes); Phases 2–4 (the Virtual System twin and the governance
-crossing) remain proposals. Items are marked ALREADY EXISTS / SHIPPED / PLANNED.*
+### A first-principles redesign of system programming: scope-oriented, engine-true, virtualizable, governable
+*Design document — v0.4 (2026-07-20). Status: Phase 0, Phase 1, and the
+**scope-model floor (Phase 1b)** IMPLEMENTED — engine-true facts +
+stzProcess/stzOperatingSystem/stzEnvironment + managed child processes +
+`stzSystemProfile`/`stzSystemCapabilities` (`DevelopmentSystem()` /
+`CurrentSystem()` live, declared `.stzsystem` targets, the two-worlds compare,
+the system↔agent capability bridge). The rest of §2 (the platform/app graph and
+the lexical `App(:x).System(){…}` scopes with static checking) and Phases 2–4
+(the Virtual System twin and the governance crossing) remain proposals. Items
+are marked ALREADY EXISTS / SHIPPED / PLANNED.*
+
+> **v0.3 adds the programmer-facing model (§2):** the three system scopes
+> (development / deployment / runtime-current) over one common-ground solution
+> profile. This is Softanza's **Scope-Oriented Programming** paradigm
+> (`SCOPE_ORIENTED_PROGRAMMING.md`) applied to systems — its second governed
+> field after regex. The four engine/enforcement layers (§3) are unchanged; §2
+> is the model the programmer writes in, §3 is how the engine makes it true.
 
 ---
 
@@ -26,8 +38,17 @@ Softanza's system-facing code grew organically and now shows the seams:
   deleted file is gone. There is no rehearsal, no plan, no undo — which is
   exactly the posture that makes system programming feel dangerous, and makes
   it *unsafe to hand to an autonomous agent*.
+- **"Which system am I talking about?" has no answer at the call site.** A bare
+  `CurrentSystem()` returns the developer's laptop today and the phone the app
+  was deployed to tomorrow — *the same line, two answers* — because its meaning
+  is bent by an invisible frame (where is this code actually running?). Nothing
+  in the code distinguishes *the system I author on* from *the system this code
+  will run on when shipped*, so a developer writing a mobile feature on a Windows
+  box has no way to say — and no way for Softanza to check — that the code is for
+  Android, not for the laptop. This is the same disease Softanza already cured
+  for regex, and it is cured the same way (§2).
 
-Three separate design documents already point at the fix from three angles:
+Design documents already point at the fix from complementary angles:
 
 1. **`stz-lowlevel-system-programming.md`** — the *vision*: system programming
    made accessible through **safe memory, named cross-platform operations, and
@@ -87,9 +108,151 @@ reality). Its output is a **proposed UpdatePlan**, reviewable and revisable
 before anything happens. "Agents that cannot hurt you" is not a promise bolted
 on; it is what SP1–SP4 produce.
 
+**SP6 — Every system act is written in a named scope.** No line of system code
+floats on an ambient "current system." The programmer always writes inside one
+of three explicit scopes — *development*, *deployment*, or *runtime-current* —
+and the scope, visible at the call site, decides which system the act speaks
+about and which capabilities it may use. This is Scope-Oriented Programming
+(`SCOPE_ORIENTED_PROGRAMMING.md`) applied to systems; §2 is the model it
+produces. SP6 is what lets SP1–SP5 be *addressed to the right system*: an
+engine-true fact (SP1) is a fact *about the scope's system*; a twin (SP5)
+rehearses *the scope's system*, which may not be the host at all.
+
 ---
 
-## 2. The four layers
+## 2. The programmer's model — three system scopes over one solution
+
+Sections 3–7 describe how the engine, the twin, and the governance gate make
+system operations *true and safe*. This section describes how the **programmer
+writes and reads** them — the model that sits above all four layers and that a
+Softanza software architect works in. It is the answer to the fourth seam in §0:
+*which system am I talking about?*
+
+### 2.1 The disease, and why earlier models failed
+
+System code has the regex disease: **one act, meaning bent by an invisible
+frame.** `CurrentSystem()` returns your laptop during development and Android
+after deployment — correctly, both times — because "current" genuinely means
+*wherever this code runs at execution*. Every model that tried to freeze it —
+`ThisSystem()` vs `TargetSystem()`, host vs runtime vs target — broke on the
+same rock: after an app ships, `CurrentSystem()` on the phone **must** return
+Android, so no name can mean "the dev machine" and "current" at once.
+
+The cure is not a better name. It is **M3 of the paradigm**: never write feature
+code against "current." Write it in a *named scope*, and let "current" be only a
+runtime value that — by construction — matches the scope the code was written
+against.
+
+### 2.2 The common ground: model the solution before the features
+
+A Softanza architect models the **deployment architecture first**, as a
+declarative artifact, before a line of system feature code:
+
+```ring
+oPlatform = new stzPlatformProfile("my-iot-product")   # the common ground
+oPlatform {
+    DevelopedOn(:Windows)                              # the DEV system
+
+    Deploys(
+        new stzAppProfile(:backend ).To(:LinuxServer),
+        new stzAppProfile(:superapp).To(:Android),
+        new stzAppProfile(:firmware).To(:ESP32)
+    )
+}
+```
+
+- **`stzPlatformProfile`** — the whole solution: which parts exist, which
+  systems they deploy to, and which system the architect develops on. The common
+  ground everything else attaches to.
+- **`stzAppProfile`** — one part of the solution (a backend, a superapp, an app,
+  a firmware image). Each declares the system it deploys to.
+- **`stzSystemProfile`** — a system, as a *capability envelope + OS + runtime +
+  resources*. Attached in two roles: the **development** profile (on the
+  platform) and a **deployment** profile (on each app).
+
+All three are **profiles** — declarative design objects, following Law 1
+(a domain is a folder + an entry object + a format): `.stzplatform` references
+`.stzapp`s reference `.stzsystem`s. The profile is the architect's *declaration*;
+`stzApp` / `stzPlatform` (the delivery-plane runtime worlds) are what *realize*
+it.
+
+### 2.3 Three scopes that cannot be confused
+
+Feature code is written **inside a scope**, and the scope is a different, unmixable
+name for each of the three worlds:
+
+| scope | how you write it | what it resolves to | used for |
+|---|---|---|---|
+| **development** | `oPlatform.DevelopmentSystem()` | the machine the architect codes on | build, flash, rehearse — **tooling only** |
+| **deployment** | `oPlatform.App(:x).System()` | the system app *x* deploys to | **where feature code is written and checked** |
+| **runtime-current** | `CurrentSystem()` | whatever system this code runs on *now* | runtime-adaptive branches |
+
+```ring
+oPlatform.App(:firmware).System() {
+    ReadPin(4)            # ESP32 profile is in scope: GPIO exists here...
+    Spawn("worker")       # ...REFUSED at write time: an MCU has no processes
+}
+
+oPlatform.App(:superapp).System() {
+    ChangeDirectory("/etc")   # REFUSED: the Android sandbox forbids it
+    Persist(oConfig)          # LOWERED to the Android idiom (shared-prefs)
+}
+```
+
+The guarantee, and why "no confusion is possible" (SP6): feature code for app
+*x* lives inside `App(:x).System()`, is checked against *x*'s deployment
+profile, and at runtime `CurrentSystem()` **equals that profile** — because that
+is where *x* deploys. Dev-machine facts are reached *only* through
+`DevelopmentSystem()`, in tooling scope. A reader of any system line knows which
+world it belongs to from the scope it sits in; there is no ambient "current" to
+guess. Softanza can therefore check, statically, that deployment code never
+reaches for `DevelopmentSystem()` and that its system calls stay within the
+scope's declared capabilities.
+
+`stzSystemRuntime` follows the same rule: it is a **facet of a system profile**,
+never a free-floating object. `App(:firmware).System().Runtime()` is the ESP32's
+runtime, unambiguously; `CurrentSystem().Runtime()` at execution is the same
+runtime. "Whose runtime?" never floats again.
+
+### 2.4 The two worlds: constrain one, enable the other
+
+Because Softanza holds *both* the development profile and each deployment
+profile, and because a deployment system's capabilities can **differ from the
+dev machine's**, the model mediates in both directions (paradigm move M5):
+
+- **Down-constrain** — the host *can*, the scope *forbids*. `Spawn` in an Android
+  scope is refused *on your Windows laptop, at write time*, with the nearest
+  legal alternative named (Law 3). The scope stops you from assuming your world's
+  affordances just because your machine has them.
+- **Up-enable** — the scope *requires*, the host *lacks*. `ReadPin(4)` for the
+  ESP32 is written even though your laptop has no GPIO: Softanza **rehearses it
+  against a virtual twin of the ESP32** (simulated pins, on your machine), so you
+  develop and test the logic where you are, and the deploy step lowers the
+  rehearsal to real firmware. **You develop for a world you cannot run**, and the
+  twin (§6) is the bridge.
+
+This is the deepest reason the System Foundation and the Virtual System Framework
+are one design: the twin is not only "rehearse a dangerous op before committing"
+— it is also **"rehearse a foreign system's op your host cannot perform, then
+lower it on deploy."** Two worlds of system, one twin mechanism, mediated by the
+scope.
+
+### 2.5 Where §2 meets the four layers (§3–§7)
+
+| the programmer writes (this section) | the engine/enforcement makes it true (§3–§7) |
+|---|---|
+| `App(:x).System()` scope | a `stzSystemProfile` whose facts are engine-true (SP1, Layer 0 / §4) |
+| down-constrain / up-enable (M5) | the capability lattice + the twin's foreign-system rehearsal (§6–§7) |
+| `CurrentSystem()` at runtime | a live `process.zig` / `system.zig` read (§4), guaranteed to match the scope |
+| the deploy step that lowers a rehearsal | a governed `stzUpdatePlan` crossing (§6–§7) |
+
+The model is the *face*; the four layers are the *body*. Neither is optional:
+without §2 the programmer cannot say which system they mean; without §3–§7 the
+saying would not be true or safe.
+
+---
+
+## 3. The four layers
 
 ```
         ┌───────────────────────────────────────────────────────────┐
@@ -134,9 +297,9 @@ real class has, plus the rehearsal verbs.*
 
 ---
 
-## 3. Layer 0 — the engine as the system's single source of truth
+## 4. Layer 0 — the engine as the system's single source of truth
 
-### 3.1 What exists
+### 4.1 What exists
 
 - `process.zig` — `pid`, `uptime_ns/ms/s` *(fixed 2026-07-20 to be real
   monotonic uptime, not epoch wall-clock)*, `arch`, `os`, `endian`, `ptr_size`.
@@ -149,7 +312,7 @@ real class has, plus the rehearsal verbs.*
   list_dirs` *(listing moved engine-side + `pathIsUsable` screen, 2026-07-19)*.
   ALREADY EXISTS. **These are already the Reality-Bridge primitives L2 needs.**
 
-### 3.2 What the foundation adds (engine-side)
+### 4.2 What the foundation adds (engine-side)
 
 A coherent `system` capability surface, all flat C-ABI, all reusable by any
 binding:
@@ -195,7 +358,7 @@ are thin FFI bridges that add syntax, never computation"*):
 - **Bind, don't reimplement**: if the engine computes a fact, the Ring class
   reads it — never a parallel Ring computation (the arch double-source).
 
-### 3.3 The multi-language payoff
+### 4.3 The multi-language payoff
 
 `extercode/` already proves Softanza speaks to Python/Julia/R/Prolog as
 *external processes*. The System Foundation is the inverse and the deeper move:
@@ -207,27 +370,32 @@ what makes that free.
 
 ---
 
-## 4. Layer 1 — the real projection (thin, intent-named)
+## 5. Layer 1 — the real projection (thin, intent-named)
 
-### 4.1 `stzProcess` — NEW (the missing keystone)
+### 5.1 `stzProcess` — NEW (the missing keystone)
 
-Two faces, one class family:
+Two faces, one class family. **SHIPPED (Phase 0/1)** except where marked:
 
-- **This process** (introspection): `Pid()`, `Uptime()`/`UptimeMs()`,
-  `Architecture()`, `OS()`, `Endianness()`, `PointerSize()`, `ExePath()`,
-  `ResidentMemory()`. Pure sensing; every method a one-line delegate to
-  `process.zig`.
-- **A child process** (control): `stzProcess.Spawn(program, args)` →
-  `Start()`, `ReadOutput()` / `ReadError()` (streaming), `Wait()`,
-  `ExitCode()`, `Kill()`, `IsAlive()`. This is what `stzSystemCall` cannot do
-  — a *managed, streamable, killable* child — and it delegates to the new
-  engine `spawn/read/wait/kill`.
+- **This process** (introspection): `Id()`/`Pid()`, `Uptime()`/`UptimeMs()`/
+  `UptimeNs()`, `EngineArchitecture()` (raw Zig tag) and `Architecture()`
+  (canonical `x64`/`arm64`/... — the one reconciliation seam), `OS()`,
+  `Endianness()`, `PointerSize()`, `BitSize()`, `Is64Bit()`, `Info()`. Pure
+  sensing; every method a one-line delegate to `process.zig`. *(`ExePath()`,
+  `ResidentMemory()` — still PLANNED engine adds.)*
+- **A child process** (control): `Spawn(command)` / the `SpawnProcess(command)`
+  global → streaming `ReadOutput()` / `ReadError()` (with `ReadOutputAll()` /
+  `ReadErrorAll()` drainers), `Wait()`, `ExitCode()`, `Succeeded()`/`Failed()`,
+  `Kill()`, `ChildPid()`, `HasChild()`, and `Close()` (idempotent; kills a
+  still-running child so a dropped handle never leaks). This is what
+  `stzSystemCall` cannot do — a *managed, streamable, killable* child — and it
+  delegates to the engine `spawn/read_stdout/read_stderr/wait/kill/free`.
+  *(`IsAlive()` — still PLANNED.)*
 
 `stzSystemCall` stays as the *convenience* front (named cross-platform
-commands, `@RETURN:` typing) and is re-expressed over `stzProcess.Spawn` so
-there is one spawn implementation, not two.
+commands, `@RETURN:` typing); re-expressing it over `stzProcess.Spawn` so there
+is one spawn implementation, not two, is PLANNED.
 
-### 4.2 `stzOperatingSystem` — REFACTOR (engine-backed)
+### 5.2 `stzOperatingSystem` — REFACTOR (engine-backed)
 
 Every fact method (`Architecture`, `Is64Bit`, `BitSize`, `OS`, `IsWindows`,
 `Endianness`, …) delegates to `process.zig` / `system.zig`. Ring's `getarch()`
@@ -238,12 +406,16 @@ are *interpretations* of the engine facts, which is the correct division:
 once (engine `x86_64` ↔ Softanza `x64`) and applied at the projection seam so
 the vocabularies never disagree in the wild.
 
-### 4.3 `stzEnvironment` — NEW
+### 5.3 `stzEnvironment` — NEW
 
-`Get(name)`, `Set(name, value)`, `Unset(name)`, `All()`, `Has(name)`,
-`WorkingDirectory()`, `ChangeDirectory(path)`, `HostName()`, `UserName()`.
-Engine-backed. Small, obvious, and *currently absent* — you cannot set an env
-var or read the cwd through Softanza today.
+`GetVar(name)` / `ValueOf(name)` / `Var(name)`, `SetVar(name, value)`,
+`UnsetVar(name)`, `Variables()` (list of `[name, value]` pairs, split on the
+first `=`), `Has(name)`, `WorkingDirectory()` / `Cwd()`, `ChangeDirectory(path)`
+/ `Cd(path)`, `HostName()`, `UserName()`, `CpuCount()`. Engine-backed. *(The
+accessor verbs are `GetVar` / `SetVar`, not `Get` / `Set`, because `Get`/`Set`/
+`Value` collide with Ring's brace-accessor protocol — a naming lesson from the
+Phase 0 build.)* Small, obvious, and *previously absent* — you could not set an
+env var or read the cwd through Softanza before this foundation.
 
 Together, `stzProcess` + `stzOperatingSystem` + `stzEnvironment` +
 `stzFile`/`stzFolder` + `stzSystemCall` are the **complete real surface** for
@@ -253,7 +425,7 @@ low-level vision, minus the memory pillar which is its own foundation
 
 ---
 
-## 5. Layer 2 — the Virtual System (the universal abstraction + sandbox)
+## 6. Layer 2 — the Virtual System (the universal abstraction + sandbox)
 
 This is the Virtual System Framework, implemented, generalized beyond files.
 
@@ -289,7 +461,7 @@ not procedural.
 
 ---
 
-## 6. Layer 3 — governance (why an agent cannot hurt you)
+## 7. Layer 3 — governance (why an agent cannot hurt you)
 
 The agentic-safety document states the stance this foundation inherits:
 *"We will not build safe agents. We will build a safe world, and let ordinary
@@ -319,7 +491,7 @@ map onto the VSF cleanly:
 | VSF / this doc | existing primitive |
 |---|---|
 | P6 separated powers | `stzGovernance.SetAuthority` / `MayProceed` |
-| commit scope (§4.5) | `stzCommitScope` (new, small) + `stzGovernance` permissions |
+| commit scope (VSF §4.5) | `stzCommitScope` (new, small) + `stzGovernance` permissions |
 | trust posture per executor | `stzGovernance.DeclarePosture` (`trusted`/`external`/`sandboxed`) / `MayExecute` |
 | capability colouring | `stzAgentGraph` lattice + taint; **an LLM actor's effect-capability set is EMPTY** |
 | audit / lineage | `stzGovernance.RecordDecision` / `LineageOf`; (future `stzTrace`) |
@@ -332,7 +504,7 @@ or human to authorise it. **Expression is free; admission is governed.**
 
 ---
 
-## 7. How this advances intelligence & agentic programming
+## 8. How this advances intelligence & agentic programming
 
 The request's fourth point: this foundation must improve the *operational* and
 *programmer-experience* sides of every Softanza paradigm, intelligence and
@@ -364,31 +536,61 @@ knowledge-derivation north star instead of sitting beside it.
 
 ---
 
-## 8. Implementation roadmap (proposed)
+## 9. Implementation roadmap (proposed)
 
 Each phase compiles green and pushes both remotes; nothing breaks existing
 callers.
 
-- **Phase 0 — engine truth + thin projection (the concrete first step).**
-  (a) Refactor `stzOperatingSystem` to delegate every fact to `process.zig` /
-  `system.zig`; retire the Ring `getarch()` computation; reconcile the arch
-  vocabulary at the seam. (b) Create `stzProcess` (introspection face) over the
-  existing `process.zig`. (c) Add engine `env_set/unset/list`, `cwd_get/set`,
-  `hostname`, `username`; create `stzEnvironment`. Guard, bulk-return, bind-
-  don't-reimplement. *This alone kills the double-source and fills the two
-  missing classes, with no new subsystem.*
-- **Phase 1 — managed child processes.** Engine `spawn/read/wait/kill/
-  is_alive`; `stzProcess` control face; re-express `stzSystemCall` over it.
+- **Phase 0 — engine truth + thin projection. SHIPPED (2026-07-20).**
+  (a) Refactored `stzOperatingSystem` to delegate every fact to `process.zig` /
+  `system.zig`; retired the Ring `getarch()` computation; reconciled the arch
+  vocabulary at the seam. (b) Created `stzProcess` (introspection face) over the
+  existing `process.zig`. (c) Added engine `env_set/unset/list`, `cwd_get/set`,
+  `hostname`, `username`, `cpu_count`; created `stzEnvironment`. Guarded,
+  bulk-returned, bind-don't-reimplement. *Killed the double-source and filled the
+  two missing classes, with no new subsystem.*
+- **Phase 1 — managed child processes. SHIPPED (2026-07-20).** Engine
+  `spawn/read_stdout/read_stderr/wait/kill/pid/free`; `stzProcess` control face
+  (`Spawn`, streaming `ReadOutput`/`ReadError`, `Wait`, `ExitCode`, `Kill`,
+  `Close`); `SpawnProcess()` global.
+- **Phase 1b — the scope-model floor (§2, first buildable slice). SHIPPED
+  (2026-07-20).** `stzSystemProfile` as a facet bundle (OS / Runtime /
+  Capabilities / Resources) with a `.stzsystem` format; `DevelopmentSystem()`
+  and `CurrentSystem()` populated *live* from the engine (Phase 0/1 supplies
+  every fact); declared deployment targets built with `DeclareSystem()` or read
+  from a `.stzsystem` file, whose facts are STORED so they never leak from the
+  live machine (an rtos/android profile answers rtos/android on a Windows box).
+  The keystone `stzSystemCapabilities` is a **closed named set** classified into
+  the agentic lattice kinds (effectful/sensing/compute/inference), giving the
+  two-worlds compare (`Forbids`/`Requires`, §2.4) and the system↔agent bridge
+  (`CapabilitiesForActorKinds` — an LLM actor's effect set comes out empty). No
+  platform/app graph and no lexical `App(:x).System(){…}` scopes yet — just the
+  three named scopes, introspectable, with the shared capability envelope. Pure
+  Ring, no engine change. Guard: `system_scope_model_narrated.ring` (54).
 - **Phase 2 — `stzVirtualSystem` root + File specialization.** The VSF's own
-  Phase 1–3, reality bridge = `file.zig`.
+  Phase 1–3, reality bridge = `file.zig`. *(Prerequisite for the up-enable
+  direction of the scope model — the twin is how a host rehearses a foreign
+  system.)*
 - **Phase 3 — Process/Env specialization + `stzUpdatePlan` narration/risks.**
+- **Phase 3b — the full scope model (§2).** `stzPlatformProfile` +
+  `stzAppProfile` + attached deployment `stzSystemProfile`s; the three scopes as
+  writable/checkable contexts; **down-constrain** as a static check of a call
+  against its scope's capabilities; **up-enable** as twin-rehearsal of a
+  foreign system's operations (needs Phase 2). This is where "no confusion is
+  possible" and "the two worlds" become enforced, not just documented.
 - **Phase 4 — governance crossing:** wire `stzCommitScope` + `stzGovernance`
-  posture/authority into `stzUpdatePlan.Execute`; the agent host uses it.
+  posture/authority into `stzUpdatePlan.Execute`; the agent host uses it; the
+  deploy step that lowers an up-enable rehearsal to a target is one such governed
+  crossing.
 
-Phase 0 is the piece the current request most directly asks for and the one
-with the highest ratio of coherence gained to code written.
+Phase 0, Phase 1, and Phase 1b are shipped. **Phase 2 (the Virtual System twin,
+File specialization) is the next step** — and it is what unlocks the *up-enable*
+direction of the two worlds (§2.4): the twin is how a host rehearses a foreign
+system's operations it cannot itself perform. The capability envelope shipped in
+Phase 1b already tells the twin *which* operations those are
+(`DevelopmentSystem().Requires(target)`).
 
-## 9. Quality bar
+## 10. Quality bar
 
 - **Fidelity:** virtual semantics match real semantics exactly (path rules,
   name collisions, case behaviour per platform) — the engine is the oracle for
