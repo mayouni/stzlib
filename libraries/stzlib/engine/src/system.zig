@@ -15,6 +15,11 @@ const gpa = std.heap.c_allocator;
 // consistent.
 extern "kernel32" fn SetEnvironmentVariableW(name: [*:0]const u16, value: ?[*:0]const u16) callconv(.winapi) i32;
 
+// On Windows, std.process.Child.id is a process HANDLE, not a numeric pid;
+// GetProcessId turns the handle into the pid. (On POSIX, child.id already is
+// the pid.)
+extern "kernel32" fn GetProcessId(process: *anyopaque) callconv(.winapi) u32;
+
 // ─── Run command and capture output ───
 
 pub fn stz_system_run(cmd: [*c]const u8, cmd_len: usize, out_len: *usize, err_len: *usize, exit_code: *c_int) callconv(.c) [*c]u8 {
@@ -162,6 +167,120 @@ pub fn stz_system_env(name: [*c]const u8, name_len: usize, buf: [*c]u8, buf_len:
     if (val_slice.len > buf_len) return 0;
     @memcpy(buf[0..val_slice.len], val_slice);
     return val_slice.len;
+}
+
+// ─── Managed child process (spawn / stream / wait / kill) ───
+//
+// The difference from stz_system_run2, which spawns, drains to EOF, and
+// returns everything at once: a managed child is STARTED, then its output is
+// READ INCREMENTALLY while it runs, then WAITED on or KILLED. This is what a
+// long-running or streaming child needs (a build, a server, a `ping -t`).
+//
+// Implements the API sketched as PLANNED in SOFTANZA_ENGINE_DESIGN.md
+// ("Process Management" -- replaces stzExterCode's manual spawning).
+//
+// USAGE CONTRACT (documented so callers avoid a pipe deadlock): read stdout
+// to EOF (read returns 0), THEN wait. A child that fills its stderr pipe
+// while the caller only drains stdout can block -- same pragmatic limit as
+// run2's sequential drain; keep stderr modest or read it too.
+
+const SpawnHandle = struct {
+    child: std.process.Child,
+    waited: bool,
+    exit_code: c_int,
+};
+
+pub fn stz_process_spawn(cmd: [*c]const u8, cmd_len: usize) callconv(.c) ?*anyopaque {
+    if (cmd == null or cmd_len == 0) return null;
+    const command = cmd[0..cmd_len];
+    const shell = getShell();
+
+    // argv is only referenced during spawn(); the strings live long enough
+    // (command points into the caller's buffer, valid for this call).
+    var argv_list = std.ArrayList([]const u8){};
+    defer argv_list.deinit(gpa);
+    argv_list.append(gpa, shell.name) catch return null;
+    if (shell.flag) |f| argv_list.append(gpa, f) catch return null;
+    argv_list.append(gpa, command) catch return null;
+
+    const h = gpa.create(SpawnHandle) catch return null;
+    h.* = .{
+        .child = std.process.Child.init(argv_list.items, gpa),
+        .waited = false,
+        .exit_code = -1,
+    };
+    h.child.stdout_behavior = .Pipe;
+    h.child.stderr_behavior = .Pipe;
+    h.child.create_no_window = true;
+
+    h.child.spawn() catch {
+        gpa.destroy(h);
+        return null;
+    };
+    return @ptrCast(h);
+}
+
+// Reads whatever is available (blocking until at least one byte or EOF).
+// Returns bytes read; 0 = end of stream; -1 = error / no pipe.
+pub fn stz_process_read_stdout(h: ?*anyopaque, buf: [*c]u8, buf_len: usize) callconv(.c) isize {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    const out = handle.child.stdout orelse return -1;
+    const n = out.read(buf[0..buf_len]) catch return -1;
+    return @intCast(n);
+}
+
+pub fn stz_process_read_stderr(h: ?*anyopaque, buf: [*c]u8, buf_len: usize) callconv(.c) isize {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    const err = handle.child.stderr orelse return -1;
+    const n = err.read(buf[0..buf_len]) catch return -1;
+    return @intCast(n);
+}
+
+// Waits for exit and returns the code. Idempotent (a second wait returns the
+// remembered code).
+pub fn stz_process_wait(h: ?*anyopaque) callconv(.c) c_int {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    if (handle.waited) return handle.exit_code;
+    const term = handle.child.wait() catch return -1;
+    handle.waited = true;
+    handle.exit_code = switch (term) {
+        .Exited => |c| @intCast(c),
+        else => -1,
+    };
+    return handle.exit_code;
+}
+
+// Terminates the child now. Returns 1 on success. Marks the handle waited so
+// free() does not try again.
+pub fn stz_process_kill(h: ?*anyopaque) callconv(.c) c_int {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return 0));
+    if (handle.waited) return 1;
+    const term = handle.child.kill() catch return 0;
+    handle.waited = true;
+    handle.exit_code = switch (term) {
+        .Exited => |c| @intCast(c),
+        else => -1,
+    };
+    return 1;
+}
+
+pub fn stz_process_pid_of(h: ?*anyopaque) callconv(.c) i64 {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    if (builtin.os.tag == .windows) {
+        return @intCast(GetProcessId(handle.child.id));
+    } else {
+        return @intCast(handle.child.id);
+    }
+}
+
+// Frees the handle. If the child is still running it is killed first, so a
+// dropped handle never leaks a process.
+pub fn stz_process_spawn_free(h: ?*anyopaque) callconv(.c) void {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return));
+    if (!handle.waited) {
+        _ = handle.child.kill() catch {};
+    }
+    gpa.destroy(handle);
 }
 
 // ─── Environment (read / write / enumerate) ───
