@@ -229,6 +229,14 @@ class stzPlatform from stzObject
 	@aWorlds = []           # [ [ name, version, active ], ... ]
 	@aBonds = []            # [ [ from, to, action ], ... ]
 
+	# deployment architecture (the solution's constituents, declared in a
+	# stzPlatformProfile the platform OWNS) + its lifecycle state
+	@oProfile = NULL
+	@bBuilt = FALSE
+	@bDeployed = FALSE
+	@aBuildReport = []      # [ [ name, kind, target, status ], ... ]
+	@aDeployReport = []
+
 	def init(pcName)
 		@cName = "" + pcName
 
@@ -237,6 +245,104 @@ class stzPlatform from stzObject
 
 	def Why()
 		return @cWhy
+
+	#== 0. DEPLOYMENT ARCHITECTURE (own a profile; BUILD then DEPLOY) ========
+	#
+	# A stzPlatformProfile DESCRIBES the solution -- its constituents (a server,
+	# a superapp, an app, ...) and their target systems. The platform OWNS one
+	# and drives its lifecycle: Build() the platform and its constituents, THEN
+	# Deploy() them -- two separate, ordered operations. (SetProfile snapshots
+	# the profile, so configure it fully first -- the aliasing doctrine.)
+
+	def SetProfile(poProfile)
+		@oProfile = poProfile
+		return This
+
+	def Profile()
+		return @oProfile
+
+	def HasProfile()
+		return @oProfile != NULL
+
+	# BUILD the platform and its constituents. Refuses an unsound solution
+	# (LAW 3). Must precede Deploy().
+	def Build()
+		if @oProfile = NULL
+			stzraise("stzPlatform.Build: no deployment profile -- SetProfile(oProfile) first.")
+		ok
+		_aIssues_ = @oProfile.Validate()
+		if len(_aIssues_) > 0
+			stzraise("stzPlatform.Build: the solution is not sound -- " + JoinXT(_aIssues_, "; "))
+		ok
+		@aBuildReport = []
+		_aApps_ = @oProfile.Apps()
+		_n_ = len(_aApps_)
+		for _i_ = 1 to _n_
+			@aBuildReport + [ _aApps_[_i_].Name(), _aApps_[_i_].Kind(),
+			                  _aApps_[_i_].DeploymentOSName(), "built" ]
+		next
+		@bBuilt = TRUE
+		return This
+
+		def BuildQ()
+			return This.Build()
+
+	def IsBuilt()
+		return @bBuilt
+
+	# DEPLOY the built constituents to their target systems. Refuses if the
+	# platform was not built first -- Build() and Deploy() are separate.
+	def Deploy()
+		if NOT @bBuilt
+			stzraise("stzPlatform.Deploy: the platform must be Build() before it can be deployed.")
+		ok
+		@aDeployReport = []
+		_aApps_ = @oProfile.Apps()
+		_n_ = len(_aApps_)
+		for _i_ = 1 to _n_
+			@aDeployReport + [ _aApps_[_i_].Name(), _aApps_[_i_].Kind(),
+			                   _aApps_[_i_].DeploymentOSName(), "deployed" ]
+		next
+		@bDeployed = TRUE
+		return This
+
+		def DeployQ()
+			return This.Deploy()
+
+	def IsDeployed()
+		return @bDeployed
+
+	def BuildReport()
+		return @aBuildReport
+
+	def DeployReport()
+		return @aDeployReport
+
+	# -- delegating reads into the owned profile --
+
+	def Constituents()
+		if @oProfile = NULL
+			return []
+		ok
+		return @oProfile.Apps()
+
+	def NumberOfConstituents()
+		if @oProfile = NULL
+			return 0
+		ok
+		return @oProfile.NumberOfApps()
+
+	def App(pcName)
+		if @oProfile = NULL
+			stzraise("stzPlatform.App: no profile -- SetProfile(oProfile) first.")
+		ok
+		return @oProfile.App(pcName)
+
+	def DevelopmentSystem()
+		if @oProfile = NULL
+			return NULL
+		ok
+		return @oProfile.DevelopmentSystem()
 
 	#== 1. GENERATION ========================================================
 

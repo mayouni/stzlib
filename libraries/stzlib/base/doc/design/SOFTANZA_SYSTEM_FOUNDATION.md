@@ -154,29 +154,38 @@ A Softanza architect models the **deployment architecture first**, as a
 declarative artifact, before a line of system feature code:
 
 ```ring
-oPlatform = new stzPlatformProfile("my-iot-product")   # the common ground
-oPlatform {
-    DevelopedOn(:Windows)              # the DEV system
-    Deploy(:backend,  :LinuxServer)    # each part + the system it deploys to
-    Deploy(:superapp, :Android)
-    Deploy(:firmware, :ESP32)          # or Deploys([ [:backend, :LinuxServer], ... ])
+# The PROFILE only DESCRIBES the solution -- its constituents and their targets.
+oProfile = new stzPlatformProfile("my-iot-product")
+oProfile {
+    DevelopedOn(:Windows)                 # the DEV system
+    WithServer(:backend,  :LinuxServer)   # each constituent + the system it targets
+    WithSuperApp(:superapp, :Android)
+    WithApp(:firmware, :ESP32)
 }
+
+# A stzPlatform OWNS the profile and drives its LIFECYCLE -- build, then deploy.
+oPlatform = StzPlatformQ("my-iot-product").SetProfile(oProfile)
+oPlatform.Build()      # build the platform and its constituents
+oPlatform.Deploy()     # then deploy them (refused unless Build() ran first)
 ```
 
-- **`stzPlatformProfile`** — the whole solution: which parts exist, which
-  systems they deploy to, and which system the architect develops on. The common
-  ground everything else attaches to.
-- **`stzAppProfile`** — one part of the solution (a backend, a superapp, an app,
-  a firmware image). Each declares the system it deploys to.
+- **`stzPlatformProfile`** — the DECLARATION: which constituents exist, which
+  systems they target, and which system the architect develops on. It only
+  *describes*; it does not build or deploy.
+- **`stzAppProfile`** — one constituent of the solution (a server, a superapp,
+  an app, a firmware image — its `Kind()`). Each declares the system it targets.
 - **`stzSystemProfile`** — a system, as a *capability envelope + OS + runtime +
   resources*. Attached in two roles: the **development** profile (on the
-  platform) and a **deployment** profile (on each app).
+  platform) and a **deployment** profile (on each constituent).
+- **`stzPlatform`** — the actual platform that **owns** a `stzPlatformProfile`
+  and drives its lifecycle: **`Build()`** then **`Deploy()`**, two separate,
+  ordered operations. *We do not deploy a profile — we deploy a platform and its
+  constituents.*
 
-All three are **profiles** — declarative design objects, following Law 1
-(a domain is a folder + an entry object + a format): `.stzplatform` references
-`.stzapp`s reference `.stzsystem`s. The profile is the architect's *declaration*;
-`stzApp` / `stzPlatform` (the delivery-plane runtime worlds) are what *realize*
-it.
+The profiles are **declarative design objects**, following Law 1 (a domain is a
+folder + an entry object + a format): `.stzplatform` references `.stzapp`s
+reference `.stzsystem`s. The profile is the architect's *declaration*; `stzApp` /
+`stzPlatform` (the delivery-plane runtime worlds) are what *realize* it.
 
 ### 2.3 Three scopes that cannot be confused
 
@@ -602,11 +611,12 @@ callers.
   gained only additive `set_var`/`unset_var`/`change_dir`/`spawn_process` cases
   in Describe/Impact/Risks.
 - **Phase 3b — the full scope model (§2). SHIPPED (2026-07-20).**
-  `stzPlatformProfile` (the common ground: the dev system + the apps) +
-  `stzAppProfile` (a part + its deployment `stzSystemProfile`) + `stzSystemScope`
-  (the named context feature code is written in). Model the solution —
-  `oSol.DevelopedOn(:Windows)`, `oSol.Deploy(:firmware, :ESP32)` — then write in a
-  scope: `oSol.App(:firmware).System()`
+  `stzPlatformProfile` (the DECLARATION: the dev system + the constituents) +
+  `stzAppProfile` (a constituent + its `Kind()` + its deployment
+  `stzSystemProfile`) + `stzSystemScope` (the named context feature code is
+  written in). Model the solution — `oProfile.DevelopedOn(:Windows)`,
+  `oProfile.WithServer(:backend, :LinuxServer)`, `oProfile.WithApp(:firmware,
+  :ESP32)` — then write in a scope: `oProfile.App(:firmware).System()`
   resolves to the ESP32 profile (says `espidf` on a Windows box — no live leak).
   **Down-constrain** is a real refusal: `scope.Spawn(...)` raises in the firmware
   scope because the target forbids `process`, checked on the dev box against the
@@ -617,9 +627,13 @@ callers.
   different verdicts per scope (Spawn: native on the Linux backend, refused on
   ESP32 and Android). Feature code reads naturally in a Ring block —
   `scope { ReadPin(1) WritePin(2,1) }`. `.stzplatform` format round-trips.
-  Builds on the Phase 1b capability envelope; the scope's profile is the same
-  one that gates actors (Phase 4). Pure Ring. Guard
-  `full_scope_model_narrated.ring` (34).
+  Building on this, the existing delivery-plane **`stzPlatform` now OWNS a
+  `stzPlatformProfile`** (`SetProfile`) and drives its lifecycle — **`Build()`
+  then `Deploy()`**, two separate ordered operations (Deploy refuses unless the
+  platform was built; Build refuses an unsound solution). We do not deploy a
+  profile; we deploy a platform and its constituents. Builds on the Phase 1b
+  capability envelope; the scope's profile is the same one that gates actors
+  (Phase 4). Pure Ring. Guard `full_scope_model_narrated.ring` (44).
 - **Phase 4 — governance crossing. SHIPPED (2026-07-20).** Each
   `stzVirtualOperation` is coloured by the capability KIND it requires
   (`RequiredKind` — every reality-touching op is `effectful`). `stzSystemActor`

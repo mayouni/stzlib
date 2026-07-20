@@ -24,16 +24,16 @@ cCwd0 = WorkingDirectory()
 cScratch = cCwd0 + "/_plat_scratch"
 StzEngineDirCreatePath(cScratch)
 
-? "-- Scene 1: model the solution -- the common ground --"
+? "-- Scene 1: model the solution -- a platform PROFILE and its constituents --"
 oSol = new stzPlatformProfile("my-iot-product")
 oSol.DevelopedOn(:Windows)
-oSol.Deploys([
-	[ :backend,  :LinuxServer ],
-	[ :superapp, :Android ],
-	[ :firmware, :ESP32 ]
-])
-chk("the solution has three apps", oSol.NumberOfApps() = 3)
+oSol.WithServer(:backend, :LinuxServer)
+oSol.WithSuperApp(:superapp, :Android)
+oSol.WithApp(:firmware, :ESP32)
+chk("the solution has three constituents", oSol.NumberOfConstituents() = 3)
 chk("...named backend / superapp / firmware", oSol.HasApp(:backend) and oSol.HasApp(:superapp) and oSol.HasApp(:firmware))
+chk("...of the declared kinds (server / superapp / app)",
+	oSol.App(:backend).Kind() = "server" and oSol.App(:superapp).Kind() = "superapp" and oSol.App(:firmware).Kind() = "app")
 chk("the firmware deploys to an ESP32 (espidf)", oSol.App(:firmware).DeploymentOSName() = "espidf")
 chk("the superapp deploys to android", oSol.App(:superapp).DeploymentOSName() = "android")
 
@@ -147,6 +147,41 @@ oFwProfile = oSol.App(:firmware).System().System()
 chk("the scope's target is a full system profile", oFwProfile.Can("gpio"))
 chk("...whose capabilities gate an actor too: an LLM gets nothing", len(oFwProfile.CapabilitiesForActorKinds([ "inference" ])) = 0)
 chk("...a human/PI gets the effectful/sensing/compute ones", len(oFwProfile.CapabilitiesForActorKinds([ "effectful", "sensing", "compute" ])) > 0)
+
+? ""
+? "-- Scene 13: a stzPlatform OWNS the profile; Build() THEN Deploy() --"
+# We do not deploy a profile -- a PLATFORM (which owns the profile) is built,
+# then deployed. Two separate, ordered operations.
+oPlatform = StzPlatformQ("my-iot-product")
+oPlatform.SetProfile(oSol)
+chk("the platform owns the deployment profile", oPlatform.HasProfile())
+chk("...seeing all three constituents", oPlatform.NumberOfConstituents() = 3)
+chk("it is neither built nor deployed yet", oPlatform.IsBuilt() = 0 and oPlatform.IsDeployed() = 0)
+bDeployEarly = FALSE
+try
+	oPlatform.Deploy()
+catch
+	bDeployEarly = TRUE
+done
+chk("Deploy() before Build() is REFUSED (they are separate, ordered)", bDeployEarly)
+oPlatform.Build()
+chk("after Build(), the platform is built", oPlatform.IsBuilt())
+chk("...with a build entry per constituent", len(oPlatform.BuildReport()) = 3)
+oPlatform.Deploy()
+chk("...and NOW Deploy() succeeds", oPlatform.IsDeployed())
+chk("...deploying every constituent to its target", len(oPlatform.DeployReport()) = 3)
+
+? ""
+? "-- Scene 14: an unsound solution cannot be built --"
+oBadPlat = StzPlatformQ("bad")
+oBadPlat.SetProfile(new stzPlatformProfile("empty"))   # no dev system, no apps
+bBuildRefused = FALSE
+try
+	oBadPlat.Build()
+catch
+	bBuildRefused = TRUE
+done
+chk("Build() refuses an unsound solution", bBuildRefused)
 
 # cleanup
 StzEngineDirDelete(cScratch)

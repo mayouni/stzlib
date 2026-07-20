@@ -16,27 +16,33 @@
 #                                                              #
 #--------------------------------------------------------------#
 #
-# SOFTANZA_SYSTEM_FOUNDATION.md section 2, the architect's model. Model the
-# SOLUTION first, then write feature code inside an app's system scope:
+# SOFTANZA_SYSTEM_FOUNDATION.md section 2, the architect's model. This file is
+# the DECLARATION layer: a stzPlatformProfile only DESCRIBES a solution -- its
+# development system and its constituents (a server, a superapp, an app, ...),
+# each with its deployment system. It does NOT build or deploy: those are
+# lifecycle operations on the stzPlatform that OWNS the profile.
 #
-#   oSol = new stzPlatformProfile("my-iot-product")
-#   oSol.DevelopedOn(:Windows)
-#   oSol.Deploy(:backend,  :LinuxServer)
-#   oSol.Deploy(:superapp, :Android)
-#   oSol.Deploy(:firmware, :ESP32)     # or oSol.Deploys([ [:backend, :LinuxServer], ... ])
+#   # 1. MODEL the solution (declaration)
+#   oProfile = new stzPlatformProfile("my-iot-product")
+#   oProfile.DevelopedOn(:Windows)
+#   oProfile.WithServer(:backend,  :LinuxServer)
+#   oProfile.WithSuperApp(:superapp, :Android)
+#   oProfile.WithApp(:firmware, :ESP32)
 #
-#   oScope = oSol.App(:firmware).System()   # the ESP32 scope, on THIS box
-#   oScope.ReadPin(4)                       # allowed (ESP32 has gpio) --
-#                                           # UP-ENABLED: rehearsed, the dev
-#                                           # box has no gpio
-#   oScope.Spawn("worker")                  # REFUSED (down-constrain): an MCU
-#                                           # has no processes
+#   # 2. write feature code in a scope (checked against the target)
+#   oScope = oProfile.App(:firmware).System()  # the ESP32 scope, on THIS box
+#   oScope.ReadPin(4)                          # up-enabled: rehearsed (no gpio here)
+#   oScope.Spawn("worker")                     # REFUSED: an MCU has no processes
 #
-# The check runs on the DEV machine against the TARGET's profile, so a forbidden
-# operation is caught during development, not in production on the target. The
-# up-enable rehearsal is captured for the deploy-time lowering (a PLANNED bridge:
-# cross-compile / flash). Builds on the Phase 1b capability envelope; no new
-# engine work.
+#   # 3. the PLATFORM owns the profile and BUILDS, then DEPLOYS (separate ops)
+#   oPlatform = StzPlatformQ("my-iot-product").SetProfile(oProfile)
+#   oPlatform.Build()      # build the platform + its constituents
+#   oPlatform.Deploy()     # then deploy them (raises if Build() did not run)
+#
+# The scope check runs on the DEV machine against the TARGET's profile, so a
+# forbidden operation is caught during development. The up-enable rehearsal is
+# captured for the deploy-time lowering (a PLANNED bridge: cross-compile / flash).
+# Builds on the Phase 1b capability envelope; no new engine work.
 
   #=============#
  #  FUNCTIONS  #
@@ -224,6 +230,7 @@ class stzSystemScope from stzObject
 class stzAppProfile from stzObject
 
 	@cName = ""
+	@cKind = "app"        # app / server / superapp / ...
 	@oDeploySystem = NULL
 
 	def init(pcName)
@@ -234,6 +241,14 @@ class stzAppProfile from stzObject
 
 	def SetName(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
+		return This
+
+	# The kind of constituent this is (app / server / superapp / ...).
+	def Kind()
+		return @cKind
+
+	def SetKind(pcKind)
+		@cKind = StzLower(ring_trim("" + pcKind))
 		return This
 
 	# Declare the deployment target (a friendly token or a stzSystemProfile).
@@ -315,25 +330,33 @@ class stzPlatformProfile from stzObject
 			This.AddApp(poApp)
 			return This
 
-	# Deploy an app named pcName to pTarget -- builds the app profile and adds
-	# it. (This is the operation the old DeployApp() global carried; it belongs
-	# to the platform.)
-	def Deploy(pcName, pTarget)
+	# DECLARE a constituent (a part of the solution) of a given kind, named
+	# pcName, whose deployment target is pTarget. This is a MODELLING act -- the
+	# profile only DESCRIBES the solution. Building and deploying are lifecycle
+	# operations on the stzPlatform that OWNS this profile, not on the profile.
+	def WithConstituent(pcKind, pcName, pTarget)
 		_oApp_ = new stzAppProfile(pcName)
+		_oApp_.SetKind(pcKind)
 		_oApp_.To(pTarget)
 		This.AddApp(_oApp_)
 		return This
 
-		def DeployQ(pcName, pTarget)
-			return This.Deploy(pcName, pTarget)
+	def WithApp(pcName, pTarget)
+		return This.WithConstituent("app", pcName, pTarget)
 
-	# Batch deploy: a list of [ name, target ] pairs.
-	def Deploys(paPairs)
-		if isList(paPairs)
-			_n_ = len(paPairs)
+	def WithServer(pcName, pTarget)
+		return This.WithConstituent("server", pcName, pTarget)
+
+	def WithSuperApp(pcName, pTarget)
+		return This.WithConstituent("superapp", pcName, pTarget)
+
+	# Declare several constituents at once: [ [ kind, name, target ], ... ].
+	def WithConstituents(paTriples)
+		if isList(paTriples)
+			_n_ = len(paTriples)
 			for _i_ = 1 to _n_
-				if isList(paPairs[_i_]) and len(paPairs[_i_]) >= 2
-					This.Deploy(paPairs[_i_][1], paPairs[_i_][2])
+				if isList(paTriples[_i_]) and len(paTriples[_i_]) >= 3
+					This.WithConstituent(paTriples[_i_][1], paTriples[_i_][2], paTriples[_i_][3])
 				ok
 			next
 		ok
@@ -342,8 +365,14 @@ class stzPlatformProfile from stzObject
 	def Apps()
 		return @aApps
 
+		def Constituents()
+			return @aApps
+
 	def NumberOfApps()
 		return len(@aApps)
+
+		def NumberOfConstituents()
+			return len(@aApps)
 
 	def HasApp(pcName)
 		return This._IndexOfApp(pcName) > 0
@@ -358,13 +387,17 @@ class stzPlatformProfile from stzObject
 		next
 		return 0
 
-	# An app by name -- the receiver of a deployment scope: App(:x).System().
+	# A constituent by name -- the receiver of a deployment scope:
+	# App(:x).System().
 	def App(pcName)
 		_i_ = This._IndexOfApp(pcName)
 		if _i_ = 0
-			StzRaise("No app '" + pcName + "' in platform '" + @cName + "'.")
+			StzRaise("No constituent '" + pcName + "' in platform '" + @cName + "'.")
 		ok
 		return @aApps[_i_]
+
+		def Constituent(pcName)
+			return This.App(pcName)
 
 	  #-- structural validation ------------------------------
 
@@ -400,7 +433,7 @@ class stzPlatformProfile from stzObject
 		ok
 		_n_ = len(@aApps)
 		for _i_ = 1 to _n_
-			_c_ += "app: " + @aApps[_i_].Name() + " -> " +
+			_c_ += @aApps[_i_].Kind() + ": " + @aApps[_i_].Name() + " -> " +
 			       @aApps[_i_].DeploymentOSName() + _nl_
 		next
 		return _c_
@@ -433,14 +466,12 @@ class stzPlatformProfile from stzObject
 				This.SetName(_cVal_)
 			but _cKey_ = "developed_on"
 				This.DevelopedOn(_cVal_)
-			but _cKey_ = "app"
-				# "name -> target"
+			but StzFindFirst("->", _cVal_) > 0
+				# a constituent line: "<kind>: <name> -> <target>"
 				_nArrow_ = StzFindFirst("->", _cVal_)
-				if _nArrow_ > 0
-					_cAppName_ = ring_trim(StzLeft(_cVal_, _nArrow_ - 1))
-					_cTarget_ = ring_trim(StzMidToEnd(_cVal_, _nArrow_ + 2))
-					This.Deploy(_cAppName_, _cTarget_)
-				ok
+				_cAppName_ = ring_trim(StzLeft(_cVal_, _nArrow_ - 1))
+				_cTarget_ = ring_trim(StzMidToEnd(_cVal_, _nArrow_ + 2))
+				This.WithConstituent(_cKey_, _cAppName_, _cTarget_)
 			ok
 		next
 		return This
