@@ -34,22 +34,27 @@ moisture and drives a pump. Here is their whole dev-to-deploy session.
 
 ### 1. Who am I developing on?
 
-No guessing, no ambient "current machine." The development system is named and
-read live from the engine:
+No guessing, no ambient "current machine." The development system is an object
+you instantiate, read live from the engine:
 
 ```ring
-oDev = DevelopmentSystem()
-? "it can: " + _StzJoinComma(oDev.CapabilityList())
-```
-```
-DevelopmentSystem() -> windows / x64 / 64-bit / 12 cpus
-it can: filesystem, process, network, environment, dynamic_load, threads, clock
-it CANNOT: gpio (a laptop is not a microcontroller)
+o1 = new stzDevSystem()
+
+? o1.OSName() + " / " + o1.Architecture() + " / " + o1.BitSize() + "-bit"
+#--> windows / x64 / 64-bit
+
+? @@( o1.Capabilities() )
+#--> [ "filesystem", "process", "network", "environment", "dynamic_load", "threads", "clock" ]
+
+? o1.Lacks(:gpio)
+#--> 1
 ```
 
 That last line matters more than it looks: the machine's *capabilities* are
-first-class. The system knows the laptop has no GPIO — and it will use that fact
-in a moment to help, not to block.
+first-class data. The object knows the laptop has no GPIO — and it will use that
+fact in a moment to help, not to block. (`CurrentSystem()` — a `new
+stzCurrentSystem()` — is its runtime-scope twin: on a deployed device it reads
+*that* device.)
 
 ### 2. Model the whole product once
 
