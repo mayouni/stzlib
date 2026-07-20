@@ -25,12 +25,12 @@ cScratch = cCwd0 + "/_plat_scratch"
 StzEngineDirCreatePath(cScratch)
 
 ? "-- Scene 1: model the solution -- the common ground --"
-oSol = NewPlatformProfile("my-iot-product")
+oSol = new stzPlatformProfile("my-iot-product")
 oSol.DevelopedOn(:Windows)
 oSol.Deploys([
-	DeployApp(:backend,  :LinuxServer),
-	DeployApp(:superapp, :Android),
-	DeployApp(:firmware, :ESP32)
+	[ :backend,  :LinuxServer ],
+	[ :superapp, :Android ],
+	[ :firmware, :ESP32 ]
 ])
 chk("the solution has three apps", oSol.NumberOfApps() = 3)
 chk("...named backend / superapp / firmware", oSol.HasApp(:backend) and oSol.HasApp(:superapp) and oSol.HasApp(:firmware))
@@ -40,10 +40,10 @@ chk("the superapp deploys to android", oSol.App(:superapp).DeploymentOSName() = 
 ? ""
 ? "-- Scene 2: the solution model is structurally validated --"
 chk("a fully-modelled solution is sound", oSol.IsSound())
-oBad = NewPlatformProfile("bad")
+oBad = new stzPlatformProfile("bad")
 chk("...one with no dev system and no apps is NOT", NOT oBad.IsSound())
 chk("...and it says why", len(oBad.Validate()) >= 1)
-oBad2 = NewPlatformProfile("bad2")
+oBad2 = new stzPlatformProfile("bad2")
 oBad2.DevelopedOn(:Windows)
 oBad2.AddApp(new stzAppProfile("orphan"))
 chk("an app with no deployment target is flagged", NOT oBad2.IsSound())
@@ -130,13 +130,15 @@ chk("...both up-enabled (rehearsed) for the target", len(oS.RehearsedOperations(
 ? "-- Scene 11: the .stzplatform format round-trips --"
 cText = oSol.ToStzPlatform()
 chk("the serialized text names the solution", StzFindFirst("my-iot-product", cText) > 0)
-oBackP = PlatformProfileFromString(cText)
+oBackP = StzPlatformProfileQ()
+oBackP.FromString(cText)
 chk("the app count survives", oBackP.NumberOfApps() = 3)
 chk("...and the firmware target", oBackP.App(:firmware).DeploymentOSName() = "espidf")
 cPath = cScratch + "/solution.stzplatform"
 oSol.Save(cPath)
-oFileP = ReadPlatformProfile(cPath)
-chk("Save + ReadPlatformProfile round-trips the file", oFileP.App(:superapp).DeploymentOSName() = "android")
+oFileP = StzPlatformProfileQ()
+oFileP.LoadFrom(cPath)
+chk("Save + LoadFrom round-trips the file", oFileP.App(:superapp).DeploymentOSName() = "android")
 killreal(cPath)
 
 ? ""

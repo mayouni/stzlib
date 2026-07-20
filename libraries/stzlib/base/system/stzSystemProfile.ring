@@ -69,53 +69,6 @@ func DeclareSystem(pcName)
 	_oP_.SetRole("deployment")
 	return _oP_
 
-func ReadSystemProfile(pcPath)
-	return SystemProfileFromString(_StzReadTextFile(pcPath))
-
-func SystemProfileFromString(pcText)
-	_oP_ = new stzSystemProfile("")
-	_oP_.SetRole("deployment")
-	_cText_ = StzReplace(pcText, char(13), "")
-	_aLines_ = StzSplit(_cText_, char(10))
-	_bCapsSet_ = FALSE
-	_nLines_ = len(_aLines_)
-	for _i_ = 1 to _nLines_
-		_cLine_ = ring_trim(_aLines_[_i_])
-		if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
-			loop
-		ok
-		_nColon_ = StzFindFirst(":", _cLine_)
-		if _nColon_ = 0
-			loop
-		ok
-		_cKey_ = StzLower(ring_trim(StzLeft(_cLine_, _nColon_ - 1)))
-		_cVal_ = ring_trim(StzMidToEnd(_cLine_, _nColon_ + 1))
-		if _cKey_ = "name"
-			_oP_.SetName(_cVal_)
-		but _cKey_ = "role"
-			_oP_.SetRole(_cVal_)
-		but _cKey_ = "os"
-			_oP_.SetOSName(_cVal_)
-		but _cKey_ = "arch"
-			_oP_.SetArchitecture(_cVal_)
-		but _cKey_ = "bits"
-			_oP_.SetBitSize(number(_cVal_))
-		but _cKey_ = "endianness"
-			_oP_.SetEndianness(_cVal_)
-		but _cKey_ = "cpu_count"
-			_oP_.SetCpuCount(number(_cVal_))
-		but _cKey_ = "language_version"
-			_oP_.SetLanguageVersion(_cVal_)
-		but _cKey_ = "capabilities"
-			_oP_.SetCapabilityList(_StzParseCapList(_cVal_))
-			_bCapsSet_ = TRUE
-		ok
-	next
-	if NOT _bCapsSet_
-		_oP_.SetCapabilityList(_StzDefaultCapsForClass(_StzSystemClassOf(_oP_.OSName())))
-	ok
-	return _oP_
-
 # --- private helpers (file scope, so no class-scope builtin traps) ---
 
 func _StzLiveSystemProfile(pcRole)
@@ -624,6 +577,56 @@ class stzSystemProfile from stzObject
 		def SaveQ(pcPath)
 			This.Save(pcPath)
 			return This
+
+	# Read a .stzsystem file INTO this profile (the mirror of Save).
+	def LoadFrom(pcPath)
+		return This.FromString(_StzReadTextFile(pcPath))
+
+	# Parse .stzsystem text into this profile. Defaults the role to deployment
+	# (a declared target) unless the text says otherwise, and fills class-default
+	# capabilities when no capabilities line is present.
+	def FromString(pcText)
+		This.SetRole("deployment")
+		_cText_ = StzReplace(pcText, char(13), "")
+		_aLines_ = StzSplit(_cText_, char(10))
+		_bCapsSet_ = FALSE
+		_nLines_ = len(_aLines_)
+		for _i_ = 1 to _nLines_
+			_cLine_ = ring_trim(_aLines_[_i_])
+			if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
+				loop
+			ok
+			_nColon_ = StzFindFirst(":", _cLine_)
+			if _nColon_ = 0
+				loop
+			ok
+			_cKey_ = StzLower(ring_trim(StzLeft(_cLine_, _nColon_ - 1)))
+			_cVal_ = ring_trim(StzMidToEnd(_cLine_, _nColon_ + 1))
+			if _cKey_ = "name"
+				This.SetName(_cVal_)
+			but _cKey_ = "role"
+				This.SetRole(_cVal_)
+			but _cKey_ = "os"
+				This.SetOSName(_cVal_)
+			but _cKey_ = "arch"
+				This.SetArchitecture(_cVal_)
+			but _cKey_ = "bits"
+				This.SetBitSize(number(_cVal_))
+			but _cKey_ = "endianness"
+				This.SetEndianness(_cVal_)
+			but _cKey_ = "cpu_count"
+				This.SetCpuCount(number(_cVal_))
+			but _cKey_ = "language_version"
+				This.SetLanguageVersion(_cVal_)
+			but _cKey_ = "capabilities"
+				This.SetCapabilityList(_StzParseCapList(_cVal_))
+				_bCapsSet_ = TRUE
+			ok
+		next
+		if NOT _bCapsSet_
+			This.SetCapabilityList(_StzDefaultCapsForClass(_StzSystemClassOf(This.OSName())))
+		ok
+		return This
 
 	  #-- info / show ----------------------------------------
 

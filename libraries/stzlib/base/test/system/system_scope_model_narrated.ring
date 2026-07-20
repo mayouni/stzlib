@@ -121,7 +121,8 @@ chk("revoke removes it", oCaps.Lacks(:network) and oCaps.NumberOfCapabilities() 
 ? "-- Scene 8: the .stzsystem format round-trips (string) --"
 cText = oEsp.ToStzSystem()
 chk("the serialized text names the target", StzFindFirst("esp32-firmware", cText) > 0)
-oBack = SystemProfileFromString(cText)
+oBack = StzSystemProfileQ()
+oBack.FromString(cText)
 chk("os survives the round trip", oBack.OSName() = "rtos")
 chk("arch survives", oBack.Architecture() = "arm")
 chk("bit size survives (parsed as a number)", oBack.BitSize() = 32)
@@ -133,17 +134,19 @@ chk("the capability count matches the original", oBack.CapabilitiesQ().NumberOfC
 ? ""
 ? "-- Scene 9: a declared profile with NO capabilities line defaults by class --"
 cMobileText = "name: my-android-app" + char(10) + "os: android" + char(10) + "arch: arm64" + char(10) + "bits: 64"
-oMob = SystemProfileFromString(cMobileText)
+oMob = StzSystemProfileQ()
+oMob.FromString(cMobileText)
 chk("an android profile is the mobile class", oMob.IsMobile())
 chk("...and gets sensible mobile default capabilities (network, no gpio)",
 	oMob.Can(:network) and oMob.Lacks(:gpio))
 chk("...and it still says android, not windows", oMob.OSName() = "android")
 
 ? ""
-? "-- Scene 10: Save() to a .stzsystem file and ReadSystemProfile() back --"
+? "-- Scene 10: Save() to a .stzsystem file and LoadFrom() back --"
 cPath = "_tmp_scope_esp32.stzsystem"
 oEsp.Save(cPath)
-oFile = ReadSystemProfile(cPath)
+oFile = StzSystemProfileQ()
+oFile.LoadFrom(cPath)
 chk("the file round-trips the os", oFile.OSName() = "rtos")
 chk("...and the gpio capability", oFile.Can(:gpio))
 chk("...and the arch", oFile.Architecture() = "arm")

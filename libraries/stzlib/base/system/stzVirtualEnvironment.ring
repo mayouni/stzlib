@@ -32,12 +32,6 @@
 func StzVirtualEnvironmentQ()
 	return new stzVirtualEnvironment()
 
-func NewVirtualEnvironment()
-	return new stzVirtualEnvironment()
-
-	func VirtualEnvironment()
-		return new stzVirtualEnvironment()
-
 
   #=======================#
  #  STZENVIRONMENTSTATE  #

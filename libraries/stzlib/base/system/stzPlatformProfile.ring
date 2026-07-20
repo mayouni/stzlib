@@ -19,13 +19,11 @@
 # SOFTANZA_SYSTEM_FOUNDATION.md section 2, the architect's model. Model the
 # SOLUTION first, then write feature code inside an app's system scope:
 #
-#   oSol = NewPlatformProfile("my-iot-product")
+#   oSol = new stzPlatformProfile("my-iot-product")
 #   oSol.DevelopedOn(:Windows)
-#   oSol.Deploys([
-#       DeployApp(:backend,  :LinuxServer),
-#       DeployApp(:superapp, :Android),
-#       DeployApp(:firmware, :ESP32)
-#   ])
+#   oSol.Deploy(:backend,  :LinuxServer)
+#   oSol.Deploy(:superapp, :Android)
+#   oSol.Deploy(:firmware, :ESP32)     # or oSol.Deploys([ [:backend, :LinuxServer], ... ])
 #
 #   oScope = oSol.App(:firmware).System()   # the ESP32 scope, on THIS box
 #   oScope.ReadPin(4)                       # allowed (ESP32 has gpio) --
@@ -47,53 +45,8 @@
 func StzPlatformProfileQ()
 	return new stzPlatformProfile("")
 
-func NewPlatformProfile(pcName)
-	return new stzPlatformProfile(pcName)
-
 func StzAppProfileQ()
 	return new stzAppProfile("")
-
-# Build an app profile with its deployment target in one call (avoids the
-# inline new X().To(...) form, which is R13 in Ring).
-func DeployApp(pcName, pTarget)
-	_o_ = new stzAppProfile(pcName)
-	_o_.To(pTarget)
-	return _o_
-
-func ReadPlatformProfile(pcPath)
-	return PlatformProfileFromString(_StzReadTextFile(pcPath))
-
-func PlatformProfileFromString(pcText)
-	_oP_ = new stzPlatformProfile("")
-	_cText_ = StzReplace(pcText, char(13), "")
-	_aLines_ = StzSplit(_cText_, char(10))
-	_nLines_ = len(_aLines_)
-	for _i_ = 1 to _nLines_
-		_cLine_ = ring_trim(_aLines_[_i_])
-		if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
-			loop
-		ok
-		_nColon_ = StzFindFirst(":", _cLine_)
-		if _nColon_ = 0
-			loop
-		ok
-		_cKey_ = StzLower(ring_trim(StzLeft(_cLine_, _nColon_ - 1)))
-		_cVal_ = ring_trim(StzMidToEnd(_cLine_, _nColon_ + 1))
-		if _cKey_ = "platform"
-			_oP_.SetName(_cVal_)
-		but _cKey_ = "developed_on"
-			_oP_.DevelopedOn(_cVal_)
-		but _cKey_ = "app"
-			# "name -> target"
-			_nArrow_ = StzFindFirst("->", _cVal_)
-			if _nArrow_ > 0
-				_cAppName_ = ring_trim(StzLeft(_cVal_, _nArrow_ - 1))
-				_cTarget_ = ring_trim(StzMidToEnd(_cVal_, _nArrow_ + 2))
-				_oP_.AddApp(DeployApp(_cAppName_, _cTarget_))
-			ok
-		ok
-	next
-	return _oP_
 
 # Map a friendly deployment target to a declared stzSystemProfile, reusing the
 # Phase 1b class-default capability sets. An already-built profile passes through.
@@ -362,11 +315,26 @@ class stzPlatformProfile from stzObject
 			This.AddApp(poApp)
 			return This
 
-	def Deploys(paApps)
-		if isList(paApps)
-			_n_ = len(paApps)
+	# Deploy an app named pcName to pTarget -- builds the app profile and adds
+	# it. (This is the operation the old DeployApp() global carried; it belongs
+	# to the platform.)
+	def Deploy(pcName, pTarget)
+		_oApp_ = new stzAppProfile(pcName)
+		_oApp_.To(pTarget)
+		This.AddApp(_oApp_)
+		return This
+
+		def DeployQ(pcName, pTarget)
+			return This.Deploy(pcName, pTarget)
+
+	# Batch deploy: a list of [ name, target ] pairs.
+	def Deploys(paPairs)
+		if isList(paPairs)
+			_n_ = len(paPairs)
 			for _i_ = 1 to _n_
-				This.AddApp(paApps[_i_])
+				if isList(paPairs[_i_]) and len(paPairs[_i_]) >= 2
+					This.Deploy(paPairs[_i_][1], paPairs[_i_][2])
+				ok
 			next
 		ok
 		return This
@@ -439,6 +407,42 @@ class stzPlatformProfile from stzObject
 
 	def Save(pcPath)
 		_StzWriteTextFile(pcPath, This.ToStzPlatform())
+		return This
+
+	# Read a .stzplatform file INTO this profile (the mirror of Save).
+	def LoadFrom(pcPath)
+		return This.FromString(_StzReadTextFile(pcPath))
+
+	# Parse .stzplatform text into this profile.
+	def FromString(pcText)
+		_cText_ = StzReplace(pcText, char(13), "")
+		_aLines_ = StzSplit(_cText_, char(10))
+		_nLines_ = len(_aLines_)
+		for _i_ = 1 to _nLines_
+			_cLine_ = ring_trim(_aLines_[_i_])
+			if _cLine_ = "" or StzLeft(_cLine_, 1) = "#"
+				loop
+			ok
+			_nColon_ = StzFindFirst(":", _cLine_)
+			if _nColon_ = 0
+				loop
+			ok
+			_cKey_ = StzLower(ring_trim(StzLeft(_cLine_, _nColon_ - 1)))
+			_cVal_ = ring_trim(StzMidToEnd(_cLine_, _nColon_ + 1))
+			if _cKey_ = "platform"
+				This.SetName(_cVal_)
+			but _cKey_ = "developed_on"
+				This.DevelopedOn(_cVal_)
+			but _cKey_ = "app"
+				# "name -> target"
+				_nArrow_ = StzFindFirst("->", _cVal_)
+				if _nArrow_ > 0
+					_cAppName_ = ring_trim(StzLeft(_cVal_, _nArrow_ - 1))
+					_cTarget_ = ring_trim(StzMidToEnd(_cVal_, _nArrow_ + 2))
+					This.Deploy(_cAppName_, _cTarget_)
+				ok
+			ok
+		next
 		return This
 
 	def Show()
