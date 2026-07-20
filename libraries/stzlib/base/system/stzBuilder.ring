@@ -80,6 +80,82 @@ func _StzFindZig()
 	next
 	return "zig"
 
+# Locate the Ring installation root (the folder holding language/include/ring.h
+# and language/src/*.c). $RING, then common roots. Ring's VM is pure C, so once
+# located it cross-compiles with Zig like any C part -- this is what lets a Ring
+# app become a native binary for ANY target, no ring.dll on the machine.
+func _StzFindRing()
+	_oE_ = new stzEnvironment()
+	_cR_ = _oE_.Var("RING")
+	if _cR_ != "" and StzEngineFileExists(_cR_ + "/language/include/ring.h") = 1
+		return _cR_
+	ok
+	_aCand_ = [ "D:/ring127", "D:/ring", "C:/ring", "/usr/local/ring", "/usr/lib/ring" ]
+	_n_ = len(_aCand_)
+	for _i_ = 1 to _n_
+		if StzEngineFileExists(_aCand_[_i_] + "/language/include/ring.h") = 1
+			return _aCand_[_i_]
+		ok
+	next
+	return ""
+
+# Directory portion of a path (codepoint-safe; separators normalized to /).
+func _StzDirOf(pcPath)
+	_c_ = StzReplace("" + pcPath, "\", "/")
+	_a_ = StzSplit(_c_, "/")
+	_n_ = len(_a_)
+	if _n_ <= 1
+		return "."
+	ok
+	_cDir_ = _a_[1]
+	for _i_ = 2 to _n_ - 1
+		_cDir_ += "/" + _a_[_i_]
+	next
+	if _cDir_ = ""
+		return "/"
+	ok
+	return _cDir_
+
+# File basename without its extension.
+func _StzBaseNoExt(pcPath)
+	_c_ = StzReplace("" + pcPath, "\", "/")
+	_a_ = StzSplit(_c_, "/")
+	_cFile_ = _a_[len(_a_)]
+	_aP_ = StzSplit(_cFile_, ".")
+	if len(_aP_) <= 1
+		return _cFile_
+	ok
+	_cB_ = _aP_[1]
+	for _i_ = 2 to len(_aP_) - 1
+		_cB_ += "." + _aP_[_i_]
+	next
+	return _cB_
+
+# The Ring VM C sources to compile with a Ring app: every language/src/*.c EXCEPT
+# ring.c (the CLI's own main -- we supply ours via -geo) and, for a non-Windows
+# target, ringw.c (a Windows-only unit). This IS Ring's own per-platform file
+# split -- the small pragmatic table that lets one VM source tree cross-compile.
+func _StzRingVMSources(pcRoot, pbWindowsTarget)
+	_cDir_ = pcRoot + "/language/src"
+	_aAll_ = StzListFiles(_cDir_)
+	_aOut_ = []
+	_n_ = len(_aAll_)
+	for _i_ = 1 to _n_
+		_cLow_ = StzLower("" + _aAll_[_i_])
+		_nDotC_ = StzFindLast(".c", _cLow_)
+		if _nDotC_ = 0 or _nDotC_ != (len(_cLow_) - 1)
+			loop   # keep only names ending in .c
+		ok
+		if _cLow_ = "ring.c"
+			loop
+		ok
+		if _cLow_ = "ringw.c" and NOT pbWindowsTarget
+			loop
+		ok
+		_aOut_ + (_cDir_ + "/" + _aAll_[_i_])
+	next
+	return _aOut_
+
 
   #===============#
  #  STZBUILDER   #
@@ -89,7 +165,7 @@ class stzBuilder from stzObject
 
 	@cName = ""
 	@aSources = []
-	@cLanguage = "c"       # c / cpp / zig
+	@cLanguage = "c"       # c / cpp / zig / ring
 	@cKind = "exe"         # exe / lib
 	@cTriple = ""          # "" = host (native)
 	@cOptimize = "debug"   # debug / safe / fast / small
@@ -102,6 +178,14 @@ class stzBuilder from stzObject
 	@cStderr = ""
 	@nExit = -1
 	@bBuilt = FALSE
+
+	# Ring lowering state: a Ring part is `ring -geo`'d into a C compilation
+	# unit, then compiled with the Ring VM source through the same Zig backend.
+	@cRingRoot = ""
+	@bLowered = FALSE
+	@aLoweredSources = []
+	@aLoweredIncludes = []
+	@aLoweredLibs = []
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -131,6 +215,8 @@ class stzBuilder from stzObject
 			return This.Language("cpp")
 		def AsZig()
 			return This.Language("zig")
+		def AsRing()
+			return This.Language("ring")
 
 	def AsExe()
 		@cKind = "exe"
@@ -212,10 +298,95 @@ class stzBuilder from stzObject
 		ok
 		return _StzFindZig()
 
+	  #-- Ring parts: lower to C, then compile through Zig ---
+
+	def SetRingRoot(pcPath)
+		@cRingRoot = "" + pcPath
+		return This
+
+	def RingRoot()
+		if @cRingRoot != ""
+			return @cRingRoot
+		ok
+		return _StzFindRing()
+
+	def _RingExe()
+		_cB_ = This.RingRoot() + "/bin/ring"
+		_oOS_ = new stzOperatingSystem()
+		if _oOS_.IsWindows()
+			return _cB_ + ".exe"
+		ok
+		return _cB_
+
+	def _IsWindowsTarget()
+		if @cTriple = ""
+			_oOS_ = new stzOperatingSystem()
+			return _oOS_.IsWindows()
+		ok
+		return StzFindFirst("windows", @cTriple) > 0
+
+	# Lower a Ring part exactly once (idempotent); called before the args/command
+	# are resolved. Running `ring -geo` here is a real side effect, so it is
+	# guarded -- displaying the command or building both resolve to one lowering.
+	def _EnsureLowered()
+		if @cLanguage != "ring"
+			return
+		ok
+		if @bLowered
+			return
+		ok
+		This._LowerRing()
+		@bLowered = TRUE
+
+	def _LowerRing()
+		if len(@aSources) = 0
+			return
+		ok
+		_cSrc_ = @aSources[1]
+		_cDir_ = _StzDirOf(_cSrc_)
+		_cBase_ = _StzBaseNoExt(_cSrc_)
+
+		# Ring's -geo writes <base>.c next to the source but ringappcode.c/.h to
+		# the process cwd -- so cd into the source dir first to co-locate them.
+		_oEnv_ = new stzEnvironment()
+		_cSaved_ = _oEnv_.WorkingDirectory()
+		_oEnv_.ChangeWorkingDirectory(_cDir_)
+		_cCmd_ = This._RingExe() + " " + _cBase_ + ".ring -geo"
+		_oOS_ = new stzOperatingSystem()
+		if _oOS_.IsWindows()
+			_cCmd_ = StzReplace(_cCmd_, "/", "\")
+		ok
+		_oChild_ = SpawnProcess(_cCmd_)
+		_oChild_.ReadOutputAll()
+		_oChild_.ReadErrorAll()
+		_oChild_.Wait()
+		_oChild_.Close()
+		_oEnv_.ChangeWorkingDirectory(_cSaved_)
+
+		# the C compilation unit: generated app C + embedded bytecode + the VM
+		_aLS_ = [ _cDir_ + "/" + _cBase_ + ".c", _cDir_ + "/ringappcode.c" ]
+		_cRoot_ = This.RingRoot()
+		_bWin_ = This._IsWindowsTarget()
+		_aVM_ = _StzRingVMSources(_cRoot_, _bWin_)
+		_nV_ = len(_aVM_)
+		for _i_ = 1 to _nV_
+			_aLS_ + _aVM_[_i_]
+		next
+		@aLoweredSources = _aLS_
+		@aLoweredIncludes = [ _cRoot_ + "/language/include", _cRoot_ + "/language/src" ]
+		if _bWin_
+			@aLoweredLibs = [ "m", "advapi32", "shell32" ]
+		else
+			@aLoweredLibs = [ "m" ]
+		ok
+
 	  #-- the resolved build command -------------------------
 
-	# The zig argument list (data -- display with @@).
+	# The zig argument list (data -- display with @@). For a Ring part this
+	# resolves the -geo lowering first, so the args reflect the REAL compile:
+	# the generated C + the Ring VM source, cc-compiled by Zig.
 	def Args()
+		This._EnsureLowered()
 		_a_ = []
 		if @cLanguage = "zig"
 			if @cKind = "lib"
@@ -229,9 +400,14 @@ class stzBuilder from stzObject
 				_a_ + "-shared"
 			ok
 		ok
-		_n_ = len(@aSources)
+		if @cLanguage = "ring"
+			_aSrc_ = @aLoweredSources
+		else
+			_aSrc_ = @aSources
+		ok
+		_n_ = len(_aSrc_)
 		for _i_ = 1 to _n_
-			_a_ + @aSources[_i_]
+			_a_ + _aSrc_[_i_]
 		next
 		if @cLanguage = "zig"
 			_a_ + ("-femit-bin=" + This.OutputPath())
@@ -256,10 +432,22 @@ class stzBuilder from stzObject
 			for _i_ = 1 to _nI_
 				_a_ + ("-I" + @aIncludes[_i_])
 			next
+			if @cLanguage = "ring"
+				_nLI_ = len(@aLoweredIncludes)
+				for _i_ = 1 to _nLI_
+					_a_ + ("-I" + @aLoweredIncludes[_i_])
+				next
+			ok
 			_nL_ = len(@aLibs)
 			for _i_ = 1 to _nL_
 				_a_ + ("-l" + @aLibs[_i_])
 			next
+			if @cLanguage = "ring"
+				_nLL_ = len(@aLoweredLibs)
+				for _i_ = 1 to _nLL_
+					_a_ + ("-l" + @aLoweredLibs[_i_])
+				next
+			ok
 		ok
 		return _a_
 

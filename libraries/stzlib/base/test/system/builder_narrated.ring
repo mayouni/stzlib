@@ -6,6 +6,9 @@
 # This suite ACTUALLY invokes zig (auto-located) through the engine-backed
 # managed child, and proves the produced binaries are genuine -- by their magic
 # bytes -- from a Windows host: an ELF for Linux, a wasm module for the web.
+# It also builds a RING part (most Softanza code): `ring -geo` lowers it to a C
+# unit that Zig compiles WITH the Ring VM source -> a standalone binary, and the
+# same source cross-compiles to a Linux ELF -- no ring.dll anywhere.
 #
 # Requires zig on the machine (found via $ZIG / D:/Zig / PATH). Each build takes
 # a moment; zig caches after the first.
@@ -116,6 +119,32 @@ chk("the builder took the part's deployment system as its target", StzFindFirst(
 oP.Build()
 chk("...and built the backend for Linux", oP.Succeeded())
 chk("...a real ELF, from this Windows box", isELF(cDir + "/backend_bin"))
+
+? ""
+? "-- Scene 8: build a RING part -- most Softanza code -- to a native binary --"
+# Ring is not C, yet it reaches the SAME backend: `ring -geo` lowers it to a C
+# compilation unit, Zig compiles it with the Ring VM source. The result is a
+# standalone binary -- no ring.dll on the machine.
+cRingSrc = cDir + "/greet.ring"
+write(cRingSrc, "see " + char(34) + "built from Ring by stzBuilder" + char(34) + " + nl" + nl)
+oRing = new stzBuilder("greet")
+oRing.AsRing().Source(cRingSrc).ReleaseFast().Output(cDir + "/greet_host.exe")
+oRing.Build()
+chk("the Ring host build succeeded", oRing.Succeeded())
+chk("...its args carry the generated C plus the Ring VM sources", len(oRing.Args()) > 20)
+oG = SpawnProcess(cDir + "/greet_host.exe")
+cGOut = oG.ReadOutputAll()
+oG.Wait()
+oG.Close()
+chk("...and the standalone binary runs the Ring program", StzFindFirst("built from Ring by stzBuilder", cGOut) > 0)
+
+? ""
+? "-- Scene 9: cross-compile that RING part for Linux, from Windows --"
+oRL = new stzBuilder("greet")
+oRL.AsRing().Source(cRingSrc).ForTarget(:LinuxServer).ReleaseFast().Output(cDir + "/greet_linux")
+oRL.Build()
+chk("the Ring cross build succeeded", oRL.Succeeded())
+chk("...and produced a genuine Linux ELF -- from a Windows box", isELF(cDir + "/greet_linux"))
 
 # cleanup
 StzEngineDirDelete(cDir)
