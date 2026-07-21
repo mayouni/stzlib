@@ -156,6 +156,44 @@ func _StzRingVMSources(pcRoot, pbWindowsTarget)
 	next
 	return _aOut_
 
+# -- the web EDGE: the differential engine subset, as stz.wasm ---------------
+# "Compile the engine, not the interpreter." The engine's build.zig has a `wasm`
+# step that compiles src/stz_wasm_entry.zig (real numtheory.zig / solver.zig
+# logic, re-exported) to a freestanding wasm module. These wrap that step so a
+# Ring caller can PRODUCE the edge artifact and know WHERE it lands.
+
+# Where `zig build wasm` writes stz.wasm (the engine's install dir).
+func StzEngineWasmPath()
+	return $cEngineDir + "/zig-out/bin/stz.wasm"
+
+# Build stz.wasm through the engine's build.zig wasm target (ForWeb, for the
+# ENGINE/Zig path -- the DLLs' Zig source, lowered to wasm instead of a .dll).
+# Returns the artifact path on success, "" on failure. Needs Zig on the machine.
+func StzBuildEngineWasm()
+	_cZig_ = _StzFindZig()
+	_cEng_ = $cEngineDir
+	if NOT (isString(_cEng_) and _cEng_ != "")
+		return ""
+	ok
+	_oEnv_ = new stzEnvironment()
+	_cSaved_ = _oEnv_.WorkingDirectory()
+	_oEnv_.ChangeWorkingDirectory(_cEng_)
+	_cCmd_ = _cZig_ + " build wasm"
+	_oOS_ = new stzOperatingSystem()
+	if _oOS_.IsWindows()
+		_cCmd_ = StzReplace(_cCmd_, "/", "\")
+	ok
+	_oChild_ = SpawnProcess(_cCmd_)
+	_oChild_.ReadOutputAll()
+	_oChild_.ReadErrorAll()
+	_nExit_ = _oChild_.Wait()
+	_oChild_.Close()
+	_oEnv_.ChangeWorkingDirectory(_cSaved_)
+	if _nExit_ = 0 and StzEngineFileExists(StzEngineWasmPath()) = 1
+		return StzEngineWasmPath()
+	ok
+	return ""
+
   #===============#
  #  STZBUILDER   #
 #===============#
