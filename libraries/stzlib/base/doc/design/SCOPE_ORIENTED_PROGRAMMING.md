@@ -191,8 +191,8 @@ resolves each capability against it, *before a byte is built*:
 ```ring
 oBrain = new stzBuilderBrain("restolean")
 oBrain.WithSuperApp(:phone, :Android).WithFirmware(:node, :ESP32).WithBackend(:api, :LinuxServer)
-oBrain.NeedsIn(:phone, [ :unicode, :table_pivot, :constraint_solver, :collection_dsl, :neural ])
-? oBrain.Plan().Narration()
+oBrain.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
+? oBrain.Plan().Explain()
 ```
 
 Each capability, on its target, is placed and *reasoned about out loud* — the same
@@ -208,9 +208,9 @@ almost everything else; a server hosts the whole engine. So the brain resolves e
 capability to one of **four** vectors by a **differential-value test** — *ship only
 what is critical AND (Softanza-unique OR weak/absent on the target)*:
 
-- **defer to the platform** (`native`) — the target already does it industrially,
-  so the scope *steps aside*: a browser's own Unicode, never re-shipped. **This
-  verdict is new.** Regex's engine could do everything; system scopes constrained
+- **defer to the target** (`native`) — the target-platform already does it
+  industrially, so the scope *steps aside*: a browser's own Unicode, never
+  re-shipped. **This verdict is new.** Regex's engine could do everything; system scopes constrained
   or enabled — neither ever had a *richer* platform to defer to. Deployment does,
   and the wisest act is often to ship nothing.
 - **scope into the engine** (`engine`) — Softanza-differential compute in the
