@@ -216,8 +216,29 @@ func _StzEmuMcuHero(poPlan, paPart)
 	_h_ += "</div><div class='conslog' id='cons-" + _nm_ + "'><div>ready -- drive the pins; the board reacts.</div></div></div>"
 	return _h_
 
-# each part opens as its OWN floating device window (a modal over the map) -- like
-# a real device emulator firing its window, to reinforce it is a device UI.
+# the MAIN-PAGE part view: shown when a part is picked on the map. It carries the
+# auxiliary data (placement + fidelity) -- NOT the popup -- plus the way to (re)open
+# the device emulator.
+func _StzEmuAuxViews(poPlan)
+	_aP_ = poPlan.Parts()
+	_n_ = len(_aP_)
+	_h_ = ""
+	for _i_ = 1 to _n_
+		_p_ = _aP_[_i_]
+		_st_ = _StzEmuStatus(_p_[4])
+		_h_ += "<div class='partview' id='ax-" + _p_[1] + "' style='display:none'>"
+		_h_ += "<div class='pvhead'>" + _StzEmuGlyph(_p_[4]) + " <span class='pvname'>" + _StzEmuCap(_p_[1]) + "</span> <span class='chip'>" + _p_[3] + "</span>"
+		_h_ += " <span class='stat " + _st_[1] + "'><span class='dot'></span> " + _st_[2] + "</span>"
+		_h_ += "<span class='pvacts'><button class='pri sm' data-part='" + _p_[1] + "' onclick='openEmu(this)'>Open emulator</button>"
+		_h_ += "<button class='ghost sm' onclick='goMap()'>&larr; Back to map</button></span></div>"
+		_h_ += _StzEmuAuxZone(poPlan, _p_)
+		_h_ += "</div>"
+	next
+	return _h_
+
+# the POPUP: one part's device emulator only -- its interactive UI, guiding text,
+# live status and actions. No switcher (one popup = one part; you open another from
+# the map), no auxiliary data (that lives on the main page).
 func _StzEmuDetailHtml(poPlan)
 	_aP_ = poPlan.Parts()
 	_n_ = len(_aP_)
@@ -225,13 +246,17 @@ func _StzEmuDetailHtml(poPlan)
 	for _i_ = 1 to _n_
 		_p_ = _aP_[_i_]
 		_cls_ = _p_[4]
-		_h_ += "<div class='modal' id='m-" + _p_[1] + "' onclick='bg(event)'><div class='window'>"
+		_st_ = _StzEmuStatus(_cls_)
+		_wc_ = "window"
+		if _StzEmuIsMobile(_cls_)
+			_wc_ = "window wphone"
+		ok
+		_h_ += "<div class='modal' id='m-" + _p_[1] + "' onclick='bg(event)'><div class='" + _wc_ + "'>"
 		_h_ += "<div class='wbar'><span class='wdots'><i></i><i></i><i></i></span>"
 		_h_ += "<span class='wtitle'>" + _StzEmuGlyph(_cls_) + " " + _StzEmuCap(_p_[1]) + " <span class='chip'>" + _p_[3] + "</span></span>"
-		_h_ += "<button class='wclose' onclick='goMap()' aria-label='close'>&times;</button></div>"
-		_h_ += "<div class='wbody'>"
-		_h_ += _StzEmuSwitch(_aP_, _i_)
-		_h_ += "<div class='hero'>"
+		_h_ += "<span class='wlive stat " + _st_[1] + "'><span class='dot'></span> " + _st_[2] + "</span>"
+		_h_ += "<button class='wclose' onclick='closeEmu()' aria-label='close'>&times;</button></div>"
+		_h_ += "<div class='wbody'><div class='hero'>"
 		if _StzEmuIsMobile(_cls_)
 			_h_ += _StzEmuPhoneHero(poPlan, _p_)
 		but _cls_ = "mcu"
@@ -239,9 +264,7 @@ func _StzEmuDetailHtml(poPlan)
 		else
 			_h_ += _StzEmuServerHero(poPlan, _p_)
 		ok
-		_h_ += "</div>"
-		_h_ += _StzEmuAuxZone(poPlan, _p_)
-		_h_ += "</div></div></div>"
+		_h_ += "</div></div></div></div>"
 	next
 	return _h_
 
@@ -315,10 +338,16 @@ func _StzEmuMapHtml(poPlan)
 
 func _StzEmuScript()
 	_j_ = "function closeModals(){var m=document.getElementsByClassName('modal');for(var i=0;i<m.length;i++)m[i].classList.remove('open')}" + nl
-	_j_ += "function route(){var h=location.hash.replace('#','');closeModals();if(h.indexOf('part/')===0){var el=document.getElementById('m-'+h.slice(5));if(el){el.classList.add('open');el.scrollTop=0}}}" + nl
+	_j_ += "function hideViews(){var v=document.getElementsByClassName('partview');for(var i=0;i<v.length;i++)v[i].style.display='none'}" + nl
+	_j_ += "function openPop(n){var m=document.getElementById('m-'+n);if(m){m.classList.add('open');m.scrollTop=0}}" + nl
+	_j_ += "function route(){var h=location.hash.replace('#','');closeModals();var map=document.getElementById('map');" + nl
+	_j_ += "if(h.indexOf('part/')===0){var n=h.slice(5);var v=document.getElementById('ax-'+n);if(v){hideViews();map.style.display='none';v.style.display='block';openPop(n)}else{hideViews();map.style.display='block'}}" + nl
+	_j_ += "else{hideViews();map.style.display='block'}window.scrollTo(0,0)}" + nl
 	_j_ += "function go(el){location.hash='part/'+el.getAttribute('data-part')}" + nl
 	_j_ += "function goMap(){location.hash='map'}" + nl
-	_j_ += "function bg(e){if(e.target.classList.contains('modal')){goMap()}}" + nl
+	_j_ += "function closeEmu(){closeModals()}" + nl
+	_j_ += "function openEmu(el){openPop(el.getAttribute('data-part'))}" + nl
+	_j_ += "function bg(e){if(e.target.classList.contains('modal')){closeEmu()}}" + nl
 	_j_ += "window.addEventListener('hashchange',route);" + nl
 	_j_ += "function reloadApp2(el){var f=document.querySelector('#d-'+el.getAttribute('data-part')+' iframe');if(f){f.src=f.src}}" + nl
 	_j_ += "function addLine(id,t){var log=document.getElementById(id);var d=document.createElement('div');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}" + nl
@@ -363,13 +392,14 @@ func _StzEmuCss()
 	_c_ += ".cta{background:#f0faf4;border:1px solid #b7e0ca;border-radius:12px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.cta .t{font-size:14px;color:#0a6c3d}" + nl
 	_c_ += ".switch{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.switch button{display:inline-flex;align-items:center;gap:6px}.switch button.on{border-color:#2563eb;color:#2563eb}" + nl
 	_c_ += ".modal{position:fixed;inset:0;background:rgba(22,28,42,.5);display:none;align-items:flex-start;justify-content:center;padding:34px 18px;overflow:auto;z-index:50}.modal.open{display:flex}" + nl
-	_c_ += ".window{background:#fff;border-radius:14px;max-width:720px;width:100%;box-shadow:0 24px 60px rgba(10,15,30,.32);overflow:hidden;margin:auto 0}" + nl
-	_c_ += ".wbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid #eef1f6;background:#fafbfc}" + nl
+	_c_ += ".window{background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:94vh;box-shadow:0 24px 60px rgba(10,15,30,.32);overflow:auto;margin:auto 0}.wphone{width:auto;max-width:94vw}" + nl
+	_c_ += ".wbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid #eef1f6;background:#fafbfc;position:sticky;top:0}" + nl
 	_c_ += ".wdots{display:inline-flex;gap:6px}.wdots i{width:11px;height:11px;border-radius:50%;display:inline-block;background:#e0e4ea}.wdots i:first-child{background:#efb0ac}.wdots i:nth-child(2){background:#f0d29a}.wdots i:last-child{background:#a9d9b6}" + nl
-	_c_ += ".wtitle{display:flex;align-items:center;gap:8px;font-size:14px}.wclose{margin-left:auto;border:0;background:transparent;font-size:22px;color:#8a93a3;cursor:pointer;padding:0 6px;line-height:1}.wclose:hover{color:#1b2333}" + nl
-	_c_ += ".wbody{padding:18px 20px 20px}" + nl
+	_c_ += ".wtitle{display:flex;align-items:center;gap:8px;font-size:14px}.wlive{margin-left:auto;font-size:12px}.wclose{margin-left:10px;border:0;background:transparent;font-size:22px;color:#8a93a3;cursor:pointer;padding:0 6px;line-height:1}.wclose:hover{color:#1b2333}" + nl
+	_c_ += ".wbody{padding:16px 20px 20px}.wphone .wbody{padding:14px}.wphone .hero{margin:4px 0 0}" + nl
+	_c_ += ".partview{margin-top:4px}.pvhead{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}.pvname{font-size:17px}.pvacts{margin-left:auto;display:flex;gap:8px}" + nl
 	_c_ += ".hero{display:flex;flex-direction:column;align-items:center;margin:10px 0 20px}" + nl
-	_c_ += ".bigphone{width:300px;height:616px;background:#4a5162;border-radius:44px;padding:12px;box-shadow:0 8px 24px rgba(50,60,80,.14);flex:none}" + nl
+	_c_ += ".bigphone{height:min(600px,72vh);aspect-ratio:300/620;background:#4a5162;border-radius:42px;padding:11px;box-shadow:0 8px 24px rgba(50,60,80,.14);flex:none}" + nl
 	_c_ += ".appscreen{width:100%;height:100%;border:0;border-radius:33px;background:#fff;display:block}" + nl
 	_c_ += ".herohint{font-size:12px;color:#8a93a3;margin-top:12px;text-align:center}.herohint a{color:#2563eb;cursor:pointer}" + nl
 	_c_ += ".console,.board{width:100%;max-width:600px}.board{display:flex;flex-direction:column;align-items:center}.board svg{width:340px;height:auto}" + nl
@@ -394,6 +424,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
 	_h_ += "<div class='crumb'>Solution map</div>" + nl
 	_h_ += "<div id='map'>" + _StzEmuMapHtml(poPlan) + "</div>" + nl
+	_h_ += _StzEmuAuxViews(poPlan) + nl
 	_h_ += _StzEmuDetailHtml(poPlan) + nl
 	_h_ += "<script>" + nl + _StzEmuScript() + "</script>" + nl
 	_h_ += "</body></html>" + nl
