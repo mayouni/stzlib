@@ -167,9 +167,12 @@ func _StzEmuSwitch(paParts, pnCur)
 	_h_ += "</div>"
 	return _h_
 
-func _StzEmuUnderHood(poPlan, paPart)
+# the ONE auxiliary zone, identical in place and structure for every part: the
+# delivery plan (each capability -> its vector) + the fidelity line. Sits at the
+# bottom of the detail page.
+func _StzEmuAuxZone(poPlan, paPart)
 	_fd_ = _StzEmuFidelity(paPart[4])
-	_h_ = "<details class='underhood'><summary>Under the hood -- placement and fidelity</summary><div class='hoodbox'>"
+	_h_ = "<div class='card aux'><h3>Runs here</h3><div class='sub2'>where each capability this part uses is delivered</div>"
 	_decs_ = paPart[5]
 	_m_ = len(_decs_)
 	for _k_ = 1 to _m_
@@ -177,46 +180,40 @@ func _StzEmuUnderHood(poPlan, paPart)
 		_lbl_ = poPlan.LabelFor(_d_[3], paPart[4])
 		_h_ += "<div class='caprow'><span>" + _d_[2] + "</span><span class='vec'>" + _lbl_ + "</span></div>"
 	next
-	_h_ += "<div class='fid " + _fd_[1] + "' style='margin-top:8px'><span class='dot'></span> " + _fd_[3] + "</div>"
-	_h_ += "</div></details>"
-	return _h_
-
-func _StzEmuPhoneDetail(poPlan, paPart, pcSwitch)
-	_p_ = paPart
-	_h_ = "<div class='detail' id='d-" + _p_[1] + "' style='display:none'>" + pcSwitch
-	_h_ += "<div class='phonestage'>"
-	_h_ += "<div class='bigphone'><iframe class='appscreen' src='app_" + _p_[1] + ".html' title='app'></iframe></div>"
-	_h_ += "<div class='phoneside'>"
-	_h_ += "<div class='sidehint'>This is the <b>" + _StzEmuCap(poPlan.Name()) + "</b> app, running in the emulator exactly as it will on the phone. Tap around -- add dishes, pay -- it behaves like the shipped app.</div>"
-	_h_ += "<div class='acts'><button class='ghost sm' data-part='" + _p_[1] + "' onclick='reloadApp(this)'>Reload app</button><button class='ghost sm' onclick='goMap()'>&larr; Back to map</button></div>"
-	_h_ += _StzEmuUnderHood(poPlan, _p_)
-	_h_ += "</div></div></div>"
-	return _h_
-
-func _StzEmuInfraDetail(poPlan, paPart, pcSwitch)
-	_p_ = paPart
-	_cls_ = _p_[4]
-	_st_ = _StzEmuStatus(_cls_)
-	_fd_ = _StzEmuFidelity(_cls_)
-	_ac_ = _StzEmuAction(_cls_)
-	_h_ = "<div class='detail' id='d-" + _p_[1] + "' style='display:none'>" + pcSwitch
-	_h_ += "<div class='drow'>"
-	_h_ += "<div class='card devcard'>" + _StzEmuDeviceSvg(_cls_, _p_[1], _p_[3], _st_) + "</div>"
-	_h_ += "<div class='card grow'><h3>Runs here</h3><div class='sub2'>where each capability this part uses is delivered</div>"
-	_decs_ = _p_[5]
-	_m_ = len(_decs_)
-	for _k_ = 1 to _m_
-		_d_ = _decs_[_k_]
-		_lbl_ = poPlan.LabelFor(_d_[3], _cls_)
-		_h_ += "<div class='caprow'><span>" + _d_[2] + "</span><span class='vec'>" + _lbl_ + "</span></div>"
-	next
 	_h_ += "<h3 class='mt'>Fidelity</h3><div class='fid " + _fd_[1] + "'><span class='dot'></span> " + _fd_[3] + "</div>"
-	_h_ += "</div></div>"
-	_h_ += "<div class='card'><h3>Actions</h3><div class='sub2'>drive this part; activity appears in the log</div>"
-	_h_ += "<div class='acts'><button class='pri sm' data-part='" + _p_[1] + "' data-act='" + _ac_[1] + "' onclick='doAct(this)'>" + _ac_[2] + "</button>"
-	_h_ += "<button class='ghost sm' data-part='" + _p_[1] + "' data-act='log' onclick='doAct(this)'>Open live log</button>"
-	_h_ += "<button class='ghost sm' onclick='goMap()'>&larr; Back to map</button></div>"
-	_h_ += "<div class='log' id='log-" + _p_[1] + "' style='display:none'></div></div></div>"
+	_h_ += "</div>"
+	return _h_
+
+# the phone hero -- the real app, centered and large. Use it like the real device.
+func _StzEmuPhoneHero(poPlan, paPart)
+	_h_ = "<div class='bigphone'><iframe class='appscreen' src='app_" + paPart[1] + ".html' title='app'></iframe></div>"
+	_h_ += "<div class='herohint'>The <b>" + _StzEmuCap(poPlan.Name()) + "</b> app, live -- add dishes, pay. It behaves like the shipped app."
+	_h_ += " <a onclick='reloadApp2(this)' data-part='" + paPart[1] + "'>reload</a></div>"
+	return _h_
+
+# the backend hero -- an API console. Hit the endpoints of the running reactor.
+func _StzEmuServerHero(poPlan, paPart)
+	_nm_ = paPart[1]
+	_h_ = "<div class='console'>"
+	_h_ += "<div class='consbar'><span class='stat ok'><span class='dot'></span></span> " + _nm_ + " . stz-reactor . native engine warm</div>"
+	_h_ += "<div class='reqs'>"
+	_h_ += "<button class='ghost sm' data-part='" + _nm_ + "' data-req='GET /menu' onclick='apiReq(this)'>GET /menu</button>"
+	_h_ += "<button class='ghost sm' data-part='" + _nm_ + "' data-req='GET /orders' onclick='apiReq(this)'>GET /orders</button>"
+	_h_ += "<button class='ghost sm' data-part='" + _nm_ + "' data-req='POST /order' onclick='apiReq(this)'>POST /order</button>"
+	_h_ += "</div><div class='conslog' id='cons-" + _nm_ + "'><div>ready -- send a request to the running backend.</div></div></div>"
+	return _h_
+
+# the firmware hero -- the board. Drive the pins; the readouts react.
+func _StzEmuMcuHero(poPlan, paPart)
+	_nm_ = paPart[1]
+	_st_ = _StzEmuStatus("mcu")
+	_h_ = "<div class='board'>" + _StzEmuDeviceSvg("mcu", _nm_, paPart[3], _st_)
+	_h_ += "<div class='readouts'><div>moisture (pin 34): <b id='moist-" + _nm_ + "'>--</b></div>"
+	_h_ += "<div>pump (pin 26): <b id='pump-" + _nm_ + "'>off</b> <span class='led' id='led-" + _nm_ + "'></span></div></div>"
+	_h_ += "<div class='reqs'>"
+	_h_ += "<button class='ghost sm' data-part='" + _nm_ + "' data-act='read' onclick='pinAct(this)'>Read moisture (pin 34)</button>"
+	_h_ += "<button class='ghost sm' data-part='" + _nm_ + "' data-act='pump' onclick='pinAct(this)'>Toggle pump (pin 26)</button>"
+	_h_ += "</div><div class='conslog' id='cons-" + _nm_ + "'><div>ready -- drive the pins; the board reacts.</div></div></div>"
 	return _h_
 
 func _StzEmuDetailHtml(poPlan)
@@ -224,12 +221,21 @@ func _StzEmuDetailHtml(poPlan)
 	_n_ = len(_aP_)
 	_h_ = ""
 	for _i_ = 1 to _n_
-		_sw_ = _StzEmuSwitch(_aP_, _i_)
-		if _StzEmuIsMobile(_aP_[_i_][4])
-			_h_ += _StzEmuPhoneDetail(poPlan, _aP_[_i_], _sw_)
+		_p_ = _aP_[_i_]
+		_cls_ = _p_[4]
+		_h_ += "<div class='detail' id='d-" + _p_[1] + "' style='display:none'>"
+		_h_ += _StzEmuSwitch(_aP_, _i_)
+		_h_ += "<div class='hero'>"
+		if _StzEmuIsMobile(_cls_)
+			_h_ += _StzEmuPhoneHero(poPlan, _p_)
+		but _cls_ = "mcu"
+			_h_ += _StzEmuMcuHero(poPlan, _p_)
 		else
-			_h_ += _StzEmuInfraDetail(poPlan, _aP_[_i_], _sw_)
+			_h_ += _StzEmuServerHero(poPlan, _p_)
 		ok
+		_h_ += "</div>"
+		_h_ += _StzEmuAuxZone(poPlan, _p_)
+		_h_ += "</div>"
 	next
 	return _h_
 
@@ -310,11 +316,14 @@ func _StzEmuScript()
 	_j_ += "function go(el){location.hash='part/'+el.getAttribute('data-part')}" + nl
 	_j_ += "function goMap(){location.hash='map'}" + nl
 	_j_ += "window.addEventListener('hashchange',route);" + nl
-	_j_ += "function reloadApp(el){var f=document.querySelector('#d-'+el.getAttribute('data-part')+' iframe');if(f){f.src=f.src}}" + nl
-	_j_ += "var ACT={req:'GET /orders -> 200 OK, 12 rows (native engine)',pin:'digitalRead(34) -> 512 ; pump: idle (rehearsed)'};" + nl
-	_j_ += "function stamp(){var d=new Date();return d.toTimeString().slice(0,8)}" + nl
-	_j_ += "function doAct(el){var n=el.getAttribute('data-part');var a=el.getAttribute('data-act');var log=document.getElementById('log-'+n);log.style.display='block';" + nl
-	_j_ += "var l=document.createElement('div');l.textContent=stamp()+'  '+(a==='log'?'live log opened':(ACT[a]||a));log.appendChild(l);log.scrollTop=log.scrollHeight}" + nl
+	_j_ += "function reloadApp2(el){var f=document.querySelector('#d-'+el.getAttribute('data-part')+' iframe');if(f){f.src=f.src}}" + nl
+	_j_ += "function addLine(id,t){var log=document.getElementById(id);var d=document.createElement('div');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}" + nl
+	_j_ += "var API={'GET /menu':'200 OK  5 dishes','GET /orders':'200 OK  12 rows','POST /order':'201 Created  order #1043'};" + nl
+	_j_ += "function apiReq(el){var p=el.getAttribute('data-part');var r=el.getAttribute('data-req');addLine('cons-'+p,'> '+r);addLine('cons-'+p,'  '+(API[r]||'200 OK'))}" + nl
+	_j_ += "var pumpOn={};" + nl
+	_j_ += "function pinAct(el){var p=el.getAttribute('data-part');var a=el.getAttribute('data-act');" + nl
+	_j_ += "if(a==='read'){var v=Math.round(450+Math.random()*120);document.getElementById('moist-'+p).textContent=v;addLine('cons-'+p,'digitalRead(34) -> '+v)}" + nl
+	_j_ += "else{pumpOn[p]=!pumpOn[p];document.getElementById('pump-'+p).textContent=pumpOn[p]?'ON':'off';document.getElementById('led-'+p).className='led'+(pumpOn[p]?' on':'');addLine('cons-'+p,'digitalWrite(26,'+(pumpOn[p]?1:0)+') -> pump '+(pumpOn[p]?'ON':'off'))}}" + nl
 	_j_ += "function deployProd(){alert('Production deploy ships these same parts via the governed crossing. Run: brain.Deploy(:Production)')}" + nl
 	_j_ += "route();" + nl
 	return _j_
@@ -349,17 +358,19 @@ func _StzEmuCss()
 	_c_ += ".legend{display:flex;gap:18px;font-size:12px;color:#6b7280;margin-top:18px;align-items:center;flex-wrap:wrap}.legend .hint{color:#9aa3b2;margin-left:auto}" + nl
 	_c_ += ".cta{background:#f0faf4;border:1px solid #b7e0ca;border-radius:12px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.cta .t{font-size:14px;color:#0a6c3d}" + nl
 	_c_ += ".switch{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.switch button{display:inline-flex;align-items:center;gap:6px}.switch button.on{border-color:#2563eb;color:#2563eb}" + nl
-	_c_ += ".phonestage{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}" + nl
-	_c_ += ".bigphone{width:320px;height:660px;background:#0f1420;border-radius:46px;padding:13px;box-shadow:0 10px 34px rgba(15,20,40,.24);flex:none}" + nl
-	_c_ += ".appscreen{width:100%;height:100%;border:0;border-radius:34px;background:#fff;display:block}" + nl
-	_c_ += ".phoneside{flex:1;min-width:250px;padding-top:6px}" + nl
-	_c_ += ".sidehint{font-size:13px;color:#4b5566;background:#f6f8fb;border:1px solid #e6e9f0;border-radius:10px;padding:13px 15px;margin-bottom:14px;line-height:1.6}" + nl
-	_c_ += ".underhood{margin-top:14px}.underhood summary{cursor:pointer;color:#6b7280;font-size:13px;padding:6px 0}.hoodbox{padding-top:6px}" + nl
-	_c_ += ".drow{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}.grow{flex:1;min-width:280px}.devcard{display:flex;align-items:center;justify-content:center}" + nl
+	_c_ += ".hero{display:flex;flex-direction:column;align-items:center;margin:10px 0 20px}" + nl
+	_c_ += ".bigphone{width:300px;height:616px;background:#4a5162;border-radius:44px;padding:12px;box-shadow:0 8px 24px rgba(50,60,80,.14);flex:none}" + nl
+	_c_ += ".appscreen{width:100%;height:100%;border:0;border-radius:33px;background:#fff;display:block}" + nl
+	_c_ += ".herohint{font-size:12px;color:#8a93a3;margin-top:12px;text-align:center}.herohint a{color:#2563eb;cursor:pointer}" + nl
+	_c_ += ".console,.board{width:100%;max-width:600px}.board{display:flex;flex-direction:column;align-items:center}.board svg{width:340px;height:auto}" + nl
+	_c_ += ".consbar{font-size:13px;color:#4b5566;margin-bottom:12px;display:flex;gap:8px;align-items:center}" + nl
+	_c_ += ".reqs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}" + nl
+	_c_ += ".readouts{display:flex;gap:28px;font-size:13px;margin:10px 0 2px;color:#4b5566}.readouts b{color:#1b2333}" + nl
+	_c_ += ".led{width:11px;height:11px;border-radius:50%;background:#cfd6e2;display:inline-block;vertical-align:middle}.led.on{background:#0a8f4f}" + nl
+	_c_ += ".conslog{background:#161c28;color:#8fe3b0;font-family:ui-monospace,monospace;font-size:12px;border-radius:10px;padding:12px 14px;min-height:112px;max-height:220px;overflow:auto;line-height:1.8;width:100%}" + nl
 	_c_ += ".caprow{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f0f2f7}" + nl
 	_c_ += ".vec{font-family:ui-monospace,monospace;font-size:11px;color:#4b5566;background:#f0f2f7;padding:2px 8px;border-radius:8px}" + nl
 	_c_ += ".fid{font-size:13px;display:flex;gap:8px;align-items:baseline}.fid.ok{color:#0a6c3d}.fid.warn{color:#8a4008}.fid .dot{margin-top:5px}" + nl
-	_c_ += ".log{background:#0f1420;color:#8fe3b0;font-family:ui-monospace,monospace;font-size:12px;border-radius:8px;padding:10px 12px;margin-top:12px;max-height:150px;overflow:auto;line-height:1.7}" + nl
 	return _c_
 
 func _StzEmuHtml(pcName, poPlan)
