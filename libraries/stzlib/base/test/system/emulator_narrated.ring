@@ -42,7 +42,7 @@ cH = read(cDir + "/dist/index.html")
 chk("the phone part is on the map", StzFindFirst("data-part='phone'", cH) > 0)
 chk("...the backend (api) part too", StzFindFirst("data-part='api'", cH) > 0)
 chk("...and the firmware (node) part", StzFindFirst("data-part='node'", cH) > 0)
-chk("the server is the hub (distinguished)", StzFindFirst("part hub", cH) > 0)
+chk("parts are tiered by role (Frontends / Backends / Edge devices)", StzFindFirst("Backends", cH) > 0 and StzFindFirst("Frontends", cH) > 0 and StzFindFirst("Edge devices", cH) > 0)
 
 ? ""
 ? "-- Scene 3: each part shows the brain's PLACEMENT, per capability --"

@@ -229,8 +229,7 @@ func _StzEmuAuxViews(poPlan)
 		_h_ += "<div class='partview' id='ax-" + _p_[1] + "' style='display:none'>"
 		_h_ += "<div class='pvhead'>" + _StzEmuGlyph(_p_[4]) + " <span class='pvname'>" + _StzEmuCap(_p_[1]) + "</span> <span class='chip'>" + _p_[3] + "</span>"
 		_h_ += " <span class='stat " + _st_[1] + "'><span class='dot'></span> " + _st_[2] + "</span>"
-		_h_ += "<span class='pvacts'><button class='pri sm' data-part='" + _p_[1] + "' onclick='openEmu(this)'>Open emulator</button>"
-		_h_ += "<button class='ghost sm' onclick='goMap()'>&larr; Back to map</button></span></div>"
+		_h_ += "<span class='pvacts'><button class='pri sm' data-part='" + _p_[1] + "' onclick='openEmu(this)'>Open emulator</button></span></div>"
 		_h_ += _StzEmuAuxZone(poPlan, _p_)
 		_h_ += "</div>"
 	next
@@ -296,42 +295,59 @@ func _StzEmuCard(poPlan, paPart, pbHub)
 	_c_ += "</div>"
 	return _c_
 
+# one tier of the architecture (a labelled, wrapping grid of parts). Tiers scale:
+# many frontends / backends / devices each wrap within their own grid.
+func _StzEmuTier(poPlan, pcLabel, paIdx)
+	_aP_ = poPlan.Parts()
+	_h_ = "<div class='tier'><div class='tierlbl'>" + pcLabel + " <span class='tiern'>" + len(paIdx) + "</span></div><div class='tierrow'>"
+	_n_ = len(paIdx)
+	for _i_ = 1 to _n_
+		_h_ += _StzEmuCard(poPlan, _aP_[paIdx[_i_]], FALSE)
+	next
+	_h_ += "</div></div>"
+	return _h_
+
+func _StzEmuFlow(pcLabel)
+	return "<div class='flow'><span class='fline'></span><span class='flbl'>" + pcLabel + "</span><span class='fline'></span></div>"
+
+# the solution map as a TIERED architecture: frontends over backends over edge
+# devices, with the flows between them. Scales to many parts and richer topologies.
 func _StzEmuMapHtml(poPlan)
 	_aP_ = poPlan.Parts()
 	_n_ = len(_aP_)
-	_hub_ = 0
+	_front_ = []
+	_back_ = []
+	_dev_ = []
 	for _i_ = 1 to _n_
-		if _aP_[_i_][4] = "server"
-			_hub_ = _i_
-			exit
+		_cls_ = _aP_[_i_][4]
+		if _StzEmuIsMobile(_cls_)
+			_front_ + _i_
+		but _cls_ = "mcu"
+			_dev_ + _i_
+		else
+			_back_ + _i_
 		ok
 	next
-	if _hub_ = 0 and _n_ > 0
-		_hub_ = 1
-	ok
 	_h_ = ""
-	if _hub_ > 0
-		_h_ += _StzEmuCard(poPlan, _aP_[_hub_], TRUE)
+	if len(_front_) > 0
+		_h_ += _StzEmuTier(poPlan, "Frontends", _front_)
 	ok
-	_h_ += "<div class='spokes'>"
-	_bFirst_ = TRUE
-	for _i_ = 1 to _n_
-		if _i_ = _hub_
-			loop
-		ok
-		_wlbl_ = "telemetry"
-		if _bFirst_
-			_wlbl_ = "REST API"
-			_bFirst_ = FALSE
-		ok
-		_h_ += "<div><div class='wire'><span class='ln'></span><span class='lbl'>" + _wlbl_ + "</span></div>"
-		_h_ += _StzEmuCard(poPlan, _aP_[_i_], FALSE) + "</div>"
-	next
-	_h_ += "</div>"
+	if len(_front_) > 0 and len(_back_) > 0
+		_h_ += _StzEmuFlow("REST API")
+	ok
+	if len(_back_) > 0
+		_h_ += _StzEmuTier(poPlan, "Backends", _back_)
+	ok
+	if len(_dev_) > 0 and (len(_back_) > 0 or len(_front_) > 0)
+		_h_ += _StzEmuFlow("telemetry")
+	ok
+	if len(_dev_) > 0
+		_h_ += _StzEmuTier(poPlan, "Edge devices", _dev_)
+	ok
 	_h_ += "<div class='legend'><span class='stat ok'><span class='dot'></span> healthy</span>"
 	_h_ += "<span class='stat live'><span class='dot'></span> live traffic</span>"
 	_h_ += "<span class='stat warn'><span class='dot'></span> check before shipping</span>"
-	_h_ += "<span class='hint'>Click a part to open it. The engine runs the same in emulation and in production.</span></div>"
+	_h_ += "<span class='hint'>Click a part to open its page. The engine runs the same in emulation and in production.</span></div>"
 	_h_ += "<div class='cta'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- production ships the same parts.</div>"
 	_h_ += "<button class='pri' onclick='deployProd()'>Deploy to production</button></div>"
 	return _h_
@@ -340,9 +356,11 @@ func _StzEmuScript()
 	_j_ = "function closeModals(){var m=document.getElementsByClassName('modal');for(var i=0;i<m.length;i++)m[i].classList.remove('open')}" + nl
 	_j_ += "function hideViews(){var v=document.getElementsByClassName('partview');for(var i=0;i<v.length;i++)v[i].style.display='none'}" + nl
 	_j_ += "function openPop(n){var m=document.getElementById('m-'+n);if(m){m.classList.add('open');m.scrollTop=0}}" + nl
+	_j_ += "function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}" + nl
+	_j_ += "function setCrumb(n){document.getElementById('crumb-part').innerHTML=n?(' &rsaquo; '+cap(n)):''}" + nl
 	_j_ += "function route(){var h=location.hash.replace('#','');closeModals();var map=document.getElementById('map');" + nl
-	_j_ += "if(h.indexOf('part/')===0){var n=h.slice(5);var v=document.getElementById('ax-'+n);if(v){hideViews();map.style.display='none';v.style.display='block';openPop(n)}else{hideViews();map.style.display='block'}}" + nl
-	_j_ += "else{hideViews();map.style.display='block'}window.scrollTo(0,0)}" + nl
+	_j_ += "if(h.indexOf('part/')===0){var n=h.slice(5);var v=document.getElementById('ax-'+n);if(v){hideViews();map.style.display='none';v.style.display='block';setCrumb(n)}else{hideViews();map.style.display='block';setCrumb('')}}" + nl
+	_j_ += "else{hideViews();map.style.display='block';setCrumb('')}window.scrollTo(0,0)}" + nl
 	_j_ += "function go(el){location.hash='part/'+el.getAttribute('data-part')}" + nl
 	_j_ += "function goMap(){location.hash='map'}" + nl
 	_j_ += "function closeEmu(){closeModals()}" + nl
@@ -385,9 +403,9 @@ func _StzEmuCss()
 	_c_ += "button{font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer;border:1px solid #d3d9e4;background:#fff;color:#1b2333}" + nl
 	_c_ += "button:hover{background:#f5f7fb} button.pri{background:#0a8f4f;color:#fff;border-color:#0a8f4f} button.pri:hover{background:#098544}" + nl
 	_c_ += "button.ghost{background:#fff} button.sm{font-size:12px;padding:6px 11px} .acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}" + nl
-	_c_ += ".spokes{display:grid;grid-template-columns:1fr 1fr;gap:16px}" + nl
-	_c_ += ".wire{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 0 10px}" + nl
-	_c_ += ".wire .ln{width:2px;height:20px;background:#93b4f5}.wire .lbl{font-size:11px;color:#8a93a3}" + nl
+	_c_ += ".tier{margin-bottom:2px}.tierlbl{font-size:11px;color:#9aa3b2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}.tiern{background:#eef1f6;color:#8a93a3;border-radius:10px;padding:1px 7px;font-size:11px}" + nl
+	_c_ += ".tierrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}" + nl
+	_c_ += ".flow{display:flex;align-items:center;gap:12px;margin:15px 0;color:#9aa3b2;font-size:11px}.flow .fline{flex:1;height:1px;background:#dfe3ea}.flow .flbl{white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}" + nl
 	_c_ += ".legend{display:flex;gap:18px;font-size:12px;color:#6b7280;margin-top:18px;align-items:center;flex-wrap:wrap}.legend .hint{color:#9aa3b2;margin-left:auto}" + nl
 	_c_ += ".cta{background:#f0faf4;border:1px solid #b7e0ca;border-radius:12px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.cta .t{font-size:14px;color:#0a6c3d}" + nl
 	_c_ += ".switch{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.switch button{display:inline-flex;align-items:center;gap:6px}.switch button.on{border-color:#2563eb;color:#2563eb}" + nl
@@ -422,7 +440,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + nl
 	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + nl
 	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
-	_h_ += "<div class='crumb'>Solution map</div>" + nl
+	_h_ += "<div class='crumb'><a onclick='goMap()'>&larr; Solution map</a><span id='crumb-part'></span></div>" + nl
 	_h_ += "<div id='map'>" + _StzEmuMapHtml(poPlan) + "</div>" + nl
 	_h_ += _StzEmuAuxViews(poPlan) + nl
 	_h_ += _StzEmuDetailHtml(poPlan) + nl
