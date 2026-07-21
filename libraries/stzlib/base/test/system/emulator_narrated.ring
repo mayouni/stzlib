@@ -23,9 +23,11 @@ StzEngineDirCreatePath(cDir)
 oBrain = new stzBuilderBrain("restolean")
 oBrain.WithBackend(:api, :LinuxServer)
 oBrain.WithSuperApp(:phone, :Android)
+oBrain.WithApp(:admin, :Browser)
 oBrain.WithFirmware(:node, :ESP32)
 oBrain.NeedsIn(:phone, [ :Unicode, :DateTime, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
 oBrain.NeedsIn(:api, [ :PivotTable, :Neural ])
+oBrain.NeedsIn(:admin, [ :PivotTable, :Collection ])
 oBrain.NeedsIn(:node, [ :GPIO, :Pattern, :Neural ])
 
 ? "-- Scene 1: Deploy(:Emulated) generates the mission-control bundle --"
@@ -41,8 +43,10 @@ cH = read(cDir + "/dist/index.html")
 ? "-- Scene 2: the MAP renders every part of the solution --"
 chk("the phone part is on the map", StzFindFirst("data-part='phone'", cH) > 0)
 chk("...the backend (api) part too", StzFindFirst("data-part='api'", cH) > 0)
+chk("...the browser (admin) part", StzFindFirst("data-part='admin'", cH) > 0)
 chk("...and the firmware (node) part", StzFindFirst("data-part='node'", cH) > 0)
 chk("parts are tiered by role (Frontends / Backends / Edge devices)", StzFindFirst("Backends", cH) > 0 and StzFindFirst("Frontends", cH) > 0 and StzFindFirst("Edge devices", cH) > 0)
+chk("...the grid can be filtered by role", StzFindFirst("class='filters'", cH) > 0 and StzFindFirst("data-f='front'", cH) > 0)
 
 ? ""
 ? "-- Scene 3: each part shows the brain's PLACEMENT, per capability --"
@@ -65,6 +69,7 @@ chk("...and names it (pump timing / sensor noise)", StzFindFirst("pump timing", 
 ? "-- Scene 5: the standard master-detail surface, calm and legible --"
 chk("the parts GRID is the master list (left)", StzFindFirst("gridcol", cH) > 0)
 chk("...the selected part's auxiliary detail sits beside it (right)", StzFindFirst("auxcol", cH) > 0)
+chk("the deploy action is a bar at the TOP", StzFindFirst("deploybar", cH) > 0)
 chk("a per-part 'Runs here' placement view", StzFindFirst("Runs here", cH) > 0)
 chk("one clear next action, gated on health", StzFindFirst("Deploy to production", cH) > 0)
 
@@ -72,6 +77,7 @@ chk("one clear next action, gated on health", StzFindFirst("Deploy to production
 ? "-- Scene 5b: each part opens a maximized device window, device + console --"
 chk("the window is maximized to the browser", StzFindFirst("window wide", cH) > 0)
 chk("...with the device on the left", StzFindFirst("dzone", cH) > 0)
+chk("...browser parts get a desktop frame, not a phone", StzFindFirst("deskframe", cH) > 0)
 chk("...and a live log + query console on the right", StzFindFirst("Live log", cH) > 0 and StzFindFirst("rconsole", cH) > 0)
 
 ? ""
