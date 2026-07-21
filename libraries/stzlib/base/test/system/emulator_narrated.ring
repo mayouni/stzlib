@@ -72,6 +72,7 @@ chk("...the selected part's auxiliary detail sits beside it (right)", StzFindFir
 chk("the deploy action is a bar at the TOP", StzFindFirst("deploybar", cH) > 0)
 chk("a per-part 'Runs here' placement view", StzFindFirst("Runs here", cH) > 0)
 chk("one clear next action, gated on health", StzFindFirst("Deploy to production", cH) > 0)
+chk("...marked as a critical/irreversible action", StzFindFirst("class='crit'", cH) > 0)
 
 ? ""
 ? "-- Scene 5b: each part opens a maximized device window, device + console --"

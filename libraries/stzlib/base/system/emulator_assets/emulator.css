@@ -47,6 +47,9 @@ button.pri { background: #0a8f4f; color: #fff; border-color: #0a8f4f; }
 button.pri:hover { background: #098544; }
 button.sm { font-size: 12px; padding: 6px 11px; }
 button.ghost { background: #fff; }
+/* critical / irreversible action (Deploy to production) */
+button.crit { background: #c0392b; color: #fff; border-color: #c0392b; }
+button.crit:hover { background: #a5342a; }
 
 /* deploy bar (top of the page) */
 .deploybar {
@@ -105,7 +108,7 @@ button.ghost { background: #fff; }
 .axprompt { color: #8a93a3; font-size: 13px; }
 .axhead { display: flex; align-items: center; gap: 8px; font-size: 15px; margin: 0 0 16px; flex-wrap: wrap; }
 .axname { font-size: 16px; }
-.axcard .pri { align-self: flex-start; margin-bottom: 16px; }
+.axcard .pri { align-self: flex-end; margin-bottom: 16px; }
 .caprow {
 	display: flex; align-items: center; justify-content: space-between;
 	font-size: 13px; padding: 6px 0; border-bottom: 1px solid #f0f2f7;

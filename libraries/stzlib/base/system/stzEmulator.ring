@@ -295,7 +295,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + nl
 	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + nl
 	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
-	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='pri' onclick='deployProd()'>Deploy to production</button></div>" + nl
+	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='crit' onclick='deployProd()'>Deploy to production</button></div>" + nl
 	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
 	_h_ += _StzEmuPopups(poPlan) + nl
 	_h_ += "<script src='emulator.js'></script>" + nl
