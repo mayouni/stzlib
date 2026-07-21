@@ -298,6 +298,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='crit' onclick='deployProd()'>Deploy to production</button></div>" + nl
 	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
 	_h_ += _StzEmuPopups(poPlan) + nl
+	_h_ += "<script src='stz.js'></script>" + nl
 	_h_ += "<script src='emulator.js'></script>" + nl
 	_h_ += "</body></html>" + nl
 	return _h_
@@ -361,6 +362,18 @@ class stzEmulator from stzObject
 		@aFiles + "emulator.css"
 		write(_cDir_ + "/emulator.js", read(_cSrc_ + "/emulator.js"))
 		@aFiles + "emulator.js"
+		write(_cDir_ + "/stz.js", read(_cSrc_ + "/stz.js"))
+		@aFiles + "stz.js"
+
+		# the differential engine EDGE: ship stz.wasm if it has been built
+		# (`zig build wasm` / StzBuildEngineWasm). Present -> device consoles run
+		# the REAL engine; absent -> they fall back to rehearsed verbs. Ring
+		# read/write copies the binary faithfully (verified byte-identical).
+		_cWasm_ = StzEngineWasmPath()
+		if StzEngineFileExists(_cWasm_) = 1
+			write(_cDir_ + "/stz.wasm", read(_cWasm_))
+			@aFiles + "stz.wasm"
+		ok
 
 		_aP_ = _oPlan_.Parts()
 		_n_ = len(_aP_)

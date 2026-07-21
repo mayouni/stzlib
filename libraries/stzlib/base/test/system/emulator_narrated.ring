@@ -97,6 +97,15 @@ chk("...the CSS holds the real layout (gridcol + deploybar)", StzFindFirst(".gri
 cJs = read(cDir + "/dist/emulator.js")
 chk("...the JS holds the window routing (openPop + Escape close)", StzFindFirst("function openPop", cJs) > 0 and StzFindFirst("Escape", cJs) > 0)
 
+? ""
+? "-- Scene 8: the engine EDGE is wired -- device consoles can run stz.wasm --"
+chk("stz.js (the wasm bridge) ships in the bundle", StzEngineFileExists(cDir + "/dist/stz.js") = 1)
+chk("...index.html loads it (before emulator.js)", StzFindFirst("stz.js", cH) > 0)
+chk("...emulator.js exposes REAL engine verbs (solve / prime / mean on stz.wasm)",
+	StzFindFirst("tryEngine", cJs) > 0 and StzFindFirst("stz_solve_linear", cJs) > 0)
+chk("...and ships stz.wasm when the edge has been built (else degrades gracefully)",
+	StzEngineFileExists(cDir + "/dist/stz.wasm") = 1 or NOT (StzEngineFileExists(StzEngineWasmPath()) = 1))
+
 StzEngineDirDelete(cDir)
 
 ? ""
