@@ -303,6 +303,21 @@ class stzBuilderBrain from stzObject
 		next
 		return _oPlan_
 
+	# Deploy() covers BOTH phases (Scope-Oriented: the deploy scope is the frame).
+	#   :Emulated   -> the programming phase: generate the web-based mission-control
+	#                  emulator (via stzEmulator) where the whole solution runs and
+	#                  is debugged visually, part by part.
+	#   :Production  -> the same parts cross the governed bridge to real targets; the
+	#                  plan IS the production spec the lowering/platform path executes.
+	def Deploy(pMode)
+		_m_ = StzLower("" + pMode)
+		if _m_ = "emulated" or _m_ = ":emulated"
+			_oEmu_ = new stzEmulator(This)
+			_oEmu_.Build()
+			return _oEmu_
+		ok
+		return This.Plan()
+
 
   #==============#
  #  BUILD PLAN  #
@@ -326,6 +341,14 @@ class stzBuildPlan from stzObject
 
 	def NumberOfParts()
 		return len(@aParts)
+
+	# the raw per-part decisions -- consumed by stzEmulator to render each part.
+	def Parts()
+		return @aParts
+
+	# the on-device delivery label for a vector + class (public: the emulator reuses it)
+	def LabelFor(pcVector, pcClass)
+		return This._Label(pcVector, pcClass)
 
 	def _Idx(pcName)
 		_c_ = StzLower("" + pcName)

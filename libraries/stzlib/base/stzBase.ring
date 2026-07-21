@@ -359,6 +359,7 @@ ok
     load "system/stzBuilder.ring"
     load "system/stzWebBundle.ring"
     load "system/stzBuilderBrain.ring"
+    load "system/stzEmulator.ring"
 
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
