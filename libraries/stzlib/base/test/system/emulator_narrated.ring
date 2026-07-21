@@ -62,11 +62,17 @@ chk("...the MCU flags what is only approximated", StzFindFirst("2 approximated",
 chk("...and names it (pump timing / sensor noise)", StzFindFirst("pump timing", cH) > 0)
 
 ? ""
-? "-- Scene 5: the calm, never-lost UX --"
-chk("a big-picture legend (healthy / live / check before shipping)", StzFindFirst("check before shipping", cH) > 0)
-chk("a breadcrumb so you can always go back", StzFindFirst("Solution map", cH) > 0)
+? "-- Scene 5: the standard master-detail surface, calm and legible --"
+chk("the parts GRID is the master list (left)", StzFindFirst("gridcol", cH) > 0)
+chk("...the selected part's auxiliary detail sits beside it (right)", StzFindFirst("auxcol", cH) > 0)
 chk("a per-part 'Runs here' placement view", StzFindFirst("Runs here", cH) > 0)
 chk("one clear next action, gated on health", StzFindFirst("Deploy to production", cH) > 0)
+
+? ""
+? "-- Scene 5b: each part opens a maximized device window, device + console --"
+chk("the window is maximized to the browser", StzFindFirst("window wide", cH) > 0)
+chk("...with the device on the left", StzFindFirst("dzone", cH) > 0)
+chk("...and a live log + query console on the right", StzFindFirst("Live log", cH) > 0 and StzFindFirst("rconsole", cH) > 0)
 
 ? ""
 ? "-- Scene 6: the manifest declares the emulator bundle --"
