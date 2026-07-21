@@ -8,6 +8,8 @@
    them with each part's real engine calls. */
 
 var openPart = null;
+var STZ = null;            // the loaded stz.wasm engine edge (null until ready)
+var engineHinted = {};     // parts whose window has shown the engine-ready hint
 
 /* -- device windows (modals) -- */
 
@@ -26,7 +28,16 @@ function openPop(n) {
 		// lazy-load the part's app iframe only when its window first opens
 		var f = m.querySelector('iframe[data-src]');
 		if (f && !f.getAttribute('src')) { f.setAttribute('src', f.getAttribute('data-src')); }
+		engineHint(n);
 	}
+}
+
+// Announce the real engine in a window's log, once, when stz.wasm is ready.
+function engineHint(n) {
+	if (!STZ || engineHinted[n]) return;
+	engineHinted[n] = true;
+	addLine('log-' + n, 'stz.wasm ready (abi ' + STZ.abi + ') -- this console runs the REAL engine.');
+	addLine('log-' + n, 'try:  solve 2 -8   .   prime 100   .   mean 10 20 30 40   .   gcd 48 36');
 }
 
 function openEmu(el) { openPop(el.getAttribute('data-part')); }
@@ -107,7 +118,51 @@ function doPin(p, a) {
 	}
 }
 
-/* -- query console (interpretation depends on the part's class) -- */
+/* -- real engine verbs, run on stz.wasm (the differential edge) -------------
+   These call the SAME Zig logic that backs the native DLLs, compiled to wasm.
+   Available in every window's console once stz.wasm has loaded. */
+function tryEngine(p, q) {
+	if (!STZ) return false;
+	var t = q.trim().split(/\s+/);
+	var cmd = t[0].toLowerCase();
+	var e = STZ.exports;
+	try {
+		if (cmd === 'solve' && t.length === 3) {
+			addLine('log-' + p, '  stz.wasm . solve ' + t[1] + 'x + (' + t[2] + ') = 0  ->  x = ' + e.stz_solve_linear(parseFloat(t[1]), parseFloat(t[2])));
+			return true;
+		}
+		if (cmd === 'prime' && t.length === 2) {
+			addLine('log-' + p, '  stz.wasm . nth_prime(' + t[1] + ') = ' + e.stz_nth_prime(parseInt(t[1], 10)));
+			return true;
+		}
+		if (cmd === 'isprime' && t.length === 2) {
+			addLine('log-' + p, '  stz.wasm . is_prime(' + t[1] + ') = ' + (e.stz_is_prime(BigInt(t[1])) ? 'yes' : 'no'));
+			return true;
+		}
+		if (cmd === 'gcd' && t.length === 3) {
+			addLine('log-' + p, '  stz.wasm . gcd(' + t[1] + ', ' + t[2] + ') = ' + e.stz_gcd(BigInt(t[1]), BigInt(t[2])));
+			return true;
+		}
+		if (cmd === 'fib' && t.length === 2) {
+			addLine('log-' + p, '  stz.wasm . fib(' + t[1] + ') = ' + e.stz_fib(parseInt(t[1], 10)));
+			return true;
+		}
+		if ((cmd === 'mean' || cmd === 'sum') && t.length > 1) {
+			var arr = t.slice(1).map(Number);
+			var m = STZ.f64s(arr);
+			var r = (cmd === 'mean') ? e.stz_mean(m.ptr, m.len) : e.stz_sum(m.ptr, m.len);
+			STZ.reset();
+			addLine('log-' + p, '  stz.wasm . ' + cmd + '([' + arr.join(', ') + ']) = ' + r);
+			return true;
+		}
+	} catch (err) {
+		addLine('log-' + p, '  stz.wasm error: ' + err);
+		return true;
+	}
+	return false;
+}
+
+/* -- query console (real engine verbs first, then class-specific rehearsal) -- */
 
 function query(el) {
 	var p = el.getAttribute('data-part');
@@ -117,6 +172,7 @@ function query(el) {
 	if (!q) return;
 	addLine('log-' + p, '> ' + q);
 	inp.value = '';
+	if (tryEngine(p, q)) { return; }
 	if (c === 'server') {
 		addLine('log-' + p, '  ' + (API[q] || '200 OK'));
 	} else if (c === 'mcu') {
@@ -148,3 +204,13 @@ function deployProd() {
 /* select the first part on load so the detail zone is never empty */
 var first = document.getElementsByClassName('grow')[0];
 if (first) sel(first);
+
+/* load the differential engine edge; when ready, any open window's console
+   runs the REAL engine. If stz.wasm is absent, the console keeps its rehearsed
+   verbs -- the emulator degrades gracefully. */
+if (typeof StzWasm !== 'undefined') {
+	StzWasm.load('stz.wasm').then(function (m) {
+		STZ = m;
+		if (openPart) engineHint(openPart);
+	}).catch(function (err) { /* no stz.wasm in this bundle */ });
+}
