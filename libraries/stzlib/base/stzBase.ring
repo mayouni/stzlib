@@ -358,7 +358,7 @@ ok
     # the profile (For(target) reuses _StzSystemProfileForTarget).
     load "system/stzBuilder.ring"
     load "system/stzWebBundle.ring"
-    load "system/stzSolution.ring"
+    load "system/stzBuilderBrain.ring"
 
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"

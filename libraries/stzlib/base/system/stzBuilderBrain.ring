@@ -1,113 +1,68 @@
 #--------------------------------------------------------------#
-#          SOFTANZA LIBRARY (V0.9) - STZSOLUTION               #
+#          SOFTANZA LIBRARY (V0.9) - STZBUILDERBRAIN           #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : The DEPLOYABLE APEX + the building BRAIN.   #
-#                  A stzSolution is what a programmer wants    #
-#                  to deploy -- from one offline mobile app    #
-#                  to a whole constellation (backend +         #
-#                  frontends, many apps at many locations).    #
-#                  Before a single byte is built, the brain    #
-#                  REHEARSES a placement & scope plan: for     #
-#                  each capability a part needs, on its        #
-#                  target, it decides the delivery vector and  #
-#                  says WHY -- and derives the minimal edge    #
-#                  engine subset to ship. Build() then         #
-#                  compiles exactly that; Deploy() commits.    #
+#   Description  : The REASONING behind stzBuilder. You        #
+#                  describe the SOLUTION you want to deploy    #
+#                  -- its parts, their targets, the Softanza   #
+#                  capabilities each uses -- and the brain     #
+#                  REHEARSES a placement & scope plan BEFORE   #
+#                  a byte is built: per capability, on its     #
+#                  target, it picks a delivery vector and      #
+#                  says WHY, and derives the minimal on-device #
+#                  engine subset. stzBuilder then compiles     #
+#                  exactly that plan; Deploy() commits it.     #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 #
-# The DIFFERENTIAL-VALUE test (the load-bearing idea): the edge ships only what is
-# critical to the app AND (unique to Softanza OR weak/absent on the target). A
-# browser is strong at Unicode/dates/JSON -> use the platform's own; it is weak or
-# lacking at Softanza's DSLs, solver, table/pivot, graph -> those go to the scoped
-# edge engine (stz.wasm) or a Softanza-shaped stz.js construct. We never blindly
-# ship a desktop-sized engine to an edge that cannot host it.
+# This is Scope-Oriented Programming, third instance (after regex and system): the
+# invisible governing frame is the TARGET PLATFORM. The SAME capability behaves
+# differently per target -- table_pivot is stz.wasm on a browser, FIRMWARE on an
+# MCU, the native engine on a server. Name the target scope (each part's target)
+# and the brain reasons with it, bridging what the target cannot host (M5). The
+# DIFFERENTIAL-VALUE test decides: the edge carries only what is critical AND
+# (Softanza-unique OR weak/absent on the target). A browser is strong at Unicode
+# -> use its own; it lacks Softanza's solver/pivot/pattern -> those go on-device.
 #
-# Four delivery vectors:
-#   native  -> the target platform does it well; ship nothing (JS's Unicode).
-#   engine  -> Softanza-differential compute -> scoped into stz.wasm (edge) / firmware.
-#   stzjs   -> ergonomic Softanza construct, written in the target language (stz.js).
-#   server  -> too heavy for the edge -> runs on the backend.
+# Four delivery vectors, inclusive across targets:
+#   native    -> the target platform does it well; ship nothing (a browser's Unicode).
+#   engine    -> Softanza-differential compute, in the target's on-device form:
+#                stz.wasm (browser/mobile), FIRMWARE (mcu), the native engine (server).
+#   construct -> ergonomic Softanza construct in the target language (stz.js on the web).
+#   server    -> too heavy for the edge -> the backend.
 #
-# This is Scope-Oriented Programming applied to build/deploy, and it composes what
-# already exists: the lowering bridge (meshes one op to a target) generalized to a
-# whole solution; the VSF rehearse->plan->commit discipline (Plan() is the legible
-# rehearsal); and the stzCodeGraph as the substrate for inferring a part's needs.
-#
-#   oSol = new stzSolution("restolean")
-#   oSol.WithBackend(:api, :LinuxServer).WithSuperApp(:phone, :Android)
-#   oSol.NeedsIn(:phone, [ :unicode, :table_pivot, :constraint_solver, :collection_dsl, :neural ])
-#   ? oSol.Plan().Narration()
+#   oBrain = new stzBuilderBrain("restolean")
+#   oBrain.WithBackend(:api, :LinuxServer).WithSuperApp(:phone, :Android).WithApp(:node, :ESP32)
+#   oBrain.NeedsIn(:phone, [ :unicode, :table_pivot, :constraint_solver, :collection_dsl, :neural ])
+#   ? oBrain.Plan().Narration()
 
   #=============#
  #  FUNCTIONS  #
 #=============#
 
-func StzSolutionQ(pcName)
-	return new stzSolution(pcName)
+func StzBuilderBrainQ(pcName)
+	return new stzBuilderBrain(pcName)
 
 func StzCapabilityCatalogQ()
 	return new stzCapabilityCatalog()
 
-# A friendly target -> its class: server / mobile / browser / mcu.
+# A friendly target -> its class: server / mobile / browser / mcu. (Thin domain
+# classifier, like _StzSystemProfileForTarget -- not a reinvented primitive.)
 func _StzTargetClass(pcName)
 	_c_ = StzLower(ring_trim("" + pcName))
 	if StzFindFirst("android", _c_) > 0 or StzFindFirst("ios", _c_) > 0 or StzFindFirst("mobile", _c_) > 0 or StzFindFirst("phone", _c_) > 0
 		return "mobile"
 	but StzFindFirst("browser", _c_) > 0 or StzFindFirst("web", _c_) > 0 or StzFindFirst("wasm", _c_) > 0
 		return "browser"
-	but StzFindFirst("esp", _c_) > 0 or StzFindFirst("rtos", _c_) > 0 or StzFindFirst("mcu", _c_) > 0 or StzFindFirst("arduino", _c_) > 0
+	but StzFindFirst("esp", _c_) > 0 or StzFindFirst("rtos", _c_) > 0 or StzFindFirst("mcu", _c_) > 0 or StzFindFirst("arduino", _c_) > 0 or StzFindFirst("firmware", _c_) > 0
 		return "mcu"
 	but StzFindFirst("server", _c_) > 0 or StzFindFirst("linux", _c_) > 0 or StzFindFirst("windows", _c_) > 0 or StzFindFirst("macos", _c_) > 0 or StzFindFirst("backend", _c_) > 0
 		return "server"
 	ok
 	return "server"
-
-func _StzIsEdgeClass(pcClass)
-	return pcClass != "server"
-
-func _StzVectorLabel(pcV)
-	if pcV = "native"
-		return "[platform]"
-	but pcV = "engine"
-		return "[stz.wasm]"
-	but pcV = "stzjs"
-		return "[stz.js]"
-	but pcV = "server"
-		return "[server]"
-	ok
-	return "[" + pcV + "]"
-
-func _StzPad(pcS, pnN)
-	_c_ = "" + pcS
-	while len(_c_) < pnN
-		_c_ += " "
-	end
-	return _c_
-
-func _StzJoinList(paList)
-	_c_ = ""
-	_n_ = len(paList)
-	for _i_ = 1 to _n_
-		_c_ += "" + paList[_i_]
-		if _i_ < _n_
-			_c_ += ", "
-		ok
-	next
-	return _c_
-
-func _StzListHas(paList, pcX)
-	_n_ = len(paList)
-	for _i_ = 1 to _n_
-		if paList[_i_] = pcX
-			return TRUE
-		ok
-	next
-	return FALSE
 
 
   #=====================#
@@ -137,6 +92,7 @@ class stzCapabilityCatalog from stzObject
 			[ "constraint_solver", TRUE,  "compute",   "medium",   "absent", "strong", "absent",  15 ],
 			[ "graph",             TRUE,  "compute",   "medium",   "weak",   "strong", "absent",  10 ],
 			[ "exact_numerics",    FALSE, "compute",   "light",    "weak",   "strong", "weak",     3 ],
+			[ "gpio",              TRUE,  "compute",   "light",    "absent", "weak",   "strong",   1 ],
 			[ "collection_dsl",    TRUE,  "ergonomic", "light",    "weak",   "strong", "weak",     0 ],
 			[ "neural",            FALSE, "compute",   "heavy",    "weak",   "strong", "absent",  900 ]
 		]
@@ -145,22 +101,23 @@ class stzCapabilityCatalog from stzObject
 		return @aCaps
 
 	def Has(pcName)
-		_c_ = StzLower("" + pcName)
-		_n_ = len(@aCaps)
-		for _i_ = 1 to _n_
-			if @aCaps[_i_][1] = _c_
-				return TRUE
-			ok
+		return StzFindFirst(StzLower("" + pcName), This._Names()) > 0
+
+	def _Names()
+		_out_ = []
+		nLen = len(@aCaps)
+		for i = 1 to nLen
+			_out_ + @aCaps[i][1]
 		next
-		return FALSE
+		return _out_
 
 	# unknown capability -> assume Softanza-differential compute, platform-weak.
 	def Record(pcName)
 		_c_ = StzLower("" + pcName)
-		_n_ = len(@aCaps)
-		for _i_ = 1 to _n_
-			if @aCaps[_i_][1] = _c_
-				return @aCaps[_i_]
+		nLen = len(@aCaps)
+		for i = 1 to nLen
+			if @aCaps[i][1] = _c_
+				return @aCaps[i]
 			ok
 		next
 		return [ _c_, TRUE, "compute", "medium", "weak", "strong", "absent", 8 ]
@@ -177,6 +134,9 @@ class stzCapabilityCatalog from stzObject
 		return paRec[5]   # browser / mobile use JS support
 
 	# (capability, target class) -> [ vector, reason ]. The whole brain, legibly.
+	# Inclusive across targets: a server hosts the native engine; the heavy is
+	# offloaded; a strong non-unique capability uses the platform; ergonomics on a
+	# language-runtime target become a construct, else they fold into the engine.
 	def VectorFor(pcCap, pcClass)
 		_r_ = This.Record(pcCap)
 		_cap_ = _r_[1]
@@ -194,17 +154,17 @@ class stzCapabilityCatalog from stzObject
 		if _cSupp_ = "strong" and NOT _bUnique_
 			return [ "native", _cap_ + ": the target is strong at it -> use the platform's own" ]
 		ok
-		if _cNature_ = "ergonomic"
-			return [ "stzjs", _cap_ + ": ergonomic -> a Softanza-shaped construct in stz.js" ]
+		if _cNature_ = "ergonomic" and (pcClass = "browser" or pcClass = "mobile")
+			return [ "construct", _cap_ + ": ergonomic -> a Softanza construct in the target language" ]
 		ok
-		return [ "engine", _cap_ + ": Softanza-differential, platform " + _cSupp_ + " -> scoped into the edge engine" ]
+		return [ "engine", _cap_ + ": Softanza-differential, " + pcClass + " " + _cSupp_ + " -> the on-device engine" ]
 
 
-  #=============#
- #  SOLUTION   #
-#=============#
+  #=================#
+ #  BUILDER BRAIN  #
+#=================#
 
-class stzSolution from stzObject
+class stzBuilderBrain from stzObject
 
 	@cName = ""
 	@aParts = []       # [ name, kind, targetname, [caps] ]  -- plain data (survives copy)
@@ -233,13 +193,15 @@ class stzSolution from stzObject
 			return This.WithPart("backend", pcName, pcTarget)
 		def WithServer(pcName, pcTarget)
 			return This.WithPart("server", pcName, pcTarget)
+		def WithFirmware(pcName, pcTarget)
+			return This.WithPart("firmware", pcName, pcTarget)
 
 	def _PartIndex(pcName)
 		_c_ = StzLower("" + pcName)
-		_n_ = len(@aParts)
-		for _i_ = 1 to _n_
-			if @aParts[_i_][1] = _c_
-				return _i_
+		nLen = len(@aParts)
+		for i = 1 to nLen
+			if @aParts[i][1] = _c_
+				return i
 			ok
 		next
 		return 0
@@ -258,9 +220,9 @@ class stzSolution from stzObject
 		ok
 		_caps_ = []
 		if isList(paCaps)
-			_m_ = len(paCaps)
-			for _k_ = 1 to _m_
-				_caps_ + StzLower("" + paCaps[_k_])
+			nLen = len(paCaps)
+			for k = 1 to nLen
+				_caps_ + StzLower("" + paCaps[k])
 			next
 		ok
 		@aParts[_i_][4] = _caps_
@@ -292,18 +254,18 @@ class stzSolution from stzObject
 			[ "Pattern",    "pattern" ],
 			[ "Graph",      "graph" ],
 			[ "Neural",     "neural" ],
+			[ "ReadPin",    "gpio" ],
+			[ "WritePin",   "gpio" ],
 			[ "TextQ",      "unicode" ],
 			[ "Uppercase",  "unicode" ],
 			[ "Date",       "datetime" ],
 			[ "Json",       "json" ]
 		]
 		_found_ = []
-		_n_ = len(_aMap_)
-		for _i_ = 1 to _n_
-			if StzFindFirst(_aMap_[_i_][1], pcSrc) > 0
-				if NOT _StzListHas(_found_, _aMap_[_i_][2])
-					_found_ + _aMap_[_i_][2]
-				ok
+		nLen = len(_aMap_)
+		for i = 1 to nLen
+			if StzFindFirst(_aMap_[i][1], pcSrc) > 0 and StzFindFirst(_aMap_[i][2], _found_) = 0
+				_found_ + _aMap_[i][2]
 			ok
 		next
 		return _found_
@@ -311,33 +273,33 @@ class stzSolution from stzObject
 	# REHEARSE the placement & scope plan -- no bytes built. This is Build()'s
 	# thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
-		_oPlan_ = new stzSolutionPlan(@cName)
-		_n_ = len(@aParts)
-		for _i_ = 1 to _n_
-			_name_ = @aParts[_i_][1]
-			_kind_ = @aParts[_i_][2]
-			_tname_ = @aParts[_i_][3]
-			_caps_ = @aParts[_i_][4]
+		_oPlan_ = new stzBuildPlan(@cName)
+		nLen = len(@aParts)
+		for i = 1 to nLen
+			_name_ = @aParts[i][1]
+			_kind_ = @aParts[i][2]
+			_tname_ = @aParts[i][3]
+			_caps_ = @aParts[i][4]
 			_class_ = _StzTargetClass(_tname_)
 			_decisions_ = []
-			_m_ = len(_caps_)
-			for _k_ = 1 to _m_
-				_v_ = @oCat.VectorFor(_caps_[_k_], _class_)
-				_decisions_ + [ _caps_[_k_], _v_[1], _v_[2], @oCat.SizeOf(_caps_[_k_]) ]
+			mLen = len(_caps_)
+			for k = 1 to mLen
+				_v_ = @oCat.VectorFor(_caps_[k], _class_)
+				_decisions_ + [ _caps_[k], _v_[1], _v_[2], @oCat.SizeOf(_caps_[k]) ]
 			next
 			_oPlan_.AddPart(_name_, _kind_, _tname_, _class_, _decisions_)
 		next
 		return _oPlan_
 
 
-  #==================#
- #  SOLUTION PLAN   #
-#==================#
+  #==============#
+ #  BUILD PLAN  #
+#==============#
 
 # The rehearsed placement & scope plan -- the brain's readable output. Per part:
-# every capability, its delivery vector, and the reason; plus the derived edge
+# every capability, its delivery vector, and the reason; plus the derived on-device
 # engine subset. Plain-data backed; Narration() is the legible signature.
-class stzSolutionPlan from stzObject
+class stzBuildPlan from stzObject
 
 	@cName = ""
 	@aParts = []   # [ name, kind, tname, class, [ [cap, vector, reason, kb], ... ] ]
@@ -354,33 +316,60 @@ class stzSolutionPlan from stzObject
 
 	def _Idx(pcName)
 		_c_ = StzLower("" + pcName)
-		_n_ = len(@aParts)
-		for _i_ = 1 to _n_
-			if @aParts[_i_][1] = _c_
-				return _i_
+		nLen = len(@aParts)
+		for i = 1 to nLen
+			if @aParts[i][1] = _c_
+				return i
 			ok
 		next
 		return 0
 
 	def _CapsByVector(paDecisions, pcVector)
 		_out_ = []
-		_n_ = len(paDecisions)
-		for _i_ = 1 to _n_
-			if paDecisions[_i_][2] = pcVector
-				_out_ + paDecisions[_i_][1]
+		nLen = len(paDecisions)
+		for i = 1 to nLen
+			if paDecisions[i][2] = pcVector
+				_out_ + paDecisions[i][1]
 			ok
 		next
 		return _out_
 
 	def _EngineKb(paDecisions)
 		_kb_ = 0
-		_n_ = len(paDecisions)
-		for _i_ = 1 to _n_
-			if paDecisions[_i_][2] = "engine"
-				_kb_ += paDecisions[_i_][4]
+		nLen = len(paDecisions)
+		for i = 1 to nLen
+			if paDecisions[i][2] = "engine"
+				_kb_ += paDecisions[i][4]
 			ok
 		next
 		return _kb_
+
+	# the on-device engine artifact label per target class (inclusive)
+	def _Label(pcVector, pcClass)
+		if pcVector = "native"
+			return "[platform]"
+		but pcVector = "construct"
+			return "[stz.js]"
+		but pcVector = "server"
+			return "[server]"
+		but pcVector = "engine"
+			if pcClass = "server"
+				return "[engine]"
+			but pcClass = "mcu"
+				return "[firmware]"
+			ok
+			return "[stz.wasm]"
+		ok
+		return "[" + pcVector + "]"
+
+	# the engine artifact name for a class (what the "engine carries" line names)
+	def _EngineArtifact(pcClass)
+		if pcClass = "mcu"
+			return "firmware"
+		but pcClass = "server"
+			return "native engine"
+		ok
+		return "stz.wasm"
 
 	# the delivery vector chosen for a capability in a part (data -- for checks)
 	def VectorFor(pcPart, pcCap)
@@ -390,15 +379,15 @@ class stzSolutionPlan from stzObject
 		ok
 		_cc_ = StzLower("" + pcCap)
 		_decs_ = @aParts[_i_][5]
-		_n_ = len(_decs_)
-		for _k_ = 1 to _n_
-			if _decs_[_k_][1] = _cc_
-				return _decs_[_k_][2]
+		nLen = len(_decs_)
+		for k = 1 to nLen
+			if _decs_[k][1] = _cc_
+				return _decs_[k][2]
 			ok
 		next
 		return ""
 
-	# the capabilities compiled into a part's edge engine (stz.wasm / firmware)
+	# the capabilities compiled into a part's on-device engine (stz.wasm / firmware)
 	def EngineCapsFor(pcPart)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
@@ -419,49 +408,47 @@ class stzSolutionPlan from stzObject
 		_tot_ = 0
 		_nat_ = 0
 		_eng_ = 0
-		_js_ = 0
+		_cst_ = 0
 		_srv_ = 0
-		_np_ = len(@aParts)
-		for _i_ = 1 to _np_
-			_p_ = @aParts[_i_]
-			_c_ += nl + "  Part '" + _p_[1] + "' [" + _p_[2] + "] -> " + _p_[3] + " (" + _p_[4]
-			if _StzIsEdgeClass(_p_[4])
+		nParts = len(@aParts)
+		for i = 1 to nParts
+			_p_ = @aParts[i]
+			_class_ = _p_[4]
+			_bEdge_ = (_class_ != "server")
+			_c_ += nl + "  Part '" + _p_[1] + "' [" + _p_[2] + "] -> " + _p_[3] + " (" + _class_
+			if _bEdge_
 				_c_ += " / edge"
 			ok
 			_c_ += ")" + nl
 			_decs_ = _p_[5]
-			_m_ = len(_decs_)
-			_bEdge_ = _StzIsEdgeClass(_p_[4])
-			for _k_ = 1 to _m_
-				_lbl_ = _StzVectorLabel(_decs_[_k_][2])
-				if _decs_[_k_][2] = "engine" and NOT _bEdge_
-					_lbl_ = "[engine]"   # the server's native Softanza engine, not wasm
-				ok
-				_c_ += "     " + _StzPad(_decs_[_k_][1], 18) + " " + _StzPad(_lbl_, 12) + _decs_[_k_][3] + nl
+			mLen = len(_decs_)
+			for k = 1 to mLen
+				_lbl_ = This._Label(_decs_[k][2], _class_)
+				_c_ += "     " + StzPadRight(_decs_[k][1], 18) + " " + StzPadRight(_lbl_, 12) + _decs_[k][3] + nl
 				_tot_++
-				if _decs_[_k_][2] = "native"
+				if _decs_[k][2] = "native"
 					_nat_++
-				but _decs_[_k_][2] = "engine"
+				but _decs_[k][2] = "engine"
 					_eng_++
-				but _decs_[_k_][2] = "stzjs"
-					_js_++
-				but _decs_[_k_][2] = "server"
+				but _decs_[k][2] = "construct"
+					_cst_++
+				but _decs_[k][2] = "server"
 					_srv_++
 				ok
 			next
 			if _bEdge_
 				_engcaps_ = This._CapsByVector(_decs_, "engine")
 				if len(_engcaps_) > 0
-					_c_ += "     -> edge engine carries: " + _StzJoinList(_engcaps_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engcaps_) + " of " + _m_ + ")" + nl
+					_c_ += "     -> " + This._EngineArtifact(_class_) + " carries: " + @@(_engcaps_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engcaps_) + " of " + mLen + ")" + nl
 				else
-					_c_ += "     -> edge engine: nothing to ship (all native / stz.js / server)" + nl
+					_c_ += "     -> " + This._EngineArtifact(_class_) + ": nothing to ship (all native / construct / server)" + nl
 				ok
 			else
 				_c_ += "     -> runs on the full native engine (server has everything)" + nl
 			ok
 		next
-		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + _np_ + " parts -> "
-		_c_ += "platform " + _nat_ + ", stz.wasm " + _eng_ + ", stz.js " + _js_ + ", server " + _srv_ + "." + nl
+		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
+		_c_ += "platform " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
 		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
 		return _c_
 
