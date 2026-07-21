@@ -85,6 +85,17 @@ chk("...and a live log + query console on the right", StzFindFirst("Live log", c
 cM = read(cDir + "/dist/manifest.json")
 chk("the manifest is a web emulator listing its parts", StzFindFirst("emulator", cM) > 0 and StzFindFirst("phone", cM) > 0)
 
+? ""
+? "-- Scene 7: the bundle is a clean web app -- CSS / JS are separate assets --"
+chk("index.html LINKS a stylesheet, not an inline <style> blob", StzFindFirst("emulator.css", cH) > 0 and StzFindFirst("<style>", cH) = 0)
+chk("...and an external script, not an inline <script> blob", StzFindFirst("emulator.js", cH) > 0)
+chk("emulator.css ships as its own file", StzEngineFileExists(cDir + "/dist/emulator.css") = 1)
+chk("emulator.js ships as its own file", StzEngineFileExists(cDir + "/dist/emulator.js") = 1)
+cCss = read(cDir + "/dist/emulator.css")
+chk("...the CSS holds the real layout (gridcol + deploybar)", StzFindFirst(".gridcol", cCss) > 0 and StzFindFirst(".deploybar", cCss) > 0)
+cJs = read(cDir + "/dist/emulator.js")
+chk("...the JS holds the window routing (openPop + Escape close)", StzFindFirst("function openPop", cJs) > 0 and StzFindFirst("Escape", cJs) > 0)
+
 StzEngineDirDelete(cDir)
 
 ? ""
