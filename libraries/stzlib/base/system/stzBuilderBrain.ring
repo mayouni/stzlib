@@ -335,6 +335,9 @@ class stzBuildPlan from stzObject
 	def init(pcName)
 		@cName = "" + pcName
 
+	def Name()
+		return @cName
+
 	def AddPart(pcName, pcKind, pcTName, pcClass, paDecisions)
 		@aParts + [ pcName, pcKind, pcTName, pcClass, paDecisions ]
 		return This
