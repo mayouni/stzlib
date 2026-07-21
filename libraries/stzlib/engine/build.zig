@@ -881,11 +881,18 @@ pub fn build(b: *std.Build) void {
             .cpu_arch = .wasm32,
             .os_tag = .freestanding,
         });
+        // Which engine groups to compile in -- the brain sets this per part from
+        // its [stz.wasm]-placed capabilities, so we emit ONLY the plan's subset.
+        // Default = all (a superset build for `zig build wasm` with no arg).
+        const wasm_groups = b.option([]const u8, "wasm-groups", "engine groups in stz.wasm (comma-sep: solver,aggregation,numtheory)") orelse "solver,aggregation,numtheory";
+        const wg_opts = b.addOptions();
+        wg_opts.addOption([]const u8, "groups", wasm_groups);
         const wasm_mod = b.createModule(.{
             .root_source_file = b.path("src/stz_wasm_entry.zig"),
             .target = wasm_target,
             .optimize = .ReleaseSmall,
         });
+        wasm_mod.addImport("wasm_groups", wg_opts.createModule());
         const wasm = b.addExecutable(.{
             .name = "stz",
             .root_module = wasm_mod,

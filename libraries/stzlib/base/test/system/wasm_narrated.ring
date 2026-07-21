@@ -54,6 +54,33 @@ cWasm = StzBuildEngineWasm()
 chk("StzBuildEngineWasm() produced an artifact", cWasm != "")
 chk("...at the engine's install path", cWasm = StzEngineWasmPath())
 chk("...and stz.wasm exists on disk", StzEngineFileExists(StzEngineWasmPath()) = 1)
+nFull = StzEngineFileSize(StzEngineWasmPath())
+
+? ""
+? "-- Scene 4: emit ONLY the plan's per-part engine subset --"
+aSolver = StzWasmGroupsFor([ :constraintsolver ])
+chk("ConstraintSolver -> the solver group", len(aSolver) = 1 and aSolver[1] = "solver")
+aPivot = StzWasmGroupsFor([ :pivottable ])
+chk("PivotTable -> the aggregation group", len(aPivot) = 1 and aPivot[1] = "aggregation")
+chk("a part using both -> both groups, deduped", len(StzWasmGroupsFor([ :pivottable, :constraintsolver, :pivottable ])) = 2)
+chk("capabilities with no wasm logic ship nothing", len(StzWasmGroupsFor([ :collection, :unicode, :neural ])) = 0)
+
+oB = new stzBuilderBrain("sub")
+oB.WithSuperApp(:phone, :Android)
+oB.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Neural ])
+oPl = oB.Plan()
+aG = StzWasmGroupsFor(oPl.EngineCapsFor(:phone))
+chk("the PLAN drives it: phone subset = solver + aggregation (NOT numtheory)",
+	len(aG) = 2 and StzFindFirst("solver", aG) > 0 and StzFindFirst("aggregation", aG) > 0 and StzFindFirst("numtheory", aG) = 0)
+
+? "(compiling a solver-only subset -- a few seconds)"
+cTmp = WorkingDirectory() + "/_wasmsub_tmp"
+StzEngineDirCreatePath(cTmp)
+cSub = StzBuildEngineWasmSubset([ "solver" ], cTmp + "/s.wasm")
+chk("a solver-only subset builds", cSub != "" and StzEngineFileExists(cSub) = 1)
+nSub = StzEngineFileSize(cSub)
+chk("...and is SMALLER than the full edge (" + nSub + " < " + nFull + " bytes)", nSub > 0 and nSub < nFull)
+StzEngineDirDelete(cTmp)
 
 ? ""
 ? "=========================================="

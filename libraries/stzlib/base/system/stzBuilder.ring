@@ -166,6 +166,76 @@ func _StzRingVMSources(pcRoot, pbWindowsTarget)
 func StzEngineWasmPath()
 	return $cEngineDir + "/zig-out/bin/stz.wasm"
 
+# A plan capability KEY -> the engine wasm GROUP that backs it on the edge, or
+# "" when no wasm logic exists for it yet (so it is simply not shipped). This is
+# the map the brain's [stz.wasm]-placed capabilities travel through to become a
+# build subset -- emit ONLY what the part actually uses.
+func _StzWasmGroupFor(pcCapKey)
+	_c_ = StzLower(ring_trim("" + pcCapKey))
+	if _c_ = "constraintsolver"
+		return "solver"
+	but _c_ = "pivottable"
+		return "aggregation"
+	but _c_ = "bignumber"
+		return "numtheory"
+	ok
+	return ""
+
+# A list of capability keys -> the deduped engine GROUP set (drops keys with no
+# wasm group). This IS a part's on-device engine subset, expressed as build groups.
+func StzWasmGroupsFor(paCapKeys)
+	_out_ = []
+	if NOT isList(paCapKeys)
+		return _out_
+	ok
+	_n_ = len(paCapKeys)
+	for _i_ = 1 to _n_
+		_g_ = _StzWasmGroupFor(paCapKeys[_i_])
+		if _g_ != "" and StzFindFirst(_g_, _out_) = 0
+			_out_ + _g_
+		ok
+	next
+	return _out_
+
+# Build stz.wasm carrying ONLY the given engine groups (a part's subset), writing
+# the artifact to pcDestPath. paGroups e.g. [ "solver", "aggregation" ]. Returns
+# pcDestPath on success, "" on failure. This is the per-part emission: `zig build
+# wasm -Dwasm-groups=<subset>` then copy the result to the part's own file.
+func StzBuildEngineWasmSubset(paGroups, pcDestPath)
+	if NOT (isList(paGroups) and len(paGroups) > 0)
+		return ""
+	ok
+	_cGroups_ = "" + paGroups[1]
+	for _i_ = 2 to len(paGroups)
+		_cGroups_ += "," + paGroups[_i_]
+	next
+	_cZig_ = _StzFindZig()
+	_cEng_ = $cEngineDir
+	if NOT (isString(_cEng_) and _cEng_ != "")
+		return ""
+	ok
+	_oEnv_ = new stzEnvironment()
+	_cSaved_ = _oEnv_.WorkingDirectory()
+	_oEnv_.ChangeWorkingDirectory(_cEng_)
+	_cCmd_ = _cZig_ + " build wasm -Dwasm-groups=" + _cGroups_
+	_oOS_ = new stzOperatingSystem()
+	if _oOS_.IsWindows()
+		_cCmd_ = StzReplace(_cCmd_, "/", "\")
+	ok
+	_oChild_ = SpawnProcess(_cCmd_)
+	_oChild_.ReadOutputAll()
+	_oChild_.ReadErrorAll()
+	_nExit_ = _oChild_.Wait()
+	_oChild_.Close()
+	_oEnv_.ChangeWorkingDirectory(_cSaved_)
+	if _nExit_ = 0 and StzEngineFileExists(StzEngineWasmPath()) = 1
+		write("" + pcDestPath, read(StzEngineWasmPath()))
+		if StzEngineFileExists("" + pcDestPath) = 1
+			return "" + pcDestPath
+		ok
+	ok
+	return ""
+
 # Build stz.wasm through the engine's build.zig wasm target (ForWeb, for the
 # ENGINE/Zig path -- the DLLs' Zig source, lowered to wasm instead of a .dll).
 # Returns the artifact path on success, "" on failure. Needs Zig on the machine.
