@@ -20,24 +20,28 @@
 #
 # This is Scope-Oriented Programming, third instance (after regex and system): the
 # invisible governing frame is the TARGET PLATFORM. The SAME capability behaves
-# differently per target -- table_pivot is stz.wasm on a browser, FIRMWARE on an
+# differently per target -- :PivotTable is stz.wasm on a browser, FIRMWARE on an
 # MCU, the native engine on a server. Name the target scope (each part's target)
 # and the brain reasons with it, bridging what the target cannot host (M5). The
 # DIFFERENTIAL-VALUE test decides: the edge carries only what is critical AND
 # (Softanza-unique OR weak/absent on the target). A browser is strong at Unicode
 # -> use its own; it lacks Softanza's solver/pivot/pattern -> those go on-device.
 #
+# Capabilities are named in the Softanza style -- :PivotTable, :ConstraintSolver
+# (each maps to a module or a granular class of one). Ring lowercases the symbol
+# to its key ("pivottable"); the catalog carries the readable name for display.
+#
 # Four delivery vectors, inclusive across targets:
-#   native    -> the target platform does it well; ship nothing (a browser's Unicode).
+#   native    -> the target-platform does it well; ship nothing (a browser's Unicode).
 #   engine    -> Softanza-differential compute, in the target's on-device form:
 #                stz.wasm (browser/mobile), FIRMWARE (mcu), the native engine (server).
 #   construct -> ergonomic Softanza construct in the target language (stz.js on the web).
 #   server    -> too heavy for the edge -> the backend.
 #
 #   oBrain = new stzBuilderBrain("restolean")
-#   oBrain.WithBackend(:api, :LinuxServer).WithSuperApp(:phone, :Android).WithApp(:node, :ESP32)
-#   oBrain.NeedsIn(:phone, [ :unicode, :table_pivot, :constraint_solver, :collection_dsl, :neural ])
-#   ? oBrain.Plan().Narration()
+#   oBrain.WithBackend(:api, :LinuxServer).WithSuperApp(:phone, :Android).WithFirmware(:node, :ESP32)
+#   oBrain.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
+#   ? oBrain.Plan().Explain()
 
   #=============#
  #  FUNCTIONS  #
@@ -71,8 +75,10 @@ func _StzTargetClass(pcName)
 
 # The brain's KNOWLEDGE: each capability's differential value, as data (not a
 # heuristic buried in code) so placement decisions are inspectable. A record is
-# [ name, unique, nature, weight, js, native, embedded, kb ] where support is
-# strong/weak/absent, nature is compute/ergonomic, weight is light/medium/heavy.
+# [ key, display, unique, nature, weight, js, native, embedded, kb ]: key = the
+# Softanza-named symbol lowercased (:PivotTable -> "pivottable"), display = the
+# readable name; support strong/weak/absent; nature compute/ergonomic; weight
+# light/medium/heavy. Each maps to a module or a granular class.
 class stzCapabilityCatalog from stzObject
 
 	@aCaps = []
@@ -82,28 +88,28 @@ class stzCapabilityCatalog from stzObject
 
 	def _SeedDefaults()
 		@aCaps = [
-			[ "unicode",           FALSE, "compute",   "light",    "strong", "strong", "weak",     6 ],
-			[ "datetime",          FALSE, "compute",   "light",    "strong", "strong", "weak",     4 ],
-			[ "json",              FALSE, "ergonomic", "light",    "strong", "strong", "weak",     2 ],
-			[ "http",              FALSE, "ergonomic", "light",    "strong", "strong", "absent",   3 ],
-			[ "regex",             TRUE,  "compute",   "medium",   "weak",   "strong", "absent",  20 ],
-			[ "pattern",           TRUE,  "compute",   "light",    "absent", "strong", "weak",     5 ],
-			[ "table_pivot",       TRUE,  "compute",   "medium",   "weak",   "strong", "absent",  12 ],
-			[ "constraint_solver", TRUE,  "compute",   "medium",   "absent", "strong", "absent",  15 ],
-			[ "graph",             TRUE,  "compute",   "medium",   "weak",   "strong", "absent",  10 ],
-			[ "exact_numerics",    FALSE, "compute",   "light",    "weak",   "strong", "weak",     3 ],
-			[ "gpio",              TRUE,  "compute",   "light",    "absent", "weak",   "strong",   1 ],
-			[ "collection_dsl",    TRUE,  "ergonomic", "light",    "weak",   "strong", "weak",     0 ],
-			[ "neural",            FALSE, "compute",   "heavy",    "weak",   "strong", "absent",  900 ]
+			[ "unicode",          "Unicode",          FALSE, "compute",   "light",  "strong", "strong", "weak",     6 ],
+			[ "datetime",         "DateTime",         FALSE, "compute",   "light",  "strong", "strong", "weak",     4 ],
+			[ "json",             "Json",             FALSE, "ergonomic", "light",  "strong", "strong", "weak",     2 ],
+			[ "http",             "Http",             FALSE, "ergonomic", "light",  "strong", "strong", "absent",   3 ],
+			[ "regex",            "Regex",            TRUE,  "compute",   "medium", "weak",   "strong", "absent",  20 ],
+			[ "pattern",          "Pattern",          TRUE,  "compute",   "light",  "absent", "strong", "weak",     5 ],
+			[ "pivottable",       "PivotTable",       TRUE,  "compute",   "medium", "weak",   "strong", "absent",  12 ],
+			[ "constraintsolver", "ConstraintSolver", TRUE,  "compute",   "medium", "absent", "strong", "absent",  15 ],
+			[ "graph",            "Graph",            TRUE,  "compute",   "medium", "weak",   "strong", "absent",  10 ],
+			[ "bignumber",        "BigNumber",        FALSE, "compute",   "light",  "weak",   "strong", "weak",     3 ],
+			[ "gpio",             "GPIO",             TRUE,  "compute",   "light",  "absent", "weak",   "strong",   1 ],
+			[ "collection",       "Collection",       TRUE,  "ergonomic", "light",  "weak",   "strong", "weak",     0 ],
+			[ "neural",           "Neural",           FALSE, "compute",   "heavy",  "weak",   "strong", "absent",  900 ]
 		]
 
 	def Records()
 		return @aCaps
 
 	def Has(pcName)
-		return StzFindFirst(StzLower("" + pcName), This._Names()) > 0
+		return StzFindFirst(StzLower("" + pcName), This._Keys()) > 0
 
-	def _Names()
+	def _Keys()
 		_out_ = []
 		nLen = len(@aCaps)
 		for i = 1 to nLen
@@ -120,44 +126,48 @@ class stzCapabilityCatalog from stzObject
 				return @aCaps[i]
 			ok
 		next
-		return [ _c_, TRUE, "compute", "medium", "weak", "strong", "absent", 8 ]
+		return [ _c_, "" + pcName, TRUE, "compute", "medium", "weak", "strong", "absent", 8 ]
+
+	def DisplayOf(pcName)
+		return This.Record(pcName)[2]
 
 	def SizeOf(pcName)
-		return This.Record(pcName)[8]
+		return This.Record(pcName)[9]
 
 	def _SupportFor(paRec, pcClass)
 		if pcClass = "server"
-			return paRec[6]
+			return paRec[7]    # native
 		but pcClass = "mcu"
-			return paRec[7]
+			return paRec[8]    # embedded
 		ok
-		return paRec[5]   # browser / mobile use JS support
+		return paRec[6]        # js (browser / mobile)
 
 	# (capability, target class) -> [ vector, reason ]. The whole brain, legibly.
 	# Inclusive across targets: a server hosts the native engine; the heavy is
-	# offloaded; a strong non-unique capability uses the platform; ergonomics on a
-	# language-runtime target become a construct, else they fold into the engine.
+	# offloaded; a strong non-unique capability defers to the target-platform;
+	# ergonomics on a language-runtime target become a construct, else fold into
+	# the engine. The reason keeps the capability's readable name.
 	def VectorFor(pcCap, pcClass)
 		_r_ = This.Record(pcCap)
-		_cap_ = _r_[1]
-		_bUnique_ = _r_[2]
-		_cNature_ = _r_[3]
-		_cWeight_ = _r_[4]
+		_disp_ = _r_[2]
+		_bUnique_ = _r_[3]
+		_cNature_ = _r_[4]
+		_cWeight_ = _r_[5]
 		_cSupp_ = This._SupportFor(_r_, pcClass)
 
 		if pcClass = "server"
-			return [ "engine", _cap_ + ": the server hosts the native engine" ]
+			return [ "engine", _disp_ + ": the server hosts the native engine" ]
 		ok
 		if _cWeight_ = "heavy"
-			return [ "server", _cap_ + ": heavy -> runs on the backend, not the edge" ]
+			return [ "server", _disp_ + ": heavy -> runs on the backend, not the edge" ]
 		ok
 		if _cSupp_ = "strong" and NOT _bUnique_
-			return [ "native", _cap_ + ": the target is strong at it -> use the platform's own" ]
+			return [ "native", _disp_ + ": the target-platform is strong at it -> use its own" ]
 		ok
 		if _cNature_ = "ergonomic" and (pcClass = "browser" or pcClass = "mobile")
-			return [ "construct", _cap_ + ": ergonomic -> a Softanza construct in the target language" ]
+			return [ "construct", _disp_ + ": ergonomic -> a Softanza construct in the target language" ]
 		ok
-		return [ "engine", _cap_ + ": Softanza-differential, " + pcClass + " " + _cSupp_ + " -> the on-device engine" ]
+		return [ "engine", _disp_ + ": Softanza-differential, " + pcClass + " " + _cSupp_ + " -> the on-device engine" ]
 
 
   #=================#
@@ -212,7 +222,8 @@ class stzBuilderBrain from stzObject
 	def NumberOfParts()
 		return len(@aParts)
 
-	# declare the Softanza capabilities a part's code uses
+	# declare the Softanza capabilities a part's code uses (:PivotTable, :Unicode,
+	# ...). Stored as lowercased keys (the canonical form).
 	def NeedsIn(pcPart, paCaps)
 		_i_ = This._PartIndex(pcPart)
 		if _i_ = 0
@@ -228,8 +239,8 @@ class stzBuilderBrain from stzObject
 		@aParts[_i_][4] = _caps_
 		return This
 
-	# a first inference: scan the app source for capability markers. Upgradeable to
-	# the stzCodeGraph call-edge analysis (this is the lexical starting point).
+	# a first inference: scan the app source for capability markers -> keys.
+	# Upgradeable to the stzCodeGraph call-edge analysis (lexical starting point).
 	def InferNeedsIn(pcPart, pcSourcePath)
 		_i_ = This._PartIndex(pcPart)
 		if _i_ = 0
@@ -246,10 +257,10 @@ class stzBuilderBrain from stzObject
 
 	def _InferCaps(pcSrc)
 		_aMap_ = [
-			[ "Pivot",      "table_pivot" ],
-			[ "GroupBy",    "table_pivot" ],
-			[ "Solve",      "constraint_solver" ],
-			[ "Constraint", "constraint_solver" ],
+			[ "Pivot",      "pivottable" ],
+			[ "GroupBy",    "pivottable" ],
+			[ "Solve",      "constraintsolver" ],
+			[ "Constraint", "constraintsolver" ],
 			[ "Regex",      "regex" ],
 			[ "Pattern",    "pattern" ],
 			[ "Graph",      "graph" ],
@@ -284,8 +295,9 @@ class stzBuilderBrain from stzObject
 			_decisions_ = []
 			mLen = len(_caps_)
 			for k = 1 to mLen
-				_v_ = @oCat.VectorFor(_caps_[k], _class_)
-				_decisions_ + [ _caps_[k], _v_[1], _v_[2], @oCat.SizeOf(_caps_[k]) ]
+				_key_ = _caps_[k]
+				_v_ = @oCat.VectorFor(_key_, _class_)
+				_decisions_ + [ _key_, @oCat.DisplayOf(_key_), _v_[1], _v_[2], @oCat.SizeOf(_key_) ]
 			next
 			_oPlan_.AddPart(_name_, _kind_, _tname_, _class_, _decisions_)
 		next
@@ -298,11 +310,12 @@ class stzBuilderBrain from stzObject
 
 # The rehearsed placement & scope plan -- the brain's readable output. Per part:
 # every capability, its delivery vector, and the reason; plus the derived on-device
-# engine subset. Plain-data backed; Narration() is the legible signature.
+# engine subset. Plain-data backed; Explain() is the legible signature (named
+# Explain, not Narration, to avoid confusion with stzNarration).
 class stzBuildPlan from stzObject
 
 	@cName = ""
-	@aParts = []   # [ name, kind, tname, class, [ [cap, vector, reason, kb], ... ] ]
+	@aParts = []   # [ name, kind, tname, class, [ [key, display, vector, reason, kb], ... ] ]
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -324,12 +337,22 @@ class stzBuildPlan from stzObject
 		next
 		return 0
 
-	def _CapsByVector(paDecisions, pcVector)
+	def _KeysByVector(paDecisions, pcVector)
 		_out_ = []
 		nLen = len(paDecisions)
 		for i = 1 to nLen
-			if paDecisions[i][2] = pcVector
+			if paDecisions[i][3] = pcVector
 				_out_ + paDecisions[i][1]
+			ok
+		next
+		return _out_
+
+	def _DisplaysByVector(paDecisions, pcVector)
+		_out_ = []
+		nLen = len(paDecisions)
+		for i = 1 to nLen
+			if paDecisions[i][3] = pcVector
+				_out_ + paDecisions[i][2]
 			ok
 		next
 		return _out_
@@ -338,16 +361,17 @@ class stzBuildPlan from stzObject
 		_kb_ = 0
 		nLen = len(paDecisions)
 		for i = 1 to nLen
-			if paDecisions[i][2] = "engine"
-				_kb_ += paDecisions[i][4]
+			if paDecisions[i][3] = "engine"
+				_kb_ += paDecisions[i][5]
 			ok
 		next
 		return _kb_
 
-	# the on-device engine artifact label per target class (inclusive)
+	# the on-device delivery label per target class (inclusive). "target" (not
+	# "platform") -- to avoid confusion with stzPlatform.
 	def _Label(pcVector, pcClass)
 		if pcVector = "native"
-			return "[platform]"
+			return "[target]"
 		but pcVector = "construct"
 			return "[stz.js]"
 		but pcVector = "server"
@@ -371,7 +395,8 @@ class stzBuildPlan from stzObject
 		ok
 		return "stz.wasm"
 
-	# the delivery vector chosen for a capability in a part (data -- for checks)
+	# the delivery vector chosen for a capability in a part (data -- for checks).
+	# Case-insensitive on the key: :PivotTable matches the stored "pivottable".
 	def VectorFor(pcPart, pcCap)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
@@ -382,18 +407,18 @@ class stzBuildPlan from stzObject
 		nLen = len(_decs_)
 		for k = 1 to nLen
 			if _decs_[k][1] = _cc_
-				return _decs_[k][2]
+				return _decs_[k][3]
 			ok
 		next
 		return ""
 
-	# the capabilities compiled into a part's on-device engine (stz.wasm / firmware)
+	# the capability KEYS compiled into a part's on-device engine (stz.wasm/firmware)
 	def EngineCapsFor(pcPart)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
 			return []
 		ok
-		return This._CapsByVector(@aParts[_i_][5], "engine")
+		return This._KeysByVector(@aParts[_i_][5], "engine")
 
 	def EngineKbFor(pcPart)
 		_i_ = This._Idx(pcPart)
@@ -402,7 +427,7 @@ class stzBuildPlan from stzObject
 		ok
 		return This._EngineKb(@aParts[_i_][5])
 
-	def Narration()
+	def Explain()
 		_c_ = "Solution '" + @cName + "' -- placement & scope plan (rehearsal; nothing built yet)" + nl
 		_c_ += "==============================================================================" + nl
 		_tot_ = 0
@@ -423,34 +448,34 @@ class stzBuildPlan from stzObject
 			_decs_ = _p_[5]
 			mLen = len(_decs_)
 			for k = 1 to mLen
-				_lbl_ = This._Label(_decs_[k][2], _class_)
-				_c_ += "     " + StzPadRight(_decs_[k][1], 18) + " " + StzPadRight(_lbl_, 12) + _decs_[k][3] + nl
+				_lbl_ = This._Label(_decs_[k][3], _class_)
+				_c_ += "     " + StzPadRight(_decs_[k][2], 18) + " " + StzPadRight(_lbl_, 12) + _decs_[k][4] + nl
 				_tot_++
-				if _decs_[k][2] = "native"
+				if _decs_[k][3] = "native"
 					_nat_++
-				but _decs_[k][2] = "engine"
+				but _decs_[k][3] = "engine"
 					_eng_++
-				but _decs_[k][2] = "construct"
+				but _decs_[k][3] = "construct"
 					_cst_++
-				but _decs_[k][2] = "server"
+				but _decs_[k][3] = "server"
 					_srv_++
 				ok
 			next
 			if _bEdge_
-				_engcaps_ = This._CapsByVector(_decs_, "engine")
-				if len(_engcaps_) > 0
-					_c_ += "     -> " + This._EngineArtifact(_class_) + " carries: " + @@(_engcaps_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engcaps_) + " of " + mLen + ")" + nl
+				_engnames_ = This._DisplaysByVector(_decs_, "engine")
+				if len(_engnames_) > 0
+					_c_ += "     -> " + This._EngineArtifact(_class_) + " carries: " + @@(_engnames_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engnames_) + " of " + mLen + ")" + nl
 				else
-					_c_ += "     -> " + This._EngineArtifact(_class_) + ": nothing to ship (all native / construct / server)" + nl
+					_c_ += "     -> " + This._EngineArtifact(_class_) + ": nothing to ship (all target / construct / server)" + nl
 				ok
 			else
 				_c_ += "     -> runs on the full native engine (server has everything)" + nl
 			ok
 		next
 		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
-		_c_ += "platform " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
+		_c_ += "target " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
 		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
 		return _c_
 
 	def Show()
-		? This.Narration()
+		? This.Explain()
