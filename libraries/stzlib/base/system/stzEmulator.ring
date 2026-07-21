@@ -169,10 +169,10 @@ func _StzEmuSwitch(paParts, pnCur)
 
 # the ONE auxiliary zone, identical in place and structure for every part: the
 # delivery plan (each capability -> its vector) + the fidelity line. Sits at the
-# bottom of the detail page.
+# bottom of the device window.
 func _StzEmuAuxZone(poPlan, paPart)
 	_fd_ = _StzEmuFidelity(paPart[4])
-	_h_ = "<div class='card aux'><h3>Runs here</h3><div class='sub2'>where each capability this part uses is delivered</div>"
+	_h_ = "<div class='aux'><h3>Runs here</h3><div class='sub2'>where each capability this part uses is delivered</div>"
 	_decs_ = paPart[5]
 	_m_ = len(_decs_)
 	for _k_ = 1 to _m_
@@ -216,6 +216,8 @@ func _StzEmuMcuHero(poPlan, paPart)
 	_h_ += "</div><div class='conslog' id='cons-" + _nm_ + "'><div>ready -- drive the pins; the board reacts.</div></div></div>"
 	return _h_
 
+# each part opens as its OWN floating device window (a modal over the map) -- like
+# a real device emulator firing its window, to reinforce it is a device UI.
 func _StzEmuDetailHtml(poPlan)
 	_aP_ = poPlan.Parts()
 	_n_ = len(_aP_)
@@ -223,7 +225,11 @@ func _StzEmuDetailHtml(poPlan)
 	for _i_ = 1 to _n_
 		_p_ = _aP_[_i_]
 		_cls_ = _p_[4]
-		_h_ += "<div class='detail' id='d-" + _p_[1] + "' style='display:none'>"
+		_h_ += "<div class='modal' id='m-" + _p_[1] + "' onclick='bg(event)'><div class='window'>"
+		_h_ += "<div class='wbar'><span class='wdots'><i></i><i></i><i></i></span>"
+		_h_ += "<span class='wtitle'>" + _StzEmuGlyph(_cls_) + " " + _StzEmuCap(_p_[1]) + " <span class='chip'>" + _p_[3] + "</span></span>"
+		_h_ += "<button class='wclose' onclick='goMap()' aria-label='close'>&times;</button></div>"
+		_h_ += "<div class='wbody'>"
 		_h_ += _StzEmuSwitch(_aP_, _i_)
 		_h_ += "<div class='hero'>"
 		if _StzEmuIsMobile(_cls_)
@@ -235,7 +241,7 @@ func _StzEmuDetailHtml(poPlan)
 		ok
 		_h_ += "</div>"
 		_h_ += _StzEmuAuxZone(poPlan, _p_)
-		_h_ += "</div>"
+		_h_ += "</div></div></div>"
 	next
 	return _h_
 
@@ -308,13 +314,11 @@ func _StzEmuMapHtml(poPlan)
 	return _h_
 
 func _StzEmuScript()
-	_j_ = "function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}" + nl
-	_j_ += "function hideDetails(){var d=document.getElementsByClassName('detail');for(var i=0;i<d.length;i++)d[i].style.display='none'}" + nl
-	_j_ += "function route(){var h=location.hash.replace('#','');hideDetails();var map=document.getElementById('map');var cp=document.getElementById('crumb-part');" + nl
-	_j_ += "if(h.indexOf('part/')===0){var n=h.slice(5);map.style.display='none';var d=document.getElementById('d-'+n);if(d){d.style.display='block';cp.textContent=' > '+cap(n)}else{map.style.display='block';cp.textContent=''}}" + nl
-	_j_ += "else{map.style.display='block';cp.textContent=''}window.scrollTo(0,0)}" + nl
+	_j_ = "function closeModals(){var m=document.getElementsByClassName('modal');for(var i=0;i<m.length;i++)m[i].classList.remove('open')}" + nl
+	_j_ += "function route(){var h=location.hash.replace('#','');closeModals();if(h.indexOf('part/')===0){var el=document.getElementById('m-'+h.slice(5));if(el){el.classList.add('open');el.scrollTop=0}}}" + nl
 	_j_ += "function go(el){location.hash='part/'+el.getAttribute('data-part')}" + nl
 	_j_ += "function goMap(){location.hash='map'}" + nl
+	_j_ += "function bg(e){if(e.target.classList.contains('modal')){goMap()}}" + nl
 	_j_ += "window.addEventListener('hashchange',route);" + nl
 	_j_ += "function reloadApp2(el){var f=document.querySelector('#d-'+el.getAttribute('data-part')+' iframe');if(f){f.src=f.src}}" + nl
 	_j_ += "function addLine(id,t){var log=document.getElementById(id);var d=document.createElement('div');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}" + nl
@@ -358,6 +362,12 @@ func _StzEmuCss()
 	_c_ += ".legend{display:flex;gap:18px;font-size:12px;color:#6b7280;margin-top:18px;align-items:center;flex-wrap:wrap}.legend .hint{color:#9aa3b2;margin-left:auto}" + nl
 	_c_ += ".cta{background:#f0faf4;border:1px solid #b7e0ca;border-radius:12px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.cta .t{font-size:14px;color:#0a6c3d}" + nl
 	_c_ += ".switch{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.switch button{display:inline-flex;align-items:center;gap:6px}.switch button.on{border-color:#2563eb;color:#2563eb}" + nl
+	_c_ += ".modal{position:fixed;inset:0;background:rgba(22,28,42,.5);display:none;align-items:flex-start;justify-content:center;padding:34px 18px;overflow:auto;z-index:50}.modal.open{display:flex}" + nl
+	_c_ += ".window{background:#fff;border-radius:14px;max-width:720px;width:100%;box-shadow:0 24px 60px rgba(10,15,30,.32);overflow:hidden;margin:auto 0}" + nl
+	_c_ += ".wbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid #eef1f6;background:#fafbfc}" + nl
+	_c_ += ".wdots{display:inline-flex;gap:6px}.wdots i{width:11px;height:11px;border-radius:50%;display:inline-block;background:#e0e4ea}.wdots i:first-child{background:#efb0ac}.wdots i:nth-child(2){background:#f0d29a}.wdots i:last-child{background:#a9d9b6}" + nl
+	_c_ += ".wtitle{display:flex;align-items:center;gap:8px;font-size:14px}.wclose{margin-left:auto;border:0;background:transparent;font-size:22px;color:#8a93a3;cursor:pointer;padding:0 6px;line-height:1}.wclose:hover{color:#1b2333}" + nl
+	_c_ += ".wbody{padding:18px 20px 20px}" + nl
 	_c_ += ".hero{display:flex;flex-direction:column;align-items:center;margin:10px 0 20px}" + nl
 	_c_ += ".bigphone{width:300px;height:616px;background:#4a5162;border-radius:44px;padding:12px;box-shadow:0 8px 24px rgba(50,60,80,.14);flex:none}" + nl
 	_c_ += ".appscreen{width:100%;height:100%;border:0;border-radius:33px;background:#fff;display:block}" + nl
@@ -371,6 +381,7 @@ func _StzEmuCss()
 	_c_ += ".caprow{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f0f2f7}" + nl
 	_c_ += ".vec{font-family:ui-monospace,monospace;font-size:11px;color:#4b5566;background:#f0f2f7;padding:2px 8px;border-radius:8px}" + nl
 	_c_ += ".fid{font-size:13px;display:flex;gap:8px;align-items:baseline}.fid.ok{color:#0a6c3d}.fid.warn{color:#8a4008}.fid .dot{margin-top:5px}" + nl
+	_c_ += ".aux{border-top:1px solid #eef1f6;padding-top:16px;margin-top:12px}" + nl
 	return _c_
 
 func _StzEmuHtml(pcName, poPlan)
@@ -381,7 +392,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + nl
 	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + nl
 	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
-	_h_ += "<div class='crumb'><a onclick='goMap()'>Solution map</a><span id='crumb-part'></span></div>" + nl
+	_h_ += "<div class='crumb'>Solution map</div>" + nl
 	_h_ += "<div id='map'>" + _StzEmuMapHtml(poPlan) + "</div>" + nl
 	_h_ += _StzEmuDetailHtml(poPlan) + nl
 	_h_ += "<script>" + nl + _StzEmuScript() + "</script>" + nl
