@@ -871,6 +871,33 @@ pub fn build(b: *std.Build) void {
         b.installArtifact(lib);
     }
 
+    // Web EDGE: the differential engine subset compiled to stz.wasm. This is
+    // "compile the ENGINE, not the interpreter" -- the browser gets Softanza's
+    // differential value (numeric solving, number theory, aggregation) as a real
+    // wasm module, NOT a Ring VM. Freestanding wasm32, JS owns the linear memory
+    // (imported), only the curated exports are callable. `zig build wasm`.
+    {
+        const wasm_target = b.resolveTargetQuery(.{
+            .cpu_arch = .wasm32,
+            .os_tag = .freestanding,
+        });
+        const wasm_mod = b.createModule(.{
+            .root_source_file = b.path("src/stz_wasm_entry.zig"),
+            .target = wasm_target,
+            .optimize = .ReleaseSmall,
+        });
+        const wasm = b.addExecutable(.{
+            .name = "stz",
+            .root_module = wasm_mod,
+        });
+        wasm.entry = .disabled; // no _start: a library of exports, not a program
+        wasm.rdynamic = true; // root the exports (with --no-entry + gc-sections,
+        //                       this is what keeps the exported functions alive)
+        wasm.import_memory = true; // JS owns the linear memory (the stz.js bridge)
+        const wasm_step = b.step("wasm", "Build the differential engine subset as stz.wasm (the web EDGE)");
+        wasm_step.dependOn(&b.addInstallArtifact(wasm, .{}).step);
+    }
+
     // Static library linking everything (for Zin direct linking / CLI)
     const static_mod = b.createModule(.{
         .root_source_file = b.path("src/engine.zig"),
