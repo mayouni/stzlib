@@ -175,7 +175,70 @@ one governed crossing lowers them to reality.
 
 ---
 
-## 7. How to bring a new complex field under the paradigm
+## 7. Instance 3 — Deployment placement (built)
+
+The third governed field, and the one that pushes M5 to its limit. Building and
+deploying a solution has the disease in its purest form: *"how do I ship this
+capability?"* has **no answer at all** without an invisible frame — the **target
+platform**. The same `table_pivot` is `stz.wasm` in a browser, **firmware** on a
+microcontroller, and the native engine on a server. Ask without naming the target
+and the question is meaningless; name it and the answer is forced.
+
+Scope-Oriented Programming names the target scope per part of the solution, and a
+reasoning construct — `stzBuilderBrain`, the intelligence behind `stzBuilder` —
+resolves each capability against it, *before a byte is built*:
+
+```ring
+oBrain = new stzBuilderBrain("restolean")
+oBrain.WithSuperApp(:phone, :Android).WithFirmware(:node, :ESP32).WithBackend(:api, :LinuxServer)
+oBrain.NeedsIn(:phone, [ :unicode, :table_pivot, :constraint_solver, :collection_dsl, :neural ])
+? oBrain.Plan().Narration()
+```
+
+Each capability, on its target, is placed and *reasoned about out loud* — the same
+legible-rehearsal discipline as the system twin's plan.
+
+**What deployment teaches the paradigm: M5 becomes multi-way placement.** In
+systems, M5 was a two-way gate — the scope either *forbids* an act (down-constrain)
+or *rehearses* one the host lacks (up-enable). Deployment reveals the capability
+contract has **more than two answers**, because a target is not merely weaker or
+stronger than one host — it is a *different world with its own strengths*. A
+browser is **industrial-strength at Unicode**; an MCU is strong at GPIO and lacks
+almost everything else; a server hosts the whole engine. So the brain resolves each
+capability to one of **four** vectors by a **differential-value test** — *ship only
+what is critical AND (Softanza-unique OR weak/absent on the target)*:
+
+- **defer to the platform** (`native`) — the target already does it industrially,
+  so the scope *steps aside*: a browser's own Unicode, never re-shipped. **This
+  verdict is new.** Regex's engine could do everything; system scopes constrained
+  or enabled — neither ever had a *richer* platform to defer to. Deployment does,
+  and the wisest act is often to ship nothing.
+- **scope into the engine** (`engine`) — Softanza-differential compute in the
+  target's on-device form: `stz.wasm` on the web, **firmware** on an MCU (via the
+  lowering bridge), the native engine on a server. The edge carries *only* this
+  subset — the reason a browser or MCU can host Softanza at all.
+- **express as a construct** (`construct`) — an ergonomic Softanza shape in the
+  target's own language (`stz.js` on the web); on a runtime with no such language
+  layer (an MCU) it folds back into the engine.
+- **offload to the server** (`server`) — too heavy for the edge (a neural model on
+  a phone), so it runs on the backend.
+
+Down-constrain and up-enable are still here — an MCU down-constrains (a heavy model
+is refused to the server) and up-enables (its GPIO is rehearsed, then lowered to
+firmware). But the differential test adds the **defer** and **offload** verdicts,
+turning M5 from a gate into a **placement across a heterogeneous topology**. The
+lowering bridge was M5 for one operation; the brain is M5 for a whole solution —
+and it must sometimes decide *not to act*, because the platform already excels.
+
+Built: `stzBuilderBrain` + `stzCapabilityCatalog` (the differential value as
+inspectable data, not a buried heuristic) + `stzBuildPlan` (per-capability vector,
+reason, and the derived on-device subset, with a legible `Narration()`). The plan
+is the rehearsal; `Build()` compiles exactly it and `Deploy()` commits — the VSF
+discipline, one field further out.
+
+---
+
+## 8. How to bring a new complex field under the paradigm
 
 The paradigm is reusable. To apply it to a candidate field, run the five moves
 as a checklist:
@@ -198,7 +261,7 @@ Section 8 runs each through the lens.
 
 ---
 
-## 8. The candidate fields under the lens
+## 9. The candidate fields under the lens
 
 Each is a genuine scope-oriented field: **a bare value or operation that
 silently carries a frame not written next to it.** One disciplinary result up
@@ -245,7 +308,7 @@ decision, or noise to dissolve?"*
 
 ---
 
-## 9. Why this is a paradigm, not a trick
+## 10. Why this is a paradigm, not a trick
 
 A trick solves one field. Scope-Oriented Programming is a *transferable
 diagnosis and cure*: the same disease (behavior with an invisible governing
@@ -253,6 +316,9 @@ frame) recurs across unrelated fields, and the same five moves resolve it every
 time — with the fifth move switching on exactly when the host stops being
 all-powerful. Regex proved the core (M1–M4). System programming proved the
 extension (M5) and, in doing so, showed the paradigm is not about text at all.
+Deployment placement pushed M5 further still — from a two-way gate into a
+multi-way *placement* across a heterogeneous topology, where the scope sometimes
+wisely **defers** to a richer platform rather than acting at all.
 
 The Softanza signature holds throughout: **intent over mechanics, made legible,
 and handed to the library as something it can reason about — not left in the
@@ -266,3 +332,6 @@ programmer's head.**
   profile model.
 - `Softanza Virtual System Framework.md` — the twin that makes M5's up-enable
   direction real.
+- `stzBuilderBrain.ring` — the deployment-placement instance: the reasoning behind
+  `stzBuilder` that resolves each capability to a delivery vector by the
+  differential-value test, and rehearses the plan before a byte is built.
