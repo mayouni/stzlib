@@ -11,6 +11,13 @@
 #                  opens a maximized device WINDOW split into   #
 #                  the device (left) and a live log + query     #
 #                  console (right). Calm, standard, usable.     #
+#                                                              #
+#                  The web ASSETS (emulator.css / emulator.js)  #
+#                  are authored files under emulator_assets/,    #
+#                  copied verbatim into each bundle and linked   #
+#                  from index.html -- a clean web app. Only the  #
+#                  data-driven HTML is generated here, since it  #
+#                  is a function of the plan.                    #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -272,78 +279,26 @@ func _StzEmuPopups(poPlan)
 	next
 	return _h_
 
-func _StzEmuScript()
-	_j_ = "var openPart=null;" + nl
-	_j_ += "function closeModals(){var m=document.getElementsByClassName('modal');for(var i=0;i<m.length;i++)m[i].classList.remove('open');openPart=null}" + nl
-	_j_ += "function openPop(n){closeModals();var m=document.getElementById('m-'+n);if(m){m.classList.add('open');openPart=n;var f=m.querySelector('iframe[data-src]');if(f&&!f.getAttribute('src')){f.setAttribute('src',f.getAttribute('data-src'))}}}" + nl
-	_j_ += "function sel(el){var n=el.getAttribute('data-part');var g=document.getElementsByClassName('grow');for(var i=0;i<g.length;i++)g[i].classList.remove('sel');el.classList.add('sel');" + nl
-	_j_ += "var a=document.getElementsByClassName('axview');for(var j=0;j<a.length;j++)a[j].style.display='none';var v=document.getElementById('ax-'+n);if(v)v.style.display='block'}" + nl
-	_j_ += "function filt(el){var f=el.getAttribute('data-f');var b=document.getElementsByClassName('fbtn');for(var i=0;i<b.length;i++)b[i].classList.remove('active');el.classList.add('active');var s=document.getElementsByClassName('gsection');for(var k=0;k<s.length;k++){s[k].style.display=(f==='all'||s[k].getAttribute('data-tier')===f)?'block':'none'}}" + nl
-	_j_ += "function openEmu(el){openPop(el.getAttribute('data-part'))}" + nl
-	_j_ += "function closeEmu(){closeModals()}" + nl
-	_j_ += "function bg(e){if(e.target.classList.contains('modal')){closeEmu()}}" + nl
-	_j_ += "function addLine(id,t){var log=document.getElementById(id);var d=document.createElement('div');d.className='ln';d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}" + nl
-	_j_ += "var API={'GET /menu':'200 OK  5 dishes','GET /orders':'200 OK  12 rows','POST /order':'201 Created  order #1043'};" + nl
-	_j_ += "function apiReq(el){var p=el.getAttribute('data-part');var r=el.getAttribute('data-req');addLine('log-'+p,'> '+r);addLine('log-'+p,'  '+(API[r]||'200 OK'))}" + nl
-	_j_ += "var pumpOn={};" + nl
-	_j_ += "function pinAct(el){var p=el.getAttribute('data-part');var a=el.getAttribute('data-act');doPin(p,a)}" + nl
-	_j_ += "function doPin(p,a){if(a==='read'){var v=Math.round(450+Math.random()*120);var mo=document.getElementById('moist-'+p);if(mo)mo.textContent=v;addLine('log-'+p,'digitalRead(34) -> '+v)}" + nl
-	_j_ += "else{pumpOn[p]=!pumpOn[p];var pm=document.getElementById('pump-'+p);if(pm)pm.textContent=pumpOn[p]?'ON':'off';var l=document.getElementById('led-'+p);if(l)l.className='led'+(pumpOn[p]?' on':'');var b=document.getElementById('bled-'+p);if(b)b.setAttribute('fill',pumpOn[p]?'#0a8f4f':'#cfd6e2');addLine('log-'+p,'digitalWrite(26,'+(pumpOn[p]?1:0)+') -> pump '+(pumpOn[p]?'ON':'off'))}}" + nl
-	_j_ += "function query(el){var p=el.getAttribute('data-part');var c=el.getAttribute('data-cls');var inp=document.getElementById('q-'+p);var q=(inp.value||'').trim();if(!q)return;addLine('log-'+p,'> '+q);inp.value='';" + nl
-	_j_ += "if(c==='server'){addLine('log-'+p,'  '+(API[q]||'200 OK'))}" + nl
-	_j_ += "else if(c==='mcu'){var m=q.toLowerCase();if(m.indexOf('read')===0){doPin(p,'read')}else if(m.indexOf('pump')===0){doPin(p,'pump')}else{addLine('log-'+p,'  unknown pin command')}}" + nl
-	_j_ += "else{addLine('log-'+p,'  app: '+q+' (noted)')}}" + nl
-	_j_ += "function qk(e,el){if(e.key==='Enter'||e.keyCode===13){query(el)}}" + nl
-	_j_ += "window.addEventListener('message',function(e){if(e.data&&e.data.t==='applog'&&openPart){addLine('log-'+openPart,e.data.m)}});" + nl
-	_j_ += "document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.keyCode===27){closeModals()}});" + nl
-	_j_ += "function deployProd(){alert('Production deploy ships these same parts via the governed crossing. Run: brain.Deploy(:Production)')}" + nl
-	_j_ += "var first=document.getElementsByClassName('grow')[0];if(first)sel(first);" + nl
-	return _j_
+  #-- the web assets (emulator.css / emulator.js) are authored files that
+  #-- live beside this module, NOT strings built here. Build() copies them
+  #-- verbatim into each bundle and index.html links them. Edit them with
+  #-- real CSS/JS tooling. Only the plan-driven HTML above is generated.
 
-func _StzEmuCss()
-	_c_ = "*{box-sizing:border-box} body{margin:0;font-family:system-ui,sans-serif;background:#fff;color:#1b2333;padding:24px;max-width:1080px;margin:0 auto}" + nl
-	_c_ += "h1{font-size:20px;font-weight:500;margin:0 0 3px} h4{font-size:13px;font-weight:500;margin:16px 0 3px}.mt{margin-top:16px}" + nl
-	_c_ += ".sub{color:#6b7280;font-size:13px;margin-bottom:18px}.sub2{color:#8a93a3;font-size:12px;margin-bottom:10px}" + nl
-	_c_ += ".head{display:flex;align-items:center;justify-content:space-between;gap:12px}.chip{font-size:12px;color:#6b7280;background:#f0f2f7;padding:2px 9px;border-radius:8px}" + nl
-	_c_ += ".stat{display:inline-flex;align-items:center;gap:7px;font-size:13px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}" + nl
-	_c_ += ".ok{color:#0a8f4f}.ok .dot{background:#0a8f4f}.live{color:#2563eb}.live .dot{background:#2563eb;animation:pl 1.6s infinite}.warn{color:#b45309}.warn .dot{background:#b45309}@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}" + nl
-	_c_ += ".badge{font-size:12px;padding:3px 9px;border-radius:8px}.badge.ok{background:#e3f4ec;color:#0a6c3d}.badge.warn{background:#fdf0e3;color:#8a4008}" + nl
-	_c_ += "button{font-size:13px;padding:7px 13px;border-radius:8px;cursor:pointer;border:1px solid #d3d9e4;background:#fff;color:#1b2333}button:hover{background:#f5f7fb}button.pri{background:#0a8f4f;color:#fff;border-color:#0a8f4f}button.pri:hover{background:#098544}button.sm{font-size:12px;padding:6px 11px}button.ghost{background:#fff}" + nl
-	_c_ += ".deploybar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f0faf4;border:1px solid #b7e0ca;border-radius:12px;padding:12px 18px;margin-bottom:18px}.deploybar .t{font-size:13px;color:#0a6c3d}" + nl
-	_c_ += ".page{display:flex;gap:22px;align-items:flex-start}.gridcol{flex:1;min-width:0}.auxcol{width:344px;flex:none;position:sticky;top:24px;align-self:flex-start;height:calc(100vh - 48px)}" + nl
-	_c_ += ".filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}.fbtn{font-size:13px;padding:6px 15px;border-radius:20px;border:1px solid #e0e4ea;background:#fff;color:#4b5566;cursor:pointer}.fbtn:hover{background:#f5f7fb}.fbtn.active{background:#1b2333;color:#fff;border-color:#1b2333}" + nl
-	_c_ += ".gtier{font-size:11px;color:#9aa3b2;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 7px}.gtier:first-child{margin-top:0}.tiern{background:#eef1f6;color:#8a93a3;border-radius:10px;padding:1px 7px;font-size:11px}" + nl
-	_c_ += ".grow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;border:1px solid #e6e9f0;border-radius:9px;margin-bottom:7px;cursor:pointer;font-size:14px}.grow:hover{border-color:#93b4f5;background:#f7f9fd}.grow.sel{border-color:#2563eb;background:#f0f5ff}" + nl
-	_c_ += ".grleft{display:flex;align-items:center;gap:8px}.grleft svg{flex:none}.gtarget{font-size:12px;color:#8a93a3}.grright{display:flex;align-items:center;gap:12px}.gcaps{font-size:12px;color:#8a93a3;min-width:52px;text-align:right}" + nl
-	_c_ += ".legend{display:flex;gap:16px;font-size:12px;color:#6b7280;margin-top:16px}" + nl
-	_c_ += ".axview{height:100%}.axcard{background:#fff;border:1px solid #e6e9f0;border-radius:12px;padding:18px;box-shadow:0 1px 2px rgba(20,30,60,.05);height:100%;display:flex;flex-direction:column;overflow:auto}.axprompt{color:#8a93a3;font-size:13px}.axhead{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 16px;flex-wrap:wrap}.axname{font-size:16px}.axcard .pri{align-self:flex-start;margin-bottom:16px}" + nl
-	_c_ += ".caprow{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f0f2f7}.vec{font-family:ui-monospace,monospace;font-size:11px;color:#4b5566;background:#f0f2f7;padding:2px 8px;border-radius:8px}" + nl
-	_c_ += ".fid{font-size:13px;display:flex;gap:8px;align-items:baseline}.fid.ok{color:#0a6c3d}.fid.warn{color:#8a4008}.fid .dot{margin-top:5px}" + nl
-	_c_ += ".modal{position:fixed;inset:0;background:rgba(22,28,42,.5);display:none;align-items:center;justify-content:center;padding:2.5vh 2vw;z-index:50}.modal.open{display:flex}" + nl
-	_c_ += ".window.wide{width:96vw;height:95vh;max-width:1400px;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(10,15,30,.34);display:flex;flex-direction:column;overflow:hidden}" + nl
-	_c_ += ".wbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid #eef1f6;background:#fafbfc;flex:none}" + nl
-	_c_ += ".deskframe{width:100%;max-width:960px;height:min(100%,calc(95vh - 120px));background:#fff;border:1px solid #d3d9e4;border-radius:10px;box-shadow:0 10px 30px rgba(50,60,80,.16);display:flex;flex-direction:column;overflow:hidden}.deskbar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f1f3f5;border-bottom:1px solid #e0e4ea}.deskurl{flex:1;background:#fff;border:1px solid #e0e4ea;border-radius:16px;padding:6px 15px;font-size:12px;color:#6b7280;font-family:ui-monospace,monospace}.deskre{color:#a3abb8;font-size:14px}.deskscreen{flex:1;width:100%;border:0;background:#fff}" + nl
-	_c_ += ".wtitle{display:flex;align-items:center;gap:8px;font-size:14px}.wlive{margin-left:auto;font-size:12px}.wclose{margin-left:10px;border:0;background:transparent;font-size:22px;color:#8a93a3;cursor:pointer;padding:0 6px;line-height:1}.wclose:hover{color:#1b2333}" + nl
-	_c_ += ".wsplit{flex:1;display:flex;min-height:0}.dzone{flex:1;min-width:0;overflow:auto;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f8fa}.rzone{width:380px;flex:none;border-left:1px solid #eef1f6;display:flex;flex-direction:column;min-height:0}" + nl
-	_c_ += ".rhead{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;padding:14px 16px 8px}.rlog{flex:1;overflow:auto;padding:0 16px;font-family:ui-monospace,monospace;font-size:12px;line-height:1.9}.rlog .ln{color:#1b2333}.rlog .muted{color:#9aa3b2}" + nl
-	_c_ += ".rconsole{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #eef1f6}.rconsole input{flex:1;border:1px solid #d3d9e4;border-radius:8px;padding:8px 11px;font-size:13px;font-family:ui-monospace,monospace}" + nl
-	_c_ += ".bigphone{height:min(100%,calc(95vh - 90px));aspect-ratio:300/620;background:#4a5162;border-radius:40px;padding:11px;box-shadow:0 8px 24px rgba(50,60,80,.16);flex:none}.appscreen{width:100%;height:100%;border:0;border-radius:31px;background:#fff;display:block}" + nl
-	_c_ += ".console,.board{width:100%;max-width:560px}.board{display:flex;flex-direction:column;align-items:center}.board svg{max-width:100%}.consbar{font-size:13px;color:#4b5566;margin-bottom:8px;display:flex;gap:8px;align-items:center}.hint2{font-size:12px;color:#8a93a3;margin-bottom:14px}" + nl
-	_c_ += ".reqs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;justify-content:center}.readouts{display:flex;gap:28px;font-size:13px;margin:12px 0 4px;color:#4b5566}.readouts b{color:#1b2333}.led{width:11px;height:11px;border-radius:50%;background:#cfd6e2;display:inline-block;vertical-align:middle}.led.on{background:#0a8f4f}" + nl
-	return _c_
+func _StzEmuAssetsDir()
+	return _StzBaseDir() + "/system/emulator_assets"
 
 func _StzEmuHtml(pcName, poPlan)
 	_h_ = "<!doctype html>" + nl + "<html lang='en'><head><meta charset='utf-8'>" + nl
 	_h_ += "<meta name='viewport' content='width=device-width, initial-scale=1'>" + nl
 	_h_ += "<title>" + pcName + " -- Deploy(:Emulated)</title>" + nl
-	_h_ += "<style>" + nl + _StzEmuCss() + "</style></head><body>" + nl
+	_h_ += "<link rel='stylesheet' href='emulator.css'></head><body>" + nl
 	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + nl
 	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + nl
 	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
 	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='pri' onclick='deployProd()'>Deploy to production</button></div>" + nl
 	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
 	_h_ += _StzEmuPopups(poPlan) + nl
-	_h_ += "<script>" + nl + _StzEmuScript() + "</script>" + nl
+	_h_ += "<script src='emulator.js'></script>" + nl
 	_h_ += "</body></html>" + nl
 	return _h_
 
@@ -396,6 +351,17 @@ class stzEmulator from stzObject
 		@aFiles = []
 		write(_cDir_ + "/index.html", _StzEmuHtml(@oBrain.Name(), _oPlan_))
 		@aFiles + "index.html"
+
+		# copy the authored web assets into the bundle (clean web app: linked, not inlined)
+		_cSrc_ = _StzEmuAssetsDir()
+		if StzEngineFileExists(_cSrc_ + "/emulator.css") = 0 or StzEngineFileExists(_cSrc_ + "/emulator.js") = 0
+			stzraise("stzEmulator: web assets not found at " + _cSrc_ + " (expected emulator.css / emulator.js).")
+		ok
+		write(_cDir_ + "/emulator.css", read(_cSrc_ + "/emulator.css"))
+		@aFiles + "emulator.css"
+		write(_cDir_ + "/emulator.js", read(_cSrc_ + "/emulator.js"))
+		@aFiles + "emulator.js"
+
 		_aP_ = _oPlan_.Parts()
 		_n_ = len(_aP_)
 		for _i_ = 1 to _n_
