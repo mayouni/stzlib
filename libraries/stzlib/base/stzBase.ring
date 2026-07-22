@@ -332,6 +332,12 @@ ok
     # twin so the plan can hold an executor.
     load "system/stzSystemActor.ring"
 
+    # Confidential data + access credentials. A stzSecret redacts itself
+    # everywhere and reveals its value only to an effectful, non-sandboxed actor
+    # -- the same governance crossing as the actor above. Wired into deployment
+    # sites (site auth can BE a secret). Loaded after the actor it is gated by.
+    load "system/stzSecret.ring"
+
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
     # (engine file primitives). The twin holds no reference to reality; disk
@@ -488,6 +494,10 @@ ok
 
     load "app/stzApp.ring"
     load "app/stzSuperApp.ring"
+
+    # USER authentication -- the stzApp-domain counterpart to stzSecret. Holds a
+    # credential store (salted password hashes) and issues opaque sessions.
+    load "app/stzAuth.ring"
 
     load "appserver/stzAppServer.ring"
     load "appserver/stzAppRequest.ring"
