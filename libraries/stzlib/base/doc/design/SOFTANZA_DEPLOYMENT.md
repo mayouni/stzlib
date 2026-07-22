@@ -164,19 +164,30 @@ live:
                            :Registry/:Device declared (live transfer = next slice).
 ```
 
-## 7. Status and roadmap
+## 7. Status
 
-**Built (slice 1):** the site config model + a working `:LocalRepo` backend
-(store / launch / status), the deployment act, the governance gate, and
-`Deploy(:Production)` wired to drive it. Guard `deployment_narrated` 16/16.
+**All built.** On top of the site config model, governance gate, and dual-phase
+`Deploy` described above, the deployment now has:
 
-**Next:**
-1. **Real remote backends** — `:Server` (ssh/scp), `:GitRepo` (push), `:Registry`
-   (image push), `:Device` (flash). Same `Store()` / `Launch()` / `Status()`
-   verbs; real transfer behind them.
-2. **Ship the real artifacts** — the per-part `stz_<part>.wasm`, the app bundle,
-   the native binary — not just the deploy manifest slice 1 stores.
-3. **Reachability probes** — `Reachable()` becomes a live check for remote kinds.
+- **Live backends** — `:LocalRepo` and `:GitRepo` proven end to end (real `git`
+  push, byte-for-byte); `:Server` (scp/ssh), `:Registry` (docker), `:Device`
+  (flash) generate correct commands run through the managed child, one reachable
+  host/account away from literal.
+- **The plan of steps** — an ordered, gated, transactional DAG
+  (`provision → store → launch → verify`, `After()` dependencies, verify gate,
+  rollback) — and **resource feasibility + provisioning** (requirements, host
+  capacity, a scriptable host provisioned to fit). Both are documented in
+  [SOFTANZA_DEPLOYMENT_PLAN.md](SOFTANZA_DEPLOYMENT_PLAN.md).
+- **Real artifact shipping** — a part's actual build outputs (`stz_<part>.wasm`,
+  the app bundle, the native binary), a whole **bundle directory**, or each
+  frontend's **per-part slice** (its app + engine + bridge), shipped byte-for-byte;
+  the very emulator bundle you debugged wires straight into a production attach.
+
+Guard `deployment_narrated` 45/45. The two layers that touch the outside world for
+real — the git backend and the compiled wasm — are proven end to end.
+
+**Remaining (infrastructure-gated):** live `ssh`/`aws` verification against a real
+host or account; more providers.
 
 ---
 
