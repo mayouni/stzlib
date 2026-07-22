@@ -22,24 +22,24 @@ Take a small shop: a backend `api` and a browser `web` frontend. Bind each to a
 site, and — before anything runs — ask the deployment to `Explain()` itself:
 
 ```ring
-oB = new stzBuilderBrain("shop")
-oB.WithBackend(:api, :LinuxServer)
-oB.WithSuperApp(:web, :Browser)
+oB = new stzDelivery("shop")
+oB.AddBackend(:api, :LinuxServer)
+oB.AddSuperApp(:web, :Browser)
 oB.NeedsIn(:api, [ :PivotTable ])
 oB.NeedsIn(:web, [ :Collection, :ConstraintSolver ])
-oB.RequiresIn(:api, StzResourcesQ().Memory(2048).Compute(2).Storage(20))
+oB.RequiresIn(:api, StzResourcesQ().SetMemoryQ(2048).SetComputeQ(2).SetStorageQ(20))
 
 oApi = new stzDeploymentSite("prod-api")
-oApi.Kind(:Server).Provider(:proxmox)
+oApi.SetKindQ(:Server).SetProviderQ(:proxmox)
 
 oWeb = new stzDeploymentSite("cdn")
-oWeb.Kind(:GitRepo).Endpoint("git@cdn:web.git")
+oWeb.SetKindQ(:GitRepo).SetEndpointQ("git@cdn:web.git")
 
 oDep = new stzDeployment(oB)
-oDep.AsActor(HumanActor("ops"))
-oDep.To(:api, oApi)
-oDep.To(:web, oWeb)
-oDep.After(:web, :api)     # the frontend deploys AFTER the backend
+oDep.SetActor(HumanActor("ops"))
+oDep.SetTarget(:api, oApi)
+oDep.SetTarget(:web, oWeb)
+oDep.RunAfter(:web, :api)     # the frontend deploys AFTER the backend
 
 ? oDep.Explain()
 ```
@@ -63,7 +63,7 @@ oDep.After(:web, :api)     # the frontend deploys AFTER the backend
 ```
 
 Read the plan. A **simple** deployment is just the default chain per part —
-`store → launch → verify`. This one is **complex**: `After(:web, :api)` made the
+`store → launch → verify`. This one is **complex**: `RunAfter(:web, :api)` made the
 frontend's `store` wait for the backend's `verify` (step 5 depends on step 4), and
 because `prod-api` is a *scriptable* host, a `provision` step leads the whole thing
 (step 1). The steps are topologically sorted, so every dependency precedes its
@@ -80,18 +80,18 @@ Notice the *feasibility* section above. A part **requires** resources; a host
 ask:
 
 ```ring
-oB.RequiresIn(:api, StzResourcesQ().Memory(2048).Compute(2).Storage(20))
+oB.RequiresIn(:api, StzResourcesQ().SetMemoryQ(2048).SetComputeQ(2).SetStorageQ(20))
 
 oBig = new stzDeploymentSite("big")
-oBig.Kind(:Server).Capacity(StzResourcesQ().Memory(4096).Compute(4).Storage(100))
+oBig.SetKindQ(:Server).SetCapacityQ(StzResourcesQ().SetMemoryQ(4096).SetComputeQ(4).SetStorageQ(100))
 d1 = new stzDeployment(oB)
-d1.To(:api, oBig)
+d1.SetTarget(:api, oBig)
 ? "big host   -> Feasible=" + d1.Feasible()
 
 oSmall = new stzDeploymentSite("small")
-oSmall.Kind(:Server).Capacity(StzResourcesQ().Memory(1024).Compute(1).Storage(10))
+oSmall.SetKindQ(:Server).SetCapacityQ(StzResourcesQ().SetMemoryQ(1024).SetComputeQ(1).SetStorageQ(10))
 d2 = new stzDeployment(oB)
-d2.To(:api, oSmall)
+d2.SetTarget(:api, oSmall)
 ? "small host -> Feasible=" + d2.Feasible()
 ```
 
@@ -112,12 +112,12 @@ resource spec:
 
 ```ring
 oPx = new stzDeploymentSite("vm")
-oPx.Provider(:proxmox)
-? oPx.ProvisionCommandFor(StzResourcesQ().Memory(2048).Compute(2).Storage(20))
+oPx.SetProviderQ(:proxmox)
+? oPx.ProvisionCommandFor(StzResourcesQ().SetMemoryQ(2048).SetComputeQ(2).SetStorageQ(20))
 
 oAws = new stzDeploymentSite("vm2")
-oAws.Provider(:aws)
-? oAws.ProvisionCommandFor(StzResourcesQ().Memory(8192).Compute(4).Storage(50))
+oAws.SetProviderQ(:aws)
+? oAws.ProvisionCommandFor(StzResourcesQ().SetMemoryQ(8192).SetComputeQ(4).SetStorageQ(50))
 ```
 
 ```
@@ -138,15 +138,15 @@ isn't reachable). `Run()` executes the plan and reports every step:
 
 ```ring
 oGood = new stzDeploymentSite("cdn")
-oGood.Kind(:LocalRepo).StoreAt("/srv/cdn")
+oGood.SetKindQ(:LocalRepo).SetStoreAtQ("/srv/cdn")
 oBad = new stzDeploymentSite("prod-api")
-oBad.Kind(:Server)                       # remote store fails: no host reachable
+oBad.SetKindQ(:Server)                       # remote store fails: no host reachable
 
 oDep = new stzDeployment(oB)
-oDep.AsActor(HumanActor("ops"))
-oDep.To(:web, oGood)
-oDep.To(:api, oBad)
-oDep.After(:api, :web)                   # web fully deploys, THEN api
+oDep.SetActor(HumanActor("ops"))
+oDep.SetTarget(:web, oGood)
+oDep.SetTarget(:api, oBad)
+oDep.RunAfter(:api, :web)                   # web fully deploys, THEN api
 
 aRun = oDep.Run()
 ? "committed: " + aRun[1]
@@ -177,7 +177,7 @@ have moved at all.
 ## Define, size, plan, run
 
 That is the whole shape. You said what each part needs — its capabilities *and* its
-resources. The brain laid out an ordered plan and told you, before committing,
+resources. The delivery planner laid out an ordered plan and told you, before committing,
 whether each host had room or could be provisioned to have it. And `Run()` executed
 that exact plan: provisioning where needed, honoring the dependencies, gating on the
 health checks, and — on failure — undoing itself, governed at every commit. A

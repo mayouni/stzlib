@@ -1,6 +1,6 @@
-# stzBuilderBrain + the placement/scope plan REHEARSAL -- the reasoning behind
-# stzBuilder. Before a byte is built, the brain decides, per capability and per
-# target, the delivery vector -- and says WHY. The load-bearing idea is the
+# stzDelivery + the placement/scope plan REHEARSAL -- the reasoning behind
+# stzBuilder. Before a byte is built, the delivery planner decides, per capability
+# and per target, the delivery vector -- and says WHY. The load-bearing idea is the
 # DIFFERENTIAL test: the edge ships only what is critical AND (Softanza-unique OR
 # weak on the target). So a browser/phone uses its OWN industrial Unicode, and the
 # on-device engine (stz.wasm on the web, FIRMWARE on an MCU) carries only Softanza's
@@ -21,8 +21,8 @@ pr()
 cDir = WorkingDirectory() + "/_build_scratch"
 
 ? "-- Scene 1: the DIFFERENTIAL test -- the edge uses the target where it is strong --"
-oBrain = new stzBuilderBrain("app")
-oBrain.WithSuperApp(:phone, :Android)
+oBrain = new stzDelivery("app")
+oBrain.AddSuperApp(:phone, :Android)
 oBrain.NeedsIn(:phone, [ :Unicode, :DateTime, :Json, :PivotTable, :ConstraintSolver, :Collection, :Neural, :Regex ])
 oPlan = oBrain.Plan()
 chk("Unicode on the phone -> target-native (JS is industrial-strength)", oPlan.VectorFor(:phone, :Unicode) = "native")
@@ -50,7 +50,7 @@ chk("...its footprint is small (KB, not the whole engine)", oPlan.EngineKbFor(:p
 
 ? ""
 ? "-- Scene 5: a SERVER part hosts the full native engine -- no edge scoping --"
-oBrain.WithBackend(:api, :LinuxServer)
+oBrain.AddBackend(:api, :LinuxServer)
 oBrain.NeedsIn(:api, [ :Unicode, :PivotTable, :Neural ])
 oP2 = oBrain.Plan()
 chk("on the server, PivotTable runs in the native engine", oP2.VectorFor(:api, :PivotTable) = "engine")
@@ -59,8 +59,8 @@ chk("...Unicode on the server also uses the engine (Softanza runs natively there
 
 ? ""
 ? "-- Scene 6: one offline mobile app is a WHOLE solution (the small end) --"
-oOne = new stzBuilderBrain("notes")
-oOne.WithApp(:notes, :Android)
+oOne = new stzDelivery("notes")
+oOne.AddApp(:notes, :Android)
 oOne.NeedsIn(:notes, [ :Unicode, :Pattern, :Collection ])
 oP3 = oOne.Plan()
 chk("a single offline app is a valid solution", oP3.NumberOfParts() = 1)
@@ -68,8 +68,8 @@ chk("...Unicode still native, Pattern still on-device engine", oP3.VectorFor(:no
 
 ? ""
 ? "-- Scene 7: the FIRMWARE case -- the design is inclusive, not web-tied --"
-oFw = new stzBuilderBrain("greenhouse")
-oFw.WithFirmware(:node, :ESP32)
+oFw = new stzDelivery("greenhouse")
+oFw.AddFirmware(:node, :ESP32)
 oFw.NeedsIn(:node, [ :GPIO, :Pattern, :BigNumber, :Neural, :Json ])
 oP4 = oFw.Plan()
 chk("GPIO on the MCU -> engine (lowered into firmware)", oP4.VectorFor(:node, :GPIO) = "engine")
@@ -77,7 +77,7 @@ chk("...Pattern too -> engine (firmware; MCU has no such native support)", oP4.V
 chk("...Neural -> server (too heavy even for an MCU)", oP4.VectorFor(:node, :Neural) = "server")
 chk("...Json FOLDS into firmware on the MCU (no JS construct layer; native JSON weak)", oP4.VectorFor(:node, :Json) = "engine")
 chk("...whereas the same Json on a browser -> target (inclusive: same cap, different target)", oPlan.VectorFor(:phone, :Json) = "native")
-cFw = oP4.Explain()
+cFw = linesToText(oP4.Explain())
 chk("the plan names the on-device artifact FIRMWARE for the MCU (not stz.wasm)", StzFindFirst("[firmware]", cFw) > 0 and StzFindFirst("firmware carries", cFw) > 0)
 chk("...and does NOT call it stz.wasm on the MCU", StzFindFirst("stz.wasm", cFw) = 0)
 
@@ -85,8 +85,8 @@ chk("...and does NOT call it stz.wasm on the MCU", StzFindFirst("stz.wasm", cFw)
 ? "-- Scene 8: infer a part's needs from its source (the lexical starting point) --"
 StzEngineDirCreatePath(cDir)
 write(cDir + "/app.ring", "o1 = new stzTable(aData)" + nl + "o1.Pivot(:Region, :Sales)" + nl + "oS = new stzSolver()" + nl + "oS.Solve()" + nl + "oB.ReadPin(4)" + nl)
-oInf = new stzBuilderBrain("inf")
-oInf.WithApp(:a, :Browser)
+oInf = new stzDelivery("inf")
+oInf.AddApp(:a, :Browser)
 oInf.InferNeedsIn(:a, cDir + "/app.ring")
 aParts = oInf.Parts()
 aCaps = aParts[1][4]
@@ -97,7 +97,7 @@ StzDirDeleteAll(cDir)
 
 ? ""
 ? "-- Scene 9: the plan is a legible rehearsal, not a black box --"
-cNar = oPlan.Explain()
+cNar = linesToText(oPlan.Explain())
 chk("the plan explains itself", StzFindFirst("placement & scope plan", cNar) > 0)
 chk("...it is honest that nothing is built yet", StzFindFirst("nothing built yet", cNar) > 0)
 chk("...it frames Build()/Deploy() as the commit", StzFindFirst("Build()", cNar) > 0 and StzFindFirst("Deploy()", cNar) > 0)
@@ -119,3 +119,13 @@ func chk cLabel, bCond
 		nFail++
 		? "  [FAIL] " + cLabel
 	ok
+
+# Explain() now returns a list of lines -- join for substring checks.
+# (nCount, not nL: 'nL' would alias Ring's case-insensitive builtin 'nl'.)
+func linesToText aLines
+	cT = ""
+	nCount = len(aLines)
+	for i = 1 to nCount
+		cT += aLines[i] + nl
+	next
+	return cT

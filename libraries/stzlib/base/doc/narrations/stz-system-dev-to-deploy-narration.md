@@ -64,9 +64,9 @@ not scattered across a Dockerfile, a compose file, and a CI pipeline:
 ```ring
 oProduct = new stzPlatformProfile("smart-greenhouse")
 oProduct.DevelopedOn(:Windows)
-oProduct.WithServer(:backend, :LinuxServer)
-oProduct.WithSuperApp(:phone, :Android)
-oProduct.WithApp(:sensor, :ESP32)
+oProduct.AddServer(:backend, :LinuxServer)
+oProduct.AddSuperApp(:phone, :Android)
+oProduct.AddApp(:sensor, :ESP32)
 ```
 ```
 Platform: smart-greenhouse

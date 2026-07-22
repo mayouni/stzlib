@@ -29,26 +29,26 @@ You describe the solution in one vocabulary — its parts, their targets, and th
 Softanza capabilities each part's code uses:
 
 ```ring
-oBrain = new stzBuilderBrain("restolean")
-oBrain.WithSuperApp(:phone, :Android)
-oBrain.WithBackend(:api, :LinuxServer)
-oBrain.WithFirmware(:node, :ESP32)
+oDelivery = new stzDelivery("restolean")
+oDelivery.AddSuperApp(:phone, :Android)
+oDelivery.AddBackend(:api, :LinuxServer)
+oDelivery.AddFirmware(:node, :ESP32)
 
-oBrain.NeedsIn(:phone, [ :Unicode, :DateTime, :PivotTable, :ConstraintSolver, :Collection, :Neural, :Regex ])
-oBrain.NeedsIn(:api,   [ :PivotTable, :Neural ])
-oBrain.NeedsIn(:node,  [ :GPIO, :Pattern ])
+oDelivery.NeedsIn(:phone, [ :Unicode, :DateTime, :PivotTable, :ConstraintSolver, :Collection, :Neural, :Regex ])
+oDelivery.NeedsIn(:api,   [ :PivotTable, :Neural ])
+oDelivery.NeedsIn(:node,  [ :GPIO, :Pattern ])
 ```
 
 Nothing is built yet. You have only *said what is true*.
 
-## The brain rehearses — what runs where, and why
+## The delivery planner rehearses — what runs where, and why
 
-Before a byte is compiled, the brain **rehearses a placement plan**. For every
+Before a byte is compiled, the delivery planner **rehearses a placement plan**. For every
 capability, on that part's target, it chooses how to deliver it and states the
 reason — as inspectable text, not a decision hidden in code:
 
 ```ring
-? oBrain.Plan().Explain()
+? oDelivery.Plan().Explain()
 ```
 
 ```
@@ -103,7 +103,7 @@ That scoping is literal. The phone's on-device engine is compiled to contain
 *exactly* the two capabilities it places there — nothing else:
 
 ```ring
-oPlan = oBrain.Plan()
+oPlan = oDelivery.Plan()
 ? "engine caps: " + @@( oPlan.EngineCapsFor(:phone) )
 ? "wasm groups: " + @@( StzWasmGroupsFor( oPlan.EngineCapsFor(:phone) ) )
 ```
@@ -139,7 +139,7 @@ The kiosk never carries the solver. The solver *code* is not in its module.
 Now you run it — not on a device, in your browser:
 
 ```ring
-oBrain.Deploy(:Emulated)
+oDelivery.Deploy(:Emulated)
 ```
 
 This generates a self-contained web **mission-control**: a parts grid grouped by
@@ -210,10 +210,10 @@ When it works in the emulator, it works — because emulation and production run
 same artifact. The second phase of the same verb commits it:
 
 ```ring
-oBrain.Deploy(:Production)
+oDelivery.Deploy(:Production)
 ```
 
-The plan the brain rehearsed *is* the production spec. The phone's
+The plan the delivery planner rehearsed *is* the production spec. The phone's
 `aggregation + solver` wasm crosses the governed bridge to the real Android app;
 the node's `GPIO + Pattern` firmware flashes to the ESP32; the backend runs the
 full native engine. Nothing is re-decided. "It worked in emulation" and "it works

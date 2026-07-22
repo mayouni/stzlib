@@ -23,12 +23,12 @@ connection, storage, and control:
 
 ```ring
 oProdApi = new stzDeploymentSite("prod-api")
-oProdApi.Kind(:Server)
-oProdApi.Endpoint("deploy@api.restolean.app:/srv/restolean")
-oProdApi.Via(:ssh)
-oProdApi.AuthRef("env/DEPLOY_KEY")
-oProdApi.StoreAt("/srv/restolean/api")
-oProdApi.LaunchWith("systemctl restart restolean-api")
+oProdApi.SetKindQ(:Server)
+oProdApi.SetEndpointQ("deploy@api.restolean.app:/srv/restolean")
+oProdApi.SetProtocolQ(:ssh)
+oProdApi.SetAuthRefQ("env/DEPLOY_KEY")
+oProdApi.SetStoreAtQ("/srv/restolean/api")
+oProdApi.SetLaunchWithQ("systemctl restart restolean-api")
 
 ? oProdApi.ConfigText()
 ```
@@ -48,21 +48,21 @@ writes it out as a file — the link, persisted and versionable like any source.
 
 ## Bind each part of the solution to its site
 
-The brain already holds the solution — the phone super-app, the backend, the ESP32
+The delivery planner already holds the solution — the phone super-app, the backend, the ESP32
 node. Deployment adds *where each part lands*:
 
 ```ring
-oBrain = new stzBuilderBrain("restolean")
-oBrain.WithSuperApp(:phone, :Android)
-oBrain.WithBackend(:api, :LinuxServer)
-oBrain.WithFirmware(:node, :ESP32)
-oBrain.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection ])
-oBrain.NeedsIn(:api,   [ :PivotTable ])
-oBrain.NeedsIn(:node,  [ :GPIO, :Pattern ])
+oDelivery = new stzDelivery("restolean")
+oDelivery.AddSuperApp(:phone, :Android)
+oDelivery.AddBackend(:api, :LinuxServer)
+oDelivery.AddFirmware(:node, :ESP32)
+oDelivery.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection ])
+oDelivery.NeedsIn(:api,   [ :PivotTable ])
+oDelivery.NeedsIn(:node,  [ :GPIO, :Pattern ])
 
-oBrain.DeployTo(:phone, oAppStore)
-oBrain.DeployTo(:api,   oProdApi)
-oBrain.DeployTo(:node,  oFleet)
+oDelivery.DeployTo(oAppStore, :phone)
+oDelivery.DeployTo(oProdApi, :api)
+oDelivery.DeployTo(oFleet, :node)
 ```
 
 Each part now has a home. Nothing has moved yet — you have only *said where things
@@ -74,7 +74,7 @@ go*.
 nothing, and `Explain()` shows exactly what *would* happen:
 
 ```ring
-? oBrain.Deploy(:Production).Explain()
+? oDelivery.Deploy(:Production).Explain()
 ```
 
 ```
@@ -113,8 +113,8 @@ else in Softanza. A deployment carries an **actor**, and only one that holds the
 *effectful* capability may cross:
 
 ```ring
-oBrain.AsActor(LLMActor("assistant"))   # may rehearse -- commits NOTHING
-oBrain.AsActor(HumanActor("ops"))       # may commit
+oDelivery.SetActor(LLMActor("assistant"))   # may rehearse -- commits NOTHING
+oDelivery.SetActor(HumanActor("ops"))       # may commit
 ```
 
 Hand the deployment to an LLM and it can bind, explain, even *call* `Store()` and
@@ -129,8 +129,8 @@ Give it an actor that may commit, and `Deploy(:Production)` stores and launches 
 real:
 
 ```ring
-oBrain.AsActor(HumanActor("ops"))
-oLive = oBrain.Deploy(:Production)
+oDelivery.SetActor(HumanActor("ops"))
+oLive = oDelivery.Deploy(:Production)
 aStatus = oLive.Status()
 for i = 1 to len(aStatus)
     ? "  " + aStatus[i][1] + "  ->  " + aStatus[i][2] + "  :  " + aStatus[i][3]

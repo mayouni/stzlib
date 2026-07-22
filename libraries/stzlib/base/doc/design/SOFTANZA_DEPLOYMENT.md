@@ -2,7 +2,7 @@
 ### From definition to launch: storing and running a solution on config-described target sites
 
 > Status: built. Components: `stzDeploymentSite`, `stzDeployment`,
-> `stzBuilderBrain.Deploy(:Production)`. Guard: `deployment_narrated` (45/45).
+> `stzDelivery.Deploy(:Production)`. Guard: `deployment_narrated` (45/45).
 > Tutorial: [stz-deploying-to-target-sites-narration.md](../narrations/stz-deploying-to-target-sites-narration.md).
 > The plan of steps + provisioning are in [SOFTANZA_DEPLOYMENT_PLAN.md](SOFTANZA_DEPLOYMENT_PLAN.md).
 > Sits atop the [emulation technology](SOFTANZA_EMULATION.md) and the governance
@@ -71,8 +71,8 @@ A **deployment** (`stzDeployment`) sends each part of a solution to a site and
 performs the act:
 
 ```ring
-oDep = new stzDeployment(oBrain)
-oDep.To(:phone, oAppStore).To(:api, oProdApi).To(:node, oFleet)
+oDep = new stzDeployment(oDelivery)
+oDep.SetTarget(:phone, oAppStore).SetTarget(:api, oProdApi).SetTarget(:node, oFleet)
 ? oDep.Explain()      # rehearse: which part goes where, and how
 oDep.Store()          # place each part's artifacts on its site
 oDep.Launch()         # start them
@@ -111,8 +111,8 @@ governance gate** as the rest of the System Foundation. A deployment carries an
 capability:
 
 ```ring
-oDep.AsActor(HumanActor("ops"))     # MAY commit
-oDep.AsActor(LLMActor("assistant")) # may rehearse, commits NOTHING
+oDep.SetActor(HumanActor("ops"))     # MAY commit
+oDep.SetActor(LLMActor("assistant")) # may rehearse, commits NOTHING
 ```
 
 An LLM (or any inference-only actor) can bind sites, `Explain()` the plan, and
@@ -124,17 +124,17 @@ not a promise — the same lattice that governs every other reality-touching pla
 ## 5. One verb, two phases — `Deploy(:Emulated)` rehearses, `Deploy(:Production)` commits
 
 Deployment is modeled Scope-Orientedly: the *phase* is the scope, and one verb on
-the brain serves both. You bind sites on the brain, then choose the phase:
+the delivery planner serves both. You bind sites on the delivery planner, then choose the phase:
 
 ```ring
-oBrain.DeployTo(:phone, oAppStore).DeployTo(:api, oProdApi).DeployTo(:node, oFleet)
-oBrain.AsActor(HumanActor("ops"))
+oDelivery.DeployTo(oAppStore, :phone).DeployTo(oProdApi, :api).DeployTo(oFleet, :node)
+oDelivery.SetActor(HumanActor("ops"))
 
-oBrain.Deploy(:Emulated)     # rehearse in the browser (the emulator)
-oBrain.Deploy(:Production)   # commit to the sites (store + launch), governed
+oDelivery.Deploy(:Emulated)     # rehearse in the browser (the emulator)
+oDelivery.Deploy(:Production)   # commit to the sites (store + launch), governed
 ```
 
-`Deploy(:Production)` assembles a `stzDeployment` from the brain's bindings and
+`Deploy(:Production)` assembles a `stzDeployment` from the delivery planner's bindings and
 actor and — **only if the actor may commit** — stores and launches it; otherwise
 it returns the deployment as a rehearsal. So it is **safe by default**: a bare
 `Deploy(:Production)` with no actor set touches nothing. Emulation is where you
@@ -150,8 +150,8 @@ live:
 ## 6. Architecture
 
 ```
-  stzBuilderBrain          define the solution + WHERE each part deploys
-      | DeployTo(part, site), AsActor(actor)
+  stzDelivery              define the solution + WHERE each part deploys
+      | DeployTo(site, part), SetActor(actor)
       | .Deploy(:Production)
       v
   stzDeployment            bind each part to its site; Explain() rehearses;
@@ -175,7 +175,7 @@ live:
   (flash) generate correct commands run through the managed child, one reachable
   host/account away from literal.
 - **The plan of steps** — an ordered, gated, transactional DAG
-  (`provision → store → launch → verify`, `After()` dependencies, verify gate,
+  (`provision → store → launch → verify`, `RunAfter()` dependencies, verify gate,
   rollback) — and **resource feasibility + provisioning** (requirements, host
   capacity, a scriptable host provisioned to fit). Both are documented in
   [SOFTANZA_DEPLOYMENT_PLAN.md](SOFTANZA_DEPLOYMENT_PLAN.md).

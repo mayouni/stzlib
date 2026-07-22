@@ -4,7 +4,7 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : Deployment as a first-class story: from     #
-#                  DEFINITION (the brain's plan) and EMULATION #
+#                  DEFINITION (the rehearsal) and EMULATION    #
 #                  (Deploy(:Emulated)) to STORAGE and LAUNCH   #
 #                  of the solution on real target sites.       #
 #                                                              #
@@ -27,7 +27,7 @@
 #   oServer = StzDeploymentSiteQ("prod-api").Kind(:Server) ;
 #             .Endpoint("deploy@api.restolean.app:/srv/api").Via(:ssh) ;
 #             .AuthRef("env/DEPLOY_KEY").StoreAt("/d/tmp/site_api")
-#   oDep = new stzDeployment(oBrain).AsActor(HumanActor("ops"))
+#   oDep = new stzDeployment(oDelivery).AsActor(HumanActor("ops"))
 #   oDep.To(:api, oServer)
 #   ? oDep.Explain()
 #   oDep.Store()  oDep.Launch()  ? @@( oDep.Status() )
@@ -39,8 +39,8 @@
 func StzDeploymentSiteQ(pcName)
 	return new stzDeploymentSite(pcName)
 
-func StzDeploymentQ(poBrain)
-	return new stzDeployment(poBrain)
+func StzDeploymentQ(poDelivery)
+	return new stzDeployment(poDelivery)
 
 # a site KIND -> its default access protocol (a thin classifier, not a primitive)
 func _StzSiteDefaultProtocol(pcKind)
@@ -101,15 +101,15 @@ class stzResourceSpec from stzObject
 	def init()
 		@nMem = 0
 
-	def Memory(pnMB)
+	def SetMemoryQ(pnMB)
 		@nMem = pnMB
 		return This
 
-	def Compute(pnVCPU)
+	def SetComputeQ(pnVCPU)
 		@nCpu = pnVCPU
 		return This
 
-	def Storage(pnGB)
+	def SetStorageQ(pnGB)
 		@nDisk = pnGB
 		return This
 
@@ -130,9 +130,9 @@ class stzResourceSpec from stzObject
 	# aggregate: sum two requirements (many parts on one host)
 	def Plus(poOther)
 		_r_ = new stzResourceSpec()
-		_r_.Memory(@nMem + poOther.MemoryMB())
-		_r_.Compute(@nCpu + poOther.ComputeVCPU())
-		_r_.Storage(@nDisk + poOther.StorageGB())
+		_r_.SetMemoryQ(@nMem + poOther.MemoryMB())
+		_r_.SetComputeQ(@nCpu + poOther.ComputeVCPU())
+		_r_.SetStorageQ(@nDisk + poOther.StorageGB())
 		return _r_
 
 	def Text()
@@ -168,45 +168,45 @@ class stzDeploymentSite from stzObject
 	def init(pcName)
 		@cName = "" + pcName
 
-	  #-- the access config (fluent) -------------------------
+	  #-- the access config (Q-fluent: chainable via the ...Q suffix) ---
 
-	def Kind(pcKind)
+	def SetKindQ(pcKind)
 		@cKind = StzLower(ring_trim("" + pcKind))
 		return This
 
-	def Endpoint(pcUrl)
+	def SetEndpointQ(pcUrl)
 		@cEndpoint = "" + pcUrl
 		return This
 
-	def Via(pcProtocol)
+	def SetProtocolQ(pcProtocol)
 		@cProtocol = StzLower(ring_trim("" + pcProtocol))
 		return This
 
-	def AuthRef(pcRef)
+	def SetAuthRefQ(pcRef)
 		@cAuthRef = "" + pcRef
 		return This
 
-	def StoreAt(pcLocation)
+	def SetStoreAtQ(pcLocation)
 		@cStorage = "" + pcLocation
 		return This
 
-	def LaunchWith(pcCmd)
+	def SetLaunchWithQ(pcCmd)
 		@cLaunch = "" + pcCmd
 		return This
 
-	def StatusWith(pcCmd)
+	def SetStatusWithQ(pcCmd)
 		@cStatusCmd = "" + pcCmd
 		return This
 
 	# what the host PROVIDES (its capacity). For a real host it is discovered via
 	# the provider API; for a fixed host it is declared here.
-	def Capacity(poSpec)
+	def SetCapacityQ(poSpec)
 		@oCapacity = poSpec
 		return This
 
 	# name a provisioning provider -> this host can be CREATED/resized to meet a
 	# requirement (IaC-style), not just deployed to.
-	def Provider(pcName)
+	def SetProviderQ(pcName)
 		@cProvider = StzLower(ring_trim("" + pcName))
 		return This
 
@@ -518,25 +518,32 @@ class stzDeploymentSite from stzObject
 # System Foundation uses: expression is free, admission is governed.
 class stzDeployment from stzObject
 
-	@oBrain = NULL
+	@oDelivery = NULL
 	@aBindings = []   # [ partName, siteObject ]
 	@oActor = NULL
 	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
 	@aArtifacts = []  # [ partName, relName, filePath ] -- the REAL build outputs to ship
 
-	def init(poBrain)
-		@oBrain = poBrain
+	def init(poDelivery)
+		@oDelivery = poDelivery
 
-	def To(pcPart, poSite)
+	# bind a part to its target site. For many at once, use SetTargets.
+	def SetTarget(pcPart, poSite)
 		@aBindings + [ StzLower("" + pcPart), poSite ]
 		return This
 
-		def Send(pcPart, poSite)
-			return This.To(pcPart, poSite)
+	def SetTargets(paList)
+		if isList(paList)
+			_n_ = len(paList)
+			for _i_ = 1 to _n_
+				@aBindings + [ StzLower("" + paList[_i_][1]), paList[_i_][2] ]
+			next
+		ok
+		return This
 
-	# order the plan: pcPart deploys AFTER pcDependsOn is verified (a plan-DAG edge).
+	# order the plan: pcPart runs AFTER pcDependsOn is verified (a plan-DAG edge).
 	# Simple deployments declare none; complex ones (a frontend after its backend) do.
-	def After(pcPart, pcDependsOn)
+	def RunAfter(pcPart, pcDependsOn)
 		@aAfter + [ StzLower("" + pcPart), StzLower("" + pcDependsOn) ]
 		return This
 
@@ -566,7 +573,7 @@ class stzDeployment from stzObject
 	# (built on demand) or a bundle directory path; the bundle lands under the
 	# solution name.
 	def AttachBundle(pcPart, pBundle)
-		return This.Artifact(pcPart, @oBrain.Name(), This._BundleDirOf(pBundle))
+		return This.Artifact(pcPart, @oDelivery.Name(), This._BundleDirOf(pBundle))
 
 	# ship a part's OWN slice from an emulator bundle -- its app (as index.html), its
 	# engine subset (stz_<part>.wasm), and the bridge (stz.js) -- NOT the whole
@@ -596,7 +603,7 @@ class stzDeployment from stzObject
 		ok
 		return "" + pBundle
 
-	def AsActor(poActor)
+	def SetActor(poActor)
 		@oActor = poActor
 		return This
 
@@ -627,7 +634,7 @@ class stzDeployment from stzObject
 
 	# each part -> [ part, kind, target, siteName, siteKind, protocol ]
 	def Plan()
-		_oPlan_ = @oBrain.Plan()
+		_oPlan_ = @oDelivery.Plan()
 		_aParts_ = _oPlan_.Parts()
 		_out_ = []
 		_n_ = len(_aParts_)
@@ -643,7 +650,7 @@ class stzDeployment from stzObject
 		return _out_
 
 	def Explain()
-		_c_ = "Deployment of '" + @oBrain.Name() + "' -- from definition to launch (rehearsal)" + nl
+		_c_ = "Deployment of '" + @oDelivery.Name() + "' -- from definition to launch (rehearsal)" + nl
 		_c_ += "==============================================================================" + nl
 		if This.MayCommit()
 			_c_ += "  actor: " + @oActor.Name() + " -- MAY commit (effectful)" + nl
@@ -666,7 +673,7 @@ class stzDeployment from stzObject
 				_c_ += "     store:  " + _StzSiteOr(_site_.StorageLocation(), "(unset)") + nl
 			ok
 		next
-		if len(@oBrain.Requirements()) > 0
+		if len(@oDelivery.Requirements()) > 0
 			_aFeas_ = This.Feasibility()
 			_nf_ = len(_aFeas_)
 			_c_ += nl + "  Host feasibility (required -> capacity):" + nl
@@ -694,7 +701,14 @@ class stzDeployment from stzObject
 		ok
 		_c_ += nl + "  A verify gate must pass to proceed; a failure rolls back the completed steps." + nl
 		_c_ += "  Governed: only an effectful actor commits." + nl
-		return _c_
+		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
+
+	def Show()
+		_aLines_ = This.Explain()
+		_n_ = len(_aLines_)
+		for _i_ = 1 to _n_
+			? _aLines_[_i_]
+		next
 
 	  #-- perform (governed) ---------------------------------
 
@@ -875,7 +889,7 @@ class stzDeployment from stzObject
 
 	def _RunStep(pcOp, poSite, pcPart)
 		if pcOp = "provision"
-			_req_ = @oBrain.RequirementFor(pcPart)
+			_req_ = @oDelivery.RequirementFor(pcPart)
 			if NOT isObject(_req_)
 				return TRUE   # no requirement to size the host to
 			ok
@@ -920,7 +934,7 @@ class stzDeployment from stzObject
 			_req_ = new stzResourceSpec()
 			for _j_ = 1 to _n_
 				if @aBindings[_j_][2].Name() = _sn_
-					_r_ = @oBrain.RequirementFor(@aBindings[_j_][1])
+					_r_ = @oDelivery.RequirementFor(@aBindings[_j_][1])
 					if isObject(_r_)
 						_req_ = _req_.Plus(_r_)
 					ok
@@ -992,7 +1006,7 @@ class stzDeployment from stzObject
 		return _out_
 
 	def _ArtifactsFor(pcPart)
-		_oPlan_ = @oBrain.Plan()
+		_oPlan_ = @oDelivery.Plan()
 		_grps_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(pcPart))
 		_csv_ = ""
 		_ng_ = len(_grps_)
@@ -1031,7 +1045,7 @@ class stzDeployment from stzObject
 		next
 		_q_ = char(34)
 		_man_ = "{" + nl
-		_man_ += "  " + _q_ + "solution" + _q_ + ": " + _q_ + @oBrain.Name() + _q_ + "," + nl
+		_man_ += "  " + _q_ + "solution" + _q_ + ": " + _q_ + @oDelivery.Name() + _q_ + "," + nl
 		_man_ += "  " + _q_ + "part" + _q_ + ": " + _q_ + pcPart + _q_ + "," + nl
 		_man_ += "  " + _q_ + "engine" + _q_ + ": " + _q_ + _csv_ + _q_ + "," + nl
 		_man_ += "  " + _q_ + "artifacts" + _q_ + ": " + _q_ + _names_ + _q_ + nl

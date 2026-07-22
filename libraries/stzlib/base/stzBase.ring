@@ -358,7 +358,7 @@ ok
     # the profile (For(target) reuses _StzSystemProfileForTarget).
     load "system/stzBuilder.ring"
     load "system/stzWebBundle.ring"
-    load "system/stzBuilderBrain.ring"
+    load "system/stzDelivery.ring"
     load "system/stzEmulator.ring"
 
     # stzDeployment: the deployment story end to end -- a stzDeploymentSite is a

@@ -5,7 +5,7 @@
 #                                                              #
 #   Description  : Deploy(:Emulated) -- the programming-phase   #
 #                  face of Deploy(). Generates a web mission    #
-#                  control from a stzBuilderBrain plan. Main    #
+#                  control from a stzDelivery plan. Main        #
 #                  page: a parts GRID (left) + the selected     #
 #                  part's auxiliary data (right). Each part     #
 #                  opens a maximized device WINDOW split into   #
@@ -27,8 +27,8 @@
  #  FUNCTIONS  #
 #=============#
 
-func StzEmulatorQ(poBrain)
-	return new stzEmulator(poBrain)
+func StzEmulatorQ(poDelivery)
+	return new stzEmulator(poDelivery)
 
 func _StzEmuCap(pcS)
 	if len(pcS) = 0
@@ -345,14 +345,14 @@ func _StzEmuPartsJs(paWasmParts)
 
 class stzEmulator from stzObject
 
-	@oBrain = NULL
+	@oDelivery = NULL
 	@cOutDir = ""
 	@aFiles = []
 	@bBuilt = FALSE
 	@bEngine = TRUE   # compile each part's stz.wasm subset (off = wiring only, fast)
 
-	def init(poBrain)
-		@oBrain = poBrain
+	def init(poDelivery)
+		@oDelivery = poDelivery
 
 	def OutDir(pcDir)
 		@cOutDir = "" + pcDir
@@ -369,14 +369,14 @@ class stzEmulator from stzObject
 		if @cOutDir != ""
 			return @cOutDir
 		ok
-		return @oBrain.Name() + "_emulator"
+		return @oDelivery.Name() + "_emulator"
 
 	def Build()
-		_oPlan_ = @oBrain.Plan()
+		_oPlan_ = @oDelivery.Plan()
 		_cDir_ = This.BundleDir()
 		StzEngineDirCreatePath(_cDir_)
 		@aFiles = []
-		write(_cDir_ + "/index.html", _StzEmuHtml(@oBrain.Name(), _oPlan_))
+		write(_cDir_ + "/index.html", _StzEmuHtml(@oDelivery.Name(), _oPlan_))
 		@aFiles + "index.html"
 
 		# copy the authored web assets into the bundle (clean web app: linked, not inlined)
@@ -406,7 +406,7 @@ class stzEmulator from stzObject
 				loop
 			ok
 			_cApp_ = "app_" + _p_[1] + ".html"
-			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oBrain.Name(), _p_[1]))
+			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oDelivery.Name(), _p_[1]))
 			@aFiles + _cApp_
 			_grp_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(_p_[1]))
 			if len(_grp_) = 0
@@ -444,7 +444,7 @@ class stzEmulator from stzObject
 		write(_cDir_ + "/stz_parts.js", _StzEmuPartsJs(_aWasmParts_))
 		@aFiles + "stz_parts.js"
 
-		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oBrain.Name(), _oPlan_))
+		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oDelivery.Name(), _oPlan_))
 		@aFiles + "manifest.json"
 		@bBuilt = TRUE
 		return This
