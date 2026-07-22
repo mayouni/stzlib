@@ -66,6 +66,68 @@ func _StzSiteOr(pcVal, pcDefault)
 	ok
 	return pcDefault
 
+func StzResourcesQ()
+	return new stzResourceSpec()
+
+
+  #=====================#
+ #  RESOURCE SPEC       #
+#=====================#
+
+# A resource footprint -- memory (MB), compute (vCPU), storage (GB). ONE shape,
+# TWO roles: a part's REQUIREMENT (what it needs to run) and a host's CAPACITY
+# (what it provides). Feasibility is just Capacity.Meets(sum-of-requirements) --
+# the same admission check a CI runner label or a K8s scheduler performs. Extend
+# with gpu / os / region as real backends need them.
+class stzResourceSpec from stzObject
+
+	@nMem = 0    # MB
+	@nCpu = 0    # vCPU
+	@nDisk = 0   # GB
+
+	def init()
+		@nMem = 0
+
+	def Memory(pnMB)
+		@nMem = pnMB
+		return This
+
+	def Compute(pnVCPU)
+		@nCpu = pnVCPU
+		return This
+
+	def Storage(pnGB)
+		@nDisk = pnGB
+		return This
+
+	def MemoryMB()
+		return @nMem
+	def ComputeVCPU()
+		return @nCpu
+	def StorageGB()
+		return @nDisk
+
+	def IsEmpty()
+		return @nMem = 0 and @nCpu = 0 and @nDisk = 0
+
+	# does THIS capacity meet the given REQUIREMENT (every dimension covered)?
+	def Meets(poReq)
+		return @nMem >= poReq.MemoryMB() and @nCpu >= poReq.ComputeVCPU() and @nDisk >= poReq.StorageGB()
+
+	# aggregate: sum two requirements (many parts on one host)
+	def Plus(poOther)
+		_r_ = new stzResourceSpec()
+		_r_.Memory(@nMem + poOther.MemoryMB())
+		_r_.Compute(@nCpu + poOther.ComputeVCPU())
+		_r_.Storage(@nDisk + poOther.StorageGB())
+		return _r_
+
+	def Text()
+		return "" + @nMem + "MB / " + @nCpu + " vCPU / " + @nDisk + "GB"
+
+	def Show()
+		? This.Text()
+
 
   #====================#
  #  DEPLOYMENT SITE    #
@@ -87,6 +149,8 @@ class stzDeploymentSite from stzObject
 	@cStorage = ""
 	@cLaunch = ""
 	@cStatusCmd = ""
+	@oCapacity = NULL   # the host's resources (stzResourceSpec) -- declared or discovered
+	@cProvider = ""     # a provisioning provider (aws/gcp/proxmox/...) -> scriptable host
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -121,6 +185,18 @@ class stzDeploymentSite from stzObject
 		@cStatusCmd = "" + pcCmd
 		return This
 
+	# what the host PROVIDES (its capacity). For a real host it is discovered via
+	# the provider API; for a fixed host it is declared here.
+	def Capacity(poSpec)
+		@oCapacity = poSpec
+		return This
+
+	# name a provisioning provider -> this host can be CREATED/resized to meet a
+	# requirement (IaC-style), not just deployed to.
+	def Provider(pcName)
+		@cProvider = StzLower(ring_trim("" + pcName))
+		return This
+
 	  #-- reads ----------------------------------------------
 
 	def Name()
@@ -146,6 +222,18 @@ class stzDeploymentSite from stzObject
 
 	def IsLocal()
 		return @cKind = "localrepo" or @cKind = "local"
+
+	def CapacityOf()
+		return @oCapacity
+
+	def HasCapacity()
+		return isObject(@oCapacity)
+
+	def ProviderName()
+		return @cProvider
+
+	def IsScriptable()
+		return @cProvider != ""
 
 	# the access config as inspectable DATA -- the LINK between the programming
 	# environment and this site (connection + storage + control).
@@ -340,6 +428,19 @@ class stzDeployment from stzObject
 				_c_ += "     store:  " + _StzSiteOr(_site_.StorageLocation(), "(unset)") + nl
 			ok
 		next
+		if len(@oBrain.Requirements()) > 0
+			_aFeas_ = This.Feasibility()
+			_nf_ = len(_aFeas_)
+			_c_ += nl + "  Host feasibility (required -> capacity):" + nl
+			for _i_ = 1 to _nf_
+				_f_ = _aFeas_[_i_]
+				_mk_ = "ok  "
+				if _f_[4] = 0
+					_mk_ = "FAIL"
+				ok
+				_c_ += "     [" + _mk_ + "] " + _f_[1] + ": " + _f_[2] + " -> " + _f_[3] + "  (" + _f_[5] + ")" + nl
+			next
+		ok
 		_c_ += nl + "  Store() places each part's artifacts on its site; Launch() starts them;" + nl
 		_c_ += "  Status() reports back -- governed: only an effectful actor commits." + nl
 		return _c_
@@ -393,6 +494,61 @@ class stzDeployment from stzObject
 			_recs_ + [ @aBindings[_i_][1], @aBindings[_i_][2].Name(), @aBindings[_i_][2].Status() ]
 		next
 		return _recs_
+
+	  #-- feasibility (host resources) -----------------------
+
+	# Per-site admission check: sum the requirements of the parts bound to each site
+	# and test the site's capacity (or its ability to PROVISION one). Returns
+	# [ [siteName, requiredText, capacityText, fits(0/1), note], ... ]. This is the
+	# same "does the host have room?" question a K8s scheduler / CI runner answers.
+	def Feasibility()
+		_out_ = []
+		_seen_ = []
+		_n_ = len(@aBindings)
+		for _i_ = 1 to _n_
+			_site_ = @aBindings[_i_][2]
+			_sn_ = _site_.Name()
+			if StzFindFirst(_sn_, _seen_) > 0
+				loop
+			ok
+			_seen_ + _sn_
+			_req_ = new stzResourceSpec()
+			for _j_ = 1 to _n_
+				if @aBindings[_j_][2].Name() = _sn_
+					_r_ = @oBrain.RequirementFor(@aBindings[_j_][1])
+					if isObject(_r_)
+						_req_ = _req_.Plus(_r_)
+					ok
+				ok
+			next
+			_out_ + This._SiteFeasibility(_site_, _req_)
+		next
+		return _out_
+
+	def _SiteFeasibility(poSite, poReq)
+		_sn_ = poSite.Name()
+		_reqT_ = poReq.Text()
+		if poSite.HasCapacity()
+			_cap_ = poSite.CapacityOf()
+			if _cap_.Meets(poReq)
+				return [ _sn_, _reqT_, _cap_.Text(), 1, "fits" ]
+			ok
+			return [ _sn_, _reqT_, _cap_.Text(), 0, "SHORTFALL -- host too small" ]
+		but poSite.IsScriptable()
+			return [ _sn_, _reqT_, "(provision)", 1, "provision on " + poSite.ProviderName() ]
+		ok
+		return [ _sn_, _reqT_, "(undeclared)", 1, "capacity not declared -- assumed ok" ]
+
+	# TRUE only if every site can host its parts (fits or can provision).
+	def Feasible()
+		_f_ = This.Feasibility()
+		_n_ = len(_f_)
+		for _i_ = 1 to _n_
+			if _f_[_i_][4] = 0
+				return FALSE
+			ok
+		next
+		return TRUE
 
 	  #-- helpers --------------------------------------------
 
