@@ -54,6 +54,7 @@ governed.
 | `stzResourceSpec` | one shape, two roles — a part's **requirement** and a host's **capacity** |
 | `stzDeployment` | **`Deploy(:Production)`** — bind parts to sites, plan the ordered steps, check feasibility, provision, execute through live backends, ship artifacts — transactional and governed |
 | `stzSystemActor` | the **governance crossing** — who may commit (`Can("effectful")`) |
+| `stzSecret` (+ `stzAuth`) | **confidential values** — a site's key redacts itself in every config and reveals only to an effectful actor (an LLM rehearsing can reference it, never read it) |
 
 ## Two phases of one verb
 
@@ -78,6 +79,7 @@ code, real output):
 | **Emulation** — the programming-phase surface; per-part `stz.wasm` subsets; the differential edge | [SOFTANZA_EMULATION.md](SOFTANZA_EMULATION.md) | [emulating the whole solution](../narrations/stz-emulating-the-whole-solution-narration.md) |
 | **Deployment — sites** — config-described targets; governance; dual-phase `Deploy` | [SOFTANZA_DEPLOYMENT.md](SOFTANZA_DEPLOYMENT.md) | [deploying to the target sites](../narrations/stz-deploying-to-target-sites-narration.md) |
 | **Deployment — plan & provisioning** — the ordered/gated/reversible step DAG; host resources, feasibility, provisioning | [SOFTANZA_DEPLOYMENT_PLAN.md](SOFTANZA_DEPLOYMENT_PLAN.md) | [planning and provisioning a deployment](../narrations/stz-planning-and-provisioning-a-deployment-narration.md) |
+| **Secrets & credentials** — confidential values that redact themselves, resolve lazily, and reveal only under governance; user auth | [SOFTANZA_SECRETS.md](SOFTANZA_SECRETS.md) | [guarding secrets and credentials](../narrations/stz-guarding-secrets-and-credentials-narration.md) |
 
 Background: the [Scope-Oriented Programming](SCOPE_ORIENTED_PROGRAMMING.md) paradigm
 (the target platform as the invisible frame), and the
@@ -88,7 +90,7 @@ Background: the [Scope-Oriented Programming](SCOPE_ORIENTED_PROGRAMMING.md) para
 
 Every layer is provable in-repo and exercised by the narrated guards
 (`emulator_narrated`, `wasm_narrated`, `delivery_narrated`,
-`deployment_narrated`). The two layers that touch the outside world for real — the
+`deployment_narrated`, `secret_narrated`). The two layers that touch the outside world for real — the
 **git backend** and the **compiled wasm** — are proven end to end. `ssh` / `aws` and
 the other providers generate correct commands and run through the same managed
 child; they are one reachable host or account away from literal, not a gap in the
