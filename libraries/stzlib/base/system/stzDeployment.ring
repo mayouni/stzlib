@@ -399,6 +399,13 @@ class stzDeploymentSite from stzObject
 
 	  #-- backends -------------------------------------------
 
+	# write an artifact under pcDir at pcRel, creating any subdirs the relname implies
+	# (a bundle ships nested paths like site/assets/app.js).
+	def _WriteArtifact(pcDir, pcRel, pcContent)
+		_full_ = pcDir + "/" + pcRel
+		StzEngineDirCreatePath(_StzDirOf(_full_))
+		write(_full_, "" + pcContent)
+
 	def _LocalStore(paArtifacts)
 		if @cStorage = ""
 			return FALSE
@@ -406,7 +413,7 @@ class stzDeploymentSite from stzObject
 		StzEngineDirCreatePath(@cStorage)
 		_n_ = len(paArtifacts)
 		for _i_ = 1 to _n_
-			write(@cStorage + "/" + paArtifacts[_i_][1], "" + paArtifacts[_i_][2])
+			This._WriteArtifact(@cStorage, paArtifacts[_i_][1], paArtifacts[_i_][2])
 		next
 		write(@cStorage + "/.stzsite", "state=stored" + nl + "kind=" + @cKind + nl)
 		return TRUE
@@ -445,7 +452,7 @@ class stzDeploymentSite from stzObject
 		StzEngineDirCreatePath(_w_)
 		_n_ = len(paArtifacts)
 		for _i_ = 1 to _n_
-			write(_w_ + "/" + paArtifacts[_i_][1], "" + paArtifacts[_i_][2])
+			This._WriteArtifact(_w_, paArtifacts[_i_][1], paArtifacts[_i_][2])
 		next
 		This._Sh("git -C " + _w_ + " init -q")
 		This._Sh("git -C " + _w_ + " config user.email deploy@stz")
@@ -470,7 +477,7 @@ class stzDeploymentSite from stzObject
 		StzEngineDirCreatePath(@cStorage)
 		_n_ = len(paArtifacts)
 		for _i_ = 1 to _n_
-			write(@cStorage + "/" + paArtifacts[_i_][1], "" + paArtifacts[_i_][2])
+			This._WriteArtifact(@cStorage, paArtifacts[_i_][1], paArtifacts[_i_][2])
 		next
 		return This._Sh("scp -r " + @cStorage + "/. " + @cEndpoint)[1] = 0
 
@@ -924,6 +931,31 @@ class stzDeployment from stzObject
 	# the per-part deploy artifact(s). A deploy manifest (real file) for now; the
 	# real binaries (stz_<part>.wasm, the app bundle, the native binary) ship in a
 	# later slice -- the store/launch/govern flow is identical for them.
+	# recursively collect [ relName, content ] for every file under pcDir, prefixing
+	# each with pcRelPrefix and preserving the tree (subdirs + dotfiles). The engine's
+	# dir listings include dotfiles, so a whole bundle ships in one attach.
+	def _DirArtifacts(pcRelPrefix, pcDir)
+		_out_ = []
+		_aFiles_ = StzEngineDirListFiles(pcDir)
+		_nf_ = len(_aFiles_)
+		for _i_ = 1 to _nf_
+			_out_ + [ pcRelPrefix + "/" + _aFiles_[_i_], read(pcDir + "/" + _aFiles_[_i_]) ]
+		next
+		_aDirs_ = StzEngineDirListDirs(pcDir)
+		_nd_ = len(_aDirs_)
+		for _i_ = 1 to _nd_
+			_sub_ = _aDirs_[_i_]
+			if _sub_ = "." or _sub_ = ".."
+				loop
+			ok
+			_child_ = This._DirArtifacts(pcRelPrefix + "/" + _sub_, pcDir + "/" + _sub_)
+			_nc_ = len(_child_)
+			for _k_ = 1 to _nc_
+				_out_ + _child_[_k_]
+			next
+		next
+		return _out_
+
 	def _ArtifactsFor(pcPart)
 		_oPlan_ = @oBrain.Plan()
 		_grps_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(pcPart))
@@ -935,18 +967,32 @@ class stzDeployment from stzObject
 			ok
 			_csv_ += _grps_[_g_]
 		next
-		# the REAL build outputs attached for this part -- read as binary, shipped as-is
+		# the REAL build outputs attached for this part -- read as binary, shipped as-is.
+		# An attachment is a FILE (shipped as relName) or a whole DIRECTORY (every file
+		# under it shipped at relName/<relative-path>, subdirs + dotfiles included).
 		_files_ = []
 		_names_ = ""
 		_na_ = len(@aArtifacts)
 		for _i_ = 1 to _na_
-			if @aArtifacts[_i_][1] = pcPart and StzEngineFileExists(@aArtifacts[_i_][3]) = 1
-				_files_ + [ @aArtifacts[_i_][2], read(@aArtifacts[_i_][3]) ]
+			if @aArtifacts[_i_][1] != pcPart
+				loop
+			ok
+			_rel_ = @aArtifacts[_i_][2]
+			_path_ = @aArtifacts[_i_][3]
+			_add_ = []
+			if StzEngineDirExists(_path_) = 1
+				_add_ = This._DirArtifacts(_rel_, _path_)
+			but StzEngineFileExists(_path_) = 1
+				_add_ = [ [ _rel_, read(_path_) ] ]
+			ok
+			_nad_ = len(_add_)
+			for _k_ = 1 to _nad_
+				_files_ + _add_[_k_]
 				if _names_ != ""
 					_names_ += ","
 				ok
-				_names_ += @aArtifacts[_i_][2]
-			ok
+				_names_ += _add_[_k_][1]
+			next
 		next
 		_q_ = char(34)
 		_man_ = "{" + nl

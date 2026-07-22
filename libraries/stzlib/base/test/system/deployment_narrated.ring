@@ -227,6 +227,37 @@ cCat = ring_trim(oCat.ReadOutputAll())
 oCat.ReadErrorAll()  oCat.Wait()  oCat.Close()
 chk("...the EXACT binary landed in the target (git blob size == built " + nWasmSize + " B)", cCat = "" + nWasmSize)
 
+? ""
+? "-- Scene 14: attach a whole BUNDLE DIRECTORY -- the tree ships in one call --"
+cBundle = cBase + "/webbundle"
+StzEngineDirCreatePath(cBundle + "/assets")
+write(cBundle + "/index.html", "<h1>restolean</h1>")
+write(cBundle + "/assets/app.js", "console.log('hi')")
+write(cBundle + "/.deployrc", "env=prod")
+write(cBundle + "/stz.wasm", char(0) + "asm" + char(1) + char(0) + char(0) + char(0) + "ENGINE")
+nBinSize = StzEngineFileSize(cBundle + "/stz.wasm")
+
+cWbBare = cBase + "/wb.git"
+oWb = SpawnProcess("git init --bare -q " + cWbBare)
+oWb.ReadOutputAll()  oWb.ReadErrorAll()  oWb.Wait()  oWb.Close()
+oWbSite = new stzDeploymentSite("cdn2")
+oWbSite.Kind(:GitRepo).Endpoint(cWbBare).StoreAt(cBase + "/wbwork")
+oDepW = new stzDeployment(oBrain)
+oDepW.AsActor(HumanActor("ops"))
+oDepW.To(:phone, oWbSite)
+oDepW.Artifact(:phone, "site", cBundle)
+aRunW = oDepW.Run()
+chk("a whole bundle DIRECTORY ships in one attach (Run commits)", aRunW[1] = 1)
+oLs = SpawnProcess("git --git-dir=" + cWbBare + " ls-tree -r --name-only main")
+cLs = oLs.ReadOutputAll()  oLs.ReadErrorAll()  oLs.Wait()  oLs.Close()
+chk("...every file landed with its path (index.html + nested assets/app.js)",
+	StzFindFirst("site/index.html", cLs) > 0 and StzFindFirst("site/assets/app.js", cLs) > 0)
+chk("...dotfiles included (.deployrc)", StzFindFirst("site/.deployrc", cLs) > 0)
+oBz = SpawnProcess("git --git-dir=" + cWbBare + " cat-file -s main:site/stz.wasm")
+cBz = ring_trim(oBz.ReadOutputAll())
+oBz.ReadErrorAll()  oBz.Wait()  oBz.Close()
+chk("...and the nested BINARY is byte-intact (blob size == " + nBinSize + ")", cBz = "" + nBinSize)
+
 StzDirDeleteAll(cBase)
 
 ? ""
