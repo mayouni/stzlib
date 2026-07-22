@@ -93,7 +93,7 @@ aCaps = aParts[1][4]
 chk("inference picked PivotTable from .Pivot", StzFindFirst("pivottable", aCaps) > 0)
 chk("...ConstraintSolver from .Solve", StzFindFirst("constraintsolver", aCaps) > 0)
 chk("...GPIO from .ReadPin", StzFindFirst("gpio", aCaps) > 0)
-StzEngineDirDelete(cDir)
+StzDirDeleteAll(cDir)
 
 ? ""
 ? "-- Scene 9: the plan is a legible rehearsal, not a black box --"
