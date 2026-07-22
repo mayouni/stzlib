@@ -29,6 +29,7 @@ function openPop(n) {
 		var f = m.querySelector('iframe[data-src]');
 		if (f && !f.getAttribute('src')) { f.setAttribute('src', f.getAttribute('data-src')); }
 		loadEngineFor(n);
+		fillApiButtons(n);   // a backend part: rebuild its endpoints from the model
 	}
 }
 
@@ -100,7 +101,8 @@ function addLine(id, t) {
 	log.scrollTop = log.scrollHeight;
 }
 
-/* -- backend device (endpoints) -- */
+/* -- backend device (endpoints) -- answers from the app MODEL (window.STZ_APPDATA)
+   when one is attached; a rehearsed map is the no-model fallback. */
 
 var API = {
 	'GET /menu': '200 OK  5 dishes',
@@ -108,33 +110,83 @@ var API = {
 	'POST /order': '201 Created  order #1043'
 };
 
+function appData(p) { return (typeof window.STZ_APPDATA !== 'undefined') ? window.STZ_APPDATA[p] : null; }
+
+function apiEndpoint(p, req) {
+	var d = appData(p);
+	if (!d || d.kind !== 'api') return null;
+	for (var i = 0; i < d.endpoints.length; i++) { if (d.endpoints[i].req === req) return d.endpoints[i]; }
+	return null;
+}
+
+// the REAL response for an endpoint: a row count, or the engine-computed stats.
+function apiRespond(p, req) {
+	var e = apiEndpoint(p, req);
+	if (!e) return API[req] || '200 OK';
+	if (e.stats) return '200 OK  ' + e.stats.total + ' DT total, top ' + e.stats.top + ' (' + e.stats.topRev + ' DT)';
+	return '200 OK  ' + e.count + ' rows';
+}
+
 function apiReq(el) {
 	var p = el.getAttribute('data-part');
 	var r = el.getAttribute('data-req');
 	addLine('log-' + p, '> ' + r);
-	addLine('log-' + p, '  ' + (API[r] || '200 OK'));
+	addLine('log-' + p, '  ' + apiRespond(p, r));
 }
 
-/* -- mcu device (pins) -- */
+// rebuild an api part's endpoint buttons from its REAL endpoints (the model's).
+function fillApiButtons(p) {
+	var d = appData(p);
+	if (!d || d.kind !== 'api') return;
+	var box = document.getElementById('reqs-' + p);
+	if (!box) return;
+	box.innerHTML = '';
+	d.endpoints.forEach(function (e) {
+		var b = document.createElement('button');
+		b.className = 'ghost';
+		b.setAttribute('data-part', p);
+		b.setAttribute('data-req', e.req);
+		b.textContent = e.req;
+		b.onclick = function () { apiReq(b); };
+		box.appendChild(b);
+	});
+}
+
+/* -- mcu device (pins) -- driven by the app MODEL's pins + automation rule
+   (STZ_APPDATA) when attached; a rehearsed reading is the no-model fallback. */
 
 var pumpOn = {};
+
+function device(p) { var d = appData(p); return (d && d.kind === 'device') ? d : null; }
+function sensorPin(d) { for (var i = 0; i < d.pins.length; i++) { if (d.pins[i].role === 'sensor') return d.pins[i]; } return null; }
+
+function applyPump(p, on) {
+	pumpOn[p] = on;
+	var pm = document.getElementById('pump-' + p);
+	if (pm) pm.textContent = on ? 'ON' : 'off';
+	var l = document.getElementById('led-' + p);
+	if (l) l.className = 'led' + (on ? ' on' : '');
+	var b = document.getElementById('bled-' + p);
+	if (b) b.setAttribute('fill', on ? '#0a8f4f' : '#cfd6e2');
+}
 
 function pinAct(el) { doPin(el.getAttribute('data-part'), el.getAttribute('data-act')); }
 
 function doPin(p, a) {
+	var d = device(p);
 	if (a === 'read') {
-		var v = Math.round(450 + Math.random() * 120);
+		var sp = d ? sensorPin(d) : null;
+		var v = sp ? sp.value : Math.round(450 + Math.random() * 120);   // real value, or rehearsed
 		var mo = document.getElementById('moist-' + p);
 		if (mo) mo.textContent = v;
-		addLine('log-' + p, 'digitalRead(34) -> ' + v);
+		addLine('log-' + p, 'analogRead(34) -> ' + v);
+		if (d && d.rule) {   // the firmware's real automation: actuator ON when sensor < threshold
+			var on = v < d.rule.threshold;
+			applyPump(p, on);
+			addLine('log-' + p, 'rule: ' + d.rule.sensor + ' ' + v + (on ? ' < ' : ' >= ') + d.rule.threshold + ' -> ' + d.rule.actuator + (on ? ' ON' : ' off'));
+		}
 	} else {
-		pumpOn[p] = !pumpOn[p];
-		var pm = document.getElementById('pump-' + p);
-		if (pm) pm.textContent = pumpOn[p] ? 'ON' : 'off';
-		var l = document.getElementById('led-' + p);
-		if (l) l.className = 'led' + (pumpOn[p] ? ' on' : '');
-		var b = document.getElementById('bled-' + p);
-		if (b) b.setAttribute('fill', pumpOn[p] ? '#0a8f4f' : '#cfd6e2');
+		applyPump(p, !pumpOn[p]);
 		addLine('log-' + p, 'digitalWrite(26,' + (pumpOn[p] ? 1 : 0) + ') -> pump ' + (pumpOn[p] ? 'ON' : 'off'));
 	}
 }
@@ -239,7 +291,7 @@ function query(el) {
 	inp.value = '';
 	if (tryEngine(p, q)) { return; }
 	if (c === 'server') {
-		addLine('log-' + p, '  ' + (API[q] || '200 OK'));
+		addLine('log-' + p, '  ' + apiRespond(p, q));
 	} else if (c === 'mcu') {
 		var m = q.toLowerCase();
 		if (m.indexOf('read') === 0) { doPin(p, 'read'); }
@@ -263,7 +315,7 @@ document.addEventListener('keydown', function (e) {
 });
 
 function deployProd() {
-	alert('Production deploy ships these same parts via the governed crossing. Run: brain.Deploy(:Production)');
+	alert('Production deploy ships these same parts via the governed crossing. Run: oDelivery.Deploy(:Production)');
 }
 
 /* select the first part on load so the detail zone is never empty */

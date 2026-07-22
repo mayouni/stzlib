@@ -38,6 +38,7 @@ class stzSolutionApp from stzObject
 	@cName = ""
 	@aDatasets = []    # [ [ name, [ rows ] ], ... ]  -- rows are lists (real domain data)
 	@aRoles = []       # [ [ partName, role, datasetName ], ... ]
+	@aDevices = []     # [ [ partName, [ pins ], [ rule ] ], ... ]  -- firmware parts
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -106,15 +107,19 @@ class stzSolutionApp from stzObject
 	# revenue per dish, and aggregate via the engine (stzTable). Returns
 	# [ [ [dish, qty, revenue], ... ], total, topDish, topRevenue ].
 	def DashboardOf(pcPart)
-		_orders_ = This.DatasetOf(pcPart)
+		return This._DashboardFromOrders(This.DatasetOf(pcPart))
+
+	# the aggregation itself, over any orders dataset ([ dish, qty ]) -- so both a
+	# dashboard PART and an api /stats endpoint compute the same figures.
+	def _DashboardFromOrders(paOrders)
 		_menu_ = This.Dataset("menu")
 		_rows_ = []
 		_dishes_ = []
 		_revs_ = []
-		_n_ = len(_orders_)
+		_n_ = len(paOrders)
 		for _i_ = 1 to _n_
-			_dish_ = _orders_[_i_][1]
-			_qty_ = _orders_[_i_][2]
+			_dish_ = paOrders[_i_][1]
+			_qty_ = paOrders[_i_][2]
 			_price_ = This._PriceOf(_dish_, _menu_)
 			_rev_ = _qty_ * _price_
 			_rows_ + [ _dish_, _qty_, _rev_ ]
@@ -131,6 +136,59 @@ class stzSolutionApp from stzObject
 		_top_ = This._DishWithRevenue(_topRev_, _rows_)
 		return [ _rows_, _total_, _top_, _topRev_ ]
 
+	  #-- the API a backend part serves (real endpoints over the data) ----
+
+	# the endpoints an "api"-role part exposes: GET /<dataset> for each dataset,
+	# plus GET /stats (the engine aggregation) when there are orders to total.
+	# Each entry: [ req, count, statsOrEmpty ] -- count = -1 marks the stats one.
+	def ApiEndpointsFor(pcPart)
+		_eps_ = []
+		_nd_ = len(@aDatasets)
+		for _i_ = 1 to _nd_
+			_eps_ + [ "GET /" + @aDatasets[_i_][1], len(@aDatasets[_i_][2]), [] ]
+		next
+		if This._DatasetIndex("orders") > 0 and This._DatasetIndex("menu") > 0
+			_st_ = This._DashboardFromOrders(This.Dataset("orders"))
+			_eps_ + [ "GET /stats", -1, [ _st_[2], _st_[3], _st_[4] ] ]  # total, top, topRev
+		ok
+		return _eps_
+
+	  #-- a firmware part's DEVICE model (pins + an automation rule) -------
+
+	# pins: [ [ pinNo, label, role, value ], ... ]  role = "sensor" | "actuator".
+	def AddDeviceQ(pcPart, paPins)
+		_p_ = StzLower(ring_trim("" + pcPart))
+		_i_ = This._DeviceIndex(_p_)
+		if _i_ > 0
+			@aDevices[_i_][2] = paPins
+		else
+			@aDevices + [ _p_, paPins, [] ]
+		ok
+		return This
+
+	# an automation rule: actuator ON when sensor < threshold (the real firmware
+	# logic the emulator applies -- not a blind toggle).
+	def SetRuleQ(pcPart, pcSensor, pnThreshold, pcActuator)
+		_p_ = StzLower(ring_trim("" + pcPart))
+		_i_ = This._DeviceIndex(_p_)
+		if _i_ = 0
+			@aDevices + [ _p_, [], [] ]
+			_i_ = len(@aDevices)
+		ok
+		@aDevices[_i_][3] = [ "" + pcSensor, pnThreshold, "" + pcActuator ]
+		return This
+
+	def HasDevice(pcPart)
+		return This._DeviceIndex(StzLower(ring_trim("" + pcPart))) > 0
+
+	# [ pins, rule ] for a device part; [ [], [] ] if none.
+	def DeviceOf(pcPart)
+		_i_ = This._DeviceIndex(StzLower(ring_trim("" + pcPart)))
+		if _i_ = 0
+			return [ [], [] ]
+		ok
+		return [ @aDevices[_i_][2], @aDevices[_i_][3] ]
+
 	  #-- internals -------------------------------------------------------
 
 	def _DatasetIndex(pcName)
@@ -146,6 +204,15 @@ class stzSolutionApp from stzObject
 		_n_ = len(@aRoles)
 		for _i_ = 1 to _n_
 			if @aRoles[_i_][1] = pcPart
+				return _i_
+			ok
+		next
+		return 0
+
+	def _DeviceIndex(pcPart)
+		_n_ = len(@aDevices)
+		for _i_ = 1 to _n_
+			if @aDevices[_i_][1] = pcPart
 				return _i_
 			ok
 		next
