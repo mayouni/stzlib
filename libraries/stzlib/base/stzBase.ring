@@ -342,6 +342,7 @@ ok
     # right after (it is the authority these classes are gated by).
     load "security/stzCryptoFuncs.ring"
     load "security/stzSecret.ring"
+    load "security/stzVaultResolver.ring"
     load "security/stzSecretStore.ring"
     load "security/stzAuth.ring"
     load "security/stzRequestSigner.ring"
