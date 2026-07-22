@@ -32,11 +32,12 @@ chk("...DateTime too -> target-native", oPlan.VectorFor(:phone, :DateTime) = "na
 ? "-- Scene 2: Softanza-differential compute -> the on-device engine (stz.wasm) --"
 chk("PivotTable -> engine (JS weak, Softanza excels)", oPlan.VectorFor(:phone, :PivotTable) = "engine")
 chk("ConstraintSolver -> engine (Softanza-unique, JS absent)", oPlan.VectorFor(:phone, :ConstraintSolver) = "engine")
-chk("Regex -> engine (Softanza's scoped/PCRE2 regex beats JS)", oPlan.VectorFor(:phone, :Regex) = "engine")
 
 ? ""
 ? "-- Scene 3: ergonomics -> a target-language construct; the heavy -> the backend --"
 chk("Collection -> construct (best in the target language: stz.js)", oPlan.VectorFor(:phone, :Collection) = "construct")
+chk("Regex -> construct, NOT wasm (JS RegExp is strong; ship Softanza's regex API as stz.js over it, never PCRE2 to the browser)", oPlan.VectorFor(:phone, :Regex) = "construct")
+chk("...so Regex is NOT in the on-device engine subset (the target does the matching)", StzFindFirst("regex", oPlan.EngineCapsFor(:phone)) = 0)
 chk("Neural -> server (too heavy for the edge)", oPlan.VectorFor(:phone, :Neural) = "server")
 
 ? ""

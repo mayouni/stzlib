@@ -92,7 +92,7 @@ class stzCapabilityCatalog from stzObject
 			[ "datetime",         "DateTime",         FALSE, "compute",   "light",  "strong", "strong", "weak",     4 ],
 			[ "json",             "Json",             FALSE, "ergonomic", "light",  "strong", "strong", "weak",     2 ],
 			[ "http",             "Http",             FALSE, "ergonomic", "light",  "strong", "strong", "absent",   3 ],
-			[ "regex",            "Regex",            TRUE,  "compute",   "medium", "weak",   "strong", "absent",  20 ],
+			[ "regex",            "Regex",            TRUE,  "ergonomic", "medium", "strong", "strong", "absent",  20 ],
 			[ "pattern",          "Pattern",          TRUE,  "compute",   "light",  "absent", "strong", "weak",     5 ],
 			[ "pivottable",       "PivotTable",       TRUE,  "compute",   "medium", "weak",   "strong", "absent",  12 ],
 			[ "constraintsolver", "ConstraintSolver", TRUE,  "compute",   "medium", "absent", "strong", "absent",  15 ],
