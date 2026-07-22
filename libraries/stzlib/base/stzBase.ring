@@ -296,7 +296,8 @@ ok
     load "common/stzRetryBudget.ring"
     load "common/stzLatencyHistogram.ring"
     load "common/stzRateLimiter.ring"
-    load "common/stzRequestSigner.ring"
+    # stzRequestSigner moved to base/security/ (HMAC request signing is a
+    # security primitive); loaded in the security block.
     load "common/stzTraceContext.ring"
     load "graph/stzGridNav.ring"
 
@@ -339,9 +340,11 @@ ok
     # A secret reveals its value only to an effectful, non-sandboxed actor -- the
     # same governance crossing as stzSystemActor above, which this module is loaded
     # right after (it is the authority these classes are gated by).
+    load "security/stzCryptoFuncs.ring"
     load "security/stzSecret.ring"
     load "security/stzSecretStore.ring"
     load "security/stzAuth.ring"
+    load "security/stzRequestSigner.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

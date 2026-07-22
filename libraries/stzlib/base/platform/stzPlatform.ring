@@ -52,34 +52,9 @@ $oStzPlatformActive = NULL
 func StzPlatformQ(pcName)
 	return new stzPlatform(pcName)
 
-# -- public KDF helpers (engine-backed; reusable beyond the Commons) --
-# StzHashSecret returns "salt:hash" (PBKDF2-HMAC-SHA256, 100k rounds by
-# default); StzVerifySecret re-derives and constant-time compares;
-# StzRandomToken returns nBytes of CSPRNG as hex.
-
-func StzHashSecret(pcSecret)
-	return StzHashSecretXT(pcSecret, 100000)
-
-func StzHashSecretXT(pcSecret, nRounds)
-	_cSalt_ = StzEngineCryptoRandomHex(16)
-	_cHash_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, nRounds, 32)
-	return _cSalt_ + ":" + _cHash_
-
-func StzVerifySecret(pcSecret, pcStored)
-	return StzVerifySecretXT(pcSecret, pcStored, 100000)
-
-func StzVerifySecretXT(pcSecret, pcStored, nRounds)
-	_nSep_ = StzFindFirst(":", pcStored)
-	if _nSep_ = 0
-		return FALSE
-	ok
-	_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
-	_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)
-	_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, nRounds, 32)
-	return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
-
-func StzRandomToken(nBytes)
-	return StzEngineCryptoRandomHex(nBytes)
+# The public KDF helpers (StzHashSecret / StzVerifySecret / StzRandomToken) moved
+# to base/security/stzCryptoFuncs.ring -- the security concern's home. They are
+# global funcs, loaded earlier now, so every consumer here still resolves them.
 
 # -- networked-body route handlers (global by design; see header) ----
 

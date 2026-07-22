@@ -50,13 +50,13 @@ Security is *conceptually* unified but was *physically* scattered across nine di
 
 | Concern | Where | Key classes |
 |---|---|---|
-| **Credentials & secrets** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzAuth` |
+| **Credentials, secrets, crypto** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzAuth`, `stzCryptoFuncs` (KDF helpers), `stzRequestSigner` (HMAC signing) |
 | Authority (the lattice) | `base/system/` | `stzSystemActor`, `stzSystemCapabilities` |
 | Effect isolation (sandbox) | `base/system/` | `stzVirtualSystem` / `stzVirtualFileSystem` / `stzVirtualEnvironment` (rehearse → plan → commit, one bridge to reality) |
 | Governance contract | `base/governance/` | `stzGovernance` (risk tiers, CAN vs SHOULD, lineage, decommission) |
 | Agentic safety | `base/agentic/`, `base/meta/` | `stzAgentGraph` (lattice + 4 guardrails), `stzPIAgent`, `stzGovernanceChecks` |
-| Crypto primitives | `base/platform/`, `base/string/`, engine | `StzHashSecret`/`StzVerifySecret`/`StzRandomToken` (PBKDF2 + CSPRNG), `stzStringCrypto` (SHA/MD5/HMAC), engine `crypto.zig` |
-| Transport security | `base/common/`, `base/cluster/`, `base/reactive/` | `stzRequestSigner` (HMAC + replay window), `stzComputeFederation` (mTLS), `stzReactor` (TLS/mTLS listener) |
+| Crypto primitives | **`base/security/`** (KDF), `base/string/`, engine | `StzHashSecret`/`StzVerifySecret`/`StzRandomToken` (PBKDF2 + CSPRNG, now in `security/`), `stzStringCrypto` (SHA/MD5/HMAC, string-domain), engine `crypto.zig` |
+| Transport security | **`base/security/`** (signing), `base/cluster/`, `base/reactive/` | `stzRequestSigner` (HMAC + replay window, now in `security/`), `stzComputeFederation` (mTLS), `stzReactor` (TLS/mTLS listener) |
 
 **Design decision — what moves to `base/security/`, and what does not.** `base/security/` owns the concern whose *primary identity* is security and that was otherwise homeless: **the things you protect (secrets, credentials) and the acts of authentication and secret-governance**. It deliberately does **not** absorb the actor lattice, the sandbox, the governance contract, or the agentic guardrails — those are the security *expression of their own domains* (the actor is the system's authority; the guardrails are the agent graph's soundness), and they already speak the shared vocabulary. Consolidation means *one home for the credential layer + one map of the whole*, not one directory swallowing every domain's governance.
 
@@ -96,7 +96,14 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
    (Ring copies objects on `=`, so a *held* store would be a private copy whose
    audit no one sees; passing it by reference at reveal time is the correct shape.
    Plain `ResolveAuth` on a store-backed site raises, to force the audited path.)
-2. **Move the crypto helpers + request signer into `base/security/`** — `StzHashSecret`/`StzVerifySecret`/`StzRandomToken` (today in `platform/`) and `stzRequestSigner` (today in `common/`) are pure security primitives; they belong here. A careful load-order pass (they are runtime-resolved globals) makes this low-risk.
+2. ~~Move the crypto helpers + request signer into `base/security/`~~ — **done.**
+   `StzHashSecret`/`StzHashSecretXT`/`StzVerifySecret`/`StzVerifySecretXT`/
+   `StzRandomToken` extracted from `platform/` into `security/stzCryptoFuncs.ring`;
+   `stzRequestSigner` moved from `common/` into `security/`. Loaded in the security
+   block (the helpers *before* `stzSecret`/`stzAuth`, fixing a latent use-before-
+   define — they were previously defined late in `stzPlatform` and resolved only at
+   runtime). Verified: platform KDF (14), request-signing (29), platform (31), all
+   security + delivery guards.
 3. **A security posture check** — a runnable `stzGovernanceChecks`-style invariant that scans a project: are all secrets registered in a store? any inline keys? any `llm_actor` holding an effect kind? — reported like the existing agent-graph guardrails.
 4. **`stzAuth` ↔ `stzSecret`** — session tokens as `stzToken`s; password reset flows through the store.
 5. **Vault backend** — wire `FromVaultQ` to a real secret manager.
