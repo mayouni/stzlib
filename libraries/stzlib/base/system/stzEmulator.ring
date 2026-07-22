@@ -82,8 +82,10 @@ func _StzEmuBoardSvg(pcName)
 func _StzEmuDish(pcName, pcDesc, pnPrice)
 	return "<div class='dish'><div><div class='n'>" + pcName + "</div><div class='d'>" + pcDesc + "</div><div class='p'>" + pnPrice + " DT</div></div><button class='add' data-p='" + pnPrice + "' data-n='" + pcName + "' onclick='add(this)' aria-label='add'>+</button></div>"
 
-func _StzEmuAppHtml(pcSol, pcPart)
-	_nm_ = _StzEmuCap(pcSol)
+# a menu page, parameterized by title + tagline + dish rows ([name, desc, price]).
+# Used for BOTH a model-driven menu and the no-model demo fallback.
+func _StzEmuMenuPage(pcTitle, pcTagline, paDishRows)
+	_nm_ = pcTitle
 	_a_ = "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
 	_a_ += "<meta name='viewport' content='width=device-width, initial-scale=1'>"
 	_a_ += "<style>*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}html,body{height:100%}body{font-family:system-ui,sans-serif;background:#f6f7f9;color:#1b2333}"
@@ -101,12 +103,12 @@ func _StzEmuAppHtml(pcSol, pcPart)
 	_a_ += ".ok h2{font-size:19px;font-weight:600;margin-bottom:6px}.ok p{color:#6b7280;font-size:14px}.ok button{margin-top:20px;background:#0a8f4f;color:#fff;border:0;border-radius:11px;padding:12px 22px;cursor:pointer}"
 	_a_ += "</style></head><body><div class='app'>"
 	_a_ += "<header><span class='b'>" + _nm_ + "</span><span class='cart' id='cart'>0 items</span></header>"
-	_a_ += "<main><div class='hi'>Scan . Order . Pay -- table 7</div>"
-	_a_ += _StzEmuDish("Royal couscous", "Semolina, lamb, vegetables", 24)
-	_a_ += _StzEmuDish("Grilled tajine", "Slow-cooked, with olives", 19)
-	_a_ += _StzEmuDish("Brik a l oeuf", "Crispy, egg and tuna", 6)
-	_a_ += _StzEmuDish("Mint tea", "With pine nuts", 3)
-	_a_ += _StzEmuDish("Makroudh", "Date pastry, honey", 5)
+	_a_ += "<main><div class='hi'>" + pcTagline + "</div>"
+	_nd_ = len(paDishRows)
+	for _di_ = 1 to _nd_
+		_dr_ = paDishRows[_di_]
+		_a_ += _StzEmuDish(_dr_[1], _dr_[2], _dr_[3])
+	next
 	_a_ += "</main>"
 	_a_ += "<footer><span class='t' id='total'>0 DT</span><button id='order' disabled onclick='order()'>Order and pay</button></footer></div>"
 	_a_ += "<div class='ok' id='ok'><div class='c'>+</div><h2>Order confirmed</h2><p>Your order is on its way to the kitchen.</p><button onclick='reset()'>New order</button></div>"
@@ -115,6 +117,78 @@ func _StzEmuAppHtml(pcSol, pcPart)
 	_a_ += "function order(){if(n>0){document.getElementById('ok').style.display='flex';LOG('order placed: '+n+' items, '+t+' DT')}}"
 	_a_ += "function reset(){n=0;t=0;document.getElementById('cart').textContent='0 items';document.getElementById('total').textContent='0 DT';document.getElementById('order').disabled=true;document.getElementById('ok').style.display='none';LOG('new order started')}"
 	_a_ += "</script></body></html>"
+	return _a_
+
+# the per-part app -- driven by the solution's app MODEL when one is attached.
+# A part's ROLE decides its app: a "menu" part shows its real menu, a "dashboard"
+# part shows figures the engine computed. With no model, the demo menu (below).
+func _StzEmuAppHtml(poApp, pcSol, pcPart)
+	if isObject(poApp) and poApp.HasRoleFor(pcPart)
+		_role_ = poApp.RoleOf(pcPart)
+		if _role_ = "dashboard"
+			return _StzEmuDashboardHtml(poApp, pcSol, pcPart)
+		but _role_ = "menu"
+			return _StzEmuMenuHtml(poApp, pcSol, pcPart)
+		ok
+	ok
+	return _StzEmuDemoMenuHtml(pcSol)
+
+# a model-driven menu: the real dishes this part's dataset holds.
+func _StzEmuMenuHtml(poApp, pcSol, pcPart)
+	return _StzEmuMenuPage(_StzEmuCap(pcSol), "Scan . Order . Pay -- table 7", poApp.MenuOf(pcPart))
+
+# the no-model fallback demo (back-compat: unchanged output when no app is set).
+func _StzEmuDemoMenuHtml(pcSol)
+	_rows_ = [
+		[ "Royal couscous", "Semolina, lamb, vegetables", 24 ],
+		[ "Grilled tajine", "Slow-cooked, with olives", 19 ],
+		[ "Brik a l oeuf", "Crispy, egg and tuna", 6 ],
+		[ "Mint tea", "With pine nuts", 3 ],
+		[ "Makroudh", "Date pastry, honey", 5 ]
+	]
+	return _StzEmuMenuPage(_StzEmuCap(pcSol), "Scan . Order . Pay -- table 7", _rows_)
+
+# a model-driven manager dashboard -- its figures are COMPUTED by the engine
+# (stzTable aggregation over the real orders), not hardcoded. This is the part's
+# declared :PivotTable capability, running for real.
+func _StzEmuDashboardHtml(poApp, pcSol, pcPart)
+	_d_ = poApp.DashboardOf(pcPart)
+	_rows_ = _d_[1]
+	_total_ = _d_[2]
+	_top_ = _d_[3]
+	_topRev_ = _d_[4]
+	_nm_ = _StzEmuCap(pcSol)
+	_a_ = "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+	_a_ += "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+	_a_ += "<style>*{box-sizing:border-box;margin:0}html,body{height:100%}body{font-family:system-ui,sans-serif;background:#f6f7f9;color:#1b2333}"
+	_a_ += ".app{display:flex;flex-direction:column;height:100%}"
+	_a_ += "header{background:#12324e;color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between}"
+	_a_ += "header .b{font-size:17px;font-weight:600}header .r{font-size:12px;opacity:.8}"
+	_a_ += "main{flex:1;overflow:auto;padding:16px}"
+	_a_ += ".kpis{display:flex;gap:12px;margin-bottom:16px}.kpi{background:#fff;border-radius:14px;padding:14px 16px;flex:1;box-shadow:0 1px 2px rgba(20,30,60,.06)}"
+	_a_ += ".kpi .k{font-size:12px;color:#6b7280}.kpi .v{font-size:22px;font-weight:600;margin-top:4px}.kpi .v.rev{color:#0a8f4f}"
+	_a_ += ".card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,30,60,.06)}"
+	_a_ += ".card h3{font-size:13px;color:#6b7280;font-weight:600;margin-bottom:12px}"
+	_a_ += ".bar{margin-bottom:11px}.bar .t{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}.bar .t .rv{color:#0a8f4f}"
+	_a_ += ".track{background:#eef1f6;border-radius:6px;height:9px;overflow:hidden}.fill{background:#12324e;height:100%;border-radius:6px}"
+	_a_ += ".note{font-size:11px;color:#8a93a3;margin-top:14px;text-align:center}"
+	_a_ += "</style></head><body><div class='app'>"
+	_a_ += "<header><span class='b'>" + _nm_ + "</span><span class='r'>Manager . live</span></header><main>"
+	_a_ += "<div class='kpis'><div class='kpi'><div class='k'>Revenue today</div><div class='v rev'>" + _total_ + " DT</div></div>"
+	_a_ += "<div class='kpi'><div class='k'>Top seller</div><div class='v'>" + _top_ + "</div></div></div>"
+	_a_ += "<div class='card'><h3>Revenue by dish</h3>"
+	_nr_ = len(_rows_)
+	for _i_ = 1 to _nr_
+		_r_ = _rows_[_i_]
+		_pct_ = 0
+		if _topRev_ > 0
+			_pct_ = floor((_r_[3] * 100) / _topRev_)
+		ok
+		_a_ += "<div class='bar'><div class='t'><span>" + _r_[1] + " <span style='color:#8a93a3'>x" + _r_[2] + "</span></span><span class='rv'>" + _r_[3] + " DT</span></div>"
+		_a_ += "<div class='track'><div class='fill' style='width:" + _pct_ + "%'></div></div></div>"
+	next
+	_a_ += "</div><div class='note'>computed live by the on-device engine (stz.wasm aggregation)</div>"
+	_a_ += "</main></div></body></html>"
 	return _a_
 
   #-- the grid (left) + aux (right) of the main page ------------
@@ -406,7 +480,7 @@ class stzEmulator from stzObject
 				loop
 			ok
 			_cApp_ = "app_" + _p_[1] + ".html"
-			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oDelivery.Name(), _p_[1]))
+			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oDelivery.App(), @oDelivery.Name(), _p_[1]))
 			@aFiles + _cApp_
 			_grp_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(_p_[1]))
 			if len(_grp_) = 0

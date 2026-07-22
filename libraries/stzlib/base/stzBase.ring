@@ -364,6 +364,10 @@ ok
     # the profile (For(target) reuses _StzSystemProfileForTarget).
     load "system/stzBuilder.ring"
     load "system/stzWebBundle.ring"
+    # the solution's APP MODEL -- named datasets + per-part roles; the dashboard
+    # role aggregates via the engine. Drives per-part emulator rendering (held by
+    # the delivery, read by the emulator).
+    load "system/stzSolutionApp.ring"
     load "system/stzDelivery.ring"
     load "system/stzEmulator.ring"
 
