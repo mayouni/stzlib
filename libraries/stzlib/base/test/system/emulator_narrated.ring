@@ -34,8 +34,8 @@ oBrain.NeedsIn(:node, [ :GPIO, :Pattern, :Neural ])
 # WithEngine(FALSE): emit the plan map + wiring WITHOUT compiling each part's wasm
 # (keeps the guard fast + toolchain-free; Deploy(:Emulated) wraps this same build).
 oEmu = new stzEmulator(oBrain)
-oEmu.WithEngine(FALSE)
-oEmu.OutDir(cDir + "/dist")
+oEmu.CompileEngineQ(FALSE)
+oEmu.SetOutDirQ(cDir + "/dist")
 oEmu.Build()
 chk("the programming-phase emulator builds a bundle", oEmu.IsBuilt())
 chk("...it emits index.html + manifest.json", StzEngineFileExists(cDir + "/dist/index.html") = 1 and StzEngineFileExists(cDir + "/dist/manifest.json") = 1)

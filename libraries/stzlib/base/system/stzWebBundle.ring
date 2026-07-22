@@ -19,7 +19,7 @@
 # callable from JS. This is "a part in wasm + a stz.js library bridging Softanza
 # to the native wasm", assembled.
 #
-#   oW = new stzBuilder("app").AsC().Source("app.c").ForWeb().Export("stz_main")
+#   oW = new stzBuilder("app").InCQ().AddSourceQ("app.c").TargetWebQ().AddExportQ("stz_main")
 #   oW.Build()
 #   oB = new stzWebBundle("app").Title("My App").OutDir("dist")
 #   oB.WithWasm("app", oW.OutputPath())

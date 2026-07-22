@@ -354,14 +354,14 @@ class stzEmulator from stzObject
 	def init(poDelivery)
 		@oDelivery = poDelivery
 
-	def OutDir(pcDir)
+	def SetOutDirQ(pcDir)
 		@cOutDir = "" + pcDir
 		return This
 
 	# Toggle the per-part engine compilation. Default ON (device consoles run the
-	# real engine). WithEngine(FALSE) emits the plan map + graceful fallback without
+	# real engine). CompileEngineQ(FALSE) emits the plan map + graceful fallback without
 	# invoking Zig -- for fast, toolchain-free generation (and guards).
-	def WithEngine(pbOn)
+	def CompileEngineQ(pbOn)
 		@bEngine = pbOn
 		return This
 
