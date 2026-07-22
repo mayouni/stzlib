@@ -299,7 +299,9 @@ func _StzEmuServerDevice(poPlan, paPart)
 	_nm_ = paPart[1]
 	_h_ = "<div class='console'><div class='consbar'><span class='stat ok'><span class='dot'></span></span> " + _nm_ + " . stz-reactor . native engine warm</div>"
 	_h_ += "<div class='hint2'>Call an endpoint of the running backend -- the response appears in the log.</div>"
-	_h_ += "<div class='reqs'>"
+	# id='reqs-<part>': when an app model is attached, emulator.js rebuilds these
+	# buttons from the part's REAL endpoints (the rehearsed set below is fallback).
+	_h_ += "<div class='reqs' id='reqs-" + _nm_ + "'>"
 	_h_ += "<button class='ghost' data-part='" + _nm_ + "' data-req='GET /menu' onclick='apiReq(this)'>GET /menu</button>"
 	_h_ += "<button class='ghost' data-part='" + _nm_ + "' data-req='GET /orders' onclick='apiReq(this)'>GET /orders</button>"
 	_h_ += "<button class='ghost' data-part='" + _nm_ + "' data-req='POST /order' onclick='apiReq(this)'>POST /order</button></div></div>"
@@ -373,6 +375,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
 	_h_ += _StzEmuPopups(poPlan) + nl
 	_h_ += "<script src='stz_parts.js'></script>" + nl
+	_h_ += "<script src='stz_appdata.js'></script>" + nl
 	_h_ += "<script src='stz.js'></script>" + nl
 	_h_ += "<script src='emulator.js'></script>" + nl
 	_h_ += "</body></html>" + nl
@@ -411,6 +414,80 @@ func _StzEmuPartsJs(paWasmParts)
 	next
 	_j_ += "};" + nl
 	return _j_
+
+# The app MODEL, as a JS asset emulator.js reads (window.STZ_APPDATA): each api
+# part's real endpoints (with the engine-computed /stats) and each device part's
+# pins + automation rule. This is what makes the backend/device consoles answer
+# with REAL data + REAL logic instead of a rehearsed map. Empty when no model.
+func _StzEmuAppDataJs(poApp, poPlan)
+	_j_ = "window.STZ_APPDATA = {" + nl
+	if NOT isObject(poApp)
+		return _j_ + "};" + nl
+	ok
+	_aP_ = poPlan.Parts()
+	_n_ = len(_aP_)
+	_entries_ = []
+	for _i_ = 1 to _n_
+		_pn_ = _aP_[_i_][1]
+		if poApp.RoleOf(_pn_) = "api"
+			_entries_ + _StzEmuApiEntry(poApp, _pn_)
+		but poApp.HasDevice(_pn_)
+			_entries_ + _StzEmuDeviceEntry(poApp, _pn_)
+		ok
+	next
+	_ne_ = len(_entries_)
+	for _i_ = 1 to _ne_
+		_j_ += "  " + _entries_[_i_]
+		if _i_ < _ne_
+			_j_ += ","
+		ok
+		_j_ += nl
+	next
+	_j_ += "};" + nl
+	return _j_
+
+func _StzEmuApiEntry(poApp, pcPart)
+	_eps_ = poApp.ApiEndpointsFor(pcPart)
+	_s_ = "'" + pcPart + "': { kind: 'api', endpoints: ["
+	_n_ = len(_eps_)
+	for _i_ = 1 to _n_
+		_e_ = _eps_[_i_]
+		if _e_[2] = -1
+			_st_ = _e_[3]
+			_s_ += "{ req: '" + _e_[1] + "', stats: { total: " + _st_[1] + ", top: " + _StzEmuJs(_st_[2]) + ", topRev: " + _st_[3] + " } }"
+		else
+			_s_ += "{ req: '" + _e_[1] + "', count: " + _e_[2] + " }"
+		ok
+		if _i_ < _n_
+			_s_ += ", "
+		ok
+	next
+	_s_ += "] }"
+	return _s_
+
+func _StzEmuDeviceEntry(poApp, pcPart)
+	_d_ = poApp.DeviceOf(pcPart)
+	_pins_ = _d_[1]
+	_rule_ = _d_[2]
+	_s_ = "'" + pcPart + "': { kind: 'device', pins: ["
+	_n_ = len(_pins_)
+	for _i_ = 1 to _n_
+		_p_ = _pins_[_i_]
+		_s_ += "{ pin: " + _p_[1] + ", label: " + _StzEmuJs(_p_[2]) + ", role: " + _StzEmuJs(_p_[3]) + ", value: " + _p_[4] + " }"
+		if _i_ < _n_
+			_s_ += ", "
+		ok
+	next
+	_s_ += "]"
+	if len(_rule_) = 3
+		_s_ += ", rule: { sensor: " + _StzEmuJs(_rule_[1]) + ", threshold: " + _rule_[2] + ", actuator: " + _StzEmuJs(_rule_[3]) + " }"
+	ok
+	_s_ += " }"
+	return _s_
+
+# a single-quoted JS string literal, apostrophes escaped.
+func _StzEmuJs(pcS)
+	return "'" + StzReplace("" + pcS, "'", char(92) + "'") + "'"
 
 
   #===============#
@@ -517,6 +594,10 @@ class stzEmulator from stzObject
 		# emulator.js reads it to load each part's own subset.
 		write(_cDir_ + "/stz_parts.js", _StzEmuPartsJs(_aWasmParts_))
 		@aFiles + "stz_parts.js"
+
+		# the app model as data -- the backend/device consoles answer from it.
+		write(_cDir_ + "/stz_appdata.js", _StzEmuAppDataJs(@oDelivery.App(), _oPlan_))
+		@aFiles + "stz_appdata.js"
 
 		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oDelivery.Name(), _oPlan_))
 		@aFiles + "manifest.json"

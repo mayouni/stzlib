@@ -41,6 +41,9 @@ oApp.AddDatasetQ(:menu, aMenu)
 oApp.AddDatasetQ(:orders, aOrders)
 oApp.SetPartRoleQ(:phone, :menu, :menu)       # the guest-facing waiter app
 oApp.SetPartRoleQ(:admin, :dashboard, :orders) # the manager dashboard
+oApp.SetPartRoleQ(:api, :api, :menu)           # the backend serves the data
+oApp.AddDeviceQ(:node, [ [ 34, "moisture", "sensor", 28 ], [ 26, "pump", "actuator", 0 ] ])
+oApp.SetRuleQ(:node, "moisture", 30, "pump")   # pump ON when moisture < 30
 
 ? "-- Scene 1: the app MODEL holds the solution's real data + per-part roles --"
 chk("the phone part's role is 'menu'", oApp.RoleOf(:phone) = "menu")
@@ -65,10 +68,12 @@ chk("...each figure is real: Brik = 20 x 6 = 120", aRevRows[3][1] = "Brik a l oe
 oDelivery = new stzDelivery("restolean")
 oDelivery.AddSuperApp(:phone, :Android)     # mobile  -> gets an app screen
 oDelivery.AddApp(:admin, :Browser)          # browser -> gets an app screen
-oDelivery.AddBackend(:api, :LinuxServer)    # server  -> console, no app html
+oDelivery.AddBackend(:api, :LinuxServer)    # server  -> console serves real data
+oDelivery.AddFirmware(:node, :ESP32)        # mcu     -> device console, real pins
 oDelivery.NeedsIn(:phone, [ :Unicode, :Collection ])
 oDelivery.NeedsIn(:admin, [ :PivotTable, :Collection ])
 oDelivery.NeedsIn(:api, [ :PivotTable ])
+oDelivery.NeedsIn(:node, [ :GPIO, :Pattern ])
 oDelivery.RunsAppQ(oApp)
 chk("the delivery now carries an app model", oDelivery.HasApp())
 
@@ -98,7 +103,29 @@ chk("the admin app is NOT the waiter menu (no orderable dishes)", StzFindFirst("
 chk("...the waiter app is NOT the dashboard (no revenue view)", StzFindFirst("Revenue by dish", cPhone) = 0)
 
 ? ""
-? "-- Scene 6: back-compat -- a solution with NO app model still renders --"
+? "-- Scene 6: the BACKEND console serves real endpoints (engine-computed /stats) --"
+cData = read(cDir + "/dist/stz_appdata.js")
+chk("the app data ships as a JS asset (window.STZ_APPDATA)", StzFindFirst("window.STZ_APPDATA", cData) > 0)
+chk("...the api part exposes GET /menu + GET /orders from the data", StzFindFirst("GET /menu", cData) > 0 and StzFindFirst("GET /orders", cData) > 0)
+chk("...and a GET /stats whose total is engine-computed (700 DT)", StzFindFirst("GET /stats", cData) > 0 and StzFindFirst("total: 700", cData) > 0)
+chk("...naming the top seller in the stats (Royal couscous)", StzFindFirst("top: 'Royal couscous'", cData) > 0)
+
+? ""
+? "-- Scene 7: the DEVICE console follows a real pin model + automation rule --"
+chk("the node part ships its pins (moisture sensor + pump actuator)", StzFindFirst("'moisture'", cData) > 0 and StzFindFirst("'pump'", cData) > 0)
+chk("...the sensor carries a real reading (28), not a random number", StzFindFirst("value: 28", cData) > 0)
+chk("...and the firmware rule: pump when moisture < 30", StzFindFirst("threshold: 30", cData) > 0 and StzFindFirst("actuator: 'pump'", cData) > 0)
+
+? ""
+? "-- Scene 8: the consoles READ the injected data (wired, not faked) --"
+cJs = read(cDir + "/dist/emulator.js")
+chk("emulator.js answers endpoints from the model (apiRespond over STZ_APPDATA)", StzFindFirst("apiRespond", cJs) > 0 and StzFindFirst("STZ_APPDATA", cJs) > 0)
+chk("...and drives the pins from the model's rule, not Math.random", StzFindFirst("d.rule.threshold", cJs) > 0)
+cIdx = read(cDir + "/dist/index.html")
+chk("index.html loads the app data (stz_appdata.js) for the consoles", StzFindFirst("stz_appdata.js", cIdx) > 0)
+
+? ""
+? "-- Scene 9: back-compat -- a solution with NO app model still renders --"
 oPlain = new stzDelivery("plain")
 oPlain.AddSuperApp(:phone, :Android)
 oPlain.NeedsIn(:phone, [ :Unicode, :Collection ])
