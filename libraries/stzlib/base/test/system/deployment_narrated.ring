@@ -201,6 +201,32 @@ oAws = new stzDeploymentSite("vm-aws")
 oAws.Provider(:aws)
 chk("...and maps memory to an AWS instance type", StzFindFirst("t3.small", oAws.ProvisionCommandFor(StzResourcesQ().Memory(2048).Compute(2).Storage(20))) > 0)
 
+? ""
+? "-- Scene 13: ship a REAL artifact -- a compiled stz.wasm, byte-for-byte to the target --"
+? "(building a real engine subset -- a few seconds)"
+cArt = cBase + "/stz_api.wasm"
+StzBuildEngineWasmSubset([ "solver" ], cArt)
+nWasmSize = StzEngineFileSize(cArt)
+chk("a REAL stz.wasm artifact was built (a KB-scale binary, not a ~150B manifest)", nWasmSize > 1000)
+cW = read(cArt)
+chk("...it is a real wasm binary (magic bytes 0asm)", len(cW) > 4 and ascii(cW[2]) = 97 and ascii(cW[3]) = 115 and ascii(cW[4]) = 109)
+
+cArtBare = cBase + "/art.git"
+oAb = SpawnProcess("git init --bare -q " + cArtBare)
+oAb.ReadOutputAll()  oAb.ReadErrorAll()  oAb.Wait()  oAb.Close()
+oArtSite = new stzDeploymentSite("cdn")
+oArtSite.Kind(:GitRepo).Endpoint(cArtBare).StoreAt(cBase + "/artwork")
+oDepA = new stzDeployment(oBrain)
+oDepA.AsActor(HumanActor("ops"))
+oDepA.To(:api, oArtSite)
+oDepA.Artifact(:api, "stz_api.wasm", cArt)
+aRunA = oDepA.Run()
+chk("the deployment ships it through the git backend (Run commits)", aRunA[1] = 1)
+oCat = SpawnProcess("git --git-dir=" + cArtBare + " cat-file -s main:stz_api.wasm")
+cCat = ring_trim(oCat.ReadOutputAll())
+oCat.ReadErrorAll()  oCat.Wait()  oCat.Close()
+chk("...the EXACT binary landed in the target (git blob size == built " + nWasmSize + " B)", cCat = "" + nWasmSize)
+
 StzDirDeleteAll(cBase)
 
 ? ""

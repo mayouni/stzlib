@@ -515,6 +515,7 @@ class stzDeployment from stzObject
 	@aBindings = []   # [ partName, siteObject ]
 	@oActor = NULL
 	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
+	@aArtifacts = []  # [ partName, relName, filePath ] -- the REAL build outputs to ship
 
 	def init(poBrain)
 		@oBrain = poBrain
@@ -542,6 +543,16 @@ class stzDeployment from stzObject
 			ok
 		next
 		return _out_
+
+	# attach a REAL build output to ship for a part (the per-part stz_<part>.wasm, the
+	# app bundle, the native binary...). pcRelName is its name at the destination;
+	# pcPath is the built file on disk. Shipped byte-for-byte alongside the manifest.
+	def Artifact(pcPart, pcRelName, pcPath)
+		@aArtifacts + [ StzLower("" + pcPart), "" + pcRelName, "" + pcPath ]
+		return This
+
+	def ArtifactsAttached()
+		return @aArtifacts
 
 	def AsActor(poActor)
 		@oActor = poActor
@@ -924,10 +935,29 @@ class stzDeployment from stzObject
 			ok
 			_csv_ += _grps_[_g_]
 		next
+		# the REAL build outputs attached for this part -- read as binary, shipped as-is
+		_files_ = []
+		_names_ = ""
+		_na_ = len(@aArtifacts)
+		for _i_ = 1 to _na_
+			if @aArtifacts[_i_][1] = pcPart and StzEngineFileExists(@aArtifacts[_i_][3]) = 1
+				_files_ + [ @aArtifacts[_i_][2], read(@aArtifacts[_i_][3]) ]
+				if _names_ != ""
+					_names_ += ","
+				ok
+				_names_ += @aArtifacts[_i_][2]
+			ok
+		next
 		_q_ = char(34)
 		_man_ = "{" + nl
 		_man_ += "  " + _q_ + "solution" + _q_ + ": " + _q_ + @oBrain.Name() + _q_ + "," + nl
 		_man_ += "  " + _q_ + "part" + _q_ + ": " + _q_ + pcPart + _q_ + "," + nl
-		_man_ += "  " + _q_ + "engine" + _q_ + ": " + _q_ + _csv_ + _q_ + nl
+		_man_ += "  " + _q_ + "engine" + _q_ + ": " + _q_ + _csv_ + _q_ + "," + nl
+		_man_ += "  " + _q_ + "artifacts" + _q_ + ": " + _q_ + _names_ + _q_ + nl
 		_man_ += "}" + nl
-		return [ [ "deploy.json", _man_ ] ]
+		_out_ = [ [ "deploy.json", _man_ ] ]
+		_nf_ = len(_files_)
+		for _i_ = 1 to _nf_
+			_out_ + _files_[_i_]
+		next
+		return _out_
