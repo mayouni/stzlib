@@ -330,7 +330,14 @@ class stzBuilderBrain from stzObject
 	# you built and debugged with Deploy(:Emulated) becomes what Deploy(:Production)
 	# ships -- the same tree, one directive. pBundle is a stzEmulator or a dir path.
 	def ShipBundle(pcPart, pBundle)
-		@aBundles + [ StzLower("" + pcPart), pBundle ]
+		@aBundles + [ StzLower("" + pcPart), pBundle, "bundle" ]
+		return This
+
+	# ship only pcPart's SLICE of the bundle -- its app (index.html) + engine subset
+	# (stz_<part>.wasm) + the bridge (stz.js), not the whole mission-control. A
+	# frontend deploys only what it needs to run.
+	def ShipSlice(pcPart, pBundle)
+		@aBundles + [ StzLower("" + pcPart), pBundle, "slice" ]
 		return This
 
 	def Bundles()
@@ -391,7 +398,11 @@ class stzBuilderBrain from stzObject
 		next
 		_nb_ = len(@aBundles)
 		for _i_ = 1 to _nb_
-			_oDep_.AttachBundle(@aBundles[_i_][1], @aBundles[_i_][2])   # the emulator bundle -> a production artifact
+			if @aBundles[_i_][3] = "slice"
+				_oDep_.AttachSlice(@aBundles[_i_][1], @aBundles[_i_][2])   # only the part's slice
+			else
+				_oDep_.AttachBundle(@aBundles[_i_][1], @aBundles[_i_][2])  # the whole bundle
+			ok
 		next
 		if _oDep_.MayCommit()
 			_oDep_.Run()   # execute the ordered plan (store -> launch -> verify), transactional

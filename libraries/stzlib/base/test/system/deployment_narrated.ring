@@ -285,6 +285,48 @@ cEls = oEls.ReadOutputAll()  oEls.ReadErrorAll()  oEls.Wait()  oEls.Close()
 chk("...the emulated tree is what landed (index.html + emulator.css + emulator.js)",
 	StzFindFirst("shopfront/index.html", cEls) > 0 and StzFindFirst("shopfront/emulator.css", cEls) > 0 and StzFindFirst("shopfront/emulator.js", cEls) > 0)
 
+? ""
+? "-- Scene 16: ship each part its OWN slice -- app + engine + bridge, isolated --"
+oSlBrain = new stzBuilderBrain("shop2")
+oSlBrain.WithSuperApp(:phone, :Android)
+oSlBrain.WithApp(:kiosk, :Android)
+oSlBrain.NeedsIn(:phone, [ :Unicode, :ConstraintSolver ])
+oSlBrain.NeedsIn(:kiosk, [ :Unicode, :PivotTable ])
+oSlEmu = new stzEmulator(oSlBrain)
+oSlEmu.WithEngine(FALSE)
+oSlEmu.OutDir(cBase + "/slbundle")
+oSlEmu.Build()
+# stand in for the per-part wasm (WithEngine(FALSE) skips the Zig compile)
+write(cBase + "/slbundle/stz_phone.wasm", char(0) + "asm-phone")
+write(cBase + "/slbundle/stz_kiosk.wasm", char(0) + "asm-kiosk")
+
+cPhBare = cBase + "/ph.git"
+oPg = SpawnProcess("git init --bare -q " + cPhBare)  oPg.ReadOutputAll() oPg.ReadErrorAll() oPg.Wait() oPg.Close()
+cKiBare = cBase + "/ki.git"
+oKg = SpawnProcess("git init --bare -q " + cKiBare)  oKg.ReadOutputAll() oKg.ReadErrorAll() oKg.Wait() oKg.Close()
+oPhSite = new stzDeploymentSite("phone-cdn")
+oPhSite.Kind(:GitRepo).Endpoint(cPhBare).StoreAt(cBase + "/phwork")
+oKiSite = new stzDeploymentSite("kiosk-cdn")
+oKiSite.Kind(:GitRepo).Endpoint(cKiBare).StoreAt(cBase + "/kiwork")
+
+oSlBrain.DeployTo(:phone, oPhSite)
+oSlBrain.DeployTo(:kiosk, oKiSite)
+oSlBrain.AsActor(HumanActor("ops"))
+oSlBrain.ShipSlice(:phone, oSlEmu)
+oSlBrain.ShipSlice(:kiosk, oSlEmu)
+oSlBrain.Deploy(:Production)
+
+oP = SpawnProcess("git --git-dir=" + cPhBare + " ls-tree -r --name-only main")
+cP = oP.ReadOutputAll()  oP.ReadErrorAll()  oP.Wait()  oP.Close()
+chk("the phone site got its OWN app (index.html), engine (stz_phone.wasm) + bridge (stz.js)",
+	StzFindFirst("index.html", cP) > 0 and StzFindFirst("stz_phone.wasm", cP) > 0 and StzFindFirst("stz.js", cP) > 0)
+chk("...and NOT the kiosk's engine or the mission-control shell",
+	StzFindFirst("stz_kiosk.wasm", cP) = 0 and StzFindFirst("emulator.css", cP) = 0)
+oK = SpawnProcess("git --git-dir=" + cKiBare + " ls-tree -r --name-only main")
+cK = oK.ReadOutputAll()  oK.ReadErrorAll()  oK.Wait()  oK.Close()
+chk("the kiosk site got its OWN engine (stz_kiosk.wasm), not the phone's",
+	StzFindFirst("stz_kiosk.wasm", cK) > 0 and StzFindFirst("stz_phone.wasm", cK) = 0)
+
 StzDirDeleteAll(cBase)
 
 ? ""

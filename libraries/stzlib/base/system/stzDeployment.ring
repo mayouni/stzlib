@@ -566,16 +566,35 @@ class stzDeployment from stzObject
 	# (built on demand) or a bundle directory path; the bundle lands under the
 	# solution name.
 	def AttachBundle(pcPart, pBundle)
-		_dir_ = ""
+		return This.Artifact(pcPart, @oBrain.Name(), This._BundleDirOf(pBundle))
+
+	# ship a part's OWN slice from an emulator bundle -- its app (as index.html), its
+	# engine subset (stz_<part>.wasm), and the bridge (stz.js) -- NOT the whole
+	# mission-control. A frontend part deploys only what it needs to run.
+	def AttachSlice(pcPart, pBundle)
+		_dir_ = This._BundleDirOf(pBundle)
+		_app_ = _dir_ + "/app_" + pcPart + ".html"
+		if StzEngineFileExists(_app_) = 1
+			This.Artifact(pcPart, "index.html", _app_)
+		ok
+		_wasm_ = _dir_ + "/stz_" + pcPart + ".wasm"
+		if StzEngineFileExists(_wasm_) = 1
+			This.Artifact(pcPart, "stz_" + pcPart + ".wasm", _wasm_)
+		ok
+		_bridge_ = _dir_ + "/stz.js"
+		if StzEngineFileExists(_bridge_) = 1
+			This.Artifact(pcPart, "stz.js", _bridge_)
+		ok
+		return This
+
+	def _BundleDirOf(pBundle)
 		if isObject(pBundle)
 			if NOT pBundle.IsBuilt()
 				pBundle.Build()
 			ok
-			_dir_ = pBundle.BundleDir()
-		else
-			_dir_ = "" + pBundle
+			return pBundle.BundleDir()
 		ok
-		return This.Artifact(pcPart, @oBrain.Name(), _dir_)
+		return "" + pBundle
 
 	def AsActor(poActor)
 		@oActor = poActor
