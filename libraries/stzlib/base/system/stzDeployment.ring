@@ -325,9 +325,25 @@ class stzDeploymentSite from stzObject
 			if StzFindFirst("state=launched", _c_) > 0
 				return "launched"
 			ok
+			if StzFindFirst("state=rolledback", _c_) > 0
+				return "rolledback"
+			ok
 			return "stored"
 		ok
 		return "absent"
+
+	# undo a deployment on this site (a plan step's compensating action): remove the
+	# stored artifact and mark the site rolled back. Idempotent.
+	def Rollback()
+		if NOT This.IsLocal()
+			return FALSE
+		ok
+		if @cStorage = ""
+			return FALSE
+		ok
+		StzFileDelete(@cStorage + "/deploy.json")
+		write(@cStorage + "/.stzsite", "state=rolledback" + nl + "kind=" + @cKind + nl)
+		return TRUE
 
 	def Show()
 		? This.ConfigText()
@@ -347,6 +363,7 @@ class stzDeployment from stzObject
 	@oBrain = NULL
 	@aBindings = []   # [ partName, siteObject ]
 	@oActor = NULL
+	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
 
 	def init(poBrain)
 		@oBrain = poBrain
@@ -357,6 +374,23 @@ class stzDeployment from stzObject
 
 		def Send(pcPart, poSite)
 			return This.To(pcPart, poSite)
+
+	# order the plan: pcPart deploys AFTER pcDependsOn is verified (a plan-DAG edge).
+	# Simple deployments declare none; complex ones (a frontend after its backend) do.
+	def After(pcPart, pcDependsOn)
+		@aAfter + [ StzLower("" + pcPart), StzLower("" + pcDependsOn) ]
+		return This
+
+	def _AfterOf(pcPart)
+		_c_ = StzLower("" + pcPart)
+		_out_ = []
+		_n_ = len(@aAfter)
+		for _i_ = 1 to _n_
+			if @aAfter[_i_][1] = _c_
+				_out_ + @aAfter[_i_][2]
+			ok
+		next
+		return _out_
 
 	def AsActor(poActor)
 		@oActor = poActor
@@ -441,8 +475,21 @@ class stzDeployment from stzObject
 				_c_ += "     [" + _mk_ + "] " + _f_[1] + ": " + _f_[2] + " -> " + _f_[3] + "  (" + _f_[5] + ")" + nl
 			next
 		ok
-		_c_ += nl + "  Store() places each part's artifacts on its site; Launch() starts them;" + nl
-		_c_ += "  Status() reports back -- governed: only an effectful actor commits." + nl
+		_aSteps_ = This.Steps()
+		_ns_ = len(_aSteps_)
+		if _ns_ > 0
+			_c_ += nl + "  Plan (" + _ns_ + " steps, in order; Run() executes them, governed):" + nl
+			for _i_ = 1 to _ns_
+				_st_ = _aSteps_[_i_]
+				_c_ += "     " + _i_ + ". " + StzPadRight(_st_[2], 10) + _st_[3] + " -> " + _st_[4]
+				if len(_st_[5]) > 0
+					_c_ += "   (after " + This._JoinNames(_st_[5]) + ")"
+				ok
+				_c_ += nl
+			next
+		ok
+		_c_ += nl + "  A verify gate must pass to proceed; a failure rolls back the completed steps." + nl
+		_c_ += "  Governed: only an effectful actor commits." + nl
 		return _c_
 
 	  #-- perform (governed) ---------------------------------
@@ -494,6 +541,156 @@ class stzDeployment from stzObject
 			_recs_ + [ @aBindings[_i_][1], @aBindings[_i_][2].Name(), @aBindings[_i_][2].Status() ]
 		next
 		return _recs_
+
+	  #-- the plan of steps (order, gates, rollback) ---------
+
+	# the deployment PLAN as ordered steps. A simple deployment is the default chain
+	# per part -- provision? -> store -> launch -> verify; After() edges add cross-part
+	# ordering (a frontend after its backend). Returns [ [name, op, part, siteName,
+	# [needs]], ... ], topologically ordered so every dependency precedes its dependants.
+	def Steps()
+		_raw_ = []
+		_n_ = len(@aBindings)
+		for _i_ = 1 to _n_
+			_part_ = @aBindings[_i_][1]
+			_site_ = @aBindings[_i_][2]
+			_sn_ = _site_.Name()
+			# cross-part prerequisites: this part's first step waits on their verify
+			_pre_ = []
+			_deps_ = This._AfterOf(_part_)
+			_ndp_ = len(_deps_)
+			for _k_ = 1 to _ndp_
+				_pre_ + ("verify:" + _deps_[_k_])
+			next
+			_last_ = ""
+			if _site_.IsScriptable()
+				_nmP_ = "provision:" + _part_
+				_raw_ + [ _nmP_, "provision", _part_, _sn_, _pre_ ]
+				_last_ = _nmP_
+			ok
+			_nmS_ = "store:" + _part_
+			_needsS_ = []
+			if _last_ != ""
+				_needsS_ + _last_
+			else
+				_np_ = len(_pre_)
+				for _k_ = 1 to _np_
+					_needsS_ + _pre_[_k_]
+				next
+			ok
+			_raw_ + [ _nmS_, "store", _part_, _sn_, _needsS_ ]
+			_nmL_ = "launch:" + _part_
+			_raw_ + [ _nmL_, "launch", _part_, _sn_, [ _nmS_ ] ]
+			_nmV_ = "verify:" + _part_
+			_raw_ + [ _nmV_, "verify", _part_, _sn_, [ _nmL_ ] ]
+		next
+		return This._TopoOrder(_raw_)
+
+	def _TopoOrder(paRaw)
+		_ordered_ = []
+		_placed_ = []
+		_remaining_ = paRaw
+		_guard_ = 0
+		while len(_remaining_) > 0 and _guard_ < 10000
+			_guard_++
+			_progress_ = FALSE
+			_next_ = []
+			_nr_ = len(_remaining_)
+			for _i_ = 1 to _nr_
+				_st_ = _remaining_[_i_]
+				_needs_ = _st_[5]
+				_ready_ = TRUE
+				_nn_ = len(_needs_)
+				for _k_ = 1 to _nn_
+					if StzFindFirst(_needs_[_k_], _placed_) = 0
+						_ready_ = FALSE
+					ok
+				next
+				if _ready_
+					_ordered_ + _st_
+					_placed_ + _st_[1]
+					_progress_ = TRUE
+				else
+					_next_ + _st_
+				ok
+			next
+			_remaining_ = _next_
+			if NOT _progress_
+				_nl_ = len(_remaining_)
+				for _i_ = 1 to _nl_
+					_ordered_ + _remaining_[_i_]
+				next
+				_remaining_ = []
+			ok
+		end
+		return _ordered_
+
+	# EXECUTE the ordered plan (governed). Each step runs its op; the verify step is a
+	# GATE (the site must be launched). On any failure, the completed store/launch steps
+	# are ROLLED BACK in reverse -- the deployment is transactional. Returns
+	# [ committed(0/1), [ [stepName, outcome], ... ] ]. No effectful actor -> rehearse.
+	def Run()
+		_bMay_ = This.MayCommit()
+		_steps_ = This.Steps()
+		_recs_ = []
+		_undo_ = []
+		_failed_ = FALSE
+		_n_ = len(_steps_)
+		for _i_ = 1 to _n_
+			_st_ = _steps_[_i_]
+			if _failed_
+				_recs_ + [ _st_[1], "skipped" ]
+				loop
+			ok
+			if NOT _bMay_
+				_recs_ + [ _st_[1], "rehearsed" ]
+				loop
+			ok
+			_site_ = This.SiteFor(_st_[3])
+			if This._RunStep(_st_[2], _site_, _st_[3])
+				_recs_ + [ _st_[1], "done" ]
+				if _st_[2] = "store" or _st_[2] = "launch"
+					_undo_ + _site_
+				ok
+			else
+				_recs_ + [ _st_[1], "FAILED" ]
+				_failed_ = TRUE
+			ok
+		next
+		if _failed_ and _bMay_
+			_nu_ = len(_undo_)
+			for _i_ = _nu_ to 1 step -1
+				_undo_[_i_].Rollback()
+			next
+		ok
+		_flag_ = 1
+		if _failed_ or NOT _bMay_
+			_flag_ = 0
+		ok
+		return [ _flag_, _recs_ ]
+
+	def _RunStep(pcOp, poSite, pcPart)
+		if pcOp = "provision"
+			return TRUE   # rehearsed provision (the real provider API is a later slice)
+		but pcOp = "store"
+			return poSite.Store(This._ArtifactsFor(pcPart))
+		but pcOp = "launch"
+			return poSite.Launch()
+		but pcOp = "verify"
+			return poSite.Status() = "launched"
+		ok
+		return TRUE
+
+	def _JoinNames(paList)
+		_s_ = ""
+		_n_ = len(paList)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_s_ += ", "
+			ok
+			_s_ += paList[_i_]
+		next
+		return _s_
 
 	  #-- feasibility (host resources) -----------------------
 
