@@ -127,6 +127,51 @@ oDepC.To(:api, oCloud)
 chk("a scriptable host is feasible -- it provisions to meet the requirement",
 	oDepC.Feasible() and StzFindFirst("provision", oDepC.Feasibility()[1][5]) > 0)
 
+? ""
+? "-- Scene 8: the deployment is a PLAN of ordered steps (store -> launch -> verify) --"
+oS1 = new stzDeploymentSite("s-api")
+oS1.Kind(:LocalRepo).StoreAt(cBase + "/s_api")
+oDepP = new stzDeployment(oBrain)
+oDepP.To(:api, oS1)
+aSteps = oDepP.Steps()
+chk("a simple deployment is a chain: store -> launch -> verify",
+	len(aSteps) = 3 and aSteps[1][2] = "store" and aSteps[2][2] = "launch" and aSteps[3][2] = "verify")
+
+? ""
+? "-- Scene 9: complex plans ORDER by dependency (a frontend after its backend) --"
+oSb = new stzDeploymentSite("s-back")
+oSb.Kind(:LocalRepo).StoreAt(cBase + "/s_back")
+oSf = new stzDeploymentSite("s-front")
+oSf.Kind(:LocalRepo).StoreAt(cBase + "/s_front")
+oDepX = new stzDeployment(oBrain)
+oDepX.To(:api, oSb)
+oDepX.To(:phone, oSf)
+oDepX.After(:phone, :api)
+aX = oDepX.Steps()
+nVer = 0
+nSto = 0
+nAX = len(aX)
+for i = 1 to nAX
+	if aX[i][1] = "verify:api" nVer = i ok
+	if aX[i][1] = "store:phone" nSto = i ok
+next
+chk("the frontend's store waits for the backend's verify", nVer > 0 and nSto > nVer)
+
+? ""
+? "-- Scene 10: a failing step ROLLS BACK the completed ones (transactional) --"
+oGood = new stzDeploymentSite("ok-site")
+oGood.Kind(:LocalRepo).StoreAt(cBase + "/ok")
+oBad = new stzDeploymentSite("bad-site")
+oBad.Kind(:Server)
+oDepR = new stzDeployment(oBrain)
+oDepR.AsActor(HumanActor("ops"))
+oDepR.To(:phone, oGood)
+oDepR.To(:api, oBad)
+oDepR.After(:api, :phone)
+aRun = oDepR.Run()
+chk("the run does NOT commit -- a step (the unreachable remote store) failed", aRun[1] = 0)
+chk("...the phone that already deployed is ROLLED BACK (transactional)", oGood.Status() = "rolledback")
+
 StzDirDeleteAll(cBase)
 
 ? ""

@@ -379,8 +379,7 @@ class stzBuilderBrain from stzObject
 			_oDep_.To(@aBindings[_i_][1], @aBindings[_i_][2])
 		next
 		if _oDep_.MayCommit()
-			_oDep_.Store()
-			_oDep_.Launch()
+			_oDep_.Run()   # execute the ordered plan (store -> launch -> verify), transactional
 		ok
 		return _oDep_
 
