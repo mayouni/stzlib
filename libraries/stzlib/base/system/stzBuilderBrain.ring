@@ -182,6 +182,7 @@ class stzBuilderBrain from stzObject
 	@aBindings = []    # [ partName, siteObject ] -- WHERE each part deploys (production)
 	@oActor = NULL     # the executing actor -- governs whether Deploy(:Production) commits
 	@aReqs = []        # [ partName, resourceSpec ] -- what each part NEEDS from its host
+	@aBundles = []     # [ partName, emulatorOrDir ] -- emulator bundle to ship in production
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -325,6 +326,16 @@ class stzBuilderBrain from stzObject
 	def Requirements()
 		return @aReqs
 
+	# ship an emulator's bundle DIRECTORY as a part's production artifact. The bundle
+	# you built and debugged with Deploy(:Emulated) becomes what Deploy(:Production)
+	# ships -- the same tree, one directive. pBundle is a stzEmulator or a dir path.
+	def ShipBundle(pcPart, pBundle)
+		@aBundles + [ StzLower("" + pcPart), pBundle ]
+		return This
+
+	def Bundles()
+		return @aBundles
+
 	# REHEARSE the placement & scope plan -- no bytes built. This is Build()'s
 	# thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
@@ -377,6 +388,10 @@ class stzBuilderBrain from stzObject
 		_n_ = len(@aBindings)
 		for _i_ = 1 to _n_
 			_oDep_.To(@aBindings[_i_][1], @aBindings[_i_][2])
+		next
+		_nb_ = len(@aBundles)
+		for _i_ = 1 to _nb_
+			_oDep_.AttachBundle(@aBundles[_i_][1], @aBundles[_i_][2])   # the emulator bundle -> a production artifact
 		next
 		if _oDep_.MayCommit()
 			_oDep_.Run()   # execute the ordered plan (store -> launch -> verify), transactional

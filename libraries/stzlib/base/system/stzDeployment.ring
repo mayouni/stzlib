@@ -561,6 +561,22 @@ class stzDeployment from stzObject
 	def ArtifactsAttached()
 		return @aArtifacts
 
+	# wire an emulator's built bundle DIRECTORY straight in as a part's production
+	# artifact -- the SAME tree you emulated becomes what ships. Accepts a stzEmulator
+	# (built on demand) or a bundle directory path; the bundle lands under the
+	# solution name.
+	def AttachBundle(pcPart, pBundle)
+		_dir_ = ""
+		if isObject(pBundle)
+			if NOT pBundle.IsBuilt()
+				pBundle.Build()
+			ok
+			_dir_ = pBundle.BundleDir()
+		else
+			_dir_ = "" + pBundle
+		ok
+		return This.Artifact(pcPart, @oBrain.Name(), _dir_)
+
 	def AsActor(poActor)
 		@oActor = poActor
 		return This

@@ -258,6 +258,33 @@ cBz = ring_trim(oBz.ReadOutputAll())
 oBz.ReadErrorAll()  oBz.Wait()  oBz.Close()
 chk("...and the nested BINARY is byte-intact (blob size == " + nBinSize + ")", cBz = "" + nBinSize)
 
+? ""
+? "-- Scene 15: wire the emulator bundle STRAIGHT into a production attach --"
+oEmuBrain = new stzBuilderBrain("shopfront")
+oEmuBrain.WithSuperApp(:web, :Browser)
+oEmuBrain.NeedsIn(:web, [ :Unicode, :PivotTable, :Collection ])
+oEmu = new stzEmulator(oEmuBrain)
+oEmu.WithEngine(FALSE)   # fast bundle: the map + shell, without the per-part Zig compiles
+oEmu.OutDir(cBase + "/emubundle")
+oEmu.Build()
+chk("the emulator built a bundle directory", oEmu.IsBuilt() and StzEngineFileExists(cBase + "/emubundle/index.html") = 1)
+
+cEmuBare = cBase + "/emu.git"
+oEg = SpawnProcess("git init --bare -q " + cEmuBare)
+oEg.ReadOutputAll()  oEg.ReadErrorAll()  oEg.Wait()  oEg.Close()
+oEmuSite = new stzDeploymentSite("cdn3")
+oEmuSite.Kind(:GitRepo).Endpoint(cEmuBare).StoreAt(cBase + "/emuwork")
+
+oEmuBrain.DeployTo(:web, oEmuSite)
+oEmuBrain.AsActor(HumanActor("ops"))
+oEmuBrain.ShipBundle(:web, oEmu)
+oLiveEmu = oEmuBrain.Deploy(:Production)
+chk("brain.Deploy(:Production) ships the emulator bundle straight in", oEmuSite.Status() = "launched")
+oEls = SpawnProcess("git --git-dir=" + cEmuBare + " ls-tree -r --name-only main")
+cEls = oEls.ReadOutputAll()  oEls.ReadErrorAll()  oEls.Wait()  oEls.Close()
+chk("...the emulated tree is what landed (index.html + emulator.css + emulator.js)",
+	StzFindFirst("shopfront/index.html", cEls) > 0 and StzFindFirst("shopfront/emulator.css", cEls) > 0 and StzFindFirst("shopfront/emulator.js", cEls) > 0)
+
 StzDirDeleteAll(cBase)
 
 ? ""
