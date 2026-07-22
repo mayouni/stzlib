@@ -88,6 +88,37 @@ func StzDirCreatePath(pcPath)
 func StzDirDelete(pcPath)
 	return StzEngineDirDelete(pcPath)
 
+# Recursively delete a directory and EVERYTHING under it -- files, subdirs, and
+# dotfiles (.stzsite, .git-style). StzEngineDirDelete only removes an EMPTY dir
+# (it silently no-ops on a non-empty one), so this empties the tree bottom-up
+# first. The engine's dir listings include dotfiles (verified), so nothing is
+# left behind. Returns TRUE when the path is gone (or never existed), FALSE if
+# the directory still stands afterwards.
+func StzDirDeleteAll(pcPath)
+	_cP_ = "" + pcPath
+	if StzEngineDirExists(_cP_) = 0
+		return TRUE
+	ok
+	_aFiles_ = StzEngineDirListFiles(_cP_)
+	_nf_ = len(_aFiles_)
+	for _i_ = 1 to _nf_
+		StzEngineFileDelete(_cP_ + "/" + _aFiles_[_i_])
+	next
+	_aDirs_ = StzEngineDirListDirs(_cP_)
+	_nd_ = len(_aDirs_)
+	for _i_ = 1 to _nd_
+		_cSub_ = _aDirs_[_i_]
+		if _cSub_ = "." or _cSub_ = ".."
+			loop
+		ok
+		StzDirDeleteAll(_cP_ + "/" + _cSub_)
+	next
+	StzEngineDirDelete(_cP_)
+	return StzEngineDirExists(_cP_) = 0
+
+	func StzDirRemoveAll(pcPath)
+		return StzDirDeleteAll(pcPath)
+
 func StzDirCountFiles(pcPath)
 	return StzEngineDirCountFiles(pcPath)
 

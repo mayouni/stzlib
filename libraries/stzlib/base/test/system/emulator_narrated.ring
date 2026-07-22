@@ -112,7 +112,7 @@ chk("...the phone's subset = solver + aggregation (its pivot+solve caps, NOT num
 chk("...emulator.js loads each part's own subset + gates verbs by it",
 	StzFindFirst("loadEngineFor", cJs) > 0 and StzFindFirst("engine subset", cJs) > 0)
 
-StzEngineDirDelete(cDir)
+StzDirDeleteAll(cDir)
 
 ? ""
 ? "=========================================="

@@ -185,7 +185,7 @@ chk("...the shell loads stz.js and the wasm",
 chk("...the manifest declares a web-bundle", StzFindFirst("web-bundle", read(cDir + "/dist/bundle.json")) > 0)
 
 # cleanup
-StzEngineDirDelete(cDir)
+StzDirDeleteAll(cDir)
 
 ? ""
 ? "=========================================="

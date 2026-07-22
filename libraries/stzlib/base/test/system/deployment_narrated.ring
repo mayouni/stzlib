@@ -19,13 +19,8 @@ nFail = 0
 pr()
 
 cBase = WorkingDirectory() + "/_deploy_scratch"
+StzDirDeleteAll(cBase)   # fresh start (recursive -- no leftovers pollute the absence-checks)
 StzEngineDirCreatePath(cBase)
-# StzEngineDirDelete is non-recursive (it won't clear a non-empty dir), so clear the
-# specific artifacts the absence-checks below rely on -- robust to prior-run leftovers.
-StzFileDelete(cBase + "/site_phone/deploy.json")
-StzFileDelete(cBase + "/site_api/deploy.json")
-StzFileDelete(cBase + "/site_node/deploy.json")
-StzFileDelete(cBase + "/site_prodx/deploy.json")
 
 # DEFINITION -- the same restolean solution the brain plans and the emulator runs
 oBrain = new stzBuilderBrain("restolean")
@@ -111,7 +106,7 @@ oDepB = oBrain.Deploy(:Production)
 chk("...with an effectful actor it COMMITS -- the artifact lands and the site launches",
 	StzEngineFileExists(cBase + "/site_prodx/deploy.json") = 1 and oDepB.Status()[1][3] = "launched")
 
-StzEngineDirDelete(cBase)
+StzDirDeleteAll(cBase)
 
 ? ""
 ? "=========================================="
