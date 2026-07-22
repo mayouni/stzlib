@@ -20,6 +20,12 @@ pr()
 
 cBase = WorkingDirectory() + "/_deploy_scratch"
 StzEngineDirCreatePath(cBase)
+# StzEngineDirDelete is non-recursive (it won't clear a non-empty dir), so clear the
+# specific artifacts the absence-checks below rely on -- robust to prior-run leftovers.
+StzFileDelete(cBase + "/site_phone/deploy.json")
+StzFileDelete(cBase + "/site_api/deploy.json")
+StzFileDelete(cBase + "/site_node/deploy.json")
+StzFileDelete(cBase + "/site_prodx/deploy.json")
 
 # DEFINITION -- the same restolean solution the brain plans and the emulator runs
 oBrain = new stzBuilderBrain("restolean")
@@ -91,6 +97,19 @@ aLaunch = oDep.Launch()
 chk("Launch() commits", aLaunch[1] = 1)
 aStatus = oDep.Status()
 chk("...every site reports 'launched'", aStatus[1][3] = "launched" and aStatus[2][3] = "launched" and aStatus[3][3] = "launched")
+
+? ""
+? "-- Scene 6: brain.Deploy(:Production) DRIVES the deployment -- one verb, two phases --"
+oSiteX = new stzDeploymentSite("prod-x")
+oSiteX.Kind(:LocalRepo).StoreAt(cBase + "/site_prodx")
+oBrain.DeployTo(:api, oSiteX)
+oDepA = oBrain.Deploy(:Production)
+chk("Deploy(:Production) returns a stzDeployment bound to the site", oDepA.NumberOfBindings() = 1)
+chk("...with no actor set it rehearses -- nothing committed (safe by default)", StzEngineFileExists(cBase + "/site_prodx/deploy.json") = 0)
+oBrain.AsActor(HumanActor("release-bot"))
+oDepB = oBrain.Deploy(:Production)
+chk("...with an effectful actor it COMMITS -- the artifact lands and the site launches",
+	StzEngineFileExists(cBase + "/site_prodx/deploy.json") = 1 and oDepB.Status()[1][3] = "launched")
 
 StzEngineDirDelete(cBase)
 
