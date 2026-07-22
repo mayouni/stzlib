@@ -296,6 +296,8 @@ ok
     load "common/stzRetryBudget.ring"
     load "common/stzLatencyHistogram.ring"
     load "common/stzRateLimiter.ring"
+    # structured, queryable, leveled logging (observability infra)
+    load "common/stzLog.ring"
     # stzRequestSigner moved to base/security/ (HMAC request signing is a
     # security primitive); loaded in the security block.
     load "common/stzTraceContext.ring"
