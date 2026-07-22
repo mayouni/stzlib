@@ -19,21 +19,21 @@
 # is the load-bearing proof: its figures come from stzTable.SumCol / MaxColumn
 # over the real orders, so the "app logic" is genuine compute, not a fake number.
 #
-# Attach it with oDelivery.RunsAppQ(oApp); the emulator reads it via oDelivery.App().
+# Attach it with oDelivery.SetAppTopologyQ(oApp); the emulator reads it via oDelivery.AppTopology().
 
   #=============#
  #  FUNCTIONS  #
 #=============#
 
-func StzSolutionAppQ(pcName)
-	return new stzSolutionApp(pcName)
+func StzAppTopologyQ(pcName)
+	return new stzAppTopology(pcName)
 
 
   #=================#
  #  STZSOLUTIONAPP #
 #=================#
 
-class stzSolutionApp from stzObject
+class stzAppTopology from stzObject
 
 	@cName = ""
 	@aDatasets = []    # [ [ name, [ rows ] ], ... ]  -- rows are lists (real domain data)

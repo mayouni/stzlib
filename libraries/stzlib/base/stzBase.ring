@@ -332,11 +332,16 @@ ok
     # twin so the plan can hold an executor.
     load "system/stzSystemActor.ring"
 
-    # Confidential data + access credentials. A stzSecret redacts itself
-    # everywhere and reveals its value only to an effectful, non-sandboxed actor
-    # -- the same governance crossing as the actor above. Wired into deployment
-    # sites (site auth can BE a secret). Loaded after the actor it is gated by.
-    load "system/stzSecret.ring"
+# Loading files related to the SECURITY module (base/security/)
+    # The library's security concern, consolidated: confidential data +
+    # credentials (stzSecret + its kinds), a central project keyring that governs
+    # and audits their use (stzSecretStore), and user authentication (stzAuth).
+    # A secret reveals its value only to an effectful, non-sandboxed actor -- the
+    # same governance crossing as stzSystemActor above, which this module is loaded
+    # right after (it is the authority these classes are gated by).
+    load "security/stzSecret.ring"
+    load "security/stzSecretStore.ring"
+    load "security/stzAuth.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
@@ -367,7 +372,7 @@ ok
     # the solution's APP MODEL -- named datasets + per-part roles; the dashboard
     # role aggregates via the engine. Drives per-part emulator rendering (held by
     # the delivery, read by the emulator).
-    load "system/stzSolutionApp.ring"
+    load "system/stzAppTopology.ring"
     load "system/stzDelivery.ring"
     load "system/stzEmulator.ring"
 
@@ -499,9 +504,6 @@ ok
     load "app/stzApp.ring"
     load "app/stzSuperApp.ring"
 
-    # USER authentication -- the stzApp-domain counterpart to stzSecret. Holds a
-    # credential store (salted password hashes) and issues opaque sessions.
-    load "app/stzAuth.ring"
 
     load "appserver/stzAppServer.ring"
     load "appserver/stzAppRequest.ring"

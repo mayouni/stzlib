@@ -557,7 +557,7 @@ class stzEmulator from stzObject
 				loop
 			ok
 			_cApp_ = "app_" + _p_[1] + ".html"
-			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oDelivery.App(), @oDelivery.Name(), _p_[1]))
+			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oDelivery.AppTopology(), @oDelivery.Name(), _p_[1]))
 			@aFiles + _cApp_
 			_grp_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(_p_[1]))
 			if len(_grp_) = 0
@@ -596,7 +596,7 @@ class stzEmulator from stzObject
 		@aFiles + "stz_parts.js"
 
 		# the app model as data -- the backend/device consoles answer from it.
-		write(_cDir_ + "/stz_appdata.js", _StzEmuAppDataJs(@oDelivery.App(), _oPlan_))
+		write(_cDir_ + "/stz_appdata.js", _StzEmuAppDataJs(@oDelivery.AppTopology(), _oPlan_))
 		@aFiles + "stz_appdata.js"
 
 		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oDelivery.Name(), _oPlan_))
