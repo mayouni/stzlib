@@ -1,9 +1,12 @@
 # Softanza Secrets & Credentials
 ### Confidential data that hides itself, resolves lazily, and reveals only under governance
 
-> Status: built. Components: `stzSecret` (+ `stzApiKey` / `stzPassword` /
-> `stzDeployKey` / `stzToken`), wired into `stzDeploymentSite`; `stzAuth` (stzApp
-> domain). Guard: `secret_narrated` (47/47).
+> Status: built. Now in the **`base/security/`** module. Components: `stzSecret`
+> (+ `stzApiKey` / `stzPassword` / `stzDeployKey` / `stzToken`), wired into
+> `stzDeploymentSite`; the central `stzSecretStore` keyring; `stzAuth` (serves the
+> stzApp domain). Guards: `secret_narrated` (47), `secretstore_narrated` (19).
+> For the whole security picture — the capability lattice, agentic safety, and
+> what consolidates next — see [SOFTANZA_SECURITY.md](SOFTANZA_SECURITY.md).
 > Part of the [Delivery Plane](SOFTANZA_DELIVERY_PLANE.md); stands on the
 > [System Foundation](../narrations/stz-system-dev-to-deploy-narration.md)'s
 > governance crossing (`stzSystemActor`).
@@ -111,7 +114,7 @@ keeps working unchanged.
 
 ## stzAuth — the people side
 
-`stzSecret` guards **machine** credentials. `stzAuth` (in the stzApp domain) answers
+`stzSecret` guards **machine** credentials. `stzAuth` (in `base/security/`, serving the stzApp domain) answers
 the other question: *is this the user they claim to be?*
 
 ```ring

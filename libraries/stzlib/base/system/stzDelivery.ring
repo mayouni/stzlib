@@ -183,7 +183,7 @@ class stzDelivery from stzObject
 	@oActor = NULL     # the executing actor -- governs whether Deploy(:Production) commits
 	@aReqs = []        # [ partName, resourceSpec ] -- what each part NEEDS from its host
 	@aBundles = []     # [ partName, emulatorOrDir ] -- emulator bundle to ship in production
-	@oApp = NULL       # the solution's app MODEL (stzSolutionApp) -- what each part DOES
+	@oApp = NULL       # the solution's app MODEL (stzAppTopology) -- what each part DOES
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -195,14 +195,14 @@ class stzDelivery from stzObject
 	# attach the solution's application model -- named datasets + per-part roles.
 	# The emulator renders each part FROM it (its real menu / computed dashboard),
 	# instead of a shared placeholder.
-	def RunsAppQ(poApp)
+	def SetAppTopologyQ(poApp)
 		@oApp = poApp
 		return This
 
-	def App()
+	def AppTopology()
 		return @oApp
 
-	def HasApp()
+	def HasAppTopology()
 		return isObject(@oApp)
 
 	def UseCatalog(poCat)

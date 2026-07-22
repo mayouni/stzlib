@@ -1,7 +1,7 @@
 # Per-part APP LOGIC -- each part runs its OWN app, driven by the solution's
 # app MODEL, not a shared placeholder.
 #
-# A stzSolutionApp holds the solution's real domain DATA (a menu, an order
+# A stzAppTopology holds the solution's real domain DATA (a menu, an order
 # history) and gives each part a ROLE over it. The emulator then renders each
 # part FROM the model: a "menu" part shows its real menu; a "dashboard" part
 # shows figures the ENGINE computed (revenue by dish -- the part's declared
@@ -36,7 +36,7 @@ aOrders = [
 	[ "Makroudh",       10 ]    # 10 *  5 =  50
 ]                               # total = 700, top = Royal couscous @ 288
 
-oApp = new stzSolutionApp("restolean")
+oApp = new stzAppTopology("restolean")
 oApp.AddDatasetQ(:menu, aMenu)
 oApp.AddDatasetQ(:orders, aOrders)
 oApp.SetPartRoleQ(:phone, :menu, :menu)       # the guest-facing waiter app
@@ -74,8 +74,8 @@ oDelivery.NeedsIn(:phone, [ :Unicode, :Collection ])
 oDelivery.NeedsIn(:admin, [ :PivotTable, :Collection ])
 oDelivery.NeedsIn(:api, [ :PivotTable ])
 oDelivery.NeedsIn(:node, [ :GPIO, :Pattern ])
-oDelivery.RunsAppQ(oApp)
-chk("the delivery now carries an app model", oDelivery.HasApp())
+oDelivery.SetAppTopologyQ(oApp)
+chk("the delivery now carries an app model", oDelivery.HasAppTopology())
 
 oEmu = new stzEmulator(oDelivery)
 oEmu.CompileEngineQ(FALSE)                   # map-only: fast, no wasm toolchain

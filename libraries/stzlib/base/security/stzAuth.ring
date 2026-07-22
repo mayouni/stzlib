@@ -3,7 +3,8 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #
-# stzApp-domain USER authentication -- the counterpart to stzSecret. Where a
+# USER authentication (base/security/, serving the stzApp domain) -- the
+# counterpart to stzSecret. Where a
 # stzSecret guards a MACHINE credential (an API key, a deploy key), stzAuth
 # answers "is this the user they claim to be?" for the PEOPLE using an app.
 #
