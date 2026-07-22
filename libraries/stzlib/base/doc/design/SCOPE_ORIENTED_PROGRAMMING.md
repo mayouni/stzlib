@@ -185,14 +185,14 @@ microcontroller, and the native engine on a server. Ask without naming the targe
 and the question is meaningless; name it and the answer is forced.
 
 Scope-Oriented Programming names the target scope per part of the solution, and a
-reasoning construct — `stzBuilderBrain`, the intelligence behind `stzBuilder` —
+reasoning construct — `stzDelivery`, the intelligence behind `stzBuilder` —
 resolves each capability against it, *before a byte is built*:
 
 ```ring
-oBrain = new stzBuilderBrain("restolean")
-oBrain.WithSuperApp(:phone, :Android).WithFirmware(:node, :ESP32).WithBackend(:api, :LinuxServer)
-oBrain.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
-? oBrain.Plan().Explain()
+oDelivery = new stzDelivery("restolean")
+oDelivery.AddSuperApp(:phone, :Android).AddFirmware(:node, :ESP32).AddBackend(:api, :LinuxServer)
+oDelivery.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
+oDelivery.Plan().Show()     # Explain() returns the rationale as a list of lines; Show() prints it
 ```
 
 Each capability, on its target, is placed and *reasoned about out loud* — the same
@@ -204,7 +204,7 @@ or *rehearses* one the host lacks (up-enable). Deployment reveals the capability
 contract has **more than two answers**, because a target is not merely weaker or
 stronger than one host — it is a *different world with its own strengths*. A
 browser is **industrial-strength at Unicode**; an MCU is strong at GPIO and lacks
-almost everything else; a server hosts the whole engine. So the brain resolves each
+almost everything else; a server hosts the whole engine. So the delivery planner resolves each
 capability to one of **four** vectors by a **differential-value test** — *ship only
 what is critical AND (Softanza-unique OR weak/absent on the target)*:
 
@@ -227,10 +227,10 @@ Down-constrain and up-enable are still here — an MCU down-constrains (a heavy 
 is refused to the server) and up-enables (its GPIO is rehearsed, then lowered to
 firmware). But the differential test adds the **defer** and **offload** verdicts,
 turning M5 from a gate into a **placement across a heterogeneous topology**. The
-lowering bridge was M5 for one operation; the brain is M5 for a whole solution —
+lowering bridge was M5 for one operation; the delivery planner is M5 for a whole solution —
 and it must sometimes decide *not to act*, because the platform already excels.
 
-Built: `stzBuilderBrain` + `stzCapabilityCatalog` (the differential value as
+Built: `stzDelivery` + `stzCapabilityCatalog` (the differential value as
 inspectable data, not a buried heuristic) + `stzBuildPlan` (per-capability vector,
 reason, and the derived on-device subset, with a legible `Narration()`). The plan
 is the rehearsal; `Build()` compiles exactly it and `Deploy()` commits — the VSF
@@ -332,6 +332,6 @@ programmer's head.**
   profile model.
 - `Softanza Virtual System Framework.md` — the twin that makes M5's up-enable
   direction real.
-- `stzBuilderBrain.ring` — the deployment-placement instance: the reasoning behind
+- `stzDelivery.ring` — the deployment-placement instance: the reasoning behind
   `stzBuilder` that resolves each capability to a delivery vector by the
   differential-value test, and rehearses the plan before a byte is built.

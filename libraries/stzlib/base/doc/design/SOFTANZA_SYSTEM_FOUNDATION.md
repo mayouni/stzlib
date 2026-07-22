@@ -684,7 +684,7 @@ The lowering bridge writes the *source*; **`stzBuilder`** compiles it. Softanza'
 engine is built with Zig — and Zig is a complete multi-platform cross-compiler, so
 one construct builds any C/C++/Zig part for any target with no per-target
 toolchain. The crucial identity: **a deployment `stzSystemProfile`'s OS + arch IS
-a Zig target triple**, so `oBuild.ForTarget(oProfile.App(:backend).System())`
+a Zig target triple**, so `oBuild.SetTargetQ(oProfile.App(:backend).System())`
 cross-compiles a part for exactly the system it deploys to — the same object that
 governs *what the code may do* also decides *what it compiles to*. It runs `zig`
 through the Phase-1 managed child, so the compiler's own diagnostics come back in

@@ -45,7 +45,7 @@ write(cBadSrc, cBad)
 
 ? "-- Scene 1: build for the HOST, and run the result --"
 oH = new stzBuilder("hello")
-oH.Source(cHelloSrc).ForHost().Output(cDir + "/hello_host.exe")
+oH.AddSourceQ(cHelloSrc).TargetHostQ().SetOutputQ(cDir + "/hello_host.exe")
 oH.Build()
 chk("the host build succeeded", oH.Succeeded())
 chk("...exit code 0", oH.ExitCode() = 0)
@@ -67,26 +67,26 @@ chk("ToCommand() shows the whole line", StzFindFirst("cc", oH.ToCommand()) > 0)
 ? ""
 ? "-- Scene 3: a target triple is derived from ANY target form --"
 oT = new stzBuilder("t")
-oT.ForTarget("x86_64-linux-gnu")
+oT.SetTargetQ("x86_64-linux-gnu")
 chk("a raw triple passes through", oT.Target() = "x86_64-linux-gnu")
-oT.ForTarget(:LinuxServer)
+oT.SetTargetQ(:LinuxServer)
 chk("a friendly name (:LinuxServer) -> a linux triple", StzFindFirst("linux", oT.Target()) > 0)
-oT.ForTarget(:Windows)
+oT.SetTargetQ(:Windows)
 chk("...:Windows -> a windows triple", StzFindFirst("windows", oT.Target()) > 0)
-oT.ForTarget(:ESP32)
+oT.SetTargetQ(:ESP32)
 chk("...:ESP32 -> a riscv MCU triple", StzFindFirst("riscv", oT.Target()) > 0)
 oMac = DeclareSystem("mac")
 oMac.SetOSName(:macos)
 oMac.SetArchitecture(:arm64)
-oT.ForTarget(oMac)
+oT.SetTargetQ(oMac)
 chk("a stzSystemProfile -> its triple (aarch64-macos)", oT.Target() = "aarch64-macos-none")
-oT.ForHost()
+oT.TargetHostQ()
 chk("ForHost() clears the triple (native)", oT.Target() = "")
 
 ? ""
 ? "-- Scene 4: CROSS-compile for Linux, from Windows -- a REAL ELF --"
 oL = new stzBuilder("min")
-oL.Source(cMinSrc).ForTarget(:LinuxServer).ReleaseFast().Output(cDir + "/min_linux")
+oL.AddSourceQ(cMinSrc).SetTargetQ(:LinuxServer).OptimizeFastQ().SetOutputQ(cDir + "/min_linux")
 oL.Build()
 chk("the cross build succeeded", oL.Succeeded())
 chk("...the command carries -target x86_64-linux-gnu", StzFindFirst("x86_64-linux-gnu", oL.ToCommand()) > 0)
@@ -95,7 +95,7 @@ chk("...and the output is a genuine ELF binary (magic 7F 'ELF')", isELF(cDir + "
 ? ""
 ? "-- Scene 5: CROSS-compile for the web -- a REAL wasm module --"
 oW = new stzBuilder("min")
-oW.Source(cMinSrc).ForTarget("wasm32-wasi").Output(cDir + "/min.wasm")
+oW.AddSourceQ(cMinSrc).SetTargetQ("wasm32-wasi").SetOutputQ(cDir + "/min.wasm")
 oW.Build()
 chk("the wasm build succeeded", oW.Succeeded())
 chk("...and the output is a genuine wasm module (magic 00 'asm')", isWASM(cDir + "/min.wasm"))
@@ -103,7 +103,7 @@ chk("...and the output is a genuine wasm module (magic 00 'asm')", isWASM(cDir +
 ? ""
 ? "-- Scene 6: a broken source fails cleanly, with the compiler's words --"
 oB = new stzBuilder("bad")
-oB.Source(cBadSrc).ForHost().Output(cDir + "/bad.exe")
+oB.AddSourceQ(cBadSrc).TargetHostQ().SetOutputQ(cDir + "/bad.exe")
 oB.Build()
 chk("a bad build reports failure", oB.Failed())
 chk("...with a non-zero exit", oB.ExitCode() != 0)
@@ -117,7 +117,7 @@ oProduct.DevelopedOn(:Windows)
 oProduct.WithServer(:backend, :LinuxServer)
 oBackendSys = oProduct.App(:backend).DeploymentSystem()
 oP = new stzBuilder("backend")
-oP.Source(cMinSrc).ForTarget(oBackendSys).Output(cDir + "/backend_bin")
+oP.AddSourceQ(cMinSrc).SetTargetQ(oBackendSys).SetOutputQ(cDir + "/backend_bin")
 chk("the builder took the part's deployment system as its target", StzFindFirst("linux", oP.Target()) > 0)
 oP.Build()
 chk("...and built the backend for Linux", oP.Succeeded())
@@ -131,7 +131,7 @@ chk("...a real ELF, from this Windows box", isELF(cDir + "/backend_bin"))
 cRingSrc = cDir + "/greet.ring"
 write(cRingSrc, "see " + char(34) + "built from Ring by stzBuilder" + char(34) + " + nl" + nl)
 oRing = new stzBuilder("greet")
-oRing.AsRing().Source(cRingSrc).ReleaseFast().Output(cDir + "/greet_host.exe")
+oRing.InRingQ().AddSourceQ(cRingSrc).OptimizeFastQ().SetOutputQ(cDir + "/greet_host.exe")
 oRing.Build()
 chk("the Ring host build succeeded", oRing.Succeeded())
 chk("...its args carry the generated C plus the Ring VM sources", len(oRing.Args()) > 20)
@@ -144,7 +144,7 @@ chk("...and the standalone binary runs the Ring program", StzFindFirst("built fr
 ? ""
 ? "-- Scene 9: cross-compile that RING part for Linux, from Windows --"
 oRL = new stzBuilder("greet")
-oRL.AsRing().Source(cRingSrc).ForTarget(:LinuxServer).ReleaseFast().Output(cDir + "/greet_linux")
+oRL.InRingQ().AddSourceQ(cRingSrc).SetTargetQ(:LinuxServer).OptimizeFastQ().SetOutputQ(cDir + "/greet_linux")
 oRL.Build()
 chk("the Ring cross build succeeded", oRL.Succeeded())
 chk("...and produced a genuine Linux ELF -- from a Windows box", isELF(cDir + "/greet_linux"))
@@ -161,7 +161,7 @@ write(cWebC,
 	"static const char MSG[] = " + char(34) + "web wasm built by stzBuilder" + char(34) + ";" + nl +
 	"void stz_main(void){ stz_log(MSG, sizeof(MSG) - 1); }" + nl)
 oWeb = new stzBuilder("app")
-oWeb.AsC().Source(cWebC).ForWeb().Export("stz_main").Export("stz_add").Output(cDir + "/app.wasm")
+oWeb.InCQ().AddSourceQ(cWebC).TargetWebQ().AddExportQ("stz_main").AddExportQ("stz_add").SetOutputQ(cDir + "/app.wasm")
 chk("ForWeb targets freestanding wasm", oWeb.Target() = "wasm32-freestanding")
 chk("...the command imports memory and exports the named fns",
 	StzFindFirst("--import-memory", oWeb.ToCommand()) > 0 and StzFindFirst("--export=stz_main", oWeb.ToCommand()) > 0)

@@ -191,8 +191,8 @@ may do:
 
 ```ring
 oBuild = new stzBuilder("backend")
-oBuild.Source("backend.c")
-oBuild.ForTarget( oProduct.App(:backend).DeploymentSystem() )   # a system IS a build target
+oBuild.AddSourceQ("backend.c")
+oBuild.SetTargetQ( oProduct.App(:backend).DeploymentSystem() )   # a system IS a build target
 oBuild.ReleaseFast()
 oBuild.Build()
 
