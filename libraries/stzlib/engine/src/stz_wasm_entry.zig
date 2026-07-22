@@ -27,11 +27,15 @@ fn wants(comptime g: []const u8) bool {
 const want_solver = wants("solver");
 const want_agg = wants("aggregation");
 const want_numtheory = wants("numtheory");
+const want_pattern = wants("pattern");
+const want_graph = wants("graph");
 
 // Import a group's source module ONLY when the group is on, so an off group's
 // code is not in the compilation at all (a true subset, not a gated surface).
 const solver = if (want_solver) @import("solver.zig") else struct {};
 const numtheory = if (want_numtheory) @import("numtheory.zig") else struct {};
+const pattern = if (want_pattern) @import("pattern.zig") else struct {};
+const graph = if (want_graph) @import("graph.zig") else struct {};
 
 // -- marshalling heap (always present): a bump allocator over a static buffer in
 //    linear memory. 16-aligned so marshalled f64 views are aligned; kept small
@@ -106,6 +110,28 @@ fn nt_fib(n: i32) callconv(.c) i64 {
     return numtheory.fibonacci(n);
 }
 
+// -- pattern group (sequence / string pattern detection; self-contained) -------
+fn pat_is_palindrome(ptr: u32, len: usize) callconv(.c) i32 {
+    const s: [*]const u8 = @ptrFromInt(@as(usize, ptr));
+    return pattern.is_palindrome(s, len);
+}
+fn pat_is_arith(ptr: u32, len: usize) callconv(.c) i32 {
+    const v: [*]const f64 = @ptrFromInt(@as(usize, ptr));
+    return pattern.is_arithmetic_seq(v, len);
+}
+fn pat_arith_diff(ptr: u32, len: usize) callconv(.c) f64 {
+    const v: [*]const f64 = @ptrFromInt(@as(usize, ptr));
+    return pattern.arithmetic_diff(v, len);
+}
+fn pat_is_geo(ptr: u32, len: usize) callconv(.c) i32 {
+    const v: [*]const f64 = @ptrFromInt(@as(usize, ptr));
+    return pattern.is_geometric_seq(v, len);
+}
+fn pat_geo_ratio(ptr: u32, len: usize) callconv(.c) f64 {
+    const v: [*]const f64 = @ptrFromInt(@as(usize, ptr));
+    return pattern.geometric_ratio(v, len);
+}
+
 // Export exactly the requested groups. Unlisted wrappers are never referenced,
 // so they are never analyzed and their (possibly absent) module deps never
 // checked -- the binary carries only the plan's subset.
@@ -125,5 +151,26 @@ comptime {
         @export(&nt_is_prime, .{ .name = "stz_is_prime" });
         @export(&nt_nth_prime, .{ .name = "stz_nth_prime" });
         @export(&nt_fib, .{ .name = "stz_fib" });
+    }
+    if (want_pattern) {
+        @export(&pat_is_palindrome, .{ .name = "stz_is_palindrome" });
+        @export(&pat_is_arith, .{ .name = "stz_is_arithmetic" });
+        @export(&pat_arith_diff, .{ .name = "stz_arith_diff" });
+        @export(&pat_is_geo, .{ .name = "stz_is_geometric" });
+        @export(&pat_geo_ratio, .{ .name = "stz_geo_ratio" });
+    }
+    if (want_graph) {
+        // graph.zig's functions are already callconv(.c) with a pointer/handle
+        // ABI (?*StzGraph = an i32 handle in wasm, [*]const u8 = an offset), so
+        // JS can drive them directly -- export the real ones under their names.
+        @export(&graph.stz_graph_create, .{ .name = "stz_graph_create" });
+        @export(&graph.stz_graph_free, .{ .name = "stz_graph_free" });
+        @export(&graph.stz_graph_add_node, .{ .name = "stz_graph_add_node" });
+        @export(&graph.stz_graph_add_edge, .{ .name = "stz_graph_add_edge" });
+        @export(&graph.stz_graph_node_count, .{ .name = "stz_graph_node_count" });
+        @export(&graph.stz_graph_edge_count, .{ .name = "stz_graph_edge_count" });
+        @export(&graph.stz_graph_path_exists, .{ .name = "stz_graph_path_exists" });
+        @export(&graph.stz_graph_has_cycle, .{ .name = "stz_graph_has_cycle" });
+        @export(&graph.stz_graph_connected_components, .{ .name = "stz_graph_connected_components" });
     }
 }

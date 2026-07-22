@@ -37,8 +37,12 @@ chk("...exports the solver (stz_solve_linear / stz_quad_root1)",
 	StzFindFirst("stz_solve_linear", cSrc) > 0 and StzFindFirst("stz_quad_root1", cSrc) > 0)
 chk("...exports aggregation over a marshalled array (stz_mean / stz_sum)",
 	StzFindFirst("stz_mean", cSrc) > 0 and StzFindFirst("stz_sum", cSrc) > 0)
-chk("...it re-exports the REAL engine logic (imports numtheory.zig / solver.zig)",
-	StzFindFirst("numtheory.zig", cSrc) > 0 and StzFindFirst("solver.zig", cSrc) > 0)
+chk("...exports pattern detection (stz_is_palindrome / stz_is_arithmetic)",
+	StzFindFirst("stz_is_palindrome", cSrc) > 0 and StzFindFirst("stz_is_arithmetic", cSrc) > 0)
+chk("...exports the graph handle ABI (stz_graph_create / stz_graph_path_exists)",
+	StzFindFirst("stz_graph_create", cSrc) > 0 and StzFindFirst("stz_graph_path_exists", cSrc) > 0)
+chk("...it re-exports the REAL engine logic (imports numtheory/solver/pattern/graph .zig)",
+	StzFindFirst("numtheory.zig", cSrc) > 0 and StzFindFirst("solver.zig", cSrc) > 0 and StzFindFirst("pattern.zig", cSrc) > 0 and StzFindFirst("graph.zig", cSrc) > 0)
 
 ? ""
 ? "-- Scene 2: build.zig has the `wasm` target (freestanding, JS owns memory) --"
@@ -62,6 +66,10 @@ aSolver = StzWasmGroupsFor([ :constraintsolver ])
 chk("ConstraintSolver -> the solver group", len(aSolver) = 1 and aSolver[1] = "solver")
 aPivot = StzWasmGroupsFor([ :pivottable ])
 chk("PivotTable -> the aggregation group", len(aPivot) = 1 and aPivot[1] = "aggregation")
+aPat = StzWasmGroupsFor([ :pattern ])
+chk("Pattern -> the pattern group", len(aPat) = 1 and aPat[1] = "pattern")
+aGraph = StzWasmGroupsFor([ :graph ])
+chk("Graph -> the graph group", len(aGraph) = 1 and aGraph[1] = "graph")
 chk("a part using both -> both groups, deduped", len(StzWasmGroupsFor([ :pivottable, :constraintsolver, :pivottable ])) = 2)
 chk("capabilities with no wasm logic ship nothing", len(StzWasmGroupsFor([ :collection, :unicode, :neural ])) = 0)
 
