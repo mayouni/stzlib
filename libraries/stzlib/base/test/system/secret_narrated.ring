@@ -135,6 +135,20 @@ chk("...and succeeds when it is presented", oAuth.ChangePassword("mansour", "s3c
 chk("...the new password now authenticates", oAuth.Authenticate("mansour", "newpw"))
 chk("...the old one no longer does", NOT oAuth.Authenticate("mansour", "s3cr3t!"))
 
+? ""
+? "-- Scene 7: a session IS a stzToken -- a bearer credential that EXPIRES --"
+oAuth.SetSessionTTLQ(3600)
+cSess = oAuth.Login("mansour", "newpw")
+chk("the session is a stzToken (kind 'token')", oAuth.SessionToken(cSess).Kind() = "token")
+nExp = oAuth.SessionExpiresAt(cSess)
+chk("...it carries a future expiry (TTL 3600s)", nExp > 0)
+chk("...valid just before it expires", oAuth.IsValidSessionAt(cSess, nExp - 1))
+chk("...INVALID once expired -- the session dies on the clock", NOT oAuth.IsValidSessionAt(cSess, nExp + 1))
+chk("...PurgeExpiredAt drops the expired session", oAuth.PurgeExpiredAt(nExp + 1) = 1)
+oAuth.SetSessionTTLQ(0)
+cPerm = oAuth.Login("mansour", "newpw")
+chk("a 0-TTL session never expires (opt out)", oAuth.SessionExpiresAt(cPerm) = 0 and oAuth.IsValidSessionAt(cPerm, 9999999999))
+
 StzDirDeleteAll(cScratch)
 
 ? ""

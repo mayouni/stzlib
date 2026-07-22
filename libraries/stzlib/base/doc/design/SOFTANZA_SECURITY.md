@@ -115,7 +115,13 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
    CI entry points `StzCheckSecurityPosture` / `StzSecurityPostureIsSound` /
    `StzSecurityInvariantNames` mirror `StzCheckAgentGraph`. Guard
    `security_posture_narrated` (19).
-4. **`stzAuth` ↔ `stzSecret`** — session tokens as `stzToken`s; password reset flows through the store.
+4. **`stzAuth` sessions as `stzToken`s** — **done.** `Login` now issues a session
+   that IS a `stzToken` (a bearer credential carrying its expiry). Sessions
+   **expire** on the wall clock (`SetSessionTTLQ(seconds)`, default 3600; `0` = no
+   expiry); `UserOfSession`/`IsValidSession` check expiry, with deterministic
+   `…At(token, nowSecs)` variants, plus `SessionToken`/`SessionExpiresAt`/
+   `PurgeExpired`. Guard `secret_narrated` (+6, now 53). *Remaining:* password
+   reset flowing through the store.
 5. **Vault backend** — wire `FromVaultQ` to a real secret manager.
 
 ---

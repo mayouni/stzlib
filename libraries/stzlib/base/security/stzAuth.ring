@@ -35,11 +35,21 @@ func StzAuthQ()
 class stzAuth from stzObject
 
 	@aUsers    = []    # [ [ user, passwordHash ], ... ]
-	@aSessions = []    # [ [ token, user ], ... ]
+	@aSessions = []    # [ [ token, user, stzToken ], ... ] -- the token carries the expiry
+	@nSessionTTL = 3600  # seconds a session lives (0 = never expires)
 
 	def init()
 		@aUsers    = []
 		@aSessions = []
+
+	# how long a new session lives, in seconds (0 = no expiry). Existing sessions
+	# keep the TTL they were issued with.
+	def SetSessionTTLQ(pnSeconds)
+		@nSessionTTL = pnSeconds
+		return This
+
+	def SessionTTL()
+		return @nSessionTTL
 
 	  #-- the credential store --------------------------------------------
 
@@ -94,15 +104,29 @@ class stzAuth from stzObject
 			return ""
 		ok
 		_tok_ = StzEngineCryptoRandomHex(32)
-		@aSessions + [ _tok_, ring_trim("" + pcUser) ]
+		# the session IS a stzToken -- a bearer credential that carries its expiry.
+		_oTok_ = new stzToken("session")
+		_oTok_.FromLiteralQ(_tok_)
+		if @nSessionTTL > 0
+			_oTok_.SetExpiryQ(This._NowSecs() + @nSessionTTL)
+		ok
+		@aSessions + [ _tok_, ring_trim("" + pcUser), _oTok_ ]
 		return _tok_
 
-	# the user behind a live session token, or "" if unknown / ended.
+	# the user behind a live session token, or "" if unknown / ended / EXPIRED
+	# (checked against the wall clock).
 	def UserOfSession(pcToken)
+		return This.UserOfSessionAt(pcToken, This._NowSecs())
+
+	# same, against an explicit 'now' (epoch seconds) -- deterministic for tests.
+	def UserOfSessionAt(pcToken, pnNowSecs)
 		_t_ = "" + pcToken
 		_n_ = len(@aSessions)
 		for _i_ = 1 to _n_
 			if @aSessions[_i_][1] = _t_
+				if @aSessions[_i_][3].IsExpiredAt(pnNowSecs)
+					return ""
+				ok
 				return @aSessions[_i_][2]
 			ok
 		next
@@ -110,6 +134,46 @@ class stzAuth from stzObject
 
 	def IsValidSession(pcToken)
 		return This.UserOfSession(pcToken) != ""
+
+	def IsValidSessionAt(pcToken, pnNowSecs)
+		return This.UserOfSessionAt(pcToken, pnNowSecs) != ""
+
+	# the session as a stzToken (its expiry, its kind), or NULL if unknown.
+	def SessionToken(pcToken)
+		_t_ = "" + pcToken
+		_n_ = len(@aSessions)
+		for _i_ = 1 to _n_
+			if @aSessions[_i_][1] = _t_
+				return @aSessions[_i_][3]
+			ok
+		next
+		return NULL
+
+	# the epoch-seconds a session expires at (0 = never), or -1 if unknown.
+	def SessionExpiresAt(pcToken)
+		_o_ = This.SessionToken(pcToken)
+		if NOT isObject(_o_)
+			return -1
+		ok
+		return _o_.ExpiresAt()
+
+	# drop expired sessions (housekeeping) -> the number pruned.
+	def PurgeExpiredAt(pnNowSecs)
+		_aNew_ = []
+		_nP_ = 0
+		_n_ = len(@aSessions)
+		for _i_ = 1 to _n_
+			if @aSessions[_i_][3].IsExpiredAt(pnNowSecs)
+				_nP_++
+			else
+				_aNew_ + @aSessions[_i_]
+			ok
+		next
+		@aSessions = _aNew_
+		return _nP_
+
+	def PurgeExpired()
+		return This.PurgeExpiredAt(This._NowSecs())
 
 	def NumberOfSessions()
 		return len(@aSessions)
@@ -130,6 +194,10 @@ class stzAuth from stzObject
 		? "Auth store: " + len(@aUsers) + " user(s), " + len(@aSessions) + " live session(s)"
 
 	  #-- internals -------------------------------------------------------
+
+	# wall-clock now, in epoch SECONDS (StzEngineTimeNowMs is epoch ms).
+	def _NowSecs()
+		return floor(StzEngineTimeNowMs() / 1000)
 
 	def _IndexOfUser(pcUser)
 		_n_ = len(@aUsers)
