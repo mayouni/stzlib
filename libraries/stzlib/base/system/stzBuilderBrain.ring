@@ -181,6 +181,7 @@ class stzBuilderBrain from stzObject
 	@oCat = NULL
 	@aBindings = []    # [ partName, siteObject ] -- WHERE each part deploys (production)
 	@oActor = NULL     # the executing actor -- governs whether Deploy(:Production) commits
+	@aReqs = []        # [ partName, resourceSpec ] -- what each part NEEDS from its host
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -303,6 +304,26 @@ class stzBuilderBrain from stzObject
 
 	def DeploymentActor()
 		return @oActor
+
+	# what a part NEEDS from its host: memory / compute / storage (a stzResourceSpec).
+	# Parallels NeedsIn (capabilities); here it is the physical footprint the target
+	# must provide -- the CI/IaC "resources.requests" idea.
+	def RequiresIn(pcPart, poSpec)
+		@aReqs + [ StzLower("" + pcPart), poSpec ]
+		return This
+
+	def RequirementFor(pcPart)
+		_c_ = StzLower("" + pcPart)
+		nLen = len(@aReqs)
+		for i = 1 to nLen
+			if @aReqs[i][1] = _c_
+				return @aReqs[i][2]
+			ok
+		next
+		return NULL
+
+	def Requirements()
+		return @aReqs
 
 	# REHEARSE the placement & scope plan -- no bytes built. This is Build()'s
 	# thinking made visible (VSF rehearse->plan->commit).

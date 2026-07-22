@@ -106,6 +106,27 @@ oDepB = oBrain.Deploy(:Production)
 chk("...with an effectful actor it COMMITS -- the artifact lands and the site launches",
 	StzEngineFileExists(cBase + "/site_prodx/deploy.json") = 1 and oDepB.Status()[1][3] = "launched")
 
+? ""
+? "-- Scene 7: host FEASIBILITY -- required resources vs the host's capacity --"
+oBrain.RequiresIn(:api, StzResourcesQ().Memory(2048).Compute(2).Storage(20))
+oFit = new stzDeploymentSite("prod-1")
+oFit.Kind(:Server).Capacity(StzResourcesQ().Memory(4096).Compute(4).Storage(100))
+oDepF = new stzDeployment(oBrain)
+oDepF.To(:api, oFit)
+chk("a host with enough memory/compute/storage is feasible", oDepF.Feasible())
+chk("...the check reports it fits", oDepF.Feasibility()[1][4] = 1)
+oSmall = new stzDeploymentSite("tiny")
+oSmall.Kind(:Server).Capacity(StzResourcesQ().Memory(512).Compute(1).Storage(5))
+oDepS = new stzDeployment(oBrain)
+oDepS.To(:api, oSmall)
+chk("an undersized host is NOT feasible (a pre-flight gate, before any commit)", NOT oDepS.Feasible())
+oCloud = new stzDeploymentSite("gpu-pool")
+oCloud.Kind(:Server).Provider(:aws)
+oDepC = new stzDeployment(oBrain)
+oDepC.To(:api, oCloud)
+chk("a scriptable host is feasible -- it provisions to meet the requirement",
+	oDepC.Feasible() and StzFindFirst("provision", oDepC.Feasibility()[1][5]) > 0)
+
 StzDirDeleteAll(cBase)
 
 ? ""
