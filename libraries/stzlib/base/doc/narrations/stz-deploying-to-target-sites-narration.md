@@ -45,6 +45,9 @@ Everything needed to reach and drive that server is in one inspectable place. No
 to the credential, never the secret itself, so you can commit and share it freely;
 the real key is resolved only at the moment of transfer. `oProdApi.SaveConfigTo(...)`
 writes it out as a file — the link, persisted and versionable like any source.
+(That reference can also *be* a typed `stzSecret` that reveals its value only to an
+effectful actor — its own story:
+[guarding secrets and credentials](stz-guarding-secrets-and-credentials-narration.md).)
 
 ## Bind each part of the solution to its site
 
