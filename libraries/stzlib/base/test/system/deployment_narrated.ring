@@ -172,6 +172,35 @@ aRun = oDepR.Run()
 chk("the run does NOT commit -- a step (the unreachable remote store) failed", aRun[1] = 0)
 chk("...the phone that already deployed is ROLLED BACK (transactional)", oGood.Status() = "rolledback")
 
+? ""
+? "-- Scene 11: LIVE backend -- :GitRepo runs REAL git through the managed child --"
+cGitBare = cBase + "/bare.git"
+cGitWork = cBase + "/gitwork"
+oGb = SpawnProcess("git init --bare -q " + cGitBare)
+oGb.ReadOutputAll()  oGb.ReadErrorAll()  oGb.Wait()  oGb.Close()
+oGit = new stzDeploymentSite("git-remote")
+oGit.Kind(:GitRepo).Endpoint(cGitBare).StoreAt(cGitWork)
+chk("the git remote is reachable (real git ls-remote)", oGit.Reachable())
+chk("Store() pushes for REAL (git commit + push, via SpawnProcess)", oGit.Store([ [ "deploy.json", "part=api" ] ]))
+chk("...Status() reads the deployed ref back -> launched", oGit.Status() = "launched")
+oShow = SpawnProcess("git --git-dir=" + cGitBare + " show main:deploy.json")
+cGitShow = oShow.ReadOutputAll()  oShow.ReadErrorAll()  oShow.Wait()  oShow.Close()
+chk("...the artifact TRULY landed in the git repo", StzFindFirst("part=api", cGitShow) > 0)
+
+? ""
+? "-- Scene 12: the other backends generate correct commands (run where tool + target exist) --"
+oSrv = new stzDeploymentSite("prod-srv")
+oSrv.Kind(:Server).Endpoint("deploy@host:/srv/app").LaunchWith("systemctl restart app")
+chk("a :Server stores over scp and launches over ssh",
+	StzFindFirst("scp -r", oSrv.TransferCommand()) > 0 and StzFindFirst("ssh deploy@host", oSrv.LaunchCommandLine()) > 0 and StzFindFirst("systemctl restart app", oSrv.LaunchCommandLine()) > 0)
+oVm = new stzDeploymentSite("vm")
+oVm.Provider(:proxmox)
+chk("a scriptable host provisions from the resource spec (proxmox qm)",
+	StzFindFirst("qm create --name vm --memory 2048 --cores 2", oVm.ProvisionCommandFor(StzResourcesQ().Memory(2048).Compute(2).Storage(20))) > 0)
+oAws = new stzDeploymentSite("vm-aws")
+oAws.Provider(:aws)
+chk("...and maps memory to an AWS instance type", StzFindFirst("t3.small", oAws.ProvisionCommandFor(StzResourcesQ().Memory(2048).Compute(2).Storage(20))) > 0)
+
 StzDirDeleteAll(cBase)
 
 ? ""
