@@ -164,6 +164,7 @@ class stzDeploymentSite from stzObject
 	@cStatusCmd = ""
 	@oCapacity = NULL   # the host's resources (stzResourceSpec) -- declared or discovered
 	@cProvider = ""     # a provisioning provider (aws/gcp/proxmox/...) -> scriptable host
+	@oAuthSecret = NULL # a stzSecret guarding the credential (else @cAuthRef is a plain ref)
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -182,8 +183,19 @@ class stzDeploymentSite from stzObject
 		@cProtocol = StzLower(ring_trim("" + pcProtocol))
 		return This
 
-	def SetAuthRefQ(pcRef)
-		@cAuthRef = "" + pcRef
+	# auth is EITHER a plain reference string (e.g. "env/DEPLOY_KEY", back-compat)
+	# OR a stzSecret. When it is a secret, the site stores the OBJECT and displays
+	# only its redacted descriptor -- the key never lands in Config/ConfigJson.
+	def SetAuthRefQ(pRef)
+		if isObject(pRef)
+			@oAuthSecret = pRef
+			@cAuthRef = pRef.Descriptor()
+		but isString(pRef)
+			@oAuthSecret = NULL
+			@cAuthRef = "" + pRef
+		else
+			StzRaise("SetAuthRefQ expects a reference string or a stzSecret.")
+		ok
 		return This
 
 	def SetStoreAtQ(pcLocation)
@@ -228,6 +240,22 @@ class stzDeploymentSite from stzObject
 		return _StzSiteDefaultProtocol(@cKind)
 
 	def AuthReference()
+		return @cAuthRef
+
+	def AuthSecret()
+		return @oAuthSecret
+
+	def HasAuthSecret()
+		return isObject(@oAuthSecret)
+
+	# the LIVE auth value for a backend to use at store/launch -- GOVERNED. If
+	# auth is a stzSecret, only an effectful actor gets the plaintext (an LLM
+	# rehearsing the plan is refused). If it is a plain ref string (back-compat),
+	# it is returned as-is.
+	def ResolveAuth(poActor)
+		if isObject(@oAuthSecret)
+			return @oAuthSecret.Reveal(poActor)
+		ok
 		return @cAuthRef
 
 	def StorageLocation()
