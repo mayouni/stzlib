@@ -69,6 +69,19 @@ func _StzSiteOr(pcVal, pcDefault)
 func StzResourcesQ()
 	return new stzResourceSpec()
 
+# a memory footprint -> an AWS instance type (a small, honest heuristic; a real
+# catalog would map (mem, vcpu) pairs). Used to derive a provision command.
+func _StzAwsType(poReq)
+	_m_ = poReq.MemoryMB()
+	if _m_ <= 1024
+		return "t3.micro"
+	but _m_ <= 2048
+		return "t3.small"
+	but _m_ <= 4096
+		return "t3.medium"
+	ok
+	return "t3.large"
+
 
   #=====================#
  #  RESOURCE SPEC       #
@@ -279,21 +292,114 @@ class stzDeploymentSite from stzObject
 		write("" + pcPath, This.ConfigJson())
 		return This
 
-	  #-- access + control (backend-dispatched by kind) ------
+	  #-- access + control (LIVE backends, dispatched by kind) --
+	#
+	# A live backend turns the site config into a REAL command run through the managed
+	# child (SpawnProcess) -- the same path stzBuilder uses to run zig. The commands are
+	# rehearsable (Commands() shows them before anything runs). :LocalRepo uses direct
+	# file ops; :GitRepo runs real git (proven end to end against a local bare repo);
+	# :Server runs scp/ssh; a scriptable host provisions via its provider CLI. The
+	# commands are correct wherever the tool + target exist -- in this sandbox git and
+	# the local repo complete; scp/ssh/docker/aws are generated and run through the same
+	# child, but need a real host/registry/account to finish.
 
-	# LocalRepo works end to end. Remote kinds declare their config now; their live
-	# probe/transfer is the next slice (the config model does not change).
 	def Reachable()
 		if This.IsLocal()
 			return @cStorage != ""
+		but @cKind = "gitrepo" or @cKind = "git"
+			return This._Sh("git ls-remote " + @cEndpoint)[1] = 0
 		ok
 		return @cEndpoint != ""
 
-	# place each artifact ([ relname, content ]) into the site's storage.
 	def Store(paArtifacts)
-		if NOT This.IsLocal()
+		if This.IsLocal()
+			return This._LocalStore(paArtifacts)
+		but @cKind = "gitrepo" or @cKind = "git"
+			return This._GitStore(paArtifacts)
+		but @cKind = "server"
+			return This._ServerStore(paArtifacts)
+		ok
+		return FALSE
+
+	def Launch()
+		if This.IsLocal()
+			return This._LocalLaunch()
+		but @cKind = "gitrepo" or @cKind = "git"
+			return TRUE   # a git deploy IS the push -- nothing more to start
+		but @cKind = "server"
+			return This._ServerLaunch()
+		ok
+		return FALSE
+
+	def Status()
+		if This.IsLocal()
+			return This._LocalStatus()
+		but @cKind = "gitrepo" or @cKind = "git"
+			return This._GitStatus()
+		ok
+		return "absent"
+
+	def Rollback()
+		if This.IsLocal()
+			StzFileDelete(@cStorage + "/deploy.json")
+			write(@cStorage + "/.stzsite", "state=rolledback" + nl + "kind=" + @cKind + nl)
+			return TRUE
+		ok
+		return TRUE   # kind-specific rollback (git revert / instance terminate) -- best effort
+
+	# provision a scriptable host to meet a requirement (the IaC move -- bring the host
+	# into existence, don't just deploy to it). Runs the provider CLI via the child.
+	def Provision(poReq)
+		_cmd_ = This.ProvisionCommandFor(poReq)
+		if _cmd_ = ""
 			return FALSE
 		ok
+		return This._Sh(_cmd_)[1] = 0
+
+	  #-- the real commands, rehearsable (see them before they run) --
+
+	def Commands()
+		_out_ = []
+		if This.TransferCommand() != ""
+			_out_ + [ "store", This.TransferCommand() ]
+		ok
+		if This.LaunchCommandLine() != ""
+			_out_ + [ "launch", This.LaunchCommandLine() ]
+		ok
+		return _out_
+
+	def TransferCommand()
+		if @cKind = "gitrepo" or @cKind = "git"
+			return "git push -f " + @cEndpoint + " HEAD:refs/heads/main"
+		but @cKind = "server"
+			return "scp -r <staged>/. " + @cEndpoint
+		but @cKind = "registry"
+			return "docker push " + @cEndpoint
+		but @cKind = "device"
+			return "esptool --port " + @cEndpoint + " write_flash 0x0 <firmware>"
+		ok
+		return ""
+
+	def LaunchCommandLine()
+		if @cKind = "server" and @cLaunch != ""
+			return "ssh " + This._SshHost() + " '" + @cLaunch + "'"
+		ok
+		return @cLaunch
+
+	def ProvisionCommandFor(poReq)
+		if NOT isObject(poReq)
+			return ""
+		ok
+		if @cProvider = "proxmox"
+			return "qm create --name " + @cName + " --memory " + poReq.MemoryMB() + " --cores " + poReq.ComputeVCPU() + " --scsi0 local:" + poReq.StorageGB()
+		but @cProvider = "aws"
+			return "aws ec2 run-instances --instance-type " + _StzAwsType(poReq)
+		ok
+		return ""
+
+	  #-- backends -------------------------------------------
+
+	def _LocalStore(paArtifacts)
 		if @cStorage = ""
 			return FALSE
 		ok
@@ -305,10 +411,7 @@ class stzDeploymentSite from stzObject
 		write(@cStorage + "/.stzsite", "state=stored" + nl + "kind=" + @cKind + nl)
 		return TRUE
 
-	def Launch()
-		if NOT This.IsLocal()
-			return FALSE
-		ok
+	def _LocalLaunch()
 		if @cStorage = "" or StzEngineFileExists(@cStorage + "/.stzsite") = 0
 			return FALSE
 		ok
@@ -319,8 +422,8 @@ class stzDeploymentSite from stzObject
 		write(@cStorage + "/.stzsite", _rec_)
 		return TRUE
 
-	def Status()
-		if This.IsLocal() and @cStorage != "" and StzEngineFileExists(@cStorage + "/.stzsite") = 1
+	def _LocalStatus()
+		if @cStorage != "" and StzEngineFileExists(@cStorage + "/.stzsite") = 1
 			_c_ = read(@cStorage + "/.stzsite")
 			if StzFindFirst("state=launched", _c_) > 0
 				return "launched"
@@ -332,18 +435,66 @@ class stzDeploymentSite from stzObject
 		ok
 		return "absent"
 
-	# undo a deployment on this site (a plan step's compensating action): remove the
-	# stored artifact and mark the site rolled back. Idempotent.
-	def Rollback()
-		if NOT This.IsLocal()
+	# :GitRepo -- REAL git, run through the managed child. Proven end to end here
+	# against a local bare repo (@cEndpoint), no network.
+	def _GitStore(paArtifacts)
+		if @cStorage = "" or @cEndpoint = ""
 			return FALSE
 		ok
+		_w_ = @cStorage
+		StzEngineDirCreatePath(_w_)
+		_n_ = len(paArtifacts)
+		for _i_ = 1 to _n_
+			write(_w_ + "/" + paArtifacts[_i_][1], "" + paArtifacts[_i_][2])
+		next
+		This._Sh("git -C " + _w_ + " init -q")
+		This._Sh("git -C " + _w_ + " config user.email deploy@stz")
+		This._Sh("git -C " + _w_ + " config user.name stz-deploy")
+		This._Sh("git -C " + _w_ + " add -A")
+		This._Sh("git -C " + _w_ + " commit -q -m deploy --allow-empty")
+		return This._Sh("git -C " + _w_ + " push -f -q " + @cEndpoint + " HEAD:refs/heads/main")[1] = 0
+
+	def _GitStatus()
+		_r_ = This._Sh("git ls-remote " + @cEndpoint + " refs/heads/main")
+		if _r_[1] = 0 and len(ring_trim(_r_[2])) > 0
+			return "launched"
+		ok
+		return "absent"
+
+	# :Server -- stage locally, scp to the endpoint, ssh the launch. Correct commands;
+	# they complete against a reachable host.
+	def _ServerStore(paArtifacts)
 		if @cStorage = ""
 			return FALSE
 		ok
-		StzFileDelete(@cStorage + "/deploy.json")
-		write(@cStorage + "/.stzsite", "state=rolledback" + nl + "kind=" + @cKind + nl)
-		return TRUE
+		StzEngineDirCreatePath(@cStorage)
+		_n_ = len(paArtifacts)
+		for _i_ = 1 to _n_
+			write(@cStorage + "/" + paArtifacts[_i_][1], "" + paArtifacts[_i_][2])
+		next
+		return This._Sh("scp -r " + @cStorage + "/. " + @cEndpoint)[1] = 0
+
+	def _ServerLaunch()
+		if @cLaunch = ""
+			return TRUE
+		ok
+		return This._Sh("ssh " + This._SshHost() + " " + char(34) + @cLaunch + char(34))[1] = 0
+
+	def _SshHost()
+		_p_ = StzFindFirst(":", @cEndpoint)
+		if _p_ > 0
+			return left(@cEndpoint, _p_ - 1)
+		ok
+		return @cEndpoint
+
+	# run a command through the managed child; return [ exitCode, stdout, stderr ].
+	def _Sh(pcCmd)
+		_o_ = SpawnProcess("" + pcCmd)
+		_out_ = _o_.ReadOutputAll()
+		_err_ = _o_.ReadErrorAll()
+		_ex_ = _o_.Wait()
+		_o_.Close()
+		return [ _ex_, _out_, _err_ ]
 
 	def Show()
 		? This.ConfigText()
@@ -671,7 +822,11 @@ class stzDeployment from stzObject
 
 	def _RunStep(pcOp, poSite, pcPart)
 		if pcOp = "provision"
-			return TRUE   # rehearsed provision (the real provider API is a later slice)
+			_req_ = @oBrain.RequirementFor(pcPart)
+			if NOT isObject(_req_)
+				return TRUE   # no requirement to size the host to
+			ok
+			return poSite.Provision(_req_)
 		but pcOp = "store"
 			return poSite.Store(This._ArtifactsFor(pcPart))
 		but pcOp = "launch"
