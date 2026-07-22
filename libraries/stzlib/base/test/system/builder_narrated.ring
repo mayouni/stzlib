@@ -172,8 +172,8 @@ chk("...and the output is a genuine wasm module", isWASM(cDir + "/app.wasm"))
 ? ""
 ? "-- Scene 11: assemble the web COMPOSITE -- wasm + stz.js + shell + manifest --"
 oBun = new stzWebBundle("app")
-oBun.Title("Softanza on the Web").OutDir(cDir + "/dist")
-oBun.WithWasm("app", cDir + "/app.wasm")
+oBun.SetTitleQ("Softanza on the Web").SetOutDirQ(cDir + "/dist")
+oBun.AddWasmQ("app", cDir + "/app.wasm")
 oBun.Build()
 chk("the bundle assembled all four files",
 	StzEngineFileExists(cDir + "/dist/app.wasm") = 1 and StzEngineFileExists(cDir + "/dist/stz.js") = 1 and

@@ -21,8 +21,8 @@
 #
 #   oW = new stzBuilder("app").InCQ().AddSourceQ("app.c").TargetWebQ().AddExportQ("stz_main")
 #   oW.Build()
-#   oB = new stzWebBundle("app").Title("My App").OutDir("dist")
-#   oB.WithWasm("app", oW.OutputPath())
+#   oB = new stzWebBundle("app").SetTitleQ("My App").SetOutDirQ("dist")
+#   oB.AddWasmQ("app", oW.OutputPath())
 #   oB.Build()
 #   #--> dist/{app.wasm, stz.js, index.html, bundle.json}
 
@@ -115,16 +115,16 @@ class stzWebBundle from stzObject
 		@cName = "" + pcName
 		@cTitle = "" + pcName
 
-	def Title(pcTitle)
+	def SetTitleQ(pcTitle)
 		@cTitle = "" + pcTitle
 		return This
 
-	def OutDir(pcDir)
+	def SetOutDirQ(pcDir)
 		@cOutDir = "" + pcDir
 		return This
 
 	# Add a wasm part -- a prebuilt .wasm path, or a stzBuilder (which is built).
-	def WithWasm(pcName, pWasm)
+	def AddWasmQ(pcName, pWasm)
 		_cPath_ = ""
 		if isObject(pWasm)
 			pWasm.Build()
