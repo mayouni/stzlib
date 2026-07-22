@@ -14,3 +14,11 @@
 
 # stzBuilder test scratch (build artifacts; test cleans up, this guards a mid-run crash)
 _build_scratch/
+_deploy_scratch/
+_wasmsub_tmp/
+# StzDirDeleteAll / dir-listing probes (ephemeral)
+**/_delprobe/
+**/_delprobe2/
+**/_treeprobe/
+# generated emulator bundles (Deploy(:Emulated) output; regenerated on demand)
+**/restolean_emulator/

@@ -1,12 +1,12 @@
 #--------------------------------------------------------------#
-#          SOFTANZA LIBRARY (V0.9) - STZBUILDERBRAIN           #
+#          SOFTANZA LIBRARY (V0.9) - STZDELIVERY               #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : The REASONING behind stzBuilder. You        #
 #                  describe the SOLUTION you want to deploy    #
 #                  -- its parts, their targets, the Softanza   #
-#                  capabilities each uses -- and the brain     #
+#                  capabilities each uses -- the planner       #
 #                  REHEARSES a placement & scope plan BEFORE   #
 #                  a byte is built: per capability, on its     #
 #                  target, it picks a delivery vector and      #
@@ -22,7 +22,7 @@
 # invisible governing frame is the TARGET PLATFORM. The SAME capability behaves
 # differently per target -- :PivotTable is stz.wasm on a browser, FIRMWARE on an
 # MCU, the native engine on a server. Name the target scope (each part's target)
-# and the brain reasons with it, bridging what the target cannot host (M5). The
+# and the delivery planner reasons with it, bridging what the target cannot host (M5). The
 # DIFFERENTIAL-VALUE test decides: the edge carries only what is critical AND
 # (Softanza-unique OR weak/absent on the target). A browser is strong at Unicode
 # -> use its own; it lacks Softanza's solver/pivot/pattern -> those go on-device.
@@ -38,17 +38,17 @@
 #   construct -> ergonomic Softanza construct in the target language (stz.js on the web).
 #   server    -> too heavy for the edge -> the backend.
 #
-#   oBrain = new stzBuilderBrain("restolean")
-#   oBrain.WithBackend(:api, :LinuxServer).WithSuperApp(:phone, :Android).WithFirmware(:node, :ESP32)
-#   oBrain.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
-#   ? oBrain.Plan().Explain()
+#   oDelivery = new stzDelivery("restolean")
+#   oDelivery.AddBackend(:api, :LinuxServer).AddSuperApp(:phone, :Android).AddFirmware(:node, :ESP32)
+#   oDelivery.NeedsIn(:phone, [ :Unicode, :PivotTable, :ConstraintSolver, :Collection, :Neural ])
+#   ? oDelivery.Plan().Show()
 
   #=============#
  #  FUNCTIONS  #
 #=============#
 
-func StzBuilderBrainQ(pcName)
-	return new stzBuilderBrain(pcName)
+func StzDeliveryQ(pcName)
+	return new stzDelivery(pcName)
 
 func StzCapabilityCatalogQ()
 	return new stzCapabilityCatalog()
@@ -73,7 +73,7 @@ func _StzTargetClass(pcName)
  #  CAPABILITY CATALOG  #
 #=====================#
 
-# The brain's KNOWLEDGE: each capability's differential value, as data (not a
+# The delivery planner's KNOWLEDGE: each capability's differential value, as data (not a
 # heuristic buried in code) so placement decisions are inspectable. A record is
 # [ key, display, unique, nature, weight, js, native, embedded, kb ]: key = the
 # Softanza-named symbol lowercased (:PivotTable -> "pivottable"), display = the
@@ -142,7 +142,7 @@ class stzCapabilityCatalog from stzObject
 		ok
 		return paRec[6]        # js (browser / mobile)
 
-	# (capability, target class) -> [ vector, reason ]. The whole brain, legibly.
+	# (capability, target class) -> [ vector, reason ]. The whole reasoning, legibly.
 	# Inclusive across targets: a server hosts the native engine; the heavy is
 	# offloaded; a strong non-unique capability defers to the target-platform;
 	# ergonomics on a language-runtime target become a construct, else fold into
@@ -170,11 +170,11 @@ class stzCapabilityCatalog from stzObject
 		return [ "engine", _disp_ + ": Softanza-differential, " + pcClass + " " + _cSupp_ + " -> the on-device engine" ]
 
 
-  #=================#
- #  BUILDER BRAIN  #
-#=================#
+  #====================#
+ #  DELIVERY PLANNER  #
+#====================#
 
-class stzBuilderBrain from stzObject
+class stzDelivery from stzObject
 
 	@cName = ""
 	@aParts = []       # [ name, kind, targetname, [caps] ]  -- plain data (survives copy)
@@ -195,20 +195,20 @@ class stzBuilderBrain from stzObject
 		@oCat = poCat
 		return This
 
-	def WithPart(pcKind, pcName, pcTarget)
+	def AddPart(pcKind, pcName, pcTarget)
 		@aParts + [ StzLower("" + pcName), StzLower("" + pcKind), StzLower("" + pcTarget), [] ]
 		return This
 
-		def WithApp(pcName, pcTarget)
-			return This.WithPart("app", pcName, pcTarget)
-		def WithSuperApp(pcName, pcTarget)
-			return This.WithPart("superapp", pcName, pcTarget)
-		def WithBackend(pcName, pcTarget)
-			return This.WithPart("backend", pcName, pcTarget)
-		def WithServer(pcName, pcTarget)
-			return This.WithPart("server", pcName, pcTarget)
-		def WithFirmware(pcName, pcTarget)
-			return This.WithPart("firmware", pcName, pcTarget)
+		def AddApp(pcName, pcTarget)
+			return This.AddPart("app", pcName, pcTarget)
+		def AddSuperApp(pcName, pcTarget)
+			return This.AddPart("superapp", pcName, pcTarget)
+		def AddBackend(pcName, pcTarget)
+			return This.AddPart("backend", pcName, pcTarget)
+		def AddServer(pcName, pcTarget)
+			return This.AddPart("server", pcName, pcTarget)
+		def AddFirmware(pcName, pcTarget)
+			return This.AddPart("firmware", pcName, pcTarget)
 
 	def _PartIndex(pcName)
 		_c_ = StzLower("" + pcName)
@@ -285,18 +285,16 @@ class stzBuilderBrain from stzObject
 		next
 		return _found_
 
-	# WHERE each part deploys in production: bind a part to a stzDeploymentSite.
+	# WHERE each part deploys in production: bind a target site to the part it hosts.
+	# Site-first, part-second -- demystified: "deploy to <site>, the <part>".
 	# (Deploy(:Emulated) needs no sites -- it runs in the browser; production does.)
-	def DeployTo(pcPart, poSite)
+	def DeployTo(poSite, pcPart)
 		@aBindings + [ StzLower("" + pcPart), poSite ]
 		return This
 
-		def Onto(pcPart, poSite)
-			return This.DeployTo(pcPart, poSite)
-
 	# the executing actor -- governs whether Deploy(:Production) COMMITS or only
 	# rehearses (only an effectful actor may cross the governed bridge to reality).
-	def AsActor(poActor)
+	def SetActor(poActor)
 		@oActor = poActor
 		return This
 
@@ -385,16 +383,16 @@ class stzBuilderBrain from stzObject
 		ok
 		return This.Plan()
 
-	# assemble the stzDeployment from the brain's bindings + actor, and perform it
+	# assemble the stzDeployment from the delivery planner's bindings + actor, and perform it
 	# when governance permits (commit); else return it un-committed (a rehearsal).
 	def _DeployProduction()
 		_oDep_ = new stzDeployment(This)
 		if @oActor != NULL
-			_oDep_.AsActor(@oActor)
+			_oDep_.SetActor(@oActor)
 		ok
 		_n_ = len(@aBindings)
 		for _i_ = 1 to _n_
-			_oDep_.To(@aBindings[_i_][1], @aBindings[_i_][2])
+			_oDep_.SetTarget(@aBindings[_i_][1], @aBindings[_i_][2])
 		next
 		_nb_ = len(@aBundles)
 		for _i_ = 1 to _nb_
@@ -414,7 +412,7 @@ class stzBuilderBrain from stzObject
  #  BUILD PLAN  #
 #==============#
 
-# The rehearsed placement & scope plan -- the brain's readable output. Per part:
+# The rehearsed placement & scope plan -- the delivery planner's readable output. Per part:
 # every capability, its delivery vector, and the reason; plus the derived on-device
 # engine subset. Plain-data backed; Explain() is the legible signature (named
 # Explain, not Narration, to avoid confusion with stzNarration).
@@ -592,7 +590,11 @@ class stzBuildPlan from stzObject
 		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
 		_c_ += "target " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
 		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
-		return _c_
+		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
 
 	def Show()
-		? This.Explain()
+		_aLines_ = This.Explain()
+		_n_ = len(_aLines_)
+		for _i_ = 1 to _n_
+			? _aLines_[_i_]
+		next

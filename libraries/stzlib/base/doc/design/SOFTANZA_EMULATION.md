@@ -1,9 +1,9 @@
 # The Softanza Emulation Technology
 ### `Deploy(:Emulated)` — the whole multi-target solution, running for real, in a browser
 
-> Status: built. Components: `stzBuilderBrain`, `stzBuildPlan`, `stzEmulator`,
+> Status: built. Components: `stzDelivery`, `stzBuildPlan`, `stzEmulator`,
 > `stzBuilder` (the `wasm` target), `stz.wasm` / `stz.js`.
-> Guards: `builder_brain_narrated`, `wasm_narrated`, `emulator_narrated`.
+> Guards: `delivery_narrated`, `wasm_narrated`, `emulator_narrated`.
 > Tutorial: [stz-emulating-the-whole-solution-narration.md](../narrations/stz-emulating-the-whole-solution-narration.md).
 > Part of the [Softanza delivery plane](SOFTANZA_DELIVERY_PLANE.md).
 
@@ -49,21 +49,21 @@ Deployment is modeled Scope-Orientedly: the *phase* is a named scope, and one ve
 serves both.
 
 ```ring
-oBrain.Deploy(:Emulated)     # the PROGRAMMING phase
-oBrain.Deploy(:Production)   # the COMMIT phase
+oDelivery.Deploy(:Emulated)     # the PROGRAMMING phase
+oDelivery.Deploy(:Production)   # the COMMIT phase
 ```
 
 - **`:Emulated`** — the programming-phase face. The whole solution becomes a
   web-based **mission-control** where each part runs its real engine and is
   debugged visually, part by part. This is where you *live* while building.
 - **`:Production`** — the same parts cross the governed bridge to real targets.
-  The plan the brain rehearsed **is** the production spec that the
+  The plan the delivery planner rehearsed **is** the production spec that the
   lowering/platform path executes. Nothing is re-decided; emulation was the
   rehearsal, production is the commit.
 
 ## 4. What runs where: differential-value placement
 
-Before a byte is built, the brain (`stzBuilderBrain`) **rehearses a placement &
+Before a byte is built, the delivery planner (`stzDelivery`) **rehearses a placement &
 scope plan**. For every capability a part uses, on that part's target, it picks a
 *delivery vector* and states *why* — as inspectable data, not a heuristic buried
 in code.
@@ -122,7 +122,7 @@ zig build wasm -Dwasm-groups=solver,aggregation
 `stz_wasm_entry.zig` reads the group list at *comptime* and conditionally
 `@import`s the source modules and `@export`s the wrappers, so an unused group's
 code is **not in the compilation at all** — a true subset, not a gated surface.
-The brain drives it: a capability maps to an engine group
+The delivery planner drives it: a capability maps to an engine group
 (`ConstraintSolver → solver`, `PivotTable → aggregation`, `BigNumber → numtheory`,
 `Pattern → pattern`, `Graph → graph`), and each part's `[stz.wasm]` capabilities
 become its build subset.
@@ -177,7 +177,7 @@ implies more certainty than it has.
 ## 8. Architecture
 
 ```
-  stzBuilderBrain          describe the solution: parts, targets, capabilities
+  stzDelivery              describe the solution: parts, targets, capabilities
         |  .Plan()
         v
   stzBuildPlan             the rehearsed placement & scope plan (per-part vectors,
@@ -200,7 +200,7 @@ bridge + a shell — and the wasm is the engine, not the interpreter.
 
 ## 9. How it is verified
 
-- `builder_brain_narrated` — the placement doctrine (differential test; the
+- `delivery_narrated` — the placement doctrine (differential test; the
   per-part subset; regex defers to the platform).
 - `wasm_narrated` — the `build.zig` wasm target builds; the entry exports the
   curated ABI; a subset is genuinely smaller than the full edge.

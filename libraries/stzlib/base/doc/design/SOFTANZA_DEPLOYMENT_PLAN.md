@@ -38,7 +38,7 @@ provision  ->  store  ->  launch  ->  verify
 ```
 
 `Steps()` builds the plan; a **simple** deployment gets that default chain per part,
-a **complex** one adds cross-part edges with `After(part, dependsOn)` — turning the
+a **complex** one adds cross-part edges with `RunAfter(part, dependsOn)` — turning the
 plan into a DAG. A scriptable host inserts a `provision` step first. The steps are
 topologically sorted so every dependency precedes its dependants, and `Explain()`
 prints the whole thing before a byte moves:
@@ -59,7 +59,7 @@ prints the whole thing before a byte moves:
 **`Run()`** executes the plan, and gives it the three properties a real rollout
 needs:
 
-- **dependencies** — `After(:web, :api)` makes the web frontend's `store` wait for
+- **dependencies** — `RunAfter(:web, :api)` makes the web frontend's `store` wait for
   the api backend's `verify`; the topological order guarantees it.
 - **a gate** — the `verify` step checks the site is actually launched; if it isn't,
   the plan stops.
@@ -68,7 +68,7 @@ needs:
   **transactional**: a partial rollout undoes itself.
 
 And it is governed the whole way — an LLM actor rehearses every step and commits
-nothing; an effectful actor commits. `brain.Deploy(:Production)` drives `Run()`.
+nothing; an effectful actor commits. `oDelivery.Deploy(:Production)` drives `Run()`.
 
 ## 3. Host resources & provisioning
 
@@ -76,13 +76,13 @@ A part needs resources; a host provides them. Both are one shape —
 **`stzResourceSpec`** — used in two roles:
 
 ```ring
-StzResourcesQ().Memory(2048).Compute(2).Storage(20)   # MB / vCPU / GB
+StzResourcesQ().SetMemoryQ(2048).SetComputeQ(2).SetStorageQ(20)   # MB / vCPU / GB
 ```
 
-- as a **requirement**: `brain.RequiresIn(:api, spec)` — the physical footprint the
+- as a **requirement**: `oDelivery.RequiresIn(:api, spec)` — the physical footprint the
   part needs (the parallel to `NeedsIn` for capabilities; the CI/IaC
   `resources.requests` idea).
-- as a **capacity**: `site.Capacity(spec)` — what the host provides (declared, or
+- as a **capacity**: `site.SetCapacityQ(spec)` — what the host provides (declared, or
   for a real host discovered via its provider API).
 
 **Feasibility is `capacity.Meets(sum-of-requirements)`** — the same "does the node
@@ -123,19 +123,19 @@ feasibility verdict; `Run()` executes precisely that, governed.
 
 | CI / IaC idea | Softanza |
 |---|---|
-| job DAG (`needs:`), resource graph | `Steps()` + `After(part, dependsOn)` (topologically ordered) |
+| job DAG (`needs:`), resource graph | `Steps()` + `RunAfter(part, dependsOn)` (topologically ordered) |
 | gates (`if:`, readiness probes) | the `verify` step |
 | apply-or-revert | transactional `Run()` (rollback on failure) |
 | `resources.requests` / `runs-on` | `RequiresIn(part, spec)` |
 | scheduler admission | `Feasibility()` / `Feasible()` |
-| providers (AWS/GCP/Proxmox) | `site.Provider(name)` + `Provision(req)` |
+| providers (AWS/GCP/Proxmox) | `site.SetProviderQ(name)` + `Provision(req)` |
 | desired-state, plan / apply | `Explain()` (rehearse) / `Deploy(:Production)` (commit) |
 | environment approvals | the governance crossing (an effectful actor) |
 
 ## 6. Verified
 
 `deployment_narrated` (45/45) exercises all of it: the simple chain
-(`store -> launch -> verify`); `After()` ordering a frontend behind its backend's
+(`store -> launch -> verify`); `RunAfter()` ordering a frontend behind its backend's
 verify; a failing step rolling back the part that had already deployed; a fitting
 host feasible, an undersized one blocked, a scriptable one feasible by
 provisioning; and the proxmox/aws provision commands derived from the resource

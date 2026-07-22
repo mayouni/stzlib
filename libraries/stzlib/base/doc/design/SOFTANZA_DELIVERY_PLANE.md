@@ -27,7 +27,7 @@ governed.
   *differential compute* as WebAssembly (`stz.wasm`) — the same Zig logic that backs
   the native DLLs — not a Ring VM. The edge carries only what the platform is weak
   at; JS-strong capabilities (Unicode, regex, dates) defer to the platform.
-- **One vocabulary, editor to device.** The same brain that plans the solution
+- **One vocabulary, editor to device.** The same delivery planner that plans the solution
   drives the build, the emulator, and the deployment.
 - **Expression is free; admission is governed.** Any actor can *rehearse* any plan;
   only an *effectful* actor may commit. An LLM can design a whole rollout and change
@@ -46,7 +46,7 @@ governed.
 
 | Object | Role |
 |---|---|
-| `stzBuilderBrain` | describe the solution (parts, targets, capabilities) and **rehearse the placement plan** — per capability, on its target, a delivery vector and *why* |
+| `stzDelivery` | describe the solution (parts, targets, capabilities) and **rehearse the placement plan** — per capability, on its target, a delivery vector and *why* |
 | `stzBuildPlan` | the rehearsed plan; `Explain()` prints the whole rationale |
 | `stzBuilder` + `build.zig wasm` | cross-compile the parts; emit each part's **engine subset** as `stz_<part>.wasm` (`zig build wasm -Dwasm-groups=…`) |
 | `stzEmulator` | **`Deploy(:Emulated)`** — the web mission-control where each part runs its *real* engine and is debugged, part by part |
@@ -60,8 +60,8 @@ governed.
 Deployment is Scope-Oriented: the *phase* is the scope, and one verb serves both.
 
 ```ring
-oBrain.Deploy(:Emulated)     # rehearse in the browser -- each part runs its real engine
-oBrain.Deploy(:Production)   # commit to real sites -- the same parts, the same scope, governed
+oDelivery.Deploy(:Emulated)     # rehearse in the browser -- each part runs its real engine
+oDelivery.Deploy(:Production)   # commit to real sites -- the same parts, the same scope, governed
 ```
 
 Emulation is where you find out it works; production is where the *same* parts, at
@@ -87,7 +87,7 @@ Background: the [Scope-Oriented Programming](SCOPE_ORIENTED_PROGRAMMING.md) para
 ## What's proven, and what's reach
 
 Every layer is provable in-repo and exercised by the narrated guards
-(`emulator_narrated`, `wasm_narrated`, `builder_brain_narrated`,
+(`emulator_narrated`, `wasm_narrated`, `delivery_narrated`,
 `deployment_narrated`). The two layers that touch the outside world for real — the
 **git backend** and the **compiled wasm** — are proven end to end. `ssh` / `aws` and
 the other providers generate correct commands and run through the same managed

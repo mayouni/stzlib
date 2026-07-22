@@ -168,7 +168,7 @@ func StzEngineWasmPath()
 
 # A plan capability KEY -> the engine wasm GROUP that backs it on the edge, or
 # "" when no wasm logic exists for it yet (so it is simply not shipped). This is
-# the map the brain's [stz.wasm]-placed capabilities travel through to become a
+# the map the delivery planner's [stz.wasm]-placed capabilities travel through to become a
 # build subset -- emit ONLY what the part actually uses.
 func _StzWasmGroupFor(pcCapKey)
 	_c_ = StzLower(ring_trim("" + pcCapKey))
