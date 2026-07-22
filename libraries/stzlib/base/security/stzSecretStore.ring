@@ -118,6 +118,12 @@ class stzSecretStore from stzObject
 	# actor) and AUDITED (the access is recorded either way). This is the only
 	# path a value leaves the store, so the log is complete.
 	def Reveal(pcName, poActor)
+		return This.RevealVia(pcName, NULL, poActor)
+
+	# reveal through a vault RESOLVER (for a :vault-sourced secret), still gated
+	# and AUDITED by the store. For a non-vault secret the resolver is ignored, so
+	# this is a safe superset of Reveal.
+	def RevealVia(pcName, poResolver, poActor)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_i_ = This._Index(_nm_)
 		if _i_ = 0
@@ -134,7 +140,7 @@ class stzSecretStore from stzObject
 				"'. Only an effectful, non-sandboxed actor can.")
 		ok
 		This._Audit(poActor, _nm_, "granted")
-		return _sec_.Reveal(poActor)
+		return _sec_.RevealVia(poResolver, poActor)
 
 	# may this actor reveal this secret? (no side effect, no audit entry.)
 	def IsRevealableBy(pcName, poActor)

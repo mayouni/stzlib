@@ -136,8 +136,36 @@ class stzSecret from stzObject
 		return poActor.IsEffectful() and poActor.Posture() != "sandboxed"
 
 	# resolve + return the plaintext -- GATED. An LLMActor (inference-only) is
-	# refused; a HumanActor (effectful, trusted) succeeds.
+	# refused; a HumanActor (effectful, trusted) succeeds. A vault-sourced secret
+	# needs a resolver (see RevealVia).
 	def Reveal(poActor)
+		This._GateReveal(poActor)
+		return This._Resolve()
+
+		def RevealFor(poActor)
+			return This.Reveal(poActor)
+
+	# resolver-aware reveal: a vault-sourced secret is fetched THROUGH a resolver,
+	# passed by reference at reveal time (after the actor gate). ANY object with a
+	# Resolve(locator) method is a valid resolver -- your vault client, or the
+	# reference stzVaultResolver. For a non-vault secret the resolver is ignored
+	# and this behaves like Reveal(actor).
+	def RevealVia(poResolver, poActor)
+		This._GateReveal(poActor)
+		if @cSource = "vault"
+			if NOT isObject(poResolver)
+				StzRaise("Secret '" + @cName + "' is vault-sourced ('" + @cLocator +
+					"'). Pass a vault resolver: RevealVia(resolver, actor).")
+			ok
+			return poResolver.Resolve(@cLocator)
+		ok
+		return This._Resolve()
+
+	def IsVaultSourced()
+		return @cSource = "vault"
+
+	# raise unless this actor may read the plaintext (the shared reveal gate).
+	def _GateReveal(poActor)
 		if NOT This.IsRevealableBy(poActor)
 			_who_ = "an unauthorized actor"
 			if isObject(poActor)
@@ -146,15 +174,14 @@ class stzSecret from stzObject
 			StzRaise("Refused: " + _who_ + " may not reveal secret '" + @cName +
 				"'. Only an effectful, non-sandboxed actor can read a secret.")
 		ok
-		return This._Resolve()
 
-		def RevealFor(poActor)
-			return This.Reveal(poActor)
-
-	# does the secret resolve to a non-empty value? Governed (it touches the
-	# value, so the same gate as reveal).
+	# does the secret resolve to a non-empty value? Governed. A vault-sourced
+	# secret needs a resolver, so it is not resolvable this way.
 	def IsResolvableBy(poActor)
 		if NOT This.IsRevealableBy(poActor)
+			return FALSE
+		ok
+		if @cSource = "vault"
 			return FALSE
 		ok
 		return This._Resolve() != ""
@@ -172,7 +199,8 @@ class stzSecret from stzObject
 			ok
 			return ring_trim(read(@cLocator))
 		but @cSource = "vault"
-			StzRaise("Secret '" + @cName + "': vault backend not wired yet (locator '" + @cLocator + "').")
+			StzRaise("Secret '" + @cName + "' is vault-sourced ('" + @cLocator +
+				"'). Reveal it through a resolver: RevealVia(resolver, actor).")
 		else
 			StzRaise("Secret '" + @cName + "' has no source set (call FromLiteralQ / FromEnvQ / FromFileQ).")
 		ok

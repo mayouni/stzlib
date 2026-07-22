@@ -50,7 +50,7 @@ Security is *conceptually* unified but was *physically* scattered across nine di
 
 | Concern | Where | Key classes |
 |---|---|---|
-| **Credentials, secrets, crypto** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzAuth`, `stzCryptoFuncs` (KDF helpers), `stzRequestSigner` (HMAC signing), `stzSecurityPosture` (runnable invariants) |
+| **Credentials, secrets, crypto** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzVaultResolver`, `stzAuth`, `stzCryptoFuncs` (KDF helpers), `stzRequestSigner` (HMAC signing), `stzSecurityPosture` (runnable invariants) |
 | Authority (the lattice) | `base/system/` | `stzSystemActor`, `stzSystemCapabilities` |
 | Effect isolation (sandbox) | `base/system/` | `stzVirtualSystem` / `stzVirtualFileSystem` / `stzVirtualEnvironment` (rehearse → plan → commit, one bridge to reality) |
 | Governance contract | `base/governance/` | `stzGovernance` (risk tiers, CAN vs SHOULD, lineage, decommission) |
@@ -84,7 +84,7 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
 | **Supply-chain / release safety** | ✅ the governed deploy crossing (only effectful actors commit; LLM proposes). |
 | **Agentic-development safety** | ✅ the empty-effect rule + six enforced checkpoints + agent-graph guardrails. |
 | **Rotation / revocation** | ◐ store-level (`RotateQ`/`Revoke`); no scheduled rotation yet. |
-| **Vault backends** | ◐ `FromVaultQ` reserved; env/file/literal live. |
+| **Vault backends** | ✅ pluggable seam — `RevealVia(resolver, actor)` + `stzVaultResolver` reference; a specific manager's adapter is the only infra-gated piece. Env/file/literal live. |
 
 ## Roadmap — consolidating the rest
 
@@ -122,7 +122,14 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
    `…At(token, nowSecs)` variants, plus `SessionToken`/`SessionExpiresAt`/
    `PurgeExpired`. Guard `secret_narrated` (+6, now 53). *Remaining:* password
    reset flowing through the store.
-5. **Vault backend** — wire `FromVaultQ` to a real secret manager.
+5. **Vault seam** — **done (the pluggable seam).** A `:vault`-sourced secret is
+   fetched through a *resolver* passed by reference at reveal time:
+   `secret.RevealVia(resolver, actor)` (gated) and `store.RevealVia(name, resolver,
+   actor)` (gated + audited). The contract is duck-typed — any object with
+   `Resolve(locator)` is a resolver — so Softanza binds to no backend. `stzVaultResolver`
+   is the in-memory reference (dev/test); production supplies a client for
+   HashiCorp Vault / AWS Secrets Manager / a KMS. Guard `vault_narrated` (15).
+   *Remaining (infra-gated):* a shipped adapter for a specific manager.
 
 ---
 
