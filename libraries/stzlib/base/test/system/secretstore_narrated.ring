@@ -85,6 +85,39 @@ chk("...its config serialises the redacted descriptor", StzFindFirst("<secret 'd
 chk("...the rotated key value is nowhere in the config", StzFindFirst("ssh-ed25519-ROTATED", oSite.ConfigJson()) = 0)
 
 ? ""
+? "-- Scene 6: a store-backed site routes its reveal THROUGH the store (audited) --"
+oSite2 = new stzDeploymentSite("prod-db")
+oSite2.SetKindQ(:Server)
+oSite2.SetAuthFromStoreQ(oStore, "deploy-key")
+chk("the site is store-backed by NAME (holds no key, no store copy)", oSite2.IsStoreBacked() and oSite2.AuthStoreName() = "deploy-key")
+chk("...its config still shows only the redacted descriptor", StzFindFirst("<secret 'deploy-key'", oSite2.ConfigJson()) > 0)
+nBefore = oStore.NumberOfAccesses()
+chk("ResolveAuthVia(store, effectful) returns the live key", oSite2.ResolveAuthVia(oStore, oHuman) = "ssh-ed25519-ROTATED")
+chk("...and the STORE audited that site reveal -- the project trail is complete", oStore.NumberOfAccesses() = nBefore + 1)
+bStoreRefused = FALSE
+try
+	oSite2.ResolveAuthVia(oStore, oLLM)
+catch
+	bStoreRefused = TRUE
+done
+chk("...an LLM revealing via the store is refused (and logged refused)", bStoreRefused and oStore.RefusedAccesses() >= 2)
+bMustAudit = FALSE
+try
+	oSite2.ResolveAuth(oHuman)
+catch
+	bMustAudit = TRUE
+done
+chk("...plain ResolveAuth on a store-backed site raises -- forces the audited path", bMustAudit)
+bUnknownRefused = FALSE
+oGhostSite = new stzDeploymentSite("x")
+try
+	oGhostSite.SetAuthFromStoreQ(oStore, "nonexistent")
+catch
+	bUnknownRefused = TRUE
+done
+chk("referencing a secret the store lacks is refused at wiring time", bUnknownRefused)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="

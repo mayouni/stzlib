@@ -164,7 +164,9 @@ class stzDeploymentSite from stzObject
 	@cStatusCmd = ""
 	@oCapacity = NULL   # the host's resources (stzResourceSpec) -- declared or discovered
 	@cProvider = ""     # a provisioning provider (aws/gcp/proxmox/...) -> scriptable host
-	@oAuthSecret = NULL # a stzSecret guarding the credential (else @cAuthRef is a plain ref)
+	@oAuthSecret = NULL   # a stzSecret guarding the credential (else @cAuthRef is a plain ref)
+	@bStoreBacked = FALSE # auth is a NAME in a central store -- reveal via the store (audited)
+	@cAuthStoreName = ""  # the secret's name in that store
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -188,14 +190,37 @@ class stzDeploymentSite from stzObject
 	# only its redacted descriptor -- the key never lands in Config/ConfigJson.
 	def SetAuthRefQ(pRef)
 		if isObject(pRef)
+			@bStoreBacked = FALSE
+			@cAuthStoreName = ""
 			@oAuthSecret = pRef
 			@cAuthRef = pRef.Descriptor()
 		but isString(pRef)
+			@bStoreBacked = FALSE
+			@cAuthStoreName = ""
 			@oAuthSecret = NULL
 			@cAuthRef = "" + pRef
 		else
 			StzRaise("SetAuthRefQ expects a reference string or a stzSecret.")
 		ok
+		return This
+
+	# reference the auth secret BY NAME from a central stzSecretStore. The site
+	# holds NO key and NO store object -- only the name (Ring copies objects on
+	# assignment, so a held store would be a private copy whose audit no one sees).
+	# The reveal is done through the SHARED store, passed by reference at reveal
+	# time (ResolveAuthVia), so the store's gate applies AND the store audits it.
+	# This is how a project keeps ONE complete audit trail across every reveal.
+	def SetAuthFromStoreQ(poStore, pcName)
+		if NOT isObject(poStore)
+			StzRaise("SetAuthFromStoreQ expects a stzSecretStore.")
+		ok
+		if NOT poStore.Has(pcName)
+			StzRaise("SetAuthFromStoreQ: the store has no secret named '" + pcName + "'.")
+		ok
+		@bStoreBacked = TRUE
+		@cAuthStoreName = "" + pcName
+		@oAuthSecret = NULL
+		@cAuthRef = poStore.DescriptorOf(pcName)   # redacted, captured for display/config
 		return This
 
 	def SetStoreAtQ(pcLocation)
@@ -248,15 +273,42 @@ class stzDeploymentSite from stzObject
 	def HasAuthSecret()
 		return isObject(@oAuthSecret)
 
-	# the LIVE auth value for a backend to use at store/launch -- GOVERNED. If
-	# auth is a stzSecret, only an effectful actor gets the plaintext (an LLM
-	# rehearsing the plan is refused). If it is a plain ref string (back-compat),
-	# it is returned as-is.
+	def IsStoreBacked()
+		return @bStoreBacked
+
+	def AuthStoreName()
+		return @cAuthStoreName
+
+	# the site holds a secret (directly, or by name in a store) rather than a ref.
+	def HasSecretAuth()
+		return isObject(@oAuthSecret) or @bStoreBacked
+
+	# the LIVE auth value -- GOVERNED. For a directly-held stzSecret it reveals
+	# with the actor gate; for a plain ref string it returns it as-is. A
+	# STORE-BACKED secret cannot be revealed here -- the store must be passed by
+	# reference so its audit is real; use ResolveAuthVia(store, actor).
 	def ResolveAuth(poActor)
-		if isObject(@oAuthSecret)
+		if @bStoreBacked
+			StzRaise("Site '" + @cName + "': auth is store-backed ('" + @cAuthStoreName +
+				"'). Reveal it through the store so the access is audited: " +
+				"ResolveAuthVia(store, actor).")
+		but isObject(@oAuthSecret)
 			return @oAuthSecret.Reveal(poActor)
 		ok
 		return @cAuthRef
+
+	# the store-aware reveal: the shared store is passed HERE (by reference), so
+	# its gate applies AND it AUDITS the access -- the project's one audit trail
+	# stays complete. For a non-store-backed site the store is ignored and this
+	# behaves like ResolveAuth(actor).
+	def ResolveAuthVia(poStore, poActor)
+		if @bStoreBacked
+			if NOT isObject(poStore)
+				StzRaise("ResolveAuthVia: a stzSecretStore is required for a store-backed site.")
+			ok
+			return poStore.Reveal(@cAuthStoreName, poActor)
+		ok
+		return This.ResolveAuth(poActor)
 
 	def StorageLocation()
 		return @cStorage

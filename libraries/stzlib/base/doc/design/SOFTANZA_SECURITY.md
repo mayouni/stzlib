@@ -88,7 +88,14 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
 
 ## Roadmap — consolidating the rest
 
-1. **Route governed reveals through the store's audit end-to-end** — a deployment site that references a store secret should reveal *via* the store (so store audit is complete), not by holding the object. Add `SetAuthFromStoreQ(store, name)`.
+1. ~~Route governed reveals through the store's audit~~ — **done.** A site
+   references a store secret by *name* (`SetAuthFromStoreQ(store, name)`) and holds
+   no key and no store object; the reveal goes through the shared store, passed by
+   reference at reveal time (`ResolveAuthVia(store, actor)`), so the store's gate
+   applies *and* it audits the access — the project's one trail stays complete.
+   (Ring copies objects on `=`, so a *held* store would be a private copy whose
+   audit no one sees; passing it by reference at reveal time is the correct shape.
+   Plain `ResolveAuth` on a store-backed site raises, to force the audited path.)
 2. **Move the crypto helpers + request signer into `base/security/`** — `StzHashSecret`/`StzVerifySecret`/`StzRandomToken` (today in `platform/`) and `stzRequestSigner` (today in `common/`) are pure security primitives; they belong here. A careful load-order pass (they are runtime-resolved globals) makes this low-risk.
 3. **A security posture check** — a runnable `stzGovernanceChecks`-style invariant that scans a project: are all secrets registered in a store? any inline keys? any `llm_actor` holding an effect kind? — reported like the existing agent-graph guardrails.
 4. **`stzAuth` ↔ `stzSecret`** — session tokens as `stzToken`s; password reset flows through the store.
