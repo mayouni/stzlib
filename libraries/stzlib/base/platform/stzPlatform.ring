@@ -253,8 +253,28 @@ class stzPlatform from stzObject
 		_aApps_ = @oProfile.Apps()
 		_n_ = len(_aApps_)
 		for _i_ = 1 to _n_
-			@aBuildReport + [ _aApps_[_i_].Name(), _aApps_[_i_].Kind(),
-			                  _aApps_[_i_].DeploymentOSName(), "built" ]
+			_app_ = _aApps_[_i_]
+			# wire stzBuilder: a part that declares a LANGUAGE is compiled by it,
+			# for its deployment target (its OS+arch ARE a Zig triple). We capture
+			# the real build COMMAND; running it (invoking Zig) is a separate step.
+			_cLang_ = ""
+			_cCmd_ = "(no language declared)"
+			if _app_.HasLanguage()
+				_oB_ = new stzBuilder(_app_.Name())
+				_oB_.SetLanguageQ(_app_.Language())
+				_aSrc_ = _app_.Sources()
+				_ns_ = len(_aSrc_)
+				for _k_ = 1 to _ns_
+					_oB_.AddSourceQ(_aSrc_[_k_])
+				next
+				if isObject(_app_.DeploymentSystem())
+					_oB_.SetTargetQ(_app_.DeploymentSystem())
+				ok
+				_cLang_ = _app_.Language()
+				_cCmd_ = _oB_.ToCommand()
+			ok
+			@aBuildReport + [ _app_.Name(), _app_.Kind(),
+			                  _app_.DeploymentOSName(), _cLang_, _cCmd_ ]
 		next
 		@bBuilt = TRUE
 		return This
@@ -312,6 +332,24 @@ class stzPlatform from stzObject
 
 	def BuildReport()
 		return @aBuildReport
+
+	# the language a part was compiled in (from the build report).
+	def LanguageOf(pcName)
+		return This._BuildField(pcName, 4)
+
+	# the stzBuilder command that compiles a part (from the build report).
+	def BuildCommandFor(pcName)
+		return This._BuildField(pcName, 5)
+
+	def _BuildField(pcName, nCol)
+		_c_ = StzLower(ring_trim("" + pcName))
+		_n_ = len(@aBuildReport)
+		for _i_ = 1 to _n_
+			if @aBuildReport[_i_][1] = _c_
+				return @aBuildReport[_i_][nCol]
+			ok
+		next
+		return ""
 
 	def DeployReport()
 		return @aDeployReport
