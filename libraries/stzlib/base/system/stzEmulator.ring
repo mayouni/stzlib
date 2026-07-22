@@ -298,6 +298,7 @@ func _StzEmuHtml(pcName, poPlan)
 	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='crit' onclick='deployProd()'>Deploy to production</button></div>" + nl
 	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
 	_h_ += _StzEmuPopups(poPlan) + nl
+	_h_ += "<script src='stz_parts.js'></script>" + nl
 	_h_ += "<script src='stz.js'></script>" + nl
 	_h_ += "<script src='emulator.js'></script>" + nl
 	_h_ += "</body></html>" + nl
@@ -320,6 +321,23 @@ func _StzEmuManifest(pcName, poPlan)
 	_c_ += "]" + nl + "}" + nl
 	return _c_
 
+# The plan-derived engine map, as a tiny JS asset emulator.js reads: for each
+# frontend part, its own stz.wasm subset file + the groups it carries. This is
+# how a device console knows to load ONLY its part's subset.
+func _StzEmuPartsJs(paWasmParts)
+	_j_ = "window.STZ_PARTS = {" + nl
+	_n_ = len(paWasmParts)
+	for _i_ = 1 to _n_
+		_wp_ = paWasmParts[_i_]
+		_j_ += "  '" + _wp_[1] + "': { wasm: '" + _wp_[2] + "', groups: '" + _wp_[3] + "' }"
+		if _i_ < _n_
+			_j_ += ","
+		ok
+		_j_ += nl
+	next
+	_j_ += "};" + nl
+	return _j_
+
 
   #===============#
  #  STZEMULATOR   #
@@ -331,12 +349,20 @@ class stzEmulator from stzObject
 	@cOutDir = ""
 	@aFiles = []
 	@bBuilt = FALSE
+	@bEngine = TRUE   # compile each part's stz.wasm subset (off = wiring only, fast)
 
 	def init(poBrain)
 		@oBrain = poBrain
 
 	def OutDir(pcDir)
 		@cOutDir = "" + pcDir
+		return This
+
+	# Toggle the per-part engine compilation. Default ON (device consoles run the
+	# real engine). WithEngine(FALSE) emits the plan map + graceful fallback without
+	# invoking Zig -- for fast, toolchain-free generation (and guards).
+	def WithEngine(pbOn)
+		@bEngine = pbOn
 		return This
 
 	def BundleDir()
@@ -365,25 +391,59 @@ class stzEmulator from stzObject
 		write(_cDir_ + "/stz.js", read(_cSrc_ + "/stz.js"))
 		@aFiles + "stz.js"
 
-		# the differential engine EDGE: ship stz.wasm if it has been built
-		# (`zig build wasm` / StzBuildEngineWasm). Present -> device consoles run
-		# the REAL engine; absent -> they fall back to rehearsed verbs. Ring
-		# read/write copies the binary faithfully (verified byte-identical).
-		_cWasm_ = StzEngineWasmPath()
-		if StzEngineFileExists(_cWasm_) = 1
-			write(_cDir_ + "/stz.wasm", read(_cWasm_))
-			@aFiles + "stz.wasm"
-		ok
-
+		# Each frontend part: its app shell + its OWN engine subset. The subset is
+		# the plan's [stz.wasm]-placed capabilities for THAT part, mapped to build
+		# groups -- emit ONLY what the part uses (a part that only pivots ships only
+		# aggregation, no solver, no number theory). Identical subsets are built
+		# once and shared. Ring read/write copies the binary faithfully.
 		_aP_ = _oPlan_.Parts()
 		_n_ = len(_aP_)
+		_aWasmParts_ = []   # [ part, wasmFile, groupsCsv ] -> the page's engine map
+		_aByKey_ = []       # dedup: [ groupsCsv, wasmFile ] already built this run
 		for _i_ = 1 to _n_
-			if _StzEmuIsMobile(_aP_[_i_][4])
-				_cApp_ = "app_" + _aP_[_i_][1] + ".html"
-				write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oBrain.Name(), _aP_[_i_][1]))
-				@aFiles + _cApp_
+			_p_ = _aP_[_i_]
+			if NOT _StzEmuIsMobile(_p_[4])
+				loop
 			ok
+			_cApp_ = "app_" + _p_[1] + ".html"
+			write(_cDir_ + "/" + _cApp_, _StzEmuAppHtml(@oBrain.Name(), _p_[1]))
+			@aFiles + _cApp_
+			_grp_ = StzWasmGroupsFor(_oPlan_.EngineCapsFor(_p_[1]))
+			if len(_grp_) = 0
+				loop
+			ok
+			_csv_ = _grp_[1]
+			for _j_ = 2 to len(_grp_)
+				_csv_ += "," + _grp_[_j_]
+			next
+			_cWFile_ = "stz_" + _p_[1] + ".wasm"
+			if @bEngine
+				_cPrior_ = ""
+				_nb_ = len(_aByKey_)
+				for _k_ = 1 to _nb_
+					if _aByKey_[_k_][1] = _csv_
+						_cPrior_ = _aByKey_[_k_][2]
+					ok
+				next
+				if _cPrior_ != ""
+					write(_cDir_ + "/" + _cWFile_, read(_cDir_ + "/" + _cPrior_))
+				else
+					if StzBuildEngineWasmSubset(_grp_, _cDir_ + "/" + _cWFile_) != ""
+						_aByKey_ + [ _csv_, _cWFile_ ]
+					ok
+				ok
+			ok
+			if StzEngineFileExists(_cDir_ + "/" + _cWFile_) = 1
+				@aFiles + _cWFile_
+			ok
+			_aWasmParts_ + [ _p_[1], _cWFile_, _csv_ ]
 		next
+
+		# the plan-derived engine map (always emitted, even without the binaries):
+		# emulator.js reads it to load each part's own subset.
+		write(_cDir_ + "/stz_parts.js", _StzEmuPartsJs(_aWasmParts_))
+		@aFiles + "stz_parts.js"
+
 		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oBrain.Name(), _oPlan_))
 		@aFiles + "manifest.json"
 		@bBuilt = TRUE

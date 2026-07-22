@@ -31,10 +31,13 @@ oBrain.NeedsIn(:admin, [ :PivotTable, :Collection ])
 oBrain.NeedsIn(:node, [ :GPIO, :Pattern, :Neural ])
 
 ? "-- Scene 1: Deploy(:Emulated) generates the mission-control bundle --"
-oEmu = oBrain.Deploy(:Emulated)
+# WithEngine(FALSE): emit the plan map + wiring WITHOUT compiling each part's wasm
+# (keeps the guard fast + toolchain-free; Deploy(:Emulated) wraps this same build).
+oEmu = new stzEmulator(oBrain)
+oEmu.WithEngine(FALSE)
 oEmu.OutDir(cDir + "/dist")
 oEmu.Build()
-chk("Deploy(:Emulated) returns a built emulator", oEmu.IsBuilt())
+chk("the programming-phase emulator builds a bundle", oEmu.IsBuilt())
 chk("...it emits index.html + manifest.json", StzEngineFileExists(cDir + "/dist/index.html") = 1 and StzEngineFileExists(cDir + "/dist/manifest.json") = 1)
 
 cH = read(cDir + "/dist/index.html")
@@ -98,13 +101,16 @@ cJs = read(cDir + "/dist/emulator.js")
 chk("...the JS holds the window routing (openPop + Escape close)", StzFindFirst("function openPop", cJs) > 0 and StzFindFirst("Escape", cJs) > 0)
 
 ? ""
-? "-- Scene 8: the engine EDGE is wired -- device consoles can run stz.wasm --"
+? "-- Scene 8: each part carries ONLY its own engine subset (the plan drives it) --"
 chk("stz.js (the wasm bridge) ships in the bundle", StzEngineFileExists(cDir + "/dist/stz.js") = 1)
-chk("...index.html loads it (before emulator.js)", StzFindFirst("stz.js", cH) > 0)
-chk("...emulator.js exposes REAL engine verbs (solve / prime / mean on stz.wasm)",
-	StzFindFirst("tryEngine", cJs) > 0 and StzFindFirst("stz_solve_linear", cJs) > 0)
-chk("...and ships stz.wasm when the edge has been built (else degrades gracefully)",
-	StzEngineFileExists(cDir + "/dist/stz.wasm") = 1 or NOT (StzEngineFileExists(StzEngineWasmPath()) = 1))
+chk("...index.html loads the plan map + bridge (stz_parts.js, stz.js)",
+	StzFindFirst("stz_parts.js", cH) > 0 and StzFindFirst("stz.js", cH) > 0)
+cParts = read(cDir + "/dist/stz_parts.js")
+chk("...the plan map names each part's OWN subset (stz_phone.wasm)", StzFindFirst("stz_phone.wasm", cParts) > 0)
+chk("...the phone's subset = solver + aggregation (its pivot+solve caps, NOT numtheory)",
+	StzFindFirst("solver", cParts) > 0 and StzFindFirst("aggregation", cParts) > 0 and StzFindFirst("numtheory", cParts) = 0)
+chk("...emulator.js loads each part's own subset + gates verbs by it",
+	StzFindFirst("loadEngineFor", cJs) > 0 and StzFindFirst("engine subset", cJs) > 0)
 
 StzEngineDirDelete(cDir)
 

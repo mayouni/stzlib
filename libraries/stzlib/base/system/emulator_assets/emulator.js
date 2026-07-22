@@ -8,7 +8,7 @@
    them with each part's real engine calls. */
 
 var openPart = null;
-var STZ = null;            // the loaded stz.wasm engine edge (null until ready)
+var engineMods = {};       // part -> { mod, groups } once its stz.wasm subset loads
 var engineHinted = {};     // parts whose window has shown the engine-ready hint
 
 /* -- device windows (modals) -- */
@@ -28,16 +28,35 @@ function openPop(n) {
 		// lazy-load the part's app iframe only when its window first opens
 		var f = m.querySelector('iframe[data-src]');
 		if (f && !f.getAttribute('src')) { f.setAttribute('src', f.getAttribute('data-src')); }
-		engineHint(n);
+		loadEngineFor(n);
 	}
 }
 
-// Announce the real engine in a window's log, once, when stz.wasm is ready.
+// Load a part's OWN engine subset (named in the plan map), then hint what it
+// carries. Only the capabilities this part uses are shipped, so its console can
+// run exactly those verbs -- nothing more.
+function loadEngineFor(n) {
+	if (typeof window.STZ_PARTS === 'undefined' || !window.STZ_PARTS[n]) return; // no engine for this part
+	if (engineMods[n]) { engineHint(n); return; }
+	if (typeof StzWasm === 'undefined') return;
+	var spec = window.STZ_PARTS[n];
+	StzWasm.load(spec.wasm).then(function (m) {
+		engineMods[n] = { mod: m, groups: spec.groups };
+		if (openPart === n) engineHint(n);
+	}).catch(function () { /* subset binary absent -> console keeps rehearsed verbs */ });
+}
+
+// Announce the part's real engine subset, once, when its stz.wasm has loaded.
 function engineHint(n) {
-	if (!STZ || engineHinted[n]) return;
+	var em = engineMods[n];
+	if (!em || engineHinted[n]) return;
 	engineHinted[n] = true;
-	addLine('log-' + n, 'stz.wasm ready (abi ' + STZ.abi + ') -- this console runs the REAL engine.');
-	addLine('log-' + n, 'try:  solve 2 -8   .   prime 100   .   mean 10 20 30 40   .   gcd 48 36');
+	addLine('log-' + n, 'stz.wasm ready (abi ' + em.mod.abi + ') -- this part carries the ' + em.groups + ' engine subset.');
+	var tips = [];
+	if (em.groups.indexOf('solver') >= 0) { tips.push('solve 2 -8'); }
+	if (em.groups.indexOf('aggregation') >= 0) { tips.push('mean 10 20 30 40'); }
+	if (em.groups.indexOf('numtheory') >= 0) { tips.push('prime 100'); tips.push('gcd 48 36'); }
+	if (tips.length) { addLine('log-' + n, 'try:  ' + tips.join('   .   ')); }
 }
 
 function openEmu(el) { openPop(el.getAttribute('data-part')); }
@@ -122,37 +141,48 @@ function doPin(p, a) {
    These call the SAME Zig logic that backs the native DLLs, compiled to wasm.
    Available in every window's console once stz.wasm has loaded. */
 function tryEngine(p, q) {
-	if (!STZ) return false;
+	var em = engineMods[p];
+	if (!em) return false;
+	var e = em.mod.exports;
 	var t = q.trim().split(/\s+/);
 	var cmd = t[0].toLowerCase();
-	var e = STZ.exports;
+	// a verb whose function is not in THIS part's subset is reported as such --
+	// the whole point of per-part emission is visible here.
+	function need(fn, label) {
+		if (typeof e[fn] === 'function') { return true; }
+		addLine('log-' + p, '  ' + label + ' is not in this part\'s engine subset (' + em.groups + ')');
+		return false;
+	}
 	try {
 		if (cmd === 'solve' && t.length === 3) {
-			addLine('log-' + p, '  stz.wasm . solve ' + t[1] + 'x + (' + t[2] + ') = 0  ->  x = ' + e.stz_solve_linear(parseFloat(t[1]), parseFloat(t[2])));
+			if (need('stz_solve_linear', 'solve')) { addLine('log-' + p, '  stz.wasm . solve ' + t[1] + 'x + (' + t[2] + ') = 0  ->  x = ' + e.stz_solve_linear(parseFloat(t[1]), parseFloat(t[2]))); }
 			return true;
 		}
 		if (cmd === 'prime' && t.length === 2) {
-			addLine('log-' + p, '  stz.wasm . nth_prime(' + t[1] + ') = ' + e.stz_nth_prime(parseInt(t[1], 10)));
+			if (need('stz_nth_prime', 'prime')) { addLine('log-' + p, '  stz.wasm . nth_prime(' + t[1] + ') = ' + e.stz_nth_prime(parseInt(t[1], 10))); }
 			return true;
 		}
 		if (cmd === 'isprime' && t.length === 2) {
-			addLine('log-' + p, '  stz.wasm . is_prime(' + t[1] + ') = ' + (e.stz_is_prime(BigInt(t[1])) ? 'yes' : 'no'));
+			if (need('stz_is_prime', 'isprime')) { addLine('log-' + p, '  stz.wasm . is_prime(' + t[1] + ') = ' + (e.stz_is_prime(BigInt(t[1])) ? 'yes' : 'no')); }
 			return true;
 		}
 		if (cmd === 'gcd' && t.length === 3) {
-			addLine('log-' + p, '  stz.wasm . gcd(' + t[1] + ', ' + t[2] + ') = ' + e.stz_gcd(BigInt(t[1]), BigInt(t[2])));
+			if (need('stz_gcd', 'gcd')) { addLine('log-' + p, '  stz.wasm . gcd(' + t[1] + ', ' + t[2] + ') = ' + e.stz_gcd(BigInt(t[1]), BigInt(t[2]))); }
 			return true;
 		}
 		if (cmd === 'fib' && t.length === 2) {
-			addLine('log-' + p, '  stz.wasm . fib(' + t[1] + ') = ' + e.stz_fib(parseInt(t[1], 10)));
+			if (need('stz_fib', 'fib')) { addLine('log-' + p, '  stz.wasm . fib(' + t[1] + ') = ' + e.stz_fib(parseInt(t[1], 10))); }
 			return true;
 		}
 		if ((cmd === 'mean' || cmd === 'sum') && t.length > 1) {
-			var arr = t.slice(1).map(Number);
-			var m = STZ.f64s(arr);
-			var r = (cmd === 'mean') ? e.stz_mean(m.ptr, m.len) : e.stz_sum(m.ptr, m.len);
-			STZ.reset();
-			addLine('log-' + p, '  stz.wasm . ' + cmd + '([' + arr.join(', ') + ']) = ' + r);
+			var fn = (cmd === 'mean') ? 'stz_mean' : 'stz_sum';
+			if (need(fn, cmd)) {
+				var arr = t.slice(1).map(Number);
+				var m = em.mod.f64s(arr);
+				var r = e[fn](m.ptr, m.len);
+				em.mod.reset();
+				addLine('log-' + p, '  stz.wasm . ' + cmd + '([' + arr.join(', ') + ']) = ' + r);
+			}
 			return true;
 		}
 	} catch (err) {
@@ -205,12 +235,5 @@ function deployProd() {
 var first = document.getElementsByClassName('grow')[0];
 if (first) sel(first);
 
-/* load the differential engine edge; when ready, any open window's console
-   runs the REAL engine. If stz.wasm is absent, the console keeps its rehearsed
-   verbs -- the emulator degrades gracefully. */
-if (typeof StzWasm !== 'undefined') {
-	StzWasm.load('stz.wasm').then(function (m) {
-		STZ = m;
-		if (openPart) engineHint(openPart);
-	}).catch(function (err) { /* no stz.wasm in this bundle */ });
-}
+/* Each part loads its OWN engine subset when its window first opens
+   (loadEngineFor, from openPop) -- ship and run only what the part uses. */
