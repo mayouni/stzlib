@@ -32,6 +32,13 @@
 				new Float64Array(memory.buffer, ptr, arr.length).set(arr);
 				return { ptr: ptr, len: arr.length };
 			},
+			// marshal a JS string into wasm as UTF-8 bytes; returns { ptr, len }
+			bytes: function (s) {
+				var b = new TextEncoder().encode(s);
+				var ptr = e.stz_alloc(b.length || 1);
+				new Uint8Array(memory.buffer, ptr, b.length).set(b);
+				return { ptr: ptr, len: b.length };
+			},
 			reset: function () { if (e.stz_reset) e.stz_reset(); }
 		};
 	}

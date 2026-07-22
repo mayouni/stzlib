@@ -1,5 +1,8 @@
 const std = @import("std");
-const allocator = std.heap.c_allocator;
+const builtin = @import("builtin");
+// Native DLL builds use the C allocator; the wasm edge (freestanding, no libc)
+// uses Zig's wasm page allocator. Comptime switch -- the native path is unchanged.
+const allocator = if (builtin.target.cpu.arch == .wasm32) std.heap.wasm_allocator else std.heap.c_allocator;
 
 const NodeId = u32;
 const EdgeList = std.ArrayListUnmanaged(Edge);

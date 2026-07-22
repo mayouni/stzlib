@@ -56,6 +56,8 @@ function engineHint(n) {
 	if (em.groups.indexOf('solver') >= 0) { tips.push('solve 2 -8'); }
 	if (em.groups.indexOf('aggregation') >= 0) { tips.push('mean 10 20 30 40'); }
 	if (em.groups.indexOf('numtheory') >= 0) { tips.push('prime 100'); tips.push('gcd 48 36'); }
+	if (em.groups.indexOf('pattern') >= 0) { tips.push('arith 2 4 6 8'); tips.push('palindrome level'); }
+	if (em.groups.indexOf('graph') >= 0) { tips.push('graph demo'); }
 	if (tips.length) { addLine('log-' + n, 'try:  ' + tips.join('   .   ')); }
 }
 
@@ -182,6 +184,39 @@ function tryEngine(p, q) {
 				var r = e[fn](m.ptr, m.len);
 				em.mod.reset();
 				addLine('log-' + p, '  stz.wasm . ' + cmd + '([' + arr.join(', ') + ']) = ' + r);
+			}
+			return true;
+		}
+		if (cmd === 'palindrome' && t.length === 2) {
+			if (need('stz_is_palindrome', 'palindrome')) {
+				var pb = em.mod.bytes(t[1]);
+				addLine('log-' + p, '  stz.wasm . is_palindrome("' + t[1] + '") = ' + (e.stz_is_palindrome(pb.ptr, pb.len) ? 'yes' : 'no'));
+				em.mod.reset();
+			}
+			return true;
+		}
+		if ((cmd === 'arith' || cmd === 'geo') && t.length > 1) {
+			var isFn = (cmd === 'arith') ? 'stz_is_arithmetic' : 'stz_is_geometric';
+			if (need(isFn, cmd)) {
+				var sq = t.slice(1).map(Number);
+				var ms = em.mod.f64s(sq);
+				var yes = (cmd === 'arith') ? e.stz_is_arithmetic(ms.ptr, ms.len) : e.stz_is_geometric(ms.ptr, ms.len);
+				var extra = (cmd === 'arith') ? ('diff ' + e.stz_arith_diff(ms.ptr, ms.len)) : ('ratio ' + e.stz_geo_ratio(ms.ptr, ms.len));
+				em.mod.reset();
+				addLine('log-' + p, '  stz.wasm . ' + cmd + '([' + sq.join(', ') + ']) = ' + (yes ? ('yes, ' + extra) : 'no'));
+			}
+			return true;
+		}
+		if (cmd === 'graph' && t[1] === 'demo') {
+			if (need('stz_graph_create', 'graph')) {
+				var g = e.stz_graph_create(1); // directed a -> b -> c
+				var na = em.mod.bytes('a'), nb = em.mod.bytes('b'), nc = em.mod.bytes('c');
+				e.stz_graph_add_edge(g, na.ptr, na.len, nb.ptr, nb.len, 1);
+				e.stz_graph_add_edge(g, nb.ptr, nb.len, nc.ptr, nc.len, 1);
+				var pac = e.stz_graph_path_exists(g, na.ptr, na.len, nc.ptr, nc.len);
+				addLine('log-' + p, '  stz.wasm . graph a->b->c: ' + Number(e.stz_graph_node_count(g)) + ' nodes, ' + Number(e.stz_graph_edge_count(g)) + ' edges, path a->c = ' + (pac ? 'yes' : 'no'));
+				e.stz_graph_free(g);
+				em.mod.reset();
 			}
 			return true;
 		}

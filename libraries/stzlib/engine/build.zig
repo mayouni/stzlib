@@ -884,7 +884,7 @@ pub fn build(b: *std.Build) void {
         // Which engine groups to compile in -- the brain sets this per part from
         // its [stz.wasm]-placed capabilities, so we emit ONLY the plan's subset.
         // Default = all (a superset build for `zig build wasm` with no arg).
-        const wasm_groups = b.option([]const u8, "wasm-groups", "engine groups in stz.wasm (comma-sep: solver,aggregation,numtheory)") orelse "solver,aggregation,numtheory";
+        const wasm_groups = b.option([]const u8, "wasm-groups", "engine groups in stz.wasm (comma-sep: solver,aggregation,numtheory,pattern,graph)") orelse "solver,aggregation,numtheory,pattern,graph";
         const wg_opts = b.addOptions();
         wg_opts.addOption([]const u8, "groups", wasm_groups);
         const wasm_mod = b.createModule(.{

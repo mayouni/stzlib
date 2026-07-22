@@ -178,6 +178,10 @@ func _StzWasmGroupFor(pcCapKey)
 		return "aggregation"
 	but _c_ = "bignumber"
 		return "numtheory"
+	but _c_ = "pattern"
+		return "pattern"
+	but _c_ = "graph"
+		return "graph"
 	ok
 	return ""
 
