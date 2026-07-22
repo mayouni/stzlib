@@ -1,11 +1,12 @@
 # The Softanza Deployment Technology
 ### From definition to launch: storing and running a solution on config-described target sites
 
-> Status: built (slice 1). Components: `stzDeploymentSite`, `stzDeployment`,
-> `stzBuilderBrain.Deploy(:Production)`. Guard: `deployment_narrated` (16/16).
+> Status: built. Components: `stzDeploymentSite`, `stzDeployment`,
+> `stzBuilderBrain.Deploy(:Production)`. Guard: `deployment_narrated` (45/45).
 > Tutorial: [stz-deploying-to-target-sites-narration.md](../narrations/stz-deploying-to-target-sites-narration.md).
+> The plan of steps + provisioning are in [SOFTANZA_DEPLOYMENT_PLAN.md](SOFTANZA_DEPLOYMENT_PLAN.md).
 > Sits atop the [emulation technology](SOFTANZA_EMULATION.md) and the governance
-> crossing.
+> crossing; part of the [Softanza delivery plane](SOFTANZA_DELIVERY_PLANE.md).
 
 ---
 

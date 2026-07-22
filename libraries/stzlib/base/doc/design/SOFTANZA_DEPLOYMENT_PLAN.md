@@ -3,8 +3,10 @@
 
 > Status: built. Components: `stzDeployment` (Steps / After / Run / Feasibility),
 > `stzResourceSpec`, `stzDeploymentSite` (Capacity / Provider / Provision).
-> Guard: `deployment_narrated` (45/45). Part of the
-> [deployment technology](SOFTANZA_DEPLOYMENT.md); sits on the governance crossing.
+> Guard: `deployment_narrated` (45/45). Tutorial:
+> [planning and provisioning a deployment](../narrations/stz-planning-and-provisioning-a-deployment-narration.md).
+> Part of the [deployment technology](SOFTANZA_DEPLOYMENT.md) and the
+> [Softanza delivery plane](SOFTANZA_DELIVERY_PLANE.md); sits on the governance crossing.
 
 ---
 

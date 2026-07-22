@@ -5,6 +5,7 @@
 > `stzBuilder` (the `wasm` target), `stz.wasm` / `stz.js`.
 > Guards: `builder_brain_narrated`, `wasm_narrated`, `emulator_narrated`.
 > Tutorial: [stz-emulating-the-whole-solution-narration.md](../narrations/stz-emulating-the-whole-solution-narration.md).
+> Part of the [Softanza delivery plane](SOFTANZA_DELIVERY_PLANE.md).
 
 ---
 
