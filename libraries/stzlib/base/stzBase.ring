@@ -361,6 +361,12 @@ ok
     load "system/stzBuilderBrain.ring"
     load "system/stzEmulator.ring"
 
+    # stzDeployment: the deployment story end to end -- a stzDeploymentSite is a
+    # config-described target repo (connection/storage/protocol/control); a
+    # stzDeployment binds each part to a site and stores/launches/reports, GOVERNED
+    # (only an effectful actor commits). Deploy(:Emulated) rehearses; this commits.
+    load "system/stzDeployment.ring"
+
     load "system/stzMemoryProfiler.ring"
     load "system/stzMemoryProfiler32Bit.ring"
     load "system/stzMemoryProfiler64Bit.ring"
