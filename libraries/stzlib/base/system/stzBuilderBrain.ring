@@ -179,6 +179,8 @@ class stzBuilderBrain from stzObject
 	@cName = ""
 	@aParts = []       # [ name, kind, targetname, [caps] ]  -- plain data (survives copy)
 	@oCat = NULL
+	@aBindings = []    # [ partName, siteObject ] -- WHERE each part deploys (production)
+	@oActor = NULL     # the executing actor -- governs whether Deploy(:Production) commits
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -281,6 +283,27 @@ class stzBuilderBrain from stzObject
 		next
 		return _found_
 
+	# WHERE each part deploys in production: bind a part to a stzDeploymentSite.
+	# (Deploy(:Emulated) needs no sites -- it runs in the browser; production does.)
+	def DeployTo(pcPart, poSite)
+		@aBindings + [ StzLower("" + pcPart), poSite ]
+		return This
+
+		def Onto(pcPart, poSite)
+			return This.DeployTo(pcPart, poSite)
+
+	# the executing actor -- governs whether Deploy(:Production) COMMITS or only
+	# rehearses (only an effectful actor may cross the governed bridge to reality).
+	def AsActor(poActor)
+		@oActor = poActor
+		return This
+
+	def Bindings()
+		return @aBindings
+
+	def DeploymentActor()
+		return @oActor
+
 	# REHEARSE the placement & scope plan -- no bytes built. This is Build()'s
 	# thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
@@ -307,16 +330,38 @@ class stzBuilderBrain from stzObject
 	#   :Emulated   -> the programming phase: generate the web-based mission-control
 	#                  emulator (via stzEmulator) where the whole solution runs and
 	#                  is debugged visually, part by part.
-	#   :Production  -> the same parts cross the governed bridge to real targets; the
-	#                  plan IS the production spec the lowering/platform path executes.
+	#   :Production  -> the same parts cross the governed bridge to real target SITES.
+	#                  Deploy(:Production) DRIVES a stzDeployment: it binds each part to
+	#                  its site (from DeployTo) and, IF the actor may commit (effectful),
+	#                  STORES + LAUNCHES it -- otherwise it returns the deployment as a
+	#                  rehearsal. Emulation rehearses in the browser; production commits.
 	def Deploy(pMode)
 		_m_ = StzLower("" + pMode)
 		if _m_ = "emulated" or _m_ = ":emulated"
 			_oEmu_ = new stzEmulator(This)
 			_oEmu_.Build()
 			return _oEmu_
+		but _m_ = "production" or _m_ = ":production"
+			return This._DeployProduction()
 		ok
 		return This.Plan()
+
+	# assemble the stzDeployment from the brain's bindings + actor, and perform it
+	# when governance permits (commit); else return it un-committed (a rehearsal).
+	def _DeployProduction()
+		_oDep_ = new stzDeployment(This)
+		if @oActor != NULL
+			_oDep_.AsActor(@oActor)
+		ok
+		_n_ = len(@aBindings)
+		for _i_ = 1 to _n_
+			_oDep_.To(@aBindings[_i_][1], @aBindings[_i_][2])
+		next
+		if _oDep_.MayCommit()
+			_oDep_.Store()
+			_oDep_.Launch()
+		ok
+		return _oDep_
 
 
   #==============#
