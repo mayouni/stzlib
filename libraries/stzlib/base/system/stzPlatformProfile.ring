@@ -328,6 +328,8 @@ class stzAppProfile from stzObject
 	@oDeploySystem = NULL
 	@oScope = NULL        # the scope its feature code is written in (retained,
 	                      # so the rehearsed operations survive to deploy-time)
+	@cLanguage = ""       # c / cpp / zig / ring -- so Build() compiles it via stzBuilder
+	@aSources = []        # the part's source files
 
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
@@ -346,6 +348,34 @@ class stzAppProfile from stzObject
 	def SetKind(pcKind)
 		@cKind = StzLower(ring_trim("" + pcKind))
 		return This
+
+	# the LANGUAGE this part's code is written in + its source files, so
+	# stzPlatform.Build() compiles it via stzBuilder for its deployment target.
+	def SetLanguage(pcLang)
+		@cLanguage = StzLower(ring_trim("" + pcLang))
+		return This
+
+	def Language()
+		return @cLanguage
+
+	def HasLanguage()
+		return @cLanguage != ""
+
+	def AddSource(pcFile)
+		@aSources + ("" + pcFile)
+		return This
+
+	def AddSources(paFiles)
+		if isList(paFiles)
+			_n_ = len(paFiles)
+			for _i_ = 1 to _n_
+				@aSources + ("" + paFiles[_i_])
+			next
+		ok
+		return This
+
+	def Sources()
+		return @aSources
 
 	# Declare the deployment target (a friendly token or a stzSystemProfile).
 	def To(pTarget)

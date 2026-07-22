@@ -152,6 +152,11 @@ chk("...a human/PI gets the effectful/sensing/compute ones", len(oFwProfile.Capa
 ? "-- Scene 13: a stzPlatform OWNS the profile; Build() THEN Deploy() --"
 # We do not deploy a profile -- a PLATFORM (which owns the profile) is built,
 # then deployed. Two separate, ordered operations.
+# each part declares its LANGUAGE + source, so Build() compiles it by language.
+# Set BEFORE SetProfile: a platform OWNS a snapshot of its profile.
+oSol.App(:backend).SetLanguage(:Ring).AddSource("backend.ring")
+oSol.App(:firmware).SetLanguage(:C).AddSource("firmware.c")
+# (the superapp declares none -- Build() records it as such)
 oPlatform = StzPlatformQ("my-iot-product")
 oPlatform.SetProfile(oSol)
 chk("the platform owns the deployment profile", oPlatform.HasProfile())
@@ -167,6 +172,11 @@ chk("Deploy() before Build() is REFUSED (they are separate, ordered)", bDeployEa
 oPlatform.Build()
 chk("after Build(), the platform is built", oPlatform.IsBuilt())
 chk("...with a build entry per constituent", len(oPlatform.BuildReport()) = 3)
+chk("Build() WIRES stzBuilder -- the firmware compiles in C, for the ESP32", oPlatform.LanguageOf(:firmware) = "c" and StzFindFirst("firmware.c", oPlatform.BuildCommandFor(:firmware)) > 0)
+chk("...targeting the ESP32 triple, not the host (riscv32-freestanding)", StzFindFirst("riscv32-freestanding", oPlatform.BuildCommandFor(:firmware)) > 0)
+chk("...the backend compiles in RING -- the ENGINE linked into a standalone (vm.c), never the interpreter", oPlatform.LanguageOf(:backend) = "ring" and StzFindFirst("vm.c", oPlatform.BuildCommandFor(:backend)) > 0)
+chk("...for the backend's OWN target -- x86_64-linux, different from the firmware's", StzFindFirst("x86_64-linux", oPlatform.BuildCommandFor(:backend)) > 0)
+chk("...a part with no declared language is recorded as such (nothing to compile)", StzFindFirst("no language", oPlatform.BuildCommandFor(:superapp)) > 0)
 oPlatform.Deploy()
 chk("...and NOW Deploy() succeeds", oPlatform.IsDeployed())
 chk("...deploying every constituent to its target", len(oPlatform.DeployReport()) = 3)
