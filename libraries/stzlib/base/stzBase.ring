@@ -345,6 +345,7 @@ ok
     load "security/stzSecretStore.ring"
     load "security/stzAuth.ring"
     load "security/stzRequestSigner.ring"
+    load "security/stzSecurityPosture.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

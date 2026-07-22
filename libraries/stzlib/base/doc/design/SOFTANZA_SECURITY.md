@@ -50,7 +50,7 @@ Security is *conceptually* unified but was *physically* scattered across nine di
 
 | Concern | Where | Key classes |
 |---|---|---|
-| **Credentials, secrets, crypto** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzAuth`, `stzCryptoFuncs` (KDF helpers), `stzRequestSigner` (HMAC signing) |
+| **Credentials, secrets, crypto** | **`base/security/`** ← consolidated | `stzSecret` (+ `stzApiKey`/`stzPassword`/`stzDeployKey`/`stzToken`), `stzSecretStore`, `stzAuth`, `stzCryptoFuncs` (KDF helpers), `stzRequestSigner` (HMAC signing), `stzSecurityPosture` (runnable invariants) |
 | Authority (the lattice) | `base/system/` | `stzSystemActor`, `stzSystemCapabilities` |
 | Effect isolation (sandbox) | `base/system/` | `stzVirtualSystem` / `stzVirtualFileSystem` / `stzVirtualEnvironment` (rehearse → plan → commit, one bridge to reality) |
 | Governance contract | `base/governance/` | `stzGovernance` (risk tiers, CAN vs SHOULD, lineage, decommission) |
@@ -104,7 +104,17 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
    define — they were previously defined late in `stzPlatform` and resolved only at
    runtime). Verified: platform KDF (14), request-signing (29), platform (31), all
    security + delivery guards.
-3. **A security posture check** — a runnable `stzGovernanceChecks`-style invariant that scans a project: are all secrets registered in a store? any inline keys? any `llm_actor` holding an effect kind? — reported like the existing agent-graph guardrails.
+3. ~~A security posture check~~ — **done.** `stzSecurityPosture` runs invariants
+   over a project's security surface (its store + sites + actors) and returns
+   findings shaped exactly like `stzGovernanceChecks`
+   (`[ :invariant, :severity, :where, :message ]`): **no-sandboxed-effectful**
+   (ERROR — an actor sandboxed yet holding `effectful`), **inline-key** (WARN — a
+   site holding a secret outside the store, so uncaudited), **no-central-store**
+   (WARN — secret-bearing sites but no store), **refused-accesses** (WARN — the
+   store logged refused reveals). `IsSound()` = no errors; `Report()` prints;
+   CI entry points `StzCheckSecurityPosture` / `StzSecurityPostureIsSound` /
+   `StzSecurityInvariantNames` mirror `StzCheckAgentGraph`. Guard
+   `security_posture_narrated` (19).
 4. **`stzAuth` ↔ `stzSecret`** — session tokens as `stzToken`s; password reset flows through the store.
 5. **Vault backend** — wire `FromVaultQ` to a real secret manager.
 
