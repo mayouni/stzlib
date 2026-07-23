@@ -3,9 +3,9 @@
 
 > Status: built. Components: `stzDelivery`, `stzBuildPlan`, `stzEmulator`,
 > `stzBuilder` (the `wasm` target), `stz.wasm` / `stz.js`, `stzAppTopology`
-> (the per-part app model) and `stzAppBackend` (live cross-part state, §9).
+> (the per-part app model) and `stzAppBackend` (live + REMOTE cross-part state, §9).
 > Guards: `delivery_narrated`, `wasm_narrated`, `emulator_narrated`,
-> `62_app_backend_narrated`.
+> `62_app_backend_narrated`, `63_app_backend_remote_narrated`.
 > Tutorial: [stz-emulating-the-whole-solution-narration.md](../narrations/stz-emulating-the-whole-solution-narration.md).
 > Part of the [Softanza delivery plane](SOFTANZA_DELIVERY_PLANE.md).
 
@@ -249,6 +249,51 @@ obeys the library's one rule — *expression is free; admission is governed*.
 status, so who-wrote-what-across-parts is inspectable the way `stzSecretStore`
 audits reveals.
 
+### 9b. The backend leaves the process — remote backends
+
+The above is honest but incomplete: the server, the sqlite and the parts' client
+all shared one Ring interpreter. A backend is something the parts do **not**
+contain. So `stzAppBackend` has two modes behind **one API**:
+
+```ring
+oB.Start(0)                          # LOCAL  -- this process owns the state
+oB.ConnectTo("127.0.0.1", 8531)      # REMOTE -- it lives somewhere else
+
+oB.Create(:phone, "orders", [ [ "dish", "Couscous" ], [ "qty", 2 ] ])
+? oB.Dashboard(:admin)[2]            # ...identical from here on
+```
+
+**Location transparency is the point.** The remote guard and the local guard
+assert *the same numbers through the same calls*. Part code never learns where
+its backend lives.
+
+The difference is confined to `_Roundtrip`. **Local** pumps its own server
+between submit and await, because nothing else will. **Remote** must *not* pump
+— the far process runs its own loop, so the client is a curl-backed
+`SubmitHttp`/`AwaitHttp` that blocks on the wire. Pumping a server you do not
+own is precisely the bug the seam exists to prevent. (Status likewise: the raw
+status line locally; `HttpLastStatus` guarded by a **drain check** remotely,
+since that global goes stale on a timeout and would otherwise report a previous
+request's 200.)
+
+**Hosting one.** `SpawnRemote(port, ttl)` serialises the model, generates a host
+script — with an absolute `stzBase` load, so the child's working directory
+cannot matter — and launches a real `ring` child that `Start()`s and `Serve()`s
+the backend; `WaitReady()` polls `/health` until it answers. The guard is
+therefore **two operating-system processes, one socket, one sqlite**: the phone
+client POSTs an order, and a *separate* admin client object sees the count go
+1 → 2 and the engine-computed total 15 → 39.
+
+The model crosses with **type tags** (`n`/`s`) rather than being sniffed on the
+way back in — a price must stay numeric for the revenue maths, and "looks
+numeric" is how `"007"` silently becomes `7`. Fields are percent-escaped with
+`%25` decoded **last**, so an escaped percent can never be re-read as an escape.
+
+*Known limits, stated plainly:* the curl client submits GET and POST only, so
+the remote surface is the part-facing API (`Create`/`Rows`/`RowCount`/
+`Dashboard`), not the MBaaS `PUT`/`DELETE` item routes. A remote backend's
+sqlite is reachable only through HTTP — which is the entire point.
+
 ## 10. How it is verified
 
 - `delivery_narrated` — the placement doctrine (differential test; the
@@ -260,6 +305,11 @@ audits reveals.
 - `62_app_backend_narrated` (28) — the live backend: the phone's write moves the
   admin's engine-computed total; the model stays untouched; the LLM actor is
   refused and audited; a non-ASCII dish name survives HTTP → sqlite → JSON.
+- `63_app_backend_remote_narrated` (31) — the backend as a **separate OS
+  process**: the model crosses intact (separator, newline, percent, numeric
+  type), one client writes and another *sees* it over the socket, governance
+  still refuses the LLM actor, and the final scenario asserts the identical
+  numbers in local mode — location transparency, proven rather than claimed.
 - **In-browser** — real computation proven: `gcd(48,36)=12`, `solve 2x−8=0 → x=4`,
   `mean([10,20,30,40])=25` through the marshalling ABI, a real graph BFS via the
   wasm allocator. The engine runs in the browser.
