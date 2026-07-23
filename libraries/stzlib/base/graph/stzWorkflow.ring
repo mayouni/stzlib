@@ -695,83 +695,127 @@ class stzWorkflow from stzDiagram
 #  Workflow-Specific Rule Bases              #
 #============================================#
 
-class stzBPMRuleBase from stzObject
+# stzBPMRuleBase / stzSLARuleBase are stzGraphRuleSets (graph-rules plan, phase
+# 2): each declares its rules in init() and inherits AddRule / Check / IsSound.
+# Before phase 1 they raised R11 (new stzGraphRule against a class that did not
+# exist) and called AddRule against a method that did not exist -- they never
+# ran. The STRUCTURAL rules (orphan, single-start, decision branches) inspect
+# EDGES, so they use the checker escape hatch; the property rules use When/Then.
+
+class stzBPMRuleBase from stzGraphRuleSet
 	def init()
 		super.init("BPM Best Practices")
-		@cDomain = "bpm"
-		@cLevel = "workflow"
+		This.SetDomainQ("bpm")
 		This._LoadBPMRules()
-	
+
 	def _LoadBPMRules()
-		# No orphan steps
+		# No orphan steps -- structural: a step node with NO edges either way.
 		_oRule1_ = new stzGraphRule("bpm_no_orphans")
-		_oRule1_ {
-			SetRuleType("validation")
-			SetDomain("bpm")
-			SetMessage("Step has no incoming or outgoing connections")
-			When("nodeType", "equals", "step")
-			ThenViolation("Orphan step detected")
-		}
+		_oRule1_.SetDomainQ("bpm")
+		_oRule1_.SetMessageQ("Step has no incoming or outgoing connections")
+		_oRule1_.UseCheckerQ(func oGraph {
+			_aOut_ = []
+			_aIds_ = oGraph.NodesIds()
+			_n_ = len(_aIds_)
+			for _i_ = 1 to _n_
+				_id_ = _aIds_[_i_]
+				if StzLower("" + oGraph.NodeProperty(_id_, "nodeType")) = "step"
+					if oGraph.OutDegree(_id_) = 0 and oGraph.InDegree(_id_) = 0
+						_aOut_ + [ :where = _id_, :message = "Orphan step: " + _id_ ]
+					ok
+				ok
+			next
+			return _aOut_
+		})
 		This.AddRule(_oRule1_)
-		
-		# Single start point
+
+		# Single start point -- structural: exactly one node with no incoming.
 		_oRule2_ = new stzGraphRule("bpm_single_start")
-		_oRule2_ {
-			SetRuleType("validation")
-			SetDomain("bpm")
-			SetMessage("Workflow must have exactly one start")
-		}
+		_oRule2_.SetDomainQ("bpm")
+		_oRule2_.SetMessageQ("Workflow must have exactly one start")
+		_oRule2_.UseCheckerQ(func oGraph {
+			_aStarts_ = []
+			_aIds_ = oGraph.NodesIds()
+			_n_ = len(_aIds_)
+			for _i_ = 1 to _n_
+				if oGraph.InDegree(_aIds_[_i_]) = 0
+					_aStarts_ + _aIds_[_i_]
+				ok
+			next
+			if len(_aStarts_) = 1
+				return []
+			ok
+			return [ [ :where = "", :message = "workflow has " + len(_aStarts_) + " start node(s), expected 1" ] ]
+		})
 		This.AddRule(_oRule2_)
-		
-		# Decision nodes need 2+ paths
+
+		# Decision nodes need 2+ outgoing paths -- structural.
 		_oRule3_ = new stzGraphRule("bpm_decision_branches")
-		_oRule3_ {
-			SetRuleType("validation")
-			SetDomain("bpm")
-			SetMessage("Decision must have at least 2 outgoing paths")
-			When("type", "equals", "decision")
-			ThenViolation("Decision has insufficient branches")
-		}
+		_oRule3_.SetDomainQ("bpm")
+		_oRule3_.SetMessageQ("Decision must have at least 2 outgoing paths")
+		_oRule3_.UseCheckerQ(func oGraph {
+			_aOut_ = []
+			_aIds_ = oGraph.NodesIds()
+			_n_ = len(_aIds_)
+			for _i_ = 1 to _n_
+				_id_ = _aIds_[_i_]
+				if StzLower("" + oGraph.NodeProperty(_id_, "nodeType")) = "decision"
+					if oGraph.OutDegree(_id_) < 2
+						_aOut_ + [ :where = _id_, :message = "Decision has < 2 branches: " + _id_ ]
+					ok
+				ok
+			next
+			return _aOut_
+		})
 		This.AddRule(_oRule3_)
-		
-		# Steps must be assigned
+
+		# Steps must be assigned -- property prohibition: a step with no assignee.
 		_oRule4_ = new stzGraphRule("bpm_assignment_required")
-		_oRule4_ {
-			SetRuleType("validation")
-			SetDomain("bpm")
-			SetMessage("Step must be assigned to an actor")
-			When("assignedTo", "equals", "")
-			ThenViolation("Unassigned step")
-		}
+		_oRule4_.SetDomainQ("bpm")
+		_oRule4_.SetMessageQ("Step must be assigned to an actor")
+		_oRule4_.WhenQ("nodeType", "equals", "step")
+		_oRule4_.WhenQ("assignedTo", "missing", "")
+		_oRule4_.ThenViolationQ("Unassigned step")
 		This.AddRule(_oRule4_)
 
 
-class stzSLARuleBase from stzObject
+class stzSLARuleBase from stzGraphRuleSet
 	def init()
 		super.init("SLA Compliance")
-		@cDomain = "sla"
-		@cLevel = "workflow"
+		This.SetDomainQ("sla")
 		This._LoadSLARules()
-	
+
 	def _LoadSLARules()
-		# SLA definition required
+		# Critical steps must have an SLA defined -- implication: a node that IS
+		# critical must have sla > 0 (an unset sla reads as 0, so it fails).
 		_oRule1_ = new stzGraphRule("sla_defined")
-		_oRule1_ {
-			SetRuleType("validation")
-			SetDomain("sla")
-			SetMessage("Critical steps must have SLA defined")
-			When("critical", "equals", TRUE)
-			Then("sla", "greaterthan", 0)
-		}
+		_oRule1_.SetDomainQ("sla")
+		_oRule1_.SetMessageQ("Critical steps must have SLA defined")
+		_oRule1_.WhenQ("critical", "equals", TRUE)
+		_oRule1_.ThenQ("sla", "greaterthan", 0)
+		_oRule1_.ThenViolationQ("Critical step has no SLA")
 		This.AddRule(_oRule1_)
-		
-		# Duration within SLA
+
+		# Duration within SLA -- a CROSS-PROPERTY comparison (duration vs sla), so
+		# a checker, not a clause: a clause compares a property to a CONSTANT, but
+		# here both sides are properties of the same node.
 		_oRule2_ = new stzGraphRule("sla_compliance")
-		_oRule2_ {
-			SetRuleType("validation")
-			SetDomain("sla")
-			SetMessage("Step duration exceeds SLA")
-		}
+		_oRule2_.SetDomainQ("sla")
+		_oRule2_.SetMessageQ("Step duration exceeds SLA")
+		_oRule2_.UseCheckerQ(func oGraph {
+			_aOut_ = []
+			_aIds_ = oGraph.NodesIds()
+			_n_ = len(_aIds_)
+			for _i_ = 1 to _n_
+				_id_ = _aIds_[_i_]
+				_sla_ = oGraph.NodeProperty(_id_, "sla")
+				_dur_ = oGraph.NodeProperty(_id_, "duration")
+				if isNumber(_sla_) and _sla_ > 0 and isNumber(_dur_) and _dur_ > _sla_
+					_aOut_ + [ :where = _id_, :message = "duration " + _dur_ + " exceeds SLA " + _sla_ + ": " + _id_ ]
+				ok
+			next
+			return _aOut_
+		})
 		This.AddRule(_oRule2_)
 
 

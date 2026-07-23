@@ -463,15 +463,28 @@ func StzGraphRuleFindings(oGraph, paSpec)
 		return _aOut_
 	ok
 
-	# clause DSL: every node matching ALL clauses is a finding
+	# clause DSL: When-clauses select the SCOPE; Then-clauses (requirements) say
+	# what must HOLD on a scope node. No requirements => being in scope IS the
+	# violation (a PROHIBITION: "no node should match this"). With requirements
+	# => a scope node that FAILS any requirement is the violation (an
+	# IMPLICATION: "every node matching When must satisfy Then").
 	_aClauses_ = paSpec[:clauses]
-	if len(_aClauses_) = 0
+	_aReq_ = []
+	if HasKey(paSpec, :requirements)
+		_aReq_ = paSpec[:requirements]
+	ok
+	if len(_aClauses_) = 0 and len(_aReq_) = 0
 		return _aOut_
 	ok
 	_aIds_ = oGraph.NodesIds()
 	_nN_ = len(_aIds_)
 	for _i_ = 1 to _nN_
-		if _StzGraphRuleNodeMatches(oGraph, _aIds_[_i_], _aClauses_)
+		if NOT _StzGraphRuleNodeMatches(oGraph, _aIds_[_i_], _aClauses_)
+			loop
+		ok
+		if len(_aReq_) = 0
+			_aOut_ + [ :rule = _cName_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
+		but NOT _StzGraphRuleNodeMatches(oGraph, _aIds_[_i_], _aReq_)
 			_aOut_ + [ :rule = _cName_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
 		ok
 	next
@@ -514,8 +527,34 @@ func _StzGraphRuleClauseHolds(oGraph, pcId, aClause)
 		return NOT _StzGraphRuleValEmpty(_actual_)
 	but _op_ = "missing"
 		return _StzGraphRuleValEmpty(_actual_)
+	but _op_ = "greaterthan"
+		return _StzGraphRuleValCmp(_actual_, _want_) = 1
+	but _op_ = "lessthan"
+		return _StzGraphRuleValCmp(_actual_, _want_) = -1
+	but _op_ = "greaterequal"
+		return _StzGraphRuleValCmp(_actual_, _want_) >= 0
+	but _op_ = "lessequal"
+		return _StzGraphRuleValCmp(_actual_, _want_) <= 0
 	ok
 	return FALSE
+
+# -1 / 0 / 1 comparison, for the ordering operators only. Numeric when both are
+# numbers (the real case -- node properties like sla=5, duration=10 are stored as
+# numbers; an unset property is 0, so "sla greaterthan 0" correctly fails a
+# missing sla). Non-numeric operands are NOT orderable here, so they return 0
+# (incomparable) rather than letting Ring attempt a numeric coercion that raises
+# R41 on a value like "sla". Ordering a string against a string is a rule-design
+# error -- use a checker for cross-property comparisons.
+func _StzGraphRuleValCmp(pActual, pWant)
+	if isNumber(pActual) and isNumber(pWant)
+		if pActual < pWant
+			return -1
+		but pActual > pWant
+			return 1
+		ok
+		return 0
+	ok
+	return 0
 
 # scalar equality, case/space-insensitive on strings (matches the governance
 # idiom StzLower(prop) = "llm_actor"); a list never equals a scalar.
@@ -548,9 +587,17 @@ func _StzGraphRuleNormalizeOp(pcOp)
 		return "exists"
 	but _o_ = "missing" or _o_ = "absent"
 		return "missing"
+	but _o_ = "greaterthan" or _o_ = ">" or _o_ = "gt"
+		return "greaterthan"
+	but _o_ = "lessthan" or _o_ = "<" or _o_ = "lt"
+		return "lessthan"
+	but _o_ = "greaterequal" or _o_ = ">=" or _o_ = "ge"
+		return "greaterequal"
+	but _o_ = "lessequal" or _o_ = "<=" or _o_ = "le"
+		return "lessequal"
 	ok
-	stzraise("stzGraphRule.When: unknown operator '" + pcOp +
-	         "' (use equals|not-equals|contains|exists|missing).")
+	stzraise("stzGraphRule: unknown operator '" + pcOp + "' (use equals|not-equals|" +
+	         "contains|exists|missing|greaterthan|lessthan|greaterequal|lessequal).")
 
 func StzGraphRuleQ(pcName)
 	return new stzGraphRule(pcName)
@@ -563,7 +610,8 @@ class stzGraphRule from stzObject
 	@cSeverity  = "error"          # error | warning | info
 	@cMessage   = ""               # the rule description
 	@cViolation = ""               # the message attached to each finding
-	@aClauses   = []               # [ [ prop, op, want ], ... ] -- ALL must hold
+	@aClauses     = []             # When: [ [ prop, op, want ], ... ] -- the SCOPE
+	@aRequirements = []            # Then: [ [ prop, op, want ], ... ] -- must HOLD
 	@fChecker   = NULL             # explicit checker closure (overrides clauses)
 
 	def init(pcName)
@@ -631,6 +679,20 @@ class stzGraphRule from stzObject
 		@cViolation = "" + pcMsg
 		return This
 
+	# a REQUIREMENT clause: on a node in scope (matching every When), this must
+	# hold, else the node is a finding. Turns the rule from a prohibition ("no
+	# node should match") into an implication ("every matching node must satisfy
+	# this"). Same operator set as When, incl. the comparisons.
+	def Then(pcProp, pcOp, pValue)
+		This.ThenQ(pcProp, pcOp, pValue)
+
+	def ThenQ(pcProp, pcOp, pValue)
+		if ring_trim("" + pcProp) = ""
+			stzraise("stzGraphRule.Then: a requirement needs a property name.")
+		ok
+		@aRequirements + [ "" + pcProp, _StzGraphRuleNormalizeOp(pcOp), pValue ]
+		return This
+
 	# supply an explicit checker for rules too rich for the clause DSL. It is
 	# called as call fChecker(oGraph) and returns [ [ :where, :message ], ... ].
 	def UseChecker(fChecker)
@@ -668,6 +730,15 @@ class stzGraphRule from stzObject
 
 	def NumberOfClauses()
 		return len(@aClauses)
+
+	def Requirements()
+		return @aRequirements
+
+	def NumberOfRequirements()
+		return len(@aRequirements)
+
+	def IsImplication()
+		return len(@aRequirements) > 0
 
 	def HasChecker()
 		return not isNull(@fChecker)
@@ -726,11 +797,12 @@ class stzGraphRule from stzObject
 
 	def _Spec()
 		return [
-			:name      = @cName,
-			:clauses   = @aClauses,
-			:violation = This.ViolationMessage(),
-			:severity  = @cSeverity,
-			:checker   = @fChecker
+			:name         = @cName,
+			:clauses      = @aClauses,
+			:requirements = @aRequirements,
+			:violation    = This.ViolationMessage(),
+			:severity     = @cSeverity,
+			:checker      = @fChecker
 		]
 
 	# the registry default rules spell the type capitalized (:Validation)
@@ -759,3 +831,136 @@ class stzGraphRule from stzObject
 		next
 		if _c_ = ""  return "(no clauses)"  ok
 		return _c_
+
+
+#=====================================================#
+#  STZGRAPHRULESET -- A NAMED COLLECTION OF RULES      #
+#=====================================================#
+
+/*--- The container both rule-base consumers assumed (graph-rules plan, phase 2)
+
+stzWorkflow's stzBPMRuleBase / stzSLARuleBase and stzOrgChart's compliance
+bases all wanted the SAME thing: a named set of stzGraphRules you can add to and
+run over a graph in one call, aggregating findings. Neither had it -- the
+workflow bases called This.AddRule(...) against a method that did not exist, and
+the orgchart bases were name-only stubs. This is that container.
+
+    oSet = new stzGraphRuleSet("bpm")
+    oSet.AddRule(oRule1)
+    oSet.AddRule(oRule2)
+    ? oSet.Check(oGraph)      # every rule's findings, aggregated, in ONE shape
+    ? oSet.IsSound(oGraph)    # TRUE iff no rule with an ERROR finding fired
+
+A rule base is just a stzGraphRuleSet with a domain: the workflow and compliance
+bases below inherit this, declare their rules in init(), and gain Check/IsSound
+for free -- one engine, many rule bases.
+*/
+
+func StzGraphRuleSetQ(pcName)
+	return new stzGraphRuleSet(pcName)
+
+class stzGraphRuleSet from stzObject
+
+	@cName   = ""
+	@cDomain = ""
+	@aRules  = []          # a list of stzGraphRule objects
+
+	def init(pcName)
+		@cName = "" + pcName
+
+	def SetDomain(pcDomain)
+		This.SetDomainQ(pcDomain)
+
+	def SetDomainQ(pcDomain)
+		@cDomain = StzLower(ring_trim("" + pcDomain))
+		return This
+
+	# Add a rule to the set. If the rule has no domain of its own, it inherits
+	# the set's, so a base's rules all land in one registry group when compiled.
+	def AddRule(poRule)
+		This.AddRuleQ(poRule)
+
+	def AddRuleQ(poRule)
+		if @cDomain != "" and poRule.Domain() = "custom"
+			poRule.SetDomainQ(@cDomain)
+		ok
+		@aRules + poRule
+		return This
+
+	  #-- reads -----------------------------------------------------------
+
+	def Name()
+		return @cName
+
+	def Domain()
+		return @cDomain
+
+	def Rules()
+		return @aRules
+
+	def NumberOfRules()
+		return len(@aRules)
+
+	def RuleNamed(pcName)
+		_n_ = len(@aRules)
+		for _i_ = 1 to _n_
+			if @aRules[_i_].Name() = pcName
+				return @aRules[_i_]
+			ok
+		next
+		return NULL
+
+	def RuleNames()
+		_out_ = []
+		_n_ = len(@aRules)
+		for _i_ = 1 to _n_
+			_out_ + @aRules[_i_].Name()
+		next
+		return _out_
+
+	  #-- the engine bridge -----------------------------------------------
+
+	# Run EVERY rule over the graph; return all findings aggregated in the shared
+	# shape [ [ :rule, :where, :severity, :message ], ... ].
+	def Check(oGraph)
+		_aAll_ = []
+		_n_ = len(@aRules)
+		for _i_ = 1 to _n_
+			_aF_ = @aRules[_i_].Check(oGraph)
+			_nF_ = len(_aF_)
+			for _j_ = 1 to _nF_
+				_aAll_ + _aF_[_j_]
+			next
+		next
+		return _aAll_
+
+	def NumberOfFindings(oGraph)
+		return len(This.Check(oGraph))
+
+	# TRUE when no ERROR-severity finding fired (warnings/info advise, like
+	# stzSecurityPosture.IsSound and stzGovernanceChecks).
+	def IsSound(oGraph)
+		_aF_ = This.Check(oGraph)
+		_n_ = len(_aF_)
+		for _i_ = 1 to _n_
+			if _aF_[_i_][:severity] = "error"
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	# Compile every rule down into the shared $aGraphRules registry.
+	def RegisterAll()
+		_n_ = len(@aRules)
+		for _i_ = 1 to _n_
+			@aRules[_i_].Register()
+		next
+		return This
+
+	def Show()
+		? "rule set '" + @cName + "' [" + @cDomain + "] -- " + len(@aRules) + " rule(s)"
+		_n_ = len(@aRules)
+		for _i_ = 1 to _n_
+			? "  - " + @aRules[_i_].Name() + " (" + @aRules[_i_].Severity() + ")"
+		next
+		return This
