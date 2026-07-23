@@ -70,6 +70,10 @@ class stzAppServer from stzObject
 	@nRequestCount = 0
 	@nStartMs = 0
 
+	# Hosted agents (R5): an stzAgentHost sharing THIS server's loop
+	@oAgentHost = NULL
+	@nAgentSliceMs = 20       # max ms spent parked on the socket per tick pass
+
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
 		# stzObject.init(pObject) wants an argument
@@ -217,6 +221,12 @@ class stzAppServer from stzObject
 		end
 
 	# Serve every event that arrives within nMs (a bounded Run()).
+	#
+	# With agents hosted, the serve slice is BOUNDED: ServeOne(nLeft) would
+	# otherwise park on the socket for the whole remaining time whenever no
+	# request arrives, and the agents -- which live on this same loop -- would
+	# never tick. So we serve for at most @nAgentSliceMs, then tick whatever is
+	# due, and repeat. Requests and perceive-decide-act interleave on ONE loop.
 	def RunFor(nMs)
 		_nDeadline_ = StzEngineTimeNowMs() + nMs
 		while StzEngineTimeNowMs() < _nDeadline_
@@ -224,7 +234,16 @@ class stzAppServer from stzObject
 			if _nLeft_ < 1
 				exit
 			ok
-			This.ServeOne(_nLeft_)
+			if @oAgentHost = NULL
+				This.ServeOne(_nLeft_)
+			else
+				_nSlice_ = @nAgentSliceMs
+				if _nSlice_ > _nLeft_
+					_nSlice_ = _nLeft_
+				ok
+				This.ServeOne(_nSlice_)
+				@oAgentHost.TickDue()
+			ok
 		end
 		return This
 
@@ -232,7 +251,12 @@ class stzAppServer from stzObject
 	# from a handler). The documented blocking entry point.
 	def Run()
 		while @bRunning
-			This.ServeOne(1000)
+			if @oAgentHost = NULL
+				This.ServeOne(1000)
+			else
+				This.ServeOne(@nAgentSliceMs)
+				@oAgentHost.TickDue()
+			ok
 		end
 		return This
 
@@ -285,6 +309,149 @@ class stzAppServer from stzObject
 	def ExposeWithKey(oDb, cTable, cKeyCol)
 		@aResources + [ cTable, oDb, "" + cKeyCol ]
 		return This
+
+	  #-------------------------------------------#
+	 #  AGENTS: the agent host IS the same host   #
+	#-------------------------------------------#
+
+	# Host agents on THIS server's loop. The agent host shares the server's
+	# reactor rather than owning one, so a hosted agent's perceive-decide-act
+	# cycle and the HTTP listener are the same libuv loop -- which is what
+	# "the agent host is the same host" was always meant to mean.
+	#
+	# WHY EVERYTHING GOES THROUGH THE SERVER. Ring copies objects on `=`, so
+	# the host stored here is the server's own copy: a caller who kept the
+	# original would watch a snapshot that never ticks. That is why the
+	# supervision and read methods below DELEGATE instead of handing the host
+	# out -- the same cure stzAgentHost itself applies to its agents, and
+	# stzSuperApp to its governance. Reach the live host only through these.
+	def HostAgents()
+		if NOT @bRunning
+			stzraise("stzAppServer.HostAgents() needs a running server -- Start() first (the agents share ITS loop).")
+		ok
+		_oH_ = new stzAgentHost()
+		_oH_.SetReactor(@oReactor)     # share the loop; do not own one
+		@oAgentHost = _oH_
+		return This
+
+	# Adopt a host configured elsewhere (e.g. one carrying a decommission
+	# governance declared up front). It is REPARENTED onto this server's loop,
+	# and the caller's reference goes stale by the rule above.
+	def AdoptAgentHost(poHost)
+		if NOT @bRunning
+			stzraise("stzAppServer.AdoptAgentHost() needs a running server -- Start() first.")
+		ok
+		poHost.SetReactor(@oReactor)
+		@oAgentHost = poHost
+		return This
+
+	def IsHostingAgents()
+		return @oAgentHost != NULL
+
+	# How long a single serve slice may park on the socket before due agents
+	# are ticked. Smaller = crisper agent timing, more loop turns.
+	def SetAgentSliceQ(pnMs)
+		if pnMs < 1
+			stzraise("stzAppServer.SetAgentSliceQ: the slice must be >= 1ms.")
+		ok
+		@nAgentSliceMs = pnMs
+		return This
+
+	def AgentSlice()
+		return @nAgentSliceMs
+
+	#-- supervision, delegated to the live host -------------------------
+
+	def SuperviseAgent(poAgent, pnTickMs)
+		This._RequireAgentHost("SuperviseAgent")
+		@oAgentHost.Supervise(poAgent, pnTickMs)
+		return This
+
+	def SuperviseAgentOnEvent(poAgent, pcChannel)
+		This._RequireAgentHost("SuperviseAgentOnEvent")
+		@oAgentHost.SuperviseOnEvent(poAgent, pcChannel)
+		return This
+
+	def NumberOfAgents()
+		if @oAgentHost = NULL
+			return 0
+		ok
+		return @oAgentHost.NumberOfAgents()
+
+	def AgentNames()
+		_out_ = []
+		if @oAgentHost = NULL
+			return _out_
+		ok
+		_nN_ = @oAgentHost.NumberOfAgents()
+		for _i_ = 1 to _nN_
+			_out_ + @oAgentHost.NameAt(_i_)
+		next
+		return _out_
+
+	def AgentTicks(pcName)
+		if @oAgentHost = NULL
+			return 0
+		ok
+		return @oAgentHost.TicksOf(pcName)
+
+	def AgentIsActive(pcName)
+		if @oAgentHost = NULL
+			return FALSE
+		ok
+		return @oAgentHost.IsActive(pcName)
+
+	def AgentIsRetired(pcName)
+		if @oAgentHost = NULL
+			return FALSE
+		ok
+		return @oAgentHost.IsRetired(pcName)
+
+	def AgentTrace()
+		if @oAgentHost = NULL
+			return []
+		ok
+		return @oAgentHost.Trace()
+
+	#-- control. IN-PROCESS ONLY, deliberately (see _ServeAgents) -------
+
+	def PauseAgent(pcName)
+		This._RequireAgentHost("PauseAgent")
+		@oAgentHost.Cancel(pcName)
+		return This
+
+	def ResumeAgent(pcName)
+		This._RequireAgentHost("ResumeAgent")
+		@oAgentHost.Resume(pcName)
+		return This
+
+	# Governed teardown: refused until the agent's declared obligations are
+	# fulfilled (R4b). Returns FALSE with AgentWhy() explaining the refusal.
+	def RetireAgent(pcName)
+		This._RequireAgentHost("RetireAgent")
+		return @oAgentHost.Retire(pcName)
+
+	def AgentWhy()
+		if @oAgentHost = NULL
+			return ""
+		ok
+		return @oAgentHost.Why()
+
+	def DeclareAgentDecommission(pcName, pacObligations)
+		This._RequireAgentHost("DeclareAgentDecommission")
+		@oAgentHost.DeclareDecommission(pcName, pacObligations)
+		return This
+
+	def FulfillAgentObligation(pcName, pcObligation)
+		This._RequireAgentHost("FulfillAgentObligation")
+		@oAgentHost.FulfillObligation(pcName, pcObligation)
+		return This
+
+	def _RequireAgentHost(pcWhat)
+		if @oAgentHost = NULL
+			stzraise("stzAppServer." + pcWhat + "() needs hosted agents -- call HostAgents() first.")
+		ok
+		return TRUE
 
 	  #----------------------------#
 	 #  IoT: RAW STREAM LISTENER  #
@@ -355,6 +522,8 @@ class stzAppServer from stzObject
 				call _fHandler_(oReq, oResp)
 			but This._ServeResource(oReq, oResp)
 				# handled by the MBaaS floor
+			but This._ServeAgents(oReq, oResp)
+				# handled by the agent-observability surface
 			but oReq.Method() = "GET" and oReq.Path() = "/health"
 				oResp.Json([
 					"status", "healthy",
@@ -481,6 +650,102 @@ class stzAppServer from stzObject
 		ok
 		oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
 		return TRUE
+
+	  #--------------------------------------------#
+	 #  THE AGENT SURFACE -- READ-ONLY, BY DESIGN  #
+	#--------------------------------------------#
+
+	# GET /agents          -> every hosted agent, with its live tick count
+	# GET /agents/trace    -> the perceive-act trace
+	# GET /agents/<name>   -> one agent, or 404
+	#
+	# DELIBERATELY READ-ONLY. Pausing, resuming and retiring an agent are
+	# EFFECTS, and this library's rule is that expression is free but admission
+	# is governed -- an unauthenticated socket carries no actor, so it may not
+	# commit. Control therefore stays in-process (PauseAgent / RetireAgent),
+	# where an actor and the R4b decommission contract gate it. A deployment
+	# that wants remote control adds its own route behind its own auth, and
+	# thereby states who is allowed to do it.
+	#
+	# Returns TRUE when the path was an /agents path (so _Dispatch stops).
+	def _ServeAgents(oReq, oResp)
+		if @oAgentHost = NULL
+			return FALSE
+		ok
+		_cPath_ = oReq.Path()
+		if _cPath_ != "/agents" and StzFindFirst("/agents/", _cPath_) != 1
+			return FALSE
+		ok
+		if oReq.Method() != "GET"
+			oResp.Status(405, "Method Not Allowed").Json([
+				"error", "the agent surface is read-only; control is in-process and governed" ])
+			return TRUE
+		ok
+		if _cPath_ = "/agents"
+			oResp.Header("Content-Type", "application/json")
+			oResp.Send('{"agents":' + This._AgentsJson() + "}")
+			return TRUE
+		ok
+		# split, don't slice: "/agents/" is ASCII but an agent NAME need not be
+		_aSeg_ = StzSplit(_cPath_, "/agents/")
+		_cName_ = ""
+		if len(_aSeg_) >= 2
+			_cName_ = _aSeg_[2]
+		ok
+		if _cName_ = "trace"
+			oResp.Header("Content-Type", "application/json")
+			oResp.Send('{"trace":' + This._AgentTraceJson() + "}")
+			return TRUE
+		ok
+		if NOT @oAgentHost.IsSupervising(_cName_)
+			oResp.Status(404, "Not Found").Json([ "error", "no agent '" + _cName_ + "'" ])
+			return TRUE
+		ok
+		oResp.Header("Content-Type", "application/json")
+		oResp.Send('{"agent":' + This._OneAgentJson(_cName_) + "}")
+		return TRUE
+
+	def _AgentsJson()
+		_cOut_ = "["
+		_nN_ = @oAgentHost.NumberOfAgents()
+		for _i_ = 1 to _nN_
+			if _i_ > 1
+				_cOut_ += ","
+			ok
+			_cOut_ += This._OneAgentJson(@oAgentHost.NameAt(_i_))
+		next
+		return _cOut_ + "]"
+
+	def _OneAgentJson(pcName)
+		return '{"name":"' + This._JsonEsc(pcName) +
+		       '","active":' + This._Bool01(@oAgentHost.IsActive(pcName)) +
+		       ',"retired":' + This._Bool01(@oAgentHost.IsRetired(pcName)) +
+		       ',"ticks":' + @oAgentHost.TicksOf(pcName) +
+		       ',"channel":"' + This._JsonEsc(@oAgentHost.ChannelOf(pcName)) + '"}'
+
+	def _AgentTraceJson()
+		_aT_ = @oAgentHost.Trace()
+		_cOut_ = "["
+		_nN_ = len(_aT_)
+		for _i_ = 1 to _nN_
+			if _i_ > 1
+				_cOut_ += ","
+			ok
+			_cOut_ += ('{"at":' + _aT_[_i_][1] +
+			           ',"agent":"' + This._JsonEsc("" + _aT_[_i_][2]) +
+			           '","acted":' + _aT_[_i_][3] +
+			           ',"why":"' + This._JsonEsc("" + _aT_[_i_][4]) + '"}')
+		next
+		return _cOut_ + "]"
+
+	def _Bool01(pbVal)
+		if pbVal
+			return "1"
+		ok
+		return "0"
+
+	def _JsonEsc(pcVal)
+		return StzReplace("" + pcVal, '"', '\"')
 
 	# one row [cell,cell,...] -> ["cell","cell",...]
 	def _RowJson(aRow)
