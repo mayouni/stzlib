@@ -392,3 +392,370 @@ RegisterRule(:completeness, "no_bottlenecks", [
 	:message = "Graph contains bottleneck nodes",
 	:severity = :warning
 ])
+
+#=====================================================#
+#  STZGRAPHRULE -- THE OBJECT FACE OF THE RULE ENGINE  #
+#=====================================================#
+
+/*--- Rule governance, as a first-class object (graph-rules plan, phase 1)
+
+Everything above is a FUNCTION registry: StzRegisterRule(group, name, def) with
+closures that are param-driven (Ring anonymous functions do NOT close over the
+enclosing scope -- see the built-ins above, all driven by paRuleParams). That
+registry works, but a rule has no IDENTITY: no object to name, inherit from, or
+carry per-rule state (domain, severity, message).
+
+stzGraphRule is the OBJECT face over that same registry. You DECLARE a rule
+fluently; it COMPILES DOWN to a registered rule function; and the registered
+function and the object's own Check() share ONE matcher (StzGraphRuleFindings),
+so the two faces can never disagree -- the property phase 1 must earn.
+
+    oRule = new stzGraphRule("no-llm-effectful")
+    oRule.SetDomain("agentic").SetSeverityQ("error").
+          SetMessageQ("an llm actor must not hold the effectful capability").
+          WhenQ("kind", "equals", "llm_actor").
+          WhenQ("capabilities", "contains", "effectful").
+          ThenViolationQ("llm actor holds effectful -- an LLM proposes, a gate commits")
+
+    ? oRule.Check(oGraph)      # [ [ :rule, :where, :severity, :message ], ... ]
+    oRule.Register()           # StzGetRule("agentic","no-llm-effectful") now finds it
+
+WHY THIS IS THE FOUNDATION: it is the parent the plan's stzCodeRule /
+stzAgentRule / stzSecurityRule will inherit, and the class stzWorkflow already
+constructs (its BPM/SLA rule bases call new stzGraphRule(...) today against a
+class that did not exist -- phase 2 repairs them by this very type).
+
+Clauses are ANDed: a node matching EVERY When() clause is a finding. A rule too
+rich for property-matching (reachability, dominance -- the code/agent phases)
+supplies an explicit checker via UseChecker(); the DSL is the common path.
+
+Scope sigils: attributes @-prefixed, temps _x_-wrapped -- bare class-head
+attributes capture same-named user globals in Ring 1.27, and this file defines
+the globals $aGraphRules / $acStzRulfLoaded right above.
+*/
+
+# The ONE source of truth for "what does this rule find on this graph". BOTH the
+# object Check() and the registered closure call it, so they cannot diverge.
+# paSpec = [ :name, :clauses, :violation, :severity, :checker ].
+# Returns [ [ :rule, :where, :severity, :message ], ... ] (empty = the rule holds).
+func StzGraphRuleFindings(oGraph, paSpec)
+	_aOut_ = []
+	_cName_ = paSpec[:name]
+	_cSev_  = paSpec[:severity]
+	_cViol_ = paSpec[:violation]
+
+	# escape hatch: an explicit checker owns the whole decision. It gets the
+	# graph and returns [ [ :where = id, :message = msg ], ... ] ("" = graph-wide).
+	if HasKey(paSpec, :checker) and not isNull(paSpec[:checker])
+		_fChk_ = paSpec[:checker]         # call wants a plain var, not a[:k]
+		_aRaw_ = call _fChk_(oGraph)
+		_nR_ = len(_aRaw_)
+		for _i_ = 1 to _nR_
+			_r_ = _aRaw_[_i_]
+			_where_ = ""
+			_msg_ = _cViol_
+			if isList(_r_)
+				if HasKey(_r_, :where)    _where_ = _r_[:where]    ok
+				if HasKey(_r_, :message)  _msg_ = _r_[:message]    ok
+			ok
+			_aOut_ + [ :rule = _cName_, :where = _where_, :severity = _cSev_, :message = _msg_ ]
+		next
+		return _aOut_
+	ok
+
+	# clause DSL: every node matching ALL clauses is a finding
+	_aClauses_ = paSpec[:clauses]
+	if len(_aClauses_) = 0
+		return _aOut_
+	ok
+	_aIds_ = oGraph.NodesIds()
+	_nN_ = len(_aIds_)
+	for _i_ = 1 to _nN_
+		if _StzGraphRuleNodeMatches(oGraph, _aIds_[_i_], _aClauses_)
+			_aOut_ + [ :rule = _cName_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
+		ok
+	next
+	return _aOut_
+
+# A validation closure for the registry: [ ok, message ]. Param-driven (no
+# capture) -- it reads the same paSpec the object stored, so it mirrors Check().
+func StzGraphRuleValidationFn()
+	return func oGraph, paParams {
+		_aF_ = StzGraphRuleFindings(oGraph, paParams)
+		if len(_aF_) = 0
+			return [ TRUE, "" ]
+		ok
+		return [ FALSE, "" + paParams[:name] + ": " + len(_aF_) + " finding(s)" ]
+	}
+
+func _StzGraphRuleNodeMatches(oGraph, pcId, paClauses)
+	_n_ = len(paClauses)
+	for _i_ = 1 to _n_
+		if NOT _StzGraphRuleClauseHolds(oGraph, pcId, paClauses[_i_])
+			return FALSE
+		ok
+	next
+	return TRUE
+
+# aClause = [ prop, op, wantedValue ]. op in equals|not-equals|contains|exists|missing.
+func _StzGraphRuleClauseHolds(oGraph, pcId, aClause)
+	_prop_ = aClause[1]
+	_op_   = aClause[2]
+	_want_ = aClause[3]
+	_actual_ = oGraph.NodeProperty(pcId, _prop_)   # 0 when unset
+
+	if _op_ = "equals"
+		return _StzGraphRuleValEq(_actual_, _want_)
+	but _op_ = "not-equals"
+		return NOT _StzGraphRuleValEq(_actual_, _want_)
+	but _op_ = "contains"
+		return isList(_actual_) and ring_find(_actual_, _want_) > 0
+	but _op_ = "exists"
+		return NOT _StzGraphRuleValEmpty(_actual_)
+	but _op_ = "missing"
+		return _StzGraphRuleValEmpty(_actual_)
+	ok
+	return FALSE
+
+# scalar equality, case/space-insensitive on strings (matches the governance
+# idiom StzLower(prop) = "llm_actor"); a list never equals a scalar.
+func _StzGraphRuleValEq(pActual, pWant)
+	if isList(pActual) or isList(pWant)
+		return FALSE
+	ok
+	return StzLower(ring_trim("" + pActual)) = StzLower(ring_trim("" + pWant))
+
+func _StzGraphRuleValEmpty(pVal)
+	if isList(pVal)
+		return len(pVal) = 0
+	ok
+	if isNull(pVal)
+		return TRUE
+	ok
+	return ring_trim("" + pVal) = "" or ("" + pVal) = "0"
+
+# normalize a user-written operator to its canonical token; raise on unknown so
+# a typo is caught at declaration, not silently never-matching.
+func _StzGraphRuleNormalizeOp(pcOp)
+	_o_ = StzLower(ring_trim("" + pcOp))
+	if _o_ = "equals" or _o_ = "=" or _o_ = "is"
+		return "equals"
+	but _o_ = "not-equals" or _o_ = "!=" or _o_ = "isnot"
+		return "not-equals"
+	but _o_ = "contains" or _o_ = "has" or _o_ = "includes"
+		return "contains"
+	but _o_ = "exists" or _o_ = "present"
+		return "exists"
+	but _o_ = "missing" or _o_ = "absent"
+		return "missing"
+	ok
+	stzraise("stzGraphRule.When: unknown operator '" + pcOp +
+	         "' (use equals|not-equals|contains|exists|missing).")
+
+func StzGraphRuleQ(pcName)
+	return new stzGraphRule(pcName)
+
+class stzGraphRule from stzObject
+
+	@cName      = ""
+	@cType      = "validation"     # validation | constraint | derivation
+	@cDomain    = "custom"         # the registry GROUP this rule joins
+	@cSeverity  = "error"          # error | warning | info
+	@cMessage   = ""               # the rule description
+	@cViolation = ""               # the message attached to each finding
+	@aClauses   = []               # [ [ prop, op, want ], ... ] -- ALL must hold
+	@fChecker   = NULL             # explicit checker closure (overrides clauses)
+
+	def init(pcName)
+		if ring_trim("" + pcName) = ""
+			stzraise("stzGraphRule: a rule needs a name.")
+		ok
+		@cName = "" + pcName
+
+		#-- the fluent DSL (plain does the act; Q chains) -----------------
+
+	def SetRuleType(pcType)
+		This.SetRuleTypeQ(pcType)
+
+	def SetRuleTypeQ(pcType)
+		_t_ = StzLower(ring_trim("" + pcType))
+		if _t_ != "validation" and _t_ != "constraint" and _t_ != "derivation"
+			stzraise("stzGraphRule.SetRuleType: must be validation|constraint|derivation, got '" + pcType + "'.")
+		ok
+		@cType = _t_
+		return This
+
+	def SetDomain(pcDomain)
+		This.SetDomainQ(pcDomain)
+
+	def SetDomainQ(pcDomain)
+		if ring_trim("" + pcDomain) = ""
+			stzraise("stzGraphRule.SetDomain: the domain (registry group) cannot be empty.")
+		ok
+		@cDomain = StzLower(ring_trim("" + pcDomain))
+		return This
+
+	def SetSeverity(pcSeverity)
+		This.SetSeverityQ(pcSeverity)
+
+	def SetSeverityQ(pcSeverity)
+		_s_ = StzLower(ring_trim("" + pcSeverity))
+		if _s_ != "error" and _s_ != "warning" and _s_ != "info"
+			stzraise("stzGraphRule.SetSeverity: must be error|warning|info, got '" + pcSeverity + "'.")
+		ok
+		@cSeverity = _s_
+		return This
+
+	def SetMessage(pcMsg)
+		This.SetMessageQ(pcMsg)
+
+	def SetMessageQ(pcMsg)
+		@cMessage = "" + pcMsg
+		return This
+
+	# a node-matching clause: property `pcProp` `pcOp` `pValue`. Clauses AND.
+	def When(pcProp, pcOp, pValue)
+		This.WhenQ(pcProp, pcOp, pValue)
+
+	def WhenQ(pcProp, pcOp, pValue)
+		if ring_trim("" + pcProp) = ""
+			stzraise("stzGraphRule.When: a clause needs a property name.")
+		ok
+		@aClauses + [ "" + pcProp, _StzGraphRuleNormalizeOp(pcOp), pValue ]
+		return This
+
+	def ThenViolation(pcMsg)
+		This.ThenViolationQ(pcMsg)
+
+	def ThenViolationQ(pcMsg)
+		@cViolation = "" + pcMsg
+		return This
+
+	# supply an explicit checker for rules too rich for the clause DSL. It is
+	# called as call fChecker(oGraph) and returns [ [ :where, :message ], ... ].
+	def UseChecker(fChecker)
+		This.UseCheckerQ(fChecker)
+
+	def UseCheckerQ(fChecker)
+		@fChecker = fChecker
+		return This
+
+		#-- reads ---------------------------------------------------------
+
+	def Name()
+		return @cName
+
+	def RuleType()
+		return @cType
+
+	def Domain()
+		return @cDomain
+
+	def Severity()
+		return @cSeverity
+
+	def Message()
+		return @cMessage
+
+	def ViolationMessage()
+		if @cViolation != ""
+			return @cViolation
+		ok
+		return @cMessage
+
+	def Clauses()
+		return @aClauses
+
+	def NumberOfClauses()
+		return len(@aClauses)
+
+	def HasChecker()
+		return not isNull(@fChecker)
+
+		#-- the engine bridge ---------------------------------------------
+
+	# Run this rule over a graph. Returns findings in the shared shape:
+	#   [ [ :rule, :where, :severity, :message ], ... ]  (empty = the rule holds)
+	def Check(oGraph)
+		return StzGraphRuleFindings(oGraph, This._Spec())
+
+	# TRUE when the rule holds (no findings).
+	def Holds(oGraph)
+		return len(This.Check(oGraph)) = 0
+
+	def NumberOfFindings(oGraph)
+		return len(This.Check(oGraph))
+
+	# Compile this rule DOWN to an entry in the shared $aGraphRules registry, so
+	# the existing engine runs it like any hand-registered rule. The registered
+	# function is param-driven and delegates to the SAME matcher Check() uses,
+	# so the two faces cannot diverge.
+	def Register()
+		This.RegisterQ()
+
+	def RegisterQ()
+		StzRegisterRule(@cDomain, @cName, [
+			:type     = This._RegistryType(),
+			:function = StzGraphRuleValidationFn(),
+			:params   = This._Spec(),
+			:message  = @cMessage,
+			:severity = This._RegistrySeverity()
+		])
+		return This
+
+	# The registry entry this rule produces (without registering) -- for
+	# inspection and for the equivalence guard.
+	def RegistryEntry()
+		return [
+			:name     = Upper(@cName),
+			:type     = This._RegistryType(),
+			:function = StzGraphRuleValidationFn(),
+			:params   = This._Spec(),
+			:message  = @cMessage,
+			:severity = This._RegistrySeverity()
+		]
+
+	def Show()
+		? "graph rule '" + @cName + "' [" + @cType + "] in '" + @cDomain +
+		  "' (" + @cSeverity + ")"
+		? "  when: " + This._ClausesText()
+		? "  then: " + This.ViolationMessage()
+		return This
+
+		#-- internals -----------------------------------------------------
+
+	def _Spec()
+		return [
+			:name      = @cName,
+			:clauses   = @aClauses,
+			:violation = This.ViolationMessage(),
+			:severity  = @cSeverity,
+			:checker   = @fChecker
+		]
+
+	# the registry default rules spell the type capitalized (:Validation)
+	def _RegistryType()
+		if @cType = "constraint"
+			return :Constraint
+		but @cType = "derivation"
+			return :Derivation
+		ok
+		return :Validation
+
+	def _RegistrySeverity()
+		if @cSeverity = "warning"
+			return :warning
+		but @cSeverity = "info"
+			return :info
+		ok
+		return :error
+
+	def _ClausesText()
+		_c_ = ""
+		_n_ = len(@aClauses)
+		for _i_ = 1 to _n_
+			if _i_ > 1  _c_ += " AND "  ok
+			_c_ += (@aClauses[_i_][1] + " " + @aClauses[_i_][2] + " " + ("" + @aClauses[_i_][3]))
+		next
+		if _c_ = ""  return "(no clauses)"  ok
+		return _c_
