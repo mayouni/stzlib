@@ -78,6 +78,11 @@ class stzAppServer from stzObject
 	@oAgentHost = NULL
 	@nAgentSliceMs = 20       # max ms spent parked on the socket per tick pass
 
+	# Request authentication (for a listener that is NOT on the loopback)
+	@oSigner = NULL           # an stzRequestSigner holding the shared secret(s)
+	@nMaxSkewMs = 30000
+	@cAuthWhy = ""
+
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
 		# stzObject.init(pObject) wants an argument
@@ -314,6 +319,110 @@ class stzAppServer from stzObject
 		@aResources + [ cTable, oDb, "" + cKeyCol ]
 		return This
 
+	  #------------------------------------------------#
+	 #  REQUEST AUTHENTICATION (off-loopback listeners) #
+	#------------------------------------------------#
+
+	# Require every request to carry a valid HMAC signature. On the loopback a
+	# server can reasonably trust its callers; the moment it binds a real
+	# interface it cannot, and an unauthenticated MBaaS floor would accept a
+	# POST from anyone who can route to the port. This is the same rule the rest
+	# of the library applies -- expression is free, admission is governed --
+	# enforced at the transport edge.
+	#
+	# The envelope travels as query parameters (_kid/_ts/_nonce/_sig), because
+	# the curl-backed client submits a method, a URL and a body -- it has no
+	# custom-header channel. A MAC is not a secret, so carrying it in the URL is
+	# sound (the same shape as a presigned URL); the SECRET never leaves either
+	# side. stzRequestSigner supplies freshness (clock-skew window both ways),
+	# replay rejection (a nonce is accepted once) and constant-time comparison.
+	#
+	# EVERY request must be signed, /health included. An exemption is a hole to
+	# get wrong later, and a liveness probe that reports uptime and a request
+	# count is not nothing. A client that holds the key can sign its probe.
+	#
+	# NOTE (Ring aliasing): the stored signer is this server's COPY, so the
+	# replay-nonce ledger it maintains is the SERVER's. That is correct here --
+	# signer and verifier are different roles, and in the real topology they are
+	# different processes sharing only the secret.
+	def RequireSignedRequests(poSigner, pnMaxSkewMs)
+		This.RequireSignedRequestsQ(poSigner, pnMaxSkewMs)
+
+	def RequireSignedRequestsQ(poSigner, pnMaxSkewMs)
+		if pnMaxSkewMs < 1
+			stzraise("stzAppServer.RequireSignedRequests: the skew window must be >= 1ms.")
+		ok
+		@oSigner = poSigner
+		@nMaxSkewMs = pnMaxSkewMs
+		return This
+
+	def RequiresSignedRequests()
+		return @oSigner != NULL
+
+	# Why the last request was refused ("" when none was).
+	def AuthWhy()
+		return @cAuthWhy
+
+	# TRUE when the request may proceed.
+	def _RequestIsAuthorized(oReq)
+		if @oSigner = NULL
+			return TRUE
+		ok
+		_cKid_ = "" + oReq.Query("_kid")
+		_cSig_ = "" + oReq.Query("_sig")
+		if _cKid_ = "" or _cSig_ = ""
+			@cAuthWhy = "unsigned request (this listener requires a signature)"
+			return FALSE
+		ok
+		_cNonce_ = "" + oReq.Query("_nonce")
+		_nTs_ = ring_number("" + oReq.Query("_ts"))
+		_bOk_ = @oSigner.VerifyNow(_cKid_, oReq.Method(),
+		            This._PathWithoutAuth(oReq.Path()), oReq.Body(),
+		            _nTs_, _cNonce_, _cSig_, @nMaxSkewMs)
+		if _bOk_
+			@cAuthWhy = ""
+		else
+			@cAuthWhy = @oSigner.Why()
+		ok
+		return _bOk_
+
+	# The path with any query string removed.
+	def _BarePath(pcPath)
+		_a_ = StzSplit("" + pcPath, "?")
+		if len(_a_) = 0
+			return "" + pcPath
+		ok
+		return _a_[1]
+
+	# The path the signature covers: everything EXCEPT the envelope params, so
+	# signing is not circular while any real query parameter stays covered.
+	def _PathWithoutAuth(pcPath)
+		_aParts_ = StzSplit("" + pcPath, "?")
+		if len(_aParts_) < 2
+			return "" + pcPath
+		ok
+		_cKept_ = ""
+		_aPairs_ = StzSplit(_aParts_[2], "&")
+		_n_ = len(_aPairs_)
+		for _i_ = 1 to _n_
+			_aKV_ = StzSplit(_aPairs_[_i_], "=")
+			if len(_aKV_) = 0
+				loop
+			ok
+			_cK_ = _aKV_[1]
+			if _cK_ = "_kid" or _cK_ = "_ts" or _cK_ = "_nonce" or _cK_ = "_sig"
+				loop
+			ok
+			if _cKept_ != ""
+				_cKept_ += "&"
+			ok
+			_cKept_ += _aPairs_[_i_]
+		next
+		if _cKept_ = ""
+			return _aParts_[1]
+		ok
+		return _aParts_[1] + "?" + _cKept_
+
 	  #-------------------------------------------#
 	 #  AGENTS: the agent host IS the same host   #
 	#-------------------------------------------#
@@ -522,6 +631,12 @@ class stzAppServer from stzObject
 
 	def _Dispatch(oReq, oResp)
 		try
+			# the transport gate runs BEFORE routing: an unsigned caller must
+			# not reach a route, the MBaaS floor, or the agent surface.
+			if NOT This._RequestIsAuthorized(oReq)
+				oResp.Status(401, "Unauthorized").Json([ "error", @cAuthWhy ])
+				return
+			ok
 			_aM_ = @oRouter.MatchRoute(oReq.Method(), oReq.Path())
 			if _aM_[:matched]
 				oReq.SetParams(_aM_[:params])
@@ -531,7 +646,9 @@ class stzAppServer from stzObject
 				# handled by the MBaaS floor
 			but This._ServeAgents(oReq, oResp)
 				# handled by the agent-observability surface
-			but oReq.Method() = "GET" and oReq.Path() = "/health"
+			# compare the path WITHOUT its query: a signed probe arrives as
+			# "/health?_kid=..&_sig=..", and an exact match would miss it.
+			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/health"
 				oResp.Json([
 					"status", "healthy",
 					"engine", "softanza-resident",

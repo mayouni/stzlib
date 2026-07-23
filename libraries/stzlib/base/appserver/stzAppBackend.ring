@@ -85,6 +85,79 @@ SCOPE SIGILS: attributes are @-prefixed and method temps are _x_ wrapped
 func StzAppBackendQ(pcName, poTopology)
 	return new stzAppBackend(pcName, poTopology)
 
+# This machine's first ROUTABLE IPv4 address -- where a backend bound to
+# 0.0.0.0 is actually reachable from another host. A 0.0.0.0 bind answers on
+# every interface but is not an address you can dial, so something has to name
+# the routable one.
+#
+# BEST-EFFORT AND HONEST ABOUT IT: it asks the OS (ipconfig on Windows,
+# `hostname -I` elsewhere) and takes the first non-loopback IPv4 it finds. A
+# machine with several NICs may have a different one in mind, so a caller that
+# cares should pass the address explicitly to ConnectTo()/ReachAt(). Falls back
+# to 127.0.0.1 when nothing routable is found, which keeps a laptop with no
+# network from failing outright -- it just cannot be reached from elsewhere.
+func StzLanIpv4()
+	_cOut_ = ""
+	try
+		_oS_ = new stzSystemCall("ipconfig")
+		_oS_.Run()
+		_cOut_ = _oS_.Output()
+	catch
+		_cOut_ = ""
+	done
+	# Emptiness is a BYTE-length test, not ring_trim: ipconfig's UTF-16 buffer is
+	# all NUL-interleaved, and ring_trim(that) is "" even though it holds 900+
+	# bytes -- trimming it would fire the fallback and clobber the good output.
+	if len(_cOut_) = 0
+		try
+			_oS2_ = new stzSystemCall("hostname -I")
+			_oS2_.Run()
+			_cOut_ = _oS2_.Output()
+		catch
+			_cOut_ = ""
+		done
+	ok
+	# Windows ipconfig emits UTF-16 -- NUL-interleaved bytes. Those NULs MUST be
+	# stripped with Ring BYTE ops here: handing the raw buffer to the engine (via
+	# StzReplace/StzSplit) fails its utf-8 validation and the whole string comes
+	# back EMPTY (the binary-through-a-text-boundary trap). So sanitise to a
+	# digits-and-dots token stream with substr/ascii, THEN it is safe.
+	_cClean_ = ""
+	_nB_ = len("" + _cOut_)
+	for _i_ = 1 to _nB_
+		_b_ = substr("" + _cOut_, _i_, 1)
+		_nA_ = ascii(_b_)
+		if (_nA_ >= ascii("0") and _nA_ <= ascii("9")) or _b_ = "."
+			_cClean_ += _b_
+		else
+			_cClean_ += " "     # every non-address byte becomes a separator
+		ok
+	next
+	_a_ = StzSplit(_cClean_, " ")
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_c_ = ring_trim(_a_[_i_])
+		if _StzLooksIpv4(_c_) and StzLeft(_c_, 4) != "127." and StzLeft(_c_, 8) != "169.254."
+			return _c_
+		ok
+	next
+	return "127.0.0.1"
+
+# four dot-separated numeric groups -- enough to pick an address out of
+# command output without pulling a regex in for it
+func _StzLooksIpv4(pcTok)
+	_a_ = StzSplit("" + pcTok, ".")
+	if len(_a_) != 4
+		return FALSE
+	ok
+	for _i_ = 1 to 4
+		_c_ = _a_[_i_]
+		if _c_ = "" or NOT StzIsDigit(_c_)
+			return FALSE
+		ok
+	next
+	return TRUE
+
   #==========================================================#
  #  MODEL FILE: escaping + the loader a host process uses    #
 #==========================================================#
@@ -222,6 +295,10 @@ class stzAppBackend from stzObject
 	# -- remote mode --
 	@bRemote = FALSE       # TRUE = a client onto a backend in another process
 	@cHost = "127.0.0.1"
+	@cBindHost = ""        # the interface a HOST-mode backend bound
+	@cSignKeyId = ""       # shared-secret identity for the crossing
+	@cSignSecret = ""
+	@nMaxSkewMs = 30000
 	@nLastStatus = 0       # the status of the last crossing, either mode
 	@cModelPath = ""       # where SpawnRemote wrote the model
 	@cHostScript = ""      # the generated host script
@@ -241,8 +318,30 @@ class stzAppBackend from stzObject
 	# nPortNum 0 = ephemeral. After this, the state is LIVE: it no longer
 	# lives in the model, it lives in the database the parts share.
 	def Start(pnPortNum)
+		return This.StartOn("127.0.0.1", pnPortNum)
+
+	# Bind a CHOSEN interface, so a backend can be reached from another MACHINE:
+	#   StartOn("127.0.0.1", p)  loopback -- this process and its children only
+	#   StartOn("0.0.0.0",   p)  every interface -- reachable across the network
+	#   StartOn("10.0.0.7",  p)  one specific NIC
+	#
+	# LEAVING THE LOOPBACK REQUIRES A KEY. On 127.0.0.1 the callers are this
+	# machine; on a real interface they are whoever can route to the port, and an
+	# unauthenticated MBaaS floor would take a POST from any of them. So a
+	# non-loopback bind without SetSigningKey() is REFUSED here rather than
+	# quietly exposed -- governed by construction, not by a later audit finding.
+	def StartOn(pcHostAddr, pnPortNum)
 		if @bRunning
 			stzraise("stzAppBackend '" + @cName + "' is already live on port " + @nPort)
+		ok
+		_cH_ = ring_trim("" + pcHostAddr)
+		if _cH_ = ""
+			_cH_ = "127.0.0.1"
+		ok
+		if NOT This._IsLoopback(_cH_) and @cSignKeyId = ""
+			stzraise("stzAppBackend '" + @cName + "' refuses to bind " + _cH_ +
+			         " unauthenticated -- a backend that leaves the loopback is reachable " +
+			         "by anything that can route to it. Call SetSigningKey(id, secret) first.")
 		ok
 		@oDb = new stzDatabase(":memory:")
 		@oServer = new stzAppServer()
@@ -252,11 +351,23 @@ class stzAppBackend from stzObject
 			This._Materialise(_aNames_[_i_])
 			@oServer.Expose(@oDb, _aNames_[_i_])
 		next
-		@oServer.Start(pnPortNum, "127.0.0.1")
+		@oServer.Start(pnPortNum, _cH_)
+		if @cSignKeyId != ""
+			@oServer.RequireSignedRequests(This._NewSigner(), @nMaxSkewMs)
+		ok
+		@cBindHost = _cH_
 		@nPort = @oServer.Port()
 		@oClient = new stzReactor()
 		@bRunning = TRUE
 		return This
+
+	# The interface this backend is bound to (host mode).
+	def BindHost()
+		return @cBindHost
+
+	def _IsLoopback(pcHost)
+		_c_ = StzLower(ring_trim("" + pcHost))
+		return _c_ = "127.0.0.1" or _c_ = "localhost" or _c_ = "::1"
 
 	# Serve the backend to whoever connects, for nMs. This is what a HOSTING
 	# process runs after Start(): the loop that answers remote parts. (A local
@@ -287,6 +398,62 @@ class stzAppBackend from stzObject
 		@bRunning = TRUE
 		return This
 
+	# The shared secret that authenticates the crossing. Set it on BOTH sides:
+	# the HOST uses it to require a signature, the CLIENT to produce one. It is
+	# the same secret, so this one call serves both roles -- which is also why a
+	# real deployment must deliver it out of band (env, vault, stzSecretStore),
+	# never in the model file or the command line.
+	def SetSigningKey(pcKeyId, pcSecret)
+		This.SetSigningKeyQ(pcKeyId, pcSecret)
+
+	def SetSigningKeyQ(pcKeyId, pcSecret)
+		if ring_trim("" + pcKeyId) = "" or ring_trim("" + pcSecret) = ""
+			stzraise("stzAppBackend.SetSigningKey: both a key id and a secret are required.")
+		ok
+		@cSignKeyId = "" + pcKeyId
+		@cSignSecret = "" + pcSecret
+		return This
+
+	def IsSigned()
+		return @cSignKeyId != ""
+
+	def SetMaxSkew(pnMs)
+		This.SetMaxSkewQ(pnMs)
+
+	def SetMaxSkewQ(pnMs)
+		if pnMs < 1
+			stzraise("stzAppBackend.SetMaxSkew: the freshness window must be >= 1ms.")
+		ok
+		@nMaxSkewMs = pnMs
+		return This
+
+	# A signer carrying this backend's key. Built fresh per role: the host's
+	# verifier and the client's signer are separate ledgers by design (in the
+	# real topology they are separate processes).
+	def _NewSigner()
+		_oS_ = new stzRequestSigner("backend-" + @cName)
+		_oS_.AddKey(@cSignKeyId, @cSignSecret)
+		return _oS_
+
+	# The envelope, as query parameters appended to a path.
+	def _AuthQuery(pcMethod, pcPath, pcBody)
+		if @cSignKeyId = ""
+			return ""
+		ok
+		_oS_ = This._NewSigner()
+		_aEnv_ = _oS_.SignNow(@cSignKeyId, pcMethod, pcPath, pcBody)
+		_c_ = "_kid=" + _aEnv_[:kid] + "&_ts=" + _aEnv_[:ts] +
+		      "&_nonce=" + _aEnv_[:nonce] + "&_sig=" + _aEnv_[:sig]
+		if StzFindFirst("?", pcPath) > 0
+			return "&" + _c_
+		ok
+		return "?" + _c_
+
+	# The HTTP status of the last crossing, either mode (0 = it never completed).
+	# 401 here means the far side refused the signature.
+	def LastStatus()
+		return @nLastStatus
+
 	def IsRemote()
 		return @bRemote
 
@@ -302,7 +469,9 @@ class stzAppBackend from stzObject
 		if NOT @bRemote
 			return TRUE
 		ok
-		_nJ_ = @oClient.SubmitHttp(0, "http://" + This.Endpoint() + "/health", "")
+		# the probe is signed too -- this listener exempts nothing
+		_cP_ = "/health" + This._AuthQuery("GET", "/health", "")
+		_nJ_ = @oClient.SubmitHttp(0, "http://" + This.Endpoint() + _cP_, "")
 		if _nJ_ < 1
 			return FALSE
 		ok
@@ -320,24 +489,119 @@ class stzAppBackend from stzObject
 	# the run). The spawning reactor is owned by THIS object, so the child's
 	# lifetime is tied to something the caller holds.
 	def SpawnRemote(pnPortNum, pnTtlMs)
+		return This.SpawnRemoteOn("127.0.0.1", pnPortNum, pnTtlMs)
+
+	# Launch the host bound to a CHOSEN interface, so the spawned backend is
+	# reachable from other machines rather than only from this one. The child
+	# enforces the same leave-the-loopback-needs-a-key rule, because it runs the
+	# very same StartOn().
+	#
+	# The secret is handed over in the ENVIRONMENT (STZ_BACKEND_SECRET), not in
+	# argv -- see _GenerateHostScript.
+	def SpawnRemoteOn(pcBindHost, pnPortNum, pnTtlMs)
 		if @bRunning
 			stzraise("stzAppBackend '" + @cName + "' is already live -- SpawnRemote() launches a separate host.")
+		ok
+		_cBind_ = ring_trim("" + pcBindHost)
+		if _cBind_ = ""
+			_cBind_ = "127.0.0.1"
+		ok
+		if NOT This._IsLoopback(_cBind_) and @cSignKeyId = ""
+			stzraise("stzAppBackend '" + @cName + "' refuses to spawn a host on " + _cBind_ +
+			         " unauthenticated -- call SetSigningKey(id, secret) first.")
 		ok
 		@cModelPath = This._ScratchPath("model")
 		This.SaveModelTo(@cModelPath)
 		This._GenerateHostScript()
+		_cKid_ = "-"
+		if @cSignKeyId != ""
+			_cKid_ = @cSignKeyId
+			sysset("STZ_BACKEND_SECRET", @cSignSecret)
+		ok
 		@oClient = new stzReactor()
 		@nSpawnJob = @oClient.SubmitSpawn([ This._RingExecutable(), @cHostScript,
-		                                    @cModelPath, "" + pnPortNum, "" + pnTtlMs ])
-		@cHost = "127.0.0.1"
+		                                    @cModelPath, "" + pnPortNum, "" + pnTtlMs,
+		                                    _cBind_, _cKid_, "STZ_BACKEND_SECRET" ])
+		# a 0.0.0.0 host is REACHED at a routable address, not at 0.0.0.0
+		if _cBind_ = "0.0.0.0"
+			@cHost = "127.0.0.1"
+		else
+			@cHost = _cBind_
+		ok
+		@cBindHost = _cBind_
 		@nPort = pnPortNum
 		return This.Endpoint()
+
+	# The commands that would start this backend on a GENUINELY REMOTE machine,
+	# returned for inspection BEFORE anything runs -- the same rehearse-then-
+	# commit shape stzDeployment uses for its :Server backend. Generating them
+	# needs no host; running them needs one reachable account, which is the only
+	# infra-gated step in the whole remote story.
+	#
+	# THE SECRET IS NEVER IN THE COMMAND. argv is world-readable in the remote
+	# process table, so the launch line only NAMES the environment variable; the
+	# value must already be in the remote environment (deploy it from a vault or
+	# stzSecretStore out of band). A backend that leaks its own key while
+	# starting has authenticated nothing.
+	def RemoteLaunchCommands(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
+		if @cSignKeyId = ""
+			stzraise("stzAppBackend.RemoteLaunchCommands: a backend launched on another " +
+			         "machine is off the loopback by definition -- call SetSigningKey(id, secret) first.")
+		ok
+		_cT_ = ring_trim("" + pcSshTarget)
+		_cD_ = ring_trim("" + pcRemoteDir)
+		if _cT_ = "" or _cD_ = ""
+			stzraise("stzAppBackend.RemoteLaunchCommands: both an ssh target and a remote directory are required.")
+		ok
+		# materialise what has to travel
+		@cModelPath = This._ScratchPath("model")
+		This.SaveModelTo(@cModelPath)
+		This._GenerateHostScript()
+		_a_ = []
+		_a_ + ("ssh " + _cT_ + " mkdir -p " + _cD_)
+		_a_ + ("scp " + @cModelPath + " " + _cT_ + ":" + _cD_ + "/model")
+		_a_ + ("scp " + @cHostScript + " " + _cT_ + ":" + _cD_ + "/host.ring")
+		_a_ + ("ssh " + _cT_ + " ring " + _cD_ + "/host.ring " + _cD_ + "/model " +
+		       pnPortNum + " " + pnTtlMs + " 0.0.0.0 " + @cSignKeyId + " STZ_BACKEND_SECRET")
+		return _a_
+
+	# A legible account of what a remote launch would do, and what it needs.
+	def ExplainRemoteLaunch(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
+		_out_ = []
+		_out_ + ("Remote launch of backend '" + @cName + "' on " + pcSshTarget)
+		_out_ + ("  bind      : 0.0.0.0:" + pnPortNum + " (reachable from other machines)")
+		_out_ + ("  auth      : signed crossings, key id '" + @cSignKeyId + "'")
+		_out_ + ("  secret    : from the remote env var STZ_BACKEND_SECRET -- never in argv")
+		_out_ + ("  lifetime  : self-terminates after " + pnTtlMs + "ms")
+		_out_ + "  commands  :"
+		_aC_ = This.RemoteLaunchCommands(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
+		_n_ = len(_aC_)
+		for _i_ = 1 to _n_
+			_out_ + ("    " + _i_ + ". " + _aC_[_i_])
+		next
+		_out_ + "  nothing has run yet -- these are the commands, not their effects"
+		return _out_
+
+	# Point this client at a different address for the SAME backend -- e.g. a
+	# host bound to 0.0.0.0 that another machine reaches at a routable IP.
+	def ReachAt(pcHostAddr)
+		This.ReachAtQ(pcHostAddr)
+
+	def ReachAtQ(pcHostAddr)
+		@cHost = ring_trim("" + pcHostAddr)
+		return This
 
 	# Wait until the spawned host answers /health (it must load stzBase and bind
 	# first). Returns TRUE once it does.
 	def WaitReady(pnTimeoutMs)
 		_nDeadline_ = StzEngineTimeNowMs() + pnTimeoutMs
+		# the probe is a real client, so it needs the real key -- an unsigned
+		# probe against a signed host is a 401, and WaitReady would wait out its
+		# whole timeout on a backend that was up all along.
 		_oProbe_ = new stzAppBackend(@cName, @oTopology)
+		if @cSignKeyId != ""
+			_oProbe_.SetSigningKey(@cSignKeyId, @cSignSecret)
+		ok
 		_oProbe_.ConnectTo(@cHost, @nPort)
 		while StzEngineTimeNowMs() < _nDeadline_
 			if _oProbe_.IsReachable(1000)
@@ -584,18 +848,32 @@ class stzAppBackend from stzObject
 	# bound its port and served /health perfectly while every /api route 404'd,
 	# because no dataset had been exposed. Host-prefixed plain names cannot
 	# collide with any method temp in the library.
+	# The host entry, generated (not shipped) so the stzBase load is an absolute
+	# literal whatever the child's cwd is -- the lesson the cluster's generated
+	# worker already encodes.
+	#
+	# The BIND HOST and the KEY ID arrive as arguments; the SECRET arrives in the
+	# environment variable named by argument 5, never on the command line -- an
+	# argv is world-readable in the process table, and a shared secret in there
+	# would undo the authentication it exists to provide.
 	def _GenerateHostScript()
 		@cHostScript = This._ScratchPath("host") + ".ring"
 		_cNL_ = char(10)
 		_cS_ = 'load "' + This._StzBasePath() + '"' + _cNL_ +
 		       'hostArgv = sysargv' + _cNL_ +
 		       'hostArgc = len(hostArgv)' + _cNL_ +
-		       'hostTtl = number(hostArgv[hostArgc])' + _cNL_ +
-		       'hostPort = number(hostArgv[hostArgc-1])' + _cNL_ +
-		       'hostModel = hostArgv[hostArgc-2]' + _cNL_ +
+		       'hostSecEnv = hostArgv[hostArgc]' + _cNL_ +
+		       'hostKeyId = hostArgv[hostArgc-1]' + _cNL_ +
+		       'hostBind = hostArgv[hostArgc-2]' + _cNL_ +
+		       'hostTtl = number(hostArgv[hostArgc-3])' + _cNL_ +
+		       'hostPort = number(hostArgv[hostArgc-4])' + _cNL_ +
+		       'hostModel = hostArgv[hostArgc-5]' + _cNL_ +
 		       'hostTopo = StzLoadAppTopologyFrom(hostModel)' + _cNL_ +
 		       'hostBack = new stzAppBackend(hostTopo.Name(), hostTopo)' + _cNL_ +
-		       'hostBack.Start(hostPort)' + _cNL_ +
+		       'if hostKeyId != "-"' + _cNL_ +
+		       '    hostBack.SetSigningKey(hostKeyId, sysget(hostSecEnv))' + _cNL_ +
+		       'ok' + _cNL_ +
+		       'hostBack.StartOn(hostBind, hostPort)' + _cNL_ +
 		       'hostBack.Serve(hostTtl)' + _cNL_ +
 		       'hostBack.Stop()' + _cNL_
 		write(@cHostScript, _cS_)
@@ -717,10 +995,13 @@ class stzAppBackend from stzObject
 	# from HttpLastStatus guarded by a DRAIN check (that global goes stale on a
 	# timeout, so an unguarded read can report a previous request's 200).
 	def _Roundtrip(pcMethod, pcPath, pcBody)
+		# sign BEFORE the envelope is appended: the signature covers the method,
+		# the path as the far side will see it minus the envelope, and the body.
+		_cPath_ = pcPath + This._AuthQuery(pcMethod, pcPath, pcBody)
 		if @bRemote
 			_nMethod_ = 0                                  # curl GET
 			if pcMethod = "POST"  _nMethod_ = 1  ok        # curl POST
-			_nJob_ = @oClient.SubmitHttp(_nMethod_, "http://" + This.Endpoint() + pcPath, pcBody)
+			_nJob_ = @oClient.SubmitHttp(_nMethod_, "http://" + This.Endpoint() + _cPath_, pcBody)
 			if _nJob_ < 1
 				@nLastStatus = 0
 				return ""
@@ -734,7 +1015,7 @@ class stzAppBackend from stzObject
 			return _cResp_                                 # the BODY (no status line)
 		ok
 		_cCRLF_ = char(13) + char(10)
-		_cReq_ = pcMethod + " " + pcPath + " HTTP/1.1" + _cCRLF_ + "Host: local" + _cCRLF_
+		_cReq_ = pcMethod + " " + _cPath_ + " HTTP/1.1" + _cCRLF_ + "Host: local" + _cCRLF_
 		if pcBody != ""
 			_cReq_ += ("Content-Length: " + len(pcBody) + _cCRLF_)
 		ok
