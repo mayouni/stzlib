@@ -99,6 +99,16 @@ class stzAppTopology from stzObject
 		next
 		return _out_
 
+	# every part that has been given a role, in declaration order (the remote
+	# backend serialises these so a hosting PROCESS can rebuild the model).
+	def PartNames()
+		_out_ = []
+		_n_ = len(@aRoles)
+		for _i_ = 1 to _n_
+			_out_ + @aRoles[_i_][1]
+		next
+		return _out_
+
 	# declared column names, or derived c1..cN from the dataset's widest row.
 	def ColumnsOf(pcName)
 		_nm_ = StzLower(ring_trim("" + pcName))
