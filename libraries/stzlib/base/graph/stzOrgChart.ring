@@ -1737,14 +1737,26 @@ class stzOrgChart from stzDiagram
 # placeholders -- a real rule-evaluation engine will replace them
 # without changing the public Load + Validate surface.
 
-class stzRuleBase from stzObject
-	@cName = ""
+# stzRuleBase IS-A stzGraphRuleSet (graph-rules plan, phase 2): a compliance
+# rule base is a named set of graph rules, exactly like the workflow BPM/SLA
+# bases. This unifies the type -- the SOX/GDPR/... subclasses below inherit
+# AddRule / Check / IsSound and are ready to carry real rules.
+#
+# DEFERRED (phase 2b), stated honestly: unlike a workflow (which IS a graph),
+# an stzOrgChart is a POSITIONS model (a list of positions + reportsTo), so
+# running graph rules over it needs a GRAPH PROJECTION of that model first
+# (positions -> nodes, reportsTo -> edges, roles -> node properties). That
+# projection, and the faithful per-regime rule CONTENT (separation-of-duties,
+# span-of-control, ...), are their own step -- they are domain-specification
+# work, not something to fabricate here. The mechanism is real now; the rules
+# and the projection come next.
+class stzRuleBase from stzGraphRuleSet
 	def init(pcName)
 		if isString(pcName)
-			@cName = pcName
+			super.init(pcName)
+		else
+			super.init("")
 		ok
-	def Name()
-		return @cName
 
 class stzSOXRuleBase from stzRuleBase
 	def init()
