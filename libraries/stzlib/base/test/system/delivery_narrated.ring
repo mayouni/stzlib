@@ -38,7 +38,7 @@ chk("ConstraintSolver -> engine (Softanza-unique, JS absent)", oPlan.VectorFor(:
 chk("Collection -> construct (best in the target language: stz.js)", oPlan.VectorFor(:phone, :Collection) = "construct")
 chk("Regex -> construct, NOT wasm (JS RegExp is strong; ship Softanza's regex API as stz.js over it, never PCRE2 to the browser)", oPlan.VectorFor(:phone, :Regex) = "construct")
 chk("...so Regex is NOT in the on-device engine subset (the target does the matching)", StzFindFirst("regex", oPlan.EngineCapsFor(:phone)) = 0)
-chk("BigNumber -> native, NOT wasm (JS BigInt is a strong native bignum; Softanza has NO arbitrary-precision engine to ship -- like Regex, it defers)", oPlan.VectorFor(:phone, :BigNumber) = "native")
+chk("BigNumber -> native, NOT wasm (JS BigInt is a strong native bignum; Softanza's engine StzBigInt is ALSO arbitrary-precision but INTEGER-only, so it MATCHES BigInt rather than exceeding it -- not differential, so like Regex it defers. The differential number types JS lacks -- big-decimal, rational -- are the ones that would ship; see SOFTANZA_NUMBER_ENGINE_PLAN.md)", oPlan.VectorFor(:phone, :BigNumber) = "native")
 chk("...so BigNumber is NOT in the on-device engine subset either", StzFindFirst("bignumber", oPlan.EngineCapsFor(:phone)) = 0)
 chk("Neural -> server (too heavy for the edge)", oPlan.VectorFor(:phone, :Neural) = "server")
 
