@@ -211,9 +211,17 @@ class stzPlatform from stzObject
 	@bDeployed = FALSE
 	@aBuildReport = []      # [ [ name, kind, target, status ], ... ]
 	@aDeployReport = []
+	@oLog = NULL            # a structured stzLog of Build() + Deploy()
 
 	def init(pcName)
 		@cName = "" + pcName
+		@oLog = new stzLog("platform")
+		@oLog.SetLevelQ(:trace)
+
+	# the structured log of the platform's Build() + Deploy() phases -- queryable
+	# and renderable: oPlat.Log().EntriesOfLevel(:error), oPlat.Log().AsJson().
+	def Log()
+		return @oLog
 
 	def Name_()
 		return @cName
@@ -247,11 +255,13 @@ class stzPlatform from stzObject
 		ok
 		_aIssues_ = @oProfile.Validate()
 		if len(_aIssues_) > 0
+			@oLog.Record(:error, "build refused -- solution not sound", [ [ :issues, len(_aIssues_) ] ])
 			stzraise("stzPlatform.Build: the solution is not sound -- " + JoinXT(_aIssues_, "; "))
 		ok
 		@aBuildReport = []
 		_aApps_ = @oProfile.Apps()
 		_n_ = len(_aApps_)
+		@oLog.Record(:info, "build started", [ [ :parts, _n_ ] ])
 		for _i_ = 1 to _n_
 			_app_ = _aApps_[_i_]
 			# wire stzBuilder: a part that declares a LANGUAGE is compiled by it,
@@ -275,7 +285,10 @@ class stzPlatform from stzObject
 			ok
 			@aBuildReport + [ _app_.Name(), _app_.Kind(),
 			                  _app_.DeploymentOSName(), _cLang_, _cCmd_ ]
+			@oLog.Record(:info, "part built", [ [ :part, _app_.Name() ], [ :kind, _app_.Kind() ],
+			                  [ :language, _cLang_ ], [ :os, _app_.DeploymentOSName() ] ])
 		next
+		@oLog.Record(:info, "build complete", [ [ :parts, _n_ ] ])
 		@bBuilt = TRUE
 		return This
 
@@ -304,10 +317,12 @@ class stzPlatform from stzObject
 
 	def _DeployWith(poActor)
 		if NOT @bBuilt
+			@oLog.Record(:error, "deploy refused -- platform not built (Build() first)", [])
 			stzraise("stzPlatform.Deploy: the platform must be Build() before it can be deployed.")
 		ok
 		if poActor != NULL
 			if NOT poActor.IsEffectful()
+				@oLog.Record(:error, "deploy refused -- actor may propose but not perform (not effectful)", [ [ :actor, poActor.Name() ] ])
 				stzraise("stzPlatform.Deploy: actor '" + poActor.Name() +
 				         "' lacks the 'effectful' capability -- it may propose a deploy, not perform it.")
 			ok
@@ -316,6 +331,11 @@ class stzPlatform from stzObject
 		_oBridge_ = new stzLoweringBridge()
 		_aApps_ = @oProfile.Apps()
 		_n_ = len(_aApps_)
+		_who_ = "(none)"
+		if isObject(poActor)
+			_who_ = poActor.Name()
+		ok
+		@oLog.Record(:info, "deploy started", [ [ :actor, _who_ ], [ :parts, _n_ ] ])
 		for _i_ = 1 to _n_
 			_cName_ = _aApps_[_i_].Name()
 			_cOs_ = _aApps_[_i_].DeploymentOSName()
@@ -323,7 +343,10 @@ class stzPlatform from stzObject
 			_cArtifact_ = _oBridge_.LowerOps(_aOps_, _cOs_)
 			@aDeployReport + [ _cName_, _aApps_[_i_].Kind(), _cOs_,
 			                   len(_aOps_), _cArtifact_ ]
+			@oLog.Record(:info, "part deployed", [ [ :part, _cName_ ], [ :os, _cOs_ ],
+			                   [ :ops, len(_aOps_) ], [ :artifact, _cArtifact_ ] ])
 		next
+		@oLog.Record(:info, "deploy complete", [ [ :parts, _n_ ] ])
 		@bDeployed = TRUE
 		return This
 

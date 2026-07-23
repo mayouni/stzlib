@@ -180,6 +180,9 @@ chk("...a part with no declared language is recorded as such (nothing to compile
 oPlatform.Deploy()
 chk("...and NOW Deploy() succeeds", oPlatform.IsDeployed())
 chk("...deploying every constituent to its target", len(oPlatform.DeployReport()) = 3)
+chk("the platform LOG captured Build + Deploy -- both completed", StzFindFirst("build complete", oPlatform.Log().AsText()) > 0 and StzFindFirst("deploy complete", oPlatform.Log().AsText()) > 0)
+chk("...and the earlier premature Deploy() is in the log as an ERROR (governance visible)", oPlatform.Log().CountOfLevel(:error) >= 1)
+chk("...structured + queryable -- an entry per part, renderable as JSON", len(oPlatform.Log().Where(:part, "firmware")) >= 1 and StzFindFirst(char(34) + "category" + char(34) + ": " + char(34) + "platform", oPlatform.Log().AsJson()) > 0)
 
 ? ""
 ? "-- Scene 14: an unsound solution cannot be built --"
