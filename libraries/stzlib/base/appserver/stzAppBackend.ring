@@ -39,6 +39,37 @@ genuinely over the loopback -- framed HTTP, the MBaaS floor, real sqlite
 -- with no deadlock and no public network. Offline by construction, the
 same discipline the reactor guard uses.
 
+TWO MODES, ONE API (location transparency -- the point of the remote work):
+
+	# LOCAL: this process owns the state and serves it to itself
+	oB.Start(0)
+
+	# REMOTE: the state lives in ANOTHER PROCESS (or another host)
+	oB.ConnectTo("127.0.0.1", 8080)
+
+	# ...and from here the part code is IDENTICAL either way
+	oB.Create(:phone, "orders", [ [ "dish", "Couscous" ], [ "qty", 2 ] ])
+	? oB.Dashboard(:admin)[2]
+
+The difference is confined to _Roundtrip. LOCAL pumps its own server between
+submit and await, because nothing else will. REMOTE must NOT pump: the far
+process runs its own loop, so the client is a plain curl-backed HTTP request
+(SubmitHttp/AwaitHttp) that blocks on the wire. Pumping a server you do not
+own is precisely the bug this seam exists to avoid.
+
+HOSTING ONE. SpawnRemote() serialises the model to a file, generates a host
+script (an absolute stzBase load, so the child's cwd cannot matter -- the
+lesson the cluster's generated worker already encodes), and launches a real
+`ring` child process that Start()s the backend and Serve()s until its TTL.
+The parts then ConnectTo() it over real TCP. Nothing is simulated: two OS
+processes, one socket, one sqlite.
+
+REMOTE LIMITS, stated honestly: the curl client submits GET and POST only, so
+the remote surface is Create/Rows/RowCount/Dashboard -- the part-facing API --
+not the MBaaS PUT/DELETE item routes. State lives in the HOST process, so a
+remote backend's sqlite is not visible to the connecting process except
+through HTTP, which is the entire point.
+
 GOVERNED LIKE EVERY OTHER CROSSING. A cross-part WRITE is an effect, so
 it obeys the library's one rule: expression is free, admission is
 governed. Bind an actor with SetActorQ and only an effectful actor may
@@ -54,6 +85,127 @@ SCOPE SIGILS: attributes are @-prefixed and method temps are _x_ wrapped
 func StzAppBackendQ(pcName, poTopology)
 	return new stzAppBackend(pcName, poTopology)
 
+  #==========================================================#
+ #  MODEL FILE: escaping + the loader a host process uses    #
+#==========================================================#
+
+# Percent-escaping, so a cell may contain the record separator, a newline, or
+# anything else. DECODE ORDER MATTERS: "%25" is decoded LAST. After encoding,
+# every "%" in the output begins a real escape triple, and steps 1-3 emit no
+# "%" of their own -- so an escaped percent can never be re-read as an escape.
+# (Decoding it first is the classic multi-pass bug that double-decoded HTML
+# entities in this same library.)
+
+func _StzModelEsc(pValue)
+	_c_ = "" + pValue
+	_c_ = StzReplace(_c_, "%", "%25")
+	_c_ = StzReplace(_c_, "|", "%7C")
+	_c_ = StzReplace(_c_, char(10), "%0A")
+	_c_ = StzReplace(_c_, char(13), "%0D")
+	return _c_
+
+func _StzModelUnesc(pValue)
+	_c_ = "" + pValue
+	_c_ = StzReplace(_c_, "%7C", "|")
+	_c_ = StzReplace(_c_, "%0A", char(10))
+	_c_ = StzReplace(_c_, "%0D", char(13))
+	_c_ = StzReplace(_c_, "%25", "%")
+	return _c_
+
+# Rebuild a stzAppTopology from the file SaveModelTo() wrote. This is what the
+# generated host script calls, so a backend PROCESS serves the very model the
+# parts were written against.
+func StzLoadAppTopologyFrom(pcPath)
+	_cRaw_ = read(pcPath)
+	_aLines_ = StzSplit(_cRaw_, char(10))
+	_cName_ = "hosted"
+	_aDs_ = []       # [ [ name, [ rows ] ], ... ]
+	_aCols_ = []     # [ [ name, [ cols ] ], ... ]
+	_aRoles_ = []    # [ [ part, role, dataset ], ... ]
+	_nL_ = len(_aLines_)
+	for _i_ = 1 to _nL_
+		_cL_ = ring_trim(_aLines_[_i_])
+		if _cL_ = ""
+			loop
+		ok
+		_f_ = StzSplit(_cL_, "|")
+		if len(_f_) < 2
+			loop
+		ok
+		if _f_[1] = "N"
+			_cName_ = _StzModelUnesc(_f_[2])
+
+		but _f_[1] = "C"
+			_c_ = []
+			_nF_ = len(_f_)
+			for _j_ = 3 to _nF_
+				_c_ + _StzModelUnesc(_f_[_j_])
+			next
+			_aCols_ + [ _StzModelUnesc(_f_[2]), _c_ ]
+
+		but _f_[1] = "R"
+			_row_ = []
+			_nF_ = len(_f_)
+			_j_ = 3
+			while _j_ + 1 <= _nF_
+				_v_ = _StzModelUnesc(_f_[_j_ + 1])
+				if _f_[_j_] = "n"
+					_row_ + ring_number(_v_)
+				else
+					_row_ + _v_
+				ok
+				_j_ += 2
+			end
+			_cDs_ = _StzModelUnesc(_f_[2])
+			_nIdx_ = 0
+			_nD_ = len(_aDs_)
+			for _j_ = 1 to _nD_
+				if _aDs_[_j_][1] = _cDs_
+					_nIdx_ = _j_
+					exit
+				ok
+			next
+			if _nIdx_ = 0
+				_aDs_ + [ _cDs_, [ _row_ ] ]
+			else
+				_aDs_[_nIdx_][2] + _row_
+			ok
+
+		but _f_[1] = "P" and len(_f_) >= 4
+			_aRoles_ + [ _StzModelUnesc(_f_[2]), _StzModelUnesc(_f_[3]),
+			             _StzModelUnesc(_f_[4]) ]
+		ok
+	next
+
+	_oT_ = new stzAppTopology(_cName_)
+	# a dataset declared with columns but no rows must still exist as a table
+	_nC_ = len(_aCols_)
+	for _i_ = 1 to _nC_
+		_nIdx_ = 0
+		_nD_ = len(_aDs_)
+		for _j_ = 1 to _nD_
+			if _aDs_[_j_][1] = _aCols_[_i_][1]
+				_nIdx_ = _j_
+				exit
+			ok
+		next
+		if _nIdx_ = 0
+			_aDs_ + [ _aCols_[_i_][1], [] ]
+		ok
+	next
+	_nD_ = len(_aDs_)
+	for _i_ = 1 to _nD_
+		_oT_.AddDatasetQ(_aDs_[_i_][1], _aDs_[_i_][2])
+	next
+	for _i_ = 1 to _nC_
+		_oT_.SetDatasetColumnsQ(_aCols_[_i_][1], _aCols_[_i_][2])
+	next
+	_nR_ = len(_aRoles_)
+	for _i_ = 1 to _nR_
+		_oT_.SetPartRoleQ(_aRoles_[_i_][1], _aRoles_[_i_][2], _aRoles_[_i_][3])
+	next
+	return _oT_
+
 class stzAppBackend from stzObject
 
 	@cName = ""
@@ -66,6 +218,14 @@ class stzAppBackend from stzObject
 	@aTraffic = []         # [ [ part, verb, dataset, status ], ... ]
 	@oActor = NULL
 	@bGoverned = FALSE
+
+	# -- remote mode --
+	@bRemote = FALSE       # TRUE = a client onto a backend in another process
+	@cHost = "127.0.0.1"
+	@nLastStatus = 0       # the status of the last crossing, either mode
+	@cModelPath = ""       # where SpawnRemote wrote the model
+	@cHostScript = ""      # the generated host script
+	@nSpawnJob = 0         # the child process job on @oClient
 
 	def init(pcName, poTopology)
 		@cName = "" + pcName
@@ -98,8 +258,115 @@ class stzAppBackend from stzObject
 		@bRunning = TRUE
 		return This
 
-	def Stop()
+	# Serve the backend to whoever connects, for nMs. This is what a HOSTING
+	# process runs after Start(): the loop that answers remote parts. (A local
+	# backend never needs it -- it pumps one event per crossing instead.)
+	def Serve(pnMs)
+		This._RequireLive("Serve")
+		if @bRemote
+			stzraise("stzAppBackend.Serve() is for the HOST process -- a connected client has nothing to serve.")
+		ok
+		@oServer.RunFor(pnMs)
+		return This
+
+	  #-----------------------------------------#
+	 #  REMOTE MODE: a backend in another host  #
+	#-----------------------------------------#
+
+	# Attach to a backend ALREADY RUNNING somewhere else. No database and no
+	# server are created here -- this object becomes a pure client, and every
+	# part-scoped call below goes over the wire instead of over the loopback.
+	def ConnectTo(pcHostAddr, pnPortNum)
+		if @bRunning
+			stzraise("stzAppBackend '" + @cName + "' is already live -- Stop() before connecting elsewhere.")
+		ok
+		@cHost = "" + pcHostAddr
+		@nPort = pnPortNum
+		@bRemote = TRUE
+		@oClient = new stzReactor()
+		@bRunning = TRUE
+		return This
+
+	def IsRemote()
+		return @bRemote
+
+	def Endpoint()
+		return @cHost + ":" + @nPort
+
+	# Is the far backend actually answering? (stzAppServer serves /health with
+	# no route declared, so this needs nothing from the model.)
+	def IsReachable(pnTimeoutMs)
 		if NOT @bRunning
+			return FALSE
+		ok
+		if NOT @bRemote
+			return TRUE
+		ok
+		_nJ_ = @oClient.SubmitHttp(0, "http://" + This.Endpoint() + "/health", "")
+		if _nJ_ < 1
+			return FALSE
+		ok
+		@oClient.AwaitHttp(_nJ_, pnTimeoutMs)
+		# JobState -2 = DRAINED. HttpLastStatus is a global that goes stale on a
+		# timeout, so a status read without this check can report a prior 200.
+		if @oClient.JobState(_nJ_) != -2
+			return FALSE
+		ok
+		return @oClient.HttpLastStatus() = 200
+
+	# Launch this model as a backend PROCESS of its own and return its endpoint.
+	# The child gets the serialised model + port + TTL on its command line, and
+	# self-terminates when the TTL expires (so a forgotten host cannot outlive
+	# the run). The spawning reactor is owned by THIS object, so the child's
+	# lifetime is tied to something the caller holds.
+	def SpawnRemote(pnPortNum, pnTtlMs)
+		if @bRunning
+			stzraise("stzAppBackend '" + @cName + "' is already live -- SpawnRemote() launches a separate host.")
+		ok
+		@cModelPath = This._ScratchPath("model")
+		This.SaveModelTo(@cModelPath)
+		This._GenerateHostScript()
+		@oClient = new stzReactor()
+		@nSpawnJob = @oClient.SubmitSpawn([ This._RingExecutable(), @cHostScript,
+		                                    @cModelPath, "" + pnPortNum, "" + pnTtlMs ])
+		@cHost = "127.0.0.1"
+		@nPort = pnPortNum
+		return This.Endpoint()
+
+	# Wait until the spawned host answers /health (it must load stzBase and bind
+	# first). Returns TRUE once it does.
+	def WaitReady(pnTimeoutMs)
+		_nDeadline_ = StzEngineTimeNowMs() + pnTimeoutMs
+		_oProbe_ = new stzAppBackend(@cName, @oTopology)
+		_oProbe_.ConnectTo(@cHost, @nPort)
+		while StzEngineTimeNowMs() < _nDeadline_
+			if _oProbe_.IsReachable(1000)
+				_oProbe_.Stop()
+				return TRUE
+			ok
+			_nT_ = @oClient.SubmitTimer(200)
+			@oClient.AwaitTimer(_nT_, 500)
+		end
+		_oProbe_.Stop()
+		return FALSE
+
+	def Stop()
+		if NOT @bRunning and @nSpawnJob = 0
+			return This
+		ok
+		if @bRemote
+			# a client owns no state -- only its reactor
+			@oClient.Destroy()
+			@oClient = NULL
+			@bRemote = FALSE
+			@bRunning = FALSE
+			return This
+		ok
+		if @nSpawnJob != 0
+			# a spawn manager: the child self-terminates on its TTL
+			@oClient.Destroy()
+			@oClient = NULL
+			@nSpawnJob = 0
 			return This
 		ok
 		@oServer.Stop()
@@ -134,10 +401,9 @@ class stzAppBackend from stzObject
 			stzraise("stzAppBackend: part '" + _p_ + "' may not write '" + _ds_ +
 			         "' -- the acting actor is not effectful (expression is free; admission is governed).")
 		ok
-		_cResp_ = This._Roundtrip("POST", "/api/" + _ds_, This._FormBody(paFields))
-		_nSt_ = This._StatusOf(_cResp_)
-		@aTraffic + [ _p_, "POST", _ds_, _nSt_ ]
-		return _nSt_ = 201
+		This._Roundtrip("POST", "/api/" + _ds_, This._FormBody(paFields))
+		@aTraffic + [ _p_, "POST", _ds_, @nLastStatus ]
+		return @nLastStatus = 201
 
 	# A part READS: a real HTTP GET. Returns [ [ cell, cell ], ... ].
 	def Rows(pcPart, pcDataset)
@@ -145,7 +411,7 @@ class stzAppBackend from stzObject
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_ds_ = StzLower(ring_trim("" + pcDataset))
 		_cResp_ = This._Roundtrip("GET", "/api/" + _ds_, "")
-		@aTraffic + [ _p_, "GET", _ds_, This._StatusOf(_cResp_) ]
+		@aTraffic + [ _p_, "GET", _ds_, @nLastStatus ]
 		return This._ParseRowsJson(_cResp_)
 
 	def RowCount(pcPart, pcDataset)
@@ -153,7 +419,7 @@ class stzAppBackend from stzObject
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_ds_ = StzLower(ring_trim("" + pcDataset))
 		_cResp_ = This._Roundtrip("GET", "/api/" + _ds_ + "/count", "")
-		@aTraffic + [ _p_, "GET", _ds_ + "/count", This._StatusOf(_cResp_) ]
+		@aTraffic + [ _p_, "GET", _ds_ + "/count", @nLastStatus ]
 		return This._CountJson(_cResp_)
 
 	# The part's dashboard, computed over LIVE rows fetched from the running
@@ -246,9 +512,118 @@ class stzAppBackend from stzObject
 		next
 		return This
 
+	  #-------------------------------------------#
+	 #  MODEL SERIALISATION (for a host process)  #
+	#-------------------------------------------#
+
+	# Write the MODEL (never the state) so another process can rebuild it:
+	#   N|<name>
+	#   C|<dataset>|<col>|<col>...
+	#   R|<dataset>|<n|s>|<cell>|<n|s>|<cell>...
+	#   P|<part>|<role>|<dataset>
+	#
+	# Cells carry their TYPE (n/s) rather than being sniffed on the way back in:
+	# a price must stay a NUMBER for the revenue maths, and "looks numeric" is
+	# exactly how "007" silently becomes 7 -- a defect this library already paid
+	# for once in the CSV reader. Fields are percent-escaped (see _StzModelEsc).
+	def SaveModelTo(pcPath)
+		_cNL_ = char(10)
+		_cOut_ = "N|" + _StzModelEsc(@oTopology.Name()) + _cNL_
+		_aNames_ = @oTopology.DatasetNames()
+		_nD_ = len(_aNames_)
+		for _i_ = 1 to _nD_
+			_cDs_ = _aNames_[_i_]
+			_aCols_ = @oTopology.ColumnsOf(_cDs_)
+			_cLine_ = "C|" + _StzModelEsc(_cDs_)
+			_nC_ = len(_aCols_)
+			for _j_ = 1 to _nC_
+				_cLine_ += ("|" + _StzModelEsc(_aCols_[_j_]))
+			next
+			_cOut_ += (_cLine_ + _cNL_)
+			_aRows_ = @oTopology.Dataset(_cDs_)
+			_nR_ = len(_aRows_)
+			for _j_ = 1 to _nR_
+				_cLine_ = "R|" + _StzModelEsc(_cDs_)
+				_nW_ = len(_aRows_[_j_])
+				for _k_ = 1 to _nW_
+					if isNumber(_aRows_[_j_][_k_])
+						_cLine_ += ("|n|" + _StzModelEsc(_aRows_[_j_][_k_]))
+					else
+						_cLine_ += ("|s|" + _StzModelEsc(_aRows_[_j_][_k_]))
+					ok
+				next
+				_cOut_ += (_cLine_ + _cNL_)
+			next
+		next
+		_aParts_ = @oTopology.PartNames()
+		_nP_ = len(_aParts_)
+		for _i_ = 1 to _nP_
+			_cOut_ += ("P|" + _StzModelEsc(_aParts_[_i_]) + "|" +
+			           _StzModelEsc(@oTopology.RoleOf(_aParts_[_i_])) + "|" +
+			           _StzModelEsc(@oTopology.DatasetNameOf(_aParts_[_i_])) + _cNL_)
+		next
+		write(pcPath, _cOut_)
+		return This
+
 	  #--------------#
 	 #  INTERNALS   #
 	#--------------#
+
+	# Generated, never shipped as a fixed file: the stzBase load must be an
+	# ABSOLUTE literal so the child's working directory cannot matter (the
+	# lesson the cluster's generated worker already encodes).
+	#
+	# THE HOST SCRIPT'S VARIABLES MUST NOT USE THE _x_ SIGIL. The sigil protects
+	# class ATTRIBUTES from same-named user globals, but a SCRIPT global named
+	# _n_ / _a_ / _i_ collides with the METHOD TEMPS of the very classes it
+	# calls -- and the corruption is SILENT. A first cut used _a_/_n_ here, and
+	# Start()'s `_n_ = len(_aNames_)` expose loop quietly did nothing: the child
+	# bound its port and served /health perfectly while every /api route 404'd,
+	# because no dataset had been exposed. Host-prefixed plain names cannot
+	# collide with any method temp in the library.
+	def _GenerateHostScript()
+		@cHostScript = This._ScratchPath("host") + ".ring"
+		_cNL_ = char(10)
+		_cS_ = 'load "' + This._StzBasePath() + '"' + _cNL_ +
+		       'hostArgv = sysargv' + _cNL_ +
+		       'hostArgc = len(hostArgv)' + _cNL_ +
+		       'hostTtl = number(hostArgv[hostArgc])' + _cNL_ +
+		       'hostPort = number(hostArgv[hostArgc-1])' + _cNL_ +
+		       'hostModel = hostArgv[hostArgc-2]' + _cNL_ +
+		       'hostTopo = StzLoadAppTopologyFrom(hostModel)' + _cNL_ +
+		       'hostBack = new stzAppBackend(hostTopo.Name(), hostTopo)' + _cNL_ +
+		       'hostBack.Start(hostPort)' + _cNL_ +
+		       'hostBack.Serve(hostTtl)' + _cNL_ +
+		       'hostBack.Stop()' + _cNL_
+		write(@cHostScript, _cS_)
+		return @cHostScript
+
+	# Both generated files sit beside this module, dot-prefixed, exactly where
+	# the cluster puts its generated worker.
+	def _ScratchPath(pcTag)
+		return $cEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @cName
+
+	def _StzBasePath()
+		_nSlash_ = 0
+		_nL_ = len($cEngineDir)
+		for _i_ = 1 to _nL_
+			if $cEngineDir[_i_] = "/"
+				_nSlash_ = _i_
+			ok
+		next
+		return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+
+	# The ring interpreter running US -- so the child is the same build.
+	def _RingExecutable()
+		_a_ = sysargv
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_c_ = StzLower("" + _a_[_i_])
+			if StzFindFirst("ring.exe", _c_) > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
+				return "" + _a_[_i_]
+			ok
+		next
+		return "ring"
 
 	def _StateWord()
 		if @bRunning
@@ -327,8 +702,34 @@ class stzAppBackend from stzObject
 		next
 		return _c_
 
-	# ONE real HTTP round trip: submit (non-blocking) -> serve -> await.
+	# ONE real HTTP round trip. The ONLY place the two modes differ.
+	#
+	# LOCAL  : submit (non-blocking) -> pump our own server -> await. Nothing
+	#          else would ever run the loop, so we must.
+	# REMOTE : a plain curl request that blocks on the wire. We must NOT pump
+	#          -- the far process runs its own loop, and ServeOne() here would
+	#          be driving a server that is not the one answering.
+	#
+	# Sets @nLastStatus either way: locally from the raw status line, remotely
+	# from HttpLastStatus guarded by a DRAIN check (that global goes stale on a
+	# timeout, so an unguarded read can report a previous request's 200).
 	def _Roundtrip(pcMethod, pcPath, pcBody)
+		if @bRemote
+			_nMethod_ = 0                                  # curl GET
+			if pcMethod = "POST"  _nMethod_ = 1  ok        # curl POST
+			_nJob_ = @oClient.SubmitHttp(_nMethod_, "http://" + This.Endpoint() + pcPath, pcBody)
+			if _nJob_ < 1
+				@nLastStatus = 0
+				return ""
+			ok
+			_cResp_ = @oClient.AwaitHttp(_nJob_, 5000)
+			if @oClient.JobState(_nJob_) != -2
+				@nLastStatus = 0                           # never completed
+				return ""
+			ok
+			@nLastStatus = @oClient.HttpLastStatus()
+			return _cResp_                                 # the BODY (no status line)
+		ok
 		_cCRLF_ = char(13) + char(10)
 		_cReq_ = pcMethod + " " + pcPath + " HTTP/1.1" + _cCRLF_ + "Host: local" + _cCRLF_
 		if pcBody != ""
@@ -337,7 +738,9 @@ class stzAppBackend from stzObject
 		_cReq_ += ("Connection: close" + _cCRLF_ + _cCRLF_ + pcBody)
 		_nJob_ = @oClient.SubmitTcp("127.0.0.1", @nPort, _cReq_)
 		@oServer.ServeOne(3000)
-		return @oClient.AwaitTcp(_nJob_, 5000)
+		_cRaw_ = @oClient.AwaitTcp(_nJob_, 5000)
+		@nLastStatus = This._StatusOf(_cRaw_)
+		return _cRaw_                                      # the RAW response
 
 	# --- response parsing, SPLIT-ONLY ------------------------------------
 	# These deliberately use ONLY StzSplit / StzReplace and never a positional
