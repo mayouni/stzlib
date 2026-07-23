@@ -603,9 +603,17 @@ class stzDeployment from stzObject
 	@oActor = NULL
 	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
 	@aArtifacts = []  # [ partName, relName, filePath ] -- the REAL build outputs to ship
+	@oLog = NULL      # a structured stzLog of what Run() actually did
 
 	def init(poDelivery)
 		@oDelivery = poDelivery
+		@oLog = new stzLog("deployment")
+		@oLog.SetLevelQ(:trace)   # a deployment records everything it does
+
+	# the structured log of the deployment run -- queryable and renderable
+	# (oDep.Log().EntriesOfLevel(:error), oDep.Log().AsJson()). Populated by Run().
+	def Log()
+		return @oLog
 
 	# bind a part to its target site. For many at once, use SetTargets.
 	def SetTarget(pcPart, poSite)
@@ -929,6 +937,7 @@ class stzDeployment from stzObject
 	# [ committed(0/1), [ [stepName, outcome], ... ] ]. No effectful actor -> rehearse.
 	def Run()
 		_bMay_ = This.MayCommit()
+		@oLog.Record(:info, "deployment run started", [ [ :actor, This._ActorName() ], [ :commit, _bMay_ ] ])
 		_steps_ = This.Steps()
 		_recs_ = []
 		_undo_ = []
@@ -936,28 +945,34 @@ class stzDeployment from stzObject
 		_n_ = len(_steps_)
 		for _i_ = 1 to _n_
 			_st_ = _steps_[_i_]
+			_flds_ = [ [ :step, _st_[1] ], [ :op, _st_[2] ], [ :part, _st_[3] ] ]
 			if _failed_
 				_recs_ + [ _st_[1], "skipped" ]
+				@oLog.Record(:warn, "step skipped (an earlier step failed)", _flds_)
 				loop
 			ok
 			if NOT _bMay_
 				_recs_ + [ _st_[1], "rehearsed" ]
+				@oLog.Record(:info, "step rehearsed -- not committed (no effectful actor)", _flds_)
 				loop
 			ok
 			_site_ = This.SiteFor(_st_[3])
 			if This._RunStep(_st_[2], _site_, _st_[3])
 				_recs_ + [ _st_[1], "done" ]
+				@oLog.Record(:info, "step done", _flds_)
 				if _st_[2] = "store" or _st_[2] = "launch"
 					_undo_ + _site_
 				ok
 			else
 				_recs_ + [ _st_[1], "FAILED" ]
+				@oLog.Record(:error, "step FAILED", _flds_)
 				_failed_ = TRUE
 			ok
 		next
 		if _failed_ and _bMay_
 			_nu_ = len(_undo_)
 			for _i_ = _nu_ to 1 step -1
+				@oLog.Record(:warn, "rolling back", [ [ :site, _undo_[_i_].Name() ] ])
 				_undo_[_i_].Rollback()
 			next
 		ok
@@ -965,7 +980,20 @@ class stzDeployment from stzObject
 		if _failed_ or NOT _bMay_
 			_flag_ = 0
 		ok
+		if _failed_
+			@oLog.Record(:error, "deployment run FAILED -- rolled back", [ [ :steps, _n_ ] ])
+		but NOT _bMay_
+			@oLog.Record(:info, "deployment rehearsed -- nothing committed", [ [ :steps, _n_ ] ])
+		else
+			@oLog.Record(:info, "deployment run complete", [ [ :steps, _n_ ] ])
+		ok
 		return [ _flag_, _recs_ ]
+
+	def _ActorName()
+		if isObject(@oActor)
+			return @oActor.Name()
+		ok
+		return "(none)"
 
 	def _RunStep(pcOp, poSite, pcPart)
 		if pcOp = "provision"

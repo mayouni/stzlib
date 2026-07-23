@@ -184,13 +184,21 @@ class stzDelivery from stzObject
 	@aReqs = []        # [ partName, resourceSpec ] -- what each part NEEDS from its host
 	@aBundles = []     # [ partName, emulatorOrDir ] -- emulator bundle to ship in production
 	@oApp = NULL       # the solution's app MODEL (stzAppTopology) -- what each part DOES
+	@oLog = NULL       # a structured stzLog of the delivery's high-level phases
 
 	def init(pcName)
 		@cName = "" + pcName
 		@oCat = new stzCapabilityCatalog()
+		@oLog = new stzLog("delivery")
+		@oLog.SetLevelQ(:trace)
 
 	def Name()
 		return @cName
+
+	# the structured log of the delivery's phases (Deploy). Queryable + renderable:
+	# oDelivery.Log().AsJson(), oDelivery.Log().EntriesOfLevel(:error).
+	def Log()
+		return @oLog
 
 	# attach the solution's application model -- named datasets + per-part roles.
 	# The emulator renders each part FROM it (its real menu / computed dashboard),
@@ -389,8 +397,10 @@ class stzDelivery from stzObject
 	def Deploy(pMode)
 		_m_ = StzLower("" + pMode)
 		if _m_ = "emulated" or _m_ = ":emulated"
+			@oLog.Record(:info, "deploy(:emulated) -- building the mission-control bundle", [ [ :parts, len(@aParts) ] ])
 			_oEmu_ = new stzEmulator(This)
 			_oEmu_.Build()
+			@oLog.Record(:info, "emulator bundle built", [])
 			return _oEmu_
 		but _m_ = "production" or _m_ = ":production"
 			return This._DeployProduction()
@@ -400,6 +410,7 @@ class stzDelivery from stzObject
 	# assemble the stzDeployment from the delivery planner's bindings + actor, and perform it
 	# when governance permits (commit); else return it un-committed (a rehearsal).
 	def _DeployProduction()
+		@oLog.Record(:info, "deploy(:production) started", [ [ :actor, This._ActorName() ], [ :bindings, len(@aBindings) ] ])
 		_oDep_ = new stzDeployment(This)
 		if @oActor != NULL
 			_oDep_.SetActor(@oActor)
@@ -417,9 +428,19 @@ class stzDelivery from stzObject
 			ok
 		next
 		if _oDep_.MayCommit()
+			@oLog.Record(:info, "governance permits commit -- executing the plan", [])
 			_oDep_.Run()   # execute the ordered plan (store -> launch -> verify), transactional
+			@oLog.Record(:info, "production deploy committed", [])
+		else
+			@oLog.Record(:warn, "no effectful actor -- returning a rehearsal (nothing committed)", [])
 		ok
 		return _oDep_
+
+	def _ActorName()
+		if isObject(@oActor)
+			return @oActor.Name()
+		ok
+		return "(none)"
 
 
   #==============#
