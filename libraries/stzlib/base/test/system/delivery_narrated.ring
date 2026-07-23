@@ -23,7 +23,7 @@ cDir = WorkingDirectory() + "/_build_scratch"
 ? "-- Scene 1: the DIFFERENTIAL test -- the edge uses the target where it is strong --"
 oBrain = new stzDelivery("app")
 oBrain.AddSuperApp(:phone, :Android)
-oBrain.NeedsIn(:phone, [ :Unicode, :DateTime, :Json, :PivotTable, :ConstraintSolver, :Collection, :Neural, :Regex ])
+oBrain.NeedsIn(:phone, [ :Unicode, :DateTime, :Json, :PivotTable, :ConstraintSolver, :Collection, :Neural, :Regex, :BigNumber ])
 oPlan = oBrain.Plan()
 chk("Unicode on the phone -> target-native (JS is industrial-strength)", oPlan.VectorFor(:phone, :Unicode) = "native")
 chk("...DateTime too -> target-native", oPlan.VectorFor(:phone, :DateTime) = "native")
@@ -38,12 +38,14 @@ chk("ConstraintSolver -> engine (Softanza-unique, JS absent)", oPlan.VectorFor(:
 chk("Collection -> construct (best in the target language: stz.js)", oPlan.VectorFor(:phone, :Collection) = "construct")
 chk("Regex -> construct, NOT wasm (JS RegExp is strong; ship Softanza's regex API as stz.js over it, never PCRE2 to the browser)", oPlan.VectorFor(:phone, :Regex) = "construct")
 chk("...so Regex is NOT in the on-device engine subset (the target does the matching)", StzFindFirst("regex", oPlan.EngineCapsFor(:phone)) = 0)
+chk("BigNumber -> native, NOT wasm (JS BigInt is a strong native bignum; Softanza has NO arbitrary-precision engine to ship -- like Regex, it defers)", oPlan.VectorFor(:phone, :BigNumber) = "native")
+chk("...so BigNumber is NOT in the on-device engine subset either", StzFindFirst("bignumber", oPlan.EngineCapsFor(:phone)) = 0)
 chk("Neural -> server (too heavy for the edge)", oPlan.VectorFor(:phone, :Neural) = "server")
 
 ? ""
 ? "-- Scene 4: the SCOPE -- the on-device engine carries ONLY the differential subset --"
 eng = oPlan.EngineCapsFor(:phone)
-chk("the engine subset is scoped (fewer than the 8 needs)", len(eng) < 8)
+chk("the engine subset is scoped (far fewer than the 9 needs)", len(eng) < 9)
 chk("...it carries the differential compute", StzFindFirst("pivottable", eng) > 0 and StzFindFirst("constraintsolver", eng) > 0)
 chk("...it does NOT carry unicode (the target does that)", StzFindFirst("unicode", eng) = 0)
 chk("...its footprint is small (KB, not the whole engine)", oPlan.EngineKbFor(:phone) < 100)
