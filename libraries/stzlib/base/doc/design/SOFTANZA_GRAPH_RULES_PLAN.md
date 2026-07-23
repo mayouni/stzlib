@@ -1,12 +1,19 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **plan only — nothing here is built.** Written 2026-07-23 at the
-> user's instruction ("if this implies a consistent work, then just make a plan
-> and we will implement later"), and widened at the user's second instruction:
-> *"use stzGraphRule everywhere it is necessary, not only in stzCodeGraph — it's
-> rule governance applied to any graph-based object in Softanza."* Every "today"
-> claim below was verified against the live tree, including at runtime.
+> Status: **phase 1 BUILT (c02083e0b); phases 2–7 planned.** Written 2026-07-23
+> at the user's instruction ("if this implies a consistent work, then just make a
+> plan and we will implement later"), and widened at the user's second
+> instruction: *"use stzGraphRule everywhere it is necessary, not only in
+> stzCodeGraph — it's rule governance applied to any graph-based object in
+> Softanza."* Every "today" claim below was verified against the live tree,
+> including at runtime.
+>
+> **Phase 1 done:** `class stzGraphRule` is the object face over the existing
+> registry (appended to `graph/stzGraphRule.ring`); object and registry share one
+> matcher so they cannot diverge; it reproduces the hand-written
+> `StzCheckNoLLMEffectful` exactly; the stzWorkflow brace-block style parses
+> against it (phase-2 ready). Guard `graphrule_object_narrated` (34).
 
 ---
 
@@ -208,10 +215,13 @@ The gains are concrete:
 
 ## 7. Phases
 
-1. **`class stzGraphRule`** (`base/graph/`) — the object face over the existing
-   registry: name, type, domain, severity, message, `When`/`ThenViolation`,
-   `Check(oGraph)`. Plain + `...Q()` twins for every mutator (per the convention).
-   Guard: a rule object and an equivalent registered function agree exactly.
+1. **`class stzGraphRule`** (`base/graph/`) — **DONE (c02083e0b).** The object
+   face over the existing registry: name, type, domain, severity, message,
+   `When`/`ThenViolation`, `UseChecker` (escape hatch), `Check(oGraph)`. Plain +
+   `...Q()` twins for every mutator; chain via `StzGraphRuleQ()`. Object and
+   registry share one matcher (`StzGraphRuleFindings`) so they agree by
+   construction; it reproduces `StzCheckNoLLMEffectful` exactly. Guard
+   `graphrule_object_narrated` (34).
 2. **Repair what already assumes it** — `stzWorkflow`'s BPM/SLA rule bases
    construct; `stzOrgChart`'s compliance shells get real rules. Bug fixes that
    fall out of phase 1, with the guards they never had.
