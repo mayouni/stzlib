@@ -1,11 +1,15 @@
 # Softanza Security
 ### Security as one governed vocabulary — with a home in `base/security/`
 
-> Status: reflection + first consolidation. `base/security/` now homes the
-> credential layer (`stzSecret` + kinds, `stzSecretStore`, `stzAuth`). The
-> broader security surface (actors, sandbox, governance, agentic guardrails,
-> crypto, transport) is mapped here with a roadmap for what consolidates next.
-> Guards: `secret_narrated` (47), `secretstore_narrated` (19).
+> Status: consolidated. `base/security/` homes the credential + crypto layer
+> (`stzSecret` + kinds, `stzSecretStore`, `stzVaultResolver`, `stzAuth`,
+> `stzCryptoFuncs`, `stzRequestSigner`, `stzSecurityPosture`). The broader surface
+> (actors, sandbox, governance, agentic guardrails, transport) is mapped here.
+> Guards: `secret_narrated` (53), `secretstore_narrated` (26), `vault_narrated`
+> (15), `security_posture_narrated` (19).
+> Tutorials: [guarding secrets & credentials](../narrations/stz-guarding-secrets-and-credentials-narration.md)
+> (a single secret) and [governing a project's security](../narrations/stz-governing-project-security-narration.md)
+> (the keyring, vault seam, sessions, posture).
 
 ---
 
