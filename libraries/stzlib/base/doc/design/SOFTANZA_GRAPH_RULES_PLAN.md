@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phases 1–2 BUILT (c02083e0b, 2401af3e8); phases 2b, 3–7 planned.** Written 2026-07-23
+> Status: **phases 1–3 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5); phases 2b, 4–7 planned.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -16,7 +16,10 @@
 > `stzGraphRuleSet` + a `Then`/comparison DSL; `stzWorkflow`'s BPM/SLA rule bases
 > repaired (they never ran); `stzOrgChart` compliance stubs unified as rule sets
 > (per-regime content + a graph projection deferred to 2b). Guard
-> `graphruleset_narrated` (25).
+> `graphruleset_narrated` (25). P3: `stzCodeRule`/`stzCodeRuleSet` — three house
+> rules moved onto the code graph (`engine-first` via call edges no longer
+> false-positives on `def substr(`), `StzCheckCode` a thin wrapper behind its
+> frozen shape. Guard `coderule_narrated` (25).
 
 ---
 
@@ -236,8 +239,14 @@ The gains are concrete:
    *positions* model, not a graph, so faithful per-regime compliance rules need
    a **graph projection** of it first (positions→nodes, reportsTo→edges) plus
    the domain rule content — not fabricated here.
-3. **`stzCodeRule` + `stzCodeRuleSet`** — the four existing rules ported,
-   `StzCheckCode` rewired behind its frozen signature.
+3. **`stzCodeRule` + `stzCodeRuleSet`** — **DONE (ad6cdf0d5).** `stzCodeRule`
+   IS-A `stzGraphRule`, `stzCodeRuleSet` IS-A `stzGraphRuleSet`
+   (`meta/stzCodeRule.ring`). Three house rules moved onto the code graph as
+   checkers over real method/function/call data — `engine-first` reads RAW call
+   edges, so `def substr(` (a definition) no longer false-positives; `q-returns-
+   object` stays a text pass (the graph has no return model). `StzCheckCode` is a
+   thin wrapper behind its frozen `[:rule,:line,:severity,:message]` shape. Guard
+   `coderule_narrated` (25); compat guard `codegraph_narrated` still 28.
 4. **`stzAgentRule`** — the four guardrails redeclared as rules; add the
    **dominator** form of `effects-guarded`; make `no-llm-effectful` a
    **constraint** so the edge is refused at construction.
