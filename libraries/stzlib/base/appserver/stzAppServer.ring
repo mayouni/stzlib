@@ -492,6 +492,11 @@ class stzAppServer from stzObject
 		next
 		return _cOut_ + "]"
 
+	# SPLIT-ONLY, never a positional slice: StzLeft/StzMidToEnd feed CODEPOINT
+	# indices to a BYTE-addressed engine slice, so "dish=<arabic>" came back
+	# truncated to half its bytes (verified 2026-07-23) -- every non-ASCII form
+	# value POSTed to the MBaaS floor was silently corrupted. Splitting on "="
+	# is codepoint-correct AND handles a value that itself contains "=".
 	def _ParseFormBody(cBody)
 		_aOut_ = []
 		if cBody = ""
@@ -500,9 +505,14 @@ class stzAppServer from stzObject
 		_aPairs_ = StzSplit(cBody, "&")
 		_nLen_ = len(_aPairs_)
 		for _i_ = 1 to _nLen_
-			_nEq_ = StzFindFirst("=", _aPairs_[_i_])
-			if _nEq_ > 0
-				_aOut_ + [ StzLeft(_aPairs_[_i_], _nEq_ - 1), StzMidToEnd(_aPairs_[_i_], _nEq_ + 1) ]
+			_aKV_ = StzSplit(_aPairs_[_i_], "=")
+			if len(_aKV_) >= 2
+				_cVal_ = _aKV_[2]
+				_nK_ = len(_aKV_)
+				for _j_ = 3 to _nK_
+					_cVal_ += ("=" + _aKV_[_j_])
+				next
+				_aOut_ + [ _aKV_[1], _cVal_ ]
 			ok
 		next
 		return _aOut_
@@ -543,12 +553,18 @@ class stzAppServer from stzObject
 	# headers + Content-Length body, CRLF line endings).
 	def ParseHttpRequest(cRawRequest)
 		_cCRLF_ = char(13) + char(10)
-		_nHeadEnd_ = StzFindFirst(_cCRLF_ + _cCRLF_, cRawRequest)
-		if _nHeadEnd_ = 0
+		# split, don't slice: a multibyte BODY made StzMidToEnd compute its
+		# length in codepoints and apply it as bytes, truncating the tail.
+		_aHB_ = StzSplit(cRawRequest, _cCRLF_ + _cCRLF_)
+		if len(_aHB_) < 2
 			stzraise("Malformed HTTP request (no header terminator)")
 		ok
-		_cHead_ = StzLeft(cRawRequest, _nHeadEnd_ - 1)
-		_cBody_ = StzMidToEnd(cRawRequest, _nHeadEnd_ + 4)
+		_cHead_ = _aHB_[1]
+		_cBody_ = _aHB_[2]
+		_nHB_ = len(_aHB_)
+		for _k_ = 3 to _nHB_
+			_cBody_ += (_cCRLF_ + _cCRLF_ + _aHB_[_k_])
+		next
 		_aLines_ = StzSplit(_cHead_, _cCRLF_)
 		if len(_aLines_) = 0
 			stzraise("Empty request")

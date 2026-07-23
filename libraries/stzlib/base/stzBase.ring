@@ -516,6 +516,9 @@ ok
     load "appserver/stzAppRequest.ring"
     load "appserver/stzAppResponse.ring"
     load "appserver/stzAppRouter.ring"
+    # the LIVE backend: an stzAppTopology's parts sharing one real state
+    # (loaded last -- it needs stzDatabase, stzAppTopology AND stzAppServer)
+    load "appserver/stzAppBackend.ring"
 
 # cluster/ -- THE SCALE PLANE (R8): the delivery plane's horizontal
 # axis. Specialization is a WORKER PROFILE (capability tag + resource

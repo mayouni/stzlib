@@ -39,6 +39,7 @@ class stzAppTopology from stzObject
 	@aDatasets = []    # [ [ name, [ rows ] ], ... ]  -- rows are lists (real domain data)
 	@aRoles = []       # [ [ partName, role, datasetName ], ... ]
 	@aDevices = []     # [ [ partName, [ pins ], [ rule ] ], ... ]  -- firmware parts
+	@aColumns = []     # [ [ datasetName, [ colNames ] ], ... ]  -- the LIVE backend's schema
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -69,10 +70,61 @@ class stzAppTopology from stzObject
 		ok
 		return This
 
+	# the dataset's COLUMN NAMES. Only the live backend needs them (it
+	# materialises each dataset as a real sqlite table, and a part POSTs
+	# "dish=Couscous&qty=2" -- form keys ARE column names). Optional: when
+	# unset, ColumnsOf() derives c1..cN, so the static model is unaffected.
+	def SetDatasetColumnsQ(pcName, paCols)
+		_nm_ = StzLower(ring_trim("" + pcName))
+		_i_ = This._ColumnsIndex(_nm_)
+		if _i_ > 0
+			@aColumns[_i_][2] = paCols
+		else
+			@aColumns + [ _nm_, paCols ]
+		ok
+		return This
+
 	  #-- reads -----------------------------------------------------------
 
 	def Name()
 		return @cName
+
+	# every dataset's name, in declaration order (the live backend
+	# materialises one table per entry).
+	def DatasetNames()
+		_out_ = []
+		_n_ = len(@aDatasets)
+		for _i_ = 1 to _n_
+			_out_ + @aDatasets[_i_][1]
+		next
+		return _out_
+
+	# declared column names, or derived c1..cN from the dataset's widest row.
+	def ColumnsOf(pcName)
+		_nm_ = StzLower(ring_trim("" + pcName))
+		_i_ = This._ColumnsIndex(_nm_)
+		if _i_ > 0
+			return @aColumns[_i_][2]
+		ok
+		_rows_ = This.Dataset(_nm_)
+		_w_ = 0
+		_n_ = len(_rows_)
+		for _j_ = 1 to _n_
+			if len(_rows_[_j_]) > _w_
+				_w_ = len(_rows_[_j_])
+			ok
+		next
+		_out_ = []
+		for _j_ = 1 to _w_
+			_out_ + ("c" + _j_)
+		next
+		return _out_
+
+	# the aggregation over ANY orders list -- public so the LIVE backend can
+	# run the very same computation over rows fetched from the running server
+	# (the admin part's :PivotTable, over live data instead of a frozen list).
+	def DashboardFromOrders(paOrders)
+		return This._DashboardFromOrders(paOrders)
 
 	def Dataset(pcName)
 		_i_ = This._DatasetIndex(StzLower(ring_trim("" + pcName)))
@@ -90,6 +142,15 @@ class stzAppTopology from stzObject
 			return ""
 		ok
 		return @aRoles[_i_][2]   # [ part, ROLE, dataset ]
+
+	# the NAME of the part's dataset (DatasetOf returns its rows). The live
+	# backend needs the name to address the running server's REST resource.
+	def DatasetNameOf(pcPart)
+		_i_ = This._RoleIndex(StzLower(ring_trim("" + pcPart)))
+		if _i_ = 0
+			return ""
+		ok
+		return @aRoles[_i_][3]
 
 	def DatasetOf(pcPart)
 		_i_ = This._RoleIndex(StzLower(ring_trim("" + pcPart)))
@@ -204,6 +265,15 @@ class stzAppTopology from stzObject
 		_n_ = len(@aRoles)
 		for _i_ = 1 to _n_
 			if @aRoles[_i_][1] = pcPart
+				return _i_
+			ok
+		next
+		return 0
+
+	def _ColumnsIndex(pcName)
+		_n_ = len(@aColumns)
+		for _i_ = 1 to _n_
+			if @aColumns[_i_][1] = pcName
 				return _i_
 			ok
 		next
