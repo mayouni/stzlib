@@ -216,7 +216,7 @@ class stzPlatform from stzObject
 	def init(pcName)
 		@cName = "" + pcName
 		@oLog = new stzLog("platform")
-		@oLog.SetLevelQ(:trace)
+		@oLog.SetLevel(:trace)
 
 	# the structured log of the platform's Build() + Deploy() phases -- queryable
 	# and renderable: oPlat.Log().EntriesOfLevel(:error), oPlat.Log().AsJson().
@@ -271,14 +271,14 @@ class stzPlatform from stzObject
 			_cCmd_ = "(no language declared)"
 			if _app_.HasLanguage()
 				_oB_ = new stzBuilder(_app_.Name())
-				_oB_.SetLanguageQ(_app_.Language())
+				_oB_.SetLanguage(_app_.Language())
 				_aSrc_ = _app_.Sources()
 				_ns_ = len(_aSrc_)
 				for _k_ = 1 to _ns_
-					_oB_.AddSourceQ(_aSrc_[_k_])
+					_oB_.AddSource(_aSrc_[_k_])
 				next
 				if isObject(_app_.DeploymentSystem())
-					_oB_.SetTargetQ(_app_.DeploymentSystem())
+					_oB_.SetTarget(_app_.DeploymentSystem())
 				ok
 				_cLang_ = _app_.Language()
 				_cCmd_ = _oB_.ToCommand()

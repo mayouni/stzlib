@@ -101,13 +101,22 @@ class stzResourceSpec from stzObject
 	def init()
 		@nMem = 0
 
+	def SetMemory(pnMB)
+		This.SetMemoryQ(pnMB)
+
 	def SetMemoryQ(pnMB)
 		@nMem = pnMB
 		return This
 
+	def SetCompute(pnVCPU)
+		This.SetComputeQ(pnVCPU)
+
 	def SetComputeQ(pnVCPU)
 		@nCpu = pnVCPU
 		return This
+
+	def SetStorage(pnGB)
+		This.SetStorageQ(pnGB)
 
 	def SetStorageQ(pnGB)
 		@nDisk = pnGB
@@ -130,9 +139,9 @@ class stzResourceSpec from stzObject
 	# aggregate: sum two requirements (many parts on one host)
 	def Plus(poOther)
 		_r_ = new stzResourceSpec()
-		_r_.SetMemoryQ(@nMem + poOther.MemoryMB())
-		_r_.SetComputeQ(@nCpu + poOther.ComputeVCPU())
-		_r_.SetStorageQ(@nDisk + poOther.StorageGB())
+		_r_.SetMemory(@nMem + poOther.MemoryMB())
+		_r_.SetCompute(@nCpu + poOther.ComputeVCPU())
+		_r_.SetStorage(@nDisk + poOther.StorageGB())
 		return _r_
 
 	def Text()
@@ -173,13 +182,22 @@ class stzDeploymentSite from stzObject
 
 	  #-- the access config (Q-fluent: chainable via the ...Q suffix) ---
 
+	def SetKind(pcKind)
+		This.SetKindQ(pcKind)
+
 	def SetKindQ(pcKind)
 		@cKind = StzLower(ring_trim("" + pcKind))
 		return This
 
+	def SetEndpoint(pcUrl)
+		This.SetEndpointQ(pcUrl)
+
 	def SetEndpointQ(pcUrl)
 		@cEndpoint = "" + pcUrl
 		return This
+
+	def SetProtocol(pcProtocol)
+		This.SetProtocolQ(pcProtocol)
 
 	def SetProtocolQ(pcProtocol)
 		@cProtocol = StzLower(ring_trim("" + pcProtocol))
@@ -188,6 +206,9 @@ class stzDeploymentSite from stzObject
 	# auth is EITHER a plain reference string (e.g. "env/DEPLOY_KEY", back-compat)
 	# OR a stzSecret. When it is a secret, the site stores the OBJECT and displays
 	# only its redacted descriptor -- the key never lands in Config/ConfigJson.
+	def SetAuthRef(pRef)
+		This.SetAuthRefQ(pRef)
+
 	def SetAuthRefQ(pRef)
 		if isObject(pRef)
 			@bStoreBacked = FALSE
@@ -210,6 +231,9 @@ class stzDeploymentSite from stzObject
 	# The reveal is done through the SHARED store, passed by reference at reveal
 	# time (ResolveAuthVia), so the store's gate applies AND the store audits it.
 	# This is how a project keeps ONE complete audit trail across every reveal.
+	def SetAuthFromStore(poStore, pcName)
+		This.SetAuthFromStoreQ(poStore, pcName)
+
 	def SetAuthFromStoreQ(poStore, pcName)
 		if NOT isObject(poStore)
 			StzRaise("SetAuthFromStoreQ expects a stzSecretStore.")
@@ -223,13 +247,22 @@ class stzDeploymentSite from stzObject
 		@cAuthRef = poStore.DescriptorOf(pcName)   # redacted, captured for display/config
 		return This
 
+	def SetStoreAt(pcLocation)
+		This.SetStoreAtQ(pcLocation)
+
 	def SetStoreAtQ(pcLocation)
 		@cStorage = "" + pcLocation
 		return This
 
+	def SetLaunchWith(pcCmd)
+		This.SetLaunchWithQ(pcCmd)
+
 	def SetLaunchWithQ(pcCmd)
 		@cLaunch = "" + pcCmd
 		return This
+
+	def SetStatusWith(pcCmd)
+		This.SetStatusWithQ(pcCmd)
 
 	def SetStatusWithQ(pcCmd)
 		@cStatusCmd = "" + pcCmd
@@ -237,12 +270,18 @@ class stzDeploymentSite from stzObject
 
 	# what the host PROVIDES (its capacity). For a real host it is discovered via
 	# the provider API; for a fixed host it is declared here.
+	def SetCapacity(poSpec)
+		This.SetCapacityQ(poSpec)
+
 	def SetCapacityQ(poSpec)
 		@oCapacity = poSpec
 		return This
 
 	# name a provisioning provider -> this host can be CREATED/resized to meet a
 	# requirement (IaC-style), not just deployed to.
+	def SetProvider(pcName)
+		This.SetProviderQ(pcName)
+
 	def SetProviderQ(pcName)
 		@cProvider = StzLower(ring_trim("" + pcName))
 		return This

@@ -44,6 +44,9 @@ class stzAuth from stzObject
 
 	# how long a new session lives, in seconds (0 = no expiry). Existing sessions
 	# keep the TTL they were issued with.
+	def SetSessionTTL(pnSeconds)
+		This.SetSessionTTLQ(pnSeconds)
+
 	def SetSessionTTLQ(pnSeconds)
 		@nSessionTTL = pnSeconds
 		return This
@@ -106,9 +109,9 @@ class stzAuth from stzObject
 		_tok_ = StzEngineCryptoRandomHex(32)
 		# the session IS a stzToken -- a bearer credential that carries its expiry.
 		_oTok_ = new stzToken("session")
-		_oTok_.FromLiteralQ(_tok_)
+		_oTok_.FromLiteral(_tok_)
 		if @nSessionTTL > 0
-			_oTok_.SetExpiryQ(This._NowSecs() + @nSessionTTL)
+			_oTok_.SetExpiry(This._NowSecs() + @nSessionTTL)
 		ok
 		@aSessions + [ _tok_, ring_trim("" + pcUser), _oTok_ ]
 		return _tok_

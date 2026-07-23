@@ -308,9 +308,15 @@ class stzBuilder from stzObject
 
 	  #-- the declarative spec (fluent) ----------------------
 
+	def AddSource(pcFile)
+		This.AddSourceQ(pcFile)
+
 	def AddSourceQ(pcFile)
 		@aSources + ("" + pcFile)
 		return This
+
+	def AddSources(paFiles)
+		This.AddSourcesQ(paFiles)
 
 	def AddSourcesQ(paFiles)
 		if isList(paFiles)
@@ -321,22 +327,43 @@ class stzBuilder from stzObject
 		ok
 		return This
 
+	def SetLanguage(pcLang)
+		This.SetLanguageQ(pcLang)
+
 	def SetLanguageQ(pcLang)
 		@cLanguage = StzLower(ring_trim("" + pcLang))
 		return This
 
+		def InC()
+			This.InCQ()
+
 		def InCQ()
 			return This.SetLanguageQ("c")
+		def InCpp()
+			This.InCppQ()
+
 		def InCppQ()
 			return This.SetLanguageQ("cpp")
+		def InZig()
+			This.InZigQ()
+
 		def InZigQ()
 			return This.SetLanguageQ("zig")
+		def InRing()
+			This.InRingQ()
+
 		def InRingQ()
 			return This.SetLanguageQ("ring")
+
+	def EmitExe()
+		This.EmitExeQ()
 
 	def EmitExeQ()
 		@cKind = "exe"
 		return This
+
+	def EmitLib()
+		This.EmitLibQ()
 
 	def EmitLibQ()
 		@cKind = "lib"
@@ -344,6 +371,9 @@ class stzBuilder from stzObject
 
 	# Set the build target -- a stzSystemProfile (a deployment system), a friendly
 	# name (:LinuxServer, :ESP32), or a raw Zig triple ("x86_64-linux-gnu").
+	def SetTarget(pTarget)
+		This.SetTargetQ(pTarget)
+
 	def SetTargetQ(pTarget)
 		if isObject(pTarget)
 			@cTriple = _StzZigTripleFor(pTarget.OSName(), pTarget.Architecture())
@@ -361,6 +391,9 @@ class stzBuilder from stzObject
 		ok
 		return This
 
+	def TargetHost()
+		This.TargetHostQ()
+
 	def TargetHostQ()
 		@cTriple = ""
 		return This
@@ -368,15 +401,24 @@ class stzBuilder from stzObject
 	# Build FOR the web: a freestanding wasm module that stz.js instantiates.
 	# JS owns the memory (imported); listed exports are callable from JS; small
 	# by default. Pair with stzWebBundle to assemble the page.
+	def TargetWeb()
+		This.TargetWebQ()
+
 	def TargetWebQ()
 		@cTriple = "wasm32-freestanding"
 		@bWeb = TRUE
 		@cOptimize = "small"
 		return This
 
+	def AddExport(pcName)
+		This.AddExportQ(pcName)
+
 	def AddExportQ(pcName)
 		@aExports + ("" + pcName)
 		return This
+
+	def AddExports(paNames)
+		This.AddExportsQ(paNames)
 
 	def AddExportsQ(paNames)
 		if isList(paNames)
@@ -393,18 +435,36 @@ class stzBuilder from stzObject
 	def Target()
 		return @cTriple
 
+	def SetOptimization(pcMode)
+		This.SetOptimizationQ(pcMode)
+
 	def SetOptimizationQ(pcMode)
 		@cOptimize = StzLower(ring_trim("" + pcMode))
 		return This
 
+		def OptimizeDebug()
+			This.OptimizeDebugQ()
+
 		def OptimizeDebugQ()
 			return This.SetOptimizationQ("debug")
+		def OptimizeFast()
+			This.OptimizeFastQ()
+
 		def OptimizeFastQ()
 			return This.SetOptimizationQ("fast")
+		def OptimizeSmall()
+			This.OptimizeSmallQ()
+
 		def OptimizeSmallQ()
 			return This.SetOptimizationQ("small")
+		def OptimizeSafe()
+			This.OptimizeSafeQ()
+
 		def OptimizeSafeQ()
 			return This.SetOptimizationQ("safe")
+
+	def SetOutput(pcPath)
+		This.SetOutputQ(pcPath)
 
 	def SetOutputQ(pcPath)
 		@cOutput = "" + pcPath
@@ -416,17 +476,29 @@ class stzBuilder from stzObject
 		ok
 		return @cName + This._DefaultExt()
 
+	def AddDefine(pcName, pcVal)
+		This.AddDefineQ(pcName, pcVal)
+
 	def AddDefineQ(pcName, pcVal)
 		@aDefines + [ "" + pcName, "" + pcVal ]
 		return This
+
+	def AddInclude(pcDir)
+		This.AddIncludeQ(pcDir)
 
 	def AddIncludeQ(pcDir)
 		@aIncludes + ("" + pcDir)
 		return This
 
+	def AddLink(pcLib)
+		This.AddLinkQ(pcLib)
+
 	def AddLinkQ(pcLib)
 		@aLibs + ("" + pcLib)
 		return This
+
+	def SetZig(pcPath)
+		This.SetZigQ(pcPath)
 
 	def SetZigQ(pcPath)
 		@cZig = "" + pcPath
@@ -439,6 +511,9 @@ class stzBuilder from stzObject
 		return _StzFindZig()
 
 	  #-- Ring parts: lower to C, then compile through Zig ---
+
+	def SetRingRoot(pcPath)
+		This.SetRingRootQ(pcPath)
 
 	def SetRingRootQ(pcPath)
 		@cRingRoot = "" + pcPath

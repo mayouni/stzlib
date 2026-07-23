@@ -190,7 +190,7 @@ class stzDelivery from stzObject
 		@cName = "" + pcName
 		@oCat = new stzCapabilityCatalog()
 		@oLog = new stzLog("delivery")
-		@oLog.SetLevelQ(:trace)
+		@oLog.SetLevel(:trace)
 
 	def Name()
 		return @cName
@@ -203,6 +203,9 @@ class stzDelivery from stzObject
 	# attach the solution's application model -- named datasets + per-part roles.
 	# The emulator renders each part FROM it (its real menu / computed dashboard),
 	# instead of a shared placeholder.
+	def SetAppTopology(poApp)
+		This.SetAppTopologyQ(poApp)
+
 	def SetAppTopologyQ(poApp)
 		@oApp = poApp
 		return This

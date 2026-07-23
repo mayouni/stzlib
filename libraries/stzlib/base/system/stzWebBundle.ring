@@ -115,15 +115,24 @@ class stzWebBundle from stzObject
 		@cName = "" + pcName
 		@cTitle = "" + pcName
 
+	def SetTitle(pcTitle)
+		This.SetTitleQ(pcTitle)
+
 	def SetTitleQ(pcTitle)
 		@cTitle = "" + pcTitle
 		return This
+
+	def SetOutDir(pcDir)
+		This.SetOutDirQ(pcDir)
 
 	def SetOutDirQ(pcDir)
 		@cOutDir = "" + pcDir
 		return This
 
 	# Add a wasm part -- a prebuilt .wasm path, or a stzBuilder (which is built).
+	def AddWasm(pcName, pWasm)
+		This.AddWasmQ(pcName, pWasm)
+
 	def AddWasmQ(pcName, pWasm)
 		_cPath_ = ""
 		if isObject(pWasm)
