@@ -1259,6 +1259,9 @@ outbound TCP only), inbound TLS, async spawn for the polyglot fleet.
 And the AGENT HOST IS THE SAME HOST: R5's perceive-decide-act loop
 wants exactly this reactor spine -- an agent is a supervised,
 cancellable, traced, DECOMMISSIONABLE (R4b) long-running service.
+[LANDED 2026-07-23: `oSrv.HostAgents()` makes the sentence literal --
+the agent host shares the server's reactor, and the serve loop ticks
+the agents between bounded socket slices. See topology 4 below.]
 
 R7 SERVICE-HOST STATUS (2026-07-16): every gap above is now closed. The
 reactor-driven service host (stzAppServer on stzReactor) serves WEB routes,
@@ -1558,11 +1561,23 @@ movement.] Step order matters:
    wildcards deferred); stzContextPool + compute-engine preloads
    retired as collapse-ruling tombstones; cluster/ folding deferred
    with the R5 worker model.
-3. ONE HOST, FOUR TOPOLOGIES [3 of 4 DONE]: web (routes over the
+3. ONE HOST, FOUR TOPOLOGIES [4 of 4 DONE]: web (routes over the
    engine-framed listener); MBaaS (CRUD floor over sqlite; auth/
    sessions live in stzPlatform's Commons -- KDF = engine gap);
    IoT (raw per-connection streams on the same loop); AGENTS
-   deferred to the R5 reactor-runtime slice (the loop is ready).
+   [DONE 2026-07-23, 2e266a0a5] -- `HostAgents()` attaches an
+   stzAgentHost that SHARES the server's reactor, and the serve
+   loop INTERLEAVES: a bounded slice on the socket, then tick
+   whatever is due. Without that bound, `ServeOne` parks for the
+   whole remaining time on an idle socket and the agents starve;
+   with it, 300ms of `RunFor` and zero traffic still ticks the
+   agents, and an ordinary route still answers mid-flight. Timer-
+   AND event-driven supervision both ride the serve loop. The HTTP
+   surface (`/agents`, `/agents/<name>`, `/agents/trace`) is
+   READ-ONLY by doctrine -- pausing and retiring are effects, and a
+   socket carries no actor, so control stays in-process where R4b's
+   decommission contract gates it. Guard
+   `64_appserver_agents_narrated` (35).
 4. stzPlatform [DONE, new platform/ domain]: Generate(:all) real
    (Reach -> web/desktop/mobile shells); the capability seam gated
    by the 5.7 lattice via R4b governance; the Commons runtime; the

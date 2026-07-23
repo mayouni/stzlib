@@ -31,9 +31,13 @@ ONE HOST, FOUR TOPOLOGIES (the 5.10 convergence):
              (GET list / GET count / POST insert), sqlite in the engine
 - IoT      : ListenRaw(nPort, fHandler) -> raw per-connection byte
              streams (no HTTP framing) for device telemetry
-- AGENTS   : the same event loop is the R5 perceive-decide-act spine;
-             agent hosting lands with the reactor-runtime slice (R5
-             deferred work), NOT stubbed here.
+- AGENTS   : HostAgents() attaches an stzAgentHost that SHARES this
+             server's reactor -- "the agent host IS the same host",
+             made literal. The serve loop interleaves: a bounded slice
+             on the socket, then tick whatever is due, so agents no
+             longer starve on an idle socket. Timer- and event-driven
+             supervision both ride it. /agents is READ-ONLY (control
+             is in-process and governed).
 
 COLLAPSE RULINGS (5.10): stzContextPool folded into stzReactorPool
 (real threads; the "context" abstraction predates the resident
