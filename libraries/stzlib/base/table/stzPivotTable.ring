@@ -1938,7 +1938,7 @@ class stzPivotTable from stzList
 		ok
 
 		_cTrimmed_ = trim(_cOutput_)
-		? StzLeft(_cTrimmed_, len(_cTrimmed_) - 1) + NL
+		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + NL
 
 	#-------------------------------------#
 	#  2D PIVOT TABLE DISPLAY - eXTended  #
@@ -2628,7 +2628,7 @@ class stzPivotTable from stzList
 		ok
 	
 		_cTrimmed_ = trim(_cOutput_)
-		? StzLeft(_cTrimmed_, len(_cTrimmed_) - 1) + NL
+		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + NL
 	
 	  #------------------------------------------#
 	 #  1D Rows 2D Columns Pivot Table Display  #
@@ -3105,7 +3105,7 @@ class stzPivotTable from stzList
 		ok
 
 		_cTrimmed_ = trim(_cOutput_)
-		? StzLeft(_cTrimmed_, len(_cTrimmed_) - 1) + NL
+		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + NL
 
 	  #------------------------------------------#
 	 #  2D Rows 1D Columns Pivot Table Display  #

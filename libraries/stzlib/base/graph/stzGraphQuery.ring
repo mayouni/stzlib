@@ -1228,12 +1228,12 @@ class stzGraphQuery from stzObject
 		but _cOp_ = :startswith
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			pRight = This._ResolveValue(pCondition["right"], _aBinding_)
-			return isString(pLeft) and isString(pRight) and StzLeft(StzLower(pLeft), len(pRight)) = StzLower(pRight)
+			return isString(pLeft) and isString(pRight) and StzLeft(StzLower(pLeft), StzLen(pRight)) = StzLower(pRight)
 
 		but _cOp_ = :endswith
 			pLeft = This._ResolveValue(pCondition["left"], _aBinding_)
 			pRight = This._ResolveValue(pCondition["right"], _aBinding_)
-			return isString(pLeft) and isString(pRight) and StzRight(StzLower(pLeft), len(pRight)) = StzLower(pRight)
+			return isString(pLeft) and isString(pRight) and StzRight(StzLower(pLeft), StzLen(pRight)) = StzLower(pRight)
 			
 		but _cOp_ = :and
 			return This._EvaluateCondition(pCondition["left"], _aBinding_) and

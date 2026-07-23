@@ -60,7 +60,7 @@ class stzTablex from stzObject
 
 	def ParsePattern(_cPattern_)
 		# Remove outer braces
-		_cInner_ = @StzMid(_cPattern_, 2, len(_cPattern_) - 1)
+		_cInner_ = @StzMid(_cPattern_, 2, StzLen(_cPattern_) - 1)
 		_cInner_ = trim(_cInner_)
 
 		if @bDebugMode
@@ -127,7 +127,7 @@ class stzTablex from stzObject
 
 	def ParseAlternation(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
-			_cTokenStr_ = @StzMid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
+			_cTokenStr_ = @StzMid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
 		ok
 
 		_aParts_ = This.SplitByOperator(_cTokenStr_, "|")
@@ -152,7 +152,7 @@ class stzTablex from stzObject
 
 	def ParseConjunction(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
-			_cTokenStr_ = @StzMid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
+			_cTokenStr_ = @StzMid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
 		ok
 
 		_aParts_ = This.SplitByOperator(_cTokenStr_, "&")
@@ -190,13 +190,13 @@ class stzTablex from stzObject
 		# Check for negation
 		if startsWith(StzLower(_cTokenStr_), "@!")
 			_bNegated_ = TRUE
-			_cTokenStr_ = @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 
 		# Check for case sensitivity flag
 		if startsWith(StzLower(_cTokenStr_), "@cs:")
 			_bCaseSensitive_ = TRUE
-			_cTokenStr_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
 		_cType_ = ""
@@ -385,7 +385,7 @@ class stzTablex from stzObject
 		# Parse quantifiers (same as before...)
 		_cQuantPart_ = ""
 		if _nCloseParen_ > 0 and _nCloseParen_ < len(_cTokenStr_)
-			_cQuantPart_ = @StzMid(_cTokenStr_, _nCloseParen_ + 1, len(_cTokenStr_))
+			_cQuantPart_ = @StzMid(_cTokenStr_, _nCloseParen_ + 1, StzLen(_cTokenStr_))
 		ok
 
 		_cQuantPart_ = trim(_cQuantPart_)
@@ -435,7 +435,7 @@ class stzTablex from stzObject
 		_nLen_ = len(aPrefixes)
 		for _i_ = 1 to _nLen_
 			if startsWith(cStr, aPrefixes[_i_])
-				return @StzMid(cStr, len(aPrefixes[_i_]) + 1, len(cStr))
+				return @StzMid(cStr, StzLen(aPrefixes[_i_]) + 1, StzLen(cStr))
 			ok
 		next
 		return cStr
@@ -458,12 +458,12 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				_aConstraints_ + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				_aConstraints_ + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			ok
 
@@ -476,12 +476,12 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				_aConstraints_ + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				_aConstraints_ + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			ok
 
@@ -1171,9 +1171,9 @@ class stzTablex from stzObject
 						next
 
 						if startsWith(_cConstraint_, ">")
-							return _nSum_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							return _nSum_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 						but startsWith(_cConstraint_, "<")
-							return _nSum_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+							return _nSum_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 						but This.IsNumeric(_cConstraint_)
 							return _nSum_ = (0 + _cConstraint_)
 						ok
@@ -1208,9 +1208,9 @@ class stzTablex from stzObject
 							_nAvg_ = _nSum_ / _nCount_
 							
 							if startsWith(_cConstraint_, ">")
-								return _nAvg_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nAvg_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nAvg_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nAvg_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nAvg_ = (0 + _cConstraint_)
 							ok
@@ -1245,9 +1245,9 @@ class stzTablex from stzObject
 
 						if _nMin_ != NULL
 							if startsWith(_cConstraint_, ">")
-								return _nMin_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nMin_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nMin_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nMin_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nMin_ = (0 + _cConstraint_)
 							ok
@@ -1283,9 +1283,9 @@ class stzTablex from stzObject
 
 						if _nMax_ != NULL
 							if startsWith(_cConstraint_, ">")
-								return _nMax_ > (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nMax_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nMax_ < (0 + @StzMid(_cConstraint_, 2, len(_cConstraint_)))
+								return _nMax_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nMax_ = (0 + _cConstraint_)
 							ok
@@ -1555,9 +1555,9 @@ class stzTablex from stzObject
 		ok
 
 		_cCombined_ = "{" + 
-		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, StzLen(@cPattern) - 1) + 
 		            " & " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(_cCombined_)
@@ -1568,15 +1568,15 @@ class stzTablex from stzObject
 		ok
 
 		_cCombined_ = "{" + 
-		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, StzLen(@cPattern) - 1) + 
 		            " | " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(_cCombined_)
 
 	def Not_()
-		_cInner_ = @StzMid(@cPattern, 2, len(@cPattern) - 1)
+		_cInner_ = @StzMid(@cPattern, 2, StzLen(@cPattern) - 1)
 		_cNegated_ = "{@!" + _cInner_ + "}"
 		return new stzTablex(_cNegated_)
 

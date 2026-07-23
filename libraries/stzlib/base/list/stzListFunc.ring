@@ -6935,7 +6935,7 @@ func @FindNext(_aList_, pItem, _nStart_)
 func _StzListKeyToShortForm(pcKey)
 	_cSf_ = ring_trim(pcKey)
 	if ring_left(_cSf_, 1) = "[" and ring_right(_cSf_, 1) = "]"
-		_cSf_ = ring_trim(StzMid(_cSf_, 2, len(_cSf_) - 2))
+		_cSf_ = ring_trim(StzMid(_cSf_, 2, StzLen(_cSf_) - 2))
 	ok
 	if _cSf_ = ""
 		return pcKey

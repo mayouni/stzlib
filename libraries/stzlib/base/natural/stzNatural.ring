@@ -1985,7 +1985,7 @@ class stzNaturalEngine from stzObject
 				ok
 				if _bEn_
 					if _cTid_ != ""
-						_cT_ = lower(StzRight(_cTid_, len(_cTid_) - 7))
+						_cT_ = lower(StzRight(_cTid_, StzLen(_cTid_) - 7))
 					ok
 					_cStep_ = "create a " + _cT_
 					if _cV_ != ""

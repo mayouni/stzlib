@@ -11093,7 +11093,7 @@ class stzString from stzObject
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = StzMid(_c_, 2, len(_c_) - 2)
+			_c_ = StzMid(_c_, 2, StzLen(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
 		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
@@ -11236,7 +11236,7 @@ class stzString from stzObject
 		_cAll_ = This.Content()
 		_cLead_ = _aB_[1]; _cTrail_ = _aB_[2]
 		if ring_left(_cAll_, len(_cLead_)) = _cLead_
-			_cAll_ = StzMidToEnd(_cAll_, len(_cLead_) + 1)
+			_cAll_ = StzMidToEnd(_cAll_, StzLen(_cLead_) + 1)
 		ok
 		if ring_right(_cAll_, len(_cTrail_)) = _cTrail_
 			_cAll_ = ring_left(_cAll_, len(_cAll_) - len(_cTrail_))
@@ -14519,7 +14519,7 @@ class stzString from stzObject
 			if NOT isString(_cExpr_) or _cExpr_ = "" return 0 ok
 			_e_ = ring_trim(_cExpr_)
 			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
-				_e_ = ring_trim(StzMid(_e_, 2, len(_e_) - 2))
+				_e_ = ring_trim(StzMid(_e_, 2, StzLen(_e_) - 2))
 			ok
 			_aChars_ = This.Chars()
 			_nLen_ = len(_aChars_)
@@ -16936,7 +16936,7 @@ class stzString from stzObject
 			# Strip braces if the expression came as "{ ... }".
 			_e_ = ring_trim(_cExpr_)
 			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
-				_e_ = ring_trim(StzMid(_e_, 2, len(_e_) - 2))
+				_e_ = ring_trim(StzMid(_e_, 2, StzLen(_e_) - 2))
 			ok
 			_aChars_ = This.Chars()
 			_nLen_ = len(_aChars_)

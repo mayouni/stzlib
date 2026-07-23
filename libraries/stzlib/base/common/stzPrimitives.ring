@@ -298,18 +298,38 @@ func StzIsDigit(_cStr_)
 	return _n_
 
 #-- Substring extraction (codepoint-aware)
+#
+# These MUST call the engine's *Cp (codepoint) slice family, never the bare
+# byte family. StzEngineStringLeft/Right/Mid take BYTE offsets and lengths; a
+# codepoint index handed to them slices mid-character, so the engine's utf-8
+# validation returns "" -- or, when the bytes happen to land on a boundary,
+# a SILENTLY TRUNCATED string (verified 2026-07-23: StzLeft("cafe"+accent, 4)
+# = "", StzMidToEnd("a-"+arabic, 3) = half the characters). ASCII always
+# passed, which is exactly why it hid for so long.
+#
+# The engine's str_left_cp / str_right_cp / str_mid_cp take INDEX_BASE=1
+# positions and codepoint counts, clamp a negative/zero count to 0, and clamp
+# an over-long count to the end -- so they cannot panic and need no arithmetic
+# here. (StzEngineStringLeft(x, -1) DID panic: its bridge casts the count to
+# usize with @intFromFloat, and -1 is out of bounds for an unsigned int.)
 
 func StzLeft(_cStr_, _n_)
+	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
+	if NOT isNumber(_n_) return "" ok
+	if _n_ <= 0 return "" ok
 	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringLeft(pH, _n_)
+	pR = StzEngineStringLeftCp(pH, _n_)
 	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
 	return _c_
 
 func StzRight(_cStr_, _n_)
+	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
+	if NOT isNumber(_n_) return "" ok
+	if _n_ <= 0 return "" ok
 	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringRight(pH, _n_)
+	pR = StzEngineStringRightCp(pH, _n_)
 	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
@@ -317,22 +337,15 @@ func StzRight(_cStr_, _n_)
 
 func StzMid(_cStr_, _nStart_, _nLen_)
 	# Defensive bounds: Ring's substr returns "" silently on degenerate
-	# inputs; the engine panics with an integer-OOB. Match the lenient
-	# Ring behaviour.
+	# inputs; match that lenient behaviour rather than raising.
 	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
 	if NOT (isNumber(_nStart_) and isNumber(_nLen_)) return "" ok
 	if _nLen_ <= 0 return "" ok
-	pH = StzEngineString(_cStr_)
-	_nTotal_ = StzEngineStringCount(pH)
 	if _nStart_ < 1 _nStart_ = 1 ok
-	if _nStart_ > _nTotal_
-		StzEngineStringFree(pH)
-		return ""
-	ok
-	if _nStart_ - 1 + _nLen_ > _nTotal_
-		_nLen_ = _nTotal_ - _nStart_ + 1
-	ok
-	pR = StzEngineStringMid(pH, _nStart_ - 1, _nLen_)
+	pH = StzEngineString(_cStr_)
+	# 1-BASED start (the Cp family is INDEX_BASE-based; the byte family was
+	# 0-based, hence the old `_nStart_ - 1`). Over-long counts self-clamp.
+	pR = StzEngineStringMidCp(pH, _nStart_, _nLen_)
 	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)
@@ -349,14 +362,15 @@ func StzMid(_cStr_, _nStart_, _nLen_)
 # slice) instead of a StzMid + separate StzLen.
 func StzMidToEnd(_cStr_, _nStart_)
 	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
-	pH = StzEngineString(_cStr_)
-	_nLen_ = StzEngineStringCount(pH)
+	if NOT isNumber(_nStart_) return "" ok
 	if _nStart_ < 1 _nStart_ = 1 ok
-	if _nStart_ > _nLen_
+	pH = StzEngineString(_cStr_)
+	_nCount_ = StzEngineStringCount(pH)      # CODEPOINTS, matching the Cp slice
+	if _nStart_ > _nCount_
 		StzEngineStringFree(pH)
 		return ""
 	ok
-	pR = StzEngineStringMid(pH, _nStart_ - 1, _nLen_ - _nStart_ + 1)
+	pR = StzEngineStringMidCp(pH, _nStart_, _nCount_ - _nStart_ + 1)
 	_c_ = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
 	StzEngineStringFree(pH)

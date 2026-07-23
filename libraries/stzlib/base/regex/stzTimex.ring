@@ -82,7 +82,7 @@ class stzTimex from stzObject
 	
 	def ParsePattern(_cPattern_)
 		# Remove outer braces
-		_cInner_ = @StzMid(_cPattern_, 2, len(_cPattern_)-1)
+		_cInner_ = @StzMid(_cPattern_, 2, StzLen(_cPattern_)-1)
 		_cInner_ = trim(_cInner_)
 		
 		if @bDebugMode
@@ -153,7 +153,7 @@ class stzTimex from stzObject
 		# Handle (A | B | C) patterns
 		# Strip outer parentheses if present
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
-			_cTokenStr_ = @StzMid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
+			_cTokenStr_ = @StzMid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
 		ok
 		
 		# Split by |
@@ -188,7 +188,7 @@ class stzTimex from stzObject
 		_bNegated_ = FALSE
 		if startsWith(_cTokenStr_, "@!")
 			_bNegated_ = TRUE
-			_cTokenStr_ = @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 		
 		# Initialize token properties
@@ -202,23 +202,23 @@ class stzTimex from stzObject
 		# Identify token type
 		if startsWith(_cTokenStr_, "@Instant")
 			_cType_ = "instant"
-			_cTokenStr_ = @StzMid(_cTokenStr_, 9, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 9, StzLen(_cTokenStr_))
 	
 		but startsWith(_cTokenStr_, "@Duration")
 			_cType_ = "duration"
-			_cTokenStr_ = @StzMid(_cTokenStr_, 10, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 10, StzLen(_cTokenStr_))
 	
 		but startsWith(_cTokenStr_, "@Event")
 			_cType_ = "event"
-			_cTokenStr_ = @StzMid(_cTokenStr_, 7, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 7, StzLen(_cTokenStr_))
 	
 		but startsWith(_cTokenStr_, "@Sequence")
 			_cType_ = "sequence"
-			_cTokenStr_ = @StzMid(_cTokenStr_, 10, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 10, StzLen(_cTokenStr_))
 	
 		but startsWith(_cTokenStr_, "@Frame")
 			_cType_ = "frame"
-			_cTokenStr_ = @StzMid(_cTokenStr_, 7, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 7, StzLen(_cTokenStr_))
 	
 		else
 			if @bDebugMode
@@ -372,7 +372,7 @@ class stzTimex from stzObject
 		if _nHPos_ > 0
 			_cHours_ = StzLeft(_cDuration_, _nHPos_ - 1)
 			_nMinutes_ = (0 + _cHours_) * 60
-			_cDuration_ = @StzMid(_cDuration_, _nHPos_ + 1, len(_cDuration_))
+			_cDuration_ = @StzMid(_cDuration_, _nHPos_ + 1, StzLen(_cDuration_))
 		ok
 		
 		# Extract minutes

@@ -59,7 +59,7 @@ class stzListex from stzObject
 	def ParsePattern(_cPattern_)
 		This.DebugLog("ParsePattern", "Input: " + _cPattern_)
 		
-		_cInner_ = @trim( @StzMid(@trim(_cPattern_), 2, len(_cPattern_)-1) )
+		_cInner_ = @trim( @StzMid(@trim(_cPattern_), 2, StzLen(_cPattern_)-1) )
 		_aParts_ = SplitAtTopLevelCommas(_cInner_)
 
 		_aTokens_ = []
@@ -72,7 +72,7 @@ class stzListex from stzObject
 		return _aTokens_
 
 	def ParseNestedPattern(cNestedPattern, _bNegated_, _bCaseSensitive_)
-		_cInner_ = @StzMid(cNestedPattern, 2, len(cNestedPattern)-1)
+		_cInner_ = @StzMid(cNestedPattern, 2, StzLen(cNestedPattern)-1)
 		_aNestedTokens_ = []
 		_aParts_ = SplitAtTopLevelCommas(_cInner_)
 
@@ -182,7 +182,7 @@ class stzListex from stzObject
 		# Check for case-sensitive prefix @cs:
 		if StartsWith(StzLower(_cTokenStr_), "@cs:")
 			_bCaseSensitive_ = TRUE
-			_cTokenStr_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
 		# Extract set values BEFORE case conversion to preserve original values
@@ -246,7 +246,7 @@ class stzListex from stzObject
 				ok
         
 				_nRangeLen_ = len(_acNumbers_[1]) + 1 + len(_acNumbers_[2])
-				_cRemainder_ = StzRight(_cRemainder_, len(_cRemainder_) - _nRangeLen_)
+				_cRemainder_ = StzRight(_cRemainder_, StzLen(_cRemainder_) - _nRangeLen_)
 
 			else
 				_oQMatch_ = rx(@cQuantifierPattern)
@@ -267,7 +267,7 @@ class stzListex from stzObject
 						_nMax_ = 1
 					off
 
-					_cRemainder_ = StzRight(_cRemainder_, len(_cRemainder_) - 1)
+					_cRemainder_ = StzRight(_cRemainder_, StzLen(_cRemainder_) - 1)
 
 				else
 					_oNumberMatch_ = rx(@cSingleNumberPattern)
@@ -278,7 +278,7 @@ class stzListex from stzObject
 						_nMin_ = _nQuantifier_
 						_nMax_ = _nQuantifier_
                 
-						_cRemainder_ = StzRight(_cRemainder_, len(_cRemainder_) - len(_aMatches_[1]))
+						_cRemainder_ = StzRight(_cRemainder_, StzLen(_cRemainder_) - StzLen(_aMatches_[1]))
 					ok
 				ok
 			ok
@@ -423,7 +423,7 @@ class stzListex from stzObject
 				# Don't call RemoveQuotes - just normalize quotes
 				if (StartsWith(_cValue_, "'") and EndsWith(_cValue_, "'"))
 					# Single quotes - convert to double
-					_cUnquoted_ = @StzMid(_cValue_, 2, len(_cValue_) - 1)
+					_cUnquoted_ = @StzMid(_cValue_, 2, StzLen(_cValue_) - 1)
 					_cNormalizedValue_ = '"' + _cUnquoted_ + '"'
 				but (StartsWith(_cValue_, '"') and EndsWith(_cValue_, '"'))
 					# Already double quoted
@@ -435,10 +435,10 @@ class stzListex from stzObject
 
 				if bCheckUnique
 					# For uniqueness check, compare unquoted values
-					_cCheck1_ = @StzMid(_cNormalizedValue_, 2, len(_cNormalizedValue_) - 1)
+					_cCheck1_ = @StzMid(_cNormalizedValue_, 2, StzLen(_cNormalizedValue_) - 1)
 					_nValuesLen_2 = len(_aValues_)
 					for j = 1 to _nValuesLen_2
-						_cCheck2_ = @StzMid(_aValues_[j], 2, len(_aValues_[j]) - 1)
+						_cCheck2_ = @StzMid(_aValues_[j], 2, StzLen(_aValues_[j]) - 1)
 						if _cCheck1_ = _cCheck2_
 							raise("Error: Duplicate value in unique set: " + _cValue_)
 						ok
@@ -475,7 +475,7 @@ class stzListex from stzObject
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-			_cResult_ = @StzMid(cStr, 2, len(cStr)-1)
+			_cResult_ = @StzMid(cStr, 2, StzLen(cStr)-1)
 			return _cResult_
 		ok
 		return cStr
