@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phases 1–3 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5); phases 2b, 4–7 planned.** Written 2026-07-23
+> Status: **phases 1–4 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74); phases 2b, 5–7 planned.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -19,7 +19,11 @@
 > `graphruleset_narrated` (25). P3: `stzCodeRule`/`stzCodeRuleSet` — three house
 > rules moved onto the code graph (`engine-first` via call edges no longer
 > false-positives on `def substr(`), `StzCheckCode` a thin wrapper behind its
-> frozen shape. Guard `coderule_narrated` (25).
+> frozen shape. Guard `coderule_narrated` (25). P4: `stzAgentRule`/set —
+> guardrails as rules (reproduce `StzCheckAgentGraph`), the `effects-dominated`
+> strengthening, and `no-llm-effectful` as a construction-time constraint
+> (`stzAgentGraph.Grant()` refuses; audit → gate). Guard `agentrule_narrated`
+> (21).
 
 ---
 
@@ -247,9 +251,14 @@ The gains are concrete:
    object` stays a text pass (the graph has no return model). `StzCheckCode` is a
    thin wrapper behind its frozen `[:rule,:line,:severity,:message]` shape. Guard
    `coderule_narrated` (25); compat guard `codegraph_narrated` still 28.
-4. **`stzAgentRule`** — the four guardrails redeclared as rules; add the
-   **dominator** form of `effects-guarded`; make `no-llm-effectful` a
-   **constraint** so the edge is refused at construction.
+4. **`stzAgentRule`** — **DONE (677aecb74).** The four guardrails redeclared as
+   an `stzAgentRuleSet` (reproduces `StzCheckAgentGraph` exactly); the
+   **dominator** form of `effects-guarded` added (`effects-dominated` — every
+   path from an input to an effect passes a guardian, catching a bypass the
+   direct form misses); and `no-llm-effectful` made a **constraint** —
+   `stzAgentGraph.Grant()` refuses granting `effectful` to an llm actor at
+   construction (audit → gate), with the rule kept as the backstop. The classic
+   `Violations()`/`IsSound()` are unchanged. Guard `agentrule_narrated` (21).
 5. **`stzSecurityRule` + an explicit security graph** — actors/tools/secrets/
    stores/sites as nodes; multi-hop escalation and blast-radius rules; constraint
    rules on secret attachment.
