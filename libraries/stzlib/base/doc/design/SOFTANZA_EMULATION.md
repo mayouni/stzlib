@@ -294,6 +294,52 @@ the remote surface is the part-facing API (`Create`/`Rows`/`RowCount`/
 `Dashboard`), not the MBaaS `PUT`/`DELETE` item routes. A remote backend's
 sqlite is reachable only through HTTP — which is the entire point.
 
+### 9c. Off the loopback — a backend on a real host, authenticated
+
+Everything in 9b crossed `127.0.0.1`. A backend on a *real* host differs in two
+ways, and only one is about addresses. `StartOn(host, port)` (and
+`SpawnRemoteOn`) bind a **chosen interface** — `0.0.0.0` for every one, or a
+single NIC — so another machine can reach it; `StzLanIpv4()` names the routable
+address a `0.0.0.0` bind answers on but cannot be dialled at.
+
+The other difference is trust. On the loopback the callers are this machine; on a
+real interface they are whoever can route to the port, and the MBaaS floor would
+take a `POST` from any of them. So **leaving the loopback requires a key, enforced
+at bind time** — `StartOn` a non-loopback interface without `SetSigningKey(id,
+secret)` *raises*, rather than exposing an unauthenticated database and leaving it
+for an audit to notice. Governed by construction:
+
+```ring
+oHost = new stzAppBackend("resto", oTopology)
+oHost.SetSigningKey("edge", cSharedSecret)     # same secret on both sides
+oHost.SpawnRemoteOn("0.0.0.0", 8433, 30000)    # reachable across the network
+
+oParts = new stzAppBackend("resto", oTopology)
+oParts.SetSigningKey("edge", cSharedSecret)
+oParts.ConnectTo(StzLanIpv4(), 8433)           # a routable address, not 127.0.0.1
+oParts.Create(:phone, "orders", [ [ "dish", "Couscous" ], [ "qty", 3 ] ])
+```
+
+`stzAppServer.RequireSignedRequests` gates **every** request — routes, the MBaaS
+floor, the agent surface, and `/health`; no exemptions — *before* routing. The
+signer is the existing `stzRequestSigner`: HMAC, a freshness window in both
+directions, a nonce accepted once, constant-time comparison. A missing, forged,
+stale or replayed signature is a `401`; the guard drives an unsigned client and a
+wrong-key client and confirms both are refused while the state stays untouched.
+The envelope rides as `_kid`/`_ts`/`_nonce`/`_sig` query parameters (the curl
+client has no header channel, and a MAC is not a secret); the **secret** travels
+in the environment (`STZ_BACKEND_SECRET`), never in `argv` — world-readable in the
+process table — and never in the model file.
+
+*The genuinely-remote step, rehearsed not run:* `RemoteLaunchCommands(sshTarget,
+dir, port, ttl)` returns the four commands — `ssh mkdir`, `scp` the model, `scp`
+the generated host script, `ssh ring host.ring … 0.0.0.0 <keyid>
+STZ_BACKEND_SECRET` — for inspection before anything runs, the same
+rehearse-then-commit shape `stzDeployment` uses. Generating them needs no host;
+running them needs one reachable ssh account, the sole infra-gated step. The
+secret never appears in a command — only the *name* of the env var that carries
+it — and a keyless rehearsal is refused.
+
 ## 10. How it is verified
 
 - `delivery_narrated` — the placement doctrine (differential test; the
@@ -302,6 +348,10 @@ sqlite is reachable only through HTTP — which is the entire point.
   curated ABI; a subset is genuinely smaller than the full edge.
 - `emulator_narrated` — the bundle is a clean web app; the plan map names each
   part's own subset; the console gates verbs by it.
+- `65_app_backend_realhost_narrated` (33) — off the loopback: a `0.0.0.0` host in
+  a spawned process, reached over the machine's routable LAN address; the
+  leave-the-loopback-needs-a-key rule; unsigned and wrong-key clients refused with
+  `401`; the genuinely-remote launch rehearsed with the secret never in a command.
 - `62_app_backend_narrated` (28) — the live backend: the phone's write moves the
   admin's engine-computed total; the model stays untouched; the LLM actor is
   refused and audited; a non-ASCII dish name survives HTTP → sqlite → JSON.
