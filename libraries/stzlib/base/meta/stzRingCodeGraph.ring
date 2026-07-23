@@ -28,7 +28,7 @@ func StzRingCodeGraphFromSource(pcSource)
 
 class stzRingCodeGraph from stzCodeGraph
 
-	@aRawCalls = []      # [ callerClass, callerMethod, candidateName ] pre-resolve
+	@aRawCalls = []      # [ callerClass, callerMethod, candidateName, line ] pre-resolve
 	@acMethodNames = []  # unique lowercase method names (resolution set)
 	@acCalleeNames = []  # unique lowercase names that ARE called (for DeadCode)
 
@@ -118,7 +118,7 @@ class stzRingCodeGraph from stzCodeGraph
 					_aTg_ = This._CallTargets(This._CodeOnly(_cL_))
 					_nT_ = len(_aTg_)
 					for _t_ = 1 to _nT_
-						@aRawCalls + [ _cCurClass_, _cCurMethod_, _aTg_[_t_] ]
+						@aRawCalls + [ _cCurClass_, _cCurMethod_, _aTg_[_t_], _i_ ]
 					next
 				ok
 			ok
@@ -233,6 +233,16 @@ class stzRingCodeGraph from stzCodeGraph
 
 	def NumberOfCallEdges()
 		return len(@aCalls)
+
+	# The UNRESOLVED call targets, [ class, method, callee, line ] -- every
+	# identifier called in a method body, builtins included. CallEdges() keeps
+	# only calls to DEFINED methods (so it drops builtins like substr); a rule
+	# like engine-first needs to SEE the builtin calls, so it reads these. The
+	# line is the CALL SITE, and a `def substr(` is a definition (not harvested
+	# here), so this distinguishes a call from a definition -- which a text scan
+	# of "substr(" cannot.
+	def RawCallEntries()
+		return @aRawCalls
 
 	# Every (class, method) whose body CALLS pcMethod (by name).
 	def CallersOf(pcMethod)

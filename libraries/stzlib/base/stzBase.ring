@@ -267,6 +267,9 @@ ok
 
     load "graph/stzGraph.ring"
     load "graph/stzGraphRule.ring"
+    # stzCodeRule IS-A stzGraphRule, so it loads AFTER it -- though it lives in
+    # meta/ (StzCheckCode, in meta/stzCodeRules.ring, builds it only at runtime).
+    load "meta/stzCodeRule.ring"
 
     load "graph/stzGraphQuery.ring"
     load "graph/stzGraphView.ring"
