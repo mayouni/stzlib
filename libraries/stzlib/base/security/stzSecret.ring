@@ -69,26 +69,41 @@ class stzSecret from stzObject
 
 	# dev/test only: the value inline. Still redacted in every output; only
 	# Reveal(effectfulActor) returns it.
+	def FromLiteral(pcValue)
+		This.FromLiteralQ(pcValue)
+
 	def FromLiteralQ(pcValue)
 		@cSource  = "literal"
 		@cLiteral = "" + pcValue
 		@cLocator = "(inline)"
 		return This
 
+	def FromEnv(pcVarName)
+		This.FromEnvQ(pcVarName)
+
 	def FromEnvQ(pcVarName)
 		@cSource  = "env"
 		@cLocator = ring_trim("" + pcVarName)
 		return This
+
+	def FromFile(pcPath)
+		This.FromFileQ(pcPath)
 
 	def FromFileQ(pcPath)
 		@cSource  = "file"
 		@cLocator = "" + pcPath
 		return This
 
+	def FromVault(pcRef)
+		This.FromVaultQ(pcRef)
+
 	def FromVaultQ(pcRef)
 		@cSource  = "vault"
 		@cLocator = "" + pcRef
 		return This
+
+	def SetKind(pcKind)
+		This.SetKindQ(pcKind)
 
 	def SetKindQ(pcKind)
 		@cKind = StzLower(ring_trim("" + pcKind))
@@ -274,6 +289,9 @@ class stzToken from stzSecret
 	def init(pcName)
 		@cName = "" + pcName
 		@cKind = "token"
+
+	def SetExpiry(nEpoch)
+		This.SetExpiryQ(nEpoch)
 
 	def SetExpiryQ(nEpoch)
 		@nExpiresAt = nEpoch

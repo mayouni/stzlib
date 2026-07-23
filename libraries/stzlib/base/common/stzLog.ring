@@ -74,6 +74,9 @@ class stzLog from stzObject
 	  #-- configuration (Q-fluent) ----------------------------------------
 
 	# only entries at or above this level are recorded.
+	def SetLevel(pcLevel)
+		This.SetLevelQ(pcLevel)
+
 	def SetLevelQ(pcLevel)
 		if StzLogLevelRank(pcLevel) < 0
 			StzRaise("stzLog: unknown level '" + pcLevel + "'. Levels: trace/debug/info/warn/error/fatal.")
@@ -84,11 +87,17 @@ class stzLog from stzObject
 	def Level()
 		return @cThreshold
 
+	def SetEcho(pbOn)
+		This.SetEchoQ(pbOn)
+
 	def SetEchoQ(pbOn)
 		@bEcho = pbOn
 		return This
 
 	# retain at most n entries (0 = unbounded); oldest are evicted first.
+	def SetCap(pnCap)
+		This.SetCapQ(pnCap)
+
 	def SetCapQ(pnCap)
 		@nCap = pnCap
 		return This

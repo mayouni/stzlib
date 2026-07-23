@@ -74,7 +74,7 @@ oDelivery.NeedsIn(:phone, [ :Unicode, :Collection ])
 oDelivery.NeedsIn(:admin, [ :PivotTable, :Collection ])
 oDelivery.NeedsIn(:api, [ :PivotTable ])
 oDelivery.NeedsIn(:node, [ :GPIO, :Pattern ])
-oDelivery.SetAppTopologyQ(oApp)
+oDelivery.SetAppTopology(oApp)
 chk("the delivery now carries an app model", oDelivery.HasAppTopology())
 
 oEmu = new stzEmulator(oDelivery)

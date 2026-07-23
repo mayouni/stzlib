@@ -63,6 +63,9 @@ class stzSecretStore from stzObject
 		return This
 
 	# rotate a secret: replace whatever is registered under poNewSecret's name.
+	def Rotate(poNewSecret)
+		This.RotateQ(poNewSecret)
+
 	def RotateQ(poNewSecret)
 		return This.Register(poNewSecret)
 

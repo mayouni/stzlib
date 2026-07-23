@@ -121,7 +121,7 @@ So a deployment site references a secret **by the store** (`site.SetAuthRefQ(sto
    `security_posture_narrated` (19).
 4. **`stzAuth` sessions as `stzToken`s** — **done.** `Login` now issues a session
    that IS a `stzToken` (a bearer credential carrying its expiry). Sessions
-   **expire** on the wall clock (`SetSessionTTLQ(seconds)`, default 3600; `0` = no
+   **expire** on the wall clock (`SetSessionTTL(seconds)`, `SetSessionTTLQ` to chain; default 3600; `0` = no
    expiry); `UserOfSession`/`IsValidSession` check expiry, with deterministic
    `…At(token, nowSecs)` variants, plus `SessionToken`/`SessionExpiresAt`/
    `PurgeExpired`. Guard `secret_narrated` (+6, now 53). *Remaining:* password

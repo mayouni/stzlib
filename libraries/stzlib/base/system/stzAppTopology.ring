@@ -19,7 +19,8 @@
 # is the load-bearing proof: its figures come from stzTable.SumCol / MaxColumn
 # over the real orders, so the "app logic" is genuine compute, not a fake number.
 #
-# Attach it with oDelivery.SetAppTopologyQ(oApp); the emulator reads it via oDelivery.AppTopology().
+# Attach it with oDelivery.SetAppTopology(oApp) -- SetAppTopologyQ when chaining;
+# the emulator reads it back via oDelivery.AppTopology().
 
   #=============#
  #  FUNCTIONS  #
@@ -48,6 +49,9 @@ class stzAppTopology from stzObject
 
 	# a named dataset -- the solution's real domain data. A menu dataset is
 	# [ [ name, desc, price ], ... ]; an orders dataset is [ [ dish, qty ], ... ].
+	def AddDataset(pcName, paRows)
+		This.AddDatasetQ(pcName, paRows)
+
 	def AddDatasetQ(pcName, paRows)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_i_ = This._DatasetIndex(_nm_)
@@ -59,6 +63,9 @@ class stzAppTopology from stzObject
 		return This
 
 	# give a part an app ROLE + the dataset it works over.
+	def SetPartRole(pcPart, pcRole, pcDataset)
+		This.SetPartRoleQ(pcPart, pcRole, pcDataset)
+
 	def SetPartRoleQ(pcPart, pcRole, pcDataset)
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_i_ = This._RoleIndex(_p_)
@@ -74,6 +81,9 @@ class stzAppTopology from stzObject
 	# materialises each dataset as a real sqlite table, and a part POSTs
 	# "dish=Couscous&qty=2" -- form keys ARE column names). Optional: when
 	# unset, ColumnsOf() derives c1..cN, so the static model is unaffected.
+	def SetDatasetColumns(pcName, paCols)
+		This.SetDatasetColumnsQ(pcName, paCols)
+
 	def SetDatasetColumnsQ(pcName, paCols)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_i_ = This._ColumnsIndex(_nm_)
@@ -227,6 +237,9 @@ class stzAppTopology from stzObject
 	  #-- a firmware part's DEVICE model (pins + an automation rule) -------
 
 	# pins: [ [ pinNo, label, role, value ], ... ]  role = "sensor" | "actuator".
+	def AddDevice(pcPart, paPins)
+		This.AddDeviceQ(pcPart, paPins)
+
 	def AddDeviceQ(pcPart, paPins)
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_i_ = This._DeviceIndex(_p_)
@@ -239,6 +252,9 @@ class stzAppTopology from stzObject
 
 	# an automation rule: actuator ON when sensor < threshold (the real firmware
 	# logic the emulator applies -- not a blind toggle).
+	def SetRule(pcPart, pcSensor, pnThreshold, pcActuator)
+		This.SetRuleQ(pcPart, pcSensor, pnThreshold, pcActuator)
+
 	def SetRuleQ(pcPart, pcSensor, pnThreshold, pcActuator)
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_i_ = This._DeviceIndex(_p_)

@@ -354,6 +354,9 @@ class stzAppServer from stzObject
 
 	# How long a single serve slice may park on the socket before due agents
 	# are ticked. Smaller = crisper agent timing, more loop turns.
+	def SetAgentSlice(pnMs)
+		This.SetAgentSliceQ(pnMs)
+
 	def SetAgentSliceQ(pnMs)
 		if pnMs < 1
 			stzraise("stzAppServer.SetAgentSliceQ: the slice must be >= 1ms.")

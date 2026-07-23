@@ -72,7 +72,7 @@ through HTTP, which is the entire point.
 
 GOVERNED LIKE EVERY OTHER CROSSING. A cross-part WRITE is an effect, so
 it obeys the library's one rule: expression is free, admission is
-governed. Bind an actor with SetActorQ and only an effectful actor may
+governed. Bind an actor with SetActor (SetActorQ to chain) and only an effectful actor may
 commit -- an LLMActor can read the whole solution and write none of it.
 Reads are sensing and stay open. Every crossing is recorded in Traffic(),
 so who-wrote-what-across-parts is auditable the way stzSecretStore audits
@@ -195,14 +195,14 @@ func StzLoadAppTopologyFrom(pcPath)
 	next
 	_nD_ = len(_aDs_)
 	for _i_ = 1 to _nD_
-		_oT_.AddDatasetQ(_aDs_[_i_][1], _aDs_[_i_][2])
+		_oT_.AddDataset(_aDs_[_i_][1], _aDs_[_i_][2])
 	next
 	for _i_ = 1 to _nC_
-		_oT_.SetDatasetColumnsQ(_aCols_[_i_][1], _aCols_[_i_][2])
+		_oT_.SetDatasetColumns(_aCols_[_i_][1], _aCols_[_i_][2])
 	next
 	_nR_ = len(_aRoles_)
 	for _i_ = 1 to _nR_
-		_oT_.SetPartRoleQ(_aRoles_[_i_][1], _aRoles_[_i_][2], _aRoles_[_i_][3])
+		_oT_.SetPartRole(_aRoles_[_i_][1], _aRoles_[_i_][2], _aRoles_[_i_][3])
 	next
 	return _oT_
 
@@ -451,6 +451,9 @@ class stzAppBackend from stzObject
 	# Bind the acting actor: cross-part WRITES then require an effectful one
 	# (an LLMActor reads the whole solution and commits none of it). Reads are
 	# sensing and stay open. Unbound = ungoverned (dev).
+	def SetActor(poActor)
+		This.SetActorQ(poActor)
+
 	def SetActorQ(poActor)
 		@oActor = poActor
 		@bGoverned = TRUE
