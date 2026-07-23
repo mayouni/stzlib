@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phase 1 BUILT (c02083e0b); phases 2–7 planned.** Written 2026-07-23
+> Status: **phases 1–2 BUILT (c02083e0b, 2401af3e8); phases 2b, 3–7 planned.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -9,11 +9,14 @@
 > Softanza."* Every "today" claim below was verified against the live tree,
 > including at runtime.
 >
-> **Phase 1 done:** `class stzGraphRule` is the object face over the existing
-> registry (appended to `graph/stzGraphRule.ring`); object and registry share one
-> matcher so they cannot diverge; it reproduces the hand-written
-> `StzCheckNoLLMEffectful` exactly; the stzWorkflow brace-block style parses
-> against it (phase-2 ready). Guard `graphrule_object_narrated` (34).
+> **Phases 1–2 done.** P1: `class stzGraphRule` is the object face over the
+> existing registry (appended to `graph/stzGraphRule.ring`); object and registry
+> share one matcher so they cannot diverge; it reproduces the hand-written
+> `StzCheckNoLLMEffectful` exactly. Guard `graphrule_object_narrated` (34). P2:
+> `stzGraphRuleSet` + a `Then`/comparison DSL; `stzWorkflow`'s BPM/SLA rule bases
+> repaired (they never ran); `stzOrgChart` compliance stubs unified as rule sets
+> (per-regime content + a graph projection deferred to 2b). Guard
+> `graphruleset_narrated` (25).
 
 ---
 
@@ -222,9 +225,17 @@ The gains are concrete:
    registry share one matcher (`StzGraphRuleFindings`) so they agree by
    construction; it reproduces `StzCheckNoLLMEffectful` exactly. Guard
    `graphrule_object_narrated` (34).
-2. **Repair what already assumes it** — `stzWorkflow`'s BPM/SLA rule bases
-   construct; `stzOrgChart`'s compliance shells get real rules. Bug fixes that
-   fall out of phase 1, with the guards they never had.
+2. **Repair what already assumes it** — **DONE (2401af3e8).** Added
+   `stzGraphRuleSet` (a named set: `AddRule`/`Check`/`IsSound`/`RegisterAll`) and
+   a `Then(prop,op,value)` requirement clause + comparison operators (When =
+   scope, Then = requirement; prohibition vs implication). `stzWorkflow`'s
+   BPM/SLA rule bases now construct and find real problems (structural rules use
+   the checker hatch); `stzOrgChart`'s SOX/GDPR/… compliance stubs now inherit
+   `stzGraphRuleSet` (same type, backward-compatible). Guard
+   `graphruleset_narrated` (25). **Deferred to phase 2b:** an `stzOrgChart` is a
+   *positions* model, not a graph, so faithful per-regime compliance rules need
+   a **graph projection** of it first (positions→nodes, reportsTo→edges) plus
+   the domain rule content — not fabricated here.
 3. **`stzCodeRule` + `stzCodeRuleSet`** — the four existing rules ported,
    `StzCheckCode` rewired behind its frozen signature.
 4. **`stzAgentRule`** — the four guardrails redeclared as rules; add the
