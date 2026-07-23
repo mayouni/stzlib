@@ -132,6 +132,14 @@ class stzAgentHost from stzObject
 	def NumberOfAgents()
 		return len(@aAgents)
 
+	# The nth supervised agent's NAME -- enumeration for an observer (the
+	# appserver's /agents surface) that must not hold the agent itself.
+	def NameAt(pnIndex)
+		if pnIndex < 1 or pnIndex > len(@aAgents)
+			return ""
+		ok
+		return @aAgents[pnIndex][1]
+
 	def IsSupervising(pcName)
 		return This._IndexOf(pcName) > 0
 
