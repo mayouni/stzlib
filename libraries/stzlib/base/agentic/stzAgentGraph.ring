@@ -134,10 +134,66 @@ class stzAgentGraph from stzObject
 			@oG.AddEdgeXTT(_cF_, _cT_, pcLabel, [ :type = "govern" ])
 		ok
 
+	#-- the CONSTRAINT: no-llm-effectful, refused at construction ------------
+	#
+	# Violations() below is the AUDIT -- it catches a bad graph after it is
+	# built. Grant() is the GATE: the governed way to add a capability, which
+	# REFUSES granting 'effectful' to an llm actor at the moment of expression,
+	# so the no-llm-effectful violation can never enter the graph through the
+	# sanctioned door. (A raw SetNodeProperty still bypasses it -- the audit
+	# stays the backstop -- but the composition API refuses.) This is the
+	# guardrail moving from audit to gate.
+
+	# TRUE when granting pcCap to pcActor would keep the graph sound w.r.t.
+	# no-llm-effectful (a queryable form of the constraint).
+	def MayGrant(pcActor, pcCap)
+		_cA_ = StzLower(ring_trim("" + pcActor))
+		if NOT @oG.NodeExists(_cA_)
+			return FALSE
+		ok
+		if StzLower("" + @oG.NodeProperty(_cA_, "kind")) = "llm_actor" and
+		   StzLower(ring_trim("" + pcCap)) = "effectful"
+			return FALSE
+		ok
+		return TRUE
+
+	def Grant(pcActor, pcCap)
+		This.GrantQ(pcActor, pcCap)
+
+	def GrantQ(pcActor, pcCap)
+		_cA_ = StzLower(ring_trim("" + pcActor))
+		_cCap_ = StzLower(ring_trim("" + pcCap))
+		if NOT @oG.NodeExists(_cA_)
+			stzraise("stzAgentGraph.Grant: no actor '" + pcActor + "' in the composition.")
+		ok
+		if StzLower("" + @oG.NodeProperty(_cA_, "kind")) = "llm_actor" and _cCap_ = "effectful"
+			stzraise("REFUSED: granting 'effectful' to llm actor '" + _cA_ +
+			         "' -- an LLM proposes, only a pi-gate commits (no-llm-effectful, " +
+			         "enforced at CONSTRUCTION, not merely audited).")
+		ok
+		_aCaps_ = @oG.NodeProperty(_cA_, "capabilities")
+		if NOT isList(_aCaps_)
+			_aCaps_ = []
+		ok
+		if ring_find(_aCaps_, _cCap_) = 0
+			_aCaps_ + _cCap_
+			@oG.SetNodeProperty(_cA_, "capabilities", _aCaps_)
+		ok
+		return This
+
 	#-- the proof (the three gates + four invariants, via meta/) --------------
 
 	def Violations()
 		return StzCheckAgentGraph(@oG)
+
+	# The invariants as a declared stzAgentRuleSet (graph-rules plan, phase 4) --
+	# the SAME four findings as Violations(), plus the stronger effects-dominated
+	# rule. Object-based, so a project can add its own agent invariants.
+	def RuleSetQ()
+		return StzAgentRuleSetQ()
+
+	def ViolationsViaRules()
+		return StzAgentRuleSetQ().Check(@oG)
 
 	def IsSound()
 		return StzAgentGraphIsSound(@oG)

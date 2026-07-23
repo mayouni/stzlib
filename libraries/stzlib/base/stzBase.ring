@@ -603,6 +603,9 @@ ok
     load "agentic/stzAgentMemory.ring"
     load "agentic/stzPIAgent.ring"
     load "agentic/stzAgentGraph.ring"
+    # the four guardrails as declared rules (stzAgentRule IS-A stzGraphRule) +
+    # the effects-dominated strengthening -- loaded after stzAgentGraph
+    load "agentic/stzAgentRule.ring"
     load "agentic/stzLLMAgent.ring"
     load "agentic/stzOwnAgentStack.ring"
     load "agentic/stzAgentHost.ring"
