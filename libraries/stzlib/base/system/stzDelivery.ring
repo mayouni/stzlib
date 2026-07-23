@@ -97,7 +97,7 @@ class stzCapabilityCatalog from stzObject
 			[ "pivottable",       "PivotTable",       TRUE,  "compute",   "medium", "weak",   "strong", "absent",  12 ],
 			[ "constraintsolver", "ConstraintSolver", TRUE,  "compute",   "medium", "absent", "strong", "absent",  15 ],
 			[ "graph",            "Graph",            TRUE,  "compute",   "medium", "weak",   "strong", "absent",  10 ],
-			[ "bignumber",        "BigNumber",        FALSE, "compute",   "light",  "weak",   "strong", "weak",     3 ],
+			[ "bignumber",        "BigNumber",        FALSE, "compute",   "light",  "strong", "strong", "weak",     3 ],
 			[ "gpio",             "GPIO",             TRUE,  "compute",   "light",  "absent", "weak",   "strong",   1 ],
 			[ "collection",       "Collection",       TRUE,  "ergonomic", "light",  "weak",   "strong", "weak",     0 ],
 			[ "neural",           "Neural",           FALSE, "compute",   "heavy",  "weak",   "strong", "absent",  900 ]
