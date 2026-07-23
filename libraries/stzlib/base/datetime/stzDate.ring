@@ -308,7 +308,7 @@ func StzFreezeClock(_cTimestamp_)
 		return
 	ok
 	_acStzFcParts_ = split(_cTimestamp_, " ")
-	if len(_acStzFcParts_) >= 1 and len(_acStzFcParts_[1]) >= 8 and StzMid(_acStzFcParts_[1], 5, 1) = "-"
+	if len(_acStzFcParts_) >= 1 and StzLen(_acStzFcParts_[1]) >= 8 and StzMid(_acStzFcParts_[1], 5, 1) = "-"
 		# Date half -- convert from ISO YYYY-MM-DD to Ring's DD/MM/YYYY.
 		_cStzFcY_ = StzMid(_acStzFcParts_[1], 1, 4)
 		_cStzFcM_ = StzMid(_acStzFcParts_[1], 6, 2)

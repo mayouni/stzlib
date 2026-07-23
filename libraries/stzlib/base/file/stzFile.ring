@@ -1025,7 +1025,7 @@ class stzFileInfo from stzObject
 
     def IsHidden()
         _cBase_ = StzEnginePathBasename(@cFileName)
-        if len(_cBase_) > 0 and StzLeft(_cBase_, 1) = "."
+        if StzLen(_cBase_) > 0 and StzLeft(_cBase_, 1) = "."
             return 1
         ok
         return 0

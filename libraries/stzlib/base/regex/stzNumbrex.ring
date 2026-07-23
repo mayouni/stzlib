@@ -411,7 +411,7 @@ def ParseSingleToken(_cTokenStr_)
 			_cLastChar_ = StzRight(_cQuantPart_, 1)
 			if _cLastChar_ = "+"
 				# Check if there's a number before the +
-				_cBeforePlus_ = StzLeft(_cQuantPart_, len(_cQuantPart_) - 1)
+				_cBeforePlus_ = StzLeft(_cQuantPart_, StzLen(_cQuantPart_) - 1)
 				if len(_cBeforePlus_) > 0 and This.IsNumeric(_cBeforePlus_)
 					_nMin_ = 0 + _cBeforePlus_
 					_nMax_ = 999999
@@ -421,7 +421,7 @@ def ParseSingleToken(_cTokenStr_)
 				ok
 			but _cLastChar_ = "*"
 				# Check if there's a number before the *
-				_cBeforeStar_ = StzLeft(_cQuantPart_, len(_cQuantPart_) - 1)
+				_cBeforeStar_ = StzLeft(_cQuantPart_, StzLen(_cQuantPart_) - 1)
 				if len(_cBeforeStar_) > 0 and This.IsNumeric(_cBeforeStar_)
 					_nMin_ = 0 + _cBeforeStar_
 					_nMax_ = 999999

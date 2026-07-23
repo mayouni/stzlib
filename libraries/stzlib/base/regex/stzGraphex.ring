@@ -166,7 +166,7 @@ class stzGraphex from stzGraph
 			# Strip outer parentheses first, then check for pipe
 			if startsWith(_cPart_, "(") and endsWith(_cPart_, ")")
 				# Strip outer parentheses to get the inner content
-				_cInnerPart_ = @StzMid(_cPart_, 2, len(_cPart_) - 1)
+				_cInnerPart_ = @StzMid(_cPart_, 2, StzLen(_cPart_) - 1)
 				
 				
 				# Now check if the inner content contains alternation
@@ -233,7 +233,7 @@ class stzGraphex from stzGraph
 		_bNegated_ = StartsWith(_cTokenStr_, "@!")
 		if _bNegated_
 			# Remove @! (positions 1-2), keep from position 3 onwards
-			_cTokenStr_ = "@" + @StzMid(_cTokenStr_, 3, len(_cTokenStr_))
+			_cTokenStr_ = "@" + @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 
 		# Per-token case-sensitivity marker: a leading "@cs:" makes this
@@ -243,7 +243,7 @@ class stzGraphex from stzGraph
 		_bCaseSensitive_ = FALSE
 		if StartsWith(StzLower(_cTokenStr_), "@cs:")
 			_bCaseSensitive_ = TRUE
-			_cTokenStr_ = @StzMid(_cTokenStr_, 5, len(_cTokenStr_))
+			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
 		# Now process cTokenStr normally with bNegated flag set...
@@ -283,11 +283,11 @@ class stzGraphex from stzGraph
 				_cSetContent_ = @StzMid(_cTokenStr_, _nBraceStart_ + 1, _nBraceEnd_ - _nBraceStart_ - 1)
 
 				# Check for U after closing brace (single char lookahead)
-				if _nBraceEnd_ < len(_cTokenStr_) and @StzMid(_cTokenStr_, _nBraceEnd_ + 1, 1) = "U"
+				if _nBraceEnd_ < StzLen(_cTokenStr_) and @StzMid(_cTokenStr_, _nBraceEnd_ + 1, 1) = "U"
 					_bRequireUnique_ = TRUE
-					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 2, len(_cTokenStr_))
+					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 2, StzLen(_cTokenStr_))
 				else
-					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 1, len(_cTokenStr_))
+					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 1, StzLen(_cTokenStr_))
 				ok
 				
 				# Parse set values
@@ -897,13 +897,13 @@ class stzGraphex from stzGraph
 		ok
 		_c_ = cSet
 		if StartsWith(_c_, "{")
-			_c_ = @StzMid(_c_, 2, len(_c_))
+			_c_ = @StzMid(_c_, 2, StzLen(_c_))
 		ok
 		if EndsWith(_c_, "U")
-			_c_ = StzLeft(_c_, len(_c_) - 1)
+			_c_ = StzLeft(_c_, StzLen(_c_) - 1)
 		ok
 		if EndsWith(_c_, "}")
-			_c_ = StzLeft(_c_, len(_c_) - 1)
+			_c_ = StzLeft(_c_, StzLen(_c_) - 1)
 		ok
 		if _c_ = ""
 			return _aOut_
