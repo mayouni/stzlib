@@ -27,46 +27,56 @@ func StzCodeRuleNames()
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
 
+# StzCheckCode is now a THIN WRAPPER over the graph-rule engine (graph-rules
+# plan, phase 3): it builds a Ring CODE GRAPH from the source, runs the
+# stzCodeRuleSet (no-len-method / no-aggressive-verbs / engine-first -- each a
+# rule over real method/function/call data, not a text scan), then runs the ONE
+# rule the graph cannot model -- q-returns-object, which needs return statements
+# -- as a text pass, and MERGES both into the unchanged [ :rule, :line,
+# :severity, :message ] shape, sorted by line. The signature and the finding
+# shape are frozen; callers (StzCodeIsClean, stzPredicateSet, the codegraph
+# guard) do not move.
 func StzCheckCode(pcSource)
-	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
-	_nLen_ = len(_acLines_)
+	_cSrc_ = StzReplace("" + pcSource, char(13), "")
 	_aFindings_ = []
 
+	# 1. the graph-based rules, over a real Ring code graph
+	_oCG_ = new stzRingCodeGraph("")
+	_oCG_.ScanSource(_cSrc_, "src")
+	_aG_ = StzCodeRuleSetQ().Check(_oCG_)
+	_nG_ = len(_aG_)
+	for _i_ = 1 to _nG_
+		_aFindings_ + [ :rule = _aG_[_i_][:rule], :line = _aG_[_i_][:where],
+			:severity = _StzCodeSevSym(_aG_[_i_][:severity]),
+			:message = _aG_[_i_][:message] ]
+	next
+
+	# 2. q-returns-object -- a text pass (the code graph has no return model)
+	_aQ_ = _StzCheckQReturns(_cSrc_)
+	_nQ_ = len(_aQ_)
+	for _i_ = 1 to _nQ_
+		_aFindings_ + _aQ_[_i_]
+	next
+
+	return _StzCodeSortByLine(_aFindings_)
+
+# The one house rule that stays TEXT-based: a ...Q() method must return a
+# chainable object, which requires reading its BODY for a chainable return --
+# something the code graph (classes/methods/calls, no returns) cannot see. Kept
+# verbatim from the original scanner, returning the frozen finding shape.
+func _StzCheckQReturns(pcSource)
+	_acLines_ = StzSplit(pcSource, char(10))
+	_nLen_ = len(_acLines_)
+	_aOut_ = []
 	for _i_ = 1 to _nLen_
 		_cL_ = StzLower(ring_trim(StzReplace(_acLines_[_i_], char(9), " ")))
-
-		# comments don't testify
 		if StzLeft(_cL_, 1) = "#" or StzLeft(_cL_, 2) = "//"
 			loop
 		ok
-
-		# -- no-len-method ------------------------------------------------
-		if StzLeft(_cL_, 8) = "def len(" or _cL_ = "def len"
-			_aFindings_ + [ :rule = "no-len-method", :line = _i_,
-				:severity = :error,
-				:message = "never define Len() on a class -- it shadows Ring's builtin and breaks every caller; use Count()/Size()/NumberOf...()" ]
-		ok
-
-		# -- no-aggressive-verbs -------------------------------------------
-		if StzLeft(_cL_, 8) = "def kill" or StzLeft(_cL_, 11) = "def destroy"
-			_aFindings_ + [ :rule = "no-aggressive-verbs", :line = _i_,
-				:severity = :warning,
-				:message = "aggressive verb in a method name -- prefer Remove/Delete/Dispose/Clear/Close (Softanza tone)" ]
-		ok
-
-		# -- engine-first ---------------------------------------------------
-		if len(StzFind(" substr(", _cL_)) > 0 or StzLeft(_cL_, 7) = "substr("
-			_aFindings_ + [ :rule = "engine-first", :line = _i_,
-				:severity = :warning,
-				:message = "Ring's substr() is byte-oriented (breaks UTF-8) -- new code uses StzFind/StzReplace/StzSplit (the engine forms)" ]
-		ok
-
-		# -- q-returns-object (span check) ----------------------------------
 		if StzLeft(_cL_, 4) = "def "
 			_acNm_ = StzSplit(_cL_, "(")
 			_cM_ = ring_trim(StzReplace(_acNm_[1], "def ", ""))
 			if StzRight(_cM_, 1) = "q" and StzLen(_cM_) > 1
-				# scan this method's span for a chainable return
 				_bOk_ = 0
 				_j_ = _i_ + 1
 				while _j_ <= _nLen_ and _j_ <= _i_ + 40
@@ -84,15 +94,40 @@ func StzCheckCode(pcSource)
 					_j_++
 				end
 				if _bOk_ = 0
-					_aFindings_ + [ :rule = "q-returns-object", :line = _i_,
+					_aOut_ + [ :rule = "q-returns-object", :line = _i_,
 						:severity = :error,
 						:message = "'" + _cM_ + "' ends in Q but no chainable return found (return This / return new ...) -- the Q convention: Q = OBJECT, plain = data" ]
 				ok
 			ok
 		ok
 	next
+	return _aOut_
 
-	return _aFindings_
+# "error"/"warning"/"info" (the rule-object severity) -> the finding symbols the
+# frozen shape uses.
+func _StzCodeSevSym(pcSev)
+	if pcSev = "warning"
+		return :warning
+	but pcSev = "info"
+		return :info
+	ok
+	return :error
+
+# stable insertion sort of findings by :line, so a merged (graph + text) result
+# reads top-to-bottom like the old single-pass scanner did.
+func _StzCodeSortByLine(paFindings)
+	_a_ = paFindings
+	_n_ = len(_a_)
+	for _i_ = 2 to _n_
+		_x_ = _a_[_i_]
+		_j_ = _i_ - 1
+		while _j_ >= 1 and _a_[_j_][:line] > _x_[:line]
+			_a_[_j_ + 1] = _a_[_j_]
+			_j_--
+		end
+		_a_[_j_ + 1] = _x_
+	next
+	return _a_
 
 # convenience verdict: TRUE when no :error-severity finding remains
 func StzCodeIsClean(pcSource)

@@ -175,6 +175,25 @@ class stzCodeGraph from stzObject
 		next
 		return _acOut_
 
+	# Every method as [ class, method, line ] -- the locus a code RULE needs
+	# (MethodsOf gives names only). @aMethods is [ class, method, file, line ].
+	def MethodsWithLines()
+		_aOut_ = []
+		_nLen_ = len(@aMethods)
+		for _i_ = 1 to _nLen_
+			_aOut_ + [ @aMethods[_i_][1], @aMethods[_i_][2], @aMethods[_i_][4] ]
+		next
+		return _aOut_
+
+	# Every module-level function as [ function, line ].
+	def FunctionsWithLines()
+		_aOut_ = []
+		_nLen_ = len(@aFunctions)
+		for _i_ = 1 to _nLen_
+			_aOut_ + [ @aFunctions[_i_][1], @aFunctions[_i_][3] ]
+		next
+		return _aOut_
+
 	# every class that DEFINES this method
 	def OwnersOf(pcMethod)
 		_cM_ = StzLower("" + pcMethod)
