@@ -1,5 +1,6 @@
 const crypto = @import("crypto.zig");
 const webauthn = @import("webauthn.zig");
+const xmldsig = @import("xmldsig.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -207,6 +208,21 @@ fn ring_WaMakeAssertion(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineSamlVerify(cXml, cKty, cK1, cK2) -> "ok|why|issuer|nameID|audience|notBefore|notOnOrAfter|sessionIndex"
+fn ring_SamlVerify(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const xl: usize = @intCast(gss(p, 1));
+    const kt: [*]const u8 = @ptrCast(gs(p, 2));
+    const ktl: usize = @intCast(gss(p, 2));
+    const k1: [*]const u8 = @ptrCast(gs(p, 3));
+    const k1l: usize = @intCast(gss(p, 3));
+    const k2: [*]const u8 = @ptrCast(gs(p, 4));
+    const k2l: usize = @intCast(gss(p, 4));
+    var buf: [8192]u8 = undefined;
+    const n = xmldsig.saml_verify(x, xl, kt, ktl, k1, k1l, k2, k2l, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -227,6 +243,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginewebauthnparseauthdata", .func = &ring_WaParseAuthData },
     .{ .name = "stzenginewebauthnmakecredential", .func = &ring_WaMakeCred },
     .{ .name = "stzenginewebauthnmakeassertion", .func = &ring_WaMakeAssertion },
+    .{ .name = "stzenginesamlverify", .func = &ring_SamlVerify },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

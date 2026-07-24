@@ -1,5 +1,6 @@
 pub const crypto = @import("crypto.zig");
 pub const webauthn = @import("webauthn.zig");
+pub const xmldsig = @import("xmldsig.zig");
 pub const ring_bridge = @import("ring_bridge_crypto.zig");
 
 comptime {
@@ -13,4 +14,5 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 test {
     _ = crypto;
     _ = webauthn;
+    _ = xmldsig;
 }
