@@ -39,6 +39,10 @@ class stzAuth from stzObject
 	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
+	# PASSKEYS (WebAuthn): sign in with a device key instead of a secret
+	@oPasskeyRp = NULL         # an stzPasskeyServer (config: rp id + origin)
+	@cPasskeyWhy = ""          # why the last passkey operation was refused
+
 	# EXTERNAL identity (OIDC): sign in with a provider, verified locally
 	@oOidc = NULL              # an stzOidcClient (config only -- a copy is fine)
 	@bOidcAutoProvision = TRUE # create the account on a first external login
@@ -219,6 +223,7 @@ class stzAuth from stzObject
 		@oStore.DeleteUserSessions(_u_)
 		@oStore.DeleteTotp(_u_)
 		@oStore.DeleteUserRoles(_u_)
+		@oStore.DeleteUserPasskeys(_u_)
 		This._ClearFailures(_u_)
 		return This
 
@@ -840,6 +845,118 @@ class stzAuth from stzObject
 			return FALSE
 		ok
 		return poGovernance.MayProceed(_u_, pcAction) = 1
+
+	  #-- PASSKEYS (WebAuthn) ---------------------------------------------
+	#
+	# A passkey replaces the password with a key pair the user's DEVICE holds: the
+	# private half never leaves the authenticator, so there is nothing to phish,
+	# reuse, or steal in a breach. Registration stores the public key; login is a
+	# signature over a fresh challenge. The relying-party judgement (origin,
+	# challenge, user presence, the cloned-authenticator counter) lives in
+	# stzPasskeyServer; the credentials live in the store, one row per DEVICE.
+
+	# bind the relying party: the domain credentials are bound to, and the exact
+	# origin the browser reports. The origin check is what makes a passkey
+	# unphishable, so both are required.
+	def SetPasskeyRelyingParty(pcRpId, pcOrigin)
+		This.SetPasskeyRelyingPartyQ(pcRpId, pcOrigin)
+
+	def SetPasskeyRelyingPartyQ(pcRpId, pcOrigin)
+		@oPasskeyRp = new stzPasskeyServer(pcRpId, pcOrigin)
+		return This
+
+	def PasskeyRelyingPartyQ()
+		return @oPasskeyRp
+
+	def HasPasskeyRelyingParty()
+		return isObject(@oPasskeyRp)
+
+	def PasskeyWhy()
+		return @cPasskeyWhy
+
+	# a fresh challenge for either ceremony -- the app holds it for that one
+	# exchange, which is what stops a captured response being replayed.
+	def NewPasskeyChallenge()
+		This._RequirePasskeyRp()
+		return @oPasskeyRp.NewChallenge()
+
+	# enroll a device for a user. TRUE on success (PasskeyWhy explains a refusal).
+	def RegisterPasskey(pcUser, pcAttObjB64, pcClientDataB64, pcExpectedChallenge)
+		This._RequirePasskeyRp()
+		_u_ = ring_trim("" + pcUser)
+		if NOT @oStore.HasUser(_u_)
+			@cPasskeyWhy = "no such user '" + _u_ + "'"
+			return FALSE
+		ok
+		_r_ = @oPasskeyRp.RegisterCredential(pcAttObjB64, pcClientDataB64, pcExpectedChallenge)
+		if NOT _r_[:ok]
+			@cPasskeyWhy = _r_[:why]
+			return FALSE
+		ok
+		@oStore.PutPasskey(_r_[:credentialId], _u_, _r_[:keyType], _r_[:key1], _r_[:key2], _r_[:signCount])
+		@cPasskeyWhy = ""
+		return TRUE
+
+	# the devices a user has enrolled (public data only -- never a private key).
+	def PasskeysOf(pcUser)
+		return @oStore.PasskeysOf(ring_trim("" + pcUser))
+
+	def NumberOfPasskeys(pcUser)
+		return len(This.PasskeysOf(pcUser))
+
+	def HasPasskey(pcUser)
+		return This.NumberOfPasskeys(pcUser) > 0
+
+	# un-enroll one device (losing a key should not cost the account).
+	def RemovePasskey(pcCredentialId)
+		@oStore.DeletePasskey("" + pcCredentialId)
+		return This
+
+	def RemoveAllPasskeys(pcUser)
+		@oStore.DeleteUserPasskeys(ring_trim("" + pcUser))
+		return This
+
+	# sign in with a device -> a session token, or "" (PasskeyWhy explains).
+	def LoginWithPasskey(pcCredId, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge)
+		return This.LoginWithPasskeyWithAt(pcCredId, pcAuthDataB64, pcClientDataB64, pcSigB64,
+		           pcExpectedChallenge, "", "", This._NowSecs())
+
+	def LoginWithPasskeyAt(pcCredId, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge, pnNow)
+		return This.LoginWithPasskeyWithAt(pcCredId, pcAuthDataB64, pcClientDataB64, pcSigB64,
+		           pcExpectedChallenge, "", "", pnNow)
+
+	def LoginWithPasskeyWithAt(pcCredId, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge, pcIp, pcUserAgent, pnNow)
+		This._RequirePasskeyRp()
+		_cred_ = @oStore.Passkey("" + pcCredId)
+		if len(_cred_) = 0
+			@cPasskeyWhy = "unknown credential"
+			return ""
+		ok
+		_u_ = _cred_[:user]
+		if This.IsLockedOutAt(_u_, pnNow)
+			@cPasskeyWhy = "the account is locked out"
+			return ""
+		ok
+		_r_ = @oPasskeyRp.VerifyAssertion(_cred_, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge)
+		if NOT _r_[:ok]
+			@cPasskeyWhy = _r_[:why]
+			This._RecordFailure(_u_, pnNow)
+			return ""
+		ok
+		# the counter only moves FORWARD -- that is the clone signal
+		if _r_[:signCount] > 0
+			@oStore.SetPasskeyCounter("" + pcCredId, _r_[:signCount])
+		ok
+		This._ClearFailures(_u_)
+		@cPasskeyWhy = ""
+		# A passkey IS a strong factor (device possession + the user gesture the
+		# authenticator attests), so unlike a magic link it satisfies 2FA on its own.
+		return This._OpenSession(_u_, pnNow, "" + pcIp, "" + pcUserAgent)
+
+	def _RequirePasskeyRp()
+		if NOT This.HasPasskeyRelyingParty()
+			StzRaise("stzAuth: no passkey relying party bound -- call SetPasskeyRelyingParty(rpId, origin).")
+		ok
 
 	  #-- EXTERNAL identity: sign in with an OIDC provider ----------------
 	#
