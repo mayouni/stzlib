@@ -45,12 +45,14 @@ class stzAuthMemoryStore from stzObject
 	@aSessions   = []  # [ [ token, user, expiresAt ], ... ]
 	@a2fa        = []  # [ [ user, secretB32, confirmed(0/1), [ recoveryHash, ... ] ], ... ]
 	@aChallenges = []  # [ [ handle, kind, email, codehash, expiresAt ], ... ]
+	@aRoles      = []  # [ [ user, role ], ... ] -- the authz grants
 
 	def init()
 		@aUsers      = []
 		@aSessions   = []
 		@a2fa        = []
 		@aChallenges = []
+		@aRoles      = []
 
 	  #-- users -----------------------------------------------------------
 
@@ -248,6 +250,63 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aChallenges = _aNew_
 
+	  #-- authz roles (the authn->authz bridge) ---------------------------
+	#
+	# Per-user role GRANTS (durable). The role DEFINITIONS -- what capabilities a
+	# role carries -- are app config held by stzAuth, not stored here.
+
+	def GrantRole(pcUser, pcRole)
+		_u_ = "" + pcUser
+		_r_ = "" + pcRole
+		if NOT This.HasRole(_u_, _r_)
+			@aRoles + [ _u_, _r_ ]
+		ok
+
+	def RevokeRole(pcUser, pcRole)
+		_u_ = "" + pcUser
+		_r_ = "" + pcRole
+		_aNew_ = []
+		_n_ = len(@aRoles)
+		for _i_ = 1 to _n_
+			if NOT (@aRoles[_i_][1] = _u_ and @aRoles[_i_][2] = _r_)
+				_aNew_ + @aRoles[_i_]
+			ok
+		next
+		@aRoles = _aNew_
+
+	def HasRole(pcUser, pcRole)
+		_u_ = "" + pcUser
+		_r_ = "" + pcRole
+		_n_ = len(@aRoles)
+		for _i_ = 1 to _n_
+			if @aRoles[_i_][1] = _u_ and @aRoles[_i_][2] = _r_
+				return TRUE
+			ok
+		next
+		return FALSE
+
+	def RolesOf(pcUser)
+		_u_ = "" + pcUser
+		_out_ = []
+		_n_ = len(@aRoles)
+		for _i_ = 1 to _n_
+			if @aRoles[_i_][1] = _u_
+				_out_ + @aRoles[_i_][2]
+			ok
+		next
+		return _out_
+
+	def DeleteUserRoles(pcUser)
+		_u_ = "" + pcUser
+		_aNew_ = []
+		_n_ = len(@aRoles)
+		for _i_ = 1 to _n_
+			if @aRoles[_i_][1] != _u_
+				_aNew_ + @aRoles[_i_]
+			ok
+		next
+		@aRoles = _aNew_
+
 	  #-- internals -------------------------------------------------------
 
 	def _UserIndex(pcUser)
@@ -297,6 +356,8 @@ class stzAuthDbStore from stzObject
 		          "secret TEXT, confirmed INTEGER, recovery TEXT)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authchallenges (handle TEXT PRIMARY KEY, " +
 		          "kind TEXT, email TEXT, codehash TEXT, expires INTEGER)")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authroles (usr TEXT, role TEXT, " +
+		          "PRIMARY KEY (usr, role))")
 
 	def DatabaseQ()
 		return @oDb
@@ -409,6 +470,32 @@ class stzAuthDbStore from stzObject
 
 	def DeleteChallenge(pcHandle)
 		@oDb.Exec("DELETE FROM authchallenges WHERE handle = '" + This._Esc(pcHandle) + "'")
+
+	  #-- authz roles (the authn->authz bridge) ---------------------------
+
+	def GrantRole(pcUser, pcRole)
+		@oDb.Exec("INSERT OR IGNORE INTO authroles (usr, role) VALUES ('" +
+		          This._Esc(pcUser) + "', '" + This._Esc(pcRole) + "')")
+
+	def RevokeRole(pcUser, pcRole)
+		@oDb.Exec("DELETE FROM authroles WHERE usr = '" + This._Esc(pcUser) +
+		          "' AND role = '" + This._Esc(pcRole) + "'")
+
+	def HasRole(pcUser, pcRole)
+		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authroles WHERE usr = '" +
+		       This._Esc(pcUser) + "' AND role = '" + This._Esc(pcRole) + "'")) > 0
+
+	def RolesOf(pcUser)
+		_r_ = @oDb.Rows("SELECT role FROM authroles WHERE usr = '" + This._Esc(pcUser) + "'")
+		_out_ = []
+		_n_ = len(_r_)
+		for _i_ = 1 to _n_
+			_out_ + ("" + _r_[_i_][1])
+		next
+		return _out_
+
+	def DeleteUserRoles(pcUser)
+		@oDb.Exec("DELETE FROM authroles WHERE usr = '" + This._Esc(pcUser) + "'")
 
 	  #-- internals -------------------------------------------------------
 

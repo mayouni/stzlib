@@ -51,10 +51,17 @@ class stzAuth from stzObject
 	@nMaxAttempts = 5
 	@nLockoutSecs = 900  # 15 minutes
 
+	# authn->authz: role DEFINITIONS (name -> capability KINDS + posture). App
+	# config, re-declared per process (the per-user GRANTS are what's durable). A
+	# login resolves a user's granted roles into a stzSystemActor -- the very
+	# subject the governance lattice, org chart, and graph-rules reason about.
+	@aRoleDefs = []      # [ [ name, [ kinds ], posture ], ... ]
+
 	def init()
 		@oStore = new stzAuthMemoryStore()   # durable store injected via SetStore
 		@cDummyHash = StzHashSecret("softanza-timing-equalizer")
 		@aFailures = []
+		This._DefineBuiltinRoles()
 
 	# Persist through a chosen store (e.g. StzAuthDbStoreQ("auth.db")). The
 	# default is in-memory. Pass a DB store for durability -- its sqlite is an
@@ -206,6 +213,7 @@ class stzAuth from stzObject
 		@oStore.DeleteUser(_u_)
 		@oStore.DeleteUserSessions(_u_)
 		@oStore.DeleteTotp(_u_)
+		@oStore.DeleteUserRoles(_u_)
 		This._ClearFailures(_u_)
 		return This
 
@@ -659,6 +667,175 @@ class stzAuth from stzObject
 		This._ClearFailures(_u_)
 		return This._PasswordlessSession(_ch_[:email], pnNow, "" + pcIp, "" + pcUserAgent)
 
+	  #-- authn -> authz: roles, and the ACTOR a login yields -------------
+	#
+	# The payoff of the whole auth story. A successful login produces not just a
+	# session but the ACTOR the governance system already reasons about: a
+	# stzSystemActor carrying a capability set (the effectful / sensing / compute /
+	# inference lattice) derived from the user's roles, at a trust posture. The SAME
+	# username is the governance actor (stzGovernance.MayProceed) and the org-chart
+	# person (separation-of-duties). Roles are DEFINED here (capability bundles, app
+	# config) and GRANTED per user (durable). Four roles ship by default; an
+	# 'assistant' (LLM-backed) role holds only 'inference', so its session is
+	# authenticated yet cannot cause effects -- the agentic-safety invariant,
+	# extended to identity.
+
+	# define a role = a capability bundle. kinds are drawn from the lattice
+	# (effectful / sensing / compute / inference); posture is trusted / external /
+	# sandboxed. Re-defining a role replaces it. Returns This.
+	def DefineRole(pcName, paKinds, pcPosture)
+		_n_ = StzLower(ring_trim("" + pcName))
+		if _n_ = ""
+			StzRaise("stzAuth.DefineRole: a role name is required.")
+		ok
+		# a probe actor validates kinds + posture (it raises on anything invalid)
+		# and normalises them.
+		_probe_ = new stzSystemActor(_n_, paKinds)
+		_probe_.SetPosture(pcPosture)
+		_rec_ = [ _n_, _probe_.Kinds(), _probe_.Posture() ]
+		_i_ = This._RoleDefIndex(_n_)
+		if _i_ > 0
+			@aRoleDefs[_i_] = _rec_
+		else
+			@aRoleDefs + _rec_
+		ok
+		return This
+
+	def HasRoleDefined(pcName)
+		return This._RoleDefIndex(StzLower(ring_trim("" + pcName))) > 0
+
+	def RoleNames()
+		_out_ = []
+		_n_ = len(@aRoleDefs)
+		for _i_ = 1 to _n_
+			_out_ + @aRoleDefs[_i_][1]
+		next
+		return _out_
+
+	def RoleDefinition(pcName)
+		_i_ = This._RoleDefIndex(StzLower(ring_trim("" + pcName)))
+		if _i_ = 0
+			return []
+		ok
+		_r_ = @aRoleDefs[_i_]
+		return [ :name = _r_[1], :kinds = _r_[2], :posture = _r_[3] ]
+
+	# grant a role to a user (durable). The role must be defined and the user must
+	# exist. Returns This.
+	def GrantRole(pcUser, pcRole)
+		_u_ = ring_trim("" + pcUser)
+		_r_ = StzLower(ring_trim("" + pcRole))
+		if NOT @oStore.HasUser(_u_)
+			StzRaise("stzAuth.GrantRole: no such user '" + _u_ + "'.")
+		ok
+		if NOT This.HasRoleDefined(_r_)
+			StzRaise("stzAuth.GrantRole: role '" + _r_ + "' is not defined (see DefineRole).")
+		ok
+		@oStore.GrantRole(_u_, _r_)
+		return This
+
+	def RevokeRole(pcUser, pcRole)
+		@oStore.RevokeRole(ring_trim("" + pcUser), StzLower(ring_trim("" + pcRole)))
+		return This
+
+	def HasRole(pcUser, pcRole)
+		return @oStore.HasRole(ring_trim("" + pcUser), StzLower(ring_trim("" + pcRole)))
+
+	def RolesOf(pcUser)
+		return @oStore.RolesOf(ring_trim("" + pcUser))
+
+	# the ACTOR a user resolves to: a stzSystemActor named for the user, holding the
+	# UNION of its roles' capability kinds, at the MOST RESTRICTIVE posture among
+	# them. A user with no roles is a capability-less, sandboxed actor -- properly
+	# authenticated, yet permitted nothing (least privilege by default).
+	def ActorForUser(pcUser)
+		_u_ = ring_trim("" + pcUser)
+		_aRoles_ = @oStore.RolesOf(_u_)
+		_aKinds_ = []
+		_cPosture_ = "trusted"
+		_bHas_ = FALSE
+		_n_ = len(_aRoles_)
+		for _i_ = 1 to _n_
+			_def_ = This.RoleDefinition(_aRoles_[_i_])
+			if len(_def_) = 0
+				loop
+			ok
+			_bHas_ = TRUE
+			_m_ = len(_def_[:kinds])
+			for _j_ = 1 to _m_
+				if This._InList(_def_[:kinds][_j_], _aKinds_) = 0
+					_aKinds_ + _def_[:kinds][_j_]
+				ok
+			next
+			_cPosture_ = This._MinPosture(_cPosture_, _def_[:posture])
+		next
+		_oActor_ = new stzSystemActor(_u_, _aKinds_)
+		if _bHas_
+			_oActor_.SetPosture(_cPosture_)
+		else
+			_oActor_.SetPosture("sandboxed")   # no roles -> least privilege
+		ok
+		return _oActor_
+
+	# the actor behind a LIVE session (NULL if the session is invalid / expired).
+	def ActorOf(pcToken)
+		return This.ActorOfAt(pcToken, This._NowSecs())
+
+	def ActorOfAt(pcToken, pnNow)
+		_u_ = This.UserOfSessionAt(pcToken, pnNow)
+		if _u_ = ""
+			return NULL
+		ok
+		return This.ActorForUser(_u_)
+
+	# reads better at the call site.
+	def SessionActor(pcToken)
+		return This.ActorOf(pcToken)
+
+	def SessionActorAt(pcToken, pnNow)
+		return This.ActorOfAt(pcToken, pnNow)
+
+	# does the logged-in user hold a capability kind? (FALSE for an invalid session.)
+	def SessionCan(pcToken, pcKind)
+		return This.SessionCanAt(pcToken, pcKind, This._NowSecs())
+
+	def SessionCanAt(pcToken, pcKind, pnNow)
+		_a_ = This.ActorOfAt(pcToken, pnNow)
+		if _a_ = NULL
+			return FALSE
+		ok
+		return _a_.Can(pcKind)
+
+	# can this session cause EFFECTS? An assistant/LLM-role session holds only
+	# 'inference', so it is authenticated yet effect-less.
+	def SessionIsEffectful(pcToken)
+		return This.SessionCan(pcToken, "effectful")
+
+	def SessionIsEffectfulAt(pcToken, pnNow)
+		return This.SessionCanAt(pcToken, "effectful", pnNow)
+
+	# the identity behind a session -- the SAME string the governance lattice and
+	# the org chart key on (a governance actor name / an org-chart person id). "" if
+	# the session is invalid.
+	def SessionPerson(pcToken)
+		return This.UserOfSession(pcToken)
+
+	def SessionPersonAt(pcToken, pnNow)
+		return This.UserOfSessionAt(pcToken, pnNow)
+
+	# a session-gated governance decision: the session must be LIVE and the
+	# governance instance (passed by reference, never held) must permit the action
+	# for this user. Bridges authn to the existing authz engine.
+	def SessionMayProceed(pcToken, pcAction, poGovernance)
+		return This.SessionMayProceedAt(pcToken, pcAction, poGovernance, This._NowSecs())
+
+	def SessionMayProceedAt(pcToken, pcAction, poGovernance, pnNow)
+		_u_ = This.UserOfSessionAt(pcToken, pnNow)
+		if _u_ = ""
+			return FALSE
+		ok
+		return poGovernance.MayProceed(_u_, pcAction) = 1
+
 	  #-- lockout queries -------------------------------------------------
 
 	def IsLockedOut(pcUser)
@@ -821,3 +998,46 @@ class stzAuth from stzObject
 			_s_ = "0" + _s_
 		end
 		return _s_
+
+	  #-- authz internals -------------------------------------------------
+
+	def _DefineBuiltinRoles()
+		@aRoleDefs = []
+		This.DefineRole("admin",     [ "effectful", "compute", "sensing" ], "trusted")
+		This.DefineRole("member",    [ "compute", "sensing" ],             "trusted")
+		This.DefineRole("viewer",    [ "sensing" ],                        "external")
+		This.DefineRole("assistant", [ "inference" ],                      "sandboxed")
+
+	def _RoleDefIndex(pcName)
+		_n_ = len(@aRoleDefs)
+		for _i_ = 1 to _n_
+			if @aRoleDefs[_i_][1] = pcName
+				return _i_
+			ok
+		next
+		return 0
+
+	# the more restrictive of two postures (sandboxed < external < trusted).
+	def _MinPosture(pcA, pcB)
+		if This._PostureRank(pcB) < This._PostureRank(pcA)
+			return pcB
+		ok
+		return pcA
+
+	def _PostureRank(pcPosture)
+		if pcPosture = "sandboxed"
+			return 0
+		ok
+		if pcPosture = "external"
+			return 1
+		ok
+		return 2   # trusted
+
+	def _InList(pItem, paList)
+		_n_ = len(paList)
+		for _i_ = 1 to _n_
+			if paList[_i_] = pItem
+				return _i_
+			ok
+		next
+		return 0

@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **phases 1–4 BUILT (f91c12b0c, 7ca8a978b, 764c7839b, + this commit); phases 5–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **phases 1–5 BUILT (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, + this commit); phase 6 planned, external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -207,7 +207,27 @@ Ordered so each phase ships value and the early ones unblock the later.
    captured-mail sink through a handle table so a stored *copy* — Ring copies
    objects on `=` — still writes the sink the caller inspects.)
 5. **authn → authz bridge (L5)** — `Login` yields an actor; roles via governance;
-   the org-chart / separation-of-duties tie-in. The differentiator.
+   the org-chart / separation-of-duties tie-in. The differentiator. **DONE.** A
+   user carries **roles** (durable grants in the store, `authroles`); each role is
+   a **capability bundle** — kinds from the lattice (effectful / sensing / compute
+   / inference) at a posture (trusted / external / sandboxed) — defined as app
+   config (`DefineRole`; four ship by default: `admin`, `member`, `viewer`,
+   `assistant`). `ActorForUser` / `ActorOf(session)` resolve a user into a
+   **`stzSystemActor`** named for them, holding the **union** of their roles'
+   kinds at the **most restrictive** posture — the very subject the whole
+   governance system reasons about. `SessionCan`, `SessionIsEffectful`,
+   `SessionActor` read authz off the live session; a no-role user is authenticated
+   yet permitted nothing (least privilege), and an **`assistant` (LLM-backed)
+   session is authenticated yet effect-less** — the agentic-safety invariant,
+   extended to identity. The bridge is real but uncoupled: `SessionPerson(session)`
+   is the **same string** the governance actor and the org-chart person key on, so
+   `SessionMayProceed(session, action, governance)` gates the *existing*
+   `stzGovernance.MayProceed` on session validity (governance passed by reference,
+   never held), and placing `SessionPerson` into an `stzOrgChart` lets the
+   existing separation-of-duties / org rules reason about the authenticated user
+   with no glue. `RegisterPasswordless` + roles compose. Guard `auth_authz_narrated`
+   (31); regressions secret 53 / auth_store 31 / auth_sessions 25 / auth_totp 40 /
+   auth_passwordless 23 green.
 6. **Mount as an appserver auth router** — `/login`, `/logout`, `/session`,
    `/2fa/verify` on `stzAppServer`, with signed requests (`stzRequestSigner`) and
    `HttpOnly`/`SameSite`/`Secure` session cookies + CSRF.
