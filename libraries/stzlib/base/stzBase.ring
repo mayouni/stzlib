@@ -367,6 +367,7 @@ ok
     load "security/stzTotp.ring"        # RFC 6238 second factor (used by stzAuth 2FA)
     load "security/stzOidc.ring"        # JWT verification + the OIDC relying party
     load "security/stzPasskey.ring"     # WebAuthn / passkeys (the relying party)
+    load "security/stzOidcProvider.ring" # Softanza AS an identity provider
     load "security/stzAuth.ring"
     load "security/stzRequestSigner.ring"
     load "security/stzSecurityPosture.ring"

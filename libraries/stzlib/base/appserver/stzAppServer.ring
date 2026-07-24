@@ -90,6 +90,11 @@ class stzAppServer from stzObject
 	@bAuthMounted = FALSE
 	@bSecureCookies = FALSE   # add Secure to auth cookies (set TRUE behind TLS)
 
+	# The mounted OIDC PROVIDER: this server IS an identity provider for other apps
+	@oOp = NULL
+	@cOpPrefix = "/oidc"
+	@bOpMounted = FALSE
+
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
 		# stzObject.init(pObject) wants an argument
@@ -433,6 +438,49 @@ class stzAppServer from stzObject
 	def SecureCookies()
 		return @bSecureCookies
 
+	  #-------------------------------------------#
+	 #  OIDC PROVIDER (this server as an IdP)     #
+	#-------------------------------------------#
+
+	# Publish an stzOidcProvider over HTTP, so other applications can "sign in
+	# with" THIS server:
+	#
+	#   GET  /.well-known/openid-configuration   (always at the standard path)
+	#   GET  <prefix>/jwks                       the public signing keys
+	#   GET  <prefix>/authorize                  -> 302 to the app with a code
+	#   POST <prefix>/token                      code + secret + PKCE -> tokens
+	#
+	# /authorize needs a signed-in user, and takes it from the SESSION COOKIE the
+	# mounted auth router issues -- so this server's own login becomes the login
+	# for every app that trusts it. With no session it answers 401 (the app in
+	# front redirects to its login page and comes back).
+	def MountOidcProvider(poProvider)
+		This.MountOidcProviderAtQ(poProvider, "/oidc")
+
+	def MountOidcProviderQ(poProvider)
+		return This.MountOidcProviderAtQ(poProvider, "/oidc")
+
+	def MountOidcProviderAt(poProvider, pcPrefix)
+		This.MountOidcProviderAtQ(poProvider, pcPrefix)
+
+	def MountOidcProviderAtQ(poProvider, pcPrefix)
+		if NOT isObject(poProvider)
+			stzraise("stzAppServer.MountOidcProvider: an stzOidcProvider is required.")
+		ok
+		_p_ = "" + pcPrefix
+		if _p_ = ""  _p_ = "/oidc"  ok
+		if StzFindFirst("/", _p_) != 1  _p_ = "/" + _p_  ok
+		@oOp = poProvider
+		@cOpPrefix = _p_
+		@bOpMounted = TRUE
+		return This
+
+	def OidcProviderIsMounted()
+		return @bOpMounted
+
+	def OidcProviderPrefix()
+		return @cOpPrefix
+
 	# Why the last request was refused ("" when none was).
 	def AuthWhy()
 		return @cAuthWhy
@@ -722,6 +770,8 @@ class stzAppServer from stzObject
 				# handled by the agent-observability surface
 			but This._ServeAuth(oReq, oResp)
 				# handled by the mounted user-authentication router
+			but This._ServeOidcProvider(oReq, oResp)
+				# handled by the mounted identity-provider surface
 			# compare the path WITHOUT its query: a signed probe arrives as
 			# "/health?_kid=..&_sig=..", and an exact match would miss it.
 			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/health"
@@ -956,6 +1006,88 @@ class stzAppServer from stzObject
 			_cOut_ += '"' + StzReplace("" + aRow[_i_], '"', '\"') + '"'
 		next
 		return _cOut_ + "]"
+
+	  #-------------------------------------------#
+	 #  THE OIDC PROVIDER SURFACE (this = an IdP) #
+	#-------------------------------------------#
+
+	def _ServeOidcProvider(oReq, oResp)
+		if NOT @bOpMounted
+			return FALSE
+		ok
+		_cPath_ = This._BarePath(oReq.Path())
+		_cM_ = oReq.Method()
+
+		# discovery lives at the STANDARD well-known path, never behind a prefix
+		if _cM_ = "GET" and _cPath_ = "/.well-known/openid-configuration"
+			oResp.Header("Content-Type", "application/json").Send(@oOp.DiscoveryJson())
+			return TRUE
+		ok
+		if StzFindFirst(@cOpPrefix, _cPath_) != 1
+			return FALSE
+		ok
+		_cSub_ = StzMidToEnd(_cPath_, len(@cOpPrefix) + 1)
+		if _cSub_ = ""  _cSub_ = "/"  ok
+
+		if _cM_ = "GET" and _cSub_ = "/jwks"
+			oResp.Header("Content-Type", "application/json").Send(@oOp.JwksJson())
+			return TRUE
+		ok
+		if _cM_ = "GET" and _cSub_ = "/authorize"
+			This._OpAuthorize(oReq, oResp)
+			return TRUE
+		ok
+		if _cM_ = "POST" and _cSub_ = "/token"
+			This._OpToken(oReq, oResp, This._ParseFormBody(oReq.Body()))
+			return TRUE
+		ok
+		return FALSE
+
+	# the FRONT channel: the browser arrives carrying OUR session cookie.
+	def _OpAuthorize(oReq, oResp)
+		_u_ = ""
+		if @bAuthMounted
+			_u_ = @oAuth.UserOfSession(This._CookieValue(oReq, "stzsession"))
+		ok
+		if _u_ = ""
+			oResp.Status(401, "Unauthorized").Json([ "error", "login_required",
+			    "error_description", "sign in to this provider first" ])
+			return
+		ok
+		_aR_ = @oOp.Authorize([
+		    :clientId = This._UrlDecode("" + oReq.Query("client_id")),
+		    :redirectUri = This._UrlDecode("" + oReq.Query("redirect_uri")),
+		    :state = This._UrlDecode("" + oReq.Query("state")),
+		    :nonce = This._UrlDecode("" + oReq.Query("nonce")),
+		    :codeChallenge = This._UrlDecode("" + oReq.Query("code_challenge")) ], _u_)
+		if NOT _aR_[:ok]
+			# a bad client or an unregistered redirect must NEVER be redirected to
+			# -- that is exactly how a code gets delivered to an attacker.
+			oResp.Status(400, "Bad Request").Json([ "error", _aR_[:error],
+			                                        "error_description", _aR_[:why] ])
+			return
+		ok
+		oResp.Status(302, "Found").Header("Location", _aR_[:redirectTo]).Send("")
+
+	# the BACK channel: the app's own server calls this with its secret.
+	def _OpToken(oReq, oResp, aForm)
+		_aT_ = @oOp.ExchangeCode(
+		    This._UrlDecode(This._FormValue(aForm, "client_id")),
+		    This._UrlDecode(This._FormValue(aForm, "client_secret")),
+		    This._UrlDecode(This._FormValue(aForm, "code")),
+		    This._UrlDecode(This._FormValue(aForm, "redirect_uri")),
+		    This._UrlDecode(This._FormValue(aForm, "code_verifier")))
+		if NOT _aT_[:ok]
+			oResp.Status(400, "Bad Request").Json([ "error", _aT_[:error],
+			                                        "error_description", _aT_[:why] ])
+			return
+		ok
+		# a token response must never be cached
+		oResp.Header("Cache-Control", "no-store").Json([
+		    "access_token", _aT_[:accessToken],
+		    "id_token", _aT_[:idToken],
+		    "token_type", _aT_[:tokenType],
+		    "expires_in", _aT_[:expiresIn] ])
 
 	  #----------------------------------------#
 	 #  THE AUTH ROUTER (mounted stzAuth, P6)  #
