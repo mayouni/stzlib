@@ -182,4 +182,90 @@ Scenario("SP-initiated SSO: the request we send the IdP")
 	Then("...addressed to the IdP", StzFindFirst($IDP + "/sso", cReq) > 0, TRUE)
 EndScenario()
 
+Scenario("Softanza AS the identity provider: it issues assertions its own SP accepts")
+	# The mirror of everything above -- and the piece that makes SAML developable
+	# at all: no Okta tenant, no browser round-trip, yet a GENUINELY signed
+	# assertion (ECDSA-SHA256 over exclusive-canonical bytes, produced by the same
+	# canonicalizer the verifier uses).
+	oIdp = new stzSamlIdentityProvider("https://idp.local")
+	oIdp.UseSeedQ("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
+	oIdp.RegisterServiceProvider($SP, $SP + "/acs")
+	Then("the service is registered", oIdp.HasServiceProvider($SP), TRUE)
+	Then("its public key is EC", oIdp.PublicKey()[:kty], "EC")
+
+	oSp = new stzSamlServiceProvider($SP, $SP + "/acs")
+	oIdp.TrustMeOn(oSp)
+	Then("the SP now trusts it", oSp.IdpEntityId(), "https://idp.local")
+
+	nNow = 1784894400
+	cXml = oIdp.IssueAssertionAt("dana@acme.com", $SP, nNow)
+	Then("the assertion carries a signature", StzFindFirst("<ds:SignatureValue>", cXml) > 0, TRUE)
+
+	aR = oSp.ConsumeXmlAt(cXml, nNow + 10)
+	Then("our SP accepts our IdP", aR[:ok], TRUE)
+	Then("...with the right subject", aR[:nameID], "dana@acme.com")
+	Then("...issuer and audience", aR[:issuer] + " -> " + aR[:audience], "https://idp.local -> " + $SP)
+	# the issuer writes the timestamps and the verifier parses them back: both
+	# sides agree, which is a real interop hazard when they do not.
+	Then("...inside the window the IdP wrote", aR[:notOnOrAfter] != "", TRUE)
+EndScenario()
+
+Scenario("the IdP refuses to vouch carelessly, and its assertions cannot be edited")
+	oIdp = new stzSamlIdentityProvider("https://idp.local")
+	oIdp.RegisterServiceProvider($SP, $SP + "/acs")
+	nNow = 1784894400
+
+	When("an assertion is asked for an UNREGISTERED service")
+	bRaised = FALSE
+	try
+		oIdp.IssueAssertionAt("dana@acme.com", "https://whoever.example", nNow)
+	catch
+		bRaised = TRUE
+	done
+	Then("it refuses at issue time", bRaised, TRUE)
+	# an IdP that vouches for a user to any service that asks is an open redirect
+	# for identity.
+
+	When("a signed assertion is edited afterwards")
+	oSp = new stzSamlServiceProvider($SP, "acs")
+	oIdp.TrustMeOn(oSp)
+	cXml = oIdp.IssueAssertionAt("dana@acme.com", $SP, nNow)
+	cBad = StzReplace(cXml, "dana@acme.com", "evil@acme.com")
+	Then("the SP refuses it", oSp.ConsumeXmlAt(cBad, nNow + 10)[:ok], FALSE)
+
+	When("it is presented to an SP that trusts a DIFFERENT IdP key")
+	oOtherIdp = new stzSamlIdentityProvider("https://idp.local")
+	oOtherIdp.RegisterServiceProvider($SP, "acs")
+	oSp2 = new stzSamlServiceProvider($SP, "acs")
+	oOtherIdp.TrustMeOn(oSp2)
+	Then("it is refused -- same issuer name, wrong key", oSp2.ConsumeXmlAt(cXml, nNow + 10)[:ok], FALSE)
+
+	When("the IdP mints an assertion whose window has already closed")
+	oSp3 = new stzSamlServiceProvider($SP, "acs")
+	oIdp.TrustMeOn(oSp3)
+	cOld = oIdp.IssueAssertionXT("dana@acme.com", $SP, nNow - 7200, 300)
+	Then("the SP refuses it as expired", oSp3.ConsumeXmlAt(cOld, nNow)[:ok], FALSE)
+EndScenario()
+
+Scenario("the whole enterprise round trip, with no IdP account anywhere")
+	oIdp = new stzSamlIdentityProvider("https://idp.local")
+	oIdp.RegisterServiceProvider($SP, $SP + "/acs")
+	oSp = new stzSamlServiceProvider($SP, $SP + "/acs")
+	oIdp.TrustMeOn(oSp)
+	oAuth = new stzAuth()
+	oAuth.SetSamlServiceProvider(oSp)
+	nNow = 1784894400
+
+	When("the IdP signs an employee in and POSTs the response")
+	cB64 = oIdp.IssueResponseAt("bob@acme.com", $SP, nNow)
+	cSess = oAuth.LoginWithSamlAt(cB64, nNow + 10)
+	Then("a session opens", cSess != "", TRUE)
+	Then("...for that employee", oAuth.UserOfSessionAt(cSess, nNow + 10), "bob@acme.com")
+
+	When("the app gives them a role")
+	oAuth.GrantRole("bob@acme.com", "member")
+	Then("the SSO session yields the governance actor", oAuth.ActorOfAt(cSess, nNow + 10).Can("compute"), TRUE)
+	Then("...and the same response cannot be replayed", oAuth.LoginWithSamlAt(cB64, nNow + 10), "")
+EndScenario()
+
 Summary()

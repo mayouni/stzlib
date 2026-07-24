@@ -223,6 +223,17 @@ fn ring_SamlVerify(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineSamlSign(cUnsignedAssertionXml, cPrivDB64) -> the signed assertion XML
+fn ring_SamlSign(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const xl: usize = @intCast(gss(p, 1));
+    const d: [*]const u8 = @ptrCast(gs(p, 2));
+    const dl: usize = @intCast(gss(p, 2));
+    var buf: [65536]u8 = undefined;
+    const n = xmldsig.saml_sign(x, xl, d, dl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -244,6 +255,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginewebauthnmakecredential", .func = &ring_WaMakeCred },
     .{ .name = "stzenginewebauthnmakeassertion", .func = &ring_WaMakeAssertion },
     .{ .name = "stzenginesamlverify", .func = &ring_SamlVerify },
+    .{ .name = "stzenginesamlsign", .func = &ring_SamlSign },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

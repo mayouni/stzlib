@@ -772,6 +772,18 @@ fn inclusivePrefixes(doc: *const Doc) []const u8 {
     return "";
 }
 
+/// base64url -> bytes (the engine's crypto surface speaks base64url; XML speaks
+/// standard base64, so signatures cross between the two here)
+fn b64UrlDecode(src: []const u8, dest: []u8) ?[]u8 {
+    var end = src.len;
+    while (end > 0 and src[end - 1] == '=') end -= 1;
+    const dec = std.base64.url_safe_no_pad.Decoder;
+    const n = dec.calcSizeForSlice(src[0..end]) catch return null;
+    if (n > dest.len) return null;
+    dec.decode(dest[0..n], src[0..end]) catch return null;
+    return dest[0..n];
+}
+
 /// standard base64 (XML-DSig uses it, not base64url), tolerating whitespace
 fn b64StdDecode(src: []const u8, dest: []u8) ?[]u8 {
     var clean: [2048]u8 = undefined;
@@ -915,6 +927,109 @@ pub fn saml_verify(
 
 pub export fn stz_saml_verify(x: [*]const u8, xl: usize, kt: [*]const u8, ktl: usize, k1: [*]const u8, k1l: usize, k2: [*]const u8, k2l: usize, o: [*]u8, oc: usize) callconv(.c) i32 {
     return saml_verify(x, xl, kt, ktl, k1, k1l, k2, k2l, o, oc);
+}
+
+// ── SAML: ISSUE a signed assertion (being the IdP) ───────────
+//
+// The mirror of verification, and it reuses the same canonicalizer -- which is
+// the point: an IdP that signs with a DIFFERENT c14n than its verifier is the
+// classic source of "works with vendor A, fails with vendor B". Here both sides
+// digest bytes produced by one implementation, itself checked against libxml2.
+//
+// ECDSA-SHA256 (xmldsig-more#ecdsa-sha256). XML-DSig carries an ECDSA signature
+// as the RAW r||s pair, not DER -- the opposite of WebAuthn, which is exactly the
+// kind of detail that makes cross-stack SAML painful.
+
+var g_sign_doc: Doc = undefined;
+var g_si_doc: Doc = undefined;
+var g_c14n: [65536]u8 = undefined;
+var g_si_buf: [4096]u8 = undefined;
+var g_out: [131072]u8 = undefined;
+
+fn b64StdEncode(src: []const u8, dest: []u8) []const u8 {
+    return std.base64.standard.Encoder.encode(dest, src);
+}
+
+/// Sign an UNSIGNED SAML assertion with an ES256 private key (base64url 'd').
+/// Returns the signed assertion XML, with the Signature placed after Issuer --
+/// the position the SAML profile requires. Returns 0 on failure.
+pub fn saml_sign(
+    xml_ptr: [*]const u8,
+    xml_len: usize,
+    d_ptr: [*]const u8,
+    d_len: usize,
+    out: [*]u8,
+    out_cap: usize,
+) callconv(.c) i32 {
+    const xml = xml_ptr[0..xml_len];
+    parse(&g_sign_doc, xml) catch return -1;
+    const root = g_sign_doc.root() orelse return -1;
+    if (!std.mem.eql(u8, root.local, "Assertion")) return -1;
+    const id = g_sign_doc.attrValue(root, "", "ID") orelse return -1;
+
+    // 1. digest the assertion AS IT STANDS (no signature in it yet -- which is
+    //    precisely what the enveloped-signature transform reproduces on the
+    //    verifying side)
+    const c14n_len = canonicalize(&g_sign_doc, root, &g_c14n, -1, "") orelse return -1;
+    var digest: [32]u8 = undefined;
+    Sha256.hash(g_c14n[0..c14n_len], &digest, .{});
+    var db: [64]u8 = undefined;
+    const digest_b64 = b64StdEncode(&digest, &db);
+
+    // 2. the SignedInfo that commits to that digest
+    const si = std.fmt.bufPrint(&g_si_buf,
+        "<ds:SignedInfo xmlns:ds=\"{s}\">" ++
+        "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>" ++
+        "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256\"/>" ++
+        "<ds:Reference URI=\"#{s}\">" ++
+        "<ds:Transforms>" ++
+        "<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" ++
+        "<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>" ++
+        "</ds:Transforms>" ++
+        "<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>" ++
+        "<ds:DigestValue>{s}</ds:DigestValue>" ++
+        "</ds:Reference></ds:SignedInfo>",
+        .{ DS, id, digest_b64 }) catch return -1;
+
+    // 3. sign the CANONICAL SignedInfo (never the literal bytes above)
+    parse(&g_si_doc, si) catch return -1;
+    const si_root = g_si_doc.root() orelse return -1;
+    const si_c14n_len = canonicalize(&g_si_doc, si_root, &g_scratch, -1, "") orelse return -1;
+
+    var sig_b64u: [256]u8 = undefined;
+    const sn = crypto.crypto_sign_es256(g_scratch[0..si_c14n_len].ptr, si_c14n_len, d_ptr, d_len, &sig_b64u);
+    if (sn <= 0) return -1;
+    // XML-DSig wants standard base64 of the RAW r||s, so round-trip the engine's
+    // base64url form rather than inventing a second encoder
+    var raw: [128]u8 = undefined;
+    const rawsig = b64UrlDecode(sig_b64u[0..@intCast(sn)], &raw) orelse return -1;
+    var sb: [256]u8 = undefined;
+    const sig_std = b64StdEncode(rawsig, &sb);
+
+    // 4. splice the Signature in right after </...Issuer>
+    const issuer = g_sign_doc.find(SAMLNS, "Issuer") orelse return -1;
+    const at = issuer.end;
+    var w: usize = 0;
+    const head = xml[0..at];
+    if (w + head.len > out_cap) return -1;
+    @memcpy(out[w .. w + head.len], head);
+    w += head.len;
+
+    const parts = [_][]const u8{ "<ds:Signature xmlns:ds=\"", DS, "\">", si, "<ds:SignatureValue>", sig_std, "</ds:SignatureValue></ds:Signature>" };
+    for (parts) |part| {
+        if (w + part.len > out_cap) return -1;
+        @memcpy(out[w .. w + part.len], part);
+        w += part.len;
+    }
+    const tail = xml[at..];
+    if (w + tail.len > out_cap) return -1;
+    @memcpy(out[w .. w + tail.len], tail);
+    w += tail.len;
+    return @intCast(w);
+}
+
+pub export fn stz_saml_sign(x: [*]const u8, xl: usize, d: [*]const u8, dl: usize, o: [*]u8, oc: usize) callconv(.c) i32 {
+    return saml_sign(x, xl, d, dl, o, oc);
 }
 
 // ── tests ────────────────────────────────────────────────────
@@ -1109,4 +1224,65 @@ test "saml: a tampered assertion yields no claims" {
     const rec = out[0..@intCast(n)];
     try std.testing.expect(std.mem.startsWith(u8, rec, "0|"));
     try std.testing.expect(std.mem.indexOf(u8, rec, "admin@acme.com") == null);
+}
+
+
+test "saml: issue a signed assertion, then verify it (IdP <-> SP round trip)" {
+    // the IdP's key
+    var kp: [256]u8 = undefined;
+    const kn = crypto.crypto_es256_keypair("".ptr, 0, &kp);
+    var it = std.mem.splitScalar(u8, kp[0..@intCast(kn)], '|');
+    const d = it.next().?;
+    const x = it.next().?;
+    const y = it.next().?;
+
+    const unsigned =
+        "<saml:Assertion xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"_x1\" Version=\"2.0\">" ++
+        "<saml:Issuer>https://idp.local</saml:Issuer>" ++
+        "<saml:Subject><saml:NameID>bob@corp.com</saml:NameID></saml:Subject>" ++
+        "<saml:Conditions NotBefore=\"2026-01-01T00:00:00Z\" NotOnOrAfter=\"2030-01-01T00:00:00Z\">" ++
+        "<saml:AudienceRestriction><saml:Audience>https://sp.local</saml:Audience>" ++
+        "</saml:AudienceRestriction></saml:Conditions></saml:Assertion>";
+
+    var signed: [16384]u8 = undefined;
+    const n = saml_sign(unsigned.ptr, unsigned.len, d.ptr, d.len, &signed, signed.len);
+    try std.testing.expect(n > 0);
+    const doc_xml = signed[0..@intCast(n)];
+    try std.testing.expect(std.mem.indexOf(u8, doc_xml, "<ds:SignatureValue>") != null);
+
+    // ... and our own SP verifies it
+    var out: [2048]u8 = undefined;
+    const vn = saml_verify(doc_xml.ptr, doc_xml.len, "EC".ptr, 2, x.ptr, x.len, y.ptr, y.len, &out, out.len);
+    const rec = out[0..@intCast(vn)];
+    try std.testing.expect(std.mem.startsWith(u8, rec, "1||"));
+    try std.testing.expect(std.mem.indexOf(u8, rec, "bob@corp.com") != null);
+    try std.testing.expect(std.mem.indexOf(u8, rec, "https://sp.local") != null);
+}
+
+test "saml: an issued assertion cannot be altered after signing" {
+    var kp: [256]u8 = undefined;
+    const kn = crypto.crypto_es256_keypair("".ptr, 0, &kp);
+    var it = std.mem.splitScalar(u8, kp[0..@intCast(kn)], '|');
+    const d = it.next().?;
+    const x = it.next().?;
+    const y = it.next().?;
+
+    const unsigned =
+        "<saml:Assertion xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"_x2\" Version=\"2.0\">" ++
+        "<saml:Issuer>https://idp.local</saml:Issuer>" ++
+        "<saml:Subject><saml:NameID>bob@corp.com</saml:NameID></saml:Subject>" ++
+        "</saml:Assertion>";
+    var signed: [16384]u8 = undefined;
+    const n = saml_sign(unsigned.ptr, unsigned.len, d.ptr, d.len, &signed, signed.len);
+    var buf: [16384]u8 = undefined;
+    @memcpy(buf[0..@intCast(n)], signed[0..@intCast(n)]);
+    const doc_xml = buf[0..@intCast(n)];
+    // promote bob to root
+    const at = std.mem.indexOf(u8, doc_xml, "bob@corp.com").?;
+    @memcpy(doc_xml[at .. at + 3], "eve");
+
+    var out: [2048]u8 = undefined;
+    const vn = saml_verify(doc_xml.ptr, doc_xml.len, "EC".ptr, 2, x.ptr, x.len, y.ptr, y.len, &out, out.len);
+    const rec = out[0..@intCast(vn)];
+    try std.testing.expect(std.mem.startsWith(u8, rec, "0|"));
 }
