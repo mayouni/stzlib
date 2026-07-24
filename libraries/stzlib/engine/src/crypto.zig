@@ -269,6 +269,72 @@ pub fn crypto_verify_rs256(
     }
 }
 
+/// ES256 KEY GENERATION + SIGNING -- for an IDENTITY PROVIDER, not a client.
+/// A relying party only ever verifies (above); these exist so Softanza can BE a
+/// provider: the service-virtualization OIDC sandbox mints genuinely-signed
+/// id-tokens offline, and a future OIDC-provider surface issues real ones.
+/// Deterministic from a 32-byte seed (hex) so a test is reproducible; an empty
+/// seed draws from the CSPRNG. Writes "d|x|y", each base64url.
+pub fn crypto_es256_keypair(seed_ptr: [*]const u8, seed_len: usize, out: [*]u8) callconv(.c) i32 {
+    var seed: [32]u8 = undefined;
+    if (seed_len == 0) {
+        std.crypto.random.bytes(&seed);
+    } else {
+        if (seed_len != 64) return -1; // 32 bytes, hex
+        var i: usize = 0;
+        while (i < 32) : (i += 1) {
+            const hi = hexNibble(seed_ptr[i * 2]) orelse return -1;
+            const lo = hexNibble(seed_ptr[i * 2 + 1]) orelse return -1;
+            seed[i] = (@as(u8, hi) << 4) | lo;
+        }
+    }
+    const kp = Ecdsa256.KeyPair.generateDeterministic(seed) catch return -1;
+    const d = kp.secret_key.toBytes();
+    const sec1 = kp.public_key.toUncompressedSec1();
+    const enc = std.base64.url_safe_no_pad.Encoder;
+    var db: [64]u8 = undefined;
+    var xb: [64]u8 = undefined;
+    var yb: [64]u8 = undefined;
+    const d64 = enc.encode(&db, &d);
+    const x64 = enc.encode(&xb, sec1[1..33]);
+    const y64 = enc.encode(&yb, sec1[33..65]);
+    var n: usize = 0;
+    @memcpy(out[n .. n + d64.len], d64);
+    n += d64.len;
+    out[n] = '|';
+    n += 1;
+    @memcpy(out[n .. n + x64.len], x64);
+    n += x64.len;
+    out[n] = '|';
+    n += 1;
+    @memcpy(out[n .. n + y64.len], y64);
+    n += y64.len;
+    return @intCast(n);
+}
+
+/// Sign a JWS signing input with an ES256 private key (base64url 'd').
+/// Writes the 64-byte r||s signature, base64url. Returns chars written, or -1.
+pub fn crypto_sign_es256(
+    msg_ptr: [*]const u8,
+    msg_len: usize,
+    d_ptr: [*]const u8,
+    d_len: usize,
+    out: [*]u8,
+) callconv(.c) i32 {
+    var d_buf: [64]u8 = undefined;
+    const d = b64UrlDecode(d_ptr[0..d_len], &d_buf) orelse return -1;
+    if (d.len != 32) return -1;
+    const sk = Ecdsa256.SecretKey.fromBytes(d[0..32].*) catch return -1;
+    const kp = Ecdsa256.KeyPair.fromSecretKey(sk) catch return -1;
+    const sig = kp.sign(msg_ptr[0..msg_len], null) catch return -1;
+    const sig_bytes = sig.toBytes();
+    const enc = std.base64.url_safe_no_pad.Encoder;
+    var sb: [128]u8 = undefined;
+    const s64 = enc.encode(&sb, &sig_bytes);
+    @memcpy(out[0..s64.len], s64);
+    return @intCast(s64.len);
+}
+
 /// base64url -> the decoded bytes (for reading a JWT's header/payload JSON).
 /// Returns bytes written, or -1.
 pub fn crypto_b64url_decode(
@@ -471,4 +537,32 @@ test "crypto: totp rejects bad input" {
     try std.testing.expectEqual(@as(i32, -1), crypto_totp("abc".ptr, 3, 1, 6, 1, &out)); // odd hex
     try std.testing.expectEqual(@as(i32, -1), crypto_totp("3132".ptr, 4, 1, 0, 1, &out)); // 0 digits
     try std.testing.expectEqual(@as(i32, -1), crypto_totp("zz".ptr, 2, 1, 6, 1, &out)); // non-hex
+}
+
+test "crypto: ES256 keypair + sign + verify (the sandbox IdP path)" {
+    const seed = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+    var kp_out: [256]u8 = undefined;
+    const kn = crypto_es256_keypair(seed.ptr, seed.len, &kp_out);
+    try std.testing.expect(kn > 0);
+    const triple = kp_out[0..@intCast(kn)];
+    var it = std.mem.splitScalar(u8, triple, '|');
+    const d = it.next().?;
+    const x = it.next().?;
+    const y = it.next().?;
+
+    // deterministic: the same seed yields the same key
+    var kp2: [256]u8 = undefined;
+    const kn2 = crypto_es256_keypair(seed.ptr, seed.len, &kp2);
+    try std.testing.expectEqualStrings(triple, kp2[0..@intCast(kn2)]);
+
+    const msg = "eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJkYW5hIn0";
+    var sig_out: [128]u8 = undefined;
+    const sn = crypto_sign_es256(msg.ptr, msg.len, d.ptr, d.len, &sig_out);
+    try std.testing.expect(sn > 0);
+    const sig = sig_out[0..@intCast(sn)];
+
+    try std.testing.expectEqual(@as(i32, 1), crypto_verify_es256(msg.ptr, msg.len, sig.ptr, sig.len, x.ptr, x.len, y.ptr, y.len));
+
+    const tampered = "eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJldmlsIn0";
+    try std.testing.expectEqual(@as(i32, 0), crypto_verify_es256(tampered.ptr, tampered.len, sig.ptr, sig.len, x.ptr, x.len, y.ptr, y.len));
 }

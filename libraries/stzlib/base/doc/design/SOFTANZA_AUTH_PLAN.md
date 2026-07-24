@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **ALL SIX PHASES BUILT (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, + this commit); external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification (086b0921d) and OIDC LOGIN (+ this commit).** Remaining external identity: passkeys/WebAuthn, being an OIDC provider, SAML. Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -274,10 +274,34 @@ missing cryptography.
 
 **Deliberately deferred (bigger, external-facing, or lower leverage):**
 
-- **OAuth / social / OIDC / SSO / SAML.** Real work: the OAuth token exchange
+- **OAuth / social / OIDC / SSO / SAML.** ~~Real work: the OAuth token exchange
   needs the reactor HTTP client, provider config, and — for OIDC — JWKS fetch and
-  RS256/ES256 **signature verification** the engine does not yet expose. A
-  genuine plane of its own; the mail-port interlock does not help here.
+  RS256/ES256 signature verification the engine does not yet expose.~~
+  **OIDC LOGIN IS BUILT.** `base/security/stzOidc.ring` ships `stzJwt` (split,
+  read, verify a JWS against a JWK) and `stzOidcClient` (the relying party:
+  `SetJwks` from the provider's `jwks_uri`, `AuthorizationUrl` with state +
+  nonce + PKCE-S256, `NewPkce`, and `VerifyIdToken` → `[:ok, :subject, :email,
+  :claims, :why]`). Verification is BOTH halves: the signature (engine
+  public-key verify, with the algorithm taken from **our** key, never the
+  token's header — defeating `alg:none`/algorithm-confusion) **and** the claims
+  (`iss`, `aud` contains our client id, `exp`/`nbf` with a clock-skew
+  allowance, and `nonce` matching this login, which is what makes a stolen
+  id-token useless). Every refusal returns a *reason*.
+  `stzAuth.LoginWithOidc(idToken, nonce)` turns a verified identity into a
+  normal session — auto-provisioned as the asserted email (or `issuer|subject`),
+  holding no usable password — and it yields the **same governance actor** a
+  local login does (the phase-5 tie-in): an external identity is a way *in*, not
+  a separate kind of citizen. Local rules still bind: lockout applies, and a
+  confirmed local 2FA is **not** bypassed (the provider proved the identity, not
+  possession of our factor); `SetOidcAutoProvision(FALSE)` admits only
+  pre-provisioned users. Development needs **no provider account**:
+  `base/service/stzOidcSandbox.ring` (service-virtualization plane) IS an
+  identity provider — it holds an ES256 keypair, really signs every token with
+  the engine, serves a real JWKS + discovery document, and can mint deliberately
+  BAD tokens (expired / wrong `aud` / foreign `iss` / another key), which is the
+  only practical way to test the negative half. Guard `auth_oidc_narrated` (43).
+  *Still open:* the authorization-code **token exchange** over HTTP (infra-gated
+  on a real provider) and live JWKS fetch + caching; SAML remains its own plane.
 - **Passkeys / WebAuthn.** Needs COSE public-key parsing and ES256/RS256
   assertion verification engine-side — the same missing primitive as OIDC.
   Highest complexity, defer until the engine grows public-key verification.
