@@ -75,10 +75,10 @@ Scenario("the audit backstop: a RAW-injected effectful llm is still caught")
 	oAG.AddLLMActor("writer")
 	oAG.GraphQ().SetNodeProperty("writer", "capabilities", [ "inference", "effectful" ])
 
-	oRule = StzAgentRuleSetQ().RuleNamed("no-llm-effectful")
-	aF = oRule.Check(oAG.GraphQ())
-	Then("the no-llm-effectful rule flags it", len(aF), 1)
-	Then("...on the writer node", aF[1][:where], "writer")
+	aF = oAG.CheckRules()          # the agent graph checks itself
+	Then("the graph's guardrails flag it", len(aF), 1)
+	Then("...as no-llm-effectful on writer",
+	     aF[1][:rule] = "no-llm-effectful" and aF[1][:where] = "writer", TRUE)
 	# the gate refuses at the sanctioned door; the rule remains the backstop for
 	# anything that reaches the graph another way.
 EndScenario()
@@ -96,10 +96,14 @@ Scenario("THE STRENGTHENING: effects-dominated catches a bypass the direct form 
 
 	g = oAG.GraphQ()
 	oSet = StzAgentRuleSetQ()
+	# attach one rule at a time to the graph and ask the graph
+	g.AddRule(oSet.RuleNamed("effects-guarded"))
 	Then("the direct-guard form PASSES (a guardian edge into send exists)",
-	     len(oSet.RuleNamed("effects-guarded").Check(g)), 0)
-	Then("but the DOMINATOR form catches the bypass",
-	     len(oSet.RuleNamed("effects-dominated").Check(g)), 1)
+	     len(g.CheckRules()), 0)
+	g.ClearAttachedRules()
+	g.AddRule(oSet.RuleNamed("effects-dominated"))
+	Then("but the DOMINATOR form catches the bypass", len(g.CheckRules()), 1)
+	g.ClearAttachedRules()
 
 	When("the bypass is removed (input -> gate -> send)")
 	oOk = new stzAgentGraph("ok")
@@ -110,7 +114,9 @@ Scenario("THE STRENGTHENING: effects-dominated catches a bypass the direct form 
 	oOk.Feeds("req", "gate")
 	oOk.Guards("gate", "send")
 	oOk.Traces("send", "audit")
-	Then("effects-dominated is clean", len(oSet.RuleNamed("effects-dominated").Check(oOk.GraphQ())), 0)
+	gOk = oOk.GraphQ()
+	gOk.AddRule(oSet.RuleNamed("effects-dominated"))
+	Then("effects-dominated is clean", len(gOk.CheckRules()), 0)
 EndScenario()
 
 Scenario("a fully governed composition is sound by the rule set")

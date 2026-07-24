@@ -2,6 +2,14 @@
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
 > Tutorial: [rules that see the whole picture](../narrations/stz-rules-as-graph-rules-narration.md) — a runnable walkthrough (real code, real output).
+>
+> **Orientation (the Softanza scope).** A rule is declared, then *attached to a
+> graph*, becoming part of the graph's own logic. You query, run, and report from
+> the **graph** — `g.AddRule(r)`, `g.CheckRules()`, `g.RulesAreSound()`,
+> `g.RulesReport()` — never `rule.Check(graph)`. The scope stays on the subject
+> you hold. Every graph (`stzGraph`, `stzAgentGraph`, `stzSecurityGraph`,
+> `stzOrgChart`, `stzCodeGraph`) answers `CheckRules()`, and `stzRuleReport`
+> gathers them with `Collect(g)`.
 
 > Status: **PLAN COMPLETE — phases 1–7 + 2b all BUILT** (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e, 05f6c5a59, 621ee8736). Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
@@ -293,8 +301,9 @@ The gains are concrete:
 6. **Unify the finding shape + one CI gate** — **DONE (16e46270e).** `:subject`
    (the rule's domain) added to the shared matcher, so every graph-rule finding
    is `[ :rule, :subject, :where, :severity, :message ]`. `stzRuleReport` is the
-   one gate: `Run(ruleSet, graph)` per domain, then one
-   `Findings()`/`IsSound()`/`Report()` spanning code + agents + security. The
+   one gate: each graph checks itself (`oRep.Collect(g)`, which calls the graph's
+   own `CheckRules()`), then one `Findings()`/`IsSound()`/`Report()` spanning code
+   + agents + security — the scope stays on the graphs. The
    legacy checkers keep their frozen shapes (`StzCheckCode` stays `:line`);
    `IngestLegacy` normalizes them into the unified shape so they can join the
    gate. Guard `rulereport_narrated` (23).

@@ -262,6 +262,14 @@ class stzOrgChart from stzDiagram
 	def GovernanceIsSound()
 		return StzOrgRuleSetQ().IsSound(This.AsRuleGraph())
 
+	# The uniform graph-owned verb (so an stzRuleReport can Collect an org chart
+	# like any other graph): the chart checks ITSELF over its projection.
+	def CheckRules()
+		return This.GovernanceFindings()
+
+	def RulesAreSound()
+		return This.GovernanceIsSound()
+
 	def VacantPositions()
 		_acVacant_ = []
 		_nPosCount_ = len(@aPositions)

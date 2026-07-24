@@ -65,16 +65,15 @@ Scenario("THE PAYOFF: the model sees what the text scan cannot")
 	     HasRule(StzCheckCode("class Foo" + nl + "def Len()" + nl + "	return 5" + nl), "no-len-method"), TRUE)
 EndScenario()
 
-Scenario("the rule set runs standalone over a code graph (the object API)")
-	Given("a Ring code graph built from source, and the code rule set")
+Scenario("the code graph checks ITSELF against the code rules")
+	Given("a Ring code graph built from source")
 	oCG = new stzRingCodeGraph("")
 	oCG.ScanSource("class Bag" + nl + "def Len()" + nl + "	return 1" + nl + "def KillAll()" + nl + "	return" + nl, "src")
-	oSet = StzCodeRuleSetQ()
-	aF = oSet.Check(oCG)
-	Then("Check returns graph-rule findings", len(aF) >= 2, TRUE)
+	aF = oCG.CheckRules()          # the graph checks itself -- scope stays on it
+	Then("CheckRules returns graph-rule findings", len(aF) >= 2, TRUE)
 	Then("...in the shared [:rule,:where,:severity,:message] shape",
 	     HasKey(aF[1], :rule) and HasKey(aF[1], :where), TRUE)
-	Then("the set is NOT sound (an error-severity rule fired)", oSet.IsSound(oCG), FALSE)
+	Then("the graph is NOT sound (an error-severity rule fired)", oCG.RulesAreSound(), FALSE)
 	Then("...the len shadow is among the findings", HasRuleW(aF, "no-len-method"), TRUE)
 EndScenario()
 

@@ -104,7 +104,7 @@ Scenario("an org chart joins the ONE CI gate, subject = orgchart")
 	oOrg.AddStaffPosition("rogue")
 	oOrg.ReportsTo("rogue", "rogue")
 	oRep = new stzRuleReport("acme")
-	oRep.Run(new stzSOXRuleBase(), oOrg.AsRuleGraph())
+	oRep.Collect(oOrg)             # the org chart checks itself into the gate
 	Then("the gate collected orgchart findings", len(oRep.FindingsOfSubject("orgchart")) >= 1, TRUE)
 	Then("...tagged with :subject = orgchart", oRep.Findings()[1][:subject], "orgchart")
 	Then("...and the gate is unsound", oRep.IsSound(), FALSE)
