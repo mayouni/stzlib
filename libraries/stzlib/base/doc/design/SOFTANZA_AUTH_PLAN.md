@@ -302,9 +302,28 @@ missing cryptography.
   only practical way to test the negative half. Guard `auth_oidc_narrated` (43).
   *Still open:* the authorization-code **token exchange** over HTTP (infra-gated
   on a real provider) and live JWKS fetch + caching; SAML remains its own plane.
-- **Passkeys / WebAuthn.** Needs COSE public-key parsing and ES256/RS256
-  assertion verification engine-side — the same missing primitive as OIDC.
-  Highest complexity, defer until the engine grows public-key verification.
+- **Passkeys / WebAuthn.** ~~Needs COSE public-key parsing and ES256/RS256
+  assertion verification engine-side.~~ **BUILT.** `engine/src/webauthn.zig`
+  carries the binary half — a minimal CBOR reader + COSE_Key parser, the packed
+  authenticator-data layout, and **DER→raw signature conversion** (a WebAuthn
+  ES256 signature is ASN.1 DER, *not* the raw `r||s` JWS uses — the detail that
+  bites every implementation). `base/security/stzPasskey.ring`
+  (`stzPasskeyServer`) carries the relying-party judgement, which is where
+  implementations actually fail: the **origin** must be ours (this is what makes
+  a passkey unphishable — a look-alike site cannot produce a matching
+  `clientDataJSON`), the **challenge** must be the one we issued, **user
+  presence** must be reported, and the signature **counter must advance** (a
+  stalled counter is the documented cloned-authenticator signal). `stzAuth`
+  gained `SetPasskeyRelyingParty(rpId, origin)`, `NewPasskeyChallenge`,
+  `RegisterPasskey`, `PasskeysOf`/`RemovePasskey`, and `LoginWithPasskey`;
+  credentials persist **per device** (`authpasskeys`), so a user may enroll a
+  laptop and a phone and un-enroll either without losing the account. A passkey
+  login yields the same governance actor as any other. Testing needs no hardware
+  or browser: `base/service/stzPasskeySandbox.ring` is a **virtual
+  authenticator** — a real P-256 key emitting real CBOR and real signatures —
+  which also does what an attacker's device would (phishing origin, stale
+  challenge, replayed counter), the only way the negative contract gets tested.
+  Guard `auth_passkey_narrated` (29).
 - **Being an OIDC *provider* / JWT issuer.** Powerful (Better Auth added it) but
   it is a product surface, not a hardening — only after 1–5 land.
 
