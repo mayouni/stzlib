@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phases 1–4 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74); phases 2b, 5–7 planned.** Written 2026-07-23
+> Status: **phases 1–5 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5); phases 2b, 6–7 planned.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -23,7 +23,10 @@
 > guardrails as rules (reproduce `StzCheckAgentGraph`), the `effects-dominated`
 > strengthening, and `no-llm-effectful` as a construction-time constraint
 > (`stzAgentGraph.Grant()` refuses; audit → gate). Guard `agentrule_narrated`
-> (21).
+> (21). P5: `stzSecurityGraph` + `stzSecurityRule` — multi-hop escalation
+> (`sandboxed-reaches-effectful`, a reachability query the posture flag check is
+> blind to), blast-radius, and a construction-time secret-attachment constraint.
+> Guard `securitygraph_narrated` (22).
 
 ---
 
@@ -259,9 +262,15 @@ The gains are concrete:
    `stzAgentGraph.Grant()` refuses granting `effectful` to an llm actor at
    construction (audit → gate), with the rule kept as the backstop. The classic
    `Violations()`/`IsSound()` are unchanged. Guard `agentrule_narrated` (21).
-5. **`stzSecurityRule` + an explicit security graph** — actors/tools/secrets/
-   stores/sites as nodes; multi-hop escalation and blast-radius rules; constraint
-   rules on secret attachment.
+5. **`stzSecurityRule` + an explicit security graph** — **DONE (53b1a5cd5).**
+   `stzSecurityGraph` projects the surface (actors with posture / tools /
+   capabilities / secrets / stores / sites + holds/uses/grants/delegates/
+   references edges). `sandboxed-reaches-effectful` is the multi-hop escalation
+   the posture flag check is structurally blind to (a `PathExists` reachability
+   query, proven against the flag check in the guard); `BlastRadius(secret)` is
+   the reverse-reachability rotation query; `AttachSecret()` refuses a live
+   secret to a sandboxed actor at construction. Guard `securitygraph_narrated`
+   (22).
 6. **Unify the finding shape + one CI gate** — `[ :rule, :subject, :where,
    :severity, :message ]`, with the three existing entry points kept as adapters.
 7. **New code rules + `CheckProject(dir)`** — `q-has-plain-twin` first (see
