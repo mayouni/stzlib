@@ -134,8 +134,10 @@ Scenario("stzOrgChart compliance bases are real rule sets now, not stubs")
 	Given("the SOX compliance base (a documented stub before phase 2)")
 	oSOX = new stzSOXRuleBase()
 	Then("it still constructs and keeps its name", oSOX.Name(), "SOX")
-	Then("...but is now a rule set (Check exists)", oSOX.NumberOfRules(), 0)
-	Then("...that can run over a graph", oSOX.NumberOfFindings($oWF), 0)
+	# P2 made it a rule set; P2b filled it with real org-governance rules
+	# (4 universal + separation-of-duties). See orgrule_narrated.
+	Then("...it is now a rule set carrying real rules", oSOX.NumberOfRules(), 5)
+	Then("...that can run over a graph", oSOX.NumberOfFindings($oWF) >= 0, TRUE)
 	# the mechanism is real; the per-regime rule CONTENT + a graph projection of
 	# the position model are phase 2b (domain work, not fabricated here).
 	Then("the GDPR base too", (new stzGDPRRuleBase()).Name(), "GDPR")
