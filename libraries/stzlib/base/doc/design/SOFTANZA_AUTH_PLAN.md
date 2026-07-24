@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **phase 1 BUILT (f91c12b0c); phases 2–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **phases 1–2 BUILT (f91c12b0c, 7ca8a978b); phases 3–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -158,7 +158,13 @@ Ordered so each phase ships value and the early ones unblock the later.
    `IsLockedOut`); `RevokeAllSessions`. Guard `auth_store_narrated` (31);
    `secret_narrated` still 53.
 2. **Session hardening (L3)** — metadata, per-device list/revoke, revoke-all,
-   rotation on privilege change.
+   rotation on privilege change. **DONE (7ca8a978b).** Per-session metadata
+   (created/ip/user-agent) persisted in both stores; `SessionsOf`/`SessionInfo`
+   (the "your devices" surface); `RevokeSession` (one device) vs
+   `RevokeAllSessions`; `RotateSession` (fixation defense — new token on
+   privilege change, old voided); opt-in idle timeout (`SetIdleTTL`, sliding
+   window). `LoginWith(user, pw, ip, ua)`; plain `Login` unchanged. Guard
+   `auth_sessions_narrated` (25).
 3. **TOTP 2FA (L4)** — engine HMAC; enroll + verify + recovery codes. The first
    pluggable method (L2), proving the strategy seam.
 4. **Passwordless via the mail port (L4)** — magic-link / email-OTP over the
