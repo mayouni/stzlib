@@ -352,6 +352,10 @@ ok
     load "security/stzAuth.ring"
     load "security/stzRequestSigner.ring"
     load "security/stzSecurityPosture.ring"
+    # the security surface as an explicit GRAPH + rules that see PATHS, not just
+    # flags (stzSecurityRule IS-A stzGraphRule) -- multi-hop escalation
+    load "security/stzSecurityGraph.ring"
+    load "security/stzSecurityRule.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
