@@ -177,6 +177,16 @@ class stzCodeGraph from stzObject
 
 	# Every method as [ class, method, line ] -- the locus a code RULE needs
 	# (MethodsOf gives names only). @aMethods is [ class, method, file, line ].
+	# The uniform graph-owned verb: the code graph checks ITSELF against the code
+	# rule set, in the unified finding shape -- so an stzRuleReport can Collect it
+	# like any other graph. (StzCheckCode remains the per-line adapter for source
+	# snippets; this is the whole-graph, unified-shape path.)
+	def CheckRules()
+		return StzCodeRuleSetQ().Check(This)
+
+	def RulesAreSound()
+		return StzCodeRuleSetQ().IsSound(This)
+
 	def MethodsWithLines()
 		_aOut_ = []
 		_nLen_ = len(@aMethods)

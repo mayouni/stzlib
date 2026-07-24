@@ -183,6 +183,14 @@ class stzSecurityGraph from stzObject
 	def IsSound()
 		return StzSecurityRuleSetQ().IsSound(@oG)
 
+	# The uniform graph-owned verb (so an stzRuleReport can Collect this graph
+	# like any other): the security graph checks ITSELF.
+	def CheckRules()
+		return This.Violations()
+
+	def RulesAreSound()
+		return This.IsSound()
+
 	def _Cap(pcCapability)
 		return This._Node(pcCapability, "capability")
 

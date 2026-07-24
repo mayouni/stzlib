@@ -186,6 +186,15 @@ class stzAgentGraph from stzObject
 	def Violations()
 		return StzCheckAgentGraph(@oG)
 
+	# The uniform graph-owned verb: this graph checks ITSELF against its
+	# guardrails, in the unified finding shape (so an stzRuleReport can Collect
+	# it exactly like any other graph). Same findings as the object rule set.
+	def CheckRules()
+		return This.ViolationsViaRules()
+
+	def RulesAreSound()
+		return len(This.ViolationsViaRules()) = 0
+
 	# The invariants as a declared stzAgentRuleSet (graph-rules plan, phase 4) --
 	# the SAME four findings as Violations(), plus the stronger effects-dominated
 	# rule. Object-based, so a project can add its own agent invariants.

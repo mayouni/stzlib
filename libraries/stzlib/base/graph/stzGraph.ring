@@ -97,6 +97,12 @@ class stzGraph from stzObject
 	@aAffectedNodes = []
 	@aAffectedEdges = []
 
+	# The graph's OWN object-rules (stzGraphRule) -- the Softanza orientation:
+	# a rule is attached to the graph and becomes part of ITS logic, so you
+	# check/report from the graph (g.AddRule(r); g.CheckRules(); g.RulesReport()),
+	# never rule.Check(g). A lazily-created stzGraphRuleSet holds them.
+	@oOwnRuleSet = NULL
+
 	@acValidators = $acGraphDefaultValidators
 
 	@aProperties = []
@@ -4205,6 +4211,81 @@ class stzGraph from stzObject
 	# path that touches a rule; the day one path forgot, the file and the
 	# graph would disagree and nothing would say so. Derive instead: the
 	# typed stores are the truth, and this just reads them.
+
+	  #-------------------------------------------------------------#
+	 #  THE GRAPH OWNS ITS RULES (Softanza orientation)            #
+	#-------------------------------------------------------------#
+	#
+	# You attach a rule to the graph, and it becomes part of the graph's own
+	# logic. Then you query / run / report FROM the graph -- the scope stays on
+	# the graph, never inverts to rule.Check(graph).
+	#
+	#   g.AddRule( new stzGraphRule("no-orphan").WhenQ(...).ThenViolationQ(...) )
+	#   g.UseRuleSet( StzAgentRuleSetQ() )      # attach a whole set's rules
+	#   ? g.CheckRules()                        # the graph checks ITSELF
+	#   ? g.RulesAreSound()
+	#   g.RulesReport()
+
+	def _OwnRuleSet()
+		if @oOwnRuleSet = NULL
+			@oOwnRuleSet = new stzGraphRuleSet("" + @cId)
+		ok
+		return @oOwnRuleSet
+
+	# Attach one rule. Plain does the act; the Q form chains (Q convention).
+	def AddRule(poRule)
+		This._OwnRuleSet().AddRule(poRule)
+
+		def AddRuleQ(poRule)
+			This.AddRule(poRule)
+			return This
+
+	# Attach every rule of a set (e.g. a domain rule set) to this graph.
+	def UseRuleSet(poRuleSet)
+		_aR_ = poRuleSet.Rules()
+		_n_ = len(_aR_)
+		for _i_ = 1 to _n_
+			This._OwnRuleSet().AddRule(_aR_[_i_])
+		next
+
+		def UseRuleSetQ(poRuleSet)
+			This.UseRuleSet(poRuleSet)
+			return This
+
+	# The graph checks ITSELF against its attached rules. Returns unified
+	# findings [ :rule, :subject, :where, :severity, :message ].
+	def CheckRules()
+		if @oOwnRuleSet = NULL
+			return []
+		ok
+		return @oOwnRuleSet.Check(This)
+
+	def RulesAreSound()
+		return len(This.CheckRules()) = 0
+
+	def AttachedRules()
+		return This._OwnRuleSet().Rules()
+
+	def NumberOfAttachedRules()
+		if @oOwnRuleSet = NULL
+			return 0
+		ok
+		return @oOwnRuleSet.NumberOfRules()
+
+	def AttachedRuleNamed(pcName)
+		return This._OwnRuleSet().RuleNamed(pcName)
+
+	# Print the graph's own rule findings, grouped and gated -- via stzRuleReport
+	# (the graph collects itself into it, then shows it).
+	def RulesReport()
+		_oRep_ = new stzRuleReport("" + @cId)
+		_oRep_.Ingest(This.CheckRules())
+		_oRep_.Report()
+		return This
+
+	def ClearAttachedRules()
+		@oOwnRuleSet = NULL
+		return This
 
 	def Rules()
 		_aAll_ = []

@@ -14,11 +14,13 @@ below is real, and every output block is its actual output.
 
 ---
 
-## A rule is an object
+## The graph owns its rules
 
-You declare a rule fluently. It carries its own identity — a name, a domain, a
-severity — and it `Check`s a graph, returning findings in one shape:
-`[ :rule, :subject, :where, :severity, :message ]`.
+You declare a rule fluently — a name, a domain, a severity, the condition. But
+you do **not** then turn the rule on the graph. In Softanza the graph is the
+subject you hold: you **attach** the rule to it, and it becomes part of the
+graph's own logic. From then on you ask the *graph* — to check itself, to say
+whether it is sound, to report.
 
 ```ring
 oRule = new stzGraphRule("no-llm-effectful")
@@ -27,26 +29,31 @@ oRule.WhenQ("kind", "equals", "llm_actor")
 oRule.WhenQ("capabilities", "contains", "effectful")
 oRule.ThenViolationQ("an LLM proposes, only a pi-gate commits")
 
-g = new stzGraph("ag")
+g = new stzGraph("agents")
 g.AddNode("writer")
 g.SetNodeProperty("writer", "kind", "llm_actor")
 g.SetNodeProperty("writer", "capabilities", [ "inference", "effectful" ])
 
-aF = oRule.Check(g)
-? "findings: " + len(aF)
-? "  " + aF[1][:rule] + " @ " + aF[1][:where] + " [" + aF[1][:severity] + "]: " + aF[1][:message]
+g.AddRule(oRule)        # the rule is now part of THIS graph
+g.RulesReport()         # the graph reports on itself
 ```
 
 ```
-findings: 1
-  no-llm-effectful @ writer [error]: an LLM proposes, only a pi-gate commits
+Rule report 'agents': 1 finding(s), 1 error(s), 0 warning(s) -> UNSOUND (errors present)
+  [agentic] 1 finding(s)
+    ERROR no-llm-effectful @ writer -- an LLM proposes, only a pi-gate commits
 ```
+
+The scope never leaves the graph. `g.AddRule(r)` attaches; `g.CheckRules()`
+returns the findings in one shape (`[ :rule, :subject, :where, :severity,
+:message ]`); `g.RulesAreSound()` is the verdict; `g.RulesReport()` prints. A
+whole set attaches at once with `g.UseRuleSet(...)`.
 
 `When` clauses select the nodes a rule is *about*; `Then` clauses (not shown here)
 say what must *hold* on them. A rule too rich for property-matching supplies a
-checker instead. Either way, the object compiles down to an entry in the same
-function registry the graph engine already ran — so declaring a rule and
-hand-registering one can never disagree.
+checker. And the domain graphs come with their rules already attached — an
+`stzAgentGraph` knows its guardrails, an `stzSecurityGraph` its escalation rules —
+so you just ask *them* the same way.
 
 ## The model sees what the text scan cannot
 
@@ -160,23 +167,22 @@ produce at all.
 
 ## One gate over every domain
 
-Because every rule speaks the same finding shape, one gate can run them all —
-code, agents, and security in a single pass — and give one verdict instead of
-three parallel APIs:
+Each graph checks *itself* — `CheckRules()` is the same verb on all of them. A
+gate just gathers them: you hand it the graphs, each self-checks, and it gives
+one verdict across code, agents, and security instead of three parallel APIs.
 
 ```ring
-oRep = new stzRuleReport("restolean")
-
 oCG = new stzRingCodeGraph("")
 oCG.ScanSource("class Bag" + nl + "def Len()" + nl + "	return 1" + nl, "s")
-oRep.Run(StzCodeRuleSetQ(), oCG)                    # subject = code
 
-oB = new stzAgentGraph("mailer")
-oB.AddLLMActor("writer")  oB.AddEffect("send")  oB.Proposes("writer", "send")
-oRep.Run(StzAgentRuleSetQ(), oB.GraphQ())           # subject = agentic
+oAG = new stzAgentGraph("mailer")
+oAG.AddLLMActor("writer")  oAG.AddEffect("send")  oAG.Proposes("writer", "send")
 
-oRep.Run(StzSecurityRuleSetQ(), oSG.GraphQ())        # subject = security
+oSG = new stzSecurityGraph("resto")
+oSG.AddActor("llm", "sandboxed")  oSG.AddTool("shell")  oSG.Uses("llm", "shell")  oSG.Grants("shell", "effectful")
 
+oRep = new stzRuleReport("restolean")
+oRep.Collect(oCG).Collect(oAG).Collect(oSG)     # each graph checks itself
 oRep.Report()
 ```
 
@@ -192,10 +198,12 @@ Rule report 'restolean': 5 finding(s), 5 error(s), 0 warning(s) -> UNSOUND (erro
     ERROR sandboxed-reaches-effectful @ llm -- sandboxed actor 'llm' can REACH the effectful capability by some path -- privilege escalation
 ```
 
-One report, grouped by subject, errors first. `IsSound()` is the CI gate: errors
-fail the build, warnings advise. Org charts join the same gate — an `stzOrgChart`
-projects its positions into a graph (`AsRuleGraph()`) and its compliance bases
-run rules like `separation-of-duties` and `no-cyclic-reporting` over it.
+`Collect(g)` asks the graph to check itself and gathers its findings — the scope
+stays on the graphs throughout. One report, grouped by subject, errors first;
+`IsSound()` is the CI gate (errors fail the build, warnings advise). Org charts
+join the same way — an `stzOrgChart` projects its positions (`AsRuleGraph()`) and
+answers `CheckRules()` over rules like `separation-of-duties` and
+`no-cyclic-reporting`, so `oRep.Collect(oOrgChart)` slots right in.
 
 ---
 

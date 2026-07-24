@@ -55,7 +55,8 @@ Scenario("Then() turns a rule into an implication with a comparison")
 	Then("the rule knows it is an implication", oRule.IsImplication(), TRUE)
 	Then("...with one requirement", oRule.NumberOfRequirements(), 1)
 
-	aF = oRule.Check(oG)
+	oG.AddRule(oRule)
+	aF = oG.CheckRules()          # the graph checks itself
 	Then("only the critical node LACKING an sla is flagged", len(aF), 1)
 	Then("...it is 'bad' (not 'ok', not the non-critical 'nc')", aF[1][:where], "bad")
 	# the comparison reads an unset property as 0, so a missing sla fails > 0.
@@ -91,14 +92,15 @@ Scenario("REPAIRED: stzBPMRuleBase constructs and finds real problems")
 	Then("...in the bpm domain", oBPM.Domain(), "bpm")
 
 	When("it checks the workflow graph")
-	aF = oBPM.Check($oWF)
+	$oWF.UseRuleSet(oBPM)          # attach the base's rules to the workflow
+	aF = $oWF.CheckRules()
 	Then("it finds the four distinct problems", len(aF), 4)
 	Then("...the orphan step", HasFinding(aF, "bpm_no_orphans", "orphan"), TRUE)
 	Then("...the unassigned step s2", HasFinding(aF, "bpm_assignment_required", "s2"), TRUE)
 	Then("...the thin decision d1", HasFinding(aF, "bpm_decision_branches", "d1"), TRUE)
 	Then("...and that there is more than one start (orphan has no incoming either)",
 	     HasRule(aF, "bpm_single_start"), TRUE)
-	Then("the base is NOT sound (errors present)", oBPM.IsSound($oWF), FALSE)
+	Then("the workflow is NOT sound (errors present)", $oWF.RulesAreSound(), FALSE)
 EndScenario()
 
 Scenario("REPAIRED: stzSLARuleBase constructs and enforces SLAs")
@@ -116,7 +118,8 @@ Scenario("REPAIRED: stzSLARuleBase constructs and enforces SLAs")
 
 	oSLA = new stzSLARuleBase()
 	Then("it constructs with two rules", oSLA.NumberOfRules(), 2)
-	aF = oSLA.Check(oG)
+	oG.UseRuleSet(oSLA)
+	aF = oG.CheckRules()
 	Then("it flags the critical step with no SLA", HasFinding(aF, "sla_defined", "nosla"), TRUE)
 	Then("...and the step whose duration exceeds its SLA", HasFinding(aF, "sla_compliance", "over"), TRUE)
 	Then("...but not the compliant one", HasWhere(aF, "ok"), FALSE)

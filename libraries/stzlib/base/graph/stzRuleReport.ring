@@ -50,6 +50,16 @@ class stzRuleReport from stzObject
 		next
 		return This
 
+	# Collect a GRAPH's own findings -- the graph checks ITSELF (CheckRules) and
+	# the report ingests. This is the Softanza-oriented gate: each graph owns its
+	# rules and reports itself; the report just gathers them across domains.
+	#   oRep.Collect(oCodeGraph).Collect(oAgentGraph).Collect(oSecurityGraph)
+	# Any object answering CheckRules() qualifies (stzGraph, stzAgentGraph,
+	# stzSecurityGraph, stzOrgChart, stzCodeGraph).
+	def Collect(poGraph)
+		This.Ingest(poGraph.CheckRules())
+		return This
+
 	# Ingest findings already in the unified shape.
 	def Ingest(paFindings)
 		_n_ = len(paFindings)
