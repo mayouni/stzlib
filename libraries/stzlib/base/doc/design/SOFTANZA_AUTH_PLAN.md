@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **phases 1–5 BUILT (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, + this commit); phase 6 planned, external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **ALL SIX PHASES BUILT (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, + this commit); external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -230,7 +230,32 @@ Ordered so each phase ships value and the early ones unblock the later.
    auth_passwordless 23 green.
 6. **Mount as an appserver auth router** — `/login`, `/logout`, `/session`,
    `/2fa/verify` on `stzAppServer`, with signed requests (`stzRequestSigner`) and
-   `HttpOnly`/`SameSite`/`Secure` session cookies + CSRF.
+   `HttpOnly`/`SameSite`/`Secure` session cookies + CSRF. **DONE.**
+   `oSrv.MountAuth(oAuth)` (or `MountAuthAt(oAuth, prefix)`) exposes every earlier
+   phase over HTTP: `POST /auth/login` (and `/auth/2fa/verify`),
+   `POST /auth/logout`, `GET /auth/session`, `POST /auth/magic-link` +
+   `GET /auth/magic-link/redeem?token=`, `POST /auth/otp` + `/auth/otp/verify`.
+   It is **data-registered and dispatched internally** — the `Expose(db, table)`
+   pattern, not a closure — so it slots into the existing chain *behind* the
+   transport gate: `RequireSignedRequests` still runs first, and the MBaaS floor,
+   ordinary routes and `/health` are untouched. The session token travels as an
+   **`HttpOnly` + `SameSite=Strict`** cookie (`Secure` via `SetSecureCookies`
+   behind TLS) alongside a **readable csrf cookie**; a cookie-authenticated
+   `POST /auth/logout` must echo it in `X-CSRF-Token` (403 otherwise) — because a
+   cookie is *ambient* authority, while a caller passing the token explicitly in
+   the body is not, and needs no such proof. `GET /auth/session` returns the
+   **phase-5 authz surface** (user, capabilities, posture, effectful, roles). 2FA
+   is enforced at the door: password-only gets 401 with a `"twofactor":1` hint
+   (the check is on the *account*, so it leaks nothing about the password).
+   Passwordless stays enumeration-safe over HTTP too (identical 202 either way).
+   Form values are percent-decoded. **Ring copy note:** `=` and list insertion
+   both copy, so the server holds its own `stzAuth` — configure before mounting,
+   or give it a `stzAuthDbStore` and both sides share one sqlite (proven
+   bidirectional: a user registered *after* the mount signs in, and the caller
+   sees the session HTTP created). Guard `auth_router_narrated` (45, including a
+   real-socket round-trip); regressions — auth secret 53 / store 31 / sessions 25
+   / totp 40 / passwordless 23 / authz 31, and appserver 16 / 26 / 6 / 28 / 35 —
+   all green.
 
 **Deliberately deferred (bigger, external-facing, or lower leverage):**
 

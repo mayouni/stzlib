@@ -83,6 +83,13 @@ class stzAppServer from stzObject
 	@nMaxSkewMs = 30000
 	@cAuthWhy = ""
 
+	# The mounted USER-authentication router (auth plan phase 6): stzAuth's whole
+	# surface -- password, 2FA, passwordless, the authz actor -- as HTTP endpoints.
+	@oAuth = NULL             # the server's stzAuth (see MountAuth on copy semantics)
+	@cAuthPrefix = "/auth"
+	@bAuthMounted = FALSE
+	@bSecureCookies = FALSE   # add Secure to auth cookies (set TRUE behind TLS)
+
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
 		# stzObject.init(pObject) wants an argument
@@ -358,6 +365,73 @@ class stzAppServer from stzObject
 
 	def RequiresSignedRequests()
 		return @oSigner != NULL
+
+	  #--------------------------------------#
+	 #  USER AUTHENTICATION ROUTER (stzAuth)  #
+	#--------------------------------------#
+
+	# Mount stzAuth as HTTP endpoints (auth plan phase 6) -- the whole surface the
+	# earlier phases built, reachable by a browser or a client:
+	#
+	#   POST <prefix>/login          user=&password=[&code=]  -> session cookie
+	#   POST <prefix>/2fa/verify     user=&password=&code=    -> session cookie
+	#   POST <prefix>/logout                                  -> cookie cleared
+	#   GET  <prefix>/session                                 -> who + capabilities
+	#   POST <prefix>/magic-link     email=                   -> 202 (always)
+	#   GET  <prefix>/magic-link/redeem?token=                -> session cookie
+	#   POST <prefix>/otp            email=                   -> 202 (always)
+	#   POST <prefix>/otp/verify     email=&code=             -> session cookie
+	#
+	# The session token travels as an HttpOnly + SameSite=Strict cookie (script
+	# cannot read it, and a cross-site form cannot ride it), plus a readable CSRF
+	# cookie that a cookie-authenticated POST must echo in X-CSRF-Token.
+	#
+	# RING COPY SEMANTICS (read this): `=` and list insertion both COPY an object,
+	# so the server holds ITS OWN stzAuth. Configure and register BEFORE mounting.
+	# For a view shared with the caller (and durability), give the stzAuth a
+	# stzAuthDbStore: its sqlite is an engine handle, so the server's copy reads and
+	# writes the SAME database -- a login through HTTP is then visible to the
+	# caller's object, and vice versa.
+	def MountAuth(poAuth)
+		This.MountAuthAtQ(poAuth, "/auth")
+
+	def MountAuthQ(poAuth)
+		return This.MountAuthAtQ(poAuth, "/auth")
+
+	def MountAuthAt(poAuth, pcPrefix)
+		This.MountAuthAtQ(poAuth, pcPrefix)
+
+	def MountAuthAtQ(poAuth, pcPrefix)
+		if NOT isObject(poAuth)
+			stzraise("stzAppServer.MountAuth: an stzAuth object is required.")
+		ok
+		_p_ = "" + pcPrefix
+		if _p_ = ""  _p_ = "/auth"  ok
+		if StzFindFirst("/", _p_) != 1
+			_p_ = "/" + _p_
+		ok
+		@oAuth = poAuth
+		@cAuthPrefix = _p_
+		@bAuthMounted = TRUE
+		return This
+
+	def AuthIsMounted()
+		return @bAuthMounted
+
+	def AuthPrefix()
+		return @cAuthPrefix
+
+	# Add Secure to the auth cookies -- TRUE whenever the listener is TLS, so the
+	# session cookie never travels in clear text.
+	def SetSecureCookies(pbOn)
+		This.SetSecureCookiesQ(pbOn)
+
+	def SetSecureCookiesQ(pbOn)
+		@bSecureCookies = pbOn
+		return This
+
+	def SecureCookies()
+		return @bSecureCookies
 
 	# Why the last request was refused ("" when none was).
 	def AuthWhy()
@@ -646,6 +720,8 @@ class stzAppServer from stzObject
 				# handled by the MBaaS floor
 			but This._ServeAgents(oReq, oResp)
 				# handled by the agent-observability surface
+			but This._ServeAuth(oReq, oResp)
+				# handled by the mounted user-authentication router
 			# compare the path WITHOUT its query: a signed probe arrives as
 			# "/health?_kid=..&_sig=..", and an exact match would miss it.
 			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/health"
@@ -880,6 +956,234 @@ class stzAppServer from stzObject
 			_cOut_ += '"' + StzReplace("" + aRow[_i_], '"', '\"') + '"'
 		next
 		return _cOut_ + "]"
+
+	  #----------------------------------------#
+	 #  THE AUTH ROUTER (mounted stzAuth, P6)  #
+	#----------------------------------------#
+
+	# Serve the mounted auth endpoints. Returns TRUE when the path was ours.
+	def _ServeAuth(oReq, oResp)
+		if NOT @bAuthMounted
+			return FALSE
+		ok
+		_cPath_ = This._BarePath(oReq.Path())
+		if StzFindFirst(@cAuthPrefix, _cPath_) != 1
+			return FALSE
+		ok
+		# the prefix is ASCII, so slicing past it is safe
+		_cSub_ = StzMidToEnd(_cPath_, len(@cAuthPrefix) + 1)
+		if _cSub_ = ""  _cSub_ = "/"  ok
+		_cM_ = oReq.Method()
+		_aF_ = This._ParseFormBody(oReq.Body())
+
+		if _cM_ = "POST" and (_cSub_ = "/login" or _cSub_ = "/2fa/verify")
+			This._AuthLogin(oReq, oResp, _aF_)
+			return TRUE
+		ok
+		if _cM_ = "POST" and _cSub_ = "/logout"
+			This._AuthLogout(oReq, oResp, _aF_)
+			return TRUE
+		ok
+		if _cM_ = "GET" and _cSub_ = "/session"
+			This._AuthSession(oReq, oResp)
+			return TRUE
+		ok
+		if _cM_ = "POST" and _cSub_ = "/magic-link"
+			@oAuth.RequestMagicLink(This._UrlDecode(This._FormValue(_aF_, "email")))
+			# ALWAYS the same answer -- no account enumeration over HTTP either
+			oResp.Status(202, "Accepted").Json([ "ok", 1, "sent", 1 ])
+			return TRUE
+		ok
+		if _cM_ = "GET" and _cSub_ = "/magic-link/redeem"
+			This._AuthOpen(oReq, oResp,
+			    @oAuth.RedeemMagicLinkWith(This._UrlDecode("" + oReq.Query("token")),
+			        This._ClientIp(oReq), "" + oReq.Header("User-Agent")))
+			return TRUE
+		ok
+		if _cM_ = "POST" and _cSub_ = "/otp"
+			@oAuth.RequestEmailOtp(This._UrlDecode(This._FormValue(_aF_, "email")))
+			oResp.Status(202, "Accepted").Json([ "ok", 1, "sent", 1 ])
+			return TRUE
+		ok
+		if _cM_ = "POST" and _cSub_ = "/otp/verify"
+			This._AuthOpen(oReq, oResp,
+			    @oAuth.VerifyEmailOtpWith(This._UrlDecode(This._FormValue(_aF_, "email")),
+			        This._UrlDecode(This._FormValue(_aF_, "code")),
+			        This._ClientIp(oReq), "" + oReq.Header("User-Agent")))
+			return TRUE
+		ok
+		return FALSE
+
+	# password (+ optional second factor) -> a session cookie.
+	def _AuthLogin(oReq, oResp, aForm)
+		_u_ = This._UrlDecode(This._FormValue(aForm, "user"))
+		_pw_ = This._UrlDecode(This._FormValue(aForm, "password"))
+		_code_ = This._UrlDecode(This._FormValue(aForm, "code"))
+		# tell an honest client WHICH door it needs, without leaking whether the
+		# password was right (the check is on the account, not the credential).
+		if @oAuth.RequiresTwoFactor(_u_) and _code_ = ""
+			oResp.Status(401, "Unauthorized").Json([ "error", "two-factor required",
+			                                         "twofactor", 1 ])
+			return
+		ok
+		This._AuthOpen(oReq, oResp,
+		    @oAuth.LoginTwoFactorWith(_u_, _pw_, _code_,
+		        This._ClientIp(oReq), "" + oReq.Header("User-Agent")))
+
+	# the ONE place a flow turns a session token into a response: set the cookies
+	# on success, answer 401 identically on every failure.
+	def _AuthOpen(oReq, oResp, pcToken)
+		if pcToken = ""
+			oResp.Status(401, "Unauthorized").Json([ "error", "invalid credentials" ])
+			return
+		ok
+		_csrf_ = StzEngineCryptoRandomHex(16)
+		This._SetAuthCookie(oResp, "stzsession", pcToken, TRUE)
+		This._SetAuthCookie(oResp, "stzcsrf", _csrf_, FALSE)   # readable: to be echoed
+		oResp.Json([ "ok", 1,
+		             "user", @oAuth.UserOfSession(pcToken),
+		             "csrf", _csrf_ ])
+
+	# end the session the cookie names. A cookie is AMBIENT authority, so a
+	# cookie-authenticated logout must echo the CSRF token; a caller that passes the
+	# token explicitly in the body is not ambient and needs no such proof.
+	def _AuthLogout(oReq, oResp, aForm)
+		_body_ = This._UrlDecode(This._FormValue(aForm, "token"))
+		if _body_ != ""
+			@oAuth.RevokeSession(_body_)
+			oResp.Json([ "ok", 1 ])
+			return
+		ok
+		_tok_ = This._CookieValue(oReq, "stzsession")
+		if _tok_ = ""
+			oResp.Status(401, "Unauthorized").Json([ "error", "no session" ])
+			return
+		ok
+		if "" + oReq.Header("X-CSRF-Token") != This._CookieValue(oReq, "stzcsrf")
+			oResp.Status(403, "Forbidden").Json([ "error", "csrf check failed" ])
+			return
+		ok
+		@oAuth.RevokeSession(_tok_)
+		This._ClearAuthCookie(oResp, "stzsession")
+		This._ClearAuthCookie(oResp, "stzcsrf")
+		oResp.Json([ "ok", 1 ])
+
+	# who the caller is -- and what the AUTHZ layer says they may do (phase 5).
+	def _AuthSession(oReq, oResp)
+		_tok_ = This._CookieValue(oReq, "stzsession")
+		_u_ = @oAuth.UserOfSession(_tok_)
+		if _u_ = ""
+			oResp.Status(401, "Unauthorized").Json([ "error", "no session" ])
+			return
+		ok
+		_oAct_ = @oAuth.ActorOf(_tok_)
+		_caps_ = ""
+		if isObject(_oAct_)
+			_aK_ = _oAct_.Kinds()
+			_nK_ = len(_aK_)
+			for _i_ = 1 to _nK_
+				if _i_ > 1  _caps_ += ","  ok
+				_caps_ += "" + _aK_[_i_]
+			next
+		ok
+		oResp.Json([ "user", _u_,
+		             "capabilities", _caps_,
+		             "posture", _oAct_.Posture(),
+		             "effectful", This._Bool01(@oAuth.SessionIsEffectful(_tok_)),
+		             "roles", This._JoinList(@oAuth.RolesOf(_u_)) ])
+
+	  #-- auth router helpers ---------------------------------------------
+
+	# HttpOnly keeps a session cookie out of script; SameSite=Strict keeps it off
+	# cross-site requests; Secure (behind TLS) keeps it off clear text.
+	def _SetAuthCookie(oResp, pcName, pcValue, pbHttpOnly)
+		_c_ = pcName + "=" + pcValue + "; Path=/; SameSite=Strict"
+		if pbHttpOnly
+			_c_ += "; HttpOnly"
+		ok
+		if @bSecureCookies
+			_c_ += "; Secure"
+		ok
+		oResp.Header("Set-Cookie", _c_)
+
+	def _ClearAuthCookie(oResp, pcName)
+		oResp.Header("Set-Cookie", pcName + "=; Path=/; Max-Age=0; SameSite=Strict")
+
+	# read one cookie out of the request's Cookie header ("" when absent).
+	def _CookieValue(oReq, pcName)
+		_h_ = "" + oReq.Header("Cookie")
+		if _h_ = ""
+			return ""
+		ok
+		_aP_ = StzSplit(_h_, ";")
+		_n_ = len(_aP_)
+		for _i_ = 1 to _n_
+			_aKV_ = StzSplit(ring_trim("" + _aP_[_i_]), "=")
+			if len(_aKV_) >= 2 and ring_trim("" + _aKV_[1]) = pcName
+				return ring_trim("" + _aKV_[2])
+			ok
+		next
+		return ""
+
+	def _FormValue(aPairs, pcKey)
+		_n_ = len(aPairs)
+		for _i_ = 1 to _n_
+			if aPairs[_i_][1] = pcKey
+				return "" + aPairs[_i_][2]
+			ok
+		next
+		return ""
+
+	def _ClientIp(oReq)
+		_f_ = "" + oReq.Header("X-Forwarded-For")
+		if _f_ != ""
+			return _f_
+		ok
+		return ""
+
+	def _JoinList(paList)
+		_out_ = ""
+		_n_ = len(paList)
+		for _i_ = 1 to _n_
+			if _i_ > 1  _out_ += ","  ok
+			_out_ += "" + paList[_i_]
+		next
+		return _out_
+
+	# percent-decoding (+ '+' as space). Byte-wise on purpose: the escapes are
+	# ASCII, so decoding bytes reassembles correct UTF-8 for a non-ASCII value.
+	def _UrlDecode(pcS)
+		_s_ = "" + pcS
+		if StzFindFirst("%", _s_) = 0 and StzFindFirst("+", _s_) = 0
+			return _s_
+		ok
+		_out_ = ""
+		_n_ = len(_s_)
+		_i_ = 1
+		while _i_ <= _n_
+			_ch_ = _s_[_i_]
+			if _ch_ = "+"
+				_out_ += " "
+				_i_++
+			but _ch_ = "%" and _i_ + 2 <= _n_
+				_out_ += char(This._HexPair(_s_[_i_ + 1], _s_[_i_ + 2]))
+				_i_ += 3
+			else
+				_out_ += _ch_
+				_i_++
+			ok
+		end
+		return _out_
+
+	def _HexPair(pcHi, pcLo)
+		return This._HexDigit(pcHi) * 16 + This._HexDigit(pcLo)
+
+	def _HexDigit(pcC)
+		_a_ = ascii(pcC)
+		if _a_ >= 48 and _a_ <= 57    return _a_ - 48 ok
+		if _a_ >= 97 and _a_ <= 102   return _a_ - 87 ok
+		if _a_ >= 65 and _a_ <= 70    return _a_ - 55 ok
+		return 0
 
 	# SPLIT-ONLY, never a positional slice: StzLeft/StzMidToEnd feed CODEPOINT
 	# indices to a BYTE-addressed engine slice, so "dish=<arabic>" came back
