@@ -87,6 +87,43 @@ fn ring_Totp(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineCryptoVerifyEs256(cSigningInput, cSigB64Url, cXB64Url, cYB64Url) -> 1/0/-1
+// ES256 = ECDSA P-256 + SHA-256; x/y are the JWK coordinates.
+fn ring_VerifyEs256(p: *anyopaque) callconv(.c) void {
+    const m: [*]const u8 = @ptrCast(gs(p, 1));
+    const ml: usize = @intCast(gss(p, 1));
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const sl: usize = @intCast(gss(p, 2));
+    const x: [*]const u8 = @ptrCast(gs(p, 3));
+    const xl: usize = @intCast(gss(p, 3));
+    const y: [*]const u8 = @ptrCast(gs(p, 4));
+    const yl: usize = @intCast(gss(p, 4));
+    rn(p, @floatFromInt(crypto.crypto_verify_es256(m, ml, s, sl, x, xl, y, yl)));
+}
+
+// StzEngineCryptoVerifyRs256(cSigningInput, cSigB64Url, cNB64Url, cEB64Url) -> 1/0/-1
+// RS256 = RSASSA-PKCS1-v1_5 + SHA-256; n/e are the JWK modulus and exponent.
+fn ring_VerifyRs256(p: *anyopaque) callconv(.c) void {
+    const m: [*]const u8 = @ptrCast(gs(p, 1));
+    const ml: usize = @intCast(gss(p, 1));
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const sl: usize = @intCast(gss(p, 2));
+    const n: [*]const u8 = @ptrCast(gs(p, 3));
+    const nl: usize = @intCast(gss(p, 3));
+    const e: [*]const u8 = @ptrCast(gs(p, 4));
+    const el: usize = @intCast(gss(p, 4));
+    rn(p, @floatFromInt(crypto.crypto_verify_rs256(m, ml, s, sl, n, nl, e, el)));
+}
+
+// StzEngineCryptoB64UrlDecode(cB64Url) -> the decoded text (a JWT header/payload).
+fn ring_B64UrlDecode(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const sl: usize = @intCast(gss(p, 1));
+    var buf: [8192]u8 = undefined;
+    const n = crypto.crypto_b64url_decode(s, sl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -97,6 +134,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptopbkdf2", .func = &ring_Pbkdf2 },
     .{ .name = "stzenginecryptorandomhex", .func = &ring_RandomHex },
     .{ .name = "stzenginecryptototp", .func = &ring_Totp },
+    .{ .name = "stzenginecryptoverifyes256", .func = &ring_VerifyEs256 },
+    .{ .name = "stzenginecryptoverifyrs256", .func = &ring_VerifyRs256 },
+    .{ .name = "stzenginecryptob64urldecode", .func = &ring_B64UrlDecode },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

@@ -180,6 +180,108 @@ pub fn crypto_totp(
     return @intCast(digits);
 }
 
+// ── Public-key signature VERIFICATION (RS256 / ES256) ────────
+// The one primitive the whole external-identity story turns on: OAuth/OIDC
+// (JWT id-tokens signed by a provider's JWKS key), SSO, and passkeys/WebAuthn
+// all reduce to "verify this signature against a PUBLIC key we fetched".
+// Verification only -- Softanza never holds a private signing key here.
+//
+// EVERYTHING CROSSES AS BASE64URL (ASCII), never raw bytes: the Ring<->engine
+// boundary validates UTF-8, so a raw key or signature would be mangled. That is
+// also exactly the wire format -- a JWS signature and every JWKS field (n, e,
+// x, y) are base64url -- so no conversion is needed on either side.
+//
+// Returns 1 = signature valid, 0 = invalid, -1 = malformed input.
+
+const Ecdsa256 = std.crypto.sign.ecdsa.EcdsaP256Sha256;
+const rsa = std.crypto.Certificate.rsa;
+const Sha256 = std.crypto.hash.sha2.Sha256;
+
+/// base64url -> bytes, tolerating optional '=' padding. null on bad input.
+fn b64UrlDecode(src: []const u8, dest: []u8) ?[]u8 {
+    var end = src.len;
+    while (end > 0 and src[end - 1] == '=') end -= 1;
+    const s = src[0..end];
+    const dec = std.base64.url_safe_no_pad.Decoder;
+    const n = dec.calcSizeForSlice(s) catch return null;
+    if (n > dest.len) return null;
+    dec.decode(dest[0..n], s) catch return null;
+    return dest[0..n];
+}
+
+/// ES256 (ECDSA P-256 + SHA-256). Key is the JWK's x/y coordinates; signature
+/// is the JWS 64-byte r||s form. msg = the signing input ("header.payload").
+pub fn crypto_verify_es256(
+    msg_ptr: [*]const u8,
+    msg_len: usize,
+    sig_ptr: [*]const u8,
+    sig_len: usize,
+    x_ptr: [*]const u8,
+    x_len: usize,
+    y_ptr: [*]const u8,
+    y_len: usize,
+) callconv(.c) i32 {
+    var sig_buf: [128]u8 = undefined;
+    var x_buf: [64]u8 = undefined;
+    var y_buf: [64]u8 = undefined;
+    const sig = b64UrlDecode(sig_ptr[0..sig_len], &sig_buf) orelse return -1;
+    const x = b64UrlDecode(x_ptr[0..x_len], &x_buf) orelse return -1;
+    const y = b64UrlDecode(y_ptr[0..y_len], &y_buf) orelse return -1;
+    if (x.len != 32 or y.len != 32) return -1;
+    if (sig.len != 64) return 0;
+    var sec1: [65]u8 = undefined;
+    sec1[0] = 0x04; // uncompressed point
+    @memcpy(sec1[1..33], x);
+    @memcpy(sec1[33..65], y);
+    const pk = Ecdsa256.PublicKey.fromSec1(&sec1) catch return -1;
+    const s = Ecdsa256.Signature.fromBytes(sig[0..64].*);
+    s.verify(msg_ptr[0..msg_len], pk) catch return 0;
+    return 1;
+}
+
+/// RS256 (RSASSA-PKCS1-v1_5 + SHA-256). Key is the JWK's n (modulus) and e
+/// (exponent). Supports 1024/2048/3072/4096-bit moduli.
+pub fn crypto_verify_rs256(
+    msg_ptr: [*]const u8,
+    msg_len: usize,
+    sig_ptr: [*]const u8,
+    sig_len: usize,
+    n_ptr: [*]const u8,
+    n_len: usize,
+    e_ptr: [*]const u8,
+    e_len: usize,
+) callconv(.c) i32 {
+    var sig_buf: [512]u8 = undefined;
+    var n_buf: [512]u8 = undefined;
+    var e_buf: [64]u8 = undefined;
+    const sig = b64UrlDecode(sig_ptr[0..sig_len], &sig_buf) orelse return -1;
+    const n = b64UrlDecode(n_ptr[0..n_len], &n_buf) orelse return -1;
+    const e = b64UrlDecode(e_ptr[0..e_len], &e_buf) orelse return -1;
+    if (sig.len != n.len) return 0; // a signature is always modulus-sized
+    const pk = rsa.PublicKey.fromBytes(e, n) catch return -1;
+    const msg = msg_ptr[0..msg_len];
+    switch (n.len) {
+        inline 128, 256, 384, 512 => |mlen| {
+            rsa.PKCS1v1_5Signature.verify(mlen, sig[0..mlen].*, msg, pk, Sha256) catch return 0;
+            return 1;
+        },
+        else => return -1,
+    }
+}
+
+/// base64url -> the decoded bytes (for reading a JWT's header/payload JSON).
+/// Returns bytes written, or -1.
+pub fn crypto_b64url_decode(
+    src_ptr: [*]const u8,
+    src_len: usize,
+    out: [*]u8,
+    out_cap: usize,
+) callconv(.c) i32 {
+    if (src_len == 0) return 0;
+    const decoded = b64UrlDecode(src_ptr[0..src_len], out[0..out_cap]) orelse return -1;
+    return @intCast(decoded.len);
+}
+
 fn hexEncode(hash: [32]u8) [64]u8 {
     const hex = "0123456789abcdef";
     var out: [64]u8 = undefined;
@@ -212,6 +314,9 @@ pub export fn stz_crypto_equal(a: [*]const u8, b: [*]const u8, l: usize) callcon
 pub export fn stz_crypto_pbkdf2_sha256(pw: [*]const u8, pl: usize, s: [*]const u8, sl: usize, r: u32, dl: usize, o: [*]u8) callconv(.c) i32 { return crypto_pbkdf2_sha256(pw, pl, s, sl, r, dl, o); }
 pub export fn stz_crypto_random_hex(n: usize, o: [*]u8) callconv(.c) i32 { return crypto_random_hex(n, o); }
 pub export fn stz_crypto_totp(k: [*]const u8, kl: usize, c: u64, d: u32, a: u32, o: [*]u8) callconv(.c) i32 { return crypto_totp(k, kl, c, d, a, o); }
+pub export fn stz_crypto_verify_es256(m: [*]const u8, ml: usize, s: [*]const u8, sl: usize, x: [*]const u8, xl: usize, y: [*]const u8, yl: usize) callconv(.c) i32 { return crypto_verify_es256(m, ml, s, sl, x, xl, y, yl); }
+pub export fn stz_crypto_verify_rs256(m: [*]const u8, ml: usize, s: [*]const u8, sl: usize, n: [*]const u8, nl: usize, e: [*]const u8, el: usize) callconv(.c) i32 { return crypto_verify_rs256(m, ml, s, sl, n, nl, e, el); }
+pub export fn stz_crypto_b64url_decode(s: [*]const u8, sl: usize, o: [*]u8, oc: usize) callconv(.c) i32 { return crypto_b64url_decode(s, sl, o, oc); }
 
 // ── Tests ────────────────────────────────────────────────────
 
@@ -295,6 +400,70 @@ test "crypto: totp sha256 rfc6238 vector (8 digits, t=59)" {
     const n = crypto_totp(keyhex.ptr, keyhex.len, 1, 8, 2, &out);
     try std.testing.expectEqual(@as(i32, 8), n);
     try std.testing.expectEqualStrings("46119246", out[0..8]);
+}
+
+// Vectors below were produced with OpenSSL 3.5 (a real signer, not a self-made
+// fixture): sign the JWS signing input, then express key + signature the way a
+// JWKS/JWS does (base64url).
+
+test "crypto: verify ES256 against a real OpenSSL signature" {
+    const msg = "eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJkYW5hIiwiaXNzIjoic29mdGFuemEifQ";
+    const sig = "iPuEkgC3Fj-U6UnrG_Iaapk203dCa6xr0L0e5CfkacUVBrN6lSHSZBO70qI-VmAIJkbEi4guG40bOm3_-sOOsg";
+    const x = "Fuy532v_Q2jW82IZFXUZByCKHCHqExgJcRC75ZX7zus";
+    const y = "inrBEmyylWkf8GUu-RV0OBAyEKQIuz8QkqKhoSdTluI";
+    try std.testing.expectEqual(@as(i32, 1), crypto_verify_es256(msg.ptr, msg.len, sig.ptr, sig.len, x.ptr, x.len, y.ptr, y.len));
+
+    // a tampered payload must NOT verify
+    const bad = "eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJldmlsIiwiaXNzIjoic29mdGFuemEifQ";
+    try std.testing.expectEqual(@as(i32, 0), crypto_verify_es256(bad.ptr, bad.len, sig.ptr, sig.len, x.ptr, x.len, y.ptr, y.len));
+
+    // a signature that is the right shape but wrong must NOT verify
+    const wrong = "AAuEkgC3Fj-U6UnrG_Iaapk203dCa6xr0L0e5CfkacUVBrN6lSHSZBO70qI-VmAIJkbEi4guG40bOm3_-sOOsg";
+    try std.testing.expectEqual(@as(i32, 0), crypto_verify_es256(msg.ptr, msg.len, wrong.ptr, wrong.len, x.ptr, x.len, y.ptr, y.len));
+}
+
+test "crypto: verify RS256 against a real OpenSSL signature (2048-bit)" {
+    const msg = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJkYW5hIiwiaXNzIjoic29mdGFuemEifQ";
+    const n = "8s7R1YHtcMoRL3r6kV7gRHluosq_Z6I5Pf-zbBODgkCkSKDcML4JPGgimkEmI_rVc2S03KMD57X6Iicj09rDZzSxSRv1Mowuwh0z_m2Hr8VIUuERHyLYl8CNjuu02GNpfKURC0iGWj50iYVT9WU0LOG8CVuZJlxZMZ-VHE2BDKH1Oua6QbnMxe2eDSn-3G0ozXwdbK9xZ4EoNGpJ7x3_izBwevCjuwQ6o2j7Rrffwyw8jX-0UW17OodV91nL8gDopBGexwdrgdFveHJqkm58PG9C54PzlO3HZxjRvM3q9vXR52Q7Pmy4zNP7E-eLkkoxAhpZsY44fnGCaTLBNH-ONQ";
+    const e = "AQAB";
+    const sig = "Yx4wqGMqTP2Oi2ahEdw-avE2vcdPUMo53fhwG7BmJxQQTQ6-FUAmUFzXfD_h9k2_2StN2ARDdkJE3QoBZBxQO-f4AJVJ4GDpbfin1ASRize2GIHD7ml6szq71y8lcm5vSZuBlt46qkzsVfgIE7iO8wkMiswcFOZFSYIQfHmJhEpnK_zPGpp95zCKFJayHAMu6bM1UuUntcYoIqsSr4YpwBR0nno6gvyGU7DzKVqZvq37miZZHLtIRolW7rNj7jVcKt_MLgEDasmrNjgGW39XmPsmeqUO8M1MVUYTgsWW_-wHXaCgxztFhqxyonEuRUII6-laG3X3nde-u382w0jFww";
+    try std.testing.expectEqual(@as(i32, 1), crypto_verify_rs256(msg.ptr, msg.len, sig.ptr, sig.len, n.ptr, n.len, e.ptr, e.len));
+
+    const bad = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJldmlsIiwiaXNzIjoic29mdGFuemEifQ";
+    try std.testing.expectEqual(@as(i32, 0), crypto_verify_rs256(bad.ptr, bad.len, sig.ptr, sig.len, n.ptr, n.len, e.ptr, e.len));
+}
+
+test "crypto: ES256 round-trip (engine-generated key, engine verify)" {
+    const kp = Ecdsa256.KeyPair.generate();
+    const msg = "header.payload";
+    const sig = try kp.sign(msg, null);
+    const sig_bytes = sig.toBytes();
+    const sec1 = kp.public_key.toUncompressedSec1();
+    const enc = std.base64.url_safe_no_pad.Encoder;
+    var sb: [128]u8 = undefined;
+    var xb: [64]u8 = undefined;
+    var yb: [64]u8 = undefined;
+    const s64 = enc.encode(&sb, &sig_bytes);
+    const x64 = enc.encode(&xb, sec1[1..33]);
+    const y64 = enc.encode(&yb, sec1[33..65]);
+    try std.testing.expectEqual(@as(i32, 1), crypto_verify_es256(msg.ptr, msg.len, s64.ptr, s64.len, x64.ptr, x64.len, y64.ptr, y64.len));
+}
+
+test "crypto: verification rejects malformed input" {
+    const msg = "a.b";
+    const good_x = "Fuy532v_Q2jW82IZFXUZByCKHCHqExgJcRC75ZX7zus";
+    // not base64url at all
+    try std.testing.expectEqual(@as(i32, -1), crypto_verify_es256(msg.ptr, msg.len, "!!!".ptr, 3, good_x.ptr, good_x.len, good_x.ptr, good_x.len));
+    // right encoding, wrong coordinate size
+    try std.testing.expectEqual(@as(i32, -1), crypto_verify_es256(msg.ptr, msg.len, "AAAA".ptr, 4, "AAAA".ptr, 4, "AAAA".ptr, 4));
+}
+
+test "crypto: base64url decode reads a JWT payload" {
+    const src = "eyJzdWIiOiJkYW5hIn0";
+    var out: [64]u8 = undefined;
+    const n = crypto_b64url_decode(src.ptr, src.len, &out, out.len);
+    try std.testing.expectEqual(@as(i32, 14), n);
+    try std.testing.expectEqualStrings("{\"sub\":\"dana\"}", out[0..14]);
 }
 
 test "crypto: totp rejects bad input" {

@@ -257,6 +257,21 @@ Ordered so each phase ships value and the early ones unblock the later.
    / totp 40 / passwordless 23 / authz 31, and appserver 16 / 26 / 6 / 28 / 35 —
    all green.
 
+**UNBLOCKED since:** the one missing primitive below — **engine public-key
+signature verification** — now exists. `crypto.zig` gained
+`StzEngineCryptoVerifyEs256` (ECDSA P-256 + SHA-256) and
+`StzEngineCryptoVerifyRs256` (RSASSA-PKCS1-v1_5 + SHA-256, 1024–4096-bit), plus
+`StzEngineCryptoB64UrlDecode`. Verification only — no private key is ever held.
+Everything crosses as **base64url** (ASCII), which is both the safe form for the
+UTF-8-validating Ring↔engine boundary *and* exactly the JWS/JWKS wire format, so
+a provider's `n`/`e`/`x`/`y` and signature need no conversion. Returns
+1 / 0 / **-1** — malformed input is *reported*, never mistaken for valid.
+Verified against real OpenSSL 3.5 signatures (guard `crypto_publickey_narrated`,
+16, including the full JWT shape: verify `header.payload`, *then* read claims).
+So OAuth/OIDC/SSO and passkeys are now gated only on their own protocol work
+(JWKS fetch + caching, the token exchange, COSE parsing for WebAuthn), not on
+missing cryptography.
+
 **Deliberately deferred (bigger, external-facing, or lower leverage):**
 
 - **OAuth / social / OIDC / SSO / SAML.** Real work: the OAuth token exchange
