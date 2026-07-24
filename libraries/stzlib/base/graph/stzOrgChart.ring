@@ -212,6 +212,56 @@ class stzOrgChart from stzDiagram
 	def Positions()
 		return @aPositions
 
+	  #-- the RULE-GRAPH projection (graph-rules plan, phase 2b) ------------
+	#
+	# An stzOrgChart is a POSITIONS model. AsRuleGraph projects it into a clean
+	# colored stzGraph -- one node per position (kind=position, carrying level /
+	# department / title / roles), one "supervises" edge supervisor->subordinate
+	# -- so the compliance rule bases (stzSOXRuleBase, ...) can run graph rules
+	# over it (separation-of-duties, no-orphan-position, no-cyclic-reporting). A
+	# FRESH graph, built from @aPositions, not the diagram's layout graph.
+
+	def AsRuleGraph()
+		_oG_ = new stzGraph("orgchart-rules")
+		_nP_ = len(@aPositions)
+		for _i_ = 1 to _nP_
+			_p_ = @aPositions[_i_]
+			_id_ = "" + _p_[:id]
+			if NOT _oG_.NodeExists(_id_)
+				_oG_.AddNode(_id_)
+			ok
+			_oG_.SetNodeProperty(_id_, "kind", "position")
+			_oG_.SetNodeProperty(_id_, "title", "" + _p_[:title])
+			if HasKey(_p_, :level)       _oG_.SetNodeProperty(_id_, "level", _p_[:level])            ok
+			if HasKey(_p_, :department)  _oG_.SetNodeProperty(_id_, "department", _p_[:department])   ok
+			if HasKey(_p_, :roles)       _oG_.SetNodeProperty(_id_, "roles", _p_[:roles])            ok
+			if HasKey(_p_, :reportsTo)   _oG_.SetNodeProperty(_id_, "reportsTo", "" + _p_[:reportsTo]) ok
+		next
+		# edges: supervisor -> subordinate (outgoing = direct reports)
+		for _i_ = 1 to _nP_
+			_p_ = @aPositions[_i_]
+			if HasKey(_p_, :reportsTo) and ("" + _p_[:reportsTo]) != ""
+				_sup_ = "" + _p_[:reportsTo]
+				if _oG_.NodeExists(_sup_) and NOT _oG_.EdgeExists(_sup_, "" + _p_[:id])
+					_oG_.AddEdgeXTT(_sup_, "" + _p_[:id], "supervises", [ :type = "org" ])
+				ok
+			ok
+		next
+		return _oG_
+
+	# Run a compliance rule base over this org chart's projection. Returns unified
+	# findings [ :rule, :subject, :where, :severity, :message ].
+	def CheckCompliance(poRuleBase)
+		return poRuleBase.Check(This.AsRuleGraph())
+
+	# The universal org-integrity rules (no-self-report / no-cyclic-reporting /
+	# no-orphan-position / span-of-control), regime-agnostic.
+	def GovernanceFindings()
+		return StzOrgRuleSetQ().Check(This.AsRuleGraph())
+
+	def GovernanceIsSound()
+		return StzOrgRuleSetQ().IsSound(This.AsRuleGraph())
+
 	def VacantPositions()
 		_acVacant_ = []
 		_nPosCount_ = len(@aPositions)
@@ -1757,10 +1807,17 @@ class stzRuleBase from stzGraphRuleSet
 		else
 			super.init("")
 		ok
+		This.SetDomainQ("orgchart")
+		# every compliance base carries the universal org-integrity tier (phase
+		# 2b) -- broken reporting is a problem under any regime. Regime-specific
+		# rules are added by the subclasses (see stzSOXRuleBase).
+		_StzAddUniversalOrgRules(This)
 
 class stzSOXRuleBase from stzRuleBase
 	def init()
 		super.init("SOX")
+		# SOX exemplar: separation-of-duties (illustrative -- see stzOrgRule.ring)
+		StzAddSODRule(This)
 
 class stzGDPRRuleBase from stzRuleBase
 	def init()
