@@ -1,6 +1,8 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
+> Tutorial: [rules that see the whole picture](../narrations/stz-rules-as-graph-rules-narration.md) — a runnable walkthrough (real code, real output).
+
 > Status: **PLAN COMPLETE — phases 1–7 + 2b all BUILT** (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e, 05f6c5a59, 621ee8736). Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
