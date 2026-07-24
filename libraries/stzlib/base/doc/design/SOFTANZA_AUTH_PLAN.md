@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification (086b0921d) and OIDC LOGIN (+ this commit).** Remaining external identity: passkeys/WebAuthn, being an OIDC provider, SAML. Written 2026-07-24 in answer to
+> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification + ES256 signing (086b0921d), OIDC LOGIN (5205ed234), PASSKEYS/WebAuthn (4f7b1fe37), and the OIDC PROVIDER (ab16bc174).** Remaining external identity: SAML, and the infra-gated live token exchange / JWKS fetch against a third-party provider. Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -324,8 +324,28 @@ missing cryptography.
   which also does what an attacker's device would (phishing origin, stale
   challenge, replayed counter), the only way the negative contract gets tested.
   Guard `auth_passkey_narrated` (29).
-- **Being an OIDC *provider* / JWT issuer.** Powerful (Better Auth added it) but
-  it is a product surface, not a hardening — only after 1–5 land.
+- **Being an OIDC *provider* / JWT issuer.** ~~Powerful but a product surface,
+  not a hardening — only after 1–5 land.~~ **BUILT.**
+  `base/security/stzOidcProvider.ring` runs the authorization-code flow: a
+  **client registry** (secrets stored *hashed*) with an explicit redirect-URI
+  allow-list, `Authorize()` → a short-lived code, `ExchangeCode()` → a signed
+  id-token plus a JWT access token (validatable from the same JWKS, no
+  introspection round-trip), `DiscoveryJson`/`JwksJson`, and **key rotation**
+  that keeps the previous public key published so tokens in flight keep
+  verifying. Each rule answers a real attack, and each refusal carries an OAuth
+  error code: **exact** redirect-URI matching (a loose match delivers the code to
+  the attacker's site — the most abused hole in OAuth), a **single-use** code
+  consumed before any other check and bound to its client/redirect/nonce/PKCE
+  challenge, **client authentication** on the back channel, and **PKCE S256**
+  enforcement. `stzAppServer.MountOidcProvider(op)` publishes it — discovery at
+  the standard `/.well-known/openid-configuration`, `<prefix>/jwks`,
+  `<prefix>/authorize` (302 with the code) and `POST <prefix>/token`
+  (`Cache-Control: no-store`). `/authorize` takes the user from the **session
+  cookie the mounted auth router issues**, so this server's own login becomes the
+  login for every app that trusts it; a bad client or unregistered redirect
+  answers 400 and **never redirects**. Guard `auth_oidc_provider_narrated` (54),
+  which closes the loop: our own `stzOidcClient` verifies our own provider's
+  tokens — RP and OP were each written against the spec, not against each other.
 
 Honest caveat: items 1–4 are tractable and mostly reuse existing Softanza
 patterns (adapter seam, engine HMAC, the mail port). Item 5 is where the real
