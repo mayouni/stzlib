@@ -21,11 +21,41 @@
 #                    is deliberate, see the engine-first scope ruling)
 
 func StzCodeRuleNames()
-	return [ "no-len-method", "q-returns-object",
-	         "no-aggressive-verbs", "engine-first" ]
+	return [ "no-len-method", "q-returns-object", "no-aggressive-verbs",
+	         "engine-first", "q-has-plain-twin", "no-case-collision" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
+
+# StzCheckProject(dir): the whole-library check. Builds ONE code graph across
+# every .ring file under pcDir (call edges and all), then runs the project rule
+# set -- the snippet rules PLUS no-dead-code / no-cyclic-calls, which only mean
+# something over a complete call graph. Returns findings in the UNIFIED shape
+# [ :rule, :subject, :where, :severity, :message ] (a whole-graph check, not the
+# per-line StzCheckCode adapter). This is what a rule can do that a text scan
+# never could: see the library as a model. Cost is real -- see the guard, which
+# measures it.
+func StzCheckProject(pcDir)
+	_oCG_ = new stzRingCodeGraph("" + pcDir)   # scans dir + resolves calls in init
+	return StzCodeProjectRuleSetQ().Check(_oCG_)
+
+# The DEEP audit: everything StzCheckProject runs PLUS no-cyclic-calls, which is
+# expensive (the code graph's CyclicCalls is O(calls^2 . methods) -- measured
+# ~36s over base/graph). For a periodic audit, not a per-commit gate.
+func StzCheckProjectDeep(pcDir)
+	_oCG_ = new stzRingCodeGraph("" + pcDir)
+	return StzCodeDeepRuleSetQ().Check(_oCG_)
+
+# TRUE when a whole project has no ERROR-severity finding (warnings advise).
+func StzProjectIsClean(pcDir)
+	_aF_ = StzCheckProject(pcDir)
+	_n_ = len(_aF_)
+	for _i_ = 1 to _n_
+		if "" + _aF_[_i_][:severity] = "error"
+			return FALSE
+		ok
+	next
+	return TRUE
 
 # StzCheckCode is now a THIN WRAPPER over the graph-rule engine (graph-rules
 # plan, phase 3): it builds a Ring CODE GRAPH from the source, runs the
