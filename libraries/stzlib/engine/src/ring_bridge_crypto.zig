@@ -1,4 +1,5 @@
 const crypto = @import("crypto.zig");
+const webauthn = @import("webauthn.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -144,6 +145,68 @@ fn ring_SignEs256(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// ── WebAuthn / passkeys ──────────────────────────────────────
+
+// StzEngineWebAuthnParseAttestation(cAttObjB64) -> "credId|kty|k1|k2|count|flags"
+fn ring_WaParseAtt(p: *anyopaque) callconv(.c) void {
+    const a: [*]const u8 = @ptrCast(gs(p, 1));
+    const al: usize = @intCast(gss(p, 1));
+    var buf: [4096]u8 = undefined;
+    const n = webauthn.webauthn_parse_attestation(a, al, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineWebAuthnVerify(cAuthDataB64, cClientDataB64, cSigB64, cKty, cK1, cK2) -> 1/0/-1
+fn ring_WaVerify(p: *anyopaque) callconv(.c) void {
+    const a: [*]const u8 = @ptrCast(gs(p, 1));
+    const al: usize = @intCast(gss(p, 1));
+    const c: [*]const u8 = @ptrCast(gs(p, 2));
+    const cl: usize = @intCast(gss(p, 2));
+    const s: [*]const u8 = @ptrCast(gs(p, 3));
+    const sl: usize = @intCast(gss(p, 3));
+    const kt: [*]const u8 = @ptrCast(gs(p, 4));
+    const ktl: usize = @intCast(gss(p, 4));
+    const k1: [*]const u8 = @ptrCast(gs(p, 5));
+    const k1l: usize = @intCast(gss(p, 5));
+    const k2: [*]const u8 = @ptrCast(gs(p, 6));
+    const k2l: usize = @intCast(gss(p, 6));
+    rn(p, @floatFromInt(webauthn.webauthn_verify(a, al, c, cl, s, sl, kt, ktl, k1, k1l, k2, k2l)));
+}
+
+// StzEngineWebAuthnParseAuthData(cAuthDataB64) -> "flags|signCount"
+fn ring_WaParseAuthData(p: *anyopaque) callconv(.c) void {
+    const a: [*]const u8 = @ptrCast(gs(p, 1));
+    const al: usize = @intCast(gss(p, 1));
+    var buf: [64]u8 = undefined;
+    const n = webauthn.webauthn_parse_authdata(a, al, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineWebAuthnMakeCredential(cRpId, cSeedHexOrEmpty) -> "attObj|priv|credId"
+fn ring_WaMakeCred(p: *anyopaque) callconv(.c) void {
+    const r: [*]const u8 = @ptrCast(gs(p, 1));
+    const rl: usize = @intCast(gss(p, 1));
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const sl: usize = @intCast(gss(p, 2));
+    var buf: [4096]u8 = undefined;
+    const n = webauthn.webauthn_make_credential(r, rl, s, sl, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineWebAuthnMakeAssertion(cRpId, cClientDataB64, cPrivB64, nCount) -> "authData|sig"
+fn ring_WaMakeAssertion(p: *anyopaque) callconv(.c) void {
+    const r: [*]const u8 = @ptrCast(gs(p, 1));
+    const rl: usize = @intCast(gss(p, 1));
+    const c: [*]const u8 = @ptrCast(gs(p, 2));
+    const cl: usize = @intCast(gss(p, 2));
+    const d: [*]const u8 = @ptrCast(gs(p, 3));
+    const dl: usize = @intCast(gss(p, 3));
+    const cnt: u32 = @intFromFloat(gn(p, 4));
+    var buf: [1024]u8 = undefined;
+    const n = webauthn.webauthn_make_assertion(r, rl, c, cl, d, dl, cnt, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -159,6 +222,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptob64urldecode", .func = &ring_B64UrlDecode },
     .{ .name = "stzenginecryptoes256keypair", .func = &ring_Es256KeyPair },
     .{ .name = "stzenginecryptosignes256", .func = &ring_SignEs256 },
+    .{ .name = "stzenginewebauthnparseattestation", .func = &ring_WaParseAtt },
+    .{ .name = "stzenginewebauthnverify", .func = &ring_WaVerify },
+    .{ .name = "stzenginewebauthnparseauthdata", .func = &ring_WaParseAuthData },
+    .{ .name = "stzenginewebauthnmakecredential", .func = &ring_WaMakeCred },
+    .{ .name = "stzenginewebauthnmakeassertion", .func = &ring_WaMakeAssertion },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

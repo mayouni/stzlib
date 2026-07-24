@@ -45,6 +45,7 @@ class stzAuthMemoryStore from stzObject
 	@aSessions   = []  # [ [ token, user, expiresAt ], ... ]
 	@a2fa        = []  # [ [ user, secretB32, confirmed(0/1), [ recoveryHash, ... ] ], ... ]
 	@aChallenges = []  # [ [ handle, kind, email, codehash, expiresAt ], ... ]
+	@aPasskeys   = []  # [ [ credId, user, kty, k1, k2, signCount ], ... ]
 	@aRoles      = []  # [ [ user, role ], ... ] -- the authz grants
 
 	def init()
@@ -52,6 +53,7 @@ class stzAuthMemoryStore from stzObject
 		@aSessions   = []
 		@a2fa        = []
 		@aChallenges = []
+		@aPasskeys   = []
 		@aRoles      = []
 
 	  #-- users -----------------------------------------------------------
@@ -307,7 +309,79 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aRoles = _aNew_
 
+	  #-- passkeys (WebAuthn credentials) ---------------------------------
+	#
+	# One row per CREDENTIAL, keyed by its id: a user may enroll several devices,
+	# and each carries its own public key and signature counter.
+
+	def PutPasskey(pcCredId, pcUser, pcKty, pcK1, pcK2, pnCount)
+		_c_ = "" + pcCredId
+		_i_ = This._PasskeyIndex(_c_)
+		_rec_ = [ _c_, "" + pcUser, "" + pcKty, "" + pcK1, "" + pcK2, pnCount ]
+		if _i_ > 0
+			@aPasskeys[_i_] = _rec_
+		else
+			@aPasskeys + _rec_
+		ok
+
+	def Passkey(pcCredId)
+		_i_ = This._PasskeyIndex("" + pcCredId)
+		if _i_ = 0
+			return []
+		ok
+		_r_ = @aPasskeys[_i_]
+		return [ :credentialId = _r_[1], :user = _r_[2], :keyType = _r_[3],
+		         :key1 = _r_[4], :key2 = _r_[5], :signCount = _r_[6] ]
+
+	def PasskeysOf(pcUser)
+		_u_ = "" + pcUser
+		_out_ = []
+		_n_ = len(@aPasskeys)
+		for _i_ = 1 to _n_
+			if @aPasskeys[_i_][2] = _u_
+				_out_ + This.Passkey(@aPasskeys[_i_][1])
+			ok
+		next
+		return _out_
+
+	def SetPasskeyCounter(pcCredId, pnCount)
+		_i_ = This._PasskeyIndex("" + pcCredId)
+		if _i_ > 0
+			@aPasskeys[_i_][6] = pnCount
+		ok
+
+	def DeletePasskey(pcCredId)
+		_c_ = "" + pcCredId
+		_aNew_ = []
+		_n_ = len(@aPasskeys)
+		for _i_ = 1 to _n_
+			if @aPasskeys[_i_][1] != _c_
+				_aNew_ + @aPasskeys[_i_]
+			ok
+		next
+		@aPasskeys = _aNew_
+
+	def DeleteUserPasskeys(pcUser)
+		_u_ = "" + pcUser
+		_aNew_ = []
+		_n_ = len(@aPasskeys)
+		for _i_ = 1 to _n_
+			if @aPasskeys[_i_][2] != _u_
+				_aNew_ + @aPasskeys[_i_]
+			ok
+		next
+		@aPasskeys = _aNew_
+
 	  #-- internals -------------------------------------------------------
+
+	def _PasskeyIndex(pcCredId)
+		_n_ = len(@aPasskeys)
+		for _i_ = 1 to _n_
+			if @aPasskeys[_i_][1] = pcCredId
+				return _i_
+			ok
+		next
+		return 0
 
 	def _UserIndex(pcUser)
 		_n_ = len(@aUsers)
@@ -356,6 +430,8 @@ class stzAuthDbStore from stzObject
 		          "secret TEXT, confirmed INTEGER, recovery TEXT)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authchallenges (handle TEXT PRIMARY KEY, " +
 		          "kind TEXT, email TEXT, codehash TEXT, expires INTEGER)")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authpasskeys (credid TEXT PRIMARY KEY, " +
+		          "usr TEXT, kty TEXT, k1 TEXT, k2 TEXT, signcount INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authroles (usr TEXT, role TEXT, " +
 		          "PRIMARY KEY (usr, role))")
 
@@ -470,6 +546,44 @@ class stzAuthDbStore from stzObject
 
 	def DeleteChallenge(pcHandle)
 		@oDb.Exec("DELETE FROM authchallenges WHERE handle = '" + This._Esc(pcHandle) + "'")
+
+	  #-- passkeys (WebAuthn credentials) ---------------------------------
+
+	def PutPasskey(pcCredId, pcUser, pcKty, pcK1, pcK2, pnCount)
+		@oDb.Exec("INSERT OR REPLACE INTO authpasskeys (credid, usr, kty, k1, k2, signcount) VALUES ('" +
+		          This._Esc(pcCredId) + "', '" + This._Esc(pcUser) + "', '" + This._Esc(pcKty) +
+		          "', '" + This._Esc(pcK1) + "', '" + This._Esc(pcK2) + "', " + ring_number(pnCount) + ")")
+
+	def Passkey(pcCredId)
+		_r_ = @oDb.Rows("SELECT usr, kty, k1, k2, signcount FROM authpasskeys WHERE credid = '" +
+		                This._Esc(pcCredId) + "'")
+		if len(_r_) = 0
+			return []
+		ok
+		return [ :credentialId = "" + pcCredId, :user = "" + _r_[1][1], :keyType = "" + _r_[1][2],
+		         :key1 = "" + _r_[1][3], :key2 = "" + _r_[1][4], :signCount = ring_number(_r_[1][5]) ]
+
+	def PasskeysOf(pcUser)
+		_rows_ = @oDb.Rows("SELECT credid, usr, kty, k1, k2, signcount FROM authpasskeys WHERE usr = '" +
+		         This._Esc(pcUser) + "'")
+		_out_ = []
+		_n_ = len(_rows_)
+		for _i_ = 1 to _n_
+			_out_ + [ :credentialId = "" + _rows_[_i_][1], :user = "" + _rows_[_i_][2],
+			          :keyType = "" + _rows_[_i_][3], :key1 = "" + _rows_[_i_][4],
+			          :key2 = "" + _rows_[_i_][5], :signCount = ring_number(_rows_[_i_][6]) ]
+		next
+		return _out_
+
+	def SetPasskeyCounter(pcCredId, pnCount)
+		@oDb.Exec("UPDATE authpasskeys SET signcount = " + ring_number(pnCount) +
+		          " WHERE credid = '" + This._Esc(pcCredId) + "'")
+
+	def DeletePasskey(pcCredId)
+		@oDb.Exec("DELETE FROM authpasskeys WHERE credid = '" + This._Esc(pcCredId) + "'")
+
+	def DeleteUserPasskeys(pcUser)
+		@oDb.Exec("DELETE FROM authpasskeys WHERE usr = '" + This._Esc(pcUser) + "'")
 
 	  #-- authz roles (the authn->authz bridge) ---------------------------
 
