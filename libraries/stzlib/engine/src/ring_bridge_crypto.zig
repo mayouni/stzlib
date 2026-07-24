@@ -124,6 +124,26 @@ fn ring_B64UrlDecode(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineCryptoEs256KeyPair(cSeedHexOrEmpty) -> "d|x|y" (base64url).
+fn ring_Es256KeyPair(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const sl: usize = @intCast(gss(p, 1));
+    var buf: [256]u8 = undefined;
+    const n = crypto.crypto_es256_keypair(s, sl, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineCryptoSignEs256(cSigningInput, cPrivDB64) -> the base64url signature.
+fn ring_SignEs256(p: *anyopaque) callconv(.c) void {
+    const m: [*]const u8 = @ptrCast(gs(p, 1));
+    const ml: usize = @intCast(gss(p, 1));
+    const d: [*]const u8 = @ptrCast(gs(p, 2));
+    const dl: usize = @intCast(gss(p, 2));
+    var buf: [128]u8 = undefined;
+    const n = crypto.crypto_sign_es256(m, ml, d, dl, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -137,6 +157,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptoverifyes256", .func = &ring_VerifyEs256 },
     .{ .name = "stzenginecryptoverifyrs256", .func = &ring_VerifyRs256 },
     .{ .name = "stzenginecryptob64urldecode", .func = &ring_B64UrlDecode },
+    .{ .name = "stzenginecryptoes256keypair", .func = &ring_Es256KeyPair },
+    .{ .name = "stzenginecryptosignes256", .func = &ring_SignEs256 },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

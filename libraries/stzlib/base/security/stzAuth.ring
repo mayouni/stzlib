@@ -39,6 +39,11 @@ class stzAuth from stzObject
 	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
+	# EXTERNAL identity (OIDC): sign in with a provider, verified locally
+	@oOidc = NULL              # an stzOidcClient (config only -- a copy is fine)
+	@bOidcAutoProvision = TRUE # create the account on a first external login
+	@cOidcWhy = ""             # why the last external login was refused
+
 	# passwordless (magic-link / email-OTP) over a mail PORT (service-virtualization)
 	@oMailPort = NULL          # any object with Send(to, subject, body); NULL = unbound
 	@cMagicLinkBaseUrl = ""    # the app URL a magic link points at ("" = a softanza:// uri)
@@ -835,6 +840,103 @@ class stzAuth from stzObject
 			return FALSE
 		ok
 		return poGovernance.MayProceed(_u_, pcAction) = 1
+
+	  #-- EXTERNAL identity: sign in with an OIDC provider ----------------
+	#
+	# "Sign in with Google / Okta / Entra". The provider proves who the user is
+	# and hands back an id-token; stzAuth VERIFIES it locally (signature against
+	# the provider's published key, then issuer / audience / expiry / nonce -- see
+	# stzOidcClient) and, only then, opens a normal Softanza session. From that
+	# point the user is indistinguishable from any other: the same session, the
+	# same roles, the same governance ACTOR (phase 5). An external identity is a
+	# way IN, not a separate kind of citizen.
+
+	def SetOidcClient(poClient)
+		This.SetOidcClientQ(poClient)
+
+	def SetOidcClientQ(poClient)
+		@oOidc = poClient
+		return This
+
+	def OidcClientQ()
+		return @oOidc
+
+	def HasOidcClient()
+		return isObject(@oOidc)
+
+	# create a local account the first time an external identity signs in (the
+	# usual want). Turn it off to admit only pre-provisioned users.
+	def SetOidcAutoProvision(pbOn)
+		This.SetOidcAutoProvisionQ(pbOn)
+
+	def SetOidcAutoProvisionQ(pbOn)
+		@bOidcAutoProvision = pbOn
+		return This
+
+	def OidcAutoProvision()
+		return @bOidcAutoProvision
+
+	# why the last external login was refused ("" when it succeeded).
+	def OidcWhy()
+		return @cOidcWhy
+
+	# the local user name an external identity maps to: its verified email when
+	# the provider asserts one, else "issuer|subject" (always unique, never
+	# collides with a local account name).
+	def OidcUserNameFor(paIdentity)
+		if isList(paIdentity) and ("" + paIdentity[:email]) != ""
+			return "" + paIdentity[:email]
+		ok
+		if NOT This.HasOidcClient()
+			return ""
+		ok
+		return @oOidc.Issuer() + "|" + paIdentity[:subject]
+
+	def LoginWithOidc(pcIdToken, pcNonce)
+		return This.LoginWithOidcWithAt(pcIdToken, pcNonce, "", "", This._NowSecs())
+
+	def LoginWithOidcAt(pcIdToken, pcNonce, pnNow)
+		return This.LoginWithOidcWithAt(pcIdToken, pcNonce, "", "", pnNow)
+
+	def LoginWithOidcWith(pcIdToken, pcNonce, pcIp, pcUserAgent)
+		return This.LoginWithOidcWithAt(pcIdToken, pcNonce, pcIp, pcUserAgent, This._NowSecs())
+
+	# -> a session token, or "" (with OidcWhy() explaining).
+	def LoginWithOidcWithAt(pcIdToken, pcNonce, pcIp, pcUserAgent, pnNow)
+		if NOT This.HasOidcClient()
+			StzRaise("stzAuth.LoginWithOidc: no OIDC client bound -- call SetOidcClient.")
+		ok
+		_id_ = @oOidc.VerifyIdTokenAt("" + pcIdToken, "" + pcNonce, pnNow)
+		if NOT _id_[:ok]
+			@cOidcWhy = _id_[:why]
+			return ""
+		ok
+		_u_ = This.OidcUserNameFor(_id_)
+		if _u_ = ""
+			@cOidcWhy = "the token carries no usable identity"
+			return ""
+		ok
+		if NOT @oStore.HasUser(_u_)
+			if NOT @bOidcAutoProvision
+				@cOidcWhy = "no local account for '" + _u_ + "' (auto-provisioning is off)"
+				return ""
+			ok
+			# an externally-authenticated account holds no usable password: the
+			# provider is the only way in.
+			This.RegisterPasswordless(_u_)
+		ok
+		if This.IsLockedOutAt(_u_, pnNow)
+			@cOidcWhy = "the account is locked out"
+			return ""
+		ok
+		# a local second factor still stands: the provider proved the identity,
+		# not possession of OUR factor (same rule as the passwordless flows).
+		if This.HasTotp(_u_)
+			@cOidcWhy = "this account requires its local second factor"
+			return ""
+		ok
+		@cOidcWhy = ""
+		return This._OpenSession(_u_, pnNow, "" + pcIp, "" + pcUserAgent)
 
 	  #-- lockout queries -------------------------------------------------
 
