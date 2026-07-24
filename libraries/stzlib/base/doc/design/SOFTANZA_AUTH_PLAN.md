@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **plan only — nothing here is built.** Written 2026-07-24 in answer to
+> Status: **phase 1 BUILT (f91c12b0c); phases 2–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -150,7 +150,13 @@ Ordered so each phase ships value and the early ones unblock the later.
 
 1. **Adapter-persist the store (L1)** + the timing-safe fix and lockout (L3, the
    cheap hardening). The spine — turns `stzAuth` from in-memory to durable and
-   closes the two worst holes.
+   closes the two worst holes. **DONE (f91c12b0c).** `stzAuthStore` seam +
+   `stzAuthMemoryStore` (default) / `stzAuthDbStore` (sqlite, durable — a second
+   `stzAuth` on the same file sees the users and sessions); `Authenticate` now
+   verifies unknown users against a dummy hash (measured 0.97× — no enumeration
+   oracle); per-username lockout (`SetMaxAttempts`/`SetLockoutSeconds`,
+   `IsLockedOut`); `RevokeAllSessions`. Guard `auth_store_narrated` (31);
+   `secret_narrated` still 53.
 2. **Session hardening (L3)** — metadata, per-device list/revoke, revoke-all,
    rotation on privilege change.
 3. **TOTP 2FA (L4)** — engine HMAC; enroll + verify + recovery codes. The first
