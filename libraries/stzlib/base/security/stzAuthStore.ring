@@ -84,27 +84,48 @@ class stzAuthMemoryStore from stzObject
 		return len(@aUsers)
 
 	  #-- sessions --------------------------------------------------------
+	#
+	# A session is a RECORD: [ :token, :user, :expires, :created, :ip, :ua,
+	# :lastseen ] -- so a "your devices" view can list them, and idle timeout has
+	# a lastseen to compare. paRec (to PutSession) carries everything but :token.
 
-	def PutSession(pcToken, pcUser, pnExpiresAt)
-		@aSessions + [ "" + pcToken, "" + pcUser, pnExpiresAt ]
+	def PutSession(pcToken, paRec)
+		@aSessions + [ :token = "" + pcToken, :user = paRec[:user],
+		               :expires = paRec[:expires], :created = paRec[:created],
+		               :ip = paRec[:ip], :ua = paRec[:ua], :lastseen = paRec[:lastseen] ]
 
-	# [ user, expiresAt ] or [] when the token is unknown.
+	# the full record (with :token) or [] when the token is unknown.
 	def Session(pcToken)
 		_t_ = "" + pcToken
 		_n_ = len(@aSessions)
 		for _i_ = 1 to _n_
-			if @aSessions[_i_][1] = _t_
-				return [ @aSessions[_i_][2], @aSessions[_i_][3] ]
+			if @aSessions[_i_][:token] = _t_
+				return @aSessions[_i_]
 			ok
 		next
 		return []
+
+	# update a session's last-seen stamp (idle-timeout sliding window). Rebuilds
+	# the row rather than mutating a hashlist field in place (that INSERTS a key).
+	def TouchSession(pcToken, pnLastSeen)
+		_t_ = "" + pcToken
+		_n_ = len(@aSessions)
+		for _i_ = 1 to _n_
+			if @aSessions[_i_][:token] = _t_
+				_r_ = @aSessions[_i_]
+				@aSessions[_i_] = [ :token = _r_[:token], :user = _r_[:user],
+				                    :expires = _r_[:expires], :created = _r_[:created],
+				                    :ip = _r_[:ip], :ua = _r_[:ua], :lastseen = pnLastSeen ]
+				return
+			ok
+		next
 
 	def DeleteSession(pcToken)
 		_t_ = "" + pcToken
 		_aNew_ = []
 		_n_ = len(@aSessions)
 		for _i_ = 1 to _n_
-			if @aSessions[_i_][1] != _t_
+			if @aSessions[_i_][:token] != _t_
 				_aNew_ + @aSessions[_i_]
 			ok
 		next
@@ -115,7 +136,7 @@ class stzAuthMemoryStore from stzObject
 		_aNew_ = []
 		_n_ = len(@aSessions)
 		for _i_ = 1 to _n_
-			if @aSessions[_i_][2] != _u_
+			if @aSessions[_i_][:user] != _u_
 				_aNew_ + @aSessions[_i_]
 			ok
 		next
@@ -124,9 +145,21 @@ class stzAuthMemoryStore from stzObject
 	def CountSessions()
 		return len(@aSessions)
 
-	# [ [ token, user, expiresAt ], ... ] -- for purge / enumeration.
+	# all session records -- for purge / enumeration.
 	def Sessions()
 		return @aSessions
+
+	# the records belonging to one user.
+	def SessionsOf(pcUser)
+		_u_ = "" + pcUser
+		_out_ = []
+		_n_ = len(@aSessions)
+		for _i_ = 1 to _n_
+			if @aSessions[_i_][:user] = _u_
+				_out_ + @aSessions[_i_]
+			ok
+		next
+		return _out_
 
 	  #-- internals -------------------------------------------------------
 
@@ -153,7 +186,8 @@ class stzAuthDbStore from stzObject
 	def init(pcPath)
 		@oDb = new stzDatabase("" + pcPath)
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authusers (usr TEXT PRIMARY KEY, hash TEXT)")
-		@oDb.Exec("CREATE TABLE IF NOT EXISTS authsessions (token TEXT PRIMARY KEY, usr TEXT, expires INTEGER)")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authsessions (token TEXT PRIMARY KEY, " +
+		          "usr TEXT, expires INTEGER, created INTEGER, ip TEXT, ua TEXT, lastseen INTEGER)")
 
 	def DatabaseQ()
 		return @oDb
@@ -183,18 +217,24 @@ class stzAuthDbStore from stzObject
 
 	  #-- sessions --------------------------------------------------------
 
-	def PutSession(pcToken, pcUser, pnExpiresAt)
-		@oDb.Exec("INSERT OR REPLACE INTO authsessions (token, usr, expires) VALUES ('" +
-		          This._Esc(pcToken) + "', '" + This._Esc(pcUser) + "', " +
-		          ring_number(pnExpiresAt) + ")")
+	def PutSession(pcToken, paRec)
+		@oDb.Exec("INSERT OR REPLACE INTO authsessions (token, usr, expires, created, ip, ua, lastseen) VALUES ('" +
+		          This._Esc(pcToken) + "', '" + This._Esc(paRec[:user]) + "', " +
+		          ring_number(paRec[:expires]) + ", " + ring_number(paRec[:created]) + ", '" +
+		          This._Esc(paRec[:ip]) + "', '" + This._Esc(paRec[:ua]) + "', " +
+		          ring_number(paRec[:lastseen]) + ")")
 
 	def Session(pcToken)
-		_r_ = @oDb.Rows("SELECT usr, expires FROM authsessions WHERE token = '" +
+		_r_ = @oDb.Rows("SELECT usr, expires, created, ip, ua, lastseen FROM authsessions WHERE token = '" +
 		                This._Esc(pcToken) + "'")
 		if len(_r_) = 0
 			return []
 		ok
-		return [ "" + _r_[1][1], ring_number(_r_[1][2]) ]
+		return This._Rec("" + pcToken, _r_[1])
+
+	def TouchSession(pcToken, pnLastSeen)
+		@oDb.Exec("UPDATE authsessions SET lastseen = " + ring_number(pnLastSeen) +
+		          " WHERE token = '" + This._Esc(pcToken) + "'")
 
 	def DeleteSession(pcToken)
 		@oDb.Exec("DELETE FROM authsessions WHERE token = '" + This._Esc(pcToken) + "'")
@@ -206,15 +246,30 @@ class stzAuthDbStore from stzObject
 		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authsessions"))
 
 	def Sessions()
-		_out_ = []
-		_r_ = @oDb.Rows("SELECT token, usr, expires FROM authsessions")
-		_n_ = len(_r_)
-		for _i_ = 1 to _n_
-			_out_ + [ "" + _r_[_i_][1], "" + _r_[_i_][2], ring_number(_r_[_i_][3]) ]
-		next
-		return _out_
+		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions"))
+
+	def SessionsOf(pcUser)
+		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions WHERE usr = '" +
+		       This._Esc(pcUser) + "'"))
 
 	  #-- internals -------------------------------------------------------
+
+	# a SELECT row [ usr, expires, created, ip, ua, lastseen ] + token -> the
+	# session record hashlist.
+	def _Rec(pcToken, paRow)
+		return [ :token = "" + pcToken, :user = "" + paRow[1],
+		         :expires = ring_number(paRow[2]), :created = ring_number(paRow[3]),
+		         :ip = "" + paRow[4], :ua = "" + paRow[5], :lastseen = ring_number(paRow[6]) ]
+
+	# rows of [ token, usr, expires, created, ip, ua, lastseen ] -> records.
+	def _RowsToRecs(paRows)
+		_out_ = []
+		_n_ = len(paRows)
+		for _i_ = 1 to _n_
+			_out_ + This._Rec("" + paRows[_i_][1], [ paRows[_i_][2], paRows[_i_][3],
+			         paRows[_i_][4], paRows[_i_][5], paRows[_i_][6], paRows[_i_][7] ])
+		next
+		return _out_
 
 	# SQL-escape: single quotes doubled. Usernames are user input; hashes/tokens
 	# are our own controlled values, but escaped anyway for one safe path.
