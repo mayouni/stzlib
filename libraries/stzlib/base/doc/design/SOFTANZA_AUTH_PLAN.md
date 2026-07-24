@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **phases 1–3 BUILT (f91c12b0c, 7ca8a978b, + this commit); phases 4–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **phases 1–4 BUILT (f91c12b0c, 7ca8a978b, 764c7839b, + this commit); phases 5–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -186,7 +186,26 @@ Ordered so each phase ships value and the early ones unblock the later.
    `secret` 53 / `auth_store` 31 / `auth_sessions` 25 all green. A bad second
    factor counts toward the phase-1 lockout.
 4. **Passwordless via the mail port (L4)** — magic-link / email-OTP over the
-   service-virtualization mail sink (dev) → real sender (deploy).
+   service-virtualization mail sink (dev) → real sender (deploy). **DONE.** This
+   also stands up the **service-virtualization plane's first piece**: a
+   duck-typed **mail port** (`Send(to, subject, body)`) in new `base/service/`,
+   with `stzMailSandbox` — the fee-free capture sink that records instead of
+   sending, so a test reads the very link/code out of an inspectable inbox (a
+   real SMTP adapter binds behind the same contract at deploy; it is infra-gated,
+   the reactor speaks HTTP/TLS not SMTP). `stzAuth` gained `SetMailPort`,
+   `RequestMagicLink` → `RedeemMagicLink` and `RequestEmailOtp` →
+   `VerifyEmailOtp` (both `…With`/`…At` device+time variants), plus
+   `RegisterPasswordless` (an account with no usable password). The emailed
+   magic-link token is 256-bit; only its **sha256** is stored (a store leak
+   yields no usable link); email-OTP codes are salted-hashed. Every flow is
+   **enumeration-safe** (identical response whether or not the account exists,
+   sends only for a real user), **one-time**, **expiring** (`SetPasswordlessTTL`,
+   15 min default), counts a wrong OTP toward the phase-1 lockout, and **never
+   bypasses a confirmed 2FA**. Durable in both stores (`authchallenges` table).
+   Guard `auth_passwordless_narrated` (23); regressions secret 53 / auth_store 31
+   / auth_sessions 25 / auth_totp 40 green. (Ring note: the sandbox shares its
+   captured-mail sink through a handle table so a stored *copy* — Ring copies
+   objects on `=` — still writes the sink the caller inspects.)
 5. **authn → authz bridge (L5)** — `Login` yields an actor; roles via governance;
    the org-chart / separation-of-duties tie-in. The differentiator.
 6. **Mount as an appserver auth router** — `/login`, `/logout`, `/session`,

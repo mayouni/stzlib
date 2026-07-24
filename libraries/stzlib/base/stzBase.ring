@@ -343,6 +343,13 @@ ok
     # twin so the plan can hold an executor.
     load "system/stzSystemActor.ring"
 
+# Loading files related to the SERVICE-VIRTUALIZATION plane (base/service/)
+    # Code against a duck-typed SERVICE PORT bound to a fee-free sandbox in dev and
+    # a live adapter at deploy. The mail port (Send(to,subject,body)) is the first
+    # piece -- passwordless auth below uses it (captured + assertable in dev, really
+    # sent in production; same code, no fees).
+    load "service/stzMailPort.ring"
+
 # Loading files related to the SECURITY module (base/security/)
     # The library's security concern, consolidated: confidential data +
     # credentials (stzSecret + its kinds), a central project keyring that governs
