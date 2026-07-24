@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phases 1–6 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e); phases 2b, 7 planned.** Written 2026-07-23
+> Status: **CORE PLAN COMPLETE — phases 1–7 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e, 05f6c5a59); only phase 2b (orgchart graph projection) remains.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -29,7 +29,15 @@
 > Guard `securitygraph_narrated` (22). P6: `:subject` unifies the finding shape;
 > `stzRuleReport` is one CI gate over code + agents + security (legacy checkers
 > kept as adapters, `IngestLegacy` normalizes them). Guard `rulereport_narrated`
-> (23).
+> (23). P7: the graph-only code rules (`q-has-plain-twin`, `no-case-collision`,
+> `no-dead-code`, `no-cyclic-calls`) + `StzCheckProject` (cost measured; the
+> ~36s cyclic check split into an opt-in deep audit). Guard
+> `coderule_project_narrated` (13).
+>
+> **The core plan is complete.** Five domains (code, agents, security, plus the
+> repaired workflow/orgchart bases) share one rule engine, one finding shape, one
+> CI gate. Only phase 2b — projecting an `stzOrgChart`'s position model into a
+> graph so its compliance bases carry real rules — remains.
 
 ---
 
@@ -282,8 +290,15 @@ The gains are concrete:
    legacy checkers keep their frozen shapes (`StzCheckCode` stays `:line`);
    `IngestLegacy` normalizes them into the unified shape so they can join the
    gate. Guard `rulereport_narrated` (23).
-7. **New code rules + `CheckProject(dir)`** — `q-has-plain-twin` first (see
-   below), then whole-library checking across files.
+7. **New code rules + `CheckProject(dir)`** — **DONE (05f6c5a59).**
+   `q-has-plain-twin` (warning; flags a Q mutator with no plain twin — would have
+   caught the 62 Q-only mutators — without flagging noun accessors) and
+   `no-case-collision` (error; the Ring C22 a line scan can't see) added to the
+   snippet set; `no-dead-code` / `no-cyclic-calls` at project level.
+   `StzCheckProject(dir)` builds one graph across a directory and runs them. Cost
+   measured: build ~5s + rules <0.3s, **except** `no-cyclic-calls` ~36s — so it's
+   split out into the opt-in `StzCheckProjectDeep` (documented, no silent cap).
+   Guard `coderule_project_narrated` (13).
 
 ## 8. The payoff, stated plainly
 
