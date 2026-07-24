@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification + ES256 signing (086b0921d), OIDC LOGIN (5205ed234), PASSKEYS/WebAuthn (4f7b1fe37), and the OIDC PROVIDER (ab16bc174).** Remaining external identity: SAML, and the infra-gated live token exchange / JWKS fetch against a third-party provider. Written 2026-07-24 in answer to
+> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification + ES256 signing (086b0921d), OIDC LOGIN (5205ed234), PASSKEYS/WebAuthn (4f7b1fe37), and the OIDC PROVIDER (ab16bc174).** **EXTERNAL IDENTITY IS COMPLETE** -- OIDC login, passkeys, the OIDC provider, and SAML 2.0 SSO (0ada6e123). Only infra-gated work remains: the live token exchange / JWKS fetch against a third-party provider account, and a SAML *IdP* (issuing, as opposed to consuming, assertions). Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -274,7 +274,23 @@ missing cryptography.
 
 **Deliberately deferred (bigger, external-facing, or lower leverage):**
 
-- **OAuth / social / OIDC / SSO / SAML.** ~~Real work: the OAuth token exchange
+- **SAML 2.0 SSO -- BUILT (0ada6e123).** The engine carries the dangerous half
+  (`xmldsig.zig`: a namespace-aware parser that **refuses DOCTYPE/ENTITY
+  outright**, exclusive C14N **byte-identical to libxml2** across 10 vectors, and
+  enveloped XML-DSig), and the anti-wrapping guarantee is **structural** -- after
+  verifying, it re-parses *only* the byte range the signature covered and reads
+  every claim from there, so a forged assertion injected beside a genuine one is
+  not merely ignored, it is unreachable. `stzSamlServiceProvider` owns the
+  deployment-specific judgement: issuer must be the trusted IdP (a valid
+  signature from the *wrong* IdP is someone else's user), audience must be us,
+  the NotBefore/NotOnOrAfter window must contain now, and an assertion may not be
+  replayed; plus `AuthnRequest` for SP-initiated SSO.
+  `stzAuth.LoginWithSaml()` yields the same governance actor a local login does.
+  Verified against a **real** assertion canonicalized by lxml and signed by
+  OpenSSL, a one-character tamper, and a genuine wrapping document (guard
+  `auth_saml_narrated`, 37). *Remaining:* issuing assertions as a SAML **IdP**.
+
+- **OAuth / social / OIDC / SSO.** ~~Real work: the OAuth token exchange
   needs the reactor HTTP client, provider config, and — for OIDC — JWKS fetch and
   RS256/ES256 signature verification the engine does not yet expose.~~
   **OIDC LOGIN IS BUILT.** `base/security/stzOidc.ring` ships `stzJwt` (split,
