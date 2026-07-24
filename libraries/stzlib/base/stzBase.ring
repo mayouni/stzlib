@@ -354,6 +354,7 @@ ok
     load "security/stzSecret.ring"
     load "security/stzVaultResolver.ring"
     load "security/stzSecretStore.ring"
+    load "security/stzAuthStore.ring"   # the persistence seam stzAuth defaults to
     load "security/stzAuth.ring"
     load "security/stzRequestSigner.ring"
     load "security/stzSecurityPosture.ring"
