@@ -39,6 +39,10 @@ class stzAuth from stzObject
 	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
+	# SAML 2.0: enterprise SSO through a corporate identity provider
+	@oSamlSp = NULL            # an stzSamlServiceProvider (config + replay guard)
+	@cSamlWhy = ""
+
 	# PASSKEYS (WebAuthn): sign in with a device key instead of a secret
 	@oPasskeyRp = NULL         # an stzPasskeyServer (config: rp id + origin)
 	@cPasskeyWhy = ""          # why the last passkey operation was refused
@@ -845,6 +849,77 @@ class stzAuth from stzObject
 			return FALSE
 		ok
 		return poGovernance.MayProceed(_u_, pcAction) = 1
+
+	  #-- SAML 2.0 single sign-on -----------------------------------------
+	#
+	# The enterprise counterpart to OIDC: the corporate IdP authenticates the
+	# employee and POSTs back a signed assertion; stzAuth verifies it (engine-side
+	# XML-DSig, then issuer / audience / validity / replay -- see
+	# stzSamlServiceProvider) and opens a normal session. As with OIDC, the user
+	# that comes out is an ordinary Softanza citizen with the same governance
+	# actor -- SSO is a way IN, not a separate kind of account.
+
+	def SetSamlServiceProvider(poSp)
+		This.SetSamlServiceProviderQ(poSp)
+
+	def SetSamlServiceProviderQ(poSp)
+		@oSamlSp = poSp
+		return This
+
+	def SamlServiceProviderQ()
+		return @oSamlSp
+
+	def HasSamlServiceProvider()
+		return isObject(@oSamlSp)
+
+	def SamlWhy()
+		return @cSamlWhy
+
+	# the local user name a SAML subject maps to (its NameID -- typically the
+	# corporate email).
+	def SamlUserNameFor(paIdentity)
+		return "" + paIdentity[:nameID]
+
+	def LoginWithSaml(pcBase64Response)
+		return This.LoginWithSamlWithAt(pcBase64Response, "", "", This._NowSecs())
+
+	def LoginWithSamlAt(pcBase64Response, pnNow)
+		return This.LoginWithSamlWithAt(pcBase64Response, "", "", pnNow)
+
+	def LoginWithSamlWith(pcBase64Response, pcIp, pcUserAgent)
+		return This.LoginWithSamlWithAt(pcBase64Response, pcIp, pcUserAgent, This._NowSecs())
+
+	def LoginWithSamlWithAt(pcBase64Response, pcIp, pcUserAgent, pnNow)
+		if NOT This.HasSamlServiceProvider()
+			StzRaise("stzAuth.LoginWithSaml: no SAML service provider bound -- call SetSamlServiceProvider.")
+		ok
+		_id_ = @oSamlSp.ConsumeResponseAt("" + pcBase64Response, pnNow)
+		if NOT _id_[:ok]
+			@cSamlWhy = _id_[:why]
+			return ""
+		ok
+		_u_ = This.SamlUserNameFor(_id_)
+		if _u_ = ""
+			@cSamlWhy = "the assertion carries no usable identity"
+			return ""
+		ok
+		if NOT @oStore.HasUser(_u_)
+			if NOT @bOidcAutoProvision
+				@cSamlWhy = "no local account for '" + _u_ + "' (auto-provisioning is off)"
+				return ""
+			ok
+			This.RegisterPasswordless(_u_)
+		ok
+		if This.IsLockedOutAt(_u_, pnNow)
+			@cSamlWhy = "the account is locked out"
+			return ""
+		ok
+		if This.HasTotp(_u_)
+			@cSamlWhy = "this account requires its local second factor"
+			return ""
+		ok
+		@cSamlWhy = ""
+		return This._OpenSession(_u_, pnNow, "" + pcIp, "" + pcUserAgent)
 
 	  #-- PASSKEYS (WebAuthn) ---------------------------------------------
 	#
