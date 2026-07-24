@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **CORE PLAN COMPLETE — phases 1–7 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e, 05f6c5a59); only phase 2b (orgchart graph projection) remains.** Written 2026-07-23
+> Status: **PLAN COMPLETE — phases 1–7 + 2b all BUILT** (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e, 05f6c5a59, 621ee8736). Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -34,10 +34,15 @@
 > ~36s cyclic check split into an opt-in deep audit). Guard
 > `coderule_project_narrated` (13).
 >
-> **The core plan is complete.** Five domains (code, agents, security, plus the
-> repaired workflow/orgchart bases) share one rule engine, one finding shape, one
-> CI gate. Only phase 2b — projecting an `stzOrgChart`'s position model into a
-> graph so its compliance bases carry real rules — remains.
+> **The plan is complete (P1–7 + 2b).** Six domains — code, agents, security,
+> workflow, and org charts — share one rule engine, one finding shape
+> (`[:rule, :subject, :where, :severity, :message]`), and one CI gate
+> (`stzRuleReport`). P2b (621ee8736): `stzOrgChart.AsRuleGraph()` projects the
+> position model into a graph, and the SOX/GDPR/… compliance bases carry real
+> rules over it — a universal org-integrity tier (`no-self-report`,
+> `no-cyclic-reporting`, `no-orphan-position`, `span-of-control`) plus the SOX
+> `separation-of-duties` exemplar; faithful per-regime coverage is flagged as
+> domain follow-up, not fabricated. Guard `orgrule_narrated` (22).
 
 ---
 
@@ -253,10 +258,11 @@ The gains are concrete:
    BPM/SLA rule bases now construct and find real problems (structural rules use
    the checker hatch); `stzOrgChart`'s SOX/GDPR/… compliance stubs now inherit
    `stzGraphRuleSet` (same type, backward-compatible). Guard
-   `graphruleset_narrated` (25). **Deferred to phase 2b:** an `stzOrgChart` is a
-   *positions* model, not a graph, so faithful per-regime compliance rules need
-   a **graph projection** of it first (positions→nodes, reportsTo→edges) plus
-   the domain rule content — not fabricated here.
+   `graphruleset_narrated` (25). **Phase 2b DONE (621ee8736):** `AsRuleGraph()`
+   projects the positions model (positions→nodes, reportsTo→"supervises" edges,
+   level/department/roles→properties); the compliance bases carry the universal
+   org-integrity tier + the SOX `separation-of-duties` exemplar. Guard
+   `orgrule_narrated` (22).
 3. **`stzCodeRule` + `stzCodeRuleSet`** — **DONE (ad6cdf0d5).** `stzCodeRule`
    IS-A `stzGraphRule`, `stzCodeRuleSet` IS-A `stzGraphRuleSet`
    (`meta/stzCodeRule.ring`). Three house rules moved onto the code graph as
