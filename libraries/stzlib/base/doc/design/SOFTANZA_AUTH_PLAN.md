@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification + ES256 signing (086b0921d), OIDC LOGIN (5205ed234), PASSKEYS/WebAuthn (4f7b1fe37), and the OIDC PROVIDER (ab16bc174).** **EXTERNAL IDENTITY IS COMPLETE** -- OIDC login, passkeys, the OIDC provider, and SAML 2.0 SSO (0ada6e123). Only infra-gated work remains: the live token exchange / JWKS fetch against a third-party provider account, and a SAML *IdP* (issuing, as opposed to consuming, assertions). Written 2026-07-24 in answer to
+> Status: **ALL SIX PHASES BUILT** (f91c12b0c, 7ca8a978b, 764c7839b, 0ca7e4b97, 6fc94800d, a75abe0f8), **plus engine public-key verification + ES256 signing (086b0921d), OIDC LOGIN (5205ed234), PASSKEYS/WebAuthn (4f7b1fe37), and the OIDC PROVIDER (ab16bc174).** **EXTERNAL IDENTITY IS COMPLETE** -- OIDC login, passkeys, the OIDC provider, and SAML 2.0 SSO (0ada6e123). Softanza now both **consumes and issues** identity on both protocols. Only infra-gated work remains: the live token exchange / JWKS fetch against a third-party provider account. Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -288,7 +288,15 @@ missing cryptography.
   `stzAuth.LoginWithSaml()` yields the same governance actor a local login does.
   Verified against a **real** assertion canonicalized by lxml and signed by
   OpenSSL, a one-character tamper, and a genuine wrapping document (guard
-  `auth_saml_narrated`, 37). *Remaining:* issuing assertions as a SAML **IdP**.
+  `auth_saml_narrated`, 37). **The IdP side is built too (b51d0899d):** `stzSamlIdentityProvider` issues
+  genuinely-signed assertions (engine `saml_sign`, ECDSA-SHA256 over
+  exclusive-canonical bytes, reusing the *same* canonicalizer as the verifier --
+  an IdP that signs with a different c14n than its verifier is the classic
+  cross-vendor failure). `TrustMeOn(sp)` hands a service provider everything it
+  needs in one call; only the public `x`,`y` ever leave. It **refuses an
+  unregistered audience at issue time**, because an IdP that vouches for a user
+  to any service that asks is an open redirect for identity. This is also what
+  makes SAML developable with no Okta tenant and no browser round-trip.
 
 - **OAuth / social / OIDC / SSO.** ~~Real work: the OAuth token exchange
   needs the reactor HTTP client, provider config, and — for OIDC — JWKS fetch and
