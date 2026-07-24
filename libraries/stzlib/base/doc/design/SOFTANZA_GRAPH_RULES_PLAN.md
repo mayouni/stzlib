@@ -1,7 +1,7 @@
 # Rule Governance over Graphs
 ### Plan: one rule engine for every graph-based object — `stzCodeRule` is just the first instance
 
-> Status: **phases 1–5 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5); phases 2b, 6–7 planned.** Written 2026-07-23
+> Status: **phases 1–6 BUILT (c02083e0b, 2401af3e8, ad6cdf0d5, 677aecb74, 53b1a5cd5, 16e46270e); phases 2b, 7 planned.** Written 2026-07-23
 > at the user's instruction ("if this implies a consistent work, then just make a
 > plan and we will implement later"), and widened at the user's second
 > instruction: *"use stzGraphRule everywhere it is necessary, not only in
@@ -26,7 +26,10 @@
 > (21). P5: `stzSecurityGraph` + `stzSecurityRule` — multi-hop escalation
 > (`sandboxed-reaches-effectful`, a reachability query the posture flag check is
 > blind to), blast-radius, and a construction-time secret-attachment constraint.
-> Guard `securitygraph_narrated` (22).
+> Guard `securitygraph_narrated` (22). P6: `:subject` unifies the finding shape;
+> `stzRuleReport` is one CI gate over code + agents + security (legacy checkers
+> kept as adapters, `IngestLegacy` normalizes them). Guard `rulereport_narrated`
+> (23).
 
 ---
 
@@ -271,8 +274,14 @@ The gains are concrete:
    the reverse-reachability rotation query; `AttachSecret()` refuses a live
    secret to a sandboxed actor at construction. Guard `securitygraph_narrated`
    (22).
-6. **Unify the finding shape + one CI gate** — `[ :rule, :subject, :where,
-   :severity, :message ]`, with the three existing entry points kept as adapters.
+6. **Unify the finding shape + one CI gate** — **DONE (16e46270e).** `:subject`
+   (the rule's domain) added to the shared matcher, so every graph-rule finding
+   is `[ :rule, :subject, :where, :severity, :message ]`. `stzRuleReport` is the
+   one gate: `Run(ruleSet, graph)` per domain, then one
+   `Findings()`/`IsSound()`/`Report()` spanning code + agents + security. The
+   legacy checkers keep their frozen shapes (`StzCheckCode` stays `:line`);
+   `IngestLegacy` normalizes them into the unified shape so they can join the
+   gate. Guard `rulereport_narrated` (23).
 7. **New code rules + `CheckProject(dir)`** — `q-has-plain-twin` first (see
    below), then whole-library checking across files.
 
