@@ -43,10 +43,12 @@ class stzAuthMemoryStore from stzObject
 
 	@aUsers    = []    # [ [ user, hash ], ... ]
 	@aSessions = []    # [ [ token, user, expiresAt ], ... ]
+	@a2fa      = []    # [ [ user, secretB32, confirmed(0/1), [ recoveryHash, ... ] ], ... ]
 
 	def init()
 		@aUsers    = []
 		@aSessions = []
+		@a2fa      = []
 
 	  #-- users -----------------------------------------------------------
 
@@ -161,12 +163,68 @@ class stzAuthMemoryStore from stzObject
 		next
 		return _out_
 
+	  #-- two-factor (TOTP) ----------------------------------------------
+	#
+	# One row per user with 2FA: the base32 secret, a confirmed flag (a secret is
+	# stored unconfirmed at enrollment and only enforced once the user proves a
+	# first code), and the list of one-time recovery-code HASHES (never plaintext).
+
+	def PutTotp(pcUser, pcSecret, pnConfirmed, paHashes)
+		_u_ = "" + pcUser
+		_i_ = This._TotpIndex(_u_)
+		_rec_ = [ _u_, "" + pcSecret, pnConfirmed, paHashes ]
+		if _i_ > 0
+			@a2fa[_i_] = _rec_
+		else
+			@a2fa + _rec_
+		ok
+
+	def Totp(pcUser)
+		_i_ = This._TotpIndex("" + pcUser)
+		if _i_ = 0
+			return []
+		ok
+		_r_ = @a2fa[_i_]
+		return [ :secret = _r_[2], :confirmed = _r_[3], :recovery = _r_[4] ]
+
+	def SetTotpConfirmed(pcUser, pnConfirmed)
+		_i_ = This._TotpIndex("" + pcUser)
+		if _i_ > 0
+			@a2fa[_i_][3] = pnConfirmed
+		ok
+
+	def SetTotpRecovery(pcUser, paHashes)
+		_i_ = This._TotpIndex("" + pcUser)
+		if _i_ > 0
+			@a2fa[_i_][4] = paHashes
+		ok
+
+	def DeleteTotp(pcUser)
+		_u_ = "" + pcUser
+		_aNew_ = []
+		_n_ = len(@a2fa)
+		for _i_ = 1 to _n_
+			if @a2fa[_i_][1] != _u_
+				_aNew_ + @a2fa[_i_]
+			ok
+		next
+		@a2fa = _aNew_
+
 	  #-- internals -------------------------------------------------------
 
 	def _UserIndex(pcUser)
 		_n_ = len(@aUsers)
 		for _i_ = 1 to _n_
 			if @aUsers[_i_][1] = pcUser
+				return _i_
+			ok
+		next
+		return 0
+
+	def _TotpIndex(pcUser)
+		_n_ = len(@a2fa)
+		for _i_ = 1 to _n_
+			if @a2fa[_i_][1] = pcUser
 				return _i_
 			ok
 		next
@@ -188,6 +246,8 @@ class stzAuthDbStore from stzObject
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authusers (usr TEXT PRIMARY KEY, hash TEXT)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authsessions (token TEXT PRIMARY KEY, " +
 		          "usr TEXT, expires INTEGER, created INTEGER, ip TEXT, ua TEXT, lastseen INTEGER)")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS auth2fa (usr TEXT PRIMARY KEY, " +
+		          "secret TEXT, confirmed INTEGER, recovery TEXT)")
 
 	def DatabaseQ()
 		return @oDb
@@ -252,6 +312,36 @@ class stzAuthDbStore from stzObject
 		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions WHERE usr = '" +
 		       This._Esc(pcUser) + "'"))
 
+	  #-- two-factor (TOTP) ----------------------------------------------
+	#
+	# Recovery-code hashes are stored newline-joined in one TEXT column -- a hash
+	# is "salt:hash" (hex only), so a newline can never occur inside one.
+
+	def PutTotp(pcUser, pcSecret, pnConfirmed, paHashes)
+		@oDb.Exec("INSERT OR REPLACE INTO auth2fa (usr, secret, confirmed, recovery) VALUES ('" +
+		          This._Esc(pcUser) + "', '" + This._Esc(pcSecret) + "', " +
+		          ring_number(pnConfirmed) + ", '" + This._Esc(This._JoinHashes(paHashes)) + "')")
+
+	def Totp(pcUser)
+		_r_ = @oDb.Rows("SELECT secret, confirmed, recovery FROM auth2fa WHERE usr = '" +
+		                This._Esc(pcUser) + "'")
+		if len(_r_) = 0
+			return []
+		ok
+		return [ :secret = "" + _r_[1][1], :confirmed = ring_number(_r_[1][2]),
+		         :recovery = This._SplitHashes("" + _r_[1][3]) ]
+
+	def SetTotpConfirmed(pcUser, pnConfirmed)
+		@oDb.Exec("UPDATE auth2fa SET confirmed = " + ring_number(pnConfirmed) +
+		          " WHERE usr = '" + This._Esc(pcUser) + "'")
+
+	def SetTotpRecovery(pcUser, paHashes)
+		@oDb.Exec("UPDATE auth2fa SET recovery = '" + This._Esc(This._JoinHashes(paHashes)) +
+		          "' WHERE usr = '" + This._Esc(pcUser) + "'")
+
+	def DeleteTotp(pcUser)
+		@oDb.Exec("DELETE FROM auth2fa WHERE usr = '" + This._Esc(pcUser) + "'")
+
 	  #-- internals -------------------------------------------------------
 
 	# a SELECT row [ usr, expires, created, ip, ua, lastseen ] + token -> the
@@ -275,3 +365,31 @@ class stzAuthDbStore from stzObject
 	# are our own controlled values, but escaped anyway for one safe path.
 	def _Esc(pcVal)
 		return StzReplace("" + pcVal, "'", "''")
+
+	# recovery-hash list <-> one comma-joined column. A hash is "salt:hash" (hex
+	# only), so a comma can never occur inside one. Comma -- NOT newline/tab, which
+	# stzDatabase.Rows uses as its row/column delimiters and would corrupt the read.
+	def _JoinHashes(paHashes)
+		_out_ = ""
+		_n_ = len(paHashes)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_out_ += ","
+			ok
+			_out_ += "" + paHashes[_i_]
+		next
+		return _out_
+
+	def _SplitHashes(pcJoined)
+		if ring_trim("" + pcJoined) = ""
+			return []
+		ok
+		_parts_ = StzSplit("" + pcJoined, ",")
+		_out_ = []
+		_n_ = len(_parts_)
+		for _i_ = 1 to _n_
+			if ring_trim("" + _parts_[_i_]) != ""
+				_out_ + _parts_[_i_]
+			ok
+		next
+		return _out_

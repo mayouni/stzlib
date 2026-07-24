@@ -74,6 +74,19 @@ fn ring_RandomHex(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineCryptoTotp(cKeyHex, nCounter, nDigits, nAlgo) -> the decimal code.
+// Key is hex (base32 decode happens Ring-side); algo 1 = SHA1, 2 = SHA256.
+fn ring_Totp(p: *anyopaque) callconv(.c) void {
+    const k: [*]const u8 = @ptrCast(gs(p, 1));
+    const kl: usize = @intCast(gss(p, 1));
+    const counter: u64 = @intFromFloat(gn(p, 2));
+    const digits: u32 = @intFromFloat(gn(p, 3));
+    const algo: u32 = @intFromFloat(gn(p, 4));
+    var buf: [16]u8 = undefined;
+    const n = crypto.crypto_totp(k, kl, counter, digits, algo, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -83,6 +96,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptoconstequal", .func = &ring_ConstEqual },
     .{ .name = "stzenginecryptopbkdf2", .func = &ring_Pbkdf2 },
     .{ .name = "stzenginecryptorandomhex", .func = &ring_RandomHex },
+    .{ .name = "stzenginecryptototp", .func = &ring_Totp },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

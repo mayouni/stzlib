@@ -23,3 +23,6 @@ _wasmsub_tmp/
 **/_treeprobe/
 # generated emulator bundles (Deploy(:Emulated) output; regenerated on demand)
 **/restolean_emulator/
+# stzAuth DB-store test databases (guards create + remove these; a leaked sqlite
+# handle on Windows can leave the file behind, so guard against committing it)
+**/_authtest_*.db
