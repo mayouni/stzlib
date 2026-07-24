@@ -436,13 +436,19 @@ the globals $aGraphRules / $acStzRulfLoaded right above.
 
 # The ONE source of truth for "what does this rule find on this graph". BOTH the
 # object Check() and the registered closure call it, so they cannot diverge.
-# paSpec = [ :name, :clauses, :violation, :severity, :checker ].
-# Returns [ [ :rule, :where, :severity, :message ], ... ] (empty = the rule holds).
+# paSpec = [ :name, :subject, :clauses, :violation, :severity, :checker ].
+# Returns findings in the UNIFIED shape [ :rule, :subject, :where, :severity,
+# :message ] (empty = the rule holds). :subject is the rule's domain, so one
+# CI gate can span code / agents / security in a single findings list.
 func StzGraphRuleFindings(oGraph, paSpec)
 	_aOut_ = []
 	_cName_ = paSpec[:name]
 	_cSev_  = paSpec[:severity]
 	_cViol_ = paSpec[:violation]
+	_cSubj_ = ""
+	if HasKey(paSpec, :subject)
+		_cSubj_ = paSpec[:subject]
+	ok
 
 	# escape hatch: an explicit checker owns the whole decision. It gets the
 	# graph and returns [ [ :where = id, :message = msg ], ... ] ("" = graph-wide).
@@ -458,7 +464,7 @@ func StzGraphRuleFindings(oGraph, paSpec)
 				if HasKey(_r_, :where)    _where_ = _r_[:where]    ok
 				if HasKey(_r_, :message)  _msg_ = _r_[:message]    ok
 			ok
-			_aOut_ + [ :rule = _cName_, :where = _where_, :severity = _cSev_, :message = _msg_ ]
+			_aOut_ + [ :rule = _cName_, :subject = _cSubj_, :where = _where_, :severity = _cSev_, :message = _msg_ ]
 		next
 		return _aOut_
 	ok
@@ -483,9 +489,9 @@ func StzGraphRuleFindings(oGraph, paSpec)
 			loop
 		ok
 		if len(_aReq_) = 0
-			_aOut_ + [ :rule = _cName_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
+			_aOut_ + [ :rule = _cName_, :subject = _cSubj_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
 		but NOT _StzGraphRuleNodeMatches(oGraph, _aIds_[_i_], _aReq_)
-			_aOut_ + [ :rule = _cName_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
+			_aOut_ + [ :rule = _cName_, :subject = _cSubj_, :where = _aIds_[_i_], :severity = _cSev_, :message = _cViol_ ]
 		ok
 	next
 	return _aOut_
@@ -798,6 +804,7 @@ class stzGraphRule from stzObject
 	def _Spec()
 		return [
 			:name         = @cName,
+			:subject      = @cDomain,
 			:clauses      = @aClauses,
 			:requirements = @aRequirements,
 			:violation    = This.ViolationMessage(),
