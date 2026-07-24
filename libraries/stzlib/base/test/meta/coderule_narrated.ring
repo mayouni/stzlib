@@ -21,7 +21,8 @@ Scenario("a code rule IS a graph rule; a code rule set IS a graph rule set")
 	Then("...in the code domain", oRule.Domain(), "code")
 	Then("...and answers the graph-rule surface (Check exists)", oRule.NumberOfClauses(), 0)
 	oSet = StzCodeRuleSetQ()
-	Then("the set carries the three graph-portable house rules", oSet.NumberOfRules(), 3)
+	# 3 house rules (P3) + q-has-plain-twin + no-case-collision (P7)
+	Then("the set carries the graph-portable house rules", oSet.NumberOfRules(), 5)
 	Then("...named", StzFindFirst("no-len-method", @@(oSet.RuleNames())) > 0, TRUE)
 EndScenario()
 
@@ -43,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames is unchanged", len(StzCodeRuleNames()), 4)
+	Then("StzCodeRuleNames lists the house rules (6 after P7)", len(StzCodeRuleNames()), 6)
 EndScenario()
 
 Scenario("THE PAYOFF: the model sees what the text scan cannot")
