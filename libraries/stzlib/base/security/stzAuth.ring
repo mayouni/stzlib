@@ -35,7 +35,8 @@ func StzAuthQ()
 class stzAuth from stzObject
 
 	@oStore = NULL       # the persistence seam (users + sessions) -- see stzAuthStore
-	@nSessionTTL = 3600  # seconds a session lives (0 = never expires)
+	@nSessionTTL = 3600  # ABSOLUTE lifetime: seconds from login (0 = never expires)
+	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
 	# brute-force lockout (in-memory, per submitted username). Not durable across
@@ -74,6 +75,18 @@ class stzAuth from stzObject
 
 	def SessionTTL()
 		return @nSessionTTL
+
+	# idle timeout: a session dies if untouched for this many seconds (0 = off).
+	# Every successful validation slides the window (touches last-seen).
+	def SetIdleTTL(pnSeconds)
+		This.SetIdleTTLQ(pnSeconds)
+
+	def SetIdleTTLQ(pnSeconds)
+		@nIdleTTL = pnSeconds
+		return This
+
+	def IdleTTL()
+		return @nIdleTTL
 
 	  #-- brute-force lockout config --------------------------------------
 
@@ -153,10 +166,18 @@ class stzAuth from stzObject
 	# authenticate AND, on success, open a session -> returns an opaque token
 	# ("" on failure OR lockout -- indistinguishable, so it leaks nothing).
 	def Login(pcUser, pcPassword)
-		return This.LoginAt(pcUser, pcPassword, This._NowSecs())
+		return This.LoginWithAt(pcUser, pcPassword, "", "", This._NowSecs())
 
 	# deterministic form (explicit 'now') for tests.
 	def LoginAt(pcUser, pcPassword, pnNow)
+		return This.LoginWithAt(pcUser, pcPassword, "", "", pnNow)
+
+	# same, capturing the DEVICE CONTEXT (ip + user-agent) so the session can be
+	# listed and revoked per device.
+	def LoginWith(pcUser, pcPassword, pcIp, pcUserAgent)
+		return This.LoginWithAt(pcUser, pcPassword, pcIp, pcUserAgent, This._NowSecs())
+
+	def LoginWithAt(pcUser, pcPassword, pcIp, pcUserAgent, pnNow)
 		_u_ = ring_trim("" + pcUser)
 		if This.IsLockedOutAt(_u_, pnNow)
 			return ""
@@ -167,12 +188,17 @@ class stzAuth from stzObject
 		ok
 		This._ClearFailures(_u_)
 		_tok_ = StzEngineCryptoRandomHex(32)
+		@oStore.PutSession(_tok_, This._NewRec(_u_, pnNow, "" + pcIp, "" + pcUserAgent))
+		return _tok_
+
+	# build a fresh session record (absolute expiry from now, metadata, lastseen).
+	def _NewRec(pcUser, pnNow, pcIp, pcUa)
 		_exp_ = 0
 		if @nSessionTTL > 0
 			_exp_ = pnNow + @nSessionTTL
 		ok
-		@oStore.PutSession(_tok_, _u_, _exp_)
-		return _tok_
+		return [ :user = "" + pcUser, :expires = _exp_, :created = pnNow,
+		         :ip = "" + pcIp, :ua = "" + pcUa, :lastseen = pnNow ]
 
 	# the user behind a live session token, or "" if unknown / ended / EXPIRED
 	# (checked against the wall clock).
@@ -180,15 +206,23 @@ class stzAuth from stzObject
 		return This.UserOfSessionAt(pcToken, This._NowSecs())
 
 	# same, against an explicit 'now' (epoch seconds) -- deterministic for tests.
+	# Checks BOTH the absolute expiry and (when enabled) the idle window, and
+	# slides the idle window by touching last-seen on a valid access.
 	def UserOfSessionAt(pcToken, pnNowSecs)
 		_s_ = @oStore.Session("" + pcToken)
 		if len(_s_) = 0
 			return ""
 		ok
-		if _s_[2] > 0 and pnNowSecs >= _s_[2]
+		if _s_[:expires] > 0 and pnNowSecs >= _s_[:expires]
 			return ""
 		ok
-		return _s_[1]
+		if @nIdleTTL > 0 and (pnNowSecs - _s_[:lastseen]) >= @nIdleTTL
+			return ""
+		ok
+		if @nIdleTTL > 0
+			@oStore.TouchSession("" + pcToken, pnNowSecs)   # slide the idle window
+		ok
+		return _s_[:user]
 
 	def IsValidSession(pcToken)
 		return This.UserOfSession(pcToken) != ""
@@ -205,8 +239,8 @@ class stzAuth from stzObject
 		ok
 		_oTok_ = new stzToken("session")
 		_oTok_.FromLiteral("" + pcToken)
-		if _s_[2] > 0
-			_oTok_.SetExpiry(_s_[2])
+		if _s_[:expires] > 0
+			_oTok_.SetExpiry(_s_[:expires])
 		ok
 		return _oTok_
 
@@ -216,16 +250,24 @@ class stzAuth from stzObject
 		if len(_s_) = 0
 			return -1
 		ok
-		return _s_[2]
+		return _s_[:expires]
 
-	# drop expired sessions (housekeeping) -> the number pruned.
+	# drop expired sessions (housekeeping) -> the number pruned. Prunes BOTH
+	# absolute-expired and (when idle timeout is on) idle-expired sessions.
 	def PurgeExpiredAt(pnNowSecs)
 		_aS_ = @oStore.Sessions()
 		_nP_ = 0
 		_n_ = len(_aS_)
 		for _i_ = 1 to _n_
-			if _aS_[_i_][3] > 0 and pnNowSecs >= _aS_[_i_][3]
-				@oStore.DeleteSession(_aS_[_i_][1])
+			_dead_ = FALSE
+			if _aS_[_i_][:expires] > 0 and pnNowSecs >= _aS_[_i_][:expires]
+				_dead_ = TRUE
+			ok
+			if @nIdleTTL > 0 and (pnNowSecs - _aS_[_i_][:lastseen]) >= @nIdleTTL
+				_dead_ = TRUE
+			ok
+			if _dead_
+				@oStore.DeleteSession(_aS_[_i_][:token])
 				_nP_++
 			ok
 		next
@@ -241,11 +283,72 @@ class stzAuth from stzObject
 		@oStore.DeleteSession("" + pcToken)
 		return This
 
+	# revoke ONE session (per-device "sign out this device"). Alias of Logout,
+	# named for the device-management flow.
+	def RevokeSession(pcToken)
+		@oStore.DeleteSession("" + pcToken)
+		return This
+
 	# end EVERY session for a user without removing the account ("log out
 	# everywhere") -- distinct from Unregister.
 	def RevokeAllSessions(pcUser)
 		@oStore.DeleteUserSessions(ring_trim("" + pcUser))
 		return This
+
+	  #-- the "your devices" surface + fixation defense -------------------
+
+	# every live session of a user, as public descriptors -- the data a "your
+	# active devices" view lists (token to revoke by, plus when/where/what).
+	#   [ [ :token, :user, :created, :ip, :userAgent, :expires, :lastSeen ], ... ]
+	def SessionsOf(pcUser)
+		return This.SessionsOfAt(pcUser, This._NowSecs())
+
+	def SessionsOfAt(pcUser, pnNow)
+		_out_ = []
+		_aR_ = @oStore.SessionsOf(ring_trim("" + pcUser))
+		_n_ = len(_aR_)
+		for _i_ = 1 to _n_
+			_r_ = _aR_[_i_]
+			# skip ones already dead (absolute or idle)
+			if _r_[:expires] > 0 and pnNow >= _r_[:expires]
+				loop
+			ok
+			if @nIdleTTL > 0 and (pnNow - _r_[:lastseen]) >= @nIdleTTL
+				loop
+			ok
+			_out_ + [ :token = _r_[:token], :user = _r_[:user], :created = _r_[:created],
+			          :ip = _r_[:ip], :userAgent = _r_[:ua], :expires = _r_[:expires],
+			          :lastSeen = _r_[:lastseen] ]
+		next
+		return _out_
+
+	# one session's public descriptor, or [] if unknown.
+	def SessionInfo(pcToken)
+		_s_ = @oStore.Session("" + pcToken)
+		if len(_s_) = 0
+			return []
+		ok
+		return [ :token = _s_[:token], :user = _s_[:user], :created = _s_[:created],
+		         :ip = _s_[:ip], :userAgent = _s_[:ua], :expires = _s_[:expires],
+		         :lastSeen = _s_[:lastseen] ]
+
+	# ROTATE a session's token (session-fixation defense): after a privilege
+	# change -- 2FA, password change, elevation -- issue a NEW token for the same
+	# user + device, void the OLD one, and return the new token ("" if invalid).
+	# The pre-elevation token can no longer be replayed.
+	def RotateSession(pcToken)
+		return This.RotateSessionAt(pcToken, This._NowSecs())
+
+	def RotateSessionAt(pcToken, pnNow)
+		_u_ = This.UserOfSessionAt("" + pcToken, pnNow)
+		if _u_ = ""
+			return ""
+		ok
+		_s_ = @oStore.Session("" + pcToken)
+		_new_ = StzEngineCryptoRandomHex(32)
+		@oStore.PutSession(_new_, This._NewRec(_u_, pnNow, _s_[:ip], _s_[:ua]))
+		@oStore.DeleteSession("" + pcToken)
+		return _new_
 
 	  #-- lockout queries -------------------------------------------------
 
