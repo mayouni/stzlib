@@ -1,7 +1,7 @@
 # Industrial-Strength Authentication
 ### What Better Auth teaches, and how Softanza should answer it — through governance, not just feature-parity
 
-> Status: **phases 1–2 BUILT (f91c12b0c, 7ca8a978b); phases 3–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
+> Status: **phases 1–3 BUILT (f91c12b0c, 7ca8a978b, + this commit); phases 4–6 planned, external-identity deferred.** Written 2026-07-24 in answer to
 > the user's request to analyse [better-auth](https://github.com/better-auth/better-auth)
 > and extract what would make Softanza's `stzAuth` industrial-strength. Grounded
 > in a read of the live `base/security/stzAuth.ring` and a survey of Better
@@ -166,7 +166,25 @@ Ordered so each phase ships value and the early ones unblock the later.
    window). `LoginWith(user, pw, ip, ua)`; plain `Login` unchanged. Guard
    `auth_sessions_narrated` (25).
 3. **TOTP 2FA (L4)** — engine HMAC; enroll + verify + recovery codes. The first
-   pluggable method (L2), proving the strategy seam.
+   pluggable method (L2), proving the strategy seam. **DONE.** The engine grew a
+   real RFC 6238 primitive (`StzEngineCryptoTotp` in `crypto.zig` — HMAC-SHA1
+   *and* SHA256 + RFC 4226 truncation, verified against the published RFC
+   vectors; the HMAC stays engine-side, a hex key in and decimal digits out, so
+   no raw key bytes cross the Ring↔engine boundary). New `stzTotp` owns the
+   base32 secret, the `otpauth://` provisioning URI an authenticator app scans,
+   and skew-window verification (SHA1 / 6-digit / 30s — Google Authenticator /
+   Authy / 1Password compatible). `stzAuth` gained the enrollment + enforced
+   login flow: `EnableTotp` (issues a secret, stored **unconfirmed** so a
+   mis-scan never locks anyone out) → `ConfirmTotp` (proves a first code, enables
+   the factor, returns ten one-time **recovery codes** — only their hashes are
+   stored) → a plain `Login` is then **refused** for that user and
+   `LoginTwoFactor` (password + TOTP-or-recovery) is the door;
+   `RequiresTwoFactor`, `VerifyTotp`, `DisableTotp`, `RegenerateRecoveryCodes`,
+   `RecoveryCodesRemaining`. 2FA state persists through the auth store
+   (`auth2fa` table; a second `stzAuth` on the same DB sees the enforced factor
+   and consumed recovery codes). Guard `auth_totp_narrated` (40); regressions
+   `secret` 53 / `auth_store` 31 / `auth_sessions` 25 all green. A bad second
+   factor counts toward the phase-1 lockout.
 4. **Passwordless via the mail port (L4)** — magic-link / email-OTP over the
    service-virtualization mail sink (dev) → real sender (deploy).
 5. **authn → authz bridge (L5)** — `Login` yields an actor; roles via governance;

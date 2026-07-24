@@ -145,6 +145,7 @@ class stzAuth from stzObject
 		_u_ = ring_trim("" + pcUser)
 		@oStore.DeleteUser(_u_)
 		@oStore.DeleteUserSessions(_u_)
+		@oStore.DeleteTotp(_u_)
 		This._ClearFailures(_u_)
 		return This
 
@@ -187,9 +188,55 @@ class stzAuth from stzObject
 			return ""
 		ok
 		This._ClearFailures(_u_)
+		# 2FA is ENFORCED: a user with a confirmed second factor cannot open a
+		# session with a password alone -- the caller must use LoginTwoFactor.
+		# (Check RequiresTwoFactor to know which door to use.) This keeps the
+		# common single-factor path unchanged for every user without 2FA.
+		if This.HasTotp(_u_)
+			return ""
+		ok
+		return This._OpenSession(_u_, pnNow, "" + pcIp, "" + pcUserAgent)
+
+	# mint a session token + persist its record. The single place a session is
+	# opened -- shared by the password path and the two-factor path.
+	def _OpenSession(pcUser, pnNow, pcIp, pcUa)
 		_tok_ = StzEngineCryptoRandomHex(32)
-		@oStore.PutSession(_tok_, This._NewRec(_u_, pnNow, "" + pcIp, "" + pcUserAgent))
+		@oStore.PutSession(_tok_, This._NewRec(pcUser, pnNow, pcIp, pcUa))
 		return _tok_
+
+	  #-- two-factor login ------------------------------------------------
+	#
+	# Password AND second factor in one call. For a user WITHOUT 2FA the code is
+	# ignored (password alone opens the session), so an app may always route login
+	# through here. For a 2FA user, a valid TOTP (or one-time recovery) code is
+	# required. Returns a session token, or "" on any failure / lockout.
+
+	def LoginTwoFactor(pcUser, pcPassword, pcCode)
+		return This.LoginTwoFactorWithAt(pcUser, pcPassword, pcCode, "", "", This._NowSecs())
+
+	def LoginTwoFactorAt(pcUser, pcPassword, pcCode, pnNow)
+		return This.LoginTwoFactorWithAt(pcUser, pcPassword, pcCode, "", "", pnNow)
+
+	def LoginTwoFactorWith(pcUser, pcPassword, pcCode, pcIp, pcUserAgent)
+		return This.LoginTwoFactorWithAt(pcUser, pcPassword, pcCode, pcIp, pcUserAgent, This._NowSecs())
+
+	def LoginTwoFactorWithAt(pcUser, pcPassword, pcCode, pcIp, pcUserAgent, pnNow)
+		_u_ = ring_trim("" + pcUser)
+		if This.IsLockedOutAt(_u_, pnNow)
+			return ""
+		ok
+		if NOT This.Authenticate(_u_, pcPassword)
+			This._RecordFailure(_u_, pnNow)
+			return ""
+		ok
+		if This.HasTotp(_u_)
+			if NOT This.VerifyTotpAt(_u_, pcCode, pnNow)
+				This._RecordFailure(_u_, pnNow)   # a bad 2nd factor counts toward lockout
+				return ""
+			ok
+		ok
+		This._ClearFailures(_u_)
+		return This._OpenSession(_u_, pnNow, "" + pcIp, "" + pcUserAgent)
 
 	# build a fresh session record (absolute expiry from now, metadata, lastseen).
 	def _NewRec(pcUser, pnNow, pcIp, pcUa)
@@ -350,6 +397,101 @@ class stzAuth from stzObject
 		@oStore.DeleteSession("" + pcToken)
 		return _new_
 
+	  #-- two-factor authentication (TOTP) --------------------------------
+	#
+	# A user may add an authenticator-app second factor. Enrollment is TWO steps so
+	# a mis-scanned secret can never lock the user out: EnableTotp issues a secret
+	# stored UNCONFIRMED (not yet enforced -- plain Login still works); ConfirmTotp
+	# proves the app is in sync, enforces the factor, and hands back one-time
+	# recovery codes. From then on a plain Login is refused for that user and
+	# LoginTwoFactor is the only door. The factor is stzTotp; per-user state (secret
+	# + recovery-code hashes) lives in the store.
+
+	# whether a user has a CONFIRMED (enforced) second factor.
+	def HasTotp(pcUser)
+		_rec_ = @oStore.Totp(ring_trim("" + pcUser))
+		return (len(_rec_) > 0) and (_rec_[:confirmed] = 1)
+
+	# app-facing alias: does signing this user in require a second factor?
+	def RequiresTwoFactor(pcUser)
+		return This.HasTotp(pcUser)
+
+	# begin enrollment: mint a secret, store it UNCONFIRMED, and return
+	# [ :secret, :uri ]. Render :uri as a QR code for the user's app; :secret is the
+	# same key for manual entry. Nothing is enforced until ConfirmTotp. Raises if a
+	# CONFIRMED factor already exists (disable it first); a still-pending enrollment
+	# is simply replaced.
+	def EnableTotp(pcUser, pcIssuer)
+		_u_ = ring_trim("" + pcUser)
+		if NOT @oStore.HasUser(_u_)
+			StzRaise("stzAuth.EnableTotp: no such user '" + _u_ + "'.")
+		ok
+		if This.HasTotp(_u_)
+			StzRaise("stzAuth.EnableTotp: 2FA already active for '" + _u_ + "' -- disable it first.")
+		ok
+		_oT_ = new stzTotp()
+		@oStore.PutTotp(_u_, _oT_.Secret(), 0, [])
+		return [ :secret = _oT_.Secret(),
+		         :uri = _oT_.ProvisioningUri(_u_, "" + pcIssuer) ]
+
+	# finish enrollment: verify the app's current code. On success the factor is
+	# confirmed (now enforced) and a fresh set of one-time recovery codes is
+	# returned -- show them to the user ONCE (only their hashes are stored). Returns
+	# [] on a bad code (enrollment stays pending).
+	def ConfirmTotp(pcUser, pcCode)
+		return This.ConfirmTotpAt(pcUser, pcCode, This._NowSecs())
+
+	def ConfirmTotpAt(pcUser, pcCode, pnNow)
+		_u_ = ring_trim("" + pcUser)
+		_rec_ = @oStore.Totp(_u_)
+		if len(_rec_) = 0
+			return []
+		ok
+		_oT_ = StzTotpFromSecretQ(_rec_[:secret])
+		if NOT _oT_.VerifyAt(pcCode, pnNow)
+			return []
+		ok
+		@oStore.SetTotpConfirmed(_u_, 1)
+		return This._IssueRecoveryCodes(_u_)
+
+	# verify a TOTP code (or a one-time recovery code) for a confirmed user.
+	def VerifyTotp(pcUser, pcCode)
+		return This.VerifyTotpAt(pcUser, pcCode, This._NowSecs())
+
+	def VerifyTotpAt(pcUser, pcCode, pnNow)
+		_u_ = ring_trim("" + pcUser)
+		_rec_ = @oStore.Totp(_u_)
+		if (len(_rec_) = 0) or (_rec_[:confirmed] != 1)
+			return FALSE
+		ok
+		_oT_ = StzTotpFromSecretQ(_rec_[:secret])
+		if _oT_.VerifyAt(pcCode, pnNow)
+			return TRUE
+		ok
+		return This._ConsumeRecoveryCode(_u_, pcCode, _rec_[:recovery])
+
+	# turn 2FA off (removes the secret + every recovery code).
+	def DisableTotp(pcUser)
+		@oStore.DeleteTotp(ring_trim("" + pcUser))
+		return This
+
+	# issue a FRESH set of recovery codes (the old set stops working). Returns the
+	# plaintext to show once. Only for a confirmed factor.
+	def RegenerateRecoveryCodes(pcUser)
+		_u_ = ring_trim("" + pcUser)
+		if NOT This.HasTotp(_u_)
+			StzRaise("stzAuth.RegenerateRecoveryCodes: no confirmed 2FA for '" + _u_ + "'.")
+		ok
+		return This._IssueRecoveryCodes(_u_)
+
+	# how many unused recovery codes remain.
+	def RecoveryCodesRemaining(pcUser)
+		_rec_ = @oStore.Totp(ring_trim("" + pcUser))
+		if len(_rec_) = 0
+			return 0
+		ok
+		return len(_rec_[:recovery])
+
 	  #-- lockout queries -------------------------------------------------
 
 	def IsLockedOut(pcUser)
@@ -410,3 +552,57 @@ class stzAuth from stzObject
 			ok
 		next
 		@aFailures = _aNew_
+
+	  #-- recovery codes --------------------------------------------------
+
+	# generate a fresh set of 10 recovery codes, store their HASHES (replacing any
+	# prior set), and return the plaintext codes. Each is 64-bit, single-use.
+	def _IssueRecoveryCodes(pcUser)
+		_plain_ = []
+		_hashes_ = []
+		for _i_ = 1 to 10
+			_code_ = StzEngineCryptoRandomHex(8)   # 16 hex chars
+			_plain_ + _code_
+			_hashes_ + StzHashSecret(_code_)
+		next
+		@oStore.SetTotpRecovery("" + pcUser, _hashes_)
+		return _plain_
+
+	# check a submitted code against the stored recovery HASHES; on a match CONSUME
+	# it (drop that hash so it cannot be reused) and return TRUE.
+	def _ConsumeRecoveryCode(pcUser, pcCode, paHashes)
+		_sub_ = This._CanonRecovery(pcCode)
+		if _sub_ = ""
+			return FALSE
+		ok
+		_n_ = len(paHashes)
+		for _i_ = 1 to _n_
+			if StzVerifySecret(_sub_, paHashes[_i_])
+				_aNew_ = []
+				for _j_ = 1 to _n_
+					if _j_ != _i_
+						_aNew_ + paHashes[_j_]
+					ok
+				next
+				@oStore.SetTotpRecovery("" + pcUser, _aNew_)
+				return TRUE
+			ok
+		next
+		return FALSE
+
+	# canonicalize a recovery code: lower-case, keep only hex characters (so it may
+	# be typed with spaces or in upper-case).
+	def _CanonRecovery(pcCode)
+		_s_ = "" + pcCode
+		_out_ = ""
+		_n_ = len(_s_)
+		for _i_ = 1 to _n_
+			_a_ = ascii(_s_[_i_])
+			if _a_ >= 65 and _a_ <= 70
+				_a_ = _a_ + 32                       # A-F -> a-f
+			ok
+			if (_a_ >= 48 and _a_ <= 57) or (_a_ >= 97 and _a_ <= 102)
+				_out_ += char(_a_)
+			ok
+		next
+		return _out_
