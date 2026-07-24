@@ -39,6 +39,11 @@ class stzAuth from stzObject
 	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
+	# passwordless (magic-link / email-OTP) over a mail PORT (service-virtualization)
+	@oMailPort = NULL          # any object with Send(to, subject, body); NULL = unbound
+	@cMagicLinkBaseUrl = ""    # the app URL a magic link points at ("" = a softanza:// uri)
+	@nPasswordlessTTL = 900    # how long a magic link / OTP is valid (seconds, 15 min)
+
 	# brute-force lockout (in-memory, per submitted username). Not durable across
 	# restarts by design -- rate-limit state, not identity data; a shared/durable
 	# limiter is a later hardening. Kept here so it never leaks into the store.
@@ -88,6 +93,47 @@ class stzAuth from stzObject
 	def IdleTTL()
 		return @nIdleTTL
 
+	  #-- passwordless config (mail port + magic-link) --------------------
+
+	# bind the mail PORT passwordless flows send through -- a stzMailSandbox in dev
+	# (captured + assertable), your SMTP adapter at deploy. Any object with
+	# Send(to, subject, body) works.
+	def SetMailPort(poPort)
+		This.SetMailPortQ(poPort)
+
+	def SetMailPortQ(poPort)
+		@oMailPort = poPort
+		return This
+
+	def MailPortQ()
+		return @oMailPort
+
+	def HasMailPort()
+		return isObject(@oMailPort)
+
+	# the app URL a magic link points at; the token is appended as ?token=...
+	# (or &token=... if the URL already has a query). "" -> a softanza:// URI.
+	def SetMagicLinkBaseUrl(pcUrl)
+		This.SetMagicLinkBaseUrlQ(pcUrl)
+
+	def SetMagicLinkBaseUrlQ(pcUrl)
+		@cMagicLinkBaseUrl = "" + pcUrl
+		return This
+
+	def MagicLinkBaseUrl()
+		return @cMagicLinkBaseUrl
+
+	# how long a magic link / email-OTP stays valid (seconds).
+	def SetPasswordlessTTL(pnSeconds)
+		This.SetPasswordlessTTLQ(pnSeconds)
+
+	def SetPasswordlessTTLQ(pnSeconds)
+		@nPasswordlessTTL = pnSeconds
+		return This
+
+	def PasswordlessTTL()
+		return @nPasswordlessTTL
+
 	  #-- brute-force lockout config --------------------------------------
 
 	def SetMaxAttempts(pnMax)
@@ -122,6 +168,20 @@ class stzAuth from stzObject
 			StzRaise("stzAuth.Register: user '" + _u_ + "' already exists.")
 		ok
 		@oStore.PutUser(_u_, StzHashSecret("" + pcPassword))
+		return This
+
+	# register an account with NO usable password -- reachable only through a
+	# passwordless factor (magic-link / email-OTP). The stored hash is of a random
+	# value nobody holds, so Login can never succeed for it.
+	def RegisterPasswordless(pcUser)
+		_u_ = ring_trim("" + pcUser)
+		if _u_ = ""
+			StzRaise("stzAuth.RegisterPasswordless: a user name is required.")
+		ok
+		if @oStore.HasUser(_u_)
+			StzRaise("stzAuth.RegisterPasswordless: user '" + _u_ + "' already exists.")
+		ok
+		@oStore.PutUser(_u_, StzHashSecret(StzEngineCryptoRandomHex(32)))
 		return This
 
 	def IsRegistered(pcUser)
@@ -492,6 +552,113 @@ class stzAuth from stzObject
 		ok
 		return len(_rec_[:recovery])
 
+	  #-- passwordless: magic link ----------------------------------------
+	#
+	# Send a one-time sign-in LINK to the user's email. The emailed token is random
+	# (256-bit); only its sha256 is stored, so a leaked store never yields a usable
+	# link. ENUMERATION-SAFE: the call behaves identically whether or not the email
+	# has an account -- a link is minted and sent only for a real user, but the
+	# return is always the same. Requires a bound mail port.
+
+	def RequestMagicLink(pcEmail)
+		return This.RequestMagicLinkAt(pcEmail, This._NowSecs())
+
+	def RequestMagicLinkAt(pcEmail, pnNow)
+		if NOT This.HasMailPort()
+			StzRaise("stzAuth.RequestMagicLink: no mail port bound -- call SetMailPort.")
+		ok
+		_u_ = ring_trim("" + pcEmail)
+		if @oStore.HasUser(_u_)
+			_tok_ = StzEngineCryptoRandomHex(32)
+			@oStore.PutChallenge(StzEngineCryptoSha256(_tok_), "magiclink", _u_, "",
+			                     pnNow + @nPasswordlessTTL)
+			@oMailPort.Send(_u_, "Your sign-in link",
+			    "Click to sign in: " + This._MagicLinkUrl(_tok_) + char(10) +
+			    "This link expires in " + floor(@nPasswordlessTTL / 60) + " minutes.")
+		ok
+		return TRUE
+
+	# redeem a magic-link token -> a session token ("" if invalid / expired / for a
+	# user who since vanished, or whose 2FA forbids the shortcut).
+	def RedeemMagicLink(pcToken)
+		return This.RedeemMagicLinkWithAt(pcToken, "", "", This._NowSecs())
+
+	def RedeemMagicLinkAt(pcToken, pnNow)
+		return This.RedeemMagicLinkWithAt(pcToken, "", "", pnNow)
+
+	def RedeemMagicLinkWith(pcToken, pcIp, pcUserAgent)
+		return This.RedeemMagicLinkWithAt(pcToken, pcIp, pcUserAgent, This._NowSecs())
+
+	def RedeemMagicLinkWithAt(pcToken, pcIp, pcUserAgent, pnNow)
+		_handle_ = StzEngineCryptoSha256(ring_trim("" + pcToken))
+		_ch_ = @oStore.Challenge(_handle_)
+		if (len(_ch_) = 0) or (_ch_[:kind] != "magiclink")
+			return ""
+		ok
+		@oStore.DeleteChallenge(_handle_)                 # one-time, whatever the outcome
+		if (_ch_[:expires] > 0) and (pnNow >= _ch_[:expires])
+			return ""
+		ok
+		return This._PasswordlessSession(_ch_[:email], pnNow, "" + pcIp, "" + pcUserAgent)
+
+	  #-- passwordless: email OTP -----------------------------------------
+	#
+	# Email a short numeric code (6 digits) the user types back. The code is salted-
+	# hashed at rest and one pending code exists per email (a new request replaces
+	# it). A wrong code counts toward the brute-force lockout. Enumeration-safe, and
+	# requires a bound mail port.
+
+	def RequestEmailOtp(pcEmail)
+		return This.RequestEmailOtpAt(pcEmail, This._NowSecs())
+
+	def RequestEmailOtpAt(pcEmail, pnNow)
+		if NOT This.HasMailPort()
+			StzRaise("stzAuth.RequestEmailOtp: no mail port bound -- call SetMailPort.")
+		ok
+		_u_ = ring_trim("" + pcEmail)
+		if @oStore.HasUser(_u_)
+			_code_ = This._RandomOtp()
+			@oStore.PutChallenge("otp:" + _u_, "emailotp", _u_, StzHashSecret(_code_),
+			                     pnNow + @nPasswordlessTTL)
+			@oMailPort.Send(_u_, "Your sign-in code",
+			    "Your code is: " + _code_ + char(10) +
+			    "It expires in " + floor(@nPasswordlessTTL / 60) + " minutes.")
+		ok
+		return TRUE
+
+	# verify an emailed OTP -> a session token ("" on any failure / lockout / a 2FA
+	# user).
+	def VerifyEmailOtp(pcEmail, pcCode)
+		return This.VerifyEmailOtpWithAt(pcEmail, pcCode, "", "", This._NowSecs())
+
+	def VerifyEmailOtpAt(pcEmail, pcCode, pnNow)
+		return This.VerifyEmailOtpWithAt(pcEmail, pcCode, "", "", pnNow)
+
+	def VerifyEmailOtpWith(pcEmail, pcCode, pcIp, pcUserAgent)
+		return This.VerifyEmailOtpWithAt(pcEmail, pcCode, pcIp, pcUserAgent, This._NowSecs())
+
+	def VerifyEmailOtpWithAt(pcEmail, pcCode, pcIp, pcUserAgent, pnNow)
+		_u_ = ring_trim("" + pcEmail)
+		if This.IsLockedOutAt(_u_, pnNow)
+			return ""
+		ok
+		_handle_ = "otp:" + _u_
+		_ch_ = @oStore.Challenge(_handle_)
+		if (len(_ch_) = 0) or (_ch_[:kind] != "emailotp")
+			return ""
+		ok
+		if (_ch_[:expires] > 0) and (pnNow >= _ch_[:expires])
+			@oStore.DeleteChallenge(_handle_)
+			return ""
+		ok
+		if NOT StzVerifySecret(ring_trim("" + pcCode), _ch_[:codehash])
+			This._RecordFailure(_u_, pnNow)               # a bad code counts toward lockout
+			return ""
+		ok
+		@oStore.DeleteChallenge(_handle_)                 # one-time
+		This._ClearFailures(_u_)
+		return This._PasswordlessSession(_ch_[:email], pnNow, "" + pcIp, "" + pcUserAgent)
+
 	  #-- lockout queries -------------------------------------------------
 
 	def IsLockedOut(pcUser)
@@ -606,3 +773,51 @@ class stzAuth from stzObject
 			ok
 		next
 		return _out_
+
+	  #-- passwordless internals ------------------------------------------
+
+	# open a session at the end of a passwordless flow -- but never for a user who
+	# has since been removed, and never bypassing a confirmed 2FA (the possession
+	# factor proves the email, not the second factor).
+	def _PasswordlessSession(pcEmail, pnNow, pcIp, pcUa)
+		_u_ = "" + pcEmail
+		if NOT @oStore.HasUser(_u_)
+			return ""
+		ok
+		if This.HasTotp(_u_)
+			return ""
+		ok
+		return This._OpenSession(_u_, pnNow, pcIp, pcUa)
+
+	# build the URL a magic link points at (the token as a query parameter).
+	def _MagicLinkUrl(pcToken)
+		if @cMagicLinkBaseUrl = ""
+			return "softanza://magiclink?token=" + pcToken
+		ok
+		_sep_ = "?"
+		if StzFindFirst("?", @cMagicLinkBaseUrl) > 0
+			_sep_ = "&"
+		ok
+		return @cMagicLinkBaseUrl + _sep_ + "token=" + pcToken
+
+	# a 6-digit numeric code from CSPRNG bytes (uniform enough for a rate-limited,
+	# one-time, short-lived OTP; brute force is bounded by the lockout).
+	def _RandomOtp()
+		_hex_ = StzEngineCryptoRandomHex(5)   # 10 hex chars
+		_n_ = 0
+		_len_ = len(_hex_)
+		for _i_ = 1 to _len_
+			_a_ = ascii(_hex_[_i_])
+			_d_ = 0
+			if _a_ >= 48 and _a_ <= 57
+				_d_ = _a_ - 48
+			but _a_ >= 97 and _a_ <= 102
+				_d_ = _a_ - 87
+			ok
+			_n_ = (_n_ * 16 + _d_) % 1000000
+		next
+		_s_ = "" + _n_
+		while len(_s_) < 6
+			_s_ = "0" + _s_
+		end
+		return _s_

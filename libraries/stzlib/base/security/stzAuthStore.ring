@@ -41,14 +41,16 @@ func StzAuthDbStoreQ(pcPath)
 
 class stzAuthMemoryStore from stzObject
 
-	@aUsers    = []    # [ [ user, hash ], ... ]
-	@aSessions = []    # [ [ token, user, expiresAt ], ... ]
-	@a2fa      = []    # [ [ user, secretB32, confirmed(0/1), [ recoveryHash, ... ] ], ... ]
+	@aUsers      = []  # [ [ user, hash ], ... ]
+	@aSessions   = []  # [ [ token, user, expiresAt ], ... ]
+	@a2fa        = []  # [ [ user, secretB32, confirmed(0/1), [ recoveryHash, ... ] ], ... ]
+	@aChallenges = []  # [ [ handle, kind, email, codehash, expiresAt ], ... ]
 
 	def init()
-		@aUsers    = []
-		@aSessions = []
-		@a2fa      = []
+		@aUsers      = []
+		@aSessions   = []
+		@a2fa        = []
+		@aChallenges = []
 
 	  #-- users -----------------------------------------------------------
 
@@ -210,6 +212,42 @@ class stzAuthMemoryStore from stzObject
 		next
 		@a2fa = _aNew_
 
+	  #-- passwordless challenges (magic-link / email-OTP) ----------------
+	#
+	# A short-lived, one-time challenge. handle = the lookup key (for magic-link,
+	# sha256 of the emailed token so the raw token is never stored; for email-OTP,
+	# "otp:"+email so a new request replaces the pending one). codehash is empty for
+	# magic-link (the token IS the secret) and a salted hash of the code for OTP.
+
+	def PutChallenge(pcHandle, pcKind, pcEmail, pcCodeHash, pnExpires)
+		_h_ = "" + pcHandle
+		_i_ = This._ChallengeIndex(_h_)
+		_rec_ = [ _h_, "" + pcKind, "" + pcEmail, "" + pcCodeHash, pnExpires ]
+		if _i_ > 0
+			@aChallenges[_i_] = _rec_
+		else
+			@aChallenges + _rec_
+		ok
+
+	def Challenge(pcHandle)
+		_i_ = This._ChallengeIndex("" + pcHandle)
+		if _i_ = 0
+			return []
+		ok
+		_r_ = @aChallenges[_i_]
+		return [ :kind = _r_[2], :email = _r_[3], :codehash = _r_[4], :expires = _r_[5] ]
+
+	def DeleteChallenge(pcHandle)
+		_h_ = "" + pcHandle
+		_aNew_ = []
+		_n_ = len(@aChallenges)
+		for _i_ = 1 to _n_
+			if @aChallenges[_i_][1] != _h_
+				_aNew_ + @aChallenges[_i_]
+			ok
+		next
+		@aChallenges = _aNew_
+
 	  #-- internals -------------------------------------------------------
 
 	def _UserIndex(pcUser)
@@ -225,6 +263,15 @@ class stzAuthMemoryStore from stzObject
 		_n_ = len(@a2fa)
 		for _i_ = 1 to _n_
 			if @a2fa[_i_][1] = pcUser
+				return _i_
+			ok
+		next
+		return 0
+
+	def _ChallengeIndex(pcHandle)
+		_n_ = len(@aChallenges)
+		for _i_ = 1 to _n_
+			if @aChallenges[_i_][1] = pcHandle
 				return _i_
 			ok
 		next
@@ -248,6 +295,8 @@ class stzAuthDbStore from stzObject
 		          "usr TEXT, expires INTEGER, created INTEGER, ip TEXT, ua TEXT, lastseen INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS auth2fa (usr TEXT PRIMARY KEY, " +
 		          "secret TEXT, confirmed INTEGER, recovery TEXT)")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authchallenges (handle TEXT PRIMARY KEY, " +
+		          "kind TEXT, email TEXT, codehash TEXT, expires INTEGER)")
 
 	def DatabaseQ()
 		return @oDb
@@ -341,6 +390,25 @@ class stzAuthDbStore from stzObject
 
 	def DeleteTotp(pcUser)
 		@oDb.Exec("DELETE FROM auth2fa WHERE usr = '" + This._Esc(pcUser) + "'")
+
+	  #-- passwordless challenges (magic-link / email-OTP) ----------------
+
+	def PutChallenge(pcHandle, pcKind, pcEmail, pcCodeHash, pnExpires)
+		@oDb.Exec("INSERT OR REPLACE INTO authchallenges (handle, kind, email, codehash, expires) VALUES ('" +
+		          This._Esc(pcHandle) + "', '" + This._Esc(pcKind) + "', '" + This._Esc(pcEmail) + "', '" +
+		          This._Esc(pcCodeHash) + "', " + ring_number(pnExpires) + ")")
+
+	def Challenge(pcHandle)
+		_r_ = @oDb.Rows("SELECT kind, email, codehash, expires FROM authchallenges WHERE handle = '" +
+		                This._Esc(pcHandle) + "'")
+		if len(_r_) = 0
+			return []
+		ok
+		return [ :kind = "" + _r_[1][1], :email = "" + _r_[1][2],
+		         :codehash = "" + _r_[1][3], :expires = ring_number(_r_[1][4]) ]
+
+	def DeleteChallenge(pcHandle)
+		@oDb.Exec("DELETE FROM authchallenges WHERE handle = '" + This._Esc(pcHandle) + "'")
 
 	  #-- internals -------------------------------------------------------
 
