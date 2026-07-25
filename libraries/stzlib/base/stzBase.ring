@@ -56,6 +56,7 @@ ok
 
     load "number/stzNumber.ring" #TODO Check compatibiiliy with stkNumber in CORE layer
     load "number/stzListOfNumbers.ring"
+    load "number/stzNumBuffer.ring"   # numbers that LIVE in the engine (residency)
     load "number/stzPairOfNumbers.ring"
 
     load "number/stzBinaryNumber.ring"
