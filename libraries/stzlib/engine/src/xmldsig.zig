@@ -1032,6 +1032,101 @@ pub export fn stz_saml_sign(x: [*]const u8, xl: usize, d: [*]const u8, dl: usize
     return saml_sign(x, xl, d, dl, o, oc);
 }
 
+// ── SAML metadata: what an IdP actually publishes ────────────
+//
+// You do not configure a real service provider by typing key components. You
+// paste the IdP's METADATA -- an XML document carrying its entityID, its SSO
+// endpoint, and its signing CERTIFICATE. Reading it is the difference between
+// "SAML works" and "SAML works with Okta".
+//
+// Returns "entityID|ssoUrl|certificateBase64". The certificate is handed back as
+// text for the caller to turn into a key (see x509), so this module stays about
+// XML and that one stays about certificates.
+
+var g_meta_doc: Doc = undefined;
+
+const MD = "urn:oasis:names:tc:SAML:2.0:metadata";
+
+pub fn saml_metadata(xml_ptr: [*]const u8, xml_len: usize, out: [*]u8, out_cap: usize) callconv(.c) i32 {
+    parse(&g_meta_doc, xml_ptr[0..xml_len]) catch return -1;
+    const root = g_meta_doc.root() orelse return -1;
+
+    // entityID lives on EntityDescriptor (which may be the root, or wrapped in an
+    // EntitiesDescriptor when a federation publishes several at once)
+    var entity: []const u8 = "";
+    if (g_meta_doc.attrValue(root, "", "entityID")) |v| {
+        entity = v;
+    } else if (g_meta_doc.find(MD, "EntityDescriptor")) |ed| {
+        entity = g_meta_doc.attrValue(ed, "", "entityID") orelse "";
+    }
+
+    // the redirect-binding SSO endpoint, else whichever comes first
+    var sso: []const u8 = "";
+    var i: usize = 0;
+    while (i < g_meta_doc.node_count) : (i += 1) {
+        const n = &g_meta_doc.nodes[i];
+        if (!std.mem.eql(u8, n.local, "SingleSignOnService")) continue;
+        const loc = g_meta_doc.attrValue(n, "", "Location") orelse continue;
+        const binding = g_meta_doc.attrValue(n, "", "Binding") orelse "";
+        if (sso.len == 0) sso = loc;
+        if (std.mem.indexOf(u8, binding, "HTTP-Redirect") != null) {
+            sso = loc;
+            break;
+        }
+    }
+
+    // the SIGNING certificate. A metadata document often carries two (signing and
+    // encryption); prefer the one whose KeyDescriptor says use="signing".
+    var cert: []const u8 = "";
+    i = 0;
+    while (i < g_meta_doc.node_count) : (i += 1) {
+        const n = &g_meta_doc.nodes[i];
+        if (!std.mem.eql(u8, n.local, "X509Certificate")) continue;
+        const text = g_meta_doc.textOf(n);
+        if (text.len == 0) continue;
+        if (cert.len == 0) cert = text;
+        // walk up to a KeyDescriptor and check its use
+        var p2: i32 = n.parent;
+        while (p2 >= 0) {
+            const anc = &g_meta_doc.nodes[@intCast(p2)];
+            if (std.mem.eql(u8, anc.local, "KeyDescriptor")) {
+                const use = g_meta_doc.attrValue(anc, "", "use") orelse "";
+                if (use.len == 0 or std.mem.eql(u8, use, "signing")) {
+                    cert = text;
+                    p2 = -1;
+                    break;
+                }
+                break;
+            }
+            p2 = anc.parent;
+        }
+        if (cert.ptr == text.ptr and cert.len == text.len) {
+            // keep looking only if we have not settled on a signing cert
+        }
+    }
+    if (entity.len == 0 or cert.len == 0) return -1;
+
+    var w: usize = 0;
+    for ([_][]const u8{ entity, "|", sso, "|" }) |part| {
+        if (w + part.len > out_cap) return -1;
+        @memcpy(out[w .. w + part.len], part);
+        w += part.len;
+    }
+    // the certificate arrives wrapped/indented inside XML; hand it over with the
+    // whitespace stripped so the caller can feed it straight to a parser
+    for (cert) |ch| {
+        if (isSpace(ch)) continue;
+        if (w + 1 > out_cap) return -1;
+        out[w] = ch;
+        w += 1;
+    }
+    return @intCast(w);
+}
+
+pub export fn stz_saml_metadata(x: [*]const u8, xl: usize, o: [*]u8, oc: usize) callconv(.c) i32 {
+    return saml_metadata(x, xl, o, oc);
+}
+
 // ── tests ────────────────────────────────────────────────────
 
 test "xml: parse + namespaces + attributes" {

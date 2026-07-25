@@ -1,6 +1,7 @@
 pub const crypto = @import("crypto.zig");
 pub const webauthn = @import("webauthn.zig");
 pub const xmldsig = @import("xmldsig.zig");
+pub const x509 = @import("x509.zig");
 pub const ring_bridge = @import("ring_bridge_crypto.zig");
 
 comptime {

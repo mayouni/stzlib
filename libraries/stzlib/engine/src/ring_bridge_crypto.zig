@@ -1,6 +1,7 @@
 const crypto = @import("crypto.zig");
 const webauthn = @import("webauthn.zig");
 const xmldsig = @import("xmldsig.zig");
+const x509 = @import("x509.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -234,6 +235,44 @@ fn ring_SamlSign(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// ── X.509 certificates ───────────────────────────────────────
+
+// StzEngineCertificateKey(cPemOrBareB64) -> "RSA|n|e" or "EC|x|y" (base64url)
+fn ring_CertKey(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const sl: usize = @intCast(gss(p, 1));
+    var buf: [4096]u8 = undefined;
+    const n = x509.x509_public_key(s, sl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineCertificateFingerprint(cCert) -> sha256 hex (what you PIN)
+fn ring_CertFp(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const sl: usize = @intCast(gss(p, 1));
+    var buf: [64]u8 = undefined;
+    const n = x509.x509_fingerprint(s, sl, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineCertificateDescribe(cCert) -> "subject|notBefore|notAfter"
+fn ring_CertDescribe(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const sl: usize = @intCast(gss(p, 1));
+    var buf: [1024]u8 = undefined;
+    const n = x509.x509_describe(s, sl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineSamlMetadata(cXml) -> "entityID|ssoUrl|certificateBase64"
+fn ring_SamlMetadata(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const xl: usize = @intCast(gss(p, 1));
+    var buf: [8192]u8 = undefined;
+    const n = xmldsig.saml_metadata(x, xl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -256,6 +295,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginewebauthnmakeassertion", .func = &ring_WaMakeAssertion },
     .{ .name = "stzenginesamlverify", .func = &ring_SamlVerify },
     .{ .name = "stzenginesamlsign", .func = &ring_SamlSign },
+    .{ .name = "stzenginecertificatekey", .func = &ring_CertKey },
+    .{ .name = "stzenginecertificatefingerprint", .func = &ring_CertFp },
+    .{ .name = "stzenginecertificatedescribe", .func = &ring_CertDescribe },
+    .{ .name = "stzenginesamlmetadata", .func = &ring_SamlMetadata },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
