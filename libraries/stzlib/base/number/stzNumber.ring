@@ -1173,7 +1173,12 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 
 	on 3
 		_cUnits_ = StzRight(pcNumber,1)
-		_cDozens_ = StzStringQ(pcNumber).Section(2, 1)
+		# FIXED 2026-07-25: was Section(2, 1) -- a BACKWARDS range, which returns
+		# "23" of "234" instead of the middle digit "3". The dozens of a 3-digit
+		# group is one character, at position 2. It stayed hidden while the groups
+		# themselves were wrong (see _StzDigitGroupsOfThree); correcting the grouping
+		# is what made a real 3-digit group reach this line.
+		_cDozens_ = StzStringQ(pcNumber).Section(2, 2)
 		_cHundreds_ = StzLeft(pcNumber,1)
 	off
 
@@ -1939,6 +1944,38 @@ func _StzIsListOfNumbersOrNumberStrings(paList)
 		return FALSE
 	next
 	return TRUE
+
+# THE DIGIT GROUPS OF A NUMBER, in threes FROM THE RIGHT, units group FIRST:
+#   "1234567" -> [ "567", "234", "1" ]
+#   "12590"   -> [ "590", "12" ]
+#   "5"       -> [ "5" ]
+#
+# FIXED 2026-07-25. Both Structure() and StructureXT() built this with
+# `SplitToNPartsQ(3)`, which splits into THREE PARTS OF EQUAL LENGTH, not into
+# parts OF three -- "N parts" read as "parts of N". So 1234567 came apart as
+# 123/45/67 and the number's Millions/Thousands/Hundreds were all wrong, taking
+# ApplyFormatXT's thousands separator with them. The grouping is the same for both
+# methods, so it lives in one place now.
+#
+# Units-group-first is deliberate: it is the order both callers index (_aTemp_[1]
+# is the hundreds group, [2] the thousands...), and it is the order the grouping
+# naturally produces when walking from the right.
+func _StzDigitGroupsOfThree(pcDigits)
+	_c_ = _StzDigitsOnly("" + pcDigits)
+	_aOut_ = []
+	if _c_ = ""
+		return _aOut_
+	ok
+	_nEnd_ = len(_c_)
+	while _nEnd_ > 0
+		_nStart_ = _nEnd_ - 2
+		if _nStart_ < 1
+			_nStart_ = 1
+		ok
+		_aOut_ + StzMid(_c_, _nStart_, _nEnd_ - _nStart_ + 1)
+		_nEnd_ = _nStart_ - 1
+	end
+	return _aOut_
 
 # "007" -> "7"; "00.5" -> "0.5". One zero is kept before the point, because ".5"
 # is not a number anybody wants back.
@@ -5829,7 +5866,11 @@ class stzNumber from stzObject
 
 		*/
 
-		_oStzIntegerPart_ = new stzString(This.IntegerPart())
+		# FIXED 2026-07-25: this used IntegerPart(), which KEEPS the sign, while
+		# Structure() correctly uses IntegerPartWithoutSign() -- and the doc above
+		# says the sign is not part of the analysis. A negative number fed its "-"
+		# into the digit grouping.
+		_oStzIntegerPart_ = new stzString(This.IntegerPartWithoutSign())
 		_oStzFractionalPart_ = new stzString(This.FractionalPart())
 
 		// Initializing the structure containers and the required variables
@@ -5841,38 +5882,15 @@ class stzNumber from stzObject
 			
 		_aStructure_ = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		_aTemp_ = _oStzIntegerPart_.SplitToNPartsQ(3).Reversed()
+		# FIXED 2026-07-25: same wrong split as Structure() -- see
+		# _StzDigitGroupsOfThree.
+		_aTemp_ = _StzDigitGroupsOfThree( _oStzIntegerPart_.Content() )
 
-		switch len(_aTemp_)
-		on 0
-			// Nothing
-
-		on 1
-			_cHundreds_  = _aTemp_[1]
-
-		on 2
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-
-		on 3
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-
-		on 4
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-			_cBillions_  = _aTemp_[4]
-
-		on 5
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-			_cBillions_  = _aTemp_[4]
-			_cTrillions_ = _aTemp_[5]
-
-		off
+		if len(_aTemp_) >= 1  _cHundreds_  = _aTemp_[1] ok
+		if len(_aTemp_) >= 2  _cThousands_ = _aTemp_[2] ok
+		if len(_aTemp_) >= 3  _cMillions_  = _aTemp_[3] ok
+		if len(_aTemp_) >= 4  _cBillions_  = _aTemp_[4] ok
+		if len(_aTemp_) >= 5  _cTrillions_ = _aTemp_[5] ok
 
 		_aStructure_ = [ 	
 			:aTrillions = GetMicroStructure(_cTrillions_),
@@ -5904,38 +5922,15 @@ class stzNumber from stzObject
 			
 		_aStructure_ = [ :aHundreds = [], :aThousands = [], :aMillions = [], :aBillions = [], :aTrillions = [] ]
 
-		_aTemp_ = _oStzIntegerPart_.SplitToNPartsQ(3).Reversed()
+		# FIXED 2026-07-25: was SplitToNPartsQ(3) -- THREE PARTS, not parts OF three.
+		_aTemp_ = _StzDigitGroupsOfThree( _oStzIntegerPart_.Content() )
 
-		switch len(_aTemp_)
-		on 0
-			// Nothing
+		if len(_aTemp_) >= 1  _cHundreds_  = _aTemp_[1] ok
+		if len(_aTemp_) >= 2  _cThousands_ = _aTemp_[2] ok
+		if len(_aTemp_) >= 3  _cMillions_  = _aTemp_[3] ok
+		if len(_aTemp_) >= 4  _cBillions_  = _aTemp_[4] ok
+		if len(_aTemp_) >= 5  _cTrillions_ = _aTemp_[5] ok
 
-		on 1
-			_cHundreds_  = _aTemp_[1]
-
-		on 2
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-
-		on 3
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-
-		on 4
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-			_cBillions_  = _aTemp_[4]
-
-		on 5
-			_cHundreds_  = _aTemp_[1]
-			_cThousands_ = _aTemp_[2]
-			_cMillions_  = _aTemp_[3]
-			_cBillions_  = _aTemp_[4]
-			_cTrillions_ = _aTemp_[5]
-		off
-					
 		_cNumber_ = _cTrillions_ + _cBillions_ + _cMillions_ + _cThousands_ + _cHundreds_
 
 		// Removing zeros from the left	
