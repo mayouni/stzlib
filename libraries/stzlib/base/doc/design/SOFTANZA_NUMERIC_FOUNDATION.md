@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0 AND 1 COMPLETE** (77a902cd4; dbcd48a06, 6b67b814c, 6b18cefb6). **Phases 2-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0, 1 AND 2 COMPLETE** (77a902cd4; dbcd48a06, 6b67b814c, 6b18cefb6; fd84e53f2, 27bdf53d6, c26e30f67, 7263f2ce3). **Phases 3-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -645,9 +645,42 @@ display through Zig's shortest-round-trip formatter. *(This is the old
 > differ: two random-number tests, and the two above, both moving from wrong to
 > right.
 
-**Phase 2 — numeric scope.** `StzWithPrecision` / `StzWithRounding` /
-`StzWithOverflow`, the stated defaults, and NaN/Inf raising by default. Retires
-`decimals()` as a Softanza dependency.
+**Phase 2 — numeric scope. DONE, in three slices, and the shape CHANGED from the
+sketch below.**
+
+> This section originally proposed `StzWithPrecision(50, func{...})` — an ambient
+> block. Building it, [SCOPE_ORIENTED_PROGRAMMING.md](SCOPE_ORIENTED_PROGRAMMING.md)'s
+> move **M3 says the frame belongs *in the verb at the call site***, and both shipped
+> instances obey it: regex says `MatchLine()` rather than `Match()` with a flag set
+> three lines up; system says `App(:x).System()` rather than a floating
+> `CurrentSystem()`. **An ambient block is closer to the disease the paradigm exists
+> to cure**, so the implementation follows the paradigm and not this sketch.
+>
+> **Slice 1 (fd84e53f2)** — repair rounding before naming its mode. `RoundedTo(0)`
+> of `100.4` returned **`1`**: the trailing-zero tidy ran over the whole string, so
+> once rounding removed the decimal point it ate the integer's zeros. **No test
+> caught it because none ever rounded a value whose result ends in a zero** — the
+> tests covered the method, not the shape of value that breaks it.
+>
+> **Slice 2 (27bdf53d6)** — the tie rule, in the verb: `RoundedToHalfEven(2)` /
+> `RoundedToHalfUp(2)`. Half-up is **biased** (every tie moves the same way, so a
+> long ledger drifts upward); half-even splits them and the bias cancels. It rounds
+> the **digits, not a double** — through an f64 the nearest double to `1.005` is
+> `1.00499…`, so it is not a tie at all and both modes answer `1.00`; on the digits
+> half-up gives `1.01`, which is the decimal truth a price wants.
+>
+> **Slice 3 (c26e30f67, guard 7263f2ce3)** — the regime carried by the value, since
+> unlike a regex scope (per match) or a system scope (per object), a number's regime
+> is a property of the **quantity** and travels through a whole calculation:
+> `StzMoneyQ` / `StzExactQ` / `StzMeasuredQ` / plain. Applied in `Update()`, the one
+> point a value changes, so it survives arithmetic and rounding alike. `:exact`
+> **raises** rather than approximating. And **infinities and NaN are now refused** —
+> Ring answers `isNumber(inf)` with TRUE, and stzNumber used to store the text
+> `"inf"` and then call it a `:decimal`.
+>
+> Guards: `numeric_rounding_narrated` (19), `numeric_tie_rule_narrated` (34),
+> `numeric_regime_narrated` (27). Blast radius measured at every slice: nothing in
+> the 89-file suite moved.
 
 **Phase 3 — residency.** `stzNumBuffer`, engine-is-truth with materialised views,
 `stzListOfNumbers` and `stzMatrix` moved onto it, `stzMatrix`'s dual representation
