@@ -394,6 +394,14 @@ class stzServiceRegistry from stzObject
 	# The production gate, mirroring the library's other admission checkpoints:
 	# nothing may go live unless the surface is sound AND an EFFECTFUL,
 	# non-sandboxed actor commits it. Expression is free; admission is governed.
+	#
+	# ASKED IN THE PRODUCTION FRAME, whatever the current phase. "May I go LIVE?"
+	# IS the production question, so answering it from a :development phase would
+	# have said YES with a fake still bound -- the phase-dependent invariants
+	# (sandbox-in-production, ephemeral-in-production) simply had not fired yet.
+	# The phase is set, the surface judged, the phase restored: asking is not
+	# declaring. (Found while writing the narration; the guard had only ever asked
+	# after setting production, so the honest answer and the convenient one agreed.)
 	def MayGoLive(poActor, poStore)
 		if NOT isObject(poActor)
 			return FALSE
@@ -404,7 +412,28 @@ class stzServiceRegistry from stzObject
 		if poActor.Posture() = "sandboxed"
 			return FALSE
 		ok
-		return This.IsSoundVia(poStore)
+		return This._SoundForProductionVia(poStore)
+
+	# the surface judged as production would judge it, then put back
+	def FindingsForProductionVia(poStore)
+		_cWas_ = "" + This.Phase()
+		This.SetPhaseQ(:production)
+		_aF_ = This.FindingsVia(poStore)
+		This.SetPhaseQ(_cWas_)
+		return _aF_
+
+	def FindingsForProduction()
+		return This.FindingsForProductionVia(NULL)
+
+	def _SoundForProductionVia(poStore)
+		_aF_ = This.FindingsForProductionVia(poStore)
+		_n_ = len(_aF_)
+		for _i_ = 1 to _n_
+			if _aF_[_i_][:severity] = :error
+				return FALSE
+			ok
+		next
+		return TRUE
 
 	# ...and the same, but explaining itself.
 	def WhyNotLive(poActor, poStore)
@@ -417,7 +446,7 @@ class stzServiceRegistry from stzObject
 		if poActor.Posture() = "sandboxed"
 			return "actor '" + poActor.Name() + "' is sandboxed"
 		ok
-		_aF_ = This.FindingsVia(poStore)
+		_aF_ = This.FindingsForProductionVia(poStore)
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if _aF_[_i_][:severity] = :error

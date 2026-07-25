@@ -147,6 +147,22 @@ Scenario("going live is a GOVERNED crossing, like every other commit in the libr
 	Then("it refuses", oReg.MayGoLive(oHuman, oStore), FALSE)
 	Then("...naming the reason rather than the actor",
 	     StzFindFirst("sandbox-in-production", oReg.WhyNotLive(oHuman, oStore)) > 0, TRUE)
+
+	Given("the same surface while the phase is still DEVELOPMENT")
+	oReg.SetPhaseQ(:development)
+	Then("the registry reports nothing yet, correctly", len(oReg.Findings()), 0)
+	Then("but MayGoLive still refuses", oReg.MayGoLive(oHuman, oStore), FALSE)
+	Then("...for the same reason",
+	     StzFindFirst("sandbox-in-production", oReg.WhyNotLive(oHuman, oStore)) > 0, TRUE)
+	Then("and asking did not change the phase", oReg.Phase(), "development")
+	# "may I go LIVE?" IS the production question, so it is asked in the production
+	# frame whatever the current phase -- otherwise it answered YES with a fake
+	# bound, simply because the phase-dependent invariants had not fired yet. This
+	# scenario used to set production first, so the honest answer and the
+	# convenient one agreed and the gap stayed hidden.
+	Then("FindingsForProduction is the same question, asked directly",
+	     len(oReg.FindingsForProduction()), 1)
+	Then("...and it also leaves the phase alone", oReg.Phase(), "development")
 EndScenario()
 
 Scenario("the CI globals, in the shape the other gates already use")
