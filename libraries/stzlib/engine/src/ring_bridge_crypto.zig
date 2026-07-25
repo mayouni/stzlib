@@ -273,6 +273,50 @@ fn ring_SamlMetadata(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// ── RSA keys + RS256 signing ─────────────────────────────────
+
+// StzEngineRsaKeyPair(nBits) -> "privateKeyPem|n|e"
+fn ring_RsaKeyPair(p: *anyopaque) callconv(.c) void {
+    const bits: u32 = @intFromFloat(gn(p, 1));
+    var buf: [16384]u8 = undefined;
+    const n = x509.rsa_keypair(bits, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineRsaPublicKey(cPrivateKeyPem) -> "n|e" (base64url)
+fn ring_RsaPublic(p: *anyopaque) callconv(.c) void {
+    const k: [*]const u8 = @ptrCast(gs(p, 1));
+    const kl: usize = @intCast(gss(p, 1));
+    var buf: [2048]u8 = undefined;
+    const n = x509.rsa_public_from_key(k, kl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineRsaSign(cMessage, cPrivateKeyPem) -> base64url RS256 signature
+fn ring_RsaSign(p: *anyopaque) callconv(.c) void {
+    const m: [*]const u8 = @ptrCast(gs(p, 1));
+    const ml: usize = @intCast(gss(p, 1));
+    const k: [*]const u8 = @ptrCast(gs(p, 2));
+    const kl: usize = @intCast(gss(p, 2));
+    var buf: [1400]u8 = undefined;
+    const n = x509.rsa_sign(m, ml, k, kl, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineSamlSignRsa(cUnsignedAssertionXml, cPrivateKeyPem) -> signed XML.
+// The bridge is where xmldsig (XML) and x509 (mbedTLS keys) meet, so neither
+// module has to know about the other.
+fn ring_SamlSignRsa(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const xl: usize = @intCast(gss(p, 1));
+    const k: [*]const u8 = @ptrCast(gs(p, 2));
+    const kl: usize = @intCast(gss(p, 2));
+    const alg = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+    var buf: [65536]u8 = undefined;
+    const n = xmldsig.saml_sign_with(x, xl, k, kl, alg.ptr, alg.len, &x509.rsa_sign, &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -299,6 +343,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecertificatefingerprint", .func = &ring_CertFp },
     .{ .name = "stzenginecertificatedescribe", .func = &ring_CertDescribe },
     .{ .name = "stzenginesamlmetadata", .func = &ring_SamlMetadata },
+    .{ .name = "stzenginersakeypair", .func = &ring_RsaKeyPair },
+    .{ .name = "stzenginersapublickey", .func = &ring_RsaPublic },
+    .{ .name = "stzenginersasign", .func = &ring_RsaSign },
+    .{ .name = "stzenginesamlsignrsa", .func = &ring_SamlSignRsa },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
