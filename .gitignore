@@ -27,3 +27,6 @@ _wasmsub_tmp/
 # handle on Windows can leave the file behind, so guard against committing it)
 **/_authtest_*.db
 **/_dataport_test.db
+# stzFileBlobStore guard directory (removed by the guard; ignored in case it dies
+# midway and leaves the store behind)
+**/_blobtest/
