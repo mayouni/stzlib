@@ -2140,6 +2140,149 @@ func _StzRationalToFloat(pcStr)
 	ok
 	return ring_number(_a_[1]) / _d_
 
+# ── ROUNDING A DECIMAL STRING, EXACTLY, IN A NAMED MODE ─────────────────
+#
+# RoundToXT rounds by going through NumericValue() -- an f64 -- so it inherits
+# binary tie behaviour and Ring's 14-place ceiling, and it cannot express
+# half-even at all. Rounding the DIGITS instead is exact, has no ceiling, and makes
+# the tie rule a decision rather than an accident of representation.
+#
+#   :HalfUp    a tie goes AWAY FROM ZERO   (0.5 -> 1, 2.5 -> 3, -1.5 -> -2)
+#   :HalfEven  a tie goes to the EVEN digit (0.5 -> 0, 2.5 -> 2, 1.5 -> 2)
+#
+# Half-even is the accounting default -- and the reason is not taste. Half-up is
+# biased: over many roundings it drifts upward, because every tie moves the same
+# way. Half-even splits ties between up and down, so the bias cancels. On a ledger
+# of thousands of lines that difference is money.
+func _StzRoundDecimalString(pcNum, pnPlaces, pcMode)
+	_c_ = ring_trim("" + pcNum)
+	if NOT _StzIsPlainDecimal(_c_)
+		return _c_                          # not ours to round
+	ok
+	_n_ = pnPlaces
+	if _n_ < 0
+		_n_ = 0
+	ok
+
+	_sign_ = ""
+	if len(_c_) > 0 and _c_[1] = "-"
+		_sign_ = "-"
+		_c_ = StzMidToEnd(_c_, 2)
+	but len(_c_) > 0 and _c_[1] = "+"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+
+	_int_ = _c_
+	_frac_ = ""
+	_dot_ = StzFindFirst(".", _c_)
+	if _dot_ > 0
+		_int_ = StzMid(_c_, 1, _dot_ - 1)
+		_frac_ = StzMidToEnd(_c_, _dot_ + 1)
+	ok
+	if _int_ = ""
+		_int_ = "0"
+	ok
+
+	# already short enough: pad and go
+	if len(_frac_) <= _n_
+		while len(_frac_) < _n_
+			_frac_ += "0"
+		end
+		if _n_ = 0
+			return _sign_ + _int_
+		ok
+		return _sign_ + _int_ + "." + _frac_
+	ok
+
+	_keep_ = StzMid(_frac_, 1, _n_)
+	_rest_ = StzMidToEnd(_frac_, _n_ + 1)
+
+	# Is the discarded tail more than, less than, or exactly one half?
+	_cmp_ = _StzCompareTailToHalf(_rest_)
+
+	_bRoundAway_ = FALSE
+	if _cmp_ > 0
+		_bRoundAway_ = TRUE
+	but _cmp_ = 0
+		if StzLower("" + pcMode) = "halfeven"
+			# the tie goes to the EVEN last kept digit
+			_last_ = "0"
+			if _n_ > 0
+				_last_ = _keep_[_n_]
+			else
+				_last_ = _int_[len(_int_)]
+			ok
+			if StzFindFirst(_last_, "13579") > 0
+				_bRoundAway_ = TRUE
+			ok
+		else
+			_bRoundAway_ = TRUE              # :HalfUp -- away from zero
+		ok
+	ok
+
+	if NOT _bRoundAway_
+		# a value that rounds to nothing is zero, not MINUS zero
+		_dg_ = _StzDigitsOnly(_int_ + _keep_)
+		_bAllZero_ = TRUE
+		_nd_ = len(_dg_)
+		for _k_ = 1 to _nd_
+			if _dg_[_k_] != "0"
+				_bAllZero_ = FALSE
+				exit
+			ok
+		next
+		if _bAllZero_
+			_sign_ = ""
+		ok
+		if _n_ = 0
+			return _sign_ + _int_
+		ok
+		return _sign_ + _int_ + "." + _keep_
+	ok
+
+	# round away from zero: increment the kept digits AS ONE INTEGER, so the carry
+	# runs into the integer part correctly (9.99 -> 10.0, not 9.100)
+	_whole_ = _int_ + _keep_
+	_pB_ = StzEngineBigIntFromString(_whole_)
+	if _pB_ = NULL
+		return _sign_ + _int_ + "." + _keep_
+	ok
+	_pOne_ = StzEngineBigIntFromString("1")
+	_cInc_ = StzEngineBigIntToString( StzEngineBigIntAdd(_pB_, _pOne_) )
+	# put the point back n from the right
+	while len(_cInc_) <= _n_
+		_cInc_ = "0" + _cInc_
+	end
+	if _n_ = 0
+		return _sign_ + _cInc_
+	ok
+	_cut_ = len(_cInc_) - _n_
+	return _sign_ + StzMid(_cInc_, 1, _cut_) + "." + StzMidToEnd(_cInc_, _cut_ + 1)
+
+# Compare a discarded tail against one half: >0, =0 or <0.
+# "5" and "50" and "500" are all exactly half; "51" is more; "4999" is less.
+func _StzCompareTailToHalf(pcTail)
+	_t_ = "" + pcTail
+	if _t_ = ""
+		return -1
+	ok
+	_first_ = _t_[1]
+	if StzFindFirst(_first_, "01234") > 0
+		return -1
+	ok
+	if StzFindFirst(_first_, "6789") > 0
+		return 1
+	ok
+	# leading 5: exactly half only if everything after it is zero
+	_rest_ = StzMidToEnd(_t_, 2)
+	_n_ = len(_rest_)
+	for _i_ = 1 to _n_
+		if _rest_[_i_] != "0"
+			return 1
+		ok
+	next
+	return 0
+
 # "007" -> "7"; "00.5" -> "0.5". One zero is kept before the point, because ".5"
 # is not a number anybody wants back.
 func _StzStripLeadingZeros(pcNum)
@@ -4219,6 +4362,50 @@ class stzNumber from stzObject
 
 	#@ aka  round to nearest, nearest whole number, round off
 	# Round the number to the nearest integer (mutating).
+	  #-- ROUNDING, WITH THE MODE IN THE VERB (numeric foundation phase 2)--
+	  #
+	  # Scope-Oriented Programming, move M3: the frame goes in the VERB at the call
+	  # site, not in a setting made somewhere else. Regex says MatchLine() rather
+	  # than Match()-with-a-flag; this says RoundedToHalfEven(2) rather than
+	  # RoundedTo(2) with a mode set three lines up.
+	  #
+	  # The tie rule is exactly the kind of frame the paradigm is about: it is
+	  # invisible at the call site, it changes the answer, and money depends on it.
+	  # Half-up is BIASED -- every tie moves the same way, so over a long ledger the
+	  # total drifts upward. Half-even splits ties and the bias cancels. That is why
+	  # accounting uses it, and why it deserves a name you can see.
+	  #
+	  # RoundedTo() keeps its historical half-up behaviour, so nothing existing
+	  # moves; the mode is something you ASK for.
+
+	#@ aka  banker's rounding, round half to even, accounting rounding
+	def RoundedToHalfEven(pnPlaces)
+		return _StzRoundDecimalString("" + This.Content(), pnPlaces, :HalfEven)
+
+		def RoundedToHalfEvenQ(pnPlaces)
+			return new stzNumber(This.RoundedToHalfEven(pnPlaces))
+
+		def RoundToHalfEven(pnPlaces)
+			This.Update( This.RoundedToHalfEven(pnPlaces) )
+
+			def RoundToHalfEvenQ(pnPlaces)
+				This.RoundToHalfEven(pnPlaces)
+				return This
+
+	#@ aka  round half away from zero, commercial rounding
+	def RoundedToHalfUp(pnPlaces)
+		return _StzRoundDecimalString("" + This.Content(), pnPlaces, :HalfUp)
+
+		def RoundedToHalfUpQ(pnPlaces)
+			return new stzNumber(This.RoundedToHalfUp(pnPlaces))
+
+		def RoundToHalfUp(pnPlaces)
+			This.Update( This.RoundedToHalfUp(pnPlaces) )
+
+			def RoundToHalfUpQ(pnPlaces)
+				This.RoundToHalfUp(pnPlaces)
+				return This
+
 	  #-- THE REPRESENTATION LADDER (numeric foundation phase 1) ----------
 	  #
 	  # stzNumber keeps ONE front door and carries a representation inside, rather
