@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phase 1 BUILT — the spine and three doubles ship.** `base/service/`
+> Status: **phases 1–2 BUILT — the spine, the database exemplar, and three doubles ship.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -16,9 +16,19 @@
 > `MayGoLive(actor, store)` so going live is an actor-gated crossing like every
 > other commit. **So "flip it to real before shipping" is now ENFORCED, not
 > remembered.** Guard `service_registry_narrated` (45).
+> **Phase 2 (the database exemplar) is built too**: `base/service/stzDataPort.ring`
+> names the contract (`Exec`/`Rows`/`Value` — the surface `stzDatabase` already
+> had) and ships `stzSqliteDataSource` in **local-real** mode. Building it forced a
+> real refinement of phase 1: fake-vs-real was too coarse, because sqlite is not a
+> pretend database. There are now **three postures** — `:sandbox` (must not ship),
+> `:local` (a genuine local equivalent; self-hosting is a choice, not a mistake)
+> and `:live` — plus a fifth invariant, **`ephemeral-in-production`**, for the one
+> case that IS dangerous: `":memory:"` is real sqlite right up to the restart that
+> empties it, and it is one character from the safe spelling. Guard
+> `data_port_narrated` (41).
 > Still unbuilt: the payments sandbox, the generic HTTP scripted/replay sandbox,
 > the blob store, the LLM port promotion, and surfacing the registry inside
-> `stzDelivery`/`stzDeployment` (phases 2–7).
+> `stzDelivery`/`stzDeployment` (phases 3–7).
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code

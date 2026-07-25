@@ -34,7 +34,22 @@ service have a credential, and is that credential in the store rather than inlin
 Findings()/IsSound() answer those, in the same shape stzSecurityPosture and the
 graph rules use -- so they drop into the same CI gate.
 
-FOUR INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
+THREE POSTURES, because "fake vs real" turned out to be too coarse. Building the
+database exemplar (phase 2) made it obvious: a mail sandbox does not send, but a
+database sandbox is SQLITE -- a real database in a file you own. The plan calls
+that LOCAL-REAL, and shipping it is not a violation; plenty of good systems run
+sqlite in production forever.
+
+  :sandbox  a FAKE (mail sink, OIDC double, virtual authenticator). Must NOT ship.
+  :local    a genuine local equivalent (sqlite, the filesystem, a local model).
+            MAY ship -- self-hosting is a choice, not a mistake.
+  :live     a hosted/remote service reached with a credential.
+
+An object declares which it is: IsSandbox() -> :sandbox, else IsLocalReal() ->
+:local, else :live. No opinion means :live, because defaulting to :sandbox would
+excuse the very thing the production check exists to catch.
+
+FIVE INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
   * sandbox-in-production  (ERROR) -- a fake bound in a production phase. This is
     the plane's whole reason to exist: "flip it to real before shipping" must be
     ENFORCED, not remembered.
@@ -42,6 +57,10 @@ FOUR INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
     must never silently no-op; asking for one RAISES.
   * live-without-secret   (ERROR) -- a live adapter whose credential is not in the
     secret store, checked against the store you pass.
+  * ephemeral-in-production (ERROR) -- a LOCAL source that vanishes on restart
+    (sqlite ":memory:"). It is a real database right up to the moment the process
+    dies, and it is one character away from the safe spelling -- which is exactly
+    why it needs a check rather than a convention.
   * inline-credential     (WARN)  -- a live adapter bound without naming a store
     secret at all, i.e. holding its key some other way.
 
@@ -131,6 +150,14 @@ class stzServiceRegistry from stzObject
 	def BindSandboxQ(pcService, poImpl)
 		return This._BindWith(pcService, poImpl, :sandbox, "")
 
+	# Bind a genuine LOCAL equivalent -- sqlite, the filesystem, a local model. Not
+	# a fake, so unlike a sandbox this may ship; see the posture note above.
+	def BindLocal(pcService, poImpl)
+		This.BindLocalQ(pcService, poImpl)
+
+	def BindLocalQ(pcService, poImpl)
+		return This._BindWith(pcService, poImpl, :local, "")
+
 	# Bind the real thing, naming the STORE SECRET its credential lives in. The
 	# name, not the key: a registry that held credentials would be one more place
 	# they leak from.
@@ -140,6 +167,10 @@ class stzServiceRegistry from stzObject
 	def BindLiveQ(pcService, poImpl, pcSecretName)
 		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName)
 
+	# Remove the IMPLEMENTATION but keep the dependency. The service is then
+	# declared-and-unbound, which IS a finding -- your solution still needs the
+	# thing, it just has nothing to serve it. To retire the dependency itself, use
+	# Undeclare.
 	def Unbind(pcService)
 		_s_ = This._Key(pcService)
 		_aNew_ = []
@@ -150,6 +181,21 @@ class stzServiceRegistry from stzObject
 			ok
 		next
 		@aBound = _aNew_
+		return This
+
+	# Retire the dependency altogether -- the solution no longer needs this
+	# service. Unbinds it too, so nothing is left half-declared.
+	def Undeclare(pcService)
+		_s_ = This._Key(pcService)
+		This.Unbind(_s_)
+		_aNew_ = []
+		_n_ = len(@aDeclared)
+		for _i_ = 1 to _n_
+			if @aDeclared[_i_] != _s_
+				_aNew_ + @aDeclared[_i_]
+			ok
+		next
+		@aDeclared = _aNew_
 		return This
 
 	  #-- resolution (what the application actually calls) ------------------
@@ -206,6 +252,20 @@ class stzServiceRegistry from stzObject
 			ok
 		next
 		return _out_
+
+	# the genuinely-local ones: real, self-hosted, shippable.
+	def LocalServices()
+		_out_ = []
+		_n_ = len(@aBound)
+		for _i_ = 1 to _n_
+			if @aBound[_i_][3] = :local
+				_out_ + @aBound[_i_][1]
+			ok
+		next
+		return _out_
+
+	def IsLocal(pcService)
+		return This.PostureOf(pcService) = :local
 
 	def LiveServices()
 		_out_ = []
@@ -270,6 +330,11 @@ class stzServiceRegistry from stzObject
 		for _i_ = 1 to _n_
 			_aF_ + _a1_[_i_]
 		next
+		_a1_ = This._CheckEphemeralInProduction()
+		_n_ = len(_a1_)
+		for _i_ = 1 to _n_
+			_aF_ + _a1_[_i_]
+		next
 		_a1_ = This._CheckLiveCredentials(poStore)
 		_n_ = len(_a1_)
 		for _i_ = 1 to _n_
@@ -299,7 +364,8 @@ class stzServiceRegistry from stzObject
 	def ReportVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
 		? "Service registry '" + @cName + "' [" + @cPhase + "] -- " +
-		  len(@aBound) + " bound, " + len(This.SandboxedServices()) + " sandboxed"
+		  len(@aBound) + " bound: " + len(This.SandboxedServices()) + " sandboxed, " +
+		  len(This.LocalServices()) + " local, " + len(This.LiveServices()) + " live"
 		if len(_aF_) = 0
 			? "  (no findings)"
 			return This
@@ -381,6 +447,35 @@ class stzServiceRegistry from stzObject
 		next
 		return _aF_
 
+	# A local source that does not survive a restart. Asked of the object, so any
+	# local-real implementation can opt into the check.
+	def _CheckEphemeralInProduction()
+		_aF_ = []
+		if NOT This.IsProduction()
+			return _aF_
+		ok
+		_n_ = len(@aBound)
+		for _i_ = 1 to _n_
+			if @aBound[_i_][3] != :local
+				loop
+			ok
+			_bGone_ = FALSE
+			try
+				if @aBound[_i_][2].IsEphemeral()
+					_bGone_ = TRUE
+				ok
+			catch
+				# no opinion -> assume it persists
+			done
+			if _bGone_
+				_aF_ + [ :invariant = "ephemeral-in-production", :severity = :error,
+				         :where = @cName + "/" + @aBound[_i_][1],
+				         :message = "a LOCAL source that vanishes on restart (in-memory) " +
+				                    "is bound in a production phase" ]
+			ok
+		next
+		return _aF_
+
 	def _CheckLiveCredentials(poStore)
 		_aF_ = []
 		_n_ = len(@aBound)
@@ -429,12 +524,19 @@ class stzServiceRegistry from stzObject
 			if poImpl.IsSandbox()
 				return :sandbox
 			ok
-			return :live
 		catch
-			# no opinion -> treat as live, because guessing "sandbox" would silently
-			# excuse the very thing the production check exists to catch
-			return :live
+			# says nothing about being a fake -- fall through
 		done
+		try
+			if poImpl.IsLocalReal()
+				return :local
+			ok
+		catch
+			# says nothing about being local either
+		done
+		# no opinion -> LIVE, because guessing "sandbox" would silently excuse the
+		# very thing the production check exists to catch
+		return :live
 
 	def _BoundIndex(pcService)
 		_s_ = This._Key(pcService)
