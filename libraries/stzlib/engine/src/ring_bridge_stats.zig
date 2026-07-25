@@ -1,4 +1,5 @@
 const stats = @import("stats.zig");
+const numbuf = @import("numbuf.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -196,7 +197,139 @@ fn ring_WeightedMean(p: *anyopaque) callconv(.c) void {
     rn(p, stats.stz_stats_weighted_mean(data.ptr, weights.ptr, n));
 }
 
+// ── NUMBUF: the resident buffer (numeric foundation phase 3) ────────────
+//
+// Hosted in this DLL because numbuf.zig asks stats.zig for the variance
+// convention, and because a handle table is PER-DLL: a buffer created here must
+// be consumed here.
+
+fn getB(p: *anyopaque, n: c_int) ?*numbuf.StzNumBuffer {
+    const ptr = R.getHandle(p, n);
+    if (ptr) |raw| return @ptrCast(@alignCast(raw));
+    return null;
+}
+
+fn getBC(p: *anyopaque, n: c_int) ?*const numbuf.StzNumBuffer {
+    return getB(p, n);
+}
+
+fn ring_BufNew(p: *anyopaque) callconv(.c) void {
+    R.retHandle(p, @ptrCast(numbuf.stz_numbuf_new(@intFromFloat(g(p, 1)))));
+}
+
+/// ONE crossing: the whole Ring list becomes resident memory here, and every
+/// operation after this point costs nothing at the boundary.
+fn ring_BufFromList(p: *anyopaque) callconv(.c) void {
+    const arr = listToF64(p, 1) orelse {
+        R.retHandle(p, null);
+        return;
+    };
+    defer allocator.free(arr);
+    const b = numbuf.stz_numbuf_new(arr.len) orelse {
+        R.retHandle(p, null);
+        return;
+    };
+    @memcpy(b.data, arr);
+    R.retHandle(p, @ptrCast(b));
+}
+
+/// ...and one crossing back, when the answer is actually wanted.
+fn ring_BufToList(p: *anyopaque) callconv(.c) void {
+    const b = getBC(p, 1) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (b.data) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_BufFree(p: *anyopaque) callconv(.c) void {
+    numbuf.stz_numbuf_free(getB(p, 1));
+    rn(p, 1);
+}
+fn ring_BufLen(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(numbuf.stz_numbuf_len(getBC(p, 1))));
+}
+fn ring_BufClone(p: *anyopaque) callconv(.c) void {
+    R.retHandle(p, @ptrCast(numbuf.stz_numbuf_clone(getBC(p, 1))));
+}
+fn ring_BufGet(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_get(getBC(p, 1), @intFromFloat(g(p, 2))));
+}
+fn ring_BufSet(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(numbuf.stz_numbuf_set(getB(p, 1), @intFromFloat(g(p, 2)), g(p, 3))));
+}
+fn ring_BufFill(p: *anyopaque) callconv(.c) void {
+    numbuf.stz_numbuf_fill(getB(p, 1), g(p, 2));
+    rn(p, 1);
+}
+fn ring_BufRange(p: *anyopaque) callconv(.c) void {
+    numbuf.stz_numbuf_range(getB(p, 1), g(p, 2), g(p, 3));
+    rn(p, 1);
+}
+fn ring_BufAddScalar(p: *anyopaque) callconv(.c) void {
+    numbuf.stz_numbuf_add_scalar(getB(p, 1), g(p, 2));
+    rn(p, 1);
+}
+fn ring_BufScale(p: *anyopaque) callconv(.c) void {
+    numbuf.stz_numbuf_scale(getB(p, 1), g(p, 2));
+    rn(p, 1);
+}
+fn ring_BufAdd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(numbuf.stz_numbuf_add(getB(p, 1), getBC(p, 2))));
+}
+fn ring_BufSub(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(numbuf.stz_numbuf_sub(getB(p, 1), getBC(p, 2))));
+}
+fn ring_BufMul(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(numbuf.stz_numbuf_mul(getB(p, 1), getBC(p, 2))));
+}
+fn ring_BufSum(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_sum(getBC(p, 1)));
+}
+fn ring_BufMean(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_mean(getBC(p, 1)));
+}
+fn ring_BufMin(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_min(getBC(p, 1)));
+}
+fn ring_BufMax(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_max(getBC(p, 1)));
+}
+fn ring_BufDot(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_dot(getBC(p, 1), getBC(p, 2)));
+}
+fn ring_BufVariance(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_variance(getBC(p, 1), @intFromFloat(g(p, 2))));
+}
+fn ring_BufStdDev(p: *anyopaque) callconv(.c) void {
+    rn(p, numbuf.stz_numbuf_stddev(getBC(p, 1), @intFromFloat(g(p, 2))));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },
+    .{ .name = "stzenginenumbuffromlist", .func = &ring_BufFromList },
+    .{ .name = "stzenginenumbuftolist", .func = &ring_BufToList },
+    .{ .name = "stzenginenumbuffree", .func = &ring_BufFree },
+    .{ .name = "stzenginenumbuflen", .func = &ring_BufLen },
+    .{ .name = "stzenginenumbufclone", .func = &ring_BufClone },
+    .{ .name = "stzenginenumbufget", .func = &ring_BufGet },
+    .{ .name = "stzenginenumbufset", .func = &ring_BufSet },
+    .{ .name = "stzenginenumbuffill", .func = &ring_BufFill },
+    .{ .name = "stzenginenumbufrange", .func = &ring_BufRange },
+    .{ .name = "stzenginenumbufaddscalar", .func = &ring_BufAddScalar },
+    .{ .name = "stzenginenumbufscale", .func = &ring_BufScale },
+    .{ .name = "stzenginenumbufadd", .func = &ring_BufAdd },
+    .{ .name = "stzenginenumbufsub", .func = &ring_BufSub },
+    .{ .name = "stzenginenumbufmul", .func = &ring_BufMul },
+    .{ .name = "stzenginenumbufsum", .func = &ring_BufSum },
+    .{ .name = "stzenginenumbufmean", .func = &ring_BufMean },
+    .{ .name = "stzenginenumbufmin", .func = &ring_BufMin },
+    .{ .name = "stzenginenumbufmax", .func = &ring_BufMax },
+    .{ .name = "stzenginenumbufdot", .func = &ring_BufDot },
+    .{ .name = "stzenginenumbufvariance", .func = &ring_BufVariance },
+    .{ .name = "stzenginenumbufstddev", .func = &ring_BufStdDev },
     .{ .name = "stzenginestatscreate", .func = &ring_Create },
     .{ .name = "stzenginestatsfree", .func = &ring_Free },
     .{ .name = "stzenginestatscount", .func = &ring_Count },

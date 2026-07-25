@@ -1,4 +1,5 @@
 pub const stats = @import("stats.zig");
+pub const numbuf = @import("numbuf.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -44,4 +45,7 @@ comptime {
     @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
-test { _ = stats; }
+test {
+    _ = stats;
+    _ = numbuf;
+}

@@ -35,6 +35,7 @@ pub const matrix = @import("matrix.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
+pub const numbuf = @import("numbuf.zig");
 pub const graph = @import("graph.zig");
 pub const text = @import("text.zig");
 pub const uuid = @import("uuid.zig");
@@ -614,6 +615,7 @@ pub export fn stz_engine_version() callconv(.c) u32 {
 }
 
 test {
+    _ = numbuf;
     _ = string;
     _ = char;
     _ = unicode;
