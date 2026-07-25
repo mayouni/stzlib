@@ -171,12 +171,12 @@ Scenario("the two tests that could not run before")
 	Then("...while a negative one is bracketed on both sides",
 	     StzFindFirst("(", cNeg) > 0 and StzFindFirst(")", cNeg) > 0, TRUE)
 
-	# STILL BROKEN, DELIBERATELY NOT TOUCHED HERE: the Trillions/Millions/Thousands/
-	# Hundreds decomposition slices FIXED WIDTHS FROM THE LEFT instead of grouping in
-	# threes from the right, so 1234567 comes apart as 123 / 45 / 67 rather than
-	# 1 / 234 / 567, and a thousands separator lands in the wrong places. That is six
-	# methods and a decision about what each should return, with no recorded expected
-	# output to check against -- its own task, not a hurried edit at the end of this one.
+	# The digit-group decomposition that made this print +$12.59.0 is FIXED now --
+	# see number_digit_groups_narrated. What is still missing from that output is
+	# :Width / :AlignTo / :FillBlanksWith, which ApplyFormatXT reads from its options
+	# and never uses: an unimplemented feature, not a wrong answer.
+	Then("the thousands separator now groups in threes",
+	     (new stzNumber(12590)).ApplyFormatXT([ :ThousandsSeparator = "." ]), "+12.590")
 EndScenario()
 
 Summary()
