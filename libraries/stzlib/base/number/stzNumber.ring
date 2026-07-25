@@ -1945,6 +1945,28 @@ func _StzIsListOfNumbersOrNumberStrings(paList)
 	next
 	return TRUE
 
+# A Ring number rendered as a string WITHOUT LOSING IT.
+#
+# `"" + n` uses the process-global decimals(), which truncates: with the default of
+# 2, 1e-20 renders as "0.00". stzNumber stores that string AS its value, so the
+# number is gone -- not mis-displayed, gone.
+#
+# The ordinary rendering is kept whenever it round-trips, so nothing about existing
+# output changes. Only when it fails to round-trip is the shortest plain decimal
+# used instead (from the engine, which tries increasing precision until the value
+# reads back). PLAIN and never scientific: "1e-20" would defeat IntegerPart,
+# NumberOfDigits and the scaled-integer arithmetic, all of which expect digits.
+func _StzNumberContentWithoutLoss(pnNumber)
+	_cPlain_ = "" + pnNumber
+	if (0 + _cPlain_) = pnNumber
+		return _cPlain_                 # nothing lost -- leave it alone
+	ok
+	_cBest_ = StzEngineNumberPlainShortest(pnNumber)
+	if _cBest_ = ""
+		return _cPlain_                 # NaN / Inf: keep whatever Ring said
+	ok
+	return _cBest_
+
 # THE DIGIT GROUPS OF A NUMBER, in threes FROM THE RIGHT, units group FIRST:
 #   "1234567" -> [ "567", "234", "1" ]
 #   "12590"   -> [ "590", "12" ]
@@ -2236,7 +2258,16 @@ class stzNumber from stzObject
 		# CASE 1
 		if isNumber(pNumber)
 
-			@cContent = "" + pNumber 
+			# NO SILENT LOSS, 2026-07-25 (numeric foundation phase 1). `"" + n`
+			# renders through Ring's PROCESS-GLOBAL decimals(), so with the default
+			# of 2 the value 1e-20 became the string "0.00" -- and since the string
+			# IS the value here, the number was DESTROYED, not merely mis-shown:
+			# NumericValue() answered 0 afterwards.
+			#
+			# So the rendering is checked, and only REPLACED WHEN IT LOSES the value.
+			# A number that renders as "0.10" has lost nothing and is left exactly as
+			# it was; this is a loss fix, not a reformatting.
+			@cContent = _StzNumberContentWithoutLoss(pNumber)
 			@nRound = StzCurrentRound()
 			@cReturnType = :Number
 
@@ -2328,7 +2359,9 @@ class stzNumber from stzObject
 
 				_nCurrentRound_ = StzCurrentRound()
 				StzDecimals(@nRound)
-				@cContent = "" + pNumber[1]
+				# same guard as CASE 1: an explicit round must not silently destroy
+				# the value it was given
+				@cContent = _StzNumberContentWithoutLoss(pNumber[1])
 				StzDecimals(_nCurrentRound_)
 
 			but isString(pNumber[1])
@@ -4013,6 +4046,41 @@ class stzNumber from stzObject
 
 	#@ aka  round to nearest, nearest whole number, round off
 	# Round the number to the nearest integer (mutating).
+	  #-- THE REPRESENTATION LADDER (numeric foundation phase 1) ----------
+	  #
+	  # stzNumber keeps ONE front door and carries a representation inside, rather
+	  # than making the caller pick between six classes. This reports which rung the
+	  # value is currently on, so the ladder is observable instead of folklore:
+	  #
+	  #   :integer     a whole number inside the range an f64 represents exactly
+	  #   :bigInteger  a whole number beyond that (2^53), held exactly as digits
+	  #   :decimal     a value with a fractional part, held exactly as digits
+	  #
+	  # Promotion is automatic and upward only: adding 1 to a 2^53 integer yields a
+	  # :bigInteger, and nothing silently demotes. :rational and :complex are named
+	  # in the plan and not built yet, so they are not reported -- a ladder that
+	  # claims rungs it does not have is worse than a short one.
+
+	#@ aka  which representation, what kind of number, integer or decimal
+	def Representation()
+		_c_ = "" + This.Content()
+		if _StzPlacesOf(_c_) > 0
+			return :decimal
+		ok
+		if NOT _pvtLooksLikeInteger(_c_)
+			return :decimal          # anything else is carried as a decimal string
+		ok
+		if len( _StzDigitsOnly(_c_) ) > 15
+			return :bigInteger
+		ok
+		return :integer
+
+	def IsBigInteger()
+		return This.Representation() = :bigInteger
+
+	def IsDecimalNumber()
+		return This.Representation() = :decimal
+
 	  #-- EXACTNESS (numeric foundation phase 1) --------------------------
 	  #
 	  # Numeric surprise is almost always about a frame the caller could not see:

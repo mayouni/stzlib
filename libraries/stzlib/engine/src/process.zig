@@ -94,10 +94,31 @@ test "process: pid" {
 }
 
 test "process: uptime" {
-    const ns = process_uptime_ns();
-    try std.testing.expect(ns > 0);
-    const ms = process_uptime_ms();
-    try std.testing.expect(ms > 0);
+    // REWRITTEN 2026-07-25. This asserted `process_uptime_ns() > 0` on the FIRST
+    // call -- but uptimeNanos() creates its baseline lazily ON that first call and
+    // then measures against it, so the answer is ~0 by construction and whether it
+    // clears zero depends on the clock's granularity between two adjacent
+    // instructions. It passed or failed according to how much unrelated code the
+    // test binary happened to run first, which is not a property worth asserting.
+    //
+    // What IS worth asserting: a duration is never negative, it does not go
+    // backwards, and it is an UPTIME rather than a wall clock. That last one is the
+    // bug this function was written to fix -- it used to return nanoseconds since
+    // the UNIX epoch, which also "increases" and so passed a naive check.
+    const first = process_uptime_ns();
+    try std.testing.expect(first >= 0);
+
+    var spin: u64 = 0;
+    var i: usize = 0;
+    while (i < 200_000) : (i += 1) spin +%= i;
+    std.mem.doNotOptimizeAway(spin);
+
+    const second = process_uptime_ns();
+    try std.testing.expect(second >= first);
+
+    // an uptime measured from process start cannot be hours old
+    try std.testing.expect(process_uptime_s() < 3600.0);
+    try std.testing.expect(process_uptime_ms() >= 0);
 }
 
 test "process: arch" {

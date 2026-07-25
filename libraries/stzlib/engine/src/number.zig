@@ -468,6 +468,42 @@ pub fn stz_number_bitwise_rshift(a: i64, n: u8) callconv(.c) i64 {
 
 // ─── C ABI: Scientific Notation ───
 
+// ── The shortest PLAIN decimal that reads back as the same double ────────
+//
+// Ring renders a number through a PROCESS-GLOBAL decimals() setting, so with the
+// default of 2 the value 1e-20 prints as "0.00" -- and because stzNumber stores
+// its value as that rendered STRING, the number is not merely mis-displayed, it is
+// DESTROYED: NumericValue() then answers 0.
+//
+// This returns the fewest decimal places that still round-trip, so no information
+// is lost. Deliberately PLAIN (never scientific): stzNumber's string machinery --
+// IntegerPart, NumberOfDigits, the scaled-integer exact arithmetic -- all expect
+// digits and at most one dot, and "1e-20" would defeat every one of them.
+//
+// Note this is about LOSS, not tidiness. A caller that renders 0.1 as "0.10" has
+// lost nothing and is left alone; only a rendering that fails to round-trip is
+// replaced.
+pub fn stz_number_plain_shortest(n: f64, buf: [*]u8, buf_len: usize) callconv(.c) usize {
+    if (buf_len == 0) return 0;
+    if (n != n or std.math.isInf(n)) return 0; // NaN / Inf: caller keeps its own text
+
+    // 340 covers the smallest subnormal double; 17 significant digits always
+    // suffice for a round trip, so the first precision that works is the shortest.
+    var precision: usize = 0;
+    while (precision <= 340) : (precision += 1) {
+        var tmp: [512]u8 = undefined;
+        // "{d:.[1]}" takes the precision from arg 1 -- the idiom display.zig uses
+        const rendered = std.fmt.bufPrint(&tmp, "{d:.[1]}", .{ n, precision }) catch return 0;
+        const back = std.fmt.parseFloat(f64, rendered) catch return 0;
+        if (back == n) {
+            if (rendered.len > buf_len) return 0;
+            @memcpy(buf[0..rendered.len], rendered);
+            return rendered.len;
+        }
+    }
+    return 0;
+}
+
 pub fn stz_number_to_scientific(n: f64, buf: [*]u8, buf_len: usize) callconv(.c) usize {
     if (buf_len == 0) return 0;
     if (n == 0.0) {
