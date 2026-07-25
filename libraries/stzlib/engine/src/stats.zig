@@ -34,14 +34,47 @@ fn computeMean(data: []const f64) f64 {
     return sum / @as(f64, @floatFromInt(data.len));
 }
 
-fn computeVariance(data: []const f64, mean: f64) f64 {
-    if (data.len < 2) return 0;
+// ── THE VARIANCE CONVENTION LIVES HERE, AND ONLY HERE ──────────────────
+//
+// "Variance" is ambiguous: divide the sum of squares by N (you are describing
+// the whole population) or by N-1 (you are estimating a population from a
+// sample). Both are correct; picking silently is not. list.zig used to divide
+// by N while this module divided by N-1, so stzList.Variance() answered 4 where
+// stzDataSet.Variance() answered 4.57 for the same data, and neither said which
+// it meant.
+//
+// So the DIVISOR -- the only genuinely ambiguous part -- is defined once, here,
+// and every caller in the engine asks for it by name. The sum-of-squares loop
+// stays with its data (list.zig has to skip non-numeric items; this module does
+// not), because that part was never in doubt.
+//
+// THE DEFAULT IS SAMPLE (N-1), matching this module's long-standing behaviour,
+// stzDataSet, R's var() and pandas' .var(). NumPy's np.var defaults to
+// population, which is exactly why a library must name its choice.
+pub const VarianceKind = enum { population, sample };
+
+/// The divisor for a given count and convention. 0 when undefined (a sample
+/// variance needs at least two observations; a population variance needs one).
+pub fn varianceDivisor(count: usize, kind: VarianceKind) f64 {
+    return switch (kind) {
+        .population => if (count < 1) 0 else @as(f64, @floatFromInt(count)),
+        .sample => if (count < 2) 0 else @as(f64, @floatFromInt(count - 1)),
+    };
+}
+
+fn computeVarianceKind(data: []const f64, mean: f64, kind: VarianceKind) f64 {
+    const divisor = varianceDivisor(data.len, kind);
+    if (divisor == 0) return 0;
     var ss: f64 = 0;
     for (data) |v| {
         const d = v - mean;
         ss += d * d;
     }
-    return ss / @as(f64, @floatFromInt(data.len - 1));
+    return ss / divisor;
+}
+
+fn computeVariance(data: []const f64, mean: f64) f64 {
+    return computeVarianceKind(data, mean, .sample);
 }
 
 fn computePercentile(sorted: []const f64, p: f64) f64 {
@@ -106,14 +139,32 @@ pub fn stz_stats_median(s: ?*const StzStats) callconv(.c) f64 {
     return computePercentile(st.sorted, 50.0);
 }
 
+/// The documented default: SAMPLE variance (N-1). Prefer the explicitly named
+/// twins below in new code -- a reader should not have to know the default.
 pub fn stz_stats_variance(s: ?*const StzStats) callconv(.c) f64 {
-    const st = s orelse return 0;
-    return computeVariance(st.data, computeMean(st.data));
+    return stz_stats_variance_sample(s);
 }
 
 pub fn stz_stats_std_dev(s: ?*const StzStats) callconv(.c) f64 {
+    return stz_stats_std_dev_sample(s);
+}
+
+pub fn stz_stats_variance_sample(s: ?*const StzStats) callconv(.c) f64 {
     const st = s orelse return 0;
-    return @sqrt(computeVariance(st.data, computeMean(st.data)));
+    return computeVarianceKind(st.data, computeMean(st.data), .sample);
+}
+
+pub fn stz_stats_variance_population(s: ?*const StzStats) callconv(.c) f64 {
+    const st = s orelse return 0;
+    return computeVarianceKind(st.data, computeMean(st.data), .population);
+}
+
+pub fn stz_stats_std_dev_sample(s: ?*const StzStats) callconv(.c) f64 {
+    return @sqrt(stz_stats_variance_sample(s));
+}
+
+pub fn stz_stats_std_dev_population(s: ?*const StzStats) callconv(.c) f64 {
+    return @sqrt(stz_stats_variance_population(s));
 }
 
 pub fn stz_stats_coeff_of_variation(s: ?*const StzStats) callconv(.c) f64 {

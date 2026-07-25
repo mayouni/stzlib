@@ -89,6 +89,18 @@ fn ring_Variance(p: *anyopaque) callconv(.c) void {
     rn(p, stats.stz_stats_variance(getH(p, 1)));
 }
 
+fn ring_VarianceSample(p: *anyopaque) callconv(.c) void {
+    rn(p, stats.stz_stats_variance_sample(getH(p, 1)));
+}
+fn ring_VariancePopulation(p: *anyopaque) callconv(.c) void {
+    rn(p, stats.stz_stats_variance_population(getH(p, 1)));
+}
+fn ring_StdDevSample(p: *anyopaque) callconv(.c) void {
+    rn(p, stats.stz_stats_std_dev_sample(getH(p, 1)));
+}
+fn ring_StdDevPopulation(p: *anyopaque) callconv(.c) void {
+    rn(p, stats.stz_stats_std_dev_population(getH(p, 1)));
+}
 fn ring_StdDev(p: *anyopaque) callconv(.c) void {
     rn(p, stats.stz_stats_std_dev(getH(p, 1)));
 }
@@ -196,6 +208,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginestatsmedian", .func = &ring_Median },
     .{ .name = "stzenginestatsvariance", .func = &ring_Variance },
     .{ .name = "stzenginestatsstddev", .func = &ring_StdDev },
+    .{ .name = "stzenginestatsvariancesample", .func = &ring_VarianceSample },
+    .{ .name = "stzenginestatsvariancepopulation", .func = &ring_VariancePopulation },
+    .{ .name = "stzenginestatsstddevsample", .func = &ring_StdDevSample },
+    .{ .name = "stzenginestatsstddevpopulation", .func = &ring_StdDevPopulation },
     .{ .name = "stzenginestatscoeffofvariation", .func = &ring_CoeffOfVariation },
     .{ .name = "stzenginestatspercentile", .func = &ring_Percentile },
     .{ .name = "stzenginestatsq1", .func = &ring_Q1 },

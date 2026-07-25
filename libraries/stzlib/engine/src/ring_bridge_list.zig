@@ -890,6 +890,18 @@ fn ring_NthLargest(p: *anyopaque) callconv(.c) void {
 fn ring_Variance(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_variance(getLC(p, 1)));
 }
+fn ring_VarianceSample(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_variance_sample(getLC(p, 1)));
+}
+fn ring_VariancePopulation(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_variance_population(getLC(p, 1)));
+}
+fn ring_StdDevSample(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_stddev_sample(getLC(p, 1)));
+}
+fn ring_StdDevPopulation(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_stddev_population(getLC(p, 1)));
+}
 fn ring_StdDev(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_stddev(getLC(p, 1)));
 }
@@ -1348,6 +1360,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistnthlargest", .func = &ring_NthLargest },
     .{ .name = "stzenginelistvariance", .func = &ring_Variance },
     .{ .name = "stzengineliststddev", .func = &ring_StdDev },
+    .{ .name = "stzenginelistvariancesample", .func = &ring_VarianceSample },
+    .{ .name = "stzenginelistvariancepopulation", .func = &ring_VariancePopulation },
+    .{ .name = "stzengineliststddevsample", .func = &ring_StdDevSample },
+    .{ .name = "stzengineliststddevpopulation", .func = &ring_StdDevPopulation },
     .{ .name = "stzenginelistranked", .func = &ring_Ranked },
     .{ .name = "stzenginelistfindnthcs", .func = &ring_FindNthCS },
     .{ .name = "stzenginelistfindlastcs", .func = &ring_FindLastCS },
