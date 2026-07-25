@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASE 0 BUILT (77a902cd4); PHASE 1 SLICES 1-2 BUILT (dbcd48a06, 6b67b814c); phases 2-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0 AND 1 COMPLETE** (77a902cd4; dbcd48a06, 6b67b814c, 6b18cefb6). **Phases 2-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -609,8 +609,41 @@ display through Zig's shortest-round-trip formatter. *(This is the old
 > non-negative, non-decreasing across a measurable gap, and an *uptime* rather than a
 > wall clock (`< 3600s`, the epoch bug it exists to catch).
 >
-> **Remaining in phase 1:** rationals (exact p/q, so `"1/3" + "2/3"` is 1) — the last
-> representation the plan asks for before phase 2's numeric scope.
+> **SLICE 3 DONE (6b18cefb6), guard `numeric_rationals_narrated` (42) — PHASE 1 IS
+> COMPLETE.** Rationals: the representation decimals cannot supply. Slice 1 was
+> honest that `1/3` has no finite decimal form and reported it approximate; as a
+> fraction it is exact, and `"1/3" + "2/3"` is exactly `1`.
+>
+> New engine function **`stz_bigint_gcd`** — every rational operation ends in a
+> reduction, or denominators grow without bound and equal numbers stop comparing
+> equal, so it belongs in the engine rather than as a Euclid loop in Ring paying two
+> crossings per iteration (this plane's own measurement). It also handles
+> `gcd(n, 0)`, which Zig's gcd rejects. Results are always in lowest terms, sign on
+> the numerator, and **collapse to a plain integer when the denominator reduces to
+> 1** — so `"4/2"` is `"2"` and `Representation()` then honestly says `:integer`.
+>
+> Mixing works because **a decimal IS a fraction with a power-of-ten denominator**:
+> `0.25` becomes `25/100`, so `1/2 + 0.25` is `3/4` and `1/3 * 3` is exactly `1`
+> (as a decimal that last one is `0.999999`). `Same()` compares across
+> representations by cross-multiplying on big integers, never touching a float.
+>
+> **Honest limit:** `NumericValue()` still returns an f64, because everything
+> numeric eventually must. Stay in `Content()`/`Same()`/the arithmetic and the value
+> is exact.
+>
+> Also repaired: `new stzNumber("123.")` left its content EMPTY (that constructor
+> branch appended to a local and never assigned). **Two existing tests documented
+> the correct answer and were failing silently against it** — `55_content` records
+> `#--> 123.0` and printed nothing. The test was right and the implementation was
+> broken, which is the strongest evidence a fix is correct rather than merely
+> different.
+>
+> **A method note worth keeping:** the first blast-radius diff of this slice was
+> worthless — two snapshots captured from different working directories, only 21 of
+> 89 basenames matching. Redone with `git stash`: rebuild at the committed state,
+> capture, restore, rebuild, capture, diff with timing lines filtered. Four files
+> differ: two random-number tests, and the two above, both moving from wrong to
+> right.
 
 **Phase 2 — numeric scope.** `StzWithPrecision` / `StzWithRounding` /
 `StzWithOverflow`, the stated defaults, and NaN/Inf raising by default. Retires
