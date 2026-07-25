@@ -1,6 +1,7 @@
 const crypto = @import("crypto.zig");
 const webauthn = @import("webauthn.zig");
 const xmldsig = @import("xmldsig.zig");
+const xmlmod = @import("xml.zig");
 const x509 = @import("x509.zig");
 const R = @import("ring_api.zig");
 
@@ -317,6 +318,66 @@ fn ring_SamlSignRsa(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// ── general XML (what stzXml sits on) ────────────────────────
+
+fn ring_XmlValid(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    rn(p, @floatFromInt(xmlmod.xml_valid(x, @intCast(gss(p, 1)))));
+}
+
+fn ring_XmlRoot(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    var buf: [256]u8 = undefined;
+    const n = xmlmod.xml_root(x, @intCast(gss(p, 1)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+fn ring_XmlText(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const q: [*]const u8 = @ptrCast(gs(p, 2));
+    var buf: [16384]u8 = undefined;
+    const n = xmlmod.xml_text(x, @intCast(gss(p, 1)), q, @intCast(gss(p, 2)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+fn ring_XmlAttr(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const q: [*]const u8 = @ptrCast(gs(p, 2));
+    const a: [*]const u8 = @ptrCast(gs(p, 3));
+    var buf: [8192]u8 = undefined;
+    const n = xmlmod.xml_attr(x, @intCast(gss(p, 1)), q, @intCast(gss(p, 2)), a, @intCast(gss(p, 3)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+fn ring_XmlNamespace(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const q: [*]const u8 = @ptrCast(gs(p, 2));
+    var buf: [1024]u8 = undefined;
+    const n = xmlmod.xml_namespace(x, @intCast(gss(p, 1)), q, @intCast(gss(p, 2)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+fn ring_XmlCount(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const q: [*]const u8 = @ptrCast(gs(p, 2));
+    rn(p, @floatFromInt(xmlmod.xml_count(x, @intCast(gss(p, 1)), q, @intCast(gss(p, 2)))));
+}
+
+fn ring_XmlChildren(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    const q: [*]const u8 = @ptrCast(gs(p, 2));
+    var buf: [16384]u8 = undefined;
+    const n = xmlmod.xml_children(x, @intCast(gss(p, 1)), q, @intCast(gss(p, 2)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+fn ring_XmlPretty(p: *anyopaque) callconv(.c) void {
+    const x: [*]const u8 = @ptrCast(gs(p, 1));
+    var buf: [65536]u8 = undefined;
+    const n = xmlmod.xml_pretty(x, @intCast(gss(p, 1)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
@@ -347,6 +408,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginersapublickey", .func = &ring_RsaPublic },
     .{ .name = "stzenginersasign", .func = &ring_RsaSign },
     .{ .name = "stzenginesamlsignrsa", .func = &ring_SamlSignRsa },
+    .{ .name = "stzenginexmlvalid", .func = &ring_XmlValid },
+    .{ .name = "stzenginexmlroot", .func = &ring_XmlRoot },
+    .{ .name = "stzenginexmltext", .func = &ring_XmlText },
+    .{ .name = "stzenginexmlattr", .func = &ring_XmlAttr },
+    .{ .name = "stzenginexmlnamespace", .func = &ring_XmlNamespace },
+    .{ .name = "stzenginexmlcount", .func = &ring_XmlCount },
+    .{ .name = "stzenginexmlchildren", .func = &ring_XmlChildren },
+    .{ .name = "stzenginexmlpretty", .func = &ring_XmlPretty },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

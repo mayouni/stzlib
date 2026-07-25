@@ -956,6 +956,18 @@ pub fn build(b: *std.Build) void {
         const x_run = b.addRunArtifact(x_tests);
         const x_step = b.step("test-x509", "Test X.509 certificate parsing + RSA signing (mbedTLS)");
         x_step.dependOn(&x_run.step);
+
+        // the general XML parser + canonicalizer + query surface (no C deps)
+        const xm_mod = b.createModule(.{
+            .root_source_file = b.path("src/xml.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const xm_tests = b.addTest(.{ .root_module = xm_mod });
+        const xm_run = b.addRunArtifact(xm_tests);
+        const xm_step = b.step("test-xml", "Test the XML parser, exclusive C14N and query paths");
+        xm_step.dependOn(&xm_run.step);
     }
 
     // Generator: populate reference data tables into unicode.db

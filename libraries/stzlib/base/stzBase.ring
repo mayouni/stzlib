@@ -435,6 +435,8 @@ ok
     load "file/stzFolder.ring"
 
     load "file/stzJson.ring"
+    load "file/stzXmlFuncs.ring"
+    load "file/stzXml.ring"
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"     # Engine-backed HTML parser (Zig)
 
