@@ -1,7 +1,21 @@
 # Softanza Numbers, Engine-Side
 ### A plan to make exact, arbitrary-precision arithmetic first-class — and to build the number types the browser cannot
 
-> Status: **plan only — nothing here is built yet.** This document is the design
+> Status: **SUPERSEDED (2026-07-25) by [SOFTANZA_NUMERIC_FOUNDATION.md](SOFTANZA_NUMERIC_FOUNDATION.md)**,
+> which rethinks number programming across the whole library rather than the number
+> types alone. This document's six phases survive there as a strict subset — its
+> P1/P2/P4 became Pillar 1 and part of Pillar 4 — so the analysis below is still
+> good, but it is **not** the plan of record and its phase numbers no longer match.
+> Read the Foundation document first; come here for the type-level detail.
+>
+> Why it was superseded: it treated numbers as a *types* problem. Probing the live
+> tree found the deeper ones — every numeric ALGORITHM (simplex, k-means, logistic
+> regression, trees) runs in the Ring interpreter; the engine has no SIMD at all;
+> a one-shot engine call is no faster than pure Ring because marshalling costs as
+> much as the computation; and there are no special functions, so no p-value in the
+> library can be correct.
+>
+> Original status: **plan only — nothing here is built yet.** This document is the design
 > the user asked for before the appserver work. It is grounded in a survey of the
 > live tree (2026-07-23): the engine, the Ring `stzNumber`, and the delivery
 > catalog were all read, and every "today" claim below was verified by running code.
