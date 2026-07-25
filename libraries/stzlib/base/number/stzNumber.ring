@@ -1918,6 +1918,75 @@ func _StzScaledBigInt(pcNum)
 	ok
 	return StzEngineBigIntFromString(_sign_ + _digits_)
 
+# Every item is a number, or a number written as a string. Neither
+# @IsListOfNumbers (rejects "6") nor any stzList predicate covers the mixed case.
+func _StzIsListOfNumbersOrNumberStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+	_n_ = len(paList)
+	if _n_ = 0
+		return FALSE
+	ok
+	for _i_ = 1 to _n_
+		_it_ = paList[_i_]
+		if isNumber(_it_)
+			loop
+		ok
+		if isString(_it_) and _StzIsPlainDecimal(_it_) and ring_trim(_it_) != ""
+			loop
+		ok
+		return FALSE
+	next
+	return TRUE
+
+# "007" -> "7"; "00.5" -> "0.5". One zero is kept before the point, because ".5"
+# is not a number anybody wants back.
+func _StzStripLeadingZeros(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	if _c_ = ""
+		return "0"
+	ok
+	_sign_ = ""
+	if _c_[1] = "-" or _c_[1] = "+"
+		if _c_[1] = "-"
+			_sign_ = "-"
+		ok
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	_int_ = _c_
+	_rest_ = ""
+	_dot_ = StzFindFirst(".", _c_)
+	if _dot_ > 0
+		_int_ = StzMid(_c_, 1, _dot_ - 1)
+		_rest_ = StzMidToEnd(_c_, _dot_)      # keeps the dot
+	ok
+	while len(_int_) > 1 and _int_[1] = "0"
+		_int_ = StzMidToEnd(_int_, 2)
+	end
+	if _int_ = ""
+		_int_ = "0"
+	ok
+	return _sign_ + _int_ + _rest_
+
+# "1.500" -> "1.5"; "1.000" -> "1". Only touches the FRACTIONAL part, so the
+# trailing zeros of an integer are never at risk.
+func _StzStripTrailingFractionZeros(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	_dot_ = StzFindFirst(".", _c_)
+	if _dot_ = 0
+		return _c_
+	ok
+	_int_ = StzMid(_c_, 1, _dot_ - 1)
+	_frac_ = StzMidToEnd(_c_, _dot_ + 1)
+	while len(_frac_) > 0 and _frac_[len(_frac_)] = "0"
+		_frac_ = StzMid(_frac_, 1, len(_frac_) - 1)
+	end
+	if _frac_ = ""
+		return _int_
+	ok
+	return _int_ + "." + _frac_
+
 # A big integer multiplied by 10^k (k >= 0).
 func _StzMulPowerOfTen(pBig, pnK)
 	if pnK <= 0
@@ -2531,7 +2600,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2563,7 +2632,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2591,7 +2660,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2619,7 +2688,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2647,7 +2716,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2675,7 +2744,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2704,7 +2773,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2732,7 +2801,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -2760,7 +2829,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! The string n must contain a decimal number.")
 			ok
 
@@ -3287,7 +3356,12 @@ class stzNumber from stzObject
 		#>
 	
 	# TRUE if the number is strictly less than the given one.
-	def IsStriclyLess(pOtherNumber)
+	#
+	# FIXED 2026-07-25: the canonical method was spelled IsStriclyLess (missing a
+	# "t") while all SIX of its alternative forms below called the correct
+	# IsStrictlyLess -- so every one of them raised R14. Canonical name corrected;
+	# the misspelling is kept as an alias.
+	def IsStrictlyLess(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
@@ -3326,6 +3400,10 @@ class stzNumber from stzObject
 
 		# Misspelled-but-kept alias of IsStrictlyLessThan.
 		def IsStrictlySmallerThqn(pOtherNumber)
+			return This.IsStrictlyLess(pOtherNumber)
+
+		# the historical misspelling of the canonical name, kept for callers
+		def IsStriclyLess(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
 		#>
@@ -3540,8 +3618,15 @@ class stzNumber from stzObject
 
 		#< @FunctionFluentForms
 
-		def IntegrPartQ()
-			return new stzString(This.InterPart())
+		# FIXED 2026-07-25: this was named IntegrPartQ (missing an "e") and its body
+		# called This.InterPart() (missing "eger") -- two typos in three lines, so the
+		# correctly-named IntegerPartQ that six sibling forms call never existed.
+		def IntegerPartQ()
+			return new stzString(This.IntegerPart())
+
+			# the historical misspelling, kept so existing callers keep working
+			def IntegrPartQ()
+				return This.IntegerPartQ()
 
 		def IntegerPartStringValue()
 			return This.IntegerPart()
@@ -3570,9 +3655,13 @@ class stzNumber from stzObject
 	def IntegerPartWithoutSign()
 		if NOT This.IsSigned()
 			return This.IntegerPart()
-		else
-			return StzReplace( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
 		ok
+		# FIXED 2026-07-25: this called StzReplace(host, 2, len-1) -- passing NUMBERS
+		# where a replace wants the substring to find and the one to put in its place,
+		# so it raised "cStr, cSubStr and cNewSubStr must all be strings". The intent
+		# is plainly a SUBSTRING (from position 2, taking the rest), i.e. drop the
+		# leading sign. It surfaced only once ApplyFormatXT could reach it at all.
+		return StzMidToEnd( This.IntegerPart(), 2 )
 
 		def IntegerPartWithoutSignQ()
 			return new stzString(This.IntegerPartWithoutSign())
@@ -4119,13 +4208,15 @@ class stzNumber from stzObject
 
 	# Compare the rounds: :Greater, :Less or :Same.
 	def CompareRoundsWith(pOtherNumber)
-		if  This.IsRoundSameAs(pOtherNumber)
+		# FIXED 2026-07-25: these were called as IsRound...; the methods are named
+		# RoundIs... (defined just above). Three R14s in one three-branch switch.
+		if  This.RoundIsSameAsRoundOf(pOtherNumber)
 			return :Equal
 
-		but This.IsRoundGreaterThanRoundOf(pOtherNumber)
+		but This.RoundIsGreaterThanRoundOf(pOtherNumber)
 			return :Greater
 
-		but This.IsRoundLessThanRoundOf(pOtherNumber)
+		but This.RoundIsLessThanRoundOf(pOtherNumber)
 			return :Less
 		ok
 
@@ -4454,11 +4545,34 @@ class stzNumber from stzObject
 	 #  INCRMENET / DECREMENT THE NUMBER (BY 1)  #
 	#-------------------------------------------#
 
+	# The value one greater / one less, WITHOUT changing this number.
+	#
+	# ADDED 2026-07-25. The operator() hook has always answered "++" and "--" with
+	# these, but they did not exist. They RETURN rather than mutate, because that
+	# hook returns the result of the operation -- Increment()/Decrement() just below
+	# are the mutating pair.
+	def NextNumber()
+		_o_ = new stzNumber(This.Content())
+		_o_.Add(1)
+		return _o_.Content()
+
+		def NextNumberQ()
+			return new stzNumber(This.NextNumber())
+
+	def PreviousNumber()
+		_o_ = new stzNumber(This.Content())
+		_o_.Subtract(1)
+		return _o_.Content()
+
+		def PreviousNumberQ()
+			return new stzNumber(This.PreviousNumber())
+
 	def Increment()
 		This.Add(1)
 
 		def IncrementQ()
 			This.Add(1)
+			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
 	def Incremented()
@@ -4471,6 +4585,7 @@ class stzNumber from stzObject
 
 		def DecrementQ()
 			This.Subtract(1)
+			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
 	def Decremented()
@@ -4936,14 +5051,19 @@ class stzNumber from stzObject
 			pOtherNumber = pOtherNumber[2]
 		ok
 
-		if isList(pOtherNumber) and
-			( @IsListOfNumbers(pOtherNumber) or
-			  Q(pOtherNumber).IsListOfNumbersInStrings() )
+		# FIXED 2026-07-25: the second predicate, IsListOfNumbersInStrings(), exists
+		# nowhere -- and Ring's `or` evaluates BOTH sides, so this raised R14 for any
+		# list argument rather than falling through. Replaced by a local helper that
+		# accepts numbers and numbers-written-as-strings alike.
+		if isList(pOtherNumber) and _StzIsListOfNumbersOrNumberStrings(pOtherNumber)
 
 			return This.LeastCommonMultipleOfManyNumbers(pOtherNumber)
 
-		but isNumber(pOtherNumber) or 
-		    ( isString(pOtherNumber) and (pOtherNumbe).IsNumberInString() )
+		# FIXED 2026-07-25: `pOtherNumbe` was missing its "r", and a method cannot be
+		# called on a bare string -- it needs Q(). Both would have raised the moment
+		# an LCM was asked for with a number in a string.
+		but isNumber(pOtherNumber) or
+		    ( isString(pOtherNumber) and Q(pOtherNumber).IsNumberInString() )
 			return pvtCalculate( "LCM", pOtherNumber)
 		
 		else
@@ -4954,13 +5074,43 @@ class stzNumber from stzObject
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
 
+	# The LCM of this number with EVERY number in the given list.
+	#
+	# ADDED 2026-07-25. LeastCommonMultiple() has always branched here for a list
+	# argument, but the method did not exist -- so
+	# stzListOfNumbers([4,6,8]).LeastCommonMultiple(), which routes through it,
+	# silently answered 0 instead of 24. lcm is associative, so folding pairwise is
+	# the whole implementation.
+	def LeastCommonMultipleOfManyNumbers(paNumbers)
+		if NOT isList(paNumbers)
+			StzRaise("Incorrect param type! paNumbers must be a list of numbers.")
+		ok
+		_nLen_ = len(paNumbers)
+		if _nLen_ = 0
+			return 0 + This.Content()
+		ok
+		_nResult_ = 0 + This.Content()
+		for _i_ = 1 to _nLen_
+			_oTmp_ = new stzNumber(_nResult_)
+			_nResult_ = 0 + _oTmp_.LeastCommonMultiple( 0 + paNumbers[_i_] )
+		next
+		return _nResult_
+
+		def LeastCommonMultipleOfManyNumbersQ(paNumbers)
+			return new stzNumber(This.LeastCommonMultipleOfManyNumbers(paNumbers))
+
+		def LCMOfManyNumbers(paNumbers)
+			return This.LeastCommonMultipleOfManyNumbers(paNumbers)
+
 
 	# The greatest common divisor with the given number.
 	def GreatestCommonDividor(pOtherNumber)
 		return This.pvtCalculate( "GCD", pOtherNumber)
 
 		def GreatestCommonDividorQ(n)
-			return new stzNumber(This.GreatCommonDividor())
+			# FIXED 2026-07-25: called This.GreatCommonDividor() -- missing "est",
+			# and dropping the argument, so it could never have worked.
+			return new stzNumber(This.GreatestCommonDividor(n))
 
 		def CommonGreatestDividor(pOtherNumber)
 			return This.GreatestCommonDividor(pOtherNumber)
@@ -5339,7 +5489,7 @@ class stzNumber from stzObject
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
 
-			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+			if isString(n) and NOT Q(n).IsNumberInString()
 				StzRaise("Incorrect value! n must be a decimal number in string.")
 			ok
 		ok
@@ -5538,6 +5688,40 @@ class stzNumber from stzObject
 		# argument. Same family as the Insert/Swap/Add shadows.
 		return This.Sign() + StzEngineNumberToBase(fabs(This.IntegerPartValue()), 8)
 
+	# The fractional part written in octal.
+	#
+	# ADDED 2026-07-25. ToOctalFormWithoutPrefix() has always called this for a real
+	# number, but it did not exist -- so any octal rendering of a number with a
+	# fractional part raised R14.
+	#
+	# A fraction is converted by repeatedly multiplying by 8 and taking the integer
+	# part as the next digit. Unlike the integer side this can run forever (1/3 in
+	# octal is 0.2525...), so it is bounded by the number's own round -- the digits
+	# the caller asked to keep -- and stops early when the fraction reaches zero.
+	def FractionalPartToOctalForm()
+		_cFrac_ = This.FractionalPartWithoutZeroDot()
+		if _cFrac_ = ""
+			return ""
+		ok
+		_nFrac_ = 0 + ("0." + _cFrac_)
+		_nMax_ = This.Round()
+		if _nMax_ < 1
+			_nMax_ = 6
+		ok
+		_cOut_ = ""
+		_nGuard_ = 0
+		while _nFrac_ > 0 and _nGuard_ < _nMax_
+			_nFrac_ = _nFrac_ * 8
+			_nDigit_ = floor(_nFrac_)
+			_cOut_ += "" + _nDigit_
+			_nFrac_ = _nFrac_ - _nDigit_
+			_nGuard_++
+		end
+		if _cOut_ = ""
+			return "0"
+		ok
+		return _cOut_
+
 	# The number in octal form (with prefix).
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
@@ -5567,7 +5751,7 @@ class stzNumber from stzObject
 	# The integer part written in base n (2..36).
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
-			_nVal_ = This.IntegerValue()
+			_nVal_ = This.IntegerPartValue()   # FIXED 2026-07-25: was This.IntegerValue()
 			if _nVal_ = 0
 				return "0"
 			ok
@@ -6205,20 +6389,20 @@ class stzNumber from stzObject
 
 		# TRUE if the number is at least 2 billion.
 		def ContainsManyBillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 		# TRUE if the number reaches the billions (thousands of
 		# millions).
 		def ContainsThousandsOfMillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 		# TRUE if the number is at least 2 billion.
 		def ContainsSeveralThousandsOfMillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 		# TRUE if the number is at least 2 billion.
 		def ContainsManyThousandsOfMillions()
-			return This.ontainsSeveralBillions()	
+			return This.ContainsSeveralBillions()	
 
 		#--
 
@@ -6227,18 +6411,18 @@ class stzNumber from stzObject
 
 		# TRUE if the number is at least 2 billion.
 		def HasManyBillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 		def HasThousandsOfMillions()
 			return This.ContainsBillions()
 
 		# TRUE if the number is at least 2 billion.
 		def HasSeveralThousandsOfMillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 		# TRUE if the number is at least 2 billion.
 		def HasManyThousandsOfMillions()
-			return This.ontainsSeveralBillions()
+			return This.ContainsSeveralBillions()
 
 	# TRUE if the number is at least 10 billion.
 	def ContainsTensOfBillions()
@@ -6383,38 +6567,42 @@ class stzNumber from stzObject
 	 #    REMOVING ZEROS FROM NUMBER   #
 	#---------------------------------#
 
+	# REWRITTEN 2026-07-25. All three of these called stzString methods that do not
+	# exist -- RepeatedLeadingcharIs, RepeatedTrailingCharIs,
+	# RemoveThisRepeatedLeadingCharQ, RemoveRepeatedTrailingCharQ -- so every one
+	# raised R14. That is how ApplyFormatXT() came to fail: Structure() reaches here.
+	#
+	# The LOGIC was wrong too, independently of the names:
+	#   * RemoveZerosFromLeft ALSO stripped trailing zeros, which is not "from left";
+	#   * RemoveZeros stripped TRAILING twice and never touched the leading zeros.
+	#
+	# They are now expressed directly on the digits. The right-hand strip stays
+	# guarded by IsReal(): trailing zeros of an INTEGER are significant, and turning
+	# 100 into 1 would be a catastrophe rather than a tidy-up.
+
+	# "007" -> "7", "00.5" -> "0.5". A single leading zero before the point is kept.
 	def RemoveZerosFromLeft()
-		_oStzStr_ = This.ToStzString()
+		This.Update( _StzStripLeadingZeros("" + This.Content()) )
 
-		if _oStzStr_.RepeatedLeadingcharIs("0")
-			This.Update( _oStzStr_.RemoveThisRepeatedLeadingCharQ("0").Content() )
-		ok
+		def RemoveZerosFromLeftQ()
+			This.RemoveZerosFromLeft()
+			return This
 
-		if This.IsReal()
-			if _oStzStr_.RepeatedTrailingCharIs("0")
-				This.Update( _oStzStr_.RemoveRepeatedTrailingCharQ("0").Content() )
-			ok
-		ok
-
+	# "1.500" -> "1.5". Only for a real number, and only in the fractional part.
 	def RemoveZerosFromRight()
-		_oStzStr_ = This.ToStzString()
-
-		if _oStzStr_.RepeatedTrailingcharIs("0") and This.IsReal()
-			This.Update( _oStzStr_.RemoveThisRepeatedtrailingCharQ("0").Content() )
-		ok
-
-	def RemoveZeros()
-		_oStzStr_ = This.ToStzString()
-
-		if _oStzStr_.RepeatedTrailingcharIs("0")
-			This.Update( _oStzStr_.RemoveThisRepeatedtrailingCharQ("0").Content() )
-		ok
-
 		if This.IsReal()
-			if _oStzStr_.RepeatedTrailingCharIs("0")
-				This.Update( _oStzStr_.RemoveRepeatedTrailingCharQ("0").Content() )
-			ok
+			This.Update( _StzStripTrailingFractionZeros("" + This.Content()) )
 		ok
+
+		def RemoveZerosFromRightQ()
+			This.RemoveZerosFromRight()
+			return This
+
+	# both ends: "007.500" -> "7.5"
+	def RemoveZeros()
+		This.RemoveZerosFromLeft()
+		This.RemoveZerosFromRight()
+
 		
 
 	def ZerosRemoved()
@@ -6747,7 +6935,14 @@ class stzNumber from stzObject
 		ok
 
 		# Adding the closing parenthese if required
-		if _bPutNegativeBetweenParentheses_
+		#
+		# FIXED 2026-07-25: this asked only whether the OPTION was set, while the
+		# opening "(" above is (correctly) also guarded by the number being negative
+		# -- so any POSITIVE number formatted with :PutNegativeBetweenParentheses
+		# came out with a stray ")" on the end. Visible in test
+		# 70_review_implementation, which could not run at all until the dead call in
+		# Structure() was repaired.
+		if _bPutNegativeBetweenParentheses_ and This.Sign() = "-"
 			_cFormattedNumber_ += ")"
 		ok
 
@@ -7009,13 +7204,15 @@ class stzNumber from stzObject
 			return This.IsStrictlyGreaterThan(pValue)
 
 		but pOp = ">="
-			return This.IsGreaterThanOrEqualTo(pValue)
+			# FIXED 2026-07-25: was IsGreaterThanOrEqualTo (no such method)
+			return This.IsEqualOrGreaterThan(pValue)
 
 		but pOp = "<"
 			return This.IsStrictlyLessThan(pValue)
 
 		but pOp = "<="
-			return This.IsLessThanOrEqualTo(pValue)
+			# FIXED 2026-07-25: was IsLessThanOrEqualTo (no such method)
+			return This.IsLessOrEqualTo(pValue)
 
 		but pOp = "<>" or pOp = "!"
 			return This.IsDifferentFrom(pValue)
@@ -7297,18 +7494,18 @@ class stzNumber from stzObject
 				return This.SwapWithQ(pOtherStzNumber)
 
 	# The least common multiple with the given number.
+	# FIXED 2026-07-25: this was a SECOND, simpler implementation that went straight
+	# to the engine, so it neither unwrapped a `:With` named param nor handled a
+	# LIST -- and stzListOfNumbers.LeastCommonMultiple() calls exactly this name with
+	# `:With = <list>`, which is why that method silently answered 0 instead of the
+	# lcm. A short name should be an ALIAS of the full one, not a divergent twin.
 	def LCM(pOtherNumber)
-		if isString(pOtherNumber)
-			pOtherNumber = 0+ pOtherNumber
-		ok
-		return StzEngineNumberLcm(This.NumericValue(), pOtherNumber)
+		return This.LeastCommonMultiple(pOtherNumber)
 
 	# The greatest common divisor with the given number.
+	# ...and the same for GCD, for the same reason: one implementation, one meaning.
 	def GCD(pOtherNumber)
-		if isString(pOtherNumber)
-			pOtherNumber = 0+ pOtherNumber
-		ok
-		return StzEngineNumberGcd(This.NumericValue(), pOtherNumber)
+		return This.GreatestCommonDividor(pOtherNumber)
 
 	  #=========================================#
 	 #  ENGINE-BACKED NUMBER OPERATIONS        #
