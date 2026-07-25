@@ -68,6 +68,11 @@ class stzMailSandbox from stzObject
 		                           :body = "" + pcBody, :seq = _seq_ ]
 		return This
 
+	# A double says so itself. The registry asks this rather than guessing from a
+	# class name, and it is what makes "no sandbox in production" enforceable.
+	def IsSandbox()
+		return TRUE
+
 	  #-- inspection (what makes the sink assertable) ---------------------
 
 	def Sent()

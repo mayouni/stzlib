@@ -47,6 +47,10 @@ class stzPasskeySandbox from stzObject
 		@cRpId = ring_trim("" + pcRpId)
 		@nCounter = 0
 
+	# a double declares itself -- see stzServiceRegistry
+	def IsSandbox()
+		return TRUE
+
 	def RpId()
 		return @cRpId
 
