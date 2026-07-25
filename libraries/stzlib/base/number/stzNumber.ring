@@ -1641,11 +1641,454 @@ func StzIsDigitPalindrome(n)
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
 	
+
+  #===============================================================#
+ #  EXACTNESS HELPERS (numeric foundation phase 1)                 #
+#===============================================================#
+#
+# Global funcs, placed BEFORE the classes so they are reachable from the class
+# methods that call them (a func defined after a class lands in that class's
+# region and is not truly global).
+#
+# These implement two things pvtCalculate needs and Ring cannot express: the
+# DECIMAL PLACES a result is entitled to, and exact integer arithmetic beyond
+# 2^53 via the engine's arbitrary-precision integers.
+
+# The digits after the decimal point of a numeric string ("" when there are none).
+func _StzDecimalsPart(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	_n_ = StzFindFirst(".", _c_)
+	if _n_ = 0
+		return ""
+	ok
+	return StzMidToEnd(_c_, _n_ + 1)
+
+func _StzPlacesOf(pcNum)
+	return len( _StzDecimalsPart(pcNum) )
+
+# Two numeric strings denoting the SAME number. "1.50" = "1.5" = "1.500"; this is
+# what Same() means, as against Ring's `=` on the rendered text.
+func _StzSameNumberString(pcA, pcB)
+	_a_ = _StzNormalizedNumberString(pcA)
+	_b_ = _StzNormalizedNumberString(pcB)
+	return _a_ = _b_
+
+func _StzNormalizedNumberString(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	if _c_ = ""
+		return "0"
+	ok
+	_sign_ = ""
+	if _c_[1] = "-"
+		_sign_ = "-"
+		_c_ = StzMidToEnd(_c_, 2)
+	but _c_[1] = "+"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	_int_ = _c_
+	_frac_ = ""
+	_dot_ = StzFindFirst(".", _c_)
+	if _dot_ > 0
+		_int_ = StzMid(_c_, 1, _dot_ - 1)
+		_frac_ = StzMidToEnd(_c_, _dot_ + 1)
+	ok
+	# strip leading zeros of the integer part, trailing zeros of the fraction
+	while len(_int_) > 1 and _int_[1] = "0"
+		_int_ = StzMidToEnd(_int_, 2)
+	end
+	if _int_ = ""
+		_int_ = "0"
+	ok
+	while len(_frac_) > 0 and _frac_[len(_frac_)] = "0"
+		_frac_ = StzMid(_frac_, 1, len(_frac_) - 1)
+	end
+	if _int_ = "0" and _frac_ = ""
+		return "0"          # -0 and 0 are the same number
+	ok
+	if _frac_ = ""
+		return _sign_ + _int_
+	ok
+	return _sign_ + _int_ + "." + _frac_
+
+# An integer, written plainly (no decimal point, no exponent). "" counts as one
+# (the absent operand of a unary operation).
+func _pvtLooksLikeInteger(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	if _c_ = ""
+		return TRUE
+	ok
+	if _c_[1] = "-" or _c_[1] = "+"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	if _c_ = ""
+		return FALSE
+	ok
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		if StzFindFirst(_c_[_i_], "0123456789") = 0
+			return FALSE
+		ok
+	next
+	return TRUE
+
+func _pvtIsExactIntegerOp(pcOp)
+	return StzFindFirst(pcOp, [ "+", "-", "*", "%", "^", "/" ]) > 0
+
+func _pvtIsTranscendental(pcOp)
+	return StzFindFirst(pcOp, [ "sin", "cos", "tan", "cotan", "sinh", "cosh",
+		"tanh", "exp", "log", "log10", "sqrt", "sigmoid", "DerivativeSigmoid",
+		"inverse" ]) > 0
+
+# Would this integer operation leave the range where an f64 is exact (2^53)?
+# Decided from the OPERAND DIGITS, never from the f64 result -- by the time a
+# result exists the information is already gone.
+func _pvtNeedsBigIntegers(pcOp, pcA, pcB)
+	_da_ = len( _StzDigitsOnly(pcA) )
+	_db_ = len( _StzDigitsOnly(pcB) )
+	if _da_ > 15 or _db_ > 15
+		return TRUE
+	ok
+	if pcOp = "*"
+		return (_da_ + _db_) > 15          # the product may not fit
+	ok
+	if pcOp = "^"
+		if pcB = "" return FALSE ok
+		return (_da_ * (0 + pcB)) > 15
+	ok
+	if pcOp = "+" or pcOp = "-"
+		return (_da_ + 1) > 15 or (_db_ + 1) > 15
+	ok
+	return FALSE
+
+func _StzDigitsOnly(pcNum)
+	_out_ = ""
+	_c_ = "" + pcNum
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		if StzFindFirst(_c_[_i_], "0123456789") > 0
+			_out_ += _c_[_i_]
+		ok
+	next
+	return _out_
+
+# Does this operation deserve the exact path? Yes when either operand carries
+# decimals (the f64 route is what produced 0.1*0.1 = 0.0), or when plain integers
+# would leave the range an f64 represents exactly.
+func _pvtWantsExactPath(pcOp, pcA, pcB)
+	if pcOp = "/"
+		return TRUE        # try for a terminating quotient; fall back if not
+	ok
+	if _StzPlacesOf(pcA) > 0 or _StzPlacesOf(pcB) > 0
+		return TRUE
+	ok
+	if _pvtLooksLikeInteger(pcA) and _pvtLooksLikeInteger(pcB)
+		return _pvtNeedsBigIntegers(pcOp, pcA, pcB)
+	ok
+	return FALSE
+
+# Did rendering the f64 to this decimal string lose anything? Answered by
+# round-trip: a string that parses back to the very same double lost nothing.
+func _pvtRendersExactly(pcRendered, pnResult)
+	return (0 + ("" + pcRendered)) = pnResult
+
+# EXACT DECIMAL ARITHMETIC ON SCALED INTEGERS.
+#
+# A decimal is an integer and a place count: 19.99 is (1999, 2). Align the places
+# and the operation becomes integer arithmetic, which the engine does exactly at
+# any size. Returns "" when it cannot be done exactly (a negative exponent, a
+# malformed operand) so the caller falls back to the f64 path.
+func _pvtExactDecimalCalc(pcOp, pcA, pcB)
+	if NOT ( _StzIsPlainDecimal(pcA) and _StzIsPlainDecimal(pcB) )
+		return ""
+	ok
+	_pa_ = _StzPlacesOf(pcA)
+	_pb_ = _StzPlacesOf(pcB)
+
+	if pcOp = "^"
+		if NOT (_pvtLooksLikeInteger(pcB) and pcB != "")
+			return ""
+		ok
+		_e_ = 0 + ring_trim("" + pcB)
+		if _e_ < 0
+			return ""
+		ok
+		_pR_ = StzEngineBigIntPow( _StzScaledBigInt(pcA), _e_ )
+		if _pR_ = NULL  return "" ok
+		return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pa_ * _e_ )
+	ok
+
+	if pcOp = "*"
+		_pR_ = StzEngineBigIntMul( _StzScaledBigInt(pcA), _StzScaledBigInt(pcB) )
+		if _pR_ = NULL  return "" ok
+		return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pa_ + _pb_ )
+	ok
+
+	# DIVISION, exactly, WHEN IT TERMINATES.
+	#
+	# a/b = (ia * 10^pb) / (ib * 10^pa). Asking for k decimal places means asking
+	# whether ia * 10^(pb+k) divides evenly by ib * 10^pa. The smallest k that does
+	# is the shortest exact form (1/8 -> k=3, "0.125"); if no k up to 20 works the
+	# quotient does not terminate (1/3) and we return "" so the caller falls back to
+	# the f64 path, which reports itself approximate.
+	if pcOp = "/"
+		_pIb_ = _StzScaledBigInt(pcB)
+		if _pIb_ = NULL or StzEngineBigIntIsZero(_pIb_)
+			return ""                              # let the normal path handle /0
+		ok
+		_pD_ = _StzMulPowerOfTen(_pIb_, _pa_)
+		if _pD_ = NULL  return "" ok
+		_pIa_ = _StzScaledBigInt(pcA)
+		if _pIa_ = NULL  return "" ok
+		for _k_ = 0 to 20
+			_pN_ = _StzMulPowerOfTen(_pIa_, _pb_ + _k_)
+			if _pN_ = NULL  return "" ok
+			_pMod_ = StzEngineBigIntMod(_pN_, _pD_)
+			if _pMod_ != NULL and StzEngineBigIntIsZero(_pMod_)
+				_pQ_ = StzEngineBigIntDiv(_pN_, _pD_)
+				if _pQ_ = NULL  return "" ok
+				return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pQ_), _k_ )
+			ok
+		next
+		return ""
+	ok
+
+	# + - % : align both operands to the same number of places first
+	_pMax_ = _pa_
+	if _pb_ > _pMax_
+		_pMax_ = _pb_
+	ok
+	_pA_ = _StzScaledBigIntTo(pcA, _pMax_)
+	_pB_ = _StzScaledBigIntTo(pcB, _pMax_)
+	if _pA_ = NULL or _pB_ = NULL
+		return ""
+	ok
+	_pR_ = NULL
+	switch pcOp
+	on "+"
+		_pR_ = StzEngineBigIntAdd(_pA_, _pB_)
+	on "-"
+		_pR_ = StzEngineBigIntSub(_pA_, _pB_)
+	on "%"
+		_pR_ = StzEngineBigIntMod(_pA_, _pB_)
+	off
+	if _pR_ = NULL
+		return ""
+	ok
+	return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pMax_ )
+
+# A plain decimal: optional sign, digits, at most one dot, no exponent.
+func _StzIsPlainDecimal(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	if _c_ = ""
+		return TRUE
+	ok
+	if _c_[1] = "-" or _c_[1] = "+"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	if _c_ = ""
+		return FALSE
+	ok
+	_nDots_ = 0
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		if _c_[_i_] = "."
+			_nDots_++
+		but StzFindFirst(_c_[_i_], "0123456789") = 0
+			return FALSE
+		ok
+	next
+	return _nDots_ <= 1
+
+# "19.99" -> the big integer 1999 (the value scaled by its own places).
+func _StzScaledBigInt(pcNum)
+	_c_ = ring_trim("" + pcNum)
+	if _c_ = ""
+		_c_ = "0"
+	ok
+	_sign_ = ""
+	if _c_[1] = "-"
+		_sign_ = "-"
+		_c_ = StzMidToEnd(_c_, 2)
+	but _c_[1] = "+"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	_digits_ = _StzDigitsOnly(_c_)
+	if _digits_ = ""
+		_digits_ = "0"
+	ok
+	return StzEngineBigIntFromString(_sign_ + _digits_)
+
+# A big integer multiplied by 10^k (k >= 0).
+func _StzMulPowerOfTen(pBig, pnK)
+	if pnK <= 0
+		return pBig
+	ok
+	_cTen_ = "1"
+	for _i_ = 1 to pnK
+		_cTen_ += "0"
+	next
+	return StzEngineBigIntMul(pBig, StzEngineBigIntFromString(_cTen_))
+
+# ...and scaled to a GIVEN number of places, by appending zeros.
+func _StzScaledBigIntTo(pcNum, pnPlaces)
+	_p_ = _StzPlacesOf(pcNum)
+	_pB_ = _StzScaledBigInt(pcNum)
+	if _pB_ = NULL
+		return NULL
+	ok
+	_k_ = pnPlaces - _p_
+	if _k_ <= 0
+		return _pB_
+	ok
+	_cTen_ = "1"
+	for _i_ = 1 to _k_
+		_cTen_ += "0"
+	next
+	return StzEngineBigIntMul(_pB_, StzEngineBigIntFromString(_cTen_))
+
+# Put the decimal point back: ("29985", 4) -> "2.9985"; ("5", 3) -> "0.005".
+func _StzPlaceDecimalPoint(pcDigits, pnPlaces)
+	_c_ = "" + pcDigits
+	if pnPlaces <= 0
+		return _c_
+	ok
+	_sign_ = ""
+	if len(_c_) > 0 and _c_[1] = "-"
+		_sign_ = "-"
+		_c_ = StzMidToEnd(_c_, 2)
+	ok
+	while len(_c_) <= pnPlaces
+		_c_ = "0" + _c_
+	end
+	_cut_ = len(_c_) - pnPlaces
+	return _sign_ + StzMid(_c_, 1, _cut_) + "." + StzMidToEnd(_c_, _cut_ + 1)
+
+# The operation redone through the engine's arbitrary-precision integers.
+# Returns "" if it cannot be done exactly, so the caller falls back.
+func _pvtBigIntegerCalc(pcOp, pcA, pcB)
+	_pA_ = StzEngineBigIntFromString(ring_trim("" + pcA))
+	if _pA_ = NULL
+		return ""
+	ok
+	_pR_ = NULL
+	if pcOp = "^"
+		_e_ = 0 + ring_trim("" + pcB)
+		if _e_ < 0
+			return ""
+		ok
+		_pR_ = StzEngineBigIntPow(_pA_, _e_)
+	else
+		_pB_ = StzEngineBigIntFromString(ring_trim("" + pcB))
+		if _pB_ = NULL
+			return ""
+		ok
+		switch pcOp
+		on "+"
+			_pR_ = StzEngineBigIntAdd(_pA_, _pB_)
+		on "-"
+			_pR_ = StzEngineBigIntSub(_pA_, _pB_)
+		on "*"
+			_pR_ = StzEngineBigIntMul(_pA_, _pB_)
+		on "%"
+			_pR_ = StzEngineBigIntMod(_pA_, _pB_)
+		off
+	ok
+	if _pR_ = NULL
+		return ""
+	ok
+	return StzEngineBigIntToString(_pR_)
+
+# THE DECIMAL PLACES A RESULT IS ENTITLED TO.
+#
+#   + - %   max(places(a), places(b))   -- no new places can appear
+#   *       places(a) + places(b)       -- exactly the places a product needs
+#   ^       places(a) * exponent
+#   /       see below: division is the one that cannot be answered from the
+#           operands alone, because the quotient may not terminate
+#   floor / ceil                        -- an integer
+#   everything else (sin, log, sqrt...) -- inherently approximate
+func _pvtResultPlaces_(pcOp, pcA, pcB, pnSelfRound)
+	_pa_ = _StzPlacesOf(pcA)
+	_pb_ = _StzPlacesOf(pcB)
+
+	if pcOp = "floor" or pcOp = "ceil"
+		return 0
+	ok
+
+	# EVERYTHING THAT IS NOT ARITHMETIC KEEPS THE ORIGINAL RULE -- the receiver's
+	# own round. That was never the defect: sin/cos/log/sqrt have no exact decimal
+	# form, so the caller's requested precision is the only sensible answer, and
+	# changing it here silently coarsened trigonometry from 5 places to 2.
+	if NOT _pvtIsArithmetic(pcOp)
+		return pnSelfRound
+	ok
+	if pcOp = "+" or pcOp = "-" or pcOp = "%" or pcOp = "LCM" or pcOp = "GCD"
+		if _pa_ > _pb_
+			return _pa_
+		ok
+		return _pb_
+	ok
+	if pcOp = "*"
+		_p_ = _pa_ + _pb_
+		if _p_ > 14
+			_p_ = 14
+		ok
+		return _p_
+	ok
+	if pcOp = "^"
+		if _pvtLooksLikeInteger(pcB) and pcB != ""
+			_e_ = 0 + ring_trim("" + pcB)
+			if _e_ >= 0 and (_pa_ * _e_) <= 14
+				return _pa_ * _e_
+			ok
+		ok
+		return _StzInexactPlaces(_pa_, _pb_)
+	ok
+	# DIVISION. A quotient terminates only when the reduced denominator has no
+	# prime factors besides 2 and 5, so the places cannot be read off the operands.
+	# Give it room to land on the exact value when it does terminate (1/8 = 0.125,
+	# 0.1/4 = 0.025) and let _pvtNoteExactness report the truth when it does not.
+	# The rendering trims nothing, so a terminating quotient shows its own places.
+	if pcOp = "/"
+		# room to land on the exact value when the quotient terminates
+		# (1/8 = 0.125, 0.1/4 = 0.025). StzDecimals accepts at most 14.
+		return _StzInexactPlaces(_pa_ + _pb_ + 6, 0)
+	ok
+	return _StzInexactPlaces(_pa_, _pb_)
+
+func _pvtIsArithmetic(pcOp)
+	return StzFindFirst(pcOp, [ "+", "-", "*", "/", "%", "^" ]) > 0
+
+# The places to use when the result has no exact decimal form: honour whatever
+# the caller asked for globally, but never fewer than the operands carried.
+func _StzInexactPlaces(pnA, pnB)
+	_n_ = pnA
+	if pnB > _n_
+		_n_ = pnB
+	ok
+	_cur_ = StzCurrentRound()
+	if _cur_ > _n_
+		_n_ = _cur_
+	ok
+	if _n_ > 14           # StzDecimals refuses more than 14
+		_n_ = 14
+	ok
+	if _n_ < 1
+		_n_ = 1
+	ok
+	return _n_
+
+
 class stzDecimalNumber from stzNumber
 
 class stzNumber from stzObject
 
 	@cContent = ""
+	# THE EXACTNESS REGISTER (numeric foundation phase 1). A number knows whether
+	# its current value is an exact representation of the computation that produced
+	# it, and can say why not. :exact | :inexact
+	@cExactness = :exact
+	@cInexactReason = ""
 	#--> Holds the number WITHOUT eventual
 	# underscores introduced by the user!
 
@@ -3444,6 +3887,51 @@ class stzNumber from stzObject
 
 	#@ aka  round to nearest, nearest whole number, round off
 	# Round the number to the nearest integer (mutating).
+	  #-- EXACTNESS (numeric foundation phase 1) --------------------------
+	  #
+	  # Numeric surprise is almost always about a frame the caller could not see:
+	  # a rounding, a binary-float representation, a division that does not
+	  # terminate. So the number carries that fact rather than making you deduce
+	  # it -- the same habit as the natural layer's evidential register.
+
+	#@ aka  is it exact, was anything lost, is this precise
+	def IsExact()
+		return @cExactness = :exact
+
+	def IsApproximate()
+		return NOT This.IsExact()
+
+	# Empty when the value is exact; otherwise a plain sentence saying what was
+	# lost and where.
+	#@ aka  why not exact, what was lost, explain the precision
+	def WhyNotExact()
+		return @cInexactReason
+
+		def Why()
+			return This.WhyNotExact()
+
+	def Exactness()
+		return @cExactness
+
+	# MATHEMATICAL equality, as opposed to Ring's `=` on the rendered strings.
+	# "1.50" and "1.5" are the same number; "0.1" and 0.1 are not the same BITS.
+	#@ aka  same number, equal in value, numerically equal
+	def Same(pOther)
+		_cOther_ = ""
+		if isObject(pOther)
+			_cOther_ = "" + pOther.Content()
+		but isString(pOther)
+			_cOther_ = pOther
+		but isNumber(pOther)
+			_cOther_ = "" + pOther
+		else
+			return FALSE
+		ok
+		return _StzSameNumberString("" + This.Content(), _cOther_)
+
+		def IsSameAs(pOther)
+			return This.Same(pOther)
+
 	def Round()
 		return @nRound
 
@@ -6976,6 +7464,34 @@ class stzNumber from stzObject
 
 	Private
 
+	# Record whether the rendered result lost anything relative to the f64 the
+	# operation produced. Transcendentals are inherently approximate; a division
+	# that does not terminate in the available places is approximate; everything
+	# else that renders back to the same value is exact.
+	def _pvtNoteExactness(pcOp, pcA, pcB, pnResult, pcRendered)
+		if _pvtIsTranscendental(pcOp)
+			@cExactness = :inexact
+			@cInexactReason = "'" + pcOp + "' has no exact decimal result in general"
+			return
+		ok
+		if NOT _pvtRendersExactly(pcRendered, pnResult)
+			@cExactness = :inexact
+			if pcOp = "/"
+				@cInexactReason = "the division does not terminate in " +
+					len(_StzDecimalsPart("" + pcRendered)) + " decimal place(s)"
+			else
+				@cInexactReason = "the result was rounded to " +
+					len(_StzDecimalsPart("" + pcRendered)) + " decimal place(s)"
+			ok
+			return
+		ok
+		# the operands themselves may already carry an approximation
+		if This.IsApproximate()
+			return
+		ok
+		@cExactness = :exact
+		@cInexactReason = ""
+
 	def pvtCalculate(pcOperation, pOtherNumber)
 
 		# Makes basic arithmetic operations (+, -, *, and /) and
@@ -6985,7 +7501,51 @@ class stzNumber from stzObject
 		#--> Whatever the active round defined by decimals() is,
 		# the result is always returned in a string containing the
 		# effective number of the decimals.
-	
+
+		# EXACTNESS, 2026-07-25 (numeric foundation phase 1). Two things were
+		# wrong here, and both destroyed value silently.
+		#
+		# (1) THE RESULT'S DECIMAL PLACES came from This.Round() -- the RECEIVER's
+		# places alone -- for every operation. That is right for + and - only when
+		# the receiver already has at least as many places as the operand, and it is
+		# never right for *. It gave 0.1 * 0.1 = 0.0, 0.5 * 0.5 = 0.3,
+		# 19.99 * 0.15 = 3.00, 1 + 0.001 = 1.00 and 0.5 + 0.125 = 0.6. The places
+		# are now derived PER OPERATION from both operands (_pvtResultPlaces_).
+		#
+		# (2) EXACT INTEGERS beyond 2^53 were lost, because both operands go through
+		# NumericValue() into an f64. When both operands are integers and the result
+		# can exceed the f64-exact range, the operation is now redone through the
+		# engine's arbitrary-precision integers, which have been present and correct
+		# all along (std.math.big).
+		#
+		# Both paths record whether the result is EXACT, so IsExact()/Why() can tell
+		# the caller instead of leaving them to guess.
+
+		_cSelfContent_ = "" + This.Content()
+		_cOtherContent_ = ""
+		if isString(pOtherNumber)
+			_cOtherContent_ = pOtherNumber
+		but isNumber(pOtherNumber)
+			_cOtherContent_ = "" + pOtherNumber
+		ok
+
+		# THE EXACT PATH, before anything touches an f64. + - * % ^ on decimal
+		# operands are computed on the SCALED INTEGERS through the engine's
+		# arbitrary-precision integers, so the answer is exact by construction
+		# rather than "f64 then rounded to a hopeful number of places":
+		# 19.99 * 0.15 becomes 1999 * 15 = 29985 with the point 4 from the right.
+		# Small integer arithmetic keeps the f64 fast path, where it is exact anyway.
+		if _pvtIsExactIntegerOp(pcOperation)
+			if _pvtWantsExactPath(pcOperation, _cSelfContent_, _cOtherContent_)
+				_cX_ = _pvtExactDecimalCalc(pcOperation, _cSelfContent_, _cOtherContent_)
+				if _cX_ != ""
+					@cExactness = :exact
+					@cInexactReason = ""
+					return _cX_
+				ok
+			ok
+		ok
+
 		# First, string values are converted to number values
 		_n1_ = This.NumericValue()
 		if isString(pOtherNumber)
@@ -7098,9 +7658,17 @@ class stzNumber from stzObject
 		the program (made using decimals())
 		*/
 
+		# The result's DECIMAL PLACES, derived from the operation and BOTH operands
+		# rather than from the receiver alone -- see the note at the top.
+		_nPlaces_ = _pvtResultPlaces_(pcOperation, _cSelfContent_, _cOtherContent_, This.Round())
+
 		_nCurrentRound_ = StzCurrentRound()
-		StzDecimals(This.Round())
+		StzDecimals(_nPlaces_)
 		_cResult_ = ""+ _nResult_
 		StzDecimals(_nCurrentRound_)
+
+		# ...and record whether that rendering LOST anything, so IsExact()/Why()
+		# can answer honestly.
+		This._pvtNoteExactness(pcOperation, _cSelfContent_, _cOtherContent_, _nResult_, _cResult_)
 
 		return _cResult_
