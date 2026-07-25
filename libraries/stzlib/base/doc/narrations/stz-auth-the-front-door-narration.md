@@ -1,50 +1,40 @@
 # The Front Door
-### How Softanza's authentication became industrial — and why it ends up governed, not bolted on
+### A guided tour of authentication in Softanza — for programmers, not security specialists
 
-Softanza's `stzAuth` began as a small, correct thing: a username, a PBKDF2 hash,
-an opaque session token. Nothing wrong with it. Also nothing an application in
-production could stand on — no persistence, no second factor, no passwordless, no
-brute-force defense, no per-device control, and no connection whatsoever between
-*who you are* and *what you may do*.
+Every application eventually needs to answer "who is this?" And almost every
+application answers it badly the first time, not through carelessness but because
+the field is full of details that look optional and are not.
 
-This narration walks how that changed, and what the changes taught. Every code
-block below is real, and every output block is its actual output.
+This narration walks Softanza's answer from the beginning, explaining each idea
+before using it. You do not need to know what a nonce, a canonicalization or a
+capability lattice is — that is the narration's job. Every code block is real, and
+every output block is its actual output.
 
-The short version: authentication in Softanza is not a login widget. It is the
-**front door to the governance model**. A login does not merely set a flag — it
-produces the **actor** the whole library already reasons about.
-
----
-
-## What Better Auth actually taught
-
-The work started by reading [better-auth](https://github.com/better-auth/better-auth),
-a TypeScript framework that calls auth "a half-solved problem." The temptation
-with any such survey is to copy the feature list. That would have been the wrong
-lesson. Its plugin catalogue is long, but three *architectural* decisions carry
-it:
-
-1. a small core with **adapter-based persistence** — the core knows nothing about
-   your database;
-2. a **plugin model**, so methods attach rather than accrete in the core;
-3. **authn and authz in one place**.
-
-Softanza already owned the first two patterns under different names — the vault
-resolver's duck-typed seam, and the port/attach shape the graph-rules work had
-just established. And on the third it was *ahead*: the capability lattice,
-`stzGovernance`, the org chart, separation-of-duties rules. All of it existed. None
-of it was connected to `stzAuth`'s users.
-
-So the plan was mostly **wiring what was already there**, plus real hardening.
-Six phases, then external identity.
+If you take one idea away, take this: **a login should not set a flag. It should
+produce a subject the rest of your program already understands.**
 
 ---
 
-## A login yields an actor
+## Where it started
 
-This is the payoff, so it goes first. A user carries **roles**; each role is a
-capability bundle over the lattice — `effectful` / `sensing` / `compute` /
-`inference` — at a trust posture.
+Softanza's `stzAuth` began small and correct: a username, a securely hashed
+password, a session token. Nothing wrong with any of it.
+
+But an application in production needs more than the happy path. What happens when
+the process restarts — do people stay logged in? Can a user see the four devices
+they are signed in on, and kick out the one they lost? Can someone guess passwords
+all afternoon? And the big one: once you know *who* someone is, how does the rest
+of your code learn what they are *allowed to do*?
+
+That last question is where most auth libraries stop and hand you a `user.role`
+string. It is where this one gets interesting.
+
+---
+
+## First idea: a login hands you an actor
+
+Start with roles. A role in Softanza is not a label — it is a **bundle of
+capabilities** at a **trust level**.
 
 ```ring
 a = new stzAuth()
@@ -56,30 +46,49 @@ act = a.ActorOfAt(tok, NOW)
 ? "user        : " + act.Name()
 ? "capabilities: " + @@(act.Kinds())
 ? "posture     : " + act.Posture()
-? "effectful   : " + a.SessionIsEffectfulAt(tok, NOW)
 ```
 
 ```
 user        : dana
 capabilities: [ "effectful", "compute", "sensing" ]
 posture     : trusted
-effectful   : 1
 ```
 
-That object is not an auth-specific invention. It is a `stzSystemActor` — the same
-subject `stzGovernance` gates decisions for, the same one the security graph walks
-for privilege escalation. `SessionPerson(token)` returns the **same string** the
-governance actor and the org-chart person key on, so
-`SessionMayProceed(session, action, governance)` gates the *existing* engine, and
-dropping that identity into an org chart lets the *existing* separation-of-duties
-rules reason about a signed-in user with no glue at all.
+Read those capability names, because they are the vocabulary the whole library
+speaks:
 
-`stzAuth` does not reimplement authorization. It produces the subject.
+| Capability | Means |
+|---|---|
+| `effectful` | may *change* things — write a file, deploy, send money |
+| `sensing` | may *observe* — read state, list, inspect |
+| `compute` | may *calculate* — transform data, decide |
+| `inference` | may *reason* — ask a model, propose |
 
-### The property that makes this worth it
+And the posture — `trusted`, `external`, `sandboxed` — says how much the system
+leans on that actor's judgement.
 
-Give an account the `assistant` role — an LLM-backed identity — and watch what
-comes out:
+Here is the part that matters: **this object is not an auth invention.** It is a
+`stzSystemActor`, the same thing Softanza's governance rules, org charts and
+security graphs already reason about. `stzAuth` does not implement authorization.
+It produces the subject that the authorization you already have was written for.
+
+That is why the same string flows straight through:
+
+```ring
+oGov = new stzGovernance("acme")
+oGov.DeclareRisk("delete-account", 2)
+oGov.GrantPermission("dana", "delete-account")     # keyed by the same name
+
+? a.SessionMayProceedAt(tok, "delete-account", oGov, NOW)
+# --> 1
+```
+
+No adapter, no mapping table. The identity your login produced *is* the identity
+your rules were written against.
+
+### The example that shows why this is worth it
+
+Now grant a different role — `assistant`, meant for an account an AI agent uses:
 
 ```ring
 a.Register("bot", "pw")
@@ -97,53 +106,65 @@ capabilities  : [ "inference" ]
 effectful     : 0
 ```
 
-Genuinely authenticated. Holding a real session. **Structurally incapable of
-causing an effect** — not by policy, by capability set. That is the library's
-agentic-safety invariant (*an LLM actor's effect set is empty*) extended to
-identity itself. A bot can hold an account without holding the ability to act.
+Read that carefully. The bot is **genuinely logged in**. It holds a real session.
+And it is **structurally incapable of changing anything** — not because a policy
+says no, but because "may change things" is not in its capability set.
 
-A user with *no* roles comes out the same way: authenticated, permitted nothing.
-Least privilege is the default, not a configuration.
-
----
-
-## The hardening nobody demos
-
-Three of the six phases were unglamorous and mattered most.
-
-**Timing.** `Authenticate` used to return `FALSE` immediately for an unknown user
-but run a full PBKDF2 verify for a known one. That difference is a *username
-oracle*: an attacker learns who is registered by timing the failures. The fix is
-four lines — verify the unknown user against a dummy hash so both paths cost the
-same work. Measured afterwards at 0.97×.
-
-**Lockout.** A login endpoint that answers forever is a password-guessing service.
-Per-username failure counting with a lockout window, and — deliberately — a
-*locked* account refuses even the **correct** password, and `Login` returns `""`
-for a wrong password and a lockout alike. Indistinguishable, so the refusal leaks
-nothing either.
-
-**Sessions.** A session grew from `[user, expires]` into a record with
-`created`, `ip`, `user-agent` and `lastseen`. That is what makes a "your devices"
-list possible, `RevokeSession` (this device) distinct from `RevokeAllSessions`
-(everywhere), and an optional idle timeout that slides on use. Plus
-`RotateSession` — a new token on any privilege change, so a pre-elevation token
-cannot be replayed. Session fixation, closed.
+A user with *no* roles behaves the same way: authenticated, permitted nothing.
+Least privilege is what you get by default, not something you remember to
+configure.
 
 ---
 
-## The second factor, and a port that sends nothing
+## Second idea: the boring hardening is the important hardening
 
-TOTP was the first *pluggable method*, and it went where such things belong: the
-engine. RFC 6238 is HMAC over a time counter, so the whole computation — HMAC,
-RFC 4226 truncation — stays engine-side, with a hex key in and decimal digits out.
-No raw key ever crosses the Ring↔engine boundary, which validates UTF-8 and would
-mangle it.
+Three fixes that no one demos, and that mattered most.
 
-Enrollment is two steps on purpose. `EnableTotp` issues a secret that is stored
-**unconfirmed** — nothing is enforced yet, so a mis-scanned QR code cannot lock
-anyone out. `ConfirmTotp` proves the app is in sync, enforces the factor, and
-hands back one-time recovery codes:
+**A timing leak.** The original `Authenticate` returned `FALSE` immediately for an
+unknown username, but ran a full (deliberately slow) password hash when the user
+existed. That difference is measurable from outside — so an attacker learns *which
+usernames are registered* by timing failures. This is called an **enumeration
+oracle**, and knowing valid usernames is most of the work in a credential-stuffing
+attack.
+
+The fix is four lines: when the user is unknown, verify the password against a
+throwaway hash anyway, so both paths cost the same. Measured afterwards at 0.97×.
+
+**An unbounded guessing service.** A login endpoint that always answers is a
+password cracker with your database behind it. Softanza counts failures per
+username and locks out after a threshold. Two details are deliberate: a locked
+account refuses even the *correct* password, and a wrong password and a lockout
+return the *same* empty result — so the refusal itself leaks nothing.
+
+**Sessions that know things.** A session grew from "user + expiry" into a record
+with when it was created, from what IP, what browser, and when it was last seen.
+That is what makes a "your devices" screen possible, lets you sign out *one* device
+without touching the others, and enables an idle timeout that slides while you
+work.
+
+It also enables one non-obvious defence. Whenever a session gains privilege — the
+user completes two-factor, changes their password, elevates — Softanza issues a
+**new** token and voids the old one:
+
+```ring
+tNew = a.RotateSession(tOld)     # tOld can never be replayed
+```
+
+Why bother? Because of an attack called **session fixation**: if an attacker can
+get *their* session token into your browser before you log in, then after you log
+in that same token is now an authenticated session — theirs. Changing the token at
+the moment privilege changes breaks it.
+
+---
+
+## Third idea: a second factor, and a port that sends nothing
+
+You know the six-digit code from an authenticator app. Here is what it actually
+is: your phone and the server share a secret, both look at the clock, and both
+compute a hash of (secret + current 30-second window). Same inputs, same code. No
+network involved — which is why it works on a plane.
+
+Enrollment is deliberately **two steps**:
 
 ```ring
 a.Register("erin", "pw")
@@ -152,92 +173,88 @@ codes = a.ConfirmTotpAt("erin", dev.CodeAt(NOW), NOW)
 
 ? "recovery codes issued : " + len(codes)
 ? "plain password login  : [" + a.LoginAt("erin", "pw", NOW) + "]"
-? "with the app code     : opens a session = " +
-  (a.LoginTwoFactorAt("erin", "pw", dev.CodeAt(NOW), NOW) != "")
+? "with the app code     : " + (a.LoginTwoFactorAt("erin", "pw", dev.CodeAt(NOW), NOW) != "")
 ```
 
 ```
 recovery codes issued : 10
 plain password login  : []
-with the app code     : opens a session = 1
+with the app code     : 1
 ```
 
-Once confirmed, the password alone is simply not a door any more.
+Two steps, because a one-step version is a trap: if enrolling immediately enforced
+the factor, a user who mis-scanned the QR code would be locked out of their own
+account. `EnableTotp` stores the secret *unconfirmed* and changes nothing.
+`ConfirmTotp` requires a working code as proof, and only then does the password
+stop being a door on its own.
 
-**Passwordless** needed something new: a way to *send*. That opened
-`base/service/` and the service-virtualization plane's first port — a mail port,
-one method wide. In development you bind a sandbox that **captures** instead of
-delivering, so a test can read the very link that would have gone out:
+Notice the ten recovery codes. Phones get lost. Those are shown once; only their
+hashes are stored.
+
+### Sending things without sending things
+
+Magic links and emailed codes need something the library did not have: a way to
+send mail. Rather than hard-wiring an SMTP client, Softanza took a **port** — a
+one-method contract — and in development binds a sandbox that *captures* instead
+of delivering:
 
 ```ring
 mail = new stzMailSandbox()
 a.SetMailPort(mail)
 a.RequestMagicLinkAt("dana", NOW)
 
-? "captured messages : " + mail.Count()
-? "body              : " + mail.LastBody()
+? "captured : " + mail.Count()
+? "body     : " + mail.LastBody()
 ```
 
 ```
-captured messages : 1
-body              : Click to sign in: softanza://magiclink?token=ac24b503af2df1188399a837775ca968991253ed10151a3a2b1481c2b6238f8e
+captured : 1
+body     : Click to sign in: softanza://magiclink?token=ac24b503af2df1188399a837775ca968991253ed10151a3a2b1481c2b6238f8e
 This link expires in 15 minutes.
 ```
 
-The emailed token is 256-bit and only its **sha256** is stored, so a stolen
-database yields no usable link. And the flow is enumeration-safe — an unknown
-address gets an identical answer and no mail:
+Your test can read the very link that would have gone out. At deploy you bind a
+real sender behind the same contract — same code, no fees, nothing mocked away.
+
+Two touches worth noticing. The token is 256 bits and only its **hash** is stored,
+so stealing the database yields no usable link. And asking for a link for an
+address that does not exist gives the *identical* answer:
 
 ```
-unknown address   : same answer, nothing sent
-  captured        : 0
+unknown address : same answer, nothing sent
+  captured      : 0
 ```
 
-At deploy you bind a real sender behind the same one-method contract. Same code.
+Otherwise "we sent you a link" versus "no such user" is a free tool for checking
+whether someone has an account with you.
 
 ---
 
-## The primitive everything external waited on
+## Fourth idea: believing someone else's token
 
-Four things sat deferred behind one gap: OAuth/OIDC, SSO, passkeys, and being a
-provider. All of them reduce to *"is this signature valid for this message under
-this public key?"* — and the engine could not answer it.
+"Sign in with Google" is the most common auth feature and the least understood.
+Here is the whole shape.
 
-So the engine grew **ES256** (ECDSA P-256) and **RS256** (RSASSA-PKCS1-v1_5)
-verification. Two decisions shaped it.
+The provider hands your app an **id-token**: a small JSON document, signed. You
+verify the signature with a **public** key the provider publishes — public-key
+cryptography means you can *check* a signature without being able to *make* one.
+So no shared secret ever travels.
 
-Everything crosses as **base64url**. That is both the safe ASCII form for a
-boundary that validates UTF-8 *and* precisely the JWS/JWKS wire format — so a
-provider's `n`, `e`, `x`, `y` and its signature need no conversion on either side.
-
-And it returns **1 / 0 / −1**: valid, invalid, *malformed*. A bad key is never
-silently read as a failed signature, and never as a passing one.
-
-For test vectors I did not hand-copy RFC values. I generated genuine **OpenSSL**
-signatures — including the DER→raw `r‖s` conversion JWS needs for ES256 — so the
-engine is checked against an independent signer, with a tampered payload caught
-for each algorithm.
-
----
-
-## Believing a token is mostly not cryptography
-
-With verification in hand, OIDC login followed. The interesting discovery is that
-the signature is the *easy* half. A valid signature only proves the provider
-signed **something**. The claims decide it was signed **for us, recently, and in
-answer to this login**.
+That is the easy half. Here is what a valid signature does **not** tell you:
 
 ```ring
 idp = new stzOidcSandbox("https://idp.local", "my-app")
 rp  = new stzOidcClient("https://idp.local", "my-app")
-rp.SetJwks( idp.JwksJson() )
+rp.SetJwks( idp.JwksJson() )        # the provider's public keys
 
 b = new stzAuth()
 b.SetOidcClient(rp)
 sess = b.LoginWithOidcAt( idp.IssueIdTokenAt("dana", "n-1", NOW), "n-1", NOW )
 ? "session for    : " + b.UserOfSessionAt(sess, NOW)
+
 ? "forged token   : [" + b.LoginWithOidcAt(idp.IssueForgedIdTokenAt("dana","n-1",NOW), "n-1", NOW) + "]"
 ? "  why          : " + b.OidcWhy()
+
 ? "replayed nonce : [" + b.LoginWithOidcAt(idp.IssueIdTokenAt("dana","n-A",NOW), "n-B", NOW) + "]"
 ? "  why          : " + b.OidcWhy()
 ```
@@ -250,49 +267,70 @@ replayed nonce : []
   why          : nonce mismatch -- this token does not answer this login
 ```
 
-Two things there are load-bearing. The verification algorithm comes from **our**
-key, never from the token's own header — that is what defeats `alg:none` and
-algorithm-confusion forgeries. And the `nonce` must equal the one *this* login
-generated, which is what makes a stolen id-token useless.
+A signature only proves the provider signed *something*. The claims decide it was
+signed **for you**, **recently**, and **in answer to this login**:
 
-Note also that every refusal names a **reason**. "Login failed" is unactionable
-when the truth is a clock skew or a misconfigured audience.
+- **`iss`** — is this the provider I configured? A perfectly valid signature from
+  a *different* provider is somebody else's user.
+- **`aud`** — was this minted for *my* application? A token issued for another app
+  is not a login here.
+- **`exp`** — is it still current?
+- **`nonce`** — a random value *your* app generated for *this* login and included
+  in the request. The provider echoes it back. Without it, a token captured
+  earlier could be replayed later; with it, a stolen token answers a question
+  nobody asked.
 
-### Doubles that are not fakes
+One more decision, invisible but load-bearing. A JWT's header *states* which
+algorithm signed it. Softanza ignores that field and uses the algorithm of **its
+own key**. Trusting the header enables a family of forgeries — most famously
+`alg: none`, where an attacker strips the signature and declares that none was
+required.
 
-`stzOidcSandbox` is why the negative cases above are testable at all. It is not a
-stub returning `true`: it holds an ES256 keypair, **really signs** every token,
-and serves a real JWKS. That required adding ES256 *signing* to the engine —
-verification alone could not have tested this.
+And note that every refusal names a **reason**. That is not politeness: in
+practice, the failures that eat a whole afternoon are a clock five minutes out or
+a mistyped audience, not attackers.
 
-Crucially, it also mints **deliberately bad** tokens: expired, wrong audience,
-foreign issuer, signed by another key. No real provider will issue you a broken
-token on request, which is exactly why the negative half of a security contract so
-often ships untested.
+### Doubles that are real
+
+`stzOidcSandbox` above is not a stub returning `true`. It holds a real key and
+really signs. That mattered enough to add signing to the engine, because
+verification alone cannot be tested without something to verify.
+
+More importantly, it produces *deliberately bad* tokens on request — expired,
+wrong audience, foreign issuer, signed by another key. No real provider will do
+that for you, which is exactly why the "must be rejected" half of a security
+contract so often ships untested.
 
 ---
 
-## Passkeys, and the one check that matters
+## Fifth idea: passkeys, and the one check that does the work
 
-A passkey replaces the password with a key pair the user's device holds. The
-private half never leaves the authenticator, so there is nothing to phish, reuse,
-or steal in a breach.
+A passkey replaces the password with a key pair your *device* holds. The private
+half never leaves the phone or laptop, so there is nothing to phish, nothing to
+reuse across sites, and nothing to steal in a breach. Logging in means signing a
+fresh challenge.
 
-The signature check already existed. What was missing was **binary parsing** —
-CBOR/COSE keys, attestation objects, packed authenticator data — all of which had
-to live engine-side. One detail bites everyone: a WebAuthn ES256 signature is
-ASN.1 **DER**, not the raw `r‖s` that JWS uses.
-
-But the security is not in the parsing. It is here:
+Softanza's engine had to learn to read the binary formats involved (a credential's
+public key arrives as CBOR — a compact binary cousin of JSON — inside an
+attestation object). But the security is not in the parsing:
 
 ```ring
-# a genuine assertion from the enrolled device
+# a relying party (your site) and an enrolled device
+c = new stzAuth()
+c.SetPasskeyRelyingParty("example.com", "https://example.com")
+c.Register("dana", "pw")
+pk = new stzPasskeySandbox("example.com")
+ch = c.NewPasskeyChallenge()
+reg = pk.CreateCredential(ch, "https://example.com")
+c.RegisterPasskey("dana", reg[:attestationObject], reg[:clientData], ch)
+
+# a genuine login from the enrolled device
 ch2 = c.NewPasskeyChallenge()
 asr = pk.Assert(ch2, "https://example.com")
 ? "genuine login   : " + (c.LoginWithPasskeyAt(asr[:credentialId], asr[:authenticatorData],
                               asr[:clientData], asr[:signature], ch2, NOW) != "")
 
-# the SAME device, signing for a look-alike site
+# the SAME device, tricked into signing for a look-alike site
 ch3 = c.NewPasskeyChallenge()
 ph  = pk.AssertForOrigin(ch3, "https://evi1-example.com")
 ? "phishing origin : [" + c.LoginWithPasskeyAt(ph[:credentialId], ph[:authenticatorData],
@@ -306,23 +344,25 @@ phishing origin : []
   why           : origin mismatch: 'https://evi1-example.com' is not 'https://example.com' (this is what makes a passkey unphishable)
 ```
 
-The signature in that phishing attempt is **perfectly valid**. It is refused on
-the *origin*, because the browser puts the true origin into `clientDataJSON` and a
-look-alike site cannot forge a match. A stolen password works anywhere; a passkey
-cannot leave the site it was made for.
+**The signature in that phishing attempt is perfectly valid.** It is refused on
+the *origin*. The browser writes the true site into the signed data, and a
+look-alike domain cannot forge a match.
 
-Two more checks come from the same place: the challenge must be the one we issued
-(replay), and the signature **counter must advance** — a stalled counter is the
-documented signal of a *cloned* authenticator. Credentials are stored per device,
-so a user can enroll a laptop and a phone and un-enroll either without losing the
-account.
+Sit with that difference: a stolen password works anywhere. A passkey physically
+cannot leave the site it was made for. That is not a better password — it is a
+different shape of thing.
+
+Two more checks come free from the same data: the challenge must be the one you
+issued (so a captured response cannot be replayed), and a counter in the device
+must keep increasing — a counter that stalls is the documented sign of a **cloned**
+authenticator.
 
 ---
 
-## Being the provider
+## Sixth idea: being the provider
 
-Consuming identity is half the story. `stzOidcProvider` makes a Softanza app the
-thing other apps trust:
+Consuming identity is half the job. Softanza can also *be* the thing other
+applications trust — an internal SSO portal, effectively:
 
 ```ring
 op = new stzOidcProvider("https://id.acme.com")
@@ -330,7 +370,7 @@ op.RegisterClient("shop", "s3cret", [ "https://shop.acme.com/cb" ])
 
 r = op.AuthorizeAt([ :clientId = "shop", :redirectUri = "https://shop.acme.com/cb",
                      :state = "st", :nonce = "n1" ], "dana", NOW)
-? "redirect        : " + r[:redirectTo]
+? r[:redirectTo]
 
 t = op.ExchangeCodeAt("shop", "s3cret", r[:code], "https://shop.acme.com/cb", "", NOW)
 ? "tokens issued   : " + t[:ok] + " for " + t[:subject]
@@ -341,134 +381,118 @@ rp2.SetJwks( op.JwksJson() )
 ```
 
 ```
-redirect        : https://shop.acme.com/cb?code=027923c765d2f03de7f39b6a9c89a23ff35e573e354fb5526b4a0b364eb2f6a1&state=st
+https://shop.acme.com/cb?code=027923c765d2f03de7f39b6a9c89a23ff35e573e354fb5526b4a0b364eb2f6a1&state=st
 tokens issued   : 1 for dana
 our RP verifies : 1
 ```
 
-That last line is the loop closing: our relying party believes our provider. Both
-were written against the spec, not against each other, so their agreement is
-evidence rather than circularity.
+That last line closes a loop worth pausing on: Softanza's *client* believes
+Softanza's *provider*. The two were written against the specification rather than
+against each other, so their agreement is evidence rather than circular.
 
-Each rule the provider enforces answers a real attack:
+The rules the provider enforces each answer a real attack:
 
 ```
 evil redirect   : refused (invalid_request) -- redirect_uri 'https://evil.example/cb' is not registered for this client
 code reuse      : refused (invalid_grant)
 ```
 
-`redirect_uri` matches **exactly**, never a prefix — a loose match is the most
-abused hole in OAuth, because it delivers the authorization code to the attacker's
-own site. A code is **single-use**, consumed *before* any other check so a replay
-finds nothing, and bound to its client, redirect, nonce and PKCE challenge. And
-mounted on the app server, `/authorize` takes the user from the **session cookie
-the auth router already issues** — this server's own login becomes the login for
-every app that trusts it.
+**Exact redirect matching.** The provider sends the authorization code to a URL the
+app nominated. If matching is loose — a prefix, a wildcard — an attacker crafts a
+URL that passes the check and points at their own site, and the code is *delivered
+to them*. This is the most abused hole in OAuth, and the defence is boring: exact
+string match against a registered list.
+
+**Single-use codes.** A code is consumed before any other check, so replaying one
+finds nothing. It is also bound to the client, the redirect and the nonce it was
+issued under — a stolen code is useless to anyone else.
+
+And when mounted on the app server, `/authorize` takes the user from **the session
+cookie the login router already issued**. Your own login becomes the login for
+every app that trusts you.
 
 ---
 
-## SAML, where the danger is not the crypto
+## Seventh idea: SAML, where the danger is not the cryptography
 
-SAML is what enterprises actually run, and it is the one place where I stopped to
-say so plainly before starting: its security does not rest on cryptography. It
-rests on answering *"which bytes were signed, and is the element I am about to
-trust the same one the signature covers?"* Nearly every serious SAML CVE is a
-wrong answer.
+SAML is what enterprises run — Okta, Entra, ADFS. The provider POSTs back a signed
+XML document. This is the one place where the interesting question is not
+cryptographic at all:
 
-So the whole XML stack went engine-side and **strict** — a parser that refuses
-`DOCTYPE` and `ENTITY` outright (XXE closed by construction, not "handled"), and
-exclusive canonicalization written to the spec rather than to convenience.
+> Which bytes were signed, and is the element I am about to trust the same one the
+> signature covers?
 
-Canonicalization is where this kind of code quietly breaks, so it was checked
-against **libxml2** — byte-for-byte, across ten vectors. That caught two real bugs
-in mine: a prefix declared on an ancestor must be re-declared on the element that
-first *uses* it, and entity references must be **decoded then re-escaped**
-(escaping the raw source turns `&amp;` into `&amp;amp;` and every digest is
-wrong). Then a real assertion, canonicalized by lxml and signed by OpenSSL, had to
-verify.
+Almost every serious SAML vulnerability is a wrong answer to that. Consider the
+attack called **signature wrapping**: an attacker takes a legitimately signed
+assertion and *adds their own alongside it*, inside the same response.
 
-### The wrapping test, and why "did it verify" is the wrong question
+Here is the crucial part. When Softanza verifies that document, **the signature
+still checks out** — because it genuinely does, over the original assertion. Any
+implementation whose defence is "did the signature verify?" now reads the
+attacker's assertion and logs them in as whoever they like.
 
-Signature wrapping injects a forged assertion beside a genuine one. The test that
-matters proves the signature **still verifies** on such a document — over the
-original. So verification cannot be the defense.
-
-The defense is structural: verification returns the **byte range** the signature
-covered, and the SAML layer then **re-parses only that range** and reads every
-claim from the second document. The forged assertion is not ignored; it is not in
-the bytes we parse, so it cannot be reached.
-
-Then the ordinary judgement, which no engine can make for you because it depends
-on your deployment: the issuer must be the IdP you trust — *a perfectly valid
-signature from the wrong IdP is someone else's user* — the audience must be you,
-the window must contain now, and an assertion may not be replayed.
-
-The issuing side came last, and was small because the canonicalizer already
-existed:
+Softanza's defence is structural instead. Verification reports the **byte range**
+the signature covered, and the claims are then read by re-parsing *only those
+bytes*:
 
 ```ring
-sidp = new stzSamlIdentityProvider("https://idp.local")
-sidp.RegisterServiceProvider("https://sp.example.com", "https://sp.example.com/acs")
-
-ssp = new stzSamlServiceProvider("https://sp.example.com", "https://sp.example.com/acs")
-sidp.TrustMeOn(ssp)                      # only the PUBLIC x,y ever leave
-
-xml = sidp.IssueAssertionAt("dana@acme.com", "https://sp.example.com", NOW)
-sr  = ssp.ConsumeXmlAt(xml, NOW + 10)
-? "accepted          : " + sr[:ok] + "  subject=" + sr[:nameID]
-? "window            : " + sr[:notBefore] + " .. " + sr[:notOnOrAfter]
-
-bad = StzReplace(xml, "dana@acme.com", "evil@acme.com")
-br  = ssp2.ConsumeXmlAt(bad, NOW + 10)
-? "edited afterwards : " + br[:ok] + " -- " + br[:why]
+oSp.TrustIdpFromMetadata(cIdpMetadata)      # one paste: entityID, endpoint, key
+aR = oSp.ConsumeXmlAt(cWrappedResponse, nNow)
+? aR[:nameID]
+# --> dana@acme.com          ... never attacker@evil.com
 ```
 
-```
-accepted          : 1  subject=dana@acme.com
-window            : 2026-07-24T12:00:00Z .. 2026-07-24T12:05:00Z
-edited afterwards : 0 -- the digest does not match -- the signed content was altered
-```
+The forged assertion is not ignored — it is *unreachable*, because it is not in the
+bytes being read.
 
-The IdP signs with the **same canonicalizer** its verifier uses — deliberately.
-An IdP that signs with a different C14N than its verifier is the classic source of
-"works with vendor A, fails with vendor B." And it refuses an **unregistered
-audience at issue time**, because an IdP that vouches for a user to any service
-that asks is an open redirect for identity.
+On top of that sit the ordinary checks, which no library can make for you because
+they depend on your configuration: the issuer must be the provider you trust, the
+audience must be you, the validity window must contain now, and an assertion may
+not be used twice.
+
+Softanza can also issue assertions, and the IdP signs with **the same
+canonicalizer** its verifier uses. (Canonicalization is XML's normal form —
+`<r a="1" b="2">` and `<r b="2" a="1">` mean the same thing but are different
+bytes, and signatures are over bytes.) An IdP that normalises differently from its
+verifier is the classic "works with vendor A, fails with vendor B" bug. One
+implementation, used by both sides, cannot disagree with itself.
 
 ---
 
-## What the work actually taught
+## What the whole thing adds up to
 
-**The interesting part of auth is rarely the cryptography.** The engine work was
-real but bounded. The long tail was judgement: which bytes are covered, whether a
-token was minted for *us*, whether an origin matches, whether a counter advanced.
-Every one of those is a question about *scope*, not about math.
+Seven ideas, one destination. Every path — password, authenticator app, magic link,
+emailed code, passkey, "sign in with", enterprise SSO — arrives at the same object:
+an actor with a capability set, at a trust posture, that your governance rules
+already understand.
 
-**A refusal must carry a reason.** Half of this surface returns `[:ok, …, :why]`
-rather than a bare false, because the failures that waste real days are
-misconfigured audiences and clock skew, not attacks.
+Which means an employee arriving through corporate SSO and a bot holding an API
+session are the **same kind of citizen**. They differ only in what their
+capabilities permit — and the bot's capabilities permit nothing that changes the
+world.
 
-**Doubles have to be real to be useful.** The sandboxes here hold genuine keys and
-produce genuine signatures — and, more importantly, they produce genuinely *bad*
-artifacts on request: an expired token, a phishing-origin assertion, a stalled
-counter, a wrapped document. No real provider or security key will do that for
-you, which is precisely why the negative half of a security contract so often goes
-untested. Making the attacker's side easy to express is what let every "must be
-refused" claim here be *shown* rather than asserted.
+### Three lessons worth stealing
 
-**And the destination was never a login screen.** Every path — password, TOTP,
-magic link, email-OTP, passkey, OIDC, SAML — converges on the same object: an
-actor with a capability set, at a posture, that the governance model already
-understands. Which means an employee arriving through corporate SSO and a bot
-holding an API session are the same *kind* of citizen, differing only in what
-their capabilities permit.
+**The interesting part of auth is rarely the cryptography.** The crypto was
+bounded work. The long tail was *judgement*: which bytes are covered, was this
+minted for us, does the origin match, did the counter advance. Every one of those
+is a question about **scope**, not about mathematics.
 
-Auth is not a bolt-on. It is the front door.
+**A refusal must carry a reason.** Half this surface returns
+`[:ok, …, :why]` rather than a bare false, because the failures that actually cost
+days are misconfigured audiences and clock skew.
+
+**Test doubles must be able to misbehave.** Every sandbox here holds real keys and
+produces real signatures — *and* produces genuinely broken artifacts on request: an
+expired token, a phishing-origin assertion, a stalled counter, a wrapped document.
+No real provider or security key will do that for you. Making the attacker's side
+easy to express is what let every "must be refused" claim in this narration be
+*shown* rather than asserted.
 
 ---
 
-*Verified end to end: fifteen narrated guards over the security surface (secret
-53, store 31, sessions 25, TOTP 40, passwordless 23, authz 31, router 45, OIDC 43,
-OIDC-provider 54, passkeys 29, SAML 53, public-key 16, plus secret-store, vault
-and posture), and 32 engine tests — with canonicalization checked against
-libxml2 and signatures against OpenSSL.*
+*Verified end to end: fifteen narrated guards over the security surface (secret 53,
+store 31, sessions 25, TOTP 40, passwordless 23, authz 31, HTTP router 45, OIDC 43,
+OIDC-provider 67, passkeys 29, SAML 77, public-key 16, plus secret-store, vault and
+posture), and the engine's own tests — with XML canonicalization checked
+byte-for-byte against libxml2 and every signature vector produced by OpenSSL.*
