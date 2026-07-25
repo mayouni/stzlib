@@ -3430,9 +3430,31 @@ test "count_sentences" {
     try std.testing.expectEqual(@as(c_int, 3), str_count_sentences(h));
     str_free(h);
 
+    // UPDATED 2026-07-25. This asserted 0 for unterminated text, which was the
+    // answer when the implementation COUNTED TERMINATORS. It now segments through
+    // the UAX#29 SentenceIter and counts spans that contain at least one word, so
+    // a run of words IS a sentence whether or not it ends in punctuation -- which
+    // is what UAX#29 says and what every consumer of "how many sentences" wants.
     const h2 = str_from("No sentence end", 15);
-    try std.testing.expectEqual(@as(c_int, 0), str_count_sentences(h2));
+    try std.testing.expectEqual(@as(c_int, 1), str_count_sentences(h2));
     str_free(h2);
+
+    // The cases that pin the contract, so the distinction cannot silently flip
+    // back: a trailing unterminated fragment counts as its own sentence...
+    const h3 = str_from("One. Two", 8);
+    try std.testing.expectEqual(@as(c_int, 2), str_count_sentences(h3));
+    str_free(h3);
+
+    // ...while "zero sentences" is reserved for "no words at all". That is the
+    // meaningful zero, and it is why empty and whitespace-only differ from
+    // unterminated text.
+    const h4 = str_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), str_count_sentences(h4));
+    str_free(h4);
+
+    const h5 = str_from("   ", 3);
+    try std.testing.expectEqual(@as(c_int, 0), str_count_sentences(h5));
+    str_free(h5);
 }
 
 test "title_smart" {
@@ -4352,11 +4374,25 @@ test "hide" {
 }
 
 test "extract_words" {
+    // UPDATED 2026-07-25. This expected "hello world foo bar" -- dropping the
+    // number -- which was the answer before tokenization moved to the UAX#29
+    // word-segmentation seam. A numeric run IS a word there, and str_extract_words
+    // documents that digits stay in words ("word2vec", "3.14"). Dropping a bare
+    // 123 while keeping 3.14 would be incoherent, so the implementation is right
+    // and the expectation was stale.
     const h = str_from("hello, world! foo-bar 123", 25);
     const r = str_extract_words(h);
-    try std.testing.expect(mem.eql(u8, str_data(r.?)[0..@intCast(str_size(r.?))], "hello world foo bar"));
+    try std.testing.expect(mem.eql(u8, str_data(r.?)[0..@intCast(str_size(r.?))], "hello world foo bar 123"));
     str_free(r);
     str_free(h);
+
+    // The promises in that function's own comment, now asserted rather than
+    // merely written down: digits inside a word hold, and so does a decimal.
+    const h2 = str_from("word2vec and 3.14", 17);
+    const r2 = str_extract_words(h2);
+    try std.testing.expect(mem.eql(u8, str_data(r2.?)[0..@intCast(str_size(r2.?))], "word2vec and 3.14"));
+    str_free(r2);
+    str_free(h2);
 }
 
 test "expand_tabs" {
