@@ -59,6 +59,9 @@ fn ring_Div(p: *anyopaque) callconv(.c) void {
 fn ring_Mod(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(number.stz_bigint_mod(getH(p, 1), getH(p, 2))), H);
 }
+fn ring_BigGcd(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(number.stz_bigint_gcd(getH(p, 1), getH(p, 2))), H);
+}
 fn ring_Negate(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(number.stz_bigint_negate(getH(p, 1))), H);
 }
@@ -215,6 +218,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginebigintmul", .func = &ring_Mul },
     .{ .name = "stzenginebigintdiv", .func = &ring_Div },
     .{ .name = "stzenginebigintmod", .func = &ring_Mod },
+    .{ .name = "stzenginebigintgcd", .func = &ring_BigGcd },
     .{ .name = "stzenginebigintnegate", .func = &ring_Negate },
     .{ .name = "stzenginebigintabs", .func = &ring_Abs },
     .{ .name = "stzenginebigintpow", .func = &ring_Pow },

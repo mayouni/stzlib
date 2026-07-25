@@ -114,6 +114,65 @@ pub fn stz_bigint_div(a: ?*const StzBigInt, b: ?*const StzBigInt) callconv(.c) ?
     return result;
 }
 
+// The greatest common divisor of two big integers, for REDUCING A FRACTION.
+//
+// Every rational operation ends in a reduction -- 2/4 must become 1/2, or the
+// denominators grow without bound and two equal numbers stop comparing equal. Doing
+// Euclid's algorithm on the Ring side would cost two engine crossings per iteration
+// (see the plane's measurement: the crossing IS the cost), so it belongs here.
+// std.math.big does it directly.
+//
+// gcd is defined on magnitudes: gcd(-4, 6) is 2. Zig's gcd requires non-negative
+// inputs, so the absolute values are taken first.
+pub fn stz_bigint_gcd(a: ?*const StzBigInt, b: ?*const StzBigInt) callconv(.c) ?*StzBigInt {
+    const va = a orelse return null;
+    const vb = b orelse return null;
+    const result = StzBigInt.init() catch return null;
+
+    var xa = big.int.Managed.init(allocator) catch {
+        result.deinit();
+        return null;
+    };
+    defer xa.deinit();
+    var xb = big.int.Managed.init(allocator) catch {
+        result.deinit();
+        return null;
+    };
+    defer xb.deinit();
+    xa.copy(va.value.toConst()) catch {
+        result.deinit();
+        return null;
+    };
+    xb.copy(vb.value.toConst()) catch {
+        result.deinit();
+        return null;
+    };
+    xa.abs();
+    xb.abs();
+
+    // gcd(n, 0) is n -- and Zig's gcd rejects a zero operand
+    if (xa.eqlZero()) {
+        result.value.copy(xb.toConst()) catch {
+            result.deinit();
+            return null;
+        };
+        return result;
+    }
+    if (xb.eqlZero()) {
+        result.value.copy(xa.toConst()) catch {
+            result.deinit();
+            return null;
+        };
+        return result;
+    }
+
+    result.value.gcd(&xa, &xb) catch {
+        result.deinit();
+        return null;
+    };
+    return result;
+}
+
 pub fn stz_bigint_mod(a: ?*const StzBigInt, b: ?*const StzBigInt) callconv(.c) ?*StzBigInt {
     const va = a orelse return null;
     const vb = b orelse return null;

@@ -1999,6 +1999,147 @@ func _StzDigitGroupsOfThree(pcDigits)
 	end
 	return _aOut_
 
+# ── RATIONALS: exact fractions p/q (numeric foundation phase 1, slice 3) ──
+#
+# The rung the plan asks for that decimals cannot reach. 1/3 has no finite decimal
+# form, so slice 1's exact-decimal path can only approximate it and honestly says
+# so. As a FRACTION it is exact, and "1/3" + "2/3" is exactly 1.
+#
+# Represented as the content string "p/q", always in LOWEST TERMS with the sign on
+# the numerator, and collapsing to a plain integer when the denominator reduces to
+# 1 (so "4/2" becomes "2", and Representation() then honestly says :integer).
+#
+# PROMOTION IS UPWARD: mixing a rational with a decimal or an integer yields a
+# RATIONAL, because that is the representation able to hold the answer exactly.
+# 0.25 + 1/4 is 1/2, not 0.5 -- one of them is exact in every case, the other is not.
+
+func _StzIsRationalString(pcStr)
+	_c_ = ring_trim("" + pcStr)
+	# StzFind returns ALL positions as a list; exactly one slash makes a fraction
+	if len( StzFind("/", _c_) ) != 1
+		return FALSE
+	ok
+	_n_ = StzFindFirst("/", _c_)
+	_num_ = StzMid(_c_, 1, _n_ - 1)
+	_den_ = StzMidToEnd(_c_, _n_ + 1)
+	if NOT (_pvtLooksLikeInteger(_num_) and _num_ != "")
+		return FALSE
+	ok
+	if NOT (_pvtLooksLikeInteger(_den_) and _den_ != "")
+		return FALSE
+	ok
+	if _StzDigitsOnly(_den_) = "" or (0 + _StzDigitsOnly(_den_)) = 0
+		return FALSE                    # a denominator of zero is not a number
+	ok
+	return TRUE
+
+# -> [ numerator, denominator ] as strings, for ANY numeric content: a rational,
+# a decimal (0.25 -> [ "25", "100" ]) or an integer (7 -> [ "7", "1" ]).
+func _StzAsRationalParts(pcStr)
+	_c_ = ring_trim("" + pcStr)
+	if _StzIsRationalString(_c_)
+		_n_ = StzFindFirst("/", _c_)
+		return [ StzMid(_c_, 1, _n_ - 1), StzMidToEnd(_c_, _n_ + 1) ]
+	ok
+	_places_ = _StzPlacesOf(_c_)
+	if _places_ = 0
+		if _c_ = ""
+			return [ "0", "1" ]
+		ok
+		return [ _c_, "1" ]
+	ok
+	# a decimal is its digits over the matching power of ten
+	_sign_ = ""
+	if len(_c_) > 0 and _c_[1] = "-"
+		_sign_ = "-"
+	ok
+	_den_ = "1"
+	for _i_ = 1 to _places_
+		_den_ += "0"
+	next
+	return [ _sign_ + _StzDigitsOnly(_c_), _den_ ]
+
+# p/q in lowest terms, sign on the numerator, collapsing to an integer when q is 1.
+func _StzReducedRational(pcNum, pcDen)
+	_pN_ = StzEngineBigIntFromString(ring_trim("" + pcNum))
+	_pD_ = StzEngineBigIntFromString(ring_trim("" + pcDen))
+	if _pN_ = NULL or _pD_ = NULL
+		return ""
+	ok
+	if StzEngineBigIntIsZero(_pD_)
+		return ""
+	ok
+	# a zero numerator is just 0, whatever the denominator
+	if StzEngineBigIntIsZero(_pN_)
+		return "0"
+	ok
+	# keep the sign on the numerator: 1/-2 becomes -1/2
+	if StzEngineBigIntIsNegative(_pD_)
+		_pN_ = StzEngineBigIntNegate(_pN_)
+		_pD_ = StzEngineBigIntNegate(_pD_)
+	ok
+	_pG_ = StzEngineBigIntGcd(_pN_, _pD_)
+	if _pG_ != NULL and NOT StzEngineBigIntIsZero(_pG_)
+		_pN_ = StzEngineBigIntDiv(_pN_, _pG_)
+		_pD_ = StzEngineBigIntDiv(_pD_, _pG_)
+	ok
+	_cN_ = StzEngineBigIntToString(_pN_)
+	_cD_ = StzEngineBigIntToString(_pD_)
+	if _cD_ = "1"
+		return _cN_                     # no longer a fraction
+	ok
+	return _cN_ + "/" + _cD_
+
+# The exact result of an operation when either side is a fraction. "" when it
+# cannot be done exactly, so the caller falls back.
+func _StzExactRationalCalc(pcOp, pcA, pcB)
+	_a_ = _StzAsRationalParts(pcA)
+	_b_ = _StzAsRationalParts(pcB)
+	_pAn_ = StzEngineBigIntFromString(_a_[1])
+	_pAd_ = StzEngineBigIntFromString(_a_[2])
+	_pBn_ = StzEngineBigIntFromString(_b_[1])
+	_pBd_ = StzEngineBigIntFromString(_b_[2])
+	if _pAn_ = NULL or _pAd_ = NULL or _pBn_ = NULL or _pBd_ = NULL
+		return ""
+	ok
+	_pRn_ = NULL
+	_pRd_ = NULL
+	switch pcOp
+	on "+"
+		# a/b + c/d = (ad + cb) / bd
+		_pRn_ = StzEngineBigIntAdd( StzEngineBigIntMul(_pAn_, _pBd_),
+		                            StzEngineBigIntMul(_pBn_, _pAd_) )
+		_pRd_ = StzEngineBigIntMul(_pAd_, _pBd_)
+	on "-"
+		_pRn_ = StzEngineBigIntSub( StzEngineBigIntMul(_pAn_, _pBd_),
+		                            StzEngineBigIntMul(_pBn_, _pAd_) )
+		_pRd_ = StzEngineBigIntMul(_pAd_, _pBd_)
+	on "*"
+		_pRn_ = StzEngineBigIntMul(_pAn_, _pBn_)
+		_pRd_ = StzEngineBigIntMul(_pAd_, _pBd_)
+	on "/"
+		if StzEngineBigIntIsZero(_pBn_)
+			return ""                   # division by zero: not our business
+		ok
+		_pRn_ = StzEngineBigIntMul(_pAn_, _pBd_)
+		_pRd_ = StzEngineBigIntMul(_pAd_, _pBn_)
+	off
+	if _pRn_ = NULL or _pRd_ = NULL
+		return ""
+	ok
+	return _StzReducedRational( StzEngineBigIntToString(_pRn_),
+	                            StzEngineBigIntToString(_pRd_) )
+
+# The f64 nearest a fraction -- for NumericValue(), comparisons and anything that
+# has to leave exact arithmetic behind.
+func _StzRationalToFloat(pcStr)
+	_a_ = _StzAsRationalParts(pcStr)
+	_d_ = ring_number(_a_[2])
+	if _d_ = 0
+		return 0
+	ok
+	return ring_number(_a_[1]) / _d_
+
 # "007" -> "7"; "00.5" -> "0.5". One zero is kept before the point, because ".5"
 # is not a number anybody wants back.
 func _StzStripLeadingZeros(pcNum)
@@ -2293,12 +2434,27 @@ class stzNumber from stzObject
 				@cContent = "0"
 				@nRound = StzCurrentRound()
 
+			# A RATIONAL, written p/q (numeric foundation phase 1, slice 3).
+			# Stored in lowest terms, so "2/4" arrives as "1/2" and "4/2" as "2".
+			but _StzIsRationalString(pNumber)
+				_cRat_ = _StzReducedRational( _StzAsRationalParts(pNumber)[1],
+				                             _StzAsRationalParts(pNumber)[2] )
+				if _cRat_ = ""
+					StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
+				ok
+				@cContent = _cRat_
+				@nRound = StzCurrentRound()
+
 			# Case where the user provides a number in string
 			# with a dot "." at the end (a "0" is then added)
 			but StzRight(pNumber, 1) = "." and
 			   StringRepresentsNumberInDecimalForm(StzMid(pNumber, 1, StzLen(pNumber) - 1))
 
-				pNumber += "0"
+				# FIXED 2026-07-25: this appended "0" to the LOCAL pNumber and then
+				# fell out of the chain without ever assigning @cContent, so
+				# new stzNumber("12.") had empty content and a value of 0.
+				@cContent = pNumber + "0"
+				@nRound = 1
 	
 			# Case where pNumber is a non null string
 			else
@@ -2457,6 +2613,12 @@ class stzNumber from stzObject
 
 	# The number as a Ring number.
 	def NumericValue()
+		# a fraction has to be divided out before it can be an f64 -- and the
+		# result is an APPROXIMATION of an exact value, which is the whole reason
+		# rationals exist (1/3 has no finite decimal form)
+		if _StzIsRationalString(@cContent)
+			return _StzRationalToFloat(@cContent)
+		ok
 		# number() not 0+ : Ring's 0+str coercion returns 0 on the first
 		# use after ANY caught raise (VM quirk); number() is immune
 		return ring_number(@cContent)
@@ -2527,8 +2689,14 @@ class stzNumber from stzObject
 				pNumber = pNumber[2]
 			ok
 
-			if NOT ( isNumber(pNumber) or ( isString(pNumber) and Q(pNumber).IsNumberInString() ) )
-				StzRaise("Incorrect param type! pNumber must be a number or a string containing a number.")
+			# a FRACTION is a number too (numeric foundation phase 1, slice 3) --
+			# Q("1/2").IsNumberInString() is FALSE, so without this the exact
+			# rational path could compute an answer the object then refused to hold
+			if NOT ( isNumber(pNumber) or
+			         ( isString(pNumber) and ( Q(pNumber).IsNumberInString() or
+			                                   _StzIsRationalString(pNumber) ) ) )
+				StzRaise("Incorrect param type! pNumber must be a number, a string containing " +
+				         "a number, or a fraction written p/q.")
 			ok
 
 		ok
@@ -2536,7 +2704,12 @@ class stzNumber from stzObject
 		# Enforced per-object constraints guard the single update point
 		# (typed: the guard sees the NUMBER, not its string form)
 		if isString(pNumber)
-			This._NNLGuardUpdate(ring_number(StzReplace(pNumber, "_", "")))
+			if _StzIsRationalString(pNumber)
+				# the guard wants the VALUE; a fraction has to be divided out first
+				This._NNLGuardUpdate( _StzRationalToFloat(pNumber) )
+			else
+				This._NNLGuardUpdate(ring_number(StzReplace(pNumber, "_", "")))
+			ok
 		else
 			This._NNLGuardUpdate(pNumber)
 		ok
@@ -4064,6 +4237,9 @@ class stzNumber from stzObject
 	#@ aka  which representation, what kind of number, integer or decimal
 	def Representation()
 		_c_ = "" + This.Content()
+		if _StzIsRationalString(_c_)
+			return :rational
+		ok
 		if _StzPlacesOf(_c_) > 0
 			return :decimal
 		ok
@@ -4080,6 +4256,9 @@ class stzNumber from stzObject
 
 	def IsDecimalNumber()
 		return This.Representation() = :decimal
+
+	def IsRational()
+		return This.Representation() = :rational
 
 	  #-- EXACTNESS (numeric foundation phase 1) --------------------------
 	  #
@@ -4120,6 +4299,20 @@ class stzNumber from stzObject
 			_cOther_ = "" + pOther
 		else
 			return FALSE
+		ok
+		# a fraction compares by cross-multiplication, so "1/2" and "0.5" are the
+		# same number and "1/3" is not 0.333...
+		if _StzIsRationalString("" + This.Content()) or _StzIsRationalString(_cOther_)
+			_x_ = _StzAsRationalParts("" + This.Content())
+			_y_ = _StzAsRationalParts(_cOther_)
+			_pL_ = StzEngineBigIntMul( StzEngineBigIntFromString(_x_[1]),
+			                           StzEngineBigIntFromString(_y_[2]) )
+			_pR_ = StzEngineBigIntMul( StzEngineBigIntFromString(_y_[1]),
+			                           StzEngineBigIntFromString(_x_[2]) )
+			if _pL_ = NULL or _pR_ = NULL
+				return FALSE
+			ok
+			return StzEngineBigIntEquals(_pL_, _pR_)
 		ok
 		return _StzSameNumberString("" + This.Content(), _cOther_)
 
@@ -4333,9 +4526,9 @@ class stzNumber from stzObject
 	# Added.
 	#@ aka  plus, sum, increase, increment
 	def Add(pOtherNumber)
-		_StzHistoOpen(0 + This.Content())
+		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("+", pOtherNumber ) )
-		_StzHistoAdd(0 + This.Content())
+		_StzHistoAdd(This.NumericValue())
 
 		#< @FunctionFluentForm
 
@@ -4470,9 +4663,9 @@ class stzNumber from stzObject
 	#@ aka  subtract, minus, decrease, take away
 	def SubStruct(pOtherNumber)
 
-		_StzHistoOpen(0 + This.Content())
+		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("-", pOtherNumber ) )
-		_StzHistoAdd(0 + This.Content())
+		_StzHistoAdd(This.NumericValue())
 
 		#< @FunctionFluentForm
 
@@ -4709,9 +4902,9 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		_StzHistoOpen(0 + This.Content())
+		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("*", pOtherNumber ) )
-		_StzHistoAdd(0 + This.Content())
+		_StzHistoAdd(This.NumericValue())
 
 		#< @FunctionAlternativeForm
 
@@ -4833,9 +5026,9 @@ class stzNumber from stzObject
 	# Divide this number by the given one (mutating).
 	#@ aka  over, quotient, split by, divided
 	def DivideBy(pOtherNumber)
-		_StzHistoOpen(0 + This.Content())
+		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("/", pOtherNumber ) )
-		_StzHistoAdd(0 + This.Content())
+		_StzHistoAdd(This.NumericValue())
 
 		#< @FunctionFluentForm
 
@@ -7795,6 +7988,20 @@ class stzNumber from stzObject
 		# rather than "f64 then rounded to a hopeful number of places":
 		# 19.99 * 0.15 becomes 1999 * 15 = 29985 with the point 4 from the right.
 		# Small integer arithmetic keeps the f64 fast path, where it is exact anyway.
+		# A FRACTION ON EITHER SIDE takes the rational path -- promotion is upward,
+		# so 0.25 + 1/4 is 1/2 rather than 0.5. Only + - * / are defined on
+		# fractions here; % and ^ fall through to the ordinary handling.
+		if StzFindFirst(pcOperation, [ "+", "-", "*", "/" ]) > 0
+			if _StzIsRationalString(_cSelfContent_) or _StzIsRationalString(_cOtherContent_)
+				_cRat_ = _StzExactRationalCalc(pcOperation, _cSelfContent_, _cOtherContent_)
+				if _cRat_ != ""
+					@cExactness = :exact
+					@cInexactReason = ""
+					return _cRat_
+				ok
+			ok
+		ok
+
 		if _pvtIsExactIntegerOp(pcOperation)
 			if _pvtWantsExactPath(pcOperation, _cSelfContent_, _cOtherContent_)
 				_cX_ = _pvtExactDecimalCalc(pcOperation, _cSelfContent_, _cOtherContent_)
