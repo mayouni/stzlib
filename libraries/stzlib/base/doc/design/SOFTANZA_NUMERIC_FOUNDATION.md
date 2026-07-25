@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **design document, nothing built.** Written 2026-07-25 at the user's
+> Status: **PHASE 0 BUILT (77a902cd4); phases 1-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -520,11 +520,22 @@ The rules this plan is bound by, and how they apply:
 Ordered by *correctness debt first, then leverage*. Each ships runnable and leaves
 the suites green.
 
-**Phase 0 — pay the three defects.** Fix `ConfidenceInterval` (honest z-only naming
-plus a raise on unsupported levels **until** special functions arrive), repair the
-`ConfInt()` dead alias, and settle the variance convention with
-`VariancePopulation`/`VarianceSample` + delegation. Small, and it stops the library
-giving two answers to one question.
+**Phase 0 — pay the three defects. DONE (77a902cd4), guard
+`numeric_definitions_narrated` (39).** The variance root cause was in the ENGINE,
+not Ring: `list.zig` divided by N while `stats.zig` divided by N-1. The divisor --
+the only genuinely ambiguous part -- now lives once in
+`stats.varianceDivisor(count, kind)` and `list.zig` asks for it;
+`VarianceSample`/`VariancePopulation` + Stddev twins exist on both `stzList` and
+`stzDataSet`. **Behaviour change: `stzList.Variance()` now returns the sample
+statistic** (nothing in the suite or the narrations asserted the old value --
+checked first). `ConfidenceInterval` keeps z but stops misrepresenting itself: the
+supported levels are a published 8-entry table at full precision, an untabulated
+level RAISES naming what is missing, and `ConfidenceIntervalXT()` reports
+`:method`/`:critical`/`:n` plus a note that warns *in words* when a small n makes
+the approximation understate the interval. Both dead aliases fixed -- and auditing
+every `This.X()` call in `stzDataSet` against its inheritance chain found a **second
+one nobody knew about** (`BoxPlotData()` → `BoxPlot()`, real name `BoxPlotStats()`).
+That audit is cheap and worth repeating on any class with a long alias tail.
 
 **Phase 1 — the numeric tower, exactness visible.** Wire the existing engine big
 integers into `stzNumber`; add rationals; add a big-int-backed decimal sufficient
