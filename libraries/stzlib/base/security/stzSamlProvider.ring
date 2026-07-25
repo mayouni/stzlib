@@ -39,6 +39,10 @@ func StzSamlIdentityProviderQ(pcEntityId)
 class stzSamlIdentityProvider from stzObject
 
 	@cEntityId = ""
+	@cAlg = "ES256"       # ES256 (an engine key) or RS256 (a PEM you supply)
+	@cPem = ""            # the RSA private key, when signing RSA-SHA256
+	@cN = ""              # its public parts, for a service provider to verify with
+	@cE = ""
 	@cD = ""              # the private signing key -- never published
 	@cX = ""
 	@cY = ""
@@ -77,8 +81,40 @@ class stzSamlIdentityProvider from stzObject
 		@cY = _a_[3]
 		return This
 
+	def SigningAlgorithm()
+		return @cAlg
+
+	# Sign assertions RSA-SHA256 with a key you already have. This is the one that
+	# matters in practice: a good number of enterprise service providers accept RSA
+	# only, so an ECDSA-only IdP simply cannot federate with them.
+	def UseRsaKey(pcPem)
+		This.UseRsaKeyQ(pcPem)
+
+	def UseRsaKeyQ(pcPem)
+		_p_ = StzRsaPublicKey(pcPem)
+		if len(_p_) = 0
+			StzRaise("stzSamlIdentityProvider.UseRsaKey: the private key could not be read (PEM expected).")
+		ok
+		@cPem = "" + pcPem
+		@cN = _p_[:n]
+		@cE = _p_[:e]
+		@cAlg = "RS256"
+		@cX = ""
+		@cY = ""
+		@cD = ""
+		return This
+
+	def UseNewRsaKey(nBits)
+		This.UseNewRsaKeyQ(nBits)
+
+	def UseNewRsaKeyQ(nBits)
+		return This.UseRsaKeyQ( StzRsaKeyPair(nBits)[:privateKey] )
+
 	# the PUBLIC half -- what a service provider needs to verify us.
 	def PublicKey()
+		if @cAlg = "RS256"
+			return [ :kty = "RSA", :n = @cN, :e = @cE ]
+		ok
 		return [ :kty = "EC", :crv = "P-256", :x = @cX, :y = @cY ]
 
 	def KeyX()
@@ -89,7 +125,11 @@ class stzSamlIdentityProvider from stzObject
 
 	# hand a service provider everything it needs to trust us, in one call.
 	def TrustMeOn(poServiceProvider)
-		poServiceProvider.TrustIdpQ(@cEntityId, "EC", @cX, @cY)
+		if @cAlg = "RS256"
+			poServiceProvider.TrustIdpQ(@cEntityId, "RSA", @cN, @cE)
+		else
+			poServiceProvider.TrustIdpQ(@cEntityId, "EC", @cX, @cY)
+		ok
 		return This
 
 	def SetLifetime(pnSecs)
@@ -169,7 +209,11 @@ class stzSamlIdentityProvider from stzObject
 			StzRaise("stzSamlIdentityProvider: '" + _aud_ + "' is not a registered service provider.")
 		ok
 		_xml_ = This.UnsignedAssertion(_sub_, _aud_, pnNow, pnLifetime)
-		_signed_ = StzEngineSamlSign(_xml_, @cD)
+		if @cAlg = "RS256"
+			_signed_ = StzEngineSamlSignRsa(_xml_, @cPem)
+		else
+			_signed_ = StzEngineSamlSign(_xml_, @cD)
+		ok
 		if _signed_ = ""
 			StzRaise("stzSamlIdentityProvider: the assertion could not be signed.")
 		ok

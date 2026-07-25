@@ -942,6 +942,22 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run Softanza Engine tests");
     test_step.dependOn(&run_tests.step);
 
+    // X.509 / RSA tests need mbedTLS linked, so they get their own step rather
+    // than dragging the whole TLS stack into the main test binary.
+    {
+        const x_mod = b.createModule(.{
+            .root_source_file = b.path("src/x509.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const x_tests = b.addTest(.{ .root_module = x_mod });
+        addMbedtls(x_mod, x_tests, b, target.result.os.tag, false);
+        const x_run = b.addRunArtifact(x_tests);
+        const x_step = b.step("test-x509", "Test X.509 certificate parsing + RSA signing (mbedTLS)");
+        x_step.dependOn(&x_run.step);
+    }
+
     // Generator: populate reference data tables into unicode.db
     const gen_refdata_mod = b.createModule(.{
         .root_source_file = b.path("tools/gen_refdata.zig"),

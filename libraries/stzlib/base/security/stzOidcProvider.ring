@@ -49,14 +49,19 @@ class stzOidcProvider from stzObject
 
 	@cIssuer = ""
 	@cKid = ""
+	@cAlg = "ES256"       # ES256 (an engine key) or RS256 (a PEM you supply)
+	@cPem = ""            # the RSA private key, when signing RS256
+	@cN = ""              # its public modulus / exponent, for the JWKS
+	@cE = ""
 	@cD = ""              # the CURRENT signing key (private) -- never published
 	@cX = ""
 	@cY = ""
-	@aOldKeys = []        # [ [ kid, x, y ], ... ] -- still published, no longer signing
+	@aOldKeys = []        # [ [ kid, alg, k1, k2 ], ... ] -- published, not signing
 	@aClients = []        # [ [ id, secretHash, [ redirectUris ], name ], ... ]
 	@aCodes = []          # [ [ code, client, user, redirect, nonce, challenge, expires ] ]
 	@nCodeTTL = 300       # an authorization code lives 5 minutes
 	@nTokenTTL = 3600
+	@bKeyUsed = FALSE     # has the CURRENT key actually signed anything?
 	@cWhy = ""
 	@cError = ""
 
@@ -78,6 +83,38 @@ class stzOidcProvider from stzObject
 	def SigningKeyId()
 		return @cKid
 
+	def SigningAlgorithm()
+		return @cAlg
+
+	# Sign with RS256 instead, using an RSA private key you already have. Plenty of
+	# older clients accept RS256 and nothing else, so an ES256-only issuer cannot
+	# serve them. The key stays here; only its public parts reach the JWKS.
+	def UseRsaKey(pcPem)
+		This.UseRsaKeyQ(pcPem)
+
+	def UseRsaKeyQ(pcPem)
+		_p_ = StzRsaPublicKey(pcPem)
+		if len(_p_) = 0
+			StzRaise("stzOidcProvider.UseRsaKey: the private key could not be read (PEM expected).")
+		ok
+		This._RetireCurrentKey()
+		@cPem = "" + pcPem
+		@cN = _p_[:n]
+		@cE = _p_[:e]
+		@cAlg = "RS256"
+		@cX = ""
+		@cY = ""
+		@cD = ""
+		@cKid = "stz-" + StzLeft(StzEngineCryptoSha256(@cN), 16)
+		return This
+
+	# generate one, for development
+	def UseNewRsaKey(nBits)
+		This.UseNewRsaKeyQ(nBits)
+
+	def UseNewRsaKeyQ(nBits)
+		return This.UseRsaKeyQ( StzRsaKeyPair(nBits)[:privateKey] )
+
 	# Start signing with a NEW key. The previous public key stays in the JWKS, so
 	# tokens already issued keep verifying until they expire -- rotation without
 	# an outage. A 32-byte hex seed makes it deterministic ("" = random).
@@ -85,9 +122,7 @@ class stzOidcProvider from stzObject
 		This.RotateKeyQ(pcSeedHex)
 
 	def RotateKeyQ(pcSeedHex)
-		if @cX != ""
-			@aOldKeys + [ @cKid, @cX, @cY ]
-		ok
+		This._RetireCurrentKey()
 		_t_ = StzEngineCryptoEs256KeyPair("" + pcSeedHex)
 		if _t_ = ""
 			StzRaise("stzOidcProvider: could not generate a signing key.")
@@ -100,7 +135,24 @@ class stzOidcProvider from stzObject
 		@cX = _a_[2]
 		@cY = _a_[3]
 		@cKid = "stz-" + StzLeft(StzEngineCryptoSha256(@cX), 16)
+		@cAlg = "ES256"
+		@cPem = ""
 		return This
+
+	# Keep the OUTGOING key's public half in the JWKS, so tokens already in flight
+	# keep verifying -- rotation without an outage, whichever algorithm it used.
+	# A key that never SIGNED anything is simply dropped: publishing it would add a
+	# key no token can possibly reference.
+	def _RetireCurrentKey()
+		if NOT @bKeyUsed
+			return
+		ok
+		@bKeyUsed = FALSE
+		if @cAlg = "RS256" and @cN != ""
+			@aOldKeys + [ @cKid, "RS256", @cN, @cE ]
+		but @cX != ""
+			@aOldKeys + [ @cKid, "ES256", @cX, @cY ]
+		ok
 
 	def NumberOfPublishedKeys()
 		return 1 + len(@aOldKeys)
@@ -108,10 +160,19 @@ class stzOidcProvider from stzObject
 	# what a relying party fetches from jwks_uri: the CURRENT key plus any
 	# still-valid previous ones.
 	def JwksJson()
-		_out_ = '{"keys":[' + This._JwkJson(@cKid, @cX, @cY)
+		_out_ = '{"keys":['
+		if @cAlg = "RS256"
+			_out_ += This._RsaJwkJson(@cKid, @cN, @cE)
+		else
+			_out_ += This._JwkJson(@cKid, @cX, @cY)
+		ok
 		_n_ = len(@aOldKeys)
 		for _i_ = 1 to _n_
-			_out_ += "," + This._JwkJson(@aOldKeys[_i_][1], @aOldKeys[_i_][2], @aOldKeys[_i_][3])
+			if @aOldKeys[_i_][2] = "RS256"
+				_out_ += "," + This._RsaJwkJson(@aOldKeys[_i_][1], @aOldKeys[_i_][3], @aOldKeys[_i_][4])
+			else
+				_out_ += "," + This._JwkJson(@aOldKeys[_i_][1], @aOldKeys[_i_][3], @aOldKeys[_i_][4])
+			ok
 		next
 		return _out_ + "]}"
 
@@ -124,7 +185,7 @@ class stzOidcProvider from stzObject
 		       '"response_types_supported":["code"],' +
 		       '"grant_types_supported":["authorization_code"],' +
 		       '"subject_types_supported":["public"],' +
-		       '"id_token_signing_alg_values_supported":["ES256"],' +
+		       '"id_token_signing_alg_values_supported":["' + @cAlg + '"],' +
 		       '"code_challenge_methods_supported":["S256"],' +
 		       '"scopes_supported":["openid","profile","email"]}'
 
@@ -360,8 +421,12 @@ class stzOidcProvider from stzObject
 	  #==== internals ======================================================
 
 	def _Sign(pcPayloadJson)
-		_hdr_ = '{"alg":"ES256","typ":"JWT","kid":"' + @cKid + '"}'
+		@bKeyUsed = TRUE
+		_hdr_ = '{"alg":"' + @cAlg + '","typ":"JWT","kid":"' + @cKid + '"}'
 		_in_ = StzB64UrlEncode(_hdr_) + "." + StzB64UrlEncode(pcPayloadJson)
+		if @cAlg = "RS256"
+			return _in_ + "." + StzRsaSign(_in_, @cPem)
+		ok
 		return _in_ + "." + StzEngineCryptoSignEs256(_in_, @cD)
 
 	# an access token is a signed JWT too, so a resource server can validate it
@@ -370,6 +435,10 @@ class stzOidcProvider from stzObject
 		return This._Sign('{"iss":"' + @cIssuer + '","sub":"' + pcUser +
 		                  '","aud":"' + pcClientId + '","exp":' + (pnNow + @nTokenTTL) +
 		                  ',"iat":' + pnNow + ',"typ":"access"}')
+
+	def _RsaJwkJson(pcKid, pcN, pcE)
+		return '{"kid":"' + pcKid + '","kty":"RSA","alg":"RS256",' +
+		       '"use":"sig","n":"' + pcN + '","e":"' + pcE + '"}'
 
 	def _JwkJson(pcKid, pcX, pcY)
 		return '{"kid":"' + pcKid + '","kty":"EC","crv":"P-256","alg":"ES256",' +

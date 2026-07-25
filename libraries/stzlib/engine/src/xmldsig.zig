@@ -1032,6 +1032,79 @@ pub export fn stz_saml_sign(x: [*]const u8, xl: usize, d: [*]const u8, dl: usize
     return saml_sign(x, xl, d, dl, o, oc);
 }
 
+/// The same, signed RSA-SHA256 with a PEM private key. Many enterprise service
+/// providers accept RSA only, so an IdP that can sign only ECDSA cannot federate
+/// with them. `signer` is called with the canonical SignedInfo and must return the
+/// base64url signature -- that indirection keeps this module free of mbedTLS.
+pub fn saml_sign_with(
+    xml_ptr: [*]const u8,
+    xml_len: usize,
+    key_ptr: [*]const u8,
+    key_len: usize,
+    sig_alg: [*]const u8,
+    sig_alg_len: usize,
+    signer: *const fn ([*]const u8, usize, [*]const u8, usize, [*]u8, usize) callconv(.c) i32,
+    out: [*]u8,
+    out_cap: usize,
+) callconv(.c) i32 {
+    const xml = xml_ptr[0..xml_len];
+    parse(&g_sign_doc, xml) catch return -1;
+    const root = g_sign_doc.root() orelse return -1;
+    if (!std.mem.eql(u8, root.local, "Assertion")) return -1;
+    const id = g_sign_doc.attrValue(root, "", "ID") orelse return -1;
+
+    const c14n_len = canonicalize(&g_sign_doc, root, &g_c14n, -1, "") orelse return -1;
+    var digest: [32]u8 = undefined;
+    Sha256.hash(g_c14n[0..c14n_len], &digest, .{});
+    var db: [64]u8 = undefined;
+    const digest_b64 = b64StdEncode(&digest, &db);
+
+    const si = std.fmt.bufPrint(&g_si_buf,
+        "<ds:SignedInfo xmlns:ds=\"{s}\">" ++
+        "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>" ++
+        "<ds:SignatureMethod Algorithm=\"{s}\"/>" ++
+        "<ds:Reference URI=\"#{s}\">" ++
+        "<ds:Transforms>" ++
+        "<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" ++
+        "<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>" ++
+        "</ds:Transforms>" ++
+        "<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>" ++
+        "<ds:DigestValue>{s}</ds:DigestValue>" ++
+        "</ds:Reference></ds:SignedInfo>",
+        .{ DS, sig_alg[0..sig_alg_len], id, digest_b64 }) catch return -1;
+
+    parse(&g_si_doc, si) catch return -1;
+    const si_root = g_si_doc.root() orelse return -1;
+    const si_c14n_len = canonicalize(&g_si_doc, si_root, &g_scratch, -1, "") orelse return -1;
+
+    var sig_b64u: [2048]u8 = undefined;
+    const sn = signer(g_scratch[0..si_c14n_len].ptr, si_c14n_len, key_ptr, key_len, &sig_b64u, sig_b64u.len);
+    if (sn <= 0) return -1;
+    var raw: [1024]u8 = undefined;
+    const rawsig = b64UrlDecode(sig_b64u[0..@intCast(sn)], &raw) orelse return -1;
+    var sb: [2048]u8 = undefined;
+    const sig_std = b64StdEncode(rawsig, &sb);
+
+    const issuer = g_sign_doc.find(SAMLNS, "Issuer") orelse return -1;
+    const at = issuer.end;
+    var w: usize = 0;
+    const head = xml[0..at];
+    if (w + head.len > out_cap) return -1;
+    @memcpy(out[w .. w + head.len], head);
+    w += head.len;
+    const parts = [_][]const u8{ "<ds:Signature xmlns:ds=\"", DS, "\">", si, "<ds:SignatureValue>", sig_std, "</ds:SignatureValue></ds:Signature>" };
+    for (parts) |part| {
+        if (w + part.len > out_cap) return -1;
+        @memcpy(out[w .. w + part.len], part);
+        w += part.len;
+    }
+    const tail = xml[at..];
+    if (w + tail.len > out_cap) return -1;
+    @memcpy(out[w .. w + tail.len], tail);
+    w += tail.len;
+    return @intCast(w);
+}
+
 // ── SAML metadata: what an IdP actually publishes ────────────
 //
 // You do not configure a real service provider by typing key components. You

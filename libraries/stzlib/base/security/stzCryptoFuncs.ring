@@ -81,3 +81,48 @@ func StzCertificateInfo(pcCert)
 
 func StzCertificateIsReadable(pcCert)
 	return StzEngineCertificateKey("" + pcCert) != ""
+
+# ---- RSA keys + RS256 signatures ---------------------------------------
+#
+# Our issuers could sign ES256 only, because Ring's engine verifies RSA but Zig's
+# standard library cannot GENERATE or SIGN with it. That left Softanza able to
+# consume identity from anyone yet unable to issue to everyone: plenty of
+# enterprise SAML service providers and older OIDC clients take RS256 and nothing
+# else. mbedTLS (already vendored for TLS) closes it.
+#
+# The private key travels as PEM -- ASCII, so it crosses safely -- and a real
+# deployment LOADS its existing PEM rather than generating one.
+
+# a fresh key -> [ :privateKey (PEM), :n, :e ]. 2048..4096 bits. For development
+# and first runs; production supplies its own PEM.
+func StzRsaKeyPair(nBits)
+	_r_ = StzEngineRsaKeyPair(nBits)
+	if _r_ = ""
+		StzRaise("StzRsaKeyPair: could not generate a key (bits must be 2048..4096).")
+	ok
+	# "pem|n|e" -- a PEM contains no '|', so split from the RIGHT
+	_e_ = StzFindLast("|", _r_)
+	_n_ = StzFindLast("|", StzLeft(_r_, _e_ - 1))
+	return [ :privateKey = StzLeft(_r_, _n_ - 1),
+	         :n = StzMid(_r_, _n_ + 1, _e_ - _n_ - 1),
+	         :e = StzMidToEnd(_r_, _e_ + 1) ]
+
+# the PUBLIC parts of a private-key PEM -> [ :n, :e ], so an issuer publishes a
+# JWKS from the very key it signs with.
+func StzRsaPublicKey(pcPem)
+	_r_ = StzEngineRsaPublicKey("" + pcPem)
+	if _r_ = ""
+		return []
+	ok
+	_a_ = StzSplit(_r_, "|")
+	if len(_a_) < 2
+		return []
+	ok
+	return [ :n = _a_[1], :e = _a_[2] ]
+
+# RS256: sign a message with a PEM private key -> the base64url signature.
+func StzRsaSign(pcMessage, pcPem)
+	return StzEngineRsaSign("" + pcMessage, "" + pcPem)
+
+func StzRsaKeyIsUsable(pcPem)
+	return StzEngineRsaPublicKey("" + pcPem) != ""

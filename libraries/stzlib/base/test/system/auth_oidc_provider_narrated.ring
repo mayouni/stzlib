@@ -208,6 +208,56 @@ Scenario("mounted on the app server, it is a real IdP other apps can reach")
 	Then("...and so is /health", Hit(oSrv, "GET", "/health", [], "")[:status], 200)
 EndScenario()
 
+Scenario("signing RS256, for the clients that accept nothing else")
+	# ES256 is the better algorithm, but plenty of older clients and enterprise
+	# service providers take RS256 only -- so an ES256-only issuer cannot serve
+	# them at all. The key is one YOU already have; only its public parts are ever
+	# published.
+	aKey = StzRsaKeyPair(2048)
+	Then("a key is generated with its public parts", len(aKey[:n]) > 0 and aKey[:e] = "AQAB", TRUE)
+	Then("...as a PEM", StzFindFirst("-----BEGIN", aKey[:privateKey]), 1)
+	Then("the public parts can be recovered from the PEM alone",
+	     StzRsaPublicKey(aKey[:privateKey])[:n], aKey[:n])
+
+	oOp = new stzOidcProvider("https://id.acme.com")
+	oOp.UseRsaKey(aKey[:privateKey])
+	oOp.RegisterClient("shop", "s3cret", [ "https://shop.acme.com/cb" ])
+	Then("the provider signs RS256", oOp.SigningAlgorithm(), "RS256")
+	Then("...discovery advertises it", StzFindFirst('"RS256"', oOp.DiscoveryJson()) > 0, TRUE)
+	Then("...the JWKS publishes an RSA key", StzFindFirst('"kty":"RSA"', oOp.JwksJson()) > 0, TRUE)
+	Then("...and never the private half", StzFindFirst("PRIVATE", oOp.JwksJson()), 0)
+
+	When("a client completes the flow")
+	aR = oOp.AuthorizeAt([ :clientId = "shop", :redirectUri = "https://shop.acme.com/cb",
+	                       :nonce = "n1" ], "dana", $NOW)
+	aT = oOp.ExchangeCodeAt("shop", "s3cret", aR[:code], "https://shop.acme.com/cb", "", $NOW)
+	oRp = new stzOidcClient("https://id.acme.com", "shop")
+	oRp.SetJwks( oOp.JwksJson() )
+	aV = oRp.VerifyIdTokenAt(aT[:idToken], "n1", $NOW + 5)
+	Then("our own relying party verifies the RS256 token", aV[:ok], TRUE)
+	Then("...for the right subject", aV[:subject], "dana")
+
+	When("the issuer later rotates to an ES256 key")
+	oOp.RotateKey("")
+	Then("the used RSA key stays published alongside it", oOp.NumberOfPublishedKeys(), 2)
+	oRp2 = new stzOidcClient("https://id.acme.com", "shop")
+	oRp2.SetJwks( oOp.JwksJson() )
+	Then("the OLD RS256 token still verifies (no outage across algorithms)",
+	     oRp2.VerifyIdTokenAt(aT[:idToken], "n1", $NOW + 5)[:ok], TRUE)
+	Then("...and a new ES256 token verifies too",
+	     oRp2.VerifyIdTokenAt(oOp.IssueIdTokenAt("dana", "shop", "n2", $NOW), "n2", $NOW + 5)[:ok], TRUE)
+
+	When("an unreadable private key is offered")
+	oBad = new stzOidcProvider("https://id.acme.com")
+	bRaised = FALSE
+	try
+		oBad.UseRsaKey("not a pem at all")
+	catch
+		bRaised = TRUE
+	done
+	Then("it refuses rather than signing with nothing", bRaised, TRUE)
+EndScenario()
+
 Summary()
 
 

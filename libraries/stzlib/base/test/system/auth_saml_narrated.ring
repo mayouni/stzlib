@@ -350,4 +350,40 @@ Scenario("the whole SP configured from ONE paste of IdP metadata")
 	Then("it refuses", bRaised2, TRUE)
 EndScenario()
 
+Scenario("the IdP can sign RSA-SHA256, which is what many enterprise SPs require")
+	# The practical gap: a good number of service providers accept RSA only, so an
+	# ECDSA-only IdP cannot federate with them at all.
+	cPem = StzRsaKeyPair(2048)[:privateKey]
+
+	oIdp = new stzSamlIdentityProvider("https://idp.local")
+	oIdp.UseRsaKey(cPem)
+	oIdp.RegisterServiceProvider($SP, $SP + "/acs")
+	Then("it signs RSA-SHA256", oIdp.SigningAlgorithm(), "RS256")
+	Then("...and publishes an RSA public key", oIdp.PublicKey()[:kty], "RSA")
+
+	oSp = new stzSamlServiceProvider($SP, "acs")
+	oIdp.TrustMeOn(oSp)
+	nNow = 1784894400
+	cXml = oIdp.IssueAssertionAt("dana@acme.com", $SP, nNow)
+	Then("the assertion declares the RSA signature method", StzFindFirst("rsa-sha256", cXml) > 0, TRUE)
+
+	aR = oSp.ConsumeXmlAt(cXml, nNow + 10)
+	Then("our SP verifies it", aR[:ok], TRUE)
+	Then("...with the right subject", aR[:nameID], "dana@acme.com")
+
+	When("an RSA-signed assertion is edited after signing")
+	oSp2 = new stzSamlServiceProvider($SP, "acs")
+	oIdp.TrustMeOn(oSp2)
+	Then("the digest catches it",
+	     oSp2.ConsumeXmlAt(StzReplace(cXml, "dana@acme.com", "evil@acme.com"), nNow + 10)[:ok], FALSE)
+
+	Given("an ES256 IdP alongside it")
+	oEc = new stzSamlIdentityProvider("https://idp.local")
+	oEc.RegisterServiceProvider($SP, "acs")
+	oSp3 = new stzSamlServiceProvider($SP, "acs")
+	oEc.TrustMeOn(oSp3)
+	Then("the ECDSA path is unaffected",
+	     oSp3.ConsumeXmlAt(oEc.IssueAssertionAt("bob@acme.com", $SP, nNow), nNow + 10)[:ok], TRUE)
+EndScenario()
+
 Summary()
