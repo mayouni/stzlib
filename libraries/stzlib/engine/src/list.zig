@@ -12,6 +12,10 @@ const allocator = std.heap.c_allocator;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
 const ValueType = value_mod.ValueType;
+// Imported for its VARIANCE CONVENTION only (varianceDivisor). Sharing CODE
+// across DLLs via @import is fine; sharing handle IDs is not -- the handle
+// tables are per-DLL static state.
+const stats = @import("stats.zig");
 
 pub const StzList = struct {
     // Tri storage (unboxed typed-storage refactor). Normally `items` holds
@@ -3705,12 +3709,19 @@ pub fn stz_list_nth_largest(list_arg: ?*const StzList, n: usize) callconv(.c) f6
     return numericVal(item) orelse 0;
 }
 
-/// Return variance of numeric items in the list.
-pub fn stz_list_variance(list_arg: ?*const StzList) callconv(.c) f64 {
+// ── Variance: the CONVENTION comes from stats.zig ───────────────────────
+//
+// This used to divide by N while stats.zig divided by N-1, so the same data got
+// two different variances depending on which class you happened to hold. The
+// divisor now comes from stats.varianceDivisor, which is the one place that
+// decides. The loop stays here because only this module has to skip non-numeric
+// items.
+
+fn listVarianceKind(list_arg: ?*const StzList, kind: stats.VarianceKind) f64 {
     const l = list_arg orelse return 0;
     const m = stz_list_mean(l);
     var sum_sq: f64 = 0;
-    var count: f64 = 0;
+    var count: usize = 0;
     for (l.items.items) |item| {
         if (numericVal(item)) |v| {
             const diff = v - m;
@@ -3718,12 +3729,37 @@ pub fn stz_list_variance(list_arg: ?*const StzList) callconv(.c) f64 {
             count += 1;
         }
     }
-    return if (count > 0) sum_sq / count else 0;
+    const divisor = stats.varianceDivisor(count, kind);
+    if (divisor == 0) return 0;
+    return sum_sq / divisor;
 }
 
-/// Return standard deviation of numeric items.
+/// Variance of the numeric items, SAMPLE convention (N-1) -- the library
+/// default. CHANGED 2026-07-25: this returned the population variance (N),
+/// disagreeing with stats.zig and stzDataSet on identical data.
+pub fn stz_list_variance(list_arg: ?*const StzList) callconv(.c) f64 {
+    return listVarianceKind(list_arg, .sample);
+}
+
+pub fn stz_list_variance_sample(list_arg: ?*const StzList) callconv(.c) f64 {
+    return listVarianceKind(list_arg, .sample);
+}
+
+pub fn stz_list_variance_population(list_arg: ?*const StzList) callconv(.c) f64 {
+    return listVarianceKind(list_arg, .population);
+}
+
+/// Return standard deviation of numeric items (sample convention).
 pub fn stz_list_stddev(list_arg: ?*const StzList) callconv(.c) f64 {
-    return @sqrt(stz_list_variance(list_arg));
+    return @sqrt(listVarianceKind(list_arg, .sample));
+}
+
+pub fn stz_list_stddev_sample(list_arg: ?*const StzList) callconv(.c) f64 {
+    return @sqrt(listVarianceKind(list_arg, .sample));
+}
+
+pub fn stz_list_stddev_population(list_arg: ?*const StzList) callconv(.c) f64 {
+    return @sqrt(listVarianceKind(list_arg, .population));
 }
 
 /// Compute rank of each item (1-based rank in sorted order).
@@ -6236,8 +6272,25 @@ test "variance basic" {
     _ = stz_list_append_int(l, 5);
     _ = stz_list_append_int(l, 7);
     _ = stz_list_append_int(l, 9);
-    // mean = 5, variance = 4
-    try std.testing.expectEqual(@as(f64, 4.0), stz_list_variance(l));
+    // mean = 5. This test asserted 4.0 -- the POPULATION variance -- which is
+    // what this module used to return while stats.zig returned the sample one for
+    // the same data. The convention now comes from stats.varianceDivisor and the
+    // library default is SAMPLE (N-1), so 32/7 = 4.571...
+    try std.testing.expectEqual(@as(f64, 4.0), stz_list_variance_population(l));
+    try std.testing.expectApproxEqAbs(@as(f64, 32.0 / 7.0), stz_list_variance(l), 1e-12);
+    try std.testing.expectApproxEqAbs(@as(f64, 32.0 / 7.0), stz_list_variance_sample(l), 1e-12);
+    // and the two conventions must not silently coincide
+    try std.testing.expect(stz_list_variance_population(l) != stz_list_variance_sample(l));
+}
+
+test "variance divisor comes from one authority" {
+    // the guard against the two modules drifting apart again
+    try std.testing.expectEqual(@as(f64, 8.0), stats.varianceDivisor(8, .population));
+    try std.testing.expectEqual(@as(f64, 7.0), stats.varianceDivisor(8, .sample));
+    // a sample variance needs two observations; a population variance needs one
+    try std.testing.expectEqual(@as(f64, 0.0), stats.varianceDivisor(1, .sample));
+    try std.testing.expectEqual(@as(f64, 1.0), stats.varianceDivisor(1, .population));
+    try std.testing.expectEqual(@as(f64, 0.0), stats.varianceDivisor(0, .population));
 }
 
 test "stddev basic" {
@@ -6252,7 +6305,10 @@ test "stddev basic" {
     _ = stz_list_append_int(l, 7);
     _ = stz_list_append_int(l, 9);
     // stddev = 2
-    try std.testing.expectEqual(@as(f64, 2.0), stz_list_stddev(l));
+    // was 2.0 -- the population stddev. The default is now the SAMPLE one, for
+    // the same reason as "variance basic" above.
+    try std.testing.expectEqual(@as(f64, 2.0), stz_list_stddev_population(l));
+    try std.testing.expectApproxEqAbs(@as(f64, 2.13808993529939), stz_list_stddev(l), 1e-12);
 }
 
 test "ranked basic" {

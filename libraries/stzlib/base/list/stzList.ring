@@ -5408,12 +5408,36 @@ class stzList from stzObject
 			return This.Mean()
 
 	  #-- Variance / StdDev (engine-backed)
+	  #
+	  # THE CONVENTION IS NAMED, not implied. "Variance" is ambiguous -- divide
+	  # the sum of squares by N (describing a whole population) or by N-1
+	  # (estimating one from a sample). Both are right; choosing silently is not.
+	  # Variance() means the SAMPLE variance (N-1), which is the library default,
+	  # and matches stzDataSet, R's var() and pandas' .var(). Say which you mean
+	  # with VarianceSample()/VariancePopulation() and the reader never has to
+	  # know the default.
+	  #
+	  # FIXED 2026-07-25: Variance() here returned the POPULATION variance while
+	  # stzDataSet returned the sample one, so the same data gave two answers
+	  # depending on which class you held. The divisor now comes from one place
+	  # in the engine (stats.varianceDivisor).
 
+	#@ aka  spread, dispersion, sample variance
 	def Variance()
 		if len(@aContent) = 0 return 0 ok
 		_pVarList_ = This._Engine()
 		_nVarResult_ = StzEngineListVariance(_pVarList_)
 		return _nVarResult_
+
+		def VarianceSample()
+			if len(@aContent) = 0 return 0 ok
+			_pVsList_ = This._Engine()
+			return StzEngineListVarianceSample(_pVsList_)
+
+		def VariancePopulation()
+			if len(@aContent) = 0 return 0 ok
+			_pVpList_ = This._Engine()
+			return StzEngineListVariancePopulation(_pVpList_)
 
 	def Stddev()
 		if len(@aContent) = 0 return 0 ok
@@ -5423,6 +5447,22 @@ class stzList from stzObject
 
 		def StandardDeviation()
 			return This.Stddev()
+
+		def StddevSample()
+			if len(@aContent) = 0 return 0 ok
+			_pSsList_ = This._Engine()
+			return StzEngineListStddevSample(_pSsList_)
+
+		def StddevPopulation()
+			if len(@aContent) = 0 return 0 ok
+			_pSpList_ = This._Engine()
+			return StzEngineListStddevPopulation(_pSpList_)
+
+			def StandardDeviationSample()
+				return This.StddevSample()
+
+			def StandardDeviationPopulation()
+				return This.StddevPopulation()
 
 	  #-- Median / Nth Smallest / Nth Largest (engine-backed)
 

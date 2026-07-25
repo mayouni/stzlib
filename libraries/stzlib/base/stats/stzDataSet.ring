@@ -7,6 +7,27 @@
 # Global configuration for missing values
 $aSTAT_MISSING_VALUES = [ "", 'NA', 'NULL', 'n/a', '#N/A' ]
 
+# Two-sided NORMAL (z) critical values, by confidence level.
+#
+# THE SUPPORTED LEVELS ARE A PUBLISHED TABLE, not three constants buried in a
+# method. Before 2026-07-25 ConfidenceInterval() recognised 90/95/99 and silently
+# answered 95 for anything else -- a wrong answer wearing a right answer's face.
+# Anything not in this table now RAISES.
+#
+# These are z values, so they are sound for large samples. A t table needs the
+# inverse incomplete beta function, which the engine does not have yet; see
+# SOFTANZA_NUMERIC_FOUNDATION.md phase 4.
+$aStzNormalCriticalValues = [
+	[ 80,   1.281552 ],
+	[ 85,   1.439531 ],
+	[ 90,   1.644854 ],
+	[ 95,   1.959964 ],
+	[ 98,   2.326348 ],
+	[ 99,   2.575829 ],
+	[ 99.5, 2.807034 ],
+	[ 99.9, 3.290527 ]
+]
+
 # Thresholds and Constants
 $nSmallSampleSizeThreshold = 30
 $nSkewnessThreshold = 0.5
@@ -375,9 +396,11 @@ $aStatFunctions = [
     [
         :function = "ConfidenceInterval",
         :params = ["nConfidence"],
-        :condition = "DataType() = 'numeric' and nConfidence > 0 and nConfidence < 100",
+        :condition = "DataType() = 'numeric' and nConfidence is one of StzNormalConfidenceLevels()",
         :output = "list",
-        :description = "Calculates confidence interval for the mean."
+        :description = "Confidence interval for the mean by the NORMAL (z) approximation. " +
+                       "Sound for n >= 30; understates the interval for small n. " +
+                       "ConfidenceIntervalXT() reports the method and warns."
     ],
     [
         :function = "WeightedMean",
@@ -891,6 +914,31 @@ $aPlanGoals = [
 #TODO Move the data setting to a stzDataSetData.ring file and host it in /data subfolder
 
 # Helper Functions
+
+# The confidence levels a normal-approximation interval can be asked for.
+func StzNormalConfidenceLevels()
+	_aOut_ = []
+	_nN_ = len($aStzNormalCriticalValues)
+	for _i_ = 1 to _nN_
+		_aOut_ + $aStzNormalCriticalValues[_i_][1]
+	next
+	return _aOut_
+
+# The two-sided z critical value for a confidence level. RAISES on a level that
+# is not tabulated, rather than substituting one that is -- the whole point of
+# the 2026-07-25 repair.
+func StzNormalCriticalValue(pnLevel)
+	_nN_ = len($aStzNormalCriticalValues)
+	for _i_ = 1 to _nN_
+		if $aStzNormalCriticalValues[_i_][1] = pnLevel
+			return $aStzNormalCriticalValues[_i_][2]
+		ok
+	next
+	StzRaise("StzNormalCriticalValue: no tabulated z value for a " + pnLevel +
+	         "% confidence level. Supported: " + @@(StzNormalConfidenceLevels()) +
+	         ". (A t-based interval for an arbitrary level needs the inverse " +
+	         "incomplete beta function -- not in the engine yet.)")
+
 func StzMissingValues()
     return $aSTAT_MISSING_VALUES
 
@@ -1193,6 +1241,24 @@ class stzDataSet from stzObject
 		def StdDev()
 			return This.StandardDeviation()
 
+		def StandardDeviationSample()
+			if @cDataType != "numeric" or len(@anData) <= 1
+				return 0
+			ok
+			if This._EngineAvailable()
+				return StzEngineStatsStdDevSample(@pEngineStats)
+			ok
+			return This.StandardDeviation()
+
+		def StandardDeviationPopulation()
+			return sqrt( This.VariancePopulation() )
+
+			def StdDevSample()
+				return This.StandardDeviationSample()
+
+			def StdDevPopulation()
+				return This.StandardDeviationPopulation()
+
 
 	def Variance()
 	    if @cDataType != "numeric" or len(@anData) <= 1
@@ -1215,6 +1281,34 @@ class stzDataSet from stzObject
 
 		def V()
 			return This.Variance()
+
+		# The convention, NAMED. Variance() is the SAMPLE variance (N-1) -- the
+		# library default, matching stzList, R's var() and pandas' .var(). Ask by
+		# name and a reader never has to know the default.
+		def VarianceSample()
+			if @cDataType != "numeric" or len(@anData) <= 1
+				return 0
+			ok
+			if This._EngineAvailable()
+				return StzEngineStatsVarianceSample(@pEngineStats)
+			ok
+			return This.Variance()
+
+		def VariancePopulation()
+			if @cDataType != "numeric" or len(@anData) = 0
+				return 0
+			ok
+			if This._EngineAvailable()
+				return StzEngineStatsVariancePopulation(@pEngineStats)
+			ok
+			_nMnP_ = This.Mean()
+			_nSsP_ = 0
+			_nLnP_ = len(@anData)
+			for _iP_ = 1 to _nLnP_
+				_nDfP_ = @anData[_iP_] - _nMnP_
+				_nSsP_ += (_nDfP_ * _nDfP_)
+			next
+			return _nSsP_ / _nLnP_
 
 
     def Range()
@@ -1479,37 +1573,61 @@ class stzDataSet from stzObject
 
 	#---
 
+    # A confidence interval for the MEAN, by the NORMAL (z) approximation.
+    #
+    # HONEST NAMING, 2026-07-25. This was labelled "t-distribution approximation"
+    # and used hardcoded z values, which are two different things. For n=5 at 95%
+    # it produced a margin of 1.39 where the correct t-based margin is 1.96 -- the
+    # interval was 41% too narrow, and the error grows as the sample SHRINKS, i.e.
+    # exactly when you reach for a confidence interval. It also silently returned
+    # the 95% interval for any level it did not recognise.
+    #
+    # It still uses z, because a t quantile needs the inverse incomplete beta
+    # function and the engine has no special functions yet (see
+    # SOFTANZA_NUMERIC_FOUNDATION.md -- that is phase 4, and this method becomes
+    # correct for small n when it lands). What changed is that it no longer
+    # MISREPRESENTS itself:
+    #   * the supported levels are a published table, and an unsupported level
+    #     RAISES instead of quietly answering a different question;
+    #   * ConfidenceIntervalXT() reports the method, the critical value, and a
+    #     plain warning when n is small enough for the z approximation to
+    #     understate the interval.
+    #
+    # A z interval is sound for large samples (n >= 30 by the usual rule of
+    # thumb), which is the case most callers are in.
     def ConfidenceInterval(_nConfidence_)
-        if _nConfidence_ = 0
-            _nConfidence_ = 95
-        ok
-
-        # Calculate confidence interval for the mean
-        if @cDataType != "numeric" or len(@anData) < 2
-            return [0, 0]
-        ok
-        
-        _nMean_ = This.Mean()
-        _nStdDev_ = This.StandardDeviation()
-        _nLen_ = len(@anData)
-        
-        # Using t-distribution approximation
-        _nAlpha_ = (100 - _nConfidence_) / 100
-        _nTValue_ = 1.96  # Approximation for 95% confidence
-        
-        if _nConfidence_ = 90
-            _nTValue_ = 1.645
-
-        but _nConfidence_ = 99
-            _nTValue_ = 2.576
-        ok
-        
-        _nMarginError_ = _nTValue_ * (_nStdDev_ / sqrt(_nLen_))
-        
-        return [_nMean_ - _nMarginError_, _nMean_ + _nMarginError_]
+        _aXT_ = This.ConfidenceIntervalXT(_nConfidence_)
+        return [ _aXT_[:low], _aXT_[:high] ]
 
 		def ConfInt()
-			return This.ConfidentialInterval()
+			return This.ConfidenceInterval(95)
+
+		def ConfidenceIntervalXT(_nConfidence_)
+			if _nConfidence_ = 0
+				_nConfidence_ = 95
+			ok
+
+			if @cDataType != "numeric" or len(@anData) < 2
+				return [ :low = 0, :high = 0, :level = _nConfidence_,
+				         :method = :none, :critical = 0, :n = len(@anData),
+				         :note = "a confidence interval needs at least two numeric observations" ]
+			ok
+
+			_nZ_ = StzNormalCriticalValue(_nConfidence_)
+			_nMean_ = This.Mean()
+			_nStdDev_ = This.StandardDeviation()
+			_nLen_ = len(@anData)
+			_nMarginError_ = _nZ_ * (_nStdDev_ / sqrt(_nLen_))
+
+			_cNote_ = ""
+			if _nLen_ < $nSmallSampleSizeThreshold
+				_cNote_ = "n = " + _nLen_ + " is small, so this NORMAL approximation " +
+				          "understates the interval; a t-based interval would be wider"
+			ok
+
+			return [ :low = _nMean_ - _nMarginError_, :high = _nMean_ + _nMarginError_,
+			         :level = _nConfidence_, :method = :normal, :critical = _nZ_,
+			         :n = _nLen_, :note = _cNote_ ]
 
 
 	#---
@@ -2330,7 +2448,7 @@ class stzDataSet from stzObject
 	    return _aResult_
 	
 		def BoxPlotData()
-			return This.BoxPlot()
+			return This.BoxPlotStats()
 
 
 	def NormalityTest()
