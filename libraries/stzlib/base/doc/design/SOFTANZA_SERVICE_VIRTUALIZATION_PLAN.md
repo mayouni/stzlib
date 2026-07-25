@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phases 1–4 BUILT — the spine, the database exemplar, the generic HTTP port, the payments gateway, and three doubles ship.** `base/service/`
+> Status: **phases 1–5 BUILT — the spine, the database exemplar, the generic HTTP port, the payments gateway, the generative port, and three doubles ship.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -52,8 +52,30 @@
 > live Stripe/PayPal/Adyen adapter is deliberately not shipped (account + key +
 > network = infra-gated); the contract is defined and the registry refuses to let
 > the fake ship in its place. Guard `payments_port_narrated` (49).
-> Still unbuilt: the blob store, the LLM port promotion, and surfacing the registry
-> inside `stzDelivery`/`stzDeployment` (phases 5–7).
+> **Phase 5 (the generative port) is built too**, and it is mostly *promotion* as
+> planned: `base/service/stzLlmPort.ring` names the contract
+> (`Complete(prompt)` → `[:ok, :text, :from]`) and ships `stzLlmSandbox`
+> (**replay** — a seeded or recorded answer keyed by a hash of the prompt;
+> **scripted** — `WhenPromptContains` for a whole family of prompts, with a seeded
+> answer winning over a rule because a recording is what a model actually said) and
+> `stzDlmSource`, which puts `stzDLM` behind the same method in **local-real**
+> posture. The honest limit is stated first in the file, because it governs
+> everything else: **frontier-model QUALITY cannot be virtualized.** The other ports
+> here substitute faithfully — a mail sink really is mail-shaped, sqlite really is a
+> database — and nothing local is GPT-class. What a generative sandbox buys is three
+> other things, each real: **determinism** (a model-dependent test stops being
+> flaky), **cost** — zero *and measurable*, since the sandbox counts calls and
+> approximate tokens so "this feature must not cost more than two calls" becomes an
+> assertion — and **offline** CI. So: use it for the SHAPE of a pipeline (prompts
+> assembled right, answers parsed right, cost bounded) and judge model quality
+> against the real thing, deliberately, as its own activity. `stzDlmSource` is the
+> interesting one: ask it outside its domain and it *says so rather than inventing*,
+> the opposite failure mode from a language model, which is why shipping it is a
+> legitimate choice for a bounded factual assistant rather than a fake awaiting
+> replacement. The frontier-API adapter is infra-gated (key + network); the registry
+> refuses to let the sandbox ship in its place. Guard `llm_port_narrated` (37).
+> Still unbuilt: the blob store and surfacing the registry inside
+> `stzDelivery`/`stzDeployment` (phases 6–7).
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
@@ -159,7 +181,7 @@ secret store and an effectful actor to commit. No new deploy machinery.
 | Category | Sandbox | Live | Status |
 |---|---|---|---|
 | **Database** | sqlite (local-real) | a hosted-DB adapter | **≈ done** via `stzAppBackend`; adopt behind the port |
-| **Generative / LLM** | replay cache + `stzDLM` + local GGUF | a frontier-API adapter | **≈ half done** via `stzLLMFunction`; promote behind the port |
+| **Generative / LLM** | replay cache + `stzDLM` + local GGUF | a frontier-API adapter | **BUILT** — `stzLlmPort` (`stzLlmSandbox` replay+scripted with cost accounting; `stzDlmSource` local-real) |
 | **HTTP third-party API** (the general case) | scripted + replay | pass-through to the real URL | new — subsumes many SaaS APIs at once |
 | **Payments** | deterministic gateway + an assertable ledger | Stripe/PayPal adapter | new — the canonical "sandbox," high-value demo |
 | **Blob / object store** | local filesystem | S3/GCS adapter | new — small |
@@ -205,7 +227,11 @@ Each ships something runnable and leaves the suite green.
 4. **Payments** — the canonical sandbox: a deterministic gateway with an assertable
    ledger, plus the adapter contract. The demo that makes the whole idea legible.
 5. **Generative / LLM** — promote the existing replay + local model + `stzDLM`
-   behind the port; the frontier adapter contract at deploy.
+   behind the port; the frontier adapter contract at deploy. *(BUILT — and it
+   forced the plane's honest limit into the open: quality cannot be virtualized,
+   so the sandbox sells determinism, measurable cost and offline instead. Cost
+   accounting turned out to be the load-bearing feature: a fee-free plane should
+   let you ASSERT the fee.)*
 6. **Blob store + mail/SMS sink** — two small, high-value local-real / capture
    sandboxes.
 7. **Delivery & governance integration** — the registry surfaces in the

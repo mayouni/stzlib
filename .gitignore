@@ -26,3 +26,4 @@ _wasmsub_tmp/
 # stzAuth DB-store test databases (guards create + remove these; a leaked sqlite
 # handle on Windows can leave the file behind, so guard against committing it)
 **/_authtest_*.db
+**/_dataport_test.db

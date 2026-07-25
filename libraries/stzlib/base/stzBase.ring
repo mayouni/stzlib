@@ -349,6 +349,7 @@ ok
     # piece -- passwordless auth below uses it (captured + assertable in dev, really
     # sent in production; same code, no fees).
     load "service/stzServiceRegistry.ring" # the ONE place external deps are declared
+    load "service/stzLlmPort.ring"      # the generative port (replay/scripted/local)
     load "service/stzPaymentsPort.ring" # the payments port (deterministic gateway)
     load "service/stzHttpPort.ring"   # the generic HTTP port (scripted + replay)
     load "service/stzDataPort.ring"   # the DATABASE port (local-real: sqlite)
