@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phases 1–3 BUILT — the spine, the database exemplar, the generic HTTP port, and three doubles ship.** `base/service/`
+> Status: **phases 1–4 BUILT — the spine, the database exemplar, the generic HTTP port, the payments gateway, and three doubles ship.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -37,10 +37,23 @@
 > raises, because a double that silently answers `""` produces a test that passes
 > for the wrong reason. Every request is journalled, so a test can assert on what
 > the code *tried* to do. Guard `http_port_narrated` (37).
-> Still unbuilt: payments, the blob store, the LLM port promotion, and surfacing
-> the registry inside `stzDelivery`/`stzDeployment` (phases 4–7) — and with the
-> HTTP port in place those are now largely CONFIGURATION of it rather than new
-> machinery.
+> **Phase 4 (payments) is built too**: `base/service/stzPaymentsPort.ring` names the
+> contract (`Authorize(amount, token)` / `Capture(id)` / `Refund(id)`) and ships
+> `stzPaymentsSandbox` — a deterministic gateway with an assertable ledger
+> (`TotalCaptured`/`TotalRefunded`/`NetCaptured`/`Movements`). What lifts it above a
+> stub is that it **enforces the state machine a real gateway enforces**: capture
+> only an authorized charge and only ONCE, refund only what was captured and never
+> more. So double-captures, capturing a decline and over-refunds fail in a test
+> rather than in production — and most payment bugs are state-machine bugs, not
+> connectivity bugs. Money is an **integer in minor units** (a float is refused).
+> Rules (`ApproveUnder`, `DeclineOver`, `DeclineToken`, `FailNext`) make the FAILURE
+> paths testable at all, and an **outage is `:refused`, distinct from a
+> `:declined`** — conflating them is how code double-charges or loses sales. The
+> live Stripe/PayPal/Adyen adapter is deliberately not shipped (account + key +
+> network = infra-gated); the contract is defined and the registry refuses to let
+> the fake ship in its place. Guard `payments_port_narrated` (49).
+> Still unbuilt: the blob store, the LLM port promotion, and surfacing the registry
+> inside `stzDelivery`/`stzDeployment` (phases 5–7).
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
