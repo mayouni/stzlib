@@ -349,6 +349,7 @@ ok
     # piece -- passwordless auth below uses it (captured + assertable in dev, really
     # sent in production; same code, no fees).
     load "service/stzServiceRegistry.ring" # the ONE place external deps are declared
+    load "service/stzDataPort.ring"   # the DATABASE port (local-real: sqlite)
     load "service/stzMailPort.ring"
     load "service/stzOidcSandbox.ring"   # a fee-free IDENTITY PROVIDER double
     load "service/stzPasskeySandbox.ring" # a virtual AUTHENTICATOR (device double)
