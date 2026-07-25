@@ -72,6 +72,17 @@ across copies -- through a handle table (stzMailSandbox) or an engine handle
 and the mail sandbox demonstrates it working through a registry round trip.
 */
 
+# THE REGISTRY'S OWN STATE IS SHARED ACROSS COPIES, for the same reason it demands
+# that of every sandbox it holds -- and here it is not a convenience but a
+# GOVERNANCE requirement. `=` and attribute-stores COPY in Ring, so a registry
+# handed to stzDelivery used to become a snapshot: bind a fake on your own handle
+# afterwards and the delivery's copy still looked sound, so the production gate
+# would have PASSED an unsound surface. A gate that fails OPEN is worse than no
+# gate. With the state in a table keyed by id, every copy IS the registry.
+# [ [ id, declared, bound, phase ], ... ]
+$aStzServiceRegistries = []
+$nStzServiceRegistrySeq = 0
+
 func StzServiceRegistryQ(pcName)
 	return new stzServiceRegistry(pcName)
 
@@ -86,17 +97,17 @@ func StzServicesAreSound(poRegistry)
 class stzServiceRegistry from stzObject
 
 	@cName = ""
-	@cPhase = :development   # :development | :emulated | :production
-	@aDeclared = []          # the dependency SURFACE: [ name, ... ]
-	@aBound = []             # [ name, object, posture, secretName ]
+	@nId = 0     # the slot in $aStzServiceRegistries -- survives Ring's copy
 
 	def init(pcName)
 		@cName = ring_trim("" + pcName)
 		if @cName = ""
 			StzRaise("stzServiceRegistry: a name is required (it is what the findings point at).")
 		ok
-		@aDeclared = []
-		@aBound = []
+		$nStzServiceRegistrySeq = $nStzServiceRegistrySeq + 1
+		@nId = $nStzServiceRegistrySeq
+		# [ id, declared, bound, phase ]
+		$aStzServiceRegistries + [ @nId, [], [], :development ]
 
 	def Name()
 		return @cName
@@ -112,7 +123,7 @@ class stzServiceRegistry from stzObject
 	def DeclareQ(pcService)
 		_s_ = This._Key(pcService)
 		if NOT This.IsDeclared(_s_)
-			@aDeclared + _s_
+			$aStzServiceRegistries[This._Slot()][2] + _s_
 		ok
 		return This
 
@@ -124,13 +135,13 @@ class stzServiceRegistry from stzObject
 		return This
 
 	def IsDeclared(pcService)
-		return This._IndexIn(@aDeclared, This._Key(pcService)) > 0
+		return This._IndexIn($aStzServiceRegistries[This._Slot()][2], This._Key(pcService)) > 0
 
 	def DeclaredServices()
-		return @aDeclared
+		return $aStzServiceRegistries[This._Slot()][2]
 
 	def NumberOfDeclared()
-		return len(@aDeclared)
+		return len($aStzServiceRegistries[This._Slot()][2])
 
 	  #-- binding ----------------------------------------------------------
 
@@ -174,13 +185,13 @@ class stzServiceRegistry from stzObject
 	def Unbind(pcService)
 		_s_ = This._Key(pcService)
 		_aNew_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][1] != _s_
-				_aNew_ + @aBound[_i_]
+			if $aStzServiceRegistries[This._Slot()][3][_i_][1] != _s_
+				_aNew_ + $aStzServiceRegistries[This._Slot()][3][_i_]
 			ok
 		next
-		@aBound = _aNew_
+		$aStzServiceRegistries[This._Slot()][3] = _aNew_
 		return This
 
 	# Retire the dependency altogether -- the solution no longer needs this
@@ -189,13 +200,13 @@ class stzServiceRegistry from stzObject
 		_s_ = This._Key(pcService)
 		This.Unbind(_s_)
 		_aNew_ = []
-		_n_ = len(@aDeclared)
+		_n_ = len($aStzServiceRegistries[This._Slot()][2])
 		for _i_ = 1 to _n_
-			if @aDeclared[_i_] != _s_
-				_aNew_ + @aDeclared[_i_]
+			if $aStzServiceRegistries[This._Slot()][2][_i_] != _s_
+				_aNew_ + $aStzServiceRegistries[This._Slot()][2][_i_]
 			ok
 		next
-		@aDeclared = _aNew_
+		$aStzServiceRegistries[This._Slot()][2] = _aNew_
 		return This
 
 	  #-- resolution (what the application actually calls) ------------------
@@ -209,28 +220,28 @@ class stzServiceRegistry from stzObject
 			StzRaise("stzServiceRegistry(" + @cName + "): nothing is bound for service '" +
 			         This._Key(pcService) + "'. Bind it (or BindLive it) before use.")
 		ok
-		return @aBound[_i_][2]
+		return $aStzServiceRegistries[This._Slot()][3][_i_][2]
 
 	def Has(pcService)
 		return This._BoundIndex(pcService) > 0
 
 	def BoundServices()
 		_out_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			_out_ + @aBound[_i_][1]
+			_out_ + $aStzServiceRegistries[This._Slot()][3][_i_][1]
 		next
 		return _out_
 
 	def NumberOfBound()
-		return len(@aBound)
+		return len($aStzServiceRegistries[This._Slot()][3])
 
 	def PostureOf(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
 			return ""
 		ok
-		return @aBound[_i_][3]
+		return $aStzServiceRegistries[This._Slot()][3][_i_][3]
 
 	def IsSandboxed(pcService)
 		return This.PostureOf(pcService) = :sandbox
@@ -240,15 +251,15 @@ class stzServiceRegistry from stzObject
 		if _i_ = 0
 			return ""
 		ok
-		return @aBound[_i_][4]
+		return $aStzServiceRegistries[This._Slot()][3][_i_][4]
 
 	# every service still bound to a fake -- the "what is not real yet" list.
 	def SandboxedServices()
 		_out_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][3] = :sandbox
-				_out_ + @aBound[_i_][1]
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] = :sandbox
+				_out_ + $aStzServiceRegistries[This._Slot()][3][_i_][1]
 			ok
 		next
 		return _out_
@@ -256,10 +267,10 @@ class stzServiceRegistry from stzObject
 	# the genuinely-local ones: real, self-hosted, shippable.
 	def LocalServices()
 		_out_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][3] = :local
-				_out_ + @aBound[_i_][1]
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] = :local
+				_out_ + $aStzServiceRegistries[This._Slot()][3][_i_][1]
 			ok
 		next
 		return _out_
@@ -269,20 +280,20 @@ class stzServiceRegistry from stzObject
 
 	def LiveServices()
 		_out_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][3] = :live
-				_out_ + @aBound[_i_][1]
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] = :live
+				_out_ + $aStzServiceRegistries[This._Slot()][3][_i_][1]
 			ok
 		next
 		return _out_
 
 	def UnboundServices()
 		_out_ = []
-		_n_ = len(@aDeclared)
+		_n_ = len($aStzServiceRegistries[This._Slot()][2])
 		for _i_ = 1 to _n_
-			if NOT This.Has(@aDeclared[_i_])
-				_out_ + @aDeclared[_i_]
+			if NOT This.Has($aStzServiceRegistries[This._Slot()][2][_i_])
+				_out_ + $aStzServiceRegistries[This._Slot()][2][_i_]
 			ok
 		next
 		return _out_
@@ -300,14 +311,14 @@ class stzServiceRegistry from stzObject
 		if _p_ != "development" and _p_ != "emulated" and _p_ != "production"
 			StzRaise("stzServiceRegistry.SetPhase: expected :development, :emulated or :production.")
 		ok
-		@cPhase = _p_
+		$aStzServiceRegistries[This._Slot()][4] = _p_
 		return This
 
 	def Phase()
-		return @cPhase
+		return $aStzServiceRegistries[This._Slot()][4]
 
 	def IsProduction()
-		return @cPhase = "production"
+		return $aStzServiceRegistries[This._Slot()][4] = "production"
 
 	  #-- governance -------------------------------------------------------
 
@@ -363,8 +374,8 @@ class stzServiceRegistry from stzObject
 
 	def ReportVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
-		? "Service registry '" + @cName + "' [" + @cPhase + "] -- " +
-		  len(@aBound) + " bound: " + len(This.SandboxedServices()) + " sandboxed, " +
+		? "Service registry '" + @cName + "' [" + $aStzServiceRegistries[This._Slot()][4] + "] -- " +
+		  len($aStzServiceRegistries[This._Slot()][3]) + " bound: " + len(This.SandboxedServices()) + " sandboxed, " +
 		  len(This.LocalServices()) + " local, " + len(This.LiveServices()) + " live"
 		if len(_aF_) = 0
 			? "  (no findings)"
@@ -415,11 +426,81 @@ class stzServiceRegistry from stzObject
 		next
 		return ""
 
+	  #-- the graph projection (phase 7) -----------------------------------
+
+	# Project the dependency surface into an stzGraph the rule engine can run
+	# over -- the same move stzOrgChart.AsRuleGraph() makes for positions.
+	#
+	# The application is a node; every declared service is a node with its
+	# posture, its secret name and the phase as properties; an application
+	# `depends-on` each of its services.
+	#
+	# NOTE this does NOT duplicate the invariants above. Findings from Findings()
+	# already carry the report's shape, so the registry joins the shared CI gate
+	# directly:  oReport.IngestLegacy(oReg.Findings(), "services").
+	# What the GRAPH adds is the question a flag check cannot ask -- which PART of
+	# a solution depends on a fake -- and that needs the delivery's parts joined
+	# to these nodes (see stzDelivery.AsRuleGraph and stzServiceRuleSet).
+	def AsRuleGraph()
+		_oG_ = new stzGraph("services-rules")
+		_app_ = "app:" + @cName
+		_oG_.AddNode(_app_)
+		_oG_.SetNodeProperty(_app_, "kind", "application")
+		_oG_.SetNodeProperty(_app_, "phase", "" + $aStzServiceRegistries[This._Slot()][4])
+
+		_n_ = len($aStzServiceRegistries[This._Slot()][2])
+		for _i_ = 1 to _n_
+			This._AddServiceNode(_oG_, "" + $aStzServiceRegistries[This._Slot()][2][_i_], _app_)
+		next
+		# a service may be bound without having been declared
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
+		for _i_ = 1 to _n_
+			This._AddServiceNode(_oG_, "" + $aStzServiceRegistries[This._Slot()][3][_i_][1], _app_)
+		next
+		return _oG_
+
+	def _AddServiceNode(poG, pcName, pcApp)
+		_id_ = "service:" + pcName
+		if poG.NodeExists(_id_)
+			return
+		ok
+		poG.AddNode(_id_)
+		poG.SetNodeProperty(_id_, "kind", "service")
+		poG.SetNodeProperty(_id_, "service", pcName)
+		poG.SetNodeProperty(_id_, "phase", "" + $aStzServiceRegistries[This._Slot()][4])
+		poG.SetNodeProperty(_id_, "posture", "" + This.PostureOf(pcName))
+		poG.SetNodeProperty(_id_, "bound", This.Has(pcName))
+		poG.SetNodeProperty(_id_, "secret", "" + This.SecretNameOf(pcName))
+		# ephemeral is asked of the OBJECT, as everywhere else in this file
+		_bEph_ = FALSE
+		if This.Has(pcName)
+			try
+				if This.Service(pcName).IsEphemeral()
+					_bEph_ = TRUE
+				ok
+			catch
+			done
+		ok
+		poG.SetNodeProperty(_id_, "ephemeral", _bEph_)
+		if NOT poG.EdgeExists(pcApp, _id_)
+			poG.AddEdgeXTT(pcApp, _id_, "depends-on", [ :type = "service" ])
+		ok
+
 	def Show()
-		? "stzServiceRegistry(" + @cName + ", " + @cPhase + ", " +
-		  len(@aBound) + "/" + len(@aDeclared) + " bound)"
+		? "stzServiceRegistry(" + @cName + ", " + $aStzServiceRegistries[This._Slot()][4] + ", " +
+		  len($aStzServiceRegistries[This._Slot()][3]) + "/" + len($aStzServiceRegistries[This._Slot()][2]) + " bound)"
 
 	  #==== internals ======================================================
+
+	def _Slot()
+		_n_ = len($aStzServiceRegistries)
+		for _i_ = 1 to _n_
+			if $aStzServiceRegistries[_i_][1] = @nId
+				return _i_
+			ok
+		next
+		$aStzServiceRegistries + [ @nId, [], [], :development ]
+		return len($aStzServiceRegistries)
 
 	def _CheckUnbound()
 		_aF_ = []
@@ -454,14 +535,14 @@ class stzServiceRegistry from stzObject
 		if NOT This.IsProduction()
 			return _aF_
 		ok
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][3] != :local
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :local
 				loop
 			ok
 			_bGone_ = FALSE
 			try
-				if @aBound[_i_][2].IsEphemeral()
+				if $aStzServiceRegistries[This._Slot()][3][_i_][2].IsEphemeral()
 					_bGone_ = TRUE
 				ok
 			catch
@@ -469,7 +550,7 @@ class stzServiceRegistry from stzObject
 			done
 			if _bGone_
 				_aF_ + [ :invariant = "ephemeral-in-production", :severity = :error,
-				         :where = @cName + "/" + @aBound[_i_][1],
+				         :where = @cName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
 				         :message = "a LOCAL source that vanishes on restart (in-memory) " +
 				                    "is bound in a production phase" ]
 			ok
@@ -478,13 +559,13 @@ class stzServiceRegistry from stzObject
 
 	def _CheckLiveCredentials(poStore)
 		_aF_ = []
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][3] != :live
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :live
 				loop
 			ok
-			_svc_ = @aBound[_i_][1]
-			_sec_ = @aBound[_i_][4]
+			_svc_ = $aStzServiceRegistries[This._Slot()][3][_i_][1]
+			_sec_ = $aStzServiceRegistries[This._Slot()][3][_i_][4]
 			if _sec_ = ""
 				_aF_ + [ :invariant = "inline-credential", :severity = :warn,
 				         :where = @cName + "/" + _svc_,
@@ -511,9 +592,9 @@ class stzServiceRegistry from stzObject
 		_i_ = This._BoundIndex(_s_)
 		_rec_ = [ _s_, poImpl, pcPosture, "" + pcSecret ]
 		if _i_ > 0
-			@aBound[_i_] = _rec_        # re-binding replaces: dev -> live at deploy
+			$aStzServiceRegistries[This._Slot()][3][_i_] = _rec_        # re-binding replaces: dev -> live at deploy
 		else
-			@aBound + _rec_
+			$aStzServiceRegistries[This._Slot()][3] + _rec_
 		ok
 		return This
 
@@ -540,9 +621,9 @@ class stzServiceRegistry from stzObject
 
 	def _BoundIndex(pcService)
 		_s_ = This._Key(pcService)
-		_n_ = len(@aBound)
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if @aBound[_i_][1] = _s_
+			if $aStzServiceRegistries[This._Slot()][3][_i_][1] = _s_
 				return _i_
 			ok
 		next

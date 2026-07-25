@@ -24,6 +24,11 @@
 #       central store, so its reveals are NOT centrally audited.
 #   no-central-store (WARN) -- the project has secret-bearing sites but no store.
 #   refused-accesses (WARN) -- the store logged refused reveals; review for misuse.
+#   sandbox-in-production (ERROR) and its siblings -- surfaced from the project's
+#       stzServiceRegistry (SetServices), so the ONE security gate also covers the
+#       external-dependency surface: no fake payment gateway, no fake mail sink and
+#       no in-memory store may ship. The registry OWNS that logic; this class does
+#       not re-implement it (two copies of a rule is how they drift apart).
 
   #=============#
  #  FUNCTIONS  #
@@ -33,7 +38,9 @@ func StzSecurityPostureQ(pcName)
 	return new stzSecurityPosture(pcName)
 
 func StzSecurityInvariantNames()
-	return [ "no-sandboxed-effectful", "inline-key", "no-central-store", "refused-accesses" ]
+	return [ "no-sandboxed-effectful", "inline-key", "no-central-store", "refused-accesses",
+	         "sandbox-in-production", "ephemeral-in-production", "live-without-secret",
+	         "unbound-service", "inline-credential" ]
 
 # CI-style top-level entry points (parity with StzCheckAgentGraph):
 func StzCheckSecurityPosture(poPosture)
@@ -53,6 +60,7 @@ class stzSecurityPosture from stzObject
 	@oStore = NULL     # the project's central stzSecretStore (or NULL)
 	@aSites = []       # deployment sites to audit
 	@aActors = []      # actors to audit
+	@oReg = NULL       # the project's stzServiceRegistry (or NULL)
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -70,6 +78,19 @@ class stzSecurityPosture from stzObject
 	def AddActor(poActor)
 		@aActors + poActor
 		return This
+
+	# Attach the external-dependency surface. Its findings already carry this
+	# class's exact shape, so they join the report verbatim -- see
+	# _CheckServiceBindings.
+	def SetServices(poReg)
+		@oReg = poReg
+		return This
+
+	def ServicesQ()
+		return @oReg
+
+	def HasServices()
+		return isObject(@oReg)
 
 	  #-- run the invariants ----------------------------------------------
 
@@ -94,6 +115,11 @@ class stzSecurityPosture from stzObject
 			_aF_ + _a1_[_i_]
 		next
 		_a1_ = This._CheckRefusedAccesses()
+		_n_ = len(_a1_)
+		for _i_ = 1 to _n_
+			_aF_ + _a1_[_i_]
+		next
+		_a1_ = This._CheckServiceBindings()
 		_n_ = len(_a1_)
 		for _i_ = 1 to _n_
 			_aF_ + _a1_[_i_]
@@ -199,6 +225,35 @@ class stzSecurityPosture from stzObject
 				:message = "the central store logged " + _nR_ + " refused reveal(s) -- " +
 				"an actor tried to read a secret it may not; review the access log" ]
 		ok
+		return _aF_
+
+	# THE EXTERNAL SURFACE (service-virtualization phase 7). A project that ships a
+	# fake payment gateway or an in-memory database has a SECURITY problem, not
+	# merely an incomplete one -- so the same gate that refuses a sandboxed actor
+	# holding 'effectful' refuses a sandbox bound in production.
+	#
+	# DELEGATED, NOT RE-IMPLEMENTED. stzServiceRegistry owns these invariants and
+	# already emits [ :invariant, :severity, :where, :message ] -- this class's
+	# exact shape -- so they pass straight through under their own names. Two
+	# copies of one rule is how the copies drift apart.
+	#
+	# The registry reports sandbox-in-production only when its phase IS production,
+	# which is correct for it and wrong here: a posture audit should say so while
+	# there is still time to act. So the check asks in the production frame and puts
+	# the phase back -- the same rehearse-then-restore move stzDelivery uses.
+	def _CheckServiceBindings()
+		_aF_ = []
+		if NOT This.HasServices()
+			return _aF_
+		ok
+		_cWas_ = "" + @oReg.Phase()
+		@oReg.SetPhaseQ(:production)
+		_aR_ = @oReg.FindingsVia(@oStore)
+		@oReg.SetPhaseQ(_cWas_)
+		_n_ = len(_aR_)
+		for _i_ = 1 to _n_
+			_aF_ + _aR_[_i_]
+		next
 		return _aF_
 
 
