@@ -1,7 +1,17 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **plan only — nothing here is built.** Written 2026-07-23 in answer to
+> Status: **partly built — three doubles ship, the spine does not.** `base/service/`
+> now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
+> capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
+> provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
+> validate the pattern: each holds genuine keys, produces genuine artefacts, and
+> can produce deliberately BAD ones so the negative path is testable. Still
+> unbuilt: the **`stzServiceRegistry`** spine (phase 1), the payments sandbox, the
+> generic HTTP scripted/replay sandbox, the blob store, the LLM port promotion, and
+> the governance integration — including the "no sandbox may ship to production"
+> constraint rule, which is the plane's strongest justification.
+> Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
 > his program completely without complex subscriptions or API fees and yet get a
