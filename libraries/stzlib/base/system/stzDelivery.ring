@@ -185,6 +185,8 @@ class stzDelivery from stzObject
 	@aBundles = []     # [ partName, emulatorOrDir ] -- emulator bundle to ship in production
 	@oApp = NULL       # the solution's app MODEL (stzAppTopology) -- what each part DOES
 	@oLog = NULL       # a structured stzLog of the delivery's high-level phases
+	@oReg = NULL       # the EXTERNAL-DEPENDENCY surface (stzServiceRegistry)
+	@aSvcNeeds = []    # [ partName, [serviceNames] ] -- which part needs which service
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -267,6 +269,214 @@ class stzDelivery from stzObject
 		ok
 		@aParts[_i_][4] = _caps_
 		return This
+
+	  #-- the EXTERNAL-DEPENDENCY surface (service-virtualization phase 7) ---
+
+	# Attach the solution's stzServiceRegistry, so the delivery plan can rehearse
+	# every external dependency -- its current binding and the production
+	# credential it will need -- BEFORE anything runs, and so Deploy(:Production)
+	# can REFUSE a surface that still resolves to a fake.
+	#
+	# ONE CAVEAT, and it is Ring's, not this method's: an attribute store COPIES
+	# (probed -- bind a service on your own handle afterwards and this delivery
+	# will not see it). So either finish configuring the registry BEFORE attaching
+	# it, or make later changes THROUGH the accessor, which reaches the stored
+	# object: oDelivery.ServicesQ().BindLiveQ(:payments, oImpl, "stripe_key").
+	def UseServices(poReg)
+		This.UseServicesQ(poReg)
+
+	def UseServicesQ(poReg)
+		@oReg = poReg
+		return This
+
+	def ServicesQ()
+		return @oReg
+
+	def HasServices()
+		return isObject(@oReg)
+
+	# Which external services a part's code actually calls. The parallel of
+	# NeedsIn (Softanza capabilities); this is the OUTSIDE world.
+	def NeedsServiceIn(pcPart, paServices)
+		return This.NeedsServiceInQ(pcPart, paServices)
+
+	def NeedsServiceInQ(pcPart, paServices)
+		if This._PartIndex(pcPart) = 0
+			return This
+		ok
+		_p_ = StzLower("" + pcPart)
+		_svcs_ = []
+		if isList(paServices)
+			_n_ = len(paServices)
+			for _k_ = 1 to _n_
+				_svcs_ + StzLower("" + paServices[_k_])
+			next
+		but isString(paServices)
+			_svcs_ + StzLower("" + paServices)
+		ok
+		_n_ = len(@aSvcNeeds)
+		for _i_ = 1 to _n_
+			if @aSvcNeeds[_i_][1] = _p_
+				@aSvcNeeds[_i_][2] = _svcs_
+				return This
+			ok
+		next
+		@aSvcNeeds + [ _p_, _svcs_ ]
+		return This
+
+	def ServiceNeedsIn(pcPart)
+		_p_ = StzLower("" + pcPart)
+		_n_ = len(@aSvcNeeds)
+		for _i_ = 1 to _n_
+			if @aSvcNeeds[_i_][1] = _p_
+				return @aSvcNeeds[_i_][2]
+			ok
+		next
+		return []
+
+	def ServiceNeeds()
+		return @aSvcNeeds
+
+	# The rehearsed surface, one record per service:
+	# [ :service, :posture, :secret, :bound, :parts ]
+	# This is the answer to "what does shipping this actually require of me?",
+	# available before a single byte is built.
+	def ExternalDependencies()
+		_aOut_ = []
+		if NOT This.HasServices()
+			return _aOut_
+		ok
+		_aNames_ = @oReg.DeclaredServices()
+		_aB_ = @oReg.BoundServices()
+		_nb_ = len(_aB_)
+		for _i_ = 1 to _nb_
+			if StzFindFirst(_aB_[_i_], _aNames_) = 0
+				_aNames_ + _aB_[_i_]
+			ok
+		next
+		_n_ = len(_aNames_)
+		for _i_ = 1 to _n_
+			_s_ = "" + _aNames_[_i_]
+			_aOut_ + [ :service = _s_,
+			           :posture = "" + @oReg.PostureOf(_s_),
+			           :secret = "" + @oReg.SecretNameOf(_s_),
+			           :bound = @oReg.Has(_s_),
+			           :parts = This._PartsNeeding(_s_) ]
+		next
+		return _aOut_
+
+	def NumberOfExternalDependencies()
+		return len( This.ExternalDependencies() )
+
+	# The credentials a production deploy will require -- names only, never values.
+	def ProductionCredentials()
+		_aOut_ = []
+		_a_ = This.ExternalDependencies()
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			if _a_[_i_][:secret] != ""
+				_aOut_ + _a_[_i_][:secret]
+			ok
+		next
+		return _aOut_
+
+	# REHEARSE THE GATE. The registry only reports sandbox-in-production once its
+	# phase IS production, so a pre-flight check asks the question in that frame
+	# and then puts the phase back -- you learn what shipping would say without
+	# declaring that you are shipping. (The plane's own habit: rehearse, then
+	# commit.)
+	def ServiceFindingsForProduction()
+		if NOT This.HasServices()
+			return []
+		ok
+		_cWas_ = "" + @oReg.Phase()
+		@oReg.SetPhaseQ(:production)
+		_aF_ = @oReg.Findings()
+		@oReg.SetPhaseQ(_cWas_)
+		return _aF_
+
+	def ServicesAreProductionReady()
+		_aF_ = This.ServiceFindingsForProduction()
+		_n_ = len(_aF_)
+		for _i_ = 1 to _n_
+			if _aF_[_i_][:severity] = :error
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	def WhyServicesNotReady()
+		_aF_ = This.ServiceFindingsForProduction()
+		_n_ = len(_aF_)
+		for _i_ = 1 to _n_
+			if _aF_[_i_][:severity] = :error
+				return _aF_[_i_][:invariant] + ": " + _aF_[_i_][:message]
+			ok
+		next
+		return ""
+
+	def _PartsNeeding(pcService)
+		_s_ = StzLower("" + pcService)
+		_aOut_ = []
+		_n_ = len(@aSvcNeeds)
+		for _i_ = 1 to _n_
+			if StzFindFirst(_s_, @aSvcNeeds[_i_][2]) > 0
+				_aOut_ + @aSvcNeeds[_i_][1]
+			ok
+		next
+		return _aOut_
+
+	# Project parts AND services into one graph, so a rule can ask the question
+	# neither side can answer alone: does a part that is BOUND TO A SITE (i.e.
+	# destined for production) depend on a service that is still a fake?
+	# See stzServiceRuleSet.
+	def AsRuleGraph()
+		_oG_ = new stzGraph("delivery-rules")
+		if This.HasServices()
+			_oG_ = @oReg.AsRuleGraph()
+		ok
+		_n_ = len(@aParts)
+		for _i_ = 1 to _n_
+			_id_ = "part:" + @aParts[_i_][1]
+			if NOT _oG_.NodeExists(_id_)
+				_oG_.AddNode(_id_)
+			ok
+			_oG_.SetNodeProperty(_id_, "kind", "part")
+			_oG_.SetNodeProperty(_id_, "part", @aParts[_i_][1])
+			_oG_.SetNodeProperty(_id_, "partkind", @aParts[_i_][2])
+			_oG_.SetNodeProperty(_id_, "target", @aParts[_i_][3])
+			# a part with a SITE binding is destined for a real host
+			_dest_ = "unbound"
+			if This._BindingIndex(@aParts[_i_][1]) > 0
+				_dest_ = "production"
+			ok
+			_oG_.SetNodeProperty(_id_, "destination", _dest_)
+			_aS_ = This.ServiceNeedsIn(@aParts[_i_][1])
+			_m_ = len(_aS_)
+			for _k_ = 1 to _m_
+				_sid_ = "service:" + _aS_[_k_]
+				if NOT _oG_.NodeExists(_sid_)
+					_oG_.AddNode(_sid_)
+					_oG_.SetNodeProperty(_sid_, "kind", "service")
+					_oG_.SetNodeProperty(_sid_, "service", _aS_[_k_])
+					_oG_.SetNodeProperty(_sid_, "posture", "undeclared")
+				ok
+				if NOT _oG_.EdgeExists(_id_, _sid_)
+					_oG_.AddEdgeXTT(_id_, _sid_, "depends-on", [ :type = "service" ])
+				ok
+			next
+		next
+		return _oG_
+
+	def _BindingIndex(pcPart)
+		_p_ = StzLower("" + pcPart)
+		_n_ = len(@aBindings)
+		for _i_ = 1 to _n_
+			if StzLower("" + @aBindings[_i_][1]) = _p_
+				return _i_
+			ok
+		next
+		return 0
 
 	# a first inference: scan the app source for capability markers -> keys.
 	# Upgradeable to the stzCodeGraph call-edge analysis (lexical starting point).
@@ -386,6 +596,8 @@ class stzDelivery from stzObject
 			next
 			_oPlan_.AddPart(_name_, _kind_, _tname_, _class_, _decisions_)
 		next
+		# the OUTSIDE world, rehearsed alongside the capabilities (phase 7)
+		_oPlan_.SetExternalDependenciesQ( This.ExternalDependencies() )
 		return _oPlan_
 
 	# Deploy() covers BOTH phases (Scope-Oriented: the deploy scope is the frame).
@@ -415,6 +627,30 @@ class stzDelivery from stzObject
 	def _DeployProduction()
 		@oLog.Record(:info, "deploy(:production) started", [ [ :actor, This._ActorName() ], [ :bindings, len(@aBindings) ] ])
 		_oDep_ = new stzDeployment(This)
+		# THE SERVICE GATE (phase 7). Crossing into production is exactly the
+		# moment the external surface must be real, so ask here rather than
+		# trusting anyone to have remembered. An unsound surface is refused even
+		# when the actor is fully entitled: this is not an authority question.
+		_bSvcOk_ = TRUE
+		if This.HasServices()
+			@oReg.SetPhaseQ(:production)
+			_aSvcF_ = @oReg.Findings()
+			if NOT @oReg.IsSound()
+				_bSvcOk_ = FALSE
+				@oLog.Record(:error, "REFUSED -- the external surface is not production-ready",
+				             [ [ :findings, len(_aSvcF_) ] ])
+				_n_ = len(_aSvcF_)
+				for _i_ = 1 to _n_
+					if _aSvcF_[_i_][:severity] = :error
+						@oLog.Record(:error, "" + _aSvcF_[_i_][:invariant] + " @ " +
+						             _aSvcF_[_i_][:where], [ [ :why, _aSvcF_[_i_][:message] ] ])
+					ok
+				next
+			else
+				@oLog.Record(:info, "external surface is production-ready",
+				             [ [ :services, @oReg.NumberOfBound() ] ])
+			ok
+		ok
 		if @oActor != NULL
 			_oDep_.SetActor(@oActor)
 		ok
@@ -430,6 +666,10 @@ class stzDelivery from stzObject
 				_oDep_.AttachBundle(@aBundles[_i_][1], @aBundles[_i_][2])  # the whole bundle
 			ok
 		next
+		if NOT _bSvcOk_
+			@oLog.Record(:warn, "returning a rehearsal -- flip the sandboxes to real bindings first", [])
+			return _oDep_
+		ok
 		if _oDep_.MayCommit()
 			@oLog.Record(:info, "governance permits commit -- executing the plan", [])
 			_oDep_.Run()   # execute the ordered plan (store -> launch -> verify), transactional
@@ -458,6 +698,7 @@ class stzBuildPlan from stzObject
 
 	@cName = ""
 	@aParts = []   # [ name, kind, tname, class, [ [key, display, vector, reason, kb], ... ] ]
+	@aExtDeps = [] # [ [ :service, :posture, :secret, :bound, :parts ], ... ] (phase 7)
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -468,6 +709,44 @@ class stzBuildPlan from stzObject
 	def AddPart(pcName, pcKind, pcTName, pcClass, paDecisions)
 		@aParts + [ pcName, pcKind, pcTName, pcClass, paDecisions ]
 		return This
+
+	  #-- the external surface, rehearsed with the capabilities (phase 7) ----
+
+	def SetExternalDependencies(paDeps)
+		This.SetExternalDependenciesQ(paDeps)
+
+	def SetExternalDependenciesQ(paDeps)
+		@aExtDeps = paDeps
+		return This
+
+	def ExternalDependencies()
+		return @aExtDeps
+
+	def NumberOfExternalDependencies()
+		return len(@aExtDeps)
+
+	# the credential NAMES a production deploy will require -- never values
+	def ProductionCredentials()
+		_aOut_ = []
+		_n_ = len(@aExtDeps)
+		for _i_ = 1 to _n_
+			if ("" + @aExtDeps[_i_][:secret]) != ""
+				_aOut_ + @aExtDeps[_i_][:secret]
+			ok
+		next
+		return _aOut_
+
+	# the dependencies that are still fakes -- i.e. what stands between this plan
+	# and a production deploy
+	def SandboxedDependencies()
+		_aOut_ = []
+		_n_ = len(@aExtDeps)
+		for _i_ = 1 to _n_
+			if ("" + @aExtDeps[_i_][:posture]) = "sandbox"
+				_aOut_ + @aExtDeps[_i_][:service]
+			ok
+		next
+		return _aOut_
 
 	def NumberOfParts()
 		return len(@aParts)
@@ -627,6 +906,43 @@ class stzBuildPlan from stzObject
 		next
 		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
 		_c_ += "target " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
+
+		# THE OUTSIDE WORLD (phase 7): the same rehearsal, for dependencies you do
+		# not own. Read before building, not after deploying.
+		_nd_ = len(@aExtDeps)
+		if _nd_ > 0
+			_c_ += nl + "  External dependencies (" + _nd_ + "):" + nl
+			for _i_ = 1 to _nd_
+				_d_ = @aExtDeps[_i_]
+				_c_ += "     " + StzPadRight("" + _d_[:service], 14) +
+				       StzPadRight("" + _d_[:posture], 10)
+				if ("" + _d_[:secret]) != ""
+					_c_ += "needs secret '" + _d_[:secret] + "'"
+				but NOT _d_[:bound]
+					_c_ += "NOT BOUND"
+				but ("" + _d_[:posture]) = "sandbox"
+					_c_ += "a FAKE -- must be flipped before production"
+				else
+					_c_ += "no credential required"
+				ok
+				if len(_d_[:parts]) > 0
+					_c_ += "   <- " + @@(_d_[:parts])
+				ok
+				_c_ += nl
+			next
+			_aSb_ = This.SandboxedDependencies()
+			_aCr_ = This.ProductionCredentials()
+			if len(_aSb_) > 0
+				_c_ += "     => " + len(_aSb_) + " still a fake: " + @@(_aSb_) +
+				       " -- Deploy(:Production) will REFUSE until these are real." + nl
+			else
+				_c_ += "     => nothing fake remains." + nl
+			ok
+			if len(_aCr_) > 0
+				_c_ += "     => production will require these credentials: " + @@(_aCr_) + nl
+			ok
+		ok
+
 		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
 		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
 

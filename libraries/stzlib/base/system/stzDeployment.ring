@@ -643,6 +643,8 @@ class stzDeployment from stzObject
 	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
 	@aArtifacts = []  # [ partName, relName, filePath ] -- the REAL build outputs to ship
 	@oLog = NULL      # a structured stzLog of what Run() actually did
+	@bRan = FALSE     # did Run() actually execute? (a refused deploy never runs)
+	@bCommitted = FALSE  # ...and did it COMMIT, or only rehearse?
 
 	def init(poDelivery)
 		@oDelivery = poDelivery
@@ -974,7 +976,18 @@ class stzDeployment from stzObject
 	# GATE (the site must be launched). On any failure, the completed store/launch steps
 	# are ROLLED BACK in reverse -- the deployment is transactional. Returns
 	# [ committed(0/1), [ [stepName, outcome], ... ] ]. No effectful actor -> rehearse.
+	# Did Run() execute at all? A deployment REFUSED upstream -- by the service
+	# gate in stzDelivery, say -- comes back untouched, and "nothing happened" is
+	# then assertable without reading the log.
+	def WasRun()
+		return @bRan
+
+	# Did it commit, or only rehearse? Rehearsed steps touch nothing.
+	def WasCommitted()
+		return @bCommitted
+
 	def Run()
+		@bRan = TRUE
 		_bMay_ = This.MayCommit()
 		@oLog.Record(:info, "deployment run started", [ [ :actor, This._ActorName() ], [ :commit, _bMay_ ] ])
 		_steps_ = This.Steps()
@@ -1019,6 +1032,7 @@ class stzDeployment from stzObject
 		if _failed_ or NOT _bMay_
 			_flag_ = 0
 		ok
+		@bCommitted = (_flag_ = 1)
 		if _failed_
 			@oLog.Record(:error, "deployment run FAILED -- rolled back", [ [ :steps, _n_ ] ])
 		but NOT _bMay_

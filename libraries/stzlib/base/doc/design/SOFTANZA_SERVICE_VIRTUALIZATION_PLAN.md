@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phases 1–6 BUILT — the spine plus six ports (database, HTTP, payments, generative, object store, SMS) and three doubles ship. Only the delivery integration (phase 7) remains.** `base/service/`
+> Status: **COMPLETE — all seven phases BUILT. The spine, six ports (database, HTTP, payments, generative, object store, SMS), three doubles, and the delivery/governance integration ship.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -114,8 +114,35 @@
 > validated as E.164, and as in payments **an outage is `:refused`, distinct from a
 > `:rejected`** number: one means retry, the other means fix the data. Guard
 > `sms_port_narrated` (53).
-> Still unbuilt: surfacing the registry inside `stzDelivery`/`stzDeployment`
-> (phase 7).
+> **Phase 7 is built, so the plane is COMPLETE.** The registry stops being something
+> you remember to check and becomes part of the delivery, in three joins:
+> **`stzDelivery`** gains `UseServices`, `NeedsServiceIn(part, services)` and
+> `ExternalDependencies()`, so `Plan()`/`Explain()` rehearse every external
+> dependency, its binding and *the credential production will demand — by name,
+> never by value* — before a byte is built; and **`Deploy(:Production)` now REFUSES
+> a surface that still resolves to a fake**, logging every reason, *even for a fully
+> entitled human actor* — shipping a fake payment gateway is not an authority
+> question. `ServicesAreProductionReady()`/`WhyServicesNotReady()` ask that same
+> question without declaring production (the phase is restored afterwards —
+> rehearse, then commit). **`stzSecurityPosture`** gains the external surface via
+> `SetServices`, so one gate covers store, sites, actors *and* dependencies —
+> **delegated to the registry, not re-implemented**, since two copies of a rule is
+> how they drift apart. And **`stzServiceRuleSet`** (`base/service/stzServiceRule.ring`)
+> deliberately does NOT restate the registry's five invariants as graph rules: they
+> already carry the report's shape, so `oReport.IngestLegacy(oReg.Findings(),
+> "services")` is the whole CI join. What the graph adds is the question neither side
+> can ask — **which PART of the solution depends on a fake** — answered by joining
+> `stzDelivery.AsRuleGraph()`'s part nodes to the registry's service nodes:
+> `production-part-uses-sandbox`, `production-part-uses-ephemeral` (both ERROR) and
+> `part-uses-undeclared-service` (WARN). **These read a part's DESTINATION rather
+> than the registry's phase, so they answer while the phase is still
+> `:development`** — "if I shipped this today, would it be fake?"
+> **One defect found and fixed in the process, and it mattered:** the registry kept
+> its state in attributes, so `UseServices` stored a SNAPSHOT (Ring copies on
+> attribute store). Bind a fake afterwards on your own handle and the delivery could
+> not see it — **the gate would have passed an unsound surface, failing OPEN.** The
+> registry now keeps its state in a table keyed by id, the same cure its own
+> sandboxes use; every copy is the registry. Guard `service_delivery_narrated` (53).
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
@@ -216,7 +243,7 @@ resolves them to live adapters, and — reusing the existing actor gate — a
 production deploy **requires** each live service's credential to be present in the
 secret store and an effectful actor to commit. No new deploy machinery.
 
-## 4. The categories (the taxonomy, honest about what's done)
+## 4. The categories (all shipped except the cloud control plane, which was already partly done)
 
 | Category | Sandbox | Live | Status |
 |---|---|---|---|
@@ -282,6 +309,12 @@ Each ships something runnable and leaves the suite green.
    `stzDelivery` plan (every external dependency, its dev/prod binding, and the
    production credentials it will require, rehearsed *before* anything runs); the
    constraint rules land; `stzSecurityPosture` gains "no-sandbox-in-production."
+   *(BUILT — and it found the plane's own worst defect: the registry stored its
+   state in attributes, so attaching it to a delivery took a SNAPSHOT, and the
+   production gate would have passed a surface that went fake afterwards. A gate
+   that fails open is worse than no gate. Also learned: don't restate a rule as a
+   graph rule when its findings already fit the report — spend the graph on the
+   question nothing else can ask, which here is "which PART depends on a fake?")*
 
 ## 7. The differential connection
 

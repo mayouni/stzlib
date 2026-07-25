@@ -92,7 +92,14 @@ chk("...a posture with an error is UNSOUND", NOT oP2.IsSound() and oP2.NumberOf(
 ? "-- Scene 7: the CI-style entry points (parity with StzCheckAgentGraph) --"
 chk("StzCheckSecurityPosture returns the findings", len(StzCheckSecurityPosture(oP2)) = 1)
 chk("StzSecurityPostureIsSound gives the verdict", NOT StzSecurityPostureIsSound(oP2) and StzSecurityPostureIsSound(oClean))
-chk("the invariant names are enumerable", StzFindFirst("no-sandboxed-effectful", StzSecurityInvariantNames()) > 0 and len(StzSecurityInvariantNames()) = 4)
+chk("the invariant names are enumerable", StzFindFirst("no-sandboxed-effectful", StzSecurityInvariantNames()) > 0 and len(StzSecurityInvariantNames()) >= 4)
+# The four original invariants audit the project's own surface (store, sites,
+# actors). Service-virtualization phase 7 added the EXTERNAL surface to the same
+# gate, so the list is now longer -- membership is the claim worth asserting, not
+# a count that has to be edited every time the doctrine grows.
+chk("...and now cover the external dependency surface too",
+    StzFindFirst("sandbox-in-production", StzSecurityInvariantNames()) > 0 and
+    StzFindFirst("ephemeral-in-production", StzSecurityInvariantNames()) > 0)
 
 ? ""
 ? "=========================================="
