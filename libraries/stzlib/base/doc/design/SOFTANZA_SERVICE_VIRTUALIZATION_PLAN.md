@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phases 1–5 BUILT — the spine, the database exemplar, the generic HTTP port, the payments gateway, the generative port, and three doubles ship.** `base/service/`
+> Status: **phases 1–6 BUILT — the spine plus six ports (database, HTTP, payments, generative, object store, SMS) and three doubles ship. Only the delivery integration (phase 7) remains.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -74,8 +74,48 @@
 > legitimate choice for a bounded factual assistant rather than a fake awaiting
 > replacement. The frontier-API adapter is infra-gated (key + network); the registry
 > refuses to let the sandbox ship in its place. Guard `llm_port_narrated` (37).
-> Still unbuilt: the blob store and surfacing the registry inside
-> `stzDelivery`/`stzDeployment` (phases 6–7).
+> **Phase 6 is built too**, in two halves. **`base/service/stzBlobPort.ring`** names
+> the object-store contract (`Save(key, bytes)` / `Fetch(key)` / `Exists(key)` /
+> `Remove(key)` — S3 spells the first two `PutObject`/`GetObject`, but `put` and
+> `get` are both Ring *statements*, so neither can be a method) and ships
+> `stzFileBlobStore` and `stzMemoryBlobStore`. This is the category where a sandbox
+> barely applies — a directory genuinely stores bytes, so **both** implementations
+> are local-real and there is no fidelity to fake. What earns the file its place is
+> that **an object key is not a file path**, and each claim was *measured* before the
+> design was chosen: `Photo.JPG` and `photo.jpg` are two S3 objects but **one file**
+> on this filesystem (silent data loss); a key of `../secrets.txt` **wrote outside
+> the store directory** (a traversal hole driven by whatever a user can name);
+> `photos/2026/a.jpg`, the commonest key shape there is, **fails outright** as a path
+> unless the directories exist; then Windows reserved device names, trailing dots and
+> spaces. Guarding those one by one is a losing game, so **the filename is
+> `sha256(key)`** with the real key in a `.key` sidecar — traversal becomes
+> *unrepresentable*, distinct keys stay distinct on any filesystem, and slashes are
+> just characters again (the same move as the XML parser refusing DOCTYPE). Verified
+> that Ring strings, Ring lists and the engine's file helpers each carry all 256 byte
+> values intact, so images and zips need no base64 detour. **And the
+> `ephemeral-in-production` invariant that sqlite's `":memory:"` forced in phase 2
+> caught `stzMemoryBlobStore` with no new rule written** — the registry asks the
+> object (`IsEphemeral()`) rather than knowing about databases, so a category added
+> four phases later is covered by construction. Honest limit: a directory gives you
+> storage, **not a CDN** — no presigned URLs, no public endpoint, no replication, no
+> versioning; if the app hands a browser a URL, that part still needs the real
+> service. Guard `blob_port_narrated` (53).
+> **`base/service/stzSmsPort.ring`** completes the notification category the mail
+> sink began (`Send(number, text)`). The sink itself is unremarkable; what earns it
+> its place is that **SMS is billed per segment and the segment count is not the
+> character count** — it depends on the alphabet. GSM-7 packs 160 per message (153
+> per part once split); **one character outside that alphabet re-encodes the whole
+> message to UCS-2 at 70** (67 per part). So 100 characters plus **one emoji** goes
+> from one segment to two, 71 Arabic characters already cost two, and the nine
+> GSM *extension* characters (`^ { } \ [ ~ ] |` and `€`) cost **two septets each**, so
+> 100 curly braces bill as 200. `StzSmsSegments(text)` is exposed as a plain function
+> so a template's cost is checkable without a sandbox, and `TotalSegments()` makes
+> the bill an assertion — exactly as the LLM port does for tokens. Numbers are
+> validated as E.164, and as in payments **an outage is `:refused`, distinct from a
+> `:rejected`** number: one means retry, the other means fix the data. Guard
+> `sms_port_narrated` (53).
+> Still unbuilt: surfacing the registry inside `stzDelivery`/`stzDeployment`
+> (phase 7).
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
@@ -184,8 +224,8 @@ secret store and an effectful actor to commit. No new deploy machinery.
 | **Generative / LLM** | replay cache + `stzDLM` + local GGUF | a frontier-API adapter | **BUILT** — `stzLlmPort` (`stzLlmSandbox` replay+scripted with cost accounting; `stzDlmSource` local-real) |
 | **HTTP third-party API** (the general case) | scripted + replay | pass-through to the real URL | new — subsumes many SaaS APIs at once |
 | **Payments** | deterministic gateway + an assertable ledger | Stripe/PayPal adapter | new — the canonical "sandbox," high-value demo |
-| **Blob / object store** | local filesystem | S3/GCS adapter | new — small |
-| **Mail / SMS / notifications** | a capture *sink* (inspect what would have been sent) | SendGrid/Twilio adapter | new — small |
+| **Blob / object store** | local filesystem | S3/GCS adapter | **BUILT** — `stzBlobPort` (`stzFileBlobStore` + `stzMemoryBlobStore`, both local-real; key is hashed, never a path) |
+| **Mail / SMS / notifications** | a capture *sink* (inspect what would have been sent) | SendGrid/Twilio adapter | **BUILT** — `stzMailPort` (auth P4) + `stzSmsPort` (counts billable SEGMENTS) |
 | **Message queue / pub-sub** | the engine's own `stzEventBus` / reactive loop | SQS/Kafka adapter | new — the local primitive already exists |
 | **Cloud control-plane** (provision a VM/queue) | rehearsed commands | real `ssh`/cloud CLI | **partly** — `stzDeployment.SetProvider` already rehearses |
 
@@ -233,7 +273,11 @@ Each ships something runnable and leaves the suite green.
    accounting turned out to be the load-bearing feature: a fee-free plane should
    let you ASSERT the fee.)*
 6. **Blob store + mail/SMS sink** — two small, high-value local-real / capture
-   sandboxes.
+   sandboxes. *(BUILT — and neither was as small as billed. The blob store had to
+   confront the fact that an object key is not a file path (case-collapse, path
+   traversal, slashes, Windows device names), which the hashed-filename design
+   closes by construction; the SMS sink had to confront per-segment billing, where
+   one emoji doubles the cost. Both traps were MEASURED first.)*
 7. **Delivery & governance integration** — the registry surfaces in the
    `stzDelivery` plan (every external dependency, its dev/prod binding, and the
    production credentials it will require, rehearsed *before* anything runs); the
