@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASE 0 BUILT (77a902cd4); phases 1-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASE 0 BUILT (77a902cd4); PHASE 1 SLICE 1 BUILT (dbcd48a06); phases 2-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -542,6 +542,45 @@ integers into `stzNumber`; add rationals; add a big-int-backed decimal sufficien
 for money; publish the promotion ladder; add `IsExact()`/`Why()`/`Same()`. Fix float
 display through Zig's shortest-round-trip formatter. *(This is the old
 `SOFTANZA_NUMBER_ENGINE_PLAN` phases 1–2 and 4, absorbed.)*
+
+> **SLICE 1 DONE (dbcd48a06), guard `numeric_exactness_narrated` (39).** And it was
+> far less invasive than this plan assumed, because of one discovery: **`stzNumber`
+> stores its value as a STRING, not a Ring number.** A 32-digit integer was already
+> held faithfully; the digits were never the problem. Every operation funnels
+> through ONE chokepoint (`pvtCalculate`) whose first act was
+> `This.NumericValue()` — an f64. So the fix is a routing change at one place.
+>
+> Two defects were there, both silent and both worse than phase 0's. First, the
+> result's **decimal places came from the receiver alone** for every operation, so
+> `0.1 * 0.1` was `0.0`, `19.99 * 0.15` was `3.00`, `1 + 0.001` was `1.00` and
+> `1 / 8` was `0.13` — *every decimal multiplication in the library lost
+> precision*. Second, integers past 2^53 were flattened. Now `+ - * % ^ /` on
+> decimal operands are computed on the **scaled integers** through the engine, exact
+> by construction: `19.99 * 0.15` becomes `1999 * 15 = 29985` with the point four
+> from the right. Places are per-operation (max for `+ - %`, the **sum** for `*`),
+> and division asks the engine whether scaling by a power of ten divides evenly —
+> the smallest that does gives the shortest exact form, so `1/8` is `0.125` not
+> `0.125000`, while `1/3` reports itself approximate. Small integer arithmetic keeps
+> the f64 fast path, where it is exact anyway.
+>
+> The **exactness register** landed with it: `IsExact()`/`IsApproximate()`/`Why()`/
+> `Exactness()`, plus `Same()` for equality as numbers rather than as rendered text
+> (`"1.50".Same("1.5")` is TRUE; Ring's `=` says FALSE).
+>
+> **The blast radius was measured, not hoped.** `pvtCalculate` serves ~30 operations
+> and 70 of the 88 number tests use comment-based `#-->` expectations that nothing
+> checks, so a silent output change would have gone unseen. Capturing all 88 outputs
+> before and diffing after: 60 identical, and once timing lines are filtered only 4
+> differ — 2 random-number tests and 2 whose only change is a line number inside a
+> *pre-existing* R14 trace. **Zero behavioural change outside the intended fixes.**
+> That diff also caught a regression I had introduced: the first version applied the
+> new place rule to `sin`/`cos`/`log`/`sqrt` too, coarsening trigonometry from five
+> places to two. Those were never the defect, and the fix is now confined to
+> arithmetic.
+>
+> **Remaining in phase 1:** rationals, a decimal *type* (this slice makes decimal
+> arithmetic exact without introducing one), the published promotion ladder, and the
+> float display fix.
 
 **Phase 2 — numeric scope.** `StzWithPrecision` / `StzWithRounding` /
 `StzWithOverflow`, the stated defaults, and NaN/Inf raising by default. Retires
