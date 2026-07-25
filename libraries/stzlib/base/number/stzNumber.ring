@@ -112,6 +112,48 @@
  ///    FUNCTIONS   ///
 //////////////////////
 
+# ── THE REGIME, NAMED WHERE THE VALUE IS BORN ───────────────────────────
+#
+# Scope-Oriented Programming M3 puts the frame at the call site. For rounding that
+# meant the verb (RoundedToHalfEven). For the quantity itself it means the
+# CONSTRUCTOR: you say what kind of number this is once, where it enters the
+# program, and it carries that with it.
+#
+#   StzMoneyQ("19.99")        2 places, banker's rounding, always
+#   StzExactQ("1/3")          refuses to become approximate -- raises instead
+#   StzMeasuredQ("2.5", 3)    3 places, banker's -- approximate by nature
+#   StzNumberQ(2.5)           unchanged: the machine regime, today's behaviour
+#
+# The regime PROPAGATES: the receiver's regime governs the result, so a price
+# plus anything is still a price, rounded and stored as one.
+
+#@ aka  a price, an amount, currency, money
+func StzMoneyQ(pValue)
+	_o_ = new stzNumber(pValue)
+	_o_.SetRegime(:money, 2)
+	return _o_
+
+	func StzMoney(pValue)
+		return StzMoneyQ(pValue)
+
+#@ aka  must be exact, no approximation, refuse rounding
+func StzExactQ(pValue)
+	_o_ = new stzNumber(pValue)
+	_o_.SetRegime(:exact, 0)
+	return _o_
+
+	func StzExactNumber(pValue)
+		return StzExactQ(pValue)
+
+#@ aka  a measurement, significant places, approximate by nature
+func StzMeasuredQ(pValue, pnPlaces)
+	_o_ = new stzNumber(pValue)
+	_o_.SetRegime(:measured, pnPlaces)
+	return _o_
+
+	func StzMeasured(pValue, pnPlaces)
+		return StzMeasuredQ(pValue, pnPlaces)
+
 func StzNumberQ(_cNumber_)
 	return new stzNumber(_cNumber_)
 
@@ -1957,6 +1999,18 @@ func _StzIsListOfNumbersOrNumberStrings(paList)
 # reads back). PLAIN and never scientific: "1e-20" would defeat IntegerPart,
 # NumberOfDigits and the scaled-integer arithmetic, all of which expect digits.
 func _StzNumberContentWithoutLoss(pnNumber)
+	# NOT A NUMBER, AND SAID SO. Ring answers isNumber(inf) with TRUE and
+	# inf > 0 with TRUE, so an overflow travels silently -- and stzNumber used to
+	# store the literal text "inf" (or "-nan(ind)") and then report
+	# Representation() = :decimal, which is a lie every later operation inherits.
+	#
+	# The engine's plain-shortest renderer returns "" for both, which is the cheapest
+	# reliable test available here.
+	if StzEngineNumberPlainShortest(pnNumber) = "" and NOT (pnNumber = 0)
+		StzRaise("This value is not a finite number (an infinity or a NaN). " +
+		         "It usually means an earlier calculation overflowed or divided " +
+		         "zero by zero -- the place to fix it is there, not here.")
+	ok
 	_cPlain_ = "" + pnNumber
 	if (0 + _cPlain_) = pnNumber
 		return _cPlain_                 # nothing lost -- leave it alone
@@ -2501,6 +2555,13 @@ class stzNumber from stzObject
 	# it, and can say why not. :exact | :inexact
 	@cExactness = :exact
 	@cInexactReason = ""
+	# THE REGIME (numeric foundation phase 2): what KIND of quantity this is, and
+	# therefore how it must round and how exact it must be. Carried BY THE VALUE,
+	# because unlike a regex scope (per match) or a system scope (per object), a
+	# number's regime is a property of the quantity and travels through a whole
+	# calculation: a price stays a price.
+	@cRegime = :machine
+	@nRegimePlaces = 0
 	#--> Holds the number WITHOUT eventual
 	# underscores introduced by the user!
 
@@ -2856,6 +2917,12 @@ class stzNumber from stzObject
 		else
 			This._NNLGuardUpdate(pNumber)
 		ok
+
+		# THE REGIME IS APPLIED HERE, at the single point a value changes, so a
+		# money number is still money after arithmetic, after a round, after
+		# anything. (:machine, the default, returns the value untouched -- which is
+		# why nothing existing moves.)
+		pNumber = This._pvtApplyRegime(pNumber)
 
 		if isString(pNumber)
 
@@ -4362,6 +4429,54 @@ class stzNumber from stzObject
 
 	#@ aka  round to nearest, nearest whole number, round off
 	# Round the number to the nearest integer (mutating).
+	  #-- THE REGIME (numeric foundation phase 2) --------------------------
+
+	def SetRegime(pcRegime, pnPlaces)
+		@cRegime = pcRegime
+		@nRegimePlaces = pnPlaces
+		# apply it to the value it was born with
+		This.Update( This.Content() )
+		return This
+
+	#@ aka  what kind of quantity, which regime, money or exact
+	def Regime()
+		return @cRegime
+
+	def RegimePlaces()
+		return @nRegimePlaces
+
+	def IsMoney()
+		return @cRegime = :money
+
+	def IsMeasured()
+		return @cRegime = :measured
+
+	def IsExactRegime()
+		return @cRegime = :exact
+
+	# Bring a value into line with the regime. Money and measurements ROUND (always
+	# banker's -- the bias argument in the tie-rule guard applies to every total).
+	# An exact quantity does not round at all: if the value cannot be held exactly
+	# it RAISES, because silently approximating is the one thing that regime exists
+	# to prevent.
+	def _pvtApplyRegime(pcValue)
+		_c_ = "" + pcValue
+		if @cRegime = :money or @cRegime = :measured
+			if _StzIsPlainDecimal(_c_)
+				return _StzRoundDecimalString(_c_, @nRegimePlaces, :HalfEven)
+			ok
+			return _c_
+		ok
+		if @cRegime = :exact
+			if This.IsApproximate()
+				StzRaise("This number is EXACT by regime, and '" + _c_ + "' is not an " +
+				         "exact value: " + This.WhyNotExact() + ". Use a fraction (p/q) " +
+				         "for a quotient that does not terminate, or StzNumberQ for a " +
+				         "value that may be approximate.")
+			ok
+		ok
+		return _c_
+
 	  #-- ROUNDING, WITH THE MODE IN THE VERB (numeric foundation phase 2)--
 	  #
 	  # Scope-Oriented Programming, move M3: the frame goes in the VERB at the call
