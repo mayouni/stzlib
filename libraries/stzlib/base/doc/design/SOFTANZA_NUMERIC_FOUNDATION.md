@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0, 1 AND 2 COMPLETE** (77a902cd4; dbcd48a06, 6b67b814c, 6b18cefb6; fd84e53f2, 27bdf53d6, c26e30f67, 7263f2ce3). **Phases 3-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-2 COMPLETE; PHASE 3 STARTED** (the buffer itself, 13266934d). **Phases 4-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -685,6 +685,40 @@ sketch below.**
 **Phase 3 — residency.** `stzNumBuffer`, engine-is-truth with materialised views,
 `stzListOfNumbers` and `stzMatrix` moved onto it, `stzMatrix`'s dual representation
 resolved. **This is the phase that makes every later phase worth doing** — §2.5.
+
+> **SLICE 1 DONE (13266934d), guard `numeric_residency_narrated` (26): THE BUFFER.**
+> New engine module `numbuf.zig` — a contiguous, mutable f64 buffer the engine owns,
+> with 1-based access, fill/range written straight into resident memory, elementwise
+> ops **in place**, and the reductions. Every operation either mutates in place or
+> returns a scalar; **none marshals**. Hosted in the stats DLL because it asks
+> `stats.zig` for the variance convention and because a handle table is per-DLL.
+>
+> **§2.5's claim, re-measured on the same 200 000 numbers:** five reductions
+> marshalling each time = **0.19s**; one crossing to become resident plus the same
+> five reductions = **0.01s**, a **19×** difference. Twenty full elementwise passes
+> over the resident data cost essentially nothing.
+>
+> **The polarity rule, stated once:** the **engine copy is the truth** here.
+> `stzList` does the opposite — Ring owns the content and the engine handle is a
+> cache invalidated on write — which is right for a general list. `ToList()`
+> materialises a view when you want to look.
+>
+> Two decisions worth naming. The sum is **Neumaier-compensated**: add 1e16 then a
+> thousand 1.0s and a naive total answers exactly 1e16, because each 1.0 falls off
+> the mantissa. It costs one extra add per element and removes an error class that is
+> invisible until the data is big — precisely when a buffer is used. And variance
+> asks `stats.varianceDivisor` rather than choosing a divisor, since phase 0 exists
+> because two modules once chose their own.
+>
+> One burden named rather than hidden: **Ring has no destructors**, so a buffer holds
+> engine memory until `Free()`.
+>
+> *Build note:* `engine.zig`'s `test { _ = X; }` block is what COLLECTS a module's
+> tests — importing it is not enough. The count sat at 1637 until `numbuf` was added
+> there; it is now 1642.
+>
+> **Remaining in phase 3:** move `stzListOfNumbers` and `stzMatrix` onto the buffer,
+> and resolve `stzMatrix`'s dual `@aContent`/`@pEngineMatrix` with the same rule.
 
 **Phase 4 — kernels.** SIMD reductions and similarity; Neumaier/Welford stability;
 threaded reductions and matmul; then LU/QR/Cholesky/eigen/SVD; then special
