@@ -4404,10 +4404,27 @@ class stzNumber from stzObject
 	# Round the number to the given number of decimals (mutating).
 	#@ aka  decimals, precision, digits after the point
 	def RoundTo(_nRound_)
-		_cResult_ = This.RoundToXTQ(_nRound_).
-			       ToStzString().
-			       RemoveThisTrailingCharQ("0"). # XT ~> All 0s are removed
-			       RemovedFromEnd(".")
+		# Round to _nRound_ places, then TIDY: "12.4560" reads back as "12.456".
+		# That tidying is deliberate -- test 61_roundedto records RoundedTo(4) of
+		# 12.456 as "12.456" and not "12.4560".
+		#
+		# FIXED 2026-07-25. It was done with RemoveThisTrailingCharQ("0") over the
+		# WHOLE string, which is only safe while a decimal point survives. Once the
+		# rounding removed it, the strip ate the INTEGER's zeros:
+		#
+		#     RoundedTo(0) of  10.4  ->  "1"      (a 10x error)
+		#     RoundedTo(0) of 100.4  ->  "1"      (a 100x error)
+		#     RoundedTo(0) of 0.125  ->  ""       -> the constructor then RAISED
+		#
+		# Silently, and in the method every caller uses to round a number. The strip
+		# now applies to the FRACTIONAL part only -- the same rule and the same
+		# helper that RemoveZerosFromRight uses, for the same reason: a trailing zero
+		# left of the point is a place value, not noise.
+		_cRounded_ = "" + This.RoundToXTQ(_nRound_).ToStzString().Content()
+		_cResult_ = _StzStripTrailingFractionZeros(_cRounded_)
+		if _cResult_ = "" or _cResult_ = "-"
+			_cResult_ = "0"
+		ok
 
 		This.Update(_cResult_)
 
