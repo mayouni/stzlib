@@ -77,6 +77,10 @@ class stzOidcSandbox from stzObject
 		@cKid = "" + pcKid
 		return This
 
+	# a double declares itself -- see stzServiceRegistry
+	def IsSandbox()
+		return TRUE
+
 	def KeyId()
 		return @cKid
 
