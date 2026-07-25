@@ -171,6 +171,14 @@ fn ring_BitwiseRShift(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(number.stz_number_bitwise_rshift(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
 }
 
+// The shortest PLAIN decimal that round-trips (see number.zig). Returns "" when
+// there is none -- NaN, Inf -- and the caller keeps whatever it had.
+fn ring_PlainShortest(p: *anyopaque) callconv(.c) void {
+    var buf: [512]u8 = undefined;
+    const len = number.stz_number_plain_shortest(g(p, 1), &buf, 512);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+}
+
 // Scientific notation
 fn ring_ToScientific(p: *anyopaque) callconv(.c) void {
     var buf: [128]u8 = undefined;
@@ -239,6 +247,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginenumberbitwiselshift", .func = &ring_BitwiseLShift },
     .{ .name = "stzenginenumberbitwisershift", .func = &ring_BitwiseRShift },
     .{ .name = "stzenginenumbertoscientific", .func = &ring_ToScientific },
+    .{ .name = "stzenginenumberplainshortest", .func = &ring_PlainShortest },
     .{ .name = "stzenginenumberfromscientific", .func = &ring_FromScientific },
     .{ .name = "stzenginenumberiseven", .func = &ring_IsEven },
     .{ .name = "stzenginenumberisodd", .func = &ring_IsOdd },
