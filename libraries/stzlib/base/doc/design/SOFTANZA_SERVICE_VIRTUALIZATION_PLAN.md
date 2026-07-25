@@ -1,7 +1,7 @@
 # The Service-Virtualization Plane
 ### Plan: code the whole solution fee-free against sandboxes, flip to the real services at deploy
 
-> Status: **phases 1–2 BUILT — the spine, the database exemplar, and three doubles ship.** `base/service/`
+> Status: **phases 1–3 BUILT — the spine, the database exemplar, the generic HTTP port, and three doubles ship.** `base/service/`
 > now exists with **`stzMailPort`/`stzMailSandbox`** (built for auth phase 4 — a
 > capture sink you assert on), **`stzOidcSandbox`** (a real signing identity
 > provider) and **`stzPasskeySandbox`** (a real virtual authenticator). Those
@@ -26,9 +26,21 @@
 > case that IS dangerous: `":memory:"` is real sqlite right up to the restart that
 > empties it, and it is one character from the safe spelling. Guard
 > `data_port_narrated` (41).
-> Still unbuilt: the payments sandbox, the generic HTTP scripted/replay sandbox,
-> the blob store, the LLM port promotion, and surfacing the registry inside
-> `stzDelivery`/`stzDeployment` (phases 3–7).
+> **Phase 3 (the generic HTTP port) is built too**: `base/service/stzHttpPort.ring`
+> names the contract (`Request(method, url, body)` → `[:status, :body]`) and ships
+> BOTH sides — `stzHttpSandbox` in **scripted** mode (rules you write, so you can
+> make a gateway decline or an API rate-limit you, which no real vendor will do on
+> request) and **replay** mode (a response recorded once and replayed forever,
+> keyed by a hash of method+url+body — generalising what `stzLLMFunction`'s answer
+> cache does for prompts), plus `stzReactorHttpClient` as the live adapter over the
+> reactor's own curl-backed client. **Strict by default**: an unscripted request
+> raises, because a double that silently answers `""` produces a test that passes
+> for the wrong reason. Every request is journalled, so a test can assert on what
+> the code *tried* to do. Guard `http_port_narrated` (37).
+> Still unbuilt: payments, the blob store, the LLM port promotion, and surfacing
+> the registry inside `stzDelivery`/`stzDeployment` (phases 4–7) — and with the
+> HTTP port in place those are now largely CONFIGURATION of it rather than new
+> machinery.
 > Written 2026-07-23 in answer to
 > the user's question: *"does our emulation system cover emulating databases,
 > business APIs, frontier LLMs, cloud providers, etc., so a programmer can code
