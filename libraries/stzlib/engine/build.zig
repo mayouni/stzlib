@@ -75,7 +75,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_process", .entry = "src/stz_process_entry.zig", .needs_ring = true },
     .{ .name = "stz_arith", .entry = "src/stz_arith_entry.zig", .needs_ring = true },
     .{ .name = "stz_profiler", .entry = "src/stz_profiler_entry.zig", .needs_ring = true },
-    .{ .name = "stz_crypto", .entry = "src/stz_crypto_entry.zig", .needs_ring = true },
+    .{ .name = "stz_crypto", .entry = "src/stz_crypto_entry.zig", .needs_ring = true, .needs_mbedtls = true },
     .{ .name = "stz_embed", .entry = "src/stz_embed_entry.zig", .needs_ring = true },
     .{ .name = "stz_smallfn", .entry = "src/stz_smallfn_entry.zig", .needs_ring = true },
     .{ .name = "stz_numtheory", .entry = "src/stz_numtheory_entry.zig", .needs_ring = true },
@@ -841,6 +841,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_snowball) addSnowball(mod, lib, b);
         if (dom.needs_ring) addRing(b, mod, lib, ring_dir);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
+        if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag, false);
         b.installArtifact(lib);
     }
 

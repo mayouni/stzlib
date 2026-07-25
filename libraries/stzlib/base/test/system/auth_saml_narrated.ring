@@ -34,6 +34,9 @@ $XML = read($FX + "SIGNED.txt")
 $BAD = read($FX + "TAMPERED.txt")
 $WRP = read($FX + "WRAPPED.txt")
 
+$CERT = read($FX + "IDP_CERT.pem")        # a real certificate over the SAME key
+$BARE = read($FX + "IDP_CERT_BARE.txt")  # ...as metadata carries it: bare base64
+
 $IDP = "https://idp.acme.com"
 $SP  = "https://sp.example.com"
 
@@ -266,6 +269,85 @@ Scenario("the whole enterprise round trip, with no IdP account anywhere")
 	oAuth.GrantRole("bob@acme.com", "member")
 	Then("the SSO session yields the governance actor", oAuth.ActorOfAt(cSess, nNow + 10).Can("compute"), TRUE)
 	Then("...and the same response cannot be replayed", oAuth.LoginWithSamlAt(cB64, nNow + 10), "")
+EndScenario()
+
+Scenario("trust configured from a CERTIFICATE, which is what an IdP publishes")
+	# Nobody configures a real service provider by typing key components. The IdP
+	# hands you a certificate; opening it is the difference between "SAML works"
+	# and "SAML works with Okta". The certificate below wraps the SAME key that
+	# signed the fixture assertion, so this closes the loop: cert -> key -> verify.
+	aK = StzCertificateKey($CERT)
+	Then("the certificate yields an RSA key", aK[:keyType], "RSA")
+	aI = StzCertificateInfo($CERT)
+	Then("...and says who it is for", aI[:subject], "CN=idp.acme.com")
+	Then("...with a validity window", StzFindFirst("T", aI[:notAfter]) > 0, TRUE)
+	Then("a fingerprint is available for out-of-band pinning", len(StzCertificateFingerprint($CERT)), 64)
+	Then("garbage is not readable", StzCertificateIsReadable("not a certificate"), FALSE)
+
+	When("a service provider trusts the IdP by that certificate")
+	oSp = new stzSamlServiceProvider($SP, $SP + "/acs")
+	oSp.TrustIdpFromCertificate($IDP, $CERT)
+	Then("it trusts an IdP", oSp.TrustsAnIdp(), TRUE)
+
+	aR = oSp.ConsumeXmlAt($XML, oSp._Epoch("2026-07-24T10:00:00Z"))
+	Then("the REAL signed assertion verifies against the certificate's key", aR[:ok], TRUE)
+	Then("...yielding the subject", aR[:nameID], "dana@acme.com")
+
+	When("the certificate arrives as BARE base64, the way XML carries it")
+	oSp2 = new stzSamlServiceProvider($SP, "acs")
+	oSp2.TrustIdpFromCertificate($IDP, $BARE)
+	Then("it works identically", oSp2.ConsumeXmlAt($XML, oSp2._Epoch("2026-07-24T10:00:00Z"))[:ok], TRUE)
+EndScenario()
+
+Scenario("the whole SP configured from ONE paste of IdP metadata")
+	cMeta = '<?xml version="1.0"?>' +
+	  '<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="' + $IDP + '">' +
+	  '<md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">' +
+	  '<md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">' +
+	  '<ds:X509Data><ds:X509Certificate>' + $BARE + '</ds:X509Certificate></ds:X509Data>' +
+	  '</ds:KeyInfo></md:KeyDescriptor>' +
+	  '<md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" ' +
+	  'Location="' + $IDP + '/sso"/>' +
+	  '</md:IDPSSODescriptor></md:EntityDescriptor>'
+
+	oSp = new stzSamlServiceProvider($SP, $SP + "/acs")
+	oSp.TrustIdpFromMetadata(cMeta)
+	Then("the entityID came from the metadata", oSp.IdpEntityId(), $IDP)
+	Then("...so did the SSO endpoint", oSp.IdpSsoUrl(), $IDP + "/sso")
+	Then("...and the signing certificate", oSp.IdpCertificateInfo()[:subject], "CN=idp.acme.com")
+	Then("one paste is enough to trust it", oSp.TrustsAnIdp(), TRUE)
+
+	Then("and a real assertion from that IdP verifies",
+	     oSp.ConsumeXmlAt($XML, oSp._Epoch("2026-07-24T10:00:00Z"))[:ok], TRUE)
+
+	When("the metadata carries an ENCRYPTION certificate as well")
+	# a real document usually has two; the SIGNING one is the one that matters
+	cTwo = StzReplace(cMeta, '<md:KeyDescriptor use="signing">',
+	    '<md:KeyDescriptor use="encryption"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">' +
+	    '<ds:X509Data><ds:X509Certificate>' + $BARE + '</ds:X509Certificate></ds:X509Data>' +
+	    '</ds:KeyInfo></md:KeyDescriptor><md:KeyDescriptor use="signing">')
+	oSp2 = new stzSamlServiceProvider($SP, "acs")
+	oSp2.TrustIdpFromMetadata(cTwo)
+	Then("it still resolves and verifies", oSp2.ConsumeXmlAt($XML, oSp2._Epoch("2026-07-24T10:00:00Z"))[:ok], TRUE)
+
+	When("the metadata has no certificate at all")
+	oBad = new stzSamlServiceProvider($SP, "acs")
+	bRaised = FALSE
+	try
+		oBad.TrustIdpFromMetadata('<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="x"/>')
+	catch
+		bRaised = TRUE
+	done
+	Then("it refuses rather than trusting nothing", bRaised, TRUE)
+
+	When("the certificate in it is unreadable")
+	bRaised2 = FALSE
+	try
+		oBad.TrustIdpFromCertificate($IDP, "-----BEGIN CERTIFICATE-----\nnonsense\n-----END CERTIFICATE-----")
+	catch
+		bRaised2 = TRUE
+	done
+	Then("it refuses", bRaised2, TRUE)
 EndScenario()
 
 Summary()

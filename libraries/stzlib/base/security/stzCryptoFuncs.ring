@@ -40,3 +40,44 @@ func StzVerifySecretXT(pcSecret, pcStored, nRounds)
 
 func StzRandomToken(nBytes)
 	return StzEngineCryptoRandomHex(nBytes)
+
+# ---- X.509 certificates -------------------------------------------------
+#
+# Real federation hands you CERTIFICATES, not key components: a SAML IdP's
+# metadata carries <ds:X509Certificate>, a JWKS entry may carry x5c. These open
+# one (through the already-vendored mbedTLS, never hand-rolled ASN.1) and give
+# back what the verifiers take.
+#
+# Accepts PEM or the BARE base64 DER that XML actually carries, with whitespace.
+
+# -> [ :keyType, :key1, :key2 ] ("RSA" -> n,e ; "EC" -> x,y), or [] if unreadable.
+func StzCertificateKey(pcCert)
+	_r_ = StzEngineCertificateKey("" + pcCert)
+	if _r_ = ""
+		return []
+	ok
+	_a_ = StzSplit(_r_, "|")
+	if len(_a_) < 3
+		return []
+	ok
+	return [ :keyType = _a_[1], :key1 = _a_[2], :key2 = _a_[3] ]
+
+# the SHA-256 fingerprint (hex) -- what you PIN when you cannot validate a chain,
+# and what IdP documentation publishes for an out-of-band check.
+func StzCertificateFingerprint(pcCert)
+	return StzEngineCertificateFingerprint("" + pcCert)
+
+# -> [ :subject, :notBefore, :notAfter ] so an operator can SEE what they trust.
+func StzCertificateInfo(pcCert)
+	_r_ = StzEngineCertificateDescribe("" + pcCert)
+	if _r_ = ""
+		return []
+	ok
+	_a_ = StzSplit(_r_, "|")
+	if len(_a_) < 3
+		return []
+	ok
+	return [ :subject = _a_[1], :notBefore = _a_[2], :notAfter = _a_[3] ]
+
+func StzCertificateIsReadable(pcCert)
+	return StzEngineCertificateKey("" + pcCert) != ""

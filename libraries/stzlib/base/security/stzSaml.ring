@@ -49,6 +49,7 @@ class stzSamlServiceProvider from stzObject
 	@cKty = ""            # the IdP's signing key: "RSA" (n,e) or "EC" (x,y)
 	@cK1 = ""
 	@cK2 = ""
+	@cIdpCert = ""        # the certificate trust came from, when it did
 	@nSkewSecs = 120
 	@aSeen = []           # [ [ nameId+window, expiresEpoch ], ... ] replay guard
 	@cWhy = ""
@@ -59,6 +60,7 @@ class stzSamlServiceProvider from stzObject
 			StzRaise("stzSamlServiceProvider: an entity id is required (it is the Audience the IdP mints for).")
 		ok
 		@cAcsUrl = "" + pcAcsUrl
+		@cIdpCert = ""
 		@aSeen = []
 
 	  #-- configuration ---------------------------------------------------
@@ -82,6 +84,54 @@ class stzSamlServiceProvider from stzObject
 		@cK2 = "" + pcK2
 		return This
 
+	# Trust an IdP by its CERTIFICATE -- which is what its metadata actually
+	# publishes. Accepts PEM or the bare base64 DER carried inside XML.
+	def TrustIdpFromCertificate(pcIdpEntityId, pcCert)
+		This.TrustIdpFromCertificateQ(pcIdpEntityId, pcCert)
+
+	def TrustIdpFromCertificateQ(pcIdpEntityId, pcCert)
+		_k_ = StzCertificateKey(pcCert)
+		if len(_k_) = 0
+			StzRaise("stzSamlServiceProvider.TrustIdpFromCertificate: the certificate could not be read.")
+		ok
+		@cIdpCert = "" + pcCert
+		return This.TrustIdpQ(pcIdpEntityId, _k_[:keyType], _k_[:key1], _k_[:key2])
+
+	# Trust an IdP from the METADATA document it publishes: entityID, SSO endpoint
+	# and signing certificate all come from the one paste. This is how a real
+	# service provider is configured.
+	def TrustIdpFromMetadata(pcXml)
+		This.TrustIdpFromMetadataQ(pcXml)
+
+	def TrustIdpFromMetadataQ(pcXml)
+		_r_ = StzEngineSamlMetadata("" + pcXml)
+		if _r_ = ""
+			StzRaise("stzSamlServiceProvider.TrustIdpFromMetadata: no entityID + signing certificate found.")
+		ok
+		_a_ = StzSplit(_r_, "|")
+		if len(_a_) < 3
+			StzRaise("stzSamlServiceProvider.TrustIdpFromMetadata: the metadata is incomplete.")
+		ok
+		This.SetIdpSsoUrlQ(_a_[2])
+		return This.TrustIdpFromCertificateQ(_a_[1], _a_[3])
+
+	# the certificate we were configured with ("" when trust was set by raw key).
+	def IdpCertificate()
+		return @cIdpCert
+
+	# its fingerprint, for an operator to compare against what the IdP published.
+	def IdpCertificateFingerprint()
+		if @cIdpCert = ""
+			return ""
+		ok
+		return StzCertificateFingerprint(@cIdpCert)
+
+	def IdpCertificateInfo()
+		if @cIdpCert = ""
+			return []
+		ok
+		return StzCertificateInfo(@cIdpCert)
+
 	def SetIdpSsoUrl(pcUrl)
 		This.SetIdpSsoUrlQ(pcUrl)
 
@@ -91,6 +141,9 @@ class stzSamlServiceProvider from stzObject
 
 	def IdpEntityId()
 		return @cIdpEntityId
+
+	def IdpSsoUrl()
+		return @cIdpSsoUrl
 
 	def TrustsAnIdp()
 		return @cIdpEntityId != "" and @cKty != ""
