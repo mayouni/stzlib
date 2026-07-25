@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASE 0 BUILT (77a902cd4); PHASE 1 SLICE 1 BUILT (dbcd48a06); phases 2-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASE 0 BUILT (77a902cd4); PHASE 1 SLICES 1-2 BUILT (dbcd48a06, 6b67b814c); phases 2-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -578,9 +578,39 @@ display through Zig's shortest-round-trip formatter. *(This is the old
 > places to two. Those were never the defect, and the fix is now confined to
 > arithmetic.
 >
-> **Remaining in phase 1:** rationals, a decimal *type* (this slice makes decimal
-> arithmetic exact without introducing one), the published promotion ladder, and the
-> float display fix.
+> **SLICE 2 DONE (6b67b814c), guard `numeric_no_loss_narrated` (31).** Slice 1 fixed
+> the arithmetic; this closes the hole one step earlier, at CONSTRUCTION. `"" + n`
+> renders through Ring's process-global `decimals()`, so `new stzNumber(number("1e-20"))`
+> stored the string `"0.00"` — and since the string *is* the value here, the number
+> was **destroyed, not mis-shown**: `NumericValue() > 0` answered FALSE.
+>
+> New engine function `stz_number_plain_shortest` raises precision until the text
+> parses back as the same f64, so the first form that works is the shortest that
+> loses nothing — **plain and never scientific**, because `"1e-20"` would defeat
+> `IntegerPart`, `NumberOfDigits` and slice 1's scaled-integer arithmetic, all of
+> which expect digits and at most one dot.
+>
+> **The fix is deliberately narrow: the ordinary rendering is replaced only when it
+> fails to round-trip.** `0.10` has lost nothing and is left alone. Measured: zero
+> of the 88 number test outputs changed. A pleasing consequence is that `1e-20 * 2`
+> is now exactly `0.00000000000000000002`, because a plain decimal string is
+> something slice 1's exact path can use.
+>
+> **The ladder is published too:** `Representation()` reports `:integer` /
+> `:bigInteger` / `:decimal`, with `IsBigInteger()`/`IsDecimalNumber()`. `:rational`
+> and `:complex` are named here and not built, so they are never reported — a ladder
+> that claims rungs it does not have is worse than a short one.
+>
+> Also repaired while verifying: the engine's `process: uptime` test asserted
+> `uptime_ns() > 0` on the FIRST call, but `uptimeNanos()` creates its baseline
+> lazily *on* that call, so the answer is ~0 by construction. It passed or failed
+> according to how much unrelated code ran first — which is why adding code to
+> `number.zig` turned it red. It now asserts what is true and worth knowing:
+> non-negative, non-decreasing across a measurable gap, and an *uptime* rather than a
+> wall clock (`< 3600s`, the epoch bug it exists to catch).
+>
+> **Remaining in phase 1:** rationals (exact p/q, so `"1/3" + "2/3"` is 1) — the last
+> representation the plan asks for before phase 2's numeric scope.
 
 **Phase 2 — numeric scope.** `StzWithPrecision` / `StzWithRounding` /
 `StzWithOverflow`, the stated defaults, and NaN/Inf raising by default. Retires
