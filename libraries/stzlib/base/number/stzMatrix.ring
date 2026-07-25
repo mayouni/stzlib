@@ -237,10 +237,27 @@ class stzMatrix from stzListOfLists
 			@nCols = len(paInput[1])
 		ok
 
+	# The engine matrix is a TRANSIENT built from the Ring content, not a cache
+	# kept alive between calls.
+	#
+	# FIXED 2026-07-25 (numeric foundation phase 3). It used to return the existing
+	# handle if there was one, which is correct only while every method that writes
+	# @aContent remembers to invalidate it. Seventeen of the twenty-three writers
+	# did not -- the whole Replace* family among them -- so:
+	#
+	#     o = new stzMatrix([[1,2],[3,4]])
+	#     o.Determinant()              -->  -2      (and builds the engine copy)
+	#     o.ReplaceRow(1, [99,2])
+	#     o.Content()                  -->  [[99,2],[3,4]]     the new matrix
+	#     o.Determinant()              -->  -2      THE OLD ONE. Should be 390.
+	#
+	# A silent wrong answer, from a cache nobody invalidated. Adding the missing
+	# seventeen calls would fix today and leave the eighteenth method to reopen it,
+	# so the discipline is removed instead of relied upon: every call site is a
+	# ONE-SHOT engine operation (determinant, inverse, transpose, multiply,
+	# update-region), so nothing was gaining from the cache in the first place.
 	def _EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
-			return
-		ok
+		This._InvalidateEngineMatrix()
 		@pEngineMatrix = StzEngineMatrixNewFromList(@nRows, @nCols, @aContent)
 
 	def _InvalidateEngineMatrix()
