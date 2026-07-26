@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, four slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, five slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -94,6 +94,9 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 
 - **No SIMD. At all.** Zero `@Vector` or `std.simd` across ~200 engine modules — in
   a language whose headline numeric feature is portable explicit vectorisation.
+  **First uses landed in phase 4 slices 2-3:** the compensated sum and the centered
+  sum of squares in `stats.zig`. And the engine was not even being COMPILED with
+  optimisation until slice 1 -- see the phase-4 notes.
 - **No parallel numeric kernels.** `std.Thread` appears in `curlcore`, `dns`,
   `fswatch`, `http`, `pool`, `reactor`, `resilience` — all I/O — plus one
   `Thread.Mutex` in `histogram.zig`. Nothing in `stats`, `matrix` or `solver` uses
@@ -101,7 +104,9 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 - **No wide floats.** `f80` and `f128` are unused, though Zig has them natively.
 - **No decimal, rational, complex, or fixed-width integer types.**
 - **Linear algebra stops at `inverse`.** No LU, QR, Cholesky, SVD, or eigenvalues —
-  so no least squares, no PCA, no conditioning diagnostics, no rank.
+  so no least squares, no PCA, no conditioning diagnostics, no rank. **LU DONE in
+  phase 4 slice 4 (e549ec945)** in `engine/src/linalg.zig`, with a determinant and a
+  linear solve on it; QR / Cholesky / eigen / SVD still open.
 - **`solver.zig` is not an optimiser.** 199 lines of scalar root-finding
   (bisection, Newton), Simpson integration and polynomial evaluation over
   coefficient arrays. There is no LP, QP, MIP or general nonlinear solver in the
@@ -109,11 +114,13 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 - **No automatic differentiation** — the primitive that everything in modern
   optimisation and ML is built on.
 - **No FFT.**
-- **No special functions.** No `erf`, `lgamma`, incomplete gamma or incomplete
-  beta. This is why §2.6's confidence-interval defect exists: **without those four
-  functions the library cannot compute a p-value, a t critical value, or any
-  distribution CDF**, so inferential statistics is not merely missing, it is
-  unreachable.
+- ~~**No special functions.**~~ **DONE in phase 4 slice 5 (d5b84416d):**
+  `engine/src/special.zig` -- incomplete gamma and incomplete beta as the two
+  workhorses, with erf/erfc/normal/t/chi-square/F derived from them, plus quantiles
+  by bisection on those CDFs. This was why §2.6's confidence-interval defect
+  existed: **without those functions the library could not compute a p-value, a t
+  critical value, or any distribution CDF**, so inferential statistics was not
+  merely missing but unreachable. It is now reachable, and the interval is t-based.
 - **No numerically stable accumulation.** No Kahan/Neumaier compensation, no
   Welford streaming moments, no quantile sketch for data that does not fit in RAM.
 
@@ -900,6 +907,46 @@ special functions.
 > division**, hence exact for integer entries. Adding the rule of Sarrus restored
 > byte-identical output across all 56 matrix tests. The cut is at 3 because a 4×4
 > closed form needs 24 products.
+>
+> **SLICE 5 DONE (d5b84416d), guards `numeric_special_functions_narrated` (40) +
+> `numeric_definitions_narrated` rewritten (42): SPECIAL FUNCTIONS, and §2.6's
+> confidence-interval defect is finally CLOSED rather than merely honest.**
+>
+> New engine module `special.zig`, and **two core functions with everything derived
+> from them** — because a dozen independent rational approximations is exactly how a
+> library acquires two answers for one quantity:
+>
+> | workhorse | derives |
+> |---|---|
+> | regularised incomplete **gamma** `P(a,x)`, `Q(a,x)` | erf, erfc, normal CDF, chi-square CDF |
+> | regularised incomplete **beta** `I_x(a,b)` | Student t CDF, F CDF |
+>
+> So `erf` is not an approximation *of* erf; it **is** `P(1/2, x²)`, sharing every
+> digit with the chi-square CDF. Zig's std supplies `lgamma`/`gamma` — nothing was
+> vendored. `erfc` comes from `Q` rather than `1 - erf`, which is not tidiness:
+> erfc(6) ≈ 2.15e-17, so `1 - erf(6)` is **exactly 0** in a double, and a p-value
+> lives in that tail.
+>
+> **Quantiles are the CDF bisected**, not a separate approximation of each inverse.
+> ~60 CDF evaluations instead of ~20 flops — irrelevant for something computed once
+> — and in exchange **an inverse cannot disagree with the function it inverts**.
+>
+> `ConfidenceInterval` is now genuinely t-based (df = n−1), reports `:method = :t`
+> and `:df`, and accepts **any** level. At n = 5 the margin goes 1.96·s/√n →
+> 2.776·s/√n: **41.7% wider, exactly as phase 0's warning predicted.** The eight-row
+> z table is *gone*, not kept alongside — it held 1.959964 where the true value is
+> 1.959963984540054. The small-sample warning is gone too, since t is correct at
+> every n and converges on z by itself.
+>
+> **Two testing lessons, both learned by being wrong first.** (i) The F constant was
+> transcribed wrong at the 9th digit and the test failed against *correct* code —
+> which is the argument for **identity checks** (`F(0.95;1,v) = t(0.975;v)²`,
+> `χ²(x,1) = 2Φ(√x) − 1`, `P+Q=1`, beta symmetry): a mistyped reference constant
+> looks exactly like a broken implementation, and an identity cannot be mistyped into
+> agreement. (ii) "t equals z to six decimals at df=100000" failed *correctly* — t is
+> still 2.37e-5 wider. Measuring the gap over four decades showed it falls by 10× per
+> 10× of df, so the guard now asserts the **O(1/df) rate** instead of a tolerance. A
+> rate is a mathematical property no approximation error can fake.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
