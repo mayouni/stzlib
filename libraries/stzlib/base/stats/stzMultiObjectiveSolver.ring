@@ -19,6 +19,7 @@ class stzMultiObjectiveSolver from stzObject
     @nGenerations = 100
     @nMutationRate = 0.1
     @nCrossoverRate = 0.9
+    @nSeed = 42        # LAW 3: two runs agree. SetSeed() to vary.
 
 	@oCoeffExtractor
 
@@ -31,6 +32,7 @@ class stzMultiObjectiveSolver from stzObject
         @aConstraints = []
         @aObjectives = []
         @aParetoSolutions = []
+        @nSeed = 42
         @cStatus = ""
         @nIterations = 0
         @nSolveTime = 0
@@ -300,6 +302,51 @@ class stzMultiObjectiveSolver from stzObject
         return _aSolution_
 */
 
+	# ── REPRODUCIBLE RANDOMNESS (LAW 3: two runs agree; SetSeed to vary) ──
+	#
+	# NSGA-II is a genetic algorithm: it seeds a population at random, then breeds
+	# it. With Ring's bare `random()` that made every run different, so ANY assertion
+	# about the resulting Pareto front was probabilistic. The guard in
+	# test/stats/solvers_narrated.ring asserted that the front spreads across the
+	# trade-off (`nMin < 2 and nMax > 8`) and failed about once in twenty-five runs
+	# -- not because the solver was wrong, but because a stochastic assertion without
+	# a seed is flaky by construction.
+	#
+	# stzNeuralNetwork and stzKMeans already settled this for the library:
+	# stzKMeans is deterministic by construction (centroids from the first K distinct
+	# points) and stzNeuralNetwork carries a seeded generator with SetSeed(). This
+	# class was the one that had not been brought into line.
+	#
+	# THE MULTIPLIER IS NOT ARBITRARY, and the reason is copied from
+	# stzNeuralNetwork because it was found the hard way there: Park-Miller's 16807
+	# is chosen for RING'S DOUBLES, since 16807 * 2^31 < 2^53 so the product never
+	# loses integer bits. The classic 1103515245 multiplier OVERFLOWS a double and
+	# degenerates -- in stzNeuralNetwork that showed up live as every seed producing
+	# the same network.
+	def SetSeed(n)
+		@nSeed = n
+		return This
+
+	def Seed()
+		return @nSeed
+
+	# a uniform value in [0, 1)
+	def _NextRand01()
+		if @nSeed <= 0
+			@nSeed = 42
+		ok
+		@nSeed = (@nSeed * 16807) % 2147483647
+		return @nSeed / 2147483647
+
+	# the shape Ring's random(n) has: an integer in 0..n inclusive. Every call site
+	# below used `random(...)`, so matching its contract keeps them unchanged in
+	# meaning as well as in form.
+	def _NextRandom(n)
+		if n <= 0
+			return 0
+		ok
+		return floor(This._NextRand01() * (n + 1))
+
 	def generateRandomSolution()
 	    _aSolution_ = []
 	    _nVarLen_ = len(@aVariables)
@@ -308,7 +355,7 @@ class stzMultiObjectiveSolver from stzObject
 	        
 	        # FIXED: Correct random number generation
 	        _nRange_ = _var_[:upperBound] - _var_[:lowerBound]
-	        _nValue_ = _var_[:lowerBound] + random(_nRange_ * 100) / 100.0
+	        _nValue_ = _var_[:lowerBound] + This._NextRandom(_nRange_ * 100) / 100.0
 	        
 	        if _var_[:type] = "integer" or _var_[:type] = "binary"
 	            _nValue_ = floor(_nValue_)
@@ -560,8 +607,8 @@ class stzMultiObjectiveSolver from stzObject
         _nPopLen_ = len(_aPopulation_)
         if _nPopLen_ = 0 return [] ok
         
-        _nIndex1_ = random(_nPopLen_-1) + 1
-        _nIndex2_ = random(_nPopLen_-1) + 1
+        _nIndex1_ = This._NextRandom(_nPopLen_-1) + 1
+        _nIndex2_ = This._NextRandom(_nPopLen_-1) + 1
         
         # Ensure indices are within bounds
         if _nIndex1_ < 1 _nIndex1_ = 1 ok
@@ -603,12 +650,12 @@ class stzMultiObjectiveSolver from stzObject
 	    ok
 	    
 	    # Select two random valid individuals
-	    _nIdx1_ = random(len(_aValidIndices_)-1) + 1
-	    _nIdx2_ = random(len(_aValidIndices_)-1) + 1
+	    _nIdx1_ = This._NextRandom(len(_aValidIndices_)-1) + 1
+	    _nIdx2_ = This._NextRandom(len(_aValidIndices_)-1) + 1
 	    
 	    # Ensure different individuals
 	    while _nIdx1_ = _nIdx2_ and len(_aValidIndices_) > 1
-	        _nIdx2_ = random(len(_aValidIndices_)-1) + 1
+	        _nIdx2_ = This._NextRandom(len(_aValidIndices_)-1) + 1
 	    end
 	    
 	    _individual1_ = _aPopulation_[_aValidIndices_[_nIdx1_]]
@@ -638,7 +685,7 @@ class stzMultiObjectiveSolver from stzObject
         
         _nSolLen_ = len(parent1[:solution])
         for i = 1 to _nSolLen_
-            if random(100) < @nCrossoverRate * 100
+            if This._NextRandom(100) < @nCrossoverRate * 100
                 _aSolution_ + parent1[:solution][i]
             else
                 _aSolution_ + parent2[:solution][i]
@@ -649,10 +696,10 @@ class stzMultiObjectiveSolver from stzObject
     def mutate(individual)
         _nSolLen_ = len(individual[:solution])
         for i = 1 to _nSolLen_
-            if random(100) < @nMutationRate * 100
+            if This._NextRandom(100) < @nMutationRate * 100
                 if i <= len(@aVariables)
                     _var_ = @aVariables[i]
-                    _nNewValue_ = _var_[:lowerBound] + random(_var_[:upperBound] - _var_[:lowerBound])
+                    _nNewValue_ = _var_[:lowerBound] + This._NextRandom(_var_[:upperBound] - _var_[:lowerBound])
                     if _var_[:type] = "integer" or _var_[:type] = "binary"
                         _nNewValue_ = floor(_nNewValue_)
                     ok
