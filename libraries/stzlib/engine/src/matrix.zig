@@ -1,4 +1,5 @@
 const std = @import("std");
+const linalg = @import("linalg.zig");
 
 pub const StzMatrix = struct {
     data: []f64,
@@ -173,35 +174,45 @@ pub fn stz_matrix_transpose(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return result;
 }
 
+/// O(n^3), via the LU factorisation in linalg.zig.
+///
+/// This was naive COFACTOR EXPANSION until phase 4 -- O(n!) time, and it allocated
+/// a fresh submatrix at every level of the recursion, so O(n!) allocations as well.
+/// A 10x10 determinant was 3.6 million recursive calls and a 20x20 was not
+/// finishable; a probe written during phase 3 hung the machine on a 60x60 before
+/// the cause was understood.
+///
+/// The striking part is that `stz_matrix_inverse` immediately below has always
+/// done Gauss-Jordan with partial pivoting in O(n^3), so the pivoting machinery
+/// this needed was sitting a few lines away the whole time.
 pub fn stz_matrix_determinant(m: ?*const StzMatrix) callconv(.c) f64 {
     const mat = m orelse return 0.0;
     if (mat.rows != mat.cols) return 0.0;
-    return det(mat.data, mat.rows) catch 0.0;
+    return linalg.determinant(gpa, mat.data, mat.rows) catch 0.0;
 }
 
-fn det(data: []const f64, n: usize) !f64 {
-    if (n == 1) return data[0];
-    if (n == 2) return data[0] * data[3] - data[1] * data[2];
+/// Solve Ax = b in one factorisation. NEW in phase 4: the library could invert a
+/// matrix but not solve a system, and inverting in order to solve is both slower
+/// and less accurate than solving directly.
+///
+/// Returns a new n*1 matrix, or null if A is singular or the shapes disagree.
+pub fn stz_matrix_solve(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const ma = a orelse return null;
+    const mb = b orelse return null;
+    if (ma.rows != ma.cols) return null;
+    const n = ma.rows;
+    if (mb.rows != n or mb.cols != 1) return null;
 
-    const sub = try gpa.alloc(f64, (n - 1) * (n - 1));
-    defer gpa.free(sub);
-
-    var result: f64 = 0.0;
-    var sign: f64 = 1.0;
-
-    for (0..n) |j| {
-        var si: usize = 0;
-        for (1..n) |row| {
-            for (0..n) |col| {
-                if (col == j) continue;
-                sub[si] = data[row * n + col];
-                si += 1;
-            }
-        }
-        result += sign * data[j] * try det(sub, n - 1);
-        sign = -sign;
+    const out = StzMatrix.init(gpa, n, 1) catch return null;
+    const ok = linalg.solve(gpa, ma.data, n, mb.data, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
     }
-    return result;
+    return out;
 }
 
 pub fn stz_matrix_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
