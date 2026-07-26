@@ -13,6 +13,7 @@ const table_mod = @import("table.zig");
 const StzTable = table_mod.StzTable;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
+const stats = @import("stats.zig");
 
 // ─── Aggregate functions ───
 
@@ -62,29 +63,19 @@ fn computeAgg(values: []const f64, func: AggFunc) f64 {
             for (values) |v| p *= v;
             break :blk p;
         },
+        // Both of these used to spell out a naive mean, their own centered sum of
+        // squares, AND a hardcoded `values.len - 1` divisor -- a fourth place
+        // deciding the sample-vs-population question that stats.varianceDivisor
+        // exists to decide, and a second place summing without compensation. It
+        // agreed with everyone else only because N-1 happens to be the default.
+        // Asked of the one authority now, so it agrees BY CONSTRUCTION.
         .stdev => blk: {
             if (values.len < 2) break :blk 0;
-            var s: f64 = 0;
-            for (values) |v| s += v;
-            const mean = s / @as(f64, @floatFromInt(values.len));
-            var ss: f64 = 0;
-            for (values) |v| {
-                const d = v - mean;
-                ss += d * d;
-            }
-            break :blk @sqrt(ss / @as(f64, @floatFromInt(values.len - 1)));
+            break :blk @sqrt(stats.varianceOf(values, .sample));
         },
         .variance => blk: {
             if (values.len < 2) break :blk 0;
-            var s: f64 = 0;
-            for (values) |v| s += v;
-            const mean = s / @as(f64, @floatFromInt(values.len));
-            var ss: f64 = 0;
-            for (values) |v| {
-                const d = v - mean;
-                ss += d * d;
-            }
-            break :blk ss / @as(f64, @floatFromInt(values.len - 1));
+            break :blk stats.varianceOf(values, .sample);
         },
         .median => blk: {
             const sorted = allocator.alloc(f64, values.len) catch break :blk 0;

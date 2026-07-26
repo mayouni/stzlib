@@ -888,22 +888,22 @@ fn ring_NthLargest(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_nth_largest(getLC(p, 1), adj));
 }
 fn ring_Variance(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_variance(getLC(p, 1)));
+    rn(p, list.stz_list_variance(getLCTyped(p, 1)));
 }
 fn ring_VarianceSample(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_variance_sample(getLC(p, 1)));
+    rn(p, list.stz_list_variance_sample(getLCTyped(p, 1)));
 }
 fn ring_VariancePopulation(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_variance_population(getLC(p, 1)));
+    rn(p, list.stz_list_variance_population(getLCTyped(p, 1)));
 }
 fn ring_StdDevSample(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_stddev_sample(getLC(p, 1)));
+    rn(p, list.stz_list_stddev_sample(getLCTyped(p, 1)));
 }
 fn ring_StdDevPopulation(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_stddev_population(getLC(p, 1)));
+    rn(p, list.stz_list_stddev_population(getLCTyped(p, 1)));
 }
 fn ring_StdDev(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_stddev(getLC(p, 1)));
+    rn(p, list.stz_list_stddev(getLCTyped(p, 1)));
 }
 fn ring_Ranked(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_ranked(getLC(p, 1))), HL);

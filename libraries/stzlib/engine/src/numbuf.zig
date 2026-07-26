@@ -189,17 +189,12 @@ pub fn stz_numbuf_dot(b: ?*const StzNumBuffer, other: ?*const StzNumBuffer) call
 /// once chose their own divisor. kind: 0 = population, 1 = sample.
 pub fn stz_numbuf_variance(b: ?*const StzNumBuffer, kind: i32) callconv(.c) f64 {
     const buf = b orelse return 0;
-    const n = buf.data.len;
     const k: stats.VarianceKind = if (kind == 0) .population else .sample;
-    const divisor = stats.varianceDivisor(n, k);
-    if (divisor == 0) return 0;
-    const m = stz_numbuf_mean(buf);
-    var ss: f64 = 0;
-    for (buf.data) |x| {
-        const d = x - m;
-        ss += d * d;
-    }
-    return ss / divisor;
+    // the whole calculation is asked of stats.varianceOf -- compensated mean,
+    // vectorised centered sum of squares, named divisor. This module used to
+    // assemble those three pieces itself, which is how a fifth copy of the sum of
+    // squares came to exist.
+    return stats.varianceOf(buf.data, k);
 }
 
 pub fn stz_numbuf_stddev(b: ?*const StzNumBuffer, kind: i32) callconv(.c) f64 {
