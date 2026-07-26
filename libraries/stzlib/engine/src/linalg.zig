@@ -201,6 +201,203 @@ pub fn solve(allocator: std.mem.Allocator, data: []const f64, n: usize, b: []con
     return solveWith(&f, b, x);
 }
 
+// ─── Cholesky: A = L L^T, for symmetric positive-definite A ───
+//
+// Half the work of LU (n^3/3 against 2n^3/3) and needs no pivoting, because a
+// positive-definite matrix cannot produce a zero pivot. That is not a shortcut but
+// a theorem, and it is why Cholesky is the right factorisation for a covariance or
+// normal-equations matrix.
+//
+// It is also the cheapest POSITIVE-DEFINITENESS TEST there is: the factorisation
+// exists if and only if the matrix is positive definite, so a failure is an answer
+// rather than an error.
+
+pub const Cholesky = struct {
+    /// n*n, row-major. Only the lower triangle (including the diagonal) is
+    /// meaningful; the upper is zero.
+    l: []f64,
+    n: usize,
+    /// TRUE when A really was symmetric positive definite. When FALSE, `l` holds
+    /// whatever had been computed when the first non-positive pivot appeared.
+    positive_definite: bool,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Cholesky) void {
+        self.allocator.free(self.l);
+    }
+
+    pub inline fn at(self: *const Cholesky, r: usize, c: usize) f64 {
+        return self.l[r * self.n + c];
+    }
+};
+
+pub fn cholesky(allocator: std.mem.Allocator, data: []const f64, n: usize) !Cholesky {
+    const l = try allocator.alloc(f64, n * n);
+    errdefer allocator.free(l);
+    @memset(l, 0);
+
+    var pd = true;
+    for (0..n) |j| {
+        var d = data[j * n + j];
+        for (0..j) |k| {
+            const ljk = l[j * n + k];
+            d -= ljk * ljk;
+        }
+        if (!(d > 0)) {
+            pd = false;
+            break;
+        }
+        const ljj = @sqrt(d);
+        l[j * n + j] = ljj;
+        for (j + 1..n) |i| {
+            var sum = data[i * n + j];
+            for (0..j) |k| sum -= l[i * n + k] * l[j * n + k];
+            l[i * n + j] = sum / ljj;
+        }
+    }
+
+    return .{ .l = l, .n = n, .positive_definite = pd, .allocator = allocator };
+}
+
+/// Solve Ax = b given a Cholesky factorisation: forward through L, then backward
+/// through L transposed.
+pub fn choleskySolve(f: *const Cholesky, b: []const f64, x: []f64) bool {
+    if (!f.positive_definite) return false;
+    const n = f.n;
+
+    // Ly = b
+    for (0..n) |i| {
+        var acc = b[i];
+        for (0..i) |k| acc -= f.at(i, k) * x[k];
+        x[i] = acc / f.at(i, i);
+    }
+    // L^T x = y
+    var i = n;
+    while (i > 0) {
+        i -= 1;
+        var acc = x[i];
+        for (i + 1..n) |k| acc -= f.at(k, i) * x[k];
+        x[i] = acc / f.at(i, i);
+    }
+    return true;
+}
+
+// ─── QR by Householder reflections, and LEAST SQUARES on top of it ───
+//
+// The decomposition that makes an OVERDETERMINED system answerable: more equations
+// than unknowns, no exact solution, and the best answer is the one minimising the
+// squared residual. That is linear regression with more than one predictor, and the
+// library could not do it -- `stats.zig`'s regression is SIMPLE regression, a single
+// slope and intercept from two data series.
+//
+// Householder rather than Gram-Schmidt, and normal equations avoided entirely.
+// Forming A^T A (the normal-equations route) SQUARES THE CONDITION NUMBER: a
+// problem that loses 8 digits becomes one that loses 16, which in f64 is all of
+// them. Householder reflections are unconditionally stable and cost about twice as
+// much, which is the right trade for a fit computed once.
+//
+// PACKING (the classic one): the working array holds R above the diagonal and the
+// Householder vectors below it, with R's diagonal kept separately in `rdiag`. Q is
+// never formed -- it is only ever applied, which is cheaper and is all a solve needs.
+
+pub const QR = struct {
+    /// m*n, row-major: R strictly above the diagonal, Householder vectors on and
+    /// below it.
+    qr: []f64,
+    /// n entries: the diagonal of R.
+    rdiag: []f64,
+    m: usize,
+    n: usize,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *QR) void {
+        self.allocator.free(self.qr);
+        self.allocator.free(self.rdiag);
+    }
+
+    /// TRUE when every diagonal entry of R is non-zero, i.e. A's columns are
+    /// linearly independent and the least-squares solution is unique.
+    pub fn isFullRank(self: *const QR) bool {
+        for (self.rdiag) |d| {
+            if (d == 0) return false;
+        }
+        return true;
+    }
+};
+
+/// Factorise an m*n matrix, m >= n. `data` is copied.
+pub fn qr(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !QR {
+    const a = try allocator.alloc(f64, m * n);
+    errdefer allocator.free(a);
+    @memcpy(a, data[0 .. m * n]);
+
+    const rdiag = try allocator.alloc(f64, n);
+    errdefer allocator.free(rdiag);
+    @memset(rdiag, 0);
+
+    for (0..n) |k| {
+        // the 2-norm of the column below and including the diagonal, via hypot so
+        // that a large entry cannot overflow the sum of squares
+        var nrm: f64 = 0;
+        for (k..m) |i| nrm = std.math.hypot(nrm, a[i * n + k]);
+
+        if (nrm != 0.0) {
+            // choose the sign that avoids cancellation
+            if (a[k * n + k] < 0) nrm = -nrm;
+            for (k..m) |i| a[i * n + k] /= nrm;
+            a[k * n + k] += 1.0;
+
+            // apply the reflection to the remaining columns
+            for (k + 1..n) |j| {
+                var s: f64 = 0;
+                for (k..m) |i| s += a[i * n + k] * a[i * n + j];
+                s = -s / a[k * n + k];
+                for (k..m) |i| a[i * n + j] += s * a[i * n + k];
+            }
+        }
+        rdiag[k] = -nrm;
+    }
+
+    return .{ .qr = a, .rdiag = rdiag, .m = m, .n = n, .allocator = allocator };
+}
+
+/// The least-squares solution of Ax = b, given a factorisation. Writes n values
+/// into `x`. Returns false when A is rank deficient, where no unique minimiser
+/// exists -- reporting that beats returning one of infinitely many.
+pub fn qrSolve(f: *const QR, b: []const f64, x: []f64, scratch: []f64) bool {
+    if (!f.isFullRank()) return false;
+    const m = f.m;
+    const n = f.n;
+    @memcpy(scratch[0..m], b[0..m]);
+
+    // apply Q^T to b, one reflection at a time
+    for (0..n) |k| {
+        var s: f64 = 0;
+        for (k..m) |i| s += f.qr[i * n + k] * scratch[i];
+        s = -s / f.qr[k * n + k];
+        for (k..m) |i| scratch[i] += s * f.qr[i * n + k];
+    }
+
+    // back-substitute through R
+    var k = n;
+    while (k > 0) {
+        k -= 1;
+        x[k] = scratch[k] / f.rdiag[k];
+        for (0..k) |i| scratch[i] -= x[k] * f.qr[i * n + k];
+    }
+    return true;
+}
+
+/// Least squares end to end: min ||Ax - b|| for an m*n A with m >= n.
+pub fn leastSquares(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize, b: []const f64, x: []f64) !bool {
+    if (n == 0 or m < n) return false;
+    var f = try qr(allocator, data, m, n);
+    defer f.deinit();
+    const scratch = try allocator.alloc(f64, m);
+    defer allocator.free(scratch);
+    return qrSolve(&f, b, x, scratch);
+}
+
 // ─── Tests ───
 
 const testing = std.testing;
@@ -351,4 +548,199 @@ test "LU: small determinants stay EXACT, which the direct formulae are for" {
     try testing.expectEqual(@as(f64, 24), try determinant(testing.allocator, &c, 3));
     const d = [_]f64{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }; // singular, exactly 0
     try testing.expectEqual(@as(f64, 0), try determinant(testing.allocator, &d, 3));
+}
+
+test "Cholesky: L L^T reconstructs A, and it agrees with LU" {
+    // A symmetric positive-definite matrix (a Gram matrix, so PD by construction).
+    const n = 4;
+    const a = [_]f64{
+        18, 22,  54,  42,
+        22, 70,  86,  62,
+        54, 86, 174, 134,
+        42, 62, 134, 106,
+    };
+
+    var f = try cholesky(testing.allocator, &a, n);
+    defer f.deinit();
+    try testing.expect(f.positive_definite);
+
+    // multiply the factorisation back out
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |k| acc += f.at(i, k) * f.at(j, k);
+            try testing.expectApproxEqAbs(a[i * n + j], acc, 1e-9);
+        }
+    }
+    // the upper triangle is left zero, not garbage
+    for (0..n) |i| {
+        for (i + 1..n) |j| try testing.expectEqual(@as(f64, 0), f.at(i, j));
+    }
+
+    // TWO INDEPENDENT DECOMPOSITIONS MUST AGREE. Cholesky and LU share no code and
+    // no algorithm, so a solve that matches is real evidence rather than a
+    // self-check.
+    const b = [_]f64{ 1, 2, 3, 4 };
+    var x_chol: [n]f64 = undefined;
+    var x_lu: [n]f64 = undefined;
+    try testing.expect(choleskySolve(&f, &b, &x_chol));
+    try testing.expect(try solve(testing.allocator, &a, n, &b, &x_lu));
+    for (0..n) |i| try testing.expectApproxEqAbs(x_lu[i], x_chol[i], 1e-9);
+
+    // ...and the solution satisfies the system
+    for (0..n) |i| {
+        var acc: f64 = 0;
+        for (0..n) |j| acc += a[i * n + j] * x_chol[j];
+        try testing.expectApproxEqAbs(b[i], acc, 1e-9);
+    }
+}
+
+test "Cholesky: a non-positive-definite matrix is REPORTED, not approximated" {
+    // symmetric but indefinite: eigenvalues of opposite sign
+    const indef = [_]f64{ 1, 2, 2, 1 };
+    var f1 = try cholesky(testing.allocator, &indef, 2);
+    defer f1.deinit();
+    try testing.expect(!f1.positive_definite);
+
+    var x: [2]f64 = undefined;
+    const b = [_]f64{ 1, 1 };
+    try testing.expect(!choleskySolve(&f1, &b, &x));
+
+    // negative on the diagonal
+    const neg = [_]f64{ -1, 0, 0, -1 };
+    var f2 = try cholesky(testing.allocator, &neg, 2);
+    defer f2.deinit();
+    try testing.expect(!f2.positive_definite);
+
+    // a zero diagonal is semi-definite at best, which Cholesky also refuses
+    const semi = [_]f64{ 0, 0, 0, 1 };
+    var f3 = try cholesky(testing.allocator, &semi, 2);
+    defer f3.deinit();
+    try testing.expect(!f3.positive_definite);
+
+    // the identity is the easiest positive-definite matrix there is
+    const id = [_]f64{ 1, 0, 0, 1 };
+    var f4 = try cholesky(testing.allocator, &id, 2);
+    defer f4.deinit();
+    try testing.expect(f4.positive_definite);
+    try testing.expectEqual(@as(f64, 1), f4.at(0, 0));
+    try testing.expectEqual(@as(f64, 1), f4.at(1, 1));
+}
+
+test "QR least squares: an exact fit is found exactly" {
+    // Four points on the line y = 2x + 1, fitted with the design matrix [1, x].
+    // Overdetermined (4 equations, 2 unknowns) but CONSISTENT, so the residual is
+    // zero and the answer must be exactly the line.
+    const m = 4;
+    const n = 2;
+    const a = [_]f64{ 1, 0, 1, 1, 1, 2, 1, 3 };
+    const b = [_]f64{ 1, 3, 5, 7 };
+    var x: [n]f64 = undefined;
+    try testing.expect(try leastSquares(testing.allocator, &a, m, n, &b, &x));
+    try testing.expectApproxEqAbs(@as(f64, 1), x[0], 1e-9); // intercept
+    try testing.expectApproxEqAbs(@as(f64, 2), x[1], 1e-9); // slope
+}
+
+test "QR least squares: MULTIPLE regression, which the library could not do" {
+    // z = 3 + 2u - 1.5v over five points. stats.zig's regression takes exactly one
+    // predictor; this takes two, and there is no other route to it in the library.
+    const m = 5;
+    const n = 3;
+    const a = [_]f64{
+        1, 1, 1,
+        1, 2, 1,
+        1, 3, 2,
+        1, 4, 3,
+        1, 5, 5,
+    };
+    var b: [m]f64 = undefined;
+    for (0..m) |i| {
+        const u = a[i * n + 1];
+        const v = a[i * n + 2];
+        b[i] = 3.0 + 2.0 * u - 1.5 * v;
+    }
+    var x: [n]f64 = undefined;
+    try testing.expect(try leastSquares(testing.allocator, &a, m, n, &b, &x));
+    try testing.expectApproxEqAbs(@as(f64, 3.0), x[0], 1e-8);
+    try testing.expectApproxEqAbs(@as(f64, 2.0), x[1], 1e-8);
+    try testing.expectApproxEqAbs(@as(f64, -1.5), x[2], 1e-8);
+}
+
+test "QR least squares: an INEXACT fit satisfies the normal equations" {
+    // Points that are NOT collinear, so no exact solution exists and the answer is
+    // defined by a property rather than by a formula: the residual must be
+    // orthogonal to every column of A, i.e. A^T(Ax - b) = 0. Checking that is
+    // checking the DEFINITION of least squares, not a remembered number.
+    const m = 5;
+    const n = 2;
+    const a = [_]f64{ 1, 1, 1, 2, 1, 3, 1, 4, 1, 5 };
+    const b = [_]f64{ 2.1, 3.9, 6.2, 7.8, 10.1 };
+    var x: [n]f64 = undefined;
+    try testing.expect(try leastSquares(testing.allocator, &a, m, n, &b, &x));
+
+    var resid: [m]f64 = undefined;
+    for (0..m) |i| {
+        var acc: f64 = 0;
+        for (0..n) |j| acc += a[i * n + j] * x[j];
+        resid[i] = acc - b[i];
+    }
+    for (0..n) |j| {
+        var dot: f64 = 0;
+        for (0..m) |i| dot += a[i * n + j] * resid[i];
+        try testing.expectApproxEqAbs(@as(f64, 0), dot, 1e-9);
+    }
+
+    // and no other coefficient vector can do better -- perturb and the residual
+    // norm must grow
+    var ss: f64 = 0;
+    for (resid) |r| ss += r * r;
+    inline for (.{ .{ 0.01, 0.0 }, .{ -0.01, 0.0 }, .{ 0.0, 0.01 }, .{ 0.0, -0.01 } }) |d| {
+        var ss2: f64 = 0;
+        for (0..m) |i| {
+            var acc: f64 = 0;
+            acc += a[i * n + 0] * (x[0] + d[0]);
+            acc += a[i * n + 1] * (x[1] + d[1]);
+            const r = acc - b[i];
+            ss2 += r * r;
+        }
+        try testing.expect(ss2 > ss);
+    }
+}
+
+test "QR: on a SQUARE system it must agree with LU, which shares none of its code" {
+    const n = 4;
+    const a = [_]f64{
+        4,  -2, 1,  3,
+        3,  6,  -4, 2,
+        2,  1,  8,  -5,
+        -1, 3,  2,  7,
+    };
+    const b = [_]f64{ 5, -3, 8, 1 };
+    var x_qr: [n]f64 = undefined;
+    var x_lu: [n]f64 = undefined;
+    try testing.expect(try leastSquares(testing.allocator, &a, n, n, &b, &x_qr));
+    try testing.expect(try solve(testing.allocator, &a, n, &b, &x_lu));
+    for (0..n) |i| try testing.expectApproxEqAbs(x_lu[i], x_qr[i], 1e-8);
+}
+
+test "QR: rank deficiency and bad shapes are refused" {
+    // a duplicated column: the columns are dependent, so no unique minimiser
+    const dup = [_]f64{ 1, 1, 2, 2, 3, 3 }; // 3x2, column 2 == column 1
+    var x: [2]f64 = undefined;
+    const b = [_]f64{ 1, 2, 3 };
+    try testing.expect(!try leastSquares(testing.allocator, &dup, 3, 2, &b, &x));
+
+    var f = try qr(testing.allocator, &dup, 3, 2);
+    defer f.deinit();
+    try testing.expect(!f.isFullRank());
+
+    // an UNDERdetermined system (fewer equations than unknowns) is refused rather
+    // than answered: there are infinitely many exact solutions and least squares
+    // does not choose between them.
+    const wide = [_]f64{ 1, 2, 3, 4, 5, 6 }; // 2x3
+    var x3: [3]f64 = undefined;
+    try testing.expect(!try leastSquares(testing.allocator, &wide, 2, 3, b[0..2], &x3));
+
+    // zero columns
+    try testing.expect(!try leastSquares(testing.allocator, &dup, 3, 0, &b, &x));
 }

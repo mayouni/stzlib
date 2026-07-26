@@ -20,6 +20,9 @@ comptime {
     @export(&matrix.stz_matrix_transpose, .{ .name = "stz_matrix_transpose" });
     @export(&matrix.stz_matrix_determinant, .{ .name = "stz_matrix_determinant" });
     @export(&matrix.stz_matrix_solve, .{ .name = "stz_matrix_solve" });
+    @export(&matrix.stz_matrix_least_squares, .{ .name = "stz_matrix_least_squares" });
+    @export(&matrix.stz_matrix_cholesky, .{ .name = "stz_matrix_cholesky" });
+    @export(&matrix.stz_matrix_is_positive_definite, .{ .name = "stz_matrix_is_positive_definite" });
     @export(&matrix.stz_matrix_inverse, .{ .name = "stz_matrix_inverse" });
     @export(&matrix.stz_matrix_power, .{ .name = "stz_matrix_power" });
 }

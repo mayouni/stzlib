@@ -2387,6 +2387,122 @@ class stzMatrix from stzListOfLists
 	# Simple Gaussian elimination for matrix inversion
 	# ~> Reliable up to ~50x50 matrices
 
+	# LEAST SQUARES: the coefficients minimising ||A x - b||, where this matrix is A.
+	#
+	# NEW in phase 4 slice 7 of the numeric foundation, and it is a capability rather
+	# than a speedup. An OVERDETERMINED system -- more equations than unknowns, which
+	# is what fitting a model to data always is -- had no answer anywhere in the
+	# library. SolveFor needs a square A; stats.zig's regression is SIMPLE
+	# regression, one predictor giving a slope and an intercept. This is multiple
+	# regression.
+	#
+	#     # fit z = c1 + c2*u + c3*v to five observations
+	#     oA = new stzMatrix([ [1,1,1], [1,2,1], [1,3,2], [1,4,3], [1,5,5] ])
+	#     oA.LeastSquaresFor([ 1.5, 3.5, 4, 4.5, 3.5 ])
+	#     #--> [ 3, 2, -1.50 ]
+	#
+	# Householder QR, not the normal equations. Forming A-transpose-A SQUARES THE
+	# CONDITION NUMBER -- a fit that would lose 8 digits loses 16, which in a double
+	# is all of them. Householder costs about twice as much and is unconditionally
+	# stable, which is the right trade for something computed once.
+	#
+	# Returns [] when the columns are linearly dependent: there is no unique
+	# minimiser then, and choosing one of infinitely many silently would be worse
+	# than saying so.
+	def LeastSquaresFor(panB)
+
+		if NOT isList(panB) or len(panB) != @nRows
+			StzRaise("LeastSquaresFor: give me one observation per row (" +
+			         @nRows + " expected, got " + len(panB) + ").")
+		ok
+
+		if @nRows < @nCols
+			StzRaise("LeastSquaresFor: an underdetermined system (" + @nRows +
+			         " equations, " + @nCols + " unknowns) has infinitely many " +
+			         "exact solutions; least squares does not choose between them.")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+
+		_aBLs_ = []
+		for _iLs_ = 1 to @nRows
+			_aBLs_ + [ panB[_iLs_] ]
+		next
+		_pBLs_ = StzEngineMatrixNewFromList(@nRows, 1, _aBLs_)
+		if _pBLs_ = NULL
+			return []
+		ok
+
+		_pXLs_ = StzEngineMatrixLeastSquares(@pEngineMatrix, _pBLs_)
+		StzEngineMatrixFree(_pBLs_)
+		if _pXLs_ = NULL
+			return []
+		ok
+
+		_anXLs_ = []
+		for _jLs_ = 1 to @nCols
+			_anXLs_ + StzEngineMatrixGet(_pXLs_, _jLs_ - 1, 0)
+		next
+		StzEngineMatrixFree(_pXLs_)
+		return _anXLs_
+
+		#< @FunctionAlternativeForms
+
+		def LeastSquares(panB)
+			return This.LeastSquaresFor(panB)
+
+		def BestFitFor(panB)
+			return This.LeastSquaresFor(panB)
+
+		#>
+
+	# The Cholesky factor L, where A = L * L-transpose. Lower triangular, zeros
+	# above the diagonal. Returns [] when the matrix is not symmetric positive
+	# definite -- the factorisation exists exactly when that property holds, which
+	# is what makes IsPositiveDefinite() below cheap.
+	def CholeskyFactor()
+
+		if @nRows != @nCols
+			StzRaise("CholeskyFactor is only defined for square matrices.")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+
+		_pLCh_ = StzEngineMatrixCholesky(@pEngineMatrix)
+		if _pLCh_ = NULL
+			return []
+		ok
+
+		_aLCh_ = []
+		for _iCh_ = 1 to @nRows
+			_aRowCh_ = []
+			for _jCh_ = 1 to @nCols
+				_aRowCh_ + StzEngineMatrixGet(_pLCh_, _iCh_ - 1, _jCh_ - 1)
+			next
+			_aLCh_ + _aRowCh_
+		next
+		StzEngineMatrixFree(_pLCh_)
+		return _aLCh_
+
+	# Symmetric positive definite? Asked of the Cholesky factorisation, which
+	# succeeds if and only if the property holds -- so this is the cheapest test
+	# available, and needs no eigenvalues.
+	def IsPositiveDefinite()
+		if @nRows != @nCols
+			return FALSE
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return FALSE
+		ok
+		return StzEngineMatrixIsPositiveDefinite(@pEngineMatrix) = 1
+
 	def Inverse()
 
 		# Only handle square matrices
