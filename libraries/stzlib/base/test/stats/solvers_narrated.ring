@@ -49,6 +49,45 @@ chk("the front SPREADS across the trade-off (near 0 AND near 10)",
 	nMin < 2 and nMax > 8)
 chk("... and stays inside the variable bounds", nMin >= 0 and nMax <= 10)
 
+# THE SPREAD ASSERTION ABOVE USED TO BE FLAKY, failing about once in twenty-five
+# runs. Not because the solver was wrong: NSGA-II is a genetic algorithm, it seeded
+# its population with Ring's bare random(), and so every run produced a different
+# front. ANY assertion about that front was probabilistic -- a stochastic assertion
+# without a seed is flaky by construction.
+#
+# The fix was not to weaken the assertion but to make the solver obey a law the
+# library had already written down for itself. stzNeuralNetwork carries a seeded
+# generator with SetSeed() ("LAW 3: two runs agree; SetSeed to vary") and stzKMeans
+# is deterministic by construction; stzMultiObjectiveSolver was the one class that
+# had not been brought into line. It now uses the same seeded Park-Miller LCG.
+#
+# So the spread assertion could STAY -- and these three make the flake unable to
+# come back, because they check the property that was actually missing.
+
+? ""
+? "-- Scene 1b: LAW 3 -- two runs agree --"
+
+# TWO extra solves, not four: oM from Scene 1 above is already a default-seed run,
+# so it serves as the first of the identical pair.
+cF1 = FrontDigest(oM)
+
+oRepeat = new stzMultiObjectiveSolver()
+oRepeat.addVariable("x", 0, 10)  oRepeat.maximize("x")  oRepeat.minimize("x")
+oRepeat.solve("nsga_ii")
+chk("two identical runs give an IDENTICAL front (this is what LAW 3 means)",
+	FrontDigest(oRepeat) = cF1)
+
+oSeeded = new stzMultiObjectiveSolver()
+oSeeded.addVariable("x", 0, 10)  oSeeded.maximize("x")  oSeeded.minimize("x")
+oSeeded.SetSeed(1234)
+oSeeded.solve("nsga_ii")
+chk("... and SetSeed genuinely varies it, so the seed is live and not ignored",
+	FrontDigest(oSeeded) != cF1)
+# on a FRESH solver: Seed() reports the live generator state, which solve() has
+# already advanced on oM above, so asking it there would read a mid-stream value
+chk("... and the default seed is 42, as stzNeuralNetwork uses",
+	(new stzMultiObjectiveSolver()).Seed() = 42)
+
 ? ""
 ? "-- Scene 2: NSGA-II REFUSES what it cannot honour --"
 
@@ -159,6 +198,17 @@ chk("it solves the expected-value problem without crashing", bSolved = 1)
 ? "=========================================="
 
 pf()
+
+# A front reduced to one comparable string, so two runs can be compared exactly
+# rather than approximately.
+func FrontDigest(oSolver)
+	aF = oSolver.@aParetoSolutions
+	cOut = ""
+	nLen = len(aF)
+	for i = 1 to nLen
+		cOut += ("" + aF[i][:solution][1][2] + "|")
+	next
+	return cOut
 
 func chk(cLabel, bCond)
 	if bCond
