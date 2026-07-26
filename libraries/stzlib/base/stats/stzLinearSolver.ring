@@ -18,6 +18,7 @@ class stzLinearSolver from stzObject
 	@status = ""
 	@iterations = 0
 	@solveTime = 0
+	@aCoeffCache = []   # expression text -> parsed [ [name, coeff], ... ]
 
 	def init()
 		# Initialize with empty problem
@@ -404,75 +405,67 @@ class stzLinearSolver from stzObject
 			ok
 		next
 
-		while TRUE
-			@iterations++
-			if @iterations > 2000
-				@status = "iteration_limit"
-				exit
-			ok
-			_nPc_ = 0
-			_nMost_ = -0.0000001
-			for j = 1 to _nCols_ - 1
-				if _aZ_[j] < _nMost_
-					_nMost_ = _aZ_[j]
-					_nPc_ = j
-				ok
-			next
-			if _nPc_ = 0
-				exit
-			ok
-			_nPr_ = 0
-			_nBestR_ = 0
-			for i = 1 to _nM_
-				if _aT_[i][_nPc_] > 0.0000001
-					_nRatio_ = _aT_[i][_nCols_] / _aT_[i][_nPc_]
-					if _nPr_ = 0 or _nRatio_ < _nBestR_
-						_nBestR_ = _nRatio_
-						_nPr_ = i
-					ok
-				ok
-			next
-			if _nPr_ = 0
-				@status = "unbounded"
-				exit
-			ok
-			_nPv_ = _aT_[_nPr_][_nPc_]
-			for j = 1 to _nCols_
-				_aT_[_nPr_][j] /= _nPv_
-			next
-			for i = 1 to _nM_
-				if i != _nPr_ and fabs(_aT_[i][_nPc_]) > 0.000000001
-					_nF_ = _aT_[i][_nPc_]
-					for j = 1 to _nCols_
-						_aT_[i][j] -= _nF_ * _aT_[_nPr_][j]
-					next
-				ok
-			next
-			_nF_ = _aZ_[_nPc_]
-			if fabs(_nF_) > 0.000000001
-				for j = 1 to _nCols_
-					_aZ_[j] -= _nF_ * _aT_[_nPr_][j]
-				next
-			ok
-			_aBasis_[_nPr_] = _nPc_
-		end
+		# THE PIVOT LOOP RUNS IN THE ENGINE (phase 5 slice 2 of the numeric
+		# foundation). Everything above this point -- parsing the constraint
+		# strings, extracting coefficients, shifting by the lower bounds, laying
+		# out slack and artificial columns, building the Big-M objective row --
+		# stays in Ring, because it MEASURED at 0.005s and flat. Only the pivoting
+		# was slow:
+		#
+		#     vars x cons     build      solve (before)
+		#     10 x 8          0.001s     0.051s
+		#     20 x 15         0.002s     0.353s
+		#     40 x 30         0.005s     2.620s
+		#
+		# Per iteration the loop below did O(rows x cols) reads and writes into a
+		# NESTED LIST OF BOXED VALUES -- roughly a million of them for a
+		# 40-variable model. That is the cost; the arithmetic is trivial.
+		#
+		# The engine reproduces this loop EXACTLY: same most-negative entering
+		# rule with the first index winning ties, same minimum-ratio leaving rule
+		# with the first row winning ties, same tolerances. A different but equally
+		# valid pivot rule would settle on a different vertex of the same optimal
+		# face when the problem is degenerate -- still optimal, but a different
+		# reported solution, which would silently change every existing answer.
 
+		_aFlatT_ = []
 		for i = 1 to _nM_
-			if _aBasis_[i] > _nArtAt_ and _aT_[i][_nCols_] > 0.000001
-				@status = "infeasible"
-			ok
+			for j = 1 to _nCols_
+				_aFlatT_ + _aT_[i][j]
+			next
 		next
 
-		# extract x' and shift back to x = lo + x'
+		_aRunRes_ = StzEngineSimplexRun(_aFlatT_, _aZ_, _aBasis_,
+		                                _nM_, _nCols_, _nArtAt_, _nV_)
+
+		if NOT isList(_aRunRes_) or len(_aRunRes_) < 2 + _nV_
+			StzRaise("stzLinearSolver: the engine simplex returned an unusable result.")
+		ok
+
+		_nStatusCode_ = _aRunRes_[1]
+		@iterations = _aRunRes_[2]
+
+		if _nStatusCode_ = 1
+			@status = "unbounded"
+		but _nStatusCode_ = 2
+			@status = "infeasible"
+		but _nStatusCode_ = 3
+			@status = "iteration_limit"
+		ok
+
+		# x' comes back already extracted from the final tableau; the shift back to
+		# x = lo + x' still happens below, where it always did.
+		_aEngineX_ = []
+		for j = 1 to _nV_
+			_aEngineX_ + _aRunRes_[2 + j]
+		next
+
+		# shift back to x = lo + x'. The engine already read x' out of the final
+		# tableau, so the search through the basis that used to live here is gone
+		# with the loop it belonged to.
 		_aSolution_ = []
 		for j = 1 to _nV_
-			_nVal_ = 0 + @variables[j][:lowerBound]
-			for i = 1 to _nM_
-				if _aBasis_[i] = j
-					_nVal_ += _aT_[i][_nCols_]
-					exit
-				ok
-			next
+			_nVal_ = (0 + @variables[j][:lowerBound]) + _aEngineX_[j]
 			_aSolution_ + [ _aVarNames_[j], _nVal_ ]
 		next
 		return _aSolution_
@@ -617,16 +610,58 @@ class stzLinearSolver from stzObject
 		
 		return _aCoeffs_
 
-	def extractCoefficient(_cExpression_, _cVarName_)
-		# REAL linear-term parser (R4 step 5, 2026-07-14). The old
-		# byte-peek LOST MULTIPLIERS -- '0.6*marketing' read as 1, so
-		# every solver optimized the wrong objective. This one splits
-		# on +/- terms and understands 'k*var', 'var*k' and bare 'var',
-		# with EXACT token matching ('rd' never matches inside 'yard').
+	# PARSE EACH EXPRESSION ONCE, not once per variable.
+	#
+	# MEASURED (phase 5 slice 2 of the numeric foundation). On a 40-variable,
+	# 30-constraint model, Solve("simplex") took 2.59s -- and 2.47s of it, 95%,
+	# was this function. It is called once per (constraint, variable) pair, and
+	# each call re-parsed the ENTIRE constraint string from scratch: lower it,
+	# rewrite the minus signs, split on "+", then walk every term. Parsing a
+	# 40-term expression once per variable does forty times the necessary work,
+	# so the cost grew as constraints x variables x terms -- CUBIC in the model
+	# size, for a parse that is linear.
+	#
+	# The plan said to move the SIMPLEX to the engine. The pivot loop turned out
+	# to be about 0.1s of that 2.59s: moving it changed the total from 2.620s to
+	# 2.603s, which is nothing. The cost was never the arithmetic -- it was
+	# re-reading the same strings. Same shape as the CSV module, where 3.1s per
+	# 2000 rows was a regex being recompiled per cell.
+	#
+	# So the expression is parsed once into [ [name, coefficient], ... ] and
+	# cached by its own text. Every one of the seven call sites keeps its exact
+	# signature and semantics -- nothing above this line had to change.
+
+	# Is this token a number rather than a variable name? One pass over its bytes.
+	def _LooksNumeric(_cTok_)
+		if _cTok_ = ""
+			return FALSE
+		ok
+		_nLenT_ = len(_cTok_)
+		_bDigit_ = FALSE
+		for _iLn_ = 1 to _nLenT_
+			_nA_ = ascii(_cTok_[_iLn_])
+			if _nA_ >= 48 and _nA_ <= 57
+				_bDigit_ = TRUE
+			but _nA_ != 46 and _nA_ != 43 and _nA_ != 45
+				return FALSE
+			ok
+		next
+		return _bDigit_
+
+	def _ParsedTermsOf(_cExpression_)
+		_nCacheLen_ = len(@aCoeffCache)
+		for _iPc_ = 1 to _nCacheLen_
+			if @aCoeffCache[_iPc_][1] = _cExpression_
+				return @aCoeffCache[_iPc_][2]
+			ok
+		next
+
+		# The parse itself, term for term as it always was: split on +/- , then
+		# read 'k*var', 'var*k' or a bare 'var', with EXACT token matching so
+		# 'rd' never matches inside 'yard'.
 		_cE_ = StzLower(StzReplace(" " + _cExpression_, "-", "+-"))
 		_acTerms_ = StzSplit(_cE_, "+")
-		_cV_ = StzLower(ring_trim(_cVarName_))
-		_nTotal_ = 0
+		_aPairs_ = []
 		_nT_ = len(_acTerms_)
 		for _i_ = 1 to _nT_
 			_cT_ = StzReplace(ring_trim(_acTerms_[_i_]), " ", "")
@@ -638,20 +673,65 @@ class stzLinearSolver from stzObject
 				_nSg_ = -1
 				_cT_ = StzRight(_cT_, StzLen(_cT_) - 1)
 			ok
-			if _cT_ = _cV_
-				_nTotal_ += _nSg_
-			but len(StzFind("*", _cT_)) > 0
+
+			_cName_ = ""
+			_nCoef_ = 0
+			if len(StzFind("*", _cT_)) > 0
 				_acF_ = StzSplit(_cT_, "*")
 				if len(_acF_) = 2
-					if ring_trim(_acF_[2]) = _cV_
-						_nTotal_ += _nSg_ * ring_number(_acF_[1])
-					but ring_trim(_acF_[1]) = _cV_
-						_nTotal_ += _nSg_ * ring_number(_acF_[2])
+					_cF1_ = ring_trim(_acF_[1])
+					_cF2_ = ring_trim(_acF_[2])
+					# 'k*var' or 'var*k' -- whichever side is not the number
+					if _cF1_ != "" and _cF2_ != ""
+						# which side is the number? A CHARACTER SCAN, not a regex
+						# -- @IsNumberInString recompiles one per call, which is
+						# the very cost this change exists to remove (the CSV
+						# module lost 3.1s per 2000 rows to exactly that).
+						if This._LooksNumeric(_cF1_)
+							_cName_ = _cF2_
+							_nCoef_ = _nSg_ * ring_number(_cF1_)
+						but This._LooksNumeric(_cF2_)
+							_cName_ = _cF1_
+							_nCoef_ = _nSg_ * ring_number(_cF2_)
+						ok
 					ok
+				ok
+			else
+				_cName_ = _cT_
+				_nCoef_ = _nSg_
+			ok
+
+			if _cName_ != ""
+				# a variable may appear more than once in one expression, so the
+				# terms ACCUMULATE, exactly as the per-variable version did
+				_bFound_ = FALSE
+				_nPl_ = len(_aPairs_)
+				for _k_ = 1 to _nPl_
+					if _aPairs_[_k_][1] = _cName_
+						_aPairs_[_k_][2] += _nCoef_
+						_bFound_ = TRUE
+						exit
+					ok
+				next
+				if NOT _bFound_
+					_aPairs_ + [ _cName_, _nCoef_ ]
 				ok
 			ok
 		next
-		return _nTotal_
+
+		@aCoeffCache + [ _cExpression_, _aPairs_ ]
+		return _aPairs_
+
+	def extractCoefficient(_cExpression_, _cVarName_)
+		_cV_ = StzLower(ring_trim(_cVarName_))
+		_aPairs_ = This._ParsedTermsOf(_cExpression_)
+		_nLenP_ = len(_aPairs_)
+		for _iEc_ = 1 to _nLenP_
+			if _aPairs_[_iEc_][1] = _cV_
+				return _aPairs_[_iEc_][2]
+			ok
+		next
+		return 0
 
 	def calculateResourceCost(_cVarName_)
 		# Calculate total resource cost for one unit of variable
