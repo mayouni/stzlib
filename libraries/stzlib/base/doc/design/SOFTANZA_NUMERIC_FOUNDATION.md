@@ -474,6 +474,16 @@ The algorithms in §2.4 come down from Ring, in value order:
   *Verification:* all 14 linearsolver tests **byte-identical** before and after.
 - **Clustering / KNN / logistic / trees → engine**, over resident buffers. These
   are the classic distance-and-reduce kernels that SIMD and threads were made for.
+  **DISTANCE DONE (3e70a67c7)**, guard `numeric_one_distance_narrated` (16):
+  `stzKMeans` and `stzKnn` each carried a hand-rolled Euclidean distance — *byte-for-byte
+  identical Ring loops* — alongside `similarity.zig`'s vectorised one. **Three
+  definitions of one quantity**, the same shape as the variance divisor, the summation,
+  the centered sum of squares and the negligible threshold. Measured first: 8× at
+  20000×32, free below a few thousand points, so the authority argument carried it.
+  **The care was in the RAGGED case** — both loops truncated to the shorter vector and
+  nothing validates lengths on input, while the engine bridge *refuses* a mismatch and
+  answers 0, which for a distance reads as "identical" and would collapse a k-means
+  cluster. Routing to a shared authority is only safe if its REFUSALS are handled.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
