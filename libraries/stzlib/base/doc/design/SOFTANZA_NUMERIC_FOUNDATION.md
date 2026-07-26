@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-2 COMPLETE; PHASE 3 STARTED** (the buffer itself, 13266934d). **Phases 4-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE** (residency, in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc). **Phases 4-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -682,9 +682,10 @@ sketch below.**
 > `numeric_regime_narrated` (27). Blast radius measured at every slice: nothing in
 > the 89-file suite moved.
 
-**Phase 3 — residency.** `stzNumBuffer`, engine-is-truth with materialised views,
-`stzListOfNumbers` and `stzMatrix` moved onto it, `stzMatrix`'s dual representation
-resolved. **This is the phase that makes every later phase worth doing** — §2.5.
+**Phase 3 — residency. DONE.** `stzNumBuffer`, engine-is-truth with materialised
+views; `stzMatrix`'s dual representation resolved; one summation authority; and an
+explicit door between the list tier and the resident tier. **This is the phase that
+makes every later phase worth doing** — §2.5.
 
 > **SLICE 1 DONE (13266934d), guard `numeric_residency_narrated` (26): THE BUFFER.**
 > New engine module `numbuf.zig` — a contiguous, mutable f64 buffer the engine owns,
@@ -717,8 +718,63 @@ resolved. **This is the phase that makes every later phase worth doing** — §2
 > tests — importing it is not enough. The count sat at 1637 until `numbuf` was added
 > there; it is now 1642.
 >
-> **Remaining in phase 3:** move `stzListOfNumbers` and `stzMatrix` onto the buffer,
-> and resolve `stzMatrix`'s dual `@aContent`/`@pEngineMatrix` with the same rule.
+> **SLICE 2 DONE (ba4c54ec9), guard `numeric_matrix_truth_narrated` (12): THE DUAL
+> REPRESENTATION.** `stzMatrix` held its values twice and kept them in step by asking
+> every writer to remember to invalidate. **Seventeen of the twenty-three writers did
+> not** — the whole `Replace*` family among them — so `Determinant()` after
+> `ReplaceRow(1,[99,2])` still answered `-2` where the content plainly said `390`.
+>
+> Adding the seventeen missing calls would have fixed today and left the eighteenth
+> method to reopen it, so the **discipline is removed rather than relied upon**: the
+> engine matrix is now a **transient**, rebuilt from the Ring content when needed.
+> Nothing was gaining from the cache — every call site is a one-shot engine
+> operation. Cost of always rebuilding, measured: fifty transposes of a 50×50, i.e.
+> fifty rebuilds of 2500 cells, **0.05s total**, about a millisecond each.
+>
+> *Found while measuring, not fixed here:* the engine's determinant is **naive
+> cofactor expansion, O(n!)** — fine at 2×2, hard work at 8×8, impossible past about
+> ten. **Phase 4's LU decomposition is the fix** (O(n³)); until then `Determinant()`
+> is for small matrices.
+>
+> **SLICE 3 DONE (cc8fb24d8), guard `numeric_summation_narrated` (16): ONE
+> SUMMATION.** Slice 1 gave the buffer a compensated sum while `stats.zig` and
+> `list.zig` kept naive ones, so the **same 1001 numbers gave two different answers**
+> depending on the door: `stzListOfNumbers.Sum()` and `stzDataSet.Sum()` both lost a
+> thousand ones that `stzNumBuffer.Sum()` kept. **The phase-0 disease recreated in a
+> new place by the very phase that added the correct version.**
+>
+> Summation moved next to the variance divisor in `stats.zig`: `compensatedSum` for a
+> slice, a `Compensated` accumulator for callers that filter or convert as they walk.
+> `list.zig` had **three** naive loops in `sum` and three in `mean`, one per
+> representation; all six now feed the accumulator.
+>
+> Blast radius measured, not assumed: the 74 tests across number / listofnumbers /
+> stats / dataset / matrix that touch a sum or a mean, captured against both engines.
+> Six files differ and **every difference is a timing line** — when addends are of
+> similar magnitude the compensation term stays zero and the two algorithms are
+> bit-identical.
+>
+> **SLICE 4 DONE (0ddf438fc), guard `numeric_tier_door_narrated` (13): THE DOOR —
+> and a departure from this plan.** The plan said "move `stzListOfNumbers` onto the
+> buffer". Reading the class decided otherwise: of its **eleven hundred methods**,
+> nearly all are list work that genuinely wants a Ring list. Moving its truth into the
+> engine would make a thousand methods worse to make ten better.
+>
+> What it owed the numeric plane was an explicit, cheap way **out** —
+> `ToStzNumBuffer()` / `ToStzListOfNumbers()`, one crossing each, **named at the call
+> site** so the tier you are in is visible rather than guessed at. Over a million
+> numbers, eight reductions: **0.31s the ordinary way, 0.03s across the door.**
+>
+> **The copy that nearly hid it.** Written first as `new stzNumBuffer(This.Content())`
+> the door measured **slower** than the ordinary path — 0.34s against 0.31s.
+> `Content()` was assigning the field to a local before returning it, so asking for
+> the numbers cost **two full copies of a million-element list** before the buffer had
+> marshalled anything, and those copies cost **more than the entire crossing they sat
+> in front of**. Reading `@aContent` directly took the door to 0.03s; removing the
+> pointless local from `Content()` took that method from **0.32s to 0.12s** per call,
+> provably safe because a probe confirms Ring copies a list on return either way.
+>
+> **PHASE 3 COMPLETE.** 14 number guards, 392 assertions, engine 1643/1643.
 
 **Phase 4 — kernels.** SIMD reductions and similarity; Neumaier/Welford stability;
 threaded reductions and matmul; then LU/QR/Cholesky/eigen/SVD; then special
