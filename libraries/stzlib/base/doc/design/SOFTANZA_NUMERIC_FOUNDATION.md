@@ -533,6 +533,64 @@ The algorithms in §2.4 come down from Ring, in value order:
   SGD's normal requirement, not a defect; `TrainingAccuracy()` is what makes a
   silent, confident failure visible. Standardisation belongs with the trainer
   rewiring in phase 6, where the transform can be held with the model.
+
+  **TREES: THE PLAN NAMED THE WRONG LINE AGAIN (381d94b06)**, guard
+  `numeric_counting_idiom_narrated` (33). The tree did **not** go to the engine,
+  because profiling it found something with nothing to do with trees — a Ring idiom
+  that appears all over this library:
+
+  ```ring
+  if HasKey(aCounts, key) : aCounts[key] = aCounts[key] + 1
+  else                    : aCounts[key] = 1
+  ```
+
+  Counting into a Ring hash-list. It reads like a hash map and is not one:
+
+  | 4000 items, 20 passes | 2 distinct keys | 50 distinct keys |
+  |---|---|---|
+  | HasKey idiom | 1.515s | 12.858s |
+  | parallel lists + `ring_find` | 0.054s | 0.068s |
+  | | **28×** | **189×** |
+
+  **Read the second column.** 2 keys → 50 makes the scan 26% slower and the HasKey
+  form **8.5× slower** — writing through the key appears to invalidate the index so
+  the next HasKey rebuilds it. *The idiom is worst exactly where a map is most
+  wanted.*
+
+  | | before | after | |
+  |---|---|---|---|
+  | `stzApriori` 200 transactions | 16.124s | 0.041s | **393×** |
+  | `stzApriori` 600 transactions | 47.589s | 0.099s | **481×** |
+  | `stzNaiveBayes` 100 documents | 12.497s | 0.088s | **142×** |
+  | `stzNaiveBayes` 600 documents | 82.251s | 0.466s | **176×** |
+  | `stzDecisionTree` 4000 × 8 | 1.434s | 0.308s | 4.7× |
+  | `stzDecisionTree` 10000 × 8 | 3.580s | 1.349s | 2.7× |
+
+  Association rules on two hundred baskets took sixteen seconds. **No suite said so
+  because they all use tiny fixtures.**
+
+  Two more tree findings, each measured before acting. The **case fold** lived inside
+  `_ValuesOf`/`_Subset`, re-folding every row once per (node, feature) though the
+  value never changes — `StzLower` builds and frees two engine string objects, five
+  crossings per character, and was **13× the loop containing it**. And `_Subset`
+  returned **copied rows**, so the set was copied once per level and again on every
+  method return; the recursion now carries **row numbers** (22× cheaper to append,
+  14% dearer to read). `_Majority` and `_Entropy` also had byte-identical counting
+  loops — one `_Counts()` now.
+
+  **The arithmetic is untouched in all three**, verified by before/after output diffs:
+  trees across five datasets + a mixed-case one + every training verdict + `Why()`;
+  naive Bayes labels, classifications and log-scores to ten decimals; apriori
+  itemsets, counts, rules, confidences **and their order**. All three diffs empty.
+
+  **Deliberately left:** `StzConfusionMatrix` (callers index it BY KEY — `aCM["b->a"]`
+  is its tested contract — and it holds at most labels² entries, the flat end of the
+  curve) and `stzKnn`'s vote tally (bounded by k). Neither is the severe form.
+
+  *Ring trap:* `(new stzDecisionTree(...)).Train()` as ONE expression does not raise —
+  it **runs**, and a 0.35s build did not finish in four minutes. A nastier face of the
+  construct-and-call trap than the R13 the same shape gives on `stzMatrix`, because
+  nothing announces itself.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
