@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE** (residency, in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc). **Phases 4-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels: 1fdc2eda5, 7621cc5e1). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -776,9 +776,68 @@ makes every later phase worth doing** — §2.5.
 >
 > **PHASE 3 COMPLETE.** 14 number guards, 392 assertions, engine 1643/1643.
 
-**Phase 4 — kernels.** SIMD reductions and similarity; Neumaier/Welford stability;
-threaded reductions and matmul; then LU/QR/Cholesky/eigen/SVD; then special
-functions.
+**Phase 4 — kernels. STARTED.** SIMD reductions and similarity; Neumaier/Welford
+stability; threaded reductions and matmul; then LU/QR/Cholesky/eigen/SVD; then
+special functions.
+
+> **SLICE 1 DONE (1fdc2eda5), guard `engine_is_optimised_narrated` (6): THE ENGINE
+> WAS NOT BEING COMPILED.** Before writing a kernel, a measurement: `build.zig`
+> asked for `standardOptimizeOption(.{})`, which defaults to **Debug**, and every
+> documented build command in this repo is a bare `zig build`. The DLLs are not
+> tracked in git, so **every developer and every deploy has been running an
+> unoptimised engine.** On 2M engine-resident f64s, twenty passes each:
+>
+> | | Debug | ReleaseSafe | |
+> |---|---|---|---|
+> | Sum | 0.14s | 0.04s | 3.5× |
+> | Mean | 0.14s | 0.04s | 3.5× |
+> | Variance | 0.22s | 0.07s | 3.1× |
+> | Dot | 0.08s | 0.03s | 2.7× |
+> | Scale | 0.05s | 0.01s | 5× |
+>
+> On string / list / matrix work the same change buys ~15%, because there the
+> marshalling dominates. **That contrast is the point: phase 3 moved computation
+> into the engine, so from here on the engine loop IS the cost.** Doing this before
+> the first SIMD kernel is the difference between optimising code and optimising
+> code that was never being compiled.
+>
+> **ReleaseSafe, not ReleaseFast** — it measured the same on every kernel while
+> keeping bounds/overflow/alignment checks, and since Debug had those too this
+> changes **no runtime semantics, only the optimiser**.
+>
+> *Two traps.* `standardOptimizeOption(.{ .preferred_optimize_mode = ... })` does
+> NOT change the default — it swaps `-Doptimize` for a `-Drelease` boolean and
+> leaves Debug in force; declare the option with `b.option` instead. And turning
+> optimisation on turns Zig's **implicit C sanitiser** on with it: tree-sitter began
+> trapping on *any* parse with SIGILL and no message (a bare `ud2`, where a Zig
+> safety panic would print). UBSan is now off for that one vendored library, whose
+> `parser.c` is machine-generated and does deliberate unaligned access; pcre2,
+> utf8proc and sqlite still opt *in* to trap mode.
+>
+> **SLICE 2 DONE (7621cc5e1): THE SUMMATION AUTHORITY IS VECTORISED, and the shape
+> is the opposite of the obvious one.** Measured over 4M f64s, thirty passes:
+>
+> | | scalar | `@Vector(8)` | |
+> |---|---|---|---|
+> | sum naive | 67.6ms | 35.8ms | 1.9× |
+> | **sum compensated** | **145.1ms** | **58.5ms** | **2.5×** |
+> | dot | 77.5ms | 62.9ms | 1.2× |
+>
+> The naive sum is the textbook SIMD candidate and gains *least* of the two, because
+> LLVM already unrolls it. The **compensated** sum gains most — its loop-carried
+> dependence is exactly what stopped the compiler, so **being numerically careful is
+> what blocked the optimiser**, and lane-splitting gives the parallelism back. Dot
+> gains least of all: two streams, bandwidth-bound not compute-bound.
+>
+> Only `compensatedSum` changed, and because phase 3 slice 3 made summation ONE
+> authority, every door got it at once — through Ring, `Sum` and `Mean` 0.13s →
+> 0.06s (2.2×). Variance moves only to 0.15s because **its own sum-of-squares loop
+> is still scalar, and is now the dominant term there — the next target.**
+>
+> Accuracy is not traded for speed: each lane compensates its own subtotal and the
+> lanes combine through the scalar accumulator. Pinned by a test covering the
+> pathological case with the big value in a lane *and* in the ragged tail, every
+> length 0–40 against the scalar form, the empty slice, and mixed signs.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
