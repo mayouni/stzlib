@@ -345,6 +345,43 @@ pub fn stz_matrix_condition_general(m: ?*const StzMatrix) callconv(.c) f64 {
     return linalg.conditionNumberOf(gpa, mat.data, mat.rows, mat.cols) catch std.math.nan(f64);
 }
 
+/// The Moore-Penrose pseudo-inverse of ANY m*n matrix, as a new n*m matrix. Every
+/// shape and every rank -- wide, tall, square, singular. Null only for an empty one.
+pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.cols == 0) return null;
+    const out = StzMatrix.init(gpa, mat.cols, mat.rows) catch return null;
+    const ok = linalg.pseudoInverse(gpa, mat.data, mat.rows, mat.cols, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
+/// The MINIMUM-NORM least-squares solution x = A+b, as a new n*1 matrix. Where
+/// stz_matrix_least_squares refuses -- rank deficiency, or an underdetermined shape --
+/// this answers, with the solution that is both a minimiser and the shortest one.
+pub fn stz_matrix_min_norm_solve(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const ma = a orelse return null;
+    const mb = b orelse return null;
+    if (mb.cols != 1 or mb.rows != ma.rows) return null;
+    if (ma.rows == 0 or ma.cols == 0) return null;
+    const out = StzMatrix.init(gpa, ma.cols, 1) catch return null;
+    const ok = linalg.minimumNormSolve(gpa, ma.data, ma.rows, ma.cols, mb.data, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
 pub fn stz_matrix_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     const mat = m orelse return null;
     if (mat.rows != mat.cols) return null;
