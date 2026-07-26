@@ -1,3 +1,4 @@
+const std = @import("std");
 // Shared Ring Extension API declarations.
 // Imported by each ring_bridge_*.zig -- no code duplication.
 
@@ -23,34 +24,96 @@ pub extern fn ring_vm_api_retcpointer(p: *anyopaque, ptr: ?*anyopaque, cType: [*
 // Bridge files shadow ring_vm_api_retcpointer / ring_vm_api_getcpointer
 // with these wrappers so all call sites automatically use the table.
 
-const MAX_HANDLES = 8192;
-var handle_table: [MAX_HANDLES]?*anyopaque = [_]?*anyopaque{null} ** MAX_HANDLES;
+// THE TABLE GROWS. It used to be a fixed 8192 slots, and `storeHandle` returned 0
+// when they ran out -- which is where a whole class of baffling failures came from.
+//
+// Ring has NO DESTRUCTORS, so a Ring object that goes out of scope never calls the
+// Free that would reach `releaseSlot`. Every wrapper object built to ask a question
+// and then dropped -- the wrap-to-validate pattern this codebase has on record --
+// consumed a slot permanently. The cliff was real and reachable in ordinary code:
+//
+//     new stzChar("1")       failed at call 4097   (2 handles each)
+//     new stzNumber("1")     failed at call 1639
+//     StringToNumber("1")    failed at call 1366
+//
+// and the failure did not say "out of handles". `storeHandle` returned 0, the Ring
+// side read that as a null pointer, and the error surfaced far away as
+// "Can not create char object!" -- from a validation branch that had simply run out
+// of room to build the objects it validates with. Diagnosing it took a bisection of
+// stzNumber's constructor.
+//
+// GROWING RATHER THAN EVICTING, deliberately. A fixed table can only make room by
+// evicting a live entry, and nothing here knows whether an id is still held on the
+// Ring side -- an evicted-then-reused slot would hand one object's pointer to
+// another, which is far worse than an honest failure. Growth cannot do that: an id
+// stays valid for the life of the process. The cost is 8 bytes per leaked handle,
+// so a million leaked wrappers is 8MB -- visible in RSS, diagnosable, and survivable,
+// where the cliff was none of those.
+//
+// This is not a licence to leak. `releaseSlot` still exists and the Free paths still
+// call it; removing pointless wrapper objects is still the right fix at each call
+// site (three were removed from stzNumber's constructor in the same change). What
+// this removes is the CLIFF -- the point where correct code starts failing for
+// reasons it cannot see.
+
+const INITIAL_HANDLES = 8192;
+var handle_table: []?*anyopaque = &[_]?*anyopaque{};
+var handle_backing: [INITIAL_HANDLES]?*anyopaque = [_]?*anyopaque{null} ** INITIAL_HANDLES;
+var handle_grown: bool = false;
 var next_slot: usize = 0;
+
+fn tableInit() void {
+    if (handle_table.len == 0) handle_table = handle_backing[0..];
+}
+
+/// Double the table, copying what is there. Returns false if the allocator refuses,
+/// in which case storeHandle falls back to its old behaviour of reporting failure.
+fn grow() bool {
+    const alloc = std.heap.c_allocator;
+    const new_len = handle_table.len * 2;
+    const bigger = alloc.alloc(?*anyopaque, new_len) catch return false;
+    @memcpy(bigger[0..handle_table.len], handle_table);
+    @memset(bigger[handle_table.len..], null);
+    if (handle_grown) alloc.free(handle_table);
+    handle_table = bigger;
+    handle_grown = true;
+    return true;
+}
 
 pub fn storeHandle(ptr: ?*anyopaque) f64 {
     const raw = ptr orelse return 0;
-    var i: usize = 0;
-    while (i < MAX_HANDLES) : (i += 1) {
-        const idx = (next_slot + i) % MAX_HANDLES;
-        if (handle_table[idx] == null) {
-            handle_table[idx] = raw;
-            next_slot = (idx + 1) % MAX_HANDLES;
-            return @floatFromInt(idx + 1); // 1-based ID
+    tableInit();
+
+    var attempts: usize = 0;
+    while (attempts < 2) : (attempts += 1) {
+        const n = handle_table.len;
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            const idx = (next_slot + i) % n;
+            if (handle_table[idx] == null) {
+                handle_table[idx] = raw;
+                next_slot = (idx + 1) % n;
+                return @floatFromInt(idx + 1); // 1-based ID
+            }
         }
+        // full: grow once, then look again
+        if (!grow()) return 0;
     }
-    return 0; // table full
+    return 0;
 }
 
 pub fn resolveHandle(id: f64) ?*anyopaque {
+    tableInit();
     const raw_id = @as(i64, @intFromFloat(id));
-    if (raw_id <= 0 or raw_id > MAX_HANDLES) return null;
+    if (raw_id <= 0 or raw_id > @as(i64, @intCast(handle_table.len))) return null;
     const idx: usize = @intCast(raw_id - 1);
     return handle_table[idx];
 }
 
 pub fn releaseSlot(id: f64) void {
+    tableInit();
     const raw_id = @as(i64, @intFromFloat(id));
-    if (raw_id <= 0 or raw_id > MAX_HANDLES) return;
+    if (raw_id <= 0 or raw_id > @as(i64, @intCast(handle_table.len))) return;
     const idx: usize = @intCast(raw_id - 1);
     handle_table[idx] = null;
 }

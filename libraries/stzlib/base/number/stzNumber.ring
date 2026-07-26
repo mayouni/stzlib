@@ -1013,7 +1013,10 @@ func StringToNumber(_cNumber_) # TESTING IN PROGESS
 
 	# Deletig unnecessary spaces
 
-	_cNumber_ = Q(_cNumber_).Trimmed()
+	# StzTrimString, not Q(...).Trimmed(): the wrapper builds a stzString whose
+	# engine handle Ring never gives back (see the note in stzNumber's init). The
+	# global frees its own handles and answers the same string.
+	_cNumber_ = StzTrimString(_cNumber_)
 	if _cNumber_ = ""
 		_cNumber_ = "0"
 	ok
@@ -2624,13 +2627,40 @@ class stzNumber from stzObject
 			# Case where a char is provided in the form
 			# of Unicode circled numbers
 			# ~> Example : new stzNumber(char(226) + char(145) + char(166))
-			if StzStringQ(pNumber).IsAChar() and
-			   StzCharQ(pNumber).IsCircledNumber()
+			# THE OBJECT LEAK, FIXED 2026-07-26.
+			#
+			# This read `StzStringQ(pNumber).IsAChar() and StzCharQ(pNumber).
+			# IsCircledNumber()` -- two throwaway objects built on EVERY string
+			# construction just to ask a question about circled Unicode numerals,
+			# which is the wrap-to-validate anti-pattern this library already has
+			# on record. And RING'S `and` EVALUATES BOTH SIDES, so the stzChar was
+			# constructed even when the string was plainly not one character.
+			#
+			# Ring has no destructors, so each of those objects took an engine
+			# handle and never gave it back. The table (ring_api.zig) holds 8192,
+			# `releaseSlot` is only reached through an explicit Free that a
+			# garbage-collected object never calls, and so:
+			#
+			#     new stzChar("1")      failed at call 4097   (2 handles each)
+			#     new stzNumber("1")    failed at call 1639
+			#     StringToNumber("1")   failed at call 1366
+			#
+			# and once the table filled, EVERY later call needing a handle failed
+			# too -- surfacing as "Can not create char object!" from a validation
+			# branch that had simply run out of room to build its evidence.
+			#
+			# THE CHEAP GUARD IS EXACT, not an approximation. A circled numeral is
+			# U+2460 or above, so it is ONE codepoint and MORE THAN ONE BYTE.
+			# StzLen counts codepoints, len counts bytes, and neither allocates
+			# anything. Every ASCII string -- which is every ordinary number --
+			# fails this instantly and builds nothing at all.
+			if StzLen(pNumber) = 1 and len(pNumber) > 1
+				if StzCharQ(pNumber).IsCircledNumber()
+					@cContent = ""+ StzCharQ(pNumber).NumericValue()
+					@nRound = StzCurrentRound()
 
-				@cContent = ""+ StzCharQ(pNumber).NumericValue()
-				@nRound = StzCurrentRound()
-
-				return
+					return
+				ok
 			ok
 
 			# Case where the string provided is empty
@@ -2664,16 +2694,37 @@ class stzNumber from stzObject
 			else
 				if StringRepresentsNumberInDecimalForm(pNumber)
 		
-					if StringRepresentsCalculableNumber(pNumber)
-						_oString_ = new stzString(pNumber)
-						if _oString_.Contains("_")
-							@cContent = _oString_.RemoveQ("_").Content()
+					# INLINED, not StringRepresentsCalculableNumber(pNumber).
+					# That global is `new stzString(x)` + one method call, and it is
+					# leak-free when called at global scope -- but called from inside
+					# this class it leaked one engine handle per construction, which
+					# is what made `new stzNumber("1")` die at call 1639 and
+					# StringToNumber at 1366. The identical work written out here
+					# does not leak. Bare-name resolution inside a Ring class is
+					# already known to be its own hazard in this codebase (see
+					# CLAUDE.md on `len()`/`trim()` needing `ring_len`/`ring_trim`);
+					# this is the same family.
+					#
+					# The check is NOT redundant with the decimal-form test above,
+					# which was worth confirming before touching it: "12." and ".5"
+					# are decimal-form yet NOT calculable, so dropping it would have
+					# silently accepted both.
+					_oCalc_ = new stzString(pNumber)
+					if _oCalc_.RepresentsCalculableNumber()
+						# A THIRD leaked object, for the same reason: a stzString
+						# built only to ask "do you contain an underscore, and a
+						# dot?". CLAUDE.md's own rule covers this -- "Don't wrap to
+						# find/contain, use StzFind/StzFindFirst/StzReplace" -- and
+						# those globals answer without allocating.
+						if StzFindFirst("_", pNumber) > 0
+							@cContent = StzReplace(pNumber, "_", "")
 						else
 							@cContent = pNumber
 						ok
 
-						if _oString_.Contains(".")
-							@nRound = _oString_.Size() - _oString_.FindFirst(".")
+						_nDotAt_ = StzFindFirst(".", pNumber)
+						if _nDotAt_ > 0
+							@nRound = StzLen(pNumber) - _nDotAt_
 						else
 							@nRound = StzCurrentRound()
 						ok
