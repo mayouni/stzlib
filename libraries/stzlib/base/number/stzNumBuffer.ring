@@ -130,6 +130,22 @@ class stzNumBuffer from stzObject
 		def Content()
 			return This.ToList()
 
+	# THE RETURN LEG. stzListOfNumbers.ToStzNumBuffer() brings numbers in; this
+	# takes them back out to the list tier, where the eleven hundred list methods
+	# live. Both directions are one crossing, and both are written at the call site
+	# so the tier you are in is visible rather than guessed at.
+	#
+	# The buffer is NOT freed here: it is still yours, and Ring has no destructors
+	# to decide otherwise. Free it when you are done with it.
+	def ToStzListOfNumbers()
+		return new stzListOfNumbers(This.ToList())
+
+		def ToListOfNumbers()
+			return This.ToStzListOfNumbers()
+
+	def ToStzList()
+		return new stzList(This.ToList())
+
 	def Copy()
 		_o_ = new stzNumBuffer([])
 		_o_.Free()
