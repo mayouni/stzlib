@@ -173,14 +173,51 @@ class stzKMeans from stzObject
 	def Why()
 		return @cWhy
 
+	# ONE DEFINITION OF DISTANCE (phase 5 slice 3 of the numeric foundation).
+	#
+	# This was a hand-rolled Ring loop, and stzKnn had a second copy of the same
+	# loop. similarity.zig has had a vectorised, tested Euclidean distance since
+	# phase 4 slice 6, so there were three. That is the shape this plan keeps
+	# finding -- the variance divisor, the summation, the centered sum of squares,
+	# the negligible threshold -- and the cure is always the same: ask the one
+	# authority.
+	#
+	# MEASURED, since phase 3 established that a one-shot engine call is no faster
+	# than Ring when marshalling dominates. Here it is not close:
+	#
+	#     N x dims       ring loop    engine call
+	#     1000 x 8        0.001s       0s
+	#     5000 x 16       0.015s       0.002s
+	#     20000 x 32      0.111s       0.014s      8x
+	#
+	# Marshalling 32 doubles is cheaper than 32 interpreted loop steps, so the
+	# crossing pays for itself even per point. Below a few thousand points both are
+	# free -- the authority argument alone would justify this; the speed is a bonus.
+	#
+	# THE RAGGED CASE IS KEPT DELIBERATELY. This loop truncated to the shorter
+	# vector, and nothing validates vector lengths on the way in, so that truncation
+	# is load-bearing rather than decorative. The engine bridge REFUSES a length
+	# mismatch and answers 0 -- which here would read as "these points are
+	# identical", the worst possible wrong answer. So the common case (equal
+	# lengths) goes straight through, and the ragged case slices first, preserving
+	# the old behaviour exactly.
 	def _Dist(paA, paB)
-		_n_ = len(paA)
-		if len(paB) < _n_
-			_n_ = len(paB)
+		_nA_ = len(paA)
+		_nB_ = len(paB)
+
+		if _nA_ = _nB_
+			return StzEngineSimEuclidean(paA, paB)
 		ok
-		_nS_ = 0
-		for _i_ = 1 to _n_
-			_nD_ = paA[_i_] - paB[_i_]
-			_nS_ += _nD_ * _nD_
+
+		# ragged: compare over the common prefix, as this method always has
+		_n_ = _nA_
+		if _nB_ < _n_
+			_n_ = _nB_
+		ok
+		_aTA_ = []
+		_aTB_ = []
+		for _iDs_ = 1 to _n_
+			_aTA_ + paA[_iDs_]
+			_aTB_ + paB[_iDs_]
 		next
-		return sqrt(_nS_)
+		return StzEngineSimEuclidean(_aTA_, _aTB_)
