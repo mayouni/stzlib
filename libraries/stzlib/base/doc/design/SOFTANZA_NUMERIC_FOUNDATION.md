@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, eight slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-4 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -100,7 +100,10 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 - **No parallel numeric kernels.** `std.Thread` appears in `curlcore`, `dns`,
   `fswatch`, `http`, `pool`, `reactor`, `resilience` — all I/O — plus one
   `Thread.Mutex` in `histogram.zig`. Nothing in `stats`, `matrix` or `solver` uses
-  more than one core.
+  more than one core. **MEASURED AND DELIBERATELY LEFT THAT WAY in slice 9**: at this
+  library's data sizes threading a reduction is up to **25× SLOWER** (128 µs spawn
+  against a 4 µs kernel), and even at 16M elements 12 cores buy only 2.7× because the
+  kernel is bandwidth-bound. See the phase-4 notes for the full table.
 - **No wide floats.** `f80` and `f128` are unused, though Zig has them natively.
 - **No decimal, rational, complex, or fixed-width integer types.**
 - **Linear algebra stops at `inverse`.** No LU, QR, Cholesky, SVD, or eigenvalues —
@@ -108,9 +111,9 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
   slice 4 (e549ec945)** with a determinant and a linear solve; **QR (Householder) +
   CHOLESKY + LEAST SQUARES in slice 7 (07d3b443e)**, so multiple regression is
   expressible; **SYMMETRIC EIGEN + CONDITION NUMBER + RANK in slice 8 (504c1df36)**,
-  which also gives the eigenvectors PCA needs. **Only SVD remains** -- wanted for the
-  rectangular rank/pseudo-inverse case, since the eigen route covers the symmetric
-  one.
+  which also gives the eigenvectors PCA needs; **SVD + RECTANGULAR RANK/CONDITIONING
+  in slice 9 (40fd49580)**. **This line is now closed** -- only a pseudo-inverse
+  remains unbuilt, and it is three lines on top of the SVD when a consumer appears.
 - **`solver.zig` is not an optimiser.** 199 lines of scalar root-finding
   (bisection, Newton), Simpson integration and polynomial evaluation over
   coefficient arrays. There is no LP, QP, MIP or general nonlinear solver in the
@@ -1067,6 +1070,60 @@ special functions.
 > product, tying the two slices together through unrelated code; a diagonal matrix
 > whose spectrum is known by inspection; and a **repeated** eigenvalue (2·I), where a
 > naive rotation formula divides by zero.
+>
+> **SLICE 9 DONE (40fd49580), guard `numeric_svd_narrated` (32): SVD + RECTANGULAR
+> RANK — and it exposed a silent wrong answer in slice 7 and an inconsistency in
+> slice 8. PHASE 4 IS COMPLETE.**
+>
+> **THREADING: MEASURED, THEN DECLINED.** Pillar 4 item 3 says "thread the big ones".
+> Slice 6 had already shown the dot product is bandwidth-bound, and threads share one
+> memory bus, so this was measured before writing anything. 12 logical CPUs:
+>
+> | kernel | 1t | 2t | 4t | 8t | 12t |
+> |---|---|---|---|---|---|
+> | sum N=100k | 1.00× | 0.16× | 0.11× | 0.06× | **0.04×** |
+> | sum N=1M | 1.00× | 0.82× | 0.88× | 0.55× | 0.41× |
+> | sum N=16M | 1.00× | 1.48× | 2.18× | 2.53× | 2.72× |
+> | matmul 64² | 1.00× | 0.14× | 0.11× | 0.06× | **0.04×** |
+> | matmul 256² | 1.00× | 1.48× | 2.43× | 2.38× | 2.22× |
+> | matmul 512² | 1.00× | 2.06× | 3.06× | 4.09× | 4.46× |
+>
+> Spawn+join is **128 µs per thread**. Below ~16M elements threading is **25× slower**
+> — 128 µs of overhead against a 4 µs kernel — and even at the best sizes 12 cores buy
+> 2.7–4.5×, not 12×: the sum is bandwidth-bound and matmul at 256² *peaks at 4 threads
+> then declines*. §2.5 established that this library's numeric data is table-sized,
+> which is exactly where threading is catastrophic rather than merely unhelpful.
+> **Declined, with the numbers recorded so nobody has to rediscover them.** A
+> persistent pool would remove the spawn cost but not the bandwidth ceiling.
+>
+> **SVD**: one-sided Jacobi, not Golub–Kahan — the same rotation idea as slice 8
+> (orthogonalise pairs of *columns* until the column norms **are** the singular
+> values), ~100 lines instead of several hundred, and high relative accuracy on the
+> small values, which is what rank and conditioning are decided by. `Rank` and
+> `ConditionNumber` now accept rectangular matrices; square symmetric still routes
+> through eigen. Plus `SingularValues`, `IsFullRank`, `IsRankDeficient`.
+>
+> **DEFECT 1 (slice 8).** A rank test and a condition number ask the same question —
+> "is the smallest value negligible?" — and used *separate rules*. One-sided Jacobi
+> leaves a dependent column at rounding level, not zero, so a rank-2 5×3 reported rank
+> 2 alongside a condition number of **8.97e16** — finite, for a singular matrix. Slice
+> 8 had it too (rank 2, 1.22e16); its test passed only because `[[1,1],[1,1]]` happens
+> to give an **exact** zero eigenvalue. `negligibleThreshold` is now the one definition
+> of numerically-zero, asked by all four functions, with a test pinning that they can
+> never disagree.
+>
+> **DEFECT 2 (slice 7), and far worse — a silent wrong answer.** `QR.isFullRank` tested
+> `d == 0` *exactly*. On a 3×2 with a duplicated column `rdiag` comes out exact, which
+> is why slice 7's test passed. On a **200×4 design matrix with a redundant predictor
+> it does not**: `isFullRank` answered TRUE for a rank-deficient system, `qrSolve`
+> back-substituted through a near-zero pivot, and `LeastSquaresFor` returned
+> **coefficients around −9.7e12 as though they were a fit**. Found because the SVD rank
+> said 3 of 4 while the fit cheerfully succeeded.
+>
+> **Both defects are the same mistake made twice: testing a floating-point quantity
+> against exact zero, and choosing a test case small enough that it really was zero.**
+> The lesson generalises past linear algebra — if a test of "is this zero?" passes,
+> check whether it passes at *scale*.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
