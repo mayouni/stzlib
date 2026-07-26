@@ -114,6 +114,20 @@ fn ring_Cholesky(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_cholesky(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_EigenValues(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_eigenvalues(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_EigenVectors(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_eigenvectors(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_ConditionNumber(p: *anyopaque) callconv(.c) void {
+    rn(p, matrix.stz_matrix_condition_number(getMC(p, 1)));
+}
+fn ring_Rank(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(matrix.stz_matrix_rank(getMC(p, 1))));
+}
 fn ring_IsPositiveDefinite(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(matrix.stz_matrix_is_positive_definite(getMC(p, 1))));
 }
@@ -178,6 +192,10 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixsolve", .func = &ring_Solve },
         .{ .name = "stzengine" ++ "matrixleastsquares", .func = &ring_LeastSquares },
         .{ .name = "stzengine" ++ "matrixcholesky", .func = &ring_Cholesky },
+        .{ .name = "stzengine" ++ "matrixeigenvalues", .func = &ring_EigenValues },
+        .{ .name = "stzengine" ++ "matrixeigenvectors", .func = &ring_EigenVectors },
+        .{ .name = "stzengine" ++ "matrixconditionnumber", .func = &ring_ConditionNumber },
+        .{ .name = "stzengine" ++ "matrixrank", .func = &ring_Rank },
         .{ .name = "stzengine" ++ "matrixispositivedefinite", .func = &ring_IsPositiveDefinite },
         .{ .name = "stzengine" ++ "matrixpower", .func = &ring_Power },
         .{ .name = "stzengine" ++ "matrixnewfromlist", .func = &ring_NewFromList },

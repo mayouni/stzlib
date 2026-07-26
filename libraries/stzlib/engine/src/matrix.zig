@@ -268,6 +268,52 @@ pub fn stz_matrix_is_positive_definite(m: ?*const StzMatrix) callconv(.c) i32 {
     return if (f.positive_definite) 1 else 0;
 }
 
+/// The eigenvalues of a SYMMETRIC matrix, as a new n*1 matrix, sorted descending.
+/// Null when the matrix is not square or not symmetric -- a general matrix has
+/// complex eigenvalues, and returning the spectrum of its symmetric part while
+/// calling it the spectrum of A would be a wrong answer wearing a right one's face.
+pub fn stz_matrix_eigenvalues(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows != mat.cols or mat.rows == 0) return null;
+    var e = linalg.eigenSymmetric(gpa, mat.data, mat.rows) catch return null;
+    defer e.deinit();
+    if (!e.symmetric) return null;
+    const out = StzMatrix.init(gpa, mat.rows, 1) catch return null;
+    @memcpy(out.data, e.values);
+    return out;
+}
+
+/// The eigenvectors of a symmetric matrix as a new n*n matrix; COLUMN j is the unit
+/// eigenvector belonging to eigenvalue j. Column order matches the eigenvalues, so
+/// column 1 is the first principal component.
+pub fn stz_matrix_eigenvectors(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows != mat.cols or mat.rows == 0) return null;
+    var e = linalg.eigenSymmetric(gpa, mat.data, mat.rows) catch return null;
+    defer e.deinit();
+    if (!e.symmetric) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.rows) catch return null;
+    @memcpy(out.data, e.vectors);
+    return out;
+}
+
+/// The 2-norm condition number of a symmetric matrix. Infinity when singular, NaN
+/// when the matrix is not symmetric.
+pub fn stz_matrix_condition_number(m: ?*const StzMatrix) callconv(.c) f64 {
+    const mat = m orelse return std.math.nan(f64);
+    if (mat.rows != mat.cols or mat.rows == 0) return std.math.nan(f64);
+    return linalg.conditionNumberSymmetric(gpa, mat.data, mat.rows) catch std.math.nan(f64);
+}
+
+/// The rank of a symmetric matrix, counted by eigenvalues that are non-negligible
+/// RELATIVE to the largest.
+pub fn stz_matrix_rank(m: ?*const StzMatrix) callconv(.c) i32 {
+    const mat = m orelse return -1;
+    if (mat.rows != mat.cols or mat.rows == 0) return -1;
+    const r = linalg.rankSymmetric(gpa, mat.data, mat.rows) catch return -1;
+    return @intCast(r);
+}
+
 pub fn stz_matrix_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     const mat = m orelse return null;
     if (mat.rows != mat.cols) return null;
