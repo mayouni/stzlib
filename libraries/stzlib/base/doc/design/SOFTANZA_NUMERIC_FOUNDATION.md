@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, seven slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, eight slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -105,10 +105,12 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 - **No decimal, rational, complex, or fixed-width integer types.**
 - **Linear algebra stops at `inverse`.** No LU, QR, Cholesky, SVD, or eigenvalues —
   so no least squares, no PCA, no conditioning diagnostics, no rank. **LU DONE in
-  slice 4 (e549ec945)** with a determinant and a linear solve on it; **QR
-  (Householder) + CHOLESKY + LEAST SQUARES DONE in slice 7 (07d3b443e)**, so
-  multiple regression is now expressible. Eigen / SVD still open, and with them PCA
-  and a condition number.
+  slice 4 (e549ec945)** with a determinant and a linear solve; **QR (Householder) +
+  CHOLESKY + LEAST SQUARES in slice 7 (07d3b443e)**, so multiple regression is
+  expressible; **SYMMETRIC EIGEN + CONDITION NUMBER + RANK in slice 8 (504c1df36)**,
+  which also gives the eigenvectors PCA needs. **Only SVD remains** -- wanted for the
+  rectangular rank/pseudo-inverse case, since the eigen route covers the symmetric
+  one.
 - **`solver.zig` is not an optimiser.** 199 lines of scalar root-finding
   (bisection, Newton), Simpson integration and polynomial evaluation over
   coefficient arrays. There is no LP, QP, MIP or general nonlinear solver in the
@@ -1029,6 +1031,42 @@ special functions.
 > checked against what least squares *means*: the residual orthogonal to every column
 > of A, and perturbing either coefficient in either direction increasing the squared
 > residual. A minimum is a minimum.
+>
+> **SLICE 8 DONE (504c1df36), guard `numeric_eigen_narrated` (26): SYMMETRIC
+> EIGENVALUES, CONDITION NUMBER, RANK — the decomposition that EXPLAINS the others.**
+> Slice 7's `IsPositiveDefinite` answers by whether a Cholesky factorisation exists;
+> a symmetric matrix is positive definite exactly when all its eigenvalues are
+> positive. **Two algorithms sharing no code, no loop and no idea, answering one
+> question** — so agreement is independent evidence, and it checks slice 7 from
+> outside. The guard runs that over six cases including the semi-definite boundary.
+>
+> **Cyclic Jacobi, not the QR iteration LAPACK uses**, and the trade is deliberate:
+> Jacobi is slower on large matrices (O(n³) per sweep, several sweeps) but is ~80
+> lines with no tridiagonal reduction, no shift strategy and no deflation — and it
+> resolves the **small** eigenvalues to high relative accuracy, which is exactly what
+> a condition number and a rank test depend on, since both are decided by the
+> smallest one. Our matrices are table- and covariance-sized. If large dense
+> symmetric problems become real, the answer is tridiagonal QR, not a faster Jacobi.
+>
+> **Symmetric only, and that is a refusal rather than a limitation.** A general matrix
+> has *complex* eigenvalues, needing a different algorithm and a complex type we do
+> not have. Handed one, this **raises** — rather than returning the spectrum of
+> `(A + A')/2` and letting the caller believe it belongs to A, which is the failure
+> shape this phase has now found four times. Symmetry is judged with a *relative*
+> tolerance, since data out of a real computation is rarely symmetric to the last bit.
+>
+> Ring surface: `EigenValues`, `EigenVectors`, `IsSymmetric`, `ConditionNumber`,
+> `Rank`, `IsSingular`. Two choices worth stating: a singular matrix's condition
+> number is **infinite**, not a large finite number; and rank counts eigenvalues
+> non-negligible **relative** to the largest, because an absolute cutoff would call a
+> matrix of uniformly tiny entries rank zero when scaling cannot change a rank.
+>
+> **Tested by definition and invariant, not by transcribed constants:** `A·v = λ·v`
+> componentwise for every eigenpair; orthonormal eigenvectors; the **trace** equal to
+> the sum of the eigenvalues and the **LU determinant from slice 4** equal to their
+> product, tying the two slices together through unrelated code; a diagonal matrix
+> whose spectrum is known by inspection; and a **repeated** eigenvalue (2·I), where a
+> naive rotation formula divides by zero.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
