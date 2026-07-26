@@ -2,6 +2,7 @@ const stats = @import("stats.zig");
 const numbuf = @import("numbuf.zig");
 const special = @import("special.zig");
 const hyp = @import("hypothesis.zig");
+const simplex = @import("simplex.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -424,6 +425,68 @@ fn ring_CorrelationTest(p: *anyopaque) callconv(.c) void {
     retResult(p, hyp.correlationTest(a, b));
 }
 
+
+// ─── The simplex pivot loop (phase 5 slice 2) ───
+//
+// Ring builds the Big-M tableau -- parsing, bounds, slack/artificial layout, all of
+// which measured at 0.005s and flat -- and hands the flat arrays here. Only the
+// pivoting moves, because only the pivoting was slow.
+//
+//   StzEngineSimplexRun(aTableauFlat, aZ, aBasis, nRows, nCols, nArtAt, nVars)
+//     -> [ status, iterations, x1, x2, ... ]
+//
+// status: 0 optimal, 1 unbounded, 2 infeasible, 3 iteration limit.
+fn ring_SimplexRun(p: *anyopaque) callconv(.c) void {
+    const tt = listToF64(p, 1) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(tt);
+    const zz = listToF64(p, 2) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(zz);
+    const bf = listToF64(p, 3) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(bf);
+
+    const m: usize = @intFromFloat(g(p, 4));
+    const cols: usize = @intFromFloat(g(p, 5));
+    const art_at: usize = @intFromFloat(g(p, 6));
+    const nv: usize = @intFromFloat(g(p, 7));
+
+    if (m == 0 or cols == 0 or tt.len != m * cols or zz.len != cols or bf.len != m or nv > cols) {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    }
+
+    const basis = allocator.alloc(i32, m) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(basis);
+    for (bf, 0..) |v, i| basis[i] = @intFromFloat(v);
+
+    const x = allocator.alloc(f64, nv) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+
+    var iters: i32 = 0;
+    const st = simplex.run(tt, zz, basis, m, cols, art_at, &iters);
+    simplex.extract(tt, basis, m, cols, x, nv);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(@intFromEnum(st)));
+    R.ring_list_adddouble(out, @floatFromInt(iters));
+    for (x) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },
     .{ .name = "stzenginenumbuffromlist", .func = &ring_BufFromList },
@@ -503,6 +566,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginechi2independence", .func = &ring_Chi2Independence },
     .{ .name = "stzengineanova", .func = &ring_Anova },
     .{ .name = "stzenginecorrelationtest", .func = &ring_CorrelationTest },
+    .{ .name = "stzenginesimplexrun", .func = &ring_SimplexRun },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

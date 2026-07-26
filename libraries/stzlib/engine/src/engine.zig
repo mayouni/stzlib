@@ -35,6 +35,7 @@ pub const matrix = @import("matrix.zig");
 const linalg = @import("linalg.zig");
 const special = @import("special.zig");
 const hypothesis = @import("hypothesis.zig");
+const simplex = @import("simplex.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -621,6 +622,7 @@ test {
     _ = numbuf;
     _ = special;
     _ = hypothesis;
+    _ = simplex;
     _ = linalg;
     _ = string;
     _ = char;
