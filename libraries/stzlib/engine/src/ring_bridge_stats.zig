@@ -1,5 +1,6 @@
 const stats = @import("stats.zig");
 const numbuf = @import("numbuf.zig");
+const special = @import("special.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -307,6 +308,27 @@ fn ring_BufStdDev(p: *anyopaque) callconv(.c) void {
     rn(p, numbuf.stz_numbuf_stddev(getBC(p, 1), @intFromFloat(g(p, 2))));
 }
 
+
+// ─── Special functions and distributions (phase 4 slice 5) ───
+//
+// Plain numeric in / numeric out: no handles, no allocation, nothing to free.
+fn ring_Erf(p: *anyopaque) callconv(.c) void { rn(p, special.erf(g(p, 1))); }
+fn ring_Erfc(p: *anyopaque) callconv(.c) void { rn(p, special.erfc(g(p, 1))); }
+fn ring_LogGamma(p: *anyopaque) callconv(.c) void { rn(p, special.stz_special_lgamma(g(p, 1))); }
+fn ring_Gamma(p: *anyopaque) callconv(.c) void { rn(p, special.stz_special_tgamma(g(p, 1))); }
+fn ring_GammaP(p: *anyopaque) callconv(.c) void { rn(p, special.gammaP(g(p, 1), g(p, 2))); }
+fn ring_GammaQ(p: *anyopaque) callconv(.c) void { rn(p, special.gammaQ(g(p, 1), g(p, 2))); }
+fn ring_BetaI(p: *anyopaque) callconv(.c) void { rn(p, special.betaI(g(p, 1), g(p, 2), g(p, 3))); }
+fn ring_NormalCdf(p: *anyopaque) callconv(.c) void { rn(p, special.normalCdf(g(p, 1))); }
+fn ring_NormalQuantile(p: *anyopaque) callconv(.c) void { rn(p, special.normalQuantile(g(p, 1))); }
+fn ring_TCdf(p: *anyopaque) callconv(.c) void { rn(p, special.studentTCdf(g(p, 1), g(p, 2))); }
+fn ring_TQuantile(p: *anyopaque) callconv(.c) void { rn(p, special.studentTQuantile(g(p, 1), g(p, 2))); }
+fn ring_Chi2Cdf(p: *anyopaque) callconv(.c) void { rn(p, special.chiSquareCdf(g(p, 1), g(p, 2))); }
+fn ring_Chi2Quantile(p: *anyopaque) callconv(.c) void { rn(p, special.chiSquareQuantile(g(p, 1), g(p, 2))); }
+fn ring_FCdf(p: *anyopaque) callconv(.c) void { rn(p, special.fCdf(g(p, 1), g(p, 2), g(p, 3))); }
+fn ring_FQuantile(p: *anyopaque) callconv(.c) void { rn(p, special.fQuantile(g(p, 1), g(p, 2), g(p, 3))); }
+fn ring_CriticalValue(p: *anyopaque) callconv(.c) void { rn(p, special.criticalValue(g(p, 1), g(p, 2))); }
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },
     .{ .name = "stzenginenumbuffromlist", .func = &ring_BufFromList },
@@ -362,6 +384,22 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginestatsrankcorrelation", .func = &ring_RankCorrelation },
     .{ .name = "stzenginestatsregression", .func = &ring_Regression },
     .{ .name = "stzenginestatsweightedmean", .func = &ring_WeightedMean },
+    .{ .name = "stzengineerf", .func = &ring_Erf },
+    .{ .name = "stzengineerfc", .func = &ring_Erfc },
+    .{ .name = "stzenginelgamma", .func = &ring_LogGamma },
+    .{ .name = "stzenginegammafn", .func = &ring_Gamma },
+    .{ .name = "stzenginegammap", .func = &ring_GammaP },
+    .{ .name = "stzenginegammaq", .func = &ring_GammaQ },
+    .{ .name = "stzenginebetai", .func = &ring_BetaI },
+    .{ .name = "stzenginenormalcdf", .func = &ring_NormalCdf },
+    .{ .name = "stzenginenormalquantile", .func = &ring_NormalQuantile },
+    .{ .name = "stzenginetcdf", .func = &ring_TCdf },
+    .{ .name = "stzenginetquantile", .func = &ring_TQuantile },
+    .{ .name = "stzenginechi2cdf", .func = &ring_Chi2Cdf },
+    .{ .name = "stzenginechi2quantile", .func = &ring_Chi2Quantile },
+    .{ .name = "stzenginefcdf", .func = &ring_FCdf },
+    .{ .name = "stzenginefquantile", .func = &ring_FQuantile },
+    .{ .name = "stzenginecriticalvalue", .func = &ring_CriticalValue },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
