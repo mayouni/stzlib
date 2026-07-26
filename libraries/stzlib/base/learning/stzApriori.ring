@@ -11,6 +11,7 @@
 class stzApriori from stzObject
 
 	@aTx = []       # transactions: lists of lowered item strings
+	@acKeys = []          # keys parallel to the pairs _CountAll returns
 
 	def init(paTransactions)
 		if isList(paTransactions)
@@ -83,30 +84,61 @@ class stzApriori from stzObject
 
 	#-- internals -----------------------------------------------------------
 
+	# THE RETURNED SHAPE IS UNCHANGED -- a list of [ key, count ] pairs, which is
+	# what FrequentItemsets() and Rules() index as _aC_[i][1] and _aC_[i][2]. What
+	# changed is how a key is FOUND.
+	#
+	# This used to be a Ring hash-list bumped through HasKey, and it cost 16.1
+	# seconds for two hundred six-item transactions (47.6 for six hundred). The
+	# same idiom was the whole cost of stzNaiveBayes and of this library's decision
+	# tree; measured there, `HasKey` + write-through-the-key is 479x a ring_find
+	# scan on identical work, and it degrades as distinct keys accumulate while the
+	# scan barely notices. Apriori is the worst case for it because the key space
+	# IS the answer: every singleton, pair and triple in every transaction.
+	#
+	# @acKeys holds the same keys in the same order as the returned pairs, so a
+	# lookup is one scan of a flat string list. _CountOf() reads it, which is why
+	# it is an attribute rather than a local -- Rules() calls _CountAll() and then
+	# asks for antecedent counts out of the result it was given.
 	def _CountAll()
 		_aC_ = []
+		@acKeys = []
 		_nT_ = len(@aTx)
 		for _t_ = 1 to _nT_
 			_acT_ = This._Sorted(@aTx[_t_])
 			_nI_ = len(_acT_)
 			for _i_ = 1 to _nI_
-				This._BumpKey(_aC_, _acT_[_i_])
+				_cA_ = _acT_[_i_]
+				_nK_ = ring_find(@acKeys, _cA_)
+				if _nK_ = 0
+					@acKeys + _cA_
+					_aC_ + [ _cA_, 1 ]
+				else
+					_aC_[_nK_][2]++
+				ok
 				for _j_ = _i_ + 1 to _nI_
-					This._BumpKey(_aC_, _acT_[_i_] + "|" + _acT_[_j_])
+					_cB_ = _cA_ + "|" + _acT_[_j_]
+					_nK_ = ring_find(@acKeys, _cB_)
+					if _nK_ = 0
+						@acKeys + _cB_
+						_aC_ + [ _cB_, 1 ]
+					else
+						_aC_[_nK_][2]++
+					ok
 					for _k_ = _j_ + 1 to _nI_
-						This._BumpKey(_aC_, _acT_[_i_] + "|" + _acT_[_j_] + "|" + _acT_[_k_])
+						_cC_ = _cB_ + "|" + _acT_[_k_]
+						_nK_ = ring_find(@acKeys, _cC_)
+						if _nK_ = 0
+							@acKeys + _cC_
+							_aC_ + [ _cC_, 1 ]
+						else
+							_aC_[_nK_][2]++
+						ok
 					next
 				next
 			next
 		next
 		return _aC_
-
-	def _BumpKey(paC, pcKey)
-		if HasKey(paC, pcKey)
-			paC[pcKey] = paC[pcKey] + 1
-		else
-			paC[pcKey] = 1
-		ok
 
 	def _CountOf(paC, pacItems)
 		_cKey_ = ""
@@ -118,8 +150,9 @@ class stzApriori from stzObject
 			ok
 			_cKey_ += _acS_[_i_]
 		next
-		if HasKey(paC, _cKey_)
-			return paC[_cKey_]
+		_nK_ = ring_find(@acKeys, _cKey_)
+		if _nK_ > 0
+			return paC[_nK_][2]
 		ok
 		return 0
 

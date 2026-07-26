@@ -484,6 +484,55 @@ The algorithms in §2.4 come down from Ring, in value order:
   nothing validates lengths on input, while the engine bridge *refuses* a mismatch and
   answers 0, which for a distance reads as "identical" and would collapse a k-means
   cluster. Routing to a shared authority is only safe if its REFUSALS are handled.
+
+  **LOGISTIC DONE (a212ff7cc)**, guard `numeric_logistic_narrated` (38). The plan's
+  claim was checked before any Zig was written, because last time it named the wrong
+  line: the old Ring loop was hoisted **by hand** first — the label comparison done
+  once instead of once per epoch, the feature row read in place instead of passed as
+  an argument (Ring copies a list into a parameter). On 5000 × 16 × 100 epochs that
+  gave **10.0s → 5.0s with bit-identical weights**. Half interpreter overhead, half
+  arithmetic no Ring-side care removes — *that* is what justified the move.
+
+  | scale | before | after |
+  |---|---|---|
+  | 200 × 4 × 50 | 0.057s | 0.002s |
+  | 5000 × 16 × 100 | 10.0s | **0.062s** (161×) |
+  | 20000 × 32 × 100 | out of reach | 0.706s |
+
+  **The arithmetic is unchanged, not merely equivalent, and that is the design.**
+  Gradient descent is a feedback loop, so a last-bit difference compounds. Updates
+  stay sequential per example (SGD — the weights move before the next example is
+  scored), the dot product accumulates in index order though a lane-parallel
+  reduction would be faster, and the saturation cutoff stays at |z| > 35. **Only the
+  weight update vectorises, and only because it can:** `w[f] += c * x[f]` is
+  elementwise, so no accumulation crosses lanes and no reassociation is possible.
+  Half the inner work vectorises free and half must not — knowing which is which is
+  the engineering.
+
+  **One thing could not be held fixed, and was measured rather than assumed.** Ring's
+  `exp` is the C library's and the engine's is Zig's: drift is **1e-16 after one
+  epoch, 1e-15 at ten, 1e-14 at a hundred and five hundred** — never zero, growing
+  about a decade per five hundred epochs, and both loops classify identically.
+  **The first reading of this was wrong:** under `decimals(14)` it printed as
+  `0.00000000000000`, "identical to the last bit" was asserted, and it failed. The
+  display had truncated it. *Measure by order of magnitude when a quantity may be
+  smaller than the display mode.*
+
+  **Two silent failures became diagnoses.** `NumberOfFeatures()` is the width of the
+  FIRST example and the old loop indexed every other row to it, so a 3-feature row
+  among 2-feature rows trained as though its third feature did not exist. And
+  `Classify()` with the wrong arity escaped as a bare Ring "Array Access (Index out
+  of range)" from inside the dot product. **`_Score()` and `_Sigmoid()` were deleted
+  rather than kept** — two definitions of one quantity is this phase's recurring
+  shape, and here it would have surfaced as a model whose predictions disagreed with
+  its own training.
+
+  **IDENTIFIED AND DELIBERATELY NOT FIXED:** the class diverges on unscaled features
+  (weights of 4100, accuracy 0.5 on data already seen, against 8.48 and 1.0 for the
+  same data scaled) and is pinned as it behaves. Needing standardised features is
+  SGD's normal requirement, not a defect; `TrainingAccuracy()` is what makes a
+  silent, confident failure visible. Standardisation belongs with the trainer
+  rewiring in phase 6, where the transform can be held with the model.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
