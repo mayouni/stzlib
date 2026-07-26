@@ -25,6 +25,9 @@ comptime {
     @export(&matrix.stz_matrix_eigenvectors, .{ .name = "stz_matrix_eigenvectors" });
     @export(&matrix.stz_matrix_condition_number, .{ .name = "stz_matrix_condition_number" });
     @export(&matrix.stz_matrix_rank, .{ .name = "stz_matrix_rank" });
+    @export(&matrix.stz_matrix_singular_values, .{ .name = "stz_matrix_singular_values" });
+    @export(&matrix.stz_matrix_rank_general, .{ .name = "stz_matrix_rank_general" });
+    @export(&matrix.stz_matrix_condition_general, .{ .name = "stz_matrix_condition_general" });
     @export(&matrix.stz_matrix_cholesky, .{ .name = "stz_matrix_cholesky" });
     @export(&matrix.stz_matrix_is_positive_definite, .{ .name = "stz_matrix_is_positive_definite" });
     @export(&matrix.stz_matrix_inverse, .{ .name = "stz_matrix_inverse" });

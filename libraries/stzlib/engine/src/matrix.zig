@@ -314,6 +314,37 @@ pub fn stz_matrix_rank(m: ?*const StzMatrix) callconv(.c) i32 {
     return @intCast(r);
 }
 
+/// The singular values of ANY m*n matrix with m >= n, as a new n*1 matrix, sorted
+/// descending. Null for a wide matrix -- transpose it, since A and A-transpose have
+/// identical singular values.
+pub fn stz_matrix_singular_values(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows < mat.cols or mat.cols == 0) return null;
+    var d = linalg.svd(gpa, mat.data, mat.rows, mat.cols) catch return null;
+    defer d.deinit();
+    const out = StzMatrix.init(gpa, mat.cols, 1) catch return null;
+    @memcpy(out.data, d.values);
+    return out;
+}
+
+/// The rank of ANY m*n matrix (m >= n), from its singular values. This is the general
+/// answer; stz_matrix_rank only covers the square symmetric case.
+pub fn stz_matrix_rank_general(m: ?*const StzMatrix) callconv(.c) i32 {
+    const mat = m orelse return -1;
+    if (mat.rows < mat.cols or mat.cols == 0) return -1;
+    const r = linalg.rankOf(gpa, mat.data, mat.rows, mat.cols) catch return -1;
+    return @intCast(r);
+}
+
+/// The 2-norm condition number of ANY m*n matrix (m >= n): largest singular value
+/// over smallest. Infinity when rank deficient -- and this is the number that says how
+/// many digits a least-squares fit through this design matrix can lose.
+pub fn stz_matrix_condition_general(m: ?*const StzMatrix) callconv(.c) f64 {
+    const mat = m orelse return std.math.nan(f64);
+    if (mat.rows < mat.cols or mat.cols == 0) return std.math.nan(f64);
+    return linalg.conditionNumberOf(gpa, mat.data, mat.rows, mat.cols) catch std.math.nan(f64);
+}
+
 pub fn stz_matrix_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     const mat = m orelse return null;
     if (mat.rows != mat.cols) return null;

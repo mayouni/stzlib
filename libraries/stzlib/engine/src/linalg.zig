@@ -317,9 +317,29 @@ pub const QR = struct {
 
     /// TRUE when every diagonal entry of R is non-zero, i.e. A's columns are
     /// linearly independent and the least-squares solution is unique.
+    /// FIXED in slice 9, and it was a SILENT WRONG ANSWER of the worst kind.
+    ///
+    /// This tested `d == 0` exactly. Householder QR does not leave a dependent
+    /// column's diagonal at exactly zero -- it leaves it at rounding level, and how
+    /// close to zero depends on the size of the matrix. On a 3x2 with a duplicated
+    /// column it happens to come out exact, which is why slice 7's test passed. On a
+    /// 200x4 design matrix with a redundant predictor it does not, so `isFullRank`
+    /// answered TRUE for a rank-deficient system and `qrSolve` then back-substituted
+    /// through a near-zero pivot and returned COEFFICIENTS AROUND -9.7e12 -- garbage,
+    /// presented as a fit.
+    ///
+    /// Slice 9 found this by building the SVD rank and noticing the two disagreed:
+    /// `rankOf` said 3 of 4 columns while `LeastSquaresFor` happily produced an
+    /// answer. Same root cause as the condition-number defect below -- an exact
+    /// `== 0` where the quantity is only ever approximately zero -- and it asks the
+    /// same authority for the answer now.
     pub fn isFullRank(self: *const QR) bool {
+        var largest: f64 = 0;
+        for (self.rdiag) |d| largest = @max(largest, @abs(d));
+        if (largest == 0) return false;
+        const tol = negligibleThreshold(largest, @max(self.m, self.n));
         for (self.rdiag) |d| {
-            if (d == 0) return false;
+            if (@abs(d) <= tol) return false;
         }
         return true;
     }
@@ -577,6 +597,37 @@ pub fn eigenSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize)
     };
 }
 
+// ── WHAT COUNTS AS ZERO LIVES HERE, AND ONLY HERE ──────────────────────
+//
+// A rank test and a condition number are the SAME QUESTION asked twice: "is the
+// smallest value negligible?" Rank counts the ones that are not; a condition number
+// divides by the smallest one that is not. So they must use ONE threshold, or they
+// disagree -- which they did.
+//
+// Found by building the rectangular case (slice 9) and checking it against the
+// symmetric one (slice 8). One-sided Jacobi leaves a rank-deficient column at
+// rounding level rather than exactly zero, so for a 5x3 matrix of rank 2:
+//
+//     singular values   5.418285e0   2.577243e0   6.037497e-17
+//     rankOf                 -> 2                (correct: relative threshold)
+//     conditionNumberOf      -> 8.974391e16      (WRONG: a finite number)
+//
+// And slice 8 had it too -- a singular symmetric matrix reported rank 2 with a
+// condition number of 1.2213e16. Its test passed only because the matrix I happened
+// to choose, [[1,1],[1,1]], produces an EXACT zero eigenvalue. The general case does
+// not.
+//
+// A matrix whose smallest value is at rounding level IS numerically singular, and an
+// infinite condition number is the honest report: no solve with it can be trusted.
+// Both families ask this function now, so the two answers cannot drift apart.
+//
+// RELATIVE to the largest value, and scaled by the dimension, because error
+// accumulates with size. An absolute threshold would call a matrix of uniformly tiny
+// entries singular, when scaling a matrix cannot change its rank.
+pub fn negligibleThreshold(largest: f64, dim: usize) f64 {
+    return 1e-12 * largest * @as(f64, @floatFromInt(dim));
+}
+
 /// The 2-norm condition number of a SYMMETRIC matrix: the largest eigenvalue in
 /// magnitude over the smallest. Infinity for a singular matrix, which is the honest
 /// answer -- and this is the number that says how many digits a solve can lose.
@@ -591,7 +642,8 @@ pub fn conditionNumberSymmetric(allocator: std.mem.Allocator, data: []const f64,
         lo = @min(lo, m);
         hi = @max(hi, m);
     }
-    if (lo == 0) return std.math.inf(f64);
+    // negligible, not just zero -- see negligibleThreshold above
+    if (lo <= negligibleThreshold(hi, n)) return std.math.inf(f64);
     return hi / lo;
 }
 
@@ -605,12 +657,199 @@ pub fn rankSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize) 
     var hi: f64 = 0;
     for (e.values) |v| hi = @max(hi, @abs(v));
     if (hi == 0) return 0;
-    const tol = 1e-12 * hi * @as(f64, @floatFromInt(n));
+    const tol = negligibleThreshold(hi, n);
     var r: usize = 0;
     for (e.values) |v| {
         if (@abs(v) > tol) r += 1;
     }
     return r;
+}
+
+// ─── SVD by one-sided Jacobi, and the RECTANGULAR rank and conditioning it gives ───
+//
+// The last decomposition. Slice 8's symmetric eigen answers rank and conditioning
+// for a SQUARE SYMMETRIC matrix; a design matrix is neither. Fitting 200
+// observations to 4 predictors and asking "are my predictors collinear?" needs the
+// singular values of a 200x4, which no route in the library reached.
+//
+// ONE-SIDED JACOBI rather than Golub-Kahan bidiagonalisation. Golub-Kahan is what
+// LAPACK uses and is faster on large matrices, but it is two algorithms (bidiagonal
+// reduction, then an implicit-shift QR sweep on the bidiagonal form) and several
+// hundred lines. One-sided Jacobi is the SAME ROTATION IDEA as the symmetric eigen
+// next door: orthogonalise pairs of COLUMNS until every pair is orthogonal, at which
+// point the column norms ARE the singular values. It reuses a rotation this file
+// already had to get right, and it is the variant known for high relative accuracy on
+// the SMALL singular values -- which, exactly as with the eigenvalues, is what a rank
+// test and a condition number are decided by.
+//
+// A note on what is NOT returned: U is m*n and V is n*n here (the "thin" SVD), which
+// is all that rank, conditioning and a least-squares diagnosis need. The full m*m U
+// costs more and has no consumer yet.
+
+pub const Svd = struct {
+    /// min(m,n) singular values, sorted DESCENDING. Always non-negative.
+    values: []f64,
+    /// m*n, row-major: column j is the j-th left singular vector.
+    u: []f64,
+    /// n*n, row-major: column j is the j-th right singular vector.
+    v: []f64,
+    m: usize,
+    n: usize,
+    converged: bool,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Svd) void {
+        self.allocator.free(self.values);
+        self.allocator.free(self.u);
+        self.allocator.free(self.v);
+    }
+};
+
+const SVD_SWEEPS = 60;
+
+/// Thin SVD of an m*n matrix with m >= n.
+pub fn svd(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !Svd {
+    const u = try allocator.alloc(f64, m * n);
+    errdefer allocator.free(u);
+    const v = try allocator.alloc(f64, n * n);
+    errdefer allocator.free(v);
+    const values = try allocator.alloc(f64, n);
+    errdefer allocator.free(values);
+
+    @memcpy(u, data[0 .. m * n]);
+    @memset(v, 0);
+    for (0..n) |i| v[i * n + i] = 1.0;
+
+    var converged = false;
+    var sweep: usize = 0;
+    while (sweep < SVD_SWEEPS) : (sweep += 1) {
+        var off: f64 = 0;
+        for (0..n) |p| {
+            for (p + 1..n) |q| {
+                // the three inner products that describe the (p,q) column pair
+                var alpha: f64 = 0;
+                var beta: f64 = 0;
+                var gamma: f64 = 0;
+                for (0..m) |i| {
+                    const up = u[i * n + p];
+                    const uq = u[i * n + q];
+                    alpha += up * up;
+                    beta += uq * uq;
+                    gamma += up * uq;
+                }
+
+                // how far from orthogonal this pair is, measured RELATIVE to the two
+                // column norms -- an absolute test would spin forever on tiny columns
+                // and stop too early on large ones
+                const scale = @sqrt(alpha * beta);
+                if (scale == 0) continue;
+                const rel = @abs(gamma) / scale;
+                off = @max(off, rel);
+                if (rel <= 1e-15) continue;
+
+                // the rotation that orthogonalises them, by the stable smaller-root
+                // formula so c stays near 1 however close alpha and beta are
+                const zeta = (beta - alpha) / (2.0 * gamma);
+                const sgn: f64 = if (zeta >= 0) 1.0 else -1.0;
+                const t = sgn / (@abs(zeta) + @sqrt(1.0 + zeta * zeta));
+                const c = 1.0 / @sqrt(1.0 + t * t);
+                const s = c * t;
+
+                for (0..m) |i| {
+                    const up = u[i * n + p];
+                    const uq = u[i * n + q];
+                    u[i * n + p] = c * up - s * uq;
+                    u[i * n + q] = s * up + c * uq;
+                }
+                for (0..n) |i| {
+                    const vp = v[i * n + p];
+                    const vq = v[i * n + q];
+                    v[i * n + p] = c * vp - s * vq;
+                    v[i * n + q] = s * vp + c * vq;
+                }
+            }
+        }
+        if (off <= 1e-15) {
+            converged = true;
+            break;
+        }
+    }
+
+    // once the columns are mutually orthogonal, their norms ARE the singular values
+    for (0..n) |j| {
+        var norm: f64 = 0;
+        for (0..m) |i| norm = std.math.hypot(norm, u[i * n + j]);
+        values[j] = norm;
+        if (norm > 0) {
+            for (0..m) |i| u[i * n + j] /= norm;
+        }
+    }
+
+    // sort descending, carrying both singular vectors with each value
+    for (0..n) |i| {
+        var best = i;
+        for (i + 1..n) |j| {
+            if (values[j] > values[best]) best = j;
+        }
+        if (best != i) {
+            const tv = values[i];
+            values[i] = values[best];
+            values[best] = tv;
+            for (0..m) |k| {
+                const tmp = u[k * n + i];
+                u[k * n + i] = u[k * n + best];
+                u[k * n + best] = tmp;
+            }
+            for (0..n) |k| {
+                const tmp = v[k * n + i];
+                v[k * n + i] = v[k * n + best];
+                v[k * n + best] = tmp;
+            }
+        }
+    }
+
+    return .{
+        .values = values,
+        .u = u,
+        .v = v,
+        .m = m,
+        .n = n,
+        .converged = converged,
+        .allocator = allocator,
+    };
+}
+
+/// The rank of ANY m*n matrix (m >= n): singular values that are non-negligible
+/// relative to the largest. This is the general answer that rankSymmetric could only
+/// give for the square symmetric case.
+pub fn rankOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !usize {
+    if (m < n or n == 0) return 0;
+    var d = try svd(allocator, data, m, n);
+    defer d.deinit();
+    const hi = d.values[0];
+    if (hi == 0) return 0;
+    const tol = negligibleThreshold(hi, @max(m, n));
+    var r: usize = 0;
+    for (d.values) |sv| {
+        if (sv > tol) r += 1;
+    }
+    return r;
+}
+
+/// The 2-norm condition number of any m*n matrix: largest singular value over
+/// smallest. Infinity when rank deficient -- the honest answer, and the number that
+/// says how many digits a least-squares fit can lose.
+pub fn conditionNumberOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !f64 {
+    if (m < n or n == 0) return std.math.nan(f64);
+    var d = try svd(allocator, data, m, n);
+    defer d.deinit();
+    const hi = d.values[0];
+    const lo = d.values[n - 1];
+    // negligible, not just zero: one-sided Jacobi leaves a dependent column at
+    // rounding level, so `lo == 0` would report a finite 9e16 for a matrix rankOf
+    // has already called deficient
+    if (lo <= negligibleThreshold(hi, @max(m, n))) return std.math.inf(f64);
+    return hi / lo;
 }
 
 // ─── Tests ───
@@ -1129,4 +1368,245 @@ test "eigen: condition number and rank" {
     // the zero matrix has rank zero
     const zero = [_]f64{ 0, 0, 0, 0 };
     try testing.expectEqual(@as(usize, 0), try rankSymmetric(testing.allocator, &zero, 2));
+}
+
+test "svd: U * S * V' reconstructs A -- the whole contract" {
+    const m = 5;
+    const n = 3;
+    const a = [_]f64{
+        1,  2,  3,
+        4,  5,  6,
+        7,  8,  10,
+        2,  -1, 4,
+        -3, 6,  1,
+    };
+    var d = try svd(testing.allocator, &a, m, n);
+    defer d.deinit();
+    try testing.expect(d.converged);
+
+    // A[i][j] must equal sum_k U[i][k] * s[k] * V[j][k]
+    for (0..m) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |k| acc += d.u[i * n + k] * d.values[k] * d.v[j * n + k];
+            try testing.expectApproxEqAbs(a[i * n + j], acc, 1e-9);
+        }
+    }
+
+    // singular values are non-negative and sorted descending
+    for (d.values) |s| try testing.expect(s >= 0);
+    try testing.expect(d.values[0] >= d.values[1]);
+    try testing.expect(d.values[1] >= d.values[2]);
+
+    // U's columns are orthonormal, and so are V's
+    for (0..n) |j1| {
+        for (0..n) |j2| {
+            var du: f64 = 0;
+            var dv: f64 = 0;
+            for (0..m) |i| du += d.u[i * n + j1] * d.u[i * n + j2];
+            for (0..n) |i| dv += d.v[i * n + j1] * d.v[i * n + j2];
+            const want: f64 = if (j1 == j2) 1.0 else 0.0;
+            try testing.expectApproxEqAbs(want, du, 1e-9);
+            try testing.expectApproxEqAbs(want, dv, 1e-9);
+        }
+    }
+}
+
+test "svd: the singular values of A are the square roots of the eigenvalues of A'A" {
+    // THE IDENTITY THAT TIES THIS SLICE TO SLICE 8. Two entirely different
+    // algorithms -- one-sided Jacobi on A's columns, and two-sided Jacobi on the
+    // symmetric matrix A'A -- must produce the same numbers.
+    const m = 4;
+    const n = 3;
+    const a = [_]f64{
+        2, 1,  0,
+        1, 3,  1,
+        0, 1,  4,
+        1, -1, 2,
+    };
+    var d = try svd(testing.allocator, &a, m, n);
+    defer d.deinit();
+
+    // form A'A (n*n, symmetric by construction)
+    var ata: [9]f64 = undefined;
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..m) |k| acc += a[k * n + i] * a[k * n + j];
+            ata[i * n + j] = acc;
+        }
+    }
+    var e = try eigenSymmetric(testing.allocator, &ata, n);
+    defer e.deinit();
+
+    for (0..n) |k| {
+        try testing.expectApproxEqRel(@sqrt(@max(0.0, e.values[k])), d.values[k], 1e-8);
+    }
+
+    // ...and therefore the condition numbers agree too, one computed from singular
+    // values and one from eigenvalues of a different matrix
+    const cond_svd = try conditionNumberOf(testing.allocator, &a, m, n);
+    const cond_eig = try conditionNumberSymmetric(testing.allocator, &ata, n);
+    try testing.expectApproxEqRel(cond_eig, cond_svd * cond_svd, 1e-7);
+    // squared, because A'A squares every singular value -- which is exactly why
+    // slice 7 refused to solve least squares through the normal equations
+}
+
+test "svd: rank of a RECTANGULAR matrix, which nothing else could answer" {
+    // Full rank: three independent columns in a 5x3
+    const full = [_]f64{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1 };
+    try testing.expectEqual(@as(usize, 3), try rankOf(testing.allocator, &full, 5, 3));
+
+    // Column 3 is column 1 + column 2, so the rank is 2 -- and this is exactly the
+    // collinearity that makes a least-squares fit non-unique. Slice 7 refuses such a
+    // system; now the caller can find out WHY before asking.
+    const dep = [_]f64{
+        1, 0, 1,
+        0, 1, 1,
+        1, 1, 2,
+        2, 0, 2,
+        0, 3, 3,
+    };
+    try testing.expectEqual(@as(usize, 2), try rankOf(testing.allocator, &dep, 5, 3));
+    try testing.expect(std.math.isInf(try conditionNumberOf(testing.allocator, &dep, 5, 3)));
+
+    // ...and QR agrees that it has no unique least-squares solution
+    var x: [3]f64 = undefined;
+    const b = [_]f64{ 1, 2, 3, 4, 5 };
+    try testing.expect(!try leastSquares(testing.allocator, &dep, 5, 3, &b, &x));
+
+    // a single column is rank 1, and a zero matrix rank 0
+    const one = [_]f64{ 3, 4, 0, 12 };
+    try testing.expectEqual(@as(usize, 1), try rankOf(testing.allocator, &one, 4, 1));
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0 };
+    try testing.expectEqual(@as(usize, 0), try rankOf(testing.allocator, &zero, 3, 2));
+}
+
+test "svd: known singular values, and rank is scale-invariant" {
+    // A diagonal matrix's singular values are the absolute values of its diagonal.
+    const diag = [_]f64{ 3, 0, 0, 0, -7, 0, 0, 0, 1 };
+    var d = try svd(testing.allocator, &diag, 3, 3);
+    defer d.deinit();
+    try testing.expectApproxEqAbs(@as(f64, 7), d.values[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 3), d.values[1], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 1), d.values[2], 1e-12);
+    // note the -7 became +7: a singular value is never negative
+    try testing.expectApproxEqRel(@as(f64, 7), try conditionNumberOf(testing.allocator, &diag, 3, 3), 1e-10);
+
+    // the identity is perfectly conditioned
+    const id = [_]f64{ 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    try testing.expectApproxEqAbs(@as(f64, 1), try conditionNumberOf(testing.allocator, &id, 3, 3), 1e-12);
+
+    // SCALE INVARIANCE: multiplying a matrix by 1e-8 divides every singular value by
+    // 1e-8, so neither the rank nor the condition number may change. An absolute
+    // threshold would get both wrong.
+    var tiny: [9]f64 = undefined;
+    for (&tiny, diag) |*t, x| t.* = x * 1e-8;
+    try testing.expectEqual(@as(usize, 3), try rankOf(testing.allocator, &tiny, 3, 3));
+    try testing.expectApproxEqRel(@as(f64, 7), try conditionNumberOf(testing.allocator, &tiny, 3, 3), 1e-10);
+}
+
+test "svd: bad shapes are refused rather than answered" {
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6 };
+    // WIDE (m < n) is not supported: transpose it, since the singular values of A
+    // and A' are identical. Saying so beats reading past the end of the array.
+    try testing.expectEqual(@as(usize, 0), try rankOf(testing.allocator, &a, 2, 3));
+    try testing.expect(std.math.isNan(try conditionNumberOf(testing.allocator, &a, 2, 3)));
+    try testing.expectEqual(@as(usize, 0), try rankOf(testing.allocator, &a, 3, 0));
+}
+
+test "rank and the condition number cannot disagree about singularity" {
+    // The defect this pins. A rank test and a condition number ask the same question
+    // -- "is the smallest value negligible?" -- so a matrix called rank deficient
+    // must have an INFINITE condition number, and a full-rank one a finite one.
+    // Before negligibleThreshold existed they used separate rules, and for values
+    // left at rounding level rather than exactly zero they contradicted each other:
+    // rank 2 with a condition number of 8.97e16.
+
+    // --- rectangular, via SVD ---
+    const rect_cases = [_]struct { m: usize, n: usize, d: []const f64 }{
+        // rank 2 of 3: column 3 = column 1 + column 2
+        .{ .m = 5, .n = 3, .d = &[_]f64{ 1, 0, 1, 0, 1, 1, 1, 1, 2, 2, 0, 2, 0, 3, 3 } },
+        // full rank
+        .{ .m = 5, .n = 3, .d = &[_]f64{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1 } },
+        // rank 1 of 2: identical columns
+        .{ .m = 3, .n = 2, .d = &[_]f64{ 1, 1, 2, 2, 3, 3 } },
+        // full rank, tiny scale -- must behave exactly like the unscaled version
+        .{ .m = 3, .n = 2, .d = &[_]f64{ 1e-9, 0, 0, 1e-9, 0, 0 } },
+    };
+    for (rect_cases) |c| {
+        const r = try rankOf(testing.allocator, c.d, c.m, c.n);
+        const k = try conditionNumberOf(testing.allocator, c.d, c.m, c.n);
+        const deficient = r < c.n;
+        try testing.expectEqual(deficient, std.math.isInf(k));
+    }
+
+    // --- square symmetric, via eigen: the same invariant, and the case that had the
+    // bug latent. Its zero eigenvalue comes out at 1.15e-15, not 0.
+    const sym_cases = [_][9]f64{
+        .{ 2, 1, 3, 1, 5, 6, 3, 6, 9 }, // row 3 = row 1 + row 2 -> singular
+        .{ 1, 1, 1, 1, 1, 1, 1, 1, 1 }, // rank 1
+        .{ 4, 1, 0, 1, 5, 2, 0, 2, 6 }, // full rank
+        .{ 1, 0, 0, 0, 1, 0, 0, 0, 1 }, // the identity
+    };
+    for (sym_cases) |c| {
+        const r = try rankSymmetric(testing.allocator, &c, 3);
+        const k = try conditionNumberSymmetric(testing.allocator, &c, 3);
+        try testing.expectEqual(r < 3, std.math.isInf(k));
+    }
+
+    // and the specific numbers from the finding, so the regression is unmistakable
+    const dep = [_]f64{ 2, 1, 3, 1, 5, 6, 3, 6, 9 };
+    try testing.expectEqual(@as(usize, 2), try rankSymmetric(testing.allocator, &dep, 3));
+    try testing.expect(std.math.isInf(try conditionNumberSymmetric(testing.allocator, &dep, 3)));
+}
+
+test "QR rank deficiency at SCALE -- the case an exact == 0 test missed" {
+    // The defect slice 9 found in slice 7. A 3x2 with a duplicated column leaves
+    // rdiag exactly zero, so the old `d == 0` test caught it and slice 7's test
+    // passed. A 200x4 design matrix with a redundant predictor does NOT: rounding
+    // leaves the diagonal near zero but not at it, so isFullRank answered TRUE, and
+    // qrSolve back-substituted through a near-zero pivot and returned coefficients
+    // around -9.7e12 -- garbage, presented as a fit.
+    const m = 200;
+    const n = 4;
+    var a: [m * n]f64 = undefined;
+    var b: [m]f64 = undefined;
+    for (0..m) |i| {
+        const fi: f64 = @floatFromInt(i + 1);
+        const u = @mod(fi, 13.0) + 1.0;
+        const v = @mod(fi, 7.0) + 1.0;
+        a[i * n + 0] = 1;
+        a[i * n + 1] = u;
+        a[i * n + 2] = v;
+        a[i * n + 3] = u + v; // REDUNDANT: column 4 = column 2 + column 3
+        b[i] = 10 - 3 * u + 0.5 * v;
+    }
+
+    // the SVD says rank 3 of 4 columns
+    try testing.expectEqual(@as(usize, 3), try rankOf(testing.allocator, &a, m, n));
+    try testing.expect(std.math.isInf(try conditionNumberOf(testing.allocator, &a, m, n)));
+
+    // ...and QR must agree, rather than producing an answer
+    var f = try qr(testing.allocator, &a, m, n);
+    defer f.deinit();
+    try testing.expect(!f.isFullRank());
+
+    var x: [n]f64 = undefined;
+    try testing.expect(!try leastSquares(testing.allocator, &a, m, n, &b, &x));
+
+    // and the same design WITHOUT the redundant column is still answered
+    const n3 = 3;
+    var a3: [m * n3]f64 = undefined;
+    for (0..m) |i| {
+        a3[i * n3 + 0] = a[i * n + 0];
+        a3[i * n3 + 1] = a[i * n + 1];
+        a3[i * n3 + 2] = a[i * n + 2];
+    }
+    try testing.expectEqual(@as(usize, 3), try rankOf(testing.allocator, &a3, m, n3));
+    var x3: [n3]f64 = undefined;
+    try testing.expect(try leastSquares(testing.allocator, &a3, m, n3, &b, &x3));
+    try testing.expectApproxEqAbs(@as(f64, 10), x3[0], 1e-8);
+    try testing.expectApproxEqAbs(@as(f64, -3), x3[1], 1e-8);
+    try testing.expectApproxEqAbs(@as(f64, 0.5), x3[2], 1e-8);
 }
