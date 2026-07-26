@@ -665,6 +665,7 @@ ok
     load "stats/stzSurfacePlot.ring"
     load "stats/stzScatterPlot.ring"
     load "stats/stzHistogram.ring"
+    load "stats/stzHypothesis.ring"
     load "stats/stzDataWrangler.ring"
     load "stats/stzCoeffExtractor.ring"
     load "stats/stzLinearSolver.ring"
