@@ -1,6 +1,7 @@
 pub const stats = @import("stats.zig");
 pub const numbuf = @import("numbuf.zig");
 pub const special = @import("special.zig");
+pub const hypothesis = @import("hypothesis.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -49,5 +50,6 @@ comptime {
 test {
     _ = stats;
     _ = special;
+    _ = hypothesis;
     _ = numbuf;
 }

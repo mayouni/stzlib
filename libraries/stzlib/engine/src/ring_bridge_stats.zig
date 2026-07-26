@@ -1,6 +1,7 @@
 const stats = @import("stats.zig");
 const numbuf = @import("numbuf.zig");
 const special = @import("special.zig");
+const hyp = @import("hypothesis.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -329,6 +330,100 @@ fn ring_FCdf(p: *anyopaque) callconv(.c) void { rn(p, special.fCdf(g(p, 1), g(p,
 fn ring_FQuantile(p: *anyopaque) callconv(.c) void { rn(p, special.fQuantile(g(p, 1), g(p, 2), g(p, 3))); }
 fn ring_CriticalValue(p: *anyopaque) callconv(.c) void { rn(p, special.criticalValue(g(p, 1), g(p, 2))); }
 
+
+// ─── Hypothesis tests (phase 5 slice 1) ───
+//
+// Each returns a Ring LIST, never a bare p-value -- that number alone is the most
+// misread quantity in statistics, and handing it back on its own invites exactly the
+// misreading. The shape is
+//
+//     [ statistic, df, p_value, effect_size, n, ok ]
+//
+// which the Ring layer turns into a named record. `ok = 0` means NO TEST WAS RUN, and
+// every other field is 0: the caller must not read that zero p-value as overwhelming
+// significance, which is the misreading the flag exists to stop.
+fn retResult(p: *anyopaque, r: hyp.TestResult) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, r.statistic);
+    R.ring_list_adddouble(out, r.df);
+    R.ring_list_adddouble(out, r.p_value);
+    R.ring_list_adddouble(out, r.effect_size);
+    R.ring_list_adddouble(out, r.n);
+    R.ring_list_adddouble(out, @floatFromInt(r.ok));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_TOneSample(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(a);
+    retResult(p, hyp.tTestOneSample(a, g(p, 2)));
+}
+
+fn ring_TWelch(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(a);
+    const b = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(b);
+    retResult(p, hyp.tTestWelch(a, b));
+}
+
+fn ring_TStudent(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(a);
+    const b = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(b);
+    retResult(p, hyp.tTestStudent(a, b));
+}
+
+fn ring_TPaired(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(a);
+    const b = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(b);
+    if (a.len != b.len) return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    retResult(p, hyp.tTestPaired(allocator, a, b) catch .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+}
+
+fn ring_Chi2Gof(p: *anyopaque) callconv(.c) void {
+    const o = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(o);
+    const e = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(e);
+    if (o.len != e.len) return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    retResult(p, hyp.chiSquareGoodnessOfFit(o, e));
+}
+
+fn ring_Chi2Independence(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(flat);
+    const rows: usize = @intFromFloat(g(p, 2));
+    const cols: usize = @intFromFloat(g(p, 3));
+    if (rows * cols != flat.len) return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    retResult(p, hyp.chiSquareIndependence(allocator, flat, rows, cols) catch .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+}
+
+fn ring_Anova(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(flat);
+    const szf = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(szf);
+    const sizes = allocator.alloc(usize, szf.len) catch return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(sizes);
+    for (szf, 0..) |v, i| {
+        if (v < 1) return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+        sizes[i] = @intFromFloat(v);
+    }
+    retResult(p, hyp.anovaOneWay(flat, sizes));
+}
+
+fn ring_CorrelationTest(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(a);
+    const b = listToF64(p, 2) orelse return retResult(p, .{ .statistic = 0, .df = 0, .p_value = 0, .effect_size = 0, .n = 0, .ok = 0 });
+    defer allocator.free(b);
+    retResult(p, hyp.correlationTest(a, b));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },
     .{ .name = "stzenginenumbuffromlist", .func = &ring_BufFromList },
@@ -400,6 +495,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginefcdf", .func = &ring_FCdf },
     .{ .name = "stzenginefquantile", .func = &ring_FQuantile },
     .{ .name = "stzenginecriticalvalue", .func = &ring_CriticalValue },
+    .{ .name = "stzenginetonesample", .func = &ring_TOneSample },
+    .{ .name = "stzenginetwelch", .func = &ring_TWelch },
+    .{ .name = "stzenginetstudent", .func = &ring_TStudent },
+    .{ .name = "stzenginetpaired", .func = &ring_TPaired },
+    .{ .name = "stzenginechi2gof", .func = &ring_Chi2Gof },
+    .{ .name = "stzenginechi2independence", .func = &ring_Chi2Independence },
+    .{ .name = "stzengineanova", .func = &ring_Anova },
+    .{ .name = "stzenginecorrelationtest", .func = &ring_CorrelationTest },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
