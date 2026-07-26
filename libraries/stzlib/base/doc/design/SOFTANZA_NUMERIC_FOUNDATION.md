@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, six slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, seven slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -105,8 +105,10 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
 - **No decimal, rational, complex, or fixed-width integer types.**
 - **Linear algebra stops at `inverse`.** No LU, QR, Cholesky, SVD, or eigenvalues —
   so no least squares, no PCA, no conditioning diagnostics, no rank. **LU DONE in
-  phase 4 slice 4 (e549ec945)** in `engine/src/linalg.zig`, with a determinant and a
-  linear solve on it; QR / Cholesky / eigen / SVD still open.
+  slice 4 (e549ec945)** with a determinant and a linear solve on it; **QR
+  (Householder) + CHOLESKY + LEAST SQUARES DONE in slice 7 (07d3b443e)**, so
+  multiple regression is now expressible. Eigen / SVD still open, and with them PCA
+  and a condition number.
 - **`solver.zig` is not an optimiser.** 199 lines of scalar root-finding
   (bisection, Newton), Simpson integration and polynomial evaluation over
   coefficient arrays. There is no LP, QP, MIP or general nonlinear solver in the
@@ -993,6 +995,40 @@ special functions.
 > per embed. There is no bulk accessor on `g_emb`, and no GGUF model is present here,
 > so a new neural bridge could not be exercised end to end. Adding untested code on an
 > unrunnable path is worse than documenting the cost.
+>
+> **SLICE 7 DONE (07d3b443e), guard `numeric_least_squares_narrated` (31): QR,
+> CHOLESKY, LEAST SQUARES — and the gap closed is a CAPABILITY, not a speed one.**
+> An **overdetermined** system — more equations than unknowns, which is what fitting
+> a model to data always is — had no answer anywhere in the library. `SolveFor` needs
+> a square matrix; `stats.zig`'s regression is *simple* regression, two series in,
+> one slope and one intercept out. There was no route to a fit with two predictors.
+>
+> **Householder QR, NOT the normal equations**, and the shortcut was tempting: least
+> squares is often taught as "solve `A'A x = A'b`", one line on top of the LU solve
+> already in hand. But forming `A'A` **squares the condition number** — a problem
+> that loses 8 significant digits loses 16, and a double has 16. Householder costs
+> about twice as much and is unconditionally stable. Q is never formed, only applied.
+>
+> **Cholesky** is the cheap case: half the work of LU (n³/3 vs 2n³/3) and **no
+> pivoting**, because a positive-definite matrix cannot produce a zero pivot — a
+> theorem, not an optimisation. It also gives the cheapest positive-definiteness
+> *test* there is, since the factorisation exists iff the property holds.
+>
+> Ring surface: `LeastSquaresFor` (+ `LeastSquares`/`BestFitFor`), `CholeskyFactor`,
+> `IsPositiveDefinite`.
+>
+> **What it refuses is part of the design.** Rank deficiency → `[]`: dependent
+> columns mean infinitely many vectors share the minimum residual, and silently
+> picking one is the worst option. Underdetermined → raises: infinitely many *exact*
+> solutions, and least squares has no opinion between them (that is minimum-norm, a
+> different problem needing a different decomposition).
+>
+> **Tested by identity and by definition**, per slice 5's lesson. Cholesky's `L·Lᵀ`
+> is multiplied back out; its solve is compared against **LU's**, and QR's against
+> LU's too — factorisations sharing no code and no algorithm. The inexact fit is
+> checked against what least squares *means*: the residual orthogonal to every column
+> of A, and perturbing either coefficient in either direction increasing the squared
+> residual. A minimum is a minimum.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
