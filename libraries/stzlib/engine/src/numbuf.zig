@@ -140,28 +140,13 @@ pub fn stz_numbuf_mul(b: ?*StzNumBuffer, other: ?*const StzNumBuffer) callconv(.
 
 // ─── Reductions: a scalar out, nothing marshalled ───
 
-/// Sum with NEUMAIER COMPENSATION, not a naive running total.
-///
-/// A plain sum loses the low bits of every addend once the total grows large
-/// relative to it -- add 1e16 and then a million 1.0s and the naive answer is
-/// 1e16, because each 1.0 falls off the end of the mantissa. The compensation
-/// carries that lost part along and adds it back at the end. It costs one extra
-/// add per element and removes an error class that is invisible until the data
-/// gets big, which is exactly when a buffer like this is used.
+/// Summed with NEUMAIER COMPENSATION -- see stats.compensatedSum, which is the
+/// one place that summation is defined. This buffer had its own copy of the
+/// algorithm briefly, which is how the library ended up with two answers for the
+/// same 1001 numbers; the copy is gone.
 pub fn stz_numbuf_sum(b: ?*const StzNumBuffer) callconv(.c) f64 {
     const buf = b orelse return 0;
-    var sum: f64 = 0;
-    var c: f64 = 0;
-    for (buf.data) |x| {
-        const t = sum + x;
-        if (@abs(sum) >= @abs(x)) {
-            c += (sum - t) + x;
-        } else {
-            c += (x - t) + sum;
-        }
-        sum = t;
-    }
-    return sum + c;
+    return stats.compensatedSum(buf.data);
 }
 
 pub fn stz_numbuf_mean(b: ?*const StzNumBuffer) callconv(.c) f64 {

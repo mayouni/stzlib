@@ -27,11 +27,60 @@ pub const StzStats = struct {
 
 // ─── Helpers ───
 
+// ── THE SUMMATION LIVES HERE, AND ONLY HERE ────────────────────────────
+//
+// Adding f64s left to right silently loses the low bits of every addend once
+// the running total grows large relative to them. Sum 1e16 and then a thousand
+// 1.0s and a naive loop answers exactly 1e16: each 1.0 falls off the end of the
+// mantissa and is gone. NEUMAIER COMPENSATION carries that lost part in a second
+// accumulator and adds it back at the end -- one extra add per element, and an
+// error class that is invisible until the data gets big simply disappears.
+//
+// It is defined once because it was, briefly, defined twice. numbuf.zig arrived
+// with a compensated sum while this module and list.zig kept naive ones, so the
+// SAME 1001 numbers gave two different answers depending on which door they went
+// through:
+//
+//     stzListOfNumbers.Sum()  ->  10000000000000000     the thousand ones lost
+//     stzDataSet.Sum()        ->  10000000000000000     lost again
+//     stzNumBuffer.Sum()      ->  10000000000001000     right
+//
+// Same disease as the variance divisor below, in a new place, and introduced by
+// the very phase that added the correct version. So: one authority, and everyone
+// asks it.
+//
+// Two shapes, because callers store their numbers differently. Slices use
+// `compensatedSum`; anything that must filter or convert as it walks (list.zig
+// skips non-numeric items, and has separate int/float/generic representations)
+// feeds `Compensated` one value at a time.
+pub const Compensated = struct {
+    total: f64 = 0,
+    c: f64 = 0,
+
+    pub fn add(self: *Compensated, x: f64) void {
+        const t = self.total + x;
+        if (@abs(self.total) >= @abs(x)) {
+            self.c += (self.total - t) + x;
+        } else {
+            self.c += (x - t) + self.total;
+        }
+        self.total = t;
+    }
+
+    pub fn value(self: Compensated) f64 {
+        return self.total + self.c;
+    }
+};
+
+pub fn compensatedSum(data: []const f64) f64 {
+    var acc = Compensated{};
+    for (data) |v| acc.add(v);
+    return acc.value();
+}
+
 fn computeMean(data: []const f64) f64 {
     if (data.len == 0) return 0;
-    var sum: f64 = 0;
-    for (data) |v| sum += v;
-    return sum / @as(f64, @floatFromInt(data.len));
+    return compensatedSum(data) / @as(f64, @floatFromInt(data.len));
 }
 
 // ── THE VARIANCE CONVENTION LIVES HERE, AND ONLY HERE ──────────────────
@@ -111,9 +160,7 @@ pub fn stz_stats_mean(s: ?*const StzStats) callconv(.c) f64 {
 
 pub fn stz_stats_sum(s: ?*const StzStats) callconv(.c) f64 {
     const st = s orelse return 0;
-    var sum: f64 = 0;
-    for (st.data) |v| sum += v;
-    return sum;
+    return compensatedSum(st.data);
 }
 
 pub fn stz_stats_min(s: ?*const StzStats) callconv(.c) f64 {
@@ -711,4 +758,31 @@ test "stats covariance" {
     const sy = stz_stats_create(&y, y.len) orelse return error.CreateFailed;
     defer stz_stats_free(sy);
     try std.testing.expectApproxEqAbs(@as(f64, 5.0), stz_stats_covariance(sx, sy), 0.001);
+}
+
+test "the summation authority: one definition, and it is the compensated one" {
+    // The case that separates them. A naive left-to-right total answers exactly
+    // 1e16 here: once the running total is 1e16, each 1.0 is smaller than the
+    // last bit of the mantissa and is simply dropped.
+    var data: [1001]f64 = undefined;
+    data[0] = 1e16;
+    for (data[1..]) |*v| v.* = 1.0;
+
+    try std.testing.expectEqual(@as(f64, 1e16 + 1000), compensatedSum(&data));
+
+    // ...and this is what everyone used to do instead:
+    var naive: f64 = 0;
+    for (data) |v| naive += v;
+    try std.testing.expectEqual(@as(f64, 1e16), naive);
+    try std.testing.expect(naive != compensatedSum(&data));
+
+    // the incremental shape, for callers that filter or convert as they walk
+    var acc = Compensated{};
+    for (data) |v| acc.add(v);
+    try std.testing.expectEqual(compensatedSum(&data), acc.value());
+
+    // and the public door agrees, since it no longer has its own loop
+    const s = stz_stats_create(&data, data.len) orelse return error.CreateFailed;
+    defer stz_stats_free(s);
+    try std.testing.expectEqual(@as(f64, 1e16 + 1000), stz_stats_sum(s));
 }

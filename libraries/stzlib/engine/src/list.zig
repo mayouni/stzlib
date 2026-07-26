@@ -3533,23 +3533,24 @@ fn numericVal(item: *const StzValue) ?f64 {
     };
 }
 
+// Summed through stats.Compensated, the one summation authority, rather than a
+// naive running total -- three of them, in fact, one per representation. A list
+// of a million small numbers is exactly where left-to-right addition quietly
+// drops the tail.
 pub fn stz_list_sum(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    var acc = stats.Compensated{};
     if (l.ints) |arr| {
-        var total: f64 = 0;
-        for (arr.items) |x| total += @floatFromInt(x);
-        return total;
+        for (arr.items) |x| acc.add(@floatFromInt(x));
+        return acc.value();
     }
     if (l.floats) |arr| {
-        var total: f64 = 0;
-        for (arr.items) |x| total += x;
-        return total;
+        return stats.compensatedSum(arr.items);
     }
-    var total: f64 = 0;
     for (l.items.items) |item| {
-        if (numericVal(item)) |v| total += v;
+        if (numericVal(item)) |v| acc.add(v);
     }
-    return total;
+    return acc.value();
 }
 
 pub fn stz_list_product(list_arg: ?*const StzList) callconv(.c) f64 {
@@ -3638,27 +3639,24 @@ pub fn stz_list_max(list_arg: ?*const StzList) callconv(.c) f64 {
 
 pub fn stz_list_mean(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    var acc = stats.Compensated{};
     if (l.ints) |arr| {
         if (arr.items.len == 0) return 0;
-        var total: f64 = 0;
-        for (arr.items) |x| total += @floatFromInt(x);
-        return total / @as(f64, @floatFromInt(arr.items.len));
+        for (arr.items) |x| acc.add(@floatFromInt(x));
+        return acc.value() / @as(f64, @floatFromInt(arr.items.len));
     }
     if (l.floats) |arr| {
         if (arr.items.len == 0) return 0;
-        var total: f64 = 0;
-        for (arr.items) |x| total += x;
-        return total / @as(f64, @floatFromInt(arr.items.len));
+        return stats.compensatedSum(arr.items) / @as(f64, @floatFromInt(arr.items.len));
     }
-    var total: f64 = 0;
     var count: f64 = 0;
     for (l.items.items) |item| {
         if (numericVal(item)) |v| {
-            total += v;
+            acc.add(v);
             count += 1;
         }
     }
-    return if (count > 0) total / count else 0;
+    return if (count > 0) acc.value() / count else 0;
 }
 
 /// Return the median of a numeric list. For odd-length lists returns the middle value;
