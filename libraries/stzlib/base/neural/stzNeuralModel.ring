@@ -248,11 +248,14 @@ func StzSemanticSimilarity(pcA, pcB)
 		_aB_ = _StzEmbedInto(pcB)
 		_nLen_ = len(_aA_)
 		if _nLen_ = 0 or len(_aB_) != _nLen_ return 0 ok
-		_nDot_ = 0
-		for i = 1 to _nLen_
-			_nDot_ += _aA_[i] * _aB_[i]
-		next
-		return _nDot_
+		# One engine call rather than a Ring loop over 384-1536 elements. The
+		# engine's dot product is vectorised (phase 4 slice 6); more to the point,
+		# a Ring `for` over an embedding is one interpreter step per dimension.
+		#
+		# This is the identity the comment above relies on: for L2-normalised
+		# vectors the dot product IS the cosine. similarity.zig's test suite pins
+		# that identity directly.
+		return StzEngineSimDotProduct(_aA_, _aB_)
 	ok
 	_oA_ = new stzString(pcA)
 	return _oA_.CosineSimilarityWith(pcB)
