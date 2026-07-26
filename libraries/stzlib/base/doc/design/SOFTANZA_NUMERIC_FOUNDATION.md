@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, five slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, six slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -399,9 +399,13 @@ With residency in place, kernel quality finally matters. In priority order:
 
 1. **SIMD the hot reductions** — sum, dot, min/max, mean/variance (Welford,
    vectorised), cosine similarity, elementwise ops, saxpy. `@Vector` makes each of
-   these a few lines and portable. `similarity.zig`'s six functions are scalar
+   these a few lines and portable. ~~`similarity.zig`'s six functions are scalar
    loops today and are on the hot path for every embedding comparison in the NLP
-   and neural tiers.
+   and neural tiers.~~ **CORRECTED by slice 6: they were scalar, but NOT on that hot
+   path — the bridge exposed only fixed 3-dimension variants, so Ring could not
+   reach them with an embedding at all. And a `dim > 1024 -> return 0.0` guard meant
+   a 1536-dimension comparison would have silently scored zero. Both fixed
+   (f0b3e7890).**
 2. **Numerically stable by default** — Neumaier compensation in accumulation,
    Welford for moments, log-sum-exp where it belongs. This is a correctness upgrade
    disguised as a performance one.
@@ -947,6 +951,48 @@ special functions.
 > still 2.37e-5 wider. Measuring the gap over four decades showed it falls by 10× per
 > 10× of df, so the guard now asserts the **O(1/df) rate** instead of a tolerance. A
 > rate is a mathematical property no approximation error can fake.
+>
+> **SLICE 6 DONE (f0b3e7890), guard `numeric_similarity_narrated` (29): SIMILARITY —
+> and THIS SECTION'S OWN CLAIM ABOUT IT WAS WRONG.** Pillar 4 item 1 says
+> `similarity.zig`'s functions "are on the hot path for every embedding comparison in
+> the NLP and neural tiers." They were not reachable from it at all:
+> `ring_bridge_similarity.zig` exposed only fixed **three-dimension** variants, and
+> even `CosineFromLists` insisted on exactly three elements.
+>
+> **Underneath that, a silent zero.** Every function began `if (dim <= 0 or dim >
+> 1024) return 0.0` — not an error, not a clamp. Two *identical* 1536-dimension
+> vectors scored **0 cosine similarity**, which reads as "completely unrelated". And
+> 1024 is exactly where real sentence embeddings live: 384, 768, 1024, 1536.
+>
+> **The two defects were each other's cover.** The cap never fired because the bridge
+> was too narrow; the bridge was never widened because nothing needed it. Widening
+> alone would have turned a latent trap into a live one, so both went in one slice.
+> There was nothing to cap: every function is handed its length.
+>
+> All five vector loops vectorised; general-dimension bridges added (3-arg forms
+> kept, they are published); `stzSimilarity`'s four `*FromLists` widened plus
+> `Cosine`/`Euclidean`/`Manhattan`/`Dot` aliases, `MagnitudeOf`, `NormalizedList`;
+> and `StzSemanticSimilarity`'s Ring dot-product loop over 384–1536 elements replaced
+> by one engine call.
+>
+> | 200k cosines | scalar | `@Vector(8)` | |
+> |---|---|---|---|
+> | dim 384 | 33.4 ms | 9.7 ms | 3.44× |
+> | dim 768 | 66.9 ms | 18.3 ms | 3.66× |
+> | dim 1536 | 135.2 ms | 40.1 ms | 3.37× |
+>
+> **The best ratio of the phase, and the reason generalises: cosine accumulates THREE
+> quantities per element loaded** (the dot product and both squared magnitudes), so it
+> is compute-bound. A plain dot product reads two arrays to do one multiply-add and is
+> bandwidth-bound — which is why it gained only 1.2× in slice 2. **Arithmetic per byte
+> loaded is what decides whether SIMD pays.** Jaccard is deliberately left scalar:
+> merging two sorted runs is inherently sequential.
+>
+> **Left undone, deliberately:** `_StzEmbedInto` copies an embedding out of the engine
+> **one element at a time** (`StzEngineNeuralEmbedAt(i)`) — 384–1536 bridge crossings
+> per embed. There is no bulk accessor on `g_emb`, and no GGUF model is present here,
+> so a new neural bridge could not be exercised end to end. Adding untested code on an
+> unrunnable path is worse than documenting the cost.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
