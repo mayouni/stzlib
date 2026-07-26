@@ -112,8 +112,8 @@ correct a recorded claim that we had no arbitrary-precision engine; we do.
   CHOLESKY + LEAST SQUARES in slice 7 (07d3b443e)**, so multiple regression is
   expressible; **SYMMETRIC EIGEN + CONDITION NUMBER + RANK in slice 8 (504c1df36)**,
   which also gives the eigenvectors PCA needs; **SVD + RECTANGULAR RANK/CONDITIONING
-  in slice 9 (40fd49580)**. **This line is now closed** -- only a pseudo-inverse
-  remains unbuilt, and it is three lines on top of the SVD when a consumer appears.
+  in slice 9 (40fd49580)**; **PSEUDO-INVERSE + MINIMUM-NORM SOLUTIONS (f17404c55)**.
+  **This line is now CLOSED.**
 - **`solver.zig` is not an optimiser.** 199 lines of scalar root-finding
   (bisection, Newton), Simpson integration and polynomial evaluation over
   coefficient arrays. There is no LP, QP, MIP or general nonlinear solver in the
@@ -1124,6 +1124,44 @@ special functions.
 > against exact zero, and choosing a test case small enough that it really was zero.**
 > The lesson generalises past linear algebra — if a test of "is this zero?" passes,
 > check whether it passes at *scale*.
+>
+> **PSEUDO-INVERSE DONE (f17404c55), guard `numeric_pseudoinverse_narrated` (26) —
+> added between phases 4 and 5, and it CLOSES A DOOR SLICE 7 DELIBERATELY LEFT OPEN.**
+> `LeastSquaresFor` refuses a rank-deficient system, and its comment says why:
+> infinitely many coefficient vectors share the minimum residual, "and least squares
+> does not choose between them — that is minimum-norm, a different problem needing a
+> different decomposition." **This is that decomposition.** `A⁺b` both minimises
+> ‖Ax − b‖ *and* is the shortest vector that does — principled rather than arbitrary,
+> which is exactly why it can be offered where least squares declines.
+>
+> | A is | A⁺ gives |
+> |---|---|
+> | square, invertible | exactly the inverse |
+> | tall, full rank | exactly the least-squares solution |
+> | rank deficient | the **minimum-norm** least-squares solution |
+> | wide | the minimum-norm **exact** solution |
+>
+> `A⁺ = V S⁺ U'`, two lines on the SVD. One subtlety: "negligible" must be the *same*
+> judgement rank and conditioning use, so it asks `negligibleThreshold` — the authority
+> that exists because slice 9 caught those two disagreeing. The wide case transposes
+> internally (`pinv(A) = pinv(A')'`), since a pseudo-inverse refusing half of all shapes
+> would be a poor generalisation of an inverse.
+>
+> **Tested by the four Penrose conditions**, which *define* A⁺ uniquely — `A A⁺ A = A`,
+> `A⁺ A A⁺ = A⁺`, and both `A A⁺` and `A⁺ A` symmetric — across eight shapes including
+> singular, wide and the zero matrix. Cross-checked against the LU inverse and slice 7's
+> QR solution, neither of which shares code with the SVD. Where it goes *beyond* them,
+> the minimum-norm property is **demonstrated**: shifting along the null space preserves
+> the residual exactly while lengthening the vector.
+>
+> Ring: `PseudoInverse`, `MinimumNormSolutionFor`. **`LeastSquaresFor` remains the right
+> call for a full-rank design** — a refusal there is *information* (the predictors are
+> collinear), and defaulting to minimum-norm would hide it.
+>
+> *Trap recorded in the guard:* `stzMatrix.Inverse()` **mutates in place** and returns
+> nothing, so calling it then `PseudoInverse()` on the same object returns the ORIGINAL
+> — correctly, since A⁺ of an inverse is what you started with. It reads exactly like a
+> bug in the new code.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
