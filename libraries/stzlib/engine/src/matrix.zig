@@ -215,6 +215,59 @@ pub fn stz_matrix_solve(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c)
     return out;
 }
 
+/// Least squares: the coefficient vector minimising ||Ax - b|| for an m*n A with
+/// m >= n, via Householder QR in linalg.zig.
+///
+/// NEW in phase 4 slice 7, and it is a capability rather than a speedup: an
+/// OVERDETERMINED system -- more equations than unknowns -- had no answer in this
+/// library at all. `stats.zig`'s regression is SIMPLE regression, one predictor
+/// giving a slope and an intercept; this is multiple regression.
+///
+/// Returns a new n*1 matrix, or null when A is rank deficient (no unique
+/// minimiser), when b's shape disagrees, or when the system is underdetermined.
+pub fn stz_matrix_least_squares(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const ma = a orelse return null;
+    const mb = b orelse return null;
+    if (mb.cols != 1 or mb.rows != ma.rows) return null;
+    if (ma.rows < ma.cols or ma.cols == 0) return null;
+
+    const out = StzMatrix.init(gpa, ma.cols, 1) catch return null;
+    const ok = linalg.leastSquares(gpa, ma.data, ma.rows, ma.cols, mb.data, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
+/// The Cholesky factor L of a symmetric positive-definite A, as a new n*n matrix
+/// with zeros above the diagonal. Returns null when A is not positive definite --
+/// which makes this the cheapest positive-definiteness TEST available, since the
+/// factorisation exists if and only if the property holds.
+pub fn stz_matrix_cholesky(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows != mat.cols or mat.rows == 0) return null;
+    var f = linalg.cholesky(gpa, mat.data, mat.rows) catch return null;
+    defer f.deinit();
+    if (!f.positive_definite) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.rows) catch return null;
+    @memcpy(out.data, f.l);
+    return out;
+}
+
+/// 1 when the matrix is symmetric positive definite, 0 otherwise. Asked of the
+/// Cholesky factorisation rather than of eigenvalues, which we do not have yet.
+pub fn stz_matrix_is_positive_definite(m: ?*const StzMatrix) callconv(.c) i32 {
+    const mat = m orelse return 0;
+    if (mat.rows != mat.cols or mat.rows == 0) return 0;
+    var f = linalg.cholesky(gpa, mat.data, mat.rows) catch return 0;
+    defer f.deinit();
+    return if (f.positive_definite) 1 else 0;
+}
+
 pub fn stz_matrix_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     const mat = m orelse return null;
     if (mat.rows != mat.cols) return null;
