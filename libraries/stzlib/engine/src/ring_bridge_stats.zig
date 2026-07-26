@@ -3,6 +3,7 @@ const numbuf = @import("numbuf.zig");
 const special = @import("special.zig");
 const hyp = @import("hypothesis.zig");
 const simplex = @import("simplex.zig");
+const logistic = @import("logistic.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -487,7 +488,95 @@ fn ring_SimplexRun(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── LOGISTIC REGRESSION (phase 5) ───────────────────────────────────────────
+//
+//   StzEngineLogisticTrain(aXflat, aY, nRows, nFeat, nLr, nEpochs)
+//     -> [ w1, w2, ..., wd, bias ]     (d+1 entries), or 0 on a refusal
+//
+// The features arrive FLAT rather than as a list of lists: the caller already
+// has to walk its examples to build the y vector, so flattening costs it nothing,
+// and it saves this side one Ring list traversal per row. n and d are passed
+// rather than inferred, so a ragged input is REFUSED here instead of being
+// silently truncated to the first row's width -- which is what the Ring loop did.
+fn ring_LogisticTrain(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const y = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(y);
+
+    const n: usize = @intFromFloat(g(p, 3));
+    const d: usize = @intFromFloat(g(p, 4));
+    const lr = g(p, 5);
+    const epochs: usize = @intFromFloat(g(p, 6));
+
+    if (n == 0 or d == 0 or x.len != n * d or y.len != n) {
+        rn(p, 0);
+        return;
+    }
+
+    const w = allocator.alloc(f64, d) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(w);
+
+    const b = logistic.train(x, y, n, d, lr, epochs, w);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (w) |v| R.ring_list_adddouble(out, v);
+    R.ring_list_adddouble(out, b);
+    R.ring_vm_api_retlist(p, out);
+}
+
+//   StzEngineLogisticPredict(aXflat, nRows, nFeat, aW, nBias) -> [ p1, ..., pm ]
+//
+// Prediction goes through the engine too, and not for speed -- a single row is
+// dominated by marshalling. It is here so that a model is SCORED BY THE RULE IT
+// WAS FITTED BY. Ring's exp and Zig's exp agree to within an ulp, which is
+// invisible in one prediction and not invisible after a hundred epochs of
+// feedback; keeping both sides on one definition removes the question.
+fn ring_LogisticPredict(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const m: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const w = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(w);
+    const b = g(p, 5);
+
+    if (m == 0 or d == 0 or x.len != m * d or w.len != d) {
+        rn(p, 0);
+        return;
+    }
+
+    const out_p = allocator.alloc(f64, m) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_p);
+
+    logistic.predict(x, m, d, w, b, out_p);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_p) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginelogistictrain", .func = &ring_LogisticTrain },
+    .{ .name = "stzenginelogisticpredict", .func = &ring_LogisticPredict },
     .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },
     .{ .name = "stzenginenumbuffromlist", .func = &ring_BufFromList },
     .{ .name = "stzenginenumbuftolist", .func = &ring_BufToList },
