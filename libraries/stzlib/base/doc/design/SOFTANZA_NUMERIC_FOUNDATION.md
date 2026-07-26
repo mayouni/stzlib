@@ -434,9 +434,44 @@ With residency in place, kernel quality finally matters. In priority order:
 
 The algorithms in §2.4 come down from Ring, in value order:
 
-- **Simplex → engine.** `stzLinearSolver`'s 1170 Ring lines become a revised
-  dual simplex over resident buffers. Same public surface; the narration and tests
-  stay valid.
+- **Simplex → engine. DONE (9a5c356ff)**, guard `numeric_simplex_narrated` (27) —
+  **and the simplex was never the problem.** I did exactly what this line says first:
+  moved the pivot loop into `engine/src/simplex.zig`. A 40-variable model went from
+  **2.620s to 2.603s**. Then I profiled:
+
+  ```
+  extractCoefficient x 1200 calls : 2.474s
+  the whole Solve("simplex")      : 2.592s
+  ```
+
+  **95% of the time was re-parsing strings.** `extractCoefficient` is called once per
+  (constraint, variable) pair and each call re-parsed the *entire* expression from
+  scratch to pull out one coefficient — so the cost grew as constraints × variables ×
+  terms, **cubic in the model, for a parse that is linear**. Parsing once into
+  `[ [name, coeff], … ]` and caching by expression text:
+
+  | vars × cons | before | after |
+  |---|---|---|
+  | 10 × 8 | 0.051s | 0.009s |
+  | 20 × 15 | 0.353s | 0.024s |
+  | 40 × 30 | 2.620s | **0.091s** (29×) |
+
+  On the whole `Solve()` call, 2.592s → 0.063s — **41×**. A 100×80 model, previously
+  out of reach, now solves in 0.71s. All seven call sites keep their signatures, so
+  `stzMultiObjectiveSolver` (which delegates to the same parser) got it for free.
+
+  **Third time this shape has appeared** — after the CSV module's per-cell regex
+  recompile and the graph module's O(E²) rebuild. **Profile before optimising: the
+  expensive line is rarely the one the plan names.**
+
+  The engine pivot loop is *kept*, on the merits rather than the plan's say-so: A/B'd
+  on the same tableau it gives **bit-identical** solutions (largest disagreement
+  exactly 0) while running below clock resolution where Ring takes 13ms, and it
+  removes ~50 lines of hand-rolled pivoting. It mirrors the Ring pivot rule exactly,
+  because a different but equally valid rule lands on a different vertex of the same
+  optimal face when the problem is degenerate — silently changing every answer.
+
+  *Verification:* all 14 linearsolver tests **byte-identical** before and after.
 - **Clustering / KNN / logistic / trees → engine**, over resident buffers. These
   are the classic distance-and-reduce kernels that SIMD and threads were made for.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
