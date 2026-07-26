@@ -398,6 +398,221 @@ pub fn leastSquares(allocator: std.mem.Allocator, data: []const f64, m: usize, n
     return qrSolve(&f, b, x, scratch);
 }
 
+// ─── Symmetric eigenvalues by cyclic Jacobi rotations ───
+//
+// The last decomposition phase 4 needs, and the one that EXPLAINS the others. A
+// symmetric matrix is positive definite exactly when every eigenvalue is positive,
+// so this gives an independent check on the Cholesky test above -- two algorithms
+// sharing no code answering one question.
+//
+// WHY JACOBI AND NOT QR ITERATION, which is what LAPACK uses. Jacobi is O(n^3) per
+// sweep with a small number of sweeps, so it is slower than tridiagonal-QR on large
+// matrices. In exchange it is about eighty lines, needs no tridiagonal reduction, no
+// shift strategy and no deflation logic, and it computes the SMALL eigenvalues to
+// high relative accuracy -- which is exactly what a condition number and a rank test
+// depend on. Our matrices are table- and covariance-sized. This is the right point
+// on that curve; if large dense symmetric problems ever become real, the answer is
+// tridiagonal QR, not a faster Jacobi.
+//
+// SYMMETRY IS REQUIRED, NOT ASSUMED. A non-symmetric matrix has complex eigenvalues
+// in general, which needs a different algorithm and a complex type we do not have.
+// Handed one, this REPORTS rather than returning the eigenvalues of the symmetric
+// part and letting the caller believe them.
+
+pub const Eigen = struct {
+    /// n eigenvalues, sorted DESCENDING -- the convention PCA expects, so the first
+    /// principal component comes first.
+    values: []f64,
+    /// n*n, row-major. Column j is the unit eigenvector for values[j].
+    vectors: []f64,
+    n: usize,
+    /// FALSE when the input was not symmetric, in which case nothing was computed.
+    symmetric: bool,
+    /// FALSE when the sweeps ran out before the off-diagonal mass fell below
+    /// tolerance. The values are still the best available, but say so.
+    converged: bool,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Eigen) void {
+        self.allocator.free(self.values);
+        self.allocator.free(self.vectors);
+    }
+
+    /// Element i of column j of the eigenvector matrix.
+    pub inline fn vec(self: *const Eigen, i: usize, j: usize) f64 {
+        return self.vectors[i * self.n + j];
+    }
+};
+
+const JACOBI_SWEEPS = 100;
+
+/// Is A symmetric to within a relative tolerance? Data that came out of a real
+/// computation is rarely symmetric to the last bit, so an exact test would reject
+/// matrices that are symmetric in every meaningful sense.
+pub fn isSymmetric(data: []const f64, n: usize) bool {
+    var scale: f64 = 0;
+    for (data[0 .. n * n]) |v| scale = @max(scale, @abs(v));
+    if (scale == 0) return true;
+    const tol = 1e-12 * scale;
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            if (@abs(data[i * n + j] - data[j * n + i]) > tol) return false;
+        }
+    }
+    return true;
+}
+
+pub fn eigenSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize) !Eigen {
+    const values = try allocator.alloc(f64, n);
+    errdefer allocator.free(values);
+    const vectors = try allocator.alloc(f64, n * n);
+    errdefer allocator.free(vectors);
+
+    if (!isSymmetric(data, n)) {
+        @memset(values, 0);
+        @memset(vectors, 0);
+        return .{
+            .values = values,
+            .vectors = vectors,
+            .n = n,
+            .symmetric = false,
+            .converged = false,
+            .allocator = allocator,
+        };
+    }
+
+    // working copy of A, and V starting as the identity
+    const a = try allocator.alloc(f64, n * n);
+    defer allocator.free(a);
+    @memcpy(a, data[0 .. n * n]);
+    @memset(vectors, 0);
+    for (0..n) |i| vectors[i * n + i] = 1.0;
+
+    var converged = false;
+    var sweep: usize = 0;
+    while (sweep < JACOBI_SWEEPS) : (sweep += 1) {
+        // the off-diagonal mass: what the rotations are driving to zero
+        var off: f64 = 0;
+        for (0..n) |i| {
+            for (i + 1..n) |j| off += a[i * n + j] * a[i * n + j];
+        }
+        if (off <= 1e-30) {
+            converged = true;
+            break;
+        }
+
+        for (0..n) |p| {
+            for (p + 1..n) |q| {
+                const apq = a[p * n + q];
+                if (@abs(apq) <= 1e-300) continue;
+
+                // The rotation that zeroes (p,q), by the stable formula: t is the
+                // SMALLER root, so c stays near 1 and no cancellation occurs however
+                // close app and aqq are.
+                const theta = (a[q * n + q] - a[p * n + p]) / (2.0 * apq);
+                const sgn: f64 = if (theta >= 0) 1.0 else -1.0;
+                const t = sgn / (@abs(theta) + @sqrt(theta * theta + 1.0));
+                const c = 1.0 / @sqrt(t * t + 1.0);
+                const sn = t * c;
+
+                // rotate A on both sides
+                for (0..n) |k| {
+                    if (k != p and k != q) {
+                        const akp = a[k * n + p];
+                        const akq = a[k * n + q];
+                        const newp = c * akp - sn * akq;
+                        const newq = sn * akp + c * akq;
+                        a[k * n + p] = newp;
+                        a[p * n + k] = newp;
+                        a[k * n + q] = newq;
+                        a[q * n + k] = newq;
+                    }
+                }
+                const app = a[p * n + p];
+                const aqq = a[q * n + q];
+                a[p * n + p] = app - t * apq;
+                a[q * n + q] = aqq + t * apq;
+                a[p * n + q] = 0;
+                a[q * n + p] = 0;
+
+                // accumulate the rotation into V
+                for (0..n) |k| {
+                    const vkp = vectors[k * n + p];
+                    const vkq = vectors[k * n + q];
+                    vectors[k * n + p] = c * vkp - sn * vkq;
+                    vectors[k * n + q] = sn * vkp + c * vkq;
+                }
+            }
+        }
+    }
+
+    for (0..n) |i| values[i] = a[i * n + i];
+
+    // Sort DESCENDING, carrying each eigenvector with its value. A selection sort:
+    // n is small here and the swap has to move a whole column.
+    for (0..n) |i| {
+        var best = i;
+        for (i + 1..n) |j| {
+            if (values[j] > values[best]) best = j;
+        }
+        if (best != i) {
+            const tv = values[i];
+            values[i] = values[best];
+            values[best] = tv;
+            for (0..n) |k| {
+                const tmp = vectors[k * n + i];
+                vectors[k * n + i] = vectors[k * n + best];
+                vectors[k * n + best] = tmp;
+            }
+        }
+    }
+
+    return .{
+        .values = values,
+        .vectors = vectors,
+        .n = n,
+        .symmetric = true,
+        .converged = converged,
+        .allocator = allocator,
+    };
+}
+
+/// The 2-norm condition number of a SYMMETRIC matrix: the largest eigenvalue in
+/// magnitude over the smallest. Infinity for a singular matrix, which is the honest
+/// answer -- and this is the number that says how many digits a solve can lose.
+pub fn conditionNumberSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize) !f64 {
+    var e = try eigenSymmetric(allocator, data, n);
+    defer e.deinit();
+    if (!e.symmetric) return std.math.nan(f64);
+    var lo = std.math.inf(f64);
+    var hi: f64 = 0;
+    for (e.values) |v| {
+        const m = @abs(v);
+        lo = @min(lo, m);
+        hi = @max(hi, m);
+    }
+    if (lo == 0) return std.math.inf(f64);
+    return hi / lo;
+}
+
+/// The RANK of a symmetric matrix: how many eigenvalues are non-negligible RELATIVE
+/// to the largest. The relative threshold matters -- an absolute one would call a
+/// matrix of uniformly tiny entries rank zero.
+pub fn rankSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize) !usize {
+    var e = try eigenSymmetric(allocator, data, n);
+    defer e.deinit();
+    if (!e.symmetric) return 0;
+    var hi: f64 = 0;
+    for (e.values) |v| hi = @max(hi, @abs(v));
+    if (hi == 0) return 0;
+    const tol = 1e-12 * hi * @as(f64, @floatFromInt(n));
+    var r: usize = 0;
+    for (e.values) |v| {
+        if (@abs(v) > tol) r += 1;
+    }
+    return r;
+}
+
 // ─── Tests ───
 
 const testing = std.testing;
@@ -743,4 +958,175 @@ test "QR: rank deficiency and bad shapes are refused" {
 
     // zero columns
     try testing.expect(!try leastSquares(testing.allocator, &dup, 3, 0, &b, &x));
+}
+
+test "eigen: the defining property, A v = lambda v" {
+    // A symmetric matrix with eigenvalues that are not round numbers, so nothing
+    // can pass by accident.
+    const n = 3;
+    const a = [_]f64{
+        4, 1, 2,
+        1, 5, 3,
+        2, 3, 6,
+    };
+    var e = try eigenSymmetric(testing.allocator, &a, n);
+    defer e.deinit();
+    try testing.expect(e.symmetric);
+    try testing.expect(e.converged);
+
+    // THE DEFINITION. For every eigenpair, A times the vector must equal the value
+    // times the vector -- checked componentwise. This is the whole contract, and it
+    // needs no reference constants at all.
+    for (0..n) |j| {
+        for (0..n) |i| {
+            var av: f64 = 0;
+            for (0..n) |k| av += a[i * n + k] * e.vec(k, j);
+            try testing.expectApproxEqAbs(e.values[j] * e.vec(i, j), av, 1e-9);
+        }
+    }
+
+    // the eigenvectors of a symmetric matrix are ORTHONORMAL
+    for (0..n) |j1| {
+        for (0..n) |j2| {
+            var dot: f64 = 0;
+            for (0..n) |i| dot += e.vec(i, j1) * e.vec(i, j2);
+            const want: f64 = if (j1 == j2) 1.0 else 0.0;
+            try testing.expectApproxEqAbs(want, dot, 1e-9);
+        }
+    }
+
+    // sorted descending, which is what PCA expects
+    try testing.expect(e.values[0] >= e.values[1]);
+    try testing.expect(e.values[1] >= e.values[2]);
+}
+
+test "eigen: trace and determinant tie it to the rest of linalg" {
+    // Two invariants that connect the eigenvalues to quantities computed by
+    // completely different code: the trace is their SUM, and the determinant --
+    // which comes from LU -- is their PRODUCT.
+    const n = 4;
+    const a = [_]f64{
+        6,  -2, 1,  0,
+        -2, 7,  3,  1,
+        1,  3,  9,  -4,
+        0,  1,  -4, 5,
+    };
+    var e = try eigenSymmetric(testing.allocator, &a, n);
+    defer e.deinit();
+
+    var trace: f64 = 0;
+    for (0..n) |i| trace += a[i * n + i];
+    var sum: f64 = 0;
+    for (e.values) |v| sum += v;
+    try testing.expectApproxEqRel(trace, sum, 1e-12);
+
+    var prod: f64 = 1;
+    for (e.values) |v| prod *= v;
+    const det = try determinant(testing.allocator, &a, n);
+    try testing.expectApproxEqRel(det, prod, 1e-9);
+}
+
+test "eigen: positive-definiteness, answered twice by unrelated algorithms" {
+    // A symmetric matrix is positive definite exactly when every eigenvalue is
+    // positive. Cholesky answers the same question by whether its factorisation
+    // exists. The two share no code, so agreeing is real evidence -- and it
+    // independently checks slice 7's IsPositiveDefinite.
+    const cases = [_][4]f64{
+        .{ 4, 2, 2, 3 }, // positive definite
+        .{ 1, 2, 2, 1 }, // indefinite
+        .{ -1, 0, 0, -1 }, // negative definite
+        .{ 0, 0, 0, 1 }, // semi-definite
+        .{ 1, 0, 0, 1 }, // the identity
+        .{ 2, -1, -1, 2 }, // positive definite
+    };
+    for (cases) |c| {
+        var e = try eigenSymmetric(testing.allocator, &c, 2);
+        defer e.deinit();
+        var all_positive = true;
+        for (e.values) |v| {
+            if (!(v > 1e-12)) all_positive = false;
+        }
+
+        var f = try cholesky(testing.allocator, &c, 2);
+        defer f.deinit();
+
+        try testing.expectEqual(all_positive, f.positive_definite);
+    }
+}
+
+test "eigen: a known spectrum, and a repeated eigenvalue" {
+    // A diagonal matrix's eigenvalues ARE its diagonal -- the one case where the
+    // answer is known by inspection.
+    const d = [_]f64{ 3, 0, 0, 0, 7, 0, 0, 0, 1 };
+    var ed = try eigenSymmetric(testing.allocator, &d, 3);
+    defer ed.deinit();
+    try testing.expectApproxEqAbs(@as(f64, 7), ed.values[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 3), ed.values[1], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 1), ed.values[2], 1e-12);
+
+    // [[2,1],[1,2]] has eigenvalues 3 and 1 exactly
+    const t = [_]f64{ 2, 1, 1, 2 };
+    var et = try eigenSymmetric(testing.allocator, &t, 2);
+    defer et.deinit();
+    try testing.expectApproxEqAbs(@as(f64, 3), et.values[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 1), et.values[1], 1e-12);
+
+    // A REPEATED eigenvalue, which is where a naive rotation formula divides by
+    // zero: 2*I has eigenvalue 2 twice, and the vectors must still come out
+    // orthonormal.
+    const r = [_]f64{ 2, 0, 0, 2 };
+    var er = try eigenSymmetric(testing.allocator, &r, 2);
+    defer er.deinit();
+    try testing.expectApproxEqAbs(@as(f64, 2), er.values[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 2), er.values[1], 1e-12);
+    var dot: f64 = 0;
+    for (0..2) |i| dot += er.vec(i, 0) * er.vec(i, 1);
+    try testing.expectApproxEqAbs(@as(f64, 0), dot, 1e-12);
+}
+
+test "eigen: a NON-symmetric matrix is reported, not silently symmetrised" {
+    // [[1,2],[3,4]] has real but distinct eigenvalues; a general matrix can have
+    // complex ones. Either way Jacobi does not apply, and returning the spectrum of
+    // (A + A')/2 while calling it the spectrum of A would be a wrong answer wearing
+    // a right answer's face.
+    const ns = [_]f64{ 1, 2, 3, 4 };
+    var e = try eigenSymmetric(testing.allocator, &ns, 2);
+    defer e.deinit();
+    try testing.expect(!e.symmetric);
+    try testing.expect(!e.converged);
+
+    try testing.expect(std.math.isNan(try conditionNumberSymmetric(testing.allocator, &ns, 2)));
+    try testing.expectEqual(@as(usize, 0), try rankSymmetric(testing.allocator, &ns, 2));
+
+    // ...but a matrix that is symmetric only to rounding IS accepted, because
+    // insisting on the last bit would reject data from any real computation
+    const almost = [_]f64{ 1, 2, 2 + 1e-16, 4 };
+    try testing.expect(isSymmetric(&almost, 2));
+    const notquite = [_]f64{ 1, 2, 2.001, 4 };
+    try testing.expect(!isSymmetric(&notquite, 2));
+}
+
+test "eigen: condition number and rank" {
+    // The identity is perfectly conditioned: every eigenvalue is 1.
+    const id = [_]f64{ 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    try testing.expectApproxEqAbs(@as(f64, 1), try conditionNumberSymmetric(testing.allocator, &id, 3), 1e-12);
+    try testing.expectEqual(@as(usize, 3), try rankSymmetric(testing.allocator, &id, 3));
+
+    // A diagonal matrix's condition number is its largest over its smallest.
+    const d = [_]f64{ 1000, 0, 0, 0, 10, 0, 0, 0, 1 };
+    try testing.expectApproxEqRel(@as(f64, 1000), try conditionNumberSymmetric(testing.allocator, &d, 3), 1e-10);
+
+    // A singular matrix is infinitely ill-conditioned, and that is the honest
+    // answer rather than a large finite number.
+    const sing = [_]f64{ 1, 1, 1, 1 };
+    try testing.expect(std.math.isInf(try conditionNumberSymmetric(testing.allocator, &sing, 2)));
+    try testing.expectEqual(@as(usize, 1), try rankSymmetric(testing.allocator, &sing, 2));
+
+    // rank is RELATIVE: a matrix of uniformly tiny entries is still full rank
+    const tiny = [_]f64{ 1e-200, 0, 0, 1e-200 };
+    try testing.expectEqual(@as(usize, 2), try rankSymmetric(testing.allocator, &tiny, 2));
+
+    // the zero matrix has rank zero
+    const zero = [_]f64{ 0, 0, 0, 0 };
+    try testing.expectEqual(@as(usize, 0), try rankSymmetric(testing.allocator, &zero, 2));
 }

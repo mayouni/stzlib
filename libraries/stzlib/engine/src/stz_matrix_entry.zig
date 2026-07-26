@@ -21,6 +21,10 @@ comptime {
     @export(&matrix.stz_matrix_determinant, .{ .name = "stz_matrix_determinant" });
     @export(&matrix.stz_matrix_solve, .{ .name = "stz_matrix_solve" });
     @export(&matrix.stz_matrix_least_squares, .{ .name = "stz_matrix_least_squares" });
+    @export(&matrix.stz_matrix_eigenvalues, .{ .name = "stz_matrix_eigenvalues" });
+    @export(&matrix.stz_matrix_eigenvectors, .{ .name = "stz_matrix_eigenvectors" });
+    @export(&matrix.stz_matrix_condition_number, .{ .name = "stz_matrix_condition_number" });
+    @export(&matrix.stz_matrix_rank, .{ .name = "stz_matrix_rank" });
     @export(&matrix.stz_matrix_cholesky, .{ .name = "stz_matrix_cholesky" });
     @export(&matrix.stz_matrix_is_positive_definite, .{ .name = "stz_matrix_is_positive_definite" });
     @export(&matrix.stz_matrix_inverse, .{ .name = "stz_matrix_inverse" });

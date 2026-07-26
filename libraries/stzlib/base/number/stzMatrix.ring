@@ -2490,9 +2490,155 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pLCh_)
 		return _aLCh_
 
+	# EIGENVALUES of a symmetric matrix, sorted DESCENDING -- the convention PCA
+	# expects, so the first is the dominant one.
+	#
+	# NEW in phase 4 slice 8. Symmetric only, and that is a refusal rather than a
+	# limitation: a general matrix has COMPLEX eigenvalues, which needs a different
+	# algorithm and a complex type the library does not have. Handed a non-symmetric
+	# matrix this raises, instead of returning the eigenvalues of (A + A')/2 and
+	# letting you believe they belong to A.
+	#
+	#     new stzMatrix([ [2,1], [1,2] ]).EigenValues()   #--> [ 3, 1 ]
+	#
+	# Cyclic Jacobi rotations. Slower than the tridiagonal-QR iteration LAPACK uses,
+	# but eighty lines instead of several hundred, and it gets the SMALL eigenvalues
+	# to high relative accuracy -- which is what a condition number and a rank test
+	# actually depend on.
+	def EigenValues()
+
+		if @nRows != @nCols
+			StzRaise("EigenValues is only defined for square matrices.")
+		ok
+		if NOT This.IsSymmetric()
+			StzRaise("EigenValues: this matrix is not symmetric, and a general " +
+			         "matrix has complex eigenvalues. Only the symmetric case is " +
+			         "implemented.")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pEvV_ = StzEngineMatrixEigenValues(@pEngineMatrix)
+		if _pEvV_ = NULL
+			return []
+		ok
+		_anEvV_ = []
+		for _iEv_ = 1 to @nRows
+			_anEvV_ + StzEngineMatrixGet(_pEvV_, _iEv_ - 1, 0)
+		next
+		StzEngineMatrixFree(_pEvV_)
+		return _anEvV_
+
+	# The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging
+	# to eigenvalue j -- same order as EigenValues(), so column 1 goes with the
+	# first (largest) eigenvalue. For a symmetric matrix they are orthonormal.
+	def EigenVectors()
+
+		if @nRows != @nCols
+			StzRaise("EigenVectors is only defined for square matrices.")
+		ok
+		if NOT This.IsSymmetric()
+			StzRaise("EigenVectors: this matrix is not symmetric; only the " +
+			         "symmetric case is implemented.")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pEvc_ = StzEngineMatrixEigenVectors(@pEngineMatrix)
+		if _pEvc_ = NULL
+			return []
+		ok
+		_aEvc_ = []
+		for _iEc_ = 1 to @nRows
+			_aRowEc_ = []
+			for _jEc_ = 1 to @nCols
+				_aRowEc_ + StzEngineMatrixGet(_pEvc_, _iEc_ - 1, _jEc_ - 1)
+			next
+			_aEvc_ + _aRowEc_
+		next
+		StzEngineMatrixFree(_pEvc_)
+		return _aEvc_
+
+	# Is the matrix equal to its own transpose? Compared with a RELATIVE tolerance,
+	# because data that came out of a real computation is rarely symmetric to the
+	# last bit and an exact test would reject matrices symmetric in every meaningful
+	# sense.
+	def IsSymmetric()
+
+		if @nRows != @nCols
+			return FALSE
+		ok
+		_nScaleSy_ = 0
+		for _iSy_ = 1 to @nRows
+			for _jSy_ = 1 to @nCols
+				if fabs(@aContent[_iSy_][_jSy_]) > _nScaleSy_
+					_nScaleSy_ = fabs(@aContent[_iSy_][_jSy_])
+				ok
+			next
+		next
+		if _nScaleSy_ = 0
+			return TRUE
+		ok
+		_nTolSy_ = _nScaleSy_ / 1000000000000
+		for _iSy_ = 1 to @nRows
+			for _jSy_ = _iSy_ + 1 to @nCols
+				if fabs(@aContent[_iSy_][_jSy_] - @aContent[_jSy_][_iSy_]) > _nTolSy_
+					return FALSE
+				ok
+			next
+		next
+		return TRUE
+
+	# THE CONDITION NUMBER: the largest eigenvalue over the smallest, in magnitude.
+	# It answers "how many digits can a solve with this matrix lose?" -- a condition
+	# number of 10^k costs about k of the sixteen a double has. Infinite for a
+	# singular matrix, which is the honest answer rather than a large finite one.
+	def ConditionNumber()
+
+		if @nRows != @nCols
+			StzRaise("ConditionNumber is only defined for square matrices.")
+		ok
+		if NOT This.IsSymmetric()
+			StzRaise("ConditionNumber: only the symmetric case is implemented " +
+			         "(it is computed from the eigenvalues).")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return 0
+		ok
+		return StzEngineMatrixConditionNumber(@pEngineMatrix)
+
+	# THE RANK: how many eigenvalues are non-negligible relative to the largest.
+	# Relative, not absolute -- an absolute threshold would call a matrix of
+	# uniformly tiny entries rank zero.
+	def Rank()
+
+		if @nRows != @nCols
+			StzRaise("Rank is only defined for square matrices here (the general " +
+			         "rectangular case needs an SVD, which is not implemented).")
+		ok
+		if NOT This.IsSymmetric()
+			StzRaise("Rank: only the symmetric case is implemented (it is counted " +
+			         "from the eigenvalues).")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return 0
+		ok
+		return StzEngineMatrixRank(@pEngineMatrix)
+
+	def IsSingular()
+		return This.Rank() < @nRows
+
 	# Symmetric positive definite? Asked of the Cholesky factorisation, which
 	# succeeds if and only if the property holds -- so this is the cheapest test
-	# available, and needs no eigenvalues.
+	# available, and needs no eigenvalues. (numeric_eigen_narrated cross-checks it
+	# against "every eigenvalue is positive", which is the same question answered by
+	# an unrelated algorithm.)
 	def IsPositiveDefinite()
 		if @nRows != @nCols
 			return FALSE
