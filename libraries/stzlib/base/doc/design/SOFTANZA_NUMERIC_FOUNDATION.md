@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels: 1fdc2eda5, 7621cc5e1). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-3 COMPLETE; PHASE 4 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, four slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -733,7 +733,8 @@ makes every later phase worth doing** — §2.5.
 >
 > *Found while measuring, not fixed here:* the engine's determinant is **naive
 > cofactor expansion, O(n!)** — fine at 2×2, hard work at 8×8, impossible past about
-> ten. **Phase 4's LU decomposition is the fix** (O(n³)); until then `Determinant()`
+> ten. **FIXED in phase 4 slice 4 (e549ec945): LU decomposition, O(n³)** -- and n<=3 keeps
+> exact direct formulae. What follows describes the state before that. `Determinant()`
 > is for small matrices.
 >
 > **SLICE 3 DONE (cc8fb24d8), guard `numeric_summation_narrated` (16): ONE
@@ -838,6 +839,67 @@ special functions.
 > lanes combine through the scalar accumulator. Pinned by a test covering the
 > pathological case with the big value in a lane *and* in the ragged tail, every
 > length 0–40 against the scalar form, the empty slice, and mixed signs.
+>
+> **SLICE 3 DONE (a0fdc7689), guard `numeric_variance_authority_narrated` (14): ONE
+> CENTERED SUM OF SQUARES — and the THIRD time this shape has appeared.** Variance
+> was the laggard after slice 2 (0.20s → 0.15s only), because its second pass was
+> still scalar. Looking for that one loop found **five** of it: `stats.zig`,
+> `numbuf.zig`, `list.zig`, and twice in `pivot.zig`. Each round of duplication had
+> a different reasonable defence:
+>
+> | phase | what was duplicated | consequence |
+> |---|---|---|
+> | 0 | the variance **divisor** | stzList said 4, stzDataSet said 4.57 |
+> | 3 | the **summation** | 1e16 + 1000 ones gave two different totals |
+> | 4 | the **sum of squares** | pivot.zig also hardcoded its divisor |
+>
+> **Phase 0 deliberately left the ss loop with its data, reasoning that only the
+> divisor was ever ambiguous. That was wrong in an instructive way:** nobody
+> disagreed about the arithmetic and it still drifted — the fifth copy hardcoded
+> `values.len - 1` *and* used a naive mean, agreeing with the library only by the
+> accident that N-1 is the documented default. **Duplication invites divergence even
+> where there is no ambiguity to diverge about.**
+>
+> `centeredSumOfSquaresOf` is generic over the element type so list.zig's dense i64
+> and dense f64 share one implementation — needing a loop per type is how five
+> copies started. **A useful negative result: the Chan–Golub–LeVeque correction was
+> implemented, measured, and REJECTED** — 11% cost, no digit changed, because the
+> mean it corrects for is already compensated. Fixing the authority upstream removed
+> the need for the patch downstream.
+>
+> Second finding: the six variance/stddev bridges used `getLC`, which calls
+> `ensureBoxed()` — **one heap allocation per element**, so a million integers were
+> boxed to compute a mean plus one pass. Sum/Mean/Min/Max were already dense-aware.
+> Measured: ss loop 66.2→36.0ms (1.8×), numbuf variance 0.12→0.09s, **stzList
+> variance over 1M ints 0.13→0.04s (3.2×)**.
+>
+> **SLICE 4 DONE (e549ec945), guard `numeric_decomposition_narrated` (24): LU, and
+> the determinant stops being O(n!).** New engine module `linalg.zig`. LU with
+> partial pivoting first, because a determinant, a linear solve, an inverse and
+> later least squares are one factorisation read differently.
+>
+> The determinant was naive cofactor expansion — O(n!) time **and O(n!)
+> allocations**, since it allocated a submatrix per recursion level. 10×10 was 3.6M
+> calls; 20×20 unfinishable. **`inverse`, a few lines below it, had always done
+> Gauss-Jordan with partial pivoting in O(n³)** — the machinery was next to it the
+> whole time. A wrong asymptotic complexity does not announce itself: every existing
+> test used 2×2 or 3×3, where cofactor expansion is *optimal*. 40×40 now answers
+> 2⁴⁰ instantly.
+>
+> `SolveFor` is new capability wired the right way. It **already existed** as a
+> Ring-side Gauss-Jordan, and the instinct was to add an engine solve beside it —
+> exactly how LCM/GCD became divergent twins answering 0 instead of 24. The engine
+> path went *inside* the existing method, preserving its documented refusal
+> contract. 60×60, ten solves: **0.21s → 0.01s**.
+>
+> **The blast-radius diff earned its keep again:** `test_matrix_regression` asserted
+> `Determinant() = 1` exactly for `[[1,2,3],[0,1,4],[5,6,0]]`, and LU gives
+> 0.9999999999999964 — the same value NumPy gives, so normal rather than a defect.
+> The fix was *not* to relax the assertion: `linalg` already special-cased n≤2 with
+> exact direct formulae, and a 3×3 is six products of the input values with **no
+> division**, hence exact for integer entries. Adding the rule of Sarrus restored
+> byte-identical output across all 56 matrix tests. The cut is at 3 because a 4×4
+> closed form needs 24 products.
 
 **Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
 then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
