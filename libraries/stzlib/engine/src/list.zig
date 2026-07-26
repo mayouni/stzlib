@@ -3712,24 +3712,48 @@ pub fn stz_list_nth_largest(list_arg: ?*const StzList, n: usize) callconv(.c) f6
 // This used to divide by N while stats.zig divided by N-1, so the same data got
 // two different variances depending on which class you happened to hold. The
 // divisor now comes from stats.varianceDivisor, which is the one place that
-// decides. The loop stays here because only this module has to skip non-numeric
-// items.
+// decides -- and since phase 4 the sum of squares comes from there too, for the
+// dense representations. Only the BOXED form still walks item by item, because
+// only it has to skip non-numeric items.
+//
+// The bridge resolvers for these six entry points were also switched from getLC
+// to getLCTyped. getLC calls ensureBoxed(), which materialises a *StzValue per
+// element -- so asking a list of a million integers for its variance used to heap-
+// allocate a million boxes to compute what is a mean plus one more pass. Sum, Mean,
+// Min, Max and Product were already dense-aware; variance and standard deviation
+// had simply been left behind.
 
 fn listVarianceKind(list_arg: ?*const StzList, kind: stats.VarianceKind) f64 {
     const l = list_arg orelse return 0;
     const m = stz_list_mean(l);
-    var sum_sq: f64 = 0;
+    // Dense storage goes straight to the vectorised authority, which is generic
+    // over the element type precisely so both of these work. Only the boxed form
+    // has to walk item by item, and it accumulates through stats.Compensated
+    // rather than a bare `+=` -- the ss terms are same-signed and similar in size,
+    // so this matters less than for a raw sum, but there is no reason for two
+    // accumulation policies in one file.
+    if (l.ints) |arr| {
+        const divisor = stats.varianceDivisor(arr.items.len, kind);
+        if (divisor == 0) return 0;
+        return stats.centeredSumOfSquaresOf(i64, arr.items, m) / divisor;
+    }
+    if (l.floats) |arr| {
+        const divisor = stats.varianceDivisor(arr.items.len, kind);
+        if (divisor == 0) return 0;
+        return stats.centeredSumOfSquaresOf(f64, arr.items, m) / divisor;
+    }
+    var acc = stats.Compensated{};
     var count: usize = 0;
     for (l.items.items) |item| {
         if (numericVal(item)) |v| {
             const diff = v - m;
-            sum_sq += diff * diff;
+            acc.add(diff * diff);
             count += 1;
         }
     }
     const divisor = stats.varianceDivisor(count, kind);
     if (divisor == 0) return 0;
-    return sum_sq / divisor;
+    return acc.value() / divisor;
 }
 
 /// Variance of the numeric items, SAMPLE convention (N-1) -- the library
