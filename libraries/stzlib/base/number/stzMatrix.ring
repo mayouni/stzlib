@@ -2597,42 +2597,90 @@ class stzMatrix from stzListOfLists
 	# It answers "how many digits can a solve with this matrix lose?" -- a condition
 	# number of 10^k costs about k of the sixteen a double has. Infinite for a
 	# singular matrix, which is the honest answer rather than a large finite one.
+	# GENERAL since phase 4 slice 9: a rectangular matrix is answered from its
+	# SINGULAR values, a square symmetric one from its eigenvalues. Slice 8 could only
+	# do the symmetric case and raised otherwise -- but a DESIGN MATRIX is neither
+	# square nor symmetric, and "are my predictors collinear?" is the question a fit
+	# most needs answered.
+	#
+	#     oA = new stzMatrix([ [1,0,1], [0,1,1], [1,1,2], [2,0,2], [0,3,3] ])
+	#     oA.Rank()               #--> 2   (column 3 IS column 1 + column 2)
+	#     oA.ConditionNumber()    #--> inf, so LeastSquaresFor would refuse
 	def ConditionNumber()
 
-		if @nRows != @nCols
-			StzRaise("ConditionNumber is only defined for square matrices.")
+		if @nRows < @nCols
+			StzRaise("ConditionNumber: give me a matrix with at least as many rows " +
+			         "as columns -- transpose it, since a matrix and its transpose " +
+			         "have the same singular values.")
 		ok
-		if NOT This.IsSymmetric()
-			StzRaise("ConditionNumber: only the symmetric case is implemented " +
-			         "(it is computed from the eigenvalues).")
-		ok
+
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix = NULL
 			return 0
 		ok
-		return StzEngineMatrixConditionNumber(@pEngineMatrix)
+
+		# a square symmetric matrix goes through the eigenvalues, which resolve the
+		# small ones slightly better; everything else through the SVD
+		if @nRows = @nCols and This.IsSymmetric()
+			return StzEngineMatrixConditionNumber(@pEngineMatrix)
+		ok
+		return StzEngineMatrixConditionGeneral(@pEngineMatrix)
+
+	# The SINGULAR VALUES, sorted descending. Defined for any matrix with at least as
+	# many rows as columns, and always non-negative -- a singular value has no sign.
+	def SingularValues()
+
+		if @nRows < @nCols
+			StzRaise("SingularValues: give me at least as many rows as columns " +
+			         "(transpose it -- the singular values are the same).")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pSvV_ = StzEngineMatrixSingularValues(@pEngineMatrix)
+		if _pSvV_ = NULL
+			return []
+		ok
+		_anSvV_ = []
+		for _iSv_ = 1 to @nCols
+			_anSvV_ + StzEngineMatrixGet(_pSvV_, _iSv_ - 1, 0)
+		next
+		StzEngineMatrixFree(_pSvV_)
+		return _anSvV_
 
 	# THE RANK: how many eigenvalues are non-negligible relative to the largest.
 	# Relative, not absolute -- an absolute threshold would call a matrix of
 	# uniformly tiny entries rank zero.
+	# GENERAL since slice 9, by the same rule as ConditionNumber above. Counted from
+	# whichever spectrum applies, with ONE definition of "negligible" shared between
+	# them -- so a matrix called rank deficient always has an infinite condition
+	# number, and never the finite 9e16 the two used to disagree on.
 	def Rank()
 
-		if @nRows != @nCols
-			StzRaise("Rank is only defined for square matrices here (the general " +
-			         "rectangular case needs an SVD, which is not implemented).")
-		ok
-		if NOT This.IsSymmetric()
-			StzRaise("Rank: only the symmetric case is implemented (it is counted " +
-			         "from the eigenvalues).")
+		if @nRows < @nCols
+			StzRaise("Rank: give me at least as many rows as columns (transpose it " +
+			         "-- the rank is the same).")
 		ok
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix = NULL
 			return 0
 		ok
-		return StzEngineMatrixRank(@pEngineMatrix)
+		if @nRows = @nCols and This.IsSymmetric()
+			return StzEngineMatrixRank(@pEngineMatrix)
+		ok
+		return StzEngineMatrixRankGeneral(@pEngineMatrix)
 
+	# Rank deficient? For a rectangular matrix that means the COLUMNS are dependent,
+	# which is exactly when LeastSquaresFor has no unique answer.
 	def IsSingular()
-		return This.Rank() < @nRows
+		return This.Rank() < @nCols
+
+		def IsRankDeficient()
+			return This.IsSingular()
+
+	def IsFullRank()
+		return This.Rank() = @nCols
 
 	# Symmetric positive definite? Asked of the Cholesky factorisation, which
 	# succeeds if and only if the property holds -- so this is the cheapest test
