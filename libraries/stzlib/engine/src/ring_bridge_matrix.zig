@@ -97,6 +97,13 @@ fn ring_Inverse(p: *anyopaque) callconv(.c) void {
 fn ring_Power(p: *anyopaque) callconv(.c) void {
     matrix.stz_matrix_power(getM(p, 1), g(p, 2));
 }
+// Solve Ax = b. Both arguments are matrix handles (A square n*n, b n*1) and the
+// result is a new n*1 handle, or NULL for a singular A or mismatched shapes --
+// the same handle-in/handle-out shape as Inverse above.
+fn ring_Solve(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_solve(getMC(p, 1), getMC(p, 2));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 
 fn ring_NewFromList(p: *anyopaque) callconv(.c) void {
     const nRows: usize = @intFromFloat(g(p, 1));
@@ -155,6 +162,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixmulggml", .func = &ring_MulGgml },
         .{ .name = "stzengine" ++ "matrixdeterminant", .func = &ring_Determinant },
         .{ .name = "stzengine" ++ "matrixinverse", .func = &ring_Inverse },
+        .{ .name = "stzengine" ++ "matrixsolve", .func = &ring_Solve },
         .{ .name = "stzengine" ++ "matrixpower", .func = &ring_Power },
         .{ .name = "stzengine" ++ "matrixnewfromlist", .func = &ring_NewFromList },
     };
