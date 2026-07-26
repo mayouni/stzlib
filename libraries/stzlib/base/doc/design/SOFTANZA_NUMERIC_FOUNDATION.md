@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-4 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-4 COMPLETE; PHASE 5 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -439,12 +439,46 @@ The algorithms in §2.4 come down from Ring, in value order:
   stay valid.
 - **Clustering / KNN / logistic / trees → engine**, over resident buffers. These
   are the classic distance-and-reduce kernels that SIMD and threads were made for.
-- **`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
-  engine module is pure waste.
-- **Inferential statistics → new.** Once special functions land: t/z/χ²/F
-  distributions, correct confidence intervals, and the hypothesis tests that
-  `stzDataSet` cannot currently express. This retires §2.6(b) properly instead of
-  patching the constant table.
+- ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
+  engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
+  NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
+  log-scale *millisecond* buckets (0.1 ms … 10 s) for observability percentiles — a
+  Tier 1 item. `stzHistogram` computes **data-driven** bins by Sturges' rule, with a
+  configurable count, range, aggregation and labels, for analysis and rendering.
+  Migrating one onto the other would replace user-defined statistical bins with
+  hardcoded millisecond latency buckets. **Not done, and it should not be** — the claim
+  was made from the module names.
+- **Inferential statistics → new. DONE (be744b5c0)**, guard
+  `numeric_hypothesis_narrated` (69). The library could not perform a **single**
+  hypothesis test — everything `stzDataSet` had was descriptive. Eight now:
+  one-sample / Welch / Student / paired t, chi-square goodness-of-fit and
+  independence, one-way ANOVA, correlation. Each is two steps — a statistic from
+  `stats.zig`, a tail probability from `special.zig` — and `hypothesis.zig` owns
+  nothing else.
+
+  **Every test returns a RECORD, never a bare p-value**, and one measurement makes the
+  case. The same difference at four sample sizes:
+
+  | n | p | Cohen's d |
+  |---|---|---|
+  | 10 | 8.37e-1 | 0.067 |
+  | 100 | 4.83e-1 | 0.070 |
+  | 1000 | 2.56e-2 | 0.071 |
+  | 10000 | **1.64e-12** | **0.071** |
+
+  Eleven orders of magnitude in p while the effect size does not move — and d = 0.07 is
+  *negligible* (0.2 is the threshold for "small"). So a result carries the statistic,
+  df, p, n, **effect size**, the test's name, and a conclusion that overclaims in
+  neither direction. **Welch is the default** two-sample test (Student's equal-variance
+  assumption is usually untestable, usually wrong, and anti-conservative when it
+  fails). An un-runnable test reports `:ran = FALSE` with **p = 1, never 0** — a zero
+  from a test that never ran reads as overwhelming significance.
+
+  **I repeated slice 5's mistake, at scale.** The first draft's reference values were
+  written from memory of R; **six of nine failed and all six were mine** — hand-computing
+  the one-sample case gave 1.7218921, exactly what the code produced, against the
+  1.6903 I had invented. Every constant is now verified against an independent hand
+  implementation before being pinned, and the file says so.
 
 And the authority rule, which costs nothing and prevents the §2.6(a) class of bug
 permanently:
