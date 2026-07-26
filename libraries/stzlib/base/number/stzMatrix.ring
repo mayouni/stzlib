@@ -381,41 +381,72 @@ class stzMatrix from stzListOfLists
 	def AddVR(_nValue_, _nRow_)
 		This.AddInRow(_nRow_, _nValue_)
 
+	# The "To" spelling, which test 01 has always documented -- both the names and
+	# the resulting matrices -- while nothing defined them.
+	def AddToCol(_nCol_, _nValue_)
+		This.AddInCol(_nCol_, _nValue_)
+
+		def AddToColumn(_nCol_, _nValue_)
+			This.AddInCol(_nCol_, _nValue_)
+
+	def AddToRow(_nRow_, _nValue_)
+		This.AddInRow(_nRow_, _nValue_)
+
 	# Adds a value to a specific column
 
+	# AddXT(value, :InCol = n) / (:InRow = n) / (:InCols = [..]) / (:InRows = [..])
+	# and the position-free forms AddXT(value, :InDiagonal) / :InDiagonal2.
+	#
+	# This method was broken in four independent ways and could not succeed on any
+	# input:
+	#   - it asked stzList for the IsIn*NamedParam predicates, which live on
+	#     stzListNamedParams (R14);
+	#   - it passed (value, index) into AddInCol(pnCol, pnValue), which takes
+	#     (index, value) -- Add()'s own :InCol branch has the order right;
+	#   - it called AddInDiagonal / AddInDiagonal2 with two arguments where both
+	#     take one (R20);
+	#   - and IsInDiagonal / IsInDiagonal1 / IsInDiagonal2 exist NOWHERE in the
+	#     library.
+	#
+	# The diagonal forms are spelled as bare markers rather than named pairs
+	# because AddInDiagonal(pnValue) takes no position -- a diagonal is fixed by
+	# the matrix, so there is no second value for [:InDiagonal, x] to carry.
+	# Nothing in the library anchors the old pair spelling; the arity is what
+	# settles it.
 	def AddXT(pnValue, p)
 
-		if isList(p)
-			_oList_ = new stzList(p)
+		if isString(p)
+
+			if p = :InDiagonal or p = :InDiagonal1
+				This.AddInDiagonal(pnValue)
+				return
+
+			but p = :InDiagonal2
+				This.AddInDiagonal2(pnValue)
+				return
+			ok
+
+		but isList(p)
+			_oList_ = new stzListNamedParams(p)
 
 			if _oList_.IsInColNamedParam()
 
-				This.AddInCol(pnValue, p[2])
+				This.AddInCol(p[2], pnValue)
 				return
 
 			but _oList_.IsInRowNamedParam()
 
-				This.AddInRow(pnValue, p[2])
+				This.AddInRow(p[2], pnValue)
 				return
 
 			but _oList_.IsInColsNamedParam()
 
-				This.AddInCols(pnValue, p[2])
+				This.AddInCols(p[2], pnValue)
 				return
 
 			but _oList_.IsInRowsNamedParam()
 
-				This.AddInRows(pnValue, p[2])
-				return
-
-			but _oList_.IsInDiagonal() or _oList_.IsInDiagonal1()
-
-				This.AddInDiagonal(pnValue, p[2])
-				return
-
-			but _oList_.IsInDiagonal2()
-
-				This.AddInDiagonal2(pnValue, p[2])
+				This.AddInRows(p[2], pnValue)
 				return
 
 			ok
@@ -491,42 +522,45 @@ class stzMatrix from stzListOfLists
 
 	# Adds a value to multiple rows
 
+	# A copy of AddInCols that was never finished being renamed: every reference
+	# below said `paColumns`, which is not a parameter of this method, and the
+	# fallback loop read `panRows` and `_nRow_`, which do not exist either -- while
+	# adding the value TWICE per cell. The method could not run on any input.
 	def AddInRows(paRows, pnValue)
 
 		if CheckParams()
 			if NOT isNumber(pnValue)
-				StzRaise("Incorrect param type! pnVakue must be a number.")
+				StzRaise("Incorrect param type! pnValue must be a number.")
 			ok
 
-			if NOT isList(paColumns)
-				StzRaise("Incorrect param type! paColumns must be a list.")
+			if NOT isList(paRows)
+				StzRaise("Incorrect param type! paRows must be a list.")
 			ok
 		ok
 
-		 # Case: AddInRows(8, [ :From = 1, :To = 3 ])
+		 # Case: AddInRows([ :From = 1, :To = 3 ], 8)
 
-		if len(paColumns) = 2 and
+		if len(paRows) = 2 and
 
-		   isList(paColumns[1]) and len(paColumns[1]) = 2 and
-		   isString(paColumns[1][1]) and paColumns[1][1] = :From and
-		   isNumber(paColumns[1][2]) and
+		   isList(paRows[1]) and len(paRows[1]) = 2 and
+		   isString(paRows[1][1]) and paRows[1][1] = :From and
+		   isNumber(paRows[1][2]) and
 
-		   isList(paColumns[2]) and len(paColumns[2]) = 2 and
-		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
-		   isNumber(paColumns[2][2])
+		   isList(paRows[2]) and len(paRows[2]) = 2 and
+		   isString(paRows[2][1]) and paRows[2][1] = :To and
+		   isNumber(paRows[2][2])
 
-			This._UpdateRegion(:add, paColumns[1][2], paColumns[2][2], 1, @nCols, pnValue)
+			This._UpdateRegion(:add, paRows[1][2], paRows[2][2], 1, @nCols, pnValue)
 			return
 		ok
 
 		#-- Other cases
 
-		_nLen_ = len(panRows)
-
-		for i = 1 to _nLen_
+		_nRows1Len_ = len(paRows)
+		for _iLoopRows1_ = 1 to _nRows1Len_
+			_nRow_ = paRows[_iLoopRows1_]
 			for j = 1 to @nCols
 				@aContent[_nRow_][j] += pnValue
-				@aContent[panRows[i]][j] += pnValue
 			next
 		next
 
@@ -687,26 +721,18 @@ class stzMatrix from stzListOfLists
 		ok
 
 		# Doing the job
+		#
+		# This used to BUILD A STRING OF RING CODE and eval() it, calling a function
+		# named updateColumn that does not exist -- in this library, or in Ring --
+		# so every call raised R3. One column at a time through the engine instead,
+		# which is what the From..To branch above already does and what every
+		# sibling (AddInRow, MultiplyRow) uses.
 
 		_nLen_ = len(panCols)
 
-		_aCommands_ = []
-		_cCode_ = 'updateColumn(@aContent, '
-
 		for i = 1 to _nLen_
-			_cCode_ += ':mul, ' + panCols[i] + ', ' + pnValue + ', '
+			This._UpdateRegion(:mul, 1, @nRows, panCols[i], panCols[i], pnValue)
 		next
-
-		_cCode_ += ')'
-		_cCode_ = StzReplace(_cCode_, ", )", ")")
-
-		eval(_cCode_)
-
-		# More performant then:
-
-		# for i = 1 to nLen
-		# 	updateList(@aContent, :mul, :col, panCols[i], pnValue)
-		# next
 
 	# Multiply a specific row by a value
 
@@ -1248,7 +1274,11 @@ class stzMatrix from stzListOfLists
 
 		return _aResult_
 
-	func FindCol(paCol)
+	# `def`, not `func`. Inside a class body `func` does not define a method, so
+	# FindCol was unreachable and FindCols -- its only caller -- raised R14. It was
+	# the sole `func` among 95 definitions here; FindRow, FindRows and FindCols all
+	# use `def`.
+	def FindCol(paCol)
 		_aResult_ = []
 
 		for nColIndex = 1 to @nCols
@@ -1376,7 +1406,10 @@ class stzMatrix from stzListOfLists
 			return This.FindElementInSection(pElmOrMany, panStart, panEnd)
 
 		but isList(pElmOrMany)
-			return This.FindElementsInSection(pElmOrMany, panStart, panEnd)
+			# FindTheseElementsInSection, not FindElementsInSection: the latter
+			# takes only the section bounds and returns the POSITIONS in it (test
+			# 45 documents that), so calling it with an element list raised R20.
+			return This.FindTheseElementsInSection(pElmOrMany, panStart, panEnd)
 		else
 			stzraise("Incorrect param type! pElmOrMany must be a number or a list of numbers.")
 		ok
@@ -2093,7 +2126,11 @@ class stzMatrix from stzListOfLists
 
 		if CheckParams() and isList(pBy)
 
-			_oList_ = new stzList(pBy)
+			# stzListNamedParams, NOT stzList: the named-param vocabulary lives on
+			# the dedicated class, and stzList exposes only a handful of it as
+			# convenience methods. Asking stzList for IsByManyNamedParam raised R14
+			# and took the whole ReplaceElementsAt / ReplaceSection family with it.
+			_oList_ = new stzListNamedParams(pBy)
 
 			if _oList_.IsByManyNamedParam()
 				This.ReplaceElementsAtByMany(panPos, pBy[2])
@@ -2178,14 +2215,18 @@ class stzMatrix from stzListOfLists
 			This.ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
 
 	def ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
-		_aElmsPos_ = This.FindThisElementInSection(panStart, panEnd)
+		# pnElm was being DROPPED here -- the call passed only the bounds into a
+		# method that takes (element, start, end), so it raised R20. Its sibling
+		# ReplaceElementInSection above has the call right.
+		_aElmsPos_ = This.FindElementInSection(pnElm, panStart, panEnd)
 		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
 		def ReplaceThisElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 			This.ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 
 	def ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
-		_aElmsPos_ = This.FindThisElementInSection(panStart, panEnd)
+		# same dropped element as ReplaceElementInSectionByMany above
+		_aElmsPos_ = This.FindElementInSection(pnElm, panStart, panEnd)
 		This.ReplaceElementsAtByManyXT(_aElmsPos_, paMany)
 
 		def ReplaceThisElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
