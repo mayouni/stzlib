@@ -3,6 +3,13 @@
 # pr()
 #
 # Extracted from stzmatrixtest.ring, block #10.
+#
+# CANNOT PASS, AND SHOULD NOT BE "FIXED" IN stzMatrix. The updateColumn() below
+# is a global from the RingFastPro wrapper, which was deliberately deprecated and
+# archived on 2026-06-13 (ea3868111, M-DEP1); it now exists only under
+# base/archive/number/stzFastPro.ring, which stzBase does not load. The test
+# exercises a retired API, not a matrix defect -- the equivalent matrix method,
+# MultiplyCols, was repaired separately and its test (11) passes.
 
 load "../../stzBase.ring"
 
