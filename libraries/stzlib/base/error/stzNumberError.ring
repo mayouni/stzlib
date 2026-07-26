@@ -14,10 +14,15 @@ func stzNumberError(pcError)
 		_cErrorMsg_ += "   Why  : The number you provided is not valid." + NL
 		_cErrorMsg_ += "   Todo : Provide a number in a valid decimal form."
 
+	# This used to say "not calculable -- provide a number between
+	# MinCalculableNumber() and MaxCalculableNumber()", which was a WRONG DIAGNOSIS
+	# given to the user: it is raised for a MALFORMED LITERAL such as ".5" or "12e",
+	# never for one out of range, and it pointed at a bound nothing enforces.
+	# Softanza has no upper bound on exact integers -- see IsExact().
 	on :CanNotCreateDecimalNumber2
 		_cErrorMsg_ += "   What : Can not create decimal number!" + NL
-		_cErrorMsg_ += "   Why  : The number you provided is not calculable." + NL
-		_cErrorMsg_ += "   Todo : Provide a number between MinCalculableNumber() and MaxCalculableNumber()."
+		_cErrorMsg_ += "   Why  : The text is not a well-formed number literal." + NL
+		_cErrorMsg_ += "   Todo : Write the digits either side of the dot -- '0.5', not '.5'."
 
 	on :CanNotCreateNumberFromHexForm
 		_cErrorMsg_ += "   What : Can't create the number from a hex form." + NL
@@ -70,9 +75,10 @@ func stzNumberError(pcError)
 		_cErrorMsg_ += "   Todo : Provide an integer and a base between 2 and 36 and it will be fine ;)"
 
 	on :CanNotRoundSutchLargeNumber
-		_cErrorMsg_ += "   What : Can't round sutch a large number!" + NL
-		_cErrorMsg_ += "   Why  : The number is large enought that it is not computable by Ring." + NL
-		_cErrorMsg_ += "   Todo : Provide a number smaller than MaxCalculableNumber() and it will be fine ;)"
+		_cErrorMsg_ += "   What : Can't round such a large number!" + NL
+		_cErrorMsg_ += "   Why  : Rounding runs on a Ring double, which is exact only up to 2^53." + NL
+		_cErrorMsg_ += "   Todo : Keep it under RingMaxExactInteger(), or work with the number " +
+		               "exactly and skip the rounding -- IsExact() says whether yours is."
 
 	off
 

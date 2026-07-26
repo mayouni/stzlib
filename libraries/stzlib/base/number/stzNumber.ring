@@ -91,11 +91,53 @@
 	StzDecimals(2)		# Softanza sets the number of round to 2 by default,
 				# in confrmity with Ring defaults.
 
+	# ── "CALCULABLE" IS A PRE-ENGINE CONCEPT, AND ITS PREMISE IS GONE ──
+	#
+	# These bounds were chosen before the Zig engine existed, to answer a question
+	# that mattered enormously then: WILL RING COPE WITH THIS NUMBER? Every operation
+	# went straight to a C double, so a 16-digit integer silently lost its low digits,
+	# and refusing one up front was genuinely protective. 999_999_999_999_999 is a
+	# deliberately safe under-estimate of Ring's 2^53, picked so that every 15-digit
+	# integer is exactly representable.
+	#
+	# THE ENGINE CHANGED WHAT IS TRUE. stzNumber stores a STRING and dispatches to big
+	# integers, exact scaled decimals, rationals, or f64 only where the operation is
+	# inherently approximate. Measured today:
+	#
+	#     new stzNumber("99999999999999999999")   -- twenty digits
+	#         .Content()          -> 99999999999999999999
+	#         .IsExact()          -> TRUE
+	#         .Representation()   -> biginteger
+	#         .Add("1")           -> 100000000000000000000     EXACTLY
+	#
+	# where a double would answer 1e20 and lose the tail. So Softanza calculates far
+	# beyond MaxCalculableNumber(), exactly, and the bound describes nothing it does.
+	#
+	# THE CONCEPT WAS ALSO ALREADY HOLLOW. Every check that bore the name had been
+	# reduced to its plain twin -- RepresentsCalculableNumber() is RepresentsNumber(),
+	# RepresentsCalculableInteger() is RepresentsInteger(), and so on -- and no code
+	# anywhere enforced the bound. All that survived was the NAME, promising a
+	# distinction that no longer existed, and two error messages telling users to
+	# respect a limit nothing checked.
+	#
+	# WHAT REPLACED IT is the vocabulary phases 1-2 built for exactly this question:
+	# IsExact(), WhyNotExact(), Representation(). "Is this calculable?" was the
+	# pre-engine ancestor of "is this exact, and if not, why?" -- a better question,
+	# because it is about the OPERATION rather than the magnitude.
+	#
+	# WHAT REMAINS TRUE, and is worth keeping, is the fact about RING ITSELF: a Ring
+	# double is exact only up to 2^53. That is a real limit a caller may need to know
+	# when handing a value to bare Ring arithmetic, and it is what RingMaxNumber()
+	# ought to have meant all along. It is stated below at its true value.
 	_cMaxCalculableInteger = "999_999_999_999_999"
 	_nMaxNumberOfDigitsInUnsignedInteger = 15
 	
 	_cMaxCalculableRealNumber = "9_999_999_999_999.9"
 	_nMaxNumberOfDigitsInUnsignedRealNumber = 14
+	
+	# 2^53 -- the largest integer a Ring double holds EXACTLY. Above it, n and n+1
+	# can be the same value: (2^53 + 1) = 2^53 is TRUE in Ring.
+	_cRingMaxExactInteger = "9007199254740992"
 	
 	_cMoneyNumberPrefix = "0m"
 
@@ -254,23 +296,32 @@ func MaxNumberOfDigitsInUnsignedRealNumber()
 func MaxNumberOfDigitsInSignedRealNumber()
 	return MaxNumberOfDigitsInUnsignedRealNumber() - 1
 	
-func MaxCalculableNumber()
-	_oStr_ = new stzString(_cMaxCalculableInteger)
-	_oStr_.Remove("_")
-	_cMax_ = _oStr_.content()
+# THE LARGEST INTEGER RING ITSELF HOLDS EXACTLY: 2^53 = 9007199254740992.
+#
+# This is the honest name for the only part of the old "calculable" idea that is
+# still true. Softanza is NOT bounded by it -- see the note on the constants above,
+# and IsExact() / Representation() for the question that replaced it. Use this when
+# you are about to hand a value to BARE RING arithmetic and need to know whether Ring
+# will keep every digit.
+func RingMaxExactInteger()
+	return 0 + _cRingMaxExactInteger
 
-	return 0+ _cMax_
-	/*
-	Be aware that if you use directly this:
-	0+ _cMaxCalculableInteger
-	
-	then it returns 999, although _cMaxCalculableInteger "999_999_999_999_999"
-	Guess why?!
-	
-	Yes: _cMaxCalculableInteger is a string containg the char "_",
-	and the char separator "_" is responsible for that!
-	*/
-		
+	func RingMinExactInteger()
+		return -1 * RingMaxExactInteger()
+
+# RETIRED NAME, kept because it is published surface. It used to answer
+# 999_999_999_999_999, which was wrong for both readings of its name: Softanza is not
+# bounded at all, and Ring's own limit is 2^53 -- nine times larger. It now tells the
+# truth about Ring, which is what RingMaxNumber() (its long-standing alias) always
+# implied. Nothing in the library ever enforced the old value; it appeared only in two
+# error messages, both of which now say something accurate instead.
+func MaxCalculableNumber()
+	return RingMaxExactInteger()
+	# The removed body used to strip the "_" separators out of the constant with a
+	# whole stzString, because `0 + "999_999_999_999_999"` answers 999 in Ring -- it
+	# stops at the first non-digit. The constant above carries no separators, so the
+	# bare `0 +` is safe there; the readable form with separators is the XT twin below.
+
 	func RingMaxNumber()
 		return MaxCalculableNumber()
 
@@ -297,8 +348,9 @@ func MaxCalculableNumber()
 
 	#--
 
+	# the same limit as a readable literal
 	func MaxCalculableNumberXT()
-		return _cMaxCalculableInteger
+		return "9_007_199_254_740_992"
 
 	func RingMaxNumberXT()
 		return MaxCalculableNumberXT()
@@ -336,13 +388,13 @@ func MinCalculableNumber()
 	#--
 
 	func MinCalculableNumberXT()
-		return "-" + _cMaxCalculableInteger
+		return "-" + MaxCalculableNumberXT()
 
 	func SmallestCalculableNumberXT()
-		return "-" + _cMaxCalculableInteger
+		return MinCalculableNumberXT()
 
 	func CalculableMinNumberXT()
-		return "-" + _cMaxCalculableInteger
+		return MinCalculableNumberXT()
 
 	func CalculableSmallestNumberXT()
 		return "-" + _cMaxCalculableInteger

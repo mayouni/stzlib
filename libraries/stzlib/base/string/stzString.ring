@@ -7759,9 +7759,15 @@ class stzString from stzObject
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and NOT _aRn_[2]
 
-	# TRUE if the literal is calculable in double precision.
+	# EXACTLY RepresentsNumber(), and that is the whole story now.
+	#
+	# "Calculable" was a pre-engine idea: it meant "small enough that Ring's double
+	# will not silently lose digits". The engine made the magnitude irrelevant --
+	# stzNumber holds a twenty-digit integer exactly, as a biginteger -- so the
+	# distinction has no content left and the check had already been reduced to this
+	# one line. Kept as a published alias; the question that replaced it is
+	# IsExact() / WhyNotExact(), which asks about the OPERATION rather than the size.
 	def RepresentsCalculableNumber()
-		# Any valid literal is calculable (double precision).
 		return This.RepresentsNumber()
 
 	def IsNumberInString()
@@ -15369,6 +15375,7 @@ class stzString from stzObject
 		return StzEngineStringContainsLatin(@pEngine) = 1 and
 		       StzEngineStringContainsArabic(@pEngine) = 1
 
+	# EXACTLY RepresentsInteger() -- see RepresentsCalculableNumber above.
 	def RepresentsCalculableInteger()
 		return This.RepresentsInteger()
 
@@ -15390,6 +15397,7 @@ class stzString from stzObject
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[3] and NOT _aRn_[2]
 
+	# EXACTLY RepresentsRealNumber() -- see RepresentsCalculableNumber above.
 	def RepresentsCalculableRealNumber()
 		return This.RepresentsRealNumber()
 
