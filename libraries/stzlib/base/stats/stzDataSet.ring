@@ -7,26 +7,22 @@
 # Global configuration for missing values
 $aSTAT_MISSING_VALUES = [ "", 'NA', 'NULL', 'n/a', '#N/A' ]
 
-# Two-sided NORMAL (z) critical values, by confidence level.
+# The confidence levels people commonly ask for -- LEVELS ONLY, no values.
 #
-# THE SUPPORTED LEVELS ARE A PUBLISHED TABLE, not three constants buried in a
-# method. Before 2026-07-25 ConfidenceInterval() recognised 90/95/99 and silently
-# answered 95 for anything else -- a wrong answer wearing a right answer's face.
-# Anything not in this table now RAISES.
+# This was a table of z values, in three stages. Originally ConfidenceInterval()
+# recognised 90/95/99 and silently answered 95 for anything else: a wrong answer
+# wearing a right answer's face. The 2026-07-25 repair replaced that with these
+# eight published levels and made everything else RAISE, which was honest but still
+# a restriction -- the engine had no inverse incomplete beta, so a t value could not
+# be computed at all.
 #
-# These are z values, so they are sound for large samples. A t table needs the
-# inverse incomplete beta function, which the engine does not have yet; see
-# SOFTANZA_NUMERIC_FOUNDATION.md phase 4.
-$aStzNormalCriticalValues = [
-	[ 80,   1.281552 ],
-	[ 85,   1.439531 ],
-	[ 90,   1.644854 ],
-	[ 95,   1.959964 ],
-	[ 98,   2.326348 ],
-	[ 99,   2.575829 ],
-	[ 99.5, 2.807034 ],
-	[ 99.9, 3.290527 ]
-]
+# Phase 4 of the numeric foundation added it (engine/src/special.zig), so the values
+# are now COMPUTED for any level and any degrees of freedom, and the list keeps only
+# the levels. Holding the numbers here as well would make this a second source for a
+# quantity the engine already defines -- it said 1.959964 where the true value is
+# 1.959963984540054 -- and a second source for one quantity is precisely the defect
+# phases 0, 3 and 4 each had to repair.
+$aStzCommonConfidenceLevels = [ 80, 85, 90, 95, 98, 99, 99.5, 99.9 ]
 
 # Thresholds and Constants
 $nSmallSampleSizeThreshold = 30
@@ -915,29 +911,49 @@ $aPlanGoals = [
 
 # Helper Functions
 
-# The confidence levels a normal-approximation interval can be asked for.
+# The confidence levels people commonly ask for. NO LONGER A RESTRICTION -- since
+# phase 4 of the numeric foundation any level at all can be computed, and this list
+# is kept only because the insight templates quote it and because a UI wants
+# somewhere to start.
 func StzNormalConfidenceLevels()
 	_aOut_ = []
-	_nN_ = len($aStzNormalCriticalValues)
+	_nN_ = len($aStzCommonConfidenceLevels)
 	for _i_ = 1 to _nN_
-		_aOut_ + $aStzNormalCriticalValues[_i_][1]
+		_aOut_ + $aStzCommonConfidenceLevels[_i_]
 	next
 	return _aOut_
 
-# The two-sided z critical value for a confidence level. RAISES on a level that
-# is not tabulated, rather than substituting one that is -- the whole point of
-# the 2026-07-25 repair.
+# The two-sided z critical value for ANY confidence level, from the engine's
+# inverse normal CDF.
+#
+# This used to be a lookup in an eight-row table that RAISED on anything else --
+# which was the honest thing to do while the engine had no inverse incomplete beta,
+# and is now simply worse than computing it. The table is gone rather than kept
+# alongside: it was a second source for one quantity (it held 1.959964 where the
+# real value is 1.959963984540054), and a second source for one quantity is the
+# defect phases 0, 3 and 4 each had to repair.
 func StzNormalCriticalValue(pnLevel)
-	_nN_ = len($aStzNormalCriticalValues)
-	for _i_ = 1 to _nN_
-		if $aStzNormalCriticalValues[_i_][1] = pnLevel
-			return $aStzNormalCriticalValues[_i_][2]
-		ok
-	next
-	StzRaise("StzNormalCriticalValue: no tabulated z value for a " + pnLevel +
-	         "% confidence level. Supported: " + @@(StzNormalConfidenceLevels()) +
-	         ". (A t-based interval for an arbitrary level needs the inverse " +
-	         "incomplete beta function -- not in the engine yet.)")
+	if NOT isNumber(pnLevel) or pnLevel <= 0 or pnLevel >= 100
+		StzRaise("StzNormalCriticalValue: a confidence level is a percentage " +
+		         "strictly between 0 and 100, not " + @@(pnLevel) + ".")
+	ok
+	return StzEngineCriticalValue(pnLevel, 0)
+
+# The two-sided STUDENT t critical value, which is what a confidence interval
+# from a sample actually needs. df = n - 1.
+#
+# This is the function the library was missing. `ConfidenceInterval` was labelled
+# "t-distribution" while using z, so for n = 5 it was 41% too narrow -- worse as
+# the sample shrank, which is exactly when the distinction matters.
+func StzTCriticalValue(pnLevel, pnDF)
+	if NOT isNumber(pnLevel) or pnLevel <= 0 or pnLevel >= 100
+		StzRaise("StzTCriticalValue: a confidence level is a percentage " +
+		         "strictly between 0 and 100, not " + @@(pnLevel) + ".")
+	ok
+	if NOT isNumber(pnDF) or pnDF < 1
+		StzRaise("StzTCriticalValue: degrees of freedom must be at least 1.")
+	ok
+	return StzEngineCriticalValue(pnLevel, pnDF)
 
 func StzMissingValues()
     return $aSTAT_MISSING_VALUES
@@ -1613,21 +1629,26 @@ class stzDataSet from stzObject
 				         :note = "a confidence interval needs at least two numeric observations" ]
 			ok
 
-			_nZ_ = StzNormalCriticalValue(_nConfidence_)
+			# STUDENT t, with n - 1 degrees of freedom. This is what the method was
+			# always labelled as and, until phase 4 of the numeric foundation, never
+			# was: the engine had no inverse incomplete beta, so a t critical value
+			# could not be computed and z was used instead. For n = 5 that made the
+			# interval 41% too narrow, and worse as n shrank.
+			#
+			# t is right whether the sample is small or large -- it converges on z as
+			# df grows, so there is no threshold to choose and no approximation to
+			# warn about. The note that used to say "a t-based interval would be
+			# wider" is gone because this IS the t-based interval.
+			_nLen_ = len(@anData)
+			_nDF_ = _nLen_ - 1
+			_nCrit_ = StzTCriticalValue(_nConfidence_, _nDF_)
 			_nMean_ = This.Mean()
 			_nStdDev_ = This.StandardDeviation()
-			_nLen_ = len(@anData)
-			_nMarginError_ = _nZ_ * (_nStdDev_ / sqrt(_nLen_))
-
-			_cNote_ = ""
-			if _nLen_ < $nSmallSampleSizeThreshold
-				_cNote_ = "n = " + _nLen_ + " is small, so this NORMAL approximation " +
-				          "understates the interval; a t-based interval would be wider"
-			ok
+			_nMarginError_ = _nCrit_ * (_nStdDev_ / sqrt(_nLen_))
 
 			return [ :low = _nMean_ - _nMarginError_, :high = _nMean_ + _nMarginError_,
-			         :level = _nConfidence_, :method = :normal, :critical = _nZ_,
-			         :n = _nLen_, :note = _cNote_ ]
+			         :level = _nConfidence_, :method = :t, :critical = _nCrit_,
+			         :n = _nLen_, :df = _nDF_, :note = "" ]
 
 
 	#---

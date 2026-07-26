@@ -33,6 +33,7 @@ pub const table = @import("table.zig");
 pub const pivot = @import("pivot.zig");
 pub const matrix = @import("matrix.zig");
 const linalg = @import("linalg.zig");
+const special = @import("special.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -617,6 +618,7 @@ pub export fn stz_engine_version() callconv(.c) u32 {
 
 test {
     _ = numbuf;
+    _ = special;
     _ = linalg;
     _ = string;
     _ = char;

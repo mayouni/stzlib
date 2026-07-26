@@ -64,62 +64,93 @@ Scenario("the divisor is decided in ONE place, so the paths cannot drift apart")
 	     oOne.VarianceSample(), 0)
 EndScenario()
 
-Scenario("a confidence interval that does not misrepresent itself")
+Scenario("a confidence interval that is finally the one it claimed to be")
+	# THREE STAGES, and this scenario has been rewritten at each of them -- worth
+	# saying plainly, because a guard whose expectations change is either tracking a
+	# real capability change or being bent to fit. This is the first kind.
+	#
+	#   originally  ConfidenceInterval() was labelled "t-distribution" and hardcoded
+	#               three z values. Any level but 90/95/99 SILENTLY returned the 95%
+	#               interval -- a wrong answer wearing a right answer's face.
+	#   phase 0     eight published levels, RAISING on anything else, `:method`
+	#               reported as :normal, and a warning on small n. Honest, but still
+	#               a z interval and still restricted: the engine had no inverse
+	#               incomplete beta, so a t value could not be computed at all.
+	#   phase 4     special.zig supplies the incomplete beta, so the interval is now
+	#               genuinely t-based, at any level, with no table.
+	#
+	# The assertions phase 0 wrote pinned the LIMITATION -- `:method = :normal`, a
+	# critical value of 1.96, a raise mentioning "incomplete beta". Phase 4 removes
+	# the limitation, so those assertions had to go with it.
 	oData = new stzDataSet([ 10, 20, 30, 40, 50 ])
-
 	aCI = oData.ConfidenceInterval(95)
-	Then("the 95% interval is unchanged", Rnd2(aCI[1]), 16.14)
-	Then("...upper bound too", Rnd2(aCI[2]), 43.86)
 
-	When("a level the table does not hold is asked for")
-	bRaised = FALSE
-	cWhy = ""
-	try
-		oData.ConfidenceInterval(97)
-	catch
-		bRaised = TRUE
-		cWhy = cCatchError
-	done
-	Then("it RAISES", bRaised, TRUE)
-	Then("...naming the levels it does support", StzFindFirst("Supported:", cWhy) > 0, TRUE)
-	Then("...and saying what is missing to do better",
-	     StzFindFirst("incomplete beta", cWhy) > 0, TRUE)
-	# it used to return the 95% interval for 97, 80, 42 or anything else -- a wrong
-	# answer wearing a right answer's face, which is the worst kind.
+	# n = 5, so df = 4 and t = 2.77644511, where z was 1.95996398.
+	# s = sqrt(250) = 15.81138830, so the margin is
+	#   2.77644511 * 15.81138830 / sqrt(5) = 19.63243161
+	# giving [10.36756839, 49.63243161] where z gave [16.14, 43.86].
+	Then("the 95% interval now uses t, so it is WIDER than the old z one",
+	     Rnd2(aCI[1]), 10.37)
+	Then("...upper bound too", Rnd2(aCI[2]), 49.63)
+	Then("the old z interval was [16.14, 43.86] -- narrower by 41%",
+	     Rnd2(aCI[2] - aCI[1]) > Rnd2(43.86 - 16.14), TRUE)
 
-	When("a level the table DOES hold is asked for")
-	a80 = oData.ConfidenceInterval(80)
-	Then("80% is genuinely narrower than 95%", a80[2] < aCI[2], TRUE)
-	Then("...and differs from it at all", Rnd2(a80[1]) != Rnd2(aCI[1]), TRUE)
-	Then("the supported levels are published, not folklore",
+	When("a level no table ever held is asked for")
+	Then("97% simply works now", len(oData.ConfidenceInterval(97)), 2)
+	Then("...as does 42%", len(oData.ConfidenceInterval(42)), 2)
+	Then("...and 99.99%", len(oData.ConfidenceInterval(99.99)), 2)
+	# the phase-0 raise, and the "Supported:" list it named, are gone -- there is
+	# nothing left to be unsupported.
+
+	Then("a higher level is a wider interval, monotonically",
+	     oData.ConfidenceInterval(99)[2] > oData.ConfidenceInterval(95)[2], TRUE)
+	Then("...and a lower one narrower",
+	     oData.ConfidenceInterval(80)[2] < aCI[2], TRUE)
+
+	Then("the common levels are still published, as a starting point not a limit",
 	     len(StzNormalConfidenceLevels()) >= 8, TRUE)
 	Then("...and 95 is among them", StzFindFirst(95, StzNormalConfidenceLevels()) > 0, TRUE)
+
+	When("a level outside 0..100 is asked for, which is not a level at all")
+	bBad = FALSE
+	try
+		oData.ConfidenceInterval(140)
+	catch
+		bBad = TRUE
+	done
+	Then("that still raises", bBad, TRUE)
 EndScenario()
 
-Scenario("...and it tells you what it did, and where it is weak")
+Scenario("...and it says which distribution it used")
 	oSmall = new stzDataSet([ 12, 15, 11, 14, 13 ])          # n = 5
 	aXT = oSmall.ConfidenceIntervalXT(95)
 
-	Then("the method is named", aXT[:method], :normal)
-	Then("...with the critical value it used", Rnd2(aXT[:critical]), 1.96)
+	Then("the method is t, not normal", aXT[:method], :t)
+	Then("...with the t critical value for 4 degrees of freedom",
+	     Rnd2(aXT[:critical]), 2.78)
+	Then("...the degrees of freedom are reported", aXT[:df], 4)
 	Then("...and the sample size", aXT[:n], 5)
-	Then("a small sample earns a warning", len(aXT[:note]) > 0, TRUE)
-	Then("...that says which way the error goes",
-	     StzFindFirst("understates", aXT[:note]) > 0, TRUE)
-	# THE HONEST POSITION. This is a z interval: for n=5 the correct t margin is
-	# 2.776*s/sqrt(n), not 1.96*s/sqrt(n), so the interval really is too narrow --
-	# by 41% here. Fixing that needs an inverse incomplete beta function, which the
-	# engine does not have (phase 4). What phase 0 buys is that the method no longer
-	# CLAIMS to be a t interval, and says out loud where it is weak.
+	Then("there is no warning left to give, because nothing is approximated",
+	     aXT[:note], "")
+	# The phase-0 note said "this NORMAL approximation understates the interval; a
+	# t-based interval would be wider". It is the t-based interval now, so the note
+	# would be false rather than merely unnecessary.
 
-	When("the sample is large enough for the approximation to hold")
+	Then("t is 41% wider than z here, exactly as the old warning said",
+	     Rnd2(StzTCriticalValue(95, 4) / StzNormalCriticalValue(95)), 1.42)
+
+	When("the sample is large, where t and z agree")
 	an = []
-	for i = 1 to 40
-		an + ((i % 7) + 10)      # parenthesised: `an + x + y` appends TWICE in Ring
+	for i = 1 to 5000
+		an + ((i % 50) + 1)
 	next
 	aBig = (new stzDataSet(an)).ConfidenceIntervalXT(95)
-	Then("there is no warning", aBig[:note], "")
-	Then("...and n is reported", aBig[:n], 40)
+	Then("the critical value has converged on z to two decimals",
+	     Rnd2(aBig[:critical]), Rnd2(StzNormalCriticalValue(95)))
+	Then("...and it is STILL reported as t, since that is what it is",
+	     aBig[:method], :t)
+	# which is why there is no small-sample threshold any more: t is correct at
+	# every n and converges on z by itself.
 
 	Given("fewer than two observations, where no interval exists")
 	aNone = (new stzDataSet([ 5 ])).ConfidenceIntervalXT(95)
