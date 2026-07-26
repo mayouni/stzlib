@@ -852,6 +852,94 @@ pub fn conditionNumberOf(allocator: std.mem.Allocator, data: []const f64, m: usi
     return hi / lo;
 }
 
+// ─── The Moore-Penrose pseudo-inverse, and the MINIMUM-NORM solution ───
+//
+// A+ = V * S+ * U', where S+ inverts every singular value that is not negligible
+// and sets the rest to zero. Two lines of linear algebra on top of the SVD, and the
+// only subtle part is that "negligible" must be the SAME judgement rank and the
+// condition number use -- so it asks negligibleThreshold, like everything else.
+//
+// WHAT IT IS FOR, and it is not "inverting a matrix that has no inverse" for its own
+// sake. Slice 7's leastSquares REFUSES a rank-deficient system, on the stated grounds
+// that infinitely many coefficient vectors share the minimum residual and least
+// squares has no opinion about which to prefer -- "that is minimum-norm, a different
+// problem needing a different decomposition." THIS IS THAT DECOMPOSITION. A+b is the
+// solution that both minimises ||Ax - b|| AND, among all the vectors that do, has the
+// smallest norm itself. That is a principled choice rather than an arbitrary one,
+// which is why it can be offered where least squares declines.
+//
+// It generalises everything either side of it:
+//   * A square and invertible  -> A+ is exactly the inverse
+//   * A tall and full rank     -> A+b is exactly the least-squares solution
+//   * A rank deficient         -> A+b is the minimum-norm least-squares solution
+//   * A wide                   -> A+b is the minimum-norm EXACT solution
+//
+// THE FOUR PENROSE CONDITIONS define A+ uniquely, and the tests check all four rather
+// than any computed number:  A A+ A = A,  A+ A A+ = A+,  (A A+)' = A A+,  (A+ A)' = A+ A.
+
+/// A+ for any m*n matrix, written into `out` as n*m, row-major.
+///
+/// Handles the WIDE case (m < n) by transposing: pinv(A) = pinv(A')', and the SVD
+/// here needs at least as many rows as columns. Doing it internally is worth the few
+/// lines -- a pseudo-inverse that refused half of all shapes would be a poor
+/// generalisation of an inverse.
+pub fn pseudoInverse(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize, out: []f64) !bool {
+    if (m == 0 or n == 0) return false;
+
+    if (m < n) {
+        // transpose, recurse, transpose the result back
+        const at = try allocator.alloc(f64, n * m);
+        defer allocator.free(at);
+        for (0..m) |i| {
+            for (0..n) |j| at[j * m + i] = data[i * n + j];
+        }
+        const pt = try allocator.alloc(f64, m * n);
+        defer allocator.free(pt);
+        if (!try pseudoInverse(allocator, at, n, m, pt)) return false;
+        // pt is m*n (the pinv of the n*m transpose); out wants n*m
+        for (0..m) |i| {
+            for (0..n) |j| out[j * m + i] = pt[i * n + j];
+        }
+        return true;
+    }
+
+    var d = try svd(allocator, data, m, n);
+    defer d.deinit();
+
+    const tol = negligibleThreshold(d.values[0], @max(m, n));
+
+    // out[i][j] = sum_k V[i][k] * (1/s_k) * U[j][k], skipping negligible s_k
+    @memset(out[0 .. n * m], 0);
+    for (0..n) |k| {
+        const s = d.values[k];
+        if (s <= tol) continue; // a direction the matrix destroys; A+ sends it to 0
+        const inv = 1.0 / s;
+        for (0..n) |i| {
+            const vik = d.v[i * n + k] * inv;
+            if (vik == 0) continue;
+            for (0..m) |j| out[i * m + j] += vik * d.u[j * n + k];
+        }
+    }
+    return true;
+}
+
+/// The MINIMUM-NORM least-squares solution x = A+b, for an m*n A of any rank.
+///
+/// Where leastSquares refuses, this answers -- and answers with the one vector that
+/// is both a minimiser of ||Ax - b|| and the smallest such vector. Writes n values.
+pub fn minimumNormSolve(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize, b: []const f64, x: []f64) !bool {
+    if (m == 0 or n == 0) return false;
+    const pinv = try allocator.alloc(f64, n * m);
+    defer allocator.free(pinv);
+    if (!try pseudoInverse(allocator, data, m, n, pinv)) return false;
+    for (0..n) |i| {
+        var acc: f64 = 0;
+        for (0..m) |j| acc += pinv[i * m + j] * b[j];
+        x[i] = acc;
+    }
+    return true;
+}
+
 // ─── Tests ───
 
 const testing = std.testing;
@@ -1609,4 +1697,214 @@ test "QR rank deficiency at SCALE -- the case an exact == 0 test missed" {
     try testing.expectApproxEqAbs(@as(f64, 10), x3[0], 1e-8);
     try testing.expectApproxEqAbs(@as(f64, -3), x3[1], 1e-8);
     try testing.expectApproxEqAbs(@as(f64, 0.5), x3[2], 1e-8);
+}
+
+// Multiply P (p*q) by Q (q*r) into R (p*r) -- a test helper, so the checks below
+// read as mathematics rather than index arithmetic.
+fn tmul(p: []const f64, q: []const f64, r: []f64, pr: usize, pc: usize, qc: usize) void {
+    @memset(r[0 .. pr * qc], 0);
+    for (0..pr) |i| {
+        for (0..pc) |k| {
+            const v = p[i * pc + k];
+            if (v == 0) continue;
+            for (0..qc) |j| r[i * qc + j] += v * q[k * qc + j];
+        }
+    }
+}
+
+test "pseudo-inverse: the FOUR PENROSE CONDITIONS, which define it uniquely" {
+    // No reference numbers anywhere in this test. A+ is DEFINED as the unique matrix
+    // satisfying these four, so checking them checks everything -- and unlike a
+    // transcribed constant, they cannot be mistyped into agreement.
+    const cases = [_]struct { m: usize, n: usize, d: []const f64 }{
+        // tall, full rank
+        .{ .m = 4, .n = 2, .d = &[_]f64{ 1, 1, 1, 2, 1, 3, 1, 4 } },
+        // tall, RANK DEFICIENT (column 3 = column 1 + column 2)
+        .{ .m = 5, .n = 3, .d = &[_]f64{ 1, 0, 1, 0, 1, 1, 1, 1, 2, 2, 0, 2, 0, 3, 3 } },
+        // square, invertible
+        .{ .m = 3, .n = 3, .d = &[_]f64{ 4, -2, 1, 3, 6, -4, 2, 1, 8 } },
+        // square, singular
+        .{ .m = 3, .n = 3, .d = &[_]f64{ 1, 2, 3, 2, 4, 6, 1, 1, 1 } },
+        // WIDE -- handled by transposing internally
+        .{ .m = 2, .n = 4, .d = &[_]f64{ 1, 2, 3, 4, 5, 6, 7, 8 } },
+        // a single column, and a single row
+        .{ .m = 3, .n = 1, .d = &[_]f64{ 3, 4, 0 } },
+        .{ .m = 1, .n = 3, .d = &[_]f64{ 3, 4, 0 } },
+        // the zero matrix, whose pseudo-inverse is the zero matrix
+        .{ .m = 2, .n = 2, .d = &[_]f64{ 0, 0, 0, 0 } },
+    };
+
+    for (cases) |c| {
+        const m = c.m;
+        const n = c.n;
+        const a = c.d;
+        const alloc = testing.allocator;
+
+        const p = try alloc.alloc(f64, n * m); // A+ is n*m
+        defer alloc.free(p);
+        try testing.expect(try pseudoInverse(alloc, a, m, n, p));
+
+        const ap = try alloc.alloc(f64, m * m); // A A+   (m*m)
+        defer alloc.free(ap);
+        const pa = try alloc.alloc(f64, n * n); // A+ A   (n*n)
+        defer alloc.free(pa);
+        tmul(a, p, ap, m, n, m);
+        tmul(p, a, pa, n, m, n);
+
+        // (1) A A+ A = A
+        const apa = try alloc.alloc(f64, m * n);
+        defer alloc.free(apa);
+        tmul(ap, a, apa, m, m, n);
+        for (0..m * n) |i| try testing.expectApproxEqAbs(a[i], apa[i], 1e-8);
+
+        // (2) A+ A A+ = A+
+        const pap = try alloc.alloc(f64, n * m);
+        defer alloc.free(pap);
+        tmul(pa, p, pap, n, n, m);
+        for (0..n * m) |i| try testing.expectApproxEqAbs(p[i], pap[i], 1e-8);
+
+        // (3) A A+ is symmetric
+        for (0..m) |i| {
+            for (i + 1..m) |j| try testing.expectApproxEqAbs(ap[i * m + j], ap[j * m + i], 1e-9);
+        }
+        // (4) A+ A is symmetric
+        for (0..n) |i| {
+            for (i + 1..n) |j| try testing.expectApproxEqAbs(pa[i * n + j], pa[j * n + i], 1e-9);
+        }
+    }
+}
+
+test "pseudo-inverse: it GENERALISES the inverse and the least-squares solution" {
+    const alloc = testing.allocator;
+
+    // (a) for an invertible square matrix, A+ IS the inverse -- checked against the
+    // LU-based inverse, which shares no code with the SVD
+    {
+        const n = 3;
+        const a = [_]f64{ 4, -2, 1, 3, 6, -4, 2, 1, 8 };
+        var p: [9]f64 = undefined;
+        try testing.expect(try pseudoInverse(alloc, &a, n, n, &p));
+
+        // A * A+ must be the identity
+        var prod: [9]f64 = undefined;
+        tmul(&a, &p, &prod, n, n, n);
+        for (0..n) |i| {
+            for (0..n) |j| {
+                const want: f64 = if (i == j) 1.0 else 0.0;
+                try testing.expectApproxEqAbs(want, prod[i * n + j], 1e-9);
+            }
+        }
+    }
+
+    // (b) for a tall full-rank matrix, A+b IS the least-squares solution -- checked
+    // against slice 7's QR route, again sharing no code
+    {
+        const m = 5;
+        const n = 2;
+        const a = [_]f64{ 1, 1, 1, 2, 1, 3, 1, 4, 1, 5 };
+        const b = [_]f64{ 2.1, 3.9, 6.2, 7.8, 10.1 };
+        var x_qr: [n]f64 = undefined;
+        var x_pinv: [n]f64 = undefined;
+        try testing.expect(try leastSquares(alloc, &a, m, n, &b, &x_qr));
+        try testing.expect(try minimumNormSolve(alloc, &a, m, n, &b, &x_pinv));
+        for (0..n) |i| try testing.expectApproxEqAbs(x_qr[i], x_pinv[i], 1e-8);
+    }
+}
+
+test "pseudo-inverse: it ANSWERS where least squares refuses, with the minimum-norm one" {
+    // THE CASE THIS EXISTS FOR. Slice 7 declines a rank-deficient system because
+    // infinitely many vectors share the minimum residual. A+b picks the one that is
+    // ALSO smallest in norm -- a principled choice, not an arbitrary one.
+    const alloc = testing.allocator;
+    const m = 5;
+    const n = 3;
+    const a = [_]f64{ 1, 0, 1, 0, 1, 1, 1, 1, 2, 2, 0, 2, 0, 3, 3 }; // col3 = col1+col2
+    const b = [_]f64{ 1, 2, 3, 4, 5 };
+
+    // least squares refuses...
+    var x_ls: [n]f64 = undefined;
+    try testing.expect(!try leastSquares(alloc, &a, m, n, &b, &x_ls));
+
+    // ...and the pseudo-inverse answers
+    var x: [n]f64 = undefined;
+    try testing.expect(try minimumNormSolve(alloc, &a, m, n, &b, &x));
+
+    // it IS a least-squares solution: the residual is orthogonal to every column
+    var resid: [m]f64 = undefined;
+    for (0..m) |i| {
+        var acc: f64 = 0;
+        for (0..n) |j| acc += a[i * n + j] * x[j];
+        resid[i] = acc - b[i];
+    }
+    for (0..n) |j| {
+        var dot: f64 = 0;
+        for (0..m) |i| dot += a[i * n + j] * resid[i];
+        try testing.expectApproxEqAbs(@as(f64, 0), dot, 1e-8);
+    }
+
+    // and it is the SMALLEST such solution. The null-space direction here is
+    // (1, 1, -1): adding any multiple of it leaves the residual untouched but must
+    // make the vector longer.
+    var norm0: f64 = 0;
+    for (x) |v| norm0 += v * v;
+    inline for (.{ 0.5, -0.5, 2.0, -2.0, 0.01, -0.01 }) |t| {
+        const cand = [_]f64{ x[0] + t, x[1] + t, x[2] - t };
+        var norm1: f64 = 0;
+        for (cand) |v| norm1 += v * v;
+        try testing.expect(norm1 > norm0);
+
+        // ...and it really is still a minimiser, so the comparison is fair
+        var ss: f64 = 0;
+        for (0..m) |i| {
+            var acc: f64 = 0;
+            for (0..n) |j| acc += a[i * n + j] * cand[j];
+            const r = acc - b[i];
+            ss += r * r;
+        }
+        var ss0: f64 = 0;
+        for (resid) |r| ss0 += r * r;
+        try testing.expectApproxEqAbs(ss0, ss, 1e-7);
+    }
+}
+
+test "pseudo-inverse: a WIDE system gets the minimum-norm EXACT solution" {
+    // 2 equations, 3 unknowns: infinitely many EXACT solutions. leastSquares refuses
+    // this shape outright; A+b returns the shortest of them.
+    const alloc = testing.allocator;
+    const m = 2;
+    const n = 3;
+    const a = [_]f64{ 1, 1, 1, 1, -1, 0 };
+    const b = [_]f64{ 6, 2 };
+
+    var x: [n]f64 = undefined;
+    try testing.expect(try minimumNormSolve(alloc, &a, m, n, &b, &x));
+
+    // it solves the system EXACTLY -- no residual at all
+    for (0..m) |i| {
+        var acc: f64 = 0;
+        for (0..n) |j| acc += a[i * n + j] * x[j];
+        try testing.expectApproxEqAbs(b[i], acc, 1e-9);
+    }
+
+    // and it is the shortest exact solution. The null space is spanned by
+    // (1, 1, -2), so moving along it keeps the equations satisfied and must lengthen
+    // the vector.
+    var norm0: f64 = 0;
+    for (x) |v| norm0 += v * v;
+    inline for (.{ 0.3, -0.3, 1.0, -1.0 }) |t| {
+        const cand = [_]f64{ x[0] + t, x[1] + t, x[2] - 2.0 * t };
+        for (0..m) |i| {
+            var acc: f64 = 0;
+            for (0..n) |j| acc += a[i * n + j] * cand[j];
+            try testing.expectApproxEqAbs(b[i], acc, 1e-9);
+        }
+        var norm1: f64 = 0;
+        for (cand) |v| norm1 += v * v;
+        try testing.expect(norm1 > norm0);
+    }
+
+    // leastSquares still refuses the shape, which is correct -- it is a different
+    // question, and now there is a function that answers this one
+    var xl: [n]f64 = undefined;
+    try testing.expect(!try leastSquares(alloc, &a, m, n, &b, &xl));
 }

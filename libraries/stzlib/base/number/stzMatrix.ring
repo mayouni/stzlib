@@ -2459,6 +2459,110 @@ class stzMatrix from stzListOfLists
 
 		#>
 
+	# THE MOORE-PENROSE PSEUDO-INVERSE, A+. Works for ANY shape and ANY rank -- wide,
+	# tall, square, singular -- which is what makes it the true generalisation of an
+	# inverse rather than a fallback for one.
+	#
+	#     new stzMatrix([ [4,7], [2,6] ]).PseudoInverse()   # = the ordinary inverse
+	#
+	# It generalises everything around it:
+	#     square and invertible  ->  A+ IS the inverse
+	#     tall and full rank     ->  A+b IS the least-squares solution
+	#     rank deficient         ->  A+b is the MINIMUM-NORM least-squares solution
+	#     wide                   ->  A+b is the minimum-norm EXACT solution
+	#
+	# Defined by the four Penrose conditions, which is also how it is tested:
+	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
+	# determine A+ uniquely, so nothing else needs asserting.
+	def PseudoInverse()
+
+		if @nRows = 0 or @nCols = 0
+			StzRaise("PseudoInverse: the matrix is empty.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pPiV_ = StzEngineMatrixPseudoInverse(@pEngineMatrix)
+		if _pPiV_ = NULL
+			return []
+		ok
+		# A is nRows x nCols, so A+ is nCols x nRows
+		_aPiV_ = []
+		for _iPi_ = 1 to @nCols
+			_aRowPi_ = []
+			for _jPi_ = 1 to @nRows
+				_aRowPi_ + StzEngineMatrixGet(_pPiV_, _iPi_ - 1, _jPi_ - 1)
+			next
+			_aPiV_ + _aRowPi_
+		next
+		StzEngineMatrixFree(_pPiV_)
+		return _aPiV_
+
+		#< @FunctionAlternativeForms
+
+		def MoorePenroseInverse()
+			return This.PseudoInverse()
+
+		#>
+
+	# THE MINIMUM-NORM LEAST-SQUARES SOLUTION, x = A+b.
+	#
+	# This is the method LeastSquaresFor sends you to. That one REFUSES a
+	# rank-deficient system, on the grounds that infinitely many coefficient vectors
+	# share the minimum residual and least squares has no opinion about which to
+	# prefer. This one does have an opinion, and a principled one: among all the
+	# minimisers it returns the SHORTEST. Same for an underdetermined system, where
+	# infinitely many solutions are exact and this returns the smallest.
+	#
+	#     oA = new stzMatrix([ [1,0,1], [0,1,1], [1,1,2], [2,0,2], [0,3,3] ])
+	#     oA.LeastSquaresFor(ab)              #--> [ ]   -- refuses, rank deficient
+	#     oA.MinimumNormSolutionFor(ab)       #--> the shortest of the minimisers
+	#
+	# Prefer LeastSquaresFor when the design is full rank: a refusal there is
+	# information -- it means your predictors are collinear -- and silently accepting
+	# it would hide that.
+	def MinimumNormSolutionFor(panB)
+
+		if NOT isList(panB) or len(panB) != @nRows
+			StzRaise("MinimumNormSolutionFor: give me one observation per row (" +
+			         @nRows + " expected, got " + len(panB) + ").")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+
+		_aBMn_ = []
+		for _iMn_ = 1 to @nRows
+			_aBMn_ + [ panB[_iMn_] ]
+		next
+		_pBMn_ = StzEngineMatrixNewFromList(@nRows, 1, _aBMn_)
+		if _pBMn_ = NULL
+			return []
+		ok
+
+		_pXMn_ = StzEngineMatrixMinNormSolve(@pEngineMatrix, _pBMn_)
+		StzEngineMatrixFree(_pBMn_)
+		if _pXMn_ = NULL
+			return []
+		ok
+
+		_anXMn_ = []
+		for _jMn_ = 1 to @nCols
+			_anXMn_ + StzEngineMatrixGet(_pXMn_, _jMn_ - 1, 0)
+		next
+		StzEngineMatrixFree(_pXMn_)
+		return _anXMn_
+
+		#< @FunctionAlternativeForms
+
+		def MinimumNormSolution(panB)
+			return This.MinimumNormSolutionFor(panB)
+
+		#>
+
 	# The Cholesky factor L, where A = L * L-transpose. Lower triangular, zeros
 	# above the diagonal. Returns [] when the matrix is not symmetric positive
 	# definite -- the factorisation exists exactly when that property holds, which
