@@ -10,6 +10,7 @@ pub const apriori = @import("apriori.zig");
 pub const bayes = @import("bayes.zig");
 pub const autodiff = @import("autodiff.zig");
 pub const lbfgs = @import("lbfgs.zig");
+pub const nn = @import("nn.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -67,5 +68,6 @@ test {
     _ = bayes;
     _ = autodiff;
     _ = lbfgs;
+    _ = nn;
     _ = numbuf;
 }

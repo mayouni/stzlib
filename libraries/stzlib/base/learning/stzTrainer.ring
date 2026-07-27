@@ -30,86 +30,128 @@ class stzTrainer from stzObject
 		return This
 
 	# paInputs = [ [x...] ... ], paTargets = [ [y...] ... ]
+	# THE TRAINING LOOP RUNS IN THE ENGINE (numeric phase 6, slice 3).
+	#
+	# The plan's line for this phase says "rewire the trainer and logistic
+	# regression to use gradients rather than hand-derived updates". The
+	# measurement says otherwise, so this does something else and records why:
+	#
+	#   1. THE HAND-DERIVED GRADIENTS WERE ALREADY EXACT. Slice 1's autodiff tape
+	#      was used to check them -- the honest use of an autodiff -- and on a
+	#      1-tanh-1-sigmoid network the two agree to eight decimals on every
+	#      weight. There was no correctness debt here to pay off.
+	#   2. A TAPE IS SLOWER THAN DERIVED CODE FOR A FIXED ARCHITECTURE. Reverse
+	#      mode earns its overhead when the expression is arbitrary; a dense MLP
+	#      is not, and its derivative is known in closed form.
+	#   3. IT WOULD HAVE CHANGED THE ANSWERS. This trainer minimises binary
+	#      cross-entropy for a sigmoid output while REPORTING squared error (see
+	#      the delta rules below, kept verbatim in nn.zig). Rebuilding it around
+	#      "the gradient of the reported loss" reintroduces the a(1-a) factor that
+	#      the original comment records as strangling gradients into the
+	#      constant-0.5 XOR saddle.
+	#
+	# So the tape stays where it belongs -- arbitrary objectives and L-BFGS -- and
+	# nn.zig is this same derivation, compiled. Measured on 400 samples x 10
+	# features through a 16-8-1 network, 100 epochs: 11.14 s -> 0.06 s.
+	#
+	# THE DELTA RULES ARE UNCHANGED and are worth restating because they are a
+	# choice, not a detail:
+	#   softmax + categorical cross-entropy -> delta = a - y, loss = -sum y*log(a)
+	#   sigmoid + binary cross-entropy      -> delta = a - y, loss REPORTED as
+	#                                          squared error
+	#   anything else                       -> the squared-error derivative
 	def Train(poNet, paInputs, paTargets, nEpochs)
 		_nN_ = len(paInputs)
 		if _nN_ = 0 or len(paTargets) != _nN_
 			stzraise("Inputs and targets must align (got " + _nN_ + " / " +
 				len(paTargets) + ").")
 		ok
-		@aLossHistory = []
+		if nEpochs < 1
+			stzraise("Train me for at least one epoch.")
+		ok
+
 		_aLayers_ = poNet.Layers()
 		_nL_ = len(_aLayers_)
-		for _e_ = 1 to nEpochs
-			_nLoss_ = 0
-			for _s_ = 1 to _nN_
-				# forward over the WORKING copy (Ring copies lists on
-				# reads: @oNet._Forward would see frozen weights -- the
-				# bug that froze XOR's loss at 0.26)
-				_aFwd_ = This._ForwardLocal(poNet, _aLayers_, paInputs[_s_])
-				_aActs_ = _aFwd_[:activations]
-				_aZs_ = _aFwd_[:zs]
-				_aOut_ = _aActs_[_nL_ + 1]
-				_nO_ = len(_aOut_)
-				# output delta by pairing:
-				#  SOFTMAX + categorical cross-entropy -> delta = a - y,
-				#    loss = -sum y*log(a) (multi-class; the clean gradient);
-				#  SIGMOID + binary cross-entropy   -> delta = a - y,
-				#    loss = squared error report (the a(1-a) MSE factor
-				#    strangles gradients -- the constant-0.5 XOR saddle);
-				#  anything else keeps the MSE derivative.
-				_aDelta_ = []
-				_cOutAct_ = _aLayers_[_nL_][2]
-				for _o_ = 1 to _nO_
-					_nErr_ = _aOut_[_o_] - paTargets[_s_][_o_]
-					if _cOutAct_ = "softmax"
-						if paTargets[_s_][_o_] > 0
-							_nA_ = _aOut_[_o_]
-							if _nA_ < 0.000000000001
-								_nA_ = 0.000000000001
-							ok
-							_nLoss_ += -paTargets[_s_][_o_] * log(_nA_)
-						ok
-						_aDelta_ + _nErr_
-					but _cOutAct_ = "sigmoid"
-						_nLoss_ += _nErr_ * _nErr_
-						_aDelta_ + _nErr_
-					else
-						_nLoss_ += _nErr_ * _nErr_
-						_aDelta_ + ( _nErr_ * poNet._ActDeriv(_cOutAct_,
-							_aZs_[_nL_][_o_], _aOut_[_o_]) )
-					ok
-				next
-				# backwards through the layers
-				for _l_ = _nL_ to 1 step -1
-					_nU_ = _aLayers_[_l_][1]
-					_aPrevA_ = _aActs_[_l_]
-					_nP_ = len(_aPrevA_)
-					# next layer's delta before touching weights
-					_aNextDelta_ = []
-					if _l_ > 1
-						for _p_ = 1 to _nP_
-							_nD_ = 0
-							for _u_ = 1 to _nU_
-								_nD_ += _aLayers_[_l_][3][_u_][_p_] * _aDelta_[_u_]
-							next
-							_nD_ *= poNet._ActDeriv(_aLayers_[_l_ - 1][2],
-								_aZs_[_l_ - 1][_p_], _aActs_[_l_][_p_])
-							_aNextDelta_ + _nD_
-						next
-					ok
-					# SGD update
-					for _u_ = 1 to _nU_
-						for _p_ = 1 to _nP_
-							_aLayers_[_l_][3][_u_][_p_] -= @nLr * _aDelta_[_u_] * _aPrevA_[_p_]
-						next
-						_aLayers_[_l_][4][_u_] -= @nLr * _aDelta_[_u_]
-					next
-					_aDelta_ = _aNextDelta_
+		if _nL_ = 0
+			stzraise("This network has no layers -- AddDenseLayer first.")
+		ok
+
+		_nIn_ = poNet.NumberOfInputs()
+		_nOut_ = _aLayers_[_nL_][1]
+
+		# shape + weights, in the engine's layout: per layer W row-major then b
+		_acKinds_ = [ "relu", "sigmoid", "tanh", "linear", "softmax" ]
+		_aShape_ = [ _nIn_, _nL_ ]
+		_aW_ = []
+		_nPrev_ = _nIn_
+		for _l_ = 1 to _nL_
+			_nU_ = _aLayers_[_l_][1]
+			_nCode_ = ring_find(_acKinds_, _aLayers_[_l_][2]) - 1
+			if _nCode_ < 0
+				stzraise("Unknown activation '" + _aLayers_[_l_][2] + "'.")
+			ok
+			_aShape_ + _nU_
+			_aShape_ + _nCode_
+			for _u_ = 1 to _nU_
+				for _pp_ = 1 to _nPrev_
+					_aW_ + _aLayers_[_l_][3][_u_][_pp_]
 				next
 			next
-			@aLossHistory + (_nLoss_ / _nN_)
+			for _u_ = 1 to _nU_
+				_aW_ + _aLayers_[_l_][4][_u_]
+			next
+			_nPrev_ = _nU_
 		next
-		# write the trained weights back into the network object
+
+		# samples, flattened, checked on the way past -- a ragged row used to
+		# raise a bare Ring index error from inside the forward pass
+		_aX_ = []
+		_aY_ = []
+		for _i_ = 1 to _nN_
+			if NOT isList(paInputs[_i_]) or len(paInputs[_i_]) != _nIn_
+				stzraise("Sample " + _i_ + " has " + len(paInputs[_i_]) +
+					" input(s) but the network takes " + _nIn_ + ".")
+			ok
+			if NOT isList(paTargets[_i_]) or len(paTargets[_i_]) != _nOut_
+				stzraise("Target " + _i_ + " has " + len(paTargets[_i_]) +
+					" value(s) but the output layer has " + _nOut_ + ".")
+			ok
+			for _d_ = 1 to _nIn_
+				_aX_ + paInputs[_i_][_d_]
+			next
+			for _d_ = 1 to _nOut_
+				_aY_ + paTargets[_i_][_d_]
+			next
+		next
+
+		_aRes_ = StzEngineNNTrain(_aShape_, _aW_, _aX_, _aY_, _nN_, @nLr, nEpochs)
+		if NOT isList(_aRes_) or len(_aRes_) != nEpochs + len(_aW_)
+			stzraise("The engine refused the training run.")
+		ok
+
+		@aLossHistory = []
+		for _e_ = 1 to nEpochs
+			@aLossHistory + _aRes_[_e_]
+		next
+
+		# the trained weights, back into the layer structure the class publishes
+		_nAt_ = nEpochs
+		_nPrev_ = _nIn_
+		for _l_ = 1 to _nL_
+			_nU_ = _aLayers_[_l_][1]
+			for _u_ = 1 to _nU_
+				for _pp_ = 1 to _nPrev_
+					_nAt_++
+					_aLayers_[_l_][3][_u_][_pp_] = _aRes_[_nAt_]
+				next
+			next
+			for _u_ = 1 to _nU_
+				_nAt_++
+				_aLayers_[_l_][4][_u_] = _aRes_[_nAt_]
+			next
+			_nPrev_ = _nU_
+		next
+
 		poNet.AdoptLayers(_aLayers_)
 		@nEpochs = nEpochs
 		_nFirst_ = @aLossHistory[1]
