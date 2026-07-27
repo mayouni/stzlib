@@ -1864,6 +1864,55 @@ what it refused.
   sweep read −0.86 at λ=0.2 and 0.97 at 5 — the opposite ranking. Taking the high bits
   gave the clean picture above. **The measurement was wrong before the algorithm was.***
 
+- **DENSITY-AWARE TRANSFORM (`826883f77`)** — *the object was keeping two contracts at
+  once.* The fitted map said a point's distance from its neighbours means density
+  (correlation 0.81), and then `Transform()` placed new points by a rule that knew
+  nothing about density.
+
+  | new row | original radius | ordinary | density-aware |
+  |---|---|---|---|
+  | tight cluster | 0.002 | 2.135 | 0.789 |
+  | diffuse cloud | 0.727 | 1.115 | 1.300 |
+  | **far outlier** | **126510** | **1.375** | **5.990** |
+
+  The ordinary transform draws the **outlier closer in than the familiar row** — ratio
+  0.64, *inverted*, not merely uninformative. It places a new point at the centre of
+  mass of its neighbours and lets the layout nudge it, and nothing there distinguishes
+  *"near its neighbours"* from *"nowhere near anything"*.
+
+  **The mechanism cannot be the fit's**, which is the interesting part. The fit
+  maximises a **correlation over every point**; one new point has nothing to correlate
+  against, so the objective does not even type-check for it. What carries over is the
+  **line** the fit leaves behind — least squares of log R\_embedded on log R\_original
+  over the training rows — which says what embedded radius *this* map gives any original
+  density, and which **extrapolates**.
+
+  **And the correction is closed form.** With `c` the membership-weighted centroid of a
+  new point's neighbours and `S` their own spread about it, `R_embedded = ||y − c||² + S`
+  — an identity. So the neighbourhood optimisation decides the **direction** from `c`,
+  and the density contract decides only the **distance**. No second gradient loop, and
+  nothing for the two terms to fight over; a test pins that the ray is unchanged
+  (cosine > 0.99) and only its length differs.
+
+  **Not further than 5.99, which is right rather than weak.** This map's line has slope
+  0.194 — it compresses eight and a half natural logs of original density into about 1.7
+  of embedded radius, and the transform inherits **exactly that compression**, because
+  its job is to place new points under *the same contract the training rows obey*.
+  Flinging the outlier further would draw something the picture does not mean. More
+  separation is bought at **fit** time, where it applies to everything at once.
+
+  `NewLocalRadii()` is the other half and may be the more useful one: the new rows'
+  radii in the **original** space — 0.002 against 126510, a 63-million-fold range that
+  answers *"is this row anything like the training data"* with no reference to the
+  embedding. Reported for ordinary fits too, since it is a property of the data rather
+  than of the placement, and free.
+
+  *One bug worth recording: the new density arguments were given bridge slots 11–13,
+  which `epochs` and `seed` already occupied — so the slope read 30 and the intercept 42,
+  giving `exp(42 + 30·log r)` and an embedded reach of 4.5e85. **The engine tests passed
+  throughout**, because they call the Zig function directly and never cross the bridge.
+  Count the existing arguments.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
