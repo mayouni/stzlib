@@ -86,6 +86,12 @@ pub const Result = struct {
     /// NaN when the term was never switched on.
     density_correlation: f64,
 
+    /// the line relating original to embedded log-radius in THIS map, so that a new
+    /// point can be placed at a radius consistent with the fit. Zero slope when
+    /// density was not used.
+    density_slope: f64,
+    density_intercept: f64,
+
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Result) void {
@@ -443,11 +449,13 @@ pub fn run(
     }
 
     var radii_out: []f64 = &[_]f64{};
+    var calib = density.Calibration{ .slope = 0, .intercept = 0, .usable = false };
     if (want_density) {
         const mean_log = try density.meanLogRadiusDense(p, x, n, d, alloc);
         radii_out = try dens_target.?.radii(alloc, mean_log);
         // measured on the embedding actually returned, not the one before the last step
         dens_corr = density.correlationDense(&dens_target.?, &dens_ws.?, p, y, n, dims);
+        calib = density.calibrateDense(&dens_target.?, &dens_ws.?, p, y, n, dims, mean_log);
     }
 
     const out = try alloc.create(Result);
@@ -458,9 +466,215 @@ pub fn run(
         .dims = dims,
         .local_radii = radii_out,
         .density_correlation = dens_corr,
+        .density_slope = if (calib.usable) calib.slope else 0,
+        .density_intercept = calib.intercept,
         .allocator = alloc,
     };
     return out;
+}
+
+
+// --- PLACING A POINT THE FIT NEVER SAW ---------------------------------------
+//
+// ── WHAT THIS IS, AND WHAT IT IS NOT ──
+//
+// t-SNE AS PUBLISHED HAS NO TRANSFORM. It optimises the positions of the points it was
+// given and nothing else: a new point has no position, and the algorithm offers no way
+// to give it one. That is a real statement about the method, not an omission in this
+// library, and it is why the parametric variant exists at all.
+//
+// But "the algorithm does not provide one" is not the same as "one cannot be built".
+// What UMAP does for a new point can be done here too, using t-SNE's OWN objective:
+// freeze the training embedding, give the new point the same kind of neighbour
+// distribution the fit gave every training point, and minimise the same KL divergence
+// over that one position. Every ingredient is already defined; only the algorithm
+// declined to combine them.
+//
+// So this is a CONSTRUCTED extension, and it inherits the properties of one. It is
+// APPROXIMATE, exactly like UMAP's: a training row put back through it lands near
+// where it was fitted rather than on it, because the fit optimised that row against
+// every other row moving at the same time, and this optimises it against a frozen map.
+// The parametric variant remains the only EXACT transform here -- there the forward
+// pass IS the embedding.
+//
+// ── AND WHY IT IS WORTH HAVING ANYWAY ──
+//
+// Because the alternative was a refusal, and a refusal is only the right answer when
+// nothing sensible can be done. Something sensible can be done, it is the same thing
+// the neighbouring algorithm does, and once it exists the density contract has
+// somewhere to apply -- which is the whole reason this was asked for.
+
+/// The conditional neighbour distribution of ONE new point over the training set,
+/// bandwidth chosen by the same entropy search the fit uses. No self-exclusion here:
+/// the new point is not a member of the training set, so every training point is a
+/// legitimate neighbour -- including one at distance zero, if a fitted row is passed
+/// back in.
+fn conditionalRow(d2: []const f64, n: usize, perplexity: f64, out: []f64) void {
+    const target = @log(perplexity);
+    var lo: f64 = 0;
+    var hi: f64 = std.math.inf(f64);
+    var beta: f64 = 1.0;
+    var it: usize = 0;
+    while (it < 60) : (it += 1) {
+        var sum: f64 = 0;
+        for (0..n) |j| {
+            const v = @exp(-d2[j] * beta);
+            out[j] = v;
+            sum += v;
+        }
+        if (sum <= 0) {
+            const u = 1.0 / @as(f64, @floatFromInt(n));
+            for (0..n) |j| out[j] = u;
+            return;
+        }
+        var h: f64 = 0;
+        for (0..n) |j| {
+            out[j] /= sum;
+            if (out[j] > 1e-12) h += -out[j] * @log(out[j]);
+        }
+        const diff = h - target;
+        if (@abs(diff) < 1e-5) return;
+        if (diff > 0) {
+            lo = beta;
+            beta = if (std.math.isInf(hi)) beta * 2 else (beta + hi) / 2;
+        } else {
+            hi = beta;
+            beta = (beta + lo) / 2;
+        }
+    }
+}
+
+pub fn transform(
+    alloc: std.mem.Allocator,
+    train_x: []const f64,
+    train_y: []const f64,
+    n: usize,
+    d: usize,
+    dims: usize,
+    new_x: []const f64,
+    m: usize,
+    perplexity: f64,
+    iterations: usize,
+    learning_rate: f64,
+    out: []f64,
+    dens_slope: f64,
+    dens_intercept: f64,
+    dens_on: bool,
+    /// the new points' ORIGINAL-space radii -- an out-of-distribution check that owes
+    /// nothing to the embedding
+    new_radii: ?[]f64,
+) !void {
+    if (n < 2 or m == 0) return Error.TooFewPoints;
+    if (perplexity < 1 or perplexity > @as(f64, @floatFromInt(n))) return Error.BadPerplexity;
+    if (dims > 8) return Error.TooFewPoints;
+
+    const d2 = try alloc.alloc(f64, n);
+    defer alloc.free(d2);
+    const pr = try alloc.alloc(f64, n);
+    defer alloc.free(pr);
+
+    for (0..m) |i| {
+        for (0..n) |j| d2[j] = sqDist(new_x[i * d ..][0..d], train_x[j * d ..][0..d]);
+        conditionalRow(d2, n, perplexity, pr);
+
+        // the point's own local radius, weighted by the distribution just found -- the
+        // same definition the fit uses, with p_j in place of the joint weights
+        var r_orig: f64 = 0;
+        var psum: f64 = 0;
+        for (0..n) |j| {
+            r_orig += pr[j] * d2[j];
+            psum += pr[j];
+        }
+        if (psum > 0) r_orig /= psum;
+        if (new_radii) |nr| nr[i] = r_orig;
+
+        // START AT THE p-WEIGHTED CENTROID. A random start would work and would need
+        // far more iterations to undo; starting where the neighbours already are makes
+        // the descent a correction rather than a search.
+        var c: [8]f64 = .{0} ** 8;
+        for (0..n) |j| {
+            for (0..dims) |t| c[t] += pr[j] * train_y[j * dims + t];
+        }
+        if (psum > 0) {
+            for (0..dims) |t| c[t] /= psum;
+        }
+        for (0..dims) |t| out[i * dims + t] = c[t];
+
+        // ── minimise the SAME KL, over this one position, with the map frozen ──
+        //
+        // Q is normalised over this point's own row rather than over the whole joint.
+        // Recomputing the full normaliser would make placing one point cost as much as
+        // a fit, and would let a new arrival perturb the distribution the frozen map
+        // was optimised against -- which is precisely what freezing it is for.
+        var iter: usize = 0;
+        while (iter < iterations) : (iter += 1) {
+            var z: f64 = 0;
+            for (0..n) |j| {
+                var dd: f64 = 0;
+                for (0..dims) |t| {
+                    const diff = out[i * dims + t] - train_y[j * dims + t];
+                    dd += diff * diff;
+                }
+                z += 1.0 / (1.0 + dd);
+            }
+            if (z <= 0) z = 1e-12;
+
+            var grad: [8]f64 = .{0} ** 8;
+            for (0..n) |j| {
+                var dd: f64 = 0;
+                for (0..dims) |t| {
+                    const diff = out[i * dims + t] - train_y[j * dims + t];
+                    dd += diff * diff;
+                }
+                const num = 1.0 / (1.0 + dd);
+                const q = num / z;
+                const mult = 4.0 * (pr[j] - q) * num;
+                for (0..dims) |t| {
+                    grad[t] += mult * (out[i * dims + t] - train_y[j * dims + t]);
+                }
+            }
+            const alpha = learning_rate *
+                (1.0 - @as(f64, @floatFromInt(iter)) / @as(f64, @floatFromInt(iterations)));
+            for (0..dims) |t| out[i * dims + t] -= alpha * clipT(grad[t]);
+        }
+
+        // ── the density contract, by the same closed form UMAP's transform uses ──
+        if (dens_on) {
+            var s_spread: f64 = 0;
+            for (0..n) |j| {
+                var dd: f64 = 0;
+                for (0..dims) |t| {
+                    const diff = train_y[j * dims + t] - c[t];
+                    dd += diff * diff;
+                }
+                s_spread += pr[j] * dd;
+            }
+            if (psum > 0) s_spread /= psum;
+
+            const target = @exp(dens_intercept + dens_slope * @log(@max(r_orig, 1e-12)));
+            const want_sq = target - s_spread;
+            var cur: f64 = 0;
+            for (0..dims) |t| {
+                const diff = out[i * dims + t] - c[t];
+                cur += diff * diff;
+            }
+            if (want_sq <= 0) {
+                for (0..dims) |t| out[i * dims + t] = c[t];
+            } else if (cur <= 1e-18) {
+                out[i * dims] = c[0] + @sqrt(want_sq);
+                for (1..dims) |t| out[i * dims + t] = c[t];
+            } else {
+                const scale = @sqrt(want_sq / cur);
+                for (0..dims) |t| out[i * dims + t] = c[t] + (out[i * dims + t] - c[t]) * scale;
+            }
+        }
+    }
+}
+
+/// the same bound the fit's own steps use -- one enormous step from a coincident pair
+/// would throw the point out of the map entirely
+fn clipT(v: f64) f64 {
+    return @min(@max(v, -4.0), 4.0);
 }
 
 // ─── tests ───────────────────────────────────────────────────────────────────
@@ -866,4 +1080,215 @@ test "density does not disturb the exaggeration phase" {
     // 400 iterations, phase 0.3 -> starts at 280, well past the 100th
     for (r.embedding) |v| try testing.expect(!std.math.isNan(v) and !std.math.isInf(v));
     try testing.expect(!std.math.isNan(r.density_correlation));
+}
+
+/// mean distance from a placed point to the embedded positions of its k nearest
+/// TRAINING rows -- how far out it sits in the map
+fn reachOf(train_x: []const f64, train_y: []const f64, n: usize, d: usize, pt: []const f64, pos: []const f64, k: usize, alloc: std.mem.Allocator) !f64 {
+    const ds = try alloc.alloc(f64, n);
+    defer alloc.free(ds);
+    for (0..n) |j| ds[j] = sqDist(pt, train_x[j * d ..][0..d]);
+    var acc: f64 = 0;
+    for (0..k) |_| {
+        var best: usize = 0;
+        var bv = std.math.inf(f64);
+        for (0..n) |j| {
+            if (ds[j] < bv) {
+                bv = ds[j];
+                best = j;
+            }
+        }
+        acc += @sqrt(sqDist(pos, train_y[best * 2 ..][0..2]));
+        ds[best] = std.math.inf(f64);
+    }
+    return acc / @as(f64, @floatFromInt(k));
+}
+
+test "the CONSTRUCTED transform behaves like UMAP's, and is honest about being one" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1.0 });
+    defer r.deinit();
+
+    // Put every TRAINING row back through it. MEASURED: mean displacement 36.13
+    // against a typical inter-point distance of 155.57 -- a ratio of 0.232 -- and 25
+    // of 50 rows land nearest their own fitted position.
+    //
+    // Set beside the neighbouring algorithms, that is exactly where a constructed
+    // extension should sit. UMAP's transform, which is the published one, gives 0.20
+    // and 25%. This gives 0.23 and 50%. The parametric variant gives 0 and 100%,
+    // because there the forward pass IS the embedding and there is nothing to
+    // approximate.
+    //
+    // SO THIS IS NOT EXACT, AND MUST NOT BE SOLD AS THOUGH IT WERE. The fit optimised
+    // each row against every other row moving at the same time; this optimises one row
+    // against a frozen map. Those are different problems with different answers, and
+    // the gap between them is what the 0.23 measures.
+    const back = try alloc.alloc(f64, n * 2);
+    defer alloc.free(back);
+    try transform(alloc, x, r.embedding, n, d, 2, x, n, 10, 200, 100, back, 0, 0, false, null);
+
+    var disp: f64 = 0;
+    for (0..n) |i| disp += @sqrt(sqDist(back[i * 2 ..][0..2], r.embedding[i * 2 ..][0..2]));
+    disp /= @floatFromInt(n);
+    var pair: f64 = 0;
+    var c: f64 = 0;
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            pair += @sqrt(sqDist(r.embedding[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]));
+            c += 1;
+        }
+    }
+    try testing.expect(disp / (pair / c) < 0.35);
+
+    var self_ok: usize = 0;
+    for (0..n) |i| {
+        var best: usize = 0;
+        var bv = std.math.inf(f64);
+        for (0..n) |j| {
+            const dd = sqDist(back[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]);
+            if (dd < bv) {
+                bv = dd;
+                best = j;
+            }
+        }
+        if (best == i) self_ok += 1;
+    }
+    try testing.expect(self_ok * 2 >= n / 2);
+}
+
+test "the density contract carries across, as it does for UMAP" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1.0 });
+    defer r.deinit();
+    try testing.expect(r.density_correlation > 0.8);
+    try testing.expect(r.density_slope > 0);
+
+    // one row inside the tight knot, one inside the diffuse cloud
+    const newx = [_]f64{
+        0.0,  0.0,  0.0,  0.0,
+        20.0, 20.0, 20.0, 20.0,
+    };
+    const out = try alloc.alloc(f64, 2 * 2);
+    defer alloc.free(out);
+    const rad = try alloc.alloc(f64, 2);
+    defer alloc.free(rad);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 2, 10, 200, 100, out, r.density_slope, r.density_intercept, true, rad);
+
+    // the dense row is placed tighter against its neighbours than the diffuse one,
+    // which is the contract the map itself obeys
+    const tight = try reachOf(x, r.embedding, n, d, newx[0..4], out[0..2], 8, alloc);
+    const loose = try reachOf(x, r.embedding, n, d, newx[4..8], out[2..4], 8, alloc);
+    try testing.expect(tight < loose);
+    // and the radii it measured say the same about the DATA
+    try testing.expect(rad[0] < rad[1]);
+}
+
+test "AND A THIRD WAY TO FAIL ON AN OUTLIER: dead centre of the map" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1.0 });
+    defer r.deinit();
+
+    const newx = [_]f64{ 200, 200, 200, 200 };
+    const out = try alloc.alloc(f64, 2);
+    defer alloc.free(out);
+    const rad = try alloc.alloc(f64, 1);
+    defer alloc.free(rad);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 10, 200, 100, out, 0, 0, false, rad);
+
+    // MEASURED: (0.307, -1.976). THE ORIGIN.
+    //
+    // At 200 units out, every training point is very nearly equidistant -- the spread
+    // WITHIN the training set is negligible beside the distance TO it -- so the
+    // neighbour distribution goes UNIFORM, and a uniform distribution's weighted
+    // centroid is the centroid of the whole map. t-SNE recenters, so that is the
+    // origin.
+    //
+    // Which is the most dangerous of the three failures, because the middle of a
+    // scatter plot is where the interesting points are supposed to be. An unrecognised
+    // row does not land somewhere odd-looking; it lands in the most meaningful-looking
+    // place there is.
+    //
+    // THREE TRANSFORMS, THREE DIFFERENT FAILURES ON THE SAME INPUT:
+    //
+    //   UMAP                 places it well outside the map      (reach 5.99 vs 0.79)
+    //   parametric den-SNE   saturates onto a legitimate point   (0.003 apart)
+    //   classic den-SNE      places it at the CENTRE             (0.3 from the origin)
+    //
+    // Only the first is defensible, and none of the three is detectable FROM THE
+    // COORDINATES. That is the case for measuring the row against the data instead.
+    var origin_dist: f64 = 0;
+    for (0..2) |t| origin_dist += out[t] * out[t];
+    origin_dist = @sqrt(origin_dist);
+
+    var typical: f64 = 0;
+    for (0..n) |i| {
+        var dd: f64 = 0;
+        for (0..2) |t| dd += r.embedding[i * 2 + t] * r.embedding[i * 2 + t];
+        typical += @sqrt(dd);
+    }
+    typical /= @floatFromInt(n);
+    // it lands far closer to the centre than a typical training row does
+    try testing.expect(origin_dist < typical / 5);
+
+    // THE ANSWER COMES FROM THE DATA. The radius the transform measured on the way
+    // past is enormous, and says plainly what the coordinates conceal.
+    var train_max: f64 = 0;
+    for (r.local_radii) |v| train_max = @max(train_max, v);
+    try testing.expect(rad[0] > train_max * 1000);
+}
+
+test "no density line means the placement is untouched" {
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .perplexity = 5, .iterations = 300 });
+    defer r.deinit();
+    try testing.expect(std.math.isNan(r.density_correlation));
+    try testing.expectEqual(@as(f64, 0), r.density_slope);
+
+    const newx = [_]f64{ 0.05, 0.05, 0.05 };
+    const a = try alloc.alloc(f64, 2);
+    defer alloc.free(a);
+    const b = try alloc.alloc(f64, 2);
+    defer alloc.free(b);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, 200, 100, a, 0, 0, false, null);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, 200, 100, b, 0, 0, false, null);
+    for (a, b) |p, q| try testing.expectEqual(p, q);
+}
+
+test "a perplexity the training set cannot carry is refused" {
+    const alloc = testing.allocator;
+    const per = 5;
+    const n = per * 2;
+    const d = 2;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+    var r = try run(alloc, x, n, d, .{ .perplexity = 3, .iterations = 100 });
+    defer r.deinit();
+    const newx = [_]f64{ 0.05, 0.05 };
+    const out = try alloc.alloc(f64, 2);
+    defer alloc.free(out);
+    try testing.expectError(Error.BadPerplexity, transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 999, 100, 100, out, 0, 0, false, null));
 }

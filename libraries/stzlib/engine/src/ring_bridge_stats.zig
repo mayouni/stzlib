@@ -1595,6 +1595,10 @@ fn ring_Tsne(p: *anyopaque) callconv(.c) void {
     if (r.local_radii.len > 0) {
         R.ring_list_adddouble(out, r.density_correlation);
         for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+        // the density LINE, so the transform can place a new point under the same
+        // contract the training rows obey
+        R.ring_list_adddouble(out, r.density_slope);
+        R.ring_list_adddouble(out, r.density_intercept);
     }
     R.ring_vm_api_retlist(p, out);
 }
@@ -1754,6 +1758,73 @@ fn ring_UmapTransform(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+
+
+// ─── CLASSIC t-SNE: PLACING A POINT THE FIT NEVER SAW ────────────────────────
+//
+//   StzEngineTsneTransform(aTrainX, n, d, aTrainY, dims, aNewX, m, nPerplexity,
+//                          nIterations, nLearningRate,
+//                          nDensSlope, nDensIntercept, bDensOn)
+//     -> [ embedding (m*dims), localRadii (m) ]
+//
+// t-SNE as published has no transform. This is a CONSTRUCTED extension -- the training
+// map frozen, the same KL minimised over one position -- and it is approximate, like
+// UMAP's and unlike the parametric variant's. See tsne.transform for what that means.
+fn ring_TsneTransform(p: *anyopaque) callconv(.c) void {
+    const tx = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(tx);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const ty = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(ty);
+    const dims: usize = @intFromFloat(g(p, 5));
+    const nx = listToF64(p, 6) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(nx);
+    const m: usize = @intFromFloat(g(p, 7));
+    const perp = g(p, 8);
+    const iters: usize = @intFromFloat(g(p, 9));
+    const lr = g(p, 10);
+    const dens_slope = g(p, 11);
+    const dens_intercept = g(p, 12);
+    const dens_on = g(p, 13) > 0;
+
+    if (n == 0 or d == 0 or m == 0 or dims == 0 or tx.len != n * d or
+        ty.len != n * dims or nx.len != m * d)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    const out_c = allocator.alloc(f64, m * dims) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_c);
+    const radii = allocator.alloc(f64, m) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(radii);
+
+    tsne_mod.transform(allocator, tx, ty, n, d, dims, nx, m, perp, iters, lr, out_c, dens_slope, dens_intercept, dens_on, radii) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_c) |v| R.ring_list_adddouble(out, v);
+    for (radii) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
 
 // ─── LOCAL RADII OF UNSEEN ROWS ──────────────────────────────────────────────
 //
@@ -1940,6 +2011,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineumap", .func = &ring_Umap },
     .{ .name = "stzengineumaptransform", .func = &ring_UmapTransform },
     .{ .name = "stzenginelocalradiiofnew", .func = &ring_LocalRadiiOfNew },
+    .{ .name = "stzenginetsnetransform", .func = &ring_TsneTransform },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
