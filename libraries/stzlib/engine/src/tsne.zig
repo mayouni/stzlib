@@ -101,7 +101,7 @@ const Rng = struct {
     }
 };
 
-fn sqDist(a: []const f64, b: []const f64) f64 {
+pub fn sqDist(a: []const f64, b: []const f64) f64 {
     var s: f64 = 0;
     for (a, b) |x, y| {
         const d = x - y;
@@ -145,7 +145,7 @@ fn rowEntropy(d2: []const f64, beta: f64, i: usize, out: []f64) f64 {
 /// fixes the ENTROPY of each point's neighbour distribution at log(perplexity), and
 /// the Gaussian width that achieves it differs for every point -- which is the whole
 /// reason t-SNE adapts to varying density where a fixed-width kernel cannot.
-fn conditionalP(
+pub fn conditionalP(
     alloc: std.mem.Allocator,
     x: []const f64,
     n: usize,
@@ -181,6 +181,76 @@ fn conditionalP(
         }
         for (0..n) |j| p_out[i * n + j] = row[j];
     }
+}
+
+/// The symmetrised joint distribution P, built once from the high-dimensional data.
+/// Exposed because the PARAMETRIC variant needs exactly this and computing it a
+/// second time in another module is how two definitions of one thing begin.
+pub fn jointP(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    perplexity: f64,
+    p_out: []f64,
+) !void {
+    try conditionalP(alloc, x, n, d, perplexity, p_out);
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j = i + 1;
+        while (j < n) : (j += 1) {
+            const v = (p_out[i * n + j] + p_out[j * n + i]) / (2 * @as(f64, @floatFromInt(n)));
+            p_out[i * n + j] = v;
+            p_out[j * n + i] = v;
+        }
+        p_out[i * n + i] = 0;
+    }
+}
+
+/// The KL gradient with respect to the LOW-DIMENSIONAL positions, and the KL itself.
+/// The non-parametric run() descends on these directly; the parametric variant feeds
+/// them into a network's backward pass instead. ONE definition either way.
+pub fn klGradient(
+    p: []const f64,
+    y: []const f64,
+    n: usize,
+    dims: usize,
+    exaggeration: f64,
+    q_num: []f64,
+    dy: []f64,
+) f64 {
+    var qsum: f64 = 0;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        q_num[i * n + i] = 0;
+        var j = i + 1;
+        while (j < n) : (j += 1) {
+            const v = 1.0 / (1.0 + sqDist(y[i * dims ..][0..dims], y[j * dims ..][0..dims]));
+            q_num[i * n + j] = v;
+            q_num[j * n + i] = v;
+            qsum += 2 * v;
+        }
+    }
+    if (qsum <= 0) qsum = 1e-12;
+
+    @memset(dy, 0);
+    var kl: f64 = 0;
+    i = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = 0;
+        while (j < n) : (j += 1) {
+            if (i == j) continue;
+            const pij = p[i * n + j] * exaggeration;
+            const qij = q_num[i * n + j] / qsum;
+            if (pij > 1e-12 and qij > 1e-12) kl += pij * @log(pij / qij);
+            const mult = (pij - qij) * q_num[i * n + j];
+            var t2: usize = 0;
+            while (t2 < dims) : (t2 += 1) {
+                dy[i * dims + t2] += 4 * mult * (y[i * dims + t2] - y[j * dims + t2]);
+            }
+        }
+    }
+    return kl;
 }
 
 pub fn run(

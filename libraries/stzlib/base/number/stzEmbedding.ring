@@ -53,16 +53,28 @@
 #     classes seed deterministically so two runs agree; change SetSeed() to see how
 #     much of your picture is the data and how much is the arrangement.
 #
-# ── ONE THING t-SNE CANNOT DO, AND UMAP CAN ──
+# ── PLACING NEW POINTS: THREE DIFFERENT ANSWERS ──
 #
-# stzTSNE has no Transform(), and stzUMAP does. AN EARLIER VERSION OF THIS NOTE SAID
-# NEITHER DID, WHICH WAS WRONG ABOUT UMAP -- it lumped two algorithms together on a
-# property only one of them has.
+# ORDINARY t-SNE cannot. It optimises the POSITIONS of the points it was given, so
+# there is no function anywhere in it and nothing to apply to a new point. Transform()
+# raises, and says which of the two things below to do instead.
 #
-# t-SNE optimises the positions of the points it was given and nothing else. There is
-# no map to apply, so a new point has no position, and adding a Transform() that
-# quietly re-ran the whole optimisation would be a different answer wearing the same
-# name. The method is absent rather than misleading.
+# UMAP CAN, because it builds a NEIGHBOUR GRAPH and a graph extends. Transform() finds
+# the new point's nearest training neighbours, gives it its own local metric, starts
+# it at the weighted average of their embedded positions and refines it with the
+# training layout HELD FIXED. It re-optimises one point against a frozen map.
+#
+# PARAMETRIC t-SNE CAN, and differently: LearnMapping() trains a NEURAL NETWORK
+# f(x) -> R^2 against the same KL objective instead of optimising free coordinates
+# (van der Maaten 2009). The embedding IS f(X), so Transform() is ONE FORWARD PASS --
+# nothing is optimised, nothing is stochastic, and transforming the training data
+# reproduces the training embedding EXACTLY rather than approximately.
+#
+# THE PARAMETRIC VARIANT COSTS SOMETHING, and the paper says so too: the embedding is
+# generally somewhat WORSE than ordinary t-SNE on the same data. Free coordinates can
+# go anywhere; a network's outputs are limited to what the network can express, so the
+# optimiser searches a smaller space. You are trading some quality of the picture for
+# the ability to place new points in it.
 #
 # UMAP builds a NEIGHBOUR GRAPH, and a graph extends. A new point's edges to the
 # training points are computable, and the training layout is already a solution those
@@ -128,7 +140,14 @@ func StzEmbeddingPrepare(poOwner, paData, nRows, nCols, nPcaDims)
 	_oP_.Fit()
 	poOwner._AdoptPCA(_oP_)
 
-	_aS_ = _oP_.Scores()
+	# THROUGH Transform(), NOT Scores(). Both give the components of the training
+	# data and they agree to about eight decimals -- but they are computed two
+	# different ways (U*S against (x-mean)*V), so the last bits differ. Since
+	# Transform() is what a NEW row will go through, using it here too makes the fit
+	# input and the transform input the SAME computation, and a training row then
+	# transforms back to its position EXACTLY rather than nearly. One definition,
+	# for the usual reason.
+	_aS_ = _oP_.Transform(paData)
 	_nK_ = nPcaDims
 	if _nK_ > len(_aS_[1])
 		_nK_ = len(_aS_[1])
@@ -157,6 +176,12 @@ class stzTSNE from stzObject
 	@aEmbedding = []
 	@anKL = []
 	@oPca = NULL
+	@bParametric = FALSE
+	@nPreparedDim = 0     # the width the fit actually saw (post-PCA when reducing)
+	@anHidden = [ 50, 20 ]
+	@nLearningRate = 0.01
+	@anShape = []
+	@anWeights = []
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -238,10 +263,134 @@ class stzTSNE from stzObject
 	def PCAQ()
 		return @oPca
 
+	# ── the parametric variant, which is what gives t-SNE a Transform() ──
+
+	# LEARN A MAP instead of a layout: train a network f(x) -> R^dims against the same
+	# KL objective (van der Maaten 2009). The embedding becomes f(X), so a new point
+	# is one forward pass.
+	#
+	# IT IS A TRADE, not an upgrade. The embedding is generally somewhat worse than
+	# ordinary t-SNE, because free coordinates can go anywhere and a network's outputs
+	# are limited to what it can express.
+	def LearnMapping()
+		@bParametric = TRUE
+
+		def LearnMappingQ()
+			This.LearnMapping()
+			return This
+
+	def SkipMapping()
+		@bParametric = FALSE
+
+		def SkipMappingQ()
+			This.SkipMapping()
+			return This
+
+	def IsParametric()
+		return @bParametric
+
+	# The hidden layer widths. The output layer is always LINEAR and as wide as the
+	# embedding, because a coordinate is unbounded and squashing it through a tanh
+	# would cap the layout at a box.
+	def SetHiddenLayers(paWidths)
+		if isList(paWidths) and len(paWidths) > 0
+			@anHidden = paWidths
+		ok
+
+		def SetHiddenLayersQ(paWidths)
+			This.SetHiddenLayers(paWidths)
+			return This
+
+	def HiddenLayers()
+		return @anHidden
+
+	def SetLearningRate(n)
+		if n > 0
+			@nLearningRate = n
+		ok
+
+		def SetLearningRateQ(n)
+			This.SetLearningRate(n)
+			return This
+
+	# PLACE POINTS THE FIT NEVER SAW -- one forward pass through the learned network.
+	#
+	# Only available after LearnMapping(). Ordinary t-SNE has no map to apply, and
+	# manufacturing one by re-running the optimisation would be a different answer
+	# wearing the same name.
+	def Transform(paRows)
+		This._MustBeFitted()
+		if NOT @bParametric
+			stzraise("Ordinary t-SNE has no map to apply -- it optimises the " +
+				"positions of the points it was given, so there is nothing to " +
+				"place a new point with. Call LearnMapping() before Fit() to train " +
+				"a network instead (parametric t-SNE), or use stzUMAP, whose " +
+				"neighbour graph extends to new points.")
+		ok
+		if NOT isList(paRows) or len(paRows) = 0
+			stzraise("Give me a list of rows to place.")
+		ok
+
+		_nM_ = len(paRows)
+		for _i_ = 1 to _nM_
+			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
+				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
+					" value(s); this model was fitted on " + @nCols + ".")
+			ok
+		next
+
+		# THROUGH THE SAME PCA, when there was one -- the network's inputs are the
+		# components, so a raw row would be the wrong shape and the wrong space
+		# THE REDUCED WIDTH, NOT ALL THE COMPONENTS. stzPCA.Transform() returns a
+		# score per component it computed -- min(samples, features) of them -- while
+		# the fit was given only the first @nPreparedDim. Taking all of them here fed
+		# the network a wider input than it was trained on, and the guard caught it:
+		# training rows stopped transforming back to their own positions.
+		_aNew_ = []
+		if @nPcaDims > 0 and @oPca != NULL
+			_aS_ = @oPca.Transform(paRows)
+			for _i_ = 1 to _nM_
+				for _j_ = 1 to @nPreparedDim
+					_aNew_ + _aS_[_i_][_j_]
+				next
+			next
+		else
+			for _i_ = 1 to _nM_
+				for _j_ = 1 to @nCols
+					_aNew_ + paRows[_i_][_j_]
+				next
+			next
+		ok
+
+		_aOut_ = StzEnginePtsneTransform(@anShape, @anWeights, _aNew_, _nM_, @nDims)
+		if NOT isList(_aOut_) or len(_aOut_) != _nM_ * @nDims
+			stzraise("The engine refused the placement.")
+		ok
+
+		_aRes_ = []
+		_nAt_ = 0
+		for _i_ = 1 to _nM_
+			_aRow_ = []
+			for _j_ = 1 to @nDims
+				_nAt_++
+				_aRow_ + _aOut_[_nAt_]
+			next
+			_aRes_ + _aRow_
+		next
+		return _aRes_
+
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
 		_nD_ = _a_[2]
+		# kept because Transform() must feed the network the SAME width the fit
+		# trained on -- see the note there
+		@nPreparedDim = _nD_
+
+		if @bParametric
+			This._FitParametric(_aX_, _nD_)
+			return
+		ok
 
 		_aRes_ = StzEngineTsne(_aX_, @nRows, _nD_, @nPerplexity, @nDims,
 			@nIterations, @nSeed)
@@ -293,13 +442,58 @@ class stzTSNE from stzObject
 
 	def Why()
 		This._MustBeFitted()
-		_c_ = "t-SNE of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
+		_c_ = "t-SNE"
+		if @bParametric
+			_c_ += " (parametric, " + len(@anHidden) + " hidden layer(s))"
+		ok
+		_c_ += " of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
 			"perplexity " + @nPerplexity + ", " + len(@anKL) + " iterations"
 		if @nPcaDims > 0
 			_c_ += ", after PCA to " + @nPcaDims + " component(s)"
 		ok
 		_c_ += "; KL " + @anKL[1] + " -> " + @anKL[len(@anKL)]
 		return _c_
+
+	def _FitParametric(paX, nD)
+		_aRes_ = StzEnginePtsne(paX, @nRows, nD, @anHidden, @nPerplexity,
+			@nDims, @nIterations, @nLearningRate, @nSeed)
+		if NOT isList(_aRes_) or len(_aRes_) < 4
+			stzraise("Parametric t-SNE refused this run. A perplexity of " +
+				@nPerplexity + " needs more than " + @nPerplexity + " points " +
+				"(there are " + @nRows + "), and at least one hidden layer.")
+		ok
+
+		@nDims = _aRes_[1]
+		_nEp_ = _aRes_[2]
+		_nSh_ = _aRes_[3]
+		_nWt_ = _aRes_[4]
+		_nAt_ = 4
+
+		@anKL = []
+		for _i_ = 1 to _nEp_
+			_nAt_++
+			@anKL + _aRes_[_nAt_]
+		next
+		@anShape = []
+		for _i_ = 1 to _nSh_
+			_nAt_++
+			@anShape + _aRes_[_nAt_]
+		next
+		@anWeights = []
+		for _i_ = 1 to _nWt_
+			_nAt_++
+			@anWeights + _aRes_[_nAt_]
+		next
+		@aEmbedding = []
+		for _i_ = 1 to @nRows
+			_aRow_ = []
+			for _j_ = 1 to @nDims
+				_nAt_++
+				_aRow_ + _aRes_[_nAt_]
+			next
+			@aEmbedding + _aRow_
+		next
+		@bFitted = TRUE
 
 	def _PreparedData()
 		return StzEmbeddingPrepare(This, @aData, @nRows, @nCols, @nPcaDims)

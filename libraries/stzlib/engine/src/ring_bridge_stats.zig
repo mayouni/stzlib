@@ -15,6 +15,7 @@ const eigen_general = @import("eigen_general.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
+const ptsne_mod = @import("ptsne.zig");
 const cmplx = @import("complex.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
@@ -1674,6 +1675,117 @@ fn ring_UmapTransform(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── PARAMETRIC t-SNE (van der Maaten 2009) ──────────────────────────────────
+//
+//   StzEnginePtsne(aX, n, d, aHidden, nPerp, nDims, nEpochs, nLR, nSeed)
+//     -> [ dims, nEpochs, shapeLen, weightLen,
+//          kl (nEpochs), shape (shapeLen), weights (weightLen),
+//          embedding (n*dims) ]
+//   StzEnginePtsneTransform(aShape, aWeights, aX, m, nDims) -> m*dims
+//
+// The weights and shape come BACK to Ring so that Transform is stateless, like the
+// PCA and UMAP transforms: the trained map crosses with the call rather than living
+// behind a handle whose lifetime somebody has to get right.
+fn ring_Ptsne(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const hv = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hv);
+    const perp = g(p, 5);
+    const dims: usize = @intFromFloat(g(p, 6));
+    const epochs: usize = @intFromFloat(g(p, 7));
+    const lr = g(p, 8);
+    const seed: u64 = @intFromFloat(g(p, 9));
+
+    if (n == 0 or d == 0 or x.len != n * d or dims == 0 or hv.len == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    const hidden = allocator.alloc(usize, hv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hidden);
+    for (hv, 0..) |v, i| {
+        if (v < 1) {
+            rn(p, 0);
+            return;
+        }
+        hidden[i] = @intFromFloat(v);
+    }
+
+    var r = ptsne_mod.run(allocator, x, n, d, hidden, .{
+        .perplexity = perp,
+        .dims = dims,
+        .epochs = if (epochs == 0) 400 else epochs,
+        .learning_rate = if (lr <= 0) 0.01 else lr,
+        .seed = seed,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+    defer r.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(r.dims));
+    R.ring_list_adddouble(out, @floatFromInt(r.kl.len));
+    R.ring_list_adddouble(out, @floatFromInt(r.shape.len));
+    R.ring_list_adddouble(out, @floatFromInt(r.weights.len));
+    for (r.kl) |v| R.ring_list_adddouble(out, v);
+    for (r.shape) |v| R.ring_list_adddouble(out, v);
+    for (r.weights) |v| R.ring_list_adddouble(out, v);
+    for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_PtsneTransform(p: *anyopaque) callconv(.c) void {
+    const shape = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(shape);
+    const weights = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(weights);
+    const x = listToF64(p, 3) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const m: usize = @intFromFloat(g(p, 4));
+    const dims: usize = @intFromFloat(g(p, 5));
+
+    if (shape.len < 4 or m == 0 or dims == 0) {
+        rn(p, 0);
+        return;
+    }
+    const out_c = allocator.alloc(f64, m * dims) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_c);
+
+    ptsne_mod.transform(allocator, shape, weights, x, m, out_c) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_c) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
@@ -1684,6 +1796,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
+    .{ .name = "stzengineptsne", .func = &ring_Ptsne },
+    .{ .name = "stzengineptsnetransform", .func = &ring_PtsneTransform },
     .{ .name = "stzengineumap", .func = &ring_Umap },
     .{ .name = "stzengineumaptransform", .func = &ring_UmapTransform },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },

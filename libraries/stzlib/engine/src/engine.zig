@@ -53,6 +53,7 @@ const eigen_general = @import("eigen_general.zig");
 const pca = @import("pca.zig");
 const tsne = @import("tsne.zig");
 const umap = @import("umap.zig");
+const ptsne = @import("ptsne.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -653,6 +654,7 @@ test {
     _ = pca;
     _ = tsne;
     _ = umap;
+    _ = ptsne;
     _ = linalg;
     _ = string;
     _ = char;

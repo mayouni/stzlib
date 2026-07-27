@@ -230,6 +230,126 @@ pub fn train(
     }
 }
 
+// ── THE PIECES A NON-SUPERVISED LOSS NEEDS ───────────────────────────────────
+//
+// `train` above computes its own output delta from per-sample TARGETS, which is
+// what supervised learning means. Some objectives do not have targets: parametric
+// t-SNE's loss is a KL divergence over the whole batch, so the gradient at point i
+// depends on every other point and can only be computed once all outputs exist.
+//
+// So the two halves are exposed separately -- forward everything, then push a
+// SUPPLIED gradient back through. `train` is untouched and still owns the
+// supervised path; this is the same backward pass with the delta handed in rather
+// than derived.
+
+pub const Workspace = struct {
+    acts: [][]f64,
+    zs: [][]f64,
+    delta: []f64,
+    next_delta: []f64,
+    acts_store: []f64,
+    zs_store: []f64,
+    max_units: usize,
+    allocator: std.mem.Allocator,
+
+    pub fn init(alloc: std.mem.Allocator, net: *const Net) !Workspace {
+        const nl = net.layers.len;
+        var max_units: usize = net.n_inputs;
+        for (net.layers) |l| {
+            if (l.units > max_units) max_units = l.units;
+        }
+        const acts = try alloc.alloc([]f64, nl + 1);
+        const zs = try alloc.alloc([]f64, nl);
+        const acts_store = try alloc.alloc(f64, (nl + 1) * max_units);
+        const zs_store = try alloc.alloc(f64, nl * max_units);
+        for (0..nl + 1) |i| acts[i] = acts_store[i * max_units ..][0..max_units];
+        for (0..nl) |i| zs[i] = zs_store[i * max_units ..][0..max_units];
+        return .{
+            .acts = acts,
+            .zs = zs,
+            .delta = try alloc.alloc(f64, max_units),
+            .next_delta = try alloc.alloc(f64, max_units),
+            .acts_store = acts_store,
+            .zs_store = zs_store,
+            .max_units = max_units,
+            .allocator = alloc,
+        };
+    }
+
+    pub fn deinit(self: *Workspace) void {
+        self.allocator.free(self.acts);
+        self.allocator.free(self.zs);
+        self.allocator.free(self.delta);
+        self.allocator.free(self.next_delta);
+        self.allocator.free(self.acts_store);
+        self.allocator.free(self.zs_store);
+    }
+};
+
+/// Forward one sample, leaving the activations in `ws` for a later backward pass.
+/// Writes the output layer into `out`.
+pub fn forwardInto(net: *const Net, ws: *Workspace, input: []const f64, out: []f64) void {
+    const nl = net.layers.len;
+    @memcpy(ws.acts[0][0..net.n_inputs], input);
+    var prev_len = net.n_inputs;
+    for (net.layers, 0..) |l, li| {
+        const a_prev = ws.acts[li][0..prev_len];
+        var u: usize = 0;
+        while (u < l.units) : (u += 1) {
+            var z = l.b[u];
+            const row = l.w[u * l.prev ..][0..l.prev];
+            for (row, a_prev) |wv, av| z += wv * av;
+            ws.zs[li][u] = z;
+            ws.acts[li + 1][u] = act(l.kind, z);
+        }
+        if (l.kind == .softmax) softmaxInto(ws.zs[li][0..l.units], ws.acts[li + 1][0..l.units]);
+        prev_len = l.units;
+    }
+    @memcpy(out[0..prev_len], ws.acts[nl][0..prev_len]);
+}
+
+/// Push a SUPPLIED output gradient back through the network and take one SGD step.
+/// `ws` must hold the activations from the matching forwardInto call -- the
+/// backward pass reads them, and running it against a stale forward is the classic
+/// way to get a plausible-looking wrong gradient.
+///
+/// The output layer's delta is dL/dz, so a caller supplying dL/dy must multiply by
+/// the output activation's derivative unless that layer is linear -- which for an
+/// embedding it is.
+pub fn backwardFromDelta(net: *Net, ws: *Workspace, out_delta: []const f64, lr: f64) void {
+    const nl = net.layers.len;
+    @memcpy(ws.delta[0..out_delta.len], out_delta);
+
+    var li: usize = nl;
+    while (li > 0) {
+        li -= 1;
+        const l = net.layers[li];
+        const a_prev = ws.acts[li][0..l.prev];
+
+        if (li > 0) {
+            const prev_kind = net.layers[li - 1].kind;
+            var pidx: usize = 0;
+            while (pidx < l.prev) : (pidx += 1) {
+                var dsum: f64 = 0;
+                var u: usize = 0;
+                while (u < l.units) : (u += 1) dsum += l.w[u * l.prev + pidx] * ws.delta[u];
+                dsum *= actDeriv(prev_kind, ws.zs[li - 1][pidx], ws.acts[li][pidx]);
+                ws.next_delta[pidx] = dsum;
+            }
+        }
+
+        var u: usize = 0;
+        while (u < l.units) : (u += 1) {
+            const du = ws.delta[u];
+            const row = l.w[u * l.prev ..][0..l.prev];
+            for (row, a_prev, 0..) |_, av, pidx| row[pidx] -= lr * du * av;
+            l.b[u] -= lr * du;
+        }
+
+        if (li > 0) @memcpy(ws.delta[0..l.prev], ws.next_delta[0..l.prev]);
+    }
+}
+
 /// One forward pass, for prediction. Writes the output layer into `out`.
 pub fn predict(net: *const Net, input: []const f64, scratch_a: []f64, scratch_b: []f64, scratch_z: []f64, out: []f64) void {
     var cur = scratch_a;
