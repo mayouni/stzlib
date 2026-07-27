@@ -130,6 +130,11 @@ class stzMathFunction from stzObject
 				"the point has " + len(paPoint) + ".")
 		ok
 
+	# the compiled tape, for stzObjective -- which minimises this function and so
+	# needs the engine to evaluate it without a Ring round trip per line-search step
+	def _Program()
+		return @pProg
+
 	def Free()
 		if @pProg != NULL
 			StzEngineGradFree(@pProg)

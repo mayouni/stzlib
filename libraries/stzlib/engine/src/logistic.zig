@@ -32,9 +32,15 @@
 const std = @import("std");
 
 /// Where the sigmoid is treated as saturated. Matches the Ring class exactly.
-/// Beyond |z| = 35 the f64 sigmoid is already 1.0 or 0.0 to the last bit
-/// (exp(-35) is 6.3e-16, and 1/(1+6.3e-16) rounds to 1.0), so this cutoff costs
-/// no accuracy -- it only avoids calling exp on values that would overflow it.
+///
+/// AN EARLIER VERSION OF THIS COMMENT CLAIMED THE CUTOFF IS FREE -- that beyond
+/// |z| = 35 the f64 sigmoid is already exactly 1.0. It is not, and a test caught
+/// it: sigmoid(35) is 0.9999999999999993, about three ulps short, because
+/// exp(-35) = 6.3e-16 does not vanish against 1.0. So clamping introduces a
+/// discontinuity of ~6.7e-16 at the boundary. That is negligible against anything
+/// a probability is used for, and the clamp earns its place by keeping exp away
+/// from arguments that overflow it -- but "negligible" and "free" are different
+/// claims, and only one of them is true.
 pub const SATURATION: f64 = 35.0;
 
 pub inline fn sigmoid(z: f64) f64 {
@@ -123,8 +129,12 @@ test "sigmoid is a half at zero and saturates symmetrically" {
     try std.testing.expectEqual(@as(f64, 0.5), sigmoid(0));
     try std.testing.expectEqual(@as(f64, 1.0), sigmoid(100));
     try std.testing.expectEqual(@as(f64, 0.0), sigmoid(-100));
-    // just inside the cutoff, the real function is used and is already 1.0
-    try std.testing.expectEqual(@as(f64, 1.0), sigmoid(34.9));
+    // just inside the cutoff the REAL function is used, and it is NOT 1.0 --
+    // it is three ulps short, which is why the clamp is a (tiny) discontinuity
+    try std.testing.expect(sigmoid(34.9) < 1.0);
+    try std.testing.expect(1.0 - sigmoid(34.9) < 1e-15);
+    // and immediately past it, the clamp gives exactly 1.0
+    try std.testing.expectEqual(@as(f64, 1.0), sigmoid(35.1));
 }
 
 test "axpy vectorised equals axpy scalar, bit for bit" {

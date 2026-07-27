@@ -553,7 +553,8 @@ test "an unknown name is refused rather than guessed" {
     try testing.expectError(ParseError.UnknownName, compile(alloc, "x + zzz", &.{"x"}));
     try testing.expectError(ParseError.UnknownFunction, compile(alloc, "wobble(x)", &.{"x"}));
     try testing.expectError(ParseError.MissingParen, compile(alloc, "(x + 1", &.{"x"}));
-    try testing.expectError(ParseError.UnexpectedCharacter, compile(alloc, "x + ", &.{"x"}));
+    // a dangling operator runs out of input rather than meeting a bad character
+    try testing.expectError(ParseError.UnexpectedEnd, compile(alloc, "x + ", &.{"x"}));
     try testing.expectError(ParseError.UnexpectedCharacter, compile(alloc, "x $ 2", &.{"x"}));
 }
 
