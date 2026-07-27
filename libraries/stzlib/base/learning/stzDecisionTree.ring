@@ -18,7 +18,11 @@ class stzDecisionTree from stzObject
 	@cWhy = ""
 	@bTrained = 0
 	@nNodeSeq = 0
-	@aNorm = []    # examples with every feature value case-folded ONCE
+	@acValues = []  # distinct folded feature values, position = engine code + 1
+	@acLabels = []  # distinct labels, likewise
+	@aNodeAt = []   # the engine's flat nodes, while _Rebuild walks them
+	@acRaw = []     # raw strings already folded, and...
+	@anRawCode = [] # ...the code each resolved to -- see Train()
 
 	def init(poTrainingSet)
 		@oTs = poTrainingSet
@@ -67,11 +71,23 @@ class stzDecisionTree from stzObject
 			stzraise("Can't train on examples with no features.")
 		ok
 
-		# One pass: fold every value, and check the width while we are here.
-		# The width check is free at this point and was absent before -- a row
-		# narrower than the first raised a bare Ring "Array Access (Index out of
-		# range)" from inside _ValuesOf, and a wider one was silently ignored.
-		@aNorm = []
+		# ONE PASS: fold, INTERN, and check the width.
+		#
+		# The fold was already here (it used to happen at every node, which was 13x
+		# the loop containing it). Interning is the new part and it is what lets the
+		# build run in the engine: a categorical value's identity is all ID3 needs,
+		# so once "sunny" is known to be value 3 nothing downstream has to compare a
+		# string again. The scan that assigns the code is the same scan that folded.
+		#
+		# The width check is free here and was absent before -- a row narrower than
+		# the first raised a bare Ring "Array Access (Index out of range)" from
+		# inside _ValuesOf, and a wider one was silently ignored.
+		@acValues = []
+		@acLabels = []
+		@acRaw = []
+		@anRawCode = []
+		_aFeatCodes_ = []
+		_aLabelCodes_ = []
 		_nEx_ = len(_aEx_)
 		for _i_ = 1 to _nEx_
 			_aRow_ = _aEx_[_i_][1]
@@ -80,27 +96,106 @@ class stzDecisionTree from stzObject
 					" feature(s) but the set is " + _nF_ + " wide. " +
 					"Every example must have the same features.")
 			ok
-			_aFolded_ = []
 			for _f_ = 1 to _nF_
-				_aFolded_ + StzLower("" + _aRow_[_f_])
+				# FOLD EACH DISTINCT STRING ONCE, not each occurrence. StzLower
+				# costs five bridge crossings (it builds two engine string objects
+				# and frees them), and a categorical column has a handful of
+				# distinct values repeated thousands of times -- 40000 x 10 was
+				# 400000 folds of three actual strings. @acRaw remembers the code
+				# each RAW form resolved to, so "Sunny" and "sunny" are folded once
+				# each and then never again.
+				_cRaw_ = "" + _aRow_[_f_]
+				_nRaw_ = ring_find(@acRaw, _cRaw_)
+				if _nRaw_ > 0
+					_aFeatCodes_ + @anRawCode[_nRaw_]
+				else
+					_cV_ = StzLower(_cRaw_)
+					_nAt_ = ring_find(@acValues, _cV_)
+					if _nAt_ = 0
+						@acValues + _cV_
+						_nAt_ = len(@acValues)
+					ok
+					@acRaw + _cRaw_
+					@anRawCode + (_nAt_ - 1)
+					_aFeatCodes_ + (_nAt_ - 1)
+				ok
 			next
-			@aNorm + [ _aFolded_, _aEx_[_i_][2] ]
+			_cL_ = _aEx_[_i_][2]
+			_nAt_ = ring_find(@acLabels, _cL_)
+			if _nAt_ = 0
+				@acLabels + _cL_
+				_nAt_ = len(@acLabels)
+			ok
+			_aLabelCodes_ + (_nAt_ - 1)
 		next
 
-		_acFeat_ = []
-		for _i_ = 1 to _nF_
-			_acFeat_ + _i_
-		next
-		_aPos_ = []
-		for _i_ = 1 to _nEx_
-			_aPos_ + _i_
-		next
-		@aTree = This._Build(_aPos_, _acFeat_)
+		# THE BUILD RUNS IN THE ENGINE (numeric phase 5, second pass).
+		#
+		# The first pass fixed three real Ring-side mistakes here -- the per-node
+		# fold, copied example rows, and the HasKey counting idiom -- and took
+		# 4000 x 8 from 1.434s to 0.308s. That was worth doing and was the wrong
+		# place to stop: 40000 x 10 still took 3.965s of arithmetic that is not
+		# hard. tree.zig makes the same choices, and they are choices a user SEES:
+		# the first feature to reach the maximum gain wins, the majority label is
+		# the first to reach the maximum count in the order labels appear in that
+		# SUBSET, branch values come out in first-seen order, and a pure node
+		# becomes a leaf before the no-features-left case.
+		_aFlat_ = StzEngineTreeId3(_aFeatCodes_, _aLabelCodes_, _nEx_, _nF_,
+			len(@acLabels), len(@acValues))
+		if NOT isList(_aFlat_) or len(_aFlat_) < 1
+			stzraise("The engine refused the build (" + _nEx_ + " x " + _nF_ + ").")
+		ok
+
+		@aTree = This._Rebuild(_aFlat_)
 		@bTrained = 1
 		return This
 
 	def Tree()
 		return @aTree
+
+	# Turn the engine's flat node array back into the nested shape this class has
+	# always published -- [ :feature=, :branches=, :default= ] and [ :leaf= ] -- so
+	# Tree(), Classify() and ToGraph() are untouched by the move. Codes become
+	# strings again here, and nowhere else.
+	def _Rebuild(paFlat)
+		_nCount_ = paFlat[1]
+		# read every node into [ kind, ... ] first, so a child can be resolved
+		# whatever order it appears in
+		@aNodeAt = []
+		_nAt_ = 1
+		for _i_ = 1 to _nCount_
+			_nAt_++
+			_nKind_ = paFlat[_nAt_]
+			if _nKind_ = 0
+				_nAt_++
+				@aNodeAt + [ 0, paFlat[_nAt_] ]
+			else
+				_nF_ = paFlat[_nAt_ + 1]
+				_nDef_ = paFlat[_nAt_ + 2]
+				_nB_ = paFlat[_nAt_ + 3]
+				_nAt_ += 3
+				_aBr_ = []
+				for _b_ = 1 to _nB_
+					_aBr_ + [ paFlat[_nAt_ + 1], paFlat[_nAt_ + 2] ]
+					_nAt_ += 2
+				next
+				@aNodeAt + [ 1, _nF_, _nDef_, _aBr_ ]
+			ok
+		next
+		return This._NodeFrom(1)
+
+	def _NodeFrom(n)
+		_aN_ = @aNodeAt[n]
+		if _aN_[1] = 0
+			return [ :leaf = @acLabels[_aN_[2] + 1] ]
+		ok
+		_aBr_ = []
+		_nB_ = len(_aN_[4])
+		for _b_ = 1 to _nB_
+			_aBr_ + [ @acValues[_aN_[4][_b_][1] + 1], This._NodeFrom(_aN_[4][_b_][2]) ]
+		next
+		return [ :feature = _aN_[2] + 1, :branches = _aBr_,
+			:default = @acLabels[_aN_[3] + 1] ]
 
 	def Classify(paFeatures)
 		if @bTrained = 0
@@ -180,176 +275,22 @@ class stzDecisionTree from stzObject
 		ok
 
 	#-- ID3 ----------------------------------------------------------------
-
-	# THE RECURSION CARRIES ROW NUMBERS, NOT ROWS.
 	#
-	# _Subset() used to return a list of copied example rows, and ID3 subsets at
-	# every node of every level -- so the whole training set was copied once per
-	# level, and Ring copies a list again when returning it from a method. That is
-	# why the win from the two fixes above shrank as n grew. Measured at n = 4000,
-	# 20 passes:
+	# THE RING IMPLEMENTATION USED TO BE HERE and is deliberately gone: _Build,
+	# _IsPure, _Counts, _Majority, _Entropy, _SplitEntropy, _ValuesOf and _Subset,
+	# about 120 lines. Once the build moved to tree.zig, keeping them would have
+	# meant TWO definitions of ID3 in one class -- the shape this numeric phase has
+	# paid for over and over (the variance divisor, the summation, the centered sum
+	# of squares, the negligible threshold, Euclidean distance, the score and the
+	# sigmoid in stzLogisticRegression). They would have agreed on the day they were
+	# written and drifted the first time either was touched, and the drift would
+	# have surfaced as a tree that disagreed with itself about which feature it
+	# split on.
 	#
-	#     appending 4000 rows                0.176 s
-	#     appending 4000 row NUMBERS         0.008 s      22x
-	#     reading a value through the index  0.024 s
-	#     reading it directly                0.021 s      the index costs 14%
-	#
-	# So the indirection is nearly free on the read side and removes the copy
-	# entirely on the write side. Every helper below takes a list of positions
-	# into @aNorm; @aNorm itself is built once by Train() and never copied.
-	def _Build(paPos, pacFeat)
-		_cMaj_ = This._Majority(paPos)
-		# pure node -> leaf
-		if This._IsPure(paPos)
-			return [ :leaf = @aNorm[paPos[1]][2] ]
-		ok
-		# no features left -> majority leaf
-		if len(pacFeat) = 0
-			return [ :leaf = _cMaj_ ]
-		ok
-		# best feature by information gain
-		_nBase_ = This._Entropy(paPos)
-		_nBestF_ = pacFeat[1]
-		_nBestGain_ = -1
-		_nI_ = len(pacFeat)
-		for _i_ = 1 to _nI_
-			_nGain_ = _nBase_ - This._SplitEntropy(paPos, pacFeat[_i_])
-			if _nGain_ > _nBestGain_
-				_nBestGain_ = _nGain_
-				_nBestF_ = pacFeat[_i_]
-			ok
-		next
-		# split on the winner
-		_acVals_ = This._ValuesOf(paPos, _nBestF_)
-		_acRest_ = []
-		for _i_ = 1 to _nI_
-			if pacFeat[_i_] != _nBestF_
-				_acRest_ + pacFeat[_i_]
-			ok
-		next
-		_aBranches_ = []
-		_nV_ = len(_acVals_)
-		for _v_ = 1 to _nV_
-			_aSub_ = This._Subset(paPos, _nBestF_, _acVals_[_v_])
-			_aBranches_ + [ _acVals_[_v_], This._Build(_aSub_, _acRest_) ]
-		next
-		return [ :feature = _nBestF_, :branches = _aBranches_, :default = _cMaj_ ]
-
-	def _IsPure(paPos)
-		_n_ = len(paPos)
-		if _n_ = 0
-			return 1
-		ok
-		_cFirst_ = @aNorm[paPos[1]][2]
-		for _i_ = 2 to _n_
-			if @aNorm[paPos[_i_]][2] != _cFirst_
-				return 0
-			ok
-		next
-		return 1
-
-	# ONE DEFINITION OF THE LABEL COUNT, and it is where the time was going.
-	#
-	# _Majority() and _Entropy() each carried a byte-for-byte identical counting
-	# loop -- the shape this numeric phase keeps paying for -- and both used the
-	# Ring idiom
-	#
-	#     if HasKey(aC, key) : aC[key] = aC[key] + 1 else aC[key] = 1
-	#
-	# which is THE dominant cost of training. Measured over 4000 examples, 20 runs:
-	#
-	#                              2 labels      50 labels
-	#     HasKey idiom              1.515 s       12.858 s
-	#     parallel lists below      0.054 s        0.068 s
-	#                                 28x            189x
-	#
-	# Note the second column. The linear scan barely notices going from 2 distinct
-	# labels to 50 (0.054 -> 0.068), while the HasKey form gets EIGHT AND A HALF
-	# TIMES WORSE -- so whatever it is doing on a Ring list, it is not a hash
-	# lookup that stays flat. A scan over a handful of distinct labels wins easily,
-	# and it wins by more the more labels there are.
-	#
-	# Insertion order is preserved (first-seen), so _Majority's strict `>` still
-	# breaks ties toward the label seen first -- exactly as before.
-	def _Counts(paPos)
-		_acN_ = []
-		_anC_ = []
-		_n_ = len(paPos)
-		for _i_ = 1 to _n_
-			_cL_ = @aNorm[paPos[_i_]][2]
-			_k_ = ring_find(_acN_, _cL_)
-			if _k_ = 0
-				_acN_ + _cL_
-				_anC_ + 1
-			else
-				_anC_[_k_]++
-			ok
-		next
-		return [ _acN_, _anC_ ]
-
-	def _Majority(paPos)
-		_aCm_ = This._Counts(paPos)
-		_acNm_ = _aCm_[1]
-		_anCm_ = _aCm_[2]
-		_cBest_ = ""
-		_nBest_ = -1
-		_nC_ = len(_acNm_)
-		for _i_ = 1 to _nC_
-			if _anCm_[_i_] > _nBest_
-				_nBest_ = _anCm_[_i_]
-				_cBest_ = _acNm_[_i_]
-			ok
-		next
-		return _cBest_
-
-	def _Entropy(paPos)
-		_n_ = len(paPos)
-		if _n_ = 0
-			return 0
-		ok
-		_aCe_ = This._Counts(paPos)
-		_anCe_ = _aCe_[2]
-		_nH_ = 0
-		_nC_ = len(_anCe_)
-		for _i_ = 1 to _nC_
-			_nP_ = _anCe_[_i_] / _n_
-			_nH_ -= _nP_ * (log(_nP_) / log(2))
-		next
-		return _nH_
-
-	def _SplitEntropy(paPos, nF)
-		_acVals_ = This._ValuesOf(paPos, nF)
-		_nH_ = 0
-		_n_ = len(paPos)
-		_nV_ = len(_acVals_)
-		for _v_ = 1 to _nV_
-			_aSub_ = This._Subset(paPos, nF, _acVals_[_v_])
-			_nH_ += (len(_aSub_) / _n_) * This._Entropy(_aSub_)
-		next
-		return _nH_
-
-	# The values in @aNorm are ALREADY folded -- Train() does it once. So no
-	# StzLower here: doing it per visit is what made this the hot line.
-	def _ValuesOf(paPos, nF)
-		_acOut_ = []
-		_n_ = len(paPos)
-		for _i_ = 1 to _n_
-			_cV_ = @aNorm[paPos[_i_]][1][nF]
-			if ring_find(_acOut_, _cV_) = 0
-				_acOut_ + _cV_
-			ok
-		next
-		return _acOut_
-
-	def _Subset(paPos, nF, pcVal)
-		_aOut_ = []
-		_n_ = len(paPos)
-		for _i_ = 1 to _n_
-			if @aNorm[paPos[_i_]][1][nF] = pcVal
-				_aOut_ + paPos[_i_]
-			ok
-		next
-		return _aOut_
+	# What remains on this side is the part that is genuinely Ring's: turning the
+	# examples into codes once (_Rebuild's counterpart in Train), and turning the
+	# engine's flat node array back into the nested [ :feature=, :branches= ]
+	# structure this class publishes. Classify() and ToGraph() never knew.
 
 	def _NameOf(nF)
 		if nF <= len(@acNames)

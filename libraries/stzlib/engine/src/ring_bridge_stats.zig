@@ -5,6 +5,7 @@ const hyp = @import("hypothesis.zig");
 const simplex = @import("simplex.zig");
 const logistic = @import("logistic.zig");
 const cluster = @import("cluster.zig");
+const tree = @import("tree.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -752,7 +753,84 @@ fn ring_KnnTopKOn(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── ID3 (phase 5, second pass) ──────────────────────────────────────────────
+//
+//   StzEngineTreeId3(aFeatCodes, aLabelCodes, nRows, nCols, nLabels, nValues)
+//     -> flat tree: [ nodeCount, then per node:
+//                     kind(0 leaf / 1 decision),
+//                     leaf ? labelCode
+//                          : featureIdx, defaultLabel, branchCount,
+//                            (value, childNode) * branchCount ]
+//     child indices are 1-based node numbers, so Ring can index its own array
+//
+// CODES, NOT STRINGS. Ring interns the feature values and the labels once -- work
+// it already did, since it had to case-fold and scan them -- so nothing here
+// compares a string and counting becomes an array index instead of a hash.
+fn ring_TreeId3(p: *anyopaque) callconv(.c) void {
+    const fv = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(fv);
+    const lv = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(lv);
+
+    const n: usize = @intFromFloat(g(p, 3));
+    const d: usize = @intFromFloat(g(p, 4));
+    const n_labels: usize = @intFromFloat(g(p, 5));
+    const n_values: usize = @intFromFloat(g(p, 6));
+
+    if (n == 0 or d == 0 or fv.len != n * d or lv.len != n or n_labels == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    const feat = allocator.alloc(i32, fv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(feat);
+    for (fv, 0..) |v, i| feat[i] = @intFromFloat(v);
+
+    const labels = allocator.alloc(i32, lv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(labels);
+    for (lv, 0..) |v, i| labels[i] = @intFromFloat(v);
+
+    var t = tree.id3(allocator, feat, labels, n, d, n_labels, n_values) catch {
+        rn(p, 0);
+        return;
+    };
+    defer t.deinit(allocator);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(t.nodes.items.len));
+    for (t.nodes.items) |nd| {
+        if (nd.leaf_label >= 0) {
+            R.ring_list_adddouble(out, 0);
+            R.ring_list_adddouble(out, @floatFromInt(nd.leaf_label));
+        } else {
+            R.ring_list_adddouble(out, 1);
+            R.ring_list_adddouble(out, @floatFromInt(nd.feature));
+            R.ring_list_adddouble(out, @floatFromInt(nd.default_label));
+            R.ring_list_adddouble(out, @floatFromInt(nd.branch_count));
+            for (0..nd.branch_count) |b| {
+                const at = nd.branch_start + b;
+                R.ring_list_adddouble(out, @floatFromInt(t.branch_values.items[at]));
+                R.ring_list_adddouble(out, @floatFromInt(t.branch_children.items[at] + 1));
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineknntopk", .func = &ring_KnnTopK },
     .{ .name = "stzengineclusterdatanew", .func = &ring_ClusterDataNew },
     .{ .name = "stzengineclusterdatafree", .func = &ring_ClusterDataFree },
