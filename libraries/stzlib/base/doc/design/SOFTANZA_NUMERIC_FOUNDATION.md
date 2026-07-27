@@ -1913,6 +1913,63 @@ what it refused.
   throughout**, because they call the Zig function directly and never cross the bridge.
   Count the existing arguments.*
 
+- **den-SNE TRANSFORM (`8751c8643`)** — *through the network, and what it cannot see.*
+
+  Classic t-SNE has **no transform**: it optimises the points it was given and a new
+  point has no position, so the density contract had nowhere to go. The only door is the
+  parametric variant — which two commits earlier had been made to **refuse** density.
+
+  **The refusal is gone, and deservedly.** It was sound for the code as it stood: the
+  density term moves coordinates, and the parametric fit produces coordinates through a
+  network. What it missed is that the term need not act on the coordinates at all — its
+  gradient is taken on the network's **outputs**, and `nn.backwardFromDelta` chains an
+  output delta back through the weights. It exists precisely so a caller can supply a
+  delta the network could not derive from targets of its own. So the term *teaches the
+  network to produce different coordinates* rather than moving the ones it produced. Six
+  lines, into the same `dy` the KL term already fills.
+
+  **Which makes the transform density-preserving by construction, and exact** — a
+  training row returns its fitted position to the last bit, because the forward pass *is*
+  the embedding. (UMAP's re-optimises and lands ~0.2 of the typical spacing away.)
+
+  **But the network saturates, and that is the price of the exactness.** A legitimate row
+  at (20,20,20,20) transforms to (−2.1100, −9.7090); one at (200,200,200,200) — ten times
+  further out in every coordinate than anything the fit saw — to (−2.1118, −9.7117).
+  **Three thousandths apart.** Bounded activations send everything past a certain
+  magnitude to the same place, so the transform is not merely inaccurate on unfamiliar
+  input, it is **structurally blind** to it, and it fails **silently**.
+
+  That is the exact inverse of the UMAP transform's profile: approximate on training rows
+  but able to place an outlier *outside* the map (5.99 against 0.79). **Neither is
+  better** — they fail in opposite directions, and a caller should know which one they
+  hold. So `LocalRadiiOf()` answers from the **data**, never the model: 4.41 for the
+  legitimate row against a training maximum of 5.50, and **126688** for the outlier. The
+  radius computation moved into one shared function both transforms call.
+
+  | λ | correlation | drawn ratio |
+  |---|---|---|
+  | ~0 | **−0.422** | 0.66 — *plain parametric, inverted here* |
+  | 0.01 | 0.983 | 8.15 |
+  | **0.10** | **0.985** | 8.76 — *the new parametric default* |
+  | 0.30 | 0.988 | 9.34 |
+  | 1.00 | **−0.913** | 0.07 — *the classic default, catastrophic* |
+
+  **The weight had to become mode-dependent.** A network has a few hundred weights
+  *shared* by every point, so an over-strong term does not distort one region — it
+  deforms the whole function. `PreserveDensity()` resolves to 0.1 on the parametric path
+  and records what it used; an explicit `SetDensityWeight()` is obeyed exactly, including
+  into the range that inverts.
+
+  ***And a claim I nearly shipped was too strong.*** On the engine's dataset plain
+  parametric t-SNE scores **0.975** with no density term — a network cannot tear space,
+  so tight stays tight — and I wrote that up as *density preservation for free*. On a
+  second dataset the same configuration scores **−0.42**. Smoothness makes it **likely,
+  not certain**, and which way a fit went is not deducible from the algorithm.
+
+  **Every strand of this work has now reached the same place from a different direction:
+  density preservation is a property of a particular fit on particular data, never of the
+  algorithm or the settings, and the only way to know is to read the correlation.**
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
