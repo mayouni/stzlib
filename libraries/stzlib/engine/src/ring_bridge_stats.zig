@@ -11,6 +11,8 @@ const bayes = @import("bayes.zig");
 const autodiff = @import("autodiff.zig");
 const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
+const eigen_general = @import("eigen_general.zig");
+const cmplx = @import("complex.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
 
@@ -1318,12 +1320,54 @@ fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── GENERAL EIGENVALUES (phase 7) ───────────────────────────────────────────
+//
+//   StzEngineEigenGeneral(aFlatRowMajor, n) -> [ re1, im1, re2, im2, ... ]
+//                                              or 0 if the iteration gave up
+//
+// Lifts the refusal phase 4 slice 8 wrote down: a general matrix has complex
+// eigenvalues, so the symmetric Jacobi routine could not be stretched to cover it.
+// Francis double-shift QR on the balanced Hessenberg form.
+fn ring_EigenGeneral(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(flat);
+    const n: usize = @intFromFloat(g(p, 2));
+    if (n == 0 or flat.len != n * n) {
+        rn(p, 0);
+        return;
+    }
+
+    const out = allocator.alloc(cmplx.Complex, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+
+    // the routine CONSUMES its input, which is fine: `flat` is this bridge's own
+    // copy of the Ring list, not the caller's matrix
+    eigen_general.eigenvalues(flat, n, out) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |z| {
+        R.ring_list_adddouble(lst, z.re);
+        R.ring_list_adddouble(lst, z.im);
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
     .{ .name = "stzenginegradcompile", .func = &ring_GradCompile },
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
+    .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
