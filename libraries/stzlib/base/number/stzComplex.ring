@@ -102,24 +102,67 @@ class stzComplex from stzObject
 	def Argument()
 		return atan2(@nIm, @nRe)
 
+	# ── THE FORMS, which in Softanza carry the semantics ──
+	#
+	# An ACTIVE verb mutates this number and returns nothing; the PASSIVE ...ed form
+	# returns the [re, im] DATA and leaves it alone; the Q twin returns a new
+	# stzComplex so calls chain. The first version of this class had Conjugate() and
+	# Negated() both returning new objects from plain names, which breaks the rule
+	# that a plain method returns data and only a Q form returns a Softanza object.
+
 	def Conjugate()
-		return new stzComplex(@nRe, -@nIm)
+		@nIm = -@nIm
+
+		def ConjugateQ()
+			This.Conjugate()
+			return This
+
+	def Conjugated()
+		return [ @nRe, -@nIm ]
+
+		def ConjugatedQ()
+			return new stzComplex(@nRe, -@nIm)
+
+	def Negate()
+		@nRe = -@nRe
+		@nIm = -@nIm
+
+		def NegateQ()
+			This.Negate()
+			return This
 
 	def Negated()
-		return new stzComplex(-@nRe, -@nIm)
+		return [ -@nRe, -@nIm ]
+
+		def NegatedQ()
+			return new stzComplex(-@nRe, -@nIm)
+
+	# ── arithmetic: DATA out, or a chainable object from the Q twin ──
 
 	def Plus(pZ)
 		_a_ = This._PartsOf(pZ)
-		return new stzComplex(@nRe + _a_[1], @nIm + _a_[2])
+		return [ @nRe + _a_[1], @nIm + _a_[2] ]
+
+		def PlusQ(pZ)
+			_a_ = This._PartsOf(pZ)
+			return new stzComplex(@nRe + _a_[1], @nIm + _a_[2])
 
 	def Minus(pZ)
 		_a_ = This._PartsOf(pZ)
-		return new stzComplex(@nRe - _a_[1], @nIm - _a_[2])
+		return [ @nRe - _a_[1], @nIm - _a_[2] ]
+
+		def MinusQ(pZ)
+			_a_ = This._PartsOf(pZ)
+			return new stzComplex(@nRe - _a_[1], @nIm - _a_[2])
 
 	def Times(pZ)
 		_a_ = This._PartsOf(pZ)
-		return new stzComplex(@nRe * _a_[1] - @nIm * _a_[2],
-			@nRe * _a_[2] + @nIm * _a_[1])
+		return [ @nRe * _a_[1] - @nIm * _a_[2], @nRe * _a_[2] + @nIm * _a_[1] ]
+
+		def TimesQ(pZ)
+			_a_ = This._PartsOf(pZ)
+			return new stzComplex(@nRe * _a_[1] - @nIm * _a_[2],
+				@nRe * _a_[2] + @nIm * _a_[1])
 
 	# Smith's formula, for the same overflow reason as Modulus(): dividing through
 	# by the larger part first keeps the intermediates near 1.
@@ -133,13 +176,15 @@ class stzComplex from stzObject
 		if fabs(_c_) >= fabs(_d_)
 			_r_ = _d_ / _c_
 			_den_ = _c_ + _d_ * _r_
-			return new stzComplex((@nRe + @nIm * _r_) / _den_,
-				(@nIm - @nRe * _r_) / _den_)
+			return [ (@nRe + @nIm * _r_) / _den_, (@nIm - @nRe * _r_) / _den_ ]
 		ok
 		_r_ = _c_ / _d_
 		_den_ = _c_ * _r_ + _d_
-		return new stzComplex((@nRe * _r_ + @nIm) / _den_,
-			(@nIm * _r_ - @nRe) / _den_)
+		return [ (@nRe * _r_ + @nIm) / _den_, (@nIm * _r_ - @nRe) / _den_ ]
+
+		def DividedByQ(pZ)
+			_a_ = This.DividedBy(pZ)
+			return new stzComplex(_a_[1], _a_[2])
 
 	def Equals(pZ)
 		_a_ = This._PartsOf(pZ)
