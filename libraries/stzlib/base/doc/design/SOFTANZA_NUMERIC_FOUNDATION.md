@@ -1970,6 +1970,58 @@ what it refused.
   density preservation is a property of a particular fit on particular data, never of the
   algorithm or the settings, and the only way to know is to read the correlation.**
 
+- **CLASSIC den-SNE TRANSFORM (`76f909aac`)** — *built, since the paper declines to.*
+
+  The entry above says classic t-SNE has no transform. That is true of the **published**
+  algorithm — it optimises the positions of the points it was given, and a new point has
+  no position — and it is why the refusal stood. But *"the algorithm does not provide
+  one"* is not *"one cannot be built"*. Everything needed was already defined: freeze the
+  training map, give the new row the same kind of neighbour distribution the fit gave
+  every training row, and minimise the same KL over that one position. Only the paper
+  declined to combine them.
+
+  | transform | displacement | self-match |
+  |---|---|---|
+  | UMAP *(published)* | 0.20 | 25% |
+  | **classic** *(constructed)* | **0.23** | **50%** |
+  | parametric | 0.00 | 100% — *the forward pass **is** the embedding* |
+
+  So it is **approximate and must not be sold as exact**. The fit optimised each row
+  against every other row moving at the same time; this optimises one row against a
+  frozen map. Different problems, different answers, and the 0.23 measures the gap.
+
+  `Q` is normalised over the new point's **own row** rather than the whole joint —
+  recomputing the full normaliser would make placing one point cost as much as a fit, and
+  would let a new arrival perturb the very distribution the frozen map was optimised
+  against. The density contract then carries across by the **same closed form** the UMAP
+  transform uses.
+
+  **And a third way to fail on an outlier.** At 200 units out every training point is
+  very nearly equidistant — the spread *within* the training set is negligible beside the
+  distance *to* it — so the neighbour distribution goes **uniform**, its weighted centroid
+  is the centroid of the whole map, and t-SNE recenters. Measured: **(0.307, −1.976)**.
+  The origin. That is the most dangerous of the three, because the middle of a scatter
+  plot is where the interesting points are supposed to be: an unrecognised row does not
+  land somewhere odd-looking, it lands in the most meaningful-looking place there is.
+  (With a density line it may instead be pushed far out — but only if the predicted
+  radius exceeds the whole map's spread, which is what a uniform distribution makes the
+  neighbours' spread. On one dataset it went out; on another it pinned to the centre.)
+
+  | transform | what it does with a far outlier |
+  |---|---|
+  | UMAP | places it **outside** the map (5.99 vs 0.79) |
+  | parametric den-SNE | **saturates** onto a legitimate point (0.003 apart) |
+  | classic den-SNE | **origin, or far out** — it depends on the calibration |
+
+  **Only the first is dependable, and none of the three is detectable from the
+  coordinates.** Which is the whole case for `NewLocalRadii()`: 143711 against a training
+  maximum near 5, measured against the data, where 356 units from anything is 356 units
+  from anything whatever a map believes.
+
+  *Four guard assertions pinning the two refusals are retired — with the reasoning kept
+  in place rather than deleted — and one rewritten, because "only one of them has a map"
+  was really pointing at **exactness**, which is still true and is now asserted directly.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
