@@ -2867,12 +2867,9 @@ class stzMatrix from stzListOfLists
 	#     oA.ConditionNumber()    #--> inf, so LeastSquaresFor would refuse
 	def ConditionNumber()
 
-		if @nRows < @nCols
-			StzRaise("ConditionNumber: give me a matrix with at least as many rows " +
-			         "as columns -- transpose it, since a matrix and its transpose " +
-			         "have the same singular values.")
-		ok
-
+		# ANY SHAPE since phase 7, for the same reason as Rank(): cond(A) = cond(A'),
+		# so which orientation you happen to hold is a fact about your data layout
+		# and not about the matrix. The engine transposes internally when it needs to.
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix = NULL
 			return 0
@@ -2885,14 +2882,97 @@ class stzMatrix from stzListOfLists
 		ok
 		return StzEngineMatrixConditionGeneral(@pEngineMatrix)
 
+	# THE FULL DECOMPOSITION A = U S V' (phase 7).
+	#
+	#   aD = oM.SVD()
+	#   aD[:u]                 the left singular vectors, COLUMN j for value j
+	#   aD[:singularValues]    min(rows, cols) of them, descending, never negative
+	#   aD[:v]                 the right singular vectors, same column convention
+	#
+	# UNTIL NOW ONLY THE SINGULAR VALUES REACHED RING. That was enough for rank,
+	# conditioning and a least-squares diagnosis -- which is what phase 4 built it
+	# for -- and not enough for anything that needs the DIRECTIONS: a principal-
+	# component analysis, a low-rank approximation, an orthonormal basis for the
+	# range or the null space. The values say how much; the vectors say where.
+	#
+	# WHY U AND V ARE NOT INTERCHANGEABLE, which is the trap the old advice hid.
+	# "Transpose it, the singular values are the same" is true, and a caller who
+	# followed it to get the FACTORS ended up with a decomposition of A' -- because
+	# transposing swaps U and V. The engine does the transpose internally now.
+	#
+	# A SINGULAR VALUE HAS NO SIGN. They come back non-negative and descending, so
+	# the first is the largest and the ratio of first to last is the condition
+	# number. The sign a caller might expect lives in the vectors instead.
+	def SVD()
+
+		if @nRows = 0 or @nCols = 0
+			StzRaise("SVD: this matrix has no entries.")
+		ok
+
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			StzRaise("SVD: the engine refused the matrix.")
+		ok
+
+		_aSvd_ = StzEngineMatrixSvdFull(@pEngineMatrix)
+		if NOT isList(_aSvd_) or len(_aSvd_) < 2
+			StzRaise("SVD: the decomposition did not converge on this matrix.")
+		ok
+		if _aSvd_[1] = 0
+			StzRaise("SVD: the one-sided Jacobi sweeps did not converge.")
+		ok
+
+		_nK_ = _aSvd_[2]
+		_nAt_ = 2
+
+		_aU_ = []
+		for _i_ = 1 to @nRows
+			_aRow_ = []
+			for _j_ = 1 to _nK_
+				_nAt_++
+				_aRow_ + _aSvd_[_nAt_]
+			next
+			_aU_ + _aRow_
+		next
+
+		_anS_ = []
+		for _i_ = 1 to _nK_
+			_nAt_++
+			_anS_ + _aSvd_[_nAt_]
+		next
+
+		_aV_ = []
+		for _i_ = 1 to @nCols
+			_aRow_ = []
+			for _j_ = 1 to _nK_
+				_nAt_++
+				_aRow_ + _aSvd_[_nAt_]
+			next
+			_aV_ + _aRow_
+		next
+
+		return [ :u = _aU_, :singularValues = _anS_, :v = _aV_ ]
+
+	# The LEFT singular vectors: an orthonormal basis for the column space, ordered
+	# by how much of the matrix each direction accounts for.
+	def LeftSingularVectors()
+		return This.SVD()[:u]
+
+	# The RIGHT singular vectors: an orthonormal basis for the row space, same order.
+	def RightSingularVectors()
+		return This.SVD()[:v]
+
 	# The SINGULAR VALUES, sorted descending. Defined for any matrix with at least as
 	# many rows as columns, and always non-negative -- a singular value has no sign.
 	def SingularValues()
 
-		if @nRows < @nCols
-			StzRaise("SingularValues: give me at least as many rows as columns " +
-			         "(transpose it -- the singular values are the same).")
-		ok
+		# WIDE MATRICES ARE ANSWERED SINCE PHASE 7. This used to say "give me at
+		# least as many rows as columns (transpose it -- the singular values are the
+		# same)". The values ARE the same, which is why the advice worked; what it
+		# did not say is that U and V SWAP under a transpose, so a caller who
+		# followed it for the FACTORS got a decomposition of A' rather than of A.
+		# The transpose now happens inside the engine, once, with the swap done
+		# right. There are min(rows, cols) singular values.
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix = NULL
 			return []
@@ -2901,8 +2981,12 @@ class stzMatrix from stzListOfLists
 		if _pSvV_ = NULL
 			return []
 		ok
+		_nKsv_ = @nCols
+		if @nRows < _nKsv_
+			_nKsv_ = @nRows
+		ok
 		_anSvV_ = []
-		for _iSv_ = 1 to @nCols
+		for _iSv_ = 1 to _nKsv_
 			_anSvV_ + StzEngineMatrixGet(_pSvV_, _iSv_ - 1, 0)
 		next
 		StzEngineMatrixFree(_pSvV_)
@@ -2917,10 +3001,9 @@ class stzMatrix from stzListOfLists
 	# number, and never the finite 9e16 the two used to disagree on.
 	def Rank()
 
-		if @nRows < @nCols
-			StzRaise("Rank: give me at least as many rows as columns (transpose it " +
-			         "-- the rank is the same).")
-		ok
+		# ANY SHAPE since phase 7. rank(A) = rank(A') always, so refusing one
+		# orientation was an artefact of the SVD's precondition rather than a fact
+		# about the matrix.
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix = NULL
 			return 0
