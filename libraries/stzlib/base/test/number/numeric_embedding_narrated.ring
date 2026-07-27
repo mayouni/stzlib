@@ -1272,6 +1272,72 @@ Scenario("supervision and density compose with it, for free")
 	Then("...with one radius per row", len(o.LocalRadii()), 36)
 EndScenario()
 
+Scenario("the parametric transform, all the way through a PCA")
+	# The parametric UMAP transform was built with the fit and works: a training row
+	# returns its own number. What was NOT right until it was measured is what happens
+	# when a PCA pre-step sits in front of it.
+	aD = WideBlobs(20, 8)
+	aNew = [ [20,20,20,20,20,20,20,20] ]
+
+	o = new stzUMAP(aD)
+	o.ReduceWithPCAQ(3).SetNeighborsQ(6).SetEpochsQ(200).SetHiddenLayersQ([16])
+	o.LearnMappingQ().PreserveDensityQ().FitQ()
+
+	Then("PCA and a learned map together",
+	     o.UsesPCA() and o.IsParametric(), TRUE)
+
+	# the network was trained on the SCORES, so a raw row would be the wrong width and
+	# the wrong space -- Transform() projects first
+	aB = o.Transform(aNew)
+	Then("...and it still places a new row", len(aB), 1)
+	Then("...finitely", AllFinite(aB), TRUE)
+
+	# a training row still returns its own number, PCA or no PCA
+	Then("...and a training row comes back exactly",
+	     SameEmbedding(o.Transform([ aD[1] ]), [ o.Embedding()[1] ]), TRUE)
+EndScenario()
+
+Scenario("A RADIUS IS ONLY COMPARABLE TO ANOTHER IN THE SAME SPACE")
+	# MEASURED, and it was wrong. LocalRadiiOf() measured the RAW rows while the fit's
+	# own LocalRadii() are computed on the PCA SCORES:
+	#
+	#                  training max      new row
+	#     no PCA         1.144054       0.337416
+	#     with PCA       0.548874       0.067100
+	#     param + PCA    0.548874       0.337416   <- two different unit systems
+	#
+	# The tell is that 0.337416 is EXACTLY the no-PCA answer: the measurement had not
+	# noticed the PCA at all. And the entire out-of-distribution check is "compare the
+	# new radius against the training range", so mixing spaces makes that comparison
+	# meaningless -- it can call an outlier familiar or a familiar row strange,
+	# depending only on how the components happened to scale.
+	#
+	# This is the SECOND time in this module that a seam had two computations where it
+	# needed one; StzEmbeddingPrepare was the first.
+	aD = WideBlobs(20, 8)
+	aNew = [ [20,20,20,20,20,20,20,20] ]
+
+	oFree = new stzUMAP(aD)
+	oFree.ReduceWithPCAQ(3).SetNeighborsQ(6).SetEpochsQ(200).PreserveDensityQ().FitQ()
+	oFree.Transform(aNew)
+
+	oPar = new stzUMAP(aD)
+	oPar.ReduceWithPCAQ(3).SetNeighborsQ(6).SetEpochsQ(200).SetHiddenLayersQ([16])
+	oPar.LearnMappingQ().PreserveDensityQ().FitQ()
+	oPar.Transform(aNew)
+
+	# the two branches now answer the same question in the same units
+	Then("both branches measure the new row in the fit's own space",
+	     SameNumber(oFree.NewLocalRadii()[1], oPar.NewLocalRadii()[1]), TRUE)
+	Then("...and it differs from the raw-space answer, as it must",
+	     SameNumber(oPar.NewLocalRadii()[1], RawSpaceRadius(aD, aNew)), FALSE)
+
+	# and the check that depends on it still works: a far row is far
+	aFar = [ [900,900,900,900,900,900,900,900] ]
+	Then("an outlier is still far outside the training range",
+	     oPar.LocalRadiiOf(aFar)[1] > LargestIn(oPar.LocalRadii(), 1, 60) * 100, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -1963,3 +2029,30 @@ func TurnsOffMapping(aD)
 # transcribed it instead of importing it, the two would differ in the last bits
 func SameCurve(a, b)
 	return a[:a] = b[:a] and a[:b] = b[:b]
+
+func WideBlobs(nPer, nCols)
+	aD = []
+	nS = 20260727
+	aC = [0, 20, 40]
+	for c = 1 to 3
+		for q = 1 to nPer
+			r = []
+			for j = 1 to nCols
+				nS = (nS * 1103515245 + 12345) % 2147483648
+				u = (floor(nS / 2048) % 1000) / 1000
+				r + (aC[c] + (u - 0.5))
+			next
+			aD + r
+		next
+	next
+	return aD
+
+func SameNumber(a, b)
+	return fabs(a - b) < 0.000001
+
+# what the measurement used to return: the raw rows, ignoring the PCA entirely
+func RawSpaceRadius(aD, aNew)
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(6).SetEpochsQ(200).PreserveDensityQ().FitQ()
+	o.Transform(aNew)
+	return o.NewLocalRadii()[1]

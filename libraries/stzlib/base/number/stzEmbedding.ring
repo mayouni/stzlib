@@ -590,17 +590,35 @@ class stzTSNE from stzObject
 				_aFlat_ + paRows[_i_][_j_]
 			next
 		next
-		_aTrain_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nCols
-				_aTrain_ + @aData[_i_][_j_]
+		# THE SAME SPACE THE FIT SAW, which is not the space the caller passes.
+		#
+		# MEASURED, and it was wrong: with a PCA pre-step the fit's own radii are
+		# computed on the SCORES (training maximum 0.548874) while this measured the
+		# RAW rows (0.337416) -- and 0.337416 was exactly what the no-PCA run produced,
+		# which is the tell. The whole out-of-distribution check is "compare the new
+		# radius against the training range", so two different unit systems make that
+		# comparison meaningless: it can call an outlier familiar or a familiar row
+		# strange, depending only on how the components happened to scale.
+		#
+		# So the new rows go through the SAME PCA the fit used, and are measured
+		# against the SAME prepared data. This is the second time in this module that
+		# a seam had two computations where it needed one -- see StzEmbeddingPrepare.
+		_nW_ = @nCols
+		if @nPcaDims > 0 and @oPca != NULL
+			_aS_ = @oPca.Transform(paRows)
+			_aFlat_ = []
+			for _i_ = 1 to _nM_
+				for _j_ = 1 to @nPreparedDim
+					_aFlat_ + _aS_[_i_][_j_]
+				next
 			next
-		next
+			_nW_ = @nPreparedDim
+		ok
 		_nK_ = 15
 		if _nK_ > @nRows
 			_nK_ = @nRows
 		ok
-		_aR_ = StzEngineLocalRadiiOfNew(_aTrain_, @nRows, @nCols, _aFlat_, _nM_, _nK_)
+		_aR_ = StzEngineLocalRadiiOfNew(@aPreparedX, @nRows, _nW_, _aFlat_, _nM_, _nK_)
 		if NOT isList(_aR_)
 			stzraise("The engine refused the measurement.")
 		ok
@@ -1397,17 +1415,35 @@ class stzUMAP from stzObject
 				_aF2_ + paRows[_i_][_j_]
 			next
 		next
-		_aT2_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nCols
-				_aT2_ + @aData[_i_][_j_]
+		# THE SAME SPACE THE FIT SAW, which is not the space the caller passes.
+		#
+		# MEASURED, and it was wrong: with a PCA pre-step the fit's own radii are
+		# computed on the SCORES (training maximum 0.548874) while this measured the
+		# RAW rows (0.337416) -- and 0.337416 was exactly what the no-PCA run produced,
+		# which is the tell. The whole out-of-distribution check is "compare the new
+		# radius against the training range", so two different unit systems make that
+		# comparison meaningless: it can call an outlier familiar or a familiar row
+		# strange, depending only on how the components happened to scale.
+		#
+		# So the new rows go through the SAME PCA the fit used, and are measured
+		# against the SAME prepared data. This is the second time in this module that
+		# a seam had two computations where it needed one -- see StzEmbeddingPrepare.
+		_nW2_ = @nCols
+		if @nPcaDims > 0 and @oPca != NULL
+			_aS2_ = @oPca.Transform(paRows)
+			_aF2_ = []
+			for _i_ = 1 to _nM2_
+				for _j_ = 1 to @nPreparedDim
+					_aF2_ + _aS2_[_i_][_j_]
+				next
 			next
-		next
+			_nW2_ = @nPreparedDim
+		ok
 		_nK2_ = @nNeighbors
 		if _nK2_ > @nRows
 			_nK2_ = @nRows
 		ok
-		_aR2_ = StzEngineLocalRadiiOfNew(_aT2_, @nRows, @nCols, _aF2_, _nM2_, _nK2_)
+		_aR2_ = StzEngineLocalRadiiOfNew(@aPrepared, @nRows, _nW2_, _aF2_, _nM2_, _nK2_)
 		if NOT isList(_aR2_)
 			stzraise("The engine refused the measurement.")
 		ok
