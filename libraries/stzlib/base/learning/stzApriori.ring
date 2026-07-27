@@ -12,6 +12,7 @@ class stzApriori from stzObject
 
 	@aTx = []       # transactions: lists of lowered item strings
 	@acKeys = []          # keys parallel to the pairs _CountAll returns
+	@acItems = []         # distinct items in strcmp order -- position = code + 1
 
 	def init(paTransactions)
 		if isList(paTransactions)
@@ -100,43 +101,79 @@ class stzApriori from stzObject
 	# lookup is one scan of a flat string list. _CountOf() reads it, which is why
 	# it is an attribute rather than a local -- Rules() calls _CountAll() and then
 	# asks for antecedent counts out of the result it was given.
+	# THE COUNT RUNS IN THE ENGINE (numeric phase 5, second pass).
+	#
+	# The first pass replaced a Ring hash-list bumped through HasKey -- 16.124 s for
+	# two hundred transactions -- with a ring_find scan, which was 393x faster and
+	# still a LINEAR SCAN over a key list that grows to every singleton, pair and
+	# triple in the data. Fine at 640 keys, not fine at ten thousand: 5000
+	# transactions still took 0.941 s. A scan was the right answer in Ring, where
+	# the alternative was 479x worse. Here the right answer is an actual hash.
+	#
+	# ITEMS BECOME CODES IN strcmp ORDER, and that ordering is the load-bearing
+	# part. _Sorted() below orders a basket's items with strcmp before the key
+	# "a|b|c" is built, so {milk, bread} keys as "bread|milk" however it was
+	# written. Assigning codes in strcmp order makes integer order the same order,
+	# so the engine sorting codes reproduces it exactly.
+	#
+	# Insertion order is preserved because it is PUBLISHED -- FrequentItemsets()
+	# returns itemsets in first-counted order and the suite asserts that "bread"
+	# comes first -- so apriori.zig records the order keys arrive in and generates
+	# them with Ring's exact loop nesting.
 	def _CountAll()
+		_nT_ = len(@aTx)
+		if _nT_ = 0
+			@acKeys = []
+			return []
+		ok
+
+		# distinct items, then sorted by strcmp so the code IS the sort key
+		_acDistinct_ = []
+		for _t_ = 1 to _nT_
+			_aOne_ = @aTx[_t_]
+			for _i_ = 1 to len(_aOne_)
+				_cIt_ = "" + _aOne_[_i_]
+				if ring_find(_acDistinct_, _cIt_) = 0
+					_acDistinct_ + _cIt_
+				ok
+			next
+		next
+		@acItems = This._Sorted(_acDistinct_)
+
+		# transactions as codes, back to back, with an offset per transaction
+		_aCodes_ = []
+		_aOffsets_ = [ 0 ]
+		_nAt_ = 0
+		for _t_ = 1 to _nT_
+			_aOne_ = @aTx[_t_]
+			for _i_ = 1 to len(_aOne_)
+				_aCodes_ + (ring_find(@acItems, "" + _aOne_[_i_]) - 1)
+				_nAt_++
+			next
+			_aOffsets_ + _nAt_
+		next
+
+		_aFlat_ = StzEngineAprioriCount(_aCodes_, _aOffsets_, _nT_)
+		if NOT isList(_aFlat_)
+			stzraise("The engine refused the count (" + _nT_ + " transactions).")
+		ok
+
+		# [ size, c1, c2, c3, count ] * k  ->  [ [ "a|b|c", count ] ... ]
 		_aC_ = []
 		@acKeys = []
-		_nT_ = len(@aTx)
-		for _t_ = 1 to _nT_
-			_acT_ = This._Sorted(@aTx[_t_])
-			_nI_ = len(_acT_)
-			for _i_ = 1 to _nI_
-				_cA_ = _acT_[_i_]
-				_nK_ = ring_find(@acKeys, _cA_)
-				if _nK_ = 0
-					@acKeys + _cA_
-					_aC_ + [ _cA_, 1 ]
-				else
-					_aC_[_nK_][2]++
-				ok
-				for _j_ = _i_ + 1 to _nI_
-					_cB_ = _cA_ + "|" + _acT_[_j_]
-					_nK_ = ring_find(@acKeys, _cB_)
-					if _nK_ = 0
-						@acKeys + _cB_
-						_aC_ + [ _cB_, 1 ]
-					else
-						_aC_[_nK_][2]++
-					ok
-					for _k_ = _j_ + 1 to _nI_
-						_cC_ = _cB_ + "|" + _acT_[_k_]
-						_nK_ = ring_find(@acKeys, _cC_)
-						if _nK_ = 0
-							@acKeys + _cC_
-							_aC_ + [ _cC_, 1 ]
-						else
-							_aC_[_nK_][2]++
-						ok
-					next
-				next
-			next
+		_nRec_ = len(_aFlat_) / 5
+		for _r_ = 1 to _nRec_
+			_nB_ = (_r_ - 1) * 5
+			_nSz_ = _aFlat_[_nB_ + 1]
+			_cKey_ = @acItems[_aFlat_[_nB_ + 2] + 1]
+			if _nSz_ >= 2
+				_cKey_ += "|" + @acItems[_aFlat_[_nB_ + 3] + 1]
+			ok
+			if _nSz_ >= 3
+				_cKey_ += "|" + @acItems[_aFlat_[_nB_ + 4] + 1]
+			ok
+			@acKeys + _cKey_
+			_aC_ + [ _cKey_, _aFlat_[_nB_ + 5] ]
 		next
 		return _aC_
 

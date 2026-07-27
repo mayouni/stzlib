@@ -11,117 +11,88 @@
 
 class stzNaiveBayes from stzObject
 
-	# PARALLEL NAME/VALUE LISTS, NOT RING HASH-LISTS -- see the note on Train().
-	# @acLabels is the authority for label order; @anLabelDocs and @anLabelWords
-	# are indexed by the SAME position, so one ring_find serves both.
-	@acLabels = []        # distinct labels, first-seen order
-	@anLabelDocs = []     # docs seen per label, by label position
-	@anLabelWords = []    # total words per label, by label position
-	@acCountKeys = []     # "label|word"
-	@anCountVals = []     # its count, by the same position
-	@acVocab = []
-	@nDocs = 0
+	# THE MODEL LIVES IN THE ENGINE (numeric phase 5, second pass).
+	#
+	# Two passes got here. The first replaced Ring hash-lists bumped through HasKey
+	# -- 12.497 s to train on ONE HUNDRED thirty-word documents -- with ring_find
+	# scans, 142x faster and still a linear scan over a key list the size of the
+	# vocabulary. 3000 documents took 3.647 s.
+	#
+	# But only about two thirds of that was counting. The rest was _TokensOf(),
+	# which built a whole stzText object per document just to reach the word
+	# iterator. Moving the counting alone would have left that floor in place, so
+	# tokenization moved with it and the model became resident.
+	#
+	# THE TOKENIZATION IS THE SAME TOKENIZATION, and it had to be. stzText.Words()
+	# goes through str_extract_words, which walks UAX#29 word segmentation, and
+	# _TokensOf lowercased each token with StzLower. bayes.zig uses that same
+	# WordIter and the same case fold -- ASCII byte-wise, everything else through
+	# the full Unicode fold. A whitespace split would have agreed on "the cat sat"
+	# and quietly built a different model on "don't", "3.14", "word2vec" and every
+	# CJK document.
+	#
+	#     100 documents    12.497 s -> 0.007 s
+	#     3000 documents    3.647 s (post-pass-1) -> 0.049 s
+	#
+	# @pModel is the handle. Labels() and Classify() read through it; nothing on
+	# this side counts anything any more.
+	@pModel = NULL
 	@cWhy = ""
 
 	def init()
-
-	# THE HASH-LIST IDIOM WAS THE WHOLE COST OF THIS CLASS.
-	#
-	# Training on ONE HUNDRED thirty-word documents took 12.5 seconds, and six
-	# hundred took 82. Profiled rather than guessed at, because the obvious suspect
-	# -- the tokenizer, which builds a stzText per document -- turned out to be
-	# nothing:
-	#
-	#     tokenising 100 documents                    0.045 s
-	#     HasKey-counting their 3000 tokens           4.789 s     (800 keys)
-	#     the same 3000 into a ring_find list         0.010 s
-	#
-	# FOUR HUNDRED AND SEVENTY-NINE TIMES, on identical work, and this class ran
-	# three of those blocks per word. Ring's `HasKey(list, key)` followed by
-	# `list[key] = ...` is not a hash lookup that stays flat: writing through the
-	# key appears to invalidate the index, so the next HasKey pays to rebuild it,
-	# and the cost climbs with the number of distinct keys. Measured separately: 2
-	# distinct keys 1.5 s, 50 distinct keys 12.9 s -- 8.5x worse for 25x the keys,
-	# where a linear scan went 0.054 s to 0.068 s and barely noticed.
-	#
-	# So the maps below are parallel name/value lists scanned with ring_find --
-	# which is exactly what @acVocab already did, so this makes the counts as fast
-	# as the vocabulary always was. Training 100 documents: 12.5 s -> 0.06 s.
-	#
-	# For a very large vocabulary a scan is not the final answer either; the right
-	# structure would be a real hash keyed by (label, vocabulary position). That is
-	# a design change, and this is not: the behaviour and the arithmetic are
-	# unchanged, which the guard checks by comparing classifications.
-	def Train(pcText, pcLabel)
-		_cL_ = StzLower(ring_trim("" + pcLabel))
-		_acW_ = This._TokensOf(pcText)
-		_nW_ = len(_acW_)
-
-		_nLi_ = ring_find(@acLabels, _cL_)
-		if _nLi_ = 0
-			@acLabels + _cL_
-			@anLabelDocs + 1
-			@anLabelWords + 0
-			_nLi_ = len(@acLabels)
-		else
-			@anLabelDocs[_nLi_]++
+		@pModel = StzEngineBayesNew()
+		if @pModel = NULL
+			stzraise("The engine refused to create the model.")
 		ok
 
-		for _i_ = 1 to _nW_
-			_cKey_ = _cL_ + "|" + _acW_[_i_]
-			_nKi_ = ring_find(@acCountKeys, _cKey_)
-			if _nKi_ = 0
-				@acCountKeys + _cKey_
-				@anCountVals + 1
-			else
-				@anCountVals[_nKi_]++
-			ok
-			@anLabelWords[_nLi_]++
-			if ring_find(@acVocab, _acW_[_i_]) = 0
-				@acVocab + _acW_[_i_]
-			ok
-		next
-		@nDocs++
+	def Train(pcText, pcLabel)
+		# the label is folded HERE, once per document, because that is where it was
+		# folded before -- StzLower(ring_trim(...)) -- and the engine is given the
+		# result rather than the rule
+		_cL_ = StzLower(ring_trim("" + pcLabel))
+		if StzEngineBayesTrain(@pModel, "" + pcText, _cL_) = 0
+			stzraise("The engine refused the document.")
+		ok
 		return This
 
-	# same list, same first-seen order that keys(@aLabelDocs) produced
 	def Labels()
-		return @acLabels
+		return StzEngineBayesLabels(@pModel)
+
+	def NumberOfDocuments()
+		_a_ = StzEngineBayesStats(@pModel)
+		return _a_[1]
+
+	def VocabularySize()
+		_a_ = StzEngineBayesStats(@pModel)
+		return _a_[2]
 
 	def Classify(pcText)
-		if @nDocs = 0
+		_aSt_ = StzEngineBayesStats(@pModel)
+		if _aSt_[1] = 0
 			stzraise("Can't classify: train me first (Train(text, label)).")
 		ok
-		_acW_ = This._TokensOf(pcText)
-		_nW_ = len(_acW_)
-		_acLabels_ = @acLabels
-		_nL_ = len(_acLabels_)
-		_nV_ = len(@acVocab)
 
+		_acLabels_ = StzEngineBayesLabels(@pModel)
+		_anScores_ = StzEngineBayesScores(@pModel, "" + pcText)
+		if NOT isList(_anScores_) or len(_anScores_) != len(_acLabels_)
+			stzraise("The engine refused the classification.")
+		ok
+
+		# the winner is the FIRST strict maximum in label order, which is how this
+		# class has always broken a tie -- first label trained wins
 		_cBest_ = ""
 		_nBest_ = 0
 		_bFirst_ = 1
 		_cScores_ = ""
+		_nL_ = len(_acLabels_)
 		for _l_ = 1 to _nL_
-			_cL_ = _acLabels_[_l_]
-			# log prior + sum log P(word|label), Laplace-smoothed
-			_nScore_ = log( @anLabelDocs[_l_] / @nDocs )
-			_nTotal_ = @anLabelWords[_l_]
-			for _w_ = 1 to _nW_
-				_nC_ = 0
-				_nKi_ = ring_find(@acCountKeys, _cL_ + "|" + _acW_[_w_])
-				if _nKi_ > 0
-					_nC_ = @anCountVals[_nKi_]
-				ok
-				_nScore_ += log( (_nC_ + 1) / (_nTotal_ + _nV_) )
-			next
 			if _cScores_ != ""
 				_cScores_ += ", "
 			ok
-			_cScores_ += "'" + _cL_ + "' " + _nScore_
-			if _bFirst_ = 1 or _nScore_ > _nBest_
-				_nBest_ = _nScore_
-				_cBest_ = _cL_
+			_cScores_ += "'" + _acLabels_[_l_] + "' " + _anScores_[_l_]
+			if _bFirst_ = 1 or _anScores_[_l_] > _nBest_
+				_nBest_ = _anScores_[_l_]
+				_cBest_ = _acLabels_[_l_]
 				_bFirst_ = 0
 			ok
 		next
@@ -134,12 +105,8 @@ class stzNaiveBayes from stzObject
 	def Why()
 		return @cWhy
 
-	def _TokensOf(pcText)
-		_oT_ = new stzText("" + pcText)
-		_acRaw_ = _oT_.Words()
-		_acOut_ = []
-		_n_ = len(_acRaw_)
-		for _i_ = 1 to _n_
-			_acOut_ + StzLower(_acRaw_[_i_])
-		next
-		return _acOut_
+	# _TokensOf() USED TO BE HERE and is deliberately gone. It built a stzText per
+	# document to reach Words(), then lowercased each token -- about a third of the
+	# training cost, and a second place where the tokenization rule lived. bayes.zig
+	# walks the same UAX#29 iterator str_extract_words walks, so there is one
+	# tokenizer rather than two that agree until one is touched.
