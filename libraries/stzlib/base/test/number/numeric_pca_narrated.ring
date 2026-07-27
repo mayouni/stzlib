@@ -20,7 +20,9 @@ load "../_narrated.ring"
 #      common way to get a wrong PCA, so it is not left to the caller.
 #
 #   2. STANDARDISING, which is a genuine choice with no safe default -- so Fit()
-#      REFUSES until you have made it. Centering alone gives COVARIANCE PCA: each
+#      REFUSES until you have made it. Standardize() and Center() are ACTIVE verbs --
+#      they do it and return nothing; Standardized() and Centered() are the PASSIVE
+#      forms and hand back the prepared DATA. Centering alone gives COVARIANCE PCA: each
 #      feature contributes in proportion to its own variance, in its own units.
 #      Measure height in metres and mass in grams and the mass axis has a million
 #      times the variance, so the first component is "mass" -- a fact about the unit,
@@ -52,7 +54,7 @@ Scenario("the standard reference, which is worth having exactly once")
 	aD = [ [2.5,2.4], [0.5,0.7], [2.2,2.9], [1.9,2.2], [3.1,3.0],
 	       [2.3,2.7], [2.0,1.6], [1.0,1.1], [1.5,1.6], [1.1,0.9] ]
 	oPca = new stzPCA(aD)
-	oPca.Unstandardized()
+	oPca.Center()
 	oPca.Fit()
 
 	Then("the mean of feature 1", Rnd4(oPca.Mean()[1]), 1.81)
@@ -70,7 +72,7 @@ Scenario("the identities, which need no reference")
 	aD = [ [1,2,3], [4,5,7], [7,8,2], [1,9,3], [4,4,4], [6,8,2],
 	       [3,5,5], [5,5,1], [2,8,9], [1,7,3] ]
 	oPca = new stzPCA(aD)
-	oPca.Unstandardized()
+	oPca.Center()
 	oPca.Fit()
 
 	# the decomposition redistributes the variance; it cannot create or destroy any
@@ -109,7 +111,7 @@ Scenario("CENTERING is what makes it variance rather than distance from zero")
 	# direction the data actually varies along, which here is the anti-diagonal.
 	aFar = [ [1000,1000], [1001,999], [999,1001], [1002,998], [998,1002] ]
 	oPca = new stzPCA(aFar)
-	oPca.Unstandardized()
+	oPca.Center()
 	oPca.Fit()
 
 	# the real structure: x and y move in OPPOSITE directions, so the loadings have
@@ -137,10 +139,10 @@ Scenario("STANDARDISING changes which component comes first")
 	next
 
 	oCov = new stzPCA(aU)
-	oCov.Unstandardized()
+	oCov.Center()
 	oCov.Fit()
 	oCor = new stzPCA(aU)
-	oCor.Standardized()
+	oCor.Standardize()
 	oCor.Fit()
 
 	Then("covariance PCA follows the big feature almost entirely",
@@ -165,7 +167,7 @@ Scenario("perfectly correlated features collapse onto one component")
 	# columns are one measurement.
 	aC = [ [1,2], [2,4], [3,6], [4,8], [5,10] ]
 	oPca = new stzPCA(aC)
-	oPca.Unstandardized()
+	oPca.Center()
 	oPca.Fit()
 	Then("the first component explains everything",
 	     Rnd8(oPca.ExplainedVarianceRatio()[1]), 1)
@@ -176,7 +178,7 @@ EndScenario()
 Scenario("projecting data the fit has not seen")
 	aD = [ [2.5,2.4], [0.5,0.7], [2.2,2.9], [1.9,2.2], [3.1,3.0], [2.3,2.7] ]
 	oPca = new stzPCA(aD)
-	oPca.Unstandardized()
+	oPca.Center()
 	oPca.Fit()
 
 	# projecting the TRAINING data must reproduce the training scores exactly. If
@@ -205,18 +207,75 @@ Scenario("the variance convention comes from the library's one authority")
 	# the convention scales every component by the same factor.
 	aD = [ [1,2], [4,5], [7,8], [1,9], [4,4] ]
 	oS = new stzPCA(aD)
-	oS.Unstandardized()
-	oS.SampleVariance()
+	oS.Center()
+	oS.UseSampleVariance()
 	oS.Fit()
 	oPop = new stzPCA(aD)
-	oPop.Unstandardized()
-	oPop.PopulationVariance()
+	oPop.Center()
+	oPop.UsePopulationVariance()
 	oPop.Fit()
 
 	Then("sample over population is exactly n/(n-1)",
 	     Rnd8(oS.ExplainedVariance()[1] / oPop.ExplainedVariance()[1]), Rnd8(5/4))
 	Then("...and the proportions are unchanged",
 	     Rnd8(oS.ExplainedVarianceRatio()[1]), Rnd8(oPop.ExplainedVarianceRatio()[1]))
+EndScenario()
+
+Scenario("THE NAME FORMS, which in Softanza carry the semantics")
+	# This class shipped with Standardized() MUTATING the analysis and returning
+	# This, which got both Softanza laws wrong at once:
+	#
+	#   the FORM law -- an active verb DOES the thing and returns nothing; the
+	#   passive ...ed form returns a transformed COPY and leaves the object alone;
+	#   the Q twin does it and returns the object so calls chain.
+	#
+	#   the Q law -- a plain method returns DATA, never a Softanza object. Only a
+	#   ...Q() form hands back something you can keep calling methods on.
+	#
+	# Reading a name should tell you what it does to the receiver, so the two are
+	# pinned here rather than left to the docstring.
+	aD = [ [1,2], [3,4], [5,7], [2,2] ]
+
+	# ACTIVE: does it, returns nothing
+	oAct = new stzPCA(aD)
+	Then("Standardize() returns nothing", isNull(oAct.Standardize()), TRUE)
+	Then("...and it CHANGED the analysis", oAct.IsStandardized(), TRUE)
+	oAct2 = new stzPCA(aD)
+	Then("Center() returns nothing", isNull(oAct2.Center()), TRUE)
+	Then("...and it changed it the other way", oAct2.IsStandardized(), FALSE)
+
+	# PASSIVE: returns the prepared DATA, receiver untouched
+	oPas = new stzPCA(aD)
+	oPas.Center()
+	aCentered = oPas.Centered()
+	Then("Centered() returns data, not an object", isList(aCentered), TRUE)
+	Then("...of the same shape as the input", len(aCentered), 4)
+	Then("...actually centered", Rnd8(ColMean(aCentered, 1)), 0)
+	Then("...and the analysis is UNCHANGED by asking", oPas.IsStandardized(), FALSE)
+
+	aStd = oPas.Standardized()
+	Then("Standardized() also returns data", isList(aStd), TRUE)
+	Then("...scaled to unit variance", Rnd6(ColVariance(aStd, 1)), 1)
+	Then("...and STILL did not change the analysis", oPas.IsStandardized(), FALSE)
+
+	# FLUENT: does it AND returns the object, so calls chain
+	oFlu = new stzPCA(aD)
+	oFlu.StandardizeQ().UseSampleVarianceQ().FitQ()
+	Then("the Q forms chain", oFlu.IsFitted(), TRUE)
+	Then("...and did the thing", oFlu.IsStandardized(), TRUE)
+
+	# and the mutators that are not transformations follow the same law
+	oVar = new stzPCA(aD)
+	Then("UseSampleVariance() returns nothing", isNull(oVar.UseSampleVariance()), TRUE)
+	Then("...and it took effect", oVar.UsesSampleVariance(), TRUE)
+	oVar.UsePopulationVariance()
+	Then("...as does its opposite", oVar.UsesSampleVariance(), FALSE)
+
+	# Fit() is an act: nothing back, and FitQ() to chain
+	oFit = new stzPCA(aD)
+	oFit.Center()
+	Then("Fit() returns nothing", isNull(oFit.Fit()), TRUE)
+	Then("...but it fitted", oFit.IsFitted(), TRUE)
 EndScenario()
 
 Scenario("what it refuses, and why")
@@ -231,7 +290,7 @@ Scenario("what it refuses, and why")
 
 	# and everything else must be asked after fitting
 	oNot = new stzPCA(aD)
-	oNot.Unstandardized()
+	oNot.Center()
 	Then("the results refuse before Fit", RaisesComponents(oNot), TRUE)
 
 	Then("one sample has no spread to decompose",
@@ -240,7 +299,7 @@ Scenario("what it refuses, and why")
 	Then("an empty list is refused", RaisesEmpty(), TRUE)
 
 	oOk = new stzPCA(aD)
-	oOk.Unstandardized()
+	oOk.Center()
 	oOk.Fit()
 	Then("a fraction outside 0..1 is refused", RaisesFraction(oOk), TRUE)
 	Then("...and a sensible one is not", oOk.NumberOfComponentsFor(0.5) >= 1, TRUE)
@@ -327,7 +386,7 @@ func RaisesOneSample()
 	b = FALSE
 	try
 		o = new stzPCA([ [1,2] ])
-		o.Unstandardized()
+		o.Center()
 		o.Fit()
 	catch
 		b = TRUE

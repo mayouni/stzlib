@@ -50,19 +50,28 @@ Scenario("the arithmetic a complex number owes")
 
 	oW = new stzComplex(1, -2)
 	Then("a negative imaginary part prints with a minus", oW.Content(), "1-2i")
-	Then("...and adds", oZ.Plus(oW).Content(), "4+2i")
-	Then("...and subtracts", oZ.Minus(oW).Content(), "2+6i")
+	# THE Q FORMS, because a chain needs an object back. The plain Plus/Minus/Times
+	# return the [re, im] DATA -- a Softanza plain method never returns a Softanza
+	# object -- so anything that keeps calling methods goes through the Q twin.
+	Then("...and adds", oZ.PlusQ(oW).Content(), "4+2i")
+	Then("...and subtracts", oZ.MinusQ(oW).Content(), "2+6i")
 	# (3+4i)(1-2i) = 3 - 6i + 4i - 8i^2 = 11 - 2i
-	Then("...and multiplies, minding that i^2 is -1", oZ.Times(oW).Content(), "11-2i")
+	Then("...and multiplies, minding that i^2 is -1", oZ.TimesQ(oW).Content(), "11-2i")
+	# ...and the plain forms hand back the data instead
+	Then("the plain form returns data", @@(oZ.Plus(oW)), "[ 4, 2 ]")
 
 	# division checked by multiplying back, which is the only check that cannot
 	# agree with a wrong implementation of itself
-	oQ = oZ.DividedBy(oW)
-	oBack = oQ.Times(oW)
+	oQ = oZ.DividedByQ(oW)
+	oBack = oQ.TimesQ(oW)
 	Then("division undoes multiplication", Rnd8(oBack.RealPart()), 3)
 	Then("...in both parts", Rnd8(oBack.ImaginaryPart()), 4)
 
-	Then("the conjugate flips the sign", oZ.Conjugate().Content(), "3-4i")
+	# Conjugated() is the PASSIVE form and returns data; ConjugatedQ() the object.
+	# Conjugate() is ACTIVE -- it would mutate oZ, which this scenario does not want.
+	Then("the conjugate flips the sign", oZ.ConjugatedQ().Content(), "3-4i")
+	Then("...and the passive form gives the pair", @@(oZ.Conjugated()), "[ 3, -4 ]")
+	Then("...leaving the original alone", oZ.ImaginaryPart(), 4)
 	Then("a real number prints without an i", (new stzComplex(5, 0)).Content(), "5")
 	Then("...and i itself prints as i", (new stzComplex(0, 1)).Content(), "i")
 	Then("dividing by zero is refused", RaisesDiv(oZ), TRUE)

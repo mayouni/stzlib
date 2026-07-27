@@ -208,6 +208,36 @@ Scenario("it is reproducible, which for an iterative method is not automatic")
 	Then("...and every eigenvector has unit length", bUnit, TRUE)
 EndScenario()
 
+Scenario("stzComplex follows the name-form laws too")
+	# Same two laws, same fix: Conjugate() and Negated() both used to return new
+	# objects from plain names. An ACTIVE verb mutates and returns nothing; a
+	# PASSIVE ...ed form returns DATA; only a Q form returns a Softanza object.
+	oZ = new stzComplex(3, 4)
+
+	# passive: data out, receiver untouched
+	aC = oZ.Conjugated()
+	Then("Conjugated() returns a [re, im] pair", isList(aC), TRUE)
+	Then("...with the imaginary part negated", aC[2], -4)
+	Then("...and the original is UNCHANGED", oZ.ImaginaryPart(), 4)
+
+	# fluent: an object, so it chains
+	Then("ConjugatedQ() returns something chainable",
+	     oZ.ConjugatedQ().Content(), "3-4i")
+	Then("...and STILL did not change the original", oZ.ImaginaryPart(), 4)
+
+	# active: mutates, returns nothing
+	Then("Conjugate() returns nothing", isNull(oZ.Conjugate()), TRUE)
+	Then("...and it DID change the original", oZ.ImaginaryPart(), -4)
+
+	# arithmetic: plain gives data, Q gives an object
+	oA = new stzComplex(1, 2)
+	Then("Plus() returns data", isList(oA.Plus([3,4])), TRUE)
+	Then("...the right data", @@(oA.Plus([3,4])), "[ 4, 6 ]")
+	Then("PlusQ() returns a chainable object", oA.PlusQ([3,4]).Content(), "4+6i")
+	Then("TimesQ() chains as well", oA.TimesQ(2).Content(), "2+4i")
+	Then("DividedBy() returns data too", isList(oA.DividedBy(2)), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd9(n)
@@ -237,12 +267,15 @@ func Residual(aM)
 	nWorst = 0
 	for j = 1 to n
 		for i = 1 to n
+			# CHAINS GO THROUGH THE Q FORMS. The plain Plus/Times/Minus return
+			# [re, im] DATA -- a Softanza plain method never returns an object --
+			# so a chain that keeps calling methods must use the Q twins.
 			oAcc = new stzComplex(0, 0)
 			for k = 1 to n
-				oAcc = oAcc.Plus(aV[k][j].Times(aM[i][k]))
+				oAcc = oAcc.PlusQ(aV[k][j].TimesQ(aM[i][k]))
 			next
-			oRhs = aL[j].Times(aV[i][j])
-			nD = oAcc.Minus(oRhs).Modulus()
+			oRhs = aL[j].TimesQ(aV[i][j])
+			nD = oAcc.MinusQ(oRhs).Modulus()
 			if nD > nWorst
 				nWorst = nD
 			ok

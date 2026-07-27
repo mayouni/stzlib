@@ -49,7 +49,9 @@ class stzObjective from stzObject
 	# NOT `Function()`: Ring accepts `function` as a synonym for `func`, so a method
 	# by that name is a C6 "Error in function name" at load time. Same family as
 	# naming a variable `oR`, which folds onto the `or` keyword.
-	def MathFunction()
+	# an OBJECT accessor, so it is Q-only -- a plain twin would return an object,
+	# which is exactly what the plain form must never do
+	def MathFunctionQ()
 		return @oFunc
 
 	def ValueAt(paPoint)
@@ -62,7 +64,10 @@ class stzObjective from stzObject
 		if n > 0
 			@nMaxIterations = n
 		ok
-		return This
+
+		def SetMaxIterationsQ(n)
+			This.SetMaxIterations(n)
+			return This
 
 	# How small the gradient must get before the search calls it done. Left at the
 	# engine's default when unset, rather than guessed at here.
@@ -70,7 +75,10 @@ class stzObjective from stzObject
 		if n > 0
 			@nGradientTolerance = n
 		ok
-		return This
+
+		def SetGradientToleranceQ(n)
+			This.SetGradientTolerance(n)
+			return This
 
 	# THE ANSWER IS A RECORD, NOT A POINT, for the same reason the hypothesis tests
 	# return one: a bare answer cannot tell you it did not converge. :status says how

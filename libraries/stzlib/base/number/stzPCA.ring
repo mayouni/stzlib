@@ -1,7 +1,7 @@
 # stzPCA -- principal component analysis, on the SVD.
 #
 #   oP = new stzPCA(aData)          # rows are SAMPLES, columns are FEATURES
-#   oP.Standardized()               # or .Unstandardized() -- you must choose
+#   oP.Standardize()                # or .Center() -- you must choose
 #   oP.Fit()
 #   ? oP.ExplainedVarianceRatio()   #--> [ 0.96, 0.04 ]
 #   ? oP.Components()               # the directions
@@ -29,16 +29,23 @@
 #    fact about the unit and not about the data. Dividing each column by its standard
 #    deviation gives CORRELATION PCA, where every feature counts equally.
 #
-#    Same units and comparable scales -> Unstandardized(). Different units ->
-#    Standardized(), nearly always. Neither is safe as a default, so Fit() refuses
-#    until you have said which.
+#    Same units and comparable scales -> Center(). Different units -> Standardize(),
+#    nearly always. Neither is safe as a default, so Fit() refuses until you have
+#    said which.
+#
+#    THE NAME FORMS ARE THE SOFTANZA ONES and they mean what they say: Standardize()
+#    and Center() are ACTIVE -- they do it, and return nothing. Standardized() and
+#    Centered() are PASSIVE -- they hand back the prepared DATA and leave the
+#    analysis alone. StandardizeQ() and CenterQ() do it and return the object so
+#    calls chain.
 #
 # 3. THE VARIANCE CONVENTION IS NOT PCA's TO INVENT. The variance a component
 #    explains is a variance, and this library settled what that means in phase 0
 #    after finding two modules disagreeing: there is ONE divisor authority in the
-#    engine. This asks it. SampleVariance() (n-1, the default) and
-#    PopulationVariance() (n) select the convention, and it is the same convention
-#    stzDataSet uses -- so the two can never drift apart.
+#    engine. This asks it. UseSampleVariance() (n-1, the default) and
+#    UsePopulationVariance() (n) select the convention -- active verbs, because they
+#    change the analysis -- and it is the same convention stzDataSet uses, so the two
+#    can never drift apart.
 #
 # WHAT THE NUMBERS MEAN, briefly, because a proportion of variance is easy to
 # over-read: a component explaining 96% of the variance explains 96% of the SPREAD,
@@ -90,38 +97,120 @@ class stzPCA from stzObject
 		return @nCols
 
 	# ── the choice you must make ──
+	#
+	# THE NAME FORM CARRIES THE SEMANTICS, which is a Softanza law rather than a
+	# style: an ACTIVE verb -- Standardize(), Center() -- DOES the thing and returns
+	# nothing; the PASSIVE form -- Standardized(), Centered() -- returns the
+	# transformed DATA and leaves the object alone; and the Q twin does the thing and
+	# returns the object so calls chain. The first version of this class had
+	# Standardized() mutating the analysis and returning This, which got both halves
+	# wrong at once: a passive name for an active act, and a plain method returning
+	# an object where plain methods return data.
 
-	# Every feature divided by its own standard deviation first, so all of them count
-	# equally. What you want when the features are in different units.
-	def Standardized()
-		@bStandardize = TRUE
-		@bChosen = TRUE
-		return This
-
-	# Features left in their own units, so the ones that vary most dominate. What you
-	# want when they are already comparable.
-	def Unstandardized()
+	# CENTER each feature on its mean and leave the units alone -- covariance PCA.
+	# The features that vary most, in their own units, dominate.
+	def Center()
 		@bStandardize = FALSE
 		@bChosen = TRUE
-		return This
+
+		def CenterQ()
+			This.Center()
+			return This
+
+	# CENTER and then divide each feature by its standard deviation -- correlation
+	# PCA. Every feature counts equally, whatever it was measured in.
+	def Standardize()
+		@bStandardize = TRUE
+		@bChosen = TRUE
+
+		def StandardizeQ()
+			This.Standardize()
+			return This
+
+	# ── and the passive forms, which return the prepared DATA ──
+
+	# The data centered on the column means, original untouched. This is what a
+	# covariance PCA actually decomposes, so it is worth being able to look at.
+	def Centered()
+		return This._Prepared(FALSE)
+
+	# The data centered AND divided by the column standard deviations. What a
+	# correlation PCA decomposes.
+	def Standardized()
+		return This._Prepared(TRUE)
 
 	def IsStandardized()
 		return @bStandardize
 
 	# ── the variance convention, from the library's one authority ──
 
-	def SampleVariance()
+	def UseSampleVariance()
 		@bSample = TRUE
-		return This
 
-	def PopulationVariance()
+		def UseSampleVarianceQ()
+			This.UseSampleVariance()
+			return This
+
+	def UsePopulationVariance()
 		@bSample = FALSE
-		return This
+
+		def UsePopulationVarianceQ()
+			This.UsePopulationVariance()
+			return This
+
+	def UsesSampleVariance()
+		return @bSample
+
+	# the preparation the two passive forms above return -- done here rather than in
+	# the engine because it is a couple of passes and the point is to SEE it
+	def _Prepared(bScale)
+		_anMu_ = []
+		for _j_ = 1 to @nCols
+			_n_ = 0
+			for _i_ = 1 to @nRows
+				_n_ += @aData[_i_][_j_]
+			next
+			_anMu_ + (_n_ / @nRows)
+		next
+
+		_anSd_ = []
+		for _j_ = 1 to @nCols
+			_anSd_ + 1
+		next
+		if bScale
+			_nDiv_ = @nRows - 1
+			if NOT @bSample
+				_nDiv_ = @nRows
+			ok
+			for _j_ = 1 to @nCols
+				_nSs_ = 0
+				for _i_ = 1 to @nRows
+					_nD_ = @aData[_i_][_j_] - _anMu_[_j_]
+					_nSs_ += _nD_ * _nD_
+				next
+				_nS_ = sqrt(_nSs_ / _nDiv_)
+				# a constant column has no spread to normalise, and dividing by its
+				# zero standard deviation would NaN the whole matrix
+				if _nS_ > 0
+					_anSd_[_j_] = _nS_
+				ok
+			next
+		ok
+
+		_aOut_ = []
+		for _i_ = 1 to @nRows
+			_aRow_ = []
+			for _j_ = 1 to @nCols
+				_aRow_ + ((@aData[_i_][_j_] - _anMu_[_j_]) / _anSd_[_j_])
+			next
+			_aOut_ + _aRow_
+		next
+		return _aOut_
 
 	def Fit()
 		if NOT @bChosen
-			stzraise("Say whether to standardize first -- Standardized() when the " +
-				"features are in different units, Unstandardized() when they are " +
+			stzraise("Say how to prepare the data first -- Standardize() when the " +
+				"features are in different units, Center() when they are " +
 				"comparable. There is no safe default: the choice changes which " +
 				"component comes first.")
 		ok
@@ -195,7 +284,11 @@ class stzPCA from stzObject
 		next
 
 		@bFitted = TRUE
-		return This
+
+		# the act returns nothing; the Q twin chains, which is what Q is FOR
+		def FitQ()
+			This.Fit()
+			return This
 
 	def IsFitted()
 		return @bFitted
