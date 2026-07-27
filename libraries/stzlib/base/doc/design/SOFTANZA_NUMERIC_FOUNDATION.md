@@ -689,10 +689,42 @@ The algorithms in §2.4 come down from Ring, in value order:
   Both dead Ring implementations (`_Score`/`_Sigmoid`, and 172 lines of ID3) were
   **deleted rather than kept**, for the reason this phase keeps rediscovering.
 
-  **Still interpreted, and honestly so:** `stzNaiveBayes` (3.647s / 3000 documents,
-  of which ~37% is the per-document `stzText` construction, so the engine ceiling here
-  is lower than it looks) and `stzApriori` (0.941s / 5000 transactions). Both need the
-  same string-interning treatment; neither is in the state KNN was.
+  **`stzNaiveBayes` and `stzApriori` followed** (`2bd2fc50e`), guard
+  `numeric_text_mining_narrated` (31). What replaced HasKey in the first pass was a
+  `ring_find` scan over a key list that grows with the data — right in Ring, wrong
+  anywhere with a hash table.
+
+  | | original | after pass 1 | **in the engine** |
+  |---|---|---|---|
+  | Bayes 100 docs | 12.497s | 0.088s | **0.003s** (4166×) |
+  | Bayes 600 docs | 82.251s | 0.466s | **0.015s** (5483×) |
+  | Bayes 3000 docs | — | 3.647s | **0.095s** |
+  | Apriori 200 tx | 16.124s | 0.041s | **0.017s** (948×) |
+  | Apriori 5000 tx | — | 0.941s | **0.157s** |
+
+  **Naive Bayes needed tokenization to move too** — only ~⅔ of its cost was counting;
+  the rest was `_TokensOf` building a whole `stzText` per document to reach the word
+  iterator, a floor near 1.4s however fast the hash was. **Which made the tokenizer the
+  risk:** `bayes.zig` uses the same UAX#29 `WordIter` that `str_extract_words` walks and
+  the same case fold `StzLower` applies (so `stz_stats` now links utf8proc). A
+  whitespace split would have agreed on "the cat sat" and quietly built a different
+  model on `don't`, `3.14`, `word2vec` and every CJK document. An empty diff **at ten
+  decimals** is itself the proof the tokenizer matches — one differing token moves every
+  score.
+
+  **Apriori needed its ordering to survive twice:** items intern in `strcmp` order so
+  integer order reproduces `_Sorted`, and itemsets keep **first-counted** order because
+  `FrequentItemsets()` publishes it and the suite asserts "bread" comes first.
+
+  ---
+
+  **ALL SIX ALGORITHMS THE PLAN NAMED ARE NOW IN THE ENGINE.** The honest summary of
+  this phase is two-part and neither part is optional: *profile before moving* — the
+  plan named the wrong line four times out of six — **and then actually move it**.
+  Diagnosing correctly and stopping at a Ring-side fix leaves a working algorithm in an
+  interpreter, which is what the first pass did. Every move was verified byte-identical
+  against the **original** implementation, and in every case the tie and ordering rules
+  were the specification, not the arithmetic.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
