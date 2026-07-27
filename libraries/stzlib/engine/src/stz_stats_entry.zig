@@ -8,6 +8,7 @@ pub const cluster = @import("cluster.zig");
 pub const tree = @import("tree.zig");
 pub const apriori = @import("apriori.zig");
 pub const bayes = @import("bayes.zig");
+pub const autodiff = @import("autodiff.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -63,5 +64,6 @@ test {
     _ = tree;
     _ = apriori;
     _ = bayes;
+    _ = autodiff;
     _ = numbuf;
 }
