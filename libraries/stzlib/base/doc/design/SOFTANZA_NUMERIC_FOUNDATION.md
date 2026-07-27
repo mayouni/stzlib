@@ -633,6 +633,66 @@ The algorithms in §2.4 come down from Ring, in value order:
   was a quadratic sort (305×), and `stzHistogram` was never duplication at all. *The
   plan named the wrong line four times out of six.* Profiling before moving is not a
   refinement of this phase's method — it is the method.
+
+  ---
+
+  ### Second pass: the heavy loops actually go to the engine
+
+  The account above stops at "profile before moving", and that was **the wrong place
+  to stop**. Diagnosing correctly and then leaving an O(N·K) algorithm running in an
+  interpreter is not the same as finishing: correct complexity in an interpreter is
+  still an interpreter. Three of the four Ring-side fixes were followed through.
+
+  | | original | after Ring fix | **in the engine** |
+  |---|---|---|---|
+  | KNN 10000 × 16, 20 queries | 357.753s | 1.173s | **0.085s** (4200×) |
+  | KNN 2000 × 8, 20 queries | 15.018s | 0.187s | **0.012s** (1250×) |
+  | ID3 4000 × 8 | 1.434s | 0.308s | **0.059s** (24×) |
+  | ID3 40000 × 10 | — | 3.965s | **0.727s** |
+  | k-means 10000 × 16, k=5 | — | 0.985s | **0.076s** (13×) |
+
+  **The KNN sequence is the lesson, and three of its four steps were wrong guesses:**
+
+  | | |
+  |---|---|
+  | one distance per crossing, sorting all N | 357.753s |
+  | one distance per crossing, bounded selection | 1.173s |
+  | whole matrix marshalled inside every query | **2.254s — worse** |
+  | matrix flattened once, re-sent per query | 0.679s |
+  | matrix **resident**, query crosses alone | 0.630s |
+  | ...and `Examples()` off the hot path | **0.085s** |
+
+  Sending the whole matrix per query is the right *shape* and made it worse — 160 000
+  list appends now happened per query for data that never changes. Making the dataset
+  resident (phase 3's keystone, the step I was most confident about) barely moved it.
+  **The cost was `@oDs.Examples()`: Ring copies a list when a method returns it**, so
+  asking the dataset for its examples handed back all ten thousand rows on every
+  query — 0.581s of a 0.598s run, 97% of what remained, in a line that reads like a
+  plain accessor.
+
+  ID3 repeated the shape one level up: the first engine version gained only 1.5×
+  because the cost had moved into the **interning loop** — `StzLower` per (row,
+  feature) is 400 000 calls at 40000 × 10, each building and freeing two engine string
+  objects. Folding each *distinct* raw string once instead of each occurrence took it
+  from 2.690s to 0.727s.
+
+  **What made the categorical move clean: codes, not strings.** A categorical value's
+  identity is all ID3 needs, so Ring interns once — work it already did — and nothing
+  in `tree.zig` compares a string.
+
+  **In every case the decision rules are Ring's, to the comparison**, because these
+  algorithms choose among equals constantly and those choices are answers a user
+  reads: KNN's tie order, ID3's first-max feature and first-seen majority and branch
+  order, k-means's distinct-point seeding and lower-index-wins assignment. All three
+  were verified byte-identical against the **original** implementations — not the
+  intermediate ones — across ties, refusals, truncated runs and full output dumps.
+  Both dead Ring implementations (`_Score`/`_Sigmoid`, and 172 lines of ID3) were
+  **deleted rather than kept**, for the reason this phase keeps rediscovering.
+
+  **Still interpreted, and honestly so:** `stzNaiveBayes` (3.647s / 3000 documents,
+  of which ~37% is the per-document `stzText` construction, so the engine ceiling here
+  is lower than it looks) and `stzApriori` (0.941s / 5000 transactions). Both need the
+  same string-interning treatment; neither is in the state KNN was.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
