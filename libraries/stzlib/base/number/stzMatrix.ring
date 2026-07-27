@@ -2614,10 +2614,27 @@ class stzMatrix from stzListOfLists
 		if @nRows != @nCols
 			StzRaise("EigenValues is only defined for square matrices.")
 		ok
+		# PHASE 7 LIFTED THE OLD REFUSAL. This used to raise for ANY non-symmetric
+		# matrix, because a general one can have complex eigenvalues and there was
+		# no complex type. There is now (stzComplex), and a Francis double-shift QR
+		# behind it, so a non-symmetric matrix with a REAL spectrum is answered
+		# normally -- an upper-triangular matrix, a companion matrix, a Markov
+		# transition. What still raises is a matrix whose eigenvalues are genuinely
+		# complex, because this method's contract is a list of numbers and quietly
+		# dropping an imaginary part is exactly the kind of plausible wrong answer
+		# the original refusal existed to prevent. ComplexEigenValues() is the door.
 		if NOT This.IsSymmetric()
-			StzRaise("EigenValues: this matrix is not symmetric, and a general " +
-			         "matrix has complex eigenvalues. Only the symmetric case is " +
-			         "implemented.")
+			_aZs_ = This.ComplexEigenValues()
+			_anReal_ = []
+			for _iZ_ = 1 to len(_aZs_)
+				if NOT _aZs_[_iZ_].IsReal()
+					StzRaise("EigenValues: this matrix has complex eigenvalues (" +
+					         _aZs_[_iZ_].Content() + " among them), and this method " +
+					         "returns plain numbers. Use ComplexEigenValues().")
+				ok
+				_anReal_ + _aZs_[_iZ_].RealPart()
+			next
+			return _anReal_
 		ok
 
 		This._EnsureEngineMatrix()
@@ -2634,6 +2651,49 @@ class stzMatrix from stzListOfLists
 		next
 		StzEngineMatrixFree(_pEvV_)
 		return _anEvV_
+
+	# EVERY eigenvalue, complex ones included, as stzComplex objects (phase 7).
+	#
+	# A real symmetric matrix has real eigenvalues. A general real one need not: a
+	# quarter-turn rotation [[0,-1],[1,0]] has eigenvalues +i and -i, and no amount
+	# of care produces a real answer, because a rotation genuinely has no real
+	# eigendirection. Complex eigenvalues of a REAL matrix always come in conjugate
+	# pairs, so they arrive here that way.
+	#
+	# Balanced, reduced to Hessenberg form, then Francis double-shift QR -- the
+	# standard three steps. The double shift is what lets an implementation in real
+	# arithmetic find complex pairs at all: shifting by a complex number would need
+	# complex arithmetic throughout, while shifting by a conjugate PAIR is an
+	# equivalent real operation.
+	#
+	# The order is the order deflation found them, and is deliberately not sorted:
+	# imposing one would be a claim about which eigenvalue is "first" that the
+	# mathematics does not make.
+	def ComplexEigenValues()
+
+		if @nRows != @nCols
+			StzRaise("ComplexEigenValues is only defined for square matrices.")
+		ok
+
+		_aFlatCe_ = []
+		for _iCe_ = 1 to @nRows
+			for _jCe_ = 1 to @nCols
+				_aFlatCe_ + @aContent[_iCe_][_jCe_]
+			next
+		next
+
+		_aPairsCe_ = StzEngineEigenGeneral(_aFlatCe_, @nRows)
+		if NOT isList(_aPairsCe_) or len(_aPairsCe_) != @nRows * 2
+			StzRaise("ComplexEigenValues: the QR iteration did not converge on " +
+			         "this matrix.")
+		ok
+
+		_aOutCe_ = []
+		for _iCe_ = 1 to @nRows
+			_aOutCe_ + new stzComplex(_aPairsCe_[(_iCe_ - 1) * 2 + 1],
+			                          _aPairsCe_[(_iCe_ - 1) * 2 + 2])
+		next
+		return _aOutCe_
 
 	# The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging
 	# to eigenvalue j -- same order as EigenValues(), so column 1 goes with the

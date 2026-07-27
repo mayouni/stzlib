@@ -11,6 +11,8 @@ pub const bayes = @import("bayes.zig");
 pub const autodiff = @import("autodiff.zig");
 pub const lbfgs = @import("lbfgs.zig");
 pub const nn = @import("nn.zig");
+pub const complex = @import("complex.zig");
+pub const eigen_general = @import("eigen_general.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -69,5 +71,7 @@ test {
     _ = autodiff;
     _ = lbfgs;
     _ = nn;
+    _ = complex;
+    _ = eigen_general;
     _ = numbuf;
 }

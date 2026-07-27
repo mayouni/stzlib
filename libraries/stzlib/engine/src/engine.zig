@@ -48,6 +48,8 @@ const bayes = @import("bayes.zig");
 const autodiff = @import("autodiff.zig");
 const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
+const complex = @import("complex.zig");
+const eigen_general = @import("eigen_general.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -643,6 +645,8 @@ test {
     _ = autodiff;
     _ = lbfgs;
     _ = nn;
+    _ = complex;
+    _ = eigen_general;
     _ = linalg;
     _ = string;
     _ = char;

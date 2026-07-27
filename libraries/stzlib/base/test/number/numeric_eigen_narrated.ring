@@ -146,10 +146,32 @@ Scenario("rank, counted RELATIVE to the largest eigenvalue")
 	Then("...and still perfectly conditioned", Rnd9(oTiny.ConditionNumber()), 1)
 EndScenario()
 
-Scenario("a non-symmetric matrix is REFUSED, not silently symmetrised")
+Scenario("a non-symmetric matrix is never silently symmetrised")
+	# UPDATED IN PHASE 7. This scenario used to assert that EigenValues() RAISED for
+	# every non-symmetric matrix, which is what it did when only the symmetric Jacobi
+	# routine existed. Phase 7 added a complex type and a Francis double-shift QR, so
+	# the refusal narrowed to the case that actually needs it.
+	#
+	# WHAT HAS NOT CHANGED, and was the point of this scenario all along: a
+	# non-symmetric matrix is never handed the eigenvalues of (A + A')/2. [[1,2],[3,4]]
+	# is answered from ITS OWN spectrum -- 5.372 and -0.372 -- and the symmetrised
+	# matrix [[1,2.5],[2.5,4]] would give 5.850 and -0.850, which are different
+	# numbers belonging to a different matrix.
 	oN = new stzMatrix([ [1,2], [3,4] ])
 	Then("it is detected as non-symmetric", oN.IsSymmetric(), FALSE)
-	Then("EigenValues raises rather than guessing", RaisesEigen(oN), TRUE)
+
+	aN = oN.EigenValues()
+	Then("its real spectrum is answered now", len(aN), 2)
+	Then("...summing to ITS trace, 5", Rnd6(aN[1] + aN[2]), 5)
+	Then("...and multiplying to ITS determinant, -2", Rnd6(aN[1] * aN[2]), -2)
+	# the symmetrised matrix has trace 5 too, so the trace alone would not catch a
+	# substitution -- the determinant is what separates them (-2 against -2.25)
+	Then("NOT the symmetrised matrix's eigenvalues",
+	     Rnd4(aN[1]) != Rnd4(5.8508), TRUE)
+
+	# and a matrix whose eigenvalues are genuinely complex is still refused by the
+	# method that returns plain numbers
+	Then("a rotation is still refused", RaisesEigen(new stzMatrix([ [0,-1], [1,0] ])), TRUE)
 	# returning the spectrum of (A + A')/2 while calling it the spectrum of A would
 	# be a wrong answer wearing a right answer's face -- the failure mode this whole
 	# phase keeps finding.
