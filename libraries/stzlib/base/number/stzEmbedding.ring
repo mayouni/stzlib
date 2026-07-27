@@ -526,6 +526,8 @@ class stzUMAP from stzObject
 	@oPca = NULL
 	@aPrepared = []       # the data the fit actually saw (post-PCA when reducing)
 	@nPreparedDim = 0
+	@anLabels = []        # empty for the ordinary fit -- see LearnFromLabels()
+	@nTargetWeight = 0.5
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -621,6 +623,69 @@ class stzUMAP from stzObject
 	def PCAQ()
 		return @oPca
 
+	# ── SUPERVISION: let known labels reshape the graph ──
+	#
+	# WHAT THIS DOES, because the name promises more than it is. It does NOT learn a
+	# classifier and does not predict anything. It REWEIGHTS the neighbour graph the
+	# unsupervised algorithm already built: an edge between two points of different
+	# classes is made weak, so the layout stops trying to keep them together.
+	#
+	# Pass one label per sample. A label of -1 means UNKNOWN -- its edges are damped
+	# rather than crushed, which is what makes the semi-supervised case work instead
+	# of forcing every row to be classified.
+	#
+	# ── THE WARNING, WHICH MATTERS MORE THAN THE MECHANISM ──
+	#
+	# A supervised embedding WILL separate your classes. That is what you asked for.
+	# It is therefore NOT evidence that the classes are separable, and the picture
+	# must never be shown as if it were -- the separation is an input, not a finding.
+	# What it is genuinely good for: seeing structure WITHIN classes you already
+	# trust, and laying out data whose grouping is not in question so that something
+	# else can be looked at.
+	def LearnFromLabels(paLabels)
+		if NOT isList(paLabels) or len(paLabels) != @nRows
+			stzraise("Give me one label per sample -- " + @nRows + " of them, " +
+				"got " + len(paLabels) + ". Use -1 where the label is unknown.")
+		ok
+		@anLabels = paLabels
+
+		def LearnFromLabelsQ(paLabels)
+			This.LearnFromLabels(paLabels)
+			return This
+
+	def IgnoreLabels()
+		@anLabels = []
+
+		def IgnoreLabelsQ()
+			This.IgnoreLabels()
+			return This
+
+	def IsSupervised()
+		return len(@anLabels) > 0
+
+	def Labels()
+		return @anLabels
+
+	# HOW MUCH TO TRUST THE LABELS against the data's own structure. 0 ignores them;
+	# the reference implementation's default is 0.5.
+	#
+	# MEASURED, and it is not the shape one would assume: separation rises to about
+	# 0.2 and then FALLS, and beyond ~0.9 the setting stops meaning anything at all
+	# because the penalty underflows. Crushing every cross-class edge fragments the
+	# graph -- points lose most of their neighbours and the classes come apart into
+	# pieces instead of two groups. More supervision is not more separation.
+	def SetTargetWeight(n)
+		if n >= 0 and n <= 1
+			@nTargetWeight = n
+		ok
+
+		def SetTargetWeightQ(n)
+			This.SetTargetWeight(n)
+			return This
+
+	def TargetWeight()
+		return @nTargetWeight
+
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
@@ -631,7 +696,7 @@ class stzUMAP from stzObject
 		@nPreparedDim = _nD_
 
 		_aRes_ = StzEngineUmap(_aX_, @nRows, _nD_, @nNeighbors, @nDims,
-			@nMinDist, @nSpread, @nEpochs, @nSeed)
+			@nMinDist, @nSpread, @nEpochs, @nSeed, @anLabels, @nTargetWeight)
 		if NOT isList(_aRes_) or len(_aRes_) < 3
 			stzraise("UMAP refused this run. It needs at least 3 points and a " +
 				"neighbour count between 2 and " + (@nRows - 1) + " (asked for " +
@@ -744,7 +809,11 @@ class stzUMAP from stzObject
 
 	def Why()
 		This._MustBeFitted()
-		_c_ = "UMAP of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
+		_c_ = "UMAP"
+		if len(@anLabels) > 0
+			_c_ += " (supervised, target weight " + @nTargetWeight + ")"
+		ok
+		_c_ += " of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
 			@nNeighbors + " neighbours, min distance " + @nMinDist +
 			", " + @nEpochs + " epochs"
 		if @nPcaDims > 0

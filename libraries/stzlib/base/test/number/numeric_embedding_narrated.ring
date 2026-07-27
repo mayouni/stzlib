@@ -467,6 +467,160 @@ Scenario("the parametric variant through PCA, and what it costs")
 	     HasTransformOf(oP, aD[1]) = TRUE, TRUE)
 EndScenario()
 
+Scenario("SUPERVISED UMAP: labels reshape the graph")
+	# THE TEST THAT MEANS SOMETHING. The two classes are assigned at RANDOM to
+	# randomly-placed points, so the data contains no class structure whatever --
+	# unsupervised UMAP has nothing to find, and must find nothing. Supervised UMAP
+	# must nonetheless pull them apart, because that is what the labels say.
+	#
+	# Testing supervision on data that is ALREADY separable would prove nothing: the
+	# unsupervised run would separate it too, and both would pass.
+	aD = RandomRows(40, 4)
+	aY = Alternating(40)
+
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighbors(6)
+	oPlain.SetEpochs(300)
+	oPlain.Fit()
+	Then("unsupervised finds nothing, because there is nothing",
+	     LabelSeparation(oPlain.Embedding(), aY) < 1.3, TRUE)
+
+	oSup = new stzUMAP(aD)
+	oSup.SetNeighbors(6)
+	oSup.SetEpochs(300)
+	oSup.LearnFromLabels(aY)
+	oSup.SetTargetWeight(0.2)
+	oSup.Fit()
+	Then("supervised separates them", LabelSeparation(oSup.Embedding(), aY) >
+	     LabelSeparation(oPlain.Embedding(), aY) * 1.4, TRUE)
+	Then("it says it is supervised", oSup.IsSupervised(), TRUE)
+	Then("...and says so in words", StzFindFirst("supervised", oSup.Why()) > 0, TRUE)
+	Then("...and remembers the labels", len(oSup.Labels()), 40)
+
+	# AND THE WARNING THIS SCENARIO EXISTS TO MAKE CONCRETE: the separation above is
+	# NOT evidence that the classes are separable. The data was random. Supervision
+	# put the separation there, and a picture from it says only what was put in.
+	Then("the data itself has no class structure -- the separation was an INPUT",
+	     LabelSeparation(oPlain.Embedding(), aY) < 1.3, TRUE)
+EndScenario()
+
+Scenario("...with UNKNOWN labels, which is the semi-supervised case")
+	# -1 means "no information for this point". Its edges are DAMPED (exp(-1)) rather
+	# than crushed (exp(-5)), which is the difference between semi-supervised and
+	# simply dropping the row.
+	aD = RandomRows(40, 4)
+	aY = Alternating(40)
+	aPartial = []
+	for i = 1 to 40
+		if i % 3 = 0
+			aPartial + -1
+		else
+			aPartial + aY[i]
+		ok
+	next
+
+	oSemi = new stzUMAP(aD)
+	oSemi.SetNeighbors(6)
+	oSemi.SetEpochs(300)
+	oSemi.LearnFromLabelsQ(aPartial).SetTargetWeightQ(0.2).FitQ()
+
+	Then("it fits with a third of the labels missing", oSemi.IsFitted(), TRUE)
+	Then("every coordinate is finite", AllFinite(oSemi.Embedding()), TRUE)
+	Then("...and it still counts as supervised", oSemi.IsSupervised(), TRUE)
+
+	# a wrong-length label list is refused rather than padded
+	Then("one label per sample, or nothing", RaisesLabels(aD, [1,2]), TRUE)
+	Then("...saying how many were wanted",
+	     StzFindFirst("40 of them", WhyLabels(aD, [1,2])) > 0, TRUE)
+	Then("...and mentioning the unknown marker",
+	     StzFindFirst("-1", WhyLabels(aD, [1,2])) > 0, TRUE)
+EndScenario()
+
+Scenario("the target weight is not the dial anyone assumes")
+	# MEASURED rather than assumed, and the assumption was wrong. Separation against
+	# target_weight on random-labelled data:
+	#
+	#     0.00  0.98      nothing to find, nothing found
+	#     0.05  1.71
+	#     0.20  2.62      the PEAK
+	#     0.50  1.46
+	#     0.90  1.43
+	#     0.99  1.43      identical to 0.90
+	#
+	# MORE SUPERVISION IS NOT MORE SEPARATION. Crushing every cross-class edge
+	# FRAGMENTS the graph: points lose most of their neighbours, and the layout loses
+	# the arrangement that was holding each class together as one group. And beyond
+	# about 0.9 the setting stops meaning anything at all, because far_dist is
+	# 2.5/(1-w) and exp(-25) is already zero to an f64.
+	#
+	# I wrote a monotone assertion first and it failed. Measuring instead of loosening
+	# it is what produced the two facts above.
+	aD = RandomRows(40, 4)
+	aY = Alternating(40)
+
+	oZero = new stzUMAP(aD)
+	oZero.SetNeighbors(6)
+	oZero.SetEpochs(200)
+	oZero.LearnFromLabels(aY)
+	oZero.SetTargetWeight(0)
+	oZero.Fit()
+
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighbors(6)
+	oPlain.SetEpochs(200)
+	oPlain.Fit()
+	Then("weight 0 is EXACTLY the unsupervised fit, not merely close",
+	     SameEmbedding(oZero.Embedding(), oPlain.Embedding()), TRUE)
+
+	# saturation: 0.9 and 0.99 are the same run
+	o90 = new stzUMAP(aD)
+	o90.SetNeighbors(6)
+	o90.SetEpochs(200)
+	o90.LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
+	o99 = new stzUMAP(aD)
+	o99.SetNeighbors(6)
+	o99.SetEpochs(200)
+	o99.LearnFromLabelsQ(aY).SetTargetWeightQ(0.99).FitQ()
+	Then("0.9 and 0.99 give the SAME embedding -- the penalty has underflowed",
+	     SameEmbedding(o90.Embedding(), o99.Embedding()), TRUE)
+
+	Then("a weight outside 0..1 is ignored rather than obeyed",
+	     IgnoresBadWeight(aD, aY), TRUE)
+EndScenario()
+
+Scenario("supervision composes with everything else")
+	aD = RandomRows(36, 6)
+	aY = Alternating(36)
+
+	oAll = new stzUMAP(aD)
+	oAll.ReduceWithPCAQ(3).SetNeighborsQ(5).SetEpochsQ(200)
+	oAll.LearnFromLabelsQ(aY).SetTargetWeightQ(0.2).FitQ()
+
+	Then("PCA and supervision together", oAll.UsesPCA() and oAll.IsSupervised(), TRUE)
+	Then("...and it still transforms", len(oAll.Transform([ aD[1] ])), 1)
+	# NOT FractionHome here -- that helper asks which CLUSTER a row lands in, and this
+	# data is randomly placed with alternating labels, so there are no clusters to land
+	# in. The question that means something for arbitrary data is how far a training
+	# row moves when put back through Transform(), measured against the typical
+	# distance between points in the map.
+	#
+	# MEASURED, because my first guess was wrong twice over. Asking whether each row
+	# lands NEAREST its own fitted position gives only 0.25 -- and gives the same 0.25
+	# unsupervised, so it is not a supervision failure but the transform's nature:
+	# it re-optimises a new point against its NEIGHBOURS in the frozen map, so on data
+	# with no structure it settles in the neighbourhood rather than on the spot. The
+	# displacement tells the real story: 0.39 of typical spacing here, 0.20 without
+	# supervision. Anchored, not exact.
+	Then("...training rows land near where they were put, relative to the spread",
+	     DisplacementRatio(oAll.Transform(aD), oAll.Embedding()) < 0.6, TRUE)
+
+	# IgnoreLabels turns it back off
+	oOff = new stzUMAP(aD)
+	oOff.LearnFromLabels(aY)
+	Then("LearnFromLabels() returns nothing", isNull(oOff.IgnoreLabels()), TRUE)
+	Then("...and IgnoreLabels turns supervision off", oOff.IsSupervised(), FALSE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -696,3 +850,108 @@ func WhyTransform(o, aR)
 		s = cCatchError
 	done
 	return s
+
+# randomly-placed rows with a deterministic generator, so the guard is reproducible
+func RandomRows(nRows, nCols)
+	aD = []
+	nS = 12345
+	for i = 1 to nRows
+		r = []
+		for j = 1 to nCols
+			nS = (nS * 1103515 + 12345) % 2147483647
+			r + ((nS % 1000) / 100)
+		next
+		aD + r
+	next
+	return aD
+
+# labels with NO relationship to the coordinates -- the point of the supervised test
+func Alternating(nRows)
+	aY = []
+	for i = 1 to nRows
+		aY + (i % 2)
+	next
+	return aY
+
+# mean between-class distance over mean within-class distance, BY LABEL
+func LabelSeparation(aE, aL)
+	nW = 0  nWc = 0  nB = 0  nBc = 0
+	for i = 1 to len(aE)
+		for j = i+1 to len(aE)
+			d = 0
+			for t = 1 to len(aE[i])
+				dd = aE[i][t] - aE[j][t]
+				d += dd*dd
+			next
+			d = sqrt(d)
+			if aL[i] = aL[j]
+				nW += d  nWc++
+			else
+				nB += d  nBc++
+			ok
+		next
+	next
+	if nWc = 0 or nBc = 0 or nW = 0
+		return 0
+	ok
+	return (nB/nBc) / (nW/nWc)
+
+func RaisesLabels(aD, aL)
+	b = FALSE
+	try
+		o = new stzUMAP(aD)
+		o.LearnFromLabels(aL)
+	catch
+		b = TRUE
+	done
+	return b
+
+func WhyLabels(aD, aL)
+	s = ""
+	try
+		o = new stzUMAP(aD)
+		o.LearnFromLabels(aL)
+	catch
+		s = cCatchError
+	done
+	return s
+
+# a weight outside 0..1 must leave the setting alone rather than being obeyed
+func IgnoresBadWeight(aD, aY)
+	o = new stzUMAP(aD)
+	o.LearnFromLabels(aY)
+	o.SetTargetWeight(0.3)
+	o.SetTargetWeight(5)
+	return o.TargetWeight() = 0.3
+
+# mean distance a row moves under Transform(), over the mean distance between points
+# in the fitted map. Scale-free, so it can be compared across runs -- and it says
+# something FractionHome cannot: how firmly the transform is anchored, on data that
+# has no cluster structure for FractionHome to ask about.
+func DisplacementRatio(aBack, aFitted)
+	nD = 0
+	for i = 1 to len(aBack)
+		d = 0
+		for t = 1 to len(aBack[i])
+			dd = aBack[i][t] - aFitted[i][t]
+			d += dd*dd
+		next
+		nD += sqrt(d)
+	next
+	nD = nD / len(aBack)
+
+	nP = 0  nC = 0
+	for i = 1 to len(aFitted)
+		for j = i+1 to len(aFitted)
+			d = 0
+			for t = 1 to len(aFitted[i])
+				dd = aFitted[i][t] - aFitted[j][t]
+				d += dd*dd
+			next
+			nP += sqrt(d)  nC++
+		next
+	next
+	if nC = 0 or nP = 0
+		return 0
+	ok
+	return nD / (nP/nC)
