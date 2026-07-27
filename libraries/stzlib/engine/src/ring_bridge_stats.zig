@@ -10,6 +10,7 @@ const apriori = @import("apriori.zig");
 const bayes = @import("bayes.zig");
 const autodiff = @import("autodiff.zig");
 const lbfgs = @import("lbfgs.zig");
+const nn = @import("nn.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
 
@@ -1086,13 +1087,13 @@ fn ring_GradAt(p: *anyopaque) callconv(.c) void {
         rn(p, 0);
         return;
     }
-    const nn = prog.nodes.items.len;
-    const val = allocator.alloc(f64, nn) catch {
+    const n_nodes = prog.nodes.items.len;
+    const val = allocator.alloc(f64, n_nodes) catch {
         rn(p, 0);
         return;
     };
     defer allocator.free(val);
-    const adj = allocator.alloc(f64, nn) catch {
+    const adj = allocator.alloc(f64, n_nodes) catch {
         rn(p, 0);
         return;
     };
@@ -1171,13 +1172,13 @@ fn ring_Minimize(p: *anyopaque) callconv(.c) void {
         return;
     }
 
-    const nn = prog.nodes.items.len;
-    const val = allocator.alloc(f64, nn) catch {
+    const n_nodes = prog.nodes.items.len;
+    const val = allocator.alloc(f64, n_nodes) catch {
         rn(p, 0);
         return;
     };
     defer allocator.free(val);
-    const adj = allocator.alloc(f64, nn) catch {
+    const adj = allocator.alloc(f64, n_nodes) catch {
         rn(p, 0);
         return;
     };
@@ -1209,11 +1210,120 @@ fn ring_Minimize(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── NEURAL TRAINING (phase 6 slice 3) ───────────────────────────────────────
+//
+//   StzEngineNNTrain(aShape, aWeights, aInputs, aTargets, nSamples, nLr, nEpochs)
+//     -> [ loss-per-epoch (nEpochs), then the trained weights in the same layout ]
+//
+//   aShape   = [ nInputs, nLayers, units1, act1, units2, act2, ... ]
+//   act code = 0 relu, 1 sigmoid, 2 tanh, 3 linear, 4 softmax
+//   aWeights = per layer: W row-major (units * prev) then b (units)
+//
+// NOT on the autodiff tape, deliberately -- see the note at the top of nn.zig. The
+// hand-derived gradients were already exact (checked against that very tape), a
+// tape is slower than closed-form code for a fixed architecture, and rebuilding
+// the trainer around "the gradient of the reported loss" would have reintroduced
+// the saddle the Ring comment records.
+fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
+    const shape = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(shape);
+    const wflat = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(wflat);
+    const inputs = listToF64(p, 3) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(inputs);
+    const targets = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(targets);
+    const n_samples: usize = @intFromFloat(g(p, 5));
+    const lr = g(p, 6);
+    const epochs: usize = @intFromFloat(g(p, 7));
+
+    if (shape.len < 4 or n_samples == 0 or epochs == 0) {
+        rn(p, 0);
+        return;
+    }
+    const n_in: usize = @intFromFloat(shape[0]);
+    const n_layers: usize = @intFromFloat(shape[1]);
+    if (n_layers == 0 or shape.len != 2 + n_layers * 2) {
+        rn(p, 0);
+        return;
+    }
+
+    const layers = allocator.alloc(nn.Layer, n_layers) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(layers);
+
+    var prev = n_in;
+    var at: usize = 0;
+    var ok_shape = true;
+    for (0..n_layers) |i| {
+        const units: usize = @intFromFloat(shape[2 + i * 2]);
+        const code: u8 = @intFromFloat(shape[3 + i * 2]);
+        if (units == 0 or code > 4) {
+            ok_shape = false;
+            break;
+        }
+        const need = units * prev + units;
+        if (at + need > wflat.len) {
+            ok_shape = false;
+            break;
+        }
+        layers[i] = .{
+            .units = units,
+            .prev = prev,
+            .kind = @enumFromInt(code),
+            .w = wflat[at..][0 .. units * prev],
+            .b = wflat[at + units * prev ..][0..units],
+        };
+        at += need;
+        prev = units;
+    }
+    const n_out = prev;
+    if (!ok_shape or at != wflat.len or
+        inputs.len != n_samples * n_in or targets.len != n_samples * n_out)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    var net = nn.Net{ .n_inputs = n_in, .layers = layers };
+    const losses = allocator.alloc(f64, epochs) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(losses);
+
+    // trains IN PLACE over wflat, which is this bridge's own copy of the Ring list
+    nn.train(allocator, &net, inputs, targets, n_samples, n_out, lr, epochs, losses) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (losses) |v| R.ring_list_adddouble(out, v);
+    for (wflat) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
     .{ .name = "stzenginegradcompile", .func = &ring_GradCompile },
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
+    .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
