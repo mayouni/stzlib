@@ -1159,6 +1159,119 @@ Scenario("A THIRD WAY TO FAIL ON AN OUTLIER, and why the radius is the answer")
 	     o.LocalRadiiOf(aFar)[1] > 1000, TRUE)
 EndScenario()
 
+Scenario("PARAMETRIC UMAP: the fourth corner")
+	# The square is now complete:
+	#
+	#                    free coordinates      learned map
+	#     t-SNE          stzTSNE               stzTSNE.LearnMapping()
+	#     UMAP           stzUMAP               stzUMAP.LearnMapping()
+	#
+	# The OBJECTIVE does not change: the same fuzzy neighbour graph, the same a/b curve
+	# fitted from min_dist, the same attraction along an edge and repulsion from sampled
+	# non-neighbours. What changes is only where the answer is allowed to live -- free
+	# coordinates that answer to nothing, or the output of f(x; W).
+	aD = ThreeBlobs(20)
+
+	oFree = new stzUMAP(aD)
+	oFree.SetNeighborsQ(6).SetEpochsQ(400).FitQ()
+
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+
+	Then("it says it is parametric", oPar.IsParametric(), TRUE)
+	Then("...and says so in words",
+	     StzFindFirst("parametric", oPar.Why()) > 0, TRUE)
+	Then("both find the three blobs", BlobSeparation(oFree.Embedding(), 20) > 3 and
+	     BlobSeparation(oPar.Embedding(), 20) > 3, TRUE)
+
+	# the curve came from the SAME place, not from a second transcription
+	Then("...using the same fitted curve",
+	     SameCurve(oFree.CurveParameters(), oPar.CurveParameters()), TRUE)
+
+	Then("SkipMapping() puts it back", TurnsOffMapping(aD), FALSE)
+EndScenario()
+
+Scenario("...and its transform is EXACT, which is the reason to want it")
+	aD = ThreeBlobs(20)
+
+	oFree = new stzUMAP(aD)
+	oFree.SetNeighborsQ(6).SetEpochsQ(400).FitQ()
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+
+	# MEASURED: the free-form transform returns a training row about 0.807 away from
+	# where it was fitted -- it re-optimises against a frozen map, which is a different
+	# problem from the one the fit solved. The network evaluates a function, and the
+	# training row is in its domain.
+	Then("the free-form transform lands NEAR the fitted position",
+	     SameEmbedding(oFree.Transform([ aD[1] ]), [ oFree.Embedding()[1] ]), FALSE)
+	Then("...while the parametric one returns the same number",
+	     SameEmbedding(oPar.Transform([ aD[1] ]), [ oPar.Embedding()[1] ]), TRUE)
+EndScenario()
+
+Scenario("...and inherits the parametric blindness, exactly as t-SNE's does")
+	aD = ThreeBlobs(20)
+	aNew = [ [20,20,20,20], [900,900,900,900] ]
+
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	aP = oPar.Transform(aNew)
+
+	# a legitimate row and one far outside anything the fit saw come back 0.0006 apart.
+	# Bounded activations send everything past a certain magnitude to the same place, so
+	# THE EXACTNESS AND THE BLINDNESS ARE THE SAME PROPERTY SEEN TWICE: a function
+	# evaluated inside its domain is exact, and outside it is confident and wrong.
+	Then("an outlier is drawn on top of a legitimate row",
+	     DistOf(aP[1], aP[2]) < 0.5, TRUE)
+
+	# the free-form transform, for all that it is only approximate, would have placed
+	# that row outside the map -- see the densMAP transform scenarios above
+	aR = oPar.LocalRadiiOf(aNew)
+	Then("but the data-side radius sees it immediately", aR[2] > aR[1] * 1000, TRUE)
+EndScenario()
+
+Scenario("the learning rate, and a summary ratio that lied")
+	# MEASURED while building this, on three well-separated blobs, BEFORE the gradient
+	# was averaged per point:
+	#
+	#     lr      within-cluster   between   separation
+	#     0.005      0.404          10.07       24.9
+	#     0.01       0.482          42.0        87.1
+	#     0.02       0.000004       27.08     6471293    <- MODE COLLAPSE
+	#     0.05     437.2          1430.9         3.27    <- divergence
+	#
+	# At twice the default every point of a cluster mapped to the SAME output, and the
+	# separation ratio reported six and a half million -- which reads like a triumph.
+	# The cause was mine: a whole epoch of edge gradients summed into one step makes a
+	# point's stride proportional to how many edges touch it, so a hub lurches while a
+	# leaf shuffles. Averaging per point fixed the entire range.
+	#
+	# THE LESSON IS THE ONE THIS WHOLE FAMILY KEEPS ARRIVING AT. A summary number is
+	# not evidence that a fit is good -- not the separation ratio, not the density
+	# correlation, not the KL. Look at what it is a ratio OF.
+	aD = ThreeBlobs(20)
+	aRates = [0.005, 0.01, 0.05]
+	Then("across a tenfold range nothing collapses and nothing diverges",
+	     StableAcrossRates(aD, aRates), TRUE)
+EndScenario()
+
+Scenario("supervision and density compose with it, for free")
+	aD = ThreeBlobs(12)
+	aY = Alternating(36)
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(5).SetEpochsQ(200).SetHiddenLayersQ([16]).LearnMappingQ()
+	o.LearnFromLabelsQ(aY).SetTargetWeightQ(0.2).SetDensityWeightQ(0.1).FitQ()
+
+	# NOTHING WAS WRITTEN TO MAKE THIS WORK. Supervision reshapes the neighbour graph
+	# before any optimiser sees it, so extracting that graph rather than copying it into
+	# the parametric form meant every optimiser got supervision the moment it existed.
+	Then("parametric, supervised and density-preserving at once",
+	     o.IsParametric() and o.IsSupervised() and o.IsDensityPreserving(), TRUE)
+	Then("...and every coordinate is finite", AllFinite(o.Embedding()), TRUE)
+	Then("...with one radius per row", len(o.LocalRadii()), 36)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -1769,3 +1882,84 @@ func ExactRoundTrip(o, aRow)
 	aB = o.Transform([ aRow ])
 	aE = o.Embedding()
 	return aB[1][1] = aE[1][1] and aB[1][2] = aE[1][2]
+
+# three well-separated blobs -- structure that is not in doubt, so a layout can be held
+# to preserving it
+func ThreeBlobs(nPer)
+	aD = []
+	nS = 20260727
+	aC = [0, 20, 40]
+	for c = 1 to 3
+		for q = 1 to nPer
+			r = []
+			for j = 1 to 4
+				nS = (nS * 1103515245 + 12345) % 2147483648
+				u = (floor(nS / 2048) % 1000) / 1000
+				r + (aC[c] + (u - 0.5))
+			next
+			aD + r
+		next
+	next
+	return aD
+
+func BlobSeparation(aE, nPer)
+	w = 0
+	wc = 0
+	b = 0
+	bc = 0
+	for i = 1 to len(aE)
+		for j = i+1 to len(aE)
+			d = DistOf(aE[i], aE[j])
+			if ceil(i/nPer) = ceil(j/nPer)
+				w += d
+				wc++
+			else
+				b += d
+				bc++
+			ok
+		next
+	next
+	if wc = 0 or bc = 0 or w = 0
+		return 0
+	ok
+	return (b/bc) / (w/wc)
+
+func WithinSpread(aE, nPer)
+	w = 0
+	wc = 0
+	for i = 1 to len(aE)
+		for j = i+1 to len(aE)
+			if ceil(i/nPer) = ceil(j/nPer)
+				w += DistOf(aE[i], aE[j])
+				wc++
+			ok
+		next
+	next
+	if wc = 0
+		return 0
+	ok
+	return w / wc
+
+# neither collapsed (within ~ 0) nor diverged (within enormous), at every rate
+func StableAcrossRates(aD, aRates)
+	for r in aRates
+		o = new stzUMAP(aD)
+		o.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+		o.SetLearningRateQ(r).FitQ()
+		w = WithinSpread(o.Embedding(), 20)
+		if w < 0.001 or w > 100
+			return FALSE
+		ok
+	next
+	return TRUE
+
+func TurnsOffMapping(aD)
+	o = new stzUMAP(aD)
+	o.LearnMapping()
+	o.SkipMapping()
+	return o.IsParametric()
+
+# the a/b curve is fitted from min_dist by least squares, so if the parametric form had
+# transcribed it instead of importing it, the two would differ in the last bits
+func SameCurve(a, b)
+	return a[:a] = b[:a] and a[:b] = b[:b]
