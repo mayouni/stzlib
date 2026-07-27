@@ -2695,6 +2695,76 @@ class stzMatrix from stzListOfLists
 		next
 		return _aOutCe_
 
+	# EVERY eigenvector, complex ones included (phase 7, second pass). Row i,
+	# column j is component i of the eigenvector belonging to ComplexEigenValues()[j].
+	#
+	# WHY THIS IS HARDER THAN THE EIGENVALUES WERE. Eigenvalues can be read off a
+	# matrix you have destroyed -- balancing, Hessenberg reduction and QR are all
+	# similarities, and a similarity does not move the spectrum. An EIGENVECTOR of
+	# the final triangular matrix belongs to THAT matrix, so getting back to one of
+	# the original needs every transformation the eigenvalue routine threw away.
+	# The whole pipeline accumulates now: v_A = D . Q . Z . v_T.
+	#
+	# NORMALISATION: unit length, with the largest component rotated to be real and
+	# positive. An eigenvector is only defined up to scale and (when complex) phase,
+	# so "the" eigenvector is a family; pinning both is what makes two runs agree.
+	def ComplexEigenVectors()
+		return This._EigenSystem()[:vectors]
+
+	# How many of the eigenvectors are linearly independent. Fewer than the size of
+	# the matrix means it is DEFECTIVE: a repeated eigenvalue without a full set of
+	# eigenvectors. [[1,1],[0,1]] is the smallest example -- eigenvalue 1 twice, one
+	# eigenvector. No algorithm can supply the second, so this reports the shortfall
+	# rather than returning two vectors of which one is a copy.
+	def NumberOfIndependentEigenVectors()
+		return This._EigenSystem()[:independent]
+
+	def IsDefective()
+		return This.NumberOfIndependentEigenVectors() < @nRows
+
+	def IsDiagonalizable()
+		return NOT This.IsDefective()
+
+	# one engine crossing serving all of the above
+	def _EigenSystem()
+
+		if @nRows != @nCols
+			StzRaise("The eigen-system is only defined for square matrices.")
+		ok
+
+		_aFlatEs_ = []
+		for _iEs_ = 1 to @nRows
+			for _jEs_ = 1 to @nCols
+				_aFlatEs_ + @aContent[_iEs_][_jEs_]
+			next
+		next
+
+		_aEs_ = StzEngineEigenSystem(_aFlatEs_, @nRows)
+		_nWantEs_ = 1 + @nRows * 2 + @nRows * @nRows * 2
+		if NOT isList(_aEs_) or len(_aEs_) != _nWantEs_
+			StzRaise("The eigen-system: the QR iteration did not converge on this " +
+			         "matrix.")
+		ok
+
+		_aValsEs_ = []
+		for _iEs_ = 1 to @nRows
+			_aValsEs_ + new stzComplex(_aEs_[1 + (_iEs_-1)*2 + 1],
+			                           _aEs_[1 + (_iEs_-1)*2 + 2])
+		next
+
+		_nAtEs_ = 1 + @nRows * 2
+		_aVecsEs_ = []
+		for _iEs_ = 1 to @nRows
+			_aRowEs_ = []
+			for _jEs_ = 1 to @nCols
+				_aRowEs_ + new stzComplex(_aEs_[_nAtEs_ + 1], _aEs_[_nAtEs_ + 2])
+				_nAtEs_ += 2
+			next
+			_aVecsEs_ + _aRowEs_
+		next
+
+		return [ :independent = _aEs_[1], :values = _aValsEs_, :vectors = _aVecsEs_ ]
+
 	# The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging
 	# to eigenvalue j -- same order as EigenValues(), so column 1 goes with the
 	# first (largest) eigenvalue. For a symmetric matrix they are orthonormal.
@@ -2703,9 +2773,34 @@ class stzMatrix from stzListOfLists
 		if @nRows != @nCols
 			StzRaise("EigenVectors is only defined for square matrices.")
 		ok
+		# PHASE 7, SECOND PASS, LIFTED THIS TOO. It used to refuse every
+		# non-symmetric matrix; now it refuses only what it must -- a matrix whose
+		# eigenvectors are genuinely complex (this method returns plain numbers), or
+		# a DEFECTIVE one, which does not have a full set of eigenvectors at all and
+		# for which no algorithm can invent the missing ones.
 		if NOT This.IsSymmetric()
-			StzRaise("EigenVectors: this matrix is not symmetric; only the " +
-			         "symmetric case is implemented.")
+			_aSysEv_ = This._EigenSystem()
+			if _aSysEv_[:independent] < @nRows
+				StzRaise("EigenVectors: this matrix is DEFECTIVE -- it has " +
+				         @nRows + " eigenvalues but only " + _aSysEv_[:independent] +
+				         " independent eigenvector(s), so no full set exists. " +
+				         "ComplexEigenVectors() returns what there is.")
+			ok
+			_aVecsEv_ = _aSysEv_[:vectors]
+			_aOutEv_ = []
+			for _iEv_ = 1 to @nRows
+				_aRowEv_ = []
+				for _jEv_ = 1 to @nCols
+					if NOT _aVecsEv_[_iEv_][_jEv_].IsReal()
+						StzRaise("EigenVectors: this matrix has complex " +
+						         "eigenvectors, and this method returns plain " +
+						         "numbers. Use ComplexEigenVectors().")
+					ok
+					_aRowEv_ + _aVecsEv_[_iEv_][_jEv_].RealPart()
+				next
+				_aOutEv_ + _aRowEv_
+			next
+			return _aOutEv_
 		ok
 
 		This._EnsureEngineMatrix()
