@@ -740,6 +740,130 @@ Scenario("density composes, and turns off exactly")
 	Then("IgnoreDensity() returns nothing", isNull(TurnOff(aD)), TRUE)
 EndScenario()
 
+Scenario("den-SNE: t-SNE tells you NOTHING about density")
+	# Same setup as the densMAP scenarios: two clusters differing twentyfold in spread.
+	aD = TwoDensitiesWell(25)
+	Then("the data really is twentyfold apart", TrueRatio(aD) > 15, TRUE)
+
+	# A weight this small reports the correlation without moving anything -- the
+	# measurement, with the treatment switched off.
+	oPlain = new stzTSNE(aD)
+	oPlain.SetPerplexityQ(10).SetIterationsQ(800).SetDensityWeightQ(0.000001).FitQ()
+
+	# THE FINDING, AND IT IS WORSE THAN UMAP'S. Plain UMAP scored +0.226 on this kind
+	# of data: weak, but pointing the right way. Plain t-SNE scores about 0.04 here,
+	# and across five seeds in the engine it ran -0.186, +0.099, +0.125, -0.048, +0.168
+	# -- scattered around ZERO and negative as often as not.
+	#
+	# So t-SNE cluster sizes are not merely unreliable. They are NOISE, and anything
+	# read from them is read from the initialisation.
+	Then("plain t-SNE carries no density signal at all",
+	     fabs(oPlain.DensityCorrelation()) < 0.3, TRUE)
+	Then("...and draws the two clusters at the same size",
+	     DrawnRatio(oPlain.Embedding()) < 1.2, TRUE)
+EndScenario()
+
+Scenario("...and den-SNE puts it back")
+	aD = TwoDensitiesWell(25)
+	oDens = new stzTSNE(aD)
+	oDens.SetPerplexityQ(10).SetIterationsQ(800).PreserveDensityQ().FitQ()
+
+	Then("the default weight is 1, not UMAP's 2", oDens.DensityWeight(), 1)
+	Then("...and it recovers the density", oDens.DensityCorrelation() > 0.8, TRUE)
+	Then("...so the diffuse cluster is drawn wider",
+	     DrawnRatio(oDens.Embedding()) > 1.4, TRUE)
+	Then("...and it says so", StzFindFirst("density-preserving", oDens.Why()) > 0, TRUE)
+
+	# THE COST, WHICH t-SNE PRICES DIRECTLY. UMAP could only show it indirectly, as
+	# lost cluster separation. t-SNE reports its own objective, so the bill arrives in
+	# the units of the thing being given up: the KL divergence is WORSE with the term.
+	oOff = new stzTSNE(aD)
+	oOff.SetPerplexityQ(10).SetIterationsQ(800).FitQ()
+	Then("and the KL divergence is worse for it -- the trade, itemised",
+	     FinalKL(oDens) > FinalKL(oOff), TRUE)
+EndScenario()
+
+Scenario("the weight is data-dependent, which is why the correlation is reported")
+	aD = TwoDensitiesWell(25)
+
+	# MEASURED on this data:      and on the engine's, at three seeds:
+	#
+	#   lambda   corr   ratio        lambda   s42     s7    s1234
+	#    ~0      0.041  1.046          0.5   0.902  0.896  0.827
+	#    0.5     0.936  1.449          1.0   0.957  0.965  0.900
+	#    1.0     0.899  2.167          2.0  -0.646  0.480  0.910   <- decided by SEED
+	#    5.0     0.953  2.861          4.0   0.938  0.936  0.933
+	#   10.0     0.971  3.496
+	#
+	# On the first dataset nothing is unstable anywhere. On the second, lambda 2 lands
+	# anywhere from -0.65 to +0.91 depending only on the initialisation. THE BAD BAND
+	# IS NOT AT A FIXED PLACE -- so a weight cannot be chosen once and trusted.
+	#
+	# Which is the reason DensityCorrelation() is on the surface at all. It is not a
+	# diagnostic for the curious: it is the only way to know the term did what was
+	# asked. A low value means the picture is NOT density-preserving however it was
+	# configured.
+	oLo = new stzTSNE(aD)
+	oLo.SetPerplexityQ(10).SetIterationsQ(800).SetDensityWeightQ(0.5).FitQ()
+	oHi = new stzTSNE(aD)
+	oHi.SetPerplexityQ(10).SetIterationsQ(800).SetDensityWeightQ(10).FitQ()
+
+	Then("a heavier weight draws the difference larger",
+	     DrawnRatio(oHi.Embedding()) > DrawnRatio(oLo.Embedding()), TRUE)
+	Then("...and both report what they achieved, so neither is taken on trust",
+	     oLo.DensityCorrelation() > 0.8 and oHi.DensityCorrelation() > 0.8, TRUE)
+
+	Then("a negative weight is ignored rather than obeyed", IgnoresBadTsneDensity(aD), TRUE)
+EndScenario()
+
+Scenario("den-SNE composes, refuses, and turns off exactly")
+	aD = TwoDensitiesWell(10)
+
+	# weight 0 is EXACTLY the ordinary fit -- skipped, not damped
+	oZero = new stzTSNE(aD)
+	oZero.SetPerplexityQ(5).SetIterationsQ(300).SetDensityWeightQ(0).FitQ()
+	oPlain = new stzTSNE(aD)
+	oPlain.SetPerplexityQ(5).SetIterationsQ(300).FitQ()
+	Then("weight 0 reproduces the ordinary fit exactly",
+	     SameEmbedding(oZero.Embedding(), oPlain.Embedding()), TRUE)
+	Then("...and computes no radii", len(oZero.LocalRadii()), 0)
+
+	# with PCA
+	oPca = new stzTSNE(aD)
+	oPca.ReduceWithPCAQ(3).SetPerplexityQ(5).SetIterationsQ(300).PreserveDensityQ().FitQ()
+	Then("PCA and density together", oPca.UsesPCA() and oPca.IsDensityPreserving(), TRUE)
+	Then("...and every coordinate is finite", AllFinite(oPca.Embedding()), TRUE)
+
+	# REFUSED, NOT IGNORED. The parametric fit produces coordinates through a network,
+	# so the density term -- which moves coordinates directly -- has nothing to act on.
+	# Silently dropping the request would hand back a picture the caller believes is
+	# density-preserving and is not.
+	Then("parametric and density together are refused", RaisesParametricDensity(aD), TRUE)
+	Then("...and the message says what to do instead",
+	     StzFindFirst("SkipMapping", WhyParametricDensity(aD)) > 0, TRUE)
+
+	Then("IgnoreDensity() returns nothing", isNull(TurnOffTsne(aD)), TRUE)
+EndScenario()
+
+Scenario("the two algorithms agree on WHICH rows are dense")
+	# stzUMAP weights the radius by its fuzzy graph; stzTSNE weights it by the joint
+	# distribution. Two different weightings of the same neighbourhoods -- and the
+	# reassurance worth having is that they answer the same question the same way.
+	# If they disagreed, the radius would be an artefact of the graph rather than a
+	# fact about the data.
+	aD = TwoDensitiesWell(15)
+
+	oU = new stzUMAP(aD)
+	oU.SetNeighborsQ(6).SetEpochsQ(200).PreserveDensityQ().FitQ()
+	oT = new stzTSNE(aD)
+	oT.SetPerplexityQ(6).SetIterationsQ(300).PreserveDensityQ().FitQ()
+
+	Then("both rank every tight row below every diffuse row",
+	     Separates(oU.LocalRadii(), 15) and Separates(oT.LocalRadii(), 15), TRUE)
+	Then("...and they order the rows almost identically",
+	     RankAgreement(oU.LocalRadii(), oT.LocalRadii()) > 0.9, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -1177,3 +1301,96 @@ func TurnOff(aD)
 	o = new stzUMAP(aD)
 	o.PreserveDensity()
 	return o.IgnoreDensity()
+
+# two clusters differing TWENTYFOLD in spread, from the HIGH bits of the generator.
+# The low-order bits of a linear congruential generator have short periods and lay the
+# points on a lattice -- an earlier version of this helper used them and produced data
+# on which the density term behaved quite differently. Worth the extra shift.
+func TwoDensitiesWell(nPer)
+	aD = []
+	nS = 20260727
+	for i = 1 to nPer*2
+		r = []
+		for j = 1 to 4
+			nS = (nS * 1103515245 + 12345) % 2147483648
+			u = (floor(nS / 2048) % 1000) / 1000
+			if i <= nPer
+				r + (u * 0.15)
+			else
+				r + (20 + u * 3.0)
+			ok
+		next
+		aD + r
+	next
+	return aD
+
+func FinalKL(o)
+	aK = o.KLHistory()
+	return aK[len(aK)]
+
+func IgnoresBadTsneDensity(aD)
+	o = new stzTSNE(aD)
+	o.SetDensityWeight(3)
+	o.SetDensityWeight(-2)
+	return o.DensityWeight() = 3
+
+func RaisesParametricDensity(aD)
+	b = FALSE
+	try
+		o = new stzTSNE(aD)
+		o.SetPerplexityQ(5).SetIterationsQ(100).LearnMappingQ().PreserveDensityQ()
+		o.Fit()
+	catch
+		b = TRUE
+	done
+	return b
+
+func WhyParametricDensity(aD)
+	s = ""
+	try
+		o = new stzTSNE(aD)
+		o.SetPerplexityQ(5).SetIterationsQ(100).LearnMappingQ().PreserveDensityQ()
+		o.Fit()
+	catch
+		s = cCatchError
+	done
+	return s
+
+func TurnOffTsne(aD)
+	o = new stzTSNE(aD)
+	o.PreserveDensity()
+	return o.IgnoreDensity()
+
+# every row of the first half denser than every row of the second
+func Separates(aR, nPer)
+	nMaxT = aR[1]
+	for i = 1 to nPer
+		if aR[i] > nMaxT
+			nMaxT = aR[i]
+		ok
+	next
+	nMinD = aR[nPer+1]
+	for i = nPer+1 to len(aR)
+		if aR[i] < nMinD
+			nMinD = aR[i]
+		ok
+	next
+	return nMaxT < nMinD
+
+# fraction of row PAIRS the two radius lists order the same way -- a rank correlation
+# without needing ties handled, which is all that is wanted here
+func RankAgreement(aA, aB)
+	nOk = 0
+	nTot = 0
+	for i = 1 to len(aA)
+		for j = i+1 to len(aA)
+			nTot++
+			if (aA[i] < aA[j]) = (aB[i] < aB[j])
+				nOk++
+			ok
+		next
+	next
+	if nTot = 0
+		return 0
+	ok
+	return nOk / nTot

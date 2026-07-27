@@ -1535,7 +1535,10 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
 
 // ─── t-SNE and UMAP (on top of PCA) ──────────────────────────────────────────
 //
-//   StzEngineTsne(aX, n, d, nPerplexity, nDims, nIterations, nSeed)
+//   StzEngineTsne(aX, n, d, nPerplexity, nDims, nIterations, nSeed,
+//                 nDensityLambda, nDensityFrac)
+//     -- when nDensityLambda > 0 the result gains a trailing
+//        [ densityCorrelation, localRadii (n) ]
 //     -> [ dims, iterations, kl (iterations), embedding (n*dims) ]
 //   StzEngineUmap(aX, n, d, nNeighbors, nDims, nMinDist, nSpread, nEpochs, nSeed,
 //                 aLabels, nTargetWeight, nDensityLambda, nDensityFrac)
@@ -1565,11 +1568,17 @@ fn ring_Tsne(p: *anyopaque) callconv(.c) void {
         return;
     }
 
+    // DENSITY PRESERVATION (den-SNE). 0 leaves t-SNE untouched.
+    const dens_lambda = g(p, 8);
+    const dens_frac = g(p, 9);
+
     var r = tsne_mod.run(allocator, x, n, d, .{
         .perplexity = perp,
         .dims = dims,
         .iterations = if (iters == 0) 1000 else iters,
         .seed = seed,
+        .density_lambda = if (dens_lambda < 0) 0 else dens_lambda,
+        .density_frac = if (dens_frac <= 0 or dens_frac > 1) 0.3 else dens_frac,
     }) catch {
         rn(p, 0);
         return;
@@ -1581,6 +1590,12 @@ fn ring_Tsne(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, @floatFromInt(r.kl.len));
     for (r.kl) |v| R.ring_list_adddouble(out, v);
     for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    // APPENDED, so a caller slicing the earlier fields is unaffected. Its ABSENCE is
+    // the signal that density was never asked for -- not a failure.
+    if (r.local_radii.len > 0) {
+        R.ring_list_adddouble(out, r.density_correlation);
+        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+    }
     R.ring_vm_api_retlist(p, out);
 }
 

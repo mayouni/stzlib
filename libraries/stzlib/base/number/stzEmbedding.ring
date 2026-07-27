@@ -175,6 +175,10 @@ class stzTSNE from stzObject
 	@bFitted = FALSE
 	@aEmbedding = []
 	@anKL = []
+	@nDensityLambda = 0   # 0 = ordinary t-SNE -- see PreserveDensity()
+	@nDensityFrac = 0.3
+	@anLocalRadii = []
+	@nDensityCorrelation = 0
 	@oPca = NULL
 	@bParametric = FALSE
 	@nPreparedDim = 0     # the width the fit actually saw (post-PCA when reducing)
@@ -379,6 +383,119 @@ class stzTSNE from stzObject
 		next
 		return _aRes_
 
+	# -- DENSITY PRESERVATION (den-SNE) --
+	#
+	# THE SAME TERM AS densMAP, from the same paper, over the same definition of a local
+	# radius. What it fixes here is worse than what it fixed there.
+	#
+	# MEASURED: on data whose two clusters differ TWENTYFOLD in spread, plain t-SNE
+	# returns a density correlation of -0.186, +0.099, +0.125, -0.048, +0.168 across
+	# five seeds. Scattered around ZERO, negative as often as not. So t-SNE cluster
+	# sizes are not merely unreliable -- they are NOISE, and a conclusion drawn from
+	# them is a conclusion drawn from the initialisation. (Plain UMAP at least came out
+	# consistently positive at +0.226: weak, but pointing the right way.)
+	#
+	# The Student-t kernel is why: its heavy tail is what solves the crowding problem,
+	# and it does that by letting every cluster settle at whatever size the repulsion
+	# allows, regardless of how tight the cluster actually was.
+	#
+	# -- THE DIAL, WHICH HAS AN UNSTABLE BAND --
+	#
+	#     lambda   seed 42   seed 7   seed 1234
+	#      0.5      0.902    0.896     0.827      stable
+	#      1.0      0.957    0.965     0.900      stable  <- the default
+	#      1.5      0.980    0.894     0.705      widening
+	#      2.0     -0.646    0.480     0.910      WILD
+	#      4.0      0.938    0.936     0.933      stable again
+	#
+	# ON THAT DATASET, at lambda 2, THE OUTCOME WAS DECIDED BY THE SEED -- anywhere from
+	# -0.65 to +0.91 on identical inputs. A density term of middling strength can drive
+	# an oscillation that the adaptive gains then amplify, and the layout settles
+	# anti-correlated. Past about 4 it settles again because the term simply dominates,
+	# but by then the separation between clusters has collapsed from 7.13 to near 1.
+	#
+	# THE BAND IS NOT AT A FIXED PLACE, which is the part that matters. On a second
+	# dataset the same sweep was well behaved throughout (0.94 at 0.5, 0.90 at 1, 0.97
+	# at 10) and nothing was unstable anywhere. So lambda cannot be set once and
+	# trusted: WHERE IT WORKS DEPENDS ON THE DATA.
+	#
+	# WHICH IS WHY DensityCorrelation() IS PART OF THE SURFACE RATHER THAN AN INTERNAL.
+	# It is not a diagnostic for the curious -- it is the only way to know the term did
+	# what you asked, and a low or negative value means the picture is not
+	# density-preserving no matter what was requested. Check it.
+	#
+	# The default 1.0 is a starting point measured to be reasonable on both datasets,
+	# not a guarantee. Note also that stzUMAP's density dial was cleanly MONOTONE and
+	# defaults to 2.0 -- same term, different optimiser, and the shape belongs to the
+	# optimiser rather than to the term.
+	#
+	# -- AND HERE THE COST ARRIVES ITEMISED --
+	#
+	# t-SNE reports its own objective, so unlike UMAP the price is directly visible:
+	# KL rises from 0.291 to 0.443 at the default. That is neighbourhood fidelity being
+	# spent on density fidelity, in the units of the thing given up.
+	def PreserveDensity()
+		@nDensityLambda = 1.0
+
+		def PreserveDensityQ()
+			This.PreserveDensity()
+			return This
+
+	def IgnoreDensity()
+		@nDensityLambda = 0
+
+		def IgnoreDensityQ()
+			This.IgnoreDensity()
+			return This
+
+	def IsDensityPreserving()
+		return @nDensityLambda > 0
+
+	# 0 turns the term off EXACTLY -- bit-for-bit the ordinary fit, not a near one.
+	# Values between about 1.5 and 3 are the unstable band described above.
+	def SetDensityWeight(n)
+		if n >= 0
+			@nDensityLambda = n
+		ok
+
+		def SetDensityWeightQ(n)
+			This.SetDensityWeight(n)
+			return This
+
+	def DensityWeight()
+		return @nDensityLambda
+
+	# the FINAL fraction of iterations during which the term runs. Late on purpose, and
+	# for a reason t-SNE has that UMAP does not: EARLY EXAGGERATION multiplies P by 12
+	# for the first quarter of the run to force gaps open, so density measured during it
+	# would preserve a scale the algorithm is about to throw away.
+	def SetDensityPhase(n)
+		if n > 0 and n <= 1
+			@nDensityFrac = n
+		ok
+
+		def SetDensityPhaseQ(n)
+			This.SetDensityPhase(n)
+			return This
+
+	def DensityPhase()
+		return @nDensityFrac
+
+	# how far the term got. NOT a percentage -- an embedding with every density rank
+	# backwards still scores around -0.6 rather than -1.
+	def DensityCorrelation()
+		return @nDensityCorrelation
+
+	# THE ORIGINAL-SPACE LOCAL RADIUS PER POINT: how far each row sits, on average, from
+	# the neighbours it is joined to. A DATA PRODUCT -- it ranks rows by isolation with
+	# no reference to the embedding, and costs nothing because the term computes it.
+	#
+	# Weighted here by t-SNE's joint distribution where stzUMAP weights by the fuzzy
+	# graph. Two different weightings of the same neighbourhoods, agreeing on which rows
+	# are dense.
+	def LocalRadii()
+		return @anLocalRadii
+
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
@@ -388,12 +505,24 @@ class stzTSNE from stzObject
 		@nPreparedDim = _nD_
 
 		if @bParametric
+			# REFUSED RATHER THAN IGNORED. The parametric fit produces its layout as
+			# the output of a trained network, so the density term -- which moves the
+			# coordinates directly -- has nothing to act on there. Quietly dropping the
+			# request would hand back a picture the caller believes is density-
+			# preserving and is not, which is worse than no picture at all.
+			if @nDensityLambda > 0
+				stzraise("Density preservation and the parametric variant cannot be " +
+					"combined. The parametric fit produces coordinates through a " +
+					"network, and the density term acts on coordinates directly. " +
+					"Use SkipMapping() for a density-preserving fit, or " +
+					"IgnoreDensity() for a parametric one.")
+			ok
 			This._FitParametric(_aX_, _nD_)
 			return
 		ok
 
 		_aRes_ = StzEngineTsne(_aX_, @nRows, _nD_, @nPerplexity, @nDims,
-			@nIterations, @nSeed)
+			@nIterations, @nSeed, @nDensityLambda, @nDensityFrac)
 		if NOT isList(_aRes_) or len(_aRes_) < 2
 			stzraise("t-SNE refused this run. A perplexity of " + @nPerplexity +
 				" needs more than " + @nPerplexity + " points (there are " +
@@ -417,6 +546,19 @@ class stzTSNE from stzObject
 			next
 			@aEmbedding + _aRow_
 		next
+
+		# the density block is APPENDED, and only when it was asked for -- so its
+		# absence is the signal that this was an ordinary fit, not a failed one
+		@anLocalRadii = []
+		@nDensityCorrelation = 0
+		if @nDensityLambda > 0 and len(_aRes_) >= _nAt_ + 1 + @nRows
+			_nAt_++
+			@nDensityCorrelation = _aRes_[_nAt_]
+			for _i_ = 1 to @nRows
+				_nAt_++
+				@anLocalRadii + _aRes_[_nAt_]
+			next
+		ok
 		@bFitted = TRUE
 
 		def FitQ()
@@ -445,6 +587,9 @@ class stzTSNE from stzObject
 		_c_ = "t-SNE"
 		if @bParametric
 			_c_ += " (parametric, " + len(@anHidden) + " hidden layer(s))"
+		ok
+		if @nDensityLambda > 0
+			_c_ += " (density-preserving, weight " + @nDensityLambda + ")"
 		ok
 		_c_ += " of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
 			"perplexity " + @nPerplexity + ", " + len(@anKL) + " iterations"
