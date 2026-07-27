@@ -1628,6 +1628,42 @@ what it refused.
   `3^2` is 1. Two assertions here silently XOR-ed vector components and reported a
   magnitude of 0.*
 
+- **THE SVD OF A GENERAL MATRIX FOLLOWED (`094c55d70`)**, guard
+  `numeric_svd_general_narrated` (30). Slice 9's SVD was doing real work — rank,
+  conditioning, least squares, the pseudo-inverse — with **two things missing**.
+
+  **Only the singular values reached Ring.** U and V were computed and discarded at
+  the boundary. Enough for everything phase 4 wanted, because rank and conditioning
+  are questions about *magnitudes*; not enough for anything needing *directions* — PCA,
+  low-rank approximation, an orthonormal basis for the range or null space. **The
+  values say how much; the vectors say where.**
+
+  **A wide matrix was refused** by `SingularValues()`, `Rank()` and
+  `ConditionNumber()`, advising *"transpose it — the singular values are the same"*.
+  True, and the refusal was never defensible: `rank(A) = rank(A')` and
+  `cond(A) = cond(A')`, so orientation is a fact about your data layout, not the matrix.
+
+  **And the advice hid a trap that only appears once the factors are exposed:** the
+  singular values of A and A′ agree, but **U and V swap**. A caller who followed
+  "transpose it" to obtain a *decomposition* got one that multiplies back to A′. So the
+  transpose moved **inside** the engine (`svdAnyShape`), once, with the swap done
+  right — one implementation either way, calling the same one-sided Jacobi.
+
+  Ring: `SVD()` → `[:u, :singularValues, :v]`, `LeftSingularVectors()`,
+  `RightSingularVectors()`; all three shape guards lifted.
+
+  **Verified against `A = U Σ Vᵀ`** through the public surface on eight shapes (tall,
+  wide, symmetric, non-symmetric, rank-deficient, single row, single column, and one
+  scaled over twelve orders of magnitude), plus `UᵀU = I` and `VᵀV = I` — factors that
+  merely reconstruct are useless for projection, which is most of what an SVD is for.
+  **Tabulated reference factors would not have caught the U/V swap at all**, since both
+  orderings give the same singular values.
+
+  *Two phase-4 guards **updated, not weakened**: `linalg`'s "bad shapes are refused"
+  now asserts a wide matrix and its transpose give the same rank and condition number
+  (an empty dimension is still refused), and `numeric_svd_narrated`'s "a wide matrix is
+  refused" now asserts it is answered and agrees with its transpose.*
+
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
 blanket refusal. It now asserts what that scenario was always about — `[[1,2],[3,4]]`
 is answered from **its own** spectrum (trace 5, determinant −2), not the symmetrised
