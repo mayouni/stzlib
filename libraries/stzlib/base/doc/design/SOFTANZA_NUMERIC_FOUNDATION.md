@@ -2070,6 +2070,38 @@ what it refused.
   time: a summary number is not evidence that a fit is good — not the separation ratio,
   not the density correlation, not the KL. Look at what it is a ratio *of*.**
 
+- **A RADIUS IS ONLY COMPARABLE TO ANOTHER IN THE SAME SPACE (`ca0079eb9`)** — *found by
+  verifying rather than building.*
+
+  The parametric UMAP transform shipped with the fit in the previous entry; a training
+  row already returned its own number exactly. So this step went to checking it, and the
+  check found something.
+
+  | | training max | new row |
+  |---|---|---|
+  | no PCA | 1.144054 | 0.337416 |
+  | with PCA | 0.548874 | 0.067100 |
+  | **param + PCA** | **0.548874** | **0.337416** ← *two unit systems* |
+
+  `LocalRadiiOf()` measured the **raw** rows while the fit's own `LocalRadii()` are
+  computed on the PCA **scores**. The tell is that 0.337416 is *exactly* the no-PCA
+  answer — the measurement had not noticed the PCA at all.
+
+  That matters because the whole out-of-distribution check is *"compare the new radius
+  against the training range"*, and mixing spaces makes the comparison meaningless: it
+  can call an outlier familiar or a familiar row strange, depending only on how the
+  components happened to scale. And it is **precisely the parametric branch that needs
+  the check most**, since the network saturates and cannot see an outlier itself.
+
+  Both classes had it. New rows now go through the **same** PCA the fit used and are
+  measured against the **same** prepared data — param+PCA reports 0.067100, identical to
+  the free-form PCA run.
+
+  ***This is the second time in this module that a seam had two computations where it
+  needed one.*** `StzEmbeddingPrepare` was the first, where `Scores()` and `Transform()`
+  agreed to eight decimals and differed in the last bits. That one was invisible; this
+  one changed the answer by a factor of five.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
