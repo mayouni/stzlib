@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-5 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-6 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -1490,9 +1490,68 @@ phase 4. *Every item was addressed; the per-item records are under pillar 5 abov
 Two moved to the engine, four turned out to have a different and larger cost in
 Ring, and `stzHistogram` should never have been on the list.*
 
-**Phase 6 — autodiff, and what it unlocks.** The tape, then L-BFGS, then rewiring
-the trainer and logistic regression to use gradients rather than hand-derived
-updates.
+**Phase 6 — autodiff, and what it unlocks. COMPLETE.** The tape, then L-BFGS, then
+the trainer — *but not by the route this line proposed, and the difference is the
+finding.*
+
+> **SLICE 1 (123864ae3), guard `numeric_autodiff_narrated` (48): THE TAPE.**
+> `autodiff.zig` compiles an expression to a tape, evaluates forwards, walks the node
+> list backwards carrying adjoints. **One backward pass gives every partial
+> derivative**; finite differences need n+1 evaluations and are approximate either way
+> (too large a step shows truncation error, too small and rounding eats the
+> difference). Ring surface `stzMathFunction`.
+>
+> **`expr.zig` was checked first** — two definitions of one thing is this project's
+> most repeated defect — and it is the *wrong tool*, not an awkward one: a predicate
+> DSL for filtering lists whose variable is "the current item" and whose vocabulary is
+> `IsVowel`/`StartsWith`/`Replace`. No `exp`, no `log`, no `pow`, no named variables.
+> The infix syntax is deliberately shared; the domain is not.
+>
+> **The validation was the cross-check against `stzTrainer`'s hand-derived backprop** —
+> written independently, years apart — agreeing to eight decimals on all four weights
+> of a 1-tanh-1-sigmoid net. Two implementations of one derivative is a far stronger
+> statement than either agreeing with a step size. **And it settled a question first:**
+> the backprop looked ~2× WRONG under finite differences. It is not — it differentiates
+> *binary cross-entropy* while *reporting* squared error, as its own comment says.
+> Against cross-entropy the disagreement is 0.0000000000.
+>
+> **SLICE 2 (c69b8935f), guard `numeric_optimizer_narrated` (37): L-BFGS.** Rosenbrock
+> from (−1.2, 1) in 34 iterations; a 10⁶ condition number in under 50. Ring surface
+> `stzObjective` = a `stzMathFunction` plus a direction, answering with a **record**
+> (status / iterations / evaluations / why) because a bare point cannot say it did not
+> converge. **It takes a function pointer, not a tape** — an optimiser that could only
+> minimise parsed expressions could never minimise a logistic loss over a resident
+> dataset. **The line search is the full bracket-and-zoom for strong Wolfe**, not
+> backtracking Armijo: the curvature condition is what guarantees sᵀy > 0, and without
+> it the method degrades toward gradient descent *without saying so*.
+>
+> **AND THE ENGINE TEST STEP WAS NOT RUNNING THESE TESTS.** `zig build test` compiles
+> `src/engine.zig`, not the per-DLL entry files, so `logistic`, `cluster`, `tree`,
+> `apriori`, `bayes` and `autodiff` had been silently skipped since phase 5. **The
+> count sitting at exactly 1698 across six modules landing is what gave it away.**
+> Fixed; two assertions failed immediately, both mine (an `UnexpectedEnd` I had called
+> `UnexpectedCharacter`, and a claim that the |z|>35 sigmoid clamp "costs no accuracy"
+> when sigmoid(35) is three ulps short of 1.0 — *negligible and free are different
+> claims*).
+>
+> **SLICE 3 (3eb513a86), guard `numeric_backprop_narrated` (30): THE TRAINER — AND NOT
+> ONTO THE TAPE.** XOR 0.407s → 0.002s (203×); 400 × 10 through 16-8-1 over 100 epochs
+> 11.140s → 0.028s (398×). The plan's "use gradients rather than hand-derived updates"
+> was declined on three measured grounds: the hand-derived gradients were **already
+> exact** (slice 1 proved it), a tape is **slower than closed-form code** for a fixed
+> architecture, and rebuilding around the *reported* loss would **reintroduce the XOR
+> saddle** the Ring comment records.
+>
+> **Bit-equality holds where it can and not where it cannot**, measured both ways:
+> exact for XOR/ReLU/softmax, and exact to **twelve decimals** for a three-layer net
+> after one sample and one epoch — the check that proves the multi-layer backward pass,
+> which XOR never exercises. But a 3-layer net over 40 samples first differs at **epoch
+> 48** in the tenth decimal, because Ring's `tanh` and Zig's differ by **6e-17** on some
+> inputs and backprop feeds each step into the next. On the 400 × 10 benchmark the final
+> loss differs by ~4% — **and the accuracy is identical, 0.93 either way.** The runs
+> settle on different points of a nearly flat basin. Reproducibility *within a build* is
+> preserved and pinned; bit-equality with the old interpreter could not be, and nothing
+> could preserve it while calling a different libm.
 
 **Phase 7 — the optional edges.** Complex numbers; decimal via mpdecimal if the
 big-int-backed one proves insufficient; OSQP if QP becomes real; HiGHS if MIP
