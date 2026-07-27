@@ -686,6 +686,64 @@ pub fn rankSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize) 
 // is all that rank, conditioning and a least-squares diagnosis need. The full m*m U
 // costs more and has no consumer yet.
 
+/// The SVD OF ANY SHAPE, wide included.
+///
+/// `svd` below computes the thin decomposition for m >= n, which is what rank,
+/// conditioning and a least-squares diagnosis need. A WIDE matrix (m < n) was
+/// refused at the Ring surface with "transpose it -- the singular values are the
+/// same", which is true for the VALUES and quietly incomplete for the factors: the
+/// singular values of A and A' agree, but U and V SWAP. Making the caller transpose
+/// leaves them to remember that, and forgetting it produces a decomposition that
+/// multiplies back to A' rather than to A.
+///
+/// So the transpose happens here, once, with the swap done correctly:
+///
+///     A = B'  where B = A'  and  B = U_B S V_B'
+///     A = (U_B S V_B')' = V_B S U_B'
+///     so  U_A = V_B  and  V_A = U_B
+///
+/// ONE IMPLEMENTATION either way -- this calls the same one-sided Jacobi routine.
+pub fn svdAnyShape(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    m: usize,
+    n: usize,
+) !Svd {
+    if (m >= n) return svd(allocator, data, m, n);
+
+    // transpose into B (n x m), decompose, then swap the factors back
+    const bt = try allocator.alloc(f64, m * n);
+    defer allocator.free(bt);
+    for (0..m) |i| {
+        for (0..n) |j| bt[j * m + i] = data[i * n + j];
+    }
+
+    var d = try svd(allocator, bt, n, m);
+    // d.u is n x m, d.v is m x m, d.values is m -- and A = d.v * S * d.u'
+    const u = try allocator.alloc(f64, m * m);
+    errdefer allocator.free(u);
+    const v = try allocator.alloc(f64, n * m);
+    errdefer allocator.free(v);
+    const values = try allocator.alloc(f64, m);
+    errdefer allocator.free(values);
+
+    @memcpy(u, d.v);
+    @memcpy(v, d.u);
+    @memcpy(values, d.values);
+    const conv = d.converged;
+    d.deinit();
+
+    return Svd{
+        .values = values,
+        .u = u,
+        .v = v,
+        .m = m,
+        .n = m,
+        .converged = conv,
+        .allocator = allocator,
+    };
+}
+
 pub const Svd = struct {
     /// min(m,n) singular values, sorted DESCENDING. Always non-negative.
     values: []f64,
@@ -823,8 +881,11 @@ pub fn svd(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) 
 /// relative to the largest. This is the general answer that rankSymmetric could only
 /// give for the square symmetric case.
 pub fn rankOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !usize {
-    if (m < n or n == 0) return 0;
-    var d = try svd(allocator, data, m, n);
+    if (m == 0 or n == 0) return 0;
+    // ANY SHAPE since phase 7. Rank is a property of the matrix, not of how it
+    // happens to be oriented -- rank(A) = rank(A') always -- so refusing a wide
+    // matrix was never defensible on mathematical grounds, only on the SVD's.
+    var d = try svdAnyShape(allocator, data, m, n);
     defer d.deinit();
     const hi = d.values[0];
     if (hi == 0) return 0;
@@ -840,11 +901,12 @@ pub fn rankOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usiz
 /// smallest. Infinity when rank deficient -- the honest answer, and the number that
 /// says how many digits a least-squares fit can lose.
 pub fn conditionNumberOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !f64 {
-    if (m < n or n == 0) return std.math.nan(f64);
-    var d = try svd(allocator, data, m, n);
+    if (m == 0 or n == 0) return std.math.nan(f64);
+    var d = try svdAnyShape(allocator, data, m, n);
     defer d.deinit();
+    const k = @min(m, n);
     const hi = d.values[0];
-    const lo = d.values[n - 1];
+    const lo = d.values[k - 1];
     // negligible, not just zero: one-sided Jacobi leaves a dependent column at
     // rounding level, so `lo == 0` would report a finite 9e16 for a matrix rankOf
     // has already called deficient
@@ -1594,13 +1656,29 @@ test "svd: known singular values, and rank is scale-invariant" {
     try testing.expectApproxEqRel(@as(f64, 7), try conditionNumberOf(testing.allocator, &tiny, 3, 3), 1e-10);
 }
 
-test "svd: bad shapes are refused rather than answered" {
+test "svd: wide matrices are ANSWERED now, and degenerate ones still refused" {
+    // UPDATED IN PHASE 7. This used to assert that a wide matrix returned rank 0 and
+    // a NaN condition number -- "transpose it, the singular values are identical".
+    // True for the VALUES, and never defensible for the QUESTIONS: rank(A) = rank(A')
+    // and cond(A) = cond(A') always, so refusing one orientation was an artefact of
+    // the SVD's precondition, not a fact about the matrix. svdAnyShape does the
+    // transpose internally, so both are answered.
     const a = [_]f64{ 1, 2, 3, 4, 5, 6 };
-    // WIDE (m < n) is not supported: transpose it, since the singular values of A
-    // and A' are identical. Saying so beats reading past the end of the array.
-    try testing.expectEqual(@as(usize, 0), try rankOf(testing.allocator, &a, 2, 3));
-    try testing.expect(std.math.isNan(try conditionNumberOf(testing.allocator, &a, 2, 3)));
+    const at = [_]f64{ 1, 4, 2, 5, 3, 6 };
+
+    const r_wide = try rankOf(testing.allocator, &a, 2, 3);
+    const r_tall = try rankOf(testing.allocator, &at, 3, 2);
+    try testing.expectEqual(@as(usize, 2), r_wide);
+    try testing.expectEqual(r_tall, r_wide);
+
+    const c_wide = try conditionNumberOf(testing.allocator, &a, 2, 3);
+    const c_tall = try conditionNumberOf(testing.allocator, &at, 3, 2);
+    try testing.expect(!std.math.isNan(c_wide));
+    try testing.expectApproxEqRel(c_tall, c_wide, 1e-10);
+
+    // an EMPTY dimension is still refused -- there is no matrix there to ask about
     try testing.expectEqual(@as(usize, 0), try rankOf(testing.allocator, &a, 3, 0));
+    try testing.expect(std.math.isNan(try conditionNumberOf(testing.allocator, &a, 0, 3)));
 }
 
 test "rank and the condition number cannot disagree about singularity" {
@@ -1907,4 +1985,117 @@ test "pseudo-inverse: a WIDE system gets the minimum-norm EXACT solution" {
     // question, and now there is a function that answers this one
     var xl: [n]f64 = undefined;
     try testing.expect(!try leastSquares(alloc, &a, m, n, &b, &xl));
+}
+
+// ─── SVD of any shape (phase 7) ──────────────────────────────────────────────
+
+/// max |A - U S V'| over all entries, relative to |A|. THE defining property: it
+/// validates the singular values, both factor matrices and the shape handling
+/// together, on matrices nobody has tabulated.
+fn svdResidual(d: *const Svd, orig: []const f64, m: usize, n: usize) f64 {
+    const k = @min(m, n);
+    var anorm: f64 = 0;
+    for (orig) |x| anorm += @abs(x);
+    if (anorm == 0) anorm = 1;
+
+    var worst: f64 = 0;
+    for (0..m) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..k) |t| acc += d.u[i * k + t] * d.values[t] * d.v[j * k + t];
+            const e = @abs(acc - orig[i * n + j]);
+            if (e > worst) worst = e;
+        }
+    }
+    return worst / anorm;
+}
+
+test "SVD reconstructs a TALL matrix" {
+    const alloc = testing.allocator;
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6 }; // 3x2
+    var d = try svdAnyShape(alloc, &a, 3, 2);
+    defer d.deinit();
+    try testing.expect(svdResidual(&d, &a, 3, 2) < 1e-12);
+}
+
+test "SVD reconstructs a WIDE matrix -- the case that was refused" {
+    const alloc = testing.allocator;
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6 }; // 2x3
+    var d = try svdAnyShape(alloc, &a, 2, 3);
+    defer d.deinit();
+    try testing.expect(svdResidual(&d, &a, 2, 3) < 1e-12);
+}
+
+test "SVD reconstructs a square matrix, symmetric or not" {
+    const alloc = testing.allocator;
+    const a = [_]f64{ 4, 1, 0, 1, 3, 1, 0, 1, 2 };
+    var d1 = try svdAnyShape(alloc, &a, 3, 3);
+    defer d1.deinit();
+    try testing.expect(svdResidual(&d1, &a, 3, 3) < 1e-12);
+
+    const b = [_]f64{ 1, -2, 3, 4, 5, -6, 7, 8, 9 };
+    var d2 = try svdAnyShape(alloc, &b, 3, 3);
+    defer d2.deinit();
+    try testing.expect(svdResidual(&d2, &b, 3, 3) < 1e-12);
+}
+
+test "the singular values are non-negative and descending, whatever the shape" {
+    const alloc = testing.allocator;
+    const cases = [_]struct { d: []const f64, m: usize, n: usize }{
+        .{ .d = &.{ 1, 2, 3, 4, 5, 6 }, .m = 2, .n = 3 },
+        .{ .d = &.{ 1, 2, 3, 4, 5, 6 }, .m = 3, .n = 2 },
+        .{ .d = &.{ 3, 0, 0, 0, 2, 0, 0, 0, 1 }, .m = 3, .n = 3 },
+        .{ .d = &.{ 1, 1, 1, 1 }, .m = 2, .n = 2 }, // rank 1
+        .{ .d = &.{ 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4 }, .m = 3, .n = 4 },
+    };
+    for (cases) |c| {
+        var d = try svdAnyShape(alloc, c.d, c.m, c.n);
+        defer d.deinit();
+        const k = @min(c.m, c.n);
+        try testing.expect(svdResidual(&d, c.d, c.m, c.n) < 1e-11);
+        for (0..k) |t| try testing.expect(d.values[t] >= 0);
+        for (1..k) |t| try testing.expect(d.values[t] <= d.values[t - 1] + 1e-12);
+    }
+}
+
+test "the factors have orthonormal columns" {
+    const alloc = testing.allocator;
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6, 7, 8, 10 };
+    var d = try svdAnyShape(alloc, &a, 3, 3);
+    defer d.deinit();
+    // U'U = I and V'V = I
+    for (0..3) |p| {
+        for (0..3) |q| {
+            var du: f64 = 0;
+            var dv: f64 = 0;
+            for (0..3) |i| {
+                du += d.u[i * 3 + p] * d.u[i * 3 + q];
+                dv += d.v[i * 3 + p] * d.v[i * 3 + q];
+            }
+            const want: f64 = if (p == q) 1 else 0;
+            try testing.expectApproxEqAbs(want, du, 1e-10);
+            try testing.expectApproxEqAbs(want, dv, 1e-10);
+        }
+    }
+}
+
+test "a wide matrix and its transpose share singular values" {
+    const alloc = testing.allocator;
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6 }; // 2x3
+    const at = [_]f64{ 1, 4, 2, 5, 3, 6 }; // 3x2
+    var d1 = try svdAnyShape(alloc, &a, 2, 3);
+    defer d1.deinit();
+    var d2 = try svdAnyShape(alloc, &at, 3, 2);
+    defer d2.deinit();
+    for (0..2) |t| try testing.expectApproxEqAbs(d1.values[t], d2.values[t], 1e-11);
+}
+
+test "a rank-deficient wide matrix has a zero singular value" {
+    const alloc = testing.allocator;
+    // second row is twice the first: rank 1
+    const a = [_]f64{ 1, 2, 3, 2, 4, 6 };
+    var d = try svdAnyShape(alloc, &a, 2, 3);
+    defer d.deinit();
+    try testing.expect(svdResidual(&d, &a, 2, 3) < 1e-12);
+    try testing.expect(d.values[1] < 1e-12 * d.values[0] + 1e-12);
 }

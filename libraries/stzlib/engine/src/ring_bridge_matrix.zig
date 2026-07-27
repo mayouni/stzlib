@@ -1,4 +1,6 @@
+const std = @import("std");
 const matrix = @import("matrix.zig");
+const linalg = @import("linalg.zig");
 const nmm = @import("neural_matmul.zig");
 const R = @import("ring_api.zig");
 
@@ -186,8 +188,42 @@ fn ring_NewFromList(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(m), MH);
 }
 
+// ─── THE FULL SVD, ANY SHAPE (phase 7) ───────────────────────────────────────
+//
+//   StzEngineMatrixSvdFull(handle) -> [ converged, k, U (m*k), S (k), V (n*k) ]
+//
+// Until now only the singular VALUES reached Ring, and only for m >= n. Both are
+// lifted. The wide case is NOT "transpose it and remember": the singular values of
+// A and A' agree but U and V SWAP, so leaving the transpose to the caller produces
+// a decomposition that multiplies back to A' rather than to A.
+fn ring_SvdFull(p: *anyopaque) callconv(.c) void {
+    const mat = getMC(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    if (mat.rows == 0 or mat.cols == 0) {
+        rn(p, 0);
+        return;
+    }
+    var d = linalg.svdAnyShape(std.heap.c_allocator, mat.data, mat.rows, mat.cols) catch {
+        rn(p, 0);
+        return;
+    };
+    defer d.deinit();
+
+    const k = @min(mat.rows, mat.cols);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, if (d.converged) 1 else 0);
+    R.ring_list_adddouble(out, @floatFromInt(k));
+    for (0..mat.rows * k) |i| R.ring_list_adddouble(out, d.u[i]);
+    for (0..k) |i| R.ring_list_adddouble(out, d.values[i]);
+    for (0..mat.cols * k) |i| R.ring_list_adddouble(out, d.v[i]);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
     const funcs = [_]R.Reg{
+        .{ .name = "stzengine" ++ "matrixsvdfull", .func = &ring_SvdFull },
         .{ .name = "stzengine" ++ "matrixnew", .func = &ring_New },
         .{ .name = "stzengine" ++ "matrixfree", .func = &ring_Free },
         .{ .name = "stzengine" ++ "matrixrows", .func = &ring_Rows },

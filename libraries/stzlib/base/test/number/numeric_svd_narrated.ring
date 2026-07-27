@@ -122,18 +122,28 @@ Scenario("the square symmetric case still goes through the eigenvalues")
 	# Jacobi on the matrix -- producing the same numbers.
 EndScenario()
 
-Scenario("a wide matrix is refused, with the fix in the message")
-	# m < n has infinitely many exact solutions and needs a different treatment. The
-	# singular values of A and A-transpose are identical, so the advice is actionable
-	# rather than a dead end.
+Scenario("a wide matrix is ANSWERED now -- phase 7 lifted this")
+	# UPDATED IN PHASE 7. This scenario used to assert that Rank() and
+	# SingularValues() RAISED for m < n, advising "transpose it -- the singular
+	# values of A and A' are identical". The advice was true and the refusal was
+	# never defensible: rank(A) = rank(A') and cond(A) = cond(A'), so which
+	# orientation you happen to hold is a fact about your data layout and not about
+	# the matrix. svdAnyShape transposes internally now.
+	#
+	# AND THE ADVICE HID A TRAP that only became visible when the FACTORS were
+	# exposed: the singular values of A and A' agree, but U AND V SWAP. A caller who
+	# followed "transpose it" to obtain a decomposition got one that multiplies back
+	# to A' rather than to A. That is why the transpose moved inside the engine
+	# instead of staying in a message. See numeric_svd_general_narrated.
 	oWide = new stzMatrix([ [1,2,3], [4,5,6] ])
-	Then("Rank raises", RaisesRank(oWide), TRUE)
-	Then("...and says to transpose", RaisesRankSaying(oWide, "transpose"), TRUE)
-	Then("SingularValues raises too", RaisesSV(oWide), TRUE)
-
-	# ...and transposing genuinely works, which is what makes the advice honest
 	oTall = new stzMatrix([ [1,4], [2,5], [3,6] ])
-	Then("the transpose is answerable", oTall.Rank(), 2)
+
+	Then("Rank is answered", oWide.Rank(), 2)
+	Then("...and equals the transpose's", oWide.Rank(), oTall.Rank())
+	Then("SingularValues is answered", len(oWide.SingularValues()), 2)
+	Then("...and matches the transpose's, which is what made the old advice work",
+	     Rnd6(oWide.SingularValues()[1]), Rnd6(oTall.SingularValues()[1]))
+	Then("the transpose is of course still answerable", oTall.Rank(), 2)
 EndScenario()
 
 Scenario("a real design matrix: 200 observations, 4 predictors")
