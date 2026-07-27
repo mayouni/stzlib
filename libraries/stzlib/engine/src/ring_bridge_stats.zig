@@ -1620,6 +1620,60 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+//   StzEngineUmapTransform(aTrainX, n, d, aTrainY, dims, aNewX, m, k, a, b,
+//                          nEpochs, nSeed) -> m*dims coordinates
+//
+// Places points the fit never saw into an existing layout. Stateless, like the PCA
+// transform: the model crosses with the call rather than living behind a handle.
+fn ring_UmapTransform(p: *anyopaque) callconv(.c) void {
+    const tx = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(tx);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const ty = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(ty);
+    const dims: usize = @intFromFloat(g(p, 5));
+    const nx = listToF64(p, 6) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(nx);
+    const m: usize = @intFromFloat(g(p, 7));
+    const k: usize = @intFromFloat(g(p, 8));
+    const a = g(p, 9);
+    const b = g(p, 10);
+    const epochs: usize = @intFromFloat(g(p, 11));
+    const seed: u64 = @intFromFloat(g(p, 12));
+
+    if (n == 0 or d == 0 or m == 0 or dims == 0 or
+        tx.len != n * d or ty.len != n * dims or nx.len != m * d)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    const out_c = allocator.alloc(f64, m * dims) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_c);
+
+    umap_mod.transform(allocator, tx, ty, n, d, dims, nx, m, k, a, b, epochs, seed, out_c) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_c) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
@@ -1631,6 +1685,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     .{ .name = "stzengineumap", .func = &ring_Umap },
+    .{ .name = "stzengineumaptransform", .func = &ring_UmapTransform },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
