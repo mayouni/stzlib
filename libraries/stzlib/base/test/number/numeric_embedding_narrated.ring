@@ -271,11 +271,19 @@ Scenario("what they refuse, and the one thing they deliberately cannot do")
 	oFitted.SetPerplexity(3)
 	oFitted.SetIterations(60)
 	oFitted.Fit()
-	Then("ordinary t-SNE has no Transform", HasTransformOf(oFitted, aD[1]), FALSE)
-	Then("...and says what to do instead",
-	     StzFindFirst("LearnMapping", WhyTransform(oFitted, [ aD[1] ])) > 0, TRUE)
-	Then("...and names the other option too",
-	     StzFindFirst("stzUMAP", WhyTransform(oFitted, [ aD[1] ])) > 0, TRUE)
+	# THESE THREE ASSERTIONS USED TO PIN A REFUSAL, and the reasoning behind it was
+	# sound: t-SNE as published has no transform, because it optimises the positions of
+	# the points it was given and a new point has no position. What changed is not that
+	# fact -- it still holds of the published algorithm -- but the recognition that a
+	# transform can be BUILT from t-SNE's own parts: freeze the training map, give the
+	# new row the neighbour distribution the fit gave every training row, minimise the
+	# same KL over that one position.
+	#
+	# So the classic form now places new points too, APPROXIMATELY, and says so. What
+	# stays true is the ranking the old refusal was pointing at: the parametric variant
+	# is the EXACT one, and it is still what to reach for when exactness matters.
+	Then("ordinary t-SNE now transforms too, by a constructed extension",
+	     HasTransformOf(oFitted, aD[1]), TRUE)
 	oP = new stzPCA(aD)
 	oP.Center()
 	oP.Fit()
@@ -462,9 +470,14 @@ Scenario("the parametric variant through PCA, and what it costs")
 	Then("both variants separate the clusters",
 	     SeparationRatio(oPlain.Embedding(), 12) > 3 and
 	     SeparationRatio(oP.Embedding(), 12) > 3, TRUE)
-	Then("...but only one of them has a map",
-	     HasTransformOf(oPlain, aD[1]) = FALSE and
-	     HasTransformOf(oP, aD[1]) = TRUE, TRUE)
+	# Both place new points now. What separates them is not WHETHER but HOW WELL: the
+	# parametric one returns a training row to its fitted position exactly, because the
+	# forward pass is the embedding, while the constructed extension lands near it.
+	# That is what "having a map" was really pointing at.
+	Then("...and both can place a new point now",
+	     HasTransformOf(oPlain, aD[1]) and HasTransformOf(oP, aD[1]), TRUE)
+	Then("...but only the parametric one does it EXACTLY",
+	     ExactRoundTrip(oP, aD[1]) and NOT ExactRoundTrip(oPlain, aD[1]), TRUE)
 EndScenario()
 
 Scenario("SUPERVISED UMAP: labels reshape the graph")
@@ -1052,6 +1065,100 @@ Scenario("BUT THE NETWORK SATURATES, and that is the price of the exactness")
 	     LargerSecond(oNo.LocalRadiiOf(aNew)), TRUE)
 EndScenario()
 
+Scenario("CLASSIC t-SNE GETS A TRANSFORM, built rather than published")
+	# t-SNE as published has NO transform: it optimises the positions of the points it
+	# was given, so a new point has no position and the algorithm offers no way to give
+	# it one. This method used to refuse for exactly that reason.
+	#
+	# But "the algorithm does not provide one" is not "one cannot be built". What UMAP
+	# does can be done here with t-SNE's OWN objective -- freeze the training map, give
+	# the new row the same kind of neighbour distribution the fit gave every training
+	# row, and minimise the same KL over that one position. Every ingredient was
+	# already defined; only the paper declined to combine them.
+	aD = TwoDensitiesWell(25)
+	aNew = [ [0,0,0,0], [20,20,20,20] ]
+
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(800).PreserveDensityQ().FitQ()
+	Then("the fit is not parametric", o.IsParametric(), FALSE)
+	Then("...and it transforms anyway", len(o.Transform(aNew)), 2)
+
+	# IT IS APPROXIMATE, and says so. Measured over all fifty training rows put back
+	# through it: mean displacement 0.23 of the typical inter-point distance, with half
+	# landing nearest their own fitted position. UMAP's published transform gives 0.20
+	# and a quarter. The parametric variant gives zero and all of them, because there
+	# the forward pass IS the embedding.
+	#
+	# The fit optimised each row against every other row moving at the same time; this
+	# optimises one row against a frozen map. Different problems, different answers, and
+	# the gap between them is what that 0.23 measures.
+	Then("training rows come back NEAR where they were fitted, not onto them",
+	     RoundTripRatio(o) < 0.4, TRUE)
+EndScenario()
+
+Scenario("...and the density contract carries across it")
+	aD = TwoDensitiesWell(25)
+	aNew = [ [0,0,0,0], [20,20,20,20] ]
+
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(800).PreserveDensityQ().FitQ()
+	Then("the fit preserved density", o.DensityCorrelation() > 0.8, TRUE)
+
+	aB = o.Transform(aNew)
+	# the row from the tight knot is placed closer against its neighbours than the row
+	# from the diffuse cloud -- the same contract the training rows obey, by the same
+	# closed form the UMAP transform uses
+	Then("a dense new row is drawn tighter than a diffuse one",
+	     Reach(aB[1],aNew[1],aD,o.Embedding(),8) < Reach(aB[2],aNew[2],aD,o.Embedding(),8), TRUE)
+
+	aR = o.NewLocalRadii()
+	Then("the radii it measured say the same about the data", aR[1] < aR[2], TRUE)
+EndScenario()
+
+Scenario("A THIRD WAY TO FAIL ON AN OUTLIER, and why the radius is the answer")
+	aD = TwoDensitiesWell(25)
+	aFar = [ [200,200,200,200] ]
+
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(800).PreserveDensityQ().FitQ()
+	aB = o.Transform(aFar)
+	aR = o.NewLocalRadii()
+
+	# AT 200 UNITS OUT, EVERY TRAINING POINT IS VERY NEARLY EQUIDISTANT -- the spread
+	# WITHIN the training set is negligible beside the distance TO it -- so the new
+	# row's neighbour distribution goes UNIFORM. A uniform distribution's weighted
+	# centroid is the centroid of the whole map, and t-SNE recenters, so without a
+	# density line the point lands at the ORIGIN: measured at (0.307, -1.976).
+	#
+	# Which is the most dangerous of the three failures, because the middle of a
+	# scatter plot is where the interesting points are supposed to be. An unrecognised
+	# row does not land somewhere odd-looking -- it lands in the most meaningful-looking
+	# place there is.
+	#
+	# WITH a density line it may instead be pushed far out, as here -- but only if the
+	# predicted radius exceeds the spread of the whole map, which is what the uniform
+	# distribution makes the neighbours' spread. So the outcome swings on the
+	# calibration, and on one dataset it went out while on another it pinned to the
+	# centre.
+	#
+	# THREE TRANSFORMS, THREE DIFFERENT FAILURES ON THE SAME INPUT:
+	#
+	#   UMAP                places it outside the map          reach 5.99 vs 0.79
+	#   parametric den-SNE  saturates onto a legitimate point  0.003 apart
+	#   classic den-SNE     origin, or far out -- it depends   uniform neighbours
+	#
+	# Only the first is dependable, and NONE of them is detectable from the coordinates.
+	Then("the coordinates alone do not tell you it is an outlier",
+	     AllFinite(aB), TRUE)
+
+	# SO ASK THE DATA. 356 units from anything is 356 units from anything, whatever any
+	# map or model believes.
+	Then("but the radius does, immediately",
+	     aR[1] > LargestIn(o.LocalRadii(), 1, 50) * 1000, TRUE)
+	Then("...and LocalRadiiOf() answers without placing anything",
+	     o.LocalRadiiOf(aFar)[1] > 1000, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -1633,3 +1740,32 @@ func ExplicitWeightKept(aD)
 	o.SetPerplexityQ(5).SetIterationsQ(100).SetHiddenLayersQ([8]).LearnMappingQ()
 	o.SetDensityWeightQ(1).FitQ()
 	return o.DensityWeight()
+
+# mean displacement of the training rows under Transform(), over the typical distance
+# between points in the fitted map -- scale-free, so it can be compared across runs
+func RoundTripRatio(o)
+	aE = o.Embedding()
+	aB = o.Transform(TwoDensitiesWell(len(aE)/2))
+	nD = 0
+	for i = 1 to len(aE)
+		nD += DistOf(aB[i], aE[i])
+	next
+	nD = nD / len(aE)
+	nP = 0
+	nC = 0
+	for i = 1 to len(aE)
+		for j = i+1 to len(aE)
+			nP += DistOf(aE[i], aE[j])
+			nC++
+		next
+	next
+	if nC = 0 or nP = 0
+		return 0
+	ok
+	return nD / (nP/nC)
+
+# does a training row transform back to its fitted position to the last bit?
+func ExactRoundTrip(o, aRow)
+	aB = o.Transform([ aRow ])
+	aE = o.Embedding()
+	return aB[1][1] = aE[1][1] and aB[1][2] = aE[1][2]
