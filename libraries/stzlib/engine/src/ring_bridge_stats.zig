@@ -12,6 +12,7 @@ const autodiff = @import("autodiff.zig");
 const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
 const eigen_general = @import("eigen_general.zig");
+const pca_mod = @import("pca.zig");
 const cmplx = @import("complex.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
@@ -1415,6 +1416,120 @@ fn ring_EigenSystem(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, lst);
 }
 
+// ─── PCA (on the SVD) ────────────────────────────────────────────────────────
+//
+//   StzEnginePcaFit(aX, nRows, nCols, bStandardize, bSample)
+//     -> [ k, totalVariance,
+//          means (p), scales (p), loadings (p*k), singularValues (k),
+//          variance (k), scores (n*k) ]
+//     or 0 on a refusal
+//
+//   StzEnginePcaTransform(aRows, m, p, k, aMeans, aScales, aLoadings) -> m*k scores
+//
+// Transform is STATELESS -- the model crosses with the call rather than living
+// behind a handle. The model is p*(k+2) numbers against m*p for the data, so the
+// crossing is dominated by the rows either way, and a stateless call has no
+// lifetime to get wrong.
+fn ring_PcaFit(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const cols: usize = @intFromFloat(g(p, 3));
+    const standardize = g(p, 4) != 0;
+    const sample = g(p, 5) != 0;
+
+    if (n == 0 or cols == 0 or x.len != n * cols) {
+        rn(p, 0);
+        return;
+    }
+
+    var model = pca_mod.fit(
+        allocator,
+        x,
+        n,
+        cols,
+        standardize,
+        if (sample) .sample else .population,
+    ) catch {
+        rn(p, 0);
+        return;
+    };
+    defer model.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(model.k));
+    R.ring_list_adddouble(out, model.total_variance);
+    for (model.means) |v| R.ring_list_adddouble(out, v);
+    for (model.scales) |v| R.ring_list_adddouble(out, v);
+    for (model.loadings) |v| R.ring_list_adddouble(out, v);
+    for (model.values) |v| R.ring_list_adddouble(out, v);
+    for (model.variance) |v| R.ring_list_adddouble(out, v);
+    for (model.scores) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
+    const rows = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(rows);
+    const m: usize = @intFromFloat(g(p, 2));
+    const cols: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const means = listToF64(p, 5) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(means);
+    const scales = listToF64(p, 6) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(scales);
+    const loadings = listToF64(p, 7) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(loadings);
+
+    if (m == 0 or cols == 0 or k == 0 or rows.len != m * cols or
+        means.len != cols or scales.len != cols or loadings.len != cols * k)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    const out_scores = allocator.alloc(f64, m * k) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_scores);
+
+    // a Pca just wide enough for transform(); the fields it does not read are empty
+    const stub = pca_mod.Pca{
+        .means = means,
+        .scales = scales,
+        .loadings = loadings,
+        .values = &[_]f64{},
+        .variance = &[_]f64{},
+        .total_variance = 0,
+        .scores = &[_]f64{},
+        .n = 0,
+        .p = cols,
+        .k = k,
+        .allocator = allocator,
+    };
+    pca_mod.transform(&stub, rows, m, out_scores);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_scores) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
@@ -1423,6 +1538,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
+    .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
+    .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },

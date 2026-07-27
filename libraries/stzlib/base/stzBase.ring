@@ -77,6 +77,7 @@ ok
     load "number/stzComplex.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"
+    load "number/stzPCA.ring"
 
 # Loading files related to the STRING module
 

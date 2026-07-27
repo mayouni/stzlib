@@ -13,6 +13,7 @@ pub const lbfgs = @import("lbfgs.zig");
 pub const nn = @import("nn.zig");
 pub const complex = @import("complex.zig");
 pub const eigen_general = @import("eigen_general.zig");
+pub const pca = @import("pca.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -73,5 +74,6 @@ test {
     _ = nn;
     _ = complex;
     _ = eigen_general;
+    _ = pca;
     _ = numbuf;
 }
