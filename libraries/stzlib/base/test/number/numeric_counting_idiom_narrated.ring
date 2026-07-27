@@ -1,7 +1,15 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# THE COUNTING IDIOM (numeric phase 5).
+# THE COUNTING IDIOM (numeric phase 5, FIRST pass).
+#
+# WHAT THIS FILE RECORDS IS HISTORY, and still true history: the idiom below really
+# was the whole cost of three classes, and retiring it really was 393x. But it was
+# NOT the end -- what replaced HasKey was a linear scan, which is the right answer in
+# Ring and the wrong answer anywhere with a hash table. All three algorithms have
+# since moved into the engine. See numeric_text_mining_narrated (naive Bayes and
+# apriori) and the decision-tree notes in stzDecisionTree.ring. The assertions here
+# still hold because none of that changed an answer.
 #
 # The plan said "k-means / KNN / logistic / trees -> engine". Distance and logistic
 # regression went, and both were worth it. The tree was next, and it did not go --

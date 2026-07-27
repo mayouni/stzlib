@@ -6,6 +6,8 @@ const simplex = @import("simplex.zig");
 const logistic = @import("logistic.zig");
 const cluster = @import("cluster.zig");
 const tree = @import("tree.zig");
+const apriori = @import("apriori.zig");
+const bayes = @import("bayes.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -829,8 +831,178 @@ fn ring_TreeId3(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── APRIORI (phase 5, second pass) ──────────────────────────────────────────
+//
+//   StzEngineAprioriCount(aItemCodes, aOffsets, nTx)
+//     -> [ size, c1, c2, c3, count ] * k     (c2/c3 are -1 when unused)
+//   keys come back in FIRST-COUNTED order, which FrequentItemsets() publishes
+//
+// The Ring version scanned a key list linearly. That beat HasKey by 479x and was
+// still a scan over every singleton, pair and triple in the data.
+fn ring_AprioriCount(p: *anyopaque) callconv(.c) void {
+    const iv = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(iv);
+    const ov = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(ov);
+    const n_tx: usize = @intFromFloat(g(p, 3));
+
+    if (n_tx == 0 or ov.len != n_tx + 1) {
+        rn(p, 0);
+        return;
+    }
+
+    const items = allocator.alloc(i32, iv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(items);
+    for (iv, 0..) |v, i| items[i] = @intFromFloat(v);
+
+    const offs = allocator.alloc(u32, ov.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(offs);
+    for (ov, 0..) |v, i| offs[i] = @intFromFloat(v);
+
+    var res = apriori.countAll(allocator, items, offs, n_tx) catch {
+        rn(p, 0);
+        return;
+    };
+    defer res.deinit(allocator);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (res.keys.items, res.counts.items) |k, c| {
+        R.ring_list_adddouble(out, @floatFromInt(k[0]));
+        R.ring_list_adddouble(out, @floatFromInt(k[1]));
+        R.ring_list_adddouble(out, @floatFromInt(k[2]));
+        R.ring_list_adddouble(out, @floatFromInt(k[3]));
+        R.ring_list_adddouble(out, @floatFromInt(c));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// ─── NAIVE BAYES (phase 5, second pass) ──────────────────────────────────────
+//
+//   StzEngineBayesNew() -> handle          StzEngineBayesFree(handle)
+//   StzEngineBayesTrain(handle, cText, cLabel)
+//   StzEngineBayesScores(handle, cText) -> [ score-per-label, in label order ]
+//   StzEngineBayesLabels(handle) -> [ label, ... ] first-seen order
+//
+// The MODEL is resident, not just the counting. Ring's _TokensOf built a whole
+// stzText per document to reach the word iterator -- about a third of the cost at
+// 3000 documents -- so tokenization crossed too, using the SAME UAX#29 WordIter
+// str_extract_words walks and the same case fold StzLower applies. A different
+// tokenizer here would be a different model, agreeing on "the cat sat" and
+// disagreeing on "don't", "3.14", "word2vec" and anything CJK.
+const BH: [*:0]const u8 = "StzBayesHandle";
+
+/// A string parameter as a slice. ring_vm_api_getstring returns the bytes and
+/// getstringsize the length -- the pointer alone is not NUL-terminated for
+/// arbitrary Ring strings, so both are needed.
+fn strParam(p: *anyopaque, n: c_int) []const u8 {
+    const ptr = R.ring_vm_api_getstring(p, n);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, n));
+    return ptr[0..len];
+}
+
+fn getBayes(p: *anyopaque, n: c_int) ?*bayes.Model {
+    const raw = gcp(p, n, BH) orelse return null;
+    return @ptrCast(@alignCast(raw));
+}
+
+fn ring_BayesNew(p: *anyopaque) callconv(.c) void {
+    const m = bayes.Model.init(allocator) catch {
+        rcp(p, null, BH);
+        return;
+    };
+    rcp(p, m, BH);
+}
+
+fn ring_BayesFree(p: *anyopaque) callconv(.c) void {
+    const m = getBayes(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    m.deinit();
+    rn(p, 1);
+}
+
+fn ring_BayesTrain(p: *anyopaque) callconv(.c) void {
+    const m = getBayes(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const text = strParam(p, 2);
+    const label = strParam(p, 3);
+    bayes.train(m, text, label) catch {
+        rn(p, 0);
+        return;
+    };
+    rn(p, 1);
+}
+
+fn ring_BayesScores(p: *anyopaque) callconv(.c) void {
+    const m = getBayes(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const text = strParam(p, 2);
+    const n = m.labels.items.len;
+    if (n == 0 or m.n_docs == 0) {
+        rn(p, 0);
+        return;
+    }
+    const scores = allocator.alloc(f64, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(scores);
+    _ = bayes.classify(m, text, scores) catch {
+        rn(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (scores) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_BayesLabels(p: *anyopaque) callconv(.c) void {
+    const m = getBayes(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (m.labels.items) |l| R.ring_list_addstring2(out, l.ptr, @intCast(l.len));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_BayesStats(p: *anyopaque) callconv(.c) void {
+    const m = getBayes(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(m.n_docs));
+    R.ring_list_adddouble(out, @floatFromInt(m.vocab.count()));
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
+    .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
+    .{ .name = "stzenginebayesnew", .func = &ring_BayesNew },
+    .{ .name = "stzenginebayesfree", .func = &ring_BayesFree },
+    .{ .name = "stzenginebayestrain", .func = &ring_BayesTrain },
+    .{ .name = "stzenginebayesscores", .func = &ring_BayesScores },
+    .{ .name = "stzenginebayeslabels", .func = &ring_BayesLabels },
+    .{ .name = "stzenginebayesstats", .func = &ring_BayesStats },
     .{ .name = "stzengineknntopk", .func = &ring_KnnTopK },
     .{ .name = "stzengineclusterdatanew", .func = &ring_ClusterDataNew },
     .{ .name = "stzengineclusterdatafree", .func = &ring_ClusterDataFree },
