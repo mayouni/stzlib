@@ -2022,6 +2022,54 @@ what it refused.
   in place rather than deleted — and one rewritten, because "only one of them has a map"
   was really pointing at **exactness**, which is still true and is now asserted directly.*
 
+- **PARAMETRIC UMAP (`44336b9a6`)** — *the fourth corner, and a summary ratio that lied.*
+
+  | | free coordinates | learned map |
+  |---|---|---|
+  | **t-SNE** | `tsne.zig` | `ptsne.zig` |
+  | **UMAP** | `umap.zig` | **`pumap.zig`** |
+
+  **The objective does not change, and `pumap.zig` restates none of it.** The fuzzy
+  simplicial set, the a/b curve, the attraction along an edge and the repulsion from
+  sampled non-neighbours are all imported from `umap.zig` — `buildGraph`,
+  `attractCoeff`, `repelCoeff`, newly **extracted rather than copied**. A second
+  transcription of those two coefficient lines would be a second algorithm wearing the
+  same name; a test asserts both forms report the **same** a and b.
+
+  The dividend arrived at once: **supervision composes without a line of new code**,
+  because labels reshape the graph before any optimiser sees the edges. Extracting the
+  graph rather than copying it meant every optimiser got supervision the moment it
+  existed.
+
+  **Buys:** a transform that is **exact** — displacement 0.0000000000 over every
+  training row, against free-form UMAP's 0.807 on the same data. **Costs:** it inherits
+  the parametric blindness, a far row returning 0.000001 from a legitimate one. **The
+  exactness and the blindness are the same property seen twice**: a function evaluated
+  inside its domain is exact, and outside it is confident and wrong.
+
+  | lr | within-cluster | between | separation |
+  |---|---|---|---|
+  | 0.005 | 0.404 | 10.07 | 24.9 |
+  | 0.01 | 0.482 | 42.0 | 87.1 |
+  | **0.02** | **0.000004** | 27.08 | **6471293** — *mode collapse* |
+  | 0.05 | 437.2 | 1430.9 | 3.27 — *divergence* |
+
+  **A summary ratio that lied.** At twice the default every point of a cluster mapped to
+  the **same output**, and the separation ratio reported six and a half million — which
+  reads like a triumph. The cause was mine: summing a whole epoch of edge gradients into
+  one step makes a point's stride proportional to how many edges touch it, so a hub
+  lurches while a leaf shuffles and no single rate suits both. Dividing by each point's
+  visit count — *the difference between a summed gradient and a mean one* — fixed the
+  entire range (0.408/10.89/26.7 → 3.933/40.01/10.2 across 0.005–0.05).
+
+  What the test pins is the **failure**, not the fix: across a tenfold range the
+  within-cluster spread stays finite and non-zero. A collapse reads as ~0, a divergence
+  as hundreds, and **both produced a plausible-looking ratio**.
+
+  **Which is where this whole family keeps arriving from a different direction each
+  time: a summary number is not evidence that a fit is good — not the separation ratio,
+  not the density correlation, not the KL. Look at what it is a ratio *of*.**
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
