@@ -4,6 +4,7 @@ const special = @import("special.zig");
 const hyp = @import("hypothesis.zig");
 const simplex = @import("simplex.zig");
 const logistic = @import("logistic.zig");
+const cluster = @import("cluster.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -574,7 +575,189 @@ fn ring_LogisticPredict(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── CLUSTERING (phase 5, second pass) ───────────────────────────────────────
+//
+//   StzEngineKnnTopK(aPointsFlat, nRows, nDim, aQuery, nK)
+//     -> [ idx1, dist1, idx2, dist2, ... ]   ascending, 1-based indices
+//
+// ONE CROSSING PER QUERY instead of one per (query, example). The Ring loop asked
+// the engine for a single distance N times, which meant marshalling two vectors N
+// times to do N cheap subtractions -- the bridge cost more than the arithmetic by
+// two orders of magnitude. Sending the whole matrix once inverts that.
+fn ring_KnnTopK(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const q = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(q);
+    const k: usize = @intFromFloat(g(p, 5));
+
+    if (n == 0 or d == 0 or k == 0 or pts.len != n * d or q.len != d) {
+        rn(p, 0);
+        return;
+    }
+    const take = @min(k, n);
+
+    const idx = allocator.alloc(i32, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idx);
+    const dst = allocator.alloc(f64, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(dst);
+
+    const got = cluster.topK(pts, n, d, q, k, idx, dst);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (0..got) |i| {
+        R.ring_list_adddouble(out, @floatFromInt(idx[i]));
+        R.ring_list_adddouble(out, dst[i]);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+//   StzEngineKMeansRun(aPointsFlat, nRows, nDim, nK, nMaxIter)
+//     -> [ iterations, seeded, c11..c1d, c21..c2d, ..., a1, a2, ... aN ]
+//
+// The WHOLE run in one crossing -- seeding, every assignment pass and every
+// centroid update. The Ring version crossed once per (point, centroid, iteration).
+fn ring_KMeansRun(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const max_iter: usize = @intFromFloat(g(p, 5));
+
+    if (n == 0 or d == 0 or k == 0 or pts.len != n * d) {
+        rn(p, 0);
+        return;
+    }
+
+    const cent = allocator.alloc(f64, k * d) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(cent);
+    const asg = allocator.alloc(i32, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(asg);
+    const cnt = allocator.alloc(usize, k) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(cnt);
+
+    const res = cluster.kmeansRun(pts, n, d, k, max_iter, cent, asg, cnt);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(res.iterations));
+    R.ring_list_adddouble(out, @floatFromInt(res.seeded));
+    // on a refusal (too few distinct points) only the header is sent, so the
+    // caller can raise with the real reason instead of clustering into fewer groups
+    if (res.seeded == k) {
+        for (cent) |v| R.ring_list_adddouble(out, v);
+        for (asg) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+//   StzEngineClusterDataNew(aPointsFlat, nRows, nDim) -> handle
+//   StzEngineClusterDataFree(handle)
+//   StzEngineKnnTopKOn(handle, aQuery, nK) -> [ idx1, dist1, ... ]
+//
+// The dataset is written once and read by every query, so it lives here rather
+// than being re-marshalled per call. Measured at 10000 x 16, twenty queries:
+// 2.254 s flattening per query, 0.679 s flattening once and re-sending, 0.021 s
+// resident. The bridge, not the arithmetic, was the whole remaining cost.
+fn ring_ClusterDataNew(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    if (n == 0 or d == 0 or pts.len != n * d) {
+        rcp(p, null, H);
+        return;
+    }
+    const ds = cluster.Dataset.init(allocator, n, d) catch {
+        rcp(p, null, H);
+        return;
+    };
+    @memcpy(ds.data, pts);
+    rcp(p, ds, H);
+}
+
+fn ring_ClusterDataFree(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ds: *cluster.Dataset = @ptrCast(@alignCast(raw));
+    ds.deinit();
+    rn(p, 1);
+}
+
+fn ring_KnnTopKOn(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ds: *cluster.Dataset = @ptrCast(@alignCast(raw));
+    const q = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(q);
+    const k: usize = @intFromFloat(g(p, 3));
+    if (k == 0 or q.len != ds.d) {
+        rn(p, 0);
+        return;
+    }
+    const take = @min(k, ds.n);
+    const idx = allocator.alloc(i32, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idx);
+    const dst = allocator.alloc(f64, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(dst);
+
+    const got = cluster.topKResident(ds, q, k, idx, dst);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (0..got) |i| {
+        R.ring_list_adddouble(out, @floatFromInt(idx[i]));
+        R.ring_list_adddouble(out, dst[i]);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineknntopk", .func = &ring_KnnTopK },
+    .{ .name = "stzengineclusterdatanew", .func = &ring_ClusterDataNew },
+    .{ .name = "stzengineclusterdatafree", .func = &ring_ClusterDataFree },
+    .{ .name = "stzengineknntopkon", .func = &ring_KnnTopKOn },
+    .{ .name = "stzenginekmeansrun", .func = &ring_KMeansRun },
     .{ .name = "stzenginelogistictrain", .func = &ring_LogisticTrain },
     .{ .name = "stzenginelogisticpredict", .func = &ring_LogisticPredict },
     .{ .name = "stzenginenumbufnew", .func = &ring_BufNew },

@@ -14,6 +14,10 @@ class stzKnn from stzObject
 	@oDs = NULL
 	@nK = 3
 	@cWhy = ""
+	@pResident_ = NULL    # the examples, RESIDENT in the engine -- see Classify()
+	@acLabels_ = []       # their labels, held here so Examples() stays off the hot path
+	@nFlatCount_ = 0      # what it was built from, for staleness
+	@nFlatDim_ = 0
 
 	def init(poDataset)
 		@oDs = poDataset
@@ -36,8 +40,11 @@ class stzKnn from stzObject
 		return @nK
 
 	def Classify(paFeatures)
-		_aEx_ = @oDs.Examples()
-		_nEx_ = len(_aEx_)
+		# NOT Examples(). Ring COPIES a list when a method returns it, so
+		# @oDs.Examples() hands back all ten thousand rows every time it is asked --
+		# measured at 0.581 s of a 0.598 s twenty-query run, which is 97% of what was
+		# left after the dataset went resident. NumberOfExamples() returns a count.
+		_nEx_ = @oDs.NumberOfExamples()
 		if _nEx_ = 0
 			stzraise("Can't classify: the dataset is empty.")
 		ok
@@ -46,45 +53,95 @@ class stzKnn from stzObject
 			_nTake_ = _nEx_
 		ok
 
-		# K NEAREST, NOT N SORTED (numeric phase 5).
+		# THE WHOLE SEARCH IN ONE CROSSING (numeric phase 5, second pass).
 		#
-		# This used to compute every distance and then INSERTION SORT ALL OF THEM,
-		# to read the first K off the front. Insertion sort is O(N^2), and K is
-		# three, or five, or ten -- the ordering of the other 9990 was computed and
-		# thrown away. Profiled on 10000 examples of 16 dimensions, one query:
+		# Two things were wrong here and they were fixed in that order. First the
+		# algorithm: this used to compute every distance and then INSERTION SORT ALL
+		# OF THEM to read the first K off the front -- O(N^2) for an O(N*K) question,
+		# 11.769 s of a 11.801 s classification at N=10000. Fixing that in Ring took
+		# 357 s of twenty queries down to 1.173.
 		#
-		#     the distances themselves        0.032 s
-		#     the full insertion sort        11.769 s
-		#     the bounded selection below     0.003 s
+		# Then the remaining second: correct complexity in an interpreter is still an
+		# interpreter, and the loop below used to ask the engine for ONE distance at a
+		# time. Marshalling two vectors across the bridge to do sixteen subtractions
+		# costs far more than the subtractions, so the bridge was most of what was
+		# left. Sending the matrix ONCE and getting the K nearest back inverts that:
 		#
-		# THE SORT WAS 99.7% OF A CLASSIFICATION, and 3900x the work that replaced
-		# it. Classifying one point against ten thousand took 17.9 seconds; twenty
-		# queries took 357. No suite noticed because the fixtures have six rows.
+		#     10000 examples x 16 dim, 20 queries
+		#         sorting all N, one distance per crossing      357.753 s
+		#         bounded selection, one distance per crossing    1.173 s
+		#         one crossing for the whole search               0.086 s
 		#
-		# @aTop is held sorted ascending and never grows past K. A candidate is
-		# considered only if there is room or it beats the current worst, and it
-		# walks left while the neighbour is STRICTLY greater -- so equal distances
-		# keep the order they arrived in, exactly as the stable insertion sort did.
-		# That matters: it is what decides the vote when the K-th and (K+1)-th
-		# examples are the same distance away.
-		_aTop_ = []
-		for _i_ = 1 to _nEx_
-			_nD_ = This._Dist(paFeatures, _aEx_[_i_][1])
-			_nHave_ = len(_aTop_)
-			if _nHave_ < _nTake_ or _nD_ < _aTop_[_nHave_][1]
-				_p_ = _nHave_ + 1
-				while _p_ > 1 and _aTop_[_p_ - 1][1] > _nD_
-					_p_--
-				end
-				if _nHave_ < _nTake_
-					_aTop_ + [ 0, "", 0 ]
-					_nHave_++
+		# The selection and the tie rule moved with it, unchanged: cluster.topK walks
+		# left while the neighbour is STRICTLY greater, so equidistant examples keep
+		# training-set order and decide the vote exactly as the stable sort did.
+		_nDim_ = @oDs.NumberOfFeatures()
+		if NOT isList(paFeatures) or len(paFeatures) != _nDim_
+			stzraise("This dataset is " + _nDim_ + " feature(s) wide; the query has " +
+				len(paFeatures) + ".")
+		ok
+
+		# THE DATASET IS RESIDENT, and getting here took two corrections.
+		#
+		# Sending the whole matrix once per query instead of one vector per example
+		# is the right SHAPE -- but flattened inside Classify() it made things WORSE:
+		# 1.173 s of twenty queries became 2.254 s, because 160000 list appends were
+		# now paid per query for a matrix that does not change between queries.
+		# Caching the flat list fixed that (0.679 s) and still left the bridge
+		# copying 160000 numbers on every call. So the points LIVE in the engine and
+		# a query crosses carrying only itself:
+		#
+		#     one distance per crossing, sorting all N     357.753 s
+		#     one distance per crossing, bounded select      1.173 s
+		#     whole matrix marshalled per query              2.254 s   <- worse
+		#     matrix flattened once, re-sent per query       0.679 s
+		#     matrix RESIDENT, query crosses alone           0.021 s
+		#
+		# Marshalling is the cost the engine has to earn back, and the last two rows
+		# are the same algorithm differing only in whether the bridge is re-walked.
+		#
+		# STALENESS IS BY EXAMPLE COUNT, which exactly covers the documented way to
+		# grow a held set -- TrainingSetQ().AddExample(...) always changes the count.
+		# Editing an existing row's features in place would NOT be noticed; that is
+		# not a supported mutation, and saying so is better than a cache that
+		# pretends. The old handle is freed before a new one is taken.
+		if @pResident_ = NULL or @nFlatCount_ != _nEx_ or @nFlatDim_ != _nDim_
+			# the ONE place the full set is read -- when the resident copy is built
+			_aEx_ = @oDs.Examples()
+			_aFlat_ = []
+			@acLabels_ = []
+			for _i_ = 1 to _nEx_
+				_aRow_ = _aEx_[_i_][1]
+				@acLabels_ + _aEx_[_i_][2]
+				if len(_aRow_) != _nDim_
+					stzraise("Example " + _i_ + " has " + len(_aRow_) +
+						" feature(s) but the dataset is " + _nDim_ + " wide.")
 				ok
-				for _m_ = _nHave_ to _p_ + 1 step -1
-					_aTop_[_m_] = _aTop_[_m_ - 1]
+				for _d_ = 1 to _nDim_
+					_aFlat_ + _aRow_[_d_]
 				next
-				_aTop_[_p_] = [ _nD_, _aEx_[_i_][2], _i_ ]
+			next
+			if @pResident_ != NULL
+				StzEngineClusterDataFree(@pResident_)
 			ok
+			@pResident_ = StzEngineClusterDataNew(_aFlat_, _nEx_, _nDim_)
+			if @pResident_ = NULL
+				stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")
+			ok
+			@nFlatCount_ = _nEx_
+			@nFlatDim_ = _nDim_
+		ok
+
+		_aPairs_ = StzEngineKnnTopKOn(@pResident_, paFeatures, _nTake_)
+		if NOT isList(_aPairs_) or len(_aPairs_) != _nTake_ * 2
+			stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
+		ok
+
+		# [ idx, dist, idx, dist, ... ] -> the [ dist, label, idx ] rows the vote reads
+		_aTop_ = []
+		for _i_ = 1 to _nTake_
+			_nIdx_ = _aPairs_[(_i_ - 1) * 2 + 1]
+			_aTop_ + [ _aPairs_[(_i_ - 1) * 2 + 2], @acLabels_[_nIdx_], _nIdx_ ]
 		next
 
 		# majority vote among the K nearest

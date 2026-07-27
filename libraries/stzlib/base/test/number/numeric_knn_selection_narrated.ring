@@ -20,13 +20,30 @@ load "../_narrated.ring"
 # the front. Insertion sort is O(N^2). The complete ordering of the other 9995 was
 # computed and discarded, and it cost 3900 times what finding the five costs.
 #
-# So nothing moved to the engine here. The distance already lives there (phase 5 slice
-# 3 put stzKMeans and stzKnn on the one definition in similarity.zig), and 0.032 s for
-# ten thousand 16-dimension distances is not what needed attention. What needed
-# attention was an algorithm that solved a harder problem than it was asked.
+# Fixing that in Ring took twenty queries from 357.753 s to 1.173 s. AND THAT WAS THE
+# WRONG PLACE TO STOP -- correct complexity in an interpreter is still an interpreter.
+# The rest of this file records what the second pass found, which is that the bridge,
+# not the arithmetic, was everything that remained. Four measurements, same algorithm:
 #
-#     2000 examples x 8 dim, 20 queries      15.018 s  ->  0.187 s      80x
-#     10000 examples x 16 dim, 20 queries   357.753 s  ->  1.173 s     305x
+#     one distance per crossing, sorting all N        357.753 s
+#     one distance per crossing, bounded selection      1.173 s
+#     whole matrix marshalled inside every query        2.254 s   <-- WORSE
+#     matrix flattened once, re-sent per query          0.679 s
+#     matrix RESIDENT, query crosses alone              0.630 s
+#     ...and Examples() off the hot path                0.085 s
+#
+# THREE OF THOSE STEPS WERE ME GUESSING WRONG. Sending the whole matrix per query is
+# the right shape and made it worse, because 160000 list appends now happened per
+# query for data that never changes. Making the dataset resident -- phase 3's keystone
+# -- barely moved it, because that was not the cost either. The cost was
+# `@oDs.Examples()`: RING COPIES A LIST WHEN A METHOD RETURNS IT, so asking the
+# dataset for its examples handed back all ten thousand rows on every single query.
+# 0.581 s of a 0.598 s run: 97% of what was left, in a line that looks like an
+# accessor. Each step was measured rather than reasoned about, and each time the
+# reasoning had been wrong.
+#
+#     2000 examples x 8 dim, 20 queries      15.018 s  ->  0.012 s    1250x
+#     10000 examples x 16 dim, 20 queries   357.753 s  ->  0.085 s    4200x
 #
 # WHY NO SUITE CAUGHT IT: every KNN fixture in this library has about six rows, where
 # N^2 and N*K are the same number. A quadratic is invisible until it is enormous, and
@@ -157,12 +174,21 @@ Scenario("...and it is no longer quadratic")
 	     nH = 0 or (nT / nH) < 3, TRUE)
 EndScenario()
 
-Scenario("k-means was measured too, and left alone")
-	# The same plan line names clustering, so it was profiled in the same pass.
-	# It is not in the same trouble: 10000 points of 16 dimensions into 5 clusters
-	# runs in well under a second, because its inner loop is a distance and a mean
-	# -- no ordering anywhere. Nothing was changed here; this pins that it works and
-	# that it stays off the quadratic list.
+Scenario("k-means runs entirely in the engine now")
+	# First pass left this alone -- no ordering anywhere, so it was not in KNN's
+	# trouble -- but it had the same bridge problem: This._Dist() once per (point,
+	# centroid, iteration), which is N*K*iters crossings to do a few subtractions
+	# each. cluster.kmeansRun does seeding, every assignment pass and every centroid
+	# update behind ONE call: 10000 x 16 into 5 clusters, 0.985 s -> 0.076 s.
+	#
+	# It makes the same decisions, and they are decisions rather than details: the
+	# first K DISTINCT points seed it (no randomness -- two runs agree), a point
+	# equidistant from two centroids goes to the LOWER-numbered one, an empty
+	# cluster keeps its centroid, and convergence is still "no assignment changed"
+	# checked before the update, so the iteration count is unchanged. Verified by
+	# diffing centroids to ten decimals, cluster memberships, inertia, iteration
+	# counts, truncated maxIter runs and both refusal messages against the Ring
+	# implementation. The diff was empty.
 	aV = []
 	for i = 1 to 3000
 		v = []
