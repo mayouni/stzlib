@@ -1690,6 +1690,67 @@ what it refused.
   the largest loading is made positive and its score column negated with it; without a
   convention two runs look like they disagree.
 
+- **NONLINEAR EMBEDDING ON TOP OF PCA (`39ff9341a`, `e1ef15fb6`, `97aedc125`)**,
+  guard `numeric_embedding_narrated` (108) — t-SNE and UMAP, both taking PCA as an
+  optional pre-step, in `tsne.zig` / `umap.zig` / `ptsne.zig` with `stzTSNE` and
+  `stzUMAP` in `stzEmbedding.ring`.
+
+  PCA answers *"what are the dominant directions"*; these answer *"what sits near
+  what"*, which is a different question and needs a different guarantee. **Neither
+  preserves distance, and the guards say so** — what they preserve is neighbourhood,
+  so a cluster's *size* and the *gaps between* clusters carry no meaning and must not
+  be read as if they did.
+
+  | | |
+  |---|---|
+  | **PCA as a pre-step** | not a shortcut — the neighbour graph both algorithms build is what high dimensions ruin. Reducing to ~30 components first makes the neighbours mean something, and it is the same `stzPCA`, so centering, standardising and the variance divisor keep their one authority. |
+  | **The transform seam** | `StzEmbeddingPrepare` and `Transform()` must be **one** computation. They were two — `Scores()` and `Transform()` — agreeing to eight decimals and differing in the last bits. Unified. |
+  | **Iterations are not comparable** | t-SNE needs ~800 where UMAP needs ~300. Same-epochs benchmarks between them compare nothing. |
+
+  **Two things measured that contradict the obvious reading.** UMAP's `a`/`b` are
+  fitted by L-BFGS against the target curve rather than tabulated, and independently
+  came out at **1.577 / 0.895** — the published values, which is a real check on the
+  optimiser from phase 6. And the a/b fit is the only place phase 6's L-BFGS is used
+  by something that is not a test.
+
+- **TRANSFORM FOR NEW POINTS (`e1ef15fb6`), then PARAMETRIC t-SNE** — the two
+  algorithms answer *"where does an unseen point go"* in genuinely different ways, and
+  the difference is the honest part.
+
+  UMAP **re-optimises** the new point against a frozen map, so it is *anchored, not
+  exact*: putting the training rows back through `Transform()` moves them about **0.2
+  of the typical inter-point distance**, and only 25% land nearest their own fitted
+  position — the same 25% unsupervised, so this is the method's nature, not a defect.
+  Parametric t-SNE instead **trains a network** (van der Maaten 2009) whose forward
+  pass *is* the embedding, so its transform is exact by construction. Buying an exact
+  transform means accepting a model between you and the map.
+
+- **SUPERVISED UMAP (`97aedc125`)** — labels reweight the neighbour graph rather than
+  training anything: cross-class edges are crushed, edges touching an **unknown (−1)**
+  label merely damped, and each point's edges renormalised so its strongest is 1 again.
+  That renormalisation is load-bearing — without it the crushed edges take the local
+  connectivity with them. Semi-supervision falls out of the −1 marker rather than
+  needing its own path: damping instead of crushing is exactly the difference between
+  *"no information here"* and *"drop this row"*.
+
+  **The dial is not the shape anyone assumes.** Separation against `target_weight` on
+  random-labelled data: `0.00→0.98`, `0.05→1.71`, **`0.20→2.62` (the peak)**,
+  `0.50→1.46`, `0.90→1.43`, `0.99→1.43`. It **saturates** — `far_dist` is `2.5/(1−w)`,
+  so 0.9 gives `exp(−25)` and 0.99 `exp(−250)`, both zero to an f64, and the two runs
+  come out byte-identical. And **more supervision is not more separation**: crushing
+  every cross-class edge fragments the graph, points lose their neighbours, and each
+  class comes apart into pieces instead of holding as one group. *A monotone assertion
+  was written first and failed; measuring rather than loosening it produced both facts.*
+
+  **The guard tests supervision on data with no class structure** — random points,
+  alternating labels — because testing it on separable data would prove nothing: the
+  unsupervised run would separate that too, and both would pass. Which is also the
+  warning the surface carries. **A supervised embedding will separate your classes
+  because you asked it to, so it is never evidence that they are separable.** What it
+  is genuinely for: seeing structure *within* groups you already trust.
+
+---
+
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
 blanket refusal. It now asserts what that scenario was always about — `[[1,2],[3,4]]`
 is answered from **its own** spectrum (trace 5, determinant −2), not the symmetrised
