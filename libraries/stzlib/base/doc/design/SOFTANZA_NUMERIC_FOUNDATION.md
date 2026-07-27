@@ -1749,6 +1749,58 @@ what it refused.
   because you asked it to, so it is never evidence that they are separable.** What it
   is genuinely for: seeing structure *within* groups you already trust.
 
+- **DENSITY PRESERVATION / densMAP (`f0fc8e5a9`)**, `density.zig` — *the entry that
+  retires a caveat the rest of this section had to keep printing.*
+
+  Everything above tells you not to read cluster size, because UMAP and t-SNE preserve
+  **neighbourhoods** and not **density**. Measured rather than left as a warning: two
+  clusters whose spreads differ **twentyfold** are drawn **1.17** apart. A 20× fact,
+  rendered as 17%.
+
+  Narayan, Berger and Cho (*Nature Biotechnology* 2021) add one term. Give each point a
+  local radius — the membership-weighted mean squared distance to the neighbours it is
+  actually joined to — and require the original and embedded radii to stay **correlated**.
+
+  | λ | correlation | drawn ratio | cluster separation |
+  |---|---|---|---|
+  | 0 | 0.226 | 1.17 | 7.36 |
+  | 2 *(paper default)* | 0.436 | 1.31 | 6.28 |
+  | 30 | 0.871 | 1.81 | 5.85 |
+  | 300 | 0.993 | 23.83 | **1.44** |
+
+  **Three things the table says, none of them assumable.** It is a **correlation**, so
+  what returns is the **ordering** of densities and not their magnitude — at the paper
+  default a twentyfold difference still draws at 1.31. **It is a trade**, which the
+  small default hides: getting density nearly exact collapses the gap between clusters
+  from 7.36 to 1.44, because the term buys its room by spending what was holding the
+  groups apart. No setting is simply better — a high λ answers *"how dense is each
+  region"* at the cost of *"how many groups are there"*, and the second is usually why
+  the plot was opened. And **this dial is monotone**, where `target_weight` peaks at 0.2
+  and saturates past 0.9 — two dials on the same object behaving nothing alike.
+
+  **`LocalRadii()` is the other half, and arguably the better one:** a per-point density
+  estimate that ranks rows by isolation **with no reference to the embedding at all**.
+  Tight rows come out near 0.006 and diffuse ones near 1.80 — a 300-fold separation,
+  usable for outlier detection or for weighting a downstream model, and **free**,
+  because the density term computes it anyway.
+
+  `density.zig` is shared deliberately: the same term defines **den-SNE** in the same
+  paper, so radius, correlation and gradient keep **one definition** rather than drifting
+  into a second notion of what local density means.
+
+  **The one structural cost.** UMAP's optimiser is *embarrassingly local* — sample an
+  edge, pull, push a few negatives, repeat; nothing global anywhere. A Pearson
+  correlation is a statistic over **every** point, so this term inserts the optimiser's
+  **only synchronisation point**: a per-epoch reduction. It is also why it switches on
+  for the **final 30%** of epochs only — on a random start the embedded radii are noise,
+  their correlation is noise, and its gradient is noise with a lever arm.
+
+  *One of my expectations was wrong and measuring fixed it: a density-**reversed**
+  embedding scores **−0.600**, not −1. Reversing the order of a vector is not negating
+  it — −1 requires an affine decreasing relationship. Kept, because it means a reported
+  correlation is **not a percentage**: an embedding that gets every density rank
+  backwards can still score well above −1.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
