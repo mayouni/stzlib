@@ -15,6 +15,7 @@ const eigen_general = @import("eigen_general.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
+const pumap_mod = @import("pumap.zig");
 const ptsne_mod = @import("ptsne.zig");
 const cmplx = @import("complex.zig");
 const std = @import("std");
@@ -1826,6 +1827,107 @@ fn ring_TsneTransform(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+
+// ─── PARAMETRIC UMAP (Sainburg/McInnes/Gentner 2021) ─────────────────────────
+//
+//   StzEnginePumap(aX, n, d, aHidden, nNeighbors, nDims, nMinDist, nSpread,
+//                  nEpochs, nLR, nSeed, aLabels, nTargetWeight,
+//                  nDensityLambda, nDensityFrac)
+//     -> [ dims, a, b, shapeLen, weightLen,
+//          shape, weights, embedding (n*dims) ]
+//        and when nDensityLambda > 0, a trailing [ corr, localRadii (n) ]
+//
+// The weights come back to Ring so Transform is stateless, exactly as for parametric
+// t-SNE -- and it IS the parametric t-SNE transform, unchanged, because a forward pass
+// does not care which objective trained the weights.
+fn ring_Pumap(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const hv = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hv);
+    const nb: usize = @intFromFloat(g(p, 5));
+    const dims: usize = @intFromFloat(g(p, 6));
+    const min_dist = g(p, 7);
+    const spread = g(p, 8);
+    const epochs: usize = @intFromFloat(g(p, 9));
+    const lr = g(p, 10);
+    const seed: u64 = @intFromFloat(g(p, 11));
+    const lv = listToF64(p, 12);
+    defer if (lv) |l| allocator.free(l);
+    const target_weight = g(p, 13);
+    const dens_lambda = g(p, 14);
+    const dens_frac = g(p, 15);
+
+    if (n == 0 or d == 0 or x.len != n * d or dims == 0 or hv.len == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    const hidden = allocator.alloc(usize, hv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hidden);
+    for (hv, 0..) |v, i| hidden[i] = @intFromFloat(v);
+
+    var labels: ?[]i32 = null;
+    var labels_buf: ?[]i32 = null;
+    defer if (labels_buf) |lb| allocator.free(lb);
+    if (lv) |l| {
+        if (l.len != n) {
+            rn(p, 0);
+            return;
+        }
+        const lb = allocator.alloc(i32, n) catch {
+            rn(p, 0);
+            return;
+        };
+        for (l, 0..) |v, i| lb[i] = @intFromFloat(v);
+        labels_buf = lb;
+        labels = lb;
+    }
+
+    var r = pumap_mod.run(allocator, x, n, d, hidden, labels, .{
+        .n_neighbors = nb,
+        .dims = dims,
+        .min_dist = min_dist,
+        .spread = if (spread <= 0) 1.0 else spread,
+        .epochs = if (epochs == 0) 400 else epochs,
+        .learning_rate = if (lr <= 0) 0.01 else lr,
+        .seed = seed,
+        .target_weight = if (target_weight < 0) 0.5 else target_weight,
+        .density_lambda = if (dens_lambda < 0) 0 else dens_lambda,
+        .density_frac = if (dens_frac <= 0 or dens_frac > 1) 0.3 else dens_frac,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+    defer r.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(r.dims));
+    R.ring_list_adddouble(out, r.a);
+    R.ring_list_adddouble(out, r.b);
+    R.ring_list_adddouble(out, @floatFromInt(r.shape.len));
+    R.ring_list_adddouble(out, @floatFromInt(r.weights.len));
+    for (r.shape) |v| R.ring_list_adddouble(out, v);
+    for (r.weights) |v| R.ring_list_adddouble(out, v);
+    for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    if (r.local_radii.len > 0) {
+        R.ring_list_adddouble(out, r.density_correlation);
+        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // ─── LOCAL RADII OF UNSEEN ROWS ──────────────────────────────────────────────
 //
 //   StzEngineLocalRadiiOfNew(aTrainX, n, d, aNewX, m, k) -> m radii
@@ -2012,6 +2114,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineumaptransform", .func = &ring_UmapTransform },
     .{ .name = "stzenginelocalradiiofnew", .func = &ring_LocalRadiiOfNew },
     .{ .name = "stzenginetsnetransform", .func = &ring_TsneTransform },
+    .{ .name = "stzenginepumap", .func = &ring_Pumap },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },

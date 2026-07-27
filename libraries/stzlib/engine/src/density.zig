@@ -273,6 +273,41 @@ pub fn applyGradient(
     return corr;
 }
 
+/// ACCUMULATE lambda * d(-correlation)/dy into a gradient buffer, sparse edges.
+///
+/// The counterpart of `applyGradient` for an optimiser that has a gradient buffer
+/// rather than writing the layout directly -- parametric UMAP, where the answer has to
+/// reach the network's weights and cannot be written into y at all. NEGATED for the
+/// same reason the dense one is: the caller subtracts what it is given.
+pub fn accumulateGradient(
+    target: *const Target,
+    ws: *Workspace,
+    edges: []const Edge,
+    y: []const f64,
+    dy: []f64,
+    n: usize,
+    dims: usize,
+    lambda: f64,
+) f64 {
+    computeRadii(ws, edges, y, n, dims, target.total);
+    for (0..n) |i| ws.grad[i] = @max(ws.radius[i], MIN_RADIUS);
+
+    const corr = pointCoefficients(target, ws, n);
+    if (ws.degenerate) return 0;
+
+    for (edges) |e| {
+        const ii: usize = e.i;
+        const jj: usize = e.j;
+        const c = e.w * (ws.grad[ii] + ws.grad[jj]) * lambda;
+        for (0..dims) |t| {
+            const g = c * (y[ii * dims + t] - y[jj * dims + t]);
+            dy[ii * dims + t] -= g;
+            dy[jj * dims + t] += g;
+        }
+    }
+    return corr;
+}
+
 // --- DENSE VARIANT: the same density, a different p_ij ----------------------
 //
 // t-SNE's joint distribution is a full n-by-n matrix summing to 1, so its p_ij are

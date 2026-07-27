@@ -136,7 +136,7 @@ const Rng = struct {
     }
 };
 
-fn sqDist(a: []const f64, b: []const f64) f64 {
+pub fn sqDist(a: []const f64, b: []const f64) f64 {
     var s: f64 = 0;
     for (a, b) |x, y| {
         const d = x - y;
@@ -359,31 +359,35 @@ fn applyLabels(
     if (newmax > 0) wmax.* = newmax;
 }
 
-pub fn run(
-    alloc: std.mem.Allocator,
-    x: []const f64,
-    n: usize,
-    d: usize,
-    opts: Options,
-) !*Result {
-    return runSupervised(alloc, x, n, d, null, opts);
-}
 
-/// UMAP with optional LABELS. `labels` is one integer per point, or null for the
-/// ordinary unsupervised fit; a label of -1 means UNKNOWN, which is what makes the
-/// semi-supervised case work rather than forcing every point to be classified.
-pub fn runSupervised(
+/// THE FUZZY SIMPLICIAL SET -- everything UMAP knows about the data before any layout
+/// exists. Extracted so that the free-coordinate optimiser and the PARAMETRIC one
+/// share it rather than each growing a copy: the graph is what "UMAP" means, and two
+/// implementations of it would be two algorithms wearing one name.
+pub const Graph = struct {
+    edges: std.ArrayList(Edge),
+    wmax: f64,
+    /// the curve parameters fitted from min_dist and spread
+    a: f64,
+    b: f64,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Graph) void {
+        self.edges.deinit(self.allocator);
+    }
+};
+
+pub fn buildGraph(
     alloc: std.mem.Allocator,
     x: []const f64,
     n: usize,
     d: usize,
     labels: ?[]const i32,
     opts: Options,
-) !*Result {
+) !Graph {
     if (n < 3) return Error.TooFewPoints;
     if (opts.n_neighbors < 2 or opts.n_neighbors > n - 1) return Error.BadNeighbors;
     const k = opts.n_neighbors;
-    const dims = opts.dims;
 
     const idx = try alloc.alloc(u32, n * k);
     defer alloc.free(idx);
@@ -411,7 +415,7 @@ pub fn runSupervised(
     }
 
     var edges = try std.ArrayList(Edge).initCapacity(alloc, n * k);
-    defer edges.deinit(alloc);
+    errdefer edges.deinit(alloc);
     var wmax: f64 = 0;
     for (0..n) |i| {
         for (i + 1..n) |j| {
@@ -430,6 +434,39 @@ pub fn runSupervised(
     if (labels) |lab| applyLabels(alloc, edges.items, lab, opts.target_weight, n, &wmax);
 
     const ab = try fitAB(alloc, opts.min_dist, opts.spread);
+    return .{ .edges = edges, .wmax = wmax, .a = ab.a, .b = ab.b, .allocator = alloc };
+}
+
+pub fn run(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    opts: Options,
+) !*Result {
+    return runSupervised(alloc, x, n, d, null, opts);
+}
+
+/// UMAP with optional LABELS. `labels` is one integer per point, or null for the
+/// ordinary unsupervised fit; a label of -1 means UNKNOWN, which is what makes the
+/// semi-supervised case work rather than forcing every point to be classified.
+pub fn runSupervised(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    labels: ?[]const i32,
+    opts: Options,
+) !*Result {
+    var graph = try buildGraph(alloc, x, n, d, labels, opts);
+    defer graph.deinit();
+    const k = opts.n_neighbors;
+    const dims = opts.dims;
+    const edges = graph.edges;
+    var wmax = graph.wmax;
+    _ = &wmax;
+    const ab = .{ .a = graph.a, .b = graph.b };
+    _ = k;
 
     const y = try alloc.alloc(f64, n * dims);
     errdefer alloc.free(y);
@@ -958,6 +995,25 @@ pub fn localRadiiOfNew(
         }
     }
     radiiFromNeighbours(w, dist, m, k, out);
+}
+
+/// The attraction coefficient along an edge, and the repulsion coefficient from a
+/// non-neighbour. Exposed so the parametric optimiser uses the SAME curve rather than
+/// a second transcription of it -- these two lines are UMAP's actual objective.
+pub fn attractCoeff(d2: f64, a: f64, b: f64) f64 {
+    if (d2 <= 0) return 0;
+    return (-2.0 * a * b * std.math.pow(f64, d2, b - 1.0)) /
+        (a * std.math.pow(f64, d2, b) + 1.0);
+}
+
+pub fn repelCoeff(d2: f64, a: f64, b: f64, repulsion: f64) f64 {
+    // coincident points still need pushing apart, and the formula is undefined there
+    if (d2 <= 0) return 4.0;
+    return (2.0 * repulsion * b) / ((0.001 + d2) * (a * std.math.pow(f64, d2, b) + 1.0));
+}
+
+pub fn clipGrad(v: f64) f64 {
+    return clip(v);
 }
 
 /// The reference implementation clips every gradient component to +-4. Without it a
