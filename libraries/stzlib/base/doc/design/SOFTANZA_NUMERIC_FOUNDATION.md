@@ -1664,6 +1664,32 @@ what it refused.
   (an empty dimension is still refused), and `numeric_svd_narrated`'s "a wide matrix is
   refused" now asserts it is answered and agrees with its transpose.*
 
+- **PCA FOLLOWED (`fae73e757`)**, guard `numeric_pca_narrated` (47) — *the consumer
+  the factors were exposed for.* PCA is the SVD of the **centered** data matrix, so
+  almost no new arithmetic; what there is, is three decisions that each change the
+  answer.
+
+  | | |
+  |---|---|
+  | **Centering** | not optional, and done rather than documented as a duty. Uncentered PCA finds the direction of greatest *second moment* — roughly the direction of the mean — so the first component points at the centroid, appears to explain nearly everything, and explains nothing. |
+  | **Standardising** | a genuine choice with **no safe default**, so `Fit()` *refuses* until the caller makes it. Covariance PCA lets each feature contribute in its own units — height in metres against mass in grams makes the first component "mass", a fact about the unit. |
+  | **The variance divisor** | *not PCA's to invent.* Phase 0 made `stats.varianceDivisor` the one authority; `pca.zig` asks it rather than writing `n−1`, so these variances and `stzDataSet`'s cannot drift apart. Sample/population differ by exactly n/(n−1) and the **proportions are identical** — pinned. |
+
+  **Verified two ways.** Against a standard reference *once* (Lindsay Smith's tutorial
+  data: mean 1.81/1.91, first component 0.6779/0.7352, variances 1.2840/0.0491), and
+  then against **identities**, which need no reference and cover what a tabulated case
+  cannot: the explained variances **sum** to the total; the variance of score column j
+  **equals** explained variance j; every score column **averages zero** (the direct
+  evidence centering happened); and `Transform()` on the training data reproduces the
+  training scores exactly — the check that it centers by the *fit's* mean rather than
+  the new data's own.
+
+  Two details that would otherwise bite: a **constant column** has zero standard
+  deviation, so standardising it would divide by zero and NaN the whole decomposition —
+  it is left alone. And a component is a **direction**, which has no preferred sign, so
+  the largest loading is made positive and its score column negated with it; without a
+  convention two runs look like they disagree.
+
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
 blanket refusal. It now asserts what that scenario was always about — `[[1,2],[3,4]]`
 is answered from **its own** spectrum (trace 5, determinant −2), not the symmetrised
