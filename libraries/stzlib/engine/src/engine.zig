@@ -36,6 +36,17 @@ const linalg = @import("linalg.zig");
 const special = @import("special.zig");
 const hypothesis = @import("hypothesis.zig");
 const simplex = @import("simplex.zig");
+// PHASE 5-6 MODULES. These are compiled into the DLL via stz_stats_entry.zig,
+// but the `test` step builds THIS file -- so a module missing from here has
+// its tests silently skipped. The 1698-test count not moving after several
+// modules landed is what gave it away.
+const logistic = @import("logistic.zig");
+const cluster = @import("cluster.zig");
+const tree = @import("tree.zig");
+const apriori = @import("apriori.zig");
+const bayes = @import("bayes.zig");
+const autodiff = @import("autodiff.zig");
+const lbfgs = @import("lbfgs.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -623,6 +634,13 @@ test {
     _ = special;
     _ = hypothesis;
     _ = simplex;
+    _ = logistic;
+    _ = cluster;
+    _ = tree;
+    _ = apriori;
+    _ = bayes;
+    _ = autodiff;
+    _ = lbfgs;
     _ = linalg;
     _ = string;
     _ = char;

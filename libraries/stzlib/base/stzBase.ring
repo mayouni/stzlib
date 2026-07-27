@@ -75,6 +75,7 @@ ok
     # base/archive/number/ for reference.
     load "number/stzMatrix.ring"
     load "number/stzMathFunction.ring"
+    load "number/stzObjective.ring"
 
 # Loading files related to the STRING module
 

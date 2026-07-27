@@ -9,6 +9,7 @@ const tree = @import("tree.zig");
 const apriori = @import("apriori.zig");
 const bayes = @import("bayes.zig");
 const autodiff = @import("autodiff.zig");
+const lbfgs = @import("lbfgs.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
 
@@ -1131,10 +1132,88 @@ fn ring_GradValueAt(p: *anyopaque) callconv(.c) void {
     rn(p, autodiff.value(prog, xs, val));
 }
 
+// ─── L-BFGS (phase 6 slice 2) ────────────────────────────────────────────────
+//
+//   StzEngineMinimize(gradHandle, anStart, nMaxIter, nGradTol)
+//     -> [ status, value, iterations, evaluations, gradNorm, x1, x2, ... ]
+//
+// status: 0 gradient converged, 1 step converged, 2 iteration limit,
+//         3 line search failed, 4 objective was not finite at the start.
+//
+// The optimiser takes a function pointer, so the tape is only ONE objective it can
+// minimise; this bridge is the tape's adapter, not the optimiser's only door.
+const TapeObjective = struct {
+    prog: *autodiff.Program,
+    val: []f64,
+    adj: []f64,
+};
+
+fn tapeEval(ctx: ?*anyopaque, x: []const f64, grad: []f64) f64 {
+    const t: *TapeObjective = @ptrCast(@alignCast(ctx.?));
+    return autodiff.valueAndGradient(t.prog, x, t.val, t.adj, grad);
+}
+
+fn ring_Minimize(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const start = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(start);
+    const max_it: usize = @intFromFloat(g(p, 3));
+    const gtol = g(p, 4);
+
+    if (start.len != prog.n_vars) {
+        rn(p, 0);
+        return;
+    }
+
+    const nn = prog.nodes.items.len;
+    const val = allocator.alloc(f64, nn) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(val);
+    const adj = allocator.alloc(f64, nn) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(adj);
+
+    const x = allocator.alloc(f64, start.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    @memcpy(x, start);
+
+    var obj = TapeObjective{ .prog = prog, .val = val, .adj = adj };
+    const res = lbfgs.minimize(allocator, tapeEval, &obj, x, .{
+        .max_iterations = if (max_it == 0) 500 else max_it,
+        .gradient_tolerance = if (gtol <= 0) 1e-8 else gtol,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(@intFromEnum(res.status)));
+    R.ring_list_adddouble(out, res.value);
+    R.ring_list_adddouble(out, @floatFromInt(res.iterations));
+    R.ring_list_adddouble(out, @floatFromInt(res.evaluations));
+    R.ring_list_adddouble(out, res.gradient_norm);
+    for (x) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
     .{ .name = "stzenginegradcompile", .func = &ring_GradCompile },
+    .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
