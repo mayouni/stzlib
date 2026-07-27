@@ -1361,6 +1361,60 @@ fn ring_EigenGeneral(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, lst);
 }
 
+//   StzEngineEigenSystem(aFlatRowMajor, n)
+//     -> [ independentCount,
+//          re,im per eigenvalue (2n),
+//          re,im per vector entry, COLUMN j being the vector for eigenvalue j (2n*n) ]
+//     or 0 if the iteration gave up
+//
+// independentCount comes first because it is the thing a caller must check before
+// trusting the rest: a DEFECTIVE matrix has fewer eigenvectors than eigenvalues, and
+// back-substitution returns a near-duplicate rather than admitting it.
+fn ring_EigenSystem(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(flat);
+    const n: usize = @intFromFloat(g(p, 2));
+    if (n == 0 or flat.len != n * n) {
+        rn(p, 0);
+        return;
+    }
+
+    const vals = allocator.alloc(cmplx.Complex, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(vals);
+    const vecs = allocator.alloc(cmplx.Complex, n * n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(vecs);
+
+    eigen_general.eigensystem(allocator, flat, n, vals, vecs) catch {
+        rn(p, 0);
+        return;
+    };
+    const rank = eigen_general.independentCount(allocator, vecs, n) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(lst, @floatFromInt(rank));
+    for (vals) |z| {
+        R.ring_list_adddouble(lst, z.re);
+        R.ring_list_adddouble(lst, z.im);
+    }
+    for (vecs) |z| {
+        R.ring_list_adddouble(lst, z.re);
+        R.ring_list_adddouble(lst, z.im);
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
@@ -1368,6 +1422,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
+    .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
