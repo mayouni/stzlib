@@ -1801,6 +1801,69 @@ what it refused.
   correlation is **not a percentage**: an embedding that gets every density rank
   backwards can still score well above −1.*
 
+- **den-SNE (`126300625`)** — the same term in the other algorithm, and *the finding is
+  worse than densMAP's.*
+
+  Plain t-SNE returns a density correlation of **−0.186, +0.099, +0.125, −0.048, +0.168**
+  across five seeds on twentyfold-different data. Scattered around **zero**, negative as
+  often as not. So t-SNE cluster sizes are not merely unreliable — **they are noise**,
+  and anything read from them is read from the initialisation. Plain UMAP at least
+  scored a consistent +0.226: weak, but pointing the right way. The Student-t kernel is
+  why — its heavy tail solves the crowding problem precisely *by* letting every cluster
+  settle at whatever size the repulsion allows.
+
+  **What "shared" had to mean.** UMAP holds `p_ij` as a sparse edge list; t-SNE holds a
+  dense n×n joint distribution. Forcing t-SNE to materialise n(n−1)/2 edges to reuse one
+  loop would double its memory for nothing. So the **math** is shared —
+  `pointCoefficients` and everything it calls — and only the **traversal** differs. A
+  test builds one graph in both representations and requires identical answers, so *one
+  definition* is checked rather than claimed.
+
+  They also differ in **where the answer goes**, and the sign follows. UMAP has no
+  gradient buffer and writes each edge straight into the layout, so that path *ascends*
+  `y`. t-SNE accumulates a gradient and then applies momentum and Jacobs gains, so this
+  path accumulates into `dy` and **negates** — t-SNE descends its buffer. Backwards
+  would not crash; it would quietly *anti*-preserve density, so a test pins it.
+
+  | λ | seed 42 | seed 7 | seed 1234 | *second dataset* |
+  |---|---|---|---|---|
+  | 0.5 | 0.902 | 0.896 | 0.827 | 0.936 |
+  | 1.0 | 0.957 | 0.965 | 0.900 | 0.899 |
+  | 2.0 | **−0.646** | 0.480 | 0.910 | 0.929 |
+  | 4.0 | 0.938 | 0.936 | 0.933 | 0.953 *(at 5)* |
+
+  On the first dataset λ=2 lands anywhere from −0.65 to +0.91 **decided only by the
+  seed** — a density term of middling strength drives an oscillation the adaptive gains
+  then amplify. On the second, nothing is unstable anywhere. **The bad band is not at a
+  fixed place**, so λ cannot be set once and trusted.
+
+  **Which is why `DensityCorrelation()` is on the surface rather than internal.** It is
+  not a diagnostic for the curious — it is the only way to know the term did what was
+  asked, and a low value means the picture is not density-preserving however it was
+  configured. The default of 1.0 is a *starting point measured to behave on both
+  datasets*, not a guarantee. (stzUMAP's dial was cleanly monotone and defaults to 2.0 —
+  **same term, different optimiser: the shape belongs to the optimiser.**)
+
+  Here the cost arrives **itemised**. UMAP could only show it indirectly as lost cluster
+  separation; t-SNE reports its own objective, so KL rises from **0.291 to 0.443** at the
+  default — neighbourhood fidelity spent on density fidelity, in the units of the thing
+  given up.
+
+  **Parametric + density is refused, not ignored** — the parametric fit produces
+  coordinates through a network, so a term that moves coordinates directly has nothing to
+  act on, and silently dropping the request would return a picture the caller believes is
+  density-preserving and is not.
+
+  A cross-check worth having: stzUMAP weights the radius by its fuzzy graph, stzTSNE by
+  the joint distribution, and they rank rows by density with **over 90% pairwise
+  agreement** — the radius is a fact about the data, not an artefact of the graph used to
+  weigh it.
+
+  *One trap found the hard way: an earlier guard helper drew its data from the **low bits
+  of an LCG**, which have short periods and lay points on a lattice. On that data the
+  sweep read −0.86 at λ=0.2 and 0.97 at 5 — the opposite ranking. Taking the high bits
+  gave the clean picture above. **The measurement was wrong before the algorithm was.***
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
