@@ -8,6 +8,8 @@ const cluster = @import("cluster.zig");
 const tree = @import("tree.zig");
 const apriori = @import("apriori.zig");
 const bayes = @import("bayes.zig");
+const autodiff = @import("autodiff.zig");
+const std = @import("std");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -994,9 +996,149 @@ fn ring_BayesStats(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── AUTODIFF (phase 6 slice 1) ──────────────────────────────────────────────
+//
+//   StzEngineGradCompile(cExpr, cCommaSeparatedNames) -> handle (0 on failure)
+//   StzEngineGradWhy()  -> why the last compile failed, in words
+//   StzEngineGradAt(handle, anValues)      -> [ value, d/dv1, d/dv2, ... ]
+//   StzEngineGradValueAt(handle, anValues) -> value only
+//   StzEngineGradFree(handle)
+//
+// Names arrive as one comma-separated string rather than a Ring list because the
+// bridge has no string-list reader and one delimiter is a smaller thing to add
+// than one. Values arrive as a list, in the same order as the names.
+//
+// THE FAILURE REASON IS A SEPARATE CALL because a null handle says only "no". A
+// caller who typed `x + zz` deserves to be told which name is unknown, not to be
+// handed a null and left guessing -- this library has been bitten before by an
+// error that named the wrong cause (see :CanNotCreateDecimalNumber2).
+const GH: [*:0]const u8 = "StzGradHandle";
+var grad_last_error: []const u8 = "";
+
+fn ring_GradCompile(p: *anyopaque) callconv(.c) void {
+    const src = strParam(p, 1);
+    const names_raw = strParam(p, 2);
+
+    var names: [autodiff.MAX_VARS][]const u8 = undefined;
+    var n: usize = 0;
+    var it = std.mem.splitScalar(u8, names_raw, ',');
+    while (it.next()) |raw| {
+        const nm = std.mem.trim(u8, raw, &[_]u8{ ' ', '\t' });
+        if (nm.len == 0) continue;
+        if (n >= autodiff.MAX_VARS) {
+            grad_last_error = "too many variables";
+            rcp(p, null, GH);
+            return;
+        }
+        names[n] = nm;
+        n += 1;
+    }
+
+    const prog = autodiff.compile(allocator, src, names[0..n]) catch |e| {
+        grad_last_error = switch (e) {
+            error.UnknownName => "there is a name in the expression that is not one of the variables",
+            error.UnknownFunction => "there is a function call the engine does not know",
+            error.MissingParen => "a parenthesis is not closed",
+            error.BadArity => "a function was given the wrong number of arguments",
+            error.UnexpectedCharacter => "there is a character the expression cannot use",
+            error.UnexpectedEnd => "the expression stops in the middle",
+            error.TooManyVars => "too many variables",
+            error.Empty => "the expression is empty",
+            error.OutOfMemory => "out of memory",
+        };
+        rcp(p, null, GH);
+        return;
+    };
+    grad_last_error = "";
+    rcp(p, prog, GH);
+}
+
+fn ring_GradWhy(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring2(p, grad_last_error.ptr, @intCast(grad_last_error.len));
+}
+
+fn getGrad(p: *anyopaque, n: c_int) ?*autodiff.Program {
+    const raw = gcp(p, n, GH) orelse return null;
+    return @ptrCast(@alignCast(raw));
+}
+
+fn ring_GradFree(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    prog.deinit();
+    rn(p, 1);
+}
+
+fn ring_GradAt(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const xs = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(xs);
+    if (xs.len != prog.n_vars) {
+        rn(p, 0);
+        return;
+    }
+    const nn = prog.nodes.items.len;
+    const val = allocator.alloc(f64, nn) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(val);
+    const adj = allocator.alloc(f64, nn) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(adj);
+    const grad = allocator.alloc(f64, prog.n_vars) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(grad);
+
+    const v = autodiff.valueAndGradient(prog, xs, val, adj, grad);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, v);
+    for (grad) |gv| R.ring_list_adddouble(out, gv);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_GradValueAt(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const xs = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(xs);
+    if (xs.len != prog.n_vars) {
+        rn(p, 0);
+        return;
+    }
+    const val = allocator.alloc(f64, prog.nodes.items.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(val);
+    rn(p, autodiff.value(prog, xs, val));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
+    .{ .name = "stzenginegradcompile", .func = &ring_GradCompile },
+    .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
+    .{ .name = "stzenginegradfree", .func = &ring_GradFree },
+    .{ .name = "stzenginegradat", .func = &ring_GradAt },
+    .{ .name = "stzenginegradvalueat", .func = &ring_GradValueAt },
     .{ .name = "stzenginebayesnew", .func = &ring_BayesNew },
     .{ .name = "stzenginebayesfree", .func = &ring_BayesFree },
     .{ .name = "stzenginebayestrain", .func = &ring_BayesTrain },

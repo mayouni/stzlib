@@ -74,6 +74,7 @@ ok
     # stzMatrix covers the hot paths; the file is preserved under
     # base/archive/number/ for reference.
     load "number/stzMatrix.ring"
+    load "number/stzMathFunction.ring"
 
 # Loading files related to the STRING module
 
