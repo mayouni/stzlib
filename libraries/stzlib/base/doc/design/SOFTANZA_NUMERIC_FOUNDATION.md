@@ -1592,9 +1592,41 @@ what it refused.
   silently is precisely the plausible wrong answer the original refusal prevented.
 - **A capability the library did not have: polynomial roots.** The eigenvalues of a
   companion matrix *are* the roots; `x³−6x²+11x−6` gives 1, 2, 3.
-- **Not built, refused by name:** eigenvectors of a general matrix (inverse iteration
-  or back-substitution on the Schur form, delicate near a repeated eigenvalue, no
-  consumer).
+- **EIGENVECTORS FOLLOWED (`19f980aa6`)**, guard `numeric_eigenvectors_narrated` (37).
+  Deferred in the first pass, then asked for. Harder than the values for a structural
+  reason: **eigenvalues can be read off a matrix you have destroyed; eigenvectors
+  cannot.** Balancing, Hessenberg reduction and QR are all similarities, so the
+  spectrum survives being thrown away — but an eigenvector of the final triangular
+  form belongs to *that* matrix, and getting back needs every transformation the
+  eigenvalue routine discarded (`v_A = D·Q·Z·v_T`). The pipeline accumulates now, with
+  the standard EISPACK `hqr2` back-substitution tail.
+
+  **The QR iteration is still ONE implementation** — a second accumulating copy would
+  have been this project's most-punished defect — so `eigenvalues()` is a thin call
+  into the same routine with accumulation off.
+
+  **Two bugs surfaced, and neither would show in the eigenvalues:** the restructuring
+  dropped the balance-and-reduce calls from the eigenvalue path (QR on a *full* matrix
+  is a different computation, not a slower one); and a conjugate pair was stored
+  `(-im, +im)` where the back-substitution detects a pair by a **negative imaginary
+  part at the second index** — *the eigenvalue set was identical either way*, and the
+  vector pass silently skipped every complex block.
+
+  **Verified against the defining property**, not tabulated vectors: `max ‖Av − λv‖ /
+  ‖A‖` over every eigenpair, in complex arithmetic, through the public surface, on
+  eight matrices including a rotation, a companion matrix, a defective one, and one
+  scaled across twelve orders of magnitude.
+
+  **Defective matrices are reported, not papered over.** `[[1,1],[0,1]]` has eigenvalue
+  1 twice and *one* eigenvector; no algorithm can supply a second, and back-substitution
+  returns a near-duplicate. `NumberOfIndependentEigenVectors()` / `IsDefective()` /
+  `IsDiagonalizable()` say so, and `EigenVectors()` refuses rather than returning a
+  copy. *A repeated eigenvalue alone does not imply defective* — the identity is pinned
+  as the counter-example.
+
+  *Ring trap worth carrying: `^` is **bitwise XOR** in Ring, not exponentiation —
+  `3^2` is 1. Two assertions here silently XOR-ed vector components and reported a
+  magnitude of 0.*
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
 blanket refusal. It now asserts what that scenario was always about — `[[1,2],[3,4]]`
