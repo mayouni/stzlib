@@ -54,6 +54,7 @@ const pca = @import("pca.zig");
 const tsne = @import("tsne.zig");
 const umap = @import("umap.zig");
 const ptsne = @import("ptsne.zig");
+const density = @import("density.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -655,6 +656,7 @@ test {
     _ = tsne;
     _ = umap;
     _ = ptsne;
+    _ = density;
     _ = linalg;
     _ = string;
     _ = char;

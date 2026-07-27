@@ -39,6 +39,7 @@
 
 const std = @import("std");
 const lbfgs = @import("lbfgs.zig");
+const density = @import("density.zig");
 
 pub const Options = struct {
     /// the local/global dial; the reference implementation defaults to 15
@@ -59,6 +60,18 @@ pub const Options = struct {
     /// reference implementation's default is 0.5, and the number turns into a
     /// distance penalty -- see applyLabels.
     target_weight: f64 = 0.5,
+
+    /// DENSITY PRESERVATION (densMAP). 0 leaves the algorithm exactly as it was; the
+    /// paper's default is 2.0. See density.zig for what the term does and what the
+    /// resulting picture may and may not be read as saying.
+    density_lambda: f64 = 0,
+
+    /// the FINAL fraction of epochs during which the density term is active. It is
+    /// switched on late on purpose: on a random initialisation the embedding radii are
+    /// noise, so their correlation with anything is noise, and its gradient is noise
+    /// with a lever arm. The layout must be roughly right before "are the dense parts
+    /// tight?" is a question with an answer.
+    density_frac: f64 = 0.3,
 };
 
 pub const Result = struct {
@@ -69,10 +82,29 @@ pub const Result = struct {
     b: f64,
     n: usize,
     dims: usize,
+
+    /// ORIGINAL-SPACE local radius per point -- how far, on average, this point sits
+    /// from the neighbours it is actually connected to. Empty unless density
+    /// preservation was asked for.
+    ///
+    /// This is a DATA PRODUCT and not a by-product of drawing: it ranks points by how
+    /// isolated they are, and it is meaningful without looking at the embedding at
+    /// all. It costs nothing extra, because the density term has to compute it anyway.
+    local_radii: []f64,
+
+    /// correlation between original and embedded log-radii at the end of the run --
+    /// how far the density term actually got. NaN when it was never switched on.
+    ///
+    /// Reported rather than hidden because it is the ONLY evidence that the extra term
+    /// achieved anything, and a caller who cannot see it has to take the picture on
+    /// faith. It is not a percentage: see the -0.60 case in density.zig.
+    density_correlation: f64,
+
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Result) void {
         self.allocator.free(self.embedding);
+        if (self.local_radii.len > 0) self.allocator.free(self.local_radii);
         self.allocator.destroy(self);
     }
 };
@@ -411,6 +443,29 @@ pub fn runSupervised(
 
     const a = ab.a;
     const b = ab.b;
+
+    // ── DENSITY PRESERVATION, when asked for ──
+    //
+    // The target is built ONCE from the graph that already exists -- the same edges
+    // and the same membership weights the layout is being optimised against. Nothing
+    // here recomputes a neighbourhood or invents a second notion of what is near.
+    const want_density = opts.density_lambda > 0 and n >= 3;
+    var dens_target: ?density.Target = null;
+    defer if (dens_target) |*t| t.deinit();
+    var dens_ws: ?density.Workspace = null;
+    defer if (dens_ws) |*dws| dws.deinit();
+    var dens_corr: f64 = std.math.nan(f64);
+    // the epoch at which the term switches on -- see Options.density_frac
+    var dens_start: usize = opts.epochs;
+    if (want_density) {
+        const de: []const density.Edge = @ptrCast(edges.items);
+        dens_target = try density.buildTarget(alloc, de, x, n, d);
+        dens_ws = try density.Workspace.init(alloc, n);
+        const frac = @min(@max(opts.density_frac, 0.0), 1.0);
+        const on_for: f64 = @as(f64, @floatFromInt(opts.epochs)) * frac;
+        dens_start = opts.epochs -| @as(usize, @intFromFloat(on_for));
+    }
+
     var epoch: usize = 0;
     while (epoch < opts.epochs) : (epoch += 1) {
         // the step size decays to zero, which is what makes the layout settle
@@ -459,10 +514,48 @@ pub fn runSupervised(
                 }
             }
         }
+
+        // AFTER the local passes, not interleaved with them. The correlation is a
+        // statistic over every point, so it cannot be evaluated part-way through an
+        // epoch in which some points have moved and others have not -- this is the
+        // synchronisation point the rest of the optimiser does not have.
+        if (want_density and epoch >= dens_start) {
+            const de: []const density.Edge = @ptrCast(edges.items);
+            dens_corr = density.applyGradient(
+                &dens_target.?,
+                &dens_ws.?,
+                de,
+                y,
+                n,
+                dims,
+                opts.density_lambda,
+                alpha,
+                clipFn,
+            );
+        }
+    }
+
+    var radii_out: []f64 = &[_]f64{};
+    if (want_density) {
+        const de: []const density.Edge = @ptrCast(edges.items);
+        const mean_log = try density.meanLogRadius(de, x, n, d, alloc);
+        radii_out = try dens_target.?.radii(alloc, mean_log);
+        // the correlation AFTER the last step, so the reported number describes the
+        // embedding that is actually returned rather than the one before it
+        dens_corr = density.correlation(&dens_target.?, &dens_ws.?, de, y, n, dims);
     }
 
     const out = try alloc.create(Result);
-    out.* = .{ .embedding = y, .a = a, .b = b, .n = n, .dims = dims, .allocator = alloc };
+    out.* = .{
+        .embedding = y,
+        .a = a,
+        .b = b,
+        .n = n,
+        .dims = dims,
+        .local_radii = radii_out,
+        .density_correlation = dens_corr,
+        .allocator = alloc,
+    };
     return out;
 }
 
@@ -635,6 +728,13 @@ pub fn transform(
 /// The reference implementation clips every gradient component to +-4. Without it a
 /// pair that lands almost on top of another produces an enormous step and throws a
 /// point to infinity, taking the layout with it.
+/// `clip` is inline and therefore has no address to pass; density.zig takes the
+/// bound as a function pointer so that the same limit applies to its step as to the
+/// cross-entropy steps around it.
+fn clipFn(v: f64) f64 {
+    return clip(v);
+}
+
 inline fn clip(v: f64) f64 {
     if (v > 4) return 4;
     if (v < -4) return -4;
@@ -1138,4 +1238,204 @@ test "supervised runs are reproducible too" {
     var b = try runSupervised(alloc, data.x, n, d, data.y, .{ .n_neighbors = 4, .epochs = 100, .seed = 8 });
     defer b.deinit();
     for (a.embedding, b.embedding) |p, q| try testing.expectEqual(p, q);
+}
+
+/// two clusters of DELIBERATELY different density: one tight, one twenty times more
+/// spread. The case densMAP exists for, and the case plain UMAP renders misleadingly.
+fn twoDensities(alloc: std.mem.Allocator, per: usize, d: usize) ![]f64 {
+    const n = per * 2;
+    const x = try alloc.alloc(f64, n * d);
+    var rng = Rng.init(7);
+    for (0..per) |i| {
+        for (0..d) |t| x[i * d + t] = (rng.uniform() - 0.5) * 0.15;
+    }
+    for (per..n) |i| {
+        for (0..d) |t| x[i * d + t] = 20.0 + (rng.uniform() - 0.5) * 3.0;
+    }
+    return x;
+}
+
+/// mean pairwise distance within rows [lo, hi)
+fn spreadOf(v: []const f64, lo: usize, hi: usize, dims: usize) f64 {
+    var s: f64 = 0;
+    var c: f64 = 0;
+    for (lo..hi) |i| {
+        for (i + 1..hi) |j| {
+            s += @sqrt(sqDist(v[i * dims ..][0..dims], v[j * dims ..][0..dims]));
+            c += 1;
+        }
+    }
+    return if (c > 0) s / c else 0;
+}
+
+/// between-cluster distance over within-cluster distance, for a two-cluster layout
+fn separationOf(v: []const f64, per: usize, n: usize) f64 {
+    var bt: f64 = 0;
+    for (0..per) |i| {
+        for (per..n) |j| bt += @sqrt(sqDist(v[i * 2 ..][0..2], v[j * 2 ..][0..2]));
+    }
+    const btw = bt / @as(f64, @floatFromInt(per * (n - per)));
+    const wth = (spreadOf(v, 0, per, 2) + spreadOf(v, per, n, 2)) / 2;
+    return if (wth > 0) btw / wth else 0;
+}
+
+test "PLAIN UMAP FLATTENS DENSITY -- a 20x difference is drawn as 17 percent" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // what is true of the data
+    const true_ratio = spreadOf(x, per, n, d) / spreadOf(x, 0, per, d);
+    try testing.expect(true_ratio > 15);
+
+    // what the ordinary picture shows
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400 });
+    defer r.deinit();
+    const drawn = spreadOf(r.embedding, per, n, 2) / spreadOf(r.embedding, 0, per, 2);
+
+    // THE CAVEAT, AS A NUMBER. Twentyfold in the data, 1.17 on the page. This is not a
+    // defect in the implementation -- it is what optimising a neighbourhood objective
+    // does, and it is why every honest description of UMAP tells you not to read
+    // cluster size. Measured here so the warning is demonstrated rather than asserted.
+    try testing.expect(drawn < 1.5);
+    try testing.expect(true_ratio / drawn > 10);
+
+    // and nothing is computed that was not asked for
+    try testing.expectEqual(@as(usize, 0), r.local_radii.len);
+    try testing.expect(std.math.isNan(r.density_correlation));
+}
+
+test "densMAP recovers the density ordering, and lambda IS monotone here" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // MEASURED. correlation / drawn ratio / cluster separation against lambda, with a
+    // true ratio of 19.96:
+    //
+    //     lambda    corr    ratio    separation
+    //       0      0.226    1.167      7.359
+    //       2      0.436    1.314      6.278     <- the paper default
+    //      10      0.760    1.687      6.465
+    //      30      0.871    1.807      5.848
+    //     100      0.940    5.859      2.397
+    //     300      0.993   23.825      1.443
+    //
+    // UNLIKE target_weight, THIS DIAL IS MONOTONE -- the correlation rises all the
+    // way, with no peak and no saturation. Worth stating outright because the two
+    // dials sit on the same object and behave nothing alike, and carrying either
+    // shape over to the other would be wrong.
+    var lo = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400, .density_lambda = 2.0 });
+    defer lo.deinit();
+    var hi = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400, .density_lambda = 30.0 });
+    defer hi.deinit();
+
+    try testing.expect(hi.density_correlation > lo.density_correlation);
+    const rl = spreadOf(lo.embedding, per, n, 2) / spreadOf(lo.embedding, 0, per, 2);
+    const rh = spreadOf(hi.embedding, per, n, 2) / spreadOf(hi.embedding, 0, per, 2);
+    try testing.expect(rh > rl);
+
+    // the diffuse cluster is drawn wider than the tight one, which is the whole point
+    try testing.expect(rh > 1.5);
+}
+
+test "IT IS A TRADE: density fidelity is bought with cluster separation" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // THE COST, WHICH THE PAPER DEFAULT HIDES BY BEING SMALL. Pushing lambda to 300
+    // gets the density almost exactly right (correlation 0.993, drawn ratio 23.8
+    // against a true 20.0) -- and collapses the separation between the two clusters
+    // from 7.36 to 1.44. The density term stretches and shrinks the layout, and it
+    // does that by spending the room the cross-entropy was using to hold groups apart.
+    //
+    // So no setting is simply better than another. A high lambda answers "how dense is
+    // each region" at the cost of "how many groups are there", and the second question
+    // is the one people usually open a UMAP plot to ask.
+    var plain = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400 });
+    defer plain.deinit();
+    var heavy = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400, .density_lambda = 300.0 });
+    defer heavy.deinit();
+
+    try testing.expect(heavy.density_correlation > 0.95);
+    try testing.expect(separationOf(heavy.embedding, per, n) <
+        separationOf(plain.embedding, per, n) / 2);
+}
+
+test "lambda 0 is EXACTLY the ordinary fit, not merely close" {
+    const alloc = testing.allocator;
+    const per = 15;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var plain = try run(alloc, x, n, d, .{ .n_neighbors = 6, .epochs = 150 });
+    defer plain.deinit();
+    var zero = try run(alloc, x, n, d, .{ .n_neighbors = 6, .epochs = 150, .density_lambda = 0 });
+    defer zero.deinit();
+    for (plain.embedding, zero.embedding) |a, b| try testing.expectEqual(a, b);
+}
+
+test "the local radii are a data product, usable without the picture" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 200, .density_lambda = 2.0 });
+    defer r.deinit();
+    try testing.expectEqual(n, r.local_radii.len);
+
+    // every point of the tight cluster sits closer to its neighbours than every point
+    // of the diffuse one -- an ordering that answers "which rows are isolated" with no
+    // reference to the embedding at all
+    var tight_max: f64 = 0;
+    for (0..per) |i| tight_max = @max(tight_max, r.local_radii[i]);
+    var diffuse_min: f64 = std.math.inf(f64);
+    for (per..n) |i| diffuse_min = @min(diffuse_min, r.local_radii[i]);
+    try testing.expect(tight_max < diffuse_min);
+}
+
+test "density preservation composes with supervision" {
+    const alloc = testing.allocator;
+    const per = 15;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+    const y = try alloc.alloc(i32, n);
+    defer alloc.free(y);
+    for (0..n) |i| y[i] = @intCast(i % 2);
+
+    var r = try runSupervised(alloc, x, n, d, y, .{
+        .n_neighbors = 6,
+        .epochs = 200,
+        .target_weight = 0.2,
+        .density_lambda = 5.0,
+    });
+    defer r.deinit();
+    for (r.embedding) |v| try testing.expect(!std.math.isNan(v) and !std.math.isInf(v));
+    try testing.expect(!std.math.isNan(r.density_correlation));
+    try testing.expectEqual(n, r.local_radii.len);
+}
+
+test "too few points to correlate leaves the term off rather than dividing by zero" {
+    const alloc = testing.allocator;
+    const x = [_]f64{ 0, 0, 1, 1, 2, 2 };
+    var r = try run(alloc, &x, 3, 2, .{ .n_neighbors = 2, .epochs = 50, .density_lambda = 5.0 });
+    defer r.deinit();
+    for (r.embedding) |v| try testing.expect(!std.math.isNan(v));
 }
