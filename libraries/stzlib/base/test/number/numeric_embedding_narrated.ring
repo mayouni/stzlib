@@ -255,19 +255,105 @@ Scenario("what they refuse, and the one thing they deliberately cannot do")
 	oT = new stzTSNE(aD)
 	Then("results refuse before Fit", RaisesEmbedding(oT), TRUE)
 
-	# NO Transform(). PCA learns a MAP and can project unseen data; these learn a
-	# LAYOUT of the points they were given, and a new point has no position in it.
-	# A Transform() that re-ran the optimisation would be a different answer wearing
-	# the same name, so the method is ABSENT rather than misleading.
-	Then("t-SNE has no Transform, unlike PCA", HasTransform(oT), FALSE)
-	oU = new stzUMAP(aD)
-	Then("...nor does UMAP", HasTransform(oU), FALSE)
-	# while PCA, which learns a map, does
+	# t-SNE HAS NO Transform(), AND UMAP DOES -- and an earlier version of this file
+	# asserted that NEITHER did, which was wrong about UMAP. It lumped two algorithms
+	# together on a property only one of them has.
+	#
+	# t-SNE optimises the positions of the points it was given and nothing else, so
+	# there is no map to apply and a new point has no position. UMAP builds a
+	# NEIGHBOUR GRAPH, and a graph extends: the new point's edges to the training
+	# points are computable, and the training layout is already a solution to
+	# optimise them against. See the Transform scenario below.
+	Then("t-SNE has no Transform", HasTransform(oT), FALSE)
 	oP = new stzPCA(aD)
 	oP.Center()
 	oP.Fit()
-	Then("...and PCA does, because a linear map extends to new points",
+	Then("...while PCA does, because a linear map extends to new points",
 	     len(oP.Transform([ aD[1] ])), 1)
+EndScenario()
+
+Scenario("UMAP places points the fit never saw")
+	# THE CHECK THAT MATTERS FIRST: a point the model has already seen must come back
+	# to essentially where the fit put it. If Transform used a different local metric,
+	# or projected through the wrong space, this is where it shows.
+	aD = Blobs(12, 6)
+	oU = new stzUMAP(aD)
+	oU.SetNeighbors(5)
+	oU.SetEpochs(300)
+	oU.Fit()
+
+	aBack = oU.Transform(aD)
+	Then("one row out per row in", len(aBack), 36)
+	Then("...of the embedding's width", len(aBack[1]), 2)
+	Then("a training point returns to its own cluster",
+	     NearestCluster(aBack[1], oU.Embedding(), 12), 1)
+	Then("...and one from the middle group to that group",
+	     NearestCluster(aBack[20], oU.Embedding(), 12), 2)
+	Then("...and one from the last", NearestCluster(aBack[30], oU.Embedding(), 12), 3)
+	Then("nearly all of them do", FractionHome(aBack, oU.Embedding(), 12) > 0.9, TRUE)
+
+	# a GENUINELY new point, sitting inside each blob, must land beside that blob
+	aNew = [ [0,0,0,0,0,0], [30,30,30,30,30,30], [60,60,60,60,60,60] ]
+	aT = oU.Transform(aNew)
+	Then("a new point in blob 1 lands in blob 1",
+	     NearestCluster(aT[1], oU.Embedding(), 12), 1)
+	Then("...blob 2 in blob 2", NearestCluster(aT[2], oU.Embedding(), 12), 2)
+	Then("...blob 3 in blob 3", NearestCluster(aT[3], oU.Embedding(), 12), 3)
+
+	# THE MAP DOES NOT MOVE. A map that shifted under every lookup would not be one,
+	# and every coordinate a caller recorded before would silently become stale.
+	aBefore = oU.Embedding()
+	v = oU.Transform(aNew)
+	Then("the training layout is untouched by a lookup",
+	     SameEmbedding(aBefore, oU.Embedding()), TRUE)
+
+	Then("a row of the wrong width is refused", RaisesTransform(oU, [ [1,2] ]), TRUE)
+	Then("...naming the width it wanted",
+	     StzFindFirst("fitted on 6", WhyTransform(oU, [ [1,2] ])) > 0, TRUE)
+EndScenario()
+
+Scenario("...and it goes through the SAME PCA the fit used")
+	# The subtle one. When the fit reduced with PCA, the model measures distances in
+	# COMPONENT space -- so a new row must be projected by that same analysis before
+	# its neighbours mean anything. Projecting it with its own centering, or not at
+	# all, would compare it against the training data in a different space and every
+	# neighbour would be wrong.
+	aD = Blobs(12, 6)
+	oU = new stzUMAP(aD)
+	oU.ReduceWithPCA(3)
+	oU.SetNeighbors(5)
+	oU.SetEpochs(300)
+	oU.Fit()
+
+	aBack = oU.Transform(aD)
+	Then("training points still return home through the reduction",
+	     FractionHome(aBack, oU.Embedding(), 12) > 0.9, TRUE)
+
+	aNew = [ [0,0,0,0,0,0], [30,30,30,30,30,30], [60,60,60,60,60,60] ]
+	aT = oU.Transform(aNew)
+	Then("a new point still lands in its blob",
+	     NearestCluster(aT[1], oU.Embedding(), 12), 1)
+	Then("...and the third in the third",
+	     NearestCluster(aT[3], oU.Embedding(), 12), 3)
+
+	# and Transform takes RAW rows -- the same shape Fit took -- rather than making
+	# the caller do the projection themselves
+	Then("Transform accepts raw feature rows, not component scores",
+	     len(aT[1]), 2)
+EndScenario()
+
+Scenario("Transform is deterministic, which a lookup had better be")
+	aD = Blobs(10, 5)
+	oU = new stzUMAP(aD)
+	oU.SetNeighbors(4)
+	oU.SetEpochs(200)
+	oU.SetSeed(11)
+	oU.Fit()
+
+	aNew = [ [1,1,1,1,1], [31,31,31,31,31] ]
+	a1 = oU.Transform(aNew)
+	a2 = oU.Transform(aNew)
+	Then("the same rows give the same coordinates", SameEmbedding(a1, a2), TRUE)
 EndScenario()
 
 Scenario("the name forms hold here too")
@@ -431,3 +517,48 @@ func HasTransform(o)
 		b = FALSE
 	done
 	return b
+
+# which blob's fitted points is this coordinate nearest to? 1-based
+func NearestCluster(aPoint, aFitted, nPer)
+	nBest = 1
+	nBestV = -1
+	for j = 1 to len(aFitted)
+		d = 0
+		for t = 1 to len(aPoint)
+			dd = aPoint[t] - aFitted[j][t]
+			d += dd*dd
+		next
+		if nBestV < 0 or d < nBestV
+			nBestV = d
+			nBest = j
+		ok
+	next
+	return ceil(nBest / nPer)
+
+# what fraction of transformed rows land in the cluster they came from
+func FractionHome(aBack, aFitted, nPer)
+	nOk = 0
+	for i = 1 to len(aBack)
+		if NearestCluster(aBack[i], aFitted, nPer) = ceil(i / nPer)
+			nOk++
+		ok
+	next
+	return nOk / len(aBack)
+
+func RaisesTransform(o, aR)
+	b = FALSE
+	try
+		v = o.Transform(aR)
+	catch
+		b = TRUE
+	done
+	return b
+
+func WhyTransform(o, aR)
+	s = ""
+	try
+		v = o.Transform(aR)
+	catch
+		s = cCatchError
+	done
+	return s

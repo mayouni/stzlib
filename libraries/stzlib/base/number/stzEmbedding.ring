@@ -53,13 +53,29 @@
 #     classes seed deterministically so two runs agree; change SetSeed() to see how
 #     much of your picture is the data and how much is the arrangement.
 #
-# ── AND ONE THING t-SNE CANNOT DO THAT PCA CAN ──
+# ── ONE THING t-SNE CANNOT DO, AND UMAP CAN ──
 #
-# There is no Transform() here. PCA learns a MAP and can project data it has never
-# seen; t-SNE and UMAP (in this classic form) learn a LAYOUT of the points they were
-# given, and a new point has no position in it. Adding a Transform() that re-ran the
-# whole optimisation would be a different answer wearing the same name, so the method
-# is absent rather than misleading.
+# stzTSNE has no Transform(), and stzUMAP does. AN EARLIER VERSION OF THIS NOTE SAID
+# NEITHER DID, WHICH WAS WRONG ABOUT UMAP -- it lumped two algorithms together on a
+# property only one of them has.
+#
+# t-SNE optimises the positions of the points it was given and nothing else. There is
+# no map to apply, so a new point has no position, and adding a Transform() that
+# quietly re-ran the whole optimisation would be a different answer wearing the same
+# name. The method is absent rather than misleading.
+#
+# UMAP builds a NEIGHBOUR GRAPH, and a graph extends. A new point's edges to the
+# training points are computable, and the training layout is already a solution those
+# edges can be optimised against -- so stzUMAP.Transform() finds the new point's
+# nearest training neighbours, gives it its own local metric, starts it at the
+# weighted average of their embedded positions, and refines it with the training
+# layout HELD FIXED.
+#
+# WHAT TRANSFORM IS NOT: it is not the same as having included the point in the
+# original fit. The map does not rearrange to accommodate it. A point belonging to
+# structure the fit never saw will be placed among whichever training points are
+# least far away -- confidently, and wrongly. It answers "where does this sit in the
+# map I already have", not "what would the map have looked like with this in it".
 
 # RING FILE ORDER: functions must be defined BEFORE classes in the same file --
 # a `func` after a `class` is never seen, and the call fails at runtime with R3
@@ -314,6 +330,8 @@ class stzUMAP from stzObject
 	@nA = 0
 	@nB = 0
 	@oPca = NULL
+	@aPrepared = []       # the data the fit actually saw (post-PCA when reducing)
+	@nPreparedDim = 0
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -413,6 +431,10 @@ class stzUMAP from stzObject
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
 		_nD_ = _a_[2]
+		# kept because Transform() must measure a new point against THE SAME data the
+		# fit saw -- which is the PCA scores when reducing, not the raw features
+		@aPrepared = _aX_
+		@nPreparedDim = _nD_
 
 		_aRes_ = StzEngineUmap(_aX_, @nRows, _nD_, @nNeighbors, @nDims,
 			@nMinDist, @nSpread, @nEpochs, @nSeed)
@@ -454,6 +476,77 @@ class stzUMAP from stzObject
 	def CurveParameters()
 		This._MustBeFitted()
 		return [ :a = @nA, :b = @nB ]
+
+	# PLACE POINTS THE FIT NEVER SAW into the existing map.
+	#
+	# The new rows go through exactly what the training rows went through: the same
+	# PCA (when one was used), then their nearest training neighbours, their own rho
+	# and sigma, an initial position at the weighted average of those neighbours'
+	# coordinates, and a short refinement with THE TRAINING LAYOUT HELD FIXED. A map
+	# that shifted under every lookup would not be a map.
+	#
+	# This is not a refit. See the note at the top of this file for what that costs.
+	def Transform(paRows)
+		This._MustBeFitted()
+		if NOT isList(paRows) or len(paRows) = 0
+			stzraise("Give me a list of rows to place.")
+		ok
+		_nM_ = len(paRows)
+		for _i_ = 1 to _nM_
+			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
+				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
+					" value(s); this model was fitted on " + @nCols + ".")
+			ok
+		next
+
+		# THROUGH THE SAME PCA, when there was one. Projecting new rows with their own
+		# centering -- or not projecting them at all -- would measure them against the
+		# training data in a different space, and every neighbour would be wrong.
+		_aNew_ = []
+		if @nPcaDims > 0 and @oPca != NULL
+			_aS_ = @oPca.Transform(paRows)
+			for _i_ = 1 to _nM_
+				for _j_ = 1 to @nPreparedDim
+					_aNew_ + _aS_[_i_][_j_]
+				next
+			next
+		else
+			for _i_ = 1 to _nM_
+				for _j_ = 1 to @nCols
+					_aNew_ + paRows[_i_][_j_]
+				next
+			next
+		ok
+
+		_aFlatY_ = []
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nDims
+				_aFlatY_ + @aEmbedding[_i_][_j_]
+			next
+		next
+
+		_nK_ = @nNeighbors
+		if _nK_ > @nRows
+			_nK_ = @nRows
+		ok
+
+		_aOut_ = StzEngineUmapTransform(@aPrepared, @nRows, @nPreparedDim,
+			_aFlatY_, @nDims, _aNew_, _nM_, _nK_, @nA, @nB, 30, @nSeed)
+		if NOT isList(_aOut_) or len(_aOut_) != _nM_ * @nDims
+			stzraise("The engine refused the placement.")
+		ok
+
+		_aRes_ = []
+		_nAt_ = 0
+		for _i_ = 1 to _nM_
+			_aRow_ = []
+			for _j_ = 1 to @nDims
+				_nAt_++
+				_aRow_ + _aOut_[_nAt_]
+			next
+			_aRes_ + _aRow_
+		next
+		return _aRes_
 
 	def Why()
 		This._MustBeFitted()

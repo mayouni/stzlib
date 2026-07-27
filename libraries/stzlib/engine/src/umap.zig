@@ -365,6 +365,172 @@ pub fn run(
     return out;
 }
 
+// --- TRANSFORM: placing points the fit never saw ----------------------------
+//
+// THIS IS WHERE UMAP AND t-SNE GENUINELY DIFFER, and an earlier note in this
+// library got it wrong by lumping them together. t-SNE optimises the positions of
+// the points it was given and nothing else: a new point has no position, and the
+// classic algorithm offers no way to give it one. UMAP builds a NEIGHBOUR GRAPH,
+// and a graph extends -- a new point's edges to the training points are computable,
+// and the training layout is already a solution those edges can be optimised
+// against.
+//
+// So the procedure is the fit's, with the training embedding held FIXED:
+//
+//   1. find the new point's k nearest neighbours among the TRAINING points;
+//   2. give it its own rho and sigma from those distances -- the same local metric
+//      the fit used, computed fresh, because a new point's neighbourhood density is
+//      its own and not inherited from whoever it landed near;
+//   3. initialise it at the weighted average of its neighbours' embedded positions,
+//      which is already a reasonable answer and makes the optimisation a refinement
+//      rather than a search;
+//   4. run the same attract/repel SGD, moving ONLY the new point.
+//
+// WHAT THIS IS NOT: it is not the same as having included the point in the original
+// fit. The training layout does not rearrange to accommodate it. If the new point
+// belongs to structure the fit never saw, it will be placed among whichever training
+// points happen to be least far away -- confidently, and wrongly. Transform answers
+// "where does this sit in the map I already have", not "what would the map have
+// looked like with this in it".
+
+/// Place `new_x` (m*d) into an existing embedding. `train_x` (n*d) and `train_y`
+/// (n*dims) are the data and layout the model was fitted on; `a` and `b` its fitted
+/// curve. Writes m*dims coordinates into `out`.
+pub fn transform(
+    alloc: std.mem.Allocator,
+    train_x: []const f64,
+    train_y: []const f64,
+    n: usize,
+    d: usize,
+    dims: usize,
+    new_x: []const f64,
+    m: usize,
+    k: usize,
+    a: f64,
+    b: f64,
+    epochs: usize,
+    seed: u64,
+    out: []f64,
+) !void {
+    if (n == 0 or m == 0 or k == 0 or k > n) return Error.BadNeighbors;
+
+    const idx = try alloc.alloc(u32, m * k);
+    defer alloc.free(idx);
+    const dist = try alloc.alloc(f64, m * k);
+    defer alloc.free(dist);
+    const cand = try alloc.alloc(f64, n);
+    defer alloc.free(cand);
+
+    // k nearest TRAINING points for each new point. Note the asymmetry with the
+    // fit's knn: there, a point could not be its own neighbour; here a new point is
+    // not in the training set at all, so every training point is a candidate --
+    // including one at distance zero, if the caller passes a row it already fitted.
+    for (0..m) |i| {
+        for (0..n) |j| cand[j] = @sqrt(sqDist(new_x[i * d ..][0..d], train_x[j * d ..][0..d]));
+        for (0..k) |slot| {
+            var best: usize = 0;
+            var bestv = std.math.inf(f64);
+            for (0..n) |j| {
+                if (cand[j] < bestv) {
+                    bestv = cand[j];
+                    best = j;
+                }
+            }
+            idx[i * k + slot] = @intCast(best);
+            dist[i * k + slot] = bestv;
+            cand[best] = std.math.inf(f64);
+        }
+    }
+
+    const rho = try alloc.alloc(f64, m);
+    defer alloc.free(rho);
+    const sigma = try alloc.alloc(f64, m);
+    defer alloc.free(sigma);
+    localMetric(dist, m, k, rho, sigma);
+
+    const w = try alloc.alloc(f64, m * k);
+    defer alloc.free(w);
+    for (0..m) |i| {
+        for (0..k) |t| {
+            const dd = dist[i * k + t] - rho[i];
+            w[i * k + t] = if (dd > 0) @exp(-dd / sigma[i]) else 1.0;
+        }
+    }
+
+    // INITIALISE AT THE WEIGHTED AVERAGE of the neighbours' positions. Starting from
+    // a random point would work and would need far more epochs to undo; starting
+    // from the neighbourhood's centre of mass makes the SGD a correction.
+    for (0..m) |i| {
+        var wsum: f64 = 0;
+        for (0..dims) |t| out[i * dims + t] = 0;
+        for (0..k) |t| {
+            const j: usize = idx[i * k + t];
+            const wt = w[i * k + t];
+            wsum += wt;
+            for (0..dims) |c| out[i * dims + c] += wt * train_y[j * dims + c];
+        }
+        if (wsum > 0) {
+            for (0..dims) |c| out[i * dims + c] /= wsum;
+        }
+    }
+
+    if (epochs == 0) return;
+
+    var rng = Rng.init(seed);
+    var wmax: f64 = 0;
+    for (w) |v| {
+        if (v > wmax) wmax = v;
+    }
+    if (wmax <= 0) return;
+
+    const eps = try alloc.alloc(f64, m * k);
+    defer alloc.free(eps);
+    const next_sample = try alloc.alloc(f64, m * k);
+    defer alloc.free(next_sample);
+    for (w, 0..) |v, i| {
+        eps[i] = if (v > 1e-12) wmax / v else std.math.inf(f64);
+        next_sample[i] = eps[i];
+    }
+
+    var epoch: usize = 0;
+    while (epoch < epochs) : (epoch += 1) {
+        const alpha = 1.0 *
+            (1.0 - @as(f64, @floatFromInt(epoch)) / @as(f64, @floatFromInt(epochs)));
+        for (0..m) |i| {
+            const yi = out[i * dims ..][0..dims];
+            for (0..k) |t| {
+                const e = i * k + t;
+                if (next_sample[e] > @as(f64, @floatFromInt(epoch + 1))) continue;
+                next_sample[e] += eps[e];
+
+                const j: usize = idx[i * k + t];
+                const yj = train_y[j * dims ..][0..dims];
+
+                var d2 = sqDist(yi, yj);
+                if (d2 > 0) {
+                    const gc = (-2.0 * a * b * std.math.pow(f64, d2, b - 1.0)) /
+                        (a * std.math.pow(f64, d2, b) + 1.0);
+                    // ONLY the new point moves -- the training layout IS the map,
+                    // and a map that shifted under every lookup would not be one
+                    for (0..dims) |c| yi[c] += clip(gc * (yi[c] - yj[c])) * alpha;
+                }
+
+                var sneg: usize = 0;
+                while (sneg < 5) : (sneg += 1) {
+                    const kk = rng.below(n);
+                    const yk = train_y[kk * dims ..][0..dims];
+                    d2 = sqDist(yi, yk);
+                    var gc: f64 = 4.0;
+                    if (d2 > 0) {
+                        gc = (2.0 * b) / ((0.001 + d2) * (a * std.math.pow(f64, d2, b) + 1.0));
+                    }
+                    for (0..dims) |c| yi[c] += clip(gc * (yi[c] - yk[c])) * alpha;
+                }
+            }
+        }
+    }
+}
+
 /// The reference implementation clips every gradient component to +-4. Without it a
 /// pair that lands almost on top of another produces an enormous step and throws a
 /// point to infinity, taking the layout with it.
@@ -546,4 +712,136 @@ test "impossible neighbour counts are refused" {
     try testing.expectError(Error.BadNeighbors, run(alloc, &x, 4, 2, .{ .n_neighbors = 10 }));
     try testing.expectError(Error.BadNeighbors, run(alloc, &x, 4, 2, .{ .n_neighbors = 1 }));
     try testing.expectError(Error.TooFewPoints, run(alloc, &x, 2, 2, .{ .n_neighbors = 2 }));
+}
+
+test "transforming the TRAINING data lands back in the right cluster" {
+    // THE CHECK THAT MATTERS. A point the model has already seen must be placed
+    // essentially where the fit put it. If transform used a different local metric,
+    // or initialised badly, this is where it shows. It is not exact -- the position
+    // is re-optimised rather than looked up -- so the claim is that it lands nearer
+    // its OWN group than anyone else's.
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 3;
+    const d = 5;
+    const x = try blobs(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 5, .epochs = 300 });
+    defer r.deinit();
+
+    const out = try alloc.alloc(f64, n * 2);
+    defer alloc.free(out);
+    try transform(alloc, x, r.embedding, n, d, 2, x, n, 5, r.a, r.b, 60, 42, out);
+
+    var right: usize = 0;
+    for (0..n) |i| {
+        var best: usize = 0;
+        var bestv = std.math.inf(f64);
+        for (0..n) |j| {
+            const dd = sqDist(out[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]);
+            if (dd < bestv) {
+                bestv = dd;
+                best = j;
+            }
+        }
+        if (best / per == i / per) right += 1;
+    }
+    try testing.expect(right >= n - 2);
+}
+
+test "a new point lands in the cluster it belongs to" {
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 3;
+    const d = 5;
+    const x = try blobs(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 5, .epochs = 300 });
+    defer r.deinit();
+
+    // one point squarely inside each blob (the centres are 0, 25, 50)
+    var newx: [15]f64 = undefined;
+    for (0..3) |c| {
+        for (0..d) |j| newx[c * d + j] = @as(f64, @floatFromInt(c)) * 25.0;
+    }
+    var out: [6]f64 = undefined;
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 3, 5, r.a, r.b, 60, 42, &out);
+
+    for (0..3) |c| {
+        var best: usize = 0;
+        var bestv = std.math.inf(f64);
+        for (0..n) |j| {
+            const dd = sqDist(out[c * 2 ..][0..2], r.embedding[j * 2 ..][0..2]);
+            if (dd < bestv) {
+                bestv = dd;
+                best = j;
+            }
+        }
+        try testing.expectEqual(c, best / per);
+    }
+}
+
+test "transform is deterministic and leaves the training layout untouched" {
+    const alloc = testing.allocator;
+    const per = 8;
+    const n = per * 3;
+    const d = 4;
+    const x = try blobs(alloc, per, d);
+    defer alloc.free(x);
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 4, .epochs = 150 });
+    defer r.deinit();
+
+    const before = try alloc.alloc(f64, n * 2);
+    defer alloc.free(before);
+    @memcpy(before, r.embedding);
+
+    var newx = [_]f64{ 1, 1, 1, 1, 26, 26, 26, 26 };
+    var o1: [4]f64 = undefined;
+    var o2: [4]f64 = undefined;
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 2, 4, r.a, r.b, 40, 5, &o1);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 2, 4, r.a, r.b, 40, 5, &o2);
+
+    for (o1, o2) |p, q| try testing.expectEqual(p, q);
+    // THE MAP DID NOT MOVE. A map that shifted under every lookup would not be one.
+    for (before, r.embedding) |p, q| try testing.expectEqual(p, q);
+}
+
+test "zero epochs gives the weighted-average initialisation, already sane" {
+    const alloc = testing.allocator;
+    const per = 10;
+    const n = per * 3;
+    const d = 4;
+    const x = try blobs(alloc, per, d);
+    defer alloc.free(x);
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 4, .epochs = 200 });
+    defer r.deinit();
+
+    var newx = [_]f64{ 0, 0, 0, 0 };
+    var out: [2]f64 = undefined;
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 4, r.a, r.b, 0, 1, &out);
+    for (out) |v| try testing.expect(std.math.isFinite(v));
+    var best: usize = 0;
+    var bestv = std.math.inf(f64);
+    for (0..n) |j| {
+        const dd = sqDist(&out, r.embedding[j * 2 ..][0..2]);
+        if (dd < bestv) {
+            bestv = dd;
+            best = j;
+        }
+    }
+    try testing.expectEqual(@as(usize, 0), best / per);
+}
+
+test "more neighbours than training points is refused" {
+    const alloc = testing.allocator;
+    const x = [_]f64{ 0, 0, 1, 1, 2, 2 };
+    const y = [_]f64{ 0, 0, 1, 1, 2, 2 };
+    var out: [2]f64 = undefined;
+    const nx = [_]f64{ 0.5, 0.5 };
+    try testing.expectError(
+        Error.BadNeighbors,
+        transform(alloc, &x, &y, 3, 2, 2, &nx, 1, 9, 1.5, 0.9, 10, 1, &out),
+    );
 }
