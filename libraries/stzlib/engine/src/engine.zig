@@ -51,6 +51,8 @@ const nn = @import("nn.zig");
 const complex = @import("complex.zig");
 const eigen_general = @import("eigen_general.zig");
 const pca = @import("pca.zig");
+const tsne = @import("tsne.zig");
+const umap = @import("umap.zig");
 pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
@@ -649,6 +651,8 @@ test {
     _ = complex;
     _ = eigen_general;
     _ = pca;
+    _ = tsne;
+    _ = umap;
     _ = linalg;
     _ = string;
     _ = char;

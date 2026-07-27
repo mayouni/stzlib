@@ -13,6 +13,8 @@ const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
 const eigen_general = @import("eigen_general.zig");
 const pca_mod = @import("pca.zig");
+const tsne_mod = @import("tsne.zig");
+const umap_mod = @import("umap.zig");
 const cmplx = @import("complex.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
@@ -1530,6 +1532,94 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── t-SNE and UMAP (on top of PCA) ──────────────────────────────────────────
+//
+//   StzEngineTsne(aX, n, d, nPerplexity, nDims, nIterations, nSeed)
+//     -> [ dims, iterations, kl (iterations), embedding (n*dims) ]
+//   StzEngineUmap(aX, n, d, nNeighbors, nDims, nMinDist, nSpread, nEpochs, nSeed)
+//     -> [ dims, a, b, embedding (n*dims) ]
+//
+// The KL history comes back in full rather than as a final number: an embedding is
+// stochastic and its objective is the only evidence that the optimisation actually
+// went anywhere, so a caller should be able to look.
+fn ring_Tsne(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const perp = g(p, 4);
+    const dims: usize = @intFromFloat(g(p, 5));
+    const iters: usize = @intFromFloat(g(p, 6));
+    const seed: u64 = @intFromFloat(g(p, 7));
+
+    if (n == 0 or d == 0 or x.len != n * d or dims == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    var r = tsne_mod.run(allocator, x, n, d, .{
+        .perplexity = perp,
+        .dims = dims,
+        .iterations = if (iters == 0) 1000 else iters,
+        .seed = seed,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+    defer r.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(r.dims));
+    R.ring_list_adddouble(out, @floatFromInt(r.kl.len));
+    for (r.kl) |v| R.ring_list_adddouble(out, v);
+    for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_Umap(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const nb: usize = @intFromFloat(g(p, 4));
+    const dims: usize = @intFromFloat(g(p, 5));
+    const min_dist = g(p, 6);
+    const spread = g(p, 7);
+    const epochs: usize = @intFromFloat(g(p, 8));
+    const seed: u64 = @intFromFloat(g(p, 9));
+
+    if (n == 0 or d == 0 or x.len != n * d or dims == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    var r = umap_mod.run(allocator, x, n, d, .{
+        .n_neighbors = nb,
+        .dims = dims,
+        .min_dist = min_dist,
+        .spread = if (spread <= 0) 1.0 else spread,
+        .epochs = if (epochs == 0) 200 else epochs,
+        .seed = seed,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+    defer r.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(r.dims));
+    R.ring_list_adddouble(out, r.a);
+    R.ring_list_adddouble(out, r.b);
+    for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetreeid3", .func = &ring_TreeId3 },
     .{ .name = "stzengineaprioricount", .func = &ring_AprioriCount },
@@ -1539,6 +1629,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
+    .{ .name = "stzenginetsne", .func = &ring_Tsne },
+    .{ .name = "stzengineumap", .func = &ring_Umap },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
