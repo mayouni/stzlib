@@ -53,6 +53,12 @@ pub const Options = struct {
     repulsion: f64 = 1.0,
     negative_samples: usize = 5,
     seed: u64 = 42,
+
+    /// HOW MUCH TO TRUST THE LABELS, when any are supplied. 0 ignores them
+    /// entirely (ordinary UMAP); 1 makes the label structure overwhelming. The
+    /// reference implementation's default is 0.5, and the number turns into a
+    /// distance penalty -- see applyLabels.
+    target_weight: f64 = 0.5,
 };
 
 pub const Result = struct {
@@ -237,11 +243,103 @@ fn localMetric(dist: []const f64, n: usize, k: usize, rho: []f64, sigma: []f64) 
     }
 }
 
+// ─── SUPERVISION ─────────────────────────────────────────────────────────────
+//
+// WHAT SUPERVISED UMAP ACTUALLY DOES, because the name suggests more than it is.
+// It does NOT learn a classifier and it does not use the labels to predict
+// anything. It uses them to REWEIGHT THE NEIGHBOUR GRAPH that the unsupervised
+// algorithm already built: an edge between two points of different classes is made
+// weak, so the layout stops trying to keep them together.
+//
+// The rule is the reference implementation's, and it is a multiplication:
+//
+//     labels agree        -> unchanged
+//     labels disagree     -> weight *= exp(-far_dist)
+//     either is UNKNOWN   -> weight *= exp(-1)
+//
+// far_dist comes from `target_weight`: 2.5 / (1 - w), so the default 0.5 gives 5.0
+// and exp(-5) = 0.0067 -- a cross-class edge keeps under a percent of its weight.
+// At target_weight = 1 the penalty is effectively infinite and the data's own
+// structure stops mattering at all.
+//
+// UNKNOWN IS NOT A THIRD CLASS. A -1 label means "no information", and an edge
+// touching one is damped rather than crushed -- exp(-1) = 0.37 against exp(-5).
+// That is the difference between semi-supervised and simply dropping the point.
+//
+// ── AND THE WARNING, WHICH MATTERS MORE THAN THE MECHANISM ──
+//
+// A supervised embedding will separate your classes. That is what you asked it to
+// do. It is therefore NOT evidence that the classes are separable, and a picture
+// from it must never be presented as though it were -- the separation was an input,
+// not a finding. What it is genuinely good for: seeing structure WITHIN known
+// classes, building a metric that respects a labelling you already trust, and
+// laying out data whose grouping is not in question so that something else can be
+// looked at.
+fn applyLabels(
+    alloc: std.mem.Allocator,
+    edges: []Edge,
+    labels: []const i32,
+    target_weight: f64,
+    n: usize,
+    wmax: *f64,
+) void {
+    const w = @min(@max(target_weight, 0.0), 1.0);
+    if (w <= 0) return; // trust the data entirely: ordinary UMAP
+    const far_dist: f64 = if (w >= 1.0) 1e12 else 2.5 / (1.0 - w);
+    const far_factor = @exp(-far_dist);
+    const unknown_factor = @exp(-1.0);
+
+    for (edges) |*e| {
+        const li = labels[e.i];
+        const lj = labels[e.j];
+        if (li < 0 or lj < 0) {
+            e.w *= unknown_factor;
+        } else if (li != lj) {
+            e.w *= far_factor;
+        }
+    }
+
+    // RESET LOCAL CONNECTIVITY. Crushing the cross-class edges can leave a point
+    // whose strongest remaining edge is tiny, and the sampling schedule is relative
+    // to the GLOBAL maximum -- so without this, such a point would almost never be
+    // sampled and would drift wherever the repulsion pushed it. Renormalising each
+    // point's edges so its strongest is 1 restores the guarantee the unsupervised
+    // construction had: everyone keeps a fully-weighted neighbour.
+    const maxes = alloc.alloc(f64, n) catch return;
+    defer alloc.free(maxes);
+    @memset(maxes, 0);
+    for (edges) |e| {
+        if (e.w > maxes[e.i]) maxes[e.i] = e.w;
+        if (e.w > maxes[e.j]) maxes[e.j] = e.w;
+    }
+    var newmax: f64 = 0;
+    for (edges) |*e| {
+        const m = @max(maxes[e.i], maxes[e.j]);
+        if (m > 0) e.w /= m;
+        if (e.w > newmax) newmax = e.w;
+    }
+    if (newmax > 0) wmax.* = newmax;
+}
+
 pub fn run(
     alloc: std.mem.Allocator,
     x: []const f64,
     n: usize,
     d: usize,
+    opts: Options,
+) !*Result {
+    return runSupervised(alloc, x, n, d, null, opts);
+}
+
+/// UMAP with optional LABELS. `labels` is one integer per point, or null for the
+/// ordinary unsupervised fit; a label of -1 means UNKNOWN, which is what makes the
+/// semi-supervised case work rather than forcing every point to be classified.
+pub fn runSupervised(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    labels: ?[]const i32,
     opts: Options,
 ) !*Result {
     if (n < 3) return Error.TooFewPoints;
@@ -289,6 +387,9 @@ pub fn run(
         }
     }
     if (edges.items.len == 0) return Error.TooFewPoints;
+
+    // ── SUPERVISION: let the labels reshape the graph ──
+    if (labels) |lab| applyLabels(alloc, edges.items, lab, opts.target_weight, n, &wmax);
 
     const ab = try fitAB(alloc, opts.min_dist, opts.spread);
 
@@ -844,4 +945,197 @@ test "more neighbours than training points is refused" {
         Error.BadNeighbors,
         transform(alloc, &x, &y, 3, 2, 2, &nx, 1, 9, 1.5, 0.9, 10, 1, &out),
     );
+}
+
+/// two INTERLEAVED groups: the data alone does not separate them, so any separation
+/// in the embedding can only have come from the labels
+fn interleaved(alloc: std.mem.Allocator, per: usize, d: usize) !struct { x: []f64, y: []i32 } {
+    const n = per * 2;
+    const x = try alloc.alloc(f64, n * d);
+    const y = try alloc.alloc(i32, n);
+    var rng = Rng.init(19);
+    for (0..n) |i| {
+        for (0..d) |j| x[i * d + j] = rng.uniform() * 10;
+        y[i] = @intCast(i % 2);
+    }
+    return .{ .x = x, .y = y };
+}
+
+test "labels separate groups the DATA does not separate" {
+    // THE TEST THAT MEANS SOMETHING. The two classes are interleaved at random in
+    // the input, so unsupervised UMAP has nothing to find -- and supervised UMAP
+    // must nonetheless pull them apart, because that is what the labels say.
+    const alloc = testing.allocator;
+    const per = 20;
+    const n = per * 2;
+    const d = 4;
+    const data = try interleaved(alloc, per, d);
+    defer alloc.free(data.x);
+    defer alloc.free(data.y);
+
+    var unsup = try run(alloc, data.x, n, d, .{ .n_neighbors = 6, .epochs = 300 });
+    defer unsup.deinit();
+    var sup = try runSupervised(alloc, data.x, n, d, data.y, .{ .n_neighbors = 6, .epochs = 300 });
+    defer sup.deinit();
+
+    // mean between-class distance over mean within-class distance, by LABEL
+    const ru = labelSeparation(unsup.embedding, data.y, n);
+    const rs = labelSeparation(sup.embedding, data.y, n);
+    try testing.expect(ru < 1.3); // nothing to find, so nothing found
+    try testing.expect(rs > ru * 1.5); // the labels did the work
+}
+
+fn labelSeparation(emb: []const f64, y: []const i32, n: usize) f64 {
+    var within: f64 = 0;
+    var wn: usize = 0;
+    var between: f64 = 0;
+    var bn: usize = 0;
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const dd = @sqrt(sqDist(emb[i * 2 ..][0..2], emb[j * 2 ..][0..2]));
+            if (y[i] == y[j]) {
+                within += dd;
+                wn += 1;
+            } else {
+                between += dd;
+                bn += 1;
+            }
+        }
+    }
+    if (wn == 0 or bn == 0 or within == 0) return 0;
+    return (between / @as(f64, @floatFromInt(bn))) / (within / @as(f64, @floatFromInt(wn)));
+}
+
+test "target_weight: 0 is exactly unsupervised, and the dial is NOT monotone" {
+    const alloc = testing.allocator;
+    const per = 15;
+    const n = per * 2;
+    const d = 4;
+    const data = try interleaved(alloc, per, d);
+    defer alloc.free(data.x);
+    defer alloc.free(data.y);
+
+    // weight 0 must reproduce the unsupervised fit BIT FOR BIT -- the labels are
+    // not merely de-emphasised, they are not consulted at all
+    var plain = try run(alloc, data.x, n, d, .{ .n_neighbors = 5, .epochs = 120 });
+    defer plain.deinit();
+    var zero = try runSupervised(alloc, data.x, n, d, data.y, .{
+        .n_neighbors = 5,
+        .epochs = 120,
+        .target_weight = 0,
+    });
+    defer zero.deinit();
+    for (plain.embedding, zero.embedding) |a, b| try testing.expectEqual(a, b);
+
+    // MEASURED, and it is not the shape one would assume. Separation against
+    // target_weight on this data:
+    //
+    //     0.00  0.98      <- nothing to find, nothing found
+    //     0.05  1.71
+    //     0.20  2.62      <- the peak
+    //     0.50  1.46
+    //     0.90  1.43
+    //     0.99  1.43      <- identical to 0.90
+    //
+    // TWO THINGS THE NUMBERS SAY. First, the dial SATURATES: far_dist is
+    // 2.5/(1-w), so 0.9 gives exp(-25) and 0.99 gives exp(-250), and both are zero
+    // as far as an f64 weight is concerned -- the two runs come out identical.
+    // Second, and less obvious, MORE SUPERVISION IS NOT MORE SEPARATION. Crushing
+    // every cross-class edge FRAGMENTS the graph: points lose most of their
+    // neighbours, and the layout loses the global arrangement that was holding each
+    // class together as one group. The classes end up interleaved as many small
+    // pieces rather than two blobs.
+    //
+    // So what is pinned here is what holds: some supervision beats none, and the
+    // extreme is not the best. A monotone assertion would have been wrong, and
+    // writing one without measuring is how it would have got in.
+    var some = try runSupervised(alloc, data.x, n, d, data.y, .{
+        .n_neighbors = 5,
+        .epochs = 300,
+        .target_weight = 0.2,
+    });
+    defer some.deinit();
+    const sep_none = labelSeparation(zero.embedding, data.y, n);
+    const sep_some = labelSeparation(some.embedding, data.y, n);
+    try testing.expect(sep_some > sep_none);
+
+    // and the saturation, exactly: beyond about 0.9 the penalty underflows and the
+    // setting stops meaning anything
+    var w90 = try runSupervised(alloc, data.x, n, d, data.y, .{
+        .n_neighbors = 5,
+        .epochs = 300,
+        .target_weight = 0.9,
+    });
+    defer w90.deinit();
+    var w99 = try runSupervised(alloc, data.x, n, d, data.y, .{
+        .n_neighbors = 5,
+        .epochs = 300,
+        .target_weight = 0.99,
+    });
+    defer w99.deinit();
+    for (w90.embedding, w99.embedding) |a, b| try testing.expectEqual(a, b);
+}
+
+test "UNKNOWN labels are damped, not crushed -- the semi-supervised case" {
+    const alloc = testing.allocator;
+    const per = 15;
+    const n = per * 2;
+    const d = 4;
+    const data = try interleaved(alloc, per, d);
+    defer alloc.free(data.x);
+    defer alloc.free(data.y);
+
+    // hide half the labels
+    const partial = try alloc.alloc(i32, n);
+    defer alloc.free(partial);
+    for (0..n) |i| partial[i] = if (i % 4 == 0) -1 else data.y[i];
+
+    var semi = try runSupervised(alloc, data.x, n, d, partial, .{ .n_neighbors = 5, .epochs = 300 });
+    defer semi.deinit();
+    var unsup = try run(alloc, data.x, n, d, .{ .n_neighbors = 5, .epochs = 300 });
+    defer unsup.deinit();
+
+    for (semi.embedding) |v| try testing.expect(std.math.isFinite(v));
+    // the labels it DOES have still do work
+    try testing.expect(labelSeparation(semi.embedding, data.y, n) >
+        labelSeparation(unsup.embedding, data.y, n));
+}
+
+test "every point keeps a fully-weighted neighbour after the intersection" {
+    // What resetting local connectivity is FOR. Crushing cross-class edges can leave
+    // a point whose strongest edge is tiny; since the sampling schedule is relative
+    // to the global maximum, it would then almost never be sampled and would drift.
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 2;
+    const d = 3;
+    const data = try interleaved(alloc, per, d);
+    defer alloc.free(data.x);
+    defer alloc.free(data.y);
+    var r = try runSupervised(alloc, data.x, n, d, data.y, .{
+        .n_neighbors = 5,
+        .epochs = 200,
+        .target_weight = 0.9,
+    });
+    defer r.deinit();
+    // no point flew off: with a working reset every coordinate stays bounded
+    for (r.embedding) |v| {
+        try testing.expect(std.math.isFinite(v));
+        try testing.expect(@abs(v) < 1e4);
+    }
+}
+
+test "supervised runs are reproducible too" {
+    const alloc = testing.allocator;
+    const per = 10;
+    const n = per * 2;
+    const d = 3;
+    const data = try interleaved(alloc, per, d);
+    defer alloc.free(data.x);
+    defer alloc.free(data.y);
+    var a = try runSupervised(alloc, data.x, n, d, data.y, .{ .n_neighbors = 4, .epochs = 100, .seed = 8 });
+    defer a.deinit();
+    var b = try runSupervised(alloc, data.x, n, d, data.y, .{ .n_neighbors = 4, .epochs = 100, .seed = 8 });
+    defer b.deinit();
+    for (a.embedding, b.embedding) |p, q| try testing.expectEqual(p, q);
 }

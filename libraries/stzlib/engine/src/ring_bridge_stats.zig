@@ -1537,8 +1537,10 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
 //
 //   StzEngineTsne(aX, n, d, nPerplexity, nDims, nIterations, nSeed)
 //     -> [ dims, iterations, kl (iterations), embedding (n*dims) ]
-//   StzEngineUmap(aX, n, d, nNeighbors, nDims, nMinDist, nSpread, nEpochs, nSeed)
+//   StzEngineUmap(aX, n, d, nNeighbors, nDims, nMinDist, nSpread, nEpochs, nSeed,
+//                 aLabels, nTargetWeight)
 //     -> [ dims, a, b, embedding (n*dims) ]
+//   aLabels is empty for the ordinary fit, or one integer per point (-1 = unknown)
 //
 // The KL history comes back in full rather than as a final number: an embedding is
 // stochastic and its objective is the only evidence that the optimisation actually
@@ -1600,13 +1602,38 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
         return;
     }
 
-    var r = umap_mod.run(allocator, x, n, d, .{
+    // LABELS, when there are any. An empty list means unsupervised; a label of -1
+    // means "unknown for this point", which is what makes the semi-supervised case
+    // work rather than forcing every row to be classified.
+    const lv = listToF64(p, 10);
+    defer if (lv) |l| allocator.free(l);
+    const target_weight = g(p, 11);
+
+    var labels: ?[]i32 = null;
+    var labels_buf: ?[]i32 = null;
+    defer if (labels_buf) |lb| allocator.free(lb);
+    if (lv) |l| {
+        if (l.len != n) {
+            rn(p, 0);
+            return;
+        }
+        const lb = allocator.alloc(i32, n) catch {
+            rn(p, 0);
+            return;
+        };
+        for (l, 0..) |v, i| lb[i] = @intFromFloat(v);
+        labels_buf = lb;
+        labels = lb;
+    }
+
+    var r = umap_mod.runSupervised(allocator, x, n, d, labels, .{
         .n_neighbors = nb,
         .dims = dims,
         .min_dist = min_dist,
         .spread = if (spread <= 0) 1.0 else spread,
         .epochs = if (epochs == 0) 200 else epochs,
         .seed = seed,
+        .target_weight = if (target_weight < 0) 0.5 else target_weight,
     }) catch {
         rn(p, 0);
         return;
