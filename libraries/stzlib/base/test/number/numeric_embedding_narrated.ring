@@ -255,16 +255,27 @@ Scenario("what they refuse, and the one thing they deliberately cannot do")
 	oT = new stzTSNE(aD)
 	Then("results refuse before Fit", RaisesEmbedding(oT), TRUE)
 
-	# t-SNE HAS NO Transform(), AND UMAP DOES -- and an earlier version of this file
-	# asserted that NEITHER did, which was wrong about UMAP. It lumped two algorithms
-	# together on a property only one of them has.
+	# THREE DIFFERENT ANSWERS TO "where does a new point go", and the differences
+	# are about the algorithms rather than about the API:
 	#
-	# t-SNE optimises the positions of the points it was given and nothing else, so
-	# there is no map to apply and a new point has no position. UMAP builds a
-	# NEIGHBOUR GRAPH, and a graph extends: the new point's edges to the training
-	# points are computable, and the training layout is already a solution to
-	# optimise them against. See the Transform scenario below.
-	Then("t-SNE has no Transform", HasTransform(oT), FALSE)
+	#   ORDINARY t-SNE  cannot. It optimises POSITIONS, so there is no function to
+	#                   apply. Transform() raises and names the two alternatives.
+	#   UMAP            can, by re-optimising one point against a frozen neighbour
+	#                   graph.
+	#   PARAMETRIC t-SNE can, by having trained a NETWORK as the map -- so Transform
+	#                   is one forward pass. See the scenarios below.
+	# fitted, so the refusal is the one about the MISSING MAP rather than the one
+	# about not having run yet -- two different refusals, and the useful one is the
+	# second
+	oFitted = new stzTSNE(aD)
+	oFitted.SetPerplexity(3)
+	oFitted.SetIterations(60)
+	oFitted.Fit()
+	Then("ordinary t-SNE has no Transform", HasTransformOf(oFitted, aD[1]), FALSE)
+	Then("...and says what to do instead",
+	     StzFindFirst("LearnMapping", WhyTransform(oFitted, [ aD[1] ])) > 0, TRUE)
+	Then("...and names the other option too",
+	     StzFindFirst("stzUMAP", WhyTransform(oFitted, [ aD[1] ])) > 0, TRUE)
 	oP = new stzPCA(aD)
 	oP.Center()
 	oP.Fit()
@@ -356,6 +367,106 @@ Scenario("Transform is deterministic, which a lookup had better be")
 	Then("the same rows give the same coordinates", SameEmbedding(a1, a2), TRUE)
 EndScenario()
 
+Scenario("PARAMETRIC t-SNE learns a map, so it CAN place new points")
+	# van der Maaten (2009). Instead of optimising n*2 free coordinates, train a
+	# NETWORK f(x) -> R^2 against the same KL objective. The embedding becomes f(X),
+	# and a new point is one forward pass.
+	#
+	# ALMOST NOTHING HERE IS NEW CODE, which is the part worth noticing: P and the KL
+	# gradient come from the ordinary t-SNE, the forward and backward passes come
+	# from the neural trainer built in phase 6. The only extension was splitting that
+	# backward pass so it takes a SUPPLIED output gradient -- nn.train derives its own
+	# from per-sample targets, and this objective has no targets, because the gradient
+	# at point i depends on every other point.
+	aD = Blobs(12, 6)
+	oP = new stzTSNE(aD)
+	oP.LearnMapping()
+	oP.SetHiddenLayers([ 20, 10 ])
+	oP.SetPerplexity(5)
+	oP.SetIterations(400)
+	oP.SetLearningRate(0.02)
+	oP.Fit()
+
+	Then("it says it is parametric", oP.IsParametric(), TRUE)
+	Then("...and reports its architecture", len(oP.HiddenLayers()), 2)
+	Then("...and says so in words",
+	     StzFindFirst("parametric", oP.Why()) > 0, TRUE)
+	Then("the objective still came down", oP.FinalKL() < oP.KLHistory()[1], TRUE)
+	Then("the clusters are separated", SeparationRatio(oP.Embedding(), 12) > 3, TRUE)
+EndScenario()
+
+Scenario("...and its Transform is a FUNCTION, not a re-optimisation")
+	# THE SHARPEST CONTRAST WITH UMAP. UMAP's transform re-optimises one point
+	# against a frozen map, so a training row comes back NEAR where it was. Here the
+	# embedding IS f(X), so transforming a training row reproduces its position
+	# EXACTLY -- it is not a similar computation, it is the same one.
+	aD = Blobs(12, 6)
+	oP = new stzTSNE(aD)
+	oP.LearnMapping()
+	oP.SetHiddenLayers([ 20, 10 ])
+	oP.SetPerplexity(5)
+	oP.SetIterations(400)
+	oP.SetLearningRate(0.02)
+	oP.Fit()
+
+	aBack = oP.Transform(aD)
+	Then("a training row transforms to EXACTLY its embedded position",
+	     aBack[1][1], oP.Embedding()[1][1])
+	Then("...to the last bit", aBack[1][2], oP.Embedding()[1][2])
+	Then("...and so does every row", SameEmbedding(aBack, oP.Embedding()), TRUE)
+
+	# and genuinely new points land where they belong
+	aNew = [ [0,0,0,0,0,0], [30,30,30,30,30,30], [60,60,60,60,60,60] ]
+	aT = oP.Transform(aNew)
+	Then("a new point in blob 1 lands in blob 1",
+	     NearestCluster(aT[1], oP.Embedding(), 12), 1)
+	Then("...blob 2 in blob 2", NearestCluster(aT[2], oP.Embedding(), 12), 2)
+	Then("...blob 3 in blob 3", NearestCluster(aT[3], oP.Embedding(), 12), 3)
+
+	# nothing stochastic happens in a forward pass
+	Then("repeated calls agree exactly",
+	     SameEmbedding(oP.Transform(aNew), aT), TRUE)
+
+	Then("a row of the wrong width is refused", RaisesTransform(oP, [ [1,2] ]), TRUE)
+EndScenario()
+
+Scenario("the parametric variant through PCA, and what it costs")
+	# It composes with the PCA pre-step exactly as UMAP's does: the network's inputs
+	# are the COMPONENTS, so a new row is projected by the same analysis first.
+	aD = Blobs(12, 6)
+	oP = new stzTSNE(aD)
+	oP.ReduceWithPCA(3)
+	oP.LearnMapping()
+	oP.SetHiddenLayers([ 15 ])
+	oP.SetPerplexity(5)
+	oP.SetIterations(400)
+	oP.SetLearningRate(0.02)
+	oP.Fit()
+
+	Then("it used both", oP.UsesPCA() and oP.IsParametric(), TRUE)
+	aBack = oP.Transform(aD)
+	Then("training rows still transform exactly through the reduction",
+	     SameEmbedding(aBack, oP.Embedding()), TRUE)
+	Then("a new row still lands in its blob",
+	     NearestCluster(oP.Transform([ [0,0,0,0,0,0] ])[1], oP.Embedding(), 12), 1)
+
+	# THE TRADE, stated rather than hidden: the paper says the parametric embedding is
+	# generally somewhat worse, because free coordinates can go anywhere and a
+	# network's outputs are limited to what it can express. Both separate these blobs
+	# -- the data is easy -- so what is pinned is that BOTH work, not that they are
+	# equivalent. A caller choosing parametric is buying a map, not a better picture.
+	oPlain = new stzTSNE(aD)
+	oPlain.SetPerplexity(5)
+	oPlain.SetIterations(800)
+	oPlain.Fit()
+	Then("both variants separate the clusters",
+	     SeparationRatio(oPlain.Embedding(), 12) > 3 and
+	     SeparationRatio(oP.Embedding(), 12) > 3, TRUE)
+	Then("...but only one of them has a map",
+	     HasTransformOf(oPlain, aD[1]) = FALSE and
+	     HasTransformOf(oP, aD[1]) = TRUE, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -378,6 +489,17 @@ Scenario("the name forms hold here too")
 
 	# an object accessor stays Q-only
 	Then("PCAQ() hands back the analysis", oV.PCAQ().IsFitted(), TRUE)
+
+	# and the parametric mode follows the same law
+	oL = new stzTSNE(aD)
+	Then("LearnMapping() returns nothing", isNull(oL.LearnMapping()), TRUE)
+	Then("...and took effect", oL.IsParametric(), TRUE)
+	Then("SkipMapping() turns it off again", isNull(oL.SkipMapping()), TRUE)
+	Then("...and it did", oL.IsParametric(), FALSE)
+	oM2 = new stzTSNE(aD)
+	oM2.LearnMappingQ().SetHiddenLayersQ([8]).SetPerplexityQ(3).SetIterationsQ(60).FitQ()
+	Then("the parametric Q forms chain", oM2.IsFitted(), TRUE)
+	Then("...and it is parametric", oM2.IsParametric(), TRUE)
 EndScenario()
 
 Summary()
@@ -506,6 +628,18 @@ func RaisesEmbedding(o)
 		v = o.Embedding()
 	catch
 		b = TRUE
+	done
+	return b
+
+# does this object have a working Transform? The row must be the RIGHT WIDTH, or a
+# width complaint is mistaken for "no map" -- which is exactly what happened the
+# first time this ran.
+func HasTransformOf(o, aRow)
+	b = TRUE
+	try
+		v = o.Transform([ aRow ])
+	catch
+		b = FALSE
 	done
 	return b
 
