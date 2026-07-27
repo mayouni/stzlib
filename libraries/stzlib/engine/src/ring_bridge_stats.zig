@@ -1674,11 +1674,18 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
     if (r.local_radii.len > 0) {
         R.ring_list_adddouble(out, r.density_correlation);
         for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+        // the fit's density LINE, so Transform() can place new points under the same
+        // contract instead of wherever their neighbours happen to sit
+        R.ring_list_adddouble(out, r.density_slope);
+        R.ring_list_adddouble(out, r.density_intercept);
     }
     R.ring_vm_api_retlist(p, out);
 }
 
 //   StzEngineUmapTransform(aTrainX, n, d, aTrainY, dims, aNewX, m, k, a, b,
+//                          nDensSlope, nDensIntercept, bDensOn)
+//     -> [ embedding (m*dims), localRadii (m) ]  -- the radii always, the density
+//        placement only when bDensOn
 //                          nEpochs, nSeed) -> m*dims coordinates
 //
 // Places points the fit never saw into an existing layout. Stateless, like the PCA
@@ -1722,13 +1729,28 @@ fn ring_UmapTransform(p: *anyopaque) callconv(.c) void {
     };
     defer allocator.free(out_c);
 
-    umap_mod.transform(allocator, tx, ty, n, d, dims, nx, m, k, a, b, epochs, seed, out_c) catch {
+    // THE FIT'S DENSITY LINE. Absent (slope 0, flag 0) for an ordinary fit, in which
+    // case the transform behaves exactly as it always did.
+    const dens_slope = g(p, 13);
+    const dens_intercept = g(p, 14);
+    const dens_on = g(p, 15) > 0;
+
+    const radii = allocator.alloc(f64, m) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(radii);
+
+    umap_mod.transformWithDensity(allocator, tx, ty, n, d, dims, nx, m, k, a, b, epochs, seed, out_c, dens_slope, dens_intercept, dens_on, radii) catch {
         rn(p, 0);
         return;
     };
 
     const out = R.ring_vm_api_newlist(p) orelse return;
     for (out_c) |v| R.ring_list_adddouble(out, v);
+    // the new rows' ORIGINAL-space radii, always -- they are a property of the data
+    // rather than of the placement, and cost nothing since the transform computes them
+    for (radii) |v| R.ring_list_adddouble(out, v);
     R.ring_vm_api_retlist(p, out);
 }
 
