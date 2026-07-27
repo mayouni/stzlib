@@ -176,6 +176,7 @@ class stzTSNE from stzObject
 	@aEmbedding = []
 	@anKL = []
 	@nDensityLambda = 0   # 0 = ordinary t-SNE -- see PreserveDensity()
+	@bDensityAuto = FALSE # PreserveDensity() picks by mode; SetDensityWeight() does not
 	@nDensityFrac = 0.3
 	@anLocalRadii = []
 	@nDensityCorrelation = 0
@@ -436,6 +437,7 @@ class stzTSNE from stzObject
 	# spent on density fidelity, in the units of the thing given up.
 	def PreserveDensity()
 		@nDensityLambda = 1.0
+		@bDensityAuto = TRUE
 
 		def PreserveDensityQ()
 			This.PreserveDensity()
@@ -443,6 +445,7 @@ class stzTSNE from stzObject
 
 	def IgnoreDensity()
 		@nDensityLambda = 0
+		@bDensityAuto = FALSE
 
 		def IgnoreDensityQ()
 			This.IgnoreDensity()
@@ -456,6 +459,7 @@ class stzTSNE from stzObject
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
+			@bDensityAuto = FALSE
 		ok
 
 		def SetDensityWeightQ(n)
@@ -496,6 +500,55 @@ class stzTSNE from stzObject
 	def LocalRadii()
 		return @anLocalRadii
 
+	# THE OUT-OF-DISTRIBUTION CHECK, and for the parametric variant it is not optional.
+	#
+	# MEASURED, and the reason this method exists: a row at (20,20,20,20) transforms to
+	# (-2.1100, -9.7090) and a row at (200,200,200,200) -- ten times further out in
+	# every coordinate than anything the fit ever saw -- transforms to (-2.1118,
+	# -9.7117). Three thousandths apart. Bounded activations send everything past a
+	# certain magnitude to the same place, so the transform is not merely inaccurate on
+	# unfamiliar input, it is STRUCTURALLY BLIND to it, and it fails SILENTLY: what
+	# comes back is a perfectly ordinary looking pair of coordinates.
+	#
+	# So the answer cannot come from the network. This measures the new rows against
+	# THE TRAINING DATA, where 356 units from anything is 356 units from anything
+	# whatever a model believes. Compare against LocalRadii(): a value far outside that
+	# range is a row the map has no business being asked about.
+	#
+	# Available whether or not the fit preserved density, because it is a property of
+	# the data rather than of the map.
+	def LocalRadiiOf(paRows)
+		This._MustBeFitted()
+		if NOT isList(paRows) or len(paRows) = 0
+			stzraise("Give me a list of rows.")
+		ok
+		_nM_ = len(paRows)
+		_aFlat_ = []
+		for _i_ = 1 to _nM_
+			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
+				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
+					" value(s); this model was fitted on " + @nCols + ".")
+			ok
+			for _j_ = 1 to @nCols
+				_aFlat_ + paRows[_i_][_j_]
+			next
+		next
+		_aTrain_ = []
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nCols
+				_aTrain_ + @aData[_i_][_j_]
+			next
+		next
+		_nK_ = 15
+		if _nK_ > @nRows
+			_nK_ = @nRows
+		ok
+		_aR_ = StzEngineLocalRadiiOfNew(_aTrain_, @nRows, @nCols, _aFlat_, _nM_, _nK_)
+		if NOT isList(_aR_)
+			stzraise("The engine refused the measurement.")
+		ok
+		return _aR_
+
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
@@ -505,18 +558,17 @@ class stzTSNE from stzObject
 		@nPreparedDim = _nD_
 
 		if @bParametric
-			# REFUSED RATHER THAN IGNORED. The parametric fit produces its layout as
-			# the output of a trained network, so the density term -- which moves the
-			# coordinates directly -- has nothing to act on there. Quietly dropping the
-			# request would hand back a picture the caller believes is density-
-			# preserving and is not, which is worse than no picture at all.
-			if @nDensityLambda > 0
-				stzraise("Density preservation and the parametric variant cannot be " +
-					"combined. The parametric fit produces coordinates through a " +
-					"network, and the density term acts on coordinates directly. " +
-					"Use SkipMapping() for a density-preserving fit, or " +
-					"IgnoreDensity() for a parametric one.")
-			ok
+			# The refusal that used to stand here is gone, and deservedly: the density
+			# gradient is computed on the network's OUTPUTS, and a network takes an
+			# output delta and chains it back through its weights like any other. So
+			# the term does not act on coordinates the network happens to have
+			# produced -- it teaches the network to produce different ones.
+			#
+			# WHICH IS HOW den-SNE GETS A TRANSFORM AT ALL. The classic algorithm has
+			# none: it optimises the points it was given, and a new point has no
+			# position. Here the network IS the map, so the transform is a forward pass
+			# and is density-preserving BY CONSTRUCTION rather than by a correction
+			# applied afterwards -- and exact, not approximate, unlike UMAP's.
 			This._FitParametric(_aX_, _nD_)
 			return
 		ok
@@ -600,8 +652,27 @@ class stzTSNE from stzObject
 		return _c_
 
 	def _FitParametric(paX, nD)
+		# THE PARAMETRIC MODE NEEDS A MUCH SMALLER WEIGHT, and this is measured rather
+		# than tuned by feel. On one dataset the classic default of 1.0 gives +0.992
+		# here; on another it gives -0.913, fully inverted, while 0.01 to 0.3 all give
+		# 0.98 or better. A network has a few hundred weights SHARED by every point, so
+		# an over-strong term does not distort one region -- it deforms the whole
+		# function, and the map turns inside out.
+		#
+		# Only when the caller said PreserveDensity() and left it at that. An explicit
+		# SetDensityWeight() is obeyed exactly, including into the range that inverts:
+		# it is a stated choice, and the correlation will say what came of it.
+		_nLam_ = @nDensityLambda
+		if @bDensityAuto
+			_nLam_ = 0.1
+			# and record it, so DensityWeight() and Why() report the weight that was
+			# actually used rather than the one that was asked for
+			@nDensityLambda = _nLam_
+			@bDensityAuto = FALSE
+		ok
 		_aRes_ = StzEnginePtsne(paX, @nRows, nD, @anHidden, @nPerplexity,
-			@nDims, @nIterations, @nLearningRate, @nSeed)
+			@nDims, @nIterations, @nLearningRate, @nSeed,
+			_nLam_, @nDensityFrac)
 		if NOT isList(_aRes_) or len(_aRes_) < 4
 			stzraise("Parametric t-SNE refused this run. A perplexity of " +
 				@nPerplexity + " needs more than " + @nPerplexity + " points " +
@@ -638,6 +709,17 @@ class stzTSNE from stzObject
 			next
 			@aEmbedding + _aRow_
 		next
+
+		@anLocalRadii = []
+		@nDensityCorrelation = 0
+		if _nLam_ > 0 and len(_aRes_) >= _nAt_ + 1 + @nRows
+			_nAt_++
+			@nDensityCorrelation = _aRes_[_nAt_]
+			for _i_ = 1 to @nRows
+				_nAt_++
+				@anLocalRadii + _aRes_[_nAt_]
+			next
+		ok
 		@bFitted = TRUE
 
 	def _PreparedData()
@@ -882,6 +964,7 @@ class stzUMAP from stzObject
 
 	def IgnoreDensity()
 		@nDensityLambda = 0
+		@bDensityAuto = FALSE
 
 		def IgnoreDensityQ()
 			This.IgnoreDensity()
@@ -895,6 +978,7 @@ class stzUMAP from stzObject
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
+			@bDensityAuto = FALSE
 		ok
 
 		def SetDensityWeightQ(n)

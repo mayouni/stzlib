@@ -1754,9 +1754,57 @@ fn ring_UmapTransform(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+
+// ─── LOCAL RADII OF UNSEEN ROWS ──────────────────────────────────────────────
+//
+//   StzEngineLocalRadiiOfNew(aTrainX, n, d, aNewX, m, k) -> m radii
+//
+// Measured against the TRAINING DATA, never against a model. It exists because the
+// parametric transform saturates: a row ten times further out than anything the fit
+// saw comes back as an ordinary-looking pair of coordinates. This cannot, because 356
+// units from anything is 356 units from anything whatever a network believes.
+fn ring_LocalRadiiOfNew(p: *anyopaque) callconv(.c) void {
+    const tx = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(tx);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const nx = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(nx);
+    const m: usize = @intFromFloat(g(p, 5));
+    const k: usize = @intFromFloat(g(p, 6));
+
+    if (n == 0 or d == 0 or m == 0 or k == 0 or k > n or tx.len != n * d or nx.len != m * d) {
+        rn(p, 0);
+        return;
+    }
+
+    const radii = allocator.alloc(f64, m) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(radii);
+    umap_mod.localRadiiOfNew(allocator, tx, n, d, nx, m, k, radii) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (radii) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // ─── PARAMETRIC t-SNE (van der Maaten 2009) ──────────────────────────────────
 //
-//   StzEnginePtsne(aX, n, d, aHidden, nPerp, nDims, nEpochs, nLR, nSeed)
+//   StzEnginePtsne(aX, n, d, aHidden, nPerp, nDims, nEpochs, nLR, nSeed,
+//                  nDensityLambda, nDensityFrac)
+//     -- when nDensityLambda > 0 the result gains a trailing
+//        [ densityCorrelation, localRadii (n) ]
 //     -> [ dims, nEpochs, shapeLen, weightLen,
 //          kl (nEpochs), shape (shapeLen), weights (weightLen),
 //          embedding (n*dims) ]
@@ -1802,12 +1850,18 @@ fn ring_Ptsne(p: *anyopaque) callconv(.c) void {
         hidden[i] = @intFromFloat(v);
     }
 
+    // DENSITY PRESERVATION (parametric den-SNE). 0 leaves the algorithm untouched.
+    const dens_lambda = g(p, 10);
+    const dens_frac = g(p, 11);
+
     var r = ptsne_mod.run(allocator, x, n, d, hidden, .{
         .perplexity = perp,
         .dims = dims,
         .epochs = if (epochs == 0) 400 else epochs,
         .learning_rate = if (lr <= 0) 0.01 else lr,
         .seed = seed,
+        .density_lambda = if (dens_lambda < 0) 0 else dens_lambda,
+        .density_frac = if (dens_frac <= 0 or dens_frac > 1) 0.3 else dens_frac,
     }) catch {
         rn(p, 0);
         return;
@@ -1823,6 +1877,12 @@ fn ring_Ptsne(p: *anyopaque) callconv(.c) void {
     for (r.shape) |v| R.ring_list_adddouble(out, v);
     for (r.weights) |v| R.ring_list_adddouble(out, v);
     for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    // APPENDED, and only when density was asked for -- its absence is the signal that
+    // this was an ordinary parametric fit rather than a failed one
+    if (r.local_radii.len > 0) {
+        R.ring_list_adddouble(out, r.density_correlation);
+        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+    }
     R.ring_vm_api_retlist(p, out);
 }
 
@@ -1879,6 +1939,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineptsnetransform", .func = &ring_PtsneTransform },
     .{ .name = "stzengineumap", .func = &ring_Umap },
     .{ .name = "stzengineumaptransform", .func = &ring_UmapTransform },
+    .{ .name = "stzenginelocalradiiofnew", .func = &ring_LocalRadiiOfNew },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },

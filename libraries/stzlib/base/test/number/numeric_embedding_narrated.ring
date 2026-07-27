@@ -834,13 +834,14 @@ Scenario("den-SNE composes, refuses, and turns off exactly")
 	Then("PCA and density together", oPca.UsesPCA() and oPca.IsDensityPreserving(), TRUE)
 	Then("...and every coordinate is finite", AllFinite(oPca.Embedding()), TRUE)
 
-	# REFUSED, NOT IGNORED. The parametric fit produces coordinates through a network,
-	# so the density term -- which moves coordinates directly -- has nothing to act on.
-	# Silently dropping the request would hand back a picture the caller believes is
-	# density-preserving and is not.
-	Then("parametric and density together are refused", RaisesParametricDensity(aD), TRUE)
-	Then("...and the message says what to do instead",
-	     StzFindFirst("SkipMapping", WhyParametricDensity(aD)) > 0, TRUE)
+	# THIS USED TO BE A REFUSAL, and the assertions here pinned it. The reasoning was
+	# sound for the code as it then stood -- the density term moves coordinates, and
+	# the parametric fit produces coordinates through a network, so there was nothing
+	# for it to act on. What changed is that the term does not have to act on the
+	# coordinates: its gradient is taken on the network's OUTPUTS, and a network chains
+	# an output delta back through its weights like any other. It teaches the network
+	# to produce different coordinates rather than moving the ones it produced.
+	Then("parametric and density now compose", ParametricDensityFits(aD), TRUE)
 
 	Then("IgnoreDensity() returns nothing", isNull(TurnOffTsne(aD)), TRUE)
 EndScenario()
@@ -960,6 +961,95 @@ Scenario("the density placement changes only HOW FAR, never WHERE")
 	     SameEmbedding(oPlain.Transform(aNew), oPlain.Transform(aNew)), TRUE)
 	Then("...and a density fit still places the row among its own neighbours",
 	     NearestTrainingRow(oDens.Transform(aNew)[1], oDens.Embedding()) > 20, TRUE)
+EndScenario()
+
+Scenario("den-SNE GETS A TRANSFORM, and only one door leads to it")
+	# Classic t-SNE has NO transform. It optimises the points it was given, and a new
+	# point simply has no position -- which is why stzTSNE offers placement only through
+	# the parametric variant, where the network IS the map. So den-SNE reaches unseen
+	# points by that door or not at all.
+	aD = TwoDensitiesWell(25)
+
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(600).SetHiddenLayersQ([16,16]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+
+	Then("it is parametric AND density preserving",
+	     o.IsParametric() and o.IsDensityPreserving(), TRUE)
+	Then("...and the density took", o.DensityCorrelation() > 0.8, TRUE)
+
+	# PreserveDensity() PICKS BY MODE, and the numbers say it must. Measured on this
+	# data with two hidden layers of 16:
+	#
+	#     lambda    corr     drawn ratio
+	#      ~0      -0.422       0.66      <- plain parametric, INVERTED here
+	#      0.01     0.983       8.15
+	#      0.10     0.985       8.76      <- the parametric default
+	#      0.30     0.988       9.34
+	#      1.00    -0.913       0.07      <- the CLASSIC default, catastrophic here
+	#
+	# A network has a few hundred weights SHARED by every point, so an over-strong term
+	# does not distort one region -- it deforms the whole function and the map turns
+	# inside out. The classic path keeps 1.0; this one takes 0.1.
+	Then("...at a weight chosen for the parametric mode, not the classic one",
+	     o.DensityWeight(), 0.1)
+
+	# an explicit weight is obeyed exactly, including into the range that inverts --
+	# that is a stated choice, and the correlation will report what came of it
+	Then("an explicit weight is obeyed as given", ExplicitWeightKept(aD), 1)
+EndScenario()
+
+Scenario("...and that transform is EXACT, unlike UMAP's")
+	aD = TwoDensitiesWell(25)
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(600).SetHiddenLayersQ([16,16]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+
+	# Put a training row back through Transform and it returns the SAME NUMBER, because
+	# the forward pass is the embedding and there is nothing to approximate. UMAP's
+	# transform re-optimises and lands about 0.2 of the typical spacing away; only 25%
+	# of its rows come back nearest their own fitted position.
+	aT = o.Transform([ aD[1] ])
+	Then("a training row transforms to exactly where it was fitted",
+	     aT[1][1] = o.Embedding()[1][1] and aT[1][2] = o.Embedding()[1][2], TRUE)
+EndScenario()
+
+Scenario("BUT THE NETWORK SATURATES, and that is the price of the exactness")
+	aD = TwoDensitiesWell(25)
+	aNew = [ [20,20,20,20], [200,200,200,200] ]
+
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(10).SetIterationsQ(600).SetHiddenLayersQ([16,16]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+	aB = o.Transform(aNew)
+
+	# A legitimate diffuse-cluster row and one TEN TIMES further out in every
+	# coordinate than anything the fit ever saw. Bounded activations send everything
+	# past a certain magnitude to the same place, so the two come back close together
+	# -- and at a heavier weight, three thousandths apart.
+	#
+	# The transform is not merely inaccurate on unfamiliar input. It is STRUCTURALLY
+	# BLIND to it, and it fails SILENTLY: what comes back looks like ordinary
+	# coordinates. That is the exact inverse of the UMAP transform, which is only
+	# approximate on training rows but CAN put an outlier outside the map.
+	Then("the outlier is drawn close to a legitimate row",
+	     DistOf(aB[1], aB[2]) < 1.5, TRUE)
+
+	# SO THE CHECK HAS TO COME FROM THE DATA. 356 units from anything is 356 units from
+	# anything, whatever a network believes.
+	aR = o.LocalRadiiOf(aNew)
+	Then("the data-side radius sees what the network could not",
+	     aR[2] > aR[1] * 100, TRUE)
+	Then("...placing the legitimate row inside the training range",
+	     aR[1] < LargestIn(o.LocalRadii(), 1, 50), TRUE)
+	Then("...and the outlier far outside it",
+	     aR[2] > LargestIn(o.LocalRadii(), 1, 50) * 1000, TRUE)
+
+	# available for an ordinary parametric fit too -- it is a property of the data
+	oNo = new stzTSNE(aD)
+	oNo.SetPerplexityQ(10).SetIterationsQ(200).SetHiddenLayersQ([16,16]).LearnMappingQ().FitQ()
+	Then("...and it needs no density term to be asked",
+	     LargerSecond(oNo.LocalRadiiOf(aNew)), TRUE)
 EndScenario()
 
 Scenario("the name forms hold here too")
@@ -1531,3 +1621,15 @@ func NearestTrainingRow(aPos, aE)
 		ok
 	next
 	return nBest
+
+func ParametricDensityFits(aD)
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(5).SetIterationsQ(200).SetHiddenLayersQ([8]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+	return o.IsFitted() and o.IsParametric() and o.IsDensityPreserving()
+
+func ExplicitWeightKept(aD)
+	o = new stzTSNE(aD)
+	o.SetPerplexityQ(5).SetIterationsQ(100).SetHiddenLayersQ([8]).LearnMappingQ()
+	o.SetDensityWeightQ(1).FitQ()
+	return o.DensityWeight()

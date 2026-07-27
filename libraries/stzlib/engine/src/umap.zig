@@ -735,18 +735,7 @@ pub fn transformWithDensity(
     // the density correction is applied, because the number is useful on its own: a
     // row whose radius is far outside the training range is one the model has no
     // business being confident about.
-    if (new_radii) |nr| {
-        for (0..m) |i| {
-            var acc: f64 = 0;
-            var wsum: f64 = 0;
-            for (0..k) |t| {
-                const wt = w[i * k + t];
-                acc += wt * dist[i * k + t] * dist[i * k + t];
-                wsum += wt;
-            }
-            nr[i] = if (wsum > 0) acc / wsum else 0;
-        }
-    }
+    if (new_radii) |nr| radiiFromNeighbours(w, dist, m, k, nr);
 
     if (epochs == 0) {
         if (dens_on) applyDensityRadius(train_y, idx, w, new_x, dist, out, m, k, dims, dens_slope, dens_intercept);
@@ -888,6 +877,87 @@ fn applyDensityRadius(
         const scale = @sqrt(want_sq / cur);
         for (0..dims) |q| out[i * dims + q] = c[q] + (out[i * dims + q] - c[q]) * scale;
     }
+}
+
+
+/// The membership-weighted mean squared distance from each new row to the training
+/// rows nearest it -- ONE definition, used by the UMAP transform and offered to the
+/// parametric t-SNE one, which needs it more.
+fn radiiFromNeighbours(w: []const f64, dist: []const f64, m: usize, k: usize, out: []f64) void {
+    for (0..m) |i| {
+        var acc: f64 = 0;
+        var wsum: f64 = 0;
+        for (0..k) |t| {
+            const wt = w[i * k + t];
+            acc += wt * dist[i * k + t] * dist[i * k + t];
+            wsum += wt;
+        }
+        out[i] = if (wsum > 0) acc / wsum else 0;
+    }
+}
+
+/// THE OUT-OF-DISTRIBUTION CHECK, computed from the DATA and nothing else.
+///
+/// It exists as its own entry point because of what the parametric t-SNE transform
+/// does with an unfamiliar row: the network SATURATES. Measured -- a legitimate row at
+/// (20,20,20,20) maps to (-2.1100, -9.7090) and a row at (200,200,200,200), ten times
+/// further out in every coordinate, maps to (-2.1118, -9.7117). Three thousandths
+/// apart. The transform is not merely inaccurate there, it is structurally blind:
+/// bounded activations send everything past a certain magnitude to the same place.
+///
+/// So the answer cannot come from the network. This measures the new row against the
+/// TRAINING DATA, where 356 units from anything is 356 units from anything no matter
+/// what any model believes.
+pub fn localRadiiOfNew(
+    alloc: std.mem.Allocator,
+    train_x: []const f64,
+    n: usize,
+    d: usize,
+    new_x: []const f64,
+    m: usize,
+    k: usize,
+    out: []f64,
+) !void {
+    if (n == 0 or m == 0 or k == 0 or k > n) return Error.BadNeighbors;
+    const idx = try alloc.alloc(u32, m * k);
+    defer alloc.free(idx);
+    const dist = try alloc.alloc(f64, m * k);
+    defer alloc.free(dist);
+    const cand = try alloc.alloc(f64, n);
+    defer alloc.free(cand);
+
+    for (0..m) |i| {
+        for (0..n) |j| cand[j] = @sqrt(sqDist(new_x[i * d ..][0..d], train_x[j * d ..][0..d]));
+        for (0..k) |slot| {
+            var best: usize = 0;
+            var bestv = std.math.inf(f64);
+            for (0..n) |j| {
+                if (cand[j] < bestv) {
+                    bestv = cand[j];
+                    best = j;
+                }
+            }
+            idx[i * k + slot] = @intCast(best);
+            dist[i * k + slot] = bestv;
+            cand[best] = std.math.inf(f64);
+        }
+    }
+
+    const rho = try alloc.alloc(f64, m);
+    defer alloc.free(rho);
+    const sigma = try alloc.alloc(f64, m);
+    defer alloc.free(sigma);
+    localMetric(dist, m, k, rho, sigma);
+
+    const w = try alloc.alloc(f64, m * k);
+    defer alloc.free(w);
+    for (0..m) |i| {
+        for (0..k) |t| {
+            const dd = dist[i * k + t] - rho[i];
+            w[i * k + t] = if (dd > 0) @exp(-dd / sigma[i]) else 1.0;
+        }
+    }
+    radiiFromNeighbours(w, dist, m, k, out);
 }
 
 /// The reference implementation clips every gradient component to +-4. Without it a
