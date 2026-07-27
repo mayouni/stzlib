@@ -4,6 +4,7 @@ pub const special = @import("special.zig");
 pub const hypothesis = @import("hypothesis.zig");
 pub const simplex = @import("simplex.zig");
 pub const logistic = @import("logistic.zig");
+pub const cluster = @import("cluster.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
 
 comptime {
@@ -55,5 +56,6 @@ test {
     _ = hypothesis;
     _ = simplex;
     _ = logistic;
+    _ = cluster;
     _ = numbuf;
 }
