@@ -35,6 +35,7 @@
 //! thousand is not. Saying so beats an approximation whose error nobody has budgeted.
 
 const std = @import("std");
+const density = @import("density.zig");
 
 pub const Options = struct {
     /// roughly "how many neighbours should count". The original paper suggests 5..50
@@ -50,6 +51,21 @@ pub const Options = struct {
     momentum_final: f64 = 0.8,
     momentum_switch: usize = 250,
     seed: u64 = 42,
+
+    /// DENSITY PRESERVATION (den-SNE). 0 leaves t-SNE exactly as it was.
+    ///
+    /// The SAME term as densMAP, from the same paper, over the same definition of a
+    /// local radius -- see density.zig. What differs is only that t-SNE's p_ij is a
+    /// dense joint distribution rather than a sparse graph.
+    density_lambda: f64 = 0,
+
+    /// the FINAL fraction of iterations during which the density term is active.
+    /// Switched on late for the same reason as in UMAP -- a layout that is still
+    /// forming has radii that are noise -- and here there is a second reason: EARLY
+    /// EXAGGERATION deliberately distorts the scale of the whole embedding for the
+    /// first quarter of the run, so any density measured during it is measured against
+    /// a picture the algorithm is about to throw away.
+    density_frac: f64 = 0.3,
 };
 
 pub const Result = struct {
@@ -60,11 +76,22 @@ pub const Result = struct {
     kl: []f64,
     n: usize,
     dims: usize,
+
+    /// ORIGINAL-SPACE local radius per point, empty unless density was asked for.
+    /// A data product in its own right: it ranks rows by how isolated they are with
+    /// no reference to the embedding at all.
+    local_radii: []f64,
+
+    /// correlation between original and embedded log-radii at the end of the run.
+    /// NaN when the term was never switched on.
+    density_correlation: f64,
+
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Result) void {
         self.allocator.free(self.embedding);
         self.allocator.free(self.kl);
+        if (self.local_radii.len > 0) self.allocator.free(self.local_radii);
         self.allocator.destroy(self);
     }
 };
@@ -309,6 +336,27 @@ pub fn run(
     const kl = try alloc.alloc(f64, opts.iterations);
     errdefer alloc.free(kl);
 
+    // ── DENSITY PRESERVATION (den-SNE), when asked for ──
+    //
+    // Built from the SYMMETRISED joint distribution above -- the same p_ij the KL term
+    // is optimising against, and deliberately NOT the exaggerated copy. Exaggeration
+    // is a temporary lie told to the optimiser to open gaps early; measuring density
+    // against it would preserve a scale that is about to be discarded.
+    const want_density = opts.density_lambda > 0 and n >= 3;
+    var dens_target: ?density.Target = null;
+    defer if (dens_target) |*dt| dt.deinit();
+    var dens_ws: ?density.Workspace = null;
+    defer if (dens_ws) |*dw| dw.deinit();
+    var dens_corr: f64 = std.math.nan(f64);
+    var dens_start: usize = opts.iterations;
+    if (want_density) {
+        dens_target = try density.buildTargetDense(alloc, p, x, n, d);
+        dens_ws = try density.Workspace.init(alloc, n);
+        const frac = @min(@max(opts.density_frac, 0.0), 1.0);
+        const on_for: f64 = @as(f64, @floatFromInt(opts.iterations)) * frac;
+        dens_start = opts.iterations -| @as(usize, @intFromFloat(on_for));
+    }
+
     var it: usize = 0;
     while (it < opts.iterations) : (it += 1) {
         const exaggerating = it < opts.exaggeration_iters;
@@ -353,6 +401,23 @@ pub fn run(
         }
         kl[it] = kl_now;
 
+        // The density contribution goes into `dy` rather than straight into `y`, so it
+        // passes through the momentum and the adaptive gains along with everything
+        // else. Applying it afterwards would let it fight the gains rather than ride
+        // them, and the gains are most of why a fixed learning rate works here at all.
+        if (want_density and it >= dens_start) {
+            dens_corr = density.accumulateGradientDense(
+                &dens_target.?,
+                &dens_ws.?,
+                p,
+                y,
+                dy,
+                n,
+                dims,
+                opts.density_lambda,
+            );
+        }
+
         // ADAPTIVE GAINS (Jacobs): step up where the gradient keeps its sign, down
         // where it oscillates. The original implementation's, and the reason a fixed
         // learning rate is workable across very different data.
@@ -377,8 +442,24 @@ pub fn run(
         }
     }
 
+    var radii_out: []f64 = &[_]f64{};
+    if (want_density) {
+        const mean_log = try density.meanLogRadiusDense(p, x, n, d, alloc);
+        radii_out = try dens_target.?.radii(alloc, mean_log);
+        // measured on the embedding actually returned, not the one before the last step
+        dens_corr = density.correlationDense(&dens_target.?, &dens_ws.?, p, y, n, dims);
+    }
+
     const out = try alloc.create(Result);
-    out.* = .{ .embedding = y, .kl = kl, .n = n, .dims = dims, .allocator = alloc };
+    out.* = .{
+        .embedding = y,
+        .kl = kl,
+        .n = n,
+        .dims = dims,
+        .local_radii = radii_out,
+        .density_correlation = dens_corr,
+        .allocator = alloc,
+    };
     return out;
 }
 
@@ -543,4 +624,246 @@ test "three dimensions work as well as two" {
     try testing.expectEqual(@as(usize, 3), r.dims);
     try testing.expectEqual(@as(usize, n * 3), r.embedding.len);
     for (r.embedding) |v| try testing.expect(std.math.isFinite(v));
+}
+
+/// two clusters differing TWENTYFOLD in spread -- the case density preservation is for
+fn twoDensities(alloc: std.mem.Allocator, per: usize, d: usize) ![]f64 {
+    const n = per * 2;
+    const x = try alloc.alloc(f64, n * d);
+    var rng = Rng.init(7);
+    for (0..per) |i| {
+        for (0..d) |t| x[i * d + t] = (rng.uniform() - 0.5) * 0.15;
+    }
+    for (per..n) |i| {
+        for (0..d) |t| x[i * d + t] = 20.0 + (rng.uniform() - 0.5) * 3.0;
+    }
+    return x;
+}
+
+fn meanSpread(v: []const f64, lo: usize, hi: usize, dims: usize) f64 {
+    var s: f64 = 0;
+    var c: f64 = 0;
+    for (lo..hi) |i| {
+        for (i + 1..hi) |j| {
+            s += @sqrt(sqDist(v[i * dims ..][0..dims], v[j * dims ..][0..dims]));
+            c += 1;
+        }
+    }
+    return if (c > 0) s / c else 0;
+}
+
+test "PLAIN t-SNE CARRIES NO DENSITY SIGNAL -- the number is noise around zero" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // MEASURED across five seeds on data whose density ratio is 19.96:
+    //
+    //     seed    42      7     1234     99     2026
+    //     corr  -0.186  +0.099  +0.125  -0.048  +0.168
+    //
+    // Scattered around ZERO, and negative as often as not. This is a sharper statement
+    // than "t-SNE does not preserve density": its density output is indistinguishable
+    // from chance, so a reader who infers anything from relative cluster sizes in a
+    // t-SNE plot is reading noise. UMAP at least came out consistently positive
+    // (+0.226) -- weak, but pointing the right way.
+    //
+    // The Student-t kernel is why. Its heavy tail is what stops the crowding problem,
+    // and it does that by letting every cluster settle at whatever size the repulsion
+    // allows, independent of how tight the cluster actually was.
+    const seeds = [_]u64{ 42, 7, 1234 };
+    for (seeds) |sd| {
+        var r = try run(alloc, x, n, d, .{
+            .perplexity = 10,
+            .iterations = 800,
+            .seed = sd,
+            // a weight this small reports the correlation without moving anything --
+            // the measurement, with the treatment switched off
+            .density_lambda = 1e-300,
+        });
+        defer r.deinit();
+        try testing.expect(@abs(r.density_correlation) < 0.3);
+    }
+}
+
+test "den-SNE recovers it, and the drawn sizes follow" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var plain = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1e-300 });
+    defer plain.deinit();
+    var dens = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1.0 });
+    defer dens.deinit();
+
+    try testing.expect(dens.density_correlation > 0.85);
+    try testing.expect(dens.density_correlation > plain.density_correlation + 0.6);
+
+    // and it shows: the diffuse cluster is drawn wider than the tight one, where plain
+    // t-SNE draws them at essentially the same size
+    const rp = meanSpread(plain.embedding, per, n, 2) / meanSpread(plain.embedding, 0, per, 2);
+    const rd = meanSpread(dens.embedding, per, n, 2) / meanSpread(dens.embedding, 0, per, 2);
+    try testing.expect(rp < 1.2);
+    try testing.expect(rd > 1.4);
+}
+
+test "THE DIAL HAS AN UNSTABLE BAND, and the default sits below it" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // MEASURED, correlation by lambda and seed:
+    //
+    //     lambda   seed 42   seed 7   seed 1234
+    //      0.5      0.902    0.896     0.827      stable
+    //      1.0      0.957    0.965     0.900      stable
+    //      1.5      0.980    0.894     0.705      widening
+    //      2.0     -0.646    0.480     0.910      WILD
+    //      4.0      0.938    0.936     0.933      stable again
+    //
+    // AND THE WIDER SWEEP, at seed 42:
+    //
+    //     lambda    corr     drawn ratio   separation    KL
+    //       0      -0.186       1.05          7.13      0.291
+    //       1       0.957       1.56          4.15      0.443
+    //      10       0.982       3.22          1.23      1.915
+    //     100       0.999       3.63          1.18      1.710
+    //   10000       0.735       1.45          1.01      2.578
+    //
+    // THREE FACTS, none of them guessable, and the middle one is the dangerous one.
+    //
+    // 1. The dial is NOT monotone -- it peaks near 100 and falls away after.
+    // 2. AT 2, ON THIS DATA, IT IS UNSTABLE: the same inputs with a different seed land
+    //    anywhere from -0.65 to +0.91. Not noise on a trend -- the outcome is decided
+    //    by the initialisation. Almost certainly the adaptive gains: a density term of
+    //    middling strength puts the combined gradient into an oscillation the gains
+    //    then amplify, and the layout settles anti-correlated.
+    // 3. Past about 4 it is well behaved again, because the density term now dominates
+    //    outright -- but by then the separation has collapsed from 7.13 to near 1.
+    //
+    // AND THE BAND IS NOT AT A FIXED PLACE. A second dataset swept the same range with
+    // nothing unstable anywhere (0.94 at 0.5, 0.90 at 1, 0.97 at 10). So lambda cannot
+    // be chosen once and trusted -- where it works depends on the data, which is why
+    // the correlation is REPORTED rather than kept internal. A caller who does not
+    // check it does not know whether the picture preserves density.
+    //
+    // The default of 1.0 is a starting point measured to behave on both datasets, not
+    // a guarantee.
+    //
+    // Note also how far this is from UMAP's density dial, which was cleanly monotone.
+    // Same term, same paper, different optimiser -- and the shape belongs to the
+    // optimiser, not to the term.
+    const seeds = [_]u64{ 42, 7, 1234 };
+    var lo: f64 = 1;
+    var hi: f64 = -1;
+    for (seeds) |sd| {
+        var r = try run(alloc, x, n, d, .{
+            .perplexity = 10,
+            .iterations = 800,
+            .seed = sd,
+            .density_lambda = 1.0,
+        });
+        defer r.deinit();
+        lo = @min(lo, r.density_correlation);
+        hi = @max(hi, r.density_correlation);
+    }
+    // the default is reliable: every seed lands high, and they land close together
+    try testing.expect(lo > 0.85);
+    try testing.expect(hi - lo < 0.15);
+}
+
+test "IT IS A TRADE HERE TOO, and t-SNE lets you price it exactly" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var plain = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800 });
+    defer plain.deinit();
+    var dens = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 800, .density_lambda = 1.0 });
+    defer dens.deinit();
+
+    // UMAP could only show the cost indirectly, as lost cluster separation. t-SNE
+    // reports its objective, so the bill arrives itemised: the KL divergence is
+    // WORSE with the density term, by about half again. That is the neighbourhood
+    // fidelity being spent to buy density fidelity, stated in the units of the thing
+    // being given up.
+    try testing.expect(dens.kl[799] > plain.kl[799]);
+    try testing.expect(plain.kl[799] > 0);
+}
+
+test "lambda 0 is EXACTLY plain t-SNE, not merely close" {
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var plain = try run(alloc, x, n, d, .{ .perplexity = 5, .iterations = 300 });
+    defer plain.deinit();
+    var zero = try run(alloc, x, n, d, .{ .perplexity = 5, .iterations = 300, .density_lambda = 0 });
+    defer zero.deinit();
+    for (plain.embedding, zero.embedding) |a, b| try testing.expectEqual(a, b);
+    try testing.expectEqual(@as(usize, 0), zero.local_radii.len);
+    try testing.expect(std.math.isNan(zero.density_correlation));
+}
+
+test "the local radii agree with UMAP's on what is dense, from a different p" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .perplexity = 10, .iterations = 300, .density_lambda = 1.0 });
+    defer r.deinit();
+    try testing.expectEqual(n, r.local_radii.len);
+
+    // The radii come from t-SNE's joint distribution, not UMAP's fuzzy graph -- two
+    // different weightings of the same neighbourhoods. They still put EVERY tight row
+    // below EVERY diffuse one, which is the reassurance that the quantity is a fact
+    // about the data rather than an artefact of whichever graph was used to weigh it.
+    var tight_max: f64 = 0;
+    for (0..per) |i| tight_max = @max(tight_max, r.local_radii[i]);
+    var diffuse_min: f64 = std.math.inf(f64);
+    for (per..n) |i| diffuse_min = @min(diffuse_min, r.local_radii[i]);
+    try testing.expect(tight_max < diffuse_min);
+}
+
+test "density does not disturb the exaggeration phase" {
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    // EARLY EXAGGERATION multiplies P by 12 for the first quarter of the run, which
+    // deliberately distorts the scale of the whole layout to open gaps between groups.
+    // Density measured against that would preserve a picture the algorithm is about to
+    // discard -- so with the default phase the term does not run until well after
+    // exaggeration has ended, and the two never overlap.
+    var r = try run(alloc, x, n, d, .{
+        .perplexity = 5,
+        .iterations = 400,
+        .exaggeration_iters = 100,
+        .density_lambda = 1.0,
+    });
+    defer r.deinit();
+    // 400 iterations, phase 0.3 -> starts at 280, well past the 100th
+    for (r.embedding) |v| try testing.expect(!std.math.isNan(v) and !std.math.isInf(v));
+    try testing.expect(!std.math.isNan(r.density_correlation));
 }

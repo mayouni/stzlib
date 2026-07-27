@@ -42,11 +42,27 @@
 //! gradient is noise with a lever arm. The layout has to be roughly right before the
 //! question "are the dense parts tight?" has a meaningful answer.
 //!
-//! ── SHARED ON PURPOSE ──
+//! ── SHARED ON PURPOSE, AND WHAT "SHARED" HAD TO MEAN ──
 //!
-//! The same term defines den-SNE in the same paper. The radius, the correlation and
-//! its gradient are written ONCE, here, so that a t-SNE variant cannot drift into a
-//! second definition of what local density means.
+//! The same term defines den-SNE in the same paper, so the radius, the correlation and
+//! its gradient are written ONCE, here.
+//!
+//! But the two algorithms do not hold p_ij the same way, and pretending otherwise
+//! would have cost more than it saved. UMAP builds a SPARSE fuzzy graph -- an edge
+//! list of the few pairs that are actually joined. t-SNE builds a DENSE n-by-n joint
+//! distribution in which every pair has some weight. Forcing t-SNE to materialise an
+//! edge list of n(n-1)/2 entries to reuse one loop would double its memory for nothing.
+//!
+//! So what is shared is the MATH -- `pointCoefficients` and everything it calls -- and
+//! what differs is only the traversal: `buildTarget`/`applyGradient` walk an edge list,
+//! `buildTargetDense`/`accumulateGradientDense` walk a matrix. There is still exactly
+//! one definition of what local density means, which was the point.
+//!
+//! They also differ in where the answer goes. UMAP's optimiser has no gradient buffer
+//! -- it writes each edge straight into the layout -- so the edge version moves `y`.
+//! t-SNE accumulates a gradient and then puts it through momentum and adaptive gains,
+//! so the dense version accumulates into `dy` instead, and its contribution is
+//! NEGATED: t-SNE descends its buffer, and this term is being maximised.
 
 const std = @import("std");
 
@@ -176,6 +192,9 @@ pub const Workspace = struct {
     /// embedding radius per point, then its centered log, then dCorr/du_i
     radius: []f64,
     grad: []f64,
+    /// set when the radii carry no spread, so the correlation is undefined and the
+    /// only correct push is none at all
+    degenerate: bool = false,
     allocator: std.mem.Allocator,
 
     pub fn init(alloc: std.mem.Allocator, n: usize) !Workspace {
@@ -233,25 +252,9 @@ pub fn applyGradient(
     var i: usize = 0;
     while (i < n) : (i += 1) ws.grad[i] = @max(ws.radius[i], MIN_RADIUS);
 
-    const st = centerLogs(ws.radius, n);
-    if (st.norm < MIN_SPREAD or target.norm < MIN_SPREAD) return 0;
-
-    var dot: f64 = 0;
-    for (0..n) |k| dot += ws.radius[k] * target.centered[k];
-    const corr = dot / (st.norm * target.norm);
-
-    // dCorr/du_i for the centered logs u. The mean-subtraction cross-terms sum to
-    // zero, which is why this is the plain two-term expression and not something
-    // involving 1/n.
-    //
-    // Folded into it: du_i/dR_i = 1/R_i, and the 2/P_i from the radius itself. What
-    // is left multiplying each edge is then just p_ij * (y_i - y_j).
-    for (0..n) |k| {
-        const dcorr = target.centered[k] / (st.norm * target.norm) -
-            corr * ws.radius[k] / (st.norm * st.norm);
-        const p = target.total[k];
-        ws.grad[k] = if (p > 0) 2.0 * dcorr / (p * ws.grad[k]) else 0;
-    }
+    const corr = pointCoefficients(target, ws, n);
+    if (corr == 0 and target.norm < MIN_SPREAD) return 0;
+    if (ws.degenerate) return 0;
 
     // ONE pass over the edges. An edge (i,j) enters BOTH radii, so its two endpoints
     // move by the same vector in opposite directions -- the term cannot translate the
@@ -270,7 +273,212 @@ pub fn applyGradient(
     return corr;
 }
 
+// --- DENSE VARIANT: the same density, a different p_ij ----------------------
+//
+// t-SNE's joint distribution is a full n-by-n matrix summing to 1, so its p_ij are
+// tiny (order 1/n^2) where UMAP's are order 1. THAT SCALE CANCELS in the radius,
+// which divides by P_i, and again in the gradient, where the 1/P_i meets a p_ij --
+// so a lambda tuned for one algorithm is not therefore meaningless in the other.
+// It is not transferable either; the surrounding optimisers differ far more.
+
+/// Original-space radii from a DENSE joint distribution. Same formula as
+/// `buildTarget`; only the enumeration of pairs differs.
+pub fn buildTargetDense(
+    alloc: std.mem.Allocator,
+    pmat: []const f64,
+    x: []const f64,
+    n: usize,
+    d: usize,
+) !Target {
+    const total = try alloc.alloc(f64, n);
+    errdefer alloc.free(total);
+    const centered = try alloc.alloc(f64, n);
+    errdefer alloc.free(centered);
+    @memset(total, 0);
+    @memset(centered, 0);
+
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const w = pmat[i * n + j];
+            if (w <= 0) continue;
+            var s: f64 = 0;
+            for (0..d) |t| {
+                const diff = x[i * d + t] - x[j * d + t];
+                s += diff * diff;
+            }
+            centered[i] += w * s;
+            centered[j] += w * s;
+            total[i] += w;
+            total[j] += w;
+        }
+    }
+
+    var mean: f64 = 0;
+    for (0..n) |i| {
+        const r = if (total[i] > 0) centered[i] / total[i] else 0;
+        centered[i] = @log(@max(r, MIN_RADIUS));
+        mean += centered[i];
+    }
+    mean /= @floatFromInt(n);
+
+    var norm: f64 = 0;
+    for (centered) |*c| {
+        c.* -= mean;
+        norm += c.* * c.*;
+    }
+    return .{ .total = total, .centered = centered, .norm = @sqrt(norm), .allocator = alloc };
+}
+
+/// The mean uncentered log radius for the dense case -- see `meanLogRadius`.
+pub fn meanLogRadiusDense(
+    pmat: []const f64,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    alloc: std.mem.Allocator,
+) !f64 {
+    const acc = try alloc.alloc(f64, n);
+    defer alloc.free(acc);
+    const tot = try alloc.alloc(f64, n);
+    defer alloc.free(tot);
+    @memset(acc, 0);
+    @memset(tot, 0);
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const w = pmat[i * n + j];
+            if (w <= 0) continue;
+            var s: f64 = 0;
+            for (0..d) |t| {
+                const diff = x[i * d + t] - x[j * d + t];
+                s += diff * diff;
+            }
+            acc[i] += w * s;
+            acc[j] += w * s;
+            tot[i] += w;
+            tot[j] += w;
+        }
+    }
+    var mean: f64 = 0;
+    for (0..n) |i| {
+        const r = if (tot[i] > 0) acc[i] / tot[i] else 0;
+        mean += @log(@max(r, MIN_RADIUS));
+    }
+    return mean / @as(f64, @floatFromInt(n));
+}
+
+/// The correlation for a dense p_ij, without touching the layout.
+pub fn correlationDense(
+    target: *const Target,
+    ws: *Workspace,
+    pmat: []const f64,
+    y: []const f64,
+    n: usize,
+    dims: usize,
+) f64 {
+    computeRadiiDense(ws, pmat, y, n, dims, target.total);
+    const st = centerLogs(ws.radius, n);
+    if (st.norm < MIN_SPREAD or target.norm < MIN_SPREAD) return 0;
+    var dot: f64 = 0;
+    for (0..n) |i| dot += ws.radius[i] * target.centered[i];
+    return dot / (st.norm * target.norm);
+}
+
+/// ACCUMULATE lambda * d(-correlation)/dy into a gradient buffer.
+///
+/// NEGATED relative to the edge version on purpose. `applyGradient` moves the layout
+/// itself and therefore steps along +gradient to maximise. This one feeds a buffer
+/// that t-SNE SUBTRACTS, so maximising the correlation means adding its negative.
+/// Getting this backwards would not crash -- it would quietly anti-preserve density,
+/// which is why the sign is pinned by a test rather than by a comment alone.
+pub fn accumulateGradientDense(
+    target: *const Target,
+    ws: *Workspace,
+    pmat: []const f64,
+    y: []const f64,
+    dy: []f64,
+    n: usize,
+    dims: usize,
+    lambda: f64,
+) f64 {
+    computeRadiiDense(ws, pmat, y, n, dims, target.total);
+    for (0..n) |i| ws.grad[i] = @max(ws.radius[i], MIN_RADIUS);
+
+    const corr = pointCoefficients(target, ws, n);
+    if (ws.degenerate) return 0;
+
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const w = pmat[i * n + j];
+            if (w <= 0) continue;
+            const c = w * (ws.grad[i] + ws.grad[j]) * lambda;
+            for (0..dims) |t| {
+                const g = c * (y[i * dims + t] - y[j * dims + t]);
+                dy[i * dims + t] -= g;
+                dy[j * dims + t] += g;
+            }
+        }
+    }
+    return corr;
+}
+
 // --- internals --------------------------------------------------------------
+
+/// THE SHARED CORE. Given the raw embedding radii in `ws.radius` and a copy of them
+/// in `ws.grad`, leave `ws.grad` holding dCorr/dy's per-point coefficient and return
+/// the correlation.
+///
+/// dCorr/du_i for the centered logs u: the mean-subtraction cross-terms sum to zero,
+/// which is why this is the plain two-term expression rather than something involving
+/// 1/n. Folded in with it: du_i/dR_i = 1/R_i, and the 2/P_i from the radius. What is
+/// left to multiply each pair by is then just p_ij * (y_i - y_j) -- which is the only
+/// line either traversal has to write for itself.
+fn pointCoefficients(target: *const Target, ws: *Workspace, n: usize) f64 {
+    const st = centerLogs(ws.radius, n);
+    if (st.norm < MIN_SPREAD or target.norm < MIN_SPREAD) {
+        ws.degenerate = true;
+        return 0;
+    }
+    ws.degenerate = false;
+
+    var dot: f64 = 0;
+    for (0..n) |k| dot += ws.radius[k] * target.centered[k];
+    const corr = dot / (st.norm * target.norm);
+
+    for (0..n) |k| {
+        const dcorr = target.centered[k] / (st.norm * target.norm) -
+            corr * ws.radius[k] / (st.norm * st.norm);
+        const pk = target.total[k];
+        ws.grad[k] = if (pk > 0) 2.0 * dcorr / (pk * ws.grad[k]) else 0;
+    }
+    return corr;
+}
+
+fn computeRadiiDense(
+    ws: *Workspace,
+    pmat: []const f64,
+    y: []const f64,
+    n: usize,
+    dims: usize,
+    total: []const f64,
+) void {
+    @memset(ws.radius[0..n], 0);
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const w = pmat[i * n + j];
+            if (w <= 0) continue;
+            var s: f64 = 0;
+            for (0..dims) |t| {
+                const diff = y[i * dims + t] - y[j * dims + t];
+                s += diff * diff;
+            }
+            ws.radius[i] += w * s;
+            ws.radius[j] += w * s;
+        }
+    }
+    for (0..n) |i| {
+        ws.radius[i] = if (total[i] > 0) ws.radius[i] / total[i] else 0;
+    }
+}
 
 fn computeRadii(
     ws: *Workspace,
@@ -532,4 +740,113 @@ test "coincident points do not produce a NaN radius" {
     defer t.deinit();
     for (t.centered) |c| try testing.expect(!std.math.isNan(c));
     try testing.expect(!std.math.isNan(t.norm));
+}
+
+test "DENSE and SPARSE agree when the same graph is expressed both ways" {
+    const alloc = testing.allocator;
+    // THE CHECK THAT MAKES "one definition" MORE THAN A CLAIM. Build one graph, hand
+    // it to each traversal in that traversal's own representation, and require the
+    // same answer. If the dense path ever drifted into a different notion of local
+    // density, this is what would catch it.
+    const n = 5;
+    const x = [_]f64{ 0.0, 0.3, 1.0, 5.0, 12.0 };
+    var edges = [_]Edge{
+        .{ .i = 0, .j = 1, .w = 0.4 },
+        .{ .i = 1, .j = 2, .w = 0.25 },
+        .{ .i = 2, .j = 3, .w = 0.2 },
+        .{ .i = 3, .j = 4, .w = 0.15 },
+        .{ .i = 0, .j = 2, .w = 0.05 },
+    };
+    const pmat = try alloc.alloc(f64, n * n);
+    defer alloc.free(pmat);
+    @memset(pmat, 0);
+    for (edges) |e| {
+        pmat[e.i * n + e.j] = e.w;
+        pmat[e.j * n + e.i] = e.w;
+    }
+
+    var ts = try buildTarget(alloc, &edges, &x, n, 1);
+    defer ts.deinit();
+    var td = try buildTargetDense(alloc, pmat, &x, n, 1);
+    defer td.deinit();
+
+    try testing.expectApproxEqAbs(ts.norm, td.norm, 1e-12);
+    for (ts.total, td.total) |a, b| try testing.expectApproxEqAbs(a, b, 1e-12);
+    for (ts.centered, td.centered) |a, b| try testing.expectApproxEqAbs(a, b, 1e-12);
+
+    var ws = try Workspace.init(alloc, n);
+    defer ws.deinit();
+    const y = [_]f64{ 0.0, 1.0, 1.5, 4.0, 9.0 };
+    const cs = correlation(&ts, &ws, &edges, &y, n, 1);
+    const cd = correlationDense(&td, &ws, pmat, &y, n, 1);
+    try testing.expectApproxEqAbs(cs, cd, 1e-12);
+}
+
+test "the dense gradient has the sign a DESCENT buffer needs" {
+    const alloc = testing.allocator;
+    const n = 5;
+    const x = [_]f64{ 0.0, 0.3, 1.0, 5.0, 12.0 };
+    const pmat = try alloc.alloc(f64, n * n);
+    defer alloc.free(pmat);
+    @memset(pmat, 0);
+    const pairs = [_][3]f64{
+        .{ 0, 1, 0.4 }, .{ 1, 2, 0.25 }, .{ 2, 3, 0.2 }, .{ 3, 4, 0.15 },
+    };
+    for (pairs) |pr| {
+        const i: usize = @intFromFloat(pr[0]);
+        const j: usize = @intFromFloat(pr[1]);
+        pmat[i * n + j] = pr[2];
+        pmat[j * n + i] = pr[2];
+    }
+    var t = try buildTargetDense(alloc, pmat, &x, n, 1);
+    defer t.deinit();
+    var ws = try Workspace.init(alloc, n);
+    defer ws.deinit();
+
+    // Start from a layout whose densities are backwards and DESCEND the buffer, which
+    // is what t-SNE does with it. If the sign were flipped this would drive the
+    // correlation DOWN while looking like it was working -- silent anti-preservation,
+    // and a picture that is confidently wrong rather than merely uninformative. Hence
+    // a test rather than a comment.
+    //
+    // THE STEP SIZE IS 200 ON PURPOSE, and finding that out was the useful part. At a
+    // step of 0.02 the correlation improves by 0.015 over four hundred iterations and
+    // the test looks like a sign error. The density gradient here is of order 1e-3 --
+    // TINY in absolute terms, because p_ij are fractions and the coefficient carries a
+    // 1/(P_i R_i). t-SNE's default learning rate of 200 is not an eccentricity; it is
+    // what this scale of gradient requires, and the density term inherits it.
+    var y = [_]f64{ 0.0, 8.0, 11.0, 11.7, 12.0 };
+    const dy = try alloc.alloc(f64, n);
+    defer alloc.free(dy);
+    const before = correlationDense(&t, &ws, pmat, &y, n, 1);
+    try testing.expect(before < -0.9);
+    for (0..2000) |_| {
+        @memset(dy, 0);
+        _ = accumulateGradientDense(&t, &ws, pmat, &y, dy, n, 1, 1.0);
+        for (0..n) |k| y[k] -= 200.0 * dy[k];
+    }
+    const after = correlationDense(&t, &ws, pmat, &y, n, 1);
+    try testing.expect(after > 0.99);
+}
+
+test "a dense degenerate case pushes nothing rather than NaN" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const x = [_]f64{ 2.0, 2.0, 2.0, 2.0 };
+    const pmat = try alloc.alloc(f64, n * n);
+    defer alloc.free(pmat);
+    for (pmat) |*v| v.* = 0.1;
+    for (0..n) |i| pmat[i * n + i] = 0;
+
+    var t = try buildTargetDense(alloc, pmat, &x, n, 1);
+    defer t.deinit();
+    var ws = try Workspace.init(alloc, n);
+    defer ws.deinit();
+    var y = [_]f64{ 0.0, 1.0, 2.0, 3.0 };
+    const dy = try alloc.alloc(f64, n);
+    defer alloc.free(dy);
+    @memset(dy, 0);
+    const c = accumulateGradientDense(&t, &ws, pmat, &y, dy, n, 1, 1.0);
+    try testing.expectEqual(@as(f64, 0), c);
+    for (dy) |v| try testing.expectEqual(@as(f64, 0), v);
 }
