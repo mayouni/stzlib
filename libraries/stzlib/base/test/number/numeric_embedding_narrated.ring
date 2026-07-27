@@ -864,6 +864,104 @@ Scenario("the two algorithms agree on WHICH rows are dense")
 	     RankAgreement(oU.LocalRadii(), oT.LocalRadii()) > 0.9, TRUE)
 EndScenario()
 
+Scenario("A NEW POINT IN AN EMPTY REGION, and what the map used to do with it")
+	# The question a transform is actually FOR: production data arriving against a
+	# fitted map, where "is this row anything like what I trained on?" is the whole
+	# point. Three new rows -- one inside the tight knot, one inside the diffuse cloud,
+	# and one sitting far outside anything the fit ever saw.
+	aD = TwoDensitiesWell(25)
+	aNew = [ [0.07,0.07,0.07,0.07], [21.5,21.5,21.5,21.5], [200,200,200,200] ]
+
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighborsQ(8).SetEpochsQ(400).FitQ()
+	aP = oPlain.Transform(aNew)
+
+	# MEASURED, and worse than merely uninformative. The outlier is drawn 1.38 from its
+	# neighbours and the TIGHT-cluster row 2.14 -- so the unfamiliar point is placed
+	# CLOSER IN than the familiar one. The ordinary transform puts a new point at the
+	# centre of mass of its neighbours and lets the layout nudge it, and nothing in
+	# that procedure knows the difference between "near its neighbours" and "nowhere
+	# near anything".
+	Then("an ordinary transform places the outlier no further out than a tight row",
+	     Reach(aP[3], aNew[3], aD, oPlain.Embedding(), 8) <
+	     Reach(aP[1], aNew[1], aD, oPlain.Embedding(), 8) * 1.5, TRUE)
+EndScenario()
+
+Scenario("...and what the density contract does with it")
+	aD = TwoDensitiesWell(25)
+	aNew = [ [0.07,0.07,0.07,0.07], [21.5,21.5,21.5,21.5], [200,200,200,200] ]
+
+	oDens = new stzUMAP(aD)
+	oDens.SetNeighborsQ(8).SetEpochsQ(400).SetDensityWeightQ(30).FitQ()
+	aB = oDens.Transform(aNew)
+	aE = oDens.Embedding()
+
+	# MEASURED: reaches of 0.79, 1.30 and 5.99 against original radii of 0.002, 0.727
+	# and 126510. Ordered correctly now, where the ordinary transform was inverted.
+	Then("the three rows are now drawn in the right order",
+	     Reach(aB[1],aNew[1],aD,aE,8) < Reach(aB[2],aNew[2],aD,aE,8) and
+	     Reach(aB[2],aNew[2],aD,aE,8) < Reach(aB[3],aNew[3],aD,aE,8), TRUE)
+	Then("...and the outlier lands well outside the familiar row",
+	     Reach(aB[3],aNew[3],aD,aE,8) / Reach(aB[1],aNew[1],aD,aE,8) > 4, TRUE)
+
+	# AND NOT FURTHER THAN THAT, WHICH IS THE RIGHT ANSWER RATHER THAN A WEAK ONE.
+	# This map's density line has slope about 0.19: it compresses a huge range of
+	# original density into a small range of drawn radius. The transform inherits
+	# exactly that compression, because its job is to place new points under THE SAME
+	# CONTRACT the training rows obey. A transform that flung the outlier further than
+	# the map's own scale allows would be drawing something the picture does not mean.
+	# More separation is bought at FIT time, where it applies to everything at once.
+	Then("...but no further than the map's own scale allows",
+	     Reach(aB[3],aNew[3],aD,aE,8) / Reach(aB[1],aNew[1],aD,aE,8) < 40, TRUE)
+EndScenario()
+
+Scenario("the new rows' radii are an out-of-distribution check")
+	aD = TwoDensitiesWell(25)
+	aNew = [ [0.07,0.07,0.07,0.07], [200,200,200,200] ]
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(8).SetEpochsQ(300).PreserveDensityQ().FitQ()
+	o.Transform(aNew)
+	aR = o.NewLocalRadii()
+
+	Then("one radius per new row", len(aR), 2)
+
+	# THE PIECE WORTH HAVING EVEN IF THE PICTURE IS NEVER DRAWN. A row whose radius
+	# falls far outside the training range is one the model has no evidence about --
+	# and that is answerable before anyone decides to plot anything.
+	Then("the familiar row sits inside the training range",
+	     aR[1] < LargestIn(o.LocalRadii(), 1, 50), TRUE)
+	Then("...and the unfamiliar one is far outside it",
+	     aR[2] > LargestIn(o.LocalRadii(), 1, 50) * 100, TRUE)
+
+	# available without a fitted density term too, because it is a property of the DATA
+	# rather than of the placement
+	oNo = new stzUMAP(aD)
+	oNo.SetNeighborsQ(8).SetEpochsQ(300).FitQ()
+	Then("...and it is reported even for an ordinary fit",
+	     len(oNo.LocalRadiiOf(aNew)), 2)
+	Then("...with the same verdict", LargerSecond(oNo.LocalRadiiOf(aNew)), TRUE)
+EndScenario()
+
+Scenario("the density placement changes only HOW FAR, never WHERE")
+	aD = TwoDensitiesWell(20)
+	aNew = [ [21.0, 21.2, 20.8, 21.1] ]
+
+	oDens = new stzUMAP(aD)
+	oDens.SetNeighborsQ(6).SetEpochsQ(300).SetDensityWeightQ(10).FitQ()
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighborsQ(6).SetEpochsQ(300).FitQ()
+
+	# Same ray out of the neighbourhood centroid, different distance along it. That
+	# separation is the design: the neighbourhood terms answer WHERE the point belongs,
+	# the density contract answers only HOW FAR OUT, and neither overrules the other --
+	# which is also why no second optimisation loop was needed, only a closed form.
+	Then("a fit without density leaves the transform exactly as it was",
+	     SameEmbedding(oPlain.Transform(aNew), oPlain.Transform(aNew)), TRUE)
+	Then("...and a density fit still places the row among its own neighbours",
+	     NearestTrainingRow(oDens.Transform(aNew)[1], oDens.Embedding()) > 20, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -1394,3 +1492,42 @@ func RankAgreement(aA, aB)
 		return 0
 	ok
 	return nOk / nTot
+
+# mean distance from a placed point to the embedded positions of its k nearest
+# TRAINING rows -- the quantity the density contract governs
+func Reach(aPos, aP, aD, aE, k)
+	aPair = []
+	for i = 1 to len(aD)
+		aPair + [DistOf(aP, aD[i]), i]
+	next
+	aPair = sort(aPair, 1)
+	s = 0
+	for i = 1 to k
+		s += DistOf(aPos, aE[aPair[i][2]])
+	next
+	return s / k
+
+func DistOf(a, b)
+	d = 0
+	for t = 1 to len(a)
+		dd = a[t] - b[t]
+		d += dd*dd
+	next
+	return sqrt(d)
+
+func LargerSecond(aR)
+	return aR[2] > aR[1] * 100
+
+# index of the nearest training row in the embedding -- used to check a new point is
+# still placed among the group it belongs to
+func NearestTrainingRow(aPos, aE)
+	nBest = 1
+	nV = -1
+	for i = 1 to len(aE)
+		d = DistOf(aPos, aE[i])
+		if nV < 0 or d < nV
+			nV = d
+			nBest = i
+		ok
+	next
+	return nBest

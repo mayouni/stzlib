@@ -421,6 +421,79 @@ pub fn accumulateGradientDense(
     return corr;
 }
 
+// --- CALIBRATION: carrying the density contract to points the fit never saw --
+//
+// The fit's objective is a CORRELATION over every point. A single new point has
+// nothing to correlate against, so the transform cannot reuse it -- this is a genuinely
+// different mechanism rather than the same code applied twice.
+//
+// What the fit leaves behind is n pairs (log R_original, log R_embedded). A line
+// through them says, for any original density, what embedded radius this particular
+// map gives it. That line is the contract, and it EXTRAPOLATES: a new point sitting
+// further from everything than any training row still gets an answer.
+//
+// THE LINE IS ONLY AS GOOD AS THE CORRELATION IT WAS DRAWN THROUGH. At a fit
+// correlation of 0.9 it is a fair summary; at 0.2 it is a line through a cloud, and
+// applying it would dress noise up as a measurement. Callers can see both numbers,
+// which is the only reason it is safe to offer at all.
+
+pub const Calibration = struct {
+    slope: f64,
+    intercept: f64,
+    /// false when the fit had no density spread to learn from
+    usable: bool,
+};
+
+/// Least squares of log R_embedded on log R_original over the training points.
+pub fn calibrate(
+    target: *const Target,
+    ws: *Workspace,
+    edges: []const Edge,
+    y: []const f64,
+    n: usize,
+    dims: usize,
+    mean_log_orig: f64,
+) Calibration {
+    computeRadii(ws, edges, y, n, dims, target.total);
+    return calibrateFrom(target, ws, n, mean_log_orig);
+}
+
+/// The dense counterpart -- same line, t-SNE's p_ij.
+pub fn calibrateDense(
+    target: *const Target,
+    ws: *Workspace,
+    pmat: []const f64,
+    y: []const f64,
+    n: usize,
+    dims: usize,
+    mean_log_orig: f64,
+) Calibration {
+    computeRadiiDense(ws, pmat, y, n, dims, target.total);
+    return calibrateFrom(target, ws, n, mean_log_orig);
+}
+
+fn calibrateFrom(target: *const Target, ws: *Workspace, n: usize, mean_log_orig: f64) Calibration {
+    // ws.radius holds the raw embedded radii; centerLogs turns them into centered logs
+    // and hands back the mean it removed, which the intercept needs
+    var mean_emb: f64 = 0;
+    for (0..n) |i| mean_emb += @log(@max(ws.radius[i], MIN_RADIUS));
+    mean_emb /= @floatFromInt(n);
+
+    var num: f64 = 0;
+    var den: f64 = 0;
+    for (0..n) |i| {
+        const xe = target.centered[i];
+        const ye = @log(@max(ws.radius[i], MIN_RADIUS)) - mean_emb;
+        num += xe * ye;
+        den += xe * xe;
+    }
+    if (den < MIN_SPREAD or target.norm < MIN_SPREAD) {
+        return .{ .slope = 0, .intercept = mean_emb, .usable = false };
+    }
+    const slope = num / den;
+    return .{ .slope = slope, .intercept = mean_emb - slope * mean_log_orig, .usable = true };
+}
+
 // --- internals --------------------------------------------------------------
 
 /// THE SHARED CORE. Given the raw embedding radii in `ws.radius` and a copy of them

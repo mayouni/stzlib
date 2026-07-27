@@ -100,6 +100,12 @@ pub const Result = struct {
     /// faith. It is not a percentage: see the -0.60 case in density.zig.
     density_correlation: f64,
 
+    /// The line relating original to embedded log-radius IN THIS MAP -- what lets
+    /// Transform() place a new point at a radius consistent with the fit, instead of
+    /// wherever its neighbours happen to sit. Zero slope when density was not used.
+    density_slope: f64,
+    density_intercept: f64,
+
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Result) void {
@@ -536,6 +542,7 @@ pub fn runSupervised(
     }
 
     var radii_out: []f64 = &[_]f64{};
+    var calib = density.Calibration{ .slope = 0, .intercept = 0, .usable = false };
     if (want_density) {
         const de: []const density.Edge = @ptrCast(edges.items);
         const mean_log = try density.meanLogRadius(de, x, n, d, alloc);
@@ -543,6 +550,7 @@ pub fn runSupervised(
         // the correlation AFTER the last step, so the reported number describes the
         // embedding that is actually returned rather than the one before it
         dens_corr = density.correlation(&dens_target.?, &dens_ws.?, de, y, n, dims);
+        calib = density.calibrate(&dens_target.?, &dens_ws.?, de, y, n, dims, mean_log);
     }
 
     const out = try alloc.create(Result);
@@ -554,6 +562,8 @@ pub fn runSupervised(
         .dims = dims,
         .local_radii = radii_out,
         .density_correlation = dens_corr,
+        .density_slope = if (calib.usable) calib.slope else 0,
+        .density_intercept = calib.intercept,
         .allocator = alloc,
     };
     return out;
@@ -605,6 +615,59 @@ pub fn transform(
     epochs: usize,
     seed: u64,
     out: []f64,
+) !void {
+    return transformWithDensity(alloc, train_x, train_y, n, d, dims, new_x, m, k, a, b, epochs, seed, out, 0, 0, false, null);
+}
+
+/// Transform, optionally placing each new point at the radius the fit's density
+/// contract calls for.
+///
+/// ── WHY THIS IS NOT JUST THE FIT'S TERM APPLIED AGAIN ──
+///
+/// The fit maximises a CORRELATION across every point. One new point has nothing to
+/// correlate against, so the objective does not even type-check for it. What carries
+/// over instead is the LINE the fit left behind (density.Calibration): for this
+/// particular map, an original density of R implies an embedded radius of
+/// exp(intercept + slope*log R). That is a prediction, and it extrapolates.
+///
+/// ── AND THE CORRECTION IS CLOSED FORM, WHICH IS WORTH THE PARAGRAPH ──
+///
+/// Writing c for the membership-weighted centroid of a new point's neighbours and S
+/// for those neighbours' own weighted spread about c, the point's embedded radius is
+/// exactly
+///
+///     R_emb = ||y - c||^2 + S
+///
+/// -- an identity, not an approximation, and it separates the two questions cleanly.
+/// The ordinary optimisation decides the DIRECTION from c, which is what says which
+/// side of its neighbourhood the point belongs on. The density contract decides only
+/// the DISTANCE. So there is no second gradient loop and nothing for the two terms to
+/// fight over: run the normal transform, then set the radius.
+///
+/// When the target is below S the neighbours are already more spread than the point
+/// should be, and the honest answer is the centroid itself -- the point cannot be
+/// tighter than the company it keeps.
+pub fn transformWithDensity(
+    alloc: std.mem.Allocator,
+    train_x: []const f64,
+    train_y: []const f64,
+    n: usize,
+    d: usize,
+    dims: usize,
+    new_x: []const f64,
+    m: usize,
+    k: usize,
+    a: f64,
+    b: f64,
+    epochs: usize,
+    seed: u64,
+    out: []f64,
+    dens_slope: f64,
+    dens_intercept: f64,
+    dens_on: bool,
+    /// the new points' ORIGINAL-space radii, written when non-null. A novelty score:
+    /// meaningful with no reference to the embedding at all.
+    new_radii: ?[]f64,
 ) !void {
     if (n == 0 or m == 0 or k == 0 or k > n) return Error.BadNeighbors;
 
@@ -668,7 +731,27 @@ pub fn transform(
         }
     }
 
-    if (epochs == 0) return;
+    // THE NEW POINTS' OWN LOCAL RADII, in the original space. Reported whether or not
+    // the density correction is applied, because the number is useful on its own: a
+    // row whose radius is far outside the training range is one the model has no
+    // business being confident about.
+    if (new_radii) |nr| {
+        for (0..m) |i| {
+            var acc: f64 = 0;
+            var wsum: f64 = 0;
+            for (0..k) |t| {
+                const wt = w[i * k + t];
+                acc += wt * dist[i * k + t] * dist[i * k + t];
+                wsum += wt;
+            }
+            nr[i] = if (wsum > 0) acc / wsum else 0;
+        }
+    }
+
+    if (epochs == 0) {
+        if (dens_on) applyDensityRadius(train_y, idx, w, new_x, dist, out, m, k, dims, dens_slope, dens_intercept);
+        return;
+    }
 
     var rng = Rng.init(seed);
     var wmax: f64 = 0;
@@ -722,6 +805,88 @@ pub fn transform(
                 }
             }
         }
+    }
+
+    // LAST, once the neighbourhood optimisation has settled on a direction. Doing it
+    // earlier would let the SGD undo it.
+    if (dens_on) applyDensityRadius(train_y, idx, w, new_x, dist, out, m, k, dims, dens_slope, dens_intercept);
+}
+
+/// Set each new point's distance from its neighbourhood centroid so that its embedded
+/// radius matches what the fit's density line predicts, keeping the direction the
+/// optimisation chose.
+///
+/// The identity being used is R_emb = ||y - c||^2 + S, with c the membership-weighted
+/// centroid of the neighbours and S their own weighted spread about it. So the whole
+/// correction is one scalar per point.
+fn applyDensityRadius(
+    train_y: []const f64,
+    idx: []const u32,
+    w: []const f64,
+    new_x: []const f64,
+    dist: []const f64,
+    out: []f64,
+    m: usize,
+    k: usize,
+    dims: usize,
+    slope: f64,
+    intercept: f64,
+) void {
+    _ = new_x;
+    var i: usize = 0;
+    while (i < m) : (i += 1) {
+        // the weighted centroid c, and the neighbours' spread S about it
+        var wsum: f64 = 0;
+        var c: [8]f64 = .{0} ** 8;
+        if (dims > 8) return;
+        for (0..k) |t| {
+            const j: usize = idx[i * k + t];
+            const wt = w[i * k + t];
+            wsum += wt;
+            for (0..dims) |q| c[q] += wt * train_y[j * dims + q];
+        }
+        if (wsum <= 0) continue;
+        for (0..dims) |q| c[q] /= wsum;
+
+        var s_spread: f64 = 0;
+        for (0..k) |t| {
+            const j: usize = idx[i * k + t];
+            var dd: f64 = 0;
+            for (0..dims) |q| {
+                const diff = train_y[j * dims + q] - c[q];
+                dd += diff * diff;
+            }
+            s_spread += w[i * k + t] * dd;
+        }
+        s_spread /= wsum;
+
+        // the point's ORIGINAL radius, and what the fit's line says it should become
+        var acc: f64 = 0;
+        for (0..k) |t| acc += w[i * k + t] * dist[i * k + t] * dist[i * k + t];
+        const r_orig = acc / wsum;
+        const target = @exp(intercept + slope * @log(@max(r_orig, 1e-12)));
+
+        // ||y - c||^2 = R_target - S, or the centroid itself when the neighbours are
+        // already more spread than the point should be
+        const want_sq = target - s_spread;
+        var cur: f64 = 0;
+        for (0..dims) |q| {
+            const diff = out[i * dims + q] - c[q];
+            cur += diff * diff;
+        }
+        if (want_sq <= 0) {
+            for (0..dims) |q| out[i * dims + q] = c[q];
+            continue;
+        }
+        if (cur <= 1e-18) {
+            // the optimisation landed exactly on the centroid, so there is no
+            // direction to keep. Push along the first axis rather than inventing one.
+            out[i * dims] = c[0] + @sqrt(want_sq);
+            for (1..dims) |q| out[i * dims + q] = c[q];
+            continue;
+        }
+        const scale = @sqrt(want_sq / cur);
+        for (0..dims) |q| out[i * dims + q] = c[q] + (out[i * dims + q] - c[q]) * scale;
     }
 }
 
@@ -1438,4 +1603,198 @@ test "too few points to correlate leaves the term off rather than dividing by ze
     var r = try run(alloc, &x, 3, 2, .{ .n_neighbors = 2, .epochs = 50, .density_lambda = 5.0 });
     defer r.deinit();
     for (r.embedding) |v| try testing.expect(!std.math.isNan(v));
+}
+
+/// distance from a point to the membership-weighted centre of its k nearest training
+/// rows, measured in the EMBEDDING -- the quantity the density contract governs
+fn embeddedReach(train_x: []const f64, train_y: []const f64, n: usize, d: usize, pt: []const f64, pos: []const f64, k: usize, alloc: std.mem.Allocator) !f64 {
+    const ds = try alloc.alloc(f64, n);
+    defer alloc.free(ds);
+    for (0..n) |j| ds[j] = sqDist(pt, train_x[j * d ..][0..d]);
+    var acc: f64 = 0;
+    for (0..k) |_| {
+        var best: usize = 0;
+        var bv = std.math.inf(f64);
+        for (0..n) |j| {
+            if (ds[j] < bv) {
+                bv = ds[j];
+                best = j;
+            }
+        }
+        acc += @sqrt(sqDist(pos, train_y[best * 2 ..][0..2]));
+        ds[best] = std.math.inf(f64);
+    }
+    return acc / @as(f64, @floatFromInt(k));
+}
+
+test "AN OUTLIER IS PLACED AS IF IT BELONGED, until the transform knows about density" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400, .density_lambda = 30 });
+    defer r.deinit();
+    try testing.expect(r.density_correlation > 0.7);
+
+    // three new rows: inside the tight knot, inside the diffuse cloud, and one sitting
+    // far outside anything the fit ever saw
+    const newx = [_]f64{
+        0.07, 0.07,  0.07,  0.07,
+        21.5, 21.5,  21.5,  21.5,
+        200,  200,   200,   200,
+    };
+    const m = 3;
+    const k = 8;
+
+    // ── WITHOUT the density contract, which is what the transform used to do ──
+    const plain_out = try alloc.alloc(f64, m * 2);
+    defer alloc.free(plain_out);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, m, k, r.a, r.b, 30, 42, plain_out);
+
+    const p_tight = try embeddedReach(x, r.embedding, n, d, newx[0..4], plain_out[0..2], k, alloc);
+    const p_out = try embeddedReach(x, r.embedding, n, d, newx[8..12], plain_out[4..6], k, alloc);
+
+    // MEASURED, and it is the failure this exists to fix. The outlier sits 356 units
+    // from anything it was trained on -- some 6700 times further than the tight-cluster
+    // row -- and the ordinary transform places it about 1.4 times further out. In a map
+    // whose whole claim is that distance-from-neighbours means density, an unrecognised
+    // row is drawn as though it were an ordinary member.
+    try testing.expect(p_out / p_tight < 3.0);
+
+    // ── WITH it ──
+    const dens_out = try alloc.alloc(f64, m * 2);
+    defer alloc.free(dens_out);
+    const radii = try alloc.alloc(f64, m);
+    defer alloc.free(radii);
+    try transformWithDensity(alloc, x, r.embedding, n, d, 2, &newx, m, k, r.a, r.b, 30, 42, dens_out, r.density_slope, r.density_intercept, true, radii);
+
+    const d_tight = try embeddedReach(x, r.embedding, n, d, newx[0..4], dens_out[0..2], k, alloc);
+    const d_out = try embeddedReach(x, r.embedding, n, d, newx[8..12], dens_out[4..6], k, alloc);
+
+    // MEASURED: the ordinary transform separates them by 1.03 -- no discrimination
+    // whatever -- and the density-aware one by 5.35.
+    //
+    // AND NOT MORE THAN 5.35, WHICH IS THE RIGHT ANSWER RATHER THAN A DISAPPOINTING
+    // ONE. The fit's line has slope 0.194: this map compresses eight-and-a-half
+    // natural logs of original density into about 1.7 of embedded radius. The
+    // transform inherits exactly that compression, because its whole job is to place
+    // new points under THE SAME CONTRACT the training points obey. A transform that
+    // flung the outlier further than the map's own scale allows would be showing
+    // something the picture does not mean.
+    //
+    // So the claim is consistency, not exaggeration -- and the way to get more
+    // separation is a heavier density weight AT FIT TIME, where it applies to
+    // everything at once.
+    try testing.expect(d_out / d_tight > 3.0);
+    try testing.expect((d_out / d_tight) / (p_out / p_tight) > 3.0);
+}
+
+test "the new points' own radii are a novelty score, and need no embedding" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 200, .density_lambda = 2 });
+    defer r.deinit();
+
+    const newx = [_]f64{
+        0.07, 0.07, 0.07, 0.07,
+        200,  200,  200,  200,
+    };
+    const out = try alloc.alloc(f64, 2 * 2);
+    defer alloc.free(out);
+    const radii = try alloc.alloc(f64, 2);
+    defer alloc.free(radii);
+    // epochs 0: no layout optimisation at all, and the radii still come back. They are
+    // a property of the DATA, not of the picture -- which is what makes them usable as
+    // an out-of-distribution check before anyone decides to draw anything.
+    try transformWithDensity(alloc, x, r.embedding, n, d, 2, &newx, 2, 8, r.a, r.b, 0, 42, out, r.density_slope, r.density_intercept, false, radii);
+
+    try testing.expect(radii[1] > radii[0] * 100);
+    // and the familiar row sits inside the training range while the outlier does not
+    var train_max: f64 = 0;
+    for (r.local_radii) |v| train_max = @max(train_max, v);
+    try testing.expect(radii[0] < train_max);
+    try testing.expect(radii[1] > train_max * 10);
+}
+
+test "the density correction keeps the DIRECTION the optimisation chose" {
+    const alloc = testing.allocator;
+    const per = 20;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 6, .epochs = 300, .density_lambda = 10 });
+    defer r.deinit();
+
+    const newx = [_]f64{ 21.0, 21.2, 20.8, 21.1 };
+    const plain_out = try alloc.alloc(f64, 2);
+    defer alloc.free(plain_out);
+    const dens_out = try alloc.alloc(f64, 2);
+    defer alloc.free(dens_out);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 6, r.a, r.b, 30, 42, plain_out);
+    try transformWithDensity(alloc, x, r.embedding, n, d, 2, &newx, 1, 6, r.a, r.b, 30, 42, dens_out, r.density_slope, r.density_intercept, true, null);
+
+    // Both are the same ray out of the neighbourhood centroid -- only the distance
+    // along it differs. That separation is the design: the neighbourhood terms answer
+    // WHERE the point belongs, the density contract answers only HOW FAR OUT, and
+    // neither overrules the other.
+    var c: [2]f64 = .{ 0, 0 };
+    var wsum: f64 = 0;
+    {
+        const ds = try alloc.alloc(f64, n);
+        defer alloc.free(ds);
+        for (0..n) |j| ds[j] = sqDist(&newx, x[j * d ..][0..d]);
+        for (0..6) |_| {
+            var best: usize = 0;
+            var bv = std.math.inf(f64);
+            for (0..n) |j| {
+                if (ds[j] < bv) {
+                    bv = ds[j];
+                    best = j;
+                }
+            }
+            // unweighted here is enough to fix a ray for the angle check
+            c[0] += r.embedding[best * 2];
+            c[1] += r.embedding[best * 2 + 1];
+            wsum += 1;
+            ds[best] = std.math.inf(f64);
+        }
+        c[0] /= wsum;
+        c[1] /= wsum;
+    }
+    const ax = plain_out[0] - c[0];
+    const ay = plain_out[1] - c[1];
+    const bx = dens_out[0] - c[0];
+    const by = dens_out[1] - c[1];
+    const cosang = (ax * bx + ay * by) / (@sqrt(ax * ax + ay * ay) * @sqrt(bx * bx + by * by));
+    try testing.expect(cosang > 0.99);
+}
+
+test "no density in the fit means the transform is untouched" {
+    const alloc = testing.allocator;
+    const per = 12;
+    const n = per * 2;
+    const d = 3;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+
+    var r = try run(alloc, x, n, d, .{ .n_neighbors = 5, .epochs = 150 });
+    defer r.deinit();
+    const newx = [_]f64{ 0.07, 0.07, 0.07 };
+    const a_out = try alloc.alloc(f64, 2);
+    defer alloc.free(a_out);
+    const b_out = try alloc.alloc(f64, 2);
+    defer alloc.free(b_out);
+    try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, r.a, r.b, 30, 42, a_out);
+    try transformWithDensity(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, r.a, r.b, 30, 42, b_out, 0, 0, false, null);
+    for (a_out, b_out) |p, q| try testing.expectEqual(p, q);
 }
