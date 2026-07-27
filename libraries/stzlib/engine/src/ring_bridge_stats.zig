@@ -1538,9 +1538,11 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
 //   StzEngineTsne(aX, n, d, nPerplexity, nDims, nIterations, nSeed)
 //     -> [ dims, iterations, kl (iterations), embedding (n*dims) ]
 //   StzEngineUmap(aX, n, d, nNeighbors, nDims, nMinDist, nSpread, nEpochs, nSeed,
-//                 aLabels, nTargetWeight)
-//     -> [ dims, a, b, embedding (n*dims) ]
+//                 aLabels, nTargetWeight, nDensityLambda, nDensityFrac)
+//     -> [ dims, a, b, embedding (n*dims) ]  -- and when nDensityLambda > 0,
+//        followed by [ densityCorrelation, localRadii (n) ]
 //   aLabels is empty for the ordinary fit, or one integer per point (-1 = unknown)
+//   nDensityLambda is 0 for ordinary UMAP; > 0 turns on densMAP density preservation
 //
 // The KL history comes back in full rather than as a final number: an embedding is
 // stochastic and its objective is the only evidence that the optimisation actually
@@ -1626,6 +1628,10 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
         labels = lb;
     }
 
+    // DENSITY PRESERVATION (densMAP). 0 leaves the algorithm untouched.
+    const dens_lambda = g(p, 12);
+    const dens_frac = g(p, 13);
+
     var r = umap_mod.runSupervised(allocator, x, n, d, labels, .{
         .n_neighbors = nb,
         .dims = dims,
@@ -1634,6 +1640,8 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
         .epochs = if (epochs == 0) 200 else epochs,
         .seed = seed,
         .target_weight = if (target_weight < 0) 0.5 else target_weight,
+        .density_lambda = if (dens_lambda < 0) 0 else dens_lambda,
+        .density_frac = if (dens_frac <= 0 or dens_frac > 1) 0.3 else dens_frac,
     }) catch {
         rn(p, 0);
         return;
@@ -1645,6 +1653,13 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, r.a);
     R.ring_list_adddouble(out, r.b);
     for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    // APPENDED, so a caller that slices the first 3 + n*dims entries is unaffected.
+    // The correlation is NaN when density was never asked for, and NaN does not
+    // survive the bridge meaningfully -- 0 with an empty radius list is the signal.
+    if (r.local_radii.len > 0) {
+        R.ring_list_adddouble(out, r.density_correlation);
+        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+    }
     R.ring_vm_api_retlist(p, out);
 }
 

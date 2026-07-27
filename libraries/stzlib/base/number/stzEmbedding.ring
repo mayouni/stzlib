@@ -528,6 +528,10 @@ class stzUMAP from stzObject
 	@nPreparedDim = 0
 	@anLabels = []        # empty for the ordinary fit -- see LearnFromLabels()
 	@nTargetWeight = 0.5
+	@nDensityLambda = 0   # 0 = ordinary UMAP -- see PreserveDensity()
+	@nDensityFrac = 0.3
+	@anLocalRadii = []
+	@nDensityCorrelation = 0
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -686,6 +690,107 @@ class stzUMAP from stzObject
 	def TargetWeight()
 		return @nTargetWeight
 
+	# -- DENSITY PRESERVATION (densMAP) --
+	#
+	# WHAT IT FIXES. Ordinary UMAP preserves NEIGHBOURHOODS and not DENSITY, which is
+	# why every honest description of it -- including this one -- tells you that cluster
+	# SIZE means nothing. Measured on two clusters whose spreads differ twentyfold,
+	# plain UMAP draws them 1.17 times apart. A 20x fact, rendered as 17%.
+	#
+	# Narayan, Berger and Cho (Nature Biotechnology 2021) add one term: give each point
+	# a local radius -- the membership-weighted mean squared distance to the neighbours
+	# it is actually joined to -- and ask the layout to keep the original and embedded
+	# radii CORRELATED. Cluster size then becomes readable.
+	#
+	# -- WHAT YOU MAY READ OFF THE RESULT, AND WHAT YOU MAY NOT --
+	#
+	# The objective is a CORRELATION, so the supported claim is "denser regions are
+	# drawn tighter THAN sparser ones". The unsupported one is "area is proportional to
+	# density": at the paper default the twentyfold difference above still comes out at
+	# 1.31, and only an extreme setting gets it near the truth.
+	#
+	# -- AND IT IS A TRADE, WHICH THE DEFAULT HIDES BY BEING SMALL --
+	#
+	# Measured, with the true ratio 19.96:
+	#
+	#     lambda    correlation    drawn ratio    cluster separation
+	#       0          0.226           1.17             7.36
+	#       2          0.436           1.31             6.28
+	#      30          0.871           1.81             5.85
+	#     300          0.993          23.83             1.44
+	#
+	# Getting the density right COSTS the separation between groups -- the term buys
+	# room by spending what the layout was using to hold clusters apart. There is no
+	# setting that is simply better: a high lambda answers "how dense is each region"
+	# at the expense of "how many groups are there", and the second is usually why the
+	# plot was opened. (Note this dial IS monotone, unlike SetTargetWeight() -- do not
+	# carry either shape over to the other.)
+	def PreserveDensity()
+		@nDensityLambda = 2.0
+
+		def PreserveDensityQ()
+			This.PreserveDensity()
+			return This
+
+	def IgnoreDensity()
+		@nDensityLambda = 0
+
+		def IgnoreDensityQ()
+			This.IgnoreDensity()
+			return This
+
+	def IsDensityPreserving()
+		return @nDensityLambda > 0
+
+	# how hard to push. 0 turns the term off entirely, and does so EXACTLY -- the run
+	# is bit-for-bit the ordinary fit rather than a near one.
+	def SetDensityWeight(n)
+		if n >= 0
+			@nDensityLambda = n
+		ok
+
+		def SetDensityWeightQ(n)
+			This.SetDensityWeight(n)
+			return This
+
+	def DensityWeight()
+		return @nDensityLambda
+
+	# the FINAL fraction of epochs during which the term is active. It is switched on
+	# late deliberately: on a random start the embedded radii are noise, so their
+	# correlation with anything is noise, and its gradient is noise with a lever arm.
+	def SetDensityPhase(n)
+		if n > 0 and n <= 1
+			@nDensityFrac = n
+		ok
+
+		def SetDensityPhaseQ(n)
+			This.SetDensityPhase(n)
+			return This
+
+	def DensityPhase()
+		return @nDensityFrac
+
+	# HOW FAR THE TERM ACTUALLY GOT: the correlation between original and embedded
+	# log-radii at the end of the run. Reported rather than hidden because it is the
+	# only evidence the extra work achieved anything.
+	#
+	# It is NOT a percentage. An embedding that gets every density rank BACKWARDS can
+	# still score around -0.6 rather than -1, because reversing an order is not the
+	# same as negating it.
+	def DensityCorrelation()
+		return @nDensityCorrelation
+
+	# THE ORIGINAL-SPACE LOCAL RADIUS PER POINT -- how far each row sits, on average,
+	# from the neighbours it is joined to. Small means it sits in a crowd.
+	#
+	# This is a DATA PRODUCT, not a by-product of drawing: it ranks rows by isolation
+	# and is meaningful with no reference to the embedding at all. Use it to find
+	# outliers or to weight a downstream model. It costs nothing extra, because the
+	# density term has to compute it anyway.
+	def LocalRadii()
+		return @anLocalRadii
+
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = _a_[1]
@@ -696,7 +801,8 @@ class stzUMAP from stzObject
 		@nPreparedDim = _nD_
 
 		_aRes_ = StzEngineUmap(_aX_, @nRows, _nD_, @nNeighbors, @nDims,
-			@nMinDist, @nSpread, @nEpochs, @nSeed, @anLabels, @nTargetWeight)
+			@nMinDist, @nSpread, @nEpochs, @nSeed, @anLabels, @nTargetWeight,
+			@nDensityLambda, @nDensityFrac)
 		if NOT isList(_aRes_) or len(_aRes_) < 3
 			stzraise("UMAP refused this run. It needs at least 3 points and a " +
 				"neighbour count between 2 and " + (@nRows - 1) + " (asked for " +
@@ -716,6 +822,19 @@ class stzUMAP from stzObject
 			next
 			@aEmbedding + _aRow_
 		next
+
+		# the density block is APPENDED, and only when it was asked for -- so its
+		# absence is the signal that this was an ordinary fit, not a failed one
+		@anLocalRadii = []
+		@nDensityCorrelation = 0
+		if @nDensityLambda > 0 and len(_aRes_) >= _nAt_ + 1 + @nRows
+			_nAt_++
+			@nDensityCorrelation = _aRes_[_nAt_]
+			for _i_ = 1 to @nRows
+				_nAt_++
+				@anLocalRadii + _aRes_[_nAt_]
+			next
+		ok
 		@bFitted = TRUE
 
 		def FitQ()
@@ -812,6 +931,9 @@ class stzUMAP from stzObject
 		_c_ = "UMAP"
 		if len(@anLabels) > 0
 			_c_ += " (supervised, target weight " + @nTargetWeight + ")"
+		ok
+		if @nDensityLambda > 0
+			_c_ += " (density-preserving, weight " + @nDensityLambda + ")"
 		ok
 		_c_ += " of " + @nRows + " point(s) into " + @nDims + " dimension(s), " +
 			@nNeighbors + " neighbours, min distance " + @nMinDist +
