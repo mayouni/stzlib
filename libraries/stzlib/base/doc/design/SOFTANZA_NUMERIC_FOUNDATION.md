@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-4 COMPLETE; PHASE 5 STARTED** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **PHASES 0-5 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -591,6 +591,48 @@ The algorithms in §2.4 come down from Ring, in value order:
   it **runs**, and a 0.35s build did not finish in four minutes. A nastier face of the
   construct-and-call trap than the R13 the same shape gives on `stzMatrix`, because
   nothing announces itself.
+
+  **KNN: THE DISTANCES WERE 0.3% OF IT (2a9c7c3b8)**, guard
+  `numeric_knn_selection_narrated` (23). Measured expecting the distance kernel to be
+  worth moving. Classifying **one** point against ten thousand took **17.9 seconds**;
+  twenty queries took 357. At 10000 × 16:
+
+  | | |
+  |---|---|
+  | the distances themselves | 0.032s |
+  | **the full insertion sort** | **11.769s** |
+  | a bounded K=5 selection | 0.003s |
+
+  `Classify()` computed every distance — which is what KNN *is* — and then **insertion
+  sorted all ten thousand to read the first five off the front**. O(N²) for an O(N·K)
+  question; the ordering of the other 9995 was computed and discarded, at **3900×**
+  what finding the five costs. 2000 × 8 dim, 20 queries: 15.018s → 0.187s (**80×**).
+  10000 × 16: 357.753s → 1.173s (**305×**). **Nothing moved to the engine** — the
+  distance has lived there since slice 3.
+
+  **The tie rule was the delicate part.** The old code was a *stable* insertion sort
+  (shifting only while strictly greater), so equidistant examples kept training-set
+  order and that order decided the vote at the K/K+1 boundary. The bounded selection
+  walks left under the same strict comparison and rejects a candidate that merely
+  *equals* the current worst — the same decision without ordering anything else.
+  Verified by diffing every verdict, neighbour list, index and distance for k = 1..8
+  on a set built entirely of ties, plus k > N, plus 120 classifications. Empty.
+
+  **No suite caught it because every KNN fixture has about six rows**, where N² and
+  N·K are the same number. So the guard asserts **growth** as well as time: halving N
+  must roughly halve the work. **k-means was profiled in the same pass and left alone**
+  — its inner loop is a distance and a mean, no ordering anywhere.
+
+  ---
+
+  **PILLAR 5's ALGORITHM LIST IS NOW COMPLETE**, and the pattern across it is worth
+  stating once. Six things were examined; **two moved to the engine** (the simplex
+  pivot loop, on the merits rather than the plan's say-so, and logistic training,
+  161×). **Four did not, and were faster for it:** the simplex's real cost was a cubic
+  re-parse (41×), the tree's was a hash-list counting idiom (393× in apriori), KNN's
+  was a quadratic sort (305×), and `stzHistogram` was never duplication at all. *The
+  plan named the wrong line four times out of six.* Profiling before moving is not a
+  refinement of this phase's method — it is the method.
 - ~~**`stzHistogram` → the existing `histogram.zig`.** 1015 Ring lines duplicating an
   engine module is pure waste.~~ **WRONG, and checked in phase 5 slice 1: they share a
   NAME and nothing else.** `histogram.zig` is a **latency** histogram with fixed
@@ -1349,9 +1391,12 @@ special functions.
 > — correctly, since A⁺ of an inverse is what you started with. It reads exactly like a
 > bug in the new code.
 
-**Phase 5 — algorithms come down from Ring.** Simplex first (biggest single win),
-then k-means/KNN/logistic/trees, then `stzHistogram` onto `histogram.zig`, then real
-inferential statistics on the special functions from phase 4.
+**Phase 5 — algorithms come down from Ring. COMPLETE.** Simplex first (biggest
+single win), then k-means/KNN/logistic/trees, then `stzHistogram` onto
+`histogram.zig`, then real inferential statistics on the special functions from
+phase 4. *Every item was addressed; the per-item records are under pillar 5 above.
+Two moved to the engine, four turned out to have a different and larger cost in
+Ring, and `stzHistogram` should never have been on the list.*
 
 **Phase 6 — autodiff, and what it unlocks.** The tape, then L-BFGS, then rewiring
 the trainer and logistic regression to use gradients rather than hand-derived
