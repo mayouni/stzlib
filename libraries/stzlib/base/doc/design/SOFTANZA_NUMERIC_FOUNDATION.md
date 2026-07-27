@@ -1,7 +1,7 @@
 # Numbers in Softanza — a global rethink
 ### Where the numeric layer actually stands, what a modern one owes its users, and the plan to close the distance
 
-> Status: **PHASES 0-6 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
+> Status: **ALL PHASES 0-7 COMPLETE** (P3 residency in four slices: 13266934d, ba4c54ec9, cc8fb24d8, 0ddf438fc. P4 kernels, NINE slices: 1fdc2eda5, 7621cc5e1, a0fdc7689, e549ec945, d5b84416d, f0b3e7890, 07d3b443e, 504c1df36, 40fd49580). **Phases 5-7 are design.** Written 2026-07-25 at the user's
 > direction, *before* starting the number-engine work, to rethink number
 > programming across the whole library rather than bolt a `BigNumber` class onto
 > the side. **It supersedes `SOFTANZA_NUMBER_ENGINE_PLAN.md`**, whose six phases
@@ -1553,10 +1553,53 @@ finding.*
 > preserved and pinned; bit-equality with the old interpreter could not be, and nothing
 > could preserve it while calling a different libm.
 
-**Phase 7 — the optional edges.** Complex numbers; decimal via mpdecimal if the
-big-int-backed one proves insufficient; OSQP if QP becomes real; HiGHS if MIP
-becomes real; KISS FFT if spectral work becomes real. Each gated on a genuine
-consumer, not on completeness.
+**Phase 7 — the optional edges. COMPLETE (`e148fb60f`)**, guard
+`numeric_complex_narrated` (35). *The gate did most of the work.*
+
+**FOUR OF FIVE FAILED THE CONSUMER TEST, and not building them is the result:**
+
+| | verdict |
+|---|---|
+| **mpdecimal** | the condition was "if the big-int decimal proves insufficient". **Measured**: `0.1+0.2` is exactly `0.3`, a 29-place product is exact, a 30-digit integer plus 1e-9 is exact, and a non-terminating division reports itself approximate *and says why*. **Sufficient. Not built.** |
+| **OSQP** | nothing in the library poses a quadratic program. **Not built.** |
+| **HiGHS** | nothing poses a mixed-integer program. **Not built.** |
+| **KISS FFT** | there is no spectral or signal code to serve. **Not built.** |
+
+Building any of them would have been *completeness*, which is what the gate exists to
+refuse. **A library is not improved by an FFT nothing calls.**
+
+**COMPLEX NUMBERS PASSED, on one consumer that phase 4 slice 8 had already written
+down as a refusal:** *"EigenValues: this matrix is not symmetric, and a general matrix
+has complex eigenvalues. Only the symmetric case is implemented."* That refusal was
+right — the alternative was returning the eigenvalues of (A + A′)/2 and letting a
+caller believe they belonged to A — and the honest way to remove it is to implement
+what it refused.
+
+- `complex.zig` — arithmetic, modulus, argument, conjugate, principal sqrt, exp.
+  Division uses **Smith's formula** and modulus uses **hypot**, for the same reason:
+  the textbook `(ac+bd)/(c²+d²)` overflows above ~1e154 on inputs whose quotient is
+  ordinary. **Deliberately absent:** log, inverse trig, general powers — each needs a
+  branch-cut policy, nothing asks, and a guessed branch cut is a wrong answer a
+  library cannot take back.
+- `eigen_general.zig` — balance (Parlett–Reinsch, powers of the radix so the
+  similarity is *exact* in binary), Householder reduction to Hessenberg (which makes
+  each QR sweep O(n²) rather than O(n³)), then **Francis double-shift QR**. The double
+  shift is what lets real arithmetic find complex pairs at all: shifting by a complex
+  number needs complex arithmetic throughout; shifting by a conjugate *pair* does not.
+- Ring: `stzComplex`, `stzMatrix.ComplexEigenValues()`. **`EigenValues()` now answers
+  any matrix with a real spectrum** and raises only when the eigenvalues are genuinely
+  complex — naming one, and pointing at the complex form. Dropping an imaginary part
+  silently is precisely the plausible wrong answer the original refusal prevented.
+- **A capability the library did not have: polynomial roots.** The eigenvalues of a
+  companion matrix *are* the roots; `x³−6x²+11x−6` gives 1, 2, 3.
+- **Not built, refused by name:** eigenvectors of a general matrix (inverse iteration
+  or back-substitution on the Schur form, delicate near a repeated eigenvalue, no
+  consumer).
+
+*Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
+blanket refusal. It now asserts what that scenario was always about — `[[1,2],[3,4]]`
+is answered from **its own** spectrum (trace 5, determinant −2), not the symmetrised
+matrix's (determinant −2.25) — plus that a rotation still raises.*
 
 ---
 
