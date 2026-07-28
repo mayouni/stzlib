@@ -2350,6 +2350,41 @@ what it refused.
   Corrected wherever it was written: train the decoder unless the data is dense **and**
   the fit is parametric.
 
+- **t-SNE INVERTS TOO (`f0836cbf4`)** — *and a tidy explanation did not survive the wider
+  measurement.*
+
+  Nothing new was needed: the decoder regresses (position, row) pairs and has no idea
+  what produced the positions. It moved out of `pumap.zig` into `decoder.zig` the moment
+  that became obvious, and the bridge from `StzEnginePumapDecoder` to
+  `StzEngineEmbeddingDecoder` — a name pointing at one caller would mislead the next.
+
+  | fit | 24 pts: dec | lookup | 90 pts: dec | lookup |
+  |---|---|---|---|---|
+  | t-SNE | 0.1066 | 0.9025 | 0.2993 | 0.7634 |
+  | **t-SNE parametric** | 0.0685 | 0.9186 | **0.0212** | 0.2446 |
+  | UMAP | 0.5450 | 1.1516 | 0.0858 | 0.2673 |
+  | UMAP parametric | 0.2191 | 0.9886 | 0.6529 | **0.4654** — *the only loss* |
+
+  The decoder wins in **seven cells of eight**, and parametric t-SNE is the most accurate
+  inverse of the four by some way.
+
+  ***And that kills the explanation offered in the previous entry.*** With only UMAP
+  measured, the free-form fit inverted sevenfold better than the parametric one, and I
+  gave a tidy reason: a parametric encoder is *constrained* to be smooth in x, so it
+  settles somewhere contorted and is harder to invert — *"the property that makes the
+  forward transform exact is not the one that makes the inverse easy."* It reads well and
+  it is wrong. **Parametric t-SNE is parametric and inverts best of all**, so being a
+  network is not what hurt parametric UMAP. The story had been fitted to two points.
+
+  What survives is the observation without the theory: **invertibility varies by
+  algorithm — thirtyfold across four methods that all produce a 2-D embedding of the same
+  data — and is not predicted by whether the encoder is parametric.** Measure it on your
+  own data rather than reasoning about it from the shape of the machinery.
+
+  That also explains why the guidance needed rewriting twice: *"dense data, skip the model
+  and take the nearest row"* was drawn from **one cell** of this table, and it happens to
+  be the only cell where the lookup wins.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
