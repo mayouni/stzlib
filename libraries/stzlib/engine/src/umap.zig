@@ -209,7 +209,7 @@ pub fn fitAB(alloc: std.mem.Allocator, min_dist: f64, spread: f64) !struct { a: 
 
 // ─── the neighbour graph ─────────────────────────────────────────────────────
 
-const Edge = struct { i: u32, j: u32, w: f64 };
+pub const Edge = struct { i: u32, j: u32, w: f64 };
 
 /// Exact k nearest neighbours, per point, by full scan. O(n^2) -- honest for the
 /// sizes this library sees, and the place to swap in NN-descent if that changes.
@@ -370,10 +370,41 @@ pub const Graph = struct {
     /// the curve parameters fitted from min_dist and spread
     a: f64,
     b: f64,
+
+    /// THE EDGE WEIGHTS BEFORE SUPERVISION TOUCHED THEM, and empty when it did not.
+    ///
+    /// Density and supervision both act on this graph, and they were quietly
+    /// redefining each other. The local radius is a membership-weighted mean squared
+    /// distance -- so once applyLabels has crushed the cross-class edges, the same
+    /// formula answers a DIFFERENT QUESTION: not "how far is this point from its
+    /// neighbours" but "how far is it from its neighbours OF THE SAME CLASS".
+    ///
+    /// MEASURED: turning supervision on moved a point's reported radius from 0.005061
+    /// to 0.008793, and another's from 2.502802 to 3.071464.
+    ///
+    /// Two things made that indefensible rather than merely arguable. LocalRadii() is
+    /// documented as a property of the DATA, usable with no reference to the map. And
+    /// the out-of-distribution check compares a new row's radius -- computed label-free,
+    /// because a new row HAS no label -- against the training range. Supervision was
+    /// silently making those two quantities incomparable.
+    ///
+    /// So the density target is built from these, and supervision and density are once
+    /// again independent things a caller may turn on independently.
+    raw_w: []f64,
+
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Graph) void {
         self.edges.deinit(self.allocator);
+        if (self.raw_w.len > 0) self.allocator.free(self.raw_w);
+    }
+
+    /// The edge list as it stood before supervision, for the density target. Returns
+    /// the live edges unchanged when there was no supervision to undo.
+    pub fn densityEdges(self: *const Graph, buf: []Edge) []const Edge {
+        if (self.raw_w.len == 0) return self.edges.items;
+        for (self.edges.items, 0..) |e, i| buf[i] = .{ .i = e.i, .j = e.j, .w = self.raw_w[i] };
+        return buf[0..self.edges.items.len];
     }
 };
 
@@ -431,10 +462,19 @@ pub fn buildGraph(
     if (edges.items.len == 0) return Error.TooFewPoints;
 
     // ── SUPERVISION: let the labels reshape the graph ──
-    if (labels) |lab| applyLabels(alloc, edges.items, lab, opts.target_weight, n, &wmax);
+    //
+    // The weights are SNAPSHOT first, so that whatever else supervision does it cannot
+    // change what the word "density" means -- see Graph.raw_w.
+    var raw_w: []f64 = &[_]f64{};
+    if (labels) |lab| {
+        raw_w = try alloc.alloc(f64, edges.items.len);
+        errdefer alloc.free(raw_w);
+        for (edges.items, 0..) |e, i| raw_w[i] = e.w;
+        applyLabels(alloc, edges.items, lab, opts.target_weight, n, &wmax);
+    }
 
     const ab = try fitAB(alloc, opts.min_dist, opts.spread);
-    return .{ .edges = edges, .wmax = wmax, .a = ab.a, .b = ab.b, .allocator = alloc };
+    return .{ .edges = edges, .wmax = wmax, .a = ab.a, .b = ab.b, .raw_w = raw_w, .allocator = alloc };
 }
 
 pub fn run(
@@ -500,8 +540,11 @@ pub fn runSupervised(
     var dens_corr: f64 = std.math.nan(f64);
     // the epoch at which the term switches on -- see Options.density_frac
     var dens_start: usize = opts.epochs;
+    const dens_buf = try alloc.alloc(Edge, edges.items.len);
+    defer alloc.free(dens_buf);
+    const dens_edges = graph.densityEdges(dens_buf);
     if (want_density) {
-        const de: []const density.Edge = @ptrCast(edges.items);
+        const de: []const density.Edge = @ptrCast(dens_edges);
         dens_target = try density.buildTarget(alloc, de, x, n, d);
         dens_ws = try density.Workspace.init(alloc, n);
         const frac = @min(@max(opts.density_frac, 0.0), 1.0);
@@ -563,7 +606,7 @@ pub fn runSupervised(
         // epoch in which some points have moved and others have not -- this is the
         // synchronisation point the rest of the optimiser does not have.
         if (want_density and epoch >= dens_start) {
-            const de: []const density.Edge = @ptrCast(edges.items);
+            const de: []const density.Edge = @ptrCast(dens_edges);
             dens_corr = density.applyGradient(
                 &dens_target.?,
                 &dens_ws.?,
@@ -581,7 +624,7 @@ pub fn runSupervised(
     var radii_out: []f64 = &[_]f64{};
     var calib = density.Calibration{ .slope = 0, .intercept = 0, .usable = false };
     if (want_density) {
-        const de: []const density.Edge = @ptrCast(edges.items);
+        const de: []const density.Edge = @ptrCast(dens_edges);
         const mean_log = try density.meanLogRadius(de, x, n, d, alloc);
         radii_out = try dens_target.?.radii(alloc, mean_log);
         // the correlation AFTER the last step, so the reported number describes the
@@ -1661,6 +1704,34 @@ test "IT IS A TRADE: density fidelity is bought with cluster separation" {
     try testing.expect(heavy.density_correlation > 0.95);
     try testing.expect(separationOf(heavy.embedding, per, n) <
         separationOf(plain.embedding, per, n) / 2);
+}
+
+test "supervision does not redefine density in the free-form form either" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try twoDensities(alloc, per, d);
+    defer alloc.free(x);
+    const lab = try alloc.alloc(i32, n);
+    defer alloc.free(lab);
+    for (0..n) |i| lab[i] = @intCast(i % 2);
+
+    // The bug was found in the parametric form and lived here too, because both build
+    // their density target from the same graph. Measured before the fix: a point's
+    // radius moved from 0.005061 to 0.008793 when labels were supplied.
+    var plain = try run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 200, .density_lambda = 30 });
+    defer plain.deinit();
+    var sup = try runSupervised(alloc, x, n, d, lab, .{
+        .n_neighbors = 8,
+        .epochs = 200,
+        .density_lambda = 30,
+        .target_weight = 0.5,
+    });
+    defer sup.deinit();
+
+    for (plain.local_radii, sup.local_radii) |a, b| try testing.expectEqual(a, b);
+    try testing.expect(!std.mem.eql(u8, std.mem.sliceAsBytes(plain.embedding), std.mem.sliceAsBytes(sup.embedding)));
 }
 
 test "lambda 0 is EXACTLY the ordinary fit, not merely close" {
