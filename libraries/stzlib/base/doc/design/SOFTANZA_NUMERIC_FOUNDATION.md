@@ -2231,6 +2231,47 @@ what it refused.
   Confirmed minimally: a 5-element list becomes 2 after calling a function that assigns
   the same name.*
 
+- **SUPERVISION MUST NOT REDEFINE WHAT DENSITY MEANS (`744bf41fa`)** — *the last corner,
+  and the defect underneath it.*
+
+  Parametric + supervised + density-preserving was already wired, and asserting only
+  that the numbers came back finite hid a real problem.
+
+  **The local radius is a membership-weighted mean squared distance, and supervision
+  reweights exactly those memberships.** Once `applyLabels` had crushed the cross-class
+  edges, the same formula answered a **different question**: not *"how far is this point
+  from its neighbours"* but *"how far from its neighbours of the same class"*.
+
+  | | radii[1] | radii[30] |
+  |---|---|---|
+  | unsupervised | 0.005061 | 2.502802 |
+  | **supervised** | **0.008793** | **3.071464** |
+
+  Two things made that indefensible rather than arguable. `LocalRadii()` is documented as
+  a property of **the data**. And `LocalRadiiOf()` — the out-of-distribution check — is
+  necessarily computed **label-free**, since a new row *has* no label. So supervision was
+  quietly making the two sides of that comparison incomparable, in exactly the case where
+  an OOD check matters most.
+
+  ***Same shape as the PCA space mismatch a few entries earlier: one seam, two
+  computations, and a comparison that spans them. Third time in this module.***
+
+  The graph now **snapshots its weights** before supervision touches them, and the
+  density target is built from those. It lived in **both** forms, since both build their
+  target from the same graph — both fixed, both pinned.
+
+  | | no density | +density |
+  |---|---|---|
+  | plain | 0.9940 | 0.9940 |
+  | +supervision | 0.9951 | 0.9951 |
+
+  Density adds nothing on a learned map (a smooth function already preserves it) and
+  supervision costs nothing either. What is pinned is the **orthogonality**: turning one
+  on no longer moves what the other reports — the supervised radii are now identical to
+  the unsupervised ones *to the last bit*, while the layout still differs. And the check
+  that depends on it works again: training radii 0.0036–0.0051 for the dense cluster, new
+  rows at 0.0032 and 1.9778.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
