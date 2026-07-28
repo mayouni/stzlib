@@ -624,6 +624,100 @@ pub fn eigenSymmetric(allocator: std.mem.Allocator, data: []const f64, n: usize)
 // RELATIVE to the largest value, and scaled by the dimension, because error
 // accumulates with size. An absolute threshold would call a matrix of uniformly tiny
 // entries singular, when scaling a matrix cannot change its rank.
+pub const PowerError = error{ NotSymmetric, Singular, NotPositive, DidNotConverge };
+
+/// A RAISED TO A REAL POWER, through its eigendecomposition: A^p = Q * L^p * Q'.
+///
+/// ── THE INVERSE IS ONE CASE OF THIS, NOT THE POINT OF IT ──
+///
+/// Undoing an eigendecomposition is `p = 1` -- reassemble Q L Q' and get A back. The
+/// inverse is `p = -1`, invert each eigenvalue. But nothing about the machinery cares
+/// which function is applied to the diagonal, and the two that earn their keep are the
+/// ones no other decomposition here offers:
+///
+///     p =  0.5   the principal SQUARE ROOT
+///     p = -0.5   WHITENING -- the transform that makes a covariance the identity
+///
+/// So this is the general `f(A) = Q f(L) Q'` with f a power, and the inverse arrives as
+/// a special case rather than as the feature.
+///
+/// ── WHY THE SQUARE ROOT HERE IS NOT THE ONE CHOLESKY GIVES ──
+///
+/// `cholesky` also produces a "square root": L with L L' = A. This one is Q L^0.5 Q',
+/// which is SYMMETRIC and positive semi-definite, and it is the one meant by "the"
+/// square root -- unique for a PSD matrix, where Cholesky's factor is triangular and
+/// one of many. Both square back to A; only one of them is itself a covariance-shaped
+/// object you can hand to something expecting symmetry.
+///
+/// ── WHAT IT REFUSES, AND WHY THE RULE DEPENDS ON p ──
+///
+/// A negative power divides by eigenvalues, so any at rounding level make the answer
+/// noise -- the same `negligibleThreshold` the pseudo-inverse and `rankOf` ask, so the
+/// library cannot hold two opinions about which matrices are singular. A fractional
+/// power takes roots, so a negative eigenvalue has no real answer at all. Refused
+/// rather than returned as NaN, because a NaN propagates quietly and a refusal does not.
+pub fn symmetricPower(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    p: f64,
+    out: []f64,
+) !void {
+    var e = try eigenSymmetric(allocator, data, n);
+    defer e.deinit();
+    if (!e.symmetric) return PowerError.NotSymmetric;
+    if (!e.converged) return PowerError.DidNotConverge;
+
+    var largest: f64 = 0;
+    for (e.values) |v| largest = @max(largest, @abs(v));
+    const tol = negligibleThreshold(largest, n);
+
+    const fractional = p != @trunc(p);
+    const f = try allocator.alloc(f64, n);
+    defer allocator.free(f);
+    for (e.values, 0..) |v, j| {
+        if (p < 0 and @abs(v) <= tol) return PowerError.Singular;
+        if (fractional and v < -tol) return PowerError.NotPositive;
+        const base = if (fractional and v < 0) 0 else v;
+        f[j] = if (base == 0 and p > 0) 0 else std.math.pow(f64, base, p);
+    }
+
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += e.vec(i, t) * f[t] * e.vec(j, t);
+            out[i * n + j] = acc;
+        }
+    }
+}
+
+/// A REBUILT FROM ITS k LEADING EIGENPAIRS: A_k = Q_k L_k Q_k'.
+///
+/// The eigen counterpart of the SVD's low-rank approximation, and for a symmetric
+/// matrix they coincide -- the singular values are the absolute eigenvalues. Kept
+/// separate because a caller holding an eigendecomposition should not have to reach for
+/// a different factorisation to ask this.
+pub fn symmetricReconstruct(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    k: usize,
+    out: []f64,
+) !void {
+    var e = try eigenSymmetric(allocator, data, n);
+    defer e.deinit();
+    if (!e.symmetric) return PowerError.NotSymmetric;
+
+    const kk = @min(k, n);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..kk) |t| acc += e.vec(i, t) * e.values[t] * e.vec(j, t);
+            out[i * n + j] = acc;
+        }
+    }
+}
+
 pub fn negligibleThreshold(largest: f64, dim: usize) f64 {
     return 1e-12 * largest * @as(f64, @floatFromInt(dim));
 }
@@ -2176,5 +2270,204 @@ test "ECKART-YOUNG: the truncation error is the discarded singular values" {
         var dropped: f64 = 0;
         for (k..d.values.len) |t| dropped += d.values[t] * d.values[t];
         try testing.expectApproxEqRel(dropped, err, 1e-8);
+    }
+}
+
+// ─── the eigendecomposition inverse, which is one power among several ────────
+
+/// a symmetric positive-definite matrix: B'B + I, which cannot fail to be one
+fn spd(alloc: std.mem.Allocator, n: usize, seed: u64) ![]f64 {
+    const b = try alloc.alloc(f64, n * n);
+    defer alloc.free(b);
+    var st: u64 = seed;
+    for (b) |*v| {
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 * 2 - 1;
+    }
+    const a = try alloc.alloc(f64, n * n);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += b[t * n + i] * b[t * n + j];
+            a[i * n + j] = acc + (if (i == j) @as(f64, @floatFromInt(n)) else 0);
+        }
+    }
+    return a;
+}
+
+test "POWER 1 REBUILDS THE MATRIX -- undoing the decomposition is p = 1" {
+    const alloc = testing.allocator;
+    const n = 5;
+    const a = try spd(alloc, n, 17);
+    defer alloc.free(a);
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    try symmetricPower(alloc, a, n, 1, out);
+    for (a, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+
+    // and rebuilding from every eigenpair is the same statement
+    try symmetricReconstruct(alloc, a, n, n, out);
+    for (a, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+}
+
+test "POWER -1 IS THE INVERSE, and agrees with the pseudo-inverse" {
+    const alloc = testing.allocator;
+    const n = 5;
+    const a = try spd(alloc, n, 23);
+    defer alloc.free(a);
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    try symmetricPower(alloc, a, n, -1, inv);
+
+    // A * A^-1 = I, which is what "inverse" means
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += a[i * n + t] * inv[t * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-8);
+        }
+    }
+
+    // AND THE SAME ANSWER THE SVD PATH GIVES, by a different route -- Jacobi
+    // eigenvectors here, one-sided Jacobi SVD there. Two roads to one number is the
+    // check worth having, and it is available because the library has both.
+    const pinv = try alloc.alloc(f64, n * n);
+    defer alloc.free(pinv);
+    _ = try pseudoInverse(alloc, a, n, n, pinv);
+    for (inv, pinv) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "POWER 0.5 IS THE SQUARE ROOT, and it is NOT the one Cholesky gives" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = try spd(alloc, n, 41);
+    defer alloc.free(a);
+    const r = try alloc.alloc(f64, n * n);
+    defer alloc.free(r);
+    try symmetricPower(alloc, a, n, 0.5, r);
+
+    // the defining property: it squares back to A
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += r[i * n + t] * r[t * n + j];
+            try testing.expectApproxEqAbs(a[i * n + j], acc, 1e-8);
+        }
+    }
+
+    // AND IT IS SYMMETRIC, which is the difference that matters. Cholesky also gives a
+    // "square root" -- L with L L' = A -- but that one is TRIANGULAR, and one of many.
+    // This is the principal square root: symmetric, positive semi-definite, unique.
+    // Both square back to A; only this one is itself a covariance-shaped object.
+    for (0..n) |i| {
+        for (i + 1..n) |j| try testing.expectApproxEqAbs(r[i * n + j], r[j * n + i], 1e-10);
+    }
+    var ch = try cholesky(alloc, a, n);
+    defer ch.deinit();
+    var triangular_somewhere = false;
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            if (@abs(ch.l[i * n + j] - ch.l[j * n + i]) > 1e-6) triangular_somewhere = true;
+        }
+    }
+    try testing.expect(triangular_somewhere);
+}
+
+test "POWER -0.5 WHITENS: it turns a covariance into the identity" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = try spd(alloc, n, 7);
+    defer alloc.free(a);
+    const w = try alloc.alloc(f64, n * n);
+    defer alloc.free(w);
+    try symmetricPower(alloc, a, n, -0.5, w);
+
+    // W A W = I. This is what whitening IS -- the transform under which a covariance
+    // becomes the identity, so every direction has unit variance and none correlate.
+    // It is the operation no other decomposition here provides, and the reason a
+    // general power is worth more than an inverse.
+    const t = try alloc.alloc(f64, n * n);
+    defer alloc.free(t);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |q| acc += w[i * n + q] * a[q * n + j];
+            t[i * n + j] = acc;
+        }
+    }
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |q| acc += t[i * n + q] * w[q * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-8);
+        }
+    }
+}
+
+test "the powers compose, which is the property that says they are real powers" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = try spd(alloc, n, 3);
+    defer alloc.free(a);
+    const half = try alloc.alloc(f64, n * n);
+    defer alloc.free(half);
+    const quarter = try alloc.alloc(f64, n * n);
+    defer alloc.free(quarter);
+    try symmetricPower(alloc, a, n, 0.5, half);
+    try symmetricPower(alloc, a, n, 0.25, quarter);
+
+    // (A^0.25)^2 = A^0.5 -- a fractional power that did not really exponentiate would
+    // pass the squares-back-to-A test and fail this one
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += quarter[i * n + t] * quarter[t * n + j];
+            try testing.expectApproxEqAbs(half[i * n + j], acc, 1e-8);
+        }
+    }
+}
+
+test "REFUSED RATHER THAN RETURNED AS NaN" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // a fractional power of a matrix with a NEGATIVE eigenvalue has no real answer
+    const indefinite = [_]f64{ 1, 2, 0, 2, 1, 0, 0, 0, 1 }; // eigenvalues 3, 1, -1
+    try testing.expectError(PowerError.NotPositive, symmetricPower(alloc, &indefinite, n, 0.5, out));
+    // but an integer power of the same matrix is perfectly well defined
+    try symmetricPower(alloc, &indefinite, n, -1, out);
+
+    // a negative power of a SINGULAR matrix divides by rounding
+    const singular = [_]f64{ 1, 1, 0, 1, 1, 0, 0, 0, 2 };
+    try testing.expectError(PowerError.Singular, symmetricPower(alloc, &singular, n, -1, out));
+
+    // and a matrix that is not symmetric has no eigendecomposition of this kind
+    const asym = [_]f64{ 1, 2, 3, 0, 1, 4, 0, 0, 1 };
+    try testing.expectError(PowerError.NotSymmetric, symmetricPower(alloc, &asym, n, 1, out));
+
+    // NaN would propagate quietly through everything downstream; a refusal does not
+}
+
+test "truncating the eigendecomposition matches truncating the SVD" {
+    const alloc = testing.allocator;
+    const n = 5;
+    const a = try spd(alloc, n, 61);
+    defer alloc.free(a);
+    const eig = try alloc.alloc(f64, n * n);
+    defer alloc.free(eig);
+    const svd_out = try alloc.alloc(f64, n * n);
+    defer alloc.free(svd_out);
+
+    // For a SYMMETRIC POSITIVE-DEFINITE matrix the singular values ARE the eigenvalues,
+    // so the two truncations must agree exactly. They come from different algorithms --
+    // Jacobi eigenvectors against a one-sided Jacobi SVD -- so agreeing is a statement
+    // about the mathematics rather than about shared code.
+    for (1..n) |k| {
+        try symmetricReconstruct(alloc, a, n, k, eig);
+        _ = try lowRankApproximation(alloc, a, n, n, k, svd_out);
+        for (eig, svd_out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
     }
 }

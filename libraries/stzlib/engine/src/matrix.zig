@@ -364,6 +364,39 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     return out;
 }
 
+/// A RAISED TO A REAL POWER through its eigendecomposition: A^p = Q L^p Q'.
+///
+/// NOT `stz_matrix_power`, which raises every ELEMENT to a power. That one is an
+/// elementwise map and this one is a matrix function; they agree only for a diagonal
+/// matrix. Two operations one keystroke apart, so the names have to carry the
+/// difference.
+///
+/// Null when the matrix is not symmetric, is singular for a negative power, or has a
+/// negative eigenvalue under a fractional one -- refused rather than returned as NaN,
+/// because a NaN propagates quietly through everything downstream.
+pub fn stz_matrix_matrix_power(m: ?*const StzMatrix, p: f64) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    linalg.symmetricPower(gpa, mat.data, mat.rows, p, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// A rebuilt from its k leading eigenpairs: A_k = Q_k L_k Q_k'.
+pub fn stz_matrix_eigen_reconstruct(m: ?*const StzMatrix, k: c_int) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols or k <= 0) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    linalg.symmetricReconstruct(gpa, mat.data, mat.rows, @intCast(k), out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE BEST RANK-k APPROXIMATION of this matrix -- the OTHER sense of inverting an SVD.
 ///
 /// The pseudo-inverse above answers "undo this transformation". This answers "keep the
