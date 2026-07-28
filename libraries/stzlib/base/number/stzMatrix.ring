@@ -2474,6 +2474,58 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- INVERTING AN LU DECOMPOSITION: the fastest general square route --
+	#
+	# A = P L U, so each column of the inverse is one forward and one back substitution
+	# against a unit vector, with the factorisation done once. This completes the set:
+	#
+	#     CholeskyInverse()   symmetric positive definite   ~n^3/6   fastest of all
+	#     LUInverse()         any nonsingular SQUARE        ~n^3/3   fastest general
+	#     QRInverse()         any full-rank square or TALL  ~2n^3/3
+	#     MatrixPower(-1)     symmetric                     iterative, gives powers too
+	#     PseudoInverse()     everything, incl. rank-def.   iterative, most general
+	#
+	# -- WHY BOTH THIS AND QR, WHEN LU DOES HALF THE WORK --
+	#
+	# Not stability, which is what I assumed and measured to be false. On the 9x9
+	# Hilbert matrix, condition number around 1e12:
+	#
+	#     LU   residual 3.81e-6
+	#     QR   residual 8.34e-6
+	#
+	# "QR is more stable than LU" is a rule about LEAST SQUARES, where the alternative
+	# is forming A'A and squaring the condition number. Inverting a square matrix never
+	# faces that choice, and LU with partial pivoting is famously well behaved -- here
+	# it is twice as accurate, not half.
+	#
+	# THE REAL REASON IS SHAPE. QR takes a tall matrix and this cannot, which is why
+	# LeastSquares stays QR's. Reach for LU when the matrix is square and merely
+	# invertible; for QR when it is tall.
+	def LUInverse()
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("LUInverse: this needs a square matrix. For a tall one, " +
+				"QRInverse() gives the pseudo-inverse; for any shape at all, " +
+				"PseudoInverse() does.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pLuV_ = StzEngineMatrixLUInverse(@pEngineMatrix)
+		if _pLuV_ = NULL
+			StzRaise("LUInverse: refused -- the factorisation found a pivot at " +
+				"rounding level, so this matrix is numerically singular and has no " +
+				"inverse. PseudoInverse() answers instead, with the minimum-norm " +
+				"least-squares operator, which is the principled thing to return " +
+				"when a true inverse does not exist.")
+		ok
+		_aLuV_ = This._MatrixFromHandle(_pLuV_)
+		StzEngineMatrixFree(_pLuV_)
+		return _aLuV_
+
+		def LUInverseQ()
+			return new stzMatrix(This.LUInverse())
+
 	# -- INVERTING A QR DECOMPOSITION: the route for a matrix with no symmetry --
 	#
 	# A = Q R with Q orthogonal and R upper triangular, so A^-1 = R^-1 Q': one

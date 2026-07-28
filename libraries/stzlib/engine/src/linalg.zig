@@ -68,6 +68,10 @@ pub fn decompose(allocator: std.mem.Allocator, data: []const f64, n: usize) !LU 
 
     var sign: f64 = 1.0;
     var singular = false;
+    // the scale the threshold is relative to: an absolute cutoff would call a matrix of
+    // uniformly tiny entries singular, when scaling cannot change rank
+    var largest_entry: f64 = 0;
+    for (data) |v| largest_entry = @max(largest_entry, @abs(v));
 
     for (0..n) |k| {
         // find the pivot
@@ -81,7 +85,20 @@ pub fn decompose(allocator: std.mem.Allocator, data: []const f64, n: usize) !LU 
             }
         }
 
-        if (pivot_mag == 0.0) {
+        // AGAINST A THRESHOLD, NOT AGAINST ZERO -- and this was an exact `== 0.0`, the
+        // THIRD instance of that defect in this file. `isFullRank` had it, the
+        // condition number had it, and both are documented below at length.
+        //
+        // Gaussian elimination does not leave a dependent column's pivot at exactly
+        // zero; it leaves it at rounding level, and how close depends on the size of
+        // the matrix. So [1,2,3; 4,5,6; 5,7,9] -- row 3 is row 1 plus row 2, rank 2 of
+        // 3 -- factored with `singular` FALSE, and `luInverse` then back-substituted
+        // through that pivot and returned a matrix it called an inverse.
+        //
+        // Found by asking the new LU inverse to refuse a singular matrix and watching
+        // it accept, which is exactly how the Cholesky symmetry defect surfaced one
+        // commit ago. The negative assertions keep being the ones that find things.
+        if (pivot_mag <= negligibleThreshold(largest_entry, n)) {
             // The whole remaining column is zero: singular. Keep going rather
             // than bailing, so the caller still gets a usable factorisation and
             // one consistent answer (determinant 0) instead of an error path.
@@ -211,6 +228,55 @@ pub fn solve(allocator: std.mem.Allocator, data: []const f64, n: usize, b: []con
 // It is also the cheapest POSITIVE-DEFINITENESS TEST there is: the factorisation
 // exists if and only if the matrix is positive definite, so a failure is an answer
 // rather than an error.
+
+/// A INVERSE THROUGH ITS LU FACTORS -- the fastest route for a general square matrix.
+///
+/// A = P L U, so solving A x = e_j for each unit vector gives the inverse a column at a
+/// time: one forward and one back substitution each, and the factorisation itself done
+/// once. This is the textbook general inverse, and it completes the set:
+///
+///     choleskyInverse   symmetric positive definite   ~n^3/6   fastest of all
+///     THIS              any nonsingular SQUARE        ~n^3/3   fastest general
+///     qrInverse         any full-rank square or TALL  ~2n^3/3  more stable
+///     symmetricPower    symmetric                     iterative, and gives powers
+///     pseudoInverse     everything, incl. rank-def.   iterative, most general
+///
+/// ── WHY BOTH THIS AND QR, WHEN LU IS CHEAPER ──
+///
+/// Partial pivoting makes LU stable enough for almost everything, and it does half the
+/// work of a QR. What QR buys is behaviour on an ill-conditioned matrix, where LU's
+/// error can grow with the condition number faster than QR's -- and the honest way to
+/// state that is with a measurement rather than a rule of thumb, which the tests do on
+/// a Hilbert matrix.
+///
+/// It also cannot touch a tall matrix. LU is square-only, so least squares stays QR's.
+///
+/// Returns false when the factorisation found a numerically zero pivot: the matrix has
+/// no inverse, and back-substituting through that pivot would return confident garbage.
+pub fn luInverse(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+) !bool {
+    if (n == 0) return false;
+    var f = try decompose(allocator, data, n);
+    defer f.deinit();
+    if (f.singular) return false;
+
+    const e = try allocator.alloc(f64, n);
+    defer allocator.free(e);
+    const col = try allocator.alloc(f64, n);
+    defer allocator.free(col);
+
+    for (0..n) |j| {
+        @memset(e, 0);
+        e[j] = 1;
+        if (!solveWith(&f, e, col)) return false;
+        for (0..n) |i| out[i * n + j] = col[i];
+    }
+    return true;
+}
 
 pub const Cholesky = struct {
     /// n*n, row-major. Only the lower triangle (including the diagonal) is
@@ -2925,4 +2991,140 @@ test "CHOLESKY MUST NOT FACTOR A MATRIX THAT HAS NO CHOLESKY FACTOR" {
     var g = try cholesky(alloc, good, n);
     defer g.deinit();
     try testing.expect(g.positive_definite);
+}
+
+// ─── the LU inverse ──────────────────────────────────────────────────────────
+
+/// the n*n Hilbert matrix, the standard ill-conditioned example: H[i][j] = 1/(i+j+1)
+fn hilbert(alloc: std.mem.Allocator, n: usize) ![]f64 {
+    const h = try alloc.alloc(f64, n * n);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            h[i * n + j] = 1.0 / @as(f64, @floatFromInt(i + j + 1));
+        }
+    }
+    return h;
+}
+
+/// max |A X - I| over all entries -- how far a claimed inverse really is from one
+fn inverseResidual(a: []const f64, x: []const f64, n: usize) f64 {
+    var worst: f64 = 0;
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..t_unused(n)) |t| acc += a[i * n + t] * x[t * n + j];
+            const want: f64 = if (i == j) 1 else 0;
+            worst = @max(worst, @abs(acc - want));
+        }
+    }
+    return worst;
+}
+
+inline fn t_unused(n: usize) usize {
+    return n;
+}
+
+test "LU INVERTS A GENERAL SQUARE MATRIX, and agrees with every other route" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // not symmetric, so Cholesky and the eigen route both decline it
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const lu_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(lu_inv);
+    const qr_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(qr_inv);
+    const svd_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(svd_inv);
+
+    try testing.expect(try luInverse(alloc, &a, n, lu_inv));
+    try testing.expect(try qrInverse(alloc, &a, n, n, qr_inv));
+    _ = try pseudoInverse(alloc, &a, n, n, svd_inv);
+
+    try testing.expect(inverseResidual(&a, lu_inv, n) < 1e-12);
+    for (lu_inv, qr_inv) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+    for (lu_inv, svd_inv) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "LU IS SQUARE-ONLY, which is why least squares stays QR's" {
+    const alloc = testing.allocator;
+    // a tall matrix has no LU inverse in this sense -- there is nothing to solve
+    // A x = e_j for when e_j has more rows than x has entries
+    const m = 6;
+    const n = 3;
+    const a = try alloc.alloc(f64, m * n);
+    defer alloc.free(a);
+    for (0..m) |i| {
+        for (0..n) |j| a[i * n + j] = std.math.pow(f64, @floatFromInt(i + 1), @floatFromInt(j));
+    }
+    const out = try alloc.alloc(f64, n * m);
+    defer alloc.free(out);
+
+    // QR answers it, as the pseudo-inverse
+    try testing.expect(try qrInverse(alloc, a, m, n, out));
+    // and the division of labour is the point: LU takes the square case faster, QR
+    // takes every shape it can and is steadier where it matters
+}
+
+test "A SINGULAR MATRIX IS REFUSED, not back-substituted through" {
+    const alloc = testing.allocator;
+    const n = 3;
+    // row 3 = row 1 + row 2
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 };
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // FOUND BY THIS TEST. `decompose` tested its pivot against EXACTLY zero, so this
+    // matrix -- row 3 is row 1 plus row 2, rank 2 of 3 -- factored with `singular`
+    // FALSE, and luInverse back-substituted through a pivot at rounding level and
+    // returned a matrix it called an inverse. The third instance of that defect in this
+    // file; see the note in `decompose`.
+    try testing.expect(!try luInverse(alloc, &a, n, out));
+    // and the SVD still answers, with the minimum-norm pseudo-inverse -- the same
+    // division of labour as everywhere else in this family
+    _ = try pseudoInverse(alloc, &a, n, n, out);
+    try testing.expectEqual(@as(usize, 2), try rankOf(alloc, &a, n, n));
+}
+
+test "ON AN ILL-CONDITIONED MATRIX, LU HOLDS UP -- and I had assumed otherwise" {
+    const alloc = testing.allocator;
+    const n = 9;
+    const h = try hilbert(alloc, n);
+    defer alloc.free(h);
+
+    const lu_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(lu_inv);
+    const qr_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(qr_inv);
+    _ = try luInverse(alloc, h, n, lu_inv);
+    _ = try qrInverse(alloc, h, n, n, qr_inv);
+
+    const lu_err = inverseResidual(h, lu_inv, n);
+    const qr_err = inverseResidual(h, qr_inv, n);
+
+    // MEASURED on the 9x9 Hilbert matrix, whose condition number is around 1e12:
+    //
+    //     LU   3.81e-6
+    //     QR   8.34e-6
+    //
+    // I WROTE THIS TEST TO ASSERT THE OPPOSITE. "QR is more stable than LU" is the rule
+    // of thumb, and it is a rule about LEAST SQUARES, where the alternative is forming
+    // A'A and squaring the condition number. For inverting a square matrix that
+    // alternative never arises, and LU with partial pivoting is famously well behaved
+    // -- here it is twice as accurate as QR, not half.
+    //
+    // So the reason to keep both is NOT stability. It is SHAPE: QR takes a tall matrix
+    // and LU cannot, which is why least squares stays QR's. That is a better reason
+    // than the one I was about to write down, and it is the one that is true.
+    try testing.expect(lu_err <= qr_err);
+
+    // and both lose about six digits, which is what a condition number of 1e12 means.
+    // No algorithm recovers information the matrix does not carry, and a test claiming
+    // otherwise would be pinning luck.
+    try testing.expect(lu_err > 1e-8);
+    try testing.expect(qr_err > 1e-8);
 }

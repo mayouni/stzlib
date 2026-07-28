@@ -364,6 +364,29 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     return out;
 }
 
+/// A INVERSE THROUGH ITS LU FACTORS -- the fastest route for a general square matrix.
+///
+/// A = P L U, so each column of the inverse is one forward and one back substitution
+/// against a unit vector. Roughly half the work of the QR route, and the one to reach
+/// for when the matrix is square and merely invertible.
+///
+/// Null when the factorisation finds a numerically zero pivot: the matrix has no
+/// inverse, and back-substituting through that pivot returns confident garbage.
+pub fn stz_matrix_lu_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    const ok = linalg.luInverse(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
 /// A INVERSE THROUGH ITS QR FACTORS -- the route for a matrix that is merely
 /// invertible, with no symmetry to exploit.
 ///
