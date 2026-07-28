@@ -2507,6 +2507,51 @@ what it refused.
   the pseudo-inverse and `rankOf` ask — and a fractional power of an indefinite one,
   though an **integer** power of that same matrix is allowed.
 
+- **THE CHOLESKY INVERSE (`26a2fdd41`)** — *the same answer, the cheapest road.*
+
+  `A = L Lᵀ` for a symmetric positive-definite A, and once you have that triangular
+  factor the inverse is forward-and-back substitution — no iteration, no sweeps, nothing
+  to converge.
+
+  **This is not a fourth opinion about what A⁻¹ is.** `PseudoInverse()` reaches the same
+  matrix through a one-sided Jacobi SVD, `MatrixPower(-1)` through a Jacobi
+  eigendecomposition, this through a triangular factorisation. **Three genuinely
+  different algorithms sharing no code below the matrix itself**, so their agreeing is a
+  statement about the mathematics rather than about any one implementation — and the
+  tests check them against each other rather than a tabulated answer.
+
+  | route | 120×120 SPD, 5 reps | |
+  |---|---|---|
+  | **Cholesky** | **6 ms** | |
+  | eigen | 112 ms | 19× |
+  | SVD | 123 ms | 20× |
+
+  *Measured rather than asserted — the doc comment first said "far more work than the
+  question needs", which is a claim with no number in it.* Both of the others run an
+  iterative diagonalisation to settle what direct substitution answers. The figure lives
+  in the comments rather than a timing assertion, which would be flaky for no gain.
+
+  ***And whitening is not unique***, which the factor inverse makes concrete. `A = L Lᵀ`
+  means `L⁻¹ A L⁻ᵀ = I`, so `L⁻¹` is a whitening matrix — and `WhiteningMatrix()`
+  (`A^(-1/2)`, from the previous entry) is a **different** one. Both satisfy the
+  identity; neither is more correct. Any `W` with `W A Wᵀ = I` qualifies, and if `W`
+  works then so does `QW` for any orthogonal `Q`. The eigen route picks the **symmetric**
+  whitener; this one the **triangular**, which is cheaper and is what a sampler wants —
+  it turns independent normals into correlated ones with a single multiply. Off-diagonal
+  entries on the same matrix: `L⁻¹` gives 0, 0, 0; `A^(-1/2)` gives −0.0797, −0.0218,
+  −0.1159.
+
+  That is the same distinction as the two square roots one entry ago, one level up:
+  ***"give me something that undoes A" is a question with many answers, and a
+  decomposition answers it in its own shape.***
+
+  **Refused, and the refusal is not a limitation.** An indefinite matrix has no real
+  triangular factor, so inverting it *through its Cholesky decomposition* is a request
+  with no referent — but the matrix may be perfectly invertible, and a test asserts the
+  other two routes return its inverse. The message names them. The factorisation
+  discovers the problem itself at the first non-positive pivot, which is why Cholesky
+  doubles as a positive-definiteness test.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
