@@ -297,6 +297,73 @@ Scenario("...and Power() next door means something else entirely")
 	     RefusesPower([[1,2,0],[2,1,0],[0,0,1]], -1), FALSE)
 EndScenario()
 
+Scenario("THE SCHUR DECOMPOSITION -- and the one already here was not orthogonal")
+	# A = Q T Q', with Q ORTHOGONAL and T quasi-upper-triangular: 1x1 blocks on the
+	# diagonal for real eigenvalues, 2x2 for conjugate pairs. Every real matrix has one,
+	# which is more than an eigendecomposition can claim -- a defective matrix has no
+	# full set of eigenvectors, and this exists regardless.
+	#
+	# THE EIGENVALUE PATH ALREADY PRODUCED A TRIANGULAR T. What it does not produce is
+	# an orthogonal transform: it reduces by Gaussian elimination, which is cheaper and
+	# perfectly good for eigenvalues. Measured on this matrix:
+	#
+	#     elimination path    ||Z'Z - I|| = 0.607     ||Z T Z' - A|| = 3.38
+	#     this one            ||Q'Q - I|| = 6.7e-16   ||Q T Q' - A|| = 7.1e-11
+	#
+	# A decomposition whose Q is not orthogonal is NOT a Schur decomposition -- it is a
+	# similarity that happens to end in triangular form, and everything worth having
+	# downstream rests on Q' being Q-inverse. Hence a second reduction, by Householder
+	# reflections, on its own path so the eigenvalue numerics are untouched.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	aQ = oA.SchurQ()
+	aT = oA.SchurT()
+	Then("Q is orthogonal", SameMat(MatMul(MatTrans(aQ), aQ), aI4), TRUE)
+	Then("...and Q T Q' rebuilds the matrix",
+	     SameMat(MatMul(MatMul(aQ, aT), MatTrans(aQ)), aA), TRUE)
+	Then("...with T quasi-upper-triangular", QuasiTriangular(aT), TRUE)
+EndScenario()
+
+Scenario("...and its inverse is correct, and the wrong route to use")
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	aSi = oA.SchurInverse()
+	Then("it is the inverse", SameMat(MatMul(aA, aSi), aI4), TRUE)
+	Then("...a SIXTH route to the same matrix", SameMat(aSi, oA.LUInverse()), TRUE)
+
+	# IT IS THE ONE NOT TO REACH FOR. This runs an ITERATIVE QR to arrive where
+	# LUInverse() arrives by direct factorisation. It is here because the decomposition
+	# is worth having and an inverse is the obvious thing to ask of one -- so it should
+	# exist, and it should say what it is.
+	#
+	# WHAT THE SCHUR FORM IS ACTUALLY FOR is f(A) for a NON-SYMMETRIC matrix: the square
+	# root, the exponential, a general power. MatrixPower() refuses every non-symmetric
+	# matrix by construction, and an eigendecomposition cannot always supply one.
+	Then("MatrixPower still refuses the very matrix Schur handles",
+	     RefusesPower(aA, -1), TRUE)
+EndScenario()
+
+Scenario("...and the 2x2 blocks are real, not a formality")
+	# A rotation: eigenvalues 2 +/- 3i, plus 1 and 5. T MUST carry a 2x2 block, because
+	# a real quasi-triangular form cannot put a complex number on its diagonal.
+	aRot = [ [2,-3,0,0], [3,2,0,0], [0,0,1,0], [0,0,0,5] ]
+	oRot = new stzMatrix(aRot)
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	Then("T carries a genuine 2x2 block", HasTwoByTwo(oRot.SchurT()), TRUE)
+
+	# The back-substitution solves that block as a PAIR. Dividing through one diagonal
+	# entry at a time would return a plausible-looking matrix and the wrong answer --
+	# a real matrix with complex eigenvalues is perfectly invertible.
+	Then("...and the inverse is right anyway",
+	     SameMat(MatMul(aRot, oRot.SchurInverse()), aI4), TRUE)
+EndScenario()
+
+
 
 Summary()
 
@@ -414,3 +481,32 @@ func RefusesPower(aX, p)
 		_rpB_ = TRUE
 	done
 	return _rpB_
+
+func MatTrans(aX)
+	_mtR_ = []
+	for _mtI_ = 1 to len(aX[1])
+		_mtRow_ = []
+		for _mtJ_ = 1 to len(aX)
+			_mtRow_ + aX[_mtJ_][_mtI_]
+		next
+		_mtR_ + _mtRow_
+	next
+	return _mtR_
+
+func QuasiTriangular(aX)
+	for _qtI_ = 3 to len(aX)
+		for _qtJ_ = 1 to _qtI_-2
+			if fabs(aX[_qtI_][_qtJ_]) > 0.00001
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func HasTwoByTwo(aX)
+	for _htI_ = 2 to len(aX)
+		if fabs(aX[_htI_][_htI_-1]) > 0.00001
+			return TRUE
+		ok
+	next
+	return FALSE

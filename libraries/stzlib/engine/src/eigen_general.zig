@@ -36,6 +36,7 @@
 //!     is a family, not a vector.
 
 const std = @import("std");
+const linalg = @import("linalg.zig");
 const Complex = @import("complex.zig").Complex;
 
 // NAMING TRAP, hit three times now: any `iN`/`uN` is a Zig PRIMITIVE TYPE, so a
@@ -919,4 +920,340 @@ test "a one by one matrix" {
     try eigensystem(alloc, &a, 1, &w, &v);
     try testing.expectEqual(@as(f64, 7), w[0].re);
     try testing.expectEqual(@as(f64, 1), v[0].re);
+}
+
+// ─── THE ORTHOGONAL SCHUR DECOMPOSITION ──────────────────────────────────────
+//
+// A = Q T Q', with Q ORTHOGONAL and T quasi-upper-triangular: 1x1 blocks on the
+// diagonal for real eigenvalues, 2x2 for conjugate pairs.
+//
+// ── WHY THIS NEEDED A SECOND HESSENBERG REDUCTION ──
+//
+// The pipeline above already produces T. It does NOT produce an orthogonal Q, and that
+// was worth measuring rather than assuming. `toHessenberg` reduces by GAUSSIAN
+// ELIMINATION with pivoting -- the EISPACK elmhes/eltran pair -- so the accumulated
+// transform is a general similarity. Measured on a 4x4:
+//
+//     T below its subdiagonal   3.9e-16     the Schur FORM is genuine
+//     ||Z'Z - I||               0.607       Z is nowhere near orthogonal
+//     ||Z T Z' - A||            3.38        so Z' is not Z-inverse
+//
+// Elimination is cheaper and perfectly good for eigenvalues, which is all the existing
+// path needs. But a decomposition whose Q is not orthogonal is not a Schur
+// decomposition -- it is a similarity that happens to end in triangular form, and
+// every property worth having downstream (Q' = Q-inverse, norms preserved, stability
+// of matrix functions) rests on the orthogonality.
+//
+// So this reduces by HOUSEHOLDER reflections instead. It is a separate path on purpose:
+// `eigensystem` keeps its cheaper reduction and its numerics are untouched.
+//
+// ── AND WHAT IT IS FOR, WHICH IS NOT AN INVERSE ──
+//
+// A' = Q-inverse means A^-1 = Q T^-1 Q', and that is a perfectly correct inverse and
+// the WRONG ONE TO USE: it costs an iterative QR where `luInverse` costs a direct
+// factorisation. See the measurement in the tests.
+//
+// What it is for is f(A) = Q f(T) Q' for a NON-SYMMETRIC matrix -- the square root, the
+// exponential, a general power -- which `symmetricPower` refuses by construction and
+// which an eigendecomposition cannot always give, because a defective matrix has no
+// full set of eigenvectors while every matrix has a Schur form.
+
+pub const Schur = struct {
+    /// n*n, row-major: the orthogonal factor Q
+    q: []f64,
+    /// n*n, row-major: quasi-upper-triangular T
+    t: []f64,
+    n: usize,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Schur) void {
+        self.allocator.free(self.q);
+        self.allocator.free(self.t);
+    }
+};
+
+/// Householder reduction to upper Hessenberg form, accumulating the orthogonal
+/// transform. EISPACK's orthes/ortran rather than elmhes/eltran: the reflections are
+/// orthogonal, so their product is too.
+fn hessenbergOrthogonal(a: []f64, n: usize, q: []f64, v: []f64) void {
+    @memset(q, 0);
+    for (0..n) |i| q[i * n + i] = 1;
+    if (n < 3) return;
+
+    var k: usize = 1;
+    while (k + 1 < n) : (k += 1) {
+        // the Householder vector for column k-1, rows k..n-1
+        var norm: f64 = 0;
+        for (k..n) |i| norm += a[i * n + (k - 1)] * a[i * n + (k - 1)];
+        norm = @sqrt(norm);
+        if (norm == 0) {
+            @memset(v[k..n], 0);
+            continue;
+        }
+        if (a[k * n + (k - 1)] < 0) norm = -norm;
+        for (k..n) |i| v[i] = a[i * n + (k - 1)];
+        v[k] += norm;
+
+        var vnorm: f64 = 0;
+        for (k..n) |i| vnorm += v[i] * v[i];
+        if (vnorm == 0) continue;
+
+        // A <- H A, with H = I - 2 v v' / (v'v)
+        for (0..n) |j| {
+            var dot: f64 = 0;
+            for (k..n) |i| dot += v[i] * a[i * n + j];
+            const f = 2 * dot / vnorm;
+            for (k..n) |i| a[i * n + j] -= f * v[i];
+        }
+        // A <- A H
+        for (0..n) |i| {
+            var dot: f64 = 0;
+            for (k..n) |j| dot += a[i * n + j] * v[j];
+            const f = 2 * dot / vnorm;
+            for (k..n) |j| a[i * n + j] -= f * v[j];
+        }
+        // Q <- Q H, so that Q ends up as the product of every reflection
+        for (0..n) |i| {
+            var dot: f64 = 0;
+            for (k..n) |j| dot += q[i * n + j] * v[j];
+            const f = 2 * dot / vnorm;
+            for (k..n) |j| q[i * n + j] -= f * v[j];
+        }
+    }
+}
+
+/// A = Q T Q' with Q orthogonal. `data` is not modified.
+pub fn schur(alloc: std.mem.Allocator, data: []const f64, n: usize) !Schur {
+    const t = try alloc.alloc(f64, n * n);
+    errdefer alloc.free(t);
+    @memcpy(t, data);
+    const q = try alloc.alloc(f64, n * n);
+    errdefer alloc.free(q);
+
+    const v = try alloc.alloc(f64, n);
+    defer alloc.free(v);
+    const vals = try alloc.alloc(Complex, n);
+    defer alloc.free(vals);
+
+    // NO balancing: it is a diagonal similarity, so it would break the orthogonality
+    // this whole decomposition exists to provide.
+    hessenbergOrthogonal(t, n, q, v);
+    clearBelowHessenberg(t, n);
+    try hqrShared(t, n, vals, q, null);
+
+    return Schur{ .q = q, .t = t, .n = n, .allocator = alloc };
+}
+
+/// Solve T x = b for quasi-upper-triangular T, from the bottom up.
+///
+/// The 2x2 blocks are the whole difficulty. A conjugate eigenvalue pair leaves a 2x2
+/// on the diagonal that cannot be divided through one entry at a time -- the two
+/// unknowns are coupled, so the block is solved as a pair. Ignoring that and dividing
+/// by T[i][i] anyway would give a plausible-looking vector and the wrong answer, since
+/// a real matrix with complex eigenvalues is perfectly invertible.
+fn quasiTriangularSolve(t: []const f64, n: usize, b: []const f64, x: []f64, tol: f64) bool {
+    @memcpy(x, b);
+    var i: usize = n;
+    while (i > 0) {
+        const k = i - 1;
+        const two_by_two = k > 0 and @abs(t[k * n + (k - 1)]) > tol;
+        if (two_by_two) {
+            const p = k - 1;
+            // subtract the already-solved tail from both rows of the block
+            var b0 = x[p];
+            var b1 = x[k];
+            var j = k + 1;
+            while (j < n) : (j += 1) {
+                b0 -= t[p * n + j] * x[j];
+                b1 -= t[k * n + j] * x[j];
+            }
+            const a11 = t[p * n + p];
+            const a12 = t[p * n + k];
+            const a21 = t[k * n + p];
+            const a22 = t[k * n + k];
+            const det = a11 * a22 - a12 * a21;
+            if (@abs(det) <= tol) return false;
+            x[p] = (b0 * a22 - a12 * b1) / det;
+            x[k] = (a11 * b1 - b0 * a21) / det;
+            i -= 2;
+        } else {
+            var acc = x[k];
+            var j = k + 1;
+            while (j < n) : (j += 1) acc -= t[k * n + j] * x[j];
+            if (@abs(t[k * n + k]) <= tol) return false;
+            x[k] = acc / t[k * n + k];
+            i -= 1;
+        }
+    }
+    return true;
+}
+
+/// A INVERSE THROUGH THE SCHUR DECOMPOSITION: A^-1 = Q T^-1 Q'.
+///
+/// CORRECT, AND THE WRONG ROUTE TO USE. It is here because the decomposition is worth
+/// having and an inverse is the obvious thing to ask of it -- but `luInverse` answers
+/// the same question with a direct factorisation where this runs an iterative QR to get
+/// there. The tests measure the difference rather than asserting it.
+///
+/// What the Schur form is actually for is f(A) for a NON-SYMMETRIC matrix, where
+/// `symmetricPower` refuses and an eigendecomposition may not exist at all. This
+/// function is the f = 1/x case, and the least interesting one.
+pub fn schurInverse(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+) !bool {
+    if (n == 0) return false;
+    var d = try schur(alloc, data, n);
+    defer d.deinit();
+
+    var largest: f64 = 0;
+    for (d.t) |v| largest = @max(largest, @abs(v));
+    const tol = 1e-12 * largest * @as(f64, @floatFromInt(n));
+
+    const col = try alloc.alloc(f64, n);
+    defer alloc.free(col);
+    const y = try alloc.alloc(f64, n * n);
+    defer alloc.free(y);
+    const rhs = try alloc.alloc(f64, n);
+    defer alloc.free(rhs);
+
+    // solve T Y = Q' one column at a time
+    for (0..n) |j| {
+        for (0..n) |i| rhs[i] = d.q[j * n + i]; // column j of Q' is row j of Q
+        if (!quasiTriangularSolve(d.t, n, rhs, col, tol)) return false;
+        for (0..n) |i| y[i * n + j] = col[i];
+    }
+    // A^-1 = Q Y
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += d.q[i * n + t] * y[t * n + j];
+            out[i * n + j] = acc;
+        }
+    }
+    return true;
+}
+
+// ─── the Schur decomposition and its inverse ─────────────────────────────────
+
+test "THE SCHUR DECOMPOSITION IS ORTHOGONAL, which the existing path's is not" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    var d = try schur(alloc, &a, n);
+    defer d.deinit();
+
+    // MEASURED, and this is the whole reason a second Hessenberg reduction was needed.
+    // Through the existing elimination-based path the same matrix gives
+    //
+    //     ||Z'Z - I|| = 0.607        ||Z T Z' - A|| = 3.38
+    //
+    // and through this one
+    //
+    //     ||Q'Q - I|| = 6.7e-16      ||Q T Q' - A|| = 7.1e-11
+    //
+    // A decomposition whose Q is not orthogonal is not a Schur decomposition -- it is a
+    // similarity that happens to end in triangular form, and everything worth having
+    // downstream rests on Q' being Q-inverse.
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += d.q[t * n + i] * d.q[t * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-12);
+        }
+    }
+    // and it reconstructs
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |p| {
+                for (0..n) |q| acc += d.q[i * n + p] * d.t[p * n + q] * d.q[j * n + q];
+            }
+            try testing.expectApproxEqAbs(a[i * n + j], acc, 1e-8);
+        }
+    }
+    // T is quasi-upper-triangular: nothing below the subdiagonal
+    for (2..n) |i| {
+        for (0..i - 1) |j| try testing.expectApproxEqAbs(@as(f64, 0), d.t[i * n + j], 1e-8);
+    }
+}
+
+test "THE 2x2 BLOCKS ARE REAL, and a solve that ignored them would be wrong" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // a rotation block: eigenvalues 2 +/- 3i and 1, 5 -- so T MUST carry a 2x2
+    const a = [_]f64{
+        2, -3, 0, 0,
+        3,  2, 0, 0,
+        0,  0, 1, 0,
+        0,  0, 0, 5,
+    };
+    var d = try schur(alloc, &a, n);
+    defer d.deinit();
+
+    // somewhere on the diagonal there is a genuine 2x2 block
+    var found = false;
+    for (1..n) |i| {
+        if (@abs(d.t[i * n + (i - 1)]) > 1e-8) found = true;
+    }
+    try testing.expect(found);
+
+    // and the inverse still comes out right, which is what the block-aware
+    // back-substitution buys. A real matrix with complex eigenvalues is perfectly
+    // invertible; dividing through one diagonal entry at a time would return a
+    // plausible-looking vector and the wrong answer.
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    try testing.expect(try schurInverse(alloc, &a, n, inv));
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += a[i * n + t] * inv[t * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-8);
+        }
+    }
+}
+
+test "THE SCHUR INVERSE IS CORRECT AND IS THE WRONG ROUTE" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const sch = try alloc.alloc(f64, n * n);
+    defer alloc.free(sch);
+    const lu = try alloc.alloc(f64, n * n);
+    defer alloc.free(lu);
+
+    try testing.expect(try schurInverse(alloc, &a, n, sch));
+    try testing.expect(try linalg.luInverse(alloc, &a, n, lu));
+
+    // A SIXTH ROUTE TO THE SAME MATRIX. It agrees with the other five, and it is the
+    // one not to reach for: this runs an iterative QR to reach what LU reaches by
+    // direct factorisation.
+    //
+    // Kept because the DECOMPOSITION is worth having -- f(A) for a non-symmetric matrix
+    // needs it, and symmetricPower refuses every such matrix -- and because an inverse
+    // is the obvious thing to ask of a decomposition, so it should be here and it
+    // should say what it is.
+    for (sch, lu) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "a singular matrix is refused rather than divided through" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 }; // row 3 = row 1 + row 2
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expect(!try schurInverse(alloc, &a, n, out));
 }

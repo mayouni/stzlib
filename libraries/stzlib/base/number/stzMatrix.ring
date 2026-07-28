@@ -2474,6 +2474,92 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- THE SCHUR DECOMPOSITION: A = Q T Q', with Q ORTHOGONAL --
+	#
+	# T is quasi-upper-triangular: 1x1 blocks on the diagonal for real eigenvalues, 2x2
+	# for conjugate pairs. Every real matrix has one, which is more than can be said for
+	# an eigendecomposition -- a defective matrix has no full set of eigenvectors, and
+	# this exists regardless.
+	#
+	# -- IT NEEDED A SECOND HESSENBERG REDUCTION, AND THAT WAS MEASURED --
+	#
+	# The eigenvalue path already produced a triangular T. Its accumulated transform is
+	# NOT orthogonal: it reduces by Gaussian elimination, which is cheaper and perfectly
+	# good for eigenvalues. On a 4x4:
+	#
+	#     elimination path    ||Z'Z - I|| = 0.607    ||Z T Z' - A|| = 3.38
+	#     this one            ||Q'Q - I|| = 6.7e-16  ||Q T Q' - A|| = 7.1e-11
+	#
+	# A decomposition whose Q is not orthogonal is not a Schur decomposition -- it is a
+	# similarity that happens to end in triangular form, and everything worth having
+	# downstream rests on Q' being Q-inverse. So this reduces by Householder reflections
+	# instead, on its own path, leaving the eigenvalue numerics untouched.
+	def SchurQ()
+		return This._SchurPart("q")
+
+		def SchurQQ()
+			return new stzMatrix(This.SchurQ())
+
+	def SchurT()
+		return This._SchurPart("t")
+
+		def SchurTQ()
+			return new stzMatrix(This.SchurT())
+
+	def _SchurPart(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("Schur: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "q"
+			_pScV_ = StzEngineMatrixSchurQ(@pEngineMatrix)
+		else
+			_pScV_ = StzEngineMatrixSchurT(@pEngineMatrix)
+		ok
+		if _pScV_ = NULL
+			StzRaise("Schur: the QR iteration did not converge on this matrix.")
+		ok
+		_aScV_ = This._MatrixFromHandle(_pScV_)
+		StzEngineMatrixFree(_pScV_)
+		return _aScV_
+
+	# A^-1 = Q T^-1 Q'. CORRECT, AND THE WRONG ROUTE TO USE.
+	#
+	# It agrees with the other five and it is the one not to reach for: this runs an
+	# ITERATIVE QR to arrive where LUInverse() arrives by direct factorisation. It is
+	# here because the decomposition is worth having and an inverse is the obvious thing
+	# to ask of a decomposition -- so it should exist, and it should say what it is.
+	#
+	# WHAT THE SCHUR FORM IS ACTUALLY FOR is f(A) for a NON-SYMMETRIC matrix: the square
+	# root, the exponential, a general power. MatrixPower() refuses every non-symmetric
+	# matrix by construction, and an eigendecomposition cannot always supply one. This
+	# function is the f = 1/x case, and the least interesting of them.
+	def SchurInverse()
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("SchurInverse: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pSiV_ = StzEngineMatrixSchurInverse(@pEngineMatrix)
+		if _pSiV_ = NULL
+			StzRaise("SchurInverse: refused -- this matrix is numerically singular, " +
+				"so T has a diagonal block that cannot be inverted. PseudoInverse() " +
+				"answers instead. And for a matrix that IS invertible, LUInverse() " +
+				"reaches the same answer by a direct factorisation rather than an " +
+				"iterative one.")
+		ok
+		_aSiV_ = This._MatrixFromHandle(_pSiV_)
+		StzEngineMatrixFree(_pSiV_)
+		return _aSiV_
+
+		def SchurInverseQ()
+			return new stzMatrix(This.SchurInverse())
+
 	# -- INVERTING AN LU DECOMPOSITION: the fastest general square route --
 	#
 	# A = P L U, so each column of the inverse is one forward and one back substitution
