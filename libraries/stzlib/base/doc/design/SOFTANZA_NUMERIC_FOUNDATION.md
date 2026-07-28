@@ -2385,6 +2385,47 @@ what it refused.
   and take the nearest row"* was drawn from **one cell** of this table, and it happens to
   be the only cell where the lookup wins.
 
+- **THE PCA INVERSE (`f5fe22c4f`)** — *and it is the transpose, not a model.*
+
+  This is where PCA differs **in kind** from the rest of the embedding family rather
+  than merely in quality. The forward map is a **rotation** onto an orthonormal basis, so
+  undoing it needs no second model, no training and no lookup:
+
+  > `x ≈ (scores · Loadingsᵀ) * scale + mean`
+
+  t-SNE and UMAP have **no analytic inverse at all** — both had to fit a decoder to
+  (position, row) pairs over tens of thousands of epochs, and hand back a *plausible* row
+  rather than a recovered one. Here the arithmetic was already sitting in the fit.
+
+  | components kept | reconstruction MSE | discarded variance |
+  |---|---|---|
+  | 1 | 1.540040 | 1.540040 |
+  | 2 | 0.126675 | 0.126675 |
+  | 3 | 0.000000 | 0.000000 |
+
+  **And the error is not mysterious either.** It is *exactly* the variance living in the
+  components that were dropped — the residual **is** the projection onto the discarded
+  eigenvectors, so the mean squared reconstruction error equals the sum of their
+  eigenvalues, which `ExplainedVariance()` already reports. Keeping every component
+  returns the data itself, to rounding.
+
+  ***That identity is a far stronger check than the learned inverses can offer.*** Their
+  reconstruction error says only that the result looked plausible; this says the
+  arithmetic is **right**. Transpose the loadings the wrong way, or put the scale back
+  before the mean, and the numbers would still look reasonable while the identity fails.
+  A second test does the same for standardised fits, with one column spanning a thousand
+  beside one spanning a thousandth so a misordered rescale cannot hide.
+
+  *The third row is zero on both sides because the data is genuinely rank three — the
+  identity holding at the only precision available there. Worth noting because it caused
+  the one test failure: comparing 1.3e-30 against 3e-32 with a **relative** tolerance
+  compares rounding with rounding. The tolerance is absolute and scaled to total variance.*
+
+  `Inverse()` accepts **fewer** components than were kept — reconstructing from the
+  leading ones is the usual question — and refuses more. `Reconstructed()` runs the
+  training rows through both directions: what the analysis retained of the data it was
+  given, which is the picture worth looking at when deciding how many components suffice.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
