@@ -838,6 +838,7 @@ class stzUMAP from stzObject
 	@anLabels = []        # empty for the ordinary fit -- see LearnFromLabels()
 	@nTargetWeight = 0.5
 	@nDensityLambda = 0   # 0 = ordinary UMAP -- see PreserveDensity()
+	@bDensityAuto = FALSE # PreserveDensity() picks by mode; SetDensityWeight() does not
 	@bParametric = FALSE  # see LearnMapping()
 	@anHidden = [ 50, 20 ]
 	@nLearningRate = 0.01
@@ -1048,6 +1049,7 @@ class stzUMAP from stzObject
 	# carry either shape over to the other.)
 	def PreserveDensity()
 		@nDensityLambda = 2.0
+		@bDensityAuto = TRUE
 
 		def PreserveDensityQ()
 			This.PreserveDensity()
@@ -1477,9 +1479,42 @@ class stzUMAP from stzObject
 		return _aR2_
 
 	def _FitParametric(paX, nD)
+		# -- DENSITY ON A LEARNED MAP IS LARGELY REDUNDANT, and that is the finding --
+		#
+		# MEASURED on two clusters differing twentyfold in spread:
+		#
+		#     lambda    correlation    drawn ratio
+		#      ~0          0.9940          865.6      <- NO density term at all
+		#      0.1         0.9940          865.1
+		#      2           0.9940          862.5
+		#      10          0.9942         1013.4
+		#
+		# Plain parametric UMAP already scores 0.994. The density term moves it by two
+		# ten-thousandths. A network is a smooth function of its input, so it cannot
+		# tear the space: relative spreads carry through on their own, and there is
+		# almost nothing left for an explicit term to add. This is the same result the
+		# parametric t-SNE work reached from the other side.
+		#
+		# THE MAGNITUDE IS ANOTHER MATTER ENTIRELY. The true ratio is 22.1 and the
+		# drawn one is 865 -- a fortyfold OVERSHOOT. Standardising by the global spread
+		# makes a tight cluster nearly a single point to the network, and the map draws
+		# it that way. So "density preserved" here means the ORDERING, emphatically not
+		# the scale, and the correlation being 0.994 says nothing about the second.
+		#
+		# The weight resolves small on this path for the same reason it does in stzTSNE:
+		# a network's few hundred weights are SHARED by every point, so a strong term
+		# deforms the whole function rather than one region. An explicit
+		# SetDensityWeight() is obeyed as given.
+		_nLam_ = @nDensityLambda
+		if @bDensityAuto
+			_nLam_ = 0.1
+			# record it, so DensityWeight() and Why() report what was used
+			@nDensityLambda = _nLam_
+			@bDensityAuto = FALSE
+		ok
 		_aRes_ = StzEnginePumap(paX, @nRows, nD, @anHidden, @nNeighbors, @nDims,
 			@nMinDist, @nSpread, @nEpochs, @nLearningRate, @nSeed,
-			@anLabels, @nTargetWeight, @nDensityLambda, @nDensityFrac)
+			@anLabels, @nTargetWeight, _nLam_, @nDensityFrac)
 		if NOT isList(_aRes_) or len(_aRes_) < 5
 			stzraise("Parametric UMAP refused this run. It needs at least 3 points, " +
 				"a neighbour count between 2 and " + (@nRows - 1) + ", and at least " +
@@ -1515,7 +1550,7 @@ class stzUMAP from stzObject
 
 		@anLocalRadii = []
 		@nDensityCorrelation = 0
-		if @nDensityLambda > 0 and len(_aRes_) >= _nAt_ + 1 + @nRows
+		if _nLam_ > 0 and len(_aRes_) >= _nAt_ + 1 + @nRows
 			_nAt_++
 			@nDensityCorrelation = _aRes_[_nAt_]
 			for _i_ = 1 to @nRows
