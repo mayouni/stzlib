@@ -1,5 +1,6 @@
 const std = @import("std");
 const linalg = @import("linalg.zig");
+const eigen_general = @import("eigen_general.zig");
 
 pub const StzMatrix = struct {
     data: []f64,
@@ -354,6 +355,46 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     if (mat.rows == 0 or mat.cols == 0) return null;
     const out = StzMatrix.init(gpa, mat.cols, mat.rows) catch return null;
     const ok = linalg.pseudoInverse(gpa, mat.data, mat.rows, mat.cols, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
+/// THE ORTHOGONAL SCHUR DECOMPOSITION: A = Q T Q', returned as Q. See
+/// stz_matrix_schur_t for T -- two calls rather than one struct, because the handle
+/// table carries matrices and not tuples.
+pub fn stz_matrix_schur_q(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    var d = eigen_general.schur(gpa, mat.data, mat.rows) catch return null;
+    defer d.deinit();
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    @memcpy(out.data, d.q);
+    return out;
+}
+
+/// The quasi-upper-triangular factor T of A = Q T Q'.
+pub fn stz_matrix_schur_t(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    var d = eigen_general.schur(gpa, mat.data, mat.rows) catch return null;
+    defer d.deinit();
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    @memcpy(out.data, d.t);
+    return out;
+}
+
+/// A^-1 = Q T^-1 Q'. Correct, and the wrong route to use -- see LUInverse.
+pub fn stz_matrix_schur_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    const ok = eigen_general.schurInverse(gpa, mat.data, mat.rows, out.data) catch {
         out.deinit();
         return null;
     };

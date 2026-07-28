@@ -34,6 +34,9 @@ comptime {
     @export(&matrix.stz_matrix_cholesky_inverse, .{ .name = "stz_matrix_cholesky_inverse" });
     @export(&matrix.stz_matrix_qr_inverse, .{ .name = "stz_matrix_qr_inverse" });
     @export(&matrix.stz_matrix_lu_inverse, .{ .name = "stz_matrix_lu_inverse" });
+    @export(&matrix.stz_matrix_schur_q, .{ .name = "stz_matrix_schur_q" });
+    @export(&matrix.stz_matrix_schur_t, .{ .name = "stz_matrix_schur_t" });
+    @export(&matrix.stz_matrix_schur_inverse, .{ .name = "stz_matrix_schur_inverse" });
     @export(&matrix.stz_matrix_cholesky_factor_inverse, .{ .name = "stz_matrix_cholesky_factor_inverse" });
     @export(&matrix.stz_matrix_eigen_reconstruct, .{ .name = "stz_matrix_eigen_reconstruct" });
     @export(&matrix.stz_matrix_min_norm_solve, .{ .name = "stz_matrix_min_norm_solve" });
