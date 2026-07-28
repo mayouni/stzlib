@@ -2465,6 +2465,48 @@ what it refused.
   right for tall matrices and quietly wrong for wide ones, the sort of thing a test suite
   made only of square examples never catches.*
 
+- **THE EIGENDECOMPOSITION INVERSE (`47a33bc19`)** — *one power among several.*
+
+  `A = Q Λ Qᵀ`, so `A^p = Q Λ^p Qᵀ`: apply the power to the **eigenvalues** and
+  reassemble. Undoing the decomposition is `p = 1`, the inverse is `p = −1` — but nothing
+  in the machinery cares which function reaches the diagonal, so the inverse arrives as a
+  **special case rather than as the feature**. The two that earn their keep are the ones
+  no other decomposition here offers:
+
+  | | |
+  |---|---|
+  | `MatrixSquareRoot()` | `p = 0.5` |
+  | `WhiteningMatrix()` | `p = −0.5` — the transform under which a covariance becomes the identity |
+
+  **The square root is not the one Cholesky gives.** Cholesky's `L` satisfies `L Lᵀ = A`
+  but is **triangular** and one of many; this is `Q Λ^0.5 Qᵀ` — symmetric, positive
+  semi-definite, unique. Both square back to A; only this one is itself a
+  covariance-shaped object. A test asserts the symmetry *and* that Cholesky's factor
+  lacks it.
+
+  | first entry | value |
+  |---|---|
+  | `Power(0.5)` *(elementwise)* | **2.449490** — √6, the element |
+  | `MatrixSquareRoot()` | **2.406075** — not that |
+
+  ***And `Power()` already existed, meaning something else entirely.*** It raises every
+  **element** to a power. Two plausible numbers, one keystroke apart in the API, and
+  nothing in either result announces which question was asked — hence `MatrixPower()`
+  rather than an overload, and a guard scenario pinning both.
+
+  **Cross-checked against a different algorithm:** `A⁻¹` through Jacobi eigenvectors
+  agrees with `A⁺` through the one-sided Jacobi SVD to 1e-8, and truncating the
+  eigendecomposition matches truncating the SVD for every k on a positive-definite matrix
+  — the singular values *are* the eigenvalues there. Two roads to one number, available
+  only because the library has both. Also pinned: the powers **compose** —
+  `(A^0.25)² = A^0.5`, which a fractional power that did not really exponentiate would
+  fail while still passing the squares-back-to-A test.
+
+  Refused rather than returned as NaN (a NaN travels quietly downstream): non-symmetric
+  input, a negative power of a singular matrix — through the same `negligibleThreshold`
+  the pseudo-inverse and `rankOf` ask — and a fractional power of an indefinite one,
+  though an **integer** power of that same matrix is allowed.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
