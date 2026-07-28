@@ -174,6 +174,82 @@ Scenario("a fit at a size worth having, and the matrix is left alone")
 	Then("the design matrix itself is unchanged", oBig.Rows(), nObs)
 EndScenario()
 
+Scenario("THE QR INVERSE FILLS THE GAP THE FAST ROUTES LEAVE")
+	# A = Q R with Q orthogonal and R upper triangular, so A^-1 = R^-1 Q': one
+	# back-substitution per column, no iteration anywhere.
+	#
+	# There are four routes to an inverse now, and until this one the plain general
+	# square case had no fast road at all:
+	#
+	#     CholeskyInverse()   symmetric positive definite ONLY   fastest
+	#     MatrixPower(-1)     symmetric ONLY
+	#     QRInverse()         any full-rank square or tall       no symmetry needed
+	#     PseudoInverse()     everything, incl. rank-deficient   slowest
+	#
+	# A transition matrix, a Jacobian, a change of basis -- symmetric only by accident.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	aEye4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	# THE GAP, DEMONSTRATED rather than described: both fast routes decline this matrix
+	Then("Cholesky declines a non-symmetric matrix", DeclinesChol(oA), TRUE)
+	Then("...and so does the eigendecomposition", DeclinesEigen(oA), TRUE)
+
+	aQi = oA.QRInverse()
+	Then("QR does not care about symmetry", SameMat4(MatMul4(aA, aQi), aEye4), TRUE)
+	Then("...and reaches the same inverse the SVD does",
+	     SameMat4(aQi, oA.PseudoInverse()), TRUE)
+EndScenario()
+
+Scenario("...and for a TALL matrix the same formula is the pseudo-inverse")
+	# Unchanged, not adapted. With m > n and full column rank, R^-1 Q' IS the
+	# Moore-Penrose inverse -- which is why LeastSquares has always been a QR solve
+	# underneath. Building it column by column just makes the OPERATOR available rather
+	# than one solution at a time.
+	aT = [ [1,1,1], [1,2,4], [1,3,9], [1,4,16], [1,5,25], [1,6,36] ]
+	oT = new stzMatrix(aT)
+	Then("the tall QR inverse is the pseudo-inverse",
+	     SameMat4(oT.QRInverse(), oT.PseudoInverse()), TRUE)
+
+	# RANK-DEFICIENT IS REFUSED HERE, AND ANSWERED BY THE SVD. R would have a diagonal
+	# entry at rounding level, and back-substituting through it returns confident
+	# garbage -- the very defect isFullRank was fixed for, where a design matrix gave
+	# coefficients around -9.7e12 and presented them as a fit.
+	aDeficient = [ [1,2,3], [2,1,3], [3,5,8], [4,1,5] ]
+	oD = new stzMatrix(aDeficient)
+	Then("a rank-deficient matrix is refused", DeclinesQR(oD), TRUE)
+	Then("...with a message naming the route that answers",
+	     StzFindFirst("PseudoInverse", WhyQRRefused(oD)) > 0, TRUE)
+	Then("...and that route does answer", len(oD.PseudoInverse()), 3)
+EndScenario()
+
+Scenario("A DEFECT FOUND BY ASKING A ROUTE TO DECLINE")
+	# The scenario above asks Cholesky to refuse a non-symmetric matrix. IT DID NOT --
+	# and that is how this was found.
+	#
+	# The algorithm reads only the LOWER triangle, so a non-symmetric matrix factored
+	# happily: positive_definite came back TRUE and L L' differed from A by up to 3.0.
+	# Every caller downstream believed it. CholeskyInverse() returned a matrix that was
+	# not A's inverse, and the positive-definiteness test called a non-symmetric matrix
+	# positive definite -- which is not even a property such a matrix can have.
+	#
+	# Exactly the shape of the isFullRank defect this file already documents: a
+	# condition the arithmetic never needed to check, and a confident wrong answer
+	# downstream. It asks isSymmetric now, the same function the eigen path asks.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	Then("a non-symmetric matrix has no Cholesky factor, and is told so",
+	     DeclinesChol(oA), TRUE)
+
+	# and the check tightened the right thing rather than everything
+	aGood = [ [6,2,1], [2,5,2], [1,2,4] ]
+	oG = new stzMatrix(aGood)
+	aEye3 = [ [1,0,0], [0,1,0], [0,0,1] ]
+	Then("a genuinely SPD matrix still factors",
+	     SameMat4(MatMul4(aGood, oG.CholeskyInverse()), aEye3), TRUE)
+EndScenario()
+
+
 Summary()
 
 func SumSq(aD, ay, c1, c2)
@@ -198,3 +274,64 @@ func Rnd6(n)
 	return ceil(n * 1000000 - 0.5) / 1000000
 func Rnd8(n)
 	return ceil(n * 100000000 - 0.5) / 100000000
+
+func SameMat4(aX, aY)
+	for _s4I_ = 1 to len(aX)
+		for _s4J_ = 1 to len(aX[1])
+			if fabs(aX[_s4I_][_s4J_] - aY[_s4I_][_s4J_]) > 0.000001
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func MatMul4(aX, aY)
+	_m4R_ = []
+	for _m4I_ = 1 to len(aX)
+		_m4Row_ = []
+		for _m4J_ = 1 to len(aY[1])
+			_m4S_ = 0
+			for _m4T_ = 1 to len(aY)
+				_m4S_ += aX[_m4I_][_m4T_] * aY[_m4T_][_m4J_]
+			next
+			_m4Row_ + _m4S_
+		next
+		_m4R_ + _m4Row_
+	next
+	return _m4R_
+
+func DeclinesChol(oM)
+	_dcB_ = FALSE
+	try
+		oM.CholeskyInverse()
+	catch
+		_dcB_ = TRUE
+	done
+	return _dcB_
+
+func DeclinesEigen(oM)
+	_deB_ = FALSE
+	try
+		oM.MatrixPower(-1)
+	catch
+		_deB_ = TRUE
+	done
+	return _deB_
+
+func DeclinesQR(oM)
+	_dqB_ = FALSE
+	try
+		oM.QRInverse()
+	catch
+		_dqB_ = TRUE
+	done
+	return _dqB_
+
+func WhyQRRefused(oM)
+	_wqS_ = ""
+	try
+		oM.QRInverse()
+	catch
+		_wqS_ = cCatchError
+	done
+	return _wqS_

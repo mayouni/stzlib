@@ -2474,6 +2474,62 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- INVERTING A QR DECOMPOSITION: the route for a matrix with no symmetry --
+	#
+	# A = Q R with Q orthogonal and R upper triangular, so A^-1 = R^-1 Q': one
+	# back-substitution per column, no iteration anywhere.
+	#
+	# -- THE GAP THIS FILLS, WHICH IS WHY IT EXISTS --
+	#
+	# There are four routes to an inverse here now, and until this one the plain
+	# general square case had no fast road at all:
+	#
+	#     CholeskyInverse()    symmetric positive definite ONLY    fastest
+	#     MatrixPower(-1)      symmetric ONLY
+	#     QRInverse()          any full-rank square or tall        no symmetry needed
+	#     PseudoInverse()      everything, including rank-deficient    slowest
+	#
+	# A transition matrix, a Jacobian, a change of basis -- these are symmetric only by
+	# accident, so the first two decline and the SVD was all that was left.
+	#
+	# -- AND FOR A TALL MATRIX THE SAME FORMULA IS THE PSEUDO-INVERSE --
+	#
+	# Unchanged, not adapted. When A is m-by-n with m > n and full column rank,
+	# R^-1 Q' IS the Moore-Penrose inverse, which is why LeastSquares has always been a
+	# QR solve underneath. Building it column by column just makes the operator itself
+	# available rather than one solution at a time.
+	def QRInverse()
+		if @nRows = 0 or @nCols = 0 or @nRows < @nCols
+			StzRaise("QRInverse: this needs at least as many rows as columns. A wide " +
+				"matrix has no QR inverse in this sense -- PseudoInverse() is the one " +
+				"that answers for every shape.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pQiV_ = StzEngineMatrixQRInverse(@pEngineMatrix)
+		if _pQiV_ = NULL
+			StzRaise("QRInverse: refused -- this matrix is rank deficient, so R has a " +
+				"diagonal entry at rounding level and back-substituting through it " +
+				"would return confident garbage. Use PseudoInverse(): a rank-deficient " +
+				"system has infinitely many least-squares solutions, and picking the " +
+				"minimum-norm one needs singular values rather than a triangular factor.")
+		ok
+		_aQiV_ = []
+		for _iQi_ = 1 to @nCols
+			_aRowQi_ = []
+			for _jQi_ = 1 to @nRows
+				_aRowQi_ + StzEngineMatrixGet(_pQiV_, _iQi_ - 1, _jQi_ - 1)
+			next
+			_aQiV_ + _aRowQi_
+		next
+		StzEngineMatrixFree(_pQiV_)
+		return _aQiV_
+
+		def QRInverseQ()
+			return new stzMatrix(This.QRInverse())
+
 	# -- INVERTING A CHOLESKY DECOMPOSITION: the same inverse, the cheapest road --
 	#
 	# A = L L' for a symmetric positive-definite A, and once you have that triangular

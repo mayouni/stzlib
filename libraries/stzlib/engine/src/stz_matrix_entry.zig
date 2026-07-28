@@ -32,6 +32,7 @@ comptime {
     @export(&matrix.stz_matrix_low_rank, .{ .name = "stz_matrix_low_rank" });
     @export(&matrix.stz_matrix_matrix_power, .{ .name = "stz_matrix_matrix_power" });
     @export(&matrix.stz_matrix_cholesky_inverse, .{ .name = "stz_matrix_cholesky_inverse" });
+    @export(&matrix.stz_matrix_qr_inverse, .{ .name = "stz_matrix_qr_inverse" });
     @export(&matrix.stz_matrix_cholesky_factor_inverse, .{ .name = "stz_matrix_cholesky_factor_inverse" });
     @export(&matrix.stz_matrix_eigen_reconstruct, .{ .name = "stz_matrix_eigen_reconstruct" });
     @export(&matrix.stz_matrix_min_norm_solve, .{ .name = "stz_matrix_min_norm_solve" });

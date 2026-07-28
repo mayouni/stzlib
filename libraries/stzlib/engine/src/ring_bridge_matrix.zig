@@ -164,6 +164,10 @@ fn ring_CholeskyFactorInverse(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_cholesky_factor_inverse(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_QrInverse(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_qr_inverse(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 fn ring_MinNormSolve(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_min_norm_solve(getMC(p, 1), getMC(p, 2));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -277,6 +281,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixlowrank", .func = &ring_LowRank },
         .{ .name = "stzengine" ++ "matrixmatrixpower", .func = &ring_MatrixPower },
         .{ .name = "stzengine" ++ "matrixcholeskyinverse", .func = &ring_CholeskyInverse },
+        .{ .name = "stzengine" ++ "matrixqrinverse", .func = &ring_QrInverse },
         .{ .name = "stzengine" ++ "matrixcholeskyfactorinverse", .func = &ring_CholeskyFactorInverse },
         .{ .name = "stzengine" ++ "matrixeigenreconstruct", .func = &ring_EigenReconstruct },
         .{ .name = "stzengine" ++ "matrixminnormsolve", .func = &ring_MinNormSolve },
