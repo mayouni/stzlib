@@ -514,6 +514,73 @@ Scenario("...and then ANY real power follows, which MatrixPower could not give")
 	Then("...and (A^0.25)^2 is A^0.5", SameMat(MatMul(aQuarter, aQuarter), aHalf), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX SINE AND COSINE -- and these need nothing beneath them")
+	# Scaling with the double-angle recurrences: scale A down until its norm is small,
+	# where a handful of Taylor terms is exact to rounding, then climb back with
+	#
+	#     cos(2X) = 2 cos(X)^2 - I        sin(2X) = 2 sin(X) cos(X)
+	#
+	# GeneralSquareRoot() needed a Schur form, MatrixLog() needed the square root, and
+	# GeneralPower() needed the logarithm. THESE NEED NONE OF IT -- no eigenvalues, no
+	# triangularisation, no factorisation at all. Worth saying, because three scenarios
+	# in a row might suggest a house style: a decomposition is reached for when the
+	# algorithm requires one, and here it does not.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	aS = oA.MatrixSin()
+	aC = oA.MatrixCos()
+
+	# THE STRONGEST CHECK AVAILABLE for this pair, and it cannot be satisfied by
+	# accident: both come from a scaled Taylor series climbed back through nine
+	# doublings, so anything wrong in either the series or the recurrence surfaces here
+	# rather than hiding in a plausible-looking matrix.
+	#
+	# Note it is the MATRIX identity: sin(A)^2 is the matrix squared, which for a
+	# non-symmetric A is a very different object from squaring each entry.
+	Then("sin(A)^2 + cos(A)^2 is the identity",
+	     SameMat(MatAdd(MatMul(aS, aS), MatMul(aC, aC)), aI4), TRUE)
+
+	oZero = new stzMatrix([ [0,0], [0,0] ])
+	Then("cos(0) is the identity", SameMat(oZero.MatrixCos(), [ [1,0], [0,1] ]), TRUE)
+	Then("...and sin(0) is zero", SameMat(oZero.MatrixSin(), [ [0,0], [0,0] ]), TRUE)
+EndScenario()
+
+Scenario("...with exact answers on a nilpotent matrix, and the right parity")
+	# N^3 = 0 truncates both series exactly: sin(N) = N, and cos(N) = I - N^2/2. A hard
+	# target -- an approximation that was merely close would miss the exact -0.5, and a
+	# series that had quietly stopped one term early would miss it too.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("sin of a nilpotent matrix is the matrix itself",
+	     SameMat(oNil.MatrixSin(), aNil), TRUE)
+	Then("...and its cosine is I - N^2/2 exactly",
+	     SameMat(oNil.MatrixCos(), [ [1,0,-0.5], [0,1,0], [0,0,1] ]), TRUE)
+
+	# even and odd, as functions of a MATRIX
+	aA = [ [0.9,1.4,-0.3], [0.0,0.6,1.1], [-0.7,0.1,0.8] ]
+	oA = new stzMatrix(aA)
+	oNeg = new stzMatrix(Negated(aA))
+	Then("cosine is even", SameMat(oA.MatrixCos(), oNeg.MatrixCos()), TRUE)
+	Then("...and sine is odd", SameMat(oA.MatrixSin(), Negated(oNeg.MatrixSin())), TRUE)
+EndScenario()
+
+Scenario("...and on a SYMMETRIC matrix they agree with the eigendecomposition")
+	# Q cos(L) Q' -- a completely different algorithm, available only because this
+	# particular matrix happens to be symmetric. Scaled Taylor with double-angle
+	# recurrences against a Jacobi eigendecomposition: nothing shared below the matrix,
+	# and one answer.
+	#
+	# It is the same cross-check the square root got, and it is the one that says these
+	# are computing the standard thing rather than something adjacent to it.
+	aSym = [ [6,2,1], [2,5,2], [1,2,4] ]
+	oSym = new stzMatrix(aSym)
+	Then("the cosine matches Q cos(L) Q'",
+	     SameMat(oSym.MatrixCos(), CosViaEigen(oSym)), TRUE)
+EndScenario()
+
+
 
 
 
@@ -704,3 +771,33 @@ func WhyNoLog()
 		_wlS_ = cCatchError
 	done
 	return _wlS_
+
+func MatAdd(aX, aY)
+	_adR_ = []
+	for _adI_ = 1 to len(aX)
+		_adRow_ = []
+		for _adJ_ = 1 to len(aX[1])
+			_adRow_ + (aX[_adI_][_adJ_] + aY[_adI_][_adJ_])
+		next
+		_adR_ + _adRow_
+	next
+	return _adR_
+
+# Q cos(L) Q' from the symmetric eigendecomposition -- the independent route
+func CosViaEigen(oM)
+	_ceV_ = oM.EigenValues()
+	_ceQ_ = oM.EigenVectors()
+	_ceN_ = len(_ceV_)
+	_ceR_ = []
+	for _ceI_ = 1 to _ceN_
+		_ceRow_ = []
+		for _ceJ_ = 1 to _ceN_
+			_ceS_ = 0
+			for _ceT_ = 1 to _ceN_
+				_ceS_ += _ceQ_[_ceI_][_ceT_] * cos(_ceV_[_ceT_]) * _ceQ_[_ceJ_][_ceT_]
+			next
+			_ceRow_ + _ceS_
+		next
+		_ceR_ + _ceRow_
+	next
+	return _ceR_

@@ -382,6 +382,31 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX SINE. Scaling with the double-angle recurrences -- no decomposition of
+/// any kind, and nothing to refuse: every real matrix has one.
+pub fn stz_matrix_sin(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.sinGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// THE MATRIX COSINE.
+pub fn stz_matrix_cos(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.cosGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE MATRIX LOGARITHM: the X with exp(X) = A, by inverse scaling and squaring.
 ///
 /// Null when A is singular -- exp is never singular, so nothing maps to such a matrix

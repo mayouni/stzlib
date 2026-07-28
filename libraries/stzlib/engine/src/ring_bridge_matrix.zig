@@ -176,6 +176,14 @@ fn ring_SqrtGeneral(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_sqrt_general(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_MatrixSin(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_sin(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_MatrixCos(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_cos(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 fn ring_MatrixLog(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_log(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -319,6 +327,8 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixsqrtgeneral", .func = &ring_SqrtGeneral },
         .{ .name = "stzengine" ++ "matrixexp", .func = &ring_MatrixExp },
         .{ .name = "stzengine" ++ "matrixlog", .func = &ring_MatrixLog },
+        .{ .name = "stzengine" ++ "matrixsin", .func = &ring_MatrixSin },
+        .{ .name = "stzengine" ++ "matrixcos", .func = &ring_MatrixCos },
         .{ .name = "stzengine" ++ "matrixpowergeneral", .func = &ring_PowerGeneral },
         .{ .name = "stzengine" ++ "matrixschurt", .func = &ring_SchurT },
         .{ .name = "stzengine" ++ "matrixschurinverse", .func = &ring_SchurInverse },

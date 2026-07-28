@@ -2514,6 +2514,68 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX SINE AND COSINE.
+	#
+	# -- SCALING AND THE DOUBLE-ANGLE RECURRENCES --
+	#
+	# The Taylor series converge everywhere, but slowly for a large matrix and with
+	# cancellation that eats the answer. So the same trick as MatrixExp(): scale A down
+	# until its norm is small, where a handful of terms is exact to rounding, then climb
+	# back with
+	#
+	#     cos(2X) = 2 cos(X)^2 - I
+	#     sin(2X) = 2 sin(X) cos(X)
+	#
+	# The two are computed TOGETHER underneath, because the sine's recurrence needs the
+	# cosine -- so asking for both costs no more than asking for one.
+	#
+	# -- AND THESE NEED NOTHING BENEATH THEM --
+	#
+	# GeneralSquareRoot() needed a Schur form, MatrixLog() needed the square root, and
+	# GeneralPower() needed the logarithm. These need none of it: no eigenvalues, no
+	# triangularisation, no factorisation at all.
+	#
+	# Worth saying, because three entries in a row might suggest a house style. A
+	# decomposition is reached for when the algorithm requires one, and here it does not.
+	#
+	# Nothing is refused: every real matrix has a sine and a cosine. There is no
+	# singularity to trip over and no eigenvalue whose real answer fails to exist.
+	#
+	# THIS IS sin OF THE MATRIX, not of its entries -- the same distinction Power() and
+	# MatrixPower() carry. sin(A)^2 here means the matrix squared, and for a
+	# non-symmetric A that is a very different object from squaring each entry.
+	def MatrixSin()
+		return This._Trig("sin")
+
+		def MatrixSinQ()
+			return new stzMatrix(This.MatrixSin())
+
+	def MatrixCos()
+		return This._Trig("cos")
+
+		def MatrixCosQ()
+			return new stzMatrix(This.MatrixCos())
+
+	def _Trig(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixSin/MatrixCos: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "sin"
+			_pTgV_ = StzEngineMatrixSin(@pEngineMatrix)
+		else
+			_pTgV_ = StzEngineMatrixCos(@pEngineMatrix)
+		ok
+		if _pTgV_ = NULL
+			StzRaise("MatrixSin/MatrixCos: the engine refused this matrix.")
+		ok
+		_aTgV_ = This._MatrixFromHandle(_pTgV_)
+		StzEngineMatrixFree(_pTgV_)
+		return _aTgV_
+
 	# THE MATRIX LOGARITHM: the X with MatrixExp(X) = A.
 	#
 	# -- INVERSE SCALING AND SQUARING, the exponential's method run backwards --
