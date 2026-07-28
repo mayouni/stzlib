@@ -2474,6 +2474,108 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- INVERTING AN EIGENDECOMPOSITION, which is one power among several --
+	#
+	# A = Q L Q', so A^p = Q L^p Q' -- apply the power to the EIGENVALUES and reassemble.
+	# Undoing the decomposition is p = 1. The inverse is p = -1. But nothing in the
+	# machinery cares which function reaches the diagonal, and the two that earn their
+	# keep are the ones no other decomposition here offers:
+	#
+	#     MatrixSquareRoot()      p =  0.5
+	#     WhiteningMatrix()       p = -0.5
+	#
+	# So the inverse arrives as a special case rather than as the feature.
+	#
+	# -- NOT Power(), WHICH IS NEXT DOOR AND MEANS SOMETHING ELSE --
+	#
+	# Power(n) raises every ELEMENT to a power. This raises the MATRIX to one. They
+	# agree only for a diagonal matrix, and they are one keystroke apart, so the names
+	# have to carry the difference.
+	def MatrixPower(p)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixPower: this needs a square matrix -- an eigendecomposition " +
+				"of anything else does not exist. For a rectangular one, LowRank() and " +
+				"PseudoInverse() are the operations that do.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pMpV_ = StzEngineMatrixMatrixPower(@pEngineMatrix, p)
+		if _pMpV_ = NULL
+			StzRaise("MatrixPower: refused. The matrix must be symmetric; a negative " +
+				"power also needs it non-singular, and a fractional power needs every " +
+				"eigenvalue non-negative. Refused rather than returned as NaN, because " +
+				"a NaN travels quietly through everything downstream.")
+		ok
+		_aMpV_ = This._MatrixFromHandle(_pMpV_)
+		StzEngineMatrixFree(_pMpV_)
+		return _aMpV_
+
+		def MatrixPowerQ(p)
+			return new stzMatrix(This.MatrixPower(p))
+
+	# THE PRINCIPAL SQUARE ROOT: symmetric, positive semi-definite, and unique.
+	#
+	# Cholesky() also gives a "square root" -- L with L L' = A -- but that one is
+	# TRIANGULAR and one of many. Both square back to A; only this one is itself a
+	# covariance-shaped object you can hand to something expecting symmetry.
+	def MatrixSquareRoot()
+		return This.MatrixPower(0.5)
+
+		def MatrixSquareRootQ()
+			return new stzMatrix(This.MatrixSquareRoot())
+
+	# THE WHITENING TRANSFORM, A^-0.5: the matrix W for which W A W is the identity.
+	#
+	# Named for what it is for rather than for the arithmetic. Given a covariance, it is
+	# the transform under which every direction has unit variance and none correlate --
+	# the operation no other decomposition here provides, and the reason a general power
+	# is worth more than an inverse.
+	def WhiteningMatrix()
+		return This.MatrixPower(-0.5)
+
+		def WhiteningMatrixQ()
+			return new stzMatrix(This.WhiteningMatrix())
+
+	# A rebuilt from its k leading eigenpairs. For a symmetric positive-definite matrix
+	# this and LowRank() agree exactly -- the singular values ARE the eigenvalues -- and
+	# they are kept separate so that a caller thinking in eigenpairs need not reach for
+	# a different factorisation to ask the question.
+	def EigenReconstructed(k)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("EigenReconstructed: this needs a square matrix.")
+		ok
+		if NOT isNumber(k) or k < 1
+			StzRaise("EigenReconstructed: k must be at least 1.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pErV_ = StzEngineMatrixEigenReconstruct(@pEngineMatrix, k)
+		if _pErV_ = NULL
+			StzRaise("EigenReconstructed: refused -- the matrix must be symmetric.")
+		ok
+		_aErV_ = This._MatrixFromHandle(_pErV_)
+		StzEngineMatrixFree(_pErV_)
+		return _aErV_
+
+		def EigenReconstructedQ(k)
+			return new stzMatrix(This.EigenReconstructed(k))
+
+	# read an engine handle back as a Ring list, in this matrix's own shape
+	def _MatrixFromHandle(pHandle)
+		_aMfh_ = []
+		for _iMfh_ = 1 to @nRows
+			_aRowMfh_ = []
+			for _jMfh_ = 1 to @nCols
+				_aRowMfh_ + StzEngineMatrixGet(pHandle, _iMfh_ - 1, _jMfh_ - 1)
+			next
+			_aMfh_ + _aRowMfh_
+		next
+		return _aMfh_
+
 	# -- THE OTHER SENSE OF INVERTING AN SVD: the best rank-k approximation --
 	#
 	# PseudoInverse() below answers "undo this transformation". This answers "keep the k

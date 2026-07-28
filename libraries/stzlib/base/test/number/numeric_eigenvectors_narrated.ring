@@ -238,6 +238,66 @@ Scenario("stzComplex follows the name-form laws too")
 	Then("DividedBy() returns data too", isList(oA.DividedBy(2)), TRUE)
 EndScenario()
 
+Scenario("INVERTING AN EIGENDECOMPOSITION IS ONE POWER AMONG SEVERAL")
+	# A = Q L Q', so A^p = Q L^p Q' -- apply the power to the EIGENVALUES and reassemble.
+	# Undoing the decomposition is p = 1, and the inverse is p = -1. But nothing in the
+	# machinery cares which function reaches the diagonal, so the inverse arrives as a
+	# special case rather than as the feature.
+	aA = [ [6,2,1], [2,5,2], [1,2,4] ]
+	oM = new stzMatrix(aA)
+	aI = [ [1,0,0], [0,1,0], [0,0,1] ]
+
+	Then("p = 1 rebuilds the matrix", SameMat(oM.MatrixPower(1), aA), TRUE)
+	Then("p = -1 is the inverse", SameMat(MatMul(aA, oM.MatrixPower(-1)), aI), TRUE)
+
+	# THE TWO THAT EARN THEIR KEEP, because no other decomposition here offers them.
+	aRoot = oM.MatrixSquareRoot()
+	Then("p = 0.5 squares back to the matrix", SameMat(MatMul(aRoot, aRoot), aA), TRUE)
+
+	# AND IT IS SYMMETRIC, which is the difference that matters. Cholesky also gives a
+	# "square root" -- L with L L' = A -- but that one is TRIANGULAR and one of many.
+	# This is the principal square root: symmetric, positive semi-definite, unique.
+	# Both square back to A; only this one is itself a covariance-shaped object.
+	Then("...and unlike Cholesky's factor it is symmetric", SymmetricMat(aRoot), TRUE)
+
+	aW = oM.WhiteningMatrix()
+	Then("p = -0.5 whitens: W A W is the identity",
+	     SameMat(MatMul(MatMul(aW, aA), aW), aI), TRUE)
+EndScenario()
+
+Scenario("...and Power() next door means something else entirely")
+	# THE TRAP THIS SCENARIO EXISTS TO PIN. Power(n) raises every ELEMENT to a power;
+	# MatrixPower(p) raises the MATRIX to one. They agree only for a diagonal matrix,
+	# and they are one keystroke apart.
+	#
+	# MEASURED on the same matrix, first entry:
+	#
+	#     Power(0.5)        2.449490     which is sqrt(6), the element
+	#     MatrixSquareRoot  2.406075     which is not
+	#
+	# Two plausible numbers, and nothing in either result announces which question was
+	# asked. Hence two names that cannot be confused for one another.
+	aA = [ [6,2,1], [2,5,2], [1,2,4] ]
+
+	oElem = new stzMatrix(aA)
+	oElem.Power(0.5)
+	oMat = new stzMatrix(aA)
+
+	Then("the elementwise power takes the root of each entry",
+	     fabs(oElem.Content()[1][1] - sqrt(6)) < 0.000001, TRUE)
+	Then("...and the matrix power does not",
+	     fabs(oMat.MatrixSquareRoot()[1][1] - sqrt(6)) > 0.01, TRUE)
+
+	# refused rather than returned as NaN, because a NaN travels quietly downstream
+	Then("a non-symmetric matrix has no such decomposition",
+	     RefusesPower([[1,2],[0,1]], 1), TRUE)
+	Then("...and a fractional power of an indefinite one has no real answer",
+	     RefusesPower([[1,2,0],[2,1,0],[0,0,1]], 0.5), TRUE)
+	Then("...though an integer power of the very same matrix is fine",
+	     RefusesPower([[1,2,0],[2,1,0],[0,0,1]], -1), FALSE)
+EndScenario()
+
+
 Summary()
 
 func Rnd9(n)
@@ -309,3 +369,48 @@ func WhyVec(oM)
 		s = cCatchError
 	done
 	return s
+
+func SameMat(aX, aY)
+	for _smI_ = 1 to len(aX)
+		for _smJ_ = 1 to len(aX[1])
+			if fabs(aX[_smI_][_smJ_] - aY[_smI_][_smJ_]) > 0.000001
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func SymmetricMat(aX)
+	for _syI_ = 1 to len(aX)
+		for _syJ_ = _syI_+1 to len(aX)
+			if fabs(aX[_syI_][_syJ_] - aX[_syJ_][_syI_]) > 0.000001
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func MatMul(aX, aY)
+	_mmR_ = []
+	for _mmI_ = 1 to len(aX)
+		_mmRow_ = []
+		for _mmJ_ = 1 to len(aY[1])
+			_mmS_ = 0
+			for _mmT_ = 1 to len(aY)
+				_mmS_ += aX[_mmI_][_mmT_] * aY[_mmT_][_mmJ_]
+			next
+			_mmRow_ + _mmS_
+		next
+		_mmR_ + _mmRow_
+	next
+	return _mmR_
+
+func RefusesPower(aX, p)
+	_rpB_ = FALSE
+	try
+		_rpO_ = new stzMatrix(aX)
+		_rpO_.MatrixPower(p)
+	catch
+		_rpB_ = TRUE
+	done
+	return _rpB_
