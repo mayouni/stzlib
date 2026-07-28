@@ -40,6 +40,9 @@ const std = @import("std");
 const umap = @import("umap.zig");
 const nn = @import("nn.zig");
 const density = @import("density.zig");
+pub const decoder = @import("decoder.zig");
+pub const Decoder = decoder.Decoder;
+pub const trainDecoder = decoder.trainDecoder;
 
 pub const Options = struct {
     n_neighbors: usize = 15,
@@ -437,179 +440,11 @@ pub fn run(
 }
 
 
-// ─── INVERSE TRANSFORM: from the picture back to the data ────────────────────
-//
-// Everything else in this family runs one way -- data to embedding. This runs the
-// other, and it is the only direction that needs a second model, because the forward
-// map threw information away and no amount of cleverness gets it back.
-//
-// ── WHAT IT CAN AND CANNOT BE ──
-//
-// Two dimensions cannot hold thirty. The inverse therefore recovers what the embedding
-// KEPT and invents the rest, and the honest way to say that is with a number: compare
-// its reconstruction against what you would get by simply returning the nearest
-// training row. If a trained decoder cannot beat that lookup it has added nothing but
-// a model to maintain.
-//
-// ── WHY A SEPARATE MODEL RATHER THAN A JOINT ONE ──
-//
-// The paper's parametric UMAP can be trained as an autoencoder, with a reconstruction
-// loss added to the UMAP objective. That makes the embedding MORE invertible and less
-// faithful to the neighbourhood structure -- a real trade, and one that changes the
-// picture the caller already looked at. Training the decoder afterwards, against the
-// frozen embedding, leaves the map exactly as it was. The map is the deliverable; the
-// inverse is a convenience on top of it.
-
-pub const Decoder = struct {
-    weights: []f64,
-    shape: []f64,
-    /// mean training loss per epoch, so a caller can see it went down
-    loss: []f64,
-    allocator: std.mem.Allocator,
-
-    pub fn deinit(self: *Decoder) void {
-        self.allocator.free(self.weights);
-        self.allocator.free(self.shape);
-        self.allocator.free(self.loss);
-        self.allocator.destroy(self);
-    }
-};
-
-/// Train g(y) ~ x against the frozen embedding.
-///
-/// BOTH ENDS ARE STANDARDISED AND BOTH ARE FOLDED BACK, for the same reason the encoder
-/// standardises its input: a tanh fed coordinates of magnitude 400 -- which parametric
-/// embeddings reach -- is flat, and an MSE against targets of magnitude 20 starts
-/// enormous. Folding means the returned network maps RAW embedding coordinates to RAW
-/// data coordinates, so `ptsne.transform` inverts with no scaling parameters to carry.
-///
-///     input  fold:  w' = w/s_y,   b' = b - sum(w * m_y / s_y)
-///     output fold:  w'' = w * s_x, b'' = b * s_x + m_x
-pub fn trainDecoder(
-    alloc: std.mem.Allocator,
-    y: []const f64,
-    x: []const f64,
-    n: usize,
-    dims: usize,
-    d: usize,
-    hidden: []const usize,
-    lr: f64,
-    epochs: usize,
-    seed: u64,
-) !*Decoder {
-    if (n < 2 or dims == 0 or d == 0) return Error.TooFewPoints;
-    if (hidden.len == 0) return Error.BadShape;
-
-    const n_layers = hidden.len + 1;
-    const layers = try alloc.alloc(nn.Layer, n_layers);
-    defer alloc.free(layers);
-
-    var total_w: usize = 0;
-    var prev = dims;
-    for (hidden, 0..) |h, i| {
-        layers[i] = .{ .units = h, .prev = prev, .kind = .tanh, .w = &[_]f64{}, .b = &[_]f64{} };
-        total_w += h * prev + h;
-        prev = h;
-    }
-    layers[n_layers - 1] = .{ .units = d, .prev = prev, .kind = .linear, .w = &[_]f64{}, .b = &[_]f64{} };
-    total_w += d * prev + d;
-
-    const weights = try alloc.alloc(f64, total_w);
-    errdefer alloc.free(weights);
-
-    var rng = Rng.init(seed);
-    var at: usize = 0;
-    for (layers) |*l| {
-        const fan_in: f64 = @floatFromInt(l.prev);
-        const fan_out: f64 = @floatFromInt(l.units);
-        const lim = @sqrt(6.0 / (fan_in + fan_out));
-        l.w = weights[at..][0 .. l.units * l.prev];
-        at += l.units * l.prev;
-        l.b = weights[at..][0..l.units];
-        at += l.units;
-        for (l.w) |*v| v.* = (rng.uniform() * 2 - 1) * lim;
-        for (l.b) |*v| v.* = 0;
-    }
-    var net = nn.Net{ .n_inputs = dims, .layers = layers };
-
-    // standardise both ends
-    const my = try alloc.alloc(f64, dims);
-    defer alloc.free(my);
-    const sy = try alloc.alloc(f64, dims);
-    defer alloc.free(sy);
-    const ys = try alloc.alloc(f64, n * dims);
-    defer alloc.free(ys);
-    standardise(y, n, dims, my, sy, ys);
-
-    const mx = try alloc.alloc(f64, d);
-    defer alloc.free(mx);
-    const sx = try alloc.alloc(f64, d);
-    defer alloc.free(sx);
-    const xs = try alloc.alloc(f64, n * d);
-    defer alloc.free(xs);
-    standardise(x, n, d, mx, sx, xs);
-
-    const loss = try alloc.alloc(f64, epochs);
-    errdefer alloc.free(loss);
-    try nn.train(alloc, &net, ys, xs, n, d, lr, epochs, loss);
-
-    // fold the input scaling into the first layer
-    {
-        const l0 = &layers[0];
-        for (0..l0.units) |u| {
-            var shift: f64 = 0;
-            for (0..l0.prev) |q| {
-                const w0 = l0.w[u * l0.prev + q];
-                shift += w0 * my[q] / sy[q];
-                l0.w[u * l0.prev + q] = w0 / sy[q];
-            }
-            l0.b[u] -= shift;
-        }
-    }
-    // and the output scaling into the last
-    {
-        const ln = &layers[n_layers - 1];
-        for (0..ln.units) |u| {
-            for (0..ln.prev) |q| ln.w[u * ln.prev + q] *= sx[u];
-            ln.b[u] = ln.b[u] * sx[u] + mx[u];
-        }
-    }
-
-    const shape = try alloc.alloc(f64, 2 + n_layers * 2);
-    errdefer alloc.free(shape);
-    shape[0] = @floatFromInt(dims);
-    shape[1] = @floatFromInt(n_layers);
-    for (layers, 0..) |l, i| {
-        shape[2 + i * 2] = @floatFromInt(l.units);
-        shape[3 + i * 2] = @floatFromInt(@intFromEnum(l.kind));
-    }
-
-    const out = try alloc.create(Decoder);
-    out.* = .{ .weights = weights, .shape = shape, .loss = loss, .allocator = alloc };
-    return out;
-}
-
-fn standardise(v: []const f64, n: usize, w: usize, mean: []f64, sdev: []f64, out: []f64) void {
-    for (0..w) |t| {
-        var m: f64 = 0;
-        for (0..n) |i| m += v[i * w + t];
-        m /= @floatFromInt(n);
-        var q: f64 = 0;
-        for (0..n) |i| {
-            const z = v[i * w + t] - m;
-            q += z * z;
-        }
-        const sd = @sqrt(q / @as(f64, @floatFromInt(n)));
-        mean[t] = m;
-        sdev[t] = if (sd > 1e-12) sd else 1.0;
-        for (0..n) |i| out[i * w + t] = (v[i * w + t] - m) / sdev[t];
-    }
-}
-
 // ─── tests ───────────────────────────────────────────────────────────────────
 
 const testing = std.testing;
 const ptsne = @import("ptsne.zig");
+const tsne = @import("tsne.zig");
 
 fn blobs(alloc: std.mem.Allocator, per: usize, d: usize) ![]f64 {
     const n = per * 3;
@@ -1574,12 +1409,25 @@ test "A FREE-FORM FIT INVERTS TOO, and rather better" {
     // MEASURED: 0.0858 for the free-form embedding against 0.6529 for the parametric
     // one -- SEVENFOLD BETTER on identical data.
     //
-    // The reason is worth knowing rather than being a curiosity. A free-form layout
-    // answers to nothing, so the optimiser can lay this curve out cleanly and y -> x
-    // comes out a well-behaved function. A parametric encoder is CONSTRAINED to be
-    // smooth in x, and the embedding it settles on can be more contorted -- harder to
-    // invert, not easier. The property that makes the forward transform exact is not
-    // the property that makes the inverse easy.
+    // I OFFERED A TIDY EXPLANATION FOR THIS AND IT DID NOT SURVIVE THE NEXT
+    // MEASUREMENT. The story was that a parametric encoder is CONSTRAINED to be smooth
+    // in x, so it settles somewhere contorted and is harder to invert -- that the
+    // property making the forward transform exact is not the one making the inverse
+    // easy. Then t-SNE was measured on the same curve:
+    //
+    //     fit                24 points     90 points
+    //     t-SNE                0.1066        0.2993
+    //     t-SNE parametric     0.0685        0.0212    <- the BEST of the four
+    //     UMAP                 0.5450        0.0858
+    //     UMAP parametric      0.2191        0.6529    <- the worst
+    //
+    // Parametric t-SNE is parametric and inverts best of all, by some way. So being a
+    // network is not what hurt parametric UMAP here.
+    //
+    // What survives is the observation without the theory: INVERTIBILITY VARIES BY
+    // ALGORITHM, thirtyfold across four methods that all produce a 2-D embedding of the
+    // same data, and it is not predicted by whether the encoder is parametric. Worth
+    // measuring on your own data rather than reasoning about from the machinery.
     try testing.expect(e_ff.decoder < e_pa.decoder / 2);
     // and here the decoder beats the lookup even at 90 points, where the parametric
     // one did not
@@ -1633,4 +1481,79 @@ test "a decoder with no hidden layer is refused" {
     for (emb, 0..) |*v, i| v.* = @floatFromInt(i % 7);
     const none = [_]usize{};
     try testing.expectError(Error.BadShape, trainDecoder(alloc, emb, x, n, 2, d, &none, 0.02, 10, 1));
+}
+
+test "t-SNE INVERTS TOO, and the parametric one best of the four" {
+    const alloc = testing.allocator;
+    const d = 6;
+    const dh = [_]usize{ 64, 64 };
+    const hidden = [_]usize{ 24, 24 };
+    const n = 90;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+
+    // The decoder never inverts the encoder -- it regresses (position, row) pairs -- so
+    // t-SNE needs nothing new. The module moved out of pumap.zig once that became
+    // obvious, since a name pointing at one caller would mislead the next.
+    var tf = try tsne.run(alloc, x, n, d, .{ .perplexity = 15, .iterations = 1000 });
+    defer tf.deinit();
+    var tp = try ptsne.run(alloc, x, n, d, &hidden, .{ .perplexity = 15, .epochs = 600 });
+    defer tp.deinit();
+
+    var d_tf = try trainDecoder(alloc, tf.embedding, x, n, 2, d, &dh, 0.02, 15000, 11);
+    defer d_tf.deinit();
+    var d_tp = try trainDecoder(alloc, tp.embedding, x, n, 2, d, &dh, 0.02, 15000, 11);
+    defer d_tp.deinit();
+
+    const e_tf = try midpointErrors(alloc, tf.embedding, x, n, d, d_tf);
+    const e_tp = try midpointErrors(alloc, tp.embedding, x, n, d, d_tp);
+
+    // MEASURED at 90 points: free-form t-SNE 0.2993 against a lookup at 0.7634, and
+    // parametric t-SNE 0.0212 against 0.2446. Both beat the lookup, and the parametric
+    // one is the most accurate inverse of the four methods tried.
+    try testing.expect(e_tf.decoder < e_tf.lookup);
+    try testing.expect(e_tp.decoder < e_tp.lookup);
+    try testing.expect(e_tp.decoder < e_tf.decoder);
+}
+
+test "THE DECODER BEATS A LOOKUP IN SEVEN CELLS OF EIGHT" {
+    const alloc = testing.allocator;
+    const d = 6;
+    const dh = [_]usize{ 64, 64 };
+    const hidden = [_]usize{ 24, 24 };
+
+    // The full table, both sample sizes and all four methods:
+    //
+    //     fit                24 points          90 points
+    //                      dec    lookup      dec    lookup
+    //     t-SNE           0.1066  0.9025    0.2993  0.7634
+    //     t-SNE param     0.0685  0.9186    0.0212  0.2446
+    //     UMAP            0.5450  1.1516    0.0858  0.2673
+    //     UMAP param      0.2191  0.9886    0.6529  0.4654   <- the only loss
+    //
+    // Which is why the guidance had to be rewritten twice. "Dense data, skip the model
+    // and take the nearest row" was drawn from ONE cell of this table -- the single one
+    // where the lookup wins.
+    //
+    // Pinned here on the sparse end, where every method agrees, so the claim does not
+    // rest on the run-to-run behaviour of any one of them.
+    const n = 24;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+
+    var uf = try umap.run(alloc, x, n, d, .{ .n_neighbors = 6, .epochs = 400 });
+    defer uf.deinit();
+    var tf = try tsne.run(alloc, x, n, d, .{ .perplexity = 5, .iterations = 1000 });
+    defer tf.deinit();
+    var tp = try ptsne.run(alloc, x, n, d, &hidden, .{ .perplexity = 5, .epochs = 600 });
+    defer tp.deinit();
+    var up = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 6, .epochs = 400, .learning_rate = 0.01 });
+    defer up.deinit();
+
+    inline for (.{ uf.embedding, tf.embedding, tp.embedding, up.embedding }) |emb| {
+        var dec = try trainDecoder(alloc, emb, x, n, 2, d, &dh, 0.02, 15000, 11);
+        defer dec.deinit();
+        const e = try midpointErrors(alloc, emb, x, n, d, dec);
+        try testing.expect(e.decoder < e.lookup);
+    }
 }

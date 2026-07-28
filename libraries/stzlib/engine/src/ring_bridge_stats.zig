@@ -16,6 +16,7 @@ const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
+const decoder_mod = @import("decoder.zig");
 const ptsne_mod = @import("ptsne.zig");
 const cmplx = @import("complex.zig");
 const std = @import("std");
@@ -1931,12 +1932,15 @@ fn ring_Pumap(p: *anyopaque) callconv(.c) void {
 
 // ─── INVERSE TRANSFORM: a decoder from the picture back to the data ──────────
 //
-//   StzEnginePumapDecoder(aEmbedding, aX, n, nDims, d, aHidden, nLR, nEpochs, nSeed)
+// Named for the embedding rather than for UMAP, because it regresses (position, row)
+// pairs and has no idea what produced the positions -- t-SNE uses it unchanged.
+//
+//   StzEngineEmbeddingDecoder(aEmbedding, aX, n, nDims, d, aHidden, nLR, nEpochs, nSeed)
 //     -> [ shapeLen, weightLen, lossLen, shape, weights, loss ]
 //
 // The inverse itself is StzEnginePtsneTransform with these weights: a forward pass
 // does not care which direction it is running.
-fn ring_PumapDecoder(p: *anyopaque) callconv(.c) void {
+fn ring_EmbeddingDecoder(p: *anyopaque) callconv(.c) void {
     const y = listToF64(p, 1) orelse {
         rn(p, 0);
         return;
@@ -1973,7 +1977,7 @@ fn ring_PumapDecoder(p: *anyopaque) callconv(.c) void {
     defer allocator.free(hidden);
     for (hv, 0..) |v, i| hidden[i] = @intFromFloat(v);
 
-    var dec = pumap_mod.trainDecoder(allocator, y, x, n, dims, d, hidden, if (lr <= 0) 0.02 else lr, epochs, seed) catch {
+    var dec = decoder_mod.trainDecoder(allocator, y, x, n, dims, d, hidden, if (lr <= 0) 0.02 else lr, epochs, seed) catch {
         rn(p, 0);
         return;
     };
@@ -2176,7 +2180,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelocalradiiofnew", .func = &ring_LocalRadiiOfNew },
     .{ .name = "stzenginetsnetransform", .func = &ring_TsneTransform },
     .{ .name = "stzenginepumap", .func = &ring_Pumap },
-    .{ .name = "stzenginepumapdecoder", .func = &ring_PumapDecoder },
+    .{ .name = "stzengineembeddingdecoder", .func = &ring_EmbeddingDecoder },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
