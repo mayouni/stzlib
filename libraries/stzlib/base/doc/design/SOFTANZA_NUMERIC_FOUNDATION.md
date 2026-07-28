@@ -2718,6 +2718,41 @@ what it refused.
   *Zig trap, second time: a local named `i0` shadows the primitive integer type `i0`. Any
   `iN` or `uN` is a type.*
 
+- **THE MATRIX LOGARITHM (`53307fe9f`)** — *and every real power falls out of it.*
+
+  **Inverse scaling and squaring**, the exponential's method run backwards. A series for
+  log converges only near the identity and a general matrix is not near it, so: take
+  repeated **square roots** until it is, evaluate the series there, and multiply back by
+  `2^k`, since `log(A) = 2^k · log(A^(1/2^k))`.
+
+  ***The square roots are the Schur ones from the previous entry.*** This is the third
+  layer of a single construction — **the Schur form gives the square root, the square root
+  gives the logarithm, and the logarithm with the exponential gives every real power.**
+  Each layer is a few lines because the one beneath it did the work.
+
+  **The series is the Gregory form**, not the obvious one. Expanding in `Y = X − I`
+  converges slowly and only for ‖Y‖ < 1; expanding in `Z = (X − I)(X + I)⁻¹` converges far
+  faster over a far wider region: `log(X) = 2(Z + Z³/3 + Z⁵/5 + …)`. It costs one matrix
+  inverse — which the LU already provides — and is what makes a handful of square roots
+  enough where the naive series would want dozens.
+
+  **And then any real power:** `A^p = exp(p log A)`, two lines in the engine.
+  `symmetricPower` refuses every non-symmetric matrix and this is the answer it could not
+  give. `A^0.5` by this road agrees with the Schur square root by the block-recurrence
+  road to 1e-6 — two algorithms with nothing in common, one answer — and
+  `(A^0.25)² = A^0.5`, which a routine that was not really exponentiating would fail while
+  still passing the squares-back test.
+
+  **Two refusals for two different reasons**, worth separating. A **singular** matrix has
+  no logarithm *at all* — the exponential is never singular, so nothing maps to one. A
+  **negative real** eigenvalue has a logarithm that is merely *complex*, and that refusal
+  arrives from `sqrtGeneral`, where the constraint actually lives.
+
+  *The defective matrix returns with an exact answer:* `exp([[0,1],[0,0]])` is
+  `[[1,1],[0,1]]` exactly (the nilpotent series stops after one term), so the logarithm of
+  `[[1,1],[0,1]]` is `[[0,1],[0,0]]` and nothing else — an exact target on a matrix with
+  one eigenvector, where no eigendecomposition exists to compute it from.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
