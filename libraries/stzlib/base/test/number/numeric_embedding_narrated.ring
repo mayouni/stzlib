@@ -1338,6 +1338,83 @@ Scenario("A RADIUS IS ONLY COMPARABLE TO ANOTHER IN THE SAME SPACE")
 	     oPar.LocalRadiiOf(aFar)[1] > LargestIn(oPar.LocalRadii(), 1, 60) * 100, TRUE)
 EndScenario()
 
+Scenario("SUPERVISED PARAMETRIC UMAP: it works, and only partly")
+	# Supervision was already wired here -- labels reshape the neighbour graph before any
+	# optimiser sees it, so it arrived the moment the parametric form existed and cost no
+	# new code. What was NOT checked until now is HOW MUCH OF IT SURVIVES.
+	#
+	# Random points with alternating labels: no class structure at all, so any separation
+	# is supervision's doing and nothing else's.
+	aD = RandomRows(40, 4)
+	aY = Alternating(40)
+
+	oFree = new stzUMAP(aD)
+	oFree.SetNeighborsQ(6).SetEpochsQ(300).FitQ()
+	oFreeSup = new stzUMAP(aD)
+	oFreeSup.SetNeighborsQ(6).SetEpochsQ(300).LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
+
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oParSup = new stzUMAP(aD)
+	oParSup.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oParSup.LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
+
+	Then("it is parametric AND supervised",
+	     oParSup.IsParametric() and oParSup.IsSupervised(), TRUE)
+
+	# the labels DO reach the graph -- this is not a wiring failure
+	Then("the labels reach it", SameEmbedding(oPar.Embedding(), oParSup.Embedding()), FALSE)
+
+	# MEASURED, and the comparison is run here rather than pinned to a number because
+	# the magnitude moves with the data and only the RELATION is stable:
+	#
+	#     one dataset       free-form  1.179 -> 2.413  (x2.05)
+	#                      parametric  1.191 -> 1.635  (x1.37)
+	#     another           free-form  0.987 -> 1.597  (x1.62)
+	#                      parametric  0.972 -> 1.046  (x1.08)
+	#
+	# I wrote the stronger claim first -- "barely moves" -- from the second dataset
+	# alone, and the control on the first contradicted it. Same direction, different
+	# size: supervision reaches a learned map only PARTLY.
+	Then("...but a learned map gets less of the effect than free coordinates do",
+	     SupervisionGain(oParSup.Embedding(), oPar.Embedding(), aY) <
+	     SupervisionGain(oFreeSup.Embedding(), oFree.Embedding(), aY) * 0.85, TRUE)
+
+	# THE REASON CANNOT BE TUNED AWAY. y = f(x) is smooth, so two rows close in x MUST
+	# come out close in y. Free coordinates answer to nothing and can put interleaved
+	# points wherever the labels ask; a function cannot. Checked rather than assumed --
+	# eight times the parameters and seven times the training buy nothing.
+	#
+	# So if the point of supervising is to separate classes the geometry does NOT
+	# already separate, take the free-form fit and give up the exact transform.
+	Then("...and more capacity does not rescue it", MoreCapacityHelps(aD, aY), FALSE)
+EndScenario()
+
+Scenario("...and when the labels agree with the geometry it changes nothing at all")
+	aD = ThreeBlobs(15)
+	aY = []
+	for i = 1 to 45
+		aY + ceil(i/15)
+	next
+
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(5).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oSup = new stzUMAP(aD)
+	oSup.SetNeighborsQ(5).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oSup.LearnFromLabelsQ(aY).SetTargetWeightQ(0.5).FitQ()
+
+	# BIT-IDENTICAL, and the reason is worth having rather than being a surprise. The
+	# label step only weakens edges that CROSS a class boundary, and in a five-neighbour
+	# graph over well-separated blobs there are none. Its other step renormalises each
+	# point's edges so its strongest is 1 -- and each point's strongest is ALREADY 1,
+	# because rho is the distance to the nearest neighbour and that one's weight is
+	# exp(0).
+	#
+	# So this is not a no-op by luck. Supervision has nothing to say here, and says it.
+	Then("supervision leaves an already-separated layout untouched",
+	     SameEmbedding(oPar.Embedding(), oSup.Embedding()), TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -2056,3 +2133,21 @@ func RawSpaceRadius(aD, aNew)
 	o.SetNeighborsQ(6).SetEpochsQ(200).PreserveDensityQ().FitQ()
 	o.Transform(aNew)
 	return o.NewLocalRadii()[1]
+
+# separation by LABEL, over the same quantity without supervision
+func SupervisionGain(aSup, aPlain, aL)
+	nP = LabelSeparation(aPlain, aL)
+	if nP = 0
+		return 0
+	ok
+	return LabelSeparation(aSup, aL) / nP
+
+# does a bigger network, trained far longer, close the gap? Measured: no.
+func MoreCapacityHelps(aD, aY)
+	oSmall = new stzUMAP(aD)
+	oSmall.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oSmall.LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
+	oBig = new stzUMAP(aD)
+	oBig.SetNeighborsQ(6).SetEpochsQ(1500).SetHiddenLayersQ([64,64]).LearnMappingQ()
+	oBig.SetLearningRateQ(0.02).LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
+	return LabelSeparation(oBig.Embedding(), aY) > LabelSeparation(oSmall.Embedding(), aY) * 1.2

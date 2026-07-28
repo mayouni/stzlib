@@ -565,7 +565,39 @@ test "and it inherits the parametric blindness, exactly as t-SNE's does" {
     try testing.expect(radii[1] > radii[0] * 100);
 }
 
-test "supervision composes, because it is a property of the GRAPH" {
+/// randomly placed rows, so that alternating labels carry NO spatial structure
+fn scattered(alloc: std.mem.Allocator, n: usize, d: usize) ![]f64 {
+    const x = try alloc.alloc(f64, n * d);
+    var st: u64 = 12345;
+    for (x) |*v| {
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 * 10.0;
+    }
+    return x;
+}
+
+fn labelSeparation(v: []const f64, lab: []const i32, n: usize) f64 {
+    var w: f64 = 0;
+    var wc: f64 = 0;
+    var b: f64 = 0;
+    var bc: f64 = 0;
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const dd = @sqrt(umap.sqDist(v[i * 2 ..][0..2], v[j * 2 ..][0..2]));
+            if (lab[i] == lab[j]) {
+                w += dd;
+                wc += 1;
+            } else {
+                b += dd;
+                bc += 1;
+            }
+        }
+    }
+    if (wc == 0 or bc == 0 or w == 0) return 0;
+    return (b / bc) / (w / wc);
+}
+
+test "supervision composes -- it is a property of the GRAPH, not the optimiser" {
     const alloc = testing.allocator;
     const per = 12;
     const n = per * 3;
@@ -588,6 +620,105 @@ test "supervision composes, because it is a property of the GRAPH" {
     // any optimiser sees the edges, so every optimiser gets it for free. That is the
     // dividend of extracting the graph rather than copying it.
     for (r.embedding) |v| try testing.expect(!std.math.isNan(v) and !std.math.isInf(v));
+}
+
+test "SUPERVISION REACHES A LEARNED MAP ONLY PARTLY" {
+    const alloc = testing.allocator;
+    const n = 40;
+    const d = 4;
+    const x = try scattered(alloc, n, d);
+    defer alloc.free(x);
+    const lab = try alloc.alloc(i32, n);
+    defer alloc.free(lab);
+    for (0..n) |i| lab[i] = @intCast(i % 2);
+    const hidden = [_]usize{ 24, 24 };
+
+    // Randomly placed points with alternating labels: data containing NO class
+    // structure, so any separation is supervision's doing and nothing else's. Testing
+    // this on separable data would prove nothing -- both runs would separate it.
+    //
+    // THE COMPARISON IS RUN INSIDE THE TEST rather than pinned to a number, because
+    // the magnitude moves a lot with the data and only the RELATION is stable:
+    //
+    //     this data           free-form 1.179 -> 2.413  (x2.05)
+    //                        parametric 1.191 -> 1.635  (x1.37)
+    //     a second dataset    free-form 0.987 -> 1.597  (x1.62)
+    //                        parametric 0.972 -> 1.046  (x1.08)
+    //
+    // Same direction both times, magnitude quite different -- which is why the claim
+    // is "supervision reaches a learned map only PARTLY" and not "barely at all". I
+    // wrote the stronger version first, from the second dataset alone, and the control
+    // on this one contradicted it.
+    //
+    // THE REASON IS THE PARAMETERISATION. y = f(x) is smooth, so two points close in x
+    // must come out close in y. Free coordinates answer to nothing and can put
+    // interleaved points wherever the labels ask; a function cannot. And it is
+    // STRUCTURAL rather than undertrained, which was checked: 2x24 units/400 epochs
+    // gives 1.046 on the second dataset, 2x64/1500 gives 0.965, and 3x128/3000 gives
+    // 1.029. Eight times the parameters and seven times the training buy nothing.
+    //
+    // This is the mirror of the transform result. Parameterising buys EXACTNESS on new
+    // points and costs EXPRESSIVENESS on the old ones; here the cost is the visible
+    // half. Anyone reaching for supervised parametric UMAP because they want the
+    // classes pulled apart should know they will get part of the way.
+    var ff = try umap.run(alloc, x, n, d, .{ .n_neighbors = 6, .epochs = 300 });
+    defer ff.deinit();
+    var fs = try umap.runSupervised(alloc, x, n, d, lab, .{
+        .n_neighbors = 6,
+        .epochs = 300,
+        .target_weight = 0.9,
+    });
+    defer fs.deinit();
+    var plain = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 6,
+        .epochs = 400,
+        .learning_rate = 0.01,
+    });
+    defer plain.deinit();
+    var sup = try run(alloc, x, n, d, &hidden, lab, .{
+        .n_neighbors = 6,
+        .epochs = 400,
+        .learning_rate = 0.01,
+        .target_weight = 0.9,
+    });
+    defer sup.deinit();
+
+    const free_gain = labelSeparation(fs.embedding, lab, n) / labelSeparation(ff.embedding, lab, n);
+    const par_gain = labelSeparation(sup.embedding, lab, n) / labelSeparation(plain.embedding, lab, n);
+
+    // the labels DO reach the graph -- this is not a wiring failure
+    try testing.expect(par_gain > 1.05);
+    try testing.expect(!std.mem.eql(u8, std.mem.sliceAsBytes(plain.embedding), std.mem.sliceAsBytes(sup.embedding)));
+    // but a learned map gets meaningfully less of the effect than free coordinates do
+    try testing.expect(par_gain < free_gain * 0.85);
+}
+
+test "when the labels AGREE with the geometry, supervision changes nothing at all" {
+    const alloc = testing.allocator;
+    const per = 15;
+    const n = per * 3;
+    const d = 4;
+    const x = try blobs(alloc, per, d);
+    defer alloc.free(x);
+    const lab = try alloc.alloc(i32, n);
+    defer alloc.free(lab);
+    for (0..n) |i| lab[i] = @intCast(i / per);
+    const hidden = [_]usize{ 24, 24 };
+
+    var plain = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 5, .epochs = 400, .learning_rate = 0.01 });
+    defer plain.deinit();
+    var sup = try run(alloc, x, n, d, &hidden, lab, .{ .n_neighbors = 5, .epochs = 400, .learning_rate = 0.01, .target_weight = 0.5 });
+    defer sup.deinit();
+
+    // BIT-IDENTICAL, and the reason is worth having rather than being a surprise.
+    // applyLabels only weakens edges that CROSS a class boundary, and in a graph of
+    // five nearest neighbours drawn from well-separated blobs there are none to
+    // weaken. Its other step renormalises each point's edges so its strongest is 1 --
+    // and each point's strongest is ALREADY 1, because rho is the distance to the
+    // nearest neighbour and that neighbour's weight is exp(0).
+    //
+    // So supervision is not a no-op here by luck. It has nothing to say, and says it.
+    for (plain.embedding, sup.embedding) |a, b| try testing.expectEqual(a, b);
 }
 
 test "density preservation composes too" {

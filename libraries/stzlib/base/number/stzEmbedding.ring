@@ -1139,6 +1139,33 @@ class stzUMAP from stzObject
 	# saturates onto an ordinary-looking position -- measured at 0.000001 from a
 	# legitimate row. The exactness and the blindness are the same property seen twice.
 	# Use LocalRadiiOf() for that; it asks the data, not the model.
+	# -- AND WHAT IT DOES TO SUPERVISION, WHICH IS THE PART THAT SURPRISES --
+	#
+	# Supervision still applies: labels reshape the neighbour graph before any optimiser
+	# sees it, so LearnFromLabels() works here exactly as it does for the free-form fit.
+	# What differs is HOW MUCH OF IT SURVIVES.
+	#
+	# MEASURED on randomly placed rows with alternating labels -- data with no class
+	# structure at all, so any separation is supervision's doing:
+	#
+	#     one dataset        free-form  1.179 -> 2.413   (x2.05)
+	#                       parametric  1.191 -> 1.635   (x1.37)
+	#     another            free-form  0.987 -> 1.597   (x1.62)
+	#                       parametric  0.972 -> 1.046   (x1.08)
+	#
+	# Same direction both times, magnitude quite different -- so the honest claim is
+	# that supervision reaches a learned map only PARTLY, not that it barely arrives.
+	#
+	# THE REASON IS THE PARAMETERISATION, and it cannot be tuned away. y = f(x) is
+	# smooth, so two rows close together in x MUST come out close together in y. Free
+	# coordinates answer to nothing and can put interleaved points wherever the labels
+	# ask; a function cannot. Checked rather than assumed: eight times the parameters
+	# and seven times the training buy nothing (2x24/400 -> 1.046, 2x64/1500 -> 0.965,
+	# 3x128/3000 -> 1.029).
+	#
+	# So if the point of supervising is to pull apart classes the geometry does NOT
+	# already separate, use SkipMapping() and take the free-form fit -- and give up the
+	# exact transform. That is the trade, stated rather than discovered later.
 	def LearnMapping()
 		@bParametric = TRUE
 
