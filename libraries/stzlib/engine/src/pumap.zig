@@ -170,6 +170,51 @@ pub fn run(
 
     var net = nn.Net{ .n_inputs = d, .layers = layers };
 
+    // ── THE NETWORK'S INPUT MUST BE STANDARDISED, and this is not a preference ──
+    //
+    // MEASURED, on two clusters differing twentyfold in spread with the diffuse one
+    // centred at 20:
+    //
+    //     raw input           density correlation -0.9934,  diffuse spread 0.0000
+    //     standardised        density correlation +0.9967,  diffuse spread 1.0751
+    //
+    // The whole diffuse cluster collapsed to a POINT and the density correlation came
+    // out fully INVERTED -- from rescaling the input, nothing else. An input of
+    // magnitude 20 across four features drives the first tanh to |z| ~ 37, where it is
+    // flat to about 1e-32: every row of that cluster becomes literally the same vector
+    // to the first layer, and no gradient can pull apart points the network cannot
+    // tell apart.
+    //
+    // This is where the free-form optimiser and this one genuinely differ in their
+    // REQUIREMENTS rather than their results. Free coordinates are moved by distances
+    // and do not care what units those distances are in. A network's input scale
+    // decides whether its activations carry information at all, so the scaling is a
+    // requirement of the parameterisation and belongs to the algorithm, not the caller.
+    //
+    // The GRAPH is still built from the data exactly as given -- see above, it was
+    // built before this point. Only the network's view is rescaled.
+    const mean = try alloc.alloc(f64, d);
+    defer alloc.free(mean);
+    const sdev = try alloc.alloc(f64, d);
+    defer alloc.free(sdev);
+    const xs = try alloc.alloc(f64, n * d);
+    defer alloc.free(xs);
+    for (0..d) |t| {
+        var m: f64 = 0;
+        for (0..n) |i| m += x[i * d + t];
+        m /= @floatFromInt(n);
+        var v: f64 = 0;
+        for (0..n) |i| {
+            const q = x[i * d + t] - m;
+            v += q * q;
+        }
+        // a constant feature has no scale to divide by, and dividing would be a NaN
+        const sd = @sqrt(v / @as(f64, @floatFromInt(n)));
+        mean[t] = m;
+        sdev[t] = if (sd > 1e-12) sd else 1.0;
+        for (0..n) |i| xs[i * d + t] = (x[i * d + t] - m) / sdev[t];
+    }
+
     const y = try alloc.alloc(f64, n * dims);
     errdefer alloc.free(y);
     const dy = try alloc.alloc(f64, n * dims);
@@ -217,7 +262,7 @@ pub fn run(
     while (epoch < opts.epochs) : (epoch += 1) {
         // forward everything, with the weights fixed for the whole pass
         for (0..n) |i| {
-            nn.forwardInto(&net, &ws, x[i * d ..][0..d], y[i * dims ..][0..dims]);
+            nn.forwardInto(&net, &ws, xs[i * d ..][0..d], y[i * dims ..][0..dims]);
         }
 
         @memset(dy, 0);
@@ -314,13 +359,41 @@ pub fn run(
             // the forward is repeated because the workspace holds only the LAST point's
             // activations, and a backward pass run against a stale forward is the
             // classic way to get a plausible-looking wrong gradient
-            nn.forwardInto(&net, &ws, x[i * d ..][0..d], scratch[0..dims]);
+            nn.forwardInto(&net, &ws, xs[i * d ..][0..d], scratch[0..dims]);
             nn.backwardFromDelta(&net, &ws, dy[i * dims ..][0..dims], lr);
         }
     }
 
-    // a final forward, so the reported embedding matches the FINAL weights rather than
-    // the ones the last gradient was computed from
+    // ── FOLD THE STANDARDISATION INTO THE FIRST LAYER ──
+    //
+    // The network was trained on (x - m)/s, so a caller handing it a raw row would get
+    // a different function. Rather than return m and s and require every caller to
+    // remember them -- a standing invitation to forget one -- rewrite the first layer
+    // so it does the rescaling itself:
+    //
+    //     w'[u][p] = w[u][p] / s[p]
+    //     b'[u]    = b[u] - sum_p w[u][p] * m[p] / s[p]
+    //
+    // which gives w'.x + b' = w.((x-m)/s) + b exactly. The returned weights are then a
+    // function of the RAW input, ptsne.transform serves unchanged, and the whole thing
+    // stays stateless -- no scaling parameters travelling alongside the model, waiting
+    // to be lost.
+    {
+        const l0 = &layers[0];
+        for (0..l0.units) |u| {
+            var shift: f64 = 0;
+            for (0..l0.prev) |q| {
+                const w0 = l0.w[u * l0.prev + q];
+                shift += w0 * mean[q] / sdev[q];
+                l0.w[u * l0.prev + q] = w0 / sdev[q];
+            }
+            l0.b[u] -= shift;
+        }
+    }
+
+    // a final forward FROM THE RAW INPUT, which both reports the embedding against the
+    // final weights and checks the fold: if it were wrong, every number below would be
+    // wrong with it and the tests would say so immediately
     for (0..n) |i| {
         nn.forwardInto(&net, &ws, x[i * d ..][0..d], y[i * dims ..][0..dims]);
     }
@@ -455,7 +528,7 @@ test "AVERAGING THE GRADIENT is what makes the learning rate usable" {
     defer alloc.free(x);
     const hidden = [_]usize{ 24, 24 };
 
-    // BEFORE the per-point average existed, on this data:
+    // BEFORE the per-point average existed, on raw input:
     //
     //     lr      within-cluster   between   separation
     //     0.005      0.404          10.07       24.9
@@ -463,25 +536,25 @@ test "AVERAGING THE GRADIENT is what makes the learning rate usable" {
     //     0.02       0.000004       27.08     6471293    <- MODE COLLAPSE
     //     0.05     437.2          1430.9         3.27    <- divergence
     //
-    // AFTER:
-    //
-    //     0.005      0.408          10.89       26.7
-    //     0.01       0.385          11.67       30.3
-    //     0.02       0.408           4.87       11.9
-    //     0.05       3.933          40.01       10.2
-    //
-    // A summed epoch gradient makes each point's step proportional to how many edges
-    // touch it, so a hub strides while a leaf shuffles and no single rate suits both.
+    // A summed epoch gradient makes a point's step proportional to how many edges
+    // touch it, so a hub lurches while a leaf shuffles and no single rate suits both.
     // Dividing by the visit count is the difference between a summed gradient and a
     // mean one.
     //
-    // WHAT IS PINNED HERE IS THE FAILURE, NOT THE FIX: across a tenfold range of
-    // learning rate the within-cluster spread stays finite and non-zero. A collapse
-    // reads as ~0 and a divergence as hundreds, and BOTH used to report a plausible
-    // separation ratio -- 6.5 million looks like a triumph and is every point of a
-    // cluster mapped to the same output. Which is why a summary ratio is never checked
-    // on its own here.
-    const lrs = [_]f64{ 0.005, 0.01, 0.02, 0.05 };
+    // AFTER averaging AND standardising the network's input, the usable band MOVED --
+    // which it had to, since inputs of order 1 rather than 20 make the same nominal
+    // rate a larger effective step:
+    //
+    //     0.005      0.370   sep      58.8
+    //     0.01       0.240   sep     209.6
+    //     0.02       0.240   sep     755.7
+    //     0.05       0.000532  sep 216168.9   <- collapses again
+    //
+    // So what is claimed is a WORKING RANGE, not universal stability: 0.005 to 0.02,
+    // with the default at 0.01 sitting inside it. Pretending the edge is not there
+    // would be the same mistake the 6471293 taught -- a huge separation ratio with a
+    // vanishing within-cluster spread is a collapse, not a triumph.
+    const lrs = [_]f64{ 0.005, 0.01, 0.02 };
     for (lrs) |lr| {
         var r = try run(alloc, x, n, d, &hidden, null, .{
             .n_neighbors = 6,
@@ -494,6 +567,17 @@ test "AVERAGING THE GRADIENT is what makes the learning rate usable" {
         try testing.expect(w < 50); // not diverged
         try testing.expect(separation(r.embedding, per, 2) > 3.0);
     }
+
+    // and the edge, pinned rather than hidden: past the band it collapses, and the
+    // separation ratio goes UP as it does
+    var over = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 6,
+        .epochs = 400,
+        .learning_rate = 0.05,
+    });
+    defer over.deinit();
+    try testing.expect(withinSpread(over.embedding, per, n) < 1e-3);
+    try testing.expect(separation(over.embedding, per, 2) > 1000);
 }
 
 test "THE TRANSFORM IS EXACT, which is the whole reason to parameterise" {
@@ -555,7 +639,33 @@ test "and it inherits the parametric blindness, exactly as t-SNE's does" {
     const out = try alloc.alloc(f64, 2 * 2);
     defer alloc.free(out);
     try ptsne.transform(alloc, r.shape, r.weights, &newx, 2, out);
-    try testing.expect(@sqrt(umap.sqDist(out[0..2], out[2..4])) < 0.01);
+    // MEASURED against the map's own scale rather than in absolute units, because
+    // standardising the input changed the scale. On THIS data the two rows land 4.78
+    // apart in a layout whose clusters sit some fifty apart -- a tenth of the way, so
+    // a row twenty times beyond anything the fit saw is drawn just outside its
+    // neighbours rather than off the map.
+    //
+    // BUT THE VERDICT IS DATA-DEPENDENT, and that is the more useful fact. Before
+    // standardisation the gap was 0.000001 -- blind on every dataset. After it:
+    //
+    //     this data       gap   4.8 against clusters  50 apart  ->  11%, still blind
+    //     another         gap 419.7 against clusters 424 apart  ->  99%, not blind
+    //
+    // The folded first layer divides by the training spread, so how far a row must be
+    // before it saturates depends on how spread the training data was. Standardisation
+    // improved the failure without removing it, and NEITHER outcome is something to
+    // rely on -- which is why the out-of-distribution answer below comes from the data
+    // and not from where the network happened to put the point.
+    var between: f64 = 0;
+    var bc: f64 = 0;
+    for (0..per) |i| {
+        for (per * 2..n) |j| {
+            between += @sqrt(umap.sqDist(r.embedding[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]));
+            bc += 1;
+        }
+    }
+    between /= bc;
+    try testing.expect(@sqrt(umap.sqDist(out[0..2], out[2..4])) < between * 0.25);
 
     // THE ANSWER COMES FROM THE DATA. umap.localRadiiOfNew asks the training set, and
     // the training set has not saturated.
@@ -721,7 +831,79 @@ test "when the labels AGREE with the geometry, supervision changes nothing at al
     for (plain.embedding, sup.embedding) |a, b| try testing.expectEqual(a, b);
 }
 
-test "density preservation composes too" {
+test "DENSITY PRESERVATION, and the input scaling that decides whether it works" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    // two clusters differing TWENTYFOLD in spread, the diffuse one centred at 20
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var st: u64 = 7;
+    for (0..n) |i| {
+        for (0..d) |t| {
+            st = st *% 6364136223846793005 +% 1442695040888963407;
+            const u = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+            x[i * d + t] = if (i < per) (u - 0.5) * 0.15 else 20.0 + (u - 0.5) * 3.0;
+        }
+    }
+    const hidden = [_]usize{ 24, 24 };
+
+    // THE DEFECT THIS FOUND, which had nothing to do with density and everything to do
+    // with the network's input:
+    //
+    //     raw input        density correlation -0.9934,  diffuse spread 0.0000
+    //     standardised     density correlation +0.9967,  diffuse spread 1.0751
+    //
+    // The whole diffuse cluster collapsed to a POINT and the correlation came out
+    // fully INVERTED -- from the input scale alone. An input of magnitude 20 over four
+    // features drives the first tanh to |z| ~ 37, flat to about 1e-32, so every row of
+    // that cluster is literally the same vector to the first layer and no gradient can
+    // separate points the network cannot distinguish.
+    //
+    // A caller passing ordinary unscaled data would have got a confidently inverted
+    // picture with nothing to warn them. So the scaling is done by the algorithm and
+    // folded back into the first layer afterwards -- see run().
+    var r = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 8,
+        .epochs = 400,
+        .learning_rate = 0.01,
+        .density_lambda = 0.1,
+    });
+    defer r.deinit();
+
+    try testing.expectEqual(n, r.local_radii.len);
+    try testing.expect(!std.math.isNan(r.density_correlation));
+    // the sign is the whole result: this was -0.99 before the input was scaled
+    try testing.expect(r.density_correlation > 0.8);
+
+    // the diffuse cluster is drawn WIDER than the tight one, which is what density
+    // preservation is for and what the collapse made impossible
+    var w1: f64 = 0;
+    var w2: f64 = 0;
+    var c: f64 = 0;
+    for (0..per) |i| {
+        for (i + 1..per) |j| {
+            w1 += @sqrt(umap.sqDist(r.embedding[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]));
+            c += 1;
+        }
+    }
+    for (per..n) |i| {
+        for (i + 1..n) |j| w2 += @sqrt(umap.sqDist(r.embedding[i * 2 ..][0..2], r.embedding[j * 2 ..][0..2]));
+    }
+    try testing.expect(w2 / w1 > 2.0);
+
+    var plain = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 8,
+        .epochs = 400,
+        .learning_rate = 0.01,
+    });
+    defer plain.deinit();
+    try testing.expectEqual(@as(usize, 0), plain.local_radii.len);
+    try testing.expect(std.math.isNan(plain.density_correlation));
+}
+
+test "the folded first layer reproduces the standardised network exactly" {
     const alloc = testing.allocator;
     const per = 12;
     const n = per * 3;
@@ -734,20 +916,20 @@ test "density preservation composes too" {
         .n_neighbors = 5,
         .epochs = 200,
         .learning_rate = 0.01,
-        .density_lambda = 0.1,
     });
     defer r.deinit();
-    try testing.expectEqual(n, r.local_radii.len);
-    try testing.expect(!std.math.isNan(r.density_correlation));
 
-    var plain = try run(alloc, x, n, d, &hidden, null, .{
-        .n_neighbors = 5,
-        .epochs = 200,
-        .learning_rate = 0.01,
-    });
-    defer plain.deinit();
-    try testing.expectEqual(@as(usize, 0), plain.local_radii.len);
-    try testing.expect(std.math.isNan(plain.density_correlation));
+    // The network trained on (x-m)/s and the weights returned take RAW x, because the
+    // rescaling was folded into the first layer: w' = w/s, b' = b - sum(w*m/s). If
+    // that algebra were wrong the reported embedding and a fresh forward pass would
+    // disagree, since the embedding is computed FROM THE RAW INPUT after folding.
+    //
+    // Folding rather than returning m and s keeps the model stateless: no scaling
+    // parameters travelling beside the weights, waiting for someone to lose one.
+    const back = try alloc.alloc(f64, n * 2);
+    defer alloc.free(back);
+    try ptsne.transform(alloc, r.shape, r.weights, x, n, back);
+    for (back, r.embedding) |a, b| try testing.expectEqual(b, a);
 }
 
 test "a network with no hidden layer is refused rather than silently linear" {

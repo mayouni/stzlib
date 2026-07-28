@@ -1221,13 +1221,33 @@ Scenario("...and inherits the parametric blindness, exactly as t-SNE's does")
 	# Bounded activations send everything past a certain magnitude to the same place, so
 	# THE EXACTNESS AND THE BLINDNESS ARE THE SAME PROPERTY SEEN TWICE: a function
 	# evaluated inside its domain is exact, and outside it is confident and wrong.
-	Then("an outlier is drawn on top of a legitimate row",
-	     DistOf(aP[1], aP[2]) < 0.5, TRUE)
+	# THIS USED TO ASSERT THE OUTLIER LANDED ON TOP OF A LEGITIMATE ROW, and before the
+	# network's input was standardised it did -- 0.000001 apart. After standardising,
+	# the answer became DATA-DEPENDENT, which is worth more than either verdict:
+	#
+	#     one dataset    gap 4.8  against clusters ~50 apart   -> 11%, still blind
+	#     another        gap 419.7 against clusters 423.7 apart -> 99%, not blind
+	#
+	# The folded first layer divides by the training spread, so how far out a row has
+	# to be before it saturates depends entirely on how spread the training data was.
+	# Standardisation improved the failure without removing it, and NEITHER outcome is
+	# something a caller can count on.
+	#
+	# So what is asserted here is only what holds in both cases: the network's placement
+	# of an unfamiliar row is not evidence about that row. The check that IS evidence
+	# comes next, and it does not involve the network at all.
+	Then("the network places it somewhere, and that somewhere means nothing",
+	     AllFinite(aP), TRUE)
 
 	# the free-form transform, for all that it is only approximate, would have placed
 	# that row outside the map -- see the densMAP transform scenarios above
+	# MEASURED: 0.0839 for the legitimate row against 2956381 for the outlier -- a
+	# thirty-five-million-fold gap, and it holds on every dataset tried, because the
+	# training set does not saturate. 900 units from anything is 900 units from
+	# anything, whatever a network believes.
 	aR = oPar.LocalRadiiOf(aNew)
-	Then("but the data-side radius sees it immediately", aR[2] > aR[1] * 1000, TRUE)
+	Then("the data-side radius sees it immediately, and always does",
+	     aR[2] > aR[1] * 1000, TRUE)
 EndScenario()
 
 Scenario("the learning rate, and a summary ratio that lied")
@@ -1250,9 +1270,18 @@ Scenario("the learning rate, and a summary ratio that lied")
 	# not evidence that a fit is good -- not the separation ratio, not the density
 	# correlation, not the KL. Look at what it is a ratio OF.
 	aD = ThreeBlobs(20)
-	aRates = [0.005, 0.01, 0.05]
-	Then("across a tenfold range nothing collapses and nothing diverges",
+	# AND THE BAND MOVED when the network's input was standardised, which it had to:
+	# inputs of order 1 rather than 20 make the same nominal rate a larger effective
+	# step. Measured after: 0.005 -> within 0.370, 0.01 -> 0.240, 0.02 -> 0.240,
+	# and 0.05 -> 0.000532 with separation 216168 -- the collapse signature again.
+	#
+	# So what is claimed is a WORKING RANGE with the default inside it, not stability
+	# everywhere. Hiding the edge would repeat the lesson the 6471293 taught.
+	aRates = [0.005, 0.01, 0.02]
+	Then("across the working range nothing collapses and nothing diverges",
 	     StableAcrossRates(aD, aRates), TRUE)
+	Then("...and past it the collapse returns, with a huge ratio to disguise it",
+	     StableAcrossRates(aD, [0.05]), FALSE)
 EndScenario()
 
 Scenario("supervision and density compose with it, for free")
@@ -1413,6 +1442,78 @@ Scenario("...and when the labels agree with the geometry it changes nothing at a
 	# So this is not a no-op by luck. Supervision has nothing to say here, and says it.
 	Then("supervision leaves an already-separated layout untouched",
 	     SameEmbedding(oPar.Embedding(), oSup.Embedding()), TRUE)
+EndScenario()
+
+Scenario("PARAMETRIC UMAP DENSITY: the input scaling decided everything")
+	# Density preservation was already wired into the parametric form, but its test only
+	# checked that a radius array came back. Measuring what it ACHIEVED found a defect
+	# that had nothing to do with density.
+	#
+	#     raw input        density correlation -0.9934,  diffuse spread 0.0000
+	#     standardised     density correlation +0.9967,  diffuse spread 1.0751
+	#
+	# The whole diffuse cluster collapsed to a POINT and the correlation came out fully
+	# INVERTED -- from the input scale alone. This data puts one cluster at 20 in every
+	# coordinate, which drives the first tanh to |z| about 37, flat to some 1e-32: every
+	# row of that cluster is literally the same vector to the first layer, and no
+	# gradient can separate points the network cannot tell apart.
+	#
+	# A caller passing ordinary unscaled data would have got a confidently inverted
+	# picture with nothing to warn them, so the scaling is now the algorithm's job --
+	# and it is folded back into the first layer afterwards, which keeps Transform()
+	# working on raw rows and the model stateless.
+	aD = TwoDensitiesFar(25)
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+
+	Then("the correlation is positive, where it used to be -0.99",
+	     o.DensityCorrelation() > 0.8, TRUE)
+	Then("...and the diffuse cluster is drawn wider than the tight one",
+	     DrawnRatioAt(o.Embedding(), 25) > 2, TRUE)
+	Then("...and a training row still transforms exactly",
+	     SameEmbedding(o.Transform([ aD[1] ]), [ o.Embedding()[1] ]), TRUE)
+EndScenario()
+
+Scenario("...but on a learned map the density term is nearly redundant")
+	# MEASURED, once the input is scaled:
+	#
+	#     lambda    correlation    drawn ratio
+	#      ~0          0.9940          865.6     <- NO density term at all
+	#      0.1         0.9940          865.1
+	#      2           0.9940          862.5
+	#      10          0.9942         1013.4
+	#
+	# Plain parametric UMAP already scores 0.994, and the term moves it by two
+	# ten-thousandths. A network is a smooth function of its input and cannot tear the
+	# space, so relative spreads carry through by themselves -- the same result the
+	# parametric t-SNE work reached from the other side. Density preservation is a
+	# repair for what FREE COORDINATES lose, and a learned map never lost it.
+	aD = TwoDensitiesFar(25)
+
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oPlain.SetDensityWeightQ(0.0000001).FitQ()
+	oDens = new stzUMAP(aD)
+	oDens.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oDens.SetDensityWeightQ(2).FitQ()
+
+	Then("a learned map preserves density with no term asked for",
+	     oPlain.DensityCorrelation() > 0.95, TRUE)
+	Then("...and the term barely moves it",
+	     fabs(oDens.DensityCorrelation() - oPlain.DensityCorrelation()) < 0.01, TRUE)
+
+	# AND THE MAGNITUDE IS ANOTHER MATTER ENTIRELY. True ratio 22.1, drawn 865 -- a
+	# fortyfold overshoot. Standardising by the global spread makes a tight cluster
+	# nearly a single point to the network, and the map draws it that way. A correlation
+	# of 0.994 says the ORDERING is right and says nothing whatever about the scale.
+	Then("the ordering is right and the SCALE is wildly exaggerated",
+	     DrawnRatioAt(oPlain.Embedding(), 25) > TrueRatioAt(aD, 25) * 10, TRUE)
+
+	# the weight resolves small on this path, as it does for parametric t-SNE
+	Then("PreserveDensity() picks a weight for the parametric mode",
+	     ParamDensityDefault(aD), 0.1)
 EndScenario()
 
 Scenario("the name forms hold here too")
@@ -2151,3 +2252,47 @@ func MoreCapacityHelps(aD, aY)
 	oBig.SetNeighborsQ(6).SetEpochsQ(1500).SetHiddenLayersQ([64,64]).LearnMappingQ()
 	oBig.SetLearningRateQ(0.02).LearnFromLabelsQ(aY).SetTargetWeightQ(0.9).FitQ()
 	return LabelSeparation(oBig.Embedding(), aY) > LabelSeparation(oSmall.Embedding(), aY) * 1.2
+
+# two clusters differing twentyfold in spread, the diffuse one FAR from the origin --
+# which is what saturates an unscaled network
+func TwoDensitiesFar(nPer)
+	aD = []
+	nS = 20260727
+	for i = 1 to nPer*2
+		r = []
+		for j = 1 to 4
+			nS = (nS * 1103515245 + 12345) % 2147483648
+			u = (floor(nS / 2048) % 1000) / 1000
+			if i <= nPer
+				r + ((u - 0.5) * 0.15)
+			else
+				r + (20 + (u - 0.5) * 3.0)
+			ok
+		next
+		aD + r
+	next
+	return aD
+
+func DrawnRatioAt(aE, nPer)
+	return MeanSpread(aE, nPer+1, 2*nPer) / MeanSpread(aE, 1, nPer)
+
+func TrueRatioAt(aD, nPer)
+	return MeanSpread(aD, nPer+1, 2*nPer) / MeanSpread(aD, 1, nPer)
+
+func ParamDensityDefault(aD)
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(8).SetEpochsQ(100).SetHiddenLayersQ([16]).LearnMappingQ()
+	o.PreserveDensityQ().FitQ()
+	return o.DensityWeight()
+
+# mean distance between the first and last blob in a three-blob layout
+func BetweenBlobs(aE, nPer)
+	s = 0
+	c = 0
+	for i = 1 to nPer
+		for j = 2*nPer+1 to 3*nPer
+			s += DistOf(aE[i], aE[j])
+			c++
+		next
+	next
+	return s / c
