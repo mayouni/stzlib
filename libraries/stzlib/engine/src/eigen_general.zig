@@ -1481,6 +1481,136 @@ pub fn sqrtGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: [
     }
 }
 
+/// THE MATRIX SINE AND COSINE, computed together.
+///
+/// ── SCALING AND THE DOUBLE-ANGLE RECURRENCES, and no decomposition at all ──
+///
+/// The Taylor series for sin and cos converge everywhere, but slowly for a large
+/// matrix and with cancellation that eats the answer. So the same trick as the
+/// exponential: scale A down until its norm is small, where a handful of terms is
+/// exact to rounding, then climb back up with
+///
+///     cos(2X) = 2 cos(X)^2 - I
+///     sin(2X) = 2 sin(X) cos(X)
+///
+/// The two are computed TOGETHER because the sine's recurrence needs the cosine.
+/// Asking for one alone and throwing the other away would double the work for nothing,
+/// which is why the pair is the primitive here and the singles are wrappers.
+///
+/// ── AND THIS ONE NEEDS NOTHING BENEATH IT ──
+///
+/// The square root needed a Schur form, the logarithm needed the square root, the
+/// general power needed the logarithm. These need none of them: no eigenvalues, no
+/// triangularisation, no factorisation. Worth saying because the previous three
+/// entries might suggest a house style -- the decomposition is reached for when the
+/// algorithm requires it, and here it does not.
+///
+/// Every real matrix has a sine and a cosine, so there is nothing to refuse: no
+/// singularity to trip over, no eigenvalue whose real answer fails to exist.
+pub fn sinCosGeneral(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    sin_out: []f64,
+    cos_out: []f64,
+) !void {
+    if (n == 0) return;
+
+    var norm: f64 = 0;
+    for (0..n) |i| {
+        var row: f64 = 0;
+        for (0..n) |j| row += @abs(data[i * n + j]);
+        norm = @max(norm, row);
+    }
+    var k: usize = 0;
+    while (norm > 0.25 and k < 60) : (k += 1) norm /= 2;
+
+    const x = try alloc.alloc(f64, n * n);
+    defer alloc.free(x);
+    const scale = std.math.pow(f64, 2, -@as(f64, @floatFromInt(k)));
+    for (data, 0..) |v, i| x[i] = v * scale;
+
+    const x2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(x2);
+    matMul(x, x, n, x2);
+
+    // Taylor in X^2: cos = I - X^2/2! + X^4/4! - ..., sin = X(I - X^2/3! + X^4/5! - ...)
+    const term = try alloc.alloc(f64, n * n);
+    defer alloc.free(term);
+    const tmp = try alloc.alloc(f64, n * n);
+    defer alloc.free(tmp);
+    const sfac = try alloc.alloc(f64, n * n);
+    defer alloc.free(sfac);
+
+    @memset(cos_out, 0);
+    @memset(sfac, 0);
+    @memset(term, 0);
+    for (0..n) |i| {
+        cos_out[i * n + i] = 1;
+        sfac[i * n + i] = 1;
+        term[i * n + i] = 1;
+    }
+
+    // with ||X|| <= 0.25 the terms fall off faster than 16^-m, so ten is far past
+    // rounding and the loop is a fixed cost rather than a convergence test
+    var m: usize = 1;
+    while (m <= 10) : (m += 1) {
+        matMul(term, x2, n, tmp);
+        @memcpy(term, tmp);
+        const sign: f64 = if (m % 2 == 0) 1 else -1;
+        var cfac: f64 = 1;
+        var q: usize = 1;
+        while (q <= 2 * m) : (q += 1) cfac *= @floatFromInt(q);
+        var sf: f64 = 1;
+        q = 1;
+        while (q <= 2 * m + 1) : (q += 1) sf *= @floatFromInt(q);
+        for (0..n * n) |i| {
+            cos_out[i] += sign * term[i] / cfac;
+            sfac[i] += sign * term[i] / sf;
+        }
+    }
+    matMul(x, sfac, n, sin_out);
+
+    // climb back: k doublings
+    var rep: usize = 0;
+    while (rep < k) : (rep += 1) {
+        // sin(2X) = 2 sin cos -- computed FIRST, since the cosine update overwrites
+        // the value this needs
+        matMul(sin_out, cos_out, n, tmp);
+        for (0..n * n) |i| tmp[i] *= 2;
+        const new_sin = tmp;
+        matMul(cos_out, cos_out, n, term);
+        for (0..n * n) |i| cos_out[i] = 2 * term[i];
+        for (0..n) |i| cos_out[i * n + i] -= 1;
+        @memcpy(sin_out, new_sin);
+    }
+}
+
+fn matMul(a: []const f64, b: []const f64, n: usize, out: []f64) void {
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += a[i * n + t] * b[t * n + j];
+            out[i * n + j] = acc;
+        }
+    }
+}
+
+/// The cosine alone. See sinCosGeneral -- the pair is the primitive, because the
+/// sine's double-angle step needs the cosine anyway.
+pub fn cosGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinCosGeneral(alloc, data, n, throwaway, out);
+}
+
+/// The sine alone.
+pub fn sinGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinCosGeneral(alloc, data, n, out, throwaway);
+}
+
 /// THE MATRIX LOGARITHM: the X with exp(X) = A.
 ///
 /// ── INVERSE SCALING AND SQUARING, which is the exponential's method run backwards ──
@@ -2056,4 +2186,174 @@ test "AND THEN ANY REAL POWER FOLLOWS, which symmetricPower could not give" {
         linalg.PowerError.NotSymmetric,
         linalg.symmetricPower(alloc, &a, n, 0.5, out),
     );
+}
+
+test "sin(A)^2 + cos(A)^2 = I, which is the whole of trigonometry in one line" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try sinCosGeneral(alloc, &a, n, sn, cs);
+
+    // THE STRONGEST CHECK AVAILABLE for this pair. It cannot be satisfied by accident:
+    // both matrices come from a scaled Taylor series climbed back through nine
+    // doublings, and anything wrong in either the series or the recurrence shows up
+    // here rather than staying hidden in a plausible-looking matrix.
+    //
+    // Note it is the MATRIX identity, not the entrywise one -- sin(A)^2 means the
+    // matrix squared, and for a non-symmetric A those are wildly different things.
+    const s2 = try squares(alloc, sn, n);
+    defer alloc.free(s2);
+    const c2 = try squares(alloc, cs, n);
+    defer alloc.free(c2);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) 1 else 0;
+            try testing.expectApproxEqAbs(want, s2[i * n + j] + c2[i * n + j], 1e-8);
+        }
+    }
+}
+
+test "cos(0) = I, sin(0) = 0, and a diagonal goes entrywise" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try sinCosGeneral(alloc, &zero, n, sn, cs);
+    for (sn) |v| try testing.expectApproxEqAbs(@as(f64, 0), v, 1e-14);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, cs[i * n + j], 1e-14);
+        }
+    }
+
+    const diag = [_]f64{ 1.2, 0, 0, 0, -2.5, 0, 0, 0, 0.7 };
+    try sinCosGeneral(alloc, &diag, n, sn, cs);
+    try testing.expectApproxEqAbs(@sin(@as(f64, 1.2)), sn[0], 1e-12);
+    try testing.expectApproxEqAbs(@sin(@as(f64, -2.5)), sn[4], 1e-12);
+    try testing.expectApproxEqAbs(@cos(@as(f64, 0.7)), cs[8], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 0), sn[1], 1e-12);
+}
+
+test "A NILPOTENT MATRIX gives EXACT polynomials" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 }; // N^3 = 0
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try sinCosGeneral(alloc, &nil, n, sn, cs);
+
+    // N^3 = 0 truncates both series exactly: sin(N) = N, and cos(N) = I - N^2/2.
+    // A hard target -- an approximation that was merely close would miss the exact
+    // -0.5, and a series that had quietly stopped one term early would miss it too.
+    const want_sin = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+    const want_cos = [_]f64{ 1, 0, -0.5, 0, 1, 0, 0, 0, 1 };
+    for (want_sin, sn) |x, y| try testing.expectApproxEqAbs(x, y, 1e-13);
+    for (want_cos, cs) |x, y| try testing.expectApproxEqAbs(x, y, 1e-13);
+}
+
+test "cosine is even and sine is odd, as functions of a MATRIX too" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    var neg: [16]f64 = undefined;
+    for (a, 0..) |v, i| neg[i] = -v;
+
+    const s1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s1);
+    const c1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c1);
+    const s2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s2);
+    const c2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c2);
+    try sinCosGeneral(alloc, &a, n, s1, c1);
+    try sinCosGeneral(alloc, &neg, n, s2, c2);
+
+    for (c1, c2) |x, y| try testing.expectApproxEqAbs(x, y, 1e-10);
+    for (s1, s2) |x, y| try testing.expectApproxEqAbs(x, -y, 1e-10);
+}
+
+test "on a SYMMETRIC matrix it agrees with the eigendecomposition route" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 6, 2, 1, 2, 5, 2, 1, 2, 4 };
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try cosGeneral(alloc, &a, n, cs);
+
+    // Q cos(L) Q' -- a completely different algorithm, and one that only works because
+    // this particular matrix happens to be symmetric. Scaled Taylor with double-angle
+    // recurrences against a Jacobi eigendecomposition: nothing shared below the matrix,
+    // and one answer.
+    var e = try linalg.eigenSymmetric(alloc, &a, n);
+    defer e.deinit();
+    try testing.expect(e.symmetric);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += e.vec(i, t) * @cos(e.values[t]) * e.vec(j, t);
+            try testing.expectApproxEqAbs(acc, cs[i * n + j], 1e-9);
+        }
+    }
+}
+
+test "the double-angle recurrence agrees with itself at two scales" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.4, 0.2, 0.0, -0.1, 0.5, 0.3, 0.2, 0.0, 0.6 };
+    var twice: [9]f64 = undefined;
+    for (a, 0..) |v, i| twice[i] = 2 * v;
+
+    const s1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s1);
+    const c1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c1);
+    const s2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s2);
+    const c2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c2);
+    try sinCosGeneral(alloc, &a, n, s1, c1);
+    try sinCosGeneral(alloc, &twice, n, s2, c2);
+
+    // cos(2A) = 2 cos(A)^2 - I and sin(2A) = 2 sin(A) cos(A), with the two sides
+    // computed from DIFFERENT scalings -- so this checks the recurrence against the
+    // series rather than against itself.
+    const cc = try squares(alloc, c1, n);
+    defer alloc.free(cc);
+    const sc = try alloc.alloc(f64, n * n);
+    defer alloc.free(sc);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += s1[i * n + t] * c1[t * n + j];
+            sc[i * n + j] = acc;
+        }
+    }
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want_c = 2 * cc[i * n + j] - (if (i == j) @as(f64, 1) else 0);
+            try testing.expectApproxEqAbs(want_c, c2[i * n + j], 1e-10);
+            try testing.expectApproxEqAbs(2 * sc[i * n + j], s2[i * n + j], 1e-10);
+        }
+    }
 }
