@@ -2590,6 +2590,49 @@ what it refused.
   R would have a diagonal entry at rounding level, and back-substituting through it
   returns confident garbage — the very defect `isFullRank` was fixed for.
 
+- **THE LU INVERSE — AND A THIRD EXACT-ZERO DEFECT (`976780f6a`)** — *same story as the
+  previous entry, one decomposition along.*
+
+  `A = P L U`, so each column of the inverse is one forward and one back substitution
+  against a unit vector. That completes the set:
+
+  | route | accepts | cost |
+  |---|---|---|
+  | `CholeskyInverse()` | symmetric positive definite | ~n³/6 — fastest |
+  | **`LUInverse()`** | **any nonsingular square** | ~n³/3 — fastest general |
+  | `QRInverse()` | any full-rank square or **tall** | ~2n³/3 |
+  | `MatrixPower(-1)` | symmetric | iterative, gives powers too |
+  | `PseudoInverse()` | everything, incl. rank-deficient | iterative, most general |
+
+  ***The defect.*** `decompose` tested its pivot against **exactly zero**. Gaussian
+  elimination does not leave a dependent column's pivot at exactly zero — it leaves it at
+  rounding level — so `[1,2,3; 4,5,6; 5,7,9]`, whose third row is the sum of the first
+  two, factored with `singular` **FALSE**, and `luInverse` back-substituted through that
+  pivot and returned a matrix it called an inverse.
+
+  **The third instance of that defect in one file.** `isFullRank` had it, the condition
+  number had it, and both are documented there at length — *I read those notes while
+  adding the QR inverse and still did not think to check the third.* Fixed the same way:
+  ask `negligibleThreshold`, the authority the other two already ask.
+
+  Found the same way as the Cholesky symmetry defect one entry ago: **by writing an
+  assertion that a route refuses something, and watching it accept.** Two entries, two
+  defects, both surfaced by negative assertions and neither by a positive one.
+
+  | 9×9 Hilbert, condition ≈ 1e12 | residual |
+  |---|---|
+  | **LU** | **3.81e-6** |
+  | QR | 8.34e-6 |
+
+  ***And I had the stability claim backwards.*** The test was written to assert QR beats
+  LU on an ill-conditioned matrix; LU is twice as accurate, not half. *"QR is more stable
+  than LU"* is a rule about **least squares**, where the alternative is forming `AᵀA` and
+  squaring the condition number — inverting a square matrix never faces that choice, and
+  LU with partial pivoting is famously well behaved. So the reason to keep both is
+  **shape**: QR takes a tall matrix and LU cannot, which is why least squares stays QR's.
+  Both still lose about six digits there, which is what a condition number of 1e12 means,
+  and the test says so rather than pinning luck.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
