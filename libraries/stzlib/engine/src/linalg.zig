@@ -232,6 +232,28 @@ pub const Cholesky = struct {
 };
 
 pub fn cholesky(allocator: std.mem.Allocator, data: []const f64, n: usize) !Cholesky {
+    // SYMMETRY IS CHECKED, and it was not before -- a real defect, found while adding
+    // the QR inverse. This algorithm reads only the LOWER triangle, so a non-symmetric
+    // matrix used to factor happily: `positive_definite` came back TRUE and L L' then
+    // differed from A by as much as 3.0 on a 4x4. Every caller downstream believed it.
+    // `choleskyInverse` returned a matrix that was not A's inverse, and
+    // `stz_matrix_is_positive_definite` called a non-symmetric matrix positive definite,
+    // which is not even a property it can have.
+    //
+    // Exactly the shape of the `isFullRank` defect documented above: a check the
+    // algorithm never performs because its arithmetic does not happen to need it, and
+    // a confident wrong answer downstream. It asks `isSymmetric`, the same function the
+    // eigen path asks, so the two cannot drift apart on what symmetric means.
+    if (n > 0 and !isSymmetric(data, n)) {
+        const l0 = try allocator.alloc(f64, n * n);
+        @memset(l0, 0);
+        return Cholesky{
+            .l = l0,
+            .n = n,
+            .positive_definite = false,
+            .allocator = allocator,
+        };
+    }
     const l = try allocator.alloc(f64, n * n);
     errdefer allocator.free(l);
     @memset(l, 0);
@@ -530,6 +552,66 @@ pub fn leastSquares(allocator: std.mem.Allocator, data: []const f64, m: usize, n
 // in general, which needs a different algorithm and a complex type we do not have.
 // Handed one, this REPORTS rather than returning the eigenvalues of the symmetric
 // part and letting the caller believe them.
+
+/// A INVERSE THROUGH ITS QR FACTORS -- the route for a matrix that is merely
+/// invertible, with no symmetry to exploit.
+///
+/// ── THE GAP THIS FILLS, WHICH IS THE REASON IT EXISTS ──
+///
+/// The library can invert a matrix four ways now, and until this one the general square
+/// case had no fast route at all:
+///
+///     choleskyInverse    SPD only          fastest, refuses anything else
+///     symmetricPower     symmetric only    refuses a non-symmetric matrix
+///     THIS               any full rank     square or tall, no symmetry needed
+///     pseudoInverse      everything        including rank-deficient, and slowest
+///
+/// A general invertible matrix -- a transition matrix, a Jacobian, a change of basis --
+/// is symmetric only by accident, so the first two decline and the SVD was all that was
+/// left. A = QR with Q orthogonal and R triangular gives A^-1 = R^-1 Q', which is one
+/// back-substitution per column and no iteration anywhere.
+///
+/// ── AND FOR A TALL MATRIX IT IS THE PSEUDO-INVERSE ──
+///
+/// The same formula, unchanged. When A is m*n with m > n and full column rank,
+/// R^-1 Q' IS the Moore-Penrose inverse -- which is why `leastSquares` has always been
+/// a QR solve underneath. Building it column by column just makes the operator itself
+/// available rather than one solution at a time. A test checks it against
+/// `pseudoInverse` rather than restating the claim.
+///
+/// Returns false when A is rank-deficient: R then has a diagonal entry at rounding
+/// level, and back-substituting through it produces confident garbage -- the exact
+/// defect `isFullRank` was fixed for. Rank-deficient inversion is the SVD's job, and
+/// it is the one route that can honestly do it.
+pub fn qrInverse(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    m: usize,
+    n: usize,
+    out: []f64,
+) !bool {
+    if (n == 0 or m < n) return false;
+    var f = try qr(allocator, data, m, n);
+    defer f.deinit();
+    if (!f.isFullRank()) return false;
+
+    const scratch = try allocator.alloc(f64, m);
+    defer allocator.free(scratch);
+    const e = try allocator.alloc(f64, m);
+    defer allocator.free(e);
+    const col = try allocator.alloc(f64, n);
+    defer allocator.free(col);
+
+    // column j of the inverse is the solution of A x = e_j, which for a tall A is the
+    // least-squares solution and therefore the pseudo-inverse's column
+    for (0..m) |j| {
+        @memset(e, 0);
+        e[j] = 1;
+        if (!qrSolve(&f, e, col, scratch)) return false;
+        for (0..n) |i| out[i * m + j] = col[i];
+    }
+    return true;
+}
 
 pub const Eigen = struct {
     /// n eigenvalues, sorted DESCENDING -- the convention PCA expects, so the first
@@ -2693,4 +2775,154 @@ test "NOT POSITIVE DEFINITE MEANS THERE IS NO CHOLESKY INVERSE TO HAVE" {
     var any: f64 = 0;
     for (out) |v| any += @abs(v);
     try testing.expect(any > 0);
+}
+
+// ─── the QR inverse ──────────────────────────────────────────────────────────
+
+test "QR INVERTS WHAT THE OTHER FAST ROUTES REFUSE" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // a general invertible matrix: NOT symmetric, so neither Cholesky nor the
+    // eigendecomposition will touch it
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    const chol = try alloc.alloc(f64, n * n);
+    defer alloc.free(chol);
+
+    // THE GAP, DEMONSTRATED. Both of the fast routes decline this matrix, and until QR
+    // the only thing left was the SVD.
+    // AND CHOLESKY REFUSES IT TOO -- which it did NOT before this commit. It reads
+    // only the lower triangle, so a non-symmetric matrix factored happily and L L'
+    // came back differing from A by up to 3.0, with positive_definite reporting TRUE.
+    // Found here, by asking a fast route to decline a matrix and watching it accept.
+    try testing.expect(!try choleskyInverse(alloc, &a, n, chol));
+    try testing.expectError(PowerError.NotSymmetric, symmetricPower(alloc, &a, n, -1, chol));
+
+    // QR does not care about symmetry
+    try testing.expect(try qrInverse(alloc, &a, n, n, out));
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += a[i * n + t] * out[t * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-9);
+        }
+    }
+
+    // and it is the same inverse the SVD route gives -- a fourth algorithm agreeing
+    const svd_inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(svd_inv);
+    _ = try pseudoInverse(alloc, &a, n, n, svd_inv);
+    for (out, svd_inv) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "FOR A TALL MATRIX THE SAME FORMULA IS THE PSEUDO-INVERSE" {
+    const alloc = testing.allocator;
+    const m = 6;
+    const n = 3;
+    const a = [_]f64{
+        1, 1,  1,
+        1, 2,  4,
+        1, 3,  9,
+        1, 4, 16,
+        1, 5, 25,
+        1, 6, 36,
+    };
+    const qri = try alloc.alloc(f64, n * m);
+    defer alloc.free(qri);
+    const svdi = try alloc.alloc(f64, n * m);
+    defer alloc.free(svdi);
+
+    try testing.expect(try qrInverse(alloc, &a, m, n, qri));
+    _ = try pseudoInverse(alloc, &a, m, n, svdi);
+
+    // R^-1 Q' IS the Moore-Penrose inverse when A has full column rank -- which is why
+    // leastSquares has always been a QR solve underneath. Checked against the SVD's
+    // answer rather than restated as a claim.
+    for (qri, svdi) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // and applying it to a right-hand side gives what leastSquares gives
+    const b = [_]f64{ 2.1, 3.9, 6.2, 7.8, 10.1, 12.2 };
+    var x_op: [n]f64 = .{ 0, 0, 0 };
+    for (0..n) |i| {
+        var acc: f64 = 0;
+        for (0..m) |t| acc += qri[i * m + t] * b[t];
+        x_op[i] = acc;
+    }
+    var x_ls: [n]f64 = .{ 0, 0, 0 };
+    try testing.expect(try leastSquares(alloc, &a, m, n, &b, &x_ls));
+    for (x_op, x_ls) |p2, q2| try testing.expectApproxEqAbs(q2, p2, 1e-8);
+}
+
+test "RANK-DEFICIENT IS REFUSED HERE AND ANSWERED BY THE SVD" {
+    const alloc = testing.allocator;
+    const m = 4;
+    const n = 3;
+    // column 3 is column 1 plus column 2
+    const a = [_]f64{
+        1, 2, 3,
+        2, 1, 3,
+        3, 5, 8,
+        4, 1, 5,
+    };
+    const out = try alloc.alloc(f64, n * m);
+    defer alloc.free(out);
+
+    // Back-substituting through a diagonal entry at rounding level produces confident
+    // garbage -- the exact defect isFullRank was fixed for, where a 200x4 design matrix
+    // returned coefficients around -9.7e12 and presented them as a fit. So this
+    // declines, and says so by returning false rather than by returning numbers.
+    try testing.expect(!try qrInverse(alloc, &a, m, n, out));
+
+    // AND THE SVD ANSWERS IT, which is the division of labour: a rank-deficient system
+    // has infinitely many least-squares solutions, and only the minimum-norm one is a
+    // principled choice. That needs singular values, not a triangular factor.
+    _ = try pseudoInverse(alloc, &a, m, n, out);
+    try testing.expectEqual(@as(usize, 2), try rankOf(alloc, &a, m, n));
+    var any: f64 = 0;
+    for (out) |v| any += @abs(v);
+    try testing.expect(any > 0);
+}
+
+test "CHOLESKY MUST NOT FACTOR A MATRIX THAT HAS NO CHOLESKY FACTOR" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // lower triangle looks perfectly positive-definite; the matrix is not symmetric
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+
+    // THE DEFECT THIS PINS. The algorithm reads only the LOWER triangle, so before the
+    // symmetry check it factored this happily: positive_definite came back TRUE and
+    // L L' differed from A by up to 3.0. Every caller downstream believed it --
+    // choleskyInverse returned a matrix that was not A's inverse, and the
+    // positive-definiteness test called a non-symmetric matrix positive definite, which
+    // is not even a property such a matrix can have.
+    //
+    // Same shape as the isFullRank defect documented in this file: a condition the
+    // arithmetic never needed to check, and a confident wrong answer downstream.
+    var f = try cholesky(alloc, &a, n);
+    defer f.deinit();
+    try testing.expect(!f.positive_definite);
+
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expect(!try choleskyInverse(alloc, &a, n, out));
+    try testing.expect(!try choleskyFactorInverse(alloc, &a, n, out));
+
+    // and a genuinely symmetric positive-definite matrix still passes, so the check
+    // tightened the right thing rather than everything
+    const good = try spd(alloc, n, 91);
+    defer alloc.free(good);
+    var g = try cholesky(alloc, good, n);
+    defer g.deinit();
+    try testing.expect(g.positive_definite);
 }

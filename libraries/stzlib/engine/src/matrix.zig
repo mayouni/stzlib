@@ -364,6 +364,32 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     return out;
 }
 
+/// A INVERSE THROUGH ITS QR FACTORS -- the route for a matrix that is merely
+/// invertible, with no symmetry to exploit.
+///
+/// Fills the gap the other fast routes leave: Cholesky needs positive definiteness and
+/// the eigen route needs symmetry, so a general invertible matrix -- a transition
+/// matrix, a Jacobian, a change of basis -- had only the SVD until this. For a TALL
+/// matrix the same formula is the pseudo-inverse, which is why least squares has always
+/// been a QR solve underneath.
+///
+/// Null when A is rank-deficient: R then has a diagonal entry at rounding level, and
+/// back-substituting through it produces confident garbage. That case is the SVD's.
+pub fn stz_matrix_qr_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.cols == 0 or mat.rows < mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.cols, mat.rows) catch return null;
+    const ok = linalg.qrInverse(gpa, mat.data, mat.rows, mat.cols, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
 /// A INVERSE THROUGH ITS CHOLESKY FACTOR -- the right tool when A is SPD, and measured
 /// at roughly 19x faster than the eigen route and 20x faster than the SVD one on a
 /// 120x120 matrix. Null when A is not positive definite, which the factorisation
