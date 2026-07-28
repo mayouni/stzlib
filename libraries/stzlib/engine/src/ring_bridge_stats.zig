@@ -1476,6 +1476,64 @@ fn ring_PcaFit(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ─── PCA INVERSE ─────────────────────────────────────────────────────────────
+//
+//   StzEnginePcaInverse(aScores, m, nCols, k, aMeans, aScales, aLoadings) -> m*nCols
+//
+// The transpose of the projection. Unlike the embedding decoders this needs no model
+// and no training -- the forward map is a rotation, so undoing it is arithmetic that
+// was already in the fit.
+fn ring_PcaInverse(p: *anyopaque) callconv(.c) void {
+    const sc = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(sc);
+    const m: usize = @intFromFloat(g(p, 2));
+    const cols: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const means = listToF64(p, 5) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(means);
+    const scales = listToF64(p, 6) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(scales);
+    const load = listToF64(p, 7) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(load);
+
+    if (m == 0 or cols == 0 or k == 0 or sc.len != m * k or
+        means.len != cols or scales.len != cols or load.len != cols * k)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    const out_c = allocator.alloc(f64, m * cols) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out_c);
+
+    for (0..m) |i| {
+        for (0..cols) |t| {
+            var acc: f64 = 0;
+            for (0..k) |j| acc += sc[i * k + j] * load[t * k + j];
+            out_c[i * cols + t] = acc * scales[t] + means[t];
+        }
+    }
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (out_c) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
     const rows = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -2182,6 +2240,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepumap", .func = &ring_Pumap },
     .{ .name = "stzengineembeddingdecoder", .func = &ring_EmbeddingDecoder },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
+    .{ .name = "stzenginepcainverse", .func = &ring_PcaInverse },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
