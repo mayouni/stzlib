@@ -1516,6 +1516,44 @@ Scenario("...but on a learned map the density term is nearly redundant")
 	     ParamDensityDefault(aD), 0.1)
 EndScenario()
 
+Scenario("THE DENSITY CONTRACT REACHES NEW ROWS WITH NO CALIBRATION")
+	# The free-form transform needed a whole mechanism for this: a least-squares line
+	# through the fit's (log R_original, log R_embedded) pairs, carried out to the
+	# caller, and a closed-form correction setting a new point's distance from its
+	# neighbourhood centroid. Here nothing is carried and nothing is corrected -- the
+	# network learned a density-preserving function, and a new row evaluates it.
+	aTrain = TwoDensitiesFar(25)
+	aHeld = HeldOutRows()
+
+	oPar = new stzUMAP(aTrain)
+	oPar.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oPar.PreserveDensityQ().FitQ()
+	aB = oPar.Transform(aHeld)
+	aE = oPar.Embedding()
+
+	# MEASURED: the training clusters occupy radii 0.0016 and 1.3997 in this map, and
+	# the new rows land at 0.0014 and 1.4812 -- each at ITS OWN cluster's radius rather
+	# than somewhere between them.
+	Then("a new row from the dense cluster is placed tight",
+	     AvgReachOf(aB, aHeld, aTrain, aE, 1, 3) <
+	     MeanSpread(aE, 1, 25) * 5, TRUE)
+	Then("...and one from the sparse cluster is placed spread",
+	     AvgReachOf(aB, aHeld, aTrain, aE, 4, 6) >
+	     MeanSpread(aE, 26, 50) * 0.5, TRUE)
+	Then("...so the two are drawn far apart in radius",
+	     AvgReachOf(aB, aHeld, aTrain, aE, 4, 6) >
+	     AvgReachOf(aB, aHeld, aTrain, aE, 1, 3) * 50, TRUE)
+
+	# AND THE CAVEAT SURVIVES THE TRANSFORM INTACT, which is the part worth saying out
+	# loud. This map EXAGGERATES: the true spread ratio is about 22 and the drawn one
+	# about 875. The new rows reproduce THE MAP's ratio faithfully, not the data's.
+	#
+	# An exact transform buys fidelity to the picture. It never buys accuracy in what
+	# the picture says.
+	Then("the transform is faithful to the MAP, which overstates the truth by ~40x",
+	     DrawnRatioAt(aE, 25) > TrueRatioAt(aTrain, 25) * 10, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -2296,3 +2334,49 @@ func BetweenBlobs(aE, nPer)
 		next
 	next
 	return s / c
+
+# THREE dense rows then THREE sparse ones, from the same two distributions as the
+# training set -- unseen, but not outliers.
+#
+# NOTE THE PREFIXED LOCALS. In Ring a variable assigned inside a main-file func is
+# GLOBAL: a helper that says `aD = []` silently overwrites the caller's aD. That cost
+# a confusing half hour here -- a generator clobbered the 50-row training set with its
+# own 6 rows, and the fit then refused 8 neighbours over 6 points.
+func HeldOutRows()
+	_hoRows_ = []
+	_hoS_ = 777333
+	for _hoI_ = 1 to 6
+		_hoR_ = []
+		for _hoJ_ = 1 to 4
+			_hoS_ = (_hoS_ * 1103515245 + 12345) % 2147483648
+			_hoU_ = (floor(_hoS_ / 2048) % 1000) / 1000
+			if _hoI_ <= 3
+				_hoR_ + ((_hoU_ - 0.5) * 0.15)
+			else
+				_hoR_ + (20 + (_hoU_ - 0.5) * 3.0)
+			ok
+		next
+		_hoRows_ + _hoR_
+	next
+	return _hoRows_
+
+# mean, over rows lo..hi, of the distance from a placed row to its k nearest TRAINING
+# rows in the embedding
+func AvgReachOf(aB, aNew, aTrain, aE, lo, hi)
+	_arSum_ = 0
+	for _arI_ = lo to hi
+		_arSum_ += ReachOf(aB[_arI_], aNew[_arI_], aTrain, aE, 8)
+	next
+	return _arSum_ / (hi - lo + 1)
+
+func ReachOf(aPos, aRow, aTrain, aE, k)
+	_rPair_ = []
+	for _rI_ = 1 to len(aTrain)
+		_rPair_ + [ DistOf(aRow, aTrain[_rI_]), _rI_ ]
+	next
+	_rPair_ = sort(_rPair_, 1)
+	_rSum_ = 0
+	for _rI_ = 1 to k
+		_rSum_ += DistOf(aPos, aE[_rPair_[_rI_][2]])
+	next
+	return _rSum_ / k

@@ -903,6 +903,114 @@ test "DENSITY PRESERVATION, and the input scaling that decides whether it works"
     try testing.expect(std.math.isNan(plain.density_correlation));
 }
 
+test "THE DENSITY CONTRACT EXTENDS TO UNSEEN ROWS WITH NO CALIBRATION" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var st: u64 = 7;
+    for (0..n) |i| {
+        for (0..d) |t| {
+            st = st *% 6364136223846793005 +% 1442695040888963407;
+            const u = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+            x[i * d + t] = if (i < per) (u - 0.5) * 0.15 else 20.0 + (u - 0.5) * 3.0;
+        }
+    }
+    const hidden = [_]usize{ 24, 24 };
+
+    var r = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 8,
+        .epochs = 400,
+        .learning_rate = 0.01,
+        .density_lambda = 0.1,
+    });
+    defer r.deinit();
+
+    // HELD-OUT rows from the SAME two distributions -- unseen, but not outliers
+    var st2: u64 = 4242;
+    const m = 6;
+    const nx = try alloc.alloc(f64, m * d);
+    defer alloc.free(nx);
+    for (0..m) |i| {
+        for (0..d) |t| {
+            st2 = st2 *% 6364136223846793005 +% 1442695040888963407;
+            const u = @as(f64, @floatFromInt(st2 >> 11)) / 9007199254740992.0;
+            nx[i * d + t] = if (i < m / 2) (u - 0.5) * 0.15 else 20.0 + (u - 0.5) * 3.0;
+        }
+    }
+    const out = try alloc.alloc(f64, m * 2);
+    defer alloc.free(out);
+    try ptsne.transform(alloc, r.shape, r.weights, nx, m, out);
+
+    // MEASURED. The training clusters occupy radii 0.0016 and 1.3997 in this map, and
+    // the new rows land at 0.0014 and 1.4812 -- each at its own cluster's radius.
+    //
+    // THE FREE-FORM TRANSFORM NEEDED A WHOLE MECHANISM FOR THIS: a least-squares line
+    // through the fit's (log R_original, log R_embedded) pairs, carried to the caller,
+    // and a closed-form correction that sets a new point's distance from its
+    // neighbourhood centroid. Here nothing is carried and nothing is corrected. The
+    // network learned a density-preserving function and a new row simply evaluates it.
+    //
+    // AND THE CAVEAT SURVIVES THE TRANSFORM INTACT, which is the part worth saying.
+    // This map exaggerates: the true spread ratio is about 22 and the drawn one about
+    // 875. The new rows reproduce THE MAP's ratio faithfully, not the data's. An exact
+    // transform buys fidelity to the picture, never accuracy in what the picture says.
+    var tight: f64 = 0;
+    var diffuse: f64 = 0;
+    for (0..m / 2) |i| tight += reachOf(out[i * 2 ..][0..2], nx[i * d ..][0..d], x, r.embedding, n, d, 8);
+    for (m / 2..m) |i| diffuse += reachOf(out[i * 2 ..][0..2], nx[i * d ..][0..d], x, r.embedding, n, d, 8);
+    tight /= @floatFromInt(m / 2);
+    diffuse /= @floatFromInt(m / 2);
+
+    // a new row from the dense cluster lands tight; one from the sparse cluster spreads
+    try testing.expect(diffuse > tight * 50);
+    // and each sits at its own cluster's radius in the map, not somewhere between
+    const train_tight = spreadOf3(r.embedding, 0, per);
+    const train_diffuse = spreadOf3(r.embedding, per, n);
+    try testing.expect(tight < train_tight * 5);
+    try testing.expect(diffuse > train_diffuse * 0.5 and diffuse < train_diffuse * 2);
+}
+
+/// mean distance from a placed row to its k nearest TRAINING rows, in the embedding
+fn reachOf(pos: []const f64, pt: []const f64, tx: []const f64, ty: []const f64, n: usize, d: usize, k: usize) f64 {
+    var best: [16]usize = undefined;
+    var bestv: [16]f64 = undefined;
+    for (0..k) |q| bestv[q] = std.math.inf(f64);
+    for (0..n) |j| {
+        const dd = umap.sqDist(pt, tx[j * d ..][0..d]);
+        var q: usize = 0;
+        while (q < k) : (q += 1) {
+            if (dd < bestv[q]) {
+                var z = k - 1;
+                while (z > q) : (z -= 1) {
+                    bestv[z] = bestv[z - 1];
+                    best[z] = best[z - 1];
+                }
+                bestv[q] = dd;
+                best[q] = j;
+                break;
+            }
+        }
+    }
+    var acc: f64 = 0;
+    for (0..k) |q| acc += @sqrt(umap.sqDist(pos, ty[best[q] * 2 ..][0..2]));
+    return acc / @as(f64, @floatFromInt(k));
+}
+
+fn spreadOf3(v: []const f64, lo: usize, hi: usize) f64 {
+    var s: f64 = 0;
+    var c: f64 = 0;
+    for (lo..hi) |i| {
+        for (i + 1..hi) |j| {
+            s += @sqrt(umap.sqDist(v[i * 2 ..][0..2], v[j * 2 ..][0..2]));
+            c += 1;
+        }
+    }
+    return if (c > 0) s / c else 0;
+}
+
 test "the folded first layer reproduces the standardised network exactly" {
     const alloc = testing.allocator;
     const per = 12;
