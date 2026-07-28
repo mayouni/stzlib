@@ -1497,16 +1497,25 @@ test "WHICH INVERSE WINS IS DECIDED BY THE SAMPLING GAP" {
     // MEASURED at midpoints between consecutive embedded rows, where the generating
     // curve gives a true answer:
     //
-    //                        decoder    lookup
-    //     90 points on it     0.6028    0.4654     <- dense: the gap is tiny
-    //     24 points on it     0.0810    0.9024     <- sparse: the gap is what hurts
+    //     fit           points     decoder    lookup
+    //     free-form        24       0.5450    1.1516
+    //     free-form        90       0.0858    0.2673
+    //     parametric       24       0.2191    0.9886
+    //     parametric       90       0.6529    0.4654    <- the only loss
     //
-    // The lookup's error roughly doubled as the gaps widened, exactly as the rule says
-    // it must, while the decoder's FELL -- fewer points is an easier function to fit.
+    // The lookup's error rises as the gaps widen, exactly as the rule says it must.
     //
-    // So: densely sampled data, use a lookup and skip the model. Sparse data, train the
-    // decoder. That is a statement a caller can act on, which "the inverse is
-    // approximate" is not.
+    // BUT NOTE WHICH CELL THE DECODER LOSES IN. An earlier version of this comment said
+    // "densely sampled data, use a lookup and skip the model", and that was measured on
+    // the parametric fit ALONE. A free-form embedding answers to nothing, so the
+    // optimiser can lay a curve out cleanly and y -> x comes out a well-behaved
+    // function; a parametric encoder is CONSTRAINED to be smooth in x and can settle on
+    // a more contorted layout, harder to invert rather than easier. At 90 points the
+    // free-form decoder scores 0.0858 against the parametric one's 0.6529 -- sevenfold
+    // better on identical data.
+    //
+    // The rule survived; the recommendation drawn from it did not. Train the decoder
+    // unless the data is dense AND the fit is parametric.
     {
         const n = 90;
         const x = try curve(alloc, n, d);
@@ -1530,6 +1539,51 @@ test "WHICH INVERSE WINS IS DECIDED BY THE SAMPLING GAP" {
         // and here it is not close: 0.081 against 0.902
         try testing.expect(e.decoder < e.lookup / 5);
     }
+}
+
+test "A FREE-FORM FIT INVERTS TOO, and rather better" {
+    const alloc = testing.allocator;
+    const d = 6;
+    const dh = [_]usize{ 64, 64 };
+    const hidden = [_]usize{ 24, 24 };
+    const n = 90;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+
+    // THE DECODER NEVER INVERTS THE ENCODER. It is a separate model regressed on
+    // (position, row) pairs, and a free-form fit has both halves exactly as a
+    // parametric one does -- how the positions were arrived at is not its business.
+    // A refusal stood in the Ring surface on the opposite reasoning and was wrong.
+    var ff = try umap.run(alloc, x, n, d, .{ .n_neighbors = 8, .epochs = 400 });
+    defer ff.deinit();
+    var pa = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 8,
+        .epochs = 400,
+        .learning_rate = 0.01,
+    });
+    defer pa.deinit();
+
+    var d_ff = try trainDecoder(alloc, ff.embedding, x, n, 2, d, &dh, 0.02, 15000, 11);
+    defer d_ff.deinit();
+    var d_pa = try trainDecoder(alloc, pa.embedding, x, n, 2, d, &dh, 0.02, 15000, 11);
+    defer d_pa.deinit();
+
+    const e_ff = try midpointErrors(alloc, ff.embedding, x, n, d, d_ff);
+    const e_pa = try midpointErrors(alloc, pa.embedding, x, n, d, d_pa);
+
+    // MEASURED: 0.0858 for the free-form embedding against 0.6529 for the parametric
+    // one -- SEVENFOLD BETTER on identical data.
+    //
+    // The reason is worth knowing rather than being a curiosity. A free-form layout
+    // answers to nothing, so the optimiser can lay this curve out cleanly and y -> x
+    // comes out a well-behaved function. A parametric encoder is CONSTRAINED to be
+    // smooth in x, and the embedding it settles on can be more contorted -- harder to
+    // invert, not easier. The property that makes the forward transform exact is not
+    // the property that makes the inverse easy.
+    try testing.expect(e_ff.decoder < e_pa.decoder / 2);
+    // and here the decoder beats the lookup even at 90 points, where the parametric
+    // one did not
+    try testing.expect(e_ff.decoder < e_ff.lookup / 2);
 }
 
 test "the decoder maps RAW embedding coordinates to RAW data coordinates" {

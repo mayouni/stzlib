@@ -1251,12 +1251,26 @@ class stzUMAP from stzObject
 	# MEASURED on one curve through six dimensions, inverting midpoints between
 	# consecutive embedded rows (where the curve gives a true answer):
 	#
-	#     90 points on it     decoder 0.6028    lookup 0.4654   <- dense: gap is tiny
-	#     24 points on it     decoder 0.0810    lookup 0.9024   <- sparse: gap hurts
+	#     fit           points     decoder    lookup
+	#     free-form        24       0.5450    1.1516
+	#     free-form        90       0.0858    0.2673
+	#     parametric       24       0.2191    0.9886
+	#     parametric       90       0.6529    0.4654    <- the only loss
 	#
-	# The lookup's error roughly doubled as the gaps widened, exactly as the rule says,
-	# while the decoder's FELL -- fewer points is an easier function to fit. So on
-	# densely sampled data, skip this and take the nearest row; on sparse data, train it.
+	# The lookup's error rises as the gaps widen, exactly as the rule says. But note
+	# WHICH cell the decoder loses in, because an earlier version of this note said
+	# "densely sampled data, skip the model" and that was measured on the parametric fit
+	# ALONE. On a free-form embedding the decoder wins at 90 points too, and by threefold.
+	#
+	# THE REASON IS WORTH KNOWING. A free-form layout answers to nothing, so the
+	# optimiser is free to lay a curve out cleanly and y -> x comes out a well-behaved
+	# function. A parametric encoder is CONSTRAINED to be smooth in x, and the embedding
+	# it settles on can be more contorted -- harder to invert, not easier. At 90 points
+	# the free-form decoder scores 0.0858 against the parametric one's 0.6529, sevenfold
+	# better on identical data.
+	#
+	# So the rule stands and the recommendation drawn from it did not: train the decoder
+	# unless the data is dense AND the fit is parametric.
 	#
 	# -- AND THE LIMIT THAT NO SETTING REMOVES --
 	#
@@ -1264,11 +1278,11 @@ class stzUMAP from stzObject
 	# and invents the rest. It is a plausible row for a location, never a recovered one.
 	def LearnInverse()
 		This._MustBeFitted()
-		if NOT @bParametric
-			stzraise("The inverse needs the parametric fit -- call LearnMapping() " +
-				"before Fit(). Without it there is no map to invert, only a list of " +
-				"positions, and the nearest-row lookup is all that is available.")
-		ok
+		# A REFUSAL USED TO STAND HERE, and it was wrong. I reasoned that a free-form
+		# fit has "no map to invert, only a list of positions" -- but the decoder never
+		# inverts the encoder. It is a separate model regressed on (position, row)
+		# pairs, and a free-form fit has both halves exactly as a parametric one does.
+		# How the positions were arrived at is not its business.
 		_aY_ = []
 		for _i_ = 1 to @nRows
 			for _j_ = 1 to @nDims

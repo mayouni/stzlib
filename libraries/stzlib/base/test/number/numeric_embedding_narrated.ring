@@ -1693,12 +1693,14 @@ EndScenario()
 Scenario("what the inverse refuses, and what it can never promise")
 	aD = SixDCurve(24)
 
-	# without a learned map there is nothing to invert -- only a list of positions
+	# A REFUSAL STOOD HERE AND THESE TWO ASSERTIONS PINNED IT. The reasoning was that a
+	# free-form fit has "no map to invert, only a list of positions" -- and it was wrong.
+	# The decoder never inverts the encoder. It is a separate model regressed on
+	# (position, row) pairs, and a free-form fit has both halves.
 	oFree = new stzUMAP(aD)
 	oFree.SetNeighborsQ(6).SetEpochsQ(200).FitQ()
-	Then("a free-form fit has no map to invert", RefusesInverse(oFree), TRUE)
-	Then("...and says what to do instead",
-	     StzFindFirst("LearnMapping", WhyNoInverse(oFree)) > 0, TRUE)
+	oFree.LearnInverse()
+	Then("a free-form fit inverts too", oFree.HasInverse(), TRUE)
 
 	o = new stzUMAP(aD)
 	o.SetNeighborsQ(6).SetEpochsQ(200).SetHiddenLayersQ([16]).LearnMappingQ().FitQ()
@@ -1715,6 +1717,43 @@ Scenario("what the inverse refuses, and what it can never promise")
 	# does with an unfamiliar row.
 	Then("a far-off point still returns a row, and that row is not evidence",
 	     len(o.Inverse([ [900, 900] ])), 1)
+EndScenario()
+
+Scenario("...and the FREE-FORM fit inverts better than the parametric one")
+	# Which is the opposite of what the refusal assumed, so it is worth a number.
+	aD = SixDCurve(90)
+
+	oFree = new stzUMAP(aD)
+	oFree.SetNeighborsQ(8).SetEpochsQ(400).FitQ()
+	oFree.LearnInverse()
+
+	oPar = new stzUMAP(aD)
+	oPar.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oPar.LearnInverse()
+
+	# MEASURED at midpoints, where the generating curve gives a true answer:
+	#
+	#     fit           points     decoder    lookup
+	#     free-form        24       0.5450    1.1516
+	#     free-form        90       0.0858    0.2673
+	#     parametric       24       0.2191    0.9886
+	#     parametric       90       0.6529    0.4654    <- the only loss
+	#
+	# A FREE-FORM LAYOUT ANSWERS TO NOTHING, so the optimiser can lay this curve out
+	# cleanly and y -> x comes out a well-behaved function. A parametric encoder is
+	# CONSTRAINED to be smooth in x, and the embedding it settles on can be more
+	# contorted -- harder to invert, not easier.
+	#
+	# THE PROPERTY THAT MAKES THE FORWARD TRANSFORM EXACT IS NOT THE PROPERTY THAT MAKES
+	# THE INVERSE EASY. They pull in opposite directions, and both are measured here
+	# rather than assumed from the shape of the machinery.
+	Then("the free-form inverse is the more accurate of the two",
+	     MidpointError(oFree, aD, 90) < MidpointError(oPar, aD, 90), TRUE)
+
+	# and an earlier note here said "dense data, skip the model" -- measured on the
+	# PARAMETRIC fit alone. On a free-form embedding the decoder wins at 90 points too.
+	Then("...and beats the nearest stored row even at 90 points",
+	     MidpointError(oFree, aD, 90) < LookupError(oFree, aD, 90), TRUE)
 EndScenario()
 
 Scenario("the name forms hold here too")
@@ -2614,3 +2653,31 @@ func RefusesBadPoint(o)
 		_rbB_ = TRUE
 	done
 	return _rbB_
+
+# mean error of inverting the midpoints between consecutive embedded rows, against the
+# true curve
+func MidpointError(o, aD, n)
+	_meE_ = o.Embedding()
+	_meP_ = []
+	for _meI_ = 1 to n-1
+		_meP_ + [ (_meE_[_meI_][1] + _meE_[_meI_+1][1])/2,
+			  (_meE_[_meI_][2] + _meE_[_meI_+1][2])/2 ]
+	next
+	_meB_ = o.Inverse(_meP_)
+	_meS_ = 0
+	for _meI_ = 1 to n-1
+		_meS_ += DistOf(_meB_[_meI_], CurveRowAt((_meI_ - 0.5) / n * 6.2831853))
+	next
+	return _meS_ / (n-1)
+
+# the same midpoints answered by the nearest stored row instead
+func LookupError(o, aD, n)
+	_leE_ = o.Embedding()
+	_leS_ = 0
+	for _leI_ = 1 to n-1
+		_leP_ = [ (_leE_[_leI_][1] + _leE_[_leI_+1][1])/2,
+			  (_leE_[_leI_][2] + _leE_[_leI_+1][2])/2 ]
+		_leS_ += DistOf(NearestRowTo(_leP_, _leE_, aD),
+			CurveRowAt((_leI_ - 0.5) / n * 6.2831853))
+	next
+	return _leS_ / (n-1)
