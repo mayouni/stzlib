@@ -2144,6 +2144,59 @@ what it refused.
   to the nearest neighbour and that neighbour's weight is `exp(0)`. Not a no-op by luck —
   supervision has nothing to say there, and says it.
 
+- **PARAMETRIC UMAP DENSITY (`98d9d5dbd`)** — *the input scaling decided everything.*
+
+  Density preservation was already wired here, but its test only checked a radius array
+  came back. Measuring what it **achieved** found a defect with nothing to do with
+  density.
+
+  | input | density correlation | diffuse cluster spread |
+  |---|---|---|
+  | **raw** | **−0.9934** | **0.0000** |
+  | **standardised** | **+0.9967** | 1.0751 |
+
+  The whole diffuse cluster **collapsed to a point** and the correlation came out fully
+  **inverted** — from the input scale alone. An input of magnitude 20 across four
+  features drives the first tanh to |z| ≈ 37, flat to some 1e-32, so every row of that
+  cluster is literally the same vector to the first layer and no gradient can separate
+  points the network cannot distinguish. A caller passing ordinary unscaled data got a
+  confidently inverted picture with nothing to warn them.
+
+  **This is where the two optimisers differ in their requirements rather than their
+  results.** Free coordinates are moved by distances and do not care what units those
+  are in; a network's input scale decides whether its activations carry information at
+  all. So the scaling belongs to the algorithm — and is **folded back into the first
+  layer** afterwards (`w' = w/s`, `b' = b − Σ w·m/s`), which keeps the returned weights a
+  function of the **raw** input, lets `ptsne.transform` serve unchanged, and stops any
+  scaling parameters travelling beside the model waiting to be lost.
+
+  | λ | correlation | drawn ratio |
+  |---|---|---|
+  | ~0 | **0.9940** | 865.6 — *no density term at all* |
+  | 0.1 | 0.9940 | 865.1 |
+  | 2 | 0.9940 | 862.5 |
+  | 10 | 0.9942 | 1013.4 |
+
+  **And the density term turns out to be nearly redundant here.** Plain parametric UMAP
+  already scores 0.994; the term moves it by two ten-thousandths. A smooth function
+  cannot tear the space, so relative spreads carry through by themselves — the same
+  result the parametric t-SNE work reached from the other side. **Density preservation
+  repairs what free coordinates lose, and a learned map never lost it.**
+
+  **The magnitude is another matter:** true ratio 22.1, drawn 865 — a fortyfold
+  overshoot. A correlation of 0.994 says the ordering is right and says **nothing** about
+  the scale.
+
+  Two consequences recalibrated rather than papered over. The usable **learning-rate band
+  moved** (inputs of order 1 rather than 20 make the same nominal rate a larger step):
+  0.005/0.01/0.02 give within-spreads 0.370/0.240/0.240, and 0.05 collapses to 0.000532
+  with a separation of 216168 — the same disguise as before. And the **outlier verdict
+  became data-dependent**: before standardising, an unfamiliar row landed 0.000001 from a
+  legitimate one on every dataset; after, 11% of the map's width on one and 99% on
+  another. So the guard no longer asserts blindness — it asserts what holds either way,
+  that the network's placement of an unfamiliar row is not evidence about that row, and
+  that the **data-side** radius is (0.0839 against 2 956 381).
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
