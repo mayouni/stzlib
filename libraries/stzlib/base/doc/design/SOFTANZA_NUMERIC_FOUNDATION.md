@@ -2633,6 +2633,49 @@ what it refused.
   Both still lose about six digits there, which is what a condition number of 1e12 means,
   and the test says so rather than pinning luck.
 
+- **THE SCHUR DECOMPOSITION (`fd982e7fd`)** — *the one already here was not orthogonal.*
+
+  The directive asked for the Schur inverse; checking first — as the two previous entries
+  taught — found the **premise** needed fixing before the inverse could mean anything.
+
+  `eigen_general.zig` computes a real Schur **form**: Francis double-shift QR leaves T
+  quasi-upper-triangular, and a comment at the top of the file has said so since it was
+  written. What it does **not** produce is an orthogonal transform — `toHessenberg`
+  reduces by **Gaussian elimination** with pivoting (EISPACK `elmhes`/`eltran`), so the
+  accumulated Z is a general similarity.
+
+  | | elimination path | Householder path |
+  |---|---|---|
+  | T below subdiagonal | 3.9e-16 ✓ | ✓ |
+  | **‖ZᵀZ − I‖** | **0.607** | **6.7e-16** |
+  | ‖Z T Zᵀ − A‖ | **3.38** | 7.1e-11 |
+
+  **A decomposition whose Q is not orthogonal is not a Schur decomposition** — it is a
+  similarity that happens to end in triangular form, and everything worth having
+  downstream (`Qᵀ = Q⁻¹`, norms preserved, stability of matrix functions) rests on the
+  orthogonality. Elimination is cheaper and perfectly good for eigenvalues, which is all
+  that path needs, so it is left exactly as it was; the Schur decomposition reduces by
+  **Householder reflections** on its own path.
+
+  **And then the inverse, which is correct and is the wrong route to use.**
+  `A⁻¹ = Q T⁻¹ Qᵀ` agrees with the other five to 1e-8, and runs an *iterative* QR to
+  arrive where `luInverse` arrives by direct factorisation. It exists because the
+  decomposition is worth having and an inverse is the obvious thing to ask of one — so it
+  should be there, and it should **say what it is** rather than quietly presenting itself
+  as an option.
+
+  ***What the Schur form is actually for is `f(A)` for a non-symmetric matrix*** — square
+  root, exponential, general power. `symmetricPower` refuses every non-symmetric matrix
+  by construction, and an eigendecomposition cannot always supply one: a **defective**
+  matrix has no full set of eigenvectors, while every real matrix has a Schur form. This
+  inverse is the `f = 1/x` case, and the least interesting of them.
+
+  *The 2×2 blocks are not a formality.* A conjugate pair leaves a 2×2 on T's diagonal
+  whose unknowns are **coupled**, so the back-substitution solves the block as a pair. A
+  rotation with eigenvalues 2 ± 3i is pinned: T carries the block and the inverse is right
+  anyway. Dividing through `T[i][i]` there would return a plausible matrix and the wrong
+  answer, since a real matrix with complex eigenvalues is perfectly invertible.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
