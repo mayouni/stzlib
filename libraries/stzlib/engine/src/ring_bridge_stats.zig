@@ -1928,6 +1928,67 @@ fn ring_Pumap(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+
+// ─── INVERSE TRANSFORM: a decoder from the picture back to the data ──────────
+//
+//   StzEnginePumapDecoder(aEmbedding, aX, n, nDims, d, aHidden, nLR, nEpochs, nSeed)
+//     -> [ shapeLen, weightLen, lossLen, shape, weights, loss ]
+//
+// The inverse itself is StzEnginePtsneTransform with these weights: a forward pass
+// does not care which direction it is running.
+fn ring_PumapDecoder(p: *anyopaque) callconv(.c) void {
+    const y = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(y);
+    const x = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 3));
+    const dims: usize = @intFromFloat(g(p, 4));
+    const d: usize = @intFromFloat(g(p, 5));
+    const hv = listToF64(p, 6) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hv);
+    const lr = g(p, 7);
+    const epochs: usize = @intFromFloat(g(p, 8));
+    const seed: u64 = @intFromFloat(g(p, 9));
+
+    if (n < 2 or dims == 0 or d == 0 or hv.len == 0 or epochs == 0 or
+        y.len != n * dims or x.len != n * d)
+    {
+        rn(p, 0);
+        return;
+    }
+
+    const hidden = allocator.alloc(usize, hv.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(hidden);
+    for (hv, 0..) |v, i| hidden[i] = @intFromFloat(v);
+
+    var dec = pumap_mod.trainDecoder(allocator, y, x, n, dims, d, hidden, if (lr <= 0) 0.02 else lr, epochs, seed) catch {
+        rn(p, 0);
+        return;
+    };
+    defer dec.deinit();
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(dec.shape.len));
+    R.ring_list_adddouble(out, @floatFromInt(dec.weights.len));
+    R.ring_list_adddouble(out, @floatFromInt(dec.loss.len));
+    for (dec.shape) |v| R.ring_list_adddouble(out, v);
+    for (dec.weights) |v| R.ring_list_adddouble(out, v);
+    for (dec.loss) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // ─── LOCAL RADII OF UNSEEN ROWS ──────────────────────────────────────────────
 //
 //   StzEngineLocalRadiiOfNew(aTrainX, n, d, aNewX, m, k) -> m radii
@@ -2115,6 +2176,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelocalradiiofnew", .func = &ring_LocalRadiiOfNew },
     .{ .name = "stzenginetsnetransform", .func = &ring_TsneTransform },
     .{ .name = "stzenginepumap", .func = &ring_Pumap },
+    .{ .name = "stzenginepumapdecoder", .func = &ring_PumapDecoder },
     .{ .name = "stzenginepcatransform", .func = &ring_PcaTransform },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
