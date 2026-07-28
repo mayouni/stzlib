@@ -364,6 +364,31 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     return out;
 }
 
+/// THE BEST RANK-k APPROXIMATION of this matrix -- the OTHER sense of inverting an SVD.
+///
+/// The pseudo-inverse above answers "undo this transformation". This answers "keep the
+/// k strongest directions and discard the rest", which is the sense the embedding work
+/// means: PCA's reconstruction is exactly this on the centered matrix.
+///
+/// Its error is an identity rather than a measurement. Eckart and Young proved no
+/// rank-k matrix is closer in the Frobenius norm, and that the distance is exactly the
+/// squares of the singular values dropped -- so a caller who kept k of them already
+/// knows the cost without measuring anything.
+pub fn stz_matrix_low_rank(m: ?*const StzMatrix, k: c_int) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.cols == 0 or k <= 0) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    const ok = linalg.lowRankApproximation(gpa, mat.data, mat.rows, mat.cols, @intCast(k), out.data) catch {
+        out.deinit();
+        return null;
+    };
+    if (!ok) {
+        out.deinit();
+        return null;
+    }
+    return out;
+}
+
 /// The MINIMUM-NORM least-squares solution x = A+b, as a new n*1 matrix. Where
 /// stz_matrix_least_squares refuses -- rank deficiency, or an underdetermined shape --
 /// this answers, with the solution that is both a minimiser and the shortest one.

@@ -2474,6 +2474,54 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- THE OTHER SENSE OF INVERTING AN SVD: the best rank-k approximation --
+	#
+	# PseudoInverse() below answers "undo this transformation". This answers "keep the k
+	# strongest directions and discard the rest" -- the sense the embedding work means
+	# by an inverse. PCA's reconstruction is exactly this, on the centered matrix.
+	#
+	# ITS ERROR IS AN IDENTITY, NOT A MEASUREMENT. Eckart and Young proved that no
+	# rank-k matrix is closer in the Frobenius norm, and that the distance is exactly
+	# the squares of the singular values dropped:
+	#
+	#     ||A - A_k||_F^2  =  s_(k+1)^2 + s_(k+2)^2 + ...
+	#
+	# So a caller who kept k components already knows what it cost, from
+	# SingularValues() alone and without reconstructing anything. It is the same shape
+	# of statement as PCA's "reconstruction error equals discarded variance", and for
+	# the same reason -- these are the same theorem wearing two names.
+	#
+	# Keeping every singular value returns the matrix itself, to rounding.
+	def LowRank(k)
+		if @nRows = 0 or @nCols = 0
+			StzRaise("LowRank: the matrix is empty.")
+		ok
+		if NOT isNumber(k) or k < 1
+			StzRaise("LowRank: k must be at least 1 -- a rank-zero approximation is " +
+				"the zero matrix, which needs no decomposition to find.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pLrV_ = StzEngineMatrixLowRank(@pEngineMatrix, k)
+		if _pLrV_ = NULL
+			return []
+		ok
+		_aLrV_ = []
+		for _iLr_ = 1 to @nRows
+			_aRowLr_ = []
+			for _jLr_ = 1 to @nCols
+				_aRowLr_ + StzEngineMatrixGet(_pLrV_, _iLr_ - 1, _jLr_ - 1)
+			next
+			_aLrV_ + _aRowLr_
+		next
+		StzEngineMatrixFree(_pLrV_)
+		return _aLrV_
+
+		def LowRankQ(k)
+			return new stzMatrix(This.LowRank(k))
+
 	def PseudoInverse()
 
 		if @nRows = 0 or @nCols = 0

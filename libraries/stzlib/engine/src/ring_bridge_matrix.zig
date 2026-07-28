@@ -144,6 +144,10 @@ fn ring_PseudoInverse(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_pseudo_inverse(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_LowRank(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_low_rank(getMC(p, 1), @intFromFloat(g(p, 2)));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 fn ring_MinNormSolve(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_min_norm_solve(getMC(p, 1), getMC(p, 2));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -254,6 +258,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixrankgeneral", .func = &ring_RankGeneral },
         .{ .name = "stzengine" ++ "matrixconditiongeneral", .func = &ring_ConditionGeneral },
         .{ .name = "stzengine" ++ "matrixpseudoinverse", .func = &ring_PseudoInverse },
+        .{ .name = "stzengine" ++ "matrixlowrank", .func = &ring_LowRank },
         .{ .name = "stzengine" ++ "matrixminnormsolve", .func = &ring_MinNormSolve },
         .{ .name = "stzengine" ++ "matrixispositivedefinite", .func = &ring_IsPositiveDefinite },
         .{ .name = "stzengine" ++ "matrixpower", .func = &ring_Power },

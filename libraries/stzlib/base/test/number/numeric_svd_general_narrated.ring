@@ -144,6 +144,49 @@ Scenario("what it still refuses")
 	Then("a matrix with no entries", RaisesSvd([ [] ]), TRUE)
 EndScenario()
 
+Scenario("INVERTING AN SVD MEANS TWO DIFFERENT THINGS")
+	# One of them already existed. PseudoInverse() -- A+ = V S+ U' -- has been here
+	# since the SVD went in, tested against the four Penrose conditions that DEFINE it.
+	# I started writing a second one before looking, which is the mistake the *Cp
+	# bridges were supposed to have taught.
+	#
+	# The other sense was genuinely missing: the BEST RANK-k APPROXIMATION. Where the
+	# pseudo-inverse answers "undo this transformation", this answers "keep the k
+	# strongest directions and discard the rest" -- and that is the sense the embedding
+	# work means. PCA's reconstruction is exactly this, on the centered matrix.
+	aA = [ [4,1,2,0], [1,3,0,2], [2,0,5,1], [0,2,1,4], [3,1,1,1], [1,1,2,2] ]
+	oM = new stzMatrix(aA)
+	aS = oM.SingularValues()
+
+	Then("keeping every direction returns the matrix itself",
+	     FrobeniusSq(aA, oM.LowRank(4)) < 0.000001, TRUE)
+
+	# ITS ERROR IS AN IDENTITY, NOT A MEASUREMENT. Eckart and Young proved that no
+	# rank-k matrix is closer in the Frobenius norm, and that the distance is exactly
+	# the squares of the singular values dropped. MEASURED:
+	#
+	#     k=1   ||A-A_k||^2 = 38.169460   discarded s^2 = 38.169460
+	#     k=2                 13.187611                   13.187611
+	#     k=3                  1.087157                    1.087157
+	#     k=4                  0.000000                    0
+	#
+	# So a caller who kept k components already knows what it cost, from
+	# SingularValues() alone and without reconstructing anything.
+	#
+	# This is the SAME STATEMENT as PCA's "reconstruction error equals discarded
+	# variance", and for the same reason -- they are one theorem wearing two names,
+	# because PCA is the SVD of the centered matrix. Neither is a plausible number; both
+	# say the arithmetic is right.
+	Then("k=1 costs exactly the squares it discarded", EckartYoungHolds(oM, aA, aS, 1), TRUE)
+	Then("...and so does k=2", EckartYoungHolds(oM, aA, aS, 2), TRUE)
+	Then("...and k=3", EckartYoungHolds(oM, aA, aS, 3), TRUE)
+
+	Then("a rank below 1 is refused", RefusesZeroRank(oM), TRUE)
+	Then("...and the Q form hands back a matrix to keep working with",
+	     len(oM.LowRankQ(2).Content()), 6)
+EndScenario()
+
+
 Summary()
 
 func Rnd8(n)
@@ -245,3 +288,30 @@ func RaisesSvd(aM)
 		b = TRUE
 	done
 	return b
+
+func FrobeniusSq(aX, aY)
+	_fbS_ = 0
+	for _fbI_ = 1 to len(aX)
+		for _fbJ_ = 1 to len(aX[1])
+			_fbD_ = aX[_fbI_][_fbJ_] - aY[_fbI_][_fbJ_]
+			_fbS_ += _fbD_ * _fbD_
+		next
+	next
+	return _fbS_
+
+func EckartYoungHolds(oM, aA, aS, k)
+	_eyErr_ = FrobeniusSq(aA, oM.LowRank(k))
+	_eyDrop_ = 0
+	for _eyJ_ = k+1 to len(aS)
+		_eyDrop_ += aS[_eyJ_] * aS[_eyJ_]
+	next
+	return fabs(_eyErr_ - _eyDrop_) < 0.000001
+
+func RefusesZeroRank(oM)
+	_rzB_ = FALSE
+	try
+		oM.LowRank(0)
+	catch
+		_rzB_ = TRUE
+	done
+	return _rzB_
