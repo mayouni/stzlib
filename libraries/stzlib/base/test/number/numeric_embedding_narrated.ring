@@ -1554,6 +1554,77 @@ Scenario("THE DENSITY CONTRACT REACHES NEW ROWS WITH NO CALIBRATION")
 	     DrawnRatioAt(aE, 25) > TrueRatioAt(aTrain, 25) * 10, TRUE)
 EndScenario()
 
+Scenario("SUPERVISION MUST NOT REDEFINE WHAT DENSITY MEANS")
+	# Supervised, density-preserving and parametric all at once -- the last corner. It
+	# was already wired, and asserting only that the numbers were finite hid a real
+	# defect underneath.
+	#
+	# THE LOCAL RADIUS IS A MEMBERSHIP-WEIGHTED MEAN SQUARED DISTANCE, and supervision
+	# reweights exactly those memberships. So once the cross-class edges were crushed,
+	# the same formula answered a DIFFERENT QUESTION: not "how far is this point from
+	# its neighbours" but "how far from its neighbours OF THE SAME CLASS".
+	#
+	#     MEASURED before the fix, free-form:
+	#         unsupervised   radii[1]=0.005061   radii[30]=2.502802
+	#         supervised     radii[1]=0.008793   radii[30]=3.071464
+	#
+	# Two things made that indefensible rather than merely arguable. LocalRadii() is
+	# documented as a property of THE DATA. And LocalRadiiOf() -- the out-of-distribution
+	# check -- is necessarily computed label-free, since a new row HAS no label, so
+	# supervision was quietly making the two incomparable.
+	#
+	# Same shape as the PCA space mismatch a few steps earlier: one seam, two
+	# computations, and a comparison that spans them. The graph now snapshots its
+	# weights before supervision touches them.
+	aD = TwoDensitiesFar(25)
+	aY = Alternating(50)
+
+	oPlain = new stzUMAP(aD)
+	oPlain.SetNeighborsQ(8).SetEpochsQ(200).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oPlain.PreserveDensityQ().FitQ()
+
+	oBoth = new stzUMAP(aD)
+	oBoth.SetNeighborsQ(8).SetEpochsQ(200).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	oBoth.PreserveDensityQ().LearnFromLabelsQ(aY).SetTargetWeightQ(0.5).FitQ()
+
+	Then("parametric, supervised and density-preserving at once",
+	     oBoth.IsParametric() and oBoth.IsSupervised() and oBoth.IsDensityPreserving(), TRUE)
+
+	# identical to the last bit, not merely close
+	Then("supervision leaves the density target exactly as it was",
+	     SameList(oPlain.LocalRadii(), oBoth.LocalRadii()), TRUE)
+	# and the supervision really did happen -- these are not two identical runs
+	Then("...while still reshaping the layout",
+	     SameEmbedding(oPlain.Embedding(), oBoth.Embedding()), FALSE)
+EndScenario()
+
+Scenario("...so the out-of-distribution check survives supervision")
+	aD = TwoDensitiesFar(25)
+	aY = Alternating(50)
+	aNew = [ [0.02,0.02,0.02,0.02], [20.5,20.5,20.5,20.5] ]
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(8).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
+	o.PreserveDensityQ().LearnFromLabelsQ(aY).SetTargetWeightQ(0.5).FitQ()
+	aR = o.LocalRadiiOf(aNew)
+
+	# MEASURED: training radii around 0.0036 to 0.0051 for the dense cluster, and the
+	# new rows come back at 0.0032 and 1.9778. Both quantities are now on the same
+	# footing, which is the whole point of the fix -- before it, one side of this
+	# comparison had been reweighted by the labels and the other had not.
+	Then("a new dense row sits inside the dense training range",
+	     aR[1] < LargestIn(o.LocalRadii(), 1, 25) * 2, TRUE)
+	Then("...and a new sparse row is plainly outside it",
+	     aR[2] > LargestIn(o.LocalRadii(), 1, 25) * 50, TRUE)
+
+	# ALL FOUR CORNERS, measured: plain 0.9940, +density 0.9940, +supervision 0.9951,
+	# +both 0.9951. Density adds nothing on a learned map (a smooth function already
+	# preserves it) and supervision costs nothing either. What is claimed here is the
+	# ORTHOGONALITY: turning one on does not move what the other reports.
+	Then("and the density still holds with both switched on",
+	     o.DensityCorrelation() > 0.9, TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -2380,3 +2451,14 @@ func ReachOf(aPos, aRow, aTrain, aE, k)
 		_rSum_ += DistOf(aPos, aE[_rPair_[_rI_][2]])
 	next
 	return _rSum_ / k
+
+func SameList(aA, aB)
+	if len(aA) != len(aB)
+		return FALSE
+	ok
+	for _slI_ = 1 to len(aA)
+		if aA[_slI_] != aB[_slI_]
+			return FALSE
+		ok
+	next
+	return TRUE

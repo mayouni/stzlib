@@ -247,7 +247,11 @@ pub fn run(
     defer if (dens_ws) |*dw| dw.deinit();
     var dens_corr: f64 = std.math.nan(f64);
     var dens_start: usize = opts.epochs;
-    const de: []const density.Edge = @ptrCast(graph.edges.items);
+    // the PRE-SUPERVISION weights, so that turning labels on cannot redefine what
+    // density means -- see umap.Graph.raw_w
+    const dens_buf = try alloc.alloc(umap.Edge, graph.edges.items.len);
+    defer alloc.free(dens_buf);
+    const de: []const density.Edge = @ptrCast(graph.densityEdges(dens_buf));
     if (want_density) {
         dens_target = try density.buildTarget(alloc, de, x, n, d);
         dens_ws = try density.Workspace.init(alloc, n);
@@ -1009,6 +1013,111 @@ fn spreadOf3(v: []const f64, lo: usize, hi: usize) f64 {
         }
     }
     return if (c > 0) s / c else 0;
+}
+
+test "SUPERVISION MUST NOT REDEFINE WHAT DENSITY MEANS" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var st: u64 = 7;
+    for (0..n) |i| {
+        for (0..d) |t| {
+            st = st *% 6364136223846793005 +% 1442695040888963407;
+            const u = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+            x[i * d + t] = if (i < per) (u - 0.5) * 0.15 else 20.0 + (u - 0.5) * 3.0;
+        }
+    }
+    // labels that CUT ACROSS the two density clusters, so supervision has real work
+    const lab = try alloc.alloc(i32, n);
+    defer alloc.free(lab);
+    for (0..n) |i| lab[i] = @intCast(i % 2);
+    const hidden = [_]usize{ 24, 24 };
+
+    // THE BUG THIS PINS. The local radius is a membership-weighted mean squared
+    // distance, and supervision reweights exactly those memberships -- so once
+    // applyLabels had crushed the cross-class edges, the same formula was answering a
+    // different question: not "how far is this point from its neighbours" but "how far
+    // from its neighbours OF THE SAME CLASS".
+    //
+    // MEASURED before the fix: a point's reported radius moved from 0.005061 to
+    // 0.008793 when labels were supplied, and another's from 2.502802 to 3.071464.
+    //
+    // Two things made that indefensible rather than merely arguable. LocalRadii() is
+    // documented as a property of the DATA. And the out-of-distribution check compares
+    // a new row's radius -- necessarily computed label-free, since a new row HAS no
+    // label -- against the training range, so supervision was quietly making those two
+    // quantities incomparable. Same shape as the PCA space mismatch two steps earlier:
+    // one seam, two computations, and a comparison that spans them.
+    //
+    // The graph snapshots its weights before supervision touches them, so the density
+    // target is built label-free and the two features are independent again.
+    var plain = try run(alloc, x, n, d, &hidden, null, .{
+        .n_neighbors = 8,
+        .epochs = 200,
+        .learning_rate = 0.01,
+        .density_lambda = 0.1,
+    });
+    defer plain.deinit();
+    var sup = try run(alloc, x, n, d, &hidden, lab, .{
+        .n_neighbors = 8,
+        .epochs = 200,
+        .learning_rate = 0.01,
+        .target_weight = 0.5,
+        .density_lambda = 0.1,
+    });
+    defer sup.deinit();
+
+    // identical to the last bit, not merely close
+    for (plain.local_radii, sup.local_radii) |a, b| try testing.expectEqual(a, b);
+
+    // and the supervision DID happen -- this is not two identical runs
+    try testing.expect(!std.mem.eql(u8, std.mem.sliceAsBytes(plain.embedding), std.mem.sliceAsBytes(sup.embedding)));
+}
+
+test "all four corners compose, and none degrades another" {
+    const alloc = testing.allocator;
+    const per = 25;
+    const n = per * 2;
+    const d = 4;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var st: u64 = 7;
+    for (0..n) |i| {
+        for (0..d) |t| {
+            st = st *% 6364136223846793005 +% 1442695040888963407;
+            const u = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+            x[i * d + t] = if (i < per) (u - 0.5) * 0.15 else 20.0 + (u - 0.5) * 3.0;
+        }
+    }
+    const lab = try alloc.alloc(i32, n);
+    defer alloc.free(lab);
+    for (0..n) |i| lab[i] = @intCast(i % 2);
+    const hidden = [_]usize{ 24, 24 };
+
+    // MEASURED, density correlation at each corner:
+    //
+    //                    no density   +density
+    //     plain            0.9940       0.9940
+    //     +supervision     0.9951       0.9951
+    //
+    // Density adds nothing on a learned map (established separately -- a smooth
+    // function already preserves it), and supervision costs nothing either. What is
+    // pinned here is the ORTHOGONALITY: after the target was made label-free, turning
+    // one on does not move what the other reports.
+    var both = try run(alloc, x, n, d, &hidden, lab, .{
+        .n_neighbors = 8,
+        .epochs = 200,
+        .learning_rate = 0.01,
+        .target_weight = 0.5,
+        .density_lambda = 0.1,
+    });
+    defer both.deinit();
+    try testing.expect(both.density_correlation > 0.9);
+    try testing.expectEqual(n, both.local_radii.len);
+    for (both.embedding) |v| try testing.expect(!std.math.isNan(v) and !std.math.isInf(v));
 }
 
 test "the folded first layer reproduces the standardised network exactly" {
