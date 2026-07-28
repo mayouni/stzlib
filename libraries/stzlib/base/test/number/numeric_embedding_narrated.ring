@@ -1625,6 +1625,98 @@ Scenario("...so the out-of-distribution check survives supervision")
 	     o.DensityCorrelation() > 0.9, TRUE)
 EndScenario()
 
+Scenario("THE INVERSE TRANSFORM: from the picture back to the data")
+	# Everything else in this file runs one way, data to embedding. This runs the other,
+	# and it is the only direction that needs a second model -- the forward map threw
+	# information away, and nothing gets it back.
+	#
+	# It is trained AFTER the fit, against the frozen embedding, so the map already
+	# looked at is left exactly as it was. (The published variant can instead train the
+	# whole thing as an autoencoder, which makes the embedding more invertible and LESS
+	# faithful to the neighbourhood structure -- a real trade, and one that changes the
+	# picture underneath the caller.)
+	aD = SixDCurve(24)
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	Then("no inverse until it is asked for", o.HasInverse(), FALSE)
+	o.LearnInverse()
+	Then("...and one after", o.HasInverse(), TRUE)
+
+	aE = o.Embedding()
+	aBack = o.Inverse([ aE[1] ])
+	Then("one row in, one row out", len(aBack), 1)
+	Then("...of the right width", len(aBack[1]), 6)
+
+	# MEASURED: row 1 is (0, 0, 5, ...) and comes back (0.0077, 0.0341, 5.0142, ...)
+	Then("a training row comes back close to itself",
+	     DistOf(aBack[1], aD[1]) < 0.5, TRUE)
+EndScenario()
+
+Scenario("...and the question worth asking is about a place with no row in it")
+	# A lookup can only ever hand back a row it already stores. The point of an inverse
+	# is a location the training set does not occupy -- between two clusters, or
+	# wherever somebody pointed at the map. The generating curve is known here, so the
+	# midpoint between two embedded rows HAS a true answer.
+	aD = SixDCurve(24)
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	o.LearnInverse()
+	aE = o.Embedding()
+
+	aMid = [ [ (aE[1][1]+aE[2][1])/2, (aE[1][2]+aE[2][2])/2 ] ]
+	aI = o.Inverse(aMid)
+	aTrue = CurveRowAt(0.5 / 24 * 6.2831853)
+
+	# MEASURED: (0.1263, 0.6316, 4.9476, ...) against a true (0.1309, 0.6526, 4.9572)
+	Then("a place between two rows inverts to a plausible row",
+	     DistOf(aI[1], aTrue) < 0.5, TRUE)
+
+	# WHICH INVERSE WINS IS DECIDED BY THE SAMPLING GAP, and this was predicted before
+	# it was measured:
+	#
+	#   A LOOKUP'S ERROR IS THE SAMPLING GAP -- it returns a stored row, so it can never
+	#   be closer to the truth than the nearest row happens to be.
+	#   A DECODER'S ERROR IS ITS OWN APPROXIMATION ERROR, which owes nothing to how
+	#   densely the data was sampled.
+	#   Whichever is smaller wins.
+	#
+	#     90 points on the curve    decoder 0.6028   lookup 0.4654   <- dense
+	#     24 points on the curve    decoder 0.0810   lookup 0.9024   <- sparse
+	#
+	# The lookup's error roughly doubled as the gaps widened, exactly as the rule says,
+	# while the decoder's FELL -- fewer points is an easier function to fit.
+	Then("on this sparse curve the decoder beats the nearest stored row",
+	     DistOf(aI[1], aTrue) < DistOf(NearestRowTo(aMid[1], aE, aD), aTrue), TRUE)
+EndScenario()
+
+Scenario("what the inverse refuses, and what it can never promise")
+	aD = SixDCurve(24)
+
+	# without a learned map there is nothing to invert -- only a list of positions
+	oFree = new stzUMAP(aD)
+	oFree.SetNeighborsQ(6).SetEpochsQ(200).FitQ()
+	Then("a free-form fit has no map to invert", RefusesInverse(oFree), TRUE)
+	Then("...and says what to do instead",
+	     StzFindFirst("LearnMapping", WhyNoInverse(oFree)) > 0, TRUE)
+
+	o = new stzUMAP(aD)
+	o.SetNeighborsQ(6).SetEpochsQ(200).SetHiddenLayersQ([16]).LearnMappingQ().FitQ()
+	Then("Inverse() before LearnInverse() is refused, not guessed at",
+	     RefusesUntrainedInverse(o), TRUE)
+
+	o.LearnInverse()
+	Then("a point of the wrong width is refused", RefusesBadPoint(o), TRUE)
+
+	# AND THE LIMIT NO SETTING REMOVES: two dimensions cannot hold six. The inverse
+	# recovers what the embedding KEPT and invents the rest -- a plausible row for a
+	# location, never a recovered one. Asked about a place far outside the map, it
+	# answers confidently and the answer means nothing, exactly as the forward transform
+	# does with an unfamiliar row.
+	Then("a far-off point still returns a row, and that row is not evidence",
+	     len(o.Inverse([ [900, 900] ])), 1)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -2462,3 +2554,63 @@ func SameList(aA, aB)
 		ok
 	next
 	return TRUE
+
+# n points along one smooth curve through six dimensions, so a midpoint between two of
+# them has a KNOWN true answer
+func SixDCurve(n)
+	_cRows_ = []
+	for _cI_ = 0 to n-1
+		_cRows_ + CurveRowAt(_cI_ / n * 6.2831853)
+	next
+	return _cRows_
+
+func CurveRowAt(t)
+	return [ t, sin(t)*5, cos(t)*5, sin(2*t)*3, t*t/6, cos(3*t) ]
+
+func NearestRowTo(aPoint, aE, aD)
+	_nrBest_ = 1
+	_nrV_ = -1
+	for _nrI_ = 1 to len(aE)
+		_nrD_ = DistOf(aPoint, aE[_nrI_])
+		if _nrV_ < 0 or _nrD_ < _nrV_
+			_nrV_ = _nrD_
+			_nrBest_ = _nrI_
+		ok
+	next
+	return aD[_nrBest_]
+
+func RefusesInverse(o)
+	_riB_ = FALSE
+	try
+		o.LearnInverse()
+	catch
+		_riB_ = TRUE
+	done
+	return _riB_
+
+func WhyNoInverse(o)
+	_wiS_ = ""
+	try
+		o.LearnInverse()
+	catch
+		_wiS_ = cCatchError
+	done
+	return _wiS_
+
+func RefusesUntrainedInverse(o)
+	_ruB_ = FALSE
+	try
+		o.Inverse([ [0, 0] ])
+	catch
+		_ruB_ = TRUE
+	done
+	return _ruB_
+
+func RefusesBadPoint(o)
+	_rbB_ = FALSE
+	try
+		o.Inverse([ [0, 0, 0] ])
+	catch
+		_rbB_ = TRUE
+	done
+	return _rbB_

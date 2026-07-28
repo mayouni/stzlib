@@ -436,6 +436,176 @@ pub fn run(
     return out;
 }
 
+
+// ─── INVERSE TRANSFORM: from the picture back to the data ────────────────────
+//
+// Everything else in this family runs one way -- data to embedding. This runs the
+// other, and it is the only direction that needs a second model, because the forward
+// map threw information away and no amount of cleverness gets it back.
+//
+// ── WHAT IT CAN AND CANNOT BE ──
+//
+// Two dimensions cannot hold thirty. The inverse therefore recovers what the embedding
+// KEPT and invents the rest, and the honest way to say that is with a number: compare
+// its reconstruction against what you would get by simply returning the nearest
+// training row. If a trained decoder cannot beat that lookup it has added nothing but
+// a model to maintain.
+//
+// ── WHY A SEPARATE MODEL RATHER THAN A JOINT ONE ──
+//
+// The paper's parametric UMAP can be trained as an autoencoder, with a reconstruction
+// loss added to the UMAP objective. That makes the embedding MORE invertible and less
+// faithful to the neighbourhood structure -- a real trade, and one that changes the
+// picture the caller already looked at. Training the decoder afterwards, against the
+// frozen embedding, leaves the map exactly as it was. The map is the deliverable; the
+// inverse is a convenience on top of it.
+
+pub const Decoder = struct {
+    weights: []f64,
+    shape: []f64,
+    /// mean training loss per epoch, so a caller can see it went down
+    loss: []f64,
+    allocator: std.mem.Allocator,
+
+    pub fn deinit(self: *Decoder) void {
+        self.allocator.free(self.weights);
+        self.allocator.free(self.shape);
+        self.allocator.free(self.loss);
+        self.allocator.destroy(self);
+    }
+};
+
+/// Train g(y) ~ x against the frozen embedding.
+///
+/// BOTH ENDS ARE STANDARDISED AND BOTH ARE FOLDED BACK, for the same reason the encoder
+/// standardises its input: a tanh fed coordinates of magnitude 400 -- which parametric
+/// embeddings reach -- is flat, and an MSE against targets of magnitude 20 starts
+/// enormous. Folding means the returned network maps RAW embedding coordinates to RAW
+/// data coordinates, so `ptsne.transform` inverts with no scaling parameters to carry.
+///
+///     input  fold:  w' = w/s_y,   b' = b - sum(w * m_y / s_y)
+///     output fold:  w'' = w * s_x, b'' = b * s_x + m_x
+pub fn trainDecoder(
+    alloc: std.mem.Allocator,
+    y: []const f64,
+    x: []const f64,
+    n: usize,
+    dims: usize,
+    d: usize,
+    hidden: []const usize,
+    lr: f64,
+    epochs: usize,
+    seed: u64,
+) !*Decoder {
+    if (n < 2 or dims == 0 or d == 0) return Error.TooFewPoints;
+    if (hidden.len == 0) return Error.BadShape;
+
+    const n_layers = hidden.len + 1;
+    const layers = try alloc.alloc(nn.Layer, n_layers);
+    defer alloc.free(layers);
+
+    var total_w: usize = 0;
+    var prev = dims;
+    for (hidden, 0..) |h, i| {
+        layers[i] = .{ .units = h, .prev = prev, .kind = .tanh, .w = &[_]f64{}, .b = &[_]f64{} };
+        total_w += h * prev + h;
+        prev = h;
+    }
+    layers[n_layers - 1] = .{ .units = d, .prev = prev, .kind = .linear, .w = &[_]f64{}, .b = &[_]f64{} };
+    total_w += d * prev + d;
+
+    const weights = try alloc.alloc(f64, total_w);
+    errdefer alloc.free(weights);
+
+    var rng = Rng.init(seed);
+    var at: usize = 0;
+    for (layers) |*l| {
+        const fan_in: f64 = @floatFromInt(l.prev);
+        const fan_out: f64 = @floatFromInt(l.units);
+        const lim = @sqrt(6.0 / (fan_in + fan_out));
+        l.w = weights[at..][0 .. l.units * l.prev];
+        at += l.units * l.prev;
+        l.b = weights[at..][0..l.units];
+        at += l.units;
+        for (l.w) |*v| v.* = (rng.uniform() * 2 - 1) * lim;
+        for (l.b) |*v| v.* = 0;
+    }
+    var net = nn.Net{ .n_inputs = dims, .layers = layers };
+
+    // standardise both ends
+    const my = try alloc.alloc(f64, dims);
+    defer alloc.free(my);
+    const sy = try alloc.alloc(f64, dims);
+    defer alloc.free(sy);
+    const ys = try alloc.alloc(f64, n * dims);
+    defer alloc.free(ys);
+    standardise(y, n, dims, my, sy, ys);
+
+    const mx = try alloc.alloc(f64, d);
+    defer alloc.free(mx);
+    const sx = try alloc.alloc(f64, d);
+    defer alloc.free(sx);
+    const xs = try alloc.alloc(f64, n * d);
+    defer alloc.free(xs);
+    standardise(x, n, d, mx, sx, xs);
+
+    const loss = try alloc.alloc(f64, epochs);
+    errdefer alloc.free(loss);
+    try nn.train(alloc, &net, ys, xs, n, d, lr, epochs, loss);
+
+    // fold the input scaling into the first layer
+    {
+        const l0 = &layers[0];
+        for (0..l0.units) |u| {
+            var shift: f64 = 0;
+            for (0..l0.prev) |q| {
+                const w0 = l0.w[u * l0.prev + q];
+                shift += w0 * my[q] / sy[q];
+                l0.w[u * l0.prev + q] = w0 / sy[q];
+            }
+            l0.b[u] -= shift;
+        }
+    }
+    // and the output scaling into the last
+    {
+        const ln = &layers[n_layers - 1];
+        for (0..ln.units) |u| {
+            for (0..ln.prev) |q| ln.w[u * ln.prev + q] *= sx[u];
+            ln.b[u] = ln.b[u] * sx[u] + mx[u];
+        }
+    }
+
+    const shape = try alloc.alloc(f64, 2 + n_layers * 2);
+    errdefer alloc.free(shape);
+    shape[0] = @floatFromInt(dims);
+    shape[1] = @floatFromInt(n_layers);
+    for (layers, 0..) |l, i| {
+        shape[2 + i * 2] = @floatFromInt(l.units);
+        shape[3 + i * 2] = @floatFromInt(@intFromEnum(l.kind));
+    }
+
+    const out = try alloc.create(Decoder);
+    out.* = .{ .weights = weights, .shape = shape, .loss = loss, .allocator = alloc };
+    return out;
+}
+
+fn standardise(v: []const f64, n: usize, w: usize, mean: []f64, sdev: []f64, out: []f64) void {
+    for (0..w) |t| {
+        var m: f64 = 0;
+        for (0..n) |i| m += v[i * w + t];
+        m /= @floatFromInt(n);
+        var q: f64 = 0;
+        for (0..n) |i| {
+            const z = v[i * w + t] - m;
+            q += z * z;
+        }
+        const sd = @sqrt(q / @as(f64, @floatFromInt(n)));
+        mean[t] = m;
+        sdev[t] = if (sd > 1e-12) sd else 1.0;
+        for (0..n) |i| out[i * w + t] = (v[i * w + t] - m) / sdev[t];
+    }
+}
+
 // ─── tests ───────────────────────────────────────────────────────────────────
 
 const testing = std.testing;
@@ -1158,4 +1328,255 @@ test "a network with no hidden layer is refused rather than silently linear" {
     defer alloc.free(x);
     const none = [_]usize{};
     try testing.expectError(Error.BadShape, run(alloc, x, n, d, &none, null, .{ .n_neighbors = 3, .epochs = 10 }));
+}
+
+/// n points along one smooth curve through six dimensions, so that a midpoint between
+/// two of them has a KNOWN true answer
+fn curve(alloc: std.mem.Allocator, n: usize, d: usize) ![]f64 {
+    const x = try alloc.alloc(f64, n * d);
+    for (0..n) |i| {
+        const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n)) * 6.2831853;
+        curveAt(t, x[i * d ..][0..d]);
+    }
+    return x;
+}
+
+fn curveAt(t: f64, out: []f64) void {
+    out[0] = t;
+    out[1] = @sin(t) * 5;
+    out[2] = @cos(t) * 5;
+    out[3] = @sin(2 * t) * 3;
+    out[4] = t * t / 6.0;
+    out[5] = @cos(3 * t);
+}
+
+/// mean error of inverting the MIDPOINTS between consecutive embedded rows, for a
+/// trained decoder and for the nearest-stored-row lookup, against the true curve
+fn midpointErrors(
+    alloc: std.mem.Allocator,
+    emb: []const f64,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    dec: *Decoder,
+) !struct { decoder: f64, lookup: f64 } {
+    const m = n - 1;
+    const mid = try alloc.alloc(f64, m * 2);
+    defer alloc.free(mid);
+    const truth = try alloc.alloc(f64, m * d);
+    defer alloc.free(truth);
+    for (0..m) |i| {
+        mid[i * 2 + 0] = (emb[i * 2 + 0] + emb[(i + 1) * 2 + 0]) / 2;
+        mid[i * 2 + 1] = (emb[i * 2 + 1] + emb[(i + 1) * 2 + 1]) / 2;
+        const t = (@as(f64, @floatFromInt(i)) + 0.5) / @as(f64, @floatFromInt(n)) * 6.2831853;
+        curveAt(t, truth[i * d ..][0..d]);
+    }
+    const inv = try alloc.alloc(f64, m * d);
+    defer alloc.free(inv);
+    try ptsne.transform(alloc, dec.shape, dec.weights, mid, m, inv);
+
+    var de: f64 = 0;
+    var le: f64 = 0;
+    for (0..m) |i| {
+        de += @sqrt(umap.sqDist(inv[i * d ..][0..d], truth[i * d ..][0..d]));
+        var best: usize = 0;
+        var bv = std.math.inf(f64);
+        for (0..n) |q| {
+            const dd = umap.sqDist(mid[i * 2 ..][0..2], emb[q * 2 ..][0..2]);
+            if (dd < bv) {
+                bv = dd;
+                best = q;
+            }
+        }
+        le += @sqrt(umap.sqDist(x[best * d ..][0..d], truth[i * d ..][0..d]));
+    }
+    return .{
+        .decoder = de / @as(f64, @floatFromInt(m)),
+        .lookup = le / @as(f64, @floatFromInt(m)),
+    };
+}
+
+test "the inverse recovers a row far better than knowing nothing" {
+    const alloc = testing.allocator;
+    const n = 90;
+    const d = 6;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+    const hidden = [_]usize{ 24, 24 };
+    var r = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 8, .epochs = 400, .learning_rate = 0.01 });
+    defer r.deinit();
+
+    const dh = [_]usize{ 64, 64 };
+    var dec = try trainDecoder(alloc, r.embedding, x, n, 2, d, &dh, 0.02, 15000, 11);
+    defer dec.deinit();
+
+    const back = try alloc.alloc(f64, n * d);
+    defer alloc.free(back);
+    try ptsne.transform(alloc, dec.shape, dec.weights, r.embedding, n, back);
+
+    var err: f64 = 0;
+    for (0..n) |i| err += @sqrt(umap.sqDist(back[i * d ..][0..d], x[i * d ..][0..d]));
+    err /= @floatFromInt(n);
+
+    // the "know nothing" answer: return the mean row every time
+    const mean = try alloc.alloc(f64, d);
+    defer alloc.free(mean);
+    for (0..d) |t| {
+        var mm: f64 = 0;
+        for (0..n) |i| mm += x[i * d + t];
+        mean[t] = mm / @as(f64, @floatFromInt(n));
+    }
+    var mean_err: f64 = 0;
+    for (0..n) |i| mean_err += @sqrt(umap.sqDist(mean, x[i * d ..][0..d]));
+    mean_err /= @floatFromInt(n);
+
+    // MEASURED: 0.63 against 6.06 -- a tenfold improvement over knowing nothing, and
+    // the loss falls monotonically while it happens
+    try testing.expect(err < mean_err / 5);
+    try testing.expect(dec.loss[14999] < dec.loss[0]);
+}
+
+test "CAPACITY DECIDED IT, and my first reading was of an undertrained net" {
+    const alloc = testing.allocator;
+    const n = 90;
+    const d = 6;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+    const hidden = [_]usize{ 24, 24 };
+    var r = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 8, .epochs = 400, .learning_rate = 0.01 });
+    defer r.deinit();
+
+    // MEASURED. Reconstruction error of the training rows, against a nearest-stored-row
+    // lookup at 0.9155:
+    //
+    //     [32,32]   3000 epochs   2.4977     <- what I first measured, and nearly
+    //                                           concluded a decoder was worthless from
+    //     [64,64]   3000          0.8947
+    //     [64,64]  15000          0.6314
+    //     [64,64]  40000          0.5771
+    //
+    // Doubling the width and training longer moved it from three times WORSE than a
+    // lookup to a third BETTER. The first reading was of an undertrained network, and
+    // the conclusion drawn from it would have been wrong.
+    const small = [_]usize{ 32, 32 };
+    const big = [_]usize{ 64, 64 };
+    var d_small = try trainDecoder(alloc, r.embedding, x, n, 2, d, &small, 0.02, 3000, 11);
+    defer d_small.deinit();
+    var d_big = try trainDecoder(alloc, r.embedding, x, n, 2, d, &big, 0.02, 15000, 11);
+    defer d_big.deinit();
+
+    const bs = try alloc.alloc(f64, n * d);
+    defer alloc.free(bs);
+    const bb = try alloc.alloc(f64, n * d);
+    defer alloc.free(bb);
+    try ptsne.transform(alloc, d_small.shape, d_small.weights, r.embedding, n, bs);
+    try ptsne.transform(alloc, d_big.shape, d_big.weights, r.embedding, n, bb);
+
+    var es: f64 = 0;
+    var eb: f64 = 0;
+    for (0..n) |i| {
+        es += @sqrt(umap.sqDist(bs[i * d ..][0..d], x[i * d ..][0..d]));
+        eb += @sqrt(umap.sqDist(bb[i * d ..][0..d], x[i * d ..][0..d]));
+    }
+    try testing.expect(eb < es / 2);
+}
+
+test "WHICH INVERSE WINS IS DECIDED BY THE SAMPLING GAP" {
+    const alloc = testing.allocator;
+    const d = 6;
+    const dh = [_]usize{ 64, 64 };
+    const hidden = [_]usize{ 24, 24 };
+
+    // THE RULE, and it was predicted before it was measured rather than after.
+    //
+    // A lookup's error IS THE SAMPLING GAP -- it returns a stored row, so it can never
+    // be closer to the truth than the nearest row happens to be. A decoder's error is
+    // ITS OWN APPROXIMATION ERROR, which has nothing to do with how densely the data
+    // was sampled. Whichever is smaller wins.
+    //
+    // MEASURED at midpoints between consecutive embedded rows, where the generating
+    // curve gives a true answer:
+    //
+    //                        decoder    lookup
+    //     90 points on it     0.6028    0.4654     <- dense: the gap is tiny
+    //     24 points on it     0.0810    0.9024     <- sparse: the gap is what hurts
+    //
+    // The lookup's error roughly doubled as the gaps widened, exactly as the rule says
+    // it must, while the decoder's FELL -- fewer points is an easier function to fit.
+    //
+    // So: densely sampled data, use a lookup and skip the model. Sparse data, train the
+    // decoder. That is a statement a caller can act on, which "the inverse is
+    // approximate" is not.
+    {
+        const n = 90;
+        const x = try curve(alloc, n, d);
+        defer alloc.free(x);
+        var r = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 8, .epochs = 400, .learning_rate = 0.01 });
+        defer r.deinit();
+        var dec = try trainDecoder(alloc, r.embedding, x, n, 2, d, &dh, 0.02, 40000, 11);
+        defer dec.deinit();
+        const e = try midpointErrors(alloc, r.embedding, x, n, d, dec);
+        try testing.expect(e.lookup < e.decoder);
+    }
+    {
+        const n = 24;
+        const x = try curve(alloc, n, d);
+        defer alloc.free(x);
+        var r = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 6, .epochs = 400, .learning_rate = 0.01 });
+        defer r.deinit();
+        var dec = try trainDecoder(alloc, r.embedding, x, n, 2, d, &dh, 0.02, 40000, 11);
+        defer dec.deinit();
+        const e = try midpointErrors(alloc, r.embedding, x, n, d, dec);
+        // and here it is not close: 0.081 against 0.902
+        try testing.expect(e.decoder < e.lookup / 5);
+    }
+}
+
+test "the decoder maps RAW embedding coordinates to RAW data coordinates" {
+    const alloc = testing.allocator;
+    const n = 40;
+    const d = 6;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+    const hidden = [_]usize{16};
+    var r = try run(alloc, x, n, d, &hidden, null, .{ .n_neighbors = 5, .epochs = 200, .learning_rate = 0.01 });
+    defer r.deinit();
+
+    const dh = [_]usize{32};
+    var dec = try trainDecoder(alloc, r.embedding, x, n, 2, d, &dh, 0.02, 3000, 11);
+    defer dec.deinit();
+
+    // Both ends were standardised for training and both were FOLDED BACK, so the
+    // returned network takes raw embedding coordinates and returns raw data ones. If
+    // either fold were wrong the reconstruction would be shifted or scaled wholesale,
+    // and this comparison against the data's own range would catch it.
+    const back = try alloc.alloc(f64, n * d);
+    defer alloc.free(back);
+    try ptsne.transform(alloc, dec.shape, dec.weights, r.embedding, n, back);
+    for (0..d) |t| {
+        var lo = std.math.inf(f64);
+        var hi = -std.math.inf(f64);
+        for (0..n) |i| {
+            lo = @min(lo, x[i * d + t]);
+            hi = @max(hi, x[i * d + t]);
+        }
+        const pad = (hi - lo) * 0.5 + 1;
+        for (0..n) |i| {
+            try testing.expect(back[i * d + t] > lo - pad);
+            try testing.expect(back[i * d + t] < hi + pad);
+        }
+    }
+}
+
+test "a decoder with no hidden layer is refused" {
+    const alloc = testing.allocator;
+    const n = 20;
+    const d = 6;
+    const x = try curve(alloc, n, d);
+    defer alloc.free(x);
+    const emb = try alloc.alloc(f64, n * 2);
+    defer alloc.free(emb);
+    for (emb, 0..) |*v, i| v.* = @floatFromInt(i % 7);
+    const none = [_]usize{};
+    try testing.expectError(Error.BadShape, trainDecoder(alloc, emb, x, n, 2, d, &none, 0.02, 10, 1));
 }
