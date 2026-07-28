@@ -29,6 +29,7 @@ comptime {
     @export(&matrix.stz_matrix_rank_general, .{ .name = "stz_matrix_rank_general" });
     @export(&matrix.stz_matrix_condition_general, .{ .name = "stz_matrix_condition_general" });
     @export(&matrix.stz_matrix_pseudo_inverse, .{ .name = "stz_matrix_pseudo_inverse" });
+    @export(&matrix.stz_matrix_low_rank, .{ .name = "stz_matrix_low_rank" });
     @export(&matrix.stz_matrix_min_norm_solve, .{ .name = "stz_matrix_min_norm_solve" });
     @export(&matrix.stz_matrix_cholesky, .{ .name = "stz_matrix_cholesky" });
     @export(&matrix.stz_matrix_is_positive_definite, .{ .name = "stz_matrix_is_positive_definite" });

@@ -880,6 +880,42 @@ pub fn svd(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) 
 /// The rank of ANY m*n matrix (m >= n): singular values that are non-negligible
 /// relative to the largest. This is the general answer that rankSymmetric could only
 /// give for the square symmetric case.
+/// THE BEST RANK-k APPROXIMATION: A_k = U_k * S_k * V_k'.
+///
+/// The other thing "inverting an SVD" can mean, and the direct counterpart of PCA's
+/// reconstruction: keep the k largest singular values, discard the rest, multiply back.
+///
+/// Its error is an identity rather than a measurement. Eckart and Young proved this is
+/// the CLOSEST rank-k matrix in the Frobenius norm, and that the distance is exactly
+///
+///     ||A - A_k||_F^2 = sum of the squares of the discarded singular values
+///
+/// which is the same shape of statement as PCA's "reconstruction error equals discarded
+/// variance" -- and for the same reason, since PCA is the SVD of the centered matrix.
+pub fn lowRankApproximation(
+    allocator: std.mem.Allocator,
+    data: []const f64,
+    m: usize,
+    n: usize,
+    k: usize,
+    out: []f64,
+) !bool {
+    var d = try svdAnyShape(allocator, data, m, n);
+    defer d.deinit();
+
+    const r = d.values.len;
+    const kk = @min(k, r);
+    @memset(out, 0);
+    for (0..m) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..kk) |t| acc += d.u[i * r + t] * d.values[t] * d.v[j * r + t];
+            out[i * n + j] = acc;
+        }
+    }
+    return d.converged;
+}
+
 pub fn rankOf(allocator: std.mem.Allocator, data: []const f64, m: usize, n: usize) !usize {
     if (m == 0 or n == 0) return 0;
     // ANY SHAPE since phase 7. Rank is a property of the matrix, not of how it
@@ -2098,4 +2134,47 @@ test "a rank-deficient wide matrix has a zero singular value" {
     defer d.deinit();
     try testing.expect(svdResidual(&d, &a, 2, 3) < 1e-12);
     try testing.expect(d.values[1] < 1e-12 * d.values[0] + 1e-12);
+}
+
+// ─── low-rank reconstruction ─────────────────────────────────────────────────
+//
+// The pseudo-inverse already lived here (see above) and was already checked against all
+// four Penrose conditions -- I wrote a second one before looking, which is the mistake
+// the *Cp bridges taught and did not stick. What was genuinely missing is the OTHER
+// sense of inverting an SVD: the rank-k reconstruction, the counterpart of PCA's.
+
+test "ECKART-YOUNG: the truncation error is the discarded singular values" {
+    const alloc = testing.allocator;
+    const m = 6;
+    const n = 4;
+    var a: [m * n]f64 = undefined;
+    var st: u64 = 31;
+    for (&a) |*v| {
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 * 10 - 5;
+    }
+
+    var d = try svdAnyShape(alloc, &a, m, n);
+    defer d.deinit();
+
+    const back = try alloc.alloc(f64, m * n);
+    defer alloc.free(back);
+
+    // KEEPING EVERYTHING returns the matrix itself
+    _ = try lowRankApproximation(alloc, &a, m, n, d.values.len, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+
+    // AND EACH TRUNCATION COSTS EXACTLY the squares of the values it dropped. Eckart
+    // and Young proved this is the closest rank-k matrix there is, and that the
+    // distance is this and nothing else -- the same shape of statement as PCA's
+    // "reconstruction error equals discarded variance", and for the same reason, since
+    // PCA is the SVD of the centered matrix.
+    for (1..d.values.len) |k| {
+        _ = try lowRankApproximation(alloc, &a, m, n, k, back);
+        var err: f64 = 0;
+        for (a, back) |x, y| err += (x - y) * (x - y);
+        var dropped: f64 = 0;
+        for (k..d.values.len) |t| dropped += d.values[t] * d.values[t];
+        try testing.expectApproxEqRel(dropped, err, 1e-8);
+    }
 }
