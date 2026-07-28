@@ -2197,6 +2197,40 @@ what it refused.
   that the network's placement of an unfamiliar row is not evidence about that row, and
   that the **data-side** radius is (0.0839 against 2 956 381).
 
+- **PARAMETRIC UMAP TRANSFORM WITH DENSITY (`4eab4a5b1`)** — *the contract reaches new
+  rows with nothing carried.*
+
+  The transform is a forward pass, so density ought to come along by construction.
+  Verified rather than assumed, because nothing constrains a network at points it never
+  saw. Held-out rows drawn from the **same** two distributions as the training set —
+  unseen, but not outliers:
+
+  | | new dense rows | new sparse rows |
+  |---|---|---|
+  | free-form *(calibrated)* | 1.0061 | 2.1858 |
+  | **parametric** *(nothing)* | **0.0014** | **1.4812** |
+  | *training clusters* | *0.0016* | *1.3997* |
+
+  Each new row lands at **its own cluster's radius** in the map, not somewhere between.
+
+  **The free-form transform needed a whole mechanism for this:** a least-squares line
+  through the fit's (log R\_original, log R\_embedded) pairs, carried through the bridge
+  to the caller, and a closed-form correction setting a new point's distance from its
+  neighbourhood centroid. Here nothing is carried and nothing is corrected — the network
+  learned a density-preserving function and a new row evaluates it.
+
+  ***And the caveat survives the transform intact.*** This map exaggerates — true spread
+  ratio about 22, drawn about 875 — and the new rows reproduce **the map's** ratio
+  faithfully, not the data's. **An exact transform buys fidelity to the picture. It never
+  buys accuracy in what the picture says.**
+
+  *Ring trap, and an expensive one: a variable assigned inside a main-file `func` is
+  **global**. A held-out-row generator that said `aD = []` silently overwrote the
+  caller's 50-row training set with its own 6 rows, and the fit then refused 8 neighbours
+  over 6 points — an error message about neighbour counts for a bug in variable scope.
+  Confirmed minimally: a 5-element list becomes 2 after calling a function that assigns
+  the same name.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
