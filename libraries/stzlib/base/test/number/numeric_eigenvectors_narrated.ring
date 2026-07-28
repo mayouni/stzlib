@@ -444,6 +444,77 @@ Scenario("...and the exponential does NOT want a Schur decomposition")
 	     SameMat(MatMul(oA.MatrixExp(), oNeg.MatrixExp()), aI4), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX LOGARITHM: inverse scaling and squaring")
+	# A series for log converges only near the identity, and a general matrix is not
+	# near it. So: take repeated SQUARE ROOTS until it is, evaluate the series there,
+	# and multiply back by 2^k -- since log(A) = 2^k * log(A^(1/2^k)).
+	#
+	# THE SQUARE ROOTS ARE THE SCHUR ONES. This is the third layer of one construction:
+	# the Schur form gives the square root, the square root gives the logarithm, and the
+	# logarithm with the exponential gives every real power. Each is short because the
+	# one beneath it did the work.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	oL = new stzMatrix(oA.MatrixLog())
+
+	# THE DEFINING PROPERTY, and the only one worth asserting: the logarithm is what the
+	# exponential undoes. Checked through genuinely different algorithms -- inverse
+	# scaling and squaring going out, Pade scaling and squaring coming back -- so
+	# agreeing is not two halves of one routine cancelling.
+	Then("exp(log(A)) is A", SameMat(oL.MatrixExp(), aA), TRUE)
+
+	# the identity and a diagonal are the cases with closed-form answers to check
+	oEye = new stzMatrix([ [1,0,0], [0,1,0], [0,0,1] ])
+	Then("log of the identity is zero",
+	     SameMat(oEye.MatrixLog(), [ [0,0,0], [0,0,0], [0,0,0] ]), TRUE)
+	oDiag = new stzMatrix([ [2,0,0], [0,7,0], [0,0,0.5] ])
+	Then("...and log of a diagonal is entrywise",
+	     SameMat(oDiag.MatrixLog(), [ [log(2),0,0], [0,log(7),0], [0,0,log(0.5)] ]), TRUE)
+EndScenario()
+
+Scenario("...and the defective matrix has an EXACT logarithm")
+	# exp([[0,1],[0,0]]) = [[1,1],[0,1]] exactly, since the nilpotent series stops after
+	# one term. So the logarithm of [[1,1],[0,1]] is [[0,1],[0,0]] and nothing else --
+	# an exact target on a matrix with only ONE eigenvector, where no eigendecomposition
+	# exists to compute it from.
+	oDef = new stzMatrix([ [1,1], [0,1] ])
+	Then("log([[1,1],[0,1]]) is exactly [[0,1],[0,0]]",
+	     SameMat(oDef.MatrixLog(), [ [0,1], [0,0] ]), TRUE)
+
+	# A SINGULAR matrix has no logarithm at all -- the exponential is never singular, so
+	# nothing maps to one. That is a different refusal from the negative-real-eigenvalue
+	# case, which has a logarithm that is merely COMPLEX.
+	Then("a singular matrix has no logarithm at all",
+	     RefusesLog([ [1,2,3], [4,5,6], [5,7,9] ]), TRUE)
+	Then("...and the message says why", StzFindFirst("SINGULAR", WhyNoLog()) > 0, TRUE)
+	Then("a negative real eigenvalue has only a complex one",
+	     RefusesLog([ [-4,0], [0,1] ]), TRUE)
+EndScenario()
+
+Scenario("...and then ANY real power follows, which MatrixPower could not give")
+	# A^p = exp(p log A). Two lines in the engine, because the logarithm and the
+	# exponential did the work -- which is what a foundation is supposed to look like.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+
+	Then("the symmetric route still refuses this matrix", RefusesPower(aA, 0.5), TRUE)
+
+	aHalf = oA.GeneralPower(0.5)
+	Then("...and A^0.5 squares back to A", SameMat(MatMul(aHalf, aHalf), aA), TRUE)
+
+	# AND IT AGREES WITH THE SCHUR SQUARE ROOT, which reached the same matrix by an
+	# entirely different road: a block recurrence rather than exp(0.5 log A). Two
+	# algorithms, one answer.
+	Then("...and matches the Schur square root",
+	     SameMat(aHalf, oA.GeneralSquareRoot()), TRUE)
+
+	# a quarter power COMPOSES -- a routine that was not really exponentiating would
+	# pass the squares-back test and fail this one
+	aQuarter = oA.GeneralPower(0.25)
+	Then("...and (A^0.25)^2 is A^0.5", SameMat(MatMul(aQuarter, aQuarter), aHalf), TRUE)
+EndScenario()
+
+
 
 
 
@@ -613,3 +684,23 @@ func Negated(aX)
 		_ngR_ + _ngRow_
 	next
 	return _ngR_
+
+func RefusesLog(aX)
+	_rlB_ = FALSE
+	try
+		_rlO_ = new stzMatrix(aX)
+		_rlO_.MatrixLog()
+	catch
+		_rlB_ = TRUE
+	done
+	return _rlB_
+
+func WhyNoLog()
+	_wlS_ = ""
+	try
+		_wlO_ = new stzMatrix([ [1,2,3], [4,5,6], [5,7,9] ])
+		_wlO_.MatrixLog()
+	catch
+		_wlS_ = cCatchError
+	done
+	return _wlS_

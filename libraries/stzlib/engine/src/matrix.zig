@@ -382,6 +382,35 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX LOGARITHM: the X with exp(X) = A, by inverse scaling and squaring.
+///
+/// Null when A is singular -- exp is never singular, so nothing maps to such a matrix
+/// and there is no logarithm to return -- or when a negative real eigenvalue makes the
+/// answer complex.
+pub fn stz_matrix_log(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.logGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// A^p for a matrix with no symmetry: exp(p log A). What stz_matrix_matrix_power
+/// cannot give, since that one refuses every non-symmetric matrix.
+pub fn stz_matrix_power_general(m: ?*const StzMatrix, p: f64) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.powerGeneral(gpa, mat.data, mat.rows, p, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE MATRIX EXPONENTIAL, by scaling and squaring with a Pade approximant -- and
 /// deliberately NOT through a Schur form, which would be slower and no more accurate.
 pub fn stz_matrix_exp(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {

@@ -2514,6 +2514,76 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX LOGARITHM: the X with MatrixExp(X) = A.
+	#
+	# -- INVERSE SCALING AND SQUARING, the exponential's method run backwards --
+	#
+	# A series for log converges only near the identity, and a general matrix is not
+	# near it. So: take repeated SQUARE ROOTS until it is, evaluate the series there,
+	# and multiply back by 2^k, since log(A) = 2^k * log(A^(1/2^k)).
+	#
+	# THE SQUARE ROOTS ARE GeneralSquareRoot(). This is the third layer of one
+	# construction: the Schur form gives the square root, the square root gives the
+	# logarithm, and the logarithm with the exponential gives every real power. Each is
+	# short because the one beneath it did the work.
+	#
+	# -- WHAT IT REFUSES, AND WHY THE REASONS DIFFER --
+	#
+	# A SINGULAR matrix has no logarithm at all: MatrixExp() is never singular, so
+	# nothing maps to one. A NEGATIVE REAL eigenvalue has only a complex logarithm, for
+	# exactly the reason it has only a complex square root -- and that refusal arrives
+	# from GeneralSquareRoot(), which is where the constraint actually lives.
+	def MatrixLog()
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixLog: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pMlV_ = StzEngineMatrixLog(@pEngineMatrix)
+		if _pMlV_ = NULL
+			StzRaise("MatrixLog: refused. A SINGULAR matrix has no logarithm at all -- " +
+				"the exponential is never singular, so nothing maps to it. And a " +
+				"NEGATIVE REAL eigenvalue has only a complex logarithm, for the same " +
+				"reason it has only a complex square root.")
+		ok
+		_aMlV_ = This._MatrixFromHandle(_pMlV_)
+		StzEngineMatrixFree(_pMlV_)
+		return _aMlV_
+
+		def MatrixLogQ()
+			return new stzMatrix(This.MatrixLog())
+
+	# A RAISED TO ANY REAL POWER, for a matrix with no symmetry: exp(p * log(A)).
+	#
+	# MatrixPower() refuses every non-symmetric matrix, and this is the answer it could
+	# not give. It is two lines in the engine, because the logarithm and the exponential
+	# above did the work -- which is what a foundation is supposed to look like.
+	#
+	# The constraints follow through: no negative real eigenvalue, and non-singular. An
+	# INTEGER power needs neither and is better done by repeated multiplication; this is
+	# for the fractional case, where there is no other route.
+	def GeneralPower(p)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("GeneralPower: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pGpV_ = StzEngineMatrixPowerGeneral(@pEngineMatrix, p)
+		if _pGpV_ = NULL
+			StzRaise("GeneralPower: refused -- it goes through the logarithm, so it " +
+				"needs a non-singular matrix with no negative real eigenvalue.")
+		ok
+		_aGpV_ = This._MatrixFromHandle(_pGpV_)
+		StzEngineMatrixFree(_pGpV_)
+		return _aGpV_
+
+		def GeneralPowerQ(p)
+			return new stzMatrix(This.GeneralPower(p))
+
 	# THE MATRIX EXPONENTIAL -- and it does NOT want a Schur decomposition.
 	#
 	# Scaling and squaring with a Pade approximant: exp(A) = (exp(A/2^s))^(2^s), the
