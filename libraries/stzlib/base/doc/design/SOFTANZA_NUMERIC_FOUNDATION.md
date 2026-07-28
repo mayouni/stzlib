@@ -2552,6 +2552,44 @@ what it refused.
   discovers the problem itself at the first non-positive pivot, which is why Cholesky
   doubles as a positive-definiteness test.
 
+- **THE QR INVERSE — AND A DEFECT IT UNCOVERED (`df9565934`)** — *found by asking a fast
+  route to decline a matrix and watching it accept.*
+
+  `A = QR` gives `A⁻¹ = R⁻¹ Qᵀ`: one back-substitution per column, no iteration. It fills
+  the gap the other fast routes leave — a general invertible matrix (a transition matrix,
+  a Jacobian, a change of basis) is symmetric only by accident, so until now only the SVD
+  would take it.
+
+  | route | accepts | |
+  |---|---|---|
+  | `CholeskyInverse()` | symmetric **positive definite** only | fastest |
+  | `MatrixPower(-1)` | **symmetric** only | |
+  | **`QRInverse()`** | **any full-rank square or tall** | no symmetry needed |
+  | `PseudoInverse()` | everything, incl. rank-deficient | slowest |
+
+  For a **tall** matrix the same formula is the pseudo-inverse, unchanged — which is why
+  `leastSquares` has always been a QR solve underneath. Building it column by column just
+  makes the *operator* available rather than one solution at a time.
+
+  ***The defect.*** The test for that gap asserts Cholesky refuses a non-symmetric
+  matrix. **It did not.** `cholesky` reads only the **lower triangle**, so a
+  non-symmetric matrix factored happily: `positive_definite` came back TRUE and `L Lᵀ`
+  differed from the input by up to **3.0** on a 4×4. Every caller downstream believed it
+  — `choleskyInverse` returned a matrix that was not A's inverse, and the
+  positive-definiteness test called a non-symmetric matrix positive definite, *which is
+  not even a property such a matrix can have*.
+
+  Exactly the shape of the `isFullRank` defect documented a few lines above it in the
+  same file: **a condition the arithmetic never needed to check, and a confident wrong
+  answer downstream.** It asks `isSymmetric` now — the same function the eigen path asks
+  — and a regression test pins both halves: the refusal, and that a genuinely SPD matrix
+  still factors. *Nothing in the suite depended on the lenient behaviour, which is its
+  own small confirmation that the leniency was never intended.*
+
+  Rank-deficient input is refused by QR and answered by the SVD, and the message says so:
+  R would have a diagonal entry at rounding level, and back-substituting through it
+  returns confident garbage — the very defect `isFullRank` was fixed for.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
