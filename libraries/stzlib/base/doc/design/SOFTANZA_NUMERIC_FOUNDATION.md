@@ -2316,6 +2316,40 @@ what it refused.
   what the embedding **kept** and invents the rest — a plausible row for a location, never
   a recovered one.
 
+- **THE FREE-FORM FIT INVERTS TOO (`0c5d46bdd`)** — *and rather better, which inverts the
+  assumption behind the refusal.*
+
+  `LearnInverse()` refused the free-form fit in the previous entry, reasoning that it has
+  *"no map to invert, only a list of positions"*. **That was wrong. The decoder never
+  inverts the encoder** — it is a separate model regressed on (position, row) pairs, and
+  a free-form fit has both halves exactly as a parametric one does. The refusal is gone,
+  and the two guard assertions that pinned it with it.
+
+  | fit | points | decoder | lookup |
+  |---|---|---|---|
+  | free-form | 24 | **0.5450** | 1.1516 |
+  | **free-form** | **90** | **0.0858** | 0.2673 |
+  | parametric | 24 | **0.2191** | 0.9886 |
+  | parametric | 90 | 0.6529 | **0.4654** — *the only loss* |
+
+  The free-form embedding is **sevenfold easier to invert** than the parametric one on
+  identical data — 0.0858 against 0.6529.
+
+  **The reason is worth keeping.** A free-form layout answers to nothing, so the
+  optimiser can lay a curve out cleanly and `y → x` comes out a well-behaved function. A
+  parametric encoder is **constrained** to be smooth in x, and the embedding it settles
+  on can be more contorted: harder to invert, not easier.
+
+  ***So the property that makes the forward transform exact is not the property that
+  makes the inverse easy.*** They pull in opposite directions, and the shape of the
+  machinery suggests the wrong answer — *"it is already a function, so of course it
+  inverts better"* is exactly backwards.
+
+  The sampling-gap rule survived intact; the recommendation drawn from it did not.
+  *"Densely sampled data, skip the model"* was measured on the **parametric fit alone**.
+  Corrected wherever it was written: train the decoder unless the data is dense **and**
+  the fit is parametric.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
