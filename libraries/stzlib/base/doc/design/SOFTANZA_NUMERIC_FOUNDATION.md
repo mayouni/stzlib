@@ -2426,6 +2426,45 @@ what it refused.
   training rows through both directions: what the analysis retained of the data it was
   given, which is the picture worth looking at when deciding how many components suffice.
 
+- **THE SVD LOW-RANK INVERSE (`59cb1d743`)** — *and half of it already existed.*
+
+  "Inverting an SVD" means **two different things**, and only one was missing.
+
+  **Already here:** `PseudoInverse()`, `A⁺ = V Σ⁺ Uᵀ` — in `linalg.zig` and on
+  `stzMatrix` since the SVD went in, handling every shape, zeroing negligible singular
+  values through the same `negligibleThreshold` that `rankOf` asks, and tested against
+  the four Penrose conditions that *define* it. ***I wrote a second implementation before
+  looking***, with its own Penrose tests, and found the original only when the compiler
+  reported a duplicate symbol. Deleted. The `*Cp` bridges were supposed to have taught
+  this and it did not stick: **grep before building**.
+
+  **Genuinely missing:** the best rank-k approximation, `A_k = U_k Σ_k V_kᵀ`. Where the
+  pseudo-inverse answers *"undo this transformation"*, this answers *"keep the k
+  strongest directions and discard the rest"* — the sense the whole embedding run has
+  meant by an inverse.
+
+  | k | ‖A − A_k‖²_F | discarded σ² |
+  |---|---|---|
+  | 1 | 38.169460 | 38.169460 |
+  | 2 | 13.187611 | 13.187611 |
+  | 3 | 1.087157 | 1.087157 |
+  | 4 | 0.000000 | 0 |
+
+  **Its error is an identity, not a measurement.** Eckart and Young proved no rank-k
+  matrix is closer in the Frobenius norm, and that the distance is exactly the squares of
+  the singular values dropped — so a caller who kept k components already knows the cost
+  from `SingularValues()` alone, without reconstructing anything.
+
+  ***And it is the same statement as PCA's "reconstruction error equals discarded
+  variance".*** Not an analogy — one theorem wearing two names, because PCA is the SVD of
+  the centered matrix. Both say the arithmetic is **right**, rather than that a number
+  looked plausible, which is what the learned inverses could never offer.
+
+  *One detail worth its comment: after `svdAnyShape`, `u` is m×r and `v` is n×r with
+  `r = values.len` — **not** `d.n`, which the wide path sets to m. Reading `d.n` would be
+  right for tall matrices and quietly wrong for wide ones, the sort of thing a test suite
+  made only of square examples never catches.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
