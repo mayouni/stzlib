@@ -2102,6 +2102,48 @@ what it refused.
   agreed to eight decimals and differed in the last bits. That one was invisible; this
   one changed the answer by a factor of five.
 
+- **SUPERVISED PARAMETRIC UMAP (`cbf9bb69c`)** — *it works, and only partly.*
+
+  Supervision was already wired: labels reshape the neighbour graph before any optimiser
+  sees it, so it arrived the moment `pumap.zig` existed and cost no new code — the
+  dividend of extracting `buildGraph` rather than copying it. But the test asserted only
+  that the coordinates were finite, which is no test at all.
+
+  | data | free-form | parametric |
+  |---|---|---|
+  | one dataset | 1.179 → **2.413** (×2.05) | 1.191 → 1.635 (×1.37) |
+  | another | 0.987 → **1.597** (×1.62) | 0.972 → 1.046 (×1.08) |
+
+  Randomly placed rows with alternating labels — no class structure at all, so any
+  separation is supervision's doing. **Supervision reaches a learned map only partly**,
+  and the reason cannot be tuned away: `y = f(x)` is smooth, so two rows close together
+  in x **must** come out close together in y. Free coordinates answer to nothing and can
+  put interleaved points wherever the labels ask; a function cannot.
+
+  **Structural, not undertrained** — checked rather than assumed: 2×24 units over 400
+  epochs gives 1.046, 2×64 over 1500 gives 0.965, 3×128 over 3000 gives 1.029. Eight
+  times the parameters and seven times the training buy nothing.
+
+  **This is the mirror of the transform result.** Parameterising buys **exactness** on
+  new points and costs **expressiveness** on the old ones; there the gain was the visible
+  half, here the cost is. The trade is now stated on `LearnMapping()`: if the point of
+  supervising is to separate classes the geometry does *not* already separate, take the
+  free-form fit and give up the exact transform.
+
+  ***And I nearly shipped the stronger claim.*** From the second dataset alone I wrote
+  *"supervision barely moves a learned map"* — ×1.08 supports it. The control on the
+  first gives ×1.37 against free-form's ×2.05, which does not. So the test now **runs its
+  own control** and asserts the relation rather than pinning a number. Third time in this
+  family that one dataset was not enough to support a claim.
+
+  Also pinned, with its explanation: when the labels **agree** with the geometry,
+  supervision changes the layout **not at all** — bit-identical. The label step only
+  weakens edges that *cross* a class boundary, and a five-neighbour graph over
+  well-separated blobs has none; its other step renormalises each point's edges so its
+  strongest is 1, and each point's strongest is *already* 1, because rho is the distance
+  to the nearest neighbour and that neighbour's weight is `exp(0)`. Not a no-op by luck —
+  supervision has nothing to say there, and says it.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
