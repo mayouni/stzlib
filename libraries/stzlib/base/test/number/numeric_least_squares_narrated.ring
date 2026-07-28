@@ -249,6 +249,71 @@ Scenario("A DEFECT FOUND BY ASKING A ROUTE TO DECLINE")
 	     SameMat4(MatMul4(aGood, oG.CholeskyInverse()), aEye3), TRUE)
 EndScenario()
 
+Scenario("THE LU INVERSE COMPLETES THE SET, and five routes agree")
+	# A = P L U, so each column of the inverse is one forward and one back substitution
+	# against a unit vector. Roughly half the work of the QR route.
+	#
+	#     CholeskyInverse()   symmetric positive definite   ~n^3/6   fastest of all
+	#     LUInverse()         any nonsingular SQUARE        ~n^3/3   fastest general
+	#     QRInverse()         any full-rank square or TALL  ~2n^3/3
+	#     MatrixPower(-1)     symmetric                     iterative, gives powers
+	#     PseudoInverse()     everything, incl. rank-def.   iterative, most general
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	aEye4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	aLu = oA.LUInverse()
+	Then("LU inverts a general square matrix", SameMat4(MatMul4(aA, aLu), aEye4), TRUE)
+	Then("...agreeing with QR", SameMat4(aLu, oA.QRInverse()), TRUE)
+	Then("...and with the SVD", SameMat4(aLu, oA.PseudoInverse()), TRUE)
+
+	# WHY BOTH LU AND QR, WHEN LU DOES HALF THE WORK? Not stability -- that was assumed
+	# and measured to be false. On the 9x9 Hilbert matrix (condition ~1e12):
+	#
+	#     LU   residual 3.81e-6
+	#     QR   residual 8.34e-6
+	#
+	# "QR is more stable than LU" is a rule about LEAST SQUARES, where the alternative
+	# is forming A'A and squaring the condition number. Inverting a square matrix never
+	# faces that choice, and LU with partial pivoting is famously well behaved.
+	#
+	# THE REAL REASON IS SHAPE: QR takes a tall matrix and LU cannot.
+	Then("a tall matrix is refused by LU and answered by QR",
+	     DeclinesLU(new stzMatrix([ [1,1], [1,2], [1,3], [1,4] ])), TRUE)
+EndScenario()
+
+Scenario("...and a SECOND exact-zero defect, found the same way as the first")
+	# The scenario above asks LU to refuse a singular matrix. IT DID NOT.
+	#
+	# `decompose` tested its pivot against EXACTLY zero. Gaussian elimination does not
+	# leave a dependent column's pivot at exactly zero -- it leaves it at rounding
+	# level -- so this matrix, whose third row is the sum of the first two, factored
+	# with `singular` FALSE. LUInverse() then back-substituted through that pivot and
+	# returned a matrix it called an inverse.
+	#
+	# THE THIRD INSTANCE OF THAT DEFECT IN ONE FILE. isFullRank had it, the condition
+	# number had it, and both are documented there at length. Fixed the same way: ask
+	# negligibleThreshold, the authority the others already ask.
+	#
+	# And found the same way as the Cholesky symmetry defect one commit ago -- by
+	# writing an assertion that a route REFUSES something, and watching it accept. The
+	# negative assertions keep being the ones that find things.
+	aSingular = [ [1,2,3], [4,5,6], [5,7,9] ]
+	oS = new stzMatrix(aSingular)
+
+	Then("a numerically singular matrix is refused", DeclinesLU(oS), TRUE)
+	Then("...with a message naming what to use instead",
+	     StzFindFirst("PseudoInverse", WhyLURefused(oS)) > 0, TRUE)
+	Then("...and that route answers, with the minimum-norm operator",
+	     len(oS.PseudoInverse()), 3)
+
+	# the fix tightened the right thing rather than everything
+	Then("a well-conditioned matrix still inverts",
+	     SameMat4(MatMul4([ [4,1], [2,3] ], (new stzMatrix([ [4,1], [2,3] ])).LUInverse()),
+	              [ [1,0], [0,1] ]), TRUE)
+EndScenario()
+
+
 
 Summary()
 
@@ -335,3 +400,21 @@ func WhyQRRefused(oM)
 		_wqS_ = cCatchError
 	done
 	return _wqS_
+
+func DeclinesLU(oM)
+	_dlB_ = FALSE
+	try
+		oM.LUInverse()
+	catch
+		_dlB_ = TRUE
+	done
+	return _dlB_
+
+func WhyLURefused(oM)
+	_wlS_ = ""
+	try
+		oM.LUInverse()
+	catch
+		_wlS_ = cCatchError
+	done
+	return _wlS_
