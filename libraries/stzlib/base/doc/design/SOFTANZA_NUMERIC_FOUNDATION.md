@@ -2753,6 +2753,43 @@ what it refused.
   `[[1,1],[0,1]]` is `[[0,1],[0,0]]` and nothing else — an exact target on a matrix with
   one eigenvector, where no eigendecomposition exists to compute it from.
 
+- **THE MATRIX SINE AND COSINE (`c85ec76c5`)** — *and these need nothing beneath them.*
+
+  Scaling with the double-angle recurrences. The Taylor series converge everywhere but
+  slowly for a large matrix, and with cancellation that eats the answer — so scale A down
+  until its norm is small, where a handful of terms is exact to rounding, then climb back
+  with `cos(2X) = 2cos²(X) − I` and `sin(2X) = 2 sin(X) cos(X)`. The two are computed
+  **together**, because the sine's recurrence needs the cosine; the pair is the primitive
+  and the singles are wrappers.
+
+  ***And these need nothing beneath them.*** The square root needed a Schur form, the
+  logarithm needed the square root, the general power needed the logarithm. These need
+  none of it — no eigenvalues, no triangularisation, no factorisation at all. Worth saying
+  plainly, because three entries in a row might suggest a house style: **a decomposition
+  is reached for when the algorithm requires one, and here it does not.**
+
+  **Nothing is refused either.** Every real matrix has a sine and a cosine — no
+  singularity to trip over, no eigenvalue whose real answer fails to exist. That is
+  unusual in this family and worth noticing.
+
+  Tested against identities throughout:
+
+  - **`sin²(A) + cos²(A) = I`** — the strongest check available for the pair, and one that
+    cannot be satisfied by accident: both matrices come from a scaled Taylor series
+    climbed back through nine doublings, so anything wrong in either the series or the
+    recurrence surfaces here. Note it is the **matrix** identity — `sin²(A)` is the matrix
+    squared, which for a non-symmetric A is a very different object from squaring entries.
+  - **A nilpotent matrix gives exact polynomials:** `N³ = 0` truncates both series, so
+    `sin(N) = N` and `cos(N) = I − N²/2`. An approximation that was merely close would
+    miss the exact −0.5.
+  - **Parity:** `cos(−A) = cos(A)`, `sin(−A) = −sin(A)`.
+  - The double-angle recurrence is checked against the **series** rather than itself, by
+    computing sin and cos of A and of 2A from different scalings.
+  - And on a **symmetric** matrix the cosine matches `Q cos(Λ) Qᵀ` from a Jacobi
+    eigendecomposition — a completely different algorithm, available only because that
+    matrix happens to be symmetric. The same cross-check the square root got, and the one
+    that says these compute the standard thing rather than something adjacent to it.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
