@@ -383,6 +383,84 @@ class stzPCA from stzObject
 
 	# Project rows the fit has not seen into the component space, using the FIT's
 	# centering and scaling.
+	# -- THE INVERSE, AND IT IS THE TRANSPOSE --
+	#
+	# This is where PCA differs in KIND from the rest of the embedding family, not
+	# merely in quality. The forward map is a ROTATION onto an orthonormal basis, so
+	# undoing it needs no second model, no training and no lookup: multiply by the same
+	# loadings the other way round, put the scale back, put the mean back.
+	#
+	# t-SNE and UMAP have no analytic inverse at all. They must fit a DECODER to
+	# (position, row) pairs, and what comes back is a plausible row rather than a
+	# recovered one. Here the arithmetic was already sitting in the fit.
+	#
+	# -- AND THE ERROR IS NOT MYSTERIOUS EITHER --
+	#
+	# It is exactly the variance living in the components you dropped. Not
+	# approximately: the residual IS the projection onto the discarded eigenvectors, so
+	# the mean squared reconstruction error over the training rows EQUALS the sum of
+	# their eigenvalues -- the numbers ExplainedVariance() already reports. Keep every
+	# component and the reconstruction is the data back, to rounding.
+	#
+	# That identity is checked in the guard, and it is a far stronger statement than any
+	# reconstruction number the learned inverses can offer. It says the arithmetic is
+	# RIGHT, where they can only say the result looked plausible.
+	def Inverse(paScores)
+		This._MustBeFitted()
+		if NOT isList(paScores) or len(paScores) = 0
+			stzraise("Give me a list of score rows to send back.")
+		ok
+		_nM_ = len(paScores)
+		_nK_ = len(paScores[1])
+		if _nK_ < 1 or _nK_ > @nK
+			stzraise("A score row has " + _nK_ + " value(s); this analysis kept " +
+				@nK + " component(s). Fewer is allowed -- reconstructing from the " +
+				"leading components is the usual question -- but more is not.")
+		ok
+		_aFlat_ = []
+		for _i_ = 1 to _nM_
+			if NOT isList(paScores[_i_]) or len(paScores[_i_]) != _nK_
+				stzraise("Score row " + _i_ + " has " + len(paScores[_i_]) +
+					" value(s); row 1 had " + _nK_ + ".")
+			ok
+			for _j_ = 1 to _nK_
+				_aFlat_ + paScores[_i_][_j_]
+			next
+		next
+
+		# the loadings, truncated to the components the caller actually supplied
+		_aLoadFlat_ = []
+		for _i_ = 1 to @nCols
+			for _j_ = 1 to _nK_
+				_aLoadFlat_ + @aLoadings[_i_][_j_]
+			next
+		next
+
+		_aOut_ = StzEnginePcaInverse(_aFlat_, _nM_, @nCols, _nK_,
+			@anMeans, @anScales, _aLoadFlat_)
+		if NOT isList(_aOut_) or len(_aOut_) != _nM_ * @nCols
+			stzraise("The engine refused the reconstruction.")
+		ok
+
+		_aRes_ = []
+		_nAt2_ = 0
+		for _i_ = 1 to _nM_
+			_aRow_ = []
+			for _j_ = 1 to @nCols
+				_nAt2_++
+				_aRow_ + _aOut_[_nAt2_]
+			next
+			_aRes_ + _aRow_
+		next
+		return _aRes_
+
+	# the training rows put through Transform() and back again -- what the analysis
+	# retained of the data it was given, which is the picture worth looking at when
+	# deciding how many components are enough
+	def Reconstructed()
+		This._MustBeFitted()
+		return This.Inverse(This.Scores())
+
 	def Transform(paRows)
 		This._MustBeFitted()
 		if NOT isList(paRows) or len(paRows) = 0

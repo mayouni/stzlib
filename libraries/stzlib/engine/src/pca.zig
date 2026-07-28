@@ -237,6 +237,44 @@ pub fn transform(pca: *const Pca, rows: []const f64, m: usize, out: []f64) void 
     }
 }
 
+/// THE INVERSE, AND IT IS THE TRANSPOSE.
+///
+/// This is where PCA differs in kind from everything else in the embedding family. The
+/// forward map is a ROTATION onto an orthonormal basis, so undoing it needs no second
+/// model, no training and no lookup -- multiply by the same loadings the other way
+/// round, put the scale back, put the mean back:
+///
+///     x ~ (scores . Loadings') * scale + mean
+///
+/// t-SNE and UMAP have no analytic inverse at all and must fit a decoder to (position,
+/// row) pairs; this one is exact arithmetic that was already sitting in the fit.
+///
+/// ── AND THE ERROR IS NOT MYSTERIOUS EITHER ──
+///
+/// It is exactly the variance living in the components that were dropped. Not
+/// approximately, not typically -- the residual is the projection onto the discarded
+/// eigenvectors, so the mean squared reconstruction error over the training rows EQUALS
+/// the sum of the discarded eigenvalues. That identity is testable, and it is a far
+/// stronger check than any reconstruction number the learned inverses can offer: it
+/// says the arithmetic is right rather than that it looked plausible.
+///
+/// Keep every component and the reconstruction is the data back, to rounding.
+/// `k_use` is how many leading components the scores carry, so that reconstructing
+/// from the first two of five is a question this can answer rather than a slice the
+/// caller has to assemble. The loadings are still indexed by the fit's full k.
+pub fn inverse(pca: *const Pca, scores: []const f64, m: usize, k_use: usize, out: []f64) void {
+    const ku = @min(k_use, pca.k);
+    for (0..m) |i| {
+        for (0..pca.p) |t| {
+            var acc: f64 = 0;
+            for (0..ku) |j| {
+                acc += scores[i * ku + j] * pca.loadings[t * pca.k + j];
+            }
+            out[i * pca.p + t] = acc * pca.scales[t] + pca.means[t];
+        }
+    }
+}
+
 /// How many components are needed to reach `wanted` of the total variance (0..1).
 /// Returns k when even all of them fall short, which happens only through rounding.
 pub fn componentsFor(pca: *const Pca, wanted: f64) usize {
@@ -414,4 +452,110 @@ test "too few samples is refused rather than answered" {
     const x = [_]f64{ 1, 2 };
     try testing.expectError(Error.TooFewSamples, fit(alloc, &x, 1, 2, false, .sample));
     try testing.expectError(Error.NoFeatures, fit(alloc, &x, 2, 0, false, .sample));
+}
+
+test "THE PCA INVERSE IS THE TRANSPOSE, and its error is the discarded variance" {
+    const alloc = testing.allocator;
+    const n = 60;
+    const p = 5;
+    const x = try alloc.alloc(f64, n * p);
+    defer alloc.free(x);
+    // three genuine directions plus two built from them, so dropping components has a
+    // predictable cost rather than an arbitrary one
+    var st: u64 = 99;
+    for (0..n) |i| {
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        const a = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 - 0.5;
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        const b = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 - 0.5;
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        const c = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0 - 0.5;
+        x[i * p + 0] = a * 10;
+        x[i * p + 1] = b * 4;
+        x[i * p + 2] = c * 1;
+        x[i * p + 3] = a * 3 + b;
+        x[i * p + 4] = a * 2 - c;
+    }
+
+    var pc = try fit(alloc, x, n, p, false, .sample);
+    defer pc.deinit();
+    const sc = try alloc.alloc(f64, n * pc.k);
+    defer alloc.free(sc);
+    transform(pc, x, n, sc);
+    const back = try alloc.alloc(f64, n * p);
+    defer alloc.free(back);
+
+    // KEEPING EVERYTHING: the reconstruction is the data back, to rounding
+    inverse(pc, sc, n, pc.k, back);
+    for (x, back) |a, b| try testing.expectApproxEqAbs(a, b, 1e-9);
+
+    // DROPPING COMPONENTS: the mean squared error EQUALS the discarded variance.
+    //
+    // An identity, not an approximation -- the residual IS the projection onto the
+    // eigenvectors that were dropped, so its size is their eigenvalues and nothing
+    // else. This is a far stronger check than any reconstruction number the learned
+    // inverses can offer: it says the arithmetic is RIGHT, not that it looked
+    // plausible. Transpose the loadings the wrong way, or put the scale back before the
+    // mean, and the numbers still look reasonable while this fails.
+    const trunc = try alloc.alloc(f64, n * pc.k);
+    defer alloc.free(trunc);
+    for (1..pc.k) |ku| {
+        for (0..n) |i| {
+            for (0..ku) |j| trunc[i * ku + j] = sc[i * pc.k + j];
+        }
+        inverse(pc, trunc, n, ku, back);
+
+        var mse: f64 = 0;
+        for (0..n) |i| {
+            for (0..p) |t| {
+                const e = x[i * p + t] - back[i * p + t];
+                mse += e * e;
+            }
+        }
+        // the same divisor the fit used, so the two sides are the same quantity
+        mse /= @as(f64, @floatFromInt(n - 1));
+
+        var dropped: f64 = 0;
+        for (ku..pc.k) |j| dropped += pc.variance[j];
+
+        // ABSOLUTE, scaled to the data, and not relative -- because this data is
+        // genuinely rank three (columns four and five are exact combinations of the
+        // first three), so at ku = 3 and 4 BOTH sides are numerical noise: 1.3e-30
+        // against 3e-32. A relative tolerance on two zeros compares rounding with
+        // rounding and fails for no reason. That the tail comes out zero on both sides
+        // is itself the identity holding, at the only precision available there.
+        try testing.expectApproxEqAbs(dropped, mse, pc.total_variance * 1e-12);
+    }
+}
+
+test "the inverse puts standardisation back too" {
+    const alloc = testing.allocator;
+    const n = 40;
+    const p = 3;
+    const x = try alloc.alloc(f64, n * p);
+    defer alloc.free(x);
+    // wildly different units, which is when standardising matters
+    var st: u64 = 5;
+    for (0..n) |i| {
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        const u = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+        st = st *% 6364136223846793005 +% 1442695040888963407;
+        const v = @as(f64, @floatFromInt(st >> 11)) / 9007199254740992.0;
+        x[i * p + 0] = u * 1000;
+        x[i * p + 1] = v * 0.001 + 0.5;
+        x[i * p + 2] = (u - v) * 5 - 2;
+    }
+
+    var pc = try fit(alloc, x, n, p, true, .sample);
+    defer pc.deinit();
+    const sc = try alloc.alloc(f64, n * pc.k);
+    defer alloc.free(sc);
+    transform(pc, x, n, sc);
+    const back = try alloc.alloc(f64, n * p);
+    defer alloc.free(back);
+    inverse(pc, sc, n, pc.k, back);
+
+    // scale and mean must come back in the right order and the right direction; a
+    // column spanning a thousand beside one spanning a thousandth makes that unmissable
+    for (x, back) |a, b| try testing.expectApproxEqAbs(a, b, 1e-8);
 }

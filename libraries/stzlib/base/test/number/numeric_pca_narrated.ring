@@ -305,6 +305,51 @@ Scenario("what it refuses, and why")
 	Then("...and a sensible one is not", oOk.NumberOfComponentsFor(0.5) >= 1, TRUE)
 EndScenario()
 
+Scenario("THE INVERSE IS THE TRANSPOSE, and its error is the discarded variance")
+	# This is where PCA differs in KIND from t-SNE and UMAP, not merely in quality. The
+	# forward map is a ROTATION onto an orthonormal basis, so undoing it needs no second
+	# model, no training and no lookup: multiply by the same loadings the other way
+	# round, put the scale back, put the mean back.
+	#
+	# Those two must fit a DECODER to (position, row) pairs and hand back a plausible
+	# row rather than a recovered one. Here the arithmetic was already in the fit.
+	aD = RankThreeData(60)
+
+	oP = new stzPCA(aD)
+	oP.Center()
+	oP.Fit()
+
+	# KEEPING EVERYTHING: the data comes back, to rounding
+	Then("a full reconstruction returns the data itself",
+	     MaxAbsError(aD, oP.Reconstructed()) < 0.000001, TRUE)
+
+	# DROPPING COMPONENTS: the mean squared error EQUALS the sum of the discarded
+	# eigenvalues. MEASURED:
+	#
+	#     k=1   mse 1.540040   discarded variance 1.540040
+	#     k=2   mse 0.126675   discarded variance 0.126675
+	#     k=3   mse 0.000000   discarded variance 0.000000
+	#
+	# An identity, not an approximation -- the residual IS the projection onto the
+	# eigenvectors that were dropped, so its size is their eigenvalues and nothing else.
+	# The third column of that table is zero because this data is genuinely rank three,
+	# which is itself the identity holding.
+	#
+	# THIS IS A FAR STRONGER CHECK THAN THE LEARNED INVERSES CAN OFFER. Their
+	# reconstruction error says only that the result looked plausible; this says the
+	# arithmetic is RIGHT. Transpose the loadings the wrong way, or put the scale back
+	# before the mean, and the numbers would still look reasonable while this fails.
+	Then("dropping to 1 component costs exactly the variance it discarded",
+	     ReconstructionMatchesVariance(oP, aD, 1), TRUE)
+	Then("...and dropping to 2 does the same",
+	     ReconstructionMatchesVariance(oP, aD, 2), TRUE)
+
+	# reconstructing from FEWER components than were kept is the usual question, and
+	# from more is not a question at all
+	Then("more components than were kept is refused", RefusesTooManyScores(oP), TRUE)
+EndScenario()
+
+
 Summary()
 
 func Rnd8(n)
@@ -419,3 +464,70 @@ func RaisesFraction(o)
 		b = TRUE
 	done
 	return b
+
+# five columns spanning only three real directions, so dropping components has a
+# predictable cost rather than an arbitrary one
+func RankThreeData(n)
+	_r3Rows_ = []
+	_r3S_ = 99
+	for _r3I_ = 1 to n
+		_r3S_ = (_r3S_ * 1103515245 + 12345) % 2147483648
+		_r3A_ = ((floor(_r3S_/2048) % 1000) / 1000) - 0.5
+		_r3S_ = (_r3S_ * 1103515245 + 12345) % 2147483648
+		_r3B_ = ((floor(_r3S_/2048) % 1000) / 1000) - 0.5
+		_r3S_ = (_r3S_ * 1103515245 + 12345) % 2147483648
+		_r3C_ = ((floor(_r3S_/2048) % 1000) / 1000) - 0.5
+		_r3Rows_ + [ _r3A_*10, _r3B_*4, _r3C_, _r3A_*3 + _r3B_, _r3A_*2 - _r3C_ ]
+	next
+	return _r3Rows_
+
+func MaxAbsError(aA, aB)
+	_maV_ = 0
+	for _maI_ = 1 to len(aA)
+		for _maJ_ = 1 to len(aA[1])
+			_maE_ = fabs(aA[_maI_][_maJ_] - aB[_maI_][_maJ_])
+			if _maE_ > _maV_
+				_maV_ = _maE_
+			ok
+		next
+	next
+	return _maV_
+
+# the identity: mean squared reconstruction error from k components == the sum of the
+# eigenvalues of the components dropped
+func ReconstructionMatchesVariance(oP, aD, k)
+	_rmS_ = oP.Scores()
+	_rmT_ = []
+	for _rmI_ = 1 to len(aD)
+		_rmR_ = []
+		for _rmJ_ = 1 to k
+			_rmR_ + _rmS_[_rmI_][_rmJ_]
+		next
+		_rmT_ + _rmR_
+	next
+	_rmB_ = oP.Inverse(_rmT_)
+
+	_rmE_ = 0
+	for _rmI_ = 1 to len(aD)
+		for _rmJ_ = 1 to len(aD[1])
+			_rmD_ = aD[_rmI_][_rmJ_] - _rmB_[_rmI_][_rmJ_]
+			_rmE_ += _rmD_ * _rmD_
+		next
+	next
+	_rmE_ = _rmE_ / (len(aD) - 1)
+
+	_rmV_ = oP.ExplainedVariance()
+	_rmDrop_ = 0
+	for _rmJ_ = k+1 to len(_rmV_)
+		_rmDrop_ += _rmV_[_rmJ_]
+	next
+	return fabs(_rmE_ - _rmDrop_) < 0.000001
+
+func RefusesTooManyScores(oP)
+	_rtB_ = FALSE
+	try
+		oP.Inverse([ [1,2,3,4,5,6,7,8] ])
+	catch
+		_rtB_ = TRUE
+	done
+	return _rtB_
