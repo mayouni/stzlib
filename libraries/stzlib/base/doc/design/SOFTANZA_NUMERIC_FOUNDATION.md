@@ -2676,6 +2676,48 @@ what it refused.
   anyway. Dividing through `T[i][i]` there would return a plausible matrix and the wrong
   answer, since a real matrix with complex eigenvalues is perfectly invertible.
 
+- **MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX (`aa6edb0dd`)** — *what the Schur
+  decomposition was built for.*
+
+  `f(A) = Q f(T) Qᵀ`. `symmetricPower` applies f to a **diagonal** and is done, which is
+  exactly why it refuses every non-symmetric matrix. Here T is only quasi-triangular, so
+  `f(T)` is built **block by block** — and that recurrence is the whole algorithm.
+
+  ***The case that justifies the apparatus.*** A **defective** matrix has fewer
+  eigenvectors than dimensions, so there is nothing to diagonalise — while **every** real
+  matrix has a Schur form. `[[1,1],[0,1]]` is the smallest example: one eigenvalue, one
+  eigenvector (checked with `independentCount`), and a square root of exactly
+  `[[1,0.5],[0,1]]` that no eigendecomposition can reach. Everything else here could have
+  been done by diagonalising; this could not.
+
+  **The square root** — Björck–Hammarling. Diagonal blocks go first and directly: a 1×1 is
+  a scalar root, and a 2×2 with a complex pair has a closed form worth its paragraph —
+  after the Schur reduction such a block is `p·I + N` with `N²` a **negative** multiple of
+  the identity, so it lives in a copy of the complex numbers and `N/s` behaves exactly
+  like `i`. The root is then the ordinary complex one written back in that basis, with no
+  complex arithmetic anywhere. Off-diagonal blocks are forced by the ones below and to
+  their left, through a small Sylvester equation solved by the LU already in the library.
+
+  Refused rather than returned as NaN for a **lone negative real** eigenvalue: that root
+  exists and is complex, and this returns real matrices. A complex **pair** is fine.
+
+  ***And the exponential, which does not want a Schur form.*** Scaling and squaring with a
+  Padé approximant, needing no decomposition at all. Worth saying plainly next to the
+  square root: **not every matrix function wants a Schur decomposition.** The square root
+  does — the block recurrence *is* the algorithm. The exponential does not, and routing it
+  through one would be slower and no more accurate. **A decomposition is a tool, not a
+  house style.**
+
+  Tested against **identities** rather than tabulated matrices throughout: the root
+  squares back to A; on symmetric input it agrees with the Jacobi eigendecomposition route
+  to 1e-8 (two algorithms sharing nothing below the matrix); `exp` of a **nilpotent**
+  matrix is an *exact* polynomial (`N³ = 0`, so `I + N + N²/2` and nothing after — an
+  approximation that was merely close would miss the exact 0.5); and `exp(A)exp(−A) = I`,
+  which runs the scaling and squaring twice on genuinely different inputs.
+
+  *Zig trap, second time: a local named `i0` shadows the primitive integer type `i0`. Any
+  `iN` or `uN` is a type.*
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
