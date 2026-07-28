@@ -192,8 +192,13 @@ class stzTSNE from stzObject
 	@nPreparedDim = 0     # the width the fit actually saw (post-PCA when reducing)
 	@anHidden = [ 50, 20 ]
 	@nLearningRate = 0.01
-	@anShape = []
+@anShape = []
 	@anWeights = []
+	@anDecShape = []      # the inverse decoder -- see LearnInverse()
+	@anDecWeights = []
+	@anDecHidden = [ 64, 64 ]
+	@nDecEpochs = 15000
+	@nDecRate = 0.02
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -623,6 +628,145 @@ class stzTSNE from stzObject
 			stzraise("The engine refused the measurement.")
 		ok
 		return _aR_
+
+	# -- THE INVERSE TRANSFORM: from the picture back to the data --
+	#
+	# Call it AFTER Fit(). It trains a decoder g(y) ~ x against the frozen embedding,
+	# so the map already looked at is left exactly as it was.
+	#
+	# IT WORKS FOR BOTH VARIANTS HERE, free-form and parametric, because the decoder
+	# never inverts the encoder: it regresses (position, row) pairs, and both variants
+	# have both halves. (A refusal on that point stood briefly in stzUMAP and was wrong.)
+	#
+	# -- WHETHER YOU NEED IT, WHICH IS MEASURABLE --
+	#
+	# The alternative is no model: given a point in the map, return the nearest training
+	# row. A LOOKUP'S ERROR IS THE SAMPLING GAP -- it hands back a stored row, so it can
+	# never be closer to the truth than the nearest row happens to be. A DECODER'S ERROR
+	# IS ITS OWN APPROXIMATION ERROR, which owes nothing to sampling density. Whichever
+	# is smaller wins.
+	#
+	# MEASURED on one curve through six dimensions, inverting midpoints between
+	# consecutive embedded rows (where the curve gives a true answer):
+	#
+	#     fit                24 points          90 points
+	#                      dec    lookup      dec    lookup
+	#     t-SNE           0.1066  0.9025    0.2993  0.7634
+	#     t-SNE param     0.0685  0.9186    0.0212  0.2446
+	#     UMAP            0.5450  1.1516    0.0858  0.2673
+	#     UMAP param      0.2191  0.9886    0.6529  0.4654   <- the only loss
+	#
+	# THE DECODER WINS IN SEVEN OF EIGHT CELLS, and parametric t-SNE is the best
+	# inverter of the four by some way. Which also kills a tidy explanation I offered
+	# earlier -- that a parametric encoder is constrained to be smooth and therefore
+	# settles somewhere contorted and hard to invert. Parametric t-SNE is parametric and
+	# inverts BEST. Invertibility varies by algorithm, thirtyfold across these four, and
+	# is not predicted by whether the encoder is a network.
+	#
+	# -- AND THE LIMIT NO SETTING REMOVES --
+	#
+	# Two dimensions cannot hold six. The inverse recovers what the embedding KEPT and
+	# invents the rest: a plausible row for a location, never a recovered one.
+	def LearnInverse()
+		This._MustBeFitted()
+		_aY_ = []
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nDims
+				_aY_ + @aEmbedding[_i_][_j_]
+			next
+		next
+		_aX_ = []
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nPreparedDim
+				_aX_ + @aPreparedX[(_i_ - 1) * @nPreparedDim + _j_]
+			next
+		next
+		_aR_ = StzEngineEmbeddingDecoder(_aY_, _aX_, @nRows, @nDims, @nPreparedDim,
+			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
+		if NOT isList(_aR_) or len(_aR_) < 3
+			stzraise("The engine refused to train the inverse.")
+		ok
+		_nSh_ = _aR_[1]
+		_nWt_ = _aR_[2]
+		_nAt_ = 3
+		@anDecShape = []
+		for _i_ = 1 to _nSh_
+			_nAt_++
+			@anDecShape + _aR_[_nAt_]
+		next
+		@anDecWeights = []
+		for _i_ = 1 to _nWt_
+			_nAt_++
+			@anDecWeights + _aR_[_nAt_]
+		next
+
+		def LearnInverseQ()
+			This.LearnInverse()
+			return This
+
+	def HasInverse()
+		return len(@anDecWeights) > 0
+
+	def SetInverseLayers(paWidths)
+		if isList(paWidths) and len(paWidths) > 0
+			@anDecHidden = paWidths
+		ok
+
+		def SetInverseLayersQ(paWidths)
+			This.SetInverseLayers(paWidths)
+			return This
+
+	# a decoder is a REGRESSION problem and wants far more epochs than the embedding
+	# itself did -- measured, [32,32] at 3000 was three times WORSE than a plain lookup
+	# and [64,64] at 40000 a third better
+	def SetInverseEpochs(n)
+		if n > 0
+			@nDecEpochs = n
+		ok
+
+		def SetInverseEpochsQ(n)
+			This.SetInverseEpochs(n)
+			return This
+
+	# TAKE POINTS IN THE MAP, RETURN ROWS IN THE DATA. The points need not be positions
+	# of training rows -- somewhere between two clusters is exactly the question worth
+	# asking, and the answer is a plausible row for that location.
+	def Inverse(paPoints)
+		This._MustBeFitted()
+		if NOT This.HasInverse()
+			stzraise("Call LearnInverse() first -- the inverse is a second model, " +
+				"trained against the finished embedding, and it does not come with " +
+				"the fit.")
+		ok
+		if NOT isList(paPoints) or len(paPoints) = 0
+			stzraise("Give me a list of points in the embedding.")
+		ok
+		_nM_ = len(paPoints)
+		_aP_ = []
+		for _i_ = 1 to _nM_
+			if NOT isList(paPoints[_i_]) or len(paPoints[_i_]) != @nDims
+				stzraise("Point " + _i_ + " has " + len(paPoints[_i_]) +
+					" coordinate(s); this map has " + @nDims + ".")
+			ok
+			for _j_ = 1 to @nDims
+				_aP_ + paPoints[_i_][_j_]
+			next
+		next
+		_aOut_ = StzEnginePtsneTransform(@anDecShape, @anDecWeights, _aP_, _nM_, @nPreparedDim)
+		if NOT isList(_aOut_) or len(_aOut_) < _nM_ * @nPreparedDim
+			stzraise("The engine refused the inversion.")
+		ok
+		_aRes_ = []
+		_nAtI_ = 0
+		for _i_ = 1 to _nM_
+			_aRow_ = []
+			for _j_ = 1 to @nPreparedDim
+				_nAtI_++
+				_aRow_ + _aOut_[_nAtI_]
+			next
+			_aRes_ + _aRow_
+		next
+		return _aRes_
 
 	def Fit()
 		_a_ = This._PreparedData()
@@ -1295,7 +1439,7 @@ class stzUMAP from stzObject
 				_aX_ + @aPrepared[(_i_ - 1) * @nPreparedDim + _j_]
 			next
 		next
-		_aR_ = StzEnginePumapDecoder(_aY_, _aX_, @nRows, @nDims, @nPreparedDim,
+		_aR_ = StzEngineEmbeddingDecoder(_aY_, _aX_, @nRows, @nDims, @nPreparedDim,
 			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
 		if NOT isList(_aR_) or len(_aR_) < 3
 			stzraise("The engine refused to train the inverse.")

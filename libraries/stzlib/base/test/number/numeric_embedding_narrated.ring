@@ -1756,6 +1756,75 @@ Scenario("...and the FREE-FORM fit inverts better than the parametric one")
 	     MidpointError(oFree, aD, 90) < LookupError(oFree, aD, 90), TRUE)
 EndScenario()
 
+Scenario("t-SNE INVERTS TOO, both variants")
+	# Nothing new was needed. The decoder regresses (position, row) pairs and has no idea
+	# what produced the positions, so it moved out of the UMAP module the moment t-SNE
+	# wanted it -- a name pointing at one caller would have misled the next.
+	aD = SixDCurve(24)
+
+	oFree = new stzTSNE(aD)
+	oFree.SetPerplexityQ(5).SetIterationsQ(1000).FitQ()
+	Then("no inverse until asked for", oFree.HasInverse(), FALSE)
+	oFree.LearnInverse()
+	Then("...and one after", oFree.HasInverse(), TRUE)
+
+	aE = oFree.Embedding()
+	aBack = oFree.Inverse([ aE[1] ])
+	Then("a training row comes back close to itself",
+	     DistOf(aBack[1], aD[1]) < 0.5, TRUE)
+
+	oPar = new stzTSNE(aD)
+	oPar.SetPerplexityQ(5).SetIterationsQ(600).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oPar.LearnInverse()
+	Then("the parametric variant inverts as well", oPar.HasInverse(), TRUE)
+
+	# a place between two rows, where the generating curve gives a true answer
+	aMid = [ [ (aE[1][1]+aE[2][1])/2, (aE[1][2]+aE[2][2])/2 ] ]
+	Then("...and a place between two rows inverts to a plausible row",
+	     DistOf(oFree.Inverse(aMid)[1], CurveRowAt(0.5 / 24 * 6.2831853)) < 0.5, TRUE)
+
+	Then("Inverse() before LearnInverse() is refused", RefusesUntrainedTsneInverse(aD), TRUE)
+EndScenario()
+
+Scenario("...and A TIDY EXPLANATION DID NOT SURVIVE THE WIDER MEASUREMENT")
+	# The full table, one curve through six dimensions, inverting midpoints:
+	#
+	#     fit                24 points          90 points
+	#                      dec    lookup      dec    lookup
+	#     t-SNE           0.1066  0.9025    0.2993  0.7634
+	#     t-SNE param     0.0685  0.9186    0.0212  0.2446
+	#     UMAP            0.5450  1.1516    0.0858  0.2673
+	#     UMAP param      0.2191  0.9886    0.6529  0.4654   <- the only loss
+	#
+	# WHEN ONLY UMAP HAD BEEN MEASURED I offered a tidy story for why the free-form fit
+	# inverted sevenfold better than the parametric one: a parametric encoder is
+	# CONSTRAINED to be smooth in x, so it settles somewhere contorted and is harder to
+	# invert -- the property that makes the forward transform exact is not the one that
+	# makes the inverse easy.
+	#
+	# PARAMETRIC t-SNE IS PARAMETRIC AND INVERTS BEST OF THE FOUR. So being a network is
+	# not what hurt parametric UMAP, and the story was a pattern fitted to two points.
+	#
+	# What survives is the observation without the theory: invertibility varies by
+	# algorithm -- thirtyfold across four methods that all produce a 2-D embedding of the
+	# same data -- and is not predicted by whether the encoder is parametric. Measure it
+	# on your own data rather than reasoning about it from the machinery.
+	aD = SixDCurve(24)
+
+	oT = new stzTSNE(aD)
+	oT.SetPerplexityQ(5).SetIterationsQ(600).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oT.LearnInverse()
+	oU = new stzUMAP(aD)
+	oU.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ().FitQ()
+	oU.LearnInverse()
+
+	Then("parametric t-SNE inverts better than parametric UMAP",
+	     MidpointError(oT, aD, 24) < MidpointError(oU, aD, 24), TRUE)
+	Then("...and both beat the nearest stored row on sparse data",
+	     MidpointError(oT, aD, 24) < LookupError(oT, aD, 24) and
+	     MidpointError(oU, aD, 24) < LookupError(oU, aD, 24), TRUE)
+EndScenario()
+
 Scenario("the name forms hold here too")
 	aD = Blobs(6, 3)
 
@@ -2681,3 +2750,14 @@ func LookupError(o, aD, n)
 			CurveRowAt((_leI_ - 0.5) / n * 6.2831853))
 	next
 	return _leS_ / (n-1)
+
+func RefusesUntrainedTsneInverse(aD)
+	_rtB_ = FALSE
+	_rtO_ = new stzTSNE(aD)
+	_rtO_.SetPerplexityQ(5).SetIterationsQ(200).FitQ()
+	try
+		_rtO_.Inverse([ [0, 0] ])
+	catch
+		_rtB_ = TRUE
+	done
+	return _rtB_
