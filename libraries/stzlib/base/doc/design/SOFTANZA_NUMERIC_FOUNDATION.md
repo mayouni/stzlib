@@ -2272,6 +2272,50 @@ what it refused.
   that depends on it works again: training radii 0.0036–0.0051 for the dense cluster, new
   rows at 0.0032 and 1.9778.
 
+- **PARAMETRIC UMAP INVERSE (`8a3b6d7eb`)** — *from the picture back to the data, and the
+  rule for when to bother.*
+
+  Everything in this family so far ran one way. This runs the other, and it is the only
+  direction needing a **second model**: the forward map threw information away and
+  nothing gets it back. It needed no new machinery — `nn.train` is already a regression
+  trainer, so `g(y) ≈ x` is one call against the **frozen** embedding, leaving the map
+  the caller already looked at exactly as it was. (The published variant trains the whole
+  thing as an autoencoder, making the embedding more invertible and *less* faithful to
+  the neighbourhood structure — that changes the picture underneath the caller, so it is
+  not the default.) Both ends are standardised and **folded back**, so the network maps
+  raw embedding coordinates to raw data coordinates.
+
+  **The rule, predicted before it was measured.** The obvious alternative is no model:
+  return the nearest training row.
+
+  > A **lookup's error is the sampling gap** — it returns a stored row, so it can never
+  > be closer to the truth than the nearest row happens to be.
+  > A **decoder's error is its own approximation error**, which owes nothing to how
+  > densely the data was sampled.
+  > **Whichever is smaller wins.**
+
+  | curve sampling | decoder | lookup |
+  |---|---|---|
+  | 90 points *(dense)* | 0.6028 | **0.4654** |
+  | 24 points *(sparse)* | **0.0810** | 0.9024 |
+
+  Inverting midpoints between consecutive embedded rows, where the generating curve gives
+  a true answer. The lookup's error roughly **doubled** as the gaps widened, exactly as
+  the rule says, while the decoder's **fell** — fewer points is an easier function to fit.
+  So dense data wants a lookup and no model; sparse data wants the decoder. That is
+  something a caller can act on, which *"the inverse is approximate"* is not.
+
+  ***And my first reading was of an undertrained network.*** Against a nearest-row lookup
+  at 0.9155: `[32,32]`/3000 → **2.4977** (three times *worse*), `[64,64]`/3000 → 0.8947,
+  `[64,64]`/15000 → 0.6314, `[64,64]`/40000 → **0.5771** (a third *better*). I had
+  already written down *"a trained decoder loses to a lookup everywhere"* before running
+  the capacity control. Only the control caught it — hence the defaults, and a test that
+  pins the capacity effect rather than the conclusion I nearly drew.
+
+  **The limit no setting removes:** two dimensions cannot hold six. The inverse recovers
+  what the embedding **kept** and invents the rest — a plausible row for a location, never
+  a recovered one.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
