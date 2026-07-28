@@ -1481,6 +1481,153 @@ pub fn sqrtGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: [
     }
 }
 
+/// THE MATRIX LOGARITHM: the X with exp(X) = A.
+///
+/// ── INVERSE SCALING AND SQUARING, which is the exponential's method run backwards ──
+///
+/// A series for log converges only near the identity, and a general matrix is not near
+/// it. So: take repeated SQUARE ROOTS until it is -- each one halves the distance in
+/// the sense that matters -- evaluate the series there, and multiply back by 2^k, since
+/// log(A) = 2^k * log(A^(1/2^k)).
+///
+/// The square roots are the Schur-based ones above. This is the third layer of the same
+/// construction: Schur gives the square root, the square root gives the logarithm, and
+/// the logarithm with the exponential gives every real power. Each one is a few lines
+/// because the one below it did the work.
+///
+/// ── THE SERIES, AND WHY IT IS NOT log(I + Y) ──
+///
+/// The obvious expansion in Y = X - I converges slowly and only for ||Y|| < 1. The
+/// Gregory form in Z = (X - I)(X + I)^-1 converges far faster over a far wider region:
+///
+///     log(X) = 2 * (Z + Z^3/3 + Z^5/5 + ...)
+///
+/// It costs one matrix inverse, which the LU in the library already provides, and it is
+/// what makes eight square roots enough where the naive series would want dozens.
+///
+/// ── WHAT IT REFUSES ──
+///
+/// A singular matrix has no logarithm at all -- exp is never singular, so nothing maps
+/// to it. And a NEGATIVE REAL eigenvalue has only a complex logarithm, for the same
+/// reason it has only a complex square root: the refusal arrives from `sqrtGeneral`
+/// below, which is where the constraint actually lives.
+pub fn logGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+
+    // a singular matrix is not in the image of exp, and the LU below would divide by
+    // rounding rather than say so
+    var lu = try linalg.decompose(alloc, data, n);
+    const singular = lu.singular;
+    lu.deinit();
+    if (singular) return FunError.Singular;
+
+    const x = try alloc.alloc(f64, n * n);
+    defer alloc.free(x);
+    @memcpy(x, data);
+    const tmp = try alloc.alloc(f64, n * n);
+    defer alloc.free(tmp);
+
+    // ── repeated square roots until X is close to the identity ──
+    var k: usize = 0;
+    while (k < 40) : (k += 1) {
+        var dist: f64 = 0;
+        for (0..n) |i| {
+            var row: f64 = 0;
+            for (0..n) |j| {
+                const want: f64 = if (i == j) 1 else 0;
+                row += @abs(x[i * n + j] - want);
+            }
+            dist = @max(dist, row);
+        }
+        if (dist < 0.25) break;
+        try sqrtGeneral(alloc, x, n, tmp);
+        @memcpy(x, tmp);
+    }
+
+    // ── Z = (X - I)(X + I)^-1 ──
+    const minus = try alloc.alloc(f64, n * n);
+    defer alloc.free(minus);
+    const plus = try alloc.alloc(f64, n * n);
+    defer alloc.free(plus);
+    for (0..n * n) |i| {
+        minus[i] = x[i];
+        plus[i] = x[i];
+    }
+    for (0..n) |i| {
+        minus[i * n + i] -= 1;
+        plus[i * n + i] += 1;
+    }
+
+    const pinv = try alloc.alloc(f64, n * n);
+    defer alloc.free(pinv);
+    if (!try linalg.luInverse(alloc, plus, n, pinv)) return FunError.Singular;
+
+    const z = try alloc.alloc(f64, n * n);
+    defer alloc.free(z);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += minus[i * n + t] * pinv[t * n + j];
+            z[i * n + j] = acc;
+        }
+    }
+
+    // ── 2 * (Z + Z^3/3 + Z^5/5 + ...) ──
+    const z2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(z2);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..t_n(n)) |t| acc += z[i * n + t] * z[t * n + j];
+            z2[i * n + j] = acc;
+        }
+    }
+    const term = try alloc.alloc(f64, n * n);
+    defer alloc.free(term);
+    @memcpy(term, z);
+    @memset(out, 0);
+    var odd: usize = 1;
+    while (odd <= 31) : (odd += 2) {
+        const c = 1.0 / @as(f64, @floatFromInt(odd));
+        for (0..n * n) |i| out[i] += c * term[i];
+        // term <- term * Z^2
+        for (0..n) |i| {
+            for (0..n) |j| {
+                var acc: f64 = 0;
+                for (0..n) |t| acc += term[i * n + t] * z2[t * n + j];
+                tmp[i * n + j] = acc;
+            }
+        }
+        @memcpy(term, tmp);
+    }
+
+    // ── times 2, then undo the k square roots ──
+    const factor = 2.0 * std.math.pow(f64, 2, @floatFromInt(k));
+    for (0..n * n) |i| out[i] *= factor;
+}
+
+inline fn t_n(n: usize) usize {
+    return n;
+}
+
+/// A RAISED TO ANY REAL POWER, for a matrix with no symmetry: A^p = exp(p * log(A)).
+///
+/// `linalg.symmetricPower` refuses every non-symmetric matrix, and this is the answer
+/// it could not give. Two lines, because the logarithm and the exponential above did
+/// the work -- which is what a foundation is supposed to look like.
+///
+/// The same constraints follow through: no negative real eigenvalue, and non-singular.
+/// An INTEGER power needs neither and is better done by repeated multiplication; this
+/// is for the fractional case, where there is no other route.
+pub fn powerGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, p: f64, out: []f64) !void {
+    if (n == 0) return;
+    const lg = try alloc.alloc(f64, n * n);
+    defer alloc.free(lg);
+    try logGeneral(alloc, data, n, lg);
+    for (0..n * n) |i| lg[i] *= p;
+    try expGeneral(alloc, lg, n, out);
+}
+
 /// THE MATRIX EXPONENTIAL, and NOT through the Schur form.
 ///
 /// Scaling and squaring with a Pade approximant: exp(A) = (exp(A/2^s))^(2^s), with the
@@ -1764,4 +1911,149 @@ test "and the square root agrees with the symmetric route where BOTH apply" {
     // answer. That the general route reproduces the symmetric one on symmetric input is
     // the check that it is computing the same thing rather than something adjacent.
     for (viaSchur, viaEigen) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "THE MATRIX LOGARITHM: exp(log(A)) = A, which is what it means" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const lg = try alloc.alloc(f64, n * n);
+    defer alloc.free(lg);
+    try logGeneral(alloc, &a, n, lg);
+
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try expGeneral(alloc, lg, n, back);
+
+    // THE DEFINING PROPERTY, and the only one worth asserting: the logarithm is the
+    // thing the exponential undoes. Checked through a genuinely different algorithm --
+    // inverse scaling and squaring on the way out, Pade scaling and squaring on the way
+    // back -- so agreeing is not two halves of one routine cancelling.
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+}
+
+test "log of the identity is zero, and of a diagonal is entrywise" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const eye = [_]f64{ 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    try logGeneral(alloc, &eye, n, out);
+    for (out) |v| try testing.expectApproxEqAbs(@as(f64, 0), v, 1e-12);
+
+    // a diagonal matrix is the one case with a closed-form answer to check against
+    const diag = [_]f64{ 2, 0, 0, 0, 7, 0, 0, 0, 0.5 };
+    try logGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(@log(@as(f64, 2)), out[0], 1e-9);
+    try testing.expectApproxEqAbs(@log(@as(f64, 7)), out[4], 1e-9);
+    try testing.expectApproxEqAbs(@log(@as(f64, 0.5)), out[8], 1e-9);
+    // and nothing off the diagonal
+    try testing.expectApproxEqAbs(@as(f64, 0), out[1], 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 0), out[5], 1e-9);
+}
+
+test "THE DEFECTIVE MATRIX AGAIN, with an exact answer" {
+    const alloc = testing.allocator;
+    const n = 2;
+    // exp([[0,1],[0,0]]) = [[1,1],[0,1]] exactly, since the nilpotent series stops
+    // after one term. So the logarithm of [[1,1],[0,1]] is [[0,1],[0,0]] and nothing
+    // else -- an exact target on a matrix with only one eigenvector, where no
+    // eigendecomposition exists to compute it from.
+    const a = [_]f64{ 1, 1, 0, 1 };
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try logGeneral(alloc, &a, n, out);
+
+    try testing.expectApproxEqAbs(@as(f64, 0), out[0], 1e-10);
+    try testing.expectApproxEqAbs(@as(f64, 1), out[1], 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 0), out[2], 1e-10);
+    try testing.expectApproxEqAbs(@as(f64, 0), out[3], 1e-10);
+}
+
+test "log(exp(A)) = A, the identity run the other way" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // modest entries, so exp stays in the region where the principal logarithm is the
+    // one that comes back -- log is only an inverse of exp on a restricted domain, and
+    // asking outside it is asking which of infinitely many answers was meant
+    const a = [_]f64{
+        0.3,  0.5, -0.2, 0.0,
+        0.0,  0.2,  0.4, 0.1,
+        -0.1, 0.0,  0.3, 0.2,
+        0.1, -0.2,  0.0, 0.4,
+    };
+    const e = try alloc.alloc(f64, n * n);
+    defer alloc.free(e);
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try expGeneral(alloc, &a, n, e);
+    try logGeneral(alloc, e, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "a singular matrix has NO logarithm, and a negative real eigenvalue no real one" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // exp is never singular -- nothing maps to a singular matrix, so there is no
+    // logarithm to return rather than an inaccurate one
+    const sing = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 };
+    try testing.expectError(FunError.Singular, logGeneral(alloc, &sing, n, out));
+
+    // and a negative real eigenvalue has only a complex logarithm, for exactly the
+    // reason it has only a complex square root -- the refusal arrives from sqrtGeneral,
+    // which is where the constraint actually lives
+    const neg = [_]f64{ -4, 0, 0, 0, 1, 0, 0, 0, 2 };
+    try testing.expectError(FunError.NoRealResult, logGeneral(alloc, &neg, n, out));
+}
+
+test "AND THEN ANY REAL POWER FOLLOWS, which symmetricPower could not give" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const half = try alloc.alloc(f64, n * n);
+    defer alloc.free(half);
+    try powerGeneral(alloc, &a, n, 0.5, half);
+
+    // A^0.5 must square back to A -- and it must agree with the Schur square root,
+    // which reached the same matrix by an entirely different road: a block recurrence
+    // rather than exp(0.5 log A)
+    const sq = try squares(alloc, half, n);
+    defer alloc.free(sq);
+    for (a, sq) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
+
+    const viaSchur = try alloc.alloc(f64, n * n);
+    defer alloc.free(viaSchur);
+    try sqrtGeneral(alloc, &a, n, viaSchur);
+    for (half, viaSchur) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
+
+    // a quarter power composes: (A^0.25)^2 = A^0.5, which a routine that was not really
+    // exponentiating would fail while still passing the squares-back test
+    const quarter = try alloc.alloc(f64, n * n);
+    defer alloc.free(quarter);
+    try powerGeneral(alloc, &a, n, 0.25, quarter);
+    const qsq = try squares(alloc, quarter, n);
+    defer alloc.free(qsq);
+    for (half, qsq) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
+
+    // and the symmetric route still refuses the matrix outright
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expectError(
+        linalg.PowerError.NotSymmetric,
+        linalg.symmetricPower(alloc, &a, n, 0.5, out),
+    );
 }
