@@ -172,6 +172,14 @@ fn ring_LuInverse(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_lu_inverse(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_SqrtGeneral(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_sqrt_general(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_MatrixExp(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_exp(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 fn ring_SchurQ(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_schur_q(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -300,6 +308,8 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixqrinverse", .func = &ring_QrInverse },
         .{ .name = "stzengine" ++ "matrixluinverse", .func = &ring_LuInverse },
         .{ .name = "stzengine" ++ "matrixschurq", .func = &ring_SchurQ },
+        .{ .name = "stzengine" ++ "matrixsqrtgeneral", .func = &ring_SqrtGeneral },
+        .{ .name = "stzengine" ++ "matrixexp", .func = &ring_MatrixExp },
         .{ .name = "stzengine" ++ "matrixschurt", .func = &ring_SchurT },
         .{ .name = "stzengine" ++ "matrixschurinverse", .func = &ring_SchurInverse },
         .{ .name = "stzengine" ++ "matrixcholeskyfactorinverse", .func = &ring_CholeskyFactorInverse },

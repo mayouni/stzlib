@@ -1257,3 +1257,511 @@ test "a singular matrix is refused rather than divided through" {
     defer alloc.free(out);
     try testing.expect(!try schurInverse(alloc, &a, n, out));
 }
+
+// ─── MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX ──────────────────────────────
+//
+// f(A) = Q f(T) Q', which is what the Schur decomposition was built for. The symmetric
+// path (`linalg.symmetricPower`) applies f to a DIAGONAL and is done; here T is only
+// quasi-triangular, so f(T) has to be built block by block -- and that block recurrence
+// is the whole of the difficulty.
+//
+// ── WHY NOT JUST DIAGONALISE ──
+//
+// Because it does not always work. A DEFECTIVE matrix has fewer eigenvectors than
+// dimensions, so it has no diagonalisation to apply f through, while EVERY real matrix
+// has a Schur form. [[1,1],[0,1]] is the smallest example: one eigenvector, and a
+// perfectly well-defined square root that no eigendecomposition can reach.
+
+pub const FunError = error{ NoRealResult, Singular, DidNotConverge, OutOfMemory };
+
+/// The square root of a 2x2 real block with COMPLEX conjugate eigenvalues.
+///
+/// After the Schur reduction such a block is p*I + N with N = [[0,q],[r,0]] and qr < 0,
+/// so N*N = qr*I is a negative multiple of the identity. That means the block lives in
+/// a copy of the complex numbers: N/s behaves exactly like i, with s = sqrt(-qr).
+///
+/// So the square root is the ordinary complex one, written back in that basis --
+/// sqrt(p + i*s) = u + i*v -- rather than anything matrix-specific.
+fn sqrt2x2(b: [4]f64, out: *[4]f64) bool {
+    const p = (b[0] + b[3]) / 2;
+    const q = b[1];
+    const r = b[2];
+    const disc = q * r + ((b[0] - b[3]) / 2) * ((b[0] - b[3]) / 2);
+    if (disc >= 0) return false; // not a complex pair; the caller handles it 1x1-wise
+    const s = @sqrt(-disc);
+    const modulus = @sqrt(p * p + s * s);
+    const u = @sqrt((modulus + p) / 2);
+    if (u == 0) return false;
+    const v = s / (2 * u);
+    // X = u*I + (v/s)*(B - p*I)
+    const k = v / s;
+    out[0] = u + k * (b[0] - p);
+    out[1] = k * q;
+    out[2] = k * r;
+    out[3] = u + k * (b[3] - p);
+    return true;
+}
+
+/// Solve the small Sylvester equation  Xii * Z - Z * Xjj = C  for Z, where the blocks
+/// are 1x1 or 2x2. At most four unknowns, so it is built as a dense system and solved
+/// by the LU already in the library rather than by a special case per shape.
+fn sylvesterSmall(
+    alloc: std.mem.Allocator,
+    fii: []const f64,
+    ni: usize,
+    fjj: []const f64,
+    nj: usize,
+    c: []const f64,
+    z: []f64,
+) !bool {
+    const dim = ni * nj;
+    const m = try alloc.alloc(f64, dim * dim);
+    defer alloc.free(m);
+    @memset(m, 0);
+    const rhs = try alloc.alloc(f64, dim);
+    defer alloc.free(rhs);
+
+    // unknown Z[a][b] sits at a*nj + b
+    for (0..ni) |a| {
+        for (0..nj) |b| {
+            const row = a * nj + b;
+            rhs[row] = c[a * nj + b];
+            // (Fii Z)[a][b] = sum_k Fii[a][k] Z[k][b]
+            for (0..ni) |k| m[row * dim + (k * nj + b)] += fii[a * ni + k];
+            // -(Z Fjj)[a][b] = -sum_k Z[a][k] Fjj[k][b]
+            for (0..nj) |k| m[row * dim + (a * nj + k)] -= fjj[k * nj + b];
+        }
+    }
+    return linalg.solve(alloc, m, dim, rhs, z);
+}
+
+/// f(T) for quasi-upper-triangular T, by the Parlett block recurrence, with f = sqrt.
+///
+/// The diagonal blocks are done first and directly: a 1x1 is a scalar square root, a
+/// 2x2 with a complex pair is the closed form above. Then each off-diagonal block is
+/// forced by the ones below and to its left, through a Sylvester equation -- which is
+/// what makes this a recurrence rather than an elementwise map.
+fn sqrtQuasiTriangular(alloc: std.mem.Allocator, t: []const f64, n: usize, f: []f64) !void {
+    @memset(f, 0);
+
+    // block boundaries: starts[b] is the first row of block b
+    const starts = try alloc.alloc(usize, n + 1);
+    defer alloc.free(starts);
+    var nb: usize = 0;
+    var i: usize = 0;
+    var largest: f64 = 0;
+    for (t) |v| largest = @max(largest, @abs(v));
+    const tol = 1e-12 * largest * @as(f64, @floatFromInt(n));
+    while (i < n) {
+        starts[nb] = i;
+        nb += 1;
+        if (i + 1 < n and @abs(t[(i + 1) * n + i]) > tol) i += 2 else i += 1;
+    }
+    starts[nb] = n;
+
+    // diagonal blocks
+    for (0..nb) |b| {
+        const sbeg = starts[b];
+        const sz = starts[b + 1] - sbeg;
+        if (sz == 1) {
+            const v = t[sbeg * n + sbeg];
+            // A NEGATIVE REAL EIGENVALUE HAS NO REAL SQUARE ROOT, and returning a NaN
+            // would let it travel. Refused instead.
+            if (v < -tol) return FunError.NoRealResult;
+            f[sbeg * n + sbeg] = @sqrt(@max(v, 0));
+        } else {
+            const blk = [4]f64{
+                t[sbeg * n + sbeg],       t[sbeg * n + (sbeg + 1)],
+                t[(sbeg + 1) * n + sbeg], t[(sbeg + 1) * n + (sbeg + 1)],
+            };
+            var out: [4]f64 = undefined;
+            if (!sqrt2x2(blk, &out)) return FunError.NoRealResult;
+            f[sbeg * n + sbeg] = out[0];
+            f[sbeg * n + (sbeg + 1)] = out[1];
+            f[(sbeg + 1) * n + sbeg] = out[2];
+            f[(sbeg + 1) * n + (sbeg + 1)] = out[3];
+        }
+    }
+
+    // off-diagonal blocks, in order of increasing distance from the diagonal
+    var d: usize = 1;
+    while (d < nb) : (d += 1) {
+        var bi: usize = 0;
+        while (bi + d < nb) : (bi += 1) {
+            const bj = bi + d;
+            const ibeg = starts[bi];
+            const ni = starts[bi + 1] - ibeg;
+            const jbeg = starts[bj];
+            const nj = starts[bj + 1] - jbeg;
+
+            // C = T_ij - sum over the blocks strictly between them
+            const c = try alloc.alloc(f64, ni * nj);
+            defer alloc.free(c);
+            for (0..ni) |a| {
+                for (0..nj) |b| c[a * nj + b] = t[(ibeg + a) * n + (jbeg + b)];
+            }
+            var bk = bi + 1;
+            while (bk < bj) : (bk += 1) {
+                const kbeg = starts[bk];
+                const nk = starts[bk + 1] - kbeg;
+                for (0..ni) |a| {
+                    for (0..nj) |b| {
+                        var acc: f64 = 0;
+                        for (0..nk) |kk| {
+                            acc += f[(ibeg + a) * n + (kbeg + kk)] * f[(kbeg + kk) * n + (jbeg + b)];
+                        }
+                        c[a * nj + b] -= acc;
+                    }
+                }
+            }
+
+            const fii = try alloc.alloc(f64, ni * ni);
+            defer alloc.free(fii);
+            for (0..ni) |a| {
+                for (0..ni) |b| fii[a * ni + b] = f[(ibeg + a) * n + (ibeg + b)];
+            }
+            const fjj = try alloc.alloc(f64, nj * nj);
+            defer alloc.free(fjj);
+            for (0..nj) |a| {
+                for (0..nj) |b| fjj[a * nj + b] = f[(jbeg + a) * n + (jbeg + b)];
+            }
+            const z = try alloc.alloc(f64, ni * nj);
+            defer alloc.free(z);
+
+            // F_ii Z + Z F_jj = C, which is the Sylvester equation with a PLUS because
+            // f(T) here is a square root: the product rule gives F_ii Z + Z F_jj, not
+            // the minus sign a general Parlett step carries.
+            const neg = try alloc.alloc(f64, nj * nj);
+            defer alloc.free(neg);
+            for (fjj, 0..) |v, q| neg[q] = -v;
+            if (!try sylvesterSmall(alloc, fii, ni, neg, nj, c, z)) return FunError.Singular;
+
+            for (0..ni) |a| {
+                for (0..nj) |b| f[(ibeg + a) * n + (jbeg + b)] = z[a * nj + b];
+            }
+        }
+    }
+}
+
+/// THE SQUARE ROOT OF A GENERAL REAL MATRIX: X with X*X = A.
+///
+/// Bjorck and Hammarling's algorithm -- Schur, then the block recurrence above, then
+/// back. This is what `linalg.symmetricPower(0.5)` cannot do: that one refuses every
+/// non-symmetric matrix by construction.
+///
+/// Refused rather than returned as NaN when A has a negative real eigenvalue: its
+/// square root exists but is COMPLEX, and this returns real matrices. A complex pair is
+/// fine -- that is what the 2x2 blocks are for -- and so is a defective matrix, which
+/// has no eigendecomposition at all and a perfectly good square root.
+pub fn sqrtGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    var d = try schur(alloc, data, n);
+    defer d.deinit();
+
+    const f = try alloc.alloc(f64, n * n);
+    defer alloc.free(f);
+    try sqrtQuasiTriangular(alloc, d.t, n, f);
+
+    // out = Q f Q'
+    const tmp = try alloc.alloc(f64, n * n);
+    defer alloc.free(tmp);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |k| acc += d.q[i * n + k] * f[k * n + j];
+            tmp[i * n + j] = acc;
+        }
+    }
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |k| acc += tmp[i * n + k] * d.q[j * n + k];
+            out[i * n + j] = acc;
+        }
+    }
+}
+
+/// THE MATRIX EXPONENTIAL, and NOT through the Schur form.
+///
+/// Scaling and squaring with a Pade approximant: exp(A) = (exp(A/2^s))^(2^s), with the
+/// inner exponential a rational approximation that is accurate precisely because A/2^s
+/// has been made small. It is what every serious library uses, and it needs no
+/// decomposition at all.
+///
+/// Worth stating plainly next to the square root: NOT EVERY MATRIX FUNCTION WANTS A
+/// SCHUR DECOMPOSITION. The square root does -- the block recurrence is the algorithm.
+/// The exponential does not, and routing it through a Schur form would be slower and no
+/// more accurate. A decomposition is a tool, not a house style.
+pub fn expGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+
+    // scale so that the norm is comfortably below 1
+    var norm: f64 = 0;
+    for (0..n) |i| {
+        var row: f64 = 0;
+        for (0..n) |j| row += @abs(data[i * n + j]);
+        norm = @max(norm, row);
+    }
+    var s: usize = 0;
+    while (norm > 0.5) : (s += 1) norm /= 2;
+
+    const a = try alloc.alloc(f64, n * n);
+    defer alloc.free(a);
+    const scale = std.math.pow(f64, 2, -@as(f64, @floatFromInt(s)));
+    for (data, 0..) |v, i| a[i] = v * scale;
+
+    // Pade(6,6) on the scaled matrix
+    const num = try alloc.alloc(f64, n * n);
+    defer alloc.free(num);
+    const den = try alloc.alloc(f64, n * n);
+    defer alloc.free(den);
+    const powk = try alloc.alloc(f64, n * n);
+    defer alloc.free(powk);
+    const tmp = try alloc.alloc(f64, n * n);
+    defer alloc.free(tmp);
+
+    @memset(num, 0);
+    @memset(den, 0);
+    @memset(powk, 0);
+    for (0..n) |i| {
+        num[i * n + i] = 1;
+        den[i * n + i] = 1;
+        powk[i * n + i] = 1;
+    }
+    var c: f64 = 1;
+    const q: usize = 6;
+    var k: usize = 1;
+    while (k <= q) : (k += 1) {
+        c = c * @as(f64, @floatFromInt(q - k + 1)) /
+            (@as(f64, @floatFromInt(k)) * @as(f64, @floatFromInt(2 * q - k + 1)));
+        // powk <- powk * a
+        for (0..n) |i| {
+            for (0..n) |j| {
+                var acc: f64 = 0;
+                for (0..n) |t| acc += powk[i * n + t] * a[t * n + j];
+                tmp[i * n + j] = acc;
+            }
+        }
+        @memcpy(powk, tmp);
+        const sign: f64 = if (k % 2 == 0) 1 else -1;
+        for (0..n * n) |i| {
+            num[i] += c * powk[i];
+            den[i] += sign * c * powk[i];
+        }
+    }
+
+    // solve den * X = num
+    const col = try alloc.alloc(f64, n);
+    defer alloc.free(col);
+    const rhs = try alloc.alloc(f64, n);
+    defer alloc.free(rhs);
+    var f = try linalg.decompose(alloc, den, n);
+    defer f.deinit();
+    if (f.singular) return FunError.Singular;
+    for (0..n) |j| {
+        for (0..n) |i| rhs[i] = num[i * n + j];
+        if (!linalg.solveWith(&f, rhs, col)) return FunError.Singular;
+        for (0..n) |i| out[i * n + j] = col[i];
+    }
+
+    // square it back s times
+    var rep: usize = 0;
+    while (rep < s) : (rep += 1) {
+        for (0..n) |i| {
+            for (0..n) |j| {
+                var acc: f64 = 0;
+                for (0..n) |t| acc += out[i * n + t] * out[t * n + j];
+                tmp[i * n + j] = acc;
+            }
+        }
+        @memcpy(out, tmp);
+    }
+}
+
+// ─── matrix functions of a non-symmetric matrix ──────────────────────────────
+
+fn squares(alloc: std.mem.Allocator, x: []const f64, n: usize) ![]f64 {
+    const out = try alloc.alloc(f64, n * n);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += x[i * n + t] * x[t * n + j];
+            out[i * n + j] = acc;
+        }
+    }
+    return out;
+}
+
+test "THE SQUARE ROOT OF A NON-SYMMETRIC MATRIX, which symmetricPower refuses" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const r = try alloc.alloc(f64, n * n);
+    defer alloc.free(r);
+    try sqrtGeneral(alloc, &a, n, r);
+
+    // the defining property, and the only one that matters
+    const sq = try squares(alloc, r, n);
+    defer alloc.free(sq);
+    for (a, sq) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+
+    // and the symmetric route cannot touch this matrix at all
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expectError(
+        linalg.PowerError.NotSymmetric,
+        linalg.symmetricPower(alloc, &a, n, 0.5, out),
+    );
+}
+
+test "A DEFECTIVE MATRIX HAS NO EIGENDECOMPOSITION AND A FINE SQUARE ROOT" {
+    const alloc = testing.allocator;
+    const n = 2;
+    // one eigenvalue 1 with ONE eigenvector -- the smallest defective matrix there is
+    const a = [_]f64{ 1, 1, 0, 1 };
+
+    // it is defective: only one independent eigenvector for a 2x2
+    var work = a;
+    const vals = try alloc.alloc(Complex, n);
+    defer alloc.free(vals);
+    const vecs = try alloc.alloc(Complex, n * n);
+    defer alloc.free(vecs);
+    try eigensystem(alloc, &work, n, vals, vecs);
+    try testing.expectEqual(@as(usize, 1), try independentCount(alloc, vecs, n));
+
+    // SO THERE IS NOTHING TO DIAGONALISE. f(A) = V f(L) V^-1 needs a full set of
+    // eigenvectors and this matrix does not have one -- while its square root is
+    // perfectly ordinary, [[1, 0.5], [0, 1]], and the Schur form reaches it because
+    // EVERY real matrix has a Schur form.
+    const r = try alloc.alloc(f64, n * n);
+    defer alloc.free(r);
+    try sqrtGeneral(alloc, &a, n, r);
+
+    try testing.expectApproxEqAbs(@as(f64, 1), r[0], 1e-10);
+    try testing.expectApproxEqAbs(@as(f64, 0.5), r[1], 1e-10);
+    try testing.expectApproxEqAbs(@as(f64, 0), r[2], 1e-10);
+    try testing.expectApproxEqAbs(@as(f64, 1), r[3], 1e-10);
+
+    const sq = try squares(alloc, r, n);
+    defer alloc.free(sq);
+    for (a, sq) |x, y| try testing.expectApproxEqAbs(x, y, 1e-10);
+}
+
+test "A COMPLEX EIGENVALUE PAIR IS FINE; A NEGATIVE REAL ONE IS REFUSED" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // eigenvalues 2 +/- 3i and 1, 5. The 2x2 block lives in a copy of the complex
+    // numbers, so its square root is the ordinary complex one written in that basis --
+    // no complex arithmetic required anywhere.
+    const rot = [_]f64{
+        2, -3, 0, 0,
+        3,  2, 0, 0,
+        0,  0, 1, 0,
+        0,  0, 0, 5,
+    };
+    try sqrtGeneral(alloc, &rot, n, out);
+    const sq = try squares(alloc, out, n);
+    defer alloc.free(sq);
+    for (rot, sq) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // A NEGATIVE REAL EIGENVALUE has a square root, and it is COMPLEX. This returns
+    // real matrices, so it refuses rather than handing back a NaN that would travel
+    // quietly through everything downstream.
+    const neg = [_]f64{
+        -4, 0, 0, 0,
+        0,  1, 0, 0,
+        0,  0, 2, 0,
+        0,  0, 0, 3,
+    };
+    try testing.expectError(FunError.NoRealResult, sqrtGeneral(alloc, &neg, n, out));
+}
+
+test "THE EXPONENTIAL, and it does NOT want a Schur decomposition" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // exp(0) = I
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try expGeneral(alloc, &zero, n, out);
+    for (0..n) |i| {
+        for (0..n) |j| try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, out[i * n + j], 1e-12);
+    }
+
+    // a diagonal matrix exponentiates entry by entry, which is the one case where the
+    // answer is known in closed form
+    const diag = [_]f64{ 1, 0, 0, 0, -2, 0, 0, 0, 0.5 };
+    try expGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(@exp(@as(f64, 1)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(@exp(@as(f64, -2)), out[4], 1e-10);
+    try testing.expectApproxEqAbs(@exp(@as(f64, 0.5)), out[8], 1e-10);
+
+    // A NILPOTENT MATRIX gives an EXACT polynomial: N^3 = 0, so exp(N) = I + N + N^2/2
+    // and nothing after it. A hard check, because an approximation that was merely
+    // close would miss the exact 0.5.
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+    try expGeneral(alloc, &nil, n, out);
+    const want = [_]f64{ 1, 1, 0.5, 0, 1, 1, 0, 0, 1 };
+    for (want, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-12);
+}
+
+test "exp(A) exp(-A) = I, which no single evaluation can fake" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.4, 1.0, -0.2, 0.0,
+        0.0, 0.3,  1.1, 0.5,
+        -0.6, 0.0, 0.2, 1.0,
+        0.1, -0.4, 0.0, 0.7,
+    };
+    const neg = blk: {
+        var t: [16]f64 = undefined;
+        for (a, 0..) |v, i| t[i] = -v;
+        break :blk t;
+    };
+    const ea = try alloc.alloc(f64, n * n);
+    defer alloc.free(ea);
+    const en = try alloc.alloc(f64, n * n);
+    defer alloc.free(en);
+    try expGeneral(alloc, &a, n, ea);
+    try expGeneral(alloc, &neg, n, en);
+
+    // The scaling-and-squaring is run twice on genuinely different inputs, so agreeing
+    // here is a statement about the algorithm rather than about one lucky evaluation.
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += ea[i * n + t] * en[t * n + j];
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, acc, 1e-9);
+        }
+    }
+}
+
+test "and the square root agrees with the symmetric route where BOTH apply" {
+    const alloc = testing.allocator;
+    const n = 3;
+    // symmetric positive definite, so symmetricPower(0.5) will take it too
+    const a = [_]f64{ 6, 2, 1, 2, 5, 2, 1, 2, 4 };
+    const viaSchur = try alloc.alloc(f64, n * n);
+    defer alloc.free(viaSchur);
+    const viaEigen = try alloc.alloc(f64, n * n);
+    defer alloc.free(viaEigen);
+
+    try sqrtGeneral(alloc, &a, n, viaSchur);
+    try linalg.symmetricPower(alloc, &a, n, 0.5, viaEigen);
+
+    // Two algorithms with nothing in common below the matrix -- a Householder Schur
+    // reduction with a block recurrence, against a Jacobi eigendecomposition -- and one
+    // answer. That the general route reproduces the symmetric one on symmetric input is
+    // the check that it is computing the same thing rather than something adjacent.
+    for (viaSchur, viaEigen) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}

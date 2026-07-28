@@ -363,6 +363,88 @@ Scenario("...and the 2x2 blocks are real, not a formality")
 	     SameMat(MatMul(aRot, oRot.SchurInverse()), aI4), TRUE)
 EndScenario()
 
+Scenario("MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX: f(A) = Q f(T) Q'")
+	# MatrixSquareRoot() applies f to a DIAGONAL and is done, which is exactly why it
+	# refuses every non-symmetric matrix. Here T is only quasi-triangular, so f(T) is
+	# built block by block -- and that block recurrence is the whole algorithm.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+
+	Then("the symmetric route refuses this matrix", RefusesPower(aA, 0.5), TRUE)
+
+	aR = oA.GeneralSquareRoot()
+	Then("...and the general one squares back to it",
+	     SameMat(MatMul(aR, aR), aA), TRUE)
+
+	# and where BOTH apply they agree -- two algorithms with nothing in common below the
+	# matrix (a Householder Schur reduction with a block recurrence, against a Jacobi
+	# eigendecomposition), reaching one answer
+	aSym = [ [6,2,1], [2,5,2], [1,2,4] ]
+	oSym = new stzMatrix(aSym)
+	Then("on symmetric input the two routes agree",
+	     SameMat(oSym.GeneralSquareRoot(), oSym.MatrixSquareRoot()), TRUE)
+EndScenario()
+
+Scenario("...and a DEFECTIVE matrix has no eigendecomposition and a fine square root")
+	# [[1,1],[0,1]] is the smallest defective matrix: one eigenvalue, ONE eigenvector.
+	# f(A) = V f(L) V^-1 needs a full set and this has not got one -- while its square
+	# root is perfectly ordinary, and the Schur form reaches it because EVERY real
+	# matrix has a Schur form.
+	#
+	# This is the case that justifies the whole apparatus. Everything else here could
+	# have been done by diagonalising.
+	aDef = [ [1,1], [0,1] ]
+	oDef = new stzMatrix(aDef)
+	aRoot = oDef.GeneralSquareRoot()
+
+	Then("the square root is exactly [[1,0.5],[0,1]]",
+	     fabs(aRoot[1][1] - 1) < 0.000001 and fabs(aRoot[1][2] - 0.5) < 0.000001 and
+	     fabs(aRoot[2][1]) < 0.000001 and fabs(aRoot[2][2] - 1) < 0.000001, TRUE)
+	Then("...and it squares back", SameMat(MatMul(aRoot, aRoot), aDef), TRUE)
+
+	# a complex PAIR is fine -- inside a 2x2 block the arithmetic is ordinary complex
+	# arithmetic wearing a real basis
+	aRot = [ [2,-3,0,0], [3,2,0,0], [0,0,1,0], [0,0,0,5] ]
+	oRot = new stzMatrix(aRot)
+	Then("a complex eigenvalue pair is no obstacle",
+	     SameMat(MatMul(oRot.GeneralSquareRoot(), oRot.GeneralSquareRoot()), aRot), TRUE)
+
+	# a lone NEGATIVE REAL eigenvalue is, because its root is complex
+	Then("but a negative real eigenvalue is refused, not returned as NaN",
+	     RefusesGeneralRoot([ [-4,0], [0,1] ]), TRUE)
+EndScenario()
+
+Scenario("...and the exponential does NOT want a Schur decomposition")
+	# Scaling and squaring with a Pade approximant, which is what every serious library
+	# uses and needs no decomposition at all.
+	#
+	# WORTH SAYING NEXT TO THE SQUARE ROOT: not every matrix function wants a Schur
+	# form. The square root does -- the block recurrence IS the algorithm. The
+	# exponential does not, and routing it through one would be slower and no more
+	# accurate. A decomposition is a tool, not a house style.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	aE = oNil.MatrixExp()
+
+	# A NILPOTENT MATRIX gives an EXACT polynomial: N^3 = 0, so exp(N) = I + N + N^2/2
+	# and nothing after. A hard check -- an approximation that was merely close would
+	# miss the exact 0.5.
+	Then("exp of a nilpotent matrix is an exact polynomial",
+	     SameMat(aE, [ [1,1,0.5], [0,1,1], [0,0,1] ]), TRUE)
+
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	oNeg = new stzMatrix(Negated(aA))
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	# exp(A) exp(-A) = I. The scaling-and-squaring runs twice on genuinely different
+	# inputs, so agreeing is a statement about the algorithm rather than about one lucky
+	# evaluation.
+	Then("exp(A) exp(-A) is the identity",
+	     SameMat(MatMul(oA.MatrixExp(), oNeg.MatrixExp()), aI4), TRUE)
+EndScenario()
+
+
 
 
 Summary()
@@ -510,3 +592,24 @@ func HasTwoByTwo(aX)
 		ok
 	next
 	return FALSE
+
+func RefusesGeneralRoot(aX)
+	_rgB_ = FALSE
+	try
+		_rgO_ = new stzMatrix(aX)
+		_rgO_.GeneralSquareRoot()
+	catch
+		_rgB_ = TRUE
+	done
+	return _rgB_
+
+func Negated(aX)
+	_ngR_ = []
+	for _ngI_ = 1 to len(aX)
+		_ngRow_ = []
+		for _ngJ_ = 1 to len(aX[1])
+			_ngRow_ + (-aX[_ngI_][_ngJ_])
+		next
+		_ngR_ + _ngRow_
+	next
+	return _ngR_
