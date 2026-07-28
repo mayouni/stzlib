@@ -2474,6 +2474,79 @@ class stzMatrix from stzListOfLists
 	# Defined by the four Penrose conditions, which is also how it is tested:
 	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
 	# determine A+ uniquely, so nothing else needs asserting.
+	# -- MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX: f(A) = Q f(T) Q' --
+	#
+	# MatrixSquareRoot() above applies f to a DIAGONAL and is done, which is why it
+	# refuses every non-symmetric matrix. Here T is only quasi-triangular, so f(T) has
+	# to be built block by block -- and that block recurrence is the whole algorithm.
+	#
+	# -- WHY NOT JUST DIAGONALISE --
+	#
+	# Because it does not always work. A DEFECTIVE matrix has fewer eigenvectors than
+	# dimensions, so there is nothing to diagonalise -- while EVERY real matrix has a
+	# Schur form. [[1,1],[0,1]] is the smallest example: one eigenvector, and a square
+	# root of [[1,0.5],[0,1]] that no eigendecomposition can reach.
+	#
+	# Refused rather than returned as NaN when the matrix has a NEGATIVE REAL
+	# eigenvalue: that square root exists and is COMPLEX, and this returns real
+	# matrices. A complex eigenvalue PAIR is fine -- that is what T's 2x2 blocks are
+	# for, and inside one the arithmetic is ordinary complex arithmetic wearing a real
+	# basis.
+	def GeneralSquareRoot()
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("GeneralSquareRoot: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pGsV_ = StzEngineMatrixSqrtGeneral(@pEngineMatrix)
+		if _pGsV_ = NULL
+			StzRaise("GeneralSquareRoot: refused. A negative real eigenvalue has a " +
+				"square root, but a COMPLEX one, and this returns real matrices. " +
+				"(A complex eigenvalue PAIR is fine -- only a lone negative real is " +
+				"the obstacle.)")
+		ok
+		_aGsV_ = This._MatrixFromHandle(_pGsV_)
+		StzEngineMatrixFree(_pGsV_)
+		return _aGsV_
+
+		def GeneralSquareRootQ()
+			return new stzMatrix(This.GeneralSquareRoot())
+
+	# THE MATRIX EXPONENTIAL -- and it does NOT want a Schur decomposition.
+	#
+	# Scaling and squaring with a Pade approximant: exp(A) = (exp(A/2^s))^(2^s), the
+	# inner one accurate precisely because A/2^s has been made small. It is what every
+	# serious library uses, and it needs no decomposition at all.
+	#
+	# Worth saying next to the square root: NOT EVERY MATRIX FUNCTION WANTS A SCHUR
+	# FORM. The square root does -- the block recurrence IS the algorithm. The
+	# exponential does not, and routing it through one would be slower and no more
+	# accurate. A decomposition is a tool, not a house style.
+	#
+	# This is exp of the MATRIX, not of its entries. There is no elementwise Exp() next
+	# door today, but the distinction is the same one Power() and MatrixPower() carry.
+	def MatrixExp()
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixExp: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		_pMeV_ = StzEngineMatrixExp(@pEngineMatrix)
+		if _pMeV_ = NULL
+			StzRaise("MatrixExp: the Pade denominator came out singular, which means " +
+				"the scaling did not bring this matrix into range.")
+		ok
+		_aMeV_ = This._MatrixFromHandle(_pMeV_)
+		StzEngineMatrixFree(_pMeV_)
+		return _aMeV_
+
+		def MatrixExpQ()
+			return new stzMatrix(This.MatrixExp())
+
 	# -- THE SCHUR DECOMPOSITION: A = Q T Q', with Q ORTHOGONAL --
 	#
 	# T is quasi-upper-triangular: 1x1 blocks on the diagonal for real eigenvalues, 2x2

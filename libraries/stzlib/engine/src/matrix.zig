@@ -365,6 +365,36 @@ pub fn stz_matrix_pseudo_inverse(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix 
     return out;
 }
 
+/// THE SQUARE ROOT OF A GENERAL REAL MATRIX -- what stz_matrix_matrix_power cannot do,
+/// because that one refuses every non-symmetric matrix by construction.
+///
+/// Null when A has a negative real eigenvalue: the root exists but is COMPLEX, and this
+/// returns real matrices. A complex eigenvalue PAIR is fine, and so is a DEFECTIVE
+/// matrix -- which has no eigendecomposition at all and a perfectly good square root.
+pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.sqrtGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// THE MATRIX EXPONENTIAL, by scaling and squaring with a Pade approximant -- and
+/// deliberately NOT through a Schur form, which would be slower and no more accurate.
+pub fn stz_matrix_exp(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.expGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE ORTHOGONAL SCHUR DECOMPOSITION: A = Q T Q', returned as Q. See
 /// stz_matrix_schur_t for T -- two calls rather than one struct, because the handle
 /// table carries matrices and not tuples.
