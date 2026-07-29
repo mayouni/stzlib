@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0 SHIPPED (2026-07-29); P1-P6 planned.** This document is the
+> **Status: P0 + P1 SHIPPED (2026-07-29); P2-P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -14,6 +14,15 @@
 > `stzProfiler.ring` fossil retired to `base/archive/system/`.
 > Guard: `base/test/perf/stopwatch_narrated.ring` (35 assertions).
 > Narration: `narrations/stz-honest-stopwatch-narration.md`.
+>
+> P1 delivered: `engine/src/perf.zig` (`stz_perf.dll`) -- process
+> RSS/peak, system memory total/free, process CPU time, and the
+> engine-resident metric series (bounded ring, O(1) record, exact
+> windowed stats incl. least-squares slope); `base/perf/stzPerfSeries.ring`;
+> `stzProcess` gains `MemoryBytes/PeakMemoryBytes/CpuTimeNs/CpuTimeMs`;
+> `stzSystemProfile.Resources()` mem gap FILLED (live profiles observe,
+> declared profiles report 0). Guard: `engine_senses_narrated.ring`
+> (36 assertions). Narration: `stz-engine-senses-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -495,10 +504,26 @@ before the next begins.
   instances, nothing to Destroy(); the slot table stays as the C-ABI
   face for other hosts. Guard: `stopwatch_narrated.ring`, 35
   assertions green.
-- **P1 — The engine senses.** `perf.zig`: RSS/peak, system mem
-  total/free, process CPU time, series ring buffer + queries. Fill
-  `stzSystemProfile.Resources()`. *(The one phase that is pure new
-  engine surface; everything after is composition.)*
+- **P1 — The engine senses. SHIPPED 2026-07-29.** `perf.zig`
+  (`stz_perf.dll`, 19 bridged fns): RSS/peak (`K32GetProcessMemoryInfo`
+  / `/proc/self/statm` + `getrusage`), system mem total/free
+  (`GlobalMemoryStatusEx` / `/proc/meminfo`), process CPU time
+  (`GetProcessTimes` user+kernel / `CLOCK_PROCESS_CPUTIME_ID`) — all
+  f64, bytes and ns, -1 = platform refused (macOS RSS is a stated
+  gap). Series: bounded (t,v) ring, mutex-protected, O(1) record;
+  engine-side count/size/at/last/min/max/Kahan-mean/least-squares
+  slope-per-ms/exact nearest-rank percentile. Ring face:
+  `stzPerfSeries` (Record self-stamps with the monotonic watch clock;
+  `RecordAt` names the bring-your-own-clock scope), `stzProcess` wears
+  `MemoryBytes/PeakMemoryBytes/CpuTimeNs/CpuTimeMs`, and
+  `Resources()` mem gap FILLED — live profiles observe, declared
+  targets honestly report 0. Utilization verified live:
+  U = dCPU/(dT*cores); a 200ms sleep advances CPU < 16ms while uptime
+  advances 201ms. 8 zig tests (`zig test -lc src/perf.zig` — the
+  build's test step skips entry files) + guard
+  `engine_senses_narrated.ring` (36 assertions, incl. a watched leak
+  whose slope turns positive). *(The one phase of pure new engine
+  surface; everything after is composition.)*
 - **P2 — Metrics and the monitor.** `stzMetric` (:Counter/:Gauge/:Timer),
   `stzPerfMonitor` sampling on the reactive substrate, self-hosting on
   `stzAgentHost`.

@@ -446,9 +446,11 @@ ok
 # Loading files related to the PERF module (base/perf/) -- the
 # performance system (SOFTANZA_PERF_SYSTEM.md). P0: the honest
 # stopwatch -- numeric, monotonic (engine watch clock), unlimited
-# instances, OTel-span exportable.
+# instances, OTel-span exportable. P1: the engine senses (stz_perf.dll:
+# RSS/peak, system memory, CPU time) + the engine-resident metric series.
 
     load "perf/stzStopwatch.ring"
+    load "perf/stzPerfSeries.ring"
 
 # Loading files related to the FILE module
 
