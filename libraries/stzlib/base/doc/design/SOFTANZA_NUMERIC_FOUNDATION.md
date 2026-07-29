@@ -2939,6 +2939,46 @@ what it refused.
   *are* the diagonal by construction, and a second test pins the boundary — a complex pair
   can put even asinh out of reach.
 
+- **THE MATRIX SECANT AND COSECANT (`37b64a236`)** — *where the content is the refusal.*
+
+  > `sec = cos(A)⁻¹`  ·  `csc = sin(A)⁻¹`  ·  `sech = cosh(A)⁻¹`  ·  `csch = sinh(A)⁻¹`
+
+  **There is no algorithm here, and that is the point.** Every other function in this
+  family had something to construct: a series to scale, a recurrence to climb, a
+  decomposition to walk. These are one inverse of a matrix already computed — all four
+  are the same three lines. So the entire content is **which matrix is singular when**,
+  and the four answers are not alike:
+
+  | | singular at an eigenvalue of |
+  |---|---|
+  | `MatrixSec()` | `π/2 + kπ` |
+  | `MatrixCsc()` | `kπ` — **including zero** |
+  | `MatrixSech()` | purely imaginary `iπ/2 + ikπ` |
+  | `MatrixCsch()` | zero, or purely imaginary `ikπ` |
+
+  ***The cosecant’s domain is the narrow one.*** Zero is an eigenvalue of `sin(A)`
+  whenever it is an eigenvalue of A, so `MatrixCsc()` refuses **every singular matrix**
+  — and `MatrixCsch()` with it. Nothing else in this file has that property, and it is
+  the difference between a function that occasionally declines and one that declines a
+  whole common class.
+
+  ***A nilpotent matrix settles it in one line.*** `cos(N) = I − N²/2`, whose inverse is
+  `I + N²/2` **exactly**, since `N⁴ = 0` makes the product I — so the secant exists and
+  is exact. But `sin(N) = N`, and a nilpotent matrix is nothing if not singular. **The
+  same matrix has a secant and no cosecant**, from two functions that differ only in
+  which of the pair they invert. The zero matrix is the extreme case of the same
+  sentence: `sec(0) = I` and `csc(0)` does not exist.
+
+  ***And the hyperbolic side is the wide one here, except at one place.*** `sech` refuses
+  nothing on a real spectrum — `cosh(λ) ≥ 1` can never reach zero — but `csch` is caught
+  by the same zero that catches `csc`. That is the one function where the hyperbolic
+  partner is as narrow as the circular one, and after three commits of the hyperbolic
+  side being uniformly wider it is worth naming.
+
+  Having the secant also lets the Pythagorean identity be stated in its third form
+  **directly**, `sec² − tan² = I`, rather than rearranged to avoid an inverse. That is
+  what it buys.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
