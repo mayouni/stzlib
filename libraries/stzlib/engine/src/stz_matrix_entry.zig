@@ -40,6 +40,8 @@ comptime {
     @export(&matrix.stz_matrix_log, .{ .name = "stz_matrix_log" });
     @export(&matrix.stz_matrix_sin, .{ .name = "stz_matrix_sin" });
     @export(&matrix.stz_matrix_sinh, .{ .name = "stz_matrix_sinh" });
+    @export(&matrix.stz_matrix_tan, .{ .name = "stz_matrix_tan" });
+    @export(&matrix.stz_matrix_tanh, .{ .name = "stz_matrix_tanh" });
     @export(&matrix.stz_matrix_cosh, .{ .name = "stz_matrix_cosh" });
     @export(&matrix.stz_matrix_cos, .{ .name = "stz_matrix_cos" });
     @export(&matrix.stz_matrix_power_general, .{ .name = "stz_matrix_power_general" });

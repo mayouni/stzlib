@@ -641,6 +641,79 @@ Scenario("...and a nilpotent matrix separates the families by exactly that sign"
 	     SameMat(oNil.MatrixSin(), aNil) and SameMat(oNil.MatrixSinh(), aNil), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX TANGENT, and the side does not matter")
+	# tan(A) = sin(A) * cos(A)^-1.
+	#
+	# FOR TWO ARBITRARY MATRICES X*Y^-1 AND Y^-1*X ARE DIFFERENT THINGS, and writing one
+	# where the other was meant is a classic way to be quietly wrong. Here they are
+	# EQUAL, because sin(A) and cos(A) are both functions of the SAME A -- limits of
+	# polynomials in it -- and any two such functions commute.
+	#
+	# So there is no left-tangent and right-tangent to choose between. Asserted rather
+	# than assumed, because it is exactly the kind of fact that is true, easy to lean
+	# on, and worth checking once.
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5], [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+	aT = oA.MatrixTan()
+
+	Then("tan(A) cos(A) is sin(A)",
+	     SameMat(MatMul(aT, oA.MatrixCos()), oA.MatrixSin()), TRUE)
+	Then("...and the other order gives the same matrix",
+	     SameMat(aT, MatMul(InverseOf(oA.MatrixCos()), oA.MatrixSin())), TRUE)
+
+	# (I + tan^2) cos^2 = I -- sec^2 = 1 + tan^2 rearranged so nothing is inverted twice
+	Then("(I + tan^2) cos^2 is the identity",
+	     SameMat(MatMul(MatAdd(MatMul(aT,aT), IdentityOf(4)), MatMul(oA.MatrixCos(), oA.MatrixCos())),
+	             IdentityOf(4)), TRUE)
+EndScenario()
+
+Scenario("...and UNLIKE the sine and cosine, the tangent can fail to exist")
+	# cos(A) is singular exactly when A has an eigenvalue at pi/2 + k*pi, and there the
+	# tangent is undefined for the same reason tan(pi/2) is. MatrixSin() and MatrixCos()
+	# refuse nothing at all; THIS refusal is the mathematics rather than a limitation of
+	# the method, which is a distinction worth keeping visible.
+	Then("an eigenvalue at pi/2 is refused",
+	     RefusesTan([ [1.5707963267948966, 0], [0, 0.5] ]), TRUE)
+	Then("...and the message says why", StzFindFirst("pi/2", WhyNoTan()) > 0, TRUE)
+
+	# a matrix comfortably away from it is fine, and goes entrywise on a diagonal
+	oOk = new stzMatrix([ [0.7,0,0], [0,-1.1,0], [0,0,0.3] ])
+	Then("a diagonal goes entrywise",
+	     fabs(oOk.MatrixTan()[1][1] - tan(0.7)) < 0.0000001, TRUE)
+
+	# N^3 = 0 gives sin(N) = N and cos(N) = I - N^2/2, whose inverse is I + N^2/2
+	# EXACTLY -- N^4 = 0 makes that product the identity. So tan(N) = N(I + N^2/2) = N,
+	# because N^3 is already gone. An exact target that catches an inverse computed even
+	# slightly wrong.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("and a nilpotent matrix is its own tangent, exactly",
+	     SameMat(oNil.MatrixTan(), aNil), TRUE)
+EndScenario()
+
+Scenario("...and the hyperbolic tangent fails in a place a real spectrum cannot reach")
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5], [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+
+	Then("tanh(A) cosh(A) is sinh(A)",
+	     SameMat(MatMul(oA.MatrixTanh(), oA.MatrixCosh()), oA.MatrixSinh()), TRUE)
+
+	# (I - tanh^2) cosh^2 = I. NOTE THE MINUS -- it is what stops this being the
+	# circular assertion a second time.
+	aTh = oA.MatrixTanh()
+	Then("(I - tanh^2) cosh^2 is the identity",
+	     SameMat(MatMul(MatSub(IdentityOf(4), MatMul(aTh,aTh)),
+	                    MatMul(oA.MatrixCosh(), oA.MatrixCosh())), IdentityOf(4)), TRUE)
+
+	# cosh is singular only at PURELY IMAGINARY eigenvalues, so a real matrix with a
+	# real spectrum can never break this -- while a single diagonal entry of pi/2 breaks
+	# the circular tangent. Same two lines of code, genuinely different domains.
+	oBig = new stzMatrix([ [5,0], [0,-3] ])
+	Then("a large real spectrum is no obstacle at all",
+	     fabs(oBig.MatrixTanh()[1][1] - 0.9999092042625951) < 0.0000001, TRUE)
+EndScenario()
+
+
 
 
 
@@ -882,3 +955,42 @@ func HyperbolicParity(aX)
 		return FALSE
 	ok
 	return SameMat(_hpA_.MatrixSinh(), Negated(_hpB_.MatrixSinh()))
+
+func IdentityOf(n)
+	_idR_ = []
+	for _idI_ = 1 to n
+		_idRow_ = []
+		for _idJ_ = 1 to n
+			if _idI_ = _idJ_
+				_idRow_ + 1
+			else
+				_idRow_ + 0
+			ok
+		next
+		_idR_ + _idRow_
+	next
+	return _idR_
+
+func InverseOf(aX)
+	_ivO_ = new stzMatrix(aX)
+	return _ivO_.LUInverse()
+
+func RefusesTan(aX)
+	_rtB_ = FALSE
+	try
+		_rtO_ = new stzMatrix(aX)
+		_rtO_.MatrixTan()
+	catch
+		_rtB_ = TRUE
+	done
+	return _rtB_
+
+func WhyNoTan()
+	_wtS_ = ""
+	try
+		_wtO_ = new stzMatrix([ [1.5707963267948966, 0], [0, 0.5] ])
+		_wtO_.MatrixTan()
+	catch
+		_wtS_ = cCatchError
+	done
+	return _wtS_
