@@ -382,6 +382,33 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX ARCSECANT acos(A^-1) and ARCCOSECANT asin(A^-1), with asech and acsch.
+///
+/// These INVERT THE DOMAIN of the arcsine and arccosine: asin/acos want every eigenvalue
+/// inside the unit interval, asec/acsc want every one outside it, and the boundary
+/// |L| = 1 belongs to neither -- both routes pass through (I - A^2)^(-1/2), which dies
+/// exactly there.
+///
+/// The identity asec(x) = atan(sqrt(x^2 - 1)) would avoid the inverse entirely, and it is
+/// correct for positive x and wrong for negative x by an amount that VARIES with the
+/// eigenvalue -- a reflection, not a branch shift, and no constant repairs it. So the
+/// inverse is taken, and with it the requirement that A be invertible.
+pub fn stz_matrix_asec(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.asecGeneral);
+}
+
+pub fn stz_matrix_acsc(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acscGeneral);
+}
+
+pub fn stz_matrix_asech(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.asechGeneral);
+}
+
+pub fn stz_matrix_acsch(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acschGeneral);
+}
+
 /// THE MATRIX ARCCOTANGENT (pi/2) I - atan(A), and acoth(A) = atanh(A^-1).
 ///
 /// Two routes again -- and this time they DISAGREE. (pi/2) I - atan(A) and atan(A^-1)
