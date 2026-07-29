@@ -35,14 +35,15 @@ Scenario("A+ generalises the ordinary inverse")
 	     @@(oM.PseudoInverse()), "[ [ 0.60, -0.70 ], [ -0.20, 0.40 ] ]")
 	Then("the alias is the same method", @@(oM.MoorePenroseInverse()), @@(oM.PseudoInverse()))
 
-	# CAREFUL, and this cost me a confusing minute: Inverse() MUTATES the matrix in
-	# place and returns nothing, so calling it first and then PseudoInverse() on the
-	# same object gives back the ORIGINAL -- correctly, since the pseudo-inverse of an
-	# inverse is the matrix you started with. Use a fresh object to compare them.
+	# The naming law does the disambiguating here. Inverse() is a NOUN, so it returns
+	# the inverse AS DATA and leaves the matrix alone; Invert() is the VERB, and it
+	# replaces the matrix by its inverse -- the same pairing as Transpose(). This used
+	# to be one method that mutated and returned nothing, which cost a confusing
+	# minute and was fixed rather than documented.
 	oA = new stzMatrix([ [4,7], [2,6] ])
 	oB = new stzMatrix([ [4,7], [2,6] ])
-	oB.Inverse()
-	Then("Inverse() mutates, so the two must be compared on separate objects",
+	oB.Invert()	# the verb: oB now IS its own inverse
+	Then("the pseudo-inverse agrees with what Invert() left behind",
 	     @@(oA.PseudoInverse()), @@(oB.Content()))
 	# compared numerically rather than by their printed form: these come back as
 	# 4.0000000000000004 and print as "4.00", which is a fact about Ring's float

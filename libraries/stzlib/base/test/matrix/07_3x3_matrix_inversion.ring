@@ -15,7 +15,7 @@ o1 = new stzMatrix([
     [ 5, 6, 0 ]
 ])
 
-o1.Inverse()
+o1.Invert()	# the VERB mutates in place; Inverse() returns the data instead
 o1.Show()
 #-->
 # ┌            ┐
