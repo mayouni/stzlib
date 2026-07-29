@@ -2979,6 +2979,46 @@ what it refused.
   **directly**, `sec² − tan² = I`, rather than rearranged to avoid an inverse. That is
   what it buys.
 
+- **THE MATRIX COTANGENT (`1e91bbc96`)** — *and why it is not the tangent inverted.*
+
+  > `cot = cos(A) · sin(A)⁻¹`  ·  `coth = cosh(A) · sinh(A)⁻¹`
+
+  The scalar identity `cot(x) = 1/tan(x)` is exact, and the matrix one is too — everything
+  here commutes, so the two expressions give the same matrix **wherever both exist**.
+  Which is the whole question.
+
+  | | needs |
+  |---|---|
+  | `MatrixTan()`⁻¹ | `cos(A)` invertible **to form the tangent at all**, then `sin(A)` to undo it |
+  | `cos · sin⁻¹` | `sin(A)` invertible, and nothing else |
+
+  ***The obvious route is strictly narrower*** — and narrower exactly where `cos(A)` is
+  singular, an eigenvalue at `π/2 + kπ`. **Which is where the cotangent is zero.** Measured
+  on `diag(π/2, 0.5)`: the tangent is refused, and the cotangent comes back `0` at that
+  entry and `cos(0.5)/sin(0.5)` at the other. `cot(π/2) = 0/1` is as untroubled a value as
+  the function ever takes, and deriving it as `1/tan(π/2)` asks for the reciprocal of an
+  infinity that was never there. Taking the identity as the implementation would have
+  thrown away a piece of the domain, **silently, at the one point where the answer is
+  easiest.**
+
+  ***And the four domains pair off by denominator, not by family:***
+
+  | | | share a domain |
+  |---|---|---|
+  | `MatrixTan()` | `MatrixSec()` | both need `cos(A)` invertible |
+  | `MatrixCot()` | `MatrixCsc()` | both need `sin(A)` invertible |
+
+  which is not the split the names suggest. A singular matrix has a singular sine, so the
+  two that divide by the sine are out and the two that divide by the cosine are in; at
+  `π/2` the split **reverses exactly**. Both directions are pinned, all four functions,
+  both matrices. That puts the cotangent in the narrow half with the cosecant — it refuses
+  every singular matrix — and the nilpotent says it once more: `tan(N) = N` exactly, and
+  `sin(N) = N` is singular, so the same matrix has a tangent and no cotangent.
+
+  The implementation is `tanPair` with **one character changed**: the sine is inverted
+  where the tangent inverts the cosine. That one character is the entire difference in
+  domain.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
