@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0-P5 SHIPPED (2026-07-29); P6 planned.** This document is the
+> **Status: COMPLETE -- P0-P6 ALL SHIPPED (2026-07-29).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -63,6 +63,21 @@
 > (R-vs-X), the narrated Explain() honest about D > R (per-process
 > CPU vs per-request wall). Guard: `profile_narrated.ring` (31).
 > Narration: `stz-perf-profile-narration.md`.
+>
+> P6 delivered: `Profile.LoadRatio()` (X/Xmax; `load` is a Ring
+> keyword) -> `stzClusterSupervisor.FeedLoadFrom()` -- the scaling
+> signal MEASURED, closing the hand-fed gap; `Monitor.SelfCost()`
+> (~0.03 ms per full sampling pass, guarded < 1 ms); the sentinel's
+> flight-recorder black box written AT breach time (senses + every
+> metric's value, bounded 16 -- notebook issue 7 closed);
+> `base/perf/stzPerfPlan.ring` -- optimization as a governed act
+> (closed catalog ScaleUp/ScaleDown/RestartDead, rationale-carrying
+> proposals, MayCommit preflight, ExecuteOn gated on
+> effectful+non-sandboxed, full audit -- the LLM proposes, an
+> effectful actor commits; rehearsable against a double). Guard:
+> `governed_loop_narrated.ring` (31, stable x3). Narration:
+> `stz-perf-governed-loop-narration.md`. Perf suite total: 7 guards,
+> 257 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -667,9 +682,32 @@ before the next begins.
   seams guard scene 8b (<15ms, generous by design); the quantization
   caveat is documented on `stzPerfProfile` (profile over intervals
   spanning many quanta).*
-- **P6 — The governed loop.** Measured U feeds the supervisor; effectful
-  acts through actor+plan+audit; the LLM-proposes-human-commits tuning
-  flow; flight-recorder snapshot on alert; `SelfCost()` guard.
+- **P6 — The governed loop. SHIPPED 2026-07-29. THE PLAN IS COMPLETE.**
+  Four closures. (1) The scaling signal measured:
+  `stzPerfProfile.LoadRatio()` = X/Xmax (named LoadRatio — `load` is a
+  Ring keyword) feeds `stzClusterSupervisor.FeedLoadFrom()`; the
+  supervisor's pure `Decide()` now acts on what the instruments
+  measured, not what a caller believed (verified: a 4%-loaded fleet
+  decides scaledown, a hand-hot one scales up, dead workers heal
+  first). (2) Observation prices itself: every `Sample()` brackets
+  itself on the monotonic clock; `SelfCost()` reports ~0.03 ms per
+  full pass — the number that justifies always-on monitoring, guarded
+  under 1 ms. (3) The flight recorder: on each breach transition the
+  sentinel photographs the process (senses + every metric's value)
+  into a bounded black box — already written when the unreproducible
+  anomaly lands; notebook issue 7 closed. (4) `stzPerfPlan`:
+  optimization as a governed act — closed action catalog, proposals
+  carrying the finding's own rationale, `MayCommit()` preflight,
+  `ExecuteOn()` gated on effectful + non-sandboxed with every outcome
+  audited (refusals never silent); the LLM-proposes-human-commits
+  flow proven live, and the plan rehearses against any double
+  answering the same verbs (service-virtualization pattern) so the
+  crossing is provable without a fleet. Guard-honesty lesson kept: a
+  LIVE ratio moves between reads in BOTH directions (interval grows →
+  X decays; the guard's own prints burn CPU → D grows) — assert exact
+  transfer with a frozen stub, ranges for live values. Guard: 31
+  assertions, stable ×3. Narration:
+  `stz-perf-governed-loop-narration.md`.
 
 Risks named up front, per the numeric-foundation lesson (*the plan named
 the wrong line 4 of 6 times — measure first*): P1's OS counters are

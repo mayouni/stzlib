@@ -51,6 +51,7 @@ class stzPerfSentinel from stzObject
 	@cClearChannel = "perf.clear"
 	@oBus = NULL
 	@aAlertLog = []		# [ atMs, "breach"|"clear", rule, message ] (newest 256)
+	@aBlackBox = []		# flight-recorder snapshots, one per breach (newest 16)
 	@nEveryMs = 1000
 	@nNextDueMs = 0
 	@nChecks = 0
@@ -191,6 +192,7 @@ class stzPerfSentinel from stzObject
 
 	def _FireBreach(paFinding)
 		This._Log("breach", paFinding[:rule], paFinding[:message])
+		This._RecordBlackBox(paFinding)
 		@oBus.Emit(@cBreachChannel, paFinding[:rule] + " | " + paFinding[:message])
 		if @bHasOnBreach
 			_f_ = @fOnBreach
@@ -210,3 +212,42 @@ class stzPerfSentinel from stzObject
 		if ring_len(@aAlertLog) > 256
 			del(@aAlertLog, 1)
 		ok
+
+	# The FLIGHT RECORDER (perf P6, notebook issue 7): the only
+	# monitoring that helps with a problem you cannot reproduce is the
+	# monitoring that was already on -- so the moment an invariant
+	# breaks, the sentinel photographs the process: the senses as they
+	# are NOW, and every metric's current value. The black box is
+	# already written when the anomaly lands; nobody has to remember
+	# to look while it is still happening.
+	def _RecordBlackBox(paFinding)
+		_aMetrics_ = []
+		_aReg_ = @oMon.Metrics()
+		_nLen_ = ring_len(_aReg_)
+		for _i_ = 1 to _nLen_
+			_aMetrics_ + [ _aReg_[_i_][1], _aReg_[_i_][2],
+				@oMon.MetricQ(_aReg_[_i_][1]).Value() ]
+		next
+		@aBlackBox + [
+			:at = StzEngineWatchTimestampMs(),
+			:rule = paFinding[:rule],
+			:message = paFinding[:message],
+			:rssBytes = StzEnginePerfMemRss(),
+			:peakBytes = StzEnginePerfMemPeak(),
+			:cpuMs = StzEnginePerfCpuNs() / 1000000,
+			:sysFreeBytes = StzEnginePerfSysMemFree(),
+			:metrics = _aMetrics_
+		]
+		if ring_len(@aBlackBox) > 16
+			del(@aBlackBox, 1)
+		ok
+
+	def BlackBox()
+		return @aBlackBox
+
+	def LastBlackBox()
+		_n_ = ring_len(@aBlackBox)
+		if _n_ = 0
+			return []
+		ok
+		return @aBlackBox[_n_]

@@ -470,6 +470,13 @@ ok
 # split, Little's-law + utilization-law self-checks, memory forecast,
 # R-vs-X curve, the narrated Explain()).
     load "perf/stzPerfProfile.ring"
+# P6: the governed loop -- stzPerfPlan: optimization as a governed act
+# (a closed catalog of effectful verbs; an inference-only actor may
+# BUILD the plan, only an effectful one commits; full audit). Plus:
+# Profile.Load() -> supervisor FeedLoadFrom (measured scaling signal),
+# Monitor.SelfCost() (observation prices itself), Sentinel black box
+# (the flight recorder written AT breach time).
+    load "perf/stzPerfPlan.ring"
 
 # Loading files related to the FILE module
 
