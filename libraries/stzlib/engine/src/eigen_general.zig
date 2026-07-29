@@ -1641,6 +1641,62 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX TANGENT: sin(A) * cos(A)^-1.
+///
+/// ── AND THE SIDE DOES NOT MATTER, WHICH IS NOT OBVIOUS ──
+///
+/// For two arbitrary matrices X*Y^-1 and Y^-1*X are different things, and writing one
+/// when you meant the other is a classic way to be quietly wrong. Here they are EQUAL,
+/// because sin(A) and cos(A) are both functions of the SAME A -- limits of polynomials
+/// in it -- and any two such functions commute.
+///
+/// So there is no left-tangent and right-tangent to choose between. A test asserts the
+/// two orders agree rather than leaving that to be assumed, because it is exactly the
+/// kind of fact that is true, easy to rely on, and worth checking once.
+///
+/// ── AND UNLIKE THE SINE AND COSINE, THIS ONE CAN FAIL TO EXIST ──
+///
+/// cos(A) is singular exactly when A has an eigenvalue at pi/2 + k*pi, and there the
+/// tangent is undefined for the same reason tan(pi/2) is. The sine and cosine refuse
+/// nothing; this refuses, and the refusal is the mathematics rather than a limitation
+/// of the method.
+pub fn tanGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return tanPair(alloc, data, n, out, false);
+}
+
+/// THE HYPERBOLIC TANGENT: sinh(A) * cosh(A)^-1. The same two lines, and it inherits
+/// the same commuting property.
+///
+/// cosh(A) is singular when A has an eigenvalue at i*pi/2 + i*k*pi -- purely imaginary,
+/// so a real matrix with a real spectrum can never hit it, while one with a complex
+/// pair can. Rarer than the circular case, and refused the same way when it happens.
+pub fn tanhGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return tanPair(alloc, data, n, out, true);
+}
+
+fn tanPair(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+    hyperbolic: bool,
+) !void {
+    if (n == 0) return;
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try trigPair(alloc, data, n, sn, cs, hyperbolic);
+
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    // luInverse rather than the SVD: cos(A) is square and, when the tangent exists at
+    // all, non-singular -- which is exactly the case LU answers fastest
+    if (!try linalg.luInverse(alloc, cs, n, inv)) return FunError.Singular;
+
+    matMul(sn, inv, n, out);
+}
+
 fn matMul(a: []const f64, b: []const f64, n: usize, out: []f64) void {
     for (0..n) |i| {
         for (0..n) |j| {
@@ -2559,4 +2615,167 @@ test "and on a SYMMETRIC matrix the hyperbolic cosine matches the eigen route" {
             try testing.expectApproxEqRel(acc, ch[i * n + j], 1e-9);
         }
     }
+}
+
+test "THE TANGENT, and the side does not matter" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const tn = try alloc.alloc(f64, n * n);
+    defer alloc.free(tn);
+    try tanGeneral(alloc, &a, n, tn);
+
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try sinCosGeneral(alloc, &a, n, sn, cs);
+
+    // the definition, checked back: tan(A) * cos(A) = sin(A)
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    matMul(tn, cs, n, back);
+    for (sn, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+
+    // AND THE OTHER ORDER GIVES THE SAME MATRIX. For two arbitrary matrices X*Y^-1 and
+    // Y^-1*X differ, and writing one where the other was meant is a classic quiet
+    // error. Here they are equal because sin(A) and cos(A) are both functions of the
+    // SAME A, and any two such functions commute -- a fact worth checking once rather
+    // than relying on.
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    try testing.expect(try linalg.luInverse(alloc, cs, n, inv));
+    const other = try alloc.alloc(f64, n * n);
+    defer alloc.free(other);
+    matMul(inv, sn, n, other);
+    for (tn, other) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+}
+
+test "I + tan(A)^2 = cos(A)^-2, the Pythagorean identity in its tangent form" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.4, 0.2, 0.0, -0.1, 0.5, 0.3, 0.2, 0.0, 0.6 };
+    const tn = try alloc.alloc(f64, n * n);
+    defer alloc.free(tn);
+    try tanGeneral(alloc, &a, n, tn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try cosGeneral(alloc, &a, n, cs);
+
+    // (I + tan^2) * cos^2 = I, which is sec^2 = 1 + tan^2 rearranged to avoid inverting
+    // anything a second time
+    const t2 = try squares(alloc, tn, n);
+    defer alloc.free(t2);
+    const c2 = try squares(alloc, cs, n);
+    defer alloc.free(c2);
+    const lhs = try alloc.alloc(f64, n * n);
+    defer alloc.free(lhs);
+    for (0..n * n) |i| lhs[i] = t2[i];
+    for (0..n) |i| lhs[i * n + i] += 1;
+
+    const prod = try alloc.alloc(f64, n * n);
+    defer alloc.free(prod);
+    matMul(lhs, c2, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-9);
+        }
+    }
+}
+
+test "a diagonal goes entrywise, and a nilpotent matrix is EXACT" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const diag = [_]f64{ 0.7, 0, 0, 0, -1.1, 0, 0, 0, 0.3 };
+    try tanGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(@tan(@as(f64, 0.7)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(@tan(@as(f64, -1.1)), out[4], 1e-10);
+    try testing.expectApproxEqAbs(@tan(@as(f64, 0.3)), out[8], 1e-10);
+
+    // N^3 = 0 gives sin(N) = N and cos(N) = I - N^2/2, whose inverse is I + N^2/2
+    // exactly -- since N^4 = 0 makes the product I. So tan(N) = N(I + N^2/2) = N,
+    // because N^3 is already gone. An exact target, and one that catches an inverse
+    // computed even slightly wrong.
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+    try tanGeneral(alloc, &nil, n, out);
+    for (nil, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-12);
+}
+
+test "AN EIGENVALUE AT pi/2 HAS NO TANGENT, and it is refused" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // cos is singular exactly there, and the tangent is undefined for the same reason
+    // tan(pi/2) is. Unlike the sine and cosine, which refuse nothing, this refusal is
+    // the mathematics rather than a limitation of the method.
+    const a = [_]f64{ std.math.pi / 2.0, 0, 0, 0.5 };
+    try testing.expectError(FunError.Singular, tanGeneral(alloc, &a, n, out));
+
+    // and a matrix comfortably away from it is fine
+    const b = [_]f64{ 0.5, 0, 0, 0.25 };
+    try tanGeneral(alloc, &b, n, out);
+    try testing.expectApproxEqAbs(@tan(@as(f64, 0.5)), out[0], 1e-10);
+}
+
+test "THE HYPERBOLIC TANGENT, and where it can and cannot fail" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const th = try alloc.alloc(f64, n * n);
+    defer alloc.free(th);
+    try tanhGeneral(alloc, &a, n, th);
+
+    const sh = try alloc.alloc(f64, n * n);
+    defer alloc.free(sh);
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    try sinhCoshGeneral(alloc, &a, n, sh, ch);
+
+    // tanh(A) * cosh(A) = sinh(A)
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    matMul(th, ch, n, back);
+    for (sh, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+
+    // (I - tanh^2) * cosh^2 = I, the hyperbolic form -- and note the MINUS, which is
+    // what stops this being the circular assertion a second time
+    const t2 = try squares(alloc, th, n);
+    defer alloc.free(t2);
+    const c2 = try squares(alloc, ch, n);
+    defer alloc.free(c2);
+    const lhs = try alloc.alloc(f64, n * n);
+    defer alloc.free(lhs);
+    for (0..n * n) |i| lhs[i] = -t2[i];
+    for (0..n) |i| lhs[i * n + i] += 1;
+    const prod = try alloc.alloc(f64, n * n);
+    defer alloc.free(prod);
+    matMul(lhs, c2, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-8);
+        }
+    }
+
+    // cosh is singular only at PURELY IMAGINARY eigenvalues, so a real matrix with a
+    // real spectrum can never make this fail -- a genuine difference from the circular
+    // tangent, which a diagonal matrix can break with a single entry.
+    const big = [_]f64{ 5, 0, 0, 0, 0, -3, 0, 0, 0, 0, 8, 0, 0, 0, 0, 2 };
+    try tanhGeneral(alloc, &big, n, th);
+    try testing.expectApproxEqAbs(std.math.tanh(@as(f64, 5)), th[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.tanh(@as(f64, -3)), th[5], 1e-10);
 }

@@ -2514,6 +2514,66 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX TANGENT: MatrixSin() * MatrixCos()^-1.
+	#
+	# -- AND THE SIDE DOES NOT MATTER, WHICH IS NOT OBVIOUS --
+	#
+	# For two arbitrary matrices X*Y^-1 and Y^-1*X are different things, and writing one
+	# where the other was meant is a classic way to be quietly wrong. Here they are
+	# EQUAL, because sin(A) and cos(A) are both functions of the SAME A -- limits of
+	# polynomials in it -- and any two such functions commute.
+	#
+	# So there is no left-tangent and right-tangent to choose between. The guard asserts
+	# the two orders agree rather than leaving it to be assumed.
+	#
+	# -- AND UNLIKE THE SINE AND COSINE, THIS ONE CAN FAIL TO EXIST --
+	#
+	# cos(A) is singular exactly when A has an eigenvalue at pi/2 + k*pi, and there the
+	# tangent is undefined for the same reason tan(pi/2) is. MatrixSin() and
+	# MatrixCos() refuse nothing; this refuses, and the refusal is the mathematics
+	# rather than a limitation of the method.
+	def MatrixTan()
+		return This._Tangent("tan")
+
+		def MatrixTanQ()
+			return new stzMatrix(This.MatrixTan())
+
+	# THE HYPERBOLIC TANGENT: MatrixSinh() * MatrixCosh()^-1.
+	#
+	# Same two lines, same commuting property. What differs is when it can fail: cosh(A)
+	# is singular only at PURELY IMAGINARY eigenvalues, so a real matrix with a real
+	# spectrum can never break this, while a single diagonal entry of pi/2 breaks the
+	# circular one.
+	def MatrixTanh()
+		return This._Tangent("tanh")
+
+		def MatrixTanhQ()
+			return new stzMatrix(This.MatrixTanh())
+
+	def _Tangent(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixTan/MatrixTanh: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "tan"
+			_pTnV_ = StzEngineMatrixTan(@pEngineMatrix)
+		else
+			_pTnV_ = StzEngineMatrixTanh(@pEngineMatrix)
+		ok
+		if _pTnV_ = NULL
+			StzRaise("MatrixTan/MatrixTanh: refused -- the cosine of this matrix is " +
+				"singular, so the tangent does not exist. For the circular tangent " +
+				"that means an eigenvalue at pi/2 + k*pi, exactly as tan(pi/2) is " +
+				"undefined; for the hyperbolic one it takes a purely imaginary " +
+				"eigenvalue, which a real spectrum cannot produce.")
+		ok
+		_aTnV_ = This._MatrixFromHandle(_pTnV_)
+		StzEngineMatrixFree(_pTnV_)
+		return _aTnV_
+
 	# THE HYPERBOLIC MATRIX SINE AND COSINE.
 	#
 	# -- THE SAME ROUTINE AS THE CIRCULAR PAIR, WITH ONE SIGN CHANGED --

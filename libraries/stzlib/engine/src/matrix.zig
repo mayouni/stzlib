@@ -382,6 +382,39 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX TANGENT: sin(A) * cos(A)^-1.
+///
+/// The side does not matter -- sin(A) and cos(A) are both functions of the same A and
+/// therefore commute, so there is no left-tangent and right-tangent to choose between.
+///
+/// Null when cos(A) is singular, which happens exactly when A has an eigenvalue at
+/// pi/2 + k*pi. Unlike the sine and cosine, which refuse nothing, that refusal is the
+/// mathematics rather than a limitation of the method.
+pub fn stz_matrix_tan(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.tanGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// THE HYPERBOLIC TANGENT: sinh(A) * cosh(A)^-1. cosh is singular only at purely
+/// imaginary eigenvalues, so a real matrix with a real spectrum can never make this
+/// fail -- a genuine difference from the circular tangent.
+pub fn stz_matrix_tanh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.tanhGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE HYPERBOLIC MATRIX SINE. The SAME routine as the circular one with a single sign
 /// changed -- the double-angle recurrences are identical between the two families, so
 /// only the series alternation differs.
