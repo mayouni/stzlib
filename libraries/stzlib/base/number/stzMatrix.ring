@@ -2514,6 +2514,62 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE HYPERBOLIC MATRIX SINE AND COSINE.
+	#
+	# -- THE SAME ROUTINE AS THE CIRCULAR PAIR, WITH ONE SIGN CHANGED --
+	#
+	# Write the two families out and the difference is a single alternating sign:
+	#
+	#     cos(X)  = I - X^2/2! + X^4/4! - ...    cosh(X) = I + X^2/2! + X^4/4! + ...
+	#     sin(X)  = X - X^3/3! + X^5/5! - ...    sinh(X) = X + X^3/3! + X^5/5! + ...
+	#
+	# And the double-angle recurrences that climb back from the scaled matrix are not
+	# merely similar -- they are IDENTICAL:
+	#
+	#     cos(2X)  = 2 cos(X)^2  - I             cosh(2X) = 2 cosh(X)^2 - I
+	#     sin(2X)  = 2 sin(X) cos(X)             sinh(2X) = 2 sinh(X) cosh(X)
+	#
+	# So underneath there is ONE routine and a flag. A second copy would be a second
+	# transcription of one algorithm, and two copies drift.
+	#
+	# The check that keeps them honest is a nilpotent matrix, where N^3 = 0 truncates
+	# both series exactly: cos(N) = I - N^2/2 while cosh(N) = I + N^2/2. The only
+	# difference is that sign, so the pair of tests pins the shared branch from both
+	# sides -- a routine that ignored the flag would pass one and fail the other.
+	#
+	# Nothing is refused: every real matrix has these, as it has the circular pair.
+	def MatrixSinh()
+		return This._Hyperbolic("sinh")
+
+		def MatrixSinhQ()
+			return new stzMatrix(This.MatrixSinh())
+
+	def MatrixCosh()
+		return This._Hyperbolic("cosh")
+
+		def MatrixCoshQ()
+			return new stzMatrix(This.MatrixCosh())
+
+	def _Hyperbolic(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixSinh/MatrixCosh: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "sinh"
+			_pHyV_ = StzEngineMatrixSinh(@pEngineMatrix)
+		else
+			_pHyV_ = StzEngineMatrixCosh(@pEngineMatrix)
+		ok
+		if _pHyV_ = NULL
+			StzRaise("MatrixSinh/MatrixCosh: the engine refused this matrix.")
+		ok
+		_aHyV_ = This._MatrixFromHandle(_pHyV_)
+		StzEngineMatrixFree(_pHyV_)
+		return _aHyV_
+
 	# THE MATRIX SINE AND COSINE.
 	#
 	# -- SCALING AND THE DOUBLE-ANGLE RECURRENCES --

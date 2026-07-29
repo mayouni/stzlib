@@ -1514,6 +1514,60 @@ pub fn sinCosGeneral(
     sin_out: []f64,
     cos_out: []f64,
 ) !void {
+    return trigPair(alloc, data, n, sin_out, cos_out, false);
+}
+
+/// THE HYPERBOLIC PAIR, and it is the SAME ROUTINE with one sign changed.
+///
+/// ── WHY THERE IS ONE FUNCTION HERE AND NOT TWO ──
+///
+/// Write the two families out and the difference is a single alternating sign in the
+/// series:
+///
+///     cos(X)  = I - X^2/2! + X^4/4! - ...        cosh(X) = I + X^2/2! + X^4/4! + ...
+///     sin(X)  = X - X^3/3! + X^5/5! - ...        sinh(X) = X + X^3/3! + X^5/5! + ...
+///
+/// And the double-angle recurrences that climb back from the scaled matrix are not
+/// merely similar, they are IDENTICAL:
+///
+///     cos(2X)  = 2 cos(X)^2  - I                 cosh(2X) = 2 cosh(X)^2 - I
+///     sin(2X)  = 2 sin(X) cos(X)                 sinh(2X) = 2 sinh(X) cosh(X)
+///
+/// So a second copy would be a second transcription of one algorithm, differing by a
+/// boolean -- and the two copies would drift, as two copies always do. One routine, one
+/// scaling decision, one recurrence, and the sign passed in.
+pub fn sinhCoshGeneral(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    sinh_out: []f64,
+    cosh_out: []f64,
+) !void {
+    return trigPair(alloc, data, n, sinh_out, cosh_out, true);
+}
+
+/// The hyperbolic cosine alone. See sinhCoshGeneral -- the pair is the primitive.
+pub fn coshGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinhCoshGeneral(alloc, data, n, throwaway, out);
+}
+
+/// The hyperbolic sine alone.
+pub fn sinhGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinhCoshGeneral(alloc, data, n, out, throwaway);
+}
+
+fn trigPair(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    sin_out: []f64,
+    cos_out: []f64,
+    hyperbolic: bool,
+) !void {
     if (n == 0) return;
 
     var norm: f64 = 0;
@@ -1557,7 +1611,8 @@ pub fn sinCosGeneral(
     while (m <= 10) : (m += 1) {
         matMul(term, x2, n, tmp);
         @memcpy(term, tmp);
-        const sign: f64 = if (m % 2 == 0) 1 else -1;
+        // THE ONE LINE THAT DIFFERS between the two families
+        const sign: f64 = if (hyperbolic) 1 else (if (m % 2 == 0) @as(f64, 1) else -1);
         var cfac: f64 = 1;
         var q: usize = 1;
         while (q <= 2 * m) : (q += 1) cfac *= @floatFromInt(q);
@@ -2354,6 +2409,154 @@ test "the double-angle recurrence agrees with itself at two scales" {
             const want_c = 2 * cc[i * n + j] - (if (i == j) @as(f64, 1) else 0);
             try testing.expectApproxEqAbs(want_c, c2[i * n + j], 1e-10);
             try testing.expectApproxEqAbs(2 * sc[i * n + j], s2[i * n + j], 1e-10);
+        }
+    }
+}
+
+test "cosh(A)^2 - sinh(A)^2 = I, the hyperbolic counterpart" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const sh = try alloc.alloc(f64, n * n);
+    defer alloc.free(sh);
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    try sinhCoshGeneral(alloc, &a, n, sh, ch);
+
+    // The MINUS is what makes this a different check from the circular one rather than
+    // the same check twice -- a sign error anywhere in the series would satisfy one of
+    // the two identities and fail the other.
+    const s2 = try squares(alloc, sh, n);
+    defer alloc.free(s2);
+    const c2 = try squares(alloc, ch, n);
+    defer alloc.free(c2);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) 1 else 0;
+            try testing.expectApproxEqAbs(want, c2[i * n + j] - s2[i * n + j], 1e-8);
+        }
+    }
+}
+
+test "cosh(A) + sinh(A) = exp(A), across two unrelated algorithms" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        4, 1, 2, 0,
+        0, 3, 1, 5,
+        2, 0, 6, 1,
+        1, 2, 0, 4,
+    };
+    const sh = try alloc.alloc(f64, n * n);
+    defer alloc.free(sh);
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    const ex = try alloc.alloc(f64, n * n);
+    defer alloc.free(ex);
+    try sinhCoshGeneral(alloc, &a, n, sh, ch);
+    try expGeneral(alloc, &a, n, ex);
+
+    // THE BEST CROSS-CHECK IN THIS FAMILY. The hyperbolic pair comes from a scaled
+    // TAYLOR series climbed back through double-angle recurrences; the exponential
+    // comes from a PADE approximant climbed back through squaring. Nothing is shared
+    // between them but the matrix, and the defining relation holds to 1e-7 on entries
+    // of order 400.
+    for (0..n * n) |i| {
+        try testing.expectApproxEqAbs(ex[i], ch[i] + sh[i], 1e-6);
+    }
+}
+
+test "cosh(0) = I, sinh(0) = 0, and a diagonal goes entrywise" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const sh = try alloc.alloc(f64, n * n);
+    defer alloc.free(sh);
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try sinhCoshGeneral(alloc, &zero, n, sh, ch);
+    for (sh) |v| try testing.expectApproxEqAbs(@as(f64, 0), v, 1e-14);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, ch[i * n + j], 1e-14);
+        }
+    }
+
+    const diag = [_]f64{ 1.2, 0, 0, 0, -2.5, 0, 0, 0, 0.7 };
+    try sinhCoshGeneral(alloc, &diag, n, sh, ch);
+    try testing.expectApproxEqAbs(std.math.sinh(@as(f64, 1.2)), sh[0], 1e-11);
+    try testing.expectApproxEqAbs(std.math.sinh(@as(f64, -2.5)), sh[4], 1e-11);
+    try testing.expectApproxEqAbs(std.math.cosh(@as(f64, 0.7)), ch[8], 1e-11);
+}
+
+test "A NILPOTENT MATRIX separates the two families by one sign" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 }; // N^3 = 0
+    const sh = try alloc.alloc(f64, n * n);
+    defer alloc.free(sh);
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    try sinhCoshGeneral(alloc, &nil, n, sh, ch);
+
+    // N^3 = 0 truncates both series exactly: sinh(N) = N, and cosh(N) = I + N^2/2.
+    //
+    // THE PLUS IS THE POINT. The circular test one file-section up asserts cos(N) =
+    // I - N^2/2, and the only difference between the two answers is that sign. So this
+    // pair of tests pins the shared routine's one branch from both sides -- a routine
+    // that ignored the flag would pass one and fail the other.
+    const want_sinh = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+    const want_cosh = [_]f64{ 1, 0, 0.5, 0, 1, 0, 0, 0, 1 };
+    for (want_sinh, sh) |x, y| try testing.expectApproxEqAbs(x, y, 1e-13);
+    for (want_cosh, ch) |x, y| try testing.expectApproxEqAbs(x, y, 1e-13);
+}
+
+test "cosh is even and sinh is odd" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.9, 1.4, -0.3, 0.0, 0.6, 1.1, -0.7, 0.1, 0.8 };
+    var neg: [9]f64 = undefined;
+    for (a, 0..) |v, i| neg[i] = -v;
+
+    const s1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s1);
+    const c1 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c1);
+    const s2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(s2);
+    const c2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(c2);
+    try sinhCoshGeneral(alloc, &a, n, s1, c1);
+    try sinhCoshGeneral(alloc, &neg, n, s2, c2);
+
+    for (c1, c2) |x, y| try testing.expectApproxEqAbs(x, y, 1e-10);
+    for (s1, s2) |x, y| try testing.expectApproxEqAbs(x, -y, 1e-10);
+}
+
+test "and on a SYMMETRIC matrix the hyperbolic cosine matches the eigen route" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 6, 2, 1, 2, 5, 2, 1, 2, 4 };
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    try coshGeneral(alloc, &a, n, ch);
+
+    var e = try linalg.eigenSymmetric(alloc, &a, n);
+    defer e.deinit();
+    try testing.expect(e.symmetric);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            var acc: f64 = 0;
+            for (0..n) |t| acc += e.vec(i, t) * std.math.cosh(e.values[t]) * e.vec(j, t);
+            // eigenvalues here reach ~9, so cosh reaches ~4000 -- the tolerance is
+            // relative to that rather than to 1
+            try testing.expectApproxEqRel(acc, ch[i * n + j], 1e-9);
         }
     }
 }
