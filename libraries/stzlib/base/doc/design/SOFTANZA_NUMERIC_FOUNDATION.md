@@ -2902,6 +2902,43 @@ what it refused.
   starts at 1; diagonals go entrywise; atan is odd; and atanh at an eigenvalue of ±1 is
   refused rather than returned as a huge number that looks like an answer.
 
+- **THE MATRIX ARCSINE AND ARCCOSINE (`1a1b5c4b5`)** — *and the pattern completes.*
+
+  > `asin(A) = atan( A · (I − A²)^(−1/2) )` and `acos(A) = (π/2)I − asin(A)`
+
+  The scalar identities lifted. Everything commutes — A and any function of A — so the
+  lift is the same expression with matrix inverses where the divisions were, and nothing
+  has to be reordered. The arccosine is **exact** rather than a second algorithm:
+  `acos + asin = π/2` holds term by term, so it is a subtraction, and the guard pins the
+  sum rather than re-deriving anything.
+
+  **The refusal is the branch point again, and it is a different one.** `√(I − A²)` needs
+  no negative real eigenvalue, and for a real λ that is `1 − λ²` — negative exactly when
+  |λ| passes **one**, which is where asin stops being real. The arctangent in the previous
+  entry used the *same* square root and the *same* mechanism, and its obstacle was
+  |b| > 1 on the **imaginary** axis. Same machinery, different branch points, because they
+  belong to different functions.
+
+  **And `acosh` wants the opposite half of the line.** `A² − I` gives `λ² − 1`, negative
+  exactly when |λ| falls **below** one. Two functions one character apart in the source —
+  a plus against a minus — refusing mirror-image domains, both directions pinned.
+
+  ***The pattern this completes.*** Every hyperbolic inverse here is a closed form in the
+  logarithm — `asinh = log(A + √(A²+I))`, `acosh = log(A + √(A²−I))`,
+  `atanh = ½[log(I+A) − log(I−A)]` — while each circular one had to be **built**: the
+  arctangent needed a halving recurrence, and the arcsine is defined through it. The two
+  families matched sign for sign all the way up, to the point where sin/cos and sinh/cosh
+  share **one routine**, and they part company at the inverses. Three functions in, that
+  is no longer an observation about atan — it is what the hyperbolic side *is*.
+
+  ***A test of mine was wrong and measuring fixed it.*** I asserted that `asinh` "refuses
+  nothing on a real spectrum" and reached for a general 4×4 to show it. That matrix has a
+  complex pair at **1.2692 ± 1.0113i**, so asinh declined and the test failed. The code
+  was right and the example was wrong: **a real spectrum is not real entries**, and the
+  two are easy to conflate. The test now uses a triangular matrix, where the eigenvalues
+  *are* the diagonal by construction, and a second test pins the boundary — a complex pair
+  can put even asinh out of reach.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
