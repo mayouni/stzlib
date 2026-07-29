@@ -5,8 +5,14 @@
 # ill-conditioned matrices, against analytically KNOWN answers, and by making
 # INDEPENDENT methods agree.
 #
-# The oracle is deliberately self-contained -- no external library to compare
-# against. Two kinds of ground truth are used instead, and they matter because a
+# The oracle HERE is deliberately self-contained -- no external library -- so this
+# file runs and proves something anywhere Ring runs. The companion guard
+# numeric_reference_oracle_narrated.ring does the other half: it checks the same
+# core against LAPACK (via NumPy) and against exact rational arithmetic on an
+# ill-conditioned corpus, with tolerances derived from kappa*eps. Read the two
+# together; neither is sufficient alone.
+#
+# Two kinds of ground truth are used below, and they matter because a
 # reconstruction test (build A, factor it, multiply back, compare) only proves
 # SELF-consistency. Real robustness needs a truth the code did not itself produce:
 #
