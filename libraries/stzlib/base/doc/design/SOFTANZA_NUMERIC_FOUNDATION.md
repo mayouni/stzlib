@@ -2919,9 +2919,13 @@ what it refused.
   |b| > 1 on the **imaginary** axis. Same machinery, different branch points, because they
   belong to different functions.
 
-  **And `acosh` wants the opposite half of the line.** `A² − I` gives `λ² − 1`, negative
-  exactly when |λ| falls **below** one. Two functions one character apart in the source —
-  a plus against a minus — refusing mirror-image domains, both directions pinned.
+  **And `acosh` inverts the domain — but not into a mirror** *(corrected in `d3cff2653`;
+  the first statement here overstated it).* `A² − I` gives `λ² − 1`, so the square root
+  wants `|λ| ≥ 1`, the opposite of the arccosine's inside. But **then the log wants
+  `λ + √(λ²−1) > 0`**, which fails for `λ ≤ −1`, so the negative ray is thrown away too.
+  Only the intersection survives: `acos` owns the open interval `(−1, 1)`, `acosh` owns
+  the **ray `[1, ∞)`** — not the two-sided outside. Both directions pinned, the negative
+  ray included.
 
   ***The pattern this completes.*** Every hyperbolic inverse here is a closed form in the
   logarithm — `asinh = log(A + √(A²+I))`, `acosh = log(A + √(A²−I))`,
@@ -3099,6 +3103,37 @@ what it refused.
   A test of mine also conflated two refusals the engine keeps apart: **a domain failure is
   `NoRealResult`, not `Singular`.** The matrix is perfectly invertible there; it is the
   *answer* that does not exist.
+
+- **THE HYPERBOLIC ARC ROUND TRIPS (`d3cff2653`)** — *asked whether they were worth adding,
+  and the measurement corrected me.*
+
+  > `sech(asech(A)) = A`  ·  `csch(acsch(A)) = A`
+
+  The circular reciprocals were proved by round trip last commit; the hyperbolic partners
+  had only entrywise diagonal values. Completing them turns up an asymmetry:
+
+  | round trip | holds on |
+  |---|---|
+  | `csch(acsch(A)) = A` | the **whole punctured line** — `acsch = asinh(A⁻¹)`, `asinh` odd, `csch` odd |
+  | `sech(asech(A)) = A` | **only a positive spectrum** — `acosh` keeps its principal non-negative branch |
+
+  ***And answering the question found a domain I had stated wrong.*** I had called `acosh`'s
+  domain `|λ| ≥ 1` — "the opposite half", "mirror-image" — across a comment, a test, a
+  refusal message, a guard scenario and this document. It is the **ray `[1, ∞)`**, not the
+  two-sided outside (see the correction above). Every test I had written used positive
+  eigenvalues, so nothing caught it; `acosh(diag(−3,−4))` is refused though `|λ| ≥ 1`
+  throughout, and it is now pinned. `asech` inherits the one-sidedness through the
+  inverse: its domain is `0 < λ ≤ 1`, so a negative eigenvalue in `(−1, 0)` — which `1/λ`
+  sends to `acosh`'s forbidden left ray — is refused.
+
+  ***A boundary contrast fell out of it.*** `asech` **takes** an eigenvalue at exactly 1
+  (`asech(1) = 0`), where the circular arcsecant **refused** `|λ| = 1` — because `acos`
+  uses an inverse square root that dies at the boundary and `acosh` a forward one that
+  does not. Same reciprocal shape, different boundary.
+
+  *The general lesson, logged: a value question is worth measuring before answering. The
+  round trips were cheap; what made them worth adding was that writing them forced the
+  domain to be stated precisely, and it had not been.*
 
 ---
 
