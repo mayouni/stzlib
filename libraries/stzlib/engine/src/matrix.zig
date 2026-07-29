@@ -382,6 +382,27 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX ARCCOTANGENT (pi/2) I - atan(A), and acoth(A) = atanh(A^-1).
+///
+/// Two routes again -- and this time they DISAGREE. (pi/2) I - atan(A) and atan(A^-1)
+/// agree on a positive eigenvalue and differ by exactly pi on a negative one, so choosing
+/// a route is not choosing how much domain to keep; it is choosing which function to
+/// implement. The subtraction is taken: the continuous branch, defined at zero where
+/// acot(0) = pi/2, and inheriting atan's domain unchanged.
+///
+/// And cot has period pi, so cot(acot(A)) = A holds for BOTH -- the obvious check is
+/// blind to the difference.
+pub fn stz_matrix_acot(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acotGeneral);
+}
+
+/// The hyperbolic arccotangent has no subtraction to take: atanh wants |x| < 1 and acoth
+/// wants |x| > 1, disjoint domains connected only by an imaginary constant. So it needs
+/// A invertible -- the first place here where the CIRCULAR side is the wider one.
+pub fn stz_matrix_acoth(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acothGeneral);
+}
+
 /// THE MATRIX COTANGENT cos(A) * sin(A)^-1, and coth(A) = cosh(A) * sinh(A)^-1.
 ///
 /// NOT computed as tan(A)^-1, though the scalar identity says it could be. That route has

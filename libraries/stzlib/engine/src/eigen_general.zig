@@ -1641,6 +1641,60 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX ARCCOTANGENT: (pi/2) I - atan(A). And acoth(A) = atanh(A^-1).
+///
+/// -- TWO ROUTES AGAIN, AND THIS TIME THEY DISAGREE --
+///
+/// The cotangent had two candidate definitions that differed only in DOMAIN. Here there
+/// are two again, and the difference is worse than domain:
+///
+///     (pi/2) I - atan(A)      and      atan(A^-1)
+///
+/// They agree on a positive eigenvalue and DIFFER BY EXACTLY pi on a negative one.
+/// arccot(-2) is 2.6779 by the first and -0.4636 by the second. Both are cotangents of
+/// the same number; they sit on different branches. So choosing a route here is not
+/// choosing how much domain to keep -- IT IS CHOOSING WHICH FUNCTION TO IMPLEMENT.
+///
+/// -- AND THE OBVIOUS TEST CANNOT TELL THEM APART --
+///
+/// cot has period pi. So cot(acot(A)) = A holds for BOTH routes, exactly, to full
+/// precision. The round trip -- the first thing anyone would reach for -- is blind to the
+/// difference, and a branch error would pass it without a murmur. What distinguishes them
+/// is the VALUE on a negative eigenvalue, and nothing else does.
+///
+/// The subtraction is taken here: it is the continuous branch, range (0, pi), and it is
+/// defined at zero, where acot(0) = pi/2 and the reciprocal route has nothing to say.
+/// Being exact rather than a second algorithm, it inherits atan's domain UNCHANGED -- a
+/// singular matrix has an arccotangent, which is the second half of the same point.
+pub fn acotGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    try atanGeneral(alloc, data, n, out);
+    for (0..n * n) |i| out[i] = -out[i];
+    for (0..n) |i| out[i * n + i] += std.math.pi / 2.0;
+}
+
+/// THE HYPERBOLIC ARCCOTANGENT: atanh(A^-1).
+///
+/// -- AND HERE THERE IS NO SUBTRACTION TO TAKE --
+///
+/// The circular pair share a domain: atan and acot are both defined on the whole real
+/// line, so one can be written as a constant minus the other. THE HYPERBOLIC PAIR HAVE
+/// DISJOINT DOMAINS -- atanh wants |x| < 1 and acoth wants |x| > 1 -- and the identity
+/// that connects them is acoth(x) = atanh(x) + i*pi/2, which is IMAGINARY. There is no
+/// real constant to subtract, so the inverse is not one route of two. It is the only one.
+///
+/// Which makes this THE FIRST PLACE IN THIS FILE WHERE THE CIRCULAR SIDE IS THE WIDER
+/// ONE. Everywhere else the hyperbolic partner refused less; here acot takes every matrix
+/// atan takes, singular ones included, while acoth needs A invertible on top of
+/// everything atanh needed.
+pub fn acothGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    if (!try linalg.luInverse(alloc, data, n, inv)) return FunError.Singular;
+    return atanhGeneral(alloc, inv, n, out);
+}
+
 /// THE MATRIX COTANGENT: cos(A) * sin(A)^-1. And coth(A) = cosh(A) * sinh(A)^-1.
 ///
 /// -- WHY THIS IS NOT tan(A)^-1, EVEN THOUGH cot(x) = 1/tan(x) --
@@ -3742,4 +3796,141 @@ test "a diagonal cotangent goes entrywise, and coth is wide on a real spectrum" 
         out[0],
         1e-10,
     );
+}
+
+test "cot(acot(A)) = A" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const ac = try alloc.alloc(f64, n * n);
+    defer alloc.free(ac);
+    try acotGeneral(alloc, &a, n, ac);
+
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try cotGeneral(alloc, ac, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // a diagonal goes entrywise, against the scalar pi/2 - atan
+    const diag = [_]f64{ 0.7, 0, 0, 0, 2.5, 0, 0, 0, 0.3 };
+    const d3 = try alloc.alloc(f64, 9);
+    defer alloc.free(d3);
+    try acotGeneral(alloc, &diag, 3, d3);
+    try testing.expectApproxEqAbs(std.math.pi / 2.0 - std.math.atan(@as(f64, 0.7)), d3[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.pi / 2.0 - std.math.atan(@as(f64, 2.5)), d3[4], 1e-10);
+}
+
+test "THE TWO ROUTES DISAGREE BY pi, AND THE ROUND TRIP CANNOT SEE IT" {
+    const alloc = testing.allocator;
+    const n = 2;
+
+    // a negative eigenvalue is where the branches part
+    const a = [_]f64{ -2.0, 0, 0, 0.5 };
+
+    const sub = try alloc.alloc(f64, n * n);
+    defer alloc.free(sub);
+    try acotGeneral(alloc, &a, n, sub); // (pi/2) I - atan(A)
+
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    try testing.expect(try linalg.luInverse(alloc, &a, n, inv));
+    const recip = try alloc.alloc(f64, n * n);
+    defer alloc.free(recip);
+    try atanGeneral(alloc, inv, n, recip); // atan(A^-1)
+
+    // they agree on the positive eigenvalue...
+    try testing.expectApproxEqAbs(sub[3], recip[3], 1e-10);
+    // ...and are pi apart on the negative one
+    try testing.expectApproxEqAbs(std.math.pi, sub[0] - recip[0], 1e-10);
+
+    // AND BOTH SATISFY cot(acot(A)) = A, TO FULL PRECISION, because cot has period pi.
+    // The round trip -- the first check anyone reaches for -- is blind to the choice, so
+    // a branch error would pass it without a murmur. Only the VALUE distinguishes them.
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try cotGeneral(alloc, sub, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+    try cotGeneral(alloc, recip, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-9);
+}
+
+test "acot is defined at zero, where the reciprocal route has nothing to say" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // acot(0) = pi/2. The subtraction gives it without hesitating; atan(A^-1) cannot even
+    // be formed, since A^-1 does not exist.
+    const singular = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 }; // row 3 = row 1 + row 2
+    try acotGeneral(alloc, &singular, n, out);
+
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    try testing.expect(!try linalg.luInverse(alloc, &singular, n, inv));
+
+    // the zero matrix says it plainest: every eigenvalue is zero, so acot is (pi/2) I
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try acotGeneral(alloc, &zero, n, out);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) std.math.pi / 2.0 else 0;
+            try testing.expectApproxEqAbs(want, out[i * n + j], 1e-13);
+        }
+    }
+}
+
+test "acoth needs the inverse, so the CIRCULAR side is the wider one here" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // acoth(x) = atanh(1/x), and it is the only route: atanh wants |x| < 1 and acoth
+    // wants |x| > 1, so their real domains are DISJOINT and the identity connecting them
+    // -- acoth = atanh + i*pi/2 -- is imaginary. No real constant to subtract.
+    const wide = [_]f64{ 2.0, 0, 0, 0, -3.0, 0, 0, 0, 5.0 };
+    try acothGeneral(alloc, &wide, n, out);
+    try testing.expectApproxEqAbs(std.math.atanh(@as(f64, 1.0 / 2.0)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.atanh(@as(f64, -1.0 / 3.0)), out[4], 1e-10);
+
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try cothGeneral(alloc, out, n, back);
+    for (wide, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // AND A SINGULAR MATRIX HAS NO HYPERBOLIC ARCCOTANGENT, while its circular
+    // arccotangent is perfectly ordinary. Everywhere else in this file the hyperbolic
+    // partner refused LESS; this is the one place the order reverses.
+    const singular = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 };
+    try testing.expectError(FunError.Singular, acothGeneral(alloc, &singular, n, out));
+    try acotGeneral(alloc, &singular, n, out);
+
+    // and it inherits atanh's own obstacle on top: an eigenvalue at 1 or -1 in A puts one
+    // at 1 or -1 in A^-1, which is where atanh runs to infinity
+    const at_one = [_]f64{ 1, 0, 0, 0, 2, 0, 0, 0, 3 };
+    try testing.expectError(FunError.Singular, acothGeneral(alloc, &at_one, n, out));
+}
+
+test "acot inherits atan's domain exactly, being a subtraction and not an algorithm" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // whatever atan declines, acot declines with it, and whatever atan answers, acot
+    // answers -- there is no separate computation to fail
+    const spin = [_]f64{ 0, -2, 2, 0 }; // eigenvalues +/- 2i
+    const atan_ok = if (atanGeneral(alloc, &spin, n, out)) |_| true else |_| false;
+    const acot_ok = if (acotGeneral(alloc, &spin, n, out)) |_| true else |_| false;
+    try testing.expectEqual(atan_ok, acot_ok);
+
+    const ordinary = [_]f64{ 0.4, 0.1, -0.2, 0.6 };
+    try atanGeneral(alloc, &ordinary, n, out);
+    try acotGeneral(alloc, &ordinary, n, out);
 }

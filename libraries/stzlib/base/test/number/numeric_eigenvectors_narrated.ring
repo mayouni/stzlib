@@ -1005,6 +1005,102 @@ Scenario("...and the four domains pair off BY DENOMINATOR, not by family")
 	     Near(oWide.MatrixCoth()[1][1], cosh(5) / sinh(5)), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX ARCCOTANGENT -- where the two routes DISAGREE")
+	#     MatrixAcot()  = (pi/2) I - MatrixAtan()
+	#
+	# MatrixCot() had two candidate definitions that differed only in DOMAIN. Here there
+	# are two again, and the difference is worse than domain:
+	#
+	#     (pi/2) I - MatrixAtan(A)        and        MatrixAtan(A^-1)
+	#
+	# They agree on a positive eigenvalue and DIFFER BY EXACTLY pi on a negative one.
+	# Both are arccotangents of the same number, sitting on different branches. So
+	# choosing a route here is not choosing how much domain to keep -- IT IS CHOOSING
+	# WHICH FUNCTION TO IMPLEMENT.
+	aNeg = [ [-2.0, 0], [0, 0.5] ]
+	oNeg = new stzMatrix(aNeg)
+	oNegInv = new stzMatrix(oNeg.LUInverse())
+	aSub = oNeg.MatrixAcot()          # the subtraction
+	aRec = oNegInv.MatrixAtan()       # the reciprocal route
+
+	Then("the two routes agree on the POSITIVE eigenvalue",
+	     Near(aSub[2][2], aRec[2][2]), TRUE)
+	Then("...and are exactly pi apart on the NEGATIVE one",
+	     Near(aSub[1][1] - aRec[1][1], 3.14159265358979), TRUE)
+
+	# AND THE OBVIOUS TEST CANNOT TELL THEM APART. MatrixCot() has period pi, so
+	# cot(acot(A)) = A holds for BOTH routes, exactly, to full precision. The round trip
+	# -- the first thing anyone would reach for -- is blind to the difference, and a
+	# branch error would pass it without a murmur.
+	oSub = new stzMatrix(aSub)
+	oRec = new stzMatrix(aRec)
+	Then("the round trip passes for the subtraction", SameMat(oSub.MatrixCot(), aNeg), TRUE)
+	Then("...AND for the other branch, just as exactly",
+	     SameMat(oRec.MatrixCot(), aNeg), TRUE)
+
+	# what distinguishes them is the VALUE, and nothing else does
+EndScenario()
+
+Scenario("...and the branch taken here is the one defined at zero")
+	# The subtraction is the continuous branch, range (0, pi), and it is defined at zero
+	# where acot(0) = pi/2 -- exactly where the reciprocal route has nothing to say.
+	aZero = [ [0,0,0], [0,0,0], [0,0,0] ]
+	oZero = new stzMatrix(aZero)
+	Then("acot of the zero matrix is (pi/2) I",
+	     SameMat(oZero.MatrixAcot(), ScaledEye(3, 3.14159265358979 / 2)), TRUE)
+
+	# which generalises: being a subtraction and not a second algorithm, MatrixAcot()
+	# inherits MatrixAtan()'s domain UNCHANGED. A singular matrix has an arccotangent.
+	aSing = [ [1,2,3], [4,5,6], [5,7,9] ]     # row 3 = row 1 + row 2
+	Then("a singular matrix has an arccotangent", RefusesArcCot(aSing, "acot"), FALSE)
+
+	# the general round trip, on an ordinary matrix
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5],
+	       [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oAA = new stzMatrix(aA)
+	oAcot = new stzMatrix(oAA.MatrixAcot())
+	Then("cot(acot(A)) is A", SameMat(oAcot.MatrixCot(), aA), TRUE)
+
+	# and a diagonal goes entrywise against the scalar pi/2 - atan
+	aD = [ [0.7,0,0], [0,2.5,0], [0,0,0.3] ]
+	oD = new stzMatrix(aD)
+	Then("...and a diagonal is pi/2 - atan entrywise",
+	     Near(oD.MatrixAcot()[2][2], 3.14159265358979 / 2 - atan(2.5)), TRUE)
+EndScenario()
+
+Scenario("...and for ONCE the circular side is the wider one")
+	# THE HYPERBOLIC ARCCOTANGENT HAS NO SUBTRACTION TO TAKE. The circular pair share a
+	# domain -- atan and acot are both defined on the whole real line -- so one can be
+	# written as a constant minus the other. THE HYPERBOLIC PAIR HAVE DISJOINT DOMAINS:
+	# atanh wants |x| < 1 and acoth wants |x| > 1, and the identity connecting them,
+	# acoth(x) = atanh(x) + i*pi/2, is IMAGINARY. There is no real constant to subtract,
+	# so MatrixAtanh() of the inverse is not one route of two. It is the only one.
+	aWide = [ [2.0,0,0], [0,-3.0,0], [0,0,5.0] ]
+	oWide = new stzMatrix(aWide)
+	oAcoth = new stzMatrix(oWide.MatrixAcoth())
+	Then("coth(acoth(A)) is A", SameMat(oAcoth.MatrixCoth(), aWide), TRUE)
+	# atanh(1/2) written out, since Ring has no atanh: (1/2) ln((1+x)/(1-x))
+	Then("...and it is atanh(1/x) entrywise",
+	     Near(oWide.MatrixAcoth()[1][1], 0.5 * log((1 + 0.5) / (1 - 0.5))), TRUE)
+
+	# WHICH MAKES THIS THE FIRST PLACE WHERE THE CIRCULAR SIDE IS THE WIDER ONE.
+	# Everywhere else the hyperbolic partner refused less -- sinh never vanishing on a
+	# real spectrum, asinh having no branch point to run into. Here MatrixAcot() takes
+	# every matrix MatrixAtan() takes, singular ones included, while MatrixAcoth() needs
+	# the matrix INVERTIBLE on top of everything MatrixAtanh() needed.
+	aSing2 = [ [1,2,3], [4,5,6], [5,7,9] ]
+	Then("a singular matrix has NO hyperbolic arccotangent",
+	     RefusesArcCot(aSing2, "acoth"), TRUE)
+	Then("...while its circular arccotangent is perfectly ordinary",
+	     RefusesArcCot(aSing2, "acot"), FALSE)
+
+	# and it inherits MatrixAtanh()'s own obstacle on top: an eigenvalue at 1 or -1 in A
+	# puts one at 1 or -1 in the inverse, which is where atanh runs to infinity
+	Then("an eigenvalue at 1 refuses it too",
+	     RefusesArcCot([ [1,0,0], [0,2,0], [0,0,3] ], "acoth"), TRUE)
+EndScenario()
+
+
 
 
 
@@ -1431,3 +1527,32 @@ func RefusesTrig(aX, cWhich)
 		_rtB_ = TRUE
 	done
 	return _rtB_
+
+func ScaledEye(n, nV)
+	_seR_ = []
+	for _seI_ = 1 to n
+		_seRow_ = []
+		for _seJ_ = 1 to n
+			if _seI_ = _seJ_
+				_seRow_ + nV
+			else
+				_seRow_ + 0
+			ok
+		next
+		_seR_ + _seRow_
+	next
+	return _seR_
+
+func RefusesArcCot(aX, cWhich)
+	_racB_ = FALSE
+	try
+		_racO_ = new stzMatrix(aX)
+		if cWhich = "acot"
+			_racO_.MatrixAcot()
+		else
+			_racO_.MatrixAcoth()
+		ok
+	catch
+		_racB_ = TRUE
+	done
+	return _racB_
