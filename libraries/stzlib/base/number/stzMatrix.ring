@@ -2514,6 +2514,73 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX COTANGENT, and its hyperbolic partner.
+	#
+	#     MatrixCot()  = MatrixCos()  * MatrixSin()^-1
+	#     MatrixCoth() = MatrixCosh() * MatrixSinh()^-1
+	#
+	# -- AND NOT MatrixTan()^-1, THOUGH cot(x) = 1/tan(x) IS EXACT --
+	#
+	# The scalar identity is exact and the matrix one is too: everything here commutes, so
+	# the two expressions give the same matrix wherever both exist. The difference is in
+	# WHERE BOTH EXIST.
+	#
+	#     MatrixTan()^-1   needs cos(A) invertible TO FORM THE TANGENT AT ALL, then sin(A)
+	#     Cos * Sin^-1     needs sin(A) invertible, and nothing else
+	#
+	# So the route through the tangent is STRICTLY NARROWER, and it is narrower exactly
+	# where cos(A) is singular -- an eigenvalue at pi/2 + k*pi. WHICH IS WHERE THE
+	# COTANGENT IS ZERO. cot(pi/2) = 0/1 = 0, as untroubled a value as it ever takes, and
+	# deriving it as 1/tan(pi/2) asks for the reciprocal of an infinity that was never
+	# there. Taking the obvious identity as the implementation would have thrown away a
+	# piece of the domain, silently, at the one point where the answer is easiest.
+	#
+	# -- AND THE DOMAINS PAIR OFF BY DENOMINATOR, NOT BY FAMILY --
+	#
+	#     MatrixTan() and MatrixSec()   both need cos(A) invertible
+	#     MatrixCot() and MatrixCsc()   both need sin(A) invertible
+	#
+	# Which puts the cotangent in the narrow half with the cosecant: sin(A) is singular
+	# whenever A is, so MatrixCot() refuses EVERY SINGULAR MATRIX, while MatrixTan() --
+	# sharing its domain with the secant -- takes them all. Four functions, two domains,
+	# and the pairing is by which of sin/cos sits in the denominator, not by whether the
+	# name starts with "co".
+	def MatrixCot()
+		return This._Cotangent(:Circular)
+
+		def MatrixCotQ()
+			return new stzMatrix(This.MatrixCot())
+
+	def MatrixCoth()
+		return This._Cotangent(:Hyperbolic)
+
+		def MatrixCothQ()
+			return new stzMatrix(This.MatrixCoth())
+
+	def _Cotangent(pcMode)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixCot: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if pcMode = :Circular
+			_pCtV_ = StzEngineMatrixCot(@pEngineMatrix)
+		else
+			_pCtV_ = StzEngineMatrixCoth(@pEngineMatrix)
+		ok
+		if _pCtV_ = NULL
+			StzRaise("MatrixCot: refused -- the sine being divided by is singular here. " +
+				"For MatrixCot() that means an eigenvalue at k*pi, WHICH INCLUDES ZERO, " +
+				"so every singular matrix is out of reach -- the same narrow domain as " +
+				"MatrixCsc(), and for the same reason. Note that MatrixTan() would be " +
+				"answered on this matrix: it divides by the cosine instead.")
+		ok
+		_aCtV_ = This._MatrixFromHandle(_pCtV_)
+		StzEngineMatrixFree(_pCtV_)
+		return _aCtV_
+
 	# THE MATRIX SECANT AND COSECANT, and their hyperbolic partners.
 	#
 	#     MatrixSec()   = MatrixCos()^-1        MatrixSech() = MatrixCosh()^-1
