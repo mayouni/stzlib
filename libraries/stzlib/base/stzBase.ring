@@ -477,6 +477,10 @@ ok
 # Monitor.SelfCost() (observation prices itself), Sentinel black box
 # (the flight recorder written AT breach time).
     load "perf/stzPerfPlan.ring"
+# P7 (the tail): request tracing (engine trace ring; the black box
+# carries the trip's trace ids) + stzOtelBatch (the OTLP resourceSpans
+# envelope -- many spans, one shipment).
+    load "perf/stzOtelBatch.ring"
 
 # Loading files related to the FILE module
 

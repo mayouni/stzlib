@@ -236,7 +236,12 @@ class stzPerfSentinel from stzObject
 			:peakBytes = StzEnginePerfMemPeak(),
 			:cpuMs = StzEnginePerfCpuNs() / 1000000,
 			:sysFreeBytes = StzEnginePerfSysMemFree(),
-			:metrics = _aMetrics_
+			:metrics = _aMetrics_,
+			# perf P7: the trace ids of the requests nearest the breach
+			# (the monitor's engine trace ring -- the server face
+			# recorded them, this face reads the same truth). Empty
+			# when the monitor does not trace.
+			:traces = @oMon.RecentTraces(8)
 		]
 		if ring_len(@aBlackBox) > 16
 			del(@aBlackBox, 1)
