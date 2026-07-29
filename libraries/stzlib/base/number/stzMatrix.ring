@@ -2514,6 +2514,86 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX SECANT AND COSECANT, and their hyperbolic partners.
+	#
+	#     MatrixSec()   = MatrixCos()^-1        MatrixSech() = MatrixCosh()^-1
+	#     MatrixCsc()   = MatrixSin()^-1        MatrixCsch() = MatrixSinh()^-1
+	#
+	# -- THERE IS NO ALGORITHM HERE, AND THAT IS THE POINT --
+	#
+	# Every other function in this family had something to construct: a series to scale,
+	# a recurrence to climb, a decomposition to walk. These are one inverse of a matrix
+	# already computed. All four are the same three lines.
+	#
+	# So the entire content is WHICH MATRIX IS SINGULAR WHEN, and the four answers are
+	# not alike:
+	#
+	#     MatrixSec()    cos(A) singular at an eigenvalue of pi/2 + k*pi
+	#     MatrixCsc()    sin(A) singular at an eigenvalue of k*pi -- INCLUDING ZERO
+	#     MatrixSech()   cosh(A) singular only at a purely imaginary i*pi/2 + i*k*pi
+	#     MatrixCsch()   sinh(A) singular at zero, or at a purely imaginary i*k*pi
+	#
+	# -- THE COSECANT'S DOMAIN IS THE NARROW ONE --
+	#
+	# Zero is an eigenvalue of sin(A) whenever it is an eigenvalue of A, so MatrixCsc()
+	# refuses EVERY SINGULAR MATRIX -- and MatrixCsch() with it. Nothing else in this
+	# family is that narrow, and it is the difference between a function that
+	# occasionally declines and one that declines a whole common class.
+	#
+	# A nilpotent matrix makes it concrete in a line: cos(N) = I - N^2/2 is invertible
+	# and sin(N) = N is not, so THE SAME MATRIX HAS A SECANT AND NO COSECANT.
+	def MatrixSec()
+		return This._Reciprocal("sec")
+
+		def MatrixSecQ()
+			return new stzMatrix(This.MatrixSec())
+
+	def MatrixCsc()
+		return This._Reciprocal("csc")
+
+		def MatrixCscQ()
+			return new stzMatrix(This.MatrixCsc())
+
+	def MatrixSech()
+		return This._Reciprocal("sech")
+
+		def MatrixSechQ()
+			return new stzMatrix(This.MatrixSech())
+
+	def MatrixCsch()
+		return This._Reciprocal("csch")
+
+		def MatrixCschQ()
+			return new stzMatrix(This.MatrixCsch())
+
+	def _Reciprocal(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixSec/MatrixCsc: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "sec"
+			_pRcV_ = StzEngineMatrixSec(@pEngineMatrix)
+		but cWhich = "csc"
+			_pRcV_ = StzEngineMatrixCsc(@pEngineMatrix)
+		but cWhich = "sech"
+			_pRcV_ = StzEngineMatrixSech(@pEngineMatrix)
+		else
+			_pRcV_ = StzEngineMatrixCsch(@pEngineMatrix)
+		ok
+		if _pRcV_ = NULL
+			StzRaise("MatrixSec/MatrixCsc: refused -- the function being inverted is " +
+				"singular here. For MatrixSec() that means an eigenvalue at pi/2 + " +
+				"k*pi, exactly where sec(x) is undefined. For MatrixCsc() it means an " +
+				"eigenvalue at k*pi, WHICH INCLUDES ZERO -- so every singular matrix " +
+				"is out of reach, and that is the narrowest domain in this family.")
+		ok
+		_aRcV_ = This._MatrixFromHandle(_pRcV_)
+		StzEngineMatrixFree(_pRcV_)
+		return _aRcV_
+
 	# THE MATRIX ARCSINE AND ARCCOSINE.
 	#
 	#     asin(A) = MatrixAtan( A * (I - A^2)^(-1/2) )
