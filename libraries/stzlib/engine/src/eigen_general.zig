@@ -1641,6 +1641,101 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX ARCSINE: atan( A * (I - A^2)^(-1/2) ).
+///
+/// The scalar identity asin(x) = atan(x / sqrt(1 - x^2)), lifted. Everything commutes --
+/// A and any function of A -- so the lift is the same expression with matrix inverses
+/// where the division was, and nothing has to be reordered.
+///
+/// ── AND THE REFUSAL IS THE BRANCH POINT AGAIN ──
+///
+/// sqrt(I - A^2) needs I - A^2 to have no negative real eigenvalue, and for a real
+/// eigenvalue L that quantity is 1 - L^2, which turns negative exactly when |L| passes
+/// ONE. Which is where asin stops being real: asin(2) has no real value, and neither
+/// does the arcsine of a matrix with an eigenvalue at 2.
+///
+/// Compare the arctangent, whose obstacle was |b| > 1 on the IMAGINARY axis. Same
+/// square root, same mechanism, different branch points -- because they belong to
+/// different functions.
+pub fn asinGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    const sq = try alloc.alloc(f64, n * n);
+    defer alloc.free(sq);
+    matMul(data, data, n, sq);
+    for (0..n * n) |i| sq[i] = -sq[i];
+    for (0..n) |i| sq[i * n + i] += 1;
+
+    const rt = try alloc.alloc(f64, n * n);
+    defer alloc.free(rt);
+    try sqrtGeneral(alloc, sq, n, rt);
+
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    if (!try linalg.luInverse(alloc, rt, n, inv)) return FunError.Singular;
+
+    const arg = try alloc.alloc(f64, n * n);
+    defer alloc.free(arg);
+    matMul(data, inv, n, arg);
+    try atanGeneral(alloc, arg, n, out);
+}
+
+/// THE MATRIX ARCCOSINE: (pi/2) I - asin(A).
+///
+/// Exact, not approximate -- the scalar identity acos(x) + asin(x) = pi/2 holds for
+/// matrices term by term, since both sides are functions of the same A. So there is no
+/// second algorithm here, only a subtraction, and the guard pins the sum rather than
+/// re-deriving anything.
+///
+/// It inherits the arcsine's domain exactly: an eigenvalue outside [-1, 1] has no real
+/// arccosine either.
+pub fn acosGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    try asinGeneral(alloc, data, n, out);
+    for (0..n * n) |i| out[i] = -out[i];
+    for (0..n) |i| out[i * n + i] += std.math.pi / 2.0;
+}
+
+/// THE HYPERBOLIC ARCSINE: log( A + sqrt(A^2 + I) ).
+///
+/// A closed form, like every hyperbolic inverse here, and this one REFUSES NOTHING for a
+/// real spectrum: A^2 + I gives 1 + L^2, always positive, and L + sqrt(1 + L^2) is
+/// always positive too. There is no branch point on the real line to run into.
+pub fn asinhGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    const sq = try alloc.alloc(f64, n * n);
+    defer alloc.free(sq);
+    matMul(data, data, n, sq);
+    for (0..n) |i| sq[i * n + i] += 1;
+
+    const rt = try alloc.alloc(f64, n * n);
+    defer alloc.free(rt);
+    try sqrtGeneral(alloc, sq, n, rt);
+    for (0..n * n) |i| rt[i] += data[i];
+    try logGeneral(alloc, rt, n, out);
+}
+
+/// THE HYPERBOLIC ARCCOSINE: log( A + sqrt(A^2 - I) ).
+///
+/// The MINUS is the whole difference from the arcsine above, and it inverts the domain.
+/// A^2 - I gives L^2 - 1, which is negative exactly when |L| is BELOW one -- so where
+/// acos wants its eigenvalues inside [-1, 1], acosh wants them outside.
+///
+/// Two functions one character apart in the source, refusing opposite halves of the real
+/// line. Both refusals are pinned, in both directions.
+pub fn acoshGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    const sq = try alloc.alloc(f64, n * n);
+    defer alloc.free(sq);
+    matMul(data, data, n, sq);
+    for (0..n) |i| sq[i * n + i] -= 1;
+
+    const rt = try alloc.alloc(f64, n * n);
+    defer alloc.free(rt);
+    try sqrtGeneral(alloc, sq, n, rt);
+    for (0..n * n) |i| rt[i] += data[i];
+    try logGeneral(alloc, rt, n, out);
+}
+
 /// THE MATRIX ARCTANGENT.
 ///
 /// ── THE FIRST INVERSE HERE, AND IT NEEDED A DIFFERENT IDEA ──
@@ -3039,4 +3134,198 @@ test "atanh runs to infinity at 1, and says so" {
 
     const minus_one = [_]f64{ -1, 0, 0, 0.5 };
     try testing.expectError(FunError.Singular, atanhGeneral(alloc, &minus_one, n, out));
+}
+
+test "sin(asin(A)) = A, and cos(acos(A)) = A" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // eigenvalues comfortably inside [-1, 1], which is where the arcsine is real
+    const a = [_]f64{
+        0.30,  0.20, -0.10, 0.05,
+        0.00,  0.25,  0.15, 0.10,
+        -0.10, 0.00,  0.20, 0.15,
+        0.05, -0.10,  0.00, 0.30,
+    };
+    const as = try alloc.alloc(f64, n * n);
+    defer alloc.free(as);
+    try asinGeneral(alloc, &a, n, as);
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinCosGeneral(alloc, as, n, back, throwaway);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // and the arccosine, whose construction is a subtraction from the arcsine -- so
+    // this checks the identity acos + asin = pi/2 from the far side
+    const ac = try alloc.alloc(f64, n * n);
+    defer alloc.free(ac);
+    try acosGeneral(alloc, &a, n, ac);
+    try sinCosGeneral(alloc, ac, n, throwaway, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "asin(A) + acos(A) = (pi/2) I, exactly" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.4, 0.2, 0.0, -0.1, 0.3, 0.15, 0.2, 0.0, 0.35 };
+    const as = try alloc.alloc(f64, n * n);
+    defer alloc.free(as);
+    const ac = try alloc.alloc(f64, n * n);
+    defer alloc.free(ac);
+    try asinGeneral(alloc, &a, n, as);
+    try acosGeneral(alloc, &a, n, ac);
+
+    // The scalar identity holds for matrices term by term, because both sides are
+    // functions of the same A. There is no second algorithm in acos, only a
+    // subtraction -- so this pins the relation rather than re-deriving it.
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) std.math.pi / 2.0 else 0;
+            try testing.expectApproxEqAbs(want, as[i * n + j] + ac[i * n + j], 1e-12);
+        }
+    }
+}
+
+test "the arcsine on a diagonal, at zero, odd, and exact on a nilpotent" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try asinGeneral(alloc, &zero, n, out);
+    for (out) |v| try testing.expectApproxEqAbs(@as(f64, 0), v, 1e-13);
+    try acosGeneral(alloc, &zero, n, out);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) std.math.pi / 2.0 else 0;
+            try testing.expectApproxEqAbs(want, out[i * n + j], 1e-13);
+        }
+    }
+
+    const diag = [_]f64{ 0.7, 0, 0, 0, -0.4, 0, 0, 0, 0.9 };
+    try asinGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, 0.7)), out[0], 1e-9);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, -0.4)), out[4], 1e-9);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, 0.9)), out[8], 1e-9);
+
+    var neg: [9]f64 = undefined;
+    for (diag, 0..) |v, i| neg[i] = -v;
+    const other = try alloc.alloc(f64, n * n);
+    defer alloc.free(other);
+    try asinGeneral(alloc, &neg, n, other);
+    for (out, other) |x, y| try testing.expectApproxEqAbs(x, -y, 1e-9);
+
+    // asin(N) = N + N^3/6 + ... and N^3 is already zero
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+    try asinGeneral(alloc, &nil, n, out);
+    for (nil, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-11);
+}
+
+test "AN EIGENVALUE PAST 1 HAS NO REAL ARCSINE, and none past the OTHER side for acosh" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // asin: I - A^2 gives 1 - L^2, negative once |L| passes one. asin(2) has no real
+    // value, and neither has the arcsine of a matrix with an eigenvalue at 2.
+    const big = [_]f64{ 2, 0, 0, 0.5 };
+    try testing.expectError(FunError.NoRealResult, asinGeneral(alloc, &big, n, out));
+    try testing.expectError(FunError.NoRealResult, acosGeneral(alloc, &big, n, out));
+    // and inside it is answered
+    const small = [_]f64{ 0.5, 0, 0, 0.25 };
+    try asinGeneral(alloc, &small, n, out);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, 0.5)), out[0], 1e-10);
+
+    // acosh: A^2 - I gives L^2 - 1, negative once |L| falls BELOW one. THE OPPOSITE
+    // HALF OF THE LINE -- two functions one character apart in the source, refusing
+    // mirror-image domains.
+    try testing.expectError(FunError.NoRealResult, acoshGeneral(alloc, &small, n, out));
+    const outside = [_]f64{ 2, 0, 0, 3 };
+    try acoshGeneral(alloc, &outside, n, out);
+    try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 2)), out[0], 1e-9);
+    try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 3)), out[3], 1e-9);
+}
+
+test "THE HYPERBOLIC ARCSINE REFUSES NOTHING on a real spectrum" {
+    const alloc = testing.allocator;
+    const n = 3;
+    // TRIANGULAR, so the eigenvalues are the diagonal and the spectrum is REAL by
+    // construction -- 3, -5 and 0.25, spanning well past the +/- 1 where the ordinary
+    // arcsine gives up. Not diagonal, so the off-diagonal work is still exercised.
+    //
+    // THE FIRST MATRIX I WROTE HERE HAD A COMPLEX PAIR at 1.2692 +/- 1.0113i and the
+    // test failed. The code was right and my example was wrong: the claim is about a
+    // REAL spectrum, and I had reached for a general matrix without checking. The
+    // boundary is pinned below rather than glossed.
+    const a = [_]f64{
+        3,  0.4,  0.1,
+        0, -5.0,  0.2,
+        0,  0.0,  0.25,
+    };
+    const ah = try alloc.alloc(f64, n * n);
+    defer alloc.free(ah);
+    try asinhGeneral(alloc, &a, n, ah);
+
+    // sinh(asinh(A)) = A. A^2 + I gives 1 + L^2, always positive for a real L, and
+    // L + sqrt(1 + L^2) is positive too -- there is no branch point on the real line to
+    // run into, so this never declines where the circular arcsine would.
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinhCoshGeneral(alloc, ah, n, back, throwaway);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
+
+    // and the ordinary arcsine DOES decline this very matrix, which is the contrast
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expectError(FunError.NoRealResult, asinGeneral(alloc, &a, n, out));
+
+    // a diagonal goes entrywise, well past 1
+    const diag = [_]f64{ 3, 0, 0, 0, -5, 0, 0, 0, 0.25 };
+    try asinhGeneral(alloc, &diag, n, ah);
+    try testing.expectApproxEqAbs(std.math.asinh(@as(f64, 3)), ah[0], 1e-9);
+    try testing.expectApproxEqAbs(std.math.asinh(@as(f64, -5)), ah[4], 1e-9);
+    try testing.expectApproxEqAbs(std.math.asinh(@as(f64, 0.25)), ah[8], 1e-9);
+}
+
+test "...but a COMPLEX PAIR can still put it out of reach" {
+    const alloc = testing.allocator;
+    const n = 4;
+    // eigenvalues -0.4865, 1.4480 and the pair 1.2692 +/- 1.0113i. Perfectly ordinary
+    // real entries, and the hyperbolic arcsine has no real value for it.
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // "REFUSES NOTHING" IS ABOUT A REAL SPECTRUM, not about real ENTRIES, and the two
+    // are easy to conflate -- I conflated them writing the test above. A real matrix
+    // may have complex eigenvalues, and then A^2 + I can carry a negative real one and
+    // the square root inside has no real answer.
+    try testing.expectError(FunError.NoRealResult, asinhGeneral(alloc, &a, n, out));
+}
+
+test "cosh(acosh(A)) = A, on the half of the line where it lives" {
+    const alloc = testing.allocator;
+    const n = 3;
+    // every eigenvalue at or beyond 1, which is acosh's domain
+    const a = [_]f64{ 3, 0.4, 0.1, 0.0, 2.5, 0.2, 0.1, 0.0, 4 };
+    const ah = try alloc.alloc(f64, n * n);
+    defer alloc.free(ah);
+    try acoshGeneral(alloc, &a, n, ah);
+
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    const throwaway = try alloc.alloc(f64, n * n);
+    defer alloc.free(throwaway);
+    try sinhCoshGeneral(alloc, ah, n, throwaway, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
 }

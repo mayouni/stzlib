@@ -176,6 +176,22 @@ fn ring_SqrtGeneral(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_sqrt_general(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
+fn ring_MatrixAsin(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_asin(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_MatrixAcos(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_acos(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_MatrixAsinh(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_asinh(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+fn ring_MatrixAcosh(p: *anyopaque) callconv(.c) void {
+    const ptr = matrix.stz_matrix_acosh(getMC(p, 1));
+    if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
 fn ring_MatrixAtan(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_atan(getMC(p, 1));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
@@ -355,6 +371,10 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixsinh", .func = &ring_MatrixSinh },
         .{ .name = "stzengine" ++ "matrixtan", .func = &ring_MatrixTan },
         .{ .name = "stzengine" ++ "matrixatan", .func = &ring_MatrixAtan },
+        .{ .name = "stzengine" ++ "matrixasin", .func = &ring_MatrixAsin },
+        .{ .name = "stzengine" ++ "matrixacos", .func = &ring_MatrixAcos },
+        .{ .name = "stzengine" ++ "matrixasinh", .func = &ring_MatrixAsinh },
+        .{ .name = "stzengine" ++ "matrixacosh", .func = &ring_MatrixAcosh },
         .{ .name = "stzengine" ++ "matrixatanh", .func = &ring_MatrixAtanh },
         .{ .name = "stzengine" ++ "matrixtanh", .func = &ring_MatrixTanh },
         .{ .name = "stzengine" ++ "matrixcosh", .func = &ring_MatrixCosh },
