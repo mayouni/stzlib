@@ -775,9 +775,27 @@ class stzAppServer from stzObject
 		_nT0_ = StzEngineWatchTimestampNs()   # the request bracket opens (perf P3)
 		_oResp_ = new stzAppResponse(NULL)
 		_bClose_ = TRUE
+		_cTraceHdr_ = ""
+		_cReqPath_ = ""
 		try
 			_oReq_ = This.ParseHttpRequest(aEv[3])
 			_bClose_ = _oReq_.WantsClose()
+			_cReqPath_ = This._BarePath(_oReq_.Path())
+			# perf P7: W3C trace identity per request when the observed
+			# monitor traces. A valid incoming traceparent joins the
+			# caller's trace (child span); otherwise a fresh trace opens
+			# here. The response echoes the header so callers correlate.
+			if _oPerf_ != NULL
+				if _oPerf_.IsTracing()
+					_cIn_ = _oReq_.Header("traceparent")
+					if _cIn_ != "" and StzEngineTraceIsValid(_cIn_) = 1
+						_cTraceHdr_ = StzEngineTraceChild(_cIn_)
+					else
+						_cTraceHdr_ = StzEngineTraceNew()
+					ok
+					_oResp_.Header("traceparent", _cTraceHdr_)
+				ok
+			ok
 			This._Dispatch(_oReq_, _oResp_)
 		catch
 			_oResp_.Status(400, "Bad Request").Text("Bad request: " + cCatchError)
@@ -794,6 +812,10 @@ class stzAppServer from stzObject
 			_oPerf_.MetricQ("http.requests").Increment()
 			if _oResp_.StatusCode() >= 500
 				_oPerf_.MetricQ("http.errors").Increment()
+			ok
+			if _cTraceHdr_ != ""
+				_oPerf_.RecordTrace(StzEngineTraceId(_cTraceHdr_), _cReqPath_,
+					_oResp_.StatusCode(), _nMs_)
 			ok
 		ok
 		return TRUE

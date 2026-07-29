@@ -3,8 +3,22 @@ const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
 const rn = R.ring_vm_api_retnumber;
+const gs = R.ring_vm_api_getstring;
+const gss = R.ring_vm_api_getstringsize;
+const rs = R.ring_vm_api_retstring;
+const rs2 = R.ring_vm_api_retstring2;
 
 const SERIES_HANDLE: [*:0]const u8 = "StzPerfSeries";
+const TRACE_HANDLE: [*:0]const u8 = "StzPerfTraceRing";
+
+var str_buf: [128]u8 = undefined;
+
+fn getTrace(p: *anyopaque, n: c_int) ?*perf.TraceRing {
+    const raw = R.ring_vm_api_getcpointer(p, n, TRACE_HANDLE) orelse return null;
+    const addr = @intFromPtr(raw);
+    if (addr == 0) return null;
+    return @ptrFromInt(addr);
+}
 
 fn getSeries(p: *anyopaque, n: c_int) ?*perf.Series {
     const raw = R.ring_vm_api_getcpointer(p, n, SERIES_HANDLE) orelse return null;
@@ -101,6 +115,66 @@ fn ring_SeriesDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── trace ring ───────────────────────────────────────────────
+
+fn ring_TraceCreate(p: *anyopaque) callconv(.c) void {
+    const handle = perf.perf_trace_create(gn(p, 1));
+    if (handle) |t| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(t), TRACE_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), TRACE_HANDLE);
+    }
+}
+
+fn ring_TraceRecord(p: *anyopaque) callconv(.c) void {
+    const id: [*]const u8 = @ptrCast(gs(p, 2));
+    const il: usize = @intCast(gss(p, 2));
+    const path: [*]const u8 = @ptrCast(gs(p, 3));
+    const pl: usize = @intCast(gss(p, 3));
+    perf.perf_trace_record(getTrace(p, 1), id, il, path, pl, gn(p, 4), gn(p, 5), gn(p, 6));
+    rn(p, 0);
+}
+
+fn ring_TraceCount(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_trace_count(getTrace(p, 1)));
+}
+
+fn ring_TraceSize(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_trace_size(getTrace(p, 1)));
+}
+
+fn ring_TraceIdAt(p: *anyopaque) callconv(.c) void {
+    const n = perf.perf_trace_id_at(getTrace(p, 1), gn(p, 2), &str_buf, str_buf.len);
+    if (n > 0) rs2(p, &str_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_TracePathAt(p: *anyopaque) callconv(.c) void {
+    const n = perf.perf_trace_path_at(getTrace(p, 1), gn(p, 2), &str_buf, str_buf.len);
+    if (n > 0) rs2(p, &str_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_TraceStatusAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_trace_status_at(getTrace(p, 1), gn(p, 2)));
+}
+
+fn ring_TraceDurAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_trace_dur_at(getTrace(p, 1), gn(p, 2)));
+}
+
+fn ring_TraceWallAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_trace_wall_at(getTrace(p, 1), gn(p, 2)));
+}
+
+fn ring_TraceReset(p: *anyopaque) callconv(.c) void {
+    perf.perf_trace_reset(getTrace(p, 1));
+    rn(p, 0);
+}
+
+fn ring_TraceDestroy(p: *anyopaque) callconv(.c) void {
+    perf.perf_trace_destroy(getTrace(p, 1));
+    rn(p, 0);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzengineperfmemrss", .func = ring_PerfMemRss },
     .{ .name = "stzengineperfmempeak", .func = ring_PerfMemPeak },
@@ -121,6 +195,17 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineperfseriespercentile", .func = ring_SeriesPercentile },
     .{ .name = "stzengineperfseriesreset", .func = ring_SeriesReset },
     .{ .name = "stzengineperfseriesdestroy", .func = ring_SeriesDestroy },
+    .{ .name = "stzengineperftracecreate", .func = ring_TraceCreate },
+    .{ .name = "stzengineperftracerecord", .func = ring_TraceRecord },
+    .{ .name = "stzengineperftracecount", .func = ring_TraceCount },
+    .{ .name = "stzengineperftracesize", .func = ring_TraceSize },
+    .{ .name = "stzengineperftraceidat", .func = ring_TraceIdAt },
+    .{ .name = "stzengineperftracepathat", .func = ring_TracePathAt },
+    .{ .name = "stzengineperftracestatusat", .func = ring_TraceStatusAt },
+    .{ .name = "stzengineperftracedurat", .func = ring_TraceDurAt },
+    .{ .name = "stzengineperftracewallat", .func = ring_TraceWallAt },
+    .{ .name = "stzengineperftracereset", .func = ring_TraceReset },
+    .{ .name = "stzengineperftracedestroy", .func = ring_TraceDestroy },
 };
 
 pub fn registerAll(state: *anyopaque) void {

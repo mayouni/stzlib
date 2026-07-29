@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: COMPLETE -- P0-P6 ALL SHIPPED (2026-07-29).** This document is the
+> **Status: COMPLETE -- P0-P7 ALL SHIPPED (2026-07-29).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -76,8 +76,24 @@
 > effectful+non-sandboxed, full audit -- the LLM proposes, an
 > effectful actor commits; rehearsable against a double). Guard:
 > `governed_loop_narrated.ring` (31, stable x3). Narration:
-> `stz-perf-governed-loop-narration.md`. Perf suite total: 7 guards,
-> 257 assertions.
+> `stz-perf-governed-loop-narration.md`.
+>
+> P7 delivered (the deferred tail): the engine TRACE RING
+> (`perf.zig`, bounded [traceId, path, status, durMs, wallMs] slots,
+> handle-backed = one truth across faces); `Monitor.EnableTracing()`
+> (BEFORE Observe) + `RecentTraces()`; the server bracket gives every
+> request a W3C trace identity (valid incoming traceparent -> child
+> span, else fresh trace; response echoes the header); the sentinel's
+> black box carries the trips nearest the breach (the P4 debt paid);
+> `stzOtelBatch` = the OTLP resourceSpans envelope (joined spans share
+> one traceId -> collectors reassemble the tree). RULED, not built:
+> counting-allocator heap stats (per-module allocator rerouting = its
+> own project; RSS/peak/trend answer the operational question) and
+> the driven-load R-vs-X harness (the knee needs concurrent arrivals;
+> a multi-process driver belongs with the cluster's infra-gated
+> work). Guard: `tracing_tail_narrated.ring` (26). Narration:
+> `stz-perf-tracing-tail-narration.md`. Perf suite total: 8 guards,
+> 283 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -512,7 +528,7 @@ serialization**, chosen per kind:
 |---|---|---|
 | Timings / spans / traces | **OpenTelemetry** span JSON (OTLP vocabulary), W3C `traceparent` ids | P0, shipped: `stzStopwatch.ToOtelSpan()/ToOtelJson()/TraceParent()/JoinTrace()` |
 | Metric streams (counters/gauges/timers) | **Prometheus exposition format** (`/metrics` text) + OTLP metrics JSON | P2, shipped: `stzMetric.PromText()/OtelMetricJson()`, `stzPerfMonitor.Prometheus()/OtelJson()`; P3 widens the server `/health` |
-| Full trace batches | OTLP `resourceSpans` envelope | P3+ exporter (spans batch where requests flow) |
+| Full trace batches | OTLP `resourceSpans` envelope | P7, shipped: `stzOtelBatch` (+ per-request W3C trace capture at the server seam; alerts carry trip ids) |
 | SLA verdicts | findings in the unified rule shape `[ :rule, :subject, :where, :severity, :message ]` (subject "perf") -> `stzRuleReport.Ingest()` (the house CI gate) | P4, shipped: `stzSla.CheckAgainst()/Findings()` |
 
 Two commitments that keep the interop honest: absolute time anchors
@@ -708,6 +724,24 @@ before the next begins.
   transfer with a frozen stub, ranges for live values. Guard: 31
   assertions, stable ×3. Narration:
   `stz-perf-governed-loop-narration.md`.
+- **P7 — The deferred tail. SHIPPED 2026-07-29.** Request tracing at
+  the seam: an engine trace ring (same handle-backed copy-proof
+  design as the series/histogram — the server face records, the
+  sentinel face reads one truth), every request on a traced+observed
+  server gets a W3C trace identity (a valid incoming `traceparent`
+  joins the caller's trace as a child span — same traceId, new
+  spanId; otherwise a fresh trace opens; the response echoes the
+  header either way), and the black box carries the trips nearest
+  the breach — the bridge from "the p95 is bad" to "THESE requests
+  are why". `stzOtelBatch` closes the interop table: many spans, one
+  OTLP `resourceSpans` shipment, joined spans sharing one traceId so
+  collectors reassemble the tree. Two items RULED rather than built,
+  with reasons in the doc: allocator-level heap stats (a per-module
+  rerouting project, and RSS/peak/trend already answer the
+  operational question) and the driven-load R-vs-X harness (the knee
+  needs concurrent arrivals — a multi-process driver, cluster
+  infra-gated). Guard: 26 assertions. Narration:
+  `stz-perf-tracing-tail-narration.md`.
 
 Risks named up front, per the numeric-foundation lesson (*the plan named
 the wrong line 4 of 6 times — measure first*): P1's OS counters are

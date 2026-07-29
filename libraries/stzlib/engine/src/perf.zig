@@ -399,6 +399,210 @@ pub fn perf_series_destroy(s_opt: ?*Series) callconv(.c) void {
     gpa.destroy(s);
 }
 
+// ── The trace ring (perf P7) ─────────────────────────────────
+//
+// A bounded ring of request traces -- [traceId, path, status, durMs,
+// wallMs] -- living engine-side for the same reason the series does:
+// O(1) record, fixed memory, and one truth shared by every Ring copy
+// (the server face records, the sentinel face reads -- the black box
+// can carry the trace ids of the requests that tripped an alert).
+// Strings are bounded fixed slots (ids are 32-hex W3C, paths clipped),
+// oldest overwritten past capacity.
+
+const TRACE_ID_MAX = 64;
+const TRACE_PATH_MAX = 96;
+
+pub const TraceRing = struct {
+    ids: []u8, // cap * TRACE_ID_MAX, zero-padded
+    id_lens: []u8,
+    paths: []u8, // cap * TRACE_PATH_MAX
+    path_lens: []u8,
+    status: []f64,
+    dur: []f64,
+    wall: []f64,
+    cap: usize,
+    count: u64,
+    head: usize,
+    mutex: std.Thread.Mutex,
+
+    fn size(self: *const TraceRing) usize {
+        if (self.count < self.cap) return @intCast(self.count);
+        return self.cap;
+    }
+
+    fn phys(self: *const TraceRing, i: usize) usize {
+        if (self.count < self.cap) return i;
+        return (self.head + i) % self.cap;
+    }
+};
+
+pub fn perf_trace_create(cap_f: f64) callconv(.c) ?*TraceRing {
+    if (cap_f < 1) return null;
+    const cap: usize = @intFromFloat(cap_f);
+    const t = gpa.create(TraceRing) catch return null;
+    const ids = gpa.alloc(u8, cap * TRACE_ID_MAX) catch {
+        gpa.destroy(t);
+        return null;
+    };
+    const id_lens = gpa.alloc(u8, cap) catch {
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    const paths = gpa.alloc(u8, cap * TRACE_PATH_MAX) catch {
+        gpa.free(id_lens);
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    const path_lens = gpa.alloc(u8, cap) catch {
+        gpa.free(paths);
+        gpa.free(id_lens);
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    const status = gpa.alloc(f64, cap) catch {
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.free(id_lens);
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    const dur = gpa.alloc(f64, cap) catch {
+        gpa.free(status);
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.free(id_lens);
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    const wall = gpa.alloc(f64, cap) catch {
+        gpa.free(dur);
+        gpa.free(status);
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.free(id_lens);
+        gpa.free(ids);
+        gpa.destroy(t);
+        return null;
+    };
+    t.* = .{ .ids = ids, .id_lens = id_lens, .paths = paths, .path_lens = path_lens, .status = status, .dur = dur, .wall = wall, .cap = cap, .count = 0, .head = 0, .mutex = .{} };
+    return t;
+}
+
+pub fn perf_trace_record(t_opt: ?*TraceRing, id: [*]const u8, id_len: usize, path: [*]const u8, path_len: usize, status: f64, dur_ms: f64, wall_ms: f64) callconv(.c) void {
+    const t = t_opt orelse return;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    const h = t.head;
+    var il = id_len;
+    if (il > TRACE_ID_MAX) il = TRACE_ID_MAX;
+    @memcpy(t.ids[h * TRACE_ID_MAX ..][0..il], id[0..il]);
+    t.id_lens[h] = @intCast(il);
+    var pl = path_len;
+    if (pl > TRACE_PATH_MAX) pl = TRACE_PATH_MAX;
+    @memcpy(t.paths[h * TRACE_PATH_MAX ..][0..pl], path[0..pl]);
+    t.path_lens[h] = @intCast(pl);
+    t.status[h] = status;
+    t.dur[h] = dur_ms;
+    t.wall[h] = wall_ms;
+    t.head = (t.head + 1) % t.cap;
+    t.count += 1;
+}
+
+pub fn perf_trace_count(t_opt: ?*TraceRing) callconv(.c) f64 {
+    const t = t_opt orelse return 0;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    return @floatFromInt(t.count);
+}
+
+pub fn perf_trace_size(t_opt: ?*TraceRing) callconv(.c) f64 {
+    const t = t_opt orelse return 0;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    return @floatFromInt(t.size());
+}
+
+// 1-based, oldest first over the retained window. Returns the copied
+// length (0 = out of range).
+pub fn perf_trace_id_at(t_opt: ?*TraceRing, i_f: f64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const t = t_opt orelse return 0;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    const n = t.size();
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(n))) return 0;
+    const p = t.phys(@as(usize, @intFromFloat(i_f)) - 1);
+    var l: usize = t.id_lens[p];
+    if (l > max) l = max;
+    @memcpy(out[0..l], t.ids[p * TRACE_ID_MAX ..][0..l]);
+    return @intCast(l);
+}
+
+pub fn perf_trace_path_at(t_opt: ?*TraceRing, i_f: f64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const t = t_opt orelse return 0;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    const n = t.size();
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(n))) return 0;
+    const p = t.phys(@as(usize, @intFromFloat(i_f)) - 1);
+    var l: usize = t.path_lens[p];
+    if (l > max) l = max;
+    @memcpy(out[0..l], t.paths[p * TRACE_PATH_MAX ..][0..l]);
+    return @intCast(l);
+}
+
+fn traceFieldAt(t_opt: ?*TraceRing, i_f: f64, field: []const f64, t: *TraceRing) f64 {
+    _ = t_opt;
+    const n = t.size();
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(n))) return -1;
+    return field[t.phys(@as(usize, @intFromFloat(i_f)) - 1)];
+}
+
+pub fn perf_trace_status_at(t_opt: ?*TraceRing, i_f: f64) callconv(.c) f64 {
+    const t = t_opt orelse return -1;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    return traceFieldAt(t_opt, i_f, t.status, t);
+}
+
+pub fn perf_trace_dur_at(t_opt: ?*TraceRing, i_f: f64) callconv(.c) f64 {
+    const t = t_opt orelse return -1;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    return traceFieldAt(t_opt, i_f, t.dur, t);
+}
+
+pub fn perf_trace_wall_at(t_opt: ?*TraceRing, i_f: f64) callconv(.c) f64 {
+    const t = t_opt orelse return -1;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    return traceFieldAt(t_opt, i_f, t.wall, t);
+}
+
+pub fn perf_trace_reset(t_opt: ?*TraceRing) callconv(.c) void {
+    const t = t_opt orelse return;
+    t.mutex.lock();
+    defer t.mutex.unlock();
+    t.count = 0;
+    t.head = 0;
+}
+
+pub fn perf_trace_destroy(t_opt: ?*TraceRing) callconv(.c) void {
+    const t = t_opt orelse return;
+    gpa.free(t.ids);
+    gpa.free(t.id_lens);
+    gpa.free(t.paths);
+    gpa.free(t.path_lens);
+    gpa.free(t.status);
+    gpa.free(t.dur);
+    gpa.free(t.wall);
+    gpa.destroy(t);
+}
+
 // ── tests ────────────────────────────────────────────────────
 
 test "perf: rss and peak are sane and ordered" {
@@ -482,6 +686,29 @@ test "series: exact percentile, nearest rank" {
     try std.testing.expectEqual(@as(f64, 95), perf_series_percentile(s, 95));
     try std.testing.expectEqual(@as(f64, 100), perf_series_percentile(s, 100));
     try std.testing.expectEqual(@as(f64, 1), perf_series_percentile(s, 0));
+}
+
+test "trace ring: record, read back, overwrite oldest" {
+    const t = perf_trace_create(3).?;
+    defer perf_trace_destroy(t);
+    perf_trace_record(t, "aaa", 3, "/one", 4, 200, 1.5, 1000);
+    perf_trace_record(t, "bbbb", 4, "/two", 4, 404, 2.5, 2000);
+    try std.testing.expectEqual(@as(f64, 2), perf_trace_count(t));
+    var buf: [64]u8 = undefined;
+    var n = perf_trace_id_at(t, 1, &buf, buf.len);
+    try std.testing.expectEqualStrings("aaa", buf[0..@intCast(n)]);
+    n = perf_trace_path_at(t, 2, &buf, buf.len);
+    try std.testing.expectEqualStrings("/two", buf[0..@intCast(n)]);
+    try std.testing.expectEqual(@as(f64, 404), perf_trace_status_at(t, 2));
+    try std.testing.expectEqual(@as(f64, 1.5), perf_trace_dur_at(t, 1));
+    // overwrite: 2 more pushes evict "aaa"
+    perf_trace_record(t, "cccc", 4, "/three", 6, 200, 3.5, 3000);
+    perf_trace_record(t, "dddd", 4, "/four", 5, 500, 4.5, 4000);
+    try std.testing.expectEqual(@as(f64, 4), perf_trace_count(t));
+    try std.testing.expectEqual(@as(f64, 3), perf_trace_size(t));
+    n = perf_trace_id_at(t, 1, &buf, buf.len);
+    try std.testing.expectEqualStrings("bbbb", buf[0..@intCast(n)]);
+    try std.testing.expectEqual(@as(f64, 500), perf_trace_status_at(t, 3));
 }
 
 test "series: reset empties, capacity survives" {
