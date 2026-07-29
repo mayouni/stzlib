@@ -449,8 +449,15 @@ ok
 # instances, OTel-span exportable. P1: the engine senses (stz_perf.dll:
 # RSS/peak, system memory, CPU time) + the engine-resident metric series.
 
+# P2: metrics and the monitor -- stzMetric (:Counter/:Gauge/:Timer
+# faces over the engine series + histogram; ALL state engine-side, so
+# Ring copies share one truth) + stzPerfMonitor (the sampler: pull /
+# tick / hosted-as-agent; Prometheus exposition + OTLP export).
+
     load "perf/stzStopwatch.ring"
     load "perf/stzPerfSeries.ring"
+    load "perf/stzMetric.ring"
+    load "perf/stzPerfMonitor.ring"
 
 # Loading files related to the FILE module
 
