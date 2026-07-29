@@ -63,5 +63,9 @@ pub const regs = [_]R.Reg{
 };
 
 pub fn registerAll(pState: *anyopaque) void {
+    // Capture the monotonic baseline at DLL load, so watch timestamps
+    // count from module load rather than the Unix epoch (same pattern
+    // as the process-uptime fix in ring_bridge_process.zig).
+    watch.watch_init();
     R.registerAll(pState, &regs);
 }

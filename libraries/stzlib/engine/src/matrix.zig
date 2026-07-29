@@ -382,6 +382,37 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX ARCTANGENT, by the halving identity
+/// atan(A) = 2 atan(A (I + sqrt(I + A^2))^-1) applied until the argument is small.
+///
+/// Null when A has an eigenvalue on the imaginary axis beyond +/- i: those are the
+/// arctangent's branch points, so there is no principal value to return.
+pub fn stz_matrix_atan(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.atanGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// THE HYPERBOLIC ARCTANGENT: (1/2)[log(I + A) - log(I - A)] -- a closed form in the
+/// logarithm, where the circular one needed a halving recurrence.
+///
+/// Null at an eigenvalue of +/- 1, where atanh runs to infinity.
+pub fn stz_matrix_atanh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.atanhGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE MATRIX TANGENT: sin(A) * cos(A)^-1.
 ///
 /// The side does not matter -- sin(A) and cos(A) are both functions of the same A and
