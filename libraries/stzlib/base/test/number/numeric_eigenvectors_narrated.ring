@@ -580,6 +580,68 @@ Scenario("...and on a SYMMETRIC matrix they agree with the eigendecomposition")
 	     SameMat(oSym.MatrixCos(), CosViaEigen(oSym)), TRUE)
 EndScenario()
 
+Scenario("THE HYPERBOLIC PAIR -- the same routine with one sign changed")
+	# Write the two families out and the difference is a single alternating sign:
+	#
+	#     cos(X)  = I - X^2/2! + X^4/4! - ...    cosh(X) = I + X^2/2! + X^4/4! + ...
+	#     sin(X)  = X - X^3/3! + X^5/5! - ...    sinh(X) = X + X^3/3! + X^5/5! + ...
+	#
+	# And the double-angle recurrences that climb back from the scaled matrix are not
+	# merely similar, they are IDENTICAL. So underneath there is ONE routine and a flag:
+	# a second copy would be a second transcription of one algorithm, and two copies
+	# drift.
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5], [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+	aI4 = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+
+	aSh = oA.MatrixSinh()
+	aCh = oA.MatrixCosh()
+
+	# THE MINUS is what makes this a different check rather than the same one twice --
+	# a sign error anywhere would satisfy one of the two identities and fail the other.
+	Then("cosh(A)^2 - sinh(A)^2 is the identity",
+	     SameMat(MatSub(MatMul(aCh, aCh), MatMul(aSh, aSh)), aI4), TRUE)
+
+	oZero = new stzMatrix([ [0,0], [0,0] ])
+	Then("cosh(0) is the identity", SameMat(oZero.MatrixCosh(), [ [1,0], [0,1] ]), TRUE)
+	Then("...and sinh(0) is zero", SameMat(oZero.MatrixSinh(), [ [0,0], [0,0] ]), TRUE)
+	Then("cosh is even and sinh is odd", HyperbolicParity(aA), TRUE)
+EndScenario()
+
+Scenario("...and cosh + sinh = exp, across two unrelated algorithms")
+	# THE BEST CROSS-CHECK IN THIS FAMILY. The hyperbolic pair comes from a scaled
+	# TAYLOR series climbed back through double-angle recurrences; MatrixExp() comes
+	# from a PADE approximant climbed back through squaring. Nothing is shared between
+	# them but the matrix itself, and the defining relation still holds -- on entries
+	# that reach the hundreds.
+	aA = [ [4,1,2,0], [0,3,1,5], [2,0,6,1], [1,2,0,4] ]
+	oA = new stzMatrix(aA)
+	Then("cosh(A) + sinh(A) is exp(A)",
+	     SameMat(MatAdd(oA.MatrixCosh(), oA.MatrixSinh()), oA.MatrixExp()), TRUE)
+EndScenario()
+
+Scenario("...and a nilpotent matrix separates the families by exactly that sign")
+	# N^3 = 0 truncates both series exactly. The circular and hyperbolic answers differ
+	# in ONE character:
+	#
+	#     cos(N)  = I - N^2/2        cosh(N) = I + N^2/2
+	#     sin(N)  = N               sinh(N) = N
+	#
+	# So this pair of assertions pins the shared routine's one branch FROM BOTH SIDES.
+	# A routine that ignored the flag would pass one of them and fail the other, which
+	# is more than either test could say alone.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+
+	Then("cos of a nilpotent matrix is I - N^2/2",
+	     SameMat(oNil.MatrixCos(), [ [1,0,-0.5], [0,1,0], [0,0,1] ]), TRUE)
+	Then("...and cosh of it is I + N^2/2",
+	     SameMat(oNil.MatrixCosh(), [ [1,0,0.5], [0,1,0], [0,0,1] ]), TRUE)
+	Then("...while both sines are the matrix itself",
+	     SameMat(oNil.MatrixSin(), aNil) and SameMat(oNil.MatrixSinh(), aNil), TRUE)
+EndScenario()
+
+
 
 
 
@@ -801,3 +863,22 @@ func CosViaEigen(oM)
 		_ceR_ + _ceRow_
 	next
 	return _ceR_
+
+func MatSub(aX, aY)
+	_sbR_ = []
+	for _sbI_ = 1 to len(aX)
+		_sbRow_ = []
+		for _sbJ_ = 1 to len(aX[1])
+			_sbRow_ + (aX[_sbI_][_sbJ_] - aY[_sbI_][_sbJ_])
+		next
+		_sbR_ + _sbRow_
+	next
+	return _sbR_
+
+func HyperbolicParity(aX)
+	_hpA_ = new stzMatrix(aX)
+	_hpB_ = new stzMatrix(Negated(aX))
+	if NOT SameMat(_hpA_.MatrixCosh(), _hpB_.MatrixCosh())
+		return FALSE
+	ok
+	return SameMat(_hpA_.MatrixSinh(), Negated(_hpB_.MatrixSinh()))

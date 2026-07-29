@@ -382,6 +382,32 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE HYPERBOLIC MATRIX SINE. The SAME routine as the circular one with a single sign
+/// changed -- the double-angle recurrences are identical between the two families, so
+/// only the series alternation differs.
+pub fn stz_matrix_sinh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.sinhGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
+/// THE HYPERBOLIC MATRIX COSINE.
+pub fn stz_matrix_cosh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    eigen_general.coshGeneral(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE MATRIX SINE. Scaling with the double-angle recurrences -- no decomposition of
 /// any kind, and nothing to refuse: every real matrix has one.
 pub fn stz_matrix_sin(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
