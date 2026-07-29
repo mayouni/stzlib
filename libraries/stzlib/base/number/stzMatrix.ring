@@ -2661,6 +2661,91 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pRcV_)
 		return _aRcV_
 
+	# THE MATRIX ARCCOTANGENT, and its hyperbolic partner.
+	#
+	#     MatrixAcot()  = (pi/2) I - MatrixAtan()
+	#     MatrixAcoth() = MatrixAtanh() of the INVERSE
+	#
+	# -- TWO ROUTES AGAIN, AND THIS TIME THEY DISAGREE --
+	#
+	# MatrixCot() had two candidate definitions that differed only in DOMAIN. Here there
+	# are two again, and the difference is worse than domain:
+	#
+	#     (pi/2) I - MatrixAtan(A)        and        MatrixAtan(A^-1)
+	#
+	# They agree on a positive eigenvalue and DIFFER BY EXACTLY pi on a negative one.
+	# arccot(-2) is 2.6779 by the first and -0.4636 by the second -- both are arccotangents
+	# of the same number, sitting on different branches. So choosing a route here is not
+	# choosing how much domain to keep. IT IS CHOOSING WHICH FUNCTION TO IMPLEMENT.
+	#
+	# -- AND THE OBVIOUS TEST CANNOT TELL THEM APART --
+	#
+	# MatrixCot() has period pi. So cot(acot(A)) = A holds for BOTH routes, exactly, to
+	# full precision. The round trip -- the first thing anyone would reach for -- is blind
+	# to the difference, and a branch error would pass it without a murmur. What
+	# distinguishes them is the VALUE on a negative eigenvalue, and nothing else does.
+	#
+	# The subtraction is taken here: it is the continuous branch, range (0, pi), and it is
+	# defined at zero, where acot(0) = pi/2 and the reciprocal route has nothing to say.
+	# Being exact rather than a second algorithm, it inherits MatrixAtan()'s domain
+	# UNCHANGED -- a singular matrix has an arccotangent, which is the second half of the
+	# same point.
+	def MatrixAcot()
+		return This._Arccotangent(:Circular)
+
+		def MatrixAcotQ()
+			return new stzMatrix(This.MatrixAcot())
+
+	# -- AND HERE THERE IS NO SUBTRACTION TO TAKE --
+	#
+	# The circular pair share a domain: atan and acot are both defined on the whole real
+	# line, so one can be written as a constant minus the other. THE HYPERBOLIC PAIR HAVE
+	# DISJOINT DOMAINS -- atanh wants |x| < 1 and acoth wants |x| > 1 -- and the identity
+	# connecting them, acoth(x) = atanh(x) + i*pi/2, is IMAGINARY. There is no real
+	# constant to subtract, so the inverse is not one route of two. It is the only one.
+	#
+	# Which makes this THE FIRST PLACE WHERE THE CIRCULAR SIDE IS THE WIDER ONE.
+	# Everywhere else the hyperbolic partner refused less; here MatrixAcot() takes every
+	# matrix MatrixAtan() takes, singular ones included, while MatrixAcoth() needs the
+	# matrix invertible on top of everything MatrixAtanh() needed.
+	def MatrixAcoth()
+		return This._Arccotangent(:Hyperbolic)
+
+		def MatrixAcothQ()
+			return new stzMatrix(This.MatrixAcoth())
+
+	def _Arccotangent(pcMode)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixAcot: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if pcMode = :Circular
+			_pAcV_ = StzEngineMatrixAcot(@pEngineMatrix)
+		else
+			_pAcV_ = StzEngineMatrixAcoth(@pEngineMatrix)
+		ok
+		if _pAcV_ = NULL
+			if pcMode = :Circular
+				StzRaise("MatrixAcot: refused -- and only where MatrixAtan() is, since " +
+					"this is the subtraction (pi/2)I - atan(A) and not a second " +
+					"algorithm. A SINGULAR MATRIX IS NOT THE PROBLEM: acot(0) = pi/2, " +
+					"and it is answered.")
+			else
+				StzRaise("MatrixAcoth: refused -- this one genuinely needs the matrix " +
+					"INVERTIBLE, because acoth(A) = atanh(A^-1) is its only real route. " +
+					"atanh wants |x| < 1 and acoth wants |x| > 1, disjoint domains " +
+					"joined only by an imaginary constant, so there is no subtraction " +
+					"to take as there was for MatrixAcot(). An eigenvalue at 1 or -1 " +
+					"refuses it too, inherited from MatrixAtanh().")
+			ok
+		ok
+		_aAcV_ = This._MatrixFromHandle(_pAcV_)
+		StzEngineMatrixFree(_pAcV_)
+		return _aAcV_
+
 	# THE MATRIX ARCSINE AND ARCCOSINE.
 	#
 	#     asin(A) = MatrixAtan( A * (I - A^2)^(-1/2) )
