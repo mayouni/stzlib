@@ -148,30 +148,47 @@ Scenario("Determinants, rank and a complex spectrum agree with LAPACK")
 	     OraImagMagnitudesMatch(RefMat_rot3(), RefEigIm_rot3()), TRUE)
 EndScenario()
 
-Scenario("...and one inconsistency this pass uncovered")
-	# stzMatrix.Inverse() MUTATES the receiver and returns nothing, while its four
-	# siblings -- LUInverse, QRInverse, CholeskyInverse, PseudoInverse -- return
-	# the inverse as data and leave the receiver alone. A caller who writes
-	# `aInv = oM.Inverse()` gets an empty value AND loses the original matrix.
+Scenario("...and the inconsistency this pass uncovered, now fixed")
+	# THE DEFECT THIS TIER FOUND. Inverse() used to MUTATE the receiver and return
+	# nothing, while its six noun-named siblings -- LUInverse, QRInverse,
+	# CholeskyInverse, CholeskyFactorInverse, SchurInverse, PseudoInverse -- all
+	# return the inverse as data and leave the receiver alone. So
+	# `aInv = oM.Inverse()` handed back an empty value AND destroyed the caller's
+	# matrix.
 	#
-	# That is a public-API decision, not an accuracy question, so it is not
-	# changed here. The CURRENT behaviour is pinned instead, so it cannot drift
-	# unnoticed, and the fix is tracked separately.
+	# The naming law decided the fix rather than taste: the noun returns DATA, the
+	# verb mutates, exactly as Transpose()/Transposed()/TransposeQ() already did in
+	# this same class.
 	aA = [ [4,1,2], [1,5,3], [2,3,6] ]
 	oM = new stzMatrix(aA)
-	xR = oM.Inverse()
-	Then("Inverse() returns no data at all", isList(xR), FALSE)
-	Then("...having overwritten the matrix in place",
-	     OraNear(oM.Content()[1][1], 0.3), TRUE)
+	aR = oM.Inverse()
+	Then("Inverse() now returns the inverse as data", isList(aR), TRUE)
+	Then("...leaving the receiver untouched", OraNear(oM.Content()[1][1], 4), TRUE)
+	Then("...and Inverted() reads the same", OraNear(oM.Inverted()[1][1], 0.3), TRUE)
 
-	# while the siblings behave as a reader expects, and agree with LAPACK
+	# the verb still mutates, for the callers that want that
+	oV = new stzMatrix(aA)
+	oV.Invert()
+	Then("Invert() replaces the matrix by its inverse", OraNear(oV.Content()[1][1], 0.3), TRUE)
+
+	# and the Q form is chainable, so inverting twice returns the original
+	oQ = (new stzMatrix(aA)).InverseQ().InverseQ()
+	Then("InverseQ() chains, and inverting twice is the identity",
+	     OraNear(oQ.Content()[1][1], 4) and OraNear(oQ.Content()[2][2], 5), TRUE)
+
+	# ALL of them agree with LAPACK, which is what makes the rename safe
 	oN = new stzMatrix(RefMat_spd3())
-	Then("PseudoInverse() returns data and matches LAPACK",
+	Then("Inverse() matches LAPACK",
+	     OraRelMat(oN.Inverse(), RefInv_spd3()) < 0.0000000001, TRUE)
+	Then("...and so does PseudoInverse(), on the same untouched matrix",
 	     OraRelMat(oN.PseudoInverse(), RefInv_spd3()) < 0.0000000001, TRUE)
-	Then("...and leaves the matrix untouched", OraNear(oN.Content()[1][1], 4), TRUE)
+	Then("...and the receiver survived both", OraNear(oN.Content()[1][1], 4), TRUE)
 	Then("LUInverse() matches LAPACK on hilbert4 within its conditioning",
 	     OraRelMat((new stzMatrix(RefMat_hilbert4())).LUInverse(), RefInv_hilbert4())
 	         < 0.0000001, TRUE)
+	Then("...and Inverse() agrees with LUInverse() on that hard matrix",
+	     OraRelMat((new stzMatrix(RefMat_hilbert4())).Inverse(),
+	               (new stzMatrix(RefMat_hilbert4())).LUInverse()) < 0.0000001, TRUE)
 EndScenario()
 
 Summary()

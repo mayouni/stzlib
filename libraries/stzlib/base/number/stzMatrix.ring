@@ -4315,9 +4315,7 @@ class stzMatrix from stzListOfLists
 					_aInvMatrix + _aInvRow
 				next
 				StzEngineMatrixFree(_pInvResult)
-				@aContent = _aInvMatrix
-				This._InvalidateEngineMatrix()
-				return
+				return _aInvMatrix
 			ok
 		ok
 
@@ -4394,8 +4392,40 @@ class stzMatrix from stzListOfLists
 	
 			_aInverse_ + _aRow_
 		next
-	
-		@aContent = _aInverse_
+
+		return _aInverse_
+
+		def Inverted()
+			return This.Inverse()
+
+		def InverseQ()
+			return new stzMatrix(This.Inverse())
+
+			def InvertedQ()
+				return This.InverseQ()
+
+	# Replace this matrix BY its inverse -- the verb form, mutating in place, the
+	# way Transpose() does.
+	#
+	# WHY BOTH FORMS EXIST. Inverse() used to be the mutating one, and it returned
+	# nothing, so `aInv = oM.Inverse()` handed back an empty value AND destroyed the
+	# caller's matrix. Two things settled which way to fix it: the six noun-named
+	# siblings -- LUInverse(), QRInverse(), CholeskyInverse(),
+	# CholeskyFactorInverse(), SchurInverse(), PseudoInverse() -- all RETURN the
+	# inverse as data and leave the receiver alone, and this class already carries
+	# the Transpose()/Transposed()/TransposeQ() trio. So the noun returns data, and
+	# the verb mutates:
+	#
+	#     Inverse()  / Inverted()   the inverse AS DATA, receiver untouched
+	#     InverseQ()                the inverse as a chainable stzMatrix
+	#     Invert()   / InvertQ()    replace THIS matrix by its inverse
+	def Invert()
+		@aContent = This.Inverse()
+		This._InvalidateEngineMatrix()
+
+		def InvertQ()
+			This.Invert()
+			return This
 
 
 	# Transpose the matrix in place (engine-backed, pure-Ring fallback)
