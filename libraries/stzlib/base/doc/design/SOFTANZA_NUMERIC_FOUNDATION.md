@@ -2826,6 +2826,42 @@ what it refused.
 
   Nothing is refused: every real matrix has these, as it has the circular pair.
 
+- **THE MATRIX TANGENT (`82b7f293c`)** — *and the side does not matter.*
+
+  `tan(A) = sin(A)·cos(A)⁻¹`, with the hyperbolic one alongside since it is the same two
+  lines through the same shared routine.
+
+  ***And the side does not matter, which is not obvious.*** For two arbitrary matrices
+  `X·Y⁻¹` and `Y⁻¹·X` are different things, and writing one where the other was meant is a
+  classic way to be quietly wrong. Here they are **equal**, because `sin(A)` and `cos(A)`
+  are both functions of the **same** A — limits of polynomials in it — and any two such
+  functions commute. So there is no left-tangent and right-tangent to choose between.
+  Asserted rather than assumed: it is exactly the kind of fact that is true, easy to lean
+  on, and worth checking once.
+
+  ***And unlike the sine and cosine, this one can fail to exist.*** `cos(A)` is singular
+  exactly when A has an eigenvalue at `π/2 + kπ`, and there the tangent is undefined for
+  the same reason `tan(π/2)` is. The previous two entries added functions that refuse
+  **nothing** — every real matrix has a sine, a cosine, a sinh and a cosh. This refuses,
+  and **the refusal is the mathematics rather than a limitation of the method.**
+
+  **The hyperbolic one fails somewhere a real spectrum cannot reach.** `cosh` is singular
+  only at *purely imaginary* eigenvalues, so a real matrix with a real spectrum can never
+  break `tanh` — while a single diagonal entry of π/2 breaks `tan`. Same two lines of
+  code, genuinely different domains, with a test on each side.
+
+  Identities as everywhere here: `tan(A)cos(A) = sin(A)`; `(I + tan²)cos² = I`, which is
+  `sec² = 1 + tan²` rearranged so nothing is inverted twice; and `(I − tanh²)cosh² = I`,
+  where the **minus** is what stops it being the circular assertion a second time.
+
+  *The nilpotent case is exact again and does more work than it looks.* `N³ = 0` gives
+  `sin(N) = N` and `cos(N) = I − N²/2`, whose inverse is `I + N²/2` **exactly** — since
+  `N⁴ = 0` makes that product the identity. So `tan(N) = N(I + N²/2) = N`, because `N³` is
+  already gone: an exact target that catches an inverse computed even slightly wrong.
+
+  The inverse is `luInverse` rather than the SVD — `cos(A)` is square and, when the
+  tangent exists at all, non-singular, which is exactly the case LU answers fastest.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
