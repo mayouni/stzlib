@@ -1641,6 +1641,70 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX COTANGENT: cos(A) * sin(A)^-1. And coth(A) = cosh(A) * sinh(A)^-1.
+///
+/// -- WHY THIS IS NOT tan(A)^-1, EVEN THOUGH cot(x) = 1/tan(x) --
+///
+/// The scalar identity is exact and the matrix one is too: everything here commutes, so
+/// cos * sin^-1 and (sin * cos^-1)^-1 are the same matrix wherever both exist. The
+/// difference is in WHERE BOTH EXIST.
+///
+///     tan(A)^-1        needs cos(A) invertible TO FORM tan AT ALL, then sin(A) too
+///     cos(A) sin(A)^-1 needs sin(A) invertible, and nothing else
+///
+/// So the route through the tangent is STRICTLY NARROWER, and it is narrower exactly
+/// where cos(A) is singular -- an eigenvalue at pi/2 + k*pi. Which is where the
+/// cotangent is ZERO. cot(pi/2) = 0/1 = 0, as untroubled a value as it ever takes, and
+/// computing it as 1/tan(pi/2) asks for the reciprocal of an infinity that was never
+/// there in the first place.
+///
+/// Taking the obvious identity as the implementation would have thrown away a piece of
+/// the domain, silently, at the one point where the answer is easiest.
+///
+/// -- AND THE DOMAINS PAIR OFF BY DENOMINATOR, NOT BY FAMILY --
+///
+///     tan = sin cos^-1   and   sec = cos^-1     both need cos(A) invertible
+///     cot = cos sin^-1   and   csc = sin^-1     both need sin(A) invertible
+///
+/// Which puts the cotangent in the narrow half with the cosecant: sin(A) is singular
+/// whenever A is, so cot refuses EVERY SINGULAR MATRIX -- while the tangent, sharing its
+/// domain with the secant, takes them all.
+fn cotPair(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+    hyperbolic: bool,
+) !void {
+    if (n == 0) return;
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try trigPair(alloc, data, n, sn, cs, hyperbolic);
+
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    // the sine is inverted here, where tanPair inverts the cosine -- the one character
+    // of difference that moves the function into the other domain
+    if (!try linalg.luInverse(alloc, sn, n, inv)) return FunError.Singular;
+
+    matMul(cs, inv, n, out);
+}
+
+/// cot(A) = cos(A) * sin(A)^-1. Refused at an eigenvalue of k*pi -- INCLUDING ZERO, so
+/// every singular matrix is out of reach, exactly as for the cosecant.
+pub fn cotGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return cotPair(alloc, data, n, out, false);
+}
+
+/// coth(A) = cosh(A) * sinh(A)^-1. Refused at zero or a purely imaginary i*k*pi. The
+/// same story as csch: the hyperbolic side is wider everywhere except at the zero, which
+/// catches both of the functions that divide by a sine.
+pub fn cothGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return cotPair(alloc, data, n, out, true);
+}
+
 /// THE MATRIX SECANT: cos(A)^-1. And the COSECANT, sin(A)^-1, with their hyperbolic
 /// partners sech(A) = cosh(A)^-1 and csch(A) = sinh(A)^-1.
 ///
@@ -3533,4 +3597,149 @@ test "a diagonal goes entrywise, and pi/2 is the secant's obstacle" {
     const wide = [_]f64{ 5, 0.4, 0.1, 0, -3, 0.2, 0, 0, 8 };
     try sechGeneral(alloc, &wide, n, out);
     try testing.expectApproxEqAbs(1.0 / std.math.cosh(@as(f64, 5)), out[0], 1e-10);
+}
+
+test "the cotangent inverts the tangent where both exist" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const ct = try alloc.alloc(f64, n * n);
+    defer alloc.free(ct);
+    const tn = try alloc.alloc(f64, n * n);
+    defer alloc.free(tn);
+    try cotGeneral(alloc, &a, n, ct);
+    try tanGeneral(alloc, &a, n, tn);
+
+    const prod = try alloc.alloc(f64, n * n);
+    defer alloc.free(prod);
+    matMul(ct, tn, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-9);
+        }
+    }
+
+    // and the hyperbolic partner does the same against tanh
+    const ch = try alloc.alloc(f64, n * n);
+    defer alloc.free(ch);
+    const th = try alloc.alloc(f64, n * n);
+    defer alloc.free(th);
+    try cothGeneral(alloc, &a, n, ch);
+    try tanhGeneral(alloc, &a, n, th);
+    matMul(ch, th, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-9);
+        }
+    }
+}
+
+test "BUT COMPUTING IT AS tan(A)^-1 WOULD THROW AWAY PART OF THE DOMAIN" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // an eigenvalue at pi/2 puts cos(A) at zero, so THE TANGENT DOES NOT EXIST HERE
+    const at_half_pi = [_]f64{ std.math.pi / 2.0, 0, 0, 0.5 };
+    try testing.expectError(FunError.Singular, tanGeneral(alloc, &at_half_pi, n, out));
+
+    // AND THE COTANGENT IS PERFECTLY FINE, because it never forms the tangent. Its value
+    // there is ZERO -- cot(pi/2) = 0/1 -- as untroubled as it ever gets. Deriving it as
+    // 1/tan would ask for the reciprocal of an infinity that was never there.
+    try cotGeneral(alloc, &at_half_pi, n, out);
+    try testing.expectApproxEqAbs(0, out[0], 1e-14);
+    try testing.expectApproxEqAbs(@cos(@as(f64, 0.5)) / @sin(@as(f64, 0.5)), out[3], 1e-12);
+}
+
+test "csc(A)^2 - cot(A)^2 = I" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.4, 0.2, 0.0, -0.1, 0.5, 0.3, 0.2, 0.0, 0.6 };
+    const cc = try alloc.alloc(f64, n * n);
+    defer alloc.free(cc);
+    const ct = try alloc.alloc(f64, n * n);
+    defer alloc.free(ct);
+    try cscGeneral(alloc, &a, n, cc);
+    try cotGeneral(alloc, &a, n, ct);
+
+    // the Pythagorean identity on the sine side, the mirror of sec^2 - tan^2 = I
+    const c2 = try squares(alloc, cc, n);
+    defer alloc.free(c2);
+    const t2 = try squares(alloc, ct, n);
+    defer alloc.free(t2);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) 1 else 0;
+            try testing.expectApproxEqAbs(want, c2[i * n + j] - t2[i * n + j], 1e-8);
+        }
+    }
+}
+
+test "THE DOMAINS PAIR OFF BY DENOMINATOR, NOT BY FAMILY" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // a singular matrix: sin(A) is singular too, so the two functions that divide by the
+    // sine are out, and the two that divide by the cosine are in
+    const singular = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 }; // row 3 = row 1 + row 2
+    try testing.expectError(FunError.Singular, cotGeneral(alloc, &singular, n, out));
+    try testing.expectError(FunError.Singular, cscGeneral(alloc, &singular, n, out));
+    try tanGeneral(alloc, &singular, n, out);
+    try secGeneral(alloc, &singular, n, out);
+
+    // and at pi/2 the split reverses exactly: cos(A) is the singular one now
+    const half_pi = [_]f64{ std.math.pi / 2.0, 0, 0, 0, 0.5, 0, 0, 0, 0.25 };
+    try testing.expectError(FunError.Singular, tanGeneral(alloc, &half_pi, n, out));
+    try testing.expectError(FunError.Singular, secGeneral(alloc, &half_pi, n, out));
+    try cotGeneral(alloc, &half_pi, n, out);
+    try cscGeneral(alloc, &half_pi, n, out);
+
+    // FOUR FUNCTIONS, TWO DOMAINS, and the pairing is by which of sin/cos sits in the
+    // denominator -- not by whether the name starts with "co"
+}
+
+test "the nilpotent has a tangent and no cotangent" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 }; // N^3 = 0
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // tan(N) = N (I - N^2/2)^-1 = N (I + N^2/2) = N + N^3/2 = N, exactly
+    try tanGeneral(alloc, &nil, n, out);
+    for (nil, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-13);
+
+    // and sin(N) = N is singular, so the cotangent is refused -- the same sentence the
+    // secant and cosecant made, with the tangent now playing the secant's part
+    try testing.expectError(FunError.Singular, cotGeneral(alloc, &nil, n, out));
+    try testing.expectError(FunError.Singular, cothGeneral(alloc, &nil, n, out));
+}
+
+test "a diagonal cotangent goes entrywise, and coth is wide on a real spectrum" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const diag = [_]f64{ 0.7, 0, 0, 0, -1.1, 0, 0, 0, 0.3 };
+    try cotGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(@cos(@as(f64, 0.7)) / @sin(@as(f64, 0.7)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(@cos(@as(f64, -1.1)) / @sin(@as(f64, -1.1)), out[4], 1e-10);
+
+    // coth on a wide real spectrum, where sinh only vanishes at zero
+    const wide = [_]f64{ 5, 0.4, 0.1, 0, -3, 0.2, 0, 0, 8 };
+    try cothGeneral(alloc, &wide, n, out);
+    try testing.expectApproxEqAbs(
+        std.math.cosh(@as(f64, 5)) / std.math.sinh(@as(f64, 5)),
+        out[0],
+        1e-10,
+    );
 }

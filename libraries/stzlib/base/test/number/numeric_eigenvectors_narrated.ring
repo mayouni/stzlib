@@ -928,6 +928,84 @@ Scenario("...and the four domains are not alike")
 	     Near(oWide.MatrixSech()[1][1], 1 / cosh(5)), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX COTANGENT -- and why it is NOT MatrixTan() inverted")
+	#     MatrixCot()  = MatrixCos()  * MatrixSin()^-1
+	#     MatrixCoth() = MatrixCosh() * MatrixSinh()^-1
+	#
+	# The scalar identity cot(x) = 1/tan(x) is exact, and the matrix one is too:
+	# everything here commutes, so the two expressions give the same matrix WHEREVER BOTH
+	# EXIST. Which is the whole question.
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5],
+	       [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+	Then("cot(A) * tan(A) is I", SameMat(MatMulR(oA.MatrixCot(), oA.MatrixTan()), Eye(4)), TRUE)
+	Then("coth(A) * tanh(A) is I", SameMat(MatMulR(oA.MatrixCoth(), oA.MatrixTanh()), Eye(4)), TRUE)
+
+	# the Pythagorean identity on the sine side, the mirror of sec^2 - tan^2 = I
+	aB = [ [0.4,0.2,0.0], [-0.1,0.5,0.3], [0.2,0.0,0.6] ]
+	oB = new stzMatrix(aB)
+	Then("...and csc(A)^2 - cot(A)^2 is I",
+	     SameMat(MatSubR(MatMulR(oB.MatrixCsc(), oB.MatrixCsc()),
+	                     MatMulR(oB.MatrixCot(), oB.MatrixCot())), Eye(3)), TRUE)
+EndScenario()
+
+Scenario("...because THE TANGENT ROUTE THROWS AWAY PART OF THE DOMAIN")
+	#     MatrixTan()^-1   needs cos(A) invertible TO FORM THE TANGENT AT ALL, then sin(A)
+	#     Cos * Sin^-1     needs sin(A) invertible, and nothing else
+	#
+	# So the obvious route is STRICTLY NARROWER, and it is narrower exactly where cos(A)
+	# is singular -- an eigenvalue at pi/2. WHICH IS WHERE THE COTANGENT IS ZERO.
+	aHalf = [ [3.14159265358979 / 2, 0], [0, 0.5] ]
+	oHalf = new stzMatrix(aHalf)
+	Then("at pi/2 the tangent does not exist", RefusesTrig(aHalf, "tan"), TRUE)
+	Then("...and the cotangent is answered anyway", RefusesTrig(aHalf, "cot"), FALSE)
+	Then("...its value there being exactly zero", Near(oHalf.MatrixCot()[1][1], 0), TRUE)
+	Then("...while the other entry is the ordinary cos/sin",
+	     Near(oHalf.MatrixCot()[2][2], cos(0.5) / sin(0.5)), TRUE)
+
+	# cot(pi/2) = 0/1 is as untroubled a value as the function ever takes, and deriving it
+	# as 1/tan(pi/2) asks for the reciprocal of an infinity that was never there. Taking
+	# the identity as the implementation would have lost the domain SILENTLY, at the one
+	# point where the answer is easiest.
+EndScenario()
+
+Scenario("...and the four domains pair off BY DENOMINATOR, not by family")
+	#     MatrixTan() and MatrixSec()   both need cos(A) invertible
+	#     MatrixCot() and MatrixCsc()   both need sin(A) invertible
+	#
+	# A singular matrix has a singular sine, so the two that divide by the sine are out
+	# and the two that divide by the cosine are in.
+	aSing = [ [1,2,3], [4,5,6], [5,7,9] ]     # row 3 = row 1 + row 2
+	Then("a singular matrix has no cotangent", RefusesTrig(aSing, "cot"), TRUE)
+	Then("...nor a cosecant", RefusesRcp(aSing, "csc"), TRUE)
+	Then("...but it does have a tangent", RefusesTrig(aSing, "tan"), FALSE)
+	Then("...and a secant", RefusesRcp(aSing, "sec"), FALSE)
+
+	# and at pi/2 the split reverses exactly, because cos(A) is the singular one now
+	aHalf3 = [ [3.14159265358979 / 2, 0, 0], [0, 0.5, 0], [0, 0, 0.25] ]
+	Then("at pi/2 the tangent is out", RefusesTrig(aHalf3, "tan"), TRUE)
+	Then("...and the secant with it", RefusesRcp(aHalf3, "sec"), TRUE)
+	Then("...while the cotangent is in", RefusesTrig(aHalf3, "cot"), FALSE)
+	Then("...and the cosecant with it", RefusesRcp(aHalf3, "csc"), FALSE)
+
+	# FOUR FUNCTIONS, TWO DOMAINS, and the pairing is by which of sin/cos sits in the
+	# denominator -- not by whether the name starts with "co". The nilpotent says the same
+	# thing once more: tan(N) = N exactly, and sin(N) = N is singular, so no cotangent.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("tan of a nilpotent is itself, exactly", SameMat(oNil.MatrixTan(), aNil), TRUE)
+	Then("...and it has no cotangent at all", RefusesTrig(aNil, "cot"), TRUE)
+	Then("...nor a hyperbolic one", RefusesTrig(aNil, "coth"), TRUE)
+
+	# coth on a wide real spectrum, where sinh only vanishes at zero
+	aWide = [ [5,0.4,0.1], [0,-3,0.2], [0,0,8] ]
+	oWide = new stzMatrix(aWide)
+	Then("coth is answered on a wide real spectrum", RefusesTrig(aWide, "coth"), FALSE)
+	Then("...and is cosh/sinh entrywise on the diagonal",
+	     Near(oWide.MatrixCoth()[1][1], cosh(5) / sinh(5)), TRUE)
+EndScenario()
+
+
 
 
 
@@ -1337,3 +1415,19 @@ func RefusesRcp(aX, cWhich)
 		_rrB_ = TRUE
 	done
 	return _rrB_
+
+func RefusesTrig(aX, cWhich)
+	_rtB_ = FALSE
+	try
+		_rtO_ = new stzMatrix(aX)
+		if cWhich = "tan"
+			_rtO_.MatrixTan()
+		but cWhich = "cot"
+			_rtO_.MatrixCot()
+		else
+			_rtO_.MatrixCoth()
+		ok
+	catch
+		_rtB_ = TRUE
+	done
+	return _rtB_

@@ -382,6 +382,21 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX COTANGENT cos(A) * sin(A)^-1, and coth(A) = cosh(A) * sinh(A)^-1.
+///
+/// NOT computed as tan(A)^-1, though the scalar identity says it could be. That route has
+/// to form the tangent first, so it needs cos(A) invertible on top of sin(A) -- strictly
+/// narrower, and narrower exactly where cos(A) is singular, which is where the cotangent
+/// is ZERO. Taking the obvious identity as the implementation would have thrown away a
+/// piece of the domain at the one point where the answer is easiest.
+pub fn stz_matrix_cot(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.cotGeneral);
+}
+
+pub fn stz_matrix_coth(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.cothGeneral);
+}
+
 /// THE MATRIX SECANT cos(A)^-1, COSECANT sin(A)^-1, and their hyperbolic partners.
 ///
 /// No algorithm of their own -- one inverse of a matrix already computed. The whole
