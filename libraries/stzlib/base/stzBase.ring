@@ -323,7 +323,9 @@ ok
 
 # Loading files related to SYSTEM module
 
-    # NOTE: stzProfiler.ring is a demo script, not a loadable module
+    # NOTE: stzProfiler.ring (a self-instrumenting-function demo script,
+    # never loadable) retired to base/archive/system/ -- superseded by the
+    # perf module (base/perf/, SOFTANZA_PERF_SYSTEM.md P0).
     load "system/stzSystemCall.ring"
 
     load "system/stzMemoryGlobals.ring"
@@ -440,6 +442,13 @@ ok
     load "system/stzPointer.ring"
 
     load "system/stzUUID.ring"     # Engine-backed UUID v4 (Zig)
+
+# Loading files related to the PERF module (base/perf/) -- the
+# performance system (SOFTANZA_PERF_SYSTEM.md). P0: the honest
+# stopwatch -- numeric, monotonic (engine watch clock), unlimited
+# instances, OTel-span exportable.
+
+    load "perf/stzStopwatch.ring"
 
 # Loading files related to the FILE module
 

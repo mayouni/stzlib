@@ -2862,6 +2862,46 @@ what it refused.
   The inverse is `luInverse` rather than the SVD — `cos(A)` is square and, when the
   tangent exists at all, non-singular, which is exactly the case LU answers fastest.
 
+- **THE MATRIX ARCTANGENT (`c74d68ec3`)** — *the first inverse, and where the symmetry
+  ends.*
+
+  Everything before it had either a series that converges after scaling (exp, sin, cos) or
+  a decomposition handing the answer over block by block (sqrt). The arctangent has
+  neither — its Taylor series converges only for ‖X‖ < 1, and there is no doubling
+  recurrence to climb back with. What it has is a **halving** one, the half-angle formula
+  read backwards:
+
+  > `atan(A) = 2 · atan( A · (I + √(I + A²))⁻¹ )`
+
+  Apply it until the argument is small, take the series there, multiply by `2^k` on the
+  way out. **The scaling is done by the identity itself** rather than by dividing, and
+  each step costs a matrix square root — the Schur-based one, another layer on the same
+  construction.
+
+  **What it refuses is the branch point, not a limitation.** `√(I + A²)` needs `I + A²` to
+  have no negative real eigenvalue: a real eigenvalue λ gives `1 + λ²`, comfortably
+  positive, while a **purely imaginary** one `ib` gives `1 − b²`, which turns negative once
+  |b| passes one. That is the mathematics — atan has branch points at exactly ±i, so a
+  matrix with an eigenvalue on the imaginary axis beyond them has no principal arctangent.
+  Both sides are pinned: ±2i refused, ±0.5i answered.
+
+  ***And the hyperbolic twin needed no new idea at all***, which is the finding worth
+  keeping. `atanh(A) = ½[log(I + A) − log(I − A)]` is a **closed form** in the logarithm,
+  which was already here — two logs and a subtraction.
+
+  **The two families have matched each other line for line all the way up** — sin against
+  sinh, cos against cosh, tan against tanh, each differing by exactly one sign, to the
+  point where the previous entry shares *one routine* between them. **At the inverse they
+  stop.** atanh has a real closed form and atan does not, because the logarithm expressing
+  atan wants complex arguments and the one expressing atanh does not. *A symmetry that
+  held for five functions is not a law, and this is where it ends.*
+
+  Checked against identities: `tan(atan(A)) = A` and `tanh(atanh(A)) = A`, each crossing
+  two constructions that share nothing; a nilpotent matrix gives back itself exactly, and
+  does it *through* the halving recurrence rather than short-circuiting it since the norm
+  starts at 1; diagonals go entrywise; atan is odd; and atanh at an eigenvalue of ±1 is
+  refused rather than returned as a huge number that looks like an answer.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
