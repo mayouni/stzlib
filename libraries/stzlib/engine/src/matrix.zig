@@ -382,6 +382,28 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX SECANT cos(A)^-1, COSECANT sin(A)^-1, and their hyperbolic partners.
+///
+/// No algorithm of their own -- one inverse of a matrix already computed. The whole
+/// content is which matrix is singular when, and the answers differ sharply: the
+/// COSECANT refuses every SINGULAR matrix, because zero is an eigenvalue of sin(A)
+/// whenever it is one of A. Nothing else in this family is that narrow.
+pub fn stz_matrix_sec(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.secGeneral);
+}
+
+pub fn stz_matrix_csc(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.cscGeneral);
+}
+
+pub fn stz_matrix_sech(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.sechGeneral);
+}
+
+pub fn stz_matrix_csch(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.cschGeneral);
+}
+
 /// THE MATRIX ARCSINE: atan( A (I - A^2)^(-1/2) ).
 ///
 /// Null when an eigenvalue leaves [-1, 1]: I - A^2 then carries a negative real

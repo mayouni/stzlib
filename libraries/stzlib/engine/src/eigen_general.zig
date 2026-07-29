@@ -1641,6 +1641,72 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX SECANT: cos(A)^-1. And the COSECANT, sin(A)^-1, with their hyperbolic
+/// partners sech(A) = cosh(A)^-1 and csch(A) = sinh(A)^-1.
+///
+/// ── THERE IS NO ALGORITHM HERE, AND THAT IS THE POINT ──
+///
+/// Every other function in this file had something to construct: a series to scale, a
+/// recurrence to climb, a decomposition to walk. These are one inverse of a matrix
+/// already computed. All four are the same three lines.
+///
+/// So the entire content is WHICH MATRIX IS SINGULAR WHEN, and the four answers are not
+/// alike:
+///
+///     sec    cos(A) singular at an eigenvalue of pi/2 + k*pi
+///     csc    sin(A) singular at an eigenvalue of k*pi -- INCLUDING ZERO
+///     sech   cosh(A) singular only at a purely imaginary i*pi/2 + i*k*pi
+///     csch   sinh(A) singular at zero, or at a purely imaginary i*k*pi
+///
+/// THE COSECANT'S DOMAIN IS THE NARROW ONE. Zero is an eigenvalue of sin(A) whenever it
+/// is an eigenvalue of A, so csc refuses EVERY SINGULAR MATRIX -- and csch does too.
+/// Nothing else in this file has that property, and it is the difference between a
+/// function that occasionally declines and one that declines a whole common class.
+///
+/// The nilpotent matrix makes it concrete in a line: cos(N) = I - N^2/2 is invertible
+/// and sin(N) = N is not, so the same matrix has a secant and no cosecant.
+fn reciprocal(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+    hyperbolic: bool,
+    want_sine: bool,
+) !void {
+    if (n == 0) return;
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try trigPair(alloc, data, n, sn, cs, hyperbolic);
+    const src = if (want_sine) sn else cs;
+    if (!try linalg.luInverse(alloc, src, n, out)) return FunError.Singular;
+}
+
+/// sec(A) = cos(A)^-1. Refused at an eigenvalue of pi/2 + k*pi, exactly where sec(x)
+/// itself is undefined.
+pub fn secGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return reciprocal(alloc, data, n, out, false, false);
+}
+
+/// csc(A) = sin(A)^-1. Refused at an eigenvalue of k*pi -- WHICH INCLUDES ZERO, so
+/// every singular matrix is out of reach. The widest refusal in this file.
+pub fn cscGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return reciprocal(alloc, data, n, out, false, true);
+}
+
+/// sech(A) = cosh(A)^-1. cosh is singular only at purely imaginary eigenvalues, so a
+/// real spectrum can never break this.
+pub fn sechGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return reciprocal(alloc, data, n, out, true, false);
+}
+
+/// csch(A) = sinh(A)^-1. Refused at zero, so a singular matrix has no hyperbolic
+/// cosecant either -- the one place the hyperbolic side is as narrow as the circular.
+pub fn cschGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return reciprocal(alloc, data, n, out, true, true);
+}
+
 /// THE MATRIX ARCSINE: atan( A * (I - A^2)^(-1/2) ).
 ///
 /// The scalar identity asin(x) = atan(x / sqrt(1 - x^2)), lifted. Everything commutes --
@@ -3328,4 +3394,143 @@ test "cosh(acosh(A)) = A, on the half of the line where it lives" {
     defer alloc.free(throwaway);
     try sinhCoshGeneral(alloc, ah, n, throwaway, back);
     for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-6);
+}
+
+test "the secant and cosecant undo the cosine and sine" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const sc = try alloc.alloc(f64, n * n);
+    defer alloc.free(sc);
+    const cc = try alloc.alloc(f64, n * n);
+    defer alloc.free(cc);
+    try secGeneral(alloc, &a, n, sc);
+    try cscGeneral(alloc, &a, n, cc);
+
+    const sn = try alloc.alloc(f64, n * n);
+    defer alloc.free(sn);
+    const cs = try alloc.alloc(f64, n * n);
+    defer alloc.free(cs);
+    try sinCosGeneral(alloc, &a, n, sn, cs);
+
+    const prod = try alloc.alloc(f64, n * n);
+    defer alloc.free(prod);
+    matMul(cs, sc, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-9);
+        }
+    }
+    matMul(sn, cc, n, prod);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, prod[i * n + j], 1e-9);
+        }
+    }
+}
+
+test "sec(A)^2 - tan(A)^2 = I" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const a = [_]f64{ 0.4, 0.2, 0.0, -0.1, 0.5, 0.3, 0.2, 0.0, 0.6 };
+    const sc = try alloc.alloc(f64, n * n);
+    defer alloc.free(sc);
+    const tn = try alloc.alloc(f64, n * n);
+    defer alloc.free(tn);
+    try secGeneral(alloc, &a, n, sc);
+    try tanGeneral(alloc, &a, n, tn);
+
+    // the Pythagorean identity in its third form, stated directly rather than
+    // rearranged to avoid an inverse -- which is what having the secant buys
+    const s2 = try squares(alloc, sc, n);
+    defer alloc.free(s2);
+    const t2 = try squares(alloc, tn, n);
+    defer alloc.free(t2);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) 1 else 0;
+            try testing.expectApproxEqAbs(want, s2[i * n + j] - t2[i * n + j], 1e-8);
+        }
+    }
+}
+
+test "A NILPOTENT MATRIX HAS A SECANT AND NO COSECANT" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 }; // N^3 = 0
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // cos(N) = I - N^2/2, whose inverse is I + N^2/2 exactly, since N^4 = 0 makes the
+    // product I. So the secant exists and is exact.
+    try secGeneral(alloc, &nil, n, out);
+    const want = [_]f64{ 1, 0, 0.5, 0, 1, 0, 0, 0, 1 };
+    for (want, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-12);
+
+    // sin(N) = N, and N is SINGULAR -- a nilpotent matrix is nothing but singular. So
+    // the same matrix has no cosecant at all.
+    //
+    // One matrix, opposite answers from two functions that differ only in which of the
+    // pair they invert. That is the whole content of this family in a line.
+    try testing.expectError(FunError.Singular, cscGeneral(alloc, &nil, n, out));
+}
+
+test "THE COSECANT REFUSES EVERY SINGULAR MATRIX, which nothing else here does" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // zero is an eigenvalue of sin(A) whenever it is an eigenvalue of A, so a singular
+    // matrix has no cosecant. Row 3 = row 1 + row 2 here.
+    const singular = [_]f64{ 1, 2, 3, 4, 5, 6, 5, 7, 9 };
+    try testing.expectError(FunError.Singular, cscGeneral(alloc, &singular, n, out));
+    try testing.expectError(FunError.Singular, cschGeneral(alloc, &singular, n, out));
+
+    // AND THE SECANT TAKES IT WITHOUT COMPLAINT. cos of a singular matrix is not
+    // singular -- cos(0) is 1, not 0 -- so the widest refusal in this file belongs to
+    // the cosecant alone.
+    try secGeneral(alloc, &singular, n, out);
+    try sechGeneral(alloc, &singular, n, out);
+
+    // the zero matrix is the extreme case: sec(0) = I and csc(0) does not exist
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try secGeneral(alloc, &zero, n, out);
+    for (0..n) |i| {
+        for (0..n) |j| {
+            try testing.expectApproxEqAbs(if (i == j) @as(f64, 1) else 0, out[i * n + j], 1e-13);
+        }
+    }
+    try testing.expectError(FunError.Singular, cscGeneral(alloc, &zero, n, out));
+}
+
+test "a diagonal goes entrywise, and pi/2 is the secant's obstacle" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const diag = [_]f64{ 0.7, 0, 0, 0, -1.1, 0, 0, 0, 0.3 };
+    try secGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(1.0 / @cos(@as(f64, 0.7)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(1.0 / @cos(@as(f64, -1.1)), out[4], 1e-10);
+    try cscGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(1.0 / @sin(@as(f64, 0.7)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(1.0 / @sin(@as(f64, 0.3)), out[8], 1e-10);
+
+    // the secant's obstacle is the tangent's: an eigenvalue at pi/2
+    const bad = [_]f64{ std.math.pi / 2.0, 0, 0, 0, 0.5, 0, 0, 0, 0.25 };
+    try testing.expectError(FunError.Singular, secGeneral(alloc, &bad, n, out));
+    // while the cosecant is perfectly happy there
+    try cscGeneral(alloc, &bad, n, out);
+
+    // and the hyperbolic secant refuses nothing on a real spectrum: cosh(L) >= 1
+    const wide = [_]f64{ 5, 0.4, 0.1, 0, -3, 0.2, 0, 0, 8 };
+    try sechGeneral(alloc, &wide, n, out);
+    try testing.expectApproxEqAbs(1.0 / std.math.cosh(@as(f64, 5)), out[0], 1e-10);
 }

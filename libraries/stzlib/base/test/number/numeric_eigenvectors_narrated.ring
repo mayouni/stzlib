@@ -860,6 +860,75 @@ Scenario("...and every hyperbolic inverse is a closed form in the logarithm")
 	     RefusesArc(aComplex, "asinh"), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX SECANT AND COSECANT -- where the content is the refusal")
+	#     MatrixSec()  = MatrixCos()^-1        MatrixSech() = MatrixCosh()^-1
+	#     MatrixCsc()  = MatrixSin()^-1        MatrixCsch() = MatrixSinh()^-1
+	#
+	# Every other function in this family had something to construct: a series to scale,
+	# a recurrence to climb, a decomposition to walk. THERE IS NO ALGORITHM HERE -- one
+	# inverse of a matrix already computed, and all four are the same three lines.
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5],
+	       [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+
+	Then("cos(A) * sec(A) is I", SameMat(MatMulR(oA.MatrixCos(), oA.MatrixSec()), Eye(4)), TRUE)
+	Then("sin(A) * csc(A) is I", SameMat(MatMulR(oA.MatrixSin(), oA.MatrixCsc()), Eye(4)), TRUE)
+
+	# the Pythagorean identity in its third form, stated DIRECTLY rather than rearranged
+	# to avoid an inverse -- which is exactly what having the secant buys
+	Then("...and sec(A)^2 - tan(A)^2 is I",
+	     SameMat(MatSubR(MatMulR(oA.MatrixSec(), oA.MatrixSec()),
+	                     MatMulR(oA.MatrixTan(), oA.MatrixTan())), Eye(4)), TRUE)
+EndScenario()
+
+Scenario("...and THE SAME MATRIX HAS A SECANT AND NO COSECANT")
+	# A nilpotent matrix settles it in one line. cos(N) = I - N^2/2, whose inverse is
+	# I + N^2/2 EXACTLY, since N^4 = 0 makes the product I. So the secant exists and is
+	# exact. But sin(N) = N, and a nilpotent matrix is nothing if not singular.
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("sec(N) is exactly I + N^2/2",
+	     SameMat(oNil.MatrixSec(), [ [1,0,0.5], [0,1,0], [0,0,1] ]), TRUE)
+	Then("...and csc(N) does not exist at all", RefusesRcp(aNil, "csc"), TRUE)
+
+	# WHICH GENERALISES, AND THAT IS THE WHOLE POINT. Zero is an eigenvalue of sin(A)
+	# whenever it is an eigenvalue of A, so MatrixCsc() refuses EVERY SINGULAR MATRIX --
+	# and MatrixCsch() with it. Nothing else in this family is that narrow.
+	aSing = [ [1,2,3], [4,5,6], [5,7,9] ]     # row 3 = row 1 + row 2
+	Then("csc refuses every singular matrix", RefusesRcp(aSing, "csc"), TRUE)
+	Then("...and csch refuses it too", RefusesRcp(aSing, "csch"), TRUE)
+	Then("...while sec takes it without complaint", RefusesRcp(aSing, "sec"), FALSE)
+
+	# the zero matrix is the extreme case of the same sentence
+	oZero = new stzMatrix([[0,0],[0,0]])
+	Then("sec(0) is I", SameMat(oZero.MatrixSec(), Eye(2)), TRUE)
+	Then("...and csc(0) is out of reach", RefusesRcp([[0,0],[0,0]], "csc"), TRUE)
+EndScenario()
+
+Scenario("...and the four domains are not alike")
+	# A diagonal goes entrywise, so the scalar function is visible in the answer.
+	aD = [ [0.7,0,0], [0,-1.1,0], [0,0,0.3] ]
+	oD = new stzMatrix(aD)
+	Then("sec of a diagonal is 1/cos, entry by entry",
+	     Near(oD.MatrixSec()[1][1], 1 / cos(0.7)), TRUE)
+	Then("...and csc is 1/sin", Near(oD.MatrixCsc()[3][3], 1 / sin(0.3)), TRUE)
+
+	# THE SECANT'S OBSTACLE IS THE TANGENT'S: an eigenvalue at pi/2, where cos vanishes.
+	aBad = [ [3.14159265358979 / 2, 0], [0, 0.5] ]
+	Then("sec refuses an eigenvalue at pi/2", RefusesRcp(aBad, "sec"), TRUE)
+	Then("...where the cosecant is perfectly happy", RefusesRcp(aBad, "csc"), FALSE)
+
+	# AND THE HYPERBOLIC SECANT REFUSES NOTHING ON A REAL SPECTRUM, since cosh(L) >= 1
+	# for every real L -- it cannot reach zero. The hyperbolic side is the wide one here,
+	# as everywhere else, EXCEPT at csch, which is caught by the same zero as csc.
+	aWide = [ [5,0.4,0.1], [0,-3,0.2], [0,0,8] ]
+	Then("sech is answered on a wide real spectrum", RefusesRcp(aWide, "sech"), FALSE)
+	oWide = new stzMatrix(aWide)
+	Then("...and it is 1/cosh entrywise on the diagonal",
+	     Near(oWide.MatrixSech()[1][1], 1 / cosh(5)), TRUE)
+EndScenario()
+
+
 
 
 
@@ -1206,3 +1275,65 @@ func RefusesArc(aX, cWhich)
 		_rcB_ = TRUE
 	done
 	return _rcB_
+
+func Eye(n)
+	_eyR_ = []
+	for _eyI_ = 1 to n
+		_eyRow_ = []
+		for _eyJ_ = 1 to n
+			if _eyI_ = _eyJ_
+				_eyRow_ + 1
+			else
+				_eyRow_ + 0
+			ok
+		next
+		_eyR_ + _eyRow_
+	next
+	return _eyR_
+
+func MatMulR(aX, aY)
+	_mmR_ = []
+	for _mmI_ = 1 to len(aX)
+		_mmRow_ = []
+		for _mmJ_ = 1 to len(aY[1])
+			_mmS_ = 0
+			for _mmT_ = 1 to len(aY)
+				_mmS_ += aX[_mmI_][_mmT_] * aY[_mmT_][_mmJ_]
+			next
+			_mmRow_ + _mmS_
+		next
+		_mmR_ + _mmRow_
+	next
+	return _mmR_
+
+func MatSubR(aX, aY)
+	_msR_ = []
+	for _msI_ = 1 to len(aX)
+		_msRow_ = []
+		for _msJ_ = 1 to len(aX[1])
+			_msRow_ + (aX[_msI_][_msJ_] - aY[_msI_][_msJ_])
+		next
+		_msR_ + _msRow_
+	next
+	return _msR_
+
+func Near(nX, nY)
+	return fabs(nX - nY) < 0.000001
+
+func RefusesRcp(aX, cWhich)
+	_rrB_ = FALSE
+	try
+		_rrO_ = new stzMatrix(aX)
+		if cWhich = "sec"
+			_rrO_.MatrixSec()
+		but cWhich = "csc"
+			_rrO_.MatrixCsc()
+		but cWhich = "sech"
+			_rrO_.MatrixSech()
+		else
+			_rrO_.MatrixCsch()
+		ok
+	catch
+		_rrB_ = TRUE
+	done
+	return _rrB_
