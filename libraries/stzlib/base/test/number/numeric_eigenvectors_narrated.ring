@@ -823,12 +823,17 @@ Scenario("...and the branch point is the OTHER one this time")
 	Then("...nor a real arccosine", RefusesArc([ [2,0], [0,0.5] ], "acos"), TRUE)
 	Then("...while one inside is answered", RefusesArc([ [0.5,0], [0,0.25] ], "asin"), FALSE)
 
-	# AND acosh WANTS THE OPPOSITE HALF OF THE LINE. A^2 - I gives L^2 - 1, negative
-	# exactly when |L| falls BELOW one. Two functions one character apart in the source
-	# -- a plus against a minus -- refusing mirror-image domains.
+	# AND acosh INVERTS THE DOMAIN -- BUT NOT INTO A MIRROR. A^2 - I gives L^2 - 1, so the
+	# square root wants |L| >= 1, refusing the inside; but THEN the log wants
+	# L + sqrt(L^2 - 1) > 0, which fails for L <= -1. Only the intersection survives:
+	# MatrixAcos() owns the open interval (-1, 1), MatrixAcosh() owns the RAY [1, inf).
 	Then("acosh refuses an eigenvalue INSIDE the unit interval",
 	     RefusesArc([ [0.5,0], [0,0.25] ], "acosh"), TRUE)
-	Then("...and answers one outside it", RefusesArc([ [3,0], [0,4] ], "acosh"), FALSE)
+	Then("...and answers a POSITIVE one outside it", RefusesArc([ [3,0], [0,4] ], "acosh"), FALSE)
+	# the negative ray is the easy assumption and the wrong one: |L| >= 1 there, yet the
+	# log throws it away. acosh is one-sided, and no earlier test pinned this.
+	Then("...but REFUSES the negative ray, though |L| >= 1 on it",
+	     RefusesArc([ [-3,0], [0,-4] ], "acosh"), TRUE)
 EndScenario()
 
 Scenario("...and every hyperbolic inverse is a closed form in the logarithm")
@@ -1160,13 +1165,17 @@ Scenario("...and all four go through the inverse, so all four refuse a singular 
 	Then("...nor a hyperbolic arcsecant", RefusesArcRcp(aSing, "asech"), TRUE)
 	Then("...nor a hyperbolic arccosecant", RefusesArcRcp(aSing, "acsch"), TRUE)
 
-	# MatrixAsech() IS THE NARROWEST THING HERE: MatrixAcosh() wants |L| > 1, so through
-	# the inverse this wants |L| < 1 -- and the inverse itself wants L non-zero. Squeezed
-	# from both sides.
+	# MatrixAsech() IS THE NARROWEST THING HERE: acosh's domain is the ray [1, inf), so
+	# through the inverse this wants 0 < L <= 1 -- POSITIVE and inside the unit interval,
+	# not merely |L| < 1. Squeezed on every side.
 	aSmall = [ [0.5,0], [0,0.25] ]
 	aBig   = [ [2.0,0], [0,3.0] ]
 	Then("asech is answered inside the unit interval", RefusesArcRcp(aSmall, "asech"), FALSE)
 	Then("...and refused outside it", RefusesArcRcp(aBig, "asech"), TRUE)
+	# a NEGATIVE eigenvalue inside the interval is refused too, though |L| < 1: 1/(-0.5)
+	# = -2 sits on acosh's forbidden left ray. The domain is one-sided.
+	Then("...and refused for a NEGATIVE eigenvalue inside it",
+	     RefusesArcRcp([ [-0.5,0], [0,0.25] ], "asech"), TRUE)
 
 	# WHILE MatrixAcsch() IS THE WIDEST, refusing nothing but singularity, since
 	# MatrixAsinh() has no branch point on the real line to run into.
@@ -1187,6 +1196,39 @@ Scenario("...and all four go through the inverse, so all four refuse a singular 
 	Then("...wrong by a DIFFERENT amount at -3", Near(nGap3, 0.67967382), TRUE)
 	Then("...and it is a reflection: asec(-x) = pi - atan(sqrt(x^2-1))",
 	     Near(oNeg3.MatrixAsec()[1][1], 3.14159265358979 - atan(sqrt(9 - 1))), TRUE)
+EndScenario()
+
+Scenario("THE HYPERBOLIC ARC ROUND TRIPS -- one lives on a ray, the other on the whole line")
+	# A round trip is a stronger check than an entrywise diagonal value: it runs the full
+	# composition on a NON-diagonal matrix and asks for A back. The circular pair got this
+	# last commit (sec(asec(A)) = A, csc(acsc(A)) = A); the hyperbolic partners had only
+	# value checks, and completing them turns up an asymmetry worth stating.
+	aPos = [ [0.5,0.1], [0,0.25] ]                 # a positive spectrum in (0, 1)
+	oPos = new stzMatrix(aPos)
+	oASech = new stzMatrix(oPos.MatrixAsech())
+	Then("sech(asech(A)) is A, on a positive spectrum", SameMat(oASech.MatrixSech(), aPos), TRUE)
+
+	# csch(acsch(A)) = A on a matrix that STRADDLES ZERO -- eigenvalues 2 and -3, both
+	# signs at once. acsch is asinh of the inverse, asinh is ODD and csch is odd, so the
+	# negative eigenvalue round-trips exactly as cleanly as the positive one.
+	aMix = [ [2.0,0.3], [0,-3.0] ]
+	oMix = new stzMatrix(aMix)
+	oACsch = new stzMatrix(oMix.MatrixAcsch())
+	Then("csch(acsch(A)) is A, on a spectrum straddling zero", SameMat(oACsch.MatrixCsch(), aMix), TRUE)
+
+	# AND THAT IS THE ASYMMETRY. asech CANNOT take that negative eigenvalue: acosh, built
+	# on the log, keeps only its principal non-negative branch, so asech is blind to the
+	# left half of the line that acsch handles without a blink. One round trip lives on a
+	# RAY, the other on the WHOLE PUNCTURED LINE.
+	Then("...but asech cannot take that negative eigenvalue at all",
+	     RefusesArcRcp(aMix, "asech"), TRUE)
+
+	# a last boundary contrast with the circular reciprocals of last commit: asech TAKES
+	# an eigenvalue at exactly 1 (asech(1) = 0), where MatrixAsec() REFUSED |L| = 1 --
+	# because acos uses an INVERSE square root that dies at the boundary and acosh a
+	# FORWARD one that does not. Same reciprocal shape, different boundary.
+	Then("asech takes an eigenvalue at exactly 1", RefusesArcRcp([ [1.0,0], [0,0.5] ], "asech"), FALSE)
+	Then("...where the circular arcsecant refused it", RefusesArcRcp([ [1.0,0], [0,0.5] ], "asec"), TRUE)
 EndScenario()
 
 

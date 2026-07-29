@@ -2702,10 +2702,13 @@ class stzMatrix from stzListOfLists
 	# -- AND ALL FOUR REFUSE A SINGULAR MATRIX --
 	#
 	# Every one of them goes through the inverse, so for once there is no wide partner to
-	# contrast with. MatrixAsech() is the narrowest thing here -- it wants |L| < 1 AND the
-	# matrix invertible, squeezed from both sides -- while MatrixAcsch() is the widest,
-	# refusing nothing but singularity, since MatrixAsinh() has no branch point on the
-	# real line to run into.
+	# contrast with. MatrixAsech() is the narrowest thing here -- it wants 0 < L <= 1,
+	# POSITIVE and inside the unit interval, not merely |L| < 1: a negative eigenvalue in
+	# (-1, 0) lands on acosh's forbidden left ray and is refused. MatrixAcsch() is the
+	# widest, refusing nothing but singularity, since MatrixAsinh() is ODD and has no
+	# branch point on the real line -- so it takes BOTH signs where MatrixAsech() takes
+	# only the positive one. Their round trips say it plainest: csch(acsch(A)) = A holds
+	# on the whole punctured line, sech(asech(A)) = A only on a positive spectrum.
 	def MatrixAsec()
 		return This._ArcReciprocal("asec")
 
@@ -2753,9 +2756,11 @@ class stzMatrix from stzListOfLists
 				"inverse; or its eigenvalues are in the wrong half. MatrixAsec() and " +
 				"MatrixAcsc() want every eigenvalue OUTSIDE the unit interval -- the " +
 				"exact complement of what MatrixAsin() and MatrixAcos() want -- and " +
-				"MatrixAsech() wants them inside it. Note the boundary |L| = 1 belongs " +
-				"to NEITHER side: both routes pass through (I - A^2)^(-1/2), which dies " +
-				"exactly there.")
+				"MatrixAsech() wants them positive and inside it, 0 < L <= 1. Note the " +
+				"boundary |L| = 1 belongs to NEITHER circular reciprocal: MatrixAsin() " +
+				"and MatrixAsec() both pass through (I - A^2)^(-1/2), which dies exactly " +
+				"there -- though MatrixAsech(), built on a forward square root, takes " +
+				"L = 1 without trouble.")
 		ok
 		_aArV_ = This._MatrixFromHandle(_pArV_)
 		StzEngineMatrixFree(_pArV_)
@@ -2891,10 +2896,11 @@ class stzMatrix from stzListOfLists
 	#
 	# -- AND ONE CHARACTER SEPARATES THE LAST TWO --
 	#
-	# The MINUS in acosh inverts the domain. A^2 - I gives L^2 - 1, negative exactly
-	# when |L| falls BELOW one -- so where MatrixAcos() wants its eigenvalues INSIDE
-	# [-1, 1], MatrixAcosh() wants them outside. Two functions one character apart in
-	# the source, refusing mirror-image halves of the real line.
+	# The MINUS in acosh inverts the domain -- but NOT into a mirror image, which is the
+	# part easy to get wrong. A^2 - I gives L^2 - 1, so the square root wants |L| >= 1,
+	# the opposite of MatrixAcos()'s inside; but THEN the log wants L + sqrt(L^2 - 1) > 0,
+	# which fails for L <= -1. Only the intersection survives: MatrixAcos() owns the open
+	# interval (-1, 1), MatrixAcosh() owns the RAY [1, inf), not the two-sided outside.
 	#
 	# MatrixAsinh() refuses nothing for a REAL spectrum: A^2 + I gives 1 + L^2, always
 	# positive. Note "real SPECTRUM", not "real entries" -- a real matrix may have
@@ -2932,7 +2938,9 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixAsin/MatrixAcos/MatrixAsinh/MatrixAcosh: refused. The " +
 				"circular pair needs every eigenvalue INSIDE [-1, 1] -- asin(2) has no " +
 				"real value and neither has the arcsine of a matrix with an eigenvalue " +
-				"at 2. MatrixAcosh() wants the opposite, every eigenvalue OUTSIDE it. " +
+				"at 2. MatrixAcosh() wants the RAY [1, inf) -- positive and at least " +
+				"one, NOT the two-sided outside: an eigenvalue at -2 is refused too, by " +
+				"the logarithm rather than the square root. " +
 				"MatrixAsinh() asks least of all, but wants a REAL spectrum: real " +
 				"entries are not the same thing, and a complex pair can still decline.")
 		ok
