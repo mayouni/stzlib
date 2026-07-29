@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0-P3 SHIPPED (2026-07-29); P4-P6 planned.** This document is the
+> **Status: P0-P4 SHIPPED (2026-07-29); P5-P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -43,6 +43,16 @@
 > TotalMs()`; `CallAcross`/`FederatedCall` crossing timers. Guard:
 > `seams_narrated.ring` (40) + all touched suites re-run green.
 > Narration: `stz-perf-seams-narration.md`.
+>
+> P4 delivered: `base/perf/stzSla.ring` (fluent expectations in the
+> U/R/X/D vocabulary; verdicts = findings in the unified rule shape,
+> subject "perf" -> `stzRuleReport.Ingest()`, the ONE CI gate;
+> AsWarning() advisory tier; NOT-MEASURED = error, never a silent
+> pass; leave-one-out z stability judgment) and
+> `base/perf/stzPerfSentinel.ring` (edge-triggered alerts on verdict
+> transitions; event-bus fanout on perf.breach/perf.clear; bounded
+> AlertLog; agent-host contract). Guard: `judgment_narrated.ring`
+> (41). Narration: `stz-perf-judgment-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -478,7 +488,7 @@ serialization**, chosen per kind:
 | Timings / spans / traces | **OpenTelemetry** span JSON (OTLP vocabulary), W3C `traceparent` ids | P0, shipped: `stzStopwatch.ToOtelSpan()/ToOtelJson()/TraceParent()/JoinTrace()` |
 | Metric streams (counters/gauges/timers) | **Prometheus exposition format** (`/metrics` text) + OTLP metrics JSON | P2, shipped: `stzMetric.PromText()/OtelMetricJson()`, `stzPerfMonitor.Prometheus()/OtelJson()`; P3 widens the server `/health` |
 | Full trace batches | OTLP `resourceSpans` envelope | P3+ exporter (spans batch where requests flow) |
-| SLA verdicts | findings `[ :invariant, :severity, :where, :message ]` -> `stzRuleReport` (the house CI gate) | P4 |
+| SLA verdicts | findings in the unified rule shape `[ :rule, :subject, :where, :severity, :message ]` (subject "perf") -> `stzRuleReport.Ingest()` (the house CI gate) | P4, shipped: `stzSla.CheckAgainst()/Findings()` |
 
 Two commitments that keep the interop honest: absolute time anchors
 cross into JSON as **string nanos built from exact epoch millis** (Ring
@@ -589,9 +599,27 @@ before the next begins.
   pipeline/federation, superapp suites re-run green. Narration:
   `stz-perf-seams-narration.md`. After P3 every crossing in the
   library has a cost, not just a status.
-- **P4 — Judgment.** `stzSla` + alerts (thresholds, outliers, breaker
-  suppression, event-bus fanout, trace-id carrying); findings into
-  `stzRuleReport`; perf budgets become CI-gateable.
+- **P4 — Judgment. SHIPPED 2026-07-29.** `stzSla`: fluent declaration
+  (`Expect(:ResponseTimeP95).Under(200)` — open/close grammar that
+  refuses misuse), 11 well-known subjects resolved against the P3
+  instruments + custom aspects (`ExpectP95/Mean/Value/Rate/Stable`),
+  verdicts carrying measured actuals, breaches emitted in THE unified
+  rule shape (subject "perf") so `stzRuleReport.Ingest()` makes a p95
+  regression fail CI like a security violation; `AsWarning()` for the
+  advisory tier; an unmeasured expectation is an ERROR ("NOT
+  MEASURED") — an SLA that cannot see is broken, not satisfied.
+  Stability = leave-one-out z (including the newest sample in its own
+  baseline caps z at exactly 3.0 for n=10 — the obvious formula can
+  never fire; judged against the PRIOR window instead, z unbounded; a
+  jump off a flat line is infinitely surprising). `stzPerfSentinel`:
+  EDGE-TRIGGERED alerts (fire on pass->breach, once; re-fire only
+  after a genuine clear — the flap suppression that matters, chosen
+  over the breaker), OnBreach/OnClear callbacks, event-bus fanout
+  (process-global channels, so agents can be supervised ON the breach
+  channel), bounded AlertLog, monitor-style pull/tick/hosted trio.
+  Deferred: alerts carrying trip trace-ids (needs per-request trace
+  capture at the seams; lands with cluster-facing work). Guard: 41
+  assertions. Narration: `stz-perf-judgment-narration.md`.
 - **P5 — Understanding.** `stzPerfProfile`: U/R/X/D, both laws with
   self-validation, `Bottleneck()`, trends, `Forecast()`, the R-vs-X
   curve, the narrated `Explain()`.

@@ -454,10 +454,17 @@ ok
 # Ring copies share one truth) + stzPerfMonitor (the sampler: pull /
 # tick / hosted-as-agent; Prometheus exposition + OTLP export).
 
+# P4: judgment -- stzSla (expectations in the U/R/X/D vocabulary;
+# verdicts = findings in the unified rule shape, subject "perf", so a
+# perf budget joins stzRuleReport, the ONE CI gate) + stzPerfSentinel
+# (edge-triggered alerts on a cadence; event-bus fanout; hostable).
+
     load "perf/stzStopwatch.ring"
     load "perf/stzPerfSeries.ring"
     load "perf/stzMetric.ring"
     load "perf/stzPerfMonitor.ring"
+    load "perf/stzSla.ring"
+    load "perf/stzPerfSentinel.ring"
 
 # Loading files related to the FILE module
 
