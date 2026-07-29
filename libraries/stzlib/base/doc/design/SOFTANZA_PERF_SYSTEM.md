@@ -2,11 +2,18 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: PLAN OF RECORD (P0-P6, not yet started).** This document is the
+> **Status: P0 SHIPPED (2026-07-29); P1-P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
 > working tree at the time of writing.
+>
+> P0 delivered: `base/perf/stzStopwatch.ring` (numeric, monotonic,
+> unlimited instances, OTel-span export with W3C trace identity), the
+> engine watch-clock monotonic fix (`engine/src/watch.zig`), the
+> `stzProfiler.ring` fossil retired to `base/archive/system/`.
+> Guard: `base/test/perf/stopwatch_narrated.ring` (35 assertions).
+> Narration: `narrations/stz-honest-stopwatch-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -195,9 +202,12 @@ w = new stzStopwatch()          # starts on birth
 w.Lap()                          # split without stopping
 ```
 
-Scope-oriented: the clock is named in the verb, never a mode —
-`ElapsedMs()` (monotonic, the default), `ElapsedWallMs()` (wall, for
-timestamps), `ElapsedCpuMs()` (process CPU time, once P1 lands). Which
+Scope-oriented: the clock and the unit are named in the verb, never a
+mode — `ElapsedNs()/ElapsedUs()/ElapsedMs()/ElapsedS()` read the
+monotonic engine clock (`ElapsedCpuMs()` joins them once P1 lands).
+Wall time never masquerades as elapsed time: it appears only as the
+*anchors* of the span (`Record()[:startWallMs]`, the OTel
+`startTimeUnixNano`), where absolute placement is the point. Which
 clock you are reading is visible at the call site.
 
 ### 5.2 `stzMetric` — one named stream of measurements (P2)
@@ -426,7 +436,30 @@ rehearsed with the delivery:
   CI gate — so a perf regression fails the build with the same shape
   and the same reporting as a security or governance violation.
 
-## 12. Overhead discipline
+## 12. Interop: perf data speaks the industry's formats
+
+A performance system that can only talk to itself is a silo. Softanza
+apps must be able to hand their perf data to -- and receive it from --
+the tooling the rest of the world already runs. The rule: **every perf
+object has a Softanza-native record shape (hashlist) AND an industry
+serialization**, chosen per kind:
+
+| Perf data | Industry format | Where |
+|---|---|---|
+| Timings / spans / traces | **OpenTelemetry** span JSON (OTLP vocabulary), W3C `traceparent` ids | P0, shipped: `stzStopwatch.ToOtelSpan()/ToOtelJson()/TraceParent()/JoinTrace()` |
+| Metric streams (counters/gauges/timers) | **Prometheus exposition format** (`/metrics` text) + OTLP metrics JSON | P2 (`stzMetric`), P3 widens the server `/health` |
+| Full trace batches | OTLP `resourceSpans` envelope | P2 exporter |
+| SLA verdicts | findings `[ :invariant, :severity, :where, :message ]` -> `stzRuleReport` (the house CI gate) | P4 |
+
+Two commitments that keep the interop honest: absolute time anchors
+cross into JSON as **string nanos built from exact epoch millis** (Ring
+numbers are f64; epoch nanos overflow 2^53 -- the exact ns duration
+rides as an attribute where it fits), and trace identity is **real W3C**
+(engine `tracectx`), so a Softanza span dropped into Jaeger/Tempo/
+Datadog correlates with spans from any other instrumented service --
+in and out.
+
+## 13. Overhead discipline
 
 A perf system that cannot state its own cost is not industry-strength.
 
@@ -441,16 +474,27 @@ A perf system that cannot state its own cost is not industry-strength.
   precedent's bounded trace ring), so a monitor left on for a month
   costs the same memory as one left on for an hour.
 
-## 13. Plan of record (P0-P6)
+## 14. Plan of record (P0-P6)
 
 Each phase ships the house triple: design section (this doc, updated) +
 runnable narration (`narrations/stz-perf-*-narration.md`, every output
 real) + narrated guard (`test/perf/perf_narrated`), and lands green
 before the next begins.
 
-- **P0 — The honest stopwatch.** `stzStopwatch` (numeric, monotonic,
-  nesting) over `watch.zig`; scope-named elapsed verbs; retire the
-  `stzProfiler.ring` fossil; keep `pr()/pf()` as console sugar.
+- **P0 — The honest stopwatch. SHIPPED 2026-07-29.** `stzStopwatch`
+  (numeric, monotonic, unlimited instances) in `base/perf/`;
+  scope-named elapsed verbs; laps, pause/resume/stop; `Record()` +
+  OTel span export with W3C trace identity (section 12); the
+  `stzProfiler.ring` fossil retired to `base/archive/system/`;
+  `pr()/pf()` kept as console sugar. Bonus engine fix found during
+  implementation: `watch.zig`'s clock was wall-based
+  (`nanoTimestamp()`) despite its header claiming monotonic — it now
+  carries the same `Instant` baseline as the process-uptime fix, and
+  the guard pins the property. State lives in the object (two clock
+  reads + a sum), NOT the engine's 64-slot watch table — unlimited
+  instances, nothing to Destroy(); the slot table stays as the C-ABI
+  face for other hosts. Guard: `stopwatch_narrated.ring`, 35
+  assertions green.
 - **P1 — The engine senses.** `perf.zig`: RSS/peak, system mem
   total/free, process CPU time, series ring buffer + queries. Fill
   `stzSystemProfile.Resources()`. *(The one phase that is pure new
@@ -481,7 +525,7 @@ not exact values); the P3 request bracket sits on a re-entrancy-
 sensitive path (respect the snapshot-to-locals idiom); and every phase's
 guard must time the *interleaved* pattern, not the batch one.
 
-## 14. Naming notes
+## 15. Naming notes
 
 - The name `stzPerf` appears once in the corpus — a sketch inside the
   `stzExterLib` narration meaning "C-powered speedups" (parallel sort
