@@ -1714,9 +1714,11 @@ pub fn acscGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: [
     return arcReciprocal(alloc, data, n, out, false, true);
 }
 
-/// asech(A) = acosh(A^-1). THE NARROWEST FUNCTION IN THIS FILE. acosh wants |L| >= 1, so
-/// through the inverse asech wants |L| <= 1 -- and the inverse itself wants L != 0. It is
-/// squeezed from both sides: small enough to be inside the unit interval, and never zero.
+/// asech(A) = acosh(A^-1). THE NARROWEST FUNCTION IN THIS FILE. acosh's real domain is the
+/// ray [1, inf) -- positive AND at least one, not merely |L| >= 1 -- so through the
+/// inverse asech wants 0 < L <= 1: inside the unit interval, AND positive. A negative
+/// eigenvalue in (-1, 0) is refused, because acosh(1/L) with 1/L <= -1 walks straight
+/// into the log's left-ray wall. Squeezed on every side, and the tightest domain here.
 pub fn asechGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
     return arcReciprocal(alloc, data, n, out, true, false);
 }
@@ -1986,12 +1988,17 @@ pub fn asinhGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: 
 
 /// THE HYPERBOLIC ARCCOSINE: log( A + sqrt(A^2 - I) ).
 ///
-/// The MINUS is the whole difference from the arcsine above, and it inverts the domain.
-/// A^2 - I gives L^2 - 1, which is negative exactly when |L| is BELOW one -- so where
-/// acos wants its eigenvalues inside [-1, 1], acosh wants them outside.
+/// The MINUS is the whole difference from the arcsine above, and it inverts the domain --
+/// but NOT into a mirror image, which is the part easy to get wrong. There are TWO gates.
+/// A^2 - I gives L^2 - 1, so the square root needs |L| >= 1, the opposite of the
+/// arcsine's |L| <= 1. THEN the log needs L + sqrt(L^2 - 1) > 0, and for L <= -1 that sum
+/// is NEGATIVE -- so the log throws the left ray away.
 ///
-/// Two functions one character apart in the source, refusing opposite halves of the real
-/// line. Both refusals are pinned, in both directions.
+/// Only the intersection of the two gates survives: acos owns the open interval (-1, 1),
+/// acosh owns the RAY [1, inf) -- not the two-sided outside. The minus inverts the
+/// magnitude test; the log then keeps only the positive side. Pinned in both directions,
+/// and the negative ray -- easy to assume acosh accepts, since |L| >= 1 there, and it
+/// does not -- pinned with them.
 pub fn acoshGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
     if (n == 0) return;
     const sq = try alloc.alloc(f64, n * n);
@@ -3509,14 +3516,20 @@ test "AN EIGENVALUE PAST 1 HAS NO REAL ARCSINE, and none past the OTHER side for
     try asinGeneral(alloc, &small, n, out);
     try testing.expectApproxEqAbs(std.math.asin(@as(f64, 0.5)), out[0], 1e-10);
 
-    // acosh: A^2 - I gives L^2 - 1, negative once |L| falls BELOW one. THE OPPOSITE
-    // HALF OF THE LINE -- two functions one character apart in the source, refusing
-    // mirror-image domains.
+    // acosh has TWO gates, and they are NOT a mirror of acos. The square root of A^2 - I
+    // needs |L| >= 1, so the inside is refused...
     try testing.expectError(FunError.NoRealResult, acoshGeneral(alloc, &small, n, out));
     const outside = [_]f64{ 2, 0, 0, 3 };
     try acoshGeneral(alloc, &outside, n, out);
     try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 2)), out[0], 1e-9);
     try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 3)), out[3], 1e-9);
+
+    // ...but then the log needs L + sqrt(L^2 - 1) > 0, and for L <= -1 that sum is
+    // negative. SO THE NEGATIVE RAY IS REFUSED TOO, even though |L| >= 1 all along it.
+    // acos owns (-1, 1); acosh owns [1, inf), not the two-sided outside. Easy to assume
+    // the mirror and wrong -- so it is pinned here, which no earlier test did.
+    const left = [_]f64{ -2, 0, 0, -3 };
+    try testing.expectError(FunError.NoRealResult, acoshGeneral(alloc, &left, n, out));
 }
 
 test "THE HYPERBOLIC ARCSINE REFUSES NOTHING on a real spectrum" {
@@ -4147,14 +4160,20 @@ test "asech is the narrowest of these, and acsch the widest" {
     const out = try alloc.alloc(f64, n * n);
     defer alloc.free(out);
 
-    // acosh wants |L| >= 1, so through the inverse asech wants |L| <= 1 -- and the
-    // inverse itself wants L != 0. SQUEEZED FROM BOTH SIDES.
+    // acosh's domain is the ray [1, inf), so through the inverse asech wants 0 < L <= 1:
+    // POSITIVE and inside the unit interval. Squeezed on every side.
     const inside = [_]f64{ 0.5, 0, 0, 0.25 };
     try asechGeneral(alloc, &inside, n, out);
     try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 1.0 / 0.5)), out[0], 1e-9);
 
     const outside = [_]f64{ 2.0, 0, 0, 3.0 };
     try testing.expectError(FunError.NoRealResult, asechGeneral(alloc, &outside, n, out));
+
+    // AND A NEGATIVE EIGENVALUE INSIDE THE UNIT INTERVAL IS REFUSED, though |L| < 1 would
+    // suggest otherwise: 1/(-0.5) = -2 is on acosh's forbidden left ray. Not |L| <= 1;
+    // the domain is one-sided.
+    const neg_inside = [_]f64{ -0.5, 0, 0, 0.25 };
+    try testing.expectError(FunError.NoRealResult, asechGeneral(alloc, &neg_inside, n, out));
 
     // asinh has no branch point on the real line, so the ONLY thing acsch refuses is a
     // singular matrix -- it takes both of the matrices above
@@ -4170,6 +4189,50 @@ test "asech is the narrowest of these, and acsch the widest" {
     try testing.expectError(FunError.Singular, acscGeneral(alloc, &singular, n, out));
     try testing.expectError(FunError.Singular, asechGeneral(alloc, &singular, n, out));
     try testing.expectError(FunError.Singular, acschGeneral(alloc, &singular, n, out));
+}
+
+test "csch(acsch(A)) round-trips on both signs; sech(asech(A)) only on the positive" {
+    const alloc = testing.allocator;
+    const n = 2;
+
+    // sech(asech(A)) = A on a POSITIVE spectrum in (0, 1], which is all asech has. The
+    // round trip is a stronger check than the entrywise value above: it runs the full
+    // sech(acosh(inverse(.))) composition on a non-diagonal matrix and asks for A back.
+    const pos = [_]f64{ 0.5, 0.1, 0, 0.25 };
+    const asech_a = try alloc.alloc(f64, n * n);
+    defer alloc.free(asech_a);
+    try asechGeneral(alloc, &pos, n, asech_a);
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try sechGeneral(alloc, asech_a, n, back);
+    for (pos, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+
+    // csch(acsch(A)) = A on a matrix that STRADDLES ZERO -- eigenvalues 2 and -3, both
+    // signs at once. This is the asymmetry the round trip exists to show: acsch is
+    // asinh(A^-1), asinh is ODD, and csch is odd, so the negative eigenvalue round-trips
+    // exactly as cleanly as the positive one.
+    const mix = [_]f64{ 2.0, 0.3, 0, -3.0 };
+    const acsch_a = try alloc.alloc(f64, n * n);
+    defer alloc.free(acsch_a);
+    try acschGeneral(alloc, &mix, n, acsch_a);
+    try cschGeneral(alloc, acsch_a, n, back);
+    for (mix, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+
+    // and asech CANNOT take that same negative eigenvalue -- acosh, built on the log,
+    // keeps only its principal non-negative branch, so asech is blind to the left half of
+    // the line that acsch handles without a blink. ONE ROUND TRIP LIVES ON A RAY, THE
+    // OTHER ON THE WHOLE PUNCTURED LINE, and that is the whole content of the question.
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try testing.expectError(FunError.NoRealResult, asechGeneral(alloc, &mix, n, out));
+
+    // a last boundary contrast: asech TAKES an eigenvalue at exactly 1 (asech(1) = 0,
+    // through acosh's forward sqrt of zero), where the circular arcsecant of last commit
+    // REFUSED |L| = 1 -- because acos uses an inverse square root that dies there and
+    // acosh a forward one that does not. Same reciprocal shape, different boundary.
+    const at_one = [_]f64{ 1.0, 0, 0, 0.5 };
+    try asechGeneral(alloc, &at_one, n, out);
+    try testing.expectError(FunError.NoRealResult, asecGeneral(alloc, &at_one, n, out));
 }
 
 test "a diagonal arcsecant goes entrywise" {
