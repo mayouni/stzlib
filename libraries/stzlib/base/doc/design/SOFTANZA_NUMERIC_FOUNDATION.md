@@ -3057,6 +3057,49 @@ what it refused.
   refused *less*. This is the first place the order reverses, and both directions are
   pinned.
 
+- **THE MATRIX ARCSECANT AND ARCCOSECANT (`2b3561696`)** — *which invert a domain.*
+
+  > `asec = acos(A⁻¹)` · `acsc = asin(A⁻¹)` · `asech = acosh(A⁻¹)` · `acsch = asinh(A⁻¹)`
+
+  **These invert the domain of the arcsine and arccosine.** `asin`/`acos` want every
+  eigenvalue **inside** the unit interval, because that is where the scalar functions are
+  real; going through `A⁻¹` turns the condition inside out, so `asec`/`acsc` want every one
+  **outside** it. A matrix with an eigenvalue at 2 has an arcsecant and no arcsine; one
+  with an eigenvalue at 0.5 has an arcsine and no arcsecant. Both directions pinned.
+
+  ***And the boundary belongs to neither.*** The domains are complements, so they ought to
+  meet on the unit circle. **They do not** — and the test that assumed they did is what
+  found it. `asin` is built on `(I − A²)^(−1/2)`, and at `|λ| = 1` that inverts a zero
+  matrix, so the arcsine dies exactly at the endpoint; the arcsecant dies there too, since
+  `A⁻¹` carries the same eigenvalue into the same wall. `asin(1) = π/2` and `asec(1) = 0`
+  are perfectly ordinary scalars — this is the **route's** boundary, not the function's. A
+  gap of measure zero between two domains that otherwise tile the line, stated rather than
+  papered over.
+
+  ***And the route that avoids the inverse is a different function.***
+  `asec(x) = atan(√(x²−1))` needs no inverse at all, and is right for positive x and
+  wrong for negative x because the square root discards the sign. **Note what kind of
+  wrong** — and it completes a three-commit escalation:
+
+  | | the two routes differ by |
+  |---|---|
+  | `MatrixCot()` | nothing; same values, **different domain** |
+  | `MatrixAcot()` | **exactly π** — a constant, the same function on another branch |
+  | `MatrixAsec()` | **1.4595, 1.0472, 0.6797** at `−1.5, −2, −3` — it *varies* |
+
+  because the true relation `asec(−x) = π − asec(x)` is a **reflection**, and no constant
+  offset repairs a reflection. The cheap route is not another branch of this function; it
+  is a different function that agrees on half the line.
+
+  So the inverse is taken, and **all four refuse a singular matrix** — for once there is no
+  wide partner to contrast with. `MatrixAsech()` is the narrowest thing in the file (it
+  wants `|λ| < 1` **and** invertibility, squeezed from both sides) while `MatrixAcsch()` is
+  the widest, refusing nothing but singularity.
+
+  A test of mine also conflated two refusals the engine keeps apart: **a domain failure is
+  `NoRealResult`, not `Singular`.** The matrix is perfectly invertible there; it is the
+  *answer* that does not exist.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
