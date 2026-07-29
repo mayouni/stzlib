@@ -713,6 +713,78 @@ Scenario("...and the hyperbolic tangent fails in a place a real spectrum cannot 
 	     fabs(oBig.MatrixTanh()[1][1] - 0.9999092042625951) < 0.0000001, TRUE)
 EndScenario()
 
+Scenario("THE MATRIX ARCTANGENT -- the first inverse, and it needed a different idea")
+	# Everything before it had either a series that converges after scaling (MatrixExp,
+	# MatrixSin, MatrixCos) or a decomposition handing the answer over block by block
+	# (GeneralSquareRoot). The arctangent has neither: its Taylor series converges only
+	# for ||X|| < 1, and there is no doubling recurrence to climb back with.
+	#
+	# What it has is a HALVING one -- the half-angle formula read backwards:
+	#
+	#     atan(A) = 2 * atan( A * (I + sqrt(I + A^2))^-1 )
+	#
+	# Apply it until the argument is small, take the series there, multiply by 2^k on
+	# the way out. So the scaling is done by the identity itself, and each step costs a
+	# MATRIX SQUARE ROOT -- another layer on the same construction.
+	aA = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5], [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]
+	oA = new stzMatrix(aA)
+	oAt = new stzMatrix(oA.MatrixAtan())
+
+	# THE DEFINING IDENTITY, and the two sides share nothing: the arctangent halves
+	# through matrix square roots and a Taylor series, the tangent is a scaled sine over
+	# a scaled cosine with an LU inverse.
+	Then("tan(atan(A)) is A", SameMat(oAt.MatrixTan(), aA), TRUE)
+
+	# atan(N) = N - N^3/3 + ... and N^3 is already zero, so the answer is N itself --
+	# exact, and it exercises the halving recurrence rather than short-circuiting it,
+	# since the norm starts at 1
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("...and a nilpotent matrix gives back itself, exactly",
+	     SameMat(oNil.MatrixAtan(), aNil), TRUE)
+EndScenario()
+
+Scenario("...and what it refuses is the BRANCH POINT, not a limitation")
+	# sqrt(I + A^2) needs I + A^2 to have no negative real eigenvalue. A real eigenvalue
+	# L gives 1 + L^2, comfortably positive; a PURELY IMAGINARY one i*b gives 1 - b^2,
+	# which turns negative once |b| passes one.
+	#
+	# That is the mathematics rather than the method. atan has branch points at exactly
+	# +i and -i, so a matrix with an eigenvalue on the imaginary axis beyond them has no
+	# principal arctangent to return.
+	aBeyond = [ [0,-2], [2,0] ]      # eigenvalues +/- 2i
+	oBeyond = new stzMatrix(aBeyond)
+	Then("an eigenvalue past i has no principal arctangent",
+	     RefusesAtan(aBeyond), TRUE)
+
+	aWithin = [ [0,-0.5], [0.5,0] ]  # eigenvalues +/- 0.5i
+	Then("...while one inside is answered", RefusesAtan(aWithin), FALSE)
+	Then("...and the message names the branch points",
+	     StzFindFirst("BRANCH POINTS", WhyNoAtan(aBeyond)) > 0, TRUE)
+EndScenario()
+
+Scenario("...and the hyperbolic twin needed no new idea, which is the asymmetry")
+	# (1/2)[ log(I + A) - log(I - A) ] -- a closed form in the logarithm, which was
+	# already here. Two logs and a subtraction.
+	#
+	# THE TWO FAMILIES HAVE MATCHED EACH OTHER LINE FOR LINE all the way up: sin against
+	# sinh, cos against cosh, tan against tanh, each differing by one sign. AT THE
+	# INVERSE THEY STOP -- atanh has a real closed form and atan does not, because the
+	# logarithm expressing atan wants complex arguments and the one expressing atanh
+	# does not.
+	aSmall = [ [0.30,0.20,-0.10,0.05], [0.00,0.25,0.15,0.10],
+		   [-0.10,0.00,0.20,0.15], [0.05,-0.10,0.00,0.30] ]
+	oSmall = new stzMatrix(aSmall)
+	oAh = new stzMatrix(oSmall.MatrixAtanh())
+	Then("tanh(atanh(A)) is A", SameMat(oAh.MatrixTanh(), aSmall), TRUE)
+
+	# and it runs to infinity at 1, exactly as atanh(1) does -- refused rather than
+	# returned as a huge number that looks like an answer
+	Then("an eigenvalue of 1 is refused", RefusesAtanh([ [1,0], [0,0.5] ]), TRUE)
+	Then("...and so is -1", RefusesAtanh([ [-1,0], [0,0.5] ]), TRUE)
+EndScenario()
+
+
 
 
 
@@ -994,3 +1066,33 @@ func WhyNoTan()
 		_wtS_ = cCatchError
 	done
 	return _wtS_
+
+func RefusesAtan(aX)
+	_raB_ = FALSE
+	try
+		_raO_ = new stzMatrix(aX)
+		_raO_.MatrixAtan()
+	catch
+		_raB_ = TRUE
+	done
+	return _raB_
+
+func WhyNoAtan(aX)
+	_waS_ = ""
+	try
+		_waO_ = new stzMatrix(aX)
+		_waO_.MatrixAtan()
+	catch
+		_waS_ = cCatchError
+	done
+	return _waS_
+
+func RefusesAtanh(aX)
+	_rhB_ = FALSE
+	try
+		_rhO_ = new stzMatrix(aX)
+		_rhO_.MatrixAtanh()
+	catch
+		_rhB_ = TRUE
+	done
+	return _rhB_

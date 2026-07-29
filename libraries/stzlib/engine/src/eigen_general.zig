@@ -1641,6 +1641,133 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX ARCTANGENT.
+///
+/// ── THE FIRST INVERSE HERE, AND IT NEEDED A DIFFERENT IDEA ──
+///
+/// Everything before this had either a series that converges after scaling (exp, sin,
+/// cos) or a decomposition that hands the answer over block by block (sqrt). The
+/// arctangent has neither: its Taylor series only converges for ||X|| < 1, and there is
+/// no doubling recurrence to climb back with.
+///
+/// What it has is a HALVING one:
+///
+///     atan(A) = 2 * atan( A * (I + sqrt(I + A^2))^-1 )
+///
+/// which is the half-angle formula for the tangent, read backwards. Apply it until the
+/// argument is small, take the series there, and multiply by 2^k on the way out. So the
+/// scaling is done by the identity itself rather than by dividing, and each step costs
+/// a MATRIX SQUARE ROOT -- the Schur-based one, another layer on the same construction.
+///
+/// ── WHAT IT REFUSES, AND WHY IT IS THE BRANCH POINT ──
+///
+/// sqrt(I + A^2) needs I + A^2 to have no negative real eigenvalue. For a real
+/// eigenvalue L that quantity is 1 + L^2, comfortably positive; for a PURELY IMAGINARY
+/// eigenvalue i*b it is 1 - b^2, which turns negative once |b| exceeds one.
+///
+/// That is not an artefact of the method. The arctangent has branch points at exactly
+/// +i and -i, so a matrix with an eigenvalue on the imaginary axis beyond them has no
+/// principal arctangent to return. The refusal arrives from sqrtGeneral, where the
+/// constraint lives, and it means what it says.
+pub fn atanGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+
+    const x = try alloc.alloc(f64, n * n);
+    defer alloc.free(x);
+    @memcpy(x, data);
+    const sq = try alloc.alloc(f64, n * n);
+    defer alloc.free(sq);
+    const rt = try alloc.alloc(f64, n * n);
+    defer alloc.free(rt);
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    const tmp = try alloc.alloc(f64, n * n);
+    defer alloc.free(tmp);
+
+    var k: usize = 0;
+    while (k < 40) : (k += 1) {
+        var norm: f64 = 0;
+        for (0..n) |i| {
+            var row: f64 = 0;
+            for (0..n) |j| row += @abs(x[i * n + j]);
+            norm = @max(norm, row);
+        }
+        if (norm < 0.25) break;
+
+        // X <- X (I + sqrt(I + X^2))^-1
+        matMul(x, x, n, sq);
+        for (0..n) |i| sq[i * n + i] += 1;
+        try sqrtGeneral(alloc, sq, n, rt);
+        for (0..n) |i| rt[i * n + i] += 1;
+        if (!try linalg.luInverse(alloc, rt, n, inv)) return FunError.Singular;
+        matMul(x, inv, n, tmp);
+        @memcpy(x, tmp);
+    }
+
+    // atan(X) = X - X^3/3 + X^5/5 - ..., which at ||X|| <= 0.25 is past rounding by
+    // the fifteenth odd power
+    const x2 = try alloc.alloc(f64, n * n);
+    defer alloc.free(x2);
+    matMul(x, x, n, x2);
+    const term = try alloc.alloc(f64, n * n);
+    defer alloc.free(term);
+    @memcpy(term, x);
+    @memset(out, 0);
+
+    var odd: usize = 1;
+    while (odd <= 31) : (odd += 2) {
+        const sign: f64 = if ((odd / 2) % 2 == 0) 1 else -1;
+        const c = sign / @as(f64, @floatFromInt(odd));
+        for (0..n * n) |i| out[i] += c * term[i];
+        matMul(term, x2, n, tmp);
+        @memcpy(term, tmp);
+    }
+
+    const factor = std.math.pow(f64, 2, @floatFromInt(k));
+    for (0..n * n) |i| out[i] *= factor;
+}
+
+/// THE HYPERBOLIC ARCTANGENT: (1/2) [ log(I + A) - log(I - A) ].
+///
+/// ── AND THIS ONE NEEDED NO NEW IDEA AT ALL ──
+///
+/// Where the circular arctangent had to invent a halving recurrence, its hyperbolic
+/// twin is a closed form in the logarithm, which is already here. Two logs and a
+/// subtraction.
+///
+/// The asymmetry is worth noticing rather than glossing: the two families have matched
+/// each other line for line all the way up -- sin against sinh, cos against cosh, tan
+/// against tanh, each differing by one sign -- and at the inverse they stop. atanh has
+/// a real closed form and atan does not, because the logarithm that expresses atan
+/// wants complex arguments and the one that expresses atanh does not.
+///
+/// Refused when I - A or I + A is singular: those are the points where atanh runs to
+/// infinity, exactly as atanh(1) does.
+pub fn atanhGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    if (n == 0) return;
+    const plus = try alloc.alloc(f64, n * n);
+    defer alloc.free(plus);
+    const minus = try alloc.alloc(f64, n * n);
+    defer alloc.free(minus);
+    for (0..n * n) |i| {
+        plus[i] = data[i];
+        minus[i] = -data[i];
+    }
+    for (0..n) |i| {
+        plus[i * n + i] += 1;
+        minus[i * n + i] += 1;
+    }
+
+    const lp = try alloc.alloc(f64, n * n);
+    defer alloc.free(lp);
+    const lm = try alloc.alloc(f64, n * n);
+    defer alloc.free(lm);
+    try logGeneral(alloc, plus, n, lp);
+    try logGeneral(alloc, minus, n, lm);
+
+    for (0..n * n) |i| out[i] = 0.5 * (lp[i] - lm[i]);
+}
+
 /// THE MATRIX TANGENT: sin(A) * cos(A)^-1.
 ///
 /// ── AND THE SIDE DOES NOT MATTER, WHICH IS NOT OBVIOUS ──
@@ -2778,4 +2905,138 @@ test "THE HYPERBOLIC TANGENT, and where it can and cannot fail" {
     try tanhGeneral(alloc, &big, n, th);
     try testing.expectApproxEqAbs(std.math.tanh(@as(f64, 5)), th[0], 1e-10);
     try testing.expectApproxEqAbs(std.math.tanh(@as(f64, -3)), th[5], 1e-10);
+}
+
+test "tan(atan(A)) = A, across two unrelated constructions" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.9, 1.4, -0.3, 0.2,
+        0.0, 0.6,  1.1, 0.5,
+        -0.7, 0.1, 0.8, 1.0,
+        0.3, -0.5, 0.0, 1.2,
+    };
+    const at = try alloc.alloc(f64, n * n);
+    defer alloc.free(at);
+    try atanGeneral(alloc, &a, n, at);
+
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try tanGeneral(alloc, at, n, back);
+
+    // THE DEFINING IDENTITY, and the two sides share nothing. The arctangent halves
+    // through matrix square roots and a Taylor series; the tangent is a scaled sine
+    // over a scaled cosine with an LU inverse. Agreeing is a statement about the
+    // mathematics rather than about one routine cancelling itself.
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+}
+
+test "atan(0) = 0, a diagonal goes entrywise, and it is odd" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const zero = [_]f64{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    try atanGeneral(alloc, &zero, n, out);
+    for (out) |v| try testing.expectApproxEqAbs(@as(f64, 0), v, 1e-14);
+
+    const diag = [_]f64{ 0.7, 0, 0, 0, -1.1, 0, 0, 0, 3.0 };
+    try atanGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(std.math.atan(@as(f64, 0.7)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.atan(@as(f64, -1.1)), out[4], 1e-10);
+    try testing.expectApproxEqAbs(std.math.atan(@as(f64, 3.0)), out[8], 1e-10);
+
+    var neg: [9]f64 = undefined;
+    for (diag, 0..) |v, i| neg[i] = -v;
+    const other = try alloc.alloc(f64, n * n);
+    defer alloc.free(other);
+    try atanGeneral(alloc, &neg, n, other);
+    for (out, other) |x, y| try testing.expectApproxEqAbs(x, -y, 1e-10);
+}
+
+test "A NILPOTENT MATRIX gives an exact arctangent" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const nil = [_]f64{ 0, 1, 0, 0, 0, 1, 0, 0, 0 }; // N^3 = 0
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+    try atanGeneral(alloc, &nil, n, out);
+
+    // atan(N) = N - N^3/3 + ... and N^3 is already zero, so the answer is N itself.
+    // Exact, and it exercises the halving recurrence rather than short-circuiting it:
+    // the norm starts at 1, so the identity is applied before the series ever runs.
+    for (nil, out) |x, y| try testing.expectApproxEqAbs(x, y, 1e-12);
+}
+
+test "AN EIGENVALUE PAST i IS THE BRANCH POINT, and it is refused" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // eigenvalues +/- 2i, so I + A^2 has eigenvalues 1 - 4 = -3 and the square root
+    // inside the halving identity has no real answer.
+    //
+    // NOT AN ARTEFACT OF THE METHOD. atan has branch points at exactly +i and -i, so a
+    // matrix with an eigenvalue on the imaginary axis beyond them has no principal
+    // arctangent to return. The refusal means what it says.
+    const beyond = [_]f64{ 0, -2, 2, 0 };
+    try testing.expectError(FunError.NoRealResult, atanGeneral(alloc, &beyond, n, out));
+
+    // and INSIDE the branch points it is fine: eigenvalues +/- 0.5i give 1 - 0.25
+    const within = [_]f64{ 0, -0.5, 0.5, 0 };
+    try atanGeneral(alloc, &within, n, out);
+    for (out) |v| try testing.expect(!std.math.isNan(v));
+}
+
+test "THE HYPERBOLIC ARCTANGENT needed no new idea, and the asymmetry is the point" {
+    const alloc = testing.allocator;
+    const n = 4;
+    const a = [_]f64{
+        0.30,  0.20, -0.10, 0.05,
+        0.00,  0.25,  0.15, 0.10,
+        -0.10, 0.00,  0.20, 0.15,
+        0.05, -0.10,  0.00, 0.30,
+    };
+    const ah = try alloc.alloc(f64, n * n);
+    defer alloc.free(ah);
+    try atanhGeneral(alloc, &a, n, ah);
+
+    // tanh(atanh(A)) = A. The hyperbolic arctangent is two logarithms and a
+    // subtraction -- a closed form -- while the circular one had to invent a halving
+    // recurrence built on matrix square roots.
+    //
+    // The two families have matched each other line for line all the way up: sin
+    // against sinh, cos against cosh, tan against tanh, each differing by one sign. At
+    // the INVERSE they stop, because the logarithm that expresses atanh takes real
+    // arguments and the one that expresses atan does not.
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try tanhGeneral(alloc, ah, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-8);
+
+    // a diagonal goes entrywise here too
+    const diag = [_]f64{ 0.5, 0, 0, 0, -0.25, 0, 0, 0, 0.75 };
+    const d3 = try alloc.alloc(f64, 9);
+    defer alloc.free(d3);
+    try atanhGeneral(alloc, &diag, 3, d3);
+    try testing.expectApproxEqAbs(std.math.atanh(@as(f64, 0.5)), d3[0], 1e-9);
+    try testing.expectApproxEqAbs(std.math.atanh(@as(f64, -0.25)), d3[4], 1e-9);
+    try testing.expectApproxEqAbs(std.math.atanh(@as(f64, 0.75)), d3[8], 1e-9);
+}
+
+test "atanh runs to infinity at 1, and says so" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // I - A is singular exactly at an eigenvalue of 1, which is where atanh(1) is
+    // infinite. Refused rather than returned as a huge number that looks like an answer.
+    const one = [_]f64{ 1, 0, 0, 0.5 };
+    try testing.expectError(FunError.Singular, atanhGeneral(alloc, &one, n, out));
+
+    const minus_one = [_]f64{ -1, 0, 0, 0.5 };
+    try testing.expectError(FunError.Singular, atanhGeneral(alloc, &minus_one, n, out));
 }

@@ -2514,6 +2514,85 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX ARCTANGENT.
+	#
+	# -- THE FIRST INVERSE HERE, AND IT NEEDED A DIFFERENT IDEA --
+	#
+	# Everything before it had either a series that converges after scaling (MatrixExp,
+	# MatrixSin, MatrixCos) or a decomposition that hands the answer over block by block
+	# (GeneralSquareRoot). The arctangent has neither: its Taylor series converges only
+	# for ||X|| < 1, and there is no doubling recurrence to climb back with.
+	#
+	# What it has is a HALVING one:
+	#
+	#     atan(A) = 2 * atan( A * (I + sqrt(I + A^2))^-1 )
+	#
+	# the half-angle formula for the tangent read backwards. Apply it until the argument
+	# is small, take the series there, multiply by 2^k on the way out. So the scaling is
+	# done by the identity itself rather than by dividing -- and each step costs a
+	# MATRIX SQUARE ROOT, another layer on the same construction.
+	#
+	# -- WHAT IT REFUSES IS THE BRANCH POINT, NOT A LIMITATION --
+	#
+	# sqrt(I + A^2) needs I + A^2 to have no negative real eigenvalue. A real eigenvalue
+	# L gives 1 + L^2, comfortably positive; a PURELY IMAGINARY one i*b gives 1 - b^2,
+	# which turns negative once |b| passes one.
+	#
+	# That is the mathematics. atan has branch points at exactly +i and -i, so a matrix
+	# with an eigenvalue on the imaginary axis beyond them has no principal arctangent.
+	def MatrixAtan()
+		return This._ArcTangent("atan")
+
+		def MatrixAtanQ()
+			return new stzMatrix(This.MatrixAtan())
+
+	# THE HYPERBOLIC ARCTANGENT: (1/2) [ MatrixLog(I + A) - MatrixLog(I - A) ].
+	#
+	# -- AND THIS ONE NEEDED NO NEW IDEA AT ALL --
+	#
+	# Where the circular arctangent had to invent a halving recurrence, its hyperbolic
+	# twin is a closed form in the logarithm, which was already here. Two logs and a
+	# subtraction.
+	#
+	# THE ASYMMETRY IS WORTH NOTICING rather than glossing. The two families have
+	# matched each other line for line all the way up -- MatrixSin against MatrixSinh,
+	# MatrixCos against MatrixCosh, MatrixTan against MatrixTanh, each differing by one
+	# sign -- and at the inverse they stop. atanh has a real closed form and atan does
+	# not, because the logarithm expressing atan wants complex arguments and the one
+	# expressing atanh does not.
+	#
+	# Refused at an eigenvalue of +/- 1, where atanh runs to infinity exactly as
+	# atanh(1) does.
+	def MatrixAtanh()
+		return This._ArcTangent("atanh")
+
+		def MatrixAtanhQ()
+			return new stzMatrix(This.MatrixAtanh())
+
+	def _ArcTangent(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixAtan/MatrixAtanh: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "atan"
+			_pAtV_ = StzEngineMatrixAtan(@pEngineMatrix)
+		else
+			_pAtV_ = StzEngineMatrixAtanh(@pEngineMatrix)
+		ok
+		if _pAtV_ = NULL
+			StzRaise("MatrixAtan/MatrixAtanh: refused. For the circular arctangent " +
+				"that means an eigenvalue on the imaginary axis beyond +/- i, which " +
+				"are its BRANCH POINTS -- there is no principal value there. For the " +
+				"hyperbolic one it means an eigenvalue of +/- 1, where atanh runs to " +
+				"infinity exactly as atanh(1) does.")
+		ok
+		_aAtV_ = This._MatrixFromHandle(_pAtV_)
+		StzEngineMatrixFree(_pAtV_)
+		return _aAtV_
+
 	# THE MATRIX TANGENT: MatrixSin() * MatrixCos()^-1.
 	#
 	# -- AND THE SIDE DOES NOT MATTER, WHICH IS NOT OBVIOUS --

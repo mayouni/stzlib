@@ -1,13 +1,36 @@
 const std = @import("std");
 
-// ── Stopwatch (nanosecond precision) ─────────────────────────
+// ── Stopwatch (nanosecond precision, MONOTONIC) ──────────────
+//
+// now() used to be std.time.nanoTimestamp() -- wall-clock UTC, which
+// jumps on NTP corrections, so a stopwatch spanning a clock adjustment
+// could report negative or wildly wrong elapsed time. Same defect the
+// process-uptime fix removed (process.zig). The clock is now a
+// monotonic std.time.Instant against a baseline captured at DLL load
+// (watch_init, called from the bridge's registerAll), with a lazy
+// fallback on first use. Consequence: watch_timestamp_ns/ms are
+// monotonic nanos/millis SINCE MODULE LOAD, not since the Unix epoch
+// -- the right semantics for a duration clock, and f64-exact at ns
+// for ~104 days (Ring numbers are doubles). Wall time for absolute
+// timestamps lives in time.zig (stz_time_wall_*).
 
 var watches: [64]i128 = [_]i128{0} ** 64;
 var watch_running: [64]bool = [_]bool{false} ** 64;
 var watch_elapsed: [64]i128 = [_]i128{0} ** 64;
 
+var g_base: ?std.time.Instant = null;
+
+pub fn watch_init() callconv(.c) void {
+    g_base = std.time.Instant.now() catch null;
+}
+
 fn now() i128 {
-    return std.time.nanoTimestamp();
+    if (g_base == null) {
+        g_base = std.time.Instant.now() catch return 0;
+    }
+    const base = g_base orelse return 0;
+    const t = std.time.Instant.now() catch return 0;
+    return @intCast(t.since(base));
 }
 
 pub fn watch_start(id: u32) callconv(.c) i32 {
@@ -68,7 +91,7 @@ pub fn watch_is_running(id: u32) callconv(.c) i32 {
     return if (watch_running[id]) 1 else 0;
 }
 
-// ── Timestamp ────────────────────────────────────────────────
+// ── Timestamp (monotonic, since module load) ─────────────────
 
 pub fn watch_timestamp_ns() callconv(.c) f64 {
     return @floatFromInt(now());
@@ -123,11 +146,19 @@ test "watch: bounds check" {
     try std.testing.expectEqual(@as(i32, -1), watch_is_running(65));
 }
 
-test "watch: timestamp" {
+test "watch: timestamp is monotonic since load, not the epoch" {
+    std.Thread.sleep(2 * std.time.ns_per_ms);
     const ts = watch_timestamp_ns();
     try std.testing.expect(ts > 0);
     const ms = watch_timestamp_ms();
     try std.testing.expect(ms > 0);
+    // Regression pin (same property as the process-uptime fix): a
+    // wall-clock timestamp would be ~1.7e18 ns since 1970; a monotonic
+    // since-load one is far under an hour in a test run.
+    try std.testing.expect(ms < 3_600_000.0);
+    // And it advances.
+    std.Thread.sleep(2 * std.time.ns_per_ms);
+    try std.testing.expect(watch_timestamp_ns() > ts);
 }
 
 test "watch: unit conversions" {
