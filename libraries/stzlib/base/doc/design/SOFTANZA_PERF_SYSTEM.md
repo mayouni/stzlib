@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0-P4 SHIPPED (2026-07-29); P5-P6 planned.** This document is the
+> **Status: P0-P5 SHIPPED (2026-07-29); P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -53,6 +53,16 @@
 > transitions; event-bus fanout on perf.breach/perf.clear; bounded
 > AlertLog; agent-host contract). Guard: `judgment_narrated.ring`
 > (41). Narration: `stz-perf-judgment-narration.md`.
+>
+> P5 delivered: `base/perf/stzPerfProfile.ring` -- interval-anchored
+> U/R/X/D (D = deltaCPU/deltaReq, measured), Xmax/Headroom, the
+> computing/waiting Bottleneck split, UtilizationCheck (computed vs
+> independently-sampled U -- the identity trap avoided), LittleN +
+> LittleCheckAgainst, interval-exact mean R (anchored timer
+> sum/count), memory trend + HoursToMemoryCeiling, Snapshot/Curve
+> (R-vs-X), the narrated Explain() honest about D > R (per-process
+> CPU vs per-request wall). Guard: `profile_narrated.ring` (31).
+> Narration: `stz-perf-profile-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -620,9 +630,30 @@ before the next begins.
   Deferred: alerts carrying trip trace-ids (needs per-request trace
   capture at the seams; lands with cluster-facing work). Guard: 41
   assertions. Narration: `stz-perf-judgment-narration.md`.
-- **P5 — Understanding.** `stzPerfProfile`: U/R/X/D, both laws with
-  self-validation, `Bottleneck()`, trends, `Forecast()`, the R-vs-X
-  curve, the narrated `Explain()`.
+- **P5 — Understanding. SHIPPED 2026-07-29.** `stzPerfProfile`:
+  interval-anchored analysis (Mark() anchors CPU time, the request
+  count AND the timer's exact sum/count, so the interval's D and mean
+  R describe THE SAME requests — mixing lifetime R with interval D
+  compares different populations, a defect found and fixed in the
+  first run). U/X measured; D = deltaCPU/deltaReq (the diagnostic
+  number, measured not derived); Xmax = cores*1000/D and Headroom.
+  Self-checks done honestly: U = X*D/cores from one set of anchors is
+  an algebraic IDENTITY (proves nothing), so UtilizationCheck compares
+  anchor-computed U against the monitor's independently SAMPLED gauge
+  — two measurements, one truth; LittleN (implied concurrency) +
+  LittleCheckAgainst (vs a measured in-flight). Bottleneck() = the
+  computing/waiting split (busy or blocked, the first question of
+  every investigation, answered with a number — verified in both
+  directions: compute-heavy → :cpu, sleeping work → :waiting with 0
+  computed). Explain() is honest when D > R: D is per-PROCESS CPU
+  (all threads), and exceeding per-request wall time means co-resident
+  work computed alongside — the in-process test client itself, in the
+  demo. Memory trend + HoursToMemoryCeiling (0 = already there, -1 =
+  never at this trend); Snapshot()/Curve() for the R-vs-X curve
+  across driven load levels. Found in passing: one in-process HTTP
+  round trip costs ~7ms of process CPU with a trivial handler (drain
+  loop / framing path — flagged for its own investigation). Guard: 31
+  assertions. Narration: `stz-perf-profile-narration.md`.
 - **P6 — The governed loop.** Measured U feeds the supervisor; effectful
   acts through actor+plan+audit; the LLM-proposes-human-commits tuning
   flow; flight-recorder snapshot on alert; `SelfCost()` guard.

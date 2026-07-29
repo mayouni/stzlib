@@ -465,6 +465,11 @@ ok
     load "perf/stzPerfMonitor.ring"
     load "perf/stzSla.ring"
     load "perf/stzPerfSentinel.ring"
+# P5: understanding -- stzPerfProfile: interval-anchored operational
+# analysis (U/R/X/D, service demand, bottleneck = the computing/waiting
+# split, Little's-law + utilization-law self-checks, memory forecast,
+# R-vs-X curve, the narrated Explain()).
+    load "perf/stzPerfProfile.ring"
 
 # Loading files related to the FILE module
 
