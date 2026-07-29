@@ -3019,6 +3019,44 @@ what it refused.
   where the tangent inverts the cosine. That one character is the entire difference in
   domain.
 
+- **THE MATRIX ARCCOTANGENT (`83611654b`)** — *where the two routes disagree.*
+
+  > `acot = (π/2)I − atan(A)`  ·  `acoth = atanh(A⁻¹)`
+
+  The cotangent had two candidate definitions that differed only in **domain**. Here there
+  are two again, and the difference is worse than domain:
+
+  > `(π/2)I − atan(A)`   against   `atan(A⁻¹)`
+
+  ***They agree on a positive eigenvalue and differ by exactly π on a negative one.***
+  Measured on `diag(−2, 0.5)`: `2.67794504` against `−0.46364761` at the negative entry,
+  `3.14159265` apart, while the positive entry agrees to every digit. Both are
+  arccotangents of the same number, sitting on different branches. So choosing a route
+  here is not choosing how much domain to keep — **it is choosing which function to
+  implement.**
+
+  ***And the obvious test cannot tell them apart.*** The cotangent has period π, so
+  `cot(acot(A)) = A` holds for **both** routes, exactly, to full precision — measured, both
+  pass. The round trip is the first check anyone would reach for, and it is blind to the
+  difference; a branch error would sail through it. What distinguishes them is the *value*
+  on a negative eigenvalue, and nothing else does.
+
+  The subtraction is taken: the continuous branch, range `(0, π)`, defined at zero where
+  `acot(0) = π/2` and the reciprocal route has nothing to say. Being exact rather than a
+  second algorithm, it inherits `atan`'s domain **unchanged** — a singular matrix has an
+  arccotangent, which is the second half of the same point.
+
+  ***And for once the circular side is the wider one.*** The circular pair share a domain:
+  `atan` and `acot` are both defined on the whole real line, so one can be written as a
+  constant minus the other. **The hyperbolic pair have disjoint domains** — `atanh` wants
+  `|x| < 1`, `acoth` wants `|x| > 1` — and the identity connecting them,
+  `acoth(x) = atanh(x) + iπ/2`, is **imaginary**. There is no real constant to subtract, so
+  the inverse is not one route of two; it is the only one. `MatrixAcoth()` therefore needs
+  the matrix invertible on top of everything `MatrixAtanh()` needed, while `MatrixAcot()`
+  takes every matrix `MatrixAtan()` takes. Everywhere else here the hyperbolic partner
+  refused *less*. This is the first place the order reverses, and both directions are
+  pinned.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
