@@ -37,7 +37,8 @@ class stzComputePipeline from stzObject
 	@cName = ""
 	@aStages = []      # [ [ facet, stageName, fWork ], ... ]
 	@oPool = NULL      # optional: admit each stage into its facet's budget
-	@aTrace = []       # [ [ facet, stageName, output ], ... ] from the last Run
+	@aTrace = []       # [ [ facet, stageName, output, durMs ], ... ] from the
+	                   # last Run -- each stage carries its COST (perf P3)
 	@xLast = NULL      # last final output
 	@bFailed = FALSE   # did the last Run hit a failing stage?
 	@cWhy = ""
@@ -120,6 +121,9 @@ class stzComputePipeline from stzObject
 			_fWork_ = @aStages[_i_][3]
 			_bBudgeted_ = (@oPool != NULL and @oPool.HasProfile(_cFacet_))
 			if _bBudgeted_  @oPool.Acquire(_cFacet_)  ok
+			# perf P3: each stage is timed on the monotonic clock -- the
+			# bracket covers the work AND its budget admission overhead.
+			_nT0_ = StzEngineWatchTimestampNs()
 			_bOk_ = TRUE
 			try
 				_v_ = call _fWork_(_v_)
@@ -127,14 +131,15 @@ class stzComputePipeline from stzObject
 				_bOk_ = FALSE
 				@cWhy = "stage '" + _cName_ + "' (" + _cFacet_ + ") failed: " + cCatchError
 			done
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 			if _bBudgeted_  @oPool.Release(_cFacet_)  ok   # release even on failure
 			if NOT _bOk_
-				@aTrace + [ _cFacet_, _cName_, "ERROR" ]
+				@aTrace + [ _cFacet_, _cName_, "ERROR", _nMs_ ]
 				@bFailed = TRUE
 				@xLast = NULL
 				return NULL
 			ok
-			@aTrace + [ _cFacet_, _cName_, _v_ ]
+			@aTrace + [ _cFacet_, _cName_, _v_, _nMs_ ]
 		next
 		@xLast = _v_
 		return _v_
@@ -157,6 +162,25 @@ class stzComputePipeline from stzObject
 
 	def Trace()
 		return @aTrace
+
+	# Per-stage costs from the last Run: [ [ stageName, durMs ], ... ].
+	# The slowest stage is the pipeline's bottleneck candidate.
+	def StageDurations()
+		_a_ = []
+		_n_ = len(@aTrace)
+		for _i_ = 1 to _n_
+			_a_ + [ @aTrace[_i_][2], @aTrace[_i_][4] ]
+		next
+		return _a_
+
+	# Total cost of the last Run (sum of its stage durations, ms).
+	def TotalMs()
+		_nSum_ = 0
+		_n_ = len(@aTrace)
+		for _i_ = 1 to _n_
+			_nSum_ += @aTrace[_i_][4]
+		next
+		return _nSum_
 
 	def LastOutput()
 		return @xLast
