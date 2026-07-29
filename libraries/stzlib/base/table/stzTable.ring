@@ -14871,6 +14871,199 @@ func _NormalizeColLookupKey(pVal)
 		def CountNonNullInColumn(pCol)
 			return This.CountNonNullInCol(pCol)
 
+	#=====================================================================#
+	#  COLUMN STATISTICS -- backed by stzDataSet (the stats engine).      #
+	#                                                                     #
+	#  The table engine gives us Sum/Avg/Min/Max/Product. Everything      #
+	#  richer -- median, spread, quartiles, correlation, regression --    #
+	#  is NOT reimplemented here: the table extracts a column once and    #
+	#  hands it to stzDataSet, which owns the stats authority (and is     #
+	#  itself engine-backed). stzTable becomes a CUSTOMER of the numeric  #
+	#  foundation rather than stopping at sum-and-average.                #
+	#=====================================================================#
+
+	# A column's numeric cells, coerced (numeric strings included) and
+	# cleaned of everything non-numeric, as a plain list of numbers.
+	def _NumericColOf(pCol)
+		_aRaw_ = This.Col(pCol)
+		_aOut_ = []
+		_nLen_ = len(_aRaw_)
+		for _i_ = 1 to _nLen_
+			_c_ = _aRaw_[_i_]
+			# Keep only real numerics. The null/empty guard comes FIRST because
+			# IsNumberInStringOrNumber("") is TRUE -- without it an empty cell
+			# coerces to a spurious 0 and poisons the mean and median.
+			if (NOT isNull(_c_)) and (("" + _c_) != "") and IsNumberInStringOrNumber(_c_)
+				_aOut_ + number("" + _c_)
+			ok
+		next
+		return _aOut_
+
+	# The single crossing into the stats authority: one stzDataSet over a
+	# column. Every statistic below reads through this.
+	def _DataSetOfCol(pCol)
+		return new stzDataSet(This._NumericColOf(pCol))
+
+	# A column counts as numeric when it has at least one value and every
+	# non-null value is a number (or a numeric string).
+	def IsNumericCol(pCol)
+		_aRaw_ = This.Col(pCol)
+		_nNum_ = 0
+		_nNonNull_ = 0
+		_nLen_ = len(_aRaw_)
+		for _i_ = 1 to _nLen_
+			_c_ = _aRaw_[_i_]
+			if NOT isNull(_c_)
+				_nNonNull_++
+				if IsNumberInStringOrNumber(_c_)
+					_nNum_++
+				ok
+			ok
+		next
+		return _nNonNull_ > 0 and _nNum_ = _nNonNull_
+
+		def IsNumericColumn(pCol)
+			return This.IsNumericCol(pCol)
+
+	def MedianCol(pCol)
+		return This._DataSetOfCol(pCol).Median()
+
+		def MedianColumn(pCol)
+			return This.MedianCol(pCol)
+
+	def StdDevCol(pCol)
+		return This._DataSetOfCol(pCol).StdDev()
+
+		def StdDevColumn(pCol)
+			return This.StdDevCol(pCol)
+
+	def VarianceCol(pCol)
+		return This._DataSetOfCol(pCol).Variance()
+
+		def VarianceColumn(pCol)
+			return This.VarianceCol(pCol)
+
+	def PercentileCol(pCol, pnP)
+		return This._DataSetOfCol(pCol).Percentile(pnP)
+
+		def PercentileColumn(pCol, pnP)
+			return This.PercentileCol(pCol, pnP)
+
+	def Q1Col(pCol)
+		return This._DataSetOfCol(pCol).Q1()
+
+		def Q1Column(pCol)
+			return This.Q1Col(pCol)
+
+	def Q3Col(pCol)
+		return This._DataSetOfCol(pCol).Q3()
+
+		def Q3Column(pCol)
+			return This.Q3Col(pCol)
+
+	# A full per-column summary as DATA -- a hashlist of the eight numbers
+	# a describe() ought to give, built from ONE dataset for the column.
+	def DescribeCol(pCol)
+		_oDS_ = This._DataSetOfCol(pCol)
+		return [
+			[ :count,  _oDS_.Count() ],
+			[ :mean,   _oDS_.Mean() ],
+			[ :median, _oDS_.Median() ],
+			[ :stddev, _oDS_.StdDev() ],
+			[ :min,    _oDS_.Min() ],
+			[ :max,    _oDS_.Max() ],
+			[ :q1,     _oDS_.Q1() ],
+			[ :q3,     _oDS_.Q3() ]
+		]
+
+		def DescribeColumn(pCol)
+			return This.DescribeCol(pCol)
+
+	# Describe every NUMERIC column of the table (text columns are skipped),
+	# returned as DATA: [ [colName, DescribeCol(colName)], ... ].
+	def Describe()
+		_aOut_ = []
+		_aNames_ = This.ColumnNames()
+		_nLen_ = len(_aNames_)
+		for _i_ = 1 to _nLen_
+			if This.IsNumericCol(_aNames_[_i_])
+				_aOut_ + [ _aNames_[_i_], This.DescribeCol(_aNames_[_i_]) ]
+			ok
+		next
+		return _aOut_
+
+	# The same summary as a TABLE object (statistic-per-row, column-per-column),
+	# for display or further chaining -- hence the Q, per the naming law.
+	def DescribeQ()
+		_aStatNames_ = [ :count, :mean, :median, :stddev, :min, :max, :q1, :q3 ]
+		_aCols_ = [ [ :statistic, _aStatNames_ ] ]
+		_aNames_ = This.ColumnNames()
+		_nLen_ = len(_aNames_)
+		for _i_ = 1 to _nLen_
+			if This.IsNumericCol(_aNames_[_i_])
+				_oDS_ = This._DataSetOfCol(_aNames_[_i_])
+				_aVals_ = [
+					_oDS_.Count(), _oDS_.Mean(), _oDS_.Median(), _oDS_.StdDev(),
+					_oDS_.Min(), _oDS_.Max(), _oDS_.Q1(), _oDS_.Q3()
+				]
+				_aCols_ + [ _aNames_[_i_], _aVals_ ]
+			ok
+		next
+		return new stzTable(_aCols_)
+
+	# Pearson correlation between two columns.
+	def CorrelationBetween(pColA, pColB)
+		_oA_ = This._DataSetOfCol(pColA)
+		_oB_ = This._DataSetOfCol(pColB)
+		return _oA_.CorrelationWith(_oB_)
+
+		def CorrBetween(pColA, pColB)
+			return This.CorrelationBetween(pColA, pColB)
+
+	# The pairwise correlation matrix over the numeric columns, as DATA:
+	# [ [:columns, aNames], [:matrix, aMatrix] ]. The diagonal is 1.
+	def CorrelationMatrix()
+		_aNames_ = []
+		_aAll_ = This.ColumnNames()
+		_nA_ = len(_aAll_)
+		for _i_ = 1 to _nA_
+			if This.IsNumericCol(_aAll_[_i_])
+				_aNames_ + _aAll_[_i_]
+			ok
+		next
+		_aDS_ = []
+		_nN_ = len(_aNames_)
+		for _i_ = 1 to _nN_
+			_aDS_ + This._DataSetOfCol(_aNames_[_i_])
+		next
+		_aMatrix_ = []
+		for _i_ = 1 to _nN_
+			_aRow_ = []
+			for _j_ = 1 to _nN_
+				if _i_ = _j_
+					_aRow_ + 1
+				else
+					_aRow_ + _aDS_[_i_].CorrelationWith(_aDS_[_j_])
+				ok
+			next
+			_aMatrix_ + _aRow_
+		next
+		return [ [ :columns, _aNames_ ], [ :matrix, _aMatrix_ ] ]
+
+		def CorrMatrix()
+			return This.CorrelationMatrix()
+
+	# Least-squares regression of one column ON another, read at the call
+	# site: RegressionOf(:pay, :On, :age). Returns the stzDataSet coefficient
+	# shape: [ [:slope, ..], [:intercept, ..], [:r_squared, ..] ].
+	def RegressionOf(pColY, pOn, pColX)
+		if pOn != :On and pOn != :on
+			StzRaise("RegressionOf: read it as RegressionOf(yCol, :On, xCol).")
+		ok
+		_oY_ = This._DataSetOfCol(pColY)
+		_oX_ = This._DataSetOfCol(pColX)
+		return _oX_.RegressionCoefficients(_oY_)
+
 	  #============================================#
 	 #  CASTING THE TABLE INTO A STZTABLE OBJECT  #
 	#============================================#
