@@ -1641,6 +1641,92 @@ fn trigPair(
     }
 }
 
+/// THE MATRIX ARCSECANT acos(A^-1) and ARCCOSECANT asin(A^-1), with their hyperbolic
+/// partners asech(A) = acosh(A^-1) and acsch(A) = asinh(A^-1).
+///
+/// -- THESE INVERT THE DOMAIN OF THE ARCSINE AND ARCCOSINE --
+///
+/// asin and acos want every eigenvalue INSIDE the unit interval, |L| < 1, because that is
+/// where the scalar functions are real. Going through A^-1 turns that condition inside
+/// out: asec and acsc want every eigenvalue OUTSIDE it, |L| > 1.
+///
+/// AND THE BOUNDARY BELONGS TO NEITHER. The domains are complements, so one would expect
+/// them to meet on the unit circle -- they do not. asin is built on (I - A^2)^(-1/2), and
+/// at |L| = 1 that is the inverse of a zero matrix, so the arcsine dies exactly at the
+/// endpoint; the arcsecant dies there too, since A^-1 carries the same eigenvalue into
+/// the same wall. The scalar functions are perfectly ordinary there -- asin(1) = pi/2,
+/// asec(1) = 0 -- so this is the ROUTE's boundary and not the function's, and it leaves a
+/// gap of measure zero between two domains that otherwise tile the line. Measured, not
+/// assumed: the first version of the test asserted they met, and the run said otherwise.
+///
+/// So a matrix with an eigenvalue at 2 has an arcsecant and no arcsine, and one with an
+/// eigenvalue at 0.5 has an arcsine and no arcsecant. Both directions hold, and it is the
+/// same inversion that makes sec(x) and csc(x) reach outward from 1 where sin and cos
+/// stay within it.
+///
+/// -- AND THE ROUTE THAT AVOIDS THE INVERSE IS NOT THE SAME FUNCTION --
+///
+/// asec(x) = atan(sqrt(x^2 - 1)) is a real identity that needs no inverse at all, and it
+/// is CORRECT FOR POSITIVE x AND WRONG FOR NEGATIVE x, because the square root discards
+/// the sign. asec(-2) is 2.0944 and the square-root route gives 1.0472.
+///
+/// Note what kind of wrong that is. The arccotangent had two routes that differed by
+/// EXACTLY pi -- a branch, a constant, the same function shifted. Here the gap is
+/// 1.4595, 1.0472, 0.6797 at x = -1.5, -2, -3: IT VARIES WITH THE EIGENVALUE. The true
+/// relation is asec(-x) = pi - asec(x), a reflection, and no constant offset can repair
+/// a reflection. The cheap route is not a different branch of this function. It is a
+/// different function that happens to agree on half the line.
+///
+/// So the inverse is taken, and with it the requirement that A be invertible.
+fn arcReciprocal(
+    alloc: std.mem.Allocator,
+    data: []const f64,
+    n: usize,
+    out: []f64,
+    hyperbolic: bool,
+    want_sine: bool,
+) !void {
+    if (n == 0) return;
+    const inv = try alloc.alloc(f64, n * n);
+    defer alloc.free(inv);
+    if (!try linalg.luInverse(alloc, data, n, inv)) return FunError.Singular;
+    if (hyperbolic) {
+        return if (want_sine)
+            asinhGeneral(alloc, inv, n, out)
+        else
+            acoshGeneral(alloc, inv, n, out);
+    }
+    return if (want_sine)
+        asinGeneral(alloc, inv, n, out)
+    else
+        acosGeneral(alloc, inv, n, out);
+}
+
+/// asec(A) = acos(A^-1). Wants every eigenvalue OUTSIDE the unit interval -- the exact
+/// complement of what the arccosine wants -- and the matrix invertible.
+pub fn asecGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return arcReciprocal(alloc, data, n, out, false, false);
+}
+
+/// acsc(A) = asin(A^-1). The same domain as the arcsecant, and asec + acsc = (pi/2) I
+/// exactly, inherited term by term from asin + acos.
+pub fn acscGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return arcReciprocal(alloc, data, n, out, false, true);
+}
+
+/// asech(A) = acosh(A^-1). THE NARROWEST FUNCTION IN THIS FILE. acosh wants |L| >= 1, so
+/// through the inverse asech wants |L| <= 1 -- and the inverse itself wants L != 0. It is
+/// squeezed from both sides: small enough to be inside the unit interval, and never zero.
+pub fn asechGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return arcReciprocal(alloc, data, n, out, true, false);
+}
+
+/// acsch(A) = asinh(A^-1). And THE WIDEST of the four, because asinh has no branch point
+/// on the real line to run into: the only thing acsch refuses is a singular matrix.
+pub fn acschGeneral(alloc: std.mem.Allocator, data: []const f64, n: usize, out: []f64) !void {
+    return arcReciprocal(alloc, data, n, out, true, true);
+}
+
 /// THE MATRIX ARCCOTANGENT: (pi/2) I - atan(A). And acoth(A) = atanh(A^-1).
 ///
 /// -- TWO ROUTES AGAIN, AND THIS TIME THEY DISAGREE --
@@ -3933,4 +4019,172 @@ test "acot inherits atan's domain exactly, being a subtraction and not an algori
     const ordinary = [_]f64{ 0.4, 0.1, -0.2, 0.6 };
     try atanGeneral(alloc, &ordinary, n, out);
     try acotGeneral(alloc, &ordinary, n, out);
+}
+
+test "sec(asec(A)) = A, and csc(acsc(A)) = A" {
+    const alloc = testing.allocator;
+    const n = 3;
+    // a triangular matrix, so the eigenvalues ARE the diagonal and all sit outside the
+    // unit interval by construction -- which is where the arcsecant is real
+    const a = [_]f64{ 3.0, 0.4, 0.1, 0, 2.5, 0.2, 0, 0, -4.0 };
+
+    const as = try alloc.alloc(f64, n * n);
+    defer alloc.free(as);
+    try asecGeneral(alloc, &a, n, as);
+    const back = try alloc.alloc(f64, n * n);
+    defer alloc.free(back);
+    try secGeneral(alloc, as, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+
+    const ac = try alloc.alloc(f64, n * n);
+    defer alloc.free(ac);
+    try acscGeneral(alloc, &a, n, ac);
+    try cscGeneral(alloc, ac, n, back);
+    for (a, back) |x, y| try testing.expectApproxEqAbs(x, y, 1e-7);
+
+    // asec + acsc = (pi/2) I, inherited term by term from asin + acos
+    for (0..n) |i| {
+        for (0..n) |j| {
+            const want: f64 = if (i == j) std.math.pi / 2.0 else 0;
+            try testing.expectApproxEqAbs(want, as[i * n + j] + ac[i * n + j], 1e-9);
+        }
+    }
+}
+
+test "THESE INVERT THE DOMAIN OF THE ARCSINE AND ARCCOSINE" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // OUTSIDE the unit interval: the arcsecant is at home and the arcsine is not
+    const big = [_]f64{ 2.0, 0, 0, 3.0 };
+    try asecGeneral(alloc, &big, n, out);
+    try acscGeneral(alloc, &big, n, out);
+    // NoRealResult rather than Singular: the matrix is perfectly invertible, the ANSWER
+    // is what does not exist. The engine keeps the two refusals apart, and so must the
+    // test -- "out of domain" and "not invertible" are different sentences here
+    try testing.expectError(FunError.NoRealResult, asinGeneral(alloc, &big, n, out));
+    try testing.expectError(FunError.NoRealResult, acosGeneral(alloc, &big, n, out));
+
+    // INSIDE it, the reverse, exactly
+    const small = [_]f64{ 0.5, 0, 0, 0.25 };
+    try asinGeneral(alloc, &small, n, out);
+    try acosGeneral(alloc, &small, n, out);
+    try testing.expectError(FunError.NoRealResult, asecGeneral(alloc, &small, n, out));
+    try testing.expectError(FunError.NoRealResult, acscGeneral(alloc, &small, n, out));
+
+    // AND THE BOUNDARY BELONGS TO NEITHER OF THEM.
+    //
+    // The domains are complements, so one would expect them to meet on the unit circle.
+    // They do not. asin is built on (I - A^2)^(-1/2), and at |L| = 1 that is the inverse
+    // of a zero matrix -- so the arcsine dies exactly at the endpoint, and the arcsecant
+    // dies there too, since A^-1 has the same eigenvalue and meets the same wall.
+    //
+    // The scalar functions are perfectly ordinary there: asin(1) = pi/2 and asec(1) = 0.
+    // This is the ROUTE's boundary, not the function's, and it leaves a gap of measure
+    // zero between two domains that otherwise tile the line.
+    const unit = [_]f64{ 1.0, 0, 0, -1.0 };
+    const asin_at_one = if (asinGeneral(alloc, &unit, n, out)) |_| true else |_| false;
+    const asec_at_one = if (asecGeneral(alloc, &unit, n, out)) |_| true else |_| false;
+    try testing.expect(!asin_at_one);
+    try testing.expect(!asec_at_one);
+}
+
+test "AND THE ROUTE THAT AVOIDS THE INVERSE IS A DIFFERENT FUNCTION" {
+    const alloc = testing.allocator;
+    const n = 2;
+
+    // asec(x) = atan(sqrt(x^2 - 1)) needs no inverse at all, and is correct for positive
+    // x and wrong for negative x, because the square root discards the sign
+    const a = [_]f64{ -2.0, 0, 0, 3.0 };
+
+    const truth = try alloc.alloc(f64, n * n);
+    defer alloc.free(truth);
+    try asecGeneral(alloc, &a, n, truth);
+
+    const sq = try alloc.alloc(f64, n * n);
+    defer alloc.free(sq);
+    matMul(&a, &a, n, sq);
+    for (0..n) |i| sq[i * n + i] -= 1;
+    const rt = try alloc.alloc(f64, n * n);
+    defer alloc.free(rt);
+    try sqrtGeneral(alloc, sq, n, rt);
+    const cheap = try alloc.alloc(f64, n * n);
+    defer alloc.free(cheap);
+    try atanGeneral(alloc, rt, n, cheap);
+
+    // they agree on the positive eigenvalue
+    try testing.expectApproxEqAbs(truth[3], cheap[3], 1e-9);
+    // and not on the negative one
+    try testing.expect(@abs(truth[0] - cheap[0]) > 1.0);
+
+    // NOTE WHAT KIND OF WRONG THIS IS. The arccotangent's two routes differed by exactly
+    // pi -- a constant, the same function on another branch. Here the gap VARIES with the
+    // eigenvalue, because the true relation asec(-x) = pi - asec(x) is a REFLECTION, and
+    // no constant offset repairs a reflection.
+    const b = [_]f64{ -3.0, 0, 0, 3.0 };
+    const truth_b = try alloc.alloc(f64, n * n);
+    defer alloc.free(truth_b);
+    try asecGeneral(alloc, &b, n, truth_b);
+    matMul(&b, &b, n, sq);
+    for (0..n) |i| sq[i * n + i] -= 1;
+    try sqrtGeneral(alloc, sq, n, rt);
+    const cheap_b = try alloc.alloc(f64, n * n);
+    defer alloc.free(cheap_b);
+    try atanGeneral(alloc, rt, n, cheap_b);
+
+    const gap_a = truth[0] - cheap[0]; // at -2
+    const gap_b = truth_b[0] - cheap_b[0]; // at -3
+    try testing.expect(@abs(gap_a - gap_b) > 0.3); // NOT a constant
+    // and the reflection is what actually holds
+    try testing.expectApproxEqAbs(std.math.pi - cheap_b[0], truth_b[0], 1e-9);
+}
+
+test "asech is the narrowest of these, and acsch the widest" {
+    const alloc = testing.allocator;
+    const n = 2;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    // acosh wants |L| >= 1, so through the inverse asech wants |L| <= 1 -- and the
+    // inverse itself wants L != 0. SQUEEZED FROM BOTH SIDES.
+    const inside = [_]f64{ 0.5, 0, 0, 0.25 };
+    try asechGeneral(alloc, &inside, n, out);
+    try testing.expectApproxEqAbs(std.math.acosh(@as(f64, 1.0 / 0.5)), out[0], 1e-9);
+
+    const outside = [_]f64{ 2.0, 0, 0, 3.0 };
+    try testing.expectError(FunError.NoRealResult, asechGeneral(alloc, &outside, n, out));
+
+    // asinh has no branch point on the real line, so the ONLY thing acsch refuses is a
+    // singular matrix -- it takes both of the matrices above
+    try acschGeneral(alloc, &inside, n, out);
+    try acschGeneral(alloc, &outside, n, out);
+    try testing.expectApproxEqAbs(std.math.asinh(@as(f64, 1.0 / 2.0)), out[0], 1e-9);
+
+    // AND ALL FOUR REFUSE A SINGULAR MATRIX, since every one of them goes through the
+    // inverse. That is new: no other family in this file refuses the same thing across
+    // the board -- there has always been a wide partner to contrast with.
+    const singular = [_]f64{ 0, 0, 0, 2.0 };
+    try testing.expectError(FunError.Singular, asecGeneral(alloc, &singular, n, out));
+    try testing.expectError(FunError.Singular, acscGeneral(alloc, &singular, n, out));
+    try testing.expectError(FunError.Singular, asechGeneral(alloc, &singular, n, out));
+    try testing.expectError(FunError.Singular, acschGeneral(alloc, &singular, n, out));
+}
+
+test "a diagonal arcsecant goes entrywise" {
+    const alloc = testing.allocator;
+    const n = 3;
+    const out = try alloc.alloc(f64, n * n);
+    defer alloc.free(out);
+
+    const diag = [_]f64{ 2.0, 0, 0, 0, -3.0, 0, 0, 0, 1.5 };
+    try asecGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(std.math.acos(@as(f64, 1.0 / 2.0)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.acos(@as(f64, -1.0 / 3.0)), out[4], 1e-10);
+    try testing.expectApproxEqAbs(std.math.acos(@as(f64, 1.0 / 1.5)), out[8], 1e-10);
+
+    try acscGeneral(alloc, &diag, n, out);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, 1.0 / 2.0)), out[0], 1e-10);
+    try testing.expectApproxEqAbs(std.math.asin(@as(f64, -1.0 / 3.0)), out[4], 1e-10);
 }

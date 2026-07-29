@@ -2661,6 +2661,106 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pRcV_)
 		return _aRcV_
 
+	# THE MATRIX ARCSECANT AND ARCCOSECANT, and their hyperbolic partners.
+	#
+	#     MatrixAsec()  = MatrixAcos()  of the INVERSE
+	#     MatrixAcsc()  = MatrixAsin()  of the INVERSE
+	#     MatrixAsech() = MatrixAcosh() of the INVERSE
+	#     MatrixAcsch() = MatrixAsinh() of the INVERSE
+	#
+	# -- THESE INVERT THE DOMAIN OF MatrixAsin() AND MatrixAcos() --
+	#
+	# MatrixAsin() and MatrixAcos() want every eigenvalue INSIDE the unit interval,
+	# |L| < 1, because that is where the scalar functions are real. Going through the
+	# inverse turns that condition inside out: MatrixAsec() and MatrixAcsc() want every
+	# eigenvalue OUTSIDE it, |L| > 1.
+	#
+	# So a matrix with an eigenvalue at 2 has an arcsecant and no arcsine, and one with an
+	# eigenvalue at 0.5 has an arcsine and no arcsecant. Both directions hold.
+	#
+	# -- AND THE BOUNDARY BELONGS TO NEITHER --
+	#
+	# The domains are complements, so one would expect them to meet on the unit circle.
+	# THEY DO NOT. MatrixAsin() is built on (I - A^2)^(-1/2), and at |L| = 1 that is the
+	# inverse of a zero matrix, so the arcsine dies exactly at the endpoint -- and the
+	# arcsecant dies there too, since the inverse carries the same eigenvalue into the
+	# same wall. The scalar functions are perfectly ordinary there (asin(1) = pi/2,
+	# asec(1) = 0), so this is the ROUTE's boundary and not the function's, and it leaves
+	# a gap of measure zero between two domains that otherwise tile the line.
+	#
+	# -- AND THE ROUTE THAT AVOIDS THE INVERSE IS A DIFFERENT FUNCTION --
+	#
+	# asec(x) = atan(sqrt(x^2 - 1)) is a real identity needing no inverse at all, and it
+	# is CORRECT FOR POSITIVE x AND WRONG FOR NEGATIVE x, because the square root discards
+	# the sign. Note what kind of wrong: MatrixAcot()'s two routes differed by EXACTLY pi,
+	# a constant, the same function shifted. Here the gap is 1.4595, 1.0472, 0.6797 at
+	# x = -1.5, -2, -3 -- IT VARIES WITH THE EIGENVALUE. The true relation is
+	# asec(-x) = pi - asec(x), a REFLECTION, and no constant offset repairs a reflection.
+	# The cheap route is not another branch of this function; it is a different function
+	# that happens to agree on half the line.
+	#
+	# -- AND ALL FOUR REFUSE A SINGULAR MATRIX --
+	#
+	# Every one of them goes through the inverse, so for once there is no wide partner to
+	# contrast with. MatrixAsech() is the narrowest thing here -- it wants |L| < 1 AND the
+	# matrix invertible, squeezed from both sides -- while MatrixAcsch() is the widest,
+	# refusing nothing but singularity, since MatrixAsinh() has no branch point on the
+	# real line to run into.
+	def MatrixAsec()
+		return This._ArcReciprocal("asec")
+
+		def MatrixAsecQ()
+			return new stzMatrix(This.MatrixAsec())
+
+	def MatrixAcsc()
+		return This._ArcReciprocal("acsc")
+
+		def MatrixAcscQ()
+			return new stzMatrix(This.MatrixAcsc())
+
+	def MatrixAsech()
+		return This._ArcReciprocal("asech")
+
+		def MatrixAsechQ()
+			return new stzMatrix(This.MatrixAsech())
+
+	def MatrixAcsch()
+		return This._ArcReciprocal("acsch")
+
+		def MatrixAcschQ()
+			return new stzMatrix(This.MatrixAcsch())
+
+	def _ArcReciprocal(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixAsec/MatrixAcsc: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "asec"
+			_pArV_ = StzEngineMatrixAsec(@pEngineMatrix)
+		but cWhich = "acsc"
+			_pArV_ = StzEngineMatrixAcsc(@pEngineMatrix)
+		but cWhich = "asech"
+			_pArV_ = StzEngineMatrixAsech(@pEngineMatrix)
+		else
+			_pArV_ = StzEngineMatrixAcsch(@pEngineMatrix)
+		ok
+		if _pArV_ = NULL
+			StzRaise("MatrixAsec/MatrixAcsc: refused -- for one of two distinct reasons. " +
+				"Either the matrix is SINGULAR, and all four of these go through the " +
+				"inverse; or its eigenvalues are in the wrong half. MatrixAsec() and " +
+				"MatrixAcsc() want every eigenvalue OUTSIDE the unit interval -- the " +
+				"exact complement of what MatrixAsin() and MatrixAcos() want -- and " +
+				"MatrixAsech() wants them inside it. Note the boundary |L| = 1 belongs " +
+				"to NEITHER side: both routes pass through (I - A^2)^(-1/2), which dies " +
+				"exactly there.")
+		ok
+		_aArV_ = This._MatrixFromHandle(_pArV_)
+		StzEngineMatrixFree(_pArV_)
+		return _aArV_
+
 	# THE MATRIX ARCCOTANGENT, and its hyperbolic partner.
 	#
 	#     MatrixAcot()  = (pi/2) I - MatrixAtan()

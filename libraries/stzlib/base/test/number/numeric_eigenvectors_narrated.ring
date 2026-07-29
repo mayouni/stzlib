@@ -1100,6 +1100,96 @@ Scenario("...and for ONCE the circular side is the wider one")
 	     RefusesArcCot([ [1,0,0], [0,2,0], [0,0,3] ], "acoth"), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX ARCSECANT AND ARCCOSECANT")
+	#     MatrixAsec() = MatrixAcos() of the INVERSE
+	#     MatrixAcsc() = MatrixAsin() of the INVERSE
+	#
+	# A triangular matrix, so the eigenvalues ARE the diagonal and all sit outside the
+	# unit interval by construction -- which is where the arcsecant is real.
+	aA = [ [3.0,0.4,0.1], [0,2.5,0.2], [0,0,-4.0] ]
+	oA = new stzMatrix(aA)
+	aAsec = oA.MatrixAsec()
+	aAcsc = oA.MatrixAcsc()
+	oAsec = new stzMatrix(aAsec)
+	oAcsc = new stzMatrix(aAcsc)
+
+	Then("sec(asec(A)) is A", SameMat(oAsec.MatrixSec(), aA), TRUE)
+	Then("csc(acsc(A)) is A", SameMat(oAcsc.MatrixCsc(), aA), TRUE)
+	Then("...and asec + acsc is exactly (pi/2) I, as asin + acos was",
+	     SameMat(MatAdd(aAsec, aAcsc), ScaledEye(3, 3.14159265358979 / 2)), TRUE)
+
+	# a diagonal goes entrywise against the scalar acos(1/x)
+	aD = [ [2.0,0,0], [0,-3.0,0], [0,0,1.5] ]
+	oD = new stzMatrix(aD)
+	Then("...and a diagonal is acos(1/x) entrywise",
+	     Near(oD.MatrixAsec()[2][2], acos(-1.0/3.0)), TRUE)
+EndScenario()
+
+Scenario("...which INVERTS the domain of the arcsine and arccosine")
+	# MatrixAsin() and MatrixAcos() want every eigenvalue INSIDE the unit interval,
+	# because that is where the scalar functions are real. Going through the inverse turns
+	# that condition inside out.
+	aBig   = [ [2.0,0], [0,3.0] ]
+	aSmall = [ [0.5,0], [0,0.25] ]
+
+	Then("outside the unit interval the arcsecant is at home", RefusesArcRcp(aBig, "asec"), FALSE)
+	Then("...and the arcsine is not", RefusesArc(aBig, "asin"), TRUE)
+	Then("inside it, the arcsine is at home", RefusesArc(aSmall, "asin"), FALSE)
+	Then("...and the arcsecant is not", RefusesArcRcp(aSmall, "asec"), TRUE)
+
+	# AND THE BOUNDARY BELONGS TO NEITHER. The domains are complements, so one would
+	# expect them to meet on the unit circle. THEY DO NOT. MatrixAsin() is built on
+	# (I - A^2)^(-1/2), and at |L| = 1 that is the inverse of a zero matrix, so the
+	# arcsine dies exactly at the endpoint -- and the arcsecant dies there too, since the
+	# inverse carries the same eigenvalue into the same wall.
+	#
+	# The scalar functions are perfectly ordinary there: asin(1) = pi/2 and asec(1) = 0.
+	# This is the ROUTE's boundary and not the function's, and it leaves a gap of measure
+	# zero between two domains that otherwise tile the line.
+	aUnit = [ [1.0,0], [0,-1.0] ]
+	Then("at |L| = 1 the arcsine is refused", RefusesArc(aUnit, "asin"), TRUE)
+	Then("...and so is the arcsecant", RefusesArcRcp(aUnit, "asec"), TRUE)
+EndScenario()
+
+Scenario("...and all four go through the inverse, so all four refuse a singular matrix")
+	# For once there is no wide partner to contrast with -- every one of these needs the
+	# matrix invertible.
+	aSing = [ [0,0], [0,2.0] ]
+	Then("a singular matrix has no arcsecant", RefusesArcRcp(aSing, "asec"), TRUE)
+	Then("...nor an arccosecant", RefusesArcRcp(aSing, "acsc"), TRUE)
+	Then("...nor a hyperbolic arcsecant", RefusesArcRcp(aSing, "asech"), TRUE)
+	Then("...nor a hyperbolic arccosecant", RefusesArcRcp(aSing, "acsch"), TRUE)
+
+	# MatrixAsech() IS THE NARROWEST THING HERE: MatrixAcosh() wants |L| > 1, so through
+	# the inverse this wants |L| < 1 -- and the inverse itself wants L non-zero. Squeezed
+	# from both sides.
+	aSmall = [ [0.5,0], [0,0.25] ]
+	aBig   = [ [2.0,0], [0,3.0] ]
+	Then("asech is answered inside the unit interval", RefusesArcRcp(aSmall, "asech"), FALSE)
+	Then("...and refused outside it", RefusesArcRcp(aBig, "asech"), TRUE)
+
+	# WHILE MatrixAcsch() IS THE WIDEST, refusing nothing but singularity, since
+	# MatrixAsinh() has no branch point on the real line to run into.
+	Then("acsch takes the small matrix", RefusesArcRcp(aSmall, "acsch"), FALSE)
+	Then("...and the large one too", RefusesArcRcp(aBig, "acsch"), FALSE)
+
+	# and the cheap route that avoids the inverse is A DIFFERENT FUNCTION.
+	# asec(x) = atan(sqrt(x^2 - 1)) is correct for positive x and wrong for negative x,
+	# because the square root discards the sign. MatrixAcot()'s two routes differed by
+	# EXACTLY pi -- a constant, the same function shifted. Here the gap VARIES with the
+	# eigenvalue: 1.4595, 1.0472, 0.6797 at -1.5, -2, -3. The true relation
+	# asec(-x) = pi - asec(x) is a REFLECTION, and no constant offset repairs one.
+	oNeg2 = new stzMatrix([ [-2.0,0], [0,3.0] ])
+	oNeg3 = new stzMatrix([ [-3.0,0], [0,3.0] ])
+	nGap2 = oNeg2.MatrixAsec()[1][1] - atan(sqrt(4 - 1))
+	nGap3 = oNeg3.MatrixAsec()[1][1] - atan(sqrt(9 - 1))
+	Then("the cheap route is wrong at -2", Near(nGap2, 1.04719755), TRUE)
+	Then("...wrong by a DIFFERENT amount at -3", Near(nGap3, 0.67967382), TRUE)
+	Then("...and it is a reflection: asec(-x) = pi - atan(sqrt(x^2-1))",
+	     Near(oNeg3.MatrixAsec()[1][1], 3.14159265358979 - atan(sqrt(9 - 1))), TRUE)
+EndScenario()
+
+
 
 
 
@@ -1556,3 +1646,21 @@ func RefusesArcCot(aX, cWhich)
 		_racB_ = TRUE
 	done
 	return _racB_
+
+func RefusesArcRcp(aX, cWhich)
+	_rarB_ = FALSE
+	try
+		_rarO_ = new stzMatrix(aX)
+		if cWhich = "asec"
+			_rarO_.MatrixAsec()
+		but cWhich = "acsc"
+			_rarO_.MatrixAcsc()
+		but cWhich = "asech"
+			_rarO_.MatrixAsech()
+		else
+			_rarO_.MatrixAcsch()
+		ok
+	catch
+		_rarB_ = TRUE
+	done
+	return _rarB_
