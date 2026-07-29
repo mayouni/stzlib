@@ -162,6 +162,32 @@ chk("the busy stage is the visible bottleneck", aDur[2][2] > aDur[1][2] and aDur
 chk("TotalMs() sums the stages", fabs(oPipe.TotalMs() - (aDur[1][2] + aDur[2][2] + aDur[3][2])) < 0.001)
 
 ? ""
+? "-- Scene 8b: the round trip is FAST (the timer-resolution fix holds) --"
+# Windows sleeps at the default timer resolution round up to ~15.6ms,
+# which once made an in-process round trip cost ~22ms of wall for
+# ~1.5ms of CPU (the await paths' 1-2ms poll-sleeps stalled). The
+# reactor now requests 1ms resolution at creation (reactor.zig,
+# timeBeginPeriod) and a trip runs ~5ms. Generous threshold by design:
+# well above the measured ~5, well below the pathological ~22.
+oSrvF = new stzAppServer()
+oSrvF.Get_("/ping", func oReq, oResp { oResp.Text("pong") })
+oSrvF.Start(0, "127.0.0.1")
+cReqF = "GET /ping HTTP/1.1" + $CRLF + "Host: local" + $CRLF + "Connection: close" + $CRLF + $CRLF
+nJob = oClient.SubmitTcp("127.0.0.1", oSrvF.Port(), cReqF)
+oSrvF.ServeOne(3000)
+oClient.AwaitTcp(nJob, 5000)          # warm-up trip
+nW0 = StzEngineWatchTimestampMs()
+for i = 1 to 10
+	nJob = oClient.SubmitTcp("127.0.0.1", oSrvF.Port(), cReqF)
+	oSrvF.ServeOne(3000)
+	oClient.AwaitTcp(nJob, 5000)
+next
+nPerTrip = (StzEngineWatchTimestampMs() - nW0) / 10
+? "  mean round trip = " + nPerTrip + " ms"
+chk("a warm in-process round trip stays under 15ms wall", nPerTrip < 15)
+oSrvF.Stop()
+
+? ""
 ? "-- Scene 9: cross-world crossings are timed, refusals included --"
 oSuper = new stzSuperApp("hq")
 bOut = oSuper.CallAcross("nowhere", "elsewhere", "ping")

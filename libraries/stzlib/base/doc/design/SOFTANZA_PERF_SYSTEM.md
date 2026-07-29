@@ -650,10 +650,23 @@ before the next begins.
   work computed alongside — the in-process test client itself, in the
   demo. Memory trend + HoursToMemoryCeiling (0 = already there, -1 =
   never at this trend); Snapshot()/Curve() for the R-vs-X curve
-  across driven load levels. Found in passing: one in-process HTTP
-  round trip costs ~7ms of process CPU with a trivial handler (drain
-  loop / framing path — flagged for its own investigation). Guard: 31
-  assertions. Narration: `stz-perf-profile-narration.md`.
+  across driven load levels. Guard: 31 assertions. Narration:
+  `stz-perf-profile-narration.md`.
+  *Follow-up (same day): the "found in passing" ~7ms-CPU-per-request
+  figure was attributed with the P1/P5 instruments and turned out to
+  be TWO artifacts, not a spin: (a) Windows accounts process CPU in
+  15.625ms quanta (`GetProcessTimes`), so a 2-request probe reading
+  "15.63ms" was one quantum + cold start — steady-state CPU is
+  <=1.6ms/trip, idle is a true 0; (b) the real inefficiency was WALL
+  latency: Windows sleeps at the default timer resolution round up to
+  ~15.6ms, so the reactor's 1-2ms await poll-sleeps stalled ~10ms
+  each, costing ~22ms wall per in-process round trip. Fix:
+  `reactor.zig` requests 1ms resolution once at reactor creation
+  (`timeBeginPeriod(1)`, refcounted, process-lifetime) — round trip
+  22ms -> ~5ms wall (4.3x), CPU <=0.8ms, idle still 0. Pinned by
+  seams guard scene 8b (<15ms, generous by design); the quantization
+  caveat is documented on `stzPerfProfile` (profile over intervals
+  spanning many quanta).*
 - **P6 — The governed loop.** Measured U feeds the supervisor; effectful
   acts through actor+plan+audit; the LLM-proposes-human-commits tuning
   flow; flight-recorder snapshot on alert; `SelfCost()` guard.
