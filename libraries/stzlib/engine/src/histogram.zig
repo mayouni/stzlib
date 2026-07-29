@@ -33,12 +33,13 @@ pub const OVERFLOW_MS: f64 = BOUNDS[BOUNDS.len - 1] * 10.0; // 100_000 ms
 pub const Histogram = struct {
     buckets: [NBUCKETS]u64,
     total: u64,
+    sum: f64, // running sum of recorded values (perf P2: lifetime _sum)
     mutex: std.Thread.Mutex,
 };
 
 pub fn histogram_create() callconv(.c) ?*Histogram {
     const h = gpa.create(Histogram) catch return null;
-    h.* = .{ .buckets = [_]u64{0} ** NBUCKETS, .total = 0, .mutex = .{} };
+    h.* = .{ .buckets = [_]u64{0} ** NBUCKETS, .total = 0, .sum = 0, .mutex = .{} };
     return h;
 }
 
@@ -55,6 +56,16 @@ pub fn histogram_record(h_opt: ?*Histogram, value_ms: f64) callconv(.c) void {
     }
     h.buckets[idx] += 1;
     h.total += 1;
+    h.sum += value_ms;
+}
+
+// Exact running sum of everything ever recorded (the buckets quantize,
+// the sum does not) -- lifetime mean = sum / count.
+pub fn histogram_sum(h_opt: ?*Histogram) callconv(.c) f64 {
+    const h = h_opt orelse return 0;
+    h.mutex.lock();
+    defer h.mutex.unlock();
+    return h.sum;
 }
 
 pub fn histogram_percentile(h_opt: ?*Histogram, p: f64) callconv(.c) f64 {
@@ -96,6 +107,7 @@ pub fn histogram_reset(h_opt: ?*Histogram) callconv(.c) void {
     defer h.mutex.unlock();
     h.buckets = [_]u64{0} ** NBUCKETS;
     h.total = 0;
+    h.sum = 0;
 }
 
 pub fn histogram_destroy(h_opt: ?*Histogram) callconv(.c) void {
@@ -139,6 +151,16 @@ test "histogram: reset clears all buckets" {
     histogram_reset(h);
     try std.testing.expectEqual(@as(u64, 0), histogram_count(h));
     try std.testing.expectEqual(@as(f64, 0), histogram_percentile(h, 90));
+    try std.testing.expectEqual(@as(f64, 0), histogram_sum(h));
+}
+
+test "histogram: sum is exact while buckets quantize" {
+    const h = histogram_create().?;
+    defer histogram_destroy(h);
+    histogram_record(h, 12.5);
+    histogram_record(h, 0.3);
+    histogram_record(h, 700);
+    try std.testing.expectApproxEqAbs(@as(f64, 712.8), histogram_sum(h), 1e-9);
 }
 
 test "histogram: values past the top bound report overflow" {

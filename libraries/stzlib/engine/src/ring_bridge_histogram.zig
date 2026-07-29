@@ -35,6 +35,10 @@ fn ring_HistogramCount(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(histogram.histogram_count(getHist(p, 1))));
 }
 
+fn ring_HistogramSum(p: *anyopaque) callconv(.c) void {
+    rn(p, histogram.histogram_sum(getHist(p, 1)));
+}
+
 fn ring_HistogramReset(p: *anyopaque) callconv(.c) void {
     histogram.histogram_reset(getHist(p, 1));
     rn(p, 0);
@@ -50,6 +54,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehistogramrecord", .func = ring_HistogramRecord },
     .{ .name = "stzenginehistogrampercentile", .func = ring_HistogramPercentile },
     .{ .name = "stzenginehistogramcount", .func = ring_HistogramCount },
+    .{ .name = "stzenginehistogramsum", .func = ring_HistogramSum },
     .{ .name = "stzenginehistogramreset", .func = ring_HistogramReset },
     .{ .name = "stzenginehistogramdestroy", .func = ring_HistogramDestroy },
 };

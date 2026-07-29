@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0 + P1 SHIPPED (2026-07-29); P2-P6 planned.** This document is the
+> **Status: P0 + P1 + P2 SHIPPED (2026-07-29); P3-P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -23,6 +23,19 @@
 > `stzSystemProfile.Resources()` mem gap FILLED (live profiles observe,
 > declared profiles report 0). Guard: `engine_senses_narrated.ring`
 > (36 assertions). Narration: `stz-engine-senses-narration.md`.
+>
+> P2 delivered: `base/perf/stzMetric.ring` (:Counter with measured
+> RatePerSecond = X, :Gauge with slope trend, :Timer with bucket AND
+> exact percentiles + exact lifetime sum/mean via a new engine
+> `histogram_sum`) and `base/perf/stzPerfMonitor.ring` (watch
+> declarations, Every() cadence, pull/tick/hosted-as-agent -- the
+> monitor satisfies the stzAgentHost contract); interop part two:
+> `Prometheus()` exposition text + `OtelJson()` resourceMetrics
+> envelope. Design law proven under fire: ALL metric state
+> engine-side + handles materialized EAGERLY at birth (a lazy handle
+> forks per Ring copy -- found live, pinned by the guard). Guard:
+> `metrics_monitor_narrated.ring` (42 assertions). Narration:
+> `stz-metrics-monitor-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -456,8 +469,8 @@ serialization**, chosen per kind:
 | Perf data | Industry format | Where |
 |---|---|---|
 | Timings / spans / traces | **OpenTelemetry** span JSON (OTLP vocabulary), W3C `traceparent` ids | P0, shipped: `stzStopwatch.ToOtelSpan()/ToOtelJson()/TraceParent()/JoinTrace()` |
-| Metric streams (counters/gauges/timers) | **Prometheus exposition format** (`/metrics` text) + OTLP metrics JSON | P2 (`stzMetric`), P3 widens the server `/health` |
-| Full trace batches | OTLP `resourceSpans` envelope | P2 exporter |
+| Metric streams (counters/gauges/timers) | **Prometheus exposition format** (`/metrics` text) + OTLP metrics JSON | P2, shipped: `stzMetric.PromText()/OtelMetricJson()`, `stzPerfMonitor.Prometheus()/OtelJson()`; P3 widens the server `/health` |
+| Full trace batches | OTLP `resourceSpans` envelope | P3+ exporter (spans batch where requests flow) |
 | SLA verdicts | findings `[ :invariant, :severity, :where, :message ]` -> `stzRuleReport` (the house CI gate) | P4 |
 
 Two commitments that keep the interop honest: absolute time anchors
@@ -524,9 +537,24 @@ before the next begins.
   `engine_senses_narrated.ring` (36 assertions, incl. a watched leak
   whose slope turns positive). *(The one phase of pure new engine
   surface; everything after is composition.)*
-- **P2 — Metrics and the monitor.** `stzMetric` (:Counter/:Gauge/:Timer),
-  `stzPerfMonitor` sampling on the reactive substrate, self-hosting on
-  `stzAgentHost`.
+- **P2 — Metrics and the monitor. SHIPPED 2026-07-29.** `stzMetric`:
+  counter total lives in its own series (rate = slope of the
+  cumulative line = measured X), gauge with SlopePerMs trend, timer
+  double-answering percentiles (O(1) bucket bounds for unbounded
+  streams AND sort-exact over the window) with exact lifetime
+  sum/mean — the engine histogram gained `histogram_sum` (buckets
+  quantize, the sum does not). `stzPerfMonitor`: watch declarations
+  (memory/cpu/system), Every() cadence, three run modes — pull
+  (`Sample()`), tick (`Tick()` from any loop), hosted (`Name_()` +
+  `Cycle()` = the stzAgentHost contract; a server hosting agents
+  samples its own health for free); utilization computed per interval
+  from the P1 senses. Interop part two: `Prometheus()` exposition +
+  `OtelJson()` resourceMetrics envelope. DESIGN LAW (proven by a live
+  defect): all metric state engine-side AND handles materialized
+  eagerly at birth — a lazily-created handle is created per-Ring-copy
+  and silently forks the metric (recording face read 120, registry
+  face read 0); the guard pins the fresh-copy case. Guard: 42
+  assertions. Narration: `stz-metrics-monitor-narration.md`.
 - **P3 — The seams.** `oSrv.Observe(oPerf)`: request bracket + widened
   `/health`; durations into backend `@aTraffic` and pipeline `Trace()`;
   `CallAcross`/`FederatedCall` brackets; cluster telemetry consumed

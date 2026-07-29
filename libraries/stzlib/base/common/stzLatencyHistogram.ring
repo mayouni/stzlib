@@ -63,6 +63,12 @@ class stzLatencyHistogram from stzObject
 		This._Ensure()
 		return StzEngineHistogramCount(pHandle)
 
+	# Exact running sum of every recorded value (the buckets quantize,
+	# the sum does not) -- lifetime mean = Sum()/Count().
+	def Sum()
+		This._Ensure()
+		return StzEngineHistogramSum(pHandle)
+
 	def Reset()
 		This._Ensure()
 		StzEngineHistogramReset(pHandle)
