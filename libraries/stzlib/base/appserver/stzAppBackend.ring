@@ -300,6 +300,8 @@ class stzAppBackend from stzObject
 	@cSignSecret = ""
 	@nMaxSkewMs = 30000
 	@nLastStatus = 0       # the status of the last crossing, either mode
+	@nLastMs = 0           # the DURATION of the last crossing (ms, monotonic
+	                       # clock) -- the marshalling cost made visible (perf P3)
 	@cModelPath = ""       # where SpawnRemote wrote the model
 	@cHostScript = ""      # the generated host script
 	@nSpawnJob = 0         # the child process job on @oClient
@@ -661,12 +663,13 @@ class stzAppBackend from stzObject
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_ds_ = StzLower(ring_trim("" + pcDataset))
 		if NOT This._MayCommit()
-			@aTraffic + [ _p_, "POST", _ds_, 403 ]
+			# a refusal never crossed: its cost is honestly 0 ms
+			@aTraffic + [ _p_, "POST", _ds_, 403, 0 ]
 			stzraise("stzAppBackend: part '" + _p_ + "' may not write '" + _ds_ +
 			         "' -- the acting actor is not effectful (expression is free; admission is governed).")
 		ok
 		This._Roundtrip("POST", "/api/" + _ds_, This._FormBody(paFields))
-		@aTraffic + [ _p_, "POST", _ds_, @nLastStatus ]
+		@aTraffic + [ _p_, "POST", _ds_, @nLastStatus, @nLastMs ]
 		return @nLastStatus = 201
 
 	# A part READS: a real HTTP GET. Returns [ [ cell, cell ], ... ].
@@ -675,7 +678,7 @@ class stzAppBackend from stzObject
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_ds_ = StzLower(ring_trim("" + pcDataset))
 		_cResp_ = This._Roundtrip("GET", "/api/" + _ds_, "")
-		@aTraffic + [ _p_, "GET", _ds_, @nLastStatus ]
+		@aTraffic + [ _p_, "GET", _ds_, @nLastStatus, @nLastMs ]
 		return This._ParseRowsJson(_cResp_)
 
 	def RowCount(pcPart, pcDataset)
@@ -683,7 +686,7 @@ class stzAppBackend from stzObject
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_ds_ = StzLower(ring_trim("" + pcDataset))
 		_cResp_ = This._Roundtrip("GET", "/api/" + _ds_ + "/count", "")
-		@aTraffic + [ _p_, "GET", _ds_ + "/count", @nLastStatus ]
+		@aTraffic + [ _p_, "GET", _ds_ + "/count", @nLastStatus, @nLastMs ]
 		return This._CountJson(_cResp_)
 
 	# The part's dashboard, computed over LIVE rows fetched from the running
@@ -726,9 +729,36 @@ class stzAppBackend from stzObject
 	def IsGoverned()
 		return @bGoverned
 
-	# [ [ part, verb, dataset, status ], ... ] -- every crossing, in order.
+	# [ [ part, verb, dataset, status, durMs ], ... ] -- every crossing,
+	# in order, WITH its cost (perf P3): the ledger now answers not just
+	# what crossed and how it ended, but what it took.
 	def Traffic()
 		return @aTraffic
+
+	# The duration of the last crossing (ms, monotonic clock) -- the
+	# marshalling cost of one Create/Rows/RowCount, either mode.
+	def LastMs()
+		return @nLastMs
+
+		def LastRoundtripMs()
+			return @nLastMs
+
+	# Mean crossing cost over the whole ledger (refusals, at 0 ms,
+	# excluded -- they never crossed).
+	def MeanCrossingMs()
+		_nSum_ = 0
+		_nN_ = 0
+		_nLen_ = len(@aTraffic)
+		for _i_ = 1 to _nLen_
+			if @aTraffic[_i_][4] != 403
+				_nSum_ += @aTraffic[_i_][5]
+				_nN_++
+			ok
+		next
+		if _nN_ = 0
+			return 0
+		ok
+		return _nSum_ / _nN_
 
 	def TrafficCount()
 		return len(@aTraffic)
@@ -767,7 +797,8 @@ class stzAppBackend from stzObject
 		_n_ = len(@aTraffic)
 		for _i_ = 1 to _n_
 			_out_ + ("  #" + _i_ + " " + @aTraffic[_i_][1] + " " + @aTraffic[_i_][2] +
-			         " " + @aTraffic[_i_][3] + " -> " + @aTraffic[_i_][4])
+			         " " + @aTraffic[_i_][3] + " -> " + @aTraffic[_i_][4] +
+			         " (" + @aTraffic[_i_][5] + " ms)")
 		next
 		return _out_
 
@@ -995,6 +1026,10 @@ class stzAppBackend from stzObject
 	# from HttpLastStatus guarded by a DRAIN check (that global goes stale on a
 	# timeout, so an unguarded read can report a previous request's 200).
 	def _Roundtrip(pcMethod, pcPath, pcBody)
+		# perf P3: ONE timer at the ONE choke point times the crossing in
+		# both modes -- the marshalling cost (sign + wire + serve + parse)
+		# stops being a guess. Monotonic clock; read it via LastMs().
+		_nT0_ = StzEngineWatchTimestampNs()
 		# sign BEFORE the envelope is appended: the signature covers the method,
 		# the path as the far side will see it minus the envelope, and the body.
 		_cPath_ = pcPath + This._AuthQuery(pcMethod, pcPath, pcBody)
@@ -1004,14 +1039,17 @@ class stzAppBackend from stzObject
 			_nJob_ = @oClient.SubmitHttp(_nMethod_, "http://" + This.Endpoint() + _cPath_, pcBody)
 			if _nJob_ < 1
 				@nLastStatus = 0
+				@nLastMs = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 				return ""
 			ok
 			_cResp_ = @oClient.AwaitHttp(_nJob_, 5000)
 			if @oClient.JobState(_nJob_) != -2
 				@nLastStatus = 0                           # never completed
+				@nLastMs = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 				return ""
 			ok
 			@nLastStatus = @oClient.HttpLastStatus()
+			@nLastMs = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 			return _cResp_                                 # the BODY (no status line)
 		ok
 		_cCRLF_ = char(13) + char(10)
@@ -1024,6 +1062,7 @@ class stzAppBackend from stzObject
 		@oServer.ServeOne(3000)
 		_cRaw_ = @oClient.AwaitTcp(_nJob_, 5000)
 		@nLastStatus = This._StatusOf(_cRaw_)
+		@nLastMs = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 		return _cRaw_                                      # the RAW response
 
 	# --- response parsing, SPLIT-ONLY ------------------------------------

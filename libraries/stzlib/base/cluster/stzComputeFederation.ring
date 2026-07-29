@@ -40,6 +40,7 @@ class stzComputeFederation from stzObject
 	@oSigner = NULL      # HMAC request signing (authenticity + integrity)
 	@aLastSig = []       # the last outbound signature envelope (observability)
 	@nLastStatus = 0
+	@nLastCallMs = 0   # duration of the last FederatedCall (ms; perf P3)
 	@cWhy = ""
 	# wire mTLS: when set, FederatedCall transports over a MUTUALLY
 	# authenticated + encrypted mbedTLS channel instead of plain curl
@@ -165,12 +166,16 @@ class stzComputeFederation from stzObject
 	# Returns the remote response body; "" (with CallLastStatus < 0 and
 	# Why()) on refusal. The governed action is "use-<facet>".
 	def FederatedCall(pcCaller, pcFacet, pcPath, pcBody)
+		# perf P3: the whole crossing -- gates + signing + transport --
+		# is timed on the monotonic clock; read it via LastCallMs().
+		_nPerfT0_ = StzEngineWatchTimestampNs()
 		_cFacet_ = StzLower("" + pcFacet)
 		# SAFETY: a caller-controlled path must not override the target
 		# host (SSRF) or smuggle via CRLF -- it must be a real path.
 		if NOT This._SafePath(pcPath)
 			@cWhy = "unsafe path rejected (must start with '/', no CRLF): " + pcPath
 			@nLastStatus = -1
+			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
 			return ""
 		ok
 		# DISCOVERY
@@ -178,18 +183,21 @@ class stzComputeFederation from stzObject
 		if len(_aHosts_) = 0
 			@cWhy = "no active host offers facet '" + _cFacet_ + "'"
 			@nLastStatus = -1
+			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
 			return ""
 		ok
 		# GOVERNANCE: a bond must permit the caller...
 		if NOT This.AreBonded(pcCaller, _cFacet_)
 			@cWhy = "no bond lets '" + pcCaller + "' request facet '" + _cFacet_ + "'"
 			@nLastStatus = -1
+			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
 			return ""
 		ok
 		# ...and the capability lattice must clear it
 		if @oGov.MayProceed(pcCaller, "use-" + _cFacet_) = 0
 			@cWhy = "governance refused: " + @oGov.Why()
 			@nLastStatus = -1
+			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
 			return ""
 		ok
 		# SIGN (opt-in): if this caller has a registered shared key, sign the
@@ -231,10 +239,16 @@ class stzComputeFederation from stzObject
 			"federated compute call cleared + transported", pcCaller, "use-" + _cFacet_)
 		@cWhy = "allowed: offered + bonded + governed" +
 			iff(@bMtls, " + mTLS", "") + " -> " + _aHosts_[1]
+		@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
 		return _cResp_
 
 	def CallLastStatus()
 		return @nLastStatus
+
+	# Duration of the last FederatedCall, ms (gates + signing +
+	# transport; refusals cost what the gates cost).
+	def LastCallMs()
+		return @nLastCallMs
 
 	#-- request signing (authenticity + integrity, under governance) -------
 

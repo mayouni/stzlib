@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: P0 + P1 + P2 SHIPPED (2026-07-29); P3-P6 planned.** This document is the
+> **Status: P0-P3 SHIPPED (2026-07-29); P4-P6 planned.** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -36,6 +36,13 @@
 > forks per Ring copy -- found live, pinned by the guard). Guard:
 > `metrics_monitor_narrated.ring` (42 assertions). Narration:
 > `stz-metrics-monitor-narration.md`.
+>
+> P3 delivered: `stzAppServer.Observe(oMon)` -- per-request R/X/errors
+> + `/metrics` (Prometheus) + widened `/health`; backend `@aTraffic`
+> durations (refusals at honest 0); pipeline `StageDurations()/
+> TotalMs()`; `CallAcross`/`FederatedCall` crossing timers. Guard:
+> `seams_narrated.ring` (40) + all touched suites re-run green.
+> Narration: `stz-perf-seams-narration.md`.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
@@ -555,11 +562,33 @@ before the next begins.
   and silently forks the metric (recording face read 120, registry
   face read 0); the guard pins the fresh-copy case. Guard: 42
   assertions. Narration: `stz-metrics-monitor-narration.md`.
-- **P3 — The seams.** `oSrv.Observe(oPerf)`: request bracket + widened
-  `/health`; durations into backend `@aTraffic` and pipeline `Trace()`;
-  `CallAcross`/`FederatedCall` brackets; cluster telemetry consumed
-  as-is. After P3 every crossing in the library has a cost, not just a
-  status.
+- **P3 — The seams. SHIPPED 2026-07-29.** `oSrv.Observe(oMon)` is the
+  whole integration: the request bracket in `_HandleHttpEvent` (opens
+  before parse, closes after the write handoff; monitor snapshotted to
+  a local alongside reactor/serverId — the same re-entrancy
+  discipline) records R into `http.request.ms`, X into
+  `http.requests`, 5xx into `http.errors`; the serve loop ticks the
+  monitor at its own cadence (an observed server samples itself);
+  built-in `GET /metrics` serves the full Prometheus exposition
+  (signed like any path when signing is on) and `/health` widens with
+  rss/cpu + p50/p95/p99 + measured rate when observed. Unobserved
+  server = one NULL check per request, `/metrics` an honest 404.
+  Backend: `_Roundtrip` timed at the one choke point (both modes),
+  `@aTraffic` rows gain the durMs column (governance refusals ledgered
+  at an honest 0 — they never crossed), `LastMs()/MeanCrossingMs()`;
+  measured on loopback: ~13 ms per crossing — the marshalling cost
+  the cross-once-per-algorithm rule warns about, now printed.
+  Pipeline: per-stage durations in `Trace()` +
+  `StageDurations()/TotalMs()` (the bottleneck stage stops hiding).
+  `stzSuperApp.CallAcross`: every crossing (clearance or refusal)
+  timed + ledgered (`Crossings()`, bounded 256, `LastCallMs()`).
+  `stzComputeFederation.FederatedCall`: full arc timed
+  (`LastCallMs()`), refusals included. Cluster telemetry consumed
+  as-is. Guard: `seams_narrated.ring` (40 assertions, real HTTP both
+  ends in-process) + appserver 60/61/62/64, cluster
+  pipeline/federation, superapp suites re-run green. Narration:
+  `stz-perf-seams-narration.md`. After P3 every crossing in the
+  library has a cost, not just a status.
 - **P4 — Judgment.** `stzSla` + alerts (thresholds, outliers, breaker
   suppression, event-bus fanout, trace-id carrying); findings into
   `stzRuleReport`; perf budgets become CI-gateable.

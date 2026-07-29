@@ -46,6 +46,11 @@ class stzSuperApp from stzObject
 	@aBonds   = []         # [ from, to, action ]
 	@cWhy     = ""
 
+	# perf P3: every cross-world crossing carries its cost. Bounded
+	# ledger (newest 256): [ from, to, action, allowed, durMs ].
+	@aCallLog = []
+	@nLastCallMs = 0
+
 	def init(pcName)
 		@cName = "" + pcName
 		@oGraph = new stzGraph("constellation-" + @cName)
@@ -205,28 +210,50 @@ class stzSuperApp from stzObject
 	# THE ENFORCEMENT SEAM: a cross-world call proceeds ONLY when both
 	# worlds are active, a bond declares the action, and governance
 	# clears the caller. Returns TRUE/FALSE; Why() explains refusals.
+	# perf P3: every outcome -- clearance or refusal -- is timed on the
+	# monotonic clock and ledgered (Crossings()/LastCallMs()).
 	def CallAcross(pcFrom, pcTo, pcAction)
+		_nT0_ = StzEngineWatchTimestampNs()
 		if NOT This.IsActive(pcFrom)
 			@cWhy = "calling world '" + pcFrom + "' is not active."
-			return FALSE
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
 		ok
 		if NOT This.IsActive(pcTo)
 			@cWhy = "target world '" + pcTo + "' is not active."
-			return FALSE
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
 		ok
 		if NOT This.AreBonded(pcFrom, pcTo, pcAction)
 			@cWhy = "no bond declares '" + StzLower("" + pcAction) + "' from '" +
 				pcFrom + "' to '" + pcTo + "'."
-			return FALSE
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
 		ok
 		if @oGov.MayProceed(pcFrom, pcAction) = 0
 			@cWhy = "governance refused: " + @oGov.Why()
-			return FALSE
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
 		ok
 		@oGov.RecordDecision("call-" + pcFrom + "-" + StzLower("" + pcAction) + "-" + len(@aBonds),
 			"cross-world call cleared", pcFrom, pcAction)
 		@cWhy = "allowed: active + bonded + governed"
-		return TRUE
+		return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, TRUE)
+
+	# The crossings ledger: [ [ from, to, action, allowed, durMs ], ... ].
+	def Crossings()
+		return @aCallLog
+
+	def CrossingCount()
+		return len(@aCallLog)
+
+	def LastCallMs()
+		return @nLastCallMs
+
+	def _CrossingDone(pnT0, pcFrom, pcTo, pcAction, pbOk)
+		@nLastCallMs = (StzEngineWatchTimestampNs() - pnT0) / 1000000
+		@aCallLog + [ "" + pcFrom, StzLower("" + pcTo), StzLower("" + pcAction),
+			pbOk, @nLastCallMs ]
+		if len(@aCallLog) > 256
+			del(@aCallLog, 1)
+		ok
+		return pbOk
 
 	#-- internals ----------------------------------------------------------
 

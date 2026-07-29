@@ -74,6 +74,12 @@ class stzAppServer from stzObject
 	@nRequestCount = 0
 	@nStartMs = 0
 
+	# Perf observation (perf P3): a stzPerfMonitor this server records
+	# into per request (R + X + errors) and ticks while serving. The
+	# stored monitor is a Ring COPY -- harmless by design: metric state
+	# is engine-side, so the caller's face reads what this face records.
+	@oPerfMon = NULL
+
 	# Hosted agents (R5): an stzAgentHost sharing THIS server's loop
 	@oAgentHost = NULL
 	@nAgentSliceMs = 20       # max ms spent parked on the socket per tick pass
@@ -205,6 +211,11 @@ class stzAppServer from stzObject
 		if NOT @bRunning
 			stzraise("stzAppServer.ServeOne() called on a stopped server -- Start() first.")
 		ok
+		# perf P3: the observed server samples its own senses at the
+		# monitor's cadence (Tick is a cheap due-check when not due).
+		if @oPerfMon != NULL
+			@oPerfMon.Tick()
+		ok
 		_nDeadline_ = StzEngineTimeNowMs() + nTimeoutMs
 		while TRUE
 			# HTTP listener (non-blocking drain)
@@ -300,6 +311,30 @@ class stzAppServer from stzObject
 	def Delete(cPath, fHandler)
 		@oRouter.AddRoute("DELETE", cPath, fHandler)
 		return This
+
+	# Observe this server with a perf monitor (perf P3). From this call
+	# on, every request records its response time R into the timer
+	# 'http.request.ms', its arrival into the counter 'http.requests'
+	# (throughput X = its measured rate), and 5xx outcomes into
+	# 'http.errors'; GET /metrics serves the monitor's Prometheus
+	# exposition, and /health widens with the process senses. The
+	# monitor's watched senses (memory/cpu) are ticked by the serve
+	# loop at the monitor's own cadence -- a served app samples itself.
+	def Observe(poMonitor)
+		if NOT poMonitor.HasMetric("http.request.ms")
+			poMonitor.NewTimer("http.request.ms")
+		ok
+		if NOT poMonitor.HasMetric("http.requests")
+			poMonitor.NewCounter("http.requests")
+		ok
+		if NOT poMonitor.HasMetric("http.errors")
+			poMonitor.NewCounter("http.errors")
+		ok
+		@oPerfMon = poMonitor
+		return This
+
+	def IsObserved()
+		return @oPerfMon != NULL
 
 	def Use(cPath, fMiddleware)
 		@oRouter.AddMiddleware(cPath, fMiddleware)
@@ -733,9 +768,11 @@ class stzAppServer from stzObject
 		# leaves Ring's object scope pointing elsewhere, so a BARE @nServerId
 		# / @oReactor read AFTER `call fHandler()` raises R24 (the trap). Read
 		# them into locals up front and the write is safe whatever the
-		# handler did.
+		# handler did. The perf monitor obeys the SAME discipline.
 		_oRct_ = @oReactor
 		_nSid_ = @nServerId
+		_oPerf_ = @oPerfMon
+		_nT0_ = StzEngineWatchTimestampNs()   # the request bracket opens (perf P3)
 		_oResp_ = new stzAppResponse(NULL)
 		_bClose_ = TRUE
 		try
@@ -749,6 +786,16 @@ class stzAppServer from stzObject
 			_oResp_.Text("")   # handler set nothing: empty 200
 		ok
 		_oRct_.ServerWrite(_nSid_, _nConn_, _oResp_.HttpBytes(), _bClose_)
+		# The bracket closes AFTER the write is submitted: R covers
+		# parse + gate + route + handler + render + write handoff.
+		if _oPerf_ != NULL
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
+			_oPerf_.MetricQ("http.request.ms").Record(_nMs_)
+			_oPerf_.MetricQ("http.requests").Increment()
+			if _oResp_.StatusCode() >= 500
+				_oPerf_.MetricQ("http.errors").Increment()
+			ok
+		ok
 		return TRUE
 
 	def _Dispatch(oReq, oResp)
@@ -775,12 +822,34 @@ class stzAppServer from stzObject
 			# compare the path WITHOUT its query: a signed probe arrives as
 			# "/health?_kid=..&_sig=..", and an exact match would miss it.
 			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/health"
-				oResp.Json([
+				# perf P3: /health carries the process senses; an OBSERVED
+				# server adds its measured R percentiles and throughput.
+				_aH_ = [
 					"status", "healthy",
 					"engine", "softanza-resident",
 					"uptime_s", This.Uptime(),
-					"requests_served", @nRequestCount
-				])
+					"requests_served", @nRequestCount,
+					"rss_bytes", StzEnginePerfMemRss(),
+					"cpu_ms", StzEnginePerfCpuNs() / 1000000
+				]
+				if @oPerfMon != NULL
+					_oT_ = @oPerfMon.MetricQ("http.request.ms")
+					_aH_ + "p50_ms"
+					_aH_ + _oT_.P50()
+					_aH_ + "p95_ms"
+					_aH_ + _oT_.P95()
+					_aH_ + "p99_ms"
+					_aH_ + _oT_.P99()
+					_aH_ + "rate_per_s"
+					_aH_ + @oPerfMon.MetricQ("http.requests").RatePerSecond()
+				ok
+				oResp.Json(_aH_)
+			# perf P3: the OBSERVED server speaks Prometheus natively --
+			# point a scraper at /metrics and every metric (senses + the
+			# request instruments + the app's own) arrives in exposition
+			# format. Signed like every other path when signing is on.
+			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/metrics" and @oPerfMon != NULL
+				oResp.Text(@oPerfMon.Prometheus())
 			else
 				oResp.NotFound("Route not found: " + oReq.Method() + " " + oReq.Path())
 			ok
