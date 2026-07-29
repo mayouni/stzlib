@@ -151,6 +151,13 @@ Two remotes, always:
 ```bash
 git push origin main; git push codeberg main
 ```
+
+**While parallel sessions work this repo: `git add <explicit paths>`,
+never `-A`/`-am`.** One session's `git add -A` swept another session's
+in-flight files into an unrelated commit (wrong message, wrong
+attribution, already pushed). Expect foreign commits to appear between
+your edit and your commit, and expect transient engine-build failures
+from the other session's mid-save -- rebuild before diagnosing.
 Codeberg auth expires periodically; if it fails, push GitHub and
 flag the codeberg push as pending. Don't block on it.
 
@@ -181,6 +188,10 @@ git push codeberg HEAD:refs/heads/main
 
 ## What NOT to do (collected the hard way)
 
+- Don't name a method or variable after (or containing) a Ring
+  KEYWORD: `def Load()` is a C6 error (`load`), a variable `cAll` is
+  a C13 error (contains `call`). Cost two renames in the perf grind
+  (`LoadRatio()`, `cNarr`).
 - Don't use `for X in list ... next` -- iterator form re-evaluates
   the source per step. Use `nLen = ring_len(aList); for i = 1 to nLen`.
 - Don't call `len()` or `trim()` bare inside class scope -- use
@@ -189,3 +200,75 @@ git push codeberg HEAD:refs/heads/main
   find-from-position; it is REPLACE in Ring. Use `_FindFrom` instead.
 - Don't use non-ASCII chars in console output (Windows renders as
   garbled text). French markdown docs are the exception.
+
+## Perf-system laws (the P0-P7 grind, 2026-07-29)
+
+The perf module (`base/perf/`, design doc `SOFTANZA_PERF_SYSTEM.md`,
+8 narrated guards / 283 assertions under `base/test/perf/`) minted
+rules that apply well beyond it. Run the perf guards before touching
+`base/perf/`, the appserver request bracket, the cluster supervisor,
+the reactor, or the engine perf/histogram/watch modules.
+
+1. **Engine-wrapper copy law.** A class whose state must survive
+   Ring's copy-on-assign keeps ALL mutable state in ENGINE handles,
+   and materializes those handles EAGERLY at birth. A lazily-created
+   handle is created per-copy and forks silently (found live: the
+   recording face counted 120, the registry face read 0). Paren-less
+   `new` skips `init()`, so force materialization (`.Handle()`) when
+   composing wrappers.
+
+2. **Per-face Ring state: one face drives.** Anything Ring-side in a
+   copied object (cadence bookkeeping, CPU baselines, self-cost,
+   sentinel transitions) forks per copy. `Observe()`/`Supervise()`
+   store COPIES -- the stored copy is the driver; every face reads
+   the shared engine data. Configure (e.g. `EnableTracing`) BEFORE
+   the copy is taken.
+
+3. **Clocks are scopes.** Monotonic = `StzEngineWatchTimestamp*` /
+   `StzEngineProcessUptime*` (Instant-baseline; NTP-immune) -- the
+   only clocks fit for durations. `StzEngineTimeNow*` and Zig's
+   `nanoTimestamp()` are EPOCH WALL time; consumers (stzLog,
+   telemetry) treat them as absolute -- do not flip time.zig's
+   semantics casually.
+
+4. **Windows quantizes both time axes.** CPU accounting
+   (`GetProcessTimes`) ticks in 15.625 ms quanta: a short-interval
+   CPU reading of "15.63 ms" is ONE TICK, not a measurement --
+   average across many quanta. Sleeps round UP to ~15.6 ms at the
+   default timer resolution: the reactor requests 1 ms
+   (`timeBeginPeriod(1)` at `reactor_create`) -- that fix took the
+   in-process round trip from 22 ms to 5 ms; any new sleep-polling
+   code outside a reactor process re-inherits the coarse default.
+
+5. **An identity is not a self-check.** A formula computed from one
+   set of anchors (U = X*D/cores) can never fail and proves nothing.
+   A real self-check compares two INDEPENDENT measurements of the
+   same truth (anchor-computed U vs the sampled utilization gauge;
+   Little's implied N vs a counted in-flight).
+
+6. **Leave-one-out z for outliers.** A z-score computed over a window
+   that INCLUDES the newest sample is bounded -- at n=10 the maximum
+   is exactly 3.0, so a |z|>3 test can never fire. Judge the newest
+   sample against the PRIOR window; a jump off a flat baseline is
+   infinitely surprising.
+
+7. **Guard honesty for live values.** Never assert equality between
+   two reads of a live ratio -- it drifts BOTH ways (the interval
+   grows so X decays; the guard's own prints burn CPU so D grows).
+   Assert ranges for live reads; prove exact-transfer with a frozen
+   stub. And wait-bound scenes must NOT use in-process HTTP -- the
+   harness's own CPU masks the wait; feed the standard instruments
+   directly.
+
+8. **f64 serialization boundary.** Epoch NANOS overflow 2^53: cross
+   into JSON as ms-exact strings plus `"000000"`; exact ns is safe
+   only for monotonic spans (~104 days).
+
+9. **Reuse the house contracts, don't invent parallel ones.**
+   Check-like verdicts go in the unified rule shape
+   `[ :rule, :subject, :where, :severity, :message ]` ->
+   `stzRuleReport.Ingest()` (one CI gate). Anything periodic exposes
+   `Name_()` + `Cycle()` and becomes hostable on any `stzAgentHost`
+   (servers tick their agents' loop). The request instruments'
+   names -- `http.request.ms`, `http.requests`, `http.errors` -- are
+   the SLA's well-known subjects; keep them stable.
