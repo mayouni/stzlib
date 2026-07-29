@@ -784,6 +784,83 @@ Scenario("...and the hyperbolic twin needed no new idea, which is the asymmetry"
 	Then("...and so is -1", RefusesAtanh([ [-1,0], [0,0.5] ]), TRUE)
 EndScenario()
 
+Scenario("THE MATRIX ARCSINE AND ARCCOSINE")
+	#     asin(A) = MatrixAtan( A * (I - A^2)^(-1/2) )
+	#     acos(A) = (pi/2) I - asin(A)
+	#
+	# The scalar identities lifted. Everything commutes -- A and any function of A -- so
+	# the lift is the same expression with matrix inverses where the divisions were, and
+	# nothing has to be reordered. The arccosine is EXACT rather than a second
+	# algorithm: acos + asin = pi/2 holds term by term, so it is a subtraction.
+	aA = [ [0.30,0.20,-0.10,0.05], [0.00,0.25,0.15,0.10],
+	       [-0.10,0.00,0.20,0.15], [0.05,-0.10,0.00,0.30] ]
+	oA = new stzMatrix(aA)
+	oAsin = new stzMatrix(oA.MatrixAsin())
+	oAcos = new stzMatrix(oA.MatrixAcos())
+
+	Then("sin(asin(A)) is A", SameMat(oAsin.MatrixSin(), aA), TRUE)
+	Then("cos(acos(A)) is A", SameMat(oAcos.MatrixCos(), aA), TRUE)
+	Then("...and asin + acos is exactly (pi/2) I",
+	     SameMat(MatAdd(oA.MatrixAsin(), oA.MatrixAcos()), PiOverTwo(4)), TRUE)
+
+	# asin(N) = N + N^3/6 + ... and N^3 is already zero
+	aNil = [ [0,1,0], [0,0,1], [0,0,0] ]
+	oNil = new stzMatrix(aNil)
+	Then("a nilpotent matrix gives back itself, exactly",
+	     SameMat(oNil.MatrixAsin(), aNil), TRUE)
+EndScenario()
+
+Scenario("...and the branch point is the OTHER one this time")
+	# sqrt(I - A^2) needs no negative real eigenvalue, and for a real L that is 1 - L^2
+	# -- negative exactly when |L| passes ONE. Which is where asin stops being real:
+	# asin(2) has no real value, and neither has the arcsine of a matrix with an
+	# eigenvalue at 2.
+	#
+	# Compare MatrixAtan(), whose obstacle was |b| > 1 on the IMAGINARY axis. Same
+	# square root, same mechanism, DIFFERENT BRANCH POINTS -- because they belong to
+	# different functions.
+	Then("an eigenvalue at 2 has no real arcsine", RefusesArc([ [2,0], [0,0.5] ], "asin"), TRUE)
+	Then("...nor a real arccosine", RefusesArc([ [2,0], [0,0.5] ], "acos"), TRUE)
+	Then("...while one inside is answered", RefusesArc([ [0.5,0], [0,0.25] ], "asin"), FALSE)
+
+	# AND acosh WANTS THE OPPOSITE HALF OF THE LINE. A^2 - I gives L^2 - 1, negative
+	# exactly when |L| falls BELOW one. Two functions one character apart in the source
+	# -- a plus against a minus -- refusing mirror-image domains.
+	Then("acosh refuses an eigenvalue INSIDE the unit interval",
+	     RefusesArc([ [0.5,0], [0,0.25] ], "acosh"), TRUE)
+	Then("...and answers one outside it", RefusesArc([ [3,0], [0,4] ], "acosh"), FALSE)
+EndScenario()
+
+Scenario("...and every hyperbolic inverse is a closed form in the logarithm")
+	#     asinh(A) = MatrixLog( A + sqrt(A^2 + I) )
+	#     acosh(A) = MatrixLog( A + sqrt(A^2 - I) )
+	#     atanh(A) = (1/2) [ MatrixLog(I + A) - MatrixLog(I - A) ]
+	#
+	# WHICH COMPLETES A PATTERN WORTH STATING. Every hyperbolic inverse is a closed form
+	# in the logarithm, while each circular one had to be BUILT -- MatrixAtan() needed a
+	# halving recurrence, and MatrixAsin() is defined through it. The two families
+	# matched sign for sign all the way up, to the point of sharing one routine, and
+	# they part company at the inverses.
+	aReal = [ [3,0.4,0.1], [0,-5,0.2], [0,0,0.25] ]   # TRIANGULAR: a real spectrum
+	oReal = new stzMatrix(aReal)
+	oAsinh = new stzMatrix(oReal.MatrixAsinh())
+	Then("sinh(asinh(A)) is A", SameMat(oAsinh.MatrixSinh(), aReal), TRUE)
+
+	# the same matrix the circular arcsine declines, since its eigenvalues run past 1
+	Then("...on a matrix the arcsine refuses outright",
+	     RefusesArc(aReal, "asin"), TRUE)
+
+	# AND "REFUSES NOTHING" IS ABOUT A REAL SPECTRUM, NOT REAL ENTRIES. The two are easy
+	# to conflate -- the engine test above conflated them and failed for it. A real
+	# matrix may have complex eigenvalues, and then A^2 + I can carry a negative real
+	# one and the square root inside has no real answer.
+	aComplex = [ [0.9,1.4,-0.3,0.2], [0.0,0.6,1.1,0.5],
+	             [-0.7,0.1,0.8,1.0], [0.3,-0.5,0.0,1.2] ]   # a pair at 1.2692 +/- 1.0113i
+	Then("a complex pair can put even asinh out of reach",
+	     RefusesArc(aComplex, "asinh"), TRUE)
+EndScenario()
+
+
 
 
 
@@ -1096,3 +1173,36 @@ func RefusesAtanh(aX)
 		_rhB_ = TRUE
 	done
 	return _rhB_
+
+func PiOverTwo(n)
+	_phR_ = []
+	for _phI_ = 1 to n
+		_phRow_ = []
+		for _phJ_ = 1 to n
+			if _phI_ = _phJ_
+				_phRow_ + (3.14159265358979 / 2)
+			else
+				_phRow_ + 0
+			ok
+		next
+		_phR_ + _phRow_
+	next
+	return _phR_
+
+func RefusesArc(aX, cWhich)
+	_rcB_ = FALSE
+	try
+		_rcO_ = new stzMatrix(aX)
+		if cWhich = "asin"
+			_rcO_.MatrixAsin()
+		but cWhich = "acos"
+			_rcO_.MatrixAcos()
+		but cWhich = "asinh"
+			_rcO_.MatrixAsinh()
+		else
+			_rcO_.MatrixAcosh()
+		ok
+	catch
+		_rcB_ = TRUE
+	done
+	return _rcB_

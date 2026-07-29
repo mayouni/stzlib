@@ -382,6 +382,46 @@ pub fn stz_matrix_sqrt_general(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     return out;
 }
 
+/// THE MATRIX ARCSINE: atan( A (I - A^2)^(-1/2) ).
+///
+/// Null when an eigenvalue leaves [-1, 1]: I - A^2 then carries a negative real
+/// eigenvalue, which is asin's branch point rather than a limitation of the method.
+pub fn stz_matrix_asin(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.asinGeneral);
+}
+
+/// THE MATRIX ARCCOSINE: (pi/2) I - asin(A). Exact, and it inherits asin's domain.
+pub fn stz_matrix_acos(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acosGeneral);
+}
+
+/// THE HYPERBOLIC ARCSINE: log( A + sqrt(A^2 + I) ). Refuses nothing for a REAL
+/// spectrum -- though a complex eigenvalue pair can still put it out of reach.
+pub fn stz_matrix_asinh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.asinhGeneral);
+}
+
+/// THE HYPERBOLIC ARCCOSINE: log( A + sqrt(A^2 - I) ). The minus inverts the domain --
+/// where acos wants eigenvalues INSIDE [-1, 1], this wants them outside.
+pub fn stz_matrix_acosh(m: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    return matFn(m, eigen_general.acoshGeneral);
+}
+
+/// the shape every one of these shares: square in, square out, null on refusal
+fn matFn(
+    m: ?*const StzMatrix,
+    comptime f: fn (std.mem.Allocator, []const f64, usize, []f64) anyerror!void,
+) ?*StzMatrix {
+    const mat = m orelse return null;
+    if (mat.rows == 0 or mat.rows != mat.cols) return null;
+    const out = StzMatrix.init(gpa, mat.rows, mat.cols) catch return null;
+    f(gpa, mat.data, mat.rows, out.data) catch {
+        out.deinit();
+        return null;
+    };
+    return out;
+}
+
 /// THE MATRIX ARCTANGENT, by the halving identity
 /// atan(A) = 2 atan(A (I + sqrt(I + A^2))^-1) applied until the argument is small.
 ///

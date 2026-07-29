@@ -42,6 +42,10 @@ comptime {
     @export(&matrix.stz_matrix_sinh, .{ .name = "stz_matrix_sinh" });
     @export(&matrix.stz_matrix_tan, .{ .name = "stz_matrix_tan" });
     @export(&matrix.stz_matrix_atan, .{ .name = "stz_matrix_atan" });
+    @export(&matrix.stz_matrix_asin, .{ .name = "stz_matrix_asin" });
+    @export(&matrix.stz_matrix_acos, .{ .name = "stz_matrix_acos" });
+    @export(&matrix.stz_matrix_asinh, .{ .name = "stz_matrix_asinh" });
+    @export(&matrix.stz_matrix_acosh, .{ .name = "stz_matrix_acosh" });
     @export(&matrix.stz_matrix_atanh, .{ .name = "stz_matrix_atanh" });
     @export(&matrix.stz_matrix_tanh, .{ .name = "stz_matrix_tanh" });
     @export(&matrix.stz_matrix_cosh, .{ .name = "stz_matrix_cosh" });

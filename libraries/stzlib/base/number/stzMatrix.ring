@@ -2514,6 +2514,100 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
+	# THE MATRIX ARCSINE AND ARCCOSINE.
+	#
+	#     asin(A) = MatrixAtan( A * (I - A^2)^(-1/2) )
+	#     acos(A) = (pi/2) I - asin(A)
+	#
+	# The scalar identities lifted. Everything commutes -- A and any function of A -- so
+	# the lift is the same expression with matrix inverses where the divisions were, and
+	# nothing has to be reordered. The arccosine is EXACT rather than a second
+	# algorithm: acos + asin = pi/2 holds term by term, so it is a subtraction.
+	#
+	# -- AND THE REFUSAL IS THE BRANCH POINT AGAIN --
+	#
+	# sqrt(I - A^2) needs I - A^2 to have no negative real eigenvalue, and for a real
+	# eigenvalue L that is 1 - L^2 -- negative exactly when |L| passes ONE. Which is
+	# where asin stops being real: asin(2) has no real value, and neither has the
+	# arcsine of a matrix with an eigenvalue at 2.
+	#
+	# Compare MatrixAtan(), whose obstacle was |b| > 1 on the IMAGINARY axis. Same
+	# square root, same mechanism, different branch points -- because they belong to
+	# different functions.
+	def MatrixAsin()
+		return This._ArcTrig("asin")
+
+		def MatrixAsinQ()
+			return new stzMatrix(This.MatrixAsin())
+
+	def MatrixAcos()
+		return This._ArcTrig("acos")
+
+		def MatrixAcosQ()
+			return new stzMatrix(This.MatrixAcos())
+
+	# THE HYPERBOLIC ARCSINE AND ARCCOSINE, both closed forms in the logarithm:
+	#
+	#     asinh(A) = MatrixLog( A + sqrt(A^2 + I) )
+	#     acosh(A) = MatrixLog( A + sqrt(A^2 - I) )
+	#
+	# WHICH COMPLETES A PATTERN WORTH STATING. Every hyperbolic inverse here is a closed
+	# form in the logarithm -- atanh, asinh, acosh alike -- while each circular one had
+	# to be built: MatrixAtan() needed a halving recurrence, and MatrixAsin() is defined
+	# through it. The families matched sign for sign all the way up and part company at
+	# the inverses.
+	#
+	# -- AND ONE CHARACTER SEPARATES THE LAST TWO --
+	#
+	# The MINUS in acosh inverts the domain. A^2 - I gives L^2 - 1, negative exactly
+	# when |L| falls BELOW one -- so where MatrixAcos() wants its eigenvalues INSIDE
+	# [-1, 1], MatrixAcosh() wants them outside. Two functions one character apart in
+	# the source, refusing mirror-image halves of the real line.
+	#
+	# MatrixAsinh() refuses nothing for a REAL spectrum: A^2 + I gives 1 + L^2, always
+	# positive. Note "real SPECTRUM", not "real entries" -- a real matrix may have
+	# complex eigenvalues, and then it can decline after all.
+	def MatrixAsinh()
+		return This._ArcTrig("asinh")
+
+		def MatrixAsinhQ()
+			return new stzMatrix(This.MatrixAsinh())
+
+	def MatrixAcosh()
+		return This._ArcTrig("acosh")
+
+		def MatrixAcoshQ()
+			return new stzMatrix(This.MatrixAcosh())
+
+	def _ArcTrig(cWhich)
+		if @nRows = 0 or @nRows != @nCols
+			StzRaise("MatrixAsin/MatrixAcos: this needs a square matrix.")
+		ok
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix = NULL
+			return []
+		ok
+		if cWhich = "asin"
+			_pArV_ = StzEngineMatrixAsin(@pEngineMatrix)
+		but cWhich = "acos"
+			_pArV_ = StzEngineMatrixAcos(@pEngineMatrix)
+		but cWhich = "asinh"
+			_pArV_ = StzEngineMatrixAsinh(@pEngineMatrix)
+		else
+			_pArV_ = StzEngineMatrixAcosh(@pEngineMatrix)
+		ok
+		if _pArV_ = NULL
+			StzRaise("MatrixAsin/MatrixAcos/MatrixAsinh/MatrixAcosh: refused. The " +
+				"circular pair needs every eigenvalue INSIDE [-1, 1] -- asin(2) has no " +
+				"real value and neither has the arcsine of a matrix with an eigenvalue " +
+				"at 2. MatrixAcosh() wants the opposite, every eigenvalue OUTSIDE it. " +
+				"MatrixAsinh() asks least of all, but wants a REAL spectrum: real " +
+				"entries are not the same thing, and a complex pair can still decline.")
+		ok
+		_aArV_ = This._MatrixFromHandle(_pArV_)
+		StzEngineMatrixFree(_pArV_)
+		return _aArV_
+
 	# THE MATRIX ARCTANGENT.
 	#
 	# -- THE FIRST INVERSE HERE, AND IT NEEDED A DIFFERENT IDEA --
