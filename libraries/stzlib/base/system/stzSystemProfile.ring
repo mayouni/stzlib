@@ -86,6 +86,9 @@ func _StzPopulateLive(poProfile, pcRole)
 	poProfile.SetBitSize(_oOS_.BitSize())
 	poProfile.SetEndianness(_oOS_.Endianness())
 	poProfile.SetCpuCount(_oEnv_.CpuCount())
+	# The engine senses (perf P1): physical memory facts, live.
+	poProfile.SetMemTotalBytes(StzEnginePerfSysMemTotal())
+	poProfile.SetMemFreeBytes(StzEnginePerfSysMemFree())
 	poProfile.SetLanguageVersion(_StzHostLangVersion())
 	poProfile.SetCapabilityList(_StzDefaultCapsForClass(_StzSystemClassOf(_oOS_.Name())))
 
@@ -344,6 +347,8 @@ class stzSystemProfile from stzObject
 	@nBits = 0
 	@cEndianness = "unknown"
 	@nCpuCount = 0
+	@nMemTotalBytes = 0	# 0 = not populated (declared profile); live = engine fact
+	@nMemFreeBytes = 0	# snapshot at populate time, not a live gauge
 	@cLangVersion = ""
 	@oCaps = NULL
 
@@ -495,13 +500,32 @@ class stzSystemProfile from stzObject
 	def AddressBits()
 		return @nBits
 
+	def MemTotalBytes()
+		return @nMemTotalBytes
+
+	def SetMemTotalBytes(pn)
+		@nMemTotalBytes = pn
+		return This
+
+	def MemFreeBytes()
+		return @nMemFreeBytes
+
+	def SetMemFreeBytes(pn)
+		@nMemFreeBytes = pn
+		return This
+
 	def Resources()
-		# memory (mem_total / mem_free) is a PLANNED engine add
-		# (SOFTANZA_SYSTEM_FOUNDATION.md section 4.2); cpu + address width are
-		# the honest live facts today.
+		# memory arrived with the perf P1 engine senses (stz_perf.dll,
+		# SOFTANZA_PERF_SYSTEM.md): populated for LIVE profiles
+		# (DevelopmentSystem/CurrentSystem); 0 on a declared target, where
+		# the machine has not been observed. mem_free is a snapshot taken
+		# at populate time, not a live gauge -- sample StzEnginePerfSysMemFree()
+		# for the moving value.
 		return [
 			[ "cpu_count", @nCpuCount ],
-			[ "address_bits", @nBits ]
+			[ "address_bits", @nBits ],
+			[ "mem_total", @nMemTotalBytes ],
+			[ "mem_free", @nMemFreeBytes ]
 		]
 
 	  #-- Capabilities facet (the KEYSTONE) ------------------

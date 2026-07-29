@@ -70,6 +70,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_db", .entry = "src/stz_db_entry.zig", .needs_sqlite = true, .needs_ring = true },
     .{ .name = "stz_polyglot", .entry = "src/stz_polyglot_entry.zig", .needs_treesitter = true, .needs_ring = true },
     .{ .name = "stz_watch", .entry = "src/stz_watch_entry.zig", .needs_ring = true },
+    .{ .name = "stz_perf", .entry = "src/stz_perf_entry.zig", .needs_ring = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
     .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },
     .{ .name = "stz_process", .entry = "src/stz_process_entry.zig", .needs_ring = true },

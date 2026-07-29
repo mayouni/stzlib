@@ -253,6 +253,30 @@ class stzProcess from stzObject
 		def UptimeNs()
 			return This.UptimeInNanoseconds()
 
+	# The engine senses (perf P1, stz_perf.dll): what THIS process
+	# weighs and computes. Sensing-kind reads, no side effects.
+
+	# Current resident memory (working set), in bytes.
+	def MemoryBytes()
+		return StzEnginePerfMemRss()
+
+		def Rss()
+			return This.MemoryBytes()
+
+	# The high-water mark: the most memory this process EVER held.
+	# A crash-sized leak announces itself here first.
+	def PeakMemoryBytes()
+		return StzEnginePerfMemPeak()
+
+	# CPU time actually computed (user + kernel). Advances only when
+	# this process WORKS -- a sleeping process gains uptime but no CPU
+	# time. Utilization over a window = delta(cpu) / (delta(uptime) * cores).
+	def CpuTimeNs()
+		return StzEnginePerfCpuNs()
+
+	def CpuTimeMs()
+		return StzEnginePerfCpuNs() / 1000000
+
 	  #-----------------------------#
 	 #  MACHINE FACTS (the engine  #
 	 #  is the single source)      #
