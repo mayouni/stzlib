@@ -695,7 +695,26 @@ fn reapLocked(r: *Reactor, job: *Job) void {
     }
 }
 
+// Windows sleeps at the DEFAULT timer resolution round up to 15.625 ms
+// -- so the 1-2 ms poll-sleeps in the await paths became ~10-15 ms
+// stalls, costing an in-process HTTP round trip ~22 ms of wall for
+// ~1.5 ms of CPU (measured, perf P5 attribution). One process-wide
+// request for 1 ms resolution fixes every await in this DLL. Idempotent
+// and refcounted by the OS; paired timeEndPeriod deliberately omitted
+// (the resolution should hold for the process lifetime -- reactors are
+// created early and used until exit).
+extern "winmm" fn timeBeginPeriod(uPeriod: u32) callconv(.winapi) u32;
+
+var g_timer_res_requested = std.atomic.Value(bool).init(false);
+
+fn ensureFineTimerResolution() void {
+    if (@import("builtin").os.tag != .windows) return;
+    if (g_timer_res_requested.swap(true, .acq_rel)) return;
+    _ = timeBeginPeriod(1);
+}
+
 pub fn reactor_create() callconv(.c) ?*Reactor {
+    ensureFineTimerResolution();
     const r = gpa.create(Reactor) catch return null;
     r.* = .{
         .loop = undefined,

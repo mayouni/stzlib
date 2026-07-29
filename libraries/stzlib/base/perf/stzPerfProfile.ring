@@ -50,6 +50,15 @@
 
 	Ring-state honesty: the anchors live Ring-side -- one face drives
 	Mark()/Snapshot(); the metrics it reads are engine-shared.
+
+	Windows quantization caveat: GetProcessTimes accounts CPU in
+	15.625ms quanta, so CpuMsUsed()/D over a SHORT interval with few
+	requests is quantized (a reading of 15.63ms may represent
+	anything under one quantum). Profile over intervals long enough
+	to span many quanta -- dozens of requests, hundreds of ms -- and
+	the averages are honest. (Discovered attributing a "7ms/request"
+	figure that was one quantum + a cold start; the steady-state
+	truth was under 1.6ms.)
 */
 
 func StzPerfProfile(poMonitor)
