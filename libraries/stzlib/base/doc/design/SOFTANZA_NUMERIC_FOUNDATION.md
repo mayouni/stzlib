@@ -2790,6 +2790,42 @@ what it refused.
     matrix happens to be symmetric. The same cross-check the square root got, and the one
     that says these compute the standard thing rather than something adjacent to it.
 
+- **THE HYPERBOLIC SINE AND COSINE (`31e05743e`)** — *one routine, one sign.*
+
+  Write the two families out and the difference is a single alternating sign:
+
+  | | circular | hyperbolic |
+  |---|---|---|
+  | | `cos X = I − X²/2! + X⁴/4! − …` | `cosh X = I + X²/2! + X⁴/4! + …` |
+  | | `sin X = X − X³/3! + X⁵/5! − …` | `sinh X = X + X³/3! + X⁵/5! + …` |
+
+  And the double-angle recurrences that climb back from the scaled matrix are not merely
+  similar — they are **identical** (`cos 2X = 2cos²X − I` alongside `cosh 2X = 2cosh²X − I`,
+  and likewise for the sines). So there is **one routine underneath and a flag**: a second
+  copy would be a second transcription of one algorithm, and two copies drift — the same
+  reasoning that put `density.zig`, `buildGraph` and `decoder.zig` where they are.
+
+  ***The check that keeps the sharing honest*** is a nilpotent matrix, where `N³ = 0`
+  truncates both series exactly and the answers differ in **one character**:
+  `cos(N) = I − N²/2` against `cosh(N) = I + N²/2`. Both are asserted, so the shared
+  branch is pinned **from both sides** — a routine that ignored the flag would pass one
+  and fail the other, which is more than either test could say alone.
+
+  ***And the best cross-check in this family:*** `cosh(A) + sinh(A) = exp(A)`. The
+  hyperbolic pair comes from a scaled **Taylor** series climbed back through double-angle
+  recurrences; the exponential comes from a **Padé** approximant climbed back through
+  squaring. Nothing is shared between them but the matrix, and the defining relation holds
+  on entries reaching the hundreds.
+
+  Also pinned: `cosh² − sinh² = I`, where the **minus** is what makes it a different
+  assertion rather than the circular one twice; `cosh(0) = I`, `sinh(0) = 0`; a diagonal
+  going entrywise; parity; and agreement with `Q cosh(Λ) Qᵀ` from a Jacobi
+  eigendecomposition on symmetric input — with a **relative** tolerance there, since
+  eigenvalues of nine make `cosh` reach four thousand and an absolute one would be pinning
+  the wrong thing.
+
+  Nothing is refused: every real matrix has these, as it has the circular pair.
+
 ---
 
 *Phase 4's `numeric_eigen_narrated` was **updated, not weakened**: it pinned the old
