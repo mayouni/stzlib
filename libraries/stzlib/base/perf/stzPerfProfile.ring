@@ -154,6 +154,23 @@ class stzPerfProfile from stzObject
 		ok
 		return StzEngineSystemCpuCount() * 1000 / _nD_
 
+	# The demand signal for elastic scaling (perf P6): how close this
+	# workload is to its CPU ceiling, X/Xmax in 0..1. This is what
+	# stzClusterSupervisor.ReportLoad() always wanted -- MEASURED, not
+	# hand-fed: FeedLoadFrom(tag, oProfile) closes the loop. 0 when
+	# nothing is measurable yet (no requests / no demand).
+	# (Named LoadRatio: `load` is a Ring keyword.)
+	def LoadRatio()
+		_nMax_ = This.MaxThroughput()
+		if _nMax_ <= 0
+			return 0
+		ok
+		_nL_ = This.Throughput() / _nMax_
+		if _nL_ > 1
+			_nL_ = 1
+		ok
+		return _nL_
+
 	# 1 - X/Xmax: how much of the CPU ceiling remains (0..1).
 	def Headroom()
 		_nMax_ = This.MaxThroughput()

@@ -90,6 +90,14 @@ class stzClusterSupervisor from stzObject
 		if _i_ = 0  return 0  ok
 		return @aLoad[_i_][2]
 
+	# The perf-P6 closing of the loop: the load signal MEASURED instead
+	# of hand-fed. A stzPerfProfile's LoadRatio() is X/Xmax -- how close
+	# the observed workload is to its CPU ceiling -- read from the same
+	# engine instruments everything else trusts. Call it before each
+	# Supervise()/Cycle() pass (or from the same host tick).
+	def FeedLoadFrom(pcTag, poProfile)
+		return This.ReportLoad(pcTag, poProfile.LoadRatio())
+
 	#-- the decision (PURE policy) -----------------------------------------
 
 	# Given the current fleet metrics + reported load, return the actions

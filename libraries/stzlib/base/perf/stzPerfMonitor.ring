@@ -54,6 +54,9 @@ class stzPerfMonitor from stzObject
 	@bWatchSystem = FALSE
 	@nLastCpuNs = 0
 	@nLastUpNs = 0
+	@nSelfNs = 0		# monotonic ns spent inside Sample() (perf P6:
+				# a monitor that cannot state its own cost is
+				# not industry-strength)
 
 	def init(pcName)
 		if isString(pcName) and pcName != ""
@@ -155,8 +158,10 @@ class stzPerfMonitor from stzObject
 	# -- Sampling -------------------------------------------------
 
 	# One sample of every watched sense, NOW (unconditional pull).
-	# Returns the number of gauge writes performed.
+	# Returns the number of gauge writes performed. Self-priced: the
+	# monotonic cost of every pass accumulates for SelfCost().
 	def Sample()
+		_nSelfT0_ = StzEngineWatchTimestampNs()
 		_nWrites_ = 0
 		if @bWatchMemory
 			_n_ = This._IndexOf("process.memory.rss")
@@ -191,10 +196,25 @@ class stzPerfMonitor from stzObject
 			_nWrites_++
 		ok
 		@nSamples++
+		@nSelfNs += (StzEngineWatchTimestampNs() - _nSelfT0_)
 		return _nWrites_
 
 	def SampleCount()
 		return @nSamples
+
+	# What observation itself costs -- measured with the same clock it
+	# provides (the profiler profiles the profiler). Wall ms on the
+	# monotonic clock: sampling is straight-line sense-reading, so
+	# wall is the honest price (and Windows quantizes CPU too coarsely
+	# for per-sample readings anyway). Returns
+	# [ :samples, :totalMs, :perSampleMs ].
+	def SelfCost()
+		_nT_ = @nSelfNs / 1000000
+		_nPer_ = 0
+		if @nSamples > 0
+			_nPer_ = _nT_ / @nSamples
+		ok
+		return [ :samples = @nSamples, :totalMs = _nT_, :perSampleMs = _nPer_ ]
 
 	# Cadence-gated: samples only when Every() has elapsed on the
 	# monotonic clock. Call from any loop; returns 1 if it sampled.
