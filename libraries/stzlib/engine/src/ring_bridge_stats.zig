@@ -1572,6 +1572,48 @@ fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
     rs2(p, txt.ptr, @intCast(txt.len));
 }
 
+//   StzEnginePlotHBar(aValues, cLabelsJoined, aOptions) -> the finished text
+//
+// aOptions order matches plot.HBarOptions:
+//   width, barHeight, maxHeight, maxLabelWidth, interSpace, axisPadding,
+//   showHAxis, showVAxis, showLabels, showAxisLabels, showValues, showPercent
+fn ring_PlotHBar(p: *anyopaque) callconv(.c) void {
+    const vals = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(vals);
+    if (vals.len == 0) {
+        rs(p, "");
+        return;
+    }
+    const lab = strParam(p, 2);
+
+    var opts = plot_mod.HBarOptions{};
+    if (listToF64(p, 3)) |o| {
+        defer allocator.free(o);
+        if (o.len > 0) opts.width = @intFromFloat(o[0]);
+        if (o.len > 1) opts.bar_height = @intFromFloat(o[1]);
+        if (o.len > 2) opts.max_height = @intFromFloat(o[2]);
+        if (o.len > 3) opts.max_label_width = @intFromFloat(o[3]);
+        if (o.len > 4) opts.inter_space = @intFromFloat(o[4]);
+        if (o.len > 5) opts.axis_padding = @intFromFloat(o[5]);
+        if (o.len > 6) opts.show_h_axis = if (o[6] != 0) 1 else 0;
+        if (o.len > 7) opts.show_v_axis = if (o[7] != 0) 1 else 0;
+        if (o.len > 8) opts.show_labels = if (o[8] != 0) 1 else 0;
+        if (o.len > 9) opts.show_axis_labels = if (o[9] != 0) 1 else 0;
+        if (o.len > 10) opts.show_values = if (o[10] != 0) 1 else 0;
+        if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
+    }
+
+    const txt = plot_mod.renderHBar(allocator, vals, lab, opts) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(txt);
+    rs2(p, txt.ptr, @intCast(txt.len));
+}
+
 fn ring_FrameDescribe(p: *anyopaque) callconv(.c) void {
     const col = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -2857,6 +2899,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepolyroots", .func = &ring_PolyRoots },
     .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
     .{ .name = "stzengineplotbar", .func = &ring_PlotBar },
+    .{ .name = "stzengineplothbar", .func = &ring_PlotHBar },
     .{ .name = "stzengineframedescribe", .func = &ring_FrameDescribe },
     .{ .name = "stzengineframedescribeall", .func = &ring_FrameDescribeAll },
     .{ .name = "stzengineframecorrmatrix", .func = &ring_FrameCorrMatrix },
