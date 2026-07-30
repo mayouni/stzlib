@@ -171,28 +171,23 @@ class stzVectorIndex from stzObject
 		if NOT isList(paQueries) or len(paQueries) = 0
 			StzRaise("RecallAgainstExact: give me a non-empty list of queries.")
 		ok
-		_nHit_ = 0
-		_nTot_ = 0
+		This._Ensure()
+		_aFlat_ = []
 		_nQ_ = len(paQueries)
-		for _qi_ = 1 to _nQ_
-			_aApp_ = This._Query(paQueries[_qi_], nK, nBudget, FALSE)
-			_aExa_ = This._Query(paQueries[_qi_], nK, 0, TRUE)
-			_nTot_ += len(_aExa_)
-			_nE_ = len(_aExa_)
-			for _ei_ = 1 to _nE_
-				_nA_ = len(_aApp_)
-				for _ai_ = 1 to _nA_
-					if _aApp_[_ai_][1] = _aExa_[_ei_][1]
-						_nHit_++
-						exit
-					ok
-				next
+		for _i_ = 1 to _nQ_
+			if NOT isList(paQueries[_i_]) or len(paQueries[_i_]) != @nDim
+				StzRaise("RecallAgainstExact: query " + _i_ + " is not " + @nDim +
+					" number(s) wide.")
+			ok
+			for _d_ = 1 to @nDim
+				_aFlat_ + paQueries[_i_][_d_]
 			next
 		next
-		if _nTot_ = 0
-			return 0
+		_nR_ = StzEngineAnnRecall(@pIndex, _aFlat_, _nQ_, nK, nBudget)
+		if _nR_ < 0
+			StzRaise("RecallAgainstExact: the engine refused the measurement.")
 		ok
-		return _nHit_ / _nTot_
+		return _nR_
 
 	# Cosine similarity of a stored vector to a query, recovered from the
 	# stored distance. Only meaningful in :Cosine mode, where both are unit

@@ -124,63 +124,38 @@ class stzFourier from stzObject
 		return _aOut_
 
 	# ---- reading a spectrum ----------------------------------------------
+	#
+	# EACH OF THESE IS ONE ENGINE CALL, not a transform this class then walks. The
+	# readings are what callers actually want -- raw complex bins are rarely the
+	# answer -- so they belong to the engine and every language over it, not to a
+	# loop written once per binding.
 
-	# The magnitude |X_k| of each bin -- "how much of this frequency is present".
-	# Phase-blind, which is usually what you want when looking for a periodicity.
+	# |X_k| per bin: "how much of this frequency is present". Phase-blind, which is
+	# what you want when looking for a periodicity.
 	def Magnitudes()
-		_aS_ = This.Transform()
-		_aM_ = []
-		_n_ = len(_aS_)
-		for _i_ = 1 to _n_
-			_aM_ + sqrt(_aS_[_i_][1] * _aS_[_i_][1] + _aS_[_i_][2] * _aS_[_i_][2])
-		next
-		return _aM_
+		return This._Read("mag")
 
 	# The phase angle of each bin, in radians.
 	def Phases()
-		_aS_ = This.Transform()
-		_aP_ = []
-		_n_ = len(_aS_)
-		for _i_ = 1 to _n_
-			_aP_ + atan2(_aS_[_i_][2], _aS_[_i_][1])
-		next
-		return _aP_
+		return This._Read("phase")
 
-	# |X_k|^2 -- energy per bin. The quantity Parseval's theorem is about.
+	# |X_k|^2 -- energy per bin, the quantity Parseval's theorem is about.
 	def PowerSpectrum()
-		_aS_ = This.Transform()
-		_aW_ = []
-		_n_ = len(_aS_)
-		for _i_ = 1 to _n_
-			_aW_ + (_aS_[_i_][1] * _aS_[_i_][1] + _aS_[_i_][2] * _aS_[_i_][2])
-		next
-		return _aW_
+		return This._Read("power")
 
-	# The bin carrying the most energy, ignoring bin 0 (which is the mean, not a
-	# frequency). 1-based, so bin 1 is DC and the answer is >= 2.
+	# The bin carrying the most energy, 1-based for Ring.
 	#
-	# For a real signal the spectrum is symmetric -- bin k and bin n-k are a
-	# conjugate pair carrying the same magnitude -- so only the first half is
-	# searched. Returning n-k instead would name the same frequency by its
-	# mirror, which reads as a bug to anyone plotting it.
+	# The engine excludes bin 0 and searches only the first half, and both matter:
+	# bin 0 holds the mean rather than a frequency and usually dominates, while a
+	# real signal's spectrum is conjugate-symmetric so the second half is a mirror.
+	# Getting either wrong names the wrong frequency; neither is a caller's problem.
 	def DominantBin()
-		_aM_ = This.Magnitudes()
-		_n_ = len(_aM_)
-		if _n_ < 2
+		if len(@aReal) < 2
 			return 0
 		ok
-		_nHalf_ = floor(_n_ / 2) + 1
-		_nBest_ = 2
-		_nMax_ = -1
-		for _i_ = 2 to _nHalf_
-			if _aM_[_i_] > _nMax_
-				_nMax_ = _aM_[_i_]
-				_nBest_ = _i_
-			ok
-		next
-		return _nBest_
+		return StzEngineFftDominantBin(@aReal, @aImag) + 1
 
-	# The dominant frequency in cycles per sample-interval. Multiply by a sample
+	# The dominant frequency in cycles per sample-interval; multiply by a sample
 	# rate to get Hz.
 	def DominantFrequency()
 		_nB_ = This.DominantBin()
@@ -188,6 +163,22 @@ class stzFourier from stzObject
 			return 0
 		ok
 		return (_nB_ - 1) / len(@aReal)
+
+	def _Read(cWhich)
+		if len(@aReal) = 0
+			return []
+		ok
+		if cWhich = "mag"
+			_aR_ = StzEngineFftMagnitudes(@aReal, @aImag)
+		but cWhich = "phase"
+			_aR_ = StzEngineFftPhases(@aReal, @aImag)
+		else
+			_aR_ = StzEngineFftPower(@aReal, @aImag)
+		ok
+		if NOT isList(_aR_)
+			StzRaise("stzFourier: the transform failed on this input.")
+		ok
+		return _aR_
 
 	# ---- convolution -----------------------------------------------------
 
