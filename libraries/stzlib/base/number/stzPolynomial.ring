@@ -273,10 +273,30 @@ class stzPolynomial from stzObject
 
 	# Convolution of the coefficient lists -- the definition of a product of
 	# polynomials.
+	# MULTIPLICATION IS A CONVOLUTION, which is why this has two paths.
+	#
+	# The coefficients of a product are the convolution of the coefficients of the
+	# factors, so multiplying polynomials is exactly the operation an FFT does in
+	# O(N log N) instead of the double loop's O(n*m). stzFourier owns that
+	# convolution; nothing is reimplemented here.
+	#
+	# THE DOUBLE LOOP IS KEPT FOR SMALL DEGREES, and not out of caution: it is
+	# EXACT for integer coefficients, while the FFT route goes through irrational
+	# twiddle factors and comes back a few rounding errors away from a whole
+	# number. Below the crossover the direct method is both faster and more
+	# accurate, so preferring it is not a compromise. Above it, O(n log n) wins by
+	# enough that the rounding is worth paying.
 	def Times(paOther)
 		_aB_ = This._CoeffsOf(paOther)
 		_nA_ = len(@aCoeffs)
 		_nB_ = len(_aB_)
+
+		# the crossover: below this the double loop is ~n*m cheap multiplies with no
+		# transform overhead at all, and exact besides
+		if _nA_ * _nB_ > 4096
+			return This._TimesViaTransform(_aB_)
+		ok
+
 		_aOut_ = []
 		for _i_ = 1 to _nA_ + _nB_ - 1
 			_aOut_ + 0
@@ -290,6 +310,19 @@ class stzPolynomial from stzObject
 
 		def TimesQ(paOther)
 			return new stzPolynomial(This.Times(paOther))
+
+	# The same product through the frequency domain -- exposed so the guard can
+	# compare the two routes on the SAME polynomials rather than having to grow one
+	# past the crossover to reach this code.
+	def TimesViaTransform(paOther)
+		return This._TimesViaTransform(This._CoeffsOf(paOther))
+
+		def TimesViaTransformQ(paOther)
+			return new stzPolynomial(This.TimesViaTransform(paOther))
+
+	def _TimesViaTransform(paB)
+		_oF_ = new stzFourier(@aCoeffs)
+		return _oF_.ConvolvedWith(paB)
 
 	#-- INTERNALS -------------------------------------------------------
 
