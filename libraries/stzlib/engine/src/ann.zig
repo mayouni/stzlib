@@ -98,8 +98,23 @@ pub const Index = struct {
     d: usize,
     normalized: bool,
     trees: []Tree,
+    /// Per-query "have I already seen this point" marks, kept as GENERATION STAMPS
+    /// rather than booleans: a query bumps `visit_gen` and compares against it, so
+    /// nothing has to be cleared between queries.
+    ///
+    /// The clearing was the whole problem. A bool array had to be memset over all n
+    /// entries per query, which makes a batch of n queries O(n^2) -- precisely the
+    /// cost the index exists to avoid, and it swamped everything else. With stamps a
+    /// query touches only the points it actually visits.
+    ///
+    /// This is scratch space living in the index, so ONE INDEX CANNOT SERVE TWO
+    /// SEARCHES AT ONCE. Single-threaded use is unaffected; concurrent callers need
+    /// an index each.
+    visited: []u32,
+    visit_gen: u32,
 
     pub fn deinit(self: *Index) void {
+        self.alloc.free(self.visited);
         for (self.trees) |*t| {
             t.nodes.deinit(self.alloc);
             t.normals.deinit(self.alloc);
@@ -165,6 +180,10 @@ pub fn build(
     const trees = try alloc.alloc(Tree, @max(1, n_trees));
     errdefer alloc.free(trees);
 
+    const visited = try alloc.alloc(u32, n);
+    errdefer alloc.free(visited);
+    @memset(visited, 0);
+
     self.* = .{
         .alloc = alloc,
         .data = data,
@@ -172,6 +191,8 @@ pub fn build(
         .d = d,
         .normalized = normalize,
         .trees = trees,
+        .visited = visited,
+        .visit_gen = 0,
     };
 
     var built: usize = 0;
@@ -335,9 +356,14 @@ pub fn search(
     const want = @min(k, self.n);
     const target = if (budget == 0) @min(self.n, want * self.trees.len * 8) else @min(self.n, budget);
 
-    var seen = try alloc.alloc(bool, self.n);
-    defer alloc.free(seen);
-    @memset(seen, false);
+    // bump the generation instead of clearing anything
+    self.visit_gen +%= 1;
+    if (self.visit_gen == 0) {
+        // wrapped after 4 billion queries: one clear, then carry on
+        @memset(self.visited, 0);
+        self.visit_gen = 1;
+    }
+    const gen = self.visit_gen;
 
     var cand = try std.ArrayList(u32).initCapacity(alloc, target + LEAF_MAX);
     defer cand.deinit(alloc);
@@ -360,8 +386,8 @@ pub fn search(
             var p = nd.start;
             while (p < nd.end) : (p += 1) {
                 const id = t.items[p];
-                if (!seen[id]) {
-                    seen[id] = true;
+                if (self.visited[id] != gen) {
+                    self.visited[id] = gen;
                     try cand.append(alloc, id);
                 }
             }
@@ -379,9 +405,18 @@ pub fn search(
         try pq.add(.{ .tree = br.tree, .node = far, .margin = @min(br.margin, -@abs(m)) });
     }
 
-    // RERANK BY TRUE DISTANCE. Partial selection: k passes over the candidates, which
-    // beats sorting them all when k is small, and k is always small here.
+    // RERANK BY TRUE DISTANCE.
+    //
+    // EVERY DISTANCE IS COMPUTED EXACTLY ONCE. The first version of this loop
+    // recomputed sqDist inside the k-pass selection, making the rerank O(k*budget*d)
+    // -- which at UMAP's sizes came to the same arithmetic as the exact full scan it
+    // was supposed to replace, so the index measured SLOWER than brute force despite
+    // good recall. Distances first, selection second: O(budget*d + k*budget).
     const c = cand.items;
+    const dists = try alloc.alloc(f64, c.len);
+    defer alloc.free(dists);
+    for (c, 0..) |id, ci| dists[ci] = sqDist(qbuf, self.row(id));
+
     var filled: usize = 0;
     var used = try alloc.alloc(bool, c.len);
     defer alloc.free(used);
@@ -390,9 +425,8 @@ pub fn search(
     while (filled < want and filled < c.len) {
         var best: usize = std.math.maxInt(usize);
         var bestd: f64 = std.math.inf(f64);
-        for (c, 0..) |id, ci| {
+        for (dists, 0..) |dd, ci| {
             if (used[ci]) continue;
-            const dd = sqDist(qbuf, self.row(id));
             if (dd < bestd) {
                 bestd = dd;
                 best = ci;

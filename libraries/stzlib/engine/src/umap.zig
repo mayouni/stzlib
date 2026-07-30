@@ -38,6 +38,7 @@
 //! optimiser should use it.
 
 const std = @import("std");
+const ann = @import("ann.zig");
 const lbfgs = @import("lbfgs.zig");
 const density = @import("density.zig");
 
@@ -211,9 +212,153 @@ pub fn fitAB(alloc: std.mem.Allocator, min_dist: f64, spread: f64) !struct { a: 
 
 pub const Edge = struct { i: u32, j: u32, w: f64 };
 
-/// Exact k nearest neighbours, per point, by full scan. O(n^2) -- honest for the
-/// sizes this library sees, and the place to swap in NN-descent if that changes.
+/// ── HOW THE NEIGHBOUR GRAPH IS BUILT, AND WHY THERE ARE TWO WAYS ──
+///
+/// UMAP's first step is k nearest neighbours for every point, and it dominates the
+/// cost: the exact scan below is O(n^2 * d), so ten thousand points is a hundred
+/// million distance computations before any layout work begins.
+///
+/// So above ANN_MIN_N the neighbours come from the random projection forest in
+/// ann.zig instead. That is what the reference implementation does too -- UMAP has
+/// always leaned on approximate neighbours (NN-descent, via pynndescent), because
+/// the graph is a means to an end: an edge weight is a soft membership, a slightly
+/// different neighbour set perturbs the layout rather than invalidating it.
+///
+/// ── WHERE THE THRESHOLD CAME FROM: MEASUREMENT, NOT TASTE ──
+///
+/// The first guess was 2048 and it was WRONG -- the approximate path measured SLOWER
+/// than brute force there. Timed on this machine, k = 15, d = 12, one full
+/// all-points neighbour build:
+///
+///     n        exact     approx (24 trees, budget 60k)   recall
+///     4096      294 ms   slower                          --
+///     8192     1182 ms    898 ms  at budget 600          0.922
+///    16384     7120 ms   2415 ms                         0.948
+///
+/// The exact scan quadruples per doubling, as O(n^2) must; the forest roughly
+/// doubles. So the crossover is real but it arrives LATE, and below it approximating
+/// would be worse on BOTH axes -- slower AND less accurate. Hence 8192.
+///
+/// Two earlier attempts to make the approximate path win at 2048 failed and both
+/// taught something. The rerank was recomputing every candidate distance once per
+/// output slot, O(k*budget*d); and the visited set was an O(n) clear per query,
+/// which makes n queries O(n^2) -- the very cost being avoided. Both are fixed in
+/// ann.zig, and neither was enough on its own: a projection forest simply has real
+/// per-query overhead, and n^2 with a tiny constant beats n log n with a large one
+/// for a long time.
+///
+/// ── AND THE SMALL-DATA ANSWERS DO NOT MOVE ──
+///
+/// The exact path is bit-for-bit reproducible, and every existing test of this
+/// module runs at n <= 75. Switching on size adds a fast road for large data without
+/// shifting a single small-data result. A library that silently made every old
+/// answer approximate to gain speed nobody asked for would have made a bad trade.
+const ANN_MIN_N: usize = 8192;
+
+/// Trees and candidate budget for the approximate path. Deliberately generous:
+/// UMAP's output degrades if the neighbour sets are poor, and the graph build is a
+/// one-off cost against many optimisation epochs, so recall is worth more here than
+/// the last factor of two in build time.
+const ANN_TREES: usize = 24;
+const ANN_SEED: u64 = 0x5EED_C0FFEE;
+
+/// Approximate k nearest neighbours via the projection forest. Same output contract
+/// as `knn`: row-major k per point, self excluded, TRUE (not squared) distances,
+/// nearest first.
+fn knnApprox(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    k: usize,
+    idx_out: []u32,
+    dist_out: []f64,
+) !void {
+    var ix = try ann.build(alloc, x, n, d, ANN_TREES, false, ANN_SEED);
+    defer ix.deinit();
+
+    // k + 1, because a point is always its own nearest neighbour and UMAP wants the
+    // k OTHERS
+    const take = @min(n, k + 1);
+    // at least `take`, so the forest can never come back with fewer candidates than
+    // there are slots to fill
+    const budget = @max(take, k * 60);
+
+    const ci = try alloc.alloc(u32, take);
+    defer alloc.free(ci);
+    const cd = try alloc.alloc(f64, take);
+    defer alloc.free(cd);
+
+    for (0..n) |i| {
+        const got = try ann.search(ix, alloc, x[i * d ..][0..d], take, budget, ci, cd);
+        var slot: usize = 0;
+        for (0..got) |t| {
+            if (ci[t] == i) continue; // drop self
+            if (slot >= k) break;
+            idx_out[i * k + slot] = ci[t];
+            // ann.zig reports SQUARED euclidean; this module's contract is the true
+            // distance, and localMetric's rho/sigma are calibrated against it
+            dist_out[i * k + slot] = @sqrt(cd[t]);
+            slot += 1;
+        }
+        // A short answer would leave uninitialised slots, and every downstream step
+        // trusts that all k exist. It should not happen -- the budget guarantees
+        // enough candidates -- so rather than paper over it with a filler value,
+        // fall back to the exact scan FOR THIS POINT and stay correct by
+        // construction.
+        if (slot < k) {
+            try knnRow(alloc, x, n, d, k, i, idx_out, dist_out);
+        }
+    }
+}
+
+/// The exact scan for a SINGLE point -- shared by the full scan and by the
+/// approximate path's fallback, so there is one definition of "point i's k nearest".
+fn knnRow(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    k: usize,
+    i: usize,
+    idx_out: []u32,
+    dist_out: []f64,
+) !void {
+    const cand = try alloc.alloc(f64, n);
+    defer alloc.free(cand);
+    for (0..n) |j| cand[j] = if (j == i) std.math.inf(f64) else @sqrt(sqDist(x[i * d ..][0..d], x[j * d ..][0..d]));
+    for (0..k) |slot| {
+        var best: usize = 0;
+        var bestv = std.math.inf(f64);
+        for (0..n) |j| {
+            if (cand[j] < bestv) {
+                bestv = cand[j];
+                best = j;
+            }
+        }
+        idx_out[i * k + slot] = @intCast(best);
+        dist_out[i * k + slot] = bestv;
+        cand[best] = std.math.inf(f64);
+    }
+}
+
+/// k nearest neighbours per point. Exact below ANN_MIN_N, approximate above it --
+/// see the note above for why the size decides.
 fn knn(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    k: usize,
+    idx_out: []u32,
+    dist_out: []f64,
+) !void {
+    if (n >= ANN_MIN_N) return knnApprox(alloc, x, n, d, k, idx_out, dist_out);
+    return knnExact(alloc, x, n, d, k, idx_out, dist_out);
+}
+
+/// Exact k nearest neighbours, per point, by full scan. O(n^2).
+fn knnExact(
     alloc: std.mem.Allocator,
     x: []const f64,
     n: usize,
@@ -1994,4 +2139,116 @@ test "no density in the fit means the transform is untouched" {
     try transform(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, r.a, r.b, 30, 42, a_out);
     try transformWithDensity(alloc, x, r.embedding, n, d, 2, &newx, 1, 5, r.a, r.b, 30, 42, b_out, 0, 0, false, null);
     for (a_out, b_out) |p, q| try testing.expectEqual(p, q);
+}
+
+test "the approximate neighbour path honours the same contract as the exact one" {
+    const alloc = testing.allocator;
+    const n = 2000;
+    const d = 8;
+    const k = 10;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var prng = std.Random.DefaultPrng.init(4242);
+    const r = prng.random();
+    for (x) |*v| v.* = r.floatNorm(f64);
+
+    const ai = try alloc.alloc(u32, n * k);
+    defer alloc.free(ai);
+    const ad = try alloc.alloc(f64, n * k);
+    defer alloc.free(ad);
+    // called DIRECTLY, so the path is exercised without needing 8192 points and the
+    // seconds that would cost every run of this suite
+    try knnApprox(alloc, x, n, d, k, ai, ad);
+
+    for (0..n) |i| {
+        for (0..k) |slot| {
+            const j = ai[i * k + slot];
+            // no point is its own neighbour
+            try testing.expect(j != i);
+            // every slot is filled with a real index, never left as garbage
+            try testing.expect(j < n);
+            // the DISTANCE IS THE TRUE DISTANCE, not the squared one ann.zig returns:
+            // localMetric's rho and sigma are calibrated against true distances, so
+            // getting this wrong would silently distort every edge weight
+            const want = @sqrt(sqDist(x[i * d ..][0..d], x[j * d ..][0..d]));
+            try testing.expectApproxEqAbs(want, ad[i * k + slot], 1e-9);
+            // nearest first
+            if (slot > 0) try testing.expect(ad[i * k + slot] >= ad[i * k + slot - 1]);
+        }
+    }
+}
+
+test "...and its recall against the exact scan is high enough to embed with" {
+    const alloc = testing.allocator;
+    const n = 2000;
+    const d = 8;
+    const k = 10;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var prng = std.Random.DefaultPrng.init(4242);
+    const r = prng.random();
+    for (x) |*v| v.* = r.floatNorm(f64);
+
+    const ei = try alloc.alloc(u32, n * k);
+    defer alloc.free(ei);
+    const ed = try alloc.alloc(f64, n * k);
+    defer alloc.free(ed);
+    try knnExact(alloc, x, n, d, k, ei, ed);
+
+    const ai = try alloc.alloc(u32, n * k);
+    defer alloc.free(ai);
+    const ad = try alloc.alloc(f64, n * k);
+    defer alloc.free(ad);
+    try knnApprox(alloc, x, n, d, k, ai, ad);
+
+    var hits: usize = 0;
+    for (0..n) |i| {
+        for (0..k) |a| {
+            for (0..k) |b| {
+                if (ai[i * k + a] == ei[i * k + b]) {
+                    hits += 1;
+                    break;
+                }
+            }
+        }
+    }
+    const recall = @as(f64, @floatFromInt(hits)) / @as(f64, @floatFromInt(n * k));
+
+    // UMAP's graph is a set of SOFT MEMBERSHIPS, so a missed neighbour perturbs the
+    // layout rather than invalidating it -- but only if the misses are rare. This is
+    // the number that decides whether the fast road is usable at all, so it is
+    // asserted rather than assumed.
+    try testing.expect(recall > 0.9);
+}
+
+test "BELOW THE THRESHOLD THE ANSWER IS BIT-IDENTICAL to the exact scan" {
+    const alloc = testing.allocator;
+    const n = 300; // far below ANN_MIN_N, like every other test in this file
+    const d = 5;
+    const k = 7;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var prng = std.Random.DefaultPrng.init(11);
+    const r = prng.random();
+    for (x) |*v| v.* = r.floatNorm(f64);
+
+    const gi = try alloc.alloc(u32, n * k);
+    defer alloc.free(gi);
+    const gd = try alloc.alloc(f64, n * k);
+    defer alloc.free(gd);
+    const ei = try alloc.alloc(u32, n * k);
+    defer alloc.free(ei);
+    const ed = try alloc.alloc(f64, n * k);
+    defer alloc.free(ed);
+
+    try knn(alloc, x, n, d, k, gi, gd);       // the dispatcher
+    try knnExact(alloc, x, n, d, k, ei, ed);  // what it must have chosen
+
+    // THE SAFETY PROPERTY OF THE WHOLE CHANGE. Adding a fast road for large data
+    // must not move a single small-data answer, and "approximately the same" is not
+    // good enough here: these must be EQUAL, index for index and bit for bit.
+    for (0..n * k) |t| {
+        try testing.expectEqual(ei[t], gi[t]);
+        try testing.expectEqual(ed[t], gd[t]);
+    }
 }
