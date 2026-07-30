@@ -12,6 +12,7 @@ const autodiff = @import("autodiff.zig");
 const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
 const eigen_general = @import("eigen_general.zig");
+const fft_mod = @import("fft.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
@@ -1334,6 +1335,85 @@ fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
 // Lifts the refusal phase 4 slice 8 wrote down: a general matrix has complex
 // eigenvalues, so the symmetric Jacobi routine could not be stretched to cover it.
 // Francis double-shift QR on the balanced Hessenberg form.
+//   StzEngineFft(aRe, aIm, bInverse) -> [ re0, im0, re1, im1, ... ]
+//
+// Any length: a power of two takes radix-2, anything else takes Bluestein, so the
+// caller never has to think about it and is never silently zero-padded. aIm may be
+// an empty list for a real signal.
+fn ring_Fft(p: *anyopaque) callconv(.c) void {
+    const re = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(re);
+    const n = re.len;
+    if (n == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    const im = allocator.alloc(f64, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(im);
+    @memset(im, 0);
+    // an imaginary part is optional: a real signal passes []
+    if (listToF64(p, 2)) |given| {
+        defer allocator.free(given);
+        if (given.len == n) @memcpy(im, given);
+    }
+
+    const inverse = g(p, 3) != 0;
+    fft_mod.transform(allocator, re, im, inverse) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (0..n) |k| {
+        R.ring_list_adddouble(lst, re[k]);
+        R.ring_list_adddouble(lst, im[k]);
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
+//   StzEngineConvolveReal(aA, aB) -> the linear convolution, length na+nb-1
+//
+// Which is polynomial multiplication: the coefficients of a*b are the convolution
+// of the coefficients of a and b.
+fn ring_ConvolveReal(p: *anyopaque) callconv(.c) void {
+    const a = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(a);
+    const b = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(b);
+    if (a.len == 0 or b.len == 0) {
+        rn(p, 0);
+        return;
+    }
+
+    const out = allocator.alloc(f64, a.len + b.len - 1) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+    @memset(out, 0);
+    fft_mod.convolveReal(allocator, a, b, out) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
 fn ring_EigenGeneral(p: *anyopaque) callconv(.c) void {
     const flat = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -2228,6 +2308,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
+    .{ .name = "stzenginefft", .func = &ring_Fft },
+    .{ .name = "stzengineconvolvereal", .func = &ring_ConvolveReal },
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },

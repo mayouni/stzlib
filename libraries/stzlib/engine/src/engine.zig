@@ -50,6 +50,7 @@ const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
 const complex = @import("complex.zig");
 const eigen_general = @import("eigen_general.zig");
+const fft = @import("fft.zig");
 const pca = @import("pca.zig");
 const tsne = @import("tsne.zig");
 const umap = @import("umap.zig");
@@ -654,6 +655,7 @@ test {
     _ = nn;
     _ = complex;
     _ = eigen_general;
+    _ = fft;
     _ = pca;
     _ = tsne;
     _ = umap;
