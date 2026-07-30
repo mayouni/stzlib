@@ -614,3 +614,101 @@ test "a horizontal bar plot renders exactly what the Ring implementation rendere
         "  ╰──────────────────►";
     try testing.expectEqualStrings(want, out);
 }
+
+/// ── BINNING, AS AN OPERATION OF ITS OWN ──
+///
+/// A histogram is two separate things: deciding the bins, and drawing them. The
+/// first is pure statistics and is useful with no picture anywhere near it -- a host
+/// asking "how is this distributed" wants edges and counts, not ASCII art. So it is
+/// exported separately rather than buried inside the renderer.
+///
+/// BIN COUNT BY STURGES' RULE when the caller does not choose: ceil(1 + log2(n)),
+/// floored at 5. Sturges assumes roughly normal data and under-bins heavy tails, but
+/// it is the rule this library has always used and a caller who knows better passes
+/// a count.
+///
+/// The LAST BIN INCLUDES THE MAXIMUM. Without that the largest value falls outside
+/// every half-open bin and silently vanishes from its own histogram.
+pub fn binCountFor(n: usize, requested: usize) usize {
+    if (requested > 0) return requested;
+    if (n == 0) return 0;
+    const lg = std.math.log2(@as(f64, @floatFromInt(n)));
+    const sturges: usize = @intFromFloat(@ceil(1.0 + lg));
+    return @max(@as(usize, 5), sturges);
+}
+
+/// Bin `values` into `nbins` (0 asks for Sturges). Writes nbins+1 edges and nbins
+/// counts. Returns the number of bins actually used.
+pub fn binValues(
+    values: []const f64,
+    requested: usize,
+    out_edges: []f64,
+    out_counts: []u32,
+) !usize {
+    if (values.len == 0) return 0;
+    const nb = binCountFor(values.len, requested);
+    if (out_edges.len < nb + 1 or out_counts.len < nb) return PlotError.BadShape;
+
+    var lo = values[0];
+    var hi = values[0];
+    for (values) |v| {
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+    }
+    const span = hi - lo;
+    // a constant sample has no spread; give it a unit-wide bin rather than dividing
+    // by zero and reporting NaN edges
+    const wide = if (span == 0) 1.0 else span / @as(f64, @floatFromInt(nb));
+
+    for (0..nb + 1) |i| out_edges[i] = lo + @as(f64, @floatFromInt(i)) * wide;
+    out_edges[nb] = if (span == 0) lo + 1 else hi;
+
+    @memset(out_counts[0..nb], 0);
+    for (values) |v| {
+        var idx: usize = 0;
+        if (span > 0) {
+            const f = (v - lo) / wide;
+            idx = @intFromFloat(@floor(f));
+            if (idx >= nb) idx = nb - 1; // the maximum belongs to the last bin
+        }
+        out_counts[idx] += 1;
+    }
+    return nb;
+}
+
+test "binning counts every value exactly once, maximum included" {
+    const vals = [_]f64{ 1, 2, 2, 3, 3, 3, 4, 4, 5 };
+    var edges: [32]f64 = undefined;
+    var counts: [32]u32 = undefined;
+    const nb = try binValues(&vals, 0, &edges, &counts);
+
+    // Sturges on 9 samples: ceil(1 + log2(9)) = ceil(4.17) = 5, and the floor is 5
+    try testing.expectEqual(@as(usize, 5), nb);
+    try testing.expectApproxEqAbs(@as(f64, 1), edges[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 5), edges[nb], 1e-12);
+
+    // EVERY value is in exactly one bin -- the maximum too, which a half-open rule
+    // would drop
+    var total: u32 = 0;
+    for (counts[0..nb]) |c| total += c;
+    try testing.expectEqual(@as(u32, 9), total);
+    try testing.expect(counts[nb - 1] >= 1); // the 5 landed somewhere
+}
+
+test "an explicit bin count overrides Sturges, and a flat sample still bins" {
+    const vals = [_]f64{ 10, 20, 30, 40 };
+    var edges: [32]f64 = undefined;
+    var counts: [32]u32 = undefined;
+    try testing.expectEqual(@as(usize, 2), try binValues(&vals, 2, &edges, &counts));
+    try testing.expectEqual(@as(u32, 2), counts[0]);
+    try testing.expectEqual(@as(u32, 2), counts[1]);
+
+    // a sample with NO SPREAD: every value identical. The width would be zero and
+    // every edge the same, so it gets a unit bin instead of NaN.
+    const flat = [_]f64{ 7, 7, 7 };
+    const nb = try binValues(&flat, 3, &edges, &counts);
+    try testing.expectEqual(@as(usize, 3), nb);
+    try testing.expectApproxEqAbs(@as(f64, 7), edges[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 8), edges[nb], 1e-12);
+    try testing.expectEqual(@as(u32, 3), counts[0]);
+}
