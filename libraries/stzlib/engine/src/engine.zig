@@ -55,6 +55,7 @@ const ann = @import("ann.zig");
 const knn_mod = @import("knn.zig");
 const poly_mod = @import("poly.zig");
 const frame_mod = @import("frame.zig");
+const plot_mod = @import("plot.zig");
 const pca = @import("pca.zig");
 const tsne = @import("tsne.zig");
 const umap = @import("umap.zig");
@@ -664,6 +665,7 @@ test {
     _ = knn_mod;
     _ = poly_mod;
     _ = frame_mod;
+    _ = plot_mod;
     _ = pca;
     _ = tsne;
     _ = umap;
