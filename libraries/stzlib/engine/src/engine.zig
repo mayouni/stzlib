@@ -51,6 +51,7 @@ const nn = @import("nn.zig");
 const complex = @import("complex.zig");
 const eigen_general = @import("eigen_general.zig");
 const fft = @import("fft.zig");
+const ann = @import("ann.zig");
 const pca = @import("pca.zig");
 const tsne = @import("tsne.zig");
 const umap = @import("umap.zig");
@@ -656,6 +657,7 @@ test {
     _ = complex;
     _ = eigen_general;
     _ = fft;
+    _ = ann;
     _ = pca;
     _ = tsne;
     _ = umap;

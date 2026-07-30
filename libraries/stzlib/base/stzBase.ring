@@ -76,6 +76,7 @@ ok
     load "number/stzMatrix.ring"
     load "number/stzComplex.ring"
     load "number/stzFourier.ring"
+    load "number/stzVectorIndex.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"
