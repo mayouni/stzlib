@@ -14,6 +14,7 @@ const nn = @import("nn.zig");
 const eigen_general = @import("eigen_general.zig");
 const fft_mod = @import("fft.zig");
 const ann_mod = @import("ann.zig");
+const knn_mod = @import("knn.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
@@ -1349,6 +1350,132 @@ fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
 //
 // The corpus is written once and read by every query, so it stays resident here for
 // the same reason the k-NN dataset does: the bridge, not the arithmetic, is the cost.
+//   StzEngineKnnModelNew(aPoints, nRows, nDim, aCodes, nLabels, bApprox, nTrees, nSeed)
+//   StzEngineKnnModelFree(handle)
+//   StzEngineKnnModelClassify(handle, aQuery, nK, nBudget)
+//       -> [ winCode, winVotes, used, (idx, dist, code) * used ]
+//   StzEngineKnnModelAgreement(handle, aQueriesFlat, nQ, nK, nBudget) -> fraction
+//
+// A COMPLETE CLASSIFIER, not a search a host has to finish. The verdict -- winner,
+// vote count, and the neighbours it reasoned from -- comes back in one crossing, so
+// every binding gets the same decision and the same tie rule instead of writing its
+// own tally loop. Labels cross as codes; interning is the host's marshalling job,
+// the same convention the ID3 bridge above uses.
+fn ring_KnnModelNew(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const codesf = listToF64(p, 4) orelse {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(codesf);
+    const codes = allocator.alloc(u32, codesf.len) catch {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(codes);
+    for (codesf, 0..) |v, i| codes[i] = @intFromFloat(v);
+
+    const n_labels: usize = @intFromFloat(g(p, 5));
+    const approx = g(p, 6) != 0;
+    const trees: usize = @intFromFloat(g(p, 7));
+    const seed: u64 = @intFromFloat(g(p, 8));
+
+    const m = knn_mod.modelNew(allocator, pts, n, d, codes, n_labels, approx, trees, seed) catch {
+        rcp(p, null, H);
+        return;
+    };
+    rcp(p, m, H);
+}
+
+fn ring_KnnModelFree(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const m: *knn_mod.Model = @ptrCast(@alignCast(raw));
+    m.deinit();
+    rn(p, 1);
+}
+
+fn ring_KnnModelClassify(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const m: *knn_mod.Model = @ptrCast(@alignCast(raw));
+    const q = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(q);
+    const k: usize = @intFromFloat(g(p, 3));
+    const budget: usize = @intFromFloat(g(p, 4));
+    if (k == 0 or q.len != m.d) {
+        rn(p, 0);
+        return;
+    }
+    const take = @min(k, m.n);
+
+    const idx = allocator.alloc(u32, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idx);
+    const dst = allocator.alloc(f64, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(dst);
+    const cod = allocator.alloc(u32, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(cod);
+
+    const v = knn_mod.classify(m, allocator, q, take, budget, idx, dst, cod) catch {
+        rn(p, 0);
+        return;
+    };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(lst, @floatFromInt(v.code));
+    R.ring_list_adddouble(lst, @floatFromInt(v.votes));
+    R.ring_list_adddouble(lst, @floatFromInt(v.used));
+    for (0..v.used) |t| {
+        R.ring_list_adddouble(lst, @floatFromInt(idx[t]));
+        R.ring_list_adddouble(lst, dst[t]);
+        R.ring_list_adddouble(lst, @floatFromInt(cod[t]));
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_KnnModelAgreement(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const m: *knn_mod.Model = @ptrCast(@alignCast(raw));
+    const qs = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(qs);
+    const nq: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const budget: usize = @intFromFloat(g(p, 5));
+    const r = knn_mod.agreementWithExact(m, allocator, qs, nq, k, budget) catch {
+        rn(p, -1);
+        return;
+    };
+    rn(p, r);
+}
+
 fn ring_AnnBuild(p: *anyopaque) callconv(.c) void {
     const pts = listToF64(p, 1) orelse {
         rcp(p, null, H);
@@ -2418,6 +2545,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
+    .{ .name = "stzengineknnmodelnew", .func = &ring_KnnModelNew },
+    .{ .name = "stzengineknnmodelfree", .func = &ring_KnnModelFree },
+    .{ .name = "stzengineknnmodelclassify", .func = &ring_KnnModelClassify },
+    .{ .name = "stzengineknnmodelagreement", .func = &ring_KnnModelAgreement },
     .{ .name = "stzengineannbuild", .func = &ring_AnnBuild },
     .{ .name = "stzengineannfree", .func = &ring_AnnFree },
     .{ .name = "stzengineanncount", .func = &ring_AnnCount },

@@ -88,6 +88,20 @@ Scenario("...and the two paths hand back the same SHAPE, not merely the same lab
 	# the same query
 	Then("...and both paths agree on the nearest example for this query",
 	     KnaFirstIndexIn(cWhyExact) = KnaFirstIndexIn(cWhyApprox), TRUE)
+
+	# WHY() MUST NAME THE VERDICT, and this is not automatic: the nearest neighbour
+	# and the majority are DIFFERENT LABELS whenever the vote overrules proximity.
+	# Moving the vote into the engine broke exactly this -- Why() reported the first
+	# neighbour's label -- and the two paths agreeing did not catch it, because both
+	# reported the same wrong thing. Only comparing against Classify() does.
+	oV = new stzKnn(KnaNearestDisagrees())
+	oV.SetK(3)
+	cVerdict = oV.Classify([3, 4])
+	Then("the vote overrules the nearest neighbour here", cVerdict, "low")
+	Then("...the nearest neighbour is the OTHER label",
+	     KnaFirstLabelIn(oV.Why()), "high")
+	Then("...and Why() names the verdict, not that neighbour",
+	     KnaMajorityIn(oV.Why()), cVerdict)
 EndScenario()
 
 Scenario("Toggling and retuning invalidate cleanly")
@@ -204,3 +218,32 @@ func KnaRefusesBudget(oClf, n)
 		_kb4_ = TRUE
 	done
 	return _kb4_
+
+# three points whose NEAREST is 'high' while the majority of three is 'low' --
+# distances 3, 4, 5 from the query (3,4), computed by hand
+func KnaNearestDisagrees()
+	_kD2_ = new stzTrainingSet([])
+	_kD2_.AddExample([0, 0], "low")
+	_kD2_.AddExample([3, 0], "low")
+	_kD2_.AddExample([0, 4], "high")
+	return _kD2_
+
+# the label in the first "#n 'label'" of a Why() string
+func KnaFirstLabelIn(cWhy)
+	_kQ2_ = StzSplit(cWhy, "'")
+	if len(_kQ2_) < 2
+		return ""
+	ok
+	return _kQ2_[2]
+
+# the label after "majority: "
+func KnaMajorityIn(cWhy)
+	_kM2_ = StzSplit(cWhy, "majority: '")
+	if len(_kM2_) < 2
+		return ""
+	ok
+	_kM3_ = StzSplit(_kM2_[2], "'")
+	if len(_kM3_) = 0
+		return ""
+	ok
+	return _kM3_[1]
