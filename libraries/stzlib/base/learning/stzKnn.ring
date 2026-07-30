@@ -18,6 +18,10 @@ class stzKnn from stzObject
 	@acLabels_ = []       # their labels, held here so Examples() stays off the hot path
 	@nFlatCount_ = 0      # what it was built from, for staleness
 	@nFlatDim_ = 0
+	@bApprox_ = FALSE     # opt-in approximate search -- see SetApproximate()
+	@pAnn_ = NULL         # the projection forest, resident, when approximate
+	@nAnnTrees_ = 24      # tuned in umap.zig against measured recall
+	@nAnnBudget_ = 0      # 0 = let the engine choose from k
 
 	def init(poDataset)
 		@oDs = poDataset
@@ -35,6 +39,126 @@ class stzKnn from stzObject
 			@nK = n
 		ok
 		return This
+
+	# ── APPROXIMATE SEARCH: OPT-IN, AND DELIBERATELY NOT AUTOMATIC ──
+	#
+	# Exact search is O(n) per query: every example measured, the true k nearest,
+	# the same answer every time. Above a few thousand examples that is the whole
+	# cost of a classification, and the projection forest in the engine answers in
+	# roughly O(budget) instead.
+	#
+	# WHY THIS IS A SWITCH AND NOT A SIZE THRESHOLD. UMAP builds neighbours for
+	# every point at once, so its n alone decides whether approximating pays --
+	# which is why umap.zig can turn it on by itself at 8192. A CLASSIFIER IS
+	# DIFFERENT: it answers one query at a time, and the forest has to be BUILT
+	# before it can answer any. That build is amortised over however many queries
+	# follow, and only the caller knows whether that is three or three million.
+	# Ten queries against 50000 examples are faster exact; ten thousand are not.
+	# A library cannot infer the query count, so it must not guess -- it asks.
+	#
+	# AND IT CHANGES ANSWERS, WHICH A SIZE THRESHOLD WOULD HIDE. Approximate
+	# neighbours can shift a vote. Usually they do not -- a vote survives a swapped
+	# neighbour far more often than a neighbour list survives it -- but "usually" is
+	# a promise no default should make on a caller's behalf. AgreementWithExact()
+	# exists so the cost can be measured on the actual data rather than assumed.
+	#
+	# ── WHAT IT ACTUALLY BUYS, MEASURED, AND IT IS LESS THAN ARITHMETIC SUGGESTS ──
+	#
+	# 16 features, k = 5, 30 queries, on this machine:
+	#
+	#     5000 examples    approximate is NOT faster per query
+	#    20000 examples    1.355x per query; break-even at ~219 queries
+	#
+	# Counting flops predicts far more: exact measures all 20000 examples where the
+	# forest examines a few hundred candidates, which is some sixty-fold less
+	# arithmetic. It does not show up, and the reason is written all over this file
+	# already -- THE BRIDGE AND THE INTERPRETER, NOT THE ARITHMETIC, ARE THE COST OF
+	# A QUERY at these sizes. Cutting the distance computations sixty-fold cuts a
+	# minority of the total.
+	#
+	# So this is a modest win that has to be asked for, not a free upgrade, and the
+	# break-even in QUERIES is the number that decides it. That is also the sharpest
+	# contrast with UMAP: there one call needs n neighbour searches, so the forest is
+	# amortised immediately and 8192 points is enough to turn it on automatically.
+	# Here each query stands alone.
+	#
+	# Label agreement measured 1.000 in both rows above -- on separable data the vote
+	# absorbed every neighbour the forest missed. Do not read that as a guarantee;
+	# read it as the reason AgreementWithExact() takes YOUR queries.
+	def SetApproximate(bFlag)
+		if bFlag != TRUE and bFlag != FALSE
+			stzraise("SetApproximate: TRUE or FALSE.")
+		ok
+		if bFlag != @bApprox_
+			@bApprox_ = bFlag
+			This._DropResident()
+		ok
+		return This
+
+	def IsApproximate()
+		return @bApprox_
+
+	# More trees, better recall, bigger index and a slower build.
+	def SetApproximateTrees(n)
+		if n < 1
+			stzraise("SetApproximateTrees: at least one tree.")
+		ok
+		@nAnnTrees_ = n
+		This._DropResident()
+		return This
+
+	# Candidates examined per query before the true distances decide. 0 lets the
+	# engine scale it from k. This is the recall dial.
+	def SetApproximateBudget(n)
+		if n < 0
+			stzraise("SetApproximateBudget: a non-negative budget.")
+		ok
+		@nAnnBudget_ = n
+		This._DropResident()
+		return This
+
+	def ApproximateTrees()
+		return @nAnnTrees_
+
+	def ApproximateBudget()
+		return @nAnnBudget_
+
+	# THE HONEST MEASURE FOR A CLASSIFIER: not how many neighbours the forest
+	# missed, but how often the LABEL still came out the same. Those are very
+	# different numbers -- a majority vote absorbs a swapped neighbour that a
+	# neighbour-recall figure would count as a loss -- and the label is what the
+	# caller actually receives.
+	#
+	# Returns the fraction of the given queries on which approximate and exact
+	# classification agree. Each mode is built once, not once per query.
+	def AgreementWithExact(paQueries)
+		if NOT isList(paQueries) or len(paQueries) = 0
+			stzraise("AgreementWithExact: give me a non-empty list of queries.")
+		ok
+		_bWas_ = @bApprox_
+		_nQ_ = len(paQueries)
+
+		This.SetApproximate(TRUE)
+		_acA_ = []
+		for _i_ = 1 to _nQ_
+			_acA_ + This.Classify(paQueries[_i_])
+		next
+
+		This.SetApproximate(FALSE)
+		_acE_ = []
+		for _i_ = 1 to _nQ_
+			_acE_ + This.Classify(paQueries[_i_])
+		next
+
+		This.SetApproximate(_bWas_)
+
+		_nSame_ = 0
+		for _i_ = 1 to _nQ_
+			if _acA_[_i_] = _acE_[_i_]
+				_nSame_++
+			ok
+		next
+		return _nSame_ / _nQ_
 
 	def K()
 		return @nK
@@ -128,13 +252,48 @@ class stzKnn from stzObject
 			if @pResident_ = NULL
 				stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")
 			ok
+
+			# The forest is built HERE, from the flat list that was just read, so
+			# turning approximation on costs ONE pass over Examples() and not a
+			# second one. _DropResident() clears both, which is why toggling the
+			# mode invalidates rather than trying to patch a half-built pair.
+			if @pAnn_ != NULL
+				StzEngineAnnFree(@pAnn_)
+				@pAnn_ = NULL
+			ok
+			if @bApprox_
+				@pAnn_ = StzEngineAnnBuild(_aFlat_, _nEx_, _nDim_, @nAnnTrees_, 0, 42)
+				if @pAnn_ = NULL
+					stzraise("The engine refused to index the dataset (" +
+						_nEx_ + " x " + _nDim_ + ").")
+				ok
+			ok
+
 			@nFlatCount_ = _nEx_
 			@nFlatDim_ = _nDim_
 		ok
 
-		_aPairs_ = StzEngineKnnTopKOn(@pResident_, paFeatures, _nTake_)
-		if NOT isList(_aPairs_) or len(_aPairs_) != _nTake_ * 2
-			stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
+		# ONE CROSSING EITHER WAY, and the two paths return the same shape so the
+		# vote below cannot tell them apart.
+		if @bApprox_
+			_aRaw_ = StzEngineAnnSearch(@pAnn_, paFeatures, _nTake_, @nAnnBudget_)
+			if NOT isList(_aRaw_) or len(_aRaw_) != _nTake_ * 2
+				stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
+			ok
+			# TWO CONVERSIONS, and both matter. The forest indexes from 0 where
+			# cluster.topK already returns 1-based indices for Ring; and it reports
+			# SQUARED distances where this class's contract -- the vote's tie order,
+			# and the numbers Why() quotes -- is the true Euclidean distance.
+			_aPairs_ = []
+			for _i_ = 1 to _nTake_
+				_aPairs_ + (_aRaw_[(_i_ - 1) * 2 + 1] + 1)
+				_aPairs_ + sqrt(_aRaw_[(_i_ - 1) * 2 + 2])
+			next
+		else
+			_aPairs_ = StzEngineKnnTopKOn(@pResident_, paFeatures, _nTake_)
+			if NOT isList(_aPairs_) or len(_aPairs_) != _nTake_ * 2
+				stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
+			ok
 		ok
 
 		# [ idx, dist, idx, dist, ... ] -> the [ dist, label, idx ] rows the vote reads
@@ -208,6 +367,21 @@ class stzKnn from stzObject
 	# identical", the worst possible wrong answer. So the common case (equal
 	# lengths) goes straight through, and the ragged case slices first, preserving
 	# the old behaviour exactly.
+	# Forget both resident structures. The next Classify() rebuilds from one read
+	# of Examples(); setting the count to 0 is what the staleness check already
+	# looks at, so this reuses that machinery rather than adding a second flag.
+	def _DropResident()
+		if @pResident_ != NULL
+			StzEngineClusterDataFree(@pResident_)
+			@pResident_ = NULL
+		ok
+		if @pAnn_ != NULL
+			StzEngineAnnFree(@pAnn_)
+			@pAnn_ = NULL
+		ok
+		@nFlatCount_ = 0
+		@nFlatDim_ = 0
+
 	def _Dist(paA, paB)
 		_nA_ = len(paA)
 		_nB_ = len(paB)
