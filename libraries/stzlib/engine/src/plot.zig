@@ -41,6 +41,26 @@ pub const BarOptions = extern struct {
     show_average: u8 = 0,
 };
 
+/// The horizontal bar renderer's knobs. Different defaults from the vertical one --
+/// a horizontal plot is one row per bar and a fixed pixel width, where a vertical one
+/// is one column per bar and a fixed height.
+pub const HBarOptions = extern struct {
+    width: u32 = 18,
+    bar_height: u32 = 1,
+    max_height: u32 = 30,
+    max_label_width: u32 = 12,
+    inter_space: u32 = 0,
+    axis_padding: u32 = 1,
+    show_h_axis: u8 = 1,
+    show_v_axis: u8 = 1,
+    show_labels: u8 = 1,
+    show_axis_labels: u8 = 1,
+    show_values: u8 = 0,
+    show_percent: u8 = 0,
+};
+
+const CH_HBAR: u21 = '▇';
+
 const CH_BAR: u21 = '█';
 const CH_VAXIS: u21 = '│';
 const CH_HAXIS: u21 = '─';
@@ -107,6 +127,14 @@ fn plotRound(x: f64, places: u32) f64 {
     return @round(x * m) / m;
 }
 
+/// A percentage always carries ONE DECIMAL, even when it is whole: Ring's renderer
+/// prints 25.0% and not 25%, because it rounds to one place and formats the rounded
+/// number rather than trimming it. Values are different -- an integer value prints
+/// bare -- so the two cannot share a formatter.
+fn fmtPct(buf: []u8, x: f64) []const u8 {
+    return std.fmt.bufPrint(buf, "{d:.1}%", .{plotRound(x, 1)}) catch "";
+}
+
 /// Format a number the way Ring prints it: an integer with no decimal point,
 /// otherwise up to `places` decimals with trailing zeros trimmed.
 fn fmtNum(buf: []u8, x: f64, places: u32) []const u8 {
@@ -163,12 +191,11 @@ pub fn renderBar(
             if (lw > w) w = lw;
         }
         if (show_val) {
-            const t = fmtNum(&numbuf, values[i], 6);
+            const t = fmtNum(&numbuf, values[i], 1);
             if (t.len > w) w = t.len;
         } else if (show_pct and sum > 0) {
-            const p = values[i] * 100 / sum;
-            const t = fmtNum(&numbuf, p, 1);
-            if (t.len + 1 > w) w = t.len + 1; // the '%'
+            const t = fmtPct(&numbuf, values[i] * 100 / sum);
+            if (t.len > w) w = t.len;
         }
         ew[i] = w;
     }
@@ -253,15 +280,16 @@ pub fn renderBar(
 
         if (values_row != 0) {
             const t = if (show_val)
-                fmtNum(&numbuf, v, 6)
-            else blk: {
-                const p = if (sum > 0) v * 100 / sum else 0;
-                const s = fmtNum(numbuf[0 .. numbuf.len - 1], p, 1);
-                numbuf[s.len] = '%';
-                break :blk numbuf[0 .. s.len + 1];
-            };
+                fmtNum(&numbuf, v, 1)
+            else fmtPct(&numbuf, if (sum > 0) v * 100 / sum else 0);
+            // DIRECTLY ABOVE ITS OWN BAR, not in one shared row at the top. The row
+            // is still reserved in the layout -- the tallest bar's value needs it --
+            // but a short bar's value follows the bar down, which is what makes the
+            // number read as belonging to it.
+            var vr = if (bars_end_row > bh) bars_end_row - bh else 1;
+            if (vr < 1) vr = 1;
             const toff = if (ew[i] > t.len) (ew[i] - t.len) / 2 else 0;
-            cv.putText(values_row, col + toff, t);
+            cv.putText(vr, col + toff, t);
         }
 
         if (labels_row != 0 and i < labels.items.len) {
@@ -390,8 +418,8 @@ test "values and percentages widen the column that needs it" {
 
     const withp = try renderBar(alloc, &vals, "a\nb", .{ .height = 2, .show_percent = 1 });
     defer alloc.free(withp);
-    try testing.expect(std.mem.indexOf(u8, withp, "25%") != null);
-    try testing.expect(std.mem.indexOf(u8, withp, "75%") != null);
+    try testing.expect(std.mem.indexOf(u8, withp, "25.0%") != null);
+    try testing.expect(std.mem.indexOf(u8, withp, "75.0%") != null);
 }
 
 test "a positive value is never rendered as nothing" {
@@ -406,4 +434,183 @@ test "a positive value is never rendered as nothing" {
     while (std.mem.indexOfPos(u8, out, i, "█")) |p| : (i = p + 1) count += 1;
     // the tall bar is 5 rows x 2 cells, the short one at least 1 row x 2 cells
     try testing.expect(count >= 12);
+}
+
+/// RENDER A HORIZONTAL BAR PLOT, complete.
+///
+/// One row per bar, labels down the left, bars growing rightward. Note this is NOT
+/// the vertical renderer transposed: the widths, the axis columns and even the bar
+/// glyph differ, which is why stzHBarPlot overrode almost every drawing routine and
+/// why inheriting the vertical ToString() rendered horizontal plots as vertical ones.
+pub fn renderHBar(
+    alloc: std.mem.Allocator,
+    values: []const f64,
+    labels_joined: []const u8,
+    opts: HBarOptions,
+) ![]u8 {
+    const n = values.len;
+    if (n == 0) return PlotError.BadShape;
+
+    var labels = std.ArrayList([]const u8){};
+    defer labels.deinit(alloc);
+    if (labels_joined.len > 0) {
+        var it = std.mem.splitScalar(u8, labels_joined, '\n');
+        while (it.next()) |piece| try labels.append(alloc, piece);
+    }
+
+    var sum: f64 = 0;
+    var maxv: f64 = 0;
+    for (values) |v| {
+        sum += v;
+        if (v > maxv) maxv = v;
+    }
+
+    const show_v = opts.show_v_axis != 0;
+    const show_h = opts.show_h_axis != 0;
+    const show_lab = opts.show_labels != 0 and opts.show_axis_labels != 0;
+    const show_val = opts.show_values != 0;
+    const show_pct = opts.show_percent != 0 and !show_val;
+
+    const to_show = @min(n, opts.max_height);
+    const bars_h = to_show * opts.bar_height;
+
+    var max_lab: usize = 0;
+    if (show_lab) {
+        for (0..to_show) |i| {
+            if (i < labels.items.len) {
+                const lw = @min(cpLen(labels.items[i]), opts.max_label_width);
+                if (lw > max_lab) max_lab = lw;
+            }
+        }
+    }
+
+    // ── columns, left to right ──
+    var col: usize = 1;
+    var labels_col: usize = 0;
+    if (show_lab and max_lab > 0) {
+        labels_col = col;
+        col += max_lab + opts.axis_padding;
+    }
+    var v_axis_col: usize = 0;
+    if (show_v) {
+        v_axis_col = col;
+        col += 1 + opts.axis_padding;
+    }
+    const bars_start = col;
+    const bars_end = col + opts.width - 1;
+    col = bars_end + 1;
+
+    var values_col: usize = 0;
+    var numbuf: [64]u8 = undefined;
+    if (show_val or show_pct) {
+        values_col = col + 1;
+        var max_vw: usize = 0;
+        for (0..to_show) |i| {
+            const t = if (show_val)
+                fmtNum(&numbuf, values[i], 1)
+            else fmtPct(&numbuf, if (sum > 0) values[i] * 100 / sum else 0);
+            if (t.len > max_vw) max_vw = t.len;
+        }
+        col += max_vw + 1;
+    }
+    const total_w = col - 1;
+
+    // ── rows ──
+    var row: usize = 1;
+    if (show_v) row = 2; // the arrow occupies row 1
+    const bars_start_row = row;
+    const bars_end_row = row + bars_h - 1;
+    row = bars_end_row + 1;
+    var h_axis_row: usize = 0;
+    if (show_h) {
+        h_axis_row = row;
+        row += 1;
+    }
+    const total_h = row - 1;
+
+    var cv = try Canvas.init(alloc, total_w, total_h);
+    defer cv.deinit();
+
+    if (show_v) {
+        cv.put(1, v_axis_col, CH_VARROW);
+        var r = bars_start_row;
+        while (r <= bars_end_row) : (r += 1) cv.put(r, v_axis_col, CH_VAXIS);
+    }
+    if (show_h) {
+        cv.put(h_axis_row, v_axis_col, if (show_v) CH_ORIGIN else CH_HAXIS);
+        var c = v_axis_col + 1;
+        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, CH_HAXIS);
+        cv.put(h_axis_row, total_w, CH_HARROW);
+    }
+
+    const bars_w = bars_end - bars_start + 1;
+    var r = bars_start_row;
+    for (0..to_show) |i| {
+        const v = values[i];
+        var bw: usize = 0;
+        if (maxv > 0 and v > 0) {
+            bw = @intFromFloat(@ceil(v / maxv * @as(f64, @floatFromInt(bars_w))));
+            if (bw == 0) bw = 1;
+            if (bw > bars_w) bw = bars_w;
+        }
+        var k: usize = 0;
+        while (k < bw) : (k += 1) cv.put(r, bars_start + k, CH_HBAR);
+
+        if (labels_col != 0 and i < labels.items.len) {
+            // RIGHT-ALIGNED against the axis, not left-aligned: the labels sit in a
+            // column that ends where the axis begins, so a short label is pushed
+            // right to meet it. Left-aligning detaches every short label from its bar.
+            var lab = labels.items[i];
+            var lw = cpLen(lab);
+            var tbuf: [256]u8 = undefined;
+            if (lw > opts.max_label_width and opts.max_label_width > 2) {
+                // too long: cut and mark the cut, the way the Ring renderer did
+                const keep = opts.max_label_width - 2;
+                var it2 = std.unicode.Utf8Iterator{ .bytes = lab, .i = 0 };
+                var taken: usize = 0;
+                var end: usize = 0;
+                while (taken < keep) : (taken += 1) {
+                    if (it2.nextCodepointSlice()) |sl| end += sl.len else break;
+                }
+                if (end + 2 <= tbuf.len) {
+                    @memcpy(tbuf[0..end], lab[0..end]);
+                    tbuf[end] = '.';
+                    tbuf[end + 1] = '.';
+                    lab = tbuf[0 .. end + 2];
+                    lw = taken + 2;
+                }
+            }
+            const off = if (max_lab > lw) max_lab - lw else 0;
+            cv.putText(r, labels_col + off, lab);
+        }
+        if (values_col != 0) {
+            const t = if (show_val)
+                fmtNum(&numbuf, v, 1)
+            else fmtPct(&numbuf, if (sum > 0) v * 100 / sum else 0);
+            // RIGHT AFTER THE BAR ENDS, one space along -- so the number tracks the
+            // bar's length instead of sitting in a column far to its right
+            cv.putText(r, bars_start + bw + 1, t);
+        }
+        r += opts.bar_height;
+    }
+
+    return cv.toString(alloc);
+}
+
+test "a horizontal bar plot renders exactly what the Ring implementation rendered" {
+    const alloc = testing.allocator;
+    const vals = [_]f64{ 3, 7, 5 };
+    const out = try renderHBar(alloc, &vals, "A\nB\nC", .{});
+    defer alloc.free(out);
+
+    // ground truth captured from stzHBarPlot. Note the DIFFERENT bar glyph (▇, not
+    // █), labels down the left, and one row per bar -- none of which the vertical
+    // renderer produces, which is exactly why inheriting its ToString() was a bug.
+    const want =
+        "  ▲                   " ++ "\n" ++
+        "A │ ▇▇▇▇▇▇▇▇          " ++ "\n" ++
+        "B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇" ++ "\n" ++
+        "C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇     " ++ "\n" ++
+        "  ╰──────────────────►";
+    try testing.expectEqualStrings(want, out);
 }

@@ -107,6 +107,53 @@ class stzHBarPlot from stzBarPlot
 
 	# --- Horizontal Layout Calculation ---
 
+	# THE HORIZONTAL PICTURE, rendered by the engine.
+	#
+	# THIS OVERRIDE IS LOAD-BEARING. stzHBarPlot inherits from stzBarPlot, and when
+	# the vertical ToString() moved to the engine this class silently inherited it --
+	# so horizontal plots rendered as VERTICAL ones. Nothing errored: the examples
+	# only check for errors and the subclass guard did not compare pictures, so a
+	# wrong plot sailed through. A horizontal plot is not the vertical one transposed
+	# -- different bar glyph, labels down the left, one row per bar, different axis
+	# columns -- which is why this class overrode nearly every drawing routine in the
+	# first place.
+	def ToString()
+		_cLabels_ = ""
+		_nL_ = len(@acLabels)
+		for _i_ = 1 to _nL_
+			if _i_ > 1
+				_cLabels_ += nl
+			ok
+			_cLabels_ += @acLabels[_i_]
+		next
+
+		_aOpts_ = [
+			@nWidth, @nBarHeight, @nMaxHeight, @nMaxLabelWidth,
+			@nBarInterSpace, @nAxisPadding,
+			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
+			iff(@bShowLabels, 1, 0), iff(@bShowAxisLabels, 1, 0),
+			iff(@bShowValues, 1, 0), iff(@bShowPercent, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotHBar(@anValues, _cLabels_, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzHBarPlot: the engine could not render this plot.")
+		ok
+		return _cOut_
+
+	# The Ring renderer this was ported from, kept so the guard can prove the two
+	# agree character for character.
+	def ToStringInRing()
+		_oLayout_ = _calculateLayout()
+		_initCanvas(_oLayout_[:total_width], _oLayout_[:total_height])
+		_drawVAxis(_oLayout_)
+		_drawHAxis(_oLayout_)
+		_drawBars(_oLayout_)
+		_drawValues(_oLayout_)
+		_drawLabels(_oLayout_)
+		_drawAverage(_oLayout_)
+		return _canvasToString()
+
 	def _calculateLayout()
 	    _nBars_ = len(@anValues)
 	    
