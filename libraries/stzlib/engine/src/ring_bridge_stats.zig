@@ -13,6 +13,7 @@ const lbfgs = @import("lbfgs.zig");
 const nn = @import("nn.zig");
 const eigen_general = @import("eigen_general.zig");
 const fft_mod = @import("fft.zig");
+const ann_mod = @import("ann.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
@@ -1340,6 +1341,115 @@ fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
 // Any length: a power of two takes radix-2, anything else takes Bluestein, so the
 // caller never has to think about it and is never silently zero-padded. aIm may be
 // an empty list for a real signal.
+//   StzEngineAnnBuild(aPointsFlat, nRows, nDim, nTrees, bCosine, nSeed) -> handle
+//   StzEngineAnnFree(handle)
+//   StzEngineAnnSearch(handle, aQuery, nK, nBudget)      -> [ idx, dist, ... ] 0-based
+//   StzEngineAnnSearchExact(handle, aQuery, nK)          -> the same, by full scan
+//   StzEngineAnnCount(handle) / StzEngineAnnDim(handle)
+//
+// The corpus is written once and read by every query, so it stays resident here for
+// the same reason the k-NN dataset does: the bridge, not the arithmetic, is the cost.
+fn ring_AnnBuild(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const trees: usize = @intFromFloat(g(p, 4));
+    const cosine = g(p, 5) != 0;
+    const seed: u64 = @intFromFloat(g(p, 6));
+    const ix = ann_mod.build(allocator, pts, n, d, trees, cosine, seed) catch {
+        rcp(p, null, H);
+        return;
+    };
+    rcp(p, ix, H);
+}
+
+fn ring_AnnFree(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ix: *ann_mod.Index = @ptrCast(@alignCast(raw));
+    ix.deinit();
+    rn(p, 1);
+}
+
+fn ring_AnnCount(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ix: *ann_mod.Index = @ptrCast(@alignCast(raw));
+    rn(p, @floatFromInt(ix.n));
+}
+
+fn ring_AnnDim(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ix: *ann_mod.Index = @ptrCast(@alignCast(raw));
+    rn(p, @floatFromInt(ix.d));
+}
+
+fn annQuery(p: *anyopaque, exact: bool) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const ix: *ann_mod.Index = @ptrCast(@alignCast(raw));
+    const q = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(q);
+    const k: usize = @intFromFloat(g(p, 3));
+    if (k == 0 or q.len != ix.d) {
+        rn(p, 0);
+        return;
+    }
+    const take = @min(k, ix.n);
+    const idx = allocator.alloc(u32, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idx);
+    const dst = allocator.alloc(f64, take) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(dst);
+
+    const got = if (exact)
+        ann_mod.searchExact(ix, allocator, q, take, idx, dst) catch {
+            rn(p, 0);
+            return;
+        }
+    else
+        ann_mod.search(ix, allocator, q, take, @intFromFloat(g(p, 4)), idx, dst) catch {
+            rn(p, 0);
+            return;
+        };
+
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (0..got) |i| {
+        R.ring_list_adddouble(lst, @floatFromInt(idx[i]));
+        R.ring_list_adddouble(lst, dst[i]);
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_AnnSearch(p: *anyopaque) callconv(.c) void {
+    annQuery(p, false);
+}
+
+fn ring_AnnSearchExact(p: *anyopaque) callconv(.c) void {
+    annQuery(p, true);
+}
+
 fn ring_Fft(p: *anyopaque) callconv(.c) void {
     const re = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -2308,6 +2418,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
+    .{ .name = "stzengineannbuild", .func = &ring_AnnBuild },
+    .{ .name = "stzengineannfree", .func = &ring_AnnFree },
+    .{ .name = "stzengineanncount", .func = &ring_AnnCount },
+    .{ .name = "stzengineanndim", .func = &ring_AnnDim },
+    .{ .name = "stzengineannsearch", .func = &ring_AnnSearch },
+    .{ .name = "stzengineannsearchexact", .func = &ring_AnnSearchExact },
     .{ .name = "stzenginefft", .func = &ring_Fft },
     .{ .name = "stzengineconvolvereal", .func = &ring_ConvolveReal },
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
