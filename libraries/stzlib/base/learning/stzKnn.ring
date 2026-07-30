@@ -14,14 +14,19 @@ class stzKnn from stzObject
 	@oDs = NULL
 	@nK = 3
 	@cWhy = ""
-	@pResident_ = NULL    # the examples, RESIDENT in the engine -- see Classify()
-	@acLabels_ = []       # their labels, held here so Examples() stays off the hot path
+	@pModel_ = NULL       # the CLASSIFIER, resident in the engine -- see Classify()
+	@acAlphabet_ = []     # the distinct labels, in first-appearance order; the engine
+	                      # works in codes and this maps a code back to its label
 	@nFlatCount_ = 0      # what it was built from, for staleness
 	@nFlatDim_ = 0
 	@bApprox_ = FALSE     # opt-in approximate search -- see SetApproximate()
-	@pAnn_ = NULL         # the projection forest, resident, when approximate
 	@nAnnTrees_ = 24      # tuned in umap.zig against measured recall
 	@nAnnBudget_ = 0      # 0 = let the engine choose from k
+	@aWhyRows_ = []       # [ idx, dist, code ] per consulted neighbour, for Why()
+	@nWhyVotes_ = 0
+	@nWhyUsed_ = 0
+	@nWhyWin_ = 0         # the WINNING code -- not the first neighbour's, which is
+	                      # a different thing whenever the vote overrules proximity
 
 	def init(poDataset)
 		@oDs = poDataset
@@ -135,208 +140,108 @@ class stzKnn from stzObject
 		if NOT isList(paQueries) or len(paQueries) = 0
 			stzraise("AgreementWithExact: give me a non-empty list of queries.")
 		ok
-		_bWas_ = @bApprox_
+		This._Ensure()
+		_nDim_ = @oDs.NumberOfFeatures()
+		_aFlat_ = []
 		_nQ_ = len(paQueries)
-
-		This.SetApproximate(TRUE)
-		_acA_ = []
 		for _i_ = 1 to _nQ_
-			_acA_ + This.Classify(paQueries[_i_])
-		next
-
-		This.SetApproximate(FALSE)
-		_acE_ = []
-		for _i_ = 1 to _nQ_
-			_acE_ + This.Classify(paQueries[_i_])
-		next
-
-		This.SetApproximate(_bWas_)
-
-		_nSame_ = 0
-		for _i_ = 1 to _nQ_
-			if _acA_[_i_] = _acE_[_i_]
-				_nSame_++
+			if NOT isList(paQueries[_i_]) or len(paQueries[_i_]) != _nDim_
+				stzraise("AgreementWithExact: query " + _i_ + " is not " + _nDim_ +
+					" feature(s) wide.")
 			ok
+			for _d_ = 1 to _nDim_
+				_aFlat_ + paQueries[_i_][_d_]
+			next
 		next
-		return _nSame_ / _nQ_
+		_nR_ = StzEngineKnnModelAgreement(@pModel_, _aFlat_, _nQ_, @nK, @nAnnBudget_)
+		if _nR_ < 0
+			stzraise("AgreementWithExact: the engine refused the comparison.")
+		ok
+		return _nR_
 
 	def K()
 		return @nK
 
 	def Classify(paFeatures)
-		# NOT Examples(). Ring COPIES a list when a method returns it, so
-		# @oDs.Examples() hands back all ten thousand rows every time it is asked --
-		# measured at 0.581 s of a 0.598 s twenty-query run, which is 97% of what was
-		# left after the dataset went resident. NumberOfExamples() returns a count.
+		# A THIN FACE OVER ONE ENGINE CALL.
+		#
+		# This method used to do the deciding: it took the k nearest back from the
+		# engine, looked each label up, tallied the votes, broke the tie and built the
+		# explanation -- and every other language over this engine would have had to
+		# write that same loop, with its own tie rule. It is now knn.zig's job, so a
+		# Python or C face gets the identical verdict for free.
+		#
+		# It was also where the time went. 20000 examples x 16 features, k = 5: the
+		# search cost 0.09 ms and the Ring post-processing 0.89 ms -- ninety percent of
+		# the query was the interpreter finishing a half-done operation. Reshaping the
+		# Ring side could have recovered part of that; moving the operation recovers it
+		# for every binding at once, which is the reason to do it.
+		#
+		# What is left here is what a face is FOR: validate, cross once, marshal.
 		_nEx_ = @oDs.NumberOfExamples()
 		if _nEx_ = 0
 			stzraise("Can't classify: the dataset is empty.")
 		ok
-		_nTake_ = @nK
-		if _nTake_ > _nEx_
-			_nTake_ = _nEx_
-		ok
-
-		# THE WHOLE SEARCH IN ONE CROSSING (numeric phase 5, second pass).
-		#
-		# Two things were wrong here and they were fixed in that order. First the
-		# algorithm: this used to compute every distance and then INSERTION SORT ALL
-		# OF THEM to read the first K off the front -- O(N^2) for an O(N*K) question,
-		# 11.769 s of a 11.801 s classification at N=10000. Fixing that in Ring took
-		# 357 s of twenty queries down to 1.173.
-		#
-		# Then the remaining second: correct complexity in an interpreter is still an
-		# interpreter, and the loop below used to ask the engine for ONE distance at a
-		# time. Marshalling two vectors across the bridge to do sixteen subtractions
-		# costs far more than the subtractions, so the bridge was most of what was
-		# left. Sending the matrix ONCE and getting the K nearest back inverts that:
-		#
-		#     10000 examples x 16 dim, 20 queries
-		#         sorting all N, one distance per crossing      357.753 s
-		#         bounded selection, one distance per crossing    1.173 s
-		#         one crossing for the whole search               0.086 s
-		#
-		# The selection and the tie rule moved with it, unchanged: cluster.topK walks
-		# left while the neighbour is STRICTLY greater, so equidistant examples keep
-		# training-set order and decide the vote exactly as the stable sort did.
 		_nDim_ = @oDs.NumberOfFeatures()
 		if NOT isList(paFeatures) or len(paFeatures) != _nDim_
 			stzraise("This dataset is " + _nDim_ + " feature(s) wide; the query has " +
 				len(paFeatures) + ".")
 		ok
 
-		# THE DATASET IS RESIDENT, and getting here took two corrections.
-		#
-		# Sending the whole matrix once per query instead of one vector per example
-		# is the right SHAPE -- but flattened inside Classify() it made things WORSE:
-		# 1.173 s of twenty queries became 2.254 s, because 160000 list appends were
-		# now paid per query for a matrix that does not change between queries.
-		# Caching the flat list fixed that (0.679 s) and still left the bridge
-		# copying 160000 numbers on every call. So the points LIVE in the engine and
-		# a query crosses carrying only itself:
-		#
-		#     one distance per crossing, sorting all N     357.753 s
-		#     one distance per crossing, bounded select      1.173 s
-		#     whole matrix marshalled per query              2.254 s   <- worse
-		#     matrix flattened once, re-sent per query       0.679 s
-		#     matrix RESIDENT, query crosses alone           0.021 s
-		#
-		# Marshalling is the cost the engine has to earn back, and the last two rows
-		# are the same algorithm differing only in whether the bridge is re-walked.
-		#
-		# STALENESS IS BY EXAMPLE COUNT, which exactly covers the documented way to
-		# grow a held set -- TrainingSetQ().AddExample(...) always changes the count.
-		# Editing an existing row's features in place would NOT be noticed; that is
-		# not a supported mutation, and saying so is better than a cache that
-		# pretends. The old handle is freed before a new one is taken.
-		if @pResident_ = NULL or @nFlatCount_ != _nEx_ or @nFlatDim_ != _nDim_
-			# the ONE place the full set is read -- when the resident copy is built
-			_aEx_ = @oDs.Examples()
-			_aFlat_ = []
-			@acLabels_ = []
-			for _i_ = 1 to _nEx_
-				_aRow_ = _aEx_[_i_][1]
-				@acLabels_ + _aEx_[_i_][2]
-				if len(_aRow_) != _nDim_
-					stzraise("Example " + _i_ + " has " + len(_aRow_) +
-						" feature(s) but the dataset is " + _nDim_ + " wide.")
-				ok
-				for _d_ = 1 to _nDim_
-					_aFlat_ + _aRow_[_d_]
-				next
-			next
-			if @pResident_ != NULL
-				StzEngineClusterDataFree(@pResident_)
-			ok
-			@pResident_ = StzEngineClusterDataNew(_aFlat_, _nEx_, _nDim_)
-			if @pResident_ = NULL
-				stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")
-			ok
+		This._Ensure()
 
-			# The forest is built HERE, from the flat list that was just read, so
-			# turning approximation on costs ONE pass over Examples() and not a
-			# second one. _DropResident() clears both, which is why toggling the
-			# mode invalidates rather than trying to patch a half-built pair.
-			if @pAnn_ != NULL
-				StzEngineAnnFree(@pAnn_)
-				@pAnn_ = NULL
-			ok
-			if @bApprox_
-				@pAnn_ = StzEngineAnnBuild(_aFlat_, _nEx_, _nDim_, @nAnnTrees_, 0, 42)
-				if @pAnn_ = NULL
-					stzraise("The engine refused to index the dataset (" +
-						_nEx_ + " x " + _nDim_ + ").")
-				ok
-			ok
-
-			@nFlatCount_ = _nEx_
-			@nFlatDim_ = _nDim_
+		_aV_ = StzEngineKnnModelClassify(@pModel_, paFeatures, @nK, @nAnnBudget_)
+		if NOT isList(_aV_) or len(_aV_) < 3
+			stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
 		ok
 
-		# ONE CROSSING EITHER WAY, and the two paths return the same shape so the
-		# vote below cannot tell them apart.
-		if @bApprox_
-			_aRaw_ = StzEngineAnnSearch(@pAnn_, paFeatures, _nTake_, @nAnnBudget_)
-			if NOT isList(_aRaw_) or len(_aRaw_) != _nTake_ * 2
-				stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
-			ok
-			# TWO CONVERSIONS, and both matter. The forest indexes from 0 where
-			# cluster.topK already returns 1-based indices for Ring; and it reports
-			# SQUARED distances where this class's contract -- the vote's tie order,
-			# and the numbers Why() quotes -- is the true Euclidean distance.
-			_aPairs_ = []
-			for _i_ = 1 to _nTake_
-				_aPairs_ + (_aRaw_[(_i_ - 1) * 2 + 1] + 1)
-				_aPairs_ + sqrt(_aRaw_[(_i_ - 1) * 2 + 2])
-			next
-		else
-			_aPairs_ = StzEngineKnnTopKOn(@pResident_, paFeatures, _nTake_)
-			if NOT isList(_aPairs_) or len(_aPairs_) != _nTake_ * 2
-				stzraise("The engine refused the search (" + _nEx_ + " x " + _nDim_ + ").")
-			ok
-		ok
+		# [ winCode, winVotes, used, (idx, dist, code) * used ]
+		_nWin_ = _aV_[1]
+		_nVotes_ = _aV_[2]
+		_nUsed_ = _aV_[3]
 
-		# [ idx, dist, idx, dist, ... ] -> the [ dist, label, idx ] rows the vote reads
-		_aTop_ = []
-		for _i_ = 1 to _nTake_
-			_nIdx_ = _aPairs_[(_i_ - 1) * 2 + 1]
-			_aTop_ + [ _aPairs_[(_i_ - 1) * 2 + 2], @acLabels_[_nIdx_], _nIdx_ ]
+		# THE EXPLANATION IS BUILT ONLY IF ASKED FOR. The ingredients are kept and
+		# Why() assembles the sentence, so a caller who never asks pays nothing --
+		# the string used to be concatenated on every single classification.
+		@aWhyRows_ = []
+		for _i_ = 1 to _nUsed_
+			_b_ = 3 + (_i_ - 1) * 3
+			@aWhyRows_ + [ _aV_[_b_ + 1] + 1, _aV_[_b_ + 2], _aV_[_b_ + 3] ]
 		next
+		@nWhyVotes_ = _nVotes_
+		@nWhyUsed_ = _nUsed_
+		@nWhyWin_ = _nWin_
+		@cWhy = ""
 
-		# majority vote among the K nearest
-		_aVotes_ = []
+		$nStzLastCertainty = 1
+		$cStzLastWhyB = ""
+		return @acAlphabet_[_nWin_ + 1]
+
+	def Why()
+		if @cWhy != ""
+			return @cWhy
+		ok
+		if @nWhyUsed_ = 0
+			return ""
+		ok
 		_cNear_ = ""
-		for _i_ = 1 to _nTake_
-			_cL_ = _aTop_[_i_][2]
-			if HasKey(_aVotes_, _cL_)
-				_aVotes_[_cL_] = _aVotes_[_cL_] + 1
-			else
-				_aVotes_[_cL_] = 1
-			ok
+		for _i_ = 1 to @nWhyUsed_
 			if _cNear_ != ""
 				_cNear_ += ", "
 			ok
-			_cNear_ += "#" + _aTop_[_i_][3] + " '" + _cL_ + "' (d=" +
-				_aTop_[_i_][1] + ")"
+			_cNear_ += "#" + @aWhyRows_[_i_][1] + " '" +
+				@acAlphabet_[@aWhyRows_[_i_][3] + 1] + "' (d=" +
+				@aWhyRows_[_i_][2] + ")"
 		next
-
-		_cBest_ = ""
-		_nBest_ = -1
-		_nV_ = len(_aVotes_)
-		for _i_ = 1 to _nV_
-			if _aVotes_[_i_][2] > _nBest_
-				_nBest_ = _aVotes_[_i_][2]
-				_cBest_ = _aVotes_[_i_][1]
-			ok
-		next
-
-		@cWhy = "the " + _nTake_ + " nearest examples were: " + _cNear_ +
-			" -- majority: '" + _cBest_ + "' (" + _nBest_ + "/" + _nTake_ + ")"
-		$nStzLastCertainty = 1
+		# the majority is the VERDICT's code. Reading the first neighbour's label
+		# instead would agree with it only when proximity and the vote happen to
+		# coincide -- on [0,0] [3,0] [0,4] classified from (3,4) the nearest is
+		# 'high' and the majority is 'low', and the first version of this line said
+		# 'high'.
+		@cWhy = "the " + @nWhyUsed_ + " nearest examples were: " + _cNear_ +
+			" -- majority: '" + @acAlphabet_[@nWhyWin_ + 1] + "' (" +
+			@nWhyVotes_ + "/" + @nWhyUsed_ + ")"
 		$cStzLastWhyB = @cWhy
-		return _cBest_
-
-	def Why()
 		return @cWhy
 
 	# ONE DEFINITION OF DISTANCE (phase 5 slice 3 of the numeric foundation).
@@ -371,16 +276,75 @@ class stzKnn from stzObject
 	# of Examples(); setting the count to 0 is what the staleness check already
 	# looks at, so this reuses that machinery rather than adding a second flag.
 	def _DropResident()
-		if @pResident_ != NULL
-			StzEngineClusterDataFree(@pResident_)
-			@pResident_ = NULL
-		ok
-		if @pAnn_ != NULL
-			StzEngineAnnFree(@pAnn_)
-			@pAnn_ = NULL
+		if @pModel_ != NULL
+			StzEngineKnnModelFree(@pModel_)
+			@pModel_ = NULL
 		ok
 		@nFlatCount_ = 0
 		@nFlatDim_ = 0
+
+	# Build the engine-side classifier, once, from ONE read of Examples().
+	#
+	# STALENESS IS BY EXAMPLE COUNT, which exactly covers the documented way to grow a
+	# held set -- TrainingSetQ().AddExample(...) always changes the count. Editing an
+	# existing row in place would NOT be noticed; that is not a supported mutation, and
+	# saying so is better than a cache that pretends.
+	#
+	# INTERNING HAPPENS HERE because it is marshalling, not algorithm: the engine
+	# compares and tallies label CODES and never sees a string, which is what keeps a
+	# host's text representation out of it. Codes are assigned in first-appearance
+	# order, so the engine's smallest-code-wins tie rule resolves in favour of the
+	# label seen first in the training set.
+	def _Ensure()
+		_nEx_ = @oDs.NumberOfExamples()
+		_nDim_ = @oDs.NumberOfFeatures()
+		if @pModel_ != NULL and @nFlatCount_ = _nEx_ and @nFlatDim_ = _nDim_
+			return
+		ok
+		This._DropResident()
+
+		# the ONE place the full set is read
+		_aEx_ = @oDs.Examples()
+		_aFlat_ = []
+		_anCodes_ = []
+		_acAlpha_ = []
+		for _i_ = 1 to _nEx_
+			_aRow_ = _aEx_[_i_][1]
+			if len(_aRow_) != _nDim_
+				stzraise("Example " + _i_ + " has " + len(_aRow_) +
+					" feature(s) but the dataset is " + _nDim_ + " wide.")
+			ok
+			for _d_ = 1 to _nDim_
+				_aFlat_ + _aRow_[_d_]
+			next
+			_cL_ = "" + _aEx_[_i_][2]
+			_nCode_ = -1
+			_nA_ = len(_acAlpha_)
+			for _j_ = 1 to _nA_
+				if _acAlpha_[_j_] = _cL_
+					_nCode_ = _j_ - 1
+					exit
+				ok
+			next
+			if _nCode_ = -1
+				_acAlpha_ + _cL_
+				_nCode_ = len(_acAlpha_) - 1
+			ok
+			_anCodes_ + _nCode_
+		next
+
+		_bA_ = 0
+		if @bApprox_
+			_bA_ = 1
+		ok
+		@pModel_ = StzEngineKnnModelNew(_aFlat_, _nEx_, _nDim_, _anCodes_,
+			len(_acAlpha_), _bA_, @nAnnTrees_, 42)
+		if @pModel_ = NULL
+			stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")
+		ok
+		@acAlphabet_ = _acAlpha_
+		@nFlatCount_ = _nEx_
+		@nFlatDim_ = _nDim_
 
 	def _Dist(paA, paB)
 		_nA_ = len(paA)
