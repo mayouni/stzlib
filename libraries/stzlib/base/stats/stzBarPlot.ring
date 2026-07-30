@@ -701,17 +701,65 @@ class stzBarPlot from stzObject
 
 	# --- Main Methods ---
 
+	# THE PICTURE IS RENDERED BY THE ENGINE, in one crossing.
+	#
+	# This used to lay out a canvas here and paint it with _drawVAxis, _drawBars,
+	# _drawLabels and the rest -- so the plot existed only for Ring. plot.zig now
+	# renders the finished text, and any language over the engine gets the same
+	# picture from the same call rather than reimplementing a canvas.
+	#
+	# The old Ring drawing helpers are kept below and still work; they are what the
+	# engine renderer was ported FROM, and the guard compares the two outputs
+	# character for character.
 	def ToString()
+		_cLabels_ = ""
+		_nL_ = len(@acLabels)
+		for _i_ = 1 to _nL_
+			if _i_ > 1
+				_cLabels_ += nl
+			ok
+			_cLabels_ += @acLabels[_i_]
+		next
+
+		_aOpts_ = [
+			@nHeight, @nBarWidth, @nBarInterSpace, @nVAxisWidth, @nAxisPadding,
+			@nMaxLabelWidth,
+			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
+			iff(@bShowLabels, 1, 0), iff(@bShowAxisLabels, 1, 0),
+			iff(@bShowValues, 1, 0), iff(@bShowPercent, 1, 0),
+			iff(@bShowAverage, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotBar(@anValues, _cLabels_, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzBarPlot: the engine could not render this plot.")
+		ok
+
+		# the one host-side special case the renderer does not carry: a bar CHART
+		# with a v-axis and no h-axis drops the last │
+		if ring_classname(This) = "stzbarchart"
+			if @bShowVAxis and not @bShowHAxis
+				_oTempStr_ = new stzString(_cOut_)
+				_nPos_ = _oTempStr_.FindLast(@cVAxisChar)
+				_oTempStr_.ReplacecharAt(_nPos_, " ")
+				_cOut_ = _oTempStr_.Content()
+			ok
+		ok
+		return _cOut_
+
+	# The Ring renderer the engine one was ported from. Kept so the guard can prove
+	# the two agree character for character on the same input.
+	def ToStringInRing()
 		_oLayout_ = _calculateLayout()
 		_initCanvas(_oLayout_[:total_width], _oLayout_[:total_height])
-	
+
 		_drawVAxis(_oLayout_)
 		_drawHAxis(_oLayout_)
 		_drawBars(_oLayout_)
 		_drawValues(_oLayout_)
 		_drawLabels(_oLayout_)
 		_drawAverage(_oLayout_)
-		
+
 		return _canvasToString()
 
 	def _canvasToString()

@@ -17,6 +17,7 @@ const ann_mod = @import("ann.zig");
 const knn_mod = @import("knn.zig");
 const poly_mod = @import("poly.zig");
 const frame_mod = @import("frame.zig");
+const plot_mod = @import("plot.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
@@ -1520,6 +1521,57 @@ fn ring_PolyCompanion(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, lst);
 }
 
+//   StzEnginePlotBar(aValues, cLabelsJoined, aOptions) -> the finished text
+//
+// THE FINISHED PICTURE, not a layout. A host passes data and knobs and prints what
+// comes back, so a plot exists for every language over this engine and not only for
+// the one that happened to own the renderer.
+//
+// aOptions is a flat numeric list in the order of plot.BarOptions:
+//   height, barWidth, interSpace, vAxisWidth, axisPadding, maxLabelWidth,
+//   showHAxis, showVAxis, showLabels, showAxisLabels, showValues, showPercent,
+//   showAverage
+// A short or empty list keeps the defaults for whatever it does not mention.
+fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
+    const vals = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(vals);
+    if (vals.len == 0) {
+        rs(p, "");
+        return;
+    }
+    // strParam, not getstring alone: a Ring string is not NUL-terminated, so the
+    // length has to come from getstringsize
+    const lab = strParam(p, 2);
+
+    var opts = plot_mod.BarOptions{};
+    if (listToF64(p, 3)) |o| {
+        defer allocator.free(o);
+        if (o.len > 0) opts.height = @intFromFloat(o[0]);
+        if (o.len > 1) opts.bar_width = @intFromFloat(o[1]);
+        if (o.len > 2) opts.inter_space = @intFromFloat(o[2]);
+        if (o.len > 3) opts.v_axis_width = @intFromFloat(o[3]);
+        if (o.len > 4) opts.axis_padding = @intFromFloat(o[4]);
+        if (o.len > 5) opts.max_label_width = @intFromFloat(o[5]);
+        if (o.len > 6) opts.show_h_axis = if (o[6] != 0) 1 else 0;
+        if (o.len > 7) opts.show_v_axis = if (o[7] != 0) 1 else 0;
+        if (o.len > 8) opts.show_labels = if (o[8] != 0) 1 else 0;
+        if (o.len > 9) opts.show_axis_labels = if (o[9] != 0) 1 else 0;
+        if (o.len > 10) opts.show_values = if (o[10] != 0) 1 else 0;
+        if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
+        if (o.len > 12) opts.show_average = if (o[12] != 0) 1 else 0;
+    }
+
+    const txt = plot_mod.renderBar(allocator, vals, lab, opts) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(txt);
+    rs2(p, txt.ptr, @intCast(txt.len));
+}
+
 fn ring_FrameDescribe(p: *anyopaque) callconv(.c) void {
     const col = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -2804,6 +2856,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineannrecall", .func = &ring_AnnRecall },
     .{ .name = "stzenginepolyroots", .func = &ring_PolyRoots },
     .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
+    .{ .name = "stzengineplotbar", .func = &ring_PlotBar },
     .{ .name = "stzengineframedescribe", .func = &ring_FrameDescribe },
     .{ .name = "stzengineframedescribeall", .func = &ring_FrameDescribeAll },
     .{ .name = "stzengineframecorrmatrix", .func = &ring_FrameCorrMatrix },
