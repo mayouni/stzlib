@@ -15,6 +15,8 @@ const eigen_general = @import("eigen_general.zig");
 const fft_mod = @import("fft.zig");
 const ann_mod = @import("ann.zig");
 const knn_mod = @import("knn.zig");
+const poly_mod = @import("poly.zig");
+const frame_mod = @import("frame.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const umap_mod = @import("umap.zig");
@@ -1361,6 +1363,256 @@ fn ring_NNTrain(p: *anyopaque) callconv(.c) void {
 // every binding gets the same decision and the same tie rule instead of writing its
 // own tally loop. Labels cross as codes; interning is the host's marshalling job,
 // the same convention the ID3 bridge above uses.
+// ─── complete operations that used to be finished in the host ────────────────
+//
+//   StzEngineFftMagnitudes(aRe, aIm)   -> |X_k| per bin
+//   StzEngineFftPhases(aRe, aIm)       -> phase per bin
+//   StzEngineFftPower(aRe, aIm)        -> |X_k|^2 per bin
+//   StzEngineFftDominantBin(aRe, aIm)  -> 0-based bin, DC excluded, first half only
+//   StzEngineAnnRecall(handle, aQueriesFlat, nQ, nK, nBudget) -> recall@k
+//   StzEnginePolyRoots(aCoeffs)        -> [ re, im, ... ]
+//   StzEnginePolyCompanion(aCoeffs)    -> [ n, row-major n*n ]
+//   StzEngineFrameDescribe(aCol)       -> 8 numbers
+//   StzEngineFrameDescribeAll(aFlat, nRows, nCols) -> nCols * 8
+//   StzEngineFrameCorrMatrix(aFlat, nRows, nCols)  -> nCols * nCols
+//   StzEngineFrameRegression(aX, aY)   -> [ slope, intercept, r2 ] or 0
+fn fftRead(p: *anyopaque, which: u8) void {
+    const re = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(re);
+    const n = re.len;
+    if (n == 0) {
+        rn(p, 0);
+        return;
+    }
+    const im = allocator.alloc(f64, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(im);
+    @memset(im, 0);
+    if (listToF64(p, 2)) |given| {
+        defer allocator.free(given);
+        if (given.len == n) @memcpy(im, given);
+    }
+
+    if (which == 3) {
+        const bin = fft_mod.dominantBin(allocator, re, im) catch {
+            rn(p, 0);
+            return;
+        };
+        rn(p, @floatFromInt(bin));
+        return;
+    }
+
+    const out = allocator.alloc(f64, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+    switch (which) {
+        0 => fft_mod.magnitudes(allocator, re, im, out) catch {
+            rn(p, 0);
+            return;
+        },
+        1 => fft_mod.phases(allocator, re, im, out) catch {
+            rn(p, 0);
+            return;
+        },
+        else => fft_mod.powerSpectrum(allocator, re, im, out) catch {
+            rn(p, 0);
+            return;
+        },
+    }
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_FftMagnitudes(p: *anyopaque) callconv(.c) void {
+    fftRead(p, 0);
+}
+fn ring_FftPhases(p: *anyopaque) callconv(.c) void {
+    fftRead(p, 1);
+}
+fn ring_FftPower(p: *anyopaque) callconv(.c) void {
+    fftRead(p, 2);
+}
+fn ring_FftDominantBin(p: *anyopaque) callconv(.c) void {
+    fftRead(p, 3);
+}
+
+fn ring_AnnRecall(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, -1);
+        return;
+    };
+    const ix: *ann_mod.Index = @ptrCast(@alignCast(raw));
+    const qs = listToF64(p, 2) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer allocator.free(qs);
+    const nq: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const budget: usize = @intFromFloat(g(p, 5));
+    const r = ann_mod.recallAgainstExact(ix, allocator, qs, nq, k, budget) catch {
+        rn(p, -1);
+        return;
+    };
+    rn(p, r);
+}
+
+fn ring_PolyRoots(p: *anyopaque) callconv(.c) void {
+    const c = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(c);
+    const deg = poly_mod.degreeOf(c);
+    if (deg == 0) {
+        const empty = R.ring_vm_api_newlist(p) orelse return;
+        R.ring_vm_api_retlist(p, empty);
+        return;
+    }
+    const out = allocator.alloc(cmplx.Complex, deg) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+    const got = poly_mod.roots(allocator, c, out) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out[0..got]) |z| {
+        R.ring_list_adddouble(lst, z.re);
+        R.ring_list_adddouble(lst, z.im);
+    }
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_PolyCompanion(p: *anyopaque) callconv(.c) void {
+    const c = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(c);
+    const deg = poly_mod.degreeOf(c);
+    if (deg == 0) {
+        rn(p, 0);
+        return;
+    }
+    const m = allocator.alloc(f64, deg * deg) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(m);
+    _ = poly_mod.companion(c, m) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(lst, @floatFromInt(deg));
+    for (m) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_FrameDescribe(p: *anyopaque) callconv(.c) void {
+    const col = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(col);
+    var out = [_]f64{0} ** frame_mod.DESCRIBE_LEN;
+    frame_mod.describeColumn(col, &out) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_FrameDescribeAll(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(flat);
+    const nr: usize = @intFromFloat(g(p, 2));
+    const nc: usize = @intFromFloat(g(p, 3));
+    if (nr == 0 or nc == 0) {
+        rn(p, 0);
+        return;
+    }
+    const out = allocator.alloc(f64, nc * frame_mod.DESCRIBE_LEN) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+    frame_mod.describeAll(allocator, flat, nr, nc, out) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_FrameCorrMatrix(p: *anyopaque) callconv(.c) void {
+    const flat = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(flat);
+    const nr: usize = @intFromFloat(g(p, 2));
+    const nc: usize = @intFromFloat(g(p, 3));
+    if (nr == 0 or nc == 0) {
+        rn(p, 0);
+        return;
+    }
+    const out = allocator.alloc(f64, nc * nc) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(out);
+    frame_mod.correlationMatrix(allocator, flat, nr, nc, out) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
+fn ring_FrameRegression(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const y = listToF64(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(y);
+    var out = [_]f64{0} ** 3;
+    const good = frame_mod.regression(x, y, &out) catch {
+        rn(p, 0);
+        return;
+    };
+    if (!good) {
+        rn(p, 0);
+        return;
+    }
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    for (out) |v| R.ring_list_adddouble(lst, v);
+    R.ring_vm_api_retlist(p, lst);
+}
+
 fn ring_KnnModelNew(p: *anyopaque) callconv(.c) void {
     const pts = listToF64(p, 1) orelse {
         rcp(p, null, H);
@@ -2545,6 +2797,17 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineminimize", .func = &ring_Minimize },
     .{ .name = "stzenginenntrain", .func = &ring_NNTrain },
     .{ .name = "stzengineeigengeneral", .func = &ring_EigenGeneral },
+    .{ .name = "stzenginefftmagnitudes", .func = &ring_FftMagnitudes },
+    .{ .name = "stzenginefftphases", .func = &ring_FftPhases },
+    .{ .name = "stzenginefftpower", .func = &ring_FftPower },
+    .{ .name = "stzenginefftdominantbin", .func = &ring_FftDominantBin },
+    .{ .name = "stzengineannrecall", .func = &ring_AnnRecall },
+    .{ .name = "stzenginepolyroots", .func = &ring_PolyRoots },
+    .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
+    .{ .name = "stzengineframedescribe", .func = &ring_FrameDescribe },
+    .{ .name = "stzengineframedescribeall", .func = &ring_FrameDescribeAll },
+    .{ .name = "stzengineframecorrmatrix", .func = &ring_FrameCorrMatrix },
+    .{ .name = "stzengineframeregression", .func = &ring_FrameRegression },
     .{ .name = "stzengineknnmodelnew", .func = &ring_KnnModelNew },
     .{ .name = "stzengineknnmodelfree", .func = &ring_KnnModelFree },
     .{ .name = "stzengineknnmodelclassify", .func = &ring_KnnModelClassify },

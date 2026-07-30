@@ -180,57 +180,53 @@ class stzPolynomial from stzObject
 	# The companion matrix of the MONIC form of this polynomial: the matrix
 	# whose characteristic polynomial is p, and therefore whose eigenvalues
 	# are p's roots.
+	# THE COMPANION MATRIX of the monic form, as DATA.
+	#
+	# Assembled by the engine, not here. It looks like four lines of glue -- the
+	# sign, which row carries the coefficients, the monic division, the leading-zero
+	# case -- and every one of those is a decision a second implementation gets
+	# subtly differently. poly.zig owns it, so every language over the engine builds
+	# the same matrix.
 	def CompanionMatrix()
-		_nDeg_ = This.Degree()
-		if _nDeg_ < 1
-			StzRaise("CompanionMatrix: a constant has no companion matrix " +
-				"(and no roots to find).")
+		_aR_ = StzEnginePolyCompanion(@aCoeffs)
+		if NOT isList(_aR_) or len(_aR_) < 1
+			StzRaise("CompanionMatrix: this needs a polynomial of degree 1 or more.")
 		ok
-		_aM_ = This.Monic()
-		_aOut_ = []
-		for _i_ = 1 to _nDeg_
+		_n_ = _aR_[1]
+		_aM_ = []
+		for _i_ = 1 to _n_
 			_aRow_ = []
-			for _j_ = 1 to _nDeg_
-				_aRow_ + 0
+			for _j_ = 1 to _n_
+				_aRow_ + _aR_[1 + (_i_ - 1) * _n_ + _j_]
 			next
-			_aOut_ + _aRow_
+			_aM_ + _aRow_
 		next
-		# top row: the negated monic coefficients after the leading 1
-		for _j_ = 1 to _nDeg_
-			_aOut_[1][_j_] = -_aM_[_j_ + 1]
-		next
-		# sub-diagonal ones
-		for _i_ = 2 to _nDeg_
-			_aOut_[_i_][_i_ - 1] = 1
-		next
-		return _aOut_
+		return _aM_
 
 		def CompanionMatrixQ()
 			return new stzMatrix(This.CompanionMatrix())
 
-	# EVERY root, complex ones included, as a list of stzComplex -- degree many
-	# of them, counted with multiplicity, per the fundamental theorem of algebra.
+	# EVERY ROOT, complex ones included, as a list of stzComplex.
 	#
-	# This is the eigenvalue computation described at the top of the file: no
-	# second iteration lives here.
+	# Past degree four no formula exists, so the general method is the companion
+	# matrix's eigenvalues -- and that whole chain lives in poly.zig over
+	# eigen_general.zig's Francis QR. This method binds arguments and marshals; it
+	# does not assemble a matrix and it does not decide anything.
 	def ComplexRoots()
-		_nDeg_ = This.Degree()
-		if _nDeg_ < 1
-			StzRaise("ComplexRoots: a constant polynomial has no roots " +
-				"(or, if it is zero, every number is one).")
+		_aR_ = StzEnginePolyRoots(@aCoeffs)
+		if NOT isList(_aR_)
+			StzRaise("Roots: the QR iteration did not converge on this polynomial.")
 		ok
-		return This.CompanionMatrixQ().ComplexEigenValues()
+		_aOut_ = []
+		_n_ = len(_aR_) / 2
+		for _i_ = 1 to _n_
+			_aOut_ + new stzComplex(_aR_[(_i_ - 1) * 2 + 1], _aR_[(_i_ - 1) * 2 + 2])
+		next
+		return _aOut_
 
 		def Roots()
 			return This.ComplexRoots()
 
-	# The REAL roots only, as plain numbers, ascending.
-	#
-	# The tolerance is a real parameter and not a hidden constant: a root
-	# repeated m times is perturbed like eps^(1/m), so a triple root arrives
-	# with a small imaginary part that is an artifact of conditioning rather
-	# than a genuinely complex root. Anything whose imaginary part is within
-	# pnTolerance counts as real.
 	def RealRootsWithin(pnTolerance)
 		_aZ_ = This.ComplexRoots()
 		_aOut_ = []

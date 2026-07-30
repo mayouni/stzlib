@@ -492,6 +492,60 @@ pub fn searchExact(
     return filled;
 }
 
+/// RECALL@K AGAINST THE EXACT SEARCH, over a set of queries.
+///
+/// The fraction of the true k nearest neighbours the approximate search actually
+/// returned; 1.0 means it missed nothing.
+///
+/// THIS IS NOT A BENCHMARK HELPER, IT IS PART OF THE INDEX. An approximate structure
+/// whose recall nobody has measured is not a fast index, it is an unknown one -- so
+/// the measurement has to be available to every binding, on the caller's OWN vectors,
+/// because recall depends on the data and no default can promise a number.
+///
+/// `queries` is row-major nq * d.
+pub fn recallAgainstExact(
+    self: *Index,
+    alloc: std.mem.Allocator,
+    queries: []const f64,
+    nq: usize,
+    k: usize,
+    budget: usize,
+) !f64 {
+    // AT LEAST nq rows, not exactly: a caller may hold its queries in a larger buffer
+    // and ask about the first nq of them, which is ordinary and should not be refused.
+    if (nq == 0 or queries.len < nq * self.d or k == 0) return 0;
+    const take = @min(k, self.n);
+
+    const ai = try alloc.alloc(u32, take);
+    defer alloc.free(ai);
+    const ad = try alloc.alloc(f64, take);
+    defer alloc.free(ad);
+    const ei = try alloc.alloc(u32, take);
+    defer alloc.free(ei);
+    const ed = try alloc.alloc(f64, take);
+    defer alloc.free(ed);
+
+    var hits: usize = 0;
+    var total: usize = 0;
+    var q: usize = 0;
+    while (q < nq) : (q += 1) {
+        const query = queries[q * self.d .. (q + 1) * self.d];
+        const na = try search(self, alloc, query, take, budget, ai, ad);
+        const ne = try searchExact(self, alloc, query, take, ei, ed);
+        total += ne;
+        for (ei[0..ne]) |want| {
+            for (ai[0..na]) |got| {
+                if (got == want) {
+                    hits += 1;
+                    break;
+                }
+            }
+        }
+    }
+    if (total == 0) return 0;
+    return @as(f64, @floatFromInt(hits)) / @as(f64, @floatFromInt(total));
+}
+
 // ── tests ────────────────────────────────────────────────────────────────────
 
 const testing = std.testing;
@@ -505,7 +559,21 @@ fn makeCloud(alloc: std.mem.Allocator, n: usize, d: usize, seed: u64) ![]f64 {
     return buf;
 }
 
+/// the tests call the PUBLIC measurement, so what they verify is what a host gets
 fn recallAt(
+    alloc: std.mem.Allocator,
+    ix: *Index,
+    queries: []const f64,
+    nq: usize,
+    d: usize,
+    k: usize,
+    budget: usize,
+) !f64 {
+    _ = d;
+    return recallAgainstExact(ix, alloc, queries, nq, k, budget);
+}
+
+fn recallAtOld(
     alloc: std.mem.Allocator,
     ix: *Index,
     queries: []const f64,

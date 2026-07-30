@@ -14899,10 +14899,22 @@ func _NormalizeColLookupKey(pVal)
 		next
 		return _aOut_
 
-	# The single crossing into the stats authority: one stzDataSet over a
-	# column. Every statistic below reads through this.
-	def _DataSetOfCol(pCol)
-		return new stzDataSet(This._NumericColOf(pCol))
+	# THE STATISTICS AUTHORITY IS THE ENGINE, not another Ring class.
+	#
+	# This used to hand each column to stzDataSet -- which is engine-backed, so the
+	# arithmetic was right, but the ADAPTER lived in Ring: the eight accessors per
+	# column, the pairwise double loop, the diagonal. That means a Python or C face
+	# over the same engine got a table type with no statistics at all, which is the
+	# opposite of the point of having an engine.
+	#
+	# frame.zig now owns the tabular operations, so a column description is ONE
+	# crossing and a correlation matrix is ONE crossing, for every language.
+	def _DescribeFlat(pCol)
+		_aD_ = StzEngineFrameDescribe(This._NumericColOf(pCol))
+		if NOT isList(_aD_) or len(_aD_) != 8
+			StzRaise("DescribeCol: the engine refused this column.")
+		ok
+		return _aD_
 
 	# A column counts as numeric when it has at least one value and every
 	# non-null value is a number (or a numeric string).
@@ -14926,143 +14938,231 @@ func _NormalizeColLookupKey(pVal)
 			return This.IsNumericCol(pCol)
 
 	def MedianCol(pCol)
-		return This._DataSetOfCol(pCol).Median()
+		return This._DescribeFlat(pCol)[3]
 
 		def MedianColumn(pCol)
 			return This.MedianCol(pCol)
 
 	def StdDevCol(pCol)
-		return This._DataSetOfCol(pCol).StdDev()
+		return This._DescribeFlat(pCol)[4]
 
 		def StdDevColumn(pCol)
 			return This.StdDevCol(pCol)
 
 	def VarianceCol(pCol)
-		return This._DataSetOfCol(pCol).Variance()
+		_nS_ = This._DescribeFlat(pCol)[4]
+		return _nS_ * _nS_
 
 		def VarianceColumn(pCol)
 			return This.VarianceCol(pCol)
 
-	def PercentileCol(pCol, pnP)
-		return This._DataSetOfCol(pCol).Percentile(pnP)
-
-		def PercentileColumn(pCol, pnP)
-			return This.PercentileCol(pCol, pnP)
-
 	def Q1Col(pCol)
-		return This._DataSetOfCol(pCol).Q1()
+		return This._DescribeFlat(pCol)[7]
 
 		def Q1Column(pCol)
 			return This.Q1Col(pCol)
 
 	def Q3Col(pCol)
-		return This._DataSetOfCol(pCol).Q3()
+		return This._DescribeFlat(pCol)[8]
 
 		def Q3Column(pCol)
 			return This.Q3Col(pCol)
 
-	# A full per-column summary as DATA -- a hashlist of the eight numbers
-	# a describe() ought to give, built from ONE dataset for the column.
+	# A percentile other than the quartiles still goes through stzDataSet, which is
+	# the sample authority and already engine-backed -- a table-shaped operation is
+	# not needed for a single number from a single column.
+	def PercentileCol(pCol, pnP)
+		_oDS_ = new stzDataSet(This._NumericColOf(pCol))
+		return _oDS_.Percentile(pnP)
+
+		def PercentileColumn(pCol, pnP)
+			return This.PercentileCol(pCol, pnP)
+
+	# A full per-column summary as DATA -- the eight numbers, in the engine's order.
 	def DescribeCol(pCol)
-		_oDS_ = This._DataSetOfCol(pCol)
+		_aD_ = This._DescribeFlat(pCol)
 		return [
-			[ :count,  _oDS_.Count() ],
-			[ :mean,   _oDS_.Mean() ],
-			[ :median, _oDS_.Median() ],
-			[ :stddev, _oDS_.StdDev() ],
-			[ :min,    _oDS_.Min() ],
-			[ :max,    _oDS_.Max() ],
-			[ :q1,     _oDS_.Q1() ],
-			[ :q3,     _oDS_.Q3() ]
+			[ :count,  _aD_[1] ],
+			[ :mean,   _aD_[2] ],
+			[ :median, _aD_[3] ],
+			[ :stddev, _aD_[4] ],
+			[ :min,    _aD_[5] ],
+			[ :max,    _aD_[6] ],
+			[ :q1,     _aD_[7] ],
+			[ :q3,     _aD_[8] ]
 		]
 
 		def DescribeColumn(pCol)
 			return This.DescribeCol(pCol)
 
-	# Describe every NUMERIC column of the table (text columns are skipped),
-	# returned as DATA: [ [colName, DescribeCol(colName)], ... ].
-	def Describe()
+	# The names of the numeric columns, in table order.
+	def NumericColumnNames()
 		_aOut_ = []
 		_aNames_ = This.ColumnNames()
 		_nLen_ = len(_aNames_)
 		for _i_ = 1 to _nLen_
 			if This.IsNumericCol(_aNames_[_i_])
-				_aOut_ + [ _aNames_[_i_], This.DescribeCol(_aNames_[_i_]) ]
+				_aOut_ + _aNames_[_i_]
 			ok
 		next
 		return _aOut_
 
-	# The same summary as a TABLE object (statistic-per-row, column-per-column),
-	# for display or further chaining -- hence the Q, per the naming law.
+	# Describe every NUMERIC column, as [ [colName, DescribeCol(colName)], ... ].
+	#
+	# ONE crossing for the whole table: the columns go over together and come back
+	# described, rather than a crossing per column.
+	def Describe()
+		_aNames_ = This.NumericColumnNames()
+		_nC_ = len(_aNames_)
+		if _nC_ = 0
+			return []
+		ok
+		_aCols_ = []
+		_nR_ = 0
+		for _j_ = 1 to _nC_
+			_aV_ = This._NumericColOf(_aNames_[_j_])
+			_aCols_ + _aV_
+			if len(_aV_) > _nR_
+				_nR_ = len(_aV_)
+			ok
+		next
+		# row-major, ragged columns padded with their own last value so a short
+		# column cannot shift the ones beside it
+		_aFlat_ = []
+		for _i_ = 1 to _nR_
+			for _j_ = 1 to _nC_
+				_aV_ = _aCols_[_j_]
+				if _i_ <= len(_aV_)
+					_aFlat_ + _aV_[_i_]
+				else
+					_aFlat_ + _aV_[len(_aV_)]
+				ok
+			next
+		next
+		_aD_ = StzEngineFrameDescribeAll(_aFlat_, _nR_, _nC_)
+		if NOT isList(_aD_) or len(_aD_) != _nC_ * 8
+			StzRaise("Describe: the engine refused this table.")
+		ok
+		_aOut_ = []
+		for _j_ = 1 to _nC_
+			_b_ = (_j_ - 1) * 8
+			_aOut_ + [ _aNames_[_j_], [
+				[ :count,  _aD_[_b_ + 1] ],
+				[ :mean,   _aD_[_b_ + 2] ],
+				[ :median, _aD_[_b_ + 3] ],
+				[ :stddev, _aD_[_b_ + 4] ],
+				[ :min,    _aD_[_b_ + 5] ],
+				[ :max,    _aD_[_b_ + 6] ],
+				[ :q1,     _aD_[_b_ + 7] ],
+				[ :q3,     _aD_[_b_ + 8] ]
+			] ]
+		next
+		return _aOut_
+
+	# The same summary as a TABLE object (statistic-per-row), for display or
+	# further chaining -- hence the Q, per the naming law.
 	def DescribeQ()
 		_aStatNames_ = [ :count, :mean, :median, :stddev, :min, :max, :q1, :q3 ]
 		_aCols_ = [ [ :statistic, _aStatNames_ ] ]
-		_aNames_ = This.ColumnNames()
-		_nLen_ = len(_aNames_)
-		for _i_ = 1 to _nLen_
-			if This.IsNumericCol(_aNames_[_i_])
-				_oDS_ = This._DataSetOfCol(_aNames_[_i_])
-				_aVals_ = [
-					_oDS_.Count(), _oDS_.Mean(), _oDS_.Median(), _oDS_.StdDev(),
-					_oDS_.Min(), _oDS_.Max(), _oDS_.Q1(), _oDS_.Q3()
-				]
-				_aCols_ + [ _aNames_[_i_], _aVals_ ]
-			ok
+		_aDesc_ = This.Describe()
+		_nL_ = len(_aDesc_)
+		for _j_ = 1 to _nL_
+			_aVals_ = []
+			for _s_ = 1 to 8
+				_aVals_ + _aDesc_[_j_][2][_s_][2]
+			next
+			_aCols_ + [ _aDesc_[_j_][1], _aVals_ ]
 		next
 		return new stzTable(_aCols_)
 
-	# Pearson correlation between two columns.
+	# Pearson correlation between two columns -- read off the engine's matrix, so
+	# a pair and a whole matrix cannot disagree.
 	def CorrelationBetween(pColA, pColB)
-		_oA_ = This._DataSetOfCol(pColA)
-		_oB_ = This._DataSetOfCol(pColB)
-		return _oA_.CorrelationWith(_oB_)
+		_aA_ = This._NumericColOf(pColA)
+		_aB_ = This._NumericColOf(pColB)
+		_nR_ = len(_aA_)
+		if len(_aB_) < _nR_
+			_nR_ = len(_aB_)
+		ok
+		if _nR_ < 2
+			return 0
+		ok
+		_aFlat_ = []
+		for _i_ = 1 to _nR_
+			_aFlat_ + _aA_[_i_]
+			_aFlat_ + _aB_[_i_]
+		next
+		_aM_ = StzEngineFrameCorrMatrix(_aFlat_, _nR_, 2)
+		if NOT isList(_aM_) or len(_aM_) != 4
+			StzRaise("CorrelationBetween: the engine refused these columns.")
+		ok
+		return _aM_[2]
 
 		def CorrBetween(pColA, pColB)
 			return This.CorrelationBetween(pColA, pColB)
 
 	# The pairwise correlation matrix over the numeric columns, as DATA:
-	# [ [:columns, aNames], [:matrix, aMatrix] ]. The diagonal is 1.
+	# [ [:columns, aNames], [:matrix, aMatrix] ].
+	#
+	# The diagonal is EXACTLY 1 and the matrix is EXACTLY symmetric -- the engine
+	# writes both rather than computing all n^2 cells and hoping they come out that
+	# way.
 	def CorrelationMatrix()
-		_aNames_ = []
-		_aAll_ = This.ColumnNames()
-		_nA_ = len(_aAll_)
-		for _i_ = 1 to _nA_
-			if This.IsNumericCol(_aAll_[_i_])
-				_aNames_ + _aAll_[_i_]
+		_aNames_ = This.NumericColumnNames()
+		_nC_ = len(_aNames_)
+		if _nC_ = 0
+			return [ [ :columns, [] ], [ :matrix, [] ] ]
+		ok
+		_aCols_ = []
+		_nR_ = 0
+		for _j_ = 1 to _nC_
+			_aV_ = This._NumericColOf(_aNames_[_j_])
+			_aCols_ + _aV_
+			if _nR_ = 0 or len(_aV_) < _nR_
+				_nR_ = len(_aV_)
 			ok
 		next
-		_aDS_ = []
-		_nN_ = len(_aNames_)
-		for _i_ = 1 to _nN_
-			_aDS_ + This._DataSetOfCol(_aNames_[_i_])
-		next
-		_aMatrix_ = []
-		for _i_ = 1 to _nN_
-			_aRow_ = []
-			for _j_ = 1 to _nN_
-				if _i_ = _j_
-					_aRow_ + 1
-				else
-					_aRow_ + _aDS_[_i_].CorrelationWith(_aDS_[_j_])
-				ok
+		_aFlat_ = []
+		for _i_ = 1 to _nR_
+			for _j_ = 1 to _nC_
+				_aFlat_ + _aCols_[_j_][_i_]
 			next
-			_aMatrix_ + _aRow_
 		next
-		return [ [ :columns, _aNames_ ], [ :matrix, _aMatrix_ ] ]
+		_aM_ = StzEngineFrameCorrMatrix(_aFlat_, _nR_, _nC_)
+		if NOT isList(_aM_) or len(_aM_) != _nC_ * _nC_
+			StzRaise("CorrelationMatrix: the engine refused this table.")
+		ok
+		_aOut_ = []
+		for _i_ = 1 to _nC_
+			_aRow_ = []
+			for _j_ = 1 to _nC_
+				_aRow_ + _aM_[(_i_ - 1) * _nC_ + _j_]
+			next
+			_aOut_ + _aRow_
+		next
+		return [ [ :columns, _aNames_ ], [ :matrix, _aOut_ ] ]
 
 		def CorrMatrix()
 			return This.CorrelationMatrix()
 
-	# Least-squares regression of one column ON another, read at the call
-	# site: RegressionOf(:pay, :On, :age). Returns the stzDataSet coefficient
-	# shape: [ [:slope, ..], [:intercept, ..], [:r_squared, ..] ].
+	# Least-squares regression of one column ON another, read at the call site:
+	# RegressionOf(:pay, :On, :age). Returns [ [:slope,..], [:intercept,..],
+	# [:r_squared,..] ].
+	#
+	# One engine call. r-squared comes back as the squared correlation, computed
+	# where the correlation is -- not derived a second way here.
 	def RegressionOf(pColY, pOn, pColX)
 		if pOn != :On and pOn != :on
 			StzRaise("RegressionOf: read it as RegressionOf(yCol, :On, xCol).")
 		ok
-		_oY_ = This._DataSetOfCol(pColY)
-		_oX_ = This._DataSetOfCol(pColX)
-		return _oX_.RegressionCoefficients(_oY_)
+		_aY_ = This._NumericColOf(pColY)
+		_aX_ = This._NumericColOf(pColX)
+		_aR_ = StzEngineFrameRegression(_aX_, _aY_)
+		if NOT isList(_aR_) or len(_aR_) != 3
+			StzRaise("RegressionOf: no line fits these columns -- fewer than two " +
+				"points, or an x with no spread at all.")
+		ok
+		return [ [ :slope, _aR_[1] ], [ :intercept, _aR_[2] ], [ :r_squared, _aR_[3] ] ]
 
 	  #============================================#
 	 #  CASTING THE TABLE INTO A STZTABLE OBJECT  #

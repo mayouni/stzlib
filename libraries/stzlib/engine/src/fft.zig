@@ -270,6 +270,115 @@ pub fn convolveReal(
     while (t < lim) : (t += 1) out[t] = ar[t] * invm;
 }
 
+/// ── READING A SPECTRUM: COMPLETE OPERATIONS, NOT A TRANSFORM PLUS HOST LOOPS ──
+///
+/// `transform` alone is half an answer. Almost nobody wants raw complex bins; they want
+/// "how much of each frequency is present" or "which frequency dominates". Leaving that
+/// to the host means every binding writes the same loops -- and gets the same details
+/// wrong, particularly the two below.
+///
+/// Each of these takes a SIGNAL and returns the finished reading, so a host binds
+/// arguments and reads a result.
+/// |X_k| per bin -- "how much of this frequency is present". Phase-blind, which is what
+/// you want when looking for a periodicity.
+pub fn magnitudes(alloc: std.mem.Allocator, re: []f64, im: []f64, out: []f64) !void {
+    try transform(alloc, re, im, false);
+    for (0..re.len) |k| out[k] = @sqrt(re[k] * re[k] + im[k] * im[k]);
+}
+
+/// The phase angle of each bin, in radians.
+pub fn phases(alloc: std.mem.Allocator, re: []f64, im: []f64, out: []f64) !void {
+    try transform(alloc, re, im, false);
+    for (0..re.len) |k| out[k] = std.math.atan2(im[k], re[k]);
+}
+
+/// |X_k|^2 -- energy per bin, the quantity Parseval's theorem is about.
+pub fn powerSpectrum(alloc: std.mem.Allocator, re: []f64, im: []f64, out: []f64) !void {
+    try transform(alloc, re, im, false);
+    for (0..re.len) |k| out[k] = re[k] * re[k] + im[k] * im[k];
+}
+
+/// The bin carrying the most energy, 0-based, or 0 for a signal too short to have one.
+///
+/// TWO DETAILS THAT ARE EASY TO GET WRONG, which is the reason this is not left to the
+/// host:
+///
+///   * BIN 0 IS EXCLUDED. It holds the sum -- the signal's mean, not a frequency -- and
+///     for any signal that is not centred it is usually the largest bin by far, so a
+///     naive argmax reports "the dominant frequency is zero" almost every time.
+///   * ONLY THE FIRST HALF IS SEARCHED. A real signal has a conjugate-symmetric
+///     spectrum: bin k and bin n-k carry the same magnitude. Searching the whole range
+///     returns the mirror image half the time, naming the same frequency by the wrong
+///     number.
+pub fn dominantBin(alloc: std.mem.Allocator, re: []f64, im: []f64) !usize {
+    const n = re.len;
+    if (n < 2) return 0;
+    try transform(alloc, re, im, false);
+    const half = n / 2 + 1;
+    var best: usize = 1;
+    var bestv: f64 = -1;
+    var k: usize = 1; // skip DC
+    while (k < half) : (k += 1) {
+        const m = re[k] * re[k] + im[k] * im[k];
+        if (m > bestv) {
+            bestv = m;
+            best = k;
+        }
+    }
+    return best;
+}
+
+/// The dominant frequency in cycles per sample-interval; multiply by a sample rate for Hz.
+pub fn dominantFrequency(alloc: std.mem.Allocator, re: []f64, im: []f64) !f64 {
+    const n = re.len;
+    if (n < 2) return 0;
+    const b = try dominantBin(alloc, re, im);
+    return @as(f64, @floatFromInt(b)) / @as(f64, @floatFromInt(n));
+}
+
+test "the spectrum readings are complete answers, and they exclude DC" {
+    const alloc = testing.allocator;
+    const n = 16;
+    var re: [n]f64 = undefined;
+    var im = [_]f64{0} ** n;
+    // frequency 3, ON A DELIBERATE OFFSET of 10: bin 0 will hold 160 and dwarf every
+    // real frequency, which is exactly the trap dominantBin has to avoid
+    for (0..n) |j| {
+        re[j] = 10.0 + @cos(2.0 * std.math.pi * 3.0 * @as(f64, @floatFromInt(j)) /
+            @as(f64, @floatFromInt(n)));
+    }
+    const keepR = re;
+    const keepI = im;
+
+    var mag = [_]f64{0} ** n;
+    try magnitudes(alloc, &re, &im, &mag);
+    try testing.expectApproxEqAbs(@as(f64, 160), mag[0], 1e-9); // DC really is huge
+    try testing.expectApproxEqAbs(@as(f64, 8), mag[3], 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 8), mag[13], 1e-9); // the mirror
+
+    // and the dominant bin is 3, not 0 (DC) and not 13 (the mirror)
+    re = keepR;
+    im = keepI;
+    try testing.expectEqual(@as(usize, 3), try dominantBin(alloc, &re, &im));
+    re = keepR;
+    im = keepI;
+    try testing.expectApproxEqAbs(3.0 / 16.0, try dominantFrequency(alloc, &re, &im), 1e-12);
+
+    // power is magnitude squared, bin for bin
+    re = keepR;
+    im = keepI;
+    var pw = [_]f64{0} ** n;
+    try powerSpectrum(alloc, &re, &im, &pw);
+    for (0..n) |k| try testing.expectApproxEqAbs(mag[k] * mag[k], pw[k], 1e-6);
+
+    // phase of a pure cosine at its own bin is 0
+    re = keepR;
+    im = keepI;
+    var ph = [_]f64{0} ** n;
+    try phases(alloc, &re, &im, &ph);
+    try testing.expectApproxEqAbs(@as(f64, 0), ph[3], 1e-9);
+}
+
 // ── tests ────────────────────────────────────────────────────────────────────
 
 const testing = std.testing;
