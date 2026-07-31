@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I1 SHIPPED (2026-08-01); I2-I8 planned.** This document is the
+> **Status: I0-I2 SHIPPED (2026-08-01); I3-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -56,6 +56,31 @@
 > ring evicting through 5 events); 4 zig tests; security + OIDC/crypto
 > suites re-run green. Narration:
 > `narrations/stz-security-ledger-narration.md`.
+>
+> **I2 delivered:** the process ledger (`StzOpenSecurityLedger` /
+> `StzSecurityLedgerQ` / `StzCloseSecurityLedger` / `StzNoteRefusal` /
+> `StzNoteGrant` / `StzRecordSecurityEvent`), whose current-slot lives
+> IN THE ENGINE (`seclog_set_current/has_current/current_append`) — a
+> Ring global did not work and the guard caught it: process state
+> belongs in the engine, the same law P9's trace scope established.
+> Closed by default, and closed returns before the event is built.
+> SIX classes wired at points that already knew: `stzRequestSigner`
+> (unknown key / stale / **forged** / **replayed nonce**),
+> `stzPasskeyServer` (assertion refusals + the anti-phishing clientData
+> path that previously bypassed the refusal helper entirely, plus the
+> clone-suspected counter), `stzSaml` (**replay** + rejection),
+> `stzSecretStore` (grant + refusal, now timestamped and chained),
+> `stzAuth` (every failure + the lockout), `stzUpdatePlan`
+> (capability + **scope** + **posture** — the last two were never
+> audited at all, the study's bug-shaped finding). Guard:
+> `test/system/security_seams_narrated.ring` (37 assertions: the
+> off-state, all four signer signals, both store outcomes, the
+> redaction law across the WHOLE ledger, the two former gaps, 10
+> distinct kinds firing, chain intact). Eleven security/auth/governance
+> suites re-run green. Still unwired (kinds exist, one line each):
+> OIDC token+code, cross-world/federated refusals, HTTP 401/403,
+> rate-limit sheds, production-fake refusal, graph escalation paths.
+> Narration: `narrations/stz-security-seams-narration.md`.
 
 ---
 
@@ -465,10 +490,13 @@ green before the next begins.
   link; the analyst pivots; `SealTo`/`StzVerifySealedLedger` telling an
   edited file apart from a wrong key; the standalone HMAC engine export
   delivered. 35 assertions.
-- **I2 — The seams.** Wire §7 end to end — including the currently
-  unaudited scope/posture refusals and the three thrown-away compromise
-  indicators (cloned authenticator, replayed assertion, replayed nonce).
-  After I2 the library stops forgetting.
+- **I2 — The seams. SHIPPED 2026-08-01 (six classes; the rest listed
+  above as remaining).** The process ledger + `StzNote*` helpers, the
+  engine-held current slot, and the wiring of the signer's four
+  signals, the passkey refusals, SAML replay, the secret store's two
+  outcomes, every auth failure, and the three plan refusals —
+  including scope and posture, which no audit had ever recorded. 37
+  assertions; eleven suites green.
 - **I3 — Detection.** `stzDetection`/`stzDetectionSet`: N-in-window,
   sequence, novelty/first-seen, rate; findings → `stzRuleReport`; the
   corroboration law.

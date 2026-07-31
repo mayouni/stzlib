@@ -99,8 +99,11 @@ class stzPasskeyServer from stzObject
 	# Verify an assertion against a STORED credential
 	# ([ :keyType, :key1, :key2, :signCount ]) -> [ :ok, :signCount, :why ].
 	def VerifyAssertion(paCredential, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge)
+		# A clientData failure is an origin or challenge mismatch -- the
+		# anti-phishing check. It used to return before the refusal
+		# helper, so it noted nothing; it goes through it now (I2).
 		if NOT This._ClientDataIsSound(pcClientDataB64, "webauthn.get", pcExpectedChallenge)
-			return [ :ok = FALSE, :signCount = 0, :why = @cWhy ]
+			return This._RefuseAssert(@cWhy)
 		ok
 		_v_ = StzEngineWebAuthnVerify("" + pcAuthDataB64, "" + pcClientDataB64, "" + pcSigB64,
 		          "" + paCredential[:keyType], "" + paCredential[:key1], "" + paCredential[:key2])
@@ -122,8 +125,13 @@ class stzPasskeyServer from stzObject
 		ok
 		# A counter that fails to advance is the documented signal of a cloned
 		# authenticator. Zero means the device does not keep one at all (allowed).
+		# It is also the one indicator in this module worth waking someone for,
+		# so it is NOTED as an error-severity event (incident I2), not merely
+		# returned to the caller who asked.
 		_stored_ = 0 + paCredential[:signCount]
 		if _count_ > 0 and _count_ <= _stored_
+			StzNoteRefusal("auth.passkey.clone_suspected", @cRpId, "credential:signCount=" + _count_,
+				"the signature counter did not advance (stored " + _stored_ + ", presented " + _count_ + ")")
 			return This._RefuseAssert("the signature counter did not advance -- a cloned authenticator is possible")
 		ok
 		@cWhy = ""
@@ -169,4 +177,7 @@ class stzPasskeyServer from stzObject
 
 	def _RefuseAssert(pcWhy)
 		@cWhy = "" + pcWhy
+		# every assertion refusal is noted (I2); the clone signal above
+		# notes its own, more specific kind first
+		StzNoteRefusal("auth.passkey.failed", @cRpId, "origin:" + @cOrigin, @cWhy)
 		return [ :ok = FALSE, :signCount = 0, :why = @cWhy ]

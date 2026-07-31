@@ -250,6 +250,10 @@ class stzSamlServiceProvider from stzObject
 		# replay: the same subject + window must not be consumed twice
 		_key_ = _nameid_ + "|" + _nb_ + "|" + _na_
 		if This._SeenIndex(_key_) > 0
+			# a replayed assertion is an attack, not a mistake: note it
+			# under its own kind before the generic refusal path (I2)
+			StzNoteRefusal("sso.assertion.replayed", _nameid_, "assertion:" + _nameid_,
+				"this assertion has already been consumed (replay)")
 			return This._Refuse("this assertion has already been consumed (replay)")
 		ok
 		This._Remember(_key_, pnNow)
@@ -282,6 +286,9 @@ class stzSamlServiceProvider from stzObject
 
 	def _Refuse(pcWhy)
 		@cWhy = "" + pcWhy
+		# every rejected assertion is noted (I2) -- issuer/audience/window
+		# failures are how a misconfigured or hostile IdP announces itself
+		StzNoteRefusal("sso.assertion.rejected", @cIdpEntityId, "idp:" + @cIdpEntityId, @cWhy)
 		return [ :ok = FALSE, :nameID = "", :issuer = "", :audience = "",
 		         :notBefore = "", :notOnOrAfter = "", :why = @cWhy ]
 

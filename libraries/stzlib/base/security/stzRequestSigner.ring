@@ -99,9 +99,14 @@ class stzRequestSigner from stzObject
 	# Why() explains a failure.
 	def Verify(pcKeyId, pcMethod, pcPath, pcBody, pnTs, pcNonce, pcSig, pnMaxSkewMs, pnNowMs)
 		@cWhy = ""
+		# Each refusal below is also NOTED (incident I2): these four are
+		# active-attacker signals -- an unknown key, a stale envelope, a
+		# forged MAC, a replayed nonce -- and until now each lived only
+		# in @cWhy until the next call overwrote it.
 		_i_ = This._KeyIndex("" + pcKeyId)
 		if _i_ = 0
 			@cWhy = "unknown key '" + pcKeyId + "'"
+			StzNoteRefusal("sig.key.unknown", "" + pcKeyId, "path:" + pcPath, @cWhy)
 			return FALSE
 		ok
 		# FRESHNESS: reject stale OR future-dated (clock-skew both ways)
@@ -110,6 +115,7 @@ class stzRequestSigner from stzObject
 		if _nDelta_ > pnMaxSkewMs
 			@cWhy = "timestamp outside the freshness window (|skew| " + _nDelta_ +
 				"ms > " + pnMaxSkewMs + "ms)"
+			StzNoteRefusal("sig.timestamp.stale", "" + pcKeyId, "path:" + pcPath, @cWhy)
 			return FALSE
 		ok
 		# INTEGRITY + AUTHENTICITY: recompute the MAC and constant-time compare
@@ -117,6 +123,7 @@ class stzRequestSigner from stzObject
 		_cExpect_ = This._Hmac(_cCanon_, @aKeys[_i_][2])
 		if NOT This._SecureEq(_cExpect_, "" + pcSig)
 			@cWhy = "signature mismatch (forged, tampered, or wrong key)"
+			StzNoteRefusal("sig.signature.forged", "" + pcKeyId, "path:" + pcPath, @cWhy)
 			return FALSE
 		ok
 		# REPLAY: a valid signature is only accepted ONCE per nonce
@@ -124,6 +131,7 @@ class stzRequestSigner from stzObject
 		_cMark_ = "" + pcKeyId + ":" + pcNonce
 		if This._SeenIndex(_cMark_) > 0
 			@cWhy = "replay detected (nonce already used for this key)"
+			StzNoteRefusal("sig.nonce.replayed", "" + pcKeyId, "path:" + pcPath, @cWhy)
 			return FALSE
 		ok
 		@aSeen + [ _cMark_, pnTs ]

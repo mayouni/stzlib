@@ -39,6 +39,10 @@ fn ring_SecLogCount(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_count(getLog(p, 1)));
 }
 
+fn ring_SecLogCapacity(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_capacity(getLog(p, 1)));
+}
+
 fn ring_SecLogSize(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_size(getLog(p, 1)));
 }
@@ -80,11 +84,47 @@ fn ring_SecLogDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+fn ring_SecLogSetCurrent(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_set_current(getLog(p, 1));
+    rn(p, 0);
+}
+
+fn ring_SecLogClearCurrent(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_clear_current();
+    rn(p, 0);
+}
+
+fn ring_SecLogHasCurrent(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_has_current());
+}
+
+fn ring_SecLogCurrent(p: *anyopaque) callconv(.c) void {
+    const s = seclog.seclog_current();
+    if (s) |sp| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(sp), LOG_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), LOG_HANDLE);
+    }
+}
+
+fn ring_SecLogCurrentAppend(p: *anyopaque) callconv(.c) void {
+    const c: [*]const u8 = @ptrCast(gs(p, 1));
+    const cl: usize = @intCast(gss(p, 1));
+    seclog.seclog_current_append(c, cl, gn(p, 2), gn(p, 3));
+    rn(p, 0);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineseclogsetcurrent", .func = &ring_SecLogSetCurrent },
+    .{ .name = "stzengineseclogclearcurrent", .func = &ring_SecLogClearCurrent },
+    .{ .name = "stzenginesecloghascurrent", .func = &ring_SecLogHasCurrent },
+    .{ .name = "stzengineseclogcurrent", .func = &ring_SecLogCurrent },
+    .{ .name = "stzengineseclogcurrentappend", .func = &ring_SecLogCurrentAppend },
     .{ .name = "stzengineseclogcreate", .func = &ring_SecLogCreate },
     .{ .name = "stzengineseclogappend", .func = &ring_SecLogAppend },
     .{ .name = "stzengineseclogcount", .func = &ring_SecLogCount },
     .{ .name = "stzengineseclogsize", .func = &ring_SecLogSize },
+    .{ .name = "stzengineseclogcapacity", .func = &ring_SecLogCapacity },
     .{ .name = "stzengineseclogcanonicalat", .func = &ring_SecLogCanonicalAt },
     .{ .name = "stzengineseclogdigestat", .func = &ring_SecLogDigestAt },
     .{ .name = "stzengineseclogheaddigest", .func = &ring_SecLogHeadDigest },

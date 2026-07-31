@@ -1176,8 +1176,18 @@ class stzAuth from stzObject
 		else
 			@aFailures[_i_][2] = @aFailures[_i_][2] + 1
 		ok
+		# The counter here is a LOCKOUT mechanism -- deliberately
+		# in-memory, and wiped the moment the user succeeds. The ledger
+		# keeps the history the counter throws away (incident I2): each
+		# failure as its own timestamped event, which is what a
+		# credential-stuffing detection needs to count over a window.
+		StzNoteRefusal("auth.login.failed", "" + pcUser, "user:" + pcUser,
+			"authentication failed (attempt " + @aFailures[_i_][2] + ")")
 		if @aFailures[_i_][2] >= @nMaxAttempts
 			@aFailures[_i_][3] = pnNow + @nLockoutSecs
+			StzNoteRefusal("auth.lockout.engaged", "" + pcUser, "user:" + pcUser,
+				"" + @aFailures[_i_][2] + " failures locked the account for " +
+				@nLockoutSecs + "s")
 		ok
 
 	def _ClearFailures(pcUser)

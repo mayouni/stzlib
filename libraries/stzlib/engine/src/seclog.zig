@@ -142,6 +142,11 @@ pub fn seclog_count(s_opt: ?*SecLog) callconv(.c) f64 {
     return @floatFromInt(s.count);
 }
 
+pub fn seclog_capacity(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    return @floatFromInt(s.cap);
+}
+
 pub fn seclog_size(s_opt: ?*SecLog) callconv(.c) f64 {
     const s = s_opt orelse return 0;
     s.mutex.lock();
@@ -234,7 +239,44 @@ pub fn seclog_reset(s_opt: ?*SecLog) callconv(.c) void {
     s.head_digest = [_]u8{'0'} ** DIGEST_LEN;
 }
 
+// ── The process ledger (I2) ──────────────────────────────────
+//
+// The seams live inside classes an application never constructs, so
+// they need one ledger they can find. It lives HERE for the same
+// reason the trace scope does (perf P9): a Ring-side "current
+// ledger" is per-scope state that a function cannot reliably write,
+// and a Ring copy of it would fork. Closed is the default, and closed
+// costs one pointer test.
+
+var g_current: ?*SecLog = null;
+
+pub fn seclog_set_current(s_opt: ?*SecLog) callconv(.c) void {
+    g_current = s_opt;
+}
+
+pub fn seclog_clear_current() callconv(.c) void {
+    g_current = null;
+}
+
+pub fn seclog_has_current() callconv(.c) f64 {
+    if (g_current == null) return 0;
+    return 1;
+}
+
+pub fn seclog_current() callconv(.c) ?*SecLog {
+    return g_current;
+}
+
+// Append to whichever ledger is current; a no-op when none is.
+pub fn seclog_current_append(canonical: [*]const u8, canonical_len: usize, wall_ms: f64, severity: f64) callconv(.c) void {
+    const s = g_current orelse return;
+    seclog_append(s, canonical, canonical_len, wall_ms, severity);
+}
+
 pub fn seclog_destroy(s_opt: ?*SecLog) callconv(.c) void {
+    if (g_current) |c| {
+        if (c == s_opt) g_current = null; // never leave a dangling current
+    }
     const s = s_opt orelse return;
     gpa.free(s.canon);
     gpa.free(s.canon_lens);
@@ -296,6 +338,18 @@ test "seclog: tampering with a stored entry is detected" {
     @memcpy(s.canon[1 * CANON_MAX ..][0..forged.len], forged);
     s.canon_lens[1] = forged.len;
     try std.testing.expectEqual(@as(f64, 2), seclog_verify(s));
+}
+
+test "seclog: the process ledger is opt-in and self-clearing" {
+    try std.testing.expectEqual(@as(f64, 0), seclog_has_current());
+    seclog_current_append("ignored", 7, 1, 0); // no ledger: a no-op
+    const s = seclog_create(4).?;
+    seclog_set_current(s);
+    try std.testing.expectEqual(@as(f64, 1), seclog_has_current());
+    seclog_current_append("noted", 5, 1, 0);
+    try std.testing.expectEqual(@as(f64, 1), seclog_count(s));
+    seclog_destroy(s); // destroying the current one clears it
+    try std.testing.expectEqual(@as(f64, 0), seclog_has_current());
 }
 
 test "seclog: ring evicts oldest, count keeps counting" {
