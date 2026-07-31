@@ -465,6 +465,11 @@ ok
     load "perf/stzStopwatch.ring"
     load "perf/stzPerfSeries.ring"
     load "perf/stzMetric.ring"
+# P8: labels/dimensions -- stzMetricFamily: one name + label names,
+# one CHILD per label-value set; the child registry lives ENGINE-side
+# (copies share it); cardinality bounded with an explicit overflow
+# child; label-aware Prometheus/OTLP exposition.
+    load "perf/stzMetricFamily.ring"
     load "perf/stzPerfMonitor.ring"
     load "perf/stzSla.ring"
     load "perf/stzPerfSentinel.ring"

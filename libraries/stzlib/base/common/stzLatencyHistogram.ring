@@ -23,6 +23,7 @@ class stzLatencyHistogram from stzObject
 
 	pHandle = NULL
 	bReady  = FALSE
+	bAdopted = FALSE	# handle owned elsewhere (a perf family child)
 
 	def init()
 		This._Ensure()
@@ -38,6 +39,18 @@ class stzLatencyHistogram from stzObject
 	def Handle()
 		This._Ensure()
 		return pHandle
+
+	# Adopt an engine histogram OWNED ELSEWHERE (a perf metric family's
+	# child): frees any self-created handle; Destroy() will not free an
+	# adopted one -- the owner does.
+	def AdoptHandle(pEngineHandle)
+		if bReady and NOT bAdopted
+			StzEngineHistogramDestroy(pHandle)
+		ok
+		pHandle = pEngineHandle
+		bReady = TRUE
+		bAdopted = TRUE
+		return This
 
 	# Tally one latency sample, in milliseconds.
 	def Record(nMs)
@@ -76,8 +89,11 @@ class stzLatencyHistogram from stzObject
 
 	def Destroy()
 		if bReady = TRUE
-			StzEngineHistogramDestroy(pHandle)
+			if NOT bAdopted
+				StzEngineHistogramDestroy(pHandle)
+			ok
 			pHandle = NULL
 			bReady = FALSE
+			bAdopted = FALSE
 		ok
 		return This

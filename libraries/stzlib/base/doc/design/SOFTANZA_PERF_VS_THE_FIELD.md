@@ -40,7 +40,7 @@ competing with them.
 | Dimension | Micrometer / Actuator | OpenTelemetry SDK | Prometheus client | **Softanza perf** |
 |---|---|---|---|---|
 | Metric kinds | counter, gauge, timer, distribution summary | counter, gauge, histogram (+ exemplars) | counter, gauge, histogram, summary | counter, gauge, timer (bucket + exact window percentiles) |
-| Labels / dimensions | yes, first-class | yes (attributes) | yes, first-class | **no -- flat names (the biggest gap; see section 6)** |
+| Labels / dimensions | yes, first-class | yes (attributes) | yes, first-class | **yes (P8): families with engine-shared child registries, cardinality BOUNDED at birth with a visible overflow child** |
 | Storage of samples | in-memory registry | in-memory + export pipeline | in-memory registry | **engine-side (Zig): O(1) rings + histograms, copy-proof handles** |
 | Percentile honesty | client-side percentiles are documented-approximate | histogram buckets, exemplars | summary quantiles (streaming, approximate) | **both answers labeled: O(1) bucket bounds AND sort-exact window** |
 | Process senses (RSS/CPU) | via binders (JVM-specific) | via runtime instrumentation packages | via collectors (process exporter) | **native engine syscalls (P1), no extra package** |
@@ -154,12 +154,14 @@ work is the path toward JFR-like depth, ruled a project of its own.
 
 ## 6. What the field has that Softanza lacks -- honestly
 
-- **Labels/dimensions on metrics.** `http.request.ms{route="/x",
-  method="GET"}` is the single most consequential absence: per-route
-  percentiles currently need per-route metrics by naming convention.
-  Adding label sets touches the engine stores and the exposition
-  logic; it is the clear next candidate if the system grows. (Flat
-  names were a deliberate P2 simplification, not a ruling.)
+- ~~Labels/dimensions on metrics~~ **CLOSED by P8** (`stzMetricFamily`
+  + `ObserveRoutes()`): per-route/per-anything percentiles, with two
+  properties the field's label systems lack -- an engine-shared child
+  registry (children created through any Ring face are visible to
+  all) and cardinality bounded at birth with a counted, visible
+  overflow child instead of the classic label explosion. Still
+  downstream-only: PromQL-style aggregation ACROSS children (sum by
+  route) -- by design, the scraper's job.
 - **Storage, query, visualization.** No TSDB, no PromQL, no Grafana.
   By design: export instead. But teams without a Prometheus stack get
   Show()/Explain(), not dashboards.
