@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0 SHIPPED (2026-08-01); I1-I8 planned.** This document is the
+> **Status: I0-I1 SHIPPED (2026-08-01); I2-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -34,6 +34,28 @@
 > (49 assertions); security suites (secret 53, secretstore 26, posture
 > 20, graph 22, authz 31) and the perf trace-scope guards re-run green.
 > Narration: `narrations/stz-security-event-narration.md`.
+>
+> **I1 delivered:** `engine/src/seclog.zig` (`stz_seclog.dll`) — a
+> bounded ring of canonical event lines, each digest computed IN THE
+> ENGINE as `sha256(prev || "|" || canonical)` so no caller can forge
+> history; `seclog_verify` returns the 1-based index of the first
+> broken link. The engine gap the study named is closed:
+> `crypto_hmac_sha256` is now exported (HMAC existed only inside
+> PBKDF2/TOTP), bridged as `StzEngineCryptoHmacSha256`.
+> `base/security/stzSecurityLedger.ring`: `Record()`, `Count()/Size()`,
+> `At/All/Recent`, the analyst pivots (`OfActor/OfSubject/OfKind/
+> OfTrace/OfOutcome/OfSeverity/OfOrigin/Refusals/Since/Between`),
+> `Digest()/DigestAt()/Verify()`, and `SealTo(path, key)` +
+> `StzVerifySealedLedger(path, key)` — which distinguishes an EDITED
+> file ("the chain breaks at entry N") from a WRONG KEY ("the chain is
+> intact but the SEAL does not match"), an investigation needing both.
+> Correctness note: `CanonicalString()` now folds a field's own pipes
+> to "/" at the source, so a reason quoting `a|b|c` cannot shift every
+> field after it. Guard: `test/system/security_ledger_narrated.ring`
+> (35 assertions, incl. tamper-detection on a real file and a 3-slot
+> ring evicting through 5 events); 4 zig tests; security + OIDC/crypto
+> suites re-run green. Narration:
+> `narrations/stz-security-ledger-narration.md`.
 
 ---
 
@@ -438,9 +460,11 @@ green before the next begins.
   monotonic stamps, trace id from the active scope, OCSF export from
   day one. 49 assertions. *(Smallest phase; it fixes the vocabulary
   everything else uses.)*
-- **I1 — The ledger.** Engine-backed bounded ring + sha256 hash chain +
-  `Verify()`; analyst pivots (`OfActor/OfSubject/OfKind/OfTrace/Since/
-  Refusals`); the standalone HMAC engine addition for keyed sealing.
+- **I1 — The ledger. SHIPPED 2026-08-01.** Engine-backed bounded ring +
+  sha256 hash chain computed engine-side + `Verify()` naming the broken
+  link; the analyst pivots; `SealTo`/`StzVerifySealedLedger` telling an
+  edited file apart from a wrong key; the standalone HMAC engine export
+  delivered. 35 assertions.
 - **I2 — The seams.** Wire §7 end to end — including the currently
   unaudited scope/posture refusals and the three thrown-away compromise
   indicators (cloned authenticator, replayed assertion, replayed nonce).

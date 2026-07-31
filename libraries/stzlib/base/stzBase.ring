@@ -402,6 +402,11 @@ ok
     # scope, and the REDACTION LAW (subjects are descriptors, never
     # values) enforced at construction.
     load "security/stzSecurityEvent.ring"
+    # I1: the ledger -- bounded, hash-chained memory for those events
+    # (engine/src/seclog.zig). Evidence, not logging: an edit breaks
+    # the chain and Verify() names the link; SealTo() exports a keyed,
+    # re-verifiable file, because evidence-grade means exported.
+    load "security/stzSecurityLedger.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

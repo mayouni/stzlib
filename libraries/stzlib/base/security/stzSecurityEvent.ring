@@ -370,10 +370,15 @@ class stzSecurityEvent from stzObject
 	# The canonical form the I1 ledger hashes into its chain: every
 	# field, fixed order, one line. Two events with identical facts
 	# produce identical strings; any difference shows.
+	#
+	# The separator is reserved: a field's own pipes fold to "/" so the
+	# ledger can split the line back into fields without a field's
+	# content (a reason quoting a message, say) shifting every field
+	# after it. Sanitizing at the source beats parsing bravely later.
 	def CanonicalString()
-		_c_ = @cKind + "|" + @cSeverity + "|" + @cActor + "|" + @cPosture
-		_c_ += ("|" + @cAction + "|" + @nRisk + "|" + @cSubject)
-		_c_ += ("|" + @cOrigin + "|" + @cOutcome + "|" + @cReason)
+		_c_ = @cKind + "|" + @cSeverity + "|" + This._NoPipe(@cActor) + "|" + @cPosture
+		_c_ += ("|" + @cAction + "|" + @nRisk + "|" + This._NoPipe(@cSubject))
+		_c_ += ("|" + This._NoPipe(@cOrigin) + "|" + @cOutcome + "|" + This._NoPipe(@cReason))
 		_c_ += ("|" + @nAtWall + "|" + @cTraceId)
 		return _c_
 
@@ -495,6 +500,9 @@ class stzSecurityEvent from stzObject
 
 	def _StartsWith(pcStr, pcPrefix)
 		return StzFindFirst(pcPrefix, pcStr) = 1
+
+	def _NoPipe(pcStr)
+		return StzReplace("" + pcStr, "|", "/")
 
 	def _Esc(pcStr)
 		_s_ = StzReplace("" + pcStr, char(92), char(92) + char(92))
