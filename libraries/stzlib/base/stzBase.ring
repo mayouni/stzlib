@@ -412,6 +412,11 @@ ok
     # structure at ONE INSTANT; an incident is a story. Verdicts are
     # findings in the unified shape, so they join the ONE CI gate.
     load "security/stzDetection.ring"
+    # I4: the sentinel -- detections on a cadence, edge-triggered (a
+    # standing attack is one story, not one per second), event-bus
+    # fanout, hostable on any stzAgentHost, and a case snapshot
+    # photographed at the moment of firing.
+    load "security/stzSecuritySentinel.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
