@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I3 SHIPPED (2026-08-01); I4-I8 planned.** This document is the
+> **Status: I0-I4 SHIPPED (2026-08-01); I5-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -103,6 +103,26 @@
 > alert fatigue is a defect, so it now reports once per actor, pinned
 > by a guard scene. Guard: `security_detection_narrated.ring` (33).
 > Narration: `narrations/stz-security-detection-narration.md`.
+>
+> **I4 delivered:** `base/security/stzSecuritySentinel.ring` —
+> edge-triggered watching where the identity of a firing is the
+> finding's `:where` (`credential-stuffing/victim`), so one account
+> under sustained attack is ONE story, a second account is a second
+> story, and a genuine clear lets a return re-fire (guard asserts
+> fire/fire/clear/clear/fire). `OnDetection`/`OnClear` callbacks,
+> event-bus fanout (`sec.detection`/`sec.clear`), bounded alert log
+> (256) and CASE snapshots (16). The case photographs the moment of
+> firing: finding + ledger head digest (the I1 chain head — a
+> commitment to the whole history, so a later edit disagrees with the
+> snapshot) + event count + the events nearest the firing (I5's
+> timeline seed). Run modes: pull `Check()`, tick `Every()`+`Tick()`,
+> HOSTED via `Name_()`+`Cycle()` — proven against a real
+> `stzAgentHost` in the guard, which means a served app can watch its
+> own security in its own loop. Deliberately NOT done: the sentinel
+> does not write its firings into the ledger (detections over
+> detection-events invite feedback; the ledger records what the
+> SYSTEM did). Guard: `security_sentinel_narrated.ring` (33).
+> Narration: `narrations/stz-security-sentinel-narration.md`.
 
 ---
 
@@ -526,8 +546,11 @@ green before the next begins.
   shapes deferred: the three implemented cover every pattern the
   library's own catalog can produce today, and a shape nobody can
   fire is a hypothesis.)*
-- **I4 — The sentinel.** Edge-triggered watcher, event-bus fan-out,
-  hostable on `stzAgentHost`, opens incidents, photographs context.
+- **I4 — The sentinel. SHIPPED 2026-08-01.** Edge-triggered watcher
+  keyed on `:where` (per-story, not per-rule), event-bus fan-out,
+  hostable on `stzAgentHost` (proven), bounded alert log, and the case
+  snapshot with the chain head that I5 builds its incident from. 33
+  assertions.
 - **I5 — The incident.** Correlation into a case file: timeline, attack
   path, blast radius, lifecycle, narrated `Explain()`.
 - **I6 — Response.** `stzResponsePlan`: closed containment catalog,
