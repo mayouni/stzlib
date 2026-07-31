@@ -141,6 +141,39 @@ Scenario("The histogram renders identically in the engine")
 	Then("...and the stats really are appended", PpHas(oS.ToString(), "Mean:"), TRUE)
 EndScenario()
 
+Scenario("The GROUPED bar plot renders identically, legend and all")
+	# a grouped chart is unreadable without a legend -- three shades of block mean
+	# nothing until something says which is which -- and the legend SETS THE WIDTH,
+	# so it cannot be bolted on by a host after the layout is decided
+	Then("one series", PpSameMBar([ :Sales = [ :Q1=25, :Q2=35 ] ]), TRUE)
+	Then("...two series", PpSameMBar([ :Sales = [ :Q1=25, :Q2=35 ], :Costs = [ :Q1=15, :Q2=20 ] ]), TRUE)
+	Then("...three with short names, where the BARS are wider",
+	     PpSameMBar([ :S = [ :Q1=25, :Q2=35, :Q3=30 ], :C = [ :Q1=15, :Q2=20, :Q3=18 ],
+	                  :P = [ :Q1=10, :Q2=15, :Q3=12 ] ]), TRUE)
+	Then("...three with long names, where the LEGEND is wider",
+	     PpSameMBar([ :Sales = [ :Q1=25, :Q2=35, :Q3=30 ], :Costs = [ :Q1=15, :Q2=20, :Q3=18 ],
+	                  :Profit = [ :Q1=10, :Q2=15, :Q3=12 ] ]), TRUE)
+
+	# a category whose LABEL is wider than its bars widens the element, and the bars
+	# must then sit CENTRED in it -- left-aligned they drift off their own tick
+	Then("...and a label wider than the group it belongs to",
+	     PpSameMBar([ :A = [ :VeryLongCategoryName=5, :B=9 ] ]), TRUE)
+EndScenario()
+
+Scenario("...and every CHART SUBCLASS renders through the same engine path")
+	# THE AXIS THE REGRESSION CAME IN ON. stzHBarPlot inherited a base ToString()
+	# that had moved and silently drew the wrong picture. These subclasses inherit
+	# their renderers too, so each is checked against its own Ring reference rather
+	# than assumed to be fine.
+	Then("stzVBarChart matches", PpSameSub("stzVBarChart"), TRUE)
+	Then("stzBarChart matches", PpSameSub("stzBarChart"), TRUE)
+	Then("stzVBarPlot matches", PpSameSub("stzVBarPlot"), TRUE)
+	Then("stzHBarChart matches", PpSameSub("stzHBarChart"), TRUE)
+	Then("stzMBarChart matches", PpSameSubM("stzMBarChart"), TRUE)
+	Then("stzMultiBarChart matches", PpSameSubM("stzMultiBarChart"), TRUE)
+	Then("stzMultiBarPlot matches", PpSameSubM("stzMultiBarPlot"), TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -165,3 +198,19 @@ func PpHas(cLine, cNeedle)
 func PpSameHist(paData)
 	_ppH_ = new stzHistogram(paData)
 	return _ppH_.ToString() = _ppH_.ToStringInRing()
+
+func PpSameMBar(paData)
+	_ppM_ = new stzMultiBarPlot(paData)
+	return _ppM_.ToString() = _ppM_.ToStringInRing()
+
+# a single-series bar subclass, by name
+func PpSameSub(cClass)
+	_ppD_ = [ [ "A", 3 ], [ "B", 7 ], [ "C", 5 ] ]
+	eval("_ppS_ = new " + cClass + "(_ppD_)")
+	return _ppS_.ToString() = _ppS_.ToStringInRing()
+
+# a multi-series subclass, by name
+func PpSameSubM(cClass)
+	_ppD2_ = [ :Sales = [ :Q1=25, :Q2=35 ], :Costs = [ :Q1=15, :Q2=20 ] ]
+	eval("_ppS2_ = new " + cClass + "(_ppD2_)")
+	return _ppS2_.ToString() = _ppS2_.ToStringInRing()

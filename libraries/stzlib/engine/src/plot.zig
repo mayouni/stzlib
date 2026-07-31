@@ -1005,3 +1005,257 @@ test "bin labels compact only when they need to" {
     try testing.expectEqualStrings("1.2M", binLabel(&buf, 1234567));
     try testing.expectEqualStrings("1B", binLabel(&buf, 1000000000));
 }
+
+/// The multi-series bar renderer's knobs.
+pub const MBarOptions = extern struct {
+    bar_width: u32 = 2,
+    height: u32 = 7,
+    series_space: u32 = 1,
+    category_space: u32 = 2,
+    max_label_width: u32 = 12,
+    v_axis_width: u32 = 1,
+    axis_padding: u32 = 1,
+    show_h_axis: u8 = 1,
+    show_v_axis: u8 = 1,
+    show_labels: u8 = 1,
+    show_axis_labels: u8 = 1,
+    show_legend: u8 = 1,
+};
+
+/// The glyph rotation for series, in order. Eight distinct block characters, after
+/// which it wraps -- a chart with nine series is unreadable anyway.
+const SERIES_GLYPHS = [_]u21{
+    '█', '▒', '▓', '░',
+    '▌', '▐', '▀', '▄',
+};
+
+/// Upper-case the first character, leave the rest -- what Ring's Capitalise() does.
+///
+/// Both mbar drawers apply it, and a label's LENGTH is unchanged by it, which is why
+/// the layout can measure the raw name and still reserve the right room.
+fn capitalised(buf: []u8, src: []const u8) []const u8 {
+    if (src.len == 0) return src;
+    const n = @min(src.len, buf.len);
+    @memcpy(buf[0..n], src[0..n]);
+    if (buf[0] >= 'a' and buf[0] <= 'z') buf[0] = buf[0] - 32;
+    return buf[0..n];
+}
+
+/// RENDER A GROUPED (MULTI-SERIES) BAR PLOT, legend and all.
+///
+/// `values` is row-major series-major: series s, category c is values[s * ncats + c].
+/// `series_names` and `categories` are newline-joined.
+///
+/// ── THE LEGEND IS PART OF THE PICTURE, NOT AN AFTERTHOUGHT ──
+///
+/// A grouped chart is unreadable without one: three shades of block mean nothing
+/// until something says which is which. It also SETS THE WIDTH -- three series named
+/// Sales, Costs and Profit need 31 columns of legend for a chart whose bars occupy
+/// 32, and a fourth series would make the legend the wider of the two. So the total
+/// width is the larger of the chart and the legend, which is why the legend cannot be
+/// bolted on by a host after the fact: it changes the layout it sits under.
+pub fn renderMBar(
+    alloc: std.mem.Allocator,
+    values: []const f64,
+    nseries: usize,
+    ncats: usize,
+    series_joined: []const u8,
+    cats_joined: []const u8,
+    opts: MBarOptions,
+) ![]u8 {
+    if (nseries == 0 or ncats == 0 or values.len < nseries * ncats) return PlotError.BadShape;
+
+    var snames = std.ArrayList([]const u8){};
+    defer snames.deinit(alloc);
+    if (series_joined.len > 0) {
+        var it = std.mem.splitScalar(u8, series_joined, '\n');
+        while (it.next()) |x| try snames.append(alloc, x);
+    }
+    var cats = std.ArrayList([]const u8){};
+    defer cats.deinit(alloc);
+    if (cats_joined.len > 0) {
+        var it = std.mem.splitScalar(u8, cats_joined, '\n');
+        while (it.next()) |x| try cats.append(alloc, x);
+    }
+
+    var maxv: f64 = 0;
+    for (values[0 .. nseries * ncats]) |v| {
+        if (v > maxv) maxv = v;
+    }
+
+    const show_lab = opts.show_labels != 0 and opts.show_axis_labels != 0;
+    const show_leg = opts.show_legend != 0;
+
+    // a category's bars sit side by side, with a gap between series
+    const group_w = nseries * opts.bar_width + (nseries - 1) * opts.series_space;
+
+    const ew = try alloc.alloc(usize, ncats);
+    defer alloc.free(ew);
+    for (0..ncats) |c| {
+        var w = group_w;
+        if (show_lab and c < cats.items.len) {
+            const lw = @min(cpLen(cats.items[c]), opts.max_label_width);
+            if (lw > w) w = lw;
+        }
+        ew[c] = w;
+    }
+
+    var base_w: usize = 0;
+    for (ew) |w| base_w += w;
+    base_w += (ncats - 1) * opts.category_space;
+
+    var total_w = base_w + 2;
+    if (opts.show_v_axis != 0) total_w += opts.v_axis_width + opts.axis_padding;
+
+    // THE LEGEND CAN BE THE WIDER THING, and then it decides the width
+    var legend_w: usize = 0;
+    if (show_leg) {
+        for (0..nseries) |i| {
+            const nm = if (i < snames.items.len) snames.items[i] else "";
+            legend_w += 3 + cpLen(nm); // glyph, glyph, space, name
+            if (i + 1 < nseries) legend_w += 3;
+        }
+        if (legend_w + 2 > total_w) total_w = legend_w + 2;
+    }
+
+    const v_axis_col: usize = 1;
+    var bars_start: usize = v_axis_col;
+    if (opts.show_v_axis != 0) bars_start += opts.v_axis_width + opts.axis_padding;
+
+    const bars_start_row: usize = 2;
+    const bars_end_row = bars_start_row + opts.height - 1;
+    const h_axis_row = bars_end_row + 1;
+    const labels_row = h_axis_row + 1;
+    const legend_row = labels_row + 2; // one blank row between
+    const total_h = if (show_leg) legend_row else labels_row;
+
+    var cv = try Canvas.init(alloc, total_w, total_h);
+    defer cv.deinit();
+
+    if (opts.show_v_axis != 0) {
+        cv.put(1, v_axis_col, CH_VARROW);
+        var r = bars_start_row;
+        while (r <= bars_end_row) : (r += 1) cv.put(r, v_axis_col, CH_VAXIS);
+    }
+    if (opts.show_h_axis != 0) {
+        var c: usize = v_axis_col + 1;
+        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, CH_HAXIS);
+        cv.put(h_axis_row, v_axis_col, CH_ORIGIN);
+        cv.put(h_axis_row, total_w, CH_HARROW);
+    }
+
+    var x = bars_start;
+    for (0..ncats) |c| {
+        // THE GROUP IS CENTRED IN ITS ELEMENT. A category whose LABEL is wider than
+        // its bars widens the element, and the bars then sit in the middle of it
+        // rather than hugging the left edge -- otherwise a long label pulls its bars
+        // away from the tick they belong to.
+        var bx = x + (ew[c] - group_w) / 2;
+        for (0..nseries) |sIdx| {
+            const v = values[sIdx * ncats + c];
+            var h: usize = 0;
+            if (maxv > 0 and v > 0) {
+                h = @intFromFloat(@ceil(v / maxv * @as(f64, @floatFromInt(opts.height))));
+                if (h == 0) h = 1;
+                if (h > opts.height) h = opts.height;
+            }
+            const glyph = SERIES_GLYPHS[sIdx % SERIES_GLYPHS.len];
+            var j: usize = 0;
+            while (j < h) : (j += 1) {
+                const rr = bars_end_row - j;
+                var k: usize = 0;
+                while (k < opts.bar_width) : (k += 1) cv.put(rr, bx + k, glyph);
+            }
+            bx += opts.bar_width + opts.series_space;
+        }
+
+        if (show_lab and c < cats.items.len) {
+            var cbuf: [128]u8 = undefined;
+            var nm = capitalised(&cbuf, cats.items[c]);
+            var w = cpLen(nm);
+            if (w > opts.max_label_width and opts.max_label_width > 2) {
+                var tb: [128]u8 = undefined;
+                const keep = opts.max_label_width - 2;
+                var it2 = std.unicode.Utf8Iterator{ .bytes = nm, .i = 0 };
+                var taken: usize = 0;
+                var end: usize = 0;
+                while (taken < keep) : (taken += 1) {
+                    if (it2.nextCodepointSlice()) |sl| end += sl.len else break;
+                }
+                @memcpy(tb[0..end], nm[0..end]);
+                tb[end] = '.';
+                tb[end + 1] = '.';
+                @memcpy(cbuf[0 .. end + 2], tb[0 .. end + 2]);
+                nm = cbuf[0 .. end + 2];
+                w = taken + 2;
+            }
+            const off = if (ew[c] > w) (ew[c] - w) / 2 else 0;
+            cv.putText(labels_row, x + off, nm);
+        }
+
+        if (c + 1 < ncats) x += ew[c] + opts.category_space;
+    }
+
+    if (show_leg) {
+        var lx: usize = 1;
+        for (0..nseries) |i| {
+            const glyph = SERIES_GLYPHS[i % SERIES_GLYPHS.len];
+            cv.put(legend_row, lx, glyph);
+            cv.put(legend_row, lx + 1, glyph);
+            const raw = if (i < snames.items.len) snames.items[i] else "";
+            var sbuf: [128]u8 = undefined;
+            const nm = capitalised(&sbuf, raw);
+            cv.putText(legend_row, lx + 3, nm);
+            lx += 3 + cpLen(nm) + 3;
+        }
+    }
+
+    return cv.toString(alloc);
+}
+
+test "a grouped bar plot renders exactly what the Ring implementation rendered" {
+    const alloc = testing.allocator;
+    // Sales/Costs over Q1/Q2, series-major
+    const vals = [_]f64{ 25, 35, 15, 20 };
+    const out = try renderMBar(alloc, &vals, 2, 2, "Sales\nCosts", "Q1\nQ2", .{});
+    defer alloc.free(out);
+
+    // ground truth captured from stzMultiBarPlot. Note the LEGEND sets the width:
+    // the bars need 16 columns and the legend needs 21.
+    const want =
+        "▲                    " ++ "\n" ++
+        "│        ██          " ++ "\n" ++
+        "│        ██          " ++ "\n" ++
+        "│ ██     ██          " ++ "\n" ++
+        "│ ██     ██ ▒▒       " ++ "\n" ++
+        "│ ██ ▒▒  ██ ▒▒       " ++ "\n" ++
+        "│ ██ ▒▒  ██ ▒▒       " ++ "\n" ++
+        "│ ██ ▒▒  ██ ▒▒       " ++ "\n" ++
+        "╰───────────────────►" ++ "\n" ++
+        "   Q1     Q2         " ++ "\n" ++
+        "                     " ++ "\n" ++
+        "██ Sales   ▒▒ Costs  ";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "THE LEGEND CAN DECIDE THE WIDTH, and each series gets its own glyph" {
+    const alloc = testing.allocator;
+    // one series: the bars need very little, the legend a bit more
+    const one = [_]f64{ 25, 35 };
+    const a = try renderMBar(alloc, &one, 1, 2, "Sales", "Q1\nQ2", .{});
+    defer alloc.free(a);
+    var it = std.mem.splitScalar(u8, a, '\n');
+    const first = it.next().?;
+    try testing.expectEqual(@as(usize, 10), cpLen(first));
+
+    // three series: three DIFFERENT glyphs, and the legend is what sets 33 columns
+    const three = [_]f64{ 25, 35, 30, 15, 20, 18, 10, 15, 12 };
+    const b = try renderMBar(alloc, &three, 3, 3, "Sales\nCosts\nProfit", "Q1\nQ2\nQ3", .{});
+    defer alloc.free(b);
+    var it2 = std.mem.splitScalar(u8, b, '\n');
+    try testing.expectEqual(@as(usize, 33), cpLen(it2.next().?));
+    // all three glyphs are present, so no series is invisible
+    try testing.expect(std.mem.indexOf(u8, b, "█") != null);
+    try testing.expect(std.mem.indexOf(u8, b, "▒") != null);
+    try testing.expect(std.mem.indexOf(u8, b, "▓") != null);
+}
