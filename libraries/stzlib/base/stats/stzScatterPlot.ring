@@ -757,14 +757,9 @@ class stzScatterPlot from stzObject
 			_cResult_ = _oTempStr_.Content()
 			_acLines_ = split(_cResult_, nl)
 			
-			# Find the line with horizontal axis and add X at the end
-			_nLinesLen_5 = len(_acLines_)
-			for i = 1 to _nLinesLen_5
-				if ring_substr1(_acLines_[i], @cHArrowChar)  > 0
-					_acLines_[i] += " Y"  # Horizontal axis gets Y label
-					exit
-				ok
-			next
+			# THE Y LETTER IS PLACED ONCE, by the Replace below, which also extends
+			# the axis to make room for it. A second append here gave every scatter
+			# plot TWO Y labels -- the same duplication the X letter had.
 			
 			_cResult_ = ""
 			_nLinesLen_4 = len(_acLines_)
@@ -784,25 +779,12 @@ class stzScatterPlot from stzObject
 			_cResult_ = _oTempStr_.Content()
 			_acLines_ = split(_cResult_, nl)
 			
-			# Find the line with vertical arrow and add X above it
-			_nLinesLen_3 = len(_acLines_)
-			for i = 1 to _nLinesLen_3
-				if ring_substr1(_acLines_[i], @cVArrowChar) > 0
-					_nArrowPos_ = ring_substr1(_acLines_[i], @cVArrowChar)
-					if _nArrowPos_ > 0
-						# Create X line above the arrow
-						_cXLine_ = RepeatChar(" ", _nArrowPos_-1) + "X"
-						# Insert at the beginning
-						_acNewLines_ = [_cXLine_]
-						_nLinesLen_2 = len(_acLines_)
-						for j = 1 to _nLinesLen_2
-							_acNewLines_ + _acLines_[j]
-						next
-						_acLines_ = _acNewLines_
-					ok
-					exit
-				ok
-			next
+			# THE X LETTER IS PLACED ONCE, further down, on the ASSEMBLED string.
+			#
+			# A second block used to prepend it here as well, so every scatter plot
+			# carried TWO X rows -- indented differently, because this one measured
+			# the arrow inside the line array while the other measured it in the
+			# finished text. One letter, one place.
 			
 			_cResult_ = ""
 			_nLinesLen_ = len(_acLines_)

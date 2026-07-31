@@ -198,6 +198,13 @@ Scenario("A scatter plot renders in its DEFAULT configuration")
 	Then("...the value axis is labelled", PpHas(cOut, "6"), TRUE)
 	Then("...there are tick marks", PpHas(cOut, "┬") or PpHas(cOut, "┤"), TRUE)
 	Then("...and the points are drawn", PpHas(cOut, "●"), TRUE)
+
+	# EACH AXIS LETTER APPEARS ONCE. Two separate blocks used to place each one --
+	# an X row prepended twice with different indentation, and " Y" appended to the
+	# axis and then again by the replacement that extends it. Nothing errored; the
+	# plot simply carried two of each label.
+	Then("the X letter appears exactly once", PpCountOf(cOut, "X"), 1)
+	Then("...and the Y letter exactly once", PpCountOf(cOut, "Y"), 1)
 EndScenario()
 
 Summary()
@@ -256,3 +263,6 @@ func PpScatterRuns(paData, bNoAxes)
 		_ppR_ = FALSE
 	done
 	return _ppR_
+
+func PpCountOf(cText, cNeedle)
+	return len(StzFind(cNeedle, cText))
