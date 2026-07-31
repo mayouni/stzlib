@@ -489,6 +489,12 @@ ok
 # carries the trip's trace ids) + stzOtelBatch (the OTLP resourceSpans
 # envelope -- many spans, one shipment).
     load "perf/stzOtelBatch.ring"
+# P9: log-trace correlation -- the TRACE SCOPE (engine-global active
+# traceparent): the observed server opens it per request; every stzLog
+# record inside a scope stamps the trace id; stzLog.OfTrace() queries
+# by it and OtelJson() ships the OTLP logs envelope (the OTel triad
+# complete: spans, metrics, logs).
+    load "perf/stzTraceScope.ring"
 
 # Loading files related to the FILE module
 

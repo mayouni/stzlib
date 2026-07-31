@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: COMPLETE -- P0-P8 ALL SHIPPED (2026-07-29/31).** This document is the
+> **Status: COMPLETE -- P0-P9 ALL SHIPPED (2026-07-29/31).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -111,8 +111,25 @@
 > timer family `http.route.ms` [method, route, class]. Families
 > refuse to impersonate one metric (judge a Child). Guard:
 > `labels_narrated.ring` (29). Narration:
-> `stz-perf-labels-narration.md`. Perf suite total: 9 guards,
-> 312 assertions.
+> `stz-perf-labels-narration.md`.
+>
+> P9 delivered (log-trace correlation): the TRACE SCOPE -- one
+> engine-global active-traceparent slot (`perf.zig`); the observed
+> server opens it around every request (identity settled -> scope
+> set -> dispatch -> bracket closes -> scope cleared); EVERY stzLog
+> record inside a scope stamps the trace id as an ordinary queryable
+> field (any log, any face, zero plumbing); `StzOpenTraceScope/
+> StzCloseTraceScope/StzCurrentTraceParent/StzCurrentTraceId` for
+> manual scopes; spans JoinTrace the scope. `stzLog.OfTrace(id)`
+> turns the black box's trip ids into THE LOG LINES of those
+> requests -- the 3 a.m. circle complete. `stzLog.OtelJson()` ships
+> the OTLP logs envelope (traceId promoted to the logRecord's
+> first-class field) -- the OTel triad (spans/metrics/logs) closes.
+> Honest limit: one slot matches one-request-per-loop; parallel
+> in-process dispatch would need per-task scopes. Guard:
+> `log_trace_narrated.ring` (24) + stzLog's own suite green.
+> Narration: `stz-perf-log-trace-narration.md`. Perf suite total:
+> 10 guards, 336 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5

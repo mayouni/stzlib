@@ -179,6 +179,25 @@ fn ring_TraceDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── trace scope (log correlation) ────────────────────────────
+
+fn ring_TraceScopeSet(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 1));
+    const l: usize = @intCast(gss(p, 1));
+    perf.perf_trace_scope_set(s, l);
+    rn(p, 0);
+}
+
+fn ring_TraceScopeGet(p: *anyopaque) callconv(.c) void {
+    const n = perf.perf_trace_scope_get(&str_buf, str_buf.len);
+    if (n > 0) rs2(p, &str_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_TraceScopeClear(p: *anyopaque) callconv(.c) void {
+    perf.perf_trace_scope_clear();
+    rn(p, 0);
+}
+
 // ── family (labels / dimensions) ─────────────────────────────
 
 fn getFamily(p: *anyopaque, n: c_int) ?*perf.Family {
@@ -270,6 +289,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineperftracewallat", .func = ring_TraceWallAt },
     .{ .name = "stzengineperftracereset", .func = ring_TraceReset },
     .{ .name = "stzengineperftracedestroy", .func = ring_TraceDestroy },
+    .{ .name = "stzengineperftracescopeset", .func = ring_TraceScopeSet },
+    .{ .name = "stzengineperftracescopeget", .func = ring_TraceScopeGet },
+    .{ .name = "stzengineperftracescopeclear", .func = ring_TraceScopeClear },
     .{ .name = "stzengineperffamilycreate", .func = ring_FamilyCreate },
     .{ .name = "stzengineperffamilycanadd", .func = ring_FamilyCanAdd },
     .{ .name = "stzengineperffamilychildseries", .func = ring_FamilyChildSeries },

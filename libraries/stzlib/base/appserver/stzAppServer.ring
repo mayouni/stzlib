@@ -815,6 +815,10 @@ class stzAppServer from stzObject
 						_cTraceHdr_ = StzEngineTraceNew()
 					ok
 					_oResp_.Header("traceparent", _cTraceHdr_)
+					# perf P9: the request opens a TRACE SCOPE --
+					# anything the handler logs (any stzLog, anywhere)
+					# stamps this request's trace id automatically.
+					StzEnginePerfTraceScopeSet(_cTraceHdr_)
 				ok
 			ok
 			This._Dispatch(_oReq_, _oResp_)
@@ -844,6 +848,10 @@ class stzAppServer from stzObject
 				_cCls_ = "" + floor(_oResp_.StatusCode() / 100) + "xx"
 				_oRFam_.Child([ _cReqMethod_, _cReqPath_, _cCls_ ]).Record(_nMs_)
 			ok
+		ok
+		# perf P9: the request's trace scope closes with its bracket.
+		if _cTraceHdr_ != ""
+			StzEnginePerfTraceScopeClear()
 		ok
 		return TRUE
 

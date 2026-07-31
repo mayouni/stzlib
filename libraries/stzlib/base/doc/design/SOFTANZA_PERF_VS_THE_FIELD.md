@@ -176,8 +176,12 @@ work is the path toward JFR-like depth, ruled a project of its own.
 - **Sampling strategies.** OTel's head/tail sampling manages volume
   at scale; Softanza's answer today is bounded rings (drop-oldest),
   which is honest but cruder.
-- **Log correlation.** stzLog exists and timestamps compatibly, but
-  log records do not yet carry the active trace id.
+- ~~Log correlation~~ **CLOSED by P9** (the trace scope): the observed
+  server opens an engine-global trace scope per request, every stzLog
+  record inside it stamps the trace id, `OfTrace()` fetches a trip's
+  log lines from the alert's own black box, and `stzLog.OtelJson()`
+  ships OTLP logs with first-class traceId -- the OTel triad
+  (spans/metrics/logs) exported natively.
 - **Ecosystem breadth.** Decades of integrations, exporters,
   auto-instrumentation for every framework. Softanza instruments
   Softanza -- which is the point, but is also the boundary.
