@@ -603,6 +603,340 @@ pub fn perf_trace_destroy(t_opt: ?*TraceRing) callconv(.c) void {
     gpa.destroy(t);
 }
 
+// ── The frame profiler (perf P10) ────────────────────────────
+//
+// WHERE does the time go? Cooperative FRAMES + statistical SAMPLING.
+// Ring marks frames (enter/leave); the frame STACK lives here, so a
+// background sampler thread can photograph the active path at a fixed
+// cadence with zero Ring involvement -- flame-graph truth whose
+// sampling cost is constant no matter how hot the code. Both
+// accumulations run per path ("a;b;c"):
+//   instrumented: calls, total_ns, self_ns (total minus children)
+//   sampled:      samples (photographs that landed on this path)
+// Paths are bounded (max_paths at create; overflow -> "_overflow"),
+// storage is fixed slabs -- the sampler never allocates.
+
+const PROF_NAME_MAX = 48;
+const PROF_PATH_MAX = 256;
+const PROF_DEPTH_MAX = 32;
+
+var g_prof_base: ?std.time.Instant = null;
+
+fn profNowNs() u64 {
+    if (g_prof_base == null) {
+        g_prof_base = std.time.Instant.now() catch return 0;
+    }
+    const base = g_prof_base orelse return 0;
+    const t = std.time.Instant.now() catch return 0;
+    return t.since(base);
+}
+
+pub const Profiler = struct {
+    // the live frame stack (Ring thread pushes/pops)
+    fr_names: [PROF_DEPTH_MAX][PROF_NAME_MAX]u8,
+    fr_lens: [PROF_DEPTH_MAX]u8,
+    fr_start: [PROF_DEPTH_MAX]u64,
+    fr_child: [PROF_DEPTH_MAX]u64, // ns spent in already-closed children
+    depth: usize,
+    // the path accumulation (fixed slabs)
+    max_paths: usize,
+    paths: []u8, // max_paths * PROF_PATH_MAX
+    path_lens: []u16,
+    calls: []u64,
+    total_ns: []u64,
+    self_ns: []u64,
+    samples: []u64,
+    n: usize,
+    overflow_slot: ?usize,
+    // sampling
+    sampling: std.atomic.Value(bool),
+    interval_ms: u64,
+    ticks: u64, // sampler wakeups (in-frame or not)
+    thread: ?std.Thread,
+    mutex: std.Thread.Mutex,
+
+    fn currentPath(self: *Profiler, out: []u8) usize {
+        var l: usize = 0;
+        var i: usize = 0;
+        while (i < self.depth) : (i += 1) {
+            const nl2: usize = self.fr_lens[i];
+            if (l + nl2 + 1 >= out.len) break;
+            if (i > 0) {
+                out[l] = ';';
+                l += 1;
+            }
+            @memcpy(out[l..][0..nl2], self.fr_names[i][0..nl2]);
+            l += nl2;
+        }
+        return l;
+    }
+
+    fn slotFor(self: *Profiler, path: []const u8) usize {
+        var i: usize = 0;
+        while (i < self.n) : (i += 1) {
+            if (self.path_lens[i] == path.len and std.mem.eql(u8, self.paths[i * PROF_PATH_MAX ..][0..path.len], path)) {
+                return i;
+            }
+        }
+        if (self.n < self.max_paths) {
+            const s = self.n;
+            @memcpy(self.paths[s * PROF_PATH_MAX ..][0..path.len], path);
+            self.path_lens[s] = @intCast(path.len);
+            self.n += 1;
+            return s;
+        }
+        // full: the overflow path absorbs (created on first need --
+        // room is guaranteed because it replaces nothing)
+        if (self.overflow_slot) |s| return s;
+        // reuse the LAST slot as overflow: relabel it
+        const s = self.max_paths - 1;
+        const label = "_overflow";
+        @memcpy(self.paths[s * PROF_PATH_MAX ..][0..label.len], label);
+        self.path_lens[s] = @intCast(label.len);
+        self.overflow_slot = s;
+        return s;
+    }
+};
+
+pub fn perf_prof_create(max_paths_f: f64) callconv(.c) ?*Profiler {
+    if (max_paths_f < 2) return null;
+    const maxp: usize = @intFromFloat(max_paths_f);
+    const p = gpa.create(Profiler) catch return null;
+    const paths = gpa.alloc(u8, maxp * PROF_PATH_MAX) catch {
+        gpa.destroy(p);
+        return null;
+    };
+    const path_lens = gpa.alloc(u16, maxp) catch {
+        gpa.free(paths);
+        gpa.destroy(p);
+        return null;
+    };
+    const calls = gpa.alloc(u64, maxp) catch {
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.destroy(p);
+        return null;
+    };
+    const total_ns = gpa.alloc(u64, maxp) catch {
+        gpa.free(calls);
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.destroy(p);
+        return null;
+    };
+    const self_ns = gpa.alloc(u64, maxp) catch {
+        gpa.free(total_ns);
+        gpa.free(calls);
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.destroy(p);
+        return null;
+    };
+    const samples = gpa.alloc(u64, maxp) catch {
+        gpa.free(self_ns);
+        gpa.free(total_ns);
+        gpa.free(calls);
+        gpa.free(path_lens);
+        gpa.free(paths);
+        gpa.destroy(p);
+        return null;
+    };
+    for (calls) |*x| x.* = 0;
+    for (total_ns) |*x| x.* = 0;
+    for (self_ns) |*x| x.* = 0;
+    for (samples) |*x| x.* = 0;
+    p.* = .{
+        .fr_names = undefined,
+        .fr_lens = [_]u8{0} ** PROF_DEPTH_MAX,
+        .fr_start = [_]u64{0} ** PROF_DEPTH_MAX,
+        .fr_child = [_]u64{0} ** PROF_DEPTH_MAX,
+        .depth = 0,
+        .max_paths = maxp,
+        .paths = paths,
+        .path_lens = path_lens,
+        .calls = calls,
+        .total_ns = total_ns,
+        .self_ns = self_ns,
+        .samples = samples,
+        .n = 0,
+        .overflow_slot = null,
+        .sampling = std.atomic.Value(bool).init(false),
+        .interval_ms = 5,
+        .ticks = 0,
+        .thread = null,
+        .mutex = .{},
+    };
+    return p;
+}
+
+pub fn perf_prof_enter(p_opt: ?*Profiler, name: [*]const u8, name_len: usize) callconv(.c) void {
+    const p = p_opt orelse return;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    if (p.depth >= PROF_DEPTH_MAX) return; // deeper frames fold into the parent
+    var nl2 = name_len;
+    if (nl2 > PROF_NAME_MAX) nl2 = PROF_NAME_MAX;
+    @memcpy(p.fr_names[p.depth][0..nl2], name[0..nl2]);
+    p.fr_lens[p.depth] = @intCast(nl2);
+    p.fr_start[p.depth] = profNowNs();
+    p.fr_child[p.depth] = 0;
+    p.depth += 1;
+}
+
+pub fn perf_prof_leave(p_opt: ?*Profiler) callconv(.c) void {
+    const p = p_opt orelse return;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    if (p.depth == 0) return;
+    var buf: [PROF_PATH_MAX]u8 = undefined;
+    const pl = p.currentPath(&buf); // path INCLUDING the leaving frame
+    const d = p.depth - 1;
+    const elapsed = profNowNs() - p.fr_start[d];
+    const self_time = elapsed -| p.fr_child[d];
+    const s = p.slotFor(buf[0..pl]);
+    p.calls[s] += 1;
+    p.total_ns[s] += elapsed;
+    p.self_ns[s] += self_time;
+    p.depth = d;
+    if (d > 0) p.fr_child[d - 1] += elapsed;
+}
+
+pub fn perf_prof_depth(p_opt: ?*Profiler) callconv(.c) f64 {
+    const p = p_opt orelse return 0;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return @floatFromInt(p.depth);
+}
+
+fn samplerLoop(p: *Profiler) void {
+    while (p.sampling.load(.acquire)) {
+        std.Thread.sleep(p.interval_ms * std.time.ns_per_ms);
+        p.mutex.lock();
+        p.ticks += 1;
+        if (p.depth > 0) {
+            var buf: [PROF_PATH_MAX]u8 = undefined;
+            const pl = p.currentPath(&buf);
+            const s = p.slotFor(buf[0..pl]);
+            p.samples[s] += 1;
+        }
+        p.mutex.unlock();
+    }
+}
+
+pub fn perf_prof_sample_start(p_opt: ?*Profiler, interval_ms_f: f64) callconv(.c) i32 {
+    const p = p_opt orelse return -1;
+    if (p.sampling.load(.acquire)) return -2; // already sampling
+    p.interval_ms = if (interval_ms_f < 1) 1 else @intFromFloat(interval_ms_f);
+    p.sampling.store(true, .release);
+    p.thread = std.Thread.spawn(.{}, samplerLoop, .{p}) catch {
+        p.sampling.store(false, .release);
+        return -3;
+    };
+    return 0;
+}
+
+pub fn perf_prof_sample_stop(p_opt: ?*Profiler) callconv(.c) void {
+    const p = p_opt orelse return;
+    if (!p.sampling.load(.acquire)) return;
+    p.sampling.store(false, .release);
+    if (p.thread) |t| {
+        t.join();
+        p.thread = null;
+    }
+}
+
+pub fn perf_prof_is_sampling(p_opt: ?*Profiler) callconv(.c) f64 {
+    const p = p_opt orelse return 0;
+    return if (p.sampling.load(.acquire)) 1 else 0;
+}
+
+pub fn perf_prof_ticks(p_opt: ?*Profiler) callconv(.c) f64 {
+    const p = p_opt orelse return 0;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return @floatFromInt(p.ticks);
+}
+
+pub fn perf_prof_path_count(p_opt: ?*Profiler) callconv(.c) f64 {
+    const p = p_opt orelse return 0;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return @floatFromInt(p.n);
+}
+
+// 1-based readers over the accumulated paths.
+pub fn perf_prof_path_at(p_opt: ?*Profiler, i_f: f64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const p = p_opt orelse return 0;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(p.n))) return 0;
+    const i = @as(usize, @intFromFloat(i_f)) - 1;
+    var l: usize = p.path_lens[i];
+    if (l > max) l = max;
+    @memcpy(out[0..l], p.paths[i * PROF_PATH_MAX ..][0..l]);
+    return @intCast(l);
+}
+
+fn profField(p_opt: ?*Profiler, i_f: f64, field: []const u64) f64 {
+    const p = p_opt orelse return -1;
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(p.n))) return -1;
+    return @floatFromInt(field[@as(usize, @intFromFloat(i_f)) - 1]);
+}
+
+pub fn perf_prof_calls_at(p_opt: ?*Profiler, i_f: f64) callconv(.c) f64 {
+    const p = p_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return profField(p_opt, i_f, p.calls);
+}
+
+pub fn perf_prof_total_ns_at(p_opt: ?*Profiler, i_f: f64) callconv(.c) f64 {
+    const p = p_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return profField(p_opt, i_f, p.total_ns);
+}
+
+pub fn perf_prof_self_ns_at(p_opt: ?*Profiler, i_f: f64) callconv(.c) f64 {
+    const p = p_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return profField(p_opt, i_f, p.self_ns);
+}
+
+pub fn perf_prof_samples_at(p_opt: ?*Profiler, i_f: f64) callconv(.c) f64 {
+    const p = p_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return profField(p_opt, i_f, p.samples);
+}
+
+pub fn perf_prof_reset(p_opt: ?*Profiler) callconv(.c) void {
+    const p = p_opt orelse return;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    p.n = 0;
+    p.depth = 0;
+    p.ticks = 0;
+    p.overflow_slot = null;
+    for (p.calls) |*x| x.* = 0;
+    for (p.total_ns) |*x| x.* = 0;
+    for (p.self_ns) |*x| x.* = 0;
+    for (p.samples) |*x| x.* = 0;
+}
+
+pub fn perf_prof_destroy(p_opt: ?*Profiler) callconv(.c) void {
+    const p = p_opt orelse return;
+    perf_prof_sample_stop(p);
+    gpa.free(p.paths);
+    gpa.free(p.path_lens);
+    gpa.free(p.calls);
+    gpa.free(p.total_ns);
+    gpa.free(p.self_ns);
+    gpa.free(p.samples);
+    gpa.destroy(p);
+}
+
 // ── The trace scope (perf P9: log-trace correlation) ─────────
 //
 // One process-global slot holding the ACTIVE traceparent. The server
@@ -929,6 +1263,61 @@ test "family: children are keyed, created once, bounded" {
     var buf: [64]u8 = undefined;
     const n = perf_family_key_at(f, 2, &buf, buf.len);
     try std.testing.expectEqualStrings("GET|/b", buf[0..@intCast(n)]);
+}
+
+test "profiler: nested frames accumulate paths with self vs total" {
+    const p = perf_prof_create(16).?;
+    defer perf_prof_destroy(p);
+    perf_prof_enter(p, "a", 1);
+    std.Thread.sleep(4 * std.time.ns_per_ms);
+    perf_prof_enter(p, "b", 1);
+    std.Thread.sleep(6 * std.time.ns_per_ms);
+    perf_prof_leave(p); // b
+    perf_prof_leave(p); // a
+    try std.testing.expectEqual(@as(f64, 2), perf_prof_path_count(p));
+    var buf: [256]u8 = undefined;
+    var n = perf_prof_path_at(p, 1, &buf, buf.len);
+    try std.testing.expectEqualStrings("a;b", buf[0..@intCast(n)]);
+    n = perf_prof_path_at(p, 2, &buf, buf.len);
+    try std.testing.expectEqualStrings("a", buf[0..@intCast(n)]);
+    // a's total covers both sleeps; a's SELF excludes b's share
+    const a_total = perf_prof_total_ns_at(p, 2);
+    const a_self = perf_prof_self_ns_at(p, 2);
+    const b_total = perf_prof_total_ns_at(p, 1);
+    try std.testing.expect(a_total >= b_total);
+    try std.testing.expect(a_self <= a_total - b_total + 2_000_000.0); // ~tolerance
+    try std.testing.expectEqual(@as(f64, 1), perf_prof_calls_at(p, 1));
+}
+
+test "profiler: the sampler photographs the active path" {
+    const p = perf_prof_create(16).?;
+    defer perf_prof_destroy(p);
+    try std.testing.expectEqual(@as(i32, 0), perf_prof_sample_start(p, 1));
+    perf_prof_enter(p, "hot", 3);
+    std.Thread.sleep(60 * std.time.ns_per_ms);
+    perf_prof_leave(p);
+    perf_prof_sample_stop(p);
+    try std.testing.expect(perf_prof_ticks(p) > 5);
+    // the hot frame collected samples
+    var buf: [256]u8 = undefined;
+    const n = perf_prof_path_at(p, 1, &buf, buf.len);
+    try std.testing.expectEqualStrings("hot", buf[0..@intCast(n)]);
+    try std.testing.expect(perf_prof_samples_at(p, 1) > 3);
+}
+
+test "profiler: bounded paths fold into overflow" {
+    const p = perf_prof_create(2).?;
+    defer perf_prof_destroy(p);
+    perf_prof_enter(p, "one", 3);
+    perf_prof_leave(p);
+    perf_prof_enter(p, "two", 3);
+    perf_prof_leave(p);
+    perf_prof_enter(p, "three", 5);
+    perf_prof_leave(p);
+    try std.testing.expectEqual(@as(f64, 2), perf_prof_path_count(p));
+    var buf: [256]u8 = undefined;
+    const n = perf_prof_path_at(p, 2, &buf, buf.len);
+    try std.testing.expectEqualStrings("_overflow", buf[0..@intCast(n)]);
 }
 
 test "trace scope: set, read back, clear" {
