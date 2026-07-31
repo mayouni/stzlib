@@ -174,6 +174,32 @@ Scenario("...and every CHART SUBCLASS renders through the same engine path")
 	Then("stzMultiBarPlot matches", PpSameSubM("stzMultiBarPlot"), TRUE)
 EndScenario()
 
+Scenario("A scatter plot renders in its DEFAULT configuration")
+	# THE DEFECT THIS PINS. stzScatterPlot crashed outright with its axes on --
+	# "Can't create the stzList object! paList must be a list" -- so its primary
+	# presentation never worked. Every one of the plot examples calls
+	# WithoutVHAxis() first, which is not a style choice: it was the only shape that
+	# ran.
+	#
+	# The cause was a Ring parsing trap, three times over:
+	#
+	#     new stzList(aList).Sorted()
+	#
+	# binds as new stzList( aList.Sorted() ), so Sorted() is called on the RAW LIST
+	# and its result -- not a list -- is handed to the constructor, which rejects
+	# it. The object has to be built before a method is called on it.
+	aD = [ [1,1], [2,5], [2,4], [3,2], [3,4], [4,5], [4,6], [5,3] ]
+	Then("the default configuration renders at all", PpScatterRuns(aD, FALSE), TRUE)
+	Then("...and so does the axis-free one the examples used", PpScatterRuns(aD, TRUE), TRUE)
+
+	# with axes on it draws what axes are for: tick marks and value labels
+	oS = new stzScatterPlot(aD)
+	cOut = oS.ToString()
+	Then("...the value axis is labelled", PpHas(cOut, "6"), TRUE)
+	Then("...there are tick marks", PpHas(cOut, "┬") or PpHas(cOut, "┤"), TRUE)
+	Then("...and the points are drawn", PpHas(cOut, "●"), TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -214,3 +240,19 @@ func PpSameSubM(cClass)
 	_ppD2_ = [ :Sales = [ :Q1=25, :Q2=35 ], :Costs = [ :Q1=15, :Q2=20 ] ]
 	eval("_ppS2_ = new " + cClass + "(_ppD2_)")
 	return _ppS2_.ToString() = _ppS2_.ToStringInRing()
+
+func PpScatterRuns(paData, bNoAxes)
+	_ppR_ = TRUE
+	try
+		_ppSc_ = new stzScatterPlot(paData)
+		if bNoAxes
+			_ppSc_.WithoutVHAxis()
+		ok
+		_ppT_ = _ppSc_.ToString()
+		if NOT isString(_ppT_) or _ppT_ = ""
+			_ppR_ = FALSE
+		ok
+	catch
+		_ppR_ = FALSE
+	done
+	return _ppR_

@@ -387,7 +387,12 @@ class stzScatterPlot from stzObject
 		_nDynamicVAxisWidth_ = 0
 		if @bShowVAxis
 			_aUniqueV_ = U(@anVValues)
-			_aUniqueV_ = new stzList(_aUniqueV_).Sorted()
+			# NOT `new stzList(x).Sorted()`: Ring binds that as
+		# `new stzList( x.Sorted() )`, so Sorted() is called on the RAW LIST
+		# and its result is handed to the constructor, which then rejects it
+		# with "paList must be a list". The object has to be built first.
+		_oSortL_ = new stzList(_aUniqueV_)
+		_aUniqueV_ = _oSortL_.Sorted()
 			_nMaxVLabelLen_ = 0
 			_nUniqueV2Len_ = len(_aUniqueV_)
 			for _iLoopUniqueV2_ = 1 to _nUniqueV2Len_
@@ -527,7 +532,12 @@ class stzScatterPlot from stzObject
 
 		# Always draw V-axis labels when V-axis is visible
 		_aUniqueV_ = U(@anVValues)
-		_aUniqueV_ = new stzList(_aUniqueV_).Sorted()
+		# NOT `new stzList(x).Sorted()`: Ring binds that as
+		# `new stzList( x.Sorted() )`, so Sorted() is called on the RAW LIST
+		# and its result is handed to the constructor, which then rejects it
+		# with "paList must be a list". The object has to be built first.
+		_oSortL_ = new stzList(_aUniqueV_)
+		_aUniqueV_ = _oSortL_.Sorted()
 		_nUniqueV1Len_ = len(_aUniqueV_)
 		for _iLoopUniqueV1_ = 1 to _nUniqueV1Len_
 			_nV_ = _aUniqueV_[_iLoopUniqueV1_]
@@ -579,7 +589,12 @@ class stzScatterPlot from stzObject
 
 		# Always draw H-axis labels when H-axis is visible
 		_aUniqueH_ = U(@anHValues)
-		_aUniqueH_ = new stzList(_aUniqueH_).Sorted()
+		# NOT `new stzList(x).Sorted()`: Ring binds that as
+		# `new stzList( x.Sorted() )`, so Sorted() is called on the RAW LIST
+		# and its result is handed to the constructor, which then rejects it
+		# with "paList must be a list". The object has to be built first.
+		_oSortL_ = new stzList(_aUniqueH_)
+		_aUniqueH_ = _oSortL_.Sorted()
 		_nUniqueH1Len_ = len(_aUniqueH_)
 		for _iLoopUniqueH1_ = 1 to _nUniqueH1Len_
 			_nH_ = _aUniqueH_[_iLoopUniqueH1_]
