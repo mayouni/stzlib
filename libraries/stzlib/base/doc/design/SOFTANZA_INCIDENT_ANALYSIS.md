@@ -589,6 +589,33 @@ Two of these rows are bug-shaped and worth fixing regardless of this
 plan: scope and posture refusals are **not audited at all** today, and
 the governance lineage is **lost on `Save()`**.
 
+> **BOTH FIXED (2026-08-01).** The first closed in I2's first pass
+> (`stzUpdatePlan` now audits capability, scope AND posture). The second
+> closed after the plan completed, as its own piece of work:
+> `stzGovernance`'s decision lineage had no timestamps, was queryable
+> only by an id you already knew, grew without bound, and was dropped
+> entirely by `Save()`. It now records the wall clock and the action
+> beside its tier; pivots by actor, action, id-history and time window;
+> is bounded with a **counted** drop (`LineageDropped()` /
+> `LineageIsComplete()` — a bounded record that forgets silently reads
+> as a period when nothing was decided); and round-trips through
+> `.zgov` with the authority and risk read FROM THE FILE, so a regime
+> that has changed since cannot rewrite its own history on load. The
+> loader also now recognises a section header structurally (any line
+> without a field separator) instead of by name — the old form left an
+> unknown section's rows feeding the PREVIOUS section's parser, and
+> `DeclarePosture` raises on a value it does not know, so a newer file
+> took an older build down. Guard:
+> `test/governance/governance_lineage_narrated.ring` (27). Narration:
+> `narrations/stz-governance-lineage-narration.md`.
+>
+> **Still open, and deliberately:** the lineage lives in a Ring
+> attribute, so it forks on copy. Every writer in the library already
+> delegates through the owning object (the house pattern), which is why
+> this is a caveat and not a defect — but an object that GOVERNS others
+> ultimately belongs in a handle table, and that is a refactor with a
+> wide blast radius rather than a fix.
+
 ## 8. Governance of the incident system itself
 
 The system must obey the doctrine it enforces:

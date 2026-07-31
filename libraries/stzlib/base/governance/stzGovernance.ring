@@ -26,9 +26,16 @@ class stzGovernance from stzObject
 	@aAuthorities = []    # SHOULD: [ actor, type ]
 	@aCommitments = []    # [ id, state, history(list) ]
 	@aDecommissions = []  # [ actor, obligations(list), fulfilled(list) ]
-	@aLineage = []        # [ id, rationale, actor, authority-at-time, risk ]
+	@aLineage = []        # [ id, rationale, actor, authority-at-time, risk, atWallMs, action ]
 	@aPostures = []       # [ executor, trusted|external|sandboxed ]
 	@cWhy = ""
+	# The lineage is BOUNDED, and says so. An unbounded list that grows for
+	# the life of a long-running process is a leak wearing an audit trail's
+	# clothes; a bounded one that drops silently is worse, because the gap
+	# looks like a period when nothing was decided. @nLineageDropped is the
+	# difference between the two.
+	@nLineageMax = 512
+	@nLineageDropped = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -257,31 +264,144 @@ class stzGovernance from stzObject
 	# a decision records its rationale AND the actor's authority + the
 	# action's risk AT THE TIME -- 'why does this look the way it does'
 	# stays answerable forever
+	#
+	# WHEN it was decided is part of that answer, and it used to be
+	# missing: a lineage without time cannot say whether a decision came
+	# before or after the change it is supposed to explain, which is the
+	# first question anyone asks of it. The clock is the WALL clock on
+	# purpose -- this is an absolute "when in the world", not a duration,
+	# and epoch MILLIS stay exact in f64 (nanos would not).
 	def RecordDecision(pcId, pcRationale, pcActor, pcAction)
+		return This.RecordDecisionAt(pcId, pcRationale, pcActor, pcAction,
+			StzEngineTimeNowMs())
+
+	# the deterministic twin, so a guard can pin an ordering without
+	# racing the clock
+	def RecordDecisionAt(pcId, pcRationale, pcActor, pcAction, pnWallMs)
+		# The ACTION is kept beside its risk tier. Keeping only the tier
+		# (as the first shape did) makes "what was decided about
+		# send-invoice" unanswerable: two unrelated actions at tier 3 are
+		# indistinguishable, so the pivot would return confident nonsense.
 		@aLineage + [ StzLower(ring_trim("" + pcId)), "" + pcRationale,
 			StzLower(ring_trim("" + pcActor)), This.AuthorityOf(pcActor),
-			This.RiskOf(pcAction) ]
+			This.RiskOf(pcAction), pnWallMs,
+			StzLower(ring_trim("" + pcAction)) ]
+		if len(@aLineage) > @nLineageMax
+			del(@aLineage, 1)
+			@nLineageDropped++
+		ok
 		return This
 
+	# How many decisions this governance keeps. Lowering it below the
+	# current count drops the oldest immediately -- and counts them.
+	def SetLineageCapacity(pnMax)
+		return This.SetLineageCapacityQ(pnMax)
+
+	def SetLineageCapacityQ(pnMax)
+		if pnMax < 1
+			stzraise("stzGovernance: a lineage capacity of " + pnMax +
+				" would keep no decisions at all.")
+		ok
+		@nLineageMax = pnMax
+		while len(@aLineage) > @nLineageMax
+			del(@aLineage, 1)
+			@nLineageDropped++
+		end
+		return This
+
+	def LineageCapacity()
+		return @nLineageMax
+
+	# The count the bound cost. Zero means the lineage below is COMPLETE;
+	# anything else means the record starts later than the process did,
+	# and an auditor deserves to know which of the two they are reading.
+	def LineageDropped()
+		return @nLineageDropped
+
+	def LineageIsComplete()
+		return @nLineageDropped = 0
+
+	# The decision under this id. When an id was recorded more than once
+	# the LATEST wins -- a re-decision supersedes, and the earlier ones
+	# stay reachable through LineageHistoryOf().
 	def LineageOf(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
 		_n_ = len(@aLineage)
-		for _i_ = 1 to _n_
+		for _i_ = _n_ to 1 step -1
 			if @aLineage[_i_][1] = _cId_
-				return [ :id = _cId_, :rationale = @aLineage[_i_][2],
-					:actor = @aLineage[_i_][3],
-					:authorityAtTime = @aLineage[_i_][4],
-					:riskAtTime = @aLineage[_i_][5] ]
+				return This._DecisionRecord(_i_)
 			ok
 		next
 		return []
 
-		# the full decision lineage (every recorded decision).
+	def LineageHistoryOf(pcId)
+		return This._DecisionsWhere(1, StzLower(ring_trim("" + pcId)))
+
+	# THE PIVOTS. Answering only by id made the lineage useless for every
+	# question an investigation actually opens with -- "what did this
+	# actor decide", "who decided anything about this action", "what was
+	# decided in the hour before the incident". An audit trail you can
+	# only query by a key you already know is a lookup table.
+	def DecisionsOf(pcActor)
+		return This._DecisionsWhere(3, StzLower(ring_trim("" + pcActor)))
+
+	def DecisionsAbout(pcAction)
+		return This._DecisionsWhere(7, StzLower(ring_trim("" + pcAction)))
+
+	def DecisionsSince(pnWallMs)
+		_aOut_ = []
+		_n_ = len(@aLineage)
+		for _i_ = 1 to _n_
+			if @aLineage[_i_][6] >= pnWallMs
+				_aOut_ + This._DecisionRecord(_i_)
+			ok
+		next
+		return _aOut_
+
+	def DecisionsBetween(pnFromMs, pnToMs)
+		_aOut_ = []
+		_n_ = len(@aLineage)
+		for _i_ = 1 to _n_
+			if @aLineage[_i_][6] >= pnFromMs and @aLineage[_i_][6] <= pnToMs
+				_aOut_ + This._DecisionRecord(_i_)
+			ok
+		next
+		return _aOut_
+
+		# the full decision lineage (every recorded decision), raw rows
 		def Lineage()
 			return @aLineage
 
+		# ...and the same as readable records
+		def Decisions()
+			_aOut_ = []
+			_n_ = len(@aLineage)
+			for _i_ = 1 to _n_
+				_aOut_ + This._DecisionRecord(_i_)
+			next
+			return _aOut_
+
 		def NumberOfDecisions()
 			return len(@aLineage)
+
+	def _DecisionRecord(pnIndex)
+		return [ :id = @aLineage[pnIndex][1],
+			:rationale = @aLineage[pnIndex][2],
+			:actor = @aLineage[pnIndex][3],
+			:authorityAtTime = @aLineage[pnIndex][4],
+			:riskAtTime = @aLineage[pnIndex][5],
+			:at = @aLineage[pnIndex][6],
+			:action = @aLineage[pnIndex][7] ]
+
+	def _DecisionsWhere(pnField, pcValue)
+		_aOut_ = []
+		_n_ = len(@aLineage)
+		for _i_ = 1 to _n_
+			if @aLineage[_i_][pnField] = pcValue
+				_aOut_ + This._DecisionRecord(_i_)
+			ok
+		next
+		return _aOut_
 
 	#-- EXECUTION TRUST POSTURES (5.8) -----------------------------------------
 
@@ -340,8 +460,15 @@ class stzGovernance from stzObject
 				if len(_acQ_) >= 2
 					This.SetName(_acQ_[2])
 				ok
-			but _cL_ = "risks" or _cL_ = "permissions" or _cL_ = "authorities" or
-			    _cL_ = "postures"
+			# A SECTION HEADER IS ANY LINE WITHOUT A FIELD SEPARATOR. The
+			# old form listed the four known headers by name, so a file
+			# carrying a section this build does not know kept the
+			# PREVIOUS section active and fed that section's parser rows
+			# meant for another -- and DeclarePosture raises on a value
+			# it does not recognise, so a newer file took an older build
+			# down. Recognising headers structurally makes an unknown
+			# section skip its own rows instead.
+			but StzFindFirst("|", _cL_) = 0
 				_cSection_ = _cL_
 			but _cSection_ = "risks"
 				_acP_ = StzSplit(_cL_, "|")
@@ -363,9 +490,40 @@ class stzGovernance from stzObject
 				if len(_acP_) = 2
 					This.DeclarePosture(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
 				ok
+			but _cSection_ = "decisions"
+				This._LoadDecisionLine(_cL_)
 			ok
 		next
 		return This
+
+	# id | at | actor | authority | risk | action | rationale...
+	# The rationale is LAST and its own separators are rejoined, so a
+	# rationale that argues "a|b|c" survives the round trip intact. The
+	# authority and risk are read from the FILE, not recomputed: they are
+	# the values AS OF THE DECISION, and a regime that has changed since
+	# would otherwise rewrite its own history on load.
+	def _LoadDecisionLine(pcLine)
+		_acP_ = StzSplit(pcLine, "|")
+		if len(_acP_) < 7
+			return
+		ok
+		# Rejoin the tail RAW and trim once at the end. Trimming each
+		# segment first would eat the spaces around an interior
+		# separator, so "audit | ticket" came back as "audit| ticket" --
+		# a round trip that alters the text it preserves is not one.
+		_cRat_ = _acP_[7]
+		_n_ = len(_acP_)
+		for _i_ = 8 to _n_
+			_cRat_ += "|" + _acP_[_i_]
+		next
+		_cRat_ = ring_trim(_cRat_)
+		@aLineage + [ ring_trim(_acP_[1]), _cRat_, ring_trim(_acP_[3]),
+			ring_trim(_acP_[4]), ring_number(ring_trim(_acP_[5])),
+			ring_number(ring_trim(_acP_[2])), ring_trim(_acP_[6]) ]
+		if len(@aLineage) > @nLineageMax
+			del(@aLineage, 1)
+			@nLineageDropped++
+		ok
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zgov"
@@ -392,5 +550,26 @@ class stzGovernance from stzObject
 		for _i_ = 1 to _n_
 			_c_ += "    " + @aPostures[_i_][1] + " | " + @aPostures[_i_][2] + NL
 		next
+		# THE SECTION THAT WAS MISSING. Save() wrote the regime and left
+		# the lineage behind, so every reason the regime looks the way it
+		# does died with the process that held it -- exactly the loss
+		# "answerable forever" was written to prevent. The regime is what
+		# the rules ARE; the lineage is why. Persisting one without the
+		# other keeps the half a reader can already see.
+		_c_ += "decisions" + NL
+		_n_ = len(@aLineage)
+		for _i_ = 1 to _n_
+			_c_ += "    " + @aLineage[_i_][1] + " | " + @aLineage[_i_][6] +
+				" | " + @aLineage[_i_][3] + " | " + @aLineage[_i_][4] +
+				" | " + @aLineage[_i_][5] + " | " + @aLineage[_i_][7] +
+				" | " + This._OneLine(@aLineage[_i_][2]) + NL
+		next
 		write(pcFile, _c_)
 		return pcFile
+
+	# The format is line-based, so a rationale carrying a newline would
+	# forge a row. Folded to spaces on the way out -- the only lossy step
+	# in the round trip, and it loses layout, never words.
+	def _OneLine(pcText)
+		_c_ = StzReplace("" + pcText, char(13), " ")
+		return ring_trim(StzReplace(_c_, char(10), " "))
