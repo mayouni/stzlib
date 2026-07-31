@@ -104,15 +104,27 @@ class stzRequestClassifier from stzObject
 		_cMethod_ = StzUpper("" + pcMethod)
 
 		# TIER 1 -- content-type, then path, then method
+		#
+		# NEEDLE FIRST: StzFindFirst(what-to-find, where-to-look). Both
+		# loops had the arguments the other way round, which asked "does
+		# the REQUEST appear inside the RULE" -- true only when the two
+		# are identical. An exact hit therefore passed and every real
+		# rule silently did not: "/api/search" never caught
+		# "/api/search/products", and a content type carrying parameters
+		# ("application/pdf; charset=utf-8") never matched its own rule.
+		# Tier 1 fell through to the lexical tier, which often reached
+		# the same facet by a different route -- so the ROUTING looked
+		# right and only Why() disagreed. See [[reference-stzfind-contract]].
 		_n_ = len(@aTypeRules)
 		for _i_ = 1 to _n_
-			if _cType_ != "" and StzFindFirst(_cType_, @aTypeRules[_i_][1]) > 0
+			if _cType_ != "" and StzFindFirst(@aTypeRules[_i_][1], _cType_) > 0
 				return This._Decide(@aTypeRules[_i_][2], "rule: content-type '" + @aTypeRules[_i_][1] + "'")
 			ok
 		next
+		# a path rule is a PREFIX rule: it matches at position 1.
 		_n_ = len(@aPathRules)
 		for _i_ = 1 to _n_
-			if StzFindFirst(_cPath_, @aPathRules[_i_][1]) = 1
+			if StzFindFirst(@aPathRules[_i_][1], _cPath_) = 1
 				return This._Decide(@aPathRules[_i_][2], "rule: path '" + @aPathRules[_i_][1] + "'")
 			ok
 		next

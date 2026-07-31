@@ -24,6 +24,41 @@ Scenario("TIER 1 rules: explicit routes win, cheaply")
 	Then("Why() explains the rule", StzFindFirst("rule:", $oR.Why()) = 1, TRUE)
 EndScenario()
 
+# A PATH RULE IS A PREFIX RULE, and a content type may carry parameters.
+# Both loops used to ask "does the REQUEST appear inside the RULE" --
+# true only when the two are identical -- so every rule that was not an
+# exact match silently did not fire and tier 1 fell through to the
+# lexical tier. The lexical tier often reached the SAME facet by a
+# different route, which is why the routing assertions above passed for
+# the wrong reason for months: only Why() disagreed. These scenes assert
+# the TIER, not just the destination.
+Scenario("TIER 1: a path rule matches by PREFIX, not by equality")
+	Given("the rules declared above")
+	Then("a longer path under the rule still routes",
+		$oR.ClassifyPath("/api/search/products/42"), "search")
+	Then("...and says it was a RULE, not a lexical guess",
+		StzFindFirst("rule: path", $oR.Why()) = 1, TRUE)
+	Then("a path OUTSIDE the rule does not borrow it",
+		StzFindFirst("rule: path '/api/search'", $oR.Why()) = 1, TRUE)
+	$oR.ClassifyPath("/api/calculate-risk/portfolio")
+	Then("the other prefix rule fires on its own subtree too",
+		StzFindFirst("rule: path '/api/calculate-risk'", $oR.Why()) = 1, TRUE)
+EndScenario()
+
+Scenario("TIER 1: a content type keeps its rule when it carries parameters")
+	Given("the application/pdf rule")
+	Then("a real header with a charset still routes",
+		$oR.Classify("POST", "/api/analyze", "application/pdf; charset=binary",
+		             "translate this text"), "vision")
+	Then("...by RULE, so the lexical body hit never got a vote",
+		StzFindFirst("rule: content-type", $oR.Why()) = 1, TRUE)
+	Then("an unrelated content type does NOT match the rule",
+		$oR.Classify("POST", "/api/analyze", "text/plain", "scan this image with ocr"),
+		"vision")
+	Then("...that one was the LEXICAL tier, honestly labelled",
+		StzFindFirst("lexical:", $oR.Why()) = 1, TRUE)
+EndScenario()
+
 Scenario("TIER 2 lexical: route by the facet's OWN capability vocabulary")
 	Given("no matching rule -> capability-lexical scoring")
 	Then("shortest-path talk is graph work",
