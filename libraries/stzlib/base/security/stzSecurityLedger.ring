@@ -165,6 +165,8 @@ func StzVerifySealedLedger(pcPath, pcKey)
 	_aLines_ = StzSplit(_cRaw_, Char(10))
 	_cSeal_ = ""
 	_nDeclared_ = 0
+	_cAttestor_ = ""
+	_nAt_ = 0
 	_aRows_ = []
 	_nLen_ = ring_len(_aLines_)
 	for _i_ = 1 to _nLen_
@@ -178,6 +180,14 @@ func StzVerifySealedLedger(pcPath, pcKey)
 		ok
 		if StzFindFirst("# count=", _cL_) = 1
 			_nDeclared_ = number(StzMidToEnd(_cL_, 9))
+			loop
+		ok
+		if StzFindFirst("# attestor=", _cL_) = 1
+			_cAttestor_ = StzMidToEnd(_cL_, 12)
+			loop
+		ok
+		if StzFindFirst("# at=", _cL_) = 1
+			_nAt_ = number(StzMidToEnd(_cL_, 6))
 			loop
 		ok
 		if StzFindFirst("#", _cL_) = 1
@@ -219,7 +229,9 @@ func StzVerifySealedLedger(pcPath, pcKey)
 		ok
 	ok
 	return [ :ok = TRUE, :why = "chain intact over " + _nRows_ + " entries",
-		:count = _nRows_, :seal = _cSeal_, :brokenAt = 0 ]
+		:count = _nRows_, :seal = _cSeal_, :brokenAt = 0,
+		:attestor = _cAttestor_, :attestedAt = _nAt_,
+		:headDigest = _aRows_[_nRows_][1] ]
 
 
 class stzSecurityLedger from stzObject
@@ -410,6 +422,18 @@ class stzSecurityLedger from stzObject
 	# count and an HMAC seal over (head digest | count). Re-check it
 	# with StzVerifySealedLedger(path, key) -- editing any line breaks
 	# the chain; editing the seal without the key is not possible.
+	# As SealTo, plus WHO attested and WHEN -- the custody header that
+	# turns a sealed file into an attested one (I7). Unknown "#" lines
+	# are ignored by verifiers, so the format stayed compatible.
+	def SealAttestedTo(pcPath, pcKey, pcAttestor)
+		This._Ensure()
+		This.SealTo(pcPath, pcKey)
+		_cRaw_ = read("" + pcPath)
+		_cHdr_ = "# attestor=" + pcAttestor + Char(10)
+		_cHdr_ += ("# at=" + StzEngineTimeWallMs() + Char(10))
+		write("" + pcPath, _cHdr_ + _cRaw_)
+		return This
+
 	def SealTo(pcPath, pcKey)
 		This._Ensure()
 		_nN_ = StzEngineSecLogSize(pHandle)
@@ -430,6 +454,94 @@ class stzSecurityLedger from stzObject
 		_cOut_ += _cBody_
 		write("" + pcPath, _cOut_)
 		return This
+
+	  #-- interop: the evidence leaves in the industry's formats ------
+
+	# Rebuild an event object from a stored record, so the export can
+	# reuse the I0 serializers rather than re-inventing them.
+	def _EventOf(paRec)
+		_e_ = new stzSecurityEvent(paRec[:kind])
+		_e_.ByActorNamed(paRec[:actor], paRec[:posture])
+		_e_.About(paRec[:subject])
+		_e_.Doing(paRec[:action])
+		_e_.AtRisk(paRec[:risk])
+		_e_.FromOrigin(paRec[:origin])
+		if paRec[:outcome] = "granted"
+			_e_.Granted()
+		but paRec[:outcome] = "failed"
+			_e_.Failed(paRec[:reason])
+		else
+			_e_.Refused(paRec[:reason])
+		ok
+		_e_.OccurredAt(paRec[:atWall])
+		return _e_
+
+	# OCSF, newline-delimited: what a collector ingests as a stream.
+	def ToOcsfNdJson()
+		_c_ = ""
+		_aAll_ = This.All()
+		_n_ = ring_len(_aAll_)
+		for _i_ = 1 to _n_
+			_c_ += (This._EventOf(_aAll_[_i_]).ToOcsfJson() + Char(10))
+		next
+		return _c_
+
+	# OCSF as one JSON array (the batch form).
+	def ToOcsfJson()
+		_c_ = "["
+		_aAll_ = This.All()
+		_n_ = ring_len(_aAll_)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_c_ += ","
+			ok
+			_c_ += This._EventOf(_aAll_[_i_]).ToOcsfJson()
+		next
+		_c_ += "]"
+		return _c_
+
+	# The OTLP logs envelope -- the same shape stzLog ships (perf P9),
+	# so security events and log lines arrive at one collector looking
+	# like what they are: records of the same run, sharing trace ids.
+	def ToOtelLogsJson()
+		_cRecs_ = ""
+		_aAll_ = This.All()
+		_n_ = ring_len(_aAll_)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_cRecs_ += ","
+			ok
+			_r_ = _aAll_[_i_]
+			_cR_ = '{"timeUnixNano":"' + ("" + _r_[:atWall]) + '000000"'
+			_cR_ += (',"severityText":"' + StzUpper(_r_[:severity]) + '"')
+			_cR_ += (',"severityNumber":' + This._OtelSeverity(_r_[:severity]))
+			_cR_ += (',"body":{"stringValue":"' + This._Esc(_r_[:kind] + " " + _r_[:outcome] + " -- " + _r_[:reason]) + '"}')
+			_cR_ += ',"attributes":[{"key":"actor","value":{"stringValue":"' + This._Esc(_r_[:actor]) + '"}}'
+			_cR_ += ',{"key":"subject","value":{"stringValue":"' + This._Esc(_r_[:subject]) + '"}}'
+			_cR_ += ',{"key":"kind","value":{"stringValue":"' + _r_[:kind] + '"}}]'
+			if _r_[:traceId] != ""
+				_cR_ += (',"traceId":"' + _r_[:traceId] + '"')
+			ok
+			_cR_ += "}"
+			_cRecs_ += _cR_
+		next
+		_cJ_ = '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"softanza.security"}}]},"scopeLogs":[{"scope":{"name":"softanza.incident"},"logRecords":['
+		_cJ_ += _cRecs_
+		_cJ_ += ']}]}]}'
+		return _cJ_
+
+	def _OtelSeverity(pcSev)
+		if pcSev = "error"
+			return 17
+		but pcSev = "warning"
+			return 13
+		ok
+		return 9
+
+	def _Esc(pcStr)
+		_s_ = StzReplace("" + pcStr, char(92), char(92) + char(92))
+		_s_ = StzReplace(_s_, char(34), char(92) + char(34))
+		return _s_
 
 	  #-- legibility --------------------------------------------------
 

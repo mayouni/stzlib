@@ -106,7 +106,11 @@ func StzSecurityEventKinds()
 		# what, and who was refused the attempt. No detection watches
 		# these kinds, so recording them cannot feed itself.
 		[ "response.action.committed",    "info",    "",          "a containment action crossed into reality" ],
-		[ "response.action.refused",      "warning", "",          "a containment action was refused -- the actor may not commit" ]
+		[ "response.action.refused",      "warning", "",          "a containment action was refused -- the actor may not commit" ],
+		# Evidence leaving the process is itself an act worth recording
+		# (incident I7): who exported the ledger, and who was refused.
+		[ "evidence.exported",            "info",    "",          "a sealed evidence file was written" ],
+		[ "evidence.export_refused",      "warning", "",          "an actor without the sensing capability was refused the evidence" ]
 	]
 
 func StzSecurityEventKindIsKnown(pcKind)

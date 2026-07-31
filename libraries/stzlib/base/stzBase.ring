@@ -428,6 +428,11 @@ ok
     # recorded in the ledger. The machine proposes; only an effectful
     # actor commits.
     load "security/stzResponsePlan.ring"
+    # I7: attestation -- the custody statement over a sealed ledger.
+    # Exporting the evidence is a SENSING act (the ledger is itself
+    # sensitive), so an inference-only actor may analyze in-process
+    # and may not write the file out.
+    load "security/stzSecurityAttestation.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

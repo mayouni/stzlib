@@ -240,6 +240,54 @@ class stzIncident from stzObject
 	def Notes()
 		return @aNotes
 
+	  #-- interop: the incident as an OCSF finding (I7) ----------------
+
+	# OCSF class 2001, Security Finding -- the class a SIEM expects for
+	# "something was concluded", as opposed to the raw events (which
+	# the ledger exports separately). The attack path, blast radius and
+	# trace ids ride in `unmapped`, which is what that field is for.
+	def ToOcsfFindingJson()
+		_cJ_ = '{"category_uid":2,"class_uid":2001'
+		_cJ_ += (',"time":' + @nOpenedAt)
+		_cJ_ += (',"severity_id":' + This._OcsfSeverityId())
+		_cJ_ += (',"status":"' + @cStatus + '"')
+		_cJ_ += ',"finding":{"title":"' + This._Esc(@cRule) + '","uid":"' + This._Esc(@cId) + '"'
+		_cJ_ += (',"desc":"' + This._Esc(@cMessage) + '"}')
+		_cJ_ += ',"metadata":{"product":{"name":"Softanza","vendor_name":"Softanza"},"version":"1.0.0"}'
+		_cJ_ += ',"unmapped":{'
+		_cJ_ += '"actor":"' + This._Esc(@cActor) + '"'
+		_cJ_ += ',"eventCount":' + ring_len(@aEvents)
+		_cJ_ += ',"headDigest":"' + @cHeadDigest + '"'
+		_cJ_ += ',"attackPath":' + This._JsonList(This.AttackPath())
+		_cJ_ += ',"secrets":' + This._JsonList(This.SecretsInvolved())
+		_cJ_ += ',"traceIds":' + This._JsonList(This.TraceIds())
+		_cJ_ += "}}"
+		return _cJ_
+
+	def _OcsfSeverityId()
+		if @cSeverity = "error"
+			return 4
+		but @cSeverity = "warning"
+			return 3
+		ok
+		return 1
+
+	def _JsonList(paList)
+		_c_ = "["
+		_n_ = ring_len(paList)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_c_ += ","
+			ok
+			_c_ += ('"' + This._Esc("" + paList[_i_]) + '"')
+		next
+		return _c_ + "]"
+
+	def _Esc(pcStr)
+		_s_ = StzReplace("" + pcStr, char(92), char(92) + char(92))
+		_s_ = StzReplace(_s_, char(34), char(92) + char(34))
+		return _s_
+
 	  #-- the narrated account ----------------------------------------
 
 	def Explain()
