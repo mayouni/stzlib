@@ -396,6 +396,12 @@ ok
     # flags (stzSecurityRule IS-A stzGraphRule) -- multi-hop escalation
     load "security/stzSecurityGraph.ring"
     load "security/stzSecurityRule.ring"
+    # incident analysis (SOFTANZA_INCIDENT_ANALYSIS.md) -- I0: the typed
+    # security event. "A refusal is an event, not a silent failure":
+    # the closed kind catalog, both clocks, the trace id of the active
+    # scope, and the REDACTION LAW (subjects are descriptors, never
+    # values) enforced at construction.
+    load "security/stzSecurityEvent.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
