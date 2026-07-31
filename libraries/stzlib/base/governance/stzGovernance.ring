@@ -18,6 +18,31 @@
 
 
 
+# THE LINEAGE LIVES IN A TABLE, NOT IN AN ATTRIBUTE.
+#
+# Ring's `=` and attribute-stores COPY, so a governance handed to an
+# agent host, a constellation or a federation becomes a SNAPSHOT there.
+# For the regime (risks, permissions, authorities, postures) that
+# forking fails CLOSED -- a permission the copy never saw is a
+# permission refused -- which is why it stayed in attributes and why
+# this was a caveat rather than an emergency.
+#
+# The lineage does not have that mercy. It is a RECORD, and a record
+# that forks does not fail closed or open: it silently answers a
+# different question than the one asked. Decisions taken through the
+# host's copy were invisible to the caller's own handle and vice versa,
+# so `NumberOfDecisions()` returned a number that was true of one face
+# and of no other -- and an audit trail that is true of one face is not
+# an audit trail. With the rows in a table keyed by id, every copy IS
+# the lineage.
+#
+# Same shape as $aStzServiceRegistries, for the same reason, and the
+# same reason the security ledger's current slot lives in the engine:
+# state that must not fork does not belong in a copied object.
+# [ [ id, rows, capacity, dropped ], ... ]
+$aStzGovernanceLineages = []
+$nStzGovernanceSeq = 0
+
 class stzGovernance from stzObject
 
 	@cName = ""
@@ -26,19 +51,25 @@ class stzGovernance from stzObject
 	@aAuthorities = []    # SHOULD: [ actor, type ]
 	@aCommitments = []    # [ id, state, history(list) ]
 	@aDecommissions = []  # [ actor, obligations(list), fulfilled(list) ]
-	@aLineage = []        # [ id, rationale, actor, authority-at-time, risk, atWallMs, action ]
 	@aPostures = []       # [ executor, trusted|external|sandboxed ]
 	@cWhy = ""
-	# The lineage is BOUNDED, and says so. An unbounded list that grows for
-	# the life of a long-running process is a leak wearing an audit trail's
-	# clothes; a bounded one that drops silently is worse, because the gap
-	# looks like a period when nothing was decided. @nLineageDropped is the
-	# difference between the two.
-	@nLineageMax = 512
-	@nLineageDropped = 0
+	# The slot in $aStzGovernanceLineages. An ID survives Ring's copy; a
+	# list does not. Materialized EAGERLY in init(), never lazily -- a
+	# lazily-created handle is created once PER COPY and forks silently,
+	# which is the exact failure this table exists to remove.
+	@nId = 0
 
 	def init(pcName)
 		@cName = "" + pcName
+		$nStzGovernanceSeq = $nStzGovernanceSeq + 1
+		@nId = $nStzGovernanceSeq
+		# [ id, rows, capacity, dropped ]. The lineage is BOUNDED, and says
+		# so: an unbounded list that grows for the life of a long-running
+		# process is a leak wearing an audit trail's clothes, and a bounded
+		# one that drops SILENTLY is worse, because the gap reads as a
+		# period when nothing was decided. The dropped count is the
+		# difference between the two.
+		$aStzGovernanceLineages + [ @nId, [], 512, 0 ]
 
 	def SetName(pcName)
 		@cName = "" + pcName
@@ -282,14 +313,15 @@ class stzGovernance from stzObject
 		# (as the first shape did) makes "what was decided about
 		# send-invoice" unanswerable: two unrelated actions at tier 3 are
 		# indistinguishable, so the pivot would return confident nonsense.
-		@aLineage + [ StzLower(ring_trim("" + pcId)), "" + pcRationale,
+		#
+		# The authority and the risk are read through THIS face, because
+		# they are what the deciding face believed at the moment it
+		# decided -- that is precisely the fact being recorded. Only the
+		# ROWS are shared; the regime is not.
+		This._Append([ StzLower(ring_trim("" + pcId)), "" + pcRationale,
 			StzLower(ring_trim("" + pcActor)), This.AuthorityOf(pcActor),
 			This.RiskOf(pcAction), pnWallMs,
-			StzLower(ring_trim("" + pcAction)) ]
-		if len(@aLineage) > @nLineageMax
-			del(@aLineage, 1)
-			@nLineageDropped++
-		ok
+			StzLower(ring_trim("" + pcAction)) ])
 		return This
 
 	# How many decisions this governance keeps. Lowering it below the
@@ -302,34 +334,40 @@ class stzGovernance from stzObject
 			stzraise("stzGovernance: a lineage capacity of " + pnMax +
 				" would keep no decisions at all.")
 		ok
-		@nLineageMax = pnMax
-		while len(@aLineage) > @nLineageMax
-			del(@aLineage, 1)
-			@nLineageDropped++
+		_nSlot_ = This._Slot()
+		$aStzGovernanceLineages[_nSlot_][3] = pnMax
+		_aRows_ = $aStzGovernanceLineages[_nSlot_][2]
+		_nDrop_ = 0
+		while len(_aRows_) > pnMax
+			del(_aRows_, 1)
+			_nDrop_++
 		end
+		$aStzGovernanceLineages[_nSlot_][2] = _aRows_
+		$aStzGovernanceLineages[_nSlot_][4] = $aStzGovernanceLineages[_nSlot_][4] + _nDrop_
 		return This
 
 	def LineageCapacity()
-		return @nLineageMax
+		return $aStzGovernanceLineages[This._Slot()][3]
 
 	# The count the bound cost. Zero means the lineage below is COMPLETE;
 	# anything else means the record starts later than the process did,
 	# and an auditor deserves to know which of the two they are reading.
 	def LineageDropped()
-		return @nLineageDropped
+		return $aStzGovernanceLineages[This._Slot()][4]
 
 	def LineageIsComplete()
-		return @nLineageDropped = 0
+		return This.LineageDropped() = 0
 
 	# The decision under this id. When an id was recorded more than once
 	# the LATEST wins -- a re-decision supersedes, and the earlier ones
 	# stay reachable through LineageHistoryOf().
 	def LineageOf(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
-		_n_ = len(@aLineage)
+		_aRows_ = This.Lineage()
+		_n_ = len(_aRows_)
 		for _i_ = _n_ to 1 step -1
-			if @aLineage[_i_][1] = _cId_
-				return This._DecisionRecord(_i_)
+			if _aRows_[_i_][1] = _cId_
+				return This._RecordOf(_aRows_[_i_])
 			ok
 		next
 		return []
@@ -349,56 +387,105 @@ class stzGovernance from stzObject
 		return This._DecisionsWhere(7, StzLower(ring_trim("" + pcAction)))
 
 	def DecisionsSince(pnWallMs)
-		_aOut_ = []
-		_n_ = len(@aLineage)
-		for _i_ = 1 to _n_
-			if @aLineage[_i_][6] >= pnWallMs
-				_aOut_ + This._DecisionRecord(_i_)
-			ok
-		next
-		return _aOut_
+		return This.DecisionsBetween(pnWallMs, 0)
 
+	# A zero upper bound means "no upper bound" -- an epoch stamp is never
+	# zero, so the sentinel cannot collide with a real one.
 	def DecisionsBetween(pnFromMs, pnToMs)
 		_aOut_ = []
-		_n_ = len(@aLineage)
+		_aRows_ = This.Lineage()
+		_n_ = len(_aRows_)
 		for _i_ = 1 to _n_
-			if @aLineage[_i_][6] >= pnFromMs and @aLineage[_i_][6] <= pnToMs
-				_aOut_ + This._DecisionRecord(_i_)
+			if _aRows_[_i_][6] >= pnFromMs
+				if pnToMs = 0 or _aRows_[_i_][6] <= pnToMs
+					_aOut_ + This._RecordOf(_aRows_[_i_])
+				ok
 			ok
 		next
 		return _aOut_
 
-		# the full decision lineage (every recorded decision), raw rows
+		# the full decision lineage (every recorded decision), raw rows.
+		# THE SHARED ROWS -- read through the table, so any face sees
+		# every face's decisions.
 		def Lineage()
-			return @aLineage
+			return $aStzGovernanceLineages[This._Slot()][2]
 
 		# ...and the same as readable records
 		def Decisions()
 			_aOut_ = []
-			_n_ = len(@aLineage)
+			_aRows_ = This.Lineage()
+			_n_ = len(_aRows_)
 			for _i_ = 1 to _n_
-				_aOut_ + This._DecisionRecord(_i_)
+				_aOut_ + This._RecordOf(_aRows_[_i_])
 			next
 			return _aOut_
 
 		def NumberOfDecisions()
-			return len(@aLineage)
+			return len( This.Lineage() )
 
-	def _DecisionRecord(pnIndex)
-		return [ :id = @aLineage[pnIndex][1],
-			:rationale = @aLineage[pnIndex][2],
-			:actor = @aLineage[pnIndex][3],
-			:authorityAtTime = @aLineage[pnIndex][4],
-			:riskAtTime = @aLineage[pnIndex][5],
-			:at = @aLineage[pnIndex][6],
-			:action = @aLineage[pnIndex][7] ]
+	# Release this governance's slot. Ring has no destructor, so this is
+	# the OWNER's explicit act -- and only the owner's: a copy calling it
+	# would free the rows every other face is still reading. Without it
+	# the table keeps one slot per governance ever constructed, which is
+	# fine for a regime that lives as long as the process and a leak for
+	# one built per request.
+	def ReleaseLineage()
+		_n_ = len($aStzGovernanceLineages)
+		for _i_ = 1 to _n_
+			if $aStzGovernanceLineages[_i_][1] = @nId
+				del($aStzGovernanceLineages, _i_)
+				return This
+			ok
+		next
+		return This
+
+	  #-- the table ---------------------------------------------------------
+
+	def _Slot()
+		if @nId = 0
+			stzraise("stzGovernance: this object has no lineage slot -- it was " +
+				"built with a paren-less `new stzGovernance`, which skips init(). " +
+				"Use `new stzGovernance(name)`.")
+		ok
+		_n_ = len($aStzGovernanceLineages)
+		for _i_ = 1 to _n_
+			if $aStzGovernanceLineages[_i_][1] = @nId
+				return _i_
+			ok
+		next
+		# only reachable after ReleaseLineage(); re-open rather than raise
+		$aStzGovernanceLineages + [ @nId, [], 512, 0 ]
+		return len($aStzGovernanceLineages)
+
+	# Read-modify-write, deliberately explicit: the table hands back a
+	# COPY of the rows (Ring copies on return), so an append has to be
+	# written back or it lands nowhere.
+	def _Append(paRow)
+		_nSlot_ = This._Slot()
+		_aRows_ = $aStzGovernanceLineages[_nSlot_][2]
+		_aRows_ + paRow
+		if len(_aRows_) > $aStzGovernanceLineages[_nSlot_][3]
+			del(_aRows_, 1)
+			$aStzGovernanceLineages[_nSlot_][4] = $aStzGovernanceLineages[_nSlot_][4] + 1
+		ok
+		$aStzGovernanceLineages[_nSlot_][2] = _aRows_
+
+	def _RecordOf(paRow)
+		return [ :id = paRow[1],
+			:rationale = paRow[2],
+			:actor = paRow[3],
+			:authorityAtTime = paRow[4],
+			:riskAtTime = paRow[5],
+			:at = paRow[6],
+			:action = paRow[7] ]
 
 	def _DecisionsWhere(pnField, pcValue)
 		_aOut_ = []
-		_n_ = len(@aLineage)
+		_aRows_ = This.Lineage()
+		_n_ = len(_aRows_)
 		for _i_ = 1 to _n_
-			if @aLineage[_i_][pnField] = pcValue
-				_aOut_ + This._DecisionRecord(_i_)
+			if _aRows_[_i_][pnField] = pcValue
+				_aOut_ + This._RecordOf(_aRows_[_i_])
 			ok
 		next
 		return _aOut_
@@ -517,13 +604,9 @@ class stzGovernance from stzObject
 			_cRat_ += "|" + _acP_[_i_]
 		next
 		_cRat_ = ring_trim(_cRat_)
-		@aLineage + [ ring_trim(_acP_[1]), _cRat_, ring_trim(_acP_[3]),
+		This._Append([ ring_trim(_acP_[1]), _cRat_, ring_trim(_acP_[3]),
 			ring_trim(_acP_[4]), ring_number(ring_trim(_acP_[5])),
-			ring_number(ring_trim(_acP_[2])), ring_trim(_acP_[6]) ]
-		if len(@aLineage) > @nLineageMax
-			del(@aLineage, 1)
-			@nLineageDropped++
-		ok
+			ring_number(ring_trim(_acP_[2])), ring_trim(_acP_[6]) ])
 
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zgov"
@@ -557,12 +640,13 @@ class stzGovernance from stzObject
 		# the rules ARE; the lineage is why. Persisting one without the
 		# other keeps the half a reader can already see.
 		_c_ += "decisions" + NL
-		_n_ = len(@aLineage)
+		_aRows_ = This.Lineage()
+		_n_ = len(_aRows_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aLineage[_i_][1] + " | " + @aLineage[_i_][6] +
-				" | " + @aLineage[_i_][3] + " | " + @aLineage[_i_][4] +
-				" | " + @aLineage[_i_][5] + " | " + @aLineage[_i_][7] +
-				" | " + This._OneLine(@aLineage[_i_][2]) + NL
+			_c_ += "    " + _aRows_[_i_][1] + " | " + _aRows_[_i_][6] +
+				" | " + _aRows_[_i_][3] + " | " + _aRows_[_i_][4] +
+				" | " + _aRows_[_i_][5] + " | " + _aRows_[_i_][7] +
+				" | " + This._OneLine(_aRows_[_i_][2]) + NL
 		next
 		write(pcFile, _c_)
 		return pcFile
