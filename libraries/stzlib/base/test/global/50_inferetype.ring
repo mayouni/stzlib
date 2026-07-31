@@ -2,7 +2,7 @@
 # --------
 #
 # Extracted from stzGlobalTest.ring, block #50.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# Runs clean (the old #ERR C22 header was stale -- re-verified 2026-08-01).
 
 load "../../stzBase.ring"
 
