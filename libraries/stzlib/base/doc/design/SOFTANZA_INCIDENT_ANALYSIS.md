@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I2 SHIPPED (2026-08-01); I3-I8 planned.** This document is the
+> **Status: I0-I3 SHIPPED (2026-08-01); I4-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -81,6 +81,28 @@
 > OIDC token+code, cross-world/federated refusals, HTTP 401/403,
 > rate-limit sheds, production-fake refusal, graph escalation paths.
 > Narration: `narrations/stz-security-seams-narration.md`.
+>
+> **I3 delivered:** `base/security/stzDetection.ring` —
+> `stzDetection` with three shapes (BURST
+> `WhenKind().Repeats(n).Within(ms)` [+`PerActor()`], SEQUENCE
+> `.ThenKind().Within(ms)` [+`BySameActor()`], ANY
+> `.OnAnyOccurrence()`), `Corroborated()` implementing incident law 4
+> (evidence spanning &lt;2 kinds is downgraded to a warning that says
+> so), `Explaining()`, `LastEvidence()` (what I5's timeline will use),
+> and verdicts in the unified rule shape straight into
+> `stzRuleReport` — a tripped detection fails the same build as a
+> capability violation. `stzDetectionSet` + `StzDefaultDetectionSet()`
+> ships EIGHT detections over the library's own catalog (credential
+> stuffing, secret probing, escalation attempts, guess-then-reach,
+> cloned authenticator, replayed request, forged request, replayed
+> assertion). `stzSecurityEvent.OccurredAt(wallMs)` added (the house
+> deterministic-form convention: replayed/imported events carry their
+> own clock; the monotonic stamp is never borrowed). DEFECT FOUND BY
+> THE DEMO AND FIXED: the sequence shape reported once per matching
+> PAIR (five failed logins + one secret reach = five findings) —
+> alert fatigue is a defect, so it now reports once per actor, pinned
+> by a guard scene. Guard: `security_detection_narrated.ring` (33).
+> Narration: `narrations/stz-security-detection-narration.md`.
 
 ---
 
@@ -497,9 +519,13 @@ green before the next begins.
   outcomes, every auth failure, and the three plan refusals —
   including scope and posture, which no audit had ever recorded. 37
   assertions; eleven suites green.
-- **I3 — Detection.** `stzDetection`/`stzDetectionSet`: N-in-window,
-  sequence, novelty/first-seen, rate; findings → `stzRuleReport`; the
-  corroboration law.
+- **I3 — Detection. SHIPPED 2026-08-01.** `stzDetection`/
+  `stzDetectionSet`: burst / sequence / any-occurrence over the
+  ledger, the corroboration law, eight shipped detections, findings
+  into the one CI gate. 33 assertions. *(Novelty/first-seen and rate
+  shapes deferred: the three implemented cover every pattern the
+  library's own catalog can produce today, and a shape nobody can
+  fire is a hypothesis.)*
 - **I4 — The sentinel.** Edge-triggered watcher, event-bus fan-out,
   hostable on `stzAgentHost`, opens incidents, photographs context.
 - **I5 — The incident.** Correlation into a case file: timeline, attack

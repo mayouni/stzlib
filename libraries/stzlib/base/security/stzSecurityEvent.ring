@@ -315,6 +315,17 @@ class stzSecurityEvent from stzObject
 		@cOrigin = "" + pcOrigin
 		return This
 
+	# The deterministic form (the house "...At(now)" convention): an
+	# event that did not happen NOW carries its own wall clock -- a
+	# replayed or imported record, or a guard that needs exact window
+	# arithmetic instead of machine speed. The monotonic stamp is left
+	# alone: it orders THIS process's events and cannot be borrowed.
+	def OccurredAt(pnWallMs)
+		if isNumber(pnWallMs)
+			@nAtWall = pnWallMs
+		ok
+		return This
+
 	  #-- outcomes ---------------------------------------------------
 
 	def Granted()
