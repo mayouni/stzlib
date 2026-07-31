@@ -165,6 +165,11 @@ work is the path toward JFR-like depth, ruled a project of its own.
 - **Storage, query, visualization.** No TSDB, no PromQL, no Grafana.
   By design: export instead. But teams without a Prometheus stack get
   Show()/Explain(), not dashboards.
+- ~~Driven-load testing~~ **CLOSED by P11** (`stzLoadDriver`): real
+  target + driver processes, true concurrent arrivals, the R-vs-X
+  knee measured client-side with exact percentiles and narrated in
+  one sentence. (The earlier ruling said this needed the cluster's
+  infra; it needed processes, which the repo already spawns.)
 - ~~Continuous profiling~~ **CLOSED (cooperatively) by P10**
   (`stzProfiler`): an engine-side call tree with honest self-time, a
   REAL sampler thread over the engine-held frame stack (constant
