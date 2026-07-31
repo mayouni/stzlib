@@ -115,15 +115,16 @@ class stzApp from stzObject
     # does with AddItem() / AddItemQ().)
 
     def AddThing(pcName)
-        n = This._ThingIndex(pcName)
-        if n = 0
+        # sigil'd: a bare `n` binds a caller's global of that name
+        _n_ = This._ThingIndex(pcName)
+        if _n_ = 0
             if NOT @oGraph.NodeExists(pcName)
                 @oGraph.AddNode(pcName)
             ok
             @aThings + [ pcName, [], [], [] ]
-            n = len(@aThings)
+            _n_ = len(@aThings)
         ok
-        @nCur = n
+        @nCur = _n_
 
         def AddThingQ(pcName)
             This.AddThing(pcName)
@@ -686,14 +687,14 @@ class stzApp from stzObject
         return This
 
     def Show(pcThing)
-        n = This._ThingIndex(pcThing)
-        if n = 0  ? "(no such thing: " + pcThing + ")"  return This ok
-        ? @aThings[n][1] + " (" + This._Join(@aThings[n][2], ", ") + ")"
-        for j = 1 to len(@aThings[n][3])
-            ? "  true when " + @aThings[n][3][j][1] + " " + @aThings[n][3][j][2]
+        _n_ = This._ThingIndex(pcThing)
+        if _n_ = 0  ? "(no such thing: " + pcThing + ")"  return This ok
+        ? @aThings[_n_][1] + " (" + This._Join(@aThings[_n_][2], ", ") + ")"
+        for _j_ = 1 to len(@aThings[_n_][3])
+            ? "  true when " + @aThings[_n_][3][_j_][1] + " " + @aThings[_n_][3][_j_][2]
         next
-        for j = 1 to len(@aThings[n][4])
-            ? "  " + @aThings[n][4][j][1] + " " + @aThings[n][4][j][2]
+        for _j_ = 1 to len(@aThings[_n_][4])
+            ? "  " + @aThings[_n_][4][_j_][1] + " " + @aThings[_n_][4][_j_][2]
         next
         return This
 

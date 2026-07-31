@@ -790,17 +790,22 @@ func StzParseRange(pcStr)
 
 #--- range-parser local helpers
 
+# A BARE `n` HERE CLOBBERED THE CALLER'S GLOBAL `n` (the global-capture
+# trap: a plain assignment in a func BINDS an existing global of that
+# name rather than creating a local). A user script holding `n = 44`
+# got it silently rewritten to the length of whatever token these
+# helpers were parsing. Sigil'd, like every other local in the library.
 func _IsQuotedToken(_c_)
-	n = ring_len(_c_)
-	if n >= 2 and _c_[1] = '"' and _c_[n] = '"'
+	_n_ = ring_len(_c_)
+	if _n_ >= 2 and _c_[1] = '"' and _c_[_n_] = '"'
 		return TRUE
 	ok
 	return FALSE
 
 func _Unquote(_c_)
-	n = ring_len(_c_)
-	if n >= 2 and _c_[1] = '"' and _c_[n] = '"'
-		return ring_substr2(_c_, 2, n - 2)   # n-2 inner bytes between the ASCII quotes; multibyte kept intact
+	_n_ = ring_len(_c_)
+	if _n_ >= 2 and _c_[1] = '"' and _c_[_n_] = '"'
+		return ring_substr2(_c_, 2, _n_ - 2)   # inner bytes between the ASCII quotes; multibyte kept intact
 	ok
 	return _c_
 
@@ -808,8 +813,8 @@ func _Unquote(_c_)
 # backward byte scan stops cleanly at the first non-digit byte, leaving
 # any multibyte prefix untouched.
 func _SplitTrailingDigits(_c_)
-	n = ring_len(_c_)
-	_nCut_ = n
+	_n_ = ring_len(_c_)
+	_nCut_ = _n_
 	while _nCut_ >= 1
 		_k_ = ascii(_c_[_nCut_])
 		if _k_ >= 48 and _k_ <= 57   # ASCII '0'..'9'
@@ -818,25 +823,25 @@ func _SplitTrailingDigits(_c_)
 			exit
 		ok
 	end
-	if _nCut_ = n
+	if _nCut_ = _n_
 		return [ _c_, "" ]
 	ok
 	_cPrefix_ = ""
 	if _nCut_ >= 1 _cPrefix_ = ring_left(_c_, _nCut_) ok
-	_cDigits_ = ring_right(_c_, n - _nCut_)
+	_cDigits_ = ring_right(_c_, _n_ - _nCut_)
 	return [ _cPrefix_, _cDigits_ ]
 
 func _IsNumericToken(_c_)
-	n = ring_len(_c_)
-	if n = 0 return FALSE ok
+	_n_ = ring_len(_c_)
+	if _n_ = 0 return FALSE ok
 	_i_ = 1
 	if _c_[1] = "-" or _c_[1] = "+"
 		_i_ = 2
 	ok
-	if _i_ > n return FALSE ok
+	if _i_ > _n_ return FALSE ok
 	_bDigitSeen_ = FALSE
 	_bDotSeen_ = FALSE
-	while _i_ <= n
+	while _i_ <= _n_
 		_k_ = ascii(_c_[_i_])
 		if _k_ >= 48 and _k_ <= 57   # ASCII '0'..'9'
 			_bDigitSeen_ = TRUE

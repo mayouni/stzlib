@@ -61,6 +61,21 @@ Scenario("The natural engine stays correct under hostile globals")
 	Then("natural dedup", @@( oNat.Result() ), @@([ 3, 1 ]))
 EndScenario()
 
+# THE PATHS THAT ACTUALLY LEAKED (found 2026-08-01). The suite used to
+# reach these only through Naturally(), whose parse path varies with the
+# input -- so the capture surfaced as an intermittent "n intact" failure
+# that vanished on re-run. Calling them DIRECTLY turns a 1-in-5 flake
+# into a deterministic assertion, which is the whole point of a guard.
+Scenario("The range-parser helpers keep their hands off the caller's globals")
+	Then("quoted-token check", _IsQuotedToken('"hi"'), TRUE)
+	Then("unquote", _Unquote('"hello"'), "hello")
+	Then("split trailing digits", @@( _SplitTrailingDigits("item42") ), @@([ "item", "42" ]))
+	Then("numeric token", _IsNumericToken("12.5"), TRUE)
+	oHgApp = StzAppQ("hostile-probe")
+	oHgApp.AddThing(:dish)
+	Then("app thing added", @@( oHgApp.Things() ), @@([ [ "dish", [ ] ] ]))
+EndScenario()
+
 Scenario("THE POINT: the library never clobbers the user's variables")
 	Then("nLen intact", nLen, 5)
 	Then("i intact", i, 2)

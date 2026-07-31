@@ -148,12 +148,12 @@ class stzWordStream from stzObject
 	# is NOT consumed -- you can keep feeding and re-query.
 	def _Drain(pRes)
 		_aOut_ = []
-		n = StzEngineWordFreqCount(pRes)
-		for i = 1 to n
-			pW = StzEngineWordFreqWord(pRes, i)
-			_cW_ = StzEngineStringData(pW)
-			StzEngineStringFree(pW)
-			_aOut_ + [ _cW_, StzEngineWordFreqNum(pRes, i) ]
+		_n_ = StzEngineWordFreqCount(pRes)
+		for _i_ = 1 to _n_
+			_pW_ = StzEngineWordFreqWord(pRes, _i_)
+			_cW_ = StzEngineStringData(_pW_)
+			StzEngineStringFree(_pW_)
+			_aOut_ + [ _cW_, StzEngineWordFreqNum(pRes, _i_) ]
 		next
 		StzEngineWordFreqFree(pRes)
 		return _aOut_
