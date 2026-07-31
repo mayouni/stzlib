@@ -105,7 +105,7 @@ chk("the capacity is shared too, not re-defaulted per face",
 oFace.SetLineageCapacity(1)
 chk("...so a bound set on one face binds the other",
 	oShared.NumberOfDecisions() = 1 and oShared.LineageDropped() = 1)
-oShared.ReleaseLineage()
+oShared.Release()
 ? "  two faces, one record"
 # THIS is what the attribute could not do. A lineage that forks does not
 # fail closed or open -- it answers a different question than the one
@@ -113,7 +113,52 @@ oShared.ReleaseLineage()
 # no other.
 
 ? ""
-? "-- Scene 6: the section Save() used to throw away --"
+? "-- Scene 6: the REGIME is shared too, so the workaround retires --"
+oOwner = new stzGovernance("deploy-ops")
+oHeld = oOwner                               # what an agent host stores
+oOwner.DeclareRisk("deploy", 3)
+oOwner.GrantPermission("release-bot", "deploy")
+oOwner.SetAuthority("release-bot", :Autonomous)
+chk("a regime declared on one face judges on the other",
+	oHeld.MayProceed("release-bot", "deploy") = 1)
+oHeld.DeclarePosture("py-runner", :Sandboxed)
+chk("...and a posture declared on the other is seen by the first",
+	oOwner.PostureOf("py-runner") = "sandboxed")
+oOwner.OpenCommitment("c-1")
+oHeld.AdvanceCommitment("c-1")
+chk("a commitment advanced through the copy advances for both",
+	oOwner.CommitmentStateOf("c-1") = "provisional")
+oOwner.DeclareDecommission("old-bot", [ "key-revocation" ])
+oHeld.FulfillObligation("old-bot", "key-revocation")
+chk("an obligation fulfilled through the copy earns retirement for both",
+	oOwner.MayRetire("old-bot") = 1)
+oOwner.Release()
+? "  assign-then-mutate now reaches the object that judges"
+# THE WORKAROUND THIS RETIRES: "CHAIN config calls, never
+# assign-then-mutate" was a rule every caller had to remember in order
+# not to be silently wrong, because a grant on your own handle used to
+# reach nothing. A regime forking fails CLOSED, which is survivable --
+# but survivable is not correct, and a defect with good manners is
+# still a defect.
+
+? ""
+? "-- Scene 7: what deliberately did NOT move --"
+oA = new stzGovernance("split-brain")
+oB = oA
+oA.DeclareRisk("ship", 1)
+oA.GrantPermission("bot", "ship")
+oA.SetAuthority("bot", :Advisory)
+oA.MayProceed("bot", "ship")
+oB.MayProceed("nobody", "ship")
+chk("Why() is the answer to the question THIS face asked",
+	StzFindFirst("allowed", oA.Why()) > 0 and StzFindFirst("refused", oB.Why()) > 0)
+oA.Release()
+# Sharing @cWhy would let one face's question overwrite another face's
+# answer between the call and the read. It is the one place where
+# forking is the correct behaviour.
+
+? ""
+? "-- Scene 8: the section Save() used to throw away --"
 oReg = new stzGovernance("kitchen-ops")
 oReg.DeclareRisk("send-invoice", 3)
 oReg.GrantPermission("billing-agent", "send-invoice")
@@ -136,7 +181,7 @@ chk("a rationale containing the field separator is INTACT",
 ? "  " + aR[:rationale]
 
 ? ""
-? "-- Scene 7: the file records what WAS true, not what is --"
+? "-- Scene 9: the file records what WAS true, not what is --"
 oBack.DeclareRisk("send-invoice", 1)
 chk("the regime changed", oBack.RiskOf("send-invoice") = 1)
 chk("...and the decision still reports the tier it was taken under",
@@ -145,7 +190,7 @@ chk("...and the decision still reports the tier it was taken under",
 # rewrite its own history -- the one thing a lineage exists to prevent.
 
 ? ""
-? "-- Scene 8: an unknown section skips its own rows --"
+? "-- Scene 10: an unknown section skips its own rows --"
 cRaw = read(cFile)
 write(cFile, cRaw + "quorums" + nl + "    council | 3" + nl)
 oFwd = new stzGovernance("")

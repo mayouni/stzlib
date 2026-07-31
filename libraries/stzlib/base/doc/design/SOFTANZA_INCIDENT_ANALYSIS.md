@@ -621,10 +621,26 @@ the governance lineage is **lost on `Save()`**.
 > permission refused), whereas a forked RECORD fails neither open nor
 > closed: it silently answers a different question than the one asked,
 > and `NumberOfDecisions()` returns a count true of one face and of no
-> other. `ReleaseLineage()` frees a slot, and is the OWNER's act alone —
-> Ring has no destructor, and a copy calling it would free rows every
-> other face is still reading. Guard scene: "every COPY is the lineage"
-> (32 assertions total); 20 consumer suites green.
+> other.
+>
+> **The regime followed it** (risks, permissions, authorities,
+> commitments, decommissions, postures — one ten-field row, every index
+> literal appearing exactly once in a pair of accessors). Its forking
+> failing CLOSED made it survivable, not correct: the cost was being
+> paid in a convention the whole library carried — *"chain config calls,
+> never assign-then-mutate"* — which exists only because
+> `oGov = oHost.GovernanceQ()` then `oGov.GrantPermission(..)` reached a
+> copy. A rule every caller must remember in order not to be silently
+> wrong is a defect with good manners. That convention is now
+> unnecessary for governance.
+>
+> **`@cWhy` deliberately stayed an attribute**: it is the answer to the
+> last question THIS face asked, and sharing it would let one face's
+> question overwrite another's answer between the call and the read —
+> the one place in this object where forking is correct.
+> `Release()` frees a slot, and is the OWNER's act alone — Ring has no
+> destructor, and a copy calling it would free state every other face is
+> still reading. Guard: 37 assertions; 23 consumer suites green.
 
 ## 8. Governance of the incident system itself
 
