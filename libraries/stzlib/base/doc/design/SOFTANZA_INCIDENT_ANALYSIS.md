@@ -2,7 +2,8 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I7 SHIPPED (2026-08-01); I8 planned.** This document is the
+> **Status: COMPLETE — I0-I8 ALL SHIPPED (2026-08-01).** Nine narrated
+> guards, 300 assertions. This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -186,6 +187,28 @@
 > chain head in `unmapped`. The redaction law re-checked at every
 > export. Guard: `security_attest_narrated.ring` (34). Narration:
 > `narrations/stz-security-attestation-narration.md`.
+>
+> **I8 delivered:** `base/security/stzSecurityDrill.ring` — adversary
+> emulation against a REAL spawned application (its own ledger,
+> `stzAuth` and `stzRequestSigner`), attacked over REAL HTTP:
+> `FireCredentialStuffing` / `FireForgery` / `FireReplay`, each
+> registering the detection it expects. The parent never touches the
+> target's memory: `CollectEvidence()` asks the target to seal, then
+> VERIFIES the file and rebuilds a working ledger
+> (`StzLedgerFromSealedFile`, which refuses edited evidence and hands
+> back nothing to analyse — refusing to ANALYSE matters more than
+> detecting the edit). The rebuilt chain is documented as a working
+> artifact, never a second original. All three attacks detected from
+> cross-process evidence; the acquired ledger still reconstructs an
+> incident. TWO LIBRARY DEFECTS FOUND BY THE DRILL: (1) a seal route
+> that answered "sealed" unconditionally, hiding its own failure — a
+> status that cannot be false is not a status; (2) **a
+> capability-bearing `stzSystemActor` built inside (or read from a
+> global into) a spawned child's anonymous handler arrives with its
+> capability set degraded — 1 kind instead of 3** — so the target
+> seals directly and the governed-export gate is proven in-process by
+> the I7 guard. Guard: `security_drill_narrated.ring` (20, real
+> processes, ~3s). Narration: `narrations/stz-security-drill-narration.md`.
 
 ---
 
@@ -630,11 +653,12 @@ green before the next begins.
   NDJSON, OTLP logs, the incident as an OCSF Security Finding. 34
   assertions. *(CI-gate integration needed no work: detections have
   emitted the unified finding shape into `stzRuleReport` since I3.)*
-- **I8 — The drill.** Adversary-emulation harness (the P11 load-driver
-  pattern pointed at security): spawn a real app, fire real bad
-  sequences — credential stuffing, nonce replay, escalation attempt —
-  and assert the detections fire and the incident reconstructs. *A
-  detection nobody has ever seen fire is a hypothesis.*
+- **I8 — The drill. SHIPPED 2026-08-01. THE PLAN IS COMPLETE.**
+  Adversary emulation against a real spawned app over real HTTP, with
+  the evidence crossing the process boundary as a sealed file the
+  parent must verify before it may believe it — and refuse to analyse
+  when edited. All three attacks detected; two library defects found
+  in the process. 20 assertions.
 
 ## 11. Honest caveats
 
