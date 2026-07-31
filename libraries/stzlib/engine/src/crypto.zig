@@ -36,6 +36,19 @@ pub fn crypto_sha256_raw(data_ptr: [*]const u8, data_len: usize, out: [*]u8) cal
     return 32;
 }
 
+// HMAC-SHA256, keyed (incident I1). HMAC lived here already, but only
+// INSIDE pbkdf2 and totp -- nothing could seal a payload with a key.
+// The security ledger's export seal needs exactly that: a digest an
+// attacker who can edit the evidence still cannot recompute.
+pub fn crypto_hmac_sha256(key_ptr: [*]const u8, key_len: usize, msg_ptr: [*]const u8, msg_len: usize, out: [*]u8) callconv(.c) i32 {
+    var mac: [32]u8 = undefined;
+    const key = if (key_len == 0) "" else key_ptr[0..key_len];
+    const msg = if (msg_len == 0) "" else msg_ptr[0..msg_len];
+    HmacSha256.create(&mac, msg, key);
+    @memcpy(out[0..64], &hexEncode(mac));
+    return 64;
+}
+
 pub fn crypto_crc32(data_ptr: [*]const u8, data_len: usize) callconv(.c) u32 {
     if (data_len == 0) return 0;
     return std.hash.crc.Crc32IsoHdlc.hash(data_ptr[0..data_len]);
@@ -373,6 +386,7 @@ fn hexEncodeMd5(hash: [16]u8) [32]u8 {
 pub export fn stz_crypto_sha256(p: [*]const u8, l: usize, o: [*]u8) callconv(.c) i32 { return crypto_sha256(p, l, o); }
 pub export fn stz_crypto_md5(p: [*]const u8, l: usize, o: [*]u8) callconv(.c) i32 { return crypto_md5(p, l, o); }
 pub export fn stz_crypto_sha256_raw(p: [*]const u8, l: usize, o: [*]u8) callconv(.c) i32 { return crypto_sha256_raw(p, l, o); }
+pub export fn stz_crypto_hmac_sha256(k: [*]const u8, kl: usize, m: [*]const u8, ml: usize, o: [*]u8) callconv(.c) i32 { return crypto_hmac_sha256(k, kl, m, ml, o); }
 pub export fn stz_crypto_crc32(p: [*]const u8, l: usize) callconv(.c) u32 { return crypto_crc32(p, l); }
 pub export fn stz_crypto_fnv32(p: [*]const u8, l: usize) callconv(.c) u32 { return crypto_fnv32(p, l); }
 pub export fn stz_crypto_fnv64(p: [*]const u8, l: usize) callconv(.c) u64 { return crypto_fnv64(p, l); }

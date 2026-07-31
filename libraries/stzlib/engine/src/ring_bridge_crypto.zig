@@ -19,6 +19,17 @@ fn ring_Sha256(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// StzEngineCryptoHmacSha256(cKey, cMessage) -> 64-hex mac
+fn ring_HmacSha256(p: *anyopaque) callconv(.c) void {
+    const kptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const klen: usize = @intCast(gss(p, 1));
+    const mptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const mlen: usize = @intCast(gss(p, 2));
+    var buf: [64]u8 = undefined;
+    const n = crypto.crypto_hmac_sha256(kptr, klen, mptr, mlen, &buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
 fn ring_Md5(p: *anyopaque) callconv(.c) void {
     const ptr: [*]const u8 = @ptrCast(gs(p, 1));
     const len: usize = @intCast(gss(p, 1));
@@ -380,6 +391,7 @@ fn ring_XmlPretty(p: *anyopaque) callconv(.c) void {
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
+    .{ .name = "stzenginecryptohmacsha256", .func = &ring_HmacSha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },
     .{ .name = "stzenginecryptocrc32", .func = &ring_Crc32 },
     .{ .name = "stzenginecryptofnv32", .func = &ring_Fnv32 },
