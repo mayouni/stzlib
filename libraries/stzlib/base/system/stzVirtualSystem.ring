@@ -384,6 +384,11 @@ class stzUpdatePlan from stzObject
 		# have a declared trust posture, or NOTHING crosses.
 		if @oGov != NULL and @oExecutor != NULL
 			if @oGov.MayExecute(@oExecutor.Name()) = 0
+				# A whole plan refused for want of a declared posture used
+				# to leave NO audit entry at all -- it returned a log line
+				# and vanished. Noted now (incident I2).
+				StzNoteRefusal("posture.refused", @oExecutor.Name(),
+					"plan:" + len(@aOps) + " op(s)", @oGov.Why())
 				return [
 					[ "committed", 0 ],
 					[ "skipped", len(@aOps) ],
@@ -404,11 +409,18 @@ class stzUpdatePlan from stzObject
 				if _cReason_ != ""
 					_nSkipped_++
 					_aLog_ + [ _i_, "REFUSED-BY-SCOPE", _cReason_ ]
+					# scope refusals were the second unaudited gap: an
+					# operation reaching outside its allowed prefixes is
+					# exactly what an investigation wants to see (I2)
+					StzNoteRefusal("scope.refused", This._ActorName(),
+						"op:" + _oOp_.Type(), _cReason_)
 					loop
 				ok
 				if @oScope.MaxOperations() > 0 and _nDone_ >= @oScope.MaxOperations()
 					_nSkipped_++
 					_aLog_ + [ _i_, "REFUSED-BY-SCOPE", "max operations reached" ]
+					StzNoteRefusal("scope.refused", This._ActorName(),
+						"op:" + _oOp_.Type(), "max operations reached")
 					loop
 				ok
 			ok
@@ -420,10 +432,18 @@ class stzUpdatePlan from stzObject
 				_cKind_ = _oOp_.RequiredKind()
 				if NOT @oExecutor.Can(_cKind_)
 					_nSkipped_++
-					_aLog_ + [ _i_, "REFUSED-BY-GOVERNANCE",
-						"actor '" + @oExecutor.Name() + "' lacks the '" +
-						_cKind_ + "' capability" ]
+					_cWhyCap_ = "actor '" + @oExecutor.Name() + "' lacks the '" +
+						_cKind_ + "' capability"
+					_aLog_ + [ _i_, "REFUSED-BY-GOVERNANCE", _cWhyCap_ ]
 					This._Audit(_i_, "refused", _oOp_)
+					# the capability gate was already audited in-plan; the
+					# ledger gets it too, timestamped and correlated (I2)
+					_eCap_ = new stzSecurityEvent("capability.refused")
+					_eCap_.ByActor(@oExecutor)
+					_eCap_.About("op:" + _oOp_.Type())
+					_eCap_.Doing(_cKind_)
+					_eCap_.Refused(_cWhyCap_)
+					StzRecordSecurityEvent(_eCap_)
 					loop
 				ok
 			ok
@@ -443,6 +463,13 @@ class stzUpdatePlan from stzObject
 
 	# Record a decision into the plan's own audit trail (always), and into a
 	# wired stzGovernance's lineage (if present).
+	# the executing actor's name, or "unguarded" (incident I2 seams)
+	def _ActorName()
+		if @oExecutor = NULL
+			return "unguarded"
+		ok
+		return "" + @oExecutor.Name()
+
 	def _Audit(pnIndex, pcOutcome, oOp)
 		_cActor_ = "unguarded"
 		if @oExecutor != NULL

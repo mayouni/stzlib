@@ -198,3 +198,18 @@ class stzSecretStore from stzObject
 			_who_ = "" + poActor.Name()
 		ok
 		@aLog + [ len(@aLog) + 1, _who_, pcName, pcOutcome ]
+		# The store's own log is the doctrine's exemplar ("the log is
+		# complete") but it carries no clock and dies with the object.
+		# The same fact now also reaches the ledger, timestamped,
+		# chained and correlated (incident I2). The event carries the
+		# secret's NAME, never its value -- the redaction law.
+		if pcOutcome = "granted"
+			StzNoteGrant("secret.reveal.granted", _who_, "secret:" + pcName)
+		else
+			_e_ = new stzSecurityEvent("secret.reveal.refused")
+			_e_.ByActor(poActor)
+			_e_.About("secret:" + pcName)
+			_e_.Doing("reveal")
+			_e_.Refused("the actor is not effectful (or is sandboxed)")
+			StzRecordSecurityEvent(_e_)
+		ok

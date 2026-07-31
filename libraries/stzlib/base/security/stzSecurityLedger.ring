@@ -45,6 +45,115 @@
 func StzSecurityLedger(pnCapacity)
 	return new stzSecurityLedger(pnCapacity)
 
+  #=========================================================#
+ #  THE PROCESS LEDGER -- what the seams record into (I2)  #
+#=========================================================#
+
+/*
+	A seam lives deep inside stzAuth, stzRequestSigner, stzPasskey...
+	-- classes an application never constructs itself. Handing each one
+	a ledger would mean wiring a dozen objects; instead the process
+	holds ONE, exactly as it holds one trace scope (perf P9), and the
+	seams record into it if it is open:
+
+		StzOpenSecurityLedger(4096)      # from now on, refusals persist
+		... the app runs ...
+		? StzSecurityLedgerQ().Refusals()
+		StzCloseSecurityLedger()
+
+	CLOSED IS THE DEFAULT, and closed costs one boolean test at each
+	seam -- the event object is not even built (constructing one reads
+	two clocks and the trace scope). Nothing changes for an application
+	that never opens a ledger; that is the perf-P3 discipline applied
+	to security.
+*/
+
+/*
+	The current-ledger slot lives IN THE ENGINE (seclog.zig), not in a
+	Ring global -- exactly like the P9 trace scope, and for the same
+	reason: a function cannot reliably write a Ring global, and a Ring
+	copy of one would fork. Every accessor below is a thin call over
+	that slot, so any face reaches the same ledger.
+*/
+
+func StzOpenSecurityLedger(pnCapacity)
+	if StzSecurityLedgerIsOpen()
+		return StzSecurityLedgerQ()
+	ok
+	_oLed_ = new stzSecurityLedger(pnCapacity)
+	StzEngineSecLogSetCurrent(_oLed_.Handle())
+	return _oLed_
+
+func StzSecurityLedgerIsOpen()
+	return StzEngineSecLogHasCurrent() = 1
+
+# A wrapper bound to the process ledger. All state is engine-side, so a
+# freshly built face is the same ledger -- no Ring global needed.
+func StzSecurityLedgerQ()
+	if NOT StzSecurityLedgerIsOpen()
+		return NULL
+	ok
+	_oLed_ = new stzSecurityLedger(1)
+	_oLed_.AdoptHandle(StzEngineSecLogCurrent())
+	return _oLed_
+
+func StzCloseSecurityLedger()
+	if NOT StzSecurityLedgerIsOpen()
+		return
+	ok
+	# destroying the current ledger clears the engine slot too
+	StzEngineSecLogDestroy(StzEngineSecLogCurrent())
+
+# THE SEAM CALL: record an already-built event, if anyone is listening.
+func StzRecordSecurityEvent(poEvent)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	StzEngineSecLogCurrentAppend(poEvent.CanonicalString(), poEvent.AtWall(),
+		StzSecuritySeverityCode(poEvent.Severity()))
+
+# The one-liners a seam actually writes. Each returns before building
+# anything when no ledger is open -- that is the zero-cost-when-off
+# property, and it is why a seam can call these unconditionally.
+func StzNoteRefusal(pcKind, pcActor, pcSubject, pcReason)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	_e_ = new stzSecurityEvent(pcKind)
+	_e_.ByActorNamed(pcActor, "")
+	_e_.About(pcSubject)
+	_e_.Refused(pcReason)
+	StzRecordSecurityEvent(_e_)
+
+func StzNoteRefusalFrom(pcKind, pcActor, pcSubject, pcReason, pcOrigin)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	_e_ = new stzSecurityEvent(pcKind)
+	_e_.ByActorNamed(pcActor, "")
+	_e_.About(pcSubject)
+	_e_.FromOrigin(pcOrigin)
+	_e_.Refused(pcReason)
+	StzRecordSecurityEvent(_e_)
+
+func StzNoteGrant(pcKind, pcActor, pcSubject)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	_e_ = new stzSecurityEvent(pcKind)
+	_e_.ByActorNamed(pcActor, "")
+	_e_.About(pcSubject)
+	_e_.Granted()
+	StzRecordSecurityEvent(_e_)
+
+func StzSecuritySeverityCode(pcSeverity)
+	if pcSeverity = "error"
+		return 2
+	but pcSeverity = "warning"
+		return 1
+	ok
+	return 0
+
 # Verify a sealed export written by SealTo(). Returns
 # [ :ok, :why, :count, :seal, :brokenAt ]. Without a key the chain is
 # still checked; the seal check needs the key it was sealed with.
@@ -117,6 +226,7 @@ class stzSecurityLedger from stzObject
 
 	pHandle = NULL
 	bReady = FALSE
+	bAdopted = FALSE	# bound to a ledger owned elsewhere (the process one)
 	@nCapacity = 1024
 
 	def init(pnCapacity)
@@ -137,8 +247,22 @@ class stzSecurityLedger from stzObject
 		This._Ensure()
 		return pHandle
 
+	# Bind this face to a ledger owned elsewhere (the process ledger).
+	# Destroy() will not free an adopted handle -- the owner does.
+	def AdoptHandle(pEngineHandle)
+		if bReady and NOT bAdopted
+			StzEngineSecLogDestroy(pHandle)
+		ok
+		pHandle = pEngineHandle
+		bReady = TRUE
+		bAdopted = TRUE
+		return This
+
+	# The engine's own answer -- a face bound to the process ledger
+	# (AdoptHandle) never knew the capacity it was created with.
 	def Capacity()
-		return @nCapacity
+		This._Ensure()
+		return StzEngineSecLogCapacity(pHandle)
 
 	  #-- recording ---------------------------------------------------
 
@@ -317,7 +441,7 @@ class stzSecurityLedger from stzObject
 			_cV_ = "BROKEN at " + _aV_[:brokenAt]
 		ok
 		_cH_ = "Security ledger -- " + This.Count() + " event(s) recorded, "
-		_cH_ += ("" + This.Size() + " retained of " + @nCapacity + ", chain " + _cV_ + ".")
+		_cH_ += ("" + This.Size() + " retained of " + This.Capacity() + ", chain " + _cV_ + ".")
 		_aL_ + _cH_
 		_aAll_ = This.All()
 		_nN_ = ring_len(_aAll_)
@@ -351,9 +475,12 @@ class stzSecurityLedger from stzObject
 
 	def Destroy()
 		if bReady
-			StzEngineSecLogDestroy(pHandle)
+			if NOT bAdopted
+				StzEngineSecLogDestroy(pHandle)
+			ok
 			pHandle = NULL
 			bReady = FALSE
+			bAdopted = FALSE
 		ok
 		return This
 
