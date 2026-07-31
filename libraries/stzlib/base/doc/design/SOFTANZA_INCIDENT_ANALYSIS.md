@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I5 SHIPPED (2026-08-01); I6-I8 planned.** This document is the
+> **Status: I0-I6 SHIPPED (2026-08-01); I7-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -142,6 +142,30 @@
 > the ledger makes the two heads disagree — evidence about evidence.
 > Guard: `security_incident_narrated.ring` (32). Narration:
 > `narrations/stz-security-incident-narration.md`.
+>
+> **I6 delivered:** `base/security/stzResponsePlan.ring` — containment
+> as a governed act. Closed six-verb catalog (RevokeSession,
+> LockAccount, RotateSecret, RevokeCapability, ShedSource,
+> QuarantinePart); `ProposeForIncident(oInc)` DERIVES the plan from
+> the incident's own facts (the actor it names, a RevokeCapability
+> only when the graph says that actor reaches effectful, a
+> RotateSecret per implicated secret), each action carrying the
+> incident's sentence as rationale; `MayCommit`/`WhyNot` preflight;
+> `ExecuteOn(responder, actor)` gated on effectful + non-sandboxed
+> with a full audit of BOTH verdicts. The consequence the design
+> exists for, proven in the guard: an LLMActor composes the whole
+> plan and commits nothing — structurally, not by policy. Every
+> outcome is ALSO a ledger event (`response.action.committed` /
+> `.refused`, two kinds added to the I0 catalog), so the chain covers
+> attack, refusals and containment together; no detection watches
+> those kinds, so the response cannot feed the detector (asserted).
+> The responder is duck-typed and deliberately NOT auto-wired —
+> which object owns which action is an application's decision, and
+> the guard executes against a double. No rollback verb: undoing a
+> containment is a new decision, the same reasoning as forward-only
+> incident status. Guard: `security_response_narrated.ring` (27,
+> whose last scene prints the entire six-phase circle). Narration:
+> `narrations/stz-security-response-narration.md`.
 
 ---
 
@@ -575,8 +599,11 @@ green before the next begins.
   from the security graph (`PathToEffectful` added), forward-only
   status with notes, the chain head kept as evidence-about-evidence,
   and the narrated file. 32 assertions.
-- **I6 — Response.** `stzResponsePlan`: closed containment catalog,
-  preflight, audited execution, LLM-proposes / effectful-commits.
+- **I6 — Response. SHIPPED 2026-08-01.** `stzResponsePlan`: closed
+  catalog, `ProposeForIncident` deriving containment from the
+  incident's facts, preflight, audited execution both ways, outcomes
+  recorded as ledger events, LLM-proposes / effectful-commits proven.
+  27 assertions.
 - **I7 — Attest & export.** OCSF events, OTLP logs, sealed ledger +
   custody statement, CI-gate integration.
 - **I8 — The drill.** Adversary-emulation harness (the P11 load-driver

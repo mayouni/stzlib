@@ -422,6 +422,12 @@ ok
     # the security graph, the blast radius of any secret involved, and
     # a forward-only status (open -> contained -> closed).
     load "security/stzIncident.ring"
+    # I6: the response -- containment as a GOVERNED act. A closed
+    # catalog of verbs, MayCommit() preflight, execution gated on an
+    # effectful non-sandboxed actor, every outcome audited AND
+    # recorded in the ledger. The machine proposes; only an effectful
+    # actor commits.
+    load "security/stzResponsePlan.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

@@ -101,7 +101,12 @@ func StzSecurityEventKinds()
 		[ "service.production_fake_refused", "warning", "",       "a production deploy refused a virtualized service" ],
 		[ "crossworld.call.refused",      "warning", "T1068",     "a cross-world call was refused" ],
 		[ "federation.call.refused",      "warning", "T1068",     "a federated call was refused" ],
-		[ "graph.escalation_path_found",  "error",   "T1078",     "a sandboxed actor can reach an effectful capability" ]
+		[ "graph.escalation_path_found",  "error",   "T1078",     "a sandboxed actor can reach an effectful capability" ],
+		# The response is part of the story (incident I6): who contained
+		# what, and who was refused the attempt. No detection watches
+		# these kinds, so recording them cannot feed itself.
+		[ "response.action.committed",    "info",    "",          "a containment action crossed into reality" ],
+		[ "response.action.refused",      "warning", "",          "a containment action was refused -- the actor may not commit" ]
 	]
 
 func StzSecurityEventKindIsKnown(pcKind)
