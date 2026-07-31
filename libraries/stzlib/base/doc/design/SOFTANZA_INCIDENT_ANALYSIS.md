@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: PLAN OF RECORD (I0-I8, not started).** This document is the
+> **Status: I0 SHIPPED (2026-08-01); I1-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -16,6 +16,24 @@
 > `SOFTANZA_INCIDENT_VS_THE_FIELD.md` will be written when the system
 > ships, not before — comparing unbuilt things to shipped ones is how
 > design docs lie.
+>
+> **I0 delivered:** `base/security/stzSecurityEvent.ring` — the typed
+> record, the closed 30-kind catalog (each with default severity, an
+> ATT&CK technique where one maps honestly, and a meaning in words),
+> both clocks stamped at detection, the active trace id captured
+> automatically, fluent build (`ByActor/About/Doing/AtRisk/FromOrigin`
+> + `Granted/Refused/Failed`), `Record()`, `CanonicalString()` (the I1
+> chain's input), `ToOcsfJson()`, `AsLine()/Explain()/Show()`, and the
+> one-line seam forms `StzSecurityRefusal/StzSecurityGrant`. **The
+> redaction law is structural**: `About()` takes an object's
+> `Descriptor()` and this class never calls `Reveal()` — the guard
+> proves a literal secret's value is absent from the subject, the
+> canonical form, the human line and the exported JSON. Ring finding:
+> catalog kinds are STRINGS, not `:symbols` (`:a.b.c` parses as `:a`
+> plus member access). Guard: `test/system/security_event_narrated.ring`
+> (49 assertions); security suites (secret 53, secretstore 26, posture
+> 20, graph 22, authz 31) and the perf trace-scope guards re-run green.
+> Narration: `narrations/stz-security-event-narration.md`.
 
 ---
 
@@ -214,6 +232,7 @@ Witness  ->  Detect  ->  Reconstruct  ->  Contain  ->  Attest
 | `:actor` + `:posture` + `:kinds` | WHO | `stzSystemActor` |
 | `:action` + `:risk` | WHAT was attempted, at which risk tier | `stzGovernance` |
 | `:subject` | WHICH thing (secret/session/site/route/part) — a **descriptor** | the gate |
+| `:origin` | from where (ip / host / endpoint), when the seam knows it | the gate |
 | `:outcome` | `granted · refused · failed` | the gate |
 | `:reason` | the gate's own `Why()` — never re-derived | the gate |
 | `:atWall` / `:atMono` | absolute forensic time / ordering time | clocks-are-scopes |
@@ -414,9 +433,11 @@ narration (`narrations/stz-incident-*-narration.md`, every output real),
 and a narrated guard (`base/test/security/*_narrated.ring`) — and lands
 green before the next begins.
 
-- **I0 — The event.** `stzSecurityEvent`, the closed kind catalog, the
-  redaction law, wall + monotonic stamps, trace id from the active
-  scope. *(Smallest phase; it fixes the vocabulary everything else uses.)*
+- **I0 — The event. SHIPPED 2026-08-01.** `stzSecurityEvent`, the closed
+  30-kind catalog, the redaction law enforced structurally, wall +
+  monotonic stamps, trace id from the active scope, OCSF export from
+  day one. 49 assertions. *(Smallest phase; it fixes the vocabulary
+  everything else uses.)*
 - **I1 — The ledger.** Engine-backed bounded ring + sha256 hash chain +
   `Verify()`; analyst pivots (`OfActor/OfSubject/OfKind/OfTrace/Since/
   Refusals`); the standalone HMAC engine addition for keyed sealing.
