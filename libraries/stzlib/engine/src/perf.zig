@@ -603,6 +603,186 @@ pub fn perf_trace_destroy(t_opt: ?*TraceRing) callconv(.c) void {
     gpa.destroy(t);
 }
 
+// ── The metric family (perf P8: labels / dimensions) ─────────
+//
+// A family is a metric name + declared label names; each distinct
+// label-value combination is a CHILD with its own series (and, for
+// timers, histogram). The child REGISTRY lives engine-side for the
+// same reason all perf state does: children are created dynamically
+// (a route first hit after the server copied its monitor), and every
+// Ring face must resolve a label set to the SAME stores -- a Ring-side
+// registry would fork per copy.
+//
+// Cardinality is BOUNDED BY DESIGN (max_children at creation): the
+// field's cardinality explosions come from unbounded label values.
+// When the family is full, child lookup returns null and the Ring
+// face routes records to its reserved overflow child -- data is
+// never silently dropped, and the exposition shows the overflow.
+//
+// Keys are the label VALUES joined with '|' (values sanitized Ring-
+// side); bounded at FAM_KEY_MAX bytes.
+
+const FAM_KEY_MAX = 128;
+
+const hist_mod = @import("histogram.zig");
+const Histogram = hist_mod.Histogram;
+
+pub const Family = struct {
+    kind: u8, // 0 counter, 1 gauge, 2 timer (timer children get a histogram)
+    window: usize, // per-child series capacity
+    max_children: usize,
+    keys: []u8, // max_children * FAM_KEY_MAX
+    key_lens: []u8,
+    series: []?*Series,
+    hists: []?*Histogram,
+    n: usize,
+    mutex: std.Thread.Mutex,
+};
+
+pub fn perf_family_create(kind_f: f64, window_f: f64, max_children_f: f64) callconv(.c) ?*Family {
+    if (max_children_f < 1 or window_f < 1) return null;
+    const maxc: usize = @intFromFloat(max_children_f);
+    const f = gpa.create(Family) catch return null;
+    const keys = gpa.alloc(u8, maxc * FAM_KEY_MAX) catch {
+        gpa.destroy(f);
+        return null;
+    };
+    const key_lens = gpa.alloc(u8, maxc) catch {
+        gpa.free(keys);
+        gpa.destroy(f);
+        return null;
+    };
+    const series = gpa.alloc(?*Series, maxc) catch {
+        gpa.free(key_lens);
+        gpa.free(keys);
+        gpa.destroy(f);
+        return null;
+    };
+    const hists = gpa.alloc(?*Histogram, maxc) catch {
+        gpa.free(series);
+        gpa.free(key_lens);
+        gpa.free(keys);
+        gpa.destroy(f);
+        return null;
+    };
+    for (series) |*s| s.* = null;
+    for (hists) |*h| h.* = null;
+    f.* = .{ .kind = @intFromFloat(kind_f), .window = @intFromFloat(window_f), .max_children = maxc, .keys = keys, .key_lens = key_lens, .series = series, .hists = hists, .n = 0, .mutex = .{} };
+    return f;
+}
+
+// Find the slot for a key, creating it (with its stores) when new and
+// room remains. Returns the slot index, or null when full-and-new.
+fn famSlot(f: *Family, key: [*]const u8, key_len: usize) ?usize {
+    var kl = key_len;
+    if (kl > FAM_KEY_MAX) kl = FAM_KEY_MAX;
+    var i: usize = 0;
+    while (i < f.n) : (i += 1) {
+        if (f.key_lens[i] == kl and std.mem.eql(u8, f.keys[i * FAM_KEY_MAX ..][0..kl], key[0..kl])) {
+            return i;
+        }
+    }
+    if (f.n >= f.max_children) return null;
+    const slot = f.n;
+    const s = gpa.create(Series) catch return null;
+    const times = gpa.alloc(f64, f.window) catch {
+        gpa.destroy(s);
+        return null;
+    };
+    const values = gpa.alloc(f64, f.window) catch {
+        gpa.free(times);
+        gpa.destroy(s);
+        return null;
+    };
+    s.* = .{ .times = times, .values = values, .cap = f.window, .count = 0, .head = 0, .mutex = .{} };
+    f.series[slot] = s;
+    if (f.kind == 2) {
+        const h = hist_mod.histogram_create() orelse {
+            // keep the series; a timer child without a histogram still
+            // answers window stats -- but this alloc-failure path is
+            // effectively unreachable in practice
+            f.hists[slot] = null;
+            @memcpy(f.keys[slot * FAM_KEY_MAX ..][0..kl], key[0..kl]);
+            f.key_lens[slot] = @intCast(kl);
+            f.n += 1;
+            return slot;
+        };
+        f.hists[slot] = h;
+    }
+    @memcpy(f.keys[slot * FAM_KEY_MAX ..][0..kl], key[0..kl]);
+    f.key_lens[slot] = @intCast(kl);
+    f.n += 1;
+    return slot;
+}
+
+pub fn perf_family_child_series(f_opt: ?*Family, key: [*]const u8, key_len: usize) callconv(.c) ?*Series {
+    const f = f_opt orelse return null;
+    f.mutex.lock();
+    defer f.mutex.unlock();
+    const slot = famSlot(f, key, key_len) orelse return null;
+    return f.series[slot];
+}
+
+pub fn perf_family_child_hist(f_opt: ?*Family, key: [*]const u8, key_len: usize) callconv(.c) ?*Histogram {
+    const f = f_opt orelse return null;
+    f.mutex.lock();
+    defer f.mutex.unlock();
+    const slot = famSlot(f, key, key_len) orelse return null;
+    return f.hists[slot];
+}
+
+// 1 when the key already has a child OR room remains for it; 0 when
+// the family is full and the key is new (route to the overflow child).
+pub fn perf_family_can_add(f_opt: ?*Family, key: [*]const u8, key_len: usize) callconv(.c) f64 {
+    const f = f_opt orelse return 0;
+    f.mutex.lock();
+    defer f.mutex.unlock();
+    var kl = key_len;
+    if (kl > FAM_KEY_MAX) kl = FAM_KEY_MAX;
+    var i: usize = 0;
+    while (i < f.n) : (i += 1) {
+        if (f.key_lens[i] == kl and std.mem.eql(u8, f.keys[i * FAM_KEY_MAX ..][0..kl], key[0..kl])) {
+            return 1;
+        }
+    }
+    if (f.n < f.max_children) return 1;
+    return 0;
+}
+
+pub fn perf_family_size(f_opt: ?*Family) callconv(.c) f64 {
+    const f = f_opt orelse return 0;
+    f.mutex.lock();
+    defer f.mutex.unlock();
+    return @floatFromInt(f.n);
+}
+
+// 1-based, in creation order.
+pub fn perf_family_key_at(f_opt: ?*Family, i_f: f64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const f = f_opt orelse return 0;
+    f.mutex.lock();
+    defer f.mutex.unlock();
+    if (i_f < 1 or i_f > @as(f64, @floatFromInt(f.n))) return 0;
+    const i = @as(usize, @intFromFloat(i_f)) - 1;
+    var l: usize = f.key_lens[i];
+    if (l > max) l = max;
+    @memcpy(out[0..l], f.keys[i * FAM_KEY_MAX ..][0..l]);
+    return @intCast(l);
+}
+
+pub fn perf_family_destroy(f_opt: ?*Family) callconv(.c) void {
+    const f = f_opt orelse return;
+    var i: usize = 0;
+    while (i < f.n) : (i += 1) {
+        if (f.series[i]) |s| perf_series_destroy(s);
+        if (f.hists[i]) |h| hist_mod.histogram_destroy(h);
+    }
+    gpa.free(f.keys);
+    gpa.free(f.key_lens);
+    gpa.free(f.series);
+    gpa.free(f.hists);
+    gpa.destroy(f);
+}
+
 // ── tests ────────────────────────────────────────────────────
 
 test "perf: rss and peak are sane and ordered" {
@@ -686,6 +866,38 @@ test "series: exact percentile, nearest rank" {
     try std.testing.expectEqual(@as(f64, 95), perf_series_percentile(s, 95));
     try std.testing.expectEqual(@as(f64, 100), perf_series_percentile(s, 100));
     try std.testing.expectEqual(@as(f64, 1), perf_series_percentile(s, 0));
+}
+
+test "family: children are keyed, created once, bounded" {
+    const f = perf_family_create(2, 16, 3).?; // timer kind, 3 children max
+    defer perf_family_destroy(f);
+    const a = perf_family_child_series(f, "GET|/a", 6).?;
+    const b = perf_family_child_series(f, "GET|/b", 6).?;
+    try std.testing.expect(a != b);
+    // same key resolves to the SAME child
+    const a2 = perf_family_child_series(f, "GET|/a", 6).?;
+    try std.testing.expect(a == a2);
+    perf_series_record(a, 1, 10);
+    try std.testing.expectEqual(@as(f64, 10), perf_series_last(a2));
+    // timers get histograms, shared per key too
+    const ha = perf_family_child_hist(f, "GET|/a", 6).?;
+    const ha2 = perf_family_child_hist(f, "GET|/a", 6).?;
+    try std.testing.expect(ha == ha2);
+    // capacity: a third child fits, a fourth refuses
+    _ = perf_family_child_series(f, "GET|/c", 6).?;
+    try std.testing.expectEqual(@as(f64, 3), perf_family_size(f));
+    try std.testing.expect(perf_family_child_series(f, "GET|/d", 6) == null);
+    // keys read back in creation order
+    var buf: [64]u8 = undefined;
+    const n = perf_family_key_at(f, 2, &buf, buf.len);
+    try std.testing.expectEqualStrings("GET|/b", buf[0..@intCast(n)]);
+}
+
+test "family: counter kind has no histogram" {
+    const f = perf_family_create(0, 8, 2).?;
+    defer perf_family_destroy(f);
+    _ = perf_family_child_series(f, "x", 1).?;
+    try std.testing.expect(perf_family_child_hist(f, "x", 1) == null);
 }
 
 test "trace ring: record, read back, overwrite oldest" {

@@ -10,6 +10,10 @@ const rs2 = R.ring_vm_api_retstring2;
 
 const SERIES_HANDLE: [*:0]const u8 = "StzPerfSeries";
 const TRACE_HANDLE: [*:0]const u8 = "StzPerfTraceRing";
+const FAMILY_HANDLE: [*:0]const u8 = "StzPerfFamily";
+// family children carry the EXISTING tags so the established wrappers
+// (stzPerfSeries / stzLatencyHistogram) operate on them unchanged
+const HIST_HANDLE: [*:0]const u8 = "StzHistogram";
 
 var str_buf: [128]u8 = undefined;
 
@@ -175,6 +179,66 @@ fn ring_TraceDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── family (labels / dimensions) ─────────────────────────────
+
+fn getFamily(p: *anyopaque, n: c_int) ?*perf.Family {
+    const raw = R.ring_vm_api_getcpointer(p, n, FAMILY_HANDLE) orelse return null;
+    const addr = @intFromPtr(raw);
+    if (addr == 0) return null;
+    return @ptrFromInt(addr);
+}
+
+fn ring_FamilyCreate(p: *anyopaque) callconv(.c) void {
+    const handle = perf.perf_family_create(gn(p, 1), gn(p, 2), gn(p, 3));
+    if (handle) |f| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(f), FAMILY_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), FAMILY_HANDLE);
+    }
+}
+
+fn ring_FamilyCanAdd(p: *anyopaque) callconv(.c) void {
+    const key: [*]const u8 = @ptrCast(gs(p, 2));
+    const kl: usize = @intCast(gss(p, 2));
+    rn(p, perf.perf_family_can_add(getFamily(p, 1), key, kl));
+}
+
+fn ring_FamilyChildSeries(p: *anyopaque) callconv(.c) void {
+    const key: [*]const u8 = @ptrCast(gs(p, 2));
+    const kl: usize = @intCast(gss(p, 2));
+    const s = perf.perf_family_child_series(getFamily(p, 1), key, kl);
+    if (s) |sp| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(sp), SERIES_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), SERIES_HANDLE);
+    }
+}
+
+fn ring_FamilyChildHist(p: *anyopaque) callconv(.c) void {
+    const key: [*]const u8 = @ptrCast(gs(p, 2));
+    const kl: usize = @intCast(gss(p, 2));
+    const h = perf.perf_family_child_hist(getFamily(p, 1), key, kl);
+    if (h) |hp| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(hp), HIST_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), HIST_HANDLE);
+    }
+}
+
+fn ring_FamilySize(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_family_size(getFamily(p, 1)));
+}
+
+fn ring_FamilyKeyAt(p: *anyopaque) callconv(.c) void {
+    const n = perf.perf_family_key_at(getFamily(p, 1), gn(p, 2), &str_buf, str_buf.len);
+    if (n > 0) rs2(p, &str_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_FamilyDestroy(p: *anyopaque) callconv(.c) void {
+    perf.perf_family_destroy(getFamily(p, 1));
+    rn(p, 0);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzengineperfmemrss", .func = ring_PerfMemRss },
     .{ .name = "stzengineperfmempeak", .func = ring_PerfMemPeak },
@@ -206,6 +270,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineperftracewallat", .func = ring_TraceWallAt },
     .{ .name = "stzengineperftracereset", .func = ring_TraceReset },
     .{ .name = "stzengineperftracedestroy", .func = ring_TraceDestroy },
+    .{ .name = "stzengineperffamilycreate", .func = ring_FamilyCreate },
+    .{ .name = "stzengineperffamilycanadd", .func = ring_FamilyCanAdd },
+    .{ .name = "stzengineperffamilychildseries", .func = ring_FamilyChildSeries },
+    .{ .name = "stzengineperffamilychildhist", .func = ring_FamilyChildHist },
+    .{ .name = "stzengineperffamilysize", .func = ring_FamilySize },
+    .{ .name = "stzengineperffamilykeyat", .func = ring_FamilyKeyAt },
+    .{ .name = "stzengineperffamilydestroy", .func = ring_FamilyDestroy },
 };
 
 pub fn registerAll(state: *anyopaque) void {

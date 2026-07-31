@@ -52,6 +52,8 @@ class stzMetric from stzObject
 	@nWindow = 1024
 	@oSeries = NULL
 	@oHist = NULL		# timers only
+	@aLabelPairs = []	# [ [name, value], ... ] when this metric is a
+				# family CHILD (perf P8); [] on flat metrics
 
 	def init(pcName, pcKind)
 		if isString(pcName)
@@ -106,6 +108,35 @@ class stzMetric from stzObject
 
 	def Help()
 		return @cHelp
+
+	def LabelPairs()
+		return @aLabelPairs
+
+	# Family-child construction path (perf P8, internal): a child is
+	# built PAREN-LESS (no init, so no engine stores are created only
+	# to be replaced), named via _InitChild, then bound to the
+	# family's engine-owned stores. Children are reconstructed per
+	# face on cache miss -- this path must not churn engine handles.
+	def _InitChild(pcName, pcKind)
+		@cName = "" + pcName
+		@cKind = StzLower("" + pcKind)
+		return This
+
+	def _BindAdopted(pSeriesHandle, pHistHandle, paLabelPairs)
+		if @oSeries != NULL
+			@oSeries.Destroy()
+		ok
+		@oSeries = new stzPerfSeries
+		@oSeries.AdoptHandle(pSeriesHandle)
+		if @cKind = "timer"
+			if @oHist != NULL
+				@oHist.Destroy()
+			ok
+			@oHist = new stzLatencyHistogram
+			@oHist.AdoptHandle(pHistHandle)
+		ok
+		@aLabelPairs = paLabelPairs
+		return This
 
 	# -- Counter face ---------------------------------------------
 
@@ -264,19 +295,63 @@ class stzMetric from stzObject
 		ok
 		if @cKind = "counter"
 			_cOut_ += ("# TYPE " + _cN_ + "_total counter" + Char(10))
-			_cOut_ += (_cN_ + "_total " + This.Value() + Char(10))
 		but @cKind = "gauge"
 			_cOut_ += ("# TYPE " + _cN_ + " gauge" + Char(10))
-			_cOut_ += (_cN_ + " " + This.Value() + Char(10))
 		else
 			_cOut_ += ("# TYPE " + _cN_ + " summary" + Char(10))
-			_cOut_ += (_cN_ + '{quantile="0.5"} ' + This.P50() + Char(10))
-			_cOut_ += (_cN_ + '{quantile="0.95"} ' + This.P95() + Char(10))
-			_cOut_ += (_cN_ + '{quantile="0.99"} ' + This.P99() + Char(10))
-			_cOut_ += (_cN_ + "_sum " + This.SumMs() + Char(10))
-			_cOut_ += (_cN_ + "_count " + This.Count() + Char(10))
+		ok
+		_cOut_ += This._PromSampleLines()
+		return _cOut_
+
+	# The sample lines alone (no TYPE header) -- a family renders ONE
+	# header then every child's samples through this. Label pairs (on
+	# children) render inside the braces; on a timer they merge with
+	# the quantile label, Prometheus-style.
+	def _PromSampleLines()
+		This._Ensure()
+		_cN_ = This.PromName()
+		_cOut_ = ""
+		if @cKind = "counter"
+			_cOut_ += (_cN_ + "_total" + This._PromLabels("") + " " + This.Value() + Char(10))
+		but @cKind = "gauge"
+			_cOut_ += (_cN_ + This._PromLabels("") + " " + This.Value() + Char(10))
+		else
+			_cOut_ += (_cN_ + This._PromLabels('quantile="0.5"') + " " + This.P50() + Char(10))
+			_cOut_ += (_cN_ + This._PromLabels('quantile="0.95"') + " " + This.P95() + Char(10))
+			_cOut_ += (_cN_ + This._PromLabels('quantile="0.99"') + " " + This.P99() + Char(10))
+			_cOut_ += (_cN_ + "_sum" + This._PromLabels("") + " " + This.SumMs() + Char(10))
+			_cOut_ += (_cN_ + "_count" + This._PromLabels("") + " " + This.Count() + Char(10))
 		ok
 		return _cOut_
+
+	# Render the label block: pairs + an optional extra label (the
+	# quantile), escaped per the exposition format. "" when nothing.
+	def _PromLabels(pcExtra)
+		_nLen_ = ring_len(@aLabelPairs)
+		if _nLen_ = 0 and pcExtra = ""
+			return ""
+		ok
+		_cB_ = "{"
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cB_ += ","
+			ok
+			_cB_ += (@aLabelPairs[_i_][1] + '="' + This._PromEscape(@aLabelPairs[_i_][2]) + '"')
+		next
+		if pcExtra != ""
+			if _nLen_ > 0
+				_cB_ += ","
+			ok
+			_cB_ += pcExtra
+		ok
+		_cB_ += "}"
+		return _cB_
+
+	def _PromEscape(pcVal)
+		_cV_ = "" + pcVal
+		_cV_ = StzReplace(_cV_, "\", "\\")
+		_cV_ = StzReplace(_cV_, '"', '\"')
+		return _cV_
 
 	def _PromSuffix()
 		if @cKind = "counter"
@@ -288,30 +363,61 @@ class stzMetric from stzObject
 
 	def OtelMetricJson()
 		This._Ensure()
-		_cT_ = '"' + ("" + StzEngineTimeWallMs()) + '000000"'
 		_cJ_ = '{"name":"' + @cName + '"'
 		if @cHelp != ""
 			_cJ_ += (',"description":"' + @cHelp + '"')
 		ok
-		if @cKind = "counter"
-			_cJ_ += ',"sum":{"dataPoints":[{"asDouble":'
-			_cJ_ += ("" + This.Value())
-			_cJ_ += (',"timeUnixNano":' + _cT_ + '}],"aggregationTemporality":2,"isMonotonic":true}}')
-		but @cKind = "gauge"
-			_cJ_ += ',"gauge":{"dataPoints":[{"asDouble":'
-			_cJ_ += ("" + This.Value())
-			_cJ_ += (',"timeUnixNano":' + _cT_ + '}]}}')
-		else
-			_cJ_ += ',"summary":{"dataPoints":[{"count":'
-			_cJ_ += ("" + This.Count())
-			_cJ_ += (',"sum":' + This.SumMs())
-			_cJ_ += ',"quantileValues":[{"quantile":0.5,"value":'
-			_cJ_ += ("" + This.P50())
-			_cJ_ += ('},{"quantile":0.95,"value":' + This.P95())
-			_cJ_ += ('},{"quantile":0.99,"value":' + This.P99())
-			_cJ_ += ('}],"timeUnixNano":' + _cT_ + '}]}}')
-		ok
+		_cJ_ += This._OtelBodyJson("[" + This._OtelDataPointJson() + "]")
 		return _cJ_
+
+	# The kind wrapper around a dataPoints array (family reuse: one
+	# metric object, many children's data points).
+	def _OtelBodyJson(pcDataPointsArray)
+		if @cKind = "counter"
+			return ',"sum":{"dataPoints":' + pcDataPointsArray + ',"aggregationTemporality":2,"isMonotonic":true}}'
+		but @cKind = "gauge"
+			return ',"gauge":{"dataPoints":' + pcDataPointsArray + '}}'
+		ok
+		return ',"summary":{"dataPoints":' + pcDataPointsArray + '}}'
+
+	# One data point for THIS metric's current state, with its label
+	# pairs as OTel attributes (empty on flat metrics).
+	def _OtelDataPointJson()
+		This._Ensure()
+		_cT_ = '"' + ("" + StzEngineTimeWallMs()) + '000000"'
+		_cA_ = This._OtelAttrs()
+		if @cKind = "counter" or @cKind = "gauge"
+			return '{' + _cA_ + '"asDouble":' + This.Value() + ',"timeUnixNano":' + _cT_ + '}'
+		ok
+		_cP_ = '{' + _cA_ + '"count":' + This.Count()
+		_cP_ += (',"sum":' + This.SumMs())
+		_cP_ += ',"quantileValues":[{"quantile":0.5,"value":'
+		_cP_ += ("" + This.P50())
+		_cP_ += ('},{"quantile":0.95,"value":' + This.P95())
+		_cP_ += ('},{"quantile":0.99,"value":' + This.P99())
+		_cP_ += ('}],"timeUnixNano":' + _cT_ + '}')
+		return _cP_
+
+	def _OtelAttrs()
+		_nLen_ = ring_len(@aLabelPairs)
+		if _nLen_ = 0
+			return ""
+		ok
+		_cA_ = '"attributes":['
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cA_ += ","
+			ok
+			_cA_ += ('{"key":"' + @aLabelPairs[_i_][1] + '","value":{"stringValue":"' + This._JsonStrM(@aLabelPairs[_i_][2]) + '"}}')
+		next
+		_cA_ += "],"
+		return _cA_
+
+	def _JsonStrM(pcStr)
+		_cS_ = "" + pcStr
+		_cS_ = StzReplace(_cS_, "\", "\\")
+		_cS_ = StzReplace(_cS_, '"', '\"')
+		return _cS_
 
 	# -- Legibility -----------------------------------------------
 

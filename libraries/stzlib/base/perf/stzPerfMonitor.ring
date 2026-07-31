@@ -175,6 +175,20 @@ class stzPerfMonitor from stzObject
 	def NewTimer(pcName)
 		return This._Register(StzMetric(pcName, :Timer))
 
+	# The labeled forms (perf P8): a FAMILY -- one name, declared label
+	# names, one child per label-value combination. Registered in the
+	# same registry; MetricQ(name) returns the family, Child([...])
+	# picks the child. Cardinality bounded (default 64; use
+	# StzMetricFamilyXT + _Register for other bounds).
+	def NewCounterXT(pcName, paLabelNames)
+		return This._Register(StzMetricFamily(pcName, :Counter, paLabelNames))
+
+	def NewGaugeXT(pcName, paLabelNames)
+		return This._Register(StzMetricFamily(pcName, :Gauge, paLabelNames))
+
+	def NewTimerXT(pcName, paLabelNames)
+		return This._Register(StzMetricFamily(pcName, :Timer, paLabelNames))
+
 	def _Register(poMetric)
 		if This._IndexOf(poMetric.Name()) > 0
 			stzraise("stzPerfMonitor '" + @cName + "': a metric named '" + poMetric.Name() + "' is already registered.")

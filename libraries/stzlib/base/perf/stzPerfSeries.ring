@@ -36,6 +36,7 @@ class stzPerfSeries from stzObject
 
 	pHandle = NULL
 	bReady = FALSE
+	bAdopted = FALSE	# handle owned elsewhere (a family child)
 	@nCapacity = 0
 
 	def init(pnCapacity)
@@ -60,6 +61,19 @@ class stzPerfSeries from stzObject
 	def Handle()
 		This._Ensure()
 		return pHandle
+
+	# Adopt an engine series OWNED ELSEWHERE (a metric family's child,
+	# perf P8): frees any self-created handle, then reads/writes the
+	# adopted one. Destroy() will NOT free an adopted handle -- the
+	# owner (the family) frees it.
+	def AdoptHandle(pEngineHandle)
+		if bReady and NOT bAdopted
+			StzEnginePerfSeriesDestroy(pHandle)
+		ok
+		pHandle = pEngineHandle
+		bReady = TRUE
+		bAdopted = TRUE
+		return This
 
 	def Capacity()
 		This._Ensure()
@@ -161,8 +175,11 @@ class stzPerfSeries from stzObject
 
 	def Destroy()
 		if bReady = TRUE
-			StzEnginePerfSeriesDestroy(pHandle)
+			if NOT bAdopted
+				StzEnginePerfSeriesDestroy(pHandle)
+			ok
 			pHandle = NULL
 			bReady = FALSE
+			bAdopted = FALSE
 		ok
 		return This

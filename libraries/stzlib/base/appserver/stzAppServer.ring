@@ -79,6 +79,9 @@ class stzAppServer from stzObject
 	# stored monitor is a Ring COPY -- harmless by design: metric state
 	# is engine-side, so the caller's face reads what this face records.
 	@oPerfMon = NULL
+	# Per-route family face (perf P8, set by ObserveRoutes): held
+	# directly so the per-request path hits this face's child cache.
+	@oRouteFam = NULL
 
 	# Hosted agents (R5): an stzAgentHost sharing THIS server's loop
 	@oAgentHost = NULL
@@ -335,6 +338,21 @@ class stzAppServer from stzObject
 
 	def IsObserved()
 		return @oPerfMon != NULL
+
+	# Per-route observation (perf P8): Observe() PLUS a timer FAMILY
+	# 'http.route.ms' labeled [method, route, class] -- one child per
+	# route the traffic actually exercises, each with its own
+	# percentiles ('class' is the status class: 2xx/4xx/5xx).
+	# Cardinality rides the family's bound: unruly path spaces land in
+	# the overflow child instead of exploding the registry.
+	def ObserveRoutes(poMonitor)
+		This.Observe(poMonitor)
+		if NOT poMonitor.HasMetric("http.route.ms")
+			poMonitor.NewTimerXT("http.route.ms", [ "method", "route", "class" ])
+		ok
+		@oPerfMon = poMonitor          # re-copy: the family must ride this face
+		@oRouteFam = poMonitor.MetricQ("http.route.ms")
+		return This
 
 	def Use(cPath, fMiddleware)
 		@oRouter.AddMiddleware(cPath, fMiddleware)
@@ -772,15 +790,18 @@ class stzAppServer from stzObject
 		_oRct_ = @oReactor
 		_nSid_ = @nServerId
 		_oPerf_ = @oPerfMon
+		_oRFam_ = @oRouteFam
 		_nT0_ = StzEngineWatchTimestampNs()   # the request bracket opens (perf P3)
 		_oResp_ = new stzAppResponse(NULL)
 		_bClose_ = TRUE
 		_cTraceHdr_ = ""
 		_cReqPath_ = ""
+		_cReqMethod_ = ""
 		try
 			_oReq_ = This.ParseHttpRequest(aEv[3])
 			_bClose_ = _oReq_.WantsClose()
 			_cReqPath_ = This._BarePath(_oReq_.Path())
+			_cReqMethod_ = _oReq_.Method()
 			# perf P7: W3C trace identity per request when the observed
 			# monitor traces. A valid incoming traceparent joins the
 			# caller's trace (child span); otherwise a fresh trace opens
@@ -816,6 +837,12 @@ class stzAppServer from stzObject
 			if _cTraceHdr_ != ""
 				_oPerf_.RecordTrace(StzEngineTraceId(_cTraceHdr_), _cReqPath_,
 					_oResp_.StatusCode(), _nMs_)
+			ok
+			# perf P8: per-route timing -- one family child per
+			# [method, route, status-class] the traffic exercises.
+			if _oRFam_ != NULL and _cReqPath_ != ""
+				_cCls_ = "" + floor(_oResp_.StatusCode() / 100) + "xx"
+				_oRFam_.Child([ _cReqMethod_, _cReqPath_, _cCls_ ]).Record(_nMs_)
 			ok
 		ok
 		return TRUE

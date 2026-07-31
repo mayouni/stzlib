@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: COMPLETE -- P0-P7 ALL SHIPPED (2026-07-29).** This document is the
+> **Status: COMPLETE -- P0-P8 ALL SHIPPED (2026-07-29/31).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -92,8 +92,27 @@
 > the driven-load R-vs-X harness (the knee needs concurrent arrivals;
 > a multi-process driver belongs with the cluster's infra-gated
 > work). Guard: `tracing_tail_narrated.ring` (26). Narration:
-> `stz-perf-tracing-tail-narration.md`. Perf suite total: 8 guards,
-> 283 assertions.
+> `stz-perf-tracing-tail-narration.md`.
+>
+> P8 delivered (labels/dimensions -- the comparison doc's biggest
+> gap, closed): `stzMetricFamily` = one name + declared label names,
+> one CHILD per label-value set, each a full stzMetric over the
+> family's engine stores. The child REGISTRY is an engine store
+> (`perf.zig` Family) -- children born through one Ring face are
+> visible to all (the copy law, one level up); faces keep only a
+> reconstruction cache (children built paren-less + adopt, no handle
+> churn). Cardinality BOUNDED at birth with a RESERVED overflow
+> child -- full families route new label sets there, counted and
+> visible in the exposition (the alarm is the bucket growing).
+> Label-aware Prometheus (one TYPE header, `{label="value"}` sample
+> lines, quantiles merged) + OTLP (data points with attributes);
+> flat metrics render byte-identically. `Monitor.NewCounterXT/
+> NewGaugeXT/NewTimerXT`; `oSrv.ObserveRoutes(oMon)` = per-route
+> timer family `http.route.ms` [method, route, class]. Families
+> refuse to impersonate one metric (judge a Child). Guard:
+> `labels_narrated.ring` (29). Narration:
+> `stz-perf-labels-narration.md`. Perf suite total: 9 guards,
+> 312 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5
