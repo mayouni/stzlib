@@ -102,6 +102,32 @@ const Canvas = struct {
 
     /// UTF-8, rows joined by newline, NO trailing newline -- the Ring renderer ends
     /// the last line without one and callers print it as-is.
+    /// Like toString, but every row is RIGHT-TRIMMED of spaces.
+    ///
+    /// The histogram serialises this way where the bar plots pad to full width. It
+    /// is a real difference in the output, not a tidy-up: a padded row and a trimmed
+    /// row are different strings, and the parity check compares strings.
+    fn toStringTrimmed(self: *Canvas, alloc: std.mem.Allocator) ![]u8 {
+        var out = std.ArrayList(u8){};
+        errdefer out.deinit(alloc);
+        var r: usize = 0;
+        while (r < self.h) : (r += 1) {
+            var last: usize = 0;
+            var c: usize = 0;
+            while (c < self.w) : (c += 1) {
+                if (self.cells[r * self.w + c] != ' ') last = c + 1;
+            }
+            c = 0;
+            while (c < last) : (c += 1) {
+                var b: [4]u8 = undefined;
+                const n = std.unicode.utf8Encode(self.cells[r * self.w + c], &b) catch 1;
+                try out.appendSlice(alloc, b[0..n]);
+            }
+            if (r + 1 < self.h) try out.append(alloc, '\n');
+        }
+        return out.toOwnedSlice(alloc);
+    }
+
     fn toString(self: *Canvas, alloc: std.mem.Allocator) ![]u8 {
         var out = std.ArrayList(u8){};
         errdefer out.deinit(alloc);
@@ -711,4 +737,271 @@ test "an explicit bin count overrides Sturges, and a flat sample still bins" {
     try testing.expectApproxEqAbs(@as(f64, 7), edges[0], 1e-12);
     try testing.expectApproxEqAbs(@as(f64, 8), edges[nb], 1e-12);
     try testing.expectEqual(@as(u32, 3), counts[0]);
+}
+
+/// The histogram renderer's knobs.
+pub const HistOptions = extern struct {
+    bar_width: u32 = 2,
+    height: u32 = 10,
+    max_label_width: u32 = 12,
+    bar_inter_space: u32 = 1,
+    label_inter_space: u32 = 1,
+    axis_padding: u32 = 1,
+    v_axis_width: u32 = 1,
+    show_h_axis: u8 = 1,
+    show_v_axis: u8 = 1,
+    show_labels: u8 = 1,
+    show_frequency: u8 = 0,
+    show_percent: u8 = 0,
+};
+
+/// A BIN EDGE AS TEXT: round to one decimal, then compact.
+///
+/// Rounding first kills the float artefact that makes an edge print as
+/// 3.40000000004; compacting keeps a large edge short (2.7K). Whatever this returns
+/// is what gets MEASURED for the layout and what gets DRAWN, which is the whole
+/// point -- three separate formattings is what made the Ring version's labels
+/// collide with each other.
+pub fn binLabel(buf: []u8, x: f64) []const u8 {
+    const r = plotRound(x, 1);
+    const a = @abs(r);
+    if (a >= 1_000_000_000) {
+        const q = fmtNum(buf[0 .. buf.len - 1], plotRound(r / 1_000_000_000, 1), 1);
+        buf[q.len] = 'B';
+        return buf[0 .. q.len + 1];
+    }
+    if (a >= 1_000_000) {
+        const q = fmtNum(buf[0 .. buf.len - 1], plotRound(r / 1_000_000, 1), 1);
+        buf[q.len] = 'M';
+        return buf[0 .. q.len + 1];
+    }
+    if (a >= 1000) {
+        const q = fmtNum(buf[0 .. buf.len - 1], plotRound(r / 1000, 1), 1);
+        buf[q.len] = 'K';
+        return buf[0 .. q.len + 1];
+    }
+    return fmtNum(buf, r, 1);
+}
+
+/// RENDER A HISTOGRAM: bins along the bottom, frequency upward, edges beneath.
+///
+/// `counts` is one frequency per bin and `edges` is counts.len + 1 boundaries, the
+/// shape binValues produces -- so a caller can bin once and draw, or bin and never
+/// draw, or draw bins it computed itself.
+///
+/// ── THE HEIGHT IS MEASURED TWICE, ON PURPOSE ──
+///
+/// A first pass assumes the configured height and works out how tall the tallest bar
+/// would be; the layout is then REBUILT around that actual height. Without the second
+/// pass a histogram of small counts reserves a tall empty chart, which is why the Ring
+/// version does the same thing.
+///
+/// ── AND A FREQUENCY OF TWO DRAWS TWO ROWS ──
+///
+/// When the largest count fits inside the bar area the bar height IS the count, not a
+/// proportion of it. That makes the picture readable as counts -- three blocks means
+/// three observations -- and only when the counts outgrow the space does it fall back
+/// to scaling. Worth keeping: it is the difference between a histogram you can read
+/// and one you have to measure.
+pub fn renderHistogram(
+    alloc: std.mem.Allocator,
+    counts: []const u32,
+    edges: []const f64,
+    opts: HistOptions,
+) ![]u8 {
+    const nb = counts.len;
+    if (nb == 0 or edges.len < nb + 1) return PlotError.BadShape;
+
+    var maxv: u32 = 0;
+    var total: u32 = 0;
+    for (counts) |c| {
+        if (c > maxv) maxv = c;
+        total += c;
+    }
+
+    const show_lab = opts.show_labels != 0;
+    const show_val = opts.show_frequency != 0;
+    const show_pct = opts.show_percent != 0 and !show_val;
+
+    // ── bar height for a count, given the room available ──
+    const barHeightOf = struct {
+        fn f(v: u32, mx: u32, area: usize) usize {
+            if (v == 0) return 0;
+            if (mx <= area) return v; // a frequency of two draws two rows
+            const h: usize = @intFromFloat(@ceil(@as(f64, @floatFromInt(area)) *
+                @as(f64, @floatFromInt(v)) / @as(f64, @floatFromInt(mx))));
+            return @max(@as(usize, 1), h);
+        }
+    }.f;
+
+    // ── pass one: how tall does this actually need to be? ──
+    const est = if (opts.height == 0) 20 else opts.height;
+    const area1 = if (show_val or show_pct) est - 1 - 2 else est - 1 - 1;
+    var tallest: usize = 0;
+    for (counts) |c| {
+        const h = barHeightOf(c, maxv, area1);
+        if (h > tallest) tallest = h;
+    }
+    var required = tallest + 2; // one row for values above, one for the axis
+    if (show_lab) required += 2; // two label rows: bin starts, then bin ends
+
+    const axis_row = required;
+    const bars_area_h = required - 2;
+    const total_rows = if (show_lab) required + 2 else required;
+
+    // ── widths: an element is as wide as the widest thing that must sit in it ──
+    var lbuf: [64]u8 = undefined;
+    var rbuf: [64]u8 = undefined;
+    const ew = try alloc.alloc(usize, nb);
+    defer alloc.free(ew);
+    for (0..nb) |i| {
+        var w: usize = opts.bar_width;
+        if (show_lab) {
+            const l1 = binLabel(&lbuf, edges[i]);
+            const l2 = binLabel(&rbuf, edges[i + 1]);
+            var lw = @max(cpLen(l1), cpLen(l2));
+            if (lw > opts.max_label_width) lw = opts.max_label_width;
+            if (lw > w) w = lw;
+        }
+        if (show_val) {
+            const t = fmtNum(&lbuf, @floatFromInt(counts[i]), 1);
+            if (t.len > w) w = t.len;
+        } else if (show_pct and total > 0) {
+            const t = fmtPct(&lbuf, @as(f64, @floatFromInt(counts[i])) * 100 /
+                @as(f64, @floatFromInt(total)));
+            if (t.len > w) w = t.len;
+        }
+        ew[i] = w;
+    }
+    const gap = opts.bar_inter_space + opts.label_inter_space;
+    var area_w: usize = 0;
+    for (ew) |w| area_w += w;
+    if (nb > 1) area_w += gap * (nb - 1);
+
+    const v_axis_col: usize = 1;
+    const v_axis_end = v_axis_col + opts.v_axis_width - 1;
+    var bars_start = v_axis_end + 1;
+    if (opts.show_v_axis != 0) bars_start += opts.axis_padding;
+    const bars_end = bars_start + area_w - 1;
+    const h_axis_start: usize = if (opts.show_v_axis != 0) v_axis_end + opts.axis_padding else v_axis_col;
+    const h_axis_end = bars_end + opts.axis_padding;
+    const total_w = h_axis_end + 1;
+
+    var cv = try Canvas.init(alloc, total_w, total_rows);
+    defer cv.deinit();
+
+    if (opts.show_v_axis != 0) {
+        cv.put(1, v_axis_col, CH_VARROW);
+        var r: usize = 2;
+        while (r < axis_row) : (r += 1) cv.put(r, v_axis_col, CH_VAXIS);
+    }
+    if (opts.show_h_axis != 0) {
+        var c = h_axis_start;
+        while (c <= h_axis_end) : (c += 1) cv.put(axis_row, c, CH_HAXIS);
+        if (opts.show_v_axis != 0) cv.put(axis_row, v_axis_col, CH_ORIGIN);
+        cv.put(axis_row, h_axis_end, CH_HARROW);
+    }
+
+    var x = bars_start;
+    for (0..nb) |i| {
+        const h = barHeightOf(counts[i], maxv, bars_area_h);
+        const bx = x + (ew[i] - opts.bar_width) / 2;
+        var j: usize = 1;
+        while (j <= h) : (j += 1) {
+            const rr = axis_row - j;
+            if (rr < 1) break;
+            var k: usize = 0;
+            while (k < opts.bar_width) : (k += 1) cv.put(rr, bx + k, CH_BAR);
+        }
+
+        if (show_val or show_pct) {
+            const t = if (show_val)
+                fmtNum(&lbuf, @floatFromInt(counts[i]), 1)
+            else
+                fmtPct(&lbuf, if (total > 0) @as(f64, @floatFromInt(counts[i])) * 100 /
+                    @as(f64, @floatFromInt(total)) else 0);
+            const vr = if (axis_row > h + 1) axis_row - h - 1 else 1;
+            const off = if (ew[i] > t.len) (ew[i] - t.len) / 2 else 0;
+            cv.putText(vr, x + off, t);
+        }
+
+        if (show_lab) {
+            const l1 = binLabel(&lbuf, edges[i]);
+            const w1 = cpLen(l1);
+            const o1 = if (ew[i] > w1) (ew[i] - w1) / 2 else 0;
+            cv.putText(axis_row + 1, x + o1, l1);
+
+            const l2 = binLabel(&rbuf, edges[i + 1]);
+            const w2 = cpLen(l2);
+            const o2 = if (ew[i] > w2) (ew[i] - w2) / 2 else 0;
+            cv.putText(axis_row + 2, x + o2, l2);
+        }
+
+        if (i + 1 < nb) x += ew[i] + gap;
+    }
+
+    return cv.toStringTrimmed(alloc);
+}
+
+test "a histogram renders exactly what the Ring implementation rendered" {
+    const alloc = testing.allocator;
+    // the counts and edges stzHistogram produces for [1,2,2,3,3,3,4,4,5]
+    const counts = [_]u32{ 1, 2, 3, 2, 1 };
+    const edges = [_]f64{ 1, 1.8, 2.6, 3.4000000000000004, 4.2, 5 };
+    const out = try renderHistogram(alloc, &counts, &edges, .{});
+    defer alloc.free(out);
+
+    // ground truth captured from stzHistogram. Note the rows are RIGHT-TRIMMED --
+    // unlike the bar plots, which pad every row to the full width.
+    const want =
+        "▲" ++ "\n" ++
+        "│" ++ "\n" ++
+        "│" ++ "\n" ++
+        "│           ██" ++ "\n" ++
+        "│      ██   ██   ██" ++ "\n" ++
+        "│ ██   ██   ██   ██   ██" ++ "\n" ++
+        "╰────────────────────────►" ++ "\n" ++
+        "   1   1.8  2.6  3.4  4.2" ++ "\n" ++
+        "  1.8  2.6  3.4  4.2   5";
+    try testing.expectEqualStrings(want, out);
+
+    // and the float artefact never reaches a label: 3.4000000000000004 prints 3.4
+    try testing.expect(std.mem.indexOf(u8, out, "3.40000") == null);
+}
+
+test "a frequency of two draws two rows, until the counts outgrow the space" {
+    const alloc = testing.allocator;
+    // small counts: the bar height IS the count, so the picture reads as counts
+    const small = [_]u32{ 1, 3, 2 };
+    const e3 = [_]f64{ 0, 1, 2, 3 };
+    const a = try renderHistogram(alloc, &small, &e3, .{});
+    defer alloc.free(a);
+    var rows = std.mem.splitScalar(u8, a, '\n');
+    var nrows: usize = 0;
+    while (rows.next()) |_| nrows += 1;
+    // tallest bar 3 -> required 3 + 2 + 2 = 7, plus two label rows = 9
+    try testing.expectEqual(@as(usize, 9), nrows);
+
+    // large counts: they cannot fit, so the bars scale instead -- and the chart does
+    // NOT grow to a hundred rows
+    const big = [_]u32{ 10, 100, 40 };
+    const b = try renderHistogram(alloc, &big, &e3, .{});
+    defer alloc.free(b);
+    var rows2 = std.mem.splitScalar(u8, b, '\n');
+    var nrows2: usize = 0;
+    while (rows2.next()) |_| nrows2 += 1;
+    try testing.expect(nrows2 < 20);
+}
+
+test "bin labels compact only when they need to" {
+    var buf: [64]u8 = undefined;
+    try testing.expectEqualStrings("1", binLabel(&buf, 1));
+    try testing.expectEqualStrings("1.8", binLabel(&buf, 1.8));
+    try testing.expectEqualStrings("3.4", binLabel(&buf, 3.4000000000000004));
+    try testing.expectEqualStrings("5", binLabel(&buf, 5));
+    try testing.expectEqualStrings("1.2K", binLabel(&buf, 1200));
+    try testing.expectEqualStrings("2K", binLabel(&buf, 2000));
+    try testing.expectEqualStrings("2.7K", binLabel(&buf, 2666.6666));
+    try testing.expectEqualStrings("1.2M", binLabel(&buf, 1234567));
+    try testing.expectEqualStrings("1B", binLabel(&buf, 1000000000));
 }
