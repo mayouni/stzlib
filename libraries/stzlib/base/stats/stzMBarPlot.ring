@@ -548,7 +548,69 @@ class stzMBarPlot from stzBarPlot
 
 	# --- Override Main Methods ---
 
+	# THE GROUPED PICTURE, rendered by the engine.
+	#
+	# Three subclasses inherit this method -- stzMultiBarChart, stzMBarChart and
+	# stzMultiBarPlot -- so they all move together, which is the SAFE direction.
+	# The unsafe direction is a subclass inheriting a BASE method that moved: that
+	# is how stzHBarPlot started drawing vertical bars.
+	#
+	# THE LEGEND SETS THE WIDTH here, which is why it cannot be left to a host to
+	# bolt on afterwards: three series named Sales, Costs and Profit need 31
+	# columns of legend under a chart whose bars occupy 32, and a fourth series
+	# would make the legend the wider of the two. The engine lays out both together.
 	def ToString()
+		if @nSeries = 0
+			return ""
+		ok
+
+		# VALUES SERIES-MAJOR: series s, category c at s * nCategories + c
+		_aFlat_ = []
+		for _s_ = 1 to @nSeries
+			_aV_ = @aSeriesData[_s_][:Values]
+			for _c_ = 1 to @nCategories
+				if _c_ <= len(_aV_)
+					_aFlat_ + _aV_[_c_]
+				else
+					_aFlat_ + 0
+				ok
+			next
+		next
+
+		_cSeries_ = ""
+		for _i_ = 1 to len(@acSeriesNames)
+			if _i_ > 1
+				_cSeries_ += nl
+			ok
+			_cSeries_ += @acSeriesNames[_i_]
+		next
+
+		_cCats_ = ""
+		for _i_ = 1 to len(@acCategories)
+			if _i_ > 1
+				_cCats_ += nl
+			ok
+			_cCats_ += @acCategories[_i_]
+		next
+
+		_aOpts_ = [
+			@nBarWidth, @nHeight, @nSeriesSpace, @nCategorySpace,
+			@nMaxLabelWidth, @nVAxisWidth, @nAxisPadding,
+			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
+			iff(@bShowLabels, 1, 0), iff(@bShowAxisLabels, 1, 0),
+			iff(@bShowLegend, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotMBar(_aFlat_, @nSeries, @nCategories,
+			_cSeries_, _cCats_, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzMBarPlot: the engine could not render this plot.")
+		ok
+		return _cOut_
+
+	# The Ring renderer this was ported from, kept so the guard can prove the two
+	# agree character for character.
+	def ToStringInRing()
 		if @nSeries = 0
 			return ""
 		ok

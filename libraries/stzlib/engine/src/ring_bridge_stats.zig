@@ -1583,6 +1583,53 @@ fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
 //   barWidth, height, maxLabelWidth, barInterSpace, labelInterSpace,
 //   axisPadding, vAxisWidth, showHAxis, showVAxis, showLabels,
 //   showFrequency, showPercent
+//   StzEnginePlotMBar(aValuesFlat, nSeries, nCats, cSeriesJoined, cCatsJoined, aOptions)
+//     -> the finished text
+//
+// aValuesFlat is series-major: series s, category c at s * nCats + c.
+// aOptions order matches plot.MBarOptions:
+//   barWidth, height, seriesSpace, categorySpace, maxLabelWidth, vAxisWidth,
+//   axisPadding, showHAxis, showVAxis, showLabels, showAxisLabels, showLegend
+fn ring_PlotMBar(p: *anyopaque) callconv(.c) void {
+    const vals = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(vals);
+    const ns: usize = @intFromFloat(g(p, 2));
+    const nc: usize = @intFromFloat(g(p, 3));
+    if (ns == 0 or nc == 0 or vals.len < ns * nc) {
+        rs(p, "");
+        return;
+    }
+    const snames = strParam(p, 4);
+    const cats = strParam(p, 5);
+
+    var opts = plot_mod.MBarOptions{};
+    if (listToF64(p, 6)) |o| {
+        defer allocator.free(o);
+        if (o.len > 0) opts.bar_width = @intFromFloat(o[0]);
+        if (o.len > 1) opts.height = @intFromFloat(o[1]);
+        if (o.len > 2) opts.series_space = @intFromFloat(o[2]);
+        if (o.len > 3) opts.category_space = @intFromFloat(o[3]);
+        if (o.len > 4) opts.max_label_width = @intFromFloat(o[4]);
+        if (o.len > 5) opts.v_axis_width = @intFromFloat(o[5]);
+        if (o.len > 6) opts.axis_padding = @intFromFloat(o[6]);
+        if (o.len > 7) opts.show_h_axis = if (o[7] != 0) 1 else 0;
+        if (o.len > 8) opts.show_v_axis = if (o[8] != 0) 1 else 0;
+        if (o.len > 9) opts.show_labels = if (o[9] != 0) 1 else 0;
+        if (o.len > 10) opts.show_axis_labels = if (o[10] != 0) 1 else 0;
+        if (o.len > 11) opts.show_legend = if (o[11] != 0) 1 else 0;
+    }
+
+    const txt = plot_mod.renderMBar(allocator, vals, ns, nc, snames, cats, opts) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(txt);
+    rs2(p, txt.ptr, @intCast(txt.len));
+}
+
 fn ring_PlotHistogram(p: *anyopaque) callconv(.c) void {
     const cf = listToF64(p, 1) orelse {
         rs(p, "");
@@ -2991,6 +3038,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
     .{ .name = "stzengineplotbar", .func = &ring_PlotBar },
     .{ .name = "stzengineplothbar", .func = &ring_PlotHBar },
+    .{ .name = "stzengineplotmbar", .func = &ring_PlotMBar },
     .{ .name = "stzengineplothistogram", .func = &ring_PlotHistogram },
     .{ .name = "stzenginebinvalues", .func = &ring_BinValues },
     .{ .name = "stzengineframedescribe", .func = &ring_FrameDescribe },
