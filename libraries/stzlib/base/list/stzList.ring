@@ -3831,7 +3831,11 @@ class stzList from stzObject
 			for _jSbg_ = 1 to _nSbg_
 				if _iSbg_ != _jSbg_ and isString(_aSbg_[_jSbg_]) and
 				   _aSbg_[_iSbg_] != _aSbg_[_jSbg_] and
-				   StzFindFirst(_aSbg_[_iSbg_], _aSbg_[_jSbg_]) > 0
+				   StzFindFirst(_aSbg_[_jSbg_], _aSbg_[_iSbg_]) > 0
+					# i is a SubStrong when it CONTAINS j -- so j is the
+					# NEEDLE and i the haystack. The two calls here and in
+					# SubStrinks were transposed, so each method returned
+					# the other's answer.
 					_aSbgRes_ + _aSbg_[_iSbg_]
 					exit
 				ok
@@ -3848,7 +3852,9 @@ class stzList from stzObject
 			for _jSbk_ = 1 to _nSbk_
 				if _iSbk_ != _jSbk_ and isString(_aSbk_[_jSbk_]) and
 				   _aSbk_[_iSbk_] != _aSbk_[_jSbk_] and
-				   StzFindFirst(_aSbk_[_jSbk_], _aSbk_[_iSbk_]) > 0
+				   StzFindFirst(_aSbk_[_iSbk_], _aSbk_[_jSbk_]) > 0
+					# ...and i is a SubStrink when it is CONTAINED IN j:
+					# i is the needle, j the haystack. The mirror.
 					_aSbkRes_ + _aSbk_[_iSbk_]
 					exit
 				ok
