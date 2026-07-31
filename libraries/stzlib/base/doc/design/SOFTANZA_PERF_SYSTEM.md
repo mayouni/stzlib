@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: COMPLETE -- P0-P10 ALL SHIPPED (2026-07-29/31).** This document is the
+> **Status: COMPLETE -- P0-P11 ALL SHIPPED (2026-07-29 .. 08-01).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -147,8 +147,25 @@
 > (sampled weights when sampling ran, else self-ms). Statistical
 > validity proven live: a 40ms:10ms two-frame workload sampled
 > 41:10. Guard: `frame_profiler_narrated.ring` (19). Narration:
-> `stz-perf-frame-profiler-narration.md`. Perf suite total:
-> 11 guards, 355 assertions.
+> `stz-perf-frame-profiler-narration.md`.
+>
+> P11 delivered (the driven-load harness -- the last ruled deferral,
+> overturned: concurrency needed processes, not a second machine):
+> `stzLoadDriver` spawns a target stzAppServer child (a /work handler
+> burning D ms of REAL CPU -- a sleeping handler saturates nothing)
+> and N driver children firing independently -- true concurrent
+> arrivals, queueing at the listener, client-observed R
+> (arrival-to-answer: connect + queue wait + service, the wait the
+> server bracket cannot see), durations home via stdout into an
+> engine series for exact percentiles. `Curve([1,3,8])` -> the
+> textbook shape measured live: X sub-linear (9.6 -> 22.2 -> 42.3
+> req/s), R super-linear (6.4 -> 9.9 -> 27.7 ms), p95 punished
+> first; the narrated knee: "8x the drivers bought 4.4x the
+> throughput at 4.4x the response time -- past saturation, added
+> load buys only waiting." Guard: `driven_load_narrated.ring` (11,
+> real processes, ~10s, self-budgeted). Narration:
+> `stz-perf-driven-load-narration.md`. Perf suite total: 12 guards,
+> 366 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5

@@ -500,6 +500,10 @@ ok
 # photographing the active path, folded-stacks flame-graph export.
 # (The stzProfiler name is the P0 fossil's, resurrected on the engine.)
     load "perf/stzProfiler.ring"
+# P11: the driven-load harness -- real concurrent arrivals via real
+# driver PROCESSES against a spawned target server: the R-vs-X curve
+# and its knee, measured from the client side (queue wait included).
+    load "perf/stzLoadDriver.ring"
 
 # Loading files related to the FILE module
 
