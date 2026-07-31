@@ -5672,7 +5672,17 @@ func @StzInfereTypeName(cStr)
 		return _cR_
 	ok
 
-	if StzFindFirst(_c_, "list") > 0 or StzFindFirst(_c_, "pair") > 0
+	# NEEDLE FIRST, and a PREFIX -- both were wrong here.
+	# `StzFindFirst(_c_, "list")` asks "does the type name appear inside
+	# the word 'list'", true only when the name IS a substring of it, so
+	# "lists" and "pairs" -- the plural forms this function exists to
+	# resolve -- fell through to :Unknown while "list" worked. The
+	# neighbouring stzlist branch already uses StartsWith, and the
+	# pre-refactor original (stzString_monolithic InfereType) tested
+	# `cStr = :lists or BeginsWith(:List)`, so prefix is the intended
+	# semantics -- and it is also the safe one: a "contains" test would
+	# call "blacklist" a :List.
+	if StartsWith(_c_, "list") or StartsWith(_c_, "pair")
 		return :List
 	ok
 
