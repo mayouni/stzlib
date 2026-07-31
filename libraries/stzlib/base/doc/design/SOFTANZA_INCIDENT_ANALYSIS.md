@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I6 SHIPPED (2026-08-01); I7-I8 planned.** This document is the
+> **Status: I0-I7 SHIPPED (2026-08-01); I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -166,6 +166,26 @@
 > incident status. Guard: `security_response_narrated.ring` (27,
 > whose last scene prints the entire six-phase circle). Narration:
 > `narrations/stz-security-response-narration.md`.
+>
+> **I7 delivered:** `base/security/stzSecurityAttestation.ring` — the
+> custody statement (attestor, time, entry count, chain head, the seal
+> described in words, the verification instruction, and the
+> descriptors-only note), written into the sealed file's header
+> (`SealAttestedTo`) so `StzVerifyAttestation` reports WHO attested
+> and WHEN alongside the chain/seal verdicts — which stay
+> distinguishable (wrong key vs edited file, both guarded). EXPORT IS
+> GOVERNED BY `sensing`, not `effectful`: the ledger is a map of what
+> is worth attacking, so reading it out is capability-gated — an
+> LLMActor is refused (recorded as `evidence.export_refused`), a
+> GuardianActor may, and the export itself is an event
+> (`evidence.exported`); two kinds added to the I0 catalog. Batch
+> interop on the ledger: `ToOcsfNdJson()` (collector stream),
+> `ToOcsfJson()` (array), `ToOtelLogsJson()` (the same envelope
+> stzLog ships since perf P9). `stzIncident.ToOcsfFindingJson()` —
+> OCSF Security Finding class 2001, with attack path, secrets and
+> chain head in `unmapped`. The redaction law re-checked at every
+> export. Guard: `security_attest_narrated.ring` (34). Narration:
+> `narrations/stz-security-attestation-narration.md`.
 
 ---
 
@@ -604,8 +624,12 @@ green before the next begins.
   incident's facts, preflight, audited execution both ways, outcomes
   recorded as ledger events, LLM-proposes / effectful-commits proven.
   27 assertions.
-- **I7 — Attest & export.** OCSF events, OTLP logs, sealed ledger +
-  custody statement, CI-gate integration.
+- **I7 — Attest & export. SHIPPED 2026-08-01.** The custody statement
+  over a sealed ledger, export governed by `sensing` (an LLM may
+  analyze in-process, not write the evidence out), OCSF batch +
+  NDJSON, OTLP logs, the incident as an OCSF Security Finding. 34
+  assertions. *(CI-gate integration needed no work: detections have
+  emitted the unified finding shape into `stzRuleReport` since I3.)*
 - **I8 — The drill.** Adversary-emulation harness (the P11 load-driver
   pattern pointed at security): spawn a real app, fire real bad
   sequences — credential stuffing, nonce replay, escalation attempt —
