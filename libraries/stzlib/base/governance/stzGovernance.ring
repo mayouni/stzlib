@@ -18,43 +18,53 @@
 
 
 
-# THE LINEAGE LIVES IN A TABLE, NOT IN AN ATTRIBUTE.
+# THE WHOLE GOVERNANCE LIVES IN A TABLE, NOT IN ATTRIBUTES.
 #
 # Ring's `=` and attribute-stores COPY, so a governance handed to an
-# agent host, a constellation or a federation becomes a SNAPSHOT there.
-# For the regime (risks, permissions, authorities, postures) that
-# forking fails CLOSED -- a permission the copy never saw is a
-# permission refused -- which is why it stayed in attributes and why
-# this was a caveat rather than an emergency.
+# agent host, a constellation or a federation used to become a SNAPSHOT
+# there -- and every later change on the caller's own handle was
+# invisible to the object that actually judges.
 #
-# The lineage does not have that mercy. It is a RECORD, and a record
-# that forks does not fail closed or open: it silently answers a
-# different question than the one asked. Decisions taken through the
-# host's copy were invisible to the caller's own handle and vice versa,
-# so `NumberOfDecisions()` returned a number that was true of one face
-# and of no other -- and an audit trail that is true of one face is not
-# an audit trail. With the rows in a table keyed by id, every copy IS
-# the lineage.
+# THE LINEAGE MOVED FIRST, because a forked RECORD fails neither open
+# nor closed: it silently answers a different question than the one
+# asked, so `NumberOfDecisions()` returned a number true of one face
+# and of no other. An audit trail true of one face is not an audit
+# trail.
+#
+# THE REGIME FOLLOWED IT. Its forking fails CLOSED -- a permission the
+# copy never saw is a permission refused -- which is survivable, and
+# was the argument for leaving it in attributes. But survivable is not
+# the same as correct, and the cost was paid in a workaround the whole
+# library had to know: "CHAIN config calls, never assign-then-mutate",
+# because `oGov = oHost.GovernanceQ()` followed by `oGov.GrantPermission(..)`
+# quietly reached nothing. A rule every caller must remember in order
+# not to be silently wrong is a defect with good manners. With the
+# regime in the table the workaround is simply unnecessary.
 #
 # Same shape as $aStzServiceRegistries, for the same reason, and the
 # same reason the security ledger's current slot lives in the engine:
 # state that must not fork does not belong in a copied object.
-# [ [ id, rows, capacity, dropped ], ... ]
-$aStzGovernanceLineages = []
+#
+# WHAT STAYED AN ATTRIBUTE, and why: @cName (identity, not governed
+# state) and @cWhy -- the answer to the last question THIS FACE asked.
+# Sharing @cWhy would let one face's question overwrite another face's
+# answer between the call and the read, which is the one place where
+# forking is the correct behaviour.
+#
+# [ [ id, lineage, capacity, dropped, risks, permissions, authorities,
+#     commitments, decommissions, postures ], ... ]
+$aStzGovernances = []
 $nStzGovernanceSeq = 0
 
 class stzGovernance from stzObject
 
 	@cName = ""
-	@aRisks = []          # [ action, tier 1..4 ]
-	@aPermissions = []    # CAN:    [ actor, action ]
-	@aAuthorities = []    # SHOULD: [ actor, type ]
-	@aCommitments = []    # [ id, state, history(list) ]
-	@aDecommissions = []  # [ actor, obligations(list), fulfilled(list) ]
-	@aPostures = []       # [ executor, trusted|external|sandboxed ]
+	# The answer to the LAST QUESTION THIS FACE ASKED -- deliberately NOT
+	# in the table. Sharing it would let one face's question overwrite
+	# another face's answer between the call and the read.
 	@cWhy = ""
-	# The slot in $aStzGovernanceLineages. An ID survives Ring's copy; a
-	# list does not. Materialized EAGERLY in init(), never lazily -- a
+	# The slot in $aStzGovernances. An ID survives Ring's copy; a list
+	# does not. Materialized EAGERLY in init(), never lazily -- a
 	# lazily-created handle is created once PER COPY and forks silently,
 	# which is the exact failure this table exists to remove.
 	@nId = 0
@@ -63,13 +73,12 @@ class stzGovernance from stzObject
 		@cName = "" + pcName
 		$nStzGovernanceSeq = $nStzGovernanceSeq + 1
 		@nId = $nStzGovernanceSeq
-		# [ id, rows, capacity, dropped ]. The lineage is BOUNDED, and says
-		# so: an unbounded list that grows for the life of a long-running
-		# process is a leak wearing an audit trail's clothes, and a bounded
-		# one that drops SILENTLY is worse, because the gap reads as a
-		# period when nothing was decided. The dropped count is the
-		# difference between the two.
-		$aStzGovernanceLineages + [ @nId, [], 512, 0 ]
+		$aStzGovernances + This._EmptySlot(@nId)
+
+	# [ id, lineage, capacity, dropped, risks, permissions, authorities,
+	#   commitments, decommissions, postures ]
+	def _EmptySlot(pnId)
+		return [ pnId, [], 512, 0, [], [], [], [], [], [] ]
 
 	def SetName(pcName)
 		@cName = "" + pcName
@@ -87,22 +96,26 @@ class stzGovernance from stzObject
 			stzraise("Risk tiers run 1 (low) to 4 (critical).")
 		ok
 		_cA_ = StzLower(ring_trim("" + pcAction))
-		_n_ = len(@aRisks)
+		_aRisks_ = This._Risks()
+		_n_ = len(_aRisks_)
 		for _i_ = 1 to _n_
-			if @aRisks[_i_][1] = _cA_
-				@aRisks[_i_][2] = nTier
+			if _aRisks_[_i_][1] = _cA_
+				_aRisks_[_i_][2] = nTier
+				This._SetRisks(_aRisks_)
 				return This
 			ok
 		next
-		@aRisks + [ _cA_, nTier ]
+		_aRisks_ + [ _cA_, nTier ]
+		This._SetRisks(_aRisks_)
 		return This
 
 	def RiskOf(pcAction)
 		_cA_ = StzLower(ring_trim("" + pcAction))
-		_n_ = len(@aRisks)
+		_aRisks_ = This._Risks()
+		_n_ = len(_aRisks_)
 		for _i_ = 1 to _n_
-			if @aRisks[_i_][1] = _cA_
-				return @aRisks[_i_][2]
+			if _aRisks_[_i_][1] = _cA_
+				return _aRisks_[_i_][2]
 			ok
 		next
 		return 0   # undeclared
@@ -112,21 +125,24 @@ class stzGovernance from stzObject
 	def GrantPermission(pcActor, pcAction)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cAn_ = StzLower(ring_trim("" + pcAction))
-		_n_ = len(@aPermissions)
+		_aPerms_ = This._Perms()
+		_n_ = len(_aPerms_)
 		for _i_ = 1 to _n_
-			if @aPermissions[_i_][1] = _cAc_ and @aPermissions[_i_][2] = _cAn_
+			if _aPerms_[_i_][1] = _cAc_ and _aPerms_[_i_][2] = _cAn_
 				return This
 			ok
 		next
-		@aPermissions + [ _cAc_, _cAn_ ]
+		_aPerms_ + [ _cAc_, _cAn_ ]
+		This._SetPerms(_aPerms_)
 		return This
 
 	def HasPermission(pcActor, pcAction)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cAn_ = StzLower(ring_trim("" + pcAction))
-		_n_ = len(@aPermissions)
+		_aPerms_ = This._Perms()
+		_n_ = len(_aPerms_)
 		for _i_ = 1 to _n_
-			if @aPermissions[_i_][1] = _cAc_ and @aPermissions[_i_][2] = _cAn_
+			if _aPerms_[_i_][1] = _cAc_ and _aPerms_[_i_][2] = _cAn_
 				return 1
 			ok
 		next
@@ -138,22 +154,26 @@ class stzGovernance from stzObject
 			stzraise("Authority is :Advisory, :Delegated, :Autonomous or :EmergencyOverride.")
 		ok
 		_cAc_ = StzLower(ring_trim("" + pcActor))
-		_n_ = len(@aAuthorities)
+		_aAuths_ = This._Auths()
+		_n_ = len(_aAuths_)
 		for _i_ = 1 to _n_
-			if @aAuthorities[_i_][1] = _cAc_
-				@aAuthorities[_i_][2] = _cT_
+			if _aAuths_[_i_][1] = _cAc_
+				_aAuths_[_i_][2] = _cT_
+				This._SetAuths(_aAuths_)
 				return This
 			ok
 		next
-		@aAuthorities + [ _cAc_, _cT_ ]
+		_aAuths_ + [ _cAc_, _cT_ ]
+		This._SetAuths(_aAuths_)
 		return This
 
 	def AuthorityOf(pcActor)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
-		_n_ = len(@aAuthorities)
+		_aAuths_ = This._Auths()
+		_n_ = len(_aAuths_)
 		for _i_ = 1 to _n_
-			if @aAuthorities[_i_][1] = _cAc_
-				return @aAuthorities[_i_][2]
+			if _aAuths_[_i_][1] = _cAc_
+				return _aAuths_[_i_][2]
 			ok
 		next
 		return ""
@@ -200,39 +220,46 @@ class stzGovernance from stzObject
 
 	def OpenCommitment(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
-		_n_ = len(@aCommitments)
+		_aCom_ = This._Commits()
+		_n_ = len(_aCom_)
 		for _i_ = 1 to _n_
-			if @aCommitments[_i_][1] = _cId_
+			if _aCom_[_i_][1] = _cId_
 				stzraise("Commitment '" + _cId_ + "' already open.")
 			ok
 		next
-		@aCommitments + [ _cId_, "exploratory", [ "exploratory" ] ]
+		_aCom_ + [ _cId_, "exploratory", [ "exploratory" ] ]
+		This._SetCommits(_aCom_)
 		return This
 
 	def AdvanceCommitment(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
-		_n_ = len(@aCommitments)
+		_aCom_ = This._Commits()
+		_n_ = len(_aCom_)
 		for _i_ = 1 to _n_
-			if @aCommitments[_i_][1] = _cId_
-				if @aCommitments[_i_][2] = "exploratory"
-					@aCommitments[_i_][2] = "provisional"
-				but @aCommitments[_i_][2] = "provisional"
-					@aCommitments[_i_][2] = "committed"
+			if _aCom_[_i_][1] = _cId_
+				if _aCom_[_i_][2] = "exploratory"
+					_aCom_[_i_][2] = "provisional"
+				but _aCom_[_i_][2] = "provisional"
+					_aCom_[_i_][2] = "committed"
 				else
 					stzraise("Commitment '" + _cId_ + "' is already COMMITTED -- the state is forward-only (regressions are new commitments, deliberately).")
 				ok
-				@aCommitments[_i_][3] + @aCommitments[_i_][2]
-				return @aCommitments[_i_][2]
+				_aHist_ = _aCom_[_i_][3]
+				_aHist_ + _aCom_[_i_][2]
+				_aCom_[_i_][3] = _aHist_
+				This._SetCommits(_aCom_)
+				return _aCom_[_i_][2]
 			ok
 		next
 		stzraise("No commitment '" + _cId_ + "'.")
 
 	def CommitmentStateOf(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
-		_n_ = len(@aCommitments)
+		_aCom_ = This._Commits()
+		_n_ = len(_aCom_)
 		for _i_ = 1 to _n_
-			if @aCommitments[_i_][1] = _cId_
-				return @aCommitments[_i_][2]
+			if _aCom_[_i_][1] = _cId_
+				return _aCom_[_i_][2]
 			ok
 		next
 		return ""
@@ -246,20 +273,26 @@ class stzGovernance from stzObject
 		for _i_ = 1 to _n_
 			_acO_ + StzLower(ring_trim("" + pacObligations[_i_]))
 		next
-		@aDecommissions + [ _cAc_, _acO_, [] ]
+		_aDec_ = This._Decomms()
+		_aDec_ + [ _cAc_, _acO_, [] ]
+		This._SetDecomms(_aDec_)
 		return This
 
 	def FulfillObligation(pcActor, pcObligation)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cO_ = StzLower(ring_trim("" + pcObligation))
-		_n_ = len(@aDecommissions)
+		_aDec_ = This._Decomms()
+		_n_ = len(_aDec_)
 		for _i_ = 1 to _n_
-			if @aDecommissions[_i_][1] = _cAc_
-				if ring_find(@aDecommissions[_i_][2], _cO_) = 0
+			if _aDec_[_i_][1] = _cAc_
+				if ring_find(_aDec_[_i_][2], _cO_) = 0
 					stzraise("'" + _cO_ + "' is not a declared obligation for '" + _cAc_ + "'.")
 				ok
-				if ring_find(@aDecommissions[_i_][3], _cO_) = 0
-					@aDecommissions[_i_][3] + _cO_
+				if ring_find(_aDec_[_i_][3], _cO_) = 0
+					_aDone_ = _aDec_[_i_][3]
+					_aDone_ + _cO_
+					_aDec_[_i_][3] = _aDone_
+					This._SetDecomms(_aDec_)
 				ok
 				return This
 			ok
@@ -269,14 +302,15 @@ class stzGovernance from stzObject
 	# retirement is EARNED: every declared obligation fulfilled first
 	def MayRetire(pcActor)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
-		_n_ = len(@aDecommissions)
+		_aDec_ = This._Decomms()
+		_n_ = len(_aDec_)
 		for _i_ = 1 to _n_
-			if @aDecommissions[_i_][1] = _cAc_
+			if _aDec_[_i_][1] = _cAc_
 				_acMissing_ = []
-				_nO_ = len(@aDecommissions[_i_][2])
+				_nO_ = len(_aDec_[_i_][2])
 				for _j_ = 1 to _nO_
-					if ring_find(@aDecommissions[_i_][3], @aDecommissions[_i_][2][_j_]) = 0
-						_acMissing_ + @aDecommissions[_i_][2][_j_]
+					if ring_find(_aDec_[_i_][3], _aDec_[_i_][2][_j_]) = 0
+						_acMissing_ + _aDec_[_i_][2][_j_]
 					ok
 				next
 				if len(_acMissing_) = 0
@@ -335,25 +369,25 @@ class stzGovernance from stzObject
 				" would keep no decisions at all.")
 		ok
 		_nSlot_ = This._Slot()
-		$aStzGovernanceLineages[_nSlot_][3] = pnMax
-		_aRows_ = $aStzGovernanceLineages[_nSlot_][2]
+		$aStzGovernances[_nSlot_][3] = pnMax
+		_aRows_ = $aStzGovernances[_nSlot_][2]
 		_nDrop_ = 0
 		while len(_aRows_) > pnMax
 			del(_aRows_, 1)
 			_nDrop_++
 		end
-		$aStzGovernanceLineages[_nSlot_][2] = _aRows_
-		$aStzGovernanceLineages[_nSlot_][4] = $aStzGovernanceLineages[_nSlot_][4] + _nDrop_
+		$aStzGovernances[_nSlot_][2] = _aRows_
+		$aStzGovernances[_nSlot_][4] = $aStzGovernances[_nSlot_][4] + _nDrop_
 		return This
 
 	def LineageCapacity()
-		return $aStzGovernanceLineages[This._Slot()][3]
+		return $aStzGovernances[This._Slot()][3]
 
 	# The count the bound cost. Zero means the lineage below is COMPLETE;
 	# anything else means the record starts later than the process did,
 	# and an auditor deserves to know which of the two they are reading.
 	def LineageDropped()
-		return $aStzGovernanceLineages[This._Slot()][4]
+		return $aStzGovernances[This._Slot()][4]
 
 	def LineageIsComplete()
 		return This.LineageDropped() = 0
@@ -408,7 +442,7 @@ class stzGovernance from stzObject
 		# THE SHARED ROWS -- read through the table, so any face sees
 		# every face's decisions.
 		def Lineage()
-			return $aStzGovernanceLineages[This._Slot()][2]
+			return $aStzGovernances[This._Slot()][2]
 
 		# ...and the same as readable records
 		def Decisions()
@@ -423,52 +457,95 @@ class stzGovernance from stzObject
 		def NumberOfDecisions()
 			return len( This.Lineage() )
 
-	# Release this governance's slot. Ring has no destructor, so this is
-	# the OWNER's explicit act -- and only the owner's: a copy calling it
-	# would free the rows every other face is still reading. Without it
-	# the table keeps one slot per governance ever constructed, which is
-	# fine for a regime that lives as long as the process and a leak for
-	# one built per request.
-	def ReleaseLineage()
-		_n_ = len($aStzGovernanceLineages)
+	# Release this governance's slot -- the regime AND the lineage. Ring
+	# has no destructor, so this is the OWNER's explicit act, and only
+	# the owner's: a copy calling it would free state every other face is
+	# still reading. Without it the table keeps one slot per governance
+	# ever constructed, which is fine for a regime that lives as long as
+	# the process and a leak for one built per request.
+	def Release()
+		_n_ = len($aStzGovernances)
 		for _i_ = 1 to _n_
-			if $aStzGovernanceLineages[_i_][1] = @nId
-				del($aStzGovernanceLineages, _i_)
+			if $aStzGovernances[_i_][1] = @nId
+				del($aStzGovernances, _i_)
 				return This
 			ok
 		next
 		return This
 
+		# named for the lineage when only the lineage was in the table
+		def ReleaseLineage()
+			return This.Release()
+
 	  #-- the table ---------------------------------------------------------
+
+	# EVERY index literal appears exactly ONCE, here. Sixty-five call
+	# sites reaching into a ten-field row by number is how a field gets
+	# read as its neighbour, silently, in one branch nobody runs.
+	def _Risks()
+		return $aStzGovernances[This._Slot()][5]
+
+	def _SetRisks(paList)
+		$aStzGovernances[This._Slot()][5] = paList
+
+	def _Perms()
+		return $aStzGovernances[This._Slot()][6]
+
+	def _SetPerms(paList)
+		$aStzGovernances[This._Slot()][6] = paList
+
+	def _Auths()
+		return $aStzGovernances[This._Slot()][7]
+
+	def _SetAuths(paList)
+		$aStzGovernances[This._Slot()][7] = paList
+
+	def _Commits()
+		return $aStzGovernances[This._Slot()][8]
+
+	def _SetCommits(paList)
+		$aStzGovernances[This._Slot()][8] = paList
+
+	def _Decomms()
+		return $aStzGovernances[This._Slot()][9]
+
+	def _SetDecomms(paList)
+		$aStzGovernances[This._Slot()][9] = paList
+
+	def _Postures()
+		return $aStzGovernances[This._Slot()][10]
+
+	def _SetPostures(paList)
+		$aStzGovernances[This._Slot()][10] = paList
 
 	def _Slot()
 		if @nId = 0
-			stzraise("stzGovernance: this object has no lineage slot -- it was " +
+			stzraise("stzGovernance: this object has no table slot -- it was " +
 				"built with a paren-less `new stzGovernance`, which skips init(). " +
 				"Use `new stzGovernance(name)`.")
 		ok
-		_n_ = len($aStzGovernanceLineages)
+		_n_ = len($aStzGovernances)
 		for _i_ = 1 to _n_
-			if $aStzGovernanceLineages[_i_][1] = @nId
+			if $aStzGovernances[_i_][1] = @nId
 				return _i_
 			ok
 		next
-		# only reachable after ReleaseLineage(); re-open rather than raise
-		$aStzGovernanceLineages + [ @nId, [], 512, 0 ]
-		return len($aStzGovernanceLineages)
+		# only reachable after Release(); re-open rather than raise
+		$aStzGovernances + This._EmptySlot(@nId)
+		return len($aStzGovernances)
 
 	# Read-modify-write, deliberately explicit: the table hands back a
 	# COPY of the rows (Ring copies on return), so an append has to be
 	# written back or it lands nowhere.
 	def _Append(paRow)
 		_nSlot_ = This._Slot()
-		_aRows_ = $aStzGovernanceLineages[_nSlot_][2]
+		_aRows_ = $aStzGovernances[_nSlot_][2]
 		_aRows_ + paRow
-		if len(_aRows_) > $aStzGovernanceLineages[_nSlot_][3]
+		if len(_aRows_) > $aStzGovernances[_nSlot_][3]
 			del(_aRows_, 1)
-			$aStzGovernanceLineages[_nSlot_][4] = $aStzGovernanceLineages[_nSlot_][4] + 1
+			$aStzGovernances[_nSlot_][4] = $aStzGovernances[_nSlot_][4] + 1
 		ok
-		$aStzGovernanceLineages[_nSlot_][2] = _aRows_
+		$aStzGovernances[_nSlot_][2] = _aRows_
 
 	def _RecordOf(paRow)
 		return [ :id = paRow[1],
@@ -498,22 +575,26 @@ class stzGovernance from stzObject
 			stzraise("A posture is :Trusted (in-process), :External (out-of-process) or :Sandboxed (LLM-composed).")
 		ok
 		_cE_ = StzLower(ring_trim("" + pcExecutor))
-		_n_ = len(@aPostures)
+		_aPos_ = This._Postures()
+		_n_ = len(_aPos_)
 		for _i_ = 1 to _n_
-			if @aPostures[_i_][1] = _cE_
-				@aPostures[_i_][2] = _cP_
+			if _aPos_[_i_][1] = _cE_
+				_aPos_[_i_][2] = _cP_
+				This._SetPostures(_aPos_)
 				return This
 			ok
 		next
-		@aPostures + [ _cE_, _cP_ ]
+		_aPos_ + [ _cE_, _cP_ ]
+		This._SetPostures(_aPos_)
 		return This
 
 	def PostureOf(pcExecutor)
 		_cE_ = StzLower(ring_trim("" + pcExecutor))
-		_n_ = len(@aPostures)
+		_aPos_ = This._Postures()
+		_n_ = len(_aPos_)
 		for _i_ = 1 to _n_
-			if @aPostures[_i_][1] = _cE_
-				return @aPostures[_i_][2]
+			if _aPos_[_i_][1] = _cE_
+				return _aPos_[_i_][2]
 			ok
 		next
 		return ""
@@ -614,24 +695,28 @@ class stzGovernance from stzObject
 		ok
 		_c_ = 'governance "' + @cName + '"' + NL
 		_c_ += "risks" + NL
-		_n_ = len(@aRisks)
+		_aSec_ = This._Risks()
+		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aRisks[_i_][1] + " | " + @aRisks[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
 		next
 		_c_ += "permissions" + NL
-		_n_ = len(@aPermissions)
+		_aSec_ = This._Perms()
+		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aPermissions[_i_][1] + " | " + @aPermissions[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
 		next
 		_c_ += "authorities" + NL
-		_n_ = len(@aAuthorities)
+		_aSec_ = This._Auths()
+		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aAuthorities[_i_][1] + " | " + @aAuthorities[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
 		next
 		_c_ += "postures" + NL
-		_n_ = len(@aPostures)
+		_aSec_ = This._Postures()
+		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aPostures[_i_][1] + " | " + @aPostures[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
 		next
 		# THE SECTION THAT WAS MISSING. Save() wrote the regime and left
 		# the lineage behind, so every reason the regime looks the way it

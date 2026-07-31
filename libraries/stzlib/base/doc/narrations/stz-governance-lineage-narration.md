@@ -4,7 +4,7 @@
 
 > Every code block below is real, and every output block is its actual
 > output (the run is `base/test/governance/governance_lineage_narrated.ring`,
-> 32 assertions, ~0.01 seconds). The finding is recorded in
+> 37 assertions, ~0.01 seconds). The finding is recorded in
 > `doc/design/SOFTANZA_INCIDENT_ANALYSIS.md` section 1.
 
 ## The comment that was making a promise
@@ -188,7 +188,69 @@ oFace.RecordDecisionAt("d-301", "shipped from the second face",
   two faces, one record
 ```
 
-Three details carry the weight.
+## Then the regime followed it
+
+The argument for leaving the regime in attributes was that its forking
+fails closed, and that argument was correct. It was also not enough.
+
+The cost was being paid somewhere else — in a rule the whole library had
+to know: **"chain config calls, never assign-then-mutate"**. It exists
+because
+
+```ring
+oGov = oHost.GovernanceQ()
+oGov.GrantPermission("release-bot", "deploy")   # reached nothing
+```
+
+quietly reached a copy. Fail-closed made that survivable rather than
+dangerous, so it became a convention instead of a bug report. **A rule
+every caller must remember in order not to be silently wrong is a defect
+with good manners.**
+
+With the regime in the table, the convention is simply unnecessary:
+
+```ring
+oOwner = new stzGovernance("deploy-ops")
+oHeld = oOwner                            # what an agent host stores
+oOwner.DeclareRisk("deploy", 3)
+oOwner.GrantPermission("release-bot", "deploy")
+oOwner.SetAuthority("release-bot", :Autonomous)
+```
+```
+  [OK] a regime declared on one face judges on the other
+  [OK] ...and a posture declared on the other is seen by the first
+  [OK] a commitment advanced through the copy advances for both
+  [OK] an obligation fulfilled through the copy earns retirement for both
+  assign-then-mutate now reaches the object that judges
+```
+
+All six lists moved — risks, permissions, authorities, commitments,
+decommissions, postures — into one ten-field row. Ten positional fields
+across sixty-five call sites is exactly how a field gets read as its
+neighbour in the one branch nobody runs, so **every index literal appears
+once**, in a pair of one-line accessors, and no method reaches into the
+row directly.
+
+## What deliberately did not move
+
+`@cName` is identity, not governed state. And `@cWhy` is the answer to
+the last question **this face** asked:
+
+```ring
+oA.MayProceed("bot", "ship")        # allowed
+oB.MayProceed("nobody", "ship")     # refused
+```
+```
+  [OK] Why() is the answer to the question THIS face asked
+```
+
+Sharing it would let one face's question overwrite another face's answer
+between the call and the read. It is the one place in this object where
+forking is the correct behaviour — which is worth stating, because
+"move everything into the table" would have been the tidier rule and the
+wrong one.
+
+## Two details carry the weight
 
 **The id is materialized eagerly, in `init()`.** A lazily-created handle
 is created once *per copy* and forks silently — which is the exact
@@ -197,18 +259,29 @@ paren-less `new stzGovernance` skips `init()` entirely, so `_Slot()`
 raises with a message that says so, rather than quietly sharing slot
 zero with every other paren-less instance.)
 
-**The regime deliberately stayed in attributes.** Moving it too would
-have been the larger, more impressive change and would have bought
-nothing this defect was about. The authority and risk a decision records
-are what the *deciding face* believed at that moment — that is precisely
-the fact being recorded — so only the rows are shared.
+**`Release()` is the owner's act alone.** Ring has no destructor, so the
+slot has to be freed explicitly; and a *copy* calling it would free
+state every other face is still reading. Without it, the table keeps one
+slot per governance ever constructed: fine for a regime that lives as
+long as the process, a leak for one built per request.
 
-**`ReleaseLineage()` is the owner's act alone.** Ring has no destructor,
-so the slot has to be freed explicitly; and a *copy* calling it would
-free the rows every other face is still reading. Without it, the table
-keeps one slot per governance ever constructed: fine for a regime that
-lives as long as the process, a leak for one built per request.
+## And the ordering was the point
+
+The lineage moved first and the regime followed, and doing it in that
+order was not caution for its own sake. The failure *direction* is what
+ranks the work:
+
+- a forked **gate** fails **open** — the emergency
+  (`stzServiceRegistry`, which is why that table exists);
+- a forked **record** fails **neither** — it answers a different
+  question, which is the lineage;
+- a forked **rule** fails **closed** — survivable, and therefore last.
+
+Moving the record first fixed the thing that had no safe direction to
+fail in, with one section changed. Moving the rules afterwards retired a
+convention the whole library had been carrying. Doing both at once would
+have been one large diff whose green suites proved less.
 
 ---
 
-Five defects behind one comment. The comment is now true.
+Six defects behind one comment. The comment is now true.
