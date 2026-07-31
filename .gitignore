@@ -35,3 +35,6 @@ _wasmsub_tmp/
 **/security/.stzdrilltarget_gen.ring
 # drill evidence seals (removed by Destroy(); ignored in case a run dies midway)
 **/_drill_*_evidence.stzledger
+# generated load-driver entries (perf P11; regenerated per run)
+**/perf/.stzloaddriver_gen.ring
+**/perf/.stzloadtarget_gen.ring

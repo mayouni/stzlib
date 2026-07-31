@@ -677,6 +677,17 @@ green before the next begins.
 - **Bounded means forgetting.** A ring buffer loses the oldest events by
   design; a long, slow campaign outruns the window unless exported.
   I1 will make the window explicit rather than pretend otherwise.
+- **Seams still unwired (the largest real gap).** I2 wired six classes;
+  OIDC token/code refusals, cross-world and federated refusals, HTTP
+  401/403 at the dispatcher, rate-limit sheds, production-fake refusals
+  and graph escalation paths remain one line each. The kinds are in the
+  catalog; the calls are not written. A detection sees only what a seam
+  emits.
+
+> **The comparison with the field now lives in its own document**, written
+> at completion as the rule requires: `SOFTANZA_INCIDENT_VS_THE_FIELD.md`
+> — SIEM, EDR/XDR, SOAR, DFIR, Sigma, RASP and the adversary-emulation
+> harnesses, with what inverts and what the field simply wins.
 
 ---
 
