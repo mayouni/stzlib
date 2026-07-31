@@ -114,6 +114,15 @@ class stzLog from stzObject
 		if isList(paFields)
 			_flds_ = paFields
 		ok
+		# perf P9: inside a trace scope (the observed server opens one
+		# around every request; StzOpenTraceScope opens one anywhere),
+		# every record stamps the active trace id -- log lines and
+		# request traces correlate with no plumbing. Outside a scope,
+		# nothing is added.
+		_cTP_ = StzEnginePerfTraceScopeGet()
+		if _cTP_ != ""
+			_flds_ + [ "traceId", StzEngineTraceId(_cTP_) ]
+		ok
 		@nSeq++
 		_entry_ = [ :seq = @nSeq, :ts = StzEngineTimeNowMs(), :level = _lvl_,
 			:category = @cName, :message = "" + pcMsg, :fields = _flds_ ]
@@ -187,6 +196,11 @@ class stzLog from stzObject
 		next
 		return _out_
 
+	# every entry stamped with this trace id (perf P9) -- the bridge
+	# from an alert's trip trace-ids to the log lines of those trips.
+	def OfTrace(pcTraceId)
+		return This.Where("traceId", pcTraceId)
+
 	# entries at or after an epoch-ms timestamp.
 	def Since(pnMs)
 		_out_ = []
@@ -242,6 +256,62 @@ class stzLog from stzObject
 	def WriteJsonToFile(pcPath)
 		write("" + pcPath, This.AsJson())
 		return This
+
+	# The OTLP logs envelope (perf P9) -- what a collector ingests at
+	# /v1/logs, completing the OTel triad (spans P0/P7, metrics P2,
+	# logs here). Each record carries timeUnixNano (exact ms + zeros),
+	# severityText/Number, the body, the fields as attributes -- and
+	# the trace id PROMOTED to the logRecord's first-class traceId
+	# field, where tracing backends expect it.
+	def OtelJson()
+		_q_ = char(34)
+		_cRecs_ = ""
+		_n_ = len(@aEntries)
+		for _i_ = 1 to _n_
+			if _i_ > 1
+				_cRecs_ += ","
+			ok
+			_cRecs_ += This._OtelLogRecordJson(@aEntries[_i_])
+		next
+		_cJ_ = '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"'
+		_cJ_ += @cName
+		_cJ_ += '"}}]},"scopeLogs":[{"scope":{"name":"softanza.log"},"logRecords":['
+		_cJ_ += _cRecs_
+		_cJ_ += ']}]}]}'
+		return _cJ_
+
+	# OTLP severityNumber: trace=1 debug=5 info=9 warn=13 error=17 fatal=21.
+	def _OtelSeverityNumber(pcLevel)
+		return 1 + StzLogLevelRank(pcLevel) * 4
+
+	def _OtelLogRecordJson(paEntry)
+		_cR_ = '{"timeUnixNano":"' + ("" + paEntry[:ts]) + '000000"'
+		_cR_ += (',"severityText":"' + upper("" + paEntry[:level]) + '"')
+		_cR_ += (',"severityNumber":' + This._OtelSeverityNumber(paEntry[:level]))
+		_cR_ += (',"body":{"stringValue":"' + This._JsonEscape(paEntry[:message]) + '"}')
+		_cTid_ = ""
+		_cAttrs_ = ""
+		_flds_ = paEntry[:fields]
+		_m_ = len(_flds_)
+		for _j_ = 1 to _m_
+			if ("" + _flds_[_j_][1]) = "traceId"
+				_cTid_ = "" + _flds_[_j_][2]
+				loop
+			ok
+			if _cAttrs_ != ""
+				_cAttrs_ += ","
+			ok
+			_cAttrs_ += ('{"key":"' + ("" + _flds_[_j_][1]) + '","value":{"stringValue":"' +
+				This._JsonEscape("" + _flds_[_j_][2]) + '"}}')
+		next
+		if _cAttrs_ != ""
+			_cR_ += (',"attributes":[' + _cAttrs_ + ']')
+		ok
+		if _cTid_ != ""
+			_cR_ += (',"traceId":"' + _cTid_ + '"')
+		ok
+		_cR_ += "}"
+		return _cR_
 
 	  #-- internals -------------------------------------------------------
 

@@ -603,6 +603,44 @@ pub fn perf_trace_destroy(t_opt: ?*TraceRing) callconv(.c) void {
     gpa.destroy(t);
 }
 
+// ── The trace scope (perf P9: log-trace correlation) ─────────
+//
+// One process-global slot holding the ACTIVE traceparent. The server
+// bracket opens the scope before dispatch and closes it after the
+// write; anything that logs meanwhile -- any stzLog, any face, any
+// object -- reads the same slot and stamps its records with the
+// trace id. Engine-global for the usual reason: a Ring-side
+// "current trace" would be per-face state and the handler's log
+// would miss it.
+
+var g_scope_buf: [64]u8 = undefined;
+var g_scope_len: usize = 0;
+var g_scope_mutex: std.Thread.Mutex = .{};
+
+pub fn perf_trace_scope_set(ptr: [*]const u8, len: usize) callconv(.c) void {
+    g_scope_mutex.lock();
+    defer g_scope_mutex.unlock();
+    var l = len;
+    if (l > g_scope_buf.len) l = g_scope_buf.len;
+    @memcpy(g_scope_buf[0..l], ptr[0..l]);
+    g_scope_len = l;
+}
+
+pub fn perf_trace_scope_get(out: [*]u8, max: usize) callconv(.c) i32 {
+    g_scope_mutex.lock();
+    defer g_scope_mutex.unlock();
+    var l = g_scope_len;
+    if (l > max) l = max;
+    @memcpy(out[0..l], g_scope_buf[0..l]);
+    return @intCast(l);
+}
+
+pub fn perf_trace_scope_clear() callconv(.c) void {
+    g_scope_mutex.lock();
+    defer g_scope_mutex.unlock();
+    g_scope_len = 0;
+}
+
 // ── The metric family (perf P8: labels / dimensions) ─────────
 //
 // A family is a metric name + declared label names; each distinct
@@ -891,6 +929,16 @@ test "family: children are keyed, created once, bounded" {
     var buf: [64]u8 = undefined;
     const n = perf_family_key_at(f, 2, &buf, buf.len);
     try std.testing.expectEqualStrings("GET|/b", buf[0..@intCast(n)]);
+}
+
+test "trace scope: set, read back, clear" {
+    perf_trace_scope_set("00-abc-def-01", 13);
+    var buf: [64]u8 = undefined;
+    var n = perf_trace_scope_get(&buf, buf.len);
+    try std.testing.expectEqualStrings("00-abc-def-01", buf[0..@intCast(n)]);
+    perf_trace_scope_clear();
+    n = perf_trace_scope_get(&buf, buf.len);
+    try std.testing.expectEqual(@as(i32, 0), n);
 }
 
 test "family: counter kind has no histogram" {
