@@ -543,7 +543,56 @@ class stzHistogram from stzObject
 	def Show()
 		? This.ToString()
 
+	# THE PICTURE, rendered by the engine.
+	#
+	# The binning and the drawing both live in plot.zig now, so a Python or C face
+	# over the engine gets a histogram, not a pile of edges it must draw itself.
+	# What stays here is what a face is for: read the configuration, cross once,
+	# hand back the text.
 	def ToString()
+		This._EnsureBins()
+		_nB_ = len(@aBinRanges)
+		if _nB_ = 0
+			return ""
+		ok
+
+		# TWO CONFIGURATIONS THE ENGINE RENDERER DOES NOT COVER YET, and it says so
+		# rather than drawing them differently.
+		#
+		# ShowStats appends mean/stddev/median/count, which are computed from the RAW
+		# DATA -- and the engine renderer is handed bins, not samples, so it cannot
+		# produce them without a wider signature. Hiding the horizontal axis triggers
+		# a post-processing step in the Ring renderer that strips a leading line.
+		#
+		# Falling back keeps the picture right. A renderer that quietly drew something
+		# close would be the worst outcome, because a wrong plot raises nothing.
+		if @bShowStats or (NOT @bShowHAxis)
+			return This.ToStringInRing()
+		ok
+
+		_aEdges_ = []
+		for _i_ = 1 to _nB_
+			_aEdges_ + @aBinRanges[_i_][1]
+		next
+		_aEdges_ + @aBinRanges[_nB_][2]
+
+		_aOpts_ = [
+			@nBarWidth, 10, @nMaxLabelWidth,
+			@nBarInterSpace, @nLabelInterSpace, @nAxisPadding, @nVAxisWidth,
+			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
+			iff(@bShowLabels, 1, 0),
+			iff(@bShowFrequency, 1, 0), iff(@bShowPercent, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotHistogram(@anValues, _aEdges_, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzHistogram: the engine could not render this histogram.")
+		ok
+		return _cOut_
+
+	# THE RING RENDERER THIS WAS PORTED FROM, verbatim, so the guard can prove the
+	# two agree character for character.
+	def ToStringInRing()
 		
 		# Use the same layout logic as bar chart
 		_oLayout_ = _calculateLayout()
@@ -612,6 +661,14 @@ class stzHistogram from stzObject
 		ok
 	
 		return _cResult_
+
+	# Bins are computed once, lazily -- the engine can also do this on its own via
+	# StzEngineBinValues, which is what a host that only wants the distribution
+	# calls.
+	def _EnsureBins()
+		if len(@aBinRanges) = 0
+			_calculateBins()
+		ok
 
 	def _calculateLayout()
 		# Calculate layout for histogram display

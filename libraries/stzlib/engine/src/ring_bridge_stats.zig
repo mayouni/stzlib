@@ -1577,6 +1577,97 @@ fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
 // aOptions order matches plot.HBarOptions:
 //   width, barHeight, maxHeight, maxLabelWidth, interSpace, axisPadding,
 //   showHAxis, showVAxis, showLabels, showAxisLabels, showValues, showPercent
+//   StzEnginePlotHistogram(aCounts, aEdges, aOptions) -> the finished text
+//
+// aOptions order matches plot.HistOptions:
+//   barWidth, height, maxLabelWidth, barInterSpace, labelInterSpace,
+//   axisPadding, vAxisWidth, showHAxis, showVAxis, showLabels,
+//   showFrequency, showPercent
+fn ring_PlotHistogram(p: *anyopaque) callconv(.c) void {
+    const cf = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(cf);
+    if (cf.len == 0) {
+        rs(p, "");
+        return;
+    }
+    const counts = allocator.alloc(u32, cf.len) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(counts);
+    for (cf, 0..) |v, i| counts[i] = @intFromFloat(v);
+
+    const edges = listToF64(p, 2) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(edges);
+
+    var opts = plot_mod.HistOptions{};
+    if (listToF64(p, 3)) |o| {
+        defer allocator.free(o);
+        if (o.len > 0) opts.bar_width = @intFromFloat(o[0]);
+        if (o.len > 1) opts.height = @intFromFloat(o[1]);
+        if (o.len > 2) opts.max_label_width = @intFromFloat(o[2]);
+        if (o.len > 3) opts.bar_inter_space = @intFromFloat(o[3]);
+        if (o.len > 4) opts.label_inter_space = @intFromFloat(o[4]);
+        if (o.len > 5) opts.axis_padding = @intFromFloat(o[5]);
+        if (o.len > 6) opts.v_axis_width = @intFromFloat(o[6]);
+        if (o.len > 7) opts.show_h_axis = if (o[7] != 0) 1 else 0;
+        if (o.len > 8) opts.show_v_axis = if (o[8] != 0) 1 else 0;
+        if (o.len > 9) opts.show_labels = if (o[9] != 0) 1 else 0;
+        if (o.len > 10) opts.show_frequency = if (o[10] != 0) 1 else 0;
+        if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
+    }
+
+    const txt = plot_mod.renderHistogram(allocator, counts, edges, opts) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(txt);
+    rs2(p, txt.ptr, @intCast(txt.len));
+}
+
+//   StzEngineBinValues(aValues, nBins) -> [ nbins, edges..., counts... ]
+//
+// Binning WITHOUT drawing: a host asking how data is distributed wants edges and
+// counts, not a picture.
+fn ring_BinValues(p: *anyopaque) callconv(.c) void {
+    const vals = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(vals);
+    if (vals.len == 0) {
+        rn(p, 0);
+        return;
+    }
+    const want: usize = @intFromFloat(g(p, 2));
+    const nb = plot_mod.binCountFor(vals.len, want);
+    const edges = allocator.alloc(f64, nb + 1) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(edges);
+    const counts = allocator.alloc(u32, nb) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(counts);
+    const got = plot_mod.binValues(vals, want, edges, counts) catch {
+        rn(p, 0);
+        return;
+    };
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(lst, @floatFromInt(got));
+    for (edges[0 .. got + 1]) |e| R.ring_list_adddouble(lst, e);
+    for (counts[0..got]) |c| R.ring_list_adddouble(lst, @floatFromInt(c));
+    R.ring_vm_api_retlist(p, lst);
+}
+
 fn ring_PlotHBar(p: *anyopaque) callconv(.c) void {
     const vals = listToF64(p, 1) orelse {
         rs(p, "");
@@ -2900,6 +2991,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
     .{ .name = "stzengineplotbar", .func = &ring_PlotBar },
     .{ .name = "stzengineplothbar", .func = &ring_PlotHBar },
+    .{ .name = "stzengineplothistogram", .func = &ring_PlotHistogram },
+    .{ .name = "stzenginebinvalues", .func = &ring_BinValues },
     .{ .name = "stzengineframedescribe", .func = &ring_FrameDescribe },
     .{ .name = "stzengineframedescribeall", .func = &ring_FrameDescribeAll },
     .{ .name = "stzengineframecorrmatrix", .func = &ring_FrameCorrMatrix },

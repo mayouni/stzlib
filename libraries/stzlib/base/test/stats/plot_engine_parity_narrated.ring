@@ -121,6 +121,26 @@ Scenario("...and CompactForm returns a number too small to abbreviate as ITSELF"
 	     StzNumberQ(1290800280).CompactForm(), "1.3B")
 EndScenario()
 
+Scenario("The histogram renders identically in the engine")
+	# binning and drawing both live in plot.zig now, so a host gets a histogram
+	# rather than a pile of edges it has to draw itself
+	Then("small integers", PpSameHist([ 1, 2, 2, 3, 3, 3, 4, 4, 5 ]), TRUE)
+	Then("...large values, whose labels compact", 
+	     PpSameHist([ 1200, 2500, 2600, 3100, 3300, 3400, 4800, 4900, 5000 ]), TRUE)
+	Then("...a sample with NO SPREAD at all", PpSameHist([ 5, 5, 5, 5 ]), TRUE)
+	Then("...and two values far apart", PpSameHist([ 1, 100 ]), TRUE)
+
+	# THE CONFIGURATIONS THE ENGINE DOES NOT COVER fall back to the Ring renderer
+	# rather than drawing something close. ShowStats needs the RAW SAMPLES to report
+	# a mean, and the engine renderer is handed bins; hiding the axis triggers a
+	# post-processing step that strips a leading line.
+	oS = new stzHistogram([ 1, 2, 2, 3, 3, 3 ])
+	oS.SetStats(TRUE)
+	Then("with stats shown, the fallback still matches itself",
+	     oS.ToString() = oS.ToStringInRing(), TRUE)
+	Then("...and the stats really are appended", PpHas(oS.ToString(), "Mean:"), TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -141,3 +161,7 @@ func PpTrim(cLine)
 
 func PpHas(cLine, cNeedle)
 	return StzFindFirst(cNeedle, cLine) > 0
+
+func PpSameHist(paData)
+	_ppH_ = new stzHistogram(paData)
+	return _ppH_.ToString() = _ppH_.ToStringInRing()
