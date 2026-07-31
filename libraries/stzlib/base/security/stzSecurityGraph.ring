@@ -158,6 +158,24 @@ class stzSecurityGraph from stzObject
 		ok
 		return @oG.PathExists(_cA_, _cCap_)
 
+	# THE PATH ITSELF, not merely whether one exists (incident I5): an
+	# investigation must be able to say HOW an actor could reach a
+	# capability -- "billing-agent -> deploy-tool -> effectful" -- and
+	# an empty list means no path.
+	def PathToCapability(pcActor, pcCapability)
+		_cA_ = StzLower(ring_trim("" + pcActor))
+		_cCap_ = StzLower(ring_trim("" + pcCapability))
+		if NOT @oG.NodeExists(_cA_) or NOT @oG.NodeExists(_cCap_)
+			return []
+		ok
+		if NOT @oG.PathExists(_cA_, _cCap_)
+			return []
+		ok
+		return @oG.ShortestPath(_cA_, _cCap_)
+
+	def PathToEffectful(pcActor)
+		return This.PathToCapability(pcActor, "effectful")
+
 	# Every node that can REACH this secret (reverse reachability) -- the blast
 	# radius: which sites and actors a leaked secret exposes. Rotation planning.
 	def BlastRadius(pcSecret)

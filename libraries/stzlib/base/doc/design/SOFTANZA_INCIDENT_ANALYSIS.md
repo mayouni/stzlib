@@ -2,7 +2,7 @@
 
 ### Security incidents as something the program KNOWS about itself — witnessed, detected, reconstructed, contained under governance, and attested
 
-> **Status: I0-I4 SHIPPED (2026-08-01); I5-I8 planned.** This document is the
+> **Status: I0-I5 SHIPPED (2026-08-01); I6-I8 planned.** This document is the
 > design study for the security incident-analysis system. It is grounded
 > in a full read of `base/security/`, `base/governance/`, the actor /
 > plan / rule machinery, and the observability substrate the perf system
@@ -123,6 +123,25 @@
 > detection-events invite feedback; the ledger records what the
 > SYSTEM did). Guard: `security_sentinel_narrated.ring` (33).
 > Narration: `narrations/stz-security-sentinel-narration.md`.
+>
+> **I5 delivered:** `base/security/stzIncident.ring` —
+> `StzIncidentFromCase(id, case, ledger)` (or `FromFinding`),
+> correlation in ONE honest hop (the actor's whole story, then
+> everything sharing a trace id — proven: a different actor's event
+> joins via a shared request scope), wall-ordered `Timeline()`,
+> `Actors/Subjects/Kinds/TraceIds/SecretsInvolved` (descriptors
+> only), `AttackPath()`/`ReachesEffectful()`/`BlastRadius()` from the
+> security graph, forward-only status (`Contain`/`Close` with notes;
+> re-containing or reopening REFUSES, quoting the governance
+> doctrine), and the narrated `Explain()` that prints the whole file.
+> `stzSecurityGraph` gained `PathToCapability()`/`PathToEffectful()`
+> — it could say WHETHER since the graph-rules plan; an investigation
+> needs HOW ("billing-agent -> deploy-tool -> effectful"), and the
+> negative case reports no path rather than a false alarm. The
+> incident keeps the chain head from its firing, so a later edit to
+> the ledger makes the two heads disagree — evidence about evidence.
+> Guard: `security_incident_narrated.ring` (32). Narration:
+> `narrations/stz-security-incident-narration.md`.
 
 ---
 
@@ -551,8 +570,11 @@ green before the next begins.
   hostable on `stzAgentHost` (proven), bounded alert log, and the case
   snapshot with the chain head that I5 builds its incident from. 33
   assertions.
-- **I5 — The incident.** Correlation into a case file: timeline, attack
-  path, blast radius, lifecycle, narrated `Explain()`.
+- **I5 — The incident. SHIPPED 2026-08-01.** Correlation (actor + trace,
+  one hop), wall-ordered timeline, the attack PATH and blast radius
+  from the security graph (`PathToEffectful` added), forward-only
+  status with notes, the chain head kept as evidence-about-evidence,
+  and the narrated file. 32 assertions.
 - **I6 — Response.** `stzResponsePlan`: closed containment catalog,
   preflight, audited execution, LLM-proposes / effectful-commits.
 - **I7 — Attest & export.** OCSF events, OTLP logs, sealed ledger +

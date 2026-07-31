@@ -417,6 +417,11 @@ ok
     # fanout, hostable on any stzAgentHost, and a case snapshot
     # photographed at the moment of firing.
     load "security/stzSecuritySentinel.ring"
+    # I5: the incident -- a sentinel's case correlated into the file a
+    # person reads: timeline, actors, subjects, the attack PATH from
+    # the security graph, the blast radius of any secret involved, and
+    # a forward-only status (open -> contained -> closed).
+    load "security/stzIncident.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
