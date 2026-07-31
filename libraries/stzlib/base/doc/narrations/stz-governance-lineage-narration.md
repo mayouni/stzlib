@@ -4,7 +4,7 @@
 
 > Every code block below is real, and every output block is its actual
 > output (the run is `base/test/governance/governance_lineage_narrated.ring`,
-> 27 assertions, ~0.04 seconds). The finding is recorded in
+> 32 assertions, ~0.01 seconds). The finding is recorded in
 > `doc/design/SOFTANZA_INCIDENT_ANALYSIS.md` section 1.
 
 ## The comment that was making a promise
@@ -151,17 +151,64 @@ A section header is now anything without a field separator:
   [OK] a section this build does not know is stepped over
 ```
 
-## What is still open, and why it is a caveat rather than a defect
+## The fifth defect: a record that forks
 
-The lineage lives in a Ring attribute, so it forks on copy. Every writer
-inside the library already delegates through the owning object — the
-house pattern, and the reason this has never bitten. But the standing
-rule is sharper than that: *an object that governs others should keep
-its state in a handle table, so that every copy IS the object*. Moving
-`stzGovernance` there is a refactor with a wide blast radius, not a fix,
-and pretending otherwise in a one-line change would be how the previous
-promise got made.
+The four above were fixed first, and the fifth was left standing with a
+note — the lineage lived in a Ring attribute, and Ring's `=` and
+attribute-stores **copy**. A governance handed to an agent host, a
+constellation or a federation became a snapshot there.
+
+The note said this was a caveat rather than an emergency, and that was
+true of the *regime*. Risks, permissions, authorities and postures fork
+**fail-closed**: a permission the copy never saw is a permission
+refused, an authority it never saw is an authority it will not act on.
+A stale regime is over-strict, and over-strict is survivable.
+
+A **record** has no such mercy. It does not fail closed or open — it
+silently answers a different question than the one asked. Decisions
+taken through the host's copy were invisible to the caller's own handle
+and vice versa, so `NumberOfDecisions()` returned a count that was true
+of one face and of no other. **An audit trail that is true of one face
+is not an audit trail.**
+
+So the rows moved into a table keyed by an id:
+
+```ring
+oShared = new stzGovernance("release-ops")
+oFace = oShared                    # Ring COPIES on assignment
+oFace.RecordDecisionAt("d-301", "shipped from the second face",
+    "release-bot", "ship", $T0)
+```
+```
+  [OK] a decision taken through the COPY is visible to the original
+  [OK] ...and reads identically from either face
+  [OK] ...and the traffic flows both ways
+  [OK] the capacity is shared too, not re-defaulted per face
+  [OK] ...so a bound set on one face binds the other
+  two faces, one record
+```
+
+Three details carry the weight.
+
+**The id is materialized eagerly, in `init()`.** A lazily-created handle
+is created once *per copy* and forks silently — which is the exact
+failure the table exists to remove, reintroduced by the fix. (A
+paren-less `new stzGovernance` skips `init()` entirely, so `_Slot()`
+raises with a message that says so, rather than quietly sharing slot
+zero with every other paren-less instance.)
+
+**The regime deliberately stayed in attributes.** Moving it too would
+have been the larger, more impressive change and would have bought
+nothing this defect was about. The authority and risk a decision records
+are what the *deciding face* believed at that moment — that is precisely
+the fact being recorded — so only the rows are shared.
+
+**`ReleaseLineage()` is the owner's act alone.** Ring has no destructor,
+so the slot has to be freed explicitly; and a *copy* calling it would
+free the rows every other face is still reading. Without it, the table
+keeps one slot per governance ever constructed: fine for a regime that
+lives as long as the process, a leak for one built per request.
 
 ---
 
-Four defects behind one comment. The comment is now true.
+Five defects behind one comment. The comment is now true.

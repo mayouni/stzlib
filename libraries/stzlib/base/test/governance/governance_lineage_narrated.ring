@@ -86,7 +86,34 @@ chk("the survivors are the most recent",
 # when nothing was decided.
 
 ? ""
-? "-- Scene 5: the section Save() used to throw away --"
+? "-- Scene 5: every COPY is the lineage --"
+oShared = new stzGovernance("release-ops")
+oShared.DeclareRisk("ship", 2)
+oShared.SetAuthority("release-bot", :Autonomous)
+oFace = oShared                              # Ring COPIES on assignment
+oFace.RecordDecisionAt("d-301", "shipped from the second face",
+	"release-bot", "ship", $T0)
+chk("a decision taken through the COPY is visible to the original",
+	oShared.NumberOfDecisions() = 1)
+chk("...and reads identically from either face",
+	oShared.LineageOf("d-301")[:rationale] = oFace.LineageOf("d-301")[:rationale])
+oShared.RecordDecisionAt("d-302", "and back the other way",
+	"release-bot", "ship", $T0 + 1000)
+chk("...and the traffic flows both ways", oFace.NumberOfDecisions() = 2)
+chk("the capacity is shared too, not re-defaulted per face",
+	oFace.LineageCapacity() = oShared.LineageCapacity())
+oFace.SetLineageCapacity(1)
+chk("...so a bound set on one face binds the other",
+	oShared.NumberOfDecisions() = 1 and oShared.LineageDropped() = 1)
+oShared.ReleaseLineage()
+? "  two faces, one record"
+# THIS is what the attribute could not do. A lineage that forks does not
+# fail closed or open -- it answers a different question than the one
+# asked, and NumberOfDecisions() returns a count true of one face and of
+# no other.
+
+? ""
+? "-- Scene 6: the section Save() used to throw away --"
 oReg = new stzGovernance("kitchen-ops")
 oReg.DeclareRisk("send-invoice", 3)
 oReg.GrantPermission("billing-agent", "send-invoice")
@@ -109,7 +136,7 @@ chk("a rationale containing the field separator is INTACT",
 ? "  " + aR[:rationale]
 
 ? ""
-? "-- Scene 6: the file records what WAS true, not what is --"
+? "-- Scene 7: the file records what WAS true, not what is --"
 oBack.DeclareRisk("send-invoice", 1)
 chk("the regime changed", oBack.RiskOf("send-invoice") = 1)
 chk("...and the decision still reports the tier it was taken under",
@@ -118,7 +145,7 @@ chk("...and the decision still reports the tier it was taken under",
 # rewrite its own history -- the one thing a lineage exists to prevent.
 
 ? ""
-? "-- Scene 7: an unknown section skips its own rows --"
+? "-- Scene 8: an unknown section skips its own rows --"
 cRaw = read(cFile)
 write(cFile, cRaw + "quorums" + nl + "    council | 3" + nl)
 oFwd = new stzGovernance("")

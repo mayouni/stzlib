@@ -609,12 +609,22 @@ the governance lineage is **lost on `Save()`**.
 > `test/governance/governance_lineage_narrated.ring` (27). Narration:
 > `narrations/stz-governance-lineage-narration.md`.
 >
-> **Still open, and deliberately:** the lineage lives in a Ring
-> attribute, so it forks on copy. Every writer in the library already
-> delegates through the owning object (the house pattern), which is why
-> this is a caveat and not a defect — but an object that GOVERNS others
-> ultimately belongs in a handle table, and that is a refactor with a
-> wide blast radius rather than a fix.
+> ~~**Still open, and deliberately:** the lineage forks on copy.~~
+> **CLOSED — the lineage now lives in a handle table**
+> (`$aStzGovernanceLineages`, keyed by an id materialized EAGERLY in
+> `init()`; the same shape as `$aStzServiceRegistries`, for the same
+> reason). Every copy IS the lineage: a decision taken through any face
+> is visible to all, and the capacity and dropped count are shared
+> rather than re-defaulted per face. **The regime — risks, permissions,
+> authorities, postures — deliberately stays in attributes**, because
+> its forking fails CLOSED (a permission a copy never saw is a
+> permission refused), whereas a forked RECORD fails neither open nor
+> closed: it silently answers a different question than the one asked,
+> and `NumberOfDecisions()` returns a count true of one face and of no
+> other. `ReleaseLineage()` frees a slot, and is the OWNER's act alone —
+> Ring has no destructor, and a copy calling it would free rows every
+> other face is still reading. Guard scene: "every COPY is the lineage"
+> (32 assertions total); 20 consumer suites green.
 
 ## 8. Governance of the incident system itself
 
