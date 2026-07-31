@@ -234,6 +234,50 @@ func StzVerifySealedLedger(pcPath, pcKey)
 		:headDigest = _aRows_[_nRows_][1] ]
 
 
+/*
+	Acquire evidence produced by ANOTHER process (incident I8): verify
+	the sealed file first, then rebuild a working ledger from it.
+
+	Returns [ :ok, :why, :ledger, :attestor, :count ]. The rebuilt
+	ledger recomputes its own chain over the imported records -- the
+	ORIGINAL chain lives in the file and was just verified; the copy is
+	a working artifact for analysis, not a second original. Saying so
+	matters: an investigator must never mistake a re-derived chain for
+	the one that was sealed.
+*/
+func StzLedgerFromSealedFile(pcPath, pcKey)
+	_aV_ = StzVerifySealedLedger(pcPath, pcKey)
+	if NOT _aV_[:ok]
+		return [ :ok = FALSE, :why = _aV_[:why], :ledger = NULL,
+			:attestor = "", :count = 0 ]
+	ok
+	_cRaw_ = read("" + pcPath)
+	_aLines_ = StzSplit(_cRaw_, Char(10))
+	_oLed_ = new stzSecurityLedger(_aV_[:count] + 8)
+	_nLen_ = ring_len(_aLines_)
+	for _i_ = 1 to _nLen_
+		_cL_ = ring_trim(_aLines_[_i_])
+		if _cL_ = "" or StzFindFirst("#", _cL_) = 1
+			loop
+		ok
+		_nTab_ = StzFindFirst(Char(9), _cL_)
+		if _nTab_ = 0
+			loop
+		ok
+		_cCanon_ = StzMidToEnd(_cL_, _nTab_ + 1)
+		_aF_ = StzSplit(_cCanon_, "|")
+		_nWall_ = 0
+		_cSev_ = "info"
+		if ring_len(_aF_) >= 11
+			_cSev_ = _aF_[2]
+			_nWall_ = number(_aF_[11])
+		ok
+		_oLed_.AppendCanonical(_cCanon_, _nWall_, StzSecuritySeverityCode(_cSev_))
+	next
+	return [ :ok = TRUE, :why = "acquired " + _aV_[:count] + " verified entr(ies)",
+		:ledger = _oLed_, :attestor = _aV_[:attestor], :count = _aV_[:count] ]
+
+
 class stzSecurityLedger from stzObject
 
 	pHandle = NULL
@@ -284,6 +328,14 @@ class stzSecurityLedger from stzObject
 		This._Ensure()
 		StzEngineSecLogAppend(pHandle, poEvent.CanonicalString(),
 			poEvent.AtWall(), This._SevCode(poEvent.Severity()))
+		return This
+
+	# Append a canonical line directly -- the acquisition path (I8),
+	# used when rebuilding a ledger from verified evidence. The chain
+	# is recomputed here; it does not carry the original file's.
+	def AppendCanonical(pcCanonical, pnWallMs, pnSeverityCode)
+		This._Ensure()
+		StzEngineSecLogAppend(pHandle, pcCanonical, pnWallMs, pnSeverityCode)
 		return This
 
 	# Events ever recorded (keeps counting past capacity).
