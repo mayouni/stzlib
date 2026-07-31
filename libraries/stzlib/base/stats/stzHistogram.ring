@@ -72,6 +72,20 @@ class stzHistogram from stzObject
 		_calculateBins()
 		_processBinnedData()
 
+	# THE ONE PLACE A BIN EDGE BECOMES TEXT.
+	#
+	# Three places used to format edges and they disagreed: _calculateBins built
+	# labels with CompactForm, _calculateLayout MEASURED them with RoundN, and
+	# _drawLabels drew CompactForm again. So the layout reserved room for "3.4"
+	# while the drawer wrote "3.40000000004", and the labels overlapped.
+	#
+	# ROUND FIRST, THEN COMPACT. Rounding kills the float artefact that makes an
+	# edge print as 3.40000000004, and compacting keeps a large edge short (2.7K).
+	# Whatever this returns is what is measured AND what is drawn, so the two
+	# cannot drift apart again.
+	def _BinLabelFor(nEdge)
+		return StzNumberQ(RoundN(nEdge, 1)).CompactForm()
+
 	def _calculateBins()
 		
 		if len(@anRawData) = 0
@@ -110,8 +124,7 @@ class stzHistogram from stzObject
 			@aBinRanges + [_nBinMin_, _nBinMax_]
 			
 			# Create labels
-			_cLabel_ = _formatNumber(_nBinMin_) + "-" + _formatNumber(_nBinMax_)
-			_cLabel_ = StzNumberQ(_nBinMin_).CompactForm() + "-" + StzNumberQ(_nBinMax_).ToCompactForm()
+			_cLabel_ = This._BinLabelFor(_nBinMin_) + "-" + This._BinLabelFor(_nBinMax_)
 			@aBinLabels + _cLabel_
 		next
 
@@ -616,8 +629,10 @@ class stzHistogram from stzObject
 		    
 		    if @bShowLabels and i <= len(@acLabels)
 		        # Calculate width for two-line labels (use the longer of the two values)
-		        _cLabel1_ = "" + RoundN(@aBinRanges[i][1], 1)
-		        _cLabel2_ = "" + RoundN(@aBinRanges[i][2], 1)
+		        # measured with the SAME formatter the drawer uses, so the space
+		        # reserved is the space needed
+		        _cLabel1_ = This._BinLabelFor(@aBinRanges[i][1])
+		        _cLabel2_ = This._BinLabelFor(@aBinRanges[i][2])
 		        _nLabelWidth_ = max([StzLen(_cLabel1_), StzLen(_cLabel2_)])
 		        if _nLabelWidth_ > @nMaxLabelWidth
 		            _nLabelWidth_ = @nMaxLabelWidth
@@ -973,9 +988,7 @@ class stzHistogram from stzObject
 				_nElementWidth_ = _aElementWidths_[i]
 				
 				# First row: start values
-				//cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
-				_cLabel1_ = _formatNumber(@aBinRanges[i][1])
-				_cLabel1_ = StzNumberQ(@aBinRanges[i][1]).ToCompactForm()
+				_cLabel1_ = This._BinLabelFor(@aBinRanges[i][1])
 				_nLenLabel1_ = StzLen(_cLabel1_)
 				_nLabelStartX1_ = _nCurrentX_ + floor((_nElementWidth_ - _nLenLabel1_) / 2)
 	
@@ -987,9 +1000,7 @@ class stzHistogram from stzObject
 				next
 	
 				# Second row: end values  
-				//cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-				_cLabel2_ = _formatNumber(@aBinRanges[i][2])
-				_cLabel2_ = StzNumberQ(@aBinRanges[i][2]).CompactForm()
+				_cLabel2_ = This._BinLabelFor(@aBinRanges[i][2])
 				_nLenLabel2_ = StzLen(_cLabel2_)
 				_nLabelStartX2_ = _nCurrentX_ + floor((_nElementWidth_ - _nLenLabel2_) / 2)
 	

@@ -7681,6 +7681,20 @@ class stzNumber from stzObject
 
 
 	# The number in compact form (1.2K / 3.4M style).
+	#
+	# A NUMBER TOO SMALL TO ABBREVIATE IS RETURNED AS ITSELF. The chain below used
+	# to have no else, so every value under 1000 compacted to the EMPTY STRING --
+	# and 12.25 has no shorter form than "12.25", so nothing is the one answer that
+	# cannot be right. KForm() and MForm() just below already end with
+	# `return This.Content()`; this one simply lost its branch.
+	#
+	# It was found through stzHistogram, whose bin labels are built from this: a
+	# histogram of small numbers reserved two label rows under its axis and drew
+	# nothing in them.
+	#
+	# The billion boundary was wrong too -- `> 1_000_000_000` let EXACTLY one
+	# billion fall through to the same empty answer, where every other boundary in
+	# the chain is inclusive.
 	def CompactForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000 and _nNumber_ < 1_000_000
@@ -7689,8 +7703,11 @@ class stzNumber from stzObject
 		but _nNumber_ >= 1_000_000 and _nNumber_ < 1_000_000_000
 			return '' + RoundN(_nNumber_/1_000_000, 1) + "M"
 
-		but _nNumber_ > 1_000_000_000
+		but _nNumber_ >= 1_000_000_000
 			return '' + RoundN(_nNumber_/1000_000_000, 1) + "B"
+
+		else
+			return This.Content()
 		ok
 
 		def ToCompactForm()
