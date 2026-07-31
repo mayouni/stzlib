@@ -253,8 +253,13 @@ class stzSecurityEvent from stzObject
 	def TraceId()
 		return @cTraceId
 
+	# "granted" and "observed" are not refusals; "refused" and "failed" are.
+	# Written as an explicit list rather than `!= "granted"` because a
+	# fourth outcome arrived later (see Observed) and the negative form
+	# would have silently swept it in -- an expired session would have
+	# counted as a refusal in every pivot.
 	def IsRefusal()
-		return @cOutcome != "granted"
+		return @cOutcome = "refused" or @cOutcome = "failed"
 
 	  #-- building (fluent; every setter returns This) ---------------
 
@@ -349,6 +354,18 @@ class stzSecurityEvent from stzObject
 	# The gate admitted it and the act still did not complete.
 	def Failed(pcReason)
 		@cOutcome = "failed"
+		@cReason = "" + pcReason
+		return This
+
+	# NOT A VERDICT -- something simply happened (incident I2's session
+	# seams). A session reaching its expiry was neither granted nor
+	# refused: no gate ran, nobody was told no. Forcing such a fact into
+	# "refused" would have made every pivot that counts refusals
+	# over-count, and would have taught an investigator that routine
+	# housekeeping was an attack. The ledger's job is to witness, and some
+	# of what it witnesses carries no judgment at all.
+	def Observed(pcReason)
+		@cOutcome = "observed"
 		@cReason = "" + pcReason
 		return This
 

@@ -136,6 +136,29 @@ func StzNoteRefusalFrom(pcKind, pcActor, pcSubject, pcReason, pcOrigin)
 	_e_.Refused(pcReason)
 	StzRecordSecurityEvent(_e_)
 
+# Neither a grant nor a refusal -- a fact (incident I2's session
+# lifecycle). Same zero-cost-when-off shape as its siblings.
+func StzNoteFact(pcKind, pcActor, pcSubject, pcWhat)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	_e_ = new stzSecurityEvent(pcKind)
+	_e_.ByActorNamed(pcActor, "")
+	_e_.About(pcSubject)
+	_e_.Observed(pcWhat)
+	StzRecordSecurityEvent(_e_)
+
+func StzNoteFactFrom(pcKind, pcActor, pcSubject, pcWhat, pcOrigin)
+	if StzEngineSecLogHasCurrent() != 1
+		return
+	ok
+	_e_ = new stzSecurityEvent(pcKind)
+	_e_.ByActorNamed(pcActor, "")
+	_e_.About(pcSubject)
+	_e_.FromOrigin(pcOrigin)
+	_e_.Observed(pcWhat)
+	StzRecordSecurityEvent(_e_)
+
 func StzNoteGrant(pcKind, pcActor, pcSubject)
 	if StzEngineSecLogHasCurrent() != 1
 		return
@@ -408,12 +431,18 @@ class stzSecurityLedger from stzObject
 		return This._Where(:origin, pcOrigin)
 
 	# Everything that was not granted -- the signal to watch.
+	# Refused and failed -- NOT "everything that is not granted". The
+	# negative form was here too, and it was wrong the moment the OBSERVED
+	# outcome arrived (I2's session seams): an expired session would have
+	# been counted as a refusal by this pivot, in a system whose whole
+	# point is that a warning must mean something. Kept in step with
+	# stzSecurityEvent.IsRefusal(), deliberately as one positive list.
 	def Refusals()
 		_aOut_ = []
 		_aAll_ = This.All()
 		_nN_ = ring_len(_aAll_)
 		for _i_ = 1 to _nN_
-			if _aAll_[_i_][:outcome] != "granted"
+			if _aAll_[_i_][:outcome] = "refused" or _aAll_[_i_][:outcome] = "failed"
 				_aOut_ + _aAll_[_i_]
 			ok
 		next

@@ -90,6 +90,13 @@ class stzRateLimiter from stzObject
 			return TRUE
 		ok
 		@aBuckets[_i_][6]++              # rejected
+		# Incident I2. The counter above says HOW MANY were shed; it cannot
+		# say WHEN, so a steady trickle and a sudden flood read the same
+		# from it. A shed is `info` severity on purpose -- shedding is the
+		# limiter working, not a failure -- but the TIMES are what turns a
+		# burst of them into a detection.
+		StzNoteRefusal("ratelimit.shed", "" + pcKey, "ratelimit:" + @cName + "/" + pcKey,
+			"the token bucket had no tokens left for this key")
 		return FALSE
 
 	#-- metrics ------------------------------------------------------------

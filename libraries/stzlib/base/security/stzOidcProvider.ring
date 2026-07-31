@@ -64,6 +64,16 @@ class stzOidcProvider from stzObject
 	@bKeyUsed = FALSE     # has the CURRENT key actually signed anything?
 	@cWhy = ""
 	@cError = ""
+	# Incident I2. @aSpent holds the codes this provider has already
+	# CONSUMED, so a second redemption is identifiable as a REPLAY rather
+	# than as an unknown code. Without it the provider can only say "unknown
+	# or already-used", and the catalog's oauth.code.replayed kind would be
+	# a claim it cannot back -- a stolen-code replay and a random guess
+	# would arrive as the same event. Bounded: the codes are single-use and
+	# short-lived, so an old entry has nothing left to protect.
+	@aSpent = []
+	@nSpentMax = 64
+	@cLastClientId = ""
 
 	def init(pcIssuer)
 		@cIssuer = ring_trim("" + pcIssuer)
@@ -251,6 +261,7 @@ class stzOidcProvider from stzObject
 
 	def AuthorizeAt(paReq, pcUser, pnNow)
 		_cid_ = ring_trim("" + This._Get(paReq, :clientId))
+		@cLastClientId = _cid_
 		_ci_ = This._ClientIndex(_cid_)
 		if _ci_ = 0
 			return This._RefuseAuth("unknown client '" + _cid_ + "'", "unauthorized_client")
@@ -294,6 +305,7 @@ class stzOidcProvider from stzObject
 
 	def ExchangeCodeAt(pcClientId, pcClientSecret, pcCode, pcRedirectUri, pcCodeVerifier, pnNow)
 		_cid_ = ring_trim("" + pcClientId)
+		@cLastClientId = _cid_
 		_ci_ = This._ClientIndex(_cid_)
 		if _ci_ = 0
 			return This._RefuseToken("unknown client", "invalid_client")
@@ -304,12 +316,23 @@ class stzOidcProvider from stzObject
 		ok
 		_i_ = This._CodeIndex("" + pcCode)
 		if _i_ = 0
+			# Incident I2: a code we have SEEN and spent is a replay -- the
+			# classic stolen-code attack, and an error. A code we have never
+			# seen is a guess, and only a warning. The refusal ANSWER stays
+			# identical (an attacker learns nothing either way); it is the
+			# ledger that keeps the distinction.
+			if This._WasSpent("" + pcCode)
+				StzNoteRefusal("oauth.code.replayed", @cLastClientId,
+					"client:" + @cLastClientId,
+					"an authorization code already redeemed was presented again")
+			ok
 			return This._RefuseToken("unknown or already-used authorization code", "invalid_grant")
 		ok
 		_rec_ = @aCodes[_i_]
 		# A code is SINGLE-USE: consume it now, whatever happens next. Replaying it
 		# (the classic stolen-code attack) then finds nothing.
 		This._DeleteCode("" + pcCode)
+		This._RememberSpent("" + pcCode)
 		if pnNow >= _rec_[7]
 			return This._RefuseToken("the authorization code expired", "invalid_grant")
 		ok
@@ -496,17 +519,43 @@ class stzOidcProvider from stzObject
 		next
 		return ""
 
+	# Both refusal doors are seams (incident I2). @cWhy is one slot; a client
+	# that fails its secret ten times running, or walks a list of redirect
+	# URIs looking for one that is registered, is invisible from any single
+	# read of it. Neither the client secret nor the code is ever written --
+	# the client ID is a name, and names are what an investigation needs.
 	def _RefuseAuth(pcWhy, pcError)
 		@cWhy = "" + pcWhy
 		@cError = "" + pcError
+		StzNoteRefusal("oauth.client.rejected", @cLastClientId,
+			"client:" + @cLastClientId, @cWhy)
 		return [ :ok = FALSE, :code = "", :redirectTo = "", :state = "",
 		         :why = @cWhy, :error = @cError ]
 
 	def _RefuseToken(pcWhy, pcError)
 		@cWhy = "" + pcWhy
 		@cError = "" + pcError
+		StzNoteRefusal("oauth.client.rejected", @cLastClientId,
+			"client:" + @cLastClientId, @cWhy)
 		return [ :ok = FALSE, :idToken = "", :accessToken = "", :tokenType = "",
 		         :expiresIn = 0, :subject = "", :why = @cWhy, :error = @cError ]
+
+	# the spent-code memory the replay distinction rests on
+	def _RememberSpent(pcCode)
+		@aSpent + ("" + pcCode)
+		if len(@aSpent) > @nSpentMax
+			del(@aSpent, 1)
+		ok
+
+	def _WasSpent(pcCode)
+		_c_ = "" + pcCode
+		_n_ = len(@aSpent)
+		for _i_ = 1 to _n_
+			if @aSpent[_i_] = _c_
+				return TRUE
+			ok
+		next
+		return FALSE
 
 	def _HexPair(pcHi, pcLo)
 		return This._HexDigit(pcHi) * 16 + This._HexDigit(pcLo)

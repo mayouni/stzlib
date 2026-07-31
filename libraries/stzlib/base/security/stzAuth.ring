@@ -396,6 +396,16 @@ class stzAuth from stzObject
 				_dead_ = TRUE
 			ok
 			if _dead_
+				# Incident I2: the row is about to be deleted, so this is the
+				# last moment anyone can say the session existed. An expiry is
+				# `info` -- routine, not adversarial -- but "when did this
+				# user's session end" is a question every session-hijack
+				# post-mortem asks, and the deleted row cannot answer it.
+				# The TOKEN is a credential and is never written; the user
+				# and the address the session was opened from are descriptors.
+				StzNoteFactFrom("auth.session.expired", "" + _aS_[_i_][:user],
+					"user:" + _aS_[_i_][:user], "the session reached its expiry",
+					"" + _aS_[_i_][:ip])
 				@oStore.DeleteSession(_aS_[_i_][:token])
 				_nP_++
 			ok
@@ -409,20 +419,47 @@ class stzAuth from stzObject
 		return @oStore.CountSessions()
 
 	def Logout(pcToken)
+		This._NoteSessionEnd("" + pcToken, "the user signed out")
 		@oStore.DeleteSession("" + pcToken)
 		return This
 
 	# revoke ONE session (per-device "sign out this device"). Alias of Logout,
 	# named for the device-management flow.
 	def RevokeSession(pcToken)
+		This._NoteSessionEnd("" + pcToken, "the session was revoked")
 		@oStore.DeleteSession("" + pcToken)
 		return This
 
 	# end EVERY session for a user without removing the account ("log out
 	# everywhere") -- distinct from Unregister.
 	def RevokeAllSessions(pcUser)
-		@oStore.DeleteUserSessions(ring_trim("" + pcUser))
+		_u_ = ring_trim("" + pcUser)
+		# "log out everywhere" is what a user does AFTER they suspect a
+		# compromise, so it is one of the more informative facts in the
+		# whole ledger -- and Unregister-adjacent code deletes the rows
+		# that could otherwise have told the story. One event per device
+		# ended, because "how many sessions did they have" is the question
+		# that follows.
+		_aS_ = @oStore.SessionsOf(_u_)
+		_n_ = len(_aS_)
+		for _i_ = 1 to _n_
+			StzNoteFactFrom("auth.session.revoked", _u_, "user:" + _u_,
+				"every session was revoked at once", "" + _aS_[_i_][:ip])
+		next
+		@oStore.DeleteUserSessions(_u_)
 		return This
+
+	# Incident I2. Called BEFORE the row is deleted -- afterwards nobody can
+	# say whose session it was. The token never enters the ledger: it is a
+	# bearer credential, and writing it into evidence would turn the
+	# evidence file into a way in.
+	def _NoteSessionEnd(pcToken, pcWhat)
+		_r_ = @oStore.Session("" + pcToken)
+		if len(_r_) = 0
+			return
+		ok
+		StzNoteFactFrom("auth.session.revoked", "" + _r_[:user],
+			"user:" + _r_[:user], pcWhat, "" + _r_[:ip])
 
 	  #-- the "your devices" surface + fixation defense -------------------
 

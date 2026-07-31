@@ -137,6 +137,12 @@ class stzSecurityGraph from stzObject
 		_cA_ = This._Require(pcActor)
 		_cS_ = This._Require(pcSecret)
 		if StzLower("" + @oG.NodeProperty(_cA_, "posture")) = "sandboxed"
+			# Incident I2: the raise stops the escalation; the ledger keeps
+			# the attempt. Which secret a sandboxed actor was pointed at is
+			# exactly what a post-mortem wants, and a caller's try/catch
+			# would otherwise erase it.
+			StzNoteRefusal("posture.refused", _cA_, "secret:" + _cS_,
+				"a sandboxed actor must not hold a live secret")
 			stzraise("REFUSED: attaching secret '" + _cS_ + "' to SANDBOXED actor '" + _cA_ +
 			         "' -- a sandboxed actor must not hold a live secret (enforced at construction).")
 		ok
@@ -192,6 +198,62 @@ class stzSecurityGraph from stzObject
 			ok
 		next
 		return _aOut_
+
+	  #-- the escalation audit (incident I2) --------------------------------
+
+	/*
+		Every sandboxed actor that can nevertheless REACH an effectful
+		capability, with the path that gets it there:
+
+			[ [ actor, [ hop, hop, ... ] ], ... ]
+
+		...and each one recorded as a graph.escalation_path_found event.
+
+		WHY THIS IS A VERB AND NOT A SIDE EFFECT OF ReachesEffectful().
+		The query methods are questions -- an investigation asks them
+		dozens of times while reconstructing an incident, and a question
+		that writes evidence would fill the chain with the investigator's
+		own curiosity. This is the DELIBERATE act: audit the surface, and
+		remember what the audit found. Run it after a topology change, on
+		a schedule, or from the CI gate next to Violations().
+
+		The path is the whole point. "billing-agent can reach effectful"
+		names a risk; "billing-agent -> deploy-tool -> effectful" names the
+		edge to cut.
+	*/
+	def AuditEscalations()
+		_aOut_ = []
+		_aIds_ = @oG.NodesIds()
+		_n_ = len(_aIds_)
+		for _i_ = 1 to _n_
+			_cId_ = _aIds_[_i_]
+			if StzLower("" + @oG.NodeProperty(_cId_, "posture")) != "sandboxed"
+				loop
+			ok
+			_aPath_ = This.PathToEffectful(_cId_)
+			if len(_aPath_) = 0
+				loop
+			ok
+			_aOut_ + [ _cId_, _aPath_ ]
+			StzNoteRefusal("graph.escalation_path_found", _cId_,
+				"capability:effectful",
+				"a sandboxed actor reaches effectful via " + This._PathWords(_aPath_))
+		next
+		return _aOut_
+
+	def NumberOfEscalations()
+		return len( This.AuditEscalations() )
+
+	def _PathWords(paPath)
+		_n_ = len(paPath)
+		if _n_ = 0
+			return "(no path)"
+		ok
+		_c_ = "" + paPath[1]
+		for _i_ = 2 to _n_
+			_c_ += " -> " + paPath[_i_]
+		next
+		return _c_
 
 	  #-- proof + internals -----------------------------------------------
 
