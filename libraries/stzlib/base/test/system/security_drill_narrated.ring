@@ -71,7 +71,20 @@ oDrill.Show()
 aL = oDrill.Explain()
 chk("the report states the verdict first", StzFindFirst("every expected detection fired", aL[1]) > 0)
 chk("...names the evidence and its attestor", StzFindFirst("attested by target-process", aL[2]) > 0)
-chk("...and marks each attack fired", StzFindFirst("[fired]", aL[3]) = 3)
+# Explain() lays out one line per registered expectation after the
+# verdict and the evidence, each marked [fired] or [MISSED]. Count the
+# MARKS, not the column one of them happens to sit in: the earlier form
+# asserted StzFindFirst(...) = 3, which is a POSITION, while its label
+# claimed three attacks. It passed for a reason unrelated to what it
+# said -- the same defect shape the router bug turned on.
+nMarked = 0
+nMissed = 0
+for i = 3 to len(aL)
+	if StzFindFirst("[fired]", aL[i]) > 0   nMarked++  ok
+	if StzFindFirst("[MISSED]", aL[i]) > 0  nMissed++  ok
+next
+chk("...and marks each of the three attacks fired, none missed",
+	nMarked = 3 and nMissed = 0 and len(aL) = 5)
 
 ? ""
 ? "-- Scene 7: tampered evidence is NOT believed --"
