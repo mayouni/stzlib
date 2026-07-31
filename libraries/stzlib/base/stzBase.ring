@@ -407,6 +407,11 @@ ok
     # the chain and Verify() names the link; SealTo() exports a keyed,
     # re-verifiable file, because evidence-grade means exported.
     load "security/stzSecurityLedger.ring"
+    # I3: detection over SEQUENCES -- burst / sequence / any-occurrence
+    # over the ledger's events. Every other rule in the library judges
+    # structure at ONE INSTANT; an incident is a story. Verdicts are
+    # findings in the unified shape, so they join the ONE CI gate.
+    load "security/stzDetection.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
