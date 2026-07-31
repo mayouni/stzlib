@@ -2,7 +2,7 @@
 
 ### One governed system that measures, explains, and defends the performance of a Softanza program — at the engine level and the Ring level, in development and in production
 
-> **Status: COMPLETE -- P0-P9 ALL SHIPPED (2026-07-29/31).** This document is the
+> **Status: COMPLETE -- P0-P10 ALL SHIPPED (2026-07-29/31).** This document is the
 > design study for `stzPerfSystem`. It is grounded in a full read of the
 > system, app, appserver, cluster, reactive and stats modules and of the
 > engine sources. Every file:line reference below was verified against the
@@ -128,8 +128,27 @@
 > Honest limit: one slot matches one-request-per-loop; parallel
 > in-process dispatch would need per-task scopes. Guard:
 > `log_trace_narrated.ring` (24) + stzLog's own suite green.
-> Narration: `stz-perf-log-trace-narration.md`. Perf suite total:
-> 10 guards, 336 assertions.
+> Narration: `stz-perf-log-trace-narration.md`.
+>
+> P10 delivered (the frame profiler -- the "sampling profiler"
+> remainder, scoped honestly): cooperative FRAMES into an engine-side
+> call tree (per path: calls, total ms, SELF ms = total minus
+> children; fixed slabs, bounded paths -> visible `_overflow`, depth
+> cap 32) + a REAL engine sampler thread photographing the active
+> frame path at a fixed cadence -- constant cost, zero Ring
+> involvement, possible ONLY because the frame stack is engine-side
+> (single-threaded Ring cannot interrupt itself; a native-stack
+> walker would only see the VM's C internals, so cooperative frames
+> are the honest design for an interpreted host). `stzProfiler`
+> (the P0 fossil's name resurrected): Enter/Leave (~2us a pair,
+> guard-priced), StartSampling/StopSampling, Paths/HotSpots (by
+> self time), and the interop piece -- `Folded()` in folded-stacks
+> format, ingested AS-IS by flamegraph.pl and speedscope.app
+> (sampled weights when sampling ran, else self-ms). Statistical
+> validity proven live: a 40ms:10ms two-frame workload sampled
+> 41:10. Guard: `frame_profiler_narrated.ring` (19). Narration:
+> `stz-perf-frame-profiler-narration.md`. Perf suite total:
+> 11 guards, 355 assertions.
 >
 > Pedigree: the operational-analysis tradition (utilization law, Little's
 > law, service demand) as popularized for practitioners by *Pro Java EE 5

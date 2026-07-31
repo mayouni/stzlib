@@ -179,6 +179,96 @@ fn ring_TraceDestroy(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── frame profiler (P10) ─────────────────────────────────────
+
+const PROF_HANDLE: [*:0]const u8 = "StzProfiler";
+
+var prof_buf: [256]u8 = undefined;
+
+fn getProf(p: *anyopaque, n: c_int) ?*perf.Profiler {
+    const raw = R.ring_vm_api_getcpointer(p, n, PROF_HANDLE) orelse return null;
+    const addr = @intFromPtr(raw);
+    if (addr == 0) return null;
+    return @ptrFromInt(addr);
+}
+
+fn ring_ProfCreate(p: *anyopaque) callconv(.c) void {
+    const handle = perf.perf_prof_create(gn(p, 1));
+    if (handle) |pr2| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(pr2), PROF_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), PROF_HANDLE);
+    }
+}
+
+fn ring_ProfEnter(p: *anyopaque) callconv(.c) void {
+    const s: [*]const u8 = @ptrCast(gs(p, 2));
+    const l: usize = @intCast(gss(p, 2));
+    perf.perf_prof_enter(getProf(p, 1), s, l);
+    rn(p, 0);
+}
+
+fn ring_ProfLeave(p: *anyopaque) callconv(.c) void {
+    perf.perf_prof_leave(getProf(p, 1));
+    rn(p, 0);
+}
+
+fn ring_ProfDepth(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_depth(getProf(p, 1)));
+}
+
+fn ring_ProfSampleStart(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(perf.perf_prof_sample_start(getProf(p, 1), gn(p, 2))));
+}
+
+fn ring_ProfSampleStop(p: *anyopaque) callconv(.c) void {
+    perf.perf_prof_sample_stop(getProf(p, 1));
+    rn(p, 0);
+}
+
+fn ring_ProfIsSampling(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_is_sampling(getProf(p, 1)));
+}
+
+fn ring_ProfTicks(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_ticks(getProf(p, 1)));
+}
+
+fn ring_ProfPathCount(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_path_count(getProf(p, 1)));
+}
+
+fn ring_ProfPathAt(p: *anyopaque) callconv(.c) void {
+    const n = perf.perf_prof_path_at(getProf(p, 1), gn(p, 2), &prof_buf, prof_buf.len);
+    if (n > 0) rs2(p, &prof_buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_ProfCallsAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_calls_at(getProf(p, 1), gn(p, 2)));
+}
+
+fn ring_ProfTotalNsAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_total_ns_at(getProf(p, 1), gn(p, 2)));
+}
+
+fn ring_ProfSelfNsAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_self_ns_at(getProf(p, 1), gn(p, 2)));
+}
+
+fn ring_ProfSamplesAt(p: *anyopaque) callconv(.c) void {
+    rn(p, perf.perf_prof_samples_at(getProf(p, 1), gn(p, 2)));
+}
+
+fn ring_ProfReset(p: *anyopaque) callconv(.c) void {
+    perf.perf_prof_reset(getProf(p, 1));
+    rn(p, 0);
+}
+
+fn ring_ProfDestroy(p: *anyopaque) callconv(.c) void {
+    perf.perf_prof_destroy(getProf(p, 1));
+    rn(p, 0);
+}
+
 // ── trace scope (log correlation) ────────────────────────────
 
 fn ring_TraceScopeSet(p: *anyopaque) callconv(.c) void {
@@ -289,6 +379,22 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineperftracewallat", .func = ring_TraceWallAt },
     .{ .name = "stzengineperftracereset", .func = ring_TraceReset },
     .{ .name = "stzengineperftracedestroy", .func = ring_TraceDestroy },
+    .{ .name = "stzengineprofcreate", .func = ring_ProfCreate },
+    .{ .name = "stzengineprofenter", .func = ring_ProfEnter },
+    .{ .name = "stzengineprofleave", .func = ring_ProfLeave },
+    .{ .name = "stzengineprofdepth", .func = ring_ProfDepth },
+    .{ .name = "stzengineprofsamplestart", .func = ring_ProfSampleStart },
+    .{ .name = "stzengineprofsamplestop", .func = ring_ProfSampleStop },
+    .{ .name = "stzengineprofissampling", .func = ring_ProfIsSampling },
+    .{ .name = "stzengineprofticks", .func = ring_ProfTicks },
+    .{ .name = "stzengineprofpathcount", .func = ring_ProfPathCount },
+    .{ .name = "stzengineprofpathat", .func = ring_ProfPathAt },
+    .{ .name = "stzengineprofcallsat", .func = ring_ProfCallsAt },
+    .{ .name = "stzengineproftotalnsat", .func = ring_ProfTotalNsAt },
+    .{ .name = "stzengineprofselfnsat", .func = ring_ProfSelfNsAt },
+    .{ .name = "stzengineprofsamplesat", .func = ring_ProfSamplesAt },
+    .{ .name = "stzengineprofreset", .func = ring_ProfReset },
+    .{ .name = "stzengineprofdestroy", .func = ring_ProfDestroy },
     .{ .name = "stzengineperftracescopeset", .func = ring_TraceScopeSet },
     .{ .name = "stzengineperftracescopeget", .func = ring_TraceScopeGet },
     .{ .name = "stzengineperftracescopeclear", .func = ring_TraceScopeClear },

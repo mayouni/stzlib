@@ -165,10 +165,14 @@ work is the path toward JFR-like depth, ruled a project of its own.
 - **Storage, query, visualization.** No TSDB, no PromQL, no Grafana.
   By design: export instead. But teams without a Prometheus stack get
   Show()/Explain(), not dashboards.
-- **Continuous profiling.** No flame graphs, no stack sampling --
-  pprof/async-profiler territory. The senses say WHETHER the process
-  computes; they do not say WHERE. (The engine could grow a sampling
-  profiler; nothing is designed yet.)
+- ~~Continuous profiling~~ **CLOSED (cooperatively) by P10**
+  (`stzProfiler`): an engine-side call tree with honest self-time, a
+  REAL sampler thread over the engine-held frame stack (constant
+  cost, statistically validated live: a 40:10 workload sampled
+  41:10), and folded-stacks export straight into flamegraph.pl /
+  speedscope. The honest boundary vs pprof: frames are cooperative
+  -- it profiles the code you bracket, because a native stack walker
+  under an interpreter would only ever see the VM's C internals.
 - **Distributed context beyond HTTP.** Traceparent propagates at the
   HTTP seam; there is no baggage, no async-context propagation
   through reactor jobs, no cross-process span reassembly inside

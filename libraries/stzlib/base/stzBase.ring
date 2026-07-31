@@ -495,6 +495,11 @@ ok
 # by it and OtelJson() ships the OTLP logs envelope (the OTel triad
 # complete: spans, metrics, logs).
     load "perf/stzTraceScope.ring"
+# P10: the frame profiler -- WHERE the time goes: cooperative frames,
+# engine-side call tree (self vs total), a REAL sampler thread
+# photographing the active path, folded-stacks flame-graph export.
+# (The stzProfiler name is the P0 fossil's, resurrected on the engine.)
+    load "perf/stzProfiler.ring"
 
 # Loading files related to the FILE module
 
