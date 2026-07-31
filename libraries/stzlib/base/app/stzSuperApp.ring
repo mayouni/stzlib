@@ -253,6 +253,16 @@ class stzSuperApp from stzObject
 		if len(@aCallLog) > 256
 			del(@aCallLog, 1)
 		ok
+		# Incident I2. The crossings log above IS a memory -- but a bounded,
+		# unchained, in-object one that a Ring copy forks and Save() drops.
+		# A refused crossing is the moment one world reached for another and
+		# was told no; it belongs in the evidence chain with everything else,
+		# under the actor that reached (the calling world) so the incident
+		# correlation finds it.
+		if NOT pbOk
+			StzNoteRefusal("crossworld.call.refused", "" + pcFrom,
+				"world:" + StzLower("" + pcTo) + "/" + StzLower("" + pcAction), @cWhy)
+		ok
 		return pbOk
 
 	#-- internals ----------------------------------------------------------

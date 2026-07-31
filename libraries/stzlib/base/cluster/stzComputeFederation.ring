@@ -173,32 +173,24 @@ class stzComputeFederation from stzObject
 		# SAFETY: a caller-controlled path must not override the target
 		# host (SSRF) or smuggle via CRLF -- it must be a real path.
 		if NOT This._SafePath(pcPath)
-			@cWhy = "unsafe path rejected (must start with '/', no CRLF): " + pcPath
-			@nLastStatus = -1
-			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
-			return ""
+			return This._RefuseCall(pcCaller, _cFacet_, _nPerfT0_,
+				"unsafe path rejected (must start with '/', no CRLF): " + pcPath)
 		ok
 		# DISCOVERY
 		_aHosts_ = This.MembersOffering(_cFacet_)
 		if len(_aHosts_) = 0
-			@cWhy = "no active host offers facet '" + _cFacet_ + "'"
-			@nLastStatus = -1
-			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
-			return ""
+			return This._RefuseCall(pcCaller, _cFacet_, _nPerfT0_,
+				"no active host offers facet '" + _cFacet_ + "'")
 		ok
 		# GOVERNANCE: a bond must permit the caller...
 		if NOT This.AreBonded(pcCaller, _cFacet_)
-			@cWhy = "no bond lets '" + pcCaller + "' request facet '" + _cFacet_ + "'"
-			@nLastStatus = -1
-			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
-			return ""
+			return This._RefuseCall(pcCaller, _cFacet_, _nPerfT0_,
+				"no bond lets '" + pcCaller + "' request facet '" + _cFacet_ + "'")
 		ok
 		# ...and the capability lattice must clear it
 		if @oGov.MayProceed(pcCaller, "use-" + _cFacet_) = 0
-			@cWhy = "governance refused: " + @oGov.Why()
-			@nLastStatus = -1
-			@nLastCallMs = (StzEngineWatchTimestampNs() - _nPerfT0_) / 1000000
-			return ""
+			return This._RefuseCall(pcCaller, _cFacet_, _nPerfT0_,
+				"governance refused: " + @oGov.Why())
 		ok
 		# SIGN (opt-in): if this caller has a registered shared key, sign the
 		# request and carry the envelope on the wire (_caller/_ts/_nonce/_sig).
@@ -304,6 +296,21 @@ class stzComputeFederation from stzObject
 		return This
 
 	#-- internals ----------------------------------------------------------
+
+	# The ONE refusal door for a federated call (incident I2). Four checks
+	# refuse here -- an SSRF-shaped path, a facet nobody offers, a missing
+	# bond, and the capability lattice -- and each used to write @cWhy and
+	# vanish. The first is an ATTACK signature rather than a
+	# misconfiguration, so it deserves to survive the next call more than
+	# any of them. Collapsing the four into one door also removed four
+	# copies of the timing bookkeeping.
+	def _RefuseCall(pcCaller, pcFacet, pnT0, pcWhy)
+		@cWhy = "" + pcWhy
+		@nLastStatus = -1
+		@nLastCallMs = (StzEngineWatchTimestampNs() - pnT0) / 1000000
+		StzNoteRefusal("federation.call.refused", "" + pcCaller,
+			"facet:" + pcFacet, @cWhy)
+		return ""
 
 	# A federated path is safe only if it starts with "/" (so a bare host
 	# / "@host" can never land in the URL authority -> no SSRF to an

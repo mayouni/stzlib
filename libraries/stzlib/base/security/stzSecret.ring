@@ -183,9 +183,20 @@ class stzSecret from stzObject
 	def _GateReveal(poActor)
 		if NOT This.IsRevealableBy(poActor)
 			_who_ = "an unauthorized actor"
+			_name_ = "(anonymous)"
 			if isObject(poActor)
 				_who_ = "actor '" + poActor.Name() + "' (posture " + poActor.Posture() + ")"
+				_name_ = "" + poActor.Name()
 			ok
+			# Incident I2. A raise reaches whoever wrote the try/catch and
+			# nobody else -- and a caller that swallows it makes the attempt
+			# disappear entirely. This is the BARE secret's gate; the store's
+			# gate was wired in I2's first pass, so a reveal refused here was
+			# the one that still went unremembered. The secret's NAME is a
+			# descriptor and safe to write; the value is never touched, which
+			# is why this line can sit inside the reveal path at all.
+			StzNoteRefusal("secret.reveal.refused", _name_, "secret:" + @cName,
+				_who_ + " may not reveal this secret")
 			StzRaise("Refused: " + _who_ + " may not reveal secret '" + @cName +
 				"'. Only an effectful, non-sandboxed actor can read a secret.")
 		ok

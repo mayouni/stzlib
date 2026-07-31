@@ -829,6 +829,25 @@ class stzAppServer from stzObject
 			_oResp_.Text("")   # handler set nothing: empty 200
 		ok
 		_oRct_.ServerWrite(_nSid_, _nConn_, _oResp_.HttpBytes(), _bClose_)
+		# Incident I2: the transport VERDICT is a security event. Reading it
+		# here rather than at each `Status(401, ...)` site is deliberate --
+		# there are nine of those inside this file alone, plus every route a
+		# user writes, and a seam that only sees the library's own refusals
+		# would miss exactly the ones an application added. One place, after
+		# the response is final, sees them all.
+		# Only 401 and 403 carry a security meaning: a 404 is a typo, a 500
+		# is a bug. The path is the subject; nothing from the request body
+		# or its headers is written, so a credential in an Authorization
+		# header cannot reach the ledger through this door.
+		_nSt_ = _oResp_.StatusCode()
+		if _nSt_ = 401
+			StzNoteRefusalFrom("http.request.unauthorized", "(anonymous)",
+				_cReqMethod_ + " " + _cReqPath_, "the transport gate refused the request",
+				"http")
+		but _nSt_ = 403
+			StzNoteRefusalFrom("http.request.forbidden", "(anonymous)",
+				_cReqMethod_ + " " + _cReqPath_, "policy refused the request", "http")
+		ok
 		# The bracket closes AFTER the write is submitted: R covers
 		# parse + gate + route + handler + render + write handoff.
 		if _oPerf_ != NULL

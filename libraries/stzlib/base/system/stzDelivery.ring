@@ -644,6 +644,18 @@ class stzDelivery from stzObject
 					if _aSvcF_[_i_][:severity] = :error
 						@oLog.Record(:error, "" + _aSvcF_[_i_][:invariant] + " @ " +
 						             _aSvcF_[_i_][:where], [ [ :why, _aSvcF_[_i_][:message] ] ])
+						# Incident I2: one event per UNSOUND SERVICE, not one
+						# per refused deploy -- the incident's Subjects() then
+						# names which services were still fake, which is the
+						# question a post-mortem asks. Recorded here, at the
+						# refusal, and NOT inside MayGoLive: that one is a
+						# preflight anyone may ask speculatively, and a
+						# predicate that writes evidence would fill the ledger
+						# with questions instead of events.
+						StzNoteRefusal("service.production_fake_refused",
+							This._ActorName(),
+							"service:" + _aSvcF_[_i_][:where],
+							"" + _aSvcF_[_i_][:invariant] + ": " + _aSvcF_[_i_][:message])
 					ok
 				next
 			else

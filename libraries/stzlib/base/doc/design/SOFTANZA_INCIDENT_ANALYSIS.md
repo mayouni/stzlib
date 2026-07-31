@@ -77,7 +77,37 @@
 > `test/system/security_seams_narrated.ring` (37 assertions: the
 > off-state, all four signer signals, both store outcomes, the
 > redaction law across the WHOLE ledger, the two former gaps, 10
-> distinct kinds firing, chain intact). Eleven security/auth/governance
+> **I2, SECOND PASS delivered:** the rest of the section 7 table.
+> `stzOidcClient._Refuse` (`sso.token.rejected`), `stzOidcProvider`'s
+> two refusal doors (`oauth.client.rejected`) plus a bounded
+> spent-code memory so `oauth.code.replayed` is a claim the provider
+> can back — a stolen code replayed and a code nobody issued used to
+> be the same refusal, and the ANSWER still is; only the ledger tells
+> them apart. `stzAppServer` reads the transport verdict ONCE where the
+> response is final (401/403 only — a 404 is a typo, a 500 is a bug):
+> there are nine `Status(401)` sites in that file alone, and a seam at
+> each would still have missed every route an application writes.
+> `stzRateLimiter` (`ratelimit.shed`, `info` — the counter says how
+> many, the ledger says when). `stzSuperApp._CrossingDone` and a new
+> single `stzComputeFederation._RefuseCall` door collapsing four
+> copies of the same bookkeeping. `stzDelivery._DeployProduction`
+> records one event per UNSOUND SERVICE — at the refusal, never inside
+> `MayGoLive`, which is a preflight anyone may ask (a predicate that
+> writes evidence fills the ledger with questions). `stzSecret._GateReveal`
+> (the bare secret's gate; the raise reaches only whoever wrote the
+> try/catch). `stzSecurityGraph` gained `AuditEscalations()` — a VERB,
+> because the reachability queries are asked dozens of times during an
+> investigation and a question that writes evidence would chain the
+> investigator's own curiosity; it names the PATH, not just the risk.
+> And the session lifecycle (`auth.session.revoked` / `.expired`),
+> recorded BEFORE the row is deleted, with the token — a bearer
+> credential — never written. That last seam forced a FOURTH OUTCOME,
+> `Observed`: an expiring session is neither granted nor refused, and
+> `IsRefusal()` plus the ledger's `Refusals()` pivot both read
+> `!= "granted"`, so it would have been counted as a refusal in a
+> system whose whole point is that a warning means something. Both are
+> now positive lists. Guard: `security_seams2_narrated.ring` (41).
+> Eleven security/auth/governance
 > suites re-run green. Still unwired (kinds exist, one line each):
 > OIDC token+code, cross-world/federated refusals, HTTP 401/403,
 > rate-limit sheds, production-fake refusal, graph escalation paths.
@@ -533,6 +563,12 @@ the CI gate, and the sealed ledger slice with a custody statement
 The phase that makes the library stop forgetting. Every row already
 *detects*; none of them currently *remembers*:
 
+> **ALL WIRED (2026-08-01).** The first pass wired six classes and left
+> the rest listed-but-open; the second pass closed every row. The
+> "Today" column below is the state the phase found, kept as the record
+> of what each row cost. Guards: `security_seams_narrated` (37) +
+> `security_seams2_narrated` (41).
+
 | Event | Seam | Today |
 |---|---|---|
 | login / 2FA / OTP / passkey failure, lockout | `stzAuth` login paths (`:269, :316, :677, :1018`) | counter only, wiped on success |
@@ -618,13 +654,18 @@ green before the next begins.
   link; the analyst pivots; `SealTo`/`StzVerifySealedLedger` telling an
   edited file apart from a wrong key; the standalone HMAC engine export
   delivered. 35 assertions.
-- **I2 — The seams. SHIPPED 2026-08-01 (six classes; the rest listed
-  above as remaining).** The process ledger + `StzNote*` helpers, the
-  engine-held current slot, and the wiring of the signer's four
-  signals, the passkey refusals, SAML replay, the secret store's two
-  outcomes, every auth failure, and the three plan refusals —
-  including scope and posture, which no audit had ever recorded. 37
-  assertions; eleven suites green.
+- **I2 — The seams. SHIPPED 2026-08-01 — BOTH PASSES; the section 7
+  table is fully wired.** First pass: the process ledger + `StzNote*`
+  helpers, the engine-held current slot, and six classes — the signer's
+  four signals, the passkey refusals, SAML replay, the secret store's
+  two outcomes, every auth failure, and the three plan refusals,
+  including scope and posture, which no audit had ever recorded (37
+  assertions). Second pass: the OIDC client and provider, the transport
+  gate, the rate limiter, cross-world and federated crossings, the
+  production door, the bare secret's reveal gate, the escalation audit,
+  and the session lifecycle — plus the `observed` outcome and the two
+  refusal-pivot defects it exposed (41 assertions). Twenty-three suites
+  green across security, auth, appserver, perf, cluster and delivery.
 - **I3 — Detection. SHIPPED 2026-08-01.** `stzDetection`/
   `stzDetectionSet`: burst / sequence / any-occurrence over the
   ledger, the corroboration law, eight shipped detections, findings
@@ -677,12 +718,24 @@ green before the next begins.
 - **Bounded means forgetting.** A ring buffer loses the oldest events by
   design; a long, slow campaign outruns the window unless exported.
   I1 will make the window explicit rather than pretend otherwise.
-- **Seams still unwired (the largest real gap).** I2 wired six classes;
-  OIDC token/code refusals, cross-world and federated refusals, HTTP
-  401/403 at the dispatcher, rate-limit sheds, production-fake refusals
-  and graph escalation paths remain one line each. The kinds are in the
-  catalog; the calls are not written. A detection sees only what a seam
-  emits.
+- ~~**Seams still unwired.**~~ **CLOSED 2026-08-01 (I2, second pass).**
+  Every row of the section 7 table now emits. Three of them needed more
+  than a one-line call, and each is recorded there: the OIDC provider
+  could not tell a REPLAYED authorization code from an unknown one (it
+  now remembers spent codes, bounded, so `oauth.code.replayed` is a
+  claim it can back); the transport verdict is read once where the
+  response is final rather than at each `Status(401)` site, so routes an
+  application writes are covered too; and session lifecycle facts forced
+  a fourth outcome into the vocabulary — `observed`, for what is neither
+  granted nor refused. That last one exposed a live defect in two
+  places: `IsRefusal()` and the ledger's `Refusals()` pivot both read
+  `outcome != "granted"`, so an expired session would have counted as a
+  refusal. Both are now positive lists.
+- **A seam is still only as good as its gates.** Everything above
+  witnesses what the LIBRARY's gates decide. Application code that
+  refuses on its own terms, without going through a Softanza gate or
+  answering 401/403, remains invisible — and that is the permanent form
+  of this caveat, not a phase that can close it.
 
 > **The comparison with the field now lives in its own document**, written
 > at completion as the rule requires: `SOFTANZA_INCIDENT_VS_THE_FIELD.md`

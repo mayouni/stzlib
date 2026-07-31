@@ -411,6 +411,15 @@ class stzOidcClient from stzObject
 
 	def _Refuse(pcWhy)
 		@cLastWhy = "" + pcWhy
+		# Incident I2, the same move stzSaml._Refuse makes: @cLastWhy is ONE
+		# slot the next verification overwrites, so a token that failed its
+		# signature check is forgotten the moment the next one is checked.
+		# A run of rejected id-tokens from one issuer is how a broken key
+		# rotation -- or a forged-token campaign -- announces itself, and
+		# neither is visible from a single Why(). The token itself is a
+		# CREDENTIAL and never enters the ledger; only the issuer it claims
+		# and the reason it failed do.
+		StzNoteRefusal("sso.token.rejected", @cIssuer, "idp:" + @cIssuer, @cLastWhy)
 		return [ :ok = FALSE, :subject = "", :email = "", :claims = "", :why = @cLastWhy ]
 
 	# the JWK for a kid. A JWKS with exactly ONE key resolves even when the token
