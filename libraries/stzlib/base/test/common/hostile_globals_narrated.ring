@@ -95,6 +95,30 @@ Scenario("Number hot paths keep their hands off the caller's globals")
 	Then("param-named-n sibling is unaffected", StzNumberQ(8).IsDoubleOf(4), 1)
 EndScenario()
 
+# The last three hostile names that still had bare assignments in the
+# library: nLen (stzDelivery, stzReactor), value (stzPivotTable,
+# stzList) and cCode (stzChainOfTruth, stzCCode). cCode is the sharpest
+# of them -- it holds the STRING handed to eval(), so a user script
+# using that name had its own variable replaced by library source code.
+Scenario("The last three hostile names: nLen, value and cCode")
+	oHgDel = new stzDelivery("hostile-probe")
+	oHgDel.AddBackend("api", "linux")
+	oHgDel.NeedsIn("api", [ :graph ])
+	Then("delivery planned a part", oHgDel.NumberOfParts(), 1)
+
+	oHgList = new stzList([ 1, 2 ])
+	oHgList.ExtendToPosition(4)
+	Then("list extended with a default", @@( oHgList.Content() ), @@([ 1, 2, 0, 0 ]))
+
+	# Exercises the eval() path that assigns cCode. Deliberately asserts
+	# only that it RETURNS -- `_("Ring").Is("String")` answers 0, which
+	# looks wrong but is unchanged by this fix (verified against the
+	# pre-rename file). Blessing that 0 here would turn a suspected
+	# defect into a pinned expectation.
+	bHgIs = _("Ring").Is("String")._
+	Then("chain-of-truth's eval path returns a verdict", isNumber(bHgIs), TRUE)
+EndScenario()
+
 Scenario("THE POINT: the library never clobbers the user's variables")
 	Then("nLen intact", nLen, 5)
 	Then("i intact", i, 2)

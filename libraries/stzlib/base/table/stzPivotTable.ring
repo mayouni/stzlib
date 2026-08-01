@@ -153,7 +153,7 @@ class stzPivotTable from stzList
 		@bIsGenerated = FALSE
 
 	def SetValue(pcValue)
-		# Set single value for aggregation
+		# Set single _value_ for aggregation
 		@aValues = [pcValue]
 		@bIsGenerated = FALSE
 
@@ -191,7 +191,7 @@ class stzPivotTable from stzList
 		@bIsGenerated = FALSE
 
 	def SetNullValue(pcValue)
-		# Set value for null/empty cells
+		# Set _value_ for null/empty cells
 		@cCellNullValue = pcValue
 		@bIsGenerated = FALSE
 
@@ -210,7 +210,7 @@ class stzPivotTable from stzList
 			stzRaise("You must specify at least one column label")
 		ok
 		if len(@aValues) = 0
-			stzRaise("You must specify at least one value column")
+			stzRaise("You must specify at least one _value_ column")
 		ok
 
 		@aCellCache = []
@@ -631,7 +631,7 @@ class stzPivotTable from stzList
 
 	def _calculateCellValueMulti(_aRowValues_, _aColValues_)
 
-		# Calculate cell value for given row and column combinations
+		# Calculate cell _value_ for given row and column combinations
 		_aFlatRowValues_ = _flattenArray(_aRowValues_)
 		_aFlatColValues_ = _flattenArray(_aColValues_)
 
@@ -725,9 +725,9 @@ class stzPivotTable from stzList
 				loop
 			ok
 			
-			# Add matching value
-			value = @oSourceTable.Cell(_nValueColIndex_, r)
-			_aMatchingValues_ + value
+			# Add matching _value_
+			_value_ = @oSourceTable.Cell(_nValueColIndex_, r)
+			_aMatchingValues_ + _value_
 
 		next
 		
@@ -753,15 +753,15 @@ class stzPivotTable from stzList
 					_subArr_ = _aRowValues_[_iLoopRowValues2_]
 					_nSubArr3Len_ = len(_subArr_)
 					for _iLoopSubArr3_ = 1 to _nSubArr3Len_
-						value = _subArr_[_iLoopSubArr3_]
-						_cKey_ += "R:" + value + ";"
+						_value_ = _subArr_[_iLoopSubArr3_]
+						_cKey_ += "R:" + _value_ + ";"
 					next
 				next
 			else
 				_nRowValues1Len_ = len(_aRowValues_)
 				for _iLoopRowValues1_ = 1 to _nRowValues1Len_
-					value = _aRowValues_[_iLoopRowValues1_]
-					_cKey_ += "R:" + value + ";"
+					_value_ = _aRowValues_[_iLoopRowValues1_]
+					_cKey_ += "R:" + _value_ + ";"
 				next
 			ok
 		ok
@@ -773,15 +773,15 @@ class stzPivotTable from stzList
 					_subArr_ = _aColValues_[_iLoopColValues2_]
 					_nSubArr2Len_ = len(_subArr_)
 					for _iLoopSubArr2_ = 1 to _nSubArr2Len_
-						value = _subArr_[_iLoopSubArr2_]
-						_cKey_ += "C:" + value + ";"
+						_value_ = _subArr_[_iLoopSubArr2_]
+						_cKey_ += "C:" + _value_ + ";"
 					next
 				next
 			else
 				_nColValues1Len_ = len(_aColValues_)
 				for _iLoopColValues1_ = 1 to _nColValues1Len_
-					value = _aColValues_[_iLoopColValues1_]
-					_cKey_ += "C:" + value + ";"
+					_value_ = _aColValues_[_iLoopColValues1_]
+					_cKey_ += "C:" + _value_ + ";"
 				next
 			ok
 		ok
@@ -800,7 +800,7 @@ class stzPivotTable from stzList
 		return FALSE
 
 	def _getFromCache(_cKey_)
-		# Retrieve value from cache
+		# Retrieve _value_ from cache
 		_nCellCache1Len_ = len(@aCellCache)
 		for _iLoopCellCache1_ = 1 to _nCellCache1Len_
 			_item_ = @aCellCache[_iLoopCellCache1_]
@@ -917,7 +917,7 @@ class stzPivotTable from stzList
 		ok
 
 	def Value(paRowValues, paColValues)
-		# Get value for specific row and column combination
+		# Get _value_ for specific row and column combination
 		if not @bIsGenerated
 			Generate()
 		ok
@@ -1331,15 +1331,15 @@ class stzPivotTable from stzList
 			# Data cells
 			for i = 1 to _nDataColsLen_
 				_colIdx_ = _aDataCols_[i]
-				value = ""
+				_value_ = ""
 				if _colIdx_ <= len(_aPivotData_[r])
-					value = _aPivotData_[r][_colIdx_]
+					_value_ = _aPivotData_[r][_colIdx_]
 				ok
 			
-				if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-					_cLine_ += " " + PadLeft(value, _aDataColWidths_[i] - 2) + " "
+				if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+					_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[i] - 2) + " "
 				else
-					_cLine_ += " " + PadRight(value, _aDataColWidths_[i] - 2) + " "
+					_cLine_ += " " + PadRight(_value_, _aDataColWidths_[i] - 2) + " "
 				ok
 			
 				if i < _nDataColsLen_
@@ -1353,7 +1353,7 @@ class stzPivotTable from stzList
 				_totalValue_ = _aPivotData_[r][_nTotalColIndex_]
 			ok
 
-			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + value))
+			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + _value_))
 				_cLine_ += @aBorder[:Vertical] + " " + PadLeft(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 			else
 				_cLine_ += @aBorder[:Vertical] + " " + PadRight(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
@@ -1386,15 +1386,15 @@ class stzPivotTable from stzList
 		
 			for i = 1 to _nDataColsLen_
 				_colIdx_ = _aDataCols_[i]
-				value = ""
+				_value_ = ""
 				if _colIdx_ <= len(_totalRow_)
-					value = _totalRow_[_colIdx_]
+					_value_ = _totalRow_[_colIdx_]
 				ok
 			
-				if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-					_cLine_ += " " + PadLeft(value, _aDataColWidths_[i] - 2) + " "
+				if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+					_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[i] - 2) + " "
 				else
-					_cLine_ += " " + PadRight(value, _aDataColWidths_[i] - 2) + " "
+					_cLine_ += " " + PadRight(_value_, _aDataColWidths_[i] - 2) + " "
 				ok
 			
 				if i < _nDataColsLen_
@@ -1782,12 +1782,12 @@ class stzPivotTable from stzList
 					_colIdx_ = _aColGroups_[_key_]
 					
 					if _colIdx_ != NULL
-						value = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
+						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 						
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 						
 						if i2 < _nColDim2ValuesLen_
@@ -1804,7 +1804,7 @@ class stzPivotTable from stzList
 			# Total column
 			_totalValue_ = @if(_nTotalColIndex_ <= len(_aPivotData_[r]), _aPivotData_[r][_nTotalColIndex_], "")
 			
-			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + value))
+			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + _value_))
 				_cLine_ += @aBorder[:Vertical] + " " + PadLeft(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 			else
 				_cLine_ += @aBorder[:Vertical] + " " + PadRight(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
@@ -1904,12 +1904,12 @@ class stzPivotTable from stzList
 					
 					if _colIdx_ != NULL
 
-						value = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
+						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 						
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 						
 						if _dim2Value_ != _aColDim2Values_[_nColDim2ValuesLen_]
@@ -2401,12 +2401,12 @@ class stzPivotTable from stzList
 					_colIdx_ = _aColGroups_[_key_]
 					
 					if _colIdx_ != NULL
-						value = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
+						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 						
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 						
 						if i2 < _nColDim2ValuesLen_
@@ -2482,10 +2482,10 @@ class stzPivotTable from stzList
 						_key_ = _dim1Value_ + "_" + _dim2Value_
 						
 						if HasKey(_aDataColWidths_, _key_)
-							value = _aGroupTotals_[_cCurrentRowDim1_][_key_]
+							_value_ = _aGroupTotals_[_cCurrentRowDim1_][_key_]
 							
-							if isNumber(value) and value != 0
-								_cLine_ += " " + PadLeft("" + value, _aDataColWidths_[_key_] - 2) + " "
+							if isNumber(_value_) and _value_ != 0
+								_cLine_ += " " + PadLeft("" + _value_, _aDataColWidths_[_key_] - 2) + " "
 							else
 								_cLine_ += " " + PadLeft("", _aDataColWidths_[_key_] - 2) + " "
 							ok
@@ -2502,10 +2502,10 @@ class stzPivotTable from stzList
 				next
 				
 				# Add subtotal for total column
-				value = _aGroupTotals_[_cCurrentRowDim1_]["total"]
+				_value_ = _aGroupTotals_[_cCurrentRowDim1_]["total"]
 				
-				if isNumber(value) and value != 0
-					_cLine_ += @aBorder[:Vertical] + " " + PadLeft("" + value, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
+				if isNumber(_value_) and _value_ != 0
+					_cLine_ += @aBorder[:Vertical] + " " + PadLeft("" + _value_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 				else
 					_cLine_ += @aBorder[:Vertical] + " " + PadLeft("", _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 				ok
@@ -2597,12 +2597,12 @@ class stzPivotTable from stzList
 					_colIdx_ = _aColGroups_[_key_]
 					
 					if _colIdx_ != NULL
-						value = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
+						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 						
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 						
 						if _dim2Value_ != _aColDim2Values_[_nColDim2ValuesLen_]
@@ -2977,12 +2977,12 @@ class stzPivotTable from stzList
 					_colIdx_ = _aColGroups_[_key_]
 				
 					if _colIdx_ != NULL
-						value = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
+						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 					
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 					
 						if j < _nColDim2Len_
@@ -3002,7 +3002,7 @@ class stzPivotTable from stzList
 
 			_totalValue_ = @if(_nTotalColIndex_ <= len(_aPivotData_[r]), _aPivotData_[r][_nTotalColIndex_], "")
 
-			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + value))
+			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + _value_))
 				_cLine_ += @aBorder[:Vertical] + " " + PadLeft(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 
 			else
@@ -3067,13 +3067,13 @@ class stzPivotTable from stzList
 				
 					if _colIdx_ != NULL
 
-						value = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
+						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 					
-						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-							_cLine_ += " " + PadLeft(value, _aDataColWidths_[_key_] - 2) + " "
+						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+							_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[_key_] - 2) + " "
 
 						else
-							_cLine_ += " " + PadRight(value, _aDataColWidths_[_key_] - 2) + " "
+							_cLine_ += " " + PadRight(_value_, _aDataColWidths_[_key_] - 2) + " "
 						ok
 					
 						if j < _nColDim2Len_
@@ -3406,17 +3406,17 @@ class stzPivotTable from stzList
 
 			for i = 1 to _nDataColsLen_
 				_colIdx_ = _aDataCols_[i]
-				value = ""
+				_value_ = ""
 
 				if _colIdx_ <= len(_aPivotData_[r])
-					value = _aPivotData_[r][_colIdx_]
+					_value_ = _aPivotData_[r][_colIdx_]
 				ok
 			
-				if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-					_cLine_ += " " + PadLeft(value, _aDataColWidths_[i] - 2) + " "
+				if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+					_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[i] - 2) + " "
 
 				else
-					_cLine_ += " " + PadRight(value, _aDataColWidths_[i] - 2) + " "
+					_cLine_ += " " + PadRight(_value_, _aDataColWidths_[i] - 2) + " "
 				ok
 			
 				if i < _nDataColsLen_
@@ -3433,7 +3433,7 @@ class stzPivotTable from stzList
 				_totalValue_ = _aPivotData_[r][_nTotalColIndex_]
 			ok
 		
-			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + value))
+			if isNumber(_totalValue_) or (isString(_totalValue_) and _totalValue_ != "" and isNumber(0 + _value_))
 				_cLine_ += @aBorder[:Vertical] + " " + PadLeft(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
 			else
 				_cLine_ += @aBorder[:Vertical] + " " + PadRight(_totalValue_, _nTotalColWidth_ - 2) + " " + @aBorder[:Vertical]
@@ -3495,17 +3495,17 @@ class stzPivotTable from stzList
 		for i = 1 to _nDataColsLen_
 
 			_colIdx_ = _aDataCols_[i]
-			value = ""
+			_value_ = ""
 
 			if _colIdx_ <= len(_totalRow_)
-				value = _totalRow_[_colIdx_]
+				_value_ = _totalRow_[_colIdx_]
 			ok
 
-			if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
-				_cLine_ += " " + PadLeft(value, _aDataColWidths_[i] - 2) + " "
+			if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
+				_cLine_ += " " + PadLeft(_value_, _aDataColWidths_[i] - 2) + " "
 
 			else
-				_cLine_ += " " + PadRight(value, _aDataColWidths_[i] - 2) + " "
+				_cLine_ += " " + PadRight(_value_, _aDataColWidths_[i] - 2) + " "
 			ok
 		
 			if i < _nDataColsLen_

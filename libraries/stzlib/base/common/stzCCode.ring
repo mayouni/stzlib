@@ -161,7 +161,7 @@ class stzCCode from stzObject
 		# forms of conditiobal functions, enabling them to be more
 		# expressive, but it also introduces a performance overhead.
 
-		cCode = StzStringQ(This.Code()).
+		_cCode_ = StzStringQ(This.Code()).
 			TrimQ().
 			RemoveTheseBoundsQ("{","}").
 
@@ -179,7 +179,7 @@ class stzCCode from stzObject
 		# are generated as found in the fellowing list:
 		# ~> we can also add Keywords()
 
-		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
+		_cCode_ = Q(_cCode_).TheseSubstringsSpacifiedCS([
 			"@items", "@allItems", "@item",
 		
 			"@chars", "@allChars", "@char",
@@ -228,7 +228,7 @@ class stzCCode from stzObject
 			
 		], 0)
 
-		_oResult_ = StzStringQ(" " + cCode + " ")
+		_oResult_ = StzStringQ(" " + _cCode_ + " ")
 
 		_oResult_.ReplaceManyCS([
 			" @items ","@allItems",

@@ -118,8 +118,8 @@ class stzReactor from stzObject
 			acArgv = [ acArgv ]
 		ok
 		cJoined = ""
-		nLen = len(acArgv)
-		for i = 1 to nLen
+		_nLen_ = len(acArgv)
+		for i = 1 to _nLen_
 			if i > 1  cJoined += char(10)  ok
 			cJoined += "" + acArgv[i]
 		next
