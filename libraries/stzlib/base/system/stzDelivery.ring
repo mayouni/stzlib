@@ -111,8 +111,8 @@ class stzCapabilityCatalog from stzObject
 
 	def _Keys()
 		_out_ = []
-		nLen = len(@aCaps)
-		for i = 1 to nLen
+		_nLen_ = len(@aCaps)
+		for i = 1 to _nLen_
 			_out_ + @aCaps[i][1]
 		next
 		return _out_
@@ -120,8 +120,8 @@ class stzCapabilityCatalog from stzObject
 	# unknown capability -> assume Softanza-differential compute, platform-weak.
 	def Record(pcName)
 		_c_ = StzLower("" + pcName)
-		nLen = len(@aCaps)
-		for i = 1 to nLen
+		_nLen_ = len(@aCaps)
+		for i = 1 to _nLen_
 			if @aCaps[i][1] = _c_
 				return @aCaps[i]
 			ok
@@ -239,8 +239,8 @@ class stzDelivery from stzObject
 
 	def _PartIndex(pcName)
 		_c_ = StzLower("" + pcName)
-		nLen = len(@aParts)
-		for i = 1 to nLen
+		_nLen_ = len(@aParts)
+		for i = 1 to _nLen_
 			if @aParts[i][1] = _c_
 				return i
 			ok
@@ -262,8 +262,8 @@ class stzDelivery from stzObject
 		ok
 		_caps_ = []
 		if isList(paCaps)
-			nLen = len(paCaps)
-			for k = 1 to nLen
+			_nLen_ = len(paCaps)
+			for k = 1 to _nLen_
 				_caps_ + StzLower("" + paCaps[k])
 			next
 		ok
@@ -512,8 +512,8 @@ class stzDelivery from stzObject
 			[ "Json",       "json" ]
 		]
 		_found_ = []
-		nLen = len(_aMap_)
-		for i = 1 to nLen
+		_nLen_ = len(_aMap_)
+		for i = 1 to _nLen_
 			if StzFindFirst(_aMap_[i][1], pcSrc) > 0 and StzFindFirst(_aMap_[i][2], _found_) = 0
 				_found_ + _aMap_[i][2]
 			ok
@@ -548,8 +548,8 @@ class stzDelivery from stzObject
 
 	def RequirementFor(pcPart)
 		_c_ = StzLower("" + pcPart)
-		nLen = len(@aReqs)
-		for i = 1 to nLen
+		_nLen_ = len(@aReqs)
+		for i = 1 to _nLen_
 			if @aReqs[i][1] = _c_
 				return @aReqs[i][2]
 			ok
@@ -580,8 +580,8 @@ class stzDelivery from stzObject
 	# thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
 		_oPlan_ = new stzBuildPlan(@cName)
-		nLen = len(@aParts)
-		for i = 1 to nLen
+		_nLen_ = len(@aParts)
+		for i = 1 to _nLen_
 			_name_ = @aParts[i][1]
 			_kind_ = @aParts[i][2]
 			_tname_ = @aParts[i][3]
@@ -773,8 +773,8 @@ class stzBuildPlan from stzObject
 
 	def _Idx(pcName)
 		_c_ = StzLower("" + pcName)
-		nLen = len(@aParts)
-		for i = 1 to nLen
+		_nLen_ = len(@aParts)
+		for i = 1 to _nLen_
 			if @aParts[i][1] = _c_
 				return i
 			ok
@@ -783,8 +783,8 @@ class stzBuildPlan from stzObject
 
 	def _KeysByVector(paDecisions, pcVector)
 		_out_ = []
-		nLen = len(paDecisions)
-		for i = 1 to nLen
+		_nLen_ = len(paDecisions)
+		for i = 1 to _nLen_
 			if paDecisions[i][3] = pcVector
 				_out_ + paDecisions[i][1]
 			ok
@@ -793,8 +793,8 @@ class stzBuildPlan from stzObject
 
 	def _DisplaysByVector(paDecisions, pcVector)
 		_out_ = []
-		nLen = len(paDecisions)
-		for i = 1 to nLen
+		_nLen_ = len(paDecisions)
+		for i = 1 to _nLen_
 			if paDecisions[i][3] = pcVector
 				_out_ + paDecisions[i][2]
 			ok
@@ -803,8 +803,8 @@ class stzBuildPlan from stzObject
 
 	def _EngineKb(paDecisions)
 		_kb_ = 0
-		nLen = len(paDecisions)
-		for i = 1 to nLen
+		_nLen_ = len(paDecisions)
+		for i = 1 to _nLen_
 			if paDecisions[i][3] = "engine"
 				_kb_ += paDecisions[i][5]
 			ok
@@ -848,8 +848,8 @@ class stzBuildPlan from stzObject
 		ok
 		_cc_ = StzLower("" + pcCap)
 		_decs_ = @aParts[_i_][5]
-		nLen = len(_decs_)
-		for k = 1 to nLen
+		_nLen_ = len(_decs_)
+		for k = 1 to _nLen_
 			if _decs_[k][1] = _cc_
 				return _decs_[k][3]
 			ok

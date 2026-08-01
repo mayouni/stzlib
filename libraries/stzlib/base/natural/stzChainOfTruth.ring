@@ -266,21 +266,21 @@ class stzChainOfTruth from stzObject
 				# named the method as it was BEFORE it took its Q -- and a
 				# name inside an eval'd STRING is invisible to a rename sweep,
 				# so it went on compiling and died at run time with R3.
-				cCode = 'bResult = This.StzObjectQ().Is' + pThing + '()'
-				eval(cCode)
+				_cCode_ = 'bResult = This.StzObjectQ().Is' + pThing + '()'
+				eval(_cCode_)
 	
 			# Case of a function call
 			but (StzFindFirst("(", pThing) > 1 and StzFindFirst(")", pThing) > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst("(", pThing) < StzFindFirst(")", pThing) and StzRight(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
-				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
-				eval(cCode)
+				_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
+				eval(_cCode_)
 
 			else
 				# Case of an eventual function call
-				cCode = pThing
+				_cCode_ = pThing
 				try
-					eval(cCode)
+					eval(_cCode_)
 				catch
 					bResult = 0
 				done
@@ -393,7 +393,7 @@ class stzChainOfTruth from stzObject
 			ok
 
 			_cFunCode_ = _cFuncName_ + '(' + FunctionParam(pThing) + ')'
-			cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + _cFunCode_
+			_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + _cFunCode_
 	
 			#--> Example of generated code:
 			# bResult = _("H").Q.IsLetterOf("HUSSEIN")
@@ -403,7 +403,7 @@ class stzChainOfTruth from stzObject
 			# Now, we evaluate that code and get 1 or 0
 			# as produced, normally, by the @ softanza object
 			
-			eval(cCode)
+			eval(_cCode_)
 
 			# Let's leverage the result we got to apply the sepeciefic
 			# semantics of IsA() as explained above
@@ -412,9 +412,9 @@ class stzChainOfTruth from stzObject
 			_cMethod_ = StzLeft(_cFuncName_, StzLen(_cFuncName_) - 2)
 			_cIsMethod_ = "is" + _cMethod_
 			_cIsMethodCall_ = _cIsMethod_ + "()"
-			cCode = "bPass = _(" + ComputableForm(_cValue_) + ").Q.NumberOfItemsW('{ _(@item).Q." + _cIsMethodCall_ + " }') > 1"
+			_cCode_ = "bPass = _(" + ComputableForm(_cValue_) + ").Q.NumberOfItemsW('{ _(@item).Q." + _cIsMethodCall_ + " }') > 1"
 
-				eval(cCode)
+				eval(_cCode_)
 	
 
 			if bResult = 1 and bPass
@@ -485,14 +485,14 @@ class stzChainOfTruth from stzObject
 
 		pcMethod = StringSimplified(pcMethod)
 
-		cCode = 'bResult = This.StzObjectQ().' + pcMethod
+		_cCode_ = 'bResult = This.StzObjectQ().' + pcMethod
 
 		if NOT (StzFindFirst("(", pcMethod) > 1 and StzFindFirst(")", pcMethod) > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFindFirst("(", pcMethod) < StzFindFirst(")", pcMethod) and StzRight(pcMethod, 1) = ")")
-			cCode += "()"
+			_cCode_ += "()"
 		ok
 
 		try
-			eval(cCode)
+			eval(_cCode_)
 		catch
 			StzRaise("Syntax Error. check the code you provided as a param of Which()...")
 		done
@@ -547,14 +547,14 @@ class stzChainOfTruth from stzObject
 
 		_cCondition_ = StringSimplified(pcCondition)
 
-		cCode = "if This.StzObjectQ()." + _cCondition_ + NL +
+		_cCode_ = "if This.StzObjectQ()." + _cCondition_ + NL +
 			"	" + "bResult = 1" + NL +
 			"else" + NL +
 			"	bResult = 0" + NL +
 			"ok"
 
 		try
-			eval(cCode)
+			eval(_cCode_)
 		catch
 			StzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
@@ -695,8 +695,8 @@ class stzChainOfTruth from stzObject
 		#>
 
 	def Nor(p)
-		cCode = 'bResult = This.' + This.NeightherFunction() + '(p)'
-		eval(cCode)
+		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
+		eval(_cCode_)
 
 		return bResult
 
@@ -744,14 +744,14 @@ class stzChainOfTruth from stzObject
 
 			pcThing = StringSimplified(pcThing)
 
-			cCode = 'result = Nth' + pcThing
+			_cCode_ = 'result = Nth' + pcThing
 	
-			_oStzString_ = new stzString(cCode)
+			_oStzString_ = new stzString(_cCode_)
 			_n_ = _oStzString_.FindFirst("(")
 	
-			cCode = StzLeft(cCode, _n_) + "" + This.Value() + ", " + StzMid(cCode, _n_ + 1, StzLen(cCode) - _n_)
+			_cCode_ = StzLeft(_cCode_, _n_) + "" + This.Value() + ", " + StzMid(_cCode_, _n_ + 1, StzLen(_cCode_) - _n_)
 
-			eval(cCode)
+			eval(_cCode_)
 
 			return _( result )
 		ok

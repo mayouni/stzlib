@@ -9991,13 +9991,13 @@ class stzList from stzObject
 		_nLen_ = This.NumberOfItems()
 		_aContent_ = This.Content()
 		if _n_ > _nLen_
-			value = ""
+			_value_ = ""
 			if This.IsListOfNumbers()
-				value = 0
+				_value_ = 0
 			ok
 			_nExtend_ = _n_ - _nLen_
 			for _i_ = 1 to _nExtend_
-				_aContent_ + value
+				_aContent_ + _value_
 			next
 		ok
 		This.UpdateWith(_aContent_)
