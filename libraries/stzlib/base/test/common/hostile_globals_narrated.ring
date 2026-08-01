@@ -76,6 +76,25 @@ Scenario("The range-parser helpers keep their hands off the caller's globals")
 	Then("app thing added", @@( oHgApp.Things() ), @@([ [ "dish", [ ] ] ]))
 EndScenario()
 
+# stzNumber leaked the same way, in eleven places: Factorial, Fibonacci,
+# Absolute, IsADigit, IsBetween(IB), PrimeFactors(XT), MultiplesUntil,
+# IsRGBColor and the [] operator all assigned a bare `n`. The sibling
+# methods that take an `n` PARAMETER were always safe -- a parameter is a
+# real local -- and two are exercised here so the distinction stays
+# visible rather than being re-litigated every time someone greps.
+Scenario("Number hot paths keep their hands off the caller's globals")
+	Then("factorial", StzNumberQ(5).Factorial(), "120")
+	Then("fibonacci", StzNumberQ(10).Fibonacci(), "55")
+	Then("absolute", StzNumberQ(-3).Absolute(), 3)
+	Then("is-a-digit", StzNumberQ(7).IsADigit(), 1)
+	Then("is-between", StzNumberQ(5).IsBetween(2, 9), 1)
+	Then("prime factors", @@( StzNumberQ(12).PrimeFactors() ), @@([ 2, 3 ]))
+	Then("multiples until", @@( StzNumberQ(3).MultiplesUntil(9) ), @@([ 3, 6, 9 ]))
+	Then("rgb check", IsRGBColor([ 10, 20, 30 ]), 1)
+	Then("floor-divide operator", Q(345)['// 100'], 3)
+	Then("param-named-n sibling is unaffected", StzNumberQ(8).IsDoubleOf(4), 1)
+EndScenario()
+
 Scenario("THE POINT: the library never clobbers the user's variables")
 	Then("nLen intact", nLen, 5)
 	Then("i intact", i, 2)

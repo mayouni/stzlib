@@ -690,13 +690,15 @@ func IsRGBColor(anColor)
 	ok
 
 	for _i_ = 1 to 3
-		n = anColor[_i_]
+		# sigil'd: a bare `n` here BINDS a caller's global of that name
+		# (the global-capture trap) instead of making a local
+		_n_ = anColor[_i_]
 
-		if n != floor(n)
+		if _n_ != floor(_n_)
 			return 0
 		ok
 
-		if n < 0 or n > 255
+		if _n_ < 0 or _n_ > 255
 			return false
 		ok
 	next
@@ -3116,8 +3118,8 @@ class stzNumber from stzObject
 	#--------------------------------------------------#
 
 	def Unicode()
-		n = This.NumericValue()
-		if 0 <= n and n <= 9
+		_n_ = This.NumericValue()
+		if 0 <= _n_ and _n_ <= 9
 			return StzCharQ(This.Number()).Unicode()
 
 		else
@@ -3135,8 +3137,8 @@ class stzNumber from stzObject
 	#-----------------------------------#
 
 	def IsADigit()
-		n = This.NumericValue()
-		if 0 <= n and n <= 9
+		_n_ = This.NumericValue()
+		if 0 <= _n_ and _n_ <= 9
 			return 1
 		else
 			return 0
@@ -4063,11 +4065,11 @@ class stzNumber from stzObject
 		_n1_ = 0+ pNumber1
 		_n2_ = 0+ pNumber2
 
-		n = This.NumericValue()
+		_n_ = This.NumericValue()
 
 		_bResult_ = 1
 
-		if NOT ( _n1_ < n and n < _n2_ )
+		if NOT ( _n1_ < _n_ and _n_ < _n2_ )
 			_bResult_  = 0
 		ok
 
@@ -4090,11 +4092,11 @@ class stzNumber from stzObject
 		_n1_ = 0+ pNumber1
 		_n2_ = 0+ pNumber2
 
-		n = This.NumericValue()
+		_n_ = This.NumericValue()
 
 		_bResult_ = 1
 
-		if NOT ( _n1_ <= n and n <= _n2_ )
+		if NOT ( _n1_ <= _n_ and _n_ <= _n2_ )
 			_bResult_  = 0
 		ok
 
@@ -5676,11 +5678,11 @@ class stzNumber from stzObject
 	#@ aka  abs, magnitude, positive value, without sign
 	def Absolute()
 		if This.IsInteger()
-			n = This.NumericValue()
-			if n < 0
-				return -n
+			_n_ = This.NumericValue()
+			if _n_ < 0
+				return -_n_
 			else
-				return n
+				return _n_
 			ok
 		else
 			_oStrNumber_ = new stzString(This.Content())
@@ -5719,11 +5721,11 @@ class stzNumber from stzObject
 		if NOT This.IsInteger()
 			StzRaise("Can't compute factorial of a non-integer!")
 		ok
-		n = This.NumericValue()
-		if n < 0
+		_n_ = This.NumericValue()
+		if _n_ < 0
 			StzRaise("Can't compute factorial of a negative number!")
 		ok
-		pBigInt = StzEngineNumberFactorial(n)
+		pBigInt = StzEngineNumberFactorial(_n_)
 		_cResult_ = StzEngineBigIntToString(pBigInt)
 		StzEngineBigIntFree(pBigInt)
 		return _cResult_
@@ -5948,11 +5950,11 @@ class stzNumber from stzObject
 		_aThisFactors1_ = This.Factors()
 		_nThisFactors1Len_ = len(_aThisFactors1_)
 		for _iLoopThisFactors1_ = 1 to _nThisFactors1Len_
-			n = _aThisFactors1_[_iLoopThisFactors1_]
-			_oTempNumber_ = new stzNumber(n)
+			_n_ = _aThisFactors1_[_iLoopThisFactors1_]
+			_oTempNumber_ = new stzNumber(_n_)
 
 			if _oTempNumber_.IsPrimeNumber()
-				_aResult_ + n
+				_aResult_ + _n_
 			ok
 		next
 
@@ -5999,8 +6001,8 @@ class stzNumber from stzObject
 		_aThisPrimeFactors1_ = This.PrimeFactors()
 		_nThisPrimeFactors1Len_ = len(_aThisPrimeFactors1_)
 		for _iLoopThisPrimeFactors1_ = 1 to _nThisPrimeFactors1Len_
-			n = _aThisPrimeFactors1_[_iLoopThisPrimeFactors1_]
-			_aResult_ + [ n, This.IntegerPartValue() / n ]
+			_n_ = _aThisPrimeFactors1_[_iLoopThisPrimeFactors1_]
+			_aResult_ + [ _n_, This.IntegerPartValue() / _n_ ]
 		next
 		return _aResult_
 
@@ -6121,13 +6123,13 @@ class stzNumber from stzObject
 		_i_ = 0
 		while _bContinue_
 			_i_++
-			n = This.MultipliedBy(_i_)
+			_n_ = This.MultipliedBy(_i_)
 			if _bInteger_
-				n = 0+ n
+				_n_ = 0+ _n_
 			ok
 
-			if n <= _nOtherNumber_
-				_aResult_ + n
+			if _n_ <= _nOtherNumber_
+				_aResult_ + _n_
 			else
 				_bContinue_ = 0
 			ok
@@ -6164,11 +6166,11 @@ class stzNumber from stzObject
 				_anNumbers_ = []
 				_nAnMultiples1Len_ = len(_anMultiples_)
 				for _iLoopAnMultiples1_ = 1 to _nAnMultiples1Len_
-					n = _anMultiples_[_iLoopAnMultiples1_]
-					if isString(n)
-						_anNumbers_ + ( 0+ n )
+					_n_ = _anMultiples_[_iLoopAnMultiples1_]
+					if isString(_n_)
+						_anNumbers_ + ( 0+ _n_ )
 					else
-						_anNumbers_ + n
+						_anNumbers_ + _n_
 					ok
 				next
 
@@ -6179,11 +6181,11 @@ class stzNumber from stzObject
 				_aThisMultiplesUntilpOther1_ = This.MultiplesUntil(pOtherNumber)
 				_nThisMultiplesUntilpOther1Len_ = len(_aThisMultiplesUntilpOther1_)
 				for _iLoopThisMultiplesUntilpOther1_ = 1 to _nThisMultiplesUntilpOther1Len_
-					n = _aThisMultiplesUntilpOther1_[_iLoopThisMultiplesUntilpOther1_]
-					if isNumber(n)
-						_acNumbers_ + ( ""+ n )
+					_n_ = _aThisMultiplesUntilpOther1_[_iLoopThisMultiplesUntilpOther1_]
+					if isNumber(_n_)
+						_acNumbers_ + ( ""+ _n_ )
 					else
-						_acNumbers_ + n
+						_acNumbers_ + _n_
 					ok
 				next
 
@@ -7930,8 +7932,8 @@ class stzNumber from stzObject
 				_cRemainingPart_ = _oStr_.SectionQ(3, _nLen_).Trimmed()
 
 				if Q(_cRemainingPart_).IsNumberInString()
-					n = 0+ _cRemainingPart_
-					_nResult_ = floor( This.NumbericValue() / n )
+					_n_ = 0+ _cRemainingPart_
+					_nResult_ = floor( This.NumbericValue() / _n_ )
 					#NOTE this a misspelled form of NumericValue()!
 
 					return _nResult_
@@ -8263,11 +8265,11 @@ class stzNumber from stzObject
 		if NOT This.IsInteger()
 			StzRaise("Can't compute Fibonacci of a non-integer!")
 		ok
-		n = This.NumericValue()
-		if n < 0
+		_n_ = This.NumericValue()
+		if _n_ < 0
 			StzRaise("Can't compute Fibonacci of a negative number!")
 		ok
-		pBigInt = StzEngineNumberFibonacci(n)
+		pBigInt = StzEngineNumberFibonacci(_n_)
 		_cResult_ = StzEngineBigIntToString(pBigInt)
 		StzEngineBigIntFree(pBigInt)
 		return _cResult_
