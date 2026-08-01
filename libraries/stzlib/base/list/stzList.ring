@@ -2789,6 +2789,16 @@ class stzList from stzObject
 		def IsAListOfStrings()
 			return This.IsListOfStrings()
 
+		# :Texts is a TYPE trait, and every string is readable as a
+		# text -- so "are these texts?" is "are these strings?". (The
+		# per-item IsText() on stzObject asks a different question:
+		# whether the value IS an stzText, which no plain string is.)
+		def IsListOfTexts()
+			return This.IsListOfStrings()
+
+		def IsAListOfTexts()
+			return This.IsListOfStrings()
+
 	# TRUE if the list is non-empty and every item is a number.
 	def IsListOfNumbers()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
@@ -3906,30 +3916,102 @@ class stzList from stzObject
 	def NumbrifiedQ()
 		return This.NumbrifyQ()
 
+	/*
+		The collective question: does EVERY item satisfy this
+		descriptor? Two forms, and the list form is the interesting one.
+
+			Q([ 2, 4, 8 ]).Are(:Numbers)                       #--> 1
+			Q([ 2, 4, 8 ]).Are([ :Even, :Positive, :Numbers ]) #--> 1
+			Q([ "ONE", "TWO" ]).Are([ :Uppercase, :Latin, :Strings ])
+			Q([ "你好", "亲" ]).Are([ :HanScript, :Texts ])
+
+		A LIST OF DESCRIPTORS READS CONJUNCTIVELY -- every descriptor
+		must hold for every item. By convention the last names the TYPE
+		and the earlier ones are traits, but nothing here depends on
+		that: [ :Uppercase, :Strings ] is simply Are(:Uppercase) AND
+		Are(:Strings), which is why a one-element list behaves exactly
+		like the scalar it contains.
+
+		RESOLVING ONE DESCRIPTOR is a ladder, tried in order:
+		  1. This.IsListOf<Desc>()      -- a collective answer exists
+		  2. Q(item).Is<Desc>()         -- the item's own predicate
+		  3. Q(item).Is<Singular>()     -- ...under its singular name
+		  4. StzCharQ(item).Is<Sing>()  -- read as a CHAR (:Punctuation)
+		and an unresolvable descriptor RAISES rather than answering 0 --
+		"no predicate can judge this" and "every item failed" are
+		different facts, and a collective check that conflates them
+		would report a clean pass as a clean failure.
+
+		The ladder asks ring_methods() what exists instead of calling
+		and catching: a caught raise poisons the next string-to-number
+		coercion in this VM, so exception-driven dispatch would leave a
+		trap behind for whatever ran next.
+	*/
 	def Are(p)
-		# REAL collective check (the old stub answered TRUE for ANY
-		# non-empty list, so mixed lists passed as :Numbers): dispatch
-		# to IsListOfXxx when it exists, else test each item against
-		# the SINGULAR descriptor (morphology machinery)
 		_l_ = This.List()
 		if len(_l_) = 0
 			return 0
 		ok
-		_cAreM_ = "islistof" + StzLower("" + p)
+
+		if isList(p)
+			if len(p) = 0
+				return 0
+			ok
+			_nAreD_ = len(p)
+			for _iAreD_ = 1 to _nAreD_
+				if NOT This.Are(p[_iAreD_])
+					return 0
+				ok
+			next
+			return 1
+		ok
+
+		_cAreD_ = StzLower("" + p)
+
+		# 1. a collective predicate, when the list itself knows
+		_cAreM_ = "islistof" + _cAreD_
 		if StzFindFirst(_cAreM_, ring_methods(This)) > 0
 			eval("_bAre_ = This." + _cAreM_ + "()")
 			return _bAre_
 		ok
-		_cAreSing_ = Singular(StzLower("" + p))
+
+		# 2-4. otherwise every item answers for itself
+		_cAreSing_ = Singular(_cAreD_)
 		_nAre_ = len(_l_)
 		for _iAre_ = 1 to _nAre_
-			_vAreItem_ = _l_[_iAre_]
-			eval("_bAreOne_ = @is" + _cAreSing_ + "(_vAreItem_)")
-			if NOT _bAreOne_
+			if NOT This._AreItemIs(_l_[_iAre_], _cAreD_, _cAreSing_)
 				return 0
 			ok
 		next
 		return 1
+
+	def _AreItemIs(pItem, pcDesc, pcSing)
+		_oAreIt_ = Q(pItem)
+		_aAreM_ = ring_methods(_oAreIt_)
+
+		if StzFindFirst("is" + pcDesc, _aAreM_) > 0
+			eval("_bAreOne_ = _oAreIt_.Is" + pcDesc + "()")
+			return _bAreOne_
+		ok
+		if StzFindFirst("is" + pcSing, _aAreM_) > 0
+			eval("_bAreOne_ = _oAreIt_.Is" + pcSing + "()")
+			return _bAreOne_
+		ok
+
+		# a char-only trait (:Punctuation) read through the char face
+		if isString(pItem) and StzLen(pItem) = 1
+			_oAreCh_ = StzCharQ(pItem)
+			_aAreCM_ = ring_methods(_oAreCh_)
+			if StzFindFirst("is" + pcSing, _aAreCM_) > 0
+				eval("_bAreOne_ = _oAreCh_.Is" + pcSing + "()")
+				return _bAreOne_
+			ok
+		ok
+
+		stzraise("stzList.Are(): nothing can judge '" + pcDesc + "' -- " +
+			"no IsListOf" + pcDesc + "() on the list, and no Is" + pcDesc +
+			"() / Is" + pcSing + "() on the item. Answering 0 here would " +
+			"report an unanswerable question as a failed one.")
 
 	def FindSpaces()
 		_l_ = This.List()
