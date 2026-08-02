@@ -3128,7 +3128,12 @@ class stzNumber from stzObject
 		ok
 
 	def Unicodes()
-		_acChars_ = This.StringValueQ().ToChars()
+		# Chars(), not ToChars(): StringValueQ() hands back an stzString,
+		# and ToChars() lives on stzStringUnicodeList -- so this raised
+		# R14 "Calling Method without definition: tochars" for every
+		# number outside 0..9, which is every number Unicode() actually
+		# delegates here for.
+		_acChars_ = This.StringValueQ().Chars()
 		_anResult_ = StzListOfCharsQ(_acChars_).Unicodes()
 		return _anResult_
 
