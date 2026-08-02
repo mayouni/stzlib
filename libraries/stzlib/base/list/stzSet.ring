@@ -27,9 +27,9 @@ func IsSet(paList)
 	ok
 
 	# Engine-backed: check if all elements are unique
-	pList = StzEngineMarshalList(paList)
-	_nResult_ = StzEngineListAllUniqueCS(pList, 1)
-	StzEngineListFree(pList)
+	_pList_ = StzEngineMarshalList(paList)
+	_nResult_ = StzEngineListAllUniqueCS(_pList_, 1)
+	StzEngineListFree(_pList_)
 	return _nResult_
 
 	#< @FunctionAlternativeForms
@@ -61,11 +61,11 @@ class stzSet from stzList
 		ok
 
 		# Engine-backed deduplication
-		pList = StzEngineMarshalList(paList)
-		pUnique = StzEngineListUniqueCS(pList, 1)
+		_pList_ = StzEngineMarshalList(paList)
+		pUnique = StzEngineListUniqueCS(_pList_, 1)
 		@aContent = StzEngineListContentToRingList(pUnique)
 		StzEngineListFree(pUnique)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 
 		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())

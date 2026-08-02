@@ -53,10 +53,10 @@ func DeepListQ(paList)
 class stzDeepList from stzList
 
 	def Paths()
-		pList = This._EngineListFromContent()
-		pRes  = StzEngineListDeepPaths(pList)
+		_pList_ = This._EngineListFromContent()
+		pRes  = StzEngineListDeepPaths(_pList_)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pRes)
 		return _aResult_
 
@@ -64,11 +64,11 @@ class stzDeepList from stzList
 			return This.Paths()
 
 	def DeepFind(pItem)
-		pList   = This._EngineListFromContent()
+		_pList_   = This._EngineListFromContent()
 		pNeedle = StzEngineMarshalList([ pItem ])
-		pRes    = StzEngineListDeepFind(pList, pNeedle, 1)
+		pRes    = StzEngineListDeepFind(_pList_, pNeedle, 1)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pNeedle)
 		StzEngineListFree(pRes)
 		return _aResult_
@@ -103,47 +103,47 @@ class stzDeepList from stzList
 		#-- the path is invalid). The engine wraps it so a nested-list item also
 		#-- round-trips cleanly through StzEngineContentFromList.
 		def _ItemWrapAtPath(paPath)
-			pList = This._EngineListFromContent()
+			_pList_ = This._EngineListFromContent()
 			pPath = StzEngineMarshalList(paPath)
-			pRes  = StzEngineListItemAtPath(pList, pPath)
+			pRes  = StzEngineListItemAtPath(_pList_, pPath)
 			_aWrap_ = StzEngineListContentToRingList(pRes)
-			StzEngineListFree(pList)
+			StzEngineListFree(_pList_)
 			StzEngineListFree(pPath)
 			StzEngineListFree(pRes)
 			return _aWrap_
 
 	def ItemsAtPaths(paPaths)
-		pList  = This._EngineListFromContent()
+		_pList_  = This._EngineListFromContent()
 		pPaths = StzEngineMarshalList(paPaths)
-		pRes   = StzEngineListItemsAtPaths(pList, pPaths)
+		pRes   = StzEngineListItemsAtPaths(_pList_, pPaths)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pPaths)
 		StzEngineListFree(pRes)
 		return _aResult_
 
 	def LongestPaths()
-		pList = This._EngineListFromContent()
-		pRes  = StzEngineListLongestPaths(pList)
+		_pList_ = This._EngineListFromContent()
+		pRes  = StzEngineListLongestPaths(_pList_)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pRes)
 		return _aResult_
 
 	def PathsAtDepth(nDepth)
-		pList = This._EngineListFromContent()
-		pRes  = StzEngineListPathsAtDepth(pList, nDepth)
+		_pList_ = This._EngineListFromContent()
+		pRes  = StzEngineListPathsAtDepth(_pList_, nDepth)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pRes)
 		return _aResult_
 
 	def ExpandPath(paPath)
-		pList = This._EngineListFromContent()
+		_pList_ = This._EngineListFromContent()
 		pPath = StzEngineMarshalList(paPath)
-		pRes  = StzEngineListExpandPath(pList, pPath)
+		pRes  = StzEngineListExpandPath(_pList_, pPath)
 		_aResult_ = StzEngineListContentToRingList(pRes)
-		StzEngineListFree(pList)
+		StzEngineListFree(_pList_)
 		StzEngineListFree(pPath)
 		StzEngineListFree(pRes)
 		return _aResult_
