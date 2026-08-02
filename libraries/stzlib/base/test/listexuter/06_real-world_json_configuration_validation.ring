@@ -12,7 +12,7 @@ pr()
 
 lxu() {
     # Define patterns to validate configuration structure
-    AddTrigger(:ServerConfig = "[@S, [@N{1-65535}], [@S+]]")  # hostname, port, endpoints
+    AddTrigger(:ServerConfig = "[@S, [@N1-65535], [@S+]]")  # hostname, port, endpoints
     AddTrigger(:DatabaseConfig = "[@S, @S, [@S, @S]]")        # db_name, host, [username, password]
     AddTrigger(:LoggingConfig = "[@S{debug;info;warning;error}, @N?]")  # level, retention days
     
@@ -81,8 +81,8 @@ lxu() {
     # Display validated configurations
     ? "=== Validated Configuration ==="
     
-    _nResultsLen_ = len(Results()
-    for i = 1 to _nResultsLen_)
+    _nResultsLen_ = len(Results())
+    for i = 1 to _nResultsLen_
         ? NL + "Section result " + i + ":"
         ? @@NL(Results()[i])
     next

@@ -47,8 +47,12 @@ for d in */; do
     if [ $rc -eq 124 ]; then
       echo "HANG $d/$base"; mhang=$((mhang+1))
 
-    elif echo "$out" | grep -qE "Error \(R[0-9]|Error \(C[0-9]|panic|Segmentation|Can't open file"; then
-      err=$(echo "$out" | grep -oE "Error \(R[0-9]+\)[^|]*|Error \(C[0-9]+\)[^|]*|panic[^|]*" | head -1)
+    # Ring error CODES *and* bare raise() messages. A detector keyed on
+    # "Error (R14)" cannot see `raise("Error: ...")`, which is how the
+    # library refuses DELIBERATELY -- 05_advanced_combining sat broken
+    # and was reported clean until this line grew its second half.
+    elif echo "$out" | grep -qE "Error \(R[0-9]|Error \(C[0-9]|^[[:space:]]*Error:|panic|Segmentation|Can't open file"; then
+      err=$(echo "$out" | grep -oE "Error \(R[0-9]+\)[^|]*|Error \(C[0-9]+\)[^|]*|Error:[^|]*|panic[^|]*" | head -1)
       echo "ERR  $d/$base :: $err"; merr=$((merr+1))
 
     # a CLEAN run that still failed its own assertions -- the category

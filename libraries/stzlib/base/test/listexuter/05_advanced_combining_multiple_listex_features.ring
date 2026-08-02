@@ -11,7 +11,7 @@ pr()
 
 lxu() {
     # Combining multiple ListEx features
-    AddTrigger(:ComplexData = "[@S, [@N{1-100}+], @!N?]")  # String, list of nums 1-100, optional non-number
+    AddTrigger(:ComplexData = "[@S, [@N1-100+], @!N?]")  # String, list of nums 1-100, optional non-number
     
     AddCode(:ComplexData, '{
         # Process the name
