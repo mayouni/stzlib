@@ -56,4 +56,37 @@ Scenario("Accept on a non-listening server returns NULL")
     Then("LastError = Not listening", oS2.LastError(), "Not listening")
 EndScenario()
 
+# THE SCENES ABOVE ONLY EVER ASK FOR A FAILURE, and every one of them
+# passed for four months against an error slot that was never written
+# -- because they compared against a STRING, and an unwritten slot
+# answers "". Two properties they cannot see:
+#   - the reason is the ENGINE's, not a generic placeholder;
+#   - SUCCESS CLEARS IT, so an error is about the last call rather
+#     than the last failure, however long ago.
+Scenario("The error is a real reason, and success clears it")
+    Given("a client pointed at a host that cannot resolve")
+    oC3 = new stzTcpClient
+    oC3.Connect("invalid.host.example.invalid", 1)
+    Then("HasError agrees with LastError", oC3.HasError(), TRUE)
+    Then("...and the reason came from the engine, not a placeholder",
+        StzFindFirst("dns", StzLower(oC3.LastError())) > 0, TRUE)
+
+    When("a server binds successfully")
+    oS3 = new stzTcpServer
+    oS3.Listen(0, "127.0.0.1")
+    Then("it is listening", oS3.IsListening(), TRUE)
+    Then("...and the error slot is CLEAR, not stale", oS3.LastError(), "")
+    Then("...so HasError is FALSE", oS3.HasError(), FALSE)
+    oS3.Close()
+EndScenario()
+
+# stzWebSocket writes the same inherited slot and was broken the same
+# way -- 11 of the 24 damaged writes were its.
+Scenario("stzWebSocket reports through the same inherited slot")
+    Given("a socket that was never connected")
+    oW = new stzWebSocket
+    oW.Send("x")
+    Then("Send says why", oW.LastError(), "Not connected")
+EndScenario()
+
 Summary()

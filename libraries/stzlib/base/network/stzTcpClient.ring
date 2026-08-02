@@ -34,8 +34,8 @@ class stzTcpClient from stzNetwork
             ok
         else
             @is_connected = False
-            _last_error_ = StzEngineTcpLastError()
-            _error_code_ = -1
+            @last_error = StzEngineTcpLastError()
+            @error_code = -1
             if @on_error_callback != ""
                 call @on_error_callback()
             ok
@@ -44,13 +44,13 @@ class stzTcpClient from stzNetwork
 
     def Send(cData)
         if not @is_connected
-            _last_error_ = "Not connected"
+            @last_error = "Not connected"
             return This
         ok
         _nSent_ = StzEngineTcpSend(@hClient, cData)
         if _nSent_ < 0
-            _last_error_ = StzEngineTcpLastError()
-            _error_code_ = _nSent_
+            @last_error = StzEngineTcpLastError()
+            @error_code = _nSent_
             if @on_error_callback != ""
                 call @on_error_callback()
             ok
@@ -62,14 +62,14 @@ class stzTcpClient from stzNetwork
 
     def ReceiveWithMax(nMaxBytes)
         if not @is_connected
-            _last_error_ = "Not connected"
+            @last_error = "Not connected"
             return This
         ok
         @received_data = StzEngineTcpRecv(@hClient, nMaxBytes)
         if @received_data = ""
             # Either EOF or error -- LastError lets the caller decide.
-            _last_error_ = StzEngineTcpLastError()
-            if _last_error_ != "" and @on_error_callback != ""
+            @last_error = StzEngineTcpLastError()
+            if @last_error != "" and @on_error_callback != ""
                 call @on_error_callback()
             ok
         else
