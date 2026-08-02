@@ -85,7 +85,7 @@ class stzRingTimer from stzObject
 	@interval = ONE_SECOND    # milliseconds
 	@callback = NULL
 	@oEngine = NULL
-	obj = NULL
+	@obj = NULL
 	@isActive = false
 	@isOneTime = false
 	@startTime = 0
@@ -96,7 +96,7 @@ class stzRingTimer from stzObject
 		@interval = intervalMs
 		@callback = f
 		@oEngine = engine
-		this.obj = obj
+		@obj = obj
 		@isOneTime = oneTime
 		if @isOneTime = NULL
 			@isOneTime = false

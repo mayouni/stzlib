@@ -147,15 +147,15 @@ class stzReactiveHttp from stzObject
 
 class stzHttpTask from stzReactiveTask
 
-	url = HTTP_RESPONSE_EMPTY
-	method = HTTP_GET
-	data = HTTP_RESPONSE_NULL
+	@url = HTTP_RESPONSE_EMPTY
+	@method = HTTP_GET
+	@data = HTTP_RESPONSE_NULL
 	
 	def Init(id, url, method, data, engine)
 		super.Init(id, HTTP_RESPONSE_NULL, engine, DEFAULT_ERROR_HANDLING)
-		this.url = url
-		this.method = method
-		this.data = data
+		@url = url
+		@method = method
+		@data = data
 		
 	def Execute()
 	    # (S0 fix, 2026-07-14): store the status on the TASK, not in a
@@ -164,14 +164,14 @@ class stzHttpTask from stzReactiveTask
 	    @status = TASK_RUNNING
 	    
 	    # Use Ring's built-in HTTP capabilities
-	    if method = HTTP_GET
-	        _result_ = PerformHttpGet(url)
-	    elseif method = HTTP_POST
-	        _result_ = PerformHttpPost(url, data)
-	    elseif method = HTTP_PUT
-	        _result_ = PerformHttpPut(url, data)
-	    elseif method = HTTP_DELETE
-	        _result_ = PerformHttpDelete(url)
+	    if @method = HTTP_GET
+	        _result_ = PerformHttpGet(@url)
+	    elseif @method = HTTP_POST
+	        _result_ = PerformHttpPost(@url, @data)
+	    elseif @method = HTTP_PUT
+	        _result_ = PerformHttpPut(@url, @data)
+	    elseif @method = HTTP_DELETE
+	        _result_ = PerformHttpDelete(@url)
 	    else
 	        _result_ = HTTP_RESPONSE_NULL
 	    ok
@@ -179,13 +179,13 @@ class stzHttpTask from stzReactiveTask
 	    # Check if we got a valid result
 	    if _result_ != HTTP_RESPONSE_NULL and _result_ != HTTP_RESPONSE_EMPTY
 	        @status = TASK_COMPLETED
-	        if onComplete != HTTP_RESPONSE_NULL
-	            call onComplete(_result_)
+	        if @onComplete != HTTP_RESPONSE_NULL
+	            call @onComplete(_result_)
 	        ok
 	    else
 	        @status = TASK_ERROR
-	        if onError != HTTP_RESPONSE_NULL
-	            call onError(HTTP_ERROR_REQUEST_FAILED)
+	        if @onError != HTTP_RESPONSE_NULL
+	            call @onError(HTTP_ERROR_REQUEST_FAILED)
 	        ok
 	    ok
 			

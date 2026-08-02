@@ -3,7 +3,7 @@
 class stzReactiveStream from stzObject
 
 	@streamId = ""
-	sourceType = STREAM_SOURCE_MANUAL
+	@sourceType = STREAM_SOURCE_MANUAL
 
 	@aReactiveFuncs = []
 	@errorHandlers = []
@@ -26,7 +26,7 @@ class stzReactiveStream from stzObject
 	@bufferSize = 100
 	@overflowStrategy = :BUFFER
 	@currentBufferCount = 0
-	buffer = []
+	@buffer = []
 	@isOverflowActive = STREAM_STATE_INACTIVE
 	@droppedCount = 0
 	
@@ -53,7 +53,7 @@ class stzReactiveStream from stzObject
 			sourceType = STREAM_SOURCE_MANUAL
 		ok
 		
-		this.sourceType = sourceType
+		@sourceType = sourceType
 		@oEngine = engine
 
 	# Store map transformation with expressive constant
@@ -124,7 +124,7 @@ class stzReactiveStream from stzObject
 		ok
 		
 		# Add to buffer
-		buffer + data
+		@buffer + data
 		@currentBufferCount++
 	
 		# Process immediately if no overflow config
@@ -287,7 +287,7 @@ class stzReactiveStream from stzObject
 		
 	def Cleanup()
 		Stop()
-		if @uvHandle != NULL and sourceType = STREAM_SOURCE_LIBUV
+		if @uvHandle != NULL and @sourceType = STREAM_SOURCE_LIBUV
 			# Clean up LibUV resources
 			@uvHandle = NULL
 		ok
@@ -352,11 +352,11 @@ class stzReactiveStream from stzObject
 			
 		case :LATEST
 			# Drop oldest, keep latest
-			if len(buffer) > 0
-				del(buffer, 1)  # Remove oldest
+			if len(@buffer) > 0
+				del(@buffer, 1)  # Remove oldest
 				@currentBufferCount--
 			ok
-			buffer + data
+			@buffer + data
 			@currentBufferCount++
 			? "⚠️ Overflow: Keeping latest, dropped oldest"
 			
@@ -370,13 +370,13 @@ class stzReactiveStream from stzObject
 
 
 	def ProcessAnItemFromBuffer()
-		if len(buffer) = 0
+		if len(@buffer) = 0
 			return
 		ok
 	
 		# Get the next item from buffer
-		data = buffer[1]
-		del(buffer, 1)
+		data = @buffer[1]
+		del(@buffer, 1)
 		@currentBufferCount--
 	
 		# Apply transforms (existing logic)
@@ -440,7 +440,7 @@ class stzReactiveStream from stzObject
 
 	def ProcessAllInBuffer()
 		# Process all buffered items
-		while len(buffer) > 0
+		while len(@buffer) > 0
 			ProcessAnItemFromBuffer()
 		end
 		return self
@@ -450,10 +450,10 @@ class stzReactiveStream from stzObject
 
 	def OverflowStats()
 		return [
-			:@bufferSize = @bufferSize,
+			:bufferSize = @bufferSize,
 			:currentBuffer = @currentBufferCount,
-			:@isOverflowActive = @isOverflowActive,
-			:@droppedCount = @droppedCount,
+			:isOverflowActive = @isOverflowActive,
+			:droppedCount = @droppedCount,
 			:strategy = @overflowStrategy
 		]
 

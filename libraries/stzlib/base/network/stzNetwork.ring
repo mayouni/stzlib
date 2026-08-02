@@ -92,7 +92,7 @@ class stzNetwork from stzObject
 		return [
 			:url = @cLastUrl,
 			:response_code = @nLastStatus,
-			:@timeout_seconds = @timeout_seconds
+			:timeout_seconds = @timeout_seconds
 		]
 
 	def LastError()
