@@ -3117,22 +3117,53 @@ class stzNumber from stzObject
 	 #  GETTING THE UNICODE (CODE POINT) OF THE NUMBER  #
 	#--------------------------------------------------#
 
+	/*
+		THE NUMBER READ AS A CODEPOINT -- 65 is 'A', 128512 is an emoji.
+
+		That is the convention the rest of the library already keeps:
+		stzChar's init treats a NUMBER as a codepoint
+		(StzEngineCharToUtf8(pChar)), and ToUnicodeHexForm() documents
+		itself as "the number in Unicode hex form (U+0041)". This method
+		used to keep it only for 0..9 and, above that, decompose the
+		number's DIGITS instead -- so 65 answered [ 54, 53 ], the
+		codepoints of '6' and '5'. Two branches of one method disagreed
+		about what the number meant.
+
+		Nothing can have depended on the old upper branch: it called a
+		method that does not exist (ToChars() on an stzString) and died
+		with R14 for every number above 9, until that was repaired in
+		the same session as this.
+
+		The digit-decomposition reading still exists, under the name
+		that describes it -- Unicodes(), plural, over the STRING form.
+
+		RANGE IS CHECKED HERE, not left to the engine: StzCharQ(-3)
+		does not raise, it PANICS the process out of stz_string.dll
+		("integer part of floating point value out of bounds"), which
+		no try/catch can hold. A legible refusal beats a crash.
+	*/
 	def Unicode()
 		_n_ = This.NumericValue()
-		if 0 <= _n_ and _n_ <= 9
-			return StzCharQ(This.Number()).Unicode()
-
-		else
-			return This.Unicodes()
-
+		if _n_ != floor(_n_)
+			StzRaise("stzNumber.Unicode(): " + _n_ + " is not a codepoint -- " +
+				"codepoints are whole numbers. (For the codepoints of the " +
+				"number's digits, use Unicodes().)")
 		ok
+		if _n_ < 0 or _n_ > 1114111
+			StzRaise("stzNumber.Unicode(): " + _n_ + " is outside the Unicode " +
+				"range 0..1114111 (U+0000..U+10FFFF).")
+		ok
+		return _n_
 
+	# The codepoints of the number's WRITTEN FORM, digit by digit:
+	# 65 -> [ 54, 53 ], the codepoints of '6' and '5'. A different
+	# question from Unicode() above, despite the singular/plural
+	# names -- that one reads the number AS a codepoint.
+	#
+	# Chars(), not ToChars(): StringValueQ() hands back an stzString,
+	# and ToChars() lives on stzStringUnicodeList -- so this raised
+	# R14 for every caller until 2026-08-02.
 	def Unicodes()
-		# Chars(), not ToChars(): StringValueQ() hands back an stzString,
-		# and ToChars() lives on stzStringUnicodeList -- so this raised
-		# R14 "Calling Method without definition: tochars" for every
-		# number outside 0..9, which is every number Unicode() actually
-		# delegates here for.
 		_acChars_ = This.StringValueQ().Chars()
 		_anResult_ = StzListOfCharsQ(_acChars_).Unicodes()
 		return _anResult_
