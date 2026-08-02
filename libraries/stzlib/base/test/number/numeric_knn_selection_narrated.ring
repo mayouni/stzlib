@@ -147,17 +147,21 @@ Scenario("...and it is no longer quadratic")
 		q + 0.5
 	next
 
-	t0 = clock()
+	# MONOTONIC, NOT clock(). clock() is CPU time and Windows accounts it
+	# in ~15.6 ms quanta, so a short reading is a TICK COUNT rather than a
+	# measurement. StzEngineWatchTimestampMs() is the house clock for
+	# durations.
+	t0 = StzEngineWatchTimestampMs()
 	for r = 1 to 10
 		v = oK.Classify(q)
 	next
-	nT = (clock() - t0) / clockspersecond()
+	nT = (StzEngineWatchTimestampMs() - t0) / 1000
 	Then("10 queries over 4000 examples in under 5s -- it was ~60", nT < 5, TRUE)
 	Then("...and the answer is still a real label",
 	     v = "lo" or v = "hi", TRUE)
 
-	# GROWTH IS THE POINT, not the absolute number: doubling N must roughly double
-	# the work, not quadruple it. A quadratic would show up here as a ratio near 4.
+	# GROWTH IS THE POINT, not the absolute number: what must not happen is
+	# QUADRATIC growth, which would show up here as a ratio near 4.
 	aHalf = []
 	for i = 1 to 2000
 		aHalf + aBig[i]
@@ -165,13 +169,59 @@ Scenario("...and it is no longer quadratic")
 	oTs2 = new stzTrainingSet(aHalf)
 	oK2 = new stzKnn(oTs2)
 	oK2.SetK(5)
-	t0 = clock()
-	for r = 1 to 10
-		v = oK2.Classify(q)
+
+	# EARN THE MEASUREMENT BEFORE TRUSTING IT. A ratio of two small
+	# durations is mostly noise: at ~15 ms of work either side, one
+	# scheduling hiccup moves it from 2 to 4. Scale the repetition count
+	# until the SMALLER run is long enough that no single stall can
+	# dominate, then time the bigger run over the SAME count.
+	nReps = 10
+	nH = 0
+	while nReps <= 5120
+		t0 = StzEngineWatchTimestampMs()
+		for r = 1 to nReps
+			v = oK2.Classify(q)
+		next
+		nH = StzEngineWatchTimestampMs() - t0
+		if nH >= 120  exit  ok
+		nReps = nReps * 2
+	end
+	t0 = StzEngineWatchTimestampMs()
+	for r = 1 to nReps
+		v = oK.Classify(q)
 	next
-	nH = (clock() - t0) / clockspersecond()
-	Then("halving N roughly halves the time -- not quarters it",
-	     nH = 0 or (nT / nH) < 3, TRUE)
+	nFull = StzEngineWatchTimestampMs() - t0
+
+	# The old form was `nH = 0 or (nT / nH) < 3` -- and the `nH = 0` arm
+	# was a silent free pass: a run too fast to time reported success
+	# rather than "ask me again with more work". Say it out loud instead.
+	Then("the smaller run was long enough to time honestly", nH >= 120, TRUE)
+
+	# A RANGE, NOT A CEILING -- and a range set from what this actually
+	# measures rather than from what the comment above assumed.
+	#
+	# The measured ratio is ~1.2, not ~2, and that is the optimization
+	# working rather than a broken test: with the whole distance pass
+	# now inside the engine, per-CALL cost (marshalling the query,
+	# crossing the bridge) dominates at these sizes, so doubling N
+	# barely moves the total. The scene's older note that "doubling N
+	# must roughly double the work" described the Ring-side
+	# implementation it replaced.
+	#
+	# What the measurement can still prove, and what matters, is that
+	# growth is nowhere near QUADRATIC -- which would put this near 4
+	# and would swamp the fixed cost rather than hide behind it.
+	#
+	# The lower bound is not decoration: the old `< 3` also accepted
+	# 0.2, a ratio meaning the BIGGER set ran dramatically faster, i.e.
+	# the measurement was garbage. It could pass for the wrong reason
+	# as easily as the right one.
+	nRatio = nFull / nH
+	? "    " + nReps + " queries: N=2000 took " + nH + " ms, N=4000 took " +
+	  nFull + " ms -- ratio " + StzNumberQ(nRatio).RoundedTo(2) +
+	  " (quadratic would be ~4)"
+	Then("doubling N does not quadruple the work -- growth is not quadratic",
+	     nRatio > 0.7 and nRatio < 3.0, TRUE)
 EndScenario()
 
 Scenario("k-means runs entirely in the engine now")
