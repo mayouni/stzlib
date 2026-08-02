@@ -244,21 +244,34 @@ class stzChainOfTruth from stzObject
 		# Case of a string
 		but isString(pThing)
 
+			# FOLD CASE ONCE, AT THE DOOR. Ring lowercases a :Symbol
+			# (`:String` IS the string "string") and ring_methods()
+			# answers in lowercase -- while Ring's string `=` is
+			# CASE-SENSITIVE. So every comparison below used to match
+			# only when the caller wrote the symbol form: `Is(:String)`
+			# answered 1 and `Is("String")` answered 0, silently, by
+			# falling through to the default. Same for the method
+			# branch: the needle "isUppercase" never met the method
+			# name "isuppercase".
+			# The VALUE comparisons above deliberately keep their own
+			# casing -- this fold is only for TYPE and METHOD names.
+			_cThing_ = StzLower(pThing)
+
 			# Case of the 4 native ring types
-			if pThing = :Number and This._Type() = "NUMBER"
+			if _cThing_ = :Number and This._Type() = "NUMBER"
 				bResult = 1
-	
-			but pThing = :String and This._Type() = "STRING"
+
+			but _cThing_ = :String and This._Type() = "STRING"
 				bResult = 1
-	
-			but pThing = :List and This._Type() = "LIST"
+
+			but _cThing_ = :List and This._Type() = "LIST"
 				bResult = 1
-	
-			but pThing = :Object and This._Type() = "OBJECT"
+
+			but _cThing_ = :Object and This._Type() = "OBJECT"
 				bResult = 1
 
 			# Case of a stz object method
-			but StzFindFirst("is" + pThing, ring_methods(This.StzObjectQ())) > 0
+			but StzFindFirst("is" + _cThing_, ring_methods(This.StzObjectQ())) > 0
 				# Example: _("A").Is( :Uppercase )
 	
 				# This.StzObjectQ(), like the other eval'd calls in this class
@@ -291,10 +304,12 @@ class stzChainOfTruth from stzObject
 			# Example:
 			# ? _(["A","B","C"]).Is([ :AListOfStrings, :AListOfChars, :AListOfLetters ]).AtTheSameTime._
 
+			# same case fold as the scalar branch: ring_methods()
+			# answers lowercase, and `=` is case-sensitive
 			bIsListOfMethods = 1
 			nThing2Len = len(pThing)
 			for iLoopThing2 = 1 to nThing2Len
-				str = pThing[iLoopThing2]
+				str = StzLower(pThing[iLoopThing2])
 				if NOT ( StzFindFirst("is" + str, ring_methods(This.StzObjectQ())) > 0 )
 					bIsListOfMethods = 0
 					exit
@@ -306,7 +321,22 @@ class stzChainOfTruth from stzObject
 				nThing1Len = len(pThing)
 				for iLoopThing1 = 1 to nThing1Len
 					str = pThing[iLoopThing1]
-					if NOT _(This.Value()).Is(str)._
+					# NOT `_(...)` HERE. `_` is a bare class ATTRIBUTE
+					# (the magic chain-closer declared in the class
+					# head), so inside this class `_(x)` is not the
+					# global constructor at all -- it resolves to the
+					# attribute and the next method call dies with R13
+					# "Object is required". Build the sub-chain
+					# explicitly, and give it its own statement (a
+					# method chained onto a `new` expression is the
+					# other half of that same R13).
+					# This block had never RUN before the case fold
+					# above: its guard could not pass while
+					# "isAListOfStrings" was matched against lowercase
+					# method names, so fixing the fold unmasked it.
+					_oSubChain_ = new stzChainOfTruth(This.Value())
+					_oSubChain_.Is(str)
+					if NOT _oSubChain_._
 						bResult = 0
 						exit
 					ok
