@@ -144,7 +144,15 @@ class stzHttpClient from stzNetwork
 	def SetTimeout(nSeconds)
 		# Overall request timeout, expressed in seconds for API parity
 		# with stzNetwork.SetTimeout. Stored in ms for the engine.
-		_timeout_seconds_ = nSeconds
+		#
+		# @timeout_seconds is the INHERITED slot stzNetwork.Timeout()
+		# reads. It was being written to `_timeout_seconds_`, a local
+		# that died at method exit -- so this override set the engine's
+		# ms value correctly and left Timeout() reporting the default
+		# 30 forever, however many times you called SetTimeout.
+		# Same shape as the TCP LastError break (4e52e7a05): an
+		# inherited attribute write turned into a local, silently.
+		@timeout_seconds = nSeconds
 		@request_timeout_ms = nSeconds * 1000
 		return This
 

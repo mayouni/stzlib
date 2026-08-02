@@ -61,4 +61,22 @@ Scenario("PostForm builds an x-www-form-urlencoded body")
     Then("status code is -1",        o.ResponseCode(), -1)
 EndScenario()
 
+# SetTimeout() overrides stzNetwork's, and has to satisfy BOTH readers:
+# the engine (milliseconds) and the inherited Timeout() accessor
+# (seconds). It set the first and wrote the second to a local that died
+# at method exit, so Timeout() answered the default 30 no matter what
+# you passed -- an override that half-overrides. Asserting the engine
+# side alone would have stayed green through the whole bug.
+Scenario("SetTimeout satisfies both readers, not just the engine")
+    Given("a client with a non-default timeout")
+    oT = new stzHttpClient()
+    Then("the default is 30s", oT.Timeout(), 30)
+    oT.SetTimeout(5)
+    Then("the inherited accessor reports the new value", oT.Timeout(), 5)
+    Then("...and HasError is untouched by a setter", oT.HasError(), FALSE)
+    When("it is changed again")
+    oT.SetTimeout(12)
+    Then("it tracks, rather than sticking at the first value", oT.Timeout(), 12)
+EndScenario()
+
 Summary()
