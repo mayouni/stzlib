@@ -46,8 +46,8 @@ class stzReactiveTask from stzObject
 
 	@taskId = ""
 	@taskFunc = NULL
-	onComplete = NULL
-	onError = NULL
+	@onComplete = NULL
+	@onError = NULL
 	@status = TASK_PENDING
 	@result = NULL
 	@oEngine = NULL
@@ -66,12 +66,12 @@ class stzReactiveTask from stzObject
 		
 	def Then_(completeFunc)
 		# Sets the callback for task completion.
-		onComplete = completeFunc
+		@onComplete = completeFunc
 		return self
 		
 	def Catch_(errorFunc)
 		# Sets the callback for task errors.
-		onError = errorFunc
+		@onError = errorFunc
 		return self
 		
 	def Execute()
@@ -84,8 +84,8 @@ class stzReactiveTask from stzObject
 				@result = @taskFunc()
 			ok
 			@status = TASK_COMPLETED
-			if onComplete != NULL
-				onComplete(@result)
+			if @onComplete != NULL
+				@onComplete(@result)
 			ok
 
 		catch
@@ -96,8 +96,8 @@ class stzReactiveTask from stzObject
 				raise(_errorMsg_)
 			but @errorHandling = ERROR_LOG
 				? _errorMsg_
-			but @errorHandling = ERROR_CALLBACK and onError != NULL
-				onError(_errorMsg_)
+			but @errorHandling = ERROR_CALLBACK and @onError != NULL
+				@onError(_errorMsg_)
 			ok
 		done
 		
