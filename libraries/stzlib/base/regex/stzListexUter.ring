@@ -15,21 +15,21 @@ func StzLxuter()
 class stzListexuter from stzObject
 
     # Core data structures
-    aTriggers = []      # Pairs of [cTriggerName, cListPattern]
-    aCodesPerTrigger = [] # Pairs of [cTriggerName, cCodeToExecute]
+    @aTriggers = []      # Pairs of [cTriggerName, cListPattern]
+    @aCodesPerTrigger = [] # Pairs of [cTriggerName, cCodeToExecute]
     
     # State management
-    aState = []         # List of state entries as hashlists
-    aActiveComputations = [] # Track active computations
+    @aState = []         # List of state entries as hashlists
+    @aActiveComputations = [] # Track active computations
     
     # Results tracking
-    aLastTriggers = []
-    aLastMatches = []
-    aLastResults = []
+    @aLastTriggers = []
+    @aLastMatches = []
+    @aLastResults = []
 
 	# Performance tracking attributes to add
-	nProcessStartTime = 0
-	nLastProcessDuration = 0
+	@nProcessStartTime = 0
+	@nLastProcessDuration = 0
 
     def init()
         # Do nothing
@@ -44,7 +44,7 @@ class stzListexuter from stzObject
             if TriggerNameExists(aTrigger)
                 StzRaise("Trigger name already exists: " + aTrigger)
             ok
-            aTriggers + [ aTrigger, lpat(aTrigger) ]
+            @aTriggers + [ aTrigger, lpat(aTrigger) ]
             return
         ok
         
@@ -57,12 +57,12 @@ class stzListexuter from stzObject
             StzRaise("Trigger name already exists: " + aTrigger[1])
         ok
         
-        aTriggers + aTrigger
+        @aTriggers + aTrigger
         
     def TriggerNameExists(cName)
-        _nTriggers2Len_ = len(aTriggers)
+        _nTriggers2Len_ = len(@aTriggers)
         for _iLoopTriggers2_ = 1 to _nTriggers2Len_
-        	trigger = aTriggers[_iLoopTriggers2_]
+        	trigger = @aTriggers[_iLoopTriggers2_]
             if trigger[1] = cName
                 return TRUE
             ok
@@ -93,7 +93,7 @@ class stzListexuter from stzObject
             _cCode_ = StzMid(_cCode_, 2, StzLen(_cCode_)-2)
         ok
         
-        aCodesPerTrigger + [_cTriggerName_, _cCode_]
+        @aCodesPerTrigger + [_cTriggerName_, _cCode_]
         
     #------------------#
     # Process Methods  #
@@ -110,14 +110,14 @@ class stzListexuter from stzObject
         ok
         
         # Reset tracking for this process run
-        aLastMatches = []
-        aLastResults = []
-        aLastTriggers = []
-        aActiveComputations = []
+        @aLastMatches = []
+        @aLastResults = []
+        @aLastTriggers = []
+        @aActiveComputations = []
         
-        _nTriggers1Len_ = len(aTriggers)
+        _nTriggers1Len_ = len(@aTriggers)
         for _iLoopTriggers1_ = 1 to _nTriggers1Len_
-        	trigger = aTriggers[_iLoopTriggers1_]
+        	trigger = @aTriggers[_iLoopTriggers1_]
             _cTriggerName_ = trigger[1]
             _cPattern_ = trigger[2]
             
@@ -128,18 +128,18 @@ class stzListexuter from stzObject
             _aMatches_ = FindAllMatches(aList, _oListex_)
             
             if len(_aMatches_) > 0
-                aActiveComputations + _cTriggerName_
+                @aActiveComputations + _cTriggerName_
                 
                 _nMatchesLen_ = len(_aMatches_)
                 for i = 1 to _nMatchesLen_
                     _match_ = _aMatches_[i]
                     
-                    aLastMatches + _match_
-                    aLastTriggers + _cTriggerName_
+                    @aLastMatches + _match_
+                    @aLastTriggers + _cTriggerName_
                     
                     # Execute computation and track result
                     _computedValue_ = executeComputation(_match_, _cTriggerName_)
-                    aLastResults + _computedValue_
+                    @aLastResults + _computedValue_
                     
                     # Record state change
                     if NOT ListEquals(_computedValue_, _match_)
@@ -147,7 +147,7 @@ class stzListexuter from stzObject
                     ok
                 next
                 
-                del(aActiveComputations, len(aActiveComputations))
+                del(@aActiveComputations, len(@aActiveComputations))
             ok
         next
         
@@ -202,25 +202,25 @@ class stzListexuter from stzObject
     #-----------------#
     
     def ResetState()
-        aState = []
-        aActiveComputations = []
+        @aState = []
+        @aActiveComputations = []
         
     def AddStateEntry(_cTriggerName_, _cPattern_, aMatchedValue, aComputedValue)
         # Create state entry
         _entry_ = [
             :timeStamp = date() + " " + time(),
-            :computationOrder = len(aState) + 1,
+            :computationOrder = len(@aState) + 1,
             
             :triggerName = _cTriggerName_,
             :pattern = _cPattern_,
             :matchedValue = aMatchedValue,
             :computedValue = aComputedValue,
             
-            :dependsOn = aActiveComputations,
+            :dependsOn = @aActiveComputations,
             :affects = getAffectedTriggers(_cTriggerName_)
         ]
         
-        aState + _entry_
+        @aState + _entry_
         
 
 	#-------------------------#
@@ -242,16 +242,16 @@ class stzListexuter from stzObject
 	
 	# Result access methods
 	def State()
-	    return aState
+	    return @aState
 	
 	def Triggers()
-	    return aLastTriggers
+	    return @aLastTriggers
 	
 	def Matches() 
-	    return aLastMatches
+	    return @aLastMatches
 	
 	def Results()
-	    return aLastResults
+	    return @aLastResults
 	
 	def ResultsXT()
 	    return Association([ This.Results(), This.Matches() ])
@@ -282,9 +282,9 @@ class stzListexuter from stzObject
 	    _aAffected_ = []
 	    
 	    # Look through state history for triggers affected by this one
-	    _nState2Len_ = len(aState)
+	    _nState2Len_ = len(@aState)
 	    for _iLoopState2_ = 1 to _nState2Len_
-	    	_entry_ = aState[_iLoopState2_]
+	    	_entry_ = @aState[_iLoopState2_]
 	        if find(_entry_[:dependsOn], _cTriggerName_) > 0
 	            _aAffected_ + _entry_[:triggerName] 
 	        ok
@@ -295,9 +295,9 @@ class stzListexuter from stzObject
 	def GetDependencyChain(_cTriggerName_)
 	    _aChain_ = []
 	    
-	    _nState1Len_ = len(aState)
+	    _nState1Len_ = len(@aState)
 	    for _iLoopState1_ = 1 to _nState1Len_
-	    	_entry_ = aState[_iLoopState1_]
+	    	_entry_ = @aState[_iLoopState1_]
 	        if _entry_[:triggerName] = _cTriggerName_
 	            _aChain_ + _entry_[:dependsOn]
 	            
@@ -316,10 +316,10 @@ class stzListexuter from stzObject
 	def StateByPosition()
 	    # State entries sorted by matched position (ascending)
 	    _aSorted_ = []
-	    _nLen_ = len(aState)
+	    _nLen_ = len(@aState)
 
 	    for _i_ = 1 to _nLen_
-	        _aSorted_ + aState[_i_]
+	        _aSorted_ + @aState[_i_]
 	    next
 
 	    for _i_ = 2 to _nLen_
@@ -343,10 +343,10 @@ class stzListexuter from stzObject
 	def StateByComputationOrder()
 	    # Entries are recorded in computation order; return a copy
 	    _aSorted_ = []
-	    _nLen_ = len(aState)
+	    _nLen_ = len(@aState)
 
 	    for _i_ = 1 to _nLen_
-	        _aSorted_ + aState[_i_]
+	        _aSorted_ + @aState[_i_]
 	    next
 
 	    return _aSorted_
@@ -360,9 +360,9 @@ class stzListexuter from stzObject
     def executeComputation(aMatchedValue, _cTriggerName_)
         # Find computation code for this trigger
         _cCode_ = ""
-        _nCodesPerTrigger1Len_ = len(aCodesPerTrigger)
+        _nCodesPerTrigger1Len_ = len(@aCodesPerTrigger)
         for _iLoopCodesPerTrigger1_ = 1 to _nCodesPerTrigger1Len_
-        	pair = aCodesPerTrigger[_iLoopCodesPerTrigger1_]
+        	pair = @aCodesPerTrigger[_iLoopCodesPerTrigger1_]
             if pair[1] = _cTriggerName_
                 _cCode_ = pair[2]
                 exit
