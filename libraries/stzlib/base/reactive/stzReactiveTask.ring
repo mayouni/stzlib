@@ -50,14 +50,14 @@ class stzReactiveTask from stzObject
 	onError = NULL
 	status = TASK_PENDING
 	result = NULL
-	engine = NULL
+	@oEngine = NULL
 	errorHandling = DEFAULT_ERROR_HANDLING
 
 	def init(id, f, engine, errorMode)
 		# Initializes a task with an ID, function, and engine reference.
 		taskId = id
 		taskFunc = f
-		this.engine = engine
+		@oEngine = engine
 		status = TASK_PENDING
 		
 		if errorMode != NULL

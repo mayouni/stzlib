@@ -19,6 +19,7 @@ load "../../stzBase.ring"
 load "../_narrated.ring"
 
 # -- the hostile environment a real user script plausibly creates
+engine = "MY OWN VALUE"
 nLen = 5
 i = 2
 j = 3
@@ -95,6 +96,23 @@ Scenario("Number hot paths keep their hands off the caller's globals")
 	Then("param-named-n sibling is unaffected", StzNumberQ(8).IsDoubleOf(4), 1)
 EndScenario()
 
+# A BARE CLASS ATTRIBUTE IS A DIFFERENT WOUND from a bare assignment,
+# and a worse one. At `new`, a user global of the attribute's name is
+# BOUND instead of the attribute being created -- so the attribute never
+# exists and the first `this.name` dies R12 "property not found". The
+# whole reactive module was unusable to any script holding a variable
+# called `engine`: `new stzReactive()` itself raised (fixed 2026-08-02).
+Scenario("A hostile global does not stop an object being BUILT")
+	oHgRx = new stzReactive()
+	Then("the reactive engine constructs at all", isObject(oHgRx), TRUE)
+	oHgS = oHgRx.CreateStream("hg-s1")
+	Then("...and hands out a stream", isObject(oHgS), TRUE)
+	oHgT = oHgRx.CreateTimer("hg-t1", 50, func { return 1 })
+	Then("...and a timer", isObject(oHgT), TRUE)
+	oHgF = oHgRx.Reactivate(func x { return x * 2 })
+	Then("...and a reactive function", isObject(oHgF), TRUE)
+EndScenario()
+
 # The last three hostile names that still had bare assignments in the
 # library: nLen (stzDelivery, stzReactor), value (stzPivotTable,
 # stzList) and cCode (stzChainOfTruth, stzCCode). cCode is the sharpest
@@ -124,6 +142,7 @@ Scenario("THE POINT: the library never clobbers the user's variables")
 	Then("i intact", i, 2)
 	Then("j intact", j, 3)
 	Then("n intact", n, 44)
+	Then("engine intact", engine, "MY OWN VALUE")
 	Then("aResult intact", @@( aResult ), @@([ "mine" ]))
 	Then("acResult intact", @@( acResult ), @@([ "mine" ]))
 	Then("anResult intact", @@( anResult ), @@([ 99 ]))

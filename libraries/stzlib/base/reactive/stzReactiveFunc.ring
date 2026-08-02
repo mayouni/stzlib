@@ -6,15 +6,20 @@
 class stzReactiveFunc from stzObject
 
 	originalFunc = NULL
-	engine = NULL
-	
+	# @-sigil'd: a BARE `engine` here is bound to a user global of the
+	# same name at construction time, so the attribute is never created
+	# and the next `this.engine` dies R12 "property not found". Proven:
+	# a script holding `engine = "..."` could not even run
+	# `new stzReactive()`.
+	@oEngine = NULL
+
 	def Init(f, engine)
 		originalFunc = f
-		this.engine = engine
-		
+		@oEngine = engine
+
 	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
-		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, originalFunc, params, engine)
-		engine.AddTask(_task_)
+		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, originalFunc, params, @oEngine)
+		@oEngine.AddTask(_task_)
 		return _task_
 		
 	# CallAsync() for normal operations
@@ -23,10 +28,10 @@ class stzReactiveFunc from stzObject
 
 	def CallAsync(params, onComplete, onError)
 
-		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, originalFunc, params, engine)
+		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, originalFunc, params, @oEngine)
 		_task_.Then_(onComplete)
 		_task_.Catch_(onError)
-		engine.AddTask(_task_)
+		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 

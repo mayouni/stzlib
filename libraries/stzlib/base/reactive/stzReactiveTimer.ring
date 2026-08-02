@@ -13,7 +13,7 @@ class stzReactiveTimer from stzObject
 	timerId = ""
 	interval = ONE_SECOND  # milliseconds
 	callback = NULL
-	engine = NULL
+	@oEngine = NULL
 	timerHandle = NULL     # kept as NULL sentinel for API parity
 	isActive = false
 	isOneTime = false
@@ -24,7 +24,7 @@ class stzReactiveTimer from stzObject
 		timerId = id
 		interval = intervalMs
 		callback = f
-		this.engine = engine
+		@oEngine = engine
 
 		# Honor the constructor's oneTime arg (default FALSE on NULL).
 		if oneTime = NULL
@@ -84,7 +84,7 @@ class stzRingTimer from stzObject
 	timerId = ""
 	interval = ONE_SECOND    # milliseconds
 	callback = NULL
-	engine = NULL
+	@oEngine = NULL
 	obj = NULL
 	isActive = false
 	isOneTime = false
@@ -95,7 +95,7 @@ class stzRingTimer from stzObject
 		timerId = id
 		interval = intervalMs
 		callback = f
-		this.engine = engine
+		@oEngine = engine
 		this.obj = obj
 		isOneTime = oneTime
 		if isOneTime = NULL
