@@ -8,7 +8,7 @@ class stzReactiveStream from stzObject
 	aReactiveFuncs = []
 	errorHandlers = []
 	concludeHandlers = []
-	engine = NULL
+	@oEngine = NULL
 	isActive = STREAM_STATE_INACTIVE
 	isConcluded = STREAM_STATE_RUNNING
 
@@ -54,7 +54,7 @@ class stzReactiveStream from stzObject
 		ok
 		
 		this.sourceType = sourceType
-		this.engine = engine
+		@oEngine = engine
 
 	# Store map transformation with expressive constant
 	def Transform(mapFunction)
@@ -198,7 +198,7 @@ class stzReactiveStream from stzObject
 		
 		# Cancel any pending timer if disabling
 		if not enabled and autoConcludeTimer != NULL
-			engine.TimerManager().RemoveTimer(autoConcludeTimer.timerId)
+			@oEngine.TimerManager().RemoveTimer(autoConcludeTimer.timerId)
 			autoConcludeTimer = NULL
 		ok
 		
@@ -217,7 +217,7 @@ class stzReactiveStream from stzObject
 	def ScheduleAutoConclude()
 		# Cancel existing timer if running
 		if autoConcludeTimer != NULL
-			engine.timerManager.RemoveTimer(autoConcludeTimer.timerId)
+			@oEngine.timerManager.RemoveTimer(autoConcludeTimer.timerId)
 			autoConcludeTimer = NULL
 		ok
 		
@@ -229,9 +229,9 @@ class stzReactiveStream from stzObject
 				AutoConclude()
 			ok
 			autoConcludeTimer = NULL  # Clean up timer reference
-		}, engine, true, self)  # true = one-time timer
+		}, @oEngine, true, self)  # true = one-time timer
 		
-		engine.timerManager.AddTimer(autoConcludeTimer)
+		@oEngine.timerManager.AddTimer(autoConcludeTimer)
 		autoConcludeTimer.Start()
 
 	

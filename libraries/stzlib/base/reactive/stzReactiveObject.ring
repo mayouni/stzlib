@@ -48,7 +48,7 @@ class stzReactiveObject from stzObject
 
 	# Core reactive infrastructure
 	wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
-	engine = NULL
+	@oEngine = NULL
 
 	# Attribute watching system
 	aAttributeWatchers = []     # [attr, callback] pairs
@@ -74,7 +74,7 @@ class stzReactiveObject from stzObject
 	    else
 	        wrappedObject = OBJECT_STANDALONE
 	    ok
-	    engine = reactiveEngine
+	    @oEngine = reactiveEngine
 
    
 	# Initialize attribute cache with wrapped object's current values.
@@ -289,7 +289,7 @@ class stzReactiveObject from stzObject
 		_cAttribute_ = StzLower(_cAttribute_)
 		
 		_streamId_ = StzLower(ring_classname(self)) + "_" + _cAttribute_ + "_" + random(999999)
-		_stream_ = this.engine.CreateStream(_streamId_)
+		_stream_ = @oEngine.CreateStream(_streamId_)
 		
 		# Watcher contract is f(oSelf, attr, old, new) -- the old 3-arg
 		# lambda arity-crashed on every trigger and the error was

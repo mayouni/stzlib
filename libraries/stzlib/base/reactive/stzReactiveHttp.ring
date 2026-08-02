@@ -12,12 +12,12 @@
 
 class stzReactiveHttp from stzObject
 
-	engine = NULL
+	@oEngine = NULL
 	oReactor = NULL
 	aPending = []   # [ [ nJobId, fOnSuccess, fOnError ], ... ]
 
 	def Init(engine)
-		this.engine = engine
+		@oEngine = engine
 
 	def SetReactor(poReactor)
 		oReactor = poReactor
@@ -29,10 +29,10 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("GET", url, HTTP_RESPONSE_NULL, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_GET, url, HTTP_GET, HTTP_RESPONSE_NULL, engine)
+		_task_ = new stzHttpTask(HTTP_TASK_GET, url, HTTP_GET, HTTP_RESPONSE_NULL, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
-		engine.AddTask(_task_)
+		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 
@@ -40,10 +40,10 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("POST", url, data, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_POST, url, HTTP_POST, data, engine)
+		_task_ = new stzHttpTask(HTTP_TASK_POST, url, HTTP_POST, data, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
-		engine.AddTask(_task_)
+		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 
@@ -51,10 +51,10 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("PUT", url, data, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_PUT, url, HTTP_PUT, data, engine)
+		_task_ = new stzHttpTask(HTTP_TASK_PUT, url, HTTP_PUT, data, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
-		engine.AddTask(_task_)
+		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 
@@ -62,10 +62,10 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("DELETE", url, HTTP_RESPONSE_NULL, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_DELETE, url, HTTP_DELETE, HTTP_RESPONSE_NULL, engine)
+		_task_ = new stzHttpTask(HTTP_TASK_DELETE, url, HTTP_DELETE, HTTP_RESPONSE_NULL, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
-		engine.AddTask(_task_)
+		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 
