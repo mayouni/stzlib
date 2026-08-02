@@ -37,18 +37,18 @@ class stzReactiveSystem from stzObject
 	# Manages the internal state of the reactive system,
 	# tracking timers, tasks, streams, and handlers.
 
-	timerManager = NULL
-	tasks = []
-	streams = []
+	@timerManager = NULL
+	@tasks = []
+	@streams = []
 
-	isRunning = ENGINE_STOPPED
+	@isRunning = ENGINE_STOPPED
 
 	# Reactive components
 	#--------------------
 
 	http = NULL
-	oDataStream = NULL
-	oHttpStream = NULL
+	oDataStream = NULL          # BRACE-ASSIGNABLE from user code (Rs { oDataStream = ... }) -- must stay bare, like stzApp's DSL slots
+	@oHttpStream = NULL
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -59,7 +59,7 @@ class stzReactiveSystem from stzObject
 
 	def init()
 
-		timerManager = new stzTimerManager()
+		@timerManager = new stzTimerManager()
 		http = new stzReactiveHttp(self)
 
 		# F5: run on the reactor when the engine DLL is present; the
@@ -69,14 +69,14 @@ class stzReactiveSystem from stzObject
 		@oReactor = NULL
 		if $pStzReactorHandle != NULL
 			@oReactor = new stzReactor()
-			timerManager.SetReactor(@oReactor)
+			@timerManager.SetReactor(@oReactor)
 			http.SetReactor(@oReactor)
 		ok
 
-		tasks = []
-		streams = []
+		@tasks = []
+		@streams = []
 
-		isRunning = ENGINE_STOPPED
+		@isRunning = ENGINE_STOPPED
 
 	# The real libuv loop handle backing this system (NULL in the
 	# no-DLL poller fallback). Real again since F5.
@@ -100,17 +100,17 @@ class stzReactiveSystem from stzObject
 
 	def Start()
 	    # Initiates the reactive system and runs the event loop.
-	    if isRunning = ENGINE_STOPPED
-	        isRunning = ENGINE_RUNNING
+	    if @isRunning = ENGINE_STOPPED
+	        @isRunning = ENGINE_RUNNING
 
 	        # (Removed an unconditional sleep(0.1) here -- it added a flat
 	        # 100ms to every RunLoop with no functional purpose.)
 
 	        # Execute any pending chunked tasks
-	        _nLenTasks_ = len(tasks)
+	        _nLenTasks_ = len(@tasks)
 	        for i = 1 to _nLenTasks_
-	            if tasks[i].status = TASK_PENDING
-	                tasks[i].Execute()
+	            if @tasks[i].@status = TASK_PENDING
+	                @tasks[i].Execute()
 	            ok
 	        next
 	
@@ -118,8 +118,8 @@ class stzReactiveSystem from stzObject
 		# LIVE http object rides along as a by-ref param so the loop
 		# can drain its async completions (an attribute copy would
 		# see a dead snapshot -- the Ring aliasing doctrine).
-	        timerManager.RunLoop(http)
-	        isRunning = ENGINE_STOPPED
+	        @timerManager.RunLoop(http)
+	        @isRunning = ENGINE_STOPPED
 	    ok
 
 		#< @FunctionAlternativeForms
@@ -145,19 +145,19 @@ class stzReactiveSystem from stzObject
 
 	def Stop()
 		# Stops the system and cleans up tasks, streams, and handlers.
-		isRunning = ENGINE_STOPPED
-		timerManager.Stop()
+		@isRunning = ENGINE_STOPPED
+		@timerManager.Stop()
 
 		# Clean up all tasks
-		_nLenTasks_ = len(tasks)
+		_nLenTasks_ = len(@tasks)
 		for i = 1 to _nLenTasks_
-			tasks[i].Cleanup()
+			@tasks[i].Cleanup()
 		next
 
 		# Clean up streams
-		_nLenStreams_ = len(streams)
+		_nLenStreams_ = len(@streams)
 		for i = 1 to _nLenStreams_
-			streams[i].Cleanup()
+			@streams[i].Cleanup()
 		next
 
 		# F5: the reactor is deliberately NOT destroyed here. The
@@ -334,7 +334,7 @@ class stzReactiveSystem from stzObject
 	    ok
 
 	    _timer_ = new stzReactiveTimer(id, intervalMs, _callback_, self, _oneTime_)
-	    timerManager.AddTimer(_timer_)
+	    @timerManager.AddTimer(_timer_)
 	    _timer_.Start()
 
 	    return _timer_
@@ -428,13 +428,13 @@ class stzReactiveSystem from stzObject
 	def StopTimer(_timer_)
 
 		if isString(_timer_)
-			timerManager.RemoveTimer(_timer_)
+			@timerManager.RemoveTimer(_timer_)
 		else
 			_timer_.Stop()
 		ok
 
 	def StopAllTimers()
-	   timerManager.StopAllTimers()
+	   @timerManager.StopAllTimers()
 
 	#--------------------------#
 	#  REACTIVE HTTP REQUESTS  #
@@ -489,12 +489,12 @@ class stzReactiveSystem from stzObject
 
 	def AddTask(_task_)
 		# Adds a task to the internal task list.
-		tasks + _task_
+		@tasks + _task_
 		
 	def AddStream(_stream_)
 		# Adds a stream to the internal stream list.
-		streams + _stream_
+		@streams + _stream_
 		
 	def AddTimer(_timer_)
 		# Adds a timer to the timer manager.
-		timerManager.AddTimer(_timer_)
+		@timerManager.AddTimer(_timer_)

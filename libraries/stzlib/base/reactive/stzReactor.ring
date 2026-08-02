@@ -36,21 +36,21 @@ func StzReactor()
 
 class stzReactor from stzObject
 
-	pHandle = NULL
-	bReady  = FALSE
+	@pHandle = NULL
+	@bReady  = FALSE
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if bReady = FALSE
-			pHandle = StzEngineReactorCreate()
-			bReady = TRUE
+		if @bReady = FALSE
+			@pHandle = StzEngineReactorCreate()
+			@bReady = TRUE
 		ok
 
 	def Handle()
 		This._Ensure()
-		return pHandle
+		return @pHandle
 
 	def Version()
 		return StzEngineReactorVersion()
@@ -59,41 +59,41 @@ class stzReactor from stzObject
 
 	def SubmitTimer(nDelayMs)
 		This._Ensure()
-		return StzEngineReactorSubmitTimer(pHandle, nDelayMs)
+		return StzEngineReactorSubmitTimer(@pHandle, nDelayMs)
 
 	# Block up to nTimeoutMs for the timer; returns 0 (fired), -1
 	# (running/timeout) or -2 (unknown id).
 	def AwaitTimer(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorAwait(@pHandle, nId, nTimeoutMs)
 
 	def Poll(nId)
 		This._Ensure()
-		return StzEngineReactorPoll(pHandle, nId)
+		return StzEngineReactorPoll(@pHandle, nId)
 
 	# Non-draining peek: -2 unknown, -1 running, 0 ready-to-fetch.
 	def JobState(nId)
 		This._Ensure()
-		return StzEngineReactorJobState(pHandle, nId)
+		return StzEngineReactorJobState(@pHandle, nId)
 
 	def Pending()
 		This._Ensure()
-		return StzEngineReactorPending(pHandle)
+		return StzEngineReactorPending(@pHandle)
 
 	# ── async TCP request/response ───────────────────────────
 
 	def SubmitTcp(cHost, nPort, cPayload)
 		This._Ensure()
-		return StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
+		return StzEngineReactorSubmitTcp(@pHandle, cHost, nPort, cPayload)
 
 	# Block up to nTimeoutMs for the response body (empty on error/timeout).
 	def AwaitTcp(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorTcpAwait(@pHandle, nId, nTimeoutMs)
 
 	def PollTcp(nId)
 		This._Ensure()
-		return StzEngineReactorTcpPoll(pHandle, nId)
+		return StzEngineReactorTcpPoll(@pHandle, nId)
 
 	def TcpLastStatus()
 		return StzEngineReactorTcpLastStatus()
@@ -101,9 +101,9 @@ class stzReactor from stzObject
 	# Submit + await an async TCP request in one call; returns the body.
 	def TcpRequest(cHost, nPort, cPayload, nTimeoutMs)
 		This._Ensure()
-		nId = StzEngineReactorSubmitTcp(pHandle, cHost, nPort, cPayload)
+		nId = StzEngineReactorSubmitTcp(@pHandle, cHost, nPort, cPayload)
 		if nId < 1 return "" ok
-		return StzEngineReactorTcpAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorTcpAwait(@pHandle, nId, nTimeoutMs)
 
 	# ── async process spawn (polyglot fleet) ─────────────────
 	#
@@ -123,16 +123,16 @@ class stzReactor from stzObject
 			if i > 1  cJoined += char(10)  ok
 			cJoined += "" + acArgv[i]
 		next
-		return StzEngineReactorSubmitSpawn(pHandle, cJoined)
+		return StzEngineReactorSubmitSpawn(@pHandle, cJoined)
 
 	# Block up to nTimeoutMs for the child; returns its stdout.
 	def AwaitSpawn(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorSpawnAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorSpawnAwait(@pHandle, nId, nTimeoutMs)
 
 	def PollSpawn(nId)
 		This._Ensure()
-		return StzEngineReactorSpawnPoll(pHandle, nId)
+		return StzEngineReactorSpawnPoll(@pHandle, nId)
 
 	def SpawnLastStatus()
 		return StzEngineReactorSpawnLastStatus()
@@ -144,19 +144,19 @@ class stzReactor from stzObject
 	# can't race the loop thread reaping the process on its own exit.
 	def KillSpawn(nId, nSignum)
 		This._Ensure()
-		return StzEngineReactorSpawnKill(pHandle, nId, nSignum)
+		return StzEngineReactorSpawnKill(@pHandle, nId, nSignum)
 
 	# SIGKILL by default (the forceful stop for a wedged child).
 	def KillSpawnHard(nId)
 		This._Ensure()
-		return StzEngineReactorSpawnKill(pHandle, nId, 9)
+		return StzEngineReactorSpawnKill(@pHandle, nId, 9)
 
 	# Submit + await in one call; returns the child's stdout.
 	def Spawn(acArgv, nTimeoutMs)
 		This._Ensure()
 		nId = This.SubmitSpawn(acArgv)
 		if nId < 1  return ""  ok
-		return StzEngineReactorSpawnAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorSpawnAwait(@pHandle, nId, nTimeoutMs)
 
 	# ── async HTTP / HTTPS (native TLS, off the loop thread) ──
 	#
@@ -168,15 +168,15 @@ class stzReactor from stzObject
 
 	def SubmitHttp(nMethod, cUrl, cBody)
 		This._Ensure()
-		return StzEngineReactorSubmitCurl(pHandle, nMethod, cUrl, cBody)
+		return StzEngineReactorSubmitCurl(@pHandle, nMethod, cUrl, cBody)
 
 	def AwaitHttp(nId, nTimeoutMs)
 		This._Ensure()
-		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorCurlAwait(@pHandle, nId, nTimeoutMs)
 
 	def PollHttp(nId)
 		This._Ensure()
-		return StzEngineReactorCurlPoll(pHandle, nId)
+		return StzEngineReactorCurlPoll(@pHandle, nId)
 
 	# HTTP status code of the last drained request (or < 0 on error).
 	def HttpLastStatus()
@@ -185,16 +185,16 @@ class stzReactor from stzObject
 	# Submit + await a GET in one call; returns the response body.
 	def HttpGet(cUrl, nTimeoutMs)
 		This._Ensure()
-		nId = StzEngineReactorSubmitCurl(pHandle, 0, cUrl, "")
+		nId = StzEngineReactorSubmitCurl(@pHandle, 0, cUrl, "")
 		if nId < 1  return ""  ok
-		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorCurlAwait(@pHandle, nId, nTimeoutMs)
 
 	# Submit + await a POST with a body; returns the response body.
 	def HttpPost(cUrl, cBody, nTimeoutMs)
 		This._Ensure()
-		nId = StzEngineReactorSubmitCurl(pHandle, 1, cUrl, cBody)
+		nId = StzEngineReactorSubmitCurl(@pHandle, 1, cUrl, cBody)
 		if nId < 1  return ""  ok
-		return StzEngineReactorCurlAwait(pHandle, nId, nTimeoutMs)
+		return StzEngineReactorCurlAwait(@pHandle, nId, nTimeoutMs)
 
 	# ── server side: listen / events / write / close ─────────
 	#
@@ -208,12 +208,12 @@ class stzReactor from stzObject
 	# Returns the server id (>0) or a negative uv error code.
 	def Listen(cHost, nPort)
 		This._Ensure()
-		return StzEngineReactorListen(pHandle, cHost, nPort, 0)
+		return StzEngineReactorListen(@pHandle, cHost, nPort, 0)
 
 	# HTTP/1.1 listener: :data events carry complete requests.
 	def ListenHttp(cHost, nPort)
 		This._Ensure()
-		return StzEngineReactorListen(pHandle, cHost, nPort, 1)
+		return StzEngineReactorListen(@pHandle, cHost, nPort, 1)
 
 	# TLS-terminating HTTP listener: each connection runs an mbedTLS
 	# handshake (server cert cCertPath + key cKeyPath) before the plaintext
@@ -226,7 +226,7 @@ class stzReactor from stzObject
 		This._Ensure()
 		_nReq_ = 0
 		if bRequireClient  _nReq_ = 1  ok
-		return StzEngineReactorListenTls(pHandle, cHost, nPort, 1,
+		return StzEngineReactorListenTls(@pHandle, cHost, nPort, 1,
 			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nReq_)
 
 	# One-way server TLS convenience (no client cert): serve HTTPS with just
@@ -270,22 +270,22 @@ class stzReactor from stzObject
 	# Actual bound port (useful after nPort = 0).
 	def ServerPort(nServerId)
 		This._Ensure()
-		return StzEngineReactorServerPort(pHandle, nServerId)
+		return StzEngineReactorServerPort(@pHandle, nServerId)
 
 	def ServerConns(nServerId)
 		This._Ensure()
-		return StzEngineReactorServerConns(pHandle, nServerId)
+		return StzEngineReactorServerConns(@pHandle, nServerId)
 
 	# Drain one event without blocking; [] if none.
 	def ServerPoll(nServerId)
 		This._Ensure()
-		nKind = StzEngineReactorServerPoll(pHandle, nServerId)
+		nKind = StzEngineReactorServerPoll(@pHandle, nServerId)
 		return This._ServerEvent(nKind)
 
 	# Block up to nTimeoutMs for one event; [] on timeout.
 	def ServerAwait(nServerId, nTimeoutMs)
 		This._Ensure()
-		nKind = StzEngineReactorServerAwait(pHandle, nServerId, nTimeoutMs)
+		nKind = StzEngineReactorServerAwait(@pHandle, nServerId, nTimeoutMs)
 		return This._ServerEvent(nKind)
 
 	def _ServerEvent(nKind)
@@ -305,22 +305,22 @@ class stzReactor from stzObject
 		if bCloseAfter = TRUE
 			nClose = 1
 		ok
-		return StzEngineReactorServerWrite(pHandle, nServerId, nConnId, cData, nClose)
+		return StzEngineReactorServerWrite(@pHandle, nServerId, nConnId, cData, nClose)
 
 	def ServerCloseConn(nServerId, nConnId)
 		This._Ensure()
-		return StzEngineReactorServerCloseConn(pHandle, nServerId, nConnId)
+		return StzEngineReactorServerCloseConn(@pHandle, nServerId, nConnId)
 
 	def ServerStop(nServerId)
 		This._Ensure()
-		return StzEngineReactorServerStop(pHandle, nServerId)
+		return StzEngineReactorServerStop(@pHandle, nServerId)
 
 	# ── teardown ─────────────────────────────────────────────
 
 	def Destroy()
-		if bReady = TRUE
-			StzEngineReactorDestroy(pHandle)
-			pHandle = NULL
-			bReady = FALSE
+		if @bReady = TRUE
+			StzEngineReactorDestroy(@pHandle)
+			@pHandle = NULL
+			@bReady = FALSE
 		ok
 		return This

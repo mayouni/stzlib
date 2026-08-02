@@ -13,17 +13,17 @@
 class stzReactiveHttp from stzObject
 
 	@oEngine = NULL
-	oReactor = NULL
-	aPending = []   # [ [ nJobId, fOnSuccess, fOnError ], ... ]
+	@oReactor = NULL
+	@aPending = []   # [ [ nJobId, fOnSuccess, fOnError ], ... ]
 
 	def Init(engine)
 		@oEngine = engine
 
 	def SetReactor(poReactor)
-		oReactor = poReactor
+		@oReactor = poReactor
 
 	def PendingCount()
-		return len(aPending)
+		return len(@aPending)
 
 	def Get_(url, onSuccess, onError)
 		if This._CanAsync(url)
@@ -72,7 +72,7 @@ class stzReactiveHttp from stzObject
 	#--- F5: the async path over the reactor -------------------
 
 	def _CanAsync(url)
-		if oReactor = NULL
+		if @oReactor = NULL
 			return FALSE
 		ok
 		# F5+TLS: both http AND https run async on the reactor now (curl
@@ -89,14 +89,14 @@ class stzReactiveHttp from stzObject
 		if isString(data) and data != ""
 			_cBody_ = data
 		ok
-		_nJob_ = oReactor.SubmitHttp(_nCode_, "" + url, _cBody_)
+		_nJob_ = @oReactor.SubmitHttp(_nCode_, "" + url, _cBody_)
 		if _nJob_ < 1
 			if onError != NULL
 				call onError(HTTP_ERROR_REQUEST_FAILED)
 			ok
 			return -1
 		ok
-		aPending + [ _nJob_, onSuccess, onError ]
+		@aPending + [ _nJob_, onSuccess, onError ]
 		return _nJob_
 
 	def _MethodCode(cMethod)
@@ -114,13 +114,13 @@ class stzReactiveHttp from stzObject
 	# the blocking download() path).
 	def DrainPending()
 		_nDone_ = 0
-		for _i_ = len(aPending) to 1 step -1
-			_nState_ = oReactor.JobState(aPending[_i_][1])
+		for _i_ = len(@aPending) to 1 step -1
+			_nState_ = @oReactor.JobState(@aPending[_i_][1])
 			if _nState_ = -1
 				loop   # still in flight
 			ok
-			_aEntry_ = aPending[_i_]
-			del(aPending, _i_)
+			_aEntry_ = @aPending[_i_]
+			del(@aPending, _i_)
 			_nDone_++
 			# Ring's `call` needs a plain variable, not an indexed expr
 			_fOk_ = _aEntry_[2]
@@ -131,8 +131,8 @@ class stzReactiveHttp from stzObject
 				ok
 				loop
 			ok
-			_cBody_ = oReactor.PollHttp(_aEntry_[1])
-			_nStatus_ = oReactor.HttpLastStatus()
+			_cBody_ = @oReactor.PollHttp(_aEntry_[1])
+			_nStatus_ = @oReactor.HttpLastStatus()
 			if _nStatus_ >= 200 and _nStatus_ < 300
 				if _fOk_ != NULL
 					call _fOk_(_cBody_)
@@ -161,7 +161,7 @@ class stzHttpTask from stzReactiveTask
 	    # (S0 fix, 2026-07-14): store the status on the TASK, not in a
 	    # local -- the old code wrote _status_ locally and dropped it,
 	    # so task status was unreliable for HTTP.
-	    status = TASK_RUNNING
+	    @status = TASK_RUNNING
 	    
 	    # Use Ring's built-in HTTP capabilities
 	    if method = HTTP_GET
@@ -178,12 +178,12 @@ class stzHttpTask from stzReactiveTask
 	    
 	    # Check if we got a valid result
 	    if _result_ != HTTP_RESPONSE_NULL and _result_ != HTTP_RESPONSE_EMPTY
-	        status = TASK_COMPLETED
+	        @status = TASK_COMPLETED
 	        if onComplete != HTTP_RESPONSE_NULL
 	            call onComplete(_result_)
 	        ok
 	    else
-	        status = TASK_ERROR
+	        @status = TASK_ERROR
 	        if onError != HTTP_RESPONSE_NULL
 	            call onError(HTTP_ERROR_REQUEST_FAILED)
 	        ok
