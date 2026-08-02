@@ -44,24 +44,24 @@ class stzReactiveTask from stzObject
 	# Stores task metadata, function, status, and
 	# callbacks for asynchronous execution.
 
-	taskId = ""
-	taskFunc = NULL
+	@taskId = ""
+	@taskFunc = NULL
 	onComplete = NULL
 	onError = NULL
-	status = TASK_PENDING
-	result = NULL
+	@status = TASK_PENDING
+	@result = NULL
 	@oEngine = NULL
-	errorHandling = DEFAULT_ERROR_HANDLING
+	@errorHandling = DEFAULT_ERROR_HANDLING
 
 	def init(id, f, engine, errorMode)
 		# Initializes a task with an ID, function, and engine reference.
-		taskId = id
-		taskFunc = f
+		@taskId = id
+		@taskFunc = f
 		@oEngine = engine
-		status = TASK_PENDING
+		@status = TASK_PENDING
 		
 		if errorMode != NULL
-			errorHandling = errorMode
+			@errorHandling = errorMode
 		ok
 		
 	def Then_(completeFunc)
@@ -77,26 +77,26 @@ class stzReactiveTask from stzObject
 	def Execute()
 		# Executes the task, handling success and error cases.
 		try
-			status = TASK_RUNNING
-			if isString(taskFunc)
-				result = call taskFunc()
+			@status = TASK_RUNNING
+			if isString(@taskFunc)
+				@result = call @taskFunc()
 			else
-				result = taskFunc()
+				@result = @taskFunc()
 			ok
-			status = TASK_COMPLETED
+			@status = TASK_COMPLETED
 			if onComplete != NULL
-				onComplete(result)
+				onComplete(@result)
 			ok
 
 		catch
-			status = TASK_ERROR
+			@status = TASK_ERROR
 			_errorMsg_ = "Task execution failed"
 			
-			if errorHandling = ERROR_THROW
+			if @errorHandling = ERROR_THROW
 				raise(_errorMsg_)
-			but errorHandling = ERROR_LOG
+			but @errorHandling = ERROR_LOG
 				? _errorMsg_
-			but errorHandling = ERROR_CALLBACK and onError != NULL
+			but @errorHandling = ERROR_CALLBACK and onError != NULL
 				onError(_errorMsg_)
 			ok
 		done

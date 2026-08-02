@@ -26,8 +26,8 @@ func StzReactorPool(nWorkers)
 
 class stzReactorPool from stzObject
 
-	aReactors = []
-	nNext = 1
+	@aReactors = []
+	@nNext = 1
 
 	def init(nWorkers)
 		_n_ = nWorkers
@@ -35,18 +35,18 @@ class stzReactorPool from stzObject
 			_n_ = 1
 		ok
 		for _i_ = 1 to _n_
-			aReactors + new stzReactor()
+			@aReactors + new stzReactor()
 		next
 
 	def Count()
-		return len(aReactors)
+		return len(@aReactors)
 
 	# Round-robin pick of the next loop.
 	def _Pick()
-		_oR_ = aReactors[nNext]
-		nNext++
-		if nNext > len(aReactors)
-			nNext = 1
+		_oR_ = @aReactors[@nNext]
+		@nNext++
+		if @nNext > len(@aReactors)
+			@nNext = 1
 		ok
 		return _oR_
 
@@ -70,10 +70,10 @@ class stzReactorPool from stzObject
 		return aBodies
 
 	def Destroy()
-		_nL_ = len(aReactors)
+		_nL_ = len(@aReactors)
 		for _i_ = 1 to _nL_
-			aReactors[_i_].Destroy()
+			@aReactors[_i_].Destroy()
 		next
-		aReactors = []
-		nNext = 1
+		@aReactors = []
+		@nNext = 1
 		return This
