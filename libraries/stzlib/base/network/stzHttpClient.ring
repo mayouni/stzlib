@@ -37,37 +37,37 @@ $STZ_HTTP_METHOD_PATCH   = 6
 class stzHttpClient from stzNetwork
 
 	# Request-state
-	headers_list = []           # accumulated "Name: Value" strings
-	cookies_list = []           # accumulated "k=v" strings
-	user_agent = "Softanza-HTTP/1.0"
+	@headers_list = []           # accumulated "Name: Value" strings
+	@cookies_list = []           # accumulated "k=v" strings
+	@user_agent = "Softanza-HTTP/1.0"
 
 	# Response state
-	last_response = ""
-	last_response_code = 0
-	last_response_headers = ""   # std.http does not yet expose these
+	@last_response = ""
+	@last_response_code = 0
+	@last_response_headers = ""   # std.http does not yet expose these
 
 	# Connection / TLS / auth settings -- all engine-backed via libcurl
 	# (passed as the per-request options blob; see _ComposeOptionsBlob).
-	bFollowRedirects = TRUE
-	bVerifySSL = TRUE
-	cProxy = ""
-	cProxyAuth = ""          # "user:pass" for the proxy
-	cAuthUser = ""
-	cAuthPass = ""
-	cAuthType = ""           # "", basic, digest, ntlm, negotiate, any
-	cBearer = ""             # Bearer token (OAuth2)
-	cClientCert = ""         # mTLS client certificate path
-	cClientKey = ""          # mTLS client private key path
-	cCookieFile = ""         # read cookies from this file
-	cCookieJar = ""          # write cookies to this file
-	cAcceptEncoding = ""     # value passed to libcurl when enabled
-	bAcceptEncoding = FALSE  # off by default (no compression unless opted in)
+	@bFollowRedirects = TRUE
+	@bVerifySSL = TRUE
+	@cProxy = ""
+	@cProxyAuth = ""          # "user:pass" for the proxy
+	@cAuthUser = ""
+	@cAuthPass = ""
+	@cAuthType = ""           # "", basic, digest, ntlm, negotiate, any
+	@cBearer = ""             # Bearer token (OAuth2)
+	@cClientCert = ""         # mTLS client certificate path
+	@cClientKey = ""          # mTLS client private key path
+	@cCookieFile = ""         # read cookies from this file
+	@cCookieJar = ""          # write cookies to this file
+	@cAcceptEncoding = ""     # value passed to libcurl when enabled
+	@bAcceptEncoding = FALSE  # off by default (no compression unless opted in)
 
 	# Per-layer timeouts in milliseconds (0 = use the engine default:
 	# connect 5s, request 30s). Wired to the custom HTTP/1.1 client +
 	# connection pool (engine/src/httpcore.zig + http_pool.zig).
-	connect_timeout_ms = 0
-	request_timeout_ms = 0
+	@connect_timeout_ms = 0
+	@request_timeout_ms = 0
 
 	def init()
 		# stzNetwork.init handles its own fields.
@@ -75,23 +75,23 @@ class stzHttpClient from stzNetwork
 	# ── headers / cookies ────────────────────────────────────
 
 	def SetUserAgent(cAgent)
-		user_agent = cAgent
+		@user_agent = cAgent
 		return This
 
 	def SetHeader(cName, cValue)
-		headers_list + (cName + ": " + cValue)
+		@headers_list + (cName + ": " + cValue)
 		return This
 
 	def SetHeaders(aHeaders)
-		headers_list = aHeaders
+		@headers_list = aHeaders
 		return This
 
 	def SetCookie(cName, cValue)
-		cookies_list + (cName + "=" + cValue)
+		@cookies_list + (cName + "=" + cValue)
 		return This
 
 	def SetCookies(aCookies)
-		cookies_list = aCookies
+		@cookies_list = aCookies
 		return This
 
 	# ── distributed tracing (W3C Trace Context) ──────────────
@@ -113,21 +113,21 @@ class stzHttpClient from stzNetwork
 	# custom headers. Each "Name: Value" pair separated by newline.
 	def _ComposeHeaderBlob()
 		_aLines_ = []
-		if user_agent != ""
-			_aLines_ + ("User-Agent: " + user_agent)
+		if @user_agent != ""
+			_aLines_ + ("User-Agent: " + @user_agent)
 		ok
-		if len(cookies_list) > 0
+		if len(@cookies_list) > 0
 			_cCookie_ = ""
-			_nC_ = len(cookies_list)
+			_nC_ = len(@cookies_list)
 			for _i_ = 1 to _nC_
 				if _i_ > 1 _cCookie_ += "; " ok
-				_cCookie_ += cookies_list[_i_]
+				_cCookie_ += @cookies_list[_i_]
 			next
 			_aLines_ + ("Cookie: " + _cCookie_)
 		ok
-		_nH_ = len(headers_list)
+		_nH_ = len(@headers_list)
 		for _i_ = 1 to _nH_
-			_aLines_ + headers_list[_i_]
+			_aLines_ + @headers_list[_i_]
 		next
 		_cOut_ = ""
 		_nL_ = len(_aLines_)
@@ -145,22 +145,22 @@ class stzHttpClient from stzNetwork
 		# Overall request timeout, expressed in seconds for API parity
 		# with stzNetwork.SetTimeout. Stored in ms for the engine.
 		_timeout_seconds_ = nSeconds
-		request_timeout_ms = nSeconds * 1000
+		@request_timeout_ms = nSeconds * 1000
 		return This
 
 	def SetConnectTimeout(nMs)
-		connect_timeout_ms = nMs
+		@connect_timeout_ms = nMs
 		return This
 
 	def SetRequestTimeout(nMs)
-		request_timeout_ms = nMs
+		@request_timeout_ms = nMs
 		return This
 
 	def ConnectTimeout()
-		return connect_timeout_ms
+		return @connect_timeout_ms
 
 	def RequestTimeout()
-		return request_timeout_ms
+		return @request_timeout_ms
 
 	# Set the process-wide engine defaults (connect / request / idle in
 	# ms). 0 leaves a field unchanged. Affects every client.
@@ -202,85 +202,85 @@ class stzHttpClient from stzNetwork
 	# ── settings (all engine-backed via libcurl) ─────────────
 
 	def FollowRedirects(bFollow)
-		bFollowRedirects = bFollow
+		@bFollowRedirects = bFollow
 		return This
 
 	def VerifySSL(bVerify)
-		bVerifySSL = bVerify
+		@bVerifySSL = bVerify
 		return This
 
 	def SetProxy(cProxy_)
-		cProxy = cProxy_
+		@cProxy = cProxy_
 		return This
 
 	# Proxy credentials, "user:pass".
 	def SetProxyAuth(cUser, cPass)
-		cProxyAuth = cUser + ":" + cPass
+		@cProxyAuth = cUser + ":" + cPass
 		return This
 
 	# HTTP auth (Basic by default; libcurl base64-encodes + handles the
 	# challenge). Use SetAuthType for digest/ntlm/negotiate/any.
 	def SetAuth(cUser, cPass)
-		cAuthUser = cUser
-		cAuthPass = cPass
+		@cAuthUser = cUser
+		@cAuthPass = cPass
 		return This
 
 	def SetAuthType(cType)
-		cAuthType = lower(cType)
+		@cAuthType = lower(cType)
 		return This
 
 	# Bearer / OAuth2 token auth.
 	def SetBearer(cToken)
-		cBearer = cToken
+		@cBearer = cToken
 		return This
 
 	# mTLS: client certificate + private key (file paths, PEM).
 	def SetClientCert(cCertPath, cKeyPath)
-		cClientCert = cCertPath
-		cClientKey = cKeyPath
+		@cClientCert = cCertPath
+		@cClientKey = cKeyPath
 		return This
 
 	# Persistent cookies: read from / write to a Netscape cookie file.
 	def SetCookieFile(cPath)
-		cCookieFile = cPath
+		@cCookieFile = cPath
 		return This
 
 	def SetCookieJar(cPath)
-		cCookieJar = cPath
+		@cCookieJar = cPath
 		return This
 
 	# Enable response decompression. "" lets libcurl advertise every
 	# encoding it was built with (gzip/deflate when zlib is linked).
 	def AcceptEncoding(cEnc)
-		cAcceptEncoding = cEnc
-		bAcceptEncoding = TRUE
+		@cAcceptEncoding = cEnc
+		@bAcceptEncoding = TRUE
 		return This
 
 	# Advertise every encoding libcurl was built with (gzip/deflate when
 	# zlib is linked); libcurl auto-decompresses the response.
 	def AcceptGzip()
-		cAcceptEncoding = ""
-		bAcceptEncoding = TRUE
+		@cAcceptEncoding = ""
+		@bAcceptEncoding = TRUE
 		return This
 
 	# Build the engine options blob ("key=value" newline lines) from the
 	# settings above. Only non-default settings are emitted.
 	def _ComposeOptionsBlob()
 		_aLines_ = []
-		if cProxy != ""        _aLines_ + ("proxy=" + cProxy) ok
-		if cProxyAuth != ""    _aLines_ + ("proxyuserpwd=" + cProxyAuth) ok
-		if cAuthUser != "" or cAuthPass != ""
-			_aLines_ + ("userpwd=" + cAuthUser + ":" + cAuthPass)
+		if @cProxy != ""        _aLines_ + ("proxy=" + @cProxy) ok
+		if @cProxyAuth != ""    _aLines_ + ("proxyuserpwd=" + @cProxyAuth) ok
+		if @cAuthUser != "" or @cAuthPass != ""
+			_aLines_ + ("userpwd=" + @cAuthUser + ":" + @cAuthPass)
 		ok
-		if cAuthType != ""     _aLines_ + ("authtype=" + cAuthType) ok
-		if cBearer != ""       _aLines_ + ("bearer=" + cBearer) ok
-		if cClientCert != ""   _aLines_ + ("sslcert=" + cClientCert) ok
-		if cClientKey != ""    _aLines_ + ("sslkey=" + cClientKey) ok
-		if cCookieFile != ""   _aLines_ + ("cookiefile=" + cCookieFile) ok
-		if cCookieJar != ""    _aLines_ + ("cookiejar=" + cCookieJar) ok
-		if bAcceptEncoding = TRUE  _aLines_ + ("acceptencoding=" + cAcceptEncoding) ok
-		if bVerifySSL = FALSE  _aLines_ + "verifyssl=0" ok
-		if bFollowRedirects = FALSE _aLines_ + "followredirects=0" ok
+		if @cAuthType != ""     _aLines_ + ("authtype=" + @cAuthType) ok
+		if @cBearer != ""       _aLines_ + ("bearer=" + @cBearer) ok
+		if @cClientCert != ""   _aLines_ + ("sslcert=" + @cClientCert) ok
+		if @cClientKey != ""    _aLines_ + ("sslkey=" + @cClientKey) ok
+		if @cCookieFile != ""   _aLines_ + ("cookiefile=" + @cCookieFile) ok
+		if @cCookieJar != ""    _aLines_ + ("cookiejar=" + @cCookieJar) ok
+		if @bAcceptEncoding = TRUE  _aLines_ + ("acceptencoding=" + @cAcceptEncoding) ok
+		if @bVerifySSL = FALSE  _aLines_ + "verifyssl=0" ok
+		if @bFollowRedirects = FALSE _aLines_ + "followredirects=0" ok
 		_cOut_ = ""
 		_nL_ = len(_aLines_)
 		for _i_ = 1 to _nL_
@@ -316,12 +316,12 @@ class stzHttpClient from stzNetwork
 		_cOpts_ = This._ComposeOptionsBlob()
 		# Unified path: RequestEx carries timeouts (0 = engine default) AND
 		# the options blob (proxy/auth/mTLS/cookies/verify/redirect/encoding).
-		last_response = StzEngineHttpRequestEx(nMethodCode, cUrl, _cHeaders_,
-			cContentType, cBody, connect_timeout_ms, request_timeout_ms, _cOpts_)
-		last_response_code = StzEngineHttpLastStatus()
-		last_response_headers = StzEngineHttpLastHeaders()
-		This._RecordRequest(cUrl, last_response_code)
-		if last_response_code <= 0
+		@last_response = StzEngineHttpRequestEx(nMethodCode, cUrl, _cHeaders_,
+			cContentType, cBody, @connect_timeout_ms, @request_timeout_ms, _cOpts_)
+		@last_response_code = StzEngineHttpLastStatus()
+		@last_response_headers = StzEngineHttpLastHeaders()
+		This._RecordRequest(cUrl, @last_response_code)
+		if @last_response_code <= 0
 			# Transport / engine error -- LastError already captured
 			# by _RecordRequest via StzEngineHttpLastError().
 			return This
@@ -338,20 +338,20 @@ class stzHttpClient from stzNetwork
 
 	def Response()
 		return [
-			:body    = last_response,
-			:code    = last_response_code,
-			:headers = last_response_headers,
+			:body    = @last_response,
+			:code    = @last_response_code,
+			:headers = @last_response_headers,
 			:info    = This.ConnectionInfo()
 		]
 
 	def ResponseCode()
-		return last_response_code
+		return @last_response_code
 
 	def ResponseBody()
-		return last_response
+		return @last_response
 
 	def ResponseHeaders()
-		return last_response_headers
+		return @last_response_headers
 
 	def ResponseTime()
 		# Engine slice 2 does not yet expose per-request timing.

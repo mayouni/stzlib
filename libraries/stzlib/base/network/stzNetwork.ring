@@ -8,7 +8,7 @@
 
 	The Ring class keeps the public surface (Timeout/IsSecure/...)
 	stable so stzHttpClient and stzAppServer don't need changes;
-	connection state (curl_handle, error_code) is now tracked as
+	connection state (curl_handle, @error_code) is now tracked as
 	plain instance attributes instead of a curl handle.
 */
 
@@ -69,11 +69,11 @@ func StzDec2Hex(_nNum_)
 
 class stzNetwork from stzObject
 	# Connection state (was curl_handle in the libcurl era).
-	cLastUrl = ""             # most-recently-used URL
-	nLastStatus = 0           # last HTTP status code
-	last_error = ""
-	error_code = 0
-	timeout_seconds = 30
+	@cLastUrl = ""             # most-recently-used URL
+	@nLastStatus = 0           # last HTTP status code
+	@last_error = ""
+	@error_code = 0
+	@timeout_seconds = 30
 
 	def init()
 		# No global init required for the engine HTTP client.
@@ -81,44 +81,44 @@ class stzNetwork from stzObject
 	def IsConnected()
 		# Engine HTTP is request-scoped; we report "connected" iff
 		# a request has run.
-		return cLastUrl != ""
+		return @cLastUrl != ""
 
 	def IsSecure()
-		if cLastUrl = "" return False ok
-		return StzLeft(cLastUrl, 8) = "https://"
+		if @cLastUrl = "" return False ok
+		return StzLeft(@cLastUrl, 8) = "https://"
 
 	def ConnectionInfo()
-		if cLastUrl = "" return [] ok
+		if @cLastUrl = "" return [] ok
 		return [
-			:url = cLastUrl,
-			:response_code = nLastStatus,
-			:timeout_seconds = timeout_seconds
+			:url = @cLastUrl,
+			:response_code = @nLastStatus,
+			:@timeout_seconds = @timeout_seconds
 		]
 
 	def LastError()
-		return last_error
+		return @last_error
 
 	def HasError()
-		return last_error != ""
+		return @last_error != ""
 
 	def ClearErrors()
-		last_error = ""
-		error_code = 0
+		@last_error = ""
+		@error_code = 0
 		return This
 
 	def SetTimeout(nSeconds)
-		timeout_seconds = nSeconds
+		@timeout_seconds = nSeconds
 		return This
 
 	def Timeout()
-		return timeout_seconds
+		return @timeout_seconds
 
 	# Internal accessor used by stzHttpClient + stzAppServer to feed
 	# back the most-recent request state after running an engine call.
 	def _RecordRequest(cUrl, nStatus)
-		cLastUrl = cUrl
-		nLastStatus = nStatus
+		@cLastUrl = cUrl
+		@nLastStatus = nStatus
 		if nStatus < 0
-			last_error = StzEngineHttpLastError()
-			error_code = nStatus
+			@last_error = StzEngineHttpLastError()
+			@error_code = nStatus
 		ok

@@ -14,12 +14,12 @@
 
 class stzTcpServer from stzNetwork
     @hServer = NULL              # opaque engine TCP server handle
-    clients = []                 # accepted clients (stzTcpClient instances)
-    is_listening = False
-    on_client_connect_callback = ""
-    on_client_disconnect_callback = ""
-    on_client_message_callback = ""
-    on_error_callback = ""
+    @clients = []                 # accepted @clients (stzTcpClient instances)
+    @is_listening = False
+    @on_client_connect_callback = ""
+    @on_client_disconnect_callback = ""
+    @on_client_message_callback = ""
+    @on_error_callback = ""
 
     def init()
         # stzNetwork.init takes no args; nothing to wire up here.
@@ -29,14 +29,14 @@ class stzTcpServer from stzNetwork
         @hServer = StzEngineTcpListen(cHost, nPort)
         # Engine returns a null-pointer on failure; LastError tells.
         if StzEngineTcpLastError() = ""
-            is_listening = True
+            @is_listening = True
             ClearErrors()
         else
-            is_listening = False
+            @is_listening = False
             _last_error_ = StzEngineTcpLastError()
             _error_code_ = -1
-            if on_error_callback != ""
-                call on_error_callback()
+            if @on_error_callback != ""
+                call @on_error_callback()
             ok
         ok
         return This
@@ -45,7 +45,7 @@ class stzTcpServer from stzNetwork
     # (or NULL on listener error). Caller is responsible for closing
     # the client when done.
     def AcceptOne()
-        if not is_listening
+        if not @is_listening
             _last_error_ = "Not listening"
             return NULL
         ok
@@ -53,8 +53,8 @@ class stzTcpServer from stzNetwork
         if StzEngineTcpLastError() != ""
             _last_error_ = StzEngineTcpLastError()
             _error_code_ = -1
-            if on_error_callback != ""
-                call on_error_callback()
+            if @on_error_callback != ""
+                call @on_error_callback()
             ok
             return NULL
         ok
@@ -62,18 +62,18 @@ class stzTcpServer from stzNetwork
         # Patch the engine handle into the client wrapper so the
         # caller can Send/Receive/Close through the normal API.
         _oClient_.@hClient = pClient
-        _oClient_.is_connected = True
-        clients + _oClient_
-        if on_client_connect_callback != ""
-            call on_client_connect_callback()
+        _oClient_.@is_connected = True
+        @clients + _oClient_
+        if @on_client_connect_callback != ""
+            call @on_client_connect_callback()
         ok
         return _oClient_
 
     def StopListening()
-        if is_listening and @hServer != NULL
+        if @is_listening and @hServer != NULL
             StzEngineTcpServerClose(@hServer)
             @hServer = NULL
-            is_listening = False
+            @is_listening = False
         ok
         return This
 
@@ -81,23 +81,23 @@ class stzTcpServer from stzNetwork
         return This.StopListening()
 
     def OnClientConnect(cCallback)
-        on_client_connect_callback = cCallback
+        @on_client_connect_callback = cCallback
         return This
 
     def OnClientDisconnect(cCallback)
-        on_client_disconnect_callback = cCallback
+        @on_client_disconnect_callback = cCallback
         return This
 
     def OnClientMessage(cCallback)
-        on_client_message_callback = cCallback
+        @on_client_message_callback = cCallback
         return This
 
     def OnError(cCallback)
-        on_error_callback = cCallback
+        @on_error_callback = cCallback
         return This
 
     def IsListening()
-        return is_listening
+        return @is_listening
 
     def NumberOfClients()
-        return len(clients)
+        return len(@clients)
