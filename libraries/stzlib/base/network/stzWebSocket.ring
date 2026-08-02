@@ -24,8 +24,8 @@ class stzWebSocket from stzNetwork
                 call @on_open_callback()
             ok
         else
-            _last_error_ = "WebSocket connection failed"
-            _error_code_ = _result_
+            @last_error = "WebSocket connection failed"
+            @error_code = _result_
         ok
         return This
     
@@ -34,20 +34,20 @@ class stzWebSocket from stzNetwork
     
     def SendText(cText)
         if not @is_connected
-            _last_error_ = "Not connected"
+            @last_error = "Not connected"
             return This
         ok
         
         _result_ = curl_ws_send(_curl_handle_, cText, 0, CURLWS_TEXT)
         if _result_[1] != CURLE_OK
-            _last_error_ = "Failed to send message"
-            _error_code_ = _result_[1]
+            @last_error = "Failed to send message"
+            @error_code = _result_[1]
         ok
         return This
     
     def SendBinary(aData)
         if not @is_connected
-            _last_error_ = "Not connected"
+            @last_error = "Not connected"
             return This
         ok
         
@@ -61,14 +61,14 @@ class stzWebSocket from stzNetwork
         
         _result_ = curl_ws_send(_curl_handle_, _binary_string_, 0, CURLWS_BINARY)
         if _result_[1] != CURLE_OK
-            _last_error_ = "Failed to send binary data"
-            _error_code_ = _result_[1]
+            @last_error = "Failed to send binary data"
+            @error_code = _result_[1]
         ok
         return This
     
     def Receive()
         if not @is_connected
-            _last_error_ = "Not connected"
+            @last_error = "Not connected"
             return This
         ok
         
@@ -84,8 +84,8 @@ class stzWebSocket from stzNetwork
             ok
         else
             if _result_[1] != CURLE_AGAIN
-                _last_error_ = "Failed to receive message"
-                _error_code_ = _result_[1]
+                @last_error = "Failed to receive message"
+                @error_code = _result_[1]
             ok
         ok
         return This

@@ -33,8 +33,8 @@ class stzTcpServer from stzNetwork
             ClearErrors()
         else
             @is_listening = False
-            _last_error_ = StzEngineTcpLastError()
-            _error_code_ = -1
+            @last_error = StzEngineTcpLastError()
+            @error_code = -1
             if @on_error_callback != ""
                 call @on_error_callback()
             ok
@@ -46,13 +46,13 @@ class stzTcpServer from stzNetwork
     # the client when done.
     def AcceptOne()
         if not @is_listening
-            _last_error_ = "Not listening"
+            @last_error = "Not listening"
             return NULL
         ok
         pClient = StzEngineTcpAccept(@hServer)
         if StzEngineTcpLastError() != ""
-            _last_error_ = StzEngineTcpLastError()
-            _error_code_ = -1
+            @last_error = StzEngineTcpLastError()
+            @error_code = -1
             if @on_error_callback != ""
                 call @on_error_callback()
             ok
