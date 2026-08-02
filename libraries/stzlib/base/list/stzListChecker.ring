@@ -48,21 +48,21 @@ class stzListChecker from stzObject
 	#======================================#
 
 	def IsListOfNumbers()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllNumbers(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllNumbers(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	def IsListOfStrings()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllStrings(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllStrings(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	def IsListOfLists()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllLists(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllLists(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def AllItemsAreLists()
@@ -72,9 +72,9 @@ class stzListChecker from stzObject
 			return This.IsListOfLists()
 
 	def IsListOfListsOfSameSize()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllListsSameSize(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllListsSameSize(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def ItemsAreListsOfSameSize()
@@ -100,9 +100,9 @@ class stzListChecker from stzObject
 	#==============================#
 
 	def IsHybrid()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsHybrid(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsHybrid(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def IsHybridList()
@@ -188,15 +188,15 @@ class stzListChecker from stzObject
 	#==============================#
 
 	def IsListOfPairs()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllPairs(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllPairs(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	def IsListOfSections()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsAllSections(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsAllSections(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	  #=========================================#
@@ -336,18 +336,18 @@ class stzListChecker from stzObject
 	#==============================#
 
 	def AllItemsAreEqual()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListAllItemsEqualCS(pList, 1)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListAllItemsEqualCS(_pList_, 1)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def ItemsAreAllEqual()
 			return This.AllItemsAreEqual()
 
 	def AllItemsAreUnique()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListAllUniqueCS(pList, 1)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListAllUniqueCS(_pList_, 1)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def ItemsAreAllUnique()
@@ -360,24 +360,24 @@ class stzListChecker from stzObject
 		return This.AllItemsAreOfType(pType)
 
 	def IsMonotonic()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsMonotonic(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsMonotonic(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def IsMonotonous()
 			return This.IsMonotonic()
 
 	def IsStrictlyIncreasing()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsStrictlyIncreasing(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsStrictlyIncreasing(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	def IsStrictlyDecreasing()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsStrictlyDecreasing(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsStrictlyDecreasing(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 	  #==============================#
@@ -425,9 +425,9 @@ class stzListChecker from stzObject
 	#============================#
 
 	def IsContinuous()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsContinuous(pList)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsContinuous(_pList_)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def IsContiguous()
@@ -507,9 +507,9 @@ class stzListChecker from stzObject
 	#==============================#
 
 	def IsPalindrome()
-		pList = @oList._EngineListFromContent()
-		_nResult_ = StzEngineListIsPalindromeCS(pList, 1)
-		StzEngineListFree(pList)
+		_pList_ = @oList._EngineListFromContent()
+		_nResult_ = StzEngineListIsPalindromeCS(_pList_, 1)
+		StzEngineListFree(_pList_)
 		return _nResult_
 
 		def IsListPalindrome()

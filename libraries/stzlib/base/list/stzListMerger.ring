@@ -332,8 +332,8 @@ class stzListMerger from stzObject
 	#======================================================#
 
 	def Partition(n)
-		pList = @oList._Engine()
-		pResult = StzEngineListPartition(pList, n)
+		_pList_ = @oList._Engine()
+		pResult = StzEngineListPartition(_pList_, n)
 		_aResult_ = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return _aResult_

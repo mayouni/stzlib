@@ -387,11 +387,11 @@ func StzPadRight(cText, nWidth)
 		return StzPadRight(cText, nWidth)
 
 func StzPadRightXT(text, width, _c_)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringLjust(pStr, width, _c_)
+	_pStr_ = StzEngineString("" + text)
+	pResult = StzEngineStringLjust(_pStr_, width, _c_)
 	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
+	StzEngineStringFree(_pStr_)
 	return _cResult_
 
 	func PadRightXT(text, width, _c_)
@@ -404,22 +404,22 @@ func StzPadLeft(cText, nWidth)
 		return StzPadLeft(cText, nWidth)
 
 func StzPadLeftXT(text, width, _c_)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringRjust(pStr, width, _c_)
+	_pStr_ = StzEngineString("" + text)
+	pResult = StzEngineStringRjust(_pStr_, width, _c_)
 	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
+	StzEngineStringFree(_pStr_)
 	return _cResult_
 
 	func PadLeftXT(text, width, _c_)
 		return StzPadLeftXT(text, width, _c_)
 
 func StzCenter(text, width)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringCenterPad(pStr, width, " ")
+	_pStr_ = StzEngineString("" + text)
+	pResult = StzEngineStringCenterPad(_pStr_, width, " ")
 	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
+	StzEngineStringFree(_pStr_)
 	return _cResult_
 
 	func Center(text, width)
@@ -427,11 +427,11 @@ func StzCenter(text, width)
 
 func StzCapitalize(str)
 	if len(str) = 0 return str ok
-	pStr = StzEngineString(str)
-	pResult = StzEngineStringCapitalizeFirst(pStr)
+	_pStr_ = StzEngineString(str)
+	pResult = StzEngineStringCapitalizeFirst(_pStr_)
 	_cResult_ = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
+	StzEngineStringFree(_pStr_)
 	return _cResult_
 
 	func Capitalize(str)
@@ -464,11 +464,11 @@ func StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 	_bCase_ = CaseSensitive(bCaseSensitive)
 
 	# Use Engine for codepoint-safe replace
-	pStr = StzEngineString(_cStr_)
-	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, _bCase_)
+	_pStr_ = StzEngineString(_cStr_)
+	StzEngineStringReplaceCS(_pStr_, cSubStr, cNewSubStr, _bCase_)
 
-	_cResult_ = StzEngineStringData(pStr)
-	StzEngineStringFree(pStr)
+	_cResult_ = StzEngineStringData(_pStr_)
+	StzEngineStringFree(_pStr_)
 	return _cResult_
 
 	#< @FunctionAlternativeForms

@@ -58,8 +58,8 @@
 	 #  ENGINE UNMARSHALING (Engine -> Ring list)  #
 	#============================================#
 
-	func StzEngineContentFromList(pList)
-		if pList = NULL
+	func StzEngineContentFromList(_pList_)
+		if _pList_ = NULL
 			return []
 		ok
 
@@ -67,25 +67,25 @@
 		# whole Ring structure, nested lists included). The old per-item Ring
 		# loop below made millions of FFI round-trips and was O(n)-with-huge-
 		# constant at scale; kept only as a defensive fallback.
-		_aFastEcf_ = StzEngineListContentToRingList(pList)
+		_aFastEcf_ = StzEngineListContentToRingList(_pList_)
 		if isList(_aFastEcf_)
 			return _aFastEcf_
 		ok
 
-		_nEcfLen_ = StzEngineListLen(pList)
+		_nEcfLen_ = StzEngineListLen(_pList_)
 		_aEcfResult_ = []
 
 		for _iEcf_ = 1 to _nEcfLen_
-			_nEcfType_ = StzEngineListItemType(pList, _iEcf_)
+			_nEcfType_ = StzEngineListItemType(_pList_, _iEcf_)
 			switch _nEcfType_
 			on 2
-				_aEcfResult_ + StzEngineListGetInt(pList, _iEcf_)
+				_aEcfResult_ + StzEngineListGetInt(_pList_, _iEcf_)
 			on 3
-				_aEcfResult_ + StzEngineListGetFloat(pList, _iEcf_)
+				_aEcfResult_ + StzEngineListGetFloat(_pList_, _iEcf_)
 			on 4
-				_aEcfResult_ + StzEngineListGetString(pList, _iEcf_)
+				_aEcfResult_ + StzEngineListGetString(_pList_, _iEcf_)
 			on 5
-				_pEcfSub_ = StzEngineListGetSubList(pList, _iEcf_)
+				_pEcfSub_ = StzEngineListGetSubList(_pList_, _iEcf_)
 				if _pEcfSub_ != NULL
 					# Save loop state before recursion (Ring vars are global)
 					_nEcfSaveLen_ = _nEcfLen_
@@ -1026,10 +1026,10 @@ func SortListsOn(paLists, _n_)
 	# Sort using the engine
 
 	_oTemp_ = new stzList(paLists)
-	pList = _oTemp_._EngineListFromContent()
-	StzEngineListSortOn(pList, _n_)
-	_aResult_ = StzEngineContentFromList(pList)
-	StzEngineListFree(pList)
+	_pList_ = _oTemp_._EngineListFromContent()
+	StzEngineListSortOn(_pList_, _n_)
+	_aResult_ = StzEngineContentFromList(_pList_)
+	StzEngineListFree(_pList_)
 	return _aResult_
 
 
