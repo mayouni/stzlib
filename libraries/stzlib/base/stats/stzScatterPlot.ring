@@ -754,8 +754,15 @@ class stzScatterPlot from stzObject
 
 		if @bShowHLetter and @bShowHAxis
 			# Place X letter at the end of horizontal axis
+			# @split, NOT split. RING'S BARE split() TRIMS THE LEADING WHITESPACE
+			# OF THE FIRST PIECE, so decomposing the canvas this way silently pulled
+			# row one back to column 1 -- and row one is the row carrying the
+			# vertical arrow. That is why the arrow never stood over its own axis
+			# while every row below it kept its indent, and why indenting the arrow
+			# from a known column could not fix it: the damage happened here, after
+			# the drawing was already correct.
 			_cResult_ = _oTempStr_.Content()
-			_acLines_ = split(_cResult_, nl)
+			_acLines_ = @split(_cResult_, nl)
 			
 			# THE Y LETTER IS PLACED ONCE, by the Replace below, which also extends
 			# the axis to make room for it. A second append here gave every scatter
@@ -777,7 +784,7 @@ class stzScatterPlot from stzObject
 		if @bShowVLetter and @bShowVAxis
 			# Place X letter at the top of vertical axis
 			_cResult_ = _oTempStr_.Content()
-			_acLines_ = split(_cResult_, nl)
+			_acLines_ = @split(_cResult_, nl)
 			
 			# THE X LETTER IS PLACED ONCE, further down, on the ASSEMBLED string.
 			#
