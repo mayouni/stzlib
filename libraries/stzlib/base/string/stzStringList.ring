@@ -305,9 +305,9 @@ class stzStringList from stzObject
 
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
-			pH = StzEngineString(@acContent[i])
-			_nFound_ = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
-			StzEngineStringFree(pH)
+			_pH_ = StzEngineString(@acContent[i])
+			_nFound_ = StzEngineStringContainsCS(_pH_, pcSubStr, _bCase_)
+			StzEngineStringFree(_pH_)
 			if _nFound_
 				return 1
 			ok
@@ -390,11 +390,11 @@ class stzStringList from stzObject
 		next
 
 		# Sort via engine
-		pH = StzEngineString(_cJoined_)
-		pR = StzEngineStringSortNullItemsCS(pH, _bCase_)
-		_cSorted_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
-		StzEngineStringFree(pH)
+		_pH_ = StzEngineString(_cJoined_)
+		_pR_ = StzEngineStringSortNullItemsCS(_pH_, _bCase_)
+		_cSorted_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
 
 		@acContent = _SplitNullDelimited(_cSorted_)
 
@@ -563,11 +563,11 @@ class stzStringList from stzObject
 		next
 
 		# Unique via engine (hashmap-based O(n))
-		pH = StzEngineString(_cJoined_)
-		pR = StzEngineStringUniqueNullItemsCS(pH, _bCase_)
-		_cUnique_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
-		StzEngineStringFree(pH)
+		_pH_ = StzEngineString(_cJoined_)
+		_pR_ = StzEngineStringUniqueNullItemsCS(_pH_, _bCase_)
+		_cUnique_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
 
 		@acContent = _SplitNullDelimited(_cUnique_)
 
@@ -603,9 +603,9 @@ class stzStringList from stzObject
 		_acResult_ = []
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
-			pH = StzEngineString(@acContent[i])
-			_nFound_ = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
-			StzEngineStringFree(pH)
+			_pH_ = StzEngineString(@acContent[i])
+			_nFound_ = StzEngineStringContainsCS(_pH_, pcSubStr, _bCase_)
+			StzEngineStringFree(_pH_)
 			if _nFound_
 				_acResult_ + @acContent[i]
 			ok

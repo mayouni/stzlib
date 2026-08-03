@@ -294,10 +294,10 @@ class stzStringLeadTrail from stzObject
 
 	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
 		if This.StartsWithCS(pcSubStr, pCaseSensitive)
-			pH = @oString.Engine()
-			pR = StzEngineStringRemovePrefix(pH, pcSubStr)
-			_c_ = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+			_pH_ = @oString.Engine()
+			_pR_ = StzEngineStringRemovePrefix(_pH_, pcSubStr)
+			_c_ = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			@oString.Update(_c_)
 		ok
 
@@ -324,10 +324,10 @@ class stzStringLeadTrail from stzObject
 
 	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
 		if This.EndsWithCS(pcSubStr, pCaseSensitive)
-			pH = @oString.Engine()
-			pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
-			_c_ = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+			_pH_ = @oString.Engine()
+			_pR_ = StzEngineStringRemoveSuffix(_pH_, pcSubStr)
+			_c_ = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			@oString.Update(_c_)
 		ok
 
@@ -356,10 +356,10 @@ class stzStringLeadTrail from stzObject
 
 	def EnsurePrefixCS(pcPrefix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringEnsurePrefixCS(_pH_, pcPrefix, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def EnsurePrefixCSQ(pcPrefix, pCaseSensitive)
@@ -375,10 +375,10 @@ class stzStringLeadTrail from stzObject
 
 	def PrefixEnsuredCS(pcPrefix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringEnsurePrefixCS(_pH_, pcPrefix, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def PrefixEnsured(pcPrefix)
@@ -386,10 +386,10 @@ class stzStringLeadTrail from stzObject
 
 	def EnsureSuffixCS(pcSuffix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringEnsureSuffixCS(_pH_, pcSuffix, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def EnsureSuffixCSQ(pcSuffix, pCaseSensitive)
@@ -405,10 +405,10 @@ class stzStringLeadTrail from stzObject
 
 	def SuffixEnsuredCS(pcSuffix, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringEnsureSuffixCS(_pH_, pcSuffix, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def SuffixEnsured(pcSuffix)

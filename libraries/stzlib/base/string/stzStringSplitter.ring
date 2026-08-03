@@ -396,10 +396,10 @@ class stzStringSplitter from stzObject
 
 	def PartitionCS(pcSep, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringPartitionCS(pH, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringPartitionCS(_pH_, pcSep, _bCase_)
+		_cResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
 	def Partition(pcSep)
@@ -407,10 +407,10 @@ class stzStringSplitter from stzObject
 
 	def PartitionAfterCS(pcSep, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringPartitionAfterCS(pH, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringPartitionAfterCS(_pH_, pcSep, _bCase_)
+		_cResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
 	def PartitionAfter(pcSep)
@@ -418,10 +418,10 @@ class stzStringSplitter from stzObject
 
 	def RPartitionCS(pcSep, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRpartitionCS(pH, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRpartitionCS(_pH_, pcSep, _bCase_)
+		_cResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
 	def RPartition(pcSep)
@@ -429,10 +429,10 @@ class stzStringSplitter from stzObject
 
 	def RPartitionAfterCS(pcSep, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRpartitionAfterCS(pH, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRpartitionAfterCS(_pH_, pcSep, _bCase_)
+		_cResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
 	def RPartitionAfter(pcSep)
@@ -444,14 +444,14 @@ class stzStringSplitter from stzObject
 
 	# Split the string on the matches of the given regex pattern.
 	def SplitByRegex(pcPattern)
-		pH = @oString.Engine()
-		_nSbrCount_ = StzEngineStringRegexSplitCount(pH, pcPattern, 0)
+		_pH_ = @oString.Engine()
+		_nSbrCount_ = StzEngineStringRegexSplitCount(_pH_, pcPattern, 0)
 		if _nSbrCount_ <= 0
 			return [ @oString.Content() ]
 		ok
 		_acSbrResult_ = []
 		for _iSbr_ = 1 to _nSbrCount_
-			_acSbrResult_ + StzEngineStringRegexSplitGet(pH, pcPattern, 0, _iSbr_)
+			_acSbrResult_ + StzEngineStringRegexSplitGet(_pH_, pcPattern, 0, _iSbr_)
 		next
 		return _acSbrResult_
 
@@ -464,14 +464,14 @@ class stzStringSplitter from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		pH = @oString.Engine()
-		_nSbrcsCount_ = StzEngineStringRegexSplitCount(pH, pcPattern, _nFlags_)
+		_pH_ = @oString.Engine()
+		_nSbrcsCount_ = StzEngineStringRegexSplitCount(_pH_, pcPattern, _nFlags_)
 		if _nSbrcsCount_ <= 0
 			return [ @oString.Content() ]
 		ok
 		_acSbrcsResult_ = []
 		for _iSbrcs_ = 1 to _nSbrcsCount_
-			_acSbrcsResult_ + StzEngineStringRegexSplitGet(pH, pcPattern, _nFlags_, _iSbrcs_)
+			_acSbrcsResult_ + StzEngineStringRegexSplitGet(_pH_, pcPattern, _nFlags_, _iSbrcs_)
 		next
 		return _acSbrcsResult_
 

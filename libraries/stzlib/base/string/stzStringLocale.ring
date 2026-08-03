@@ -52,14 +52,14 @@ class stzStringLocale from stzObject
 	#======================================#
 
 	def DetectScript()
-		pH = @oString.Engine()
-		return StzEngineStringDetectScript(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectScript(_pH_)
 
 	def ScriptName()
-		pH = @oString.Engine()
-		pR = StzEngineStringScriptName(pH)
-		_lcName_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringScriptName(_pH_)
+		_lcName_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _lcName_
 
 	def Script()
@@ -79,13 +79,13 @@ class stzStringLocale from stzObject
 	# Two methods answering "how many scripts" with different numbers is the
 	# kind of split a caller only discovers by accident, so they now match.
 	def ScriptCount()
-		pH = @oString.Engine()
-		return StzEngineStringScriptCountAll(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringScriptCountAll(_pH_)
 
 	# Scripts EXCLUDING common -- the count of real writing systems.
 	def ScriptCountExcludingCommon()
-		pH = @oString.Engine()
-		return StzEngineStringScriptCount(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringScriptCount(_pH_)
 
 	# Deliberately NOT ScriptCount() > 1.
 	#
@@ -125,44 +125,44 @@ class stzStringLocale from stzObject
 	#========================================#
 
 	def DetectDirection()
-		pH = @oString.Engine()
-		return StzEngineStringDetectDirection(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectDirection(_pH_)
 
 	def DirectionName()
-		pH = @oString.Engine()
-		pR = StzEngineStringDirectionName(pH)
-		_lcDir_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringDirectionName(_pH_)
+		_lcDir_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _lcDir_
 
 	def Direction()
 		return This.DirectionName()
 
 	def IsRightToLeft()
-		pH = @oString.Engine()
-		return StzEngineStringDetectDirection(pH) = 1
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectDirection(_pH_) = 1
 
 		def IsRTL()
 			return This.IsRightToLeft()
 
 	def IsLeftToRight()
-		pH = @oString.Engine()
-		return StzEngineStringDetectDirection(pH) = 0
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectDirection(_pH_) = 0
 
 		def IsLTR()
 			return This.IsLeftToRight()
 
 	def HasRTL()
-		pH = @oString.Engine()
-		return StzEngineStringHasRTL(pH) = 1
+		_pH_ = @oString.Engine()
+		return StzEngineStringHasRTL(_pH_) = 1
 
 	def IsBidiMixed()
-		pH = @oString.Engine()
-		return StzEngineStringDetectDirection(pH) = 2
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectDirection(_pH_) = 2
 
 	def IsBidiNeutral()
-		pH = @oString.Engine()
-		return StzEngineStringDetectDirection(pH) = 3
+		_pH_ = @oString.Engine()
+		return StzEngineStringDetectDirection(_pH_) = 3
 
 	  #=============================================#
 	 #     LOCALE COMPARISON (Engine-backed)        #
@@ -189,44 +189,44 @@ class stzStringLocale from stzObject
 	#===============================#
 
 	def ContainsLatinLetters()
-		pH = @oString.Engine()
-		return StzEngineStringContainsLatin(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringContainsLatin(_pH_)
 
 	def ContainsArabicLetters()
-		pH = @oString.Engine()
-		return StzEngineStringContainsArabic(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringContainsArabic(_pH_)
 
 	def ContainsDigits()
-		pH = @oString.Engine()
-		return StzEngineStringCountDigits(pH) > 0
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountDigits(_pH_) > 0
 
 	def ContainsOnlyDigits()
-		pH = @oString.Engine()
-		return StzEngineStringIsDigit(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringIsDigit(_pH_)
 
 	def ContainsOnlyLetters()
-		pH = @oString.Engine()
-		return StzEngineStringIsAlphaOnly(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringIsAlphaOnly(_pH_)
 
 	def ContainsOnlyLatinLetters()
-		pH = @oString.Engine()
-		return StzEngineStringIsLatinLetters(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringIsLatinLetters(_pH_)
 
 	def IsAscii()
-		pH = @oString.Engine()
-		return StzEngineStringIsAscii(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringIsAscii(_pH_)
 
 	def ContainsPunctuation()
-		pH = @oString.Engine()
-		return StzEngineStringCountPunctuation(pH) > 0
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountPunctuation(_pH_) > 0
 
 	def ContainsWhitespace()
-		pH = @oString.Engine()
-		return StzEngineStringCountSpaces(pH) > 0
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountSpaces(_pH_) > 0
 
 	def ContainsOnlyWhitespace()
 		if @oString.IsEmpty()
 			return 0
 		ok
-		pH = @oString.Engine()
-		return StzEngineStringCountSpaces(pH) = @oString.NumberOfChars()
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountSpaces(_pH_) = @oString.NumberOfChars()

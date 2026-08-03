@@ -43,10 +43,10 @@ class stzStringAligner from stzObject
 		if isList(pcChar) and IsOneOfTheseNamedParamsList(pcChar, [:Using, :With, :Char])
 			pcChar = pcChar[2]
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringLjust(pH, n, pcChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringLjust(_pH_, n, pcChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def AlignLeftQ(n, pcChar)
@@ -66,10 +66,10 @@ class stzStringAligner from stzObject
 		if isList(pcChar) and IsOneOfTheseNamedParamsList(pcChar, [:Using, :With, :Char])
 			pcChar = pcChar[2]
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringRjust(pH, n, pcChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRjust(_pH_, n, pcChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def AlignRightQ(n, pcChar)
@@ -89,10 +89,10 @@ class stzStringAligner from stzObject
 		if isList(pcChar) and IsOneOfTheseNamedParamsList(pcChar, [:Using, :With, :Char])
 			pcChar = pcChar[2]
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringCenterPad(pH, n, pcChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringCenterPad(_pH_, n, pcChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def AlignCenterQ(n, pcChar)

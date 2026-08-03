@@ -44,10 +44,10 @@ class stzStringRemover from stzObject
 
 	def RemoveCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveCS(pH, pcSubStr, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveCS(_pH_, pcSubStr, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveCSQ(pcSubStr, pCaseSensitive)
@@ -86,10 +86,10 @@ class stzStringRemover from stzObject
 	#======================================================#
 
 	def RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveNth(pH, pcSubStr, _n_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveNth(_pH_, pcSubStr, _n_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveNthCSQ(_n_, pcSubStr, pCaseSensitive)
@@ -116,10 +116,10 @@ class stzStringRemover from stzObject
 	#======================================================#
 
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveFirst(pH, pcSubStr)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveFirst(_pH_, pcSubStr)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveFirstCSQ(pcSubStr, pCaseSensitive)
@@ -144,10 +144,10 @@ class stzStringRemover from stzObject
 	#--
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveLast(pH, pcSubStr)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveLast(_pH_, pcSubStr)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveLastCSQ(pcSubStr, pCaseSensitive)
@@ -185,10 +185,10 @@ class stzStringRemover from stzObject
 	#======================================================#
 
 	def RemoveSection(n1, n2)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveRange(_pH_, n1, n2 - n1 + 1)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveSectionQ(n1, n2)
@@ -342,10 +342,10 @@ class stzStringRemover from stzObject
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 		# Softanza semantics: removes ALL open...close pairs (engine-backed)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveBetween(pH, pcBound1, pcBound2)
-		_cRabResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveBetween(_pH_, pcBound1, pcBound2)
+		_cRabResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_cRabResult_)
 
 		def RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
@@ -386,10 +386,10 @@ class stzStringRemover from stzObject
 
 	def RemoveFirstBetween(pcBound1, pcBound2)
 		# Removes only the FIRST open...close pair
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveFirstBetween(pH, pcBound1, pcBound2)
-		_cRfbResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveFirstBetween(_pH_, pcBound1, pcBound2)
+		_cRfbResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_cRfbResult_)
 
 		def RemoveFirstBetweenQ(pcBound1, pcBound2)
@@ -500,10 +500,10 @@ class stzStringRemover from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		pH = @oString.Engine()
-		pR = StzEngineStringRemovePrefix(pH, pcSubStr)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemovePrefix(_pH_, pcSubStr)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
@@ -536,10 +536,10 @@ class stzStringRemover from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveSuffix(_pH_, pcSubStr)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
@@ -688,10 +688,10 @@ class stzStringRemover from stzObject
 	#======================================================#
 
 	def RemoveCharAt(_n_)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveCharAt(pH, _n_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveCharAt(_pH_, _n_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveCharAtQ(_n_)

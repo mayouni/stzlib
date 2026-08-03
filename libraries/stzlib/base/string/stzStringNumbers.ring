@@ -308,5 +308,5 @@ class stzStringNumbers from stzObject
 	#===============================#
 
 	def ScanInteger()
-		pH = @oString.Engine()
-		return StzEngineStringScanInt(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringScanInt(_pH_)

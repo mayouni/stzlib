@@ -108,11 +108,11 @@ class stzStringFormatter from stzObject
 
 		_cFirst_ = StzUpper(StzLeft(_cContent_, 1))
 		if StzLen(_cContent_) > 1
-			pH = StzEngineString(_cContent_)
-			pRest = StzEngineStringSlice(pH, 2, StzLen(_cContent_) - 1)
+			_pH_ = StzEngineString(_cContent_)
+			pRest = StzEngineStringSlice(_pH_, 2, StzLen(_cContent_) - 1)
 			_cRest_ = StzLower(StzEngineStringData(pRest))
 			StzEngineStringFree(pRest)
-			StzEngineStringFree(pH)
+			StzEngineStringFree(_pH_)
 			@oString.Update(_cFirst_ + _cRest_)
 		else
 			@oString.Update(_cFirst_)
@@ -130,11 +130,11 @@ class stzStringFormatter from stzObject
 
 		_cFirst_ = StzUpper(StzLeft(_cContent_, 1))
 		if StzLen(_cContent_) > 1
-			pH = StzEngineString(_cContent_)
-			pRest = StzEngineStringSlice(pH, 2, StzLen(_cContent_) - 1)
+			_pH_ = StzEngineString(_cContent_)
+			pRest = StzEngineStringSlice(_pH_, 2, StzLen(_cContent_) - 1)
 			_cRest_ = StzLower(StzEngineStringData(pRest))
 			StzEngineStringFree(pRest)
-			StzEngineStringFree(pH)
+			StzEngineStringFree(_pH_)
 			return _cFirst_ + _cRest_
 		else
 			return _cFirst_
@@ -212,10 +212,10 @@ class stzStringFormatter from stzObject
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringLjust(pH, nWidth, cChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringLjust(_pH_, nWidth, cChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def LeftAlignXTQ(nWidth, cChar)
@@ -247,10 +247,10 @@ class stzStringFormatter from stzObject
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringRjust(pH, nWidth, cChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRjust(_pH_, nWidth, cChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RightAlignXTQ(nWidth, cChar)
@@ -282,10 +282,10 @@ class stzStringFormatter from stzObject
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringCenterPad(pH, nWidth, cChar)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringCenterPad(_pH_, nWidth, cChar)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def CenterAlignXTQ(nWidth, cChar)
@@ -326,10 +326,10 @@ class stzStringFormatter from stzObject
 	#===============================#
 
 	def Simplify()
-		pH = @oString.Engine()
-		pR = StzEngineStringSimplify(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringSimplify(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def SimplifyQ()
@@ -349,10 +349,10 @@ class stzStringFormatter from stzObject
 	#===============================#
 
 	def Trim()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrim(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrim(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimQ()
@@ -360,17 +360,17 @@ class stzStringFormatter from stzObject
 			return This
 
 	def Trimmed()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimmed(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimmed(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def TrimLeft()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimLeft(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimLeft(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimLeftQ()
@@ -378,17 +378,17 @@ class stzStringFormatter from stzObject
 			return This
 
 	def TrimmedLeft()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimLeft(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimLeft(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def TrimRight()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimRight(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimRight(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimRightQ()
@@ -396,10 +396,10 @@ class stzStringFormatter from stzObject
 			return This
 
 	def TrimmedRight()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimRight(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimRight(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
@@ -407,10 +407,10 @@ class stzStringFormatter from stzObject
 	#===============================#
 
 	def RepeatNTimes(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringRepeat(pH, n)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRepeat(_pH_, n)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RepeatNTimesQ(n)
@@ -418,8 +418,8 @@ class stzStringFormatter from stzObject
 			return This
 
 	def RepeatedNTimes(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringRepeat(pH, n)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRepeat(_pH_, n)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_

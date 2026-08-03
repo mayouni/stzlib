@@ -364,8 +364,8 @@ class stzStringText from stzObject
 		if @oString.IsEmpty()
 			return 0
 		ok
-		pH = @oString.Engine()
-		return StzEngineStringIsWord(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringIsWord(_pH_)
 
 	# TRUE if the text is a single Arabic-script word.
 	def IsArabicWord()

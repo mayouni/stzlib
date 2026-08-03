@@ -12,66 +12,66 @@ func StzUrl(pcUrl)
 	return new stzUrl(pcUrl)
 
 func StzUrlIsValid(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return FALSE
 	ok
-	_nValid_ = StzEngineUrlIsValid(pH)
-	StzEngineUrlFree(pH)
+	_nValid_ = StzEngineUrlIsValid(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _nValid_ = 1
 
 func StzUrlScheme(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineUrlScheme(pH)
-	StzEngineUrlFree(pH)
+	_cResult_ = StzEngineUrlScheme(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _cResult_
 
 func StzUrlHost(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineUrlHost(pH)
-	StzEngineUrlFree(pH)
+	_cResult_ = StzEngineUrlHost(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _cResult_
 
 func StzUrlPort(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return -1
 	ok
-	_nResult_ = StzEngineUrlPort(pH)
-	StzEngineUrlFree(pH)
+	_nResult_ = StzEngineUrlPort(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _nResult_
 
 func StzUrlPath(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineUrlPath(pH)
-	StzEngineUrlFree(pH)
+	_cResult_ = StzEngineUrlPath(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _cResult_
 
 func StzUrlQuery(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineUrlQuery(pH)
-	StzEngineUrlFree(pH)
+	_cResult_ = StzEngineUrlQuery(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _cResult_
 
 func StzUrlFragment(pcUrl)
-	pH = StzEngineUrlParse(pcUrl)
-	if pH = NULL
+	_pH_ = StzEngineUrlParse(pcUrl)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineUrlFragment(pH)
-	StzEngineUrlFree(pH)
+	_cResult_ = StzEngineUrlFragment(_pH_)
+	StzEngineUrlFree(_pH_)
 	return _cResult_
 
 Class stzUrl from stzObject

@@ -39,10 +39,10 @@ class stzStringWords from stzObject
 	#===============================#
 
 	def Words()
-		pH = @oString.Engine()
-		pR = StzEngineStringWordsSplit(pH)
-		_cJoined_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringWordsSplit(_pH_)
+		_cJoined_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cJoined_)
 
 		def WordsQ()
@@ -66,11 +66,11 @@ class stzStringWords from stzObject
 	#===============================#
 
 	def NthWord(_n_)
-		pH = @oString.Engine()
-		pR = StzEngineStringNthWord(pH, _n_)
-		if pR != NULL
-			_c_ = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNthWord(_pH_, _n_)
+		if _pR_ != NULL
+			_c_ = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			return _c_
 		ok
 		StzRaise("Index out of range!")
@@ -173,10 +173,10 @@ class stzStringWords from stzObject
 
 	def UniqueWordsCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringUniqueWordsCS(pH, _bCase_)
-		_cResult_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringUniqueWordsCS(_pH_, _bCase_)
+		_cResult_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 
 		if _cResult_ = ""
 			return []

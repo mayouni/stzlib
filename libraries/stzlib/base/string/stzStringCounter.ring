@@ -136,74 +136,74 @@ class stzStringCounter from stzObject
 	#======================================================#
 
 	def CountAnyChar(pcChars)
-		pH = @oString.Engine()
-		return StzEngineStringCountAnyChar(pH, pcChars)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountAnyChar(_pH_, pcChars)
 
 	  #======================================================#
 	 #   COUNT LEADING / TRAILING CHAR                      #
 	#======================================================#
 
 	def CountLeadingChar(pcChar)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
 		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		return StzEngineStringCountLeadingChar(pH, _nCp_)
+		return StzEngineStringCountLeadingChar(_pH_, _nCp_)
 
 	def CountTrailingChar(pcChar)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
 		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		return StzEngineStringCountTrailingChar(pH, _nCp_)
+		return StzEngineStringCountTrailingChar(_pH_, _nCp_)
 
 	  #======================================================#
 	 #   COUNT BETWEEN MARKERS                              #
 	#======================================================#
 
 	def CountBetweenMarkers(pcOpenMarker, pcCloseMarker)
-		pH = @oString.Engine()
-		return StzEngineStringCountBetween(pH, pcOpenMarker, pcCloseMarker)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountBetween(_pH_, pcOpenMarker, pcCloseMarker)
 
 	  #======================================================#
 	 #   GRAPHEME COUNT                                     #
 	#======================================================#
 
 	def GraphemeCount()
-		pH = @oString.Engine()
-		return StzEngineStringGraphemeCount(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringGraphemeCount(_pH_)
 
 	  #======================================================#
 	 #   SCRIPT-SPECIFIC COUNTS                             #
 	#======================================================#
 
 	def CountMarks()
-		pH = @oString.Engine()
-		return StzEngineStringCountMarks(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountMarks(_pH_)
 
 	def CountControls()
-		pH = @oString.Engine()
-		return StzEngineStringCountControls(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountControls(_pH_)
 
 	def CountCjk()
-		pH = @oString.Engine()
-		return StzEngineStringCountCjk(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountCjk(_pH_)
 
 	def CountCyrillic()
-		pH = @oString.Engine()
-		return StzEngineStringCountCyrillic(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountCyrillic(_pH_)
 
 	def CountHebrew()
-		pH = @oString.Engine()
-		return StzEngineStringCountHebrew(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountHebrew(_pH_)
 
 	def CountDevanagari()
-		pH = @oString.Engine()
-		return StzEngineStringCountDevanagari(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountDevanagari(_pH_)
 
 	def CountThai()
-		pH = @oString.Engine()
-		return StzEngineStringCountThai(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountThai(_pH_)
 
 	  #======================================================#
 	 #   OVERLAPPING OCCURRENCES                             #
@@ -212,8 +212,8 @@ class stzStringCounter from stzObject
 	# How many times it occurs, counting OVERLAPPING matches.
 	def CountOverlappingCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		return StzEngineStringCountOverlapping(pH, pcSubStr)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountOverlapping(_pH_, pcSubStr)
 
 	def CountOverlapping(pcSubStr)
 		return This.CountOverlappingCS(pcSubStr, 1)
@@ -224,8 +224,8 @@ class stzStringCounter from stzObject
 
 	# How many matches of the given regex pattern.
 	def CountRegex(pcPattern)
-		pH = @oString.Engine()
-		return StzEngineStringRegexCount(pH, pcPattern, 0)
+		_pH_ = @oString.Engine()
+		return StzEngineStringRegexCount(_pH_, pcPattern, 0)
 
 		def NumberOfRegexMatches(pcPattern)
 			return This.CountRegex(pcPattern)
@@ -236,8 +236,8 @@ class stzStringCounter from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		pH = @oString.Engine()
-		return StzEngineStringRegexCount(pH, pcPattern, _nFlags_)
+		_pH_ = @oString.Engine()
+		return StzEngineStringRegexCount(_pH_, pcPattern, _nFlags_)
 
 		def NumberOfRegexMatchesCS(pcPattern, pCaseSensitive)
 			return This.CountRegexCS(pcPattern, pCaseSensitive)

@@ -140,10 +140,10 @@ class stzStringSections from stzObject
 			_n1_ = _n2_
 			_n2_ = _temp_
 		ok
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveRange(pH, _n1_, _n2_ - _n1_ + 1)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveRange(_pH_, _n1_, _n2_ - _n1_ + 1)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveSectionQ(_n1_, _n2_)

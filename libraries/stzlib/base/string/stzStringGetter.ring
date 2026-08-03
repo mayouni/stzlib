@@ -156,10 +156,10 @@ class stzStringGetter from stzObject
 	#======================================================#
 
 	def CharNgrams(_n_)
-		pH = @oString.Engine()
-		pR = StzEngineStringCharNgrams(pH, _n_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringCharNgrams(_pH_, _n_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		if _c_ = ""
 			return []
 		ok
@@ -171,10 +171,10 @@ class stzStringGetter from stzObject
 	#======================================================#
 
 	def WordNgrams(_n_)
-		pH = @oString.Engine()
-		pR = StzEngineStringWordNgrams(pH, _n_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringWordNgrams(_pH_, _n_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		if _c_ = ""
 			return []
 		ok
@@ -186,8 +186,8 @@ class stzStringGetter from stzObject
 	#======================================================#
 
 	def BytesPerChar()
-		pH = @oString.Engine()
-		pR = StzEngineStringBytesPerChar(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringBytesPerChar(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
