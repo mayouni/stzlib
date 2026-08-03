@@ -205,6 +205,18 @@ Scenario("A scatter plot renders in its DEFAULT configuration")
 	# plot simply carried two of each label.
 	Then("the X letter appears exactly once", PpCountOf(cOut, "X"), 1)
 	Then("...and the Y letter exactly once", PpCountOf(cOut, "Y"), 1)
+
+	# THE ARROW STANDS OVER ITS OWN AXIS. It did not: Ring's bare split() trims the
+	# leading whitespace of the FIRST piece, and the canvas's first row is the one
+	# carrying the vertical arrow -- so decomposing the plot into lines pulled the
+	# arrow back to column 1 while every row beneath it kept its indent. The drawing
+	# was correct all along; the damage happened when it was taken apart.
+	aRows = PpRows(cOut)
+	Then("the X letter, the arrow and the axis share one column",
+	     PpIndentOf(aRows[1]) = PpIndentOf(aRows[2]) and
+	     PpIndentOf(aRows[2]) = PpIndentOf(aRows[3]), TRUE)
+	Then("...and it is the column the ticks sit in",
+	     PpIndentOf(aRows[2]) + 1 = PpFindCol(aRows[4], "┤"), TRUE)
 EndScenario()
 
 Summary()
@@ -266,3 +278,18 @@ func PpScatterRuns(paData, bNoAxes)
 
 func PpCountOf(cText, cNeedle)
 	return len(StzFind(cNeedle, cText))
+
+# how many leading spaces a line has
+func PpIndentOf(cLine)
+	_ppI_ = 0
+	_ppN_ = len(cLine)
+	for _ppK_ = 1 to _ppN_
+		if cLine[_ppK_] != " "
+			exit
+		ok
+		_ppI_++
+	next
+	return _ppI_
+
+func PpFindCol(cLine, cNeedle)
+	return StzFindFirst(cNeedle, cLine)
