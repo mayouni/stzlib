@@ -325,7 +325,34 @@ class stzScatterPlot from stzObject
 	def Show()
 		? This.ToString()
 
+	# THE PICTURE, rendered by the engine.
+	#
+	# stzScatterChart inherits this, so it moves with it.
+	#
+	# The engine covers the plain plot -- points, both axes, their ticks and
+	# value labels, and the X/Y letters. Grid lines and per-point labels are
+	# still drawn by the Ring renderer below, and this defers to it rather than
+	# drawing something close: a plot that is nearly right raises nothing.
 	def ToString()
+		if @bShowGrid or (@bShowLabels and len(@acPointLabels) > 0)
+			return This.ToStringInRing()
+		ok
+
+		_aOpts_ = [
+			@nMaxWidth, @nMaxHeight, @nHAxisHeight, 2,
+			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
+			iff(@bShowHLetter or @bShowVLetter, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotScatter(@anHValues, @anVValues, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzScatterPlot: the engine could not render this plot.")
+		ok
+		return _cOut_
+
+	# The Ring renderer this was ported from, kept so the guard can prove the two
+	# agree character for character -- and still used for grid and point labels.
+	def ToStringInRing()
 		_oLayout_ = _calculateLayout()
 		_initCanvas()
 
@@ -381,6 +408,28 @@ class stzScatterPlot from stzObject
 			ok
 		next
 		return TRUE
+
+	# WHERE A VALUE LANDS, with the degenerate span handled ONCE.
+	#
+	# Every one of these mappings used to be written inline, eight times, and each
+	# divided by (max - min). A plot whose points all share one X -- or a plot of a
+	# SINGLE POINT -- has a span of zero there, so it crashed with "Can't divide by
+	# zero" rather than drawing the one place every point belongs.
+	#
+	# A zero span means every value maps to the same slot, which is the start of the
+	# axis. That is what these return, and it is why they are methods now: eight
+	# copies of a guard is eight chances to forget it.
+	def _ColOfH(nH, nStartCol, nPlotWidth)
+		if @nHMax = @nHMin
+			return nStartCol
+		ok
+		return nStartCol + floor((nH - @nHMin) * (nPlotWidth - 1) / (@nHMax - @nHMin))
+
+	def _RowOfV(nV, nEndRow, nPlotHeight)
+		if @nVMax = @nVMin
+			return nEndRow
+		ok
+		return nEndRow - floor((nV - @nVMin) * (nPlotHeight - 1) / (@nVMax - @nVMin))
 
 	def _calculateLayout()
 		# Calculate dynamic V-axis width based on actual labels
@@ -484,8 +533,8 @@ class stzScatterPlot from stzObject
 			_nV_ = @anVValues[i]
 			
 			# Calculate point position
-			_nCol_ = _nStartCol_ + floor((_nH_ - @nHMin) * (_nPlotWidth_ - 1) / (@nHMax - @nHMin))
-			_nRow_ = _nEndRow_ - floor((_nV_ - @nVMin) * (_nPlotHeight_ - 1) / (@nVMax - @nVMin))
+			_nCol_ = This._ColOfH(_nH_, _nStartCol_, _nPlotWidth_)
+			_nRow_ = This._RowOfV(_nV_, _nEndRow_, _nPlotHeight_)
 			
 			# Draw horizontal line from V-axis to point
 			for j = _nStartCol_ to _nCol_
@@ -541,7 +590,7 @@ class stzScatterPlot from stzObject
 		_nUniqueV1Len_ = len(_aUniqueV_)
 		for _iLoopUniqueV1_ = 1 to _nUniqueV1Len_
 			_nV_ = _aUniqueV_[_iLoopUniqueV1_]
-			_nRow_ = _nEndRow_ - floor((_nV_ - @nVMin) * (_nPlotHeight_ - 1) / (@nVMax - @nVMin))
+			_nRow_ = This._RowOfV(_nV_, _nEndRow_, _nPlotHeight_)
 			if _nRow_ >= _nStartRow_ and _nRow_ <= _nEndRow_
 				_cLabel_ = _formatValue(_nV_)
 				_cLabel_ = Trim(_cLabel_)
@@ -598,7 +647,7 @@ class stzScatterPlot from stzObject
 		_nUniqueH1Len_ = len(_aUniqueH_)
 		for _iLoopUniqueH1_ = 1 to _nUniqueH1Len_
 			_nH_ = _aUniqueH_[_iLoopUniqueH1_]
-			_nCol_ = _nStartCol_ + floor((_nH_ - @nHMin) * (_nPlotWidth_ - 1) / (@nHMax - @nHMin))
+			_nCol_ = This._ColOfH(_nH_, _nStartCol_, _nPlotWidth_)
 			if _nCol_ >= _nStartCol_ and _nCol_ <= _nEndCol_
 				_cLabel_ = _formatValue(_nH_)
 				_nLabelLen_ = len(_cLabel_)
@@ -643,13 +692,13 @@ class stzScatterPlot from stzObject
 			if @nHMax = @nHMin
 				_nCol_ = _nStartCol_ + floor(_nPlotWidth_ / 2)
 			else
-				_nCol_ = _nStartCol_ + floor((_nH_ - @nHMin) * (_nPlotWidth_ - 1) / (@nHMax - @nHMin))
+				_nCol_ = This._ColOfH(_nH_, _nStartCol_, _nPlotWidth_)
 			ok
 			
 			if @nVMax = @nVMin
 				_nRow_ = _nStartRow_ + floor(_nPlotHeight_ / 2)
 			else
-				_nRow_ = _nEndRow_ - floor((_nV_ - @nVMin) * (_nPlotHeight_ - 1) / (@nVMax - @nVMin))
+				_nRow_ = This._RowOfV(_nV_, _nEndRow_, _nPlotHeight_)
 			ok
 			
 			# Ensure point is within bounds
@@ -683,13 +732,13 @@ class stzScatterPlot from stzObject
 				if @nHMax = @nHMin
 					_nCol_ = _nStartCol_ + floor(_nPlotWidth_ / 2)
 				else
-					_nCol_ = _nStartCol_ + floor((_nH_ - @nHMin) * (_nPlotWidth_ - 1) / (@nHMax - @nHMin))
+					_nCol_ = This._ColOfH(_nH_, _nStartCol_, _nPlotWidth_)
 				ok
 				
 				if @nVMax = @nVMin
 					_nRow_ = _nStartRow_ + floor(_nPlotHeight_ / 2)
 				else
-					_nRow_ = _nEndRow_ - floor((_nV_ - @nVMin) * (_nPlotHeight_ - 1) / (@nVMax - @nVMin))
+					_nRow_ = This._RowOfV(_nV_, _nEndRow_, _nPlotHeight_)
 				ok
 
 				# Position label right next to the point (1 space to the right)

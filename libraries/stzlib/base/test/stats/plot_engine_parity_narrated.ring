@@ -219,6 +219,39 @@ Scenario("A scatter plot renders in its DEFAULT configuration")
 	     PpIndentOf(aRows[2]) + 1 = PpFindCol(aRows[4], "┤"), TRUE)
 EndScenario()
 
+Scenario("The SCATTER plot renders identically in the engine")
+	# the axis width is decided by the widest value label, so "10" pushes the whole
+	# plot right where "1" does not -- and the arrow, the letter and the ticks all
+	# have to agree about the column that produces
+	Then("the documented example",
+	     PpSameScatter([ [1,1], [2,5], [2,4], [3,2], [3,4], [4,5], [4,6], [5,3] ]), TRUE)
+	Then("...two-digit labels widen the axis",
+	     PpSameScatter([ [1,10], [2,20], [3,30] ]), TRUE)
+	Then("...non-integers round to one decimal",
+	     PpSameScatter([ [1,1.5], [2,2.5], [3,3.25] ]), TRUE)
+
+	# A DEGENERATE AXIS used to divide by zero -- eight inline copies of the same
+	# mapping, each dividing by (max - min), so a single point crashed the renderer
+	# outright. The mapping is one guarded method now, and the two rules differ on
+	# purpose: a lone POINT centres in the space it has, while its TICK stays on the
+	# axis where a reader looks for it.
+	Then("a single point renders at all", PpSameScatter([ [5,5] ]), TRUE)
+	Then("...no horizontal spread", PpSameScatter([ [1,1], [1,2], [1,3] ]), TRUE)
+	Then("...and no vertical spread", PpSameScatter([ [1,7], [2,7], [3,7] ]), TRUE)
+
+	# THE AXIS-FREE SHAPE IS THE COMMON ONE -- every plot example calls
+	# WithoutVHAxis(), originally because it was the only shape that ran. It drops
+	# the top row, which exists only to hold an arrow there is no longer any axis
+	# for, so it is a different picture and not merely the same one with less ink.
+	oN = new stzScatterPlot([ [1,1], [2,5], [2,4], [3,2], [3,4], [4,5], [4,6], [5,3] ])
+	oN.WithoutVHAxis()
+	Then("...and so does the axis-free shape", oN.ToString() = oN.ToStringInRing(), TRUE)
+
+	# the subclass rides the same path
+	oC = new stzScatterChart([ [1,1], [2,3], [3,2] ])
+	Then("stzScatterChart matches too", oC.ToString() = oC.ToStringInRing(), TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -293,3 +326,7 @@ func PpIndentOf(cLine)
 
 func PpFindCol(cLine, cNeedle)
 	return StzFindFirst(cNeedle, cLine)
+
+func PpSameScatter(paData)
+	_ppSp_ = new stzScatterPlot(paData)
+	return _ppSp_.ToString() = _ppSp_.ToStringInRing()
