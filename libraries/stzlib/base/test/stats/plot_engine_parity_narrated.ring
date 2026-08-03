@@ -252,6 +252,92 @@ Scenario("The SCATTER plot renders identically in the engine")
 	Then("stzScatterChart matches too", oC.ToString() = oC.ToStringInRing(), TRUE)
 EndScenario()
 
+Scenario("The surface plot is a treemap, and the engine cuts the same tiles")
+
+	# THE LAST PLOT TO MOVE, and the one with real ALGORITHM behind it rather than
+	# arithmetic: the values are sorted largest-first and the frame is cut recursively
+	# in proportion to them, so a wrong split does not shift a label by a column -- it
+	# rearranges the whole picture.
+	#
+	# All three subclasses -- stzSurfaceChart, stzSquareChart, stzSquarePlot -- inherit
+	# ToString(), so they move together. That is the safe direction, and it is checked
+	# below rather than assumed: stzHBarPlot inherited a ToString() that had moved to
+	# the VERTICAL renderer and drew horizontal data vertically for a whole commit,
+	# raising nothing.
+
+	Given("a surface plot of four departments")
+	When("the engine renders it instead of Ring")
+
+	Then("the picture is identical", PpSameSurf([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ]), TRUE)
+
+	# THE FOUR LAYOUT ARMS. One tile fills the frame; two, three and four are placed by
+	# hand; five and above halve the list and recurse. Each arm is a different code
+	# path, so each needs its own case -- four tiles passing proves nothing about six.
+	Then("one tile fills the frame", PpSameSurf([ :Only = 99 ]), TRUE)
+	Then("...two tiles split the longer side", PpSameSurf([ :Alpha = 70, :Beta = 30 ]), TRUE)
+	Then("...three put the largest alone", PpSameSurf([ :Alpha = 50, :Beta = 30, :Gamma = 20 ]), TRUE)
+	Then("...four make a 2x2 grid", PpSameSurf([ :A = 40, :B = 30, :C = 20, :D = 10 ]), TRUE)
+	Then("...five recurse", PpSameSurf([ :A = 40, :B = 25, :C = 15, :D = 12, :E = 8 ]), TRUE)
+	Then("...six recurse", PpSameSurf([ :Aa = 30, :Bb = 22, :Cc = 18, :Dd = 14, :Ee = 10, :Ff = 6 ]), TRUE)
+	Then("...and nine recurse twice", PpSameSurf([ :A = 30, :B = 22, :C = 18, :D = 14, :E = 10, :F = 6, :G = 4, :H = 3, :I = 2 ]), TRUE)
+
+	# A TIE IS A SORT DECISION, and the two implementations have to break it the same
+	# way or two tiles swap places. The engine repeats the Ring walk exactly rather
+	# than calling a library sort, for this reason alone.
+	Then("equal values keep their order", PpSameSurf([ :A = 25, :B = 25, :C = 25, :D = 25 ]), TRUE)
+	Then("...and one value can swamp the rest", PpSameSurf([ :Huge = 990, :Tiny = 5, :Smaller = 3, :Least = 2 ]), TRUE)
+
+	# THE BORDER JUNCTIONS are drawn in four passes, and the third READS the canvas it
+	# is writing -- it sees its own earlier upgrades. That makes the order part of the
+	# output, not an implementation detail, which is why the port replays the passes in
+	# sequence instead of computing each cell from the tile list.
+	Then("the junctions are drawn", PpSurfJunctions([ :A = 40, :B = 25, :C = 15, :D = 12, :E = 8 ]) > 0, TRUE)
+	Then("...and a lone tile has none to draw", PpSurfJunctions([ :Only = 99 ]), 0)
+	Then("...and the frame is closed", PpSurfClosed([ :A = 40, :B = 25, :C = 15, :D = 12, :E = 8 ]), TRUE)
+
+	Given("the same plot with its numbers switched on")
+
+	Then("values match", PpSameSurfOpt([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], :Values), TRUE)
+	Then("...percentages match", PpSameSurfOpt([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], :Percent), TRUE)
+	Then("...and both together match", PpSameSurfOpt([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], :Both), TRUE)
+
+	# A VALUE PRINTS BARE WHEN IT IS WHOLE and to one decimal otherwise -- 45 and 45.5,
+	# never 45.0. The percentage follows the same rule, which is NOT what the bar plots
+	# do (they force a decimal on percentages), so the two cannot share a formatter.
+	Then("fractions round to one place", PpSameSurfOpt([ :Sales = 45.5, :Marketing = 25.25, :Dev = 20, :Support = 9.25 ], :Both), TRUE)
+
+	Given("the plot stripped of its furniture")
+
+	Then("no borders matches", PpSameSurfNo([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], :Borders), TRUE)
+	Then("...no labels matches", PpSameSurfNo([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], :Labels), TRUE)
+
+	# WITHOUT BORDERS the rows are still padded to full width -- twelve rows of forty
+	# columns, mostly blank. A trimmed row and a padded row are different strings, and
+	# this compares strings.
+	Then("...and the rows stay padded", PpSurfWidth([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ]), 40)
+
+	Given("labels that do not fit")
+
+	# A LABEL TOO LONG IS CUT AND MARKED with a full stop, and the cut is measured in
+	# CODEPOINTS. Ring's own renderer indexes the drawn line by BYTE, so it would tear
+	# a multibyte label apart; the engine walks codepoints. They agree on everything
+	# ASCII, which is everything a hash list can carry here -- its keys are folded.
+	Then("an over-long label is truncated", PpSameSurf([ :InternationalOperations = 45, :Marketing = 25, :Dev = 20, :Support = 10 ]), TRUE)
+	Then("...even one longer than the frame", PpSameSurf([ :AVeryLongDepartmentNameIndeedThatOverflows = 45, :B = 25 ]), TRUE)
+
+	Given("the plot resized")
+
+	Then("a wider canvas matches", PpSameSurfSize([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], 60, 20), TRUE)
+	Then("...the maximum matches", PpSameSurfSize([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], 120, 30), TRUE)
+	Then("...and the minimum matches", PpSameSurfSize([ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ], 40, 12), TRUE)
+
+	Given("the three subclasses")
+
+	Then("stzSurfaceChart matches", PpSameSubSurf(:stzSurfaceChart), TRUE)
+	Then("...stzSquareChart matches", PpSameSubSurf(:stzSquareChart), TRUE)
+	Then("...and stzSquarePlot matches", PpSameSubSurf(:stzSquarePlot), TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -330,3 +416,79 @@ func PpFindCol(cLine, cNeedle)
 func PpSameScatter(paData)
 	_ppSp_ = new stzScatterPlot(paData)
 	return _ppSp_.ToString() = _ppSp_.ToStringInRing()
+
+func PpSameSurf(paData)
+	_ppSf_ = new stzSurfacePlot(paData)
+	return _ppSf_.ToString() = _ppSf_.ToStringInRing()
+
+func PpSurfOf(paData)
+	_ppSf2_ = new stzSurfacePlot(paData)
+	return _ppSf2_.ToString()
+
+# every row the same width, and the four corners in place
+func PpSurfClosed(paData)
+	_ppSf3_ = new stzSurfacePlot(paData)
+	_ppRows_ = PpRows(_ppSf3_.ToString())
+	_ppN_ = len(_ppRows_)
+	if _ppN_ = 0
+		return FALSE
+	ok
+	_ppW_ = StzLen(_ppRows_[1])
+	for _ppI_ = 1 to _ppN_
+		if StzLen(_ppRows_[_ppI_]) != _ppW_
+			return FALSE
+		ok
+	next
+	return PpHas(_ppRows_[1], char(226) + char(149) + char(173)) and
+	       PpHas(_ppRows_[_ppN_], char(226) + char(149) + char(176))
+
+func PpSurfWidth(paData)
+	_ppSf4_ = new stzSurfacePlot(paData)
+	_ppSf4_.WithoutBorders()
+	_ppRw_ = PpRows(_ppSf4_.ToString())
+	if len(_ppRw_) = 0
+		return 0
+	ok
+	return StzLen(_ppRw_[1])
+
+func PpSameSurfOpt(paData, cWhat)
+	_ppSf5_ = new stzSurfacePlot(paData)
+	if cWhat = :Values or cWhat = :Both
+		_ppSf5_.AddValues()
+	ok
+	if cWhat = :Percent or cWhat = :Both
+		_ppSf5_.AddPercent()
+	ok
+	return _ppSf5_.ToString() = _ppSf5_.ToStringInRing()
+
+func PpSameSurfNo(paData, cWhat)
+	_ppSf6_ = new stzSurfacePlot(paData)
+	if cWhat = :Borders
+		_ppSf6_.WithoutBorders()
+	else
+		_ppSf6_.WithoutLabels()
+		_ppSf6_.AddValues()
+	ok
+	return _ppSf6_.ToString() = _ppSf6_.ToStringInRing()
+
+func PpSameSurfSize(paData, nW, nH)
+	_ppSf7_ = new stzSurfacePlot(paData)
+	_ppSf7_.SetSize(nW, nH)
+	return _ppSf7_.ToString() = _ppSf7_.ToStringInRing()
+
+func PpSameSubSurf(cClass)
+	_ppD3_ = [ :Sales = 45, :Marketing = 25, :Dev = 20, :Support = 10 ]
+	eval("_ppS3_ = new " + cClass + "(_ppD3_)")
+	return _ppS3_.ToString() = _ppS3_.ToStringInRing()
+
+# the glyphs only the junction passes can produce -- a plain frame has none of them
+func PpSurfJunctions(paData)
+	_ppSf8_ = new stzSurfacePlot(paData)
+	_ppTxt_ = _ppSf8_.ToString()
+	_ppC_ = 0
+	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(172))
+	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(180))
+	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(156))
+	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(164))
+	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(188))
+	return _ppC_
