@@ -38,3 +38,5 @@ _wasmsub_tmp/
 # generated load-driver entries (perf P11; regenerated per run)
 **/perf/.stzloaddriver_gen.ring
 **/perf/.stzloadtarget_gen.ring
+# fswatch guard scratch dir (the guard reuses it across runs by design)
+**/_fswatch_scratch/

@@ -1,16 +1,16 @@
 /*
-	_stzFolderWatcher_ -- engine-backed folder watcher.
+	stzFolderWatcher -- engine-backed folder watcher.
 	Backed by a Zig worker thread that polls std.fs at 250ms and
 	emits ADD / MOD / DEL events for the Ring side to drain.
 
 	Usage:
-	    o = new _stzFolderWatcher_
+	    o = new stzFolderWatcher
 	    o.Watch("./mydir")
 	    aEvents = o.Drain()            # list of [:kind, :name]
 	    o.Stop()
 */
 
-class _stzFolderWatcher_ from stzObject
+class stzFolderWatcher from stzObject
 
 	@hWatcher = NULL    # opaque engine handle
 	@cPath = ""
