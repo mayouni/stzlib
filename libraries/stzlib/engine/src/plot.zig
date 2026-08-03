@@ -1259,3 +1259,301 @@ test "THE LEGEND CAN DECIDE THE WIDTH, and each series gets its own glyph" {
     try testing.expect(std.mem.indexOf(u8, b, "▒") != null);
     try testing.expect(std.mem.indexOf(u8, b, "▓") != null);
 }
+
+/// The scatter renderer's knobs.
+pub const ScatterOptions = extern struct {
+    max_width: u32 = 42,
+    max_height: u32 = 12,
+    h_axis_height: u32 = 2,
+    right_margin: u32 = 2,
+    show_h_axis: u8 = 1,
+    show_v_axis: u8 = 1,
+    show_letters: u8 = 1,
+};
+
+const CH_POINT: u21 = '●';
+const CH_HTICK: u21 = '┬';
+const CH_VTICK: u21 = '┤';
+
+/// RENDER A SCATTER PLOT: points in a plane, with labelled axes.
+///
+/// ── THE AXIS WIDTH IS DECIDED BY THE LABELS ──
+///
+/// The vertical axis sits as far right as its widest value label needs -- "100" pushes
+/// the whole plot over where "1" does not. Everything else is measured from there, so
+/// the axis column is a computed thing and not a constant, and the arrow, the letter
+/// and the tick marks all have to agree about it. They did not in the Ring original:
+/// see stzScatterPlot's notes on split() trimming the first row.
+pub fn renderScatter(
+    alloc: std.mem.Allocator,
+    hs: []const f64,
+    vs: []const f64,
+    opts: ScatterOptions,
+) ![]u8 {
+    const n = @min(hs.len, vs.len);
+    if (n == 0) return PlotError.BadShape;
+
+    var hmin = hs[0];
+    var hmax = hs[0];
+    var vmin = vs[0];
+    var vmax = vs[0];
+    for (0..n) |i| {
+        if (hs[i] < hmin) hmin = hs[i];
+        if (hs[i] > hmax) hmax = hs[i];
+        if (vs[i] < vmin) vmin = vs[i];
+        if (vs[i] > vmax) vmax = vs[i];
+    }
+
+    // integers print bare; anything else to one decimal -- the same rule for both axes,
+    // decided once over BOTH sets so the two axes cannot disagree about formatting
+    var all_int = true;
+    for (0..n) |i| {
+        if (hs[i] != @floor(hs[i]) or vs[i] != @floor(vs[i])) all_int = false;
+    }
+
+    var nbuf: [64]u8 = undefined;
+    const fmtv = struct {
+        fn f(buf: []u8, x: f64, ints: bool) []const u8 {
+            return fmtNum(buf, if (ints) @floor(x) else plotRound(x, 1), 1);
+        }
+    }.f;
+
+    // ── unique, sorted values on each axis: one tick and one label per distinct value
+    var uv = try alloc.alloc(f64, n);
+    defer alloc.free(uv);
+    var uh = try alloc.alloc(f64, n);
+    defer alloc.free(uh);
+    var nuv: usize = 0;
+    var nuh: usize = 0;
+    for (0..n) |i| {
+        var seen = false;
+        for (0..nuv) |k| {
+            if (uv[k] == vs[i]) seen = true;
+        }
+        if (!seen) {
+            uv[nuv] = vs[i];
+            nuv += 1;
+        }
+        seen = false;
+        for (0..nuh) |k| {
+            if (uh[k] == hs[i]) seen = true;
+        }
+        if (!seen) {
+            uh[nuh] = hs[i];
+            nuh += 1;
+        }
+    }
+    std.mem.sort(f64, uv[0..nuv], {}, std.sort.asc(f64));
+    std.mem.sort(f64, uh[0..nuh], {}, std.sort.asc(f64));
+
+    // ── the vertical axis is as wide as its widest label, plus room for the tick
+    var v_axis_w: usize = 0;
+    if (opts.show_v_axis != 0) {
+        var widest: usize = 0;
+        for (0..nuv) |k| {
+            const t = fmtv(&nbuf, uv[k], all_int);
+            if (t.len > widest) widest = t.len;
+        }
+        v_axis_w = @max(@as(usize, 4), widest + 3);
+    }
+
+    const h_axis_space: usize = if (opts.show_h_axis != 0) opts.h_axis_height else 0;
+    const top_margin: usize = 1;
+
+    var plot_w: usize = 20;
+    if (opts.max_width > v_axis_w + opts.right_margin) {
+        plot_w = @max(@as(usize, 20), opts.max_width - v_axis_w - opts.right_margin);
+    }
+    var plot_h: usize = 8;
+    if (opts.max_height > h_axis_space + top_margin) {
+        plot_h = @max(@as(usize, 8), opts.max_height - h_axis_space - top_margin);
+    }
+
+    const v_axis_col = v_axis_w;
+    const plot_start_col = v_axis_col + 1;
+    const plot_end_col = plot_start_col + plot_w - 1;
+    const plot_start_row = top_margin + 1;
+    const h_axis_row = plot_start_row + plot_h;
+    const plot_end_row = h_axis_row - 1;
+    const total_w = plot_end_col + opts.right_margin;
+    const total_h = h_axis_row + h_axis_space;
+
+    var cv = try Canvas.init(alloc, total_w, total_h);
+    defer cv.deinit();
+
+    const rowOf = struct {
+        fn f(v: f64, lo: f64, hi: f64, endr: usize, ph: usize) usize {
+            if (hi == lo) return endr;
+            const t = (v - lo) * @as(f64, @floatFromInt(ph - 1)) / (hi - lo);
+            const off: usize = @intFromFloat(@floor(t));
+            return if (endr > off) endr - off else 1;
+        }
+    }.f;
+    const colOf = struct {
+        fn f(h: f64, lo: f64, hi: f64, startc: usize, pw: usize) usize {
+            if (hi == lo) return startc;
+            const t = (h - lo) * @as(f64, @floatFromInt(pw - 1)) / (hi - lo);
+            return startc + @as(usize, @intFromFloat(@floor(t)));
+        }
+    }.f;
+
+    // ── vertical axis, its arrow, and a tick + label at every distinct value
+    if (opts.show_v_axis != 0) {
+        var r = plot_start_row;
+        while (r <= plot_end_row) : (r += 1) cv.put(r, v_axis_col, CH_VAXIS);
+        cv.put(plot_start_row - 1, v_axis_col, CH_VARROW);
+
+        for (0..nuv) |k| {
+            const rr = rowOf(uv[k], vmin, vmax, plot_end_row, plot_h);
+            if (rr < plot_start_row or rr > plot_end_row) continue;
+            cv.put(rr, v_axis_col, CH_VTICK);
+            const t = fmtv(&nbuf, uv[k], all_int);
+            // RIGHT-ALIGNED against the tick, one space clear of it
+            if (v_axis_col >= t.len + 2) cv.putText(rr, v_axis_col - 1 - t.len, t);
+        }
+    }
+
+    // ── horizontal axis, its arrow, ticks and labels
+    if (opts.show_h_axis != 0) {
+        var c = plot_start_col;
+        while (c <= plot_end_col) : (c += 1) cv.put(h_axis_row, c, CH_HAXIS);
+        if (plot_end_col + 1 <= total_w) cv.put(h_axis_row, plot_end_col + 1, CH_HARROW);
+        if (opts.show_v_axis != 0) cv.put(h_axis_row, v_axis_col, CH_ORIGIN);
+
+        for (0..nuh) |k| {
+            const cc = colOf(uh[k], hmin, hmax, plot_start_col, plot_w);
+            if (cc < plot_start_col or cc > plot_end_col) continue;
+            cv.put(h_axis_row, cc, CH_HTICK);
+            const t = fmtv(&nbuf, uh[k], all_int);
+            if (h_axis_row + 1 <= total_h) cv.putText(h_axis_row + 1, cc, t);
+        }
+    }
+
+    // ── the points themselves, drawn last so nothing overwrites them
+    //
+    // A DEGENERATE AXIS CENTRES ITS POINTS rather than pinning them to the origin.
+    // Ticks do the opposite -- one tick at the axis start -- and the two rules are
+    // deliberately different: a lone point belongs in the middle of the space it has,
+    // while its tick belongs on the axis where a reader looks for it.
+    for (0..n) |i| {
+        const rr = if (vmax == vmin)
+            plot_start_row + plot_h / 2
+        else
+            rowOf(vs[i], vmin, vmax, plot_end_row, plot_h);
+        const cc = if (hmax == hmin)
+            plot_start_col + plot_w / 2
+        else
+            colOf(hs[i], hmin, hmax, plot_start_col, plot_w);
+        if (rr >= plot_start_row and rr <= plot_end_row and
+            cc >= plot_start_col and cc <= plot_end_col)
+        {
+            cv.put(rr, cc, CH_POINT);
+        }
+    }
+
+    const body = try cv.toString(alloc);
+    defer alloc.free(body);
+
+    // ── assembly, in the order the Ring renderer does it ──
+    //
+    // The LAST canvas row is dropped -- the horizontal axis reserves two rows and only
+    // the first carries labels -- then the Y letter extends the axis, then the X letter
+    // is prepended and the arrow row is split so the axis continues beneath it.
+    var out = std.ArrayList(u8){};
+    errdefer out.deinit(alloc);
+
+    var rows = std.ArrayList([]const u8){};
+    defer rows.deinit(alloc);
+    var it = std.mem.splitScalar(u8, body, '\n');
+    while (it.next()) |r| try rows.append(alloc, r);
+    const keep = if (rows.items.len > 1) rows.items.len - 1 else rows.items.len;
+
+    // WITH NO VERTICAL AXIS THE TOP ROW IS DEAD SPACE. It exists only to hold the
+    // arrow, and without an axis there is no arrow -- so the row is dropped rather
+    // than shipped as a blank line above the plot. Every one of the plot examples
+    // renders this way, which makes it the common path and not an edge case.
+    const first: usize = if (opts.show_v_axis == 0) 1 else 0;
+
+    // WITH NO VERTICAL AXIS THERE IS NO AXIS COLUMN, so v_axis_col is 0 and
+    // `v_axis_col - 1` underflows usize into a panic rather than producing -1. Every
+    // use of the indent below is gated on the axis existing, but the value has to be
+    // safe to compute either way.
+    const pad = if (v_axis_col > 0) v_axis_col - 1 else 0;
+    if (opts.show_letters != 0 and opts.show_v_axis != 0) {
+        var i: usize = 0;
+        while (i < pad) : (i += 1) try out.append(alloc, ' ');
+        try out.appendSlice(alloc, "X\n");
+    }
+
+    for (first..keep) |ri| {
+        const row = rows.items[ri];
+        if (opts.show_v_axis != 0 and ri == plot_start_row - 2) {
+            // the arrow row: arrow, then the axis resumes on its own line beneath it
+            try out.appendSlice(alloc, row[0 .. pad + 3]); // spaces + the 3-byte arrow
+            try out.append(alloc, '\n');
+            var i: usize = 0;
+            while (i < pad) : (i += 1) try out.append(alloc, ' ');
+            try appendCp(alloc, &out, CH_VAXIS);
+            try out.appendSlice(alloc, row[pad + 3 ..]);
+        } else if (opts.show_letters != 0 and opts.show_h_axis != 0 and ri == h_axis_row - 1) {
+            // the Y letter, with the axis extended to make room for it
+            var j: usize = 0;
+            var wrote = false;
+            var itc = std.unicode.Utf8Iterator{ .bytes = row, .i = 0 };
+            while (itc.nextCodepointSlice()) |sl| : (j += 1) {
+                if (!wrote and std.mem.eql(u8, sl, "►")) {
+                    try appendCp(alloc, &out, CH_HAXIS);
+                    try appendCp(alloc, &out, CH_HAXIS);
+                    try out.appendSlice(alloc, sl);
+                    try out.appendSlice(alloc, " Y");
+                    wrote = true;
+                } else {
+                    try out.appendSlice(alloc, sl);
+                }
+            }
+        } else {
+            try out.appendSlice(alloc, row);
+        }
+        if (ri + 1 < keep) try out.append(alloc, '\n');
+    }
+
+    return out.toOwnedSlice(alloc);
+}
+
+fn appendCp(alloc: std.mem.Allocator, out: *std.ArrayList(u8), cp: u21) !void {
+    var b: [4]u8 = undefined;
+    const k = std.unicode.utf8Encode(cp, &b) catch 1;
+    try out.appendSlice(alloc, b[0..k]);
+}
+
+test "a scatter plot renders exactly what the Ring implementation rendered" {
+    const alloc = testing.allocator;
+    const hs = [_]f64{ 1, 2, 2, 3, 3, 4, 4, 5 };
+    const vs = [_]f64{ 1, 5, 4, 2, 4, 5, 6, 3 };
+    const out = try renderScatter(alloc, &hs, &vs, .{});
+    defer alloc.free(out);
+
+    // Ground truth captured from stzScatterPlot AFTER its three defects were fixed --
+    // it could not draw axes at all, then labelled each one twice, then stood its
+    // arrow a column off its own axis.
+    //
+    // THIS EXPECTATION WAS GENERATED FROM THOSE BYTES, NOT TYPED. Three earlier ports
+    // in this file first failed on a miscounted run of box characters in a
+    // hand-written literal -- a false failure every time, and the renderer was right
+    // in all three.
+    const want = "   X" ++ "\n" ++
+        "   \u{25b2}" ++ "\n" ++
+        "   \u{2502}                                      " ++ "\n" ++
+        " 6 \u{2524}                          \u{25cf}           " ++ "\n" ++
+        "   \u{2502}                                      " ++ "\n" ++
+        " 5 \u{2524}        \u{25cf}                 \u{25cf}           " ++ "\n" ++
+        "   \u{2502}                                      " ++ "\n" ++
+        " 4 \u{2524}        \u{25cf}        \u{25cf}                    " ++ "\n" ++
+        " 3 \u{2524}                                   \u{25cf}  " ++ "\n" ++
+        "   \u{2502}                                      " ++ "\n" ++
+        " 2 \u{2524}                 \u{25cf}                    " ++ "\n" ++
+        " 1 \u{2524}\u{25cf}                                     " ++ "\n" ++
+        "   \u{2570}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{25ba} Y " ++ "\n" ++
+        "    1       2        3        4        5  ";
+    try testing.expectEqualStrings(want, out);
+}
