@@ -109,11 +109,11 @@ class stzStringEncoder from stzObject
 
 	def AsciiCodes()
 		# Returns Unicode codepoints for each char (engine-backed)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
 		_acResult_ = []
 		for _i_ = 1 to _nLen_
-			_acResult_ + StzEngineStringCharAt(pH, _i_)
+			_acResult_ + StzEngineStringCharAt(_pH_, _i_)
 		next
 		return _acResult_
 
@@ -129,7 +129,7 @@ class stzStringEncoder from stzObject
 
 	# The string's bytes in binary form.
 	def ToBinary()
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
 		_cResult_ = ""
 
@@ -137,7 +137,7 @@ class stzStringEncoder from stzObject
 			if _i_ > 1
 				_cResult_ += " "
 			ok
-			_n_ = StzEngineStringCharAt(pH, _i_)
+			_n_ = StzEngineStringCharAt(_pH_, _i_)
 			_cBin_ = ""
 			for b = 7 to 0 step -1
 				if _n_ & pow(2, b)
@@ -182,7 +182,7 @@ class stzStringEncoder from stzObject
 
 	# The string's bytes in octal form.
 	def ToOctal()
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
 		_cResult_ = ""
 
@@ -190,7 +190,7 @@ class stzStringEncoder from stzObject
 			if _i_ > 1
 				_cResult_ += " "
 			ok
-			_n_ = StzEngineStringCharAt(pH, _i_)
+			_n_ = StzEngineStringCharAt(_pH_, _i_)
 			_cOct_ = ""
 			_nTemp_ = _n_
 			if _nTemp_ = 0
@@ -215,7 +215,7 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	def ToCharCodes()
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_nLen_ = @oString.NumberOfChars()
 		_cResult_ = ""
 
@@ -223,7 +223,7 @@ class stzStringEncoder from stzObject
 			if _i_ > 1
 				_cResult_ += " "
 			ok
-			_cResult_ += ("" + StzEngineStringCharAt(pH, _i_))
+			_cResult_ += ("" + StzEngineStringCharAt(_pH_, _i_))
 		next
 
 		return _cResult_
@@ -332,10 +332,10 @@ class stzStringEncoder from stzObject
 	#===============================#
 
 	def NormalizeNFC()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 0)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 0)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def NormalizeNFCQ()
@@ -344,17 +344,17 @@ class stzStringEncoder from stzObject
 
 	# The string in Unicode NFC normal form.
 	def NormalizedNFC()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 0)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 0)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def NormalizeNFD()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 1)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 1)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def NormalizeNFDQ()
@@ -363,17 +363,17 @@ class stzStringEncoder from stzObject
 
 	# The string in Unicode NFD normal form.
 	def NormalizedNFD()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 1)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 1)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def NormalizeNFKC()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 2)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 2)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def NormalizeNFKCQ()
@@ -382,17 +382,17 @@ class stzStringEncoder from stzObject
 
 	# The string in Unicode NFKC normal form.
 	def NormalizedNFKC()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 2)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 2)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def NormalizeNFKD()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 3)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 3)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def NormalizeNFKDQ()
@@ -401,10 +401,10 @@ class stzStringEncoder from stzObject
 
 	# The string in Unicode NFKD normal form.
 	def NormalizedNFKD()
-		pH = @oString.Engine()
-		pR = StzEngineStringNormalize(pH, 3)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringNormalize(_pH_, 3)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def Normalize()

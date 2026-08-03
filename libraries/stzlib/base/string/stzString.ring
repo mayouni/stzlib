@@ -730,11 +730,11 @@ class stzString from stzObject
 
 	# The char at position n (codepoint-aware).
 	def NthChar(n)
-		pH = This.Engine()
-		pR = StzEngineStringNthChar(pH, n)
-		if pR != NULL
-			c = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringNthChar(_pH_, n)
+		if _pR_ != NULL
+			c = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			return c
 		ok
 		return ""
@@ -907,11 +907,11 @@ class stzString from stzObject
 		if NOT ( _n1_ >= 1 and _n1_ <= _nLen_ and _n2_ >= 1 and _n2_ <= _nLen_ )
 			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
 		ok
-		pH = This.Engine()
-		pR = StzEngineStringSlice(pH, _n1_, _n2_ - _n1_ + 1)
-		if pR != NULL
-			c = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringSlice(_pH_, _n1_, _n2_ - _n1_ + 1)
+		if _pR_ != NULL
+			c = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			return c
 		ok
 		return ""
@@ -933,11 +933,11 @@ class stzString from stzObject
 			_n2_ = _temp_
 		ok
 		if _nLen_ = 0 return "" ok
-		pH = This.Engine()
-		pR = StzEngineStringSlice(pH, _n1_, _n2_ - _n1_ + 1)
-		if pR != NULL
-			c = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringSlice(_pH_, _n1_, _n2_ - _n1_ + 1)
+		if _pR_ != NULL
+			c = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			return c
 		ok
 		return ""
@@ -5221,11 +5221,11 @@ class stzString from stzObject
 		_n1_ = This._ResolveSymPos(_n1_, _nLen_)
 		_n2_ = This._ResolveSymPos(_n2_, _nLen_)
 		if NOT (isNumber(_n1_) and isNumber(_n2_)) return ok
-		pH = This.Engine()
-		pR = StzEngineStringRemoveRange(pH, _n1_, _n2_ - _n1_ + 1)
-		if pR != 0
-			This.Update(StzEngineStringData(pR))
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringRemoveRange(_pH_, _n1_, _n2_ - _n1_ + 1)
+		if _pR_ != 0
+			This.Update(StzEngineStringData(_pR_))
+			StzEngineStringFree(_pR_)
 		ok
 
 	# Remove the chars of each given [start, end] section (mutating).
@@ -5337,21 +5337,21 @@ class stzString from stzObject
 	# TrimmedLeft.
 	#@ aka  strip leading spaces, remove left whitespace
 	def TrimLeft()
-		pH = This.Engine()
-		pR = StzEngineStringTrimLeft(pH)
-		if pR != 0
-			This.Update(StzEngineStringData(pR))
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringTrimLeft(_pH_)
+		if _pR_ != 0
+			This.Update(StzEngineStringData(_pR_))
+			StzEngineStringFree(_pR_)
 		ok
 
 	# Remove the trailing spaces in place (mutating). For a copy, use
 	# TrimmedRight.
 	def TrimRight()
-		pH = This.Engine()
-		pR = StzEngineStringTrimRight(pH)
-		if pR != 0
-			This.Update(StzEngineStringData(pR))
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringTrimRight(_pH_)
+		if _pR_ != 0
+			This.Update(StzEngineStringData(_pR_))
+			StzEngineStringFree(_pR_)
 		ok
 
 	def TrimStart()
@@ -5488,11 +5488,11 @@ class stzString from stzObject
 
 	# Remove leading and trailing whitespace in place (mutating). For a copy, use Trimmed.
 	def Trim()
-		pH = This.Engine()
-		pR = StzEngineStringTrim(pH)
-		if pR != 0
-			This.Update(StzEngineStringData(pR))
-			StzEngineStringFree(pR)
+		_pH_ = This.Engine()
+		_pR_ = StzEngineStringTrim(_pH_)
+		if _pR_ != 0
+			This.Update(StzEngineStringData(_pR_))
+			StzEngineStringFree(_pR_)
 		ok
 
 		def TrimQ()

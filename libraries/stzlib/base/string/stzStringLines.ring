@@ -78,11 +78,11 @@ class stzStringLines from stzObject
 
 	# The nth line of the string.
 	def NthLine(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringLineAt(pH, n)
-		if pR != NULL
-			_c_ = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringLineAt(_pH_, n)
+		if _pR_ != NULL
+			_c_ = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
 			return _c_
 		ok
 		StzRaise("Index out of range!")
@@ -105,10 +105,10 @@ class stzStringLines from stzObject
 	def UniqueLinesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		pH = @oString.Engine()
-		pR = StzEngineStringUniqueLinesCS(pH, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringUniqueLinesCS(_pH_, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		if _c_ = ""
 			return []
 		ok
@@ -128,10 +128,10 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def RemoveEmptyLines()
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveBlankLines(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveBlankLines(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveEmptyLinesQ()
@@ -139,10 +139,10 @@ class stzStringLines from stzObject
 			return This
 
 	def EmptyLinesRemoved()
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveBlankLines(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveBlankLines(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def NumberOfEmptyLines()
@@ -269,11 +269,11 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def SortLinesCS(pCaseSensitive)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pR = StzEngineStringSortLinesCS(pH, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pR_ = StzEngineStringSortLinesCS(_pH_, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def SortLinesCSQ(pCaseSensitive)
@@ -288,11 +288,11 @@ class stzStringLines from stzObject
 			return This
 
 	def LinesSortedCS(pCaseSensitive)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pR = StzEngineStringSortLinesCS(pH, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pR_ = StzEngineStringSortLinesCS(_pH_, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def LinesSorted()
@@ -303,10 +303,10 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def ReverseLinesOrder()
-		pH = @oString.Engine()
-		pR = StzEngineStringReverseLines(pH)
-		@oString.Update(StzEngineStringData(pR))
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringReverseLines(_pH_)
+		@oString.Update(StzEngineStringData(_pR_))
+		StzEngineStringFree(_pR_)
 
 		def ReverseLinesOrderQ()
 			This.ReverseLinesOrder()
@@ -322,10 +322,10 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def IndentLines(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringIndent(pH, n)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringIndent(_pH_, n)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def IndentLinesQ(n)
@@ -333,10 +333,10 @@ class stzStringLines from stzObject
 			return This
 
 	def LinesIndented(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringIndent(pH, n)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringIndent(_pH_, n)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
@@ -344,11 +344,11 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def RemoveDuplicateLinesCS(pCaseSensitive)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pR_ = StzEngineStringDeduplicateLinesCS(_pH_, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveDuplicateLinesCSQ(pCaseSensitive)
@@ -363,11 +363,11 @@ class stzStringLines from stzObject
 			return This
 
 	def DuplicateLinesRemovedCS(pCaseSensitive)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pR_ = StzEngineStringDeduplicateLinesCS(_pH_, _bCase_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def DuplicateLinesRemoved()

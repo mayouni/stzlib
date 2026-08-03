@@ -73,11 +73,11 @@ class stzStringCaseChanger from stzObject
 			# Engine-backed: first char uppercase, rest lowercase
 			_cFirst_ = StzUpper(StzLeft(_cStr_, 1))
 			if StzLen(_cStr_) > 1
-				pH = StzEngineString(_cStr_)
-				pRest = StzEngineStringSlice(pH, 2, StzLen(_cStr_) - 1)
+				_pH_ = StzEngineString(_cStr_)
+				pRest = StzEngineStringSlice(_pH_, 2, StzLen(_cStr_) - 1)
 				_cRest_ = StzLower(StzEngineStringData(pRest))
 				StzEngineStringFree(pRest)
-				StzEngineStringFree(pH)
+				StzEngineStringFree(_pH_)
 				@oString.Update(_cFirst_ + _cRest_)
 			else
 				@oString.Update(_cFirst_)
@@ -133,22 +133,22 @@ class stzStringCaseChanger from stzObject
 	#======================================================#
 
 	def ToggleCase()
-		pH = StzEngineString(@oString.Content())
-		pR = StzEngineStringSwapCase(pH)
-		@oString.Update(StzEngineStringData(pR))
-		StzEngineStringFree(pR)
-		StzEngineStringFree(pH)
+		_pH_ = StzEngineString(@oString.Content())
+		_pR_ = StzEngineStringSwapCase(_pH_)
+		@oString.Update(StzEngineStringData(_pR_))
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
 
 		def ToggleCaseQ()
 			This.ToggleCase()
 			return This
 
 	def CaseToggled()
-		pH = StzEngineString(@oString.Content())
-		pR = StzEngineStringSwapCase(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
-		StzEngineStringFree(pH)
+		_pH_ = StzEngineString(@oString.Content())
+		_pR_ = StzEngineStringSwapCase(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
 		return _c_
 
 	  #======================================================#
@@ -173,10 +173,10 @@ class stzStringCaseChanger from stzObject
 	#======================================================#
 
 	def DecapitalizeFirst()
-		pH = @oString.Engine()
-		pR = StzEngineStringDecapitalizeFirst(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringDecapitalizeFirst(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def DecapitalizeFirstQ()

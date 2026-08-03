@@ -10,87 +10,87 @@ func StzJsonQ(p)
 	return new stzJson(p)
 
 func StzJsonIsValid(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return FALSE
 	ok
-	_nValid_ = StzEngineJsonIsValid(pH)
-	StzEngineJsonFree(pH)
+	_nValid_ = StzEngineJsonIsValid(_pH_)
+	StzEngineJsonFree(_pH_)
 	return _nValid_ = 1
 
 func StzJsonPretty(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineJsonToStringPretty(pH)
-	StzEngineJsonFree(pH)
+	_cResult_ = StzEngineJsonToStringPretty(_pH_)
+	StzEngineJsonFree(_pH_)
 	return _cResult_
 
 func StzJsonCompact(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineJsonToString(pH)
-	StzEngineJsonFree(pH)
+	_cResult_ = StzEngineJsonToString(_pH_)
+	StzEngineJsonFree(_pH_)
 	return _cResult_
 
 func StzJsonGet(cJson, cKey)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return ""
 	ok
-	_cResult_ = StzEngineJsonGetString(pH, cKey)
-	StzEngineJsonFree(pH)
+	_cResult_ = StzEngineJsonGetString(_pH_, cKey)
+	StzEngineJsonFree(_pH_)
 	return _cResult_
 
 func StzJsonGetInt(cJson, cKey)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return 0
 	ok
-	_nResult_ = StzEngineJsonGetInt(pH, cKey)
-	StzEngineJsonFree(pH)
+	_nResult_ = StzEngineJsonGetInt(_pH_, cKey)
+	StzEngineJsonFree(_pH_)
 	return _nResult_
 
 func StzJsonHasKey(cJson, cKey)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return FALSE
 	ok
-	_nResult_ = StzEngineJsonHasKey(pH, cKey)
-	StzEngineJsonFree(pH)
+	_nResult_ = StzEngineJsonHasKey(_pH_, cKey)
+	StzEngineJsonFree(_pH_)
 	return _nResult_ = 1
 
 func StzJsonKeys(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return []
 	ok
-	_cKeys_ = StzEngineJsonKeys(pH)
-	StzEngineJsonFree(pH)
+	_cKeys_ = StzEngineJsonKeys(_pH_)
+	StzEngineJsonFree(_pH_)
 	if StzLen(_cKeys_) = 0
 		return []
 	ok
 	return split(_cKeys_, nl)
 
 func StzJsonSize(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return 0
 	ok
-	_nResult_ = StzEngineJsonSize(pH)
-	StzEngineJsonFree(pH)
+	_nResult_ = StzEngineJsonSize(_pH_)
+	StzEngineJsonFree(_pH_)
 	return _nResult_
 
 func StzJsonIsArray(cJson)
-	pH = StzEngineJsonParse(cJson)
-	if pH = NULL
+	_pH_ = StzEngineJsonParse(cJson)
+	if _pH_ = NULL
 		return FALSE
 	ok
-	_nResult_ = StzEngineJsonIsArray(pH)
-	StzEngineJsonFree(pH)
+	_nResult_ = StzEngineJsonIsArray(_pH_)
+	StzEngineJsonFree(_pH_)
 	return _nResult_ = 1
 
 Class stzJson from stzObject

@@ -78,8 +78,8 @@ class stzStringInserter from stzObject
 
 	def InsertBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pResult = StzEngineStringInsertBeforeEachCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		_pH_ = @oString.Engine()
+		pResult = StzEngineStringInsertBeforeEachCS(_pH_, pcSubStr, pcNewSubStr, _bCase_)
 		@oString.Update(StzEngineStringData(pResult))
 		StzEngineStringFree(pResult)
 
@@ -92,8 +92,8 @@ class stzStringInserter from stzObject
 
 	def InsertAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pResult = StzEngineStringInsertAfterEachCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		_pH_ = @oString.Engine()
+		pResult = StzEngineStringInsertAfterEachCS(_pH_, pcSubStr, pcNewSubStr, _bCase_)
 		@oString.Update(StzEngineStringData(pResult))
 		StzEngineStringFree(pResult)
 

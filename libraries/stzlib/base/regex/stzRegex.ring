@@ -128,22 +128,22 @@ func StzRegexEscape(pcStr)
 		return StzRegexEscape(pcStr)
 
 func StzRegexMatch(cInput, cPattern)
-	pH = StzEngineRegexNew(cPattern, 0)
-	if pH = NULL
+	_pH_ = StzEngineRegexNew(cPattern, 0)
+	if _pH_ = NULL
 		return FALSE
 	ok
-	_nResult_ = StzEngineRegexMatch(pH, cInput, 1)
-	StzEngineRegexFree(pH)
+	_nResult_ = StzEngineRegexMatch(_pH_, cInput, 1)
+	StzEngineRegexFree(_pH_)
 	return _nResult_ = 1
 
 func StzRegexReplace(cInput, cPattern, cReplacement)
-	pH = StzEngineRegexNew(cPattern, 0)
-	if pH = NULL
+	_pH_ = StzEngineRegexNew(cPattern, 0)
+	if _pH_ = NULL
 		return cInput
 	ok
-	StzEngineRegexMatch(pH, cInput, 1)
-	_cResult_ = StzEngineRegexReplace(pH, cInput, cReplacement)
-	StzEngineRegexFree(pH)
+	StzEngineRegexMatch(_pH_, cInput, 1)
+	_cResult_ = StzEngineRegexReplace(_pH_, cInput, cReplacement)
+	StzEngineRegexFree(_pH_)
 	return _cResult_
 
   #==================#

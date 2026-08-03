@@ -99,11 +99,11 @@ class stzStringConcat from stzObject
 	#======================================================#
 
 	def RepeatNTimes(n)
-		pH = @oString.Engine()
-		pR = StzEngineStringRepeat(pH, n)
-		if pR != 0
-			@oString.Update(StzEngineStringData(pR))
-			StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRepeat(_pH_, n)
+		if _pR_ != 0
+			@oString.Update(StzEngineStringData(_pR_))
+			StzEngineStringFree(_pR_)
 		ok
 
 		def RepeatNTimesQ(n)

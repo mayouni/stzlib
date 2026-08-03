@@ -39,11 +39,11 @@ func StzUpper(_cStr_)
 	ok
 	# Unicode SpecialCasing (ß->SS, ﬄ->FFL, ...) is now done ENGINE-SIDE in
 	# stz_unicode_to_upper_str, so no Ring-side ß scan/patch is needed.
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringToUpper(pH)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringToUpper(_pH_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 // Group similar strings by edit (Levenshtein) distance -- fuzzy dedup, typo
@@ -63,15 +63,15 @@ func StzClusterByEditDistanceCS(paStrings, nThreshold, pCaseSensitive)
 		_cPacked_ += ("" + paStrings[i])
 		if i < _nLen_ _cPacked_ += char(0) ok
 	next
-	pH = StzEngineString(_cPacked_)
-	pRes = StzEngineStringEditCluster(pH, nThreshold, pCaseSensitive)
+	_pH_ = StzEngineString(_cPacked_)
+	pRes = StzEngineStringEditCluster(_pH_, nThreshold, pCaseSensitive)
 	_anIDs_ = []
 	_nC_ = StzEngineFindResultCount(pRes)
 	for i = 1 to _nC_
 		_anIDs_ + StzEngineFindResultGet(pRes, i)
 	next
 	StzEngineFindResultFree(pRes)
-	StzEngineStringFree(pH)
+	StzEngineStringFree(_pH_)
 	_aClusters_ = []
 	for i = 1 to _nLen_
 		_nCid_ = _anIDs_[i]
@@ -100,11 +100,11 @@ func StzTFIDFKeywordsCS(paDocs, nTop, pCaseSensitive)
 		_cPacked_ += ("" + paDocs[i])
 		if i < _nLen_ _cPacked_ += char(0) ok
 	next
-	pH = StzEngineString(_cPacked_)
-	pRes = StzEngineStringTFIDFKeywords(pH, nTop, pCaseSensitive)
+	_pH_ = StzEngineString(_cPacked_)
+	pRes = StzEngineStringTFIDFKeywords(_pH_, nTop, pCaseSensitive)
 	_cOut_ = StzEngineStringData(pRes)
 	StzEngineStringFree(pRes)
-	StzEngineStringFree(pH)
+	StzEngineStringFree(_pH_)
 	# Unpack: documents are separated by char(1), keywords within a doc by
 	# char(0). Split doc-by-doc (there are exactly nLen of them).
 	_aResult_ = []
@@ -122,22 +122,22 @@ func StzLower(_cStr_)
 	if NOT isString(_cStr_)
 		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringToLower(pH)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringToLower(_pH_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 func StzTitle(_cStr_)
 	if NOT isString(_cStr_)
 		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringToTitle(pH)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringToTitle(_pH_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 func StzCaseFold(_cStr_)
@@ -155,9 +155,9 @@ func StzNumber(_cStr_)
 	if NOT isString(_cStr_)
 		_cStr_ = "" + _cStr_
 	ok
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringToNumber(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringToNumber(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 #-- Length (codepoint count, not byte count)
@@ -166,9 +166,9 @@ func StzLen(_cStr_)
 	if isList(_cStr_)
 		return len(_cStr_)
 	ok
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringCount(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringCount(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 #-- Codepoint count, without constructing a stz object to ask for it.
@@ -256,45 +256,45 @@ func StzChar(nCodepoint)
 
 func StzCodepoint(cChar)
 	if NOT isString(cChar) or cChar = "" return 0 ok
-	pH = StzEngineString(cChar)
-	_n_ = StzEngineStringCharAt(pH, 1)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(cChar)
+	_n_ = StzEngineStringCharAt(_pH_, 1)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 #-- String reverse (codepoint-aware, not byte-reverse)
 
 func StzReverse(_cStr_)
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringReverse(pH)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringReverse(_pH_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 #-- Type checking (Unicode-aware)
 
 func StzIsUpper(_cStr_)
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringIsUppercase(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsUppercase(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 func StzIsLower(_cStr_)
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringIsLowercase(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsLowercase(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 func StzIsAlpha(_cStr_)
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringIsAlpha(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsAlpha(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 func StzIsDigit(_cStr_)
-	pH = StzEngineString(_cStr_)
-	_n_ = StzEngineStringIsDigit(pH)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_n_ = StzEngineStringIsDigit(_pH_)
+	StzEngineStringFree(_pH_)
 	return _n_
 
 #-- Substring extraction (codepoint-aware)
@@ -317,22 +317,22 @@ func StzLeft(_cStr_, _n_)
 	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
 	if NOT isNumber(_n_) return "" ok
 	if _n_ <= 0 return "" ok
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringLeftCp(pH, _n_)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringLeftCp(_pH_, _n_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 func StzRight(_cStr_, _n_)
 	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
 	if NOT isNumber(_n_) return "" ok
 	if _n_ <= 0 return "" ok
-	pH = StzEngineString(_cStr_)
-	pR = StzEngineStringRightCp(pH, _n_)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pH_ = StzEngineString(_cStr_)
+	_pR_ = StzEngineStringRightCp(_pH_, _n_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 func StzMid(_cStr_, _nStart_, _nLen_)
@@ -342,13 +342,13 @@ func StzMid(_cStr_, _nStart_, _nLen_)
 	if NOT (isNumber(_nStart_) and isNumber(_nLen_)) return "" ok
 	if _nLen_ <= 0 return "" ok
 	if _nStart_ < 1 _nStart_ = 1 ok
-	pH = StzEngineString(_cStr_)
+	_pH_ = StzEngineString(_cStr_)
 	# 1-BASED start (the Cp family is INDEX_BASE-based; the byte family was
 	# 0-based, hence the old `_nStart_ - 1`). Over-long counts self-clamp.
-	pR = StzEngineStringMidCp(pH, _nStart_, _nLen_)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pR_ = StzEngineStringMidCp(_pH_, _nStart_, _nLen_)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
 	# @-prefixed alias (stzMatrex.ParsePattern and friends call @StzMid;
@@ -364,16 +364,16 @@ func StzMidToEnd(_cStr_, _nStart_)
 	if NOT isString(_cStr_) _cStr_ = "" + _cStr_ ok
 	if NOT isNumber(_nStart_) return "" ok
 	if _nStart_ < 1 _nStart_ = 1 ok
-	pH = StzEngineString(_cStr_)
-	_nCount_ = StzEngineStringCount(pH)      # CODEPOINTS, matching the Cp slice
+	_pH_ = StzEngineString(_cStr_)
+	_nCount_ = StzEngineStringCount(_pH_)      # CODEPOINTS, matching the Cp slice
 	if _nStart_ > _nCount_
-		StzEngineStringFree(pH)
+		StzEngineStringFree(_pH_)
 		return ""
 	ok
-	pR = StzEngineStringMidCp(pH, _nStart_, _nCount_ - _nStart_ + 1)
-	_c_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
+	_pR_ = StzEngineStringMidCp(_pH_, _nStart_, _nCount_ - _nStart_ + 1)
+	_c_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
+	StzEngineStringFree(_pH_)
 	return _c_
 
   #------------------------------------------------------#

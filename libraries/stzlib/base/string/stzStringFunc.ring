@@ -1800,9 +1800,9 @@ func StzStringsAreEqual(paStr)
 
 func StzRemoveDiacritics(pcStr)
 	_pStr_ = StzEngineString(pcStr)
-	pR = StzEngineStringStripMarks(_pStr_)
-	_cResult_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
+	_pR_ = StzEngineStringStripMarks(_pStr_)
+	_cResult_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
 	StzEngineStringFree(_pStr_)
 	return _cResult_
 
@@ -2726,9 +2726,9 @@ func StzChars(_str_)
 	ok
 
 	_pStr_ = StzEngineString(_str_)
-	pR = StzEngineStringCharsSplit(_pStr_)
-	_cJoined_ = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
+	_pR_ = StzEngineStringCharsSplit(_pStr_)
+	_cJoined_ = StzEngineStringData(_pR_)
+	StzEngineStringFree(_pR_)
 	StzEngineStringFree(_pStr_)
 	return _SplitNullDelimited(_cJoined_)
 

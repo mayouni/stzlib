@@ -40,10 +40,10 @@ class stzStringTrimmer from stzObject
 	#======================================================#
 
 	def Trim()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrim(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrim(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimQ()
@@ -51,10 +51,10 @@ class stzStringTrimmer from stzObject
 			return This
 
 	def Trimmed()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimmed(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimmed(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #======================================================#
@@ -62,10 +62,10 @@ class stzStringTrimmer from stzObject
 	#======================================================#
 
 	def TrimLeft()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimLeft(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimLeft(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimLeftQ()
@@ -73,17 +73,17 @@ class stzStringTrimmer from stzObject
 			return This
 
 	def TrimmedLeft()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimLeft(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimLeft(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	def TrimRight()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimRight(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimRight(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def TrimRightQ()
@@ -91,10 +91,10 @@ class stzStringTrimmer from stzObject
 			return This
 
 	def TrimmedRight()
-		pH = @oString.Engine()
-		pR = StzEngineStringTrimRight(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringTrimRight(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #======================================================#

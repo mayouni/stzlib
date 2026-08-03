@@ -181,8 +181,8 @@ class stzStringFinder from stzObject
 		ok
 
 		# Direct engine call — single FFI instead of N iterated find-next
-		pH = @oString.Engine()
-		_nResult_ = StzEngineStringFindNthCS(pH, pcSubStr, _n_, pCaseSensitive)
+		_pH_ = @oString.Engine()
+		_nResult_ = StzEngineStringFindNthCS(_pH_, pcSubStr, _n_, pCaseSensitive)
 		return _nResult_
 
 	def FindNth(_n_, pcSubstr)
@@ -453,10 +453,10 @@ class stzStringFinder from stzObject
 
 	def DuplicatesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		pR = StzEngineStringDuplicateSubstringsCS(pH, _bCase_)
-		_cJoined_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringDuplicateSubstringsCS(_pH_, _bCase_)
+		_cJoined_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		if _cJoined_ = ""
 			return []
 		ok
@@ -569,8 +569,8 @@ class stzStringFinder from stzObject
 	# if none).
 	def IndexOfCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		return StzEngineStringFindFirstCS(pH, pcSubStr, _bCase_)
+		_pH_ = @oString.Engine()
+		return StzEngineStringFindFirstCS(_pH_, pcSubStr, _bCase_)
 
 	def IndexOf(pcSubStr)
 		return This.IndexOfCS(pcSubStr, 1)
@@ -581,11 +581,11 @@ class stzStringFinder from stzObject
 
 	# The positions of every occurrence of the given char.
 	def FindAllChar(pcChar)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		pHChar = StzEngineString(pcChar)
 		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		pResult = StzEngineStringFindChar(pH, _nCp_)
+		pResult = StzEngineStringFindChar(_pH_, _nCp_)
 		_nCount_ = StzEngineFindResultCount(pResult)
 		if _nCount_ = 0
 			StzEngineFindResultFree(pResult)
@@ -643,11 +643,11 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def BetweenNth(pcOpen, pcClose, _n_)
-		pH = @oString.Engine()
+		_pH_ = @oString.Engine()
 		# Engine uses 0-based nth; Softanza uses 1-based
-		pR = StzEngineStringBetweenNth(pH, pcOpen, pcClose, _n_ - 1)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pR_ = StzEngineStringBetweenNth(_pH_, pcOpen, pcClose, _n_ - 1)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
@@ -655,10 +655,10 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def CharsBetween(nFrom, nTo)
-		pH = @oString.Engine()
-		pR = StzEngineStringCharsBetween(pH, nFrom, nTo)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringCharsBetween(_pH_, nFrom, nTo)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
@@ -667,8 +667,8 @@ class stzStringFinder from stzObject
 
 	# Find the first match of the given regex pattern.
 	def FindFirstRegex(pcPattern)
-		pH = @oString.Engine()
-		return StzEngineStringRegexFindFirst(pH, pcPattern, 0)
+		_pH_ = @oString.Engine()
+		return StzEngineStringRegexFindFirst(_pH_, pcPattern, 0)
 
 		def FindRegex(pcPattern)
 			return This.FindFirstRegex(pcPattern)
@@ -679,16 +679,16 @@ class stzStringFinder from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		pH = @oString.Engine()
-		return StzEngineStringRegexFindFirst(pH, pcPattern, _nFlags_)
+		_pH_ = @oString.Engine()
+		return StzEngineStringRegexFindFirst(_pH_, pcPattern, _nFlags_)
 
 		def FindRegexCS(pcPattern, pCaseSensitive)
 			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
 
 	# Find every match of the given regex pattern.
 	def FindAllRegex(pcPattern)
-		pH = @oString.Engine()
-		pResult = StzEngineStringRegexFindAll(pH, pcPattern, 0)
+		_pH_ = @oString.Engine()
+		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, 0)
 		if pResult = NULL
 			return []
 		ok
@@ -709,8 +709,8 @@ class stzStringFinder from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		pH = @oString.Engine()
-		pResult = StzEngineStringRegexFindAll(pH, pcPattern, _nFlags_)
+		_pH_ = @oString.Engine()
+		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, _nFlags_)
 		if pResult = NULL
 			return []
 		ok

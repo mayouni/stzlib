@@ -39,10 +39,10 @@ class stzStringDuplicates from stzObject
 	#===============================#
 
 	def DuplicatedChars()
-		pH = @oString.Engine()
-		pR = StzEngineStringDuplicatedChars(pH)
-		_cDups_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringDuplicatedChars(_pH_)
+		_cDups_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cDups_)
 
 	def HasDuplicatedChars()
@@ -56,10 +56,10 @@ class stzStringDuplicates from stzObject
 	#===============================#
 
 	def UniqueChars()
-		pH = @oString.Engine()
-		pR = StzEngineStringUniqueChars(pH)
-		_cUnique_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringUniqueChars(_pH_)
+		_cUnique_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		if _cUnique_ = ""
 			return []
 		ok
@@ -72,8 +72,8 @@ class stzStringDuplicates from stzObject
 		return _SplitNullDelimited(_cJoined_)
 
 	def NumberOfUniqueChars()
-		pH = @oString.Engine()
-		return StzEngineStringCountUniqueChars(pH)
+		_pH_ = @oString.Engine()
+		return StzEngineStringCountUniqueChars(_pH_)
 
 	  #===============================#
 	 #     CONSECUTIVE CHARS         #
@@ -95,10 +95,10 @@ class stzStringDuplicates from stzObject
 		return 0
 
 	def RemoveConsecutiveDuplicateChars()
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveConsecutiveDuplicates(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveConsecutiveDuplicateCharsQ()
@@ -106,10 +106,10 @@ class stzStringDuplicates from stzObject
 			return This
 
 	def ConsecutiveDuplicateCharsRemoved()
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringRemoveConsecutiveDuplicates(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
@@ -117,10 +117,10 @@ class stzStringDuplicates from stzObject
 	#===============================#
 
 	def RemoveAllDuplicateChars()
-		pH = @oString.Engine()
-		pR = StzEngineStringUniqueChars(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringUniqueChars(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
 
 		def RemoveAllDuplicateCharsQ()
@@ -128,10 +128,10 @@ class stzStringDuplicates from stzObject
 			return This
 
 	def AllDuplicateCharsRemoved()
-		pH = @oString.Engine()
-		pR = StzEngineStringUniqueChars(pH)
-		_c_ = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
+		_pH_ = @oString.Engine()
+		_pR_ = StzEngineStringUniqueChars(_pH_)
+		_c_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
 		return _c_
 
 	  #===============================#
