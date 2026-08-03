@@ -1595,6 +1595,45 @@ fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
 // aOptions order matches plot.ScatterOptions:
 //   maxWidth, maxHeight, hAxisHeight, rightMargin,
 //   showHAxis, showVAxis, showLetters
+//   StzEnginePlotSurface(anValues, cLabelsJoined, aOptions) -> the finished text
+//
+// aOptions order matches plot.SurfaceOptions:
+//   width, height, minWidth, maxWidth, minLabelWidth,
+//   showBorders, showLabels, showValues, showPercent
+fn ring_PlotSurface(p: *anyopaque) callconv(.c) void {
+    const vals = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(vals);
+    if (vals.len == 0) {
+        rs(p, "");
+        return;
+    }
+    const lab = strParam(p, 2);
+
+    var opts = plot_mod.SurfaceOptions{};
+    if (listToF64(p, 3)) |o| {
+        defer allocator.free(o);
+        if (o.len > 0) opts.width = @intFromFloat(o[0]);
+        if (o.len > 1) opts.height = @intFromFloat(o[1]);
+        if (o.len > 2) opts.min_width = @intFromFloat(o[2]);
+        if (o.len > 3) opts.max_width = @intFromFloat(o[3]);
+        if (o.len > 4) opts.min_label_width = @intFromFloat(o[4]);
+        if (o.len > 5) opts.show_borders = if (o[5] != 0) 1 else 0;
+        if (o.len > 6) opts.show_labels = if (o[6] != 0) 1 else 0;
+        if (o.len > 7) opts.show_values = if (o[7] != 0) 1 else 0;
+        if (o.len > 8) opts.show_percent = if (o[8] != 0) 1 else 0;
+    }
+
+    const txt = plot_mod.renderSurface(allocator, vals, lab, opts) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(txt);
+    rs2(p, txt.ptr, @intCast(txt.len));
+}
+
 fn ring_PlotScatter(p: *anyopaque) callconv(.c) void {
     const hs = listToF64(p, 1) orelse {
         rs(p, "");
@@ -3079,6 +3118,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepolycompanion", .func = &ring_PolyCompanion },
     .{ .name = "stzengineplotbar", .func = &ring_PlotBar },
     .{ .name = "stzengineplothbar", .func = &ring_PlotHBar },
+    .{ .name = "stzengineplotsurface", .func = &ring_PlotSurface },
     .{ .name = "stzengineplotscatter", .func = &ring_PlotScatter },
     .{ .name = "stzengineplotmbar", .func = &ring_PlotMBar },
     .{ .name = "stzengineplothistogram", .func = &ring_PlotHistogram },

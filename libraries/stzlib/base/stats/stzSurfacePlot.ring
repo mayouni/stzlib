@@ -225,7 +225,39 @@ def init(paData)
 	def Show()
 		? This.ToString()
 
+	# THE PICTURE, rendered by the engine.
+	#
+	# stzSurfaceChart, stzSquareChart and stzSquarePlot all inherit this, so the
+	# whole family moves with it.
+	#
+	# The labels cross as ONE newline-joined string rather than a Ring list: the
+	# layout, the border junctions and the centring all happen engine-side, so a
+	# face in any language gets the finished picture from a single call.
 	def ToString()
+		_cLabels_ = ""
+		_nLenL_ = len(@acLabels)
+		for i = 1 to _nLenL_
+			if i > 1
+				_cLabels_ += nl
+			ok
+			_cLabels_ += @acLabels[i]
+		next
+
+		_aOpts_ = [
+			@nWidth, @nHeight, @nMinWidth, @nMaxWidth, @nMinLabelWidth,
+			iff(@bShowBorders, 1, 0), iff(@bShowLabels, 1, 0),
+			iff(@bShowValues, 1, 0), iff(@bShowPercent, 1, 0)
+		]
+
+		_cOut_ = StzEnginePlotSurface(@anValues, _cLabels_, _aOpts_)
+		if NOT isString(_cOut_) or _cOut_ = ""
+			StzRaise("stzSurfacePlot: the engine could not render this plot.")
+		ok
+		return _cOut_
+
+	# The Ring renderer this was ported from, kept so the guard can prove the two
+	# agree character for character.
+	def ToStringInRing()
 		_autoResize()  # Auto-resize based on content needs
 		_calculateSquaremap()
 		_initCanvas()

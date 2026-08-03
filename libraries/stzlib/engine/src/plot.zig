@@ -1557,3 +1557,834 @@ test "a scatter plot renders exactly what the Ring implementation rendered" {
         "    1       2        3        4        5  ";
     try testing.expectEqualStrings(want, out);
 }
+
+/// The surface (treemap) renderer's knobs.
+pub const SurfaceOptions = extern struct {
+    width: u32 = 40,
+    height: u32 = 12,
+    min_width: u32 = 40,
+    max_width: u32 = 120,
+    min_label_width: u32 = 3,
+    show_borders: u8 = 1,
+    show_labels: u8 = 1,
+    show_values: u8 = 0,
+    show_percent: u8 = 0,
+};
+
+const CH_TL: u21 = '╭';
+const CH_TR: u21 = '╮';
+const CH_BL: u21 = '╰';
+const CH_BR: u21 = '╯';
+const CH_TEE_DOWN: u21 = '┬';
+const CH_TEE_UP: u21 = '┴';
+const CH_TEE_RIGHT: u21 = '├';
+const CH_TEE_LEFT: u21 = '┤';
+const CH_CROSS: u21 = '┼';
+
+const SurfItem = struct { value: f64, label: []const u8 };
+
+/// A tile of the map, in 1-BASED canvas coordinates like the Ring original: `h` is a
+/// column, `v` is a row. Signed, because a split can hand a child a width of zero and
+/// the arithmetic that follows must be allowed to go negative rather than wrap.
+const SurfRect = struct {
+    h: i64,
+    v: i64,
+    w: i64,
+    ht: i64,
+    value: f64,
+    label: []const u8,
+};
+
+/// Split `span` in the ratio num/den, never yielding less than 1.
+///
+/// The division comes FIRST and the multiplication second, as in the Ring source. The
+/// two orders disagree in the last bit often enough to move a border a column, and a
+/// border a column out is a different picture.
+fn surfPart(num: f64, den: f64, span: i64) i64 {
+    if (den == 0 or !std.math.isFinite(den) or !std.math.isFinite(num)) return 1;
+    const t = @floor((num / den) * @as(f64, @floatFromInt(span)));
+    if (!std.math.isFinite(t) or t > 1e9) return @max(@as(i64, 1), span);
+    const k: i64 = @intFromFloat(t);
+    return @max(@as(i64, 1), k);
+}
+
+/// Lay the items into the space, largest first. Recurses; the halves are contiguous
+/// slices of the sorted list, so no copy is made on the way down.
+fn surfSquarify(
+    alloc: std.mem.Allocator,
+    out: *std.ArrayList(SurfRect),
+    items: []const SurfItem,
+    h: i64,
+    v: i64,
+    w: i64,
+    ht: i64,
+) error{OutOfMemory}!void {
+    const n = items.len;
+    if (n == 0) return;
+    if (n == 1) {
+        try out.append(alloc, .{ .h = h, .v = v, .w = w, .ht = ht, .value = items[0].value, .label = items[0].label });
+        return;
+    }
+    if (n <= 4) return surfGrid(alloc, out, items, h, v, w, ht);
+    return surfDivide(alloc, out, items, h, v, w, ht);
+}
+
+fn surfPush(
+    alloc: std.mem.Allocator,
+    out: *std.ArrayList(SurfRect),
+    h: i64,
+    v: i64,
+    w: i64,
+    ht: i64,
+    it: SurfItem,
+) !void {
+    try out.append(alloc, .{ .h = h, .v = v, .w = w, .ht = ht, .value = it.value, .label = it.label });
+}
+
+/// Two, three or four tiles, placed by hand.
+///
+/// ── THE COMPARISON IS NOT THE SAME IN ALL THREE ──
+///
+/// Two and three tiles split the LONGER side (`w > ht`); four splits on `w >= ht`, so a
+/// square area lays four tiles side by side and three tiles stacked. That looks like a
+/// slip, and it is preserved deliberately: it is the drawn behaviour, and the guard
+/// compares pictures.
+fn surfGrid(
+    alloc: std.mem.Allocator,
+    out: *std.ArrayList(SurfRect),
+    items: []const SurfItem,
+    h: i64,
+    v: i64,
+    w: i64,
+    ht: i64,
+) error{OutOfMemory}!void {
+    if (items.len == 2) {
+        const total = items[0].value + items[1].value;
+        if (w > ht) {
+            const w1 = surfPart(items[0].value, total, w);
+            try surfPush(alloc, out, h, v, w1, ht, items[0]);
+            try surfPush(alloc, out, h + w1, v, w - w1, ht, items[1]);
+        } else {
+            const h1 = surfPart(items[0].value, total, ht);
+            try surfPush(alloc, out, h, v, w, h1, items[0]);
+            try surfPush(alloc, out, h, v + h1, w, ht - h1, items[1]);
+        }
+        return;
+    }
+
+    if (items.len == 3) {
+        const largest = items[0].value;
+        const second = items[1].value;
+        const third = items[2].value;
+        const total = largest + second + third;
+        const sub = second + third;
+        if (w > ht) {
+            // largest down the left, the other two stacked on the right
+            const w1 = surfPart(largest, total, w);
+            const w2 = w - w1;
+            try surfPush(alloc, out, h, v, w1, ht, items[0]);
+            const h1 = surfPart(second, sub, ht);
+            try surfPush(alloc, out, h + w1, v, w2, h1, items[1]);
+            try surfPush(alloc, out, h + w1, v + h1, w2, ht - h1, items[2]);
+        } else {
+            // largest across the top, the other two side by side beneath it
+            const h1 = surfPart(largest, total, ht);
+            const h2 = ht - h1;
+            try surfPush(alloc, out, h, v, w, h1, items[0]);
+            const w1 = surfPart(second, sub, w);
+            try surfPush(alloc, out, h, v + h1, w1, h2, items[1]);
+            try surfPush(alloc, out, h + w1, v + h1, w - w1, h2, items[2]);
+        }
+        return;
+    }
+
+    // four: a 2x2 grid, the outer split weighted by the two PAIRS
+    const sum1 = items[0].value + items[1].value;
+    const sum2 = items[2].value + items[3].value;
+    const total = sum1 + sum2;
+    if (w >= ht) {
+        const w1 = surfPart(sum1, total, w);
+        const w2 = w - w1;
+        const h1 = surfPart(items[0].value, sum1, ht);
+        try surfPush(alloc, out, h, v, w1, h1, items[0]);
+        try surfPush(alloc, out, h, v + h1, w1, ht - h1, items[1]);
+        const h3 = surfPart(items[2].value, sum2, ht);
+        try surfPush(alloc, out, h + w1, v, w2, h3, items[2]);
+        try surfPush(alloc, out, h + w1, v + h3, w2, ht - h3, items[3]);
+    } else {
+        const h1 = surfPart(sum1, total, ht);
+        const h2 = ht - h1;
+        const w1 = surfPart(items[0].value, sum1, w);
+        try surfPush(alloc, out, h, v, w1, h1, items[0]);
+        try surfPush(alloc, out, h + w1, v, w - w1, h1, items[1]);
+        const w3 = surfPart(items[2].value, sum2, w);
+        try surfPush(alloc, out, h, v + h1, w3, h2, items[2]);
+        try surfPush(alloc, out, h + w3, v + h1, w - w3, h2, items[3]);
+    }
+}
+
+/// Five or more: halve the list by COUNT, weight the cut by the two halves' totals, and
+/// recurse. The halves are `len/2` and the rest, so the second is never smaller than the
+/// first by more than one and the recursion always shrinks.
+fn surfDivide(
+    alloc: std.mem.Allocator,
+    out: *std.ArrayList(SurfRect),
+    items: []const SurfItem,
+    h: i64,
+    v: i64,
+    w: i64,
+    ht: i64,
+) error{OutOfMemory}!void {
+    const mid = items.len / 2;
+    var sum1: f64 = 0;
+    for (items[0..mid]) |it| sum1 += it.value;
+    var sum2: f64 = 0;
+    for (items[mid..]) |it| sum2 += it.value;
+    const total = sum1 + sum2;
+
+    if (w >= ht) {
+        const w1 = surfPart(sum1, total, w);
+        try surfSquarify(alloc, out, items[0..mid], h, v, w1, ht);
+        try surfSquarify(alloc, out, items[mid..], h + w1, v, w - w1, ht);
+    } else {
+        const h1 = surfPart(sum1, total, ht);
+        try surfSquarify(alloc, out, items[0..mid], h, v, w, h1);
+        try surfSquarify(alloc, out, items[mid..], h, v + h1, w, ht - h1);
+    }
+}
+
+/// Take the leading `n` CODEPOINTS of `s`.
+fn cpLeft(s: []const u8, n: usize) []const u8 {
+    if (n == 0) return s[0..0];
+    var it = std.unicode.Utf8Iterator{ .bytes = s, .i = 0 };
+    var k: usize = 0;
+    while (it.nextCodepointSlice()) |_| {
+        k += 1;
+        if (k == n) break;
+    }
+    return s[0..it.i];
+}
+
+/// Shorten a label to fit, marking the cut with a full stop.
+fn surfTruncate(buf: []u8, label: []const u8, max_w: i64, min_label_w: i64) []const u8 {
+    if (@as(i64, @intCast(cpLen(label))) <= max_w) return label;
+    const keep: i64 = if (max_w <= min_label_w) @max(@as(i64, 1), max_w - 1) else max_w - 1;
+    const head = cpLeft(label, @intCast(@max(@as(i64, 0), keep)));
+    if (head.len + 1 > buf.len) return head;
+    @memcpy(buf[0..head.len], head);
+    buf[head.len] = '.';
+    return buf[0 .. head.len + 1];
+}
+
+/// RENDER A SURFACE (TREEMAP) PLOT: a rectangle cut into tiles in proportion to the
+/// values, each tile carrying its own label.
+///
+/// ── THE BORDERS ARE DRAWN IN FOUR PASSES, AND THE ORDER IS THE PICTURE ──
+///
+/// Outer frame, then one internal border per tile (only ever onto BLANK cells, so the
+/// frame survives), then a sweep that upgrades every border cell to the junction its
+/// neighbours call for, then a sweep that punches tees into the outer frame where an
+/// internal border meets it. The third pass reads the canvas it is writing, so it sees
+/// its own earlier upgrades -- it is a single ordered walk, not a pure function of the
+/// tile list, and reordering it changes the corners.
+///
+/// `labels` are the tile names, already lowercased by the caller's hash list; each is
+/// capitalised here as the Ring renderer does.
+pub fn renderSurface(
+    alloc: std.mem.Allocator,
+    values: []const f64,
+    labels_joined: []const u8,
+    opts_in: SurfaceOptions,
+) ![]u8 {
+    const n = values.len;
+    if (n == 0) return PlotError.BadShape;
+    var opts = opts_in;
+
+    var labels = std.ArrayList([]const u8){};
+    defer labels.deinit(alloc);
+    if (labels_joined.len > 0) {
+        var it = std.mem.splitScalar(u8, labels_joined, '\n');
+        while (it.next()) |piece| try labels.append(alloc, piece);
+    }
+
+    var sum: f64 = 0;
+    for (values) |v| sum += v;
+
+    // ── auto-resize: only the WIDTH grows, and only up to the maximum
+    var widest: usize = 0;
+    for (0..@min(n, labels.items.len)) |i| {
+        const l = cpLen(labels.items[i]);
+        if (l > widest) widest = l;
+    }
+    const needed: u32 = @max(opts.min_width, @as(u32, @intCast(widest + 4)));
+    if (opts.width < needed) opts.width = @min(needed, opts.max_width);
+
+    const W: i64 = @intCast(opts.width);
+    const H: i64 = @intCast(opts.height);
+    if (W <= 0 or H <= 0) return PlotError.BadShape;
+
+    // ── sort descending, by the same walk the Ring renderer uses so that ties land in
+    //    the same order -- a tie broken the other way swaps two tiles in the picture
+    var items = try alloc.alloc(SurfItem, n);
+    defer alloc.free(items);
+    for (0..n) |i| {
+        items[i] = .{
+            .value = values[i],
+            .label = if (i < labels.items.len) labels.items[i] else "",
+        };
+    }
+    if (n > 1) {
+        for (0..n - 1) |i| {
+            for (i + 1..n) |j| {
+                if (items[i].value < items[j].value) {
+                    const t = items[i];
+                    items[i] = items[j];
+                    items[j] = t;
+                }
+            }
+        }
+    }
+
+    var avail_w = W;
+    var avail_h = H;
+    if (opts.show_borders != 0) {
+        avail_w -= 2;
+        avail_h -= 2;
+    }
+
+    var rects = std.ArrayList(SurfRect){};
+    defer rects.deinit(alloc);
+    try surfSquarify(alloc, &rects, items, 1, 1, avail_w, avail_h);
+
+    var cv = try Canvas.init(alloc, @intCast(W), @intCast(H));
+    defer cv.deinit();
+
+    const uw: usize = @intCast(W);
+    const cell = struct {
+        fn at(c: *Canvas, row: i64, col: i64) u21 {
+            if (row < 1 or col < 1 or row > @as(i64, @intCast(c.h)) or col > @as(i64, @intCast(c.w))) return SPACE;
+            return c.cells[@as(usize, @intCast(row - 1)) * c.w + @as(usize, @intCast(col - 1))];
+        }
+    }.at;
+    const setc = struct {
+        fn at(c: *Canvas, row: i64, col: i64, ch: u21) void {
+            if (row < 1 or col < 1 or row > @as(i64, @intCast(c.h)) or col > @as(i64, @intCast(c.w))) return;
+            c.cells[@as(usize, @intCast(row - 1)) * c.w + @as(usize, @intCast(col - 1))] = ch;
+        }
+    }.at;
+    _ = uw;
+
+    if (opts.show_borders != 0) {
+        // ── the outer frame
+        setc(&cv, 1, 1, CH_TL);
+        setc(&cv, 1, W, CH_TR);
+        var i: i64 = 2;
+        while (i <= W - 1) : (i += 1) setc(&cv, 1, i, CH_HAXIS);
+        setc(&cv, H, 1, CH_BL);
+        setc(&cv, H, W, CH_BR);
+        i = 2;
+        while (i <= W - 1) : (i += 1) setc(&cv, H, i, CH_HAXIS);
+        i = 2;
+        while (i <= H - 1) : (i += 1) {
+            setc(&cv, i, 1, CH_VAXIS);
+            setc(&cv, i, W, CH_VAXIS);
+        }
+
+        // ── one right edge and one bottom edge per tile, onto blank cells only
+        for (rects.items) |r| {
+            const rh = r.h + 1;
+            const rv = r.v + 1;
+            if (rh + r.w < W) {
+                var j = rv;
+                while (j <= rv + r.ht - 1) : (j += 1) {
+                    if (j >= 1 and j <= H and cell(&cv, j, rh + r.w) == SPACE) {
+                        setc(&cv, j, rh + r.w, CH_VAXIS);
+                    }
+                }
+            }
+            if (rv + r.ht < H and rv + r.ht > 1) {
+                var j = rh;
+                while (j <= rh + r.w - 1) : (j += 1) {
+                    if (j >= 1 and j <= W and cell(&cv, rv + r.ht, j) == SPACE) {
+                        setc(&cv, rv + r.ht, j, CH_HAXIS);
+                    }
+                }
+            }
+        }
+
+        // ── every plain border cell becomes the junction its neighbours call for
+        var row: i64 = 1;
+        while (row <= H) : (row += 1) {
+            var col: i64 = 1;
+            while (col <= W) : (col += 1) {
+                const cur = cell(&cv, row, col);
+                if (cur != CH_VAXIS and cur != CH_HAXIS) continue;
+
+                const vert = struct {
+                    fn f(c: u21) bool {
+                        return c == CH_VAXIS or c == CH_TEE_DOWN or c == CH_TEE_UP or
+                            c == CH_CROSS or c == CH_TEE_LEFT or c == CH_TEE_RIGHT;
+                    }
+                }.f;
+                const horz = struct {
+                    fn f(c: u21) bool {
+                        return c == CH_HAXIS or c == CH_TEE_LEFT or c == CH_TEE_RIGHT or
+                            c == CH_CROSS or c == CH_TEE_DOWN or c == CH_TEE_UP;
+                    }
+                }.f;
+
+                const up = row > 1 and vert(cell(&cv, row - 1, col));
+                const down = row < H and vert(cell(&cv, row + 1, col));
+                const left = col > 1 and horz(cell(&cv, row, col - 1));
+                const right = col < W and horz(cell(&cv, row, col + 1));
+
+                var links: u8 = 0;
+                if (up) links += 1;
+                if (down) links += 1;
+                if (left) links += 1;
+                if (right) links += 1;
+                if (links < 2) continue;
+
+                if (up and down and left and right) {
+                    setc(&cv, row, col, CH_CROSS);
+                } else if (up and down and right and !left) {
+                    setc(&cv, row, col, CH_TEE_RIGHT);
+                } else if (up and down and left and !right) {
+                    setc(&cv, row, col, CH_TEE_LEFT);
+                } else if (left and right and down and !up) {
+                    setc(&cv, row, col, CH_TEE_DOWN);
+                } else if (left and right and up and !down) {
+                    setc(&cv, row, col, CH_TEE_UP);
+                } else if (up and right and !down and !left) {
+                    setc(&cv, row, col, CH_BL);
+                } else if (up and left and !down and !right) {
+                    setc(&cv, row, col, CH_BR);
+                } else if (down and right and !up and !left) {
+                    setc(&cv, row, col, CH_TL);
+                } else if (down and left and !up and !right) {
+                    setc(&cv, row, col, CH_TR);
+                }
+            }
+        }
+
+        // ── and where an internal border still runs into a plain frame edge, tee it
+        var j: i64 = 2;
+        while (j <= W - 1) : (j += 1) {
+            if (cell(&cv, 2, j) == CH_VAXIS) setc(&cv, 1, j, CH_TEE_DOWN);
+            if (cell(&cv, H - 1, j) == CH_VAXIS) setc(&cv, H, j, CH_TEE_UP);
+        }
+        var k: i64 = 2;
+        while (k <= H - 1) : (k += 1) {
+            if (cell(&cv, k, 2) == CH_HAXIS) setc(&cv, k, 1, CH_TEE_RIGHT);
+            if (cell(&cv, k, W - 1) == CH_HAXIS) setc(&cv, k, W, CH_TEE_LEFT);
+        }
+    }
+
+    // ── the tile contents
+    var capbuf: [256]u8 = undefined;
+    var trbuf: [256]u8 = undefined;
+    var vbuf: [64]u8 = undefined;
+    var pbuf: [64]u8 = undefined;
+    var subbuf: [160]u8 = undefined;
+    var linebuf: [320]u8 = undefined;
+
+    for (rects.items) |r| {
+        var rh = r.h;
+        var rv = r.v;
+        if (opts.show_borders != 0) {
+            rh += 1;
+            rv += 1;
+        }
+        const content_h = rh;
+        const content_v = rv;
+        var content_w = r.w;
+        var content_ht = r.ht;
+        if (opts.show_borders != 0) {
+            if (rh + r.w < W) content_w -= 1;
+            if (rv + r.ht < H) content_ht -= 1;
+        }
+        if (content_w < 3 or content_ht < 1) continue;
+
+        // the label
+        var main: []const u8 = "";
+        if (opts.show_labels != 0 and r.label.len > 0) {
+            const cap = capitalised(&capbuf, r.label);
+            main = surfTruncate(&trbuf, cap, content_w, @intCast(opts.min_label_width));
+        }
+
+        // the value and the percentage, in that order, the percentage in brackets
+        var vstr: []const u8 = "";
+        if (opts.show_values != 0) vstr = fmtNum(&vbuf, r.value, 1);
+        var sub: []const u8 = "";
+        if (opts.show_percent != 0) {
+            const pct = fmtNum(&pbuf, if (sum == 0) 0 else (r.value / sum) * 100, 1);
+            if (vstr.len > 0) {
+                sub = std.fmt.bufPrint(&subbuf, "{s} ({s}%)", .{ vstr, pct }) catch vstr;
+            } else {
+                sub = std.fmt.bufPrint(&subbuf, "{s}%", .{pct}) catch "";
+            }
+        } else if (vstr.len > 0) {
+            sub = vstr;
+        }
+        if (@as(i64, @intCast(cpLen(sub))) > content_w) {
+            if (content_w > 3) {
+                const head = cpLeft(sub, @intCast(content_w - 1));
+                if (head.len + 1 <= linebuf.len) {
+                    @memcpy(linebuf[0..head.len], head);
+                    linebuf[head.len] = '.';
+                    sub = linebuf[0 .. head.len + 1];
+                } else sub = head;
+            } else {
+                sub = cpLeft(sub, @intCast(content_w));
+            }
+        }
+
+        const show_main = cpLen(main) > 0 and @as(i64, @intCast(cpLen(main))) <= content_w;
+        const show_sub = cpLen(sub) > 0 and @as(i64, @intCast(cpLen(sub))) <= content_w;
+
+        var lines: [2][]const u8 = undefined;
+        var nlines: usize = 0;
+        var joinbuf: [512]u8 = undefined;
+        if (show_main and show_sub) {
+            if (content_ht >= 2) {
+                lines[0] = main;
+                lines[1] = sub;
+                nlines = 2;
+            } else if (content_w >= @as(i64, @intCast(cpLen(main) + cpLen(sub) + 1))) {
+                lines[0] = std.fmt.bufPrint(&joinbuf, "{s} {s}", .{ main, sub }) catch main;
+                nlines = 1;
+            } else {
+                // no room for both: the number wins when the caller asked for one
+                lines[0] = if (opts.show_percent != 0 or opts.show_values != 0) sub else main;
+                nlines = 1;
+            }
+        } else if (show_main) {
+            lines[0] = main;
+            nlines = 1;
+        } else if (show_sub) {
+            lines[0] = sub;
+            nlines = 1;
+        }
+        if (nlines == 0) continue;
+
+        // centred both ways, and never over a border: only BLANK cells are written
+        const start_v = content_v + @max(@as(i64, 0), @divFloor(content_ht - @as(i64, @intCast(nlines)), 2));
+        for (0..nlines) |li| {
+            const line = lines[li];
+            const line_len: i64 = @intCast(cpLen(line));
+            const cur_v = start_v + @as(i64, @intCast(li));
+            const center_h = content_h + @max(@as(i64, 0), @divFloor(content_w - line_len, 2));
+            if (cur_v < content_v or cur_v >= content_v + content_ht or cur_v < 1 or cur_v > H) continue;
+            var it = std.unicode.Utf8Iterator{ .bytes = line, .i = 0 };
+            var jj: i64 = 0;
+            while (it.nextCodepoint()) |cp| : (jj += 1) {
+                const col = center_h + jj;
+                if (col >= content_h and col < content_h + content_w and col >= 1 and col <= W) {
+                    if (cell(&cv, cur_v, col) == SPACE) setc(&cv, cur_v, col, cp);
+                }
+            }
+        }
+    }
+
+    return cv.toString(alloc);
+}
+
+// ── SURFACE PARITY ─────────────────────────────────────────────────────────────
+//
+// Ground truth captured from stzSurfacePlot across every configuration it has: the
+// four layout arms (1, 2-4, 5+ tiles), values, percentages, both, fractions, no
+// borders, no labels, an over-long label, and a larger canvas.
+//
+// THESE EXPECTATIONS WERE GENERATED FROM THOSE BYTES, NOT TYPED. Three earlier ports
+// in this file first failed on a miscounted run of box characters in a hand-written
+// literal -- a false failure every time, and the renderer was right in all three.
+
+const SF_D4 = [_]f64{ 45, 25, 20, 10 };
+const SF_D4_L = "sales\nmarketing\ndev\nsupport";
+const SF_TWO = [_]f64{ 70, 30 };
+const SF_TWO_L = "alpha\nbeta";
+const SF_THREE = [_]f64{ 50, 30, 20 };
+const SF_THREE_L = "alpha\nbeta\ngamma";
+const SF_FIVE = [_]f64{ 40, 25, 15, 12, 8 };
+const SF_FIVE_L = "a\nb\nc\nd\ne";
+const SF_SIX = [_]f64{ 30, 22, 18, 14, 10, 6 };
+const SF_SIX_L = "aa\nbb\ncc\ndd\nee\nff";
+const SF_ONE = [_]f64{99};
+const SF_ONE_L = "only";
+const SF_FRAC = [_]f64{ 45.5, 25.25, 20, 9.25 };
+const SF_LONG = [_]f64{ 45, 25, 20, 10 };
+const SF_LONG_L = "internationaloperations\nmarketing\ndev\nsupport";
+
+test "a surface plot renders exactly what the Ring implementation rendered: four tiles" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Sales           \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: two tiles" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_TWO, SF_TWO_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Alpha           \u{2502}   Beta    \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: three tiles" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_THREE, SF_THREE_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}      Beta        \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}      Alpha        \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}                   \u{2502}      Gamma       \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2502}                   \u{2502}                  \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: five tiles -- the recursive split" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_FIVE, SF_FIVE_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}  D    \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}      A       \u{2502}   B     \u{2502} C   \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}  E    \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2502}              \u{2502}         \u{2502}     \u{2502}       \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: six tiles" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_SIX, SF_SIX_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}     Bb       \u{2502}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{2502} Ee   \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}    Aa     \u{2502}              \u{2502}Dd  \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}           \u{2502}     Cc       \u{2502}    \u{2502} Ff   \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2502}           \u{2502}              \u{2502}    \u{2502}      \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: one tile fills the frame" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_ONE, SF_ONE_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                 Only                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2502}                                      \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: values under the labels" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .show_values = 1 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Sales           \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}           45             \u{2502}    20     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}           25             \u{2502}    10     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: percentages under the labels" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .show_percent = 1 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Sales           \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}           45%            \u{2502}   20%     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}           25%            \u{2502}   10%     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: value and percentage together" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .show_values = 1, .show_percent = 1 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Sales           \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}        45 (45%)          \u{2502} 20 (20%)  \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}        25 (25%)          \u{2502} 10 (10%)  \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: fractional values round to one place" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_FRAC, SF_D4_L, .{ .show_values = 1, .show_percent = 1 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}          Sales           \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}      45.5 (45.5%)        \u{2502} 20 (20%)  \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}      25.3 (25.3%)        \u{2502}9.3 (9.3%) \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: no borders" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .show_borders = 0 });
+    defer alloc.free(out);
+    const want = "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "           Sales                Dev     " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "         Marketing            Support   " ++ "\n" ++
+        "                                        " ++ "\n" ++
+        "                                        ";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: no labels" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .show_labels = 0, .show_values = 1 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}           45             \u{2502}    20     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}           25             \u{2502}    10     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: a label too long for its tile" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_LONG, SF_LONG_L, .{});
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502} Internationaloperations  \u{2502}   Dev     \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{253c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}        Marketing         \u{2502} Support   \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2502}                          \u{2502}           \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
+
+test "a surface plot renders exactly what the Ring implementation rendered: a larger canvas" {
+    const alloc = testing.allocator;
+    const out = try renderSurface(alloc, &SF_D4, SF_D4_L, .{ .width = 60, .height = 20 });
+    defer alloc.free(out);
+    const want = "\u{256d}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{252c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256e}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                 Sales                  \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}      Dev        \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{251c}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2524}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}               Marketing                \u{2502}    Support      \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2502}                                        \u{2502}                 \u{2502}" ++ "\n" ++
+        "\u{2570}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{2500}\u{256f}";
+    try testing.expectEqualStrings(want, out);
+}
