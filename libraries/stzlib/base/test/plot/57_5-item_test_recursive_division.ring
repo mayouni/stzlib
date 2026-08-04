@@ -6,6 +6,7 @@
 #Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -18,8 +19,7 @@ oPlot4 = new stzSurfacePlot([
     :E = 8
 ])
 oPlot4.AddPercent().Show()
-#--> 
-'
+Shows(oPlot4, '
 ╭──────────────┬─────────┬─────┬───────╮
 │              │         │     │       │
 │              │         │     │  D    │
@@ -32,7 +32,7 @@ oPlot4.AddPercent().Show()
 │              │         │     │  8%   │
 │              │         │     │       │
 ╰──────────────┴─────────┴─────┴───────╯
-'
+')
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.23

@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #45.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -23,10 +24,8 @@ oPlot {
 	SetSeriesSpace(0)
 	SetCategorySpace(2)
 	Show()
-}
-#--> #TODO HAxis very long!
-'
-↑                                                  
+Shows(oPlot, '
+▲                                                  
 │          ░          ▒   █▓                       
 │   ▒   █  ░   ▓ ░  █ ▒░  █▓▒                      
 │   ▒░  █▓▒░  █▓ ░  █▓▒░  █▓▒░                     
@@ -34,11 +33,13 @@ oPlot {
 │ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
 │ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
 │ █▓▒░  █▓▒░  █▓▒░  █▓▒░  █▓▒░                     
-╰─────────────────────────────────────────────────>
+╰─────────────────────────────────────────────────►
   Mon   Tue   Wed   Thu   Fri                      
                                                    
 ██ Region1   ▓▓ Region2   ▒▒ Region3   ░░ Region4  
-'
+')
+}
+#--> #TODO HAxis very long!
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23

@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #25.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -12,13 +13,12 @@ pr()
 oPlot = new stzHBarPlot([ :A = 5, :B = 8, :C = 3 ])
 oPlot.SetHAxis(FALSE)
 oPlot.Show()
-#-->
-'
-  ^
-A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇
-B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-C │ ▇▇▇▇▇▇▇▇
-'
+Shows(oPlot, '
+  ▲                   
+A │ ▇▇▇▇▇▇▇▇▇▇▇▇      
+B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
+C │ ▇▇▇▇▇▇▇           
+')
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22

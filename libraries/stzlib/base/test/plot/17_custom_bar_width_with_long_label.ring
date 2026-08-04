@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #17.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -12,20 +13,18 @@ pr()
 oPlot = new stzVBarPlot([ :A = 5, :BColumnLableIsSoLong = 8, :C = 3 ])
 oPlot.SetBarWidth(5)
 oPlot.Show()
-#-->
-'
-^
-│          █████           
-│          █████           
-│          █████           
-│ █████    █████           
-│ █████    █████           
-│ █████    █████     █████ 
-│ █████    █████     █████ 
-│ █████    █████     █████ 
-╰──────────────────────────>
-    A   Bcolumnlab..   C   
-'
+Shows(oPlot, '
+▲                           
+│          █████            
+│          █████            
+│ █████    █████            
+│ █████    █████            
+│ █████    █████     █████  
+│ █████    █████     █████  
+│ █████    █████     █████  
+╰──────────────────────────►
+    A   BcolumnlableissClong
+')
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

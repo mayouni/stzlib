@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #61.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -16,8 +17,7 @@ oPlot9 = new stzSurfacePlot([
     :Server4 = 35
 ])
 oPlot9.AddValues().Show()
-#-->
-'
+Shows(oPlot9, '
 ╭───────────────────────────┬──────────╮
 │                           │          │
 │         Server1           │ Server3  │
@@ -25,12 +25,12 @@ oPlot9.AddValues().Show()
 │                           │          │
 │                           │          │
 │                           ├──────────┤
-├───────────────────────────│ Server4  │
+├───────────────────────────┤ Server4  │
 │         Server2           │   35     │
 │            80             │          │
 │                           │          │
 ╰───────────────────────────┴──────────╯
-'
+')
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23

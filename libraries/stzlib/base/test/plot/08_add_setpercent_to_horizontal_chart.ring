@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #8.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -25,19 +26,18 @@ oPlot {
 	AddPercent()
 	SetHeight(5)
 	Show()
-}
-#-->
-'
-↑                                                          
+Shows(oPlot, '
+▲                                                          
 │             23.2%               22.2%                    
 │              ██                   ██                     
 │ 13.3%        ██          11.1%    ██           10.8%     
 │  ██   5.7%   ██    9.2%    ██     ██             ██      
 │  ██    ██    ██     ██     ██     ██   4.4%      ██      
 │  ██    ██    ██     ██     ██     ██    ██       ██      
-╰─────────────────────────────────────────────────────────>
+╰─────────────────────────────────────────────────────────►
   Mali  Niger Egypt Bosnia Brazil France Spain Southkorea  
-'
+')
+}
 
 pf()
 # Executed in 0.15 second(s) in Ring 1.23

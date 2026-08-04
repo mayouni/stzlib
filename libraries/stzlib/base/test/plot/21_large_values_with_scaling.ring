@@ -5,26 +5,25 @@
 # Extracted from stzPlotTest.ring, block #21.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
 
 oPlot = new stzVBarPlot([ :Small = 1, :Large = 1000 ])
 oPlot.Show()
-#-->
-'
-^
-│        ██   
-│        ██   
-│        ██   
-│        ██   
-│        ██   
-│        ██   
-│        ██   
-│  ██    ██   
-╰─────────────>
-  Small Large 
-'
+Shows(oPlot, '
+▲              
+│        ██    
+│        ██    
+│        ██    
+│        ██    
+│        ██    
+│        ██    
+│  ██    ██    
+╰─────────────►
+  Small Large  
+')
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

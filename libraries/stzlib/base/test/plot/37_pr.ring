@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #37.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -16,8 +17,8 @@ oPlot = new stzMultiBarPlot([
 ])
 
 oPlot.Show()
-'
-↑                      
+Shows(oPlot, '
+▲                      
 │    ▒▒                
 │    ▒▒                
 │    ▒▒                
@@ -25,11 +26,11 @@ oPlot.Show()
 │ ██ ▒▒     ▒▒         
 │ ██ ▒▒  ██ ▒▒  ██     
 │ ██ ▒▒  ██ ▒▒  ██ ▒▒  
-╰─────────────────────>
+╰─────────────────────►
   2020   2022   2024   
                        
 ██ Mali   ▒▒ Niger     
-'
+')
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

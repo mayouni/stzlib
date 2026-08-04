@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #43.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -23,10 +24,8 @@ oPlot {
 	SetLabels(True)
 	SetLegend(True)
 	Show()
-}
-#-->
-'
-↑                                
+Shows(oPlot, '
+▲                                
 │            ▒▒                  
 │         ██ ▒▒      ▒▒          
 │ ██ ▒▒   ██ ▒▒      ▒▒          
@@ -34,11 +33,12 @@ oPlot {
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒  ██ ▒▒   
-╰───────────────────────────────>
+╰───────────────────────────────►
   Spring  Summer  Fall   Winter  
                                  
-██ North   ▒▒ South   
-'
+██ North   ▒▒ South              
+')
+}
 
 ? ""
 
@@ -50,9 +50,8 @@ oPlot {
 	SetLabels(False)
 	SetLegend(False)
 	Show()
-}
-#-->
-'
+Shows(oPlot, '
+                            
           ▒▒                
        ██ ▒▒     ▒▒         
 ██ ▒▒  ██ ▒▒     ▒▒         
@@ -60,7 +59,10 @@ oPlot {
 ██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
 ██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
 ██ ▒▒  ██ ▒▒  ██ ▒▒  ██ ▒▒  
-'
+                            
+                            
+')
+}
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

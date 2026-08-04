@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #47.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -22,21 +23,21 @@ oPlot {
 	SetBarInterSpace(3)
 	SetPercent(True)
 	Show()
-}
-#-->
-'
-↑                                                     
-│                       17.2%         17.2%           
-│    14.3%                ▲▲            ■■            
-│      ▲▲  9.9%           ▲▲ 11.5%      ■■ 11.5%      
+Shows(oPlot, '
+▲                                                     
+│                         ▲▲            ■■            
+│      ▲▲                 ▲▲            ■■            
 │      ▲▲   ●●            ▲▲   ●●       ■■   ▲▲       
-│5.1%  ▲▲   ●●      7.1%  ▲▲   ●●       ■■   ▲▲  6.2% 
+│      ▲▲   ●●            ▲▲   ●●       ■■   ▲▲       
 │ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
 │ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
 │ ■■   ▲▲   ●●       ■■   ▲▲   ●●       ■■   ▲▲   ●●  
-╰────────────────────────────────────────────────────>
-    Server1            Server2            Server3       
-'
+╰────────────────────────────────────────────────────►
+    Server1            Server2            Server3     
+                                                      
+■■ Cpu   ▲▲ Memory   ●● Disk                          
+')
+}
 
 pf()
 # Executed in 0.21 second(s) in Ring 1.23

@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #69.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -17,6 +18,9 @@ o1 = new stzListOfPairs([
 o1.ReversePairs()
 ? @@(o1.Content())
 #--> [ [ 12, 1 ], [ 14, 1 ], [ 16, 1 ], [ 18, 1 ], [ 20, 1 ], [ 22, 1 ], [ 24, 1 ], [ 26, 1 ], [ 30, 1 ] ]
+# The example prints the FORMATTED list, so that is what is pinned: Ring compares
+# nested lists by identity, and two lists that print alike are not = to each other.
+Same(@@(o1.Content()), "[ [ 12, 1 ], [ 14, 1 ], [ 16, 1 ], [ 18, 1 ], [ 20, 1 ], [ 22, 1 ], [ 24, 1 ], [ 26, 1 ], [ 30, 1 ] ]")
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

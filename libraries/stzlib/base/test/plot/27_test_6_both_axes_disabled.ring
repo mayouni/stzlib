@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #27.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -14,13 +15,12 @@ oPlot.SetHVAxis(FALSE, FALSE)
 oPlot.SetAxisLabels(TRUE)
 
 oPlot.Show()
-# Expected: Plot with no axes
-#-->
-'
+Shows(oPlot, '
 A ▇▇▇▇▇▇▇▇▇▇▇▇      
 B ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 C ▇▇▇▇▇▇▇           
-'
+')
+# Expected: Plot with no axes
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22

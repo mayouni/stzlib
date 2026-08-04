@@ -5,19 +5,19 @@
 # Extracted from stzPlotTest.ring, block #35.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
 
 oPlot = new stzHBarPlot([ :Small = 1, :Large = 1000 ])
 oPlot.Show()
-#-->
-'
-      ^                   
+Shows(oPlot, '
+      ▲                   
 Small │ ▇                 
 Large │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
-      ╰──────────────────>
-'
+      ╰──────────────────►
+')
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22

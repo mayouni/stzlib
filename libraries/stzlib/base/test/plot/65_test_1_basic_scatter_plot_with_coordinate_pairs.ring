@@ -1,9 +1,38 @@
 # Narrative
 # --------
-# (retired) plot: stzPlot R4 stack overflow on IsHashList recursion; deeper rework needed.
+# Test 1: Basic scatter plot with coordinate pairs
 #
-#SKIP retired -- see header
+# Extracted from stzPlotTest.ring, block #65.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
-? "(retired test; see header for rationale)"
+
+pr()
+
+oPlot = new stzScatterPlot([
+	[1,2], [3,5], [6,9], [5,4], [7,8], [9,6]
+])
+
+oPlot.Show()
+Shows(oPlot, '
+   X
+   ▲
+   │                                      
+ 9 ┤                     ●                
+   │                                      
+ 8 ┤                          ●           
+   │                                      
+ 6 ┤                                   ●  
+ 5 ┤        ●                             
+ 4 ┤                 ●                    
+   │                                      
+ 2 ┤●                                     
+   ╰┬───────┬────────┬───┬────┬────────┬──► Y 
+    1       3        5   6    7        9  
+')
+
+#TODO #ERR See why two Xs and two Ys are displayed
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.22

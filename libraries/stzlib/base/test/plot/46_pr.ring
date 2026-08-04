@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #46.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -21,10 +22,8 @@ oPlot {
 	SetSeriesSpace(1)
 	AddLabels()
 	Show()
-}
-#-->
-'
-↑                                         
+Shows(oPlot, '
+▲                                         
 │     ██                  ██              
 │  ▒▒ ██        ██     ▒▒ ██              
 │  ▒▒ ██     ▒▒ ██     ▒▒ ██        ██    
@@ -32,11 +31,12 @@ oPlot {
 │  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
 │  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
 │  ▒▒ ██     ▒▒ ██     ▒▒ ██     ▒▒ ██    
-╰────────────────────────────────────────>
+╰────────────────────────────────────────►
   Feature1  Feature2  Feature3  Feature4  
                                           
-▒▒ Before   ██ After         
-'
+▒▒ Before   ██ After                      
+')
+}
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
